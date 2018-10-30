@@ -224,14 +224,13 @@ if( isset($_POST['bejelentesElutasit']) ) {
 
             if( !$db_error ) {
 
-                mysqli_commit($db_kapcs);
-
                 $hiba = '';
                 $valasz = level_felkeszit_es_kuld('bejelentes', $recid, ERT_BEJ_IGAZOL_ELUTASITKOR, 'bejelentesIgazolElutasit', '_jog'.JOG_BEJELENTES_VIZSGAL);
                 if( substr($valasz, 0, 4)=='Hiba' ){
                     $hiba .= $valasz;
                 }
                 if($hiba){
+                    mysqli_rollback($db_kapcs);
                     echo json_encode(array(
                         'hiba'  => $hiba,
                         'title' => 'Hiba',
@@ -594,7 +593,6 @@ if( isset($_POST['bejelentesReklamacioElutasit']) ) {
         }
 
         if( !$db_error ) {
-            mysqli_commit($db_kapcs);
 
             $hiba = '';
             $valasz = level_felkeszit_es_kuld('bejelentes', $recid, ERT_BEJ_REKL_ELUTASITKOR, 'bejelentesReklElutasit', 'bejelento', '<br>'.nl2br2($memo).'<br>');
@@ -602,6 +600,7 @@ if( isset($_POST['bejelentesReklamacioElutasit']) ) {
                 $hiba .= $valasz;
             }
             if($hiba){
+                mysqli_rollback($db_kapcs);
                 echo json_encode(array(
                     'hiba'  => $hiba,
                     'title' => 'Hiba',
@@ -610,6 +609,7 @@ if( isset($_POST['bejelentesReklamacioElutasit']) ) {
                 exit();
             }
 
+            mysqli_commit($db_kapcs);
             echo json_encode(array(
                 'statusz' => 'siker'
             ));

@@ -3126,7 +3126,6 @@ if( isset($_POST['bejegyzesElutasitas']) ) {
         }
 
         if( !$db_error ) {
-            mysqli_commit($db_kapcs);
 
             // Levélküldés
             if($level_tabla){
@@ -3139,6 +3138,7 @@ if( isset($_POST['bejegyzesElutasitas']) ) {
                     }
                 }
                 if($hiba){
+                    mysqli_rollback($db_kapcs);
                     echo json_encode(array(
                         'hiba'  => $hiba,
                         'title' => 'Hiba',

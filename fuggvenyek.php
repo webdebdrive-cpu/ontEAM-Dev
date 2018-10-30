@@ -6564,7 +6564,7 @@ function level_felkeszit_es_kuld($tabla, $recid, $ert_pipa, $sablon, $cimzett, $
             $mivel          = array($anyagigenyles['ikt_szam'], $anyagigenyles['cikk_id'],  $anyagigenyles['nev'],  number_format($anyagigenyles['igmen'], 2, ',', ' ').' '.$anyagigenyles['cikkmee']   );
             $uzi            = str_replace( $mit, $mivel, fajlbol_olvas('../sablon/admin/mail/anyagigenyles.html') );
             // Aktív-e és nem virtuális-e a felhasználó, van-e mailcíme? Ha nem, kilépünk
-            $login = $adatbazis_kapcsolat -> s2('teljes_nev usermail aktiv virtual szemelyzet_id flags_ert', 'login', "`nev` = '{$anyagigenyles['loginnev']}'");
+            $login = $adatbazis_kapcsolat -> s2('teljes_nev usermail usertel aktiv virtual szemelyzet_id flags_ert', 'login', "`nev` = '{$anyagigenyles['loginnev']}'");
             if(!$login['aktiv'] || $login['virtual'] || !$login['usermail'] || ($ert_pipa!='-1' && substr($login['flags_ert'], $ert_pipa, 1)!=1) ){
                 return false;
             }
@@ -6575,7 +6575,7 @@ function level_felkeszit_es_kuld($tabla, $recid, $ert_pipa, $sablon, $cimzett, $
             $telefon       = $login['usertel'];
             $szemelyzet_id = $login['szemelyzet_id'];
 
-            $cimzettek = array( array('nev' => $anyagigenyles['loginnev'], 'teljes_nev' => $cimzett_nev, 'usermail' => $cimzett_mail, 'szemelyzet_id' => $szemelyzet_id) );
+            $cimzettek = array( array('nev' => $anyagigenyles['loginnev'], 'teljes_nev' => $cimzett_nev, 'usermail' => $cimzett_mail, 'usertel' => $telefon, 'szemelyzet_id' => $szemelyzet_id) );
         break;
 
         // Bejelentőnek
@@ -6601,7 +6601,7 @@ function level_felkeszit_es_kuld($tabla, $recid, $ert_pipa, $sablon, $cimzett, $
             $uzi            = str_replace( $mit, $mivel, fajlbol_olvas('../sablon/admin/mail/'.$cimzett.'.html') );
 
             // Aktív-e és nem virtuális-e a felhasználó, van-e mailcíme? Ha nem, kilépünk
-            $login = $adatbazis_kapcsolat -> s2('teljes_nev usermail aktiv virtual szemelyzet_id flags_ert', 'login', "`nev` = '{$bejelentes['loginnev']}'");
+            $login = $adatbazis_kapcsolat -> s2('teljes_nev usermail usertel aktiv virtual szemelyzet_id flags_ert', 'login', "`nev` = '{$bejelentes['loginnev']}'");
             if(!$login['aktiv'] || $login['virtual'] || !$login['usermail'] || ($ert_pipa!='-1' && substr($login['flags_ert'], $ert_pipa, 1)!=1) ){
                 return false;
             }
@@ -6611,7 +6611,7 @@ function level_felkeszit_es_kuld($tabla, $recid, $ert_pipa, $sablon, $cimzett, $
             if(!$cimzett_mail){ $cimzett_mail  = $login['usermail'];    }
             if(!$telefon)     { $telefon       = $login['usertel'];     }
 
-            $cimzettek = array( array('nev' => $bejelentes['loginnev'], 'teljes_nev' => $cimzett_nev, 'usermail' => $cimzett_mail, 'szemelyzet_id' => $bejelentes['szemelyzet_id']) );
+            $cimzettek = array( array('nev' => $bejelentes['loginnev'], 'teljes_nev' => $cimzett_nev, 'usermail' => $cimzett_mail, 'usertel' => $telefon, 'szemelyzet_id' => $bejelentes['szemelyzet_id']) );
         break;
 
         // Diszpécserek központi címe
@@ -6633,13 +6633,13 @@ function level_felkeszit_es_kuld($tabla, $recid, $ert_pipa, $sablon, $cimzett, $
             $mivel          = array($munkalapszamok,    $bejelentes['ikt_szam'], getErtek('nev', 'telephely', 'id', $bejelentes['telephely_id']),  str_replace('-', '.', $bejelentes['insert_dt']), getErtek('info', 'erteklista', 'recid', $bejelentes['hiba_id']), getErtek('nev', 'obj', 'recid', $bejelentes['obj_id']) );
             $uzi            = str_replace( $mit, $mivel, fajlbol_olvas('../sablon/admin/mail/'.$sablon.'.html') );
 
-            $cimzettek = array( array('nev' => 'htdiszp', 'teljes_nev' => 'Handari Tamás', 'usermail' => 'handari@szinvatrend.hu', 'szemelyzet_id' => '10') );
+            $cimzettek = array( array('nev' => 'htdiszp', 'teljes_nev' => 'Handari Tamás', 'usermail' => 'handari@szinvatrend.hu', 'usertel' => '70-210-1312', 'szemelyzet_id' => '10') );
         break;
 
         // Elfelejtett jelszó kérése
         case 'elfelejtettJelszo':
 
-            $login      = $adatbazis_kapcsolat->s2('nev teljes_nev beosztas_id reszleg_id usertel usermail aktiv', 'login', "`recid`='{$recid}'");
+            $login      = $adatbazis_kapcsolat->s2('nev teljes_nev beosztas_id reszleg_id usertel usermail usertel aktiv', 'login', "`recid`='{$recid}'");
             if(!$login){
                 return 'Nem ismert felhasználói név!<br>Kérését így nem tudjuk továbbítani!';
             }
@@ -6668,7 +6668,7 @@ function level_felkeszit_es_kuld($tabla, $recid, $ert_pipa, $sablon, $cimzett, $
             $mivel      = array($domain     );
             $uzi        = str_replace( $mit, $mivel, fajlbol_olvas('../sablon/admin/mail/'.$cimzett.'.html') );
 
-            $cimzettek = $adatbazis_kapcsolat->s('nev teljes_nev usermail aktiv virtual szemelyzet_id', 'login', "`recid`='{$recid}'");
+            $cimzettek = $adatbazis_kapcsolat->s('nev teljes_nev usermail usertel aktiv virtual szemelyzet_id', 'login', "`recid`='{$recid}'");
             if(!$cimzettek){
                 return false;
             }
@@ -6684,7 +6684,7 @@ function level_felkeszit_es_kuld($tabla, $recid, $ert_pipa, $sablon, $cimzett, $
             $uzi            = str_replace( $mit, $mivel, fajlbol_olvas('../sablon/admin/mail/bejelento.html') );
 
             // Több címzett is van
-            $cimzettek = $adatbazis_kapcsolat->s('nev teljes_nev usermail aktiv virtual szemelyzet_id', 'login', "substr(`flags`, ".(JOG_BEJELENTES_VIZSGAL+1).", 1)=1 AND `aktiv`=1 AND `virtual`=0 $sql_ertesites_kieg");
+            $cimzettek = $adatbazis_kapcsolat->s('nev teljes_nev usermail usertel aktiv virtual szemelyzet_id', 'login', "substr(`flags`, ".(JOG_BEJELENTES_VIZSGAL+1).", 1)=1 AND `aktiv`=1 AND `virtual`=0 $sql_ertesites_kieg");
             if(!$cimzettek){
                 return false;
             }
@@ -6723,7 +6723,7 @@ function level_felkeszit_es_kuld($tabla, $recid, $ert_pipa, $sablon, $cimzett, $
             $uzi            = str_replace( $mit, $mivel, fajlbol_olvas('../sablon/admin/mail/munkalaposoknak.html') );
 
             // Több címzett is van
-            $cimzettek = $adatbazis_kapcsolat->s('nev teljes_nev usermail aktiv virtual szemelyzet_id', 'login', "substr(`flags`, ".(JOG_MUNKALAP_IGAZOLAS+1).", 1)=1 AND `aktiv`=1 AND `virtual`=0 $sql_ertesites_kieg");
+            $cimzettek = $adatbazis_kapcsolat->s('nev teljes_nev usermail usertel aktiv virtual szemelyzet_id', 'login', "substr(`flags`, ".(JOG_MUNKALAP_IGAZOLAS+1).", 1)=1 AND `aktiv`=1 AND `virtual`=0 $sql_ertesites_kieg");
             if(!$cimzettek){
                 return false;
             }
@@ -6742,7 +6742,7 @@ function level_felkeszit_es_kuld($tabla, $recid, $ert_pipa, $sablon, $cimzett, $
             $uzi            = str_replace( $mit, $mivel, fajlbol_olvas('../sablon/admin/mail/munkalaposoknak.html') );
 
             // Több címzett is van
-            $cimzettek = $adatbazis_kapcsolat->s('nev teljes_nev usermail aktiv virtual szemelyzet_id', 'login', "substr(`flags`, ".(JOG_MUNKALAP_KULSOS_DONTES+1).", 1)=1 AND `aktiv`=1 AND `virtual`=0 $sql_ertesites_kieg");
+            $cimzettek = $adatbazis_kapcsolat->s('nev teljes_nev usermail usertel aktiv virtual szemelyzet_id', 'login', "substr(`flags`, ".(JOG_MUNKALAP_KULSOS_DONTES+1).", 1)=1 AND `aktiv`=1 AND `virtual`=0 $sql_ertesites_kieg");
             if(!$cimzettek){
                 return false;
             }
@@ -6767,7 +6767,7 @@ function level_felkeszit_es_kuld($tabla, $recid, $ert_pipa, $sablon, $cimzett, $
             }
 
             // Több címzett is van
-            $cimzettek = $adatbazis_kapcsolat->s('nev teljes_nev usermail aktiv virtual szemelyzet_id', 'login', "{$sql_kieg} substr(`flags`, ".(JOG_MUNKALAP_KULSOS_ELOKESZIT+1).", 1)=1 AND `aktiv`=1 AND `virtual`=0 $sql_ertesites_kieg");
+            $cimzettek = $adatbazis_kapcsolat->s('nev teljes_nev usermail usertel aktiv virtual szemelyzet_id', 'login', "{$sql_kieg} substr(`flags`, ".(JOG_MUNKALAP_KULSOS_ELOKESZIT+1).", 1)=1 AND `aktiv`=1 AND `virtual`=0 $sql_ertesites_kieg");
             if(!$cimzettek){
                 return false;
             }
@@ -6786,7 +6786,7 @@ function level_felkeszit_es_kuld($tabla, $recid, $ert_pipa, $sablon, $cimzett, $
             $uzi            = str_replace( $mit, $mivel, fajlbol_olvas('../sablon/admin/mail/munkalaposoknak.html') );
 
             // Több címzett is van
-            $cimzettek = $adatbazis_kapcsolat->s('nev teljes_nev usermail aktiv virtual szemelyzet_id', 'login', "substr(`flags`, ".(JOG_MUNKALAP_KULSOS_MEGREND+1).", 1)=1 AND `aktiv`=1 AND `virtual`=0 $sql_ertesites_kieg");
+            $cimzettek = $adatbazis_kapcsolat->s('nev teljes_nev usermail usertel aktiv virtual szemelyzet_id', 'login', "substr(`flags`, ".(JOG_MUNKALAP_KULSOS_MEGREND+1).", 1)=1 AND `aktiv`=1 AND `virtual`=0 $sql_ertesites_kieg");
             if(!$cimzettek){
                 return false;
             }
@@ -6805,7 +6805,7 @@ function level_felkeszit_es_kuld($tabla, $recid, $ert_pipa, $sablon, $cimzett, $
             $uzi            = str_replace( $mit, $mivel, fajlbol_olvas('../sablon/admin/mail/munkalaposoknak.html') );
 
             // Több címzett is van
-            $cimzettek = $adatbazis_kapcsolat->s('nev teljes_nev usermail aktiv virtual szemelyzet_id', 'login', "substr(`flags`, ".(JOG_MUNKALAP_VIZSGALAT+1).", 1)=1 AND `aktiv`=1 AND `virtual`=0 $sql_ertesites_kieg");
+            $cimzettek = $adatbazis_kapcsolat->s('nev teljes_nev usermail usertel aktiv virtual szemelyzet_id', 'login', "substr(`flags`, ".(JOG_MUNKALAP_VIZSGALAT+1).", 1)=1 AND `aktiv`=1 AND `virtual`=0 $sql_ertesites_kieg");
             if(!$cimzettek){
                 return false;
             }
@@ -6824,7 +6824,7 @@ function level_felkeszit_es_kuld($tabla, $recid, $ert_pipa, $sablon, $cimzett, $
             $uzi            = str_replace( $mit, $mivel, fajlbol_olvas('../sablon/admin/mail/munkalaposoknak.html') );
 
             // Több címzett is van
-            $cimzettek = $adatbazis_kapcsolat->s('nev teljes_nev usermail aktiv virtual szemelyzet_id', 'login', "substr(`flags`, ".(JOG_MUNKALAP_MEGTEKINT_FELADAT+1).", 1)=1 AND `aktiv`=1 AND `virtual`=0 $sql_ertesites_kieg");
+            $cimzettek = $adatbazis_kapcsolat->s('nev teljes_nev usermail usertel aktiv virtual szemelyzet_id', 'login', "substr(`flags`, ".(JOG_MUNKALAP_MEGTEKINT_FELADAT+1).", 1)=1 AND `aktiv`=1 AND `virtual`=0 $sql_ertesites_kieg");
             if(!$cimzettek){
                 return false;
             }
@@ -6834,7 +6834,7 @@ function level_felkeszit_es_kuld($tabla, $recid, $ert_pipa, $sablon, $cimzett, $
         // Anyagigénylés küldés jóváhagyásra
         case '_jog'.JOG_ANYAGIGENYLES_JOVAHAGY:
             
-            $cimzettek = $adatbazis_kapcsolat->s('nev teljes_nev usermail aktiv virtual szemelyzet_id', 'login', "substr(`flags`, ".(JOG_ANYAGIGENYLES_JOVAHAGY+1).", 1)=1 AND `aktiv`=1 AND `virtual`=0 $sql_ertesites_kieg");
+            $cimzettek = $adatbazis_kapcsolat->s('nev teljes_nev usermail usertel aktiv virtual szemelyzet_id', 'login', "substr(`flags`, ".(JOG_ANYAGIGENYLES_JOVAHAGY+1).", 1)=1 AND `aktiv`=1 AND `virtual`=0 $sql_ertesites_kieg");
             if(!$cimzettek){
                 return false;
             }
@@ -7048,8 +7048,9 @@ function level_felkeszit_es_kuld($tabla, $recid, $ert_pipa, $sablon, $cimzett, $
             if( $_SESSION[get_db_tabla().'szemelyzet_id']==MSZK_VEZETO || $_SESSION[get_db_tabla().'szemelyzet_id']==DISZPECSER ){
                 $hiba .=  nl2('Hiba: E-mail küldése nem sikerült
                         <br>'.$cimzett_nev.' '.$szerepkor.'
-                        <br>Tel: '.$telefon.'
-                        <br>Email: '.$cimzett_mail.'
+                        <br>Tel: '.$akt_cimzett['usertel'].'
+                        <br>Email: '.$akt_cimzett['usermail'].'
+                        <br>
                         ');
             }
 
@@ -7079,7 +7080,7 @@ function level_felkeszit_es_kuld($tabla, $recid, $ert_pipa, $sablon, $cimzett, $
             addMegj('munkalap', $munkalap_kapcs['munkalap_id'], $megj);
         }
     }
-    mysqli_commit($db_kapcs);
+    
     // Hibaüzenettel is visszatérhetünk
     if($hiba){
         return $hiba;
