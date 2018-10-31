@@ -288,6 +288,9 @@ function kulsokivHozzarend() {
                 response = JSON.parse(response);
 
                 if( response.hiba ) {
+                    /* Attól, hogy hibaüzenetet kapunk, még frissüljün az adatlap. Pl. csak a mailküldés nem sikerült, de a státusz tovább lett léptetve, azt látni kell. */
+                    szamlaBetolt(_get('id'), baseName(location.href) + '.php', 'modosit');
+                    /*popupZar(); Még nem tudjuk, hogy be kell-e majd zárni vagy sem */
                     alert2(response.hiba, response.gomb, response.title);
                     return false;
                 }
