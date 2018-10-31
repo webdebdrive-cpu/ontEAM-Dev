@@ -1028,6 +1028,7 @@ if( isset($_POST['kuldes_jovahagyasra']) ) {
         }
 
         if( !$db_error ) {
+            mysqli_commit($db_kapcs);
 
             $hiba = '';
 
@@ -1038,7 +1039,6 @@ if( isset($_POST['kuldes_jovahagyasra']) ) {
                 }
             }
             if($hiba){
-                mysqli_rollback($db_kapcs);
                 echo json_encode(array(
                     'hiba'  => $hiba,
                     'title' => 'Hiba',

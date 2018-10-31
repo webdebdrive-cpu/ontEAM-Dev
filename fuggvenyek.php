@@ -7080,7 +7080,7 @@ function level_felkeszit_es_kuld($tabla, $recid, $ert_pipa, $sablon, $cimzett, $
             addMegj('munkalap', $munkalap_kapcs['munkalap_id'], $megj);
         }
     }
-    
+    mysqli_commit($db_kapcs);
     // Hibaüzenettel is visszatérhetünk
     if($hiba){
         return $hiba;
