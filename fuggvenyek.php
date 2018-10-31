@@ -7046,7 +7046,7 @@ function level_felkeszit_es_kuld($tabla, $recid, $ert_pipa, $sablon, $cimzett, $
 
             // Popupos hibaüzenet csak MSZK vezetőnek és Diszpécsernek megy
             if( $_SESSION[get_db_tabla().'szemelyzet_id']==MSZK_VEZETO || $_SESSION[get_db_tabla().'szemelyzet_id']==DISZPECSER ){
-                $hiba .=  nl2('Hiba: E-mail küldése nem sikerült
+                $hiba .=  nl2('Hiba: E-mail küldése nem sikerült!
                         <br>'.$cimzett_nev.' '.$szerepkor.'
                         <br>Tel: '.$akt_cimzett['usertel'].'
                         <br>Email: '.$akt_cimzett['usermail'].'
