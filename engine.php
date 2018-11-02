@@ -1495,7 +1495,7 @@ function level_kuldes( $felado_nev, $felado_mail, $cimzett_nev, $cimzett_mail, $
             foreach($cimzett_nev as $nev){
                 if($cimzett_mail[$i]){
 
-                    //A második címzett már rejtve kapja meg
+                    // A második címzett már rejtve kapja meg
                     if($i){
                         $mail -> AddBcc($cimzett_mail[$i], $nev);
                     }else{

@@ -107,6 +107,13 @@ function get_responsive()    {
 } // Amennyiben az oldal responzív, úgy a meta tagokban tiltjuk az oldal nagyíthatóságát (mobilon nem zoom-olunk hanem responzívek vagyunk)
 function get_session_felh()  { return get_db_tabla().'felhId';                  }
 function get_teszt_mail()    { return 'teszt@webdeb.hu';                        }
+function get_mszk_mail(){
+    if($_SERVER['HTTP_HOST']=='demo.webdeb.hu'){
+        return 'bk@wdb.hu';
+    }else{
+        return 'mszk@danubiushotels.com';
+    }
+}
 function get_teszt_mail_nev(){ return 'WebDeb Teszt';                           }
 function get_web_charset()   { return 'UTF-8';                                  }
 

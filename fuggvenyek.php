@@ -6996,16 +6996,10 @@ function level_felkeszit_es_kuld($tabla, $recid, $ert_pipa, $sablon, $cimzett, $
     $megj = '';
     $hiba = '';
 
-    $targy_kieg = '';
-    $uzi_kieg   = '';
-    $dev_kieg   = '';
-    if( $_SERVER['HTTP_HOST']=='dev.onteam.hu' ){
-        $dev_kieg = 'Dev ';
-    }
-    if( get_teszt_rendszer() ){
-        $targy_kieg = '['.$dev_kieg.'Teszt email] ';
-        $uzi_kieg   = '['.$dev_kieg.'Teszt email]<br><br>';
-    }
+    // Attól függően, hogy melyik rendszerben vagyunk, kap a tárgy/üzenet egy [Teszt] előtagot.
+    $kieg = get_mail_teszt_felirat();
+    $targy_kieg = $kieg[0];
+    $uzi_kieg   = $kieg[1];
 
 //echo '<pre style="font-size: 1.4rem">';
 //print_r($cimzettek);
@@ -8344,4 +8338,19 @@ function datumra_utemezes_popup($megnevezes){
                 'esedekes'  => $esedekes
             ) 
         );
+}
+
+// Attól függően, hogy melyik rendszerben vagyunk, kap a tárgy/üzenet egy [Teszt] előtagot.
+function get_mail_teszt_felirat(){
+    $targy_kieg = '';
+    $uzi_kieg   = '';
+    $dev_kieg   = '';
+    if( $_SERVER['HTTP_HOST']=='dev.onteam.hu' ){
+        $dev_kieg = 'Dev ';
+    }
+    if( get_teszt_rendszer() ){
+        $targy_kieg = '['.$dev_kieg.'Teszt email] ';
+        $uzi_kieg   = '['.$dev_kieg.'Teszt email]<br><br>';
+    }
+    return array($targy_kieg, $uzi_kieg);
 }

@@ -189,7 +189,32 @@ function bejelentesek_archival($idk) {
             file_put_contents($log_utvonal, $log_tmp, FILE_APPEND | LOCK_EX);
         }
         
-        // Eredeti táblák törlése
+        // Megjegyzések
+        $megjegyzesek = $adatbazis_kapcsolat->s('*', 'megjegyzes', "`tabla`='bejelentes' AND `id`='{$recid}'");
+        if( $megjegyzesek === false ) { $db_error = true; }
+        foreach($megjegyzesek as $megj){
+
+            $mezok   = array();
+            $ertekek = array();
+            foreach($megj as $kulcs => $ertek){
+                array_push($mezok, $kulcs);
+                array_push($ertekek, $megj[$kulcs]);
+            }
+            
+            $sql = $adatbazis_kapcsolat->i('megjegyzes_arch', $mezok, $ertekek);
+            if( $sql === false ) {
+                $db_error = true;
+                $log_tmp = 'NEM FUTOTT LE: '.$adatbazis_kapcsolat->gp() . '
+';
+            }else{
+                $log_tmp = $adatbazis_kapcsolat->gp() . '
+';
+            }
+            $log .= $log_tmp;
+            file_put_contents($log_utvonal, $log_tmp, FILE_APPEND | LOCK_EX);
+        }
+        
+        // Bejelentés rekordok törlése
         $sql = $adatbazis_kapcsolat->d('bejelentes', "`recid`='{$recid}'");
         if( $sql === false ) {
             $db_error = true;
@@ -202,6 +227,7 @@ function bejelentesek_archival($idk) {
         $log .= $log_tmp;
         file_put_contents($log_utvonal, $log_tmp, FILE_APPEND | LOCK_EX);
         
+        // Dokumentum rekordok törlése
         $sql = $adatbazis_kapcsolat->d('bejelentes_dok', "`bejelentes_id`='{$recid}'");
         if( $sql === false ) {
             $db_error = true;
@@ -214,6 +240,7 @@ function bejelentesek_archival($idk) {
         $log .= $log_tmp;
         file_put_contents($log_utvonal, $log_tmp, FILE_APPEND | LOCK_EX);
         
+        // Státusz rekordok törlése
         $sql = $adatbazis_kapcsolat->d('bejelentes_statusz', "`bejelentes_recid`='{$recid}'");
         if( $sql === false ) {
             $db_error = true;
@@ -225,8 +252,21 @@ function bejelentesek_archival($idk) {
         }
         $log .= $log_tmp;
         file_put_contents($log_utvonal, $log_tmp, FILE_APPEND | LOCK_EX);
+        
+        // Megjegyzés rekodok törlése
+        $sql = $adatbazis_kapcsolat->d('megjegyzes', "`tabla`='bejelentes' AND `id`='{$recid}'");
+        if( $sql === false ) {
+            $db_error = true;
+            $log_tmp = 'NEM FUTOTT LE: '.$adatbazis_kapcsolat->gp() . '
+';
+        }else{
+            $log_tmp = $adatbazis_kapcsolat->gp() . '
+';
+        }
+        $log .= $log_tmp;
+        file_put_contents($log_utvonal, $log_tmp, FILE_APPEND | LOCK_EX);
 
-        // Update: a bejelentést mindig a munkalap kapcsolatával egyttütt archiváljuk, nincs olyan eset, hogy csak a bejelentést.
+        // Update: a bejelentést mindig a munkalap kapcsolatával együtt archiváljuk, nincs olyan eset, hogy csak a bejelentést.
         // Ha kell akkor egy tranzakcióban archiváljuk a munkalapokat is
 //        if( $munkalap_is ){
             $munkalapok = $adatbazis_kapcsolat->s('munkalap_id', 'munkalap_kapcs', "`bejelentes_id`='{$recid}'");
@@ -237,7 +277,7 @@ function bejelentesek_archival($idk) {
                 }
             }
         
-//        // Ha a munkalapján nem atchiváljuk, akkor viszont a ML kapcsolatot igen.
+//        // Ha a munkalapján nem archiváljuk, akkor viszont a ML kapcsolatot igen.
 //        }else{
 //            
 //            $kapcsolatok = $adatbazis_kapcsolat->s('*', 'munkalap_kapcs', "`bejelentes_id`='{$recid}'");
@@ -334,7 +374,7 @@ function munkalapok_archival($idk, $tranzakcio_nelkul) {
         // Címkék kiszámítása és ezek felvétele a mezőkbe
         $csoport_txt            = getErtek('nev', 'munkalap_csoport', 'recid', $munkalap['csoport_id']  );
         $szemelyzet_txt         = getSzerepkorNev($munkalap['szemelyzet_id']);
-        $szallito_txt           = getErtek('nev', 'szallito', 'recid', $munkalap['szallito_id']);
+        $szallito_txt           = getErtek('nev', 'szallito', 'id', $munkalap['szallito_id']);
         $telephely_txt          = getErtek('nev', 'telephely', 'id', $munkalap['telephely_id']);
         $stat_txt               = getStatText('munkalap', $munkalap['stat_id']);
         $tipus_txt              = getErtek('info', 'erteklista', 'recid', $munkalap['tipus_id']  );
@@ -555,7 +595,63 @@ function munkalapok_archival($idk, $tranzakcio_nelkul) {
             file_put_contents($log_utvonal, $log_tmp, FILE_APPEND | LOCK_EX);
         }
 
-        // Eredeti táblák törlése
+        // Email-ek
+        $emailek = $adatbazis_kapcsolat->s('*', 'munkalap_email', "`munkalap_id`='{$recid}'");
+        if( $emailek === false ) { $db_error = true; }
+        foreach($emailek as $email){
+            $mezok   = array();
+            $ertekek = array();
+            foreach($email as $kulcs => $ertek){
+                array_push($mezok, $kulcs);
+                array_push($ertekek, $email[$kulcs]);
+            }
+            
+            $szallito_txt = getErtek('nev', 'szallito', 'id', $email['szallito_id']);
+            array_push($mezok,   'szallito_txt' );
+            array_push($ertekek, $szallito_txt  );
+            
+            $sql = $adatbazis_kapcsolat->i('munkalap_email_arch', $mezok, $ertekek);
+            if( $sql === false ) {
+                $db_error = true;
+                $log_tmp = 'NEM FUTOTT LE: '.$adatbazis_kapcsolat->gp() . '
+';
+            }else{
+                $log_tmp = $adatbazis_kapcsolat->gp() . '
+';
+            }
+            $log .= $log_tmp;
+            file_put_contents($log_utvonal, $log_tmp, FILE_APPEND | LOCK_EX);
+        }
+        
+        // Megjegyzések
+        $megjegyzesek = $adatbazis_kapcsolat->s('*', 'megjegyzes', "`tabla`='munkalap' AND `id`='{$recid}'");
+        if( $megjegyzesek === false ) { $db_error = true; }
+        foreach($megjegyzesek as $megj){
+
+            $mezok   = array();
+            $ertekek = array();
+            foreach($megj as $kulcs => $ertek){
+                array_push($mezok, $kulcs);
+                array_push($ertekek, $megj[$kulcs]);
+            }
+            
+            $sql = $adatbazis_kapcsolat->i('megjegyzes_arch', $mezok, $ertekek);
+            if( $sql === false ) {
+                $db_error = true;
+                $log_tmp = 'NEM FUTOTT LE: '.$adatbazis_kapcsolat->gp() . '
+';
+            }else{
+                $log_tmp = $adatbazis_kapcsolat->gp() . '
+';
+            }
+            $log .= $log_tmp;
+            file_put_contents($log_utvonal, $log_tmp, FILE_APPEND | LOCK_EX);
+        }
+
+        
+        // REKORDOK TÖRLÉSE
+        
+        // Munkalap rekordok törlése
         $sql = $adatbazis_kapcsolat->d('munkalap', "`recid`='{$recid}'");
         if( $sql === false ) {
             $db_error = true;
@@ -567,7 +663,8 @@ function munkalapok_archival($idk, $tranzakcio_nelkul) {
         }
         $log .= $log_tmp;
         file_put_contents($log_utvonal, $log_tmp, FILE_APPEND | LOCK_EX);
-            
+        
+        // Anyag rekodok törlése
         $sql = $adatbazis_kapcsolat->d('munkalap_anyag', "`munkalap_id`='{$recid}'");
         if( $sql === false ) {
             $db_error = true;
@@ -580,6 +677,7 @@ function munkalapok_archival($idk, $tranzakcio_nelkul) {
         $log .= $log_tmp;
         file_put_contents($log_utvonal, $log_tmp, FILE_APPEND | LOCK_EX);
         
+        // Dokumentum rekodok törlése
         $sql = $adatbazis_kapcsolat->d('munkalap_dok', "`munkalap_id`='{$recid}'");
         if( $sql === false ) {
             $db_error = true;
@@ -592,6 +690,7 @@ function munkalapok_archival($idk, $tranzakcio_nelkul) {
         $log .= $log_tmp;
         file_put_contents($log_utvonal, $log_tmp, FILE_APPEND | LOCK_EX);
         
+        // Feladat rekodok törlése
         $sql = $adatbazis_kapcsolat->d('munkalap_feladat', "`munkalap_id`='{$recid}'");
         if( $sql === false ) {
             $db_error = true;
@@ -604,6 +703,7 @@ function munkalapok_archival($idk, $tranzakcio_nelkul) {
         $log .= $log_tmp;
         file_put_contents($log_utvonal, $log_tmp, FILE_APPEND | LOCK_EX);
         
+        // Munkalap kapcsolat rekodok törlése
         $sql = $adatbazis_kapcsolat->d('munkalap_kapcs', "`munkalap_id`='{$recid}'");
         if( $sql === false ) {
             $db_error = true;
@@ -616,6 +716,7 @@ function munkalapok_archival($idk, $tranzakcio_nelkul) {
         $log .= $log_tmp;
         file_put_contents($log_utvonal, $log_tmp, FILE_APPEND | LOCK_EX);
         
+        // Munkaidő rekodok törlése
         $sql = $adatbazis_kapcsolat->d('munkalap_munkaido', "`munkalap_id`='{$recid}'");
         if( $sql === false ) {
             $db_error = true;
@@ -628,6 +729,7 @@ function munkalapok_archival($idk, $tranzakcio_nelkul) {
         $log .= $log_tmp;
         file_put_contents($log_utvonal, $log_tmp, FILE_APPEND | LOCK_EX);
         
+        // Státusz rekodok törlése
         $sql = $adatbazis_kapcsolat->d('munkalap_statusz', "`munkalap_recid`='{$recid}'");
         if( $sql === false ) {
             $db_error = true;
@@ -640,7 +742,34 @@ function munkalapok_archival($idk, $tranzakcio_nelkul) {
         $log .= $log_tmp;
         file_put_contents($log_utvonal, $log_tmp, FILE_APPEND | LOCK_EX);
         
+        // Tétel rekodok törlése
         $sql = $adatbazis_kapcsolat->d('munkalap_tetel', "`munkalap_id`='{$recid}'");
+        if( $sql === false ) {
+            $db_error = true;
+            $log_tmp = 'NEM FUTOTT LE: '.$adatbazis_kapcsolat->gp() . '
+';
+        }else{
+            $log_tmp = $adatbazis_kapcsolat->gp() . '
+';
+        }
+        $log .= $log_tmp;
+        file_put_contents($log_utvonal, $log_tmp, FILE_APPEND | LOCK_EX);
+        
+        // Email rekodok törlése
+        $sql = $adatbazis_kapcsolat->d('munkalap_email', "`munkalap_id`='{$recid}'");
+        if( $sql === false ) {
+            $db_error = true;
+            $log_tmp = 'NEM FUTOTT LE: '.$adatbazis_kapcsolat->gp() . '
+';
+        }else{
+            $log_tmp = $adatbazis_kapcsolat->gp() . '
+';
+        }
+        $log .= $log_tmp;
+        file_put_contents($log_utvonal, $log_tmp, FILE_APPEND | LOCK_EX);
+        
+        // Megjegyzés rekodok törlése
+        $sql = $adatbazis_kapcsolat->d('megjegyzes', "`tabla`='munkalap' AND `id`='{$recid}'");
         if( $sql === false ) {
             $db_error = true;
             $log_tmp = 'NEM FUTOTT LE: '.$adatbazis_kapcsolat->gp() . '

@@ -964,14 +964,8 @@ if( $_SESSION[get_db_tabla().'user'] ) {
     if( $felhasznalo ) {
         $felh_nev = $felhasznalo['teljes_nev'];
         $reszleg  = nl2(
-                        '<span id="akt_felhasznalo_szerepkor">'.getSzerepkorNev($felhasznalo['szemelyzet_id']).'</span> - 
-                         <span id="akt_felhasznalo_reszleg">'  .erteklista(ERTEKLISTA_RESZLEG, $felhasznalo['reszleg_id']).'</span>
-                         <!-- Hogy JS egyből elérjen ilyen infomrációkat is mindig, ne kellje állandóan adatbázisból lekérni -->
-                         <div class="dn">
-                            <span id="akt_felhasznalo_telefon">'.$felhasznalo['usertel'].'</span>
-                            <span id="akt_felhasznalo_szerepkor_id">'.$felhasznalo['szemelyzet_id'].'</span>
-                            <span id="akt_felhasznalo_diszpecser_tel">'.DISZPECSER_TELEFONSZAM.'</span>
-                         </div>
+                        '<span>'.getSzerepkorNev($felhasznalo['szemelyzet_id']).'</span> - 
+                         <span>'.erteklista(ERTEKLISTA_RESZLEG, $felhasznalo['reszleg_id']).'</span>
                          '
                     );
     }

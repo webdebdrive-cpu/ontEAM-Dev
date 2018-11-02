@@ -1005,45 +1005,58 @@ function get_kulso_hozzarendeles_input_tartalmak(){
         }
     });
     
-    /* Levélküldés mezőinek alapértelmezett értékének beállítsa */
-    $('#pop_targy').val( $('#ikt_szam').val()+' '+$('#telephely_id option:selected').text()+' ' );
+    /* ML adatainak elkérdezése */
+    $.ajax({
+        url : 'munkalap.php',
+        type: 'POST',
+        data: {
+            recid                   : _get('id'),
+            get_ml_adatok_levelhez  : Date.now()
+        },
+        success: function (munkalap) {
+            if (munkalap) {
+                munkalap = JSON.parse(munkalap);
+                
+                /* Levélküldés mezőinek alapértelmezett értékének beállítsa */
+                $('#pop_targy').val( munkalap.ikt_szam+' '+munkalap.telephely_nev+' ' );
+
+                uzenet =    "Tisztelt Partnerünk,\n\n"                      +
+                            "Kérjük Önöktől az alábbi hiba javítását:\n\n"  +
+                            "Munkalap szám: "+munkalap.ikt_szam+"\n\n";
+                if( munkalap.surgos>0 ){
+                    uzenet += "Sürgős !!!\n\n";
+                }
+
+                if( munkalap.bejelentes_hiba_text ){
+                    hiba = munkalap.bejelentes_hiba_text;
+                }else{
+                    hiba = munkalap.text;
+                }
+
+                if( munkalap.bejelentes_hely ){
+                    hely = munkalap.bejelentes_hely;
+                }else{
+                    hely = munkalap.hely;
+                }
+                
+                if( munkalap.bejelento ){
+                    bejelento = munkalap.bejelento;
+                }else{
+                    bejelento = munkalap.letrehozta;
+                }
+
+                uzenet +=   "Hiba: "      + hiba      + "\n\n"  +
+                            "Hely: "      + hely      + "\n\n"  +
+                            "Bejelentő: " + bejelento + "\n\n"  +
+                            "Köszönettel,\n"                    +
+                            munkalap.akt_felh_nev     + "\n"    +
+                            munkalap.akt_felh_beosztas+ "\n"    +
+                            munkalap.akt_felh_tel;
+
+                $('#pop_uzenet').val(uzenet);
+                
+            }
+        }
+    });
     
-    uzenet =    "Tisztelt Partnerünk,\n\n"                      +
-                "Kérjük Önöktől az alábbi hiba javítását:\n\n"  +
-                "Munkalap szám: "+$('#ikt_szam').val()+"\n\n";
-    if( $('#surgos').prop('checked') ){
-        uzenet += "Sürgős !!!\n\n";
-    }
-    
-    if( $('#ml_bejelentese_hiba').length ){
-        hiba = $('#ml_bejelentese_hiba').html().replace(/<br>/g, "\n").replace(/&amp;/g, '&');
-    }else{
-        hiba = $('#text').val();
-    }
-    if( $('#ml_bejelentese_hely').length ){
-        hely = $('#ml_bejelentese_hely').html().replace(/<br>/g, "\n").replace(/&amp;/g, '&');
-    }else{
-        hely = $('#obj_id_autocomp').val();
-    }
-    if( $('#ml_bejelentese_bejelento').length ){
-        bejelento = $('#ml_bejelentese_bejelento').html().replace(/<br>/g, "\n").replace(/&amp;/g, '&');
-    }else{
-        bejelento = $('#letrehozta').html() + "\n" + $('#usertel').html() + "\n" + $('#usermail').html();
-    }
-    
-    uzenet +=   "Hiba: "      + hiba      + "\n\n"              +
-                "Hely: "      + hely      + "\n\n"              +
-                "Bejelentő: " + bejelento + "\n\n"              +
-                "Köszönettel,\n"                                +
-                $('#akt_felhasznalo_nev').html()        + "\n"  +
-                $('#akt_felhasznalo_szerepkor').html()  + "\n"  +
-                "Telefonszám: ";
-    /* Ha belépett felhasználó szerepköre diszpécser */
-    if( $('#akt_felhasznalo_szerepkor_id').html()==10 ){
-        uzenet += $('#akt_felhasznalo_diszpecser_tel').html();
-    }else{
-        uzenet += $('#akt_felhasznalo_telefon').html();
-    }
-    
-    $('#pop_uzenet').val(uzenet);
 }
