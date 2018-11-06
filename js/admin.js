@@ -1584,6 +1584,11 @@ console.log('b'+active_top);
     $(document).on('focus', '.f_num', function(e) {
         $(this).removeClass('nincs_tobb_blurozas');
     });
+    
+    // Mező fókusra kijelölődik
+    $(document).on('focus', '.f_select', function(e) {
+        $(this).select();
+    });
 
     /* Anyagigénylésnél a mennyiség mező kitöltése szálloda + anyag ismerete alapján */
     $(document).on('focus', '.f_anyagig_menny_feltolt', function(e) {

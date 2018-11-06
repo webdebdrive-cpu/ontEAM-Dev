@@ -80,6 +80,17 @@ if( isset($_POST['bejSzallodaValaszt']) ) {
 
             $html .= '</select>';
         }
+        
+        // Ha csak egy szálloda van, akkor azt automatikusan válasszuk is ki.
+        if( count($szallodak)==1 ){
+            $html .= nl2('
+                        <script>
+                            $(document).ready(function () {
+                                bejBejelentok( '.$szallodak[0]['id'].' );
+                            });
+                        </script>
+                        ');
+        }
 
         if( !$db_error ) {
             mysqli_commit($db_kapcs);

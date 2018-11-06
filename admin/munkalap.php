@@ -686,7 +686,7 @@ if( isset($_POST['munkalapKulso']) ) {
                     }else{
                         $cimzett_nev = $szallito['nev'];
                     }
-                    $emailkuldes_megj .= 'Megrendelő email elküldve: '.$cimzett_nev.' '.$mailcim.'<br>';
+                    $emailkuldes_megj .= 'Megrendelő email elküldve: '.$cimzett_nev.' '.$mailcim."\n";
                     // E-mail küldés logolása
                     $sql = $adatbazis_kapcsolat->i('munkalap_email',    array('munkalap_id', 'szallito_id', 'cimzett',  'targy',                     'text',                                'insert_dt', 'insert_usr'                           ),
                                                                         array($recid,        $szallito_id,  $mailcim,   $targy_kieg.$_POST['targy'], $uzi_kieg.nl2br2($_POST['uzenet']),    'NOW()',     $_SESSION[get_db_tabla().'teljes_nev'] )
@@ -719,7 +719,7 @@ if( isset($_POST['munkalapKulso']) ) {
                                         );
         if( $sql === false ) { $db_error = true; }
 
-        $memo = 'Kivitelező: '.getErtek('nev', 'szallito', 'id', $szallito_id).'<br>'.$emailkuldes_megj;
+        $memo = 'Kivitelező: '.getErtek('nev', 'szallito', 'id', $szallito_id)."\n".$emailkuldes_megj;
         if( !addStatusz( 'munkalap_statusz', $recid, MUNKALAP_STAT_HOZZARENDELT, '', $memo ) ) {
             $db_error = true;
         }

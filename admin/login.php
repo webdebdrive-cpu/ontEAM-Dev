@@ -58,6 +58,7 @@ if( isset($_POST['jogokhozzaad']) ) {
     }
     
     $id = $_POST['id'];
+    $_POST['jh_ft_ig'] = str_replace(' ', '', $_POST['jh_ft_ig']);
 
     // Kitöröljük a nem kívánatos POST elemeket
     unset($_POST['id']);
@@ -85,10 +86,12 @@ if( isset($_POST['jogokhozzaad']) ) {
     // Log tartalmának beállítása
     $flags = $adatbazis_kapcsolat->s2('flags', 'login', "`recid`='{$id}'");
     if( $flags === false ) { $db_error = true; }
-    $log = 'Előző jogok: '.$flags['flags'].'. Új jogok: '.implode('', $jogok);
+    $log = 'Előző jogok: '.$flags['flags'].'. Új jogok: '.implode('', $jogok).' Külsős jóváhagyás: '.number_format($_POST['jh_ft_ig'], 0, '', ' ').' '. get_penznem().'-ig';
 
     // Új jogok letárolása
-    $sql = $adatbazis_kapcsolat -> u('login',  array('flags', 'update_usr'), array(implode('', $jogok), $_SESSION[get_db_tabla().'teljes_nev']), "`recid`='{$id}'");
+    $sql = $adatbazis_kapcsolat -> u('login',   array('flags',              'jh_ft_ig',         'update_usr'                            ),
+                                                array(implode('', $jogok),  $_POST['jh_ft_ig'], $_SESSION[get_db_tabla().'teljes_nev']  ),
+                                                "`recid`='{$id}'");
     if( $sql === false ) { $db_error = true; }
 
     // Logba is eltároljuk
@@ -111,6 +114,7 @@ if( isset($_POST['jogokhozzaad']) ) {
 
         $i++;
     }
+    $jogEll['jh_ft_ig'] = $_POST['jh_ft_ig'];
 
 
     if( !$db_error ) {
@@ -726,7 +730,7 @@ require_once('selectek.php');
 
         require_once('jogosultsag.php');
 
-        $login = $adatbazis_kapcsolat->s2('flags', 'login', "`recid`='{$_GET['id']}'", '', '1');
+        $login = $adatbazis_kapcsolat->s2('flags jh_ft_ig', 'login', "`recid`='{$_GET['id']}'", '', '1');
         if( $login ) {
 
             // Jogosultságok feldarabolás
@@ -744,6 +748,7 @@ require_once('selectek.php');
 
                 $i++;
             }
+            $jogEll['jh_ft_ig'] = $login['jh_ft_ig'];
 
             $szamla_html .= '<script> formAdatok = JSON.parse(\''.json_encode($jogEll).'\'); </script>';
 
@@ -773,6 +778,8 @@ require_once('selectek.php');
                                         $(\'input[type="checkbox"]\').each(function () {
                                             param += $(this).attr(\'name\')+\'=\'+$(this).is(\':checked\')+\'&amp;\';
                                         });
+                                        param += \'jh_ft_ig=\'+$(\'#jh_ft_ig\').val();
+                                        
                                         $.ajax({
                                             url    : \''.self().'\',
                                             type   : \'POST\',
@@ -781,6 +788,8 @@ require_once('selectek.php');
 
                                                 if(response.substring(0, 6)==\'SESKIL\'){ location.href = \'index.php\'; }
                                                 $(\'input[type="checkbox"]\').removeClass(\'mod\');
+                                                $(\'#jh_ft_ig\').removeClass(\'mod\');
+                                                
                                                 formModositva = false;
                                                 $(\'.mentes_gomb\').attr(\'disabled\', true);
                                                 $(\'#megsem_gomb\').attr(\'disabled\', true);
@@ -892,6 +901,11 @@ require_once('selectek.php');
                         $dn_mail = '';
                     }
 
+                    $jh_ft_ig = '';
+                    // Külsős jóváhagyás jognál plusz input
+                    if($jogSor['id']==JOG_MUNKALAP_KULSOS_DONTES){
+                        $jh_ft_ig = '<input type="text" id="jh_ft_ig" name="jh_ft_ig" value="'.number_format($login['jh_ft_ig'], 0, '', ' ').'" class="f_num f_select" data-tort="0" data- style="margin-left: 3rem; width: 8rem;"> '. get_penznem().'-ig';
+                    }
                     $szamla_html .= nl2('
                         <div class="dtr'.$dn.'">
                             <div class="dtc form_bal"><span>'.$jogSor['nev'].'</span></div>
@@ -900,6 +914,7 @@ require_once('selectek.php');
                                     <input type="hidden" name="jog-'.$jogSor['id'].'" value="0">
                                     <input type="checkbox" class="check'.$dn_pipa.'" name="jog-'.$jogSor['id'].'" id="jog-'.$jogSor['id'].'" value="1"'.$checked.$onclick.'>
                                     <label'.$dn_pipac.' for="jog-'.$jogSor['id'].'"></label>
+                                    '.$jh_ft_ig.'
                                 </div>
                             </div>
                             <div class="dtc form_jobb'.$dn_mail.'">
