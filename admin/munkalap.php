@@ -1354,7 +1354,19 @@ if( isset($_POST['munkalapKulsosJovahagy']) ) {
             $weblap->leallit();
             exit();
         }
-
+        
+        // Csak bizonyos összegig lehet jóváhagyni
+        $login = $adatbazis_kapcsolat->s2('jh_ft_ig', 'login', "`nev`='{$_SESSION[get_db_tabla().'user']}'");
+        if( $login === false ) { $db_error = true; }
+        if( $login['jh_ft_ig']<$munkalap['jh_ert'] ) {
+            echo json_encode(array(
+                'hiba'  => 'Önnek '.number_format($login['jh_ft_ig'], 0, '', ' ').' '.get_penznem().' értékig van jóváhagyási joga!',
+                'title' => 'Hiba',
+            ));
+            $weblap->leallit();
+            exit();
+        }
+        
         $becs_ertek_text = '';
         if( $munkalap['becs_ertek'] ) {
             $becs_ertek_text = nl2('

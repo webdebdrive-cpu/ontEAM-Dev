@@ -1057,12 +1057,12 @@ function js_kiir($tomb, $fg = 'form_ell_regi()', $ajax = false) {
                         $focus_autocomp = $ertek['name'].'_autocomp';
                     }
 
-                    $ret .= 'if($(\'#'.$ertek['name'].'\').val()==\'\'){ document.getElementById(\''.$focus_autocomp.'\').className += \' alert\'; $(\'#'.$focus_autocomp.'\').addClass(\'hibas_ide_focus\'); alert2(\''.$ertek['alert'].'\', \'<p class="c"><input type="button" class="link gomb" value="Ok" onclick="alert2();"></p>\', \''.$hiba_txt.'\'); return false; }';
+                    $ret .= 'if($(\'#'.$ertek['name'].'\').val()==\'\'){ document.getElementById(\''.$focus_autocomp.'\').className += \' alert\'; $(\'#'.$focus_autocomp.'\').addClass(\'hibas_ide_focus\'); alert2(\''.$ertek['alert'].'\', \'<p class="c"><input type="button" class="link gomb" value="Ok" onclick="alert2(); szurkit_zar(\\\'Mehet-Mégsem gombokat mutasd\\\'); $(\\\'#'.$ertek['name'].'\\\').select();"></p>\', \''.$hiba_txt.'\'); return false; }';
                 }
 
                 // Ha numerikus a mező, akkor a 0,00 is üres értéknek számít
                 if(strpos($ertek['class'], 'f_num')!==false){
-                    $ret .= 'if(document.getElementById(\''.$ertek['name'].'\').value==\'0,00\'){ document.getElementById(\''.$ertek['name'].'\').className += \' alert\'; $(\'#'.$ertek['name'].'\').addClass(\'hibas_ide_focus\'); alert2(\''.$ertek['alert'].'\', \'<p class="c"><input type="button" class="link gomb" value="Ok" onclick="alert2();"></p>\', \''.$hiba_txt.'\'); return false; }';
+                    $ret .= 'if(document.getElementById(\''.$ertek['name'].'\').value==\'0,00\'){ document.getElementById(\''.$ertek['name'].'\').className += \' alert\'; $(\'#'.$ertek['name'].'\').addClass(\'hibas_ide_focus\'); alert2(\''.$ertek['alert'].'\', \'<p class="c"><input type="button" class="link gomb" value="Ok" onclick="alert2(); szurkit_zar(\\\'Mehet-Mégsem gombokat mutasd\\\'); $(\\\'#'.$ertek['name'].'\\\').select();"></p>\', \''.$hiba_txt.'\'); return false; }';
                 }
 
                 // Ha dátum tipusú a mezők ellenőrzése
@@ -1075,16 +1075,16 @@ function js_kiir($tomb, $fg = 'form_ell_regi()', $ajax = false) {
 
                 // Ha dátum mező, akkor az ürességet másképp figyeljük
                 if($ertek['alert'] && (strpos($ertek['class'], 'datepicker')!==false || strpos($ertek['class'], 'datetimepicker')!==false)){
-                    $ret .= 'if(document.getElementById(\''.$ertek['name'].'\').value.substring(0,1)==\'\xa0\'){ document.getElementById(\''.$ertek['name'].'\').className += \' alert\'; $(\'#'.$ertek['name'].'\').addClass(\'hibas_ide_focus\'); alert2(\''.$ertek['alert'].'\', \'<p class="c"><input type="button" class="link gomb" value="Ok" onclick="alert2();"></p>\', \''.$hiba_txt.'\'); return false; } ';
+                    $ret .= 'if(document.getElementById(\''.$ertek['name'].'\').value.substring(0,1)==\'\xa0\'){ document.getElementById(\''.$ertek['name'].'\').className += \' alert\'; $(\'#'.$ertek['name'].'\').addClass(\'hibas_ide_focus\'); alert2(\''.$ertek['alert'].'\', \'<p class="c"><input type="button" class="link gomb" value="Ok" onclick="alert2(); szurkit_zar(\\\'Mehet-Mégsem gombokat mutasd\\\');"></p>\', \''.$hiba_txt.'\'); return false; } ';
                 }
 
                 // Személyzet_id-nál a 0 sem elfogadható érték
                 if($ertek['alert'] && $ertek['name']=='szemelyzet_id'){
-                    $ret .= 'if(document.getElementById(\''.$ertek['name'].'\').value==\'0\'){ document.getElementById(\''.$ertek['name'].'\').className += \' alert\'; $(\'#'.$ertek['name'].'\').addClass(\'hibas_ide_focus\'); alert2(\''.$ertek['alert'].'\', \'<p class="c"><input type="button" class="link gomb" value="Ok" onclick="alert2();"></p>\', \''.$hiba_txt.'\'); return false; } ';
+                    $ret .= 'if(document.getElementById(\''.$ertek['name'].'\').value==\'0\'){ document.getElementById(\''.$ertek['name'].'\').className += \' alert\'; $(\'#'.$ertek['name'].'\').addClass(\'hibas_ide_focus\'); alert2(\''.$ertek['alert'].'\', \'<p class="c"><input type="button" class="link gomb" value="Ok" onclick="alert2(); szurkit_zar(\\\'Mehet-Mégsem gombokat mutasd\\\');"></p>\', \''.$hiba_txt.'\'); return false; } ';
                 }
 
                 if($ertek['mail']){
-                    $ret .= "str=document.getElementById('$ertek[name]').value.trim(); if(str){ filter=/^([\w-]+(?:\.[\w-]+)*)@((?:[\w-]+\.)*\w[\w-]{0,66})\.([a-z]{2,6}(?:\.[a-z]{2})?)$/i; if (!filter.test(str)){ document.getElementById('{$ertek['name']}').className='alert'; $('#'{$ertek['name']}').addClass(\'hibas_ide_focus\');  alert2('Helytelen e-mail cím!', \'\', \''.$hiba_txt.'\'); return false; } }";
+                    $ret .= "str=document.getElementById('$ertek[name]').value.trim(); if(str){ filter=/^([\w-]+(?:\.[\w-]+)*)@((?:[\w-]+\.)*\w[\w-]{0,66})\.([a-z]{2,6}(?:\.[a-z]{2})?)$/i; if (!filter.test(str)){ document.getElementById('{$ertek['name']}').className='alert'; $('#'{$ertek['name']}').addClass(\'hibas_ide_focus\'); alert2('Helytelen e-mail cím!', \'\', \''.$hiba_txt.'\'); return false; } }";
                 }
 
                 if($ertek['name'] == 'jelsz2'){
@@ -1161,7 +1161,12 @@ function js_kiir($tomb, $fg = 'form_ell_regi()', $ajax = false) {
         $ret .= nl2('
 
             if( !$(\'#nev\').val() ){
-                alert2(\'Kérjük válasszon ki egy cikknevet az értéklistából!\', \'\', \'Hiba\');
+                alert2(\'Kérjük válasszon ki egy cikknevet az értéklistából!\', \'<input type="button" class="link gomb" value="Ok" onclick="alert2(); szurkit_zar(\\\'Mehet-Mégsem gombokat mutasd\\\');">\', \'Hiba\');
+                return false;
+            }
+            
+            if( $(\'#igmen\').val().replace(\',\', \'.\')<0  ){
+                alert2(\'Az igényelt mennyiség nem lehet kisebb vagy egyenlő, mint 0!\', \'<input type="button" class="link gomb" value="Ok" onclick="alert2(); szurkit_zar(\\\'Mehet-Mégsem gombokat mutasd\\\'); $(\\\'#igmen\\\').select();">\', \'Hiba\');
                 return false;
             }
 
@@ -7031,32 +7036,32 @@ function level_felkeszit_es_kuld($tabla, $recid, $ert_pipa, $sablon, $cimzett, $
         // Tényleges küldés
         if($akt_cimzett['usermail']){
             $sikeres_kuldes = level_kuldes(get_nev(), get_mail(), $akt_cimzett['teljes_nev'], $akt_cimzett['usermail'], $targy_kieg.$targy, $uzi_kieg.$megszolitas.$uzi);
-        }
 
-        // Ha van értéke, az egy hibaüzenet, akkor sikerült küldeni, ha nincs visszatérési érték
-        if( $sikeres_kuldes ){
+            // Ha van értéke, az egy hibaüzenet, akkor sikerült küldeni, ha nincs visszatérési érték
+            if( $sikeres_kuldes ){
 
-            $megj .= 'E-mail küldése nem sikerült '.$akt_cimzett['teljes_nev'].' '.$szerepkor.' '.$felhasznalonak_szo.' '.$esemeny.'('.$sikeres_kuldes.')<br><br>';
+                $megj .= 'E-mail küldése nem sikerült '.$akt_cimzett['teljes_nev'].' '.$szerepkor.' '.$felhasznalonak_szo.' '.$esemeny.'('.$sikeres_kuldes.')<br><br>';
 
-            // Popupos hibaüzenet csak MSZK vezetőnek és Diszpécsernek megy
-            if( $_SESSION[get_db_tabla().'szemelyzet_id']==MSZK_VEZETO || $_SESSION[get_db_tabla().'szemelyzet_id']==DISZPECSER ){
-                $hiba .=  nl2('Hiba: E-mail küldése nem sikerült!
-                        <br>'.$cimzett_nev.' '.$szerepkor.'
-                        <br>Tel: '.$akt_cimzett['usertel'].'
-                        <br>Email: '.$akt_cimzett['usermail'].'
-                        <br>
-                        ');
+                // Popupos hibaüzenet csak MSZK vezetőnek és Diszpécsernek megy
+                if( $_SESSION[get_db_tabla().'szemelyzet_id']==MSZK_VEZETO || $_SESSION[get_db_tabla().'szemelyzet_id']==DISZPECSER ){
+                    $hiba .=  nl2('Hiba: E-mail küldése nem sikerült!
+                            <br>'.$cimzett_nev.' '.$szerepkor.'
+                            <br>Tel: '.$akt_cimzett['usertel'].'
+                            <br>Email: '.$akt_cimzett['usermail'].'
+                            <br>
+                            ');
+                }
+
+            // Sikeres levélküldés
+            }else{
+
+                // Ha a címzett nem a diszpécser központi mailcím, akkor van csak megjegyzés
+                if( $cimzett!='diszpecser_kozponti' ){
+                    $adatbazis_kapcsolat->u($tabla, array('mail_ment'), array(1), "`recid`='{$recid}'");
+                    $megj .= 'E-mail elküldve '.$akt_cimzett['teljes_nev'].' '.$szerepkor.' '.$felhasznalonak_szo.' '.$esemeny.'<br><br>';
+                }
+
             }
-
-        // Sikeres levélküldés
-        }else{
-
-            // Ha a címzett nem a diszpécser központi mailcím, akkor van csak megjegyzés
-            if( $cimzett!='diszpecser_kozponti' ){
-                $adatbazis_kapcsolat->u($tabla, array('mail_ment'), array(1), "`recid`='{$recid}'");
-                $megj .= 'E-mail elküldve '.$akt_cimzett['teljes_nev'].' '.$szerepkor.' '.$felhasznalonak_szo.' '.$esemeny.'<br><br>';
-            }
-
         }
     }
 

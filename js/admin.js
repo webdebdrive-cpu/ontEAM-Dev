@@ -6983,7 +6983,7 @@ function munkalapok_nyitottak_koze(mehet){
     });
 }
 
-/* Az űrlap gombjait váltjuk: mentés / mégsem látsszon vagy a kék gombok. Illetve fomr módosított-e vagy sem.  */
+/* Az űrlap gombjait váltjuk: mentés / mégsem látsszon vagy a kék gombok. Illetve form módosított-e vagy sem.  */
 function gombok_valt(mod){
 
     if( mod ) {
