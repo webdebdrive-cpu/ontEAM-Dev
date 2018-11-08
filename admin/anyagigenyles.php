@@ -1925,7 +1925,7 @@ if (isset($_POST['anyagigenylesSztornoz'])) {
     if( $sor === false ) { $db_error = true; }
 
     // Státusz ellenőrzése
-    $sztornos_statuszok = array(CIKKIGN_STAT_NYITOTT, CIKKIGN_STAT_ARAZVA, CIKKIGN_STAT_VARAKOZO);
+    $sztornos_statuszok = array(CIKKIGN_STAT_NYITOTT, CIKKIGN_STAT_ARAZVA, CIKKIGN_STAT_VARAKOZO, CIKKIGN_STAT_JOVAHAGYVA);
     if( !in_array($sor['stat_id'], $sztornos_statuszok) ){
         echo json_encode(array(
             'title' => 'Hiba',
@@ -2420,7 +2420,7 @@ require_once('selectek.php');
                 ');
 
                 // Sztornó gomb
-                $sztornos_statuszok = array(CIKKIGN_STAT_NYITOTT, CIKKIGN_STAT_ARAZVA, CIKKIGN_STAT_VARAKOZO);
+                $sztornos_statuszok = array(CIKKIGN_STAT_NYITOTT, CIKKIGN_STAT_ARAZVA, CIKKIGN_STAT_VARAKOZO, CIKKIGN_STAT_JOVAHAGYVA);
                 if( in_array($sor['stat_id'], $sztornos_statuszok) ){
                     $gombok .= '<input type="button" class="gomb piros" value="Sztornó" onclick="csoportMuvelet(\'anyagigenylesSztornoz\')"> ';
                 }

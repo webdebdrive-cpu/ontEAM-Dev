@@ -665,7 +665,7 @@ foreach($akt_tomb as $ertek){
         break;
 
         case 'select_felh_telephely':
-            /* Telephelyek lekérdezése */
+            // Telephelyek lekérdezése
             $select_felh_telephely = array();
             array_push($select_felh_telephely, array('name' => '- Válasszon -', 'value' => '' ));
 
@@ -697,7 +697,7 @@ foreach($akt_tomb as $ertek){
                 if( count($telephelyek) == 1 && isset($_GET['uj']) ) {
                     $sor['telephely_id'] = $telephely['id'];
                     $ertek['disabled'] = true;
-                    $ertek['post'] .= '<input type="hidden" name="telephely_id" id="telephely_id" value="'.$sor['telephely_id'].'">';
+                    $ertek['post'] .= '<input type="hidden" name="telephely_id" id="telephely_id" value="'.$sor['telephely_id'].'"><input type="hidden" name="telephely_txt" id="telephely_txt" value="'.$telephely['nev'].'">';
                 }
 
                 array_push($select_felh_telephely, array('name' => $telephely['nev'], 'value' => $telephely['id'], 'data-modell' => $telephely['modell'] ));

@@ -20,6 +20,13 @@
 <script>
     
     $(document).ready(function(){
+        
+        if( $('.szamla_sor.kijelolve').length>1 ){
+            alert2('Egyszerre csak egy anyagigénylés szornózható!', '', 'Hiba');
+            setTimeout(function(){ popupZar(); }, 100);
+            return false;
+        }
+        
         $.ajax({
             url : 'anyagigenyles.php',
             type: 'POST',

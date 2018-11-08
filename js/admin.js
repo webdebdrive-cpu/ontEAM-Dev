@@ -4424,7 +4424,7 @@ function mellekTorol( tabla, mellek, mellekre_valt, konkret_id ) {
 
     /* Ha javaslattétel popuban vagyunk, akkor ott 'kep_jt_popup' a kép LI sor ID prefixe, próbáljuk meg azt is kihalványítani. */
     $('#kep_jt_popup'+konkret_id).fadeOut();
-    /* Javaslattétel poupban sor eltűntetése  */
+    /* Javaslattétel popupban sor eltűntetése  */
     if(mellekre_valt=='javaslattetel'){
         $('#kep'+konkret_id).fadeOut();
     }
@@ -7074,6 +7074,11 @@ function anyagigenylesHozzaad(mehet, mentes_gombbol, ajax_nelkul_hozzaad) {
                     var text     = $(this).find('option:selected').text();
                     telephely_id = value;
                     telephely_nev= text;
+                    /* Üres maradhat a telephely név, mert a disabled a select, mert mondjuk egy szállodás a user, akkor nem tudja kiolvasni a text-ét.
+                     *  Ilyenkor van egy hidden input, benne a szálloda nevével. */
+                    if(!telephely_nev){
+                        telephely_nev = $('#telephely_txt').val();
+                    }
                     data[name]   = ' <input type="hidden" name="' + name + '[]" value="' + value + '">';
                 break;
                 case 'nev':

@@ -1,0 +1,98 @@
+<h2>Várható érkezés megadása</h2>
+<form action="" id="varhatoErkForm" class="popupForm" method="post" onsubmit="return munkalapVarhatoErkMegad();">
+    <div class="kozep">
+        <div class="dt">
+            <div class="dtr">
+                <div class="dtc form_bal" id="pop_szallito_neve"></div>
+                <div class="dtc form_jobb">
+                </div>
+            </div>
+            <div class="dtr">
+                <div class="dtc form_bal">Várható érkezés:</div>
+                <div class="dtc form_jobb">
+                    <input type="text" maxlength="16" autocomplete="off" class="datetimepicker csillag" name="pop_varh_erk" id="pop_varh_erk" autofocus>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="kuldes">
+        <input type="submit" name="elkuld" class="gomb zold" value="Mentés">
+        <input type="button" name="megsem" class="gomb piros" value="Mégsem" onclick="popupZar();">
+    </div>
+</form>
+<script>
+$(document).ready(function(){
+    
+    $('.datetimepicker').datetimepicker({
+        closeOnDateSelect   : false,
+        format              :'Y.m.d H:i',
+        mask                : '\xa0\xa0\xa0\xa0.\xa0\xa0.\xa0\xa0\xa0\xa0:\xa0\xa0',
+        timepicker          : true,
+        step                : 60,
+        validateOnBlur      : false,
+        scrollInput         : false,
+        minDate             : '0',			// yesterday is minimum date(for today use 0 or -1970/01/01)
+        onChangeDateTime    : function(dp, $input){
+            /* Órapontosak vagyunk */
+            $input.val( $input.val().substring(0, 14)+'00' );
+        }
+    });
+    
+    $.ajax({
+        url : 'munkalap.php',
+        type: 'POST',
+        data: {
+            recid           : _get('id'),
+            get_szall_nev   : Date.now()
+        },
+        success: function(response){
+            if(response.substring(0, 6)=='SESKIL'){ location.href = 'index.php'; }
+            if(response){
+                response = JSON.parse(response);
+                if(response.hiba){
+                    alert2(response.hiba, response.gomb, response.title);
+                    return false;
+                }else{
+                    $('#pop_szallito_neve').html(response.szallito_neve);
+                    $('#pop_varh_erk')     .val (response.varh_erk);
+                }
+            }
+        }
+    });
+});
+function munkalapVarhatoErkMegad() {
+
+    if(balnav_kijelol_ell()){
+
+        $.ajax({
+            url : 'munkalap.php',
+            type: 'POST',
+            data: {
+                recid                   : _get('id'),
+                varh_erk                : $('#pop_varh_erk').val(),
+                munkalapVarhatoErkMegad : new Date().getTime()
+            },
+            success: function(response) {
+                if(response.substring(0, 6)=='SESKIL'){ location.href = 'index.php'; }
+                if(response) {
+                    response = JSON.parse(response);
+
+                    if( response.hiba ) {
+                        alert2(response.hiba, response.gomb, response.title);
+                        if(response.focus){
+                            $('#'+response.focus).addClass('hibas_ide_focus');
+                        }
+                        return false;
+                    }
+
+                    szamlaBetolt(_get('id'), baseName(location.href) + '.php', 'modosit');
+                    popupZar();
+                }
+            }
+        });
+
+    }
+
+    return false;
+}
+</script>
