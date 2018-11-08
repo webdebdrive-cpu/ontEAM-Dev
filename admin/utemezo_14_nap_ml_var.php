@@ -67,7 +67,7 @@ foreach ($loginok as $login){
         file_put_contents($log_utvonal, $log_tmp.PHP_EOL, FILE_APPEND | LOCK_EX);
     }elseif(!$szallodak){
         $log_tmp = $login['teljes_nev'].' '.$login_szerepkor.' felhasználónak egyetlen olyan szállodája sincs, amiben 14 napnál régebbi várakozó munkalapok volnának, ezért nem küldtünk neki levelet.'."\r\n";
-        echo $login['teljes_nev'].' '.$login_szerepkor.' felhasználónak  egyetlen olyan szállodája sincs, amiben 14 napnál régebbi várakozó munkalapok volnának, ezért nem küldtünk neki levelet.<hr>';
+        echo $login['teljes_nev'].' '.$login_szerepkor.' felhasználónak egyetlen olyan szállodája sincs, amiben 14 napnál régebbi várakozó munkalapok volnának, ezért nem küldtünk neki levelet.<hr>';
     
         $log .= $log_tmp;
         file_put_contents($log_utvonal, $log_tmp.PHP_EOL, FILE_APPEND | LOCK_EX);

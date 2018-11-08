@@ -4170,7 +4170,7 @@ if( isset($_POST['munkAnyagVetelezes']) ) {
         if( $munkalap === false ) { $db_error = true; }
 
         // Státusz ellenőrzése
-        if( $munkalap['stat_id'] != MUNKALAP_STAT_FELVEVE && $munkalap['stat_id'] != MUNKALAP_STAT_LEZARASRA_VAR && $munkalap['stat_id'] != MUNKALAP_STAT_VIZSGALAT_ALATT ) {
+        if( $munkalap['stat_id'] != MUNKALAP_STAT_FELVEVE && $munkalap['stat_id'] != MUNKALAP_STAT_HOZZARENDELT && $munkalap['stat_id'] != MUNKALAP_STAT_LEZARASRA_VAR && $munkalap['stat_id'] != MUNKALAP_STAT_VIZSGALAT_ALATT ) {
             echo json_encode(array(
                 'hiba'  => 'Ebben a státuszban nem lehet anyagot felhasználni!',
                 'title' => 'Hiba',
@@ -4186,6 +4186,7 @@ if( isset($_POST['munkAnyagVetelezes']) ) {
             !(
                 ( $sor['stat_id']==MUNKALAP_STAT_FELVEVE         && in_array($munkalap['szemelyzet_id'], $felvehetik) && $kezeles_jog ) ||
                 ( $sor['stat_id']==MUNKALAP_STAT_LEZARASRA_VAR   && in_array($munkalap['szemelyzet_id'], $felvehetik) && $kezeles_jog ) ||
+                ( $sor['stat_id']==MUNKALAP_STAT_HOZZARENDELT    && in_array($munkalap['szemelyzet_id'], $felvehetik) && $kezeles_jog ) ||
                 ( $sor['stat_id']==MUNKALAP_STAT_VIZSGALAT_ALATT && _jog(JOG_MUNKALAP_VIZSGALAT) )
             )
         ) {
@@ -6479,6 +6480,7 @@ require('selectek.php');
         if(
             ( $sor['stat_id']==MUNKALAP_STAT_FELVEVE         && in_array($sor['szemelyzet_id'], $felvehetik) && $kezeles_jog ) ||
             ( $sor['stat_id']==MUNKALAP_STAT_LEZARASRA_VAR   && in_array($sor['szemelyzet_id'], $felvehetik) && $kezeles_jog ) ||
+            ( $sor['stat_id']==MUNKALAP_STAT_HOZZARENDELT    && in_array($sor['szemelyzet_id'], $felvehetik) && $kezeles_jog ) ||
             ( $sor['stat_id']==MUNKALAP_STAT_VIZSGALAT_ALATT && _jog(JOG_MUNKALAP_VIZSGALAT) )
             ) {
             $gombok .= nl2('<input type="button" class="gomb" value="Anyag felhasználás" onclick="csoportMuvelet(\'munkalapAnyagvetelezes\');"> ');
@@ -6617,7 +6619,7 @@ require('selectek.php');
         }
 
         // Folyamatban státusz
-        if( $sor['stat_id']==MUNKALAP_STAT_HOZZARENDELT && !$telephely['modell']/*Egyszálodás modell*/ && $kezeles_jog ){
+        if( $sor['stat_id']==MUNKALAP_STAT_HOZZARENDELT && !$telephely['modell']/*Egyszálodás modell*/ && $kezeles_jog && $_SESSION[get_db_tabla().'szemelyzet_id']!=MUSZAKI_VEZETO /* Ha műszaki vezető vagyok, akkor az egyetlen opció úgy is el volna rejtve */ ){
 
             $gombok .= nl2('
                 <div class="kijeloltek_muv">

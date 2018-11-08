@@ -543,7 +543,7 @@ function i_u($type, $tabla, $tomb) {
         // Új bejegyzés létrehozása utáni teendők
         // Itt újabb if felételek jönnek a táblákra. Azért kerültek ide, mert itt már felhasználjuk a létrejött bejegyzés ID-ját (ezért nem fentebb kezeltük le)
 
-        // Anyagigénylés státusz beszúrása
+        // Anyagigényleés státusz beszúrása
         if( $tabla == 'anyagigenyles' ) {
             $sql = $adatbazis_kapcsolat -> i($tabla.'_statusz',
                                                 array($tabla.'_recid', 'stat_id',               'login',                            'insert_dt',    'insert_usr',                             'update_usr'                           ),
@@ -3953,7 +3953,7 @@ function anyagigenylesLista( $bejegyzesek, $tabla, $frissit, $kijeloltek ) {
                     $bsz['kulsosnek'] = '';
                 }
 
-                $html .= '<tr class="'.$active.$bold.'" onclick="$(\'#szamla-'.$bsz['recid'].'\').click()" data-recid="'.$bsz['recid'].'" data-i="'.$i.'" id="anyagig-sor-'.$bsz['recid'].'">';
+                $html .= '<tr class="'.$active.$bold.'" onclick="$(\'#szamla-'.$bsz['recid'].'\').click(); $(\'.muveletek\').addClass(\'dn\');" data-recid="'.$bsz['recid'].'" data-i="'.$i.'" id="anyagig-sor-'.$bsz['recid'].'">';
 
                 $sorok = array(
                     'anyag_tabla_statusz'       => '<td class="c" sorttable_customkey="'.$bsz['stat_id'].'">'.getStatText('anyagigenyles', $bsz['stat_id']).'</td>',
@@ -7034,41 +7034,39 @@ function level_felkeszit_es_kuld($tabla, $recid, $ert_pipa, $sablon, $cimzett, $
         $megszolitas    = str_replace( $mit, $mivel, fajlbol_olvas('../sablon/admin/mail/megszolitas.html'));
 
         // Tényleges küldés
-        if($akt_cimzett['usermail']){
-            $sikeres_kuldes = level_kuldes(get_nev(), get_mail(), $akt_cimzett['teljes_nev'], $akt_cimzett['usermail'], $targy_kieg.$targy, $uzi_kieg.$megszolitas.$uzi);
+        $sikeres_kuldes = level_kuldes(get_nev(), get_mail(), $akt_cimzett['teljes_nev'], $akt_cimzett['usermail'], $targy_kieg.$targy, $uzi_kieg.$megszolitas.$uzi);
+        // Ha van értéke, az egy hibaüzenet, akkor sikerült küldeni, ha nincs visszatérési érték
+        if( $sikeres_kuldes ){
 
-            // Ha van értéke, az egy hibaüzenet, akkor sikerült küldeni, ha nincs visszatérési érték
-            if( $sikeres_kuldes ){
+            $megj .= 'E-mail küldése nem sikerült '.$akt_cimzett['teljes_nev'].' '.$szerepkor.' '.$felhasznalonak_szo.' '.$esemeny.'('.$sikeres_kuldes.')<br><br>';
 
-                $megj .= 'E-mail küldése nem sikerült '.$akt_cimzett['teljes_nev'].' '.$szerepkor.' '.$felhasznalonak_szo.' '.$esemeny.'('.$sikeres_kuldes.')<br><br>';
-
-                // Popupos hibaüzenet csak MSZK vezetőnek és Diszpécsernek megy
-                if( $_SESSION[get_db_tabla().'szemelyzet_id']==MSZK_VEZETO || $_SESSION[get_db_tabla().'szemelyzet_id']==DISZPECSER ){
-                    $hiba .=  nl2('Hiba: E-mail küldése nem sikerült!
-                            <br>'.$cimzett_nev.' '.$szerepkor.'
-                            <br>Tel: '.$akt_cimzett['usertel'].'
-                            <br>Email: '.$akt_cimzett['usermail'].'
-                            <br>
-                            ');
-                }
-
-            // Sikeres levélküldés
-            }else{
-
-                // Ha a címzett nem a diszpécser központi mailcím, akkor van csak megjegyzés
-                if( $cimzett!='diszpecser_kozponti' ){
-                    $adatbazis_kapcsolat->u($tabla, array('mail_ment'), array(1), "`recid`='{$recid}'");
-                    $megj .= 'E-mail elküldve '.$akt_cimzett['teljes_nev'].' '.$szerepkor.' '.$felhasznalonak_szo.' '.$esemeny.'<br><br>';
-                }
-
+            // Popupos hibaüzenet csak MSZK vezetőnek és Diszpécsernek megy
+            if( $_SESSION[get_db_tabla().'szemelyzet_id']==MSZK_VEZETO || $_SESSION[get_db_tabla().'szemelyzet_id']==DISZPECSER ){
+                $hiba .=  nl2('Hiba: E-mail küldése nem sikerült!
+                        <br>'.$cimzett_nev.' '.$szerepkor.'
+                        <br>Tel: '.$akt_cimzett['usertel'].'
+                        <br>Email: '.$akt_cimzett['usermail'].'
+                        <br>
+                        ');
             }
+
+        // Sikeres levélküldés
+        }else{
+
+            // Ha a címzett nem a diszpécser központi mailcím, akkor van csak megjegyzés
+            if( $cimzett!='diszpecser_kozponti' ){
+                $adatbazis_kapcsolat->u($tabla, array('mail_ment'), array(1), "`recid`='{$recid}'");
+                $megj .= 'E-mail elküldve '.$akt_cimzett['teljes_nev'].' '.$szerepkor.' '.$felhasznalonak_szo.' '.$esemeny.'<br><br>';
+            }
+
+        }
+
+        // Ha nincs e-mail cím, akkor ezt a megjegyzésbe is írjuk bele
+        if(!$akt_cimzett['usermail']){
+            $megj = 'A felhasználónak nincs e-mail címe, ezért a következő esemény nem következett be:<br>'.$megj;
         }
     }
 
-    // Ha nincs e-mail cím, akkor ezt a megjegyzésbe is írjuk bele
-    if(!$akt_cimzett['usermail']){
-        $megj = 'A felhasználónak nincs e-mail címe, ezért a következő esemény nem következett be:<br>'.$megj;
-    }
 
     // Ha van megjegyzés, akkor azt hozzáadjuk
     if($megj){
