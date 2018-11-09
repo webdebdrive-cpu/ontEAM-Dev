@@ -2913,7 +2913,7 @@ if( isset($_POST['varolistabolKivetel']) ) {
 
     if( is_array($idk) ) {
         // Ellenőrizzük a csoportokat
-        $sql = $csoportok = $adatbazis_kapcsolat->s('csoport_id', $page, "`recid` IN (".implode(',', $idk).")", '', '');
+        $sql = $csoportok = $adatbazis_kapcsolat->s('csoport_id', $page, "`recid` IN (".implode(',', $idk).")");
         if( $sql === false ) { $db_error = true; }
 
         $csoportok = adatbazis2tomb($csoportok, 'csoport_id');
@@ -2975,10 +2975,13 @@ if( isset($_POST['varolistabolKivetel']) ) {
 
         // Anyagigénylésnél a státuszt
         if($page=='anyagigenyles'){
-            $elozo_stat = $adatbazis_kapcsolat->s2('stat_id', 'anyagigenyles_statusz', "`anyagigenyles_recid`='{$id}'", 'recid desc', '1,1');
-
-            $statusz = addStatusz( $page.'_statusz', $id, $elozo_stat['stat_id']);
-            if( $statusz === false ) { $db_error = true; }
+            
+            foreach($idk as $id) {
+                $elozo_stat = $adatbazis_kapcsolat->s2('stat_id', 'anyagigenyles_statusz', "`anyagigenyles_recid`='{$id}'", 'recid desc', '1,1');
+                if( $elozo_stat === false ) { $db_error = true; }
+                $statusz = addStatusz( $page.'_statusz', $id, $elozo_stat['stat_id']);
+                if( $statusz === false ) { $db_error = true; }
+            }
 
         // Általános eset
         }else{

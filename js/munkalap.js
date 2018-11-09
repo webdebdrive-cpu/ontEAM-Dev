@@ -534,6 +534,40 @@ function munkalapKulsosMegrendelve(csak_kerdezunk) {
     return false;
 }
 
+/* Munkalap Külsős munka megrendelve */
+function munkalapVisszaElokeszitesre(csak_kerdezunk) {
+
+    if(balnav_kijelol_ell()){
+
+        alert2();
+
+        $.ajax({
+            url : 'munkalap.php',
+            type: 'POST',
+            data: {
+                recid                       : _get('id'),
+                csak_kerdezunk              : csak_kerdezunk,
+                munkalapVisszaElokeszitesre : new Date().getTime()
+            },
+            success: function(response) {
+                if(response.substring(0, 6)=='SESKIL'){ location.href = 'index.php'; }
+                if(response) {
+                    response = JSON.parse(response);
+
+                    if( response.hiba ) {
+                        alert2(response.hiba, response.gomb, response.title);
+                        return false;
+                    }
+
+                    szamlaBetolt(_get('id'), 'munkalap.php', 'modosit');
+                }
+            }
+        });
+
+    }
+    return false;
+}
+
 /* Munkalap lezárása */
 function munkalapLezaras(csak_kerdezunk) {
 

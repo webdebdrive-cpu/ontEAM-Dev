@@ -904,17 +904,16 @@ require_once('selectek.php');
                     $jh_ft_ig = '';
                     // Külsős jóváhagyás jognál plusz input
                     if($jogSor['id']==JOG_MUNKALAP_KULSOS_DONTES){
-                        $jh_ft_ig = '<input type="text" id="jh_ft_ig" name="jh_ft_ig" value="'.number_format($login['jh_ft_ig'], 0, '', ' ').'" class="f_num f_select" data-tort="0" data- style="margin-left: 3rem; width: 8rem;"> '. get_penznem().'-ig';
+                        $jh_ft_ig = '<input type="text" id="jh_ft_ig" name="jh_ft_ig" value="'.number_format($login['jh_ft_ig'], 0, '', ' ').'" class="f_num f_select" data-tort="0" data- style="margin-left: 5rem; width: 8rem;"> '. get_penznem().'-ig';
                     }
                     $szamla_html .= nl2('
                         <div class="dtr'.$dn.'">
-                            <div class="dtc form_bal"><span>'.$jogSor['nev'].'</span></div>
+                            <div class="dtc form_bal"><span>'.$jogSor['nev'].'</span>'.$jh_ft_ig.'</div>
                             <div class="dtc form_jobb">
                                 <div class="cb">
                                     <input type="hidden" name="jog-'.$jogSor['id'].'" value="0">
                                     <input type="checkbox" class="check'.$dn_pipa.'" name="jog-'.$jogSor['id'].'" id="jog-'.$jogSor['id'].'" value="1"'.$checked.$onclick.'>
                                     <label'.$dn_pipac.' for="jog-'.$jogSor['id'].'"></label>
-                                    '.$jh_ft_ig.'
                                 </div>
                             </div>
                             <div class="dtc form_jobb'.$dn_mail.'">
