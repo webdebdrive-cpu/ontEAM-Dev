@@ -158,7 +158,6 @@ if (isset($_GET['csv'])) {
                     $sor = getErtek('nev', 'eszkozkezeles', 'recid', $sor);
                 }
                 if($kulcs=='Hozzárendelt személyzet'){
-                    $sor = getErtek('nev', 'szerepkor', 'recid', $sor);
                     $sor = getSzerepkorNev($sor);
                 }
                 if($kulcs=='Igényelt elvégzés' || $kulcs=='Várható érkezés'){

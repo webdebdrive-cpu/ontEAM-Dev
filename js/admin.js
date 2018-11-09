@@ -1547,6 +1547,8 @@ console.log('b'+active_top);
     /* Összetett szűrők felételének törlése */
     $(document).on('click', '.f_o_szures_ftorol', function(e) {
         $('#o_feltetel_halmaz').html('');
+        $('#o_szures_mondat').html('');
+        $('#o_sures').html('');
         $(this).hide();
     });
 

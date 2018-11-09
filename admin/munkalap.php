@@ -1502,7 +1502,18 @@ if( isset($_POST['munkalapKulsosJovahagy']) ) {
 // Popup tartalmába kiírjuk a ML adatait
 if( isset($_POST['get_ml_adatok']) ) {
 
-    $munkalap = $adatbazis_kapcsolat->s2('ikt_szam telephely_id jh_ert szallito_id becs_ertek', 'munkalap', "`recid`='{$_POST['recid']}'");
+    $munkalap = $adatbazis_kapcsolat->s2('ikt_szam telephely_id jh_ert szallito_id becs_ertek jh1_szerep jh2_szerep', 'munkalap', "`recid`='{$_POST['recid']}'");
+    
+    // Ha adott szerepkörrel már jóváhagyták volna
+    if($munkalap['jh1_szerep']==$_SESSION[get_db_tabla().'szemelyzet_id'] || $munkalap['jh2_szerep']==$_SESSION[get_db_tabla().'szemelyzet_id']){
+        echo json_encode(array(
+            'hiba'  => 'Az Ön szerepkörével ezt a munkalapot már elfogadták, így nem utasítható el a külső kivitelező!',
+            'title' => 'Hiba',
+        ));
+
+        $weblap->leallit();
+        exit();
+    }
 
     $becs_ertek_text = '';
     if( $munkalap['becs_ertek'] ) {
@@ -1544,7 +1555,7 @@ if( isset($_POST['munkalapKulsosElutasit']) ) {
     if( $recid ) {
 
         // Státusz ellenőrzése
-        $munkalap = $adatbazis_kapcsolat->s2('stat_id szallito_id', 'munkalap', "`recid` = '{$recid}'", '', '1');
+        $munkalap = $adatbazis_kapcsolat->s2('stat_id szallito_id jh1_szerep jh2_szerep', 'munkalap', "`recid` = '{$recid}'", '', '1');
         if( $munkalap === false ) { $db_error = true; }
         if( $munkalap['stat_id'] != MUNKALAP_STAT_DONTESRE_VAR ) {
             echo json_encode(array(
@@ -1572,6 +1583,17 @@ if( isset($_POST['munkalapKulsosElutasit']) ) {
             echo json_encode(array(
                 'hiba'  => 'Kérjük adja meg az indoklást!',
                 'gomb'  => '<input type="button" class="link gomb" value="Ok" onclick="alert2(); $(\'#elutasitas_memo\').focus();">',
+                'title' => 'Hiba',
+            ));
+
+            $weblap->leallit();
+            exit();
+        }
+        
+        // Szerepkör ellenőrzése. Ha azonos a szerepköröm bármelyik jóváhagyóval, akkor hiba
+        if($munkalap['jh1_szerep']==$_SESSION[get_db_tabla().'szemelyzet_id'] || $munkalap['jh1_szerep']==$_SESSION[get_db_tabla().'szemelyzet_id']){
+            echo json_encode(array(
+                'hiba'  => 'Az Ön szerepkörével már jóváhagyták a munkalapot, így elutasítani már nem lehet!',
                 'title' => 'Hiba',
             ));
 
@@ -6171,7 +6193,7 @@ if (isset($_POST['get_szall_nev'])) {
     $sor = $adatbazis_kapcsolat->s2('szallito_id varh_erk', 'munkalap', "`recid`='{$_POST['recid']}'");
     
     echo json_encode(array(
-        'szallito_neve'  => getErtek('nev', 'szallito', 'recid', $sor['szallito_id']),
+        'szallito_neve'  => getErtek('nev', 'szallito', 'id', $sor['szallito_id']),
         'varh_erk'       => substr(str_replace('-', '.', $sor['varh_erk']), 0, 16)
     ));
     
@@ -6362,7 +6384,6 @@ if (isset($_GET['csv'])) {
                     $sor = getErtek('nev', 'eszkozkezeles', 'recid', $sor);
                 }
                 if($kulcs=='Hozzárendelt személyzet'){
-                    $sor = getErtek('nev', 'szerepkor', 'recid', $sor);
                     $sor = getSzerepkorNev($sor);
                 }
                 if($kulcs=='Igényelt elvégzés' || $kulcs=='Várható érkezés'){

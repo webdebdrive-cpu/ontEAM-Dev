@@ -7006,13 +7006,6 @@ function level_felkeszit_es_kuld($tabla, $recid, $ert_pipa, $sablon, $cimzett, $
     $targy_kieg = $kieg[0];
     $uzi_kieg   = $kieg[1];
 
-//echo '<pre style="font-size: 1.4rem">';
-//print_r($cimzettek);
-//echo '</pre>';
-//echo $targy_kieg.$targy . '<br>';
-//echo $uzi_kieg.$uzi . '<br>';
-//exit;
-
     foreach($cimzettek as $akt_cimzett){
 
         // Mely tábláknál ellenőrizzünk szállodát is (saját szállodák). Kivéve, ha nem a Diszpécser köztponti mailcímre megy az értesítés
@@ -7033,6 +7026,11 @@ function level_felkeszit_es_kuld($tabla, $recid, $ert_pipa, $sablon, $cimzett, $
         $mivel          = array($akt_cimzett['teljes_nev']);
         $megszolitas    = str_replace( $mit, $mivel, fajlbol_olvas('../sablon/admin/mail/megszolitas.html'));
 
+        // Ha nincs e-mail cím, akkor ezt a megjegyzésbe is írjuk bele
+        if(!$akt_cimzett['usermail']){
+            $megj .= 'A felhasználónak nincs e-mail címe, ezért a következő esemény NEM következett be:<br>';
+        }
+        
         // Tényleges küldés
         $sikeres_kuldes = level_kuldes(get_nev(), get_mail(), $akt_cimzett['teljes_nev'], $akt_cimzett['usermail'], $targy_kieg.$targy, $uzi_kieg.$megszolitas.$uzi);
         // Ha van értéke, az egy hibaüzenet, akkor sikerült küldeni, ha nincs visszatérési érték
@@ -7061,12 +7059,7 @@ function level_felkeszit_es_kuld($tabla, $recid, $ert_pipa, $sablon, $cimzett, $
 
         }
 
-        // Ha nincs e-mail cím, akkor ezt a megjegyzésbe is írjuk bele
-        if(!$akt_cimzett['usermail']){
-            $megj = 'A felhasználónak nincs e-mail címe, ezért a következő esemény nem következett be:<br>'.$megj;
-        }
     }
-
 
     // Ha van megjegyzés, akkor azt hozzáadjuk
     if($megj){
@@ -7084,6 +7077,7 @@ function level_felkeszit_es_kuld($tabla, $recid, $ert_pipa, $sablon, $cimzett, $
     }
 
 }
+
 
 // Egységes dátum kiíráshoz (másodperc nem kell, kötőjel helyett pont)
 function datum_kiir($datum){

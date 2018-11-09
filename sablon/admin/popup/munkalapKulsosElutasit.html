@@ -30,6 +30,11 @@ $(document).ready(function(){
             if(response) {
                 response = JSON.parse(response);
                 $('#pop_ml_adatok').html(response.html);
+                
+                if(response.hiba){
+                    alert2(response.hiba, response.gomb, response.title);
+                    popupZar();
+                }
             }
         }
     });
