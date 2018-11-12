@@ -1,0 +1,62 @@
+<h2>Társrészlegek kezelése</h2>
+<form action="" id="addReszlegForm" class="popupForm" method="post">
+    <div class="kozep" style="min-height: 26rem; width: 50rem">
+        <div class="dt szalloda_hozzaad">
+            <div class="dtr">
+                <div class="dtc">
+                </div>
+                <div class="dtc form_jobb">
+                    <div class="szallodak_keret">
+                        <div id="addReszlegek" class="dt szallodak"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="kuldes">
+        <input type="submit" name="elkuld" value="Mentés">
+        <input type="button" name="megsem" class="gombb_alert" value="Mégsem" onclick="popupZar();">
+    </div>
+</form>
+<script>
+$(document).ready(function(){
+    $('#addReszlegForm').attr('onsubmit', 'return addReszleg(\'' + _get('id') + '\', this);');
+});
+function addReszleg( loginID, that ) {
+
+    var reszlegek = $(that).find('input[name="reszleg[]"]:checked');
+    var data = {};
+    reszlegek.each(function(i) {
+        var value = $(this).val();
+        data[i] = value;
+    });
+
+    if( loginID ) {
+        var ajax = $.ajax({
+         	url : 'login.php',
+         	type: 'GET',
+         	data: esamp2es('loginID=' + loginID + '&amp;reszlegIDs=' + JSON.stringify(data) + '&amp;addReszleg=' + new Date().getTime()),
+         	success: function(html) {
+                if(html.substring(0, 6)=='SESKIL'){ location.href = 'index.php'; }
+         		if(html) {
+                    html = JSON.parse(html);
+
+                    if( html.statusz == 'hiba' ) {
+                        alert2(html.uzi, '', 'Hiba');
+                        return false;
+                    }
+
+         			szamlaBetolt(loginID, baseName(location.href) + '.php', 'modosit').done(function() {
+
+                    });
+
+                    popupZar();
+         		}
+         	}
+        });
+
+    }
+
+    return false;
+}
+</script>

@@ -1,7 +1,7 @@
 <?php
 /*                                                  *\
  * FONTOS:
- * 105-ös ID-nál járunk
+ * 106-os ID-nál járunk
  * 13-as kategória ID-nál járunk
 \*                                                  */
 
@@ -33,11 +33,12 @@ $jogosultsagok = array(
     
     0  => array('nev' => 'Saját részleg bejelentések megtekintése',         'kat' => 0, 'sor' => 0  ),
     57 => array('nev' => 'Saját szállodák bejelentéseinek megtekintése',    'kat' => 0, 'sor' => 1  ),
-    1  => array('nev' => 'Bejelentés saját névben',                         'kat' => 0, 'sor' => 2  ),
-    56 => array('nev' => 'Bejelentés más nevében',                          'kat' => 0, 'sor' => 3  ),
-    41 => array('nev' => 'Bejelentések elutasítása',                        'kat' => 0, 'sor' => 4  ),
-    71 => array('nev' => 'Bejelentések vizsgálat',                          'kat' => 0, 'sor' => 5  ),
-    72 => array('nev' => 'Bejelentések törlése',                            'kat' => 0, 'sor' => 6  ),
+    106=> array('nev' => 'Társrészlegek bejelentéseinek igazolása',         'kat' => 0, 'sor' => 2  ),
+    1  => array('nev' => 'Bejelentés saját névben',                         'kat' => 0, 'sor' => 3  ),
+    56 => array('nev' => 'Bejelentés más nevében',                          'kat' => 0, 'sor' => 4  ),
+    41 => array('nev' => 'Bejelentések elutasítása',                        'kat' => 0, 'sor' => 5  ),
+    71 => array('nev' => 'Bejelentések vizsgálat',                          'kat' => 0, 'sor' => 6  ),
+    72 => array('nev' => 'Bejelentések törlése',                            'kat' => 0, 'sor' => 7  ),
 
     3  => array('nev' => 'Saját szerepkör megtekintése',                    'kat' => 1, 'sor' => 1, 'i' => 'telepített, mobil, külső partner'  ),
     4  => array('nev' => 'Saját szállodák megtekintése',                    'kat' => 1, 'sor' => 2, 'i' => 'diszpécser, MSZK vezető, műszaki vezető, területi felelős'  ),

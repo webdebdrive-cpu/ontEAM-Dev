@@ -991,6 +991,21 @@ if( !_jog(JOG_FELHASZNALOK_JELSZO) ){
 if( !_jog(JOG_FELHASZNALOK_KEZEL) ){
     $disabled_szerepkor = true;
 }
+
+// Ha egy login adatlapján vagyunk, akkor a társrészlegeket ki kell listázni
+$reszlegek_html = '';
+if ( basename(self())=='login.php' && isset($_GET['modosit']) && $_GET['id'] ) {
+    $reszlegidk = $adatbazis_kapcsolat->s('reszleg_id', 'login_tarsreszleg', "`login_id`='{$_GET['id']}'");
+    $reszlegidk = adatbazis2tomb($reszlegidk, 'reszleg_id');
+
+    $reszlegek = $adatbazis_kapcsolat->s('info', 'erteklista', "`id` IN (".implode(',', $reszlegidk).") AND `csoport`='".ERTEKLISTA_RESZLEG."'", 'info');
+    foreach($reszlegek as $reszleg){
+        $reszlegek_html .= $reszleg['info'] . '<br>';
+    }
+}
+if(!$reszlegek_html){
+    $reszlegek_html = '-';
+}
 $megnevezes = 'login';
 $login_tomb = $akt_tomb = array(
     array('type' => 'checkbox',             'megn' => 'Aktív felhasználó:',         'name' => 'aktiv',          'class' => 'check',             'szuro' => 1, 'post' => '<span style="margin-right: 4rem"></span>',   'osszevon' => true),
@@ -1000,6 +1015,17 @@ $login_tomb = $akt_tomb = array(
     array('type' => 'checkbox',             'megn' => 'Jelszóval rendelkezik:',     'name' => 'van_jelszo',     'class' => 'check',             'szuro' => 1, 'disabled' => $disabled_jelszo),
     array('type' => 'autocomplete',         'megn' => 'Beosztás:',                  'name' => 'beosztas_id',    'class' => 'oriasi disableNav', 'szuro' => 1, 'tabla' => 'erteklista', 'oszlop_keres' => 'id', 'oszlop_keres_autocomp' => 'info', 'listaz' => 'info', 'csoport' => 18, 'id_kiir' => 'id', 'alert' => 'Kérem adja meg a beosztást!'),
     array('type' => 'autocomplete',         'megn' => 'Részleg:',                   'name' => 'reszleg_id',     'class' => 'oriasi disableNav', 'szuro' => 1, 'tabla' => 'erteklista', 'oszlop_keres' => 'id', 'oszlop_keres_autocomp' => 'info', 'listaz' => 'info', 'csoport' => 17, 'id_kiir' => 'id', 'alert' => 'Kérem adja meg a részleget!'),
+    array('type' => 'html',                 'megn' => nl2('
+                                                        <div class="dtr">
+                                                            <div class="dtc form_bal">
+                                                                <span>Társrészlegek:</span>
+                                                            </div>
+                                                            <div class="dtc form_jobb" id="tarsreszlegek">
+                                                                '.$reszlegek_html.'
+                                                            </div>
+                                                        </div>
+                                                    ')
+    ),
     array('type' => 'select_szemelyzet',    'megn' => 'Szerepkör:',                 'name' => 'szemelyzet_id',  'class' => 'disableNav',        'szuro' => 1, 'alert' => 'Kérjük adja meg a szerepkört!', 'disabled' => $disabled_szerepkor),
     array('type' => 'text',                 'megn' => 'E-mail:',                    'name' => 'usermail',       'class' => 'oriasi',            'szuro' => 1, 'maxlength' => 250),
     // array('type' => 'checkbox',             'megn' => 'Kap értesítést:',            'name' => 'kap_mailt',      'class' => 'check',             'szuro' => 1, 'disabled' => $disabled_uj),
@@ -3963,73 +3989,6 @@ if (isset($_POST['surgosseg_allit'])) {
             'hiba'  => tranzakcioHiba(),
             'title' => 'Hiba'
         ));
-    }
-
-    $weblap->leallit();
-    exit();
-}
-
-// Szálloda hozzáadása felhasználóhoz ajaxosan
-if( isset($_GET['addSzalloda']) ) {
-
-    $db_error = false;
-    mysqli_autocommit($db_kapcs, false);
-
-    $loginID  = $_GET['loginID'];
-    $szallIDs = json_decode($_GET['szallIDs'], true);
-
-    if( $loginID && count($szallIDs) ) {
-
-        $felh = $adatbazis_kapcsolat->s2('nev', 'login', "`recid`='{$loginID}'");
-        if( $felh ) {
-
-            $log = '';
-            $akt_szallodak = $adatbazis_kapcsolat->s('telephely_id', 'telephely_kapcs', "`nev`='{$felh['nev']}'");
-            if( $akt_szallodak === false ) { $db_error = true; }
-            $akt_szallodak = adatbazis2tomb($akt_szallodak, 'telephely_id');
-
-            $log .= 'Aktuális szállodák: '.implode(', ', $akt_szallodak).'. Új szállodák: '.implode(', ', $szallIDs);
-
-            $sql = $adatbazis_kapcsolat -> d('telephely_kapcs', "`nev`='{$felh['nev']}'");
-            if( $sql === false ) { $db_error = true; }
-
-            // Hozzáadjuk a szállodákat
-            foreach($szallIDs as $key => $szallID) {
-                $kapcsID = $adatbazis_kapcsolat -> i('telephely_kapcs',
-                    array('nev',        'telephely_id', 'insert_dt',    'insert_usr',                           'update_usr'                            ),
-                    array($felh['nev'], $szallID,       'NOW()',        $_SESSION[get_db_tabla().'teljes_nev'], $_SESSION[get_db_tabla().'teljes_nev']  )
-                );
-                if( $kapcsID === false ) { $db_error = true; }
-            }
-
-            // Logba is eltároljuk
-            $sql = $adatbazis_kapcsolat -> i('log',
-                                        array( 'felh_id',                               'nev',                                                                              'valtozas',    'ip'                    ),
-                                        array( $_SESSION[get_db_tabla().'login_recid'], $_SESSION[get_db_tabla().'teljes_nev'].' módosította '.$felh['nev'].' szállodáit',  $log,          $_SERVER['REMOTE_ADDR'] )
-                                    );
-            if( $sql === false ) { $db_error = true; }
-//echo $adatbazis_kapcsolat->gp() . '<br>';
-            if( !$db_error ) {
-                mysqli_commit($db_kapcs);
-                echo json_encode(array(
-                    'statusz' => 'siker',
-                    'kapcsID' => $kapcsID,
-                    'uzi'     => ''
-                ));
-            } else {
-                mysqli_rollback($db_kapcs);
-                echo json_encode(array(
-                    'hiba'  => tranzakcioHiba(),
-                    'title' => 'Hiba'
-                ));
-            }
-
-        } else {
-            echo json_encode(array(
-                'statusz' => 'hiba',
-                'uzi'     => 'Felhasználó azonosítása nem sikerült!'
-            ));
-        }
     }
 
     $weblap->leallit();

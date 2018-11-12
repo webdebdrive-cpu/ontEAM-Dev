@@ -203,17 +203,50 @@ if( isset($_POST['bejelentesElutasit']) ) {
     mysqli_autocommit($db_kapcs, false);
 
     if( $recid ) {
-        $bejelentes = $adatbazis_kapcsolat->s2('stat_id', 'bejelentes', "`recid` = '{$recid}'", '', '1');
+        $bejelentes = $adatbazis_kapcsolat->s2('stat_id usr_reszleg_id', 'bejelentes', "`recid` = '{$recid}'", '', '1');
         if( $bejelentes === false ) { $db_error = true; }
 
+        // Jog ellenőrzése
+        if(!_jog(JOG_BEJELENTES_KEZEL)){
+            echo json_encode(array(
+                'hiba'  => 'Önnek nincs joga bejelentést kezelni!',
+                'title' => 'Hiba'
+            ));
+            $weblap->leallit();
+            exit();
+        }
+        
+        // Státusz ellenőrzése
         if( $bejelentes['stat_id'] != BEJELENTES_STAT_KESZ_IG ) {
             echo json_encode(array(
-                'hiba' => 'Csak Kész, igazolás alatti bejelentések utasíthatók el!',
+                'hiba'  => 'Csak Kész, igazolás alatti bejelentések utasíthatók el!',
+                'title' => 'Hiba'
+            ));
+            $weblap->leallit();
+            exit();
+        }
+        
+        // Részleg ellenőrzése
+        $login = $adatbazis_kapcsolat->s2('reszleg_id', 'login', "`recid`='{$_SESSION[get_db_tabla().'login_recid']}'");
+        $reszlegek = array($login['reszleg_id']);
+        // Ha van hozzá joga, megnézzük a társrészlegeket
+        if( _jog(JOG_BEJELENTES_TARSRESZLEG_BEJ_IGAZOL) ){
+            $tarsreszlegek = $adatbazis_kapcsolat->s('reszleg_id', 'login_tarsreszleg', "`login_id`='{$_SESSION[get_db_tabla().'login_recid']}'");
+            foreach($tarsreszlegek as $reszleg){
+                array_push($reszlegek, $reszleg['reszleg_id']);
+            }
+        }
+        // Ha adott ML részlege nincs benne a felhasználóhoz tartozó részlegek között, akkor hibaüzenet
+        if(!in_array($bejelentes['usr_reszleg_id'], $reszlegek)){
+            echo json_encode(array(
+                'hiba'  => 'A bejelentés nem tartozik az Ön részlegéhez!',
+                'title' => 'Hiba'
             ));
             $weblap->leallit();
             exit();
         }
 
+        // Validálás.... idáig eljutunk-e, meakadunk-e a fenti feltételekben?
         if( $validate == 'true' ) {
             echo json_encode(array(
                 'statusz' => 'siker'
@@ -221,7 +254,8 @@ if( isset($_POST['bejelentesElutasit']) ) {
             $weblap->leallit();
             exit();
         }
-        // Elutasítás
+        
+        // Tényleges elutasítás
         if( $bejelentes ) {
             if( !addStatusz( 'bejelentes_statusz', $recid, BEJELENTES_STAT_VIZSG_ALATT, $elutasitas_id, $memo ) ) {
                 $db_error = true;
@@ -277,19 +311,48 @@ if( isset($_POST['bejelentesIgazolas']) ) {
     mysqli_autocommit($db_kapcs, false);
 
     if( $recid ) {
-        $bejelentes = $adatbazis_kapcsolat->s2('stat_id', 'bejelentes', "`recid` = '{$recid}'", '', '1');
+        $bejelentes = $adatbazis_kapcsolat->s2('stat_id usr_reszleg_id', 'bejelentes', "`recid` = '{$recid}'", '', '1');
         if( $bejelentes === false ) { $db_error = true; }
 
-        if( $bejelentes ) {
+        // Jog ellenőrzése
+        if(!_jog(JOG_BEJELENTES_KEZEL)){
+            echo json_encode(array(
+                'hiba'  => 'Önnek nincs joga bejelentést kezelni!',
+                'title' => 'Hiba'
+            ));
+            $weblap->leallit();
+            exit();
+        }
+        
+        // Státusz ellenőrzése
+        if( $bejelentes['stat_id'] != BEJELENTES_STAT_KESZ_IG ) {
+            echo json_encode(array(
+                'hiba'  => 'Csak Kész, igazolás alatti bejelentések igazolhatóak!',
+                'title' => 'Hiba'
+            ));
 
-            if( $bejelentes['stat_id'] != BEJELENTES_STAT_KESZ_IG ) {
-                echo json_encode(array(
-                    'hiba' => 'Csak Kész, igazolás alatti bejelentések igazolhatóak!',
-                ));
-
-                $weblap->leallit();
-                exit();
+            $weblap->leallit();
+            exit();
+        }
+        
+        // Részleg ellenőrzése
+        $login = $adatbazis_kapcsolat->s2('reszleg_id', 'login', "`recid`='{$_SESSION[get_db_tabla().'login_recid']}'");
+        $reszlegek = array($login['reszleg_id']);
+        // Ha van hozzá joga, megnézzük a társrészlegeket
+        if( _jog(JOG_BEJELENTES_TARSRESZLEG_BEJ_IGAZOL) ){
+            $tarsreszlegek = $adatbazis_kapcsolat->s('reszleg_id', 'login_tarsreszleg', "`login_id`='{$_SESSION[get_db_tabla().'login_recid']}'");
+            foreach($tarsreszlegek as $reszleg){
+                array_push($reszlegek, $reszleg['reszleg_id']);
             }
+        }
+        // Ha adott ML részlege nincs benne a felhasználóhoz tartozó részlegek között, akkor hibaüzenet
+        if(!in_array($bejelentes['usr_reszleg_id'], $reszlegek)){
+            echo json_encode(array(
+                'hiba'  => 'A bejelentés nem tartozik az Ön részlegéhez!',
+                'title' => 'Hiba'
+            ));
+            $weblap->leallit();
+            exit();
         }
 
         // Előbb csak kérdezünk, viszont az ellenőrzéseket addig is lefuttatjuk, derüljön ki ha baj van még a kérdés előtt!
@@ -910,18 +973,34 @@ require_once('selectek.php');
         // Igazolás és Elutasítás gombok
         if( $sor['stat_id']==BEJELENTES_STAT_KESZ_IG && _jog(JOG_BEJELENTES_KEZEL) ) {
             
-            // Ideiglenesen egyszállodás modell esetén nem mutatjuk az elutasítás gombot 2018.06.06
-            $szalloda = $adatbazis_kapcsolat -> s2('modell', 'telephely', "`id`='{$sor['telephely_id']}'");
-            $elutasit_gomb = '';
-            if($szalloda['modell']){
-                $elutasit_gomb = '<input type="button" class="gomb modositaskor_rejt" value="Igazolás elutasítása" onclick="csoportMuvelet(\'bejelentesElutasit\');">';
+            // Részleg ellenőrzése
+            $login = $adatbazis_kapcsolat->s2('reszleg_id', 'login', "`recid`='{$_SESSION[get_db_tabla().'login_recid']}'");
+            $reszlegek = array($login['reszleg_id']);
+            // Ha van hozzá joga, megnézzük a társrészlegeket
+            if( _jog(JOG_BEJELENTES_TARSRESZLEG_BEJ_IGAZOL) ){
+                $tarsreszlegek = $adatbazis_kapcsolat->s('reszleg_id', 'login_tarsreszleg', "`login_id`='{$_SESSION[get_db_tabla().'login_recid']}'");
+                foreach($tarsreszlegek as $reszleg){
+                    array_push($reszlegek, $reszleg['reszleg_id']);
+                }
             }
-            $gombok .= nl2('
-                <div id="kmCont">
-                    <input type="button" class="gomb modositaskor_rejt" value="Igazolás" onclick="bejelentesIgazolas( \''.$sor['recid'].'\', \'Csak kérdezünk még\' );">
-                    '.$elutasit_gomb.'
-                </div>
-            ');
+
+            // Ha adott ML részlege benne van a felhazsnálóhoz tartozó részlegek között, akkor mutatjuk csak meg ezeket a gombokat
+            if(in_array($sor['usr_reszleg_id'], $reszlegek)){
+            
+                // Ideiglenesen egyszállodás modell esetén nem mutatjuk az elutasítás gombot 2018.06.06
+                $szalloda = $adatbazis_kapcsolat -> s2('modell', 'telephely', "`id`='{$sor['telephely_id']}'");
+                $elutasit_gomb = '';
+                if($szalloda['modell']){
+                    $elutasit_gomb = '<input type="button" class="gomb modositaskor_rejt" value="Igazolás elutasítása" onclick="csoportMuvelet(\'bejelentesElutasit\');">';
+                }
+                $gombok .= nl2('
+                    <div id="kmCont">
+                        <input type="button" class="gomb modositaskor_rejt" value="Igazolás" onclick="bejelentesIgazolas( \''.$sor['recid'].'\', \'Csak kérdezünk még\' );">
+                        '.$elutasit_gomb.'
+                    </div>
+                ');
+                
+            }
         }
 
         // Munkalap készítése

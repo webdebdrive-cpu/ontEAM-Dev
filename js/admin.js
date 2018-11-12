@@ -4668,7 +4668,24 @@ function kapcsolodoSzerkeszt( oldal ) {
                 $('#addProjektTeam').attr('onsubmit', 'return addProjektTeam(\'' + _get('id') + '\', this);');
 
             break;
-
+            
+            case 'tarsreszlegek':
+                $.ajax({
+                 	url : 'login.php',
+                 	type: 'POST',
+                    data: {
+                        recid           : _get('id'),
+                        getReszlegek    : new Date().getTime()
+                    },
+                 	success: function(response) {
+                        if(response.substring(0, 6)=='SESKIL'){ location.href = 'index.php'; }
+                 		if(response) {
+                 			$('#addReszlegek').html(response);
+                 		}
+                 	}
+                });
+            break;
+            
             case 'szakterulet':
                 $('#addSzakterForm').attr('onsubmit', 'return addSzakterulet(\'' + _get('id') + '\', this);');
             break;
@@ -4696,9 +4713,6 @@ function kapcsolodoSzerkeszt( oldal ) {
                  		}
                  	}
                 });
-
-
-                $('#addSzallodaForm').attr('onsubmit', 'return addSzalloda(\'' + _get('id') + '\', this);');
             break;
 
             case 'velemenyezok':
@@ -5208,58 +5222,6 @@ function addMegjegyzes( pageID, that ) {
 
         $.when( ajax ).then(function() {
             $(that).find('input[name="megjegyzes"]').val('');
-        });
-    }
-
-    return false;
-}
-
-/* Szálloda hozzárendelése felhasználóhoz */
-function addSzalloda( loginID, that ) {
-
-    var szallID = $(that).find('input[name="addSzall"]').val();
-
-    var telephelyek = $(that).find('input[name="telephely[]"]:checked');
-    var data = {};
-    telephelyek.each(function(i) {
-        var value = $(this).val();
-        data[i] = value;
-    });
-
-    /* Új feltöltéskor csak hidden inputba teszük az adatokat. */
-    if(_get('uj')){
-        $('#szallodak_hidden').val( JSON.stringify(data) );
-        popupZar();
-        return false;
-    }
-
-    if( loginID && objLength(data) ) {
-        var ajax = $.ajax({
-         	url : 'esemenyek.php',
-         	type: 'GET',
-         	data: esamp2es('loginID=' + loginID + '&amp;szallIDs=' + JSON.stringify(data) + '&amp;addSzalloda=' + new Date().getTime()),
-         	success: function(html) {
-                if(html.substring(0, 6)=='SESKIL'){ location.href = 'index.php'; }
-         		if(html) {
-                    html = JSON.parse(html);
-
-                    if( html.statusz == 'hiba' ) {
-                        alert2(html.uzi, '', 'Hiba');
-                        return false;
-                    }
-
-         			szamlaBetolt(loginID, baseName(location.href) + '.php', 'szallodak').done(function() {
-
-                    });
-
-                    popupZar();
-         		}
-         	}
-        });
-
-        $.when( ajax ).then(function() {
-            $(that).find('input[name="addSzalloda"]').val('');
-            $(that).find('input[name="addSzalloda_autocomp"]').val('');
         });
     }
 

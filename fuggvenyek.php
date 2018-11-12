@@ -842,6 +842,10 @@ function i_u($type, $tabla, $tomb) {
                     array_push($ertekek,   $szerepkor['flags']);
                 }
             }
+            
+            // Adott felhasználó részlege nem lehet társrészleg
+            $sql = $adatbazis_kapcsolat->d('login_tarsreszleg', "`login_id`='{$_GET['id']}' AND `reszleg_id`='{$_POST['reszleg_id']}'");
+            if($sql===false){ $db_error = true; }
 
         }
 
@@ -1973,10 +1977,14 @@ function szamla_lista( $where, $tabla, $kijeloltek = false, $csak_sql_miatt = fa
         // Illetve csak a beloginolt user szállodáihoz tartozó bejegyzések látszanak
         if($tabla == 'bejelentes' || $tabla == 'bejelentes_arch'){
             $where = "`".get_db_tabla().$tabla."`.`telephely_id` IN (".implode(',', $szallodak).") AND ";
-            // Ha csak a saját részleget láthat, akkor tovább szűrünk részlegre is
+
+            // Ha csak a saját részleget láthat, akkor tovább szűrünk részlegre/társrészlegekre is
+            $reszlegek = $adatbazis_kapcsolat->s('reszleg_id', 'login_tarsreszleg', "`login_id`='{$_SESSION[get_db_tabla().'login_recid']}'");
+            $reszlegek = adatbazis2tomb($reszlegek, 'reszleg_id');
             $felh = $adatbazis_kapcsolat->s2('reszleg_id', 'login', "`nev`='{$_SESSION[get_db_tabla().'user']}'");
+            array_push($reszlegek, $felh['reszleg_id']);
             if(_jog(JOG_BEJELENTES_SAJAT_RESZL) && !_jog(JOG_BEJELENTES_MEGTEKINT)){
-                $where .= "`usr_reszleg_id`='{$felh['reszleg_id']}'";
+                $where .= "`usr_reszleg_id` IN (".implode(',', $reszlegek).") AND ";
             }
         }
         if($tabla == 'eseti_fenntartas'){
@@ -2162,7 +2170,6 @@ function szamla_lista( $where, $tabla, $kijeloltek = false, $csak_sql_miatt = fa
             $where .= get_szures_where_kieg($_GET['mezo'], $_GET['op'], $_GET['felt'], $tabla).' AND ';
 
         }
-
         // Ha van öszetettt szűrés feltétel
         if($_SESSION['o_szuro_feltetel']){
             // Az eddigi Where-t egy nagy zárójelbe tesszük és ehhez vesszük hozzá az új feltételeket
@@ -6271,7 +6278,7 @@ function get_tortenet($megnevezes){
                     <div class="dtc">'.$sor['insert_usr'].'</div>
                     <div class="dtc">'.$sor['statido'].'</div>
                     <div class="dtc">'.$sor['gongyolt_statido'].'</div>
-                    <div class="dtc">'.nl2br2($sor['text']).'</div>
+                    <div class="dtc">'.nl2br2( htmlspecialchars_decode($sor['text']) ).'</div>
                 </div>
             ');
         }

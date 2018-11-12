@@ -250,13 +250,143 @@ if( isset($_POST['getSzallodak']) ) {
                     </div>
                 </div>
                 <div class="dtc">
-                    '.$telephely['nev'].'
+                    <label class="link" for="telephely-'.$telephely['recid'].'">
+                        '.$telephely['nev'].'
+                    </label>
                 </div>
             </div>
         ');
     }
 
     echo $html;
+
+    $weblap->leallit();
+    exit();
+}
+
+// Részleg választó popup
+if( isset($_POST['getReszlegek']) ) {
+
+    // Részleg lekérdezése
+    $reszlegek = $adatbazis_kapcsolat->s('id info', 'erteklista', "`csoport`='".ERTEKLISTA_RESZLEG."'", 'info');
+    
+    $akt_reszleg = $adatbazis_kapcsolat->s2('reszleg_id', 'login', "`recid`='{$_POST['recid']}'");
+
+    // Kapcsolt részlegek
+    $felh_reszlegek = $adatbazis_kapcsolat->s('reszleg_id', 'login_tarsreszleg', "`login_id` = '".$_POST['recid']."'");
+    $felh_reszlegek = adatbazis2tomb($felh_reszlegek, 'reszleg_id');
+
+    if( !$felh_reszlegek ) {
+        $felh_reszlegek = array();
+    }
+
+    $html = '';
+    foreach($reszlegek as $reszleg) {
+        
+        $checked = '';
+        if( in_array($reszleg['id'], $felh_reszlegek) ) {
+            $checked = ' checked="checked"';
+        }
+        
+        $disabled = '';
+        if($akt_reszleg['reszleg_id']==$reszleg['id']){
+            $disabled = ' disabled';
+        }
+
+        $html .= nl2('
+            <div class="dtr">
+                <div class="dtc">
+                    <div class="cb">
+                        <input type="checkbox" class="check" name="reszleg[]" id="reszleg-'.$reszleg['id'].'" value="'.$reszleg['id'].'"'.$checked.$disabled.'>
+                        <label for="reszleg-'.$reszleg['id'].'"></label>
+                    </div>
+                </div>
+                <div class="dtc">
+                    <label class="link" for="reszleg-'.$reszleg['id'].'">
+                        '.$reszleg['info'].'
+                    </label>
+                </div>
+            </div>
+        ');
+    }
+
+    echo $html;
+
+    $weblap->leallit();
+    exit();
+}
+
+// Részleg hozzáadása felhasználóhoz ajaxosan
+if( isset($_GET['addReszleg']) ) {
+
+    $db_error = false;
+    mysqli_autocommit($db_kapcs, false);
+
+    if(!_jog(JOG_FELHASZNALOK_KEZEL)){
+        echo json_encode(array(
+            'statusz' => 'hiba',
+            'uzi'     => 'Önnek nincs joga felhasználót kezelni!'
+        ));
+        $weblap->leallit();
+        exit();
+    }
+
+    $loginID  = $_GET['loginID'];
+    $reszlegIDs = json_decode($_GET['reszlegIDs'], true);
+
+    if( $loginID ) {
+
+        $felh = $adatbazis_kapcsolat->s2('nev', 'login', "`recid`='{$loginID}'");
+        if( $felh ) {
+
+            $log = '';
+            $akt_reszlegek = $adatbazis_kapcsolat->s('reszleg_id', 'login_tarsreszleg', "`login_id`='{$loginID}'");
+            if( $akt_reszlegek === false ) { $db_error = true; }
+            $akt_reszlegek = adatbazis2tomb($akt_reszlegek, 'reszleg_id');
+
+            $log .= 'Aktuális részlegek: '.implode(', ', $akt_reszlegek).'. Új részlegek: '.implode(', ', $reszlegIDs);
+
+            $sql = $adatbazis_kapcsolat -> d('login_tarsreszleg', "`login_id`='{$loginID}'");
+            if( $sql === false ) { $db_error = true; }
+
+            // Hozzáadjuk a részlegeket
+            foreach($reszlegIDs as $key => $reszlegID) {
+                $kapcsID = $adatbazis_kapcsolat -> i('login_tarsreszleg',
+                    array('login_id',   'reszleg_id', 'insert_dt',    'insert_usr'                            ),
+                    array($loginID,     $reszlegID,   'NOW()',        $_SESSION[get_db_tabla().'teljes_nev']  )
+                );
+                if( $kapcsID === false ) { $db_error = true; }
+            }
+
+            // Logba is eltároljuk
+            $sql = $adatbazis_kapcsolat -> i('log',
+                                        array( 'felh_id',                               'nev',                                                                                  'valtozas',    'ip'                    ),
+                                        array( $_SESSION[get_db_tabla().'login_recid'], $_SESSION[get_db_tabla().'teljes_nev'].' módosította '.$felh['nev'].' társrészlegeit',  $log,          $_SERVER['REMOTE_ADDR'] )
+                                    );
+            if( $sql === false ) { $db_error = true; }
+
+            if( !$db_error ) {
+                mysqli_commit($db_kapcs);
+                echo json_encode(array(
+                    'statusz' => 'siker',
+                    'kapcsID' => $kapcsID,
+                    'uzi'     => ''
+                ));
+            } else {
+                mysqli_rollback($db_kapcs);
+                echo json_encode(array(
+                    'hiba'  => tranzakcioHiba(),
+                    'title' => 'Hiba'
+                ));
+            }
+
+        } else {
+            echo json_encode(array(
+                'statusz' => 'hiba',
+                'uzi'     => 'Felhasználó azonosítása nem sikerült!'
+            ));
+        }
+    }
 
     $weblap->leallit();
     exit();
@@ -302,6 +432,84 @@ if( isset($_POST['getLoginok']) ) {
     $weblap->leallit();
     exit();
 }
+
+
+// Szálloda hozzáadása felhasználóhoz ajaxosan
+if( isset($_GET['addSzalloda']) ) {
+
+    $db_error = false;
+    mysqli_autocommit($db_kapcs, false);
+    
+    if(!_jog(JOG_FELHASZNALOK_KEZEL)){
+        echo json_encode(array(
+            'statusz' => 'hiba',
+            'uzi'     => 'Önnek nincs joga felhasználót kezelni!'
+        ));
+        $weblap->leallit();
+        exit();
+    }
+
+    $loginID  = $_GET['loginID'];
+    $szallIDs = json_decode($_GET['szallIDs'], true);
+
+    if( $loginID && count($szallIDs) ) {
+
+        $felh = $adatbazis_kapcsolat->s2('nev', 'login', "`recid`='{$loginID}'");
+        if( $felh ) {
+
+            $log = '';
+            $akt_szallodak = $adatbazis_kapcsolat->s('telephely_id', 'telephely_kapcs', "`nev`='{$felh['nev']}'");
+            if( $akt_szallodak === false ) { $db_error = true; }
+            $akt_szallodak = adatbazis2tomb($akt_szallodak, 'telephely_id');
+
+            $log .= 'Aktuális szállodák: '.implode(', ', $akt_szallodak).'. Új szállodák: '.implode(', ', $szallIDs);
+
+            $sql = $adatbazis_kapcsolat -> d('telephely_kapcs', "`nev`='{$felh['nev']}'");
+            if( $sql === false ) { $db_error = true; }
+
+            // Hozzáadjuk a szállodákat
+            foreach($szallIDs as $key => $szallID) {
+                $kapcsID = $adatbazis_kapcsolat -> i('telephely_kapcs',
+                    array('nev',        'telephely_id', 'insert_dt',    'insert_usr',                           'update_usr'                            ),
+                    array($felh['nev'], $szallID,       'NOW()',        $_SESSION[get_db_tabla().'teljes_nev'], $_SESSION[get_db_tabla().'teljes_nev']  )
+                );
+                if( $kapcsID === false ) { $db_error = true; }
+            }
+
+            // Logba is eltároljuk
+            $sql = $adatbazis_kapcsolat -> i('log',
+                                        array( 'felh_id',                               'nev',                                                                              'valtozas',    'ip'                    ),
+                                        array( $_SESSION[get_db_tabla().'login_recid'], $_SESSION[get_db_tabla().'teljes_nev'].' módosította '.$felh['nev'].' szállodáit',  $log,          $_SERVER['REMOTE_ADDR'] )
+                                    );
+            if( $sql === false ) { $db_error = true; }
+
+            if( !$db_error ) {
+                mysqli_commit($db_kapcs);
+                echo json_encode(array(
+                    'statusz' => 'siker',
+                    'kapcsID' => $kapcsID,
+                    'uzi'     => ''
+                ));
+            } else {
+                mysqli_rollback($db_kapcs);
+                echo json_encode(array(
+                    'hiba'  => tranzakcioHiba(),
+                    'title' => 'Hiba'
+                ));
+            }
+
+        } else {
+            echo json_encode(array(
+                'statusz' => 'hiba',
+                'uzi'     => 'Felhasználó azonosítása nem sikerült!'
+            ));
+        }
+    }
+
+    $weblap->leallit();
+    exit();
+}
+
 
 // CSV generálása
 if (isset($_GET['csv'])) {
@@ -439,6 +647,14 @@ require_once('selectek.php');
             fajlbol_olvas('../sablon/admin/szamla_fulek.html', true)
         );
     }
+    
+    $gombok = '';
+    // Kezelés joggal rendelkezők társrészleget is tudjanak megadni.
+    if( _jog(JOG_FELHASZNALOK_KEZEL) ){
+        $tarsreszleg_gomb .= '<input type="button" class="gomb" value="Társrészlegek kezelése" onclick="kapcsolodoSzerkeszt(\'tarsreszlegek\');">';
+    }
+    // Külön változóként hoztuk létre, mert a jogosultság/értesítés felület alatt másképp kell hozzáadni
+    $gombok .= $tarsreszleg_gomb;
 
     // Új feltöltés alatti gombok
     if (isset($_GET['uj'])) {
@@ -457,7 +673,8 @@ require_once('selectek.php');
         
     // Módosítás alatti gombok
     }elseif (isset($_GET['modosit'])) {
-        if(_jog(JOG_FELHASZNALOK_KEZEL) || _jog(JOG_FELHASZNALOK_JELSZO)){
+        
+        if( _jog(JOG_FELHASZNALOK_KEZEL) || _jog(JOG_FELHASZNALOK_JELSZO) ){
             $gombok = nl2('
                 <div class="form_kuldes">
                     <input type="button" class="gombb mentes_gomb" name="mehet_gomb" id="mehet_gomb" disabled value="Mentés" onclick="szurkit(\'mehet_megsem_rejt\'); $(\'#szerk_form\').submit();">
@@ -465,6 +682,7 @@ require_once('selectek.php');
                 </div>
             ').$gombok;
         }
+        
     }
 
     $muv_style = ' style="width: calc(100% - '.($_SESSION['defaultCsuszka'] + 16).'px);"';
@@ -951,6 +1169,7 @@ require_once('selectek.php');
                                 <input type="hidden" name="id" value="'.$_GET['id'].'">
                                 <input type="submit" class="gombb mentes_gomb" name="mehet_gomb" id="mehet_gomb" disabled value="Mentés" onclick="szurkit(\'mehet_megsem_rejt\'); form_elkuld();">
                                 <input type="button" class="gomb piros" disabled id="megsem_gomb" value="Mégsem" onclick="szurkit(\'mehet_megsem_rejt\'); formModositva=false; szamlaBetolt(\''.$_GET['id'].'\', \''.$megnevezes.'.php\');">
+                                '.$tarsreszleg_gomb.'
                             </div>
                         </div>');
             }else{
@@ -1177,6 +1396,7 @@ require_once('selectek.php');
                                 <input type="hidden" name="id" value="'.$_GET['id'].'">
                                 <input type="submit" class="gombb mentes_gomb" name="mehet_gomb" id="mehet_gomb" disabled value="Mentés" onclick="szurkit(\'mehet_megsem_rejt\'); form_elkuld();">
                                 <input type="button" class="gomb piros" disabled id="megsem_gomb" value="Mégsem" onclick="szurkit(\'mehet_megsem_rejt\');formModositva=false; szamlaBetolt(\''.$_GET['id'].'\', \''.$megnevezes.'.php\');">
+                                '.$tarsreszleg_gomb.'
                             </div>');
             }else{
                 $szamla_html .= nl2('
@@ -1245,10 +1465,10 @@ require_once('selectek.php');
 
         if( $_GET['ajax'] ) {
             echo json_encode(array(
-                'tartalom' => $szamla_html
+                'tartalom' => $szamla_html.$gombok
             ));
         } else {
-            echo $szamla_html;
+            echo $szamla_html.$gombok;
         }
 
 
@@ -1259,11 +1479,11 @@ require_once('selectek.php');
 
         if( $_GET['ajax'] ) {
             echo json_encode(array(
-                'tartalom' => $szamla_html,
+                'tartalom' => $szamla_html.$gombok,
                 'link' => get_get(array('ajax', 'kat', 'epo', 'oldal', 'order'), true)
             ));
         } else {
-            echo $szamla_html;
+            echo $szamla_html.$gombok;
         }
 
 	// Megjegyzések
@@ -1298,11 +1518,11 @@ require_once('selectek.php');
 
         if( $_GET['ajax'] ) {
             echo json_encode(array(
-                'tartalom' => $szamla_html,
-                'link' => get_get(array('ajax', 'kat', 'epo', 'oldal', 'order'), true)
+                'tartalom'  => $szamla_html.$gombok,
+                'link'      => get_get(array('ajax', 'kat', 'epo', 'oldal', 'order'), true)
             ));
         } else {
-            echo $szamla_html;
+            echo $szamla_html.$gombok;
         }
 
     }
