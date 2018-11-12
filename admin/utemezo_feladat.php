@@ -34,7 +34,7 @@ for($i_ciklus=0; $i_ciklus<2; $i_ciklus++){
 
     $ut_feladatok = $adatbazis_kapcsolat->s('*', $tabla, "DATE_ADD(`esnap_d`, INTERVAL - `riaszt` DAY)<=CURDATE() AND `utnap_d`<CURDATE() AND `aktiv`=1");
     $log_tmp = $adatbazis_kapcsolat->gp().'
-    ';
+';
     $log .= $log_tmp;
     file_put_contents($log_utvonal, $log_tmp, FILE_APPEND | LOCK_EX);
 
@@ -46,10 +46,9 @@ for($i_ciklus=0; $i_ciklus<2; $i_ciklus++){
 
         // Logolás
         $log_tmp = 'Recid: '.$ut_feladat['recid'].' ('.$megnevezes.') Feladatszám: '.$ut_feladat['id'].' elindult
-    ';
+';
         $log .= $log_tmp;
         file_put_contents($log_utvonal, $log_tmp, FILE_APPEND | LOCK_EX);
-
         $text = $ut_feladat['nev']."\r\n".$ut_feladat['leiras'];
 
         // Szállodának mi a modellje
@@ -66,10 +65,10 @@ for($i_ciklus=0; $i_ciklus<2; $i_ciklus++){
         if( $ujrecid === false ) {
             $db_error = true;
             $log_tmp = 'NEM SIKERÜLT új munkalapot létrehozni: '.$adatbazis_kapcsolat->gp().'
-    ';
+';
         }else{
             $log_tmp = 'Munkalap létrehozva: '.$adatbazis_kapcsolat->gp().'
-    ';
+';
         }
         $log .= $log_tmp;
         file_put_contents($log_utvonal, $log_tmp, FILE_APPEND | LOCK_EX);
@@ -80,7 +79,7 @@ for($i_ciklus=0; $i_ciklus<2; $i_ciklus++){
             if( addStatusz('munkalap_statusz', $ujrecid, MUNKALAP_STAT_HOZZARENDELT, '', '', '', '', $ut_feladat['loginnev'])===false){
                 $db_error = true;
                 $log_tmp = 'NEM SIKERÜLT munkalap státuszt léptetni hozzárendeltre: '.$adatbazis_kapcsolat->gp().'
-    ';
+';
             }
         }
         // Előkészítés alatt státuszban jön létre, ha külső kivitelező a hozzárendelt személyzet
@@ -88,9 +87,24 @@ for($i_ciklus=0; $i_ciklus<2; $i_ciklus++){
             if( addStatusz('munkalap_statusz', $ujrecid, MUNKALAP_STAT_ELOKESZITES_ALATT, '', '', '', '', $ut_feladat['loginnev'])===false ){
                 $db_error = true;
                 $log_tmp = 'NEM SIKERÜLT munkalap státuszt léptetni előkészítés alatt-ra: '.$adatbazis_kapcsolat->gp().'
-    ';
+';
             }
+            
+            // Ha előkészítés státuszban jött létre az új munkalap, akkor a hozzárendelt személyzetet állítsuk be Műszaki vezetőnek
+            $sql = $adatbazis_kapcsolat->u('munkalap', array('szemelyzet_id'), array(MUSZAKI_VEZETO), "`recid`='{$ujrecid}'");
+            if( $sql === false ) { 
+                $db_error = true;
+                $log_tmp = 'NEM SIKERÜLT az új munkalapot módosítani: '.$adatbazis_kapcsolat->gp().'
+';
+            }else{
+                $log_tmp = 'Az új munkalap módosítva: '.$adatbazis_kapcsolat->gp().'
+';
+            }
+            $log .= $log_tmp;
+            file_put_contents($log_utvonal, $log_tmp, FILE_APPEND | LOCK_EX);
+
         }
+
         $log .= $log_tmp;
         file_put_contents($log_utvonal, $log_tmp, FILE_APPEND | LOCK_EX);
 
@@ -134,11 +148,11 @@ for($i_ciklus=0; $i_ciklus<2; $i_ciklus++){
         $sql = $adatbazis_kapcsolat->u($tabla,  $oszlopok, $ertekek, "`recid`='{$ut_feladat['recid']}'");
         if( $sql === false ) { 
             $db_error = true;
-            $log_tmp = 'NEM SIKERÜLT  '.a_az($targyas).' '.$targyas.' módosítani: '.$adatbazis_kapcsolat->gp().'
-    ';
+            $log_tmp = 'NEM SIKERÜLT '.a_az($targyas).' '.$targyas.' módosítani: '.$adatbazis_kapcsolat->gp().'
+';
         }else{
             $log_tmp = $megnevezes.' módosítva: '.$adatbazis_kapcsolat->gp().'
-    ';
+';
         }
         $log .= $log_tmp;
         file_put_contents($log_utvonal, $log_tmp, FILE_APPEND | LOCK_EX);
@@ -206,6 +220,19 @@ foreach($eseti_fenntartasok as $eseti){
             $log_tmp = 'NEM SIKERÜLT munkalap státuszt léptetni előkészítés alatt-ra: '.$adatbazis_kapcsolat->gp().'
 ';
         }
+        
+        // Ha előkészítés státuszban jött létre az új munkalap, akkor a hozzárendelt személyzetet állítsuk be Műszaki vezetőnek
+        $sql = $adatbazis_kapcsolat->u('munkalap', array('szemelyzet_id'), array(MUSZAKI_VEZETO), "`recid`='{$ujrecid}'");
+        if( $sql === false ) { 
+            $db_error = true;
+            $log_tmp = 'NEM SIKERÜLT az új munkalapot módosítani: '.$adatbazis_kapcsolat->gp().'
+';
+        }else{
+            $log_tmp = 'Az új munkalap módosítva: '.$adatbazis_kapcsolat->gp().'
+';
+        }
+        $log .= $log_tmp;
+        file_put_contents($log_utvonal, $log_tmp, FILE_APPEND | LOCK_EX);
     }
     $log .= $log_tmp;
     file_put_contents($log_utvonal, $log_tmp, FILE_APPEND | LOCK_EX);
@@ -217,7 +244,7 @@ foreach($eseti_fenntartasok as $eseti){
                                     "`recid`='{$eseti['recid']}'");
     if( $sql === false ) { 
         $db_error = true;
-        $log_tmp = 'NEM SIKERÜLT  '.a_az($targyas).' '.$targyas.' módosítani: '.$adatbazis_kapcsolat->gp().'
+        $log_tmp = 'NEM SIKERÜLT '.a_az($targyas).' '.$targyas.' módosítani: '.$adatbazis_kapcsolat->gp().'
 ';
     }else{
         $log_tmp = $megnevezes.' módosítva: '.$adatbazis_kapcsolat->gp().'

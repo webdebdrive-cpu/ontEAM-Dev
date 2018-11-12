@@ -2051,93 +2051,6 @@ if( isset($_POST['munkalapKulsosMegrendelve']) ) {
     exit();
 }
 
-
-// Vissza előkészítésre
-if( isset($_POST['munkalapVisszaElokeszitesre']) ) {
-    $recid = $_POST['recid'];
-
-    $db_error = false;
-    mysqli_autocommit($db_kapcs, false);
-
-    if( $recid ) {
-
-        $sor = $adatbazis_kapcsolat->s2('ikt_szam stat_id szemelyzet_id', 'munkalap', "`recid` = '{$recid}'", '', '1');
-        if( $sor === false ) { $db_error = true; }
-
-        // Státusz ellenőrzés
-        if( $sor['stat_id'] != MUNKALAP_STAT_HOZZARENDELT ) {
-            echo json_encode(array(
-                'hiba'  => 'Csak "hozzárendelt" státuszú munkalap tehető vissza előkészítésre!',
-                'title' => 'Hiba',
-            ));
-            $weblap->leallit();
-            exit();
-        }
-
-        // Jog ellenőrzés
-        if( !_jog(JOG_MUNKALAP_KEZEL_KULSO) ) {
-            echo json_encode(array(
-                'hiba'  => 'Önnek nincs joga ehhez a művelethez!',
-                'title' => 'Hiba',
-            ));
-            $weblap->leallit();
-            exit();
-        }
-
-        // Jog ellenőrzés
-        if( $sor['szemelyzet_id']!=KULSO_KIVITELEZO ) {
-            echo json_encode(array(
-                'hiba'  => 'A munkalaphoz rendelt személyzet nem külső kivitelező!',
-                'title' => 'Hiba',
-            ));
-            $weblap->leallit();
-            exit();
-        }
-
-        // Előbb csak kérdezünk, viszont az ellenőrzéseket addig is lefuttatjuk, derüljön ki ha baj van még a kérdés előtt!
-        if (isset($_POST['csak_kerdezunk'])) {
-
-            echo json_encode(array(
-                'hiba' => 'Biztosan visszateszi a munkalapot előkészítésre?',
-                'gomb' => '<input class="gomb zold" value="Igen" onclick="munkalapVisszaElokeszitesre();" type="button"><input class="gomb piros" value="Nem" onclick="alert2()" type="button">'
-            ));
-
-            $weblap->leallit();
-            exit();
-        }
-
-        // Státusz léptetés
-        if( !addStatusz( 'munkalap_statusz', $recid, MUNKALAP_STAT_ELOKESZITES_ALATT ) ) {
-            $db_error = true;
-        }
-        
-        // Logolás
-        $muvelet = $_SESSION[get_db_tabla().'teljes_nev'].' a '.$sor['ikt_szam'].' iktatószámú munkalapot visszatette előkészítésre.';
-        $sql = $adatbazis_kapcsolat -> i(
-                                            'log',
-                                            array( 'felh_id',                               'nev',       'valtozas', 'ip'                   ),
-                                            array( $_SESSION[get_db_tabla().'login_recid'], $muvelet,    $muvelet,   $_SERVER['REMOTE_ADDR'])
-                                        );
-        if( $sql === false ) { $db_error = true; }
-
-        if( !$db_error ) {
-            mysqli_commit($db_kapcs);
-            echo json_encode(array(
-                'statusz' => 'siker'
-            ));
-        } else {
-            mysqli_rollback($db_kapcs);
-            echo json_encode(array(
-                'hiba'  => tranzakcioHiba(),
-                'title' => 'Hiba',
-            ));
-        }
-    }
-
-    $weblap->leallit();
-    exit();
-}
-
 // Munkalap megrendelése
 if( isset($_POST['munkalapMegrendelve']) ) {
     $recid = $_POST['recid'];
@@ -2688,81 +2601,8 @@ if (isset($_POST['munkalapJovahagyottErtekModositasa'])) {
 // Vissza előkészített státuszba
 if (isset($_POST['munkalapVisszaElokeszit'])) {
 
-    $recid = $_POST['recid'];
-
-    $db_error = false;
-    mysqli_autocommit($db_kapcs, false);
-
-    $munkalap = $adatbazis_kapcsolat->s2('ikt_szam, stat_id, jh1_login, jh2_login', 'munkalap', "`recid`='{$recid}'");
-    if( $munkalap === false ) { $db_error = true; }
-
-    // Státusz ellenőrzése
-    if( $munkalap['stat_id']!=MUNKALAP_STAT_DONTESRE_VAR && $munkalap['stat_id']!=MUNKALAP_STAT_HOZZARENDELT ){
-        echo json_encode(array(
-            'hiba'  => 'Ebben a státuszban nem küldhető vissza előkészítésre!',
-            'title' => 'Hiba',
-        ));
-        $weblap->leallit();
-        exit();
-    }
-
-    // Jog ellenőrzése
-    if( !_jog(JOG_MUNKALAP_KULSOS_ELOKESZIT) ){
-        echo json_encode(array(
-            'hiba'  => 'Nincs jogosultsága visszaküldeni előkészítésre!',
-            'title' => 'Hiba',
-        ));
-        $weblap->leallit();
-        exit();
-    }
-
-    // Volt-e már jóváhagyás?
-    if( $munkalap['jh1_login'] || $munkalap['jh2_login'] ){
-        echo json_encode(array(
-            'hiba'  => 'A munkalapot már jóváhagyta legalább egy szereplő, így nem küldhető vissza előkészítésre!',
-            'title' => 'Hiba',
-        ));
-        $weblap->leallit();
-        exit();
-    }
-
-    // Nézzük meg, ki tette legutóbb döntés státuszba. Annak a usernek a személyzettípusát állítsuk be hozzárendelt személynek, illetve ürítjük a külső kivitelezőt és jóváhagyott értéket
-    $dontes_statusz = $adatbazis_kapcsolat->s2('login', 'munkalap_statusz', "`munkalap_recid`='{$recid}' AND `stat_id`='".MUNKALAP_STAT_DONTESRE_VAR."'", 'recid desc', '1');
-    if( $dontes_statusz === false ) { $db_error = true; }
-    $login = $adatbazis_kapcsolat->s2('szemelyzet_id', 'login', "`nev`='{$dontes_statusz['login']}'");
-    if( $login === false ) { $db_error = true; }
-    $sql = $adatbazis_kapcsolat->u('munkalap', 
-                                            array('szemelyzet_id',          'szallito_id', 'becs_ertek', 'mail_ment', 'jh_ert',   'varh_erk'              ),
-                                            array($login['szemelyzet_id'],  '',            '0',          '0',         '0',        '0000-00-00 00:00:00'   ),
-                                    "`recid`='{$recid}'");
-    if( $sql === false ) { $db_error = true; }
-
-    // Státusz léptetés
-    if( !addStatusz( 'munkalap_statusz', $recid, MUNKALAP_STAT_ELOKESZITES_ALATT ) ) {
-        $db_error = true;
-    }
-    
-    // Logolás
-    $muvelet = $_SESSION[get_db_tabla().'teljes_nev'].' a '.$munkalap['ikt_szam'].' iktatószámú munkalapot visszatette előkészítésre.';
-    $sql = $adatbazis_kapcsolat -> i(
-                                        'log',
-                                        array( 'felh_id',                               'nev',       'valtozas', 'ip'                   ),
-                                        array( $_SESSION[get_db_tabla().'login_recid'], $muvelet,    $muvelet,   $_SERVER['REMOTE_ADDR'])
-                                    );
-    if( $sql === false ) { $db_error = true; }
-
-    if( !$db_error ) {
-        mysqli_commit($db_kapcs);
-        echo json_encode(array(
-            'statusz' => 'siker'
-        ));
-    } else {
-        mysqli_rollback($db_kapcs);
-        echo json_encode(array(
-            'hiba'  => tranzakcioHiba(),
-            'title' => 'Hiba',
-        ));
-    }
+    // Munkalap visszaküldése előkészítés státuszba, kiszervezve függvénybe, mert lehet többször is szükség lesz rá
+    munkalap_vissza_elokeszitesbe($_POST['recid']);
 
     $weblap->leallit();
     exit();
@@ -6918,7 +6758,12 @@ require('selectek.php');
         if( $sor['stat_id']==MUNKALAP_STAT_DONTESRE_VAR && _jog(JOG_MUNKALAP_KULSOS_ELOKESZIT) && $sor['jh1_login']=='' && $sor['jh2_login']=='' ){
             $gombok .= '<input type="button" class="gomb" value="Jóváhagyott érték módosítása" onclick="csoportMuvelet(\'munkalapJovahagyottErtekModositasa\')"> ';
         }
-        if( ($sor['stat_id']==MUNKALAP_STAT_DONTESRE_VAR || $sor['stat_id']==MUNKALAP_STAT_HOZZARENDELT) && _jog(JOG_MUNKALAP_KULSOS_ELOKESZIT) && $sor['jh1_login']=='' && $sor['jh2_login']=='' ){
+        
+        // Vissza előkészítésre
+        if(
+                ($sor['stat_id']==MUNKALAP_STAT_DONTESRE_VAR && _jog(JOG_MUNKALAP_KULSOS_ELOKESZIT) && $sor['jh1_login']=='' && $sor['jh2_login']=='') ||
+                ($sor['stat_id']==MUNKALAP_STAT_HOZZARENDELT && _jog(JOG_MUNKALAP_KEZEL_KULSO)      && $sor['szemelyzet_id']==KULSO_KIVITELEZO )
+           ){
             $gombok .= nl2('
                             <script> gomb_vissza_elok = \'<input type="button" class="gomb zold" onclick="munkalapVisszaElokeszit()" value="Igen"><input type="button" class="gomb piros" onclick="alert2()" value="Nem">\'; </script>
                             <input type="button" class="gomb" value="Vissza előkészítésre" onclick="alert2(\'Biztosan visszaadja előkészítésre?\', gomb_vissza_elok)">
@@ -6990,11 +6835,6 @@ require('selectek.php');
         $tiltott_stat = array(MUNKALAP_STAT_IGAZOLASRA_VAR, MUNKALAP_STAT_LEZARASRA_VAR, MUNKALAP_STAT_LEZART);
         if( $sor['szallito_id'] && !in_array($sor['stat_id'], $tiltott_stat) && (_jog(JOG_MUNKALAP_NYITOTT_KEZEL) || _jog(JOG_MUNKALAP_KEZEL_KULSO) ) ){
             $gombok .= '<input type="button" class="gomb" value="Várható érk. megadása" onclick="csoportMuvelet(\'munkalapVarhatoErkMegad\');"> ';
-        }
-
-        // Vissza előkészítésre
-        if( _jog(JOG_MUNKALAP_KEZEL_KULSO) && $sor['stat_id']==MUNKALAP_STAT_HOZZARENDELT && $sor['szemelyzet_id']==KULSO_KIVITELEZO ){
-            $gombok .= '<input type="button" class="gomb" value="Vissza előkészítésre" onclick="munkalapVisszaElokeszitesre(\'csak kérdezünk még\');"> ';
         }
 
         $muv_style = ' style="width: calc(100% - '.($_SESSION['defaultCsuszka'] + 16).'px);"';

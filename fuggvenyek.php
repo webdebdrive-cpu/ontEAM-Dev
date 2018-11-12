@@ -8358,3 +8358,112 @@ function get_mail_teszt_felirat(){
     }
     return array($targy_kieg, $uzi_kieg);
 }
+
+// Munkalap visszaküldése előkészítés státuszba, kiszervezve függvénybe, mert lehet többször is szükség lesz rá
+function munkalap_vissza_elokeszitesbe($recid){
+    
+    global $adatbazis_kapcsolat;
+    global $db_kapcs;
+    
+    $db_error = false;
+    mysqli_autocommit($db_kapcs, false);
+
+    $sor = $adatbazis_kapcsolat->s2('ikt_szam, stat_id, jh1_login, jh2_login, szemelyzet_id', 'munkalap', "`recid`='{$recid}'");
+    if( $sor === false ) { $db_error = true; }
+
+    // Státusz ellenőrzése
+    if( $sor['stat_id']!=MUNKALAP_STAT_DONTESRE_VAR && $sor['stat_id']!=MUNKALAP_STAT_HOZZARENDELT ){
+        echo json_encode(array(
+            'hiba'  => 'Ebben a státuszban a munkalap nem küldhető vissza előkészítésre!',
+            'title' => 'Hiba',
+        ));
+        $weblap->leallit();
+        exit();
+    }
+
+    // Jog ellenőrzése
+    if( !_jog(JOG_MUNKALAP_KULSOS_ELOKESZIT) && !_jog(JOG_MUNKALAP_KEZEL_KULSO) ){
+        echo json_encode(array(
+            'hiba'  => 'Nincs jogosultsága a munkalapot visszaküldeni előkészítésre!',
+            'title' => 'Hiba',
+        ));
+        $weblap->leallit();
+        exit();
+    }
+    
+    // Státusz + jog kombinációk ellenőrzése
+    if(
+        !(
+            ($sor['stat_id']==MUNKALAP_STAT_DONTESRE_VAR && _jog(JOG_MUNKALAP_KULSOS_ELOKESZIT) && $sor['jh1_login']=='' && $sor['jh2_login']=='') ||
+            ($sor['stat_id']==MUNKALAP_STAT_HOZZARENDELT && _jog(JOG_MUNKALAP_KEZEL_KULSO)      && $sor['szemelyzet_id']==KULSO_KIVITELEZO )
+        )
+    ){
+        echo json_encode(array(
+            'hiba'  => 'Nincs jogosultsága a munkalapot visszaküldeni előkészítésre!',
+            'title' => 'Hiba',
+        ));
+        $weblap->leallit();
+        exit();
+    }
+
+    // Döntés alatt státusz esetén
+    if( $sor['stat_id']==MUNKALAP_STAT_DONTESRE_VAR ){
+        
+        // Ellenőrizzük, hogy volt-e már jóváhagyás?
+        if( $sor['jh1_login'] || $sor['jh2_login'] ){
+            echo json_encode(array(
+                'hiba'  => 'A munkalapot már jóváhagyta legalább egy szereplő, így nem küldhető vissza előkészítésre!',
+                'title' => 'Hiba',
+            ));
+            $weblap->leallit();
+            exit();
+        }
+
+        // Nézzük meg, ki tette legutóbb döntés státuszba. Annak a usernek a személyzettípusát állítsuk be hozzárendelt személynek, illetve ürítjük a külső kivitelezőt és jóváhagyott értéket
+        $dontes_statusz = $adatbazis_kapcsolat->s2('login', 'munkalap_statusz', "`munkalap_recid`='{$recid}' AND `stat_id`='".MUNKALAP_STAT_DONTESRE_VAR."'", 'recid desc', '1');
+        if( $dontes_statusz === false ) { $db_error = true; }
+        $login = $adatbazis_kapcsolat->s2('szemelyzet_id', 'login', "`nev`='{$dontes_statusz['login']}'");
+        if( $login === false ) { $db_error = true; }
+        $sql = $adatbazis_kapcsolat->u('munkalap', 
+                                                array('szemelyzet_id',          'szallito_id', 'becs_ertek', 'mail_ment', 'jh_ert',   'varh_erk'              ),
+                                                array($login['szemelyzet_id'],  '',            '0',          '0',         '0',        '0000-00-00 00:00:00'   ),
+                                        "`recid`='{$recid}'");
+        if( $sql === false ) { $db_error = true; }
+    }
+    
+    // Hozzárendelt státusz esetén a hozzárendelt személy automatikusan a műszaki vezető lesz
+    if( $sor['stat_id']==MUNKALAP_STAT_HOZZARENDELT ){
+        $sql = $adatbazis_kapcsolat->u('munkalap', 
+                                                array('szemelyzet_id', 'szallito_id', 'becs_ertek', 'mail_ment', 'jh_ert',   'varh_erk'              ),
+                                                array(MUSZAKI_VEZETO,  '',            '0',          '0',         '0',        '0000-00-00 00:00:00'   ),
+                                        "`recid`='{$recid}'");
+        if( $sql === false ) { $db_error = true; }
+    }
+    
+    // Státusz léptetés
+    if( !addStatusz( 'munkalap_statusz', $recid, MUNKALAP_STAT_ELOKESZITES_ALATT ) ) {
+        $db_error = true;
+    }
+    
+    // Logolás
+    $muvelet = $_SESSION[get_db_tabla().'teljes_nev'].' a '.$sor['ikt_szam'].' iktatószámú munkalapot visszatette előkészítésre.';
+    $sql = $adatbazis_kapcsolat -> i(
+                                        'log',
+                                        array( 'felh_id',                               'nev',       'valtozas', 'ip'                   ),
+                                        array( $_SESSION[get_db_tabla().'login_recid'], $muvelet,    $muvelet,   $_SERVER['REMOTE_ADDR'])
+                                    );
+    if( $sql === false ) { $db_error = true; }
+
+    if( !$db_error ) {
+        mysqli_commit($db_kapcs);
+        echo json_encode(array(
+            'statusz' => 'siker'
+        ));
+    } else {
+        mysqli_rollback($db_kapcs);
+        echo json_encode(array(
+            'hiba'  => tranzakcioHiba(),
+            'title' => 'Hiba',
+        ));
+    }
+}
