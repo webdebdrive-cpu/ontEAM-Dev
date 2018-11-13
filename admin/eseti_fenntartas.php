@@ -149,7 +149,13 @@ if (isset($_GET['csv'])) {
                 if($kulcs=='Helyiség'){
                     $sor = getErtek('nev', 'obj', 'recid', $sor);
                 }
-                $csvcont[] = iconv2($mibol, $mibe, strip_tags( htmlspecialchars_decode( $sor ) ) );
+                
+                // Lehet nem volna elég 1-szer sőt kétszer sem ráereszteni a htmlspecialchars_decode-ot
+                $sor = htmlspecialchars_decode( $sor );
+                while(strpos($sor, '&amp;')!==false || strpos($sor, '&quot;')!==false ){
+                    $sor = htmlspecialchars_decode( $sor );
+                }
+                $csvcont[] = iconv2($mibol, $mibe, strip_tags( $sor ) );
             }
             fputcsv($open, $csvcont, ';');
         }

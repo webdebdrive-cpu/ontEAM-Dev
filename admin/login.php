@@ -535,14 +535,14 @@ if (isset($_GET['csv'])) {
 
         if( $_SESSION['nyomtatas_ids'] ) {
             if( strstr($_SESSION['akt_sql'], 'WHERE') ) {
-                $lekerdezes_fromtol = str_replace('WHERE', "WHERE `recid` IN (".$_SESSION['nyomtatas_ids'].") AND ", $lekerdezes_fromtol);
+                $lekerdezes_fromtol = str_replace('WHERE', "WHERE `".get_db_tabla().$megnevezes."`.`recid` IN (".$_SESSION['nyomtatas_ids'].") AND ", $lekerdezes_fromtol);
             } else {
-                $lekerdezes_fromtol = str_replace('ORDER', "WHERE `recid` IN (".$_SESSION['nyomtatas_ids'].") ORDER", $lekerdezes_fromtol);
+                $lekerdezes_fromtol = str_replace('ORDER', "WHERE `".get_db_tabla().$megnevezes."``recid` IN (".$_SESSION['nyomtatas_ids'].") ORDER", $lekerdezes_fromtol);
             }
         }
 
         $sql = 'SELECT
-                                                    `nev` as \'Loginnév\',
+                                                    `'.get_db_tabla().$megnevezes.'`.`nev` as \'Loginnév\',
                                                     `teljes_nev` as \'Teljes név\',
                                                     `usertel` as \'Telefon\',
                                                     `usermail` as \'E-mail\',
@@ -553,7 +553,7 @@ if (isset($_GET['csv'])) {
                                                     `torolve` as \'Törölve\',
                                                     `aktiv` as \'Aktiv\'
                                                     '.$lekerdezes_fromtol;
-
+//echo $sql . '<br>';
         $query      = mysqli_query($db_kapcs, $sql);
 
         $csvhead    = array();
@@ -579,7 +579,13 @@ if (isset($_GET['csv'])) {
                         $sor = 'nem';
                     }
                 }
-                $csvcont[] = iconv2($mibol, $mibe, strip_tags( htmlspecialchars_decode( $sor ) ) );
+                
+                // Lehet nem volna elég 1-szer sőt kétszer sem ráereszteni a htmlspecialchars_decode-ot
+                $sor = htmlspecialchars_decode( $sor );
+                while(strpos($sor, '&amp;')!==false || strpos($sor, '&quot;')!==false ){
+                    $sor = htmlspecialchars_decode( $sor );
+                }
+                $csvcont[] = iconv2($mibol, $mibe, strip_tags( $sor ) );
             }
             fputcsv($open, $csvcont, ';');
         }
