@@ -1347,7 +1347,7 @@ console.log('b'+active_top);
 
         felt = $('.f_felt').val();
         if(!felt){
-            alert2('Kérjük állítsa be a szűrési feltételt!');
+            alert2('Kérjük állítsa be a szűrési feltételt!', '', 'Hiba');
         }else{
             /* Autocompletenek az ID-ját tegyük az URL-be */
             if($('.f_felt').attr('id')){
@@ -1411,7 +1411,7 @@ console.log('b'+active_top);
 
         /* Hibaellenőrzés, majd mehet */
         if(!feltetel_ertek){
-            alert2('Kérjük állítsa be a szűrési feltételt!');
+            alert2('Kérjük állítsa be a szűrési feltételt!', '', 'Hiba');
         }else{
 
             /* Feltételek törlése gomb megjelenítése */
