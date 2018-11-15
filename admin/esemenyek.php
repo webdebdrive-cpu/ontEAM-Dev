@@ -995,13 +995,7 @@ if( !_jog(JOG_FELHASZNALOK_KEZEL) ){
 // Ha egy login adatlapján vagyunk, akkor a társrészlegeket ki kell listázni
 $reszlegek_html = '';
 if ( basename(self())=='login.php' && isset($_GET['modosit']) && $_GET['id'] ) {
-    $reszlegidk = $adatbazis_kapcsolat->s('reszleg_id', 'login_tarsreszleg', "`login_id`='{$_GET['id']}'");
-    $reszlegidk = adatbazis2tomb($reszlegidk, 'reszleg_id');
-
-    $reszlegek = $adatbazis_kapcsolat->s('info', 'erteklista', "`id` IN (".implode(',', $reszlegidk).") AND `csoport`='".ERTEKLISTA_RESZLEG."'", 'info');
-    foreach($reszlegek as $reszleg){
-        $reszlegek_html .= $reszleg['info'] . '<br>';
-    }
+    $reszlegek_html = get_tarsreszleg_lista($_GET['id']);
 }
 if(!$reszlegek_html){
     $reszlegek_html = '-';

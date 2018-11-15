@@ -106,7 +106,8 @@ if (isset($_GET['csv'])) {
                                                     `obj_txt` as \'Helyiség\',
                                                     `helyiseg_text` as \'Hely leírása\',
                                                     `gep_id` as \'Gépnév\',
-                                                    `stat_id` as \'Státusz\'
+                                                    `stat_id` as \'Státusz\',
+                                                    `'.get_db_tabla().$megnevezes.'`.`insert_dt` as \'Bejelentés dátuma\'
                                                     '.$lekerdezes_fromtol;
 
         $query      = mysqli_query($db_kapcs, $sql);

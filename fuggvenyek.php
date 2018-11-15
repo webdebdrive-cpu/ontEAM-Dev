@@ -635,8 +635,9 @@ function i_u($type, $tabla, $tomb) {
             if( $sql === false ) { $db_error = true; }
         }
 
-        // Szállodákat is beállítjuk
+        // Szállodákat és társrészlegeket is beállítjuk
         if( $tabla == 'login' ) {
+            // Szállodák feldolgozása
             $adatok = explode(',', str_replace(array('"', '{', '}'), '', $_POST['szallodak_hidden']));
             foreach($adatok as $adat){
                 list($x, $telephely_id) = explode(':', $adat);
@@ -644,6 +645,20 @@ function i_u($type, $tabla, $tomb) {
                                                             array('nev',        'telephely_id', 'insert_dt',    'insert_usr',                             'update_usr'                           ),
                                                             array($_POST['nev'], $telephely_id, 'NOW()',        $_SESSION[get_db_tabla().'teljes_nev'],   $_SESSION[get_db_tabla().'teljes_nev'] )
                                                 );
+                if( $sql === false ) { $db_error = true; }
+            }
+            
+            // Társrészlegek feldolgozása
+            $adatok = explode(',', str_replace(array('"', '{', '}'), '', $_POST['tarsreszlegek_hidden']));
+            foreach($adatok as $adat){
+                list($x, $reszleg_id) = explode(':', $adat);
+                // Részlegid-k felvétele, ha nem az adatlap részlege
+                if($reszleg_id != $_POST['reszleg_id']){
+                    $sql = $adatbazis_kapcsolat->i('login_tarsreszleg',
+                                                                array('login_id',   'reszleg_id', 'insert_dt',    'insert_usr',                             ),
+                                                                array($id,          $reszleg_id,  'NOW()',        $_SESSION[get_db_tabla().'teljes_nev']    )
+                                                    );
+                }
                 if( $sql === false ) { $db_error = true; }
             }
         }
@@ -8466,4 +8481,25 @@ function munkalap_vissza_elokeszitesbe($recid){
             'title' => 'Hiba',
         ));
     }
+}
+
+// Társrészleg lista előállítása egy $loginID-ból
+function get_tarsreszleg_lista($loginID){
+    
+    global $adatbazis_kapcsolat;
+    
+    $reszlegek_html = '';
+    
+    $reszlegidk = $adatbazis_kapcsolat->s('reszleg_id', 'login_tarsreszleg', "`login_id`='{$loginID}'");
+    $reszlegidk = adatbazis2tomb($reszlegidk, 'reszleg_id');
+
+    $reszlegek = $adatbazis_kapcsolat->s('info', 'erteklista', "`id` IN (".implode(',', $reszlegidk).") AND `csoport`='".ERTEKLISTA_RESZLEG."'", 'info');
+    foreach($reszlegek as $reszleg){
+        $reszlegek_html .= $reszleg['info'] . '<br>';
+    }
+    if(!$reszlegek_html){
+        $reszlegek_html = '-';
+    }
+    
+    return $reszlegek_html;
 }

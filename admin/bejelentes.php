@@ -738,14 +738,14 @@ if (isset($_GET['csv'])) {
 
         $sql = 'SELECT
                     `ikt_szam` as \'Bejelentés szám\',
-                    `'.get_db_tabla().'bejelentes`.`telephely_id` as \'Szálloda\',
+                    `'.get_db_tabla().$megnevezes.'`.`telephely_id` as \'Szálloda\',
                     `hiba_id` as \'Bejelentett hiba\',
                     `hiba_text` as \'Hiba leírása\',
                     `obj_txt` as \'Helyiség\',
                     `helyiseg_text` as \'Hely leírása\',
                     `gep_id` as \'Gépnév\',
                     `stat_id` as \'Státusz\',
-                    `'.get_db_tabla().'bejelentes`.`insert_dt` as \'Bejelentés dátuma\'
+                    `'.get_db_tabla().$megnevezes.'`.`insert_dt` as \'Bejelentés dátuma\'
                     '.$lekerdezes_fromtol;
 
         $query      = mysqli_query($db_kapcs, $sql);

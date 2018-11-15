@@ -1,7 +1,7 @@
 <?php
 require_once('../weblap.php');
 
-if( !_jog(17) ) {
+if( !_jog(JOG_RAKTAR_MEGTEKINT) ) {
     if(!$_SESSION[get_db_tabla().'user']){
         $weblap -> leallit();
         header('Location: index.php');
@@ -105,7 +105,7 @@ require_once('selectek.php');
     $js_submit_elott = 'return form_ell_admin();';
     
 	// Új termék felvitele
-	if(isset($_GET['uj']) && _jog(18) && !$csak_szerkesztheto){
+	if(isset($_GET['uj']) && _jog(JOG_RAKTAR_KEZEL) && !$csak_szerkesztheto){
 
         //NAVIGÁCIÓ
         $gombok = '';
@@ -266,7 +266,7 @@ require_once('selectek.php');
 
         $jobb_oldal = '';
 
-        if(_jog(18)){
+        if(_jog(JOG_RAKTAR_KEZEL)){
             $gombok = nl2('
                 <div class="form_kuldes">
                     <input type="button" class="gombb mentes_gomb" name="mehet_gomb" id="mehet_gomb" disabled value="Mentés" onclick="szurkit(\'mehet_megsem_rejt\'); $(\'#szerk_form\').submit()">

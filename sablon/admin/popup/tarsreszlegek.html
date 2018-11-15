@@ -31,24 +31,30 @@ function addReszleg( loginID, that ) {
         data[i] = value;
     });
 
+    /* Új feltöltéskor csak hidden inputba tesszük az adatokat. */
+    if(_get('uj')){
+        $('#tarsreszlegek_hidden').val( JSON.stringify(data) );
+        popupZar();
+        return false;
+    }
+
     if( loginID ) {
         var ajax = $.ajax({
          	url : 'login.php',
          	type: 'GET',
          	data: esamp2es('loginID=' + loginID + '&amp;reszlegIDs=' + JSON.stringify(data) + '&amp;addReszleg=' + new Date().getTime()),
-         	success: function(html) {
-                if(html.substring(0, 6)=='SESKIL'){ location.href = 'index.php'; }
-         		if(html) {
-                    html = JSON.parse(html);
+         	success: function(response) {
+                if(response.substring(0, 6)=='SESKIL'){ location.href = 'index.php'; }
+         		if(response) {
+                    response = JSON.parse(response);
 
-                    if( html.statusz == 'hiba' ) {
-                        alert2(html.uzi, '', 'Hiba');
+                    if( response.hiba ) {
+                        alert2(response.hiba, response.gomb, response.title);
                         return false;
                     }
-
-         			szamlaBetolt(loginID, baseName(location.href) + '.php', 'modosit').done(function() {
-
-                    });
+                    
+                    /* Adatlapon frissítjük a társrészlege listáját */
+                    $('#tarsreszlegek').html(response.tarsreszlegek);
 
                     popupZar();
          		}

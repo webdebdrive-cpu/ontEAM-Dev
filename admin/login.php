@@ -287,17 +287,12 @@ if( isset($_POST['getReszlegek']) ) {
         if( in_array($reszleg['id'], $felh_reszlegek) ) {
             $checked = ' checked="checked"';
         }
-        
-        $disabled = '';
-        if($akt_reszleg['reszleg_id']==$reszleg['id']){
-            $disabled = ' disabled';
-        }
 
         $html .= nl2('
             <div class="dtr">
                 <div class="dtc">
                     <div class="cb">
-                        <input type="checkbox" class="check" name="reszleg[]" id="reszleg-'.$reszleg['id'].'" value="'.$reszleg['id'].'"'.$checked.$disabled.'>
+                        <input type="checkbox" class="check" name="reszleg[]" id="reszleg-'.$reszleg['id'].'" value="'.$reszleg['id'].'"'.$checked.'>
                         <label for="reszleg-'.$reszleg['id'].'"></label>
                     </div>
                 </div>
@@ -324,8 +319,8 @@ if( isset($_GET['addReszleg']) ) {
 
     if(!_jog(JOG_FELHASZNALOK_KEZEL)){
         echo json_encode(array(
-            'statusz' => 'hiba',
-            'uzi'     => 'Önnek nincs joga felhasználót kezelni!'
+            'hiba'      => 'Önnek nincs joga felhasználót kezelni!',
+            'title'     => 'Hiba'
         ));
         $weblap->leallit();
         exit();
@@ -364,13 +359,16 @@ if( isset($_GET['addReszleg']) ) {
                                         array( $_SESSION[get_db_tabla().'login_recid'], $_SESSION[get_db_tabla().'teljes_nev'].' módosította '.$felh['nev'].' társrészlegeit',  $log,          $_SERVER['REMOTE_ADDR'] )
                                     );
             if( $sql === false ) { $db_error = true; }
+            
+            // Számoljuk ki az aktuális társrészlegek listáját, hogy az adatlapon ki tudjuk cserélni
+            $reszlegek_html = get_tarsreszleg_lista($loginID);
 
             if( !$db_error ) {
                 mysqli_commit($db_kapcs);
                 echo json_encode(array(
-                    'statusz' => 'siker',
-                    'kapcsID' => $kapcsID,
-                    'uzi'     => ''
+                    'statusz'       => 'siker',
+                    'kapcsID'       => $kapcsID,
+                    'tarsreszlegek' => $reszlegek_html,
                 ));
             } else {
                 mysqli_rollback($db_kapcs);
@@ -382,8 +380,8 @@ if( isset($_GET['addReszleg']) ) {
 
         } else {
             echo json_encode(array(
-                'statusz' => 'hiba',
-                'uzi'     => 'Felhasználó azonosítása nem sikerült!'
+                'hiba'      => 'Felhasználó azonosítása nem sikerült!',
+                'title'     => 'Hiba'
             ));
         }
     }
@@ -667,6 +665,7 @@ require_once('selectek.php');
         $gombok .= nl2('
                         <input type="button" class="gomb" value="Szállodák hozzáadása" onclick="kapcsolodoSzerkeszt(\'szallodak\');">
                         <input type="hidden" name="szallodak_hidden" id="szallodak_hidden">
+                        <input type="hidden" name="tarsreszlegek_hidden" id="tarsreszlegek_hidden">
                         ');
         if(_jog(JOG_FELHASZNALOK_KEZEL)){
             $gombok = nl2('

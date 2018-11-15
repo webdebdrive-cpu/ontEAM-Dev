@@ -35,7 +35,7 @@ function addSzalloda( loginID, that ) {
         data[i] = value;
     });
 
-    /* Új feltöltéskor csak hidden inputba teszük az adatokat. */
+    /* Új feltöltéskor csak hidden inputba tesszük az adatokat. */
     if(_get('uj')){
         $('#szallodak_hidden').val( JSON.stringify(data) );
         popupZar();

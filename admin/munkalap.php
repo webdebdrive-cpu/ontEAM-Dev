@@ -6183,7 +6183,8 @@ if (isset($_GET['csv'])) {
                 `szallito_id` as \'Külső kivitelező\',
                 `szemelyzet_id` as \'Hozzárendelt személyzet\',
                 `ig_el_id` as \'Igényelt elvégzés\',
-                `varh_erk` as \'Várható érkezés\'
+                `varh_erk` as \'Várható érkezés\',
+                `'.get_db_tabla().$megnevezes.'`.`insert_dt` as \'Munkalap létrehozás dátuma\'
                 '.$lekerdezes_fromtol;
 
         $query      = mysqli_query($db_kapcs, $sql);
