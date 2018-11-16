@@ -2091,6 +2091,14 @@ if (isset($_GET['csv'])) {
                 foreach($anyagigenylesek as $anyagigenyles){
 
                     $csvcont = array();
+                    
+                    // &amp;-ok kiszűrése
+                    $mezok = array('Cikk szám', 'Cikk név', 'Igényelt mennyiség', 'Leírás', 'Mee', 'Deviza rend. egységár', 'Jóváhagyott mennyiség');
+                    foreach($mezok as $mezo){
+                        while(strpos($sor[$mezo], '&amp;')!==false || strpos($sor[$mezo], '&quot;')!==false ){
+                            $sor[$mezo] = htmlspecialchars_decode( $sor[$mezo] );
+                        }
+                    }
 
                     // Itt legyünk összhangban a fejléccel
                     $csvcont[] = iconv($mibol, $mibe.'//TRANSLIT', strip_tags( htmlspecialchars_decode( $anyagigenyles['rndid'] ) ) );

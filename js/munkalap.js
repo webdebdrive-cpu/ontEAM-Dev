@@ -384,11 +384,17 @@ function munkalapKulsosJovahagy(csak_kerdezunk) {
                         return false;
                     }
 
+                    /*
+                    Eredetileg a 2. jóváhagyásakor a lista első elemére kattintottunk. De miért?
+                    Kivettük, mert Tibi jelezte, hogy zavaró, hogy elugrunk az adatlapról, helyette mindig szamlaBetolt(...). 2018.11.16
+                    
                     if(response.masodik_jovahagyo=='1'){
                         $('#szamlaList li:first-of-type').click();
                     }else{
                         szamlaBetolt( _get('id'), 'munkalap.php', 'modosit' );
-                    }
+                    }*/
+                    szamlaBetolt( _get('id'), 'munkalap.php', 'modosit' );
+                    
                     
                 }
             }
@@ -1026,6 +1032,66 @@ function get_kulso_hozzarendeles_input_tartalmak(){
                 if( munkalap.surgos>0 ){
                     uzenet += "Sürgős !!!\n\n";
                 }
+
+                if( munkalap.bejelentes_hiba_text ){
+                    hiba = munkalap.bejelentes_hiba_text;
+                }else{
+                    hiba = munkalap.text;
+                }
+
+                if( munkalap.bejelentes_hely ){
+                    hely = munkalap.bejelentes_hely;
+                }else{
+                    hely = munkalap.hely;
+                }
+                
+                if( munkalap.bejelento ){
+                    bejelento = munkalap.bejelento;
+                }else{
+                    bejelento = munkalap.letrehozta;
+                }
+
+                uzenet +=   "Hiba: "      + hiba      + "\n\n"  +
+                            "Hely: "      + hely      + "\n\n"  +
+                            "Bejelentő: " + bejelento + "\n\n"  +
+                            "Köszönettel,\n"                    +
+                            munkalap.akt_felh_nev     + "\n"    +
+                            munkalap.akt_felh_beosztas+ "\n"    +
+                            munkalap.akt_felh_tel;
+
+                $('#pop_uzenet').val(uzenet);
+                
+            }
+        }
+    });
+    
+}
+
+/* ML visszavételezés popup inputjait be kell állítani, alapértemlezett értékekkel feltölteni */
+function get_ml_visszavetelezes_input_tartalmak(){
+    
+    /* ML adatainak elkérdezése */
+    $.ajax({
+        url : 'munkalap.php',
+        type: 'POST',
+        data: {
+            recid                   : _get('id'),
+            get_ml_adatok_levelhez  : Date.now()
+        },
+        success: function (munkalap) {
+            if (munkalap) {
+                munkalap = JSON.parse(munkalap);
+                
+                /* Kérdés */
+                $('#pop_kerdes').html('Munkalapszám: '+munkalap.ikt_szam+'<br>Szálloda: '+munkalap.telephely_nev+'<br>Biztos, hogy visszaveszi a munkalapot?');
+                
+                /* Levélküldés mezőinek alapértelmezett értékének beállítsa */
+                $('#pop_cimzett').val(munkalap.mailcimek);
+                $('#pop_targy').val( munkalap.ikt_szam+' '+munkalap.telephely_nev+' ' );
+
+                uzenet =    "Tisztelt Partnerünk,\n\n"                      +
+                            "Mégsem kérjük Önöktől az alábbi hiba javítását:\n\n"  +
+                            "Munkalap szám: "+munkalap.ikt_szam+"\n\n";
 
                 if( munkalap.bejelentes_hiba_text ){
                     hiba = munkalap.bejelentes_hiba_text;
