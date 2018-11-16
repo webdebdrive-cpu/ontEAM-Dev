@@ -1026,7 +1026,7 @@ if (isset($_GET['csv'])) {
                         while(strpos($sor, '&amp;')!==false || strpos($sor, '&quot;')!==false ){
                             $sor = htmlspecialchars_decode( $sor );
                         }
-                        $csvcont[] = iconv2($mibol, $mibe, strip_tags( $sor ) );
+                        $csvcont[] = iconv($mibol, $mibe.'//TRANSLIT', strip_tags( $sor ) );
                     }
 
                     fputcsv($open, $csvcont, ';');
@@ -1077,7 +1077,7 @@ if (isset($_GET['csv'])) {
                         if($kulcs=='Energia terv dátuma'){
                             $sor = datum_kiir($sor);
                         }
-                        $csvcont[] = iconv2($mibol, $mibe, strip_tags( htmlspecialchars_decode( $sor ) ) );
+                        $csvcont[] = iconv($mibol, $mibe.'//TRANSLIT', strip_tags( htmlspecialchars_decode( $sor ) ) );
                     }
 
                     fputcsv($open, $csvcont, ';');

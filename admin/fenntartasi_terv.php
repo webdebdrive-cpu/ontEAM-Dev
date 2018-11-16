@@ -2594,7 +2594,7 @@ if (isset($_GET['csv'])) {
                         while(strpos($sor, '&amp;')!==false || strpos($sor, '&quot;')!==false ){
                             $sor = htmlspecialchars_decode( $sor );
                         }
-                        $csvcont[] = iconv2($mibol, $mibe, strip_tags( $sor ) );
+                        $csvcont[] = iconv($mibol, $mibe.'//TRANSLIT', strip_tags( $sor ) );
 
                         // Mee oszlop után a kalkulált oszlopot még beszúrjuk
                         if($kulcs=='Mee'){
@@ -2692,7 +2692,7 @@ if (isset($_GET['csv'])) {
                         while(strpos($sor, '&amp;')!==false || strpos($sor, '&quot;')!==false ){
                             $sor = htmlspecialchars_decode( $sor );
                         }
-                        $csvcont[] = iconv2($mibol, $mibe, strip_tags( $sor ) );
+                        $csvcont[] = iconv($mibol, $mibe.'//TRANSLIT', strip_tags( $sor ) );
 
                         // Költségnem név oszlop után a kalkulált oszlopot még beszúrjuk
                         if($kulcs=='Költségnem név'){
@@ -2788,7 +2788,7 @@ if (isset($_GET['csv'])) {
                         while(strpos($sor, '&amp;')!==false || strpos($sor, '&quot;')!==false ){
                             $sor = htmlspecialchars_decode( $sor );
                         }
-                        $csvcont[] = iconv2($mibol, $mibe, strip_tags( $sor ) );
+                        $csvcont[] = iconv($mibol, $mibe.'//TRANSLIT', strip_tags( $sor ) );
 
                         // Tárgy oszlop után a kalkulált oszlopot még beszúrjuk
                         if($kulcs=='Tárgy'){
@@ -2981,7 +2981,7 @@ if (isset($_GET['csv'])) {
                         while(strpos($sor, '&amp;')!==false || strpos($sor, '&quot;')!==false ){
                             $sor = htmlspecialchars_decode( $sor );
                         }
-                        $csvcont[] = iconv2($mibol, $mibe, strip_tags( $sor ) );
+                        $csvcont[] = iconv($mibol, $mibe.'//TRANSLIT', strip_tags( $sor ) );
 
                         // Részletes leírás oszlop után a kalkulált oszlopot még beszúrjuk
                         if($kulcs=='Részletes leírás'){
@@ -3079,7 +3079,7 @@ if (isset($_GET['csv'])) {
                         while(strpos($sor, '&amp;')!==false || strpos($sor, '&quot;')!==false ){
                             $sor = htmlspecialchars_decode( $sor );
                         }
-                        $csvcont[] = iconv2($mibol, $mibe, strip_tags( $sor ) );
+                        $csvcont[] = iconv($mibol, $mibe.'//TRANSLIT', strip_tags( $sor ) );
 
                         // Részletes leírás oszlop után a kalkulált oszlopot még beszúrjuk
                         if($kulcs=='Részletes leírás'){
@@ -3172,7 +3172,7 @@ if (isset($_GET['csv'])) {
                         while(strpos($sor, '&amp;')!==false || strpos($sor, '&quot;')!==false ){
                             $sor = htmlspecialchars_decode( $sor );
                         }
-                        $csvcont[] = iconv2($mibol, $mibe, strip_tags( $sor ) );
+                        $csvcont[] = iconv($mibol, $mibe.'//TRANSLIT', strip_tags( $sor ) );
                     }
 
                     fputcsv($open, $csvcont, ';');
@@ -3298,7 +3298,7 @@ if (isset($_GET['csv'])) {
                             while(strpos($sor, '&amp;')!==false || strpos($sor, '&quot;')!==false ){
                                 $sor = htmlspecialchars_decode( $sor );
                             }
-                            $csvcont[] = iconv2($mibol, $mibe, strip_tags( $sor ) );
+                            $csvcont[] = iconv($mibol, $mibe.'//TRANSLIT', strip_tags( $sor ) );
 
                             // Költségnem név oszlop után a kalkulált oszlopot még beszúrjuk
                             if($kulcs=='Költségnem név'){
@@ -3374,7 +3374,7 @@ if (isset($_GET['csv'])) {
                         while(strpos($sor, '&amp;')!==false || strpos($sor, '&quot;')!==false ){
                             $sor = htmlspecialchars_decode( $sor );
                         }
-                        $csvcont[] = iconv2($mibol, $mibe, strip_tags( $sor ) );
+                        $csvcont[] = iconv($mibol, $mibe.'//TRANSLIT', strip_tags( $sor ) );
                     }
 
                     fputcsv($open, $csvcont, ';');

@@ -1601,7 +1601,7 @@ if( isset($_POST['munkalapKulsosElutasit']) ) {
             exit();
         }
 
-        // Visszaadva pipa bepipálása, személyzetek ésjóváhagyók kiszedése
+        // Visszaadva pipa bepipálása, személyzetek és jóváhagyók kiszedése
         $sql = $adatbazis_kapcsolat->u('munkalap',  array('visszaadva', 'szallito_id', 'jh_ert', 'varh_erk',            'becs_ertek',   'mail_ment',    'szemelyzet_id',  'jh1_login', 'jh1_datum',           'jh1_szerep', 'update_usr'                            ),
                                                     array(1,            '',            0,        '0000-00-00 00:00:00',  0,             0,              '',               '',          '0000-00-00 00:00:00',  0,            $_SESSION[get_db_tabla().'teljes_nev']  ),
                                                     "`recid`='{$recid}'");
@@ -6261,7 +6261,7 @@ if (isset($_GET['csv'])) {
                 while(strpos($sor, '&amp;')!==false || strpos($sor, '&quot;')!==false ){
                     $sor = htmlspecialchars_decode( $sor );
                 }
-                $csvcont[] = iconv2($mibol, $mibe, strip_tags( htmlspecialchars_decode( $sor ) ) );
+                $csvcont[] = iconv($mibol, $mibe.'//TRANSLIT', strip_tags( $sor ) );
             }
             fputcsv($open, $csvcont, ';');
         }

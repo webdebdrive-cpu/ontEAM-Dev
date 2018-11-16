@@ -143,7 +143,7 @@ require_once('header.php');
 			while( $jelentkezesek = mysqli_fetch_assoc($query) ){
 				$csvcont = array();
 				foreach( $jelentkezesek as $kulcs => $sor ) {
-					$csvcont[] = iconv2($mibol, $mibe, strip_tags( htmlspecialchars_decode( $sor ) ) );
+					$csvcont[] = iconv($mibol, $mibe.'//TRANSLIT', strip_tags( $sor ) );
 				}
 				fputcsv($open, $csvcont, ';');
 			}

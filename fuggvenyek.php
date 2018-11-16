@@ -7075,7 +7075,6 @@ function level_felkeszit_es_kuld($tabla, $recid, $ert_pipa, $sablon, $cimzett, $
 
             // Ha a címzett nem a diszpécser központi mailcím, akkor van csak megjegyzés
             if( $cimzett!='diszpecser_kozponti' ){
-                $adatbazis_kapcsolat->u($tabla, array('mail_ment'), array(1), "`recid`='{$recid}'");
                 $megj .= 'E-mail elküldve '.$akt_cimzett['teljes_nev'].' '.$szerepkor.' '.$felhasznalonak_szo.' '.$esemeny.'<br><br>';
             }
 
