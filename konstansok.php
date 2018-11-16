@@ -63,7 +63,7 @@ define('ELOT_BOD_STAT_DONT_ROG',            '03');
 define('MUNKALAP_STAT_NYITOTT',             '01');
 define('MUNKALAP_STAT_HOZZARENDELT',        '02');
 define('MUNKALAP_STAT_ELUTASITVA',          '03');
-// define('MUNKALAP_STAT_HOZZARENDELT<=korábban volt egy ilyen, de nem volt használatban, és a Folyamatban státusz kapta  meg ezt a nevet',        '05');
+// define('MUNKALAP_STAT_HOZZARENDELT<=korábban volt egy ilyen, de nem volt használatban, és a Folyamatban státusz kapta meg ezt a nevet',        '05');
 define('MUNKALAP_STAT_TOROLT',              '06');
 define('MUNKALAP_STAT_HATIDO_UTEMEZETT',    '07');
 define('MUNKALAP_STAT_FELVEVE',             '08');
@@ -80,6 +80,7 @@ define('MUNKALAP_STAT_BEOSZTAS_NELKUL',     '18');
 define('MUNKALAP_STAT_SZTORNO',             '19');
 define('MUNKALAP_STAT_VARAKOZO',            '20');
 define('MUNKALAP_STAT_AJANLAT_NYOMTATVA',   '21');
+define('MUNKALAP_STAT_SZTORNO_VAR',         '22');
 
 // Projektigénylés státuszok
 define('PRIGENY_STAT_NYITOTT',              '01' );

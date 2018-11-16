@@ -460,7 +460,7 @@ if (isset($_GET['jogok'])) {
                                         <td><img class="link" src="../elemek/admin/x.gif" alt="törlés" onclick="jog_torol(\''.$jog['id'].'\')"></td>
                                         <td><input type="text" name="jog_nev_'.$jog['id'].'" id="jog_nev_'.$jog['id'].'" value="'.$jog['nev'].'"></td>
                                         <td><textarea rows="1" cols="1" name="jog_oldalak_'.$jog['id'].'" id="jog_oldalak_'.$jog['id'].'">')
-                                        //Meg kell szakítani, hogy az nl2 ezt a részt ne egysorosítsa
+                                        // Meg kell szakítani, hogy az nl2 ezt a részt ne egysorosítsa
                                         .$jog['oldalak'].
                                         nl2('</textarea></td>
                                         <td><input type="button" class="gomb" value="Mentés" onclick="jog_mentes(\''.$jog['id'].'\')"></td>

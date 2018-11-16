@@ -1,0 +1,78 @@
+<h2>Vissza előkészítésre</h2>
+<form action="" id="munkalapKulso" class="popupForm" method="post" onsubmit="return munkalapVisszaElokeszitDirektbe();">
+    <div class="kozep" style="min-height: 20rem">
+        
+        <div class="dt">
+            <div class="dtr"> 
+                <div class="dtc form_jobb plr0">
+                    <div id="pop_kerdes" class="b"></div>
+                    <br>
+                    <br><strong>Címzett:</strong>
+                    <br><input type="text" id="pop_cimzett" class="oriasi disableNav popup_input_margo" maxlength="250">
+                    <br><strong>Tárgy:</strong>
+                    <br><input type="text" id="pop_targy" class="oriasi disableNav popup_input_margo" maxlength="250">
+                    <br><strong>Üzenet:</strong>
+                    <br><textarea id="pop_uzenet" class="popup_input_margo"></textarea>
+                    <br>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="kuldes">
+        <input type="hidden" id="email_kuldessel" value="0">
+        <input type="hidden" id="mehet_mail_nelkul" value="0">
+        <input type="button" class="gomb popup_input_margo" onclick="$('#email_kuldessel').val('1'); $('#munkalapKulso').submit();" value="Email küldése partnernek">
+        <input type="submit" name="elkuld" value="Igen">
+        <input type="button" name="megsem" class="gombb_alert" value="Nem" onclick="popupZar();">
+    </div>
+</form>
+<script>
+$(document).ready(function(){
+    
+    /* Munkalap visszavételezése adatok lekérése */
+    get_ml_visszavetelezes_input_tartalmak('vissza előkészítésre változat');
+    
+});
+    
+/* Munkalap átadása külső csoportnak */
+function munkalapVisszaElokeszitDirektbe() {
+
+    if(balnav_kijelol_ell()){
+
+        $.ajax({
+            url : 'munkalap.php',
+            type: 'POST',
+            data: {
+                recid                           : _get('id'),
+                email                           : $('#email_kuldessel').val(),
+                mehet                           : $('#mehet_mail_nelkul').val(),
+                cimzett                         : $('#pop_cimzett').val(),
+                targy                           : $('#pop_targy').val(),
+                uzenet                          : $('#pop_uzenet').val(),
+                munkalapVisszaElokeszitDirektbe : new Date().getTime()
+            },
+            success: function(response) {
+                if(response.substring(0, 6)=='SESKIL'){ location.href = 'index.php'; }
+                if(response) {
+                    response = JSON.parse(response);
+
+                    if( response.hiba ) {
+                        alert2(response.hiba, response.gomb, response.title);
+                        if(response.focus){
+                            $('#'+response.focus).focus();
+                        }
+                        return false;
+                    }
+
+                    szamlaBetolt(_get('id'), baseName(location.href) + '.php', 'modosit');
+                    popupZar();
+                }
+            }
+        });
+
+    }
+
+    return false;
+}
+
+</script>

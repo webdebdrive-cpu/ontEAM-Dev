@@ -73,6 +73,7 @@ $_stat_text = array(
         MUNKALAP_STAT_NYITOTT               => array('nev' => 'Nyitott',                                        'szinkod' => '#fff'),
         MUNKALAP_STAT_TOROLT                => array('nev' => 'Törölt',                                         'szinkod' => '#fff'),
         MUNKALAP_STAT_VIZSGALAT_ALATT       => array('nev' => 'Vizsgálat alatt',                                'szinkod' => ''),
+        MUNKALAP_STAT_SZTORNO_VAR           => array('nev' => 'Megr. Sztornóra vár',                            'szinkod' => ''),
         MUNKALAP_STAT_SZTORNO               => array('nev' => 'Sztornó',                                        'szinkod' => '#D73F37'),
         MUNKALAP_STAT_VARAKOZO              => array('nev' => 'Várakozó',                                       'szinkod' => ''),
     ),

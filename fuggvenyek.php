@@ -8374,7 +8374,7 @@ function get_mail_teszt_felirat(){
 }
 
 // Munkalap visszaküldése előkészítés státuszba, kiszervezve függvénybe, mert lehet többször is szükség lesz rá
-function munkalap_vissza_elokeszitesbe($recid){
+function munkalap_vissza_elokeszitesbe($recid, $memo, $statusz){
     
     global $adatbazis_kapcsolat;
     global $db_kapcs;
@@ -8439,8 +8439,8 @@ function munkalap_vissza_elokeszitesbe($recid){
         $login = $adatbazis_kapcsolat->s2('szemelyzet_id', 'login', "`nev`='{$dontes_statusz['login']}'");
         if( $login === false ) { $db_error = true; }
         $sql = $adatbazis_kapcsolat->u('munkalap', 
-                                                array('szemelyzet_id',          'szallito_id', 'becs_ertek', 'mail_ment', 'jh_ert',   'varh_erk'              ),
-                                                array($login['szemelyzet_id'],  '',            '0',          '0',         '0',        '0000-00-00 00:00:00'   ),
+                                                array('szemelyzet_id',          'szallito_id', 'becs_ertek', 'mail_ment', 'jh_ert', 'direktbe', 'varh_erk'              ),
+                                                array($login['szemelyzet_id'],  '',            0,            0,           0,        0,        '0000-00-00 00:00:00'   ),
                                         "`recid`='{$recid}'");
         if( $sql === false ) { $db_error = true; }
     }
@@ -8448,15 +8448,25 @@ function munkalap_vissza_elokeszitesbe($recid){
     // Hozzárendelt státusz esetén a hozzárendelt személy automatikusan a műszaki vezető lesz
     if( $sor['stat_id']==MUNKALAP_STAT_HOZZARENDELT ){
         $sql = $adatbazis_kapcsolat->u('munkalap', 
-                                                array('szemelyzet_id', 'szallito_id', 'becs_ertek', 'mail_ment', 'jh_ert',   'varh_erk'              ),
-                                                array(MUSZAKI_VEZETO,  '',            '0',          '0',         '0',        '0000-00-00 00:00:00'   ),
+                                                array('szemelyzet_id', 'szallito_id', 'becs_ertek', 'mail_ment', 'direktbe', 'jh_ert',   'varh_erk'              ),
+                                                array(MUSZAKI_VEZETO,  '',            0,            0,           0,          0,          '0000-00-00 00:00:00'   ),
                                         "`recid`='{$recid}'");
         if( $sql === false ) { $db_error = true; }
     }
     
-    // Státusz léptetés
-    if( !addStatusz( 'munkalap_statusz', $recid, MUNKALAP_STAT_ELOKESZITES_ALATT ) ) {
+    // Státusz léptetés, általában előkészítés alá léptetjük, hacsak mást nem kérünk
+    if(!$statusz){
+        $statusz = MUNKALAP_STAT_ELOKESZITES_ALATT;
+    }
+    if( !addStatusz( 'munkalap_statusz', $recid, $statusz, '', $memo ) ) {
         $db_error = true;
+    }
+    
+    // Ha van memo, akkor megjegyzést is írunk
+    if($memo){
+        if(addMegj('munkalap', $recid, $memo)===false){
+            $db_error = true;
+        }
     }
     
     // Logolás

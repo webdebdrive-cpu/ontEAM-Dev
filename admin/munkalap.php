@@ -1602,8 +1602,8 @@ if( isset($_POST['munkalapKulsosElutasit']) ) {
         }
 
         // Visszaadva pipa bepipálása, személyzetek és jóváhagyók kiszedése
-        $sql = $adatbazis_kapcsolat->u('munkalap',  array('visszaadva', 'szallito_id', 'jh_ert', 'varh_erk',            'becs_ertek',   'mail_ment',    'szemelyzet_id',  'jh1_login', 'jh1_datum',           'jh1_szerep', 'update_usr'                            ),
-                                                    array(1,            '',            0,        '0000-00-00 00:00:00',  0,             0,              '',               '',          '0000-00-00 00:00:00',  0,            $_SESSION[get_db_tabla().'teljes_nev']  ),
+        $sql = $adatbazis_kapcsolat->u('munkalap',  array('visszaadva', 'szallito_id', 'jh_ert', 'varh_erk',            'becs_ertek',   'mail_ment', 'direktbe',    'szemelyzet_id',  'jh1_login', 'jh1_datum',           'jh1_szerep', 'update_usr'                            ),
+                                                    array(1,            '',            0,        '0000-00-00 00:00:00',  0,             0,           0,             '',               '',          '0000-00-00 00:00:00',  0,            $_SESSION[get_db_tabla().'teljes_nev']  ),
                                                     "`recid`='{$recid}'");
         if( $sql === false ) { $db_error = true; }
 
@@ -2605,7 +2605,131 @@ if (isset($_POST['munkalapJovahagyottErtekModositasa'])) {
 if (isset($_POST['munkalapVisszaElokeszit'])) {
 
     // Munkalap visszaküldése előkészítés státuszba, kiszervezve függvénybe, mert lehet többször is szükség lesz rá
-    munkalap_vissza_elokeszitesbe($_POST['recid']);
+    munkalap_vissza_elokeszitesbe($_POST['recid'], '', MUNKALAP_STAT_SZTORNO_VAR);
+
+    $weblap->leallit();
+    exit();
+}
+
+// Vissza előkészített státuszba
+if (isset($_POST['munkalapVisszaElokeszitDirektbe'])) {
+
+    $munkalap = $adatbazis_kapcsolat->s2('szallito_id', 'munkalap', "`recid`='{$_POST['recid']}'");
+    
+    // Ha van levélküldés, akkor ellenőrizzük a többi mezőt is
+    if($_POST['email']){
+        if(!trim($_POST['cimzett'])){
+            echo json_encode(array(
+                'hiba'  => 'Kérjük adja meg a címzett email címét!',
+                'title' => 'Hiba',
+                'focus' => 'pop_cimzett',
+            ));
+
+            $weblap->leallit();
+            exit();
+        }
+
+        // Ha több malcím is van, de vessző nincs, akkor szólunk
+        if(substr_count($_POST['cimzett'], '@')>1 && strpos($_POST['cimzett'], ',')===false){
+            echo json_encode(array(
+                'hiba'  => 'Több címzett esetén a mailcímeket vesszővel sorolja fel!',
+                'title' => 'Hiba',
+                'focus' => 'pop_cimzett',
+            ));
+
+            $weblap->leallit();
+            exit();
+        }
+
+        // Mailcímek helyességének ellenőrzése
+        $mailcimek = explode(',', $_POST['cimzett']);
+        array_push($mailcimek, get_mszk_mail()); // Így az MSZK is kap értesítő levelet
+        foreach($mailcimek as $mailcim){
+            if(trim($mailcim) && !is_valid_mail(trim($mailcim))){
+                echo json_encode(array(
+                    'hiba'  => 'Helytelen email cím: '.$mailcim,
+                    'title' => 'Hiba',
+                    'focus' => 'pop_cimzett',
+                ));
+
+                $weblap->leallit();
+                exit();
+            }
+        }
+        if(!trim($_POST['targy'])){
+            echo json_encode(array(
+                'hiba'  => 'Kérjük töltse ki az email tárgyát!',
+                'title' => 'Hiba',
+                'focus' => 'pop_targy',
+            ));
+
+            $weblap->leallit();
+            exit();
+        }
+        if(!trim($_POST['uzenet'])){
+            echo json_encode(array(
+                'hiba'  => 'Kérjük töltse ki a email üzenetét!',
+                'title' => 'Hiba',
+                'focus' => 'pop_uzenet',
+            ));
+
+            $weblap->leallit();
+            exit();
+        }
+
+        $szallito = $adatbazis_kapcsolat->s2('nev', 'szallito', "`id`='{$munkalap['szallito_id']}'");
+        if( $szallito === false ) { $db_error = true; }
+
+        // Attól függően, hogy melyik rendszerben vagyunk, kap a tárgy/üzenet egy [Teszt] előtagot.
+        $kieg = get_mail_teszt_felirat();
+        $targy_kieg = $kieg[0];
+        $uzi_kieg   = $kieg[1];
+        foreach($mailcimek as $mailcim){
+
+            $sikeres_kuldes = level_kuldes(get_nev(), get_mail(), $mailcim, $mailcim, $targy_kieg.$_POST['targy'], $uzi_kieg.nl2br2($_POST['uzenet']));
+            if($sikeres_kuldes){
+                mysqli_rollback($db_kapcs);
+                echo json_encode(array(
+                    'hiba'  => a_az($mailcim, 'Nagybetűs').' '.$mailcim.' címre történő levélküldés közben hiba történt!'.$sikeres_kuldes,
+                    'title' => 'Hiba'
+                ));
+
+                $weblap->leallit();
+                exit();
+            }else{
+                // Ha az MSZK mailcímérement ki a levél, akkor oda ne a szállító nevét írjuk
+                if($mailcim==get_mszk_mail()){
+                    $cimzett_nev = 'MSZK';
+                }else{
+                    $cimzett_nev = $szallito['nev'];
+                }
+                $emailkuldes_megj .= 'Megrendelő email elküldve: '.$cimzett_nev.' '.$mailcim."\n";
+                // E-mail küldés logolása
+                $sql = $adatbazis_kapcsolat->i('munkalap_email',    array('munkalap_id', 'szallito_id', 'cimzett',  'targy',                     'text',                                'insert_dt', 'insert_usr'                           ),
+                                                                    array($recid,        $szallito_id,  $mailcim,   $targy_kieg.$_POST['targy'], $uzi_kieg.nl2br2($_POST['uzenet']),    'NOW()',     $_SESSION[get_db_tabla().'teljes_nev'] )
+                                            );
+                if( $sql === false ) { $db_error = true; }
+            }
+
+            // Mail eküldve pipa bekapcsolása
+            $sql = $adatbazis_kapcsolat->u('munkalap', array('mail_ment'), array('1'), "`recid`='{$recid}'");
+            if( $sql === false ) { $db_error = true; }
+
+        }
+
+    // Ha nincs levélküldés, akkor rákérdezünk, hogy biztosan nem szerettek volna levelet küldeni?
+    }elseif(!$_POST['mehet']){
+        echo json_encode(array(
+            'hiba'  => 'Nem küldött visszavételező emailt.<br>Folytatja?',
+            'gomb'  => '<input type="button" class="gomb zold" value="Igen" onclick="$(\'#mehet_mail_nelkul\').val(\'1\'); $(\'#munkalapKulso\').submit();"><input type="button" class="gomb piros" value="Nem" onclick="alert2()">',
+            'title' => 'Kérdés',
+        ));
+        $weblap->leallit();
+        exit();
+    }
+    
+    // Munkalap visszaküldése előkészítés státuszba, kiszervezve függvénybe, mert lehet többször is szükség lesz rá
+    munkalap_vissza_elokeszitesbe($_POST['recid'], $emailkuldes_megj);
 
     $weblap->leallit();
     exit();
@@ -4369,8 +4493,8 @@ if( isset($_POST['atadasDiszpecsernek']) ) {
 
         // Frissítjuk a munkalap visszaadva sorát, ürítjük a személyzeteket és egyéb adatokat
         $sql = $adatbazis_kapcsolat -> u('munkalap',
-                                            array('visszaadva', 'szemelyzet_id', 'mobil_loginnev', 'szallito_id', 'mobil', 'jh_ert', 'varh_erk',            'becs_ertek',   'mail_ment',    'update_usr'                           ),
-                                            array( 1,            0,              '',                0,            '',      '',       '0000-00-00 00:00:00',  0,             0,              $_SESSION[get_db_tabla().'teljes_nev'] ),
+                                            array('visszaadva', 'szemelyzet_id', 'mobil_loginnev', 'szallito_id', 'mobil', 'jh_ert', 'varh_erk',            'becs_ertek',   'mail_ment',    'direktbe', 'update_usr'                           ),
+                                            array( 1,            0,              '',                0,            '',      '',       '0000-00-00 00:00:00',  0,             0,              0,          $_SESSION[get_db_tabla().'teljes_nev'] ),
                                             "`recid` = '{$recid}'"
                                         );
         if( $sql === false ) { $db_error = true; }
@@ -4715,8 +4839,8 @@ if( isset($_POST['munkalapTelepitett']) ) {
 
         // Munkalap update
         $sql = $adatbazis_kapcsolat -> u('munkalap',
-                                                    array('szemelyzet_id',       'visszaadva', 'szallito_id', 'becs_ertek', 'mail_ment',    'jh_ert', 'varh_erk',            'jh1_login', 'jh1_datum',           'jh1_szerep', 'update_usr'                            ),
-                                                    array(TELEPITETT_SZEMELYZET, 0,            '',            0,            0,              0,        '0000-00-00 00:00:00', '',          '0000-00-00 00:00:00', 0,            $_SESSION[get_db_tabla().'teljes_nev']  ),
+                                                    array('szemelyzet_id',       'visszaadva', 'szallito_id', 'becs_ertek', 'mail_ment',  'direktbe',   'jh_ert', 'varh_erk',            'jh1_login', 'jh1_datum',           'jh1_szerep', 'update_usr'                            ),
+                                                    array(TELEPITETT_SZEMELYZET, 0,            '',            0,            0,            0,            0,        '0000-00-00 00:00:00', '',          '0000-00-00 00:00:00', 0,            $_SESSION[get_db_tabla().'teljes_nev']  ),
                                                     "`recid` = '{$recid}'");
         if( $sql === false ) { $db_error = true; }
 
@@ -5566,18 +5690,18 @@ if (isset($_POST['munkalapVisszavetel'])) {
     }
 
     // Státusz léptetés
-    $statusz = addStatusz( 'munkalap_statusz', $recid, MUNKALAP_STAT_NYITOTT);
+    $statusz = addStatusz( 'munkalap_statusz', $recid, MUNKALAP_STAT_SZTORNO_VAR);
     if( $statusz === false ) { $db_error = true; }
 
     // Munkalap update
-    $adatbazis_kapcsolat->u('munkalap', array('szallito_id', 'szemelyzet_id', 'mobil', 'becs_ertek', 'mail_ment'),
-                                        array('',            '',              '',       0,           0          ),
+    $adatbazis_kapcsolat->u('munkalap', array('szallito_id', 'szemelyzet_id', 'mobil', 'becs_ertek', 'mail_ment', 'direktbe', 'update_usr'                          ),
+                                        array('',            '',              '',       0,           0,           0,          $_SESSION[get_db_tabla().'teljes_nev']),
                                     "`recid` = '{$recid}'");
 
     if( !$db_error ) {
         mysqli_commit($db_kapcs);
         echo json_encode(array(
-            'statusz' => 'siker',
+            'statusz' => 'siker', 
         ));
     } else {
         mysqli_rollback($db_kapcs);
@@ -5745,8 +5869,8 @@ if (isset($_POST['munkalapVisszavetelDirektbe'])) {
 
 
     // Munkalap update
-    $adatbazis_kapcsolat->u('munkalap', array('szallito_id', 'szemelyzet_id', 'mobil', 'becs_ertek', 'mail_ment'),
-                                        array('',            '',              '',       0,           0          ),
+    $adatbazis_kapcsolat->u('munkalap', array('szallito_id', 'szemelyzet_id', 'mobil', 'becs_ertek', 'mail_ment', 'direktbe', 'update_usr'                              ),
+                                        array('',            '',              '',       0,           0,           0,          $_SESSION[get_db_tabla().'teljes_nev']    ),
                                     "`recid` = '{$recid}'");
 
     if( !$db_error ) {
@@ -6291,6 +6415,55 @@ if (isset($_POST['munkalapVarhatoErkMegad'])) {
                                         array( 'felh_id',                               'nev',       'valtozas', 'ip'                   ),
                                         array( $_SESSION[get_db_tabla().'login_recid'], $muvelet,    $muvelet,   $_SERVER['REMOTE_ADDR'])
                                     );
+    if( $sql === false ) { $db_error = true; }
+    
+    if( !$db_error ) {
+        mysqli_commit($db_kapcs);
+        echo json_encode(array(
+            'statusz' => 'siker',
+        ));
+    } else {
+        mysqli_rollback($db_kapcs);
+        echo json_encode(array(
+            'hiba'  => tranzakcioHiba(),
+            'title' => 'Hiba',
+        ));
+    }
+    
+    $weblap->leallit();
+    exit();
+}
+
+// Várható érték megadása
+if (isset($_POST['megr_sztorno_mail_elkuldve'])) {
+    
+    $recid = $_POST['recid'];
+    
+    $db_error = false;
+    mysqli_autocommit($db_kapcs, false);
+    
+    $sor = $adatbazis_kapcsolat->s2('stat_id', 'munkalap', "`recid`='{$recid}'");
+    if( $sor === false ) { $db_error = true; }
+    
+    // Státusz ellenőrzése
+    if( $sor['stat_id'] != MUNKALAP_STAT_SZTORNO_VAR ){
+        echo json_encode(array(
+            'hiba'  => 'A munkalaphoz ebben a státuszban nem léptethető tovább!',
+            'title' => 'Hiba',
+        ));
+        $weblap->leallit();
+        exit();
+    }
+    
+    // Státusz léptetés
+    if( addStatusz('munkalap_statusz', $recid, MUNKALAP_STAT_NYITOTT) === false ) {
+        $db_error = true;
+    }
+    
+    // Szokásos mezők nullázása
+    $sql = $adatbazis_kapcsolat->u('munkalap',  array('szallito_id', 'jh_ert', 'varh_erk',            'becs_ertek',   'mail_ment', 'direktbe',    'szemelyzet_id', 'update_usr'                          ),
+                                                array('',            0,        '0000-00-00 00:00:00',  0,             0,           0,             '',              $_SESSION[get_db_tabla().'teljes_nev']),
+                                                "`recid`='{$recid}'");
     if( $sql === false ) { $db_error = true; }
     
     if( !$db_error ) {
@@ -6958,9 +7131,15 @@ require('selectek.php');
                 ($sor['stat_id']==MUNKALAP_STAT_DONTESRE_VAR && _jog(JOG_MUNKALAP_KULSOS_ELOKESZIT) && $sor['jh1_login']=='' && $sor['jh2_login']=='') ||
                 ($sor['stat_id']==MUNKALAP_STAT_HOZZARENDELT && _jog(JOG_MUNKALAP_KEZEL_KULSO)      && $sor['szemelyzet_id']==KULSO_KIVITELEZO )
            ){
+            
+            // Ha hozzárendelt státusz alatban van egy direktes ML, akkor levelezős popup jön fel.
+            $onclick = 'alert2(\'Biztosan visszaadja előkészítésre?\', gomb_vissza_elok);';
+            if($sor['stat_id']==MUNKALAP_STAT_HOZZARENDELT && $sor['direktbe']){
+                $onclick = 'csoportMuvelet(\'munkalapVisszaElokeszitDirektbe\');';
+            }
             $gombok .= nl2('
                             <script> gomb_vissza_elok = \'<input type="button" class="gomb zold" onclick="munkalapVisszaElokeszit()" value="Igen"><input type="button" class="gomb piros" onclick="alert2()" value="Nem">\'; </script>
-                            <input type="button" class="gomb" value="Vissza előkészítésre" onclick="alert2(\'Biztosan visszaadja előkészítésre?\', gomb_vissza_elok)">
+                            <input type="button" class="gomb" value="Vissza előkészítésre" onclick="'.$onclick.'">
                         ');
         }
 
@@ -7029,6 +7208,14 @@ require('selectek.php');
         $tiltott_stat = array(MUNKALAP_STAT_IGAZOLASRA_VAR, MUNKALAP_STAT_LEZARASRA_VAR, MUNKALAP_STAT_LEZART);
         if( $sor['szallito_id'] && !in_array($sor['stat_id'], $tiltott_stat) && (_jog(JOG_MUNKALAP_NYITOTT_KEZEL) || _jog(JOG_MUNKALAP_KEZEL_KULSO) ) ){
             $gombok .= '<input type="button" class="gomb" value="Várható érk. megadása" onclick="csoportMuvelet(\'munkalapVarhatoErkMegad\');"> ';
+        }
+
+        // Megrendelés stornó email elküldve
+        if( $sor['stat_id']==MUNKALAP_STAT_SZTORNO_VAR ){
+            $gombok .= nl2('
+                            <script> gomb_megr_sztorno_elkuldve = \'<input type="button" class="gomb zold" onclick="megr_sztorno_mail_elkuldve()" value="Igen"><input type="button" class="gomb piros" onclick="alert2()" value="Nem">\'; </script>
+                            <input type="button" class="gomb" value="Megrendelés stornó email elküldve" onclick="alert2(\'Biztosan elküldte a stornó emailt?\', gomb_megr_sztorno_elkuldve);"> 
+                        ');
         }
 
         $muv_style = ' style="width: calc(100% - '.($_SESSION['defaultCsuszka'] + 16).'px);"';

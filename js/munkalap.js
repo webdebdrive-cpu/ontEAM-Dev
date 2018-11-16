@@ -984,6 +984,7 @@ function get_szallito_mailcim(){
             get_szallito_mailcim    : Date.now()
         },
         success: function(response){
+            if(response.substring(0, 6)=='SESKIL'){ location.href = 'index.php'; }
             if(response){
                 $('#pop_cimzett').val(response);
             }
@@ -1020,6 +1021,7 @@ function get_kulso_hozzarendeles_input_tartalmak(){
             get_ml_adatok_levelhez  : Date.now()
         },
         success: function (munkalap) {
+            if(munkalap.substring(0, 6)=='SESKIL'){ location.href = 'index.php'; }
             if (munkalap) {
                 munkalap = JSON.parse(munkalap);
                 
@@ -1068,7 +1070,7 @@ function get_kulso_hozzarendeles_input_tartalmak(){
 }
 
 /* ML visszavételezés popup inputjait be kell állítani, alapértemlezett értékekkel feltölteni */
-function get_ml_visszavetelezes_input_tartalmak(){
+function get_ml_visszavetelezes_input_tartalmak(elokeszitesre){
     
     /* ML adatainak elkérdezése */
     $.ajax({
@@ -1079,11 +1081,16 @@ function get_ml_visszavetelezes_input_tartalmak(){
             get_ml_adatok_levelhez  : Date.now()
         },
         success: function (munkalap) {
+            if(munkalap.substring(0, 6)=='SESKIL'){ location.href = 'index.php'; }
             if (munkalap) {
                 munkalap = JSON.parse(munkalap);
                 
                 /* Kérdés */
-                $('#pop_kerdes').html('Munkalapszám: '+munkalap.ikt_szam+'<br>Szálloda: '+munkalap.telephely_nev+'<br>Biztos, hogy visszaveszi a munkalapot?');
+                if(elokeszitesre){
+                    $('#pop_kerdes').html('Munkalapszám: '+munkalap.ikt_szam+'<br>Szálloda: '+munkalap.telephely_nev+'<br>Biztos, hogy visszaküldi a munkalapot előkészítésre?');
+                }else{
+                    $('#pop_kerdes').html('Munkalapszám: '+munkalap.ikt_szam+'<br>Szálloda: '+munkalap.telephely_nev+'<br>Biztos, hogy visszaveszi a munkalapot?');
+                }
                 
                 /* Levélküldés mezőinek alapértelmezett értékének beállítsa */
                 $('#pop_cimzett').val(munkalap.mailcimek);
@@ -1125,4 +1132,30 @@ function get_ml_visszavetelezes_input_tartalmak(){
         }
     });
     
+}
+
+/* Megrendelés sztornó email elküldve gomb futtatása */
+function megr_sztorno_mail_elkuldve(){
+    $.ajax({
+        url : 'munkalap.php',
+        type: 'POST',
+        data: {
+            recid                       : _get('id'),
+            megr_sztorno_mail_elkuldve  : Date.now()
+        },
+        success: function (response) {
+            if(response.substring(0, 6)=='SESKIL'){ location.href = 'index.php'; }
+            if (response) {
+                response = JSON.parse(response);
+
+                if( response.hiba ) {
+                    alert2(response.hiba, response.gomb, response.title);
+                    return false;
+                }
+
+                szamlaBetolt(_get('id'), baseName(location.href) + '.php', 'modosit');
+                popupZar();
+            }
+        }
+    });
 }
