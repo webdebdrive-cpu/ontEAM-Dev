@@ -523,6 +523,7 @@ switch($tabla) {
                                 `'.get_db_tabla().$tabla_nophp.'`.`szemelyzet_id`,
                                 `'.get_db_tabla().$tabla_nophp.'`.`szallito_id`,
                                 `'.get_db_tabla().$tabla_nophp.'`.`mobil`,
+                                `'.get_db_tabla().$tabla_nophp.'`.`jh_ert`,
                                 `'.get_db_tabla().$tabla_nophp.'`.`insert_dt`,
                                 `'.get_db_tabla().$tabla_nophp.'`.`dok_db`,
                                 `'.get_db_tabla().$tabla_nophp.'`.`obj_txt`

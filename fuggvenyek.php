@@ -2418,7 +2418,7 @@ function szamla_lista( $where, $tabla, $kijeloltek = false, $csak_sql_miatt = fa
                 $i = 0;
                 // Nem nyitott státuszú, azon belül sürgősek majd iktatószám
                 // A státuszoknak is van egy sorrendje
-                $statuszok = array_reverse( array( MUNKALAP_STAT_BEOSZTAS_NELKUL, MUNKALAP_STAT_HOZZARENDELT, MUNKALAP_STAT_FELVEVE, MUNKALAP_STAT_ANYAGRAVAR, MUNKALAP_STAT_IGAZOLASRA_VAR, MUNKALAP_STAT_IGAZOLT, MUNKALAP_STAT_VIZSGALAT_ALATT, MUNKALAP_STAT_ELOKESZITES_ALATT, MUNKALAP_STAT_DONTESRE_VAR, MUNKALAP_STAT_AJANLAT_NYOMTATVA, MUNKALAP_STAT_HOZREND_MEGREND_VAR, MUNKALAP_STAT_HATIDO_UTEMEZETT, MUNKALAP_STAT_VARAKOZO, MUNKALAP_STAT_LEZARASRA_VAR, MUNKALAP_STAT_LEZART, MUNKALAP_STAT_ELUTASITVA, MUNKALAP_STAT_TOROLT, MUNKALAP_STAT_SZTORNO ) );
+                $statuszok = array_reverse( array( MUNKALAP_STAT_BEOSZTAS_NELKUL, MUNKALAP_STAT_HOZZARENDELT, MUNKALAP_STAT_FELVEVE, MUNKALAP_STAT_ANYAGRAVAR, MUNKALAP_STAT_IGAZOLASRA_VAR, MUNKALAP_STAT_IGAZOLT, MUNKALAP_STAT_VIZSGALAT_ALATT, MUNKALAP_STAT_ELOKESZITES_ALATT, MUNKALAP_STAT_DONTESRE_VAR, MUNKALAP_STAT_AJANLAT_NYOMTATVA, MUNKALAP_STAT_HOZREND_MEGREND_VAR, MUNKALAP_STAT_HATIDO_UTEMEZETT, MUNKALAP_STAT_VARAKOZO, MUNKALAP_STAT_LEZARASRA_VAR, MUNKALAP_STAT_LEZART, MUNKALAP_STAT_ELUTASITVA, MUNKALAP_STAT_TOROLT, MUNKALAP_STAT_SZTORNO_VAR, MUNKALAP_STAT_SZTORNO ) );
                 foreach($statuszok as $stat){
                     $munkalapok = $adatbazis_kapcsolat->s('recid', $tabla, "`stat_id`='$stat'", '`surgos`, `ikt_szam`');
                     foreach($munkalapok as $munkalap){
@@ -3068,6 +3068,9 @@ function munkalapLista( $bejegyzesek, $tabla, $frissit, $kijeloltek, $sorrend_id
         if(!$tabla){
             $nohover = ' nohover';
         }
+        
+        // Szükség lesz a login max jóváhagyó értékére, hogy azokat a ML-okat, aminek magasabb a jóváhagyott értéke, ki se listázzuk
+        $login = $adatbazis_kapcsolat->s2('jh_ft_ig', 'login', "`recid`='{$_SESSION[get_db_tabla().'login_recid']}'");
 
         if( !$frissit ) {
 
@@ -3140,8 +3143,12 @@ function munkalapLista( $bejegyzesek, $tabla, $frissit, $kijeloltek, $sorrend_id
 //                }
 //            }
 
+            // Ha a státusz döntésre vár, és a felhasználónak túl alacsony a jóváhagyható limite, akkor meg se jelenítjük, nem is számolunk tovább
+            if( $bsz['stat_id'] == MUNKALAP_STAT_DONTESRE_VAR && $bsz['jh_ert']>$login['jh_ft_ig'] ){
+                continue;
+            }
 
-
+            // Sűrgős pipa
             $surgos = '';
             if( $bsz['surgos'] ) {
                 $surgos = nl2('
@@ -3151,6 +3158,7 @@ function munkalapLista( $bejegyzesek, $tabla, $frissit, $kijeloltek, $sorrend_id
                 ');
             }
 
+            // Kész pipa
             $kesz = '';
             if( $bsz['stat_id'] == MUNKALAP_STAT_LEZARASRA_VAR ) {
                 $kesz = nl2('
@@ -6760,7 +6768,7 @@ function level_felkeszit_es_kuld($tabla, $recid, $ert_pipa, $sablon, $cimzett, $
         // Munkalap igazolás joggal rendelkezőknek
         case '_jog'.JOG_MUNKALAP_KULSOS_DONTES:
 
-            $munkalap       = $adatbazis_kapcsolat->s2('ikt_szam telephely_id obj_id insert_dt', $tabla, "`recid`='{$recid}'");
+            $munkalap       = $adatbazis_kapcsolat->s2('ikt_szam telephely_id obj_id jh_ert insert_dt', $tabla, "`recid`='{$recid}'");
             $munkalap_kapcs = $adatbazis_kapcsolat->s2('bejelentes_id', 'munkalap_kapcs', "`munkalap_id`='{$recid}'");
             $bejelentes     = $adatbazis_kapcsolat->s2('hiba_id', 'bejelentes', "`recid`='{$munkalap_kapcs['bejelentes_id']}'");
 
@@ -6769,7 +6777,7 @@ function level_felkeszit_es_kuld($tabla, $recid, $ert_pipa, $sablon, $cimzett, $
             $uzi            = str_replace( $mit, $mivel, fajlbol_olvas('../sablon/admin/mail/munkalaposoknak.html') );
 
             // Több címzett is van
-            $cimzettek = $adatbazis_kapcsolat->s('nev teljes_nev usermail usertel aktiv virtual szemelyzet_id', 'login', "substr(`flags`, ".(JOG_MUNKALAP_KULSOS_DONTES+1).", 1)=1 AND `aktiv`=1 AND `virtual`=0 $sql_ertesites_kieg");
+            $cimzettek = $adatbazis_kapcsolat->s('nev teljes_nev usermail usertel aktiv virtual szemelyzet_id', 'login', "substr(`flags`, ".(JOG_MUNKALAP_KULSOS_DONTES+1).", 1)=1 AND `jh_ft_ig`>='{$munkalap['jh_ert']}' AND `aktiv`=1 AND `virtual`=0 $sql_ertesites_kieg");
             if(!$cimzettek){
                 return false;
             }

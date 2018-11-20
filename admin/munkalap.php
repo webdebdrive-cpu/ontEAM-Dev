@@ -299,7 +299,7 @@ if ($_GET['ujkent_bejelentes']) {
                                     );
     if( $sql === false ) { $db_error = true; }
 
-    // Bejelentés státuszát is léptetjük, mert van hogy már volt munkalapja, csak stornózták és nyitottá vált a bejeletnés, és ekkor is folyamatbanra kell tenni
+    // Bejelentés státuszát is léptetjük, mert van hogy már volt munkalapja, csak sztornózták és nyitottá vált a bejeletnés, és ekkor is folyamatbanra kell tenni
     if( addStatusz('bejelentes_statusz', $_GET['ujkent_bejelentes'], BEJELENTES_STAT_FOLYAMATBAN) === false){
         $db_error = true;
     }
@@ -2133,11 +2133,10 @@ if( isset($_POST['kuldesJovahagyasra']) ) {
 
     if( $recid ) {
         // Ellenőrizzük, hogy hozzárendelés előkészítés alatt van e
-        $sql = $munkalap = $adatbazis_kapcsolat->s('stat_id szallito_id', 'munkalap', "`recid` = '{$recid}'", '', '1');
+        $sql = $munkalap = $adatbazis_kapcsolat->s2('stat_id szallito_id', 'munkalap', "`recid` = '{$recid}'");
         if( $sql === false ) { $db_error = true; }
 
         if( $munkalap ) {
-            $munkalap = $munkalap[0];
 
             if( $munkalap['stat_id'] != MUNKALAP_STAT_ELOKESZITES_ALATT ) {
                 echo json_encode(array(
@@ -2339,7 +2338,7 @@ if( isset($_POST['kulsokivHozzarend']) ) {
 
             $szallito = $adatbazis_kapcsolat->s2('nev', 'szallito', "`id`='{$szallitoid}'");
             if( $szallito === false ) { $db_error = true; }
-            
+
             // Attól függően, hogy melyik rendszerben vagyunk, kap a tárgy/üzenet egy [Teszt] előtagot.
             $kieg = get_mail_teszt_felirat();
             $targy_kieg = $kieg[0];
@@ -2439,10 +2438,7 @@ if( isset($_POST['kulsokivHozzarend']) ) {
                 exit();
             }
 
-        }
-
-        // Munkalap update, ha javaslattétel volt
-        if(isset($_POST['javaslattetel'])) {
+            // Munkalap update, ha javaslattétel volt
             $sql = $adatbazis_kapcsolat -> u('munkalap',
                                                         array('szallito_id', 'jh_ert', 'varh_erk', 'becs_ertek', 'jh1_login', 'jh1_datum',           'jh1_szerep',    'jh2_login', 'jh2_datum',           'jh2_szerep',   'szemelyzet_id' ),
                                                         array($szallitoid,   $jh_ert,  $varh_erk,  $becs_ertek,  '',          '0000-00-00 00:00:00', '',              '',          '0000-00-00 00:00:00', '',             ''              ),
@@ -2468,9 +2464,9 @@ if( isset($_POST['kulsokivHozzarend']) ) {
             
         // Ha nem javaslattétel volt
         }else{
-            
+
             $sql = $adatbazis_kapcsolat -> u('munkalap',
-                                                        array('szallito_id', 'szemelyzet_id',   'varh_erk', 'direkt'  ),
+                                                        array('szallito_id', 'szemelyzet_id',   'varh_erk', 'direktbe'),
                                                         array($szallitoid,   KULSO_KIVITELEZO,  $varh_erk,  1         ),
                                                 "`recid` = '{$recid}'");
             if( $sql === false ) { $db_error = true; }
@@ -2479,10 +2475,12 @@ if( isset($_POST['kulsokivHozzarend']) ) {
             if( !addStatusz( 'munkalap_statusz', $recid, MUNKALAP_STAT_HOZZARENDELT, '', $memo ) ) {
                 $db_error = true;
             }
+
             // A memót a megjegyzésbe is beírjuk, nem csak a státuszsorba
             if(addMegj('munkalap', $recid, $memo)===false){
                 $db_error = true;
             }
+
         }
 
         if( !$db_error ) {
@@ -7210,11 +7208,11 @@ require('selectek.php');
             $gombok .= '<input type="button" class="gomb" value="Várható érk. megadása" onclick="csoportMuvelet(\'munkalapVarhatoErkMegad\');"> ';
         }
 
-        // Megrendelés stornó email elküldve
+        // Megrendelés sztornó email elküldve
         if( $sor['stat_id']==MUNKALAP_STAT_SZTORNO_VAR ){
             $gombok .= nl2('
                             <script> gomb_megr_sztorno_elkuldve = \'<input type="button" class="gomb zold" onclick="megr_sztorno_mail_elkuldve()" value="Igen"><input type="button" class="gomb piros" onclick="alert2()" value="Nem">\'; </script>
-                            <input type="button" class="gomb" value="Megrendelés stornó email elküldve" onclick="alert2(\'Biztosan elküldte a stornó emailt?\', gomb_megr_sztorno_elkuldve);"> 
+                            <input type="button" class="gomb" value="Megrendelés sztornó email elküldve" onclick="alert2(\'Biztosan elküldte a sztornó emailt?\', gomb_megr_sztorno_elkuldve);"> 
                         ');
         }
 
