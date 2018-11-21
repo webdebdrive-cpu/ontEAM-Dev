@@ -2535,7 +2535,7 @@ function szamla_lista( $where, $tabla, $kijeloltek = false, $csak_sql_miatt = fa
         }
 
         // Szűréskor megjegyzés JOIN
-        if ($_GET['mezo']=='megjegyzes') {
+        if ( $_GET['mezo']=='megjegyzes' || strpos($_SESSION['o_szuro_feltetel'], 'megjegyzes')!==false ) {
             $sql_kieg .= ' JOIN `'.get_db_tabla().'megjegyzes` ON `'.get_db_tabla().'megjegyzes`.`tabla`=\''.$tabla.'\' AND `'.get_db_tabla().''.$tabla.'`.`recid`=`'.get_db_tabla().'megjegyzes`.`id`';
         }
 

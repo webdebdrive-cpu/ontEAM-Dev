@@ -2073,13 +2073,14 @@ if (isset($_GET['csv'])) {
                     '.$lekerdezes_fromtol;
 
             $query      = mysqli_query($db_kapcs, $sql);
-
+            
+            // Kalkulált - származtatott oszlopok
             $csvhead    = array();
             while($fejlec_nevek = mysqli_fetch_field($query)){
                 $csvhead[] = iconv2($mibol, $mibe, $fejlec_nevek -> name );
                 if($fejlec_nevek -> name=='Jóváhagyott mennyiség'){
                     $csvhead[] = iconv2($mibol, $mibe, 'Rendelés érték' );
-                    $csvhead[] = iconv2($mibol, $mibe, 'Jóváhagyásra váró érték ('.get_penznem().')' );
+                    // Ez mégse kell Tibi levele szerint 2018.11.21 $csvhead[] = iconv2($mibol, $mibe, 'Jóváhagyásra váró érték ('.get_penznem().')' );
                 }
             }
             fputcsv($open, $csvhead, ';');
@@ -2099,6 +2100,14 @@ if (isset($_GET['csv'])) {
                             $sor[$mezo] = htmlspecialchars_decode( $sor[$mezo] );
                         }
                     }
+                    
+                    // Dátum formázása
+                    $sorok['Rendelés dátum'] = str_replace('-', '.', $sorok['Rendelés dátum']);
+                    // Számok formázása
+                    $szamok = array('Igényelt mennyiség', 'Jóváhagyott mennyiség', 'Rendelt mennyiség', 'Rendelési egységár ('.get_penznem().')', 'Deviza rend. egységár');
+                    foreach($szamok as $szam){
+                        $sorok[$szam] = str_replace('.', ',', $sorok[$szam]);
+                    }
 
                     // Itt legyünk összhangban a fejléccel
                     $csvcont[] = iconv($mibol, $mibe.'//TRANSLIT', strip_tags( htmlspecialchars_decode( $anyagigenyles['rndid'] ) ) );
@@ -2115,7 +2124,7 @@ if (isset($_GET['csv'])) {
                     $csvcont[] = iconv($mibol, $mibe.'//TRANSLIT', strip_tags( htmlspecialchars_decode( $sorok['Deviza rend. egységár'] ) ) );
                     $csvcont[] = iconv($mibol, $mibe.'//TRANSLIT', strip_tags( htmlspecialchars_decode( $sorok['Jóváhagyott mennyiség'] ) ) );
                     $csvcont[] = iconv($mibol, $mibe.'//TRANSLIT', strip_tags( htmlspecialchars_decode( $sorok['Rendelt mennyiség']*$sorok['Rendelési egységár ('.get_penznem().')'] ) ) );
-                    $csvcont[] = iconv($mibol, $mibe.'//TRANSLIT', strip_tags( htmlspecialchars_decode( $sorok['Rendelési egységár ('.get_penznem().')']*$sorok['Rendelt mennyiség'] ) ) );
+                    // $csvcont[] = iconv($mibol, $mibe.'//TRANSLIT', strip_tags( htmlspecialchars_decode( $sorok['Rendelési egységár ('.get_penznem().')']*$sorok['Rendelt mennyiség'] ) ) );
                     $csvcont[] = iconv($mibol, $mibe.'//TRANSLIT', strip_tags( htmlspecialchars_decode( $sorok['Rendelt mennyiség'] ) ) ); 
                     $csvcont[] = iconv($mibol, $mibe.'//TRANSLIT', strip_tags( htmlspecialchars_decode( $sorok['Rendelési egységár ('.get_penznem().')'] ) ) );
                     $csvcont[] = iconv($mibol, $mibe.'//TRANSLIT', strip_tags( htmlspecialchars_decode( erteklista(ERTEKLISTA_PENZNEM, $sorok['Pénznem']) ) ) );

@@ -1,0 +1,140 @@
+<h2>Visszaadás</h2>
+<form action="" id="atadasDiszpecsernekForm" class="popupForm" method="post" onsubmit="return atadasDiszpecsernekDirektbe( this );">
+    <div class="kozep">
+        <div class="dt">
+            <div class="dtr"> 
+                <div class="dtc form_bal">Visszaadás oka:</div>
+                <div class="dtc form_jobb">
+                    <input type="text" autocomplete="off" class="oriasi disableNav csillag focus" name="erteklista_id_autocomp" id="erteklista_id_autocomp" onblur="if(!$(this).val()){ $('#erteklista_id').val(''); }" value="">
+                    <input type="hidden" name="erteklista_id" id="erteklista_id" value="">
+                    <script>
+                        $(document).ready(function() {
+                            $('#erteklista_id_autocomp').autocomplete({
+                                'php_fajl'      : '../autocomplete.php',
+                                'tabla'         : 'erteklista',
+                                'oszlop_keres'  : 'info',
+                                'oszlop_listaz' : 'info',
+                                'rkat'          : 0,
+                                'csoport'       : 7,
+                                'id_kiir'       : 'id'
+                            });
+                        });
+                    </script>
+                </div>
+            </div>
+            <div class="dtr">
+                <div class="dtc form_bal">Visszaadás leírása:</div>
+                <div class="dtc form_jobb">
+                    <textarea name="atadas_memo"></textarea>
+                </div>
+            </div>
+            <div class="dtr"> 
+                <div class="dtc form_bal">
+                    Címzett:
+                </div>
+                <div class="dtc form_jobb">
+                    <input type="text" id="pop_cimzett" class="oriasi disableNav popup_input_margo" maxlength="250">
+                </div>
+            </div>
+            <div class="dtr"> 
+                <div class="dtc form_bal">
+                    Tárgy:
+                </div>
+                <div class="dtc form_jobb">
+                    <input type="text" id="pop_targy" class="oriasi disableNav popup_input_margo" maxlength="250">
+                </div>
+            </div>
+            <div class="dtr"> 
+                <div class="dtc form_bal">
+                    Üzenet:
+                </div>
+                <div class="dtc form_jobb">
+                    <textarea id="pop_uzenet" class="popup_input_margo"></textarea>
+                </div>
+            </div>
+        </div>
+        <div id="visszaadas_kerdes" style="margin-top: 8rem">Ha folytatja, a munkalap visszakerül a diszpécserhez. Folytatja?</div>
+    </div>
+    <div class="kuldes">
+        <input type="hidden" id="email_kuldessel" value="0">
+        <input type="hidden" id="mehet_mail_nelkul" value="0">
+        <input type="button" class="gomb popup_input_margo" onclick="$('#email_kuldessel').val('1'); $('#atadasDiszpecsernekForm').submit();" value="Email küldése partnernek">
+        <input type="submit" name="elkuld" value="Igen">
+        <input type="button" name="megsem" class="gombb_alert" value="Nem" onclick="popupZar();">
+    </div>
+</form>
+<script>
+/* Felvéve státusz alatt ki kell írni, hogy mely anyagok vannak szükséges mennyiséggel, mert ezek törlésre kerülnek */
+$(document).ready(function(){
+    
+    /* Munkalap visszaadás adatok lekérése */
+    get_ml_visszavetelezes_input_tartalmak();
+    
+    $.ajax({
+        url : 'munkalap.php',
+        type: 'POST',
+        data: {
+            recid                       : _get('id'),
+            szukseges_anyagok_listaja   : Date.now()
+        },
+        success: function(response){
+            if(response.substring(0, 6)=='SESKIL'){ location.href = 'index.php'; }
+            if(response){
+                response = JSON.parse(response);
+                $('#visszaadas_kerdes').html(response.kerdes).css({'margin-top':'2rem'});
+            }
+        }
+    });
+});
+
+/* Átadás diszpécsernek */
+function atadasDiszpecsernekDirektbe( that ) {
+    if(balnav_kijelol_ell()){
+        var erteklista_id = $(that).find('input[name="erteklista_id"]'),
+                     memo = $(that).find('textarea[name="atadas_memo"]');
+
+        if( erteklista_id ) {
+            $.ajax({
+                url : 'munkalap.php',
+                type: 'POST',
+                data: {
+                    recid                       : _get('id'),
+                    erteklista_id               : erteklista_id.val(),
+                    memo                        : memo.val(),
+                    email                       : $('#email_kuldessel').val(),
+                    mehet                       : $('#mehet_mail_nelkul').val(),
+                    cimzett                     : $('#pop_cimzett').val(),
+                    targy                       : $('#pop_targy').val(),
+                    uzenet                      : $('#pop_uzenet').val(),
+                    atadasDiszpecsernekDirektbe : new Date().getTime()
+                },
+                success: function(response) {
+                    if(response.substring(0, 6)=='SESKIL'){ location.href = 'index.php'; }
+                    if(response) {
+                        response = JSON.parse(response);
+
+                        if( response.hiba ) {
+                            if( response.gomb ) {
+                                alert2(response.hiba, response.gomb, response.title);
+                            } else {
+                                alert2(response.hiba, response.gomb, response.title);
+                                document.getElementById('erteklista_id_autocomp').focus();
+                            }
+
+                            return false;
+                        }
+
+                        szurkit();
+                        location.reload();
+                    }
+                }
+            });
+        } else {
+            alert2('Adja meg az átadás okát!', '', 'Hiba');
+            document.getElementById('erteklista_id_autocomp').focus();
+        }
+    }
+
+    return false;
+}
+</script>

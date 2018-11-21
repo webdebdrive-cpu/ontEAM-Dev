@@ -12,9 +12,16 @@
         </div>
         <script>
             $(document).ready(function(){
-
+                
+                /* Fontos, hogy anyagigénylésnél az anyagrend paraméter is megjelenjen az URL-ben, ha anyagrendelés felületen volnánk, mert az $_SESSION['elozo_oldal'] kiszámításához (összetett szűrő) kell */
+                var url = baseName(location.href)+'.php';
+                if(baseName(location.href)=='anyagigenyles'){
+                    if( _get('anyagrend') ){
+                        url += '?anyagrend';
+                    }
+                }
                 $.ajax({
-                    url : baseName(location.href)+'.php',
+                    url : url,
                     type: 'POST',
                     data: {
                         o_szures: new Date().getTime()

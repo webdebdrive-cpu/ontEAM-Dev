@@ -2648,17 +2648,42 @@ if (isset($_POST['elfelejtett_jelszo'])) {
 }
 
 // Összetett szűrés törlése, ha menüpontot váltunk
-$kivetelek = array('header.php', 'esemenyek.php');
 // Kivéve bizonyos php fájlokat, és ha az előző oldal nem a mobil_hozzarendel.php volt, hogy onnan tudjunk összetett szűrést kezdeményezni.
+$kivetelek = array('header.php', 'esemenyek.php');
+
 if( !in_array(basename(self()), $kivetelek) ){
     if( $_SESSION['elozo_oldal']!='mobil_hozzarendel.php' ){
-        if($_SESSION['o_szuro_feltetel'] && $_SESSION['elozo_oldal']!=basename(self())){
+        if($_SESSION['o_szuro_feltetel'] && $_SESSION['elozo_oldal']!=basename(self()) && $_SESSION['elozo_oldal']!='anyagigenyles.php' && $_SESSION['elozo_oldal']!='anyagigenyles.php?anyagrend'){
             unset($_SESSION['o_szuro_feltetel']);
             unset($_SESSION['o_szuro_html']);
         }
     }
-    $_SESSION['elozo_oldal'] = basename(self());
+// var_dump($_SESSION['elozo_oldal']);
+    // Az anyigénylés/rendelés egy és ugyanaz a PHP fálj, ezért ezt itt külön kell lekezelni, még a $_SESSION['elozo_oldal'] = basename(self()); rész előtt
+    if( $_SESSION['elozo_oldal']=='anyagigenyles.php' || $_SESSION['elozo_oldal']=='anyagigenyles.php?anyagrend' ){
+        
+// echo $_SESSION['elozo_oldal'];
+        if( isset($_GET['anyagrend']) ){
+            if($_SESSION['elozo_oldal']!='anyagigenyles.php?anyagrend'){
+                unset($_SESSION['o_szuro_feltetel']);
+                unset($_SESSION['o_szuro_html']);
+            }
+            $_SESSION['elozo_oldal']='anyagigenyles.php?anyagrend';
+        }
+        if( !isset($_GET['anyagrend']) ){
+            if( $_SESSION['elozo_oldal']!='anyagigenyles.php' ){
+                unset($_SESSION['o_szuro_feltetel']);
+                unset($_SESSION['o_szuro_html']);
+            }
+            $_SESSION['elozo_oldal']='anyagigenyles.php';
+        }
+        
+    // Előző oldal megjegyzésésének általános esete
+    }else{
+        $_SESSION['elozo_oldal'] = basename(self());
+    }
 }
+
 // Összetett szűrés inicializálása
 if (isset($_POST['o_szures'])) {
     require_once 'szures.php';
@@ -2675,17 +2700,18 @@ if (isset($_POST['o_szures'])) {
 if (isset($_POST['f_o_szures_submit'])) {
 
     $join = '';
-    if(strpos($_POST['feltetel'], 'megjegyzes')!==false ){
+    if( strpos($_POST['feltetel'], 'megjegyzes')!==false ){
         $join = ' JOIN `'.get_db_tabla().'megjegyzes` ON `'.get_db_tabla().'megjegyzes`.`tabla`=\''.$_POST['tabla'].'\' AND `'.get_db_tabla().$_POST['tabla'].'`.`recid`=`'.get_db_tabla().'megjegyzes`.`id` ';
     }
-    if($_POST['tabla']=='login' && strpos($_POST['feltetel'], 'szalloda')!==false ){
+    if( $_POST['tabla']=='login' && strpos($_POST['feltetel'], 'szalloda')!==false ){
         $join = ' JOIN `'.get_db_tabla().'telephely_kapcs` ON `'.get_db_tabla().$_POST['tabla'].'`.`nev`=`'.get_db_tabla().'telephely_kapcs`.`nev` ';
     }
-    if($_POST['tabla']=='szallito' && strpos($_POST['feltetel'], 'szakterulet')!==false ){
+    if( $_POST['tabla']=='szallito' && strpos($_POST['feltetel'], 'szakterulet')!==false ){
         $join = ' JOIN `'.get_db_tabla().'szakter_kapcs` ON `'.get_db_tabla().$_POST['tabla'].'`.`recid`=`'.get_db_tabla().'szakter_kapcs`.`szallito_id` ';
     }
     $sql = 'SELECT * FROM `'.get_db_tabla().$_POST['tabla'].'`'.$join.' WHERE '.get_o_szures_where_kieg($_POST['feltetel'], $_POST['tabla']);
     $lekerdez = mysqli_query($db_kapcs, $sql);
+
     if($lekerdez){
         if(!$_POST['mehet'] && mysqli_num_rows($lekerdez)>SZURES_DB_LIMIT){
             echo json_encode(array(
