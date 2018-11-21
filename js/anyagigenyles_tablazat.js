@@ -102,7 +102,9 @@ $(document).on('click', '.szamla_cont_tabla tbody tr', function(e) {
                         if( !$('.szamla_cont_tabla tr[data-i="' + i + '"]').hasClass('kijelolve') ) {
                             $('.szamla_cont_tabla tr[data-i="' + i + '"]').addClass('kijelolve');
                             /* A valódi, rejtett nav panelt is megjelöljük */
-                            $('#szamla-'+$('.szamla_cont_tabla tr[data-i="' + i + '"]').attr('data-recid')).addClass('kijelolve');
+                            /* Erre mégsincs szükség, mert később a "Kijelölt sorok átmásolása az eredeti navpanelbe" módszerrel másoljuk át a kijelöléseket.
+                            $('#szamla-'+$('.szamla_cont_tabla tr[data-i="' + i + '"]').attr('data-recid')).addClass('kijelolve'); */
+                            
                         }
                     }
                 } else {
@@ -110,7 +112,8 @@ $(document).on('click', '.szamla_cont_tabla tbody tr', function(e) {
                         if( !$('.szamla_cont_tabla tbody tr[data-i="' + i + '"]').hasClass('kijelolve') ) {
                             $('.szamla_cont_tabla tbody tr[data-i="' + i + '"]').addClass('kijelolve');
                             /* A valódi, rejtett nav panelt is megjelöljük */
-                            $('#szamla-'+$('.szamla_cont_tabla tr[data-i="' + i + '"]').attr('data-recid')).addClass('kijelolve');
+                            /* Erre mégsincs szükség, mert később a "Kijelölt sorok átmásolása az eredeti navpanelbe" módszerrel másoljuk át a kijelöléseket.
+$('#szamla-'+$('.szamla_cont_tabla tr[data-i="' + i + '"]').attr('data-recid')).addClass('kijelolve');*/
                         }
                     }
                 }
@@ -126,13 +129,15 @@ $(document).on('click', '.szamla_cont_tabla tbody tr', function(e) {
 
             if( $(this).hasClass('kijelolve') ) {
                 $(this).removeClass('kijelolve');
-                /* A valódi, rejtett nav panelt is megjelöljük */
-                $('#szamla-'+$(this).attr('data-recid')).removeClass('kijelolve');
+                /* A valódi, rejtett nav panelről is levesszük */
+                /* Erre mégsincs szükség, mert később a "Kijelölt sorok átmásolása az eredeti navpanelbe" módszerrel másoljuk át a kijelöléseket.
+                    $('#szamla-'+$(this).attr('data-recid')).removeClass('kijelolve');*/
 
             } else {
                 $(this).addClass('kijelolve');
                 /* A valódi, rejtett nav panelt is megjelöljük */
-                $('#szamla-'+$(this).attr('data-recid')).addClass('kijelolve');
+                /* Erre mégsincs szükség, mert később a "Kijelölt sorok átmásolása az eredeti navpanelbe" módszerrel másoljuk át a kijelöléseket.
+                $('#szamla-'+$(this).attr('data-recid')).addClass('kijelolve');*/
             }
 
         }
@@ -144,7 +149,7 @@ $(document).on('click', '.szamla_cont_tabla tbody tr', function(e) {
                 $('#szamla-'+$(this).attr('data-recid')).addClass('kijelolve');
             });
 
-        }, 10);
+        }, 1000);
 
     /* Ha nem egy kijelölhető táblázat, akkor csak a megnyomott sor legyen megjelölve */
     }else{
