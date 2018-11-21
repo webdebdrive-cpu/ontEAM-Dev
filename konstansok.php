@@ -351,4 +351,7 @@ define('FUTOERTEK_MEE2',        'Ft/MJ'                 );
 define('FUTOERTEK_MEE3',        'Ft/m3'                 );
 define('GAZFOGYASZTAS_DIJELEM', 'Gáz fogyasztás (m3)'   );
 
+define('VISSZA_MOD_VISSZAADAS',  1);
+define('VISSZA_MOD_VISSZAELOK',  2);
+
 ?>

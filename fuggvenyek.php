@@ -8382,7 +8382,7 @@ function get_mail_teszt_felirat(){
 }
 
 // Munkalap visszaküldése előkészítés státuszba, kiszervezve függvénybe, mert lehet többször is szükség lesz rá
-function munkalap_vissza_elokeszitesbe($recid, $memo, $statusz){
+function munkalap_vissza_elokeszitesbe($recid, $memo){
     
     global $adatbazis_kapcsolat;
     global $db_kapcs;
@@ -8394,7 +8394,7 @@ function munkalap_vissza_elokeszitesbe($recid, $memo, $statusz){
     if( $sor === false ) { $db_error = true; }
 
     // Státusz ellenőrzése
-    if( $sor['stat_id']!=MUNKALAP_STAT_DONTESRE_VAR && $sor['stat_id']!=MUNKALAP_STAT_HOZZARENDELT ){
+    if( $sor['stat_id']!=MUNKALAP_STAT_DONTESRE_VAR && $sor['stat_id']!=MUNKALAP_STAT_HOZZARENDELT && $sor['stat_id']!=MUNKALAP_STAT_SZTORNO_VAR ){
         echo json_encode(array(
             'hiba'  => 'Ebben a státuszban a munkalap nem küldhető vissza előkészítésre!',
             'title' => 'Hiba',
@@ -8416,8 +8416,9 @@ function munkalap_vissza_elokeszitesbe($recid, $memo, $statusz){
     // Státusz + jog kombinációk ellenőrzése
     if(
         !(
-            ($sor['stat_id']==MUNKALAP_STAT_DONTESRE_VAR && _jog(JOG_MUNKALAP_KULSOS_ELOKESZIT) && $sor['jh1_login']=='' && $sor['jh2_login']=='') ||
-            ($sor['stat_id']==MUNKALAP_STAT_HOZZARENDELT && _jog(JOG_MUNKALAP_KEZEL_KULSO)      && $sor['szemelyzet_id']==KULSO_KIVITELEZO )
+            ($sor['stat_id']==MUNKALAP_STAT_DONTESRE_VAR && _jog(JOG_MUNKALAP_KULSOS_ELOKESZIT) && $sor['jh1_login']=='' && $sor['jh2_login']=='')  ||
+            ($sor['stat_id']==MUNKALAP_STAT_HOZZARENDELT && _jog(JOG_MUNKALAP_KEZEL_KULSO)      && $sor['szemelyzet_id']==KULSO_KIVITELEZO )        ||
+            ($sor['stat_id']==MUNKALAP_STAT_SZTORNO_VAR  && _jog(JOG_MUNKALAP_KEZEL_KULSO)      && $sor['szemelyzet_id']==KULSO_KIVITELEZO )
         )
     ){
         echo json_encode(array(
@@ -8454,19 +8455,16 @@ function munkalap_vissza_elokeszitesbe($recid, $memo, $statusz){
     }
     
     // Hozzárendelt státusz esetén a hozzárendelt személy automatikusan a műszaki vezető lesz
-    if( $sor['stat_id']==MUNKALAP_STAT_HOZZARENDELT ){
+    if( $sor['stat_id']==MUNKALAP_STAT_HOZZARENDELT || $sor['stat_id']==MUNKALAP_STAT_SZTORNO_VAR ){
         $sql = $adatbazis_kapcsolat->u('munkalap', 
-                                                array('szemelyzet_id', 'szallito_id', 'becs_ertek', 'mail_ment', 'direktbe', 'jh_ert',   'varh_erk'              ),
-                                                array(MUSZAKI_VEZETO,  '',            0,            0,           0,          0,          '0000-00-00 00:00:00'   ),
+                                                array('szemelyzet_id', 'vissza_mod', 'szallito_id', 'becs_ertek', 'mail_ment', 'direktbe', 'jh_ert',   'varh_erk'              ),
+                                                array(MUSZAKI_VEZETO,  0,            0,             0,            0,           0,          0,          '0000-00-00 00:00:00'   ),
                                         "`recid`='{$recid}'");
         if( $sql === false ) { $db_error = true; }
     }
     
-    // Státusz léptetés, általában előkészítés alá léptetjük, hacsak mást nem kérünk
-    if(!$statusz){
-        $statusz = MUNKALAP_STAT_ELOKESZITES_ALATT;
-    }
-    if( !addStatusz( 'munkalap_statusz', $recid, $statusz, '', $memo ) ) {
+    // Státusz léptetés előkészítés alá
+    if( !addStatusz( 'munkalap_statusz', $recid, MUNKALAP_STAT_ELOKESZITES_ALATT, '', $memo ) ) {
         $db_error = true;
     }
     

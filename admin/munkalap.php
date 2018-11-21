@@ -2611,9 +2611,45 @@ if (isset($_POST['munkalapJovahagyottErtekModositasa'])) {
 // Vissza előkészített státuszba
 if (isset($_POST['munkalapVisszaElokeszit'])) {
 
-    // Munkalap visszaküldése előkészítés státuszba, kiszervezve függvénybe, mert lehet többször is szükség lesz rá
-    munkalap_vissza_elokeszitesbe($_POST['recid'], '', MUNKALAP_STAT_SZTORNO_VAR);
+    $recid = $_POST['recid'];
+    
+    $sor = $adatbazis_kapcsolat->s2('stat_id', 'munkalap', "`recid`='{$recid}'");
+    if( $sql === false ) { $db_error = true; }
+ 
+    // Ha hozzárendelt státuszban vagyunk, akkor úgy kerülhettünk ide, hogy a ML nem volt direktes. 
+    // Ekkor még csak a Stornóra vár státuszba léptetjük, és rögzítjük, hogy a visszaadás melyik módját használtuk
+    if( $sor['stat_id']==MUNKALAP_STAT_HOZZARENDELT ){
 
+        $db_error = false;
+        mysqli_autocommit($db_kapcs, false);
+        
+        // Státusz léptetés
+        if( !addStatusz( 'munkalap_statusz', $recid, MUNKALAP_STAT_SZTORNO_VAR ) ) {
+            $db_error = true;
+        }
+        
+        // Rögzítjük, hogy vissza előkészítés ágon volt a visszaadás
+        $adatbazis_kapcsolat->u('munkalap', array('vissza_mod'), array(VISSZA_MOD_VISSZAELOK), "`recid`='{$recid}'");
+        if( $sql === false ) { $db_error = true; }
+        
+        if( !$db_error ) {
+            mysqli_commit($db_kapcs);
+            echo json_encode(array(
+                'statusz' => 'siker'
+            ));
+        } else {
+            mysqli_rollback($db_kapcs);
+            echo json_encode(array(
+                'hiba'  => tranzakcioHiba(),
+                'title' => 'Hiba',
+            ));
+        }
+        
+    // Egyébként vissza tesszük a ML-ot előkészített státuszba
+    }else{
+        munkalap_vissza_elokeszitesbe($recid);
+    }
+    
     $weblap->leallit();
     exit();
 }
@@ -4503,8 +4539,16 @@ if( isset($_POST['atadasDiszpecsernek']) ) {
             if( $sql === false ) { $db_error = true; }
         }
 
+        // Hozzárendelt státuszban, ha nem direktes az átadás, akkor le kell tárolni, hogy a visszaadás módja az Visszaadás volt, mert a következő státuszból ez dönti majd el, hogyan léptetjük még egyel tovább.
+        if($sor['stat_id']==MUNKALAP_STAT_HOZZARENDELT){
+            $sql = $adatbazis_kapcsolat -> u('munkalap',
+                                                array('vissza_mod',             'update_usr'                           ),
+                                                array( VISSZA_MOD_VISSZAADAS,   $_SESSION[get_db_tabla().'teljes_nev'] ),
+                                                "`recid` = '{$recid}'"
+                                            );
+            if( $sql === false ) { $db_error = true; }
         // Ha nem hozzárendelt státuszban vagyunk, akkor frissítjük a ML-ot, de hozzárendelt státusz alatt még csak egy státusz léptetés történik majd
-        if($sor['stat_id']!=MUNKALAP_STAT_HOZZARENDELT){
+        }else{
             // Frissítjuk a munkalap visszaadva sorát, ürítjük a személyzeteket és egyéb adatokat
             $sql = $adatbazis_kapcsolat -> u('munkalap',
                                                 array('visszaadva', 'szemelyzet_id', 'szallito_id', 'jh_ert',    'becs_ertek',  'mail_ment',    'direktbe', 'mobil_loginnev', 'mobil', 'varh_erk',              'update_usr'                           ),
@@ -5915,7 +5959,7 @@ if (isset($_POST['munkalapVisszavetel'])) {
     }
 
     // Státusz léptetés
-    $statusz = addStatusz( 'munkalap_statusz', $recid, MUNKALAP_STAT_SZTORNO_VAR);
+    $statusz = addStatusz( 'munkalap_statusz', $recid, MUNKALAP_STAT_NYITOTT);
     if( $statusz === false ) { $db_error = true; }
 
     // Munkalap update
@@ -5940,7 +5984,7 @@ if (isset($_POST['munkalapVisszavetel'])) {
     exit();
 }
 
-// Minkalp visszavételezése ha direktbe volt hozzárendelve a kivitelező
+// ML visszavételezése ha direktbe volt hozzárendelve a kivitelező
 if (isset($_POST['munkalapVisszavetelDirektbe'])) {
 
     $db_error = false;
@@ -6672,7 +6716,7 @@ if (isset($_POST['megr_sztorno_mail_elkuldve'])) {
     $db_error = false;
     mysqli_autocommit($db_kapcs, false);
     
-    $sor = $adatbazis_kapcsolat->s2('stat_id', 'munkalap', "`recid`='{$recid}'");
+    $sor = $adatbazis_kapcsolat->s2('stat_id vissza_mod', 'munkalap', "`recid`='{$recid}'");
     if( $sor === false ) { $db_error = true; }
     
     // Státusz ellenőrzése
@@ -6685,28 +6729,46 @@ if (isset($_POST['megr_sztorno_mail_elkuldve'])) {
         exit();
     }
     
-    // Státusz léptetés
-    if( addStatusz('munkalap_statusz', $recid, MUNKALAP_STAT_NYITOTT) === false ) {
-        $db_error = true;
-    }
-    
-    // Szokásos mezők nullázása
-    $sql = $adatbazis_kapcsolat->u('munkalap',  array('szallito_id', 'jh_ert',  'becs_ertek',  'mail_ment', 'direktbe',    'szemelyzet_id', 'mobil_loginnev', 'mobil',  'varh_erk',             'update_usr'                          ),
-                                                array(0,             0,         0,             0,           0,             0,               '',               '',        '0000-00-00 00:00:00', $_SESSION[get_db_tabla().'teljes_nev']),
-                                                "`recid`='{$recid}'");
-    if( $sql === false ) { $db_error = true; }
-    
-    if( !$db_error ) {
-        mysqli_commit($db_kapcs);
+    // Szokásos mezők nullázása, de erre két ág van:
+    if($sor['vissza_mod']==VISSZA_MOD_VISSZAADAS){
+        
+        // ML adatok ürítése, de visszaadva pipa bepipálásával
+        $sql = $adatbazis_kapcsolat->u('munkalap',  array('visszaadva', 'vissza_mod', 'szemelyzet_id', 'szallito_id', 'jh_ert',  'becs_ertek',  'mail_ment', 'direktbe',    'mobil_loginnev', 'mobil',  'varh_erk',             'update_usr'                          ),
+                                                    array(1,            0,            0,               0,             0,         0,             0,            0,            '',               '',        '0000-00-00 00:00:00', $_SESSION[get_db_tabla().'teljes_nev']),
+                                                    "`recid`='{$recid}'");
+        if( $sql === false ) { $db_error = true; }
+        
+        // Státusz léptetés
+        if( addStatusz('munkalap_statusz', $recid, MUNKALAP_STAT_NYITOTT) === false ) {
+            $db_error = true;
+        }
+        
+        if( !$db_error ) {
+            mysqli_commit($db_kapcs);
+            echo json_encode(array(
+                'statusz' => 'siker',
+            ));
+        } else {
+            mysqli_rollback($db_kapcs);
+            echo json_encode(array(
+                'hiba'  => tranzakcioHiba(),
+                'title' => 'Hiba',
+            ));
+        }
+        
+    // Ha Vissza előkészítés gobmról jutottunk ide:
+    }elseif($sor['vissza_mod']==VISSZA_MOD_VISSZAELOK){
+        
+        munkalap_vissza_elokeszitesbe($recid);
+        
+    // Ilyen nem fordulhat elő, de nem ár bele egy védelem
+    }else{
         echo json_encode(array(
-            'statusz' => 'siker',
-        ));
-    } else {
-        mysqli_rollback($db_kapcs);
-        echo json_encode(array(
-            'hiba'  => tranzakcioHiba(),
+            'hiba'  => 'A munkalaphoz nem sikerült nyitott státuszba léptetni, mivel nem ismert a visszaadás módja!',
             'title' => 'Hiba',
         ));
+        $weblap->leallit();
+        exit();
     }
     
     $weblap->leallit();
