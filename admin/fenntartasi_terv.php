@@ -2459,7 +2459,6 @@ if (isset($_GET['csv'])) {
         $megnevezes .= '_osszesen';
         $csv_cim     = 'Összesen';
     }
-
     header("Content-type: text/csv");
     header("Content-Disposition: attachment; filename=$megnevezes.csv");
     header("Pragma: no-cache");

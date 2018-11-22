@@ -1004,6 +1004,7 @@ if (isset($_GET['csv'])) {
                 while( $sorok = mysqli_fetch_assoc($query) ){
 
                     $csvcont = array();
+                    $oszlop_i = 0;
                     foreach( $sorok as $kulcs => $sor ) {
                         if($kulcs=='Szállodák'){
                             $telepehely_nevek = array();
@@ -1021,12 +1022,19 @@ if (isset($_GET['csv'])) {
                             $sor = getErtekLista(ERTEKLISTA_PENZNEM, $sor);
                         }
                         
+                        // Ha már a 4. oszlopnál járunk, akkor csak számok jönnek, azokban cseréljük le a pontot vesszőre
+                        if($oszlop_i>4){
+                            $sor = str_replace('.', ',', $sor);
+                        }
+                        
                         // Lehet nem volna elég 1-szer sőt kétszer sem ráereszteni a htmlspecialchars_decode-ot
                         $sor = htmlspecialchars_decode( $sor );
                         while(strpos($sor, '&amp;')!==false || strpos($sor, '&quot;')!==false ){
                             $sor = htmlspecialchars_decode( $sor );
                         }
                         $csvcont[] = iconv($mibol, $mibe.'//TRANSLIT', strip_tags( $sor ) );
+                        
+                        $oszlop_i++;
                     }
 
                     fputcsv($open, $csvcont, ';');

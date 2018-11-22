@@ -2651,11 +2651,26 @@ function anyagigenyles_rendeles_keszit(csak_kerdezunk) {
                                 return false;
                             }
 
-                            /* Ha mehet, akkor anyagrendelésre ugrunk át */
+                            /* Ha mehet, akkor anyagrendelésre ugrunk át
+                             * 2018.11.22 Update: nem ugrunk át, met zavaró, maradunk az igénylésen, ezért csak a navpanelt frissítjük végig */
                             if(mehet){
 
-                                szurkit();
-                                location.href = 'anyagigenyles.php?id='+_get('id')+'&modosit&anyagrend';
+                                var navpanel_recid = $('.szamla_cont_tabla tbody tr.kijelolve').attr('data-recid');
+                                $('.szamla_cont_tabla tbody tr.kijelolve').remove();
+                                $('#szamla-'+navpanel_recid).remove();
+                                $('.szamla_cont_tabla tbody tr:nth-of-type(2)').addClass('kijelolve');
+                                
+                                /* Bizti kedvéért a kijelölt sorokat átmásolásoljuk az eredeti navpanelbe */
+                                setTimeout(function(){
+                                    $('#szamlaList li').removeClass('kijelolve');
+                                    $('.szamla_cont_tabla tbody tr.kijelolve').each(function () {
+                                        $('#szamla-'+$(this).attr('data-recid')).addClass('kijelolve');
+                                    });
+
+                                }, 1000);
+
+                                /*szurkit();
+                                location.href = 'anyagigenyles.php?id='+_get('id')+'&modosit&anyagrend';*/
 
                             }else{
 
