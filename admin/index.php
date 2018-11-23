@@ -19,8 +19,9 @@ if(isset($_GET['info'])){
 require_once('../weblap.php');
 
 if (isset($_GET['teszt'])) {
-    include('datumra_utemezes.php');
-    var_dump(getnextvaliddate(false, '    .  .  ', 'w', '0', '2', '0', '0', '2', '0', '0', '0', '0', '0', '0000.00.00', '0000.00.00'));
+    echo '<pre style="font-size: 1.4rem">';
+    print_r($_SESSION);
+    echo '</pre>';
     exit;
 }
 

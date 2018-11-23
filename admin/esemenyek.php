@@ -2660,8 +2660,8 @@ if( !in_array(basename(self()), $kivetelek) ){
     }
 // var_dump($_SESSION['elozo_oldal']);
     // Az anyigénylés/rendelés egy és ugyanaz a PHP fálj, ezért ezt itt külön kell lekezelni, még a $_SESSION['elozo_oldal'] = basename(self()); rész előtt
-    if( $_SESSION['elozo_oldal']=='anyagigenyles.php' || $_SESSION['elozo_oldal']=='anyagigenyles.php?anyagrend' ){
-        
+    if( basename(self())=='anyagigenyles.php' || basename(self())=='anyagigenyles.php?anyagrend' ){
+
 // echo $_SESSION['elozo_oldal'];
         if( isset($_GET['anyagrend']) ){
             if($_SESSION['elozo_oldal']!='anyagigenyles.php?anyagrend'){
