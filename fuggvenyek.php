@@ -2511,9 +2511,13 @@ function szamla_lista( $where, $tabla, $kijeloltek = false, $csak_sql_miatt = fa
         if($tabla=='anyagigenyles'){
             $sql_kieg .= nl2('
                                 LEFT JOIN `'.get_db_tabla().'szallito` ON (`'.get_db_tabla().'anyagigenyles`.`szallito_id`=`'.get_db_tabla().'szallito`.`id`)
-                                LEFT JOIN `'.get_db_tabla().'erteklista` ON (`'.get_db_tabla().'anyagigenyles`.`kcs_21`=`'.get_db_tabla().'erteklista`.`id` AND `'.get_db_tabla().'erteklista`.`csoport`=\''.ERTEKLISTA_PENZNEM.'\')
-                                LEFT JOIN `'.get_db_tabla().'cikkrendfej` ON (`'.get_db_tabla().'anyagigenyles`.`rndid`=`'.get_db_tabla().'cikkrendfej`.`rndid`)
                             ');
+// Korábban több táblát is JOIN-oltunk, de már nincs szükség csak a szállítóra
+//            $sql_kieg .= nl2('
+//                                LEFT JOIN `'.get_db_tabla().'szallito` ON (`'.get_db_tabla().'anyagigenyles`.`szallito_id`=`'.get_db_tabla().'szallito`.`id`)
+//                                LEFT JOIN `'.get_db_tabla().'erteklista` ON (`'.get_db_tabla().'anyagigenyles`.`kcs_21`=`'.get_db_tabla().'erteklista`.`id` AND `'.get_db_tabla().'erteklista`.`csoport`=\''.ERTEKLISTA_PENZNEM.'\')
+//                                LEFT JOIN `'.get_db_tabla().'cikkrendfej` ON (`'.get_db_tabla().'anyagigenyles`.`rndid`=`'.get_db_tabla().'cikkrendfej`.`rndid`)
+//                            ');
         }
 
         $arch = '';
@@ -8450,7 +8454,7 @@ function munkalap_vissza_elokeszitesbe($recid, $memo){
         if( $login === false ) { $db_error = true; }
         $sql = $adatbazis_kapcsolat->u('munkalap', 
                                                 array('szemelyzet_id',          'szallito_id', 'becs_ertek', 'mail_ment', 'jh_ert', 'direktbe', 'varh_erk'              ),
-                                                array($login['szemelyzet_id'],  '',            0,            0,           0,        0,        '0000-00-00 00:00:00'   ),
+                                                array($login['szemelyzet_id'],  '',            0,            0,           0,        0,          '0000-00-00 00:00:00'   ),
                                         "`recid`='{$recid}'");
         if( $sql === false ) { $db_error = true; }
     }
@@ -8459,7 +8463,7 @@ function munkalap_vissza_elokeszitesbe($recid, $memo){
     if( $sor['stat_id']==MUNKALAP_STAT_HOZZARENDELT || $sor['stat_id']==MUNKALAP_STAT_SZTORNO_VAR ){
         $sql = $adatbazis_kapcsolat->u('munkalap', 
                                                 array('szemelyzet_id', 'vissza_mod', 'szallito_id', 'becs_ertek', 'mail_ment', 'direktbe', 'jh_ert',   'varh_erk'              ),
-                                                array(MUSZAKI_VEZETO,  0,            0,             0,            0,           0,          0,          '0000-00-00 00:00:00'   ),
+                                                array(MUSZAKI_VEZETO,  0,            '',            0,            0,           0,          0,          '0000-00-00 00:00:00'   ),
                                         "`recid`='{$recid}'");
         if( $sql === false ) { $db_error = true; }
     }

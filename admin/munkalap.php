@@ -2446,12 +2446,18 @@ if( isset($_POST['kulsokivHozzarend']) ) {
                 $weblap->leallit();
                 exit();
             }
+            
+            // Javaslattétel update mezői
+            $mezok      = array('szallito_id', 'jh_ert', 'varh_erk', 'becs_ertek', 'jh1_login', 'jh1_datum',           'jh1_szerep',    'jh2_login', 'jh2_datum',           'jh2_szerep',   'szemelyzet_id' );
+            $ertekek    = array($szallitoid,   $jh_ert,  $varh_erk,  $becs_ertek,  '',          '0000-00-00 00:00:00', '',              '',          '0000-00-00 00:00:00', '',             ''              );
+            // Ha a ML státusza előkészítés alatt még a direktes mezőt pluszban ürítjük
+            if( $sor['stat_id']==MUNKALAP_STAT_ELOKESZITES_ALATT ) {
+                array_push($mezok,      'direktbe'  );
+                array_push($ertekek,    0           );
+            }
 
             // Munkalap update, ha javaslattétel volt
-            $sql = $adatbazis_kapcsolat -> u('munkalap',
-                                                        array('szallito_id', 'jh_ert', 'varh_erk', 'becs_ertek', 'jh1_login', 'jh1_datum',           'jh1_szerep',    'jh2_login', 'jh2_datum',           'jh2_szerep',   'szemelyzet_id' ),
-                                                        array($szallitoid,   $jh_ert,  $varh_erk,  $becs_ertek,  '',          '0000-00-00 00:00:00', '',              '',          '0000-00-00 00:00:00', '',             ''              ),
-                                                "`recid` = '{$recid}'");
+            $sql = $adatbazis_kapcsolat -> u('munkalap', $mezok, $ertekek, "`recid` = '{$recid}'");
             if( $sql === false ) { $db_error = true; }
 
             // Ha becsült érték, az a megjegyzésbe is kerüljön be
@@ -3999,7 +4005,7 @@ if( isset($_POST['van_e_feladat']) ) {
             }
         }
 
-        // Nyitott státusznál az is feltétel, hogy a tétel is nyitott-e, azaz nincs átadta dátum kitöltve. Egyébként csak a feltétel, hogy létezzen utolsó tétel.
+        // Hozzárendelt státusznál az is feltétel, hogy a tétel nyitott-e, azaz nincs átadta dátum kitöltve. Egyébként csak a feltétel, hogy létezzen utolsó tétel.
         $sql_kieg = '';
         if( $sor['stat_id']==MUNKALAP_STAT_HOZZARENDELT ){
             $sql_kieg = " AND `atadta_dt`='0000-00-00 00:00:00'";
@@ -4246,7 +4252,7 @@ if( isset($_POST['munkAnyagIgenyles']) ) {
                     // Munkalapon töröljük a személyzetet és a mobil loginnevet
                     $sql = $adatbazis_kapcsolat -> u('munkalap',
                                                         array('szemelyzet_id', 'mobil_loginnev', 'szallito_id', 'update_usr'                           ),
-                                                        array( 0,              '',                0,            $_SESSION[get_db_tabla().'teljes_nev'] ),
+                                                        array( 0,              '',               '',            $_SESSION[get_db_tabla().'teljes_nev'] ),
                                                         "`recid` = '{$recid}'"
                                                     );
                     if( $sql === false ) { $db_error = true; }
@@ -4539,11 +4545,11 @@ if( isset($_POST['atadasDiszpecsernek']) ) {
             if( $sql === false ) { $db_error = true; }
         }
 
-        // Hozzárendelt státuszban, ha nem direktes az átadás, akkor le kell tárolni, hogy a visszaadás módja az Visszaadás volt, mert a következő státuszból ez dönti majd el, hogyan léptetjük még egyel tovább.
+        // Hozzárendelt státuszban, ha nem direktes az átadás, akkor le kell tárolni, hogy a visszaadás módja az Visszaadás volt, az értéklista id-t, mert a következő státuszból ez dönti majd el, hogyan léptetjük még egyel tovább.
         if($sor['stat_id']==MUNKALAP_STAT_HOZZARENDELT){
             $sql = $adatbazis_kapcsolat -> u('munkalap',
-                                                array('vissza_mod',             'update_usr'                           ),
-                                                array( VISSZA_MOD_VISSZAADAS,   $_SESSION[get_db_tabla().'teljes_nev'] ),
+                                                array('vissza_mod',             'vissza_erteklista_id', 'update_usr'                           ),
+                                                array( VISSZA_MOD_VISSZAADAS,   $erteklista_id,         $_SESSION[get_db_tabla().'teljes_nev'] ),
                                                 "`recid` = '{$recid}'"
                                             );
             if( $sql === false ) { $db_error = true; }
@@ -4552,7 +4558,7 @@ if( isset($_POST['atadasDiszpecsernek']) ) {
             // Frissítjuk a munkalap visszaadva sorát, ürítjük a személyzeteket és egyéb adatokat
             $sql = $adatbazis_kapcsolat -> u('munkalap',
                                                 array('visszaadva', 'szemelyzet_id', 'szallito_id', 'jh_ert',    'becs_ertek',  'mail_ment',    'direktbe', 'mobil_loginnev', 'mobil', 'varh_erk',              'update_usr'                           ),
-                                                array( 1,           0,               0,             0,           0,             0,              0,           '',              '',      '0000-00-00 00:00:00',   $_SESSION[get_db_tabla().'teljes_nev'] ),
+                                                array( 1,           0,               '',             0,           0,             0,              0,           '',              '',      '0000-00-00 00:00:00',   $_SESSION[get_db_tabla().'teljes_nev'] ),
                                                 "`recid` = '{$recid}'"
                                             );
             if( $sql === false ) { $db_error = true; }
@@ -4573,7 +4579,7 @@ if( isset($_POST['atadasDiszpecsernek']) ) {
             }
         }
 
-        // Hozzárendelt státusz alatt Sztornóra várra állítjuk a ML-ot
+        // Hozzárendelt státusz alatt "Sztornóra vár"-ra állítjuk a ML-ot
         if($sor['stat_id']==MUNKALAP_STAT_HOZZARENDELT){
             if( !addStatusz( 'munkalap_statusz', $recid, MUNKALAP_STAT_SZTORNO_VAR, $erteklista_id, $memo ) ) {
                 $db_error = true;
@@ -6716,7 +6722,7 @@ if (isset($_POST['megr_sztorno_mail_elkuldve'])) {
     $db_error = false;
     mysqli_autocommit($db_kapcs, false);
     
-    $sor = $adatbazis_kapcsolat->s2('stat_id vissza_mod', 'munkalap', "`recid`='{$recid}'");
+    $sor = $adatbazis_kapcsolat->s2('stat_id vissza_mod vissza_erteklista_id', 'munkalap', "`recid`='{$recid}'");
     if( $sor === false ) { $db_error = true; }
     
     // Státusz ellenőrzése
@@ -6732,9 +6738,21 @@ if (isset($_POST['megr_sztorno_mail_elkuldve'])) {
     // Szokásos mezők nullázása, de erre két ág van:
     if($sor['vissza_mod']==VISSZA_MOD_VISSZAADAS){
         
+        // Mi a ML utolsó nyitott tétele?
+        $utolso_tetel = $adatbazis_kapcsolat->s2('recid', 'munkalap_tetel', "`munkalap_id`='{$recid}' AND `atadta_dt`='0000-00-00 00:00:00'", 'recid desc', '1');
+        if( $utolso_tetel === false ) { $db_error = true; }
+        
+        // Frissítjük a munkalap tételt is
+        $sql = $adatbazis_kapcsolat -> u('munkalap_tetel',
+                                            array('atadta_dt',  'visszaadva', 'erteklista_id',              'update_usr'                           ),
+                                            array('NOW()',      1,            $sor['vissza_erteklista_id'], $_SESSION[get_db_tabla().'teljes_nev'] ),
+                                            "`recid` = '".$utolso_tetel['recid']."'"
+                                        );
+        if( $sql === false ) { $db_error = true; }
+        
         // ML adatok ürítése, de visszaadva pipa bepipálásával
-        $sql = $adatbazis_kapcsolat->u('munkalap',  array('visszaadva', 'vissza_mod', 'szemelyzet_id', 'szallito_id', 'jh_ert',  'becs_ertek',  'mail_ment', 'direktbe',    'mobil_loginnev', 'mobil',  'varh_erk',             'update_usr'                          ),
-                                                    array(1,            0,            0,               0,             0,         0,             0,            0,            '',               '',        '0000-00-00 00:00:00', $_SESSION[get_db_tabla().'teljes_nev']),
+        $sql = $adatbazis_kapcsolat->u('munkalap',  array('visszaadva', 'szemelyzet_id', 'szallito_id', 'jh_ert',  'becs_ertek',  'mail_ment', 'direktbe', 'vissza_mod', 'vissza_erteklista_id',    'mobil_loginnev', 'mobil',  'varh_erk',            'update_usr'                          ),
+                                                    array(1,            0,               0,             0,         0,             0,           0,          0,            0,                         '',               '',       '0000-00-00 00:00:00', $_SESSION[get_db_tabla().'teljes_nev']),
                                                     "`recid`='{$recid}'");
         if( $sql === false ) { $db_error = true; }
         
@@ -6761,7 +6779,7 @@ if (isset($_POST['megr_sztorno_mail_elkuldve'])) {
         
         munkalap_vissza_elokeszitesbe($recid);
         
-    // Ilyen nem fordulhat elő, de nem ár bele egy védelem
+    // Ilyen nem fordulhat elő, de nem árt bele egy védelem
     }else{
         echo json_encode(array(
             'hiba'  => 'A munkalaphoz nem sikerült nyitott státuszba léptetni, mivel nem ismert a visszaadás módja!',
