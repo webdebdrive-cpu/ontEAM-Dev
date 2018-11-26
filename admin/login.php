@@ -535,7 +535,7 @@ if (isset($_GET['csv'])) {
             if( strstr($_SESSION['akt_sql'], 'WHERE') ) {
                 $lekerdezes_fromtol = str_replace('WHERE', "WHERE `".get_db_tabla().$megnevezes."`.`recid` IN (".$_SESSION['nyomtatas_ids'].") AND ", $lekerdezes_fromtol);
             } else {
-                $lekerdezes_fromtol = str_replace('ORDER', "WHERE `".get_db_tabla().$megnevezes."``recid` IN (".$_SESSION['nyomtatas_ids'].") ORDER", $lekerdezes_fromtol);
+                $lekerdezes_fromtol = str_replace('ORDER', "WHERE `".get_db_tabla().$megnevezes."`.`recid` IN (".$_SESSION['nyomtatas_ids'].") ORDER", $lekerdezes_fromtol);
             }
         }
 
@@ -551,7 +551,7 @@ if (isset($_GET['csv'])) {
                                                     `torolve` as \'Törölve\',
                                                     `aktiv` as \'Aktiv\'
                                                     '.$lekerdezes_fromtol;
-//echo $sql . '<br>';
+// echo $sql . '<br>';
         $query      = mysqli_query($db_kapcs, $sql);
 
         $csvhead    = array();
@@ -565,6 +565,9 @@ if (isset($_GET['csv'])) {
             foreach( $sorok as $kulcs => $sor ) {
                 if($kulcs=='Szerepkör'){
                     $sor = getSzerepkorNev($sor);
+                }
+                if($kulcs=='Telefon'){
+                    $sor = '{EGYENLOSEG_JELET_ELE}'.$sor.'{EGYENLOSEG_JELET_ELE_VEGE}';
                 }
                 if($kulcs=='Beosztás' || $kulcs=='Részleg'){
                     $sor = $adatbazis_kapcsolat->s('info', 'erteklista', "`id`='{$sor}'");
@@ -595,7 +598,11 @@ if (isset($_GET['csv'])) {
     header("Pragma: no-cache");
     header("Expires: 0");
 
-    echo fajlbol_olvas($fajlnev);
+    echo str_replace(
+                    array('"{EGYENLOSEG_JELET_ELE}',    '{EGYENLOSEG_JELET_ELE_VEGE}"',     '{EGYENLOSEG_JELET_ELE}',   '{EGYENLOSEG_JELET_ELE_VEGE}', ';="";'  ),
+                    array('="',                         '"',                                '="',                       '"',                            ';;'    ),
+                    fajlbol_olvas($fajlnev)
+            );
 
     $weblap->leallit();
     exit();

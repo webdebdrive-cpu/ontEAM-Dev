@@ -2447,14 +2447,9 @@ if( isset($_POST['kulsokivHozzarend']) ) {
                 exit();
             }
             
-            // Javaslattétel update mezői
-            $mezok      = array('szallito_id', 'jh_ert', 'varh_erk', 'becs_ertek', 'jh1_login', 'jh1_datum',           'jh1_szerep',    'jh2_login', 'jh2_datum',           'jh2_szerep',   'szemelyzet_id' );
-            $ertekek    = array($szallitoid,   $jh_ert,  $varh_erk,  $becs_ertek,  '',          '0000-00-00 00:00:00', '',              '',          '0000-00-00 00:00:00', '',             ''              );
-            // Ha a ML státusza előkészítés alatt még a direktes mezőt pluszban ürítjük
-            if( $sor['stat_id']==MUNKALAP_STAT_ELOKESZITES_ALATT ) {
-                array_push($mezok,      'direktbe'  );
-                array_push($ertekek,    0           );
-            }
+            // Javaslattétel update mezői. Javaslattétel esetén a direktes mezőt is töröljük mindig
+            $mezok      = array('szallito_id', 'jh_ert', 'varh_erk', 'becs_ertek', 'jh1_login', 'jh1_datum',           'jh1_szerep',    'jh2_login', 'jh2_datum',           'jh2_szerep',   'szemelyzet_id', 'direktbe' );
+            $ertekek    = array($szallitoid,   $jh_ert,  $varh_erk,  $becs_ertek,  '',          '0000-00-00 00:00:00', 0,               '',          '0000-00-00 00:00:00', 0,              0,               0          );
 
             // Munkalap update, ha javaslattétel volt
             $sql = $adatbazis_kapcsolat -> u('munkalap', $mezok, $ertekek, "`recid` = '{$recid}'");
@@ -6373,7 +6368,7 @@ if (isset($_POST['munkalapSztornoz'])) {
         exit();
     }
 
-    $munkalap = $adatbazis_kapcsolat->s2('stat_id', 'munkalap', "`recid` = '{$recid}'");
+    $munkalap = $adatbazis_kapcsolat->s2('stat_id', 'munkalap', "`recid`='{$recid}'");
     if( $munkalap === false ) { $db_error = true; }
 
     // Státusz ellenőrzése

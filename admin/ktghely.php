@@ -115,6 +115,9 @@ if (isset($_GET['csv'])) {
         while( $sorok = mysqli_fetch_assoc($query) ){
             $csvcont = array();
             foreach( $sorok as $kulcs => $sor ) {
+                if($kulcs=='id'){
+                    $sor = '{EGYENLOSEG_JELET_ELE}'.$sor.'{EGYENLOSEG_JELET_ELE_VEGE}';
+                }
                 if($kulcs=='Szálloda'){
                     $sor = getErtek('nev', 'telephely', 'id', $sor);
                 }
@@ -128,7 +131,7 @@ if (isset($_GET['csv'])) {
                     $sor = getErtek('nev', 'eszkozkezeles', 'recid', $sor);
                 }
                 if($kulcs=='Típus'){
-                    $sor = erteklista(6, $sor);
+                    $sor = erteklista(ERTEKLISTA_MUNKALAP_TIP, $sor);
                 }
                 if($kulcs=='Státusz'){
                     $sor = getStatText('munkalap', $sor);
@@ -151,7 +154,11 @@ if (isset($_GET['csv'])) {
     header("Pragma: no-cache");
     header("Expires: 0");
 
-    echo fajlbol_olvas($fajlnev);
+    echo str_replace(
+                    array('"{EGYENLOSEG_JELET_ELE}',    '{EGYENLOSEG_JELET_ELE_VEGE}"',     '{EGYENLOSEG_JELET_ELE}',   '{EGYENLOSEG_JELET_ELE_VEGE}', ';="";'  ),
+                    array('="',                         '"',                                '="',                       '"',                            ';;'    ),
+                    fajlbol_olvas($fajlnev)
+            );
 
     $weblap->leallit();
     exit();

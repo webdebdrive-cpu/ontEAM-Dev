@@ -2583,6 +2583,7 @@ if (isset($_GET['csv'])) {
                     $ertekek_mindosszesen += $ertek_osszesen;
 
                     $csvcont = array();
+                    $kulcs_i = 0;
                     foreach( $sorok as $kulcs => $sor ) {
                         if($kulcs=='Költségnem név'){
                             $sor = getErtek('nev', 'ktgnem', 'id', $sor);
@@ -2593,6 +2594,12 @@ if (isset($_GET['csv'])) {
                         while(strpos($sor, '&amp;')!==false || strpos($sor, '&quot;')!==false ){
                             $sor = htmlspecialchars_decode( $sor );
                         }
+                        
+                        // Tört számok rendbetétele
+                        if($kulcs_i>3){
+                            $sor = str_replace('.', ',', $sor);
+                        }
+                        
                         $csvcont[] = iconv($mibol, $mibe.'//TRANSLIT', strip_tags( $sor ) );
 
                         // Mee oszlop után a kalkulált oszlopot még beszúrjuk
@@ -2600,11 +2607,12 @@ if (isset($_GET['csv'])) {
                             $csvcont[] = $mennyiseg_osszesen;
                             $csvcont[] = $ertek_osszesen;
                         }
+                        $kulcs_i++;
                     }
 
                     fputcsv($open, $csvcont, ';');
 
-                    // 100 soronként kiírtatunk
+                    // 100 soronként kiíratunk
                     if ($i % 100 == 0) {
                         flush();
                     }
@@ -2680,6 +2688,7 @@ if (isset($_GET['csv'])) {
                     }
                     $ertekek_mindosszesen += $osszesen;
 
+                    $kulcs_i = 0;
                     $csvcont = array();
                     foreach( $sorok as $kulcs => $sor ) {
                         if($kulcs=='Költségnem név'){
@@ -2691,17 +2700,22 @@ if (isset($_GET['csv'])) {
                         while(strpos($sor, '&amp;')!==false || strpos($sor, '&quot;')!==false ){
                             $sor = htmlspecialchars_decode( $sor );
                         }
+                        // Tört számok rendbetétele
+                        if($kulcs_i>1){
+                            $sor = str_replace('.', ',', $sor);
+                        }
                         $csvcont[] = iconv($mibol, $mibe.'//TRANSLIT', strip_tags( $sor ) );
 
                         // Költségnem név oszlop után a kalkulált oszlopot még beszúrjuk
                         if($kulcs=='Költségnem név'){
                             $csvcont[] = $osszesen;
                         }
+                        $kulcs_i++;
                     }
 
                     fputcsv($open, $csvcont, ';');
 
-                    // 100 soronként kiírtatunk
+                    // 100 soronként kiíratunk
                     if ($i % 100 == 0) {
                         flush();
                     }
@@ -2776,6 +2790,7 @@ if (isset($_GET['csv'])) {
                     }
                     $ertekek_mindosszesen += $osszesen;
 
+                    $kulcs_i = 0;
                     $csvcont = array();
                     foreach( $sorok as $kulcs => $sor ) {
                         if($kulcs=='Költségnem név'){
@@ -2787,17 +2802,22 @@ if (isset($_GET['csv'])) {
                         while(strpos($sor, '&amp;')!==false || strpos($sor, '&quot;')!==false ){
                             $sor = htmlspecialchars_decode( $sor );
                         }
+                        // Tört számok rendbetétele
+                        if($kulcs_i>2){
+                            $sor = str_replace('.', ',', $sor);
+                        }
                         $csvcont[] = iconv($mibol, $mibe.'//TRANSLIT', strip_tags( $sor ) );
 
                         // Tárgy oszlop után a kalkulált oszlopot még beszúrjuk
                         if($kulcs=='Tárgy'){
                             $csvcont[] = $osszesen;
                         }
+                        $kulcs_i++;
                     }
 
                     fputcsv($open, $csvcont, ';');
 
-                    // 100 soronként kiírtatunk
+                    // 100 soronként kiíratunk
                     if ($i % 100 == 0) {
                         flush();
                     }
@@ -2873,6 +2893,7 @@ if (isset($_GET['csv'])) {
                     }
                     $ertekek_mindosszesen += $osszesen;
 
+                    $kulcs_i = 0;
                     $csvcont = array();
                     foreach( $sorok as $kulcs => $sor ) {
                         if($kulcs=='Költségnem név'){
@@ -2884,17 +2905,22 @@ if (isset($_GET['csv'])) {
                         while(strpos($sor, '&amp;')!==false || strpos($sor, '&quot;')!==false ){
                             $sor = htmlspecialchars_decode( $sor );
                         }
+                        // Tört számok rendbetétele
+                        if($kulcs_i>3){
+                            $sor = str_replace('.', ',', $sor);
+                        }
                         $csvcont[] = iconv2($mibol, $mibe, strip_tags( $sor ) );
 
                         // Részletes leírás oszlop után a kalkulált oszlopot még beszúrjuk
                         if($kulcs=='Részletes leírás'){
                             $csvcont[] = $osszesen;
                         }
+                        $kulcs_i++;
                     }
 
                     fputcsv($open, $csvcont, ';');
 
-                    // 100 soronként kiírtatunk
+                    // 100 soronként kiíratunk
                     if ($i % 100 == 0) {
                         flush();
                     }
@@ -2969,6 +2995,7 @@ if (isset($_GET['csv'])) {
                     }
                     $ertekek_mindosszesen += $osszesen;
 
+                    $kulcs_i = 0;
                     $csvcont = array();
                     foreach( $sorok as $kulcs => $sor ) {
                         if($kulcs=='Költségnem név'){
@@ -2980,17 +3007,22 @@ if (isset($_GET['csv'])) {
                         while(strpos($sor, '&amp;')!==false || strpos($sor, '&quot;')!==false ){
                             $sor = htmlspecialchars_decode( $sor );
                         }
+                        // Tört számok rendbetétele
+                        if($kulcs_i>2){
+                            $sor = str_replace('.', ',', $sor);
+                        }
                         $csvcont[] = iconv($mibol, $mibe.'//TRANSLIT', strip_tags( $sor ) );
 
                         // Részletes leírás oszlop után a kalkulált oszlopot még beszúrjuk
                         if($kulcs=='Részletes leírás'){
                             $csvcont[] = $osszesen;
                         }
+                        $kulcs_i++;
                     }
 
                     fputcsv($open, $csvcont, ';');
 
-                    // 100 soronként kiírtatunk
+                    // 100 soronként kiíratunk
                     if ($i % 100 == 0) {
                         flush();
                     }
@@ -3067,6 +3099,7 @@ if (isset($_GET['csv'])) {
                     }
                     $ertekek_mindosszesen += $osszesen;
 
+                    $kulcs_i = 0;
                     $csvcont = array();
                     foreach( $sorok as $kulcs => $sor ) {
                         if($kulcs=='Költségnem név'){
@@ -3078,17 +3111,22 @@ if (isset($_GET['csv'])) {
                         while(strpos($sor, '&amp;')!==false || strpos($sor, '&quot;')!==false ){
                             $sor = htmlspecialchars_decode( $sor );
                         }
+                        // Tört számok rendbetétele
+                        if($kulcs_i>3){
+                            $sor = str_replace('.', ',', $sor);
+                        }
                         $csvcont[] = iconv($mibol, $mibe.'//TRANSLIT', strip_tags( $sor ) );
 
                         // Részletes leírás oszlop után a kalkulált oszlopot még beszúrjuk
                         if($kulcs=='Részletes leírás'){
                             $csvcont[] = $osszesen;
                         }
+                        $kulcs_i++;
                     }
 
                     fputcsv($open, $csvcont, ';');
 
-                    // 100 soronként kiírtatunk
+                    // 100 soronként kiíratunk
                     if ($i % 100 == 0) {
                         flush();
                     }
@@ -3160,6 +3198,7 @@ if (isset($_GET['csv'])) {
                     }
                     $ertekek_mindosszesen += $osszesen;
 
+                    $kulcs_i = 0;
                     $csvcont = array();
                     foreach( $sorok as $kulcs => $sor ) {
                         if($kulcs=='Költségnem név'){
@@ -3171,12 +3210,17 @@ if (isset($_GET['csv'])) {
                         while(strpos($sor, '&amp;')!==false || strpos($sor, '&quot;')!==false ){
                             $sor = htmlspecialchars_decode( $sor );
                         }
+                        // Tört számok rendbetétele
+                        if($kulcs_i>3){
+                            $sor = str_replace('.', ',', $sor);
+                        }
                         $csvcont[] = iconv($mibol, $mibe.'//TRANSLIT', strip_tags( $sor ) );
+                        $kulcs_i++;
                     }
 
                     fputcsv($open, $csvcont, ';');
 
-                    // 100 soronként kiírtatunk
+                    // 100 soronként kiíratunk
                     if ($i % 100 == 0) {
                         flush();
                     }
@@ -3286,6 +3330,7 @@ if (isset($_GET['csv'])) {
                         $ertekek_mindosszesen += $osszesen;
                         $fofo_mindosszesen    += $osszesen;
 
+                        $kulcs_i = 0;
                         $csvcont = array();
                         foreach( $sorok as $kulcs => $sor ) {
                             if($kulcs=='Költségnem név'){
@@ -3297,17 +3342,22 @@ if (isset($_GET['csv'])) {
                             while(strpos($sor, '&amp;')!==false || strpos($sor, '&quot;')!==false ){
                                 $sor = htmlspecialchars_decode( $sor );
                             }
+                            // Tört számok rendbetétele
+                            if($kulcs_i>3){
+                                $sor = str_replace('.', ',', $sor);
+                            }
                             $csvcont[] = iconv($mibol, $mibe.'//TRANSLIT', strip_tags( $sor ) );
 
                             // Költségnem név oszlop után a kalkulált oszlopot még beszúrjuk
                             if($kulcs=='Költségnem név'){
                                 $csvcont[] = $osszesen;
                             }
+                            $kulcs_i++;
                         }
 
                         fputcsv($open, $csvcont, ';');
 
-                        // 100 soronként kiírtatunk
+                        // 100 soronként kiíratunk
                         if ($i % 100 == 0) {
                             flush();
                         }
@@ -3378,7 +3428,7 @@ if (isset($_GET['csv'])) {
 
                     fputcsv($open, $csvcont, ';');
 
-                    //100 soronként kiírtatunk
+                    //100 soronként kiíratunk
                     if ($i % 100 == 0) {
                         flush();
                     }

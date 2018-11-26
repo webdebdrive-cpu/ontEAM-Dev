@@ -101,7 +101,7 @@ if (isset($_POST['anyagigenyles_mar_igenyelve'])) {
         exit;
     }
 
-    // Átírjuk a sátuszt
+    // Átírjuk a státuszt
     $sql = $adatbazis_kapcsolat->u('munkalap_anyag', array('stat_id'), array(DISZPNAG_STAT_ANYAG_IGENYELVE), "`munkalap_id` IN (".$munkalapok.") AND `cikk_id`='{$_POST['cikk_id']}' AND `telephely_id`='{$_POST['telephely_id']}'");
 //echo $adatbazis_kapcsolat->gp() . '<br>';
     if( $sql === false ) { $db_error = true; }
@@ -2086,7 +2086,7 @@ if (isset($_GET['csv'])) {
             fputcsv($open, $csvhead, ';');
             while( $sorok = mysqli_fetch_assoc($query) ){
 
-                // rndid alapján annyi sora lesz egy rendelés fejnek, ahány igénylés ahhoz tartozik
+                // Már nem így listázzuk ki a sorokat! rndid alapján annyi sora lesz egy rendelés fejnek, ahány igénylés ahhoz tartozik
                 // $rendeles        = $adatbazis_kapcsolat->s2('recid', 'cikkrendfej', "`rndid`='{$sorok['Rendelés szám']}'");
                 // $anyagigenylesek = $adatbazis_kapcsolat->s('rndid ikt_szam cikk_id nev stat_id', $megnevezes, "`rndid`='{$sorok['Rendelés szám']}'", 'insert_dt desc');
                 // foreach($anyagigenylesek as $anyagigenyles){
@@ -2114,7 +2114,7 @@ if (isset($_GET['csv'])) {
                     $csvcont[] = iconv($mibol, $mibe.'//TRANSLIT', strip_tags( htmlspecialchars_decode( getStatText('anyagigenyles', $sorok['Státusz']) ) ) );
                     $csvcont[] = iconv($mibol, $mibe.'//TRANSLIT', strip_tags( htmlspecialchars_decode( $sorok['Anyagigénylés szám'] ) ) );
                     $csvcont[] = iconv($mibol, $mibe.'//TRANSLIT', getSzallodaNev($sorok['Szálloda']) );
-                    $csvcont[] = iconv($mibol, $mibe.'//TRANSLIT', strip_tags( htmlspecialchars_decode( $sorok['Cikk szám'] ) ) );
+                    $csvcont[] = iconv($mibol, $mibe.'//TRANSLIT', strip_tags( htmlspecialchars_decode( '{EGYENLOSEG_JELET_ELE}'.$sorok['Cikk szám'].'{EGYENLOSEG_JELET_ELE_VEGE}' ) ) );
                     $csvcont[] = iconv($mibol, $mibe.'//TRANSLIT', strip_tags( htmlspecialchars_decode( $sorok['Cikk név'] ) ) );
                     $csvcont[] = iconv($mibol, $mibe.'//TRANSLIT', strip_tags( htmlspecialchars_decode( $sorok['Igényelt mennyiség'] ) ) );
                     $csvcont[] = iconv($mibol, $mibe.'//TRANSLIT', strip_tags( htmlspecialchars_decode( $sorok['Leírás'] ) ) );
@@ -2189,7 +2189,7 @@ if (isset($_GET['csv'])) {
                         $sor = getSzallodaNev($sor);
                     }
                     if($kulcs=='Cikk szám'){
-                        $sor = $sor;
+                        $sor = '{EGYENLOSEG_JELET_ELE}'.$sor.'{EGYENLOSEG_JELET_ELE_VEGE}';
                     }
                     if($kulcs=='Státusz'){
                         $sor = getStatText('anyagigenyles', $sor);
@@ -2236,7 +2236,12 @@ if (isset($_GET['csv'])) {
     header("Pragma: no-cache");
     header("Expires: 0");
 
-    echo fajlbol_olvas($fajlnev);
+    // echo fajlbol_olvas($fajlnev);
+    echo str_replace(
+                    array('"{EGYENLOSEG_JELET_ELE}',    '{EGYENLOSEG_JELET_ELE_VEGE}"',     '{EGYENLOSEG_JELET_ELE}',   '{EGYENLOSEG_JELET_ELE_VEGE}', ';="";'  ),
+                    array('="',                         '"',                                '="',                       '"',                            ';;'    ),
+                    fajlbol_olvas($fajlnev)
+            );
 
     $weblap->leallit();
     exit();
