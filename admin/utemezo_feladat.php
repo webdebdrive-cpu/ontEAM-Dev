@@ -237,8 +237,8 @@ foreach($eseti_fenntartasok as $eseti){
     $log .= $log_tmp;
     file_put_contents($log_utvonal, $log_tmp, FILE_APPEND | LOCK_EX);
 
-    // Feladat adatainak frissítése. Ütemezés napja a mai nap; Utolsó esedékessék napa az esnap-d mező értéke. Inaktiváljuk, de a lérehozott ML recid-ját is eltároljuk, hogy visszaaktiválással ne ütemeződjön újra.
-    // Tehát csak azokból az eseti karbnatartásokból fogunk ML-ot készíteni, aminél még nincs letárolva a munkalap_recid oszlop.
+    // Feladat adatainak frissítése. Ütemezés napja a mai nap; Utolsó esedékesség napja az esnap-d mező értéke. Inaktiváljuk, de a létrehozott ML recid-ját is eltároljuk, hogy visszaaktiválással ne ütemeződjön újra.
+    // Tehát csak azokból az eseti karbantartásokból fogunk ML-ot készíteni, aminél még nincs letárolva a munkalap_recid oszlop.
     $sql = $adatbazis_kapcsolat->u('eseti_fenntartas',  array('utnap_d',        'utesnap_d',       'munkalap_recid', 'aktiv', 'update_usr'  ),
                                                         array(date('Y-m-d'),    $eseti['esnap_d'], $ujrecid,         0,       get_nev()     ),
                                     "`recid`='{$eseti['recid']}'");
@@ -275,7 +275,7 @@ $log .= $log_tmp;
 file_put_contents($log_utvonal, $log_tmp, FILE_APPEND | LOCK_EX);
 
 // A lefutást is eltároljuk
-//$adatbazis_kapcsolat->i('utemezo_log', array('utemezo', 'log'), array(basename(self()), $log));
+// $adatbazis_kapcsolat->i('utemezo_log', array('utemezo', 'log'), array(basename(self()), $log));
 mysqli_autocommit($db_kapcs, false);
 mysqli_query($db_kapcs, 'INSERT INTO `'.get_db_tabla().'utemezo_log` SET `utemezo`=\''.basename(self()).'\', `log`=\''.addslashes($log).'\'') or die(mysqli_error($db_kapcs));
 mysqli_commit($db_kapcs);

@@ -25,6 +25,51 @@ if (isset($_GET['teszt'])) {
     exit;
 }
 
+// Jóváhagyhat limit beállítása
+if (isset($_GET['jovahagyhat_limit'])) {
+    
+    $loginok = $adatbazis_kapcsolat->s('recid', 'login', "SUBSTR(`flags`, 35, 1)=1");
+    foreach($loginok as $login){
+        $adatbazis_kapcsolat->u('login', array('jh_ft_ig'), array(1000000000), "`recid`='{$login['recid']}'");
+        echo $adatbazis_kapcsolat->gp() . '<br>';
+    }
+    
+    exit;
+}
+
+// Megjegyzések archivumba
+if (isset($_GET['megj_archivumba'])) {
+//    $mukalapok = $adatbazis_kapcsolat->s('recid', 'munkalap_arch');
+//    foreach($mukalapok as $munkalap){
+//        $megjegyzesek = $adatbazis_kapcsolat->s('*', 'megjegyzes', "`tabla`='munkalap' AND `id`='{$munkalap['recid']}'");
+//        foreach($megjegyzesek as $m){
+//            $m['megj'] = htmlspecialchars_decode($m['megj']);
+//            $adatbazis_kapcsolat->i('megjegyzes_arch',  array('tabla',    'id',               'megj',     'loginnev',     'szerepkor',      'szerepkor_txt',     'update_dt',     'update_usr',     'insert_dt',     'insert_usr'    ),
+//                                                        array('munkalap', $munkalap['recid'], $m['megj'], $m['loginnev'], $m['szerepkor'],  $m['szerepkor_txt'], $m['update_dt'], $m['update_usr'], $m['insert_dt'], $m['insert_usr'])
+//                                    );
+//echo $adatbazis_kapcsolat->gp() . '<br>';
+//            $adatbazis_kapcsolat->d('megjegyzes', "`recid`='{$m['recid']}'");
+//echo $adatbazis_kapcsolat->gp() . '<br>';
+//        }
+//    }
+    
+    $bejelentesek = $adatbazis_kapcsolat->s('recid', 'bejelentes_arch');
+    foreach($bejelentesek as $bej){
+        $megjegyzesek = $adatbazis_kapcsolat->s('*', 'megjegyzes', "`tabla`='bejelentes' AND `id`='{$bej['recid']}'");
+        foreach($megjegyzesek as $m){
+            $m['megj'] = htmlspecialchars_decode($m['megj']);
+            $adatbazis_kapcsolat->i('megjegyzes_arch',  array('tabla',      'id',          'megj',     'loginnev',     'szerepkor',      'szerepkor_txt',     'update_dt',     'update_usr',     'insert_dt',     'insert_usr'    ),
+                                                        array('bejelentes', $bej['recid'], $m['megj'], $m['loginnev'], $m['szerepkor'],  $m['szerepkor_txt'], $m['update_dt'], $m['update_usr'], $m['insert_dt'], $m['insert_usr'])
+                                    );
+echo $adatbazis_kapcsolat->gp() . '<br>';
+            $adatbazis_kapcsolat->d('megjegyzes', "`recid`='{$m['recid']}'");
+echo $adatbazis_kapcsolat->gp() . '<br>';
+        }
+    }
+    
+    exit;
+}
+
 // Loginról értesítő levelek küldése
 if (false && isset($_GET['login_ertesit'])) {
     

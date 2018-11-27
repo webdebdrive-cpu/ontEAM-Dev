@@ -725,7 +725,7 @@ require('selectek.php');
                 </div>
         ');
 
-        $sorok = $adatbazis_kapcsolat->s('recid szerepkor megj insert_usr insert_dt', 'megjegyzes', "`id` = '".$_GET['id']."' AND `tabla` = 'munkalap'", 'recid desc', '');
+        $sorok = $adatbazis_kapcsolat->s('recid szerepkor megj insert_usr insert_dt', 'megjegyzes_arch', "`id` = '".$_GET['id']."' AND `tabla` = 'munkalap'", 'recid desc', '');
         if( $sorok ) {
             $i = 1;
             foreach($sorok as $sor) {
