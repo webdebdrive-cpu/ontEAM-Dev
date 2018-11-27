@@ -151,23 +151,12 @@ if (isset($_GET['csv'])) {
         while( $sorok = mysqli_fetch_assoc($query) ){
             $csvcont = array();
             foreach( $sorok as $kulcs => $sor ) {
-                if($kulcs=='Szálloda'){
-                    $sor = getErtek('nev', 'telephely', 'id', $sor);
-                }
-                if($kulcs=='Bejelentett hiba'){
-                    $sor = getErtek('info', 'erteklista', 'recid', $sor);
-                }
-                if($kulcs=='Helyiség'){
-                    $sor = getErtek('nev', 'obj', 'recid', $sor);
-                }
-                if($kulcs=='Gépnév'){
-                    $sor = getErtek('nev', 'eszkozkezeles', 'recid', $sor);
-                }
-                if($kulcs=='Típus'){
-                    $sor = erteklista(6, $sor);
-                }
-                if($kulcs=='Státusz'){
-                    $sor = getStatText('munkalap', $sor);
+                if($kulcs=='Aktív'){
+                    if($sor){
+                        $sor = 'igen';
+                    }else{
+                        $sor = 'nem';
+                    }
                 }
 
                 // Lehet nem volna elég 1-szer sőt kétszer sem ráereszteni a htmlspecialchars_decode-ot
