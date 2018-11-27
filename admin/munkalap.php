@@ -2933,17 +2933,15 @@ if( isset($_POST['diszKozpVezAtadas']) ) {
             }
 
             if( $munkalap['stat_id'] == MUNKALAP_STAT_LEZARASRA_VAR ) {
-                $munk_kapcsok = $adatbazis_kapcsolat->s('bejelentes_id', 'munkalap_kapcs', "`munkalap_id` = '{$recid}'", '', '1');
+                $munk_kapcsok = $adatbazis_kapcsolat->s2('bejelentes_id', 'munkalap_kapcs', "`munkalap_id` = '{$recid}'");
                 if( $munk_kapcsok === false ) { $db_error = true; }
 
                 if( $munk_kapcsok ) {
-                    $munk_kapcsok = $munk_kapcsok[0];
 
-                    $bejelentes = $adatbazis_kapcsolat->s('stat_id', 'bejelentes', "`recid` = '".$munk_kapcsok['bejelentes_id']."'", '', '1');
+                    $bejelentes = $adatbazis_kapcsolat->s2('stat_id', 'bejelentes', "`recid` = '".$munk_kapcsok['bejelentes_id']."'");
                     if( $bejelentes === false ) { $db_error = true; }
 
                     if( $bejelentes ) {
-                        $bejelentes = $bejelentes[0];
 
                         if( $bejelentes['stat_id'] != BEJELENTES_STAT_VIZSG_ALATT ) {
                             echo json_encode(array(
@@ -2958,10 +2956,10 @@ if( isset($_POST['diszKozpVezAtadas']) ) {
                         $sql = $tobb_munk = $adatbazis_kapcsolat->s('recid', 'munkalap_kapcs', "`bejelentes_id` = '".$munk_kapcsok['bejelentes_id']."' AND `munkalap_id` != '{$recid}'", '', '');
                         if( $sql === false ) { $db_error = true; }
 
-                        /* Több munkalaphoz kapcsolódik a bejelentés */
+                        // Több munkalaphoz kapcsolódik a bejelentés
                         if( $tobb_munk ) {
                             $szoveg_kiir = 'A munkalap bejelentéséhez további munkalapok vannak kapcsolva. Ha folytatja, a többi munkalapot sem lehet lezárni, mert a bejelentés visszakerül Folyamatban státuszba. Előbb zárja le a többi munkalapot és utoljára adja vissza ezt a munkalapot a diszpécsernek! Folytatja?';
-                        /* Csak egy munkalaphoz kapcsolódik a bejelentés */
+                        // Csak egy munkalaphoz kapcsolódik a bejelentés
                         } else {
                             $szoveg_kiir = 'Ha folytatja, a munkalap és a bejelentései Folyamatban státuszba kerülnek. Folytatja?';
                         }
@@ -3050,7 +3048,7 @@ if( isset($_POST['diszKozpVezLezaras']) ) {
         if( $munkalap === false ) { $db_error = true; }
 
 
-        /* Ha nem kész státuszban van a munkalap */
+        // Ha nem kész státuszban van a munkalap
         if( $munkalap['stat_id'] != MUNKALAP_STAT_LEZARASRA_VAR ) {
             if( $munkalap['stat_id'] == MUNKALAP_STAT_LEZART ) {
                 echo json_encode(array(
@@ -3065,23 +3063,21 @@ if( isset($_POST['diszKozpVezLezaras']) ) {
             $is_tobbmunk = false;
             $tobbimunkalap = array();
 
-            /* Megnézzük hogy van e több munkalapja a bejelentésnek */
-            $sql = $munk_kapcsok = $adatbazis_kapcsolat->s('bejelentes_id', 'munkalap_kapcs', "`munkalap_id` = '{$recid}'", '', '1');
+            // Megnézzük hogy van e több munkalapja a bejelentésnek
+            $sql = $munk_kapcsok = $adatbazis_kapcsolat->s2('bejelentes_id', 'munkalap_kapcs', "`munkalap_id` = '{$recid}'");
             if( $sql === false ) { $db_error = true; }
 
             if( $munk_kapcsok ) {
-                $munk_kapcsok = $munk_kapcsok[0];
 
-                $bejelentes = $adatbazis_kapcsolat->s('stat_id', 'bejelentes', "`recid` = '".$munk_kapcsok['bejelentes_id']."'", '', '1');
+                $bejelentes = $adatbazis_kapcsolat->s2('stat_id', 'bejelentes', "`recid` = '".$munk_kapcsok['bejelentes_id']."'");
                 if( $bejelentes === false ) { $db_error = true; }
 
                 if( $bejelentes ) {
-                    $bejelentes = $bejelentes[0];
 
                     $sql = $tobb_munk = $adatbazis_kapcsolat->s('recid munkalap_id', 'munkalap_kapcs', "`bejelentes_id` = '".$munk_kapcsok['bejelentes_id']."' AND `munkalap_id` != '{$recid}'", '', '');
                     if( $sql === false ) {  $db_error = true; }
 
-                    /* Több munkalaphoz kapcsolódik a bejelentés */
+                    // Több munkalaphoz kapcsolódik a bejelentés
                     if( $tobb_munk ) {
                         $szoveg_kiir = 'A munkalap bejelentéséhez további munkalapok vannak kapcsolva. A többi munkalap nem lesz lezárva. Folytatja?';
 
@@ -3090,7 +3086,7 @@ if( isset($_POST['diszKozpVezLezaras']) ) {
                         }
 
                         $is_tobbmunk = true;
-                    /* Csak egy munkalaphoz kapcsolódik a bejelentés */
+                    // Csak egy munkalaphoz kapcsolódik a bejelentés
                     } else {
                         $szoveg_kiir = 'Ha folytatja, a munkalap és bejelentései is lezárásra kerülnek. Folytatja?';
                     }
@@ -3106,9 +3102,9 @@ if( isset($_POST['diszKozpVezLezaras']) ) {
 
                 $weblap->leallit();
                 exit();
-            /* Feldolgozás */
+            // Feldolgozás
             } else {
-                /* Munkalap lezárul */
+                // Munkalap lezárul
                 if( !addStatusz( 'munkalap_statusz', $recid, MUNKALAP_STAT_LEZART, '', $memo ) ) {
                     $db_error = true;
                 }
@@ -3119,9 +3115,9 @@ if( isset($_POST['diszKozpVezLezaras']) ) {
                     }
                 }
 
-                /* Ha egy munkalapja van a bejelentéseknek */
+                // Ha egy munkalapja van a bejelentéseknek
                 if( !$is_tobbmunk ) {
-                    /* Lezárjuk a bejelentéseket is */
+                    // Lezárjuk a bejelentéseket is
                     $sql = $munk_kapcsok = $adatbazis_kapcsolat->s('bejelentes_id', 'munkalap_kapcs', "`munkalap_id` = '{$recid}'");
                     if( $sql === false ) { $db_error = true; }
 
@@ -3145,21 +3141,19 @@ if( isset($_POST['diszKozpVezLezaras']) ) {
 
                     if( $tm_db ) {
                         foreach($tobbimunkalap as $tmunkrecid) {
-                            $mlap_statusz = $adatbazis_kapcsolat->s('stat_id', 'munkalap', "`recid` = '{$tmunkrecid}'", '', '1');
+                            $mlap_statusz = $adatbazis_kapcsolat->s2('stat_id', 'munkalap', "`recid` = '{$tmunkrecid}'");
                             if( $mlap_statusz === false ) { $db_error = true; }
 
                             if( $mlap_statusz ) {
-                                $mlap_statusz = $mlap_statusz[0];
-
                                 if( $mlap_statusz['stat_id'] == MUNKALAP_STAT_LEZART ) {
                                     $tm_lezart_db++;
                                 }
                             }
                         }
 
-                        /* Összes munkalap le van zárva, tehát a bejelentések is zárhatóak */
+                        // Összes munkalap le van zárva, tehát a bejelentések is zárhatóak
                         if( $tm_db == $tm_lezart_db ) {
-                            /* Lezárjuk a bejelentéseket is */
+                            // Lezárjuk a bejelentéseket is
                             $sql = $munk_kapcsok = $adatbazis_kapcsolat->s('bejelentes_id', 'munkalap_kapcs', "`munkalap_id` = '{$recid}'");
                             if( $sql === false ) { $db_error = true; }
 
@@ -3199,22 +3193,20 @@ if( isset($_POST['diszKozpVezLezaras']) ) {
                 exit();
             }
 
-            /* Ha a munkalap kész státuszban van */
+            // Ha a munkalap kész státuszban van
             if( $munkalap['stat_id'] == MUNKALAP_STAT_LEZARASRA_VAR ) {
                 $is_tobbmunk = false;
                 $tobbimunkalap = array();
 
-                $munk_kapcsok = $adatbazis_kapcsolat->s('bejelentes_id', 'munkalap_kapcs', "`munkalap_id` = '{$recid}'", '', '1');
+                $munk_kapcsok = $adatbazis_kapcsolat->s2('bejelentes_id', 'munkalap_kapcs', "`munkalap_id` = '{$recid}'");
                 if( $munk_kapcsok === false ) { $db_error = true; }
 
                 if( $munk_kapcsok ) {
-                    $munk_kapcsok = $munk_kapcsok[0];
 
-                    $bejelentes = $adatbazis_kapcsolat->s('stat_id', 'bejelentes', "`recid` = '".$munk_kapcsok['bejelentes_id']."'", '', '1');
+                    $bejelentes = $adatbazis_kapcsolat->s2('stat_id', 'bejelentes', "`recid` = '".$munk_kapcsok['bejelentes_id']."'");
                     if( $bejelentes === false ) { $db_error = true; }
 
                     if( $bejelentes ) {
-                        $bejelentes = $bejelentes[0];
 
                         if( $bejelentes['stat_id'] != BEJELENTES_STAT_VIZSG_ALATT ) {
                             echo json_encode(array(
@@ -3228,7 +3220,7 @@ if( isset($_POST['diszKozpVezLezaras']) ) {
 
                         $tobb_munk = $adatbazis_kapcsolat->s('recid munkalap_id', 'munkalap_kapcs', "`bejelentes_id`='".$munk_kapcsok['bejelentes_id']."' AND `munkalap_id`!='{$recid}'");
 
-                        /* Több munkalaphoz kapcsolódik a bejelentés */
+                        // Több munkalaphoz kapcsolódik a bejelentés
                         if( $tobb_munk ) {
                             $szoveg_kiir = 'A munkalap bejelentéséhez további munkalapok vannak kapcsolva. A többi munkalap nem lesz lezárva. Folytatja?';
 
@@ -3237,7 +3229,7 @@ if( isset($_POST['diszKozpVezLezaras']) ) {
                             }
 
                             $is_tobbmunk = true;
-                        /* Csak egy munkalaphoz kapcsolódik a bejelentés */
+                        // Csak egy munkalaphoz kapcsolódik a bejelentés
                         } else {
                             $szoveg_kiir = 'Ha folytatja, a munkalap és a bejelentései lezárulnak. Folytatja?';
                         }
@@ -3267,9 +3259,9 @@ if( isset($_POST['diszKozpVezLezaras']) ) {
                         }
                     }
 
-                    /* Ha egy munkalapja van a bejelentéseknek */
+                    // Ha egy munkalapja van a bejelentéseknek
                     if( !$is_tobbmunk ) {
-                        /* Lezárjuk a bejelentéseket is */
+                        // Lezárjuk a bejelentéseket is
                         $sql = $munk_kapcsok = $adatbazis_kapcsolat->s('bejelentes_id', 'munkalap_kapcs', "`munkalap_id` = '{$recid}'");
                         if( $sql === false ) { $db_error = true; }
 
@@ -3293,11 +3285,10 @@ if( isset($_POST['diszKozpVezLezaras']) ) {
 
                         if( $tm_db ) {
                             foreach($tobbimunkalap as $tmunkrecid) {
-                                $mlap_statusz = $adatbazis_kapcsolat->s('stat_id', 'munkalap', "`recid` = '{$tmunkrecid}'", '', '1');
+                                $mlap_statusz = $adatbazis_kapcsolat->s2('stat_id', 'munkalap', "`recid` = '{$tmunkrecid}'");
                                 if( $mlap_statusz === false ) { $db_error = true; }
 
                                 if( $mlap_statusz ) {
-                                    $mlap_statusz = $mlap_statusz[0];
 
                                     if( $mlap_statusz['stat_id'] == MUNKALAP_STAT_LEZART ) {
                                         $tm_lezart_db++;
@@ -3305,9 +3296,9 @@ if( isset($_POST['diszKozpVezLezaras']) ) {
                                 }
                             }
 
-                            /* Összes munkalap le van zárva, tehát a bejelentések is zárhatóak */
+                            // Összes munkalap le van zárva, tehát a bejelentések is zárhatóak
                             if( $tm_db == $tm_lezart_db ) {
-                                /* Lezárjuk a bejelentéseket is */
+                                // Lezárjuk a bejelentéseket is
                                 $sql = $munk_kapcsok = $adatbazis_kapcsolat->s('bejelentes_id', 'munkalap_kapcs', "`munkalap_id` = '{$recid}'");
                                 if( $sql === false ) { $db_error = true; }
 
