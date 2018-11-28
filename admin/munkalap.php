@@ -6721,6 +6721,16 @@ if (isset($_POST['megr_sztorno_mail_elkuldve'])) {
         exit();
     }
     
+    // Jog ellenőrzése
+    if( !_jog(JOG_MUNKALAP_KEZEL_KULSO) ){
+        echo json_encode(array(
+            'hiba'  => 'Nincs joga ebben a státuszban munkalapot tovább léptetni!',
+            'title' => 'Hiba',
+        ));
+        $weblap->leallit();
+        exit();
+    }
+    
     // Szokásos mezők nullázása, de erre két ág van:
     if($sor['vissza_mod']==VISSZA_MOD_VISSZAADAS){
         
@@ -7512,7 +7522,7 @@ require('selectek.php');
         }
 
         // Megrendelés sztornó email elküldve
-        if( $sor['stat_id']==MUNKALAP_STAT_SZTORNO_VAR ){
+        if( $sor['stat_id']==MUNKALAP_STAT_SZTORNO_VAR && _jog(JOG_MUNKALAP_KEZEL_KULSO) ){
             $gombok .= nl2('
                             <script> gomb_megr_sztorno_elkuldve = \'<input type="button" class="gomb zold" onclick="megr_sztorno_mail_elkuldve()" value="Igen"><input type="button" class="gomb piros" onclick="alert2()" value="Nem">\'; </script>
                             <input type="button" class="gomb" value="Megrendelés sztornó email elküldve" onclick="alert2(\'Biztosan elküldte a sztornó emailt?\', gomb_megr_sztorno_elkuldve);"> 

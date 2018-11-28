@@ -331,7 +331,7 @@ if( isset($_GET['addReszleg']) ) {
 
     if( $loginID ) {
 
-        $felh = $adatbazis_kapcsolat->s2('nev', 'login', "`recid`='{$loginID}'");
+        $felh = $adatbazis_kapcsolat->s2('nev reszleg_id', 'login', "`recid`='{$loginID}'");
         if( $felh ) {
 
             $log = '';
@@ -341,16 +341,19 @@ if( isset($_GET['addReszleg']) ) {
 
             $log .= 'Aktuális részlegek: '.implode(', ', $akt_reszlegek).'. Új részlegek: '.implode(', ', $reszlegIDs);
 
+            // Összes részleg ürítése, majd egyesével felvesszük
             $sql = $adatbazis_kapcsolat -> d('login_tarsreszleg', "`login_id`='{$loginID}'");
             if( $sql === false ) { $db_error = true; }
 
             // Hozzáadjuk a részlegeket
             foreach($reszlegIDs as $key => $reszlegID) {
-                $kapcsID = $adatbazis_kapcsolat -> i('login_tarsreszleg',
-                    array('login_id',   'reszleg_id', 'insert_dt',    'insert_usr'                            ),
-                    array($loginID,     $reszlegID,   'NOW()',        $_SESSION[get_db_tabla().'teljes_nev']  )
-                );
-                if( $kapcsID === false ) { $db_error = true; }
+                if($felh['reszleg_id']!=$reszlegID){
+                    $kapcsID = $adatbazis_kapcsolat -> i('login_tarsreszleg',
+                        array('login_id',   'reszleg_id', 'insert_dt',    'insert_usr'                            ),
+                        array($loginID,     $reszlegID,   'NOW()',        $_SESSION[get_db_tabla().'teljes_nev']  )
+                    );
+                    if( $kapcsID === false ) { $db_error = true; }
+                }
             }
 
             // Logba is eltároljuk

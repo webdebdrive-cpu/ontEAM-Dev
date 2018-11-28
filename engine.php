@@ -1464,7 +1464,7 @@ function kulcs_rendez($tomb, $kulcs) {
  * @return string Ha volt hiba, akkor a hibaüzenetet, egyébként FALSE!
  */
 function level_kuldes( $felado_nev, $felado_mail, $cimzett_nev, $cimzett_mail, $targy, $uzi, $fajlok = '' ) {
-    
+return 'Hibás';
     if($cimzett_mail){
         require_once('class/class.Phpmailer.php');
         $mail = new PHPMailer;
