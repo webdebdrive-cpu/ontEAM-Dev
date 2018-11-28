@@ -1112,7 +1112,7 @@ require('selectek.php');
     // Módosítás gombok
     } else {
 
-        // Ha csak sajátot kezelhet, és adott rekord nem általa van feltöltve, akkor nem szrkesztheti törlheti.
+        // Ha csak sajátot kezelhet, és adott rekord nem általa van feltöltve, akkor nem szerkesztheti/törlheti.
         // Ez egy hosszú feltétel, amikre többször is szükség van, ezért változóba kimentve
         $csak_sajat_kezelheti = true;
         if( _jog(JOG_PRIGENY_S_KEZEL) && !_jog(JOG_PRIGENY_B_KEZEL) && !_jog(JOG_PRIGENY_EGY_KEZEL) && !_jog(JOG_PRIGENY_F_KEZEL) && !_jog(JOG_PRIGENY_SZ_KEZEL) && !_jog(JOG_PRIGENY_TOBB_KEZEL) && !_jog(JOG_PRIGENY_T_KEZEL) && $sor['loginnev']!=$_SESSION[get_db_tabla().'user'] ) {
@@ -1216,7 +1216,7 @@ require('selectek.php');
             }
         }
 
-        /* Műveletek box */
+        // Műveletek box
         $gombok = nl2('
             <div class="muveletek"'.$muv_style.'>
                 '.$gombok.'
@@ -1453,8 +1453,6 @@ require('selectek.php');
         foreach($sor as $kulcs => $elem){
             $json_sor[$kulcs] = str_replace(array("\r\n", "\r", "\n", "'"), array("#UJSOR#", "#UJSOR#", "#UJSOR#", "#APOSZTROF#"), $elem);
         }
-        $json_sor['mertek'] = number_format($json_sor['mertek'], 0, '', ' ');
-        $json_sor['bkolt']  = number_format($json_sor['bkolt'],  0, '', ' ');
         $szamla_html .= '<script> formAdatok = JSON.parse(\''.json_encode($json_sor).'\'); </script>';
 
         if($id_latszik){
