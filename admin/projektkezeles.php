@@ -100,15 +100,15 @@ if(isset($_POST['igenylesek_betolt_uj_kezeleshez'])){
         default     : $order = '`'.get_db_tabla().'telephely`.`nev`,         `'.get_db_tabla().'projektigenyles`.`bkolt`';                                  break;
     }
 
-    // Nem szerepelnek másik nyitott vagy véglegesítve státuszú előterjesztésben
+    // Nem szerepelnek másik nyitott vagy véglegesítve státuszú FB/BoD előterjesztésben
     $where_kieg = '';
-    $fb_kizart_recidk = $adatbazis_kapcsolat->s('projektigenyles_recid', 'eloterj_fb_kapcs', "`eloterj_recid` IN (SELECT `recid` FROM `".get_db_tabla()."eloterj_fb` WHERE `stat_id` IN ('".ELOT_FB_STAT_NYITOTT."', '".ELOT_FB_STAT_VEGLEGESITVE."'))");
-    $fb_kizart_recidk = adatbazis2tomb($fb_kizart_recidk, 'projektigenyles_recid');
+    $fb_kizart_recidk  = $adatbazis_kapcsolat->s('projektigenyles_recid', 'eloterj_fb_kapcs', "`eloterj_recid` IN (SELECT `recid` FROM `".get_db_tabla()."eloterj_fb` WHERE `stat_id` IN ('".ELOT_FB_STAT_NYITOTT."', '".ELOT_FB_STAT_VEGLEGESITVE."'))");
+    $fb_kizart_recidk  = adatbazis2tomb($fb_kizart_recidk, 'projektigenyles_recid');
     $bod_kizart_recidk = $adatbazis_kapcsolat->s('projektigenyles_recid', 'eloterj_bod_kapcs', "`eloterj_recid` IN (SELECT `recid` FROM `".get_db_tabla()."eloterj_bod` WHERE `stat_id` IN ('".ELOT_BOD_STAT_NYITOTT."', '".ELOT_BOD_STAT_VEGLEGESITVE."'))");
     $bod_kizart_recidk = adatbazis2tomb($bod_kizart_recidk, 'projektigenyles_recid');
     $kizart_recidk = array_merge($fb_kizart_recidk, $bod_kizart_recidk);
     
-    // Az olyan igyénlések, amelyek recid-je már a projektkezelés relációjában szerepel, azokat szűrjük ki
+    // Az olyan igyénylések, amelyek recid-je már a projektkezelés relációjában szerepel, azokat is szűrjük ki
     $kezelt_igenyek = $adatbazis_kapcsolat->s('projektigenyles_recid', 'projektkezeles', "`projektigenyles_recid`>0");
     foreach($kezelt_igenyek as $kezelt_igeny){
         array_push($kizart_recidk, $kezelt_igeny['projektigenyles_recid']);
@@ -185,23 +185,23 @@ if(isset($_POST['igenylesek_betolt_uj_kezeleshez'])){
                 <tr>
                     <th>
                         Szálloda
-                        <br><input type="text" class="flat" placeholder="Szűrés" onkeyup="tabla_szur($(\'#prigenylesek tbody\'), this.value, 2)">
+                        <br><input type="text" class="flat" placeholder="Szűrés" onkeyup="tabla_szur($(\'#prigenylesek tbody\'), this.value, 1)">
                     </th>
                     <th>
                         Név
-                        <br><input type="text" class="flat" placeholder="Szűrés" onkeyup="tabla_szur($(\'#prigenylesek tbody\'), this.value, 3)">
+                        <br><input type="text" class="flat" placeholder="Szűrés" onkeyup="tabla_szur($(\'#prigenylesek tbody\'), this.value, 2)">
                     </th>
                     <th>
                         Típus
-                        <br><input type="text" class="flat" placeholder="Szűrés" onkeyup="tabla_szur($(\'#prigenylesek tbody\'), this.value, 4)">
+                        <br><input type="text" class="flat" placeholder="Szűrés" onkeyup="tabla_szur($(\'#prigenylesek tbody\'), this.value, 3)">
                     </th>
                     <th>
                         Becsült költség ('.get_penznem().')
-                        <br><input type="text" class="flat" placeholder="Szűrés" onkeyup="tabla_szur($(\'#prigenylesek tbody\'), this.value, 5)">
+                        <br><input type="text" class="flat" placeholder="Szűrés" onkeyup="tabla_szur($(\'#prigenylesek tbody\'), this.value, 4)">
                     </th>
                     <th>
                         Létrehozás dátuma
-                        <br><input type="text" class="flat" placeholder="Szűrés" onkeyup="tabla_szur($(\'#prigenylesek tbody\'), this.value, 6)">
+                        <br><input type="text" class="flat" placeholder="Szűrés" onkeyup="tabla_szur($(\'#prigenylesek tbody\'), this.value, 5)">
                     </th>
                 </tr>
                 </thead>
