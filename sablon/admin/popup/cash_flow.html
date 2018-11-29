@@ -32,6 +32,7 @@ $(document).ready(function () {
         mask                : /*'____.__.__'*/'\xa0\xa0\xa0\xa0.\xa0\xa0.\xa0\xa0',
         timepicker          : false,
         validateOnBlur      : false,
+        minDate             : '-1970/01/02', // Csak mai vagy későbbi dátum adható meg
         onChangeDateTime    : function(){ $('#mehet_gomb').removeAttr('disabled'); }
     });
 
@@ -55,7 +56,7 @@ $(document).ready(function () {
     }
 });
 
-//Cash-flow hozzáadása
+// Cash-flow hozzáadása
 function addCashFlow( pageID, that ) {
 
     var telephely_id= $('#telephely_id').val();
@@ -63,38 +64,62 @@ function addCashFlow( pageID, that ) {
     var datum       = $('#cf_datum').val();
     var osszeg      = $('#cf_osszeg').val();
     
+    // Szálloda ki van-e választva?
     if($('#telephely_id').length && !$('#telephely_id').val()){
         alert2('Kérjük válasszon szállodát!', '<input type="button" class="gomb" value="Ok" onclick="alert2(); $(\'#telephely_id\').focus();">', 'Hiba');
         return false;
     }
-
-    var timestamp = Date.parse(datum.replace(/\./g, '-'));
-    if (isNaN(timestamp)){
-        alert2('Kérjük adjon meg egy valós dátumot!', '<input type="button" class="gomb" value="Ok" onclick="alert2(); $(\'#cf_datum\').focus();">', 'Hiba');
+    
+    // Összeg nagyobb-e mint 0?
+    if( osszeg.replace(/ /g, '')<0 ){
+        alert2('Csak 0-tól nagyobb összeg adható meg!', '<input type="button" class="gomb" value="Ok" onclick="alert2(); $(\'#cf_osszeg\').focus();">', 'Hiba');
         return false;
     }
-    if(!osszeg.trim() || osszeg=='0'){
-        alert2('Kérjük adja meg az összeget!', '<input type="button" class="gomb" value="Ok" onclick="alert2(); $(\'#cf_osszeg\').focus();">', 'Hiba');
-        return false;
-    }
-
-    $('#cash_flow_div div.dt div.dtr:first').after(
-                                    '<div id="naploSor-UJ" class="dtr nSor kijSor" data-id="UJ">'               +
-                                        '<div class="dtc szalloda" style="width: 15rem">'                                +
-                                            '<input type="hidden" name="telephely_id" value="'+telephely_id+'">'+
-                                            szalloda                                                            +
-                                        '</div>'                                                                +
-                                        '<div class="dtc datum" style="width: 15rem">'+datum+'</div>'           +
-                                        '<div class="dtc osszeg">'+osszeg+' Ft</div>'                           +
-                                    '</div>'
-                                );
     
+    // A megadott dátum nem lehet múltbeli. Ehhez viszont szerver időt használjunk
+    $.ajax({
+        url : 'projektigenyles.php',
+        type: 'POST',
+        data: {
+            get_datum   : Date.now()
+        },
+        success: function(szerver_datum){
+            
+            // Dátum nem múltbeli-e?
+            if( datum<szerver_datum ){
+                alert2('Csak mai, vagy későbbi dátum adható meg!', '<input type="button" class="gomb" value="Ok" onclick="alert2(); $(\'#cf_osszeg\').focus();">', 'Hiba');
+                return false;
+            }
 
-    popupZar();
-    becsult_szetosztott_ujraszamol();
-    $('#mehet_gomb').removeAttr('disabled').addClass('gombb_alert');
-    
-    formModositva = true;
+            var timestamp = Date.parse(datum.replace(/\./g, '-'));
+            if (isNaN(timestamp)){
+                alert2('Kérjük adjon meg egy valós dátumot!', '<input type="button" class="gomb" value="Ok" onclick="alert2(); $(\'#cf_datum\').focus();">', 'Hiba');
+                return false;
+            }
+            if(!osszeg.trim() || osszeg=='0'){
+                alert2('Kérjük adja meg az összeget!', '<input type="button" class="gomb" value="Ok" onclick="alert2(); $(\'#cf_datum\').focus();">', 'Hiba');
+                return false;
+            }
+
+            $('#cash_flow_div div.dt div.dtr:first').after(
+                                            '<div id="naploSor-UJ" class="dtr nSor kijSor" data-id="UJ">'               +
+                                                '<div class="dtc szalloda" style="width: 15rem">'                                +
+                                                    '<input type="hidden" name="telephely_id" value="'+telephely_id+'">'+
+                                                    szalloda                                                            +
+                                                '</div>'                                                                +
+                                                '<div class="dtc datum" style="width: 15rem">'+datum+'</div>'           +
+                                                '<div class="dtc osszeg">'+osszeg+' Ft</div>'                           +
+                                            '</div>'
+                                        );
+
+
+            popupZar();
+            becsult_szetosztott_ujraszamol();
+            $('#mehet_gomb').removeAttr('disabled').addClass('gombb_alert');
+
+            formModositva = true;
+        }
+    });
 
     return false;
 }

@@ -2014,11 +2014,11 @@ function szamla_lista( $where, $tabla, $kijeloltek = false, $csak_sql_miatt = fa
         if($tabla == 'utemezett_feladatok'){
             $where = "`".get_db_tabla()."utemezett_feladatok`.`telephely_id` IN (".implode(',', $szallodak).") AND ";
         }
-        // A projektigénylés láthatóságának beálltásai
+        // A projektigénylés láthatóságának beállításai
         if($tabla=='projektigenyles'){
 
             $szallodak_kieg = '';
-            // Többszállodás esetén a két tobbsszállodás telephely_id-t felvesszük még
+            // Többszállodás esetén a két többsszállodás telephely_id-t felvesszük még
             if(_jog(JOG_PRIGENY_TOBB_MEGTEKINT)){
                 $szallodak_kieg = ', 1011, 4301';
             }

@@ -526,7 +526,7 @@ $(function() {
                         kovSzamlaSor = active + 1;
 
                         if( kovSzamlaSor > szamlaDb ) {
-                            kovSzamlaSor = szamlaDb; /* 2018.09.21 Tibi kérésére az u tolsó soron lefele nyílra lépve maradunk az utolsó soron, nem pedig az elsőre lépünk át */
+                            kovSzamlaSor = szamlaDb; /* 2018.09.21 Tibi kérésére az utolsó soron lefele nyílra lépve maradunk az utolsó soron, nem pedig az elsőre lépünk át */
                             /*kovSzamlaSor = 0;
                             elso_utolso  = true;*/
                         }
@@ -551,9 +551,6 @@ $(function() {
                 }
 
                 var mellek = $('#szamlaFulek a.active').attr('data-oldal');
-                if(mellek=='cash_flow'){
-                    mellek='modosit';
-                }
 
                 szamlaBetolt( szamlaID, tabla + '.php', mellek );
 
@@ -4329,68 +4326,59 @@ function kijeloltSzamlal( sorok, reszleg, tabla, mellek ) {
     /* ... ha van kijelölve sor */
     } else if( sorok.hasClass('kijelolve') && reszleg == 'mellek' ) {
 
-        szoveg = 'sorokat';
-        torolhet = true;
+        /* Projektigénylések alatt, ha Cash-flow fülön állunk, akkor másképp oldjuk meg a törlést, ez a projektigenyles.js-ben található */
+        if(tabla!='cash_flow'){
 
-        mellekre_valt = '';
-        if(mellek=='cash_flow'){
-            mellek        = 'modosit';
-            mellekre_valt = 'cash_flow';
-        }
+            szoveg = 'sorokat';
+            torolhet = true;
 
-        if(mellek=='megjegyzesek'){
-            mellek          = 'megjegyzesek';
-            mellekre_valt   = 'megjegyzesek';
-            szoveg          = 'megjegyzéseket';
-        }
-
-        if(tabla=='cash_flow' || _get('cash_flow')){
-
-            /* Ha nincs minden kezelés joga, akkor nem törölheti */
-            if( _jogok[39]=='0' && _jogok[60]=='0' && _jogok[59]=='0' && _jogok[62]=='0' && _jogok[49]=='0' && _jogok[47]=='0' && _jogok[64]=='0' ){
-                torolhet = false;
+            mellekre_valt = '';
+            if(mellek=='megjegyzesek'){
+                mellek          = 'megjegyzesek';
+                mellekre_valt   = 'megjegyzesek';
+                szoveg          = 'megjegyzéseket';
             }
-        }
 
-        var full_szoveg = '';
-        if(tabla=='munkalap' && _get('modosit')){
-            full_szoveg = 'Biztosan törli a bejelentést a munkalapról?';
-        }
-        if(_get('engedelyek')){
-            szoveg = 'engedélyeket';
-        }
-        if(_get('megterules')){
-            szoveg = 'megtérüléseket';
-        }
-        if(_get('szallodak')){
-            szoveg = 'szállodákat';
-        }
-        if(_get('velemenyezok')){
-            szoveg = 'véleményezőket';
-        }
-        if(_get('projektigeny')){
-            szoveg = 'projektigényléseket';
-        }
-        if(_get('projekt_team')){
-            szoveg = 'felhasználókat';
-        }
+            var full_szoveg = '';
+            if(tabla=='munkalap' && _get('modosit')){
+                full_szoveg = 'Biztosan törli a bejelentést a munkalapról?';
+            }
+            if(_get('engedelyek')){
+                szoveg = 'engedélyeket';
+            }
+            if(_get('megterules')){
+                szoveg = 'megtérüléseket';
+            }
+            if(_get('szallodak')){
+                szoveg = 'szállodákat';
+            }
+            if(_get('velemenyezok')){
+                szoveg = 'véleményezőket';
+            }
+            if(_get('projektigeny')){
+                szoveg = 'projektigényléseket';
+            }
+            if(_get('projekt_team')){
+                szoveg = 'felhasználókat';
+            }
 
-        if(torolhet){
-            if(full_szoveg){
-                gomb_uzi = full_szoveg;
+            if(torolhet){
+                if(full_szoveg){
+                    gomb_uzi = full_szoveg;
+                }else{
+                    gomb_uzi = 'Biztosan törli a kijelölt '+szoveg+'?';
+                }
+                gomb_muv   = '<p class="c"><input class="gomb zold" type="button" value="Igen" onclick="mellekTorol(\'' + tabla + '\', \'' + mellek + '\', \'' + mellekre_valt + '\');"><input class="gomb piros" type="button" value="Nem" onclick="alert2()"></p>';
+                ablak_cime = '';
             }else{
-                gomb_uzi = 'Biztosan törli a kijelölt '+szoveg+'?';
+                gomb_uzi   = 'Önnek nincs joga '+szoveg+' törölni!';
+                gomb_muv   = '';
+                ablak_cime = 'Hiba';
+
             }
-            gomb_muv   = '<p class="c"><input class="gomb zold" type="button" value="Igen" onclick="mellekTorol(\'' + tabla + '\', \'' + mellek + '\', \'' + mellekre_valt + '\');"><input class="gomb piros" type="button" value="Nem" onclick="alert2()"></p>';
-            ablak_cime = '';
-        }else{
-            gomb_uzi   = 'Önnek nincs joga '+szoveg+' törölni!';
-            gomb_muv   = '';
-            ablak_cime = 'Hiba';
 
+            $('#navGombok a.torles').removeClass('disabled').attr('onclick', 'alert2(\'' + gomb_uzi + '\', gomb_muv, ablak_cime);');
         }
-
-        $('#navGombok a.torles').removeClass('disabled').attr('onclick', 'alert2(\'' + gomb_uzi + '\', gomb_muv, ablak_cime);');
     }
 }
 
@@ -4455,6 +4443,7 @@ function mellekTorol( tabla, mellek, mellekre_valt, konkret_id ) {
         /* Cash-flow-ban ha változás van, akkor újra kell számolni. Azért kell ide is, mert ajaxig nem biztos, hogy eljutunk. */
         if(tabla=='cash_flow'){
             becsult_szetosztott_ujraszamol();
+            alert2();/* Cash flownál be kell zárni a kérdést is. */
         }
     });
 
@@ -4732,6 +4721,7 @@ function kapcsolodoSzerkeszt( oldal ) {
 
             case 'velemenyezok':
                 $('#addVelemenyezokForm').attr('onsubmit', 'return addVelemenyezoFg(\'' + _get('id') + '\', this);');
+                
                 $.ajax({
                     url  : 'projektigenyles.php',
                     type : 'POST',
@@ -5071,7 +5061,7 @@ function bejegyzesekLista( that, irany, rkat, ksz ) {
                         param = '?rend=' + rend + '&irany=' + irany + ksz_kieg;
                     }
 
-                    window.history.pushState("", "", getHost() + param );
+                    window.history.pushState('', '', getHost() + param );
                 }
             }
         });
@@ -6470,59 +6460,7 @@ function osszetett_szuro_mondat(returnold){
 
 }
 
-/* Projektigénylés alatt az adatlap és cash flow fül közötti váltás */
-function prigeny_ful_valt(ful){
-
-    /* Ha nem az adatlapon vagyunk akkor szamlaBetolt */
-    if(!_get('modosit')){
-        betoltott = szamlaBetolt(_get('id'), 'projektigenyles.php', 'modosit');
-
-        if(ful=='cash_flow'){
-            $.when( betoltott ).done(function() {
-                if(ful=='cash_flow'){
-                    cash_flow_fulre_lep();
-                }
-            });
-        }
-
-    /* Egyébként csak JS tartalom csere */
-    }else{
-
-        if(ful=='adatlap'){
-            $('#cash_flow_div').hide();
-            $('#szerk_form').show();
-            $('#ful_cash_flow').removeClass('active');
-            $('#ful_modosit').addClass('active');
-            $('#navGombok .uj').attr('href', 'projektigenyles.php?uj');
-        }
-
-        if(ful=='cash_flow'){
-            cash_flow_fulre_lep();
-        }
-
-        var vannak_ideiglenes_sorok = false;
-        $('#cash_flow_div div.kijSor').each(function() {
-            if( $(this).attr('data-id')=='UJ' ){
-                vannak_ideiglenes_sorok = true;
-            }
-        });
-
-        if(vannak_ideiglenes_sorok){
-            $('#mehet_gomb').removeAttr('disabled').addClass('gombb_alert');
-            $('#megsem_gomb').removeAttr('disabled');
-        }
-
-    }
-
-}
-function cash_flow_fulre_lep(){
-    $('#cash_flow_div').show();
-    $('#szerk_form').hide();
-    $('#ful_cash_flow').addClass('active');
-    $('#ful_modosit').removeClass('active');
-    $('#navGombok .uj').attr('href', 'javascript: kapcsolodoSzerkeszt(\'cash_flow\'); void(0);');
-}
-
+/* Dokumentumtár menüponthoz kell */
 function getKonyvtar( link ) {
     if( link ) {
         $.ajax({

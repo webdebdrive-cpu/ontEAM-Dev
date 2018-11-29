@@ -55,6 +55,15 @@ if($tobb_kep){
 
 }
 
+// Pontos dátum lekérdezése (szeurver óráját használjuk)
+if (isset($_POST['get_datum'])) {
+    
+    echo date('Y.m.d');
+    
+    $weblap->leallit();
+    exit();
+}
+
 // Véleményező hozzáadás státusz ellenőrzés
 if (isset($_POST['velemenyezok_status_ell'])) {
 
@@ -185,6 +194,7 @@ if (isset($_POST['addMegterules'])) {
     $db_error = false;
     mysqli_autocommit($db_kapcs, false);
 
+    // Terület ellenőrzése
     if(!$terulet){
         echo json_encode(array(
             'hiba' => 'Kérjük válasszon területet!',
@@ -194,9 +204,20 @@ if (isset($_POST['addMegterules'])) {
         exit();
     }
 
+    // Ha nincs megadva az összeg
     if(!$osszeg){
         echo json_encode(array(
             'hiba' => 'Kérjük adja meg az összeget!',
+            'gomb' => '<input class="link gomb" value="Ok" onclick="alert2(); $(\'#osszeg\').focus();" type="button">'
+        ));
+        $weblap->leallit();
+        exit();
+    }
+
+    // Negatív összeg
+    if($osszeg<0){
+        echo json_encode(array(
+            'hiba' => 'Nem adható meg 0-tól kisebb összeg!',
             'gomb' => '<input class="link gomb" value="Ok" onclick="alert2(); $(\'#osszeg\').focus();" type="button">'
         ));
         $weblap->leallit();
@@ -800,7 +821,7 @@ if (isset($_POST['eloterj_igneyles_csatol'])) {
     exit();
 }
 
-//Projektigénylések előterjesztés másolat tábla ideiglenes státusz mentése
+// Projektigénylések előterjesztés másolat tábla ideiglenes státusz mentése
 if (isset($_POST['pri_eloterj_statusz_mod'])) {
 
     $db_error = false;
@@ -885,7 +906,7 @@ if (isset($_POST['cash_flow_ellenoriz'])) {
     }
 
     echo json_encode(array(
-        'ok' => '1' //Valami kimenet kell legyen.
+        'ok' => '1' // Valami kimenet kell legyen.
     ));
 
     $weblap->leallit();
@@ -893,7 +914,7 @@ if (isset($_POST['cash_flow_ellenoriz'])) {
 }
 
 
-/* CSV generálása */
+// CSV generálása
 if (isset($_GET['csv'])) {
 
     $mibol   = get_web_charset();
@@ -1121,7 +1142,7 @@ require('selectek.php');
 
         // Ha a státusz elutasítva vagy jóváhagyva, akkor semmilyen gomb nem érhető el
         if($sor['stat_id'] == PRIGENY_STAT_ELUTASITVA || $sor['stat_id'] == PRIGENY_STAT_JOVAHAGYVA ){
-            $gombok .= ' <input type="button" id="recordTorol" class="gombb_alert dn" onclick="alert2(\'Projektigénylés ebben a státuszban már nem törölhető!\', \'\', \'Hiba\')" value="Töröl" title="Töröl">';
+            $gombok .= ' <input type="button" id="recordTorol" class="gombb_alert dn" onclick="if( cash_flow_fulon_vagyunk() ){ alert2(\'Cash-flow ebben a státuszban már nem törölhető!\', \'\', \'Hiba\'); }else{ alert2(\'Projektigénylés ebben a státuszban már nem törölhető!\', \'\', \'Hiba\'); }" value="Töröl" title="Töröl">';
         }
         if($sor['stat_id'] != PRIGENY_STAT_ELUTASITVA && $sor['stat_id'] != PRIGENY_STAT_JOVAHAGYVA){
             // Js, a törlés gombhoz
@@ -1129,15 +1150,15 @@ require('selectek.php');
 
             // Csak akkor törölhető, amikor szerkeszthető
             if( in_array($sor['stat_id'], prigeny_mentheto_statuszok()) ){
-                $gombok .= ' <input type="button" id="recordTorol" class="gombb_alert dn" onclick="alert2(\'Projektigénylés ebben a státuszban nem törölhető!\', \'\', \'Hiba\')" value="Töröl" title="Töröl">';
+                $gombok .= ' <input type="button" id="recordTorol" class="gombb_alert dn" onclick="if( cash_flow_fulon_vagyunk() ){ cash_flow_sorok_torol(); }else{ alert2(\'Projektigénylés ebben a státuszban nem törölhető!\', \'\', \'Hiba\'); }" value="Töröl" title="Töröl">';
             // Jogosutságkezelés: csak az törölheti, akinek van hozzá joga
             } elseif( !_jog(JOG_PRIGENY_B_KEZEL) && !_jog(JOG_PRIGENY_EGY_KEZEL) && !_jog(JOG_PRIGENY_F_KEZEL) && !_jog(JOG_PRIGENY_SZ_KEZEL) && !_jog(JOG_PRIGENY_S_KEZEL) && !_jog(JOG_PRIGENY_TOBB_KEZEL) && !_jog(JOG_PRIGENY_T_KEZEL) ){
-                $gombok .= ' <input type="button" id="recordTorol" class="gombb_alert dn" onclick="alert2(\'Önnek nincs joga projektigénylést törölni!\', \'\', \'Hiba\')" value="Töröl" title="Töröl">';
+                $gombok .= ' <input type="button" id="recordTorol" class="gombb_alert dn" onclick="if( cash_flow_fulon_vagyunk() ){ }else{ alert2(\'Önnek nincs joga projektigénylést törölni!\', \'\', \'Hiba\'); }" value="Töröl" title="Töröl">';
             // Ha csak saját igénylések kezelése joga van és más kezelés nincs, és az igénylést nem saját maga hozta létre
             }elseif( !$csak_sajat_kezelheti ) {
-                $gombok .= ' <input type="button" id="recordTorol" class="gombb_alert dn" onclick="alert2(\'Ön csak saját projektigénylést törölhet!\', \'\', \'Hiba\')" value="Töröl" title="Töröl">';
+                $gombok .= ' <input type="button" id="recordTorol" class="gombb_alert dn" onclick="if( cash_flow_fulon_vagyunk() ){ alert2(\'Ön csak saját Cash-flow-t törölhet!\', \'\', \'Hiba\'); }else{ alert2(\'Ön csak saját projektigénylést törölhet!\', \'\', \'Hiba\'); }" value="Töröl" title="Töröl">';
             } else {
-                $gombok .= ' <input type="button" id="recordTorol" class="gombb_alert dn" onclick="alert2(\'Biztosan törli ezt a '.$szoveg.'?\', gomb'.$_GET['id'].')" value="Töröl" title="Töröl">';
+                $gombok .= ' <input type="button" id="recordTorol" class="gombb_alert dn" onclick="if( cash_flow_fulon_vagyunk() ){ }else{ alert2(\'Biztosan törli ezt a '.$szoveg.'?\', gomb'.$_GET['id'].'); }" value="Töröl" title="Töröl">';
             }
 
             // Ha a prigény létrehozás alatt van, akkor érhető el csak az Igénylés rögzítése gomb
@@ -1469,22 +1490,22 @@ require('selectek.php');
             </script>
         ');
 
-        //NAVIGÁCIÓ
+        // NAVIGÁCIÓ
         $navi_sablon = fajlbol_olvas('../sablon/admin/navi.html', true);
         $navi_mit    = array('{NAVI_FELIRAT}',  '{GOMBOK}', '{GYK}');
         $navi_mivel  = array( $navi,             '',         $gyk2 );
         //echo str_replace($navi_mit, $navi_mivel, $navi_sablon);
 
-	    //HIBAüZENETEK
+	    // HIBAüZENETEK
         require_once('info.php');
 
-	    //FORM
+	    // FORM
 	    $js = js_kiir($akt_tomb, 'form_ell_admin()', 'ajax');
 
-		//Form actionja
+		// Form actionja
 		$action = self().get_get(array('errnum','kephiba','siker'));
 
-        //Ckeditort csak akkor húzzuk be, ha kell
+        // Ckeditort csak akkor húzzuk be, ha kell
         if(is_file($ckeditor_js)){
             $ckeditor = '<script src="'.$ckeditor_js.'"></script>';
         }
@@ -1501,6 +1522,14 @@ require('selectek.php');
         $tovabbi_tartalom = '';
         $tovabbi_tartalom .= nl2('
             <script>
+
+                /* Ha van GET cash_flow, akkor lépjünk át erre a fülre. */
+                $(document).ready(function () {
+                    if(_get(\'cash_flow\')){
+                        cash_flow_fulre_lep();
+                    }
+                });
+
                 volt_figyelmeztetes       = false;
                 kulonbozo_telephely_mehet = false;
                 $(document).ready(function() {
@@ -1537,7 +1566,7 @@ require('selectek.php');
                             </div>
         ');
 
-        $cash_flowk = $adatbazis_kapcsolat->s('recid telephely_id datum osszeg', 'cash_flow', "`apa_recid`='".$_GET['id']."'", 'insert_dt desc');
+        $cash_flowk = $adatbazis_kapcsolat->s('recid telephely_id datum osszeg', 'cash_flow', "`apa_recid`='".$_GET['id']."'", 'insert_dt desc, recid asc');
         $i = 1;
         foreach($cash_flowk as $cf) {
 

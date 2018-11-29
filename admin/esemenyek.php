@@ -2072,7 +2072,7 @@ if (isset($_GET['modosit'])) {
     }
     $letrehozta_mikor .= 'Létrehozta: <b>'.$pi['insert_usr'].' '.  str_replace('-', '.', substr($pi['insert_dt'], 0, 16)).'</b>-kor<br>';
 
-    //Projektigényhez kell a legutolsó döntés, a döntés dátuma és a jóváhagyó
+    // Projektigényhez kell a legutolsó döntés, a döntés dátuma és a jóváhagyó
     $dontes = $adatbazis_kapcsolat->s2('insert_usr insert_dt', $megnevezes.'_statusz', "`projektigenyles_recid`='{$_GET['id']}' AND `stat_id` IN ('".PRIGENY_STAT_VARAKOZO."', '".PRIGENY_STAT_JOVAHAGYVA."', '".PRIGENY_STAT_ELUTASITVA."')", 'insert_dt desc', '1');
     if($dontes){
         $letrehozta_mikor .= 'Legutolsó döntés: <b>'.$dontes['insert_usr'].' '.  str_replace('-', '.', substr($dontes['insert_dt'], 0, 16)).'</b>-kor<br>';
@@ -2101,6 +2101,12 @@ if (isset($_GET['modosit'])) {
 
 }
 
+// Ha nincs "Több szállodás igények kezelése" jogunk, akkor az Egyszállodás/Többszállodás pipák nem szerkeszthetőek.
+$tobb_szall_disabled = '';
+if(!_jog(JOG_PRIGENY_TOBB_KEZEL)){
+    $tobb_szall_disabled = ' disabled';
+}
+
 $projektigenyles_tomb = $akt_tomb = array(
     array('type' => 'statusz',              'megn' => 'Státusz:',               'name' => 'stat_id',        'szuro' => 1,  'oldal' => $megnevezes),
     array('type' => 'text',                 'megn' => 'Azonosító:',             'name' => 'ikt_szam',       'szuro' => 1,       'class' => 'normal', 'disabled' => 1,   'style' => 'width: 10rem', 'osszevon' => 1, 'post' => '<span style="margin-right: 4rem"></span>'),
@@ -2116,14 +2122,14 @@ array('type' => 'html',                     'megn' => nl2('
                                                     <div class="dtc form_jobb">
                                                         Egyszállodás
                                                         <div class="cb">
-                                                            <input id="egy_tobb_egy" name="egy_tobb_egy" tabindex="15" type="checkbox" class="f_pri_egytobb" data-egytobb="egy">
+                                                            <input id="egy_tobb_egy" name="egy_tobb_egy" tabindex="15" type="checkbox" class="f_pri_egytobb" data-egytobb="egy"'.$tobb_szall_disabled.'>
                                                             <label for="egy_tobb_egy" onclick="$(\'#mehet_gomb\').addClass(\'gombb_alert\');"></label>
                                                         </div>
                                                         <span class="formText" style="margin-left: 4rem"></span>
 
                                                         Többszállodás
                                                         <div class="cb">
-                                                            <input id="egy_tobb_tobb" name="egy_tobb_tobb" tabindex="16" type="checkbox" class="f_pri_egytobb" data-egytobb="tobb">
+                                                            <input id="egy_tobb_tobb" name="egy_tobb_tobb" tabindex="16" type="checkbox" class="f_pri_egytobb" data-egytobb="tobb"'.$tobb_szall_disabled.'>
                                                             <label for="egy_tobb_tobb" onclick="$(\'#mehet_gomb\').addClass(\'gombb_alert\');"></label>
                                                         </div>
 
