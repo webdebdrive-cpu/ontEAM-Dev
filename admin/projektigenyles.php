@@ -95,16 +95,18 @@ if( isset($_POST['addVelemenyezo']) ) {
         exit();
     }
 
+    // Státusz ellenőrzése
     $stat = $adatbazis_kapcsolat->s2('stat_id', $megnevezes, "`recid`='{$_POST['pr_igeny_recid']}'");
-    if($stat['stat_id']!=PRIGENY_STAT_NYITOTT && $stat['stat_id']!=PRIGENY_STAT_VEL_ALATT){
+    if($stat['stat_id']!=PRIGENY_STAT_NYITOTT && $stat['stat_id']!=PRIGENY_STAT_HIANYPOTOLT && $stat['stat_id']!=PRIGENY_STAT_VEL_ALATT){
         echo json_encode(array(
-            'hiba' => 'Véleményezőt hozzáadni csak nyitott vagy véleményezés alatt státuszokban lehet!'
+            'hiba' => 'Véleményezőt hozzáadni csak nyitott, hiánypótolt vagy véleményezés alatt státuszokban lehet!'
         ));
 
         $weblap->leallit();
         exit();
     }
 
+    // Kiválasztott vélményező ellenőrzése
     if (!$login_recid) {
         echo json_encode(array(
             'hiba' => 'Kérem válassza ki a véleményezőt!',
@@ -1474,6 +1476,7 @@ require('selectek.php');
         foreach($sor as $kulcs => $elem){
             $json_sor[$kulcs] = str_replace(array("\r\n", "\r", "\n", "'"), array("#UJSOR#", "#UJSOR#", "#UJSOR#", "#APOSZTROF#"), $elem);
         }
+        
         $szamla_html .= '<script> formAdatok = JSON.parse(\''.json_encode($json_sor).'\'); </script>';
 
         if($id_latszik){
