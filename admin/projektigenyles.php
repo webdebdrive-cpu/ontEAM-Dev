@@ -44,7 +44,7 @@ $szamla_html = '';
 // Több kép menedzseléséhez
 $tobb_kep = true; // Ha true, akkor js/jquery-ui.js, js/admin_sorrendez.js aktivál és minify!, admin/tobb_kep.php aktivál
 if($tobb_kep){
-    function get_tobbkep_darab()    { return 10;        } // Maximum hány kép tallózható be
+    function get_tobbkep_darab()    { return 1;         } // Maximum hány kép tallózható be
     function get_tobbkep_csakkep()  { return '';        } // Milyen kiterjesztéseket engedünk meg (ha mindenet, legyen üres)
     function get_tobbkep_kepmeret() { return 10;        } // MB-ban
     function get_tobbkep_oszlopnev(){                     // Melyik oszloppal kötjük össze a két táblát
@@ -982,7 +982,7 @@ if (isset($_GET['csv'])) {
                     $sor = getErtek('nev', 'telephely', 'id', $sor);
                 }
                 if($kulcs=='Bejelentett hiba'){
-                    $sor = erteklista(4, $sor);
+                    $sor = erteklista(ERTEKLISTA_BEJ_HIBA, $sor);
                 }
                 if($kulcs=='Helyiség'){
                     $sor = getErtek('nev', 'obj', 'recid', $sor);
@@ -1758,7 +1758,7 @@ require('selectek.php');
         if( $_GET['ajax'] ) {
             echo json_encode(array(
                 'tartalom' => $szamla_html.$gombok,
-                'link' => get_get(array('ajax', 'kat', 'epo', 'oldal', 'order'), true)
+                'link'     => get_get(array('ajax', 'kat', 'epo', 'oldal', 'order'), true)
             ));
         } else {
             echo $szamla_html.$gombok;

@@ -961,20 +961,39 @@ $szallito_tomb = $akt_tomb = array(
 	array('type' => 'text',        'megn' => 'Adószám:',        'name' => 'adoszam','szuro' => 1,     'maxlength' => 250, 'class' => 'oriasi'),
 	array('type' => 'text',        'megn' => 'Cg:',             'name' => 'cg',     'szuro' => 1,     'maxlength' => 250, 'class' => 'kicsi'),
 	array('type' => 'textarea',    'megn' => 'Leírás:',         'name' => 'text',   'szuro' => 1,                         'class' => 'oriasi', 'style' => 'height: 5.5rem'),
-
-	//array('type' => 'submit', 'value' => 'Mentés',    'name' => 'mehet_gomb', 'class' => 'gombb'),
 );
 array_push($postok, array('tomb' => $akt_tomb, 'uj' => 'uj'.$megnevezes, 'lista' => $megnevezes.'lista', 'tabla' => $megnevezes, 'torid' => $megnevezes.'tid' ));
 
 
-// Kódtár
+// Érték lista
+$fix_adat_pipa   = '';
+$minden_disabled = false;
+$pipa_ml = $pipa_aig = $pipa_aren = $pipa_fenn = $pipa_pr = '';
+if ($_GET['id']) { // Azért  nem az a feltétel, hogy isset( $_GET['modosit'] ), mert akkor mentéskor nem látszanának az extra oszlopai ennek a táblának, nem mentődnének el az adatok.
+    $erteklista = $adatbazis_kapcsolat->s2('fix_adat csoport', 'erteklista', "`recid`='{$_GET['id']}'");
+    if($erteklista['fix_adat']){
+        $minden_disabled = true;
+    }
+    // Ha dokumentum csoportba tartozik adott értéklista, akkor további pipálók jelennek meg
+    if($erteklista['csoport']==ERTEKLISTA_DOK_TIPUS){
+        $pipa_ml    = array('type' => 'checkbox',          'megn' => 'Munkalapok:',         'name' => 'munkalap',        'disabled' => $minden_disabled);
+        $pipa_aig   = array('type' => 'checkbox',          'megn' => 'Anyagigénylések:',    'name' => 'anyagigenyles',   'disabled' => $minden_disabled);
+        $pipa_aren  = array('type' => 'checkbox',          'megn' => 'Anyagrendelések:',    'name' => 'anyagrendeles',   'disabled' => $minden_disabled);
+        $pipa_fenn  = array('type' => 'checkbox',          'megn' => 'Fenntartások:',       'name' => 'fenntartas',      'disabled' => $minden_disabled);
+        $pipa_pr    = array('type' => 'checkbox',          'megn' => 'Projektek:',          'name' => 'projekt',         'disabled' => $minden_disabled);
+    }
+    $fix_adat_pipa = array('type' => 'checkbox',          'megn' => get_nev().' kezeli:',    'name' => 'fix_adat',   'disabled' => true);
+}
 $megnevezes = 'erteklista';
 $erteklista_tomb = $akt_tomb = array(
-	//array('type' => 'text',             'megn' => 'ID:',         'name' => 'id',    'maxlength' => 250, 'class' => 'kicsi',     'alert' => 'Kérem töltse ki az ID-t!'),
-    array('type' => 'select_erteklista', 'megn' => 'Csoport:',    'name' => 'csoport',    'disabled' => $csakUjkent,   'class' => 'disableNav',    'alert' =>  $szoveg_reg['varos'][$megsz],    'alert' => 'Kérem válassza ki a csoportot!'),
-	array('type' => 'text',              'megn' => 'Érték:',      'name' => 'info',       'maxlength' => 40, 'class' => 'oriasi',    'alert' => 'Kérem töltse ki az értéket!'),
-
-	//array('type' => 'submit', 'value' => 'Mentés',    'name' => 'mehet_gomb', 'class' => 'gombb'),
+	array('type' => 'select_erteklista', 'megn' => 'Csoport:',              'name' => 'csoport',    'disabled' => $csakUjkent,   'class' => 'disableNav',    'alert' =>  $szoveg_reg['varos'][$megsz],    'alert' => 'Kérem válassza ki a csoportot!'),
+	array('type' => 'text',              'megn' => 'Érték:',                'name' => 'info',       'disabled' => $minden_disabled,  'maxlength' => 40, 'class' => 'oriasi',    'alert' => 'Kérem töltse ki az értéket!'),
+    $pipa_ml,
+    $pipa_aig,
+    $pipa_aren,
+    $pipa_fenn,
+    $pipa_pr,
+	$fix_adat_pipa,
 );
 array_push($postok, array('tomb' => $akt_tomb, 'uj' => 'uj'.$megnevezes, 'lista' => $megnevezes.'lista', 'tabla' => $megnevezes, 'torid' => $megnevezes.'tid' ));
 
@@ -1100,8 +1119,8 @@ $usr_email      = '';
 $tel_disabled   = true;
 if( isset($_GET['uj']) ) {
     $usr_nev        = $bejelento['teljes_nev'];
-    $usr_beosztas   = $bejelento['beosztas_id']; //erteklista(18, $user['beosztas_id']);
-    $usr_reszleg    = $bejelento['reszleg_id'];  //erteklista(17, $user['reszleg_id']);
+    $usr_beosztas   = $bejelento['beosztas_id'];
+    $usr_reszleg    = $bejelento['reszleg_id'];
     $usr_telefon    = $bejelento['usertel'];
     $usr_email      = $bejelento['usermail'];
     $tel_disabled   = false;
@@ -3874,7 +3893,7 @@ if( isset($_GET['addSzakterulet']) ) {
             $kapcsID = $adatbazis_kapcsolat -> i('szakter_kapcs', array('szallito_id', 'szakter_id'), array($szallitoID, $szakterID));
 
             // Szakterület lekérdezése
-            $sor = $adatbazis_kapcsolat->s('recid', 'erteklista', "`recid` = '{$szakterID}'", '', '1');
+            $sor = $adatbazis_kapcsolat->s('recid', 'erteklista', "`recid` = '{$szakterID}'");
 
             if( $sor ) {
                 echo json_encode(array(

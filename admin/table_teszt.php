@@ -331,8 +331,8 @@
                                     <td>'.$felhasznalo['teljes_nev'].'</td>
                                     <td data-sort="'.sprintf("%02d", $i).'">'.sprintf("%02d", $i).'<br>'.$felhasznalo['usertel'].'</td>
                                     <td>'.$felhasznalo['usermail'].'</td>
-                                    <td class="nowrap">'.erteklista(18, $felhasznalo['beosztas_id']).'</td>
-                                    <td>'.erteklista(17, $felhasznalo['reszleg_id']).'</td>
+                                    <td class="nowrap">'.erteklista(ERTEKLISTA_BEOSZTAS, $felhasznalo['beosztas_id']).'</td>
+                                    <td>'.erteklista(ERTEKLISTA_RESZLEG, $felhasznalo['reszleg_id']).'</td>
                                     <td>'.($felhasznalo['aktiv'] ? 'igen' : 'nem').'</td>
                                 </tr>';
 

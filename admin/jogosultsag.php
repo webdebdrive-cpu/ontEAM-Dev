@@ -25,7 +25,7 @@ $jogosultsagKatok = array(
 $jogosultsagok = array(
 //Ez a _jog() ID_ja, tehát a => előtti rész
 
-//Törölni így tudsz:
+// Törölni így tudsz:
 //123  => array('torolve' => 'TÖRÖLVE - a lényeg, hogy legyen egy torolve attribútuma is.',  'nev' => 'A törölt jog neve',   'kat' => 123, 'sor' => 123),
     75  => array('torolve' => 'TÖRÖLVE', 'nev' => 'Munkaidő hozzáadása',     'kat' => 1,  'sor' => 0  ),
     86  => array('torolve' => 'TÖRÖLVE', 'nev' => 'Minden szálloda olvasása','kat' => 12, 'sor' => 5),

@@ -544,7 +544,7 @@ if( isset($_POST['arazas']) ) {
             case 3: $dbf_checked = ' checked'; $szall_sel_disabled = ' readonly'; break;
         }
 
-        $penznem_txt = $adatbazis_kapcsolat->s2('info', 'erteklista', "`csoport`='21' AND `id`='{$igenyles['kcs_21']}'");
+        $penznem_txt = $adatbazis_kapcsolat->s2('info', 'erteklista', "`csoport`='".ERTEKLISTA_PENZNEM."' AND `id`='{$igenyles['kcs_21']}'");
 
         $szallito_txt = $adatbazis_kapcsolat->s2('nev', 'szallito', "`id`='{$igenyles['szallito_id']}'");
         $popup = nl2('
@@ -2975,7 +2975,7 @@ require_once('selectek.php');
                                 <td class="r nowrap">'.number_format($sor['rndear'], 2, ',', ' ').'</td>
                                 <td class="r nowrap">'.number_format($sor['vrndear'], 4, ',', ' ').'</td>
                                 <td class="r nowrap">'.number_format($sor['erkmen'], 2, ',', ' ').'</td>
-                                <td class="r">'.erteklista(21, $sor['kcs_21']).'</td>
+                                <td class="r">'.erteklista(ERTEKLISTA_PENZNEM, $sor['kcs_21']).'</td>
                                 <td class="r">'.getStatText('anyagigenyles', $sor['stat_id']).'</td>
                             </tr>
                         ');

@@ -39,6 +39,7 @@
                 szemelyzet_id   : '',                   /* Munkaidő ráfodítás név hozzáadásánál kell                        */
                 szuros          : '',                   /* Ha a szűrőben hívtuk meg, akkor azt ezen keresztül tudjuk jelezni*/
                 tabla           : '',                   /* Adatbázis tábla, amiben keresünk                                 */
+                menupont_szuro  : '',                   /* Dokumentum típus értéklista lenyílónál tovább szűrünk még adott menüpontra (`erteklitsta` tábla itt megadott oszlopára) */
                 complete        : function() {}         /* Miután kiválasztottunk egy értéket, le tudunk futtatni még JS kódokat. */
             };
 
@@ -174,6 +175,7 @@
                                         rkat            : options.rkat,
                                         szemelyzet_id   : options.szemelyzet_id,
                                         tabla           : options.tabla,
+                                        menupont_szuro  : options.menupont_szuro,
                                         telephely_id    : telephely_id,
                                         value           : val
                                     },

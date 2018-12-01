@@ -176,7 +176,7 @@ if (isset($_POST['get_egysegarak'])) {
                     $kulso_val = 5;
                 }
 
-                $kulso_ertek = $adatbazis_kapcsolat->s2('id info', 'erteklista', '`id`=\''.$kulso_val.'\' and `csoport` = \'21\'', '', '1');
+                $kulso_ertek = $adatbazis_kapcsolat->s2('id info', 'erteklista', '`id`=\''.$kulso_val.'\' AND `csoport` = \''.ERTEKLISTA_PENZNEM.'\'', '', '1');
 
                 // Árfolyam
                 $arfolyam = str_replace('.', ',', $egysegar['arf'.$sorszam]);
@@ -198,7 +198,7 @@ if (isset($_POST['get_egysegarak'])) {
                                         \'tabla\'           : \'erteklista\',
                                         \'oszlop_keres\'    : \'info\',
                                         \'oszlop_listaz\'   : \'info\',
-                                        \'csoport\'         : 21,
+                                        \'csoport\'         : '.ERTEKLISTA_PENZNEM.',
                                         \'id_kiir\'         : \'id\',
                                         \'popupba\'         : true
                                     });

@@ -133,6 +133,15 @@ if(isset($_GET['value']) && isset($_GET['tabla']) && isset($_GET['oszlop_keres']
                 $where_sql .= " WHERE `props` LIKE '%{$_GET['props']}%'";
             }
         }
+        
+        // Dokumentum típus esetén ha még menüpontra is szűrünk
+        if( $_GET['menupont_szuro'] ){
+            if( $where_sql ) {
+                $where_sql .= " AND `{$_GET['menupont_szuro']}`='1'";
+            } else {
+                $where_sql .= " WHERE `{$_GET['menupont_szuro']}`='1'";
+            }
+        }
 
         // DL lista elemeinek előállítása
         $return = '<ul>';

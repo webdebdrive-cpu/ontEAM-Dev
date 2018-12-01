@@ -27,7 +27,32 @@ if( $_POST['tabla'] ) {
 if(basename($_SERVER['PHP_SELF']) == 'eszkozkezeles.php' && isset($_GET['engedelyek'])){
     $tobbkep_tablanev = 'eszkozkezeles_eng_dok';
 }
-// echo $tobbkep_tablanev; exit;
+
+// Legutóbb feltötött fájl adatainak lekérése, tipus kiválasztásához
+if (isset($_POST['get_feltoltott_fajl'])) {
+    
+    require_once('../weblap.php');
+    $dokumentum = $adatbazis_kapcsolat->s2('recid fajlnev', $_POST['tabla'].'_dok', "`{$_POST['tabla']}_id`='{$_POST['id']}'", 'recid desc', '1');
+
+    echo nl2('
+        Legutóbb feltöltöt fájl: '.$dokumentum['fajlnev'].'
+        <br>Válassza ki a dokumentum tipusát:
+        <br><input type="hidden" name="pop_recid" id="pop_recid" value="'.$dokumentum['recid'].'">
+        ');
+    
+    $weblap -> leallit();
+    exit;
+}
+
+// Dokumentum tipus letárolása
+if (isset($_POST['dokumentum_tipus_valaszt'])) {
+    
+    require_once('../weblap.php');
+    $adatbazis_kapcsolat->u($_POST['tabla'].'_dok', array('tipus'), array($_POST['tipus']), "`recid`='{$_POST['recid']}'");
+    
+    $weblap -> leallit();
+    exit;
+}
 
 // Képfeltöltés
 if( isset($_POST['megnevezes']) && !$archivum ){
@@ -140,13 +165,18 @@ if( isset($_POST['megnevezes']) && !$archivum ){
                 // Fájlfeltöltés
                 if(move_uploaded_file($_FILES[ $_POST['megnevezes'] ]['tmp_name'], $kepnev)){
 
+                    // Tipus választó popup-ot így hívjuk meg, hogy egy tipus_beallit szringgel kezdjük a visszaküldött adatokat
+                    if( $_POST['tabla']=='projektigenyles_dok' ){
+                        echo 'tipus_beallit';
+                    }
+                    
                     $kep_tort = str_replace('../'.get_utvonal().$konyvtar_db_nev.'/', '', $kepnev);
                     if( $_POST['ellenorzes_kihagy'] == 'false' ) {
                         // Letárolás adatbázisba is. A kép neve nem tartalmazza a get_utvonal részt! Ha sikeres akkor adunk egy outputot a flashfile-nak
                         $id = $adatbazis_kapcsolat -> i( $_POST['tabla'],
-                            array($_POST['oszlop'], 'utvonal',  'fajlnev',         'loginnev',                        'insert_dt',   'insert_usr',                            'update_usr'                           ),
-                            array($_POST['sorid'],  $kep_tort,  $fajlnev.'.'.$kit, $_SESSION[get_db_tabla().'user'],  'NOW()',       $_SESSION[get_db_tabla().'teljes_nev'],  $_SESSION[get_db_tabla().'teljes_nev'] )
-                        );
+                                                        array($_POST['oszlop'], 'utvonal',  'fajlnev',         'loginnev',                        'insert_dt',   'insert_usr',                            'update_usr'                           ),
+                                                        array($_POST['sorid'],  $kep_tort,  $fajlnev.'.'.$kit, $_SESSION[get_db_tabla().'user'],  'NOW()',       $_SESSION[get_db_tabla().'teljes_nev'],  $_SESSION[get_db_tabla().'teljes_nev'] )
+                                                    );
 
                         $sor_kepek = $adatbazis_kapcsolat->s2('*', $_POST['tabla'], "`recid`='{$id}'");
 
@@ -180,26 +210,6 @@ if( isset($_POST['megnevezes']) && !$archivum ){
 }
 
 require_once('../weblap.php');
-
-// Kép törlése - ez az esemenyek.php-ban van lekezelve
-//if( isset($_POST['tobbkep_torol']) && !$archivum ){
-//
-//    $szulo_oszlop = csonkit($tobbkep_tablanev, 4).'_id';
-//
-//    $kepnev = mysqli_query($db_kapcs, 'SELECT `'.$szulo_oszlop.'`, `utvonal` FROM `'.get_db_tabla().$tobbkep_tablanev.'` WHERE `recid`=\''.$_POST['tobbkep_torol'].'\'');
-//    $kepnev = mysqli_fetch_assoc($kepnev);
-//
-//    $parancs = 'DELETE FROM `'.get_db_tabla().$tobbkep_tablanev.'` WHERE `recid`=\''.$_POST['tobbkep_torol'].'\'';
-//    mysqli_query($db_kapcs, $parancs);
-//
-//    $dokumentumok_szama = count( $adatbazis_kapcsolat->s('recid', $tobbkep_tablanev, "`{$szulo_oszlop}`='{$kepnev[$szulo_oszlop]}'") );
-//    $adatbazis_kapcsolat->u(csonkit($tobbkep_tablanev, 4), array('dok_db'), array($dokumentumok_szama), "`recid`='{$kepnev[$szulo_oszlop]}'");
-//
-//    kep_torol('../'.get_utvonal().$kepnev['utvonal']);
-//
-//    $weblap -> leallit();
-//    exit;
-//}
 
 
 
@@ -240,9 +250,17 @@ if($tobbkep_tablanev=='eszkozkezeles_eng_dok'){
     $minden_kesz = 'szamlaBetolt(_get(\'id\'), baseName(location.href) + \'.php\', \'dokumentumok\');';
 }
 
+// Típus oszlop
+$multiple       = ' multiple=""';
+$tipus_fejlec   = '';
+if(basename(self()) == 'projektigenyles.php' ){
+    $tipus_fejlec = '<div class="felirat">Típus</div>';
+    $multiple = '';
+}
+
 $sorrend_ujkep       = fajlbol_olvas('../sablon/admin/tobbkep_ujkep.html', true);
-$sorrend_ujkep_mit   = array('{GOMB_NEVE}', '{MEGN}',  '{PHP_FAJL}',                     '{ENG_KIT}', '{PARAMETEREK}', '{MINDEN_KESZ}'  );
-$sorrend_ujkep_mivel = array($gomb_neve,    $megn,     'tobb_kep.php'/*self() nem jó!*/, $eng_kit,     $parameterek,    $minden_kesz    );
+$sorrend_ujkep_mit   = array('{GOMB_NEVE}', '{MEGN}',  '{PHP_FAJL}',                     '{ENG_KIT}', '{PARAMETEREK}', '{MINDEN_KESZ}', '{MULTIPLE}');
+$sorrend_ujkep_mivel = array($gomb_neve,    $megn,     'tobb_kep.php'/*self() nem jó!*/, $eng_kit,     $parameterek,    $minden_kesz,   $multiple   );
 
 $tobbkep_html  = '';
 if( !$archivum ){
@@ -251,6 +269,7 @@ if( !$archivum ){
 
 $i     = 0;
 $kepek = $adatbazis_kapcsolat -> s('*', $tobbkep_tablanev, get_tobbkep_oszlopnev().'='.$_GET['id'], 'sor');
+
 // Eszközkezelés engedélyeknél dátumot is kiírunk
 $mellek = 'dokumentumok';
 if(basename(self()) == 'eszkozkezeles.php' && isset($_GET['engedelyek'])){
@@ -265,6 +284,7 @@ if($kepek){
                                     <div class="kep">Kép</div>
                                     <div class="felirat c" style="width: 15rem">Fájlnév</div>
                                     <div class="felirat">Feltölötte</div>
+                                    '.$tipus_fejlec.'
                                     <div class="felirat">Dátum</div>
                                     <div class="maradek torles"></div>
                                 </li>
@@ -358,6 +378,12 @@ function get_tobbkep_thumb($sor_kepek, $i, $tabla) {
                 ';
         }
 
+        // Típus oszlop
+        $tipus_oszlop = '';
+        if(basename(self()) == 'projektigenyles.php' ){
+            $tipus_oszlop = '<div class="felirat">'.erteklista(ERTEKLISTA_DOK_TIPUS, $sor_kepek['tipus']).'</div>';
+        }
+        
         $tobbkep_html .= nl2('
             <li id="'.$azon.'" title="'.$sor_kepek['megj'].'" data-id="'.$sor_kepek['recid'].'" data-i="'.$i.'">
                 <script>gomb'.$azon.' = get_tobbkep_megj_szerk_gomb(\''.basename(__FILE__).'\', \''.$azon.'\', \''.$sor_kepek['recid'].'\');</script>
@@ -374,6 +400,7 @@ function get_tobbkep_thumb($sor_kepek, $i, $tabla) {
                     </a>
                 </div>
                 <div class="felirat">'.$sor_kepek['insert_usr'].'</div>
+                '.$tipus_oszlop.'
                 <div class="felirat">'.$datum.'</div>
                 <div class="maradek torles">'.$torles.'</div>
             </li>

@@ -120,7 +120,7 @@ if (isset($_GET['csv'])) {
                     $sor = getErtek('nev', 'eszkozkezeles', 'recid', $sor);
                 }
                 if($kulcs=='Típus'){
-                    $sor = erteklista(6, $sor);
+                    $sor = erteklista(ERTEKLISTA_MUNKALAP_TIP, $sor);
                 }
                 if($kulcs=='Státusz'){
                     $sor = getStatText('munkalap', $sor);

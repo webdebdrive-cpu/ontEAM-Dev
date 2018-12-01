@@ -19,7 +19,7 @@ require_once('selectek.php');
 $osszevon_flag  = 0;
 $mezok          = '';
 
-/* Sablon változók */
+// Sablon változók
 $mezo_mit   = array();
 $mezo_mivel = array();
 
@@ -51,18 +51,18 @@ foreach($akt_tomb as $ertek){
             
             $input = new Input($ertek['type']);
             
-            //Checkbox estén a megnevezés az input után jön, nem elé
+            // Checkbox estén a megnevezés az input után jön, nem elé
             $label = $ertek['megn'];
             $ertek['megn'] = '';
             
-            //Pipáltságnak beállítása
+            // Pipáltságnak beállítása
             if($sor[ $ertek['name'] ]){
                 $input -> checked = true;
             }elseif($ertek['checked']){
                 $input -> checked  = true;
             }
             
-            //Label is CSS-hető
+            // Label is CSS-hető
             if( $ertek['labelClass'] ) {
                 $ertek['labelClass'] = ' '.$ertek['labelClass'];
             }
@@ -84,7 +84,7 @@ foreach($akt_tomb as $ertek){
             $input -> value    = $ertek['value'];
             
             $html = $input -> getHtml();
-            //Szép checkbox html része, altalanos.css-el közreműködve
+            // Szép checkbox html része, altalanos.css-el közreműködve
             $html = nl2('
                 <label class="checkbox">
                     '.$html.'
@@ -96,11 +96,11 @@ foreach($akt_tomb as $ertek){
                 </label>
                     ');
             
-            /* Sablon változók feltöltése */
+            // Sablon változók feltöltése
             $mezo_mit[]   = '{'.strtoupper(fajlnev_keszit($ertek['name'])).'}';
             $mezo_mivel[] = $html;
             
-            //Összevonások lekezelése és tartalom összefűzése
+            // Összevonások lekezelése és tartalom összefűzése
             if(!$osszevon_flag){
                 $mezok .= nl2("
                                 <div class=\"dtr\">

@@ -8,7 +8,7 @@
     <br>
     <div class="talloz">
         <div>
-            <span>{GOMB_NEVE}</span> <input type="file" name="files[]" multiple="" onchange="beolvasas_{MEGN}(this.files, false);"{ENG_KIT}>
+            <span>{GOMB_NEVE}</span> <input type="file" name="files[]"{MULTIPLE} onchange="beolvasas_{MEGN}(this.files, false);"{ENG_KIT}>
         </div>
     </div>
 </div>
@@ -85,12 +85,27 @@ function beolvasas_{MEGN}(fajlok, ellenorzes_kihagy) {
                         szamlaBetolt(_get('id'), baseName(location.href) + '.php', 'dokumentumok');
                     }
                 } else {
+                    /* Hibakezelés */
                     if(this.responseText.substring(0,5)=='Hiba!') {
                         if( this.responseText.substring(5) == 'A fájl létezik!' ) {
                             voltmar[i] = fajl;
                         } else {
                             alert2(this.responseText.substring(5), '', 'Hiba');
                         }
+                    /* Dokumentum tipus beállítás + fájl kiíratása */
+                    }else if(this.responseText.substring(0,13)=='tipus_beallit'){
+                        $('#sorrendezes_tobbkep').append(this.responseText.substring(13));
+                        if (fajlok_kesz == fajlok.length){
+                            minden_fajl_kesz_{MEGN}();
+                        }
+                        
+                        /* Tipus választó popup megnyitása */
+                        $.get('../sablon/admin/popup/dokumentum_tipus_valaszt.html?cache=' + new Date().getTime(), function( data ) {
+                            $('#popupTart').html(data);
+                            popupNyit();
+                        });
+                        
+                    /* Simán fájl kiíratása */
                     }else{
                         $('#sorrendezes_tobbkep').append(this.responseText);
                         if (fajlok_kesz == fajlok.length){

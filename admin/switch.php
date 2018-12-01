@@ -212,7 +212,7 @@ foreach($akt_tomb as $ertek){
             if(!$osszevon_flag){
                 $mezok .= nl2("
                                 <div class=\"dtr{$ertek['dtr_class']}\">
-                                    <div class=\"dtc form_bal\"><span>{$ertek['megn']}</span></div>
+                                    <div class=\"dtc form_bal\">{$ertek['megn']}</div>
                                     <div class=\"dtc form_jobb\">
                             ");
             }else{

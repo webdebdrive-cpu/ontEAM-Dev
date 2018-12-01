@@ -10,7 +10,7 @@ if (isset($_GET['nyomtat'])) {
     // Szállító kiszámítása
     $szallito = $adatbazis_kapcsolat->s2('szallito_id kcs_21', 'anyagigenyles', "`recid`='{$idk[1]}'");
     $kcs_21   = $szallito['kcs_21'];
-    $penznem  = $adatbazis_kapcsolat->s2('info', 'erteklista', "`csoport`=21 AND `id`='{$kcs_21}'");
+    $penznem  = $adatbazis_kapcsolat->s2('info', 'erteklista', "`csoport`='".ERTEKLISTA_PENZNEM."' AND `id`='{$kcs_21}'");
     $szallito = $adatbazis_kapcsolat->s2('id nev knev tel tel2 email isz varos utca', 'szallito', "`id`='{$szallito['szallito_id']}'");
 
 }

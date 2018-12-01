@@ -143,11 +143,6 @@ function specialis_karakterek_mivel(){
 // Projektkezeles státuszok
 define('PRKEZEL_STAT_NYITOTT',              '01' );
 
-
-
-
-
-
 // Projektigénylés tipusok
 define('PRIGENY_TIPUS_BERUH',           '1' );
 define('PRIGENY_TIPUS_FENNT',           '2' );
@@ -179,8 +174,6 @@ define('HIBABEJELENTO',                 '12');
 define('MOZGID_RAKTAR_BE',              '01' );
 define('MOZGID_RAKTAR_KI',              '02' );
 define('MOZGID_LELTAR',                 '03' );
-
-
 
 // JOGOK
 define('JOG_BEJELENTES_MEGTEKINT',      57);
@@ -306,14 +299,12 @@ define('ERT_ANYAGIG_JOVAHAGYAS',        10);
 define('ERT_ELFELEJTETT_JELSZO',        11);
 define('ERT_14_NAPJA_VARO_ML',          12);
 
-
 define('HIBA_ADJON_FELADAT',           ' kérjük adjon hozzá egy elvégzett feladatot!');
 
 // Pénznem értéklistánál a HUF értéklista ID-ja
 define('KCS_21_HUF',           5);
 
-
-
+// Értéklisták
 define('ERTEKLISTA_BEJ_HIBA',       4);
 define('ERTEKLISTA_ELV_FELAD',      5);
 define('ERTEKLISTA_MUNKALAP_TIP',   6);
@@ -322,28 +313,22 @@ define('ERTEKLISTA_RESZLEG',        17);
 define('ERTEKLISTA_BEOSZTAS',       18);
 define('ERTEKLISTA_SZAKTER',        19);
 define('ERTEKLISTA_PENZNEM',        21);
-//1 Állapot
-//19 Szakterület
-//2 Gépfajta
-//22 ÁFA
-//23 Elszámolás módja
-//24 Szerződés jellege
-//25 ÁFA típus
-//3 Gépcsoport
-//35 Számla értéket módosító tétel
-//36 Projektigénylés prioritás
-//37 Projektigénylés megtérülési terület
-//38 Bejelentés nem igazolás oka
+define('ERTEKLISTA_DOK_TIPUS',      39);
+
+// Dokumentum tipus értéklista két fix, nem szerkeszthető bejegyzése
+define('EL_DOK_TIPUS_ATADASI',      1);
+define('EL_DOK_TIPUS_GAR_BEJAR',    2);
 
 define('MLTIPUS_HIBAELHARITAS', 1);
 define('MLTIPUS_RENDSZERES_K',  2);
 define('MLTIPUS_UTEMEZETT_F',   3);
 define('MLTIPUS_ESETI_FENNT',   5);
 
-
+// Archiv felületek limitjei
 define('ARCHIV_NAVPANEL_LIMIT', 1000);
 define('SZURES_DB_LIMIT',       1000);
 
+// Fűtőértékkel kapcsolatos konstansok
 define('FUTOERTEK_KOD',         '5114400'               );
 define('FUTOERTEK_MEE',         'MJ/m3'                 );
 define('FUTOERTEK_DIJELEM',     'futoertek'             );

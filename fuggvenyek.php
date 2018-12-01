@@ -2572,7 +2572,7 @@ function szamla_lista( $where, $tabla, $kijeloltek = false, $csak_sql_miatt = fa
 
         // Gyorskeresőnél képződhet where feltétel
         if($where){
-            $where = ' AND '.$where;
+            $where = ' WHERE '.$where;
         }
 
         $sql = 'SELECT
@@ -2582,7 +2582,7 @@ function szamla_lista( $where, $tabla, $kijeloltek = false, $csak_sql_miatt = fa
                         `'.get_db_tabla().'erteklista_csoport`.`nev`
                 FROM    `'.get_db_tabla().'erteklista`
                 JOIN    `'.get_db_tabla().'erteklista_csoport` ON `'.get_db_tabla().'erteklista`.`csoport`=`'.get_db_tabla().'erteklista_csoport`.`csoport`
-                WHERE   `'.get_db_tabla().'erteklista`.`torolve`=0'.$where.'
+                '.$where.'
                 ORDER BY `'.get_db_tabla().'erteklista_csoport`.`nev`, `'.get_db_tabla().'erteklista`.`info`
                 ';
 
@@ -5195,11 +5195,9 @@ function erteklistaLista( $bejegyzesek, $tabla, $frissit, $kijeloltek ) {
                 $aktCsoport = $bsz['csoport'];
 
                 if( $i == 1 || $csoport != $aktCsoport ) {
-                    $csoportSor = $adatbazis_kapcsolat->s('nev', 'erteklista_csoport', 'csoport='.$aktCsoport, '', '1');
+                    $csoportSor = $adatbazis_kapcsolat->s2('nev', 'erteklista_csoport', "`csoport`='{$aktCsoport}'", '', '1');
 
                     if( $csoportSor ) {
-                        $csoportSor = $csoportSor[0];
-
                         $html .= '<li class="szamla_datum"><strong>'.$csoportSor['nev'].'</strong></li>';
                     }
 
@@ -5511,7 +5509,7 @@ function erteklista($csoport, $id) {
 
     // De ha nem sikerült, akkor lekérjük adatbázisból
     if(!$ertek){
-        $sor   = $adatbazis_kapcsolat->s2('info', 'erteklista', "`csoport` = '{$csoport}' AND `id` = '{$id}'", '', '1');
+        $sor   = $adatbazis_kapcsolat->s2('info', 'erteklista', "`csoport` = '{$csoport}' AND `id` = '{$id}'");
         $ertek = $sor['info'];
     }
     return $ertek;

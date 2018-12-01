@@ -1,0 +1,66 @@
+<h2>Dokumentum típus kiválasztása</h2>
+<form action="" id="dokumentum_tipus_valaszt" class="popupForm" method="post" onsubmit="dokumentum_tipus_valaszt(); return false;">
+
+    <div class="padd" style="padding-bottom: 8rem">
+        <div id="fajl_adatok"></div>
+        <input type="text" autocomplete="off" class="oriasi disableNav csillag focus" name="pop_tipus_autocomp" id="pop_tipus_autocomp" onblur="if(!$(this).val()){ $('#pop_tipus').val(''); }" value="">
+        <input type="hidden" name="pop_tipus" id="pop_tipus" value="">
+        <script>
+            $(document).ready(function() {
+                $('#pop_tipus_autocomp').autocomplete({
+                    'php_fajl'      : '../autocomplete.php',
+                    'tabla'         : 'erteklista',
+                    'oszlop_keres'  : 'info',
+                    'oszlop_listaz' : 'info',
+                    'csoport'       : 39,/* Dokumentum tipus */
+                    'menupont_szuro': 'projekt',
+                    'id_kiir'       : 'id'
+                });
+            });
+        </script>
+    </div>
+    
+    <div class="kuldes">
+        <input type="submit" name="elkuld" class="gomb zold" value="Mentés">
+        <input type="button" name="megsem" class="gomb piros" value="Mégsem" onclick="popupZar();">
+    </div>
+</form>
+<script>
+$(document).ready(function(){
+    $.ajax({
+        url : 'tobb_kep.php',
+        type: 'POST',
+        data: {
+            id                  : _get('id'),
+            tabla               : baseName(location.href),
+            get_feltoltott_fajl : Date.now()
+        },
+        success: function(response){
+            if(response.substring(0, 6)=='SESKIL'){ location.href = 'index.php'; }
+            if(response){
+                $('#fajl_adatok').html(response);
+            }
+        }
+    });
+});
+
+/* Tipus beállítása, elmentése */
+function dokumentum_tipus_valaszt(){
+    $.ajax({
+        url : 'tobb_kep.php',
+        type: 'POST',
+        data: {
+            id                      : _get('id'),
+            recid                   : $('#pop_recid').val(), /* A 'get_feltoltott_fajl' ajax tölti be ennek a HTML-jét */
+            tabla                   : baseName(location.href),
+            tipus                   : $('#pop_tipus').val(),
+            dokumentum_tipus_valaszt: Date.now()
+        },
+        success: function(response){
+            if(response.substring(0, 6)=='SESKIL'){ location.href = 'index.php'; }
+            szamlaBetolt( _get('id'), baseName(location.href) + '.php', 'dokumentumok' );
+            popupZar();
+        }
+    });
+}
+</script>

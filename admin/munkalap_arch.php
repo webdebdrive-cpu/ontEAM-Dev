@@ -518,7 +518,7 @@ require('selectek.php');
 
                     $szamla_html .= nl2('
                         <tr class="feladat_sor_'.$feladat['recid'].'">
-                            <td id="elv_feladat_nev_'.$feladat['recid'].'">'.erteklista(5, $feladat['erteklista_id']).'</td>
+                            <td id="elv_feladat_nev_'.$feladat['recid'].'">'.erteklista(ERTEKLISTA_ELV_FELAD, $feladat['erteklista_id']).'</td>
                             <td id="elv_feladat_memo_'.$feladat['recid'].'">'.nl2br($feladat['memo']).'</td>
                             <td class="r"></td>
                         </tr>

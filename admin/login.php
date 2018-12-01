@@ -422,7 +422,7 @@ if( isset($_POST['getLoginok']) ) {
                     </div>
                 </div>
                 <div class="dtc">
-                    '.$login['teljes_nev'].' ('.erteklista(18, $login['beosztas_id']).')
+                    '.$login['teljes_nev'].' ('.erteklista(ERTEKLISTA_BEOSZTAS, $login['beosztas_id']).')
                 </div>
             </div>
         ');

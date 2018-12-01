@@ -7902,7 +7902,7 @@ require('selectek.php');
                 $tetel_nyitott = false;
             }
 
-            $atadas_oka = erteklista(7, $sor['erteklista_id']);
+            $atadas_oka = erteklista(ERTEKLISTA_ATADAS_OKA, $sor['erteklista_id']);
             if( $atadas_oka ) {
                 $atadas_oka = '<br>'.$atadas_oka;
             }
