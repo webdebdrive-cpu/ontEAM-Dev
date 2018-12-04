@@ -48,7 +48,8 @@ if (isset($_POST['get_feltoltott_fajl'])) {
 if (isset($_POST['dokumentum_tipus_valaszt'])) {
     
     require_once('../weblap.php');
-    $adatbazis_kapcsolat->u($_POST['tabla'].'_dok', array('tipus'), array($_POST['tipus']), "`recid`='{$_POST['recid']}'");
+    $sql = $adatbazis_kapcsolat->u($_POST['tabla'].'_dok', array('tipus'), array($_POST['tipus']), "`recid`='{$_POST['recid']}'");
+    if( $sql === false ) { $db_error = true; }
     
     $weblap -> leallit();
     exit;
@@ -168,6 +169,9 @@ if( isset($_POST['megnevezes']) && !$archivum ){
                     // Tipus választó popup-ot így hívjuk meg, hogy egy tipus_beallit szringgel kezdjük a visszaküldött adatokat
                     if( $_POST['tabla']=='projektigenyles_dok' ){
                         echo 'tipus_beallit';
+                        
+                        // Illetve ekkor megjegyzéshez is bekerül a fájl neve
+                        addMegj( csonkit($_POST['tabla'], 4), $_POST['sorid'], 'Dokumentum hozzáadva: '.$fajlnev.'.'.$kit);
                     }
                     
                     $kep_tort = str_replace('../'.get_utvonal().$konyvtar_db_nev.'/', '', $kepnev);
@@ -308,6 +312,8 @@ function get_tobbkep_thumb($sor_kepek, $i, $tabla) {
 
     global $archivum;
     global $tobbkep_tablanev;
+    global $adatbazis_kapcsolat;
+    
     if(!$tobbkep_tablanev){
         $tobbkep_tablanev = $_POST['tabla'];
     }
@@ -363,7 +369,7 @@ function get_tobbkep_thumb($sor_kepek, $i, $tabla) {
         }
         $azon = 'kep'.$id_kieg.$sor_kepek['recid'];
 
-        // Csak az törölheti, aki feltöltötte (ha archivum, akkor meg más senki)
+        // Csak az törölheti, aki feltöltötte (ha archivum, akkor meg már senki)
         $torles = '';
         $betolt = 'dokumentumok';
         if( isset($_GET['engedelyek']) ){
@@ -376,6 +382,14 @@ function get_tobbkep_thumb($sor_kepek, $i, $tabla) {
                         </script>
                         <span class="icon link" onclick="$(\'#'.$azon.'\').addClass(\'torles_elott\'); alert2(\'Biztos, hogy törli a(z) '.$sor_kepek['fajlnev'].' dokumentumot?\', dok_torol_gomb_'.$sor_kepek['recid'].');"><i class="material-icons" style="font-size: 2rem">delete</i></span>
                 ';
+        }
+        
+        // Törlés lehetőségét mégis tiltjuk projektigénylések elutasítva és jóváhagyva státuszainál
+        if( $tabla == 'projektigenyles_dok' ){
+            $pri = $adatbazis_kapcsolat->s2('stat_id', 'projektigenyles', "`recid`='{$_GET['id']}'");
+            if( $pri['stat_id']==PRIGENY_STAT_ELUTASITVA || $pri['stat_id']==PRIGENY_STAT_JOVAHAGYVA ){
+                $torles = '';
+            }
         }
 
         // Típus oszlop

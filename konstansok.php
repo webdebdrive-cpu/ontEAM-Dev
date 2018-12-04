@@ -318,6 +318,8 @@ define('ERTEKLISTA_DOK_TIPUS',      39);
 // Dokumentum tipus értéklista két fix, nem szerkeszthető bejegyzése
 define('EL_DOK_TIPUS_ATADASI',      1);
 define('EL_DOK_TIPUS_GAR_BEJAR',    2);
+define('EL_DOK_TIPUS_SZERZODES',    3);
+define('EL_DOK_TIPUS_MUNKATER_ATAD',4);
 
 define('MLTIPUS_HIBAELHARITAS', 1);
 define('MLTIPUS_RENDSZERES_K',  2);

@@ -4481,7 +4481,7 @@ function mellekTorol( tabla, mellek, mellekre_valt, konkret_id ) {
                 if(response) {
                     response = JSON.parse(response);
                     if( response.hiba ) {
-                        alert2(response.hiba, '', 'Hiba');
+                        alert2(response.hiba, response.gomb, response.title);
                         return false;
                     }
 

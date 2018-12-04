@@ -195,12 +195,26 @@ if (isset($_POST['addMegterules'])) {
 
     $db_error = false;
     mysqli_autocommit($db_kapcs, false);
-
+    
+    $sor = $adatbazis_kapcsolat->s2('stat_id', 'projektigenyles', "`recid`='{$_POST['pageID']}'");
+    if($sor===false){ $db_error = true; }
+    
+    // Státusz ellenőzése
+    if(  $sor['stat_id']==PRIGENY_STAT_ELUTASITVA || $sor['stat_id']==PRIGENY_STAT_JOVAHAGYVA ){
+        echo json_encode(array(
+            'hiba'  => 'Ebben a státuszban nem adhat hozzá megtérülést!',
+            'title' => 'Hiba'
+        ));
+        $weblap->leallit();
+        exit();
+    }
+    
     // Terület ellenőrzése
     if(!$terulet){
         echo json_encode(array(
-            'hiba' => 'Kérjük válasszon területet!',
-            'gomb' => '<input class="link gomb" value="Ok" onclick="alert2(); $(\'#erteklista_id_autocomp\').focus();" type="button">'
+            'hiba'  => 'Kérjük válasszon területet!',
+            'gomb'  => '<input class="link gomb" value="Ok" onclick="alert2(); $(\'#erteklista_id_autocomp\').focus();" type="button">',
+            'title' => 'Hiba'
         ));
         $weblap->leallit();
         exit();
@@ -209,8 +223,9 @@ if (isset($_POST['addMegterules'])) {
     // Ha nincs megadva az összeg
     if(!$osszeg){
         echo json_encode(array(
-            'hiba' => 'Kérjük adja meg az összeget!',
-            'gomb' => '<input class="link gomb" value="Ok" onclick="alert2(); $(\'#osszeg\').focus();" type="button">'
+            'hiba'  => 'Kérjük adja meg az összeget!',
+            'gomb'  => '<input class="link gomb" value="Ok" onclick="alert2(); $(\'#osszeg\').focus();" type="button">',
+            'title' => 'Hiba'
         ));
         $weblap->leallit();
         exit();
@@ -219,8 +234,9 @@ if (isset($_POST['addMegterules'])) {
     // Negatív összeg
     if($osszeg<0){
         echo json_encode(array(
-            'hiba' => 'Nem adható meg 0-tól kisebb összeg!',
-            'gomb' => '<input class="link gomb" value="Ok" onclick="alert2(); $(\'#osszeg\').focus();" type="button">'
+            'hiba'  => 'Nem adható meg 0-tól kisebb összeg!',
+            'gomb'  => '<input class="link gomb" value="Ok" onclick="alert2(); $(\'#osszeg\').focus();" type="button">',
+            'title' => 'Hiba'
         ));
         $weblap->leallit();
         exit();
@@ -1370,6 +1386,24 @@ require('selectek.php');
                         return form_ell_admin();
                         ';
     $js_submit_elott = nl2($js_submit_elott);
+    
+    // Új és törlés gombok rejtése, elutasítva és jóváhagyva státuszokban
+    if ($_GET['id']) {
+        
+        $sor = $adatbazis_kapcsolat -> s2('*', $megnevezes, "`recid`='{$_GET['id']}'");
+        
+        $mutat_rejt = 'show()';
+        if($sor['stat_id']==PRIGENY_STAT_ELUTASITVA || $sor['stat_id']==PRIGENY_STAT_JOVAHAGYVA){
+            $mutat_rejt = 'hide()';
+        }
+        $szamla_html .= nl2('
+            <script>
+                $(document).ready(function () {
+                    $(\'#navGombok .uj, #navGombok .torles, .jsff\').'.$mutat_rejt.';
+                });
+            </script>
+            ');
+    }
 
 	// Új projektigénylés felvitele
 	if( isset($_GET['uj']) && (_jog(JOG_PRIGENY_S_KEZEL) || _jog(JOG_PRIGENY_T_KEZEL) || _jog(JOG_PRIGENY_B_KEZEL) || _jog(JOG_PRIGENY_F_KEZEL) || _jog(JOG_PRIGENY_SZ_KEZEL)) ){
@@ -1453,8 +1487,6 @@ require('selectek.php');
             $_GET['id'] = $_GET['id_hidden'];
         }
 
-	    $sor = $adatbazis_kapcsolat -> s2('*', $megnevezes, "`recid`='{$_GET['id']}'");
-
         foreach($akt_tomb as $tomb) {
             if( $tomb['type'] == 'autocomplete' ) {
 
@@ -1483,7 +1515,7 @@ require('selectek.php');
             $navi = '<b>#'.$_GET['id'].'</b> '.$navi;
         }
 
-        // Duplákáláskor feltett kérdés
+        // Duplikáláskor feltett kérdés
         $telephely = $adatbazis_kapcsolat->s('nev', 'telephely', 'id='.$sor['telephely_id'], '', '1');
         $telephely = $telephely[0]['nev'];
         $szamla_html .= nl2('
@@ -1497,7 +1529,7 @@ require('selectek.php');
         $navi_sablon = fajlbol_olvas('../sablon/admin/navi.html', true);
         $navi_mit    = array('{NAVI_FELIRAT}',  '{GOMBOK}', '{GYK}');
         $navi_mivel  = array( $navi,             '',         $gyk2 );
-        //echo str_replace($navi_mit, $navi_mivel, $navi_sablon);
+        // echo str_replace($navi_mit, $navi_mivel, $navi_sablon);
 
 	    // HIBAüZENETEK
         require_once('info.php');
@@ -1516,7 +1548,7 @@ require('selectek.php');
 		// Ez elkészíti a $mezok változót
 		require('switch.php');
 
-        //Ha van get rögzít, akkor a rögzítés gombra kattintunk.
+        // Ha van get rögzít, akkor a rögzítés gombra kattintunk.
         $js_kieg = '';
         if(isset($_GET['rogzit'])){
             $js_kieg = '$(\'#igenyles_rogzit_gomb\').click();';
@@ -1649,10 +1681,10 @@ require('selectek.php');
 			require_once('tobb_kep.php');
 		}
 
-    //Véleményezők fül
+    // Véleményezők fül
     }elseif(isset($_GET['velemenyezok'])) {
 
-        /* Fejlécek */
+        // Fejlécek
         $szamla_html .= '<div id="tablazatBeszur">';
         $szamla_html .= nl2('
             <div class="dt naplo szakter kijCont" data-tabla="projektigenyles_kapcs" data-mellek="velemenyezok">
@@ -1700,7 +1732,7 @@ require('selectek.php');
                                         </div>
                                             ');
 
-                    //Törölni csak saját fájlt lehet
+                    // Törölni csak saját fájlt lehet
                     if($velemenyezo['recid']==$_SESSION[get_db_tabla().'login_recid']){
                         $torles_html = nl2('
                                         <a href="javascript:velemeny_torol(\''.$velemeny['recid'].'\')" title="Törlés">
@@ -1735,7 +1767,7 @@ require('selectek.php');
             echo $szamla_html.$gombok;
         }
 
-	//Történet
+	// Történet
 	}elseif(isset($_GET['tortenet'])){
 
         $szamla_html .= get_tortenet($megnevezes);

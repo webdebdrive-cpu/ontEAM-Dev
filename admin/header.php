@@ -1189,6 +1189,7 @@ if(basename(self())=='utemezett_feladatok.php' && !_jog(JOG_UTFEL_TOROL) ){
     $torles_icon    = '';
 }
 
+// Projektigénylések: ha egyik joga sincs meg, akkor nincs szerkesztés lehetőség
 if( basename(self())=='projektigenyles.php' && !_jog(JOG_PRIGENY_S_KEZEL) && !_jog(JOG_PRIGENY_T_KEZEL) && !_jog(JOG_PRIGENY_B_KEZEL) && !_jog(JOG_PRIGENY_F_KEZEL) && !_jog(JOG_PRIGENY_SZ_KEZEL)){
     $torles_icon    = '';
     $uj = $duplikal = '';

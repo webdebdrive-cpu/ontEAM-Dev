@@ -6,6 +6,7 @@
         <div class="dtr">
             <div class="dtc">
                 Kérjük tallózza be a fájlt:
+                <div id="jsff_velemeny_thumb_szoveg"></div>
             </div>
             <div class="dtc" style="padding-bottom: 1rem; padding-top: 0">
         
@@ -13,14 +14,26 @@
                     <span class="hiba"></span>
                     <div class="talloz">
                         <div>
-                            <span>Tallózás</span> <input type="file" name="files[]" ondblclick="beolvasas_velemeny(this.files)">
+                            <span>Tallózás</span>
+                            <input type="file" id="jsff_velemeny_file" name="files[]" ondblclick="beolvasas_velemeny(this.files)">
                         </div>
                     </div>
+                    <div id="jsff_velemeny_fajlnev"></div>
                 </div>
 
-                <div id="jsff_velemeny_thumb"></div>
+                
                 <script>
-                    
+                
+                /* Fájl nevének kiírása */
+                $( document ).on('change','#jsff_velemeny' , function(){
+                    $('#jsff_velemeny_fajlnev').html( baseName($('#jsff_velemeny_file').val()) );
+                    $('#jsff_velemeny_thumb_szoveg').html( 'Kiválasztott fájl:' );
+                });
+                function baseName(str){
+                    var base = new String(str).substring(str.lastIndexOf('\\') + 1); 
+                    return base;
+                }
+    
                 var jsff_velemeny = document.getElementById('jsff_velemeny'),
                     tests_velemeny = {
                         filereader  : typeof FileReader != 'undefined',

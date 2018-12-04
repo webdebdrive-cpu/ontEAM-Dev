@@ -2089,12 +2089,12 @@ if (isset($_GET['modosit'])) {
     if($pi['megter']){
         $megter_cel_rejt = '';
     }
-    $letrehozta_mikor .= 'Létrehozta: <b>'.$pi['insert_usr'].' '.  str_replace('-', '.', substr($pi['insert_dt'], 0, 16)).'</b>-kor<br>';
+    $letrehozta_mikor .= 'Létrehozta: <b>'.$pi['insert_usr'].' '.datum_kiir($pi['insert_dt']).'</b>-kor<br>';
 
     // Projektigényhez kell a legutolsó döntés, a döntés dátuma és a jóváhagyó
     $dontes = $adatbazis_kapcsolat->s2('insert_usr insert_dt', $megnevezes.'_statusz', "`projektigenyles_recid`='{$_GET['id']}' AND `stat_id` IN ('".PRIGENY_STAT_VARAKOZO."', '".PRIGENY_STAT_JOVAHAGYVA."', '".PRIGENY_STAT_ELUTASITVA."')", 'insert_dt desc', '1');
     if($dontes){
-        $letrehozta_mikor .= 'Legutolsó döntés: <b>'.$dontes['insert_usr'].' '.  str_replace('-', '.', substr($dontes['insert_dt'], 0, 16)).'</b>-kor<br>';
+        $letrehozta_mikor .= 'Legutolsó döntés: <b>'.$dontes['insert_usr'].' '.datum_kiir($dontes['insert_dt']).'</b>-kor<br>';
     }
 
     $eltoterj_html = '';
@@ -3571,7 +3571,8 @@ if( isset($_POST['mellekTorol']) ) {
     if( !in_array($tabla, $kivetelek) && !strstr($tabla, '_dok') ) {
         if( $sql = $adatbazis_kapcsolat->s('id', $tabla, "`recid` IN (".implode(',', $idk).") AND `loginnev`!='{$_SESSION[get_db_tabla().'user']}'")){
             echo json_encode(array(
-                'hiba' => 'Más által létrehozott bejegyzés nem törölhető!'
+                'hiba'  => 'Más által létrehozott bejegyzés nem törölhető!',
+                'title' => 'Hiba'
             ));
 
             $weblap->leallit();
@@ -3590,7 +3591,8 @@ if( isset($_POST['mellekTorol']) ) {
                 // Ha nincs joga, ne tudjon törölni
                 if( !_jog(JOG_MUNKALAP_TOROL) ) {
                     echo json_encode(array(
-                        'hiba' => 'Önnek nincs joga bejelentést törölni!'
+                        'hiba'  => 'Önnek nincs joga bejelentést törölni!',
+                        'title' => 'Hiba'
                     ));
                     $weblap->leallit();
                     exit();
@@ -3625,9 +3627,26 @@ if( isset($_POST['mellekTorol']) ) {
 
             $szulo_tabla  = csonkit($tabla, 4);
             $szulo_oszlop = $szulo_tabla.'_id';
-
-            $fajlok = $adatbazis_kapcsolat->s('recid utvonal '.$szulo_oszlop, $tabla, "`recid` IN (".implode(',', $idk).") AND `loginnev`='{$_SESSION[get_db_tabla().'user']}'");
+            
+            // Csak azokkal a fájlokkal foglalkozunk, amit saját magunk töltöttünk fel, ez lényeges, hogy mást nem engedünk törölni
+            $fajlok = $adatbazis_kapcsolat->s('recid utvonal fajlnev '.$szulo_oszlop, $tabla, "`recid` IN (".implode(',', $idk).") AND `loginnev`='{$_SESSION[get_db_tabla().'user']}'");
             if( $fajlok === false ) { $db_error = true; }
+            
+            // Törlés lehetőségét mégis tiltjuk projektigénylések elutasítva és jóváhagyva státuszainál
+            if( $tabla == 'projektigenyles_dok' ){
+                // Vegyük az első fájlt (minegy melyiket vesszük, mindél ugyanaz lesz a szülő oszlop. Másérszt újabban csak egyesével lehet törölni, szóval tényleg totál jó megoldás ez.
+                $pri = $adatbazis_kapcsolat->s2('stat_id', 'projektigenyles', "`recid`='{$fajlok[0][$szulo_oszlop]}'");
+                if( $pri === false ) { $db_error = true; }
+                if( $pri['stat_id']==PRIGENY_STAT_ELUTASITVA || $pri['stat_id']==PRIGENY_STAT_JOVAHAGYVA ){
+                    echo json_encode(array(
+                        'hiba'  => 'Ebben a státuszban nem törölhetőek a csatolt fájlok!',
+                        'title' => 'Hiba'
+                    ));
+
+                    $weblap->leallit();
+                    exit();
+                }
+            }
 
             if( $fajlok ) {
                 $mit      = 'A(z) '.str_replace('_dok', '', $tabla).' '.$recid.'. recordját módosította.';
@@ -3648,6 +3667,14 @@ if( isset($_POST['mellekTorol']) ) {
 
                         // Log változás
                         $valtozas .= '<strong>'.$utvonal.'</strong><br>';
+                        
+                        // Projektigényléseknél megjegyzéshez is hozzáadjuk
+                        if($tabla=='projektigenyles_dok'){
+                            if(addMegj($szulo_tabla, $fajl[$szulo_oszlop], 'Dokumentum törölve: '.$fajl['fajlnev'])===false){
+                                $db_error = true;
+                            }
+                        }
+                        
                     }
                 }
 
@@ -3663,6 +3690,14 @@ if( isset($_POST['mellekTorol']) ) {
                 $sql = $adatbazis_kapcsolat->u($szulo_tabla, array('dok_db'), array($dokumentumok_szama), "`recid`='{$fajl[$szulo_oszlop]}'");
                 if( $sql === false ) { $db_error = true; }
 
+            }else{
+                echo json_encode(array(
+                    'hiba'  => 'A fájl nem található, vagy nincs joga azt törölni!',
+                    'title' => 'Hiba'
+                ));
+
+                $weblap->leallit();
+                exit();
             }
 
         // Előterjesztésnél csak nyitott státuszban törölhető projektigénylés
@@ -3673,7 +3708,8 @@ if( isset($_POST['mellekTorol']) ) {
             $statusz = $adatbazis_kapcsolat->s2('stat_id', 'eloterj_fb', "`recid`='{$eloterj['eloterj_recid']}'");
             if($statusz['stat_id']!=ELOT_FB_STAT_NYITOTT){
                 echo json_encode(array(
-                    'hiba' => 'Csak nyitott státuszban törölhetőek a csatolt projektigénylések!'
+                    'hiba'  => 'Csak nyitott státuszban törölhetőek a csatolt projektigénylések!',
+                    'title' => 'Hiba'
                 ));
 
                 $weblap->leallit();
@@ -3691,7 +3727,8 @@ if( isset($_POST['mellekTorol']) ) {
             $statusz = $adatbazis_kapcsolat->s2('stat_id', 'eloterj_bod', "`recid`='{$eloterj['eloterj_recid']}'");
             if($statusz['stat_id']!=ELOT_BOD_STAT_NYITOTT){
                 echo json_encode(array(
-                    'hiba' => 'Csak nyitott státuszban törölhetőek a csatolt projektigénylések!'
+                    'hiba'  => 'Csak nyitott státuszban törölhetőek a csatolt projektigénylések!',
+                    'title' => 'Hiba'
                 ));
 
                 $weblap->leallit();
@@ -3744,6 +3781,27 @@ if( isset($_POST['mellekTorol']) ) {
 
         // Általános eset
         } else {
+            
+            // Projektigénylés nem mindig törölhető (jóváhagyott elutasított státuszokban nem)
+            if($tabla=='projektigenyles_megter'){
+                // Vegyünk egy sort, mindegy melyiket, mert midegyik ugyanarra a projektigénylésre mutat
+                $megterules = $adatbazis_kapcsolat->s2('projektigenyles_recid', $tabla, "`recid` IN (".implode(',', $idk).")");
+                if( $megterules === false ) { $db_error = true; }
+                
+                $pri = $adatbazis_kapcsolat->s2('stat_id', 'projektigenyles', "`recid`='{$megterules['projektigenyles_recid']}'");
+                if( $pri === false ) { $db_error = true; }
+                
+                if( $pri['stat_id']==PRIGENY_STAT_ELUTASITVA || $pri['stat_id']==PRIGENY_STAT_JOVAHAGYVA ){
+                    echo json_encode(array(
+                        'hiba'  => 'Ebben a státuszban nem törölhető megtérülés!',
+                        'title' => 'Hiba'
+                    ));
+
+                    $weblap->leallit();
+                    exit();
+                }
+            }
+            
             $sql = $adatbazis_kapcsolat -> d($tabla, "`recid` IN (".implode(',', $idk).")");
             if( $sql === false ) { $db_error = true; }
         }
@@ -3859,6 +3917,19 @@ if( isset($_POST['addMegjegyzes']) ) {
 
         $weblap->leallit();
         exit();
+    }
+    
+    // Projektigényléshez nem lehet megjegyzés hozzáadni, ha a státusza elutasítva vagy jóváhagyva
+    if( $tabla == 'projektigenyles' ){
+        $pri = $adatbazis_kapcsolat->s2('stat_id', 'projektigenyles', "`recid`='{$_POST['pageID']}'");
+
+        if( $pri['stat_id']==PRIGENY_STAT_ELUTASITVA || $pri['stat_id']==PRIGENY_STAT_JOVAHAGYVA ){
+            echo json_encode(array(
+                'hiba'    => 'Ebben a státuszban nem adható megjegyzés a projektigényléshez!'
+            ));
+            $weblap -> leallit();
+            exit;
+        }
     }
 
     if( $pageID ) {
