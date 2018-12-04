@@ -335,8 +335,11 @@ function get_tobbkep_thumb($sor_kepek, $i, $tabla) {
     $kep_utvonal = '../'.get_utvonal().csonkit($tobbkep_tablanev, $csonkit).'/'.$sor_kepek['utvonal'];
 // A fájl sora akkor is jelenjen meg, ha már nem létezik, hogy a dev-be átmásolt adatok esetén ha nincs ott a fájl maga, attól még jelenjen meg.
 //    if(is_file($kep_utvonal)){
+    
+        $kep_reszek = pathinfo($kep_utvonal);
+        $ikon_utvonal = '../elemek/ikonok/'.strtolower($kep_reszek['extension']).'.png';
         $felirat = utf8(stripslashes($sor_kepek['fajlnev']));
-        $kep     = new Img($kep_utvonal, $felirat, 200, 200);
+        $kep     = new Img($ikon_utvonal, $felirat, 200, 200);
 
         // A fájl linkjében a szóközöket %20-ra cseréljük, hogy dupla szóközös fájllal is működjön.
         $kep_utvonal = str_replace(' ', '%20', htmlspecialchars($kep_utvonal));

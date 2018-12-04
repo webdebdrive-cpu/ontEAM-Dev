@@ -3634,7 +3634,7 @@ if( isset($_POST['mellekTorol']) ) {
             
             // Törlés lehetőségét mégis tiltjuk projektigénylések elutasítva és jóváhagyva státuszainál
             if( $tabla == 'projektigenyles_dok' ){
-                // Vegyük az első fájlt (minegy melyiket vesszük, mindél ugyanaz lesz a szülő oszlop. Másérszt újabban csak egyesével lehet törölni, szóval tényleg totál jó megoldás ez.
+                // Vegyük az első fájlt (minegy melyiket vesszük, mindnél ugyanaz lesz a szülő oszlop. Másérszt újabban csak egyesével lehet törölni, szóval tényleg totál jó megoldás ez.
                 $pri = $adatbazis_kapcsolat->s2('stat_id', 'projektigenyles', "`recid`='{$fajlok[0][$szulo_oszlop]}'");
                 if( $pri === false ) { $db_error = true; }
                 if( $pri['stat_id']==PRIGENY_STAT_ELUTASITVA || $pri['stat_id']==PRIGENY_STAT_JOVAHAGYVA ){
@@ -3657,6 +3657,21 @@ if( isset($_POST['mellekTorol']) ) {
 
                     if( is_file($utvonal) ) {
 
+                        // Log változás
+                        $valtozas .= '<strong>'.$utvonal.'</strong><br>';
+                        
+                        // Projektigényléseknél megjegyzéshez is hozzáadjuk
+                        if($tabla=='projektigenyles_dok'){
+                            $fajl_tipus = $adatbazis_kapcsolat->s2('tipus', $tabla, "`recid`='{$fajl['recid']}'");
+                            if( $fajl_tipus === false ) { $db_error = true; }
+ 
+                            $dok_tipus = erteklista(ERTEKLISTA_DOK_TIPUS, $fajl_tipus['tipus']);
+
+                            if(addMegj($szulo_tabla, $fajl[$szulo_oszlop], $dok_tipus.' Dokumentum törölve: '.$fajl['fajlnev'])===false){
+                                $db_error = true;
+                            }
+                        }
+                        
                         // Töröljük a fájlt
                         unlink($utvonal);
                         remover('../'.get_utvonal().csonkit($tabla, 4).'/'.substr($fajl['utvonal'], 0, strrpos($fajl['utvonal'], '.')).'_*');
@@ -3664,17 +3679,11 @@ if( isset($_POST['mellekTorol']) ) {
                         // Töröljük a sort is
                         $sql = $adatbazis_kapcsolat -> d($tabla, "`recid` = '".$fajl['recid']."'");
                         if( $sql === false ) { $db_error = true; }
-
-                        // Log változás
-                        $valtozas .= '<strong>'.$utvonal.'</strong><br>';
                         
-                        // Projektigényléseknél megjegyzéshez is hozzáadjuk
-                        if($tabla=='projektigenyles_dok'){
-                            if(addMegj($szulo_tabla, $fajl[$szulo_oszlop], 'Dokumentum törölve: '.$fajl['fajlnev'])===false){
-                                $db_error = true;
-                            }
-                        }
-                        
+                    }else{
+                        // Töröljük a sort is
+                        $sql = $adatbazis_kapcsolat -> d($tabla, "`recid` = '".$fajl['recid']."'");
+                        if( $sql === false ) { $db_error = true; }
                     }
                 }
 

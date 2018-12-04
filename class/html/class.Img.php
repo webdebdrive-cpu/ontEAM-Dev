@@ -74,7 +74,7 @@ class Img extends Tag{
 
             $kep_reszek = pathinfo($this -> src);
 
-    	    //Megnézzük hogy thumb létezik-e már, ha igen, akkor csak sima kiiratás, ne számoljunk feleslegesen
+    	    // Megnézzük hogy thumb létezik-e már, ha igen, akkor csak sima kiiratás, ne számoljunk feleslegesen
             if($this -> thumb){
 
         		$new_img_name  = $kep_reszek['dirname'].'/';
@@ -89,26 +89,15 @@ class Img extends Tag{
                         $this -> title = $this -> alt;
                     }
 
-                    //Ezt inkább CSS-el oldjuk meg
-//                    if($this -> kozepre){
-//                        $this -> kep_dim = getimagesize($this -> src);
-//
-//                        $this -> uj_szel = $this -> kep_dim[0];
-//                        $this -> style .= 'margin-left: -'.abs(round(($this -> uj_szel-$this -> szel)/2/100)).'rem;';
-//
-//                        $this -> uj_magas = $this -> kep_dim[1];
-//                        $this -> style .= 'margin-top: -'.abs(round(($this -> uj_magas-$this -> magas)/2/100)).'rem;';
-//                    }
-
                     if($this -> data_uri){
                         $imageData = base64_encode( file_get_contents( $this -> src ) );
                         $this -> src = 'data:'.mime_content_type($this -> src).';base64,'.$imageData;
                     }
 
-                    //Rewrite esetén is jó legyen a hivatkozás
+                    // Rewrite esetén is jó legyen a hivatkozás
                     if( basename( dirname(self()) ).'/' == get_admin()){
                         $this -> src = '../'.str_replace('../'.get_utvonal(), get_utvonal(), $this -> src);
-                        //Korábban ez volt, de szerintem a fenti lesz a helyes $this -> src = get_alk().get_admin().$this -> src;
+                        // Korábban ez volt, de szerintem a fenti lesz a helyes $this -> src = get_alk().get_admin().$this -> src;
                     }elseif(!$this -> data_uri){
                         $this -> src = get_alk().$this -> src;
                     }
@@ -119,7 +108,7 @@ class Img extends Tag{
                 }
             }
 
-            //Ha nem kép, akkor a kiterjesztésének megfelelő ikont rajzolunk ki
+            // Ha nem kép, akkor a kiterjesztésének megfelelő ikont rajzolunk ki
             $icon = false;
             $kep_formatumok = array('jpg', 'png', 'gif', 'jpeg');
             if( !in_array( strtolower($kep_reszek['extension']), $kep_formatumok) ){
@@ -130,7 +119,7 @@ class Img extends Tag{
                 }
             }
 
-            //Ha nem volt thumb a képből, akkor megyünk tovább
+            // Ha nem volt thumb a képből, akkor megyünk tovább
     		$data = fread(fopen($this -> src, 'rb'), filesize($this -> src));
     		$src_img = @imagecreatefromstring($data);
             if($src_img){
@@ -189,9 +178,9 @@ class Img extends Tag{
                     if( $icon ) {
                         $this -> src = str_replace('../'.get_utvonal(), get_utvonal(), $this -> src);
                     } else {
-                        $this -> src = '../'.str_replace('../'.get_utvonal(), get_utvonal(), $this -> src);
+                        $this -> src = str_replace('../'.get_utvonal(), get_utvonal(), $this -> src);
                     }
-                    //Korábban ez volt, de szerintem a fenti lesz a helyes $this -> src = get_alk().get_admin().$this -> src;
+                    // Korábban ez volt, de szerintem a fenti lesz a helyes $this -> src = get_alk().get_admin().$this -> src;
                 }elseif(!$this -> data_uri){
                     $this -> src = get_alk().$this -> src;
                 }
