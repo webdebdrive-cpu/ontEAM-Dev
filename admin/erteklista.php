@@ -196,6 +196,8 @@ require_once('selectek.php');
         // Jogosutságkezelés: csak az törölheti, aki létrehozta
         if(!_jog(JOG_ERTEKLISTAK_KEZEL)){
             $gombok .= ' <input type="button" id="recordTorol" class="gombb_alert dn" onclick="alert2(\'Nincs jogosultsága törölni ezt az '.$szoveg.'!\', \'\', \'Hiba\')" value="Töröl" title="Töröl">';
+        }elseif($sor['fix_adat']){
+            $gombok .= ' <input type="button" id="recordTorol" class="gombb_alert dn" onclick="alert2(\'Ezt az értéket '.a_az(get_nev()).' '.get_nev().' kezeli, emiatt nem törölhető!\', \'\', \'Hiba\')" value="Töröl" title="Töröl">';
         }else{
             $gombok .= ' <input type="button" id="recordTorol" class="gombb_alert dn" onclick="alert2(\'Biztosan törli ezt az '.$szoveg.'?\', gomb'.$_GET['id'].')" value="Töröl" title="Töröl">';
         }

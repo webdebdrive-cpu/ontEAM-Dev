@@ -4562,6 +4562,13 @@ foreach($postok as $ertek){
         if($ertek['tabla']=='erteklista' && !_jog(JOG_ERTEKLISTAK_KEZEL)){
             $weblap -> leallit(); exit;
         }
+        // Értéklista ha fix adat, akkor nem törölhető
+        if($ertek['tabla']=='erteklista'){
+            $fix_adat = $adatbazis_kapcsolat->s2('fix_adat', 'erteklista', "`recid`='{$_GET['erteklistatid']}'");
+            if($fix_adat['fix_adat']){
+                $weblap -> leallit(); exit;
+            }
+        }
         if($ertek['tabla']=='erteklista' && !_jog(JOG_SZEREPKOR_KEZEL)){
             $weblap -> leallit(); exit;
         }
