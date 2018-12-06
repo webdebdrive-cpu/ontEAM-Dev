@@ -923,6 +923,7 @@ function i_u($type, $tabla, $tomb) {
 		$id = $adatbazis_kapcsolat -> update($tabla, $oszlopok, $ertekek, "`recid`='{$_GET['id']}'");
         if( $id === false ) { $db_error = true; }
 // echo $adatbazis_kapcsolat->gp() . '<br>';
+
         if( $id ) {
             $sor = $adatbazis_kapcsolat->s('*', $tabla, "`recid`='{$_GET['id']}'", '', '1');
             if( $sor === false ) { $db_error = true; }
@@ -938,6 +939,7 @@ function i_u($type, $tabla, $tomb) {
                         $value['tabla'] = str_replace('_csakszint', '', $value['tabla']);
                         $kulso_ertek = $adatbazis_kapcsolat->s('recid nev', $value['tabla'], 'recid='.$sor[0][$value['name']], '', '1');
                         if( $kulso_ertek === false ) { $db_error = true; }
+                        
                         $sor[0][$value['name'].'_autocomp'] = '';
                         if( $kulso_ertek ) {
                             $sor[0][$value['name'].'_autocomp'] = $kulso_ertek[0]['nev'];
@@ -8520,4 +8522,18 @@ function get_tarsreszleg_lista($loginID){
     }
     
     return $reszlegek_html;
+}
+
+// Ezeknél a menüpontoknál dokumentumok kezelésekor tipust is használunk. Így csak egy helyen kell bővíteni a menüpont listát
+function tipusos_dokumentumok($tabla) {
+    if( in_array($tabla, array(
+                                'projektigenyles',
+                                'projektkezeles',
+                            )
+                )
+    ){
+        return true;
+    }else{
+        return false;
+    }
 }

@@ -1399,7 +1399,7 @@ require('selectek.php');
         $szamla_html .= nl2('
             <script>
                 $(document).ready(function () {
-                    $(\'#navGombok .uj, #navGombok .torles, .jsff\').'.$mutat_rejt.';
+                    $(\'#navGombok .uj, #navGombok .torles\').'.$mutat_rejt.';
                 });
             </script>
             ');

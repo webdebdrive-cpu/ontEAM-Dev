@@ -93,6 +93,11 @@ $_stat_text = array(
     ),
     'projektkezeles' => array(
         PRKEZEL_STAT_NYITOTT                => array('nev' => 'Nyitott',                            'szinkod' => ''),
+        PRKEZEL_STAT_ELOKESZITES_ALATT      => array('nev' => 'Előkészítés alatt',                  'szinkod' => ''),
+        PRKEZEL_STAT_FOLYAMATBAN            => array('nev' => 'Folyamatban',                        'szinkod' => ''),
+        PRKEZEL_STAT_KESZ                   => array('nev' => 'Kész',                               'szinkod' => ''),
+        PRKEZEL_STAT_LEZART                 => array('nev' => 'Lezárt',                             'szinkod' => ''),
+        PRKEZEL_STAT_FELFUGGESZTETT         => array('nev' => 'Felfüggesztett',                     'szinkod' => ''),
     ),
 );
 

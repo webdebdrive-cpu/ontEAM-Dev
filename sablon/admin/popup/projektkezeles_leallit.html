@@ -1,0 +1,63 @@
+<h2>Projekt leállítása</h2>
+<form action="" class="popupForm" method="post" onsubmit="return projekt_leallit();">
+    <div class="kozep b">
+        <div id="leallit_felirat"></div>
+        <div class="dt">
+            <div class="dtr">
+                <div class="dtc form_bal">Leállítás indoklása:</div>
+                <div class="dtc form_jobb">
+                    <textarea name="leallit_indok" id="leallit_indok" class="csillag" onkeyup="if( $(this).val().trim()=='' ){ $(this).val(''); }"></textarea>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="kuldes">
+        <input type="submit" name="elkuld" value="Mentés">
+        <input type="button" name="megsem" class="gombb_alert" value="Mégsem" onclick="popupZar();">
+    </div>
+</form>
+<script>
+$(document).ready(function(){
+    $.ajax({
+        url : 'projektkezeles.php',
+        type: 'POST',
+        data: {
+            recid               : _get('id'),
+            get_projektkezeles  : Date.now()
+        },
+        success: function(response){
+            if(response.substring(0, 6)=='SESKIL'){ location.href = 'index.php'; }
+            $('#leallit_felirat').html(response);
+        }
+    });
+});
+
+/* Projekt leállítása */
+function projekt_leallit(){
+    
+    $.ajax({
+        url : 'projektkezeles.php',
+        type: 'POST',
+        data: {
+            recid           : _get('id'),
+            indok           : $('#leallit_indok').val(),
+            projekt_leallit : Date.now()
+        },
+        success: function(response){
+            if(response.substring(0, 6)=='SESKIL'){ location.href = 'index.php'; }
+            if(response){
+                response = JSON.parse(response);
+                if(response.hiba){
+                    alert2(response.hiba, response.gomb, response.title);
+                    $('#'+response.focus).addClass('hibas_ide_focus');
+                    return false;
+                }
+                popupZar();
+                szamlaBetolt(_get('id'), baseName(location.href) + '.php', 'modosit');
+            }
+        }
+    });
+    
+    return false;
+}
+</script>

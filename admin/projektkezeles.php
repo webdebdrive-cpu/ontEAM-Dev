@@ -49,6 +49,565 @@ if($tobb_kep){
 
 }
 
+// Léptetés Előkészítés alatt státuszba
+if (isset($_POST['projekt_elokeszites_ala'])) {
+    
+    $recid = $_POST['recid'];
+    
+    $db_error = false;
+    mysqli_autocommit($db_kapcs, false);
+    
+    $sor = $adatbazis_kapcsolat->s2('stat_id', 'projektkezeles', "`recid`='{$recid}'");
+    if( $sql === false ) { $db_error = true; }
+    
+    // Státusz ellenőrzése
+    if( $sor['stat_id'] != PRKEZEL_STAT_NYITOTT ){
+        echo json_encode(array(
+            'hiba'  => 'Csak Nyitott státuszú projekt helyezhető előkészítés alá!',
+            'title' => 'Hiba',
+        ));
+
+        $weblap->leallit();
+        exit();
+    }
+    
+    // Jog ellenőrzése
+    if( !_jog(JOG_PRKEZEL_KEZEL) ){
+        echo json_encode(array(
+            'hiba'  => 'Önnek nincs joga státuszt léptetni!',
+            'title' => 'Hiba',
+        ));
+
+        $weblap->leallit();
+        exit();
+    }
+    
+    // Van-e már csatolt dokumentum
+    $van_dok = $adatbazis_kapcsolat->s2('recid', 'projektkezeles_dok', "`projektkezeles_id`='{$recid}'", '', '1');
+    if( $van_dok === false ) { $db_error = true; }
+    if(!$van_dok){
+        echo json_encode(array(
+            'hiba'  => 'Előbb csatoljon egy dokumentumot a projekthez!',
+            'title' => 'Hiba',
+        ));
+
+        $weblap->leallit();
+        exit();
+    }
+    
+    // Státusz léptetés
+    if( addStatusz( 'projektkezeles_statusz', $recid, PRKEZEL_STAT_ELOKESZITES_ALATT ) === false ) {
+        $db_error = true;
+    }
+    
+    if( !$db_error ) {
+        mysqli_commit($db_kapcs);
+        echo json_encode(array(
+            'statusz' => 'siker',
+            'recid'   => $recid
+        ));
+    } else {
+        mysqli_rollback($db_kapcs);
+        echo json_encode(array(
+            'hiba'  => tranzakcioHiba(),
+            'title' => 'Hiba',
+        ));
+    }
+
+    $weblap->leallit();
+    exit();
+}
+
+// Léptetés Folyamatban státuszba
+if (isset($_POST['projekt_folyamatbanra'])) {
+    
+    $recid = $_POST['recid'];
+    
+    $db_error = false;
+    mysqli_autocommit($db_kapcs, false);
+    
+    $sor = $adatbazis_kapcsolat->s2('stat_id', 'projektkezeles', "`recid`='{$recid}'");
+    if( $sql === false ) { $db_error = true; }
+    
+    // Státusz ellenőrzése
+    if( $sor['stat_id'] != PRKEZEL_STAT_ELOKESZITES_ALATT ){
+        echo json_encode(array(
+            'hiba'  => 'Csak Előkészítés alatt státuszú projekt tehető Folyamatban státuszba!',
+            'title' => 'Hiba',
+        ));
+
+        $weblap->leallit();
+        exit();
+    }
+    
+    // Jog ellenőrzése
+    if( !_jog(JOG_PRKEZEL_KEZEL) ){
+        echo json_encode(array(
+            'hiba'  => 'Önnek nincs joga státuszt léptetni!',
+            'title' => 'Hiba',
+        ));
+
+        $weblap->leallit();
+        exit();
+    }
+    
+    // Van-e már csatolt szerződés dokumentum
+    $van_dok = $adatbazis_kapcsolat->s2('recid', 'projektkezeles_dok', "`projektkezeles_id`='{$recid}' AND `tipus`='".EL_DOK_TIPUS_SZERZODES."'", '', '1');
+    if( $van_dok === false ) { $db_error = true; }
+    if(!$van_dok){
+        echo json_encode(array(
+            'hiba'  => 'Előbb csatoljon egy szerződést a projekthez!',
+            'title' => 'Hiba',
+        ));
+
+        $weblap->leallit();
+        exit();
+    }
+    
+    // Státusz léptetés
+    if( addStatusz( 'projektkezeles_statusz', $recid, PRKEZEL_STAT_FOLYAMATBAN ) === false ) {
+        $db_error = true;
+    }
+    
+    if( !$db_error ) {
+        mysqli_commit($db_kapcs);
+        echo json_encode(array(
+            'statusz' => 'siker',
+            'recid'   => $recid
+        ));
+    } else {
+        mysqli_rollback($db_kapcs);
+        echo json_encode(array(
+            'hiba'  => tranzakcioHiba(),
+            'title' => 'Hiba',
+        ));
+    }
+
+    $weblap->leallit();
+    exit();
+}
+
+// Léptetés Kész státuszba
+if (isset($_POST['projekt_keszre'])) {
+    
+    $recid = $_POST['recid'];
+    
+    $db_error = false;
+    mysqli_autocommit($db_kapcs, false);
+    
+    $sor = $adatbazis_kapcsolat->s2('stat_id', 'projektkezeles', "`recid`='{$recid}'");
+    if( $sql === false ) { $db_error = true; }
+    
+    // Státusz ellenőrzése
+    if( $sor['stat_id'] != PRKEZEL_STAT_FOLYAMATBAN ){
+        echo json_encode(array(
+            'hiba'  => 'Csak Folyamatban státuszú projekt tehető Kész státuszba!',
+            'title' => 'Hiba',
+        ));
+
+        $weblap->leallit();
+        exit();
+    }
+    
+    // Jog ellenőrzése
+    if( !_jog(JOG_PRKEZEL_KEZEL) ){
+        echo json_encode(array(
+            'hiba'  => 'Önnek nincs joga státuszt léptetni!',
+            'title' => 'Hiba',
+        ));
+
+        $weblap->leallit();
+        exit();
+    }
+    
+    // Van-e már csatolt Átadási Jk. dokumentum
+    $van_dok = $adatbazis_kapcsolat->s2('recid', 'projektkezeles_dok', "`projektkezeles_id`='{$recid}' AND `tipus`='".EL_DOK_TIPUS_ATADASI."'", '', '1');
+    if( $van_dok === false ) { $db_error = true; }
+    if(!$van_dok){
+        echo json_encode(array(
+            'hiba'  => 'Előbb csatoljon egy Átadási. jk. Dokumentumot a projekthez!',
+            'title' => 'Hiba',
+        ));
+
+        $weblap->leallit();
+        exit();
+    }
+    
+    // Státusz léptetés
+    if( addStatusz( 'projektkezeles_statusz', $recid, PRKEZEL_STAT_KESZ ) === false ) {
+        $db_error = true;
+    }
+    
+    if( !$db_error ) {
+        mysqli_commit($db_kapcs);
+        echo json_encode(array(
+            'statusz' => 'siker',
+            'recid'   => $recid
+        ));
+    } else {
+        mysqli_rollback($db_kapcs);
+        echo json_encode(array(
+            'hiba'  => tranzakcioHiba(),
+            'title' => 'Hiba',
+        ));
+    }
+
+    $weblap->leallit();
+    exit();
+}
+
+// Léptetés Lezárt státuszba
+if (isset($_POST['projekt_lezartra'])) {
+    
+    $recid = $_POST['recid'];
+    
+    $db_error = false;
+    mysqli_autocommit($db_kapcs, false);
+    
+    $sor = $adatbazis_kapcsolat->s2('stat_id', 'projektkezeles', "`recid`='{$recid}'");
+    if( $sql === false ) { $db_error = true; }
+    
+    // Státusz ellenőrzése
+    if( $sor['stat_id'] != PRKEZEL_STAT_KESZ ){
+        echo json_encode(array(
+            'hiba'  => 'Csak Kész státuszú projekt tehető Lezárt státuszba!',
+            'title' => 'Hiba',
+        ));
+
+        $weblap->leallit();
+        exit();
+    }
+    
+    // Jog ellenőrzése
+    if( !_jog(JOG_PRKEZEL_KEZEL) ){
+        echo json_encode(array(
+            'hiba'  => 'Önnek nincs joga státuszt léptetni!',
+            'title' => 'Hiba',
+        ));
+
+        $weblap->leallit();
+        exit();
+    }
+    
+    // Van-e már csatolt Gar. bejárási jk. dokumentum
+    $van_dok = $adatbazis_kapcsolat->s2('recid', 'projektkezeles_dok', "`projektkezeles_id`='{$recid}' AND `tipus`='".EL_DOK_TIPUS_GAR_BEJAR."'", '', '1');
+    if( $van_dok === false ) { $db_error = true; }
+    if(!$van_dok){
+        echo json_encode(array(
+            'hiba'  => 'Előbb csatoljon egy Gar. bejárási jk. Dokumentumot a projekthez!',
+            'title' => 'Hiba',
+        ));
+
+        $weblap->leallit();
+        exit();
+    }
+    
+    // Státusz léptetés
+    if( addStatusz( 'projektkezeles_statusz', $recid, PRKEZEL_STAT_LEZART ) === false ) {
+        $db_error = true;
+    }
+    
+    if( !$db_error ) {
+        mysqli_commit($db_kapcs);
+        echo json_encode(array(
+            'statusz' => 'siker',
+            'recid'   => $recid
+        ));
+    } else {
+        mysqli_rollback($db_kapcs);
+        echo json_encode(array(
+            'hiba'  => tranzakcioHiba(),
+            'title' => 'Hiba',
+        ));
+    }
+
+    $weblap->leallit();
+    exit();
+}
+
+// Sikeres fájlfetöltés után rákérdezünk, hogy léptessük-e tovább
+if (isset($_POST['projekt_fajfeltoltes_utan_tovabb'])) {
+    
+    $recid = $_POST['recid'];
+    
+    $sor = $adatbazis_kapcsolat->s2('ikt_szam stat_id', 'projektkezeles', "`recid`='{$recid}'");
+    
+    // Jog ellenőrzése - ha nincs, akkor meg se kérdezzük
+    if( !_jog(JOG_PRKEZEL_KEZEL) ){
+
+        $weblap->leallit();
+        exit();
+    }
+    
+    // Nyitott státusz esetén megkérdezzük, ekkor előkészítés alatt státuszba léptetünk
+    if( $sor['stat_id'] == PRKEZEL_STAT_NYITOTT ){
+        echo json_encode(array(
+            'hiba'  => $sor['ikt_szam'].' projektszám<br>Dokumentum csatolása sikerült.<br>Előkészítés alatt státuszba helyezi most a projektet?',
+            'gomb'  => '<input type="button" class="gomb zold" value="Igen" onclick="projekt_elokeszites_ala()"><input type="button" class="gomb piros" value="Nem" onclick="alert2()">',
+            'recid' => $recid
+        ));
+    }
+    
+    // Előkészítés alatt státusz esetén Folyamatbanra léptetjük tovább HA van már szerződéses dokumentuma
+    if( $sor['stat_id'] == PRKEZEL_STAT_ELOKESZITES_ALATT ){
+        $van_dok = $adatbazis_kapcsolat->s2('tipus', 'projektkezeles_dok', "`projektkezeles_id`='{$recid}'", 'recid desc', '1');
+        if( $van_dok['tipus'] == EL_DOK_TIPUS_SZERZODES ){
+            echo json_encode(array(
+                'hiba'  => $sor['ikt_szam'].' projektszám<br>Dokumentum csatolása sikerült.<br>Folyamatban státuszba helyezi most a projektet?',
+                'gomb'  => '<input type="button" class="gomb zold" value="Igen" onclick="projekt_folyamatbanra()"><input type="button" class="gomb piros" value="Nem" onclick="alert2()">',
+                'recid' => $recid
+            ));
+        }
+    }
+    
+    // Folyamatban státusz esetén Készre léptetjük tovább HA van már Átadási Jk. dokumentuma
+    if( $sor['stat_id'] == PRKEZEL_STAT_FOLYAMATBAN ){
+        $van_dok = $adatbazis_kapcsolat->s2('tipus', 'projektkezeles_dok', "`projektkezeles_id`='{$recid}'", 'recid desc', '1');
+        if( $van_dok['tipus'] == EL_DOK_TIPUS_ATADASI ){
+            echo json_encode(array(
+                'hiba'  => $sor['ikt_szam'].' projektszám<br>Dokumentum csatolása sikerült.<br>Kész státuszba helyezi most a projektet?',
+                'gomb'  => '<input type="button" class="gomb zold" value="Igen" onclick="projekt_keszre()"><input type="button" class="gomb piros" value="Nem" onclick="alert2()">',
+                'recid' => $recid
+            ));
+        }
+    }
+    
+    // Kész státusz esetén Lezártra léptetjük tovább HA van már Gar. bejárási jk. dokumentuma
+    if( $sor['stat_id'] == PRKEZEL_STAT_KESZ ){
+        $van_dok= $adatbazis_kapcsolat->s2('tipus', 'projektkezeles_dok', "`projektkezeles_id`='{$recid}'", 'recid desc', '1');
+        if( $van_dok['tipus'] == EL_DOK_TIPUS_GAR_BEJAR ){
+            echo json_encode(array(
+                'hiba'  => $sor['ikt_szam'].' projektszám<br>Dokumentum csatolása sikerült.<br>Lezárt státuszba helyezi most a projektet?',
+                'gomb'  => '<input type="button" class="gomb zold" value="Igen" onclick="projekt_lezartra()"><input type="button" class="gomb piros" value="Nem" onclick="alert2()">',
+                'recid' => $recid
+            ));
+        }
+    }
+
+    $weblap->leallit();
+    exit();
+}
+
+// Projekt adatának lekérdezése popup felirathoz
+if (isset($_POST['get_projektkezeles'])) {
+    
+    $sor = $adatbazis_kapcsolat->s2('ikt_szam', 'projektkezeles', "`recid`='{$_POST['recid']}'");
+    echo $sor['ikt_szam'].' projektszám';
+    
+    $weblap->leallit();
+    exit();
+}
+
+// Projekt felfüggesztése
+if (isset($_POST['projekt_felfuggeszt'])) {
+    
+    $recid = $_POST['recid'];
+    $indok = trim($_POST['indok']);
+    
+    $db_error = false;
+    mysqli_autocommit($db_kapcs, false);
+    
+    $sor = $adatbazis_kapcsolat->s2('stat_id', 'projektkezeles', "`recid`='{$recid}'");
+    if( $sql === false ) { $db_error = true; }
+    
+    // Státusz ellenőrzése
+    $statuszok = array(PRKEZEL_STAT_NYITOTT, PRKEZEL_STAT_ELOKESZITES_ALATT);
+    if( !in_array($sor['stat_id'], $statuszok) ){
+        echo json_encode(array(
+            'hiba'  => 'Csak Nyitott és Előkészítés alatt státuszú projekt függeszthető fel!',
+            'title' => 'Hiba',
+        ));
+
+        $weblap->leallit();
+        exit();
+    }
+    
+    // Jog ellenőrzése
+    if( !_jog(JOG_PRKEZEL_KEZEL) ){
+        echo json_encode(array(
+            'hiba'  => 'Önnek nincs joga státuszt felfüggeszteni!',
+            'title' => 'Hiba',
+        ));
+
+        $weblap->leallit();
+        exit();
+    }
+    
+    // Indoklás ellenőrzése
+    if(!$indok){
+        echo json_encode(array(
+            'hiba'  => 'Kérjük adja meg a felfüggesztés indoklását!',
+            'title' => 'Hiba',
+            'focus' => 'felfuggeszt_indok'
+        ));
+
+        $weblap->leallit();
+        exit();
+    }else{
+        $indok = 'Felfüggesztés indoklás: '.$indok;
+    }
+    
+    // Státusz léptetés
+    if( addStatusz( 'projektkezeles_statusz', $recid, PRKEZEL_STAT_FELFUGGESZTETT, 0, $indok ) === false ) {
+        $db_error = true;
+    }
+    // Az indoklást a megjegyzésbe is beírjuk, nem csak a státuszsorba
+    if(addMegj('projektkezeles', $recid, $indok)===false){
+        $db_error = true;
+    }
+    
+    if( !$db_error ) {
+        mysqli_commit($db_kapcs);
+        echo json_encode(array(
+            'statusz' => 'siker',
+            'recid'   => $recid
+        ));
+    } else {
+        mysqli_rollback($db_kapcs);
+        echo json_encode(array(
+            'hiba'  => tranzakcioHiba(),
+            'title' => 'Hiba',
+        ));
+    }
+
+    $weblap->leallit();
+    exit();
+}
+
+// Projekt felfüggesztése vége
+if (isset($_POST['projekt_felfuggesztes_vege'])) {
+    
+    $recid = $_POST['recid'];
+    $indok = trim($_POST['indok']);
+    
+    $db_error = false;
+    mysqli_autocommit($db_kapcs, false);
+    
+    $sor = $adatbazis_kapcsolat->s2('stat_id', 'projektkezeles', "`recid`='{$recid}'");
+    if( $sql === false ) { $db_error = true; }
+    
+    // Státusz ellenőrzése
+    $statuszok = array(PRKEZEL_STAT_FELFUGGESZTETT);
+    if( !in_array($sor['stat_id'], $statuszok) ){
+        echo json_encode(array(
+            'hiba'  => 'Csak Felfüggesztett státuszú projekt hozható vissza Nyitott státuszba!',
+            'title' => 'Hiba',
+        ));
+
+        $weblap->leallit();
+        exit();
+    }
+    
+    // Jog ellenőrzése
+    if( !_jog(JOG_PRKEZEL_KEZEL) ){
+        echo json_encode(array(
+            'hiba'  => 'Önnek nincs joga projektet újra megnyitni!',
+            'title' => 'Hiba',
+        ));
+
+        $weblap->leallit();
+        exit();
+    }
+    
+    // Státusz léptetés
+    if( addStatusz( 'projektkezeles_statusz', $recid, PRKEZEL_STAT_NYITOTT ) === false ) {
+        $db_error = true;
+    }
+    
+    if( !$db_error ) {
+        mysqli_commit($db_kapcs);
+        echo json_encode(array(
+            'statusz' => 'siker',
+            'recid'   => $recid
+        ));
+    } else {
+        mysqli_rollback($db_kapcs);
+        echo json_encode(array(
+            'hiba'  => tranzakcioHiba(),
+            'title' => 'Hiba',
+        ));
+    }
+
+    $weblap->leallit();
+    exit();
+}
+
+// Projekt leállítása
+if (isset($_POST['projekt_leallit'])) {
+    
+    $recid = $_POST['recid'];
+    $indok = trim($_POST['indok']);
+    
+    $db_error = false;
+    mysqli_autocommit($db_kapcs, false);
+    
+    $sor = $adatbazis_kapcsolat->s2('stat_id', 'projektkezeles', "`recid`='{$recid}'");
+    if( $sql === false ) { $db_error = true; }
+    
+    // Státusz ellenőrzése
+    $statuszok = array(PRKEZEL_STAT_NYITOTT, PRKEZEL_STAT_ELOKESZITES_ALATT, PRKEZEL_STAT_FOLYAMATBAN);
+    if( !in_array($sor['stat_id'], $statuszok) ) {
+        echo json_encode(array(
+            'hiba'  => 'Csak Nyitott, Előkészítés alatt és Folyamatban státuszú projekt állítható le!',
+            'title' => 'Hiba',
+        ));
+
+        $weblap->leallit();
+        exit();
+    }
+    
+    // Jog ellenőrzése
+    if( !_jog(JOG_PRKEZEL_KEZEL) ){
+        echo json_encode(array(
+            'hiba'  => 'Önnek nincs joga státuszt felfüggeszteni!',
+            'title' => 'Hiba',
+        ));
+
+        $weblap->leallit();
+        exit();
+    }
+    
+    // Indoklás ellenőrzése
+    if(!$indok){
+        echo json_encode(array(
+            'hiba'  => 'Kérjük adja meg a leállítás indoklását!',
+            'title' => 'Hiba',
+            'focus' => 'leallit_indok'
+        ));
+
+        $weblap->leallit();
+        exit();
+    }else{
+        $indok = 'Leállítás indoklása: '.$indok;
+    }
+    
+    // Státusz léptetés
+    if( addStatusz( 'projektkezeles_statusz', $recid, PRKEZEL_STAT_LEZART, 0, $indok ) === false ) {
+        $db_error = true;
+    }
+    // Az indoklást a megjegyzésbe is beírjuk, nem csak a státuszsorba
+    if(addMegj('projektkezeles', $recid, $indok)===false){
+        $db_error = true;
+    }
+    
+    if( !$db_error ) {
+        mysqli_commit($db_kapcs);
+        echo json_encode(array(
+            'statusz' => 'siker',
+            'recid'   => $recid
+        ));
+    } else {
+        mysqli_rollback($db_kapcs);
+        echo json_encode(array(
+            'hiba'  => tranzakcioHiba(),
+            'title' => 'Hiba',
+        ));
+    }
+
+    $weblap->leallit();
+    exit();
+}
+
 // Projekt team hozzáadása
 if (isset($_POST['addProjektTeam'])) {
     
@@ -73,8 +632,6 @@ if (isset($_POST['addProjektTeam'])) {
     $weblap -> leallit();
     exit;
 }
-
-
 
 // Igénylések táblázat betöltése
 if(isset($_POST['igenylesek_betolt_uj_kezeleshez'])){
@@ -279,35 +836,113 @@ require_once('selectek.php');
 
     // Gombok kirajzolása minden oldalra
     $gombok = '';
-    if( isset($_GET['uj']) && _jog(JOG_PRKEZEL_KEZEL) ) {
+    if( isset($_GET['uj']) ) {
 
-        $gombok = nl2('
-            <div class="form_kuldes">
-                <input type="button" class="gombb mentes_gomb" name="mehet_gomb" id="mehet_gomb" disabled value="Mentés" onclick="szurkit(\'mehet_megsem_rejt\'); $(\'#szerk_form\').submit()">
-                <input type="button" class="gomb piros" disabled id="megsem_gomb" value="Mégsem" onclick="szurkit(\'mehet_megsem_rejt\'); formModositva=false; szamlaBetolt($(\'#szamlaList li:first-of-type\').attr(\'data-recid\'), \''.$megnevezes.'.php\');">
-            </div>
-        ');
+        if( _jog(JOG_PRKEZEL_KEZEL) ){
+            $gombok = nl2('
+                <div class="form_kuldes">
+                    <input type="button" class="gombb mentes_gomb" name="mehet_gomb" id="mehet_gomb" disabled value="Mentés" onclick="szurkit(\'mehet_megsem_rejt\'); $(\'#szerk_form\').submit()">
+                    <input type="button" class="gomb piros" disabled id="megsem_gomb" value="Mégsem" onclick="szurkit(\'mehet_megsem_rejt\'); formModositva=false; szamlaBetolt($(\'#szamlaList li:first-of-type\').attr(\'data-recid\'), \''.$megnevezes.'.php\');">
+                </div>
+            ');
 
-        $muv_style = ' style="width: calc(100% - '.($_SESSION['defaultCsuszka'] + 16).'px);"';
-        if( in_array(basename(self()), $_SESSION['ketHasabos']) && $_SESSION[get_db_tabla().'user'] ) {
-            if( $_COOKIE['csuszkaSzelesseg'] ) {
-                $muv_style = ' style="width: calc(100% - '.(($_COOKIE['csuszkaSzelesseg'] + 16)/10).'rem);"';
+            $muv_style = ' style="width: calc(100% - '.($_SESSION['defaultCsuszka'] + 16).'px);"';
+            if( in_array(basename(self()), $_SESSION['ketHasabos']) && $_SESSION[get_db_tabla().'user'] ) {
+                if( $_COOKIE['csuszkaSzelesseg'] ) {
+                    $muv_style = ' style="width: calc(100% - '.(($_COOKIE['csuszkaSzelesseg'] + 16)/10).'rem);"';
+                }
             }
+
+            // Műveletek box
+            $gombok = nl2('
+                <div class="muveletek"'.$muv_style.'>
+                    '.$gombok.'
+                </div>
+            ');
         }
-
-        // Műveletek box
-        $gombok = nl2('
-            <div class="muveletek"'.$muv_style.'>
-                '.$gombok.'
-            </div>
-        ');
-
+        
     // Módosítás gombok
     }else{
         
-        // Ha a státusz elutasítva vagy jóváhagyva, akkor semmilyen gomb nem érhető el
+        // Törlés gomb
+        if(!_jog(JOG_PRKEZEL_KEZEL)){
+            $gombok .= ' <input type="button" id="recordTorol" class="gombb_alert dn" onclick="alert2(\'Önnek nincs joga a projekt törléséhez!\', \'\', \'Hiba\')" value="Töröl" title="Töröl">';
+        }elseif($sor['stat_id']!=PRKEZEL_STAT_NYITOTT){
+            $gombok .= ' <input type="button" id="recordTorol" class="gombb_alert dn" onclick="alert2(\'Csak nyitott státuszú projekt törlhető!\', \'\', \'Hiba\')" value="Töröl" title="Töröl">';
+        }elseif($sor['projektigenyles_recid']){
+            $gombok .= ' <input type="button" id="recordTorol" class="gombb_alert dn" onclick="alert2(\'A projekthez már tartozik projektigénylés, így nem törölhető!\', \'\', \'Hiba\')" value="Töröl" title="Töröl">';
+        }else{
+            $gombok .= '<script>var gomb'.$_GET['id'].'= get_kibont_torol(\''.self().'\', \''.$torles.'\', \''.$_GET['id'].'\');</script>';
+            $gombok .= ' <input type="button" id="recordTorol" class="gombb_alert dn" onclick="alert2(\'Biztosan törli ezt a projektigénylést?\', gomb'.$_GET['id'].')" value="Töröl" title="Töröl">';
+        }
+        
+        // Előkészítés alatt státuszba léptetés
+        $statuszok = array(PRKEZEL_STAT_NYITOTT);
+        if( in_array($sor['stat_id'], $statuszok) && _jog(JOG_PRKEZEL_KEZEL) ) {
+            $van_dok = $adatbazis_kapcsolat->s2('recid', 'projektkezeles_dok', "`projektkezeles_id`='{$_GET['id']}'", '', '1');
+            if(!$van_dok){
+                $gombok .= '<input type="button" class="gomb" value="Előkészítés alatt" onclick="alert2(\'Előbb csatoljon egy dokumentumot a projekthez!\', \'\', \'Hiba\')"> ';
+            }else{
+                $gombok .= '<script> gomb_elokeszites = \'<input type="button" class="gomb zold" onclick="projekt_elokeszites_ala()" value="Igen"><input type="button" class="gomb piros" onclick="alert2()" value="Nem">\';</script>';
+                $gombok .= '<input type="button" class="gomb" value="Előkészítés alatt" onclick="alert2(\''.$sor['ikt_szam'].' projektszám<br>Biztos, hogy Előkészítés alatt státuszba helyezi a projektet?\', gomb_elokeszites)"> ';
+            }
+        }
+        
+        // Felfüggesztés
+        $statuszok = array(PRKEZEL_STAT_NYITOTT, PRKEZEL_STAT_ELOKESZITES_ALATT);
+        if( in_array($sor['stat_id'], $statuszok) && _jog(JOG_PRKEZEL_KEZEL) ) {
+            $gombok .= '<input type="button" class="gomb" value="Felfüggesztés" onclick="csoportMuvelet(\'projektkezeles_felfuggeszt\')"> ';
+        }
+        // ... vége
+        $statuszok = array(PRKEZEL_STAT_FELFUGGESZTETT);
+        if( in_array($sor['stat_id'], $statuszok) && _jog(JOG_PRKEZEL_KEZEL) ) {
+            $gombok .= '<script> gomb_felfuggeszt = \'<input type="button" class="gomb zold" onclick="projekt_felfuggesztes_vege()" value="Igen"><input type="button" class="gomb piros" onclick="alert2()" value="Nem">\';</script>';
+            $gombok .= '<input type="button" class="gomb" value="Felfüggesztés vége" onclick="alert2(\''.$sor['ikt_szam'].' projektszám<br>Biztos, hogy újra megnyitja a projektet?\', gomb_felfuggeszt)"> ';
+        }
+        
+        // Leállítás
+        $statuszok = array(PRKEZEL_STAT_NYITOTT, PRKEZEL_STAT_ELOKESZITES_ALATT, PRKEZEL_STAT_FOLYAMATBAN);
+        if( in_array($sor['stat_id'], $statuszok) && _jog(JOG_PRKEZEL_KEZEL) ) {
+            $gombok .= '<input type="button" class="gomb" value="Leállítás" onclick="csoportMuvelet(\'projektkezeles_leallit\')"> ';
+        }
+        
+        // Folyamatban
+        $statuszok = array(PRKEZEL_STAT_ELOKESZITES_ALATT);
+        if( in_array($sor['stat_id'], $statuszok) && _jog(JOG_PRKEZEL_KEZEL) ) {
+            $van_dok = $adatbazis_kapcsolat->s2('recid', 'projektkezeles_dok', "`projektkezeles_id`='{$_GET['id']}' AND `tipus`='".EL_DOK_TIPUS_SZERZODES."'", '', '1');
+            if(!$van_dok){
+                $gombok .= '<input type="button" class="gomb" value="Folyamatban" onclick="alert2(\'Előbb csatoljon egy szerződést a projekthez!\', \'\', \'Hiba\')"> ';
+            }else{
+                $gombok .= '<script> gomb_folyamatbanra = \'<input type="button" class="gomb zold" onclick="projekt_folyamatbanra()" value="Igen"><input type="button" class="gomb piros" onclick="alert2()" value="Nem">\';</script>';
+                $gombok .= '<input type="button" class="gomb" value="Folyamatban" onclick="alert2(\''.$sor['ikt_szam'].' projektszám<br>Biztos, hogy Folyamatban státuszba helyezi a projektet?\', gomb_folyamatbanra)"> ';
+            }
+        }
+        
+        // Folyamatban
+        $statuszok = array(PRKEZEL_STAT_FOLYAMATBAN);
+        if( in_array($sor['stat_id'], $statuszok) && _jog(JOG_PRKEZEL_KEZEL) ) {
+            $van_dok = $adatbazis_kapcsolat->s2('recid', 'projektkezeles_dok', "`projektkezeles_id`='{$_GET['id']}' AND `tipus`='".EL_DOK_TIPUS_ATADASI."'", '', '1');
+            if(!$van_dok){
+                $gombok .= '<input type="button" class="gomb" value="Kész" onclick="alert2(\'Előbb csatoljon egy Átadási. jk. Dokumentumot a projekthez!\', \'\', \'Hiba\')"> ';
+            }else{
+                $gombok .= '<script> gomb_keszre = \'<input type="button" class="gomb zold" onclick="projekt_keszre()" value="Igen"><input type="button" class="gomb piros" onclick="alert2()" value="Nem">\';</script>';
+                $gombok .= '<input type="button" class="gomb" value="Kész" onclick="alert2(\''.$sor['ikt_szam'].' projektszám<br>Biztos, hogy Kész státuszba helyezi a projektet?\', gomb_keszre)"> ';
+            }
+        }
+        
+        // Kész
+        $statuszok = array(PRKEZEL_STAT_KESZ);
+        if( in_array($sor['stat_id'], $statuszok) && _jog(JOG_PRKEZEL_KEZEL) ) {
+            $van_dok = $adatbazis_kapcsolat->s2('recid', 'projektkezeles_dok', "`projektkezeles_id`='{$_GET['id']}' AND `tipus`='".EL_DOK_TIPUS_GAR_BEJAR."'", '', '1');
+            if(!$van_dok){
+                $gombok .= '<input type="button" class="gomb" value="Lezárt" onclick="alert2(\'Előbb csatoljon egy Gar. bejárási jk. Dokumentumot a projekthez!\', \'\', \'Hiba\')"> ';
+            }else{
+                $gombok .= '<script> gomb_lezartra = \'<input type="button" class="gomb zold" onclick="projekt_lezartra()" value="Igen"><input type="button" class="gomb piros" onclick="alert2()" value="Nem">\';</script>';
+                $gombok .= '<input type="button" class="gomb" value="Lezárt" onclick="alert2(\''.$sor['ikt_szam'].' projektszám<br>Biztos, hogy Lezárt státuszba helyezi a projektet?\', gomb_lezartra)"> ';
+            }
+        }
 
-        // Ha van egyálátalán kezelésre joga
+        // Ha van egyáltalán kezelésre joga
         if( _jog(JOG_PRKEZEL_KEZEL) ){
 
             // Csak saját bejelentéseit szerkesztheti

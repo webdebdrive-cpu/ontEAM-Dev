@@ -141,7 +141,12 @@ function specialis_karakterek_mivel(){
 }
 
 // Projektkezeles státuszok
-define('PRKEZEL_STAT_NYITOTT',              '01' );
+define('PRKEZEL_STAT_NYITOTT',          '01' );
+define('PRKEZEL_STAT_ELOKESZITES_ALATT','02' );
+define('PRKEZEL_STAT_FOLYAMATBAN',      '03' );
+define('PRKEZEL_STAT_KESZ',             '04' );
+define('PRKEZEL_STAT_LEZART',           '05' );
+define('PRKEZEL_STAT_FELFUGGESZTETT',   '06' );
 
 // Projektigénylés tipusok
 define('PRIGENY_TIPUS_BERUH',           '1' );
@@ -313,13 +318,16 @@ define('ERTEKLISTA_RESZLEG',        17);
 define('ERTEKLISTA_BEOSZTAS',       18);
 define('ERTEKLISTA_SZAKTER',        19);
 define('ERTEKLISTA_PENZNEM',        21);
+define('ERTEKLISTA_PR_IGENYLES_PRI',36);
 define('ERTEKLISTA_DOK_TIPUS',      39);
 
-// Dokumentum tipus értéklista két fix, nem szerkeszthető bejegyzése
+// Dokumentum tipus értéklista fix, nem szerkeszthető bejegyzése
 define('EL_DOK_TIPUS_ATADASI',      1);
 define('EL_DOK_TIPUS_GAR_BEJAR',    2);
 define('EL_DOK_TIPUS_SZERZODES',    3);
 define('EL_DOK_TIPUS_MUNKATER_ATAD',4);
+// Beosztások értéklista fix bejegyzése
+define('EL_BEOSZTAS_PR_FELEOS',     189);
 
 define('MLTIPUS_HIBAELHARITAS', 1);
 define('MLTIPUS_RENDSZERES_K',  2);

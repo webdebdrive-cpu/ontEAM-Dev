@@ -2180,7 +2180,7 @@ array('type' => 'html',                     'megn' => nl2('
                                                             </div>
                                                         </div>
                                                                 ')),
-    array('type' => 'autocomplete',         'megn' => 'Prioritás:',             'name' => 'prior',      'class' => 'oriasi disableNav', 'szuro' => 1, 'tabla' => 'erteklista', 'oszlop_keres' => 'id', 'oszlop_keres_autocomp' => 'info', 'listaz' => 'info', 'csoport' => 36, 'id_kiir' => 'id'),
+    array('type' => 'autocomplete',         'megn' => 'Prioritás:',             'name' => 'prior',      'class' => 'oriasi disableNav', 'szuro' => 1, 'tabla' => 'erteklista', 'oszlop_keres' => 'id', 'oszlop_keres_autocomp' => 'info', 'listaz' => 'info', 'csoport' => ERTEKLISTA_PR_IGENYLES_PRI, 'id_kiir' => 'id'),
     array('type' => 'textarea',             'megn' => 'Leírása:',               'name' => 'text',       'szuro' => 1,      'class' => 'oriasiTargy disableNav'),
 array('type' => 'html',                     'megn' => nl2('
                                                         <div class="dtr">
@@ -2199,13 +2199,14 @@ array_push($postok, array('tomb' => $akt_tomb, 'uj' => 'uj'.$megnevezes, 'lista'
 $megnevezes          = 'projektkezeles';
 $projektkezeles_tomb = $akt_tomb = array(
     array('type' => 'statusz',              'megn' => 'Státusz:',               'name' => 'stat_id',        'szuro' => 1,  'oldal' => $megnevezes),
-    array('type' => 'text',                 'megn' => 'Azonosító:',             'name' => 'ikt_szam',       'szuro' => 1,   'disabled' => 1,   'class' => 'normal', 'style' => 'width: 10rem'),
+    array('type' => 'text',                 'megn' => 'Azonosító:',             'name' => 'ikt_szam',       'szuro' => 1,   'disabled' => 1,   'class' => 'normal', 'style' => 'width: 10rem', 'osszevon' => 1, 'post' => '<span style="margin-left: 2rem"></span>'),
+    array('type' => 'autocomplete',         'megn' => 'Projektfelelős:',        'name' => 'pfelelos',       'class' => 'oriasi disableNav', 'szuro' => 1, 'tabla' => 'login', 'oszlop_keres' => 'id', 'oszlop_keres_autocomp' => 'teljes_nev', 'listaz' => 'teljes_nev', 'beosztas_id' => EL_BEOSZTAS_PR_FELEOS, 'id_kiir' => 'recid', 'style' => 'width: 80.4%'),
     array('type' => 'text',                 'megn' => 'Név:',                   'name' => 'nev',            'maxlength' => 250, 'class' => 'oriasi'),
     array('type' => 'select_felh_telephely','megn' => 'Szálloda:',              'name' => 'telephely_id',   'szuro' => 1,       'class' => 'disableNav',        'style' => 'width: 100%;', 'alert' => 'Kérem válasszon szállodát!', 'onchange' => 'szallodaVane( this );'),
-    array('type' => 'select_pri_tipus',     'megn' => 'Tipus:',                 'name' => 'tipus',          'szuro' => 1,       'class' => 'disableNav'),
-    array('type' => 'text',                 'megn' => 'Aktiválási adatok:',     'name' => 'akt_adat',       'maxlength' => 250, 'class' => 'oriasi'),
-    array('type' => 'text',                 'megn' => 'Prioritás:',             'name' => 'prior',          'szuro' => 1,       'class' => 'oriasi'),
+    array('type' => 'select_pri_tipus',     'megn' => 'Tipus:',                 'name' => 'tipus',          'szuro' => 1,       'class' => 'disableNav', 'osszevon' => 1, 'post' => '<span style="margin-left: 2rem"></span>'),
     array('type' => 'select_pri_besorol',   'megn' => 'Besorolás:',             'name' => 'besorol',        'szuro' => 1,       'class' => 'disableNav'),
+    array('type' => 'autocomplete',         'megn' => 'Prioritás:',             'name' => 'prior',          'szuro' => 1,       'class' => 'oriasi disableNav', 'tabla' => 'erteklista', 'oszlop_keres' => 'id', 'oszlop_keres_autocomp' => 'info', 'listaz' => 'info', 'csoport' => ERTEKLISTA_PR_IGENYLES_PRI, 'id_kiir' => 'id'),
+    array('type' => 'text',                 'megn' => 'Aktiválási adatok:',     'name' => 'akt_adat',       'maxlength' => 250, 'class' => 'oriasi'),
     array('type' => 'checkbox',             'megn' => 'Rendkívüli:',            'name' => 'rendk',          'szuro' => 1,       'class' => 'check'),
     array('type' => 'checkbox',             'megn' => 'Megtérülő:',             'name' => 'megter',         'szuro' => 1,       'class' => 'check', 'onclick' => 'if($(this).prop(\'checked\')){ $(\'#megter_cel_div\').show(); }else{ $(\'#megter_cel_div\').hide(); }'),
 array('type' => 'html',                     'megn' => nl2('
@@ -3632,7 +3633,7 @@ if( isset($_POST['mellekTorol']) ) {
             $fajlok = $adatbazis_kapcsolat->s('recid utvonal fajlnev '.$szulo_oszlop, $tabla, "`recid` IN (".implode(',', $idk).") AND `loginnev`='{$_SESSION[get_db_tabla().'user']}'");
             if( $fajlok === false ) { $db_error = true; }
             
-            // Törlés lehetőségét mégis tiltjuk projektigénylések elutasítva és jóváhagyva státuszainál
+            // Projektigényléseknél a Törlés lehetőségét mégis tiltjuk elutasítva és jóváhagyva státuszainál
             if( $tabla == 'projektigenyles_dok' ){
                 // Vegyük az első fájlt (minegy melyiket vesszük, mindnél ugyanaz lesz a szülő oszlop. Másérszt újabban csak egyesével lehet törölni, szóval tényleg totál jó megoldás ez.
                 $pri = $adatbazis_kapcsolat->s2('stat_id', 'projektigenyles', "`recid`='{$fajlok[0][$szulo_oszlop]}'");
@@ -3645,6 +3646,75 @@ if( isset($_POST['mellekTorol']) ) {
 
                     $weblap->leallit();
                     exit();
+                }
+            }
+            
+            // Projektkezeléseknél a Törlés lehetőségét tiltjuk, ha adott státuszra jellemző dokuemntumból az utolsó akarjánk törölni
+            if( $tabla == 'projektkezeles_dok' ){
+                
+                $tipus = $adatbazis_kapcsolat->s('tipus', $tabla, "`recid` IN (".implode(',', $idk).") AND `loginnev`='{$_SESSION[get_db_tabla().'user']}'");
+                if( $tipus === false ) { $db_error = true; }
+                
+                $prk = $adatbazis_kapcsolat->s2('stat_id', 'projektkezeles', "`recid`='{$fajlok[0][$szulo_oszlop]}'");
+                if( $prk === false ) { $db_error = true; }
+
+                switch( $prk['stat_id'] ){
+                    case PRKEZEL_STAT_ELOKESZITES_ALATT:
+                        $van_doksi = $adatbazis_kapcsolat->s('recid', 'projektkezeles_dok', "`projektkezeles_id`='{$fajlok[0][$szulo_oszlop]}'");
+                        if( $van_doksi === false ) { $db_error = true; }
+ 
+                        if( count($van_doksi)==1 ){
+                            echo json_encode(array(
+                                'hiba'  => 'Ebben a státuszban nem törölhető le az összes dokumentum!<br>Előbb csatoljon fel egy másikat!',
+                                'title' => 'Hiba'
+                            ));
+
+                            $weblap->leallit();
+                            exit();
+                        }
+                    break;
+                    case PRKEZEL_STAT_FOLYAMATBAN:
+                        $van_doksi = $adatbazis_kapcsolat->s('recid', 'projektkezeles_dok', "`projektkezeles_id`='{$fajlok[0][$szulo_oszlop]}' AND `tipus`='".EL_DOK_TIPUS_SZERZODES."'");
+                        if( $van_doksi === false ) { $db_error = true; }
+ 
+                        if( count($van_doksi)==1 && $tipus['tipus']==EL_DOK_TIPUS_SZERZODES ){
+                            echo json_encode(array(
+                                'hiba'  => 'Ebben a státuszban nem törölhető le az összes szerződéses dokumentum!<br>Előbb csatoljon fel egy másikat!',
+                                'title' => 'Hiba'
+                            ));
+
+                            $weblap->leallit();
+                            exit();
+                        }
+                    break;
+                    case PRKEZEL_STAT_KESZ:
+                        $van_doksi = $adatbazis_kapcsolat->s('recid', 'projektkezeles_dok', "`projektkezeles_id`='{$fajlok[0][$szulo_oszlop]}' AND `tipus`='".EL_DOK_TIPUS_ATADASI."'");
+                        if( $van_doksi === false ) { $db_error = true; }
+ 
+                        if( count($van_doksi)==1 && $tipus['tipus']==EL_DOK_TIPUS_ATADASI ){
+                            echo json_encode(array(
+                                'hiba'  => 'Ebben a státuszban nem törölhető le az összes Átadási. jk. dokumentum!<br>Előbb csatoljon fel egy másikat!',
+                                'title' => 'Hiba'
+                            ));
+
+                            $weblap->leallit();
+                            exit();
+                        }
+                    break;
+                    case PRKEZEL_STAT_LEZART:
+                        $van_doksi = $adatbazis_kapcsolat->s('recid', 'projektkezeles_dok', "`projektkezeles_id`='{$fajlok[0][$szulo_oszlop]}' AND `tipus`='".EL_DOK_TIPUS_GAR_BEJAR."'");
+                        if( $van_doksi === false ) { $db_error = true; }
+ 
+                        if( count($van_doksi)==1 && $tipus['tipus']==EL_DOK_TIPUS_GAR_BEJAR ){
+                            echo json_encode(array(
+                                'hiba'  => 'Ebben a státuszban nem törölhető le az összes Gar. bejárási jk. dokumentum!<br>Előbb csatoljon fel egy másikat!',
+                                'title' => 'Hiba'
+                            ));
+
+                            $weblap->leallit();
+                            exit();
+                        }
+                    break;
                 }
             }
 
@@ -3661,7 +3731,8 @@ if( isset($_POST['mellekTorol']) ) {
                         $valtozas .= '<strong>'.$utvonal.'</strong><br>';
                         
                         // Projektigényléseknél megjegyzéshez is hozzáadjuk
-                        if($tabla=='projektigenyles_dok'){
+                        $apa_tabla = csonkit($tabla, 4);
+                        if( tipusos_dokumentumok($apa_tabla) ) {
                             $fajl_tipus = $adatbazis_kapcsolat->s2('tipus', $tabla, "`recid`='{$fajl['recid']}'");
                             if( $fajl_tipus === false ) { $db_error = true; }
  
@@ -4591,8 +4662,17 @@ foreach($postok as $ertek){
         if( $ertek['tabla']=='projektigenyles' && (!_jog(JOG_PRIGENY_S_KEZEL) && !_jog(JOG_PRIGENY_T_KEZEL)) ){
             $weblap -> leallit(); exit;
         }
-        if( $ertek['tabla']=='projektkezeles' && !_jog(JOG_PRKEZEL_KEZEL) ){
-            $weblap -> leallit(); exit;
+        if( $ertek['tabla']=='projektkezeles' ){
+            if(!_jog(JOG_PRKEZEL_KEZEL)){
+                $weblap -> leallit(); exit;
+            }
+            $sor = $adatbazis_kapcsolat->s2('stat_id projektigenyles_recid', 'projektkezeles', "`recid`='{$_GET['erteklistatid']}'");
+            if($sor['stat_id']!=PRKEZEL_STAT_NYITOTT){
+                $weblap -> leallit(); exit;
+            }
+            if($sor['projektigenyles_recid']){
+                $weblap -> leallit(); exit;
+            }
         }
         if( $ertek['tabla']=='raktar' && !_jog(JOG_RAKTAR_KEZEL)){
             $weblap -> leallit(); exit;

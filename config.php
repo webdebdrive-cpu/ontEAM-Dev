@@ -111,7 +111,7 @@ function get_mszk_mail(){
     if($_SERVER['HTTP_HOST']=='demo.webdeb.hu'){
         return 'bk@wdb.hu';
     }else{
-        return 'mszk@danubiushotels.com';
+        return 'diszpecser@danubiushotels.com';
     }
 }
 function get_teszt_mail_nev(){ return 'WebDeb Teszt';                           }

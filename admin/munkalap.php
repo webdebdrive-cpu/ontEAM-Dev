@@ -17,21 +17,21 @@ $megnevezes             = pathinfo(self());
 $megnevezes             = $megnevezes['filename'];
 $akt_tomb               = $munkalap_tomb;
 $torles                 = $megnevezes.'tid';
-$szoveg                 = 'munkalapot';        //Hibaüzenetkor: Biztosan törlöd a $szoveg?
+$szoveg                 = 'munkalapot';        // Hibaüzenetkor: Biztosan törlöd a $szoveg?
 
 // Változók beállítása
-$csak_szerkesztheto     = false;                //Ha tiltani szeretnéd, hogy újat tudjon feltölteni, vagy törölni adott bejegyzést
-$elonezet               = '';                   //Ha üres nincs előnézet. Egyébként meg az előnézet URL-jét add meg ide, pl.: '../index.php?id='.$_GET['id']
-$fajloszlop             = 'kep';                //Kép (vagy kivételes esetekben más fájl) oszlopneve.
-$id_latszik             = false;                //A termék ID-ja látsszon-e a felsorolásnál, kibontásnál (van, hogy ügyfél is használja)
-$kep_thumb_listaba      = false;                //Lista nézetben legyen-e a képoszlop alapján képthumbnail
-$magas                  = get_indexkep_m();     //Kiskép magassága
-$sorrendezes            = false;                //Ha sorrendet is be szeretnénk állítani. Adatbázisban sor oszlopot létre kell hozni, jquery-ui.js-t és admin_sorrendez.js-t aktiválni az adminhoz
-$szel                   = get_indexkep_sz();    //Kiskép szélessége
-$ujkent_szerkesztheto   = true;                 //Szerkesztésnél elérhető egy gomb, melyre kattintva a termékadatai átkerülnek az új feltöltésbe
+$csak_szerkesztheto     = false;                // Ha tiltani szeretnéd, hogy újat tudjon feltölteni, vagy törölni adott bejegyzést
+$elonezet               = '';                   // Ha üres nincs előnézet. Egyébként meg az előnézet URL-jét add meg ide, pl.: '../index.php?id='.$_GET['id']
+$fajloszlop             = 'kep';                // Kép (vagy kivételes esetekben más fájl) oszlopneve.
+$id_latszik             = false;                // A termék ID-ja látsszon-e a felsorolásnál, kibontásnál (van, hogy ügyfél is használja)
+$kep_thumb_listaba      = false;                // Lista nézetben legyen-e a képoszlop alapján képthumbnail
+$magas                  = get_indexkep_m();     // Kiskép magassága
+$sorrendezes            = false;                // Ha sorrendet is be szeretnénk állítani. Adatbázisban sor oszlopot létre kell hozni, jquery-ui.js-t és admin_sorrendez.js-t aktiválni az adminhoz
+$szel                   = get_indexkep_sz();    // Kiskép szélessége
+$ujkent_szerkesztheto   = true;                 // Szerkesztésnél elérhető egy gomb, melyre kattintva a termékadatai átkerülnek az új feltöltésbe
 
-$ckeditor_js            = '../'.get_utvonal().'wysiwyg/ckeditor.js';    //Ckeditor JS útvonala
-$formazatlan_szam       = array();          //Azok az oszlopneveket sorold fel, melyek numerikus értéket is tartalmazhatnak, de nem szeretnéd, ha lista nézetben ezres csoportra bontaná
+$ckeditor_js            = '../'.get_utvonal().'wysiwyg/ckeditor.js';    // Ckeditor JS útvonala
+$formazatlan_szam       = array();              // Azok az oszlopneveket sorold fel, melyek numerikus értéket is tartalmazhatnak, de nem szeretnéd, ha lista nézetben ezres csoportra bontaná
 
 $szamla_html = '';
 

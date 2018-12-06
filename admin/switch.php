@@ -119,7 +119,7 @@ foreach($akt_tomb as $ertek){
             }
 
             $html .= nl2(
-                    // lényeges, hogy ne legyen a string elején szóköz
+                    // Lényeges, hogy ne legyen a string elején szóköz
                     // Az autocomplete tulajdonságot egy kis timeout után adjuk rá, hogy az utólagosan rátett readonly biztosan rajta legyen már
                     '<script>
                     $(document).ready(function() {
@@ -135,12 +135,13 @@ foreach($akt_tomb as $ertek){
                                 \'mezo\'            : \''.$_GET['mezo'].'\',
                                 \'op\'              : \''.$_GET['op'].'\',
                                 \'felt\'            : \''.$_GET['felt'].'\',
+                                \'beosztas_id\'     : \''.$ertek['beosztas_id'].'\',
                                 \'id_kiir\'         : \''.$id_kiir.'\'
                             });
                         }, 1000);
                     });
                 </script>'
-                //lényeges, hogy ne legyen a string végén szóköz
+                // Lényeges, hogy ne legyen a string végén szóköz
               );
 
             // Összevonások lekezelése és tartalom összefűzése

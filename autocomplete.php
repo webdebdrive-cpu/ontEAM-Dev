@@ -107,6 +107,15 @@ if(isset($_GET['value']) && isset($_GET['tabla']) && isset($_GET['oszlop_keres']
             }
         }
 
+        // Login táblában szűrhetünk beosztásra is
+        if( $_GET['tabla'] == 'login' && $_GET['beosztas_id'] ) {
+            if( $where_sql ) {
+                $where_sql .= " AND `beosztas_id` = '".$_GET['beosztas_id']."'";
+            } else {
+                $where_sql .= " WHERE `beosztas_id` = '".$_GET['beosztas_id']."'";
+            }
+        }
+
         // Szállítók esetén csak az aktívakat soroljuk fel
         if( $_GET['tabla'] == 'szallito' ) {
             if( $where_sql ) {

@@ -1466,6 +1466,14 @@ function kulcs_rendez($tomb, $kulcs) {
 function level_kuldes( $felado_nev, $felado_mail, $cimzett_nev, $cimzett_mail, $targy, $uzi, $fajlok = '' ) {
 
     if($cimzett_mail){
+        
+        // Dev és Teszt rendszer alatt a címezett mindig az aktuális login mailcíme
+        if($_SERVER['HTTP_HOST']=='teszt.onteam.hu' || $_SERVER['HTTP_HOST']=='dev.onteam.hu'){
+            global $adatbazis_kapcsolat;
+            $login = $adatbazis_kapcsolat->s2('usermail', 'login', "`recid`='{$_SESSION[get_db_tabla().'login_recid']}'");
+            $cimzett_mail = $login['usermail'];
+        }
+        
         require_once('class/class.Phpmailer.php');
         $mail = new PHPMailer;
 
@@ -1490,22 +1498,21 @@ function level_kuldes( $felado_nev, $felado_mail, $cimzett_nev, $cimzett_mail, $
             $mail -> AddAttachment($fajlok);
         }
 
-        if(is_array($cimzett_nev)){
+        if(is_array($cimzett_mail)){
             $i = 0;
-            foreach($cimzett_nev as $nev){
-                if($cimzett_mail[$i]){
+            foreach($cimzett_mail as $mail){
 
-                    // A második címzett már rejtve kapja meg
-                    if($i){
-                        $mail -> AddBcc($cimzett_mail[$i], $nev);
-                    }else{
-                        $mail -> addAddress($cimzett_mail[$i], $nev);
-                    }
-
-                    $i++;
+                // A második címzett már rejtve kapja meg
+                if($i){
+                    $mail -> AddBcc($mail, $cimzett_nev[$i]);
+                }else{
+                    $mail -> addAddress($mail, $cimzett_nev[$i]);
                 }
+
+                $i++;
+
             }
-        }elseif($cimzett_nev){
+        }elseif($cimzett_mail){
             $mail -> AddAddress($cimzett_mail, $cimzett_nev);
         }
 
