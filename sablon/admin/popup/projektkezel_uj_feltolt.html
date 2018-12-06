@@ -11,6 +11,7 @@
 </form>
 <script>
 $(document).ready(function(){
+    $('#popupTart').addClass('dn');
     igenylesek_betolt_uj_kezeleshez();
 });
 
@@ -42,7 +43,18 @@ function igenylesek_betolt_uj_kezeleshez(order){
         },
         success: function(response){
             if(response.substring(0, 6)=='SESKIL'){ location.href = 'index.php'; }
-            $('#igenyles_tablazat_uj_kezeleshez').html(response);
+            if(response){
+                response = JSON.parse(response);
+                if( response.hiba ){
+                    popupZar();
+                    alert2( response.hiba, response.gomb, response.title );
+                    return false;
+                }else{
+                    $('#igenyles_tablazat_uj_kezeleshez').html(response.html);
+                    $('#popupTart').removeClass('dn');
+                }
+                
+            }
         }
     });
 }

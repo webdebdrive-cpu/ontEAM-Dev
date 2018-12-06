@@ -1,7 +1,7 @@
 <?php
 /*                                                  *\
  * FONTOS:
- * 106-os ID-nál járunk
+ * 113-os ID-nál járunk
  * 13-as kategória ID-nál járunk
 \*                                                  */
 
@@ -23,10 +23,10 @@ $jogosultsagKatok = array(
 );
 
 $jogosultsagok = array(
-//Ez a _jog() ID_ja, tehát a => előtti rész
+// Ez a _jog() ID_ja, tehát a => előtti rész
 
 // Törölni így tudsz:
-//123  => array('torolve' => 'TÖRÖLVE - a lényeg, hogy legyen egy torolve attribútuma is.',  'nev' => 'A törölt jog neve',   'kat' => 123, 'sor' => 123),
+// 123  => array('torolve' => 'TÖRÖLVE - a lényeg, hogy legyen egy torolve attribútuma is.',  'nev' => 'A törölt jog neve',   'kat' => 123, 'sor' => 123),
     75  => array('torolve' => 'TÖRÖLVE', 'nev' => 'Munkaidő hozzáadása',     'kat' => 1,  'sor' => 0  ),
     86  => array('torolve' => 'TÖRÖLVE', 'nev' => 'Minden szálloda olvasása','kat' => 12, 'sor' => 5),
     100 => array('torolve' => 'TÖRÖLVE', 'nev' => 'Minden szálloda kezelése','kat' => 12, 'sor' => 6),
@@ -119,8 +119,15 @@ $jogosultsagok = array(
     65 => array('nev' => 'Előterjesztések megtekintése',            'kat' => 7, 'sor' => 17),
     66 => array('nev' => 'Előterjesztések kezelése',                'kat' => 7, 'sor' => 18),
     
-    52 => array('nev' => 'Projektek megtekintése',                  'kat' => 10, 'sor' => 9),
-    53 => array('nev' => 'Projektek kezelése',                      'kat' => 10, 'sor' => 10),
+    52  => array('nev' => 'Projektek megtekintése',                 'kat' => 10, 'sor' => 1),
+    53  => array('nev' => 'Projektek kezelése',                     'kat' => 10, 'sor' => 2),
+    107 => array('nev' => 'Saját projektek kezelése',               'kat' => 10, 'sor' => 3, 'i' => 'projektfelelős'),
+    108 => array('nev' => 'Új létrehozása',                         'kat' => 10, 'sor' => 4),
+    109 => array('nev' => 'Projekt team tag',                       'kat' => 10, 'sor' => 5),
+    110 => array('nev' => 'Szerződések megtekintése',               'kat' => 10, 'sor' => 6),
+    111 => array('nev' => 'Szerződések kezelése',                   'kat' => 10, 'sor' => 7),
+    112 => array('nev' => 'Számlák megtekintése',                   'kat' => 10, 'sor' => 8),
+    113 => array('nev' => 'Számlák kezelése',                       'kat' => 10, 'sor' => 9),
 
     42 => array('nev' => 'Eszközök olvasása',                       'kat' => 8, 'sor' => 1),
     43 => array('nev' => 'Eszközök kezelése',                       'kat' => 8, 'sor' => 2),

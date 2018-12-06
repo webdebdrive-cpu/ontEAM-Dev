@@ -1195,11 +1195,7 @@ if( basename(self())=='projektigenyles.php' && !_jog(JOG_PRIGENY_S_KEZEL) && !_j
     $uj = $duplikal = '';
 }
 
-if( basename(self())=='projektkezeles.php' && !_jog(JOG_PRKEZEL_KEZEL) ){
-    $torles_icon    = '';
-    $uj = $duplikal = '';
-}
-
+// Raktár
 if( basename(self())=='raktar.php' && !_jog(JOG_RAKTAR_KEZEL)){
     $torles_icon    = '';
     $uj = $duplikal = '';

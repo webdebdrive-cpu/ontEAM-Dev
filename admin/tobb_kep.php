@@ -412,29 +412,57 @@ function get_tobbkep_thumb($sor_kepek, $i, $tabla, $nincs_torles) {
                         $van_doksi = $adatbazis_kapcsolat->s('recid', 'projektkezeles_dok', "`projektkezeles_id`='{$_GET['id']}'");
                         if( $van_doksi === false ) { $db_error = true; }
                         if( count($van_doksi)==1 ){
-                            $statusz_tipus_figyelmeztetes = 'Ebben a státuszban nem törölhető le az összes dokumentum!<br>Előbb csatoljon fel egy másikat!';
+                            $statusz_tipus_figyelmeztetes = 'Ebben a státuszban nem törölhető az összes dokumentum!<br>Előbb csatoljon fel egy másikat!';
                         }
                     break;
                     case PRKEZEL_STAT_FOLYAMATBAN:
-                        $van_doksi = $adatbazis_kapcsolat->s('recid', 'projektkezeles_dok', "`projektkezeles_id`='{$_GET['id']}' AND `tipus`='".EL_DOK_TIPUS_SZERZODES."'");
-                        if( $van_doksi === false ) { $db_error = true; }
-                        if( $sor_kepek['tipus']==EL_DOK_TIPUS_SZERZODES && count($van_doksi)==1 ){
-                            $statusz_tipus_figyelmeztetes = 'Ebben a státuszban nem törölhető le az összes szerződéses dokumentum!<br>Előbb csatoljon fel egy másikat!';
+                        if($sor_kepek['tipus']==EL_DOK_TIPUS_SZERZODES){
+                            $van_doksi = $adatbazis_kapcsolat->s('recid', 'projektkezeles_dok', "`projektkezeles_id`='{$_GET['id']}' AND `tipus`='".EL_DOK_TIPUS_SZERZODES."'");
+                            if( $van_doksi === false ) { $db_error = true; }
+                            if( count($van_doksi)==1 ){
+                                $statusz_tipus_figyelmeztetes = 'Ebben a státuszban nem törölhető az összes Szerződéses dokumentum!<br>Előbb csatoljon fel egy másikat!';
+                            }
                         }
                     break;
                     case PRKEZEL_STAT_KESZ:
-                        $van_doksi = $adatbazis_kapcsolat->s('recid', 'projektkezeles_dok', "`projektkezeles_id`='{$_GET['id']}' AND `tipus`='".EL_DOK_TIPUS_ATADASI."'");
-                        if( $van_doksi === false ) { $db_error = true; }
-
-                        if( $sor_kepek['tipus']==EL_DOK_TIPUS_ATADASI && count($van_doksi)==1 ){
-                            $statusz_tipus_figyelmeztetes = 'Ebben a státuszban nem törölhető le az összes Átadási. jk. dokumentum!<br>Előbb csatoljon fel egy másikat!';
+                        if($sor_kepek['tipus']==EL_DOK_TIPUS_SZERZODES){
+                            $van_doksi = $adatbazis_kapcsolat->s('recid', 'projektkezeles_dok', "`projektkezeles_id`='{$_GET['id']}' AND `tipus`='".EL_DOK_TIPUS_SZERZODES."'");
+                            if( $van_doksi === false ) { $db_error = true; }
+                            if( count($van_doksi)==1 ){
+                                $statusz_tipus_figyelmeztetes = 'Ebben a státuszban nem törölhető az összes Szerződéses dokumentum!<br>Előbb csatoljon fel egy másikat!';
+                            }
+                        }
+                        if($sor_kepek['tipus']==EL_DOK_TIPUS_ATADASI){
+                            $van_doksi = $adatbazis_kapcsolat->s('recid', 'projektkezeles_dok', "`projektkezeles_id`='{$_GET['id']}' AND `tipus`='".EL_DOK_TIPUS_ATADASI."'");
+                            if( $van_doksi === false ) { $db_error = true; }
+ 
+                            if( count($van_doksi)==1 ){
+                                $statusz_tipus_figyelmeztetes = 'Ebben a státuszban nem törölhető az összes Átadási. jk. dokumentum!<br>Előbb csatoljon fel egy másikat!';
+                            }
                         }
                     break;
                     case PRKEZEL_STAT_LEZART:
-                        $van_doksi = $adatbazis_kapcsolat->s('recid', 'projektkezeles_dok', "`projektkezeles_id`='{$_GET['id']}' AND `tipus`='".EL_DOK_TIPUS_GAR_BEJAR."'");
-                        if( $van_doksi === false ) { $db_error = true; }
-                        if( $sor_kepek['tipus']==EL_DOK_TIPUS_GAR_BEJAR && count($van_doksi)==1 ){
-                            $statusz_tipus_figyelmeztetes = 'Ebben a státuszban nem törölhető le az összes Gar. bejárási jk. dokumentum!<br>Előbb csatoljon fel egy másikat!';
+                        if($sor_kepek['tipus']==EL_DOK_TIPUS_SZERZODES){
+                            $van_doksi = $adatbazis_kapcsolat->s('recid', 'projektkezeles_dok', "`projektkezeles_id`='{$_GET['id']}' AND `tipus`='".EL_DOK_TIPUS_SZERZODES."'");
+                            if( $van_doksi === false ) { $db_error = true; }
+                            if( count($van_doksi)==1 ){
+                                $statusz_tipus_figyelmeztetes = 'Ebben a státuszban nem törölhető az összes Szerződéses dokumentum!<br>Előbb csatoljon fel egy másikat!';
+                            }
+                        }
+                        if($sor_kepek['tipus']==EL_DOK_TIPUS_ATADASI){
+                            $van_doksi = $adatbazis_kapcsolat->s('recid', 'projektkezeles_dok', "`projektkezeles_id`='{$_GET['id']}' AND `tipus`='".EL_DOK_TIPUS_ATADASI."'");
+                            if( $van_doksi === false ) { $db_error = true; }
+ 
+                            if( count($van_doksi)==1 ){
+                                $statusz_tipus_figyelmeztetes = 'Ebben a státuszban nem törölhető az összes Átadási. jk. dokumentum!<br>Előbb csatoljon fel egy másikat!';
+                            }
+                        }
+                        if($sor_kepek['tipus']==EL_DOK_TIPUS_GAR_BEJAR){
+                            $van_doksi = $adatbazis_kapcsolat->s('recid', 'projektkezeles_dok', "`projektkezeles_id`='{$_GET['id']}' AND `tipus`='".EL_DOK_TIPUS_GAR_BEJAR."'");
+                            if( $van_doksi === false ) { $db_error = true; }
+                            if( count($van_doksi)==1 ){
+                                $statusz_tipus_figyelmeztetes = 'Ebben a státuszban nem törölhető az összes Gar. bejárási jk. dokumentum!<br>Előbb csatoljon fel egy másikat!';
+                            }
                         }
                     break;
                 }

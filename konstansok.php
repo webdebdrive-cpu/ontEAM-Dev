@@ -263,6 +263,13 @@ define('JOG_ELOTERJ_KEZEL',             66);
 define('JOG_VELEMENYEZO_HOZZAAD',       40);
 define('JOG_PRKEZEL_MEGTEKINT',         52);
 define('JOG_PRKEZEL_KEZEL',             53);
+define('JOG_PRKEZEL_SAJAT_KEZEL',       107);
+define('JOG_PRKEZEL_UJ_LETREHOZ',       108);
+define('JOG_PRKEZEL_TEAM_TAG',          109);
+define('JOG_PRKEZEL_SZERZODES_OLVAS',   110);
+define('JOG_PRKEZEL_SZERZODES_KEZEL',   111);
+define('JOG_PRKEZEL_SZAMLAS_OLVAS',     112);
+define('JOG_PRKEZEL_SZAMLAS_KEZEL',     113);
 define('JOG_ESZKOZ_MEGTEKINT',          42);
 define('JOG_ESZKOZ_KEZEL',              43);
 define('JOG_FT_MEGTEKINT',              44);
@@ -318,7 +325,7 @@ define('ERTEKLISTA_RESZLEG',        17);
 define('ERTEKLISTA_BEOSZTAS',       18);
 define('ERTEKLISTA_SZAKTER',        19);
 define('ERTEKLISTA_PENZNEM',        21);
-define('ERTEKLISTA_PR_IGENYLES_PRI',36);
+define('ERTEKLISTA_PROJEKT_PRIOR',  40);
 define('ERTEKLISTA_DOK_TIPUS',      39);
 
 // Dokumentum tipus értéklista fix, nem szerkeszthető bejegyzése

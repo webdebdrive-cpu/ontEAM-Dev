@@ -9,26 +9,32 @@ array_push($select_fiz_mod, array('name'  => 'Bankkártya',  'value' => 'Bankká
 // Áfa típus
 $select_afa_tipus = array();
 array_push($select_afa_tipus, array('name' => '- Válasszon -',    'value' => ''));
-array_push($select_afa_tipus, array('name'  => 'Érték 1',    'value' => 'Érték 2'));
-array_push($select_afa_tipus, array('name'  => 'Érték 1',    'value' => 'Érték 2'));
+array_push($select_afa_tipus, array('name'  => 'Érték 1',    'value' => 'Érték 1'));
+array_push($select_afa_tipus, array('name'  => 'Érték 2',    'value' => 'Érték 2'));
 
 // Eszköz csoport
 $select_eszk_csop = array();
 array_push($select_eszk_csop, array('name' => '- Válasszon -',    'value' => ''));
-array_push($select_eszk_csop, array('name'  => 'Érték 1',    'value' => 'Érték 2'));
-array_push($select_eszk_csop, array('name'  => 'Érték 1',    'value' => 'Érték 2'));
+array_push($select_eszk_csop, array('name'  => 'Érték 1',    'value' => 'Érték 1'));
+array_push($select_eszk_csop, array('name'  => 'Érték 2',    'value' => 'Érték 2'));
 
 // Címzett
 $select_cimzett = array();
 array_push($select_cimzett, array('name' => '- Válasszon -',    'value' => ''));
-array_push($select_cimzett, array('name'  => 'Érték 1',    'value' => 'Érték 2'));
-array_push($select_cimzett, array('name'  => 'Érték 1',    'value' => 'Érték 2'));
+array_push($select_cimzett, array('name'  => 'Érték 1',    'value' => 'Érték 1'));
+array_push($select_cimzett, array('name'  => 'Érték 2',    'value' => 'Érték 2'));
 
 // Illetékes részleg
 $select_ill_reszleg = array();
 array_push($select_ill_reszleg, array('name' => '- Válasszon -',    'value' => ''));
-array_push($select_ill_reszleg, array('name'  => 'Érték 1',    'value' => 'Érték 2'));
-array_push($select_ill_reszleg, array('name'  => 'Érték 1',    'value' => 'Érték 2'));
+array_push($select_ill_reszleg, array('name'  => 'Érték 1',    'value' => 'Érték 1'));
+array_push($select_ill_reszleg, array('name'  => 'Érték 2',    'value' => 'Érték 2'));
+
+// Projektigénylés cél
+$select_pri_cel = array();
+array_push($select_pri_cel, array('name' => '- Válasszon -',    'value' => ''));
+array_push($select_pri_cel, array('name'  => 'Érték 1',    'value' => 'Érték 1'));
+array_push($select_pri_cel, array('name'  => 'Érték 2',    'value' => 'Érték 2'));
 
 // Oracle cikkszám
 $select_oracikkid = array();

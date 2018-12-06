@@ -7661,7 +7661,7 @@ require('selectek.php');
         }
 
 	// Munkalap módosítása
-	}elseif(isset($_GET['modosit'])) {
+	} elseif(isset($_GET['modosit'])) {
 
         // Ha Gyorskeresőből érkeznénk ide, akkor az ID-t valójában az id_hidden tartalmazza majd
         if(isset($_GET['id_hidden'])){

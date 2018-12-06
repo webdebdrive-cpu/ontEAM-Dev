@@ -494,6 +494,14 @@ function i_u($type, $tabla, $tomb) {
             array_push($oszlopok, 'loginnev'                        );
             array_push($ertekek,   $_SESSION[get_db_tabla().'user'] );
 
+        // Projektkezelés
+        } else if( $tabla == 'projektkezeles' ) {
+
+            // Ha nincs új feltöltés jogunk, akkor kilépünk
+            if( !_jog(JOG_PRKEZEL_UJ_LETREHOZ) ){
+                exit;
+            }
+
         // Rendszeres karbantarás új bejegyzés esetén
         } else if( $tabla == 'rendszeres_karbantartas' ) {
 
@@ -2061,9 +2069,25 @@ function szamla_lista( $where, $tabla, $kijeloltek = false, $csak_sql_miatt = fa
                 $where .= " OR `".  get_db_tabla()."projektigenyles`.`recid` IN (".implode(',', $lathato_prigenyek).") AND ";
             }
 
+        }        
+
+        // Projektkezelés
+        if($tabla == 'projektkezeles'){
+            // Saját szállodáimat láthatom
+            $where = "`".get_db_tabla()."projektkezeles`.`telephely_id` IN (".implode(',', $szallodak).") AND ";
+            // Ha van jogom saját projekteket kezelni, akkor azokat a projekteket is láthatom, ahol én vagyok a projektfelelős
+            if( _jog(JOG_PRKEZEL_MEGTEKINT) && _jog(JOG_PRKEZEL_SAJAT_KEZEL) ){
+                $where = "(".csonkit($where, 5)." OR `".get_db_tabla()."projektkezeles`.`pfelelos`='{$_SESSION[get_db_tabla().'login_recid']}') AND ";
+            }
+            // Ha nincs Projektek megtekintése jogom, de van saját kezelés jogom, akkor csak azokat a projekteket listázzuk ki, ahol én vagyok a projektfelelős
+            if( !_jog(JOG_PRKEZEL_MEGTEKINT) && _jog(JOG_PRKEZEL_SAJAT_KEZEL) ){
+                $where = "`".get_db_tabla()."projektkezeles`.`pfelelos`='{$_SESSION[get_db_tabla().'login_recid']}' AND ";
+            }
         }
 
+        // Rendszeres karbantartás
         if($tabla == 'rendszeres_karbantartas'){
+            // Saját szállodáimat láthatom
             $where = "`".get_db_tabla()."rendszeres_karbantartas`.`telephely_id` IN (".implode(',', $szallodak).") AND ";
         }
 
@@ -5997,7 +6021,7 @@ function get_akt_tomb($megn){
 }
 
 // Az aktuálisan bejelentkezett felhasználóhoz rendelt szállodák ID-ját adja vissza. Ez többször előfroduló igény, azért van kiszervezve függvénybe.
-function get_akt_login_szallodai($sqlt_adj_vissza, $telephely_id_oszlop_helyett_masik_oszlop, $masik_user){
+function get_akt_login_szallodai($sqlt_adj_vissza, $telephely_id_oszlop_helyett_masik_oszlop, $masik_user) {
     global $adatbazis_kapcsolat;
 
     // Aktuális felhasználó, vagy valaki más?
@@ -8536,4 +8560,20 @@ function tipusos_dokumentumok($tabla) {
     }else{
         return false;
     }
+}
+
+// Kapott recid alapján eldönti, hogy adott Projektre van-e kezelés jogom vagy sem. Azért van itt, mert törlés bokkolása miatt az esemenyek.php-hoz is kell.
+function get_projekt_kezeles_jog( $recid ){
+    
+    global $adatbazis_kapcsolat;
+    $prk = $adatbazis_kapcsolat->s2('pfelelos telephely_id', 'projektkezeles', "`recid`='{$recid}'");
+    if( _jog(JOG_PRKEZEL_KEZEL) && in_array($prk['telephely_id'], get_akt_login_szallodai()) ){
+        return true;
+    }
+    if( _jog(JOG_PRKEZEL_SAJAT_KEZEL) && $prk['pfelelos'] == $_SESSION[get_db_tabla().'login_recid'] ){
+        return true;
+    }
+    
+    return false;
+    
 }
