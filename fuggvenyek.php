@@ -2073,15 +2073,19 @@ function szamla_lista( $where, $tabla, $kijeloltek = false, $csak_sql_miatt = fa
 
         // Projektkezelés
         if($tabla == 'projektkezeles'){
+            // Ha Projekt team tag vagyok, akkor láthatom azokat a Projekteket, ahol a Projekt teamként jelen vagyok
+            if( _jog(JOG_PRKEZEL_TEAM_TAG) ){
+                $team_vagyok = ' OR `recid` IN (SELECT `projektkezeles_recid` FROM `'.get_db_tabla().'projektkezeles_team` WHERE `login_recid`=\''.$_SESSION[get_db_tabla().'login_recid'].'\')';
+            }
             // Saját szállodáimat láthatom
-            $where = "`".get_db_tabla()."projektkezeles`.`telephely_id` IN (".implode(',', $szallodak).") AND ";
+            $where = "(`".get_db_tabla()."projektkezeles`.`telephely_id` IN (".implode(',', $szallodak)."){$team_vagyok}) AND ";
             // Ha van jogom saját projekteket kezelni, akkor azokat a projekteket is láthatom, ahol én vagyok a projektfelelős
             if( _jog(JOG_PRKEZEL_MEGTEKINT) && _jog(JOG_PRKEZEL_SAJAT_KEZEL) ){
-                $where = "(".csonkit($where, 5)." OR `".get_db_tabla()."projektkezeles`.`pfelelos`='{$_SESSION[get_db_tabla().'login_recid']}') AND ";
+                $where = "(".csonkit($where, 5)." OR `".get_db_tabla()."projektkezeles`.`pfelelos`='{$_SESSION[get_db_tabla().'login_recid']}'{$pr_team}) AND ";
             }
             // Ha nincs Projektek megtekintése jogom, de van saját kezelés jogom, akkor csak azokat a projekteket listázzuk ki, ahol én vagyok a projektfelelős
             if( !_jog(JOG_PRKEZEL_MEGTEKINT) && _jog(JOG_PRKEZEL_SAJAT_KEZEL) ){
-                $where = "`".get_db_tabla()."projektkezeles`.`pfelelos`='{$_SESSION[get_db_tabla().'login_recid']}' AND ";
+                $where = "(`".get_db_tabla()."projektkezeles`.`pfelelos`='{$_SESSION[get_db_tabla().'login_recid']}'{$team_vagyok}) AND ";
             }
         }
 

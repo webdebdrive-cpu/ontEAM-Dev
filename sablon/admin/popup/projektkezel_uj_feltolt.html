@@ -11,7 +11,7 @@
 </form>
 <script>
 $(document).ready(function(){
-    $('#popupTart').addClass('dn');
+    popupRejt();
     igenylesek_betolt_uj_kezeleshez();
 });
 
@@ -51,7 +51,7 @@ function igenylesek_betolt_uj_kezeleshez(order){
                     return false;
                 }else{
                     $('#igenyles_tablazat_uj_kezeleshez').html(response.html);
-                    $('#popupTart').removeClass('dn');
+                    popupMutat();
                 }
                 
             }

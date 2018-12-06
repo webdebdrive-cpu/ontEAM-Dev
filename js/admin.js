@@ -4671,27 +4671,6 @@ function kapcsolodoSzerkeszt( oldal ) {
             case 'megterules':
                 $('#addMegterules').attr('onsubmit', 'return addMegterules(\'' + _get('id') + '\', this);');
             break;
-            case 'projekt_team':
-                $.ajax({
-                 	url : 'login.php',
-                 	type: 'POST',
-                    data: {
-                        recid       : _get('id'),
-                        getLoginok  : new Date().getTime()
-                    },
-                 	success: function(response) {
-                        if(response.substring(0, 6)=='SESKIL'){ location.href = 'index.php'; }
-                 		if(response) {
-                 			$('#addLogin').html(response);
-                 		}
-                 	}
-                });
-
-
-                $('#addProjektTeam').attr('onsubmit', 'return addProjektTeam(\'' + _get('id') + '\', this);');
-
-            break;
-            
             case 'tarsreszlegek':
                 $.ajax({
                  	url : 'login.php',
@@ -4817,10 +4796,6 @@ function szallodakJelol( value ) {
 function popupZar() {
     /* Anyagvételezés meg igénylésnél újratöltjük, mert összeakad a kettő */
     if($('#munkAnyagAnyagigenyles').length || $('#munkAnyagVetelezForm').length){
-        /*Korábban itt újratöltöttük az oldalt, hogy a popup tartalma biztosan ürüljön
-         * szurkit();
-         * location.reload();
-         * */
         $('#popupTart').html('');
         $('#popup').css('display', 'none');
     }else{
@@ -4832,6 +4807,18 @@ function popupZar() {
 /* Popup megjelenítése és fókusz az első inputra */
 function popupNyit() {
     $('#popup').css('display', 'block');
+    $('#popup input:text, #popup textarea, #popup select').first().select();
+}
+
+
+/* Popup rejtése (nem töröljük a tartalmát, csak rejtük) */
+function popupRejt() {
+    $('#popup').hide();
+}
+
+/* Popup mutatása */
+function popupMutat() {
+    $('#popup').show();
     $('#popup input:text, #popup textarea, #popup select').first().select();
 }
 

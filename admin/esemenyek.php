@@ -3888,6 +3888,22 @@ if( isset($_POST['mellekTorol']) ) {
             // Ha ellenőrizzük, hogy a megmaradtaknak mindnek van-e már vélemények. Státuszt kell léptetni ha igen.
             prigeny_mindenki_velemenyezett_e($velemenyezo['projektigenyles_recid']);
 
+        // Prijektek team füle
+        } elseif($tabla=='projektkezeles_team'){
+            
+            if( get_projekt_kezeles_jog($_POST['recid']) ){
+                $sql = $adatbazis_kapcsolat -> d($tabla, "`recid` IN (".implode(',', $idk).")");
+                if( $sql === false ) { $db_error = true; }
+            }else{
+                echo json_encode(array(
+                    'hiba'  => 'Önnek nincs joga Projekt team-et törölni!',
+                    'title' => 'Hiba'
+                ));
+
+                $weblap->leallit();
+                exit();
+            }
+
         // Megjegyzéskor az apa tábla megj_db oszlopát karban kell tartani
         } elseif($tabla=='megjegyzes'){
 
@@ -3957,7 +3973,7 @@ if( isset($_POST['mellekTorol']) ) {
             if($pri_statusz_kerdez){
                 echo json_encode(array(
                                     'statusz' => 'siker',
-                                    //Ezt egyelőre kivettük, egybúl nyitottra vált'alert'   => 'Ehhez a projektigényléshez nem tartozik több véleményező.<br>Állítsuk át a státuszát nyitottra?',
+                                    //Ezt egyelőre kivettük, egyből nyitottra vált'alert'   => 'Ehhez a projektigényléshez nem tartozik több véleményező.<br>Állítsuk át a státuszát nyitottra?',
                                     //'gomb'    => '<input class="gomb zold" type="button" value="Igen" onclick="pri_statusz_leptet(\''.$recid.'\', \''.PRIGENY_STAT_NYITOTT.'\')"> <input class="gomb piros" type="button" value="Nem" onclick="alert2()">',
                                 ));
 

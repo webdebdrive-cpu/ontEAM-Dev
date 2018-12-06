@@ -789,6 +789,167 @@ if(isset($_POST['igenylesek_betolt_uj_kezeleshez'])){
     exit();
 }
 
+// Login lista betöltése új Projekt team feltöltésekor
+if (isset($_POST['get_login_lista'])) {
+
+    $sql = $loginok = $adatbazis_kapcsolat->s('recid nev teljes_nev reszleg_id beosztas_id szemelyzet_id usertel usermail', 'login', "`aktiv` > '0' AND `szemelyzet_id`!=0", 'teljes_nev');
+    if( $sql === false ) { $db_error = true; }
+    
+    $html = nl2('
+        <div id="popup_loginok" class="mobilkeret" style="border: 0">
+            <table class="csikos egyErtek sorLink">
+                <thead>
+                    <tr>
+                        <th>
+                            Név 
+                            <input type="text" class="flat" onkeyup="tabla_szur( $(\'#popup_loginok table tbody\'), this.value );" id="popup_login_kereses">
+                        </th>
+                        <th>Részleg</th>
+                        <th>Beosztás</th>
+                        <th>Szerepkör</th>
+                    </tr>
+                </thead>
+                <tbody>
+    ');
+
+    foreach($loginok as $login) {
+        $html .= nl2('
+            <tr class="kijSor" data-nev="'.$login['nev'].'" onclick="pop_mezok_kitolt($(this))">
+                <td class="nev">'.$login['teljes_nev'].'</td>
+                <td class="reszleg">'.erteklista(ERTEKLISTA_RESZLEG, $login['reszleg_id']).'</td>
+                <td class="beosztas">'.erteklista(ERTEKLISTA_BEOSZTAS, $login['beosztas_id']).'</td>
+                <td class="szemelyzet">
+                    '.getSzerepkorNev($login['szemelyzet_id']).'
+                    <input type="hidden" class="telefon" value="'.$login['usertel'].'">
+                    <input type="hidden" class="email" value="'.$login['usermail'].'">
+                    <input type="hidden" class="recid" value="'.$login['recid'].'">
+                </td>
+            </tr>
+        ');
+    }
+
+    $html .= nl2('
+            </tbody>
+            </table>
+        </div>
+        ');
+
+    echo json_encode(array(
+        'html'  => $html,
+    ));
+
+    $weblap->leallit();
+    exit();
+}
+
+// Új projekt team rögzítése
+if (isset($_POST['projekt_team_felvesz'])) {
+    
+    $recid          = $_POST['recid'];
+    $nev            = trim($_POST['nev']);
+    $ceg            = trim($_POST['ceg']);
+    $beosztas       = trim($_POST['beosztas']);
+    $usertel        = trim($_POST['usertel']);
+    $usermail       = trim($_POST['usermail']);
+    $szerepkor      = trim($_POST['szerepkor']);
+    $login_recid    = trim($_POST['login_recid']);
+    
+    $db_error = false;
+    mysqli_autocommit($db_kapcs, false);
+    
+    // Projekt recid-ja ismert-e?
+    if( !$recid ){
+        echo json_encode( array(
+                'hiba'  => 'Ismeretlen hiba történt!',
+                'title' => 'Hiba',
+            ) );
+        $weblap->leallit();
+        exit();
+    }
+    
+    // Adatok ki vannak-e töltve?
+    $mezok  = array('nev', 'ceg', 'beosztas', 'usertel', 'usermail', 'szerepkor');
+    $ertekek = array();
+    foreach($mezok as $mezo){
+        $_POST[$mezo] = trim($_POST[$mezo]);
+        if(!$_POST[$mezo]){
+            echo json_encode( array(
+                    'hiba'  => 'data-hiba',
+                    'title' => 'Hiba',
+                    'focus' => 'pop_'.$mezo,
+                ) );
+            $weblap->leallit();
+            exit();
+        }
+        array_push($ertekek, $_POST[$mezo]);
+    }
+    
+    // E-mail cím nem foglalt-e már
+    $van_mail = $adatbazis_kapcsolat->s('recid', 'projektkezeles_team', "`projektkezeles_recid`='{$recid}' AND `usermail`='{$_POST['usermail']}'");
+    if( $van_mail === false ) { $db_error = true; }
+    
+    if($van_mail){
+        echo json_encode( array(
+                'hiba'  => $_POST['nev'].' - '.$_POST['usermail'].'<br>A felhasználóhoz tartozó e-mail cím már szerepel a team címei között!',
+                'title' => 'Hiba',
+                'focus' => 'pop_usermail',
+            ) );
+        $weblap->leallit();
+        exit();
+    }
+    
+    // Inserthez még pár mezőt felveszünk
+    array_push($mezok,   'projektkezeles_recid',    'login_recid',   'insert_dt', 'insert_usr',                              'update_usr'                            );
+    array_push($ertekek, $recid,                    $login_recid,    'NOW()',     $_SESSION[get_db_tabla().'teljes_nev'],    $_SESSION[get_db_tabla().'teljes_nev']  );
+    
+    $sql = $adatbazis_kapcsolat->i('projektkezeles_team', $mezok, $ertekek);
+    if( $sql === false ) { $db_error = true; }
+    
+    // Ha ismert a felhasználó, akkor nála beállítjuk a Projekt team tag pipát
+    if($_POST['login_recid']){
+        $login = $adatbazis_kapcsolat->s2('flags', 'login', "`recid`='{$_POST['login_recid']}'");
+        if( $login === false ) { $db_error = true; }
+        
+        $flags = str_split($login['flags']);
+
+        
+        
+        // Ha nem volna elég hosszú a flags lista, akkor feltültjük 0-kal
+        for($i=0; $i<JOG_PRKEZEL_TEAM_TAG; $i++){
+            if(!$flags[$i]){
+                $flags[$i] = '0';
+            }
+        }
+        $flags[JOG_PRKEZEL_TEAM_TAG] = 1;
+
+        // A tömbből újra sztinget csinálunk
+        $flags_uj = '';
+        foreach ($flags as $f){
+            $flags_uj .= $f;
+        }
+
+        $sql = $adatbazis_kapcsolat->u('login', array('flags'), array($flags_uj), "`recid`='{$_POST['login_recid']}'");
+        if( $sql === false ) { $db_error = true; }
+    }
+    
+    if( !$db_error ) {
+        mysqli_commit($db_kapcs);
+
+        echo json_encode(array(
+            'statusz' => 'siker'
+        ));
+    } else {
+        mysqli_rollback($db_kapcs);
+
+        echo json_encode(array(
+            'hiba'  => tranzakcioHiba(),
+            'title' => 'Hiba'
+        ));
+    }
+    
+    $weblap->leallit();
+    exit();
+}
 
 
 
@@ -1168,31 +1329,55 @@ require_once('selectek.php');
 	// Projekt team
 	}elseif(isset($_GET['projekt_team'])){
 
-        $sorok = $adatbazis_kapcsolat->s('recid projektkezeles_recid login_recid', 'projektkezeles_login', '`projektkezeles_recid`=\''.  $_GET['id'].'\'');
+        $team_ek = $adatbazis_kapcsolat->s('*', 'projektkezeles_team', "`projektkezeles_recid`='{$_GET['id']}'", 'recid');
         $szamla_html .= '<div id="tablazatBeszur">';
-        if( $sorok ) {
+        if( $team_ek ) {
 
             // Fejlécek
             $szamla_html .= nl2('
                 <div class="dt naplo szakter kijCont" data-tabla="projektkezeles_login" data-mellek="projekt_team">
                     <div class="dtr nFejlec">
                         <div class="dtc">Név</div>
-                        <div class="dtc">Teljes név</div>
+                        <div class="dtc">Cég</div>
+                        <div class="dtc">Beosztás</div>
+                        <div class="dtc">Telefon</div>
+                        <div class="dtc">Email</div>
+                        <div class="dtc">Projekt szerepkör</div>
+                        <div class="dtc"></div>
                     </div>
             ');
 
             $i = 1;
-            $loginok = adatbazis2tomb($sorok, 'login_recid');
-            $loginok = $adatbazis_kapcsolat->s('recid nev teljes_nev', 'login', "`recid` IN (".implode(',', $loginok).")", 'nev');
 
-            foreach($loginok as $login) {
-                
-                $kapcs_id = $adatbazis_kapcsolat->s2('recid', 'projektkezeles_login', "`projektkezeles_recid`='{$_GET['id']}' AND `login_recid`='{$login['recid']}'");
-
+            $van_kezeles = false;
+            if( get_projekt_kezeles_jog($_GET['id']) ){
+                $van_kezeles = true;
+                // $torles = '<script> dok_torol_gomb_141 = \'<input type="button" class="gomb zold" value="Igen" onclick="mellekTorol(\'projektkezeles\', \'projekt_team\', \'\', \'141\');"><input type="button" class="gomb piros" value="Nem" onclick="alert2(); $(\'.torles_elott\').removeClass(\'torles_elott\').removeClass(\'kijelolve\');">'; </script> <span class="icon link" onclick="$('#kep141').addClass('torles_elott'); alert2('Biztos, hogy törli a(z) wd3.jpg dokumentumot?', dok_torol_gomb_141);"><i class="material-icons" style="font-size: 2rem">delete</i></span> </div>';
+            }
+            
+            foreach($team_ek as $team) {
+                $torles = '';
+                if($van_kezeles){
+                    $torles = nl2('
+                        <script> 
+                            dok_torol_gomb_'.$team['recid'].' = \'
+                                                    <input type="button" class="gomb zold" value="Igen" onclick="mellekTorol(\\\'projektkezeles_team\\\', \\\'projekt_team\\\', \\\'projekt_team\\\', \\\''.$team['recid'].'\\\');">
+                                                    <input type="button" class="gomb piros" value="Nem" onclick="alert2(); $(\\\'.torles_elott\\\').removeClass(\\\'torles_elott\\\').removeClass(\\\'kijelolve\\\');">
+                                                \';
+                        </script>
+                        <span class="icon link" onclick="$(\'#naploSor-'.$team['recid'].'\').addClass(\'torles_elott\'); alert2(\'Biztos, hogy törli a kijelölt projekt team-et?\', dok_torol_gomb_'.$team['recid'].');">
+                        <i class="material-icons" style="font-size: 2rem">delete</i></span>
+                        ');
+                }
                 $szamla_html .= nl2('
-                    <div id="naploSor-'.$kapcs_id['recid'].'" class="dtr nSor kijSor" data-id="'.$kapcs_id['recid'].'" data-i="'.$i.'">
-                        <div class="dtc">'.$login['nev'].'</div>
-                        <div class="dtc">'.$login['teljes_nev'].'</div>
+                    <div id="naploSor-'.$team['recid'].'" class="dtr nSor kijSor" data-id="'.$team['recid'].'" data-i="'.$i.'">
+                        <div class="dtc">'.$team['nev'].'</div>
+                        <div class="dtc">'.$team['ceg'].'</div>
+                        <div class="dtc">'.$team['beosztas'].'</div>
+                        <div class="dtc">'.$team['usertel'].'</div>
+                        <div class="dtc">'.$team['usermail'].'</div>
+                        <div class="dtc">'.erteklista(ERTEKLISTA_PROJEKT_SZEREP, $team['szerepkor']).'</div>
+                        <div class="dtc">'.$torles.'</div>
                     </div>
                 ');
 

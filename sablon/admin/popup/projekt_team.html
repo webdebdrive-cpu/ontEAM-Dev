@@ -1,14 +1,154 @@
 <h2>Projekt Team hozzáadása</h2>
-<form action="" id="addProjektTeam" class="popupForm" method="post">
+<form class="popupForm" method="post" onsubmit="return projekt_team_felvesz(); return false;">
     <div class="kozep" style="min-height: 26rem">
         <h3>Felhasználók:</h3>
 
         <div class="szallodak_keret">
-            <div id="addLogin" class="dt szallodak"></div>
+            <div id="addLogin" class="dt szallodak" style="border: 0.2rem solid #55A2FA;"></div>
         </div>
+        
+        <input type="button" value="Külsős hozzáadása" class="gomb" onclick="pop_kulsos_hozzaadasa()" style="margin-top: 0.5rem">
+        
+        <table style="width: auto;">
+            <tr>
+                <td>Név:</td>
+                <td class="p" style="padding-right: 6rem"><input type="text" id="pop_nev" class="csillag" data-hiba="Kérem adja meg a team nevét!"></td>
+                <td>Szerepkör:</td>
+                <td class="p">
+                    <input type="text" autocomplete="off" class="csillag disableNav" id="pop_szerepkor_autocomp" name="pop_szerepkor_autocomp" onblur="if(!$(this).val()){ $('#pop_szerepkor').val(''); }" value="">
+                    <input type="hidden" name="pop_szerepkor" id="pop_szerepkor" value="" data-hiba="Kérem adja meg a team szerepkörét!">
+                    <script>
+                        $(document).ready(function() {
+                            $('#pop_szerepkor_autocomp').autocomplete({
+                                'php_fajl'      : '../autocomplete.php',
+                                'tabla'         : 'erteklista',
+                                'oszlop_keres'  : 'info',
+                                'oszlop_listaz' : 'info',
+                                'csoport'       : 41,
+                                'id_kiir'       : 'id'
+                            });
+                        });
+                    </script>
+                    <input type="hidden" id="pop_recid">
+                </td>
+            </tr>
+            <tr>
+                <td>Cég:</td>
+                <td class="p"><input type="text" id="pop_ceg" class="csillag" data-hiba="Kérem adja meg a team cégét!"></td>
+                <td>E-mail:</td>
+                <td class="p"><input type="text" id="pop_usermail" class="csillag" data-hiba="Kérem adja meg a team e-mail címét!"></td>
+            </tr>
+            <tr>
+                <td>Beosztás:</td>
+                <td class="p"><input type="text" id="pop_beosztas" class="csillag" data-hiba="Kérem adja meg a team beosztását!"></td>
+                <td>Telefon:</td>
+                <td class="p"><input type="text" id="pop_usertel" class="csillag" data-hiba="Kérem adja meg a team telefonszámát!"></td>
+            </tr>
+        </table>
+        
     </div>
     <div class="kuldes">
         <input type="submit" name="elkuld" value="Mentés">
         <input type="button" name="megsem" class="gombb_alert" value="Mégsem" onclick="popupZar();">
     </div>
 </form>
+<script>
+$(document).ready(function(){
+    /* Loginok táblázatának betöltése */
+    $.ajax({
+        url : 'projektkezeles.php',
+        type: 'POST',
+        data: {
+            get_login_lista : Date.now()
+        },
+        success: function(response){
+            if(response.substring(0, 6)=='SESKIL'){ location.href = 'index.php'; }
+            if(response){
+                response = JSON.parse(response);
+                if(response.html){
+                    $('#addLogin').html(response.html);
+                    $('#popup_login_kereses').focus();
+                }
+            }
+        }
+    });
+});
+
+/* Táblázatban szűrés */
+function tabla_szur(tabla, kulcs, oszlop) {
+    var $rows = tabla.find('tr');
+    var val = $.trim(kulcs).replace(/ +/g, ' ').toLowerCase();
+
+    $rows.show().filter(function() {
+        var text = $(this).find('td:nth-of-type(1)').text().replace(/\s+/g, ' ').toLowerCase();
+        return !~text.indexOf(val);
+    }).hide();
+
+    if( !$('#popup_loginok table.egyErtek tr.kijSor.kijelolve').length ){
+    }else{
+    }
+
+}
+
+/* Login táblázat egy sorára kattintva, adott login adataival feltöltjük a cellákat */
+function pop_mezok_kitolt( tr ){
+    $('#pop_nev').val( tr.find('.nev').html() );
+    $('#pop_beosztas').val( tr.find('.beosztas').html() );
+    $('#pop_usertel').val( tr.find('.telefon').val() );
+    $('#pop_usermail').val( tr.find('.email').val() );
+    $('#pop_recid').val( tr.find('.recid').val() );
+}
+
+/* Külsős hozzáadása gomb */
+function pop_kulsos_hozzaadasa() {
+    $('#pop_nev').val('');
+    $('#pop_ceg').val('');
+    $('#pop_usertel').val('');
+    $('#pop_usermail').val('');
+    $('#pop_beosztas').val('');
+    $('#pop_szerepkor').val('');
+    $('#pop_recid').val('');
+    /* Végül a névre fókuszálunk, mint első mező */
+    $('#pop_nev').focus();
+}
+
+/* Projekt team rögzítése */
+function projekt_team_felvesz() {
+    $.ajax({
+        url : 'projektkezeles.php',
+        type: 'POST',
+        data: {
+            recid       : _get('id'),
+            nev         : $('#pop_nev').val(),
+            ceg         : $('#pop_ceg').val(),
+            usertel     : $('#pop_usertel').val(),
+            usermail    : $('#pop_usermail').val(),
+            beosztas    : $('#pop_beosztas').val(),
+            szerepkor   : $('#pop_szerepkor').val(),
+            login_recid : $('#pop_recid').val(),
+            projekt_team_felvesz : Date.now()
+        },
+        success: function(response){
+            if(response.substring(0, 6)=='SESKIL'){ location.href = 'index.php'; }
+            if(response){
+                response = JSON.parse(response);
+                if(response.hiba){
+                    if(response.hiba=='data-hiba'){
+                        alert2($('#'+response.focus).attr('data-hiba'), response.gomb, response.title);
+                    }else{
+                        alert2(response.hiba, response.gomb, response.title);
+                    }
+                    if(response.focus){
+                        $('#'+response.focus).addClass('hibas_ide_focus');
+                    }
+                    return false;
+                }else{
+                    szamlaBetolt( _get('id'), baseName(location.href) + '.php', 'projekt_team' );
+                    popupZar();
+                }
+            }
+        }
+    });
+    return false;
+}
+</script>
