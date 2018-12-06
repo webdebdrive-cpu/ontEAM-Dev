@@ -40,5 +40,6 @@
 }
 
 div.autocomp_cont {
+    display: inline;
     position: relative;
 }
