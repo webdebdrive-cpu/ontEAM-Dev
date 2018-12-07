@@ -407,7 +407,7 @@ if (isset($_POST['pri_statusz_leptet'])) {
     // Jóváhagyáskor több mindenre figyelni kell
     if($_POST['statusz']==PRIGENY_STAT_JOVAHAGYVA){
 
-        // Van-e jogunk hozzá? Ha nincs, akkor rollback
+        // Jog ellenőzése
         if(!_jog(JOG_PRIGENY_JOVAHAGY)){
             echo json_encode(array(
                 'hiba' => 'Önnek nincs joga projektigénylést jóváhagyni!'
@@ -417,7 +417,7 @@ if (isset($_POST['pri_statusz_leptet'])) {
             exit;
         }
 
-        //Státusz ellenőrzés
+        // Státusz ellenőrzés
         if( !in_array($igenyles['stat_id'], prigeny_jovahagyhato_statuszok()) ){
             echo json_encode(array(
                 'hiba' => 'A projektigénylés ebben a státuszban nem hagyható jóvá!'
@@ -430,13 +430,14 @@ if (isset($_POST['pri_statusz_leptet'])) {
         // A projetk ikt.száma PI prefix helyett csak egy P-t kap
         $igenyles['ikt_szam'] = str_replace('PI', 'P', $igenyles['ikt_szam']);
 
-        $mezok    = array('ikt_szam', 'telephely_id', 'nev', 'tipus', 'akt_adat', 'prior', 'besorol', 'rendk', 'megter', 'megter_cel', 'mertek', 'megter_adat', 'text', 'bkolt', 'loginnev');
+        $mezok    = array('ikt_szam', 'telephely_id', 'nev', 'tipus', 'akt_adat', 'prior', 'besorol', 'rendk', 'megter', 'megter_cel', 'mertek', 'megter_adat', 'text', 'bkolt');
         $ertekek  = array();
         foreach($mezok as $mezo){
             array_push($ertekek, $igenyles[$mezo]);
         }
-        array_push($mezok,   'stat_id',             'insert_dt', 'insert_usr'                          );
-        array_push($ertekek, PRKEZEL_STAT_NYITOTT,  'NOW()',     $_SESSION[get_db_tabla().'teljes_nev']);
+
+        array_push($mezok,   'stat_id',            'projektigenyles_recid', 'loginnev',                       'insert_dt', 'insert_usr' ,                             'update_usr'                            );
+        array_push($ertekek, PRKEZEL_STAT_NYITOTT, $_POST['recid'],         $_SESSION[get_db_tabla().'user'], 'NOW()',     $_SESSION[get_db_tabla().'teljes_nev'],    $_SESSION[get_db_tabla().'teljes_nev']  );
         $prk_id = $adatbazis_kapcsolat->i('projektkezeles', $mezok, $ertekek);
         if( $prk_id === false ) { $db_error = true; }
 

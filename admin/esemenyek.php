@@ -2083,11 +2083,14 @@ array_push($postok, array('tomb' => $akt_tomb, 'uj' => 'uj'.$megnevezes, 'lista'
 
 // Projektigénylés
 $megnevezes       = 'projektigenyles';
+$megter_cel_rejt  = ' class="dn"';
 $letrehozta_mikor = '';
 if( basename(self()) == 'projektigenyles.php' && $_GET['id'] ) {
     
     $pi = $adatbazis_kapcsolat->s2('megter stat_id egy_tobb insert_dt insert_usr', $megnevezes, "`recid`='{$_GET['id']}'");
-    
+    if($pi['megter']){
+        $megter_cel_rejt = '';
+    }
     $letrehozta_mikor .= 'Létrehozta: <b>'.$pi['insert_usr'].' '.datum_kiir($pi['insert_dt']).'</b>-kor<br>';
 
     // Projektigényhez kell a legutolsó döntés, a döntés dátuma és a jóváhagyó
@@ -2195,6 +2198,12 @@ array('type' => 'html',                     'megn' => nl2('
 array_push($postok, array('tomb' => $akt_tomb, 'uj' => 'uj'.$megnevezes, 'lista' => $megnevezes.'lista', 'tabla' => $megnevezes, 'torid' => $megnevezes.'tid' ));
 
 
+$letrehozta_mikor = '';
+if( basename(self()) == 'projektkezeles.php' && $_GET['id'] ) {
+    $prk = $adatbazis_kapcsolat->s2('stat_id insert_dt insert_usr', 'projektkezeles', "`recid`='{$_GET['id']}'");
+    $letrehozta_mikor .= 'Létrehozta: <b>'.$prk['insert_usr'].' '.datum_kiir($prk['insert_dt']).'</b>-kor<br>';
+}
+
 $megnevezes          = 'projektkezeles';
 $projektkezeles_tomb = $akt_tomb = array(
     array('type' => 'statusz',              'megn' => 'Státusz:',               'name' => 'stat_id',        'szuro' => 1,  'oldal' => $megnevezes),
@@ -2212,7 +2221,7 @@ array('type' => 'html',                     'megn' => nl2('
                                                             <div class="dtc form_bal">
                                                             </div>
                                                             <div class="dtc form_jobb">
-                                                                <div id="megter_cel_div">
+                                                                <div'.$megter_cel_rejt.' id="megter_cel_div">
                                                                         <fieldset style="margin: 0">
                                                                             <legend>Megtérülési cél:</legend>
                                                                 ')),
@@ -2228,6 +2237,15 @@ array('type' => 'html',                     'megn' => nl2('
     array('type' => 'textarea',             'megn' => 'Leírása:',               'name' => 'text',       'szuro' => 1,      'class' => 'oriasiTargy disableNav'),
     array('type' => 'text',                 'megn' => 'Becsült költsége:',      'name' => 'bkolt',      'szuro' => 1,      'class' => 'oriasi f_num', 'data' => 'data-tort="0"', 'style' => 'width: 11.5rem', 'post' => ' '.get_penznem()),
     array('type' => 'text',                 'megn' => 'Aktiválási adatok:',     'name' => 'akt_adat',       'maxlength' => 250, 'class' => 'oriasi'),
+    array('type' => 'html',                 'megn' => nl2('
+                                                        <div class="dtr">
+                                                            <div class="dtc form_bal">
+                                                            </div>
+                                                            <div class="dtc form_jobb">
+                                                                '.$letrehozta_mikor.'
+                                                            </div>
+                                                        </div>
+                                                        ')),
     array('type' => 'hidden',               'megn' => '',      'name' => 'projektigenyles_recid'),
 );
 array_push($postok, array('tomb' => $akt_tomb, 'uj' => 'uj'.$megnevezes, 'lista' => $megnevezes.'lista', 'tabla' => $megnevezes, 'torid' => $megnevezes.'tid' ));
