@@ -676,10 +676,10 @@ if(isset($_POST['igenylesek_betolt_uj_kezeleshez'])){
     $kizart_recidk = array_merge($fb_kizart_recidk, $bod_kizart_recidk);
     
     // Az olyan igyénylések, amelyek recid-je már a projektkezelés relációjában szerepel, azokat is szűrjük ki
-    $kezelt_igenyek = $adatbazis_kapcsolat->s('projektigenyles_recid', 'projektkezeles', "`projektigenyles_recid`>0");
-    foreach($kezelt_igenyek as $kezelt_igeny){
-        array_push($kizart_recidk, $kezelt_igeny['projektigenyles_recid']);
-    }
+//    $kezelt_igenyek = $adatbazis_kapcsolat->s('projektigenyles_recid', 'projektkezeles', "`projektigenyles_recid`>0");
+//    foreach($kezelt_igenyek as $kezelt_igeny){
+//        array_push($kizart_recidk, $kezelt_igeny['projektigenyles_recid']);
+//    }
     
     if($kizart_recidk){
         $where_kieg .= ' AND `'.get_db_tabla().'projektigenyles`.`recid` NOT IN ('.implode(',', $kizart_recidk).')';
@@ -707,6 +707,12 @@ if(isset($_POST['igenylesek_betolt_uj_kezeleshez'])){
         // Létrehozva dátum = első nyitott státusz
         $letrehozva = $adatbazis_kapcsolat->s2('insert_dt', 'projektigenyles_statusz', "`projektigenyles_recid`='{$pri['recid']}' AND `stat_id`='".PRIGENY_STAT_NYITOTT."'", 'insert_dt', '1');
 
+        // Van-e olyan projekt, ami erre az igénylésre mutat
+        $projektben = '';
+        if($adatbazis_kapcsolat->s('recid', 'projektkezeles', "`projektigenyles_recid`='{$pri['recid']}'", '', '1')){
+            $projektben .= '<i class="material-icons">done</i>';
+        }
+        
         // Tipus
         require_once 'selectek.php';
         foreach($select_pri_tipus as $tip){
@@ -731,6 +737,7 @@ if(isset($_POST['igenylesek_betolt_uj_kezeleshez'])){
                 <td>'.$tipus.'</td>
                 <td class="r">'.number_format($pri['bkolt'], 0, '', ' ').'</td>
                 <td>'.substr(str_replace('-', '.', $letrehozva['insert_dt']), 0, 10).'</td>
+                <td>'.$projektben.'</td>
             </tr>
             ';
         $i++;
@@ -770,13 +777,24 @@ if(isset($_POST['igenylesek_betolt_uj_kezeleshez'])){
                         Létrehozás dátuma
                         <br><input type="text" class="flat" placeholder="Szűrés" onkeyup="tabla_szur($(\'#prigenylesek tbody\'), this.value, 5)">
                     </th>
+                    <th>
+                        Projektben
+                        <br>
+                        <select id="projektben" onchange="projektben_szures()" style="width: 10rem">
+                            <option>-Mind-</option>
+                            <option value="1">Projektben</option>
+                            <option value="0">Nincs projektben</option>
+                        </select>
+                    </th>
                 </tr>
                 </thead>
                 <tbody>
                     '.$html.'
                 </tbody>
                 </table>
-            </div>';
+            </div>
+            <script>
+            ';
     }else{
         $html = '<h1>Nem található csatolható projektigénylés!</h1><script>$(\'#eloterj_igneyles_csatolForm div.kuldes\').html(\'<input type="button" class="gomb zold" value="Ok" onclick="popupZar();">\');  $(\'#eloterj_igneyles_csatolCim\').html(\'Hiba\');</script>';
     }
@@ -1120,7 +1138,7 @@ require_once('selectek.php');
         // Ha van egyáltalán kezelésre joga
         if( get_projekt_kezeles_jog($_GET['id']) ){
 
-            // Csak saját bejelentéseit szerkesztheti
+            // Csak saját projektjeit szerkesztheti
             $nem_szerkesztheti = false;
             if($sor['loginnev']!=$_SESSION[get_db_tabla().'user']){
                 $nem_szerkesztheti = true;

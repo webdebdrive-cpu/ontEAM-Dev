@@ -7454,8 +7454,8 @@ require('selectek.php');
                         ');
         }
 
-        // "Döntés alatt" státusz
-        if( $sor['stat_id']==MUNKALAP_STAT_DONTESRE_VAR && _jog(JOG_MUNKALAP_KULSOS_DONTES) && $sor['jh1_login']!=$_SESSION[get_db_tabla().'user'] && $sor['jh2_login']!=$_SESSION[get_db_tabla().'user'] ){
+        // "Döntés alatt" státusz + döntés jog + egyik jóváhagyó se legyek + egyik jóváhagyó szerepkörű se legyek
+        if( $sor['stat_id']==MUNKALAP_STAT_DONTESRE_VAR && _jog(JOG_MUNKALAP_KULSOS_DONTES) && $sor['jh1_login']!=$_SESSION[get_db_tabla().'user'] && $sor['jh2_login']!=$_SESSION[get_db_tabla().'user'] && $sor['jh1_szerep'] != $_SESSION[get_db_tabla().'szemelyzet_id'] && $sor['jh2_szerep'] != $_SESSION[get_db_tabla().'szemelyzet_id'] ){
             $gombok .= '<input type="button" class="gomb" value="Külsős jóváhagyása" onclick="munkalapKulsosJovahagy(\'csak kérdezünk még\');"> ';
             $gombok .= '<input type="button" class="gomb" value="Külsős elutasítása" onclick="csoportMuvelet(\'munkalapKulsosElutasit\')"> ';
         }

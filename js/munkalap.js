@@ -1029,10 +1029,10 @@ function get_kulso_hozzarendeles_input_tartalmak(){
                 $('#pop_targy').val( munkalap.ikt_szam+' '+munkalap.telephely_nev+' ' );
 
                 uzenet =    "Tisztelt Partnerünk,\n\n"                      +
-                            "Kérjük Önöktől az alábbi hiba javítását:\n\n"  +
-                            "Munkalap szám: "+munkalap.ikt_szam+"\n\n";
+                            "Kérjük Önöktől az alábbi hiba javítását:\n"  +
+                            "Munkalap szám: "+munkalap.ikt_szam+"\n";
                 if( munkalap.surgos>0 ){
-                    uzenet += "Sürgős !!!\n\n";
+                    uzenet += "Sürgős !!!\n";
                 }
 
                 if( munkalap.bejelentes_hiba_text ){
@@ -1053,12 +1053,12 @@ function get_kulso_hozzarendeles_input_tartalmak(){
                     bejelento = munkalap.letrehozta;
                 }
 
-                uzenet +=   "Hiba: "      + hiba      + "\n\n"  +
-                            "Hely: "      + hely      + "\n\n"  +
-                            "Bejelentő: " + bejelento + "\n\n"  +
-                            "Köszönettel,\n"                    +
-                            munkalap.akt_felh_nev     + "\n"    +
-                            munkalap.akt_felh_beosztas+ "\n"    +
+                uzenet +=   "Hiba: "      + hiba      + "\n"  +
+                            "Hely: "      + hely      + "\n"  +
+                            "Bejelentő: " + bejelento + "\n"  +
+                            "\nKöszönettel,\n"                +
+                            munkalap.akt_felh_nev     + "\n"  +
+                            munkalap.akt_felh_beosztas+ "\n"  +
                             munkalap.akt_felh_tel;
 
                 $('#pop_uzenet').val(uzenet);
@@ -1097,8 +1097,8 @@ function get_ml_visszavetelezes_input_tartalmak(elokeszitesre){
                 $('#pop_targy').val( munkalap.ikt_szam+' '+munkalap.telephely_nev+' ' );
 
                 uzenet =    "Tisztelt Partnerünk,\n\n"                      +
-                            "Mégsem kérjük Önöktől az alábbi hiba javítását:\n\n"  +
-                            "Munkalap szám: "+munkalap.ikt_szam+"\n\n";
+                            "Mégsem kérjük Önöktől az alábbi hiba javítását:\n"  +
+                            "Munkalap szám: "+munkalap.ikt_szam+"\n";
 
                 if( munkalap.bejelentes_hiba_text ){
                     hiba = munkalap.bejelentes_hiba_text;
@@ -1118,12 +1118,12 @@ function get_ml_visszavetelezes_input_tartalmak(elokeszitesre){
                     bejelento = munkalap.letrehozta;
                 }
 
-                uzenet +=   "Hiba: "      + hiba      + "\n\n"  +
-                            "Hely: "      + hely      + "\n\n"  +
-                            "Bejelentő: " + bejelento + "\n\n"  +
-                            "Köszönettel,\n"                    +
-                            munkalap.akt_felh_nev     + "\n"    +
-                            munkalap.akt_felh_beosztas+ "\n"    +
+                uzenet +=   "Hiba: "      + hiba      + "\n"  +
+                            "Hely: "      + hely      + "\n"  +
+                            "Bejelentő: " + bejelento + "\n"  +
+                            "\nKöszönettel,\n"                +
+                            munkalap.akt_felh_nev     + "\n"  +
+                            munkalap.akt_felh_beosztas+ "\n"  +
                             munkalap.akt_felh_tel;
 
                 $('#pop_uzenet').val(uzenet);

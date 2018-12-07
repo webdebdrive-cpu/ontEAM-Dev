@@ -3484,6 +3484,11 @@ input.popup_input_margo {
     margin: 0.2rem 0 0.8rem 0;
 }
 
+#popup div.popup_tart div.dt div.dtc textarea.level_szoveg {
+    height: 25rem;
+    width: 70rem;
+}
+
 .fht-table,
 .fht-table thead,
 .fht-table tfoot,

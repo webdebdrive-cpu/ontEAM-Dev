@@ -519,6 +519,7 @@ switch($tabla) {
                                 `'.get_db_tabla().$tabla_nophp.'`.`gep_id`,
                                 `'.get_db_tabla().$tabla_nophp.'`.`gep_txt`,
                                 `'.get_db_tabla().$tabla_nophp.'`.`hiba_id`,
+                                `'.get_db_tabla().$tabla_nophp.'`.`text`,
                                 `'.get_db_tabla().$tabla_nophp.'`.`hiba_txt`,
                                 `'.get_db_tabla().$tabla_nophp.'`.`szemelyzet_id`,
                                 `'.get_db_tabla().$tabla_nophp.'`.`szallito_id`,
@@ -2082,13 +2083,11 @@ array_push($postok, array('tomb' => $akt_tomb, 'uj' => 'uj'.$megnevezes, 'lista'
 
 // Projektigénylés
 $megnevezes       = 'projektigenyles';
-$megter_cel_rejt  = ' class="dn"';
 $letrehozta_mikor = '';
-if (isset($_GET['modosit'])) {
+if( basename(self()) == 'projektigenyles.php' && $_GET['id'] ) {
+    
     $pi = $adatbazis_kapcsolat->s2('megter stat_id egy_tobb insert_dt insert_usr', $megnevezes, "`recid`='{$_GET['id']}'");
-    if($pi['megter']){
-        $megter_cel_rejt = '';
-    }
+    
     $letrehozta_mikor .= 'Létrehozta: <b>'.$pi['insert_usr'].' '.datum_kiir($pi['insert_dt']).'</b>-kor<br>';
 
     // Projektigényhez kell a legutolsó döntés, a döntés dátuma és a jóváhagyó
@@ -2130,7 +2129,7 @@ $projektigenyles_tomb = $akt_tomb = array(
     array('type' => 'statusz',              'megn' => 'Státusz:',               'name' => 'stat_id',        'szuro' => 1,  'oldal' => $megnevezes),
     array('type' => 'text',                 'megn' => 'Azonosító:',             'name' => 'ikt_szam',       'szuro' => 1,       'class' => 'normal', 'disabled' => 1,   'style' => 'width: 10rem', 'osszevon' => 1, 'post' => '<span style="margin-right: 4rem"></span>'),
     array('type' => 'checkbox',             'megn' => 'Rendkívüli:',            'name' => 'rendk',          'szuro' => 1,       'class' => 'check',  'osszevon' => 1, 'post' => '<span style="margin-right: 4rem"></span>'),
-    array('type' => 'checkbox',             'megn' => 'Megtérülő:',             'name' => 'megter',         'szuro' => 1,       'class' => 'check',  'disabled' => 1),
+    array('type' => 'checkbox',             'megn' => 'Megtérülő:',             'name' => 'megter',         'szuro' => 1,       'class' => 'check'),
     array('type' => 'text',                 'megn' => 'Név:',                   'name' => 'nev',            'maxlength' => 250, 'class' => 'oriasi csillag'),
 array('type' => 'hidden','megn' => '',      'name' => 'egy_tobb'),
 array('type' => 'html',                     'megn' => nl2('
@@ -2213,7 +2212,7 @@ array('type' => 'html',                     'megn' => nl2('
                                                             <div class="dtc form_bal">
                                                             </div>
                                                             <div class="dtc form_jobb">
-                                                                <div'.$megter_cel_rejt.' id="megter_cel_div">
+                                                                <div id="megter_cel_div">
                                                                         <fieldset style="margin: 0">
                                                                             <legend>Megtérülési cél:</legend>
                                                                 ')),

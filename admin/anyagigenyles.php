@@ -2542,7 +2542,7 @@ require_once('selectek.php');
         /* Anyagigénylés nem szerkeszthető egyáltalán
         if( _jog(JOG_ANYAGIGENYLES_KEZEL) ){
 
-            // Csak saját bejelentéseit szerkesztheti
+            // Csak saját igényléseit szerkesztheti
             $nem_szerkesztheti = false;
             if($sor['loginnev']!=$_SESSION[get_db_tabla().'user']){
                 $nem_szerkesztheti = true;

@@ -496,6 +496,25 @@ function i_u($type, $tabla, $tomb) {
 
         // Projektkezelés
         } else if( $tabla == 'projektkezeles' ) {
+            
+            // Iktatószám kiszámítása
+            $sorszam  = get_iktatoszam_sorszam('projektigenyles'/* NEM TÉVEDÉS! Tényleg az igénylések sorszámát kell léptetni, mivel igénylésekből is lehet projekteket létrehozni, így nem fognak összeakadni. */);
+            if($sorszam===false){ $db_error = true; }
+            $ikt_szam = 'P'.date('y').'/'.sprintf('%07d', $sorszam);
+            
+            // Felvesszük az értékek közé
+            $i = 0;
+            foreach($oszlopok as $oszl){
+                if($oszl=='ikt_szam'){
+                    $ertekek[$i] = $ikt_szam;
+                    break;
+                }
+                $i++;
+            }
+
+            array_push($oszlopok, 'loginnev'                        );
+            array_push($ertekek,  $_SESSION[get_db_tabla().'user']  );
+  
 
             // Ha nincs új feltöltés jogunk, akkor kilépünk
             if( !_jog(JOG_PRKEZEL_UJ_LETREHOZ) ){
@@ -734,6 +753,17 @@ function i_u($type, $tabla, $tomb) {
             $sql = $adatbazis_kapcsolat->u($tabla, array('stat_id'), array(PRIGENY_STAT_LETRE_ALATT), "`recid`='$id'");
             if( $sql === false ) { $db_error = true; }
 
+        }
+        
+        // Projektezelés státusz beszúrása
+        if( $tabla == 'projektkezeles' ) {
+            $sql = $adatbazis_kapcsolat -> i($tabla.'_statusz',
+                                                array($tabla.'_recid', 'stat_id',             'login',                          'insert_dt',    'insert_usr',                             'update_usr'                           ),
+                                                array($id,             PRKEZEL_STAT_NYITOTT,  $_SESSION[get_db_tabla().'user'], 'NOW()',        $_SESSION[get_db_tabla().'teljes_nev'],   $_SESSION[get_db_tabla().'teljes_nev'] )
+                                            );
+            if( $sql === false ) { $db_error = true; }
+            $sql = $adatbazis_kapcsolat->u($tabla, array('stat_id'), array(PRKEZEL_STAT_NYITOTT), "`recid`='$id'");
+            if( $sql === false ) { $db_error = true; }
         }
 
         // Naplózás
@@ -3289,6 +3319,16 @@ function munkalapLista( $bejegyzesek, $tabla, $frissit, $kijeloltek, $sorrend_id
                                         array('Ütemezett',          'Eseti',            'Rendsz.Karb.',    'Üzemeltetés'         ),
                                         $ml_tipus);
             }
+            
+            // Title-ba kerüljön a ML hiba leírása. Ha van hozzá bejelentés, akkor meg a bejelentésé
+            $title = $bsz['text'];
+            $bejelentes = $adatbazis_kapcsolat->s2('bejelentes_id', 'munkalap_kapcs', "`munkalap_id`='{$bsz['recid']}'");
+            if( $bejelentes ){
+                $bejelentes = $adatbazis_kapcsolat->s2('hiba_text', 'bejelentes', "`recid`='{$bejelentes['bejelentes_id']}'");
+                if( $bejelentes ){
+                    $title = $bejelentes['hiba_text'];
+                }
+            }
 
             // Ha van gép, csak akkor legyen kötőjel
             $gep_txt = '';
@@ -3304,7 +3344,7 @@ function munkalapLista( $bejegyzesek, $tabla, $frissit, $kijeloltek, $sorrend_id
                 $colspan       = ' colspan="2"';
             }
 
-            $li_tart = '<a class="szamla'.$nohover.'" data-recid="'.$bsz['recid'].'" data-fajl="'.$tabla.'.php" data-muvelet="modosit">
+            $li_tart = '<a class="szamla'.$nohover.'" data-recid="'.$bsz['recid'].'" data-fajl="'.$tabla.'.php" data-muvelet="modosit" title="'.$title.'">
                             <table'.$bold.'>
                             <tr>
                                 <td class="ikonok" rowspan="2" style="width: 4rem; white-space: nowrap;">

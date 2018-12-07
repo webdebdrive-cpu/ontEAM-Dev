@@ -59,6 +59,7 @@ function igenylesek_betolt_uj_kezeleshez(order){
     });
 }
 
+/* Szűrések */
 function tabla_szur(tabla, kulcs, oszlop) {
     var $rows = tabla.find('tr');
     var val = $.trim(kulcs).replace(/ +/g, ' ').toLowerCase();
@@ -68,4 +69,21 @@ function tabla_szur(tabla, kulcs, oszlop) {
         return !~text.indexOf(val);
     }).hide();
 }
+function projektben_szures(){
+    var $rows = $('#prigenylesek tbody').find('tr');
+
+    if( $('#projektben').val()=='1' ){
+        $rows.show().filter(function() {
+            return !$(this).find('.material-icons').length;
+        }).hide();
+    }else if( $('#projektben').val()=='0' ){
+        $rows.show().filter(function() {
+            return $(this).find('.material-icons').length;
+        }).hide();
+    }else{
+        $rows.show();
+    }
+}
+
+
 </script>
