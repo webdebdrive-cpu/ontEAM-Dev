@@ -19,20 +19,6 @@ $akt_tomb               = $cikktorzs_tomb;
 $torles                 = $megnevezes.'tid';
 $szoveg                 = 'törzset';        //Hibaüzenetkor: Biztosan törlöd a $szoveg?
 
-// Változók beállítása
-$csak_szerkesztheto     = false;                //Ha tiltani szeretnéd, hogy újat tudjon feltölteni, vagy törölni adott bejegyzést
-$elonezet               = '';                   //Ha üres nincs előnézet. Egyébként meg az előnézet URL-jét add meg ide, pl.: '../index.php?id='.$_GET['id']
-$fajloszlop             = 'kep';                //Kép (vagy kivételes esetekben más fájl) oszlopneve.
-$id_latszik             = false;                //A termék ID-ja látsszon-e a felsorolásnál, kibontásnál (van, hogy ügyfél is használja)
-$kep_thumb_listaba      = false;                //Lista nézetben legyen-e a képoszlop alapján képthumbnail
-$magas                  = get_indexkep_m();     //Kiskép magassága
-$sorrendezes            = false;                //Ha sorrendet is be szeretnénk állítani. Adatbázisban sor oszlopot létre kell hozni, jquery-ui.js-t és admin_sorrendez.js-t aktiválni az adminhoz
-$szel                   = get_indexkep_sz();    //Kiskép szélessége
-$ujkent_szerkesztheto   = true;                 //Szerkesztésnél elérhető egy gomb, melyre kattintva a termékadatai átkerülnek az új feltöltésbe
-
-$ckeditor_js            = '../'.get_utvonal().'wysiwyg/ckeditor.js';    //Ckeditor JS útvonala
-$formazatlan_szam       = array('nev', 'csz', 'tel', 'fax', 'mobil');          //Azok az oszlopneveket sorold fel, melyek numerikus értéket is tartalmazhatnak, de nem szeretnéd, ha lista nézetben ezres csoportra bontaná
-
 $szamla_html = '';
 
 if( $_POST ) {
@@ -258,14 +244,6 @@ require_once('selectek.php');
 	// Új termék felvitele
 	if(isset($_GET['uj']) && _jog(JOG_CIKKTORZS_KEZEL) && !$csak_szerkesztheto){
 
-        $navi_sablon  = fajlbol_olvas('../sablon/admin/navi.html', true);
-        $navi_mit     = array('{NAVI_FELIRAT}',  '{GOMBOK}', '{GYK}');
-        $navi_mivel   = array( $navi,             '',         $gyk2 );
-        $szamla_html .= str_replace($navi_mit, $navi_mivel, $navi_sablon);
-
-	    // HIBAüZENETEK
-	    require_once('info.php');
-
 	    // FORM
 		if(isset($_GET['ujkent'])){
             $sor = $adatbazis_kapcsolat -> s2('*', $megnevezes, 'recid='.$_GET['ujkent']);
@@ -280,11 +258,6 @@ require_once('selectek.php');
             }
 		}
 	    $js = js_kiir($akt_tomb, 'form_ell_admin()');
-
-        // Ckeditort csak akkor húzzuk be, ha kell
-        if(is_file($ckeditor_js)){
-            $ckeditor = '<script src="'.$ckeditor_js.'"></script>';
-        }
 
 	    $form_sablon = fajlbol_olvas('../sablon/admin/form_uj.html', true);
 
@@ -367,10 +340,6 @@ require_once('selectek.php');
 
         $szamla_html .= '<script> formAdatok = JSON.parse(\''.json_encode($json_sor).'\'); </script>';
 
-        if($id_latszik){
-            $navi = '<b>#'.$_GET['id'].'</b> '.$navi;
-        }
-
         // Duplákáláskor feltett kérdés
         $szamla_html .= nl2('
             <script>
@@ -378,14 +347,6 @@ require_once('selectek.php');
                 duplikaKerdes = \'Név: '.$sor['nev'].'<br><br>Biztos, hogy duplikálja?\';
             </script>
         ');
-
-        // NAVIGÁCIÓ
-        $navi_sablon = fajlbol_olvas('../sablon/admin/navi.html', true);
-        $navi_mit    = array('{NAVI_FELIRAT}',  '{GOMBOK}', '{GYK}');
-        $navi_mivel  = array( $navi,             '',         $gyk2 );
-
-	    // HIBAüZENETEK
-        require_once('info.php');
 
 	    // FORM
 	    $js = js_kiir($akt_tomb, 'form_ell_admin()', 'ajax');
