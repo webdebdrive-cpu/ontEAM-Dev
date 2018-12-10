@@ -1,5 +1,5 @@
 <h2>Új véleményező hozzáadása</h2>
-<form action="" id="addVelemenyezokForm" class="popupForm" method="post">
+<form action="" id="addVelemenyezokForm" class="popupForm" method="post" onsubmit="return addVelemenyezoFg();">
     <div class="kozep" style="min-height: 26rem">
         <div class="dt"> 
             <div class="dtr">
@@ -31,9 +31,33 @@
     </div>
 </form>
 <script>
+    
+$(document).ready(function(){
+    $.ajax({
+        url  : 'projektigenyles.php',
+        type : 'POST',
+        data: {
+            recid                   : _get('id'),
+            velemenyezok_status_ell : new Date().getTime()
+        },
+        success: function (response) {
+            if(response.substring(0, 6)=='SESKIL'){ location.href = 'index.php'; }
+            if (response) {
+                response = JSON.parse(response);
+                if( response.hiba ) {
+                    alert2(response.hiba, response.gomb, response.title);
+                    popupZar();
+                    return false;
+                }
+            }
+        }
+    });
+});
+    
 /* Véleményező hozzáadása projektigényléshez */
-function addVelemenyezoFg( pr_igeny_recid, that ) {
-
+function addVelemenyezoFg() {
+    
+    var pr_igeny_recid = _get('id');
     var login_recid = $('#addVelemenyezo').val();
 
     if( pr_igeny_recid ) {

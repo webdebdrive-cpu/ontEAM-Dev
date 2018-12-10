@@ -56,7 +56,8 @@ if (isset($_POST['velemenyezok_status_ell'])) {
     $stat = $adatbazis_kapcsolat->s2('stat_id', $megnevezes, "`recid`='{$_POST['recid']}'");
     if( !in_array($stat['stat_id'], prigeny_velemenyezo_hozzaad_statuszok()) ){
         echo json_encode(array(
-            'hiba' => 'Véleményezőt hozzáadni csak nyitott, véleményezés alatt vagy hiánypótolt státuszokban lehet!'
+            'hiba'  => 'Véleményezőt hozzáadni csak nyitott, véleményezés alatt vagy hiánypótolt státuszokban lehet!',
+            'title' => 'Hiba'
         ));
     }
 
@@ -895,7 +896,8 @@ if (isset($_POST['cash_flow_ellenoriz'])) {
 
     if(!_jog(JOG_PRIGENY_S_KEZEL) && !_jog(JOG_PRIGENY_SZ_KEZEL) && !_jog(JOG_PRIGENY_B_KEZEL) && !_jog(JOG_PRIGENY_F_KEZEL) && !_jog(JOG_PRIGENY_T_KEZEL) && !_jog(JOG_PRIGENY_EGY_KEZEL) && !_jog(JOG_PRIGENY_TOBB_KEZEL)){
         echo json_encode(array(
-            'hiba' => 'Önnek nincs joga Cash-flowt feltölteni!'
+            'hiba'  => 'Önnek nincs joga Cash-flowt feltölteni!',
+            'title' => 'Hiba',
         ));
         $weblap->leallit();
         exit();
@@ -904,7 +906,8 @@ if (isset($_POST['cash_flow_ellenoriz'])) {
     $statusz = $adatbazis_kapcsolat->s2('stat_id', $megnevezes, "`recid`='{$_POST['recid']}'");
     if($statusz['stat_id']!=PRIGENY_STAT_LETRE_ALATT){
         echo json_encode(array(
-            'hiba' => 'Csak létrehozás alatt vihető fel új cash-flow bejegyzés!'
+            'hiba'  => 'Csak létrehozás alatt vihető fel új Cash-flow bejegyzés!',
+            'title' => 'Hiba',
         ));
         $weblap->leallit();
         exit();
@@ -1362,11 +1365,12 @@ require('selectek.php');
                                 return false;
                             }
 
+                            /* 2018.12.10 Kérték, hogy mégse legyen kötelező megtérülőnek lenni! (vigyázz a kommentekkel, újra meg van nyitva, be van zárva)
                             if( $(\'#megter\').prop(\'checked\')==false ){
-                                /* FONTOS, hogy itt továbbengedjük menteni, csak nem rögzítjhük, de a cashflow fület és adatlapot elmentjük, hogy a megtérólés fülre tudjon lapozni */
+                                /* FONTOS, hogy itt továbbengedjük menteni, csak nem rögzítjük, de a cashflow fület és adatlapot elmentjük, hogy a megtérülés fülre tudjon lapozni *//*
                                 igeny_rogzites_uzemmod = false;
-                                alert_vegen            = \'Az igénylés nem megtérülő, így nem rögzíthető!\'; /* Ajax lefutás után megjelenő hibaüzenet. */
-                            }
+                                alert_vegen            = \'Az igénylés nem megtérülő, így nem rögzíthető!\'; /* Ajax lefutás után megjelenő hibaüzenet. *//*
+                            }*/
 
                         }
 
@@ -1383,13 +1387,13 @@ require('selectek.php');
         if($sor['stat_id']==PRIGENY_STAT_ELUTASITVA || $sor['stat_id']==PRIGENY_STAT_JOVAHAGYVA){
             $mutat_rejt = 'hide()';
         }
-        $szamla_html .= nl2('
-            <script>
-                $(document).ready(function () {
-                    $(\'#navGombok .uj, #navGombok .torles\').'.$mutat_rejt.';
-                });
-            </script>
-            ');
+//        $szamla_html .= nl2('
+//            <script>
+//                $(document).ready(function () {
+//                    $(\'#navGombok .uj, #navGombok .torles\').'.$mutat_rejt.';
+//                });
+//            </script>
+//            ');
     }
 
 	// Új projektigénylés felvitele

@@ -339,12 +339,7 @@ if(isset($_GET['kilep'])){
                                 array( $_SESSION[get_db_tabla().'login_recid'], $muvelet,   $_SERVER['REMOTE_ADDR'] )
                             );
 
-    unset($_SESSION[get_db_tabla().'user']);
-    unset($_SESSION[get_db_tabla().'login_recid']);
-    unset($_SESSION[get_db_tabla().'szallito_id']);
-    unset($_SESSION['user_adatok']);
-    unset($_SESSION[get_db_tabla().'rights']);
-    unset($_SESSION['bejelento_menu_rejt']);
+    session_unset();
 
     $adatbazis_kapcsolat -> bezar();
     header('Location:index.php');

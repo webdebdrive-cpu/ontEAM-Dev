@@ -4636,8 +4636,8 @@ function kapcsolodoSzerkeszt( oldal ) {
                     url : 'projektigenyles.php',
                     type: 'POST',
                     data: {
-                        recid              : _get('id'),
-                        cash_flow_ellenoriz: new Date().getTime()
+                        recid               : _get('id'),
+                        cash_flow_ellenoriz : new Date().getTime()
                     },
                     success: function (response) {
                         if(response.substring(0, 6)=='SESKIL'){ location.href = 'index.php'; }
@@ -4645,10 +4645,9 @@ function kapcsolodoSzerkeszt( oldal ) {
                             response = JSON.parse(response);
 
                             if( response.hiba ) {
-                                alert2(response.hiba, response.gomb, 'Hiba');
+                                alert2(response.hiba, response.gomb, response.title);
                                 return false;
                             }else{
-                                $('#addCashFlow').attr('onsubmit', 'return addCashFlow(\'' + _get('id') + '\', this);');
                                 popupNyit();
                                 return false;
                             }
@@ -4717,29 +4716,6 @@ function kapcsolodoSzerkeszt( oldal ) {
                 });
             break;
 
-            case 'velemenyezok':
-                $('#addVelemenyezokForm').attr('onsubmit', 'return addVelemenyezoFg(\'' + _get('id') + '\', this);');
-                
-                $.ajax({
-                    url  : 'projektigenyles.php',
-                    type : 'POST',
-                    data: {
-                        recid                   : _get('id'),
-                        velemenyezok_status_ell : new Date().getTime()
-                    },
-                    success: function (response) {
-                        if(response.substring(0, 6)=='SESKIL'){ location.href = 'index.php'; }
-                        if (response) {
-                            response = JSON.parse(response);
-                            if( response.hiba ) {
-                                alert2(response.hiba, '', 'Hiba');
-                                popupZar();
-                                return false;
-                            }
-                        }
-                    }
-                });
-            break;
             /* Véleménye feltötléskor pár adatra szükségünk van PHP-ból */
             case 'velemeny_feltolt':
 

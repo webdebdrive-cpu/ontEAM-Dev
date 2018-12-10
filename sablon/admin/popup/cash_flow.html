@@ -1,5 +1,5 @@
 <h2>Új cash-flow hozzáadása</h2>
-<form action="" id="addCashFlow" class="popupForm" method="post">
+<form action="" id="addCashFlow" class="popupForm" method="post" onsubmit="return addCashFlow();">
     <div class="kozep">
         <div class="dt">
             <div class="dtr" id="cf_szalloda">
@@ -57,7 +57,7 @@ $(document).ready(function () {
 });
 
 // Cash-flow hozzáadása
-function addCashFlow( pageID, that ) {
+function addCashFlow() {
 
     var telephely_id= $('#telephely_id').val();
     var szalloda    = $('#telephely_id option:selected').html();
@@ -103,7 +103,7 @@ function addCashFlow( pageID, that ) {
 
             $('#cash_flow_div div.dt div.dtr:first').after(
                                             '<div id="naploSor-UJ" class="dtr nSor kijSor" data-id="UJ">'               +
-                                                '<div class="dtc szalloda" style="width: 15rem">'                                +
+                                                '<div class="dtc szalloda" style="width: 15rem">'                       +
                                                     '<input type="hidden" name="telephely_id" value="'+telephely_id+'">'+
                                                     szalloda                                                            +
                                                 '</div>'                                                                +
