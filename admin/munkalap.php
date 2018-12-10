@@ -626,6 +626,20 @@ if( isset($_POST['munkalapKulso']) ) {
                     exit();
                 }
             }
+            $masolatok = explode(',', $_POST['masolat']);
+            foreach($masolatok as $masolat){
+                if(trim($masolat) && !is_valid_mail(trim($masolat))){
+                    echo json_encode(array(
+                        'hiba'  => 'Helytelen email cím: '.$masolat,
+                        'title' => 'Hiba',
+                        'gomb'  => '<input type="button" class="gomb" value="Ok" onclick="$(\'#email_kuldessel\').val(0); alert2();">',
+                        'focus' => 'pop_cimzett',
+                    ));
+
+                    $weblap->leallit();
+                    exit();
+                }
+            }
             if(!trim($_POST['targy'])){
                 echo json_encode(array(
                     'hiba'  => 'Kérjük töltse ki az email tárgyát!',

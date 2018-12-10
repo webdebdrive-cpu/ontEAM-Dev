@@ -975,21 +975,24 @@ function munkalapVisszaElokeszit() {
 }
 
 /* Külső kivitelező kiválasztásakor a mailcímét másoljuk a mailküldés címzett mezőjébe */
-function get_szallito_mailcim(){
-    $.ajax({
-        url : 'munkalap.php',
-        type: 'POST',
-        data: {
-            szallito_id             : $('#szallito_id').val(),
-            get_szallito_mailcim    : Date.now()
-        },
-        success: function(response){
-            if(response.substring(0, 6)=='SESKIL'){ location.href = 'index.php'; }
-            if(response){
-                $('#pop_cimzett').val(response);
+function get_szallito_mailcim(that){
+    if( that[0].tabla = 'szallito' ){
+        $.ajax({
+            url : 'munkalap.php',
+            type: 'POST',
+            data: {
+                szallito_id             : $('#szallito_id').val(),
+                get_szallito_mailcim    : Date.now()
+            },
+            success: function(response){
+                if(response.substring(0, 6)=='SESKIL'){ location.href = 'index.php'; }
+                if(response){
+                    $('#pop_cimzett').val(response);
+                }
             }
-        }
-    });
+        });
+    }
+    
 }
 
 /* Külső kivitelező hozzárendelés popup inputjait be kell állítani, alapértemlezett értékekkel feltölteni */

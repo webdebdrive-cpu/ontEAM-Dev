@@ -165,6 +165,10 @@ if(isset($_GET['value']) && isset($_GET['tabla']) && isset($_GET['oszlop_keres']
         } else if( $_GET['tabla'] == 'ktgnem' ) {
             $select_kieg = ' `id`,';
         }
+        
+        if( $_GET['id_kiir']=='usermail' ){
+            $select_kieg .= ' `usermail`,';
+        }
 
         if( $_GET['tabla'] == 'cikktorzs' ) {
             $select_kieg .= ' `cikkmee`,';

@@ -2151,7 +2151,7 @@ $projektigenyles_tomb = $akt_tomb = array(
     array('type' => 'text',                 'megn' => 'Azonosító:',             'name' => 'ikt_szam',       'szuro' => 1,       'class' => 'normal', 'disabled' => 1,   'style' => 'width: 10rem', 'osszevon' => 1, 'post' => '<span style="margin-right: 4rem"></span>'),
     array('type' => 'checkbox',             'megn' => 'Rendkívüli:',            'name' => 'rendk',          'szuro' => 1,       'class' => 'check',  'osszevon' => 1, 'post' => '<span style="margin-right: 4rem"></span>'),
     array('type' => 'checkbox',             'megn' => 'Megtérülő:',             'name' => 'megter',         'szuro' => 1,       'class' => 'check',  'disabled' => 1),
-    array('type' => 'text',                 'megn' => 'Név:',                   'name' => 'nev',            'maxlength' => 250, 'class' => 'oriasi csillag'),
+    array('type' => 'text',                 'megn' => 'Név:',                   'name' => 'nev',            'maxlength' => 250, 'class' => 'oriasi', 'alert' => 'Kérem töltse ki a nevet!'),
 array('type' => 'hidden','megn' => '',      'name' => 'egy_tobb'),
 array('type' => 'html',                     'megn' => nl2('
                                                 <div class="dtr">
@@ -2184,7 +2184,7 @@ array('type' => 'html',                     'megn' => nl2('
                                                             <div class="dtc">
                                                                 <div class="dtc" style="padding-left: 0; padding-right: 4rem; white-space: nowrap;">
                                                                 ')),
-    array('type' => 'text',                 'megn_szurobe' => 'Becsült költség:', 'name' => 'bkolt',          'szuro' => 1,       'class' => 'oriasi f_num csillag', 'data' => 'data-tort="0"', 'style' => 'width: 11.5rem; margin-left: -0.2rem;', 'onblur' => 'becsult_szetosztott_ujraszamol();', 'post' => ' '.get_penznem()),
+    array('type' => 'text',                 'megn_szurobe' => 'Becsült költség:', 'name' => 'bkolt',          'szuro' => 1,       'class' => 'oriasi f_num', 'data' => 'data-tort="0"', 'style' => 'width: 11.5rem; margin-left: -0.2rem;', 'onblur' => 'becsult_szetosztott_ujraszamol();', 'post' => ' '.get_penznem(), 'nulla_is_ures_adat' => 1, 'alert' => 'Kérem töltse ki a becsült költséget!'),
 array('type' => 'html',                     'megn' => nl2('
                                                                 </div>
                                                                 <div id="" class="dtc f_prigeny_tipus" style="padding-right: 4rem">

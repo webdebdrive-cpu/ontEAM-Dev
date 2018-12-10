@@ -931,7 +931,7 @@ if( in_array(basename(self()), $_SESSION['ketHasabos']) && $_SESSION[get_db_tabl
     } elseif( basename(self()) == 'projektkezeles.php' && isset($_GET['megjegyzesek']) ) {
         $uj_link = 'javascript: kapcsolodoSzerkeszt(\'megjegyzes\'); void(0);';
 
-    } elseif( basename(self()) == 'projektkezeles.php' && isset($_GET['modosit']) ) {
+    } elseif( basename(self()) == 'projektkezeles.php' && ( isset($_GET['modosit']) || isset($_GET['tortenet']) || isset($_GET['dokumentumok']) || isset($_GET['cash_flow']) || isset($_GET['projektigeny']) || isset($_GET['rb_anyag']) || isset($_GET['garancialis']) ) ) {
         $uj_link = 'javascript: csoportMuvelet(\'projektkezel_uj_feltolt\'); void(0);';
 
     } elseif( basename(self()) == 'raktar.php' && isset($_GET['megjegyzesek']) ) {

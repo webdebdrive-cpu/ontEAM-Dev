@@ -1137,8 +1137,8 @@ function js_kiir($tomb, $fg = 'form_ell_regi()', $ajax = false) {
                     $ret .= 'if(document.getElementById(\''.$ertek['name'].'\').value.substring(0,1)==\'\xa0\'){ document.getElementById(\''.$ertek['name'].'\').className += \' alert\'; $(\'#'.$ertek['name'].'\').addClass(\'hibas_ide_focus\'); alert2(\''.$ertek['alert'].'\', \'<p class="c"><input type="button" class="link gomb" value="Ok" onclick="alert2(); szurkit_zar(\\\'Mehet-Mégsem gombokat mutasd\\\');"></p>\', \''.$hiba_txt.'\'); return false; } ';
                 }
 
-                // Személyzet_id-nál a 0 sem elfogadható érték
-                if($ertek['alert'] && $ertek['name']=='szemelyzet_id'){
+                // Pár mezőnélnél a 0 sem elfogadható érték
+                if($ertek['alert'] && ($ertek['name']=='szemelyzet_id' || $ertek['nulla_is_ures_adat']) ){
                     $ret .= 'if(document.getElementById(\''.$ertek['name'].'\').value==\'0\'){ document.getElementById(\''.$ertek['name'].'\').className += \' alert\'; $(\'#'.$ertek['name'].'\').addClass(\'hibas_ide_focus\'); alert2(\''.$ertek['alert'].'\', \'<p class="c"><input type="button" class="link gomb" value="Ok" onclick="alert2(); szurkit_zar(\\\'Mehet-Mégsem gombokat mutasd\\\');"></p>\', \''.$hiba_txt.'\'); return false; } ';
                 }
 

@@ -629,6 +629,10 @@ input.kis_gomb{
     margin-right: 1rem;
 }
 
+input.gomb.alacsony{
+    padding: 0.2rem 0.5rem;
+}
+
 input.gombb[disabled],
 input.gombb[disabled].gombb_alert {
     background: #cecdcd;
@@ -3485,7 +3489,7 @@ input.popup_input_margo {
 }
 
 #popup div.popup_tart div.dt div.dtc textarea.level_szoveg {
-    height: 25rem;
+    height: 21rem;
     width: 70rem;
 }
 

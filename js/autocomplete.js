@@ -216,7 +216,7 @@
                                             }
 
                                             $('#autocomplete').css({
-                                                'top': autocompleteTop,
+                                                'top'       : autocompleteTop,
                                                 'max-height': autocompHeight
                                             });
                                         } else {
@@ -308,8 +308,11 @@
                         mezo_nev = mezo.attr('name').replace('_autocomp', '');
                         $('input[name="' + mezo_nev + '"]').val(recid);
                         
-                        /* Egy érték kiválasztásakor mi fusson le. Lehessen paraméterként átadni egy függvényt vagy bármilyen JS kódot, ami akkor fut le, ha megvan az érték kiválasztása */
-                        options.complete();
+                        /* Egy érték kiválasztásakor mi fusson le. Lehessen paraméterként átadni egy függvényt vagy bármilyen JS kódot, ami akkor fut le, ha megvan az érték kiválasztása
+                         * Viszont ha az inputunk neve pop_cimzett_loginbol, akkor ezt mégse tegyük meg, mert egy popup-on két autocpmlete is volt, és az elsőnek van oncomplete-je, és a 2-nál is mindig lefutott */
+                        if( mezo.attr('name')!='pop_cimzett_loginbol_autocomp' ){
+                            options.complete();
+                        }
 
                         var form = $('input[name="' + mezo_nev + '"]').parents('form');
                         /* Lehet nem egy űrlapon vagyunk, hanem egy alert2-ben, ebben keressünk inputot */

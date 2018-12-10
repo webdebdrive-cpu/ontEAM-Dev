@@ -5791,7 +5791,7 @@ function szamlaBetolt( recid, page, muvelet, szerkeszt, kerdes_nelkul, anyagigen
                     } else if( baseName(location.href) == 'projektkezeles' && _get('megjegyzesek') ) {
                         $('#navGombok a.uj').attr('href', 'javascript: kapcsolodoSzerkeszt(\'megjegyzes\'); void(0);');
 
-                    } else if( baseName(location.href) == 'projektkezeles' && _get('modosit') ) {
+                    } else if( baseName(location.href) == 'projektkezeles' && (_get('modosit') || _get('tortenet') || _get('dokumentumok') || _get('cash_flow') || _get('projektigeny') || _get('rb_anyag') || _get('garancialis') ) ) {
                         $('#navGombok a.uj').attr('href', 'javascript: csoportMuvelet(\'projektkezel_uj_feltolt\'); void(0);');
 
                     } else if( baseName(location.href) == 'projektigenyles' && _get('megterules') ) {
