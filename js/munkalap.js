@@ -1026,7 +1026,7 @@ function get_kulso_hozzarendeles_input_tartalmak(){
                 munkalap = JSON.parse(munkalap);
                 
                 /* Levélküldés mezőinek alapértelmezett értékének beállítsa */
-                $('#pop_targy').val( munkalap.ikt_szam+' '+munkalap.telephely_nev+' ' );
+                $('#pop_targy').val( 'Hibabejelentés '+munkalap.ikt_szam+' '+munkalap.telephely_nev+' ' );
 
                 uzenet =    "Tisztelt Partnerünk,\n\n"                      +
                             "Kérjük Önöktől az alábbi hiba javítását:\n"  +

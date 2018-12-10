@@ -498,7 +498,7 @@ function i_u($type, $tabla, $tomb) {
         } else if( $tabla == 'projektkezeles' ) {
             
             // Iktatószám kiszámítása
-            $sorszam  = get_iktatoszam_sorszam('projektigenyles'/* NEM TÉVEDÉS! Tényleg az igénylések sorszámát kell léptetni, mivel igénylésekből is lehet projekteket létrehozni, így nem fognak összeakadni. */);
+            $sorszam  = get_iktatoszam_sorszam($tabla);
             if($sorszam===false){ $db_error = true; }
             $ikt_szam = 'P'.date('y').'/'.sprintf('%07d', $sorszam);
             

@@ -528,7 +528,7 @@ function get_alairasok(){
                         <div class="c" style="padding-right: 60px">
                         <center>
                             Csanádi Péter
-                            <br>Diszpécser központ vezető
+                            <br>Műszaki Igazgató
                         </center>
                         </div>
                     </td>
@@ -537,7 +537,7 @@ function get_alairasok(){
                         <div class="c" style="padding-left: 60px">
                         <center>
                             Sánta Zoltán
-                            <br>Diszpécser központ vezető helyettes
+                            <br>MSZK vezető
                         </center>
                         </div>
                     </td>

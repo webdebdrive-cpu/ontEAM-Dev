@@ -721,7 +721,7 @@ if(isset($_POST['igenylesek_betolt_uj_kezeleshez'])){
                 <td>'.$szalloda['nev'].'</td>
                 <td style="width: 30rem">'.$pri['nev'].'</td>
                 <td>'.$tipus.'</td>
-                <td class="r">'.number_format($pri['bkolt'], 0, '', ' ').'</td>
+                <td class="r nowrap">'.number_format($pri['bkolt'], 0, '', ' ').'</td>
                 <td>'.substr(str_replace('-', '.', $letrehozva['insert_dt']), 0, 10).'</td>
                 <td>'.$projektben.'</td>
             </tr>
@@ -766,7 +766,7 @@ if(isset($_POST['igenylesek_betolt_uj_kezeleshez'])){
                     <th>
                         Projektben
                         <br>
-                        <select id="projektben" onchange="projektben_szures()" style="width: 10rem">
+                        <select id="projektben" onchange="projektben_szures()" style="width: 6.5rem">
                             <option>-Mind-</option>
                             <option value="1">Projektben</option>
                             <option value="0">Nincs projektben</option>
@@ -1135,7 +1135,7 @@ require_once('selectek.php');
                 $gombok = nl2('
                     <div class="form_kuldes">
                         <input type="button" class="gombb mentes_gomb" name="mehet_gomb" id="mehet_gomb" disabled value="Mentés" onclick="szurkit(\'mehet_megsem_rejt\'); $(\'#szerk_form\').submit()">
-                        <input type="button" class="gomb piros" disabled id="megsem_gomb" value="Mégsem" onclick="szurkit(\'mehet_megsem_rejt\'); formModositva=false; szamlaBetolt(\''.$_GET['id'].'\', \''.$megnevezes.'.php\');">
+                        <input type="button" class="gomb piros" disabled id="megsem_gomb" value="Mégsem" onclick="szurkit(\'mehet_megsem_rejt\'); formModositva=false; szamlaBetolt(\''.$_GET['id'].'\', \''.$megnevezes.'.php\', \'modosit\');">
                     </div>
                 ').$gombok;
             }

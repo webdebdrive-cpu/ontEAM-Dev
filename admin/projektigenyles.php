@@ -414,6 +414,7 @@ if (isset($_POST['pri_statusz_leptet'])) {
             exit;
         }
 
+        /* 2018.12.10 - nem készítünk jóváhagyásrko Projektet, mert új Projekt készítésekor egy popupban látszanak a Projekt igénylések, és ott lehet választani majd
         // A projetk ikt.száma PI prefix helyett csak egy P-t kap
         $igenyles['ikt_szam'] = str_replace('PI', 'P', $igenyles['ikt_szam']);
 
@@ -434,6 +435,7 @@ if (isset($_POST['pri_statusz_leptet'])) {
                                             array($prk_id,                 PRKEZEL_STAT_NYITOTT, $_SESSION[get_db_tabla().'user'],  'NOW()',        $_SESSION[get_db_tabla().'teljes_nev'],   $_SESSION[get_db_tabla().'teljes_nev'] )
                                         );
         if( $sql === false ) { $db_error = true; }
+        */
     }
 
     // FB elé terjeszteni az alábbi státuszokkal nem lehet
