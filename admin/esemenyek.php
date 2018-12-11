@@ -723,16 +723,16 @@ switch($tabla) {
                                     ');
 
         // Ezek az oszlopok generálódnak ki a rendezés selectbe, lehet szépíteni az oszlopneveket, amit a getOszlopNev() függvényben kell beállítani
-        $_OPTS['rendezes']  = array('recid');
+        $_OPTS['rendezes']  = array('telephely_id', 'sz_szam');
 
         // Default rendezés
         if( !$_GET['rend'] ) {
-            $_GET['rend'] = 'recid';
+            $_GET['rend'] = 'telephely_id';
         }
 
         // Default rendezési irány
         if( !$_GET['irany'] ) {
-            $_GET['irany'] = 'desc';
+            $_GET['irany'] = '';
         }
     break;
     case 'rendszer.php':
@@ -2278,7 +2278,7 @@ $projektszerzodes_tomb = $akt_tomb = array(
     array('type' => 'select_felh_telephely','megn' => 'Szálloda:',              'name' => 'telephely_id',   'szuro' => 1,   'class' => 'disableNav',        'style' => 'width: 100%;', 'alert' => 'Kérem válasszon szállodát!'),
     array('type' => 'text',                 'megn' => 'Szerződés szám:',        'name' => 'sz_szam',        'szuro' => 1,   'class' => 'normal',            'style' => 'width: 10rem', 'disabled' => 1, 'osszevon' => 1, 'post' => '<span style="margin-left: 2rem"></span>'),
     array('type' => 'text',                 'megn' => 'Kelte:',                 'name' => 'kelte',          'szuro' => 1,   'class' => 'kicsi datepicker',  'alert' => 'Kérem adja meg a dátumot!'),
-    array('type' => 'autocomplete',         'megn' => 'Szerződő partner:',      'name' => 'szallito_id',    'szuro' => 1,   'class' => 'oriasi disableNav', 'tabla' => 'szallito', 'oszlop_keres' => 'nev', 'oszlop_keres_autocomp' => 'nev', 'listaz' => 'nev', 'id_kiir' => 'id', 'alert' => 'Kérem válasszon szerződő partnert!'),
+    array('type' => 'autocomplete',         'megn' => 'Szerződő partner:',      'name' => 'szallito_id',    'szuro' => 1,   'class' => 'oriasi disableNav', 'tabla' => 'szallito', 'oszlop_keres' => 'id', 'oszlop_keres_autocomp' => 'nev', 'listaz' => 'nev', 'id_kiir' => 'id', 'alert' => 'Kérem válasszon szerződő partnert!'),
     array('type' => 'text',                 'megn' => 'Projekt szám:',          'name' => 'pr_szam',        'szuro' => 1,   'class' => 'normal', 'disabled' => 1, 'style' => 'width: 10rem', 'post' => $pr_szam_gomb, 'alert' => 'Kérem válasszon egy projekt számot!'),
     array('type' => 'textarea',             'megn' => 'Tárgy:',                 'name' => 'targy',          'szuro' => 1,   'class' => 'oriasiTargy disableNav', 'alert' => 'Kérjük töltse ki a tárgy mezőt!'),
     array('type' => 'autocomplete',         'megn' => 'Költségviselő:',         'name' => 'kolt_vis',       'szuro' => 1,   'class' => 'oriasi disableNav', 'tabla' => 'erteklista', 'oszlop_keres' => 'id', 'oszlop_keres_autocomp' => 'info', 'listaz' => 'info', 'csoport' => ERTEKLISTA_KOLTSEGVISELO, 'id_kiir' => 'id',  'alert' => 'Kérem válasszon költségviselőt!'),

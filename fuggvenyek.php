@@ -496,7 +496,7 @@ function i_u($type, $tabla, $tomb) {
 
         // Projektkezelés
         } else if( $tabla == 'projektkezeles' ) {
-            
+               
             // Iktatószám kiszámítása
             $sorszam  = get_iktatoszam_sorszam($tabla);
             if($sorszam===false){ $db_error = true; }
@@ -523,6 +523,15 @@ function i_u($type, $tabla, $tomb) {
 
         // Projektszerződés
         } else if( $tabla == 'projektszerzodes' ) {
+                
+            // Ha nincsenek tétel sorok, akkor hibaüzenet
+            if( !$_SESSION['pr_szer_tetel_targy'] ){
+                echo json_encode(array(
+                    'hiba'  => 'Nem adott meg szerződés tételeket, így nem menthető a projekt szerződés!',
+                    'title' => 'Hiba'
+                ));
+                exit();
+            }
             
             // Iktatószám kiszámítása
             $sorszam  = get_iktatoszam_sorszam($tabla);
@@ -538,6 +547,9 @@ function i_u($type, $tabla, $tomb) {
                 }
                 $i++;
             }
+            
+            array_push($oszlopok, 'loginnev',                       'update_usr'                              );
+            array_push($ertekek,  $_SESSION[get_db_tabla().'user'], $_SESSION[get_db_tabla().'teljes_nev']    );
 
         // Rendszeres karbantarás új bejegyzés esetén
         } else if( $tabla == 'rendszeres_karbantartas' ) {
@@ -779,8 +791,23 @@ function i_u($type, $tabla, $tomb) {
                                                 array($id,             PRKEZEL_STAT_NYITOTT,  $_SESSION[get_db_tabla().'user'], 'NOW()',        $_SESSION[get_db_tabla().'teljes_nev'],   $_SESSION[get_db_tabla().'teljes_nev'] )
                                             );
             if( $sql === false ) { $db_error = true; }
-            $sql = $adatbazis_kapcsolat->u($tabla, array('stat_id'), array(PRKEZEL_STAT_NYITOTT), "`recid`='$id'");
+            $sql = $adatbazis_kapcsolat->u($tabla, array('stat_id'), array(PRKEZEL_STAT_NYITOTT), "`recid`='{$id}'");
             if( $sql === false ) { $db_error = true; }
+        }
+        
+        // Projektszerződés tételek felvétele
+        if( $tabla == 'projektszerzodes' ) {
+            $i = 0;
+            foreach($_SESSION['pr_szer_tetel_targy'] as $targy){
+                $varh_erk = str_replace('.', '-', $_SESSION['pr_szer_tetel_varh_erk'][$i]);
+                $varh_ert = str_replace(' ', '',  $_SESSION['pr_szer_tetel_varh_ert'][$i]);
+                $sql = $adatbazis_kapcsolat->i('projektszerzodes_tetel',
+                                                    array('projektszerzodes_recid', 'targy', 'varh_erk', 'varh_ert', 'loginnev',                          'insert_dt',    'insert_usr',                             'update_usr'                              ),
+                                                    array($id,                      $targy,  $varh_erk,  $varh_ert,  $_SESSION[get_db_tabla().'user'],    'NOW()',        $_SESSION[get_db_tabla().'teljes_nev'],   $_SESSION[get_db_tabla().'teljes_nev']    )
+                                            );
+                if( $sql === false ) { $db_error = true; }
+                $i++;
+            }
         }
 
         // Naplózás
@@ -964,6 +991,26 @@ function i_u($type, $tabla, $tomb) {
             }
 
         }
+        
+        // Projekt szerződéskor ellenőrizzük, hogy a szerződés összege azonos-e a tételek összegével
+        if( $tabla == 'projektszerzodes' ){
+            
+            $tetelek_osszege = '';
+            foreach ( $_SESSION['pr_szer_tetel_varh_ert'] as $ertek ){
+                $ertek = str_replace(' ', '', $ertek);
+                $tetelek_osszege += $ertek;
+            }
+            if( $tetelek_osszege != $_POST['szerz_ossz'] ){
+                echo json_encode(array(
+                    'hiba'  => 'A szerződés tételeinek összege nem egyezik meg a szerződés összegével!<br>Így nem menthető!',
+                    'gomb'  => '<input type="button" class="gomb" value="Ok" onclick="szurkit_zar(\'mégsem mehet mutat\'); alert2();">',
+                    'title' => 'Hiba',
+                ));
+                $weblap -> leallit();
+                exit();
+            }
+            
+        }
 
         // Szeméyzet aktív/inaktív váltása a hozzá tartozó login-t is aktív/inaktiválja
         if( $tabla == 'torzsadat' ) {
@@ -1098,6 +1145,7 @@ function js_kiir($tomb, $fg = 'form_ell_regi()', $ajax = false) {
 
     $ret = nl2('
                 <'.str_replace('#', '', 's#cript').'>
+
                     var helyiseg_gep_mehet      = false;
                     var riasztas_mehet          = false;
                     var utemezes_mehet          = false;
@@ -1630,6 +1678,7 @@ function js_kiir($tomb, $fg = 'form_ell_regi()', $ajax = false) {
     }
 
     $ajax_kod = nl2('
+
         utemezes_mehet = false;
         param_kieg = \'\';
         if(igeny_rogzites_uzemmod){
@@ -1641,11 +1690,12 @@ function js_kiir($tomb, $fg = 'form_ell_regi()', $ajax = false) {
             type: \'POST\',
             data: esamp2es(\''.$param.str_replace('.php', '', basename(self())).'lista=1&amp;szerkeszt=1\'+param_kieg+\'&amp;ajax_form_modosit=\' + new Date().getTime()),
             success: function(response) {
+
                 if( response ) {
                     response = JSON.parse(response);
                     if( response.hiba ) {
                         if( response.gomb ) {
-                            alert2(response.hiba, response.gomb);
+                            alert2(response.hiba, response.gomb, response.title);
                         } else {
                             alert2(response.hiba, \'\', \''.$hiba_txt.'\');
                         }
@@ -1677,11 +1727,18 @@ function js_kiir($tomb, $fg = 'form_ell_regi()', $ajax = false) {
     ');
 
     if( $ajax ) {
-        $ret .= nl2('; '.$ajax_kod.'
-            ; return false; }
+        $ret .= nl2('
+                ;
+                '.$ajax_kod.';
+                return false;
+            }
             ');
     } else {
-        $ret .= '; formModositva = false; return true;	}';
+        $ret .= nl2('
+                ;                
+                formModositva = false;
+                return true;
+            }');
     }
 
     $ret .= nl2('
@@ -2562,6 +2619,14 @@ function szamla_lista( $where, $tabla, $kijeloltek = false, $csak_sql_miatt = fa
             $order .= '`'.get_db_tabla().$tabla.'`.`insert_dt` DESC';
         }
 
+        // Rendezés projektszerződéseknél
+        if( $tabla=='projektszerzodes' ){
+            // Ha telephely szerint rendezünk, akkor ez lesz a következő rendezési szempont, és az irány is erre vonatkozik
+            if($_GET['rend']=='telephely_id'){
+                $order = '`'.get_db_tabla().'telephely`.`nev` '.$_GET['irany'].', `'.get_db_tabla().'projektszerzodes`.`sz_szam` '.$_GET['irany'].'';
+            }
+        }
+        
         // Rendezés Ütemezett feladatoknál
         if( $tabla=='utemezett_feladatok' ){
             // Ha aktív szerint rendezünk, akkor azon belül esedékesség dátuma csökkenő + szálloda csökkenő
@@ -4517,8 +4582,15 @@ function projektszerzodesLista( $bejegyzesek, $tabla, $frissit, $kijeloltek ) {
         foreach($bejegyzesek as $bsz) {
 
             $li_tart = '<a class="szamla" data-recid="'.$bsz['recid'].'" data-fajl="'.$tabla.'.php" data-muvelet="modosit">
-                            <span>'.$bsz['sz_szam'].'</span>
-                            <span>'.getSzallodaNev($bsz['telephely_id']).'</span>
+                            <table style="width: 30rem">
+                            <tr>
+                                <td style="width: 10rem">'.$bsz['sz_szam'].'</td>
+                                <td style="width: 20rem">'.getSzallodaNev($bsz['telephely_id']).'</td>
+                            </tr>
+                            <tr>
+                                <td colspan="2">'.resz_string($bsz['targy'], 60).'</td>
+                            </tr>
+                            </table>
                         </a>';
 
             $html .= '<li id="szamla-'.$bsz['recid'].'" class="szamla_sor" data-recid="'.$bsz['recid'].'" data-i="'.$i.'">'.$li_tart.'</li>';
@@ -5585,6 +5657,7 @@ function getOszlopNev( $oszlop, $kieg_nev = '' ) {
         'surgos'        => 'Sürgős',
         'statusz'       => 'Státusz',
         'stat_id'       => 'Státusz',
+        'sz_szam'       => 'Szerződés szám',
         'szakter_id'    => 'Szakterület',
         'szallito_id'   => 'Szállító',
         'szerepkor_id'  => 'Szerepkör',

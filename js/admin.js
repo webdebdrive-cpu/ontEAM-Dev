@@ -5441,6 +5441,11 @@ function csv_general( that, valasztos, link_kieg ) {
             alert2('Válasszon export fajtát:<br><a href="javascript:csv_general($(\'.excel\'))">» Energia tervek exportálása</a><br><a href="javascript:csv_general($(\'.excel\'), \'\', \'egysegarak&id=\'+_get(\'id\'))">» Egységárak exportálása</a>', '<input type="button" class="gomb" value="Mégsem" onclick="alert2()">', 'Válasszon exportot');
         }
 
+        /* Projektszerződéseknél lehet választani, hogy Szerződések vagy Szerződések és tételek */
+        if( baseName(location.href) == 'projektszerzodes' ){
+            alert2('Válasszon export fajtát:<br><a href="javascript:csv_general($(\'.excel\'))">» Szerződések exportálása</a><br><a href="javascript:csv_general($(\'.excel\'), \'\', \'tetelek&id=\'+_get(\'id\'))">» Szerződések és tételek exportálása</a>', '<input type="button" class="gomb" value="Mégsem" onclick="alert2()">', 'Válasszon exportot');
+        }
+
     }else{
 
         var ids = new Array();
@@ -5796,6 +5801,9 @@ function szamlaBetolt( recid, page, muvelet, szerkeszt, kerdes_nelkul, anyagigen
 
                     } else if( baseName(location.href) == 'projektigenyles' && _get('megterules') ) {
                         $('#navGombok a.uj').attr('href', 'javascript: kapcsolodoSzerkeszt(\'megterules\'); void(0);');
+
+                    } else if( baseName(location.href) == 'projektszerzodes' && _get('megjegyzesek') ) {
+                        $('#navGombok a.uj').attr('href', 'javascript: kapcsolodoSzerkeszt(\'megjegyzes\'); void(0);');
 
                     } else if( baseName(location.href) == 'szamla' && _get('megjegyzesek') ) {
                         $('#navGombok a.uj').attr('href', 'javascript: kapcsolodoSzerkeszt(\'megjegyzes\'); void(0);');

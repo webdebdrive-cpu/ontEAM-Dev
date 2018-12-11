@@ -1,0 +1,193 @@
+<h2>Tételek kezelése</h2>
+
+<div class="kozep">
+    Tárgy:
+    <br><input type="text" id="pop_targy" class="oriasi csillag">
+    <br>Számla várh. érk.
+    <br><input type="text" id="pop_szla_varh_erk" class="datepicker csillag">
+    <br>Számla várh. értéke:
+    <br><input type="text" id="pop_szla_varh_ert" class="f_num csillag" data-tort="0"> Ft
+    <br>Teljesítés:
+    <br><input type="text" disabled>
+    <br>Érték:
+    <br><input type="text" disabled class="f_num" data-tort="0"> Ft
+    <br><input type="button" class="gomb" value="Új tétel hozzáadása" style="margin-top: 0.3rem" onclick="tetel_hozzaadasa()">
+    
+    <form action="" enctype="multipart/form-data" method="" id="popup_tetel_sorok">
+        <table class="csikos kijCont dn" id="pop_tetelek" style="cursor: default;">
+            <thead>
+            <tr>
+                <th>Tárgy</th>
+                <th>Számla várh. érk.</th>
+                <th>Számla várh. értéke (Ft)</th>
+                <th>Teljesítés</th>
+                <th>Érték</th>
+                <th>Törlés</th>
+            </tr>
+            </thead>
+
+            <tbody>
+            </tbody>
+        </table>
+    </form>
+    
+</div>
+<div class="kuldes">
+    <input type="button" class="gomb zold" value="Mentés" onclick="tetel_sorok_ment()">
+    <input type="button" class="gomb piros" value="Mégsem" onclick="popupZar();">
+</div>
+<script>
+$(document).ready(function () {
+    
+    $('#pop_targy').focus();
+    
+    pop_tetelek_feltolt();
+    
+    $('.datepicker').datetimepicker({
+        closeOnDateSelect   : true,
+        format              :'Y.m.d',
+        mask                : '\xa0\xa0\xa0\xa0.\xa0\xa0.\xa0\xa0',
+        timepicker          : false,
+        validateOnBlur      : false,
+        scrollInput         : false
+    });
+});
+
+/* Tételt hozzáadó függvény */
+function tetel_hozzaadasa() {
+    
+    var targy           = $('#pop_targy').val().trim();
+    var szla_varh_erk   = $('#pop_szla_varh_erk').val().trim();
+    var szla_varh_ert   = $('#pop_szla_varh_ert').val().trim();
+    
+    /* Üres adatok ellenőrzése */
+    if(!targy){
+        alert2('Kérük töltse ki a tárgyat!', '', 'Hiba');
+        $('#pop_targy').addClass('hibas_ide_focus');
+        return false;
+    }
+    if( !szla_varh_erk || szla_varh_erk=='.\xa0\xa0.' ){
+        alert2('Kérük töltse ki a várható érkezést!', '', 'Hiba');
+        $('#pop_szla_varh_erk').addClass('hibas_ide_focus');
+        return false;
+    }
+    if( !szla_varh_ert || szla_varh_ert=='0' ){
+        alert2('Kérük töltse ki a várható értéket!', '', 'Hiba');
+        $('#pop_szla_varh_ert').addClass('hibas_ide_focus');
+        return false;
+    }
+    
+    var id_tmp = new Date().getTime();
+    
+    var table_sor = '<tr class="pop_tetel_'+id_tmp+'">' +
+                        '<td class="pop_targy">' + targy + '</td>' +
+                        '<td class="pop_varh_erk">' + szla_varh_erk + '</td>' +
+                        '<td class="pop_varh_ert r">' + szla_varh_ert + '</td>' +
+                        '<td></td>' +
+                        '<td></td>' +
+                        '<td><a onclick="popup_tetel_sor_torol(\'pop_tetel_'+id_tmp+'\');"><span class="icon"><i class="material-icons">delete</i></span></a></td>' +
+                    '</tr>';
+            
+    $('#pop_tetelek tbody').append( table_sor );
+    $('#pop_tetelek').removeClass('dn');
+    
+    $('#pop_targy').val('');
+    $('#pop_szla_varh_erk').val('\xa0\xa0\xa0\xa0.\xa0\xa0.\xa0\xa0');
+    $('#pop_szla_varh_ert').val('');
+}
+
+/* Tétel sor törlése */
+function popup_tetel_sor_torol(sor_id, mehet){
+    
+    $('.'+sor_id).addClass('torles_elott');
+    if(!mehet){
+        alert2('Biztosan törli ezt a tételt?', '<input type="button" class="gomb zold" value="Igen" onclick="popup_tetel_sor_torol(\''+sor_id+'\', \'mehet\'); alert2();"><input type="button" class="gomb piros" value="Nem" onclick="alert2(); $(\'.torles_elott\').removeClass(\'torles_elott\');">');
+        return false;
+    }
+    
+    $('.'+sor_id).remove();
+    
+}
+
+/* Tétel sor táblázat menzése */
+function tetel_sorok_ment(){
+    
+    var targyak = [];
+    $('.pop_targy').each(function() {
+        targyak.push( $(this).html() );
+    });
+    var varh_erk = [];
+    $('.pop_varh_erk').each(function() {
+        varh_erk.push( $(this).html() );
+    });
+    var varh_ert = [];
+    $('.pop_varh_ert').each(function() {
+        varh_ert.push( $(this).html() );
+    });
+    
+    var adatok = [
+                    ['targyak',  targyak],
+                    ['varh_erk', varh_erk],
+                    ['varh_ert', varh_ert]
+                ];
+    
+    /* A szerződése összege az Adatlapon található mező értéke 
+     * De ha nem az adatlapon vagyunk, akkor meg egy rejtett inputban megtaláljuk, hogy a DB-ben mi van letárolva */
+    var szerzodes_osszege = '';
+    if( $('#szerz_ossz').length ){
+        szerzodes_osszege = $('#szerz_ossz').val();
+    }else{
+        szerzodes_osszege = $('#szerz_ossz_db').val();
+    }
+    
+    $.ajax({
+        url     : 'projektszerzodes.php',
+        type    : 'POST',
+        data: {
+            adatok              : JSON.stringify(adatok),
+            recid               : _get('id'),
+            szerzodes_osszege   : szerzodes_osszege,
+            tetel_sorok_ment    : Date.now()
+        },
+        success: function(response){
+            if(response.substring(0, 6)=='SESKIL'){ location.href = 'index.php'; }
+            if(response){
+                response = JSON.parse(response);
+                if(response.hiba){
+                    alert2(response.hiba, response.gomb, response.title);
+                }else{
+                    if( !_get('modosit') && !_get('uj') ){
+                        szamlaBetolt(_get('id'), 'projektszerzodes.php', 'tetel');
+                    }
+                    popupZar();
+                }
+            }
+        }
+    });
+
+}
+
+/* Ha van SESSION-ban adatunk, akkor abból töltsük fel a sorokat */
+function pop_tetelek_feltolt(){
+    $.ajax({
+        url : 'projektszerzodes.php',
+        type: 'POST',
+        data: {
+            pop_tetelek_feltolt: Date.now()
+        },
+        success: function(response){
+            if(response.substring(0, 6)=='SESKIL'){ location.href = 'index.php'; }
+            if(response){
+                response = JSON.parse(response);
+                if(response.html){
+                    $('#pop_tetelek tbody').append(response.html);
+                    $('#pop_tetelek').removeClass('dn');
+                }
+            }
+        }
+    });
+}
+
+
+
+</script>

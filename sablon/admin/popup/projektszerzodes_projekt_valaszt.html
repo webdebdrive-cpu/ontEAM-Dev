@@ -45,6 +45,10 @@ function get_projekt_tabla(order){
 function projekt_kivalaszt(){
     $('#pr_szam').val( $('#pr_szerzodes_tablazat tr.kijelolve').data('ikt_szam') );
     $('#pr_szam_gomb').val('Projekt törlése').addClass('piros');
+    $('#pr_szam').addClass('mod');
+    formModositva = true;
+    $('#mehet_gomb, #megsem_gomb').removeAttr ('disabled');
+    $('#mehet_gomb').addClass('gombb_alert');
     popupZar();
 }
 

@@ -934,6 +934,9 @@ if( in_array(basename(self()), $_SESSION['ketHasabos']) && $_SESSION[get_db_tabl
     } elseif( basename(self()) == 'projektkezeles.php' && ( isset($_GET['modosit']) || isset($_GET['tortenet']) || isset($_GET['dokumentumok']) || isset($_GET['cash_flow']) || isset($_GET['projektigeny']) || isset($_GET['rb_anyag']) || isset($_GET['garancialis']) ) ) {
         $uj_link = 'javascript: csoportMuvelet(\'projektkezel_uj_feltolt\'); void(0);';
 
+    } elseif( basename(self()) == 'projektszerzodes.php' && isset($_GET['megjegyzesek']) ) {
+        $uj_link = 'javascript: kapcsolodoSzerkeszt(\'megjegyzes\'); void(0);';
+        
     } elseif( basename(self()) == 'raktar.php' && isset($_GET['megjegyzesek']) ) {
         $uj_link = 'javascript: kapcsolodoSzerkeszt(\'megjegyzes\'); void(0);';
 
@@ -1254,7 +1257,8 @@ if( basename(self())=='torzsadat.php' && !_jog(JOG_TORZSADAT_KEZEL)){
 
 // Excel export
 $valasztos = '';
-if( basename(self())=='energia_terv.php'){
+$valasztos_feluletek = array('energia_terv.php', 'projektszerzodes.php');
+if( in_array(basename(self()), $valasztos_feluletek)  ){
     $valasztos = 'választós';
 }
 $csv_get = 'csv_general( this, \''.$valasztos.'\' );';

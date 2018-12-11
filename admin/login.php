@@ -747,7 +747,7 @@ require_once('selectek.php');
                                     if(!login_mehet){
                                         return false;
                                     }else{
-                                        /* Rengeteg kínlódás után ez a megoldás, mivel a Hibaüzeneteket újra és újra feldobta, így meg nem submitoljuk el ha hibaüzenet van. De ha inncs submit, akkor meg a szálloda választás után nem submitolna. */
+                                        /* Rengeteg kínlódás után ez a megoldás, mivel a Hibaüzeneteket újra és újra feldobta, így meg nem submitoljuk el ha hibaüzenet van. De ha nincs submit, akkor meg a szálloda választás után nem submitolna. */
                                         if( !$(\'#alert2\').is(\':visible\') ){
                                             $(\'#szerk_form\').submit();
                                         }

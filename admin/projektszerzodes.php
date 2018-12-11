@@ -153,6 +153,367 @@ if(isset($_POST['get_projekt_tabla'])){
     exit();
 }
 
+// Tétel sorok mentése
+if (isset($_POST['tetel_sorok_ment'])) {
+    
+    $db_error = false;
+    mysqli_autocommit($db_kapcs, false);
+    
+    $recid              = $_POST['recid'];
+    $szerzodes_osszege  = str_replace(' ', '', $_POST['szerzodes_osszege']);
+    $_POST['adatok'] = json_decode( $_POST['adatok'] );
+    
+    $tetelek_osszege = '';
+    foreach ( $_POST['adatok'][2][1] as $ertek ){
+        $ertek = str_replace(' ', '', $ertek);
+        $tetelek_osszege += $ertek;
+    }
+    
+    // Ha nincs egy sornyi tételünk sem, akkor hibaüzenet
+    if(!$_POST['adatok'][0][1]){
+        echo json_encode( array( 
+                        'hiba'  => 'Legalább egy tételnek szerepelnie kell a táblázatban, üresen nem menthető!',
+                        'title' => 'Hiba'
+                        ) );
+                $weblap->leallit();
+                exit();
+                
+    // Ha a szerződés összege nem egyenlő a tételek összegével, akkor hibaüzenet
+    }elseif( $tetelek_osszege != $szerzodes_osszege ){
+        echo json_encode( array( 
+                        'hiba'  => 'A szerződés tételeinek összege nem egyezik meg a szerződés összegével!<br>Így nem menthető!',
+                        'title' => 'Hiba'
+                        ) );
+                $weblap->leallit();
+                exit();
+                
+    // Tételek kimentése Session-be
+    }else{
+        $_SESSION['pr_szer_tetel_targy']    = $_POST['adatok'][0][1];
+        $_SESSION['pr_szer_tetel_varh_erk'] = $_POST['adatok'][1][1];
+        $_SESSION['pr_szer_tetel_varh_ert'] = $_POST['adatok'][2][1];
+    }
+    
+    // Ha ismert a szerződés ID-ja, akkor a sorokat is updatel-jük
+    if( $recid ){
+        $sql = $adatbazis_kapcsolat->d('projektszerzodes_tetel', "`projektszerzodes_recid`='{$recid}'");
+        if( $sql === false ) { $db_error = true; }
+        
+        $i = 0;
+        foreach($_SESSION['pr_szer_tetel_targy'] as $targy){
+            $varh_erk = str_replace('.', '-', $_SESSION['pr_szer_tetel_varh_erk'][$i]);
+            $varh_ert = str_replace(' ', '',  $_SESSION['pr_szer_tetel_varh_ert'][$i]);
+            $sql = $adatbazis_kapcsolat->i('projektszerzodes_tetel',
+                                                array('projektszerzodes_recid', 'targy', 'varh_erk', 'varh_ert', 'loginnev',                          'insert_dt',    'insert_usr',                             'update_usr'                              ),
+                                                array($recid,                   $targy,  $varh_erk,  $varh_ert,  $_SESSION[get_db_tabla().'user'],    'NOW()',        $_SESSION[get_db_tabla().'teljes_nev'],   $_SESSION[get_db_tabla().'teljes_nev']    )
+                                        );
+            if( $sql === false ) { $db_error = true; }
+            $i++;
+        }
+        
+    }
+    
+    
+    if( !$db_error ) {
+        mysqli_commit($db_kapcs);
+
+        echo json_encode(array(
+            'statusz' => 'siker'
+        ));
+    } else {
+        mysqli_rollback($db_kapcs);
+
+        echo json_encode(array(
+            'hiba'  => tranzakcioHiba(),
+            'title' => 'Hiba'
+        ));
+    }
+    
+    $weblap->leallit();
+    exit();
+}
+
+// Tétel sorok mentése
+if (isset($_POST['pop_tetelek_feltolt'])) {
+    
+    $html = '';
+    
+    
+    $i = 0;
+    foreach($_SESSION['pr_szer_tetel_targy'] as $targy){
+        
+        $szla_varh_erk = $_SESSION['pr_szer_tetel_varh_erk'][$i];
+        $szla_varh_ert = $_SESSION['pr_szer_tetel_varh_ert'][$i];
+        
+        $id_tmp = time();
+        $id_tmp .= $i;
+        $html .= '<tr class="pop_tetel_'.$id_tmp.'">' .
+                            '<td class="pop_targy">' . $targy . '</td>' .
+                            '<td class="pop_varh_erk">' . $szla_varh_erk . '</td>' .
+                            '<td class="pop_varh_ert r">' . $szla_varh_ert . '</td>' .
+                            '<td></td>' .
+                            '<td></td>' .
+                            '<td><a onclick="popup_tetel_sor_torol(\'pop_tetel_'.$id_tmp.'\');"><span class="icon"><i class="material-icons">delete</i></span></a></td>' .
+                        '</tr>';
+        $i++;
+    }
+   
+    echo json_encode( array(
+        'html' => $html
+        ) );
+    
+    $weblap->leallit();
+    exit();
+}
+
+// Van-e a session-ban tétel
+if (isset($_POST['van_tetel'])) {
+    
+    $szerzodes_osszege = str_replace(' ', '', $_POST['szerzodes_osszege']);
+    
+    // Ha nincs feltöltött tétel:
+    if( !$_SESSION['pr_szer_tetel_targy'] ){
+        
+        echo json_encode( array(
+                            'van_tetel' => 'nincs',
+                            'hiba'      => 'Nem töltött fel tételeket, így nem menthető a Projekt szerződés!'
+                        ) );
+        $weblap->leallit();
+        exit();
+        
+    // Ha van tétel, akkor még az összegek egyezésté is ellenőrizni kell
+    }else{
+        
+        // Ha a szerződés összege nem egyezik a feltöltött tételek összegével
+        $tetelek_osszege = 0;
+        foreach ( $_SESSION['pr_szer_tetel_varh_ert'] as $ertek ){
+            $ertek = str_replace(' ', '', $ertek);
+            $tetelek_osszege += $ertek;
+        }
+        if( $tetelek_osszege != $szerzodes_osszege ){
+            echo json_encode( array(
+                                'hiba' => 'A szerződés tételeinek összege nem egyezik meg a szerződés összegével!<br>Így nem menthető!'
+                            ) );
+            $weblap->leallit();
+            exit();
+        }
+        
+        echo json_encode( array(
+                            'van_tetel' => 'van'
+                        ) );
+        $weblap->leallit();
+        exit();
+    }
+    
+    
+    $weblap->leallit();
+    exit();
+}
+
+// CSV generálása
+if (isset($_GET['csv'])) {
+
+    $megnevezes_fajhoz = $megnevezes;
+    if (isset($_GET['tetelek'])) {
+        $megnevezes_fajhoz .= '_tetelek';
+    }
+
+    header("Content-type: text/csv");
+    header("Content-Disposition: attachment; filename=$megnevezes_fajhoz.csv");
+    header("Pragma: no-cache");
+    header("Expires: 0");
+
+    $mibol   = get_web_charset();
+    $mibe    = 'windows-1250';
+
+    if( !is_dir('export') ) {
+        mkdir('export');
+    }
+
+    if( !is_dir('export/csv') ) {
+        mkdir('export/csv');
+    }
+
+    // Open the output stream
+    $open = fopen('php://output', 'w');
+    fwrite($open, "sep=;\n");
+    ob_start();
+
+    if($open){
+
+        $lekerdezes_fromtol = substr($_SESSION['akt_sql'], strpos($_SESSION['akt_sql'], 'FROM'));
+
+        if( $_SESSION['nyomtatas_ids'] ) {
+
+            // Tételek exportja
+            if (isset($_GET['tetelek'])) {
+
+                $lekerdezes_fromtol = str_replace('FROM `'.get_db_tabla().$megnevezes.'` ', "FROM `".get_db_tabla().$megnevezes."` JOIN `".get_db_tabla().$megnevezes."_tetel` ON `".get_db_tabla().$megnevezes."`.`recid`=`".get_db_tabla().$megnevezes."_tetel`.`".$megnevezes."_recid`", $lekerdezes_fromtol);
+                
+                if( strstr($_SESSION['akt_sql'], 'WHERE') ) {
+                    $lekerdezes_fromtol = str_replace('WHERE', "WHERE `".get_db_tabla().$megnevezes."`.`recid` IN (".$_SESSION['nyomtatas_ids'].") AND ", $lekerdezes_fromtol);
+                } else {
+                    $lekerdezes_fromtol = str_replace('ORDER', "WHERE `".get_db_tabla().$megnevezes."`.`recid` IN (".$_SESSION['nyomtatas_ids'].") ORDER", $lekerdezes_fromtol);
+                }
+
+                $sql = 'SELECT
+                            `'.get_db_tabla().$megnevezes.'`.`telephely_id` as \'Szálloda\',
+                            `'.get_db_tabla().$megnevezes.'`.`sz_szam` as \'Szerződés szám\',
+                            `'.get_db_tabla().$megnevezes.'`.`kelte` as \'Kelte\',
+                            `'.get_db_tabla().$megnevezes.'`.`szallito_id` as \'Szerződő partner\',
+                            `'.get_db_tabla().$megnevezes.'`.`pr_szam` as \'Projekt szám\',
+                            `'.get_db_tabla().$megnevezes.'`.`targy` as \'Tárgy\',
+                            `'.get_db_tabla().$megnevezes.'`.`kolt_vis` as \'Költségviselő\',
+                            `'.get_db_tabla().$megnevezes.'`.`kiv_kezd` as \'Kivitelezés kezdete\',
+                            `'.get_db_tabla().$megnevezes.'`.`kiv_vege` as \'Kivitelezés vége\',
+                            `'.get_db_tabla().$megnevezes.'`.`szerz_ossz` as \'Szerződött összeg\',
+                            `'.get_db_tabla().$megnevezes.'`.`let_fel` as \'Létesítmény felelős\',
+                            `'.get_db_tabla().$megnevezes.'`.`muszak_atv` as \'Műszaki átvétel\',
+                            `'.get_db_tabla().$megnevezes.'`.`bank_gar` as \'Bank garancia\',
+                            `'.get_db_tabla().$megnevezes.'`.`bank_gar_vege` as \'Bank garancia vége\',
+                            `'.get_db_tabla().$megnevezes.'`.`szamlazva` as \'Számlázva\',
+                                
+                            `'.get_db_tabla().$megnevezes.'_tetel`.`targy` as `Tétel tárgy`,
+                            `'.get_db_tabla().$megnevezes.'_tetel`.`varh_erk` as `Számla várh. érk.`,
+                            `'.get_db_tabla().$megnevezes.'_tetel`.`varh_ert` as `Számla várh. értéke (Ft)`,
+                            `'.get_db_tabla().$megnevezes.'_tetel`.`teljesites` as `Teljesítés`,
+                            `'.get_db_tabla().$megnevezes.'_tetel`.`ertek` as `Érték`
+                            '.$lekerdezes_fromtol;
+
+                $query      = mysqli_query($db_kapcs, $sql);
+// echo $sql; exit;
+                $csvhead    = array();
+                while($fejlec_nevek = mysqli_fetch_field($query)){
+                    $csvhead[] = iconv2($mibol, $mibe, $fejlec_nevek -> name );
+                }
+                fputcsv($open, $csvhead, ';');
+
+                $i = 0;
+                while( $sorok = mysqli_fetch_assoc($query) ){
+
+                    $csvcont = array();
+                    foreach( $sorok as $kulcs => $sor ) {
+                        if($kulcs=='Szálloda'){
+                            $sor = getSzallodaNev($sor);
+                        }
+                        if($kulcs=='Szerződő partner'){
+                            $sor = getErtek('nev', 'szallito', 'id', $sor);
+                        }
+                        if($kulcs=='Költségviselő'){
+                            $sor = erteklista(ERTEKLISTA_KOLTSEGVISELO, $sor);
+                        }
+                        if($kulcs=='Műszaki átvétel' || $kulcs=='Kelte' || $kulcs=='Kivitelezés kezdete' || $kulcs=='Kivitelezés vége' || $kulcs=='Bank garancia vége' || $kulcs=='Bank garancia vége' || $kulcs=='Teljesítés'  ){
+                            $sor = datum_kiir($sor);
+                        }
+                        if($kulcs=='Számlázva'){
+                            if($sor){
+                                $sor = 'igen';
+                            }else{
+                                $sor = 'nem';
+                            }
+                        }
+                        $csvcont[] = iconv($mibol, $mibe.'//TRANSLIT', strip_tags( htmlspecialchars_decode( $sor ) ) );
+                    }
+
+                    fputcsv($open, $csvcont, ';');
+
+                    // 100 soronként kiírtatunk
+                    if ($i % 100 == 0) {
+                        flush();
+                    }
+
+                    $i++;
+                }
+
+            // Projektszerződések exportja
+            }else{
+
+                if( strstr($_SESSION['akt_sql'], 'WHERE') ) {
+                    $lekerdezes_fromtol = str_replace('WHERE', "WHERE `".get_db_tabla().$megnevezes."`.`recid` IN (".$_SESSION['nyomtatas_ids'].") AND ", $lekerdezes_fromtol);
+                } else {
+                    $lekerdezes_fromtol = str_replace('ORDER', "WHERE `".get_db_tabla().$megnevezes."`.`recid` IN (".$_SESSION['nyomtatas_ids'].") ORDER", $lekerdezes_fromtol);
+                }
+
+                $sql = 'SELECT
+                            `telephely_id` as \'Szálloda\',
+                            `sz_szam` as \'Szerződés szám\',
+                            `kelte` as \'Kelte\',
+                            `szallito_id` as \'Szerződő partner\',
+                            `pr_szam` as \'Projekt szám\',
+                            `targy` as \'Tárgy\',
+                            `kolt_vis` as \'Költségviselő\',
+                            `kiv_kezd` as \'Kivitelezés kezdete\',
+                            `kiv_vege` as \'Kivitelezés vége\',
+                            `szerz_ossz` as \'Szerződött összeg\',
+                            `let_fel` as \'Létesítmény felelős\',
+                            `muszak_atv` as \'Műszaki átvétel\',
+                            `bank_gar` as \'Bank garancia\',
+                            `bank_gar_vege` as \'Bank garancia vége\',
+                            `szamlazva` as \'Számlázva\'
+                            '.$lekerdezes_fromtol;
+
+                $query      = mysqli_query($db_kapcs, $sql);
+
+                $csvhead    = array();
+                while($fejlec_nevek = mysqli_fetch_field($query)){
+                    $csvhead[] = iconv2($mibol, $mibe, $fejlec_nevek -> name );
+                }
+                fputcsv($open, $csvhead, ';');
+
+                $i = 0;
+                while( $sorok = mysqli_fetch_assoc($query) ){
+
+                    $csvcont = array();
+                    foreach( $sorok as $kulcs => $sor ) {
+                        if($kulcs=='Szálloda'){
+                            $sor = getSzallodaNev($sor);
+                        }
+                        if($kulcs=='Szerződő partner'){
+                            $sor = getErtek('nev', 'szallito', 'id', $sor);
+                        }
+                        if($kulcs=='Költségviselő'){
+                            $sor = erteklista(ERTEKLISTA_KOLTSEGVISELO, $sor);
+                        }
+                        if($kulcs=='Műszaki átvétel' || $kulcs=='Kelte' || $kulcs=='Kivitelezés kezdete' || $kulcs=='Kivitelezés vége' || $kulcs=='Bank garancia vége' || $kulcs=='Bank garancia vége'){
+                            $sor = datum_kiir($sor);
+                        }
+                        if($kulcs=='Számlázva'){
+                            if($sor){
+                                $sor = 'igen';
+                            }else{
+                                $sor = 'nem';
+                            }
+                        }
+                        $csvcont[] = iconv($mibol, $mibe.'//TRANSLIT', strip_tags( htmlspecialchars_decode( $sor ) ) );
+                    }
+
+                    fputcsv($open, $csvcont, ';');
+
+                    // 100 soronként kiírtatunk
+                    if ($i % 100 == 0) {
+                        flush();
+                    }
+
+                    $i++;
+                }
+
+            }
+
+        }
+
+    }
+
+    // Get the contents of the output buffer
+    $string = ob_get_clean();
+    fclose($fh);
+
+    // Stream the CSV data
+    exit($string);
+
+    $weblap->leallit();
+    exit();
+}
+
 
 
 
@@ -179,11 +540,12 @@ require_once('selectek.php');
         $megj_db = ' ('.$sor['megj_db'].')';
     }
 
-    if( isset($_GET['modosit']) || isset($_GET['dokumentumok']) || isset($_GET['megjegyzesek']) ) {
+    if( isset($_GET['modosit']) || isset($_GET['tetel']) || isset($_GET['dokumentumok']) || isset($_GET['megjegyzesek']) ) {
         
         // Számla fülek
         $ful_tomb = array(
             'modosit'       => 'Adatlap',
+            'tetel'         => 'Tételek',
             'dokumentumok'  => 'Dokumentumok'.$dok_db,
             'megjegyzesek'  => 'Megjegyzések'.$megj_db,
         );
@@ -209,6 +571,11 @@ require_once('selectek.php');
     // Gombok kirajzolása minden oldalra
     $gombok = '';
     if( isset($_GET['uj']) ) {
+        
+        // Új feltöltéskor a tétel sorokat töröljük, ne az legyen, hogy szerkesztésből maradt adaotkkal számoljunk
+        $_SESSION['pr_szer_tetel_targy']    = '';
+        $_SESSION['pr_szer_tetel_varh_erk'] = '';
+        $_SESSION['pr_szer_tetel_varh_ert'] = '';
 
         if( _jog(JOG_PRKEZEL_SZERZODES_KEZEL) ){
             $gombok = nl2('
@@ -217,6 +584,8 @@ require_once('selectek.php');
                     <input type="button" class="gomb piros" disabled id="megsem_gomb" value="Mégsem" onclick="szurkit(\'mehet_megsem_rejt\'); formModositva=false; szamlaBetolt($(\'#szamlaList li:first-of-type\').attr(\'data-recid\'), \''.$megnevezes.'.php\');">
                 </div>
             ');
+            
+            $gombok .= ' <input type="button" class="gomb" onclick="csoportMuvelet(\'projektszerzodes_tetelek_kezelese\')" value="Tételek kezelése">';
 
             $muv_style = ' style="width: calc(100% - '.($_SESSION['defaultCsuszka'] + 16).'px);"';
             if( in_array(basename(self()), $_SESSION['ketHasabos']) && $_SESSION[get_db_tabla().'user'] ) {
@@ -236,6 +605,17 @@ require_once('selectek.php');
     // Módosítás gombok
     }else{
         
+        // Módosításkor updateljük a Session-ben a tételek adatait, így lesz jó a popupban
+        $i = 0;
+        $_SESSION['pr_szer_tetel_targy'] = $_SESSION['pr_szer_tetel_varh_erk'] = $_SESSION['pr_szer_tetel_varh_ert'] = array();
+        $tetelek = $adatbazis_kapcsolat->s('*', 'projektszerzodes_tetel', "`projektszerzodes_recid`='{$_GET['id']}'", 'recid');
+        foreach($tetelek as $tetel){
+            $_SESSION['pr_szer_tetel_targy'][$i]    = $tetel['targy'];
+            $_SESSION['pr_szer_tetel_varh_erk'][$i] = str_replace('-', '.', $tetel['varh_erk']);
+            $_SESSION['pr_szer_tetel_varh_ert'][$i] = number_format($tetel['varh_ert'], 0, '', ' ');
+            $i++;
+        }
+        
         // Törlés gomb
         if( !_jog(JOG_PRKEZEL_SZERZODES_KEZEL) ){
             $gombok .= ' <input type="button" id="recordTorol" class="gombb_alert dn" onclick="alert2(\'Önnek nincs joga a projekt szerződés törléséhez!\', \'\', \'Hiba\')" value="Töröl" title="Töröl">';
@@ -244,7 +624,15 @@ require_once('selectek.php');
             $gombok .= ' <input type="button" id="recordTorol" class="gombb_alert dn" onclick="alert2(\'Biztosan törli ezt a '.$szoveg.'?\', gomb'.$_GET['id'].')" value="Töröl" title="Töröl">';
         }
         
+        // Tételek kezelése
+        if( _jog(JOG_PRKEZEL_SZERZODES_KEZEL) ){
+            $gombok .= ' <input type="button" class="gomb" onclick="csoportMuvelet(\'projektszerzodes_tetelek_kezelese\')" value="Tételek kezelése">';
+            // Ha nem az Adatlapon volnánk, akkor szükségünk lesz egy rejtett inputra, ami az adatbázisban levő szerződéses összeget tartalmazza, hogy bármelyik fül alatt szerkeszteni lehessen a tételeket, összehasonlítva az aktuális szerződéses összeggel
+            $gombok .= ' <input type="hidden" id="szerz_ossz_db" value="'.$sor['szerz_ossz'].'">';
+        }
+        
         if( isset($_GET['modosit']) && _jog(JOG_PRKEZEL_SZERZODES_KEZEL) ) {
+            
             $gombok = nl2('
                 <div class="form_kuldes">
                     <input type="button" class="gombb mentes_gomb" name="mehet_gomb" id="mehet_gomb" disabled value="Mentés" onclick="szurkit(\'mehet_megsem_rejt\'); $(\'#szerk_form\').submit()">
@@ -273,7 +661,64 @@ require_once('selectek.php');
     
 	// Új projektkezelés felvitele
 	if(isset($_GET['uj']) && _jog(JOG_PRKEZEL_UJ_LETREHOZ) ){
-
+        
+        $js_submit_elott = nl2('
+            
+                var dfrd_pr_mehet = false;
+                var hibauzenet    = \'\';
+                dfrd_pr_szerzodes = $.Deferred();
+                $.ajax({
+                    url : \'projektszerzodes.php\',
+                    type: \'POST\',
+                    data: {
+                        szerzodes_osszege: $(\'#szerz_ossz\').val(),
+                        van_tetel        : Date.now()
+                    },
+                    success: function(response){
+                        if(response){
+                            response = JSON.parse(response);
+                            if(response.van_tetel==\'van\'){
+                                formModositva = false;
+                                $(\'#szerk_form\').attr(\'onsubmit\', \'\');
+                                $(\'#szerk_form\').submit();
+                                dfrd_pr_mehet = true;
+                                return true;
+                            }else{
+                                dfrd_pr_mehet = false;
+                                hibauzenet    = response.hiba;
+                            }
+                            dfrd_pr_szerzodes.resolve();
+                        }
+                        return false;
+                    }
+                });
+                
+                $.when(dfrd_pr_szerzodes).then(function() {
+                    urlap_mehet = false;
+                    if( !dfrd_pr_mehet ){
+                        alert2(hibauzenet, \'<input type="button" class="gomb" value="Ok" onclick="szurkit_zar(\\\'mehet_megsem_mutat\\\'); alert2();">\', \'Hiba\');
+                        return false;
+                    }else{
+                        urlap_mehet = true;
+                    }
+                    
+                    /* Ez a feltétel nem tévedésből van kétszer, kell ide is, meg egyel lentebb is */
+                    if(!urlap_mehet){
+                        return false;
+                    }else{
+                        return form_ell_admin();
+                    }
+                });
+                
+                
+                /* Ez a feltétel nem tévedésből van kétszer, kell ide is, meg egyel fentebb is */
+                if(!urlap_mehet){
+                    return false;
+                }else{
+                    return form_ell_admin();
+                }
+                ');
+        
         $navi_sablon  = fajlbol_olvas('../sablon/admin/navi.html', true);
         $navi_mit     = array('{NAVI_FELIRAT}',  '{GOMBOK}', '{GYK}');
         $navi_mivel   = array( $navi,             '',         $gyk2 );
@@ -401,6 +846,44 @@ require_once('selectek.php');
         if($tobb_kep){
 			require_once('tobb_kep.php');
 		}
+
+	// Tételek fül
+	}elseif(isset($_GET['tetel'])){
+        
+        $szamla_html .= nl2('
+            <div class="dt naplo">
+                <div class="dtr nFejlec">
+                    <div class="dtc">Tárgy</div>
+                    <div class="dtc">Számla várh. érk.</div>
+                    <div class="dtc">Számla várh. értéke ('.get_penznem().')</div>
+                    <div class="dtc">Teljesítés</div>
+                    <div class="dtc">Érték ('.get_penznem().')</div>
+                </div>
+        ');
+
+        // Tételek felsorolása
+        $tetelek = $adatbazis_kapcsolat->s('*', 'projektszerzodes_tetel', "`projektszerzodes_recid`='{$_GET['id']}'", 'recid');
+        foreach($tetelek as $tetel){
+            $szamla_html .= nl2('
+                <div class="dtr nSor">
+                    <div class="dtc">'.$tetel['targy'].'</div>
+                    <div class="dtc">'.datum_kiir($tetel['varh_erk']).'</div>
+                    <div class="dtc">'.number_format($tetel['varh_ert'], 0, '', ' ').'</div>
+                    <div class="dtc">'.datum_kiir($tetel['teljesites']).'</div>
+                    <div class="dtc">'.number_format($tetel['ertek'], 0, '', ' ').'</div>
+                </div>
+            ');
+        }
+        $szamla_html .= '</div>';
+        
+        if( $_GET['ajax'] ) {
+            echo json_encode(array(
+                'tartalom' => $szamla_html.$gombok,
+                'link'     => get_get(array('ajax', 'kat', 'epo', 'oldal', 'order'), true)
+            ));
+        } else {
+            echo $szamla_html.$gombok;
+        }
 
 	// Történet
 	}elseif(isset($_GET['tortenet'])){
