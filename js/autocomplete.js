@@ -257,12 +257,14 @@
                 $(this).removeClass('aktiv');
             });
 
+            /* Ha nincs érték a rejett mezőben, akkor töröljük az autocopletes mező értékét is.
+             * Viszont ezt ne tegyük meg, ha a mezőnek van olyan data tag-je, hogy "ne üríts" */
             $(this).on('blur', function(e) {
                 if( mezo !== undefined && mezo.attr('name').indexOf('_autocomp') !== -1 ) {
                     var mezo_nev = mezo.attr('name').replace('_autocomp', ''),
                         value    = $('input[name="' + mezo_nev + '"]').val();
 
-                    if( !value && mezo.attr('data-no_original_val')!='1' ) {
+                    if( !mezo.data('ne_urits') && !value && mezo.attr('data-no_original_val')!='1' ) {
                         mezo.val('');
                     }
                 }

@@ -17,7 +17,7 @@
                                  'rkat'             : 0,
                                  'csoport'          : 0,
                                  'id_kiir'          : 'id',
-                                 complete           : function() { get_szallito_mailcim(); }
+                                 complete           : function() { get_szallito_mailcim( $(this) ); }
                              });
                         });
                     </script>
@@ -26,9 +26,27 @@
                     <br><input type="text" autocomplete="off" class="datetimepicker pop_datetimepicker popup_input_margo" name="pop_varh_erk" id="pop_varh_erk">
                     <br>
                     <br><strong>Email megrendelés adatai:</strong>
-                    <br>
+                    <br>Címzett kiválasztása: <input type="text" autocomplete="off" class="oriasi disableNav csillag" name="pop_cimzett_loginbol_autocomp" id="pop_cimzett_loginbol_autocomp" onblur="if(!$(this).val()){ $('#pop_cimzett_loginbol').val(''); }" value="" data-ne_urits="1" style="width: 30rem">
+                    <input type="hidden" name="pop_cimzett_loginbol" id="pop_cimzett_loginbol" value="">
+                    <script>
+                         $(document).ready(function() {
+                             $('#pop_cimzett_loginbol_autocomp').autocomplete({
+                                 'php_fajl'         : '../autocomplete.php',
+                                 'tabla'            : 'login',
+                                 'oszlop_keres'     : 'teljes_nev',
+                                 'oszlop_listaz'    : 'teljes_nev',
+                                 'rkat'             : 0,
+                                 'csoport'          : 0,
+                                 'id_kiir'          : 'usermail',
+                             });
+                        });
+                    </script>
+                    <input type="button" class="gomb alacsony zold" value="Címzett" onclick="cimzett_add('cimzett')">
+                    <input type="button" class="gomb alacsony kek" value="Másolat" onclick="cimzett_add('masolat')">
                     <br><strong>Címzett:</strong>
-                    <br><input type="text" id="pop_cimzett" class="oriasi disableNav popup_input_margo csillag" maxlength="250">
+                    <br><input type="text" id="pop_cimzett" class="oriasi disableNav popup_input_margo" maxlength="250">
+                    <br><strong>Másolat:</strong>
+                    <br><input type="text" id="pop_masolat" class="oriasi disableNav popup_input_margo" maxlength="250">
                     <br><strong>Tárgy:</strong>
                     <br><input type="text" id="pop_targy" class="oriasi disableNav popup_input_margo csillag" maxlength="250">
                     <br><strong>Üzenet:</strong>
@@ -76,6 +94,7 @@ function kulsokivHozzarend( that ) {
                 email               : $('#email_kuldessel').val(),
                 mehet               : $('#mehet_mail_nelkul').val(),
                 cimzett             : $('#pop_cimzett').val(),
+                masolat             : $('#pop_masolat').val(),
                 targy               : $('#pop_targy').val(),
                 uzenet              : $('#pop_uzenet').val(),
                 kulsokivHozzarend   : new Date().getTime()
@@ -104,5 +123,39 @@ function kulsokivHozzarend( that ) {
     }
 
     return false;
+}
+
+/* Címzett/másolat mezőkhöz adjuk a kiválasztott mailcímet */
+function cimzett_add( mezo ){
+    
+    if(!$('#pop_cimzett_loginbol_autocomp').val()){
+        alert2('Kérem előbb válasszon címzettet!', '', 'Hiba');
+        return false;
+    }
+    
+    if(!$('#pop_cimzett_loginbol').val()){
+        alert2($('#pop_cimzett_loginbol_autocomp').val()+' felhasználónak nem ismert a mailcíme!', '', 'Hiba');
+    }
+    
+    if(mezo=='cimzett'){
+        var cimzett = '';
+        if($('#pop_cimzett').val()){
+            cimzett = ', ';
+        }
+        cimzett += $('#pop_cimzett_loginbol').val();
+        $('#pop_cimzett').val( $('#pop_cimzett').val()+cimzett );
+    }
+    if(mezo=='masolat'){
+        var masolat = '';
+        if($('#pop_masolat').val()){
+            masolat = ', ';
+        }
+        masolat += $('#pop_cimzett_loginbol').val();
+        $('#pop_masolat').val( $('#pop_masolat').val()+masolat );
+    }
+    
+    $('#pop_cimzett_loginbol').val('');
+    $('#pop_cimzett_loginbol_autocomp').val('');
+    
 }
 </script>

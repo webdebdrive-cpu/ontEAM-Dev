@@ -26,14 +26,14 @@
                     <br><input type="text" autocomplete="off" class="datetimepicker pop_datetimepicker popup_input_margo" name="pop_varh_erk" id="pop_varh_erk">
                     <br>
                     <br><strong>Email megrendelés adatai:</strong>
-                    <br>Címzett kiválasztása: <input type="text" autocomplete="off" class="oriasi disableNav csillag" name="pop_cimzett_loginbol_autocomp" id="pop_cimzett_loginbol_autocomp" onblur="if(!$(this).val()){ $('#pop_cimzett_loginbol').val(''); }" value="" style="width: 30rem">
+                    <br>Címzett kiválasztása: <input type="text" autocomplete="off" class="oriasi disableNav csillag" name="pop_cimzett_loginbol_autocomp" id="pop_cimzett_loginbol_autocomp" onblur="if(!$(this).val()){ $('#pop_cimzett_loginbol').val(''); }" value="" data-ne_urits="1" style="width: 30rem">
                     <input type="hidden" name="pop_cimzett_loginbol" id="pop_cimzett_loginbol" value="">
                     <script>
                          $(document).ready(function() {
                              $('#pop_cimzett_loginbol_autocomp').autocomplete({
                                  'php_fajl'         : '../autocomplete.php',
                                  'tabla'            : 'login',
-                                 'oszlop_keres'     : 'nev',
+                                 'oszlop_keres'     : 'teljes_nev',
                                  'oszlop_listaz'    : 'teljes_nev',
                                  'rkat'             : 0,
                                  'csoport'          : 0,
@@ -126,16 +126,16 @@ function munkalapKulso() {
     return false;
 }
 
-/* Címzett/másolat mezőhöz adjuk a kiválasztott mailcímet */
+/* Címzett/másolat mezőkhöz adjuk a kiválasztott mailcímet */
 function cimzett_add( mezo ){
     
     if(!$('#pop_cimzett_loginbol_autocomp').val()){
-        alert2('Kérem válasszon előbb válasszon címzettet!');
+        alert2('Kérem előbb válasszon címzettet!', '', 'Hiba');
         return false;
     }
     
     if(!$('#pop_cimzett_loginbol').val()){
-        alert2($('#pop_login_autocomp').val()+' felhasználónak nem ismert a mailcíme!');
+        alert2($('#pop_cimzett_loginbol_autocomp').val()+' felhasználónak nem ismert a mailcíme!', '', 'Hiba');
     }
     
     if(mezo=='cimzett'){

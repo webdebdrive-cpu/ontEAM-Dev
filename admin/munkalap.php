@@ -609,6 +609,17 @@ if( isset($_POST['munkalapKulso']) ) {
                 $weblap->leallit();
                 exit();
             }
+            if(substr_count($_POST['masolat'], '@')>1 && strpos($_POST['masolat'], ',')===false){
+                echo json_encode(array(
+                    'hiba'  => 'Ha több címzett kap másolatot, a mailcímeket vesszővel sorolja fel!',
+                    'title' => 'Hiba',
+                    'gomb'  => '<input type="button" class="gomb" value="Ok" onclick="$(\'#email_kuldessel\').val(0); alert2();">',
+                    'focus' => 'pop_cimzett',
+                ));
+
+                $weblap->leallit();
+                exit();
+            }
             
             // Mailcímek helyességének ellenőrzése
             $mailcimek = explode(',', $_POST['cimzett']);
@@ -670,38 +681,39 @@ if( isset($_POST['munkalapKulso']) ) {
             $kieg = get_mail_teszt_felirat();
             $targy_kieg = $kieg[0];
             $uzi_kieg   = $kieg[1];
-            foreach($mailcimek as $mailcim){
+            
+            $sikeres_kuldes = level_kuldes_osszetettebb(get_nev(), get_mail(), $mailcimek, $mailcimek, $masolatok, $masolatok, $r_masolatok, $r_masolatok, $targy_kieg.$_POST['targy'], $uzi_kieg.nl2br2($_POST['uzenet']));
+            if($sikeres_kuldes){
+                mysqli_rollback($db_kapcs);
+                echo json_encode(array(
+                    'hiba'  => 'Levélküldés közben hiba történt!',
+                    'title' => 'Hiba'
+                ));
+
+                $weblap->leallit();
+                exit();
                 
-                $sikeres_kuldes = level_kuldes(get_nev(), get_mail(), $mailcim, $mailcim, $targy_kieg.$_POST['targy'], $uzi_kieg.nl2br2($_POST['uzenet']));
-                if($sikeres_kuldes){
-                    mysqli_rollback($db_kapcs);
-                    echo json_encode(array(
-                        'hiba'  => a_az($mailcim, 'Nagybetűs').' '.$mailcim.' címre történő levélküldés közben hiba történt!'.$sikeres_kuldes,
-                        'title' => 'Hiba'
-                    ));
-
-                    $weblap->leallit();
-                    exit();
-                }else{
-                    // Ha az MSZK mailcímérement ki a levél, akkor oda ne a szállító nevét írjuk
-                    if($mailcim==get_mszk_mail()){
-                        $cimzett_nev = 'MSZK';
-                    }else{
-                        $cimzett_nev = $szallito['nev'];
-                    }
-                    $emailkuldes_megj .= 'Megrendelő email elküldve: '.$cimzett_nev.' '.$mailcim."\n";
-                    // E-mail küldés logolása
-                    $sql = $adatbazis_kapcsolat->i('munkalap_email',    array('munkalap_id', 'szallito_id', 'cimzett',  'targy',                     'text',                                'insert_dt', 'insert_usr'                           ),
-                                                                        array($recid,        $szallito_id,  $mailcim,   $targy_kieg.$_POST['targy'], $uzi_kieg.nl2br2($_POST['uzenet']),    'NOW()',     $_SESSION[get_db_tabla().'teljes_nev'] )
-                                                );
-                    if( $sql === false ) { $db_error = true; }
+            }else{
+                
+                $cimzettek          = implode(', ', $mailcimek);
+                $masolatot_kapott   = '';
+                $emailkuldes_megj .= 'Megrendelő email elküldve.'."\n".'Címzettek: '.$cimzettek.' ';
+                if($masolatok){
+                    $masolatot_kapott   = implode(', ', $masolatok);
+                    $emailkuldes_megj .= "\n".'Másolatot kaptak: '.$masolatot_kapott.' ';
                 }
-
-                // Mail eküldve pipa bekapcsolása
+                $emailkuldes_megj .= "\n";
+                // E-mail küldés logolása
+                $sql = $adatbazis_kapcsolat->i('munkalap_email',    array('munkalap_id', 'szallito_id', 'cimzett',  'masolat',           'targy',                     'text',                                'insert_dt', 'insert_usr'                           ),
+                                                                    array($recid,        $szallito_id,  $cimzettek, $masolatot_kapott,   $targy_kieg.$_POST['targy'], $uzi_kieg.nl2br2($_POST['uzenet']),    'NOW()',     $_SESSION[get_db_tabla().'teljes_nev'] )
+                                            );
+                if( $sql === false ) { $db_error = true; }
+                
+                // Mail elküldve pipa bekapcsolása
                 $sql = $adatbazis_kapcsolat->u('munkalap', array('mail_ment'), array('1'), "`recid`='{$recid}'");
                 if( $sql === false ) { $db_error = true; }
-
             }
+            
             
         // Ha nincs levélküldés, akkor rákérdezünk, hogy biztosan nem szerettek volna levelet küldeni?
         }elseif(!$_POST['mehet']){
@@ -2304,11 +2316,36 @@ if( isset($_POST['kulsokivHozzarend']) ) {
                 $weblap->leallit();
                 exit();
             }
+            if(substr_count($_POST['masolat'], '@')>1 && strpos($_POST['masolat'], ',')===false){
+                echo json_encode(array(
+                    'hiba'  => 'Ha több címzett kap másolatot, a mailcímeket vesszővel sorolja fel!',
+                    'title' => 'Hiba',
+                    'gomb'  => '<input type="button" class="gomb" value="Ok" onclick="$(\'#email_kuldessel\').val(0); alert2();">',
+                    'focus' => 'pop_cimzett',
+                ));
+
+                $weblap->leallit();
+                exit();
+            }
             
             // Mailcímek helyességének ellenőrzése
             $mailcimek = explode(',', $_POST['cimzett']);
             array_push($mailcimek, get_mszk_mail()); // Így az MSZK is kap értesítő levelet
             foreach($mailcimek as $mailcim){
+                if(trim($mailcim) && !is_valid_mail(trim($mailcim))){
+                    echo json_encode(array(
+                        'hiba'  => 'Helytelen email cím: '.$mailcim,
+                        'title' => 'Hiba',
+                        'gomb'  => '<input type="button" class="gomb" value="Ok" onclick="$(\'#email_kuldessel\').val(0); alert2();">',
+                        'focus' => 'pop_cimzett',
+                    ));
+
+                    $weblap->leallit();
+                    exit();
+                }
+            }
+            $masolatok = explode(',', $_POST['masolat']);
+            foreach($masolatok as $mailcim){
                 if(trim($mailcim) && !is_valid_mail(trim($mailcim))){
                     echo json_encode(array(
                         'hiba'  => 'Helytelen email cím: '.$mailcim,
@@ -2351,38 +2388,41 @@ if( isset($_POST['kulsokivHozzarend']) ) {
             $kieg = get_mail_teszt_felirat();
             $targy_kieg = $kieg[0];
             $uzi_kieg   = $kieg[1];
-            foreach($mailcimek as $mailcim){
-                $sikeres_kuldes = level_kuldes(get_nev(), get_mail(), $mailcim, $mailcim, $targy_kieg.$_POST['targy'], $uzi_kieg.nl2br2($_POST['uzenet']));
-                // Ha nem volt sikeres a levélküldés, akkor is megállítjuk a működést
-                if($sikeres_kuldes){
-                    mysqli_rollback($db_kapcs);
-                    echo json_encode(array(
-                        'hiba'  => a_az($mailcim, 'Nagybetűs').' '.$mailcim.' címre történő levélküldés közben hiba történt!',
-                        'title' => 'Hiba'
-                    ));
+            
+            $sikeres_kuldes = level_kuldes_osszetettebb(get_nev(), get_mail(), $mailcimek, $mailcimek, $masolatok, $masolatok, $r_masolatok, $r_masolatok, $targy_kieg.$_POST['targy'], $uzi_kieg.nl2br2($_POST['uzenet']));
+            // Ha nem volt sikeres a levélküldés, akkor is megállítjuk a működést
+            if($sikeres_kuldes){
+                mysqli_rollback($db_kapcs);
+                echo json_encode(array(
+                    'hiba'  => 'Levélküldés közben hiba történt!',
+                    'title' => 'Hiba'
+                ));
 
-                    $weblap->leallit();
-                    exit();
-                }else{
-                    // Ha az MSZK mailcímérement ki a levél,akkor oda ne a szállító nevét írjuk
-                    if($mailcim==get_mszk_mail()){
-                        $cimzett_nev = 'MSZK';
-                    }else{
-                        $cimzett_nev = $szallito['nev'];
-                    }
-                    $emailkuldes_megj .= 'Megrendelő email elküldve: '.$cimzett_nev.' '.$mailcim.'<br>';
-                    
-                    // E-mail küldés logolása
-                    $sql = $adatbazis_kapcsolat->i('munkalap_email',    array('munkalap_id', 'szallito_id', 'cimzett',  'targy',                     'text',                                'insert_dt', 'insert_usr'                           ),
-                                                                        array($recid,        $szallitoid,   $mailcim,   $targy_kieg.$_POST['targy'], $uzi_kieg.nl2br2($_POST['uzenet']),    'NOW()',     $_SESSION[get_db_tabla().'teljes_nev'] )
-                                                );
-                    if( $sql === false ) { $db_error = true; }
-                }
+                $weblap->leallit();
+                exit();
                 
+            }else{
+                
+                $cimzettek          = implode(', ', $mailcimek);
+                $masolatot_kapott   = '';
+                $emailkuldes_megj .= 'Megrendelő email elküldve.'."\n".'Címzettek: '.$cimzettek.' ';
+                if($masolatok){
+                    $masolatot_kapott   = implode(', ', $masolatok);
+                    $emailkuldes_megj .= "\n".'Másolatot kaptak: '.$masolatot_kapott.' ';
+                }
+                $emailkuldes_megj .= "\n";
+
+                // E-mail küldés logolása
+                $sql = $adatbazis_kapcsolat->i('munkalap_email',    array('munkalap_id', 'szallito_id', 'cimzett',   'masolat',         'targy',                     'text',                                'insert_dt', 'insert_usr'                           ),
+                                                                    array($recid,        $szallitoid,   $cimzettek,  $masolatot_kapott, $targy_kieg.$_POST['targy'], $uzi_kieg.nl2br2($_POST['uzenet']),    'NOW()',     $_SESSION[get_db_tabla().'teljes_nev'] )
+                                            );
+                if( $sql === false ) { $db_error = true; }
+
                 // Mail eküldve pipa bekapcsolása
                 $sql = $adatbazis_kapcsolat->u('munkalap', array('mail_ment'), array('1'), "`recid`='{$recid}'");
                 if( $sql === false ) { $db_error = true; }
             }
+                
             
             // E-mail értesítésekről megjegyzést is írunk
             if(addMegj('munkalap', $recid, $megj)===false){
@@ -2657,7 +2697,8 @@ if (isset($_POST['munkalapVisszaElokeszit'])) {
 // Vissza előkészített státuszba
 if (isset($_POST['munkalapVisszaElokeszitDirektbe'])) {
 
-    $munkalap = $adatbazis_kapcsolat->s2('szallito_id', 'munkalap', "`recid`='{$_POST['recid']}'");
+    $recid      = $_POST['recid'];
+    $munkalap   = $adatbazis_kapcsolat->s2('szallito_id', 'munkalap', "`recid`='{$recid}'");
     
     // Ha van levélküldés, akkor ellenőrizzük a többi mezőt is
     if($_POST['email']){
@@ -2685,11 +2726,36 @@ if (isset($_POST['munkalapVisszaElokeszitDirektbe'])) {
             $weblap->leallit();
             exit();
         }
+        if(substr_count($_POST['masolat'], '@')>1 && strpos($_POST['masolat'], ',')===false){
+            echo json_encode(array(
+                'hiba'  => 'Ha több címzett kap másolatot, a mailcímeket vesszővel sorolja fel!',
+                'title' => 'Hiba',
+                'gomb'  => '<input type="button" class="gomb" value="Ok" onclick="$(\'#email_kuldessel\').val(0); alert2();">',
+                'focus' => 'pop_cimzett',
+            ));
+
+            $weblap->leallit();
+            exit();
+        }
 
         // Mailcímek helyességének ellenőrzése
         $mailcimek = explode(',', $_POST['cimzett']);
         array_push($mailcimek, get_mszk_mail()); // Így az MSZK is kap értesítő levelet
         foreach($mailcimek as $mailcim){
+            if(trim($mailcim) && !is_valid_mail(trim($mailcim))){
+                echo json_encode(array(
+                    'hiba'  => 'Helytelen email cím: '.$mailcim,
+                    'title' => 'Hiba',
+                    'gomb'  => '<input type="button" class="gomb" value="Ok" onclick="$(\'#email_kuldessel\').val(0); alert2();">',
+                    'focus' => 'pop_cimzett',
+                ));
+
+                $weblap->leallit();
+                exit();
+            }
+        }
+        $masolatok = explode(',', $_POST['masolat']);
+        foreach($masolatok as $mailcim){
             if(trim($mailcim) && !is_valid_mail(trim($mailcim))){
                 echo json_encode(array(
                     'hiba'  => 'Helytelen email cím: '.$mailcim,
@@ -2732,38 +2798,40 @@ if (isset($_POST['munkalapVisszaElokeszitDirektbe'])) {
         $kieg = get_mail_teszt_felirat();
         $targy_kieg = $kieg[0];
         $uzi_kieg   = $kieg[1];
-        foreach($mailcimek as $mailcim){
 
-            $sikeres_kuldes = level_kuldes(get_nev(), get_mail(), $mailcim, $mailcim, $targy_kieg.$_POST['targy'], $uzi_kieg.nl2br2($_POST['uzenet']));
-            if($sikeres_kuldes){
-                mysqli_rollback($db_kapcs);
-                echo json_encode(array(
-                    'hiba'  => a_az($mailcim, 'Nagybetűs').' '.$mailcim.' címre történő levélküldés közben hiba történt!'.$sikeres_kuldes,
-                    'title' => 'Hiba'
-                ));
 
-                $weblap->leallit();
-                exit();
-            }else{
-                // Ha az MSZK mailcímérement ki a levél, akkor oda ne a szállító nevét írjuk
-                if($mailcim==get_mszk_mail()){
-                    $cimzett_nev = 'MSZK';
-                }else{
-                    $cimzett_nev = $szallito['nev'];
-                }
-                $emailkuldes_megj .= 'Megrendelő email elküldve: '.$cimzett_nev.' '.$mailcim."\n";
-                // E-mail küldés logolása
-                $sql = $adatbazis_kapcsolat->i('munkalap_email',    array('munkalap_id', 'szallito_id', 'cimzett',  'targy',                     'text',                                'insert_dt', 'insert_usr'                           ),
-                                                                    array($recid,        $szallito_id,  $mailcim,   $targy_kieg.$_POST['targy'], $uzi_kieg.nl2br2($_POST['uzenet']),    'NOW()',     $_SESSION[get_db_tabla().'teljes_nev'] )
-                                            );
-                if( $sql === false ) { $db_error = true; }
+        $sikeres_kuldes = level_kuldes_osszetettebb(get_nev(), get_mail(), $mailcimek, $mailcimek, $masolatok, $masolatok, $r_masolatok, $r_masolatok, $targy_kieg.$_POST['targy'], $uzi_kieg.nl2br2($_POST['uzenet']));
+        if($sikeres_kuldes){
+            mysqli_rollback($db_kapcs);
+            echo json_encode(array(
+                'hiba'  => 'Levélküldés közben hiba történt!',
+                'title' => 'Hiba'
+            ));
+
+            $weblap->leallit();
+            exit();
+            
+        }else{
+
+            $cimzettek          = implode(', ', $mailcimek);
+            $masolatot_kapott   = '';
+            $emailkuldes_megj .= 'Megrendelő email elküldve.'."\n".'Címzettek: '.$cimzettek.' ';
+            if($masolatok){
+                $masolatot_kapott   = implode(', ', $masolatok);
+                $emailkuldes_megj .= "\n".'Másolatot kaptak: '.$masolatot_kapott.' ';
             }
-
-            // Mail eküldve pipa bekapcsolása
-            $sql = $adatbazis_kapcsolat->u('munkalap', array('mail_ment'), array('1'), "`recid`='{$recid}'");
+            $emailkuldes_megj .= "\n";
+            // E-mail küldés logolása
+            $sql = $adatbazis_kapcsolat->i('munkalap_email',    array('munkalap_id', 'szallito_id', 'cimzett',   'masolat',           'targy',                     'text',                                'insert_dt', 'insert_usr'                           ),
+                                                                array($recid,        $szallito_id,  $cimzettek,  $masolatot_kapott,   $targy_kieg.$_POST['targy'], $uzi_kieg.nl2br2($_POST['uzenet']),    'NOW()',     $_SESSION[get_db_tabla().'teljes_nev'] )
+                                        );
             if( $sql === false ) { $db_error = true; }
 
+            // Mail elküldve pipa bekapcsolása
+            $sql = $adatbazis_kapcsolat->u('munkalap', array('mail_ment'), array('1'), "`recid`='{$recid}'");
+            if( $sql === false ) { $db_error = true; }
         }
+
 
     // Ha nincs levélküldés, akkor rákérdezünk, hogy biztosan nem szerettek volna levelet küldeni?
     }elseif(!$_POST['mehet']){
@@ -4673,11 +4741,36 @@ if( isset($_POST['atadasDiszpecsernekDirektbe']) ) {
                 $weblap->leallit();
                 exit();
             }
+            if(substr_count($_POST['masolat'], '@')>1 && strpos($_POST['masolat'], ',')===false){
+                echo json_encode(array(
+                    'hiba'  => 'Ha több címzett kap másolatot, a mailcímeket vesszővel sorolja fel!',
+                    'title' => 'Hiba',
+                    'gomb'  => '<input type="button" class="gomb" value="Ok" onclick="$(\'#email_kuldessel\').val(0); alert2();">',
+                    'focus' => 'pop_cimzett',
+                ));
+
+                $weblap->leallit();
+                exit();
+            }
 
             // Mailcímek helyességének ellenőrzése
             $mailcimek = explode(',', $_POST['cimzett']);
             array_push($mailcimek, get_mszk_mail()); // Így az MSZK is kap értesítő levelet
             foreach($mailcimek as $mailcim){
+                if(trim($mailcim) && !is_valid_mail(trim($mailcim))){
+                    echo json_encode(array(
+                        'hiba'  => 'Helytelen email cím: '.$mailcim,
+                        'title' => 'Hiba',
+                        'gomb'  => '<input type="button" class="gomb" value="Ok" onclick="$(\'#email_kuldessel\').val(0); alert2();">',
+                        'focus' => 'pop_cimzett',
+                    ));
+
+                    $weblap->leallit();
+                    exit();
+                }
+            }
+            $masolatok = explode(',', $_POST['masolat']);
+            foreach($masolatok as $mailcim){
                 if(trim($mailcim) && !is_valid_mail(trim($mailcim))){
                     echo json_encode(array(
                         'hiba'  => 'Helytelen email cím: '.$mailcim,
@@ -4719,33 +4812,34 @@ if( isset($_POST['atadasDiszpecsernekDirektbe']) ) {
             $kieg = get_mail_teszt_felirat();
             $targy_kieg = $kieg[0];
             $uzi_kieg   = $kieg[1];
-            foreach($mailcimek as $mailcim){
 
-                $sikeres_kuldes = level_kuldes(get_nev(), get_mail(), $mailcim, $mailcim, $targy_kieg.$_POST['targy'], $uzi_kieg.nl2br2($_POST['uzenet']));
-                if($sikeres_kuldes){
-                    mysqli_rollback($db_kapcs);
-                    echo json_encode(array(
-                        'hiba'  => a_az($mailcim, 'Nagybetűs').' '.$mailcim.' címre történő levélküldés közben hiba történt!'.$sikeres_kuldes,
-                        'title' => 'Hiba'
-                    ));
+            $sikeres_kuldes = level_kuldes_osszetettebb(get_nev(), get_mail(), $mailcimek, $mailcimek, $masolatok, $masolatok, $r_masolatok, $r_masolatok, $targy_kieg.$_POST['targy'], $uzi_kieg.nl2br2($_POST['uzenet']));
+            if($sikeres_kuldes){
+                mysqli_rollback($db_kapcs);
+                echo json_encode(array(
+                    'hiba'  => 'Levélküldés közben hiba történt!',
+                    'title' => 'Hiba'
+                ));
 
-                    $weblap->leallit();
-                    exit();
-                }else{
-                    // Ha az MSZK mailcímérement ki a levél, akkor oda ne a szállító nevét írjuk
-                    if($mailcim==get_mszk_mail()){
-                        $cimzett_nev = 'MSZK';
-                    }else{
-                        $cimzett_nev = $szallito['nev'];
-                    }
-                    $emailkuldes_megj .= 'Megrendelő email elküldve: '.$cimzett_nev.' '.$mailcim."\n";
-                    // E-mail küldés logolása
-                    $sql = $adatbazis_kapcsolat->i('munkalap_email',    array('munkalap_id', 'szallito_id', 'cimzett',  'targy',                     'text',                                'insert_dt', 'insert_usr'                           ),
-                                                                        array($recid,        $szallito_id,  $mailcim,   $targy_kieg.$_POST['targy'], $uzi_kieg.nl2br2($_POST['uzenet']),    'NOW()',     $_SESSION[get_db_tabla().'teljes_nev'] )
-                                                );
-                    if( $sql === false ) { $db_error = true; }
+                $weblap->leallit();
+                exit();
+                
+            }else{
+                
+                $cimzettek          = implode(', ', $mailcimek);
+                $masolatot_kapott   = '';
+                $emailkuldes_megj .= 'Megrendelő email elküldve.'."\n".'Címzettek: '.$cimzettek.' ';
+                if($masolatok){
+                    $masolatot_kapott   = implode(', ', $masolatok);
+                    $emailkuldes_megj .= "\n".'Másolatot kaptak: '.$masolatot_kapott.' ';
                 }
-
+                $emailkuldes_megj .= "\n";
+                
+                // E-mail küldés logolása
+                $sql = $adatbazis_kapcsolat->i('munkalap_email',    array('munkalap_id', 'szallito_id', 'cimzett',   'masolat',         'targy',                     'text',                                'insert_dt', 'insert_usr'                           ),
+                                                                    array($recid,        $szallito_id,  $cimzettek,  $masolatot_kapott, $targy_kieg.$_POST['targy'], $uzi_kieg.nl2br2($_POST['uzenet']),    'NOW()',     $_SESSION[get_db_tabla().'teljes_nev'] )
+                                            );
+                if( $sql === false ) { $db_error = true; }
             }
 
         // Ha nincs levélküldés, akkor rákérdezünk, hogy biztosan nem szerettek volna levelet küldeni?
@@ -6034,11 +6128,36 @@ if (isset($_POST['munkalapVisszavetelDirektbe'])) {
             $weblap->leallit();
             exit();
         }
+        if(substr_count($_POST['masolat'], '@')>1 && strpos($_POST['masolat'], ',')===false){
+            echo json_encode(array(
+                'hiba'  => 'Ha több címzett kap másolatot, a mailcímeket vesszővel sorolja fel!',
+                'title' => 'Hiba',
+                'gomb'  => '<input type="button" class="gomb" value="Ok" onclick="$(\'#email_kuldessel\').val(0); alert2();">',
+                'focus' => 'pop_cimzett',
+            ));
+
+            $weblap->leallit();
+            exit();
+        }
 
         // Mailcímek helyességének ellenőrzése
         $mailcimek = explode(',', $_POST['cimzett']);
         array_push($mailcimek, get_mszk_mail()); // Így az MSZK is kap értesítő levelet
         foreach($mailcimek as $mailcim){
+            if(trim($mailcim) && !is_valid_mail(trim($mailcim))){
+                echo json_encode(array(
+                    'hiba'  => 'Helytelen email cím: '.$mailcim,
+                    'title' => 'Hiba',
+                    'gomb'  => '<input type="button" class="gomb" value="Ok" onclick="$(\'#email_kuldessel\').val(0); alert2();">',
+                    'focus' => 'pop_cimzett',
+                ));
+
+                $weblap->leallit();
+                exit();
+            }
+        }
+        $masolatok = explode(',', $_POST['masolat']);
+        foreach($masolatok as $mailcim){
             if(trim($mailcim) && !is_valid_mail(trim($mailcim))){
                 echo json_encode(array(
                     'hiba'  => 'Helytelen email cím: '.$mailcim,
@@ -6081,34 +6200,35 @@ if (isset($_POST['munkalapVisszavetelDirektbe'])) {
         $kieg = get_mail_teszt_felirat();
         $targy_kieg = $kieg[0];
         $uzi_kieg   = $kieg[1];
-        foreach($mailcimek as $mailcim){
 
-            $sikeres_kuldes = level_kuldes(get_nev(), get_mail(), $mailcim, $mailcim, $targy_kieg.$_POST['targy'], $uzi_kieg.nl2br2($_POST['uzenet']));
-            if($sikeres_kuldes){
-                mysqli_rollback($db_kapcs);
-                echo json_encode(array(
-                    'hiba'  => a_az($mailcim, 'Nagybetűs').' '.$mailcim.' címre történő levélküldés közben hiba történt!'.$sikeres_kuldes,
-                    'title' => 'Hiba'
-                ));
+        $sikeres_kuldes = level_kuldes_osszetettebb(get_nev(), get_mail(), $mailcimek, $mailcimek, $masolatok, $masolatok, $r_masolatok, $r_masolatok, $targy_kieg.$_POST['targy'], $uzi_kieg.nl2br2($_POST['uzenet']));
+        if($sikeres_kuldes){
+            mysqli_rollback($db_kapcs);
+            echo json_encode(array(
+                'hiba'  => 'Levélküldés közben hiba történt!',
+                'title' => 'Hiba'
+            ));
 
-                $weblap->leallit();
-                exit();
-            }else{
-                // Ha az MSZK mailcímérement ki a levél, akkor oda ne a szállító nevét írjuk
-                if($mailcim==get_mszk_mail()){
-                    $cimzett_nev = 'MSZK';
-                }else{
-                    $cimzett_nev = $szallito['nev'];
-                }
-                $emailkuldes_megj .= 'Megrendelő email elküldve: '.$cimzett_nev.' '.$mailcim."\n";
-                // E-mail küldés logolása
-                $sql = $adatbazis_kapcsolat->i('munkalap_email',    array('munkalap_id', 'szallito_id', 'cimzett',  'targy',                     'text',                                'insert_dt', 'insert_usr'                           ),
-                                                                    array($recid,        $szallito_id,  $mailcim,   $targy_kieg.$_POST['targy'], $uzi_kieg.nl2br2($_POST['uzenet']),    'NOW()',     $_SESSION[get_db_tabla().'teljes_nev'] )
-                                            );
-                if( $sql === false ) { $db_error = true; }
+            $weblap->leallit();
+            exit();
+            
+        }else{
+            
+            $cimzettek          = implode(', ', $mailcimek);
+            $masolatot_kapott   = '';
+            $emailkuldes_megj .= 'Megrendelő email elküldve.'."\n".'Címzettek: '.$cimzettek.' ';
+            if($masolatok){
+                $masolatot_kapott   = implode(', ', $masolatok);
+                $emailkuldes_megj .= "\n".'Másolatot kaptak: '.$masolatot_kapott.' ';
             }
-
+            $emailkuldes_megj .= "\n";
+            // E-mail küldés logolása
+            $sql = $adatbazis_kapcsolat->i('munkalap_email',    array('munkalap_id', 'szallito_id', 'cimzett',  'masolat',          'targy',                     'text',                                'insert_dt', 'insert_usr'                           ),
+                                                                array($recid,        $szallito_id,  $cimzettek, $masolatot_kapott,  $targy_kieg.$_POST['targy'], $uzi_kieg.nl2br2($_POST['uzenet']),    'NOW()',     $_SESSION[get_db_tabla().'teljes_nev'] )
+                                        );
+            if( $sql === false ) { $db_error = true; }
         }
+
 
     // Ha nincs levélküldés, akkor rákérdezünk, hogy biztosan nem szerettek volna levelet küldeni?
     }elseif(!$_POST['mehet']){

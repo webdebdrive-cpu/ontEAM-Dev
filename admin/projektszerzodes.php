@@ -32,6 +32,130 @@ if($tobb_kep){
     function get_tobbkep_tabla(){ return str_replace('.php', '', basename(self())).'_dok'; } // A képeket tartalmazó adatbázis tábla neve FONTOS: ha itt átnevezed akkor a tobbkep.php-ban is át kell írni!
 }
 
+// Projekt táblázat betöltése
+if(isset($_POST['get_projekt_tabla'])){
+
+    // Ha nincs új feltöltés jogunk, akkor kilépünk
+    if( !_jog(JOG_PRKEZEL_SZERZODES_KEZEL) ){
+        echo json_encode( array(
+                            'hiba'  => 'Önnek nincs joga projekt szerződést kezelni!',
+                            'title' => 'Hiba',
+                        ) );
+        $weblap -> leallit();
+        exit;
+    }
+    
+    $html = '';
+
+    // Rendezés beállítása
+    $join  = ' JOIN `'.get_db_tabla().'telephely` ON `'.get_db_tabla().'projektkezeles`.`telephely_id`=`'.get_db_tabla().'telephely`.`id`';
+    switch($_POST['order']){
+        case 'bkolt': $order = '`'.get_db_tabla().'projektkezeles`.`bkolt`, `'.get_db_tabla().'telephely`.`nev`';         $bkolt_selected = ' selected';  break;
+        case 'tipus': $order = '`'.get_db_tabla().'projektkezeles`.`tipus`, `'.get_db_tabla().'projektkezeles`.`bkolt`';  $tipus_selected = ' selected';  break;
+        default     : $order = '`'.get_db_tabla().'telephely`.`nev`,        `'.get_db_tabla().'projektkezeles`.`bkolt`';                                  break;
+    }
+
+    $szallodak = get_akt_login_szallodai();
+    $prek = $adatbazis_kapcsolat->s('
+                                        `'.get_db_tabla().'projektkezeles`.`recid`,
+                                        `'.get_db_tabla().'projektkezeles`.`ikt_szam`,
+                                        `'.get_db_tabla().'projektkezeles`.`nev`,
+                                        `'.get_db_tabla().'projektkezeles`.`tipus`,
+                                        `'.get_db_tabla().'projektkezeles`.`stat_id`,
+                                        `'.get_db_tabla().'projektkezeles`.`bkolt`,
+                                        `'.get_db_tabla().'projektkezeles`.`telephely_id`,
+                                        `'.get_db_tabla().'projektkezeles`.`insert_dt`
+                                            ',
+                                        'projektkezeles',
+                                        "`telephely_id` IN (".implode(',', $szallodak).")", $order, '', '', '', $join);
+//echo $adatbazis_kapcsolat->gp() . '<br>';
+    $i = 1;
+    foreach($prek as $pr){
+
+        // Szálloda
+        $szalloda = $adatbazis_kapcsolat->s2('nev', 'telephely', "`id`='{$pr['telephely_id']}'");
+        
+        // Tipus
+        require_once 'selectek.php';
+        foreach($select_pri_tipus as $tip){
+            if($tip['value']==$pr['tipus']){
+                $tipus = $tip['name'];
+            }
+        }
+        if(!$pr['tipus']){
+            $tipus = '-';
+        }
+
+        $html .= '
+            <tr class="kijSor'.$kiemelt.'" data-i="'.$i.'" data-recid="'.$pr['recid'].'" data-ikt_szam="'.$pr['ikt_szam'].'">
+                <td>'.$szalloda['nev'].'</td>
+                <td style="width: 30rem">'.$pr['nev'].'</td>
+                <td>'.$tipus.'</td>
+                <td class="r nowrap">'.number_format($pr['bkolt'], 0, '', ' ').'</td>
+                <td>'.datum_kiir($pr['insert_dt']).'</td>
+            </tr>
+            ';
+        $i++;
+    }
+
+    if($html){
+
+        // Táblázat rendezhető: szálloda + becsült költség, becsült költség + szálloda, típus + becsült költség. Ezek legyenek egy lenyílóból kiválaszthatóak.
+        $html = '
+            Rendezés:
+            <select onchange="get_projekt_tabla(this.value)">
+                <option>szálloda + becsült költség</option>
+                <option value="bkolt"'.$bkolt_selected.'>becsült költség + szálloda</option>
+                <option value="tipus"'.$tipus_selected.'>típus + becsült költség</option>
+            </select>
+            <div style="max-height: 40rem; overflow-y: auto; overflow-x: none;">
+                <table class="csikos v2 kijCont csak_egy_kijelolheto" id="prkezelesek" style="cursor: default;">
+                <thead>
+                <tr>
+                    <th>
+                        Szálloda
+                        <br><input type="text" class="flat" placeholder="Szűrés" onkeyup="tabla_szur($(\'#prkezelesek tbody\'), this.value, 1)">
+                    </th>
+                    <th>
+                        Név
+                        <br><input type="text" class="flat" placeholder="Szűrés" onkeyup="tabla_szur($(\'#prkezelesek tbody\'), this.value, 2)">
+                    </th>
+                    <th>
+                        Típus
+                        <br><input type="text" class="flat" placeholder="Szűrés" onkeyup="tabla_szur($(\'#prkezelesek tbody\'), this.value, 3)">
+                    </th>
+                    <th>
+                        Becsült költség ('.get_penznem().')
+                        <br><input type="text" class="flat" placeholder="Szűrés" onkeyup="tabla_szur($(\'#prkezelesek tbody\'), this.value, 4)">
+                    </th>
+                    <th>
+                        Létrehozás dátuma
+                        <br><input type="text" class="flat" placeholder="Szűrés" onkeyup="tabla_szur($(\'#prkezelesek tbody\'), this.value, 5)">
+                    </th>
+                </tr>
+                </thead>
+                <tbody>
+                    '.$html.'
+                </tbody>
+                </table>
+            </div>
+            <script>
+            ';
+    }else{
+        $html = '<h1>Nem található projekt terv!</h1><script>$(\'#eloterj_igneyles_csatolForm div.kuldes\').html(\'<input type="button" class="gomb zold" value="Ok" onclick="popupZar();">\');  $(\'#eloterj_igneyles_csatolCim\').html(\'Hiba\');</script>';
+    }
+
+    echo json_encode(
+            array( 'html' => nl2($html) )
+            );
+
+    $weblap->leallit();
+    exit();
+}
+
+
+
+
 $szamla_html = '';
 
 // Tartalom

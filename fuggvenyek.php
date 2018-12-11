@@ -521,6 +521,24 @@ function i_u($type, $tabla, $tomb) {
                 exit;
             }
 
+        // Projektszerződés
+        } else if( $tabla == 'projektszerzodes' ) {
+            
+            // Iktatószám kiszámítása
+            $sorszam  = get_iktatoszam_sorszam($tabla);
+            if($sorszam===false){ $db_error = true; }
+            $ikt_szam = 'PSZ'.date('y').'/'.sprintf('%07d', $sorszam);
+            
+            // Felvesszük az értékek közé
+            $i = 0;
+            foreach($oszlopok as $oszl){
+                if($oszl=='ikt_szam'){
+                    $ertekek[$i] = $ikt_szam;
+                    break;
+                }
+                $i++;
+            }
+
         // Rendszeres karbantarás új bejegyzés esetén
         } else if( $tabla == 'rendszeres_karbantartas' ) {
 

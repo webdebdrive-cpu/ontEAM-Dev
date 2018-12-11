@@ -1387,6 +1387,10 @@ if(basename(self())=='projektigenyles.php'){
 if(basename(self())=='projektkezeles.php'){
     $header_html .= '<script src="../js/projektkezeles.js?cache='.time().'"></script>';
 }
+// Projektszerződéssel kapcsolatos JS-eket külön fájlba szedjük össze
+if(basename(self())=='projektszerzodes.php'){
+    $header_html .= '<script src="../js/projektszerzodes.js?cache='.time().'"></script>';
+}
 $header_html .= '<script src="../js/jquery.fixedheadertable.js?cache='.time().'"></script>';
 
 if(isIphone()){

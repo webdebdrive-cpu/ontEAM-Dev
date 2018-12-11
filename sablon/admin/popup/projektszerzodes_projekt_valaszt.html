@@ -1,0 +1,61 @@
+<h2 id="eloterj_igneyles_csatolCim">Válasszon projektet</h2>
+<form class="popupForm" method="post">
+    <div class="kozep">
+        <div id="pr_szerzodes_tablazat"></div>
+    </div>
+    <div class="kuldes">
+        <input type="button" class="gomb zold"  value="Kiválaszt" onclick="projekt_kivalaszt()">
+        <input type="button" class="gomb piros" value="Mégsem" onclick="popupZar();">
+    </div>
+</form>
+<script>
+$(document).ready(function(){
+    get_projekt_tabla();
+});
+
+/* Projektek betöltése */
+function get_projekt_tabla(order){
+
+    $.ajax({
+        url : 'projektszerzodes.php',
+        type: 'POST',
+        data: {
+            order                           : order,
+            get_projekt_tabla : new Date().getTime()
+        },
+        success: function(response){
+            if(response.substring(0, 6)=='SESKIL'){ location.href = 'index.php'; }
+            if(response){
+                response = JSON.parse(response);
+                if( response.hiba ){
+                    popupZar();
+                    alert2( response.hiba, response.gomb, response.title );
+                    return false;
+                }else{
+                    $('#pr_szerzodes_tablazat').html(response.html);
+                    popupMutat();
+                }
+
+            }
+        }
+    });
+}
+
+/* Projekt kiválasztása */
+function projekt_kivalaszt(){
+    $('#pr_szam').val( $('#pr_szerzodes_tablazat tr.kijelolve').data('ikt_szam') );
+    $('#pr_szam_gomb').val('Projekt törlése').addClass('piros');
+    popupZar();
+}
+
+/* Szűrések */
+function tabla_szur(tabla, kulcs, oszlop) {
+    var $rows = tabla.find('tr');
+    var val = $.trim(kulcs).replace(/ +/g, ' ').toLowerCase();
+
+    $rows.show().filter(function() {
+        var text = $(this).find('td:nth-of-type('+oszlop+')').text().replace(/\s+/g, ' ').toLowerCase();
+        return !~text.indexOf(val);
+    }).hide();
+}
+</script>

@@ -1529,6 +1529,96 @@ function level_kuldes( $felado_nev, $felado_mail, $cimzett_nev, $cimzett_mail, $
 }
 
 /**
+ * @desc Általános levélküldő függvény összetettebb verziója, ahol lehet másolatot, rejtett másolatos címeket is megadni. Az adatokat UTF-8-ban (vagyis az oldal karakterkészletében) várja. Kimenetele nincs, csak ha hiba van
+ * 
+ * @param $felado_nev string feladó neve
+ * @param $felado_mail string feladó e-mail címe
+ * @param $cimzett_nev string/array címzett neve
+ * @param $cimzett_mail string/array címzett e-mail címe
+ * @param $masolat_nev string/array másolatot kap neve
+ * @param $masolat_mail string/array másolatot kap e-mail címe
+ * @param $r_masolat_nev string/array rejtett másolatot kap neve
+ * @param r_masolat_mail string/array rejtett másolatot kap e-mail címe
+ * @param $targy string feladó tárgy
+ * @param $uzi string feladó üzenet
+ * @param $fajlok string/array csatolandó fájlok elérési útvonala a szerveren (Ez lehet egy sima felsorolása az útvonalakról, de többdimenziós tömbkét megadhatóak a fájlok megnevezései is. Pl. array( array('nev' => 'Ékezetes fájlnév', 'fajl' => 'fajl/utvonala.kit'), ...  );  .)
+ * 
+ * @return string Ha volt hiba, akkor a hibaüzenetet, egyébként FALSE!
+ */
+function level_kuldes_osszetettebb( $felado_nev, $felado_mail, $cimzett_nev, $cimzett_mail, $masolat_nev, $masolat_mail, $r_masolat_nev, $r_masolat_mail, $targy, $uzi, $fajlok = '' ) {
+
+    if($cimzett_mail){
+        
+        require_once('class/class.Phpmailer.php');
+        $mail = new PHPMailer;
+
+        $uzi = mail_img2cid($uzi, $mail, $cimzett_mail);
+        $mail -> CharSet  = get_web_charset();
+        $mail -> setFrom($felado_mail, $felado_nev);
+        $mail -> addReplyTo($felado_mail, $felado_nev);
+        $mail -> Subject  = $targy;
+        $mail -> AltBody  = strip_tags($uzi);
+        $mail -> MsgHTML($uzi);
+
+        if(is_array($fajlok)){
+            foreach($fajlok as $fajl){
+                if($fajl['nev'] && $fajl['fajl']){
+                    $mail -> AddAttachment($fajl['fajl'], $fajl['nev']);
+                }else{
+                    $mail -> AddAttachment($fajl);
+                }
+            }
+
+        }elseif($fajlok){
+            $mail -> AddAttachment($fajlok);
+        }
+
+        // Címzett
+        if(is_array($cimzett_mail)){
+            $i = 0;
+            foreach($cimzett_mail as $c_mail){
+                $mail -> addAddress(trim($c_mail), trim($cimzett_nev[$i]));
+                $i++;
+            }
+        }elseif($cimzett_mail){
+            $mail -> AddAddress(trim($cimzett_mail), trim($cimzett_nev));
+        }
+
+        // Másolatot kap
+        if(is_array($masolat_mail)){
+            $i = 0;
+            foreach($masolat_mail as $c_mail){
+                $mail -> addCC(trim($c_mail), trim($masolat_nev[$i]));
+                $i++;
+            }
+        }elseif($masolat_mail){
+            $mail -> addCC(trim($masolat_mail), trim($masolat_nev));
+        }
+
+        // Másolatot kap
+        if(is_array($r_masolat_mail)){
+            $i = 0;
+            foreach($r_masolat_mail as $c_mail){
+                $mail -> AddBcc(trim($c_mail), trim($r_masolat_nev[$i]));
+                $i++;
+            }
+        }elseif($r_masolat_mail){
+            $mail -> AddBcc(trim($r_masolat_mail), trim($r_masolat_nev));
+        }
+
+        if(!$mail->Send()) {
+            $mail -> ClearAddresses();
+            $mail -> ClearAttachments();
+            return 'Hiba: ' . $mail->ErrorInfo;
+        } else {
+            $mail -> ClearAddresses();
+            $mail -> ClearAttachments();
+            return false;
+        }
+    }
+}
+
+/**
 * @desc Logót vagy bármilyen más képet pecsétel egy alap képre
 * A logó lehet átlátszó, melyet át is méretez
 * 
@@ -1619,17 +1709,22 @@ function mail_img2cid($html, $mail, $cimzett_mail){
             array_push( $csatolt_kepek, $urls[$i].';kep'.sprintf('%03s',$i+1).';'.substr($urls[$i], strrpos($urls[$i], '/')+1, strlen($urls[$i])) );
         }
         
-        //Csatolt képek lerendezése
+        // A címeztt mail azért kell, hogy lássuk, Gmail címes-e vagy sem. Ha egy tömböt kapunk, akkor az első mailcím lesz a mérvadó.
+        if( is_array($cimzett_mail) ){
+            $cimzett_mail = $cimzett_mail[0];
+        }
+        
+        // Csatolt képek lerendezése
         $csatolva_volt = array();
         foreach( $csatolt_kepek as $csatolt_kep ){
     		list( $x1, $x2, $x3 ) = explode(';', $csatolt_kep);
-            //Gmail-re a hagyományos módszerre külünk ki levelet (nem CID-el), mert nem megy át
+            // Gmail-re a hagyományos módszerre külünk ki levelet (nem CID-el), mert nem megy át
             if(strpos($cimzett_mail, '@gmail.com') || strpos($cimzett_mail, '@hotmail.com')){
-                //Ha ../-el kezdődik az útvonal, akkor valószínűleg ezt elvesszük(../elemek/x.jpg => www.domain.hu/elemek/x.jpg)
+                // Ha ../-el kezdődik az útvonal, akkor valószínűleg ezt elvesszük(../elemek/x.jpg => www.domain.hu/elemek/x.jpg)
                 if(substr($x1, 0, 3)=='../'){
                     $x1 = substr($x1, 2);
                 }
-                $html = str_replace('cid:'.$x2, 'http://'.get_domain().$x1, $html);
+                $html = str_replace('cid:'.$x2, get_http().get_domain().$x1, $html);
             }else{
         		if(!in_array($x1, $csatolva_volt)){
                     $mail -> AddEmbeddedImage($x1, $x2, $x3, 'base64', 'image/jpeg');
@@ -1638,7 +1733,7 @@ function mail_img2cid($html, $mail, $cimzett_mail){
             }
 	    }
         
-        //HTML-ben a kép SRC részénél aposztrófot kell használni, idézőjellel nem működik
+        // HTML-ben a kép SRC részénél aposztrófot kell használni, idézőjellel nem működik
         $i = 0;
         if($csatolt_kepek){
             foreach( $csatolt_kepek as $csatolt_kep ){

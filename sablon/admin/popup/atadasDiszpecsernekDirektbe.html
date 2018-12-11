@@ -30,10 +30,42 @@
             </div>
             <div class="dtr"> 
                 <div class="dtc form_bal">
+                    Címzett kiválasztása:
+                </div>
+                <div class="dtc form_jobb">
+                    <input type="text" autocomplete="off" class="oriasi disableNav csillag" name="pop_cimzett_loginbol_autocomp" id="pop_cimzett_loginbol_autocomp" onblur="if(!$(this).val()){ $('#pop_cimzett_loginbol').val(''); }" value="" data-ne_urits="1" style="width: 56rem">
+                    <input type="button" class="gomb alacsony zold" value="Címzett" onclick="cimzett_add('cimzett')">
+                    <input type="button" class="gomb alacsony kek" value="Másolat" onclick="cimzett_add('masolat')">
+                    <input type="hidden" name="pop_cimzett_loginbol" id="pop_cimzett_loginbol" value="">
+                    <script>
+                         $(document).ready(function() {
+                             $('#pop_cimzett_loginbol_autocomp').autocomplete({
+                                 'php_fajl'         : '../autocomplete.php',
+                                 'tabla'            : 'login',
+                                 'oszlop_keres'     : 'teljes_nev',
+                                 'oszlop_listaz'    : 'teljes_nev',
+                                 'rkat'             : 0,
+                                 'csoport'          : 0,
+                                 'id_kiir'          : 'usermail',
+                             });
+                        });
+                    </script>
+                </div>
+            </div>
+            <div class="dtr"> 
+                <div class="dtc form_bal">
                     Címzett:
                 </div>
                 <div class="dtc form_jobb">
                     <input type="text" id="pop_cimzett" class="oriasi disableNav popup_input_margo" maxlength="250">
+                </div>
+            </div>
+            <div class="dtr"> 
+                <div class="dtc form_bal">
+                    Másolat:
+                </div>
+                <div class="dtc form_jobb">
+                    <input type="text" id="pop_masolat" class="oriasi disableNav popup_input_margo" maxlength="250">
                 </div>
             </div>
             <div class="dtr"> 
@@ -49,7 +81,7 @@
                     Üzenet:
                 </div>
                 <div class="dtc form_jobb">
-                    <textarea id="pop_uzenet" class="popup_input_margo"></textarea>
+                    <textarea id="pop_uzenet" class="popup_input_margo level_szoveg"></textarea>
                 </div>
             </div>
         </div>
@@ -104,6 +136,7 @@ function atadasDiszpecsernekDirektbe( that ) {
                     email                       : $('#email_kuldessel').val(),
                     mehet                       : $('#mehet_mail_nelkul').val(),
                     cimzett                     : $('#pop_cimzett').val(),
+                    masolat                     : $('#pop_masolat').val(),
                     targy                       : $('#pop_targy').val(),
                     uzenet                      : $('#pop_uzenet').val(),
                     atadasDiszpecsernekDirektbe : new Date().getTime()
@@ -136,5 +169,39 @@ function atadasDiszpecsernekDirektbe( that ) {
     }
 
     return false;
+}
+
+/* Címzett/másolat mezőkhöz adjuk a kiválasztott mailcímet */
+function cimzett_add( mezo ){
+    
+    if(!$('#pop_cimzett_loginbol_autocomp').val()){
+        alert2('Kérem előbb válasszon címzettet!', '', 'Hiba');
+        return false;
+    }
+    
+    if(!$('#pop_cimzett_loginbol').val()){
+        alert2($('#pop_cimzett_loginbol_autocomp').val()+' felhasználónak nem ismert a mailcíme!', '', 'Hiba');
+    }
+    
+    if(mezo=='cimzett'){
+        var cimzett = '';
+        if($('#pop_cimzett').val()){
+            cimzett = ', ';
+        }
+        cimzett += $('#pop_cimzett_loginbol').val();
+        $('#pop_cimzett').val( $('#pop_cimzett').val()+cimzett );
+    }
+    if(mezo=='masolat'){
+        var masolat = '';
+        if($('#pop_masolat').val()){
+            masolat = ', ';
+        }
+        masolat += $('#pop_cimzett_loginbol').val();
+        $('#pop_masolat').val( $('#pop_masolat').val()+masolat );
+    }
+    
+    $('#pop_cimzett_loginbol').val('');
+    $('#pop_cimzett_loginbol_autocomp').val('');
+    
 }
 </script>

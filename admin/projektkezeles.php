@@ -722,7 +722,7 @@ if(isset($_POST['igenylesek_betolt_uj_kezeleshez'])){
                 <td style="width: 30rem">'.$pri['nev'].'</td>
                 <td>'.$tipus.'</td>
                 <td class="r nowrap">'.number_format($pri['bkolt'], 0, '', ' ').'</td>
-                <td>'.substr(str_replace('-', '.', $letrehozva['insert_dt']), 0, 10).'</td>
+                <td>'.datum_kiir($letrehozva['insert_dt']).'</td>
                 <td>'.$projektben.'</td>
             </tr>
             ';

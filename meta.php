@@ -55,6 +55,7 @@ function get_title(){
         case 'uzemeltetesi_naplo.php'       : $title .= 'Üzemeltetési napló';       break;
         case 'projektigenyles.php'          : $title .= 'Projektigénylések';        break;
         case 'projektkezeles.php'           : $title .= 'Projekt tervek';           break;
+        case 'projektszerzodes.php'         : $title .= 'Projekt szerződés';        break;
         case 'raktar.php'                   : $title .= 'Raktár';                   break;
         case 'rendszeres_karbantartas.php'  : $title .= 'Rendszeres karbantartás';  break;
         case 'szabadsagigeny.php'           : $title .= 'Szabadságigények';         break;
