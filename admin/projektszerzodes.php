@@ -179,12 +179,11 @@ require_once('selectek.php');
         $megj_db = ' ('.$sor['megj_db'].')';
     }
 
-    if( isset($_GET['modosit']) || isset($_GET['tortenet']) || isset($_GET['dokumentumok']) || isset($_GET['megjegyzesek']) ) {
+    if( isset($_GET['modosit']) || isset($_GET['dokumentumok']) || isset($_GET['megjegyzesek']) ) {
         
         // Számla fülek
         $ful_tomb = array(
             'modosit'       => 'Adatlap',
-            'tortenet'      => 'Projekt történet',
             'dokumentumok'  => 'Dokumentumok'.$dok_db,
             'megjegyzesek'  => 'Megjegyzések'.$megj_db,
         );
@@ -243,6 +242,15 @@ require_once('selectek.php');
         }else{
             $gombok .= '<script>var gomb'.$_GET['id'].'= get_kibont_torol(\''.self().'\', \''.$torles.'\', \''.$_GET['id'].'\');</script>';
             $gombok .= ' <input type="button" id="recordTorol" class="gombb_alert dn" onclick="alert2(\'Biztosan törli ezt a '.$szoveg.'?\', gomb'.$_GET['id'].')" value="Töröl" title="Töröl">';
+        }
+        
+        if( isset($_GET['modosit']) && _jog(JOG_PRKEZEL_SZERZODES_KEZEL) ) {
+            $gombok = nl2('
+                <div class="form_kuldes">
+                    <input type="button" class="gombb mentes_gomb" name="mehet_gomb" id="mehet_gomb" disabled value="Mentés" onclick="szurkit(\'mehet_megsem_rejt\'); $(\'#szerk_form\').submit()">
+                    <input type="button" class="gomb piros" disabled id="megsem_gomb" value="Mégsem" onclick="szurkit(\'mehet_megsem_rejt\'); formModositva=false; szamlaBetolt($(\'#szamlaList li:first-of-type\').attr(\'data-recid\'), \''.$megnevezes.'.php\');">
+                </div>
+            '.$gombok);
         }
 
         $muv_style = ' style="width: calc(100% - '.($_SESSION['defaultCsuszka'] + 16).'px);"';

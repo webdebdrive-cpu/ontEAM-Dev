@@ -528,11 +528,11 @@ function i_u($type, $tabla, $tomb) {
             $sorszam  = get_iktatoszam_sorszam($tabla);
             if($sorszam===false){ $db_error = true; }
             $ikt_szam = 'PSZ'.date('y').'/'.sprintf('%07d', $sorszam);
-            
+
             // Felvesszük az értékek közé
             $i = 0;
             foreach($oszlopok as $oszl){
-                if($oszl=='ikt_szam'){
+                if($oszl=='sz_szam'){
                     $ertekek[$i] = $ikt_szam;
                     break;
                 }
@@ -576,7 +576,6 @@ function i_u($type, $tabla, $tomb) {
 
 		$id = $adatbazis_kapcsolat -> insert($tabla, $oszlopok, $ertekek);
         if( $id === false ) { $db_error = true; }
-
 
 //echo '<pre style="font-size: 1.4rem">';
 //echo $adatbazis_kapcsolat->gp() . '<br>';
@@ -2788,11 +2787,14 @@ if(isset($_GET['debug'])) {
             case 'rendszeres_karbantartas':
                 $html = rendszeres_karbantartasLista( $bejegyzesek, $tabla, $frissit, $kijeloltek );
             break;
+            case 'projektigenyles':
+                $html = projektigenylesLista( $bejegyzesek, $tabla, $frissit, $kijeloltek );
+            break;
             case 'projektkezeles':
                 $html = projektkezelesLista( $bejegyzesek, $tabla, $frissit, $kijeloltek );
             break;
-            case 'projektigenyles':
-                $html = projektigenylesLista( $bejegyzesek, $tabla, $frissit, $kijeloltek );
+            case 'projektszerzodes':
+                $html = projektszerzodesLista( $bejegyzesek, $tabla, $frissit, $kijeloltek );
             break;
             case 'raktar':
                 $html = raktarLista( $bejegyzesek, $tabla, $frissit, $kijeloltek );
@@ -4383,7 +4385,7 @@ function projektigenylesLista( $bejegyzesek, $tabla, $frissit, $kijeloltek ) {
             }
 
             // Egy csoporton belül biztosan csak olyan bejelentések lesznek, amiknek azonos a telephelye
-            $telephely = $adatbazis_kapcsolat->s2('nev', 'telephely', "`id`='{$bsz['telephely_id']}'");
+            $telephely = getSzallodaNev($bsz['telephely_id']);
 
             require 'selectek.php';
             foreach($select_pri_tipus as $tip){
@@ -4403,7 +4405,7 @@ function projektigenylesLista( $bejegyzesek, $tabla, $frissit, $kijeloltek ) {
                             <tr>
                                 <td class="ikonok" rowspan="2" style="width: 2rem; text-align: center;">'.$tipus.'</td>
                                 <td style="width: 15rem;">'.$bsz['ikt_szam'].'</td>
-                                <td style="width: 17rem; text-align: left">'.$telephely['nev'].'</td>
+                                <td style="width: 17rem; text-align: left">'.$telephely.'</td>
                                 <td style="text-align: left">'.$statusz.'</td>
                             </tr>
                             <tr>
@@ -4488,6 +4490,38 @@ function projektkezelesLista( $bejegyzesek, $tabla, $frissit, $kijeloltek ) {
                 // $active .= ' kijelolve';
             }
             $html .= '<li id="szamla-'.$bsz['recid'].'" class="szamla_sor'.$active.'" data-recid="'.$bsz['recid'].'" data-i="'.$i.'">'.$li_tart.'</li>';
+
+            $i++;
+        }
+
+        if( !$frissit ) {
+            $html .= '</ul>';
+        }
+
+        return nl2($html);
+    }
+
+    return false;
+}
+
+function projektszerzodesLista( $bejegyzesek, $tabla, $frissit, $kijeloltek ) {
+    global $adatbazis_kapcsolat;
+
+    if( $bejegyzesek ) {
+
+        if( !$frissit ) {
+            $html = '<ul id="szamlaList" class="szamla_cont rendszer">';
+        }
+
+        $i = 1;
+        foreach($bejegyzesek as $bsz) {
+
+            $li_tart = '<a class="szamla" data-recid="'.$bsz['recid'].'" data-fajl="'.$tabla.'.php" data-muvelet="modosit">
+                            <span>'.$bsz['sz_szam'].'</span>
+                            <span>'.getSzallodaNev($bsz['telephely_id']).'</span>
+                        </a>';
+
+            $html .= '<li id="szamla-'.$bsz['recid'].'" class="szamla_sor" data-recid="'.$bsz['recid'].'" data-i="'.$i.'">'.$li_tart.'</li>';
 
             $i++;
         }

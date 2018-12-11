@@ -693,7 +693,12 @@ switch($tabla) {
     break;
     case 'projektkezeles.php':
         // Ezeket a tábla oszlopokat kérdezzük le baloldalra
-        $_OPTS['select']    = 'recid ikt_szam nev stat_id';
+        $_OPTS['select']    = nl2('
+                                    `'.get_db_tabla().$tabla_nophp.'`.`recid`,
+                                    `'.get_db_tabla().$tabla_nophp.'`.`ikt_szam`,
+                                    `'.get_db_tabla().$tabla_nophp.'`.`nev`,
+                                    `'.get_db_tabla().$tabla_nophp.'`.`stat_id`
+                                    ');
 
         // Ezek az oszlopok generálódnak ki a rendezés selectbe, lehet szépíteni az oszlopneveket, amit a getOszlopNev() függvényben kell beállítani
         $_OPTS['rendezes']  = array('recid');
@@ -710,7 +715,12 @@ switch($tabla) {
     break;
     case 'projektszerzodes.php':
         // Ezeket a tábla oszlopokat kérdezzük le baloldalra
-        $_OPTS['select']    = 'recid ikt_szam telephely_id targy';
+        $_OPTS['select']    = nl2('
+                                    `'.get_db_tabla().$tabla_nophp.'`.`recid`,
+                                    `'.get_db_tabla().$tabla_nophp.'`.`sz_szam`,
+                                    `'.get_db_tabla().$tabla_nophp.'`.`telephely_id`,
+                                    `'.get_db_tabla().$tabla_nophp.'`.`targy`
+                                    ');
 
         // Ezek az oszlopok generálódnak ki a rendezés selectbe, lehet szépíteni az oszlopneveket, amit a getOszlopNev() függvényben kell beállítani
         $_OPTS['rendezes']  = array('recid');
@@ -2252,7 +2262,7 @@ array_push($postok, array('tomb' => $akt_tomb, 'uj' => 'uj'.$megnevezes, 'lista'
 
 $megnevezes   = 'projektszerzodes';
 $pr_szam_gomb = '';
-if(_jog(JOG_PRKEZEL_SZERZODES_KEZEL) ){
+if( _jog(JOG_PRKEZEL_SZERZODES_KEZEL) ){
     $gomb_felirat = 'Projekt hozzáadása';
     $gomb_class   = '';
     if (isset($_GET['modosit'])) {
@@ -2272,6 +2282,14 @@ $projektszerzodes_tomb = $akt_tomb = array(
     array('type' => 'text',                 'megn' => 'Projekt szám:',          'name' => 'pr_szam',        'szuro' => 1,   'class' => 'normal', 'disabled' => 1, 'style' => 'width: 10rem', 'post' => $pr_szam_gomb, 'alert' => 'Kérem válasszon egy projekt számot!'),
     array('type' => 'textarea',             'megn' => 'Tárgy:',                 'name' => 'targy',          'szuro' => 1,   'class' => 'oriasiTargy disableNav', 'alert' => 'Kérjük töltse ki a tárgy mezőt!'),
     array('type' => 'autocomplete',         'megn' => 'Költségviselő:',         'name' => 'kolt_vis',       'szuro' => 1,   'class' => 'oriasi disableNav', 'tabla' => 'erteklista', 'oszlop_keres' => 'id', 'oszlop_keres_autocomp' => 'info', 'listaz' => 'info', 'csoport' => ERTEKLISTA_KOLTSEGVISELO, 'id_kiir' => 'id',  'alert' => 'Kérem válasszon költségviselőt!'),
+    array('type' => 'text',                 'megn' => 'Kivitelezés kezdete:',   'name' => 'kiv_kezd',       'szuro' => 1,   'class' => 'kicsi datepicker',  'alert' => 'Kérem adja meg a kivitelezés kezdetét!',    'osszevon' => 1, 'post' => '<span style="margin-left: 2rem"></span>'),
+    array('type' => 'text',                 'megn' => 'Kivitelezés vége:',      'name' => 'kiv_vege',       'szuro' => 1,   'class' => 'kicsi datepicker',  'alert' => 'Kérem adja meg a kivitelezés végét!'),
+    array('type' => 'text',                 'megn' => 'Szerződött összeg:',     'name' => 'szerz_ossz',     'szuro' => 1,   'class' => 'f_num', 'data' => 'data-tort="0"', 'nulla_is_ures_adat' => 1,  'alert' => 'Kérem adja meg a szerződött összeget!', 'post' => ' '. get_penznem()),
+    array('type' => 'text',                 'megn' => 'Létesítmény felelős:',   'name' => 'let_fel',        'szuro' => 1,   'class' => 'oriasi', 'disabled' => 1),
+    array('type' => 'text',                 'megn' => 'Műszaki átvétel:',       'name' => 'muszak_atv',     'szuro' => 1,   'class' => 'kicsi datepicker'),
+    array('type' => 'text',                 'megn' => 'Bank garancia:',         'name' => 'bank_gar',       'szuro' => 1,   'class' => 'f_num', 'data' => 'data-tort="0"', 'nulla_is_ures_adat' => 1,    'osszevon' => 1, 'post' => ' '.get_penznem().'<span style="margin-left: 2rem"></span>'),
+    array('type' => 'text',                 'megn' => 'Bank garancia vége:',    'name' => 'bank_gar_vege',  'szuro' => 1,   'class' => 'kicsi datepicker'),
+    array('type' => 'checkbox',             'megn' => 'Számlázva:',             'name' => 'szamlazva',      'szuro' => 1,   'class' => 'check',  'disabled' => 1),
 );
 array_push($postok, array('tomb' => $akt_tomb, 'uj' => 'uj'.$megnevezes, 'lista' => $megnevezes.'lista', 'tabla' => $megnevezes, 'torid' => $megnevezes.'tid' ));
 
