@@ -2170,7 +2170,7 @@ function szamla_lista( $where, $tabla, $kijeloltek = false, $csak_sql_miatt = fa
             $lathato_prigenyek = $adatbazis_kapcsolat->s('projektigenyles_recid', 'projektigenyles_kapcs', "`login_recid`='{$_SESSION[get_db_tabla().'login_recid']}'");
             $lathato_prigenyek = adatbazis2tomb($lathato_prigenyek, 'projektigenyles_recid');
             if($lathato_prigenyek){
-                $where .= " OR `".  get_db_tabla()."projektigenyles`.`recid` IN (".implode(',', $lathato_prigenyek).") AND ";
+                $where .= " OR `".get_db_tabla()."projektigenyles`.`recid` IN (".implode(',', $lathato_prigenyek).") AND ";
             }
 
         }        
@@ -2179,13 +2179,13 @@ function szamla_lista( $where, $tabla, $kijeloltek = false, $csak_sql_miatt = fa
         if($tabla == 'projektkezeles'){
             // Ha Projekt team tag vagyok, akkor láthatom azokat a Projekteket, ahol a Projekt teamként jelen vagyok
             if( _jog(JOG_PRKEZEL_TEAM_TAG) ){
-                $team_vagyok = ' OR `recid` IN (SELECT `projektkezeles_recid` FROM `'.get_db_tabla().'projektkezeles_team` WHERE `login_recid`=\''.$_SESSION[get_db_tabla().'login_recid'].'\')';
+                $team_vagyok = ' OR `'.get_db_tabla().'projektkezeles`.`recid` IN (SELECT `projektkezeles_recid` FROM `'.get_db_tabla().'projektkezeles_team` WHERE `login_recid`=\''.$_SESSION[get_db_tabla().'login_recid'].'\')';
             }
             // Saját szállodáimat láthatom
             $where = "(`".get_db_tabla()."projektkezeles`.`telephely_id` IN (".implode(',', $szallodak)."){$team_vagyok}) AND ";
             // Ha van jogom saját projekteket kezelni, akkor azokat a projekteket is láthatom, ahol én vagyok a projektfelelős
             if( _jog(JOG_PRKEZEL_MEGTEKINT) && _jog(JOG_PRKEZEL_SAJAT_KEZEL) ){
-                $where = "(".csonkit($where, 5)." OR `".get_db_tabla()."projektkezeles`.`pfelelos`='{$_SESSION[get_db_tabla().'login_recid']}'{$pr_team}) AND ";
+                $where = "(".csonkit($where, 5)." OR `".get_db_tabla()."projektkezeles`.`pfelelos`='{$_SESSION[get_db_tabla().'login_recid']}'{$team_vagyok}) AND ";
             }
             // Ha nincs Projektek megtekintése jogom, de van saját kezelés jogom, akkor csak azokat a projekteket listázzuk ki, ahol én vagyok a projektfelelős
             if( !_jog(JOG_PRKEZEL_MEGTEKINT) && _jog(JOG_PRKEZEL_SAJAT_KEZEL) ){
@@ -2395,7 +2395,8 @@ function szamla_lista( $where, $tabla, $kijeloltek = false, $csak_sql_miatt = fa
 
     // Telephely táblával JOIN-olva, ha telephely_id alapján rendezünk vagy a selectben szerepel ez az oszlop
     $bejegyzesek = array();
-    if(strpos($order, 'telephely_id')!==false || strpos($select, 'telephely_id')!==false){
+    $kivetelek = array('projektkezeles');
+    if( (strpos($order, 'telephely_id')!==false || strpos($select, 'telephely_id')!==false) && !in_array($tabla, $kivetelek) ){
 
         // Először is az ordert felülírjuk, ha eszerint akartunk rendezni
         if(strpos($order, 'telephely_id')!==false){
@@ -2522,7 +2523,7 @@ function szamla_lista( $where, $tabla, $kijeloltek = false, $csak_sql_miatt = fa
                 $order = '`'.get_db_tabla().'telephely`.`nev` '.$_GET['irany'].', `'.get_db_tabla().'fenntartasi_terv`.`ev` '.$_GET['ellen_irany'].', `'.get_db_tabla().'fenntartasi_terv`.`update_dt` '.$_GET['ellen_irany'].'';
             }
         }
-
+        
         // Rendezés munkalap esetén külön problémakör:
         if( $tabla=='munkalap' || $tabla=='munkalap_arch' ){
 
@@ -2623,7 +2624,7 @@ function szamla_lista( $where, $tabla, $kijeloltek = false, $csak_sql_miatt = fa
         if( $tabla=='projektszerzodes' ){
             // Ha telephely szerint rendezünk, akkor ez lesz a következő rendezési szempont, és az irány is erre vonatkozik
             if($_GET['rend']=='telephely_id'){
-                $order = '`'.get_db_tabla().'telephely`.`nev` '.$_GET['irany'].', `'.get_db_tabla().'projektszerzodes`.`sz_szam` '.$_GET['irany'].'';
+                $order = '`'.get_db_tabla().'telephely`.`nev` '.$_GET['irany'].', `'.get_db_tabla().'projektszerzodes`.`sz_szam` '.$_GET['irany'];
             }
         }
         
@@ -2681,11 +2682,10 @@ function szamla_lista( $where, $tabla, $kijeloltek = false, $csak_sql_miatt = fa
             }
         }
 
-        // Szűréskor megjegyzés JOIN
+        // Összetett szűrés kapcsolódó táblái miatti JOIN-ok
         if ( $_GET['mezo']=='megjegyzes' || strpos($_SESSION['o_szuro_feltetel'], 'megjegyzes')!==false ) {
             $sql_kieg .= ' JOIN `'.get_db_tabla().'megjegyzes` ON `'.get_db_tabla().'megjegyzes`.`tabla`=\''.$tabla.'\' AND `'.get_db_tabla().''.$tabla.'`.`recid`=`'.get_db_tabla().'megjegyzes`.`id`';
         }
-
         // A bejelentések és munkalapoknál már megvan oldva, hogy ne használjunk obj JOIN-t, de a többi tálbára még nincs megoldva
         $kivetelek = array('bejelentes', 'bejelentes_arch', 'munkalap', 'munkalap_arch');
         if( (strpos($select, 'obj_id')!==false && !in_array($tabla, $kivetelek)) ){
@@ -2750,6 +2750,21 @@ function szamla_lista( $where, $tabla, $kijeloltek = false, $csak_sql_miatt = fa
         }
         if ( $tabla=='login' && ($_GET['mezo']=='szalloda' || strpos($_SESSION['o_szuro_feltetel'], 'szalloda')!==false ) ) {
             $join = ' JOIN `'.get_db_tabla().'telephely_kapcs` ON `'.get_db_tabla().'login`.`nev`=`'.get_db_tabla().'telephely_kapcs`.`nev`';
+        }
+        // Rendezés projektkezelés esetén
+        if( $tabla=='projektkezeles' ){
+            $join = ' JOIN `'.get_db_tabla().'telephely` ON `'.get_db_tabla().'projektkezeles`.`telephely_id`=`'.get_db_tabla().'telephely`.`id`';
+            if($_GET['rend']=='stat_id'){
+                $order = '`'.get_db_tabla().'projektkezeles`.`stat_id` '.$_GET['irany'].', `'.get_db_tabla().'telephely`.`nev` '.$_GET['irany'];
+            }
+            if($_GET['rend']=='telephely_id'){
+                $order = '`'.get_db_tabla().'telephely`.`nev` '.$_GET['irany'].', `'.get_db_tabla().'projektkezeles`.`stat_id` '.$_GET['irany'];
+            }
+        }
+        
+        // Összetett szűrő kapcsolódó táblája miatt kell még pár JOIN
+        if ( $_GET['mezo']=='team_tag' || strpos($_SESSION['o_szuro_feltetel'], 'team_tag')!==false ) {
+            $join .= ' JOIN `'.get_db_tabla().'projektkezeles_team` ON `'.get_db_tabla().'projektkezeles_team`.`projektkezeles_recid`=`'.get_db_tabla().'projektkezeles`.`recid`';
         }
 
         // Ha csak egy konkrét rekordot frissítünk a bal navpanelben, akkor a limit 1 legyen. Join esetén többször ugyanaz is kijöhet, ezért lényeges limitálni.
@@ -4545,9 +4560,15 @@ function projektkezelesLista( $bejegyzesek, $tabla, $frissit, $kijeloltek ) {
             }
 
             $li_tart = '<a class="szamla" data-recid="'.$bsz['recid'].'" data-fajl="'.$tabla.'.php" data-muvelet="modosit">
-                            <span'.$bold.'>'.$bsz['ikt_szam'].'</span>
-                            <span'.$bold.'>'.$bsz['nev'].'</span>
-                            <span'.$bold.'>'.$statusz.'</span>
+                            <table style="width: 30rem">
+                            <tr>
+                                <td style="width: 10rem">'.getSzallodaNev($bsz['telephely_id']).'</td>
+                                <td style="width: 20rem">'.$statusz.'</td>
+                            </tr>
+                            <tr>
+                                <td colspan="2">'.resz_string($bsz['text'], 60).'</td>
+                            </tr>
+                            </table>
                         </a>';
 
             // Bal oldali navpanel frissítésekor kijelöljük az aktuális sort
@@ -6154,6 +6175,8 @@ function get_akt_tomb($megn){
     global $munkalap_tomb;
     global $utemezett_feladatok_tomb;
     global $projektigenyles_tomb;
+    global $projektkezeles_tomb;
+    global $projektszerzodes_tomb;
     global $rendszeres_karbantartas_tomb;
     global $szallito_tomb;
     global $torzsadat_tomb;
@@ -6174,6 +6197,8 @@ function get_akt_tomb($megn){
         case 'munkalap'                 : case 'munkalap_arch'                  : $akt_tomb = $munkalap_tomb;               break;
         case 'utemezett_feladatok'      : case 'utemezett_feladatok_arch'       : $akt_tomb = $utemezett_feladatok_tomb;    break;
         case 'projektigenyles'          : case 'projektigenyles_arch'           : $akt_tomb = $projektigenyles_tomb;        break;
+        case 'projektkezeles'           : case 'projektkezeles_arch'            : $akt_tomb = $projektkezeles_tomb;         break;
+        case 'projektszerzodes'         : case 'projektszerzodes_arch'          : $akt_tomb = $projektszerzodes_tomb;       break;
         case 'rendszeres_karbantartas'  : case 'rendszeres_karbantartas_arch'   : $akt_tomb = $rendszeres_karbantartas_tomb;break;
         case 'szallito'                 : case 'szallito_arch'                  : $akt_tomb = $szallito_tomb;               break;
         case 'torzsadat'                : case 'torzsadat_arch'                 : $akt_tomb = $torzsadat_tomb;              break;
@@ -6373,6 +6398,8 @@ function get_szures_where_kieg($mezo, $op, $felt, $tabla){
         return '`'.get_db_tabla().'utemezett_feladatok`.`telephely_id`=\''.$felt.'\'';
     }elseif($tabla=='utemezett_feladatok' && $mezo=='id'){
         return '`'.get_db_tabla().'utemezett_feladatok`.`id`=\''.$felt.'\'';
+    }elseif($tabla=='projektkezeles' && $mezo=='team_tag'){
+        return '`'.get_db_tabla().'projektkezeles_team`.`login_recid`=\''.$felt.'\'';
     }elseif($tabla=='szallito' && $mezo=='szakterulet'){
         return '`'.get_db_tabla().'szakter_kapcs`.`szakter_id`=\''.$felt.'\'';
     }else{

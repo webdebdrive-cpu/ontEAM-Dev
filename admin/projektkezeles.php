@@ -955,6 +955,149 @@ if (isset($_POST['projekt_team_felvesz'])) {
     exit();
 }
 
+// CSV generálása
+if (isset($_GET['csv'])) {
+    
+    require_once 'selectek.php';
+
+    $mibol   = get_web_charset();
+    $mibe    = 'windows-1250';
+
+    if( !is_dir('export') ) {
+        mkdir('export');
+    }
+
+    if( !is_dir('export/csv') ) {
+        mkdir('export/csv');
+    }
+
+    // Régi fájlok törlése
+    $utvonal = 'export/csv/';
+    $fajlok = konyvtar_bejar($utvonal);
+    foreach($fajlok as $fajl){
+        if(filemtime($fajl)<(time()-60*60)){
+            unlink($fajl);
+        }
+    }
+
+    $fajlnev = $utvonal.'csv'.time().'.csv';
+    $open = fopen($fajlnev,'a');
+    fwrite($open, "sep=;\n");
+    if($open){
+
+        if( $_SESSION['nyomtatas_ids'] ) {
+            
+            $lekerdezes_fromtol = substr($_SESSION['akt_sql'], strpos($_SESSION['akt_sql'], 'FROM'));
+            
+            if( strstr($_SESSION['akt_sql'], 'WHERE') ) {
+                $lekerdezes_fromtol = str_replace('WHERE', "WHERE `".get_db_tabla().$megnevezes."`.`recid` IN (".$_SESSION['nyomtatas_ids'].") AND ", $lekerdezes_fromtol);
+            } else {
+                $lekerdezes_fromtol = str_replace('ORDER', "WHERE `".get_db_tabla().$megnevezes."`.`recid` IN (".$_SESSION['nyomtatas_ids'].") ORDER", $lekerdezes_fromtol);
+            }
+
+            $sql = 'SELECT
+                        `'.get_db_tabla().$megnevezes.'`.`stat_id` as \'Státusz\',
+                        `'.get_db_tabla().$megnevezes.'`.`ikt_szam` as \'Azonosító\',
+                        `'.get_db_tabla().$megnevezes.'`.`pfelelos` as \'Projektfelelős\',
+                        `'.get_db_tabla().$megnevezes.'`.`nev` as \'Név\',
+                        `'.get_db_tabla().$megnevezes.'`.`telephely_id` as \'Szálloda\',
+                        `'.get_db_tabla().$megnevezes.'`.`tipus` as \'Tipus\',
+                        `'.get_db_tabla().$megnevezes.'`.`besorol` as \'Besorolás\',
+                        `'.get_db_tabla().$megnevezes.'`.`prior` as \'Prioritás\',
+                        `'.get_db_tabla().$megnevezes.'`.`megter` as \'Megtérülő\',
+                        `'.get_db_tabla().$megnevezes.'`.`rendk` as \'Rendkívüli\',
+                        `'.get_db_tabla().$megnevezes.'`.`text` as \'Leírása\',
+                        `'.get_db_tabla().$megnevezes.'`.`bkolt` as \'Becsült költsége\',
+                        `'.get_db_tabla().$megnevezes.'`.`akt_adat` as \'Aktiválási adatok\'
+                        '.$lekerdezes_fromtol;
+
+            $query      = mysqli_query($db_kapcs, $sql);
+ 
+            $csvhead    = array();
+            while($fejlec_nevek = mysqli_fetch_field($query)){
+                $csvhead[] = iconv2($mibol, $mibe, $fejlec_nevek -> name );
+            }
+            fputcsv($open, $csvhead, ';');
+
+            $i = 0;
+            while( $sorok = mysqli_fetch_assoc($query) ){
+
+                $csvcont = array();
+                foreach( $sorok as $kulcs => $sor ) {
+                    
+                    if($kulcs=='Státusz'){
+                        $sor = getStatText('projektkezeles', $sor);
+                    }
+                    if($kulcs=='Projektfelelős'){
+                        $sor = getErtek('teljes_nev', 'login', 'recid', $sor);
+                    }
+                    if($kulcs=='Szálloda'){
+                        $sor = getSzallodaNev($sor);
+                    }
+                    if($kulcs=='Tipus'){
+                        foreach($select_pri_tipus as $tipus){
+                            if( $tipus['value'] == $sor ){
+                                $sor = $tipus['name'];
+                            }
+                        }
+                        $sor = str_replace('- Válasszon -', '', $sor);
+                    }
+                    if($kulcs=='Besorolás'){
+                        foreach($select_pri_besorol as $besorol){
+                            if( $besorol['value'] == $sor ){
+                                $sor = $besorol['name'];
+                            }
+                        }
+                        $sor = str_replace('- Válasszon -', '', $sor);
+                    }
+                    if($kulcs=='Prioritás'){
+                        $sor = ertekLista( ERTEKLISTA_PROJEKT_PRIOR, $sor );
+                    }
+
+                    if($kulcs=='Megtérülő'){
+                        if($sor){
+                            $sor = 'igen';
+                        }else{
+                            $sor = 'nem';
+                        }
+                    }
+                    if($kulcs=='Rendkívüli'){
+                        if($sor){
+                            $sor = 'igen';
+                        }else{
+                            $sor = 'nem';
+                        }
+                    }
+                    $csvcont[] = iconv($mibol, $mibe.'//TRANSLIT', strip_tags( htmlspecialchars_decode( $sor ) ) );
+                }
+
+                fputcsv($open, $csvcont, ';');
+
+                // 100 soronként kiírtatunk
+                if ($i % 100 == 0) {
+                    flush();
+                }
+
+                $i++;
+            }
+        }
+
+    }
+    fclose($open);
+
+    header("Content-type: text/csv");
+    header("Content-Disposition: attachment; filename=$megnevezes.csv");
+    header("Pragma: no-cache");
+    header("Expires: 0");
+
+    echo fajlbol_olvas($fajlnev);
+
+    $weblap->leallit();
+    exit();
+}
+
+
+
 
 
 // Tartalom

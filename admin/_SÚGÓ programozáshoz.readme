@@ -54,7 +54,9 @@ SZŰRÉS LEKEZELÉSE:
 - szures.php, amit header.php hív meg. Ebben vannak beállítva a kapcsolódó táblák szűrő mezői (pl. Megjegyzés)
 - esemenyek.php-ban a tömböt egészítsd ki a 'szuro' => 1 paraméterrel.
 - fuggvenyek.php adott php fájlt visszadja-e a get_akt_tomb() függvénnyel?
+- Ha kapcsolódó tábla egy adatára szeretnél szűrni, akkor keresd a "// Kapcsolódó táblák szűrő mezői" kommentet a szures.php-ban
 - SQL-t a get_szures_where_kieg() függvény számolja ki. Itt szintén be kell állítani a kapcsolódó táblákat
+- A kapcsolódó táblákat még az esemenyek.php isset($_POST['f_o_szures_submit']) részénél kell lekezelni
 - fuggvenyek.php-ben a kapcsolódó táblák miatt még itt állítsd be a működést: // Szűréskor kell pár JOIN-olás a külső táblákhoz
 
 SORREDEZÉS

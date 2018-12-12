@@ -145,8 +145,8 @@ define('PRKEZEL_STAT_NYITOTT',          '01' );
 define('PRKEZEL_STAT_ELOKESZITES_ALATT','02' );
 define('PRKEZEL_STAT_FOLYAMATBAN',      '03' );
 define('PRKEZEL_STAT_KESZ',             '04' );
-define('PRKEZEL_STAT_LEZART',           '05' );
-define('PRKEZEL_STAT_FELFUGGESZTETT',   '06' );
+define('PRKEZEL_STAT_FELFUGGESZTETT',   '05' );
+define('PRKEZEL_STAT_LEZART',           '06' );
 
 // Projektigénylés tipusok
 define('PRIGENY_TIPUS_BERUH',           '1' );
