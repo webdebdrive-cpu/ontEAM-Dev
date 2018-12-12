@@ -7,15 +7,16 @@
             <div id="addLogin" class="dt szallodak" style="border: 0.2rem solid #55A2FA;"></div>
         </div>
         
-        <input type="button" value="Külsős hozzáadása" class="gomb" onclick="pop_kulsos_hozzaadasa()" style="margin-top: 0.5rem">
+        <!-- Mégsem kell nekik 2018.12.12 <input type="button" value="Külsős hozzáadása" class="gomb" onclick="pop_kulsos_hozzaadasa()" style="margin-top: 0.5rem"> -->
+        <div class="b" style="margin-top: 2rem">Külsős hozzáadásához töltse ki az alábbi mezőket:</div>
         
-        <table style="width: auto;">
+        <table style="width: 100%; margin-top: 0.3rem">
             <tr>
                 <td>Név:</td>
-                <td class="p" style="padding-right: 6rem"><input type="text" id="pop_nev" class="csillag" data-hiba="Kérem adja meg a team nevét!"></td>
+                <td class="p" style="padding-right: 3rem"><input type="text" id="pop_nev" class="csillag oriasi" data-hiba="Kérem adja meg a team nevét!"></td>
                 <td>Szerepkör:</td>
                 <td class="p">
-                    <input type="text" autocomplete="off" class="csillag disableNav" id="pop_szerepkor_autocomp" name="pop_szerepkor_autocomp" onblur="if(!$(this).val()){ $('#pop_szerepkor').val(''); }" value="">
+                    <input type="text" autocomplete="off" class="csillag disableNav oriasi" id="pop_szerepkor_autocomp" name="pop_szerepkor_autocomp" onblur="if(!$(this).val()){ $('#pop_szerepkor').val(''); }" value="">
                     <input type="hidden" name="pop_szerepkor" id="pop_szerepkor" value="" data-hiba="Kérem adja meg a team szerepkörét!">
                     <script>
                         $(document).ready(function() {
@@ -34,15 +35,15 @@
             </tr>
             <tr>
                 <td>Cég:</td>
-                <td class="p"><input type="text" id="pop_ceg" class="csillag" data-hiba="Kérem adja meg a team cégét!"></td>
+                <td class="p" style="padding-right: 3rem"><input type="text" id="pop_ceg" class="csillag oriasi" data-hiba="Kérem adja meg a team cégét!"></td>
                 <td>E-mail:</td>
-                <td class="p"><input type="text" id="pop_usermail" class="csillag" data-hiba="Kérem adja meg a team e-mail címét!"></td>
+                <td class="p"><input type="text" id="pop_usermail" class="csillag oriasi" data-hiba="Kérem adja meg a team e-mail címét!"></td>
             </tr>
             <tr>
                 <td>Beosztás:</td>
-                <td class="p"><input type="text" id="pop_beosztas" class="csillag" data-hiba="Kérem adja meg a team beosztását!"></td>
+                <td class="p" style="padding-right: 3rem"><input type="text" id="pop_beosztas" class="csillag oriasi" data-hiba="Kérem adja meg a team beosztását!"></td>
                 <td>Telefon:</td>
-                <td class="p"><input type="text" id="pop_usertel" class="csillag" data-hiba="Kérem adja meg a team telefonszámát!"></td>
+                <td class="p"><input type="text" id="pop_usertel" class="csillag oriasi" data-hiba="Kérem adja meg a team telefonszámát!"></td>
             </tr>
         </table>
         
@@ -54,6 +55,7 @@
 </form>
 <script>
 $(document).ready(function(){
+    setTimeout(function(){ popupRejt(); }, 5);
     /* Loginok táblázatának betöltése */
     $.ajax({
         url : 'projektkezeles.php',
@@ -68,6 +70,7 @@ $(document).ready(function(){
                 if(response.html){
                     $('#addLogin').html(response.html);
                     $('#popup_login_kereses').focus();
+                    popupMutat();
                 }
             }
         }

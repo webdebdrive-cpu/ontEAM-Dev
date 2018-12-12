@@ -2360,16 +2360,16 @@ require_once('selectek.php');
             if ( !is_file($utvonal) ) {
                 $onclick = 'alert2(\'Nem található a következő fájl:<br>'.$sor['kepfajl'].'\', \'\', \'Hiba\')';
             }
-            $gombok .= '<input type="button" class="gomb" value="Rendelés kép" onclick="'.$onclick.'"> ';
+            $gombok .= '<input type="button" class="gomb modositaskor_rejt" value="Rendelés kép" onclick="'.$onclick.'"> ';
         }
 
         // Anyagigénylés jóváhagyása
         if( _jog(JOG_ANYAGIGENYLES_JOVAHAGY) ) {
 
             if($sor['stat_id']==CIKKIGN_STAT_ARAZVA){
-                $gombok .= '<input type="button" class="gomb zold" value="Jóváhagyás" onclick="anyagigenyles_jovahagy(\'csak kérdezünk még\')"> ';
-                $gombok .= '<input type="button" class="gomb piros" value="Elutasítás" onclick="anyagigenyles_elutasitas(\'csak kérdezünk még\')"> ';
-                $gombok .= '<input type="button" class="gomb" value="Mind jóváhagyása" onclick="anyagigenyles_mind_jovahagy(\'csak kérdezünk még\')"> ';
+                $gombok .= '<input type="button" class="gomb modositaskor_rejt zold" value="Jóváhagyás" onclick="anyagigenyles_jovahagy(\'csak kérdezünk még\')"> ';
+                $gombok .= '<input type="button" class="gomb modositaskor_rejt piros" value="Elutasítás" onclick="anyagigenyles_elutasitas(\'csak kérdezünk még\')"> ';
+                $gombok .= '<input type="button" class="gomb modositaskor_rejt" value="Mind jóváhagyása" onclick="anyagigenyles_mind_jovahagy(\'csak kérdezünk még\')"> ';
             }
 
             // Ha jóváhagyás joga van, és a státusza árazva, akkor a jóváhagyott mennyiség enabled és értéke a rendelt mennyiség
@@ -2403,12 +2403,12 @@ require_once('selectek.php');
                 $arazas        = '';
                 $kuld_jovahagy = '';
                 if($sor['stat_id']==CIKKIGN_STAT_NYITOTT){
-                    $arazas        = '<input type="button" class="gomb foGomb" value="Árazás" onclick="arazas()"> ';
-                    $kuld_jovahagy = '<input type="button" class="gomb foGomb" value="Küldés jóváhagyásra" onclick="anyagigenyles_kuldes_jovahagyasra(\'csak kérdezünk még\')"> ';
+                    $arazas        = '<input type="button" class="gomb modositaskor_rejt" value="Árazás" onclick="arazas()"> ';
+                    $kuld_jovahagy = '<input type="button" class="gomb modositaskor_rejt" value="Küldés jóváhagyásra" onclick="anyagigenyles_kuldes_jovahagyasra(\'csak kérdezünk még\')"> ';
                 }
                 $rend_keszit = '';
                 if($sor['stat_id']==CIKKIGN_STAT_JOVAHAGYVA){
-                    $rend_keszit = '<input type="button" class="gomb foGomb" value="Rendelés készítése" onclick="anyagigenyles_rendeles_keszit(\'csak kérdezünk még\')"> ';
+                    $rend_keszit = '<input type="button" class="gomb modositaskor_rejt" value="Rendelés készítése" onclick="anyagigenyles_rendeles_keszit(\'csak kérdezünk még\')"> ';
                 }
 
                 $gombok .= nl2('
@@ -2417,11 +2417,11 @@ require_once('selectek.php');
 
                 // Elutasított státusz alatt nincs Leírás hozzáadása gomb
                 if( $sor['stat_id']!=CIKKIGN_STAT_ELUTASITVA ){
-                    $gombok .= '<input type="button" class="gomb" value="Leírás hozzáadása" title="Leírás hozzáadása" onclick="csoportMuvelet(\'anyagigenylesLeirasHozzaadas\')"> ';
+                    $gombok .= '<input type="button" class="gomb modositaskor_rejt" value="Leírás hozzáadása" title="Leírás hozzáadása" onclick="csoportMuvelet(\'anyagigenylesLeirasHozzaadas\')"> ';
                 }
 
                 $gombok .= nl2('
-                        <input type="button" class="gomb foGomb" value="Várólista..." title="Várólista...">
+                        <input type="button" class="gomb foGomb modositaskor_rejt" value="Várólista..." title="Várólista...">
                         <div class="muv">
                             <ul>
                                 <li><a onclick="csoportMuvelet(\'anyagigenylesVarolistahozAdas\')">Várólistához adás</a></li>
@@ -2437,7 +2437,7 @@ require_once('selectek.php');
                 // Sztornó gomb
                 $sztornos_statuszok = array(CIKKIGN_STAT_NYITOTT, CIKKIGN_STAT_ARAZVA, CIKKIGN_STAT_VARAKOZO, CIKKIGN_STAT_JOVAHAGYVA);
                 if( in_array($sor['stat_id'], $sztornos_statuszok) ){
-                    $gombok .= '<input type="button" class="gomb piros" value="Sztornó" onclick="csoportMuvelet(\'anyagigenylesSztornoz\')"> ';
+                    $gombok .= '<input type="button" class="gomb piros modositaskor_rejt" value="Sztornó" onclick="csoportMuvelet(\'anyagigenylesSztornoz\')"> ';
                 }
 
             // Anyagrendelés alatt csak a Leírás hozzáadása gomb látszik
@@ -2449,7 +2449,7 @@ require_once('selectek.php');
                                 ');
                     // Elutasított státusz alatt nincs Leírás hozzáadása gomb
                     if( $sor['stat_id']!=CIKKIGN_STAT_ELUTASITVA ){
-                        $gombok .= '<input type="button" class="gomb" value="Leírás hozzáadása" title="Leírás hozzáadása" onclick="csoportMuvelet(\'anyagigenylesLeirasHozzaadas\')"> ';
+                        $gombok .= '<input type="button" class="gomb modositaskor_rejt" value="Leírás hozzáadása" title="Leírás hozzáadása" onclick="csoportMuvelet(\'anyagigenylesLeirasHozzaadas\')"> ';
                     }
                     $gombok .= nl2('
                                     </div>
@@ -2462,8 +2462,8 @@ require_once('selectek.php');
         if( _jog(JOG_ANYAGIGENYLES_KEZEL) ) {
             if(isset($_GET['anyagrend'])){
                 $gombok .= nl2('
-                    <input type="button" class="gomb foGomb" value="Anyagok érkeztetése" onclick="csoportMuvelet(\'anyagigenyles_erkeztet\')">
-                    <input type="button" class="gomb foGomb" value="Készpénzes anyagbeszerzés" onclick="csoportMuvelet(\'anyagigenylesKpBeszerez\');">
+                    <input type="button" class="gomb modositaskor_rejt" value="Anyagok érkeztetése" onclick="csoportMuvelet(\'anyagigenyles_erkeztet\')">
+                    <input type="button" class="gomb modositaskor_rejt" value="Készpénzes anyagbeszerzés" onclick="csoportMuvelet(\'anyagigenylesKpBeszerez\');">
                 ');
             }
         }
@@ -2522,7 +2522,7 @@ require_once('selectek.php');
         // Rendelés kép gomb
         $utvonal = '../'.get_utvonal().$megnevezes.'/'.$sor['kepfajl'];
         if(is_file($utvonal)){
-            $gombok .= ' <input type="button" class="gomb foGomb" value="Rendelés kép" onclick="window.open(\''.$utvonal.'\')">';
+            $gombok .= ' <input type="button" class="gomb modositaskor_rejt" value="Rendelés kép" onclick="window.open(\''.$utvonal.'\')">';
         }
 
         /* Anyagigénylés nem szerkeszthető egyáltalán

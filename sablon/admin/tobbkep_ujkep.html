@@ -80,6 +80,7 @@ function beolvasas_{MEGN}(fajlok, ellenorzes_kihagy) {
                 $('#' + progress_id).val(100);
                 $('#' + progress_id).fadeOut(2000, function(){ $('#' + progress_id).next('br').remove(); });
 
+                var nem_irhato_felul = false;
                 /* Ha a 'frissit' szót kaptunk válaszul, akkor újra betöltjük a dokumentumok felület tartalmát (pl. lehet megváltoztak a nyomógombok a feltöltés hatására) */
                 if( this.responseText.substring(0,7)== 'frissit' ) {
                     if(fajlok_kesz == fajlok.length) {
@@ -122,6 +123,9 @@ function beolvasas_{MEGN}(fajlok, ellenorzes_kihagy) {
                         if (fajlok_kesz == fajlok.length){
                             minden_fajl_kesz_{MEGN}();
                         }
+                        
+                        nem_irhato_felul = true;
+                        
                         /* Ezzel hívjuk meg a popupot */
                         projekt_fajfeltoltes_utan_tovabb();
                         
@@ -161,6 +165,13 @@ function beolvasas_{MEGN}(fajlok, ellenorzes_kihagy) {
 }
 felulirando_fajlok = false;
 function fajl_feluliras_alert_{MEGN}(tomb) {
+    
+    /* Projekt terveknél nem írunk felül fájlokat. */
+    if( baseName(location.href) == 'projektkezeles' ){
+        alert2(tomb[0].name+' fájl már létezik, kérem nevezze át az új fájlt egy másik névre!', '', 'Hiba');
+        return false;
+    }
+    
     if( tomb ) {
         nevek = 'A következő fájlok már léteznek, felülírja őket?';
         for (var i = 0; i < tomb.length; i++){

@@ -1174,9 +1174,9 @@ require('selectek.php');
             // Ha a prigény létrehozás alatt van, akkor érhető el csak az Igénylés rögzítése gomb
             if($sor['stat_id']==PRIGENY_STAT_LETRE_ALATT){
                 if (isset($_GET['modosit'])) {
-                    $gombok .= ' <input type="button" class="gomb foGomb" value="Igénylés rögzítése" title="Igénylés rögzítése" id="igenyles_rogzit_gomb" onclick="$(\'#igeny_rogzit\').val(1); szurkit(); $(\'#szerk_form\').submit();">';
+                    $gombok .= ' <input type="button" class="gomb modositaskor_rejt" value="Igénylés rögzítése" title="Igénylés rögzítése" id="igenyles_rogzit_gomb" onclick="$(\'#igeny_rogzit\').val(1); szurkit(); $(\'#szerk_form\').submit();">';
                 }else{
-                    $gombok .= ' <input type="button" class="gomb foGomb" value="Igénylés rögzítése" title="Igénylés rögzítése" id="igenyles_rogzit_gomb" onclick="szurkit(); location.href=\''.self().'?id='.$_GET['id'].'&amp;modosit&amp;rogzit\'">';
+                    $gombok .= ' <input type="button" class="gomb modositaskor_rejt" value="Igénylés rögzítése" title="Igénylés rögzítése" id="igenyles_rogzit_gomb" onclick="szurkit(); location.href=\''.self().'?id='.$_GET['id'].'&amp;modosit&amp;rogzit\'">';
                 }
             }
             // Rejtett, technikai input, viszont ez legyen mindig elérhető (pl. nyitott státuszkor mentésné is kell)
@@ -1184,12 +1184,12 @@ require('selectek.php');
 
             // Ha a prigény véleményezés alatt van, és véleményező vagyok, akkor tudok véleményt feltölteni
             if($sor['stat_id']==PRIGENY_STAT_VEL_ALATT && $adatbazis_kapcsolat->s('recid', 'projektigenyles_kapcs', "`projektigenyles_recid`='{$_GET['id']}' AND `login_recid`='{$_SESSION[get_db_tabla().'login_recid']}'", '', '1')){
-                $gombok .= ' <input type="button" class="gomb foGomb" value="Vélemény csatolása" title="Vélemény csatolása" onclick="velemeny_hozzaad();">';
+                $gombok .= ' <input type="button" class="gomb modositaskor_rejt" value="Vélemény csatolása" title="Vélemény csatolása" onclick="velemeny_hozzaad();">';
             }
 
             // Hiánypótolt csak akkor lehet egy igénylés, ha most épp hiánypótlásra várunk és van bármilyen kezelési joga
             if($sor['stat_id'] == PRIGENY_STAT_HIANYPOTLAS && (_jog(JOG_PRIGENY_S_KEZEL) || (_jog(JOG_PRIGENY_T_KEZEL) && $sor['tipus']==PRIGENY_TIPUS_TARGY)  ) ) {
-                $gombok .= ' <input type="button" class="gomb foGomb" value="Hiánypótolt" title="Hiánypótolt" onclick="pri_statusz_leptet(\''.$_GET['id'].'\', \''.PRIGENY_STAT_HIANYPOTOLT.'\');">';
+                $gombok .= ' <input type="button" class="gomb modositaskor_rejt" value="Hiánypótolt" title="Hiánypótolt" onclick="pri_statusz_leptet(\''.$_GET['id'].'\', \''.PRIGENY_STAT_HIANYPOTOLT.'\');">';
             }
 
             // Ha van egyálátalán kezelésre joga
@@ -1198,13 +1198,13 @@ require('selectek.php');
                 // Létrehozás alatt semmilyen más gomb nem látszik, csak a Mentés vagy Igénylés rögzítése
                 if($sor['stat_id']!=PRIGENY_STAT_LETRE_ALATT){
                     if(!in_array($sor['stat_id'], prigeny_fb_bod_var()) && $sor['stat_id'] != PRIGENY_STAT_VARAKOZO && $sor['stat_id'] != PRIGENY_STAT_HIANYPOTLAS) {
-                        $gombok .= ' <input type="button" class="gomb foGomb" value="Várakoztatás" title="Várakoztatás" onclick="csoportMuvelet(\'pri_varakoztat\');">';
+                        $gombok .= ' <input type="button" class="gomb modositaskor_rejt" value="Várakoztatás" title="Várakoztatás" onclick="csoportMuvelet(\'pri_varakoztat\');">';
                     }
                     if($sor['stat_id'] == PRIGENY_STAT_VARAKOZO) {
-                        $gombok .= ' <input type="button" class="gomb foGomb" value="Várakoztatás vége" title="Várakoztatás vége" onclick="pri_statusz_leptet(\''.$_GET['id'].'\', \''.PRIGENY_STAT_NYITOTT.'\');">';
+                        $gombok .= ' <input type="button" class="gomb modositaskor_rejt" value="Várakoztatás vége" title="Várakoztatás vége" onclick="pri_statusz_leptet(\''.$_GET['id'].'\', \''.PRIGENY_STAT_NYITOTT.'\');">';
                     }
                     if(!in_array($sor['stat_id'], prigeny_fb_bod_var()) && in_array($sor['stat_id'], prigeny_hianypotlasba_statuszok()) ) {
-                        $gombok .= ' <input type="button" class="gomb foGomb" value="Visszaadás hiánypótlásra" title="Visszaadás hiánypótlásra" onclick="csoportMuvelet(\'pri_hianypotlasra\');">';
+                        $gombok .= ' <input type="button" class="gomb modositaskor_rejt" value="Visszaadás hiánypótlásra" title="Visszaadás hiánypótlásra" onclick="csoportMuvelet(\'pri_hianypotlasra\');">';
                     }
 
                     // $gombok .= ' <input type="button" class="gomb foGomb" value="FB előterjesztés nyomtatása" title="FB előterjesztés nyomtatása" onclick="window.open(\'projektigenyles.php?print=lista&amp;fb_elo\');">';
@@ -1213,11 +1213,11 @@ require('selectek.php');
                     $gombok .= $gombok_meg;
 
                     if(!in_array($sor['stat_id'], prigeny_fb_bod_var()) && _jog(JOG_PRIGENY_ELUTASIT) && $sor['stat_id'] != PRIGENY_STAT_ELUTASITVA /*Ez a felétel felesleges, csak az egységesség miatt van itt*/) {
-                        $gombok .= ' <input type="button" class="gomb piros foGomb" value="Elutasítás" title="Elutasítás" onclick="csoportMuvelet(\'elutasitas_csak_memo\');">';
+                        $gombok .= ' <input type="button" class="gomb piros modositaskor_rejt" value="Elutasítás" title="Elutasítás" onclick="csoportMuvelet(\'elutasitas_csak_memo\');">';
                     }
 
                     if(!in_array($sor['stat_id'], prigeny_fb_bod_var()) && _jog(JOG_PRIGENY_JOVAHAGY) && in_array($sor['stat_id'], prigeny_jovahagyhato_statuszok()) ) {
-                        $gombok .= ' <input type="button" class="gomb zold foGomb" value="Jóváhagyás" title="Jóváhagyás" onclick="pri_statusz_leptet(\''.$_GET['id'].'\', \''.PRIGENY_STAT_JOVAHAGYVA.'\');">';
+                        $gombok .= ' <input type="button" class="gomb zold modositaskor_rejt" value="Jóváhagyás" title="Jóváhagyás" onclick="pri_statusz_leptet(\''.$_GET['id'].'\', \''.PRIGENY_STAT_JOVAHAGYVA.'\');">';
                     }
                 }
 

@@ -260,7 +260,7 @@ if(isset($_GET['modosit_ules'])){
 
         // Nyitott státuszban látható gombok
         if($sor['stat_id']==ELOT_FB_STAT_NYITOTT){
-            $gombok .= '<input type="button" class="gomb foGomb" value="Igénylés csatolása" title="Igénylés csatolása" onclick="csoportMuvelet(\'eloterj_igneyles_csatol\');"> ';
+            $gombok .= '<input type="button" class="gomb foGomb modositaskor_rejt" value="Igénylés csatolása" title="Igénylés csatolása" onclick="csoportMuvelet(\'eloterj_igneyles_csatol\');"> ';
             $gombok .= '
                 <script>
                     veglegesit_gombok = \'<input type="button" class="gomb zold" value="Igen" onclick="eloterj_veglegesit()"><input type="button" class="gomb piros" value="Nem" onclick="alert2()">\';
@@ -302,13 +302,13 @@ if(isset($_GET['modosit_ules'])){
                         });
                     }
                 </script>';
-            $gombok .= '<input type="button" class="gomb" value="Visszanyitás" title="Visszanyitás" onclick="alert2(\'Ha folytatja, az előterjesztés Nyitott státuszba kerül, a projekt igénylései előző státuszukba kerülnek.<br>Folytatja?\', visszanyit_gombok);"> ';
+            $gombok .= '<input type="button" class="gomb modositaskor_rejt" value="Visszanyitás" title="Visszanyitás" onclick="alert2(\'Ha folytatja, az előterjesztés Nyitott státuszba kerül, a projekt igénylései előző státuszukba kerülnek.<br>Folytatja?\', visszanyit_gombok);"> ';
 
             // Projektigények fül alatt érhető csak el
             if (isset($_GET['projektigeny'])) {
-                $gombok .= '<input type="button" class="gomb" value="FB döntés feldolgozása" title="FB döntés feldolgozása" onclick="eloterj_dontes_feldolgoz()"> ';
-                $gombok .= '<input id="statusz_ment_gomb" type="button" class="gomb zold dn" value="Státuszok mentése" title="Státuszok mentése" onclick="pri_eloterj_statusz_mod_mentes()"> ';
-                $gombok .= '<input type="button" class="gomb zold" value="Státuszok rögzítése" title="Státuszok rögzítése" onclick="pri_eloterj_statusz_mod_mentes(\'rogzít\')"> ';
+                $gombok .= '<input type="button" class="gomb modositaskor_rejt" value="FB döntés feldolgozása" title="FB döntés feldolgozása" onclick="eloterj_dontes_feldolgoz()"> ';
+                $gombok .= '<input id="statusz_ment_gomb" type="button" class="gomb zold dn modositaskor_rejt" value="Státuszok mentése" title="Státuszok mentése" onclick="pri_eloterj_statusz_mod_mentes()"> ';
+                $gombok .= '<input type="button" class="gomb zold modositaskor_rejt" value="Státuszok rögzítése" title="Státuszok rögzítése" onclick="pri_eloterj_statusz_mod_mentes(\'rogzít\')"> ';
             }
         }
 

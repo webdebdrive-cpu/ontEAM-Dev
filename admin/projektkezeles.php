@@ -918,7 +918,7 @@ if (isset($_POST['projekt_team_felvesz'])) {
 
         
         
-        // Ha nem volna elég hosszú a flags lista, akkor feltültjük 0-kal
+        // Ha nem volna elég hosszú a flags lista, akkor feltöltjük 0-kal
         for($i=0; $i<JOG_PRKEZEL_TEAM_TAG; $i++){
             if(!$flags[$i]){
                 $flags[$i] = '0';
@@ -1060,29 +1060,29 @@ require_once('selectek.php');
         if( in_array($sor['stat_id'], $statuszok) && get_projekt_kezeles_jog($_GET['id']) ) {
             $van_dok = $adatbazis_kapcsolat->s2('recid', 'projektkezeles_dok', "`projektkezeles_id`='{$_GET['id']}'", '', '1');
             if(!$van_dok){
-                $gombok .= '<input type="button" class="gomb" value="Előkészítés alatt" onclick="alert2(\'Előbb csatoljon egy dokumentumot a projekthez!\', \'\', \'Hiba\')"> ';
+                $gombok .= '<input type="button" class="gomb modositaskor_rejt" value="Előkészítés alatt" onclick="alert2(\'Előbb csatoljon egy dokumentumot a projekthez!\', \'\', \'Hiba\')"> ';
             }else{
                 $gombok .= '<script> gomb_elokeszites = \'<input type="button" class="gomb zold" onclick="projekt_elokeszites_ala()" value="Igen"><input type="button" class="gomb piros" onclick="alert2()" value="Nem">\';</script>';
-                $gombok .= '<input type="button" class="gomb" value="Előkészítés alatt" onclick="alert2(\''.$sor['ikt_szam'].'<br>Biztos, hogy Előkészítés alatt státuszba helyezi a projektet?\', gomb_elokeszites)"> ';
+                $gombok .= '<input type="button" class="gomb modositaskor_rejt" value="Előkészítés alatt" onclick="alert2(\''.$sor['ikt_szam'].'<br>Biztos, hogy Előkészítés alatt státuszba helyezi a projektet?\', gomb_elokeszites)"> ';
             }
         }
         
         // Felfüggesztés
         $statuszok = array(PRKEZEL_STAT_NYITOTT, PRKEZEL_STAT_ELOKESZITES_ALATT);
         if( in_array($sor['stat_id'], $statuszok) && get_projekt_kezeles_jog($_GET['id']) ) {
-            $gombok .= '<input type="button" class="gomb" value="Felfüggesztés" onclick="csoportMuvelet(\'projektkezeles_felfuggeszt\')"> ';
+            $gombok .= '<input type="button" class="gomb modositaskor_rejt" value="Felfüggesztés" onclick="csoportMuvelet(\'projektkezeles_felfuggeszt\')"> ';
         }
         // ... vége
         $statuszok = array(PRKEZEL_STAT_FELFUGGESZTETT);
         if( in_array($sor['stat_id'], $statuszok) && get_projekt_kezeles_jog($_GET['id']) ) {
             $gombok .= '<script> gomb_felfuggeszt = \'<input type="button" class="gomb zold" onclick="projekt_felfuggesztes_vege()" value="Igen"><input type="button" class="gomb piros" onclick="alert2()" value="Nem">\';</script>';
-            $gombok .= '<input type="button" class="gomb" value="Felfüggesztés vége" onclick="alert2(\''.$sor['ikt_szam'].'<br>Biztos, hogy újra megnyitja a projektet?\', gomb_felfuggeszt)"> ';
+            $gombok .= '<input type="button" class="gomb modositaskor_rejt" value="Felfüggesztés vége" onclick="alert2(\''.$sor['ikt_szam'].'<br>Biztos, hogy újra megnyitja a projektet?\', gomb_felfuggeszt)"> ';
         }
         
         // Leállítás
         $statuszok = array(PRKEZEL_STAT_NYITOTT, PRKEZEL_STAT_ELOKESZITES_ALATT, PRKEZEL_STAT_FOLYAMATBAN);
         if( in_array($sor['stat_id'], $statuszok) && get_projekt_kezeles_jog($_GET['id']) ) {
-            $gombok .= '<input type="button" class="gomb" value="Leállítás" onclick="csoportMuvelet(\'projektkezeles_leallit\')"> ';
+            $gombok .= '<input type="button" class="gomb modositaskor_rejt" value="Leállítás" onclick="csoportMuvelet(\'projektkezeles_leallit\')"> ';
         }
         
         // Folyamatban
@@ -1090,10 +1090,10 @@ require_once('selectek.php');
         if( in_array($sor['stat_id'], $statuszok) && get_projekt_kezeles_jog($_GET['id']) ) {
             $van_dok = $adatbazis_kapcsolat->s2('recid', 'projektkezeles_dok', "`projektkezeles_id`='{$_GET['id']}' AND `tipus`='".EL_DOK_TIPUS_SZERZODES."'", '', '1');
             if(!$van_dok){
-                $gombok .= '<input type="button" class="gomb" value="Folyamatban" onclick="alert2(\'Előbb csatoljon egy szerződést a projekthez!\', \'\', \'Hiba\')"> ';
+                $gombok .= '<input type="button" class="gomb modositaskor_rejt" value="Folyamatban" onclick="alert2(\'Előbb csatoljon egy szerződést a projekthez!\', \'\', \'Hiba\')"> ';
             }else{
                 $gombok .= '<script> gomb_folyamatbanra = \'<input type="button" class="gomb zold" onclick="projekt_folyamatbanra()" value="Igen"><input type="button" class="gomb piros" onclick="alert2()" value="Nem">\';</script>';
-                $gombok .= '<input type="button" class="gomb" value="Folyamatban" onclick="alert2(\''.$sor['ikt_szam'].'<br>Biztos, hogy Folyamatban státuszba helyezi a projektet?\', gomb_folyamatbanra)"> ';
+                $gombok .= '<input type="button" class="gomb modositaskor_rejt" value="Folyamatban" onclick="alert2(\''.$sor['ikt_szam'].'<br>Biztos, hogy Folyamatban státuszba helyezi a projektet?\', gomb_folyamatbanra)"> ';
             }
         }
         
@@ -1102,10 +1102,10 @@ require_once('selectek.php');
         if( in_array($sor['stat_id'], $statuszok) && get_projekt_kezeles_jog($_GET['id']) ) {
             $van_dok = $adatbazis_kapcsolat->s2('recid', 'projektkezeles_dok', "`projektkezeles_id`='{$_GET['id']}' AND `tipus`='".EL_DOK_TIPUS_ATADASI."'", '', '1');
             if(!$van_dok){
-                $gombok .= '<input type="button" class="gomb" value="Kész" onclick="alert2(\'Előbb csatoljon egy Átadási. jk. Dokumentumot a projekthez!\', \'\', \'Hiba\')"> ';
+                $gombok .= '<input type="button" class="gomb modositaskor_rejt" value="Kész" onclick="alert2(\'Előbb csatoljon egy Átadási. jk. Dokumentumot a projekthez!\', \'\', \'Hiba\')"> ';
             }else{
                 $gombok .= '<script> gomb_keszre = \'<input type="button" class="gomb zold" onclick="projekt_keszre()" value="Igen"><input type="button" class="gomb piros" onclick="alert2()" value="Nem">\';</script>';
-                $gombok .= '<input type="button" class="gomb" value="Kész" onclick="alert2(\''.$sor['ikt_szam'].'<br>Biztos, hogy Kész státuszba helyezi a projektet?\', gomb_keszre)"> ';
+                $gombok .= '<input type="button" class="gomb modositaskor_rejt" value="Kész" onclick="alert2(\''.$sor['ikt_szam'].'<br>Biztos, hogy Kész státuszba helyezi a projektet?\', gomb_keszre)"> ';
             }
         }
         
@@ -1114,22 +1114,15 @@ require_once('selectek.php');
         if( in_array($sor['stat_id'], $statuszok) && get_projekt_kezeles_jog($_GET['id']) ) {
             $van_dok = $adatbazis_kapcsolat->s2('recid', 'projektkezeles_dok', "`projektkezeles_id`='{$_GET['id']}' AND `tipus`='".EL_DOK_TIPUS_GAR_BEJAR."'", '', '1');
             if(!$van_dok){
-                $gombok .= '<input type="button" class="gomb" value="Lezárt" onclick="alert2(\'Előbb csatoljon egy Gar. bejárási jk. Dokumentumot a projekthez!\', \'\', \'Hiba\')"> ';
+                $gombok .= '<input type="button" class="gomb modositaskor_rejt" value="Lezárt" onclick="alert2(\'Előbb csatoljon egy Gar. bejárási jk. Dokumentumot a projekthez!\', \'\', \'Hiba\')"> ';
             }else{
                 $gombok .= '<script> gomb_lezartra = \'<input type="button" class="gomb zold" onclick="projekt_lezartra()" value="Igen"><input type="button" class="gomb piros" onclick="alert2()" value="Nem">\';</script>';
-                $gombok .= '<input type="button" class="gomb" value="Lezárt" onclick="alert2(\''.$sor['ikt_szam'].'<br>Biztos, hogy Lezárt státuszba helyezi a projektet?\', gomb_lezartra)"> ';
+                $gombok .= '<input type="button" class="gomb modositaskor_rejt" value="Lezárt" onclick="alert2(\''.$sor['ikt_szam'].'<br>Biztos, hogy Lezárt státuszba helyezi a projektet?\', gomb_lezartra)"> ';
             }
         }
 
         // Ha van egyáltalán kezelésre joga
         if( get_projekt_kezeles_jog($_GET['id']) ){
-
-            // Csak saját projektjeit szerkesztheti
-            $nem_szerkesztheti = false;
-            if($sor['loginnev']!=$_SESSION[get_db_tabla().'user']){
-                $nem_szerkesztheti = true;
-            }
-
 
             if(!$nem_szerkesztheti && isset($_GET['modosit']) /*&& $sor['stat_id']==PRIGENY_STAT_LETRE_ALATT Átmenetileg végig szerkeszthető */){
                 $gombok = nl2('
