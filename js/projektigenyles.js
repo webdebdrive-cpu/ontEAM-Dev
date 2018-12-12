@@ -50,8 +50,10 @@ function cash_flow_fulre_lep(){
     $('#szerk_form').hide();
     $('#ful_cash_flow').addClass('active');
     $('#ful_modosit').removeClass('active');
+
     setTimeout(function(){ 
         $('#navGombok .uj').attr('href', 'javascript: kapcsolodoSzerkeszt(\'cash_flow\'); void(0);');
+        $('#navGombok a.torles').removeClass('disabled');
     }, 500);  
     
     window.history.pushState('', '', 'projektigenyles.php?id='+_get('id')+'&cash_flow');

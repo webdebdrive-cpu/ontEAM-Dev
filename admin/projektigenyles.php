@@ -513,6 +513,7 @@ if( isset($_POST['addCashFlow']) ) {
                                                             array($pageID,     $szallodak[$i],  $datumok[$i],  $osszegek[$i],  $_SESSION[get_db_tabla().'user'], $_SESSION[get_db_tabla().'teljes_nev'], 'NOW()',      $_SESSION[get_db_tabla().'teljes_nev'])
                                                 );
                 $i++;
+// echo $adatbazis_kapcsolat->gp() . '<br>';
             }
         }
 
@@ -1039,6 +1040,8 @@ if (isset($_GET['csv'])) {
 }
 
 
+
+
 // Tartalom
 if( !$_GET['ajax'] ) {
     require_once('header.php');
@@ -1143,18 +1146,36 @@ require('selectek.php');
     // Módosítás gombok
     } else {
 
-        // Ha csak sajátot kezelhet, és adott rekord nem általa van feltöltve, akkor nem szerkesztheti/törlheti.
-        // Ez egy hosszú feltétel, amikre többször is szükség van, ezért változóba kimentve
-        $csak_sajat_kezelheti = true;
-        if( _jog(JOG_PRIGENY_S_KEZEL) && !_jog(JOG_PRIGENY_B_KEZEL) && !_jog(JOG_PRIGENY_EGY_KEZEL) && !_jog(JOG_PRIGENY_F_KEZEL) && !_jog(JOG_PRIGENY_SZ_KEZEL) && !_jog(JOG_PRIGENY_TOBB_KEZEL) && !_jog(JOG_PRIGENY_T_KEZEL) && $sor['loginnev']!=$_SESSION[get_db_tabla().'user'] ) {
-            $csak_sajat_kezelheti = false;
+        // Ha be van pipálva az, hogy csak sajátot kezelhet, akkor csak akkor lesz az igénylés szerkeszthető, ha valóban ő is töltötte fel.
+        $csak_sajat_kezelheti = false;
+        if( _jog(JOG_PRIGENY_S_KEZEL) && $sor['loginnev']==$_SESSION[get_db_tabla().'user'] ) {
+            $csak_sajat_kezelheti = true;
+        }
+        $szerkesztheto = false;
+        if( _jog(JOG_PRIGENY_B_KEZEL) && $sor['tipus']==PRIGENY_TIPUS_BERUH ){
+            $szerkesztheto = true;
+        }
+        if( _jog(JOG_PRIGENY_F_KEZEL) && $sor['tipus']==PRIGENY_TIPUS_FENNT ){
+            $szerkesztheto = true;
+        }
+        if( _jog(JOG_PRIGENY_T_KEZEL) && $sor['tipus']==PRIGENY_TIPUS_TARGY ){
+            $szerkesztheto = true;
+        }
+        if( _jog(JOG_PRIGENY_EGY_KEZEL) && $sor['egy_tobb_egy']==0 ){
+            $szerkesztheto = true;
+        }
+        if( _jog(JOG_PRIGENY_TOBB_KEZEL) && $sor['egy_tobb_egy']==1 ){
+            $szerkesztheto = true;
+        }
+        if( _jog(JOG_PRIGENY_SZ_KEZEL) /* Amit lát, azt kezelheti is, hisz csak saját szállodát lát */ ){
+            $szerkesztheto = true;
         }
 
         // Ha a státusz elutasítva vagy jóváhagyva, akkor semmilyen gomb nem érhető el
         if($sor['stat_id'] == PRIGENY_STAT_ELUTASITVA || $sor['stat_id'] == PRIGENY_STAT_JOVAHAGYVA ){
             $gombok .= ' <input type="button" id="recordTorol" class="gombb_alert dn" onclick="if( cash_flow_fulon_vagyunk() ){ alert2(\'Cash-flow ebben a státuszban már nem törölhető!\', \'\', \'Hiba\'); }else{ alert2(\'Projektigénylés ebben a státuszban már nem törölhető!\', \'\', \'Hiba\'); }" value="Töröl" title="Töröl">';
         }
-        if($sor['stat_id'] != PRIGENY_STAT_ELUTASITVA && $sor['stat_id'] != PRIGENY_STAT_JOVAHAGYVA){
+        if( $sor['stat_id'] != PRIGENY_STAT_ELUTASITVA && $sor['stat_id'] != PRIGENY_STAT_JOVAHAGYVA ){
             // Js, a törlés gombhoz
             $gombok = '<script>var gomb'.$_GET['id'].'= get_kibont_torol(\''.self().'\', \''.$torles.'\', \''.$_GET['id'].'\');</script>';
 
@@ -1162,7 +1183,7 @@ require('selectek.php');
             if( in_array($sor['stat_id'], prigeny_mentheto_statuszok()) ){
                 $gombok .= ' <input type="button" id="recordTorol" class="gombb_alert dn" onclick="if( cash_flow_fulon_vagyunk() ){ cash_flow_sorok_torol(); }else{ alert2(\'Projektigénylés ebben a státuszban nem törölhető!\', \'\', \'Hiba\'); }" value="Töröl" title="Töröl">';
             // Jogosutságkezelés: csak az törölheti, akinek van hozzá joga
-            } elseif( !_jog(JOG_PRIGENY_B_KEZEL) && !_jog(JOG_PRIGENY_EGY_KEZEL) && !_jog(JOG_PRIGENY_F_KEZEL) && !_jog(JOG_PRIGENY_SZ_KEZEL) && !_jog(JOG_PRIGENY_S_KEZEL) && !_jog(JOG_PRIGENY_TOBB_KEZEL) && !_jog(JOG_PRIGENY_T_KEZEL) ){
+            } elseif( !$szerkesztheto ){
                 $gombok .= ' <input type="button" id="recordTorol" class="gombb_alert dn" onclick="if( cash_flow_fulon_vagyunk() ){ }else{ alert2(\'Önnek nincs joga projektigénylést törölni!\', \'\', \'Hiba\'); }" value="Töröl" title="Töröl">';
             // Ha csak saját igénylések kezelése joga van és más kezelés nincs, és az igénylést nem saját maga hozta létre
             }elseif( !$csak_sajat_kezelheti ) {
@@ -1172,7 +1193,7 @@ require('selectek.php');
             }
 
             // Ha a prigény létrehozás alatt van, akkor érhető el csak az Igénylés rögzítése gomb
-            if($sor['stat_id']==PRIGENY_STAT_LETRE_ALATT){
+            if( $sor['stat_id']==PRIGENY_STAT_LETRE_ALATT ){
                 if (isset($_GET['modosit'])) {
                     $gombok .= ' <input type="button" class="gomb modositaskor_rejt" value="Igénylés rögzítése" title="Igénylés rögzítése" id="igenyles_rogzit_gomb" onclick="$(\'#igeny_rogzit\').val(1); szurkit(); $(\'#szerk_form\').submit();">';
                 }else{
@@ -1193,38 +1214,33 @@ require('selectek.php');
             }
 
             // Ha van egyálátalán kezelésre joga
-            if(_jog(JOG_PRIGENY_B_KEZEL) || _jog(JOG_PRIGENY_EGY_KEZEL) || _jog(JOG_PRIGENY_F_KEZEL) || _jog(JOG_PRIGENY_SZ_KEZEL) || _jog(JOG_PRIGENY_S_KEZEL) || _jog(JOG_PRIGENY_TOBB_KEZEL) || _jog(JOG_PRIGENY_T_KEZEL)){
+            if( $szerkesztheto || $csak_sajat_kezelheti ){
 
                 // Létrehozás alatt semmilyen más gomb nem látszik, csak a Mentés vagy Igénylés rögzítése
                 if($sor['stat_id']!=PRIGENY_STAT_LETRE_ALATT){
-                    if(!in_array($sor['stat_id'], prigeny_fb_bod_var()) && $sor['stat_id'] != PRIGENY_STAT_VARAKOZO && $sor['stat_id'] != PRIGENY_STAT_HIANYPOTLAS) {
+                    if( !in_array($sor['stat_id'], prigeny_fb_bod_var()) && $sor['stat_id'] != PRIGENY_STAT_VARAKOZO && $sor['stat_id'] != PRIGENY_STAT_HIANYPOTLAS) {
                         $gombok .= ' <input type="button" class="gomb modositaskor_rejt" value="Várakoztatás" title="Várakoztatás" onclick="csoportMuvelet(\'pri_varakoztat\');">';
                     }
-                    if($sor['stat_id'] == PRIGENY_STAT_VARAKOZO) {
+                    if( $sor['stat_id'] == PRIGENY_STAT_VARAKOZO) {
                         $gombok .= ' <input type="button" class="gomb modositaskor_rejt" value="Várakoztatás vége" title="Várakoztatás vége" onclick="pri_statusz_leptet(\''.$_GET['id'].'\', \''.PRIGENY_STAT_NYITOTT.'\');">';
                     }
-                    if(!in_array($sor['stat_id'], prigeny_fb_bod_var()) && in_array($sor['stat_id'], prigeny_hianypotlasba_statuszok()) ) {
+                    if( !in_array($sor['stat_id'], prigeny_fb_bod_var()) && in_array($sor['stat_id'], prigeny_hianypotlasba_statuszok()) ) {
                         $gombok .= ' <input type="button" class="gomb modositaskor_rejt" value="Visszaadás hiánypótlásra" title="Visszaadás hiánypótlásra" onclick="csoportMuvelet(\'pri_hianypotlasra\');">';
                     }
 
-                    // $gombok .= ' <input type="button" class="gomb foGomb" value="FB előterjesztés nyomtatása" title="FB előterjesztés nyomtatása" onclick="window.open(\'projektigenyles.php?print=lista&amp;fb_elo\');">';
-
-                    // Vannak gombok amik itt a helyük, de a fő feltételen kívül dől el, hogy látszik-e (nem csak az a feltétle, hogy van-e minden kezelés jog)
-                    $gombok .= $gombok_meg;
-
-                    if(!in_array($sor['stat_id'], prigeny_fb_bod_var()) && _jog(JOG_PRIGENY_ELUTASIT) && $sor['stat_id'] != PRIGENY_STAT_ELUTASITVA /*Ez a felétel felesleges, csak az egységesség miatt van itt*/) {
+                    if( !in_array($sor['stat_id'], prigeny_fb_bod_var()) && _jog(JOG_PRIGENY_ELUTASIT) && $sor['stat_id'] != PRIGENY_STAT_ELUTASITVA /*Ez a felétel felesleges, csak az egységesség miatt van itt*/) {
                         $gombok .= ' <input type="button" class="gomb piros modositaskor_rejt" value="Elutasítás" title="Elutasítás" onclick="csoportMuvelet(\'elutasitas_csak_memo\');">';
                     }
 
-                    if(!in_array($sor['stat_id'], prigeny_fb_bod_var()) && _jog(JOG_PRIGENY_JOVAHAGY) && in_array($sor['stat_id'], prigeny_jovahagyhato_statuszok()) ) {
+                    if( !in_array($sor['stat_id'], prigeny_fb_bod_var()) && _jog(JOG_PRIGENY_JOVAHAGY) && in_array($sor['stat_id'], prigeny_jovahagyhato_statuszok()) ) {
                         $gombok .= ' <input type="button" class="gomb zold modositaskor_rejt" value="Jóváhagyás" title="Jóváhagyás" onclick="pri_statusz_leptet(\''.$_GET['id'].'\', \''.PRIGENY_STAT_JOVAHAGYVA.'\');">';
                     }
                 }
 
                 // Ha kezelheti, akkor van mentés gomb is
-                if( in_array($sor['stat_id'], prigeny_mentheto_statuszok()) && $csak_sajat_kezelheti){
+                if( in_array($sor['stat_id'], prigeny_mentheto_statuszok()) && ($csak_sajat_kezelheti || $szerkesztheto) ){
 
-                    // Nyitott státusz után már midig úgy mentünk, mintha lezárnánk (cél, hogy a cash-flow ellenőrzés meglegyen)
+                    // Nyitott státusz után már mindig úgy mentünk, mintha lezárnánk (cél, hogy a cash-flow ellenőrzés meglegyen)
                     $gomb_kieg = '';
                     if($sor['stat_id']==PRIGENY_STAT_NYITOTT){
                         $gomb_kieg = '$(\'#igeny_rogzit\').val(1); ';
@@ -1262,17 +1278,18 @@ require('selectek.php');
     $egyszallodasok_leszunk_ell = '';
     if( isset($_GET['modosit']) ) {
         if($sor['egy_tobb']==1){
+
             $egyszallodasok_leszunk_ell .= '
                                 if(!volt_figyelmeztetes){
                                     if($(\'#cash_flow_div div.kijSor\').length && $(\'#telephely_id\').val()!=\''.$sor['telephely_id'].'\'){
-                                        alert2(\'Ha módosítja a vállalatot vagy egyszállodás modellre vált, a cash-flowban rögzített adatok törlődni fognak!<br>Biztosan folytatja a műveletet?\', \'<input type="button" class="gomb zold" onclick="volt_figyelmeztetes = true; $(\\\'#szerk_form\\\').submit();" value="Igen"> <input type="button" class="gomb piros" onclick="alert2()" value="Nem">\');
+                                        alert2(\'Ha módosítja a vállalatot vagy egyszállodás modellre vált, a cash-flowban rögzített adatok törlődni fognak!<br>Biztosan folytatja a műveletet?\', \'<input type="button" class="gomb zold" onclick="volt_figyelmeztetes = true; $(\\\'#szerk_form\\\').submit();" value="Igen"> <input type="button" class="gomb piros" onclick="alert2(); szurkit_zar(\\\'mégsem mehet gomb mutat\\\')" value="Nem">\');
                                         return false;
                                     }
                                 }else{
-                                    volt_figyelmeztets = false;
+                                    volt_figyelmeztetes = false;
                                 }
                                 ';
-            //Ha többszállodás, akkor a rögzítésnél még azt is figyeljük, hogy valóban több szálloda is tartozik-e hozzá.
+            // Ha többszállodás, akkor a rögzítésnél még azt is figyeljük, hogy valóban több szálloda is tartozik-e hozzá.
             $rogzites_figyeles_kieg .= '
                                 kulonbozo_telephelyek = false;
                                 if( telephely_nev = $(\'#cash_flow_div div.kijSor div.szalloda\').length ){
@@ -1290,7 +1307,7 @@ require('selectek.php');
                                 }
 
                                 if(!kulonbozo_telephelyek && !kulonbozo_telephely_mehet){
-                                    alert2(\'Cashflow csak \'+telephely_nev+\' szállodára készült.<br>Ha folytatja, a projekt igénylés egy szállodásra változik!<br>Folytatja?\', \'<input type="button" class="gomb zold" value="Igen" onclick="kulonbozo_telephely_mehet = true; $(\\\'#igeny_rogzit\\\').val(1); $(\\\'#szerk_form\\\').submit();"> <input type="button" class="gomb piros" value="Nem" onclick="alert2()">\');
+                                    alert2(\'Cash-flow csak \'+telephely_nev+\' szállodára készült.<br>Ha folytatja, a projekt igénylés egy szállodásra változik!<br>Folytatja?\', \'<input type="button" class="gomb zold" value="Igen" onclick="kulonbozo_telephely_mehet = true; $(\\\'#igeny_rogzit\\\').val(1); $(\\\'#szerk_form\\\').submit();"> <input type="button" class="gomb piros" value="Nem" onclick="alert2(); szurkit_zar(\\\'mégsem mehet gomb mutat\\\');">\');
                                     return false;
                                 }
                                 ';
@@ -1338,6 +1355,9 @@ require('selectek.php');
                             }
                         });
 
+                        '.$rogzites_figyeles_kieg.'
+                        '.$egyszallodasok_leszunk_ell.'
+
                         /* Igénylés rögzítése ugyanaz mint a Mentés gomb, csak itt vizsgáljuk azt is, hogy a becsült költség azonos-e a szétosztottal, illeve még jópár egyéb feltétlet. */
                         igeny_rogzites_uzemmod = false; /* form_ell_admin-hoz kell, átadjuk parméterként ezt az infót is: rögzítéskor státusz léptetés stb... */
                         if($(\'#igeny_rogzit\').val()>0){
@@ -1351,9 +1371,6 @@ require('selectek.php');
                                 alert2(\'Rögzítéshez töltse ki az igénylés nevét!\', \'<input type="button" class="gomb" value="Ok" onclick="alert2(); $(\\\'#nev\\\').focus();">\', \'Hiba\');
                                 return false;
                             }
-
-                            '.$rogzites_figyeles_kieg.'
-                            '.$egyszallodasok_leszunk_ell.'
 
                             osszeg = 0;
                             $(\'#cash_flow_div div.kijSor\').each(function() {

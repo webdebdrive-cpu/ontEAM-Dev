@@ -6385,7 +6385,7 @@ function balnav_kijelol_ell(egy_csoport_reszben_szabad, kivetel_ell){
 function pri_statusz_leptet(recid, statusz){
 
     if(formModositva){
-        alert2('Kérjük előbb mentse el az űrlapot!');
+        alert2('Kérjük előbb mentse el az űrlapot!', '', 'Hiba');
     }else{
         $.ajax({
             url : 'projektigenyles.php',
@@ -6399,10 +6399,10 @@ function pri_statusz_leptet(recid, statusz){
                 if(response.substring(0, 6)=='SESKIL'){ location.href = 'index.php'; }
                 response = JSON.parse(response);
                 if(response.statusz=='siker'){
+                    
                     szamlaSorFrissit('projektigenyles', recid);
-                    if(_get('modosit')){
-                        szamlaBetolt(recid, 'projektigenyles.php', 'modosit');
-                    }
+                    szamlaBetolt(recid, 'projektigenyles.php', 'modosit');
+                    
                     alert2();
                 }
 

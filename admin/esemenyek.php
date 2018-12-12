@@ -3952,7 +3952,7 @@ if( isset($_POST['mellekTorol']) ) {
             // Ha ellenőrizzük, hogy a megmaradtaknak mindnek van-e már vélemények. Státuszt kell léptetni ha igen.
             prigeny_mindenki_velemenyezett_e($velemenyezo['projektigenyles_recid']);
 
-        // Prijektek team füle
+        // Projektek team füle
         } elseif($tabla=='projektkezeles_team'){
             
             if( get_projekt_kezeles_jog($_POST['recid']) ){
@@ -3986,7 +3986,7 @@ if( isset($_POST['mellekTorol']) ) {
 
         // Általános eset
         } else {
-            
+
             // Projektigénylés nem mindig törölhető (jóváhagyott elutasított státuszokban nem)
             if($tabla=='projektigenyles_megter'){
                 // Vegyünk egy sort, mindegy melyiket, mert midegyik ugyanarra a projektigénylésre mutat
@@ -4007,8 +4007,9 @@ if( isset($_POST['mellekTorol']) ) {
                 }
             }
             
-            $sql = $adatbazis_kapcsolat -> d($tabla, "`recid` IN (".implode(',', $idk).")");
+            $sql = $adatbazis_kapcsolat -> d($tabla, "`recid` IN ('".implode('\', \'', $idk)."')");
             if( $sql === false ) { $db_error = true; }
+ 
         }
 
         // Projektigényléseknél véleményezők törlésekor vissza is kell állítani a projektigénylés státuszát

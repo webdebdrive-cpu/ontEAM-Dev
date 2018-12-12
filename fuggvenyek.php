@@ -960,7 +960,7 @@ function i_u($type, $tabla, $tomb) {
                 }
 
                 // Ha minden telephely azonos, akkor átállunk egy szállodásra
-                $cash_flowk = $adatbazis_kapcsolat->s2('DISTINCT telephely_id', 'cash_flow', "`apa_recid`='{$_GET['id']}'");
+                $cash_flowk = $adatbazis_kapcsolat->s/*NEM JÓ AZ S2!*/('DISTINCT telephely_id', 'cash_flow', "`apa_recid`='{$_GET['id']}'");
                 if( count($cash_flowk)==1 ){
 
                     $i_tmp = 0;
@@ -969,7 +969,7 @@ function i_u($type, $tabla, $tomb) {
                             $ertekek[$i_tmp] = 0;
                         }
                         if($ertek=='telephely_id'){
-                            $ertekek[$i_tmp] = $cash_flowk['telephely_id'];
+                            $ertekek[$i_tmp] = $cash_flowk[0]['telephely_id']; // A nulla kell ide!!!, így helyes! NEM JÓ az s2() változat!!!
                         }
                         $i_tmp++;
                     }
@@ -1025,6 +1025,8 @@ function i_u($type, $tabla, $tomb) {
 		$id = $adatbazis_kapcsolat -> update($tabla, $oszlopok, $ertekek, "`recid`='{$_GET['id']}'");
         if( $id === false ) { $db_error = true; }
 // echo $adatbazis_kapcsolat->gp() . '<br>';
+// mysqli_commit($db_kapcs);
+// exit;
 
         if( $id ) {
             $sor = $adatbazis_kapcsolat->s('*', $tabla, "`recid`='{$_GET['id']}'", '', '1');
@@ -2133,12 +2135,20 @@ function szamla_lista( $where, $tabla, $kijeloltek = false, $csak_sql_miatt = fa
 
             $szallodak_kieg = '';
             // Többszállodás esetén a két többsszállodás telephely_id-t felvesszük még
-            if(_jog(JOG_PRIGENY_TOBB_MEGTEKINT)){
-                $szallodak_kieg = ', 1011, 4301';
+            if( _jog(JOG_PRIGENY_TOBB_MEGTEKINT) ){
+                $szallodak_kieg = ', 4101, 4301';
             }
 
             // Számít a saját szállodai látókör
             $where = "`".get_db_tabla()."projektigenyles`.`telephely_id` IN (".implode(',', $szallodak).$szallodak_kieg.") AND ";
+            
+            // Ha csak egyszállodás, vagy csak többszállodás láthatóságom van, akkor ennek megfelelően még ki kell egészítei az SQL lekérdezést
+            if( _jog(JOG_PRIGENY_EGY_MEGTEKINT) && !_jog(JOG_PRIGENY_TOBB_MEGTEKINT) ){
+                $where .= "`egy_tobb`='0' AND ";
+            }
+            if( !_jog(JOG_PRIGENY_EGY_MEGTEKINT) && _jog(JOG_PRIGENY_TOBB_MEGTEKINT) ){
+                $where .= "`egy_tobb`='1' AND ";
+            }
 
             // Szűrés jogokra (igénylés tipusra külön látási jogok vannak)
             $where_jogok = '';
@@ -2311,7 +2321,6 @@ function szamla_lista( $where, $tabla, $kijeloltek = false, $csak_sql_miatt = fa
             }
 
             // Dátum mezők (sajnos itt class-ra már nem tudok keresni, szóval konkrét mezőnevek alapján dől el)
-            // nél ha egyenlős akor az valóban like
             $datum_mezok = array('insert_dt');
             if( in_array($_GET['mezo'], $datum_mezok) && $_GET['op']=='equal' ){
                 $_GET['op'] = 'like';

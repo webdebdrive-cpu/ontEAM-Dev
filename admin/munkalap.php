@@ -697,7 +697,7 @@ if( isset($_POST['munkalapKulso']) ) {
                 
                 $cimzettek          = implode(', ', $mailcimek);
                 $masolatot_kapott   = '';
-                $emailkuldes_megj .= 'Megrendelő email elküldve.'."\n".'Címzettek: '.$cimzettek.' ';
+                $emailkuldes_megj .= 'Megrendelés elküldve.'."\n".'Címzettek: '.$cimzettek.' ';
                 if($masolatok){
                     $masolatot_kapott   = implode(', ', $masolatok);
                     $emailkuldes_megj .= "\n".'Másolatot kaptak: '.$masolatot_kapott.' ';
@@ -2405,7 +2405,7 @@ if( isset($_POST['kulsokivHozzarend']) ) {
                 
                 $cimzettek          = implode(', ', $mailcimek);
                 $masolatot_kapott   = '';
-                $emailkuldes_megj .= 'Megrendelő email elküldve.'."\n".'Címzettek: '.$cimzettek.' ';
+                $emailkuldes_megj .= 'Megrendelés elküldve.'."\n".'Címzettek: '.$cimzettek.' ';
                 if($masolatok){
                     $masolatot_kapott   = implode(', ', $masolatok);
                     $emailkuldes_megj .= "\n".'Másolatot kaptak: '.$masolatot_kapott.' ';
@@ -2815,7 +2815,7 @@ if (isset($_POST['munkalapVisszaElokeszitDirektbe'])) {
 
             $cimzettek          = implode(', ', $mailcimek);
             $masolatot_kapott   = '';
-            $emailkuldes_megj .= 'Megrendelő email elküldve.'."\n".'Címzettek: '.$cimzettek.' ';
+            $emailkuldes_megj .= 'Megrendelés SZTORNÓ elküldve.'."\n".'Címzettek: '.$cimzettek.' ';
             if($masolatok){
                 $masolatot_kapott   = implode(', ', $masolatok);
                 $emailkuldes_megj .= "\n".'Másolatot kaptak: '.$masolatot_kapott.' ';
@@ -4828,7 +4828,7 @@ if( isset($_POST['atadasDiszpecsernekDirektbe']) ) {
                 
                 $cimzettek          = implode(', ', $mailcimek);
                 $masolatot_kapott   = '';
-                $emailkuldes_megj .= 'Megrendelő email elküldve.'."\n".'Címzettek: '.$cimzettek.' ';
+                $emailkuldes_megj .= 'Megrendelés SZTORNÓ elküldve.'."\n".'Címzettek: '.$cimzettek.' ';
                 if($masolatok){
                     $masolatot_kapott   = implode(', ', $masolatok);
                     $emailkuldes_megj .= "\n".'Másolatot kaptak: '.$masolatot_kapott.' ';
@@ -6216,7 +6216,7 @@ if (isset($_POST['munkalapVisszavetelDirektbe'])) {
             
             $cimzettek          = implode(', ', $mailcimek);
             $masolatot_kapott   = '';
-            $emailkuldes_megj .= 'Megrendelő email elküldve.'."\n".'Címzettek: '.$cimzettek.' ';
+            $emailkuldes_megj .= 'Megrendelés SZTORNÓ elküldve.'."\n".'Címzettek: '.$cimzettek.' ';
             if($masolatok){
                 $masolatot_kapott   = implode(', ', $masolatok);
                 $emailkuldes_megj .= "\n".'Másolatot kaptak: '.$masolatot_kapott.' ';
