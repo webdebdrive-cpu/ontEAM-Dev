@@ -44,6 +44,7 @@ konyvtar_bejar()            Könyvtár rekurzív bejárása, az útvonalakat egy
 ksz2sql()                   Kulcsszó => SQL Adott kulcsszóból egy olyan SQL-t gyárt, ami a megadott oszlopokban keres, részrekre bontva a kulcsszót. Az SQL lekérezés részlet zárójelbe csomagolt.
 kulcs_rendez()              Többdimenziós tömb rendezése egy megadott kulcs alapján. 
 level_kuldes()              Általános levélküldő függvény
+level_kuldes_osszetettebb() Ez ahhoz kell, hogy lehessen másolatot, rejtett másolatot is címezni. Sőt még levélpapírt is tud kezelni.
 logot_pecsetel()            Logót vagy bármilyen képet pecsétel egy másik képre.
 mail_img2cid()              class.Mail kiegésztése, ezzel lehet megoldani azt, hogy a levél képei a HTML-be ágyazva jelenjenek meg.
 mail_rejtes()               E-mail cím rejtése a HTML kódban. pl: mail_rejtes("<a style='font-size: 11px' onmouseover='alert(\'df\')' href='mailto:bk@webdeb.hu'>küldj üzenentet</a>");
@@ -1545,12 +1546,18 @@ function level_kuldes( $felado_nev, $felado_mail, $cimzett_nev, $cimzett_mail, $
  * 
  * @return string Ha volt hiba, akkor a hibaüzenetet, egyébként FALSE!
  */
-function level_kuldes_osszetettebb( $felado_nev, $felado_mail, $cimzett_nev, $cimzett_mail, $masolat_nev, $masolat_mail, $r_masolat_nev, $r_masolat_mail, $targy, $uzi, $fajlok = '' ) {
+function level_kuldes_osszetettebb( $felado_nev, $felado_mail, $cimzett_nev, $cimzett_mail, $masolat_nev, $masolat_mail, $r_masolat_nev, $r_masolat_mail, $targy, $uzi, $fajlok, $levelpapiros ) {
 
     if($cimzett_mail){
         
         require_once('class/class.Phpmailer.php');
         $mail = new PHPMailer;
+        
+        // Ha azt szeretnénk, hogy levélpapíros legyen a levél, akkor még a levélpaprt betöltjük
+        if($levelpapiros){
+            $levelpapir = fajlbol_olvas('../sablon/levelpapir.html');
+            $uzi = str_replace('{TARTALOM}', $uzi, $levelpapir);
+        }
 
         $uzi = mail_img2cid($uzi, $mail, $cimzett_mail);
         $mail -> CharSet  = get_web_charset();

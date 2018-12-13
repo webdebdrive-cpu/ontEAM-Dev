@@ -106,6 +106,7 @@ function cimzett_add( mezo ){
     
     if(!$('#pop_cimzett_loginbol').val()){
         alert2($('#pop_cimzett_loginbol_autocomp').val()+' felhasználónak nem ismert a mailcíme!', '', 'Hiba');
+        return false;
     }
     
     if(mezo=='cimzett'){

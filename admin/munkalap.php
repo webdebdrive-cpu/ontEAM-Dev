@@ -682,7 +682,7 @@ if( isset($_POST['munkalapKulso']) ) {
             $targy_kieg = $kieg[0];
             $uzi_kieg   = $kieg[1];
             
-            $sikeres_kuldes = level_kuldes_osszetettebb(get_nev(), get_mail(), $mailcimek, $mailcimek, $masolatok, $masolatok, $r_masolatok, $r_masolatok, $targy_kieg.$_POST['targy'], $uzi_kieg.nl2br2($_POST['uzenet']));
+            $sikeres_kuldes = level_kuldes_osszetettebb(get_nev(), get_mail(), $mailcimek, $mailcimek, $masolatok, $masolatok, $r_masolatok, $r_masolatok, $targy_kieg.$_POST['targy'], $uzi_kieg.nl2br2($_POST['uzenet']), '', 'levélpapíros');
             if($sikeres_kuldes){
                 mysqli_rollback($db_kapcs);
                 echo json_encode(array(
@@ -2389,7 +2389,7 @@ if( isset($_POST['kulsokivHozzarend']) ) {
             $targy_kieg = $kieg[0];
             $uzi_kieg   = $kieg[1];
             
-            $sikeres_kuldes = level_kuldes_osszetettebb(get_nev(), get_mail(), $mailcimek, $mailcimek, $masolatok, $masolatok, $r_masolatok, $r_masolatok, $targy_kieg.$_POST['targy'], $uzi_kieg.nl2br2($_POST['uzenet']));
+            $sikeres_kuldes = level_kuldes_osszetettebb(get_nev(), get_mail(), $mailcimek, $mailcimek, $masolatok, $masolatok, $r_masolatok, $r_masolatok, $targy_kieg.$_POST['targy'], $uzi_kieg.nl2br2($_POST['uzenet']), '', 'levélpapíros');
             // Ha nem volt sikeres a levélküldés, akkor is megállítjuk a működést
             if($sikeres_kuldes){
                 mysqli_rollback($db_kapcs);
@@ -2800,7 +2800,7 @@ if (isset($_POST['munkalapVisszaElokeszitDirektbe'])) {
         $uzi_kieg   = $kieg[1];
 
 
-        $sikeres_kuldes = level_kuldes_osszetettebb(get_nev(), get_mail(), $mailcimek, $mailcimek, $masolatok, $masolatok, $r_masolatok, $r_masolatok, $targy_kieg.$_POST['targy'], $uzi_kieg.nl2br2($_POST['uzenet']));
+        $sikeres_kuldes = level_kuldes_osszetettebb(get_nev(), get_mail(), $mailcimek, $mailcimek, $masolatok, $masolatok, $r_masolatok, $r_masolatok, $targy_kieg.$_POST['targy'], $uzi_kieg.nl2br2($_POST['uzenet']), '', 'levélpapíros');
         if($sikeres_kuldes){
             mysqli_rollback($db_kapcs);
             echo json_encode(array(
@@ -4813,7 +4813,7 @@ if( isset($_POST['atadasDiszpecsernekDirektbe']) ) {
             $targy_kieg = $kieg[0];
             $uzi_kieg   = $kieg[1];
 
-            $sikeres_kuldes = level_kuldes_osszetettebb(get_nev(), get_mail(), $mailcimek, $mailcimek, $masolatok, $masolatok, $r_masolatok, $r_masolatok, $targy_kieg.$_POST['targy'], $uzi_kieg.nl2br2($_POST['uzenet']));
+            $sikeres_kuldes = level_kuldes_osszetettebb(get_nev(), get_mail(), $mailcimek, $mailcimek, $masolatok, $masolatok, $r_masolatok, $r_masolatok, $targy_kieg.$_POST['targy'], $uzi_kieg.nl2br2($_POST['uzenet']), '', 'levélpapíros');
             if($sikeres_kuldes){
                 mysqli_rollback($db_kapcs);
                 echo json_encode(array(
@@ -6201,7 +6201,7 @@ if (isset($_POST['munkalapVisszavetelDirektbe'])) {
         $targy_kieg = $kieg[0];
         $uzi_kieg   = $kieg[1];
 
-        $sikeres_kuldes = level_kuldes_osszetettebb(get_nev(), get_mail(), $mailcimek, $mailcimek, $masolatok, $masolatok, $r_masolatok, $r_masolatok, $targy_kieg.$_POST['targy'], $uzi_kieg.nl2br2($_POST['uzenet']));
+        $sikeres_kuldes = level_kuldes_osszetettebb(get_nev(), get_mail(), $mailcimek, $mailcimek, $masolatok, $masolatok, $r_masolatok, $r_masolatok, $targy_kieg.$_POST['targy'], $uzi_kieg.nl2br2($_POST['uzenet']), '', 'levélpapíros');
         if($sikeres_kuldes){
             mysqli_rollback($db_kapcs);
             echo json_encode(array(
