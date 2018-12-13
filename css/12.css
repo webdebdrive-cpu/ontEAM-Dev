@@ -57,7 +57,7 @@ div.szamlaKereses {
 .sor.kethasabos {
     background: #f4f6f5;
     box-shadow: inset 0rem 0.1rem 0.5rem 0rem rgba(0, 0, 0, 0.1);
-    height: calc(100% - 13rem);
+    height: calc(100% - 13.6rem);
     max-width: 100%;
     min-width: 100%;
     padding: 1.6rem 0rem 0rem 0rem;
