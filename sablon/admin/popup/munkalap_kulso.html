@@ -43,15 +43,32 @@
                     </script>
                     <input type="button" class="gomb alacsony zold" value="Címzett" onclick="cimzett_add('cimzett')">
                     <input type="button" class="gomb alacsony kek" value="Másolat" onclick="cimzett_add('masolat')">
+
                     <br><strong>Címzett:</strong>
                     <br><input type="text" id="pop_cimzett" class="oriasi disableNav popup_input_margo" maxlength="250">
                     <br><strong>Másolat:</strong>
                     <br><input type="text" id="pop_masolat" class="oriasi disableNav popup_input_margo" maxlength="250">
                     <br><strong>Tárgy:</strong>
                     <br><input type="text" id="pop_targy" class="oriasi disableNav popup_input_margo" maxlength="250">
-                    <br><strong>Üzenet:</strong>
-                    <br><textarea id="pop_uzenet" class="popup_input_margo level_szoveg"></textarea>
-                    <br>
+                    
+                    <div class="levelezo_grid">
+                        <div>
+                            <strong>Üzenet:</strong>
+                            <br><textarea id="pop_uzenet" class="popup_input_margo level_szoveg"></textarea>
+                            <br>
+                        </div>
+                        <div>
+                            <strong>Fájlok csatolása:</strong>
+                            <div class="jsff csak_gomb">
+                                <div class="talloz">
+                                    <div class="kicsi">
+                                        <span>Tallózás</span> <input type="file" name="files[]" multiple="" onchange="beolvasas_mailcsatolmany_popup(this.files, false);">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
                 </div>
             </div>
         </div>
@@ -159,5 +176,125 @@ function cimzett_add( mezo ){
     $('#pop_cimzett_loginbol').val('');
     $('#pop_cimzett_loginbol_autocomp').val('');
     
+}
+
+/* Beolvasás */
+function beolvasas_mailcsatolmany_popup(fajlok, ellenorzes_kihagy) {
+
+    var voltmar = [];
+
+    var formData        = tests_mailcsatolmany_popup.formdata ? new FormData() : null;
+    var fajlok_kesz     = 0;
+
+    for (var i = 0; i < fajlok.length; i++){
+
+        formData.append('file', fajlok[i]);
+        /* Kép megjelenítése egyből: */
+        /*elonezet_mailcsatolmany_popup(fajlok[i]);*/
+
+        fajl = fajlok[i];
+
+        var progress_id = 'jsff_mailcsatolmany_popup_' + i;
+        var pg = $('<progress id="'+progress_id+'" min="0" max="100" value="0">0</progress>');
+        $('#jsff_mailcsatolmany_popup').append(pg);
+
+        var xhr = new XMLHttpRequest();
+        xhr.open('POST', 'tobb_kep.php');
+
+        (function(progress_id, fajl, i){
+            xhr.upload.onprogress = function(e){
+                var percent = parseInt(e.loaded / e.total * 100);
+                $('#' + progress_id).val(percent);
+            };
+            xhr.onload = function(){
+                fajlok_kesz++;
+                $('#' + progress_id).val(100);
+                $('#' + progress_id).fadeOut(2000, function(){ $('#' + progress_id).next('br').remove(); });
+
+                if(this.responseText.substring(0,5)=='Hiba!') {
+                    if( this.responseText.substring(5) == 'A fájl létezik!' ) {
+                        voltmar[i] = fajl;
+                    } else {
+                        alert2(this.responseText.substring(5), '', 'Hiba');
+                    }
+                }else{
+                    $('#feltoltott_fajl').append(this.responseText);
+                    $('#jsff_mailcsatolmany_popup progress').hide();
+                    if (fajlok_kesz == fajlok.length){
+                        minden_fajl_kesz_mailcsatolmany_popup();
+                    }
+                }
+
+                if(fajlok_kesz == fajlok.length){
+                    if( voltmar.length ) {
+                        fajl_feluliras_alert_mailcsatolmany_popup(voltmar);
+                        $('#jsff_mailcsatolmany_popup progress').hide();
+                    }
+                }
+            };
+        }(progress_id, fajl, i));
+
+        var parameterek = {'megnevezes':'mailcsatolmany_popup', 'konyvtar':'munkalap', 'sorid':_get('id')};
+        $.each(parameterek, function(kulcs, ertek){
+            formData.append(kulcs, ertek);
+        });
+
+        formData.append('ellenorzes_kihagy', ellenorzes_kihagy);
+
+        xhr.send(formData);
+
+    }
+
+    if( ellenorzes_kihagy ) {
+        alert2('');
+    }
+}
+felulirando_fajlok = false;
+function fajl_feluliras_alert_mailcsatolmany_popup(tomb) {
+    if( tomb ) {
+        nevek = 'A következő fájlok már léteznek, felülírja őket?';
+        for (var i = 0; i < tomb.length; i++){
+            nevek += '<p>' + tomb[i].name + '</p>';
+        }
+
+        $('#jsff_mailcsatolmany_popup progress').hide();
+
+        felulirando_fajlok = tomb;
+        alert2(nevek, '<input class="gomb zold" value="Igen" onclick="fajl_feluliras_mailcsatolmany_popup();" type="button"><input class="gomb piros" value="Nem" onclick="alert2()" type="button">', 'Hiba');
+    }
+}
+
+function fajl_feluliras_mailcsatolmany_popup() {
+    beolvasas_mailcsatolmany_popup(felulirando_fajlok, true);
+
+    felulirando_fajlok = false;
+}
+
+/* Ha minden fájl feltöltése kész, akkor itt adhat meg további utasítás */
+function minden_fajl_kesz_mailcsatolmany_popup(){
+
+    $('#jsff_mailcsatolmany_popup').find('progress').fadeOut(2000, function(){ $('#' + progress_id).next('br').remove(); });
+
+}
+
+/* Ha működik a drag&drop, akkor a CSS class-t megváltoztatjuk draghoverre */
+if(tests_mailcsatolmany_popup.dnd){
+
+    jsff_mailcsatolmany_popup.ondragover = function(){
+        this.className = 'jsff hover';
+        return false;
+    };
+
+    jsff_mailcsatolmany_popup.ondragleave = function(){
+        this.className = 'jsff';
+        return false;
+    };
+
+    jsff_mailcsatolmany_popup.ondrop = function(e){
+        this.className = 'jsff';
+        e.preventDefault();
+        beolvasas_mailcsatolmany_popup(e.dataTransfer.files, false);
+    };
+
 }
 </script>

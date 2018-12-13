@@ -6,7 +6,7 @@ if($_FILES['file']){
     $_FILES[$_POST['megnevezes']] = $_FILES['file'];
 }
 
-// Tiltott fájlformátumok kiszűrése, szitnén nincs feltöltés
+// Tiltott fájlformátumok kiszűrése, szintén nincs feltöltés
 $tiltott_fajlok = array('text/x-js', 'text/css', 'text/html', 'application/xhtml+xml', 'text/xml');
 if( in_array( $_FILES[$_POST['megnevezes']]['type'], $tiltott_fajlok ) ){
     $weblap -> leallit();
