@@ -181,7 +181,7 @@ if (isset($_POST['tetel_sorok_ment'])) {
     // Ha a szerződés összege nem egyenlő a tételek összegével, akkor hibaüzenet
     }elseif( $tetelek_osszege != $szerzodes_osszege ){
         echo json_encode( array( 
-                        'hiba'  => 'A szerződés tételeinek összege nem egyezik meg a szerződés összegével!<br>Így nem menthető!',
+                        'hiba'  => 'A szerződés tételeinek összege ('. number_format($tetelek_osszege, 0, '', ' ').' '.get_penznem().') nem egyezik meg a szerződés összegével ('. number_format($szerzodes_osszege, 0, '', ' ').' '.get_penznem().')!<br>Így nem menthető!',
                         'title' => 'Hiba'
                         ) );
                 $weblap->leallit();
@@ -585,7 +585,7 @@ require_once('selectek.php');
                 </div>
             ');
             
-            $gombok .= ' <input type="button" class="gomb" onclick="csoportMuvelet(\'projektszerzodes_tetelek_kezelese\')" value="Tételek kezelése">';
+            $gombok .= ' <input type="button" class="gomb" onclick="if( !$(\'#szerz_ossz\').val() || $(\'#szerz_ossz\').val()==\'0\' ){ alert2(\'Tételek kezelése előtt adja meg a szerződött összeget!\', \'\', \'Hiba\'); }else{ csoportMuvelet(\'projektszerzodes_tetelek_kezelese\'); }" value="Tételek kezelése">';
 
             $muv_style = ' style="width: calc(100% - '.($_SESSION['defaultCsuszka'] + 16).'px);"';
             if( in_array(basename(self()), $_SESSION['ketHasabos']) && $_SESSION[get_db_tabla().'user'] ) {
@@ -626,7 +626,7 @@ require_once('selectek.php');
         
         // Tételek kezelése
         if( _jog(JOG_PRKEZEL_SZERZODES_KEZEL) ){
-            $gombok .= ' <input type="button" class="gomb" onclick="csoportMuvelet(\'projektszerzodes_tetelek_kezelese\')" value="Tételek kezelése">';
+            $gombok .= ' <input type="button" class="gomb" onclick="if( !$(\'#szerz_ossz\').val() || $(\'#szerz_ossz\').val()==\'0\' ){ alert2(\'Tételek kezelése előtt adja meg a szerződött összeget!\', \'\', \'Hiba\'); }else{ csoportMuvelet(\'projektszerzodes_tetelek_kezelese\'); }" value="Tételek kezelése">';
             // Ha nem az Adatlapon volnánk, akkor szükségünk lesz egy rejtett inputra, ami az adatbázisban levő szerződéses összeget tartalmazza, hogy bármelyik fül alatt szerkeszteni lehessen a tételeket, összehasonlítva az aktuális szerződéses összeggel
             $gombok .= ' <input type="hidden" id="szerz_ossz_db" value="'.$sor['szerz_ossz'].'">';
         }
@@ -660,7 +660,7 @@ require_once('selectek.php');
     $js_submit_elott = 'return form_ell_admin();';
     
 	// Új projektkezelés felvitele
-	if(isset($_GET['uj']) && _jog(JOG_PRKEZEL_UJ_LETREHOZ) ){
+	if( isset($_GET['uj']) ){
         
         $js_submit_elott = nl2('
             

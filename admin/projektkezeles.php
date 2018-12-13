@@ -1264,8 +1264,8 @@ require_once('selectek.php');
             }
         }
 
-        // Ha van egyáltalán kezelésre joga
-        if( get_projekt_kezeles_jog($_GET['id']) ){
+        // Ha van egyáltalán kezelésre joga, és nincs még lezárva
+        if( get_projekt_kezeles_jog($_GET['id']) && $sor['stat_id']!=PRKEZEL_STAT_LEZART ){
 
             if(!$nem_szerkesztheti && isset($_GET['modosit']) /*&& $sor['stat_id']==PRIGENY_STAT_LETRE_ALATT Átmenetileg végig szerkeszthető */){
                 $gombok = nl2('
@@ -1590,7 +1590,7 @@ require_once('selectek.php');
 
 	// Dokumentumok
 	}elseif( isset($_GET['dokumentumok']) ) {
-
+        
         if( $tobb_kep ) {
             require_once('tobb_kep.php');
         }

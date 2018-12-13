@@ -55,7 +55,7 @@ if (isset($_POST['dokumentum_tipus_valaszt'])) {
     exit;
 }
 
-// Képfeltöltés
+// Fájlfeltöltés
 if( isset($_POST['megnevezes']) && !$archivum ){
     
     // Ha a megnevezés csak annyi, hogy javaslattetel_popup, akkor munkalap javaslattétel popuján töltünk fel képet, ekkor másképp kell eljárni
@@ -182,6 +182,11 @@ if( isset($_POST['megnevezes']) && !$archivum ){
                     
                     // Projektkezelés menüpont alatt kiírjuk, hogy sikeres feltöltés, és hogy léptessük-e tovább? Ezt a popup hívást jelezzük itt.
                     if( $_POST['tabla']=='projektkezeles_dok' ){
+                        // Lezárt státuszhoz már nem engedünk doksit felölteni
+                        $prk = $adatbazis_kapcsolat->s2('stat_id', 'projektkezeles', "`recid`='{$_POST['sorid']}'");
+                        if( $prk['stat_id']==PRKEZEL_STAT_LEZART ){
+                            exit;
+                        }
                         echo 'leptessuk_e_tovabb';
                     }
                     
@@ -276,7 +281,7 @@ if( tipusos_dokumentumok($apa_tabla) ){
 
 // Van-e dokumentum kezelés jogunk?
 $nincs_torles = '';
-if(!dokumentum_kezeles_jog($tobbkep_tablanev, $_GET['id'])){
+if( !dokumentum_kezeles_jog($tobbkep_tablanev, $_GET['id']) ){
     $nincs_torles = 'nincs törlés';
 }
 if( !$nincs_torles ){
@@ -539,6 +544,11 @@ function dokumentum_kezeles_jog($tabla, $id) {
     // Projektkezeléskor ha nincs hozzá jogunk
     if( $tabla == 'projektkezeles_dok' ) {
         if(!_jog(JOG_PRKEZEL_KEZEL)) {
+            return false;
+        }
+        // Lezárt státuszban sincs
+        $prj = $adatbazis_kapcsolat->s2('stat_id', 'projektkezeles', "`recid`='{$id}'");
+        if( $prj['stat_id'] == PRKEZEL_STAT_LEZART ){
             return false;
         }
     }

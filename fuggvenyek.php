@@ -2202,6 +2202,13 @@ function szamla_lista( $where, $tabla, $kijeloltek = false, $csak_sql_miatt = fa
                 $where = "(`".get_db_tabla()."projektkezeles`.`pfelelos`='{$_SESSION[get_db_tabla().'login_recid']}'{$team_vagyok}) AND ";
             }
         }
+        
+        // Projektszerződés
+        if($tabla == 'projektszerzodes'){
+            // Saját szállodáimat láthatom
+            $where = "(`".get_db_tabla()."projektszerzodes`.`telephely_id` IN (".implode(',', $szallodak)."){$team_vagyok}) AND ";
+            
+        }
 
         // Rendszeres karbantartás
         if($tabla == 'rendszeres_karbantartas'){

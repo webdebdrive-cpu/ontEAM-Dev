@@ -1,7 +1,8 @@
 <h2>Tételek kezelése</h2>
 
 <div class="kozep">
-    Tárgy:
+    <strong>Szerződés összege: <span id="pop_szerz_ossz"></span></strong>
+    <br>Tárgy:
     <br><input type="text" id="pop_targy" class="oriasi csillag">
     <br>Számla várh. érk.
     <br><input type="text" id="pop_szla_varh_erk" class="datepicker csillag">
@@ -39,6 +40,7 @@
 <script>
 $(document).ready(function () {
     
+    $('#pop_szerz_ossz').html( $('#szerz_ossz').val()+' Ft' );
     $('#pop_targy').focus();
     
     pop_tetelek_feltolt();
@@ -62,17 +64,17 @@ function tetel_hozzaadasa() {
     
     /* Üres adatok ellenőrzése */
     if(!targy){
-        alert2('Kérük töltse ki a tárgyat!', '', 'Hiba');
+        alert2('Kérjük töltse ki a tárgyat!', '', 'Hiba');
         $('#pop_targy').addClass('hibas_ide_focus');
         return false;
     }
     if( !szla_varh_erk || szla_varh_erk=='.\xa0\xa0.' ){
-        alert2('Kérük töltse ki a várható érkezést!', '', 'Hiba');
+        alert2('Kérjük töltse ki a várható érkezést!', '', 'Hiba');
         $('#pop_szla_varh_erk').addClass('hibas_ide_focus');
         return false;
     }
     if( !szla_varh_ert || szla_varh_ert=='0' ){
-        alert2('Kérük töltse ki a várható értéket!', '', 'Hiba');
+        alert2('Kérjük töltse ki a várható értéket!', '', 'Hiba');
         $('#pop_szla_varh_ert').addClass('hibas_ide_focus');
         return false;
     }

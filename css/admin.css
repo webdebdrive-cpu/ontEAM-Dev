@@ -474,6 +474,10 @@ input[disabled], select[disabled], textarea[disabled], input[readonly], select[r
     color: #0d0d0d;
     cursor: default;
 }
+input[disabled].csillag, select[disabled].csillag, textarea[disabled].csillag, input[readonly].csillag, select[readonly].csillag, textarea[readonly].csillag, input[readonly].csillag:focus, select[readonly].csillag:focus, textarea[readonly].csillag:focus, input[readonly].csillag:active, select[readonly].csillag:active, textarea[readonly].csillag:active {
+    border-left: 0.4rem solid #52a3f5!important;
+}
+
 
 input[type="button"][disabled] {
     background: #cecdcd!important;
