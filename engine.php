@@ -1566,14 +1566,10 @@ function level_kuldes_osszetettebb( $felado_nev, $felado_mail, $cimzett_nev, $ci
         $mail -> Subject  = $targy;
         $mail -> AltBody  = strip_tags($uzi);
         $mail -> MsgHTML($uzi);
-
+        
         if(is_array($fajlok)){
             foreach($fajlok as $fajl){
-                if($fajl['nev'] && $fajl['fajl']){
-                    $mail -> AddAttachment($fajl['fajl'], $fajl['nev']);
-                }else{
-                    $mail -> AddAttachment($fajl);
-                }
+                $mail -> AddAttachment($fajl);
             }
 
         }elseif($fajlok){

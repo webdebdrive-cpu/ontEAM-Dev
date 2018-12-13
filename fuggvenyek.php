@@ -8789,3 +8789,35 @@ function get_projekt_kezeles_jog( $recid ){
     return false;
     
 }
+
+// levélküldés után a csatolmányokat egy almappába tesszük
+function csatolmanyok_eltesz($fajlok, $utvonal, $email_recid, $ml_recid){
+    
+    global $adatbazis_kapcsolat;
+    
+    $utvonal = trim($utvonal, '*');
+    
+    $db_error = false;
+    if( !is_dir($utvonal.'/'.$email_recid) ) {
+        mkdir($utvonal.'/'.$email_recid, 0777);
+    }
+
+    foreach($fajlok as $fajl){
+
+        $fajlnev = basename($fajl);
+        copy($fajl, $utvonal.'/'.$email_recid.'/'. $fajlnev);
+        unlink($fajl);
+        $sql = $adatbazis_kapcsolat->i('munkalap_email_dok',    array('munkalap_recid', 'email_recid', 'fajlnev', 'loginnev',                       'update_dt',  'update_usr',                           'insert_dt', 'insert_usr'                              ),
+                                                                array($ml_recid,        $email_recid,  $fajlnev,  $_SESSION[get_db_tabla().'user'], 'NOW()',      $_SESSION[get_db_tabla().'teljes_nev'], 'NOW()',      $_SESSION[get_db_tabla().'teljes_nev']   )
+                                        );
+        if( $sql === false ) { $db_error = true; }
+        echo $db_error;
+    }
+    
+    if($db_error){
+        return false;
+    }else{
+        return true;
+    }
+        
+}

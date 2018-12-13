@@ -682,7 +682,13 @@ if( isset($_POST['munkalapKulso']) ) {
             $targy_kieg = $kieg[0];
             $uzi_kieg   = $kieg[1];
             
-            $sikeres_kuldes = level_kuldes_osszetettebb(get_nev(), get_mail(), $mailcimek, $mailcimek, $masolatok, $masolatok, $r_masolatok, $r_masolatok, $targy_kieg.$_POST['targy'], $uzi_kieg.nl2br2($_POST['uzenet']), '', 'levélpapíros');
+            // Csatolmányok összeszdése
+            $mappa = $adatbazis_kapcsolat->s2('ikt_szam', 'munkalap', "`recid`='{$recid}'");
+            $utvonal = '../'.get_utvonal().'munkalap/'.str_replace('/', '_', $mappa['ikt_szam']).'/email/*';
+            $fajlok_mailnek = array();
+            $fajlok = glob($utvonal);
+
+            $sikeres_kuldes = level_kuldes_osszetettebb(get_nev(), get_mail(), $mailcimek, $mailcimek, $masolatok, $masolatok, $r_masolatok, $r_masolatok, $targy_kieg.$_POST['targy'], $uzi_kieg.nl2br2($_POST['uzenet']), $fajlok, 'levélpapíros');
             if($sikeres_kuldes){
                 mysqli_rollback($db_kapcs);
                 echo json_encode(array(
@@ -704,14 +710,21 @@ if( isset($_POST['munkalapKulso']) ) {
                 }
                 $emailkuldes_megj .= "\n";
                 // E-mail küldés logolása
-                $sql = $adatbazis_kapcsolat->i('munkalap_email',    array('munkalap_id', 'szallito_id', 'cimzett',  'masolat',           'targy',                     'text',                                'insert_dt', 'insert_usr'                           ),
-                                                                    array($recid,        $szallito_id,  $cimzettek, $masolatot_kapott,   $targy_kieg.$_POST['targy'], $uzi_kieg.nl2br2($_POST['uzenet']),    'NOW()',     $_SESSION[get_db_tabla().'teljes_nev'] )
+                $email_recid = $adatbazis_kapcsolat->i('munkalap_email',    array('munkalap_recid', 'szallito_id', 'cimzett',  'masolat',           'targy',                     'text',                                'insert_dt', 'insert_usr'                           ),
+                                                                            array($recid,           $szallito_id,  $cimzettek, $masolatot_kapott,   $targy_kieg.$_POST['targy'], $uzi_kieg.nl2br2($_POST['uzenet']),    'NOW()',     $_SESSION[get_db_tabla().'teljes_nev'] )
                                             );
-                if( $sql === false ) { $db_error = true; }
+                if( $email_recid === false ) { $db_error = true; }
+                
+                // Fájlok mozgatása
+                if( csatolmanyok_eltesz($fajlok, $utvonal, $email_recid, $recid) === false ){
+                    $db_error = true;
+                }
                 
                 // Mail elküldve pipa bekapcsolása
                 $sql = $adatbazis_kapcsolat->u('munkalap', array('mail_ment'), array('1'), "`recid`='{$recid}'");
                 if( $sql === false ) { $db_error = true; }
+                
+                
             }
             
             
@@ -2389,7 +2402,13 @@ if( isset($_POST['kulsokivHozzarend']) ) {
             $targy_kieg = $kieg[0];
             $uzi_kieg   = $kieg[1];
             
-            $sikeres_kuldes = level_kuldes_osszetettebb(get_nev(), get_mail(), $mailcimek, $mailcimek, $masolatok, $masolatok, $r_masolatok, $r_masolatok, $targy_kieg.$_POST['targy'], $uzi_kieg.nl2br2($_POST['uzenet']), '', 'levélpapíros');
+            // Csatolmányok összeszdése
+            $mappa = $adatbazis_kapcsolat->s2('ikt_szam', 'munkalap', "`recid`='{$recid}'");
+            $utvonal = '../'.get_utvonal().'munkalap/'.str_replace('/', '_', $mappa['ikt_szam']).'/email/*';
+            $fajlok_mailnek = array();
+            $fajlok = glob($utvonal);
+            
+            $sikeres_kuldes = level_kuldes_osszetettebb(get_nev(), get_mail(), $mailcimek, $mailcimek, $masolatok, $masolatok, $r_masolatok, $r_masolatok, $targy_kieg.$_POST['targy'], $uzi_kieg.nl2br2($_POST['uzenet']), $fajlok, 'levélpapíros');
             // Ha nem volt sikeres a levélküldés, akkor is megállítjuk a működést
             if($sikeres_kuldes){
                 mysqli_rollback($db_kapcs);
@@ -2413,10 +2432,15 @@ if( isset($_POST['kulsokivHozzarend']) ) {
                 $emailkuldes_megj .= "\n";
 
                 // E-mail küldés logolása
-                $sql = $adatbazis_kapcsolat->i('munkalap_email',    array('munkalap_id', 'szallito_id', 'cimzett',   'masolat',         'targy',                     'text',                                'insert_dt', 'insert_usr'                           ),
-                                                                    array($recid,        $szallitoid,   $cimzettek,  $masolatot_kapott, $targy_kieg.$_POST['targy'], $uzi_kieg.nl2br2($_POST['uzenet']),    'NOW()',     $_SESSION[get_db_tabla().'teljes_nev'] )
+                $email_recid = $adatbazis_kapcsolat->i('munkalap_email',    array('munkalap_recid', 'szallito_id', 'cimzett',   'masolat',         'targy',                     'text',                                'insert_dt', 'insert_usr'                           ),
+                                                                            array($recid,           $szallitoid,   $cimzettek,  $masolatot_kapott, $targy_kieg.$_POST['targy'], $uzi_kieg.nl2br2($_POST['uzenet']),    'NOW()',     $_SESSION[get_db_tabla().'teljes_nev'] )
                                             );
-                if( $sql === false ) { $db_error = true; }
+                if( $email_recid === false ) { $db_error = true; }
+                
+                // Fájlok mozgatása
+                if( csatolmanyok_eltesz($fajlok, $utvonal, $email_recid, $recid) === false ){
+                    $db_error = true;
+                }
 
                 // Mail eküldve pipa bekapcsolása
                 $sql = $adatbazis_kapcsolat->u('munkalap', array('mail_ment'), array('1'), "`recid`='{$recid}'");
@@ -2799,8 +2823,13 @@ if (isset($_POST['munkalapVisszaElokeszitDirektbe'])) {
         $targy_kieg = $kieg[0];
         $uzi_kieg   = $kieg[1];
 
+        // Csatolmányok összeszdése
+        $mappa = $adatbazis_kapcsolat->s2('ikt_szam', 'munkalap', "`recid`='{$recid}'");
+        $utvonal = '../'.get_utvonal().'munkalap/'.str_replace('/', '_', $mappa['ikt_szam']).'/email/*';
+        $fajlok_mailnek = array();
+        $fajlok = glob($utvonal);
 
-        $sikeres_kuldes = level_kuldes_osszetettebb(get_nev(), get_mail(), $mailcimek, $mailcimek, $masolatok, $masolatok, $r_masolatok, $r_masolatok, $targy_kieg.$_POST['targy'], $uzi_kieg.nl2br2($_POST['uzenet']), '', 'levélpapíros');
+        $sikeres_kuldes = level_kuldes_osszetettebb(get_nev(), get_mail(), $mailcimek, $mailcimek, $masolatok, $masolatok, $r_masolatok, $r_masolatok, $targy_kieg.$_POST['targy'], $uzi_kieg.nl2br2($_POST['uzenet']), $fajlok, 'levélpapíros');
         if($sikeres_kuldes){
             mysqli_rollback($db_kapcs);
             echo json_encode(array(
@@ -2822,10 +2851,15 @@ if (isset($_POST['munkalapVisszaElokeszitDirektbe'])) {
             }
             $emailkuldes_megj .= "\n";
             // E-mail küldés logolása
-            $sql = $adatbazis_kapcsolat->i('munkalap_email',    array('munkalap_id', 'szallito_id', 'cimzett',   'masolat',           'targy',                     'text',                                'insert_dt', 'insert_usr'                           ),
-                                                                array($recid,        $szallito_id,  $cimzettek,  $masolatot_kapott,   $targy_kieg.$_POST['targy'], $uzi_kieg.nl2br2($_POST['uzenet']),    'NOW()',     $_SESSION[get_db_tabla().'teljes_nev'] )
+            $email_recid = $adatbazis_kapcsolat->i('munkalap_email',    array('munkalap_recid', 'szallito_id', 'cimzett',   'masolat',           'targy',                     'text',                                'insert_dt', 'insert_usr'                           ),
+                                                                        array($recid,           $szallito_id,  $cimzettek,  $masolatot_kapott,   $targy_kieg.$_POST['targy'], $uzi_kieg.nl2br2($_POST['uzenet']),    'NOW()',     $_SESSION[get_db_tabla().'teljes_nev'] )
                                         );
-            if( $sql === false ) { $db_error = true; }
+            if( $email_recid === false ) { $db_error = true; }
+            
+            // Fájlok mozgatása
+            if( csatolmanyok_eltesz($fajlok, $utvonal, $email_recid, $recid) === false ){
+                $db_error = true;
+            }
 
             // Mail elküldve pipa bekapcsolása
             $sql = $adatbazis_kapcsolat->u('munkalap', array('mail_ment'), array('1'), "`recid`='{$recid}'");
@@ -4812,8 +4846,14 @@ if( isset($_POST['atadasDiszpecsernekDirektbe']) ) {
             $kieg = get_mail_teszt_felirat();
             $targy_kieg = $kieg[0];
             $uzi_kieg   = $kieg[1];
+            
+            // Csatolmányok összeszdése
+            $mappa = $adatbazis_kapcsolat->s2('ikt_szam', 'munkalap', "`recid`='{$recid}'");
+            $utvonal = '../'.get_utvonal().'munkalap/'.str_replace('/', '_', $mappa['ikt_szam']).'/email/*';
+            $fajlok_mailnek = array();
+            $fajlok = glob($utvonal);
 
-            $sikeres_kuldes = level_kuldes_osszetettebb(get_nev(), get_mail(), $mailcimek, $mailcimek, $masolatok, $masolatok, $r_masolatok, $r_masolatok, $targy_kieg.$_POST['targy'], $uzi_kieg.nl2br2($_POST['uzenet']), '', 'levélpapíros');
+            $sikeres_kuldes = level_kuldes_osszetettebb(get_nev(), get_mail(), $mailcimek, $mailcimek, $masolatok, $masolatok, $r_masolatok, $r_masolatok, $targy_kieg.$_POST['targy'], $uzi_kieg.nl2br2($_POST['uzenet']), $fajlok, 'levélpapíros');
             if($sikeres_kuldes){
                 mysqli_rollback($db_kapcs);
                 echo json_encode(array(
@@ -4836,10 +4876,16 @@ if( isset($_POST['atadasDiszpecsernekDirektbe']) ) {
                 $emailkuldes_megj .= "\n";
                 
                 // E-mail küldés logolása
-                $sql = $adatbazis_kapcsolat->i('munkalap_email',    array('munkalap_id', 'szallito_id', 'cimzett',   'masolat',         'targy',                     'text',                                'insert_dt', 'insert_usr'                           ),
-                                                                    array($recid,        $szallito_id,  $cimzettek,  $masolatot_kapott, $targy_kieg.$_POST['targy'], $uzi_kieg.nl2br2($_POST['uzenet']),    'NOW()',     $_SESSION[get_db_tabla().'teljes_nev'] )
+                $email_recid = $adatbazis_kapcsolat->i('munkalap_email',    array('munkalap_recid', 'szallito_id', 'cimzett',   'masolat',         'targy',                     'text',                                'insert_dt', 'insert_usr'                           ),
+                                                                            array($recid,           $szallito_id,  $cimzettek,  $masolatot_kapott, $targy_kieg.$_POST['targy'], $uzi_kieg.nl2br2($_POST['uzenet']),    'NOW()',     $_SESSION[get_db_tabla().'teljes_nev'] )
                                             );
-                if( $sql === false ) { $db_error = true; }
+                if( $email_recid === false ) { $db_error = true; }
+                
+                // Fájlok mozgatása
+                if( csatolmanyok_eltesz($fajlok, $utvonal, $email_recid, $recid) === false ){
+                    $db_error = true;
+                }
+                
             }
 
         // Ha nincs levélküldés, akkor rákérdezünk, hogy biztosan nem szerettek volna levelet küldeni?
@@ -6200,8 +6246,14 @@ if (isset($_POST['munkalapVisszavetelDirektbe'])) {
         $kieg = get_mail_teszt_felirat();
         $targy_kieg = $kieg[0];
         $uzi_kieg   = $kieg[1];
+        
+        // Csatolmányok összeszdése
+        $mappa = $adatbazis_kapcsolat->s2('ikt_szam', 'munkalap', "`recid`='{$recid}'");
+        $utvonal = '../'.get_utvonal().'munkalap/'.str_replace('/', '_', $mappa['ikt_szam']).'/email/*';
+        $fajlok_mailnek = array();
+        $fajlok = glob($utvonal);
 
-        $sikeres_kuldes = level_kuldes_osszetettebb(get_nev(), get_mail(), $mailcimek, $mailcimek, $masolatok, $masolatok, $r_masolatok, $r_masolatok, $targy_kieg.$_POST['targy'], $uzi_kieg.nl2br2($_POST['uzenet']), '', 'levélpapíros');
+        $sikeres_kuldes = level_kuldes_osszetettebb(get_nev(), get_mail(), $mailcimek, $mailcimek, $masolatok, $masolatok, $r_masolatok, $r_masolatok, $targy_kieg.$_POST['targy'], $uzi_kieg.nl2br2($_POST['uzenet']), $fajlok, 'levélpapíros');
         if($sikeres_kuldes){
             mysqli_rollback($db_kapcs);
             echo json_encode(array(
@@ -6223,10 +6275,16 @@ if (isset($_POST['munkalapVisszavetelDirektbe'])) {
             }
             $emailkuldes_megj .= "\n";
             // E-mail küldés logolása
-            $sql = $adatbazis_kapcsolat->i('munkalap_email',    array('munkalap_id', 'szallito_id', 'cimzett',  'masolat',          'targy',                     'text',                                'insert_dt', 'insert_usr'                           ),
-                                                                array($recid,        $szallito_id,  $cimzettek, $masolatot_kapott,  $targy_kieg.$_POST['targy'], $uzi_kieg.nl2br2($_POST['uzenet']),    'NOW()',     $_SESSION[get_db_tabla().'teljes_nev'] )
+            $email_recid = $adatbazis_kapcsolat->i('munkalap_email',    array('munkalap_recid', 'szallito_id', 'cimzett',  'masolat',          'targy',                     'text',                                'insert_dt', 'insert_usr'                           ),
+                                                                        array($recid,           $szallito_id,  $cimzettek, $masolatot_kapott,  $targy_kieg.$_POST['targy'], $uzi_kieg.nl2br2($_POST['uzenet']),    'NOW()',     $_SESSION[get_db_tabla().'teljes_nev'] )
                                         );
-            if( $sql === false ) { $db_error = true; }
+            if( $email_recid === false ) { $db_error = true; }
+            
+            // Fájlok mozgatása
+            if( csatolmanyok_eltesz($fajlok, $utvonal, $email_recid, $recid) === false ){
+                $db_error = true;
+            }
+            
         }
 
 

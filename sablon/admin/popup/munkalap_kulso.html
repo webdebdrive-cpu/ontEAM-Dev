@@ -49,8 +49,7 @@
                     <br><strong>Másolat:</strong>
                     <br><input type="text" id="pop_masolat" class="oriasi disableNav popup_input_margo" maxlength="250">
                     <br><strong>Tárgy:</strong>
-                    <br><input type="text" id="pop_targy" class="oriasi disableNav popup_input_margo" maxlength="250">
-                    
+                    <br><input type="text" id="pop_targy" class="oriasi disableNav popup_input_margo" maxlength="250">                    
                     <div class="levelezo_grid">
                         <div>
                             <strong>Üzenet:</strong>
@@ -59,13 +58,14 @@
                         </div>
                         <div>
                             <strong>Fájlok csatolása:</strong>
-                            <div class="jsff csak_gomb">
+                            <div id="jsff_mailcsatolmany" class="jsff csak_gomb">
                                 <div class="talloz">
                                     <div class="kicsi">
-                                        <span>Tallózás</span> <input type="file" name="files[]" multiple="" onchange="beolvasas_mailcsatolmany_popup(this.files, false);">
+                                        <span>Tallózás</span> <input id="jsff_mailcsatolmany_input" type="file" name="files[]" multiple="" onchange="beolvasas_mailcsatolmany_popup(this.files, false);">
                                     </div>
                                 </div>
                             </div>
+                            <div id="pop_csatolt_fajlok"></div>
                         </div>
                     </div>
                     
@@ -86,6 +86,8 @@ $(document).ready(function(){
     
     /* Külső kivitelező hozzárendelés popup inputjait be kell állítani, alapértemlezett értékekkel feltölteni *//* Levélküldés mezőinek alapértelmezett értékének beállítsa */
     get_kulso_hozzarendeles_input_tartalmak();
+    
+    get_csatolmanyok( baseName( location.href ), _get('id') );
     
 });
     
@@ -179,6 +181,21 @@ function cimzett_add( mezo ){
 }
 
 /* Beolvasás */
+$( document ).on('change','#jsff_mailcsatolmany_input' , function(){
+    alert2('Feltöltés...', '&nbsp;', 'Információ');
+});
+var jsff_mailcsatolmany = document.getElementById('jsff_mailcsatolmany'),
+    tests_mailcsatolmany_popup = {
+        filereader  : typeof FileReader != 'undefined',
+        dnd         : 'draggable' in document.createElement('span'),
+        formdata    : !!window.FormData,
+        progress    : 'upload' in new XMLHttpRequest
+    },
+    kepformatumok_mailcsatolmany = {
+        'image/png' : true,
+        'image/jpeg': true,
+        'image/gif' : true
+    };
 function beolvasas_mailcsatolmany_popup(fajlok, ellenorzes_kihagy) {
 
     var voltmar = [];
@@ -199,7 +216,7 @@ function beolvasas_mailcsatolmany_popup(fajlok, ellenorzes_kihagy) {
         $('#jsff_mailcsatolmany_popup').append(pg);
 
         var xhr = new XMLHttpRequest();
-        xhr.open('POST', 'tobb_kep.php');
+        xhr.open('POST', 'feltolt_mailcsatolmany.php');
 
         (function(progress_id, fajl, i){
             xhr.upload.onprogress = function(e){
@@ -272,7 +289,8 @@ function fajl_feluliras_mailcsatolmany_popup() {
 
 /* Ha minden fájl feltöltése kész, akkor itt adhat meg további utasítás */
 function minden_fajl_kesz_mailcsatolmany_popup(){
-
+    alert2('');
+    $('#pop_csatolt_fajlok').append( '<div><b class="fajl_torol f_csatolmany_torol">🗙</b> <span>'+ baseNameFajlhoz($('#jsff_mailcsatolmany_input').val())+'</span></div>' );
     $('#jsff_mailcsatolmany_popup').find('progress').fadeOut(2000, function(){ $('#' + progress_id).next('br').remove(); });
 
 }
@@ -280,17 +298,17 @@ function minden_fajl_kesz_mailcsatolmany_popup(){
 /* Ha működik a drag&drop, akkor a CSS class-t megváltoztatjuk draghoverre */
 if(tests_mailcsatolmany_popup.dnd){
 
-    jsff_mailcsatolmany_popup.ondragover = function(){
+    jsff_mailcsatolmany.ondragover = function(){
         this.className = 'jsff hover';
         return false;
     };
 
-    jsff_mailcsatolmany_popup.ondragleave = function(){
+    jsff_mailcsatolmany.ondragleave = function(){
         this.className = 'jsff';
         return false;
     };
 
-    jsff_mailcsatolmany_popup.ondrop = function(e){
+    jsff_mailcsatolmany.ondrop = function(e){
         this.className = 'jsff';
         e.preventDefault();
         beolvasas_mailcsatolmany_popup(e.dataTransfer.files, false);

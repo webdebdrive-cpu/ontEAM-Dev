@@ -26,14 +26,10 @@
                 
                 /* Fájl nevének kiírása */
                 $( document ).on('change','#jsff_velemeny' , function(){
-                    $('#jsff_velemeny_fajlnev').html( baseName($('#jsff_velemeny_file').val()) );
+                    $('#jsff_velemeny_fajlnev').html( baseNameFajlhoz($('#jsff_velemeny_file').val()) );
                     $('#jsff_velemeny_thumb_szoveg').html( 'Kiválasztott fájl:' );
                     $('#velemeny_megj').focus();
                 });
-                function baseName(str){
-                    var base = new String(str).substring(str.lastIndexOf('\\') + 1); 
-                    return base;
-                }
     
                 var jsff_velemeny = document.getElementById('jsff_velemeny'),
                     tests_velemeny = {

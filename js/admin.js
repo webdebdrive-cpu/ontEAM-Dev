@@ -1843,6 +1843,35 @@ console.log('b'+active_top);
         aktiv_oldal = 'szamla_cont_tabla';
     });
 
+    /* Csatolmányok törlése */
+    $(document).on('click', '.f_csatolmany_torol', function() {
+        
+        $('.f_csatolmany_torol').removeClass('ide_kattints');
+        $(this).addClass('ide_kattints');
+        var fajlnev = $(this).parent().find('span').html();
+        if( !$(this).hasClass('mehet') ){
+            alert2('Biztosan törli '+a_az(fajlnev)+' '+fajlnev+' fájl nevet?', '<input type="button" class="gomb zold" value="Igen" onclick="$(\'.ide_kattints\').addClass(\'mehet\'); $(\'.ide_kattints\').click(); alert2();"><input type="button" class="gomb piros" value="Nem" onclick="alert2()">');
+            return false;
+        }
+        
+        var div_elem = $(this).parent();
+
+        $.ajax({
+            url : 'esemenyek.php',
+            type: 'POST',
+            data: {
+                tabla               : baseName(location.href),
+                recid               : _get('id'),
+                fajlnev             : fajlnev,
+                f_csatolmany_torol  : Date.now()
+            },
+            success: function (response) {
+                if(response.substring(0, 6)=='SESKIL'){ location.href = 'index.php'; }
+                div_elem.fadeOut();
+            }
+        });
+    });
+
     setTimeout(function() {
         fixTable();
     }, 50);
@@ -5499,13 +5528,7 @@ function szamlaBetolt( recid, page, muvelet, szerkeszt, kerdes_nelkul, anyagigen
     alert2('');
 
     if( formModositva && !kerdes_nelkul ) {
-
-        var a_az = 'a';
-        var kezdobetu = $('#rekord_neve_targy').html().substr(0,1);
-        if(kezdobetu=='a' || kezdobetu=='e' || kezdobetu=='i' || kezdobetu=='o' || kezdobetu=='u'){
-            a_az = 'az';
-        }
-        alert2('Biztosan elhagyja ezt '+a_az+' '+$('#rekord_neve_targy').html()+' mentés nélkül?', '<input class="gomb zold" value="Igen" onclick="formModositva = false; szamlaBetolt( \'' + recid + '\', \'' + page + '\', \'' + muvelet + '\', \'' + szerkeszt + '\' ); $(\'#szamlaList li.szamla_sor\').removeClass(\'kijelolve\');" type="button"><input class="gomb piros" value="Nem" onclick="alert2()" type="button">');
+        alert2('Biztosan elhagyja ezt '+a_az($('#rekord_neve_targy').html())+' '+$('#rekord_neve_targy').html()+' mentés nélkül?', '<input class="gomb zold" value="Igen" onclick="formModositva = false; szamlaBetolt( \'' + recid + '\', \'' + page + '\', \'' + muvelet + '\', \'' + szerkeszt + '\' ); $(\'#szamlaList li.szamla_sor\').removeClass(\'kijelolve\');" type="button"><input class="gomb piros" value="Nem" onclick="alert2()" type="button">');
         szurkit_zar();
         return false;
     }
@@ -7219,4 +7242,21 @@ function anyagigenylesekMentes(mehet) {
     } else {
         $('#szerk_form').submit();
     }
+}
+
+// E-mail küldéskor a már feltöltött, de még el nem küldött csatolmáynok kilistázása
+function get_csatolmanyok(tabla, recid) {
+    $.ajax({
+        url : 'esemenyek.php',
+        type: 'POST',
+        data: {
+            recid           : recid,
+            tabla           : tabla,
+            get_csatolmanyok: Date.now()
+        },
+        success: function (response) {
+            if(response.substring(0, 6)=='SESKIL'){ location.href = 'index.php'; }
+            $('#pop_csatolt_fajlok').html(response);
+        }
+    });
 }

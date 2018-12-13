@@ -2492,6 +2492,21 @@ $felmeresi_terv_tomb = $akt_tomb = array(
 array_push($postok, array('tomb' => $akt_tomb, 'uj' => 'uj'.$megnevezes, 'lista' => $megnevezes.'lista', 'tabla' => $megnevezes, 'torid' => $megnevezes.'tid' ));
 //{KOVETKEZO_TOMB}
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 // Nyomtáshoz a látható ID-k
 if( isset($_POST['nyomtatas_ids']) ) {
     $_SESSION['nyomtatas_ids'] = $_POST['data'];
@@ -2499,6 +2514,33 @@ if( isset($_POST['nyomtatas_ids']) ) {
     $weblap->leallit();
     exit();
 }
+
+// Mail csatolmány törlése (Iktató számú mappán belül van egy email mappa. Ami fájl itt van, az ideigelensen szerepel, kiküldésre válr, de még törölhető.
+// Kiküldött levelek csatolmányai még egy könyvtárral mélyebben vannak, adott mail log recid nevű könyvtárában
+if (isset($_POST['f_csatolmany_torol'])) {
+    
+    $mappa = $adatbazis_kapcsolat->s2('ikt_szam', $_POST['tabla'], "`recid`='{$_POST['recid']}'");
+    $utvonal = '../'.get_utvonal().$_POST['tabla'].'/'.str_replace('/', '_', $mappa['ikt_szam']).'/email/'.$_POST['fajlnev'];
+    unlink($utvonal);
+    
+    $weblap->leallit();
+    exit();
+}
+// Adott rekordhoz tartozó, még ki nem küldött csatolmányok listázása
+if (isset($_POST['get_csatolmanyok'])) {
+    
+    $html = '';
+    $mappa = $adatbazis_kapcsolat->s2('ikt_szam', $_POST['tabla'], "`recid`='{$_POST['recid']}'");
+    $utvonal = '../'.get_utvonal().$_POST['tabla'].'/'.str_replace('/', '_', $mappa['ikt_szam']).'/email/*';
+    foreach(glob($utvonal) as $fajl){
+        $html .= '<div><b class="fajl_torol f_csatolmany_torol">🗙</b> <span>'. basename($fajl) . '</span></div>';
+    }
+    echo $html;
+    
+    $weblap->leallit();
+    exit();
+}
+
 
 // Táblázat sorrend mentés
 if( isset($_POST['tablaSorrend']) ) {
@@ -5175,7 +5217,7 @@ if(isset($_GET['modosit'])){
             $fajlnev2 = addslashes($fajlnev2);
             $adatbazis_kapcsolat->i('bejelentes_dok',
                     array('bejelentes_id', 'utvonal',             'fajlnev',  'loginnev',                       'update_dt',  'update_usr',                           'insert_dt', 'insert_usr'                            ),
-                    array($_GET['id'],     $alkonyvtar.$fajlnev2, $fajlnev2,  $_SESSION[get_db_tabla().'user'], 'NOW()',      $_SESSION[get_db_tabla().'teljes_nev'], 'NOW()',      $_SESSION[get_db_tabla().'teljes_nev']  )
+                    array($_GET['id'],     $alkonyvtar.$fajlnev2, $fajlnev2,  $_SESSION[get_db_tabla().'user'], 'NOW()',      $_SESSION[get_db_tabla().'teljes_nev'], 'NOW()',      $_SESSION[get_db_tabla().'teljes_nev'] )
             );
 
             // Végül a szülő táblában a dok_db karbantartása

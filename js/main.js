@@ -63,6 +63,7 @@
 })(jQuery);
 
 /*
+*   a_az()
 *	adoszam_formaz()		Adószám megadásakor formázza a megadott számot
 *	checkbox_beallit()		Összes kijelölése/törlése-hez kell adminnál. A paraméterben megdott form del[] checkboxíit a paraméterként átadott értékre állítja (továbbfejleszthető lenne, hogy a del[] is param legyen)
 *	checkbox_switch()       A checkboxot ki-be pipálja
@@ -94,6 +95,20 @@
 *   textarea_limit()        Textarea maximális karaterszmának limitálása
 */
 
+/* PHP-ban is használt a_az függvény */
+function a_az( fajlnev ){
+    var a_az = 'a';
+    var kezdobetu = fajlnev.substr(0,1);
+    if(
+            kezdobetu=='a' || kezdobetu=='e' || kezdobetu=='i' || kezdobetu=='o' || kezdobetu=='u' ||
+            kezdobetu=='A' || kezdobetu=='E' || kezdobetu=='I' || kezdobetu=='O' || kezdobetu=='U' ||
+            kezdobetu=='á' || kezdobetu=='é' || kezdobetu=='í' || kezdobetu=='ó' || kezdobetu=='ú' || kezdobetu=='ü' || kezdobetu=='ű' || kezdobetu=='ö' || kezdobetu=='ő' ||
+            kezdobetu=='Á' || kezdobetu=='É' || kezdobetu=='Í' || kezdobetu=='Ó' || kezdobetu=='Ú' || kezdobetu=='Ü' || kezdobetu=='Ű' || kezdobetu=='Ö' || kezdobetu=='Ő'
+            ){
+        a_az = 'az';
+    }
+    return a_az;
+}
 
 /**
  * @desc Adószám megadásakor formázza a megadott számot xxxxxxxx-x-xx alakúra
@@ -1095,6 +1110,7 @@ function textarea_limit(textid, limit, infodiv){
 	}
 }
 
+/* Pl. egy php fál elrési útvonalakor csak az utolsó rész érdekel */
 function baseName(str) {
 
     var base = new String(str);
@@ -1108,5 +1124,11 @@ function baseName(str) {
         base = base.substring(0, base.indexOf("."));
     }
 
+    return base;
+}
+
+/* Fájl tallózásakor a fájlnak csak a neve kell. */
+function baseNameFajlhoz(str){
+    var base = new String(str).substring(str.lastIndexOf('\\') + 1); 
     return base;
 }

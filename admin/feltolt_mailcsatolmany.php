@@ -25,13 +25,19 @@ if( isset($_POST['megnevezes']) ){
         exit;
     }
     
-    $konyvtar_db_nev = $_POST['tabla'];
+    // Elérési útvonal kiszámítása, könyvtárak létrehozása
+    $konyvtar_db_nev = $_POST['konyvtar'];
     $utvonal = '../'.get_utvonal().$konyvtar_db_nev;
     $ikt_szam = $adatbazis_kapcsolat->s2('recid ikt_szam', 'munkalap', "`recid` = '".$_POST['sorid']."'", '', '1');
     if( $ikt_szam ) {
         $utvonal = $utvonal.'/'.str_replace('/', '_', $ikt_szam['ikt_szam']).'/email';
-        if( !is_dir($utvonal) ) {
-            mkdir($utvonal, 0777);
+        $konyvtarak = explode('/', $utvonal);
+        $konyvtarak_ut = '';
+        foreach($konyvtarak as $konyvtar){
+            $konyvtarak_ut .= $konyvtar.'/';
+            if( !is_dir($konyvtarak_ut) ) {
+                mkdir($konyvtarak_ut, 0777);
+            }
         }
     }
 
@@ -74,7 +80,6 @@ if( isset($_POST['megnevezes']) ){
             // Végleges képnév a teljes elérési útvonallal, kiterjesztéssel (hozzáadjuk az eredeti fájl kiterjesztését)
             $kit   = kit($_FILES[ $_POST['megnevezes'] ]['name']);
             $kepnev = $utvonal.'/'.$fajlnev.'.'.$kit;
-
             if( is_file($kepnev) && $_POST['ellenorzes_kihagy'] == 'false' ) {
                 echo 'Hiba!A fájl létezik!';
             } else {

@@ -3556,3 +3556,13 @@ div.levelezo_grid {
     margin-right: 1.7rem;
 }
 
+b.fajl_torol{
+    color: #E72727;
+    cursor: pointer;
+    transition: all ease-in-out 0.2s;
+}
+
+b.fajl_torol:hover{
+    color: #f00;
+    transition: all ease-in-out 0.2s;
+}

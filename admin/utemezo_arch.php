@@ -596,7 +596,7 @@ function munkalapok_archival($idk, $tranzakcio_nelkul) {
         }
 
         // Email-ek
-        $emailek = $adatbazis_kapcsolat->s('*', 'munkalap_email', "`munkalap_id`='{$recid}'");
+        $emailek = $adatbazis_kapcsolat->s('*', 'munkalap_email', "`munkalap_recid`='{$recid}'");
         if( $emailek === false ) { $db_error = true; }
         foreach($emailek as $email){
             $mezok   = array();
@@ -611,6 +611,30 @@ function munkalapok_archival($idk, $tranzakcio_nelkul) {
             array_push($ertekek, $szallito_txt  );
             
             $sql = $adatbazis_kapcsolat->i('munkalap_email_arch', $mezok, $ertekek);
+            if( $sql === false ) {
+                $db_error = true;
+                $log_tmp = 'NEM FUTOTT LE: '.$adatbazis_kapcsolat->gp() . '
+';
+            }else{
+                $log_tmp = $adatbazis_kapcsolat->gp() . '
+';
+            }
+            $log .= $log_tmp;
+            file_put_contents($log_utvonal, $log_tmp, FILE_APPEND | LOCK_EX);
+        }
+
+        // Email-ek csatolmányai
+        $emailek = $adatbazis_kapcsolat->s('*', 'munkalap_email_dok', "`munkalap_recid`='{$recid}'");
+        if( $emailek === false ) { $db_error = true; }
+        foreach($emailek as $email){
+            $mezok   = array();
+            $ertekek = array();
+            foreach($email as $kulcs => $ertek){
+                array_push($mezok, $kulcs);
+                array_push($ertekek, $email[$kulcs]);
+            }
+            
+            $sql = $adatbazis_kapcsolat->i('munkalap_email_dok_arch', $mezok, $ertekek);
             if( $sql === false ) {
                 $db_error = true;
                 $log_tmp = 'NEM FUTOTT LE: '.$adatbazis_kapcsolat->gp() . '
@@ -756,7 +780,20 @@ function munkalapok_archival($idk, $tranzakcio_nelkul) {
         file_put_contents($log_utvonal, $log_tmp, FILE_APPEND | LOCK_EX);
         
         // Email rekodok törlése
-        $sql = $adatbazis_kapcsolat->d('munkalap_email', "`munkalap_id`='{$recid}'");
+        $sql = $adatbazis_kapcsolat->d('munkalap_email', "`munkalap_recid`='{$recid}'");
+        if( $sql === false ) {
+            $db_error = true;
+            $log_tmp = 'NEM FUTOTT LE: '.$adatbazis_kapcsolat->gp() . '
+';
+        }else{
+            $log_tmp = $adatbazis_kapcsolat->gp() . '
+';
+        }
+        $log .= $log_tmp;
+        file_put_contents($log_utvonal, $log_tmp, FILE_APPEND | LOCK_EX);
+        
+        // Email csatolmány rekodok törlése
+        $sql = $adatbazis_kapcsolat->d('munkalap_email_dok', "`munkalap_recid`='{$recid}'");
         if( $sql === false ) {
             $db_error = true;
             $log_tmp = 'NEM FUTOTT LE: '.$adatbazis_kapcsolat->gp() . '
