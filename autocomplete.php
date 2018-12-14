@@ -115,6 +115,14 @@ if(isset($_GET['value']) && isset($_GET['tabla']) && isset($_GET['oszlop_keres']
                 $where_sql .= " WHERE `beosztas_id` = '".$_GET['beosztas_id']."'";
             }
         }
+        // Illetve aktívakra is
+        if( $_GET['tabla'] == 'login' && $_GET['aktiv'] ) {
+            if( $where_sql ) {
+                $where_sql .= " AND `aktiv` = '1'";
+            } else {
+                $where_sql .= " WHERE `aktiv` = '1'";
+            }
+        }
 
         // Szállítók esetén csak az aktívakat soroljuk fel
         if( $_GET['tabla'] == 'szallito' ) {

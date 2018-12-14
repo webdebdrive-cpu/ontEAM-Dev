@@ -1202,6 +1202,12 @@ if( basename(self())=='projektigenyles.php' && !_jog(JOG_PRIGENY_S_KEZEL) && !_j
     $uj = $duplikal = '';
 }
 
+// Projektigénylések: ha egyik joga sincs meg, akkor nincs szerkesztés lehetőség
+if( basename(self())=='projektszerzodes.php' && !_jog(JOG_PRKEZEL_SZERZODES_KEZEL) ){
+    $torles_icon    = '';
+    $uj = $duplikal = '';
+}
+
 // Raktár
 if( basename(self())=='raktar.php' && !_jog(JOG_RAKTAR_KEZEL)){
     $torles_icon    = '';

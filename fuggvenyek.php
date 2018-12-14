@@ -1010,6 +1010,22 @@ function i_u($type, $tabla, $tomb) {
                 exit();
             }
             
+            // Ellenőrizzük továbbá, hogy a szálloda és a Projekt szám azonos szállodához tartozik-e
+            $projekt = $adatbazis_kapcsolat->s2('telephely_id', 'projektkezeles', "`ikt_szam`='{$_POST['pr_szam']}'");
+            if( $projekt === false ) { $db_error = true; }
+            if( $projekt['telephely_id']!=$_POST['telephely_id'] ){
+                echo json_encode(array(
+                    'hiba'  => 'A projekt szám nem megfelelő szállodához tartozik!',
+                    'gomb'  => '<input type="button" class="gomb" value="Ok" onclick="alert2(); szurkit_zar(\'mehet_megsem_mutat\');">',
+                    'title' => 'Hiba',
+                ));
+                $weblap -> leallit();
+                exit();
+            }
+            
+            // Illetve a létesítmény felelőst külön fel kell még venni, mert a tiltott mező miatt ez magától nem íródna be
+            array_push($oszlopok, 'let_fel');
+            array_push($ertekek, $_POST['let_fel']);
         }
 
         // Szeméyzet aktív/inaktív váltása a hozzá tartozó login-t is aktív/inaktiválja
@@ -1166,6 +1182,7 @@ function js_kiir($tomb, $fg = 'form_ell_regi()', $ajax = false) {
                         if(volt_helytelen){
                             return false;
                         }
+
             ');
 
 
@@ -1731,6 +1748,7 @@ function js_kiir($tomb, $fg = 'form_ell_regi()', $ajax = false) {
     if( $ajax ) {
         $ret .= nl2('
                 ;
+
                 '.$ajax_kod.';
                 return false;
             }

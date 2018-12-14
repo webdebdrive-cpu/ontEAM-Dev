@@ -1,7 +1,15 @@
 <h2>Tételek kezelése</h2>
 
 <div class="kozep">
-    <strong>Szerződés összege: <span id="pop_szerz_ossz"></span></strong>
+    <div class="grid2o" style="width: 28rem">
+        <div class="b">Szerződés összege:</div>
+        <div class="b r"><span id="pop_szerz_ossz"></span></div>
+        <div class="b">Tételek összege:</div>
+        <div class="b r"><span id="pop_tetelek_ossz"></span></div>
+        <div class="b">Különbség:</div>
+        <div class="b r"><span id="pop_kulonbseg"></span></div>
+    </div>
+    
     <br>Tárgy:
     <br><input type="text" id="pop_targy" class="oriasi csillag">
     <br>Számla várh. érk.
@@ -40,7 +48,14 @@
 <script>
 $(document).ready(function () {
     
-    $('#pop_szerz_ossz').html( $('#szerz_ossz').val()+' Ft' );
+    /* Szerződéses összeg meghatározása az alapján */
+    if( _get('uj') ){
+        osszeg       = $('#szerz_ossz').val();
+    }else{
+        osszeg       = $('#szerz_ossz_mindig_latszik').val();
+    }
+    
+    $('#pop_szerz_ossz').html( osszeg+' Ft' );
     $('#pop_targy').focus();
     
     pop_tetelek_feltolt();
@@ -61,7 +76,7 @@ function tetel_hozzaadasa() {
     var targy           = $('#pop_targy').val().trim();
     var szla_varh_erk   = $('#pop_szla_varh_erk').val().trim();
     var szla_varh_ert   = $('#pop_szla_varh_ert').val().trim();
-    
+
     /* Üres adatok ellenőrzése */
     if(!targy){
         alert2('Kérjük töltse ki a tárgyat!', '', 'Hiba');
@@ -73,6 +88,12 @@ function tetel_hozzaadasa() {
         $('#pop_szla_varh_erk').addClass('hibas_ide_focus');
         return false;
     }
+
+    /* Valós dátum-e? */
+    if( !valid_date($('#pop_szla_varh_erk'), 'true-val térj vissza') ){
+        return false;
+    }
+    
     if( !szla_varh_ert || szla_varh_ert=='0' ){
         alert2('Kérjük töltse ki a várható értéket!', '', 'Hiba');
         $('#pop_szla_varh_ert').addClass('hibas_ide_focus');
@@ -80,7 +101,7 @@ function tetel_hozzaadasa() {
     }
     
     var id_tmp = new Date().getTime();
-    
+
     var table_sor = '<tr class="pop_tetel_'+id_tmp+'">' +
                         '<td class="pop_targy">' + targy + '</td>' +
                         '<td class="pop_varh_erk">' + szla_varh_erk + '</td>' +
@@ -96,6 +117,8 @@ function tetel_hozzaadasa() {
     $('#pop_targy').val('');
     $('#pop_szla_varh_erk').val('\xa0\xa0\xa0\xa0.\xa0\xa0.\xa0\xa0');
     $('#pop_szla_varh_ert').val('');
+    
+    tetelek_kiszamol();
 }
 
 /* Tétel sor törlése */
@@ -109,6 +132,7 @@ function popup_tetel_sor_torol(sor_id, mehet){
     
     $('.'+sor_id).remove();
     
+    tetelek_kiszamol();
 }
 
 /* Tétel sor táblázat menzése */
@@ -175,7 +199,7 @@ function pop_tetelek_feltolt(){
         url : 'projektszerzodes.php',
         type: 'POST',
         data: {
-            pop_tetelek_feltolt: Date.now()
+            pop_tetelek_feltolt : Date.now()
         },
         success: function(response){
             if(response.substring(0, 6)=='SESKIL'){ location.href = 'index.php'; }
@@ -184,12 +208,34 @@ function pop_tetelek_feltolt(){
                 if(response.html){
                     $('#pop_tetelek tbody').append(response.html);
                     $('#pop_tetelek').removeClass('dn');
+                    tetelek_kiszamol();
                 }
             }
         }
     });
 }
 
+/*  Tételek kiszámítása, lássuk holjárunk a szerződéses összeghez képest */
+function tetelek_kiszamol() {
+    
+    if( !$('#szerz_ossz_mindig_latszik').length ){
+        szerzodes_osszeg = $('#szerz_ossz').val().replace(/ /g, '');
+    }else{
+        szerzodes_osszeg = $('#szerz_ossz_mindig_latszik').val().replace(/ /g, '');
+    }
+    
+    tetelek_ossz = 0;
+    $('.pop_varh_ert').each(function() {
+        tetelek_ossz += Number( $(this).html().replace(/ /g, '') );
+    });
+    $('#pop_tetelek_ossz').html( ezresek2(tetelek_ossz)+' Ft' );
+    kulonbseg = szerzodes_osszeg - tetelek_ossz;
+    $('#pop_kulonbseg').html( ezresek2( kulonbseg )+' Ft' );
+    $('#pop_kulonbseg').removeClass('piros');
+    if( kulonbseg!=0 ){
+        $('#pop_kulonbseg').addClass('piros');
+    }
+}
 
 
 </script>

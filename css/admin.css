@@ -3505,7 +3505,7 @@ input.popup_input_margo {
 }
 
 #popup div.popup_tart div.dt div.dtc textarea.level_szoveg {
-    height: 21rem;
+    height: 27rem;
     width: 47rem;
 }
 
@@ -3565,4 +3565,11 @@ b.fajl_torol{
 b.fajl_torol:hover{
     color: #f00;
     transition: all ease-in-out 0.2s;
+}
+/* Két hasábos oszlop */
+div.grid2o{
+    display: grid;
+    grid-template-columns: auto auto;
+    grid-column-gap: 2rem;
+    width: auto;
 }

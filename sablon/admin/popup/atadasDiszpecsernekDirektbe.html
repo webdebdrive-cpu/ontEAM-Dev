@@ -46,6 +46,7 @@
                                  'oszlop_listaz'    : 'teljes_nev',
                                  'rkat'             : 0,
                                  'csoport'          : 0,
+                                 'aktiv'            : 1,
                                  'id_kiir'          : 'usermail',
                              });
                         });
@@ -199,6 +200,7 @@ function cimzett_add( mezo ){
     
     if(!$('#pop_cimzett_loginbol').val()){
         alert2($('#pop_cimzett_loginbol_autocomp').val()+' felhasználónak nem ismert a mailcíme!', '', 'Hiba');
+        $('#pop_cimzett_loginbol_autocomp').addClass('hibas_ide_focus');
         return false;
     }
     
@@ -220,7 +222,7 @@ function cimzett_add( mezo ){
     }
     
     $('#pop_cimzett_loginbol').val('');
-    $('#pop_cimzett_loginbol_autocomp').val('');
+    $('#pop_cimzett_loginbol_autocomp').val('').focus();
     
 }
 

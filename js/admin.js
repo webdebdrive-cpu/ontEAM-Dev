@@ -416,6 +416,7 @@ $(function() {
                 'munkalap_arch',
                 'projektkezeles',
                 'projektigenyles',
+                'projektszerzodes',
                 'raktar',
                 'rendszer',
                 'rendszeres_karbantartas',
@@ -6632,7 +6633,7 @@ function munkalapKeszit(csak_kerdezunk, kerdesek_nelkul) {
 }
 
 /* Egy átadott elem értéke valid dátumú-e? */
-function valid_date(that){
+function valid_date(that, true_val_terj_vissza){
     /* Üres dátummezőt töltsük fel */
     if(!that.val()){
         if(that.hasClass('datepicker')){
@@ -6659,6 +6660,10 @@ function valid_date(that){
             }
             that.addClass('hibas_ide_focus');
             return false;
+    }else{
+        if(true_val_terj_vissza){
+            return true;
+        }
     }
 }
 /* Egy átadott elem értéke valid időpont-e? */

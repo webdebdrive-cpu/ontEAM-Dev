@@ -36,6 +36,7 @@
                 recid           : '',                   /* Az aktuális űrlap reid-ja. Néha szükség van rá                   */
                 rkat            : 0,                    /* Rendszer kategóriára szűrünk                                     */
                 szel            : 'auto',               /* Lista szélessége                                                 */
+                aktiv           : '',                   /* login táblánál tudjunk szűrni aktívakra is                      */
                 beosztas_id     : '',                   /* login táblánál tudjunk szűrni beosztásra is                      */
                 szemelyzet_id   : '',                   /* Munkaidő ráfodítás név hozzáadásánál kell                        */
                 szuros          : '',                   /* Ha a szűrőben hívtuk meg, akkor azt ezen keresztül tudjuk jelezni*/
@@ -174,6 +175,7 @@
                                         props           : options.props,
                                         recid           : options.recid,
                                         rkat            : options.rkat,
+                                        aktiv           : options.aktiv,
                                         beosztas_id     : options.beosztas_id,
                                         szemelyzet_id   : options.szemelyzet_id,
                                         tabla           : options.tabla,

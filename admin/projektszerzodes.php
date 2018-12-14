@@ -55,7 +55,6 @@ if(isset($_POST['get_projekt_tabla'])){
         default     : $order = '`'.get_db_tabla().'telephely`.`nev`,        `'.get_db_tabla().'projektkezeles`.`bkolt`';                                  break;
     }
 
-    $szallodak = get_akt_login_szallodai();
     $prek = $adatbazis_kapcsolat->s('
                                         `'.get_db_tabla().'projektkezeles`.`recid`,
                                         `'.get_db_tabla().'projektkezeles`.`ikt_szam`,
@@ -63,11 +62,12 @@ if(isset($_POST['get_projekt_tabla'])){
                                         `'.get_db_tabla().'projektkezeles`.`tipus`,
                                         `'.get_db_tabla().'projektkezeles`.`stat_id`,
                                         `'.get_db_tabla().'projektkezeles`.`bkolt`,
+                                        `'.get_db_tabla().'projektkezeles`.`pfelelos`,
                                         `'.get_db_tabla().'projektkezeles`.`telephely_id`,
                                         `'.get_db_tabla().'projektkezeles`.`insert_dt`
                                             ',
                                         'projektkezeles',
-                                        "`telephely_id` IN (".implode(',', $szallodak).")", $order, '', '', '', $join);
+                                        "`telephely_id`='{$_POST['telephely_id']}'", $order, '', '', '', $join);
 //echo $adatbazis_kapcsolat->gp() . '<br>';
     $i = 1;
     foreach($prek as $pr){
@@ -86,9 +86,10 @@ if(isset($_POST['get_projekt_tabla'])){
             $tipus = '-';
         }
 
+        $pfelelos_neve = getErtek('teljes_nev', 'login', 'recid', $pr['pfelelos']);
         $html .= '
-            <tr class="kijSor'.$kiemelt.'" data-i="'.$i.'" data-recid="'.$pr['recid'].'" data-ikt_szam="'.$pr['ikt_szam'].'">
-                <td>'.$szalloda['nev'].'</td>
+            <tr class="kijSor'.$kiemelt.'" data-i="'.$i.'" data-recid="'.$pr['recid'].'" data-ikt_szam="'.$pr['ikt_szam'].'" data-felelos="'.$pr['pfelelos'].'">
+                <td>'.$szalloda['nev'].'<div class="dn pfelelos_txt">'.$pfelelos_neve.'</div></td>
                 <td style="width: 30rem">'.$pr['nev'].'</td>
                 <td>'.$tipus.'</td>
                 <td class="r nowrap">'.number_format($pr['bkolt'], 0, '', ' ').'</td>
@@ -238,7 +239,6 @@ if (isset($_POST['pop_tetelek_feltolt'])) {
     
     $html = '';
     
-    
     $i = 0;
     foreach($_SESSION['pr_szer_tetel_targy'] as $targy){
         
@@ -271,6 +271,18 @@ if (isset($_POST['van_tetel'])) {
     
     $szerzodes_osszege = str_replace(' ', '', $_POST['szerzodes_osszege']);
     
+    // Ellenőrizzük, hogy a kiválasztott szálloda és a projket szám stimmel-e
+    $projekt = $adatbazis_kapcsolat->s2('telephely_id', 'projektkezeles', "`ikt_szam`='{$_POST['pr_szam']}'");
+    if( $projekt['telephely_id']!=$_POST['telephely_id'] ){
+        echo json_encode(array(
+            'hiba'  => 'A projekt szám nem megfelelő szállodához tartozik!',
+            'gomb'  => '<input type="button" class="gomb" value="Ok" onclick="alert2(); szurkit_zar(\'mehet_megsem_mutat\'); $(\'#telephely_id\').focus();">',
+            'title' => 'Hiba',
+        ));
+        $weblap -> leallit();
+        exit();
+    }
+    
     // Ha nincs feltöltött tétel:
     if( !$_SESSION['pr_szer_tetel_targy'] ){
         
@@ -281,7 +293,7 @@ if (isset($_POST['van_tetel'])) {
         $weblap->leallit();
         exit();
         
-    // Ha van tétel, akkor még az összegek egyezésté is ellenőrizni kell
+    // Ha van tétel, akkor még az összegek egyezését is ellenőrizni kell
     }else{
         
         // Ha a szerződés összege nem egyezik a feltöltött tételek összegével
@@ -626,7 +638,13 @@ require_once('selectek.php');
         
         // Tételek kezelése
         if( _jog(JOG_PRKEZEL_SZERZODES_KEZEL) ){
-            $gombok .= ' <input type="button" class="gomb" onclick="if( !$(\'#szerz_ossz\').val() || $(\'#szerz_ossz\').val()==\'0\' ){ alert2(\'Tételek kezelése előtt adja meg a szerződött összeget!\', \'\', \'Hiba\'); }else{ csoportMuvelet(\'projektszerzodes_tetelek_kezelese\'); }" value="Tételek kezelése">';
+            
+            // Ha nincs szerződéses összeg, akkor hibaüzenet (bár ilyen elő sem fordulhat elvileg, mert már új feltöltéskor sem mentehtte volna így el)
+            $onclick = 'csoportMuvelet(\'projektszerzodes_tetelek_kezelese\');';
+            if(!$sor['szerz_ossz']){
+                $onclick = 'alert2(\'Tételek kezelése előtt adja meg a szerződött összeget!\', \'\', \'Hiba\');';
+            }
+            $gombok .= ' <input type="button" class="gomb" onclick="'.$onclick.'" value="Tételek kezelése">';
             // Ha nem az Adatlapon volnánk, akkor szükségünk lesz egy rejtett inputra, ami az adatbázisban levő szerződéses összeget tartalmazza, hogy bármelyik fül alatt szerkeszteni lehessen a tételeket, összehasonlítva az aktuális szerződéses összeggel
             $gombok .= ' <input type="hidden" id="szerz_ossz_db" value="'.$sor['szerz_ossz'].'">';
         }
@@ -640,6 +658,10 @@ require_once('selectek.php');
                 </div>
             '.$gombok);
         }
+        
+        // Tételek kezelésekor a popupban ezt az összeget meg lehessen jeleníteni akkor is, ha nem az adatlapon vagyunk
+        $gombok .= '<input type="hidden" id="szerz_ossz_mindig_latszik" value="'.number_format($sor['szerz_ossz'], 0, '', ' ').'">';
+        $gombok .= '<input type="hidden" id="telephely_id_mindig_latszik" value="'.$sor['telephely_id'].'">';
 
         $muv_style = ' style="width: calc(100% - '.($_SESSION['defaultCsuszka'] + 16).'px);"';
         if( in_array(basename(self()), $_SESSION['ketHasabos']) && $_SESSION[get_db_tabla().'user'] ) {
@@ -660,7 +682,7 @@ require_once('selectek.php');
     $js_submit_elott = 'return form_ell_admin();';
     
 	// Új projektkezelés felvitele
-	if( isset($_GET['uj']) ){
+	if( isset($_GET['uj']) && _jog(JOG_PRKEZEL_SZERZODES_KEZEL) ){
         
         $js_submit_elott = nl2('
             
@@ -671,6 +693,8 @@ require_once('selectek.php');
                     url : \'projektszerzodes.php\',
                     type: \'POST\',
                     data: {
+                        telephely_id     : $(\'#telephely_id\').val(),
+                        pr_szam          : $(\'#pr_szam\').val(),
                         szerzodes_osszege: $(\'#szerz_ossz\').val(),
                         van_tetel        : Date.now()
                     },
@@ -693,8 +717,8 @@ require_once('selectek.php');
                     }
                 });
                 
+                urlap_mehet = false;
                 $.when(dfrd_pr_szerzodes).then(function() {
-                    urlap_mehet = false;
                     if( !dfrd_pr_mehet ){
                         alert2(hibauzenet, \'<input type="button" class="gomb" value="Ok" onclick="szurkit_zar(\\\'mehet_megsem_mutat\\\'); alert2();">\', \'Hiba\');
                         return false;

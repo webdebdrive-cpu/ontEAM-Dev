@@ -10,17 +10,29 @@
 </form>
 <script>
 $(document).ready(function(){
-    get_projekt_tabla();
+    if( _get('uj') && !$('#telephely_id').val() ){
+        setTimeout(function(){ popupZar(); }, 10);
+        alert2('Kérem, előbb válasszon szállodát!', '', 'Hiba');
+        return false;
+    }
+    if( _get('uj') ){
+        telephely_id = $('#telephely_id').val();
+    }else{
+        telephely_id = $('#telephely_id_mindig_latszik').val();
+    }
+    
+    get_projekt_tabla('', telephely_id);
 });
 
 /* Projektek betöltése */
-function get_projekt_tabla(order){
+function get_projekt_tabla(order, telephely_id){
 
     $.ajax({
         url : 'projektszerzodes.php',
         type: 'POST',
         data: {
-            order                           : order,
+            telephely_id      : telephely_id,
+            order             : order,
             get_projekt_tabla : new Date().getTime()
         },
         success: function(response){
@@ -43,9 +55,15 @@ function get_projekt_tabla(order){
 
 /* Projekt kiválasztása */
 function projekt_kivalaszt(){
+    /* Projektszám kitöltése */
     $('#pr_szam').val( $('#pr_szerzodes_tablazat tr.kijelolve').data('ikt_szam') );
     $('#pr_szam_gomb').val('Projekt törlése').addClass('piros');
     $('#pr_szam').addClass('mod');
+    
+    /* Létesítmény felelős kitöltése */
+    $('#let_fel_autocomp').val( $('#pr_szerzodes_tablazat tr.kijelolve div.pfelelos_txt').html() );
+    $('#let_fel').val( $('#pr_szerzodes_tablazat tr.kijelolve').data('felelos') );
+    
     formModositva = true;
     $('#mehet_gomb, #megsem_gomb').removeAttr ('disabled');
     $('#mehet_gomb').addClass('gombb_alert');
