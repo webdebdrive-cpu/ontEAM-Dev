@@ -77,6 +77,7 @@ if( isset($_POST['megnevezes']) ){
         break;
 
         case 0:
+
             // Végleges képnév a teljes elérési útvonallal, kiterjesztéssel (hozzáadjuk az eredeti fájl kiterjesztését)
             $kit   = kit($_FILES[ $_POST['megnevezes'] ]['name']);
             $kepnev = $utvonal.'/'.$fajlnev.'.'.$kit;
@@ -89,7 +90,7 @@ if( isset($_POST['megnevezes']) ){
 
                 // Fájlfeltöltés
                 if( move_uploaded_file($_FILES[ $_POST['megnevezes'] ]['tmp_name'], $kepnev) ){
-                    
+                    echo basename($kepnev);
                 }
             }
         break;

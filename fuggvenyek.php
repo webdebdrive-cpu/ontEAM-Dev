@@ -1024,8 +1024,8 @@ function i_u($type, $tabla, $tomb) {
             }
             
             // Illetve a létesítmény felelőst külön fel kell még venni, mert a tiltott mező miatt ez magától nem íródna be
-            array_push($oszlopok, 'let_fel');
-            array_push($ertekek, $_POST['let_fel']);
+            array_push($oszlopok, 'let_fel',        'pr_szam'           );
+            array_push($ertekek, $_POST['let_fel'], $_POST['pr_szam']   );
         }
 
         // Szeméyzet aktív/inaktív váltása a hozzá tartozó login-t is aktív/inaktiválja
@@ -1040,7 +1040,7 @@ function i_u($type, $tabla, $tomb) {
 
 		$id = $adatbazis_kapcsolat -> update($tabla, $oszlopok, $ertekek, "`recid`='{$_GET['id']}'");
         if( $id === false ) { $db_error = true; }
-// echo $adatbazis_kapcsolat->gp() . '<br>';
+ // echo $adatbazis_kapcsolat->gp() . '<br>';
 // mysqli_commit($db_kapcs);
 // exit;
 
@@ -2354,7 +2354,7 @@ function szamla_lista( $where, $tabla, $kijeloltek = false, $csak_sql_miatt = fa
             $where .= get_szures_where_kieg($_GET['mezo'], $_GET['op'], $_GET['felt'], $tabla).' AND ';
 
         }
-        // Ha van öszetettt szűrés feltétel
+        // Ha van öszetett szűrés feltétel
         if($_SESSION['o_szuro_feltetel']){
             // Az eddigi Where-t egy nagy zárójelbe tesszük és ehhez vesszük hozzá az új feltételeket
             if($where){
@@ -4600,7 +4600,7 @@ function projektkezelesLista( $bejegyzesek, $tabla, $frissit, $kijeloltek ) {
                                 <td style="width: 20rem">'.$statusz.'</td>
                             </tr>
                             <tr>
-                                <td colspan="2">'.resz_string($bsz['text'], 60).'</td>
+                                <td colspan="2">'.resz_string($bsz['nev'], 60).'</td>
                             </tr>
                             </table>
                         </a>';
@@ -6442,6 +6442,7 @@ function get_szures_where_kieg($mezo, $op, $felt, $tabla){
         if( $tabla=='anyagigenyles' && $mezo=='nev' ){
             $mezo = get_db_tabla().'anyagigenyles`.`'.$mezo;
         }
+        
         return '`'.get_db_tabla().$tabla.'`.`'.$mezo.'`'.$op.'\''.$felt.'\'';
     }
 
@@ -8808,7 +8809,7 @@ function get_projekt_kezeles_jog( $recid ){
     
 }
 
-// levélküldés után a csatolmányokat egy almappába tesszük
+// Levélküldés után a csatolmányokat egy almappába tesszük
 function csatolmanyok_eltesz($fajlok, $utvonal, $email_recid, $ml_recid){
     
     global $adatbazis_kapcsolat;
@@ -8821,17 +8822,17 @@ function csatolmanyok_eltesz($fajlok, $utvonal, $email_recid, $ml_recid){
     }
 
     foreach($fajlok as $fajl){
-
-        $fajlnev = basename($fajl);
-        copy($fajl, $utvonal.'/'.$email_recid.'/'. $fajlnev);
-        unlink($fajl);
-        $sql = $adatbazis_kapcsolat->i('munkalap_email_dok',    array('munkalap_recid', 'email_recid', 'fajlnev', 'loginnev',                       'update_dt',  'update_usr',                           'insert_dt', 'insert_usr'                              ),
-                                                                array($ml_recid,        $email_recid,  $fajlnev,  $_SESSION[get_db_tabla().'user'], 'NOW()',      $_SESSION[get_db_tabla().'teljes_nev'], 'NOW()',      $_SESSION[get_db_tabla().'teljes_nev']   )
-                                        );
-        if( $sql === false ) { $db_error = true; }
-        echo $db_error;
+        if(is_file($fajl)){
+            $fajlnev = basename($fajl);
+            copy($fajl, $utvonal.'/'.$email_recid.'/'. $fajlnev);
+            unlink($fajl);
+            $sql = $adatbazis_kapcsolat->i('munkalap_email_dok',    array('munkalap_recid', 'email_recid', 'fajlnev', 'loginnev',                       'update_dt',  'update_usr',                           'insert_dt', 'insert_usr'                              ),
+                                                                    array($ml_recid,        $email_recid,  $fajlnev,  $_SESSION[get_db_tabla().'user'], 'NOW()',      $_SESSION[get_db_tabla().'teljes_nev'], 'NOW()',      $_SESSION[get_db_tabla().'teljes_nev']   )
+                                            );
+            if( $sql === false ) { $db_error = true; }
+        }
     }
-    
+
     if($db_error){
         return false;
     }else{

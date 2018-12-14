@@ -232,8 +232,7 @@ function beolvasas_mailcsatolmany_popup(fajlok, ellenorzes_kihagy) {
                         alert2(this.responseText.substring(5), '', 'Hiba');
                     }
                 }else{
-                    $('#feltoltott_fajl').append(this.responseText);
-                    $('#jsff_mailcsatolmany_popup progress').hide();
+                    $('#pop_csatolt_fajlok').append( '<div><b class="fajl_torol f_csatolmany_torol">🗙</b> <span>'+ this.responseText +'</span></div>' );
                     if (fajlok_kesz == fajlok.length){
                         minden_fajl_kesz_mailcsatolmany_popup();
                     }
@@ -287,7 +286,6 @@ function fajl_feluliras_mailcsatolmany_popup() {
 /* Ha minden fájl feltöltése kész, akkor itt adhat meg további utasítás */
 function minden_fajl_kesz_mailcsatolmany_popup(){
     alert2('');
-    $('#pop_csatolt_fajlok').append( '<div><b class="fajl_torol f_csatolmany_torol">🗙</b> <span>'+ baseNameFajlhoz($('#jsff_mailcsatolmany_input').val())+'</span></div>' );
     $('#jsff_mailcsatolmany_popup').find('progress').fadeOut(2000, function(){ $('#' + progress_id).next('br').remove(); });
 
 }

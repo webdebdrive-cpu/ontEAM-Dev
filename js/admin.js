@@ -301,7 +301,7 @@ $(function() {
         }
     });
 
-    /* Ha nincs kjelölve a bal navpanelben egy sor sem, akkor az első kijelöltjük */
+    /* Ha nincs kjelölve a bal navpanelben egy sor sem, akkor az első lesz a kijelöltünk */
     setTimeout(function() {
 
         /* Anyagigénylésnél nem a bal navpanelre kattintunk, hanem a táblázat első sorára */
@@ -312,13 +312,14 @@ $(function() {
 
         /* Kattintás a nav panel első elemére */
         } else {
+            
             if( !isMobile && !$('#szamlaList li.szamla_sor').hasClass('kijelolve') && !_get('uj') ) {
                 $('#szamlaList li.szamla_sor').eq(0).find('a').trigger('click');
             }
         }
 
 
-    }, 1);
+    }, 1000);
 
     $('#ajaxfedo').addClass('dn');
 
@@ -1350,11 +1351,16 @@ console.log('b'+active_top);
             alert2('Kérjük állítsa be a szűrési feltételt!', '', 'Hiba');
         }else{
             /* Autocompletenek az ID-ját tegyük az URL-be */
-            if($('.f_felt').attr('id')){
+            if( $('.f_felt').attr('id') ){
                 felt_id = $('.f_felt').attr('id').replace('_autocomp', '');
                 if($('#'+felt_id).length){
                     felt = $('#'+felt_id).val();
                 }
+            }
+            
+            /* Numerikus adatokból vegyük ki a szóközt */
+            if( $('.f_felt').hasClass('f_num') ){
+                felt = $('.f_felt').val().replace(/ /g, '');
             }
 
             kerdo_es = '&';
@@ -1407,6 +1413,11 @@ console.log('b'+active_top);
                 id = id.replace('autocomp_', '');
                 feltetel_ertek = $('#'+id).val();
             }
+        }
+
+        data_tort = $('#szures_f_num').attr('data-tort');
+        if ( data_tort || data_tort=='0' ) {
+            feltetel_ertek = feltetel_ertek.replace(/ /g, '');
         }
 
         /* Hibaellenőrzés, majd mehet */
@@ -1529,6 +1540,7 @@ console.log('b'+active_top);
         });
 
     });
+    
     /* Összetett szűrők törlése */
     $(document).on('click', '.f_o_szures_torol', function(e) {
         $.ajax({
@@ -4457,9 +4469,8 @@ function jobbOldalEltuntet( sorok ) {
 function mellekTorol( tabla, mellek, mellekre_valt, konkret_id ) {
     /* Ha van konkrét ID? akkor azt a sort töröljuk (pl. munkalapok adatlapján a bejelentések sorai) */
     if(konkret_id){
-        var idk       = {konkret_id};
+        var idk = {konkret_id};
     }else{
-
         var kijelolve = $('.kijCont .kijSor.kijelolve'),
             idk       = {};
 
@@ -4485,9 +4496,8 @@ function mellekTorol( tabla, mellek, mellekre_valt, konkret_id ) {
     
 
     /* Ha vannak olyan ideiglenes soraink (aminek az Id-ja UJ), azokat elég csak eltűnteni
-      Pl.: Projektigénylésnél a cash-flow */
-
-    $('.kijCont .kijSor.kijelolve[data-id="UJ"]').fadeOut('', function(){
+      Pl.: Projektigénylésnél a cash-flow fül */
+    $('.kijCont .kijSor.kijelolve[data-id="UJ"], .kijCont .kijSor.kijelolve[data-id="UJ-FELDOLGOZVA"]').fadeOut('', function(){
         $(this).remove();
         /* Cash-flow-ban ha változás van, akkor újra kell számolni. Azért kell ide is, mert ajaxig nem biztos, hogy eljutunk. */
         if(tabla=='cash_flow'){
@@ -5379,8 +5389,14 @@ function gombokRejt() {
         $('div.navGombok a.torles').addClass('disabled');
     }
 
+    /* Új feltöltéskor az Új ikont disabled... */
     if( _get('uj') ) {
-        $('div.navGombok a.uj').addClass('disabled');
+        /* Kivéve projekt szerkesztéskor */
+        if( baseName(location.href)=='projektkezeles' ){
+            $('div.navGombok a.uj').removeClass('disabled');
+        }else{
+            $('div.navGombok a.uj').addClass('disabled');
+        }
     } else {
         $('div.navGombok a.uj').removeClass('disabled');
     }

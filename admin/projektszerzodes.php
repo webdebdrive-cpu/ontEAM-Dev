@@ -87,10 +87,14 @@ if(isset($_POST['get_projekt_tabla'])){
         }
 
         $pfelelos_neve = getErtek('teljes_nev', 'login', 'recid', $pr['pfelelos']);
+        
         $html .= '
             <tr class="kijSor'.$kiemelt.'" data-i="'.$i.'" data-recid="'.$pr['recid'].'" data-ikt_szam="'.$pr['ikt_szam'].'" data-felelos="'.$pr['pfelelos'].'">
-                <td>'.$szalloda['nev'].'<div class="dn pfelelos_txt">'.$pfelelos_neve.'</div></td>
-                <td style="width: 30rem">'.$pr['nev'].'</td>
+                <td>
+                    '.$szalloda['nev'].'
+                    <div class="dn pfelelos_txt">'.$pfelelos_neve.'</div>
+                </td>
+                <td style="width: 30rem" class="nev">'.$pr['nev'].'</td>
                 <td>'.$tipus.'</td>
                 <td class="r nowrap">'.number_format($pr['bkolt'], 0, '', ' ').'</td>
                 <td>'.datum_kiir($pr['insert_dt']).'</td>
@@ -270,6 +274,53 @@ if (isset($_POST['pop_tetelek_feltolt'])) {
 if (isset($_POST['van_tetel'])) {
     
     $szerzodes_osszege = str_replace(' ', '', $_POST['szerzodes_osszege']);
+    
+    // Ellenőrizzük, hogy a dátum mezők rendben vannak-e? (Js alatt nem akar lefutni... elég összetett már a JS kód, mert űrlap elpostolása előtt még ajax-os ellenőrzés is lefut, ez kavar be). De itt - ahol az ajayod ellenőrzések vannak - könnyen elelnőrizni tudjuk
+    if( $_POST['kelte']<'9000.00.00' && !valos_datum_e($_POST['kelte']) ){
+        echo json_encode(array(
+            'hiba'  => 'Kérem egy valós dátumot adjon meg Keltének!',
+            'gomb'  => '<input type="button" class="gomb" value="Ok" onclick="alert2(); $(\'#kelte\').focus();">',
+            'title' => 'Hiba',
+        ));
+        $weblap -> leallit();
+        exit();
+    }
+    if( $_POST['kiv_kezd']<'9000.00.00' && !valos_datum_e($_POST['kiv_kezd']) ){
+        echo json_encode(array(
+            'hiba'  => 'Kérem egy valós dátumot adjon meg Kivitelezés kezdésnek!',
+            'gomb'  => '<input type="button" class="gomb" value="Ok" onclick="alert2(); $(\'#kiv_kezd\').focus();">',
+            'title' => 'Hiba',
+        ));
+        $weblap -> leallit();
+        exit();
+    }
+    if( $_POST['kiv_vege']<'9000.00.00' && !valos_datum_e($_POST['kiv_vege']) ){
+        echo json_encode(array(
+            'hiba'  => 'Kérem egy valós dátumot adjon meg Kivitelezés végének!',
+            'gomb'  => '<input type="button" class="gomb" value="Ok" onclick="alert2(); $(\'#kiv_vege\').focus();">',
+            'title' => 'Hiba',
+        ));
+        $weblap -> leallit();
+        exit();
+    }
+    if( $_POST['muszak_atv']<'9000.00.00' && !valos_datum_e($_POST['muszak_atv']) ){
+        echo json_encode(array(
+            'hiba'  => 'Kérem egy valós dátumot adjon meg Műszaki átvétel végének!',
+            'gomb'  => '<input type="button" class="gomb" value="Ok" onclick="alert2(); $(\'#muszak_atv\').focus();">',
+            'title' => 'Hiba',
+        ));
+        $weblap -> leallit();
+        exit();
+    }
+    if( $_POST['bank_gar_vege']<'9000.00.00' && !valos_datum_e($_POST['bank_gar_vege']) ){
+        echo json_encode(array(
+            'hiba'  => 'Kérem egy valós dátumot adjon meg Bank garancia végének!',
+            'gomb'  => '<input type="button" class="gomb" value="Ok" onclick="alert2(); $(\'#bank_gar_vege\').focus();">',
+            'title' => 'Hiba',
+        ));
+        $weblap -> leallit();
+        exit();
+    }
     
     // Ellenőrizzük, hogy a kiválasztott szálloda és a projket szám stimmel-e
     $projekt = $adatbazis_kapcsolat->s2('telephely_id', 'projektkezeles', "`ikt_szam`='{$_POST['pr_szam']}'");
@@ -693,6 +744,11 @@ require_once('selectek.php');
                     url : \'projektszerzodes.php\',
                     type: \'POST\',
                     data: {
+                        kelte            : $(\'#kelte\').val(),
+                        kiv_kezd         : $(\'#kiv_kezd\').val(),
+                        kiv_vege         : $(\'#kiv_vege\').val(),
+                        muszak_atv       : $(\'#muszak_atv\').val(),
+                        bank_gar_vege    : $(\'#bank_gar_vege\').val(),
                         telephely_id     : $(\'#telephely_id\').val(),
                         pr_szam          : $(\'#pr_szam\').val(),
                         szerzodes_osszege: $(\'#szerz_ossz\').val(),
@@ -710,6 +766,8 @@ require_once('selectek.php');
                             }else{
                                 dfrd_pr_mehet = false;
                                 hibauzenet    = response.hiba;
+                                gomb          = response.gomb;
+                                title         = response.title;
                             }
                             dfrd_pr_szerzodes.resolve();
                         }
@@ -720,7 +778,7 @@ require_once('selectek.php');
                 urlap_mehet = false;
                 $.when(dfrd_pr_szerzodes).then(function() {
                     if( !dfrd_pr_mehet ){
-                        alert2(hibauzenet, \'<input type="button" class="gomb" value="Ok" onclick="szurkit_zar(\\\'mehet_megsem_mutat\\\'); alert2();">\', \'Hiba\');
+                        alert2(hibauzenet, gomb, title);
                         return false;
                     }else{
                         urlap_mehet = true;

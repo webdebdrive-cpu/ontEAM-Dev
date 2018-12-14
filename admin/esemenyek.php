@@ -697,7 +697,7 @@ switch($tabla) {
                                     `'.get_db_tabla().$tabla_nophp.'`.`recid`,
                                     `'.get_db_tabla().$tabla_nophp.'`.`stat_id`,
                                     `'.get_db_tabla().$tabla_nophp.'`.`telephely_id`,
-                                    `'.get_db_tabla().$tabla_nophp.'`.`text`
+                                    `'.get_db_tabla().$tabla_nophp.'`.`nev`
                                     ');
 
         // Ezek az oszlopok generálódnak ki a rendezés selectbe, lehet szépíteni az oszlopneveket, amit a getOszlopNev() függvényben kell beállítani
@@ -2279,16 +2279,21 @@ if( _jog(JOG_PRKEZEL_SZERZODES_KEZEL) ){
     }
     $pr_szam_gomb = ' <input type="button" class="gomb alacsony" value="'.$gomb_felirat.'" class="'.$gomb_class.'" id="pr_szam_gomb" style="margin-left: 2rem;" onclick="pr_hozzaad_gomb_hozzaad_vagy_torol()">';
 }
-$szalloda_disabled = false;
+
+$projekt_neve       = '';
+$szalloda_disabled  = false;
 if (isset($_GET['modosit'])) {
     $szalloda_disabled = true;
+    $proj = $adatbazis_kapcsolat->s2('pr_szam', 'projektszerzodes', "`recid`='{$_GET['id']}'");
+    $proj = $adatbazis_kapcsolat->s2('nev', 'projektkezeles', "`ikt_szam`='{$proj['pr_szam']}'");
+    $projekt_neve = $proj['nev'];
 }
 $projektszerzodes_tomb = $akt_tomb = array(
     array('type' => 'select_felh_telephely','megn' => 'Szálloda:',              'name' => 'telephely_id',   'szuro' => 1,   'class' => 'disableNav',        'style' => 'width: 100%;', 'alert' => 'Kérem válasszon szállodát!', 'disabled' => $szalloda_disabled),
     array('type' => 'text',                 'megn' => 'Szerződés szám:',        'name' => 'sz_szam',        'szuro' => 1,   'class' => 'normal',            'style' => 'width: 12rem', 'disabled' => 1, 'osszevon' => 1, 'post' => '<span style="margin-left: 2rem"></span>'),
     array('type' => 'text',                 'megn' => 'Kelte:',                 'name' => 'kelte',          'szuro' => 1,   'class' => 'kicsi datepicker',  'alert' => 'Kérem adja meg a dátumot!'),
     array('type' => 'autocomplete',         'megn' => 'Szerződő partner:',      'name' => 'szallito_id',    'szuro' => 1,   'class' => 'oriasi disableNav', 'tabla' => 'szallito', 'oszlop_keres' => 'id', 'oszlop_keres_autocomp' => 'nev', 'listaz' => 'nev', 'id_kiir' => 'id', 'alert' => 'Kérem válasszon szerződő partnert!'),
-    array('type' => 'text',                 'megn' => 'Projekt szám:',          'name' => 'pr_szam',        'szuro' => 1,   'class' => 'normal', 'disabled' => 1, 'style' => 'width: 10rem', 'post' => $pr_szam_gomb, 'alert' => 'Kérem válasszon egy projekt számot!'),
+    array('type' => 'text',                 'megn' => 'Projekt szám:',          'name' => 'pr_szam',        'szuro' => 1,   'class' => 'normal', 'disabled' => 1, 'style' => 'width: 10rem', 'post' => ' <span id="projekt_neve">'.$projekt_neve.'</span>'.$pr_szam_gomb, 'alert' => 'Kérem válasszon egy projekt számot!'),
     array('type' => 'textarea',             'megn' => 'Tárgy:',                 'name' => 'targy',          'szuro' => 1,   'class' => 'oriasiTargy disableNav', 'alert' => 'Kérjük töltse ki a tárgy mezőt!'),
     array('type' => 'autocomplete',         'megn' => 'Költségviselő:',         'name' => 'kolt_vis',       'szuro' => 1,   'class' => 'oriasi disableNav', 'tabla' => 'erteklista', 'oszlop_keres' => 'id', 'oszlop_keres_autocomp' => 'info', 'listaz' => 'info', 'csoport' => ERTEKLISTA_KOLTSEGVISELO, 'id_kiir' => 'id',  'alert' => 'Kérem válasszon költségviselőt!'),
     array('type' => 'text',                 'megn' => 'Kivitelezés kezdete:',   'name' => 'kiv_kezd',       'szuro' => 1,   'class' => 'kicsi datepicker',  'alert' => 'Kérem adja meg a kivitelezés kezdetét!',    'osszevon' => 1, 'post' => '<span style="margin-left: 2rem"></span>'),
@@ -2537,7 +2542,9 @@ if (isset($_POST['get_csatolmanyok'])) {
     $mappa = $adatbazis_kapcsolat->s2('ikt_szam', $_POST['tabla'], "`recid`='{$_POST['recid']}'");
     $utvonal = '../'.get_utvonal().$_POST['tabla'].'/'.str_replace('/', '_', $mappa['ikt_szam']).'/email/*';
     foreach(glob($utvonal) as $fajl){
-        $html .= '<div><b class="fajl_torol f_csatolmany_torol">🗙</b> <span>'. basename($fajl) . '</span></div>';
+        if(is_file($fajl)){
+            $html .= '<div><b class="fajl_torol f_csatolmany_torol">🗙</b> <span>'. basename($fajl) . '</span></div>';
+        }
     }
     echo $html;
     

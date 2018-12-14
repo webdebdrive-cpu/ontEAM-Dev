@@ -714,7 +714,7 @@ if( isset($_POST['munkalapKulso']) ) {
                                                                             array($recid,           $szallito_id,  $cimzettek, $masolatot_kapott,   $targy_kieg.$_POST['targy'], $uzi_kieg.nl2br2($_POST['uzenet']),    'NOW()',     $_SESSION[get_db_tabla().'teljes_nev'] )
                                             );
                 if( $email_recid === false ) { $db_error = true; }
-                
+
                 // Fájlok mozgatása
                 if( csatolmanyok_eltesz($fajlok, $utvonal, $email_recid, $recid) === false ){
                     $db_error = true;
@@ -723,7 +723,6 @@ if( isset($_POST['munkalapKulso']) ) {
                 // Mail elküldve pipa bekapcsolása
                 $sql = $adatbazis_kapcsolat->u('munkalap', array('mail_ment'), array('1'), "`recid`='{$recid}'");
                 if( $sql === false ) { $db_error = true; }
-                
                 
             }
             

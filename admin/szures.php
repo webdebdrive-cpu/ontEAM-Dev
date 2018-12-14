@@ -321,8 +321,15 @@ if (isset($_POST['f_szuro_mezo_operator'])) {
                 }else{
 
                     // Numerikus adatok operátora
-                    if( strpos($ertek['class'], 'f_num')!==false){
-                        $feltetel = '<input type="text" placeholder="Érték..." class="f_num f_felt" value="'.$_POST['felt'].'">';
+                    if( strpos($ertek['class'], 'f_num')!==false ){
+                        $feltetel = nl2('
+                                            <input type="text" id="szures_f_num" placeholder="Érték..." class="f_num f_felt" '.$ertek['data'].' value="'.$_POST['felt'].'" style="min-width: 10rem" onfocus="$(this).select();">
+                                            <script>
+                                            $(document).ready(function () {
+                                                $(\'#szures_f_num\').focus().blur();
+                                            });
+                                            </script>
+                                        ');
 
                     // Dátum mezők (mindig csak dátum pontos)
                     }elseif( strpos($ertek['class'], 'datepicker')!==false ||  strpos($ertek['class'], 'datetimepicker')!==false ){
@@ -338,7 +345,7 @@ if (isset($_POST['f_szuro_mezo_operator'])) {
                             </script>
                         ');
                     }else{
-                        $feltetel = '<input type="text" placeholder="Feltétel..." class="f_felt" value="'.$_POST['felt'].'">';
+                        $feltetel = '<input type="text" placeholder="Feltétel..." class="f_felt" value="'.$_POST['felt'].'" onfocus="$(this).select()">';
                     }
 
                 }
@@ -367,7 +374,7 @@ if (isset($_POST['f_szuro_mezo_operator'])) {
         if($_POST['mezo']=='megjegyzes'){
 
             $feltetel = nl2('
-                    <input type="text" placeholder="Feltétel..." class="f_felt" value="'.$_POST['felt'].'">
+                    <input type="text" placeholder="Feltétel..." class="f_felt" value="'.$_POST['felt'].'" onfocus="$(this).select()">
                 ');
 
         }
@@ -588,7 +595,7 @@ if (isset($_POST['f_szuro_mezo_operator'])) {
 
         // Legfrissebb esetén
         if($_POST['mezo']=='legfrissebb') {
-            $feltetel .= '<input type="text" placeholder="Feltétel..." class="f_felt" value="'.$_POST['felt'].'">';
+            $feltetel .= '<input type="text" placeholder="Feltétel..." class="f_felt" value="'.$_POST['felt'].'" onfocus="$(this).select()">';
         }
 
     }

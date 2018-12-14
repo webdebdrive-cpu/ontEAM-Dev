@@ -931,7 +931,7 @@ if( in_array(basename(self()), $_SESSION['ketHasabos']) && $_SESSION[get_db_tabl
     } elseif( basename(self()) == 'projektkezeles.php' && isset($_GET['megjegyzesek']) ) {
         $uj_link = 'javascript: kapcsolodoSzerkeszt(\'megjegyzes\'); void(0);';
 
-    } elseif( basename(self()) == 'projektkezeles.php' && ( isset($_GET['modosit']) || isset($_GET['tortenet']) || isset($_GET['dokumentumok']) || isset($_GET['cash_flow']) || isset($_GET['projektigeny']) || isset($_GET['rb_anyag']) || isset($_GET['garancialis']) ) ) {
+    } elseif( basename(self()) == 'projektkezeles.php' && ( isset($_GET['uj']) ||  isset($_GET['modosit']) || isset($_GET['tortenet']) || isset($_GET['dokumentumok']) || isset($_GET['cash_flow']) || isset($_GET['projektigeny']) || isset($_GET['rb_anyag']) || isset($_GET['garancialis']) ) ) {
         $uj_link = 'javascript: csoportMuvelet(\'projektkezel_uj_feltolt\'); void(0);';
 
     } elseif( basename(self()) == 'projektszerzodes.php' && isset($_GET['megjegyzesek']) ) {
@@ -1002,9 +1002,13 @@ if( (isset($_GET['modosit']) && isset($_GET['szerkeszt'])) || !isset($_GET['modo
     $szerk_dis = ' disabled';
 }
 
+// Új feltöltéskor az Új ikont disabled...
 $uj_dis = '';
 if( isset($_GET['uj']) ) {
-    $uj_dis = ' disabled';
+    // Kivéve projekt szerkesztéskor
+    if(basename(self())!='projektkezeles.php' ){
+        $uj_dis = ' disabled';
+    }
 }
 
 $belepve = nl2('
