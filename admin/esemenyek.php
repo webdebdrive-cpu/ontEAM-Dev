@@ -2216,7 +2216,7 @@ array('type' => 'html',                     'megn' => nl2('
                                                         <div class="dtr">
                                                             <div class="dtc form_bal">
                                                             </div>
-                                                            <div class="dtc form_jobb">
+                                                            <div class="dtc form_jobb letrehozta_infok">
                                                                 '.$letrehozta_mikor.'
                                                             </div>
                                                         </div>
@@ -2256,7 +2256,7 @@ $projektkezeles_tomb = $akt_tomb = array(
                                                         <div class="dtr">
                                                             <div class="dtc form_bal">
                                                             </div>
-                                                            <div class="dtc form_jobb">
+                                                            <div class="dtc form_jobb letrehozta_infok">
                                                                 '.$letrehozta_mikor.'
                                                             </div>
                                                         </div>
@@ -2291,7 +2291,7 @@ if (isset($_GET['modosit'])) {
 $projektszerzodes_tomb = $akt_tomb = array(
     array('type' => 'select_felh_telephely','megn' => 'Szálloda:',              'name' => 'telephely_id',   'szuro' => 1,   'class' => 'disableNav',        'style' => 'width: 100%;', 'alert' => 'Kérem válasszon szállodát!', 'disabled' => $szalloda_disabled),
     array('type' => 'text',                 'megn' => 'Szerződés szám:',        'name' => 'sz_szam',        'szuro' => 1,   'class' => 'normal',            'style' => 'width: 12rem', 'disabled' => 1, 'osszevon' => 1, 'post' => '<span style="margin-left: 2rem"></span>'),
-    array('type' => 'text',                 'megn' => 'Kelte:',                 'name' => 'kelte',          'szuro' => 1,   'class' => 'kicsi datepicker',  'alert' => 'Kérem adja meg a dátumot!'),
+    array('type' => 'text',                 'megn' => 'Kelte:',                 'name' => 'kelte',          'szuro' => 1,   'class' => 'kicsi datepicker',  'alert' => 'Kérem adja meg a Kelte dátumát!'),
     array('type' => 'autocomplete',         'megn' => 'Szerződő partner:',      'name' => 'szallito_id',    'szuro' => 1,   'class' => 'oriasi disableNav', 'tabla' => 'szallito', 'oszlop_keres' => 'id', 'oszlop_keres_autocomp' => 'nev', 'listaz' => 'nev', 'id_kiir' => 'id', 'alert' => 'Kérem válasszon szerződő partnert!'),
     array('type' => 'text',                 'megn' => 'Projekt szám:',          'name' => 'pr_szam',        'szuro' => 1,   'class' => 'normal', 'disabled' => 1, 'style' => 'width: 10rem', 'post' => ' <span id="projekt_neve">'.$projekt_neve.'</span>'.$pr_szam_gomb, 'alert' => 'Kérem válasszon egy projekt számot!'),
     array('type' => 'textarea',             'megn' => 'Tárgy:',                 'name' => 'targy',          'szuro' => 1,   'class' => 'oriasiTargy disableNav', 'alert' => 'Kérjük töltse ki a tárgy mezőt!'),

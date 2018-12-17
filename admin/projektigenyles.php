@@ -930,6 +930,8 @@ if (isset($_GET['csv'])) {
 
     $mibol   = get_web_charset();
     $mibe    = 'windows-1250';
+    
+    require 'selectek.php';
 
     if( !is_dir('export') ) {
         mkdir('export');
@@ -939,7 +941,7 @@ if (isset($_GET['csv'])) {
         mkdir('export/csv');
     }
 
-    //Régi fájlok törlése
+    // Régi fájlok törlése
     $utvonal = 'export/csv/';
     $fajlok = konyvtar_bejar($utvonal);
     foreach($fajlok as $fajl){
@@ -987,21 +989,15 @@ if (isset($_GET['csv'])) {
         while( $sorok = mysqli_fetch_assoc($query) ){
             $csvcont = array();
             foreach( $sorok as $kulcs => $sor ) {
+                
                 if($kulcs=='Szálloda'){
                     $sor = getErtek('nev', 'telephely', 'id', $sor);
                 }
-                if($kulcs=='Bejelentett hiba'){
-                    $sor = erteklista(ERTEKLISTA_BEJ_HIBA, $sor);
-                }
-                if($kulcs=='Helyiség'){
-                    $sor = getErtek('nev', 'obj', 'recid', $sor);
-                }
-                if($kulcs=='Gépnév'){
-                    $sor = getErtek('nev', 'eszkozkezeles', 'recid', $sor);
-                }
+                
                 if($kulcs=='Prioritás'){
-                    $sor = erteklista(36, $sor);
+                    $sor = erteklista(ERTEKLISTA_PROJEKT_PRIOR, $sor);
                 }
+                
                 if($kulcs=='Típus'){
                     if($sor){
                         foreach($select_pri_tipus as $tipus){
@@ -1012,8 +1008,25 @@ if (isset($_GET['csv'])) {
                         }
                     }
                 }
+                
                 if($kulcs=='Státusz'){
                     $sor = getStatText($megnevezes, $sor);
+                }
+                
+                if($kulcs=='Rendkívüli'){
+                    if($sor){
+                        $sor = 'igen';
+                    }else{
+                        $sor = 'nem';
+                    }
+                }
+                
+                if($kulcs=='Megtérülő'){
+                    if($sor){
+                        $sor = 'igen';
+                    }else{
+                        $sor = 'nem';
+                    }
                 }
 
                 // Lehet nem volna elég 1-szer sőt kétszer sem ráereszteni a htmlspecialchars_decode-ot
@@ -1056,6 +1069,7 @@ require('selectek.php');
     if( $_GET['id'] ){
         $sor = $adatbazis_kapcsolat -> s2('*', $megnevezes, "`recid`='{$_GET['id']}'");
     }
+
     if($sor['dok_db']){
         $dok_db  = ' ('.$sor['dok_db'].')';
     }
@@ -1398,21 +1412,8 @@ require('selectek.php');
     $js_submit_elott = nl2($js_submit_elott);
     
     // Új és törlés gombok rejtése, elutasítva és jóváhagyva státuszokban
-    if ($_GET['id']) {
-        
+    if ($_GET['id']) {        
         $sor = $adatbazis_kapcsolat -> s2('*', $megnevezes, "`recid`='{$_GET['id']}'");
-        
-        $mutat_rejt = 'show()';
-        if($sor['stat_id']==PRIGENY_STAT_ELUTASITVA || $sor['stat_id']==PRIGENY_STAT_JOVAHAGYVA){
-            $mutat_rejt = 'hide()';
-        }
-//        $szamla_html .= nl2('
-//            <script>
-//                $(document).ready(function () {
-//                    $(\'#navGombok .uj, #navGombok .torles\').'.$mutat_rejt.';
-//                });
-//            </script>
-//            ');
     }
 
 	// Új projektigénylés felvitele
@@ -1537,6 +1538,13 @@ require('selectek.php');
         $tovabbi_tartalom .= nl2('
             <script>
 
+                /* Egyik sor sincs kijelölve (mert nincs találat, pl. egy szűrés miatt), akkor a gombokat mindneképp rejtsük el */
+                $(document).ready(function () {
+                    if( !$(\'.szamla_sor.kijelolve\').length ){
+                        $(\'.letrehozta_infok\').html(\'\');
+                    }
+                });
+            
                 /* Ha van GET cash_flow, akkor lépjünk át erre a fülre. */
                 $(document).ready(function () {
                     if(_get(\'cash_flow\')){

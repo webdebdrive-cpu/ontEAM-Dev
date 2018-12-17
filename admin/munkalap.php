@@ -719,7 +719,7 @@ if( isset($_POST['munkalapKulso']) ) {
                 if( csatolmanyok_eltesz($fajlok, $utvonal, $email_recid, $recid) === false ){
                     $db_error = true;
                 }
-                
+
                 // Mail elküldve pipa bekapcsolása
                 $sql = $adatbazis_kapcsolat->u('munkalap', array('mail_ment'), array('1'), "`recid`='{$recid}'");
                 if( $sql === false ) { $db_error = true; }
@@ -7292,7 +7292,6 @@ require('selectek.php');
                 ').$gombok;
             }
         }
-
 
         // Munkalap adatlapja csak akkor szerkeszthető, ha a státusz nyitott és van nyitott kezelés jog
         if( isset($_GET['modosit']) && $sor['stat_id']==MUNKALAP_STAT_NYITOTT && _jog(JOG_MUNKALAP_NYITOTT_KEZEL) ) {

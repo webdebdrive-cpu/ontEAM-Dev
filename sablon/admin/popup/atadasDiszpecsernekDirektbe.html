@@ -205,25 +205,29 @@ function cimzett_add( mezo ){
     }
     
     if(mezo=='cimzett'){
-        var cimzett = '';
-        if($('#pop_cimzett').val()){
-            cimzett = ', ';
-        }
-        cimzett += $('#pop_cimzett_loginbol').val();
-        $('#pop_cimzett').val( $('#pop_cimzett').val()+cimzett );
+        mailcim_hozzafuz( $('#pop_cimzett') );
     }
     if(mezo=='masolat'){
-        var masolat = '';
-        if($('#pop_masolat').val()){
-            masolat = ', ';
-        }
-        masolat += $('#pop_cimzett_loginbol').val();
-        $('#pop_masolat').val( $('#pop_masolat').val()+masolat );
+        mailcim_hozzafuz( $('#pop_masolat') );
     }
+    
     
     $('#pop_cimzett_loginbol').val('');
     $('#pop_cimzett_loginbol_autocomp').val('').focus();
     
+}
+/* cimzett_add() függvény kiegészítője: mailcím hozáfűrzése vesszővel elválasztva: ha van vessző ha nincs, mindig jól fűződjön hozzá */
+function mailcim_hozzafuz( that ){
+    if( that.val() ){
+        mezo_tartalma = that.val().trim();
+        if( mezo_tartalma.slice(-1) != ',' ){
+            mezo_tartalma += ', ';
+        }else{
+            mezo_tartalma += ' ';
+        }
+    }
+    mezo_tartalma += $('#pop_cimzett_loginbol').val();
+    that.val( mezo_tartalma );
 }
 
 /* Beolvasás */
@@ -281,7 +285,8 @@ function beolvasas_mailcsatolmany_popup(fajlok, ellenorzes_kihagy) {
                         alert2(this.responseText.substring(5), '', 'Hiba');
                     }
                 }else{
-                    $('#pop_csatolt_fajlok').append( '<div><b class="fajl_torol f_csatolmany_torol">🗙</b> <span>'+ this.responseText +'</span></div>' );
+                    /* Csatolmányok kiíratása */
+                    get_csatolmanyok( baseName( location.href ), _get('id') );
                     if (fajlok_kesz == fajlok.length){
                         minden_fajl_kesz_mailcsatolmany_popup();
                     }

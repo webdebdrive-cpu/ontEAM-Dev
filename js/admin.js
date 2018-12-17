@@ -1183,14 +1183,12 @@ $(function() {
 
             $('#tartalomBal').scrollTop(active_top - 250);
         }
-        /* Biztonság kedvért kis idő után újra pozícionálunk (sok balnavpanel után ez szükséges) */
-        /*setTimeout(function() {
-            if( $('.szamla_sor.kijelolve').hasClass('kijelolve') ) {
-                active_top = $('.szamla_sor.kijelolve').position().top;
-console.log('b'+active_top);
-                $('#tartalomBal').scrollTop(active_top - 250);
-            }
-        }, 500);*/
+        
+        /* Egyik sor sincs kijelölve (mert nincs találat, pl. egy szűrés miatt), akkor a gombokat mindenképp rejtsük el. */
+        if( !_get('uj') && !$('.szamla_sor.kijelolve').length ){
+            $('.muveletek').hide();
+        }
+
     });
 
     /* Scroll elindítása görgetésre */

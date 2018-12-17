@@ -273,13 +273,28 @@ if (isset($_POST['pop_tetelek_feltolt'])) {
 // Van-e a session-ban tétel
 if (isset($_POST['van_tetel'])) {
     
-    $szerzodes_osszege = str_replace(' ', '', $_POST['szerzodes_osszege']);
+    $szerzodes_osszege = str_replace(' ', '', $_POST['szerz_ossz']);
+    
+    // Kötelező mezők ellenőrzése
+    foreach ($akt_tomb as $elem){
+                                // Ha üres             VAGY ha dátum, és az értéke nagyobb mint 4000.00.00 (tehát üres)
+        if( $elem['alert'] && ( !$_POST[$elem['name']] || ( strpos($elem['class'], 'datepicker')!==false ) && $_POST[$elem['name']]>'4000.00.00' ) ){
+            echo json_encode(array(
+                'hiba'  => $elem['alert'],
+                'gomb'  => '<input type="button" class="gomb" value="Ok" onclick="alert2(); szurkit_zar(\'mehet_megsem_mutat\'); $(\'#'.$elem['name'].'\').focus();">',
+                'title' => 'Hiba',
+            ));
+            $weblap -> leallit();
+            exit();
+        }
+        
+    }
     
     // Ellenőrizzük, hogy a dátum mezők rendben vannak-e? (Js alatt nem akar lefutni... elég összetett már a JS kód, mert űrlap elpostolása előtt még ajax-os ellenőrzés is lefut, ez kavar be). De itt - ahol az ajayod ellenőrzések vannak - könnyen elelnőrizni tudjuk
     if( $_POST['kelte']<'9000.00.00' && !valos_datum_e($_POST['kelte']) ){
         echo json_encode(array(
             'hiba'  => 'Kérem egy valós dátumot adjon meg Keltének!',
-            'gomb'  => '<input type="button" class="gomb" value="Ok" onclick="alert2(); $(\'#kelte\').focus();">',
+            'gomb'  => '<input type="button" class="gomb" value="Ok" onclick="alert2(); szurkit_zar(\'mehet_megsem_mutat\'); $(\'#kelte\').focus();">',
             'title' => 'Hiba',
         ));
         $weblap -> leallit();
@@ -288,7 +303,7 @@ if (isset($_POST['van_tetel'])) {
     if( $_POST['kiv_kezd']<'9000.00.00' && !valos_datum_e($_POST['kiv_kezd']) ){
         echo json_encode(array(
             'hiba'  => 'Kérem egy valós dátumot adjon meg Kivitelezés kezdésnek!',
-            'gomb'  => '<input type="button" class="gomb" value="Ok" onclick="alert2(); $(\'#kiv_kezd\').focus();">',
+            'gomb'  => '<input type="button" class="gomb" value="Ok" onclick="alert2(); szurkit_zar(\'mehet_megsem_mutat\'); $(\'#kiv_kezd\').focus();">',
             'title' => 'Hiba',
         ));
         $weblap -> leallit();
@@ -297,7 +312,7 @@ if (isset($_POST['van_tetel'])) {
     if( $_POST['kiv_vege']<'9000.00.00' && !valos_datum_e($_POST['kiv_vege']) ){
         echo json_encode(array(
             'hiba'  => 'Kérem egy valós dátumot adjon meg Kivitelezés végének!',
-            'gomb'  => '<input type="button" class="gomb" value="Ok" onclick="alert2(); $(\'#kiv_vege\').focus();">',
+            'gomb'  => '<input type="button" class="gomb" value="Ok" onclick="alert2(); szurkit_zar(\'mehet_megsem_mutat\'); $(\'#kiv_vege\').focus();">',
             'title' => 'Hiba',
         ));
         $weblap -> leallit();
@@ -306,7 +321,7 @@ if (isset($_POST['van_tetel'])) {
     if( $_POST['muszak_atv']<'9000.00.00' && !valos_datum_e($_POST['muszak_atv']) ){
         echo json_encode(array(
             'hiba'  => 'Kérem egy valós dátumot adjon meg Műszaki átvétel végének!',
-            'gomb'  => '<input type="button" class="gomb" value="Ok" onclick="alert2(); $(\'#muszak_atv\').focus();">',
+            'gomb'  => '<input type="button" class="gomb" value="Ok" onclick="alert2(); szurkit_zar(\'mehet_megsem_mutat\'); $(\'#muszak_atv\').focus();">',
             'title' => 'Hiba',
         ));
         $weblap -> leallit();
@@ -315,7 +330,7 @@ if (isset($_POST['van_tetel'])) {
     if( $_POST['bank_gar_vege']<'9000.00.00' && !valos_datum_e($_POST['bank_gar_vege']) ){
         echo json_encode(array(
             'hiba'  => 'Kérem egy valós dátumot adjon meg Bank garancia végének!',
-            'gomb'  => '<input type="button" class="gomb" value="Ok" onclick="alert2(); $(\'#bank_gar_vege\').focus();">',
+            'gomb'  => '<input type="button" class="gomb" value="Ok" onclick="alert2(); szurkit_zar(\'mehet_megsem_mutat\'); $(\'#bank_gar_vege\').focus();">',
             'title' => 'Hiba',
         ));
         $weblap -> leallit();
@@ -705,7 +720,7 @@ require_once('selectek.php');
             $gombok = nl2('
                 <div class="form_kuldes">
                     <input type="button" class="gombb mentes_gomb" name="mehet_gomb" id="mehet_gomb" disabled value="Mentés" onclick="szurkit(\'mehet_megsem_rejt\'); $(\'#szerk_form\').submit()">
-                    <input type="button" class="gomb piros" disabled id="megsem_gomb" value="Mégsem" onclick="szurkit(\'mehet_megsem_rejt\'); formModositva=false; szamlaBetolt($(\'#szamlaList li:first-of-type\').attr(\'data-recid\'), \''.$megnevezes.'.php\');">
+                    <input type="button" class="gomb piros" disabled id="megsem_gomb" value="Mégsem" onclick="szurkit(\'mehet_megsem_rejt\'); formModositva=false; szamlaBetolt(\''.$_GET['id'].'\', \''.$megnevezes.'.php\');">
                 </div>
             '.$gombok);
         }
@@ -750,8 +765,11 @@ require_once('selectek.php');
                         muszak_atv       : $(\'#muszak_atv\').val(),
                         bank_gar_vege    : $(\'#bank_gar_vege\').val(),
                         telephely_id     : $(\'#telephely_id\').val(),
+                        szallito_id      : $(\'#szallito_id\').val(),
+                        targy            : $(\'#targy\').val(),
+                        kolt_vis         : $(\'#kolt_vis\').val(),
                         pr_szam          : $(\'#pr_szam\').val(),
-                        szerzodes_osszege: $(\'#szerz_ossz\').val(),
+                        szerz_ossz       : $(\'#szerz_ossz\').val(),
                         van_tetel        : Date.now()
                     },
                     success: function(response){
