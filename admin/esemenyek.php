@@ -2543,7 +2543,7 @@ if (isset($_POST['get_csatolmanyok'])) {
     $utvonal = '../'.get_utvonal().$_POST['tabla'].'/'.str_replace('/', '_', $mappa['ikt_szam']).'/email/*';
     foreach(glob($utvonal) as $fajl){
         if(is_file($fajl)){
-            $html .= utf8('<div><b class="fajl_torol f_csatolmany_torol">🗙</b> <span>'. basename($fajl) . '</span></div>');
+            $html .= utf8('<div><b class="fajl_torol f_csatolmany_torol">✖</b> <span>'. basename($fajl) . '</span></div>');
         }
     }
     echo $html;
