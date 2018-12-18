@@ -71,6 +71,11 @@
                     var fajlok_kesz     = 0;
                     var hibas_fajlok    = 0;
 
+                    if( !fajlok.length ){
+                        alert2('Kérjük előbb tallózon be egy fájlt!', '', 'Hiba');
+                        return false;
+                    }
+
                     for (var i = 0; i < fajlok.length; i++){
 
                         if(tests_velemeny.formdata){
@@ -209,6 +214,6 @@
 </div>
 
 <div class="kuldes">
-    <input type="button" name="megsem" class="gomb zold" value="Feltöltés" onclick="$('#jsff_velemeny input[type=file]').dblclick();">
-    <input type="button" name="megsem" class="gomb piros" value="Mégsem" onclick="popupZar();">
+    <input type="button" class="gomb zold" value="Feltöltés" onclick="$('#jsff_velemeny input[type=file]').dblclick();">
+    <input type="button" class="gomb piros" value="Mégsem" onclick="popupZar();">
 </div>

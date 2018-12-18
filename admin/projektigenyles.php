@@ -388,7 +388,7 @@ if (isset($_POST['pri_statusz_leptet'])) {
 
 
     // Jóváhagyáskor átmásoljuk a Projektkezelés menüpont alá
-    $igenyles = $adatbazis_kapcsolat->s2('*', 'projektigenyles', "`recid`='{$_POST['recid']}'");
+    $igenyles = $sor = $adatbazis_kapcsolat->s2('*', 'projektigenyles', "`recid`='{$_POST['recid']}'");
     if( $igenyles === false ) { $db_error = true; }
 
     // Jóváhagyáskor több mindenre figyelni kell
@@ -436,6 +436,19 @@ if (isset($_POST['pri_statusz_leptet'])) {
                                         );
         if( $sql === false ) { $db_error = true; }
         */
+    }
+    
+    // Hiánypótolt gomb lekezelése
+    if($_POST['statusz']==PRIGENY_STAT_HIANYPOTLAS){
+        // Jog ellenőzése
+        if( !( (_jog(JOG_PRIGENY_S_KEZEL) && $sor['loginnev']==$_SESSION[get_db_tabla().'user'] ) || (_jog(JOG_PRIGENY_T_KEZEL) && $sor['tipus']==PRIGENY_TIPUS_TARGY)  ) ){
+            echo json_encode(array(
+                'hiba' => 'Önnek nincs joga projektigénylést tovább léptetni Hiánypótolt státuszba!'
+            ));
+
+            $weblap -> leallit();
+            exit;
+        }
     }
 
     // FB elé terjeszteni az alábbi státuszokkal nem lehet
@@ -1223,7 +1236,7 @@ require('selectek.php');
             }
 
             // Hiánypótolt csak akkor lehet egy igénylés, ha most épp hiánypótlásra várunk és van bármilyen kezelési joga
-            if($sor['stat_id'] == PRIGENY_STAT_HIANYPOTLAS && (_jog(JOG_PRIGENY_S_KEZEL) || (_jog(JOG_PRIGENY_T_KEZEL) && $sor['tipus']==PRIGENY_TIPUS_TARGY)  ) ) {
+            if($sor['stat_id'] == PRIGENY_STAT_HIANYPOTLAS && ( (_jog(JOG_PRIGENY_S_KEZEL) && $sor['loginnev']==$_SESSION[get_db_tabla().'user'] ) || (_jog(JOG_PRIGENY_T_KEZEL) && $sor['tipus']==PRIGENY_TIPUS_TARGY)  ) ) {
                 $gombok .= ' <input type="button" class="gomb modositaskor_rejt" value="Hiánypótolt" title="Hiánypótolt" onclick="pri_statusz_leptet(\''.$_GET['id'].'\', \''.PRIGENY_STAT_HIANYPOTOLT.'\');">';
             }
 
@@ -1590,7 +1603,7 @@ require('selectek.php');
                             </div>
         ');
 
-        $cash_flowk = $adatbazis_kapcsolat->s('recid telephely_id datum osszeg', 'cash_flow', "`apa_recid`='".$_GET['id']."'", 'insert_dt desc, recid asc');
+        $cash_flowk = $adatbazis_kapcsolat->s("`".get_db_tabla()."cash_flow`.`recid`, `".get_db_tabla()."cash_flow`.`telephely_id`, `".get_db_tabla()."cash_flow`.`datum`, `".get_db_tabla()."cash_flow`.`osszeg`", 'cash_flow', "`apa_recid`='".$_GET['id']."'", "`".get_db_tabla()."telephely`.`nev`, `".get_db_tabla()."cash_flow`.`datum`", '', '', '', " JOIN `".get_db_tabla()."telephely` ON `".get_db_tabla()."telephely`.`id`=`".get_db_tabla()."cash_flow`.`telephely_id`");
         $i = 1;
         foreach($cash_flowk as $cf) {
 
