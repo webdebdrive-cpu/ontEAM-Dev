@@ -1175,7 +1175,7 @@ $(function() {
         }
     });
 
-    /* Az éppen aktív rekordra ugrás, miután a rendezés lefutott */
+    // Az éppen aktív rekordra ugrás, miután a rendezés lefutott
     $(document).ready(function () {
         if( $('.szamla_sor.kijelolve').hasClass('kijelolve') ) {
             $('#tartalomBal').scrollTop(0);
@@ -1184,9 +1184,10 @@ $(function() {
             $('#tartalomBal').scrollTop(active_top - 250);
         }
         
-        /* Egyik sor sincs kijelölve (mert nincs találat, pl. egy szűrés miatt), akkor a gombokat mindenképp rejtsük el. */
+        // Egyik sor sincs kijelölve (mert nincs találat, pl. egy szűrés miatt), akkor a gombokat mindenképp rejtsük el.
         if( !_get('uj') && !$('.szamla_sor.kijelolve').length ){
             $('.muveletek').hide();
+            adatlap_minden_inputjat_disabled();
         }
 
     });
@@ -7278,4 +7279,17 @@ function get_csatolmanyok(tabla, recid) {
             $('#pop_csatolt_fajlok').html(response);
         }
     });
+}
+
+// Adatlapon minden inputot elszürkítünk, disabled-re állítunk.
+// Pl. ha nincs mentés gombunk, vagy nincs találat a bal navpanelben
+function adatlap_minden_inputjat_disabled() {
+    // Checbox-ok labeljeire is kell egy readonly, hogy ne lehessen rákattintani
+    $('#szerk_form input[type="checkbox"]').each(function() {
+        $('label[for="'+$(this).attr('id')+'"]').attr('readonly', true);
+    });
+
+    $('#szerk_form input, #szerk_form textarea, #szerk_form select').attr('readonly', true);
+    $('#szerk_form input.f_nem_rejt').attr('readonly', false);
+    $('#szerk_form input.foGomb').removeAttr('disabled');
 }

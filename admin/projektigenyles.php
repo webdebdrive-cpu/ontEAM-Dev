@@ -1538,7 +1538,7 @@ require('selectek.php');
         $tovabbi_tartalom .= nl2('
             <script>
 
-                /* Egyik sor sincs kijelölve (mert nincs találat, pl. egy szűrés miatt), akkor a gombokat mindneképp rejtsük el */
+                /* Egyik sor sincs kijelölve (mert nincs találat, pl. egy szűrés miatt), akkor a Projekt választós gombot még le kell venni */
                 $(document).ready(function () {
                     if( !$(\'.szamla_sor.kijelolve\').length ){
                         $(\'.letrehozta_infok\').html(\'\');

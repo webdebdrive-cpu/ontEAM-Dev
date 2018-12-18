@@ -1402,7 +1402,7 @@ require_once('selectek.php');
 		// Ez elkészíti a $mezok változót
 		require('switch.php');
         
-        // Egyik sor sincs kijelölve (mert nincs találat, pl. egy szűrés miatt), akkor a gombokat mindneképp rejtsük el
+        // Egyik sor sincs kijelölve (mert nincs találat, pl. egy szűrés miatt), akkor a gombokat mindenképp rejtsük el
         $szamla_html .= nl2('
                 <script>
                 $(document).ready(function () {
