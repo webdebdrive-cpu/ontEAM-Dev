@@ -1540,9 +1540,11 @@ require('selectek.php');
 
                 /* Egyik sor sincs kijelölve (mert nincs találat, pl. egy szűrés miatt), akkor a Projekt választós gombot még le kell venni */
                 $(document).ready(function () {
-                    if( !$(\'.szamla_sor.kijelolve\').length ){
-                        $(\'.letrehozta_infok\').html(\'\');
-                    }
+                    setTimeout(function(){ 
+                        if( !$(\'.szamla_sor.kijelolve\').length ){
+                            $(\'.letrehozta_infok\').html(\'\');
+                        }
+                    }, 700);
                 });
             
                 /* Ha van GET cash_flow, akkor lépjünk át erre a fülre. */

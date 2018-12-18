@@ -1735,45 +1735,49 @@ $(function() {
     });
 
     /* Projektgénylésnél az egy és többszállodás modell kiválasztása */
-    $(document).on('click', '.f_pri_egytobb', function() {
+    $(document).on('click keyup', '.f_pri_egytobb', function(e) {
+        
+        // Ha ráklikkeltünk, vagy ha space-t nyomtunk rá
+        if( e.type=='click' || (e.type=='keyup' && e.keyCode==KEY_SPACE ) ){
+        
+            egy_tobb = $(this).attr('data-egytobb');
+            if(egy_tobb=='egy'){
+                $('#egy_tobb_tobb').prop('checked', false);
+                $('#egy_tobb_egy') .prop('checked', true );
+                $('#egy_tobb').val(0);
+                if(formAdatok['egy_tobb']=='1'){
+                    $('#egy_tobb_egy') .addClass('mod');
+                    $('#egy_tobb_tobb').addClass('mod');
+                }else{
+                    $('#egy_tobb_egy') .removeClass('mod');
+                    $('#egy_tobb_tobb').removeClass('mod');
+                }
+            }else{
+                $('#egy_tobb_egy') .prop('checked', false);
+                $('#egy_tobb_tobb').prop('checked', true );
+                $('#egy_tobb').val(1);
+                if(formAdatok['egy_tobb']=='0'){
+                    $('#egy_tobb_egy') .addClass('mod');
+                    $('#egy_tobb_tobb').addClass('mod');
+                }else{
+                    $('#egy_tobb_egy') .removeClass('mod');
+                    $('#egy_tobb_tobb').removeClass('mod');
+                }
+            }
 
-        egy_tobb = $(this).attr('data-egytobb');
-        if(egy_tobb=='egy'){
-            $('#egy_tobb_tobb').prop('checked', false);
-            $('#egy_tobb_egy') .prop('checked', true );
-            $('#egy_tobb').val(0);
-            if(formAdatok['egy_tobb']=='1'){
-                $('#egy_tobb_egy') .addClass('mod');
-                $('#egy_tobb_tobb').addClass('mod');
-            }else{
-                $('#egy_tobb_egy') .removeClass('mod');
-                $('#egy_tobb_tobb').removeClass('mod');
-            }
-        }else{
-            $('#egy_tobb_egy') .prop('checked', false);
-            $('#egy_tobb_tobb').prop('checked', true );
-            $('#egy_tobb').val(1);
-            if(formAdatok['egy_tobb']=='0'){
-                $('#egy_tobb_egy') .addClass('mod');
-                $('#egy_tobb_tobb').addClass('mod');
-            }else{
-                $('#egy_tobb_egy') .removeClass('mod');
-                $('#egy_tobb_tobb').removeClass('mod');
-            }
+            $.ajax({
+                url : 'projektigenyles.php',
+                type: 'POST',
+                data: {
+                    egy_tobb     : egy_tobb,
+                    f_pri_egytobb: new Date().getTime()
+                },
+                success: function (response) {
+                    if(response.substring(0, 6)=='SESKIL'){ location.href = 'index.php'; }
+                    $('#telephely_id').parent().parent().replaceWith(response);
+                }
+            });
         }
-
-        $.ajax({
-            url : 'projektigenyles.php',
-            type: 'POST',
-            data: {
-                egy_tobb     : egy_tobb,
-                f_pri_egytobb: new Date().getTime()
-            },
-            success: function (response) {
-                if(response.substring(0, 6)=='SESKIL'){ location.href = 'index.php'; }
-                $('#telephely_id').parent().parent().replaceWith(response);
-            }
-        });
 
     });
 
