@@ -3560,6 +3560,7 @@ b.fajl_torol{
     color: #E72727;
     cursor: pointer;
     transition: all ease-in-out 0.2s;
+    margin-right: 1rem;
 }
 
 b.fajl_torol:hover{

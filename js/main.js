@@ -332,7 +332,13 @@ function ezresek(number, decimals, decPoint, thousandsSep){
         s[1] = s[1] || '';
         s[1] += new Array(prec - s[1].length + 1).join('0');
     }
-    return s.join(dec);
+    
+    eredmeny = s.join(dec);
+    if( eredmeny == '0' ){
+        eredmeny = '';
+    }
+    
+    return eredmeny;
 }
 function number_format(number, decimals, decPoint, thousandsSep){
     ezresek(number, decimals, decPoint, thousandsSep);

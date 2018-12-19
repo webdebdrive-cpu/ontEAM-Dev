@@ -480,6 +480,9 @@ if (isset($_GET['csv'])) {
                         if($kulcs=='Költségviselő'){
                             $sor = erteklista(ERTEKLISTA_KOLTSEGVISELO, $sor);
                         }
+                        if($kulcs=='Létesítmény felelős'){
+                            $sor = getErtek('teljes_nev', 'login', 'recid', $sor);
+                        }
                         if($kulcs=='Műszaki átvétel' || $kulcs=='Kelte' || $kulcs=='Kivitelezés kezdete' || $kulcs=='Kivitelezés vége' || $kulcs=='Bank garancia vége' || $kulcs=='Bank garancia vége' || $kulcs=='Teljesítés'  ){
                             $sor = datum_kiir($sor);
                         }
@@ -551,6 +554,9 @@ if (isset($_GET['csv'])) {
                         }
                         if($kulcs=='Költségviselő'){
                             $sor = erteklista(ERTEKLISTA_KOLTSEGVISELO, $sor);
+                        }
+                        if($kulcs=='Létesítmény felelős'){
+                            $sor = getErtek('teljes_nev', 'login', 'recid', $sor);
                         }
                         if($kulcs=='Műszaki átvétel' || $kulcs=='Kelte' || $kulcs=='Kivitelezés kezdete' || $kulcs=='Kivitelezés vége' || $kulcs=='Bank garancia vége' || $kulcs=='Bank garancia vége'){
                             $sor = datum_kiir($sor);
@@ -882,7 +888,7 @@ require_once('selectek.php');
             echo $szamla_html;
         }
 
-	// Projektkezelés módosítása
+	// Projektszerződés módosítása
 	} elseif(isset($_GET['modosit'])) {
 
         // Ha Gyorskeresőből érkeznénk ide, akkor az ID-t valójában az id_hidden tartalmazza majd
@@ -896,14 +902,14 @@ require_once('selectek.php');
             if( $tomb['type'] == 'autocomplete' ) {
                 
                 if($tomb['csoport']){
-                    $kulso_ertek = $adatbazis_kapcsolat->s2('info', $tomb['tabla'], "`{$tomb['oszlop_keres']}`='{$sor[$tomb['name']]}' AND `csoport`='{$tomb['csoport']}'", '', '1');
+                    $kulso_ertek = $adatbazis_kapcsolat->s2('info', $tomb['tabla'], "`{$tomb['oszlop_keres']}`='{$sor[$tomb['name']]}' AND `csoport`='{$tomb['csoport']}'");
                     $kulso_ertek['nev'] = $kulso_ertek['info'];
-                // Projektfelelősnél a teljes nevet írjuk ki, nem a nev oszlopot
-                }elseif( $tomb['name'] == 'pfelelos' ){
-                    $kulso_ertek = $adatbazis_kapcsolat->s2('recid teljes_nev', $tomb['tabla'], "`{$tomb['oszlop_keres']}`='{$sor[$tomb['name']]}'", '', '1');
+                // Létesítményfelelősnél a teljes nevet írjuk ki, nem a nev oszlopot
+                }elseif( $tomb['name'] == 'let_fel' ){
+                    $kulso_ertek = $adatbazis_kapcsolat->s2('recid teljes_nev', $tomb['tabla'], "`{$tomb['oszlop_keres']}`='{$sor[$tomb['name']]}'");
                     $kulso_ertek['nev'] = $kulso_ertek['teljes_nev'];
                 }else{
-                    $kulso_ertek = $adatbazis_kapcsolat->s2('recid nev', $tomb['tabla'], "`{$tomb['oszlop_keres']}`='{$sor[$tomb['name']]}'", '', '1');
+                    $kulso_ertek = $adatbazis_kapcsolat->s2('recid nev', $tomb['tabla'], "`{$tomb['oszlop_keres']}`='{$sor[$tomb['name']]}'");
                 }
 
                 $sor[$tomb['name'].'_autocomp'] = '';

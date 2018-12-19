@@ -1152,7 +1152,7 @@ $(function() {
                 val = '';
             }
 
-/*console.log(name+' db:'+taroltVal+'|itt:'+val);*/
+console.log(name+' db:'+taroltVal+'|itt:'+val);
             if( name!='egy_tobb_egy' && name!='egy_tobb_tobb' ){
                 if( taroltVal != val ) {
                     $(this).addClass('mod');
@@ -1185,10 +1185,12 @@ $(function() {
         }
         
         // Egyik sor sincs kijelölve (mert nincs találat, pl. egy szűrés miatt), akkor a gombokat mindenképp rejtsük el.
-        if( !_get('uj') && !$('.szamla_sor.kijelolve').length ){
-            $('.muveletek').hide();
-            adatlap_minden_inputjat_disabled();
-        }
+        setTimeout(function(){
+            if( !_get('uj') && !$('.szamla_sor.kijelolve').length ){
+                $('.muveletek').hide();
+                adatlap_minden_inputjat_disabled();
+            }
+        }, 700);
 
     });
 
@@ -1571,13 +1573,13 @@ $(function() {
         $(this).val(uj_selected.val());
     });
 
-    /* Szám mezők formázása */
+    // Szám mezők formázása
     $(document).on('keyup', '.f_num', function(e) {
         onlyNumbers($(this));
     });
 
     $(document).on('blur', '.f_num', function(e) {
-        /* Blur esetén csinálunk egy újabb focus-blur -ozást. De hogy ez ne történjen meg végtelenszer, ezért egy class nevet ráteszünk, amit focuszkor veszünk majd le. */
+        // Blur esetén csinálunk egy újabb focus-blur -ozást. De hogy ez ne történjen meg végtelenszer, ezért egy class nevet ráteszünk, amit focuszkor veszünk majd le.
         if( !$(this).hasClass('nincs_tobb_blurozas') ){
             tort = 2;
             if($(this).attr('data-tort')){
@@ -1585,7 +1587,7 @@ $(function() {
             }
             $(this).val( ezresek($(this).val().replace(/ /g, '').replace('.', '').replace(',', '.'), tort, ',', ' ') );
 
-            /* Ez azért kell, hogy ha 0 volt az értéke, kitörlöm üresnek, akkor az ezresek 0-ját vissza teszi bele, tehát a mezőről le kellene venni a 'mod' class-t, és ezt egy focus-blur-al oldom meg */
+            // Ez azért kell, hogy ha 0 volt az értéke, kitörlöm üresnek, akkor az ezresek 0-ját vissza teszi bele, tehát a mezőről le kellene venni a 'mod' class-t, és ezt egy focus-blur-al oldom meg
             $(this).addClass('nincs_tobb_blurozas');
 
             if( !alt_tab ) {

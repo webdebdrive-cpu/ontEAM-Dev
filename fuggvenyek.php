@@ -2199,6 +2199,8 @@ function szamla_lista( $where, $tabla, $kijeloltek = false, $csak_sql_miatt = fa
             $lathato_prigenyek = adatbazis2tomb($lathato_prigenyek, 'projektigenyles_recid');
             if($lathato_prigenyek){
                 $where .= " OR `".get_db_tabla()."projektigenyles`.`recid` IN (".implode(',', $lathato_prigenyek).") AND ";
+            }else{
+                $where .= ' AND ';
             }
 
         }        
