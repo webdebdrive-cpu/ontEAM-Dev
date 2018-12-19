@@ -649,7 +649,7 @@ if(isset($_POST['igenylesek_betolt'])){
     $postfix         = '_fb';
     $fb_bod_statusz  = PRIGENY_STAT_FB_TERJESZT_VAR;
     $nyitott_statusz = ELOT_FB_STAT_NYITOTT;
-    $nyitott_is_sql  = ', \''.PRIGENY_STAT_NYITOTT.'\''; //FB csatolásnál a nyitottakat is be lehet csatolni, de BoD-nálm már nem
+    $nyitott_is_sql  = ', \''.PRIGENY_STAT_NYITOTT.'\''; // FB csatolásnál a nyitottakat is be lehet csatolni, de BoD-nál már nem
     if($_POST['mod']=='bod'){
         $postfix         = '_bod';
         $fb_bod_statusz  = PRIGENY_STAT_BOD_TERJESZT_VAR;
@@ -675,7 +675,7 @@ if(isset($_POST['igenylesek_betolt'])){
         default     : $order = '`'.get_db_tabla().'telephely`.`nev`,         `'.get_db_tabla().'projektigenyles`.`bkolt`';                                  break;
     }
 
-    // nem szerepelnek másik nyitott vagy véglegesítve státuszú előterjesztésben
+    // Nem szerepelnek másik nyitott vagy véglegesítve státuszú előterjesztésben
     $where_kieg = '';
     $fb_kizart_recidk = $adatbazis_kapcsolat->s('projektigenyles_recid', 'eloterj_fb_kapcs', "`eloterj_recid` IN (SELECT `recid` FROM `".get_db_tabla()."eloterj_fb` WHERE `stat_id` IN ('".ELOT_FB_STAT_NYITOTT."', '".ELOT_FB_STAT_VEGLEGESITVE."'))");
     $fb_kizart_recidk = adatbazis2tomb($fb_kizart_recidk, 'projektigenyles_recid');
@@ -718,7 +718,7 @@ if(isset($_POST['igenylesek_betolt'])){
             $tipus = '-';
         }
 
-        //BoD elé terjesztettek
+        // BoD elé terjesztettek
         $kiemelt = '';
         if($pri['stat_id']==$fb_bod_statusz){
             $kiemelt = ' kiemelt';

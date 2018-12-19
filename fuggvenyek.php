@@ -330,7 +330,7 @@ function i_u($type, $tabla, $tomb) {
             }
 
         // BOD Előterjesztés új bejegyzés esetén
-        } else if( $tabla == 'eloterj_fb' ) {
+        } else if( $tabla == 'eloterj_bod' ) {
 
             // Iktatószám kiszámítása
             $sorszam  = get_iktatoszam_sorszam($tabla);

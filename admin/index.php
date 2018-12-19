@@ -9,14 +9,14 @@
   Súgó és dokumentáció: index.php?sugo
 
 \*                                                                                                                                         */
+require_once('../weblap.php');
 
-if(isset($_GET['info'])){
+if( isset($_GET['info']) && $_SESSION[get_db_tabla().'user'] ){
     phpinfo();
     exit;
 }
 
 
-require_once('../weblap.php');
 
 if (isset($_GET['teszt'])) {
     echo '<pre style="font-size: 1.4rem">';
