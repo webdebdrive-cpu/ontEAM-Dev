@@ -147,7 +147,7 @@ if(isset($_POST['get_projekt_tabla'])){
             <script>
             ';
     }else{
-        $html = '<h1>Nem található projekt terv!</h1><script>$(\'#eloterj_igneyles_csatolForm div.kuldes\').html(\'<input type="button" class="gomb zold" value="Ok" onclick="popupZar();">\');  $(\'#eloterj_igneyles_csatolCim\').html(\'Hiba\');</script>';
+        $html = '<script>popupRejt(); setTimeout(function(){ popupZar(); alert2(\'Nem található projekt terv!\', \'\', \'Hiba\'); }, 10);</script>';
     }
 
     echo json_encode(
@@ -938,9 +938,12 @@ require_once('selectek.php');
         $szamla_html .= nl2('
                 <script>
                 $(document).ready(function () {
-                    if( !$(\'.szamla_sor.kijelolve\').length ){
-                        $(\'#pr_szam_gomb\').hide(\'\');
-                    }
+                    setTimeout(function(){
+                        if( !$(\'.szamla_sor.kijelolve\').length ){
+                            $(\'#pr_szam_gomb\').hide(\'\');
+                        }
+                    }, 100);
+                    
                 });
                 </script>
                 ');

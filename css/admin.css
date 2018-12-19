@@ -607,7 +607,7 @@ input.gomb.zold, input.gombb{
     cursor: pointer;
     font-size: 1.4rem;
     font-weight: 700;
-    padding: 0.7rem;
+    padding: 0.6rem;
     position: relative;
     transition: all ease-in-out 0.2s;
 }
