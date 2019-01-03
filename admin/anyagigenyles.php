@@ -283,7 +283,7 @@ if (isset($_POST['anyagigenylesLeirasHozzaadas'])) {
         if( $sql === false ) { $db_error = true; }
     }else{
         echo json_encode(array(
-            'hiba'  => 'Kérjük válassza ki a szerkeszteni kívánt sort!',
+            'hiba'  => 'Kérem válassza ki a szerkeszteni kívánt sort!',
             'title' => 'Hiba'
         ));
         $weblap->leallit();
@@ -774,7 +774,7 @@ if ($_POST['arazas_ment']) {
             echo json_encode(
                         array(
                             'title'         => 'Hiba',
-                            'hiba_alert'    => 'Anyagigénylés nem árazható, mert idő közben más már módosította az anyagigénylést!<br>Kérjük kezdje újra az árazást!',
+                            'hiba_alert'    => 'Anyagigénylés nem árazható, mert idő közben más már módosította az anyagigénylést!<br>Kérem kezdje újra az árazást!',
                         )
                 );
             $weblap -> leallit();
@@ -784,7 +784,7 @@ if ($_POST['arazas_ment']) {
     if(!$_POST['szallito_id']){
         echo json_encode(
                     array(
-                        'hiba'  => 'Kérjük adja meg a szállítót!',
+                        'hiba'  => 'Kérem adja meg a szállítót!',
                         'focus' => 'pop_szallito'
                     )
             );
@@ -794,7 +794,7 @@ if ($_POST['arazas_ment']) {
     if( !$_POST['rndmen'] || $_POST['rndmen']=='0.00' ){
         echo json_encode(
                     array(
-                        'hiba'  => 'Kérjük adja meg a rendelt mennyiséget!',
+                        'hiba'  => 'Kérem adja meg a rendelt mennyiséget!',
                         'focus' => 'pop_rndmen'
                     )
             );
@@ -814,7 +814,7 @@ if ($_POST['arazas_ment']) {
     if($_POST['ig_menny'] != $_POST['rndmen'] && !$_POST['indok']){
         echo json_encode(
                     array(
-                        'hiba'  => 'Kérjük adja meg a rendelési mennyiség megváltoztatásának indoklását!',
+                        'hiba'  => 'Kérem adja meg a rendelési mennyiség megváltoztatásának indoklását!',
                         'focus' => 'pop_indoklas'
                     )
             );
@@ -824,7 +824,7 @@ if ($_POST['arazas_ment']) {
     if(!$_POST['kcs_21']){
         echo json_encode(
                     array(
-                        'hiba'  => 'Kérjük adja meg a pénznemet!',
+                        'hiba'  => 'Kérem adja meg a pénznemet!',
                         'focus' => 'pop_kcs_21'
                     )
             );
@@ -835,7 +835,7 @@ if ($_POST['arazas_ment']) {
         if(!$_POST['rndear'] || number_format($_POST['rndear'], 4, '.', '')=='0.0000'){
             echo json_encode(
                         array(
-                            'hiba'  => 'Kérjük adja meg a rendelési egységárat!',
+                            'hiba'  => 'Kérem adja meg a rendelési egységárat!',
                             'focus' => 'pop_rndear'
                         )
                 );
@@ -849,7 +849,7 @@ if ($_POST['arazas_ment']) {
         if(!$_POST['arfolyam'] || number_format($_POST['arfolyam'], 4, '.', '')=='0.0000'){
             echo json_encode(
                         array(
-                            'hiba'  => 'Kérjük adja meg az árfolyamot!',
+                            'hiba'  => 'Kérem adja meg az árfolyamot!',
                             'focus' => 'pop_arfolyam'
                         )
                 );
@@ -859,7 +859,7 @@ if ($_POST['arazas_ment']) {
         if(!$_POST['vrndear'] || number_format($_POST['vrndear'], 4, '.', '')=='0.0000'){
             echo json_encode(
                         array(
-                            'hiba'  => 'Kérjük adja meg a Deviza rend. egységárat!',
+                            'hiba'  => 'Kérem adja meg a Deviza rend. egységárat!',
                             'focus' => 'pop_vrndear'
                         )
                 );
@@ -871,7 +871,7 @@ if ($_POST['arazas_ment']) {
         if(!$_POST['atvaltva_d'] || $_POST['atvaltva_d']=='0000.00.00'){
             echo json_encode(
                         array(
-                            'hiba'  => 'Kérjük adja meg az átváltás dátumát!',
+                            'hiba'  => 'Kérem adja meg az átváltás dátumát!',
                             'focus' => 'pop_atvaltva_d'
                         )
                 );
@@ -1935,7 +1935,7 @@ if (isset($_POST['anyagigenylesSztornoz'])) {
     // Memó ellenőrzése
     if(!$memo){
         echo json_encode(array(
-            'hiba'  => 'Kérjük indokolja a sztornózást!',
+            'hiba'  => 'Kérem indokolja a sztornózást!',
             'title' => 'Hiba'
         ));
         $weblap->leallit();

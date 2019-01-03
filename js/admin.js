@@ -10,7 +10,7 @@ var KEY_MINUS  =  109;
 var KEY_F5     =  116;
 var KEY_F12    =  123;
 
-var EGYSEGAR_VALASZT = 'Kérjük válasszon egységár sort!';
+var EGYSEGAR_VALASZT = 'Kérem válasszon egységár sort!';
 
 var keys = {37: 1, 38: 1, 39: 1, 40: 1};
 
@@ -417,6 +417,7 @@ $(function() {
                 'munkalap_arch',
                 'projektkezeles',
                 'projektigenyles',
+                'projektszamla',
                 'projektszerzodes',
                 'raktar',
                 'rendszer',
@@ -1349,7 +1350,7 @@ console.log(name+' db:'+taroltVal+'|itt:'+val);
 
         felt = $('.f_felt').val();
         if(!felt){
-            alert2('Kérjük állítsa be a szűrési feltételt!', '', 'Hiba');
+            alert2('Kérem állítsa be a szűrési feltételt!', '', 'Hiba');
         }else{
             /* Autocompletenek az ID-ját tegyük az URL-be */
             if( $('.f_felt').attr('id') ){
@@ -1423,7 +1424,7 @@ console.log(name+' db:'+taroltVal+'|itt:'+val);
 
         /* Hibaellenőrzés, majd mehet */
         if(!feltetel_ertek){
-            alert2('Kérjük állítsa be a szűrési feltételt!', '', 'Hiba');
+            alert2('Kérem állítsa be a szűrési feltételt!', '', 'Hiba');
         }else{
 
             /* Feltételek törlése gomb megjelenítése */
@@ -3075,7 +3076,7 @@ function bejegyzesElutasitas( that, csak_memo ) {
     if(!memo.val()){
         $('#popup input, #popup textarea, #popup select').removeClass('hibas_ide_focus');
         $('#elutasitas_memo').addClass('hibas_ide_focus');
-        alert2('Kérjük indokolja az elutasítást!', '<input type="button" class="link gomb" value="Ok" onclick="alert2();">', 'Hiba');
+        alert2('Kérem indokolja az elutasítást!', '<input type="button" class="link gomb" value="Ok" onclick="alert2();">', 'Hiba');
         return false;
     }
 
@@ -4124,7 +4125,7 @@ function arazas_ment(){
     }
 
     if($('#pop_dbf').prop('checked')==false && !$('#pop_erkcimid').val()){
-        $('#popup_hiba').html('Kérjük válasszon szállítási címet!');
+        $('#popup_hiba').html('Kérem válasszon szállítási címet!');
         alert_raz();
         return false;
     }
@@ -4318,7 +4319,7 @@ function anyagigenyles_erkeztet( ures_men_ek_pipa0_kesz, ures_men_ek_pipa1_kesz,
 
         if(!$('#rsz').val().trim()){
             $('#rsz').addClass('hibas_ide_focus');
-            alert2('Kérjük adja meg a rendelés számot!', '', 'Hiba');
+            alert2('Kérem adja meg a rendelés számot!', '', 'Hiba');
             return false;
         }
 
@@ -4625,7 +4626,7 @@ function obj_gen(szintig) {
          	}
         });
     } else {
-        alert2('Kérjük előbb válasszon szállodát!');
+        alert2('Kérem előbb válasszon szállodát!');
         return false;
     }
 }
@@ -6430,7 +6431,7 @@ function balnav_kijelol_ell(egy_csoport_reszben_szabad, kivetel_ell){
 function pri_statusz_leptet(recid, statusz){
 
     if(formModositva){
-        alert2('Kérjük előbb mentse el az űrlapot!', '', 'Hiba');
+        alert2('Kérem előbb mentse el az űrlapot!', '', 'Hiba');
     }else{
         $.ajax({
             url : 'projektigenyles.php',
@@ -6532,12 +6533,12 @@ function pri_eloterj_statusz_mod_mentes(rogzit, mehet){
 
         /* Ha van még ki nem választott select */
         if(hianyos){
-            alert2('Még '+hianyos+' darab igénylés vár feldolgozásra.<br>Rögzítés előtt kérjük dolgozza fel ezeket is!', '', 'Hiba');
+            alert2('Még '+hianyos+' darab igénylés vár feldolgozásra.<br>Rögzítés előtt kérem dolgozza fel ezeket is!', '', 'Hiba');
             return false;
         }else if(!mehet){
 
             if(!$('#ules_datum').val() || $('#ules_datum').val()=='0000-00-00'){
-                alert2('Kérjük előbb adja meg az ülés dátumát', '<input type="button" class="gomb zold" value="Ok" onclick="szamlaBetolt( \''+_get('id')+'\', \''+baseName(location.href) + '.php\', \'modosit_ules\');">');
+                alert2('Kérem előbb adja meg az ülés dátumát', '<input type="button" class="gomb zold" value="Ok" onclick="szamlaBetolt( \''+_get('id')+'\', \''+baseName(location.href) + '.php\', \'modosit_ules\');">');
                 return false;
             }
 
@@ -6674,10 +6675,10 @@ function valid_date(that, true_val_terj_vissza){
         !Date.parse( that.val().replace(/\./gi, '-') )
         ){
             if(that.hasClass('datepicker')){
-                alert2('Helytelen dátum: '+that.val()+'<br>Kérjük válasszon érvényes dátumot!', '', 'Hiba');
+                alert2('Helytelen dátum: '+that.val()+'<br>Kérem válasszon érvényes dátumot!', '', 'Hiba');
             }
             if(that.hasClass('datetimepicker')){
-                alert2('Helytelen dátumidő: '+that.val()+'<br>Kérjük válasszon érvényes dátumidőt!', '', 'Hiba');
+                alert2('Helytelen dátumidő: '+that.val()+'<br>Kérem válasszon érvényes dátumidőt!', '', 'Hiba');
             }
             that.addClass('hibas_ide_focus');
             return false;
@@ -6691,7 +6692,7 @@ function valid_date(that, true_val_terj_vissza){
 function valid_ido(hibas_input){
     ora_perc = hibas_input.val().split(':');
     if(ora_perc[0]>24 || ora_perc[0]<0 || ora_perc[1]>60 || ora_perc[0]<0){
-        alert2('Érvénytelen időpont: '+hibas_input.val()+'<br>Kérjük válasszon érvényes időpontot!', '', 'Hiba');
+        alert2('Érvénytelen időpont: '+hibas_input.val()+'<br>Kérem válasszon érvényes időpontot!', '', 'Hiba');
         hibas_input.val('\xa0\xa0:\xa0\xa0');
         hibas_input.addClass('hibas_ide_focus');
         return false;

@@ -588,7 +588,7 @@ if( isset($_POST['munkalapKulso']) ) {
         if($_POST['email']){
             if(!trim($_POST['cimzett'])){
                 echo json_encode(array(
-                    'hiba'  => 'Kérjük adja meg a címzett email címét!',
+                    'hiba'  => 'Kérem adja meg a címzett email címét!',
                     'title' => 'Hiba',
                     'gomb'  => '<input type="button" class="gomb" value="Ok" onclick="$(\'#email_kuldessel\').val(0); alert2();">',
                     'focus' => 'pop_cimzett',
@@ -653,7 +653,7 @@ if( isset($_POST['munkalapKulso']) ) {
             }
             if(!trim($_POST['targy'])){
                 echo json_encode(array(
-                    'hiba'  => 'Kérjük töltse ki az email tárgyát!',
+                    'hiba'  => 'Kérem töltse ki az email tárgyát!',
                     'title' => 'Hiba',
                     'gomb'  => '<input type="button" class="gomb" value="Ok" onclick="$(\'#email_kuldessel\').val(0); alert2();">',
                     'focus' => 'pop_targy',
@@ -664,7 +664,7 @@ if( isset($_POST['munkalapKulso']) ) {
             }
             if(!trim($_POST['uzenet'])){
                 echo json_encode(array(
-                    'hiba'  => 'Kérjük töltse ki a email üzenetét!',
+                    'hiba'  => 'Kérem töltse ki a email üzenetét!',
                     'title' => 'Hiba',
                     'gomb'  => '<input type="button" class="gomb" value="Ok" onclick="$(\'#email_kuldessel\').val(0); alert2();">',
                     'focus' => 'pop_uzenet',
@@ -1608,7 +1608,7 @@ if( isset($_POST['munkalapKulsosElutasit']) ) {
         // Indoklás ellenőrzése
         if( !$memo ) {
             echo json_encode(array(
-                'hiba'  => 'Kérjük adja meg az indoklást!',
+                'hiba'  => 'Kérem adja meg az indoklást!',
                 'gomb'  => '<input type="button" class="link gomb" value="Ok" onclick="alert2(); $(\'#elutasitas_memo\').focus();">',
                 'title' => 'Hiba',
             ));
@@ -1700,7 +1700,7 @@ if( isset($_POST['munkalapIgazolElutasit']) ) {
         // Indoklás ellenőrzése
         if( !$memo ) {
             echo json_encode(array(
-                'hiba'  => 'Kérjük adja meg az indoklást!',
+                'hiba'  => 'Kérem adja meg az indoklást!',
                 'gomb'  => '<input type="button" class="link gomb" value="Ok" onclick="alert2(); $(\'#elutasitas_memo\').focus();">',
                 'title' => 'Hiba',
             ));
@@ -1877,7 +1877,7 @@ if( isset($_POST['munkalapReklamacioElutasit']) ) {
         // Indoklás ellenőrzése
         if( !$memo ) {
             echo json_encode(array(
-                'hiba'  => 'Kérjük adja meg az indoklást!',
+                'hiba'  => 'Kérem adja meg az indoklást!',
                 'gomb'  => '<input type="button" class="link gomb" value="Ok" onclick="alert2();">',
                 'title' => 'Hiba',
             ));
@@ -2306,7 +2306,7 @@ if( isset($_POST['kulsokivHozzarend']) ) {
         if($_POST['email'] && !isset($_POST['javaslattetel'])){
             if(!trim($_POST['cimzett'])){
                 echo json_encode(array(
-                    'hiba'  => 'Kérjük adja meg a címzett email címét!',
+                    'hiba'  => 'Kérem adja meg a címzett email címét!',
                     'title' => 'Hiba',
                     'gomb'  => '<input type="button" class="gomb" value="Ok" onclick="$(\'#email_kuldessel\').val(0); alert2();">',
                     'focus' => 'pop_cimzett',
@@ -2372,7 +2372,7 @@ if( isset($_POST['kulsokivHozzarend']) ) {
             }
             if(!trim($_POST['targy'])){
                 echo json_encode(array(
-                    'hiba'  => 'Kérjük töltse ki az email tárgyát!',
+                    'hiba'  => 'Kérem töltse ki az email tárgyát!',
                     'title' => 'Hiba',
                     'gomb'  => '<input type="button" class="gomb" value="Ok" onclick="$(\'#email_kuldessel\').val(0); alert2();">',
                     'focus' => 'pop_targy',
@@ -2383,7 +2383,7 @@ if( isset($_POST['kulsokivHozzarend']) ) {
             }
             if(!trim($_POST['uzenet'])){
                 echo json_encode(array(
-                    'hiba'  => 'Kérjük töltse ki a email üzenetét!',
+                    'hiba'  => 'Kérem töltse ki a email üzenetét!',
                     'title' => 'Hiba',
                     'gomb'  => '<input type="button" class="gomb" value="Ok" onclick="$(\'#email_kuldessel\').val(0); alert2();">',
                     'focus' => 'pop_uzenet',
@@ -2727,7 +2727,7 @@ if (isset($_POST['munkalapVisszaElokeszitDirektbe'])) {
     if($_POST['email']){
         if(!trim($_POST['cimzett'])){
             echo json_encode(array(
-                'hiba'  => 'Kérjük adja meg a címzett email címét!',
+                'hiba'  => 'Kérem adja meg a címzett email címét!',
                 'title' => 'Hiba',
                 'gomb'  => '<input type="button" class="gomb" value="Ok" onclick="$(\'#email_kuldessel\').val(0); alert2();">',
                 'focus' => 'pop_cimzett',
@@ -2793,7 +2793,7 @@ if (isset($_POST['munkalapVisszaElokeszitDirektbe'])) {
         }
         if(!trim($_POST['targy'])){
             echo json_encode(array(
-                'hiba'  => 'Kérjük töltse ki az email tárgyát!',
+                'hiba'  => 'Kérem töltse ki az email tárgyát!',
                 'title' => 'Hiba',
                 'gomb'  => '<input type="button" class="gomb" value="Ok" onclick="$(\'#email_kuldessel\').val(0); alert2();">',
                 'focus' => 'pop_targy',
@@ -2804,7 +2804,7 @@ if (isset($_POST['munkalapVisszaElokeszitDirektbe'])) {
         }
         if(!trim($_POST['uzenet'])){
             echo json_encode(array(
-                'hiba'  => 'Kérjük töltse ki a email üzenetét!',
+                'hiba'  => 'Kérem töltse ki a email üzenetét!',
                 'title' => 'Hiba',
                 'gomb'  => '<input type="button" class="gomb" value="Ok" onclick="$(\'#email_kuldessel\').val(0); alert2();">',
                 'focus' => 'pop_uzenet',
@@ -4752,7 +4752,7 @@ if( isset($_POST['atadasDiszpecsernekDirektbe']) ) {
         if($_POST['email']){
             if(!trim($_POST['cimzett'])){
                 echo json_encode(array(
-                    'hiba'  => 'Kérjük adja meg a címzett email címét!',
+                    'hiba'  => 'Kérem adja meg a címzett email címét!',
                     'title' => 'Hiba',
                     'gomb'  => '<input type="button" class="gomb" value="Ok" onclick="$(\'#email_kuldessel\').val(0); alert2();">',
                     'focus' => 'pop_cimzett',
@@ -4818,7 +4818,7 @@ if( isset($_POST['atadasDiszpecsernekDirektbe']) ) {
             }
             if(!trim($_POST['targy'])){
                 echo json_encode(array(
-                    'hiba'  => 'Kérjük töltse ki az email tárgyát!',
+                    'hiba'  => 'Kérem töltse ki az email tárgyát!',
                     'title' => 'Hiba',
                     'focus' => 'pop_targy',
                 ));
@@ -4828,7 +4828,7 @@ if( isset($_POST['atadasDiszpecsernekDirektbe']) ) {
             }
             if(!trim($_POST['uzenet'])){
                 echo json_encode(array(
-                    'hiba'  => 'Kérjük töltse ki a email üzenetét!',
+                    'hiba'  => 'Kérem töltse ki a email üzenetét!',
                     'title' => 'Hiba',
                     'gomb'  => '<input type="button" class="gomb" value="Ok" onclick="$(\'#email_kuldessel\').val(0); alert2();">',
                     'focus' => 'pop_uzenet',
@@ -5786,7 +5786,7 @@ if( isset($_POST['munkalapDiszpKozp']) ) {
             // Előkészítés alatt az indoklás kötelező
             if(!$indoklas){
                 echo json_encode(array(
-                    'hiba'  => 'Kérjük indokolja meg az átadást!',
+                    'hiba'  => 'Kérem indokolja meg az átadást!',
                     'title' => 'Hiba',
                     'focus' => 'atadas_indok',
                 ));
@@ -5952,7 +5952,7 @@ if (isset($_POST['munkalapHIUtemez'])) {
         // Dátum helyes-e?
         if( !valos_datum_e($_POST['datum'])){
             echo json_encode(array(
-                'hiba'  => 'Helytelen dátum! Kérjük válasszon egy érvényes dátumot!',
+                'hiba'  => 'Helytelen dátum! Kérem válasszon egy érvényes dátumot!',
                 'title' => 'Hiba',
             ));
             $weblap->leallit();
@@ -6151,7 +6151,7 @@ if (isset($_POST['munkalapVisszavetelDirektbe'])) {
     if($_POST['email']){
         if(!trim($_POST['cimzett'])){
             echo json_encode(array(
-                'hiba'  => 'Kérjük adja meg a címzett email címét!',
+                'hiba'  => 'Kérem adja meg a címzett email címét!',
                 'title' => 'Hiba',
                 'gomb'  => '<input type="button" class="gomb" value="Ok" onclick="$(\'#email_kuldessel\').val(0); alert2();">',
                 'focus' => 'pop_cimzett',
@@ -6217,7 +6217,7 @@ if (isset($_POST['munkalapVisszavetelDirektbe'])) {
         }
         if(!trim($_POST['targy'])){
             echo json_encode(array(
-                'hiba'  => 'Kérjük töltse ki az email tárgyát!',
+                'hiba'  => 'Kérem töltse ki az email tárgyát!',
                 'title' => 'Hiba',
                 'gomb'  => '<input type="button" class="gomb" value="Ok" onclick="$(\'#email_kuldessel\').val(0); alert2();">',
                 'focus' => 'pop_targy',
@@ -6228,7 +6228,7 @@ if (isset($_POST['munkalapVisszavetelDirektbe'])) {
         }
         if(!trim($_POST['uzenet'])){
             echo json_encode(array(
-                'hiba'  => 'Kérjük töltse ki a email üzenetét!',
+                'hiba'  => 'Kérem töltse ki a email üzenetét!',
                 'title' => 'Hiba',
                 'gomb'  => '<input type="button" class="gomb" value="Ok" onclick="$(\'#email_kuldessel\').val(0); alert2();">',
                 'focus' => 'pop_uzenet',
@@ -6344,7 +6344,7 @@ if (isset($_POST['munkalapVarakoztat'])) {
     if(!$memo){
         mysqli_rollback($db_kapcs);
         echo json_encode(array(
-            'hiba'  => 'Kérjük indokolja a várakoztatást!',
+            'hiba'  => 'Kérem indokolja a várakoztatást!',
             'title' => 'Hiba',
             'focus' => 'sztorno_memo',
         ));
@@ -6517,7 +6517,7 @@ if (isset($_POST['munkalapSztornoz'])) {
     if(!$memo){
         mysqli_rollback($db_kapcs);
         echo json_encode(array(
-            'hiba'  => 'Kérjük indokolja a sztornózást!',
+            'hiba'  => 'Kérem indokolja a sztornózást!',
             'title' => 'Hiba',
             'focus' => 'sztorno_memo',
         ));

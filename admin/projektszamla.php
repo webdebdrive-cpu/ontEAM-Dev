@@ -15,7 +15,7 @@ if( !_jog(JOG_PRSZAMLAK_OLVAS) ) {
 // Config
 $megnevezes             = pathinfo(self());
 $megnevezes             = $megnevezes['filename'];
-$akt_tomb               = $projektszerzodes_tomb;
+$akt_tomb               = $projektszamla_tomb;
 $torles                 = $megnevezes.'tid';
 $szoveg                 = 'projekt számlát';   // Hibaüzenetkor: Biztosan törlöd a $szoveg?
 

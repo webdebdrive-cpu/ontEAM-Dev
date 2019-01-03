@@ -271,12 +271,12 @@ function email(nev,mail){
 	if (nev!=null && ( document.getElementById(nev).value=='' || document.getElementById(nev).value=='Név') ){
 		document.getElementById(nev).focus();
 		scrollto('#'+nev, 500);
-		alert2("Kérjük adja meg nevét!");
+		alert2("Kérem adja meg nevét!");
 		return false;
 	}else if( document.getElementById(mail).value=='' || document.getElementById(mail).value=='E-mail cím'){
 		document.getElementById(mail).focus();
 		scrollto('#'+mail, 500);
-		alert2("Kérjük adja meg e-mail címét!");
+		alert2("Kérem adja meg e-mail címét!");
 		return false;
 	}else{
 		str=document.getElementById(mail).value.trim();
@@ -857,7 +857,7 @@ function kedvencek_koze(url,cim){
 	if(navigator.appName=='Microsoft Internet Explorer'){
 		window.external.addfavorite(url,cim);
 	}else{
-		alert2('A hozzáadás nem támogatott. Kérjük állítsd be manuálisan!');
+		alert2('A hozzáadás nem támogatott. Kérem állítsd be manuálisan!');
 	}
 	return true;
 }

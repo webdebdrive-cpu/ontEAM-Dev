@@ -162,7 +162,7 @@ function sor_torol(ful, mehet){
 
     var sor = '';
     if(!$('.szamla_cont_tabla tr.kijelolve').length){
-        alert2('Kérjük jelölje ki a törölni kívánt sor!', '', 'Hiba');
+        alert2('Kérem jelölje ki a törölni kívánt sor!', '', 'Hiba');
         return;
     }else{
         sor = $('.szamla_cont_tabla tr.kijelolve').attr('id').replace('ft_ft_', '');

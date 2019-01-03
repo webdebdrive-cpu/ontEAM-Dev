@@ -80,6 +80,6 @@ function cash_flow_sorok_torol(){
         }
         
     }else{
-        alert2('Kérjük, jelölje meg a törölni kívánt összegeket!', '', 'Hiba');
+        alert2('Kérem, jelölje meg a törölni kívánt összegeket!', '', 'Hiba');
     }
 }

@@ -130,7 +130,7 @@ if (isset($_POST['terv_keszit'])) {
     // Szálloda ellenőrzése
     if( !$telephely ) {
         echo json_encode(array(
-            'hiba'  => 'Kérjük válasszon szállodát!',
+            'hiba'  => 'Kérem válasszon szállodát!',
             'focus' => 'popup_telephely',
             'title' => 'Hiba',
         ));
@@ -850,7 +850,7 @@ if (isset($_POST['muszaki_tabla_ment'])) {
     // Ha új feltöltés, akkor ellenőrizni kell, hogy a ktsgnem ki van-e töltve
 //    if (isset($_POST['uj']) && !$_POST['ktgnem_id']) {
 //        echo json_encode(array(
-//            'hiba'  => 'Kérjük válasszon költségnemet!',
+//            'hiba'  => 'Kérem válasszon költségnemet!',
 //            'focus' => 'ktgnem_id',
 //            'title' => 'Hiba'
 //        ));
@@ -1045,7 +1045,7 @@ if (isset($_POST['rendszeres_tabla_ment'])) {
     // Ha új feltöltés, akkor ellenőrizni kell, hogy a ktsgnem ki van-e töltve
     if (isset($_POST['uj']) && !$_POST['ktgnem_id']) {
         echo json_encode(array(
-            'hiba'  => 'Kérjük válasszon költségnemet!',
+            'hiba'  => 'Kérem válasszon költségnemet!',
             'focus' => 'ktgnem_id',
             'title' => 'Hiba'
         ));
@@ -1246,7 +1246,7 @@ if (isset($_POST['eseti_tabla_ment'])) {
     // Ha új feltöltés, akkor ellenőrizni kell, hogy a ktsgnem ki van-e töltve
     if (isset($_POST['uj']) && !$_POST['ktgnem_id']) {
         echo json_encode(array(
-            'hiba'  => 'Kérjük válasszon költségnemet!',
+            'hiba'  => 'Kérem válasszon költségnemet!',
             'focus' => 'ktgnem_id',
             'title' => 'Hiba'
         ));
@@ -1443,7 +1443,7 @@ if (isset($_POST['hiba_tabla_ment'])) {
     // Ha új feltöltés, akkor ellenőrizni kell, hogy a ktsgnem ki van-e töltve
     if (isset($_POST['uj']) && !$_POST['ktgnem_id']) {
         echo json_encode(array(
-            'hiba'  => 'Kérjük válasszon költségnemet!',
+            'hiba'  => 'Kérem válasszon költségnemet!',
             'focus' => 'ktgnem_id',
             'title' => 'Hiba'
         ));
@@ -1644,7 +1644,7 @@ if (isset($_POST['mini_tabla_ment'])) {
     // Ha új feltöltés, akkor ellenőrizni kell, hogy a ktsgnem ki van-e töltve
     if (isset($_POST['uj']) && !$_POST['ktgnem_id']) {
         echo json_encode(array(
-            'hiba'  => 'Kérjük válasszon költségnemet!',
+            'hiba'  => 'Kérem válasszon költségnemet!',
             'focus' => 'ktgnem_id',
             'title' => 'Hiba'
         ));
@@ -1845,7 +1845,7 @@ if (isset($_POST['bwh_tabla_ment'])) {
     // Ha új feltöltés, akkor ellenőrizni kell, hogy a ktsgnem ki van-e töltve
     if (isset($_POST['uj']) && !$_POST['ktgnem_id']) {
         echo json_encode(array(
-            'hiba'  => 'Kérjük válasszon költségnemet!',
+            'hiba'  => 'Kérem válasszon költségnemet!',
             'focus' => 'ktgnem_id',
             'title' => 'Hiba'
         ));

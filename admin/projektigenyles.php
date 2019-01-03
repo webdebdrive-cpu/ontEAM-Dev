@@ -199,7 +199,7 @@ if (isset($_POST['addMegterules'])) {
     // Terület ellenőrzése
     if(!$terulet){
         echo json_encode(array(
-            'hiba'  => 'Kérjük válasszon területet!',
+            'hiba'  => 'Kérem válasszon területet!',
             'gomb'  => '<input class="link gomb" value="Ok" onclick="alert2(); $(\'#erteklista_id_autocomp\').focus();" type="button">',
             'title' => 'Hiba'
         ));
@@ -210,7 +210,7 @@ if (isset($_POST['addMegterules'])) {
     // Ha nincs megadva az összeg
     if(!$osszeg){
         echo json_encode(array(
-            'hiba'  => 'Kérjük adja meg az összeget!',
+            'hiba'  => 'Kérem adja meg az összeget!',
             'gomb'  => '<input class="link gomb" value="Ok" onclick="alert2(); $(\'#osszeg\').focus();" type="button">',
             'title' => 'Hiba'
         ));
@@ -556,7 +556,7 @@ if( isset($_POST['addHianypotlas']) ) {
 
     if(!trim($_POST['megj'])){
         echo json_encode(array(
-            'hiba' => 'Kérjük adja meg a pótlásra váró adatokat!',
+            'hiba' => 'Kérem adja meg a pótlásra váró adatokat!',
             'gomb' => '<input class="link gomb" value="Ok" onclick="alert2(); $(\'#hianypotlas_megj\').focus();" type="button">'
         ));
         $weblap->leallit();
@@ -607,7 +607,7 @@ if( isset($_POST['addVarakoztat']) ) {
 
     if(!trim($_POST['megj'])){
         echo json_encode(array(
-            'hiba' => 'Kérjük indokolja a várakoztatást!',
+            'hiba' => 'Kérem indokolja a várakoztatást!',
             'gomb' => '<input class="link gomb" value="Ok" onclick="alert2(); $(\'#varakoztat_megj\').focus();" type="button">'
         ));
         $weblap->leallit();

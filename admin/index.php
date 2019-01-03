@@ -94,7 +94,7 @@ Tisztelt '.$login['teljes_nev'].'!
 <br>
 <br>Az '.get_nev().' rendszer '.$datum.' '.$nap_neve.' reggel 7:00 időpontban indul a '.$szalloda_nev.' szállodában.
 <br>
-<br>Kérjük, hogy ettől az időponttól hibabejelentéseiket az '.get_nev().' rendszerben tegyék meg.
+<br>Kérem, hogy ettől az időponttól hibabejelentéseiket az '.get_nev().' rendszerben tegyék meg.
 <br>
 <br>Loginneve az új rendszerben: '.$login['nev'].'
 <br>

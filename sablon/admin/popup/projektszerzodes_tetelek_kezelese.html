@@ -79,12 +79,12 @@ function tetel_hozzaadasa() {
 
     /* Üres adatok ellenőrzése */
     if(!targy){
-        alert2('Kérjük töltse ki a tárgyat!', '', 'Hiba');
+        alert2('Kérem töltse ki a tárgyat!', '', 'Hiba');
         $('#pop_targy').addClass('hibas_ide_focus');
         return false;
     }
     if( !szla_varh_erk || szla_varh_erk=='.\xa0\xa0.' ){
-        alert2('Kérjük töltse ki a várható érkezést!', '', 'Hiba');
+        alert2('Kérem töltse ki a várható érkezést!', '', 'Hiba');
         $('#pop_szla_varh_erk').addClass('hibas_ide_focus');
         return false;
     }
@@ -95,7 +95,7 @@ function tetel_hozzaadasa() {
     }
     
     if( !szla_varh_ert || szla_varh_ert=='0' ){
-        alert2('Kérjük töltse ki a várható értéket!', '', 'Hiba');
+        alert2('Kérem töltse ki a várható értéket!', '', 'Hiba');
         $('#pop_szla_varh_ert').addClass('hibas_ide_focus');
         return false;
     }

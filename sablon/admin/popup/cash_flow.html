@@ -66,7 +66,7 @@ function addCashFlow() {
     
     // Szálloda ki van-e választva?
     if($('#telephely_id').length && !$('#telephely_id').val()){
-        alert2('Kérjük válasszon szállodát!', '<input type="button" class="gomb" value="Ok" onclick="alert2(); $(\'#telephely_id\').focus();">', 'Hiba');
+        alert2('Kérem válasszon szállodát!', '<input type="button" class="gomb" value="Ok" onclick="alert2(); $(\'#telephely_id\').focus();">', 'Hiba');
         return false;
     }
     
@@ -93,11 +93,11 @@ function addCashFlow() {
 
             var timestamp = Date.parse(datum.replace(/\./g, '-'));
             if (isNaN(timestamp)){
-                alert2('Kérjük adjon meg egy valós dátumot!', '<input type="button" class="gomb" value="Ok" onclick="alert2(); $(\'#cf_datum\').focus();">', 'Hiba');
+                alert2('Kérem adjon meg egy valós dátumot!', '<input type="button" class="gomb" value="Ok" onclick="alert2(); $(\'#cf_datum\').focus();">', 'Hiba');
                 return false;
             }
             if(!osszeg.trim() || osszeg=='0'){
-                alert2('Kérjük adja meg az összeget!', '<input type="button" class="gomb" value="Ok" onclick="alert2(); $(\'#cf_datum\').focus();">', 'Hiba');
+                alert2('Kérem adja meg az összeget!', '<input type="button" class="gomb" value="Ok" onclick="alert2(); $(\'#cf_datum\').focus();">', 'Hiba');
                 return false;
             }
 

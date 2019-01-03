@@ -171,7 +171,7 @@ function uj_egysegar_szallodak(that){
             }
         });
     }else{
-        alert2('Kérjük válasszon szállodát!', '', 'Hiba');
+        alert2('Kérem válasszon szállodát!', '', 'Hiba');
     }
 
     return false;

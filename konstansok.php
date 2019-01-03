@@ -311,7 +311,7 @@ define('ERT_ANYAGIG_JOVAHAGYAS',        10);
 define('ERT_ELFELEJTETT_JELSZO',        11);
 define('ERT_14_NAPJA_VARO_ML',          12);
 
-define('HIBA_ADJON_FELADAT',           ' kérjük adjon hozzá egy elvégzett feladatot!');
+define('HIBA_ADJON_FELADAT',           ' kérem adjon hozzá egy elvégzett feladatot!');
 
 // Pénznem értéklistánál a HUF értéklista ID-ja
 define('KCS_21_HUF',           5);

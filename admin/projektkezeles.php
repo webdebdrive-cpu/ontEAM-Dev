@@ -422,7 +422,7 @@ if (isset($_POST['projekt_felfuggeszt'])) {
     // Indoklás ellenőrzése
     if(!$indok){
         echo json_encode(array(
-            'hiba'  => 'Kérjük adja meg a felfüggesztés indoklását!',
+            'hiba'  => 'Kérem adja meg a felfüggesztés indoklását!',
             'title' => 'Hiba',
             'focus' => 'felfuggeszt_indok'
         ));
@@ -556,7 +556,7 @@ if (isset($_POST['projekt_leallit'])) {
     // Indoklás ellenőrzése
     if(!$indok){
         echo json_encode(array(
-            'hiba'  => 'Kérjük adja meg a leállítás indoklását!',
+            'hiba'  => 'Kérem adja meg a leállítás indoklását!',
             'title' => 'Hiba',
             'focus' => 'leallit_indok'
         ));

@@ -202,7 +202,7 @@ function fajl_menedzser($megnevezes, $tomb, $sor_id, $uj_mod){
         $tabla      = 'cache/jsfajlok'; // A tartalom mappán belül a 'cache' könyvtárba mentjük majd el ideiglenesen
         $sor_id     = session_id().'|||'.$fajl_oszlop.'|||'.$fajlnev.'|||'.$_FILES[$megnevezes]['name'].'|||';
         if( glob(get_utvonal().$tabla.'/'.$sor_id.'*') ){
-            echo 'Hiba!A fájl név már foglalt!<br>Kérjük előbb törölje a már feltölött fájlt, vagy nevezze át az újat!';
+            echo 'Hiba!A fájl név már foglalt!<br>Kérem előbb törölje a már feltölött fájlt, vagy nevezze át az újat!';
             $weblap -> leallit();
             exit;
         }

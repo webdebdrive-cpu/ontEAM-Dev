@@ -84,39 +84,6 @@ if( $aktmenuk ) {
 
 //$menuk   .= str_replace( $akt_menu_mit, array( $style, '#', $megn, $menu_nev_tobbes, $aktmenuk ), $menu_sablon );
 
-/* Kimenő számlák */
-/*$menu_nev        = 'Kimenő számlák';
-$menu_nev_kis    = 'kimenő számlák';
-$menu_nev_tobbes = 'Kimenő számlák';
-$megn            = 'kimeno_szamlak';
-$aloldalak=array($megn.'.php');
-if(basename(self())==$megn.'.php' && isset($_GET['uj'])){      $navi = 'Új '.$menu_nev_kis.' feltöltése'; }
-if(basename(self())==$megn.'.php' && isset($_GET['lista'])){   $navi = $menu_nev_tobbes; }
-if(basename(self())==$megn.'.php' && isset($_GET['modosit'])){ $navi = $menu_nev.' szerkesztése'; }
-if(basename(self())==$megn.'.php' && isset($_GET['sorrend'])){ $navi = 'Sorrendezés'; }
-if(basename(self())==$megn.'.php'){ $oldalNev = $menu_nev; }
-
-$aktmenuk  = '';
-$style = '';
-if(substr( basename(self()), 0, strlen(basename($_SERVER['PHP_SELF']))-4 ) == $megn){
-    $style = ' class="hover{STYLE_KIEG}"';
-}
-
-if( $aktmenuk ) {
-    if( $style ) {
-        $style = str_replace('{STYLE_KIEG}', ' almenus', $style);
-    } else {
-        $style = ' class="almenus"';
-    }
-} else {
-    if( $style ) {
-        $style = str_replace('{STYLE_KIEG}', '', $style);
-    }
-}
-
-$menuk   .= str_replace( $akt_menu_mit, array( $style, '#', $megn, $menu_nev_tobbes, $aktmenuk ), $menu_sablon );*/
-
-
 // Bejelentések
 if( _jog(JOG_BEJELENTES_MEGTEKINT) || _jog(JOG_BEJELENTES_SAJAT_RESZL) ) {
     $menu_nev        = 'Bejelentések';
@@ -399,11 +366,12 @@ if(_jog(JOG_PRIGENY_S_KEZEL) ||_jog(JOG_PRIGENY_SZ_MEGTEKINT) || _jog(JOG_PRIGEN
     $menu_nev_kis    = 'rojektek';
     $menu_nev_tobbes = 'Projektek';
     $megn            = 'projektigenyles';
-    $aloldalak       = array($megn.'.php', 'projektkezeles.php', 'projektszerzodes.php', 'cash_flow.php', 'eloterj_fb.php', 'eloterj_bod.php');
+    $aloldalak       = array('projektigenyles.php', 'projektkezeles.php', 'projektszerzodes.php', 'cash_flow.php', 'eloterj_fb.php', 'eloterj_bod.php', 'projektszamla.php');
     if(basename(self())==$megn.'.php' && isset($_GET['modosit'])){ $navi = $menu_nev.' szerkesztése'; }
     if(basename(self())=='projektigenyles.php') { $oldalNev = 'Projektek / <span id="rekord_neve">Projektigénylések</span><span class="dn" id="rekord_neve_egyes">projektigénylés</span><span class="dn" id="rekord_neve_targy">projektigénylést</span>';                       }
     if(basename(self())=='projektkezeles.php')  { $oldalNev = 'Projektek / <span id="rekord_neve">Projekt tervek</span><span class="dn" id="rekord_neve_egyes">projekt terv</span><span class="dn" id="rekord_neve_targy">projekt tervet</span>';                                              }
     if(basename(self())=='projektszerzodes.php'){ $oldalNev = 'Projektek / <span id="rekord_neve">Projekt szerződések</span><span class="dn" id="rekord_neve_egyes">projekt szerződés</span><span class="dn" id="rekord_neve_targy">projekt szerződést</span>';                                              }
+    if(basename(self())=='projektszamla.php')   { $oldalNev = 'Projektek / <span id="rekord_neve">Projekt számlák</span><span class="dn" id="rekord_neve_egyes">projekt számla</span><span class="dn" id="rekord_neve_targy">projekt számlát</span>';                                              }
     if(basename(self())=='cash_flow.php')       { $oldalNev = 'Projektek / <span id="rekord_neve">Cash Flow</span><span class="dn" id="rekord_neve_egyes">Cash Flow</span><span class="dn" id="rekord_neve_targy">Cash Flow-t</span>';                                          }
     if(basename(self())=='eloterj_fb.php')      { $oldalNev = 'Projektek / Előterjesztés / <span id="rekord_neve">FB előterjesztések</span><span class="dn" id="rekord_neve_egyes">FB előterjesztés</span><span class="dn" id="rekord_neve_targy">FB előterjesztést</span>';    }
     if(basename(self())=='eloterj_bod.php')     { $oldalNev = 'Projektek / Előterjesztés / <span id="rekord_neve">BoD előterjesztések</span><span class="dn" id="rekord_neve_egyes">BoD előterjesztés</span><span class="dn" id="rekord_neve_targy">BoD előterjesztést</span>'; }
@@ -417,6 +385,9 @@ if(_jog(JOG_PRIGENY_S_KEZEL) ||_jog(JOG_PRIGENY_SZ_MEGTEKINT) || _jog(JOG_PRIGEN
     }
     if(_jog(JOG_PRKEZEL_SZERZODES_OLVAS)){
         $aktmenuk .= str_replace( $akt_almenu_mit, array( $aloldalak['2'], 'Projekt szerződések'), $almenu_sablon );
+    }
+    if(_jog(JOG_PRSZAMLAK_OLVAS)){
+        $aktmenuk .= str_replace( $akt_almenu_mit, array( $aloldalak['6'], 'Projekt számlák'), $almenu_sablon );
     }
     $aktmenuk .= str_replace( $akt_almenu_mit, array( $aloldalak['3'], 'Cash-flow'              ), $almenu_sablon );
 

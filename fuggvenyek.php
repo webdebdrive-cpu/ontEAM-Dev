@@ -1304,7 +1304,7 @@ function js_kiir($tomb, $fg = 'form_ell_regi()', $ajax = false) {
         $ret .= nl2('
 
             if( !$(\'#nev\').val() ){
-                alert2(\'Kérjük válasszon ki egy cikknevet az értéklistából!\', \'<input type="button" class="link gomb" value="Ok" onclick="alert2(); szurkit_zar(\\\'Mehet-Mégsem gombokat mutasd\\\');">\', \'Hiba\');
+                alert2(\'Kérem válasszon ki egy cikknevet az értéklistából!\', \'<input type="button" class="link gomb" value="Ok" onclick="alert2(); szurkit_zar(\\\'Mehet-Mégsem gombokat mutasd\\\');">\', \'Hiba\');
                 return false;
             }
             
@@ -1368,7 +1368,7 @@ function js_kiir($tomb, $fg = 'form_ell_regi()', $ajax = false) {
     if( basename(self())=='beosztas.php' && isset($_GET['naptar']) ) {
         $ret .= nl2('
             if( $(\'#beosztas\').val()==1 && !$(\'#szerepkor\').val() ) {
-                alert2(\'Kérjük adja meg a szerepkört!\', \'\', \'Hiba\');
+                alert2(\'Kérem adja meg a szerepkört!\', \'\', \'Hiba\');
                 return false;
             }
 
@@ -1457,7 +1457,7 @@ function js_kiir($tomb, $fg = 'form_ell_regi()', $ajax = false) {
                 /* Hozzárendelt személy ha külsős, akkor a Külső kivitelező kitöltése kötelező */
                 if($(\'#szemelyzet_id\').val()==3){
                     if( !$(\'#szallito_id\').val() ){
-                        alert2(\'Kérjük adja meg a külső kivitelezőt!\', \'\', \'Hiba\');
+                        alert2(\'Kérem adja meg a külső kivitelezőt!\', \'\', \'Hiba\');
                         $(\'#szallito_id_autocomp\').addClass(\'hibas_ide_focus\');
                         return false;
                     }
@@ -1465,21 +1465,21 @@ function js_kiir($tomb, $fg = 'form_ell_regi()', $ajax = false) {
                 /* Kötelező mezők hibaüzenetei */
                 if($(\'#cikltip\').val()==\'d\'){
                     if( !$(\'#ciklnap\').val() && $(\'#hetkoz_kent\').prop(\'checked\')==false ){
-                        alert2(\'Kérjük állítsa be a kívánt ütemezést!\', \'\', \'Hiba\');
+                        alert2(\'Kérem állítsa be a kívánt ütemezést!\', \'\', \'Hiba\');
                         $(\'#ciklnap\').addClass(\'hibas_ide_focus\');
                         return false;
                     }
                 }
                 if($(\'#cikltip\').val()==\'w\'){
                     if( !$(\'#ism_het\').val() || (!$(\'#h\').prop(\'checked\') && !$(\'#k\').prop(\'checked\') && !$(\'#s\').prop(\'checked\') && !$(\'#cs\').prop(\'checked\') && !$(\'#p\').prop(\'checked\') && !$(\'#sz\').prop(\'checked\') && !$(\'#v\').prop(\'checked\')) ){
-                        alert2(\'Kérjük állítsa be a kívánt ütemezést!\', \'\', \'Hiba\');
+                        alert2(\'Kérem állítsa be a kívánt ütemezést!\', \'\', \'Hiba\');
                         $(\'#ism_het\').addClass(\'hibas_ide_focus\');
                         return false;
                     }
                 }
                 if($(\'#cikltip\').val()==\'m\'){
                     if( !$(\'#ciklho\').val() && !$(\'#ciklho2\').val() ){
-                        alert2(\'Kérjük állítsa be a kívánt ütemezést!\', \'\', \'Hiba\');
+                        alert2(\'Kérem állítsa be a kívánt ütemezést!\', \'\', \'Hiba\');
                         $(\'#ciklho\').addClass(\'hibas_ide_focus\');
                         return false;
                     }
@@ -1487,32 +1487,32 @@ function js_kiir($tomb, $fg = 'form_ell_regi()', $ajax = false) {
 
                 /* Havi ismétlődések esetei */
                 if( $(\'#ciklho\').val()>0 && !$(\'#honapjan\').val() ){
-                    alert2(\'Kérjük adja meg a hónap napját!\', \'\', \'Hiba\');
+                    alert2(\'Kérem adja meg a hónap napját!\', \'\', \'Hiba\');
                     $(\'#honapjan\').addClass(\'alert\');
                     $(\'#honapjan\').addClass(\'hibas_ide_focus\');
                     return false;
                 }
                 if( $(\'#honapjan\').val() && !$(\'#ciklho\').val() ){
-                    alert2(\'Kérjük adja meg a havi ismétlődés gyakoriságát!\', \'\', \'Hiba\');
+                    alert2(\'Kérem adja meg a havi ismétlődés gyakoriságát!\', \'\', \'Hiba\');
                     $(\'#ciklho\').addClass(\'alert\');
                     $(\'#ciklho\').addClass(\'hibas_ide_focus\');
                     return false;
                 }
 
                 if( $(\'#ciklho2\').val()>0 && !$(\'#ciklhet\').val() ){
-                    alert2(\'Kérjük adja meg a rendszerességet!\', \'\', \'Hiba\');
+                    alert2(\'Kérem adja meg a rendszerességet!\', \'\', \'Hiba\');
                     $(\'#ciklhet\').addClass(\'alert\');
                     $(\'#ciklhet\').addClass(\'hibas_ide_focus\');
                     return false;
                 }
                 if( $(\'#ciklho2\').val()>0 && !$(\'#ho_rendsz_het\').val() ){
-                    alert2(\'Kérjük adja meg a rendszerességet!\', \'\', \'Hiba\');
+                    alert2(\'Kérem adja meg a rendszerességet!\', \'\', \'Hiba\');
                     $(\'#ho_rendsz_het\').addClass(\'alert\');
                     $(\'#ho_rendsz_het\').addClass(\'hibas_ide_focus\');
                     return false;
                 }
                 if( ( $(\'#ciklhet\').val()>0 || $(\'#ho_rendsz_het\').val() ) && !$(\'#ciklho2\').val() ){
-                    alert2(\'Kérjük adja meg az ismétlődés gyakoriságát!\'+$(\'#ho_rendsz_het\').val(), \'\', \'Hiba\');
+                    alert2(\'Kérem adja meg az ismétlődés gyakoriságát!\'+$(\'#ho_rendsz_het\').val(), \'\', \'Hiba\');
                     $(\'#ciklho2\').addClass(\'alert\');
                     $(\'#ciklho2\').addClass(\'hibas_ide_focus\');
                     return false;
@@ -2908,6 +2908,9 @@ if(isset($_GET['debug'])) {
             break;
             case 'projektkezeles':
                 $html = projektkezelesLista( $bejegyzesek, $tabla, $frissit, $kijeloltek );
+            break;
+            case 'projektszamla':
+                $html = projektszamlaLista( $bejegyzesek, $tabla, $frissit, $kijeloltek );
             break;
             case 'projektszerzodes':
                 $html = projektszerzodesLista( $bejegyzesek, $tabla, $frissit, $kijeloltek );
@@ -4626,6 +4629,45 @@ function projektkezelesLista( $bejegyzesek, $tabla, $frissit, $kijeloltek ) {
     return false;
 }
 
+function projektszamlaLista( $bejegyzesek, $tabla, $frissit, $kijeloltek ) {
+    global $adatbazis_kapcsolat;
+
+    if( $bejegyzesek ) {
+
+        if( !$frissit ) {
+            $html = '<ul id="szamlaList" class="szamla_cont rendszer">';
+        }
+
+        $i = 1;
+        foreach($bejegyzesek as $bsz) {
+
+            $li_tart = '<a class="szamla" data-recid="'.$bsz['recid'].'" data-fajl="'.$tabla.'.php" data-muvelet="modosit">
+                            <table style="width: 30rem">
+                            <tr>
+                                <td style="width: 10rem">'.$bsz['sz_szam'].'</td>
+                                <td style="width: 20rem">'.getSzallodaNev($bsz['telephely_id']).'</td>
+                            </tr>
+                            <tr>
+                                <td colspan="2">'.resz_string($bsz['targy'], 60).'</td>
+                            </tr>
+                            </table>
+                        </a>';
+
+            $html .= '<li id="szamla-'.$bsz['recid'].'" class="szamla_sor" data-recid="'.$bsz['recid'].'" data-i="'.$i.'">'.$li_tart.'</li>';
+
+            $i++;
+        }
+
+        if( !$frissit ) {
+            $html .= '</ul>';
+        }
+
+        return nl2($html);
+    }
+
+    return false;
+}
+
 function projektszerzodesLista( $bejegyzesek, $tabla, $frissit, $kijeloltek ) {
     global $adatbazis_kapcsolat;
 
@@ -5033,10 +5075,10 @@ function dokumentumtarLista() {
     // Ezen menüpontok dokumentumait járjuk be
     $menupontok = array(
                         array('tabla' => 'anyagigenyles',           'nev' => 'Anyagigénylések'          ),
-                        array('tabla' => 'bejelentes',              'nev' => 'Bejelentés'               ),
+                        array('tabla' => 'bejelentes',              'nev' => 'Bejelentések'             ),
                         array('tabla' => 'beosztas',                'nev' => 'Beosztások'               ),
                         array('tabla' => 'cikktorzs',               'nev' => 'Cikktörzs'                ),
-                        array('tabla' => 'munkalap',                'nev' => 'Munkalap'                 ),
+                        array('tabla' => 'munkalap',                'nev' => 'Munkalapok'               ),
                         array('tabla' => 'energia',                 'nev' => 'Energia'                  ),
                         array('tabla' => 'eseti_fenntartas',        'nev' => 'Eseti fenntartás'         ),
                         array('tabla' => 'eszkozkezeles',           'nev' => 'Eszközkezelés'            ),
@@ -5044,16 +5086,17 @@ function dokumentumtarLista() {
                         array('tabla' => 'fenntartasi_terv',        'nev' => 'Fenntartási terv'         ),
                         array('tabla' => 'raktar',                  'nev' => 'Raktár'                   ),
                         array('tabla' => 'tervezes',                'nev' => 'Tervezés'                 ),
-                        array('tabla' => 'utemezett_feladatok',     'nev' => 'Ütemezett feladatok'      ),
+                        array('tabla' => 'utemezett_feladatok',     'nev' => 'Ütemezett feladatokok'    ),
                         array('tabla' => 'uzemeltetesi_naplo',      'nev' => 'Üzemeltetési napló'       ),
                         array('tabla' => 'projektigenyles',         'nev' => 'Projektigénylések'        ),
                         array('tabla' => 'projektigenyles_velemeny','nev' => 'Projektigénylés vélemények'),
                         array('tabla' => 'projektkezeles',          'nev' => 'Projektkezelés'           ),
+                        array('tabla' => 'projektszamla',           'nev' => 'Projekt számlák'          ),
+                        array('tabla' => 'projektszerzodes',        'nev' => 'Projekt szerződsek'       ),
                         array('tabla' => 'rendszeres_karbantartas', 'nev' => 'Rendszeres karbantartás'  ),
                         array('tabla' => 'szamla',                  'nev' => 'Számlák'                  ),
                         array('tabla' => 'szallito',                'nev' => 'Partnertörzs'             ),
                         array('tabla' => 'torzsadat',               'nev' => 'Törzsadatok'              ),
-                        // array('tabla' => 'login',                   'nev' => 'Felhasználók'             )
                     );
 
     foreach($menupontok as $menu){

@@ -1,5 +1,5 @@
 <?php
-//Az oldal title-ja
+// Az oldal title-ja
 function get_title(){
 
     global $adatbazis_kapcsolat;
@@ -11,7 +11,7 @@ function get_title(){
     if( $_SERVER['HTTP_HOST']=='dev.onteam.hu' ){
         $title = '[dev] '.$title;
     }
-	//global $tartalom_tomb; Ha tartalom többől generálunk ki tartalmat
+	// global $tartalom_tomb; Ha tartalom többől generálunk ki tartalmat
 
 	switch(basename(self())){
 
@@ -55,7 +55,8 @@ function get_title(){
         case 'uzemeltetesi_naplo.php'       : $title .= 'Üzemeltetési napló';       break;
         case 'projektigenyles.php'          : $title .= 'Projektigénylések';        break;
         case 'projektkezeles.php'           : $title .= 'Projekt tervek';           break;
-        case 'projektszerzodes.php'         : $title .= 'Projekt szerződés';        break;
+        case 'projektszerzodes.php'         : $title .= 'Projekt szerződések';      break;
+        case 'projektszamla.php'            : $title .= 'Projekt számlák';          break;
         case 'raktar.php'                   : $title .= 'Raktár';                   break;
         case 'rendszeres_karbantartas.php'  : $title .= 'Rendszeres karbantartás';  break;
         case 'szabadsagigeny.php'           : $title .= 'Szabadságigények';         break;
@@ -73,94 +74,12 @@ function get_title(){
 
 // Az oldal leírása
 function get_description(){
-
-    global $adatbazis_kapcsolat;
-
-	$title = get_nev().' ';
-
-	switch(basename(self())){
-		case 'index.php':
-        /*Minta kód, termékek kilistázására, kategóriájukra stb..
-            if($_GET['id']){
-
-                $_GET['id'] = sql_ertek($_GET['id']);
-
-                $termek = $adatbazis_kapcsolat -> select('nev marka kat', 'termek', 'id='.$_GET['id']);
-                $termek = $termek[0];
-
-                $marka = $adatbazis_kapcsolat -> select('nev', 'marka', 'id='.$termek['marka']);
-                $marka = $marka[0];
-
-                $kat = $adatbazis_kapcsolat -> select('nev', 'kat', 'id='.$termek['kat']);
-                $kat = $kat[0];
-
-                $title .= $marka['nev'].' '.$termek['nev'].' '.$kat['nev'];
-
-            }elseif(isset($_GET['kat'])){
-
-                $_GET['kat'] = sql_ertek($_GET['kat']);
-                $kategoria = $adatbazis_kapcsolat -> select('nev', 'kat', 'id='.$_GET['kat']);
-                $kategoria = $kategoria[0];
-                $title .= $kategoria['nev'];
-
-            }elseif(isset($_GET['marka'])){
-
-                 $_GET['marka'] = sql_ertek($_GET['marka']);
-                 $marka = $adatbazis_kapcsolat -> select('nev', 'marka', 'id='.$_GET['marka']);
-                 $marka = $marka[0];
-                 $title .= $marka['nev'];
-
-            }elseif(isset($_GET['ksz'])){
-
-                $_GET['ksz'] = sql_ertek($_GET['ksz']);
-                $title .= 'Találatok a '.$_GET['ksz'].' kulcsszóra';
-
-            }else{
-
-                $termekek = $adatbazis_kapcsolat -> select('nev', 'termek', 'kiemelt>0');
-                foreach($termekek as $termek){
-                    $title .= ' '.$termek['nev'];
-                }
-
-            }
-            */
-
-		break;
-
-        case 'regisztracio.php':
-            if (isset($_GET['elf'])) {
-                $title .= 'Elfelejtett jelszó';
-            }elseif (isset($_GET['login'])) {
-                $title .= 'Bejelentkezés';
-            }else{
-                $title .= 'Regisztráció';
-            }
-        break;
-
-        case 'kosar.php':
-            $title .= 'Kosár';
-        break;
-	}
-
-	return $title;
+	return get_title();
 }
 
-//Kulcsszavak
+// Kulcsszavak
 function get_keywords(){
-
-    /*global $adatbazis_kapcsolat;
-
-	$title = get_nev();
-
-	switch(basename(self())){
-		case 'index.php':
-		break;
-	}
-
-	return $title;*/
-
-    return get_description();
-
+    return get_title();
 }
 
 
@@ -181,23 +100,6 @@ if (isset($_GET['canon'])) {
 
 	switch(basename(self())){
 
-//        case 'index.php':
-//
-//            if (isset($_GET['id'])) {
-//
-//                $termek = $adatbazis_kapcsolat -> select('nevid', 'termek', 'id='.$_GET['id']);
-//                $termek = $termek[0];
-//                $link = $termek['nevid'].'/t/';
-//                return '<link rel="canonical" href="'.$domain.$link.'">';
-//
-//            }else{
-//
-//                return '<link rel="canonical" href="'.$domain.'">';
-//
-//            }
-//
-//        break;
-
         default:
             return '<link rel="canonical" href="'.trim( trim( $domain.self().get_get(), '='), '?').'">';
         break;
@@ -216,9 +118,9 @@ function get_og(){
     $og_meta = '';
 
     if(get_facebook()){
-        //Megosztáskor látszani fog egy Like gomb is, amivel azonnal lájkolni lehet az oldalt
+        // Megosztáskor látszani fog egy Like gomb is, amivel azonnal lájkolni lehet az oldalt
         $og_meta .= '<meta property="article:publisher" content="'.get_facebook().'">';
-        //Megosztáskor látszani fog egy Follow gomb is, amivel azonnal követni lehet a profilt
+        // Megosztáskor látszani fog egy Follow gomb is, amivel azonnal követni lehet a profilt
         $og_meta .= '<meta property="article:author" content="'.get_facebook().'">';
     }
 
@@ -227,7 +129,7 @@ function get_og(){
     $og_meta .= '<meta property="og:url" content="'.get_http().str_replace('&', '&amp;', $_SERVER['HTTP_HOST'].$_SERVER['REQUEST_URI'] ).'">';
     $og_meta .= '<meta property="og:type" content="company">';
 
-    //Google plus: HTML5 alatt ez sem valid
+    // Google plus: HTML5 alatt ez sem valid
 //    $og_meta .= '<meta itemprop="name" content="'.$title.'">';
 //    $og_meta .= '<meta itemprop="description" content="'.$desc.'">';
 

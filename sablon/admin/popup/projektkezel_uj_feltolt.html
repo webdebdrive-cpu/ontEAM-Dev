@@ -17,7 +17,7 @@ $(document).ready(function(){
 
 function projektkezeles_feltolt(){
     if(!$('#igenyles_tablazat_uj_kezeleshez tr.kijelolve').data('recid')){
-        alert2('Kérjük válasszon egy projektigénylést a táblázatból,<br>vagy válassza az "Új üres projekt" gombot!', '', 'Hiba');
+        alert2('Kérem válasszon egy projektigénylést a táblázatból,<br>vagy válassza az "Új üres projekt" gombot!', '', 'Hiba');
     }else{
         location.href = esamp2es('projektkezeles.php?uj&amp;igeny_id=')+$('#igenyles_tablazat_uj_kezeleshez tr.kijelolve').data('recid');
     }
