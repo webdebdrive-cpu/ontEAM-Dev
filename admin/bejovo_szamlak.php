@@ -10,7 +10,7 @@ $szoveg                 = 'számlát';        //Hibaüzenetkor: Biztosan törlö
 $szamla_html = '';
 
 //Több kép menedzseléséhez
-$tobb_kep = false; // Ha true, akkor js/jquery-ui.js, js/admin_sorrendez.js aktivál és minify!, admin/tobb_kep.php aktivál
+$tobb_kep = false;
 if($tobb_kep){
     function get_tobbkep_darab()    { return 10;        } // Maximum hány kép tallózható be
     function get_tobbkep_csakkep()  { return '.jpg,.png';} // Milyen kiterjesztéseket engedünk meg (ha mindenet, legyen üres)

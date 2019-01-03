@@ -21,8 +21,8 @@ $szoveg                 = 'rendszeres karbantartást';        //Hibaüzenetkor: 
 
 $szamla_html = '';
 
-// Több kép menedzseléséhez
-$tobb_kep = true; // Ha true, akkor js/jquery-ui.js, js/admin_sorrendez.js aktivál és minify!, admin/tobb_kep.php aktivál
+// Dokumentumok fülhöz kell majd
+$tobb_kep = true;
 if($tobb_kep){
     function get_tobbkep_darab()    { return 10;        } // Maximum hány kép tallózható be
     function get_tobbkep_csakkep()  { return '';        } // Milyen kiterjesztéseket engedünk meg (ha mindenet, legyen üres)
