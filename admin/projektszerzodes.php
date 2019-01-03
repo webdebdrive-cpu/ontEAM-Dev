@@ -199,8 +199,9 @@ if (isset($_POST['tetel_sorok_ment'])) {
         $_SESSION['pr_szer_tetel_varh_ert'] = $_POST['adatok'][2][1];
     }
     
-    // Ha ismert a szerződés ID-ja, akkor a sorokat is updatel-jük
-    if( $recid ){
+    // Ha ismert a szerződés ID-ja, akkor a sorokat is updatel-jük (törölkük, majd újra veszúrjuk)
+    // Azért kell az is_numeric, mert JS-ből volt, hogy itt egy 'false' értéket kaptunk, és ilyenkor sem kéne beírni még adatbázisb (új feltöltés esete).
+    if( $recid && is_numeric($recid) ){
         $sql = $adatbazis_kapcsolat->d('projektszerzodes_tetel', "`projektszerzodes_recid`='{$recid}'");
         if( $sql === false ) { $db_error = true; }
         
@@ -975,7 +976,7 @@ require_once('selectek.php');
                 <div class="dtr nFejlec">
                     <div class="dtc">Tárgy</div>
                     <div class="dtc">Számla várh. érk.</div>
-                    <div class="dtc">Számla várh. értéke ('.get_penznem().')</div>
+                    <div class="dtc r">Számla várh. értéke ('.get_penznem().')</div>
                     <div class="dtc">Teljesítés</div>
                     <div class="dtc">Érték ('.get_penznem().')</div>
                 </div>
@@ -988,7 +989,7 @@ require_once('selectek.php');
                 <div class="dtr nSor">
                     <div class="dtc">'.$tetel['targy'].'</div>
                     <div class="dtc">'.datum_kiir($tetel['varh_erk']).'</div>
-                    <div class="dtc">'.number_format($tetel['varh_ert'], 0, '', ' ').'</div>
+                    <div class="dtc r">'.number_format($tetel['varh_ert'], 0, '', ' ').'</div>
                     <div class="dtc">'.datum_kiir($tetel['teljesites']).'</div>
                     <div class="dtc">'.number_format($tetel['ertek'], 0, '', ' ').'</div>
                 </div>
