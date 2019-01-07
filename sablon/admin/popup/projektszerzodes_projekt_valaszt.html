@@ -15,13 +15,8 @@ $(document).ready(function(){
         alert2('Kérem, előbb válasszon szállodát!', '', 'Hiba');
         return false;
     }
-    if( _get('uj') ){
-        telephely_id = $('#telephely_id').val();
-    }else{
-        telephely_id = $('#telephely_id_mindig_latszik').val();
-    }
     
-    get_projekt_tabla('', telephely_id);
+    get_projekt_tabla('', $('#telephely_id').val());
 });
 
 /* Projektek betöltése */

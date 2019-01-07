@@ -1,3 +1,4 @@
+// Billentyűkódok
 var KEY_BACKSP =   8;
 var KEY_TAB    =   9;
 var KEY_ENTER  =  13;
@@ -10,7 +11,8 @@ var KEY_MINUS  =  109;
 var KEY_F5     =  116;
 var KEY_F12    =  123;
 
-var EGYSEGAR_VALASZT = 'Kérem válasszon egységár sort!';
+var EGYSEGAR_VALASZT = 'Kérem válasszon egységár sort!';    /* Hibaüzenet */
+var PENZNEM          = 'Ft';                                /* Ha Ft feliratot bármikor módosítani kellne, akkor JS alatt elég itt átírni. */
 
 var keys = {37: 1, 38: 1, 39: 1, 40: 1};
 
@@ -279,10 +281,17 @@ function felh_valt( valt ) {
 }
 
 $(function() {
+    
+    /* 800px alatt mobilnak számít */
     isMobile = false;
     if( $(window).width() < 800 ) {
         isMobile = true;
     }
+
+    /* f_penznem class-ú elemek lecserélése a pénznemre (popupokban újra meg kell hírni sajnos) */
+    $('.f_penznem').each(function () {
+        $(this).replaceWith(PENZNEM);
+    });
 
     /* Csak számokat elfogadó mező */
     $(document).on('keyup blur', '.f_csakszam, .f_plus_minus', function(){
@@ -1153,7 +1162,7 @@ $(function() {
                 val = '';
             }
 
-console.log(name+' db:'+taroltVal+'|itt:'+val);
+/*console.log(name+' db:'+taroltVal+'|itt:'+val);*/
             if( name!='egy_tobb_egy' && name!='egy_tobb_tobb' ){
                 if( taroltVal != val ) {
                     $(this).addClass('mod');
@@ -5847,6 +5856,9 @@ function szamlaBetolt( recid, page, muvelet, szerkeszt, kerdes_nelkul, anyagigen
 
                     } else if( baseName(location.href) == 'projektigenyles' && _get('megterules') ) {
                         $('#navGombok a.uj').attr('href', 'javascript: kapcsolodoSzerkeszt(\'megterules\'); void(0);');
+
+                    } else if( baseName(location.href) == 'projektszamla' && _get('megjegyzesek') ) {
+                        $('#navGombok a.uj').attr('href', 'javascript: kapcsolodoSzerkeszt(\'megjegyzes\'); void(0);');
 
                     } else if( baseName(location.href) == 'projektszerzodes' && _get('megjegyzesek') ) {
                         $('#navGombok a.uj').attr('href', 'javascript: kapcsolodoSzerkeszt(\'megjegyzes\'); void(0);');

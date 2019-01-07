@@ -521,6 +521,12 @@ function i_u($type, $tabla, $tomb) {
                 exit;
             }
 
+        // Projektszámlák
+        } else if( $tabla == 'projektszamla' ) {
+            
+            array_push($oszlopok, 'loginnev'                        );
+            array_push($ertekek,  $_SESSION[get_db_tabla().'user']  );
+            
         // Projektszerződés
         } else if( $tabla == 'projektszerzodes' ) {
                 
@@ -548,8 +554,8 @@ function i_u($type, $tabla, $tomb) {
                 $i++;
             }
             
-            array_push($oszlopok, 'loginnev',                       'update_usr'                              );
-            array_push($ertekek,  $_SESSION[get_db_tabla().'user'], $_SESSION[get_db_tabla().'teljes_nev']    );
+            array_push($oszlopok, 'loginnev'                        );
+            array_push($ertekek,  $_SESSION[get_db_tabla().'user']  );
 
         // Rendszeres karbantarás új bejegyzés esetén
         } else if( $tabla == 'rendszeres_karbantartas' ) {
@@ -762,7 +768,7 @@ function i_u($type, $tabla, $tomb) {
             $sql = $adatbazis_kapcsolat->u($tabla, array('stat_id'), array(MUNKALAP_STAT_NYITOTT), "`recid`='$id'");
             if( $sql === false ) { $db_error = true; }
 
-            // Ha van előkészítős jogunk, és post-ként kaptunk is "elokeszitett_statuszba" információt, akkor rögtön léptetjük is tovább a sáttuszát
+            // Ha van előkészítés jogunk, és post-ként kaptunk is "elokeszitett_statuszba" információt, akkor rögtön léptetjük is tovább a sáttuszát
             if (_jog(JOG_MUNKALAP_KULSOS_ELOKESZIT) && $_POST['statuszba_tovabb_leptet']) {
                 if ( addStatusz($tabla.'_statusz', $id, $_POST['statuszba_tovabb_leptet']) === false ){
                     $db_error = true;
@@ -992,9 +998,57 @@ function i_u($type, $tabla, $tomb) {
 
         }
         
-        // Projekt szerződéskor ellenőrizzük, hogy a szerződés összege azonos-e a tételek összegével
+        // Projekt számla
+        if( $tabla == 'projektszamla' ){
+
+            // Projekt számla mentésekor ellenőrizzük, hogy a számla nettó értéke azonos-e a tételek összegével
+            $tetelek_osszege = '';
+            foreach ( $_SESSION['pr_szla_tetel_netto_ert'] as $ertek ){
+                $ertek = str_replace(' ', '', $ertek);
+                $tetelek_osszege += $ertek;
+            }
+            if( $tetelek_osszege != $_POST['netto'] ){
+                echo json_encode(array(
+                    'hiba'  => 'A számla tételeinek összege nem egyezik meg a számla nettó értékével!<br>Így nem menthető!',
+                    'gomb'  => '<input type="button" class="gomb" value="Ok" onclick="szurkit_zar(\'mégsem mehet mutat\'); alert2();">',
+                    'title' => 'Hiba',
+                ));
+                $weblap -> leallit();
+                exit();
+            }
+            
+            // Ellenőrizzük, hogy a visszaadva pipa be van-e pipálva, ha igen, akkor a dátum kötelező
+            if( $_POST['visszaadva'] && ( !$_POST['visszaadva_dt'] || $_POST['visszaadva_dt']>'9000-00-00') ){
+                echo json_encode(array(
+                    'hiba'  => 'Kérem adja meg a visszaadás dátumát!',
+                    'focus' => 'visszaadva_dt',
+                    'title' => 'Hiba',
+                ));
+                $weblap -> leallit();
+                exit();
+            }
+
+            // Vagy ha megada a dátumot, de nincs bepipálva a visszaadva, akkor meg azért hiba
+            if( !$_POST['visszaadva'] && $_POST['visszaadva_dt']<'9000-00-00' ){
+                echo json_encode(array(
+                    'hiba'  => 'Csak akkor adja meg a visszaadás dátumát, ha bekapcsolta a visszaadás pipát!',
+                    'focus' => 'visszaadva_dt',
+                    'title' => 'Hiba',
+                ));
+                $weblap -> leallit();
+                exit();
+            }
+            
+            // Illetve a szerződés számot, projekt számot, létesítmény felelőst, költség viselőt még külön fel kell még venni, mert a tiltott mező miatt ez magától nem íródna be
+            array_push($oszlopok, 'sz_szam',         'pr_szam',         'let_fel',        'kolt_vis'            );
+            array_push($ertekek,  $_POST['sz_szam'], $_POST['pr_szam'], $_POST['let_fel'], $_POST['kolt_vis']   );
+            
+        }
+        
+        // Projekt szerződés
         if( $tabla == 'projektszerzodes' ){
             
+            // Ellenőrizzük, hogy a szerződés összege azonos-e a tételek összegével
             $tetelek_osszege = '';
             foreach ( $_SESSION['pr_szer_tetel_varh_ert'] as $ertek ){
                 $ertek = str_replace(' ', '', $ertek);
@@ -1040,7 +1094,7 @@ function i_u($type, $tabla, $tomb) {
 
 		$id = $adatbazis_kapcsolat -> update($tabla, $oszlopok, $ertekek, "`recid`='{$_GET['id']}'");
         if( $id === false ) { $db_error = true; }
- // echo $adatbazis_kapcsolat->gp() . '<br>';
+// echo $adatbazis_kapcsolat->gp() . '<br>';
 // mysqli_commit($db_kapcs);
 // exit;
 
@@ -1718,6 +1772,9 @@ function js_kiir($tomb, $fg = 'form_ell_regi()', $ajax = false) {
                         } else {
                             alert2(response.hiba, \'\', \''.$hiba_txt.'\');
                         }
+                        if( response.focus ) {
+                            $(\'#\'+response.focus).addClass(\'hibas_ide_focus\');
+                        }
 
                         return false;
                     } else {
@@ -2223,11 +2280,16 @@ function szamla_lista( $where, $tabla, $kijeloltek = false, $csak_sql_miatt = fa
             }
         }
         
+        // Projektszamla
+        if($tabla == 'projektszamla'){
+            // Saját szállodáimat láthatom
+            $where = "(`".get_db_tabla()."projektszamla`.`telephely_id` IN (".implode(',', $szallodak).")) AND ";
+        }
+        
         // Projektszerződés
         if($tabla == 'projektszerzodes'){
             // Saját szállodáimat láthatom
             $where = "(`".get_db_tabla()."projektszerzodes`.`telephely_id` IN (".implode(',', $szallodak)."){$team_vagyok}) AND ";
-            
         }
 
         // Rendszeres karbantartás
@@ -2654,6 +2716,14 @@ function szamla_lista( $where, $tabla, $kijeloltek = false, $csak_sql_miatt = fa
                 $order .= ', ';
             }
             $order .= '`'.get_db_tabla().$tabla.'`.`insert_dt` DESC';
+        }
+
+        // Rendezés projektszámláknál
+        if( $tabla=='projektszamla' ){
+            // Ha telephely szerint rendezünk, akkor ez lesz a következő rendezési szempont, és az irány is erre vonatkozik
+            if($_GET['rend']=='telephely_id'){
+                $order = '`'.get_db_tabla().'telephely`.`nev` '.$_GET['irany'].', `'.get_db_tabla().'projektszamla`.`ceghez_erk` '.$_GET['irany'];
+            }
         }
 
         // Rendezés projektszerződéseknél
@@ -4644,11 +4714,12 @@ function projektszamlaLista( $bejegyzesek, $tabla, $frissit, $kijeloltek ) {
             $li_tart = '<a class="szamla" data-recid="'.$bsz['recid'].'" data-fajl="'.$tabla.'.php" data-muvelet="modosit">
                             <table style="width: 30rem">
                             <tr>
-                                <td style="width: 10rem">'.$bsz['sz_szam'].'</td>
-                                <td style="width: 20rem">'.getSzallodaNev($bsz['telephely_id']).'</td>
+                                <td style="width: 5rem">'.$bsz['szla_szam'].'</td>
+                                <td style="width: 10rem">'.getSzallodaNev($bsz['telephely_id']).'</td>
+                                <td class="r">'. number_format($bsz['netto'], 0, '', ' ').' '.get_penznem().'</td>
                             </tr>
                             <tr>
-                                <td colspan="2">'.resz_string($bsz['targy'], 60).'</td>
+                                <td colspan="3">'.resz_string($bsz['targy'], 60).'</td>
                             </tr>
                             </table>
                         </a>';
@@ -5745,7 +5816,7 @@ function getOszlopNev( $oszlop, $kieg_nev = '' ) {
         'esnap_d'       => 'Esedékesség',
         'erkezett'      => 'Érkezett',
         'ev'            => 'Tervező év',
-        'rkat'          => 'Érték',
+        'fiz_hatar'     => 'Fizetési határidő',
         'id'            => 'Kód',
         'ikt_szam'      => $kieg_nev.' szám',
         'nev'           => 'Név',
@@ -5754,6 +5825,7 @@ function getOszlopNev( $oszlop, $kieg_nev = '' ) {
         'rndid'         => 'Rendelés száma',
         'rnd_dt'        => 'Rendelés dátum',
         'recid'         => 'Rendszer ID',
+        'rkat'          => 'Érték',
         'surgos'        => 'Sürgős',
         'statusz'       => 'Státusz',
         'stat_id'       => 'Státusz',

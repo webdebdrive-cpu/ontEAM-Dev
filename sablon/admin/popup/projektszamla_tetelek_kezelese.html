@@ -1,0 +1,254 @@
+<h2>Tételek kezelése</h2>
+
+<div class="kozep">
+    
+    <div class="grid2o" style="width: 28rem">
+        <div class="b">Számla nettó értéke:</div>
+        <div class="b r"><span id="pop_szamla_netto"></span></div>
+        <div class="b">Tételek  összege:</div>
+        <div class="b r"><span id="pop_tetelek_ossz"></span></div>
+        <div class="b">Különbség:</div>
+        <div class="b r"><span id="pop_kulonbseg"></span></div>
+    </div>
+    
+    <br>Tárgy:
+    <br><input type="text" id="pop_targy" class="oriasi csillag">
+    <br>Nettó érték:
+    <br><input type="text" id="pop_ertek" class="f_num csillag" data-tort="0"> <span class="f_penznem"></span>
+    <br>Projekt tételek:
+    <br><select id="projekt_tetelek" class="csillag"></select>
+    <br><input type="button" class="gomb" value="Új tétel hozzáadása" style="margin-top: 0.3rem" onclick="tetel_hozzaadasa()">
+    
+    <form action="" enctype="multipart/form-data" method="" id="popup_tetel_sorok">
+        <table class="csikos kijCont dn" id="pop_tetelek" style="cursor: default;">
+            <thead>
+            <tr>
+                <th>Tárgy</th>
+                <th>Nettó érték (<span class="f_penznem"></span>)</th>
+                <th>Projekt tétel</th>
+                <th>Törlés</th>
+            </tr>
+            </thead>
+
+            <tbody>
+            </tbody>
+        </table>
+    </form>
+    
+</div>
+<div class="kuldes">
+    <input type="button" class="gomb zold" value="Mentés" onclick="tetel_sorok_ment()">
+    <input type="button" class="gomb piros" value="Mégsem" onclick="popupZar();">
+</div>
+<script>
+$(document).ready(function () {
+    
+    /* f_penznem class-ú elemek lecserélése a pénznemre */
+    $('.f_penznem').each(function () {
+        $(this).replaceWith(PENZNEM);
+    });
+    
+    pop_tetelek_feltolt();
+    
+});
+
+/* Tételt hozzáadó függvény */
+function tetel_hozzaadasa() {
+    
+    var targy       = $('#pop_targy').val().trim();
+    var ertek       = $('#pop_ertek').val().trim();
+    var pr_tetel    = $('#projekt_tetelek').val();
+    var pr_tetel_txt= $('#projekt_tetelek option:selected').text();
+
+    /* Üres adatok ellenőrzése */
+    if( !targy ){
+        alert2('Kérem töltse ki a tárgyat!', '', 'Hiba');
+        $('#pop_targy').addClass('hibas_ide_focus');
+        return false;
+    }
+
+    if( !ertek || ertek=='0' ){
+        alert2('Kérem töltse ki a nettó értéket!', '', 'Hiba');
+        $('#pop_ertek').addClass('hibas_ide_focus');
+        return false;
+    }
+
+    if( !pr_tetel ){
+        alert2('Kérem válassza ki a projekt tételt!', '', 'Hiba');
+        $('#projekt_tetelek').addClass('hibas_ide_focus');
+        return false;
+    }else{
+        
+        var volt_mar = false;
+        $('.pop_pr_tetel').each(function() {
+            
+            if( $(this).attr('data-pr_tetel_recid')==pr_tetel ){
+                alert2('A "'+pr_tetel_txt+'" projekt tétel már hozzá van rendelve a számla egyik tételéhez!', '', 'Hiba');
+                $('#projekt_tetelek').addClass('hibas_ide_focus');
+                volt_mar = true;
+            }
+            
+        }).promise().done( function(){ 
+            
+            if( !volt_mar ){
+            
+                var id_tmp = new Date().getTime();
+
+                var table_sor = '<tr class="pop_tetel_'+id_tmp+'">' +
+                                    '<td class="pop_targy">' + targy + '</td>' +
+                                    '<td class="pop_netto_ert r">' + ertek + '</td>' +
+                                    '<td class="pop_pr_tetel" data-pr_tetel_recid="' + pr_tetel + '">' + pr_tetel_txt + '</td>' +
+                                    '<td><a onclick="popup_tetel_sor_torol(\'pop_tetel_'+id_tmp+'\');"><span class="icon"><i class="material-icons">delete</i></span></a></td>' +
+                                '</tr>';
+
+                $('#pop_tetelek tbody').append( table_sor );
+                $('#pop_tetelek').removeClass('dn');
+
+                $('#pop_targy').val('');
+                $('#pop_ertek').val('');
+                $('#projekt_tetelek').val('');
+
+                tetelek_kiszamol();
+
+                $('#pop_targy').focus();
+                
+            }
+
+        } );
+            
+        
+    }
+}
+
+/* Tétel sor törlése */
+function popup_tetel_sor_torol(sor_id, mehet){
+    
+    $('.'+sor_id).addClass('torles_elott');
+    if(!mehet){
+        alert2('Biztosan törli ezt a tételt?', '<input type="button" class="gomb zold" value="Igen" onclick="popup_tetel_sor_torol(\''+sor_id+'\', \'mehet\'); alert2();"><input type="button" class="gomb piros" value="Nem" onclick="alert2(); $(\'.torles_elott\').removeClass(\'torles_elott\');">');
+        return false;
+    }
+    
+    $('.'+sor_id).remove();
+    
+    tetelek_kiszamol();
+    
+    $('#pop_targy').focus();
+}
+
+/* Tétel sor táblázat menzése */
+function tetel_sorok_ment(){
+    
+    var targyak = [];
+    $('.pop_targy').each(function() {
+        targyak.push( $(this).html() );
+    });
+    var netto_ert = [];
+    $('.pop_netto_ert').each(function() {
+        netto_ert.push( $(this).html() );
+    });
+    var pr_tetel = [];
+    $('.pop_pr_tetel').each(function() {
+        pr_tetel.push( $(this).attr('data-pr_tetel_recid') );
+    });
+    
+    var adatok = [
+                    ['targyak',   targyak],
+                    ['netto_ert', netto_ert],
+                    ['pr_tetel',  pr_tetel]
+                ];
+    
+    /* A számla nettó értéke az Adatlapon található mező értéke 
+     * De ha nem az adatlapon vagyunk, akkor meg egy rejtett inputban megtaláljuk, hogy a DB-ben mi van letárolva */
+    var szamla_netto_erteke = '';
+    if( $('#netto').length ){
+        szamla_netto_erteke = $('#netto').val();
+    }else{
+        szamla_netto_erteke = $('#netto_db').val();
+    }
+    
+    $.ajax({
+        url     : 'projektszamla.php',
+        type    : 'POST',
+        data: {
+            adatok              : JSON.stringify(adatok),
+            recid               : _get('id'),
+            szamla_netto_erteke : szamla_netto_erteke,
+            tetel_sorok_ment    : Date.now()
+        },
+        success: function(response){
+            if(response.substring(0, 6)=='SESKIL'){ location.href = 'index.php'; }
+            if(response){
+                response = JSON.parse(response);
+                if(response.hiba){
+                    alert2(response.hiba, response.gomb, response.title);
+                }else{
+                    if( !_get('modosit') && !_get('uj') ){
+                        szamlaBetolt(_get('id'), 'projektszamla.php', 'tetel');
+                    }
+                    popupZar();
+                }
+            }
+        }
+    });
+
+}
+
+/* Ha van SESSION-ban adatunk, akkor abból töltsük fel a sorokat */
+function pop_tetelek_feltolt(){
+    
+    if( !$('#pr_szam').length ){
+        pr_szam = $('#pr_szam_db').val().replace(/ /g, '');
+    }else{
+        pr_szam = $('#pr_szam').val().replace(/ /g, '');
+    }
+    
+    $.ajax({
+        url : 'projektszamla.php',
+        type: 'POST',
+        data: {
+            pr_szam             : pr_szam,
+            pop_tetelek_feltolt : Date.now(),
+        },
+        success: function(response){
+            if(response.substring(0, 6)=='SESKIL'){ location.href = 'index.php'; }
+            if(response){
+                response = JSON.parse(response);
+                if(response.html){
+                    $('#pop_tetelek tbody').append(response.html);
+                    $('#pop_tetelek').removeClass('dn');
+                }
+                if(response.pr_tetelek){
+                    $('#projekt_tetelek').html(response.pr_tetelek);
+                }
+                tetelek_kiszamol();
+            }
+        }
+    });
+}
+
+/*  Tételek kiszámítása, lássuk hol járunk a számla nettó értékéhez képest */
+function tetelek_kiszamol() {
+
+    if( !$('#netto').length ){
+        szamla_netto_erte = $('#netto_db').val().replace(/ /g, '');
+    }else{
+        szamla_netto_erte = $('#netto').val().replace(/ /g, '');
+    }
+    $('#pop_szamla_netto').html( ezresek2(szamla_netto_erte)+' '+PENZNEM );
+    
+    tetelek_ossz = 0;
+    $('.pop_netto_ert').each(function() {
+        tetelek_ossz += Number( $(this).html().replace(/ /g, '') );
+    });
+    $('#pop_tetelek_ossz').html( ezresek2(tetelek_ossz)+' '+PENZNEM );
+    kulonbseg = szamla_netto_erte - tetelek_ossz;
+    $('#pop_kulonbseg').html( ezresek2( kulonbseg )+' '+PENZNEM );
+    $('#pop_kulonbseg').removeClass('piros');
+    if( kulonbseg!=0 ){
+        $('#pop_kulonbseg').addClass('piros');
+    }
+}
+
+
+</script>

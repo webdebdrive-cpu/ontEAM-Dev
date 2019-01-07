@@ -15,11 +15,11 @@
     <br>Számla várh. érk.
     <br><input type="text" id="pop_szla_varh_erk" class="datepicker csillag">
     <br>Számla várh. értéke:
-    <br><input type="text" id="pop_szla_varh_ert" class="f_num csillag" data-tort="0"> Ft
+    <br><input type="text" id="pop_szla_varh_ert" class="f_num csillag" data-tort="0"> <span class="f_penznem"></span>
     <br>Teljesítés:
     <br><input type="text" disabled>
     <br>Érték:
-    <br><input type="text" disabled class="f_num" data-tort="0"> Ft
+    <br><input type="text" disabled class="f_num" data-tort="0"> <span class="f_penznem"></span>
     <br><input type="button" class="gomb" value="Új tétel hozzáadása" style="margin-top: 0.3rem" onclick="tetel_hozzaadasa()">
     
     <form action="" enctype="multipart/form-data" method="" id="popup_tetel_sorok">
@@ -28,7 +28,7 @@
             <tr>
                 <th>Tárgy</th>
                 <th>Számla várh. érk.</th>
-                <th>Számla várh. értéke (Ft)</th>
+                <th>Számla várh. értéke (<span class="f_penznem"></span>)</th>
                 <th>Teljesítés</th>
                 <th>Érték</th>
                 <th>Törlés</th>
@@ -48,14 +48,11 @@
 <script>
 $(document).ready(function () {
     
-    /* Szerződéses összeg meghatározása az alapján */
-    if( _get('uj') ){
-        osszeg       = $('#szerz_ossz').val();
-    }else{
-        osszeg       = $('#szerz_ossz_mindig_latszik').val();
-    }
+    /* f_penznem class-ú elemek lecserélése a pénznemre */
+    $('.f_penznem').each(function () {
+        $(this).replaceWith(PENZNEM);
+    });
     
-    $('#pop_szerz_ossz').html( osszeg+' Ft' );
     $('#pop_targy').focus();
     
     pop_tetelek_feltolt();
@@ -135,6 +132,8 @@ function popup_tetel_sor_torol(sor_id, mehet){
     $('.'+sor_id).remove();
     
     tetelek_kiszamol();
+    
+    $('#pop_targy').focus();
 }
 
 /* Tétel sor táblázat menzése */
@@ -210,29 +209,30 @@ function pop_tetelek_feltolt(){
                 if(response.html){
                     $('#pop_tetelek tbody').append(response.html);
                     $('#pop_tetelek').removeClass('dn');
-                    tetelek_kiszamol();
                 }
+                tetelek_kiszamol();
             }
         }
     });
 }
 
-/*  Tételek kiszámítása, lássuk holjárunk a szerződéses összeghez képest */
+/*  Tételek kiszámítása, lássuk hol járunk a szerződéses összeghez képest */
 function tetelek_kiszamol() {
     
-    if( !$('#szerz_ossz_mindig_latszik').length ){
+    if( $('#szerz_ossz').length ){
         szerzodes_osszeg = $('#szerz_ossz').val().replace(/ /g, '');
     }else{
         szerzodes_osszeg = $('#szerz_ossz_mindig_latszik').val().replace(/ /g, '');
     }
+    $('#pop_szerz_ossz').html( szerzodes_osszeg+' '+PENZNEM );
     
     tetelek_ossz = 0;
     $('.pop_varh_ert').each(function() {
         tetelek_ossz += Number( $(this).html().replace(/ /g, '') );
     });
-    $('#pop_tetelek_ossz').html( ezresek2(tetelek_ossz)+' Ft' );
+    $('#pop_tetelek_ossz').html( ezresek2(tetelek_ossz)+' '+PENZNEM );
     kulonbseg = szerzodes_osszeg - tetelek_ossz;
-    $('#pop_kulonbseg').html( ezresek2( kulonbseg )+' Ft' );
+    $('#pop_kulonbseg').html( ezresek2( kulonbseg )+' '+PENZNEM );
     $('#pop_kulonbseg').removeClass('piros');
     if( kulonbseg!=0 ){
         $('#pop_kulonbseg').addClass('piros');

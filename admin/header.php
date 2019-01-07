@@ -905,6 +905,9 @@ if( in_array(basename(self()), $_SESSION['ketHasabos']) && $_SESSION[get_db_tabl
     } elseif( basename(self()) == 'projektkezeles.php' && !isset($_GET['megjegyzesek']) ) {
         $uj_link = 'javascript: csoportMuvelet(\'projektkezel_uj_feltolt\'); void(0);';
 
+    } elseif( basename(self()) == 'projektszamla.php' && isset($_GET['megjegyzesek']) ) {
+        $uj_link = 'javascript: kapcsolodoSzerkeszt(\'megjegyzes\'); void(0);';
+
     } elseif( basename(self()) == 'projektszerzodes.php' && isset($_GET['megjegyzesek']) ) {
         $uj_link = 'javascript: kapcsolodoSzerkeszt(\'megjegyzes\'); void(0);';
         
@@ -1177,7 +1180,13 @@ if( basename(self())=='projektigenyles.php' && !_jog(JOG_PRIGENY_S_KEZEL) && !_j
     $uj = $duplikal = '';
 }
 
-// Projektigénylések: ha egyik joga sincs meg, akkor nincs szerkesztés lehetőség
+// Projektszámlák: ha egyik joga sincs meg, akkor nincs szerkesztés lehetőség
+if( basename(self())=='projektszamla.php' && !_jog(JOG_PRSZAMLAK_KEZEL) ){
+    $torles_icon    = '';
+    $uj = $duplikal = '';
+}
+
+// Projektiszerződések: ha egyik joga sincs meg, akkor nincs szerkesztés lehetőség
 if( basename(self())=='projektszerzodes.php' && !_jog(JOG_PRKEZEL_SZERZODES_KEZEL) ){
     $torles_icon    = '';
     $uj = $duplikal = '';
@@ -1193,10 +1202,10 @@ if( basename(self())=='raktar.php' && !_jog(JOG_RAKTAR_KEZEL)){
 if(basename(self())=='rendszeres_karbantartas.php' && !_jog(JOG_RENDSZ_KARB_KEZEL) ){
     $uj = $duplikal = '';
 }
-// Rendszeres karbantartás
 if(basename(self())=='rendszeres_karbantartas.php' && !_jog(JOG_RENDSZ_KARB_TOROL) ){
     $torles_icon    = '';
 }
+
 // Szállító
 if( basename(self())=='szallito.php' && !_jog(JOG_PARTNERTORZS_KEZEL)){
     $uj = $duplikal = '';
@@ -1204,6 +1213,7 @@ if( basename(self())=='szallito.php' && !_jog(JOG_PARTNERTORZS_KEZEL)){
 if( basename(self())=='szallito.php' && !_jog(JOG_PARTNERTORZS_TOROL)){
     $torles_icon    = '';
 }
+
 // Számlák
 if( basename(self())=='szamla.php' && !_jog(JOG_SZAMLAK_KEZEL)){
     $uj = $duplikal = '';
@@ -1211,6 +1221,7 @@ if( basename(self())=='szamla.php' && !_jog(JOG_SZAMLAK_KEZEL)){
 if( basename(self())=='szamla.php' && !_jog(JOG_SZAMLAK_TOROL)){
     $torles_icon    = '';
 }
+
 // Szabadságigény
 if( basename(self())=='szabadsagigeny.php' && !_jog(JOG_SZABADSAGIG_KEZEL)){
     $torles_icon    = '';
@@ -1371,6 +1382,10 @@ if(basename(self())=='projektigenyles.php'){
 // Projektkezeléssel kapcsolatos JS-eket külön fájlba szedjük össze
 if(basename(self())=='projektkezeles.php'){
     $header_html .= '<script src="../js/projektkezeles.js?cache='.time().'"></script>';
+}
+// Projektszámlákkal kapcsolatos JS-eket külön fájlba szedjük össze
+if(basename(self())=='projektszamla.php'){
+    $header_html .= '<script src="../js/projektszamla.js?cache='.time().'"></script>';
 }
 // Projektszerződéssel kapcsolatos JS-eket külön fájlba szedjük össze
 if(basename(self())=='projektszerzodes.php'){

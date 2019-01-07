@@ -1,0 +1,86 @@
+<h2 id="eloterj_igneyles_csatolCim">Válasszon szerződést</h2>
+<form class="popupForm" method="post">
+    <div class="kozep">
+        <div id="pr_szerzodes_tablazat"></div>
+    </div>
+    <div class="kuldes">
+        <input type="button" class="gomb zold"  value="Kiválaszt" onclick="projekt_szerzodes_kivalaszt()">
+        <input type="button" class="gomb piros" value="Mégsem" onclick="popupZar();">
+    </div>
+</form>
+<script>
+$(document).ready(function(){
+    if( _get('uj') && !$('#telephely_id').val() ){
+        setTimeout(function(){ popupZar(); }, 10);
+        alert2('Kérem, előbb válasszon szállodát!', '', 'Hiba');
+        return false;
+    }
+    
+    get_projekt_szerzodes_tabla('', $('#telephely_id').val());
+});
+
+/* Projektszerződések betöltése */
+function get_projekt_szerzodes_tabla(order, telephely_id){
+
+    $.ajax({
+        url : 'projektszamla.php',
+        type: 'POST',
+        data: {
+            telephely_id                : telephely_id,
+            order                       : order,
+            get_projekt_szerzodes_tabla : new Date().getTime()
+        },
+        success: function(response){
+            if(response.substring(0, 6)=='SESKIL'){ location.href = 'index.php'; }
+            if(response){
+                response = JSON.parse(response);
+                if( response.hiba ){
+                    popupZar();
+                    alert2( response.hiba, response.gomb, response.title );
+                    return false;
+                }else{
+                    $('#pr_szerzodes_tablazat').html(response.html);
+                    popupMutat();
+                }
+
+            }
+        }
+    });
+}
+
+/* Projekt szerződés kiválasztása */
+function projekt_szerzodes_kivalaszt(){
+    /* Projektszám és projekt nevének kitöltése */
+    $('#sz_szam').val( $('#pr_szerzodes_tablazat tr.kijelolve').data('sz_szam') );
+    $('#sz_szam_gomb').val('Szerződés törlése').addClass('piros');
+    $('#sz_szam').addClass('mod');
+    
+    /* Projekt szám, Létesítmény felelős, Költségviselő kitöltése */
+    $('#pr_szam').val( $('#pr_szerzodes_tablazat tr.kijelolve').data('pr_szam') );
+    $('#pr_szam').addClass('mod');
+    
+    $('#let_fel_autocomp').val( $('#pr_szerzodes_tablazat tr.kijelolve div.let_fel_txt').html() );
+    $('#let_fel_autocomp').addClass('mod');
+    $('#let_fel').val( $('#pr_szerzodes_tablazat tr.kijelolve').data('let_fel') );
+    
+    $('#kolt_vis_autocomp').val( $('#pr_szerzodes_tablazat tr.kijelolve div.kolt_vis_txt').html() );
+    $('#kolt_vis_autocomp').addClass('mod');
+    $('#kolt_vis').val( $('#pr_szerzodes_tablazat tr.kijelolve').data('kolt_vis') );
+    
+    formModositva = true;
+    $('#mehet_gomb, #megsem_gomb').removeAttr ('disabled');
+    $('#mehet_gomb').addClass('gombb_alert');
+    popupZar();
+}
+
+/* Szűrések */
+function tabla_szur(tabla, kulcs, oszlop) {
+    var $rows = tabla.find('tr');
+    var val = $.trim(kulcs).replace(/ +/g, ' ').toLowerCase();
+
+    $rows.show().filter(function() {
+        var text = $(this).find('td:nth-of-type('+oszlop+')').text().replace(/\s+/g, ' ').toLowerCase();
+        return !~text.indexOf(val);
+    }).hide();
+}
+</script>

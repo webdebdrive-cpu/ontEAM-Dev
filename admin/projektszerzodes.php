@@ -89,7 +89,7 @@ if(isset($_POST['get_projekt_tabla'])){
         $pfelelos_neve = getErtek('teljes_nev', 'login', 'recid', $pr['pfelelos']);
         
         $html .= '
-            <tr class="kijSor'.$kiemelt.'" data-i="'.$i.'" data-recid="'.$pr['recid'].'" data-ikt_szam="'.$pr['ikt_szam'].'" data-felelos="'.$pr['pfelelos'].'">
+            <tr class="kijSor" data-i="'.$i.'" data-recid="'.$pr['recid'].'" data-ikt_szam="'.$pr['ikt_szam'].'" data-felelos="'.$pr['pfelelos'].'">
                 <td>
                     '.$szalloda['nev'].'
                     <div class="dn pfelelos_txt">'.$pfelelos_neve.'</div>
@@ -239,7 +239,7 @@ if (isset($_POST['tetel_sorok_ment'])) {
     exit();
 }
 
-// Tétel sorok mentése
+// Tétel sorok kiíratása
 if (isset($_POST['pop_tetelek_feltolt'])) {
     
     $html = '';
@@ -267,7 +267,7 @@ if (isset($_POST['pop_tetelek_feltolt'])) {
         'html' => $html
         ) );
     
-    $weblap->leallit();
+    $weblap -> leallit();
     exit();
 }
 
@@ -291,7 +291,7 @@ if (isset($_POST['van_tetel'])) {
         
     }
     
-    // Ellenőrizzük, hogy a dátum mezők rendben vannak-e? (Js alatt nem akar lefutni... elég összetett már a JS kód, mert űrlap elpostolása előtt még ajax-os ellenőrzés is lefut, ez kavar be). De itt - ahol az ajayod ellenőrzések vannak - könnyen elelnőrizni tudjuk
+    // Ellenőrizzük, hogy a dátum mezők rendben vannak-e? (Js alatt nem akar lefutni... elég összetett már a JS kód, mert űrlap elpostolása előtt még ajax-os ellenőrzés is lefut, ez kavar be). De itt - ahol az ajaxos ellenőrzések vannak - könnyen elelnőrizni tudjuk
     if( $_POST['kelte']<'9000.00.00' && !valos_datum_e($_POST['kelte']) ){
         echo json_encode(array(
             'hiba'  => 'Kérem egy valós dátumot adjon meg Keltének!',
@@ -338,7 +338,7 @@ if (isset($_POST['van_tetel'])) {
         exit();
     }
     
-    // Ellenőrizzük, hogy a kiválasztott szálloda és a projket szám stimmel-e
+    // Ellenőrizzük, hogy a kiválasztott szálloda és a projekt szám stimmel-e
     $projekt = $adatbazis_kapcsolat->s2('telephely_id', 'projektkezeles', "`ikt_szam`='{$_POST['pr_szam']}'");
     if( $projekt['telephely_id']!=$_POST['telephely_id'] ){
         echo json_encode(array(
@@ -355,7 +355,9 @@ if (isset($_POST['van_tetel'])) {
         
         echo json_encode( array(
                             'van_tetel' => 'nincs',
-                            'hiba'      => 'Nem töltött fel tételeket, így nem menthető a Projekt szerződés!'
+                            'hiba'      => 'Nem töltött fel tételeket, így nem menthető a Projekt szerződés!',
+                            'gomb'      => '<input type="button" class="gomb" value="Ok" onclick="alert2(); szurkit_zar(\'mehet_megsem_mutat\');">',
+                            'title'     => 'Hiba',
                         ) );
         $weblap->leallit();
         exit();
@@ -657,7 +659,7 @@ require_once('selectek.php');
     $gombok = '';
     if( isset($_GET['uj']) ) {
         
-        // Új feltöltéskor a tétel sorokat töröljük, ne az legyen, hogy szerkesztésből maradt adaotkkal számoljunk
+        // Új feltöltéskor a tétel sorokat töröljük, ne az legyen, hogy szerkesztésből maradt adatokkal számoljunk
         $_SESSION['pr_szer_tetel_targy']    = '';
         $_SESSION['pr_szer_tetel_varh_erk'] = '';
         $_SESSION['pr_szer_tetel_varh_ert'] = '';
@@ -734,7 +736,6 @@ require_once('selectek.php');
         
         // Tételek kezelésekor a popupban ezt az összeget meg lehessen jeleníteni akkor is, ha nem az adatlapon vagyunk
         $gombok .= '<input type="hidden" id="szerz_ossz_mindig_latszik" value="'.number_format($sor['szerz_ossz'], 0, '', ' ').'">';
-        $gombok .= '<input type="hidden" id="telephely_id_mindig_latszik" value="'.$sor['telephely_id'].'">';
 
         $muv_style = ' style="width: calc(100% - '.($_SESSION['defaultCsuszka'] + 16).'px);"';
         if( in_array(basename(self()), $_SESSION['ketHasabos']) && $_SESSION[get_db_tabla().'user'] ) {
