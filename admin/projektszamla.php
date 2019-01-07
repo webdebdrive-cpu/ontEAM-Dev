@@ -455,31 +455,29 @@ if (isset($_GET['csv'])) {
                 }
 
                 $sql = 'SELECT
-                            `'.get_db_tabla().$megnevezes.'`.`telephely_id` as \'Szálloda\',
-                            `'.get_db_tabla().$megnevezes.'`.`sz_szam` as \'Szerződés szám\',
+                            `'.get_db_tabla().$megnevezes.'`.`ceghez_erk` as \'Céghez érkezett\',
                             `'.get_db_tabla().$megnevezes.'`.`kelte` as \'Kelte\',
-                            `'.get_db_tabla().$megnevezes.'`.`szallito_id` as \'Szerződő partner\',
-                            `'.get_db_tabla().$megnevezes.'`.`pr_szam` as \'Projekt szám\',
+                            `'.get_db_tabla().$megnevezes.'`.`szla_szam` as \'Számlaszám\',
+                            `'.get_db_tabla().$megnevezes.'`.`telj_datum` as \'Teljesítés dátuma\',
+                            `'.get_db_tabla().$megnevezes.'`.`fiz_hatar` as \'Fizetési határidő\',
+                            `'.get_db_tabla().$megnevezes.'`.`telephely_id` as \'Szálloda\',
+                            `'.get_db_tabla().$megnevezes.'`.`szallito_id` as \'Partner\',
                             `'.get_db_tabla().$megnevezes.'`.`targy` as \'Tárgy\',
+                            `'.get_db_tabla().$megnevezes.'`.`netto` as \'Nettó érték\',
+                            `'.get_db_tabla().$megnevezes.'`.`brutto` as \'Bruttó érték\',
+                            `'.get_db_tabla().$megnevezes.'`.`visszaadva` as \'Visszaadva\',
+                            `'.get_db_tabla().$megnevezes.'`.`visszaadva_dt` as \'Visszaadva dátum\',
+                            `'.get_db_tabla().$megnevezes.'`.`sz_szam` as \'Szerződés szám\',
+                            `'.get_db_tabla().$megnevezes.'`.`pr_szam` as \'Projekt szám\',
+                            `'.get_db_tabla().$megnevezes.'`.`let_fel` as \'Felelős\',
                             `'.get_db_tabla().$megnevezes.'`.`kolt_vis` as \'Költségviselő\',
-                            `'.get_db_tabla().$megnevezes.'`.`kiv_kezd` as \'Kivitelezés kezdete\',
-                            `'.get_db_tabla().$megnevezes.'`.`kiv_vege` as \'Kivitelezés vége\',
-                            `'.get_db_tabla().$megnevezes.'`.`szerz_ossz` as \'Szerződött összeg\',
-                            `'.get_db_tabla().$megnevezes.'`.`let_fel` as \'Létesítmény felelős\',
-                            `'.get_db_tabla().$megnevezes.'`.`muszak_atv` as \'Műszaki átvétel\',
-                            `'.get_db_tabla().$megnevezes.'`.`bank_gar` as \'Bank garancia\',
-                            `'.get_db_tabla().$megnevezes.'`.`bank_gar_vege` as \'Bank garancia vége\',
-                            `'.get_db_tabla().$megnevezes.'`.`szamlazva` as \'Számlázva\',
                                 
                             `'.get_db_tabla().$megnevezes.'_tetel`.`targy` as `Tétel tárgy`,
-                            `'.get_db_tabla().$megnevezes.'_tetel`.`varh_erk` as `Számla várh. érk.`,
-                            `'.get_db_tabla().$megnevezes.'_tetel`.`varh_ert` as `Számla várh. értéke (Ft)`,
-                            `'.get_db_tabla().$megnevezes.'_tetel`.`teljesites` as `Teljesítés`,
-                            `'.get_db_tabla().$megnevezes.'_tetel`.`ertek` as `Érték`
+                            `'.get_db_tabla().$megnevezes.'_tetel`.`netto_ert` as `Tétel nettó érték`
                             '.$lekerdezes_fromtol;
 
                 $query      = mysqli_query($db_kapcs, $sql);
-// echo $sql; exit;
+// echo $sql; 
                 $csvhead    = array();
                 while($fejlec_nevek = mysqli_fetch_field($query)){
                     $csvhead[] = iconv2($mibol, $mibe, $fejlec_nevek -> name );
@@ -488,25 +486,25 @@ if (isset($_GET['csv'])) {
 
                 $i = 0;
                 while( $sorok = mysqli_fetch_assoc($query) ){
-
+                    
                     $csvcont = array();
                     foreach( $sorok as $kulcs => $sor ) {
                         if($kulcs=='Szálloda'){
                             $sor = getSzallodaNev($sor);
                         }
-                        if($kulcs=='Szerződő partner'){
+                        if($kulcs=='Partner'){
                             $sor = getErtek('nev', 'szallito', 'id', $sor);
                         }
                         if($kulcs=='Költségviselő'){
                             $sor = erteklista(ERTEKLISTA_KOLTSEGVISELO, $sor);
                         }
-                        if($kulcs=='Létesítmény felelős'){
+                        if($kulcs=='Felelős'){
                             $sor = getErtek('teljes_nev', 'login', 'recid', $sor);
                         }
-                        if($kulcs=='Műszaki átvétel' || $kulcs=='Kelte' || $kulcs=='Kivitelezés kezdete' || $kulcs=='Kivitelezés vége' || $kulcs=='Bank garancia vége' || $kulcs=='Bank garancia vége' || $kulcs=='Teljesítés'  ){
+                        if($kulcs=='Céghez érkezett' || $kulcs=='Kelte' || $kulcs=='Teljesítés dátuma' || $kulcs=='Fizetési határidő' || $kulcs=='Visszaadva dátum'  ){
                             $sor = datum_kiir($sor);
                         }
-                        if($kulcs=='Számlázva'){
+                        if($kulcs=='Visszaadva'){
                             if($sor){
                                 $sor = 'igen';
                             }else{
@@ -536,21 +534,22 @@ if (isset($_GET['csv'])) {
                 }
 
                 $sql = 'SELECT
-                            `telephely_id` as \'Szálloda\',
-                            `sz_szam` as \'Szerződés szám\',
-                            `kelte` as \'Kelte\',
-                            `szallito_id` as \'Szerződő partner\',
-                            `pr_szam` as \'Projekt szám\',
-                            `targy` as \'Tárgy\',
-                            `kolt_vis` as \'Költségviselő\',
-                            `kiv_kezd` as \'Kivitelezés kezdete\',
-                            `kiv_vege` as \'Kivitelezés vége\',
-                            `szerz_ossz` as \'Szerződött összeg\',
-                            `let_fel` as \'Létesítmény felelős\',
-                            `muszak_atv` as \'Műszaki átvétel\',
-                            `bank_gar` as \'Bank garancia\',
-                            `bank_gar_vege` as \'Bank garancia vége\',
-                            `szamlazva` as \'Számlázva\'
+                            `'.get_db_tabla().$megnevezes.'`.`ceghez_erk` as \'Céghez érkezett\',
+                            `'.get_db_tabla().$megnevezes.'`.`kelte` as \'Kelte\',
+                            `'.get_db_tabla().$megnevezes.'`.`szla_szam` as \'Számlaszám\',
+                            `'.get_db_tabla().$megnevezes.'`.`telj_datum` as \'Teljesítés dátuma\',
+                            `'.get_db_tabla().$megnevezes.'`.`fiz_hatar` as \'Fizetési határidő\',
+                            `'.get_db_tabla().$megnevezes.'`.`telephely_id` as \'Szálloda\',
+                            `'.get_db_tabla().$megnevezes.'`.`szallito_id` as \'Partner\',
+                            `'.get_db_tabla().$megnevezes.'`.`targy` as \'Tárgy\',
+                            `'.get_db_tabla().$megnevezes.'`.`netto` as \'Nettó érték\',
+                            `'.get_db_tabla().$megnevezes.'`.`brutto` as \'Bruttó érték\',
+                            `'.get_db_tabla().$megnevezes.'`.`visszaadva` as \'Visszaadva\',
+                            `'.get_db_tabla().$megnevezes.'`.`visszaadva_dt` as \'Visszaadva dátum\',
+                            `'.get_db_tabla().$megnevezes.'`.`sz_szam` as \'Szerződés szám\',
+                            `'.get_db_tabla().$megnevezes.'`.`pr_szam` as \'Projekt szám\',
+                            `'.get_db_tabla().$megnevezes.'`.`let_fel` as \'Felelős\',
+                            `'.get_db_tabla().$megnevezes.'`.`kolt_vis` as \'Költségviselő\'
                             '.$lekerdezes_fromtol;
 
                 $query      = mysqli_query($db_kapcs, $sql);
@@ -569,19 +568,19 @@ if (isset($_GET['csv'])) {
                         if($kulcs=='Szálloda'){
                             $sor = getSzallodaNev($sor);
                         }
-                        if($kulcs=='Szerződő partner'){
+                        if($kulcs=='Partner'){
                             $sor = getErtek('nev', 'szallito', 'id', $sor);
                         }
                         if($kulcs=='Költségviselő'){
                             $sor = erteklista(ERTEKLISTA_KOLTSEGVISELO, $sor);
                         }
-                        if($kulcs=='Létesítmény felelős'){
+                        if($kulcs=='Felelős'){
                             $sor = getErtek('teljes_nev', 'login', 'recid', $sor);
                         }
-                        if($kulcs=='Műszaki átvétel' || $kulcs=='Kelte' || $kulcs=='Kivitelezés kezdete' || $kulcs=='Kivitelezés vége' || $kulcs=='Bank garancia vége' || $kulcs=='Bank garancia vége'){
+                        if($kulcs=='Céghez érkezett' || $kulcs=='Kelte' || $kulcs=='Teljesítés dátuma' || $kulcs=='Fizetési határidő' || $kulcs=='Visszaadva dátum'  ){
                             $sor = datum_kiir($sor);
                         }
-                        if($kulcs=='Számlázva'){
+                        if($kulcs=='Visszaadva'){
                             if($sor){
                                 $sor = 'igen';
                             }else{

@@ -801,6 +801,20 @@ function i_u($type, $tabla, $tomb) {
             if( $sql === false ) { $db_error = true; }
         }
         
+        // Projektszámla tételek felvétele
+        if( $tabla == 'projektszamla' ) {
+            $i = 0;
+            foreach($_SESSION['pr_szla_tetel_targy'] as $targy){
+                $netto_ert = str_replace(' ', '',  $_SESSION['pr_szla_tetel_netto_ert'][$i]);
+                $sql = $adatbazis_kapcsolat->i('projektszamla_tetel',
+                                                    array('projektszamla_recid', 'targy', 'netto_ert', 'projektszerzodes_tetel_recid',          'loginnev',                          'insert_dt',    'insert_usr',                             'update_usr'                              ),
+                                                    array($id,                   $targy,  $netto_ert,  $_SESSION['pr_szla_tetel_pr_tetel'][$i], $_SESSION[get_db_tabla().'user'],    'NOW()',        $_SESSION[get_db_tabla().'teljes_nev'],   $_SESSION[get_db_tabla().'teljes_nev']    )
+                                            );
+                if( $sql === false ) { $db_error = true; }
+                $i++;
+            }
+        }
+        
         // Projektszerződés tételek felvétele
         if( $tabla == 'projektszerzodes' ) {
             $i = 0;

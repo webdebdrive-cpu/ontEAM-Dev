@@ -5489,6 +5489,7 @@ function listanezet_nyomtat( that ) {
     });
 }
 
+/* CSV export készítő */
 function csv_general( that, valasztos, link_kieg ) {
 
     if(!link_kieg){
@@ -5500,6 +5501,11 @@ function csv_general( that, valasztos, link_kieg ) {
         /* Energia tervnél lehet választani, hogy tervet, vagy Egységárakat szeretne-e nyomtatni */
         if( baseName(location.href) == 'energia_terv' ){
             alert2('Válasszon export fajtát:<br><a href="javascript:csv_general($(\'.excel\'))">» Energia tervek exportálása</a><br><a href="javascript:csv_general($(\'.excel\'), \'\', \'egysegarak&id=\'+_get(\'id\'))">» Egységárak exportálása</a>', '<input type="button" class="gomb" value="Mégsem" onclick="alert2()">', 'Válasszon exportot');
+        }
+
+        /* Projektszámláknál lehet választani, hogy Számlák vagy Számlák és tételek */
+        if( baseName(location.href) == 'projektszamla' ){
+            alert2('Válasszon export fajtát:<br><a href="javascript:csv_general($(\'.excel\'))">» Számlák exportálása</a><br><a href="javascript:csv_general($(\'.excel\'), \'\', \'tetelek&id=\'+_get(\'id\'))">» Számlák és tételek exportálása</a>', '<input type="button" class="gomb" value="Mégsem" onclick="alert2()">', 'Válasszon exportot');
         }
 
         /* Projektszerződéseknél lehet választani, hogy Szerződések vagy Szerződések és tételek */

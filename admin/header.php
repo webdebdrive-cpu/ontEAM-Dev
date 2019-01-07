@@ -1249,7 +1249,7 @@ if( basename(self())=='torzsadat.php' && !_jog(JOG_TORZSADAT_KEZEL)){
 
 // Excel export
 $valasztos = '';
-$valasztos_feluletek = array('energia_terv.php', 'projektszerzodes.php');
+$valasztos_feluletek = array('energia_terv.php', 'projektszamla.php', 'projektszerzodes.php');
 if( in_array(basename(self()), $valasztos_feluletek)  ){
     $valasztos = 'választós';
 }

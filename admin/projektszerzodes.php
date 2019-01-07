@@ -199,7 +199,7 @@ if (isset($_POST['tetel_sorok_ment'])) {
         $_SESSION['pr_szer_tetel_varh_ert'] = $_POST['adatok'][2][1];
     }
     
-    // Ha ismert a szerződés ID-ja, akkor a sorokat is updatel-jük (törölkük, majd újra veszúrjuk)
+    // Ha ismert a szerződés ID-ja, akkor a sorokat is updatel-jük (töröljük, majd újra beszúrjuk)
     // Azért kell az is_numeric, mert JS-ből volt, hogy itt egy 'false' értéket kaptunk, és ilyenkor sem kéne beírni még adatbázisb (új feltöltés esete).
     if( $recid && is_numeric($recid) ){
         $sql = $adatbazis_kapcsolat->d('projektszerzodes_tetel', "`projektszerzodes_recid`='{$recid}'");
