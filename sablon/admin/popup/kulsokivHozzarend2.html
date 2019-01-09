@@ -169,8 +169,8 @@ function cimzett_add( mezo ){
 }
 /* cimzett_add() függvény kiegészítője: mailcím hozáfűrzése vesszővel elválasztva: ha van vessző ha nincs, mindig jól fűződjön hozzá */
 function mailcim_hozzafuz( that ){
+    mezo_tartalma = that.val().trim();
     if( that.val() ){
-        mezo_tartalma = that.val().trim();
         if( mezo_tartalma.slice(-1) != ',' ){
             mezo_tartalma += ', ';
         }else{
