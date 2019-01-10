@@ -59,6 +59,9 @@ function projekt_szerzodes_kivalaszt(){
     $('#pr_szam').val( $('#pr_szerzodes_tablazat tr.kijelolve').data('pr_szam') );
     $('#pr_szam').addClass('mod');
     
+    /* Projekt tárgyat is írjuk ki */
+    $('#szerzodes_neve').html( $('#pr_szerzodes_tablazat tr.kijelolve div.targy_txt').html() );
+    
     $('#let_fel_autocomp').val( $('#pr_szerzodes_tablazat tr.kijelolve div.let_fel_txt').html() );
     $('#let_fel_autocomp').addClass('mod');
     $('#let_fel').val( $('#pr_szerzodes_tablazat tr.kijelolve').data('let_fel') );

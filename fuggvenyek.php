@@ -811,6 +811,11 @@ function i_u($type, $tabla, $tomb) {
                                                     array($id,                   $targy,  $netto_ert,  $_SESSION['pr_szla_tetel_pr_tetel'][$i], $_SESSION[get_db_tabla().'user'],    'NOW()',        $_SESSION[get_db_tabla().'teljes_nev'],   $_SESSION[get_db_tabla().'teljes_nev']    )
                                             );
                 if( $sql === false ) { $db_error = true; }
+                
+                // Illetve a projektszerződés tételénél updateljük a teljesítést és nettó értéket
+                $sql = $adatbazis_kapcsolat->u('projektszerzodes_tetel', array('teljesites', 'ertek'), array($_POST['telj_datum'], $netto_ert), "`recid`='{$_SESSION['pr_szla_tetel_pr_tetel'][$i]}'");
+                if( $sql === false ) { $db_error = true; }
+                
                 $i++;
             }
         }
@@ -1014,6 +1019,40 @@ function i_u($type, $tabla, $tomb) {
         
         // Projekt számla
         if( $tabla == 'projektszamla' ){
+            
+            // Ellenőrizzük, hogy a visszaadva pipa be van-e pipálva, ha igen, akkor a dátum kötelező
+            if( $_POST['visszaadva'] && ( !$_POST['visszaadva_dt'] || $_POST['visszaadva_dt']>'9000-00-00') ){
+                echo json_encode(array(
+                    'hiba'  => 'Kérem adja meg a visszaadás dátumát!',
+                    'focus' => 'visszaadva_dt',
+                    'title' => 'Hiba',
+                ));
+                $weblap -> leallit();
+                exit();
+            }
+            
+            // Projekt számla mentésekor ellenőrizzük, hogy a dátumok nem múltbeliek-e. (Van pár, amelyiknél ezt ellenőrizni kell.)
+            $csak_mult_datum_lehet = array(
+                                            array('name' => 'ceghez_erk',    'alert' => 'Céghez érkezett dátumhoz csak mai, vagy múltbeli dátum adható meg!'),
+                                            array('name' => 'kelte',         'alert' => 'A számla kelte dátumhoz csak mai, vagy múltbeli dátum adható meg!'),
+                                            array('name' => 'visszaadva_dt', 'alert' => 'A visszaadva dátumhoz csak mai, vagy múltbeli dátum adható meg!'),
+                                        );
+
+            foreach($csak_mult_datum_lehet as $elem){
+
+                // Visszaadva dátumot csak akkor figyeljük, ha a visszaadva pipa be is van pipálva
+                if( $elem['name']!='visszaadva_dt' || $_POST['visszaadva'] ){
+                    if( $_POST[$elem['name']]>date('Y-m-d') ){
+                        echo json_encode(array(
+                            'hiba'  => $elem['alert'],
+                            'gomb'  => '<input type="button" class="gomb" value="Ok" onclick="alert2(); szurkit_zar(\'mehet_megsem_mutat\'); $(\'#'.$elem['name'].'\').focus();">',
+                            'title' => 'Hiba',
+                        ));
+                        $weblap -> leallit();
+                        exit();
+                    }
+                }
+            }
 
             // Projekt számla mentésekor ellenőrizzük, hogy a számla nettó értéke azonos-e a tételek összegével
             $tetelek_osszege = '';
@@ -1025,17 +1064,6 @@ function i_u($type, $tabla, $tomb) {
                 echo json_encode(array(
                     'hiba'  => 'A számla tételeinek összege nem egyezik meg a számla nettó értékével!<br>Így nem menthető!',
                     'gomb'  => '<input type="button" class="gomb" value="Ok" onclick="szurkit_zar(\'mégsem mehet mutat\'); alert2();">',
-                    'title' => 'Hiba',
-                ));
-                $weblap -> leallit();
-                exit();
-            }
-            
-            // Ellenőrizzük, hogy a visszaadva pipa be van-e pipálva, ha igen, akkor a dátum kötelező
-            if( $_POST['visszaadva'] && ( !$_POST['visszaadva_dt'] || $_POST['visszaadva_dt']>'9000-00-00') ){
-                echo json_encode(array(
-                    'hiba'  => 'Kérem adja meg a visszaadás dátumát!',
-                    'focus' => 'visszaadva_dt',
                     'title' => 'Hiba',
                 ));
                 $weblap -> leallit();

@@ -16,15 +16,25 @@
                     $('.datepicker').datetimepicker({
                         closeOnDateSelect   : true,
                         format              :'Y.m.d',
-                        mask                : /*'____.__.__'*/'\xa0\xa0\xa0\xa0.\xa0\xa0.\xa0\xa0',
+                        mask                : '\xa0\xa0\xa0\xa0.\xa0\xa0.\xa0\xa0',
                         timepicker          : false,
                         validateOnBlur      : false,
+                        onChangeDateTime    : function(){ $('#mehet_gomb').removeAttr('disabled').addClass('gombb_alert'); $('#megsem_gomb').removeAttr('disabled'); }
+                    });
+                    $('.datepicker_tegnapig').datetimepicker({
+                        closeOnDateSelect   : true,
+                        format              :'Y.m.d',
+                        mask                : '\xa0\xa0\xa0\xa0.\xa0\xa0.\xa0\xa0',
+                        timepicker          : false,
+                        validateOnBlur      : false,
+                        scrollInput         : false,
+                        maxDate             : '+1970/01/02',
                         onChangeDateTime    : function(){ $('#mehet_gomb').removeAttr('disabled').addClass('gombb_alert'); $('#megsem_gomb').removeAttr('disabled'); }
                     });
                     $('.datetimepicker').datetimepicker({
                         closeOnDateSelect   : false,
                         format              :'Y.m.d H:i',
-                        mask                : /*'____.__.__ __:__'*/'\xa0\xa0\xa0\xa0.\xa0\xa0.\xa0\xa0\xa0\xa0:\xa0\xa0',
+                        mask                : '\xa0\xa0\xa0\xa0.\xa0\xa0.\xa0\xa0\xa0\xa0:\xa0\xa0',
                         timepicker          : true,
                         step                : 60,
                         validateOnBlur      : false,
@@ -39,7 +49,7 @@
                         closeOnDateSelect   : true,
                         datepicker          : false,
                         format              :'H:i',
-                        mask                : /*'__:__'*/'\xa0\xa0:\xa0\xa0',
+                        mask                : '\xa0\xa0:\xa0\xa0',
                         step                : 60,
                         validateOnBlur      : false,
                         onChangeDateTime    : function(dp, $input){

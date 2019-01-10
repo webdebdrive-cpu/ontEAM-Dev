@@ -40,6 +40,8 @@ function prsz_hozzaad_gomb_hozzaad_vagy_torol (){
             $('#kolt_vis_autocomp').removeClass('mod');
         }
         
+        $('#szerzodes_neve').html('');
+        
         formModositva = true;
         $('#sz_szam_gomb').val('Szerződés hozzáadása').removeClass('piros');
         $('#mehet_gomb').addClass('gombb_alert');

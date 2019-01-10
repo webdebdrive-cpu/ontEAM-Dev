@@ -80,6 +80,7 @@ if(isset($_POST['get_projekt_szerzodes_tabla'])){
                     '.$pr['sz_szam'].'
                     <div class="dn let_fel_txt">'.$let_fel_neve.'</div>
                     <div class="dn kolt_vis_txt">'.$kolt_vis_neve.'</div>
+                    <div class="dn targy_txt">'.resz_string($pr['targy'], 60).'</div>
                 </td>
                 <td class="l" style="width: 40rem">'.nl2br2($pr['targy']).'</td>
                 <td>'. getErtek('nev', 'szallito', 'id', $pr['szallito_id']).'</td>
@@ -273,6 +274,29 @@ if (isset($_POST['pop_tetelek_feltolt'])) {
 if (isset($_POST['van_tetel'])) {
     
     $szamla_netto_erteke = str_replace(' ', '', $_POST['netto']);
+    
+    // Vannak dátumok, amik csak múltbeliek lehetnek. Ennek ellenőrzését itt végezzük el
+    $csak_mult_datum_lehet = array(
+                                    array('name' => 'ceghez_erk',    'alert' => 'Céghez érkezett dátumhoz csak mai, vagy múltbeli dátum adható meg!'),
+                                    array('name' => 'kelte',         'alert' => 'A számla kelte dátumhoz csak mai, vagy múltbeli dátum adható meg!'),
+                                    array('name' => 'visszaadva_dt', 'alert' => 'A visszaadva dátumhoz csak mai, vagy múltbeli dátum adható meg!'),
+                                );
+    
+    foreach($csak_mult_datum_lehet as $elem){
+        
+        // Visszaadva dátumot csak akkor figyeljük, ha a visszaadva pipa be is van pipálva
+        if( $elem['name']!='visszaadva_dt' || $_POST['visszaadva']=='true' ){
+            if( $_POST[$elem['name']]>date('Y.m.d') ){
+                echo json_encode(array(
+                    'hiba'  => $elem['alert'],
+                    'gomb'  => '<input type="button" class="gomb" value="Ok" onclick="alert2(); szurkit_zar(\'mehet_megsem_mutat\'); $(\'#'.$elem['name'].'\').focus();">',
+                    'title' => 'Hiba',
+                ));
+                $weblap -> leallit();
+                exit();
+            }
+        }
+    }
     
     // Kötelező mezők ellenőrzése
     foreach ($akt_tomb as $elem){
@@ -767,7 +791,10 @@ require_once('selectek.php');
 	// Új projektkezelés felvitele
 	if( isset($_GET['uj']) && _jog(JOG_PRSZAMLAK_KEZEL) ){
         
-        $js_submit_elott = nl2('
+        // Az űrlap feldolgozása előtti JS-t tiszta lappal indítjuk
+        $js_submit_elott = '';
+        
+        $js_submit_elott .= nl2('
             
                 var dfrd_pr_mehet = false;
                 var hibauzenet    = \'\';
