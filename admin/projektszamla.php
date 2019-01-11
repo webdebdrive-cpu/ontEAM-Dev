@@ -47,26 +47,27 @@ if(isset($_POST['get_projekt_szerzodes_tabla'])){
     
     $html = '';
 
-    // Rendezés beállítása
-    $join  = ' JOIN `'.get_db_tabla().'telephely` ON `'.get_db_tabla().'projektszerzodes`.`telephely_id`=`'.get_db_tabla().'telephely`.`id`';
-    // Rendezést egyelőre kivettük, ezért mindig a default fog érvényesülni
-    switch($_POST['order']){
-        case 'bkolt': $order = '`'.get_db_tabla().'projektszerzodes`.`szerz_ossz`,  `'.get_db_tabla().'telephely`.`nev`';               $sz_osszeg_selected = ' selected';  break;
-        default     : $order = '`'.get_db_tabla().'telephely`.`nev`,                `'.get_db_tabla().'projektszerzodes`.`szerz_ossz`';                                     break;
-    }
+//    // Rendezés beállítása
+//     $join  = ' JOIN `'.get_db_tabla().'telephely` ON `'.get_db_tabla().'projektszerzodes`.`telephely_id`=`'.get_db_tabla().'telephely`.`id`';
+//    // Rendezést egyelőre kivettük, ezért mindig a default fog érvényesülni
+//    switch($_POST['order']){
+//        case 'bkolt': $order = '`'.get_db_tabla().'projektszerzodes`.`szerz_ossz`,  `'.get_db_tabla().'telephely`.`nev`';               $sz_osszeg_selected = ' selected';  break;
+//        default     : $order = '`'.get_db_tabla().'telephely`.`nev`,                `'.get_db_tabla().'projektszerzodes`.`szerz_ossz`';                                     break;
+//    }
+    // Nincs rendezés, fixen a projekt szerződés szerint rendezünk
+    $order = '`'.get_db_tabla().'projektszerzodes`.`sz_szam`';
 
     $pr_sz_ek = $adatbazis_kapcsolat->s('
                                         `'.get_db_tabla().'projektszerzodes`.`recid`,
                                         `'.get_db_tabla().'projektszerzodes`.`sz_szam`,
                                         `'.get_db_tabla().'projektszerzodes`.`pr_szam`,
                                         `'.get_db_tabla().'projektszerzodes`.`targy`,
-                                        `'.get_db_tabla().'projektszerzodes`.`szallito_id`,
                                         `'.get_db_tabla().'projektszerzodes`.`let_fel`,
                                         `'.get_db_tabla().'projektszerzodes`.`kolt_vis`,
                                         `'.get_db_tabla().'projektszerzodes`.`szerz_ossz`
                                             ',
                                         'projektszerzodes',
-                                        "`".get_db_tabla()."projektszerzodes`.`telephely_id`='{$_POST['telephely_id']}' AND `pr_szam`!=''", $order, '', '', '', $join);
+                                        "`".get_db_tabla()."projektszerzodes`.`telephely_id`='{$_POST['telephely_id']}' AND `".get_db_tabla()."projektszerzodes`.`szallito_id`='{$_POST['szallito_id']}' AND `pr_szam`!=''", $order, '', '', '', $join);
  //echo $adatbazis_kapcsolat->gp() . '<br>';
     $i = 1;
     foreach($pr_sz_ek as $pr){
@@ -83,7 +84,6 @@ if(isset($_POST['get_projekt_szerzodes_tabla'])){
                     <div class="dn targy_txt">'.resz_string($pr['targy'], 60).'</div>
                 </td>
                 <td class="l" style="width: 40rem">'.nl2br2($pr['targy']).'</td>
-                <td>'. getErtek('nev', 'szallito', 'id', $pr['szallito_id']).'</td>
                 <td class="r nowrap">'.number_format($pr['szerz_ossz'], 0, '', ' ').'</td>
             </tr>
             ';
@@ -93,13 +93,15 @@ if(isset($_POST['get_projekt_szerzodes_tabla'])){
     if($html){
 
         // Táblázat rendezhető: szálloda + becsült költség, becsült költség + szálloda, típus + becsült költség. Ezek legyenek egy lenyílóból kiválaszthatóak.
+        // Nincs rendezés..., de amúgy így kellene a HTML-t bővíteni:
+//            Rendezés:
+//            <select onchange="get_projekt_tabla(this.value)">
+//                <option>szálloda + becsült költség</option>
+//                <option value="bkolt"'.$sz_osszeg_selected.'>becsült költség + szálloda</option>
+//            </select>
         $html = '
-            <!--Rendezés:
-            <select onchange="get_projekt_tabla(this.value)">
-                <option>szálloda + becsült költség</option>
-                <option value="bkolt"'.$sz_osszeg_selected.'>becsült költség + szálloda</option>
-            </select>-->
             <div style="max-height: 40rem; overflow-y: auto; overflow-x: none;">
+                '.getErtek('nev', 'szallito', 'id', $_POST['szallito_id']).' szerződései:
                 <table class="csikos v2 kijCont csak_egy_kijelolheto" id="prszerzodesek" style="cursor: default;">
                 <thead>
                 <tr>
@@ -110,10 +112,6 @@ if(isset($_POST['get_projekt_szerzodes_tabla'])){
                     <th>
                         Tárgy
                         <br><input type="text" class="flat" placeholder="Szűrés" onkeyup="tabla_szur($(\'#prszerzodesek tbody\'), this.value, 2)">
-                    </th>
-                    <th>
-                        Partner
-                        <br><input type="text" class="flat" placeholder="Szűrés" onkeyup="tabla_szur($(\'#prszerzodesek tbody\'), this.value, 3)">
                     </th>
                     <th>
                         Nettó érték ('.get_penznem().')

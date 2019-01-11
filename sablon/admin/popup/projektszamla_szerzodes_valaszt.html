@@ -10,23 +10,35 @@
 </form>
 <script>
 $(document).ready(function(){
-    if( _get('uj') && !$('#telephely_id').val() ){
+    
+    /* Szálloda ellenőrzése */
+    if( !$('#telephely_id').val() ){
         setTimeout(function(){ popupZar(); }, 10);
         alert2('Kérem, előbb válasszon szállodát!', '', 'Hiba');
+        $('#telephely_id').addClass('hibas_ide_focus');
         return false;
     }
     
-    get_projekt_szerzodes_tabla('', $('#telephely_id').val());
+    /* Partner ellenőrzése */
+    if( !$('#szallito_id').val() ){
+        setTimeout(function(){ popupZar(); }, 10);
+        alert2('Kérem, előbb válasszon partnert!', '', 'Hiba');
+        $('#szallito_id_autocomp').addClass('hibas_ide_focus');
+        return false;
+    }
+    
+    get_projekt_szerzodes_tabla('');
 });
 
 /* Projektszerződések betöltése */
-function get_projekt_szerzodes_tabla(order, telephely_id){
+function get_projekt_szerzodes_tabla(order){
 
     $.ajax({
         url : 'projektszamla.php',
         type: 'POST',
         data: {
-            telephely_id                : telephely_id,
+            telephely_id                : $('#telephely_id').val(),
+            szallito_id                 : $('#szallito_id').val(),
             order                       : order,
             get_projekt_szerzodes_tabla : new Date().getTime()
         },
