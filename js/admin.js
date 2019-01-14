@@ -1198,6 +1198,8 @@ $(function() {
         setTimeout(function(){
             if( !_get('uj') && !$('.szamla_sor.kijelolve').length ){
                 $('.muveletek').hide();
+                /* Pl. mobil hozzárendelésnél a gombokat nem kell elrejteni, itt nincs bal navpanel, nyilván nem lesz kijelölt sor, de a gombokat látni kell. */
+                $('.muveletek.megis_mindig_latszik').show();
                 adatlap_minden_inputjat_disabled();
             }
         }, 700);

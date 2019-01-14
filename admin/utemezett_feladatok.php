@@ -21,11 +21,6 @@ $szoveg                 = 'ütemezett feladatot';        //Hibaüzenetkor: Bizto
 
 $szamla_html = '';
 
-if( $_POST ) {
-    echo '<pre style="font-size: 1.4rem">', print_r($_POST), '</pre>';
-    exit();
-}
-
 // Dokumentumok fülhöz kell majd
 $tobb_kep = true;
 if($tobb_kep){

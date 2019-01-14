@@ -431,7 +431,7 @@ require_once('selectek.php');
                 </table>
             </div>
 
-            <div class="muveletek"> 
+            <div class="muveletek megis_mindig_latszik"> 
                 <input class="gomb dn" value="Mobil hozzárendelés véglegesítése" onclick="beosztas_veglegesit()" type="button" id="beosztas_veglegesit_gomb">
                 <input class="gomb" value="Vissza a nyitottak közé" onclick="munkalapok_nyitottak_koze()" type="button" id="vissza_nyitottak_koze">
                 <input class="gomb" value="Mobil személyzet beosztása" onclick="csoportMuvelet(\'mobil_szemelyzet_beosztas\')" type="button">

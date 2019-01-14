@@ -1468,6 +1468,11 @@ function level_kuldes( $felado_nev, $felado_mail, $cimzett_nev, $cimzett_mail, $
 
     if($cimzett_mail){
         
+        // Ha a feladó neve ontEAM, akkor a levél feladója esetén ezt toldjuk még meg egy "Danubius Zrt."-vel
+        if( $felado_nev == get_nev() ){
+            $felado_nev .= ' Danubius Zrt.';
+        }
+        
         // Dev és Teszt rendszer alatt a címezett mindig az aktuális login mailcíme
         if($_SERVER['HTTP_HOST']=='teszt.onteam.hu' || $_SERVER['HTTP_HOST']=='dev.onteam.hu'){
             global $adatbazis_kapcsolat;
@@ -1549,6 +1554,11 @@ function level_kuldes( $felado_nev, $felado_mail, $cimzett_nev, $cimzett_mail, $
 function level_kuldes_osszetettebb( $felado_nev, $felado_mail, $cimzett_nev, $cimzett_mail, $masolat_nev, $masolat_mail, $r_masolat_nev, $r_masolat_mail, $targy, $uzi, $fajlok, $levelpapiros ) {
 
     if($cimzett_mail){
+        
+        // Ha a feladó neve ontEAM, akkor a levél feladója esetén ezt toldjuk még meg egy "Danubius Zrt."-vel
+        if( $felado_nev == get_nev() ){
+            $felado_nev .= ' Danubius Zrt.';
+        }
         
         require_once('class/class.Phpmailer.php');
         $mail = new PHPMailer;

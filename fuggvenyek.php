@@ -1163,34 +1163,6 @@ function i_u($type, $tabla, $tomb) {
                     }
                 }
 
-                // Üzemezett feladatoknál az esedékesség dátumát még ki kell számolni
-                if( $tabla == 'utemezett_feladatok' ) {
-
-                    $sor_tmp = $sor[0];
-
-                    include('datumra_utemezes.php');
-                    if(!$sor_tmp['esem_d'] || $sor_tmp['esem_d']=='0000-00-00'){
-                        $sor_tmp['esem_d'] = date('Y-m-d');
-                    }
-
-                    $esem_d     = substr(str_replace('-', '.', $sor_tmp['esem_d']), 0, 10);
-                    $esnap_d    = str_replace('-', '.', $sor_tmp['esnap_d']);
-                    $aktkezd_d  = str_replace('-', '.', $sor_tmp['aktkezd_d']);
-                    $aktvege_d  = str_replace('-', '.', $sor_tmp['aktvege_d']);
-
-                    // 0-ék helyett használjunk üres stringet
-                    foreach($sor_tmp as $kulcs => $ertek){
-                        if(!$sor_tmp[$kulcs]){
-                            $sor_tmp[$kulcs] = '';
-                        }
-                    }
-
-                    $getnextvaliddate = getnextvaliddate(false, $esem_d, $sor_tmp['cikltip'], $sor_tmp['ciklaltip'], $sor_tmp['ciklszorz'], $sor_tmp['ciklho'], $sor_tmp['ciklhet'], $sor_tmp['ciklnap'], $sor_tmp['idoszakos'], $sor_tmp['kezdho'], $sor_tmp['kezdnap'], $sor_tmp['vegeho'], $sor_tmp['vegenap'], $aktkezd_d, $aktvege_d);
-                    $uj_esnap_d = str_replace('.', '-', $getnextvaliddate);
-                    $adatbazis_kapcsolat->u($tabla, array('esnap_d'), array($uj_esnap_d), "`recid`='{$_GET['id']}' AND `esnap_d`<'$uj_esnap_d'");
-
-                }
-
                 echo json_encode(array(
                     'statusz' => 'siker',
                     'adatok'  => $sor[0]
@@ -8688,11 +8660,12 @@ function futoertek_sor($sor){
 function datumra_utemezes_popup($megnevezes){
     
     global $adatbazis_kapcsolat;
-    
+
     include('datumra_utemezes.php');
     
     // Üres értékeket 0-val adjunk át
     $sor = $adatbazis_kapcsolat->s2('*', $megnevezes, "`recid`='{$_GET['id']}'");
+
     foreach($sor as $kulcs => $ertek){
         if(!$_GET[$kulcs]){
             $_GET[$kulcs] = '0';
@@ -8742,11 +8715,12 @@ function datumra_utemezes_popup($megnevezes){
     $esnap_d    = str_replace('-', '.', $_GET['esnap_d']);
     $aktkezd_d  = str_replace('-', '.', $_GET['aktkezd_d']);
     $aktvege_d  = str_replace('-', '.', $_GET['aktvege_d']);
-
+//var_dump($esem_d);
+//exit;
     // $getnextvaliddate = getnextvaliddate(false, $_GET['esem_d'], $_GET['cikltip'], $_GET['ciklaltip'], $_GET['ciklszorz_'], $_GET['ciklho'], $_GET['ciklhet'], $_GET['ciklnap'], $_GET['idoszakos'], $_GET['kezdho'], $_GET['kezdnap'], $_GET['vegeho'], $_GET['vegenap'], $aktkezd_d, $aktvege_d);
     $esedekes = $_GET['esnap_d'];
 
-//echo "$esem_d, $_GET[cikltip], $_GET[ciklaltip], $_GET[ciklszorz_], $_GET[ciklho], $_GET[ciklhet], $_GET[ciklnap], $_GET[idoszakos], $_GET[kezdho], $_GET[kezdnap], $_GET[vegeho], $_GET[vegenap], $aktkezd_d, $aktvege_d";
+// echo "$esem_d, $_GET[cikltip], $_GET[ciklaltip], $_GET[ciklszorz_], $_GET[ciklho], $_GET[ciklhet], $_GET[ciklnap], $_GET[idoszakos], $_GET[kezdho], $_GET[kezdnap], $_GET[vegeho], $_GET[vegenap], $aktkezd_d, $aktvege_d";
     if(!$esedekes || $esedekes=='0000.00.00' || $esedekes>'4000.00.00'/* Az $esedekes == '    .  .  ' feltétel sehogy sem működött*/){
         $getnextvaliddate = getnextvaliddate(false, $esem_d, $_GET['cikltip'], $_GET['ciklaltip'], $_GET['ciklszorz_'], $_GET['ciklho'], $_GET['ciklhet'], $_GET['ciklnap'], $_GET['idoszakos'], $_GET['kezdho'], $_GET['kezdnap'], $_GET['vegeho'], $_GET['vegenap'], $aktkezd_d, $aktvege_d);
         $esedekes = $getnextvaliddate;
@@ -8768,6 +8742,8 @@ function datumra_utemezes_popup($megnevezes){
 
     $szamla_html .= $getnextvaliddate . '<br>';
     for($i=0; $i<9; $i++){
+//echo "$getnextvaliddate, $_GET[cikltip], $_GET[ciklaltip], $_GET[ciklszorz_], $_GET[ciklho], $_GET[ciklhet], $_GET[ciklnap], $_GET[idoszakos], $_GET[kezdho], $_GET[kezdnap], $_GET[vegeho], $_GET[vegenap], $aktkezd_d, $aktvege_d";
+//exit;
         $getnextvaliddate = getnextvaliddate(false, $getnextvaliddate, $_GET['cikltip'], $_GET['ciklaltip'], $_GET['ciklszorz_'], $_GET['ciklho'], $_GET['ciklhet'], $_GET['ciklnap'], $_GET['idoszakos'], $_GET['kezdho'], $_GET['kezdnap'], $_GET['vegeho'], $_GET['vegenap'], $aktkezd_d, $aktvege_d);
         $szamla_html .= $getnextvaliddate . '<br>';
     }
