@@ -539,7 +539,7 @@ input.oriasi{
     width: 100%;
 }
 
-input.datepicker, #popup div.popup_tart div.dt div.dtc input[type="text"].datepicker{
+input.datepicker, input.datepicker_tegnapig, #popup div.popup_tart div.dt div.dtc input[type="text"].datepicker{
     min-width: 0;
     width: 8.6rem;
     white-space: pre;

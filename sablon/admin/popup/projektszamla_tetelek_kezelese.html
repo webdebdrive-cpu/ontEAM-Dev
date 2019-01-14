@@ -197,23 +197,43 @@ function tetel_sorok_ment(){
 /* Ha van SESSION-ban adatunk, akkor abból töltsük fel a sorokat */
 function pop_tetelek_feltolt(){
     
-    if( !$('#pr_szam').length ){
-        pr_szam = $('#pr_szam_db').val().replace(/ /g, '');
+    /* Nettó érték mező aktuális tartalma */
+    if( $('#netto').length ){
+        netto = $('#netto').val().replace(/ /g, '');
     }else{
-        pr_szam = $('#pr_szam').val().replace(/ /g, '');
+        netto = $('#netto_db').val().replace(/ /g, '');
+    }
+    
+    /* Szerződés szám mező aktuális tartalma */
+    if( $('#sz_szam').length ){
+        sz_szam = $('#sz_szam').val();
+    }else{
+        sz_szam = $('#sz_szam_db').val();
     }
     
     $.ajax({
         url : 'projektszamla.php',
         type: 'POST',
         data: {
-            pr_szam             : pr_szam,
-            pop_tetelek_feltolt : Date.now(),
+            id                  : _get('id'),
+            sz_szam             : sz_szam,
+            netto               : netto,
+            pop_tetelek_feltolt : Date.now()
         },
         success: function(response){
             if(response.substring(0, 6)=='SESKIL'){ location.href = 'index.php'; }
             if(response){
                 response = JSON.parse(response);
+                
+                if(response.hiba){
+                    alert2(response.hiba, response.gomb, response.title);
+                    if( response.focus ){
+                        $('#'+response.focus).addClass('hibas_ide_focus');
+                    }
+                    popupZar();
+                    return false;
+                }
+                
                 if(response.html){
                     $('#pop_tetelek tbody').append(response.html);
                     $('#pop_tetelek').removeClass('dn');

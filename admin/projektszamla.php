@@ -230,6 +230,39 @@ if (isset($_POST['tetel_sorok_ment'])) {
 // Tétel sorok kiíratása
 if (isset($_POST['pop_tetelek_feltolt'])) {
     
+    // Projekt számlák táblázat kiírtatása előtt ellenőrizzük, hogy a hozzá tartozó szerződéshez milyen számlák tartoznak, és azoknak mennyi az össz nettó értéke.
+    // Ha a Projekt számlák össz nettója több mint a hozzájuk tartozó szerződésé, akkor hibaüzenet
+    if( !$_POST['sz_szam'] ){
+        echo json_encode( array(
+                            'hiba'  => 'Tételek kezeléséhez kérem előbb adjon egy szerződést a projket számlához!',
+                            'title' => 'Hiba',
+                        ) );
+        $weblap -> leallit();
+        exit;
+    }
+    // Lekérjük, a projekt szerződéses összegét
+    $pr_szerzodes = $adatbazis_kapcsolat->s2('szerz_ossz', 'projektszerzodes', "`sz_szam`='{$_POST['sz_szam']}'");
+    // Illetve, hogy az akutális számlán kívül milyen számlák tartoznak hozzá
+    $ossznetto = 0;
+    $szamlak   = $adatbazis_kapcsolat->s('netto', 'projektszamla', "`sz_szam`='{$_POST['sz_szam']}' AND `recid`!='{$_POST['id']}'");
+    foreach($szamlak as $szamla){
+        $ossznetto += $szamla['netto'];
+    }
+    // Beleférünk-e a keretbe
+    if( ($ossznetto+$_POST['netto']) > $pr_szerzodes['szerz_ossz'] ){
+        echo json_encode( array(
+                            'hiba'  => nl2('
+                                            Szerződött összeg: '.number_format($pr_szerzodes['szerz_ossz'], 0, '', ' ').' '.get_penznem().'
+                                            <br>Még felhasználható összeg: '.number_format($pr_szerzodes['szerz_ossz']-$ossznetto, 0, '', ' ').' '.get_penznem().'
+                                            <br>A számla nettó értéke több, mint a választott szerződésből még felhasználható összeg!
+                                            '),
+                            'focus' => 'netto',
+                            'title' => 'Hiba',
+                        ) );
+        $weblap -> leallit();
+        exit;
+    }
+    
     $html = '';
     
     // Tételek táblázat sorait kiszámoljuk:
@@ -252,8 +285,9 @@ if (isset($_POST['pop_tetelek_feltolt'])) {
         $i++;
     }
     
+    // Szerződés tételeiből csinálunk egy listát
     $pr_tetel_option = '<option value="">- Válasszon -</option>';
-    $projekt    = $adatbazis_kapcsolat->s2('recid', 'projektszerzodes', "`pr_szam`='{$_POST['pr_szam']}'");
+    $projekt    = $adatbazis_kapcsolat->s2('recid', 'projektszerzodes', "`sz_szam`='{$_POST['sz_szam']}'");
     $pr_tetelek = $adatbazis_kapcsolat->s('*', 'projektszerzodes_tetel', "`projektszerzodes_recid`='{$projekt['recid']}'");
     foreach($pr_tetelek as $tetel){
         $pr_tetel_option .= '<option value="'.$tetel['recid'].'">'.$tetel['targy']/*.' - '.datum_kiir($tetel['varh_erk']).' - '. number_format($tetel['varh_ert'], 0, '', ' ').' '.get_penznem()*/.'</option>';
@@ -377,11 +411,23 @@ if (isset($_POST['van_tetel'])) {
     }
     
     // Ellenőrizzük, hogy a kiválasztott szálloda és a projekt szám stimmel-e
-    $projekt = $adatbazis_kapcsolat->s2('telephely_id', 'projektszerzodes', "`pr_szam`='{$_POST['pr_szam']}'");
+    $projekt = $adatbazis_kapcsolat->s2('telephely_id', 'projektszerzodes', "`sz_szam`='{$_POST['sz_szam']}'");
     if( $projekt['telephely_id']!=$_POST['telephely_id'] ){
         echo json_encode(array(
             'hiba'  => 'A projekt szám nem megfelelő szállodához tartozik!',
             'gomb'  => '<input type="button" class="gomb" value="Ok" onclick="alert2(); szurkit_zar(\'mehet_megsem_mutat\'); $(\'#telephely_id\').focus();">',
+            'title' => 'Hiba',
+        ));
+        $weblap -> leallit();
+        exit();
+    }
+    
+    // Ellenőrizzük, hogy a kiválasztott szálloda és a partner stimmel-e
+    $projekt = $adatbazis_kapcsolat->s2('szallito_id', 'projektszerzodes', "`sz_szam`='{$_POST['sz_szam']}'");
+    if( $projekt['szallito_id']!=$_POST['szallito_id'] ){
+        echo json_encode(array(
+            'hiba'  => 'A partner nem megfelelő szerződéshez tartozik!',
+            'gomb'  => '<input type="button" class="gomb" value="Ok" onclick="alert2(); szurkit_zar(\'mehet_megsem_mutat\'); $(\'#szallito_id_autocomp\').focus();">',
             'title' => 'Hiba',
         ));
         $weblap -> leallit();
@@ -755,6 +801,7 @@ require_once('selectek.php');
             $gombok .= ' <input type="button" class="gomb" onclick="csoportMuvelet(\'projektszamla_tetelek_kezelese\');" value="Tételek kezelése">';
             // Ha nem az Adatlapon volnánk, akkor szükségünk lesz egy rejtett inputra, ami az adatbázisban levő nettó értéket tartalmazza, hogy bármelyik fül alatt szerkeszteni lehessen a tételeket, összehasonlítva az aktuális számla nettó értékével
             $gombok .= ' <input type="hidden" id="netto_db" value="'.$sor['netto'].'">';
+            $gombok .= ' <input type="hidden" id="sz_szam_db" value="'.$sor['sz_szam'].'">';
             $gombok .= ' <input type="hidden" id="pr_szam_db" value="'.$sor['pr_szam'].'">';
         }
         
@@ -873,16 +920,19 @@ require_once('selectek.php');
         $szamla_html .= str_replace($navi_mit, $navi_mivel, $navi_sablon);
 
 	    // FORM
-		if(isset($_GET['ujkent'])){
-			foreach($akt_tomb as $ertek){
-				$sor[$ertek['name']]=$_SESSION[$ertek['name']];
-			}
+		if($_GET['ujkent']) {
+            $sor = $adatbazis_kapcsolat -> s2('*', $megnevezes, "`recid`='{$_GET['ujkent']}'");
+            if( $sor ) {
+                foreach($akt_tomb as $ertek) {
+                    $_SESSION[$ertek['name']] = $sor[$ertek['name']];
+    			}
+            }
 		}
 	    $js = js_kiir($akt_tomb, 'form_ell_admin()');
 
 	    $form_sablon = fajlbol_olvas('../sablon/admin/form_uj.html', true);
 
-        // Javascipt-es ellenőrzéshez
+        // Javascript-es ellenőrzéshez
         $tabla = str_replace('.php', '', basename(self()));
 
         $rend_mezok = $adatbazis_kapcsolat->s('`column_name`', '`information_schema`.columns', '`table_schema` LIKE  \''.get_db().'\' AND  `table_name` LIKE  \''.get_db_tabla().$tabla.'\'', '', '');
@@ -938,7 +988,8 @@ require_once('selectek.php');
             $_GET['id'] = $_GET['id_hidden'];
         }
 
-	    $sor = $adatbazis_kapcsolat -> s2('*', $megnevezes, "`recid`='{$_GET['id']}'");
+	    $sor        = $adatbazis_kapcsolat -> s2('*', $megnevezes, "`recid`='{$_GET['id']}'");
+        $telephely  = $adatbazis_kapcsolat -> s2('nev modell', 'telephely', "`id`='{$sor['telephely_id']}'");
 
         foreach($akt_tomb as $tomb) {
             if( $tomb['type'] == 'autocomplete' ) {
@@ -967,6 +1018,23 @@ require_once('selectek.php');
         }
         $szamla_html .= '<script> formAdatok = JSON.parse(\''.json_encode($json_sor).'\'); </script>';
 
+        // Duplikáláskor feltett kérdés
+        if(!_jog(JOG_PRSZAMLAK_KEZEL)){
+            $szamla_html .= nl2('
+                <script>
+                    duplikalGomb  = "<p class=\"c\"><input class=\"gomb zold\" type=\"button\" value=\"Ok\" onclick=\"alert2()\"></p>";
+                    duplikaKerdes = \'Önnek nincs joga új projektszámlát létrehozni!\';
+                </script>
+            ');
+        }else{
+            $szamla_html .= nl2('
+                <script>
+                    duplikalGomb  = "<p class=\"c\"><input class=\"gomb zold\" type=\"button\" value=\"Igen\" onclick=\"szurkit(); location.href = \''.basename(self()).'?uj&ujkent='.$_GET['id'].'\'; \"><input class=\"gomb piros\" type=\"button\" value=\"Nem\" onclick=\"alert2()\"></p>";
+                    duplikaKerdes = \'Számlaszám: '.$sor['sz_szam'].'<br>Szálloda: '.$telephely['nev'].'<br><br>Biztos, hogy duplikálja?\';
+                </script>
+            ');
+        }
+        
 	    // FORM
 	    $js = js_kiir($akt_tomb, 'form_ell_admin()', 'ajax');
 

@@ -7729,7 +7729,7 @@ require('selectek.php');
 
 	    // FORM
 		if($_GET['ujkent']) {
-            $sor = $adatbazis_kapcsolat -> s2('*', $megnevezes, 'recid='.$_GET['ujkent']);
+            $sor = $adatbazis_kapcsolat -> s2('*', $megnevezes, "`recid`='{$_GET['ujkent']}'");
             if( $sor ) {
 
                 foreach($akt_tomb as $ertek) {
@@ -7750,7 +7750,7 @@ require('selectek.php');
 
 	    $form_sablon = fajlbol_olvas('../sablon/admin/form_uj.html', true);
 
-        // Javascipt-es ellenőrzéshez
+        // Javascript-es ellenőrzéshez
         $tabla = str_replace('.php', '', basename(self()));
 
         // Erre miért volt szükség? Az újként szerkesztés így nem működik
