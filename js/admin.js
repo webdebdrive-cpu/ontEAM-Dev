@@ -4232,8 +4232,8 @@ function anyagigenyles_erkeztet( ures_men_ek_pipa0_kesz, ures_men_ek_pipa1_kesz,
             cikkid      = $('#erkeztet_cikkid_'+id).html();
             cikknev     = $('#erkeztet_cikknev_'+id).html();
             rndmen      = $('#rndmen_'+id).html().replace(',', '.').replace(' ', '');
-            marerkmen   = $('#marerkmen_'+id).html().replace(',', '.').replace(' ', '');
-            erkmen      = $(this).val().replace(',', '.').replace(' ', '');
+            marerkmen   = Number($('#marerkmen_'+id).html().replace(',', '.').replace(' ', ''));
+            erkmen      = Number($(this).val().replace(',', '.').replace(' ', ''));
             nem_tobb    = $('#nem_tobb_'+id).prop('checked');
             mee         = $('#mee_'+id).html();
             szurkit_    = $('#erkeztet_sor_'+id).hasClass('erkeztet_szurkit');
@@ -4258,8 +4258,8 @@ function anyagigenyles_erkeztet( ures_men_ek_pipa0_kesz, ures_men_ek_pipa1_kesz,
                 return false;
             }*/
             if(erkmen>rndmen-marerkmen && !tulrendeles_megkerdezve){
-                gombok = '<input class="link gomb" value="Igen" onclick="anyagigenyles_erkeztet(\'\', \'\', \'tulrendelés már megkérdezve\')" type="button"> <input class="link gomb" value="Nem" onclick="alert2()" type="button">';
-                hibauzi = 'Rendelt mennyiség: '+erkmen+' '+mee+'<br>Összes beérkezett mennyiség: '+(marerkmen+erkmen)+' '+mee+'<br>Ha folytatja, a beérkezett mennyiség több lesz, mint a rendelt mennyiség!<br>Folytatja?';
+                gombok = '<input class="gomb zold" value="Igen" onclick="anyagigenyles_erkeztet(\'\', \'\', \'tulrendelés már megkérdezve\')" type="button"> <input class="gomb piros" value="Nem" onclick="alert2()" type="button">';
+                hibauzi = 'Rendelt mennyiség: '+erkmen+' '+mee+'<br>Összes beérkezett mennyiség: '+ezresek(marerkmen+erkmen, 2, ',', ' ')+' '+mee+'<br>Ha folytatja,&nbsp;a beérkezett mennyiség több lesz, mint a rendelt mennyiség!<br>Folytatja?';
                 $(this).addClass('alert');
                 tulrendeles_hibauzi = true;
                 return false;

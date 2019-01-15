@@ -1096,7 +1096,7 @@ require_once('selectek.php');
                     $jh_ft_ig = '';
                     // Külsős jóváhagyás jognál plusz input
                     if($jogSor['id']==JOG_MUNKALAP_KULSOS_DONTES){
-                        $jh_ft_ig = '<input type="text" id="jh_ft_ig" name="jh_ft_ig" value="'.number_format($login['jh_ft_ig'], 0, '', ' ').'" class="f_num f_select" data-tort="0" data- style="margin-left: 5rem; width: 8rem;"> '. get_penznem().'-ig';
+                        $jh_ft_ig = '<input type="text" id="jh_ft_ig" name="jh_ft_ig" value="'.number_format($login['jh_ft_ig'], 0, '', ' ').'" class="f_num f_select" data-tort="0" data- style="margin-left: 5rem; width: 10rem;"> '. get_penznem().'-ig';
                     }
                     $szamla_html .= nl2('
                         <div class="dtr'.$dn.'">

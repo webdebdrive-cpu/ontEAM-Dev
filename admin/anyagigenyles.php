@@ -1482,6 +1482,11 @@ if( isset($_POST['rendeles_keszit']) ) {
 
         // Most kommitoljuk el a popupban lekért sorszámot
         mysqli_query($db_kapcs, 'COMMIT');
+        // És a fájlt is elmentjük inkább mégegyszer, mert lehet idő közben már léptetve lett a sorszám
+//        $sorszam = 'R'.date('y').'/'.sprintf('%04d', $sorszam).'|'.$_POST['idk'];
+//
+//        $sorszam_kodolva = trim(base64_encode($sorszam), '=');
+//        $html = URL_letolt(self().'?nyomtat='.$sorszam_kodolva.'&amp;szall');
 
         // Könyvtárak kialakítása
         if( !is_dir('../'.get_utvonal().'rendeles') ) {

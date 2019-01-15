@@ -9,10 +9,12 @@ if (isset($_GET['nyomtat'])) {
 
     // Szállító kiszámítása
     $szallito = $adatbazis_kapcsolat->s2('szallito_id kcs_21', 'anyagigenyles', "`recid`='{$idk[1]}'");
+//echo $adatbazis_kapcsolat->gp() . '<br>';
     $kcs_21   = $szallito['kcs_21'];
     $penznem  = $adatbazis_kapcsolat->s2('info', 'erteklista', "`csoport`='".ERTEKLISTA_PENZNEM."' AND `id`='{$kcs_21}'");
     $szallito = $adatbazis_kapcsolat->s2('id nev knev tel tel2 email isz varos utca', 'szallito', "`id`='{$szallito['szallito_id']}'");
-
+//echo $adatbazis_kapcsolat->gp() . '<br>';
+//echo $szallito['id'];exit;
 }
 
 // Szállítói nyomtatási kép
@@ -150,6 +152,7 @@ if (isset($_GET['html_mutat'])) {
     }
 
     $mpdf -> Output(iconv('UTF-8', 'Windows-1250', '../'.get_utvonal().'rendeles/'.date('y').'/'.$szallito['id'].'/'.str_replace('/', '_', $sorszam).'.pdf'), 'F');
+// echo date('y').'/'.$szallito['id'].'/'.str_replace('/', '_', $sorszam).'.pdf';
     // Így tudod megnyitni  a PDF-et (olyan mintha egy PDF kiterjesztésű fájlra hivatkoznál)
     if (!isset($_GET['html_mutat'])) {
         $mpdf -> Output();

@@ -16,15 +16,6 @@ if( isset($_GET['info']) && $_SESSION[get_db_tabla().'user'] ){
     exit;
 }
 
-
-
-if (isset($_GET['teszt'])) {
-    echo '<pre style="font-size: 1.4rem">';
-    print_r($_SESSION);
-    echo '</pre>';
-    exit;
-}
-
 // Jóváhagyhat limit beállítása
 if (isset($_GET['jovahagyhat_limit'])) {
     

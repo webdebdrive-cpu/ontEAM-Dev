@@ -999,7 +999,7 @@ if( _jog( JOG_PARTNERTORZS_NEV_SZERK ) ){
 }
 $megnevezes = 'szallito';
 $szallito_tomb = $akt_tomb = array(
-    array('type' => 'text',        'megn' => 'Szállító kód:',   'name' => 'id',     'szuro' => 1,     'disabled' => $disabled_szerk,  'maxlength' => SZALLITOKOD_HOSSZ, 'class' => 'f_csakszam', 'style' => 'width: 5rem;',   'alert' => 'Kérem töltse ki az ID mezőt!', 'osszevon' => 1, 'post' => '<span style="margin-left: 4rem"></span>'),
+    array('type' => 'text',        'megn' => 'Szállító kód:',   'name' => 'id',     'szuro' => 1,     'disabled' => $disabled_szerk,  'maxlength' => SZALLITOKOD_HOSSZ, 'class' => 'f_csakszam', 'style' => 'width: 6.25rem;',   'alert' => 'Kérem töltse ki az ID mezőt!', 'osszevon' => 1, 'post' => '<span style="margin-left: 4rem"></span>'),
     array('type' => 'checkbox',    'megn' => 'Aktív:',          'name' => 'aktiv',  'szuro' => 1,     'show' => true, 'class' => 'check'),
 	array('type' => 'text',        'megn' => 'Név:',            'name' => 'nev',    'szuro' => 1,     'disabled' => $nev_disabled,  'maxlength' => 250, 'class' => 'oriasi', 'alert' => 'Kérem töltse ki a megnevezést!',      'show' => true),
 	array('type' => 'text',        'megn' => 'Irsz:',           'name' => 'isz',    'szuro' => 1,     'maxlength' => 250, 'class' => 'kicsi', 'osszevon' => 1, 'post' => '<span style="margin-left: 4rem"></span>'),
