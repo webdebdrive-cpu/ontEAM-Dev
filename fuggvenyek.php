@@ -2545,6 +2545,8 @@ function szamla_lista( $where, $tabla, $kijeloltek = false, $csak_sql_miatt = fa
                 case 'anyag_tabla_rndertek'     : $order = '`'.get_db_tabla().'cikkrendfej`.`rndertek`';    break;
             }
             $order .= ' '.$_SESSION['anyagigenyles_tablazat_irany'];
+            // Ha már kétszer volna benne a desc, akkor azt egyre cseréljük
+            $order = str_replace('desc desc', 'desc', $order);
         }
 
         // Rendezés anyagrendeléskor

@@ -712,6 +712,12 @@ require_once('selectek.php');
                                     $(\'#nev\').addClass(\'hibas_ide_focus\');
                                     return false;
                                 }
+                                
+                                if( !is_valid_mail_tobb( $(\'#usermail\').val() ) ){
+                                    alert2(\'Helytelen e-mail cím(ek)! Több e-mail címet vesszvel felsorolva adjon meg!\');
+                                    $(\'#usermail\').addClass(\'hibas_ide_focus\');
+                                    return false;
+                                }
 
                                 dfrd_login = $.Deferred();
                                 var letezik = false;

@@ -1483,8 +1483,11 @@ if( isset($_POST['rendeles_keszit']) ) {
         // Most kommitoljuk el a popupban lekért sorszámot
         mysqli_query($db_kapcs, 'COMMIT');
         // És a fájlt is elmentjük inkább mégegyszer, mert lehet idő közben már léptetve lett a sorszám
+        // Update: az a baj, hogy ezzel az URL_letolt függvénnyel ez nem működik, nem tudjuk újra létrehozni. Ez akkor problémás, ha két rendelést egy időben hoznak létre, azonos sorzámot kapnak. 
+        // DB szinten ez le van kezelve, tehát nem kapnak két egyforma sorzsámot, de a fájl neve tartalmazza a rendelés sorszámot, és ott nincs ez lekezelve. Ezzel valamit még kezdeni kellene.
+        // Egyik legjobb megoldás az volna, ha a rendelés létrejötte után a PDF valahol megnyilna, vagy ha a rendszergazda a CUR-t engedélyezni tudná.
+        
 //        $sorszam = 'R'.date('y').'/'.sprintf('%04d', $sorszam).'|'.$_POST['idk'];
-//
 //        $sorszam_kodolva = trim(base64_encode($sorszam), '=');
 //        $html = URL_letolt(self().'?nyomtat='.$sorszam_kodolva.'&amp;szall');
 

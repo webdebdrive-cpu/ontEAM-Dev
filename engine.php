@@ -1151,6 +1151,23 @@ function is_valid_mail($email){
 }
 
 /**
+*	Valid e-mail címek-e
+*	
+*	@param string $email címek: E-mail címek vesszővel felsorolva, melyről meg kell állípítani, hogy megfelelő alakú-e
+*	@return boolean 
+*/
+function is_valid_mail_tobb($email_cimek){
+	$cimek = explode(',', $email_cimek);
+    foreach($cimek as $cim){
+        $cim = trim($cim);
+        if( !is_valid_mail($cim) ){
+            return false;
+        }
+    }
+    return true;
+}
+
+/**
 * Véletlenszerű jelszó előállítása (vagy hash pl. aktiváláshoz)
 *
 * @param int    $hossz      A véletlen szó hossza

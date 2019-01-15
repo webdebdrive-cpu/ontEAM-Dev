@@ -817,6 +817,24 @@ function is_valid_mail(email) {
 }
 
 /**
+*	@desc Valid e-mail email cimek-e
+*
+*	@param string $email_cimek: E-mail címek vesszővel felsorolva, melyről meg kell állípítani, hogy megfelelő alakú-e
+*	@return boolean
+*/
+function is_valid_mail_tobb(email_cimek) {
+    if( email_cimek.trim() ){
+        email_cimek = email_cimek.split(',');
+        for( i=0; i<email_cimek.length; i++ ){
+            if( !is_valid_mail( email_cimek[i].trim()) ){
+                return false;
+            }
+        }
+    }
+    return true;
+}
+
+/**
 *	@desc Irányítószámból kiszámoljuk a várost. Ehhez kell egy isz input meg egy város input ID-t, illetve egy város adatbázis kell még hozzá (minta van rá a WDBHU-ban).
 *
 *	@param string isz_id: Az irányítószám input id-ja
