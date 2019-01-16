@@ -8783,6 +8783,7 @@ function munkalap_vissza_elokeszitesbe($recid, $memo){
     
     global $adatbazis_kapcsolat;
     global $db_kapcs;
+    global $weblap;
     
     $db_error = false;
     mysqli_autocommit($db_kapcs, false);
@@ -8801,7 +8802,7 @@ function munkalap_vissza_elokeszitesbe($recid, $memo){
     }
 
     // Jog ellenőrzése
-    if( !_jog(JOG_MUNKALAP_KULSOS_ELOKESZIT) && !_jog(JOG_MUNKALAP_KEZEL_KULSO) ){
+    if( !_jog(JOG_MUNKALAP_KULSOS_ELOKESZIT) && !_jog(JOG_MUNKALAP_KULSOS_MEGREND) ){
         echo json_encode(array(
             'hiba'  => 'Nincs jogosultsága a munkalapot visszaküldeni előkészítésre!',
             'title' => 'Hiba',
@@ -8815,7 +8816,7 @@ function munkalap_vissza_elokeszitesbe($recid, $memo){
         !(
             ($sor['stat_id']==MUNKALAP_STAT_DONTESRE_VAR && _jog(JOG_MUNKALAP_KULSOS_ELOKESZIT) && $sor['jh1_login']=='' && $sor['jh2_login']=='')  ||
             ($sor['stat_id']==MUNKALAP_STAT_HOZZARENDELT && _jog(JOG_MUNKALAP_KEZEL_KULSO)      && $sor['szemelyzet_id']==KULSO_KIVITELEZO )        ||
-            ($sor['stat_id']==MUNKALAP_STAT_SZTORNO_VAR  && _jog(JOG_MUNKALAP_KEZEL_KULSO)      && $sor['szemelyzet_id']==KULSO_KIVITELEZO )
+            ($sor['stat_id']==MUNKALAP_STAT_SZTORNO_VAR  && _jog(JOG_MUNKALAP_KULSOS_MEGREND)   && $sor['szemelyzet_id']==KULSO_KIVITELEZO )
         )
     ){
         echo json_encode(array(

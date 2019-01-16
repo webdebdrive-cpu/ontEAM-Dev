@@ -5218,7 +5218,7 @@ Hiba: '.getErtek('info', 'erteklista', 'recid', $bejelentes['hiba_id']).$hiba_tx
 
             $i = 1;
             foreach($sor as $key => $value) {
-                $valtozas .= $i.'.: A(z) <strong>'.$key.'</strong> mező a következő értéket kapta: <strong>'.$value.'</strong><br>';
+                $valtozas .= $i.'.: A(z) <strong>'.$key.'</strong> mezőnek a következő értéke volt: <strong>'.$value.'</strong><br>';
                 $i++;
             }
 

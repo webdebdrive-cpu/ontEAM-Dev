@@ -400,7 +400,7 @@ if (isset($_POST['van_tetel'])) {
         $weblap -> leallit();
         exit();
     }
-    if( $_POST['visszaadva']=='false' && $_POST['visszaadva_dt']<'9000.00.00' ){
+    if( $_POST['visszaadva']=='false' && $_POST['visszaadva_dt'] && $_POST['visszaadva_dt']<'9000.00.00' ){
         echo json_encode(array(
             'hiba'  => 'A Visszaadás dátumát csak akkor töltse ki, ha a visszaadva pipát be is kapcsolja!',
             'gomb'  => '<input type="button" class="gomb" value="Ok" onclick="alert2(); szurkit_zar(\'mehet_megsem_mutat\'); $(\'#visszaadva_dt\').focus();">',

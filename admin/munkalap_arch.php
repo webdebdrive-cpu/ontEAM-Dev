@@ -266,6 +266,9 @@ require('selectek.php');
         if(isset($_GET['id_hidden'])){
             $_GET['id'] = $_GET['id_hidden'];
         }
+        
+        // Jóváhagyott érték legyen formázva, úgy is csak ki van írva
+        $sor['jh_ert'] = number_format($sor['jh_ert'], 0, '', ' ');
 
         foreach($akt_tomb as $tomb) {
             if( $tomb['type'] == 'autocomplete' ) {

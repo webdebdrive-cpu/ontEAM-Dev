@@ -4631,7 +4631,7 @@ if( isset($_POST['atadasDiszpecsernek']) ) {
             if( $sql === false ) { $db_error = true; }
         }
 
-        // Hozzárendelt státuszban, ha nem direktes az átadás, akkor le kell tárolni, hogy a visszaadás módja az Visszaadás volt, az értéklista id-t, mert a következő státuszból ez dönti majd el, hogyan léptetjük még egyel tovább.
+        // Hozzárendelt státuszban le kell tárolni, hogy a visszaadás módja az Visszaadás volt, az értéklista id-t, mert a következő státuszból ez dönti majd el, hogyan léptetjük még egyel tovább.
         if($sor['stat_id']==MUNKALAP_STAT_HOZZARENDELT){
             $sql = $adatbazis_kapcsolat -> u('munkalap',
                                                 array('vissza_mod',             'vissza_erteklista_id', 'update_usr'                           ),
@@ -6898,7 +6898,7 @@ if (isset($_POST['megr_sztorno_mail_elkuldve'])) {
     }
     
     // Jog ellenőrzése
-    if( !_jog(JOG_MUNKALAP_KEZEL_KULSO) ){
+    if( !_jog(JOG_MUNKALAP_KULSOS_MEGREND) ){
         echo json_encode(array(
             'hiba'  => 'Nincs joga ebben a státuszban munkalapot tovább léptetni!',
             'title' => 'Hiba',
@@ -6906,7 +6906,7 @@ if (isset($_POST['megr_sztorno_mail_elkuldve'])) {
         $weblap->leallit();
         exit();
     }
-    
+
     // Szokásos mezők nullázása, de erre két ág van:
     if($sor['vissza_mod']==VISSZA_MOD_VISSZAADAS){
         
@@ -7694,7 +7694,7 @@ require('selectek.php');
         }
 
         // Megrendelés sztornó email elküldve
-        if( $sor['stat_id']==MUNKALAP_STAT_SZTORNO_VAR && _jog(JOG_MUNKALAP_KEZEL_KULSO) ){
+        if( $sor['stat_id']==MUNKALAP_STAT_SZTORNO_VAR && _jog(JOG_MUNKALAP_KULSOS_MEGREND) ){
             $gombok .= nl2('
                             <script> gomb_megr_sztorno_elkuldve = \'<input type="button" class="gomb zold" onclick="megr_sztorno_mail_elkuldve()" value="Igen"><input type="button" class="gomb piros" onclick="alert2()" value="Nem">\'; </script>
                             <input type="button" class="gomb modositaskor_rejt" value="Megrendelés sztornó email elküldve" onclick="alert2(\'Biztosan elküldte a sztornó emailt?\', gomb_megr_sztorno_elkuldve);"> 
