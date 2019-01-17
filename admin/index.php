@@ -16,6 +16,7 @@ if( isset($_GET['info']) && $_SESSION[get_db_tabla().'user'] ){
     exit;
 }
 
+
 // Jóváhagyhat limit beállítása
 if (isset($_GET['jovahagyhat_limit'])) {
     

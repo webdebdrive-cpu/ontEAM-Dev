@@ -114,6 +114,13 @@ function get_mszk_mail(){
         return 'diszpecser@danubiushotels.com';
     }
 }
+function get_mszk_mail2(){
+    if($_SERVER['HTTP_HOST']=='demo.webdeb.hu'){
+        return 'bk@wdb.hu';
+    }else{
+        return 'gyongyi.szollosi@danubiushotels.com';
+    }
+}
 function get_teszt_mail_nev(){ return 'WebDeb Teszt';                           }
 function get_web_charset()   { return 'UTF-8';                                  }
 

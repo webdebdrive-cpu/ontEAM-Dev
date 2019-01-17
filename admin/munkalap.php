@@ -623,7 +623,7 @@ if( isset($_POST['munkalapKulso']) ) {
             
             // Mailcímek helyességének ellenőrzése
             $mailcimek = explode(',', $_POST['cimzett']);
-            array_push($mailcimek, get_mszk_mail()); // Így az MSZK is kap értesítő levelet
+            array_push($mailcimek, get_mszk_mail(), get_mszk_mail2()); // Így az MSZK-k is kapnak értesítő levelet
             foreach($mailcimek as $mailcim){
                 if(trim($mailcim) && !is_valid_mail(trim($mailcim))){
                     echo json_encode(array(
@@ -2342,7 +2342,7 @@ if( isset($_POST['kulsokivHozzarend']) ) {
             
             // Mailcímek helyességének ellenőrzése
             $mailcimek = explode(',', $_POST['cimzett']);
-            array_push($mailcimek, get_mszk_mail()); // Így az MSZK is kap értesítő levelet
+            array_push($mailcimek, get_mszk_mail(), get_mszk_mail2()); // Így az MSZK-k is kapnak értesítő levelet
             foreach($mailcimek as $mailcim){
                 if(trim($mailcim) && !is_valid_mail(trim($mailcim))){
                     echo json_encode(array(
@@ -2763,7 +2763,7 @@ if (isset($_POST['munkalapVisszaElokeszitDirektbe'])) {
 
         // Mailcímek helyességének ellenőrzése
         $mailcimek = explode(',', $_POST['cimzett']);
-        array_push($mailcimek, get_mszk_mail()); // Így az MSZK is kap értesítő levelet
+        array_push($mailcimek, get_mszk_mail(), get_mszk_mail2()); // Így az MSZK-k is kapnak értesítő levelet
         foreach($mailcimek as $mailcim){
             if(trim($mailcim) && !is_valid_mail(trim($mailcim))){
                 echo json_encode(array(
@@ -4788,7 +4788,8 @@ if( isset($_POST['atadasDiszpecsernekDirektbe']) ) {
 
             // Mailcímek helyességének ellenőrzése
             $mailcimek = explode(',', $_POST['cimzett']);
-            array_push($mailcimek, get_mszk_mail()); // Így az MSZK is kap értesítő levelet
+            array_push($mailcimek, get_mszk_mail(), get_mszk_mail2()); // Így az MSZK-k is kapnak értesítő levelet
+
             foreach($mailcimek as $mailcim){
                 if(trim($mailcim) && !is_valid_mail(trim($mailcim))){
                     echo json_encode(array(
@@ -6187,7 +6188,7 @@ if (isset($_POST['munkalapVisszavetelDirektbe'])) {
 
         // Mailcímek helyességének ellenőrzése
         $mailcimek = explode(',', $_POST['cimzett']);
-        array_push($mailcimek, get_mszk_mail()); // Így az MSZK is kap értesítő levelet
+        array_push($mailcimek, get_mszk_mail(), get_mszk_mail2()); // Így az MSZK-k is kapnak értesítő levelet
         foreach($mailcimek as $mailcim){
             if(trim($mailcim) && !is_valid_mail(trim($mailcim))){
                 echo json_encode(array(
