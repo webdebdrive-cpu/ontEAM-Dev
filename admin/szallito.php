@@ -41,8 +41,7 @@ if (isset($_POST['szallitokod_ell'])) {
     // Hossz ellenőrzése
     if(strlen($_POST['id'])!=SZALLITOKOD_HOSSZ){
         echo json_encode(array(
-            'hiba'  => 'A szállítókód hozza '.SZALLITOKOD_HOSSZ.' karakter legyen!',
-            'gomb'  => '<input type="button" value="Ok" class="gomb" onclick="szurkit_zar(\'mégsem mehet mutat\'); alert2();">',
+            'hiba'  => 'A szállítókód hoszza '.SZALLITOKOD_HOSSZ.' karakter legyen!',
             'title' => 'Hiba',
         ));
 
@@ -258,6 +257,7 @@ require_once('selectek.php');
                             response = JSON.parse(response);
                             if (response.hiba) {
                                 alert2(response.hiba, response.gomb, response.title);
+                                alert_utan_mehet_megsem_mutat_beallit();
                                 return false;
                             }
                             
@@ -274,7 +274,6 @@ require_once('selectek.php');
 
     // Módosítás gombok
     } else {
-        
 
         // Js, a törlés gombhoz
 	    $gombok = '<script>var gomb'.$_GET['id'].'= get_kibont_torol(\''.self().'\', \''.$torles.'\', \''.$_GET['id'].'\');</script>';
@@ -313,7 +312,20 @@ require_once('selectek.php');
 	// Új termék felvitele
 	if(isset($_GET['uj']) && !$csak_szerkesztheto){
 
-	    // FORM
+        // E-mail cím helyességének ellenőrzése
+        $js_submit_elott = nl2('
+                                /* E-mail címek helyességének figyelése */
+                                if( !is_valid_mail_tobb( $(\'#email\').val() ) ){
+                                    alert2(\'Helytelen e-mail cím(ek)!<br>Több e-mail címet vesszővel felsorolva adjon meg!\', \'\', \'Hiba\');
+                                    $(\'#email\').addClass(\'hibas_ide_focus\');
+                                    alert_utan_mehet_megsem_mutat_beallit();
+                                    return false;
+                                }
+                                
+                                /* Ha minden rendben, akkor mehet az űrlap feldolgozása */
+                                return form_ell_admin();
+                            ');
+        
         // Újként szerkesztéskor feltöltjük a mezők tartalmát
 		if($_GET['ujkent']){
             $sor = $adatbazis_kapcsolat -> s2('*', $megnevezes, 'recid='.$_GET['ujkent']);
@@ -373,7 +385,7 @@ require_once('selectek.php');
 
 	// Szállító módosítása
 	}elseif(isset($_GET['modosit'])) {
-
+        
         // Ha Gyorskeresőből érkeznénk ide, akkor az ID-t valójában az id_hidden tartalmazza majd
         if(isset($_GET['id_hidden'])){
             $_GET['id'] = $_GET['id_hidden'];

@@ -16,6 +16,14 @@ if( isset($_GET['info']) && $_SESSION[get_db_tabla().'user'] ){
     exit;
 }
 
+if (isset($_GET['teszt'])) {
+    $megjegyzesek = $adatbazis_kapcsolat->s('*', 'megjegyzes_arch', "`recid`>101205");
+    foreach($megjegyzesek as $megj){
+        $adatbazis_kapcsolat->u('megjegyzes_arch', array('megj'), array(htmlspecialchars_decode(htmlspecialchars_decode($megj['megj']))), "`recid`='{$megj['recid']}'");
+echo $adatbazis_kapcsolat->gp() . '<br>';
+    }
+exit;
+}
 
 // Jóváhagyhat limit beállítása
 if (isset($_GET['jovahagyhat_limit'])) {

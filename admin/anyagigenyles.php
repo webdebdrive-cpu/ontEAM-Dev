@@ -760,6 +760,7 @@ if( isset($_POST['arazas']) ) {
 
 // Árazás mentése
 if ($_POST['arazas_ment']) {
+    
     $_POST['ig_menny']  = str_replace(array(' ', ','), array('', '.'), $_POST['ig_menny']);
     $_POST['rndear']    = str_replace(array(' ', ','), array('', '.'), $_POST['rndear']);
     $_POST['rndmen']    = str_replace(array(' ', ','), array('', '.'), $_POST['rndmen']);
@@ -1585,7 +1586,7 @@ if (isset($_POST['anyagigenyles_erkeztet'])) {
                     <th>Szálloda</th>
                     <th>Cikk</th>
                     <th style="min-width: 20rem" class="l">Név</th>
-                    <th>Igénylet mennyiség</th>
+                    <th>Igényelt mennyiség</th>
                     <th>Rendelt mennyiség</th>
                     <th>Előzőleg beérkezett mennyiség</th>
                     <th>Beérkezett mennyiség</th>
@@ -1613,10 +1614,12 @@ if (isset($_POST['anyagigenyles_erkeztet'])) {
 
                 // Ha a státusz nagyobb mit a beérkezett, akkor azokat már csak szürkén jelenítjük meg disabledezve
                 $szurkit  = '';
+                $readonly = '';
                 $disabled = '';
-                if($igeny['stat_id']>CIKKIGN_STAT_RESZBENBEERK){
+                if( $igeny['stat_id'] > CIKKIGN_STAT_RESZBENBEERK ){
                     $szurkit  = ' class="erkeztet_szurkit"';
-                    $disabled = ' readonly';
+                    $readonly = ' readonly';
+                    $disabled = ' disabled';
                 }
 
                 $html .= nl2('
@@ -1627,7 +1630,7 @@ if (isset($_POST['anyagigenyles_erkeztet'])) {
                                 <td class="r">'.number_format($igeny['igmen'], 2, ',', ' ').'</td>
                                 <td class="r" id="rndmen_'.$igeny['recid'].'">'.number_format($igeny['rndmen'], 2, ',', ' ').'</td>
                                 <td class="r" id="marerkmen_'.$igeny['recid'].'">'.number_format($igeny['erkmen'], 2, ',', ' ').'</td>
-                                <td class="r"><input type="text" class="f_num erkmen" data-id="'.$igeny['recid'].'" id="erkmen_'.$igeny['recid'].'" value="0,00"'.$disabled.'></td>
+                                <td class="r"><input type="text" class="f_num erkmen" data-id="'.$igeny['recid'].'" id="erkmen_'.$igeny['recid'].'" value="0,00"'.$readonly.'></td>
                                 <td class="c" id="mee_'.$igeny['recid'].'">'.str_replace('m3', 'm<sup>3</sup>', $igeny['cikkmee']).'</td>
                                 <td class="c">
                                     <div class="cb">

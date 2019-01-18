@@ -266,7 +266,7 @@ function get_admin_file_thumb(tabla, oszlop, id, jquery_string){
 }
 
 
-/* Felhasználó váltás */
+// Felhasználó váltás
 function felh_valt( valt ) {
     if( valt === undefined ) {
         valt = '';
@@ -278,6 +278,13 @@ function felh_valt( valt ) {
     } else {
         $('div.loginAlert').addClass('dn');
     }
+}
+
+// Alert2 után a Mehet mégsem gombot meg kéne mutatni. Igen ám, de az alert-et Escape-val, X-el és Ok gombbal is be lehet zárni, ezért íródott rá erre egy ilyen felkonfigurálós függvény
+function alert_utan_mehet_megsem_mutat_beallit() {
+    $('.bezar').attr('onclick', 'alert2(); szurkit_zar(\'Mehet-mégsem mutat\');');
+    $('#alert2 input.gomb').attr('onclick', 'alert2(); szurkit_zar(\'Mehet-mégsem mutat\');');
+    $('.bezar').addClass('mehet_megsem_mutat');
 }
 
 $(function() {
@@ -1670,7 +1677,7 @@ $(function() {
         $(this).val( $(this).val().replace(/[^a-zA-Z0-9._@éáűőúöüóíÉÁŰŐÚÖÜÓÍ]+/g, '') );
     });
 
-    /* ESCAPE gomb lekezelése */
+    // ESCAPE gomb lekezelése
     $(document).on('keyup', function(e) {
         if( e.keyCode == KEY_ESCAPE ) {
 
@@ -1678,16 +1685,22 @@ $(function() {
             felh_valt();
             kijelolesEltavolit();
 
-            /* Ha popupban kaptunk volna hibaüzenetet, akkor visszatérve fókuszáljunk a hibásnak jelölt inputra. Egyúttal vegyük is le ezt a classt róla */
+            // Ha popupban kaptunk volna hibaüzenetet, akkor visszatérve fókuszáljunk a hibásnak jelölt inputra. Egyúttal vegyük is le ezt a classt róla
             $('input.hibas_ide_focus, textarea.hibas_ide_focus, select.hibas_ide_focus').select().removeClass('hibas_ide_focus');
 
             if($('#elv_ido_tol').length){
                 $('.xdsoft_datetimepicker').hide();
             }
 
-            /* A popup bezáródik, de csak akkor, ha az alert nincs nyitva */
+            // A popup bezáródik, de csak akkor, ha az alert nincs nyitva
             if( !$('#alert2').is(':visible') ){
                 popupZar();
+            // Ha viszont nyitva volt az alert, akkor nézzük meg, hogy a bezárt X-nek van-e 'mehet_megsem_mutat' class-ja? Ha van, akkor escape-ra is mutassuk meg a Mehet-Mégsem gombokat. 
+            // JS kiír függvényben külön gondoskodni kell róla, hogy az ilyen alert megkapja ezt a 'mehet_megsem_mutat' class-t
+            }else{
+                if( $('.bezar').hasClass('mehet_megsem_mutat') ){
+                    szurkit_zar('Mehet-Mégsem gombokat mutasd');
+                }
             }
 
         }
@@ -4227,11 +4240,12 @@ function anyagigenyles_erkeztet( ures_men_ek_pipa0_kesz, ures_men_ek_pipa1_kesz,
         idk                 = '';
         hibauzi             = '';
         $('table.anyagig_erkeztet .erkmen').each(function (e) {
+            
             id          = $(this).attr('data-id');
             szalloda    = $('#erkeztet_szall_'+id).html();
             cikkid      = $('#erkeztet_cikkid_'+id).html();
             cikknev     = $('#erkeztet_cikknev_'+id).html();
-            rndmen      = $('#rndmen_'+id).html().replace(',', '.').replace(' ', '');
+            rndmen      = Number($('#rndmen_'+id).html().replace(',', '.').replace(' ', ''));
             marerkmen   = Number($('#marerkmen_'+id).html().replace(',', '.').replace(' ', ''));
             erkmen      = Number($(this).val().replace(',', '.').replace(' ', ''));
             nem_tobb    = $('#nem_tobb_'+id).prop('checked');
@@ -4257,9 +4271,9 @@ function anyagigenyles_erkeztet( ures_men_ek_pipa0_kesz, ures_men_ek_pipa1_kesz,
                 $(this).addClass('alert');
                 return false;
             }*/
-            if(erkmen>rndmen-marerkmen && !tulrendeles_megkerdezve){
-                gombok = '<input class="gomb zold" value="Igen" onclick="anyagigenyles_erkeztet(\'\', \'\', \'tulrendelés már megkérdezve\')" type="button"> <input class="gomb piros" value="Nem" onclick="alert2()" type="button">';
-                hibauzi = 'Rendelt mennyiség: '+erkmen+' '+mee+'<br>Összes beérkezett mennyiség: '+ezresek(marerkmen+erkmen, 2, ',', ' ')+' '+mee+'<br>Ha folytatja,&nbsp;a beérkezett mennyiség több lesz, mint a rendelt mennyiség!<br>Folytatja?';
+            if(erkmen>rndmen-marerkmen && !tulrendeles_megkerdezve && !$('#erkmen_'+id).hasClass('ellenorizve') ){
+                gombok = '<input class="gomb zold" value="Igen" onclick="$(\'#erkmen_'+id+'\').addClass(\'ellenorizve\'); anyagigenyles_erkeztet();" type="button"> <input class="gomb piros" value="Nem" onclick="alert2(); $(\'#erkmen_'+id+'\').focus();" type="button">';
+                hibauzi = 'Cikk: '+cikknev+'<br>Rendelt mennyiség: '+rndmen+' '+mee+'<br>Összes beérkezett mennyiség: '+ezresek(marerkmen+rndmen, 2, ',', ' ')+' '+mee+'<br>Ha folytatja,&nbsp;a beérkezett mennyiség több lesz, mint a rendelt mennyiség!<br>Folytatja?';
                 $(this).addClass('alert');
                 tulrendeles_hibauzi = true;
                 return false;

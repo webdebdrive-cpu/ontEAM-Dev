@@ -2034,7 +2034,8 @@ if (isset($_GET['anyagrend'])) {
         array('type' => 'text',                     'megn' => 'Deviza rendelési érték:',        'name' => 'vnetert',        'szuro' => 0,   'disabled' => 1,   'class' => 'f_num',   'data' => 'data-tort="2"', 'osszevon' => 1, 'post' => '<span style="margin-left: 10.5rem"></span>'),
         array('type' => 'text',                     'megn' => $tav_12.'Árfolyam:',              'name' => 'arfolyam',       'szuro' => 0,   'disabled' => 1,   'class' => 'f_num',   'data' => 'data-tort="5"', 'osszevon' => 1, 'post' => '<span style="margin-left: 3rem"></span>'),
         array('type' => 'text',                     'megn' => $tav_12.'Árfolyam dátuma:',       'name' => 'atvaltva_d',     'szuro' => 0,   'disabled' => 1,   'class' => 'datepicker'),
-            
+        array('type' => 'text',                     'megn' => 'Beérkezett mennyiség:',          'name' => 'erkmen',         'szuro' => 1,   'disabled' => 1,   'class' => 'f_num',   'data' => 'data-tort="2"',   'post' => ' '.$cikkmee),
+        
         array('type' => 'autocomplete',             'megn' => 'Szállító:',                      'name' => 'szallito_id',    'szuro' => 1,   'disabled' => 1,   'class' => 'oriasi disableNav', 'tabla' => 'szallito', 'oszlop_keres' => 'id', 'id_kiir' => 'id', 'oszlop_keres_autocomp' => 'nev', 'listaz' => 'nev'),
         array('type' => 'textarea',                 'megn' => 'Leírás:',                        'name' => 'igleir',         'szuro' => 1,   'disabled' => 1,   'class' => 'oriasi disableNav', 'style' => 'height: 4rem'),
 

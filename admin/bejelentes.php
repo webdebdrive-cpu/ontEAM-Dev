@@ -164,7 +164,8 @@ if( isset($_GET['folyamatban_munkak']) ) {
 
         echo json_encode(array(
             'hiba' => 'Folyamatban lévő munkák listája'.$html.'Folytatja a hibabejelentést?',
-            'gomb' => '<p class="c"><input class="gomb zold" type="button" value="Igen" onclick="szurkit(); bejelentes_mehet = true; $(\'#szerk_form\').submit();"><input class="gomb piros" type="button" value="Nem" onclick="alert2(); $(\'#mehet_gomb, #megsem_gomb\').removeAttr (\'disabled\');"></p>'
+            'gomb' => '<p class="c"><input class="gomb zold" type="button" value="Igen" onclick="szurkit(); bejelentes_mehet = true; $(\'#szerk_form\').submit();"><input class="gomb piros" type="button" value="Nem" onclick="alert2(); $(\'#mehet_gomb, #megsem_gomb\').removeAttr (\'disabled\');"></p>',
+            'title'=> 'Hiba',
         ));
 
         $weblap->leallit();

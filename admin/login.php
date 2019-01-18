@@ -195,9 +195,16 @@ if( isset($_POST['login_letezik']) ) {
 
     if( $adatbazis_kapcsolat->s2('recid', 'login', "`nev`='{$_POST['nev']}'") ){
         echo json_encode(array(
-            'hiba' => 'Ez a loginnév már foglalt!'
+            'hiba'  => 'Ez a loginnév már foglalt!',
+            'title' => 'Hiba',
+            'focus' => 'nev',
         ));
     }
+    
+    // Valami kimenet kell legyen
+    echo json_encode(array(
+        'mehet' => 'mehet',
+    ));
 
     $weblap->leallit();
     exit();
@@ -666,11 +673,61 @@ require_once('selectek.php');
         if(_jog(JOG_FELHASZNALOK_KEZEL)){
             $gombok = nl2('
                 <div class="form_kuldes">
-                    <input type="button" class="gombb mentes_gomb" name="mehet_gomb" id="mehet_gomb" disabled value="Mentés" onclick="szurkit(\'mehet_megsem_rejt\'); $(\'#szerk_form\').submit();">
+                    <input type="button" class="gombb mentes_gomb" name="mehet_gomb" id="mehet_gomb" disabled value="Mentés" onclick="uj_login_feltolt_ellenozesek();">
                     <input type="button" class="gomb piros" disabled id="megsem_gomb" value="Mégsem" onclick="szurkit(\'mehet_megsem_rejt\'); formModositva=false; szamlaBetolt($(\'#szamlaList li:first-of-type\').attr(\'data-recid\'), \''.$megnevezes.'.php\');">
                 </div>
             ').$gombok;
         }
+        
+        $gombok .= nl2('
+                    <script>
+                    function uj_login_feltolt_ellenozesek() {
+
+                        szurkit(\'mehet_megsem_rejt\');
+
+                        formModositva = false;
+                        if( $(\'#nev\').val().length<8 ){
+                            alert2(\'A Login név hossza nem lehet kevesebb mint 8 karakter!\', \'\', \'Hiba\');
+                            $(\'#nev\').addClass(\'hibas_ide_focus\');
+                            return false;
+                        }
+
+                        /* E-mail címek helyességének ellenőrzése */
+                        if( !is_valid_mail_tobb( $(\'#usermail\').val() ) ){
+                            alert2(\'Helytelen e-mail cím(ek)!<br>Több e-mail címet vesszővel felsorolva adjon meg!\', \'\', \'Hiba\');
+                            $(\'#usermail\').addClass(\'hibas_ide_focus\');
+                            return false;
+                        }
+
+                        /* Felhasználó név foglalt-e már */
+                        $.ajax({
+                            url : \'login.php\',
+                            type: \'POST\',
+                            data: esamp2es(\'nev=\' + $(\'#nev\').val() + \'&amp;login_letezik=\' + new Date().getTime()),
+                            success: function(response) {
+                                if(response.substring(0, 6)==\'SESKIL\'){ location.href = \'index.php\'; }
+                                if(response) {
+                                    response = JSON.parse(response);
+
+                                    if( response.hiba ) {
+                                        alert2(response.hiba, response.gomb, response.title);
+                                        alert_utan_mehet_megsem_mutat_beallit();
+                                        if(response.focus){
+                                            $(\'#\'+response.focus).addClass(\'hibas_ide_focus\');
+                                        }
+                                    }else{
+console.log(\'vvv\');
+                                        $(\'#szerk_form\').submit();
+                                    }
+
+                                }
+                                return false;
+                            }
+                        });
+
+                    }
+                    </script>
+            ');
         
     // Módosítás alatti gombok
     }elseif (isset($_GET['modosit'])) {
@@ -701,73 +758,8 @@ require_once('selectek.php');
     ');
 
 	// Új felhasználó felvitele
+    $js_submit_elott = 'return form_ell_admin();';
 	if(isset($_GET['uj']) && _jog(JOG_FELHASZNALOK_KEZEL)){
-
-        // Módosításnál figyeljük, hogy a szerepkör megváltozott-e
-        $js_submit_elott .= nl2('
-
-                                formModositva = false;
-                                if( $(\'#nev\').val().length<8 ){
-                                    alert2(\'A Login név hossza nem lehet kevesebb mint 8 karakter!\');
-                                    $(\'#nev\').addClass(\'hibas_ide_focus\');
-                                    return false;
-                                }
-                                
-                                if( !is_valid_mail_tobb( $(\'#usermail\').val() ) ){
-                                    alert2(\'Helytelen e-mail cím(ek)! Több e-mail címet vesszvel felsorolva adjon meg!\');
-                                    $(\'#usermail\').addClass(\'hibas_ide_focus\');
-                                    return false;
-                                }
-
-                                dfrd_login = $.Deferred();
-                                var letezik = false;
-                                login_letezik = $.ajax({
-                                    url : \'login.php\',
-                                    type: \'POST\',
-                                    data: esamp2es(\'nev=\' + $(\'#nev\').val() + \'&amp;login_letezik=\' + new Date().getTime()),
-                                    success: function(response) {
-                                        if(response.substring(0, 6)==\'SESKIL\'){ location.href = \'index.php\'; }
-                                        dfrd_login.resolve();
-                                        if(response) {
-                                            response = JSON.parse(response);
-
-                                            if( response.hiba ) {
-                                                letezik = response.hiba;
-                                            }
-
-                                        }
-                                        return false;
-                                    }
-                                });
-
-                                $.when(dfrd_login).then(function() {
-                                    if(letezik){
-                                        alert2(letezik, \'\', \'Hiba\');
-                                        $(\'#nev\').addClass(\'hibas_ide_focus\');
-                                        return false;
-                                    }else{
-                                        login_mehet = true;
-                                    }
-
-                                    /* Ez a feltétel nem tévedésből van kétszer, kell ide is, meg egyel lentebb is */
-                                    if(!login_mehet){
-                                        return false;
-                                    }else{
-                                        /* Rengeteg kínlódás után ez a megoldás, mivel a Hibaüzeneteket újra és újra feldobta, így meg nem submitoljuk el ha hibaüzenet van. De ha nincs submit, akkor meg a szálloda választás után nem submitolna. */
-                                        if( !$(\'#alert2\').is(\':visible\') ){
-                                            $(\'#szerk_form\').submit();
-                                        }
-                                        return form_ell_admin();
-                                    }
-                                });
-                                
-                                /* Ez a feltétel nem tévedésből van kétszer, kell ide is, meg egyel fentebb is */
-                                if(!login_mehet){
-                                    return false;
-                                }else{
-                                    return form_ell_admin();
-                                }
-                                ');
 
         // Hibaüzenetek lekezelése
         if (isset($_GET['rovid_nev'])) {

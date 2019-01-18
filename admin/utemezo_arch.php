@@ -198,7 +198,7 @@ function bejelentesek_archival($idk) {
             $ertekek = array();
             foreach($megj as $kulcs => $ertek){
                 array_push($mezok,   $kulcs);
-                array_push($ertekek, htmlspecialchars_decode( $megj[$kulcs]) );
+                array_push($ertekek, htmlspecialchars_decode( htmlspecialchars_decode( $megj[$kulcs]) ) );
             }
             
             $sql = $adatbazis_kapcsolat->i('megjegyzes_arch', $mezok, $ertekek);
@@ -656,7 +656,7 @@ function munkalapok_archival($idk, $tranzakcio_nelkul) {
             $ertekek = array();
             foreach($megj as $kulcs => $ertek){
                 array_push($mezok,   $kulcs);
-                array_push($ertekek, htmlspecialchars_decode( $megj[$kulcs] ) );
+                array_push($ertekek, htmlspecialchars_decode( htmlspecialchars_decode( $megj[$kulcs] ) ) );
             }
             
             $sql = $adatbazis_kapcsolat->i('megjegyzes_arch', $mezok, $ertekek);

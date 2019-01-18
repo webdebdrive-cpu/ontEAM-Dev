@@ -623,7 +623,7 @@ if( isset($_POST['munkalapKulso']) ) {
             
             // Mailcímek helyességének ellenőrzése
             $mailcimek = explode(',', $_POST['cimzett']);
-            array_push($mailcimek, get_mszk_mail(), get_mszk_mail2()); // Így az MSZK-k is kapnak értesítő levelet
+            $mailcimek = array_filter($mailcimek);
             foreach($mailcimek as $mailcim){
                 if(trim($mailcim) && !is_valid_mail(trim($mailcim))){
                     echo json_encode(array(
@@ -637,7 +637,10 @@ if( isset($_POST['munkalapKulso']) ) {
                     exit();
                 }
             }
+            
             $masolatok = explode(',', $_POST['masolat']);
+            array_push($masolatok, get_mszk_mail(), get_mszk_mail2()); // Így az MSZK-k is kapnak értesítő levelet
+            $masolatok = array_filter($masolatok);
             foreach($masolatok as $masolat){
                 if(trim($masolat) && !is_valid_mail(trim($masolat))){
                     echo json_encode(array(
@@ -2342,7 +2345,7 @@ if( isset($_POST['kulsokivHozzarend']) ) {
             
             // Mailcímek helyességének ellenőrzése
             $mailcimek = explode(',', $_POST['cimzett']);
-            array_push($mailcimek, get_mszk_mail(), get_mszk_mail2()); // Így az MSZK-k is kapnak értesítő levelet
+            $mailcimek = array_filter($mailcimek);
             foreach($mailcimek as $mailcim){
                 if(trim($mailcim) && !is_valid_mail(trim($mailcim))){
                     echo json_encode(array(
@@ -2356,7 +2359,10 @@ if( isset($_POST['kulsokivHozzarend']) ) {
                     exit();
                 }
             }
+            
             $masolatok = explode(',', $_POST['masolat']);
+            array_push($masolatok, get_mszk_mail(), get_mszk_mail2()); // Így az MSZK-k is kapnak értesítő levelet
+            $masolatok = array_filter($masolatok);
             foreach($masolatok as $mailcim){
                 if(trim($mailcim) && !is_valid_mail(trim($mailcim))){
                     echo json_encode(array(
@@ -2763,7 +2769,7 @@ if (isset($_POST['munkalapVisszaElokeszitDirektbe'])) {
 
         // Mailcímek helyességének ellenőrzése
         $mailcimek = explode(',', $_POST['cimzett']);
-        array_push($mailcimek, get_mszk_mail(), get_mszk_mail2()); // Így az MSZK-k is kapnak értesítő levelet
+        $mailcimek = array_filter($mailcimek);
         foreach($mailcimek as $mailcim){
             if(trim($mailcim) && !is_valid_mail(trim($mailcim))){
                 echo json_encode(array(
@@ -2777,7 +2783,10 @@ if (isset($_POST['munkalapVisszaElokeszitDirektbe'])) {
                 exit();
             }
         }
+        
         $masolatok = explode(',', $_POST['masolat']);
+        array_push($masolatok, get_mszk_mail(), get_mszk_mail2()); // Így az MSZK-k is kapnak értesítő levelet
+        $masolatok = array_filter($masolatok);
         foreach($masolatok as $mailcim){
             if(trim($mailcim) && !is_valid_mail(trim($mailcim))){
                 echo json_encode(array(
@@ -4788,8 +4797,7 @@ if( isset($_POST['atadasDiszpecsernekDirektbe']) ) {
 
             // Mailcímek helyességének ellenőrzése
             $mailcimek = explode(',', $_POST['cimzett']);
-            array_push($mailcimek, get_mszk_mail(), get_mszk_mail2()); // Így az MSZK-k is kapnak értesítő levelet
-
+            $mailcimek = array_filter($mailcimek);
             foreach($mailcimek as $mailcim){
                 if(trim($mailcim) && !is_valid_mail(trim($mailcim))){
                     echo json_encode(array(
@@ -4803,7 +4811,10 @@ if( isset($_POST['atadasDiszpecsernekDirektbe']) ) {
                     exit();
                 }
             }
+            
             $masolatok = explode(',', $_POST['masolat']);
+            array_push($masolatok, get_mszk_mail(), get_mszk_mail2()); // Így az MSZK-k is kapnak értesítő levelet
+            $masolatok = array_filter($masolatok);
             foreach($masolatok as $mailcim){
                 if(trim($mailcim) && !is_valid_mail(trim($mailcim))){
                     echo json_encode(array(
@@ -4817,6 +4828,7 @@ if( isset($_POST['atadasDiszpecsernekDirektbe']) ) {
                     exit();
                 }
             }
+
             if(!trim($_POST['targy'])){
                 echo json_encode(array(
                     'hiba'  => 'Kérem töltse ki az email tárgyát!',
@@ -4869,12 +4881,13 @@ if( isset($_POST['atadasDiszpecsernekDirektbe']) ) {
                 $cimzettek          = implode(', ', $mailcimek);
                 $masolatot_kapott   = '';
                 $emailkuldes_megj .= 'Megrendelés SZTORNÓ elküldve.'."\n".'Címzettek: '.$cimzettek.' ';
+
                 if($masolatok){
                     $masolatot_kapott   = implode(', ', $masolatok);
                     $emailkuldes_megj .= "\n".'Másolatot kaptak: '.$masolatot_kapott.' ';
                 }
                 $emailkuldes_megj .= "\n";
-                
+
                 // E-mail küldés logolása
                 $email_recid = $adatbazis_kapcsolat->i('munkalap_email',    array('munkalap_recid', 'szallito_id', 'cimzett',   'masolat',         'targy',                     'text',                                'insert_dt', 'insert_usr'                           ),
                                                                             array($recid,           $szallito_id,  $cimzettek,  $masolatot_kapott, $targy_kieg.$_POST['targy'], $uzi_kieg.nl2br2($_POST['uzenet']),    'NOW()',     $_SESSION[get_db_tabla().'teljes_nev'] )
@@ -6188,7 +6201,7 @@ if (isset($_POST['munkalapVisszavetelDirektbe'])) {
 
         // Mailcímek helyességének ellenőrzése
         $mailcimek = explode(',', $_POST['cimzett']);
-        array_push($mailcimek, get_mszk_mail(), get_mszk_mail2()); // Így az MSZK-k is kapnak értesítő levelet
+        $mailcimek = array_filter($mailcimek);
         foreach($mailcimek as $mailcim){
             if(trim($mailcim) && !is_valid_mail(trim($mailcim))){
                 echo json_encode(array(
@@ -6202,7 +6215,10 @@ if (isset($_POST['munkalapVisszavetelDirektbe'])) {
                 exit();
             }
         }
+        
         $masolatok = explode(',', $_POST['masolat']);
+        array_push($masolatok, get_mszk_mail(), get_mszk_mail2()); // Így az MSZK-k is kapnak értesítő levelet
+        $masolatok = array_filter($masolatok);
         foreach($masolatok as $mailcim){
             if(trim($mailcim) && !is_valid_mail(trim($mailcim))){
                 echo json_encode(array(

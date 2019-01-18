@@ -951,6 +951,15 @@ function i_u($type, $tabla, $tomb) {
 
         // Loginnál szerepkörök lekezelése + Jelszóval rendelkezik pipa kiszedése esetén e-mail értesítés küldése
         if( $tabla == 'login' ) {
+            
+            // Mailcímek helyességének ellenőrzése
+            if( !is_valid_mail_tobb( $_POST['usermail'] ) ) {
+                echo json_encode(array(
+                    'hiba'  => 'Helytelen e-mail cím(ek)!<br>Több e-mail címet vesszővel felsorolva adjon meg!',
+                    'focus' => 'usermail',
+                ));
+                exit();
+            }
 
             // Ha változott a szerepkör, akkor a jogokat frissítjük
             $login = $adatbazis_kapcsolat->s2('szemelyzet_id van_jelszo', 'login', "`recid`='{$_GET['id']}'");
@@ -1123,6 +1132,18 @@ function i_u($type, $tabla, $tomb) {
             array_push($oszlopok, 'let_fel',        'pr_szam'           );
             array_push($ertekek, $_POST['let_fel'], $_POST['pr_szam']   );
         }
+        
+        // Szállítónál ellenőrizzük a mailcímek helyességét
+        if( $tabla == 'szallito' ) {
+            // Mailcímek helyességének ellenőrzése
+            if( !is_valid_mail_tobb( $_POST['email'] ) ) {
+                echo json_encode(array(
+                    'hiba'  => 'Helytelen e-mail cím(ek)!<br>Több e-mail címet vesszővel felsorolva adjon meg!',
+                    'focus' => 'email',
+                ));
+                exit();
+            }
+        }
 
         // Szeméyzet aktív/inaktív váltása a hozzá tartozó login-t is aktív/inaktiválja
         if( $tabla == 'torzsadat' ) {
@@ -1259,7 +1280,7 @@ function js_kiir($tomb, $fg = 'form_ell_regi()', $ajax = false) {
         if( $ertek['type'] != 'statusz' && $ertek['type'] != 'info' ) {
             if($ertek['name']) {
 
-                // Csak akkor figyelünk lenti paramétereket, ha egyáltalán az elem létezik. Ezzel egy csomó JS hibát elekerólhetünk és debuggolós szívásokat
+                // Csak akkor figyelünk lenti paramétereket, ha egyáltalán az elem létezik. Ezzel egy csomó JS hibát elekerülhetünk és debuggolós szívásokat
                 $ret .= 'if($(\'#'.$ertek['name'].'\').length){ ';
 
                 if($ertek['alert']){
@@ -1268,12 +1289,12 @@ function js_kiir($tomb, $fg = 'form_ell_regi()', $ajax = false) {
                         $focus_autocomp = $ertek['name'].'_autocomp';
                     }
 
-                    $ret .= 'if($(\'#'.$ertek['name'].'\').val()==\'\'){ document.getElementById(\''.$focus_autocomp.'\').className += \' alert\'; $(\'#'.$focus_autocomp.'\').addClass(\'hibas_ide_focus\'); alert2(\''.$ertek['alert'].'\', \'<p class="c"><input type="button" class="link gomb" value="Ok" onclick="alert2(); szurkit_zar(\\\'Mehet-Mégsem gombokat mutasd\\\'); $(\\\'#'.$ertek['name'].'\\\').select();"></p>\', \''.$hiba_txt.'\'); return false; }';
+                    $ret .= 'if($(\'#'.$ertek['name'].'\').val()==\'\'){ document.getElementById(\''.$focus_autocomp.'\').className += \' alert\'; $(\'#'.$focus_autocomp.'\').addClass(\'hibas_ide_focus\'); alert2(\''.$ertek['alert'].'\', \'\', \''.$hiba_txt.'\'); alert_utan_mehet_megsem_mutat_beallit(); return false; }';
                 }
 
                 // Ha numerikus a mező, akkor a 0,00 is üres értéknek számít
                 if(strpos($ertek['class'], 'f_num')!==false){
-                    $ret .= 'if(document.getElementById(\''.$ertek['name'].'\').value==\'0,00\'){ document.getElementById(\''.$ertek['name'].'\').className += \' alert\'; $(\'#'.$ertek['name'].'\').addClass(\'hibas_ide_focus\'); alert2(\''.$ertek['alert'].'\', \'<p class="c"><input type="button" class="link gomb" value="Ok" onclick="alert2(); szurkit_zar(\\\'Mehet-Mégsem gombokat mutasd\\\'); $(\\\'#'.$ertek['name'].'\\\').select();"></p>\', \''.$hiba_txt.'\'); return false; }';
+                    $ret .= 'if(document.getElementById(\''.$ertek['name'].'\').value==\'0,00\'){ document.getElementById(\''.$ertek['name'].'\').className += \' alert\'; $(\'#'.$ertek['name'].'\').addClass(\'hibas_ide_focus\'); alert2(\''.$ertek['alert'].'\', \'\', \''.$hiba_txt.'\'); alert_utan_mehet_megsem_mutat_beallit(); return false; }';
                 }
 
                 // Ha dátum tipusú a mezők ellenőrzése
@@ -1286,21 +1307,21 @@ function js_kiir($tomb, $fg = 'form_ell_regi()', $ajax = false) {
 
                 // Ha dátum mező, akkor az ürességet másképp figyeljük
                 if($ertek['alert'] && (strpos($ertek['class'], 'datepicker')!==false || strpos($ertek['class'], 'datetimepicker')!==false)){
-                    $ret .= 'if(document.getElementById(\''.$ertek['name'].'\').value.substring(0,1)==\'\xa0\'){ document.getElementById(\''.$ertek['name'].'\').className += \' alert\'; $(\'#'.$ertek['name'].'\').addClass(\'hibas_ide_focus\'); alert2(\''.$ertek['alert'].'\', \'<p class="c"><input type="button" class="link gomb" value="Ok" onclick="alert2(); szurkit_zar(\\\'Mehet-Mégsem gombokat mutasd\\\');"></p>\', \''.$hiba_txt.'\'); return false; } ';
+                    $ret .= 'if(document.getElementById(\''.$ertek['name'].'\').value.substring(0,1)==\'\xa0\'){ document.getElementById(\''.$ertek['name'].'\').className += \' alert\'; $(\'#'.$ertek['name'].'\').addClass(\'hibas_ide_focus\'); alert2(\''.$ertek['alert'].'\', \'\', \''.$hiba_txt.'\'); alert_utan_mehet_megsem_mutat_beallit(); return false; } ';
                 }
 
                 // Pár mezőnélnél a 0 sem elfogadható érték
                 if($ertek['alert'] && ($ertek['name']=='szemelyzet_id' || $ertek['nulla_is_ures_adat']) ){
-                    $ret .= 'if(document.getElementById(\''.$ertek['name'].'\').value==\'0\'){ document.getElementById(\''.$ertek['name'].'\').className += \' alert\'; $(\'#'.$ertek['name'].'\').addClass(\'hibas_ide_focus\'); alert2(\''.$ertek['alert'].'\', \'<p class="c"><input type="button" class="link gomb" value="Ok" onclick="alert2(); szurkit_zar(\\\'Mehet-Mégsem gombokat mutasd\\\');"></p>\', \''.$hiba_txt.'\'); return false; } ';
+                    $ret .= 'if(document.getElementById(\''.$ertek['name'].'\').value==\'0\'){ document.getElementById(\''.$ertek['name'].'\').className += \' alert\'; $(\'#'.$ertek['name'].'\').addClass(\'hibas_ide_focus\'); alert2(\''.$ertek['alert'].'\', \'\', \''.$hiba_txt.'\'); alert_utan_mehet_megsem_mutat_beallit(); return false; } ';
                 }
 
                 if($ertek['mail']){
-                    $ret .= "str=document.getElementById('$ertek[name]').value.trim(); if(str){ filter=/^([\w-]+(?:\.[\w-]+)*)@((?:[\w-]+\.)*\w[\w-]{0,66})\.([a-z]{2,6}(?:\.[a-z]{2})?)$/i; if (!filter.test(str)){ document.getElementById('{$ertek['name']}').className='alert'; $('#'{$ertek['name']}').addClass(\'hibas_ide_focus\'); alert2('Helytelen e-mail cím!', \'\', \''.$hiba_txt.'\'); return false; } }";
+                    $ret .= "str=document.getElementById('$ertek[name]').value.trim(); if(str){ filter=/^([\w-]+(?:\.[\w-]+)*)@((?:[\w-]+\.)*\w[\w-]{0,66})\.([a-z]{2,6}(?:\.[a-z]{2})?)$/i; if (!filter.test(str)){ document.getElementById('{$ertek['name']}').className='alert'; $('#'{$ertek['name']}').addClass(\'hibas_ide_focus\'); alert2('Helytelen e-mail cím!', \'\', \''.$hiba_txt.'\'); alert_utan_mehet_megsem_mutat_beallit(); return false; } }";
                 }
 
                 if($ertek['name'] == 'jelsz2'){
-                    $ret .= 'if(document.getElementById(\'reg_jelsz\').value.length < 4 ){document.getElementById(\''.$ertek['name'].'\').className += \' alert\';alert2(\'A jelszó hossza minimum 4 karakter legyen!\', \'\', \''.$hiba_txt.'\');return false;}';
-                    $ret .= 'if(document.getElementById(\'jelsz2\').value != document.getElementById(\'reg_jelsz\').value){document.getElementById(\''.$ertek['name'].'\').className += \' alert\';alert2(\'A jelszavak nem egyeznek meg!\', \'\', \''.$hiba_txt.'\');return false;}';
+                    $ret .= 'if(document.getElementById(\'reg_jelsz\').value.length < 4 ){document.getElementById(\''.$ertek['name'].'\').className += \' alert\';alert2(\'A jelszó hossza minimum 4 karakter legyen!\', \'\', \''.$hiba_txt.'\'); alert_utan_mehet_megsem_mutat_beallit(); return false;}';
+                    $ret .= 'if(document.getElementById(\'jelsz2\').value != document.getElementById(\'reg_jelsz\').value){document.getElementById(\''.$ertek['name'].'\').className += \' alert\'; alert2(\'A jelszavak nem egyeznek meg!\', \'\', \''.$hiba_txt.'\'); alert_utan_mehet_megsem_mutat_beallit(); return false;}';
                 }
 
                 if($ertek['name'] == 'isz' && $ertek['alert']){
@@ -1308,11 +1329,11 @@ function js_kiir($tomb, $fg = 'form_ell_regi()', $ajax = false) {
                 }
 
                 if($ertek['name'] == 'sz_isz' && $ertek['alert']){
-                    $ret .= 'if(document.getElementById(\''.$ertek['name'].'\').value.length != 4){document.getElementById(\''.$ertek['name'].'\').className += \' alert\';alert2(\'Helytelen irányítószám!\', \'\', \''.$hiba_txt.'\'); return false;}';
+                    $ret .= 'if(document.getElementById(\''.$ertek['name'].'\').value.length != 4){document.getElementById(\''.$ertek['name'].'\').className += \' alert\';alert2(\'Helytelen irányítószám!\', \'\', \''.$hiba_txt.'\'); alert_utan_mehet_megsem_mutat_beallit(); return false;}';
                 }
 
                 if($ertek['name'] == 'szall_isz' && $ertek['alert']){
-                    $ret .= 'if(document.getElementById(\''.$ertek['name'].'\').value.length != 4){document.getElementById(\''.$ertek['name'].'\').className += \' alert\';alert2(\'Helytelen irányítószám!\', \'\', \''.$hiba_txt.'\'); return false;}';
+                    $ret .= 'if(document.getElementById(\''.$ertek['name'].'\').value.length != 4){document.getElementById(\''.$ertek['name'].'\').className += \' alert\';alert2(\'Helytelen irányítószám!\', \'\', \''.$hiba_txt.'\'); alert_utan_mehet_megsem_mutat_beallit(); return false;}';
                 }
 
                 // Adószám formátumának ellenőrzése (xxxxxxxx-x-xx alakú-e). Az inputra egyébként a main.js-ben található adoszam_formaz() függvényt hívd meg, de az alábbi ellenőrzéssel együtt lesz tökéletes
@@ -1340,12 +1361,12 @@ function js_kiir($tomb, $fg = 'form_ell_regi()', $ajax = false) {
                 }
 
                 if($ertek['name'] == 'elf'){
-                    $ret .= 'if(document.getElementById(\''.$ertek['name'].'\').checked==false){document.getElementById(\''.$ertek['name'].'\').className += \' alert\';alert2(\'A feltételek elfogadása kötelező!\',\'\', \''.$hiba_txt.'\'); return false;}';
+                    $ret .= 'if(document.getElementById(\''.$ertek['name'].'\').checked==false){document.getElementById(\''.$ertek['name'].'\').className += \' alert\'; alert2(\'A feltételek elfogadása kötelező!\', \'\', \''.$hiba_txt.'\'); alert_utan_mehet_megsem_mutat_beallit(); return false;}';
                 }
 
                 if($ertek['name'] == 'akcar'){	//Ha van akciós ár, akkor figyelük azt is, hogy kissebb legyen
                                             //Először ki kell szűrni a pontokat belőle
-                    $ret .= "var ar=document.getElementById('ar').value; var akcar=document.getElementById('akcar').value; mit=new RegExp('[.]','ig'); ar=ar.replace(mit,''); akcar=akcar.replace(mit,''); if(Number(ar)<=Number(akcar)){ document.getElementById('".$ertek['name']."').className += ' alert'; alert2('Az akciós ár nem kedvezőbb a listaártól!', '', ".$hiba_txt."'); return false; }";
+                    $ret .= "var ar=document.getElementById('ar').value; var akcar=document.getElementById('akcar').value; mit=new RegExp('[.]','ig'); ar=ar.replace(mit,''); akcar=akcar.replace(mit,''); if(Number(ar)<=Number(akcar)){ document.getElementById('".$ertek['name']."').className += ' alert'; alert2('Az akciós ár nem kedvezőbb a listaártól!', '', ".$hiba_txt."'); $(\'.bezar\').attr(\'onclick\', \'alert2(); szurkit_zar(\\\'Mehet-mégsem mutat\\\');\'); return false; }";
                 }
 
                 $ret .= '}';
@@ -1372,12 +1393,15 @@ function js_kiir($tomb, $fg = 'form_ell_regi()', $ajax = false) {
         $ret .= nl2('
 
             if( !$(\'#nev\').val() ){
-                alert2(\'Kérem válasszon ki egy cikknevet az értéklistából!\', \'<input type="button" class="link gomb" value="Ok" onclick="alert2(); szurkit_zar(\\\'Mehet-Mégsem gombokat mutasd\\\');">\', \'Hiba\');
+                alert2(\'Kérem válasszon ki egy cikknevet az értéklistából!\', \'\', \'Hiba\');
+                alert_utan_mehet_megsem_mutat_beallit();
                 return false;
             }
             
             if( $(\'#igmen\').val().replace(\',\', \'.\')<0  ){
-                alert2(\'Az igényelt mennyiség nem lehet kisebb vagy egyenlő, mint 0!\', \'<input type="button" class="link gomb" value="Ok" onclick="alert2(); szurkit_zar(\\\'Mehet-Mégsem gombokat mutasd\\\'); $(\\\'#igmen\\\').select();">\', \'Hiba\');
+                alert2(\'Az igényelt mennyiség nem lehet kisebb vagy egyenlő, mint 0!\', \'\', \'Hiba\');
+                alert_utan_mehet_megsem_mutat_beallit();
+                $(\'#igmen\').addClass(\'hibas_ide_focus\');
                 return false;
             }
 
@@ -1415,7 +1439,7 @@ function js_kiir($tomb, $fg = 'form_ell_regi()', $ajax = false) {
 
                         response = JSON.parse(response);
                         if( response.hiba ) {
-                            alert2(response.hiba, response.gomb);
+                            alert2(response.hiba, response.gomb, response.title);
                             return false;
                         }
                         if( response.siker ) {
@@ -1786,6 +1810,11 @@ function js_kiir($tomb, $fg = 'form_ell_regi()', $ajax = false) {
                         } else {
                             alert2(response.hiba, \'\', \''.$hiba_txt.'\');
                         }
+                        
+                        /* Űrlap módosításakor ha hibát kapunk, az mindig hibaüzenet. Ekkor a mehet-mégsem gombokat újra meg kell mutatni. */
+                        alert_utan_mehet_megsem_mutat_beallit();
+                        
+                        
                         if( response.focus ) {
                             $(\'#\'+response.focus).addClass(\'hibas_ide_focus\');
                         }
@@ -4120,7 +4149,8 @@ function anyagigenylesLista( $bejegyzesek, $tabla, $frissit, $kijeloltek ) {
                 array_push($oszlopok,
                     array('id' => 'anyag_tabla_rndid',    'nev' => 'Rendelés szám'),
                     array('id' => 'anyag_tabla_rnd_dt',   'nev' => 'Rendelés dátum'),
-                    array('id' => 'anyag_tabla_rndertek', 'nev' => 'Rendelés érték')
+                    array('id' => 'anyag_tabla_rndertek', 'nev' => 'Rendelés érték'),
+                    array('id' => 'anyag_tabla_erkmen',   'nev' => 'Beérkezett mennyiség')
                 );
             }
 
@@ -4311,6 +4341,7 @@ function anyagigenylesLista( $bejegyzesek, $tabla, $frissit, $kijeloltek ) {
                     // A rendelés érték a Rendelt mennyiség * Rendelési egységár (Ft) oszlopok szorzata
                     $rendeles_ertek = $bsz['rndmen']*$bsz['rndear'];
                     $sorok['anyag_tabla_rndertek']  = '<td class="c" data-sort="'.$rendeles_ertek.'">'.number_format($rendeles_ertek, 0, ',', ' ').' '.get_penznem().'</td>';
+                    $sorok['anyag_tabla_erkmen']    = '<td class="c" data-sort="'.$bsz['erkmen'].'">'.number_format($bsz['erkmen'], 2, ',', ' ').'</td>';
                 }
 
                 foreach($oszlopok as $oszl) {
