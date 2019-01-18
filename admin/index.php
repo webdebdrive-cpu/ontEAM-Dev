@@ -223,7 +223,7 @@ if (false && isset($_GET['loginnev_import']) ) {
                         break;
 
 
-                        case 'Email':
+                        case 'E-mail':
                             $email = trim($akt_tomb[$key]);
                         break;
 

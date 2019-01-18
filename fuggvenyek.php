@@ -953,11 +953,15 @@ function i_u($type, $tabla, $tomb) {
         if( $tabla == 'login' ) {
             
             // Mailcímek helyességének ellenőrzése
-            if( !is_valid_mail_tobb( $_POST['usermail'] ) ) {
+            $hibauzenet = is_valid_mail_tobb($_POST['usermail'], 'hibaüzenettel');
+            if( $hibauzenet ){
                 echo json_encode(array(
-                    'hiba'  => 'Helytelen e-mail cím(ek)!<br>Több e-mail címet vesszővel felsorolva adjon meg!',
+                    'hiba'  => $hibauzenet,
+                    'title' => 'Hiba',
                     'focus' => 'usermail',
                 ));
+
+                $weblap->leallit();
                 exit();
             }
 
@@ -1136,11 +1140,15 @@ function i_u($type, $tabla, $tomb) {
         // Szállítónál ellenőrizzük a mailcímek helyességét
         if( $tabla == 'szallito' ) {
             // Mailcímek helyességének ellenőrzése
-            if( !is_valid_mail_tobb( $_POST['email'] ) ) {
+            $hibauzenet = is_valid_mail_tobb($_POST['email'], 'hibaüzenettel');
+            if( $hibauzenet ){
                 echo json_encode(array(
-                    'hiba'  => 'Helytelen e-mail cím(ek)!<br>Több e-mail címet vesszővel felsorolva adjon meg!',
+                    'hiba'  => $hibauzenet,
+                    'title' => 'Hiba',
                     'focus' => 'email',
                 ));
+
+                $weblap->leallit();
                 exit();
             }
         }
@@ -7497,7 +7505,7 @@ function level_felkeszit_es_kuld($tabla, $recid, $ert_pipa, $sablon, $cimzett, $
                 $hiba .=  nl2('Hiba: E-mail küldése nem sikerült!
                         <br>'.$cimzett_nev.' '.$szerepkor.'
                         <br>Tel: '.$akt_cimzett['usertel'].'
-                        <br>Email: '.$akt_cimzett['usermail'].'
+                        <br>E-mail: '.$akt_cimzett['usermail'].'
                         <br>
                         ');
             }

@@ -1461,7 +1461,7 @@ require_once('selectek.php');
                         <div class="dtc">Cég</div>
                         <div class="dtc">Beosztás</div>
                         <div class="dtc">Telefon</div>
-                        <div class="dtc">Email</div>
+                        <div class="dtc">E-mail</div>
                         <div class="dtc">Projekt szerepkör</div>
                         <div class="dtc"></div>
                     </div>

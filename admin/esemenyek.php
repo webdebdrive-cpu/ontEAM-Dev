@@ -1010,7 +1010,7 @@ $szallito_tomb = $akt_tomb = array(
 	array('type' => 'text',        'megn' => 'Kapcs.név:',      'name' => 'knev',   'szuro' => 1,     'maxlength' => 250, 'class' => 'oriasi'),
 	array('type' => 'text',        'megn' => 'Telefon:',        'name' => 'tel',    'szuro' => 1,     'maxlength' => 250, 'class' => 'oriasi'),
 	array('type' => 'text',        'megn' => 'Fax:',            'name' => 'tel2',   'szuro' => 1,     'maxlength' => 250, 'class' => 'oriasi'),
-	array('type' => 'text',        'megn' => 'Email:',          'name' => 'email',  'szuro' => 1,     'maxlength' => 250, 'class' => 'oriasi'),
+	array('type' => 'text',        'megn' => 'E-mail:',         'name' => 'email',  'szuro' => 1,     'maxlength' => 250, 'class' => 'oriasi'),
 	array('type' => 'text',        'megn' => 'Adószám:',        'name' => 'adoszam','szuro' => 1,     'maxlength' => 250, 'class' => 'oriasi'),
 	array('type' => 'text',        'megn' => 'Cg:',             'name' => 'cg',     'szuro' => 1,     'maxlength' => 250, 'class' => 'kicsi'),
 	array('type' => 'textarea',    'megn' => 'Leírás:',         'name' => 'text',   'szuro' => 1,                         'class' => 'oriasi', 'style' => 'height: 5.5rem'),

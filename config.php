@@ -109,14 +109,14 @@ function get_session_felh()  { return get_db_tabla().'felhId';                  
 function get_teszt_mail()    { return 'teszt@webdeb.hu';                        }
 function get_mszk_mail(){
     if($_SERVER['HTTP_HOST']=='demo.webdeb.hu'){
-        return 'bk@wdb.hu';
+        return 'diszpecser@wdb.hu';
     }else{
         return 'diszpecser@danubiushotels.com';
     }
 }
 function get_mszk_mail2(){
     if($_SERVER['HTTP_HOST']=='demo.webdeb.hu'){
-        return 'bk@wdb.hu';
+        return 'gyongyi.szollosi@wdb.hu';
     }else{
         return 'gyongyi.szollosi@danubiushotels.com';
     }

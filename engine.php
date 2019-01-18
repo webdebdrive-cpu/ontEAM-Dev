@@ -1147,7 +1147,7 @@ function iconv2($mibol, $mibe, $string){
 *	@return boolean 
 */
 function is_valid_mail($email){
-	return preg_match( '/[.+a-zA-Z0-9_-]+@[a-zA-Z0-9-]+.[a-zA-Z]+/', $email );
+	return filter_var($email, FILTER_VALIDATE_EMAIL);
 }
 
 /**
@@ -1156,15 +1156,58 @@ function is_valid_mail($email){
 *	@param string $email címek: E-mail címek vesszővel felsorolva, melyről meg kell állípítani, hogy megfelelő alakú-e
 *	@return boolean 
 */
-function is_valid_mail_tobb($email_cimek){
+function is_valid_mail_tobb($email_cimek, $hibauzenettel){
 	$cimek = explode(',', $email_cimek);
     foreach($cimek as $cim){
         $cim = trim($cim);
-        if( !is_valid_mail($cim) ){
-            return false;
+        if( $cim ){
+            
+            // Ha külön-külön hibaüzeneteket szeretnénk látni, akkor vizsgájuk meg jobban a mailcímet
+            if( $hibauzenettel ){
+                
+                // @ előtt van-e karakter. Ha nincs, hiba!
+                $kukac_elott = substr($cim, 0, strpos($cim, '@'));
+                if( !trim($kukac_elott) ){
+                    return 'Hibás e-mail cím: <span class="piros">'.$cim.'</span><br>A @ jel előtt nem megfelelő karakter szerepel!';
+                }
+                
+                // @ és pont között van-e karakter. Ha nincs, hiba!
+                if( strpos( str_replace(' ', '', $cim), '@.' ) ){
+                    return 'Hibás e-mail cím: <span class="piros">'.$cim.'</span><br>A @ jel után nem megfelelő karakter szerepel!';
+                }
+                
+                // Ha a pont után nincs már karakter, akkor hiba!
+                if( substr($cim, strlen($cim)-1, 1 )=='.' ){
+                    return 'Hibás e-mail cím: <span class="piros">'.$cim.'</span><br>A . után nem megfelelő karakter szerepel!';
+                }
+                
+                // Ha a pont után nincs már karakter, akkor hiba!
+                if( (strpos($cim, ' ')!==false || strpos($cim, ';')!==false) && strpos($cim, ',')===false ){
+                    return 'Kérem, az e-mail címeket vesszővel sorolja fel!<br>Az e-mail címek nem tartalmazhatnak szóközt, pontosvesszőt!';
+                }
+                
+                // Végül az általános e-mail formátum ellenőrző függvénnyel levizsgáljuk
+                if( !is_valid_mail($cim) ){
+                    return 'Helytelen e-mail cím: <span class="piros">'.$cim.'</span><br>Helytelen formátumú, vagy hibás karakterekből álló e-mail cím!';
+                }
+                
+            // Ha csak az általános e-mailcím viszgálót szeretnénk lefuttatni több címre
+            }else{
+                if( !is_valid_mail($cim) ){
+                    return false;
+                }
+            }
+            
         }
     }
-    return true;
+    
+    // Ha hibaüzenettel kell visszatérjen a függvény, akkor a false lesz a visszatérés helyes mailcím esetln
+    if( $hibauzenettel ){
+        return false;
+    }else{
+        return true;
+    }
+    
 }
 
 /**

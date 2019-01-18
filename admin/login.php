@@ -193,12 +193,28 @@ if( isset($_POST['ertekhozzaad']) ) {
 // Adott felhasználó létezik-e már
 if( isset($_POST['login_letezik']) ) {
 
+    // Loginnév foglalt-e
     if( $adatbazis_kapcsolat->s2('recid', 'login', "`nev`='{$_POST['nev']}'") ){
         echo json_encode(array(
             'hiba'  => 'Ez a loginnév már foglalt!',
             'title' => 'Hiba',
             'focus' => 'nev',
         ));
+        
+        $weblap->leallit();
+        exit();
+    }
+    
+    // E-mail címek validálása
+    $hibauzenet = is_valid_mail_tobb($_POST['usermail'], 'hibaüzenettel');
+    if( $hibauzenet ){
+        echo json_encode(array(
+            'hiba'  => $hibauzenet,
+            'title' => 'Hiba',
+        ));
+
+        $weblap->leallit();
+        exit();
     }
     
     // Valami kimenet kell legyen
@@ -692,18 +708,11 @@ require_once('selectek.php');
                             return false;
                         }
 
-                        /* E-mail címek helyességének ellenőrzése */
-                        if( !is_valid_mail_tobb( $(\'#usermail\').val() ) ){
-                            alert2(\'Helytelen e-mail cím(ek)!<br>Több e-mail címet vesszővel felsorolva adjon meg!\', \'\', \'Hiba\');
-                            $(\'#usermail\').addClass(\'hibas_ide_focus\');
-                            return false;
-                        }
-
                         /* Felhasználó név foglalt-e már */
                         $.ajax({
                             url : \'login.php\',
                             type: \'POST\',
-                            data: esamp2es(\'nev=\' + $(\'#nev\').val() + \'&amp;login_letezik=\' + new Date().getTime()),
+                            data: esamp2es(\'nev=\' + $(\'#nev\').val() + \'&amp;usermail=\' + $(\'#usermail\').val() + \'&amp;login_letezik=\' + new Date().getTime()),
                             success: function(response) {
                                 if(response.substring(0, 6)==\'SESKIL\'){ location.href = \'index.php\'; }
                                 if(response) {
@@ -716,7 +725,6 @@ require_once('selectek.php');
                                             $(\'#\'+response.focus).addClass(\'hibas_ide_focus\');
                                         }
                                     }else{
-console.log(\'vvv\');
                                         $(\'#szerk_form\').submit();
                                     }
 

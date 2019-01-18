@@ -822,6 +822,7 @@ function is_valid_mail(email) {
 *	@param string $email_cimek: E-mail címek vesszővel felsorolva, melyről meg kell állípítani, hogy megfelelő alakú-e
 *	@return boolean
 */
+/* Erre mégsem lesz szükség, PHP-val validáljunk
 function is_valid_mail_tobb(email_cimek) {
     if( email_cimek.trim() ){
         email_cimek = email_cimek.split(',');
@@ -832,7 +833,7 @@ function is_valid_mail_tobb(email_cimek) {
         }
     }
     return true;
-}
+}*/
 
 /**
 *	@desc Irányítószámból kiszámoljuk a várost. Ehhez kell egy isz input meg egy város input ID-t, illetve egy város adatbázis kell még hozzá (minta van rá a WDBHU-ban).

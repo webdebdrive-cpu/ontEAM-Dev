@@ -35,7 +35,7 @@ if($tobb_kep){
 
 }
 
-// Szállítókód ellenőrzése (nem foglat-e, helyes-e?) 
+// Szállítókód ellenőrzése (nem foglat-e, helyes-e?) illetve a mailcím mező ellenőrzése
 if (isset($_POST['szallitokod_ell'])) {
     
     // Hossz ellenőrzése
@@ -66,6 +66,18 @@ if (isset($_POST['szallitokod_ell'])) {
     if($foglalt_id){
         echo json_encode(array(
             'hiba'  => 'Ez a szállítókód már foglalt!',
+            'title' => 'Hiba',
+        ));
+
+        $weblap->leallit();
+        exit();
+    }
+    
+    // E-mail címek validálása
+    $hibauzenet = is_valid_mail_tobb($_POST['email'], 'hibaüzenettel');
+    if( $hibauzenet ){
+        echo json_encode(array(
+            'hiba'  => $hibauzenet,
             'title' => 'Hiba',
         ));
 
@@ -250,6 +262,7 @@ require_once('selectek.php');
                     type: \'POST\',
                     data: {
                         id              : $(\'#id\').val(),
+                        email           : $(\'#email\').val(),
                         szallitokod_ell : Date.now()
                     },
                     success: function (response) {
@@ -311,20 +324,6 @@ require_once('selectek.php');
 
 	// Új termék felvitele
 	if(isset($_GET['uj']) && !$csak_szerkesztheto){
-
-        // E-mail cím helyességének ellenőrzése
-        $js_submit_elott = nl2('
-                                /* E-mail címek helyességének figyelése */
-                                if( !is_valid_mail_tobb( $(\'#email\').val() ) ){
-                                    alert2(\'Helytelen e-mail cím(ek)!<br>Több e-mail címet vesszővel felsorolva adjon meg!\', \'\', \'Hiba\');
-                                    $(\'#email\').addClass(\'hibas_ide_focus\');
-                                    alert_utan_mehet_megsem_mutat_beallit();
-                                    return false;
-                                }
-                                
-                                /* Ha minden rendben, akkor mehet az űrlap feldolgozása */
-                                return form_ell_admin();
-                            ');
         
         // Újként szerkesztéskor feltöltjük a mezők tartalmát
 		if($_GET['ujkent']){
