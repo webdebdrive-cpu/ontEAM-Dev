@@ -1837,7 +1837,6 @@ function js_kiir($tomb, $fg = 'form_ell_regi()', $ajax = false) {
                         /* Űrlap módosításakor ha hibát kapunk, az mindig hibaüzenet. Ekkor a mehet-mégsem gombokat újra meg kell mutatni. */
                         alert_utan_mehet_megsem_mutat_beallit();
                         
-                        
                         if( response.focus ) {
                             $(\'#\'+response.focus).addClass(\'hibas_ide_focus\');
                         }

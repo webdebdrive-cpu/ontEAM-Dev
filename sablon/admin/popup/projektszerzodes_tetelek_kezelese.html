@@ -224,7 +224,7 @@ function tetelek_kiszamol() {
     }else{
         szerzodes_osszeg = $('#szerz_ossz_mindig_latszik').val().replace(/ /g, '');
     }
-    $('#pop_szerz_ossz').html( szerzodes_osszeg+' '+PENZNEM );
+    $('#pop_szerz_ossz').html( ezresek(szerzodes_osszeg, 0, '', ' ')+' '+PENZNEM );
     
     tetelek_ossz = 0;
     $('.pop_varh_ert').each(function() {

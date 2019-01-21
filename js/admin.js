@@ -6700,6 +6700,7 @@ function valid_date(that, true_val_terj_vissza){
         }
     }
     if(
+        that.val() &&
         that.val()!='\xa0\xa0\xa0\xa0.\xa0\xa0.\xa0\xa0' &&
         that.val()!='\xa0\xa0\xa0\xa0.\xa0\xa0.\xa0\xa0\xa0\xa0:\xa0\xa0' &&
         that.val()!='\xa0\xa0\xa0\xa0.\xa0\xa0.\xa0\xa0\xa0\xa0:\xa0\xa0:\xa0\xa0' &&

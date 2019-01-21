@@ -35,6 +35,7 @@ htmlspecialchars_decode2()  htmlspecialchars_decode() helyett
 i_u()                       => átkerült a fuggvenyek.php-ba
 iconv2()                    Saját iconv függvény: speciális karakterekből html kódot készít pl.: © => &copy;
 is_valid_mail()             Ellenőrzi, hogy az e-mail cím megfelelő formátumú-e
+is_valid_mail_tobb()        Ha egy e-mail mezőben több e-mail cím is szerepel, akkor annak a mezőnek az ellenőrzése.
 jelszot_keszit()            Véletlenszerű jelszót generál megadott hosszból, megadott karakterekből
 kep_forgat()                Kép elforgatása megadott fokkal.
 kep_kiir()                  Szokásos képkiíratás, hogy ne kelljen 1000-szer lerni ugyanazt Pl.: $kep = kep_kiir(get_utvonal().'valami.jpg', 'címe', get_indexkep_sz(), get_indexkep_m(), 'b', 'margin: 0', '', 'termek.php?id=1');
@@ -1623,7 +1624,7 @@ function level_kuldes_osszetettebb( $felado_nev, $felado_mail, $cimzett_nev, $ci
         require_once('class/class.Phpmailer.php');
         $mail = new PHPMailer;
         
-        // Ha azt szeretnénk, hogy levélpapíros legyen a levél, akkor még a levélpaprt betöltjük
+        // Ha azt szeretnénk, hogy levélpapíros legyen a levél, akkor még a levélpapírt betöltjük
         if($levelpapiros){
             $levelpapir = fajlbol_olvas('../sablon/levelpapir.html');
             $uzi = str_replace('{TARTALOM}', $uzi, $levelpapir);
