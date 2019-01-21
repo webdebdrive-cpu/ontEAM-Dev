@@ -524,19 +524,34 @@ function i_u($type, $tabla, $tomb) {
         // Projektszámlák
         } else if( $tabla == 'projektszamla' ) {
             
+            // Ha nics egyetlen tétel sem, akkor automatikusan létrehozunk egyet, aminek a tárgya ugyanaz mint szerződés adatlapján a tárgya nettó összeg pedig ugyanaz, mint a számla nettó értéke
+            if( !$_SESSION['pr_szla_tetel_targy'] ){
+                $_SESSION['pr_szla_tetel_targy']        = array($_POST['targy']);
+                $_SESSION['pr_szla_tetel_netto_ert']    = array($_POST['netto']);
+                $_SESSION['pr_szla_tetel_pr_tetel']     = array(0); // A szerződés tétel ID-ja fixen 0, hisz nincs összekötve szerződéssel a számla.
+            }
+            
             array_push($oszlopok, 'loginnev'                        );
             array_push($ertekek,  $_SESSION[get_db_tabla().'user']  );
             
         // Projektszerződés
         } else if( $tabla == 'projektszerzodes' ) {
                 
+            // 2019.01.21 Update: már nem kötelező tételekt megadni új feltöltéskor
             // Ha nincsenek tétel sorok, akkor hibaüzenet
+//            if( !$_SESSION['pr_szer_tetel_targy'] ){
+//                echo json_encode(array(
+//                    'hiba'  => 'Nem adott meg szerződés tételeket, így nem menthető a projekt szerződés!',
+//                    'title' => 'Hiba'
+//                ));
+//                exit();
+//            }
+            
+            // Ha nics egyetlen tétel sem, akkor automatikusan létrehozunk egyet, aminek a tárgya ugyanaz mint szerződés adatlapján a tárgy, a várható érkezés ugyanaz, mint a szerződésen a kivitelezés vége, a nettó összeg pedig ugyanaz, mint a szerződés nettó értéke.
             if( !$_SESSION['pr_szer_tetel_targy'] ){
-                echo json_encode(array(
-                    'hiba'  => 'Nem adott meg szerződés tételeket, így nem menthető a projekt szerződés!',
-                    'title' => 'Hiba'
-                ));
-                exit();
+                $_SESSION['pr_szer_tetel_targy']    = array($_POST['targy']);
+                $_SESSION['pr_szer_tetel_varh_erk'] = array($_POST['kiv_vege']);
+                $_SESSION['pr_szer_tetel_varh_ert'] = array($_POST['szerz_ossz']);
             }
             
             // Iktatószám kiszámítása
@@ -1084,7 +1099,7 @@ function i_u($type, $tabla, $tomb) {
             }
 
             // Vagy ha megada a dátumot, de nincs bepipálva a visszaadva, akkor meg azért hiba
-            if( !$_POST['visszaadva'] && $_POST['visszaadva_dt']<'9000-00-00' ){
+            if( !$_POST['visszaadva'] && $_POST['visszaadva_dt'] && $_POST['visszaadva_dt']<'9000-00-00' ){
                 echo json_encode(array(
                     'hiba'  => 'Csak akkor adja meg a visszaadás dátumát, ha bekapcsolta a visszaadás pipát!',
                     'focus' => 'visszaadva_dt',

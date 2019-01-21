@@ -271,7 +271,7 @@ if (isset($_POST['pop_tetelek_feltolt'])) {
     exit();
 }
 
-// Van-e a session-ban tétel
+// Eredetileg azt vizsgáltuk, hogy van-e a session-ban tétel, de sok más egyéb, új feltöltéskor ellenőrizednő dolgot is itt vizsgálunk PHP-val
 if (isset($_POST['van_tetel'])) {
     
     $szerzodes_osszege = str_replace(' ', '', $_POST['szerz_ossz']);
@@ -350,8 +350,9 @@ if (isset($_POST['van_tetel'])) {
         exit();
     }
     
+    // 2019.01.21 Update: nem kötelező tételeket feltölteni új feltöltésnél.
     // Ha nincs feltöltött tétel:
-    if( !$_SESSION['pr_szer_tetel_targy'] ){
+    /*if( !$_SESSION['pr_szer_tetel_targy'] ){
         
         echo json_encode( array(
                             'van_tetel' => 'nincs',
@@ -363,9 +364,11 @@ if (isset($_POST['van_tetel'])) {
         exit();
         
     // Ha van tétel, akkor még az összegek egyezését is ellenőrizni kell
-    }else{
+    }else{*/
+    
+    // Ha van feltöltött tétel, akkor az összegüknek meg kell egyezzen a szerződés összegével
+    if( $_SESSION['pr_szer_tetel_targy'] ){
         
-        // Ha a szerződés összege nem egyezik a feltöltött tételek összegével
         $tetelek_osszege = 0;
         foreach ( $_SESSION['pr_szer_tetel_varh_ert'] as $ertek ){
             $ertek = str_replace(' ', '', $ertek);
@@ -379,12 +382,14 @@ if (isset($_POST['van_tetel'])) {
             exit();
         }
         
-        echo json_encode( array(
-                            'van_tetel' => 'van'
-                        ) );
-        $weblap->leallit();
-        exit();
     }
+    
+    // Ha idáig eljutottunk, akkor kiírjuk hogy van (még akkor is, ha nincsenek tételek, de ez nem baj, mert a van, annyit jelent, hogy menthető az adatlap).
+    echo json_encode( array(
+                        'van_tetel' => 'van'
+                    ) );
+    $weblap->leallit();
+    exit();
     
     
     $weblap->leallit();
