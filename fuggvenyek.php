@@ -9031,3 +9031,42 @@ function csatolmanyok_eltesz($fajlok, $utvonal, $email_recid, $ml_recid){
     }
         
 }
+
+// Egy rekord törlésekor a hozzá kapcsolódó gyermektáblákból törölt adatokat is szeretnénk logolni. Ezért átadunk neki egy adatbázis lekérdezésből kapott tömböt, és ő visszaadja a log szövegét.
+function logolas_kapcsolodo_tablak_sorai($sorok, $tabla){
+    
+    $valtozas = '';
+    foreach($sorok as $sor){
+        $i = 1;
+        foreach($sor as $key => $value) {
+            
+            $valtozas .= $i.'. [mezo]'.$key.'[/mezo] [ertek]'.$value.'[/ertek]';
+            
+            switch($key){
+                case 'hiba_id':
+                    $valtozas .= '[cimke]'.getErtekLista(ERTEKLISTA_BEJ_HIBA, '', $value).'[/cimke]';
+                break;
+                case 'gep_id':
+                    $valtozas .= '[cimke]'. getErtek('nev', 'eszkozkezeles', 'recid', $value).'[/cimke]';
+                break;
+                case 'obj_id':
+                    $valtozas .= '[cimke]'. getErtek('nev', 'obj', 'recid', $value).'[/cimke]';
+                break;
+                case 'stat_id':
+                    $valtozas .= '[cimke]'. getStatText($tabla, $value).'[/cimke]';
+                break;
+                case 'telephely_id':
+                    $valtozas .= '[cimke]'.getSzallodaNev($value).'[/cimke]';
+                break;
+            }
+            
+            $valtozas .= "\n";
+            
+            $i++;
+        }
+    }
+    $valtozas .= "\n";
+    
+    return $valtozas;
+    
+}

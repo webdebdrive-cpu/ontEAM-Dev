@@ -1209,10 +1209,10 @@ $bejelentes_tomb = $bejelentes_arch_tomb = $akt_tomb = array(
                                                     ')),
     array('type' => 'text',            'megn' => 'Név:',        'megn_szurobe' => 'Név:',                   'name' => 'usr_nev',                'disabled' => $usr_dis,     'maxlength' => 250, 'class' => 'kozepes bej', 'dtr_class' => ' bejelento_sor', 'szuro' => 1, 'osszevon' => true, 'letarol' => true,  'value' => $usr_nev, 'alert' => 'Kérem adja meg a bejelentő nevét!'),
     array('type' => 'text',            'megn' => '',            'megn_szurobe' => 'Rögzítő név:',           'name' => 'usr_man_nev',            'disabled' => 1,            'maxlength' => 250, 'class' => 'kozepes bej_rogzito', 'szuro' => 1, 'value' => $bejelentest_rogziti['teljes_nev']),
-    array('type' => 'autocomplete',    'megn' => 'Beosztás:',   'megn_szurobe' => 'Rögzítő beosztás:',      'name' => 'usr_beosztas_id',        'disabled' => $usr_dis,     'class' => 'kozepes bej disableNav', 'dtr_class' => ' bejelento_sor', 'szuro' => 1, 'tabla' => 'erteklista', 'oszlop_keres' => 'id', 'oszlop_keres_autocomp' => 'info', 'listaz' => 'info', 'csoport' => 18, 'id_kiir' => 'id', 'osszevon' => true, 'value' => $usr_beosztas),
-    array('type' => 'autocomplete',    'megn' => '',            'megn_szurobe' => 'Beosztás:',              'name' => 'usr_man_beosztas_id',    'disabled' => 1,            'class' => 'kozepes bej_rogzito disableNav', 'szuro' => 1, 'tabla' => 'erteklista', 'oszlop_keres' => 'id', 'oszlop_keres_autocomp' => 'info', 'listaz' => 'info', 'csoport' => 18, 'id_kiir' => 'id', 'value' => $bejelentest_rogziti['beosztas_id']),
-    array('type' => 'autocomplete',    'megn' => 'Részleg:',    'megn_szurobe' => 'Rögzítő részleg:',       'name' => 'usr_reszleg_id',         'disabled' => $usr_dis,     'class' => 'kozepes bej disableNav', 'dtr_class' => ' bejelento_sor', 'szuro' => 1, 'tabla' => 'erteklista', 'oszlop_keres' => 'id', 'oszlop_keres_autocomp' => 'info', 'listaz' => 'info', 'csoport' => 17, 'id_kiir' => 'id', 'osszevon' => true, 'value' => $usr_reszleg, 'alert' => 'Kérem adja meg a bejelentő részlegét!'),
-    array('type' => 'autocomplete',    'megn' => '',            'megn_szurobe' => 'Részleg:',               'name' => 'usr_man_reszleg_id',     'disabled' => 1,            'class' => 'kozepes bej_rogzito disableNav', 'szuro' => 1, 'tabla' => 'erteklista', 'oszlop_keres' => 'id', 'oszlop_keres_autocomp' => 'info', 'listaz' => 'info', 'csoport' => 17, 'id_kiir' => 'id', 'value' => $bejelentest_rogziti['reszleg_id']),
+    array('type' => 'autocomplete',    'megn' => 'Beosztás:',   'megn_szurobe' => 'Rögzítő beosztás:',      'name' => 'usr_beosztas_id',        'disabled' => $usr_dis,     'class' => 'kozepes bej disableNav', 'dtr_class' => ' bejelento_sor', 'szuro' => 1, 'tabla' => 'erteklista', 'oszlop_keres' => 'id', 'oszlop_keres_autocomp' => 'info', 'listaz' => 'info', 'csoport' => ERTEKLISTA_BEOSZTAS, 'id_kiir' => 'id', 'osszevon' => true, 'value' => $usr_beosztas),
+    array('type' => 'autocomplete',    'megn' => '',            'megn_szurobe' => 'Beosztás:',              'name' => 'usr_man_beosztas_id',    'disabled' => 1,            'class' => 'kozepes bej_rogzito disableNav', 'szuro' => 1, 'tabla' => 'erteklista', 'oszlop_keres' => 'id', 'oszlop_keres_autocomp' => 'info', 'listaz' => 'info', 'csoport' => ERTEKLISTA_BEOSZTAS, 'id_kiir' => 'id', 'value' => $bejelentest_rogziti['beosztas_id']),
+    array('type' => 'autocomplete',    'megn' => 'Részleg:',    'megn_szurobe' => 'Rögzítő részleg:',       'name' => 'usr_reszleg_id',         'disabled' => $usr_dis,     'class' => 'kozepes bej disableNav', 'dtr_class' => ' bejelento_sor', 'szuro' => 1, 'tabla' => 'erteklista', 'oszlop_keres' => 'id', 'oszlop_keres_autocomp' => 'info', 'listaz' => 'info', 'csoport' => ERTEKLISTA_RESZLEG, 'id_kiir' => 'id', 'osszevon' => true, 'value' => $usr_reszleg, 'alert' => 'Kérem adja meg a bejelentő részlegét!'),
+    array('type' => 'autocomplete',    'megn' => '',            'megn_szurobe' => 'Részleg:',               'name' => 'usr_man_reszleg_id',     'disabled' => 1,            'class' => 'kozepes bej_rogzito disableNav', 'szuro' => 1, 'tabla' => 'erteklista', 'oszlop_keres' => 'id', 'oszlop_keres_autocomp' => 'info', 'listaz' => 'info', 'csoport' => ERTEKLISTA_RESZLEG, 'id_kiir' => 'id', 'value' => $bejelentest_rogziti['reszleg_id']),
     array('type' => 'text',            'megn' => 'Telefon:',    'megn_szurobe' => 'Rögzítő telefon:',       'name' => 'usr_telefon',            'disabled' => $usr_dis,     'maxlength' => 250, 'class' => 'kozepes bej', 'dtr_class' => ' bejelento_sor', 'szuro' => 1, 'osszevon' => true, 'letarol' => true,  'value' => $usr_telefon),
     array('type' => 'text',            'megn' => '',            'megn_szurobe' => 'Telefon:',               'name' => 'usr_man_telefon',        'disabled' => 1,            'maxlength' => 250, 'class' => 'kozepes bej_rogzito', 'szuro' => 1, 'value' => $bejelentest_rogziti['usertel']),
     array('type' => 'text',            'megn' => 'E-mail:',     'megn_szurobe' => 'Rögzítő e-mail:',        'name' => 'usr_email',              'disabled' => $usr_dis,     'maxlength' => 250, 'class' => 'kozepes bej', 'dtr_class' => ' bejelento_sor', 'szuro' => 1, 'osszevon' => true, 'letarol' => true, 'value' => $usr_email),
@@ -1229,7 +1229,7 @@ $bejelentes_tomb = $bejelentes_arch_tomb = $akt_tomb = array(
 
     array('type' => 'select_felh_telephely',   'megn' => 'Szálloda:',   'name' => 'telephely_id', 'szuro' => 1,  'class' => 'disableNav', 'style' => 'width: 100%;', 'alert' => 'Kérem válasszon szállodát!', 'onchange' => 'szallodaVane( this );', 'disabled' => $szalloda_dis, 'post' => $szalloda_post),
 
-    array('type' => 'autocomplete',    'megn' => 'Bejelentett hiba:',   'name' => 'hiba_id',      'szuro' => 1,  'class' => 'oriasi disableNav', 'tabla' => 'erteklista', 'oszlop_keres' => 'recid', 'oszlop_keres_autocomp' => 'info', 'listaz' => 'info', 'csoport' => 4, 'alert' => 'Kérem adja meg a bejelentett hibát!'),
+    array('type' => 'autocomplete',    'megn' => 'Bejelentett hiba:',   'name' => 'hiba_id',      'szuro' => 1,  'class' => 'oriasi disableNav', 'tabla' => 'erteklista', 'oszlop_keres' => 'recid', 'oszlop_keres_autocomp' => 'info', 'listaz' => 'info', 'csoport' => ERTEKLISTA_BEJ_HIBA, 'alert' => 'Kérem adja meg a bejelentett hibát!'),
     array('type' => 'textarea',        'megn' => 'Hiba leírása:',       'name' => 'hiba_text',    'szuro' => 1,  'disabled' => $disabled,    'class' => 'oriasiTargy disableNav'/*,  'limit' => 500/*Limit wysiwyg-el nem kombinálható!*/ /*, 'wysiwyg' => 'Alap'/*Min vagy Full*/, 'feltoltes' => 'Images', 'width' => '100%', 'height' => '150'),
 
     array('type' => 'autocomplete',    'megn' => 'Helyiség:',           'name' => 'obj_id',       'szuro' => 1,  'class' => 'disableNav', 'style' => 'width: calc(100% - 3rem);', 'tabla' => 'obj', 'oszlop_keres' => 'recid', 'oszlop_keres_autocomp' => 'nev', 'listaz' => 'nev', 'id_kiir' => 'recid', 'alert' => 'Kérem adja meg a Helyiséget!', 'onclick' => 'szallodaVane( this );', 'post' => '<a href="javascript: obj_gen(); void(0);" class="obj_gen"><i class="material-icons">reorder</i></a>', 'oninput' => '$(\'#gep_id_autocomp\').val(\'\'); $(\'#gep_id\').val(\'\');'),
@@ -4846,8 +4846,8 @@ foreach($postok as $ertek){
                 }
             }
 
-		//Hiba történt
-		}else{
+		// Hiba történt
+		} else {
 
 			if($errnum != '-1')    { $url .= '&errnum='.$errnum;      }
 			if($kephiba['1'] != ''){ $url .= '&kephiba='.$kephiba['1']; }
@@ -4925,6 +4925,9 @@ foreach($postok as $ertek){
         if($ertek['tabla']=='login'){
             $weblap -> leallit(); exit;
         }
+        if($ertek['tabla']=='munkalap' && !_jog(JOG_MUNKALAP_TOROL)){
+            $weblap -> leallit(); exit;
+        }
         if( $ertek['tabla']=='projektigenyles' && (!_jog(JOG_PRIGENY_S_KEZEL) && !_jog(JOG_PRIGENY_T_KEZEL)) ){
             $weblap -> leallit(); exit;
         }
@@ -4975,6 +4978,7 @@ foreach($postok as $ertek){
         // Törléssel kapcsolatos műveletek egy tranzakció
         $db_error = false;
         mysqli_autocommit($db_kapcs, false);
+        $valtozas_kapcsolodo_tablak = ''; // Ellogoljuk a kapcsoldó táblák adatait is
 
         // Ütmezett feladatoknál és társainál vagy törlés jog kell hozzá, vagy ha az nincs, akkor az kell, hogy magam hoztam létre
         if(
@@ -5004,19 +5008,27 @@ foreach($postok as $ertek){
 
         // Kapcsolódó táblák törlése
         // Megjegyzéseket általánosságban
+        $valtozas_kapcsolodo_tablak .= 'Megjegyzés törlése megjegyzes táblából: '."\n";
+        $sorok = $adatbazis_kapcsolat->s('*', 'megjegyzes', "`tabla`='{$ertek['tabla']}' AND `id`='{$_GET[$ertek['torid']]}'");
+        if( $sorok === false ) { $db_error = true; }
+        $valtozas_kapcsolodo_tablak .= logolas_kapcsolodo_tablak_sorai($sorok);
         $sql = $adatbazis_kapcsolat->d('megjegyzes', "`tabla`='{$ertek['tabla']}' AND `id`='{$_GET[$ertek['torid']]}'");
         if( $sql === false ) { $db_error = true; }
 
         // Státusz tábla törlése, hacsak nem kivételes
         $kivetelek = array('cikktorzs', 'eseti_fenntartas', 'eszkozkezeles', 'erteklista', 'felmeresi_terv', 'ktgnem', 'ktghely', 'utemezett_feladatok', 'projektszamla', 'rendszeres_karbantartas', 'szallito', 'szerepkor');
         if( !in_array($ertek['tabla'], $kivetelek) ){
+            $valtozas_kapcsolodo_tablak .= 'Státusz tábla ('.$ertek['tabla'].'_statusz) törlése: '."\n";
+            $sorok = $adatbazis_kapcsolat->s('*', $ertek['tabla'].'_statusz', "`{$ertek['tabla']}_recid`='{$_GET[$ertek['torid']]}'");
+            if( $sorok === false ) { $db_error = true; }
+            $valtozas_kapcsolodo_tablak .= logolas_kapcsolodo_tablak_sorai($sorok, $ertek['tabla']);
             $sql = $adatbazis_kapcsolat->d($ertek['tabla'].'_statusz', "`{$ertek['tabla']}_recid`='{$_GET[$ertek['torid']]}'");
             if( $sql === false ) { $db_error = true; }
         }
 
         // Dokumentumok törlése
         $torolt_fajlok = '';
-        $dokos_oldalak = array('anyagigenyles', 'bejelentes', 'eseti_fenntartas', 'eszkozkezeles', 'eszkozkezeles_eng', 'felmeresi_terv', 'fenntartasi_terv', 'munkalap', 'utemezett_feladatok', 'projektigenyles', 'rendszeres_karbantartas');
+        $dokos_oldalak = array('anyagigenyles', 'bejelentes', 'eseti_fenntartas', 'eszkozkezeles', 'eszkozkezeles_eng', 'felmeresi_terv', 'fenntartasi_terv', 'munkalap', 'utemezett_feladatok', 'projektigenyles', 'projektkezeles', 'projektszamla', 'projektszerzodes', 'rendszeres_karbantartas');
         if( in_array($ertek['tabla'], $dokos_oldalak) ){
             $fajlok = $adatbazis_kapcsolat->s('*', $ertek['tabla'].'_dok', "`{$ertek['tabla']}_id`='{$_GET[$ertek['torid']]}'");
 
@@ -5025,6 +5037,10 @@ foreach($postok as $ertek){
                 kep_torol('../'.get_utvonal().$ertek['tabla'].'/'.$fajl['utvonal']);
             }
 
+            $valtozas_kapcsolodo_tablak .= 'Dokumentum tábla ('.$ertek['tabla'].'_dok) törlése: '."\n";
+            $sorok = $adatbazis_kapcsolat->s('*', $ertek['tabla'].'_dok', "`{$ertek['tabla']}_id`='{$_GET[$ertek['torid']]}'");
+            if( $sorok === false ) { $db_error = true; }
+            $valtozas_kapcsolodo_tablak .= logolas_kapcsolodo_tablak_sorai($sorok);
             $sql = $adatbazis_kapcsolat->d($ertek['tabla'].'_dok', "`{$ertek['tabla']}_id`='{$_GET[$ertek['torid']]}'");
             if( $sql === false ) { $db_error = true; }
         }
@@ -5082,6 +5098,10 @@ Hiba: '.getErtek('info', 'erteklista', 'recid', $bejelentes['hiba_id']).$hiba_tx
             }
 
             // A munkalapos kapcsolatot is törölni kell
+            $valtozas_kapcsolodo_tablak .= 'Bejelentés törlésekor munkalap_kapcs táblából az alábbi rekordok törlődtek: '."\n";
+            $sorok = $adatbazis_kapcsolat->s('*', 'munkalap_kapcs', "`bejelentes_id`='{$_GET[$ertek['torid']]}'");
+            if( $sorok === false ) { $db_error = true; }
+            $valtozas_kapcsolodo_tablak .= logolas_kapcsolodo_tablak_sorai($sorok);
             $sql = $adatbazis_kapcsolat->d('munkalap_kapcs', "`bejelentes_id`='{$_GET[$ertek['torid']]}'");
             if( $sql === false ) { $db_error = true; }
 
@@ -5092,10 +5112,6 @@ Hiba: '.getErtek('info', 'erteklista', 'recid', $bejelentes['hiba_id']).$hiba_tx
 
         // Munkalap törlésének feltételei
         if($ertek['tabla']=='munkalap'){
-            // Ha nincs megfelelő jog, akkor kilépünk
-            if( !_jog(JOG_MUNKALAP_TOROL) ){
-                exit;
-            }
 
             // Ha van még tétele vagy bejeletése, akkor nem törölhetjük
             if(
@@ -5123,39 +5139,75 @@ Hiba: '.getErtek('info', 'erteklista', 'recid', $bejelentes['hiba_id']).$hiba_tx
 
         // Energia tervkor tranzakcióban töröljük az egységár sorait
         if($ertek['tabla']=='energia_terv'){
+            $valtozas_kapcsolodo_tablak .= 'Energia terv törlésekor energia_terv_ear táblából az alábbi rekordok törlődtek: '."\n";
+            $sorok = $adatbazis_kapcsolat->s('*', 'energia_terv_ear', "`energia_terv_id`='{$_GET[$ertek['torid']]}'");
+            if( $sorok === false ) { $db_error = true; }
+            $valtozas_kapcsolodo_tablak .= logolas_kapcsolodo_tablak_sorai($sorok);
             $sql = $adatbazis_kapcsolat->d('energia_terv_ear', "`energia_terv_id`='{$_GET[$ertek['torid']]}'");
             if( $sql === false ) { $db_error = true; }
         }
 
-        // Előterjesztéskor a kapcsolódó táblák és projektigénylés előterjesztés tábla törlése
+        // FB előterjesztés törlésekor a kapcsolódó táblák és projektigénylés előterjesztés tábla törlése
         if($ertek['tabla']=='eloterj_fb'){
             $elot = $adatbazis_kapcsolat->s2('stat_id', 'eloterj_fb', "`recid`='{$_GET[$ertek['torid']]}'");
             if($elot['stat_id']!=ELOT_FB_STAT_NYITOTT){
-                exit;//Megszakítjuk, ha nincs is nyitott státuszban
+                // Megszakítjuk, ha nincs is nyitott státuszban
+                exit;
             }
             $prigenyek = $adatbazis_kapcsolat->s('projektigenyles_recid', 'eloterj_fb_kapcs', "`eloterj_recid`='{$_GET[$ertek['torid']]}'");
             foreach($prigenyek as $pri){
+                
+                // Logolás
+                $valtozas_kapcsolodo_tablak .= 'FB előterjesztés törlésekor a projektigenyles_eloterj táblából az alábbi rekordok törlődtek: '."\n";
+                $sorok = $adatbazis_kapcsolat->s('*', 'projektigenyles_eloterj', "`recid`='{$pri['projektigenyles_recid']}'");
+                if( $sorok === false ) { $db_error = true; }
+                $valtozas_kapcsolodo_tablak .= logolas_kapcsolodo_tablak_sorai($sorok);
+                
                 $sql = $adatbazis_kapcsolat->d('projektigenyles_eloterj', "`recid`='{$pri['projektigenyles_recid']}'");
                 if( $sql === false ) { $db_error = true; }
             }
+            
+            // Logolás
+            $valtozas_kapcsolodo_tablak .= 'FB előterjesztés törlésekor a eloterj_fb_kapcs táblából az alábbi rekordok törlődtek: '."\n";
+            $sorok = $adatbazis_kapcsolat->s('*', 'eloterj_fb_kapcs', "`eloterj_recid`='{$_GET[$ertek['torid']]}'");
+            if( $sorok === false ) { $db_error = true; }
+            $valtozas_kapcsolodo_tablak .= logolas_kapcsolodo_tablak_sorai($sorok);
+            
             $sql = $adatbazis_kapcsolat->d('eloterj_fb_kapcs', "`eloterj_recid`='{$_GET[$ertek['torid']]}'");
             if( $sql === false ) { $db_error = true; }
         }
+        
+        // BoD előterjesztés törlésekor a kapcsolódó táblák és projektigénylés előterjesztés tábla törlése
         if($ertek['tabla']=='eloterj_bod'){
             $elot = $adatbazis_kapcsolat->s2('stat_id', 'eloterj_bod', "`recid`='{$_GET[$ertek['torid']]}'");
             if($elot['stat_id']!=ELOT_BOD_STAT_NYITOTT){
-                exit;// Megszakítjuk, ha nincs is nyitott státuszban
+                // Megszakítjuk, ha nincs is nyitott státuszban
+                exit;
             }
             $prigenyek = $adatbazis_kapcsolat->s('projektigenyles_recid', 'eloterj_bod_kapcs', "`eloterj_recid`='{$_GET[$ertek['torid']]}'");
             foreach($prigenyek as $pri){
+                
+                // Logolás
+                $valtozas_kapcsolodo_tablak .= 'BoD előterjesztés törlésekor a projektigenyles_eloterj táblából az alábbi rekordok törlődtek: '."\n";
+                $sorok = $adatbazis_kapcsolat->s('*', 'projektigenyles_eloterj', "`recid`='{$pri['projektigenyles_recid']}'");
+                if( $sorok === false ) { $db_error = true; }
+                $valtozas_kapcsolodo_tablak .= logolas_kapcsolodo_tablak_sorai($sorok);
+                
                 $sql = $adatbazis_kapcsolat->d('projektigenyles_eloterj', "`recid`='{$pri['projektigenyles_recid']}'");
                 if( $sql === false ) { $db_error = true; }
             }
+            
+            // Logolás
+            $valtozas_kapcsolodo_tablak .= 'BoD előterjesztés törlésekor a eloterj_fb_kapcs táblából az alábbi rekordok törlődtek: '."\n";
+            $sorok = $adatbazis_kapcsolat->s('*', 'eloterj_fb_kapcs', "`eloterj_recid`='{$_GET[$ertek['torid']]}'");
+            if( $sorok === false ) { $db_error = true; }
+            $valtozas_kapcsolodo_tablak .= logolas_kapcsolodo_tablak_sorai($sorok);
+            
             $sql = $adatbazis_kapcsolat->d('eloterj_fb_kapcs', "`eloterj_recid`='{$_GET[$ertek['torid']]}'");
             if( $sql === false ) { $db_error = true; }
         }
 
-        // Fenntartási tervnél ellenőrizzük, hogy a terv státusza és a felhasználó személyzettípusa stimmel-e.
+        // Fenntartási terv törlésénél ellenőrizzük, hogy a terv státusza és a felhasználó személyzettípusa stimmel-e.
         if($ertek['tabla']=='fenntartasi_terv'){
             $fenntartasi_terv = $adatbazis_kapcsolat->s2('stat_id', 'fenntartasi_terv', "`recid`='{$_GET[$ertek['torid']]}'");
             if( $fenntartasi_terv === false ) { $db_error = true; }
@@ -5164,41 +5216,89 @@ Hiba: '.getErtek('info', 'erteklista', 'recid', $bejelentes['hiba_id']).$hiba_tx
             }
 
             // Ha idáig eljutottunk, akkor tényleg törölhető. A fenntartási terv minden gyerek tábláját is töröljük (státusz, megjegyzés és dokumentumok fentebb már megvannak).
+            $valtozas_kapcsolodo_tablak .= 'Fenntartási terv törlésekor a fenntartasi_terv_energia táblából az alábbi rekordok törlődtek: '."\n";
+            $sorok = $adatbazis_kapcsolat->s('*', 'fenntartasi_terv_energia', "`fenntartasi_terv_id`='{$_GET[$ertek['torid']]}'");
+            if( $sorok === false ) { $db_error = true; }
+            $valtozas_kapcsolodo_tablak .= logolas_kapcsolodo_tablak_sorai($sorok);
             $del = $adatbazis_kapcsolat->d('fenntartasi_terv_energia', "`fenntartasi_terv_id`='{$_GET[$ertek['torid']]}'");
             if( $del === false ) { $db_error = true; }
+
+            $valtozas_kapcsolodo_tablak .= 'Fenntartási terv törlésekor a fenntartasi_terv_muszaki_anyag táblából az alábbi rekordok törlődtek: '."\n";
+            $sorok = $adatbazis_kapcsolat->s('*', 'fenntartasi_terv_muszaki_anyag', "`fenntartasi_terv_id`='{$_GET[$ertek['torid']]}'");
+            if( $sorok === false ) { $db_error = true; }
+            $valtozas_kapcsolodo_tablak .= logolas_kapcsolodo_tablak_sorai($sorok);            
             $del = $adatbazis_kapcsolat->d('fenntartasi_terv_muszaki_anyag', "`fenntartasi_terv_id`='{$_GET[$ertek['torid']]}'");
             if( $del === false ) { $db_error = true; }
+            
+            $valtozas_kapcsolodo_tablak .= 'Fenntartási terv törlésekor a fenntartasi_terv_rendsz_karban táblából az alábbi rekordok törlődtek: '."\n";
+            $sorok = $adatbazis_kapcsolat->s('*', 'fenntartasi_terv_rendsz_karban', "`fenntartasi_terv_id`='{$_GET[$ertek['torid']]}'");
+            if( $sorok === false ) { $db_error = true; }
+            $valtozas_kapcsolodo_tablak .= logolas_kapcsolodo_tablak_sorai($sorok);
             $del = $adatbazis_kapcsolat->d('fenntartasi_terv_rendsz_karban', "`fenntartasi_terv_id`='{$_GET[$ertek['torid']]}'");
             if( $del === false ) { $db_error = true; }
+            
+            $valtozas_kapcsolodo_tablak .= 'Fenntartási terv törlésekor a fenntartasi_terv_eseti_karban táblából az alábbi rekordok törlődtek: '."\n";
+            $sorok = $adatbazis_kapcsolat->s('*', 'fenntartasi_terv_eseti_karban', "`fenntartasi_terv_id`='{$_GET[$ertek['torid']]}'");
+            if( $sorok === false ) { $db_error = true; }
+            $valtozas_kapcsolodo_tablak .= logolas_kapcsolodo_tablak_sorai($sorok);
             $del = $adatbazis_kapcsolat->d('fenntartasi_terv_eseti_karban', "`fenntartasi_terv_id`='{$_GET[$ertek['torid']]}'");
             if( $del === false ) { $db_error = true; }
+            
+            $valtozas_kapcsolodo_tablak .= 'Fenntartási terv törlésekor a fenntartasi_terv_hibaelharitas táblából az alábbi rekordok törlődtek: '."\n";
+            $sorok = $adatbazis_kapcsolat->s('*', 'fenntartasi_terv_hibaelharitas', "`fenntartasi_terv_id`='{$_GET[$ertek['torid']]}'");
+            if( $sorok === false ) { $db_error = true; }
+            $valtozas_kapcsolodo_tablak .= logolas_kapcsolodo_tablak_sorai($sorok);
             $del = $adatbazis_kapcsolat->d('fenntartasi_terv_hibaelharitas', "`fenntartasi_terv_id`='{$_GET[$ertek['torid']]}'");
             if( $del === false ) { $db_error = true; }
+
+            $valtozas_kapcsolodo_tablak .= 'Fenntartási terv törlésekor a fenntartasi_terv_bwh táblából az alábbi rekordok törlődtek: '."\n";
+            $sorok = $adatbazis_kapcsolat->s('*', 'fenntartasi_terv_bwh', "`fenntartasi_terv_id`='{$_GET[$ertek['torid']]}'");
+            if( $sorok === false ) { $db_error = true; }
+            $valtozas_kapcsolodo_tablak .= logolas_kapcsolodo_tablak_sorai($sorok);
             $del = $adatbazis_kapcsolat->d('fenntartasi_terv_bwh', "`fenntartasi_terv_id`='{$_GET[$ertek['torid']]}'");
             if( $del === false ) { $db_error = true; }
 
         }
 
-        // Projektigénylésnél a véleményezők és azok dokumentumai
+        // Projektigénylés törléskor a véleményezők és azok dokumentumai
         if($ertek['tabla']=='projektigenyles'){
+            
+            $valtozas_kapcsolodo_tablak .= 'Projektigénylés törlésekor a projektigenyles_kapcs táblából az alábbi rekordok törlődtek: '."\n";
+            $sorok = $adatbazis_kapcsolat->s('*', 'projektigenyles_kapcs', "`projektigenyles_recid`='{$_GET[$ertek['torid']]}'");
+            if( $sorok === false ) { $db_error = true; }
+            $valtozas_kapcsolodo_tablak .= logolas_kapcsolodo_tablak_sorai($sorok);
             $sql = $adatbazis_kapcsolat->d('projektigenyles_kapcs', "`projektigenyles_recid`='{$_GET[$ertek['torid']]}'");
             if( $sql === false ) { $db_error = true; }
+            
             $velemenyek = $adatbazis_kapcsolat->s('utvonal', 'projektigenyles_velemeny', "`projektigenyles_recid`='{$_GET[$ertek['torid']]}'");
             foreach($velemenyek as $velemeny){
                 kep_torol('../'.get_utvonal().'projektigenyles_velemeny/'.$velemeny['utvonal']);
             }
+            
+            $valtozas_kapcsolodo_tablak .= 'Projektigénylés törlésekor a projektigenyles_velemeny táblából az alábbi rekordok törlődtek: '."\n";
+            $sorok = $adatbazis_kapcsolat->s('*', 'projektigenyles_velemeny', "`projektigenyles_recid`='{$_GET[$ertek['torid']]}'");
+            if( $sorok === false ) { $db_error = true; }
+            $valtozas_kapcsolodo_tablak .= logolas_kapcsolodo_tablak_sorai($sorok);
             $sql = $adatbazis_kapcsolat->d('projektigenyles_velemeny', "`projektigenyles_recid`='{$_GET[$ertek['torid']]}'");
             if( $sql === false ) { $db_error = true; }
         }
         
-        // Projektszámláknál a tételeket is törölni kell
+        // Projektszámla törlésekor a tételeket is törölni kell
         if($ertek['tabla']=='projektszamla'){
+            $valtozas_kapcsolodo_tablak .= 'Projektszámla törlésekor a projektszamla_tetel táblából az alábbi rekordok törlődtek: '."\n";
+            $sorok = $adatbazis_kapcsolat->s('*', 'projektszamla_tetel', "`projektszamla_recid`='{$_GET[$ertek['torid']]}'");
+            if( $sorok === false ) { $db_error = true; }
+            $valtozas_kapcsolodo_tablak .= logolas_kapcsolodo_tablak_sorai($sorok);
             $sql = $adatbazis_kapcsolat->d('projektszamla_tetel', "`projektszamla_recid`='{$_GET[$ertek['torid']]}'");
             if( $sql === false ) { $db_error = true; }
         }
         
-        // Projektszerződésnél a tételeket is törölni kell
+        // Projektszerződés törlésekor a tételeket is törölni kell
         if($ertek['tabla']=='projektszerzodes'){
+            $valtozas_kapcsolodo_tablak .= 'Projektszerződés törlésekor a projektszerzodes_tetel táblából az alábbi rekordok törlődtek: '."\n";
+            $sorok = $adatbazis_kapcsolat->s('*', 'projektszerzodes_tetel', "`projektszerzodes_recid`='{$_GET[$ertek['torid']]}'");
+            if( $sorok === false ) { $db_error = true; }
+            $valtozas_kapcsolodo_tablak .= logolas_kapcsolodo_tablak_sorai($sorok);
             $sql = $adatbazis_kapcsolat->d('projektszerzodes_tetel', "`projektszerzodes_recid`='{$_GET[$ertek['torid']]}'");
             if( $sql === false ) { $db_error = true; }
         }
@@ -5219,18 +5319,62 @@ Hiba: '.getErtek('info', 'erteklista', 'recid', $bejelentes['hiba_id']).$hiba_tx
 
             $i = 1;
             foreach($sor as $key => $value) {
-                $valtozas .= $i.'.: A(z) <strong>'.$key.'</strong> mezőnek a következő értéke volt: <strong>'.$value.'</strong><br>';
+                $valtozas .= $i.'. [mezo]'.$key.'[/mezo] [ertek]'.$value.'[/ertek]';
+                
+                // Bizonyos mezők esetén a címkét még külön le kell tárolni
+                switch($key){
+                    case 'hiba_id':
+                        $valtozas .= '[cimke]'.getErtekLista(ERTEKLISTA_BEJ_HIBA, '', $value).'[/cimke]';
+                    break;
+                    case 'gep_id':
+                        $valtozas .= '[cimke]'. getErtek('nev', 'eszkozkezeles', 'recid', $value).'[/cimke]';
+                    break;
+                    case 'obj_id':
+                        $valtozas .= '[cimke]'. getErtek('nev', 'obj', 'recid', $value).'[/cimke]';
+                    break;
+                    case 'usr_beosztas_id':
+                    case 'usr_man_beosztas_id':
+                        $valtozas .= '[cimke]'.getErtekLista(ERTEKLISTA_BEOSZTAS, $value).'[/cimke]';
+                    break;
+                    case 'usr_reszleg_id':
+                    case 'usr_man_reszleg_id':
+                        $valtozas .= '[cimke]'.getErtekLista(ERTEKLISTA_RESZLEG, $value).'[/cimke]';
+                    break;
+                    case 'stat_id':
+                        $valtozas .= '[cimke]'. getStatText($ertek['tabla'], $value).'[/cimke]';
+                    break;
+                    case 'szemelyzet_id':
+                        require 'selectek_szemelyzet.php';
+                        foreach( $select_szemelyzet as $szemely ){
+                            if( $szemely['value']==$value ){
+                                $valtozas .= '[cimke]'.$szemely['name'].'[/cimke]';
+                            }
+                        }
+                    break;
+                    case 'szallito_id':
+                        $valtozas .= '[cimke]'.getErtek('nev', 'szallito_id', 'id', $value).'[/cimke]';
+                    break;
+                    case 'telephely_id':
+                        $valtozas .= '[cimke]'.getSzallodaNev($value).'[/cimke]';
+                    break;
+                    case 'tipus_id':
+                    case 'tipus_id_back':
+                        $valtozas .= '[cimke]'.getErtekLista(ERTEKLISTA_MUNKALAP_TIP, $value).'[/cimke]';
+                    break;
+                }
+                
+                $valtozas .= "\n";
                 $i++;
             }
 
             if( $torolt_fajlok ) {
-                $valtozas .= '<br>Törölt fájlok:<br>'.$torolt_fajlok;
+                $valtozas .= 'Törölt fájlok:'."\n".$torolt_fajlok."\n";
             }
 
             $sql = $adatbazis_kapcsolat -> i(
                 'log',
-                array( 'felh_id',                               'nev',       'valtozas', 'ip'                   ),
-                array( $_SESSION[get_db_tabla().'login_recid'], $muvelet,    $valtozas,  $_SERVER['REMOTE_ADDR'])
+                array( 'felh_id',                               'nev',       'valtozas',                            'ip'                   ),
+                array( $_SESSION[get_db_tabla().'login_recid'], $muvelet,    $valtozas.$valtozas_kapcsolodo_tablak, $_SERVER['REMOTE_ADDR'])
             );
             if( $sql === false ) { $db_error = true; }
 
