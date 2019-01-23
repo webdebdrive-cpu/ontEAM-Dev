@@ -108,7 +108,7 @@
     <div class="kuldes">
         <input type="hidden" id="email_kuldessel" value="0">
         <input type="hidden" id="mehet_mail_nelkul" value="0">
-        <input type="button" class="gomb popup_input_margo" onclick="$('#email_kuldessel').val('1'); $('#atadasDiszpecsernekForm').submit();" value="Email küldése partnernek">
+        <input type="button" class="gomb popup_input_margo" onclick="$('#email_kuldessel').val('1'); $('#atadasDiszpecsernekForm').submit();" value="E-mail küldése partnernek">
         <input type="submit" name="elkuld" value="Igen">
         <input type="button" name="megsem" class="gombb_alert" value="Nem" onclick="popupZar();">
     </div>
@@ -166,11 +166,9 @@ function atadasDiszpecsernekDirektbe( that ) {
                         response = JSON.parse(response);
 
                         if( response.hiba ) {
-                            if( response.gomb ) {
-                                alert2(response.hiba, response.gomb, response.title);
-                            } else {
-                                alert2(response.hiba, response.gomb, response.title);
-                                $('#erteklista_id_autocomp').addClass('hibas_ide_focus');
+                            alert2(response.hiba, response.gomb, response.title);
+                            if(response.focus){
+                                $('#'+response.focus).addClass('hibas_ide_focus');
                             }
                             $('#email_kuldessel').val('0');
                             return false;
