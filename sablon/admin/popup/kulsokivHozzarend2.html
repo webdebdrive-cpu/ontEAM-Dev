@@ -95,7 +95,7 @@ function kulsokivHozzarend( that ) {
 
         if( !szallito_id.val() ) {
             alert2('Válasszon külső kivitelezőt!', '', 'Hiba');
-            document.getElementById('szallito_id_autocomp').focus();
+            $('#szallito_id_autocomp').addClass('hibas_ide_focus');
             return false;
         }
 
@@ -125,7 +125,7 @@ function kulsokivHozzarend( that ) {
                         szamlaBetolt(_get('id'), baseName(location.href) + '.php', 'modosit');
                         alert2(response.hiba, response.gomb, response.title);
                         if(response.focus){
-                            $('#'+response.focus).focus();
+                            $('#'+response.focus).addClass('hibas_ide_focus');
                         }
                         $('#email_kuldessel').val('0');
                         return false;

@@ -313,6 +313,19 @@ if ($_GET['ujkent_bejelentes']) {
     exit();
 }
 
+// Munkalap törlés előtti kérdés
+if (isset($_POST['get_ml_torles'])) {
+    
+    $munkalap = $adatbazis_kapcsolat->s2('ikt_szam', 'munkalap', "`recid`='{$_POST['id']}'");
+    
+    echo json_encode(array(
+        'kerdes'  => 'Biztosan törli a '.$munkalap['ikt_szam'].' munkalap számú munkalapot?'
+    ));
+    
+    $weblap->leallit();
+    exit();
+}
+
 // Munkalap átadás mobil csoportnak
 if( isset($_POST['munkalapMobil']) ) {
 
@@ -598,10 +611,11 @@ if( isset($_POST['munkalapKulso']) ) {
                 exit();
             }
             
-            // Ha több malcím is van, de vessző nincs, akkor szólunk
-            if(substr_count($_POST['cimzett'], '@')>1 && strpos($_POST['cimzett'], ',')===false){
+            // Címzett mezőben levő adat ellenőrzése
+            $cimzett_hibak = is_valid_mail_tobb($_POST['cimzett'], 'Hibaüzenettel');
+            if( $cimzett_hibak ){
                 echo json_encode(array(
-                    'hiba'  => 'Több címzett esetén a mailcímeket vesszővel sorolja fel!',
+                    'hiba'  => $cimzett_hibak,
                     'title' => 'Hiba',
                     'focus' => 'pop_cimzett',
                 ));
@@ -609,51 +623,29 @@ if( isset($_POST['munkalapKulso']) ) {
                 $weblap->leallit();
                 exit();
             }
-            if(substr_count($_POST['masolat'], '@')>1 && strpos($_POST['masolat'], ',')===false){
+            // Másolat mezőben levő adat ellenőrzése
+            $cimzett_hibak = is_valid_mail_tobb($_POST['masolat'], 'Hibaüzenettel');
+            if( $cimzett_hibak ){
                 echo json_encode(array(
-                    'hiba'  => 'Ha több címzett kap másolatot, a mailcímeket vesszővel sorolja fel!',
+                    'hiba'  => $cimzett_hibak,
                     'title' => 'Hiba',
-                    'gomb'  => '<input type="button" class="gomb" value="Ok" onclick="$(\'#email_kuldessel\').val(0); alert2();">',
-                    'focus' => 'pop_cimzett',
+                    'focus' => 'pop_masolat',
                 ));
 
                 $weblap->leallit();
                 exit();
             }
             
-            // Mailcímek helyességének ellenőrzése
+            // Címzettek tömb előállítása
             $mailcimek = explode(',', $_POST['cimzett']);
             $mailcimek = array_values( array_filter($mailcimek) );
-            foreach($mailcimek as $mailcim){
-                if(trim($mailcim) && !is_valid_mail(trim($mailcim))){
-                    echo json_encode(array(
-                        'hiba'  => 'Helytelen email cím: '.$mailcim,
-                        'title' => 'Hiba',
-                        'gomb'  => '<input type="button" class="gomb" value="Ok" onclick="$(\'#email_kuldessel\').val(0); alert2();">',
-                        'focus' => 'pop_cimzett',
-                    ));
-
-                    $weblap->leallit();
-                    exit();
-                }
-            }
             
+            // Másolatot kapnak tömb előállítása
             $masolatok = explode(',', $_POST['masolat']);
             array_push($masolatok, get_mszk_mail(), get_mszk_mail2()); // Így az MSZK-k is kapnak értesítő levelet
             $masolatok = array_values( array_filter($masolatok) );
-            foreach($masolatok as $masolat){
-                if(trim($masolat) && !is_valid_mail(trim($masolat))){
-                    echo json_encode(array(
-                        'hiba'  => 'Helytelen email cím: '.$masolat,
-                        'title' => 'Hiba',
-                        'gomb'  => '<input type="button" class="gomb" value="Ok" onclick="$(\'#email_kuldessel\').val(0); alert2();">',
-                        'focus' => 'pop_cimzett',
-                    ));
 
-                    $weblap->leallit();
-                    exit();
-                }
-            }
+            // Tárgy ellenőrzése
             if(!trim($_POST['targy'])){
                 echo json_encode(array(
                     'hiba'  => 'Kérem töltse ki az email tárgyát!',
@@ -665,6 +657,8 @@ if( isset($_POST['munkalapKulso']) ) {
                 $weblap->leallit();
                 exit();
             }
+            
+            // Üzenet ellenőrzése
             if(!trim($_POST['uzenet'])){
                 echo json_encode(array(
                     'hiba'  => 'Kérem töltse ki a email üzenetét!',
@@ -2319,63 +2313,41 @@ if( isset($_POST['kulsokivHozzarend']) ) {
                 exit();
             }
             
-            // Ha több malcím is van, de vessző nincs, akkor szólunk
-            if(substr_count($_POST['cimzett'], '@')>1 && strpos($_POST['cimzett'], ',')===false){
+            // Címzett mezőben levő adat ellenőrzése
+            $cimzett_hibak = is_valid_mail_tobb($_POST['cimzett'], 'Hibaüzenettel');
+            if( $cimzett_hibak ){
                 echo json_encode(array(
-                    'hiba'  => 'Több címzett esetén a mailcímeket vesszővel sorolja fel!',
+                    'hiba'  => $cimzett_hibak,
                     'title' => 'Hiba',
-                    'gomb'  => '<input type="button" class="gomb" value="Ok" onclick="$(\'#email_kuldessel\').val(0); alert2();">',
                     'focus' => 'pop_cimzett',
                 ));
 
                 $weblap->leallit();
                 exit();
             }
-            if(substr_count($_POST['masolat'], '@')>1 && strpos($_POST['masolat'], ',')===false){
+            // Másolat mezőben levő adat ellenőrzése
+            $cimzett_hibak = is_valid_mail_tobb($_POST['masolat'], 'Hibaüzenettel');
+            if( $cimzett_hibak ){
                 echo json_encode(array(
-                    'hiba'  => 'Ha több címzett kap másolatot, a mailcímeket vesszővel sorolja fel!',
+                    'hiba'  => $cimzett_hibak,
                     'title' => 'Hiba',
-                    'gomb'  => '<input type="button" class="gomb" value="Ok" onclick="$(\'#email_kuldessel\').val(0); alert2();">',
-                    'focus' => 'pop_cimzett',
+                    'focus' => 'pop_masolat',
                 ));
 
                 $weblap->leallit();
                 exit();
             }
             
-            // Mailcímek helyességének ellenőrzése
+            // Címzettek tömb előállítása
             $mailcimek = explode(',', $_POST['cimzett']);
             $mailcimek = array_values( array_filter($mailcimek) );
-            foreach($mailcimek as $mailcim){
-                if(trim($mailcim) && !is_valid_mail(trim($mailcim))){
-                    echo json_encode(array(
-                        'hiba'  => 'Helytelen email cím: '.$mailcim,
-                        'title' => 'Hiba',
-                        'gomb'  => '<input type="button" class="gomb" value="Ok" onclick="$(\'#email_kuldessel\').val(0); alert2();">',
-                        'focus' => 'pop_cimzett',
-                    ));
-
-                    $weblap->leallit();
-                    exit();
-                }
-            }
             
+            // Másolatot kapnak tömb előállítása
             $masolatok = explode(',', $_POST['masolat']);
             array_push($masolatok, get_mszk_mail(), get_mszk_mail2()); // Így az MSZK-k is kapnak értesítő levelet
             $masolatok = array_values( array_filter($masolatok) );
-            foreach($masolatok as $mailcim){
-                if(trim($mailcim) && !is_valid_mail(trim($mailcim))){
-                    echo json_encode(array(
-                        'hiba'  => 'Helytelen email cím: '.$mailcim,
-                        'title' => 'Hiba',
-                        'gomb'  => '<input type="button" class="gomb" value="Ok" onclick="$(\'#email_kuldessel\').val(0); alert2();">',
-                        'focus' => 'pop_cimzett',
-                    ));
 
-                    $weblap->leallit();
-                    exit();
-                }
-            }
+            // Tárgy ellenőrzése
             if(!trim($_POST['targy'])){
                 echo json_encode(array(
                     'hiba'  => 'Kérem töltse ki az email tárgyát!',
@@ -2387,6 +2359,8 @@ if( isset($_POST['kulsokivHozzarend']) ) {
                 $weblap->leallit();
                 exit();
             }
+            
+            // Üzenet ellenőrzése
             if(!trim($_POST['uzenet'])){
                 echo json_encode(array(
                     'hiba'  => 'Kérem töltse ki a email üzenetét!',
@@ -2743,63 +2717,41 @@ if (isset($_POST['munkalapVisszaElokeszitDirektbe'])) {
             exit();
         }
 
-        // Ha több malcím is van, de vessző nincs, akkor szólunk
-        if(substr_count($_POST['cimzett'], '@')>1 && strpos($_POST['cimzett'], ',')===false){
+        // Címzett mezőben levő adat ellenőrzése
+        $cimzett_hibak = is_valid_mail_tobb($_POST['cimzett'], 'Hibaüzenettel');
+        if( $cimzett_hibak ){
             echo json_encode(array(
-                'hiba'  => 'Több címzett esetén a mailcímeket vesszővel sorolja fel!',
+                'hiba'  => $cimzett_hibak,
                 'title' => 'Hiba',
-                'gomb'  => '<input type="button" class="gomb" value="Ok" onclick="$(\'#email_kuldessel\').val(0); alert2();">',
                 'focus' => 'pop_cimzett',
             ));
 
             $weblap->leallit();
             exit();
         }
-        if(substr_count($_POST['masolat'], '@')>1 && strpos($_POST['masolat'], ',')===false){
+        // Másolat mezőben levő adat ellenőrzése
+        $cimzett_hibak = is_valid_mail_tobb($_POST['masolat'], 'Hibaüzenettel');
+        if( $cimzett_hibak ){
             echo json_encode(array(
-                'hiba'  => 'Ha több címzett kap másolatot, a mailcímeket vesszővel sorolja fel!',
+                'hiba'  => $cimzett_hibak,
                 'title' => 'Hiba',
-                'gomb'  => '<input type="button" class="gomb" value="Ok" onclick="$(\'#email_kuldessel\').val(0); alert2();">',
-                'focus' => 'pop_cimzett',
+                'focus' => 'pop_masolat',
             ));
 
             $weblap->leallit();
             exit();
         }
 
-        // Mailcímek helyességének ellenőrzése
+        // Címzettek tömb előállítása
         $mailcimek = explode(',', $_POST['cimzett']);
         $mailcimek = array_values( array_filter($mailcimek) );
-        foreach($mailcimek as $mailcim){
-            if(trim($mailcim) && !is_valid_mail(trim($mailcim))){
-                echo json_encode(array(
-                    'hiba'  => 'Helytelen email cím: '.$mailcim,
-                    'title' => 'Hiba',
-                    'gomb'  => '<input type="button" class="gomb" value="Ok" onclick="$(\'#email_kuldessel\').val(0); alert2();">',
-                    'focus' => 'pop_cimzett',
-                ));
 
-                $weblap->leallit();
-                exit();
-            }
-        }
-        
+        // Másolatot kapnak tömb előállítása
         $masolatok = explode(',', $_POST['masolat']);
         array_push($masolatok, get_mszk_mail(), get_mszk_mail2()); // Így az MSZK-k is kapnak értesítő levelet
         $masolatok = array_values( array_filter($masolatok) );
-        foreach($masolatok as $mailcim){
-            if(trim($mailcim) && !is_valid_mail(trim($mailcim))){
-                echo json_encode(array(
-                    'hiba'  => 'Helytelen email cím: '.$mailcim,
-                    'title' => 'Hiba',
-                    'gomb'  => '<input type="button" class="gomb" value="Ok" onclick="$(\'#email_kuldessel\').val(0); alert2();">',
-                    'focus' => 'pop_cimzett',
-                ));
 
-                $weblap->leallit();
-                exit();
-            }
-        }
+        // Tárgy ellenőrzése
         if(!trim($_POST['targy'])){
             echo json_encode(array(
                 'hiba'  => 'Kérem töltse ki az email tárgyát!',
@@ -2811,6 +2763,8 @@ if (isset($_POST['munkalapVisszaElokeszitDirektbe'])) {
             $weblap->leallit();
             exit();
         }
+
+        // Üzenet ellenőrzése
         if(!trim($_POST['uzenet'])){
             echo json_encode(array(
                 'hiba'  => 'Kérem töltse ki a email üzenetét!',
@@ -4771,74 +4725,54 @@ if( isset($_POST['atadasDiszpecsernekDirektbe']) ) {
                 exit();
             }
 
-            // Ha több malcím is van, de vessző nincs, akkor szólunk
-            if(substr_count($_POST['cimzett'], '@')>1 && strpos($_POST['cimzett'], ',')===false){
+            // Címzett mezőben levő adat ellenőrzése
+            $cimzett_hibak = is_valid_mail_tobb($_POST['cimzett'], 'Hibaüzenettel');
+            if( $cimzett_hibak ){
                 echo json_encode(array(
-                    'hiba'  => 'Több címzett esetén a mailcímeket vesszővel sorolja fel!',
+                    'hiba'  => $cimzett_hibak,
                     'title' => 'Hiba',
-                    'gomb'  => '<input type="button" class="gomb" value="Ok" onclick="$(\'#email_kuldessel\').val(0); alert2();">',
                     'focus' => 'pop_cimzett',
                 ));
 
                 $weblap->leallit();
                 exit();
             }
-            if(substr_count($_POST['masolat'], '@')>1 && strpos($_POST['masolat'], ',')===false){
+            // Másolat mezőben levő adat ellenőrzése
+            $cimzett_hibak = is_valid_mail_tobb($_POST['masolat'], 'Hibaüzenettel');
+            if( $cimzett_hibak ){
                 echo json_encode(array(
-                    'hiba'  => 'Ha több címzett kap másolatot, a mailcímeket vesszővel sorolja fel!',
+                    'hiba'  => $cimzett_hibak,
                     'title' => 'Hiba',
-                    'gomb'  => '<input type="button" class="gomb" value="Ok" onclick="$(\'#email_kuldessel\').val(0); alert2();">',
-                    'focus' => 'pop_cimzett',
+                    'focus' => 'pop_masolat',
                 ));
 
                 $weblap->leallit();
                 exit();
-            }
-
-            // Mailcímek helyességének ellenőrzése
-            $mailcimek = explode(',', $_POST['cimzett']);
-            $mailcimek = array_values( array_filter($mailcimek) );
-            foreach($mailcimek as $mailcim){
-                if(trim($mailcim) && !is_valid_mail(trim($mailcim))){
-                    echo json_encode(array(
-                        'hiba'  => 'Helytelen email cím: '.$mailcim,
-                        'title' => 'Hiba',
-                        'gomb'  => '<input type="button" class="gomb" value="Ok" onclick="$(\'#email_kuldessel\').val(0); alert2();">',
-                        'focus' => 'pop_cimzett',
-                    ));
-
-                    $weblap->leallit();
-                    exit();
-                }
             }
             
+            // Címzettek tömb előállítása
+            $mailcimek = explode(',', $_POST['cimzett']);
+            $mailcimek = array_values( array_filter($mailcimek) );
+            
+            // Másolatot kapnak tömb előállítása
             $masolatok = explode(',', $_POST['masolat']);
             array_push($masolatok, get_mszk_mail(), get_mszk_mail2()); // Így az MSZK-k is kapnak értesítő levelet
             $masolatok = array_values( array_filter($masolatok) );
-            foreach($masolatok as $mailcim){
-                if(trim($mailcim) && !is_valid_mail(trim($mailcim))){
-                    echo json_encode(array(
-                        'hiba'  => 'Helytelen email cím: '.$mailcim,
-                        'title' => 'Hiba',
-                        'gomb'  => '<input type="button" class="gomb" value="Ok" onclick="$(\'#email_kuldessel\').val(0); alert2();">',
-                        'focus' => 'pop_cimzett',
-                    ));
 
-                    $weblap->leallit();
-                    exit();
-                }
-            }
-
+            // Tárgy ellenőrzése
             if(!trim($_POST['targy'])){
                 echo json_encode(array(
                     'hiba'  => 'Kérem töltse ki az email tárgyát!',
                     'title' => 'Hiba',
+                    'gomb'  => '<input type="button" class="gomb" value="Ok" onclick="$(\'#email_kuldessel\').val(0); alert2();">',
                     'focus' => 'pop_targy',
                 ));
 
                 $weblap->leallit();
                 exit();
             }
+            
+            // Üzenet ellenőrzése
             if(!trim($_POST['uzenet'])){
                 echo json_encode(array(
                     'hiba'  => 'Kérem töltse ki a email üzenetét!',
@@ -6175,63 +6109,41 @@ if (isset($_POST['munkalapVisszavetelDirektbe'])) {
             exit();
         }
 
-        // Ha több malcím is van, de vessző nincs, akkor szólunk
-        if(substr_count($_POST['cimzett'], '@')>1 && strpos($_POST['cimzett'], ',')===false){
+        // Címzett mezőben levő adat ellenőrzése
+        $cimzett_hibak = is_valid_mail_tobb($_POST['cimzett'], 'Hibaüzenettel');
+        if( $cimzett_hibak ){
             echo json_encode(array(
-                'hiba'  => 'Több címzett esetén a mailcímeket vesszővel sorolja fel!',
+                'hiba'  => $cimzett_hibak,
                 'title' => 'Hiba',
-                'gomb'  => '<input type="button" class="gomb" value="Ok" onclick="$(\'#email_kuldessel\').val(0); alert2();">',
                 'focus' => 'pop_cimzett',
             ));
 
             $weblap->leallit();
             exit();
         }
-        if(substr_count($_POST['masolat'], '@')>1 && strpos($_POST['masolat'], ',')===false){
+        // Másolat mezőben levő adat ellenőrzése
+        $cimzett_hibak = is_valid_mail_tobb($_POST['masolat'], 'Hibaüzenettel');
+        if( $cimzett_hibak ){
             echo json_encode(array(
-                'hiba'  => 'Ha több címzett kap másolatot, a mailcímeket vesszővel sorolja fel!',
+                'hiba'  => $cimzett_hibak,
                 'title' => 'Hiba',
-                'gomb'  => '<input type="button" class="gomb" value="Ok" onclick="$(\'#email_kuldessel\').val(0); alert2();">',
-                'focus' => 'pop_cimzett',
+                'focus' => 'pop_masolat',
             ));
 
             $weblap->leallit();
             exit();
         }
 
-        // Mailcímek helyességének ellenőrzése
+        // Címzettek tömb előállítása
         $mailcimek = explode(',', $_POST['cimzett']);
         $mailcimek = array_values( array_filter($mailcimek) );
-        foreach($mailcimek as $mailcim){
-            if(trim($mailcim) && !is_valid_mail(trim($mailcim))){
-                echo json_encode(array(
-                    'hiba'  => 'Helytelen email cím: '.$mailcim,
-                    'title' => 'Hiba',
-                    'gomb'  => '<input type="button" class="gomb" value="Ok" onclick="$(\'#email_kuldessel\').val(0); alert2();">',
-                    'focus' => 'pop_cimzett',
-                ));
 
-                $weblap->leallit();
-                exit();
-            }
-        }
-        
+        // Másolatot kapnak tömb előállítása
         $masolatok = explode(',', $_POST['masolat']);
         array_push($masolatok, get_mszk_mail(), get_mszk_mail2()); // Így az MSZK-k is kapnak értesítő levelet
         $masolatok = array_values( array_filter($masolatok) );
-        foreach($masolatok as $mailcim){
-            if(trim($mailcim) && !is_valid_mail(trim($mailcim))){
-                echo json_encode(array(
-                    'hiba'  => 'Helytelen email cím: '.$mailcim,
-                    'title' => 'Hiba',
-                    'gomb'  => '<input type="button" class="gomb" value="Ok" onclick="$(\'#email_kuldessel\').val(0); alert2();">',
-                    'focus' => 'pop_cimzett',
-                ));
 
-                $weblap->leallit();
-                exit();
-            }
-        }
+        // Tárgy ellenőrzése
         if(!trim($_POST['targy'])){
             echo json_encode(array(
                 'hiba'  => 'Kérem töltse ki az email tárgyát!',
@@ -6243,6 +6155,8 @@ if (isset($_POST['munkalapVisszavetelDirektbe'])) {
             $weblap->leallit();
             exit();
         }
+
+        // Üzenet ellenőrzése
         if(!trim($_POST['uzenet'])){
             echo json_encode(array(
                 'hiba'  => 'Kérem töltse ki a email üzenetét!',
@@ -7283,7 +7197,7 @@ require('selectek.php');
             }
         }*/
 
-        //Js, a törlés gombhoz
+        // Js, a törlés gombhoz
 	    $gombok = '<script>var gomb'.$_GET['id'].'= get_kibont_torol(\''.self().'\', \''.$torles.'\', \''.$_GET['id'].'\');</script>';
 
         // Csak az törölhet, akinek van ilyen joga
@@ -7296,7 +7210,7 @@ require('selectek.php');
             }elseif($adatbazis_kapcsolat->s('recid ', 'munkalap_kapcs', "`munkalap_id` = '{$_GET['id']}'")){
                 $gombok .= ' <input type="button" id="recordTorol" class="gombb_alert dn" onclick="alert2(\'Munkalap törlése előtt vegye le róla a bejelentéseket!\', \'\', \'Hiba\')" value="Töröl">';
             }else{
-                $gombok .= ' <input type="button" id="recordTorol" class="gombb_alert dn" onclick="alert2(\'Biztosan törli ezt a '.$szoveg.'?\', gomb'.$_GET['id'].')" value="Töröl">';
+                $gombok .= ' <input type="button" id="recordTorol" class="gombb_alert dn" onclick="csoportMuvelet(\'munkalapTorles\')" value="Töröl">';
             }
 
             // Munkalap adatlapja csak akkor szerkeszthető, ha a státusz nyitott vagy folyamatban

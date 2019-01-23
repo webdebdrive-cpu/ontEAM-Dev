@@ -5134,6 +5134,8 @@ Hiba: '.getErtek('info', 'erteklista', 'recid', $bejelentes['hiba_id']).$hiba_tx
             if(!$van_getid){
                 exit;
             }
+            
+            $valtozas_kapcsolodo_tablak .= 'Munkalap törlésének indoklása:'."\n".$_GET['indoklas'];
 
         }
 

@@ -112,8 +112,7 @@ function get_gomb_mindent(){
 
 /* Kibontásnál a töröl gomb HTML-je. Hogy valid legyen kiveszem JS-be. */
 function get_kibont_torol(self, torles, get_id){
-    return '<p class="c" style="margin-top: 0.5rem"><input class="gomb zold" type="button" value="Igen" onclick="szurkit(); location.href=\'' + self + '?lista&amp;' + torles + '=' + get_id + '\'">  <input class="gomb piros" type="button" value="Nem" onclick="alert2()">';
-}
+    return '<p class="c" style="margin-top: 0.5rem"><input class="gomb zold" type="button" value="Igen" onclick="szurkit(); location.href=\'' + self + '?lista&amp;' + torles + '=' + get_id + '\'"> <input class="gomb piros" type="button" value="Nem" onclick="alert2()">';}
 
 /* Kibontásnál címlap kép törlés HTML-je. Hogy valid legyen kiveszem JS-be. */
 function get_fokep_torol(self, get_id, keptorol){

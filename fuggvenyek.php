@@ -943,7 +943,7 @@ function i_u($type, $tabla, $tomb) {
                     }
 
                     if( $_POST[$key] != $value ) {
-                        $valtozas .= $i.'.: A(z) <strong>'.$key.'</strong> mező értékét <strong>"'.$value.'"</strong>-ról <strong>"'.$_POST[$key].'"</strong>-ra változtatta.<br>';
+                        $valtozas .= $i.'. [mezo]'.$key.'[/mezo] [ertek_regi]'.$value.'[/ertek_regi] [ertek_uj]'.$_POST[$key].'[/ertek_uj]'."\n";
 
                         $i++;
                     }

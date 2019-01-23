@@ -124,7 +124,7 @@ function munkaidoHozzaadas(negy_oras_kerdes_neklul) {
         });
     } else {
         alert2('Adja meg az elvégzett munkát!', '', 'Hiba');
-        document.getElementById('erteklista_id_autocomp').focus();
+        $('#erteklista_id_autocomp').addClass('hibas_ide_focus');
     }
     
     return false;
