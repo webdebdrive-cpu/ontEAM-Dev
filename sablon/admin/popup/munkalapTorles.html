@@ -18,6 +18,9 @@
 </form>
 <script>
 $(document).ready(function(){
+    
+    $('#popup').hide();
+    
     $.ajax({
         url : 'munkalap.php',
         type: 'POST',
@@ -30,6 +33,7 @@ $(document).ready(function(){
             if(response) {
                 response = JSON.parse(response);
                 $('#torles_kerdes').html(response.kerdes);
+                $('#popup').show();
             }
         }
     });
@@ -42,11 +46,13 @@ function munkalapTorles(mehet){
     /* Indoklás ellenőzése */
     var indoklas = $('#torles_memo').val().trim();
     if(!indoklas){
+        
         alert2('Kérem adja meg a törlés indoklását!', '', 'Hiba');
-        $('#torles_memo').assClass('hibas_ide_focus');
+        $('#torles_memo').addClass('hibas_ide_focus');
         return false;
-    }
-    
+        
+    }   
+
     /* Majd egy GET hívás. Ugyanaz törétnik, mint más menüpontoknál: a get_kibont_torol() függvény által előállított címre lépünk, csak itt a háttérben */
     $.ajax({
         url : 'munkalap.php',
@@ -61,6 +67,7 @@ function munkalapTorles(mehet){
             location.reload();
         }
     });
+    
 
     return false;
 }
