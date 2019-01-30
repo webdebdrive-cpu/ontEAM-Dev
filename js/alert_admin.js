@@ -13,7 +13,7 @@ function alert2(uzi, ok_gomb, cim) {
     }
 
     if( !ok_gomb ){
-        ok_gomb = '<input type="button" class="link gomb" value="Ok" onclick="alert2()">';
+        ok_gomb = '<input type="button" class="link gomb escapes_megsem" value="Ok" onclick="alert2()">';
     }
 
     /* Üres alert eltűntetés */

@@ -32,6 +32,16 @@
                         maxDate             : '+1970/01/02',
                         onChangeDateTime    : function(){ $('#mehet_gomb').removeAttr('disabled').addClass('gombb_alert'); $('#megsem_gomb').removeAttr('disabled'); }
                     });
+                    $('.datepicker_matol').datetimepicker({
+                        closeOnDateSelect   : true,
+                        format              :'Y.m.d',
+                        mask                : '\xa0\xa0\xa0\xa0.\xa0\xa0.\xa0\xa0',
+                        timepicker          : false,
+                        validateOnBlur      : false,
+                        scrollInput         : false,
+                        minDate             : '-1970/01/02',
+                        onChangeDateTime    : function(){ $('#mehet_gomb').removeAttr('disabled').addClass('gombb_alert'); $('#megsem_gomb').removeAttr('disabled'); }
+                    });
                     $('.datetimepicker').datetimepicker({
                         closeOnDateSelect   : false,
                         format              :'Y.m.d H:i',

@@ -1,9 +1,9 @@
-<h2>Tételek kezelése</h2>
+<h2>Számla tételek kezelése</h2>
 
 <div class="kozep">
     
     <div class="grid2o" style="width: 28rem">
-        <div class="b">Számla nettó értéke:</div>
+        <div class="b">Számla összege:</div>
         <div class="b r"><span id="pop_szamla_netto"></span></div>
         <div class="b">Tételek  összege:</div>
         <div class="b r"><span id="pop_tetelek_ossz"></span></div>
@@ -25,7 +25,7 @@
             <tr>
                 <th>Tárgy</th>
                 <th>Nettó érték (<span class="f_penznem"></span>)</th>
-                <!--<th>Projekt tétel</th>-->
+                <th>Szerződés tétel</th>
                 <th>Törlés</th>
             </tr>
             </thead>
@@ -37,11 +37,18 @@
     
 </div>
 <div class="kuldes">
-    <input type="button" class="gomb zold" value="Mentés" onclick="tetel_sorok_ment()">
-    <input type="button" class="gomb piros" value="Mégsem" onclick="popupZar();">
+    <input type="button" class="gomb zold" value="Mentés" onclick="tetel_sorok_ment('', 'bezárás nélkül')">
+    <input type="button" class="gomb kek" value="Mégsem" onclick="megsem_gomb();">
+    <input type="button" class="gomb piros escapes_megsem" value="Bezár" onclick="bezar_gomb();">
 </div>
 <script>
+/* JS-el figyeljük, hogy volt-e bármi változás. Ha igen, akkor Mégsem/Bezár gombra rákérdezünk, hogy biztos-e? */
+var van_valtozas = false;
+
 $(document).ready(function () {
+    
+    /* Popup bezár gombjára visszatesszük az eredeti funkciót, mert a kapcsoló popban felülírtuk egy csoportMuvelet-es utasítással */
+    $('#popup .bezar').attr('onclick', '');
     
     /* f_penznem class-ú elemek lecserélése a pénznemre */
     $('.f_penznem').each(function () {
@@ -57,8 +64,8 @@ function tetel_hozzaadasa() {
     
     var targy       = $('#pop_targy').val().trim();
     var ertek       = $('#pop_ertek').val().trim();
-    /*var pr_tetel    = $('#projekt_tetelek').val();
-    var pr_tetel_txt= $('#projekt_tetelek option:selected').text();*/
+    
+    van_valtozas = true;
 
     /* Üres adatok ellenőrzése */
     if( !targy ){
@@ -73,72 +80,64 @@ function tetel_hozzaadasa() {
         return false;
     }
 
-    /*if( !pr_tetel ){
-        alert2('Kérem válassza ki a projekt tételt!', '', 'Hiba');
-        $('#projekt_tetelek').addClass('hibas_ide_focus');
-        return false;
-    }else{
-        
-        var volt_mar = false;
-        $('.pop_pr_tetel').each(function() {
-            
-            if( $(this).attr('data-pr_tetel_recid')==pr_tetel ){
-                alert2('A "'+pr_tetel_txt+'" projekt tétel már hozzá van rendelve a számla egyik tételéhez!', '', 'Hiba');
-                $('#projekt_tetelek').addClass('hibas_ide_focus');
-                volt_mar = true;
-            }
-            
-        }).promise().done( function(){ 
-            
-            if( !volt_mar ){
-    */
-                var id_tmp = new Date().getTime();
+    var id_tmp = new Date().getTime();
 
-                var table_sor = '<tr class="pop_tetel_'+id_tmp+'">' +
-                                    '<td class="pop_targy">' + targy + '</td>' +
-                                    '<td class="pop_netto_ert r">' + ertek + '</td>' +
-                                    /*'<td class="pop_pr_tetel" data-pr_tetel_recid="' + pr_tetel + '">' + pr_tetel_txt + '</td>' +*/
-                                    '<td><a onclick="popup_tetel_sor_torol(\'pop_tetel_'+id_tmp+'\');"><span class="icon"><i class="material-icons">delete</i></span></a></td>' +
-                                '</tr>';
+    var table_sor = '<tr class="pop_tetel_'+id_tmp+'">' +
+                        '<td class="pop_targy l">' + targy + '</td>' +
+                        '<td class="pop_netto_ert r">' + ertek + '</td>' +
+                        '<td></td>' + 
+                        '<td><a onclick="popup_tetel_sor_torol(\'pop_tetel_'+id_tmp+'\');"><span class="icon"><i class="material-icons">delete</i></span></a></td>' +
+                    '</tr>';
 
-                $('#pop_tetelek tbody').append( table_sor );
-                $('#pop_tetelek').removeClass('dn');
+    $('#pop_tetelek tbody').append( table_sor );
+    $('#pop_tetelek').removeClass('dn');
 
-                $('#pop_targy').val('');
-                $('#pop_ertek').val('');
-                /*$('#projekt_tetelek').val('');*/
+    $('#pop_targy').val('');
+    $('#pop_ertek').val('');
 
-                tetelek_kiszamol();
+    tetelek_kiszamol();
 
-                $('#pop_targy').focus();
-                
-            /*}
+    $('#pop_targy').focus();
+    
+    /* A tétel sorokat csak Sessio-ba, kimentjük. Ez azért van, mert a tételek kezelése popupra rányitjuk a kapcsolás popupot, majd visszatérve ide (azaz újra betöltve) 
+     * SESSION-ből lehessen reprodukálni, de DB-be még nem menethetünk csak, ha a Mentés gombra kattintottak. */
+    /*tetel_sorok_ment('DB mentése nélkül');*/
 
-        } );
-            
-        
-    }*/
 }
 
 /* Tétel sor törlése */
 function popup_tetel_sor_torol(sor_id, mehet){
     
+    van_valtozas = true;
+    
     $('.'+sor_id).addClass('torles_elott');
     if(!mehet){
-        alert2('Biztosan törli ezt a tételt?', '<input type="button" class="gomb zold" value="Igen" onclick="popup_tetel_sor_torol(\''+sor_id+'\', \'mehet\'); alert2();"><input type="button" class="gomb piros" value="Nem" onclick="alert2(); $(\'.torles_elott\').removeClass(\'torles_elott\');">');
+        alert2( 'Tárgy: '        + $('.'+sor_id+' .pop_targy')   .html() +'<br>' +
+                'Nettó érték: '  + $('.'+sor_id+' .pop_netto_ert').html() +' ' + PENZNEM + '<br>' +
+                'Biztosan törli a számla tételt?', '<input type="button" class="gomb zold" value="Igen" onclick="popup_tetel_sor_torol(\''+sor_id+'\', \'mehet\'); alert2();"><input type="button" class="gomb piros escapes_megsem" value="Nem" onclick="alert2(); $(\'.torles_elott\').removeClass(\'torles_elott\');">');
         return false;
     }
     
-    $('.'+sor_id).remove();
-    
-    tetelek_kiszamol();
+    /* Sor törlése, újraszámolás */
+    $('.'+sor_id).fadeOut('slow', function(){
+        $('.'+sor_id).remove();
+        tetelek_kiszamol();
+    });
     
     $('#pop_targy').focus();
+    
+    /* A tétel sorokat csak Sessio-ba, kimentjük. Ez azért van, mert a tételek kezelése popupra rányitjuk a kapcsolás popupot, majd visszatérve ide (azaz újra betöltve) 
+     * SESSION-ből lehessen reprodukálni, de DB-be még nem menethetünk csak, ha a Mentés gombra kattintottak. */
+    /*tetel_sorok_ment('DB mentése nélkül');*/
 }
 
 /* Tétel sor táblázat menzése */
-function tetel_sorok_ment(){
+function tetel_sorok_ment( db_nelkul/*ezt mégsem fogjuk használni*/, bezar_nelkul ){
     
+    var recidk = [];
+    $('.pop_recid').each(function() {
+        recidk.push( $(this).html() );
+    });
     var targyak = [];
     $('.pop_targy').each(function() {
         targyak.push( $(this).html() );
@@ -153,6 +152,7 @@ function tetel_sorok_ment(){
     });
     
     var adatok = [
+                    ['recidk',    recidk],
                     ['targyak',   targyak],
                     ['netto_ert', netto_ert],
                     ['pr_tetel',  pr_tetel]
@@ -172,6 +172,7 @@ function tetel_sorok_ment(){
         type    : 'POST',
         data: {
             adatok              : JSON.stringify(adatok),
+            db_nelkul           : db_nelkul,
             recid               : _get('id'),
             szamla_netto_erteke : szamla_netto_erteke,
             tetel_sorok_ment    : Date.now()
@@ -183,10 +184,18 @@ function tetel_sorok_ment(){
                 if(response.hiba){
                     alert2(response.hiba, response.gomb, response.title);
                 }else{
-                    if( !_get('modosit') && !_get('uj') ){
-                        szamlaBetolt(_get('id'), 'projektszamla.php', 'tetel');
+                    
+                    /* Adatlapot csak akkor frissítünk, és popupot csak akkor zárunk ha DB-be is elmentjük */
+                    if( !db_nelkul ){
+                        if( !_get('modosit') && !_get('uj') ){
+                            szamlaBetolt(_get('id'), 'projektszamla.php', 'tetel');
+                        }
+                        if( !bezar_nelkul ){
+                            popupZar();
+                        }else{
+                            csoportMuvelet('projektszamla_tetelek_kezelese');
+                        }
                     }
-                    popupZar();
                 }
             }
         }
@@ -270,5 +279,44 @@ function tetelek_kiszamol() {
     }
 }
 
+/* Ez lényegében ugyanaz mint a csoportMuvelet() JS függvény, csak itt átadunk még egy számla tétel recid-t */
+function kapcsolas_popup_nyit( recid ) {
+    
+    if( van_valtozas ){
+        alert2('Szerződés tételhez kapcsolás előtt mentse a változásokat!', '', 'Hiba');
+    }else{
+        $.get('../sablon/admin/popup/projektszamla_kapcsolas.html?cache=' + new Date().getTime(), function( data ) {
+            $('#popupTart').html( data.replace('{SZAMLA_TETEL_RECID}', recid) );
+            popupNyit();
+        });
+    }
+    
+    
+}
 
+/* Azért van külön függvénye, hogy rá lehessen kérdezni */
+function megsem_gomb( mehet ) {
+    
+    /* Ha volt változtatás, és nem volt még kérdés */
+    if( van_valtozas && !mehet ){
+        alert2('A változások nincsenek mentve. Folytatja?', '<input type="button" class="gomb zold" value="Igen" onclick="megsem_gomb(\'mehet\')"><input type="button" class="gomb piros escapes_megsem" value="Nem" onclick="alert2();">', 'Kérdés');
+    }else{
+        csoportMuvelet('projektszamla_tetelek_kezelese');
+        alert2();
+    }
+    
+}
+
+/* Azért van külön függvénye, hogy rá lehessen kérdezni */
+function bezar_gomb( mehet ) {
+    
+    /* Ha volt változtatás, és nem volt még kérdés */
+    if( van_valtozas && !mehet ){
+        alert2('A változások nincsenek mentve. Folytatja?', '<input type="button" class="gomb zold" value="Igen" onclick="bezar_gomb(\'mehet\')"><input type="button" class="gomb piros escapes_megsem" value="Nem" onclick="alert2();">', 'Kérdés');
+    }else{
+        alert2();
+        popupZar();
+    }
+    
+}
 </script>

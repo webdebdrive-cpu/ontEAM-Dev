@@ -1,4 +1,4 @@
-<h2>Tételek kezelése</h2>
+<h2>Szerződés tételek kezelése</h2>
 
 <div class="kozep">
     <div class="grid2o" style="width: 28rem">
@@ -13,7 +13,7 @@
     <br>Tárgy:
     <br><input type="text" id="pop_targy" class="oriasi csillag">
     <br>Számla várh. érk.
-    <br><input type="text" id="pop_szla_varh_erk" class="datepicker csillag">
+    <br><input type="text" id="pop_szla_varh_erk" class="datepicker_matol csillag">
     <br>Számla várh. értéke:
     <br><input type="text" id="pop_szla_varh_ert" class="f_num csillag" data-tort="0"> <span class="f_penznem"></span>
     <br>Teljesítés:
@@ -30,7 +30,7 @@
                 <th>Számla várh. érk.</th>
                 <th>Számla várh. értéke (<span class="f_penznem"></span>)</th>
                 <th>Teljesítés</th>
-                <th>Érték</th>
+                <th>Nettó érték (<span class="f_penznem"></span>)</th>
                 <th>Törlés</th>
             </tr>
             </thead>
@@ -43,7 +43,7 @@
 </div>
 <div class="kuldes">
     <input type="button" class="gomb zold" value="Mentés" onclick="tetel_sorok_ment()">
-    <input type="button" class="gomb piros" value="Mégsem" onclick="popupZar();">
+    <input type="button" class="gomb piros escapes_megsem" value="Mégsem" onclick="popupZar();">
 </div>
 <script>
 $(document).ready(function () {
@@ -57,13 +57,15 @@ $(document).ready(function () {
     
     pop_tetelek_feltolt();
     
-    $('.datepicker').datetimepicker({
+    /* datepicker_matol felkonfigolása */
+    $('.datepicker_matol').datetimepicker({
         closeOnDateSelect   : true,
         format              :'Y.m.d',
         mask                : '\xa0\xa0\xa0\xa0.\xa0\xa0.\xa0\xa0',
         timepicker          : false,
         validateOnBlur      : false,
-        scrollInput         : false
+        scrollInput         : false,
+        minDate             : '-1970/01/02'
     });
 });
 
@@ -88,6 +90,17 @@ function tetel_hozzaadasa() {
 
     /* Valós dátum-e? */
     if( !valid_date($('#pop_szla_varh_erk'), 'true-val térj vissza') ){
+        alert2('Kérem valós dátumot adjon meg várható érkezésnek!', '<input type="button" value="Ok" class="gomb escapes_megsem" onclick="alert2()">', 'Hiba');
+        $('#pop_szla_varh_erk').addClass('hibas_ide_focus');
+        return false;
+    }
+    
+    /* Nem múltbeli dátum-e? */
+    var datum = new Date().toISOString();
+    datum = datum.substring(0, 10).replace(/-/g, '.');
+    if( $('#pop_szla_varh_erk').val() < datum ) {
+        alert2('A várható érkezés nem lehet múltbeli dátum!', '<input type="button" value="Ok" class="gomb escapes_megsem" onclick="alert2()">', 'Hiba');
+        $('#pop_szla_varh_erk').addClass('hibas_ide_focus');
         return false;
     }
     
@@ -100,7 +113,7 @@ function tetel_hozzaadasa() {
     var id_tmp = new Date().getTime();
 
     var table_sor = '<tr class="pop_tetel_'+id_tmp+'">' +
-                        '<td class="pop_targy">' + targy + '</td>' +
+                        '<td class="pop_targy l">' + targy + '</td>' +
                         '<td class="pop_varh_erk">' + szla_varh_erk + '</td>' +
                         '<td class="pop_varh_ert r">' + szla_varh_ert + '</td>' +
                         '<td></td>' +
@@ -121,24 +134,33 @@ function tetel_hozzaadasa() {
 }
 
 /* Tétel sor törlése */
-function popup_tetel_sor_torol(sor_id, mehet){
+function popup_tetel_sor_torol(sor_id, mehet) {
     
     $('.'+sor_id).addClass('torles_elott');
     if(!mehet){
-        alert2('Biztosan törli ezt a tételt?', '<input type="button" class="gomb zold" value="Igen" onclick="popup_tetel_sor_torol(\''+sor_id+'\', \'mehet\'); alert2();"><input type="button" class="gomb piros" value="Nem" onclick="alert2(); $(\'.torles_elott\').removeClass(\'torles_elott\');">');
+        alert2( 'Tárgy: '       + $('.'+sor_id+' .pop_targy')   .html() +'<br>' +
+                'Várh. érk.: '  + $('.'+sor_id+' .pop_varh_erk').html() +'<br>' +
+                'Várh. ért.: '  + $('.'+sor_id+' .pop_varh_ert').html() +' ' + PENZNEM + '<br>' +
+                'Biztosan törli a szerződés tételt?', '<input type="button" class="gomb zold" value="Igen" onclick="popup_tetel_sor_torol(\''+sor_id+'\', \'mehet\'); alert2();"><input type="button" class="gomb piros escapes_megsem" value="Nem" onclick="alert2(); $(\'.torles_elott\').removeClass(\'torles_elott\');">');
         return false;
     }
     
-    $('.'+sor_id).remove();
-    
-    tetelek_kiszamol();
+    /* Sor törlése, újraszámolás */
+    $('.'+sor_id).fadeOut('slow', function(){
+        $('.'+sor_id).remove();
+        tetelek_kiszamol();
+    });
     
     $('#pop_targy').focus();
 }
 
-/* Tétel sor táblázat menzése */
+/* Tétel sor táblázat mentése */
 function tetel_sorok_ment(){
     
+    var recidk = [];
+    $('.pop_recid').each(function() {
+        recidk.push( $(this).html() );
+    });
     var targyak = [];
     $('.pop_targy').each(function() {
         targyak.push( $(this).html() );
@@ -151,8 +173,9 @@ function tetel_sorok_ment(){
     $('.pop_varh_ert').each(function() {
         varh_ert.push( $(this).html() );
     });
-    
+
     var adatok = [
+                    ['recidk',   recidk],
                     ['targyak',  targyak],
                     ['varh_erk', varh_erk],
                     ['varh_ert', varh_ert]

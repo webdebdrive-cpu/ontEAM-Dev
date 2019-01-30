@@ -539,7 +539,7 @@ input.oriasi{
     width: 100%;
 }
 
-input.datepicker, input.datepicker_tegnapig, #popup div.popup_tart div.dt div.dtc input[type="text"].datepicker{
+input.datepicker, input.datepicker_tegnapig, input.datepicker_matol, #popup div.popup_tart div.dt div.dtc input[type="text"].datepicker{
     min-width: 0;
     width: 8.6rem;
     white-space: pre;
@@ -3099,9 +3099,12 @@ div.szamlaLapozas div.lapoz.pontok {
     top: 0.5rem;
 }
 
-
-tr.erkeztet_szurkit{
+tr.erkeztet_szurkit {
     opacity: 0.6;
+}
+
+tr.szerzodes_szamla_tetel_szurke {
+    opacity: 0.4;
 }
 
 #o_feltetel_halmaz b.zaro {

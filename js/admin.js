@@ -1679,28 +1679,39 @@ $(function() {
     // ESCAPE gomb lekezelése
     $(document).on('keyup', function(e) {
         if( e.keyCode == KEY_ESCAPE ) {
-
-            alert2();
-            felh_valt();
-            kijelolesEltavolit();
-
-            // Ha popupban kaptunk volna hibaüzenetet, akkor visszatérve fókuszáljunk a hibásnak jelölt inputra. Egyúttal vegyük is le ezt a classt róla
-            $('input.hibas_ide_focus, textarea.hibas_ide_focus, select.hibas_ide_focus').select().removeClass('hibas_ide_focus');
-
-            if($('#elv_ido_tol').length){
-                $('.xdsoft_datetimepicker').hide();
-            }
-
-            // A popup bezáródik, de csak akkor, ha az alert nincs nyitva
-            if( !$('#alert2').is(':visible') ){
-                popupZar();
-            // Ha viszont nyitva volt az alert, akkor nézzük meg, hogy a bezárt X-nek van-e 'mehet_megsem_mutat' class-ja? Ha van, akkor escape-ra is mutassuk meg a Mehet-Mégsem gombokat. 
-            // JS kiír függvényben külön gondoskodni kell róla, hogy az ilyen alert megkapja ezt a 'mehet_megsem_mutat' class-t
+            
+            // Ha vasn olyan Mégsem gomb mondjuk egy popup-on, aminek van escapes_megsem class-a, akkor egyszerűen csak nyomjuk meg ezt a gombot
+            if( $('.escapes_megsem').length ){
+                
+                $('.escapes_megsem').last().click(); /* Azért kell bele a last(), mert több 'escapes_megsem' albak egymársra nyitódhat, és ekkor mindig a legutóbbit kell megnyomni, bezárni */
+                
+            // Egyébként meg kezeljük le az Escape gomb lehetőségeit
             }else{
-                if( $('.bezar').hasClass('mehet_megsem_mutat') ){
-                    szurkit_zar('Mehet-Mégsem gombokat mutasd');
+                
+                alert2();
+                felh_valt();
+                kijelolesEltavolit();
+
+                // Ha popupban kaptunk volna hibaüzenetet, akkor visszatérve fókuszáljunk a hibásnak jelölt inputra. Egyúttal vegyük is le ezt a classt róla
+                $('input.hibas_ide_focus, textarea.hibas_ide_focus, select.hibas_ide_focus').select().removeClass('hibas_ide_focus');
+
+                if($('#elv_ido_tol').length){
+                    $('.xdsoft_datetimepicker').hide();
                 }
+
+                // A popup bezáródik, de csak akkor, ha az alert nincs nyitva
+                if( !$('#alert2').is(':visible') ){
+                    popupZar();
+                // Ha viszont nyitva volt az alert, akkor nézzük meg, hogy a bezárt X-nek van-e 'mehet_megsem_mutat' class-ja? Ha van, akkor escape-ra is mutassuk meg a Mehet-Mégsem gombokat. 
+                // JS kiír függvényben külön gondoskodni kell róla, hogy az ilyen alert megkapja ezt a 'mehet_megsem_mutat' class-t
+                }else{
+                    if( $('.bezar').hasClass('mehet_megsem_mutat') ){
+                        szurkit_zar('Mehet-Mégsem gombokat mutasd');
+                    }
+                }
+                
             }
+            
 
         }
     });
