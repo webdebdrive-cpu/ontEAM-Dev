@@ -65,15 +65,15 @@ function torol(fajl, objid){
         url : fajl.replace('tid', 'tidtobbkep_torol'),
         type: 'GET',
         data: esamp2es('&amp;becsapas=' + new Date().getTime()),
-        success: function(html) {
-            if(html.substring(0, 6)=='SESKIL'){ location.href = 'index.php'; }
+        success: function(response) {
+            if(response.substring(0, 6)=='SESKIL'){ location.href = 'index.php'; }
             $.ajax({
                 url : fajl,
                 type: 'GET',
                 data: esamp2es('&amp;becsapas=' + new Date().getTime()),
-                success: function(html) {
-                    if(html.substring(0, 6)=='SESKIL'){ location.href = 'index.php'; }
-                    $('#bejegyzesek_szama').html(html);
+                success: function(response) {
+                    if(response.substring(0, 6)=='SESKIL'){ location.href = 'index.php'; }
+                    $('#bejegyzesek_szama').html(response);
                     $('#'+objid).fadeOut();
                     alert2();
                 }
@@ -1116,7 +1116,7 @@ $(function() {
                 }
 
             /* Dátum mező */
-            }else if( $(this).hasClass('datepicker') ) {
+            }else if( $(this).hasClass('datepicker') || $(this).hasClass('datepicker_tegnapig') || $(this).hasClass('datepicker_matol') ) {
                 if( formAdatok[name] && formAdatok[name] != '0000-00-00' ) {
 
                     var date = new Date(formAdatok[name]);

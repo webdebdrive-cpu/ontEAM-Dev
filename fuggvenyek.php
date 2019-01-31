@@ -493,6 +493,11 @@ function i_u($type, $tabla, $tomb) {
 
             array_push($oszlopok, 'loginnev'                        );
             array_push($ertekek,   $_SESSION[get_db_tabla().'user'] );
+            
+            // Ha nincs új feltöltés jogunk, akkor kilépünk
+            if( !_jog(JOG_PRIGENY_LETREHOZ) ){
+                exit;
+            }
 
         // Projektkezelés
         } else if( $tabla == 'projektkezeles' ) {
@@ -943,7 +948,7 @@ function i_u($type, $tabla, $tomb) {
                     }
 
                     if( $_POST[$key] != $value ) {
-                        $valtozas .= $i.'. [mezo]'.$key.'[/mezo] [ertek_regi]'.$value.'[/ertek_regi] [ertek_uj]'.$_POST[$key].'[/ertek_uj]'."\n";
+                        $valtozas .= '[mezo]'.$key.'[/mezo] [ertek_regi]'.$value.'[/ertek_regi] [ertek_uj]'.$_POST[$key].'[/ertek_uj]'."\n";
 
                         $i++;
                     }
@@ -1062,8 +1067,8 @@ function i_u($type, $tabla, $tomb) {
             // Projekt számla mentésekor ellenőrizzük, hogy a dátumok nem múltbeliek-e. (Van pár, amelyiknél ezt ellenőrizni kell.)
             $csak_mult_datum_lehet = array(
                                             array('name' => 'ceghez_erk',    'alert' => 'Céghez érkezett dátumhoz csak mai, vagy múltbeli dátum adható meg!'),
-                                            array('name' => 'kelte',         'alert' => 'A számla kelte dátumhoz csak mai, vagy múltbeli dátum adható meg!'),
-                                            array('name' => 'visszaadva_dt', 'alert' => 'A visszaadva dátumhoz csak mai, vagy múltbeli dátum adható meg!'),
+                                            array('name' => 'kelte',         'alert' => 'A számla kelte dátumhoz csak mai, vagy múltbeli dátum adható meg!' ),
+                                            array('name' => 'visszaadva_dt', 'alert' => 'A visszaadva dátumhoz csak mai, vagy múltbeli dátum adható meg!'   ),
                                         );
 
             foreach($csak_mult_datum_lehet as $elem){
@@ -1079,6 +1084,21 @@ function i_u($type, $tabla, $tomb) {
                         $weblap -> leallit();
                         exit();
                     }
+                }
+            }
+            
+            // Ellenőrizzük továbbá, hogy a szálloda és a Projekt szám azonos szállodához tartozik-e
+            if( $_POST['pr_szam'] ){
+                $projekt = $adatbazis_kapcsolat->s2('telephely_id', 'projektkezeles', "`ikt_szam`='{$_POST['pr_szam']}'");
+                if( $projekt === false ) { $db_error = true; }
+                if( $projekt['telephely_id']!=$_POST['telephely_id'] ){
+                    echo json_encode(array(
+                        'hiba'  => 'A projekt szám nem megfelelő szállodához tartozik!',
+                        'gomb'  => '<input type="button" class="gomb" value="Ok" onclick="alert2(); szurkit_zar(\'mehet_megsem_mutat\');">',
+                        'title' => 'Hiba',
+                    ));
+                    $weblap -> leallit();
+                    exit();
                 }
             }
 
@@ -1135,16 +1155,18 @@ function i_u($type, $tabla, $tomb) {
             }
             
             // Ellenőrizzük továbbá, hogy a szálloda és a Projekt szám azonos szállodához tartozik-e
-            $projekt = $adatbazis_kapcsolat->s2('telephely_id', 'projektkezeles', "`ikt_szam`='{$_POST['pr_szam']}'");
-            if( $projekt === false ) { $db_error = true; }
-            if( $projekt['telephely_id']!=$_POST['telephely_id'] ){
-                echo json_encode(array(
-                    'hiba'  => 'A projekt szám nem megfelelő szállodához tartozik!',
-                    'gomb'  => '<input type="button" class="gomb" value="Ok" onclick="alert2(); szurkit_zar(\'mehet_megsem_mutat\');">',
-                    'title' => 'Hiba',
-                ));
-                $weblap -> leallit();
-                exit();
+            if( $_POST['pr_szam'] ){
+                $projekt = $adatbazis_kapcsolat->s2('telephely_id', 'projektkezeles', "`ikt_szam`='{$_POST['pr_szam']}'");
+                if( $projekt === false ) { $db_error = true; }
+                if( $projekt['telephely_id']!=$_POST['telephely_id'] ){
+                    echo json_encode(array(
+                        'hiba'  => 'A projekt szám nem megfelelő szállodához tartozik!',
+                        'gomb'  => '<input type="button" class="gomb" value="Ok" onclick="alert2(); szurkit_zar(\'mehet_megsem_mutat\');">',
+                        'title' => 'Hiba',
+                    ));
+                    $weblap -> leallit();
+                    exit();
+                }
             }
             
             // Illetve a létesítmény felelőst külön fel kell még venni, mert a tiltott mező miatt ez magától nem íródna be
@@ -2333,28 +2355,78 @@ function szamla_lista( $where, $tabla, $kijeloltek = false, $csak_sql_miatt = fa
             if( _jog(JOG_PRKEZEL_TEAM_TAG) ){
                 $team_vagyok = ' OR `'.get_db_tabla().'projektkezeles`.`recid` IN (SELECT `projektkezeles_recid` FROM `'.get_db_tabla().'projektkezeles_team` WHERE `login_recid`=\''.$_SESSION[get_db_tabla().'login_recid'].'\')';
             }
-            // Saját szállodáimat láthatom
-            $where = "(`".get_db_tabla()."projektkezeles`.`telephely_id` IN (".implode(',', $szallodak)."){$team_vagyok}) AND ";
-            // Ha van jogom saját projekteket kezelni, akkor azokat a projekteket is láthatom, ahol én vagyok a projektfelelős
-            if( _jog(JOG_PRKEZEL_MEGTEKINT) && _jog(JOG_PRKEZEL_SAJAT_KEZEL) ){
-                $where = "(".csonkit($where, 5)." OR `".get_db_tabla()."projektkezeles`.`pfelelos`='{$_SESSION[get_db_tabla().'login_recid']}'{$team_vagyok}) AND ";
+            
+            // Projekt tervek megtekintése: saját szállodák láthatósági körébe tartozó projektek lisstázása
+            $sajtat_szaloda_latokor = "`".get_db_tabla()."projektkezeles`.`telephely_id` IN (".implode(',', $szallodak).")";
+            if( _jog(JOG_PRKEZEL_MEGTEKINT) ){
+                
+                $where = "({$sajtat_szaloda_latokor}{$team_vagyok}) AND ";
+                
+            // Ha "Projekt tervek megtekintése" (JOG_PRKEZEL_MEGTEKINT) jog nincs bepipálva, csak akkor kell a többivel foglalkozni, mert a legtágabb jog kibővít minden más, szűkebb láthatóságot
+            }else{
+                
+                // Saját projektek megtekintése: ekkor csak azokat listázzuk, ahol én Projektfelelős vagyok
+                if( _jog(JOG_PRKEZEL_SAJAT_MEGTEKINT) ){
+                
+                    $where = "(`".get_db_tabla()."projektkezeles`.`pfelelos`='{$_SESSION[get_db_tabla().'login_recid']}' {$team_vagyok}) AND ";
+                
+                // Egy/több szálloda láthatósági feltétele
+                }elseif( _jog(JOG_PR_EGYSZALL_MEGTEKINT) || _jog(JOG_PR_TOBBSZALL_MEGTEKINT) ){
+                    
+                    // Egyszálodás projekt láthatósága
+                    $lathatosag_feltetel = '';
+                    if( _jog(JOG_PR_EGYSZALL_MEGTEKINT) ){
+                        $lathatosag_feltetel .= "`".get_db_tabla()."projektkezeles`.`egy_tobb`=0 OR ";
+                    }
+
+                    // Többszállodás projekt láthatósága
+                    if( _jog(JOG_PR_TOBBSZALL_MEGTEKINT) ){
+                        $lathatosag_feltetel .= "`".get_db_tabla()."projektkezeles`.`egy_tobb`=1 OR ";
+                    }
+                    $where = "( ({$sajtat_szaloda_latokor} AND (".csonkit($lathatosag_feltetel, 4).")) {$team_vagyok}) AND ";
+                
+                // Ha csak Team tag jogunk volna
+                }else{
+                    $where = substr($team_vagyok, 4)." AND ";
+                }
+                
             }
-            // Ha nincs Projektek megtekintése jogom, de van saját kezelés jogom, akkor csak azokat a projekteket listázzuk ki, ahol én vagyok a projektfelelős
-            if( !_jog(JOG_PRKEZEL_MEGTEKINT) && _jog(JOG_PRKEZEL_SAJAT_KEZEL) ){
-                $where = "(`".get_db_tabla()."projektkezeles`.`pfelelos`='{$_SESSION[get_db_tabla().'login_recid']}'{$team_vagyok}) AND ";
-            }
+            
+            
         }
         
         // Projektszamla
         if($tabla == 'projektszamla'){
             // Saját szállodáimat láthatom
             $where = "(`".get_db_tabla()."projektszamla`.`telephely_id` IN (".implode(',', $szallodak).")) AND ";
+            // Saját számla megtekintése esetén azokat a számlákat listázzuk csak ki, amelyekhez tartozó Projekteknél én vagyok a projekt felelős
+            // Csak akkor szűkítünk tovább, ha nincs bekapcsolva a "Projekt szerződések megtekintése" globálisabb jog
+            if( _jog(JOG_PR_SAJAT_SZAMLA_MEGTEKINT) && !_jog(JOG_PRSZAMLAK_OLVAS) ){
+                // Ezt egy SQL-ként is megcsinálhattuk volna, de azért kellett külön lekérni így az ikt. számokat, mert az SQL feltételben kétszer szerpeelt volna a WHERE szó, ami elé a legvégén 
+                // egy JOIN-t még beszúrunk. Hiába írtam volnta úgy, hogy {W H E R E}, amit lecserélek, akkor sem működött.
+                $pfelelos_prek = $adatbazis_kapcsolat->s('ikt_szam', 'projektkezeles', "`pfelelos`='{$_SESSION[get_db_tabla().'login_recid']}'");
+                if( $pfelelos_prek ){
+                    $pfelelos_prek = adatbazis2tomb($pfelelos_prek, 'ikt_szam');
+                    $where .= "`".get_db_tabla()."projektszamla`.`pr_szam` IN ('". implode('\', \'', $pfelelos_prek)."') AND ";
+                }
+            }
         }
         
         // Projektszerződés
         if($tabla == 'projektszerzodes'){
             // Saját szállodáimat láthatom
-            $where = "(`".get_db_tabla()."projektszerzodes`.`telephely_id` IN (".implode(',', $szallodak)."){$team_vagyok}) AND ";
+            $where = "(`".get_db_tabla()."projektszerzodes`.`telephely_id` IN (".implode(',', $szallodak).")) AND ";
+            // Saját szerződés megtekintése esetén azokat a szerződéseket listázzuk csak ki, amelyekhez tartozó Projekteknél én vagyok a projekt felelős
+            // Csak akkor szűkítünk tovább, ha nincs bekapcsolva a "Projekt szerződések megtekintése" globálisabb jog
+            if( _jog(JOG_PR_SAJAT_SZERZ_MEGTEKINT) && !_jog(JOG_PRKEZEL_SZERZODES_OLVAS) ){
+                // Ezt egy SQL-ként is megcsinálhattuk volna, de azért kellett külön lekérni így az ikt. számokat, mert az SQL feltételben kétszer szerpeelt volna a WHERE szó, ami elé a legvégén 
+                // egy JOIN-t még beszúrunk. Hiába írtam volnta úgy, hogy {W H E R E}, amit lecserélek, akkor sem működött.
+                $pfelelos_prek = $adatbazis_kapcsolat->s('ikt_szam', 'projektkezeles', "`pfelelos`='{$_SESSION[get_db_tabla().'login_recid']}'");
+                if( $pfelelos_prek ){
+                    $pfelelos_prek = adatbazis2tomb($pfelelos_prek, 'ikt_szam');
+                    $where .= "`".get_db_tabla()."projektszerzodes`.`pr_szam` IN ('". implode('\', \'', $pfelelos_prek)."') AND ";
+                }
+            }
         }
 
         // Rendszeres karbantartás
@@ -6396,6 +6468,7 @@ function get_akt_tomb($megn){
     global $utemezett_feladatok_tomb;
     global $projektigenyles_tomb;
     global $projektkezeles_tomb;
+    global $projektszamla_tomb;
     global $projektszerzodes_tomb;
     global $rendszeres_karbantartas_tomb;
     global $szallito_tomb;
@@ -6418,6 +6491,7 @@ function get_akt_tomb($megn){
         case 'utemezett_feladatok'      : case 'utemezett_feladatok_arch'       : $akt_tomb = $utemezett_feladatok_tomb;    break;
         case 'projektigenyles'          : case 'projektigenyles_arch'           : $akt_tomb = $projektigenyles_tomb;        break;
         case 'projektkezeles'           : case 'projektkezeles_arch'            : $akt_tomb = $projektkezeles_tomb;         break;
+        case 'projektszamla'            : case 'projektszamla_arch'             : $akt_tomb = $projektszamla_tomb;          break;
         case 'projektszerzodes'         : case 'projektszerzodes_arch'          : $akt_tomb = $projektszerzodes_tomb;       break;
         case 'rendszeres_karbantartas'  : case 'rendszeres_karbantartas_arch'   : $akt_tomb = $rendszeres_karbantartas_tomb;break;
         case 'szallito'                 : case 'szallito_arch'                  : $akt_tomb = $szallito_tomb;               break;
@@ -8984,16 +9058,72 @@ function tipusos_dokumentumok($tabla) {
     }
 }
 
-// Kapott recid alapján eldönti, hogy adott Projektre van-e kezelés jogom vagy sem. Azért van itt, mert törlés bokkolása miatt az esemenyek.php-hoz is kell.
+// Kapott recid alapján eldönti, hogy adott Projektre van-e kezelés jogom vagy sem. Azért van itt, mert törlés blokkolása miatt az esemenyek.php-hoz is kell.
 function get_projekt_kezeles_jog( $recid ){
     
     global $adatbazis_kapcsolat;
-    $prk = $adatbazis_kapcsolat->s2('pfelelos telephely_id', 'projektkezeles', "`recid`='{$recid}'");
+    $prk = $adatbazis_kapcsolat->s2('pfelelos telephely_id egy_tobb', 'projektkezeles', "`recid`='{$recid}'");
+    // Sima kezelés jog esetén csak saját szállodákat kezelhetünk
     if( _jog(JOG_PRKEZEL_KEZEL) && in_array($prk['telephely_id'], get_akt_login_szallodai()) ){
         return true;
     }
+    // Saját projekt kezelés jog esetén azokat kezelhetjük, ahol projket felelős vagyok
     if( _jog(JOG_PRKEZEL_SAJAT_KEZEL) && $prk['pfelelos'] == $_SESSION[get_db_tabla().'login_recid'] ){
         return true;
+    }
+    // Egyszállodás projekt kezelésével az egyszállodás Projekteket kezelhetjük
+    if( _jog(JOG_PR_EGYSZALL_KEZEL) && $prk['egy_tobb']==0 && in_array($prk['telephely_id'], get_akt_login_szallodai()) ){
+        return true;
+    }
+    // Egyszállodás projekt kezelésével az egyszállodás Projekteket kezelhetjük
+    if( _jog(JOG_PR_TOBBSZALL_KEZEL) && $prk['egy_tobb']==1 && in_array($prk['telephely_id'], get_akt_login_szallodai()) ){
+        return true;
+    }
+    
+    return false;
+    
+}
+
+// Kapott recid alapján eldönti, hogy adott Projekt számlára van-e kezelés jogom vagy sem. Azért van itt, mert törlés blokkolása miatt az esemenyek.php-hoz is kell.
+function get_projekt_szamla_kezel_jog( $recid ){
+    
+    global $adatbazis_kapcsolat;
+    
+    // Ha van Projekt számlák kezelése globális jog, akkor biztosan kezelhetem
+    if( _jog(JOG_PRSZAMLAK_KEZEL) ){
+        return true;
+    }
+    
+    // Saját számla kezelés jog: ha a hozzá tartozó projektnek én vagyok a projektfelelőse
+    if( _jog(JOG_PR_SAJAT_SZAMLA_KEZEL) ){
+        $pr_szam  = $adatbazis_kapcsolat->s2('pr_szam', 'projektszamla', "`recid`='{$recid}'");
+        $pfelelos = $adatbazis_kapcsolat->s2('pfelelos', 'projektkezeles', "`ikt_szam`='{$pr_szam['pr_szam']}'");
+        if( $pfelelos['pfelelos']==$_SESSION[get_db_tabla().'login_recid'] ){
+            return true;
+        }
+    }
+    
+    return false;
+    
+}
+
+// Kapott recid alapján eldönti, hogy adott Projekt szerződésre van-e kezelés jogom vagy sem. Azért van itt, mert törlés blokkolása miatt az esemenyek.php-hoz is kell.
+function get_projekt_szerzodes_kezel_jog( $recid ){
+    
+    global $adatbazis_kapcsolat;
+    
+    // Ha van Projekt szerződés kezelése globális jog, akkor biztosan kezelhetem
+    if( _jog(JOG_PRKEZEL_SZERZODES_KEZEL) ){
+        return true;
+    }
+    
+    // Saját szerződés kezelés jog: ha a hozzá tartozó projektnek én vagyok a projektfelelőse
+    if( _jog(JOG_PR_SAJAT_SZERZ_KEZEL) ){
+        $pr_szam  = $adatbazis_kapcsolat->s2('pr_szam', 'projektszerzodes', "`recid`='{$recid}'");
+        $pfelelos = $adatbazis_kapcsolat->s2('pfelelos', 'projektkezeles', "`ikt_szam`='{$pr_szam['pr_szam']}'");
+        if( $pfelelos['pfelelos']==$_SESSION[get_db_tabla().'login_recid'] ){
+            return true;
+        }
     }
     
     return false;
@@ -9040,7 +9170,7 @@ function logolas_kapcsolodo_tablak_sorai($sorok, $tabla){
         $i = 1;
         foreach($sor as $key => $value) {
             
-            $valtozas .= $i.'. [mezo]'.$key.'[/mezo] [ertek]'.$value.'[/ertek]';
+            $valtozas .= '[mezo]'.$key.'[/mezo] [ertek]'.$value.'[/ertek]';
             
             switch($key){
                 case 'hiba_id':

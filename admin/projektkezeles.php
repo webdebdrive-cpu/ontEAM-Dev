@@ -1,7 +1,8 @@
 <?php
 require_once('../weblap.php');
 
-if( !_jog(JOG_PRKEZEL_MEGTEKINT) && !_jog(JOG_PRKEZEL_SAJAT_KEZEL) ) {
+// Ha egyik megtekintés joggal sem rendelkezünk
+if( !_jog(JOG_PRKEZEL_MEGTEKINT) && !_jog(JOG_PRKEZEL_SAJAT_MEGTEKINT) && !_jog(JOG_PRKEZEL_TEAM_TAG) && !_jog(JOG_PR_EGYSZALL_MEGTEKINT) && !_jog(JOG_PR_TOBBSZALL_MEGTEKINT) ) {
     if(!$_SESSION[get_db_tabla().'user']){
         $weblap -> leallit();
         header('Location: index.php');
@@ -1153,6 +1154,21 @@ require_once('selectek.php');
             fajlbol_olvas('../sablon/admin/szamla_fulek.html', true)
         );
     }
+    
+    // Az egy/több szálloás pipa beállítása
+    $szamla_html .= nl2('
+                            <script>
+                                $(document).ready(function () {
+
+                                    if( $(\'#egy_tobb\').val()>0 ){
+                                        $(\'#egy_tobb_tobb\').prop(\'checked\', true)
+                                    }else{
+                                        $(\'#egy_tobb_egy\').prop(\'checked\', true)
+                                    }
+
+                                });
+                            </script>
+                        ');
 
     // Gombok kirajzolása minden oldalra
     $gombok = '';

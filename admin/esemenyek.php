@@ -2253,8 +2253,14 @@ array_push($postok, array('tomb' => $akt_tomb, 'uj' => 'uj'.$megnevezes, 'lista'
 
 $letrehozta_mikor = '';
 if( basename(self()) == 'projektkezeles.php' && $_GET['id'] ) {
-    $prk = $adatbazis_kapcsolat->s2('stat_id insert_dt insert_usr', 'projektkezeles', "`recid`='{$_GET['id']}'");
+    $prk = $adatbazis_kapcsolat->s2('egy_tobb stat_id insert_dt insert_usr', 'projektkezeles', "`recid`='{$_GET['id']}'");
     $letrehozta_mikor .= 'Létrehozta: <b>'.$prk['insert_usr'].' '.datum_kiir($prk['insert_dt']).'</b>-kor<br>';
+    
+    $tobb_szalloda = '';
+    if($prk['egy_tobb']){
+        $tobb_szalloda = '1';
+    }
+    
 }
 
 // Szerkesztéskor a szálloda már nem módosítható.
@@ -2262,13 +2268,44 @@ $szalloda_disabled = false;
 if (isset($_GET['modosit']) || isset($_GET['igeny_id'])) {
     $szalloda_disabled = true;
 }
+
+// Ha nincs "Több szállodás igények kezelése" jogunk, akkor az Egyszállodás/Többszállodás pipák nem szerkeszthetőek.
+$tobb_szall_disabled = '';
+if(!_jog(JOG_PR_TOBBSZALL_KEZEL)){
+    $tobb_szall_disabled = ' disabled';
+}
+
 $megnevezes = 'projektkezeles';
 $projektkezeles_tomb = $akt_tomb = array(
     array('type' => 'statusz',              'megn' => 'Státusz:',               'name' => 'stat_id',        'szuro' => 1,   'oldal' => $megnevezes),
     array('type' => 'text',                 'megn' => 'Azonosító:',             'name' => 'ikt_szam',       'szuro' => 1,   'disabled' => 1,   'class' => 'normal', 'style' => 'width: 10rem', 'osszevon' => 1, 'post' => '<span style="margin-left: 2rem"></span>'),
     array('type' => 'autocomplete',         'megn' => 'Projekt felelős:',       'name' => 'pfelelos',       'szuro' => 1,   'class' => 'oriasi disableNav', 'tabla' => 'login', 'oszlop_keres' => 'recid', 'oszlop_keres_autocomp' => 'teljes_nev', 'listaz' => 'teljes_nev', 'beosztas_id' => EL_BEOSZTAS_PR_FELEOS, 'id_kiir' => 'recid', 'style' => 'width: 25rem', 'alert' => 'Kérem adja meg a projekt felelőst!'),
     array('type' => 'text',                 'megn' => 'Név:',                   'name' => 'nev',            'szuro' => 1,   'maxlength' => 250, 'class' => 'oriasi', 'alert' => 'Kérem adja meg a projekt nevét!'),
-    array('type' => 'select_felh_telephely','megn' => 'Szálloda:',              'name' => 'telephely_id',   'szuro' => 1,   'class' => 'disableNav',        'style' => 'width: 100%;', 'alert' => 'Kérem válasszon szállodát!', 'onchange' => 'szallodaVane( this );', 'disabled' => $szalloda_disabled),
+    array('type' => 'hidden','megn' => '',      'name' => 'egy_tobb'),
+    array('type' => 'html',                     'megn' => nl2('
+                                                    <div class="dtr">
+                                                        <div class="dtc form_bal">
+                                                            <span></span>
+                                                        </div>
+                                                        <div class="dtc form_jobb">
+                                                            Egyszállodás
+                                                            <div class="cb">
+                                                                <input id="egy_tobb_egy" name="egy_tobb_egy" tabindex="15" type="checkbox" class="f_pri_egytobb" data-egytobb="egy"'.$tobb_szall_disabled.'>
+                                                                <label for="egy_tobb_egy" onclick="$(\'#mehet_gomb\').addClass(\'gombb_alert\');"></label>
+                                                            </div>
+                                                            <span class="formText" style="margin-left: 4rem"></span>
+
+                                                            Többszállodás
+                                                            <div class="cb">
+                                                                <input id="egy_tobb_tobb" name="egy_tobb_tobb" tabindex="16" type="checkbox" class="f_pri_egytobb" data-egytobb="tobb"'.$tobb_szall_disabled.'>
+                                                                <label for="egy_tobb_tobb" onclick="$(\'#mehet_gomb\').addClass(\'gombb_alert\');"></label>
+                                                            </div>
+
+                                                        </div>
+                                                    </div>
+        ')),
+    array('type' => 'select_felh_telephely','megn' => 'Szálloda:',    'tobb_szalloda' => $tobb_szalloda,           'name' => 'telephely_id',   'szuro' => 1,       'class' => 'disableNav',        'style' => 'width: 100%;', 'alert' => 'Kérem válasszon szállodát!', 'onchange' => 'szallodaVane( this );', 'disabled' => $szalloda_disabled),
+    
     array('type' => 'select_pri_tipus',     'megn' => 'Tipus:',                 'name' => 'tipus',          'szuro' => 1,   'class' => 'disableNav', 'osszevon' => 1, 'post' => '<span style="margin-left: 2rem"></span>', 'style' => 'width: 15rem'),
     array('type' => 'select_pri_besorol',   'megn' => 'Besorolás:',             'name' => 'besorol',        'szuro' => 1,   'class' => 'disableNav'),
     array('type' => 'autocomplete',         'megn' => 'Prioritás:',             'name' => 'prior',          'szuro' => 1,   'class' => 'oriasi disableNav', 'tabla' => 'erteklista', 'oszlop_keres' => 'id', 'oszlop_keres_autocomp' => 'info', 'listaz' => 'info', 'csoport' => ERTEKLISTA_PROJEKT_PRIOR, 'id_kiir' => 'id', 'osszevon' => 1, 'style' => 'width: 15rem', 'post' => '<span style="margin-left: 2rem"></span>'),
@@ -2338,7 +2375,7 @@ $projektszamla_tomb = $akt_tomb = array(
     array('type' => 'text',                 'megn' => 'Nettó érték:',       'name' => 'netto',          'szuro' => 1,   'class' => 'oriasi f_num', 'data' => 'data-tort="0"', 'alert' => 'Kérem adja meg a nettó értéket!',  'post' => ' '.get_penznem().'<span style="margin-left: 2rem"></span>', 'osszevon' => 1),
     array('type' => 'text',                 'megn' => 'Bruttó érték:',      'name' => 'brutto',         'szuro' => 1,   'class' => 'oriasi f_num', 'data' => 'data-tort="0"', 'alert' => 'Kérem adja meg a bruttó értéket!', 'post' => ' '.get_penznem()),
     array('type' => 'checkbox',             'megn' => 'Visszaadva:',        'name' => 'visszaadva',     'szuro' => 1,   'class' => 'check', 'disabled' => $visszaadva_disabled, 'osszevon' => 1, 'post' => '<span style="margin-left: 2rem"></span>', 'onclick' => 'pl_szamla_visszaadva()'),
-    array('type' => 'text',                 'megn' => '',                   'name' => 'visszaadva_dt',  'szuro' => 1,   'class' => 'kicsi datepicker_tegnapig'.$visszaadva_dt_alert_class ),
+    array('type' => 'text',                 'megn' => '',                   'name' => 'visszaadva_dt',  'szuro' => 1,   'class' => 'kicsi datepicker_tegnapig'.$visszaadva_dt_alert_class, 'megn_szurobe' => 'Visszaadva dátum' ),
     array('type' => 'text',                 'megn' => 'Szerződés szám:',    'name' => 'sz_szam',        'szuro' => 1,   'disabled' => 1, 'post' => ' <span id="szerzodes_neve">'.$szerzodes_neve.'</span>'.$sz_szam_gomb),
     array('type' => 'text',                 'megn' => 'Projekt szám:',      'name' => 'pr_szam',        'szuro' => 1,   'disabled' => 1),
     array('type' => 'autocomplete',         'megn' => 'Projekt felelős:',   'name' => 'let_fel',        'szuro' => 1,   'disabled' => 1,   'class' => 'oriasi', 'tabla' => 'login', 'oszlop_keres' => 'recid', 'oszlop_keres_autocomp' => 'teljes_nev', 'listaz' => 'teljes_nev', 'beosztas_id' => EL_BEOSZTAS_PR_FELEOS, 'id_kiir' => 'recid'),
@@ -2375,7 +2412,7 @@ $projektszerzodes_tomb = $akt_tomb = array(
     array('type' => 'text',                 'megn' => 'Szerződés szám:',        'name' => 'sz_szam',        'szuro' => 1,   'class' => 'normal',            'style' => 'width: 12rem', 'disabled' => 1, 'osszevon' => 1, 'post' => '<span style="margin-left: 2rem"></span>'),
     array('type' => 'text',                 'megn' => 'Kelte:',                 'name' => 'kelte',          'szuro' => 1,   'class' => 'kicsi datepicker',  'alert' => 'Kérem adja meg a Kelte dátumát!'),
     array('type' => 'autocomplete',         'megn' => 'Szerződő partner:',      'name' => 'szallito_id',    'szuro' => 1,   'class' => 'oriasi disableNav', 'tabla' => 'szallito', 'oszlop_keres' => 'id', 'oszlop_keres_autocomp' => 'nev', 'listaz' => 'nev', 'id_kiir' => 'id', 'alert' => 'Kérem válasszon szerződő partnert!'),
-    array('type' => 'text',                 'megn' => 'Projekt szám:',          'name' => 'pr_szam',        'szuro' => 1,   'class' => 'normal', 'disabled' => 1, 'style' => 'width: 10rem', 'post' => ' <span id="projekt_neve">'.$projekt_neve.'</span>'.$pr_szam_gomb, 'alert' => 'Kérem válasszon egy projekt számot!'),
+    array('type' => 'text',                 'megn' => 'Projekt szám:',          'name' => 'pr_szam',        'szuro' => 1,   'class' => 'normal', 'disabled' => 1, 'style' => 'width: 10rem', 'post' => ' <span id="projekt_neve">'.$projekt_neve.'</span>'.$pr_szam_gomb),
     array('type' => 'textarea',             'megn' => 'Tárgy:',                 'name' => 'targy',          'szuro' => 1,   'class' => 'oriasiTargy disableNav', 'alert' => 'Kérem töltse ki a tárgy mezőt!'),
     array('type' => 'autocomplete',         'megn' => 'Költségviselő:',         'name' => 'kolt_vis',       'szuro' => 1,   'class' => 'oriasi disableNav', 'tabla' => 'erteklista', 'oszlop_keres' => 'id', 'oszlop_keres_autocomp' => 'info', 'listaz' => 'info', 'csoport' => ERTEKLISTA_KOLTSEGVISELO, 'id_kiir' => 'id',  'alert' => 'Kérem válasszon költségviselőt!'),
     array('type' => 'text',                 'megn' => 'Kivitelezés kezdete:',   'name' => 'kiv_kezd',       'szuro' => 1,   'class' => 'kicsi datepicker',  'alert' => 'Kérem adja meg a kivitelezés kezdetét!',    'osszevon' => 1, 'post' => '<span style="margin-left: 2rem"></span>'),
@@ -4928,7 +4965,7 @@ foreach($postok as $ertek){
         if($ertek['tabla']=='munkalap' && !_jog(JOG_MUNKALAP_TOROL)){
             $weblap -> leallit(); exit;
         }
-        if( $ertek['tabla']=='projektigenyles' && (!_jog(JOG_PRIGENY_S_KEZEL) && !_jog(JOG_PRIGENY_T_KEZEL)) ){
+        if( $ertek['tabla']=='projektigenyles' && !_jog(JOG_PRIGENY_S_KEZEL) && !_jog(JOG_PRIGENY_T_KEZEL) && !_jog(JOG_PRIGENY_B_KEZEL) && !_jog(JOG_PRIGENY_F_KEZEL) && !_jog(JOG_PRIGENY_SZ_KEZEL) ){
             $weblap -> leallit(); exit;
         }
         if( $ertek['tabla']=='projektkezeles' ){
@@ -4946,10 +4983,10 @@ foreach($postok as $ertek){
                 $weblap -> leallit(); exit;
             }
         }
-        if( $ertek['tabla']=='projektszamla' && !_jog(JOG_PRSZAMLAK_KEZEL) ){
+        if( $ertek['tabla']=='projektszamla' && !get_projekt_szamla_kezel_jog($_GET[$ertek['torid']]) ){
             $weblap -> leallit(); exit;
         }
-        if( $ertek['tabla']=='projektszerzodes' && !_jog(JOG_PRKEZEL_SZERZODES_KEZEL) ){
+        if( $ertek['tabla']=='projektszerzodes' && !get_projekt_szerzodes_kezel_jog($_GET[$ertek['torid']]) ){
             $weblap -> leallit(); exit;
         }
         if( $ertek['tabla']=='raktar' && !_jog(JOG_RAKTAR_KEZEL)){
@@ -5016,7 +5053,7 @@ foreach($postok as $ertek){
         if( $sql === false ) { $db_error = true; }
 
         // Státusz tábla törlése, hacsak nem kivételes
-        $kivetelek = array('cikktorzs', 'eseti_fenntartas', 'eszkozkezeles', 'erteklista', 'felmeresi_terv', 'ktgnem', 'ktghely', 'utemezett_feladatok', 'projektszamla', 'rendszeres_karbantartas', 'szallito', 'szerepkor');
+        $kivetelek = array('cikktorzs', 'eseti_fenntartas', 'eszkozkezeles', 'erteklista', 'felmeresi_terv', 'ktgnem', 'ktghely', 'utemezett_feladatok', 'projektszamla', 'projektszerzodes', 'rendszeres_karbantartas', 'szallito', 'szerepkor');
         if( !in_array($ertek['tabla'], $kivetelek) ){
             $valtozas_kapcsolodo_tablak .= 'Státusz tábla ('.$ertek['tabla'].'_statusz) törlése: '."\n";
             $sorok = $adatbazis_kapcsolat->s('*', $ertek['tabla'].'_statusz', "`{$ertek['tabla']}_recid`='{$_GET[$ertek['torid']]}'");
@@ -5297,6 +5334,17 @@ Hiba: '.getErtek('info', 'erteklista', 'recid', $bejelentes['hiba_id']).$hiba_tx
         
         // Projektszerződés törlésekor a tételeket is törölni kell
         if($ertek['tabla']=='projektszerzodes'){
+            
+            // Ha van olyan tétele, amihez van számla csatolva, akkor nem engedjük meg a törlést, inkább vágjuk itt el a működést. Ide el se juthatunk, mert már popupban kapott figyelmeztetést.
+            // Ez arra jó, hogy URL átírással se lehessen projektet törölni
+            $tetelek = $adatbazis_kapcsolat->s('recid', 'projektszerzodes_tetel', "`projektszerzodes_recid`='{$_GET[$ertek['torid']]}'");
+            foreach($tetelek as $tetel){
+                $van_szamlaja = $adatbazis_kapcsolat->s('recid', 'projektszamla_tetel', "`projektszerzodes_tetel_recid`='{$tetel['recid']}'");
+                if( $van_szamlaja ){
+                    exit;
+                }
+            }
+            
             $valtozas_kapcsolodo_tablak .= 'Projektszerződés törlésekor a projektszerzodes_tetel táblából az alábbi rekordok törlődtek: '."\n";
             $sorok = $adatbazis_kapcsolat->s('*', 'projektszerzodes_tetel', "`projektszerzodes_recid`='{$_GET[$ertek['torid']]}'");
             if( $sorok === false ) { $db_error = true; }

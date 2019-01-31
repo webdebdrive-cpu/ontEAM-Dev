@@ -380,13 +380,13 @@ if(_jog(JOG_PRIGENY_S_KEZEL) ||_jog(JOG_PRIGENY_SZ_MEGTEKINT) || _jog(JOG_PRIGEN
     if(_jog(JOG_PRIGENY_S_KEZEL) || _jog(JOG_PRIGENY_SZ_MEGTEKINT) || _jog(JOG_PRIGENY_B_MEGTEKINT) || _jog(JOG_PRIGENY_EGY_MEGTEKINT) || _jog(JOG_PRIGENY_F_MEGTEKINT) || _jog(JOG_PRIGENY_TOBB_MEGTEKINT) || _jog(JOG_PRIGENY_T_MEGTEKINT)){
         $aktmenuk .= str_replace( $akt_almenu_mit, array( $aloldalak['0'], 'Projektigénylések'  ), $almenu_sablon );
     }
-    if(_jog(JOG_PRKEZEL_MEGTEKINT)){
+    if( _jog(JOG_PRKEZEL_MEGTEKINT) || _jog(JOG_PRKEZEL_SAJAT_MEGTEKINT) || _jog(JOG_PRKEZEL_TEAM_TAG) || _jog(JOG_PR_EGYSZALL_MEGTEKINT) || _jog(JOG_PR_TOBBSZALL_MEGTEKINT) ){
         $aktmenuk .= str_replace( $akt_almenu_mit, array( $aloldalak['1'], 'Projekt tervek'     ), $almenu_sablon );
     }
-    if(_jog(JOG_PRKEZEL_SZERZODES_OLVAS)){
+    if( _jog(JOG_PRKEZEL_SZERZODES_OLVAS) || _jog(JOG_PR_SAJAT_SZERZ_MEGTEKINT) ){
         $aktmenuk .= str_replace( $akt_almenu_mit, array( $aloldalak['2'], 'Projekt szerződések'), $almenu_sablon );
     }
-    if(_jog(JOG_PRSZAMLAK_OLVAS)){
+    if( _jog(JOG_PRSZAMLAK_OLVAS) || _jog(JOG_PR_SAJAT_SZAMLA_MEGTEKINT) ){
         $aktmenuk .= str_replace( $akt_almenu_mit, array( $aloldalak['6'], 'Projekt számlák'), $almenu_sablon );
     }
     $aktmenuk .= str_replace( $akt_almenu_mit, array( $aloldalak['3'], 'Cash-flow'              ), $almenu_sablon );
@@ -1174,21 +1174,27 @@ if(basename(self())=='utemezett_feladatok.php' && !_jog(JOG_UTFEL_TOROL) ){
     $torles_icon    = '';
 }
 
+// Új Projektigénylés feltöltésekor külön jogot vizsgálunk
+if( basename(self())=='projektigenyles.php' && !_jog(JOG_PRIGENY_LETREHOZ) ){
+    $uj = $duplikal = '';
+}
 // Projektigénylések: ha egyik joga sincs meg, akkor nincs szerkesztés lehetőség
-if( basename(self())=='projektigenyles.php' && !_jog(JOG_PRIGENY_S_KEZEL) && !_jog(JOG_PRIGENY_T_KEZEL) && !_jog(JOG_PRIGENY_B_KEZEL) && !_jog(JOG_PRIGENY_F_KEZEL) && !_jog(JOG_PRIGENY_SZ_KEZEL)){
+if( basename(self())=='projektigenyles.php' && !_jog(JOG_PRIGENY_S_KEZEL) && !_jog(JOG_PRIGENY_T_KEZEL) && !_jog(JOG_PRIGENY_B_KEZEL) && !_jog(JOG_PRIGENY_F_KEZEL) && !_jog(JOG_PRIGENY_SZ_KEZEL) && !_jog(JOG_PRIGENY_EGY_KEZEL) && !_jog(JOG_PRIGENY_TOBB_KEZEL) ){
     $torles_icon    = '';
+}
+
+// Új Projektterv feltöltésekor külön jogot vizsgálunk
+if( basename(self())=='projektkezeles.php' && !_jog(JOG_PRKEZEL_UJ_LETREHOZ) ){
     $uj = $duplikal = '';
 }
 
 // Projektszámlák: ha egyik joga sincs meg, akkor nincs szerkesztés lehetőség
 if( basename(self())=='projektszamla.php' && !_jog(JOG_PRSZAMLAK_KEZEL) ){
-    $torles_icon    = '';
     $uj = $duplikal = '';
 }
 
 // Projektiszerződések: ha egyik joga sincs meg, akkor nincs szerkesztés lehetőség
 if( basename(self())=='projektszerzodes.php' && !_jog(JOG_PRKEZEL_SZERZODES_KEZEL) ){
-    $torles_icon    = '';
     $uj = $duplikal = '';
 }
 

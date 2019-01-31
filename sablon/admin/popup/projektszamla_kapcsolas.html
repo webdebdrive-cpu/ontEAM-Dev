@@ -241,10 +241,24 @@ function projektszamla_kapcsolas( mehet ) {
 /* Popup megtöltése tartalommal */
 function pop_kapcsolas_feltolt() {
     
+    /* Szerződés szám mező aktuális tartalma */
+    if( $('#sz_szam').length ){
+        sz_szam = $('#sz_szam').val();
+    }else{
+        sz_szam = $('#sz_szam_db').val();
+    }
+    if( $('#telephely_id').length ){
+        telephely_id = $('#telephely_id').val();
+    }else{
+        telephely_id = $('#telephely_id_db').val();
+    }
+    
     $.ajax({
         url : 'projektszamla.php',
         type: 'POST',
         data: {
+            telephely_id            : telephely_id,
+            sz_szam                 : sz_szam,
             id                      : _get('id'),
             szamla_tetel_recid      : $('#szamla_tetel_recid').val(),
             pop_kapcsolas_feltolt   : Date.now()
@@ -259,7 +273,9 @@ function pop_kapcsolas_feltolt() {
                     if( response.focus ){
                         $('#'+response.focus).addClass('hibas_ide_focus');
                     }
-                    popupZar();
+                    
+                    /* Ha hiba volt, akkor vissza az előző popupra */
+                    csoportMuvelet('projektszamla_tetelek_kezelese');
                     return false;
                 }
                 

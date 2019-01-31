@@ -1,7 +1,7 @@
 <?php
 /*                                                  *\
  * FONTOS:
- * 113-os ID-nál járunk
+ * 123-os ID-nál járunk
  * 13-as kategória ID-nál járunk
 \*                                                  */
 
@@ -100,6 +100,7 @@ $jogosultsagok = array(
     29 => array('nev' => 'Beosztások olvasása',         'kat' => 4, 'sor' => 5),
     30 => array('nev' => 'Beosztások kezelése',         'kat' => 4, 'sor' => 6),
     
+    123=> array('nev' => 'Új létrehozása',                          'kat' => 7, 'sor' => 0),
     39 => array('nev' => 'Saját igénylések kezelése',               'kat' => 7, 'sor' => 1),
     38 => array('nev' => 'Saját szállodák igényeinek megtekintése', 'kat' => 7, 'sor' => 2),
     60 => array('nev' => 'Saját szállodák kezelése',                'kat' => 7, 'sor' => 3),
@@ -121,13 +122,22 @@ $jogosultsagok = array(
     
     52  => array('nev' => 'Projekt tervek megtekintése',            'kat' => 10, 'sor' => 1),
     53  => array('nev' => 'Projekt tervek kezelése',                'kat' => 10, 'sor' => 2),
-    107 => array('nev' => 'Saját projektek kezelése',               'kat' => 10, 'sor' => 3, 'i' => 'projektfelelős'),
-    108 => array('nev' => 'Új létrehozása',                         'kat' => 10, 'sor' => 4),
-    109 => array('nev' => 'Projekt team tag',                       'kat' => 10, 'sor' => 5),
-    110 => array('nev' => 'Projekt szerződések megtekintése',       'kat' => 10, 'sor' => 6),
-    111 => array('nev' => 'Projekt szerződések kezelése',           'kat' => 10, 'sor' => 7),
-    112 => array('nev' => 'Projekt számlák megtekintése',           'kat' => 10, 'sor' => 8),
-    113 => array('nev' => 'Projekt számlák kezelése',               'kat' => 10, 'sor' => 9),
+    118 => array('nev' => 'Saját projektek megtekintése',           'kat' => 10, 'sor' => 3),
+    107 => array('nev' => 'Saját projektek kezelése',               'kat' => 10, 'sor' => 4, 'i' => 'projektfelelős'),
+    114 => array('nev' => 'Egy szállodás projektek megtekintése',   'kat' => 10, 'sor' => 5),
+    115 => array('nev' => 'Egy szállodás projektek kezelése',       'kat' => 10, 'sor' => 6),
+    116 => array('nev' => 'Több szállodás projektek megtekintése',  'kat' => 10, 'sor' => 7),
+    117 => array('nev' => 'Több szállodás projektek kezelése',      'kat' => 10, 'sor' => 8),
+    108 => array('nev' => 'Új létrehozása',                         'kat' => 10, 'sor' => 9),
+    109 => array('nev' => 'Projekt team tag',                       'kat' => 10, 'sor' => 10),
+    110 => array('nev' => 'Projekt szerződések megtekintése',       'kat' => 10, 'sor' => 11),
+    111 => array('nev' => 'Projekt szerződések kezelése',           'kat' => 10, 'sor' => 12),
+    119 => array('nev' => 'Saját szerződések megtekintése',         'kat' => 10, 'sor' => 13),
+    120 => array('nev' => 'Saját szerződések kezelése',             'kat' => 10, 'sor' => 14),
+    112 => array('nev' => 'Projekt számlák megtekintése',           'kat' => 10, 'sor' => 15),
+    113 => array('nev' => 'Projekt számlák kezelése',               'kat' => 10, 'sor' => 16),
+    121 => array('nev' => 'Saját számlák megtekintése',             'kat' => 10, 'sor' => 17),
+    122 => array('nev' => 'Saját számlák kezelése',                 'kat' => 10, 'sor' => 18),
 
     42 => array('nev' => 'Eszközök olvasása',                       'kat' => 8, 'sor' => 1),
     43 => array('nev' => 'Eszközök kezelése',                       'kat' => 8, 'sor' => 2),

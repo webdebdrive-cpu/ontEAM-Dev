@@ -282,8 +282,17 @@ function tetelek_kiszamol() {
 /* Ez lényegében ugyanaz mint a csoportMuvelet() JS függvény, csak itt átadunk még egy számla tétel recid-t */
 function kapcsolas_popup_nyit( recid ) {
     
+    /* Szerződés szám mező aktuális tartalma */
+    if( $('#sz_szam').length ){
+        sz_szam = $('#sz_szam').val();
+    }else{
+        sz_szam = $('#sz_szam_db').val();
+    }
+    
     if( van_valtozas ){
         alert2('Szerződés tételhez kapcsolás előtt mentse a változásokat!', '', 'Hiba');
+    }else if(!sz_szam){
+        alert2('Tételek kapcsolásához kérem előbb adjon egy szerződést a projket számlához!', '', 'Hiba');
     }else{
         $.get('../sablon/admin/popup/projektszamla_kapcsolas.html?cache=' + new Date().getTime(), function( data ) {
             $('#popupTart').html( data.replace('{SZAMLA_TETEL_RECID}', recid) );

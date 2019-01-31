@@ -1,7 +1,7 @@
 <?php
 require_once('../weblap.php');
 
-if( !_jog(JOG_PRKEZEL_SZERZODES_OLVAS) ) {
+if( !_jog(JOG_PRKEZEL_SZERZODES_OLVAS) && !_jog(JOG_PR_SAJAT_SZERZ_MEGTEKINT) ) {
     if(!$_SESSION[get_db_tabla().'user']){
         $weblap -> leallit();
         header('Location: index.php');
@@ -30,6 +30,28 @@ if($tobb_kep){
         return $megnevezes.'_id';
     }
     function get_tobbkep_tabla(){ return str_replace('.php', '', basename(self())).'_dok'; } // A képeket tartalmazó adatbázis tábla neve FONTOS: ha itt átnevezed akkor a tobbkep.php-ban is át kell írni!
+}
+
+// Lekérdezzük, hogy van-e a projekt szerződés tételei között olyan, amihez van kapcsolva számla tétel
+if (isset($_POST['van_kapcsolt_szamla'])) {
+    
+    $szerzodes_tetelek = $adatbazis_kapcsolat->s('recid', 'projektszerzodes_tetel', "`projektszerzodes_recid`='{$_POST['recid']}'");
+    foreach ( $szerzodes_tetelek as $tetel ){
+        if( $adatbazis_kapcsolat->s('recid', 'projektszamla_tetel', "`projektszerzodes_tetel_recid`='{$tetel['recid']}'") ){
+            echo json_encode( array(
+                                'hiba'  => 'A szerződésnek van olyan tétele, amihez van számla tétel kapcsolva, így a projekt nem törölhető!',
+                                'title' => 'Hiba',
+                            ) );
+            $weblap -> leallit();
+            exit;
+        }
+    }
+    
+    echo json_encode( array(
+                        'nincs'  => 'nincs csatolt számla',
+                    ) );
+    $weblap -> leallit();
+    exit;
 }
 
 // Projekt táblázat betöltése
@@ -206,19 +228,35 @@ if (isset($_POST['tetel_sorok_ment'])) {
         $_SESSION['pr_szer_tetel_varh_ert'] = $_POST['adatok'][$varh_ert_adat][1];
     }
     
+    // Loglás
+    $muvelet    = $recid.' recid-jú szerződés tételeit módosította. ';
+    $valtozas   = 'Előző állapot (a már kapcsolt sorokat nem listázva, hisz az biztosan nem változott): '."\n";
+    
     // Ha ismert a szerződés ID-ja, akkor a sorokat is updatel-jük (töröljük, majd újra beszúrjuk)
     // Azért kell az is_numeric, mert JS-ből volt, hogy itt egy 'false' értéket kaptunk, és ilyenkor sem kéne beírni még adatbázisb (új feltöltés esete).
     if( $recid && is_numeric($recid) ){
         
         // Nem törölhetünk minden tételt, hisz lehet van számla párja, és ekkor a recid-ja nem változhat, nem törölhető majd hozható létre újból.
         $szerzodes_tetelek = $adatbazis_kapcsolat->s('recid', 'projektszerzodes_tetel', "`projektszerzodes_recid`='{$recid}'");
+        if( $szerzodes_tetelek === false ) { $db_error = true; }
         foreach( $szerzodes_tetelek as $szerzodes_tetel ){
             $szamla_tetel = $adatbazis_kapcsolat->s2('recid', 'projektszamla_tetel', "`projektszerzodes_tetel_recid`='{$szerzodes_tetel['recid']}'");
             if(!$szamla_tetel){
-                $adatbazis_kapcsolat->d('projektszerzodes_tetel', "`recid`='{$szerzodes_tetel['recid']}'");
+                
+                // Logolás
+                $szerzodes_tetel_torolve = $adatbazis_kapcsolat->s('recid', 'projektszerzodes_tetel', "`projektszerzodes_recid`='{$szerzodes_tetel['recid']}'");
+                if( $szerzodes_tetel_torolve === false ) { $db_error = true; }
+                $valtozas .= logolas_kapcsolodo_tablak_sorai($szerzodes_tetel_torolve);
+                
+                // Tényleges törlés
+                $sql = $adatbazis_kapcsolat->d('projektszerzodes_tetel', "`recid`='{$szerzodes_tetel['recid']}'");
+                if( $sql === false ) { $db_error = true; }
             }
         }
 
+        // Logolás
+        $valtozas .= 'Új állapot (a már kapcsolt sorokat nem listázva, hisz az biztosan nem változott): '."\n";
+        
         $i = 0;
         foreach($_SESSION['pr_szer_tetel_targy'] as $targy){
             
@@ -230,14 +268,25 @@ if (isset($_POST['tetel_sorok_ment'])) {
 
                 $varh_erk = str_replace('.', '-', $_SESSION['pr_szer_tetel_varh_erk'][$i]);
                 $varh_ert = str_replace(' ', '',  $_SESSION['pr_szer_tetel_varh_ert'][$i]);
-                $sql = $adatbazis_kapcsolat->i('projektszerzodes_tetel',
+                $uj_szerzodes_tetel_recid = $adatbazis_kapcsolat->i('projektszerzodes_tetel',
                                                     array('projektszerzodes_recid', 'targy', 'varh_erk', 'varh_ert', 'loginnev',                          'insert_dt',    'insert_usr',                             'update_usr'                              ),
                                                     array($recid,                   $targy,  $varh_erk,  $varh_ert,  $_SESSION[get_db_tabla().'user'],    'NOW()',        $_SESSION[get_db_tabla().'teljes_nev'],   $_SESSION[get_db_tabla().'teljes_nev']    )
                                             );
-                if( $sql === false ) { $db_error = true; }
+                if( $uj_szerzodes_tetel_recid === false ) { $db_error = true; }
 
                 // Az újonnan beszúrt sor recid-ját is eltároljuk SESSION-ben.
-                $_SESSION['pr_szer_tetel_recid'][$i] = $sql;
+                $_SESSION['pr_szer_tetel_recid'][$i] = $uj_szerzodes_tetel_recid;
+                
+                // Logolás
+                $valtozas .= '[mezo]recid[/mezo] [ertek_uj]'                        .$uj_szerzodes_tetel_recid                  .'[/ertek_uj]'."\n";
+                $valtozas .= '[mezo]projektszamla_recid[/mezo] [ertek_uj]'          .$recid                                     .'[/ertek_uj]'."\n";
+                $valtozas .= '[mezo]targy[/mezo] [ertek_uj]'                        .$targy                                     .'[/ertek_uj]'."\n";
+                $valtozas .= '[mezo]varh_erk[/mezo] [ertek_uj]'                     .$varh_erk                                  .'[/ertek_uj]'."\n";
+                $valtozas .= '[mezo]varh_ert[/mezo] [ertek_uj]'                     .$varh_ert                                  .'[/ertek_uj]'."\n";
+                $valtozas .= '[mezo]loginnev[/mezo] [ertek_uj]'                     .$_SESSION[get_db_tabla().'user']           .'[/ertek_uj]'."\n";
+                $valtozas .= '[mezo]insert_dt[/mezo] [ertek_uj]'                    .date('Y-m-d H:i:s')                        .'[/ertek_uj]'."\n";
+                $valtozas .= '[mezo]insert_usr[/mezo] [ertek_uj]'                   .$_SESSION[get_db_tabla().'teljes_nev']     .'[/ertek_uj]'."\n";
+                $valtozas .= '[mezo]update_usr[/mezo] [ertek_uj]'                   .$_SESSION[get_db_tabla().'teljes_nev']     .'[/ertek_uj]'."\n";
 
             }
             
@@ -330,8 +379,8 @@ if (isset($_POST['van_tetel'])) {
         if( $elem['alert'] && ( !$_POST[$elem['name']] || ( strpos($elem['class'], 'datepicker')!==false ) && $_POST[$elem['name']]>'4000.00.00' ) ){
             echo json_encode(array(
                 'hiba'  => $elem['alert'],
-                'gomb'  => '<input type="button" class="gomb" value="Ok" onclick="alert2(); szurkit_zar(\'mehet_megsem_mutat\'); $(\'#'.$elem['name'].'\').focus();">',
                 'title' => 'Hiba',
+                'focus' => $elem['name'],
             ));
             $weblap -> leallit();
             exit();
@@ -343,8 +392,8 @@ if (isset($_POST['van_tetel'])) {
     if( $_POST['kelte']<'9000.00.00' && !valos_datum_e($_POST['kelte']) ){
         echo json_encode(array(
             'hiba'  => 'Kérem egy valós dátumot adjon meg Keltének!',
-            'gomb'  => '<input type="button" class="gomb" value="Ok" onclick="alert2(); szurkit_zar(\'mehet_megsem_mutat\'); $(\'#kelte\').focus();">',
             'title' => 'Hiba',
+            'focus' => 'kelte',
         ));
         $weblap -> leallit();
         exit();
@@ -352,8 +401,8 @@ if (isset($_POST['van_tetel'])) {
     if( $_POST['kiv_kezd']<'9000.00.00' && !valos_datum_e($_POST['kiv_kezd']) ){
         echo json_encode(array(
             'hiba'  => 'Kérem egy valós dátumot adjon meg Kivitelezés kezdésnek!',
-            'gomb'  => '<input type="button" class="gomb" value="Ok" onclick="alert2(); szurkit_zar(\'mehet_megsem_mutat\'); $(\'#kiv_kezd\').focus();">',
             'title' => 'Hiba',
+            'focus' => 'kiv_kezd',
         ));
         $weblap -> leallit();
         exit();
@@ -361,8 +410,8 @@ if (isset($_POST['van_tetel'])) {
     if( $_POST['kiv_vege']<'9000.00.00' && !valos_datum_e($_POST['kiv_vege']) ){
         echo json_encode(array(
             'hiba'  => 'Kérem egy valós dátumot adjon meg Kivitelezés végének!',
-            'gomb'  => '<input type="button" class="gomb" value="Ok" onclick="alert2(); szurkit_zar(\'mehet_megsem_mutat\'); $(\'#kiv_vege\').focus();">',
             'title' => 'Hiba',
+            'focus' => 'kiv_vege',
         ));
         $weblap -> leallit();
         exit();
@@ -370,8 +419,8 @@ if (isset($_POST['van_tetel'])) {
     if( $_POST['muszak_atv']<'9000.00.00' && !valos_datum_e($_POST['muszak_atv']) ){
         echo json_encode(array(
             'hiba'  => 'Kérem egy valós dátumot adjon meg Műszaki átvétel végének!',
-            'gomb'  => '<input type="button" class="gomb" value="Ok" onclick="alert2(); szurkit_zar(\'mehet_megsem_mutat\'); $(\'#muszak_atv\').focus();">',
             'title' => 'Hiba',
+            'focus' => 'muszak_atv',
         ));
         $weblap -> leallit();
         exit();
@@ -379,40 +428,37 @@ if (isset($_POST['van_tetel'])) {
     if( $_POST['bank_gar_vege']<'9000.00.00' && !valos_datum_e($_POST['bank_gar_vege']) ){
         echo json_encode(array(
             'hiba'  => 'Kérem egy valós dátumot adjon meg Bank garancia végének!',
-            'gomb'  => '<input type="button" class="gomb" value="Ok" onclick="alert2(); szurkit_zar(\'mehet_megsem_mutat\'); $(\'#bank_gar_vege\').focus();">',
             'title' => 'Hiba',
+            'focus' => 'bank_gar_vege',
         ));
         $weblap -> leallit();
         exit();
     }
     
     // Ellenőrizzük, hogy a kiválasztott szálloda és a projekt szám stimmel-e
-    $projekt = $adatbazis_kapcsolat->s2('telephely_id', 'projektkezeles', "`ikt_szam`='{$_POST['pr_szam']}'");
-    if( $projekt['telephely_id']!=$_POST['telephely_id'] ){
+    if( $_POST['pr_szam'] ){
+        $projekt = $adatbazis_kapcsolat->s2('telephely_id', 'projektkezeles', "`ikt_szam`='{$_POST['pr_szam']}'");
+        if( $projekt['telephely_id']!=$_POST['telephely_id'] ){
+            echo json_encode(array(
+                'hiba'  => 'A projekt szám nem megfelelő szállodához tartozik!',
+                'title' => 'Hiba',
+                'focus' => 'telephely_id',
+            ));
+            $weblap -> leallit();
+            exit();
+        }
+    }
+    
+    // A szerződött össze nem lehet negatív
+    if($_POST['szerz_ossz']<0 ){
         echo json_encode(array(
-            'hiba'  => 'A projekt szám nem megfelelő szállodához tartozik!',
-            'gomb'  => '<input type="button" class="gomb" value="Ok" onclick="alert2(); szurkit_zar(\'mehet_megsem_mutat\'); $(\'#telephely_id\').focus();">',
+            'hiba'  => 'A szerződött összeg nem lehet 0 vagy ettől kisebb!',
             'title' => 'Hiba',
+            'focus' => 'szerz_ossz',
         ));
         $weblap -> leallit();
         exit();
     }
-    
-    // 2019.01.21 Update: nem kötelező tételeket feltölteni új feltöltésnél.
-    // Ha nincs feltöltött tétel:
-    /*if( !$_SESSION['pr_szer_tetel_targy'] ){
-        
-        echo json_encode( array(
-                            'van_tetel' => 'nincs',
-                            'hiba'      => 'Nem töltött fel tételeket, így nem menthető a Projekt szerződés!',
-                            'gomb'      => '<input type="button" class="gomb" value="Ok" onclick="alert2(); szurkit_zar(\'mehet_megsem_mutat\');">',
-                            'title'     => 'Hiba',
-                        ) );
-        $weblap->leallit();
-        exit();
-        
-    // Ha van tétel, akkor még az összegek egyezését is ellenőrizni kell
-    }else{*/
     
     // Ha van feltöltött tétel, akkor az összegüknek meg kell egyezzen a szerződés összegével
     if( $_SESSION['pr_szer_tetel_targy'] ){
@@ -424,7 +470,9 @@ if (isset($_POST['van_tetel'])) {
         }
         if( $tetelek_osszege != $szerzodes_osszege ){
             echo json_encode( array(
-                                'hiba' => 'A szerződés tételeinek összege nem egyezik meg a szerződés összegével!<br>Így nem menthető!'
+                                'hiba'  => 'A szerződés tételeinek összege nem egyezik meg a szerződés összegével!<br>Így nem menthető!',
+                                'title' => 'Hiba',
+                                'focus' => 'szerz_ossz',
                             ) );
             $weblap->leallit();
             exit();
@@ -758,27 +806,39 @@ require_once('selectek.php');
         }
         
         // Törlés gomb
-        if( !_jog(JOG_PRKEZEL_SZERZODES_KEZEL) ){
+        if( !get_projekt_szerzodes_kezel_jog($_GET['id']) ){
             $gombok .= ' <input type="button" id="recordTorol" class="gombb_alert dn" onclick="alert2(\'Önnek nincs joga a projekt szerződés törléséhez!\', \'\', \'Hiba\')" value="Töröl" title="Töröl">';
         }else{
-            $gombok .= '<script>var gomb'.$_GET['id'].'= get_kibont_torol(\''.self().'\', \''.$torles.'\', \''.$_GET['id'].'\');</script>';
-            $gombok .= ' <input type="button" id="recordTorol" class="gombb_alert dn" onclick="alert2(\'Biztosan törli ezt a '.$szoveg.'?\', gomb'.$_GET['id'].')" value="Töröl" title="Töröl">';
+            
+            // Ha van már olyan tétele, ami össze van kötve számláva, akkor nem engedünk törölni
+            $van_szamla_kapcsolva = false;
+            $tetelek = $adatbazis_kapcsolat->s('recid', 'projektszerzodes_tetel', "`projektszerzodes_recid`='{$_GET['id']}'");
+            foreach($tetelek as $tetel){
+                $van_szamlaja = $adatbazis_kapcsolat->s('recid', 'projektszamla_tetel', "`projektszerzodes_tetel_recid`='{$tetel['recid']}'");
+                if( $van_szamlaja ){
+                    $van_szamla_kapcsolva = true;
+                    break;
+                }
+            }
+            if( $van_szamla_kapcsolva ){
+                $gombok .= ' <input type="button" id="recordTorol" class="gombb_alert dn" onclick="alert2(\'A szerződésnek van olyan tétele, amihez már van számla tétel kapcsolva, így nem törölhető a szerződés!\', \'\', \'Hiba\')" value="Töröl" title="Töröl">';
+            }else{
+                $gombok .= '<script>var gomb'.$_GET['id'].'= get_kibont_torol(\''.self().'\', \''.$torles.'\', \''.$_GET['id'].'\');</script>';
+                $gombok .= ' <input type="button" id="recordTorol" class="gombb_alert dn" onclick="alert2(\'Biztosan törli ezt a '.$szoveg.'?\', gomb'.$_GET['id'].')" value="Töröl" title="Töröl">';
+            }
+            
         }
         
         // Tételek kezelése
         if( _jog(JOG_PRKEZEL_SZERZODES_KEZEL) ){
             
             // Ha nincs szerződéses összeg, akkor hibaüzenet (bár ilyen elő sem fordulhat elvileg, mert már új feltöltéskor sem mentehtte volna így el)
-            $onclick = 'csoportMuvelet(\'projektszerzodes_tetelek_kezelese\');';
-            if(!$sor['szerz_ossz']){
-                $onclick = 'alert2(\'Tételek kezelése előtt adja meg a szerződött összeget!\', \'\', \'Hiba\');';
-            }
-            $gombok .= ' <input type="button" class="gomb" onclick="'.$onclick.'" value="Tételek kezelése">';
+            $gombok .= ' <input type="button" class="gomb" onclick="if( !get_szerz_ossz() || get_szerz_ossz()==0 ){ alert2(\'Tételek kezelése előtt adja meg a szerződött összeget!\', \'\', \'Hiba\'); }else if( get_szerz_ossz() < 0 ){ alert2(\'A szerződött összeg nem lehet 0 vagy negatív szám!\', \'\', \'Hiba\'); }else{ csoportMuvelet(\'projektszerzodes_tetelek_kezelese\'); }" value="Tételek kezelése">';
             // Ha nem az Adatlapon volnánk, akkor szükségünk lesz egy rejtett inputra, ami az adatbázisban levő szerződéses összeget tartalmazza, hogy bármelyik fül alatt szerkeszteni lehessen a tételeket, összehasonlítva az aktuális szerződéses összeggel
-            $gombok .= ' <input type="hidden" id="szerz_ossz_db" value="'.$sor['szerz_ossz'].'">';
+            $gombok .= ' <input type="hidden" id="szerz_ossz_db" value="'.$sor['szerz_ossz'].'"><script>function get_szerz_ossz(){ if( $(\'#szerz_ossz\').length ){ return $(\'#szerz_ossz\').val(); }else{ return $(\'#szerz_ossz_db\').val(); } }</script>';
         }
         
-        if( isset($_GET['modosit']) && _jog(JOG_PRKEZEL_SZERZODES_KEZEL) ) {
+        if( isset($_GET['modosit']) && get_projekt_szerzodes_kezel_jog($_GET['id']) ) {
             
             $gombok = nl2('
                 <div class="form_kuldes">
@@ -848,6 +908,7 @@ require_once('selectek.php');
                                 hibauzenet    = response.hiba;
                                 gomb          = response.gomb;
                                 title         = response.title;
+                                focus         = response.focus;
                             }
                             dfrd_pr_szerzodes.resolve();
                         }
@@ -859,6 +920,8 @@ require_once('selectek.php');
                 $.when(dfrd_pr_szerzodes).then(function() {
                     if( !dfrd_pr_mehet ){
                         alert2(hibauzenet, gomb, title);
+                        $(\'#\'+focus).addClass(\'hibas_ide_focus\');
+                        szurkit_zar(\'mehet_megsem_mutat\');
                         return false;
                     }else{
                         urlap_mehet = true;
@@ -998,7 +1061,7 @@ require_once('selectek.php');
                         if( !$(\'.szamla_sor.kijelolve\').length ){
                             $(\'#pr_szam_gomb\').hide(\'\');
                         }
-                    }, 100);
+                    }, 500);
                     
                 });
                 </script>
@@ -1138,3 +1201,4 @@ require_once('selectek.php');
 if( !$_GET['ajax'] ) {
     require_once('footer.php');
 }
+

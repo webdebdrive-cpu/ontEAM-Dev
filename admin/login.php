@@ -1104,9 +1104,16 @@ require_once('selectek.php');
                     if($jogSor['id']==JOG_MUNKALAP_KULSOS_DONTES){
                         $jh_ft_ig = '<input type="text" id="jh_ft_ig" name="jh_ft_ig" value="'.number_format($login['jh_ft_ig'], 0, '', ' ').'" class="f_num f_select" data-tort="0" data- style="margin-left: 5rem; width: 10rem;"> '. get_penznem().'-ig';
                     }
+                    
+                    // WebDeb szerverén mutatjuk a jog sorszámát is
+                    $sorszam = '';
+                    if( $_SERVER['HTTP_HOST'] == 'demo.webdeb.hu' ){
+                        $sorszam = '['.$jogSor['id'].'] ';
+                    }
+                    
                     $szamla_html .= nl2('
                         <div class="dtr'.$dn.'">
-                            <div class="dtc form_bal"><span>'.$jogSor['nev'].'</span>'.$jh_ft_ig.'</div>
+                            <div class="dtc form_bal"><span>'.$sorszam.$jogSor['nev'].'</span>'.$jh_ft_ig.'</div>
                             <div class="dtc form_jobb">
                                 <div class="cb">
                                     <input type="hidden" name="jog-'.$jogSor['id'].'" value="0">

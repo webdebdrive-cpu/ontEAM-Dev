@@ -1126,7 +1126,7 @@ require('selectek.php');
         );
     }
 
-    // A prigeny_tipus_beallit() függvényt meghívjuk betöltéskor
+    // A prigeny_tipus_beallit() függvényt meghívjuk betöltéskor + az egy/több szálloás pipa beállítása
     $szamla_html .= nl2('
                             <script>
                                 $(document).ready(function () {
@@ -1147,7 +1147,7 @@ require('selectek.php');
     if( isset($_GET['uj']) ) {
 
         // Újat csak kezelés joggal lehet
-        if( _jog(JOG_PRIGENY_B_KEZEL) || _jog(JOG_PRIGENY_EGY_KEZEL) || _jog(JOG_PRIGENY_F_KEZEL) || _jog(JOG_PRIGENY_SZ_KEZEL) || _jog(JOG_PRIGENY_S_KEZEL) || _jog(JOG_PRIGENY_TOBB_KEZEL) || _jog(JOG_PRIGENY_T_KEZEL) ){
+        if( _jog(JOG_PRIGENY_LETREHOZ) ){
             $gombok = nl2('
                 <div class="form_kuldes">
                     <input type="button" class="gombb mentes_gomb" name="mehet_gomb" id="mehet_gomb" disabled value="Mentés" onclick="szurkit(\'mehet_megsem_rejt\'); $(\'#szerk_form\').submit()">
@@ -1430,7 +1430,7 @@ require('selectek.php');
     }
 
 	// Új projektigénylés felvitele
-	if( isset($_GET['uj']) && (_jog(JOG_PRIGENY_S_KEZEL) || _jog(JOG_PRIGENY_T_KEZEL) || _jog(JOG_PRIGENY_B_KEZEL) || _jog(JOG_PRIGENY_F_KEZEL) || _jog(JOG_PRIGENY_SZ_KEZEL)) ){
+	if( isset($_GET['uj']) && _jog(JOG_PRIGENY_LETREHOZ) ){
 
 	    // FORM
 		if(isset($_GET['ujkent'])){
