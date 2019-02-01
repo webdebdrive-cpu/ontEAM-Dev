@@ -25,6 +25,7 @@ function pr_hozzaad_gomb_hozzaad_vagy_torol (){
                         }else{
                             $('#pr_szam').removeClass('mod');
                         }
+                        $('#projekt_neve').html('');
                         formModositva = true;
                         $('#pr_szam_gomb').val('Projekt hozzáadása').removeClass('piros');
                         $('#mehet_gomb').addClass('gombb_alert');
@@ -41,4 +42,26 @@ function pr_hozzaad_gomb_hozzaad_vagy_torol (){
         }
     });
     
+}
+
+// Szerződés összeg aktuális értékének lekérdezése
+function get_szerz_ossz(){
+    if( $('#szerz_ossz').length ){
+        return $('#szerz_ossz').val();
+    }else{
+        return $('#szerz_ossz_db').val();
+    }
+}
+
+/* Új feltöltéskor és szerkesztéskor is a tételek kezelése popup megnyitása előtt ellenőrzünk pár dolgot. */
+function tetelek_kezelese_popup_nyit(){
+    if( !get_szerz_ossz() || get_szerz_ossz()==0 ){
+        alert2('Tételek kezelése előtt adja meg a szerződött összeget!', '', 'Hiba');
+        $('#szerz_ossz').addClass('hibas_ide_focus');
+    }else if( get_szerz_ossz() < 0 ){
+        alert2('A szerződött összeg nem lehet 0 vagy negatív szám!', '', 'Hiba');
+        $('#szerz_ossz').addClass('hibas_ide_focus');
+    }else{
+        csoportMuvelet('projektszerzodes_tetelek_kezelese');
+    }
 }

@@ -6903,6 +6903,9 @@ function getSzerepkorNev($szerepkor_id){
                         'Diszpécser',                   // 10
                         'Szálloda igazgató',            // 11
                         'Hibabejelentő',                // 12
+                        'Fejlesztési Vig.h.',           // 13
+                        'Beruházási Igazgató',          // 14
+                        'Létesítmény Felelős',          // 15
                     );
     return $szerepkorok[$szerepkor_id];
 }

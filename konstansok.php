@@ -174,6 +174,9 @@ define('MUSZAKI_ADMINISZTRATOR',        '8' );
 define('MUSZAKI_IGAZGATO',              '9' );
 define('SZALLODA_IGAZGATO',             '11');
 define('HIBABEJELENTO',                 '12');
+define('FEJLESZTESI_VIG_H',             '13');
+define('BERUHAZASI_IGAZGATO',           '14');
+define('LETESITMENY_FELELOS',           '15');
 
 // MozgásID-k
 define('MOZGID_RAKTAR_BE',              '01' );

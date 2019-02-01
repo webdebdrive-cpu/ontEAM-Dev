@@ -5322,8 +5322,25 @@ Hiba: '.getErtek('info', 'erteklista', 'recid', $bejelentes['hiba_id']).$hiba_tx
             if( $sql === false ) { $db_error = true; }
         }
         
+        // Projekt nem törölhető, hamár van olyan szerződés, amihez ez a projekt hozzá van rendelve
+        if($ertek['tabla']=='projektkezeles'){
+            $pr_kezeles = $adatbazis_kapcsolat->s2('ikt_szam', 'projektkezeles', "`recid`='{$_GET[$ertek['torid']]}'");
+            $van_szerzodese = $adatbazis_kapcsolat->s('recid', 'projektszerzodes', "`pr_szam`='{$pr_kezeles['ikt_szam']}'");
+            if( $van_szerzodese ){
+                exit;
+            }
+        }
+        
         // Projektszámla törlésekor a tételeket is törölni kell
         if($ertek['tabla']=='projektszamla'){
+            
+            // Ha van olyan tétele, amihez van számla csatolva, akkor nem engedjük meg a törlést, inkább vágjuk itt el a működést. Ide el se juthatunk, mert már popupban kapott figyelmeztetést.
+            // Ez arra jó, hogy URL átírással se lehessen projektet törölni
+            $van_szerzodese = $adatbazis_kapcsolat->s('recid', 'projektszamla_tetel', "`projektszamla_recid`='{$_GET[$ertek['torid']]}' AND `projektszerzodes_tetel_recid`!='0'");
+            if( $van_szerzodese ){
+                exit;
+            }
+            
             $valtozas_kapcsolodo_tablak .= 'Projektszámla törlésekor a projektszamla_tetel táblából az alábbi rekordok törlődtek: '."\n";
             $sorok = $adatbazis_kapcsolat->s('*', 'projektszamla_tetel', "`projektszamla_recid`='{$_GET[$ertek['torid']]}'");
             if( $sorok === false ) { $db_error = true; }

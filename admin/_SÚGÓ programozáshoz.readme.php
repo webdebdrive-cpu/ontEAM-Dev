@@ -1,3 +1,4 @@
+<?php/*
 ÚJ MENÜPONT KIALAKTÍÁSÁNÁL EZEKRE ÜGYELJ
 - események.php $_SESSION['ketHasabos'] listát bővítsd
 - ugyanitt alatta a switch($tabla) résznél is létre kell hozni egy switch-et

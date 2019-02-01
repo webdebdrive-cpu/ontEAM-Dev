@@ -27,6 +27,9 @@ if( !in_array(basename(self()), $kiveteles_oldalak) ) {
     array_push($select_szemelyzet, array('name' => getSzerepkorNev(MSZK_VEZETO),               'value' => MSZK_VEZETO,             'szin' => '#FFEBCB', 'kulsos' => 1, 'hozzarendel_sor' => 1 ));
     array_push($select_szemelyzet, array('name' => getSzerepkorNev(MUSZAKI_IGAZGATO),          'value' => MUSZAKI_IGAZGATO,        'szin' => '#E0CBFF', 'kulsos' => 0 ));
     array_push($select_szemelyzet, array('name' => getSzerepkorNev(SZALLODA_IGAZGATO),         'value' => SZALLODA_IGAZGATO,       'szin' => '#E0CBFF', 'kulsos' => 0 ));
+    array_push($select_szemelyzet, array('name' => getSzerepkorNev(FEJLESZTESI_VIG_H),         'value' => FEJLESZTESI_VIG_H,       'szin' => '#E0CBFF', 'kulsos' => 0 ));
+    array_push($select_szemelyzet, array('name' => getSzerepkorNev(BERUHAZASI_IGAZGATO),       'value' => BERUHAZASI_IGAZGATO,     'szin' => '#E0CBFF', 'kulsos' => 0 ));
+    array_push($select_szemelyzet, array('name' => getSzerepkorNev(LETESITMENY_FELELOS),       'value' => LETESITMENY_FELELOS,     'szin' => '#E0CBFF', 'kulsos' => 0 ));
 }
 
 

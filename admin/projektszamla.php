@@ -603,28 +603,30 @@ if (isset($_POST['pop_tetelek_feltolt'])) {
     
     // Projekt számlák táblázat kiírtatása előtt ellenőrizzük, hogy a hozzá tartozó szerződéshez milyen számlák tartoznak, és azoknak mennyi az össz nettó értéke.
     // Ha a Projekt számlák össz nettója több mint a hozzájuk tartozó szerződésé, akkor hibaüzenet
-
-    // Lekérjük, a projekt szerződéses összegét
-    $pr_szerzodes = $adatbazis_kapcsolat->s2('szerz_ossz', 'projektszerzodes', "`sz_szam`='{$_POST['sz_szam']}'");
-    // Illetve, hogy az aktuális számlán kívül milyen számlák tartoznak hozzá
-    $ossznetto = 0;
-    $szamlak   = $adatbazis_kapcsolat->s('netto', 'projektszamla', "`sz_szam`='{$_POST['sz_szam']}' AND `recid`!='{$_POST['id']}'");
-    foreach($szamlak as $szamla){
-        $ossznetto += $szamla['netto'];
-    }
-    // Beleférünk-e a keretbe
-    if( ($ossznetto+$_POST['netto']) > $pr_szerzodes['szerz_ossz'] ){
-        echo json_encode( array(
-                            'hiba'  => nl2('
-                                            Szerződött összeg: '.number_format($pr_szerzodes['szerz_ossz'], 0, '', ' ').' '.get_penznem().'
-                                            <br>Még felhasználható összeg: '.number_format($pr_szerzodes['szerz_ossz']-$ossznetto, 0, '', ' ').' '.get_penznem().'
-                                            <br>A számla nettó értéke több, mint a választott szerződésből még felhasználható összeg!
-                                            '),
-                            'focus' => 'netto',
-                            'title' => 'Hiba',
-                        ) );
-        $weblap -> leallit();
-        exit;
+    // Ezt csak akkor tesszük meg, ha van már hozzárendelt szerződés
+    if( $_POST['sz_szam'] ){
+        // Lekérjük, a projekt szerződéses összegét
+        $pr_szerzodes = $adatbazis_kapcsolat->s2('szerz_ossz', 'projektszerzodes', "`sz_szam`='{$_POST['sz_szam']}'");
+        // Illetve, hogy az aktuális számlán kívül milyen számlák tartoznak hozzá
+        $ossznetto = 0;
+        $szamlak   = $adatbazis_kapcsolat->s('netto', 'projektszamla', "`sz_szam`='{$_POST['sz_szam']}' AND `recid`!='{$_POST['id']}'");
+        foreach($szamlak as $szamla){
+            $ossznetto += $szamla['netto'];
+        }
+        // Beleférünk-e a keretbe
+        if( ($ossznetto+$_POST['netto']) > $pr_szerzodes['szerz_ossz'] ){
+            echo json_encode( array(
+                                'hiba'  => nl2('
+                                                Szerződött összeg: '.number_format($pr_szerzodes['szerz_ossz'], 0, '', ' ').' '.get_penznem().'
+                                                <br>Még felhasználható összeg: '.number_format($pr_szerzodes['szerz_ossz']-$ossznetto, 0, '', ' ').' '.get_penznem().'
+                                                <br>A számla nettó értéke több, mint a választott szerződésből még felhasználható összeg!
+                                                '),
+                                'focus' => 'netto',
+                                'title' => 'Hiba',
+                            ) );
+            $weblap -> leallit();
+            exit;
+        }
     }
     
     $html = '';
@@ -884,15 +886,17 @@ if (isset($_POST['van_tetel'])) {
     }
     
     // Ellenőrizzük, hogy a kiválasztott szálloda és a projekt szám stimmel-e
-    $projekt = $adatbazis_kapcsolat->s2('telephely_id', 'projektszerzodes', "`sz_szam`='{$_POST['sz_szam']}'");
-    if( $projekt['telephely_id']!=$_POST['telephely_id'] ){
-        echo json_encode(array(
-            'hiba'  => 'A projekt szám nem megfelelő szállodához tartozik!',
-            'gomb'  => '<input type="button" class="gomb" value="Ok" onclick="alert2(); szurkit_zar(\'mehet_megsem_mutat\'); $(\'#telephely_id\').focus();">',
-            'title' => 'Hiba',
-        ));
-        $weblap -> leallit();
-        exit();
+    if( $_POST['sz_szam'] ){
+        $projekt = $adatbazis_kapcsolat->s2('telephely_id', 'projektszerzodes', "`sz_szam`='{$_POST['sz_szam']}'");
+        if( $projekt['telephely_id']!=$_POST['telephely_id'] ){
+            echo json_encode(array(
+                'hiba'  => 'A projekt szám nem megfelelő szállodához tartozik!',
+                'gomb'  => '<input type="button" class="gomb" value="Ok" onclick="alert2(); szurkit_zar(\'mehet_megsem_mutat\'); $(\'#telephely_id\').focus();">',
+                'title' => 'Hiba',
+            ));
+            $weblap -> leallit();
+            exit();
+        }
     }
     
     // Ha ismert a szerződés szám ellenőrizzük, hogy a kiválasztott szálloda és a partner stimmel-e
@@ -1255,8 +1259,14 @@ require_once('selectek.php');
         if( !get_projekt_szamla_kezel_jog($_GET['id']) ){
             $gombok .= ' <input type="button" id="recordTorol" class="gombb_alert dn" onclick="alert2(\'Önnek nincs joga a projekt számla törléséhez!\', \'\', \'Hiba\')" value="Töröl" title="Töröl">';
         }else{
-            $gombok .= '<script>var gomb'.$_GET['id'].'= get_kibont_torol(\''.self().'\', \''.$torles.'\', \''.$_GET['id'].'\');</script>';
-            $gombok .= ' <input type="button" id="recordTorol" class="gombb_alert dn" onclick="alert2(\'Biztosan törli ezt a '.$szoveg.'?\', gomb'.$_GET['id'].')" value="Töröl" title="Töröl">';
+            
+            // Ha van már olyan tétele, ami össze van kötve szerződéssel, akkor nem engedünk törölni
+            if( $sor['projektszerzodes_tetel_recid'] ){
+                $gombok .= ' <input type="button" id="recordTorol" class="gombb_alert dn" onclick="alert2(\'A számlának van olyan tétele, amihez már van szerződés tétel kapcsolva, így nem törölhető a számla!\', \'\', \'Hiba\')" value="Töröl" title="Töröl">';
+            }else{
+                $gombok .= '<script>var gomb'.$_GET['id'].'= get_kibont_torol(\''.self().'\', \''.$torles.'\', \''.$_GET['id'].'\');</script>';
+                $gombok .= ' <input type="button" id="recordTorol" class="gombb_alert dn" onclick="alert2(\'Biztosan törli ezt a '.$szoveg.'?\', gomb'.$_GET['id'].')" value="Töröl" title="Töröl">';
+            }
         }
         
         // Tételek kezelése

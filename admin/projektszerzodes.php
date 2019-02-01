@@ -773,7 +773,7 @@ require_once('selectek.php');
                 </div>
             ');
             
-            $gombok .= ' <input type="button" class="gomb" onclick="if( !$(\'#szerz_ossz\').val() || $(\'#szerz_ossz\').val()==\'0\' ){ alert2(\'Tételek kezelése előtt adja meg a szerződött összeget!\', \'\', \'Hiba\'); }else{ csoportMuvelet(\'projektszerzodes_tetelek_kezelese\'); }" value="Tételek kezelése">';
+            $gombok .= ' <input type="button" class="gomb" onclick="tetelek_kezelese_popup_nyit()" value="Tételek kezelése">';
 
             $muv_style = ' style="width: calc(100% - '.($_SESSION['defaultCsuszka'] + 16).'px);"';
             if( in_array(basename(self()), $_SESSION['ketHasabos']) && $_SESSION[get_db_tabla().'user'] ) {
@@ -833,9 +833,9 @@ require_once('selectek.php');
         if( _jog(JOG_PRKEZEL_SZERZODES_KEZEL) ){
             
             // Ha nincs szerződéses összeg, akkor hibaüzenet (bár ilyen elő sem fordulhat elvileg, mert már új feltöltéskor sem mentehtte volna így el)
-            $gombok .= ' <input type="button" class="gomb" onclick="if( !get_szerz_ossz() || get_szerz_ossz()==0 ){ alert2(\'Tételek kezelése előtt adja meg a szerződött összeget!\', \'\', \'Hiba\'); }else if( get_szerz_ossz() < 0 ){ alert2(\'A szerződött összeg nem lehet 0 vagy negatív szám!\', \'\', \'Hiba\'); }else{ csoportMuvelet(\'projektszerzodes_tetelek_kezelese\'); }" value="Tételek kezelése">';
+            $gombok .= ' <input type="button" class="gomb" onclick="tetelek_kezelese_popup_nyit()" value="Tételek kezelése">';
             // Ha nem az Adatlapon volnánk, akkor szükségünk lesz egy rejtett inputra, ami az adatbázisban levő szerződéses összeget tartalmazza, hogy bármelyik fül alatt szerkeszteni lehessen a tételeket, összehasonlítva az aktuális szerződéses összeggel
-            $gombok .= ' <input type="hidden" id="szerz_ossz_db" value="'.$sor['szerz_ossz'].'"><script>function get_szerz_ossz(){ if( $(\'#szerz_ossz\').length ){ return $(\'#szerz_ossz\').val(); }else{ return $(\'#szerz_ossz_db\').val(); } }</script>';
+            $gombok .= ' <input type="hidden" id="szerz_ossz_db" value="'.$sor['szerz_ossz'].'">';
         }
         
         if( isset($_GET['modosit']) && get_projekt_szerzodes_kezel_jog($_GET['id']) ) {
