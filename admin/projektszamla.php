@@ -57,7 +57,7 @@ if (isset($_POST['van_kapcsolt_szerzodes'])) {
 if(isset($_POST['get_projekt_szerzodes_tabla'])){
 
     // Ha nincs új feltöltés jogunk, akkor kilépünk
-    if( !_jog(JOG_PRSZAMLAK_KEZEL) ){
+    if( !get_projekt_szamla_kezel_jog($_POST['recid']) ){
         echo json_encode( array(
                             'hiba'  => 'Önnek nincs joga projekt számlákat kezelni!',
                             'title' => 'Hiba',
@@ -1206,39 +1206,38 @@ require_once('selectek.php');
         );
     }
 
-    // Gombok kirajzolása minden oldalra
+    // Gombok kirajzolása minden oldalra. Projekt számlák kezelés globális jog kell hozzá
     $gombok = '';
-    if( isset($_GET['uj']) ) {
+    if( isset($_GET['uj']) && _jog(JOG_PRSZAMLAK_KEZEL) ) {
         
         // Új feltöltéskor a tétel sorokat töröljük, ne az legyen, hogy szerkesztésből maradt adatokkal számoljunk
         $_SESSION['pr_szla_tetel_targy']     = '';
         $_SESSION['pr_szla_tetel_netto_ert'] = '';
         $_SESSION['pr_szla_tetel_pr_tetel']  = '';
 
-        if( _jog(JOG_PRSZAMLAK_KEZEL) ){
-            $gombok = nl2('
-                <div class="form_kuldes">
-                    <input type="button" class="gombb mentes_gomb" name="mehet_gomb" id="mehet_gomb" disabled value="Mentés" onclick="szurkit(\'mehet_megsem_rejt\'); $(\'#szerk_form\').submit()">
-                    <input type="button" class="gomb piros" disabled id="megsem_gomb" value="Mégsem" onclick="szurkit(\'mehet_megsem_rejt\'); formModositva=false; szamlaBetolt($(\'#szamlaList li:first-of-type\').attr(\'data-recid\'), \''.$megnevezes.'.php\');">
-                </div>
-            ');
-            
-            $gombok .= ' <input type="button" class="gomb" onclick="if( !$(\'#netto\').val() || $(\'#netto\').val()==\'0\' ){ alert2(\'Tételek kezelése előtt adja meg a számla nettó értékét!\', \'\', \'Hiba\'); }else{ csoportMuvelet(\'projektszamla_tetelek_kezelese\'); }" value="Tételek kezelése">';
+        $gombok = nl2('
+            <div class="form_kuldes">
+                <input type="button" class="gombb mentes_gomb" name="mehet_gomb" id="mehet_gomb" disabled value="Mentés" onclick="szurkit(\'mehet_megsem_rejt\'); $(\'#szerk_form\').submit()">
+                <input type="button" class="gomb piros" disabled id="megsem_gomb" value="Mégsem" onclick="szurkit(\'mehet_megsem_rejt\'); formModositva=false; szamlaBetolt($(\'#szamlaList li:first-of-type\').attr(\'data-recid\'), \''.$megnevezes.'.php\');">
+            </div>
+        ');
 
-            $muv_style = ' style="width: calc(100% - '.($_SESSION['defaultCsuszka'] + 16).'px);"';
-            if( in_array(basename(self()), $_SESSION['ketHasabos']) && $_SESSION[get_db_tabla().'user'] ) {
-                if( $_COOKIE['csuszkaSzelesseg'] ) {
-                    $muv_style = ' style="width: calc(100% - '.(($_COOKIE['csuszkaSzelesseg'] + 16)/10).'rem);"';
-                }
+        $gombok .= ' <input type="button" class="gomb" onclick="if( !$(\'#netto\').val() || $(\'#netto\').val()==\'0\' ){ alert2(\'Tételek kezelése előtt adja meg a számla nettó értékét!\', \'\', \'Hiba\'); }else{ csoportMuvelet(\'projektszamla_tetelek_kezelese\'); }" value="Tételek kezelése">';
+
+        $muv_style = ' style="width: calc(100% - '.($_SESSION['defaultCsuszka'] + 16).'px);"';
+        if( in_array(basename(self()), $_SESSION['ketHasabos']) && $_SESSION[get_db_tabla().'user'] ) {
+            if( $_COOKIE['csuszkaSzelesseg'] ) {
+                $muv_style = ' style="width: calc(100% - '.(($_COOKIE['csuszkaSzelesseg'] + 16)/10).'rem);"';
             }
-
-            // Műveletek box
-            $gombok = nl2('
-                <div class="muveletek"'.$muv_style.'>
-                    '.$gombok.'
-                </div>
-            ');
         }
+
+        // Műveletek box
+        $gombok = nl2('
+            <div class="muveletek"'.$muv_style.'>
+                '.$gombok.'
+            </div>
+        ');
+
         
     // Módosítás gombok
     }else{
@@ -1247,7 +1246,7 @@ require_once('selectek.php');
         $i = 0;
         $_SESSION['pr_szla_tetel_targy'] = $_SESSION['pr_szla_tetel_netto_ert'] = array();
         $tetelek = $adatbazis_kapcsolat->s('*', 'projektszamla_tetel', "`projektszamla_recid`='{$_GET['id']}'", 'recid');
-        foreach($tetelek as $tetel){
+        foreach( $tetelek as $tetel ){
             $_SESSION['pr_szla_tetel_recid'][$i]     = $tetel['recid'];
             $_SESSION['pr_szla_tetel_targy'][$i]     = $tetel['targy'];
             $_SESSION['pr_szla_tetel_netto_ert'][$i] = number_format($tetel['netto_ert'], 0, '', ' ');
@@ -1270,7 +1269,7 @@ require_once('selectek.php');
         }
         
         // Tételek kezelése
-        if( _jog(JOG_PRSZAMLAK_KEZEL) ){
+        if( get_projekt_szamla_kezel_jog($_GET['id']) ){
             
             $gombok .= ' <input type="button" class="gomb" onclick="csoportMuvelet(\'projektszamla_tetelek_kezelese\');" value="Tételek kezelése">';
             // Ha nem az Adatlapon volnánk, akkor szükségünk lesz egy rejtett inputra, ami az adatbázisban levő nettó értéket tartalmazza, hogy bármelyik fül alatt szerkeszteni lehessen a tételeket, összehasonlítva az aktuális számla nettó értékével
@@ -1309,7 +1308,7 @@ require_once('selectek.php');
     $js_submit_elott = 'return form_ell_admin();';
     
 	// Új projektkezelés felvitele
-	if( isset($_GET['uj']) && _jog(JOG_PRSZAMLAK_KEZEL) ){
+	if( isset($_GET['uj']) && get_projekt_szamla_kezel_jog($_GET['id']) ){
         
         // Az űrlap feldolgozása előtti JS-t tiszta lappal indítjuk
         $js_submit_elott = '';
@@ -1494,7 +1493,7 @@ require_once('selectek.php');
         $szamla_html .= '<script> formAdatok = JSON.parse(\''.json_encode($json_sor).'\'); </script>';
 
         // Duplikáláskor feltett kérdés
-        if(!_jog(JOG_PRSZAMLAK_KEZEL)){
+        if( !get_projekt_szamla_kezel_jog($_GET['id']) ){
             $szamla_html .= nl2('
                 <script>
                     duplikalGomb  = "<p class=\"c\"><input class=\"gomb zold\" type=\"button\" value=\"Ok\" onclick=\"alert2()\"></p>";

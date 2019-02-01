@@ -58,7 +58,7 @@ if (isset($_POST['van_kapcsolt_szamla'])) {
 if(isset($_POST['get_projekt_tabla'])){
 
     // Ha nincs új feltöltés jogunk, akkor kilépünk
-    if( !_jog(JOG_PRKEZEL_SZERZODES_KEZEL) ){
+    if( !get_projekt_szerzodes_kezel_jog($_POST['recid']) ){
         echo json_encode( array(
                             'hiba'  => 'Önnek nincs joga projekt szerződést kezelni!',
                             'title' => 'Hiba',
@@ -169,7 +169,7 @@ if(isset($_POST['get_projekt_tabla'])){
             <script>
             ';
     }else{
-        $html = '<script>popupRejt(); setTimeout(function(){ popupZar(); alert2(\'Nem található projekt terv!\', \'\', \'Hiba\'); }, 10);</script>';
+        $html = '<script>popupRejt(); setTimeout(function(){ popupZar(); alert2(\'Nem található projekt!\', \'\', \'Hiba\'); }, 10);</script>';
     }
 
     echo json_encode(
@@ -765,7 +765,7 @@ require_once('selectek.php');
         $_SESSION['pr_szer_tetel_varh_erk'] = '';
         $_SESSION['pr_szer_tetel_varh_ert'] = '';
 
-        if( _jog(JOG_PRKEZEL_SZERZODES_KEZEL) ){
+        if( get_projekt_szerzodes_kezel_jog($_GET['id']) ){
             $gombok = nl2('
                 <div class="form_kuldes">
                     <input type="button" class="gombb mentes_gomb" name="mehet_gomb" id="mehet_gomb" disabled value="Mentés" onclick="szurkit(\'mehet_megsem_rejt\'); $(\'#szerk_form\').submit()">
@@ -830,7 +830,7 @@ require_once('selectek.php');
         }
         
         // Tételek kezelése
-        if( _jog(JOG_PRKEZEL_SZERZODES_KEZEL) ){
+        if( get_projekt_szerzodes_kezel_jog($_GET['id']) ){
             
             // Ha nincs szerződéses összeg, akkor hibaüzenet (bár ilyen elő sem fordulhat elvileg, mert már új feltöltéskor sem mentehtte volna így el)
             $gombok .= ' <input type="button" class="gomb" onclick="tetelek_kezelese_popup_nyit()" value="Tételek kezelése">';

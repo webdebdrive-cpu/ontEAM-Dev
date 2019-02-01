@@ -1803,7 +1803,7 @@ $(function() {
             }
 
             $.ajax({
-                url : 'projektigenyles.php',
+                url : 'esemenyek.php',
                 type: 'POST',
                 data: {
                     egy_tobb     : egy_tobb,

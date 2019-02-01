@@ -256,25 +256,6 @@ if (isset($_POST['addMegterules'])) {
     exit();
 }
 
-// Egy vagy többszállodás select
-if (isset($_POST['f_pri_egytobb'])) {
-
-    $tobb_szalloda = '';
-    if($_POST['egy_tobb']=='tobb'){
-        $tobb_szalloda = 1;
-    }
-
-    $akt_tomb = array(
-                    array('type' => 'select_felh_telephely','megn' => 'Szálloda:',      'tobb_szalloda' => $tobb_szalloda,        'name' => 'telephely_id',   'szuro' => 1,       'class' => 'disableNav',        'style' => 'width: 100%;', 'alert' => 'Kérem válasszon szállodát!', 'onchange' => 'szallodaVane( this );'),
-                );
-    require 'switch.php';
-
-    echo $mezok;
-
-    $weblap->leallit();
-    exit();
-}
-
 // Vélemény törlése
 if (isset($_POST['velemeny_torol'])) {
 

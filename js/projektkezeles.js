@@ -90,7 +90,7 @@ function projekt_lezartra() {
     });
 }
 
-/* Sikeres fájlfeltöltés után rákérdezünk, hogy léptessük-e tovább a Projekt tervet */
+/* Sikeres fájlfeltöltés után rákérdezünk, hogy léptessük-e tovább a Projektet */
 function projekt_fajfeltoltes_utan_tovabb () {
     $.ajax({
         url : 'projektkezeles.php',

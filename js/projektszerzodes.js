@@ -47,9 +47,9 @@ function pr_hozzaad_gomb_hozzaad_vagy_torol (){
 // Szerződés összeg aktuális értékének lekérdezése
 function get_szerz_ossz(){
     if( $('#szerz_ossz').length ){
-        return $('#szerz_ossz').val();
+        return $('#szerz_ossz').val().replace(/ /g, '');
     }else{
-        return $('#szerz_ossz_db').val();
+        return $('#szerz_ossz_db').val().replace(/ /g, '');
     }
 }
 

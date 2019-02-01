@@ -860,12 +860,12 @@ function i_u($type, $tabla, $tomb) {
         $muvelet = 'A(z) '.$tabla.'-ba új recordot szúrt be a következő azonosítóval: '.$id.'.';
 
         // Végrehajtott változtatás
-        $valtozas = '1.: A(z) <strong>recid</strong> mező a következő értéket kapta: <strong>'.$id.'</strong><br>';
+        $valtozas = '[mezo]recid[/mezo] [ertek]'.$id.'[/ertek]'."\n";
 
         $i = 2;
         foreach($_POST as $key => $value) {
             if( $key != 'mehet_gomb' && $key != 'uj'.$tabla ) {
-                $valtozas .= $i.'.: A(z) <strong>'.$key.'</strong> mező a következő értéket kapta: <strong>'.$value.'</strong><br>';
+                $valtozas .= '[mezo]'.$key.'[/mezo] [ertek]'.$value.'[/ertek]'."\n";
 
                 $i++;
             }
@@ -879,6 +879,20 @@ function i_u($type, $tabla, $tomb) {
                                         );
         if( $sql === false ) { $db_error = true; }
 
+        if( $tabla == 'login' ){
+//            $adatok = explode(',', str_replace(array('"', '{', '}'), '', $_POST['tarsreszlegek_hidden']));
+//            foreach($adatok as $adat){
+//                list($x, $reszleg_id) = explode(':', $adat);
+//                // Részlegid-k felvétele, ha nem az adatlap részlege
+//                if($reszleg_id != $_POST['reszleg_id']){
+//                    $sql = $adatbazis_kapcsolat->i('login_tarsreszleg',
+//                                                                array('login_id',   'reszleg_id', 'insert_dt',    'insert_usr',                             ),
+//                                                                array($id,          $reszleg_id,  'NOW()',        $_SESSION[get_db_tabla().'teljes_nev']    )
+//                                                    );
+//                }
+//                if( $sql === false ) { $db_error = true; }
+//            }
+        }
 
 
     // Update
@@ -2351,24 +2365,42 @@ function szamla_lista( $where, $tabla, $kijeloltek = false, $csak_sql_miatt = fa
 
         // Projektkezelés
         if($tabla == 'projektkezeles'){
+            
             // Ha Projekt team tag vagyok, akkor láthatom azokat a Projekteket, ahol a Projekt teamként jelen vagyok
             if( _jog(JOG_PRKEZEL_TEAM_TAG) ){
                 $team_vagyok = ' OR `'.get_db_tabla().'projektkezeles`.`recid` IN (SELECT `projektkezeles_recid` FROM `'.get_db_tabla().'projektkezeles_team` WHERE `login_recid`=\''.$_SESSION[get_db_tabla().'login_recid'].'\')';
             }
             
-            // Projekt tervek megtekintése: saját szállodák láthatósági körébe tartozó projektek lisstázása
+            // Projektek megtekintése: saját szállodák láthatósági körébe tartozó projektek lisstázása
             $sajtat_szaloda_latokor = "`".get_db_tabla()."projektkezeles`.`telephely_id` IN (".implode(',', $szallodak).")";
+            
+            // Projekt tipus jog alapján tovább szűkítünk
+            $tipusra_szures = '';
+            if( _jog(JOG_PR_B_MEGTEKINT) ){
+                $tipusra_szures .= PRIGENY_TIPUS_BERUH.', ';
+            }
+            if( _jog(JOG_PR_F_MEGTEKINT) ){
+                $tipusra_szures .= PRIGENY_TIPUS_FENNT.', ';
+            }
+            if( _jog(JOG_PR_T_MEGTEKINT) ){
+                $tipusra_szures .= PRIGENY_TIPUS_TARGY.', ';
+            }
+            if( $tipusra_szures ){
+                $tipusra_szures = "`".get_db_tabla()."projektkezeles`.`tipus` IN (".csonkit($tipusra_szures, 2).")";
+            }
+            
+            // Globális jogosultság, ha ez be van pipálva, akkor nem kell már tovább szűrni
             if( _jog(JOG_PRKEZEL_MEGTEKINT) ){
                 
                 $where = "({$sajtat_szaloda_latokor}{$team_vagyok}) AND ";
                 
-            // Ha "Projekt tervek megtekintése" (JOG_PRKEZEL_MEGTEKINT) jog nincs bepipálva, csak akkor kell a többivel foglalkozni, mert a legtágabb jog kibővít minden más, szűkebb láthatóságot
+            // Ha "Projektek megtekintése" (JOG_PRKEZEL_MEGTEKINT) jog nincs bepipálva, csak akkor kell a többivel foglalkozni, mert a legtágabb jog kibővít minden más, szűkebb láthatóságot
             }else{
                 
                 // Saját projektek megtekintése: ekkor csak azokat listázzuk, ahol én Projektfelelős vagyok
                 if( _jog(JOG_PRKEZEL_SAJAT_MEGTEKINT) ){
                 
-                    $where = "(`".get_db_tabla()."projektkezeles`.`pfelelos`='{$_SESSION[get_db_tabla().'login_recid']}' {$team_vagyok}) AND ";
+                    $where = "(`".get_db_tabla()."projektkezeles`.`pfelelos`='{$_SESSION[get_db_tabla().'login_recid']}' {$team_vagyok} OR  {$tipusra_szures}) AND ";
                 
                 // Egy/több szálloda láthatósági feltétele
                 }elseif( _jog(JOG_PR_EGYSZALL_MEGTEKINT) || _jog(JOG_PR_TOBBSZALL_MEGTEKINT) ){
@@ -2383,11 +2415,15 @@ function szamla_lista( $where, $tabla, $kijeloltek = false, $csak_sql_miatt = fa
                     if( _jog(JOG_PR_TOBBSZALL_MEGTEKINT) ){
                         $lathatosag_feltetel .= "`".get_db_tabla()."projektkezeles`.`egy_tobb`=1 OR ";
                     }
-                    $where = "( ({$sajtat_szaloda_latokor} AND (".csonkit($lathatosag_feltetel, 4).")) {$team_vagyok}) AND ";
+                    $where = "( ({$sajtat_szaloda_latokor} AND (".csonkit($lathatosag_feltetel, 4).")) {$team_vagyok} OR  {$tipusra_szures}) AND";
                 
                 // Ha csak Team tag jogunk volna
                 }else{
-                    $where = substr($team_vagyok, 4)." AND ";
+                    $or = '';
+                    if($team_vagyok){
+                        $or = ' OR ';
+                    }
+                    $where = "(".substr($team_vagyok, 4)." $or {$tipusra_szures})";
                 }
                 
             }
@@ -9090,6 +9126,11 @@ function get_projekt_kezeles_jog( $recid ){
 // Kapott recid alapján eldönti, hogy adott Projekt számlára van-e kezelés jogom vagy sem. Azért van itt, mert törlés blokkolása miatt az esemenyek.php-hoz is kell.
 function get_projekt_szamla_kezel_jog( $recid ){
     
+    // Ha nincs ID, akkor hamis
+    if( !$recid ){
+        return false;
+    }
+    
     global $adatbazis_kapcsolat;
     
     // Ha van Projekt számlák kezelése globális jog, akkor biztosan kezelhetem
@@ -9114,6 +9155,11 @@ function get_projekt_szamla_kezel_jog( $recid ){
 function get_projekt_szerzodes_kezel_jog( $recid ){
     
     global $adatbazis_kapcsolat;
+    
+    // Ha nincs ID, akkor hamis
+    if( !$recid ){
+        return false;
+    }
     
     // Ha van Projekt szerződés kezelése globális jog, akkor biztosan kezelhetem
     if( _jog(JOG_PRKEZEL_SZERZODES_KEZEL) ){

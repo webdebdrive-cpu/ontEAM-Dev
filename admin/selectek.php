@@ -147,14 +147,14 @@ require 'selectek_szemelyzet.php';
 // Projektigénylés tipus
 $select_pri_tipus = array();
 array_push($select_pri_tipus, array('name' => '- Válasszon -',  'value' => '' ));
-// Ha mindent vagy saját prigényt kezelhetek, akkor látszik ez a kettő. Ha csak Tárgyi bejelentést tudok kezelni, akkor csak a Tárgyi eszköz marad
-if( !isset($_GET['uj']) || _jog(JOG_PRIGENY_B_MEGTEKINT)){
+// Ha mindent vagy saját prigényt kezelhetek, akkor látszik ez a kettő. Ha csak Tárgyi bejelentést tudok kezelni, akkor csak a Tárgyi eszköz marad. Projektigénylés és Projektekhez is van ehhez egy-egy láthatósági pipa.
+if( !isset($_GET['uj']) || ( basename(self())=='projektigenyles.php' && _jog(JOG_PRIGENY_B_MEGTEKINT) ) || ( basename(self())=='projektkezeles.php' && _jog(JOG_PR_B_MEGTEKINT) ) ){
     array_push($select_pri_tipus, array('name' => 'Beruházás',      'value' => PRIGENY_TIPUS_BERUH  ));
 }
-if( !isset($_GET['uj']) || _jog(JOG_PRIGENY_F_MEGTEKINT)){
+if( !isset($_GET['uj']) || ( basename(self())=='projektigenyles.php' && _jog(JOG_PRIGENY_F_MEGTEKINT) ) || ( basename(self())=='projektkezeles.php' && _jog(JOG_PR_F_MEGTEKINT) ) ){
     array_push($select_pri_tipus, array('name' => 'Fenntartás',     'value' => PRIGENY_TIPUS_FENNT  ));
 }
-if( !isset($_GET['uj']) || _jog(JOG_PRIGENY_T_MEGTEKINT)){
+if( !isset($_GET['uj']) || ( basename(self())=='projektigenyles.php' && _jog(JOG_PRIGENY_T_MEGTEKINT) ) || ( basename(self())=='projektkezeles.php' && _jog(JOG_PR_T_MEGTEKINT) ) ){
     array_push($select_pri_tipus, array('name' => 'Tárgyi eszköz',  'value' => PRIGENY_TIPUS_TARGY  ));
 }
 

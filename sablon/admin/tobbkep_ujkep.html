@@ -116,7 +116,7 @@ function beolvasas_{MEGN}(fajlok, ellenorzes_kihagy) {
                             popupNyit();
                         });
                         
-                    /* Projekt terveknél, sikeres fájlfetöltés után rákérdezünk, hogy léptessük-e tovább következő státusba */
+                    /* Projekteknél, sikeres fájlfetöltés után rákérdezünk, hogy léptessük-e tovább következő státusba */
                     }else if(this.responseText.substring(0,18)=='leptessuk_e_tovabb'){
                         
                         $('#sorrendezes_tobbkep').append(this.responseText.substring(18));
@@ -166,7 +166,7 @@ function beolvasas_{MEGN}(fajlok, ellenorzes_kihagy) {
 felulirando_fajlok = false;
 function fajl_feluliras_alert_{MEGN}(tomb) {
     
-    /* Projekt terveknél nem írunk felül fájlokat. */
+    /* Projekteknél nem írunk felül fájlokat. */
     if( baseName(location.href) == 'projektkezeles' ){
         alert2(tomb[0].name+' fájl már létezik, kérem nevezze át az új fájlt egy másik névre!', '', 'Hiba');
         return false;

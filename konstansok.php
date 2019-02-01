@@ -279,6 +279,9 @@ define('JOG_PR_EGYSZALL_MEGTEKINT',     114);
 define('JOG_PR_EGYSZALL_KEZEL',         115);
 define('JOG_PR_TOBBSZALL_MEGTEKINT',    116);
 define('JOG_PR_TOBBSZALL_KEZEL',        117);
+define('JOG_PR_B_MEGTEKINT',            124);
+define('JOG_PR_F_MEGTEKINT',            125);
+define('JOG_PR_T_MEGTEKINT',            126);
 define('JOG_PR_SAJAT_SZERZ_MEGTEKINT',  119);
 define('JOG_PR_SAJAT_SZERZ_KEZEL',      120);
 define('JOG_PR_SAJAT_SZAMLA_MEGTEKINT', 121);
@@ -350,6 +353,10 @@ define('EL_DOK_TIPUS_SZERZODES',    3);
 define('EL_DOK_TIPUS_MUNKATER_ATAD',4);
 // Beosztások értéklista fix bejegyzése
 define('EL_BEOSZTAS_PR_FELEOS',     189);
+define('EL_BEOSZTAS_FEJL_VIG_H',    28 );
+define('EL_BEOSZTAS_MUSZAKI_IG',    91 );
+define('EL_BEOSZTAS_MUSZAKI_ASSZ',  131);
+define('EL_BEOSZTAS_BERUH_IG',      190);
 
 define('MLTIPUS_HIBAELHARITAS', 1);
 define('MLTIPUS_RENDSZERES_K',  2);

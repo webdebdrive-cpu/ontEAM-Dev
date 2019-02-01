@@ -37,6 +37,7 @@ function get_projekt_szerzodes_tabla(order){
         url : 'projektszamla.php',
         type: 'POST',
         data: {
+            recid                       : _get('id'),
             telephely_id                : $('#telephely_id').val(),
             szallito_id                 : $('#szallito_id').val(),
             order                       : order,

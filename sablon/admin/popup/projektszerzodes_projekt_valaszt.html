@@ -26,6 +26,7 @@ function get_projekt_tabla(order, telephely_id){
         url : 'projektszerzodes.php',
         type: 'POST',
         data: {
+            recid             : _get('id'),
             telephely_id      : $('#telephely_id').val(),
             order             : order,
             get_projekt_tabla : new Date().getTime()

@@ -2,7 +2,7 @@
 require_once('../weblap.php');
 
 // Ha egyik megtekintés joggal sem rendelkezünk
-if( !_jog(JOG_PRKEZEL_MEGTEKINT) && !_jog(JOG_PRKEZEL_SAJAT_MEGTEKINT) && !_jog(JOG_PRKEZEL_TEAM_TAG) && !_jog(JOG_PR_EGYSZALL_MEGTEKINT) && !_jog(JOG_PR_TOBBSZALL_MEGTEKINT) ) {
+if( !_jog(JOG_PRKEZEL_MEGTEKINT) && !_jog(JOG_PRKEZEL_SAJAT_MEGTEKINT) && !_jog(JOG_PRKEZEL_TEAM_TAG) && !_jog(JOG_PR_EGYSZALL_MEGTEKINT) && !_jog(JOG_PR_TOBBSZALL_MEGTEKINT) && !_jog(JOG_PR_B_MEGTEKINT) && !_jog(JOG_PR_F_MEGTEKINT) && !_jog(JOG_PR_T_MEGTEKINT) ) {
     if(!$_SESSION[get_db_tabla().'user']){
         $weblap -> leallit();
         header('Location: index.php');
@@ -18,7 +18,7 @@ $megnevezes             = pathinfo(self());
 $megnevezes             = $megnevezes['filename'];
 $akt_tomb               = $projektkezeles_tomb;
 $torles                 = $megnevezes.'tid';
-$szoveg                 = 'projekt tervet';   // Hibaüzenetkor: Biztosan törlöd a $szoveg?
+$szoveg                 = 'projektet';   // Hibaüzenetkor: Biztosan törlöd a $szoveg?
 
 $szamla_html = '';
 

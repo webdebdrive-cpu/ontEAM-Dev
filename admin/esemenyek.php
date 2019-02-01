@@ -2279,7 +2279,7 @@ $megnevezes = 'projektkezeles';
 $projektkezeles_tomb = $akt_tomb = array(
     array('type' => 'statusz',              'megn' => 'Státusz:',               'name' => 'stat_id',        'szuro' => 1,   'oldal' => $megnevezes),
     array('type' => 'text',                 'megn' => 'Azonosító:',             'name' => 'ikt_szam',       'szuro' => 1,   'disabled' => 1,   'class' => 'normal', 'style' => 'width: 10rem', 'osszevon' => 1, 'post' => '<span style="margin-left: 2rem"></span>'),
-    array('type' => 'autocomplete',         'megn' => 'Projekt felelős:',       'name' => 'pfelelos',       'szuro' => 1,   'class' => 'oriasi disableNav', 'tabla' => 'login', 'oszlop_keres' => 'recid', 'oszlop_keres_autocomp' => 'teljes_nev', 'listaz' => 'teljes_nev', 'beosztas_id' => EL_BEOSZTAS_PR_FELEOS, 'id_kiir' => 'recid', 'style' => 'width: 25rem', 'alert' => 'Kérem adja meg a projekt felelőst!'),
+    array('type' => 'autocomplete',         'megn' => 'Projekt felelős:',       'name' => 'pfelelos',       'szuro' => 1,   'class' => 'oriasi disableNav', 'tabla' => 'login', 'oszlop_keres' => 'recid', 'oszlop_keres_autocomp' => 'teljes_nev', 'listaz' => 'teljes_nev', 'beosztas_id' => EL_BEOSZTAS_BERUH_IG.','.EL_BEOSZTAS_FEJL_VIG_H.','.EL_BEOSZTAS_MUSZAKI_ASSZ.','.EL_BEOSZTAS_MUSZAKI_IG.','.EL_BEOSZTAS_PR_FELEOS, 'id_kiir' => 'recid', 'style' => 'width: 25rem', 'alert' => 'Kérem adja meg a projekt felelőst!'),
     array('type' => 'text',                 'megn' => 'Név:',                   'name' => 'nev',            'szuro' => 1,   'maxlength' => 250, 'class' => 'oriasi', 'alert' => 'Kérem adja meg a projekt nevét!'),
     array('type' => 'hidden','megn' => '',      'name' => 'egy_tobb'),
     array('type' => 'html',                     'megn' => nl2('
@@ -2330,11 +2330,11 @@ array_push($postok, array('tomb' => $akt_tomb, 'uj' => 'uj'.$megnevezes, 'lista'
 $megnevezes = 'projektszamla';
 // Visszaadva pipát csak kezelés joggal lehet használni
 $visszaadva_disabled = true;
-if(_jog( JOG_PRSZAMLAK_KEZEL ) ){
+if( get_projekt_szamla_kezel_jog($_GET['id']) ){
     $visszaadva_disabled = false;
 }
 $sz_szam_gomb = '';
-if( _jog(JOG_PRSZAMLAK_KEZEL) ){
+if( get_projekt_szamla_kezel_jog($_GET['id']) ){
     $gomb_felirat = 'Szerződés hozzáadása';
     $gomb_class   = '';
     if (isset($_GET['modosit'])) {
@@ -2386,7 +2386,7 @@ array_push($postok, array('tomb' => $akt_tomb, 'uj' => 'uj'.$megnevezes, 'lista'
 
 $megnevezes   = 'projektszerzodes';
 $pr_szam_gomb = '';
-if( _jog(JOG_PRKEZEL_SZERZODES_KEZEL) ){
+if( get_projekt_szerzodes_kezel_jog($_GET['id']) ){
     $gomb_felirat = 'Projekt hozzáadása';
     $gomb_class   = '';
     if (isset($_GET['modosit'])) {
@@ -2634,6 +2634,26 @@ array_push($postok, array('tomb' => $akt_tomb, 'uj' => 'uj'.$megnevezes, 'lista'
 
 
 
+
+
+// Egy vagy többszállodás select Projektigényléshez, Projektekhez
+if (isset($_POST['f_pri_egytobb'])) {
+
+    $tobb_szalloda = '';
+    if($_POST['egy_tobb']=='tobb'){
+        $tobb_szalloda = 1;
+    }
+
+    $akt_tomb = array(
+                    array('type' => 'select_felh_telephely','megn' => 'Szálloda:',      'tobb_szalloda' => $tobb_szalloda,        'name' => 'telephely_id',   'szuro' => 1,       'class' => 'disableNav',        'style' => 'width: 100%;', 'alert' => 'Kérem válasszon szállodát!', 'onchange' => 'szallodaVane( this );'),
+                );
+    require 'switch.php';
+
+    echo $mezok;
+
+    $weblap->leallit();
+    exit();
+}
 
 // Nyomtáshoz a látható ID-k
 if( isset($_POST['nyomtatas_ids']) ) {
