@@ -2334,7 +2334,7 @@ if( get_projekt_szamla_kezel_jog($_GET['id']) ){
     $visszaadva_disabled = false;
 }
 $sz_szam_gomb = '';
-if( get_projekt_szamla_kezel_jog($_GET['id']) ){
+if( get_projekt_szamla_kezel_jog($_GET['id']) || isset($_GET['uj']) ){
     $gomb_felirat = 'Szerződés hozzáadása';
     $gomb_class   = '';
     if (isset($_GET['modosit'])) {
@@ -2386,7 +2386,7 @@ array_push($postok, array('tomb' => $akt_tomb, 'uj' => 'uj'.$megnevezes, 'lista'
 
 $megnevezes   = 'projektszerzodes';
 $pr_szam_gomb = '';
-if( get_projekt_szerzodes_kezel_jog($_GET['id']) ){
+if( get_projekt_szerzodes_kezel_jog($_GET['id']) || isset($_GET['uj']) ){
     $gomb_felirat = 'Projekt hozzáadása';
     $gomb_class   = '';
     if (isset($_GET['modosit'])) {

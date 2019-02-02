@@ -765,7 +765,7 @@ require_once('selectek.php');
         $_SESSION['pr_szer_tetel_varh_erk'] = '';
         $_SESSION['pr_szer_tetel_varh_ert'] = '';
 
-        if( get_projekt_szerzodes_kezel_jog($_GET['id']) ){
+        if( _jog(JOG_PRKEZEL_SZERZODES_KEZEL) ){
             $gombok = nl2('
                 <div class="form_kuldes">
                     <input type="button" class="gombb mentes_gomb" name="mehet_gomb" id="mehet_gomb" disabled value="Mentés" onclick="szurkit(\'mehet_megsem_rejt\'); $(\'#szerk_form\').submit()">

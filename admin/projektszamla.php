@@ -1302,13 +1302,13 @@ require_once('selectek.php');
                 '.$gombok.'
             </div>
         ');
-        
+         
     }
 
     $js_submit_elott = 'return form_ell_admin();';
     
 	// Új projektkezelés felvitele
-	if( isset($_GET['uj']) && get_projekt_szamla_kezel_jog($_GET['id']) ){
+	if( isset($_GET['uj']) && _jog(JOG_PRSZAMLAK_KEZEL) ){
         
         // Az űrlap feldolgozása előtti JS-t tiszta lappal indítjuk
         $js_submit_elott = '';

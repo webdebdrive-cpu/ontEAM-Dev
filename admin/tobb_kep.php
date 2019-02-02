@@ -310,8 +310,8 @@ if($kepek){
                             <ul id="sorrendezes_tobbkep" data-tabla="'.$tobbkep_tablanev.'" data-mellek="'.$mellek.'">
                                 <li class="fejlec">
                                     <div class="kep">Kép</div>
-                                    <div class="felirat c" style="width: 15rem">Fájlnév</div>
-                                    <div class="felirat">Feltölötte</div>
+                                    <div class="felirat c" style="width: 30rem">Fájlnév</div>
+                                    <div class="felirat">Feltöltötte</div>
                                     '.$tipus_fejlec.'
                                     <div class="felirat">Dátum</div>
                                     <div class="maradek torles"></div>
@@ -510,9 +510,9 @@ function get_tobbkep_thumb($sor_kepek, $i, $tabla, $nincs_torles) {
                         </a>
                     </div>
                 </div>
-                <div id="megj_'.$azon.'_felirat" class="felirat c" style="width: 15rem">
+                <div id="megj_'.$azon.'_felirat" class="felirat c" style="width: 30rem">
                     <a href="'.$kep_utvonal.'" target="_blank" title="Letöltés">
-                        '.mb_wordwrap($felirat, 20, '<br>', 1, 'UTF-8').'
+                        '.mb_wordwrap($felirat, 40, '<br>', false, 'UTF-8').'
                     </a>
                 </div>
                 <div class="felirat">'.$sor_kepek['insert_usr'].'</div>

@@ -2399,8 +2399,11 @@ function szamla_lista( $where, $tabla, $kijeloltek = false, $csak_sql_miatt = fa
                 
                 // Saját projektek megtekintése: ekkor csak azokat listázzuk, ahol én Projektfelelős vagyok
                 if( _jog(JOG_PRKEZEL_SAJAT_MEGTEKINT) ){
-                
-                    $where = "(`".get_db_tabla()."projektkezeles`.`pfelelos`='{$_SESSION[get_db_tabla().'login_recid']}' {$team_vagyok} OR  {$tipusra_szures}) AND ";
+                    $or = '';
+                    if( $tipusra_szures ){
+                        $or = ' OR ';
+                    }
+                    $where = "(`".get_db_tabla()."projektkezeles`.`pfelelos`='{$_SESSION[get_db_tabla().'login_recid']}' {$team_vagyok} {$or} {$tipusra_szures}) AND ";
                 
                 // Egy/több szálloda láthatósági feltétele
                 }elseif( _jog(JOG_PR_EGYSZALL_MEGTEKINT) || _jog(JOG_PR_TOBBSZALL_MEGTEKINT) ){
@@ -6923,7 +6926,7 @@ function getStatText($tabla, $statid, $mezo = '') {
     return '';
 }
 
-// Szerepkör címkéjét ne DB-ből kérjük már le, erre itt egy függvény
+// Szerepkör címkéjét ne DB-ből kérjük le, erre itt egy függvény
 function getSzerepkorNev($szerepkor_id){
     $szerepkorok = array(
                         '',
