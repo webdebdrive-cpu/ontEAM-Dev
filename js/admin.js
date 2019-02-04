@@ -1149,7 +1149,7 @@ $(function() {
 
             /* Újsort le kell csérélni. Checkboxok miatt kell ez az if elé */
             if(val && val!=true){
-                val = val.replace(/(\r|\n)/g, '#UJSOR#').replace(/'/g, '#APOSZTROF#');
+                val = val.replace(/(\r|\n)/g, '#UJSOR#').replace(/(\t)/g, '#TAB#').replace(/'/g, '#APOSZTROF#');
             }
 
             /* Tizedes összegeknél a pontot vesszőre kell cseérlni az ellenőrzéshez*/
@@ -1168,7 +1168,7 @@ $(function() {
                 val = '';
             }
 
-/*console.log(name+' db:'+taroltVal+'|itt:'+val);*/
+console.log(name+' db:'+taroltVal+'|itt:'+val);
             if( name!='egy_tobb_egy' && name!='egy_tobb_tobb' ){
                 if( taroltVal != val ) {
                     $(this).addClass('mod');

@@ -284,7 +284,6 @@ foreach($akt_tomb as $ertek){
             }
 
             $statusz = '';
-
             if( $statusz_sor )  {
 
                 // Státusz kiegészítés bejelentés elutasított státusz esetén

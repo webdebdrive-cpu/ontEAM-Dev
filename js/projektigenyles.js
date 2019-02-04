@@ -1,11 +1,12 @@
 /* Projektigénylés alatt az adatlap és cash flow fül közötti váltás */
 function prigeny_ful_valt(ful){
 
+console.log( _get('modosit') );
     /* Ha nem az adatlapon vagyunk akkor szamlaBetolt */
-    if(!_get('modosit')){
+    if( !_get('modosit') && !_get('cash_flow') ){
         betoltott = szamlaBetolt(_get('id'), 'projektigenyles.php', 'modosit');
 
-        if(ful=='cash_flow'){
+        if( ful=='cash_flow' ){
             $.when( betoltott ).done(function() {
                 if(ful=='cash_flow'){
                     cash_flow_fulre_lep();
@@ -15,16 +16,17 @@ function prigeny_ful_valt(ful){
 
     /* Egyébként csak JS tartalom csere */
     }else{
-
-        if(ful=='adatlap'){
+        
+        if( ful=='adatlap' ){
             $('#cash_flow_div').hide();
             $('#szerk_form').show();
             $('#ful_cash_flow').removeClass('active');
             $('#ful_modosit').addClass('active');
             $('#navGombok .uj').attr('href', 'projektigenyles.php?uj');
+            window.history.pushState('', '', 'projektigenyles.php?id='+_get('id')+'&modosit');
         }
 
-        if(ful=='cash_flow'){
+        if( ful=='cash_flow' ){
             cash_flow_fulre_lep();
         }
 

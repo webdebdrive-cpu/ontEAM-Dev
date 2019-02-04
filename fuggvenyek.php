@@ -9252,3 +9252,8 @@ function logolas_kapcsolodo_tablak_sorai($sorok, $tabla){
     return $valtozas;
     
 }
+
+// Form adatok JS tömb előállításakor kiszűrjük az újsorokat és egyéb speciális karaktereket. Ez ennek az általános függvénye
+function formAdatok_replace($string){
+    return str_replace(array("\r\n", "\r", "\n", "'", "\t", '	 '), array("#UJSOR#", "#UJSOR#", "#UJSOR#", "#APOSZTROF#", "#TAB#", "#TAB#"), $string);
+}

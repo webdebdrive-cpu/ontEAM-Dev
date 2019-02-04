@@ -359,12 +359,16 @@ require_once('selectek.php');
             }
         }
 
+        $json_sor = array();
+        foreach($sor as $kulcs => $elem){
+            $json_sor[$kulcs] = formAdatok_replace($elem);
+        }
         $szamla_html .= nl2('
                             <script>
                                 $(document).ready(function () {
                                     ut_kulso_kivitlezo_beallit();
                                 });
-                                formAdatok = JSON.parse(\''.json_encode($sor).'\');
+                                formAdatok = JSON.parse(\''.json_encode($json_sor).'\');
                             </script>
                         ');
 
@@ -438,7 +442,7 @@ require_once('selectek.php');
 
         $json_sor = array();
         foreach($sor as $kulcs => $elem){
-            $json_sor[$kulcs] = str_replace(array("\r\n", "\r", "\n", "'"), array("#UJSOR#", "#UJSOR#", "#UJSOR#", "#APOSZTROF#"), $elem);
+            $json_sor[$kulcs] = formAdatok_replace($elem);
         }
         // A hét napjainak pipáját is le kell kezelni a formAdatok tömbbe.
         $napok = array('1' => 'h', '2' => 'k', '3' => 's', '4' => 'cs', '5' => 'p', '6' => 'sz', '7' => 'v');

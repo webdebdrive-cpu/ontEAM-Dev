@@ -287,7 +287,11 @@ require_once('selectek.php');
         }
         $sor['id'] = $max;
 
-        $szamla_html .= '<script> formAdatok = JSON.parse(\''.json_encode($sor).'\'); </script>';
+        $json_sor = array();
+        foreach($sor as $kulcs => $elem){
+            $json_sor[$kulcs] = formAdatok_replace($elem);
+        }
+        $szamla_html .= '<script> formAdatok = JSON.parse(\''.json_encode($json_sor).'\'); </script>';
 
 		// Ez elkészíti a $mezok változót
 		require('switch.php');
@@ -335,7 +339,7 @@ require_once('selectek.php');
 
         $json_sor = array();
         foreach($sor as $kulcs => $elem){
-            $json_sor[$kulcs] = str_replace(array("\r\n", "\r", "\n", "'"), array("#UJSOR#", "#UJSOR#", "#UJSOR#", "#APOSZTROF#"), $elem);
+            $json_sor[$kulcs] = formAdatok_replace($elem);
         }
 
         $szamla_html .= '<script> formAdatok = JSON.parse(\''.json_encode($json_sor).'\'); </script>';
