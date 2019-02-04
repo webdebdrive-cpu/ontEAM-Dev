@@ -2423,7 +2423,7 @@ function szamla_lista( $where, $tabla, $kijeloltek = false, $csak_sql_miatt = fa
                 // Ha csak Team tag jogunk volna
                 }else{
                     $or = '';
-                    if($team_vagyok){
+                    if($team_vagyok && $tipusra_szures){
                         $or = ' OR ';
                     }
                     $where = "(".substr($team_vagyok, 4)." $or {$tipusra_szures})";
@@ -9256,4 +9256,24 @@ function logolas_kapcsolodo_tablak_sorai($sorok, $tabla){
 // Form adatok JS tömb előállításakor kiszűrjük az újsorokat és egyéb speciális karaktereket. Ez ennek az általános függvénye
 function formAdatok_replace($string){
     return str_replace(array("\r\n", "\r", "\n", "'", "\t", '	 '), array("#UJSOR#", "#UJSOR#", "#UJSOR#", "#APOSZTROF#", "#TAB#", "#TAB#"), $string);
+}
+
+// Előterjesztésenk (FB-t és BoD-t is tud számolni) össze költségének kiszámítása. Kell az adatlapra, excelre, nyomtatásira is, azért van külön függvénybe szervezve
+function eloterjesztes_osszes_koltseg( $recid, $fb_bod ){
+    
+    global $adatbazis_kapcsolat;
+    
+    $prik = $adatbazis_kapcsolat->s('projektigenyles_recid', 'eloterj_'.$fb_bod.'_kapcs', "`eloterj_recid`='{$recid}'");
+    if(!$prik){
+        $ossz_kolts = 'Még nincsenek csatolt projektigénylések.';
+    }else{
+        foreach($prik as $pri){
+            $pri = $adatbazis_kapcsolat->s2('bkolt', 'projektigenyles_eloterj', "`recid`='{$pri['projektigenyles_recid']}'");
+            $ossz_kolts += $pri['bkolt'];
+        }
+        $ossz_kolts = number_format($ossz_kolts, 0, '', ' ').' '.get_penznem();
+    }
+    
+    return $ossz_kolts;
+    
 }

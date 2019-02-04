@@ -71,6 +71,8 @@ if (isset($_POST['eloterj_visszanyit'])) {
 // CSV generálása
 if (isset($_GET['csv'])) {
 
+    require_once 'selectek.php';
+    
     $mibol   = get_web_charset();
     $mibe    = 'windows-1250';
 
@@ -95,50 +97,132 @@ if (isset($_GET['csv'])) {
     $open = fopen($fajlnev,'a');
     fwrite($open, "sep=;\n");
     if($open){
-
-        $lekerdezes_fromtol = substr($_SESSION['akt_sql'], strpos($_SESSION['akt_sql'], 'FROM'));
-
-        if( $_SESSION['nyomtatas_ids'] ) {
-            if( strstr($_SESSION['akt_sql'], 'WHERE') ) {
-                $lekerdezes_fromtol = str_replace('WHERE', "WHERE `".get_db_tabla().$megnevezes."`.`recid` IN (".$_SESSION['nyomtatas_ids'].") AND ", $lekerdezes_fromtol);
-            } else {
-                $lekerdezes_fromtol = str_replace('ORDER', "WHERE `".get_db_tabla().$megnevezes."`.`recid` IN (".$_SESSION['nyomtatas_ids'].") ORDER", $lekerdezes_fromtol);
-            }
-        }
-
-        $sql = 'SELECT
-                `'.get_db_tabla().$megnevezes.'`.`stat_id` as \'Státusz\',
-                `'.get_db_tabla().$megnevezes.'`.`ikt_szam` as \'Azonosító\',
-                `'.get_db_tabla().$megnevezes.'`.`nev` as \'Név\',
-                `'.get_db_tabla().$megnevezes.'`.`ules_datum` as \'Ülés dátuma\'
-                '.$lekerdezes_fromtol;
-
-        $query      = mysqli_query($db_kapcs, $sql);
-
-        $csvhead    = array();
-        while($fejlec_nevek = mysqli_fetch_field($query)){
-            $csvhead[] = iconv2($mibol, $mibe, $fejlec_nevek -> name );
-        }
-        fputcsv($open, $csvhead, ';');
-
-        while( $sorok = mysqli_fetch_assoc($query) ){
-
+        
+        if( isset($_GET['projektigenyek']) ){
+            
+            // Előterjesztés mezőit vegyük fel az exportba
             $csvcont = array();
-            foreach( $sorok as $kulcs => $sor ) {
-                if($kulcs=='Státusz'){
-                    $sor = getStatText('munkalap', $sor);
-                }
+            $eloterjesztes = $adatbazis_kapcsolat->s2('*', 'eloterj_fb', "`recid`='{$_GET['id']}'");
+            $csvcont[] = iconv($mibol, $mibe.'//TRANSLIT', 'Előterjesztés adatai:' );
+            fputcsv($open, $csvcont, ';');
+            
+            $csvcont = array();
+            $csvcont[] = iconv($mibol, $mibe.'//TRANSLIT', 'Státusz:' );
+            $csvcont[] = iconv($mibol, $mibe.'//TRANSLIT', getStatText('eloterj_fb', $eloterjesztes['stat_id']) );
+            fputcsv($open, $csvcont, ';');
+            
+            $csvcont = array();
+            $csvcont[] = iconv($mibol, $mibe.'//TRANSLIT', 'Azonosító:' );
+            $csvcont[] = iconv($mibol, $mibe.'//TRANSLIT', $eloterjesztes['ikt_szam'] );
+            fputcsv($open, $csvcont, ';');
+            
+            $csvcont = array();
+            $csvcont[] = iconv($mibol, $mibe.'//TRANSLIT', 'Név:' );
+            $csvcont[] = iconv($mibol, $mibe.'//TRANSLIT', $eloterjesztes['nev'] );
+            fputcsv($open, $csvcont, ';');
+            
+            $csvcont = array();
+            $csvcont[] = iconv($mibol, $mibe.'//TRANSLIT', 'Ülés dátuma:' );
+            $csvcont[] = iconv($mibol, $mibe.'//TRANSLIT', datum_kiir($eloterjesztes['ules_datum']) );
+            fputcsv($open, $csvcont, ';');
+            
+            $csvcont = array();
+            $csvcont[] = iconv($mibol, $mibe.'//TRANSLIT', 'Összes költség:' );
+            $csvcont[] = iconv($mibol, $mibe.'//TRANSLIT', eloterjesztes_osszes_koltseg($_GET['id'], 'fb') );
+            fputcsv($open, $csvcont, ';');
+            
+            $csvcont = array();
+            $csvcont[] = iconv($mibol, $mibe.'//TRANSLIT', '' );
+            fputcsv($open, $csvcont, ';');
+            
+            $csvcont = array();
+            $csvcont[] = iconv($mibol, $mibe.'//TRANSLIT', 'Projektigények:' );
+            fputcsv($open, $csvcont, ';');
+            
+            $csvcont = array();
+            $csvcont[] = iconv($mibol, $mibe.'//TRANSLIT', 'Státusz'            );
+            $csvcont[] = iconv($mibol, $mibe.'//TRANSLIT', 'Szálloda'           );
+            $csvcont[] = iconv($mibol, $mibe.'//TRANSLIT', 'Név'                );
+            $csvcont[] = iconv($mibol, $mibe.'//TRANSLIT', 'Tipus'              );
+            $csvcont[] = iconv($mibol, $mibe.'//TRANSLIT', 'Becsült költség'    );
+            fputcsv($open, $csvcont, ';');
+            
+            $prigenyek = $adatbazis_kapcsolat->s('recid projektigenyles_recid', 'eloterj_fb_kapcs', "`eloterj_recid`='{$_GET['id']}'", 'insert_dt desc');
+            foreach($prigenyek as $prigeny){
                 
-                // Lehet nem volna elég 1-szer sőt kétszer sem ráereszteni a htmlspecialchars_decode-ot
-                $sor = htmlspecialchars_decode( $sor );
-                while(strpos($sor, '&amp;')!==false || strpos($sor, '&quot;')!==false ){
-                    $sor = htmlspecialchars_decode( $sor );
+                $igenyles = $adatbazis_kapcsolat->s2('recid nev stat_id stat_id_eloterj telephely_id tipus bkolt', 'projektigenyles_eloterj', "`recid`='{$prigeny['projektigenyles_recid']}'");
+
+                foreach($select_pri_tipus as $tip){
+                    if($tip['value']==$igenyles['tipus']){
+                        $tipus = $tip['name'];
+                    }
                 }
-                $csvcont[] = iconv($mibol, $mibe.'//TRANSLIT', strip_tags( $sor ) );
+                if(!$igenyles['tipus']){
+                    $tipus = '-';
+                }
+
+                $csvcont = array();
+                $csvcont[] = iconv($mibol, $mibe.'//TRANSLIT', getStatText('projektigenyles', $igenyles['stat_id']) );
+                $csvcont[] = iconv($mibol, $mibe.'//TRANSLIT', getSzallodaNev($igenyles['telephely_id']));
+                $csvcont[] = iconv($mibol, $mibe.'//TRANSLIT', $igenyles['nev']);
+                $csvcont[] = iconv($mibol, $mibe.'//TRANSLIT', $tipus);
+                $csvcont[] = iconv($mibol, $mibe.'//TRANSLIT', number_format($igenyles['bkolt'], 0, '', ' ').' '.get_penznem());
+
+                fputcsv($open, $csvcont, ';');
+
+            }
+                
+
+        // Navpanel exportja
+        }else{
+            
+            $lekerdezes_fromtol = substr($_SESSION['akt_sql'], strpos($_SESSION['akt_sql'], 'FROM'));
+
+            if( $_SESSION['nyomtatas_ids'] ) {
+                if( strstr($_SESSION['akt_sql'], 'WHERE') ) {
+                    $lekerdezes_fromtol = str_replace('WHERE', "WHERE `".get_db_tabla().$megnevezes."`.`recid` IN (".$_SESSION['nyomtatas_ids'].") AND ", $lekerdezes_fromtol);
+                } else {
+                    $lekerdezes_fromtol = str_replace('ORDER', "WHERE `".get_db_tabla().$megnevezes."`.`recid` IN (".$_SESSION['nyomtatas_ids'].") ORDER", $lekerdezes_fromtol);
+                }
             }
 
-            fputcsv($open, $csvcont, ';');
+            $sql = 'SELECT
+                    `'.get_db_tabla().$megnevezes.'`.`stat_id` as \'Státusz\',
+                    `'.get_db_tabla().$megnevezes.'`.`ikt_szam` as \'Azonosító\',
+                    `'.get_db_tabla().$megnevezes.'`.`nev` as \'Név\',
+                    `'.get_db_tabla().$megnevezes.'`.`ules_datum` as \'Ülés dátuma\'
+                    '.$lekerdezes_fromtol;
+
+            $query      = mysqli_query($db_kapcs, $sql);
+
+            $csvhead    = array();
+            while($fejlec_nevek = mysqli_fetch_field($query)){
+                $csvhead[] = iconv2($mibol, $mibe, $fejlec_nevek -> name );
+            }
+            fputcsv($open, $csvhead, ';');
+
+            while( $sorok = mysqli_fetch_assoc($query) ){
+
+                $csvcont = array();
+                foreach( $sorok as $kulcs => $sor ) {
+                    if($kulcs=='Státusz'){
+                        $sor = getStatText('munkalap', $sor);
+                    }
+
+                    // Lehet nem volna elég 1-szer sőt kétszer sem ráereszteni a htmlspecialchars_decode-ot
+                    $sor = htmlspecialchars_decode( $sor );
+                    while(strpos($sor, '&amp;')!==false || strpos($sor, '&quot;')!==false ){
+                        $sor = htmlspecialchars_decode( $sor );
+                    }
+                    $csvcont[] = iconv($mibol, $mibe.'//TRANSLIT', strip_tags( $sor ) );
+                }
+
+                fputcsv($open, $csvcont, ';');
+            }
+            
         }
+
+
     }
     fclose($open);
 
@@ -500,9 +584,6 @@ if(isset($_GET['modosit_ules'])){
 
             $pri = $adatbazis_kapcsolat->s2('recid nev stat_id stat_id_eloterj telephely_id tipus bkolt', 'projektigenyles_eloterj', "`recid`='{$prigeny['projektigenyles_recid']}'");
 
-            // Szálloda
-            $szalloda = $adatbazis_kapcsolat->s2('nev', 'telephely', "`id`='{$pri['telephely_id']}'");
-
             //Tipus
             require_once 'selectek.php';
             foreach($select_pri_tipus as $tip){
@@ -546,7 +627,7 @@ if(isset($_GET['modosit_ules'])){
                             </select>
                         </div>
                     </div>
-                    <div class="dtc">'.$szalloda['nev'].'</div>
+                    <div class="dtc">'.getSzallodaNev($pri['telephely_id']).'</div>
                     <div class="dtc">'.$pri['nev'].'</div>
                     <div class="dtc">'.$tipus.'</div>
                     <div class="dtc r">'.number_format($pri['bkolt'], 0, '', ' ').' '.get_penznem().'</div>

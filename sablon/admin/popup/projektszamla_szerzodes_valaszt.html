@@ -74,6 +74,7 @@ function projekt_szerzodes_kivalaszt(){
     
     /* Projekt tárgyat is írjuk ki */
     $('#szerzodes_neve').html( $('#pr_szerzodes_tablazat tr.kijelolve div.targy_txt').html() );
+    $('#projekt_neve')  .html( $('#pr_szerzodes_tablazat tr.kijelolve div.pr_nev_txt').html() );
     
     $('#let_fel_autocomp').val( $('#pr_szerzodes_tablazat tr.kijelolve div.let_fel_txt').html() );
     $('#let_fel_autocomp').addClass('mod');

@@ -781,7 +781,7 @@ if (isset($_POST['eloterj_igneyles_csatol'])) {
     //Előbb csak
     if(!$_POST['mehet']){
         echo json_encode(array(
-            'hiba' => count($prigeny_recidk).' db projekt igénylést választott.<br>Biztos, hogy az előterjesztéshez csatolja ',
+            'hiba' => count($prigeny_recidk).' db projekt igénylést választott.<br>Biztos, hogy az előterjesztéshez csatolja?',
             'gomb' => '<input class="gomb zold" value="Igen" onclick="eloterj_igneyles_csatol(\'mehet\');" type="button"> <input class="gomb piros" value="Nem" onclick="alert2();" type="button">'
         ));
         $weblap->leallit();
@@ -1565,9 +1565,12 @@ require('selectek.php');
                         akt_osszeg = Number($(this).find(\'div.osszeg\').html().replace(\' '. get_penznem().'\', \'\').replace(/ /g, \'\'));
                         szetosztott += akt_osszeg;
                     });
-                    $(\'#szetoszt_kolt\').html( ezresek(szetosztott                                          , 0, \'\', \' \')+\' '.get_penznem().'\');
-                    $(\'#becs_kolt\')    .html( ezresek($(\'#bkolt\').val().replace(/ /g, \'\')              , 0, \'\', \' \')+\' '.get_penznem().'\');
-                    $(\'#kulonbseg\')    .html( ezresek($(\'#bkolt\').val().replace(/ /g, \'\') - szetosztott, 0, \'\', \' \')+\' '.get_penznem().'\');
+                    
+                    kulonbseg = ezresek( $(\'#bkolt\').val().replace(/ /g, \'\') - szetosztott, 0, \'\', \' \', \'nullat is adj vissza\');
+                    
+                    $(\'#szetoszt_kolt\').html( ezresek(szetosztott                             , 0, \'\', \' \')+\' '.get_penznem().'\');
+                    $(\'#becs_kolt\')    .html( ezresek($(\'#bkolt\').val().replace(/ /g, \'\') , 0, \'\', \' \')+\' '.get_penznem().'\');
+                    $(\'#kulonbseg\')    .html( kulonbseg                                                        +\' '.get_penznem().'\');
                     if( $(\'#becs_kolt\').html() != $(\'#szetoszt_kolt\').html() ){
                         $(\'#kulonbseg\').addClass(\'piros\');
                     }else{
@@ -1622,7 +1625,7 @@ require('selectek.php');
                                 <div class="dtc">
                                     Becsült költség:
                                 </div>
-                                <div class="dtc r">
+                                <div class="dtc r p2">
                                     <b id="becs_kolt" class="nowrap">'.number_format($sor['bkolt'], 0, '', ' ').' '.get_penznem().'</b>
                                 </div>
                             </div>
@@ -1630,7 +1633,7 @@ require('selectek.php');
                                 <div class="dtc">
                                     Szétosztott költség:
                                 </div>
-                                <div class="dtc r">
+                                <div class="dtc r p2">
                                     <b id="szetoszt_kolt" class="nowrap"></b>
                                 </div>
                             </div>
@@ -1638,7 +1641,7 @@ require('selectek.php');
                                 <div class="dtc">
                                     Különbség:
                                 </div>
-                                <div class="dtc r">
+                                <div class="dtc r p2">
                                     <b id="kulonbseg" class="nowrap"></b>
                                 </div>
                             </div>

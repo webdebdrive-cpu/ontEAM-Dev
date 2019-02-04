@@ -5524,7 +5524,17 @@ function csv_general( that, valasztos, link_kieg ) {
 
     if(valasztos){
 
-        /* Energia tervnél lehet választani, hogy tervet, vagy Egységárakat szeretne-e nyomtatni */
+        /* BoD Előterjesztésnél tervnél lehet választani, hogy navpanel listát vagy Projektigényléseket szeretne-e exportálni */
+        if( baseName(location.href) == 'eloterj_bod' ){
+            alert2('Válasszon export fajtát:<br><a href="javascript:csv_general($(\'.excel\'))">» BoD előterjesztések exportálása</a><br><a href="javascript:csv_general($(\'.excel\'), \'\', \'projektigenyek&id=\'+_get(\'id\'))">» Projektigények exportálása</a>', '<input type="button" class="gomb" value="Mégsem" onclick="alert2()">', 'Válasszon exportot');
+        }
+        
+        /* FB Előterjesztésnél tervnél lehet választani, hogy navpanel listát vagy Projektigényléseket szeretne-e exportálni */
+        if( baseName(location.href) == 'eloterj_fb' ){
+            alert2('Válasszon export fajtát:<br><a href="javascript:csv_general($(\'.excel\'))">» FB előterjesztések exportálása</a><br><a href="javascript:csv_general($(\'.excel\'), \'\', \'projektigenyek&id=\'+_get(\'id\'))">» Projektigények exportálása</a>', '<input type="button" class="gomb" value="Mégsem" onclick="alert2()">', 'Válasszon exportot');
+        }
+
+        /* Energia tervnél lehet választani, hogy tervet, vagy Egységárakat szeretne-e exportálni */
         if( baseName(location.href) == 'energia_terv' ){
             alert2('Válasszon export fajtát:<br><a href="javascript:csv_general($(\'.excel\'))">» Energia tervek exportálása</a><br><a href="javascript:csv_general($(\'.excel\'), \'\', \'egysegarak&id=\'+_get(\'id\'))">» Egységárak exportálása</a>', '<input type="button" class="gomb" value="Mégsem" onclick="alert2()">', 'Válasszon exportot');
         }

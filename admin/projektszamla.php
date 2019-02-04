@@ -96,6 +96,8 @@ if(isset($_POST['get_projekt_szerzodes_tabla'])){
         $let_fel_neve  = getErtek('teljes_nev', 'login', 'recid', $pr['let_fel']);
         $kolt_vis_neve = getErtekLista(ERTEKLISTA_KOLTSEGVISELO, $pr['kolt_vis']);
         
+        $projekt = $adatbazis_kapcsolat->s2('nev', 'projektkezeles', "`ikt_szam`='{$pr['pr_szam']}'");
+        
         $html .= '
             <tr class="kijSor" data-i="'.$i.'" data-recid="'.$pr['recid'].'" data-sz_szam="'.$pr['sz_szam'].'" data-pr_szam="'.$pr['pr_szam'].'" data-let_fel="'.$pr['let_fel'].'" data-kolt_vis="'.$pr['kolt_vis'].'">
                 <td style="width: 11rem">
@@ -103,6 +105,7 @@ if(isset($_POST['get_projekt_szerzodes_tabla'])){
                     <div class="dn let_fel_txt">'.$let_fel_neve.'</div>
                     <div class="dn kolt_vis_txt">'.$kolt_vis_neve.'</div>
                     <div class="dn targy_txt">'.resz_string($pr['targy'], 60).'</div>
+                    <div class="dn pr_nev_txt">'.resz_string($projekt['nev'], 60).'</div>
                 </td>
                 <td class="l" style="width: 40rem">'.nl2br2($pr['targy']).'</td>
                 <td class="r nowrap">'.number_format($pr['szerz_ossz'], 0, '', ' ').'</td>

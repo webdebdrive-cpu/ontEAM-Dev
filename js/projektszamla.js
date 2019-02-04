@@ -58,6 +58,7 @@ function prsz_hozzaad_gomb_hozzaad_vagy_torol (){
                         }
 
                         $('#szerzodes_neve').html('');
+                        $('#projekt_neve').html('');
 
                         formModositva = true;
                         $('#sz_szam_gomb').val('Szerződés hozzáadása').removeClass('piros');

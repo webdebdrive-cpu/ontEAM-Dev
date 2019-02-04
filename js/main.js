@@ -306,11 +306,13 @@ function esamp2es(string){
 *	A számokat ezresekre osztja a megadott szeparátorral, amikor egy inputba beírjuk
 *
 *	@param int szam: egy számérték
+*	@param string tizedes vessző: a tizedes vessző karakteer
 *	@param string szep: a szeparátor, amivel az ezreseket tagoljuk
+*	@param bool: a nullát is írja ki, ne üres sztingként kerüljön vissza
 *
 *	@return string: a formázott számérték
 */
-function ezresek(number, decimals, decPoint, thousandsSep){
+function ezresek(number, decimals, decPoint, thousandsSep, nullat_is_ijrk_ki){
 
     number = (number + '').replace(/[^0-9+\-Ee.]/g, '');
     var n = !isFinite(+number) ? 0 : +number;
@@ -334,7 +336,7 @@ function ezresek(number, decimals, decPoint, thousandsSep){
     }
     
     eredmeny = s.join(dec);
-    if( eredmeny == '0' ){
+    if( eredmeny == '0' && !nullat_is_ijrk_ki ){
         eredmeny = '';
     }
     

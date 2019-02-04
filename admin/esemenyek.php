@@ -2359,9 +2359,12 @@ if ( $_GET['id'] ) {
         $visszaadva_dt_alert_class = ' csillag';
     }
 
-    $pr_szerzodes = $adatbazis_kapcsolat->s2('sz_szam', 'projektszamla', "`recid`='{$_GET['id']}'");
-    $pr_szerzodes = $adatbazis_kapcsolat->s2('targy', 'projektszerzodes', "`sz_szam`='{$pr_szerzodes['sz_szam']}'");
+    $pr_szamla    = $adatbazis_kapcsolat->s2('sz_szam pr_szam', 'projektszamla', "`recid`='{$_GET['id']}'");
+    $pr_szerzodes = $adatbazis_kapcsolat->s2('targy', 'projektszerzodes', "`sz_szam`='{$pr_szamla['sz_szam']}'");
     $szerzodes_neve = resz_string($pr_szerzodes['targy'], 60);
+    
+    $projket        = $adatbazis_kapcsolat->s2('nev', 'projektkezeles', "`ikt_szam`='{$pr_szamla['pr_szam']}'");
+    $projekt_neve   = resz_string($projket['nev'], 60);
 }
 $projektszamla_tomb = $akt_tomb = array(
     array('type' => 'text',                 'megn' => 'Céghez érkezett:',   'name' => 'ceghez_erk',     'szuro' => 1,   'class' => 'kicsi datepicker_tegnapig',  'alert' => 'Kérem adja meg a céghez érkezés dátumát!', 'osszevon' => 1, 'post' => '<span style="margin-left: 9.4rem"></span>'),
@@ -2377,7 +2380,7 @@ $projektszamla_tomb = $akt_tomb = array(
     array('type' => 'checkbox',             'megn' => 'Visszaadva:',        'name' => 'visszaadva',     'szuro' => 1,   'class' => 'check', 'disabled' => $visszaadva_disabled, 'osszevon' => 1, 'post' => '<span style="margin-left: 2rem"></span>', 'onclick' => 'pl_szamla_visszaadva()'),
     array('type' => 'text',                 'megn' => '',                   'name' => 'visszaadva_dt',  'szuro' => 1,   'class' => 'kicsi datepicker_tegnapig'.$visszaadva_dt_alert_class, 'megn_szurobe' => 'Visszaadva dátum' ),
     array('type' => 'text',                 'megn' => 'Szerződés szám:',    'name' => 'sz_szam',        'szuro' => 1,   'disabled' => 1, 'post' => ' <span id="szerzodes_neve">'.$szerzodes_neve.'</span>'.$sz_szam_gomb),
-    array('type' => 'text',                 'megn' => 'Projekt szám:',      'name' => 'pr_szam',        'szuro' => 1,   'disabled' => 1),
+    array('type' => 'text',                 'megn' => 'Projekt szám:',      'name' => 'pr_szam',        'szuro' => 1,   'disabled' => 1, 'post' => ' <span id="projekt_neve">'.$projekt_neve.'</span>'),
     array('type' => 'autocomplete',         'megn' => 'Projekt felelős:',   'name' => 'let_fel',        'szuro' => 1,   'disabled' => 1,   'class' => 'oriasi', 'tabla' => 'login', 'oszlop_keres' => 'recid', 'oszlop_keres_autocomp' => 'teljes_nev', 'listaz' => 'teljes_nev', 'beosztas_id' => EL_BEOSZTAS_PR_FELEOS, 'id_kiir' => 'recid'),
     array('type' => 'autocomplete',         'megn' => 'Költségviselő:',     'name' => 'kolt_vis',       'szuro' => 1,   'disabled' => 1,   'class' => 'oriasi disableNav', 'tabla' => 'erteklista', 'oszlop_keres' => 'id', 'oszlop_keres_autocomp' => 'info', 'listaz' => 'info', 'csoport' => ERTEKLISTA_KOLTSEGVISELO, 'id_kiir' => 'id'),
 );
@@ -2438,16 +2441,7 @@ array_push($postok, array('tomb' => $akt_tomb, 'uj' => 'uj'.$megnevezes, 'lista'
 // FB előterjesztés
 if (isset($_GET['modosit'])) {
     $ossz_kolts = '';
-    $prik = $adatbazis_kapcsolat->s('projektigenyles_recid', 'eloterj_fb_kapcs', "`eloterj_recid`='{$_GET['id']}'");
-    if(!$prik){
-        $ossz_kolts = 'Még nincsenek csatolt projektigénylések.';
-    }else{
-        foreach($prik as $pri){
-            $pri = $adatbazis_kapcsolat->s2('bkolt', 'projektigenyles_eloterj', "`recid`='{$pri['projektigenyles_recid']}'");
-            $ossz_kolts += $pri['bkolt'];
-        }
-        $ossz_kolts = number_format($ossz_kolts, 0, '', ' ').' '.get_penznem();
-    }
+    $ossz_kolts = eloterjesztes_osszes_koltseg( $_GET['id'], 'fb' );
 }
 $megnevezes = 'eloterj_fb';
 $eloterj_fb_tomb = $akt_tomb = array(
