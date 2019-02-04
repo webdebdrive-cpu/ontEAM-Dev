@@ -666,7 +666,7 @@ if(isset($_POST['igenylesek_betolt'])){
     if($kizart_recidk){
         $where_kieg .= ' AND `'.get_db_tabla().'projektigenyles`.`recid` NOT IN ('.implode(',', $kizart_recidk).')';
     }
-
+//echo $adatbazis_kapcsolat->gp() . '<br>';
     $szallodak = get_akt_login_szallodai();
     $priek = $adatbazis_kapcsolat->s('
                                         `'.get_db_tabla().'projektigenyles`.`recid`,
@@ -678,7 +678,7 @@ if(isset($_POST['igenylesek_betolt'])){
                                         `'.get_db_tabla().'telephely`.`nev` as `t_nev`',
                                         'projektigenyles',
                                         "`stat_id` IN ('".$fb_bod_statusz."'".$nyitott_is_sql.") AND `telephely_id` IN (".implode(',', $szallodak).")$where_kieg", $order, '', '', '', $join);
-
+//echo $adatbazis_kapcsolat->gp() . '<br>';
     $i = 1;
     foreach($priek as $pri){
 
@@ -776,9 +776,12 @@ if(isset($_POST['igenylesek_betolt'])){
 // Igénylések csatolása
 if (isset($_POST['eloterj_igneyles_csatol'])) {
 
+    $db_error = false;
+    mysqli_autocommit($db_kapcs, false);
+    
     $prigeny_recidk = json_decode($_POST['prigeny_recidk'], 'tömbnek');
 
-    //Előbb csak
+    // Előbb csak
     if(!$_POST['mehet']){
         echo json_encode(array(
             'hiba' => count($prigeny_recidk).' db projekt igénylést választott.<br>Biztos, hogy az előterjesztéshez csatolja?',
@@ -789,12 +792,14 @@ if (isset($_POST['eloterj_igneyles_csatol'])) {
     }
 
 
-    // Státusz ellenőrzés
+    // Státusz ellenőrzés illtve továbbléptetés státuszának meghatározása
     $nyitott_statusz = ELOT_FB_STAT_NYITOTT;
+    $uj_statusz      = PRIGENY_STAT_FB_TERJESZT_VAR;
     $postfix         = '_fb';
     if($_POST['mod']=='bod'){
         $nyitott_statusz = ELOT_BOD_STAT_NYITOTT;
         $postfix         = '_bod';
+        $uj_statusz      = PRIGENY_STAT_BOD_TERJESZT_VAR;
     }
     $eloterj = $adatbazis_kapcsolat->s2('stat_id', 'eloterj'.$postfix, "`recid`='{$_POST['eloterj_recid']}'");
     if($eloterj['stat_id']!=$nyitott_statusz){
@@ -808,16 +813,40 @@ if (isset($_POST['eloterj_igneyles_csatol'])) {
     // Csatolás
     $oszlopok = array('recid', 'csoport_id', 'ikt_szam', 'egy_tobb', 'telephely_id', 'stat_id', 'nev', 'tipus', 'prior', 'besorol', 'rendk', 'megter', 'text', 'bkolt', 'loginnev', 'update_dt', 'update_usr', 'insert_dt', 'insert_usr', 'torolve');
     foreach($prigeny_recidk as $recid){
-        $prigeny = $adatbazis_kapcsolat->s2('*', $megnevezes, "`recid`='$recid'");
+        $prigeny = $adatbazis_kapcsolat->s2('*', 'projektigenyles', "`recid`='{$recid}'");
         $ertekek  = array();
         foreach($oszlopok as $kulcs => $oszlop){
             array_push($ertekek, $prigeny[$oszlop]);
         }
-        $adatbazis_kapcsolat->i($megnevezes.'_eloterj', $oszlopok, $ertekek);
+        $sql = $adatbazis_kapcsolat->i('projektigenyles_eloterj', $oszlopok, $ertekek);
+        if( $sql === false ) { $db_error = true; }
 
-        $adatbazis_kapcsolat->i('eloterj'.$postfix.'_kapcs', array('eloterj_recid',          'projektigenyles_recid', 'insert_dt',    'insert_usr'                             ),
-                                                             array($_POST['eloterj_recid'],  $recid,                  'NOW()',        $_SESSION[get_db_tabla().'teljes_nev']   )
-                                );
+        $sql = $adatbazis_kapcsolat->i('eloterj'.$postfix.'_kapcs', array('eloterj_recid',          'projektigenyles_recid', 'insert_dt',    'insert_usr'                             ),
+                                                                    array($_POST['eloterj_recid'],  $recid,                  'NOW()',        $_SESSION[get_db_tabla().'teljes_nev']   )
+                                    );
+        if( $sql === false ) { $db_error = true; }
+        
+        // A projektigénylés táblát tovább is léptetjük
+// Ez egyelőre mégsem kell
+//        if(addStatusz('projektigenyles_statusz', $recid, $uj_statusz)===false){
+//            $db_error = true;
+//        }
+        
+    }
+
+    if( !$db_error ) {
+        mysqli_commit($db_kapcs);
+
+        echo json_encode(array(
+            'statusz' => 'siker'
+        ));
+    }else{
+        mysqli_rollback($db_kapcs);
+
+        echo json_encode(array(
+            'hiba'  => tranzakcioHiba(),
+            'title' => 'Hiba',
+        ));
     }
 
     $weblap->leallit();
@@ -1189,7 +1218,7 @@ require('selectek.php');
 
             // Csak akkor törölhető, amikor szerkeszthető
             if( in_array($sor['stat_id'], prigeny_mentheto_statuszok()) ){
-                $gombok .= ' <input type="button" id="recordTorol" class="gombb_alert dn" onclick="if( cash_flow_fulon_vagyunk() ){ cash_flow_sorok_torol(); }else{ alert2(\'Projektigénylés ebben a státuszban nem törölhető!\', \'\', \'Hiba\'); }" value="Töröl" title="Töröl">';
+                $gombok .= ' <input type="button" id="recordTorol" class="gombb_alert dn" onclick="if( cash_flow_fulon_vagyunk() ){ cash_flow_sorok_torol(); }else{ alert2(\'Név: '.htmlspecialchars_decode2($sor['nev']).'<br>Státusz: '.getStatText($megnevezes, $sor['stat_id']).'<br><br>Projektigénylés ebben a státuszban nem törölhető!\', \'\', \'Hiba\'); }" value="Töröl" title="Töröl">';
             // Jogosutságkezelés: csak az törölheti, akinek van hozzá joga
             } elseif( !$szerkesztheto ){
                 $gombok .= ' <input type="button" id="recordTorol" class="gombb_alert dn" onclick="if( cash_flow_fulon_vagyunk() ){ }else{ alert2(\'Önnek nincs joga projektigénylést törölni!\', \'\', \'Hiba\'); }" value="Töröl" title="Töröl">';

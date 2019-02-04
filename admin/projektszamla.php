@@ -96,7 +96,7 @@ if(isset($_POST['get_projekt_szerzodes_tabla'])){
         $let_fel_neve  = getErtek('teljes_nev', 'login', 'recid', $pr['let_fel']);
         $kolt_vis_neve = getErtekLista(ERTEKLISTA_KOLTSEGVISELO, $pr['kolt_vis']);
         
-        $projekt = $adatbazis_kapcsolat->s2('nev', 'projektkezeles', "`ikt_szam`='{$pr['pr_szam']}'");
+        $projekt = $adatbazis_kapcsolat->s2('recid nev', 'projektkezeles', "`ikt_szam`='{$pr['pr_szam']}'");
         
         $html .= '
             <tr class="kijSor" data-i="'.$i.'" data-recid="'.$pr['recid'].'" data-sz_szam="'.$pr['sz_szam'].'" data-pr_szam="'.$pr['pr_szam'].'" data-let_fel="'.$pr['let_fel'].'" data-kolt_vis="'.$pr['kolt_vis'].'">
@@ -104,8 +104,8 @@ if(isset($_POST['get_projekt_szerzodes_tabla'])){
                     '.$pr['sz_szam'].'
                     <div class="dn let_fel_txt">'.$let_fel_neve.'</div>
                     <div class="dn kolt_vis_txt">'.$kolt_vis_neve.'</div>
-                    <div class="dn targy_txt">'.resz_string($pr['targy'], 60).'</div>
-                    <div class="dn pr_nev_txt">'.resz_string($projekt['nev'], 60).'</div>
+                    <div class="dn targy_txt"><a href="projektszerzodes.php?id='.$pr['recid'].'&amp;modosit" target="_blank">'.resz_string($pr['targy'], 60).'</a></div>
+                    <div class="dn pr_nev_txt"><a href="projektkezeles.php?id='.$projekt['recid'].'&amp;modosit" target="_blank">'.resz_string($projekt['nev'], 60).'</a></div>
                 </td>
                 <td class="l" style="width: 40rem">'.nl2br2($pr['targy']).'</td>
                 <td class="r nowrap">'.number_format($pr['szerz_ossz'], 0, '', ' ').'</td>
@@ -151,7 +151,7 @@ if(isset($_POST['get_projekt_szerzodes_tabla'])){
             <script>
             ';
     }else{
-        $html = '<script>popupRejt(); setTimeout(function(){ popupZar(); alert2(\'Nem található projekt szerződés!\', \'\', \'Hiba\'); }, 10);</script>';
+        $html = '<script>popupRejt(); setTimeout(function(){ popupZar(); alert2(\'Szálloda: '.getSzallodaNev($_POST['telephely_id']).'<br>Szállító: '.getErtek('nev', 'szallito', 'id', $_POST['szallito_id']).'<br><br>Nincs ilyen szerződés vagy a szerződésnek nincs projektszáma!\', \'\', \'Hiba\'); }, 10);</script>';
     }
 
     echo json_encode(
@@ -725,7 +725,7 @@ if (isset($_POST['pop_kapcsolas_feltolt'])) {
     }else{
         
         echo json_encode( array(
-            'hiba'  => 'Tételek kapcsolásához kérem előbb adjon egy szerződést a projket számlához!',
+            'hiba'  => 'Előbb adja meg szerződés számot az adatlapon!',
             'title' => 'Hiba'
             ) );
         
@@ -1562,7 +1562,7 @@ require_once('selectek.php');
                 <div class="dtr nFejlec">
                     <div class="dtc">Tárgy</div>
                     <div class="dtc r">Nettó érték ('.get_penznem().')</div>
-                    <div class="dtc">Projekt tétel</div>
+                    <div class="dtc">Szerződés tétel</div>
                 </div>
         ');
 

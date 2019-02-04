@@ -100,6 +100,8 @@ if (isset($_GET['csv'])) {
         
         if( isset($_GET['projektigenyek']) ){
             
+            $csv_fajl_neve = 'FB_eloterjesztes_reszletei';
+            
             // Előterjesztés mezőit vegyük fel az exportba
             $csvcont = array();
             $eloterjesztes = $adatbazis_kapcsolat->s2('*', 'eloterj_fb', "`recid`='{$_GET['id']}'");
@@ -118,7 +120,7 @@ if (isset($_GET['csv'])) {
             
             $csvcont = array();
             $csvcont[] = iconv($mibol, $mibe.'//TRANSLIT', 'Név:' );
-            $csvcont[] = iconv($mibol, $mibe.'//TRANSLIT', $eloterjesztes['nev'] );
+            $csvcont[] = iconv($mibol, $mibe.'//TRANSLIT', htmlspecialchars_decode( $eloterjesztes['nev'] ) );
             fputcsv($open, $csvcont, ';');
             
             $csvcont = array();
@@ -176,6 +178,8 @@ if (isset($_GET['csv'])) {
         // Navpanel exportja
         }else{
             
+            $csv_fajl_neve = $megnevezes;
+            
             $lekerdezes_fromtol = substr($_SESSION['akt_sql'], strpos($_SESSION['akt_sql'], 'FROM'));
 
             if( $_SESSION['nyomtatas_ids'] ) {
@@ -227,7 +231,7 @@ if (isset($_GET['csv'])) {
     fclose($open);
 
     header("Content-type: text/csv");
-    header("Content-Disposition: attachment; filename=$megnevezes.csv");
+    header("Content-Disposition: attachment; filename=$csv_fajl_neve.csv");
     header("Pragma: no-cache");
     header("Expires: 0");
 
@@ -311,6 +315,7 @@ if(isset($_GET['modosit_ules'])){
         $gombok = nl2('
             <div class="form_kuldes">
                 <input type="button" class="gombb mentes_gomb" name="mehet_gomb" id="mehet_gomb" disabled value="Mentés" onclick="szurkit(\'mehet_megsem_rejt\'); $(\'#szerk_form\').submit()">
+                <input type="button" class="gomb piros" disabled id="megsem_gomb" value="Mégsem" onclick="szurkit(\'mehet_megsem_rejt\'); formModositva=false; szamlaBetolt($(\'#szamlaList li:first-of-type\').attr(\'data-recid\'), \''.$megnevezes.'.php\', \'modosit\');">
             </div>
         ');
 
@@ -344,7 +349,7 @@ if(isset($_GET['modosit_ules'])){
 
         // Nyitott státuszban látható gombok
         if($sor['stat_id']==ELOT_FB_STAT_NYITOTT){
-            $gombok .= '<input type="button" class="gomb foGomb modositaskor_rejt" value="Igénylés csatolása" title="Igénylés csatolása" onclick="csoportMuvelet(\'eloterj_igneyles_csatol\');"> ';
+            $gombok .= '<input type="button" class="gomb modositaskor_rejt" value="Igénylés csatolása" title="Igénylés csatolása" onclick="csoportMuvelet(\'eloterj_igneyles_csatol\');"> ';
             $gombok .= '
                 <script>
                     veglegesit_gombok = \'<input type="button" class="gomb zold" value="Igen" onclick="eloterj_veglegesit()"><input type="button" class="gomb piros" value="Nem" onclick="alert2()">\';
@@ -363,7 +368,7 @@ if(isset($_GET['modosit_ules'])){
                         });
                     }
                 </script>';
-            $gombok .= '<input type="button" class="gomb foGomb" value="Véglegesítés" title="Véglegesítés" onclick="alert2(\'Ha folytatja, a projektigénylések és az előterjesztés adatai már nem módosíthatók.<br>Biztos, hogy véglegesíti az előterjesztést?\', veglegesit_gombok);">';
+            $gombok .= '<input type="button" class="gomb modositaskor_rejt" value="Véglegesítés" title="Véglegesítés" onclick="alert2(\'Ha folytatja, a projektigénylések és az előterjesztés adatai már nem módosíthatók.<br>Biztos, hogy véglegesíti az előterjesztést?\', veglegesit_gombok);">';
         }
 
         // Véglegesítve státuszban látható gombok
@@ -400,6 +405,7 @@ if(isset($_GET['modosit_ules'])){
             $gombok = nl2('
                 <div class="form_kuldes">
                     <input type="button" class="gombb mentes_gomb" name="mehet_gomb" id="mehet_gomb" disabled value="Mentés" onclick="szurkit(\'mehet_megsem_rejt\'); $(\'#szerk_form\').submit()">
+                    <input type="button" class="gomb piros" disabled id="megsem_gomb" value="Mégsem" onclick="szurkit(\'mehet_megsem_rejt\'); formModositva=false; szamlaBetolt(\''.$_GET['id'].'\', \''.$megnevezes.'.php\', \'modosit\');">
                 </div>
             ').$gombok;
         }
@@ -415,6 +421,8 @@ if(isset($_GET['modosit_ules'])){
         $gombok = nl2('
             <div class="muveletek"'.$muv_style.'>
                 '.$gombok.'
+                <input type="hidden" id="ikt_szam_db" value="'.$sor['ikt_szam'].'">
+                <input type="hidden" id="nev_db" value="'.addslashes($sor['nev']).'">
             </div>
         ');
     }
@@ -596,11 +604,11 @@ if(isset($_GET['modosit_ules'])){
             }
 
             $statusz_tomb = array(
-                                array('value' => PRIGENY_STAT_HIANYPOTLAS,      'name' => 'Visszaadás hiánypótlásra'),
-                                array('value' => PRIGENY_STAT_BOD_TERJESZT_VAR, 'name' => 'BoD elé terjesztés'),
-                                array('value' => PRIGENY_STAT_ELUTASITVA,       'name' => 'Elutasítás'),
-                                array('value' => PRIGENY_STAT_JOVAHAGYVA,       'name' => 'Jóváhagyás'),
-                                array('value' => PRIGENY_STAT_NYITOTT,          'name' => 'Műsz.Ig.-nak visszaadás döntésre'),
+                                array('value' => PRIGENY_STAT_HIANYPOTLAS,      'name' => 'Visszaadás hiánypótlásra ('.getStatText('projektigenyles', PRIGENY_STAT_HIANYPOTLAS).')'),
+                                array('value' => PRIGENY_STAT_BOD_TERJESZT_VAR, 'name' => 'BoD elé terjesztés ('.getStatText('projektigenyles', PRIGENY_STAT_BOD_TERJESZT_VAR).')'),
+                                array('value' => PRIGENY_STAT_ELUTASITVA,       'name' => 'Elutasítás ('.getStatText('projektigenyles', PRIGENY_STAT_ELUTASITVA).')'),
+                                array('value' => PRIGENY_STAT_JOVAHAGYVA,       'name' => 'Jóváhagyás ('.getStatText('projektigenyles', PRIGENY_STAT_JOVAHAGYVA).')'),
+                                array('value' => PRIGENY_STAT_NYITOTT,          'name' => 'Műsz.Ig.-nak visszaadás döntésre ('.getStatText('projektigenyles', PRIGENY_STAT_NYITOTT).')'),
                             );
 
             $options = '';
@@ -628,7 +636,7 @@ if(isset($_GET['modosit_ules'])){
                         </div>
                     </div>
                     <div class="dtc">'.getSzallodaNev($pri['telephely_id']).'</div>
-                    <div class="dtc">'.$pri['nev'].'</div>
+                    <div class="dtc">'.htmlspecialchars_decode($pri['nev']).'</div>
                     <div class="dtc">'.$tipus.'</div>
                     <div class="dtc r">'.number_format($pri['bkolt'], 0, '', ' ').' '.get_penznem().'</div>
                 </div>

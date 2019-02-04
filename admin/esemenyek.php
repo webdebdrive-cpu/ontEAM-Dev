@@ -2153,15 +2153,15 @@ if( basename(self()) == 'projektigenyles.php' && $_GET['id'] ) {
     }
 
     $eltoterj_html = '';
-    $eloterj = $adatbazis_kapcsolat->s2('eloterj_recid ', 'eloterj_fb_kapcs', "`projektigenyles_recid`='{$_GET['id']}'");
-    if($eloterj){
-        $eloterj = $adatbazis_kapcsolat->s2('ikt_szam', 'eloterj_fb', "`recid`='{$eloterj['eloterj_recid']}'");
-        $eltoterj_html .= '<a href="eloterj_fb.php?id='.$eloterj['eloterj_recid'].'&amp;modosit" target="_blank"><b>'.$eloterj['ikt_szam'].'</b></a>';
+    $eloterj_kapcs = $adatbazis_kapcsolat->s2('eloterj_recid', 'eloterj_fb_kapcs', "`projektigenyles_recid`='{$_GET['id']}'");
+    if($eloterj_kapcs){
+        $eloterj = $adatbazis_kapcsolat->s2('ikt_szam nev', 'eloterj_fb', "`recid`='{$eloterj_kapcs['eloterj_recid']}'");
+        $eltoterj_html .= '<a href="eloterj_fb.php?id='.$eloterj_kapcs['eloterj_recid'].'&amp;modosit" target="_blank"><b>'.$eloterj['ikt_szam'].'</b></a> '. resz_string(htmlspecialchars_decode($eloterj['nev']), 60);
     }
-    $eloterj = $adatbazis_kapcsolat->s2('eloterj_recid ', 'eloterj_bod_kapcs', "`projektigenyles_recid`='{$_GET['id']}'");
-    if($eloterj){
-        $eloterj = $adatbazis_kapcsolat->s2('ikt_szam', 'eloterj_bod', "`recid`='{$eloterj['eloterj_recid']}'");
-        $eltoterj_html .= '<a href="eloterj_bod.php?id='.$eloterj['eloterj_recid'].'&amp;modosit" target="_blank"><b>'.$eloterj['ikt_szam'].'</b></a>';
+    $eloterj_kapcs = $adatbazis_kapcsolat->s2('eloterj_recid', 'eloterj_bod_kapcs', "`projektigenyles_recid`='{$_GET['id']}'");
+    if($eloterj_kapcs){
+        $eloterj = $adatbazis_kapcsolat->s2('ikt_szam nev', 'eloterj_bod', "`recid`='{$eloterj_kapcs['eloterj_recid']}'");
+        $eltoterj_html .= '<a href="eloterj_bod.php?id='.$eloterj_kapcs['eloterj_recid'].'&amp;modosit" target="_blank"><b>'.$eloterj['ikt_szam'].'</b></a> '.resz_string(htmlspecialchars_decode($eloterj['nev']), 60);
     }
 
     if($eltoterj_html){
@@ -2360,11 +2360,11 @@ if ( $_GET['id'] ) {
     }
 
     $pr_szamla    = $adatbazis_kapcsolat->s2('sz_szam pr_szam', 'projektszamla', "`recid`='{$_GET['id']}'");
-    $pr_szerzodes = $adatbazis_kapcsolat->s2('targy', 'projektszerzodes', "`sz_szam`='{$pr_szamla['sz_szam']}'");
-    $szerzodes_neve = resz_string($pr_szerzodes['targy'], 60);
+    $pr_szerzodes = $adatbazis_kapcsolat->s2('recid targy', 'projektszerzodes', "`sz_szam`='{$pr_szamla['sz_szam']}'");
+    $szerzodes_neve = '<a href="projektszerzodes.php?id='.$pr_szerzodes['recid'].'&amp;modosit" target="_blank">'.resz_string($pr_szerzodes['targy'], 60).'</a>';
     
-    $projket        = $adatbazis_kapcsolat->s2('nev', 'projektkezeles', "`ikt_szam`='{$pr_szamla['pr_szam']}'");
-    $projekt_neve   = resz_string($projket['nev'], 60);
+    $projket        = $adatbazis_kapcsolat->s2('recid nev', 'projektkezeles', "`ikt_szam`='{$pr_szamla['pr_szam']}'");
+    $projekt_neve   = '<a href="projektkezeles.php?id='.$projket['recid'].'&amp;modosit" target="_blank">'.resz_string($projket['nev'], 60).'</a>';
 }
 $projektszamla_tomb = $akt_tomb = array(
     array('type' => 'text',                 'megn' => 'Céghez érkezett:',   'name' => 'ceghez_erk',     'szuro' => 1,   'class' => 'kicsi datepicker_tegnapig',  'alert' => 'Kérem adja meg a céghez érkezés dátumát!', 'osszevon' => 1, 'post' => '<span style="margin-left: 9.4rem"></span>'),
@@ -2407,8 +2407,9 @@ $szalloda_disabled  = false;
 if (isset($_GET['modosit'])) {
     $szalloda_disabled = true;
     $proj = $adatbazis_kapcsolat->s2('pr_szam', 'projektszerzodes', "`recid`='{$_GET['id']}'");
-    $proj = $adatbazis_kapcsolat->s2('nev', 'projektkezeles', "`ikt_szam`='{$proj['pr_szam']}'");
-    $projekt_neve = $proj['nev'];
+    $proj = $adatbazis_kapcsolat->s2('recid nev', 'projektkezeles', "`ikt_szam`='{$proj['pr_szam']}'");
+    $projekt_neve = '<a href="projektkezeles.php?id='.$proj['recid'].'&amp;modosit" target="_blank">'.$proj['nev'].'</a>';
+    
 }
 $projektszerzodes_tomb = $akt_tomb = array(
     array('type' => 'select_felh_telephely','megn' => 'Szálloda:',              'name' => 'telephely_id',   'szuro' => 1,   'class' => 'disableNav',        'style' => 'width: 100%;', 'alert' => 'Kérem válasszon szállodát!', 'disabled' => $szalloda_disabled),
@@ -4084,9 +4085,9 @@ if( isset($_POST['mellekTorol']) ) {
         } else if($tabla=='eloterj_fb_kapcs'){
 
             // Vegyük az első kijelölést, ebből már vissza tudjuk számolni, hogy melyik előterjesztésről van szó
-            $eloterj = $adatbazis_kapcsolat->s2('eloterj_recid', 'eloterj_fb_kapcs', "`recid`='{$idk[1]}'");
-            $statusz = $adatbazis_kapcsolat->s2('stat_id', 'eloterj_fb', "`recid`='{$eloterj['eloterj_recid']}'");
-            if($statusz['stat_id']!=ELOT_FB_STAT_NYITOTT){
+            $eloterj = $adatbazis_kapcsolat->s('eloterj_recid projektigenyles_recid', 'eloterj_fb_kapcs', "`recid` IN (".implode(', ', $idk).")");
+            $statusz = $adatbazis_kapcsolat->s2('stat_id', 'eloterj_fb', "`recid`='{$eloterj[0]['eloterj_recid']}'");
+            if( $statusz['stat_id']!=ELOT_FB_STAT_NYITOTT ){
                 echo json_encode(array(
                     'hiba'  => 'Csak nyitott státuszban törölhetőek a csatolt projektigénylések!',
                     'title' => 'Hiba'
@@ -4099,12 +4100,26 @@ if( isset($_POST['mellekTorol']) ) {
                 if( $sql === false ) { $db_error = true; }
             }
 
+            // A törölt Pr igényléseket vissza kell léptetni az előző státuszra
+            $pr_igen_recidk = adatbazis2tomb($eloterj, 'projektigenyles_recid');
+            foreach( $pr_igen_recidk as $pr_igeny_recid ){
+                
+                $igenyles_masolat = $adatbazis_kapcsolat->s2('stat_id', 'projektigenyles_eloterj', "`recid`='{$pr_igeny_recid}'");
+                if( $igenyles_masolat === false ) { $db_error = true; }
+                if( addStatusz('projektigenyles_statusz', $pr_igeny_recid, $igenyles_masolat['stat_id'])===false ){
+                    $db_error = true;
+                }
+                // Illetve a Projektigénylés másolatát is töröljük
+                $sql = $adatbazis_kapcsolat->d('projektigenyles_eloterj', "`recid`='{$pr_igeny_recid}'");
+                if( $sql === false ) { $db_error = true; }
+            }
+
         // Előterjesztésnél csak nyitott státuszban törölhető projektigénylés
         } else if($tabla=='eloterj_bod_kapcs'){
 
             // Vegyük az első kijelölést, ebből már vissza tudjuk számolni, hogy melyik előterjesztésről van szó
-            $eloterj = $adatbazis_kapcsolat->s2('eloterj_recid', 'eloterj_bod_kapcs', "`recid`='{$idk[1]}'");
-            $statusz = $adatbazis_kapcsolat->s2('stat_id', 'eloterj_bod', "`recid`='{$eloterj['eloterj_recid']}'");
+            $eloterj = $adatbazis_kapcsolat->s('eloterj_recid', 'eloterj_bod_kapcs', "`recid` IN (".implode(', ', $idk).")");
+            $statusz = $adatbazis_kapcsolat->s2('stat_id', 'eloterj_bod', "`recid`='{$eloterj[0]['eloterj_recid']}'");
             if($statusz['stat_id']!=ELOT_BOD_STAT_NYITOTT){
                 echo json_encode(array(
                     'hiba'  => 'Csak nyitott státuszban törölhetőek a csatolt projektigénylések!',
@@ -4115,6 +4130,21 @@ if( isset($_POST['mellekTorol']) ) {
                 exit();
             }else{
                 $sql = $adatbazis_kapcsolat -> d($tabla, "`recid` IN (".implode(',', $idk).")");
+                if( $sql === false ) { $db_error = true; }
+            }
+            
+            // A törölt Pr igényléseket vissza kell léptetni nyitottnak
+            $pr_igen_recidk = adatbazis2tomb($eloterj, 'projektigenyles_recid');
+            foreach( $pr_igen_recidk as $pr_igeny_recid ){
+                
+                $igenyles_masolat = $adatbazis_kapcsolat->s2('stat_id', 'projektigenyles_eloterj', "`recid`='{$pr_igeny_recid}'");
+                if( $igenyles_masolat === false ) { $db_error = true; }
+                if( addStatusz('projektigenyles_statusz', $pr_igeny_recid, $igenyles_masolt['stat_id'])===false ){
+                    $db_error = true;
+                }
+                
+                // Illetve a Projektigénylés másolatát is töröljük
+                $sql = $adatbazis_kapcsolat->d('projektigenyles_eloterj', "`recid`='{$pr_igeny_recid}'");
                 if( $sql === false ) { $db_error = true; }
             }
 

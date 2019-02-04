@@ -796,10 +796,25 @@ if(isset($_POST['igenylesek_betolt_uj_kezeleshez'])){
 
 // Login lista betöltése új Projekt team feltöltésekor
 if (isset($_POST['get_login_lista'])) {
-
+    
+    $db_error = false;
+    mysqli_autocommit($db_kapcs, false);
+    
+    // Lezárt státuszbannem adható hozzá tag
+    $sor = $adatbazis_kapcsolat->s2('stat_id', 'projektkezeles', "`recid`='{$_POST['recid']}'");
+    if( $sql === false ) { $db_error = true; }
+    if( $sor['stat_id'] == PRKEZEL_STAT_LEZART ){
+        echo json_encode(array(
+            'hiba'  => 'Lezárt státuszban nem adható hozzá team tag!',
+            'title' => 'Hiba'
+        ));
+        $weblap->leallit();
+        exit();
+    }
+    
     $sql = $loginok = $adatbazis_kapcsolat->s('recid nev teljes_nev reszleg_id beosztas_id szemelyzet_id usertel usermail', 'login', "`aktiv` > '0' AND `szemelyzet_id`!=0", 'teljes_nev');
     if( $sql === false ) { $db_error = true; }
-    
+ 
     $html = nl2('
         <div id="popup_loginok" class="mobilkeret" style="border: 0">
             <table class="csikos egyErtek sorLink">
@@ -839,9 +854,22 @@ if (isset($_POST['get_login_lista'])) {
         </div>
         ');
 
-    echo json_encode(array(
-        'html'  => $html,
-    ));
+    
+    
+    if( !$db_error ) {
+        mysqli_commit($db_kapcs);
+
+        echo json_encode(array(
+            'html' => $html
+        ));
+    } else {
+        mysqli_rollback($db_kapcs);
+
+        echo json_encode(array(
+            'hiba'  => tranzakcioHiba(),
+            'title' => 'Hiba'
+        ));
+    }
 
     $weblap->leallit();
     exit();
@@ -1479,7 +1507,7 @@ require_once('selectek.php');
 
             // Fejlécek
             $szamla_html .= nl2('
-                <div class="dt naplo szakter kijCont" data-tabla="projektkezeles_login" data-mellek="projekt_team">
+                <div class="dt naplo szakter" data-tabla="projektkezeles_login" data-mellek="projekt_team">
                     <div class="dtr nFejlec">
                         <div class="dtc">Név</div>
                         <div class="dtc">Cég</div>
@@ -1494,7 +1522,7 @@ require_once('selectek.php');
             $i = 1;
 
             $van_kezeles = false;
-            if( get_projekt_kezeles_jog($_GET['id']) ){
+            if( get_projekt_kezeles_jog($_GET['id']) && $sor['stat_id'] != PRKEZEL_STAT_LEZART ){
                 $van_kezeles = true;
                 // $torles = '<script> dok_torol_gomb_141 = \'<input type="button" class="gomb zold" value="Igen" onclick="mellekTorol(\'projektkezeles\', \'projekt_team\', \'\', \'141\');"><input type="button" class="gomb piros" value="Nem" onclick="alert2(); $(\'.torles_elott\').removeClass(\'torles_elott\').removeClass(\'kijelolve\');">'; </script> <span class="icon link" onclick="$('#kep141').addClass('torles_elott'); alert2('Biztos, hogy törli a(z) wd3.jpg dokumentumot?', dok_torol_gomb_141);"><i class="material-icons" style="font-size: 2rem">delete</i></span> </div>';
             }

@@ -115,8 +115,9 @@ if(isset($_POST['get_projekt_tabla'])){
                 <td>
                     '.$szalloda['nev'].'
                     <div class="dn pfelelos_txt">'.$pfelelos_neve.'</div>
+                    <div class="dn pfelelos_txt nev"><a href="projektkezeles.php?id='.$pr['recid'].'&amp;modosit" target="_blank">'.$pr['nev'].'</a></div>
                 </td>
-                <td style="width: 30rem" class="nev">'.$pr['nev'].'</td>
+                <td style="width: 30rem">'.$pr['nev'].'</td>
                 <td>'.$tipus.'</td>
                 <td class="r nowrap">'.number_format($pr['bkolt'], 0, '', ' ').'</td>
                 <td>'.datum_kiir($pr['insert_dt']).'</td>

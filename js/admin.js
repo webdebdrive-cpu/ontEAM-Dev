@@ -1168,7 +1168,7 @@ $(function() {
                 val = '';
             }
 
-console.log(name+' db:'+taroltVal+'|itt:'+val);
+/*console.log(name+' db:'+taroltVal+'|itt:'+val);*/
             if( name!='egy_tobb_egy' && name!='egy_tobb_tobb' ){
                 if( taroltVal != val ) {
                     $(this).addClass('mod');
@@ -4441,10 +4441,14 @@ function kijeloltSzamlal( sorok, reszleg, tabla, mellek ) {
                 szoveg          = 'megjegyzéseket';
             }
 
-            var full_szoveg = '';
+            var full_szoveg = ''; /* Arra az esetre, ha a teljes hibaüzenet szövegét cserélni szeretnénk */
             if(tabla=='munkalap' && _get('modosit')){
                 full_szoveg = 'Biztosan törli a bejelentést a munkalapról?';
             }
+            if( (tabla=='eloterj_fb_kapcs' || tabla=='eloterj_bod_kapcs') && _get('projektigeny')){
+                full_szoveg  = 'Azonosító: '+$('#ikt_szam_db').val()+'<br>Név: '+$('#nev_db').val()+'<br><br>Biztosan törli az előterjesztésből a kijelölt projektigényeket?';
+            }
+
             if(_get('engedelyek')){
                 szoveg = 'engedélyeket';
             }
@@ -5526,12 +5530,12 @@ function csv_general( that, valasztos, link_kieg ) {
 
         /* BoD Előterjesztésnél tervnél lehet választani, hogy navpanel listát vagy Projektigényléseket szeretne-e exportálni */
         if( baseName(location.href) == 'eloterj_bod' ){
-            alert2('Válasszon export fajtát:<br><a href="javascript:csv_general($(\'.excel\'))">» BoD előterjesztések exportálása</a><br><a href="javascript:csv_general($(\'.excel\'), \'\', \'projektigenyek&id=\'+_get(\'id\'))">» Projektigények exportálása</a>', '<input type="button" class="gomb" value="Mégsem" onclick="alert2()">', 'Válasszon exportot');
+            alert2('Válasszon export fajtát:<br><a href="javascript:csv_general($(\'.excel\'))">» BoD előterjesztések exportálása</a><br><a href="javascript:csv_general($(\'.excel\'), \'\', \'projektigenyek&id=\'+_get(\'id\'))">» BoD előterjesztés részletei</a>', '<input type="button" class="gomb" value="Mégsem" onclick="alert2()">', 'Válasszon exportot');
         }
         
         /* FB Előterjesztésnél tervnél lehet választani, hogy navpanel listát vagy Projektigényléseket szeretne-e exportálni */
         if( baseName(location.href) == 'eloterj_fb' ){
-            alert2('Válasszon export fajtát:<br><a href="javascript:csv_general($(\'.excel\'))">» FB előterjesztések exportálása</a><br><a href="javascript:csv_general($(\'.excel\'), \'\', \'projektigenyek&id=\'+_get(\'id\'))">» Projektigények exportálása</a>', '<input type="button" class="gomb" value="Mégsem" onclick="alert2()">', 'Válasszon exportot');
+            alert2('Válasszon export fajtát:<br><a href="javascript:csv_general($(\'.excel\'))">» FB előterjesztések exportálása</a><br><a href="javascript:csv_general($(\'.excel\'), \'\', \'projektigenyek&id=\'+_get(\'id\'))">» FB előterjesztés részletei</a>', '<input type="button" class="gomb" value="Mégsem" onclick="alert2()">', 'Válasszon exportot');
         }
 
         /* Energia tervnél lehet választani, hogy tervet, vagy Egységárakat szeretne-e exportálni */
