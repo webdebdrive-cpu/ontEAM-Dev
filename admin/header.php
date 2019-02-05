@@ -1194,12 +1194,12 @@ if( basename(self())=='projektkezeles.php' && !_jog(JOG_PRKEZEL_UJ_LETREHOZ) ){
 }
 
 // Projektszámlák: ha egyik joga sincs meg, akkor nincs szerkesztés lehetőség
-if( basename(self())=='projektszamla.php' && !_jog(JOG_PRSZAMLAK_KEZEL) ){
+if( basename(self())=='projektszamla.php' && !_jog(JOG_PRSZAMLAK_KEZEL) && !_jog(JOG_PR_SAJAT_SZAMLA_KEZEL) ){
     $uj = $duplikal = '';
 }
 
 // Projektiszerződések: ha egyik joga sincs meg, akkor nincs szerkesztés lehetőség
-if( basename(self())=='projektszerzodes.php' && !_jog(JOG_PRKEZEL_SZERZODES_KEZEL) ){
+if( basename(self())=='projektszerzodes.php' && !_jog(JOG_PRKEZEL_SZERZODES_KEZEL) && !_jog(JOG_PR_SAJAT_SZERZ_KEZEL) ){
     $uj = $duplikal = '';
 }
 

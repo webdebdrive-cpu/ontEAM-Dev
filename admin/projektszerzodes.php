@@ -766,7 +766,7 @@ require_once('selectek.php');
         $_SESSION['pr_szer_tetel_varh_erk'] = '';
         $_SESSION['pr_szer_tetel_varh_ert'] = '';
 
-        if( _jog(JOG_PRKEZEL_SZERZODES_KEZEL) ){
+        if( _jog(JOG_PRKEZEL_SZERZODES_KEZEL) || _jog(JOG_PR_SAJAT_SZERZ_KEZEL) ){
             $gombok = nl2('
                 <div class="form_kuldes">
                     <input type="button" class="gombb mentes_gomb" name="mehet_gomb" id="mehet_gomb" disabled value="Mentés" onclick="szurkit(\'mehet_megsem_rejt\'); $(\'#szerk_form\').submit()">
@@ -871,7 +871,7 @@ require_once('selectek.php');
     $js_submit_elott = 'return form_ell_admin();';
     
 	// Új projektkezelés felvitele
-	if( isset($_GET['uj']) && _jog(JOG_PRKEZEL_SZERZODES_KEZEL) ){
+	if( isset($_GET['uj']) && (_jog(JOG_PRKEZEL_SZERZODES_KEZEL) || _jog(JOG_PR_SAJAT_SZERZ_KEZEL)) ){
         
         $js_submit_elott = nl2('
             

@@ -1211,7 +1211,7 @@ require_once('selectek.php');
 
     // Gombok kirajzolása minden oldalra. Projekt számlák kezelés globális jog kell hozzá
     $gombok = '';
-    if( isset($_GET['uj']) && _jog(JOG_PRSZAMLAK_KEZEL) ) {
+    if( isset($_GET['uj']) && (_jog(JOG_PRSZAMLAK_KEZEL) || _jog(JOG_PR_SAJAT_SZAMLA_KEZEL)) ) {
         
         // Új feltöltéskor a tétel sorokat töröljük, ne az legyen, hogy szerkesztésből maradt adatokkal számoljunk
         $_SESSION['pr_szla_tetel_targy']     = '';
@@ -1311,7 +1311,7 @@ require_once('selectek.php');
     $js_submit_elott = 'return form_ell_admin();';
     
 	// Új projektkezelés felvitele
-	if( isset($_GET['uj']) && _jog(JOG_PRSZAMLAK_KEZEL) ){
+	if( isset($_GET['uj']) && (_jog(JOG_PRSZAMLAK_KEZEL) || _jog(JOG_PR_SAJAT_SZAMLA_KEZEL)) ){
         
         // Az űrlap feldolgozása előtti JS-t tiszta lappal indítjuk
         $js_submit_elott = '';
