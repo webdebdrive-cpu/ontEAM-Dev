@@ -2340,7 +2340,7 @@ if( get_projekt_szamla_kezel_jog($_GET['id']) || isset($_GET['uj']) ){
     if (isset($_GET['modosit'])) {
         $prsz = $adatbazis_kapcsolat->s2('sz_szam', 'projektszamla', "`recid`='{$_GET['id']}'");
         if($prsz['sz_szam']){
-            $gomb_felirat = 'Szerződés törlése';
+            $gomb_felirat = 'Szerződés szám törlése';
             $gomb_class   = ' piros';
         }
     }
@@ -2395,7 +2395,7 @@ if( get_projekt_szerzodes_kezel_jog($_GET['id']) || isset($_GET['uj']) ){
     if (isset($_GET['modosit'])) {
         $prsz = $adatbazis_kapcsolat->s2('pr_szam', 'projektszerzodes', "`recid`='{$_GET['id']}'");
         if($prsz['pr_szam']){
-            $gomb_felirat = 'Projekt törlése';
+            $gomb_felirat = 'Projekt szám törlése';
             $gomb_class   = ' piros';
         }
     }

@@ -378,8 +378,8 @@ if (isset($_POST['projekt_fajfeltoltes_utan_tovabb'])) {
 // Projekt adatának lekérdezése popup felirathoz
 if (isset($_POST['get_projektkezeles'])) {
     
-    $sor = $adatbazis_kapcsolat->s2('ikt_szam', 'projektkezeles', "`recid`='{$_POST['recid']}'");
-    echo $sor['ikt_szam'];
+    $sor = $adatbazis_kapcsolat->s2('ikt_szam telephely_id nev', 'projektkezeles', "`recid`='{$_POST['recid']}'");
+    echo 'Azonosító: '.$sor['ikt_szam'].'<br>Szálloda: '.getSzallodaNev($sor['telephely_id']).'<br>Név: '.addslashes($sor['nev']).'<br><br>';
     
     $weblap->leallit();
     exit();
@@ -1228,6 +1228,9 @@ require_once('selectek.php');
     // Módosítás gombok
     }else{
         
+        // Több kérdés is azzal kezdődik, hogy kiírjuk a Projekt adatait, ezért egy változóba kiszervezzük
+        $projekt_adatok = 'Azonosító: '.$sor['ikt_szam'].'<br>Szálloda: '.getSzallodaNev($sor['telephely_id']).'<br>Név: '.addslashes($sor['nev']).'<br><br>';
+        
         // Törlés gomb
         if( !get_projekt_kezeles_jog($_GET['id']) ){
             $gombok .= ' <input type="button" id="recordTorol" class="gombb_alert dn" onclick="alert2(\'Önnek nincs joga a projekt törléséhez!\', \'\', \'Hiba\')" value="Töröl" title="Töröl">';
@@ -1258,7 +1261,7 @@ require_once('selectek.php');
                 $gombok .= '<input type="button" class="gomb modositaskor_rejt" value="Előkészítés alatt" onclick="alert2(\'Előbb csatoljon egy dokumentumot a projekthez!\', \'\', \'Hiba\')"> ';
             }else{
                 $gombok .= '<script> gomb_elokeszites = \'<input type="button" class="gomb zold" onclick="projekt_elokeszites_ala()" value="Igen"><input type="button" class="gomb piros" onclick="alert2()" value="Nem">\';</script>';
-                $gombok .= '<input type="button" class="gomb modositaskor_rejt" value="Előkészítés alatt" onclick="alert2(\''.$sor['ikt_szam'].'<br>Biztos, hogy Előkészítés alatt státuszba helyezi a projektet?\', gomb_elokeszites)"> ';
+                $gombok .= '<input type="button" class="gomb modositaskor_rejt" value="Előkészítés alatt" onclick="alert2(\''.$projekt_adatok.'Biztos, hogy Előkészítés alatt státuszba helyezi a projektet?\', gomb_elokeszites)"> ';
             }
         }
         
@@ -1271,7 +1274,7 @@ require_once('selectek.php');
         $statuszok = array(PRKEZEL_STAT_FELFUGGESZTETT);
         if( in_array($sor['stat_id'], $statuszok) && get_projekt_kezeles_jog($_GET['id']) ) {
             $gombok .= '<script> gomb_felfuggeszt = \'<input type="button" class="gomb zold" onclick="projekt_felfuggesztes_vege()" value="Igen"><input type="button" class="gomb piros" onclick="alert2()" value="Nem">\';</script>';
-            $gombok .= '<input type="button" class="gomb modositaskor_rejt" value="Felfüggesztés vége" onclick="alert2(\''.$sor['ikt_szam'].'<br>Biztos, hogy újra megnyitja a projektet?\', gomb_felfuggeszt)"> ';
+            $gombok .= '<input type="button" class="gomb modositaskor_rejt" value="Felfüggesztés vége" onclick="alert2(\''.$projekt_adatok.'Biztos, hogy újra megnyitja a projektet?\', gomb_felfuggeszt)"> ';
         }
         
         // Leállítás
@@ -1288,7 +1291,7 @@ require_once('selectek.php');
                 $gombok .= '<input type="button" class="gomb modositaskor_rejt" value="Folyamatban" onclick="alert2(\'Előbb csatoljon egy szerződést a projekthez!\', \'\', \'Hiba\')"> ';
             }else{
                 $gombok .= '<script> gomb_folyamatbanra = \'<input type="button" class="gomb zold" onclick="projekt_folyamatbanra()" value="Igen"><input type="button" class="gomb piros" onclick="alert2()" value="Nem">\';</script>';
-                $gombok .= '<input type="button" class="gomb modositaskor_rejt" value="Folyamatban" onclick="alert2(\''.$sor['ikt_szam'].'<br>Biztos, hogy Folyamatban státuszba helyezi a projektet?\', gomb_folyamatbanra)"> ';
+                $gombok .= '<input type="button" class="gomb modositaskor_rejt" value="Folyamatban" onclick="alert2(\''.$projekt_adatok.'Biztos, hogy Folyamatban státuszba helyezi a projektet?\', gomb_folyamatbanra)"> ';
             }
         }
         
@@ -1300,7 +1303,7 @@ require_once('selectek.php');
                 $gombok .= '<input type="button" class="gomb modositaskor_rejt" value="Kész" onclick="alert2(\'Előbb csatoljon egy Átadási. jk. Dokumentumot a projekthez!\', \'\', \'Hiba\')"> ';
             }else{
                 $gombok .= '<script> gomb_keszre = \'<input type="button" class="gomb zold" onclick="projekt_keszre()" value="Igen"><input type="button" class="gomb piros" onclick="alert2()" value="Nem">\';</script>';
-                $gombok .= '<input type="button" class="gomb modositaskor_rejt" value="Kész" onclick="alert2(\''.$sor['ikt_szam'].'<br>Biztos, hogy Kész státuszba helyezi a projektet?\', gomb_keszre)"> ';
+                $gombok .= '<input type="button" class="gomb modositaskor_rejt" value="Kész" onclick="alert2(\''.$projekt_adatok.'Biztos, hogy Kész státuszba helyezi a projektet?\', gomb_keszre)"> ';
             }
         }
         
@@ -1312,7 +1315,7 @@ require_once('selectek.php');
                 $gombok .= '<input type="button" class="gomb modositaskor_rejt" value="Lezárt" onclick="alert2(\'Előbb csatoljon egy Gar. bejárási jk. Dokumentumot a projekthez!\', \'\', \'Hiba\')"> ';
             }else{
                 $gombok .= '<script> gomb_lezartra = \'<input type="button" class="gomb zold" onclick="projekt_lezartra()" value="Igen"><input type="button" class="gomb piros" onclick="alert2()" value="Nem">\';</script>';
-                $gombok .= '<input type="button" class="gomb modositaskor_rejt" value="Lezárt" onclick="alert2(\''.$sor['ikt_szam'].'<br>Biztos, hogy Lezárt státuszba helyezi a projektet?\', gomb_lezartra)"> ';
+                $gombok .= '<input type="button" class="gomb modositaskor_rejt" value="Lezárt" onclick="alert2(\''.$projekt_adatok.'Biztos, hogy Lezárt státuszba helyezi a projektet?\', gomb_lezartra)"> ';
             }
         }
 

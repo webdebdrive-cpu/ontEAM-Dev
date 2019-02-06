@@ -37,8 +37,8 @@
     
 </div>
 <div class="kuldes">
-    <input type="button" class="gomb zold" value="Mentés" onclick="tetel_sorok_ment('', 'bezárás nélkül')">
-    <input type="button" class="gomb kek" value="Mégsem" onclick="megsem_gomb();">
+    <input type="button" class="gomb zold dn pop_mentes_megsem" value="Mentés" onclick="tetel_sorok_ment('', 'bezárás nélkül')">
+    <input type="button" class="gomb kek dn pop_mentes_megsem" value="Mégsem" onclick="megsem_gomb();">
     <input type="button" class="gomb piros escapes_megsem" value="Bezár" onclick="bezar_gomb();">
 </div>
 <script>
@@ -99,6 +99,8 @@ function tetel_hozzaadasa() {
 
     $('#pop_targy').focus();
     
+    $('.pop_mentes_megsem').removeClass('dn');
+    
     /* A tétel sorokat csak Sessio-ba, kimentjük. Ez azért van, mert a tételek kezelése popupra rányitjuk a kapcsolás popupot, majd visszatérve ide (azaz újra betöltve) 
      * SESSION-ből lehessen reprodukálni, de DB-be még nem menethetünk csak, ha a Mentés gombra kattintottak. */
     /*tetel_sorok_ment('DB mentése nélkül');*/
@@ -125,6 +127,8 @@ function popup_tetel_sor_torol(sor_id, mehet){
     });
     
     $('#pop_targy').focus();
+    
+    $('.pop_mentes_megsem').removeClass('dn');
     
     /* A tétel sorokat csak Sessio-ba, kimentjük. Ez azért van, mert a tételek kezelése popupra rányitjuk a kapcsolás popupot, majd visszatérve ide (azaz újra betöltve) 
      * SESSION-ből lehessen reprodukálni, de DB-be még nem menethetünk csak, ha a Mentés gombra kattintottak. */

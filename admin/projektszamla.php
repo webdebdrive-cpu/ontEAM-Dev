@@ -652,7 +652,7 @@ if (isset($_POST['pop_tetelek_feltolt'])) {
         }
         if( $pr_tetel ){
             $targy = htmlspecialchars_decode( $pr_tetel['targy'] );
-            $class = ' szerzodes_szamla_tetel_szurke';
+            $class = ''/*' szerzodes_szamla_tetel_szurke'*/;
             $torol = '';
         }else{
             if( $_SESSION['pr_szla_tetel_recid'][$i] ){

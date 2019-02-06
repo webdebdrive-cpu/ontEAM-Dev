@@ -53,7 +53,7 @@ function get_projekt_tabla(order, telephely_id){
 function projekt_kivalaszt(){
     /* Projektszám és projekt nevének kitöltése */
     $('#pr_szam').val( $('#pr_szerzodes_tablazat tr.kijelolve').data('ikt_szam') );
-    $('#pr_szam_gomb').val('Projekt törlése').addClass('piros');
+    $('#pr_szam_gomb').val('Projekt szám törlése').addClass('piros');
     $('#pr_szam').addClass('mod');
     $('#projekt_neve').html( $('#pr_szerzodes_tablazat tr.kijelolve div.nev').html() );
     
