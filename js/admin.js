@@ -286,6 +286,41 @@ function alert_utan_mehet_megsem_mutat_beallit() {
     $('.bezar').addClass('mehet_megsem_mutat');
 }
 
+// Mentés gomb általános működése
+function mentesGomb() {
+    szurkit('mehet_megsem_rejt');
+    $('#szerk_form').submit();
+}
+
+// Mégsem gomb általános működése
+function megsemGomb() {
+    
+    szurkit('mehet_megsem_rejt');
+    formModositva=false;
+    
+    oldal = baseName(location.href)+'.php';
+
+    /* Adatlap módosítás esete */
+    if( _get('id') ){
+        szamlaBetolt(_get('id'), oldal);
+    /* Új feltöltés esete */
+    }else if( $('#szamlaList li').length ){
+        /* Ezt eg lehetett volna oldani így is: $('#szamlaList li.szamla_sor:first-of-type'), de nem működött érték lista menüpont alatt. Sőt elég lett volna így is: $('#szamlaList li:first-of-type'), de szintén az értéklista menüpont miatt így kelett megoldani  */
+        $('#szamlaList li').each(function () {
+            if( $(this).hasClass('szamla_sor') ){
+                szamlaBetolt($(this).attr('data-recid'), oldal);
+                return false;
+            }
+        });
+
+        
+    /* Új feltöltés esete, ha még egyetlen rekord sincs a bal navpanelen */
+    }else{
+        location.reload();
+    }
+}
+
+
 $(function() {
     
     /* 800px alatt mobilnak számít */

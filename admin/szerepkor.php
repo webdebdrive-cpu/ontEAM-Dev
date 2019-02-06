@@ -251,8 +251,8 @@ require_once('selectek.php');
         if( _jog(JOG_SZEREPKOR_KEZEL) ){
             $gombok = nl2('
                 <div class="form_kuldes">
-                    <input type="button" class="gombb mentes_gomb" name="mehet_gomb" id="mehet_gomb" disabled value="Mentés" onclick="szurkit(\'mehet_megsem_rejt\'); $(\'#szerk_form\').submit();">
-                    <input type="button" class="gomb piros" disabled id="megsem_gomb" value="Mégsem" onclick="szurkit(\'mehet_megsem_rejt\'); formModositva=false; szamlaBetolt($(\'#szamlaList li:first-of-type\').attr(\'data-recid\'), \''.$megnevezes.'.php\');">
+                    <input type="button" class="gombb mentes_gomb" name="mehet_gomb" id="mehet_gomb" disabled value="Mentés" onclick="mentesGomb();">
+                    <input type="button" class="gomb piros" disabled id="megsem_gomb" value="Mégsem" onclick="megsemGomb();">
                 </div>
             ');
         }
@@ -600,7 +600,7 @@ require_once('selectek.php');
                             <input type="hidden" name="id" value="'.$_GET['id'].'">
                             <script> meget_gomb = \'<input type="button" class="gomb zold" value="Igen" onclick="$(\\\'#erintettek_mod\\\').val(1); $(\\\'#szerk_form\\\').submit(); $(\\\'#mehet_gomb\\\').attr(\\\'disabled\\\', true); $(\\\'#megsem_gomb\\\').attr(\\\'disabled\\\', true); alert2();"><input type="button" class="gomb piros" value="Nem" onclick="$(\\\'#szerk_form\\\').submit(); $(\\\'#mehet_gomb\\\').attr(\\\'disabled\\\', true); $(\\\'#megsem_gomb\\\').attr(\\\'disabled\\\', true); alert2();">\'; </script>
                             <input type="button" class="gomb zold" name="mehet_gomb" id="mehet_gomb" disabled value="Mentés" onclick="alert2(\'A szerepkör megváltozott.<br>Jogait beállítsuk az érintett felhasználóknál is?\', meget_gomb)">
-                            <input type="button" class="gomb piros" disabled id="megsem_gomb" value="Mégsem" onclick="szurkit(\'mehet_megsem_rejt\'); formModositva=false; location.reload();">
+                            <input type="button" class="gomb piros" disabled id="megsem_gomb" value="Mégsem" onclick="megsemGomb();">
                         </div>
                     </div>');
         }else{

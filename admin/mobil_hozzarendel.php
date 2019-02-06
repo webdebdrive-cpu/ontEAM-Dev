@@ -436,7 +436,7 @@ require_once('selectek.php');
                 <input class="gomb" value="Vissza a nyitottak közé" onclick="munkalapok_nyitottak_koze()" type="button" id="vissza_nyitottak_koze">
                 <input class="gomb" value="Mobil személyzet beosztása" onclick="csoportMuvelet(\'mobil_szemelyzet_beosztas\')" type="button">
 
-                <input type="submit" class="gombb mentes_gomb dn" id="mehet_gomb" disabled value="Mentés" onclick="szurkit(\'mehet_megsem_rejt\'); formModositva = false; $(\'#szerk_form\').submit()">
+                <input type="submit" class="gombb mentes_gomb dn" id="mehet_gomb" disabled value="Mentés" onclick="mentesGomb();">
 
             </div>
             ');

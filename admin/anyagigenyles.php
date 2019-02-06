@@ -2337,7 +2337,7 @@ require_once('selectek.php');
             $gombok = nl2('
                 <div class="form_kuldes">
                     <input type="button" class="gombb mentes_gomb ne_rejtsd_el" name="mehet_gomb" id="mehet_gomb" disabled value="Anyagigénylés" onclick="szurkit(\'mehet_megsem_rejt\'); anyagigenylesekMentes();">
-                    <input type="button" class="gomb piros ne_rejtsd_el" disabled id="megsem_gomb" value="Mégsem" onclick="szurkit(\'mehet_megsem_rejt\'); formModositva=false; location.reload();">
+                    <input type="button" class="gomb piros ne_rejtsd_el" disabled id="megsem_gomb" value="Mégsem" onclick="megsemGomb();">
                 </div>
             ');
 
@@ -2549,7 +2549,7 @@ require_once('selectek.php');
                 $gombok = nl2('
                     <div class="form_kuldes">
                         <input type="button" class="gombb mentes_gomb" name="mehet_gomb" id="mehet_gomb" disabled value="Anyagigénylés" onclick="szurkit(\'mehet_megsem_rejt\'); $(\'#szerk_form\').submit()">
-                        <input type="button" class="gomb piros" disabled id="megsem_gomb" value="Mégsem" onclick="szurkit(\'mehet_megsem_rejt\'); formModositva=false; location.reload();">
+                        <input type="button" class="gomb piros" disabled id="megsem_gomb" value="Mégsem" onclick="megsemGomb();">
                     </div>
                 ').$gombok;
             }
