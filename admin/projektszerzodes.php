@@ -39,7 +39,7 @@ if (isset($_POST['van_kapcsolt_szamla'])) {
     foreach ( $szerzodes_tetelek as $tetel ){
         if( $adatbazis_kapcsolat->s('recid', 'projektszamla_tetel', "`projektszerzodes_tetel_recid`='{$tetel['recid']}'") ){
             echo json_encode( array(
-                                'hiba'  => 'A szerződésnek van olyan tétele, amihez van számla tétel kapcsolva, így a projekt nem törölhető!',
+                                'hiba'  => 'A szerződésnek van olyan tétele, amihez van számla tétel kapcsolva, így a projekt szám nem törölhető!',
                                 'title' => 'Hiba',
                             ) );
             $weblap -> leallit();

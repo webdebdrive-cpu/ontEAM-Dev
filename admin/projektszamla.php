@@ -39,7 +39,7 @@ if (isset($_POST['van_kapcsolt_szerzodes'])) {
     if ( $szerzodes_tetelek ){
 
         echo json_encode( array(
-                            'hiba'  => 'A számlának van olyan tétele, amihez van szerződés tétel kapcsolva, így a szerződés nem törölhető!',
+                            'hiba'  => 'A számlának van olyan tétele, amihez van szerződés tétel kapcsolva, így a szerződés szám nem törölhető!',
                             'title' => 'Hiba',
                         ) );
         $weblap -> leallit();
@@ -610,18 +610,14 @@ if (isset($_POST['pop_tetelek_feltolt'])) {
     if( $_POST['sz_szam'] ){
         // Lekérjük, a projekt szerződéses összegét
         $pr_szerzodes = $adatbazis_kapcsolat->s2('szerz_ossz', 'projektszerzodes', "`sz_szam`='{$_POST['sz_szam']}'");
-        // Illetve, hogy az aktuális számlán kívül milyen számlák tartoznak hozzá
-        $ossznetto = 0;
-        $szamlak   = $adatbazis_kapcsolat->s('netto', 'projektszamla', "`sz_szam`='{$_POST['sz_szam']}' AND `recid`!='{$_POST['id']}'");
-        foreach($szamlak as $szamla){
-            $ossznetto += $szamla['netto'];
-        }
-        // Beleférünk-e a keretbe
-        if( ($ossznetto+$_POST['netto']) > $pr_szerzodes['szerz_ossz'] ){
+        
+        // Illetve, hogy az aktuális számlán kívül milyen számlák tartoznak hozzá, és beleférünk-e a keretbe?
+        $szamlak = $adatbazis_kapcsolat->s2('SUM(`netto`)', 'projektszamla', "`sz_szam`='{$_POST['sz_szam']}' AND `recid`!='{$_POST['id']}'");
+        if( ($szamlak['SUM(`netto`)']+$_POST['netto']) > $pr_szerzodes['szerz_ossz'] ){
             echo json_encode( array(
                                 'hiba'  => nl2('
                                                 Szerződött összeg: '.number_format($pr_szerzodes['szerz_ossz'], 0, '', ' ').' '.get_penznem().'
-                                                <br>Még felhasználható összeg: '.number_format($pr_szerzodes['szerz_ossz']-$ossznetto, 0, '', ' ').' '.get_penznem().'
+                                                <br>Még felhasználható összeg: '.number_format($pr_szerzodes['szerz_ossz']-$szamlak['SUM(`netto`)'], 0, '', ' ').' '.get_penznem().'
                                                 <br>A számla nettó értéke több, mint a választott szerződésből még felhasználható összeg!
                                                 '),
                                 'focus' => 'netto',
@@ -690,10 +686,10 @@ if (isset($_POST['pop_kapcsolas_feltolt'])) {
         $szamla = $adatbazis_kapcsolat->s2('sz_szam telj_datum', 'projektszamla', "`recid`='{$szamla_tetel['projektszamla_recid']}'");
     }
     
-    // Szerződés számot post-ként is megkapjuk. Ha mgésem akkor hibát dobunk.
+    // Szerződés számot post-ként is megkapjuk. Ha mégsem akkor hibát dobunk.
     if($_POST['sz_szam']){
         
-        // Hibáa kaptuk meg post-ként, minket az érdekel hogy DB szintén meg van-e. Ha nem akkor figelmeztetés, hogy előbb mentsen adatlapot
+        // Hiába kaptuk meg post-ként, minket az érdekel hogy DB szintén meg van-e. Ha nem akkor figyelmeztetés, hogy előbb mentsen adatlapot
         if( !$szamla['sz_szam'] ){
             
             echo json_encode( array(
@@ -888,10 +884,12 @@ if (isset($_POST['van_tetel'])) {
         exit();
     }
     
-    // Ellenőrizzük, hogy a kiválasztott szálloda és a projekt szám stimmel-e
+    // Ha megvan adva a szerződés szám
     if( $_POST['sz_szam'] ){
-        $projekt = $adatbazis_kapcsolat->s2('telephely_id', 'projektszerzodes', "`sz_szam`='{$_POST['sz_szam']}'");
-        if( $projekt['telephely_id']!=$_POST['telephely_id'] ){
+        
+        // Ellenőrizzük, hogy a kiválasztott szálloda és a projekt szám stimmel-e
+        $pr_szerzodes = $adatbazis_kapcsolat->s2('telephely_id szerz_ossz', 'projektszerzodes', "`sz_szam`='{$_POST['sz_szam']}'");
+        if( $pr_szerzodes['telephely_id']!=$_POST['telephely_id'] ){
             echo json_encode(array(
                 'hiba'  => 'A projekt szám nem megfelelő szállodához tartozik!',
                 'gomb'  => '<input type="button" class="gomb" value="Ok" onclick="alert2(); szurkit_zar(\'mehet_megsem_mutat\'); $(\'#telephely_id\').focus();">',
@@ -900,20 +898,23 @@ if (isset($_POST['van_tetel'])) {
             $weblap -> leallit();
             exit();
         }
-    }
-    
-    // Ha ismert a szerződés szám ellenőrizzük, hogy a kiválasztott szálloda és a partner stimmel-e
-    if( $_POST['sz_szam'] ){
-        $projekt = $adatbazis_kapcsolat->s2('szallito_id', 'projektszerzodes', "`sz_szam`='{$_POST['sz_szam']}'");
-        if( $projekt['szallito_id']!=$_POST['szallito_id'] ){
-            echo json_encode(array(
-                'hiba'  => 'A partner nem megfelelő szerződéshez tartozik!',
-                'gomb'  => '<input type="button" class="gomb" value="Ok" onclick="alert2(); szurkit_zar(\'mehet_megsem_mutat\'); $(\'#szallito_id_autocomp\').focus();">',
+        
+        // Ellenőrizzük, hogy beleférünk-e még a szerződött összegbe
+        $szamlak = $adatbazis_kapcsolat->s2('SUM(`netto`)', 'projektszamla', "`sz_szam`='{$_POST['sz_szam']}'");
+        if( ($szamlak['SUM(`netto`)']+$szamla_netto_erteke) > $pr_szerzodes['szerz_ossz'] ){
+            echo json_encode( array(
+                'hiba'  => nl2('
+                                Szerződött összeg: '.number_format($pr_szerzodes['szerz_ossz'], 0, '', ' ').' '.get_penznem().'
+                                <br>Még felhasználható összeg: '.number_format($pr_szerzodes['szerz_ossz']-$szamlak['SUM(`netto`)'], 0, '', ' ').' '.get_penznem().'
+                                <br>A számla nettó értéke több, mint a választott szerződésből még felhasználható összeg!
+                                '),
+                'focus' => 'netto',
                 'title' => 'Hiba',
-            ));
+            ) );
             $weblap -> leallit();
-            exit();
+            exit;
         }
+
     }
         
     // Ha van feltöltött tétel, akkor az összegüknek meg kell egyezzen a számla nettó értékével
