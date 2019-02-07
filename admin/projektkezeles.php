@@ -656,22 +656,15 @@ if(isset($_POST['igenylesek_betolt_uj_kezeleshez'])){
 
     // Nem szerepelnek másik nyitott vagy véglegesítve státuszú FB/BoD előterjesztésben
     $where_kieg = '';
-    $fb_kizart_recidk  = $adatbazis_kapcsolat->s('projektigenyles_recid', 'eloterj_fb_kapcs', "`eloterj_recid` IN (SELECT `recid` FROM `".get_db_tabla()."eloterj_fb` WHERE `stat_id` IN ('".ELOT_FB_STAT_NYITOTT."', '".ELOT_FB_STAT_VEGLEGESITVE."'))");
+    $fb_kizart_recidk  = $adatbazis_kapcsolat->s('projektigenyles_recid', 'projektigenyles_eloterj', "`eloterj_fb_recid` IN (SELECT `recid` FROM `".get_db_tabla()."eloterj_fb` WHERE `stat_id` IN ('".ELOT_FB_STAT_NYITOTT."', '".ELOT_FB_STAT_VEGLEGESITVE."'))");
     $fb_kizart_recidk  = adatbazis2tomb($fb_kizart_recidk, 'projektigenyles_recid');
-    $bod_kizart_recidk = $adatbazis_kapcsolat->s('projektigenyles_recid', 'eloterj_bod_kapcs', "`eloterj_recid` IN (SELECT `recid` FROM `".get_db_tabla()."eloterj_bod` WHERE `stat_id` IN ('".ELOT_BOD_STAT_NYITOTT."', '".ELOT_BOD_STAT_VEGLEGESITVE."'))");
+    $bod_kizart_recidk = $adatbazis_kapcsolat->s('projektigenyles_recid', 'projektigenyles_eloterj', "`eloterj_bod_recid` IN (SELECT `recid` FROM `".get_db_tabla()."eloterj_bod` WHERE `stat_id` IN ('".ELOT_BOD_STAT_NYITOTT."', '".ELOT_BOD_STAT_VEGLEGESITVE."'))");
     $bod_kizart_recidk = adatbazis2tomb($bod_kizart_recidk, 'projektigenyles_recid');
     $kizart_recidk = array_merge($fb_kizart_recidk, $bod_kizart_recidk);
-    
-    // Az olyan igyénylések, amelyek recid-je már a projektkezelés relációjában szerepel, azokat is szűrjük ki
-//    $kezelt_igenyek = $adatbazis_kapcsolat->s('projektigenyles_recid', 'projektkezeles', "`projektigenyles_recid`>0");
-//    foreach($kezelt_igenyek as $kezelt_igeny){
-//        array_push($kizart_recidk, $kezelt_igeny['projektigenyles_recid']);
-//    }
-    
+
     if($kizart_recidk){
         $where_kieg .= ' AND `'.get_db_tabla().'projektigenyles`.`recid` NOT IN ('.implode(',', $kizart_recidk).')';
     }
-    
 
     $szallodak = get_akt_login_szallodai();
     $priek = $adatbazis_kapcsolat->s('
@@ -684,7 +677,7 @@ if(isset($_POST['igenylesek_betolt_uj_kezeleshez'])){
                                         `'.get_db_tabla().'telephely`.`nev` as `t_nev`',
                                         'projektigenyles',
                                         "`stat_id`='".PRIGENY_STAT_JOVAHAGYVA."' AND `telephely_id` IN (".implode(',', $szallodak).")$where_kieg", $order, '', '', '', $join);
-//echo $adatbazis_kapcsolat->gp() . '<br>';
+// echo $adatbazis_kapcsolat->gp() . '<br>';
     $i = 1;
     foreach($priek as $pri){
 

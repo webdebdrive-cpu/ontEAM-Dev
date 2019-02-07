@@ -1108,7 +1108,8 @@ array_push($postok, array('tomb' => $akt_tomb, 'uj' => 'uj'.$megnevezes, 'lista'
 // Szerepkör
 $megnevezes = 'szerepkor';
 $szerepkor_tomb = $akt_tomb = array(
-	array('type' => 'text',        'megn' => 'Név:',        'name' => 'nev',   'maxlength' => 250, 'alert' => 'Kérem töltse ki a nevet!', 'class' => 'oriasi'),
+	array('type' => 'text',        'megn' => 'Név:',                'name' => 'nev',   'maxlength' => 250, 'alert' => 'Kérem töltse ki a nevet!', 'class' => 'oriasi'),
+	array('type' => 'checkbox',    'megn' => get_nev().' kezeli:',  'name' => 'fix_adat',   'disabled' => true)
 
 );
 array_push($postok, array('tomb' => $akt_tomb, 'uj' => 'uj'.$megnevezes, 'lista' => $megnevezes.'lista', 'tabla' => $megnevezes, 'torid' => $megnevezes.'tid' ));
@@ -2153,15 +2154,15 @@ if( basename(self()) == 'projektigenyles.php' && $_GET['id'] ) {
     }
 
     $eltoterj_html = '';
-    $eloterj_kapcs = $adatbazis_kapcsolat->s2('eloterj_recid', 'eloterj_fb_kapcs', "`projektigenyles_recid`='{$_GET['id']}'");
-    if($eloterj_kapcs){
-        $eloterj = $adatbazis_kapcsolat->s2('ikt_szam nev', 'eloterj_fb', "`recid`='{$eloterj_kapcs['eloterj_recid']}'");
-        $eltoterj_html .= '<a href="eloterj_fb.php?id='.$eloterj_kapcs['eloterj_recid'].'&amp;modosit" target="_blank"><b>'.$eloterj['ikt_szam'].'</b></a> '. resz_string(htmlspecialchars_decode($eloterj['nev']), 60);
-    }
-    $eloterj_kapcs = $adatbazis_kapcsolat->s2('eloterj_recid', 'eloterj_bod_kapcs', "`projektigenyles_recid`='{$_GET['id']}'");
-    if($eloterj_kapcs){
-        $eloterj = $adatbazis_kapcsolat->s2('ikt_szam nev', 'eloterj_bod', "`recid`='{$eloterj_kapcs['eloterj_recid']}'");
-        $eltoterj_html .= '<a href="eloterj_bod.php?id='.$eloterj_kapcs['eloterj_recid'].'&amp;modosit" target="_blank"><b>'.$eloterj['ikt_szam'].'</b></a> '.resz_string(htmlspecialchars_decode($eloterj['nev']), 60);
+    $eloterj_kapcs = $adatbazis_kapcsolat->s2('eloterj_fb_recid, eloterj_bod_recid', 'projektigenyles_eloterj', "`projektigenyles_recid`='{$_GET['id']}'");
+    foreach($eloterj_kapcs as $kapcs){
+        if( $kapcs['eloterj_fb_recid'] ){
+            $eloterj = $adatbazis_kapcsolat->s2('ikt_szam nev', 'eloterj_fb', "`recid`='{$kapcs['eloterj_fb_recid']}'");
+            $eltoterj_html .= '<a href="eloterj_fb.php?id='.$kapcs['eloterj_fb_recid'].'&amp;modosit" target="_blank"><b>'.$eloterj['ikt_szam'].'</b></a> '. resz_string(htmlspecialchars_decode($eloterj['nev']), 60);
+        }elseif( $kapcs['eloterj_bod_recid'] ){
+            $eloterj = $adatbazis_kapcsolat->s2('ikt_szam nev', 'eloterj_bod', "`recid`='{$kapcs['eloterj_bod_recid']}'");
+            $eltoterj_html .= '<a href="eloterj_bod.php?id='.$kapcs['eloterj_bod_recid'].'&amp;modosit" target="_blank"><b>'.$eloterj['ikt_szam'].'</b></a> '. resz_string(htmlspecialchars_decode($eloterj['nev']), 60);
+        }
     }
 
     if($eltoterj_html){
@@ -2363,8 +2364,8 @@ if ( $_GET['id'] ) {
     $pr_szerzodes = $adatbazis_kapcsolat->s2('recid targy', 'projektszerzodes', "`sz_szam`='{$pr_szamla['sz_szam']}'");
     $szerzodes_neve = '<a href="projektszerzodes.php?id='.$pr_szerzodes['recid'].'&amp;modosit" target="_blank">'.resz_string($pr_szerzodes['targy'], 60).'</a>';
     
-    $projket        = $adatbazis_kapcsolat->s2('recid nev', 'projektkezeles', "`ikt_szam`='{$pr_szamla['pr_szam']}'");
-    $projekt_neve   = '<a href="projektkezeles.php?id='.$projket['recid'].'&amp;modosit" target="_blank">'.resz_string($projket['nev'], 60).'</a>';
+    $projekt        = $adatbazis_kapcsolat->s2('recid nev', 'projektkezeles', "`ikt_szam`='{$pr_szamla['pr_szam']}'");
+    $projekt_neve   = '<a href="projektkezeles.php?id='.$projekt['recid'].'&amp;modosit" target="_blank">'.resz_string($projekt['nev'], 60).'</a>';
 }
 $projektszamla_tomb = $akt_tomb = array(
     array('type' => 'text',                 'megn' => 'Céghez érkezett:',   'name' => 'ceghez_erk',     'szuro' => 1,   'class' => 'kicsi datepicker_tegnapig',  'alert' => 'Kérem adja meg a céghez érkezés dátumát!', 'osszevon' => 1, 'post' => '<span style="margin-left: 9.4rem"></span>'),
@@ -2468,7 +2469,7 @@ array_push($postok, array('tomb' => $akt_tomb, 'uj' => 'uj'.$megnevezes, 'lista'
 // BoD előterjesztés
 if (isset($_GET['modosit'])) {
     $ossz_kolts = '';
-    $prik = $adatbazis_kapcsolat->s('projektigenyles_recid', 'eloterj_bod_kapcs', "`eloterj_recid`='{$_GET['id']}'");
+    $prik = $adatbazis_kapcsolat->s('projektigenyles_recid', 'projektigenyles_eloterj', "`eloterj_bod_recid`='{$_GET['id']}'");
     if(!$prik){
         $ossz_kolts = 'Még nincsenek csatolt projektigénylések.';
     }else{
@@ -4081,71 +4082,64 @@ if( isset($_POST['mellekTorol']) ) {
                 exit();
             }
 
-        // Előterjesztésnél csak nyitott státuszban törölhető projektigénylés
+        // Előterjesztésnél csak nyitott státuszban törölhető projektigénylés, illetve az igénylést visszaléptetjük az előző státuszba
         } else if($tabla=='eloterj_fb_kapcs'){
 
-            // Vegyük az első kijelölést, ebből már vissza tudjuk számolni, hogy melyik előterjesztésről van szó
-            $eloterj = $adatbazis_kapcsolat->s('eloterj_recid projektigenyles_recid', 'eloterj_fb_kapcs', "`recid` IN (".implode(', ', $idk).")");
-            $statusz = $adatbazis_kapcsolat->s2('stat_id', 'eloterj_fb', "`recid`='{$eloterj[0]['eloterj_recid']}'");
+            // Mi az előterjesztés a státusza
+            $statusz = $adatbazis_kapcsolat->s2('stat_id', 'eloterj_fb', "`recid`='{$recid}'");
             if( $statusz['stat_id']!=ELOT_FB_STAT_NYITOTT ){
                 echo json_encode(array(
-                    'hiba'  => 'Csak nyitott státuszban törölhetőek a csatolt projektigénylések!',
+                    'hiba'  => 'Csak nyitott státuszban törölhetőek a projektigénylések!',
                     'title' => 'Hiba'
                 ));
 
                 $weblap->leallit();
                 exit();
-            }else{
-                $sql = $adatbazis_kapcsolat -> d($tabla, "`recid` IN (".implode(',', $idk).")");
-                if( $sql === false ) { $db_error = true; }
             }
 
             // A törölt Pr igényléseket vissza kell léptetni az előző státuszra
-            $pr_igen_recidk = adatbazis2tomb($eloterj, 'projektigenyles_recid');
-            foreach( $pr_igen_recidk as $pr_igeny_recid ){
+            foreach( $idk as $projektigenyles_eloterj_recid ){
                 
-                $igenyles_masolat = $adatbazis_kapcsolat->s2('stat_id', 'projektigenyles_eloterj', "`recid`='{$pr_igeny_recid}'");
-                if( $igenyles_masolat === false ) { $db_error = true; }
-                if( addStatusz('projektigenyles_statusz', $pr_igeny_recid, $igenyles_masolat['stat_id'])===false ){
+                $projektigenyles_eloterj = $adatbazis_kapcsolat->s2('stat_id projektigenyles_recid', 'projektigenyles_eloterj', "`recid`='{$projektigenyles_eloterj_recid}'");
+                if( $projektigenyles_eloterj === false ) { $db_error = true; }
+                if( addStatusz('projektigenyles_statusz', $projektigenyles_eloterj['projektigenyles_recid'], $projektigenyles_eloterj['stat_id'])===false ){
                     $db_error = true;
                 }
+                
                 // Illetve a Projektigénylés másolatát is töröljük
-                $sql = $adatbazis_kapcsolat->d('projektigenyles_eloterj', "`recid`='{$pr_igeny_recid}'");
+                $sql = $adatbazis_kapcsolat->d('projektigenyles_eloterj', "`recid`='{$projektigenyles_eloterj_recid}'");
                 if( $sql === false ) { $db_error = true; }
+                
             }
 
-        // Előterjesztésnél csak nyitott státuszban törölhető projektigénylés
+        // Előterjesztésnél csak nyitott státuszban törölhető projektigénylés, illetve az igénylést visszaléptetjük az előző státuszba
         } else if($tabla=='eloterj_bod_kapcs'){
 
-            // Vegyük az első kijelölést, ebből már vissza tudjuk számolni, hogy melyik előterjesztésről van szó
-            $eloterj = $adatbazis_kapcsolat->s('eloterj_recid', 'eloterj_bod_kapcs', "`recid` IN (".implode(', ', $idk).")");
-            $statusz = $adatbazis_kapcsolat->s2('stat_id', 'eloterj_bod', "`recid`='{$eloterj[0]['eloterj_recid']}'");
-            if($statusz['stat_id']!=ELOT_BOD_STAT_NYITOTT){
+            // Mi az előterjesztés a státusza
+            $statusz = $adatbazis_kapcsolat->s2('stat_id', 'eloterj_bod', "`recid`='{$recid}'");
+            if( $statusz['stat_id']!=ELOT_BOD_STAT_NYITOTT){
                 echo json_encode(array(
-                    'hiba'  => 'Csak nyitott státuszban törölhetőek a csatolt projektigénylések!',
+                    'hiba'  => 'Csak nyitott státuszban törölhetőek a projektigénylések!',
                     'title' => 'Hiba'
                 ));
 
                 $weblap->leallit();
                 exit();
-            }else{
-                $sql = $adatbazis_kapcsolat -> d($tabla, "`recid` IN (".implode(',', $idk).")");
-                if( $sql === false ) { $db_error = true; }
             }
-            
-            // A törölt Pr igényléseket vissza kell léptetni nyitottnak
-            $pr_igen_recidk = adatbazis2tomb($eloterj, 'projektigenyles_recid');
-            foreach( $pr_igen_recidk as $pr_igeny_recid ){
+
+            // A törölt Pr igényléseket vissza kell léptetni az előző státuszra
+            foreach( $idk as $projektigenyles_eloterj_recid ){
                 
-                $igenyles_masolat = $adatbazis_kapcsolat->s2('stat_id', 'projektigenyles_eloterj', "`recid`='{$pr_igeny_recid}'");
-                if( $igenyles_masolat === false ) { $db_error = true; }
-                if( addStatusz('projektigenyles_statusz', $pr_igeny_recid, $igenyles_masolt['stat_id'])===false ){
+                $projektigenyles_eloterj = $adatbazis_kapcsolat->s2('stat_id projektigenyles_recid', 'projektigenyles_eloterj', "`recid`='{$projektigenyles_eloterj_recid}'");
+                if( $projektigenyles_eloterj === false ) { $db_error = true; }
+                if( addStatusz('projektigenyles_statusz', $projektigenyles_eloterj['projektigenyles_recid'], $projektigenyles_eloterj['stat_id'])===false ){
                     $db_error = true;
                 }
                 
                 // Illetve a Projektigénylés másolatát is töröljük
-                $sql = $adatbazis_kapcsolat->d('projektigenyles_eloterj', "`recid`='{$pr_igeny_recid}'");
+                $sql = $adatbazis_kapcsolat->d('projektigenyles_eloterj', "`recid`='{$projektigenyles_eloterj_recid}'");
                 if( $sql === false ) { $db_error = true; }
+                
             }
 
         // Projektigénylés véleményező törlés esetén töröljük a véleményt (fájlt) is ha volt
@@ -5232,62 +5226,48 @@ Hiba: '.getErtek('info', 'erteklista', 'recid', $bejelentes['hiba_id']).$hiba_tx
 
         // FB előterjesztés törlésekor a kapcsolódó táblák és projektigénylés előterjesztés tábla törlése
         if($ertek['tabla']=='eloterj_fb'){
+            
             $elot = $adatbazis_kapcsolat->s2('stat_id', 'eloterj_fb', "`recid`='{$_GET[$ertek['torid']]}'");
             if($elot['stat_id']!=ELOT_FB_STAT_NYITOTT){
                 // Megszakítjuk, ha nincs is nyitott státuszban
                 exit;
             }
-            $prigenyek = $adatbazis_kapcsolat->s('projektigenyles_recid', 'eloterj_fb_kapcs', "`eloterj_recid`='{$_GET[$ertek['torid']]}'");
-            foreach($prigenyek as $pri){
+            
+            // Pillanatfelvétel rekordok törlése
+            $projektigenyles_eloterj = $adatbazis_kapcsolat->s('*', 'projektigenyles_eloterj', "`eloterj_fb_recid`='{$_GET[$ertek['torid']]}'");
+            foreach($projektigenyles_eloterj as $pri_eloterj){
                 
                 // Logolás
-                $valtozas_kapcsolodo_tablak .= 'FB előterjesztés törlésekor a projektigenyles_eloterj táblából az alábbi rekordok törlődtek: '."\n";
-                $sorok = $adatbazis_kapcsolat->s('*', 'projektigenyles_eloterj', "`recid`='{$pri['projektigenyles_recid']}'");
-                if( $sorok === false ) { $db_error = true; }
-                $valtozas_kapcsolodo_tablak .= logolas_kapcsolodo_tablak_sorai($sorok);
+                $valtozas_kapcsolodo_tablak .= 'FB előterjesztés törlésekor a projektigenyles_eloterj pillanatfelvétel táblából az alábbi rekordok törlődtek: '."\n";
+                $valtozas_kapcsolodo_tablak .= logolas_kapcsolodo_tablak_sorai($pri_eloterj);
                 
-                $sql = $adatbazis_kapcsolat->d('projektigenyles_eloterj', "`recid`='{$pri['projektigenyles_recid']}'");
+                $sql = $adatbazis_kapcsolat->d('projektigenyles_eloterj', "`recid`='{$pri_eloterj['recid']}'");
                 if( $sql === false ) { $db_error = true; }
             }
             
-            // Logolás
-            $valtozas_kapcsolodo_tablak .= 'FB előterjesztés törlésekor a eloterj_fb_kapcs táblából az alábbi rekordok törlődtek: '."\n";
-            $sorok = $adatbazis_kapcsolat->s('*', 'eloterj_fb_kapcs', "`eloterj_recid`='{$_GET[$ertek['torid']]}'");
-            if( $sorok === false ) { $db_error = true; }
-            $valtozas_kapcsolodo_tablak .= logolas_kapcsolodo_tablak_sorai($sorok);
-            
-            $sql = $adatbazis_kapcsolat->d('eloterj_fb_kapcs', "`eloterj_recid`='{$_GET[$ertek['torid']]}'");
-            if( $sql === false ) { $db_error = true; }
         }
         
         // BoD előterjesztés törlésekor a kapcsolódó táblák és projektigénylés előterjesztés tábla törlése
         if($ertek['tabla']=='eloterj_bod'){
+            
             $elot = $adatbazis_kapcsolat->s2('stat_id', 'eloterj_bod', "`recid`='{$_GET[$ertek['torid']]}'");
             if($elot['stat_id']!=ELOT_BOD_STAT_NYITOTT){
                 // Megszakítjuk, ha nincs is nyitott státuszban
                 exit;
             }
-            $prigenyek = $adatbazis_kapcsolat->s('projektigenyles_recid', 'eloterj_bod_kapcs', "`eloterj_recid`='{$_GET[$ertek['torid']]}'");
-            foreach($prigenyek as $pri){
+            
+            // Pillanatfelvétel rekordok törlése
+            $projektigenyles_eloterj = $adatbazis_kapcsolat->s('*', 'projektigenyles_eloterj', "`eloterj_bod_recid`='{$_GET[$ertek['torid']]}'");
+            foreach($projektigenyles_eloterj as $pri_eloterj){
                 
                 // Logolás
-                $valtozas_kapcsolodo_tablak .= 'BoD előterjesztés törlésekor a projektigenyles_eloterj táblából az alábbi rekordok törlődtek: '."\n";
-                $sorok = $adatbazis_kapcsolat->s('*', 'projektigenyles_eloterj', "`recid`='{$pri['projektigenyles_recid']}'");
-                if( $sorok === false ) { $db_error = true; }
-                $valtozas_kapcsolodo_tablak .= logolas_kapcsolodo_tablak_sorai($sorok);
+                $valtozas_kapcsolodo_tablak .= 'BoD előterjesztés törlésekor a projektigenyles_eloterj pillanatfelvétel táblából az alábbi rekordok törlődtek: '."\n";
+                $valtozas_kapcsolodo_tablak .= logolas_kapcsolodo_tablak_sorai($pri_eloterj);
                 
-                $sql = $adatbazis_kapcsolat->d('projektigenyles_eloterj', "`recid`='{$pri['projektigenyles_recid']}'");
+                $sql = $adatbazis_kapcsolat->d('projektigenyles_eloterj', "`recid`='{$pri_eloterj['recid']}'");
                 if( $sql === false ) { $db_error = true; }
             }
             
-            // Logolás
-            $valtozas_kapcsolodo_tablak .= 'BoD előterjesztés törlésekor a eloterj_fb_kapcs táblából az alábbi rekordok törlődtek: '."\n";
-            $sorok = $adatbazis_kapcsolat->s('*', 'eloterj_fb_kapcs', "`eloterj_recid`='{$_GET[$ertek['torid']]}'");
-            if( $sorok === false ) { $db_error = true; }
-            $valtozas_kapcsolodo_tablak .= logolas_kapcsolodo_tablak_sorai($sorok);
-            
-            $sql = $adatbazis_kapcsolat->d('eloterj_fb_kapcs', "`eloterj_recid`='{$_GET[$ertek['torid']]}'");
-            if( $sql === false ) { $db_error = true; }
         }
 
         // Fenntartási terv törlésénél ellenőrizzük, hogy a terv státusza és a felhasználó személyzettípusa stimmel-e.
@@ -5346,11 +5326,17 @@ Hiba: '.getErtek('info', 'erteklista', 'recid', $bejelentes['hiba_id']).$hiba_tx
         // Projektigénylés törléskor a véleményezők és azok dokumentumai
         if($ertek['tabla']=='projektigenyles'){
             
-            $valtozas_kapcsolodo_tablak .= 'Projektigénylés törlésekor a projektigenyles_kapcs táblából az alábbi rekordok törlődtek: '."\n";
-            $sorok = $adatbazis_kapcsolat->s('*', 'projektigenyles_kapcs', "`projektigenyles_recid`='{$_GET[$ertek['torid']]}'");
+            $where = "  `projektigenyles_recid`='{$_GET[$ertek['torid']]}' AND
+                                                                                `eloterj_fb_recid` NOT IN ( SELECT `recid` FROM `".get_db_tabla()."eloterj_fb` WHERE `stat_id`='".ELOT_FB_STAT_DONT_ROG."' ) AND
+                                                                                `eloterj_bod_recid` NOT IN ( SELECT `recid` FROM `".get_db_tabla()."eloterj_bod` WHERE `stat_id`='".ELOT_BOD_STAT_DONT_ROG."' )
+                                                                                ";
+            
+            // Pillanatfelvétel táblából csak azokat a rekordokat töröljük, amik olyan Előterjesztéshez tartoznak, amik nincsenek Döntés rögzítve státuszban
+            $valtozas_kapcsolodo_tablak .= 'Projektigénylés törlésekor a projektigenyles_eloterj táblából az alábbi rekordok törlődtek: '."\n";
+            $sorok = $adatbazis_kapcsolat->s('*', 'projektigenyles_eloterj', $where);
             if( $sorok === false ) { $db_error = true; }
             $valtozas_kapcsolodo_tablak .= logolas_kapcsolodo_tablak_sorai($sorok);
-            $sql = $adatbazis_kapcsolat->d('projektigenyles_kapcs', "`projektigenyles_recid`='{$_GET[$ertek['torid']]}'");
+            $sql = $adatbazis_kapcsolat->d('projektigenyles_eloterj', $where);
             if( $sql === false ) { $db_error = true; }
             
             $velemenyek = $adatbazis_kapcsolat->s('utvonal', 'projektigenyles_velemeny', "`projektigenyles_recid`='{$_GET[$ertek['torid']]}'");

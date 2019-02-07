@@ -16,6 +16,50 @@ if( isset($_GET['info']) && $_SESSION[get_db_tabla().'user'] ){
     exit;
 }
 
+
+if (isset($_GET['fb_bod'])) {
+    
+    $kapcsok = $adatbazis_kapcsolat->s('*', 'eloterj_fb_kapcs');
+    foreach( $kapcsok as $kapcs ){
+        
+        $prigeny = $adatbazis_kapcsolat->s2('*', 'projektigenyles', "`recid`='{$kapcs['projektigenyles_recid']}'");
+        
+        $oszlopok = array('csoport_id', 'ikt_szam', 'egy_tobb', 'telephely_id', 'stat_id', 'nev', 'tipus', 'prior', 'besorol', 'rendk', 'megter', 'text', 'bkolt', 'loginnev', 'update_dt', 'update_usr', 'insert_dt', 'insert_usr', 'torolve');
+        $ertekek  = array();
+        foreach($oszlopok as $kulcs => $oszlop){
+            array_push($ertekek, $prigeny[$oszlop]);
+        }
+        array_push($oszlopok, 'projektigenyles_recid'           );
+        array_push($ertekek,  $kapcs['projektigenyles_recid']   );
+        array_push($oszlopok, 'eloterj_fb_recid'                );
+        array_push($ertekek,  $kapcs['eloterj_recid']           );
+
+        $sql = $adatbazis_kapcsolat->i('projektigenyles_eloterj', $oszlopok, $ertekek);
+        
+    }
+    
+    $kapcsok = $adatbazis_kapcsolat->s('*', 'eloterj_bod_kapcs');
+    foreach( $kapcsok as $kapcs ){
+        
+        $prigeny = $adatbazis_kapcsolat->s2('*', 'projektigenyles', "`recid`='{$kapcs['projektigenyles_recid']}'");
+        
+        $oszlopok = array('csoport_id', 'ikt_szam', 'egy_tobb', 'telephely_id', 'stat_id', 'nev', 'tipus', 'prior', 'besorol', 'rendk', 'megter', 'text', 'bkolt', 'loginnev', 'update_dt', 'update_usr', 'insert_dt', 'insert_usr', 'torolve');
+        $ertekek  = array();
+        foreach($oszlopok as $kulcs => $oszlop){
+            array_push($ertekek, $prigeny[$oszlop]);
+        }
+        array_push($oszlopok, 'projektigenyles_recid'           );
+        array_push($ertekek,  $kapcs['projektigenyles_recid']   );
+        array_push($oszlopok, 'eloterj_bod_recid'               );
+        array_push($ertekek,  $kapcs['eloterj_recid']           );
+
+        $sql = $adatbazis_kapcsolat->i('projektigenyles_eloterj', $oszlopok, $ertekek);
+
+    }
+    
+    exit;
+}
+
 // Jóváhagyhat limit beállítása
 if (isset($_GET['jovahagyhat_limit'])) {
     

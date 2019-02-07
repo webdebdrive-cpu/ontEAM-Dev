@@ -263,8 +263,14 @@ require_once('selectek.php');
         $sor = $adatbazis_kapcsolat -> s2('*', $megnevezes, 'recid='.$_GET['id']);
 
         // Szerepkör egyáltalán nem módosítható, sem törölhető, tehát ilyen gomb nem kell. 
-        // A jogosultságok fül alatti pipák igen, illetve új szerepkör tölthető fel, de módosítani (átnevezni), törölni nem.
-        $gombok = '';
+        if( !$sor['fix_adat'] && _jog(JOG_SZEREPKOR_KEZEL) ){
+            $gombok = nl2('
+                <div class="form_kuldes">
+                    <input type="button" class="gombb mentes_gomb" name="mehet_gomb" id="mehet_gomb" disabled value="Mentés" onclick="mentesGomb();">
+                    <input type="button" class="gomb piros" disabled id="megsem_gomb" value="Mégsem" onclick="megsemGomb();">
+                </div>
+            ');
+        }
 
     }
     

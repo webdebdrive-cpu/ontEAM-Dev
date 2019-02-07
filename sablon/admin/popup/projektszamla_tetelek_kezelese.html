@@ -296,7 +296,7 @@ function kapcsolas_popup_nyit( recid ) {
     if( van_valtozas ){
         alert2('Szerződés tételhez kapcsolás előtt mentse a változásokat!', '', 'Hiba');
     }else if(!sz_szam){
-        alert2('Tételek kapcsolásához kérem előbb adjon egy szerződést a projket számlához!', '', 'Hiba');
+        alert2('Tételek kapcsolásához kérem előbb adjon egy szerződést a projekt számlához!', '', 'Hiba');
     }else{
         $.get('../sablon/admin/popup/projektszamla_kapcsolas.html?cache=' + new Date().getTime(), function( data ) {
             $('#popupTart').html( data.replace('{SZAMLA_TETEL_RECID}', recid) );

@@ -149,10 +149,8 @@ if (isset($_GET['csv'])) {
             $csvcont[] = iconv($mibol, $mibe.'//TRANSLIT', 'Becsült költség'    );
             fputcsv($open, $csvcont, ';');
             
-            $prigenyek = $adatbazis_kapcsolat->s('recid projektigenyles_recid', 'eloterj_bod_kapcs', "`eloterj_recid`='{$_GET['id']}'", 'insert_dt desc');
-            foreach($prigenyek as $prigeny){
-                
-                $igenyles = $adatbazis_kapcsolat->s2('recid nev stat_id stat_id_eloterj telephely_id tipus bkolt', 'projektigenyles_eloterj', "`recid`='{$prigeny['projektigenyles_recid']}'");
+            $prigenyek = $adatbazis_kapcsolat->s('*', 'projektigenyles_eloterj', "`eloterj_bod_recid`='{$_GET['id']}'", 'insert_dt desc');
+            foreach($prigenyek as $igenyles){
 
                 foreach($select_pri_tipus as $tip){
                     if($tip['value']==$igenyles['tipus']){
@@ -225,7 +223,6 @@ if (isset($_GET['csv'])) {
             }
             
         }
-
 
     }
     fclose($open);

@@ -541,16 +541,6 @@ function i_u($type, $tabla, $tomb) {
             
         // Projektszerződés
         } else if( $tabla == 'projektszerzodes' ) {
-                
-            // 2019.01.21 Update: már nem kötelező tételekt megadni új feltöltéskor
-            // Ha nincsenek tétel sorok, akkor hibaüzenet
-//            if( !$_SESSION['pr_szer_tetel_targy'] ){
-//                echo json_encode(array(
-//                    'hiba'  => 'Nem adott meg szerződés tételeket, így nem menthető a projekt szerződés!',
-//                    'title' => 'Hiba'
-//                ));
-//                exit();
-//            }
             
             // Ha nics egyetlen tétel sem, akkor automatikusan létrehozunk egyet, aminek a tárgya ugyanaz mint szerződés adatlapján a tárgy, a várható érkezés ugyanaz, mint a szerződésen a kivitelezés vége, a nettó összeg pedig ugyanaz, mint a szerződés nettó értéke.
             if( !$_SESSION['pr_szer_tetel_targy'] ){
@@ -879,21 +869,6 @@ function i_u($type, $tabla, $tomb) {
                                         );
         if( $sql === false ) { $db_error = true; }
 
-        if( $tabla == 'login' ){
-//            $adatok = explode(',', str_replace(array('"', '{', '}'), '', $_POST['tarsreszlegek_hidden']));
-//            foreach($adatok as $adat){
-//                list($x, $reszleg_id) = explode(':', $adat);
-//                // Részlegid-k felvétele, ha nem az adatlap részlege
-//                if($reszleg_id != $_POST['reszleg_id']){
-//                    $sql = $adatbazis_kapcsolat->i('login_tarsreszleg',
-//                                                                array('login_id',   'reszleg_id', 'insert_dt',    'insert_usr',                             ),
-//                                                                array($id,          $reszleg_id,  'NOW()',        $_SESSION[get_db_tabla().'teljes_nev']    )
-//                                                    );
-//                }
-//                if( $sql === false ) { $db_error = true; }
-//            }
-        }
-
 
     // Update
 	} else {
@@ -1151,6 +1126,22 @@ function i_u($type, $tabla, $tomb) {
         
         // Projekt szerződés
         if( $tabla == 'projektszerzodes' ){
+            
+            // A hozzáadott Projekthez milyen szerződések tartoznak. Ha a projekt összege - a már hozzáadott összegek különbsgée kisebb mint a mostani szerződés összege, akkor hibaüzenet
+            if( $_POST['pr_szam'] ){
+                $projekt = $adatbazis_kapcsolat->s2('bkolt', 'projektkezeles', "`ikt_szam`='{$_POST['pr_szam']}'");
+                $szerzodesek = $adatbazis_kapcsolat->s2('SUM(`szerz_ossz`)', 'projektszerzodes', "`pr_szam`='{$_POST['pr_szam']}' AND `recid`!='{$_GET['id']}'");
+                $felhasznalhato = $projekt['bkolt']-$szerzodesek['SUM(`szerz_ossz`)'];
+                if( $felhasznalhato < $_POST['szerz_ossz'] ){
+                    echo json_encode(array(
+                        'hiba'  => 'Projekt jóváhagyott összeg: '.number_format($projekt['bkolt'], 0, '', ' ').' '.get_penznem().'<br>Ebből felhasználható: '.number_format($felhasznalhato, 0, '', ' ').' '.get_penznem().'.<br><br>A szerződés nettó összege több, mint a választott projektből még felhasználható összeg.',
+                        'gomb'  => '<input type="button" class="gomb" value="Ok" onclick="szurkit_zar(\'mégsem mehet mutat\'); alert2();">',
+                        'title' => 'Hiba',
+                    ));
+                    $weblap -> leallit();
+                    exit();
+                }
+            }
             
             // Ellenőrizzük, hogy a szerződés összege azonos-e a tételek összegével
             $tetelek_osszege = '';
@@ -4766,9 +4757,7 @@ function projektigenylesLista( $bejegyzesek, $tabla, $frissit, $kijeloltek ) {
             if($bsz['rendk']){
                 $tipus = '<span class="piros">'.$tipus.'</span>';
             }
-//echo '<pre style="font-size: 1.4rem">';
-//print_r($bsz);
-//echo '</pre>';
+
             $li_tart = '<a class="szamla'.$nohover.'" data-recid="'.$bsz['recid'].'" data-fajl="'.$tabla.'.php" data-muvelet="modosit">
                             <table'.$bold.'>
                             <tr>
@@ -9109,7 +9098,7 @@ function get_projekt_kezeles_jog( $recid ){
     if( _jog(JOG_PRKEZEL_KEZEL) && in_array($prk['telephely_id'], get_akt_login_szallodai()) ){
         return true;
     }
-    // Saját projekt kezelés jog esetén azokat kezelhetjük, ahol projket felelős vagyok
+    // Saját projekt kezelés jog esetén azokat kezelhetjük, ahol projekt felelős vagyok
     if( _jog(JOG_PRKEZEL_SAJAT_KEZEL) && $prk['pfelelos'] == $_SESSION[get_db_tabla().'login_recid'] ){
         return true;
     }

@@ -658,9 +658,9 @@ if(isset($_POST['igenylesek_betolt'])){
 
     // Nem szerepelnek másik nyitott vagy véglegesítve státuszú előterjesztésben
     $where_kieg = '';
-    $fb_kizart_recidk = $adatbazis_kapcsolat->s('projektigenyles_recid', 'eloterj_fb_kapcs', "`eloterj_recid` IN (SELECT `recid` FROM `".get_db_tabla()."eloterj_fb` WHERE `stat_id` IN ('".ELOT_FB_STAT_NYITOTT."', '".ELOT_FB_STAT_VEGLEGESITVE."'))");
+    $fb_kizart_recidk = $adatbazis_kapcsolat->s('projektigenyles_recid', 'projektigenyles_eloterj', "`eloterj_fb_recid` IN (SELECT `recid` FROM `".get_db_tabla()."eloterj_fb` WHERE `stat_id` IN ('".ELOT_FB_STAT_NYITOTT."', '".ELOT_FB_STAT_VEGLEGESITVE."'))");
     $fb_kizart_recidk = adatbazis2tomb($fb_kizart_recidk, 'projektigenyles_recid');
-    $bod_kizart_recidk = $adatbazis_kapcsolat->s('projektigenyles_recid', 'eloterj_bod_kapcs', "`eloterj_recid` IN (SELECT `recid` FROM `".get_db_tabla()."eloterj_bod` WHERE `stat_id` IN ('".ELOT_BOD_STAT_NYITOTT."', '".ELOT_BOD_STAT_VEGLEGESITVE."'))");
+    $bod_kizart_recidk = $adatbazis_kapcsolat->s('projektigenyles_recid', 'projektigenyles_eloterj', "`eloterj_bod_recid` IN (SELECT `recid` FROM `".get_db_tabla()."eloterj_bod` WHERE `stat_id` IN ('".ELOT_BOD_STAT_NYITOTT."', '".ELOT_BOD_STAT_VEGLEGESITVE."'))");
     $bod_kizart_recidk = adatbazis2tomb($bod_kizart_recidk, 'projektigenyles_recid');
     $kizart_recidk = array_merge($fb_kizart_recidk, $bod_kizart_recidk);
     if($kizart_recidk){
@@ -678,7 +678,7 @@ if(isset($_POST['igenylesek_betolt'])){
                                         `'.get_db_tabla().'telephely`.`nev` as `t_nev`',
                                         'projektigenyles',
                                         "`stat_id` IN ('".$fb_bod_statusz."'".$nyitott_is_sql.") AND `telephely_id` IN (".implode(',', $szallodak).")$where_kieg", $order, '', '', '', $join);
-//echo $adatbazis_kapcsolat->gp() . '<br>';
+// echo $adatbazis_kapcsolat->gp() . '<br>';
     $i = 1;
     foreach($priek as $pri){
 
@@ -794,12 +794,10 @@ if (isset($_POST['eloterj_igneyles_csatol'])) {
 
     // Státusz ellenőrzés illtve továbbléptetés státuszának meghatározása
     $nyitott_statusz = ELOT_FB_STAT_NYITOTT;
-    $uj_statusz      = PRIGENY_STAT_FB_TERJESZT_VAR;
     $postfix         = '_fb';
     if($_POST['mod']=='bod'){
         $nyitott_statusz = ELOT_BOD_STAT_NYITOTT;
         $postfix         = '_bod';
-        $uj_statusz      = PRIGENY_STAT_BOD_TERJESZT_VAR;
     }
     $eloterj = $adatbazis_kapcsolat->s2('stat_id', 'eloterj'.$postfix, "`recid`='{$_POST['eloterj_recid']}'");
     if($eloterj['stat_id']!=$nyitott_statusz){
@@ -811,26 +809,20 @@ if (isset($_POST['eloterj_igneyles_csatol'])) {
     }
 
     // Csatolás
-    $oszlopok = array('recid', 'csoport_id', 'ikt_szam', 'egy_tobb', 'telephely_id', 'stat_id', 'nev', 'tipus', 'prior', 'besorol', 'rendk', 'megter', 'text', 'bkolt', 'loginnev', 'update_dt', 'update_usr', 'insert_dt', 'insert_usr', 'torolve');
+    $oszlopok = array('csoport_id', 'ikt_szam', 'egy_tobb', 'telephely_id', 'stat_id', 'nev', 'tipus', 'prior', 'besorol', 'rendk', 'megter', 'text', 'bkolt', 'loginnev', 'update_dt', 'update_usr', 'insert_dt', 'insert_usr', 'torolve');
     foreach($prigeny_recidk as $recid){
         $prigeny = $adatbazis_kapcsolat->s2('*', 'projektigenyles', "`recid`='{$recid}'");
         $ertekek  = array();
         foreach($oszlopok as $kulcs => $oszlop){
             array_push($ertekek, $prigeny[$oszlop]);
         }
+        array_push($oszlopok, 'projektigenyles_recid'       );
+        array_push($ertekek,  $recid                        );
+        array_push($oszlopok, 'eloterj'.$postfix.'_recid'   );
+        array_push($ertekek,  $_POST['eloterj_recid']       );
+        
         $sql = $adatbazis_kapcsolat->i('projektigenyles_eloterj', $oszlopok, $ertekek);
         if( $sql === false ) { $db_error = true; }
-
-        $sql = $adatbazis_kapcsolat->i('eloterj'.$postfix.'_kapcs', array('eloterj_recid',          'projektigenyles_recid', 'insert_dt',    'insert_usr'                             ),
-                                                                    array($_POST['eloterj_recid'],  $recid,                  'NOW()',        $_SESSION[get_db_tabla().'teljes_nev']   )
-                                    );
-        if( $sql === false ) { $db_error = true; }
-        
-        // A projektigénylés táblát tovább is léptetjük
-// Ez egyelőre mégsem kell
-//        if(addStatusz('projektigenyles_statusz', $recid, $uj_statusz)===false){
-//            $db_error = true;
-//        }
         
     }
 
@@ -868,21 +860,21 @@ if (isset($_POST['pri_eloterj_statusz_mod'])) {
         if( $sql === false ) { $db_error = true; }
 
 
-        //Rögzítéskor az eredeti projektigénylés táblában is státuszt léptetünk, illetve a projektigenyles_eloterj tábla stat_id-jét is módosítjuk
+        // Rögzítéskor az eredeti projektigénylés táblában is státuszt léptetünk, illetve a projektigenyles_eloterj tábla stat_id-jét is módosítjuk
         if($_POST['rogzit']){
             $sql = $adatbazis_kapcsolat->u('projektigenyles_eloterj', array('stat_id'), array($stat_id_eloterjek[$i]), "`recid`='{$recid}'");
             if( $sql === false ) { $db_error = true; }
 
-            //Igénylések státuszsorának leírás oszlopában megjelenik előterjesztés azonosító és FB ülés dátuma.
+            // Igénylések státuszsorának leírás oszlopában megjelenik előterjesztés azonosító és FB ülés dátuma.
             $eloterj = $adatbazis_kapcsolat->s2('ikt_szam ules_datum', $_POST['tabla'], "`recid`='{$_POST['eloterj_recid']}'");
             $memo = $eloterj['ikt_szam'].' '.  str_replace('-', '.', $eloterj['ules_datum']);
 
-            //Projektigénylés státusz léptetés
+            // Projektigénylés státusz léptetés
             if(addStatusz('projektigenyles_statusz', $recid, $stat_id_eloterjek[$i], '', $memo)===false){
                 $db_error = true;
             }
 
-            //Előterjesztés státusz léptetés
+            // Előterjesztés státusz léptetés
             $dontes_rogzitve_stat = ELOT_FB_STAT_DONT_ROG;
             if($_POST['tabla']=='eloterj_bod'){
                 $dontes_rogzitve_stat = ELOT_BOD_STAT_DONT_ROG;

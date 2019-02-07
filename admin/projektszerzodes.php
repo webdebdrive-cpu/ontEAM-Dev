@@ -461,6 +461,22 @@ if (isset($_POST['van_tetel'])) {
         exit();
     }
     
+    // A hozzáadott Projekthez milyen szerződések tartoznak. Ha a projekt összege - a már hozzáadott összegek különbsgée kisebb mint a mostani szerződés összege, akkor hibaüzenet
+    if( $_POST['pr_szam'] ){
+        $projekt = $adatbazis_kapcsolat->s2('bkolt', 'projektkezeles', "`ikt_szam`='{$_POST['pr_szam']}'");
+        $szerzodesek = $adatbazis_kapcsolat->s2('SUM(`szerz_ossz`)', 'projektszerzodes', "`pr_szam`='{$_POST['pr_szam']}'");
+        $felhasznalhato = $projekt['bkolt']-$szerzodesek['SUM(`szerz_ossz`)'];
+        if( $felhasznalhato < $_POST['szerz_ossz'] ){
+            echo json_encode(array(
+                'hiba'  => 'Projekt jóváhagyott összeg: '.number_format($projekt['bkolt'], 0, '', ' ').' '.get_penznem().'<br>Ebből felhasználható: '.number_format($felhasznalhato, 0, '', ' ').' '.get_penznem().'.<br><br>A szerződés nettó összege több, mint a választott projektből még felhasználható összeg.',
+                'gomb'  => '<input type="button" class="gomb" value="Ok" onclick="szurkit_zar(\'mégsem mehet mutat\'); alert2();">',
+                'title' => 'Hiba',
+            ));
+            $weblap -> leallit();
+            exit();
+        }
+    }
+    
     // Ha van feltöltött tétel, akkor az összegüknek meg kell egyezzen a szerződés összegével
     if( $_SESSION['pr_szer_tetel_targy'] ){
         

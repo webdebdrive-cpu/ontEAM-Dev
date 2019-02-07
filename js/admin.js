@@ -4460,10 +4460,10 @@ function kijeloltSzamlal( sorok, reszleg, tabla, mellek ) {
 
         $('#navGombok a.torles').addClass('disabled').attr('onclick', '');
 
-    /* ... ha van kijelölve sor */
+    // ... ha van kijelölve sor
     } else if( sorok.hasClass('kijelolve') && reszleg == 'mellek' ) {
 
-        /* Projektigénylések alatt, ha Cash-flow fülön állunk, akkor másképp oldjuk meg a törlést, ez a projektigenyles.js-ben található */
+        // Projektigénylések alatt, ha Cash-flow fülön állunk, akkor másképp oldjuk meg a törlést, ez a projektigenyles.js-ben található
         if(tabla!='cash_flow'){
 
             szoveg = 'sorokat';
@@ -6608,14 +6608,14 @@ function getKonyvtar( link ) {
     }
 }
 
-/* Előterjesztés alatti döntés gomb működése */
+// Előterjesztés alatti döntés gomb működése
 function eloterj_dontes_feldolgoz(){
     $('.prig_statusz_txt').hide();
     $('.prig_statusz_select').show();
 }
 function pri_eloterj_statusz_mod_mentes(rogzit, mehet){
 
-    /* Rögzítéskor azt is figyeljük, hogy minden státusz be van-e már állítva */
+    // Rögzítéskor azt is figyeljük, hogy minden státusz be van-e már állítva
     if(rogzit){
         hianyos = 0;
         $('.prig_statusz_select select').each(function () {
@@ -6624,7 +6624,7 @@ function pri_eloterj_statusz_mod_mentes(rogzit, mehet){
             }
         });
 
-        /* Ha van még ki nem választott select */
+        // Ha van még ki nem választott select
         if(hianyos){
             alert2('Még '+hianyos+' darab igénylés vár feldolgozásra.<br>Rögzítés előtt kérem dolgozza fel ezeket is!', '', 'Hiba');
             return false;
@@ -6681,7 +6681,7 @@ function pri_eloterj_statusz_mod(pri_eloterj_recidk, stat_id_eloterjek, rogzit){
     });
 }
 
-/* Munkalap készítése FONTOS, hogy ne a munkalap.js-ben legyen, mert a bejelentesek.php-ben látni kell! */
+// Munkalap készítése FONTOS, hogy ne a munkalap.js-ben legyen, mert a bejelentesek.php-ben látni kell!
 function munkalapKeszit(csak_kerdezunk, kerdesek_nelkul) {
 
     if(balnav_kijelol_ell()){

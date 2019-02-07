@@ -149,10 +149,8 @@ if (isset($_GET['csv'])) {
             $csvcont[] = iconv($mibol, $mibe.'//TRANSLIT', 'Becsült költség'    );
             fputcsv($open, $csvcont, ';');
             
-            $prigenyek = $adatbazis_kapcsolat->s('recid projektigenyles_recid', 'eloterj_fb_kapcs', "`eloterj_recid`='{$_GET['id']}'", 'insert_dt desc');
-            foreach($prigenyek as $prigeny){
-                
-                $igenyles = $adatbazis_kapcsolat->s2('recid nev stat_id stat_id_eloterj telephely_id tipus bkolt', 'projektigenyles_eloterj', "`recid`='{$prigeny['projektigenyles_recid']}'");
+            $prigenyek = $adatbazis_kapcsolat->s('*', 'projektigenyles_eloterj', "`eloterj_fb_recid`='{$_GET['id']}'", 'insert_dt desc');
+            foreach($prigenyek as $igenyles){
 
                 foreach($select_pri_tipus as $tip){
                     if($tip['value']==$igenyles['tipus']){
@@ -161,6 +159,10 @@ if (isset($_GET['csv'])) {
                 }
                 if(!$igenyles['tipus']){
                     $tipus = '-';
+                }
+                
+                if( $igenyles['stat_id_eloterj'] ){
+                    $igenyles['stat_id'] = $igenyles['stat_id_eloterj'];
                 }
 
                 $csvcont = array();
@@ -564,7 +566,7 @@ if(isset($_GET['modosit_ules'])){
             echo $szamla_html.$gombok;
         }
 
-	//Projektigények
+	// Projektigények
 	}elseif(isset($_GET['projektigeny'])){
 
         //Csak nyitott státuszban törölhetőek ezek a rekordok
@@ -587,19 +589,17 @@ if(isset($_GET['modosit_ules'])){
         ');
 
         $i = 1;
-        $prigenyek = $adatbazis_kapcsolat->s('recid projektigenyles_recid', $megnevezes.'_kapcs', "`eloterj_recid`='{$_GET['id']}'", 'insert_dt desc');
+        $prigenyek = $adatbazis_kapcsolat->s('recid nev stat_id stat_id_eloterj telephely_id tipus bkolt', 'projektigenyles_eloterj', "`eloterj_fb_recid`='{$_GET['id']}'", 'insert_dt desc');
         foreach($prigenyek as $prigeny){
 
-            $pri = $adatbazis_kapcsolat->s2('recid nev stat_id stat_id_eloterj telephely_id tipus bkolt', 'projektigenyles_eloterj', "`recid`='{$prigeny['projektigenyles_recid']}'");
-
-            //Tipus
+            // Tipus
             require_once 'selectek.php';
             foreach($select_pri_tipus as $tip){
-                if($tip['value']==$pri['tipus']){
+                if($tip['value']==$prigeny['tipus']){
                     $tipus = $tip['name'];
                 }
             }
-            if(!$pri['tipus']){
+            if(!$prigeny['tipus']){
                 $tipus = '-';
             }
 
@@ -614,31 +614,31 @@ if(isset($_GET['modosit_ules'])){
             $options = '';
             foreach($statusz_tomb as $stat){
                 $selected = '';
-                if($pri['stat_id_eloterj']==$stat['value']){
+                if($prigeny['stat_id_eloterj']==$stat['value']){
                     $selected = ' selected';
                 }
                 $options .= '<option'.$selected.' value="'.$stat['value'].'">'.$stat['name'].'</option>';
             }
 
-            if($pri['stat_id_eloterj']){
-                $pri['stat_id'] = $pri['stat_id_eloterj'];
+            if($prigeny['stat_id_eloterj']){
+                $prigeny['stat_id'] = $prigeny['stat_id_eloterj'];
             }
 
             $szamla_html .= nl2('
                 <div data-id="'.$prigeny['recid'].'" data-i="'.$i.'" class="dtr nSor kijSor">
                     <div class="dtc">
-                        <div class="prig_statusz_txt">'.getStatText('projektigenyles', $pri['stat_id']).'</div>
+                        <div class="prig_statusz_txt">'.getStatText('projektigenyles', $prigeny['stat_id']).'</div>
                         <div class="dn prig_statusz_select">
-                            <select data-pri_eloterj_recid="'.$pri['recid'].'" onchange="$(\'#statusz_ment_gomb\').removeClass(\'dn\')">
+                            <select data-pri_eloterj_recid="'.$prigeny['recid'].'" onchange="$(\'#statusz_ment_gomb\').removeClass(\'dn\')">
                                 <option value="">-Válasszon-</option>
                                 '.$options.'
                             </select>
                         </div>
                     </div>
-                    <div class="dtc">'.getSzallodaNev($pri['telephely_id']).'</div>
-                    <div class="dtc">'.htmlspecialchars_decode($pri['nev']).'</div>
+                    <div class="dtc">'.getSzallodaNev($prigeny['telephely_id']).'</div>
+                    <div class="dtc">'.htmlspecialchars_decode($prigeny['nev']).'</div>
                     <div class="dtc">'.$tipus.'</div>
-                    <div class="dtc r">'.number_format($pri['bkolt'], 0, '', ' ').' '.get_penznem().'</div>
+                    <div class="dtc r">'.number_format($prigeny['bkolt'], 0, '', ' ').' '.get_penznem().'</div>
                 </div>
             ');
             $i++;
