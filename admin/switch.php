@@ -663,8 +663,8 @@ foreach($akt_tomb as $ertek){
             $select_felh_telephely = array();
             array_push($select_felh_telephely, array('name' => '- Válasszon -', 'value' => '' ));
 
-            /* Ha új sort szúrunk be, akkor a SESSION-ből vesszük ki a loginnevet, ha már szerkesztés alatt vagyunk, akkor pedig adatbázibsból
-             * UPDATE: a szállodákat mindig a SESSION userből számoljuk ki */
+            // Ha új sort szúrunk be, akkor a SESSION-ből vesszük ki a loginnevet, ha már szerkesztés alatt vagyunk, akkor pedig adatbázibsból
+            // UPDATE: a szállodákat mindig a SESSION userből számoljuk ki
 //            $loginNev = $sor['loginnev'];
 //            if( isset($_GET['uj']) ) {
                 $loginNev = $_SESSION[get_db_tabla().'user'];

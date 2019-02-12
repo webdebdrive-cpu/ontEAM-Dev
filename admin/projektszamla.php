@@ -1314,10 +1314,8 @@ require_once('selectek.php');
 	// Új projektkezelés felvitele
 	if( isset($_GET['uj']) && (_jog(JOG_PRSZAMLAK_KEZEL) || _jog(JOG_PR_SAJAT_SZAMLA_KEZEL)) ){
         
-        // Az űrlap feldolgozása előtti JS-t tiszta lappal indítjuk
-        $js_submit_elott = '';
-        
-        $js_submit_elott .= nl2('
+        // Az űrlap feldolgozása előtti JS-t tiszta lappal indítjuk        
+        $js_submit_elott = nl2('
             
                 var dfrd_pr_mehet = false;
                 var hibauzenet    = \'\';

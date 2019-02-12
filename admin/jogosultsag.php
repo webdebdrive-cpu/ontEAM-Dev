@@ -1,7 +1,7 @@
 <?php
 /*                                                  *\
  * FONTOS:
- * 126-os ID-nál járunk
+ * 128-os ID-nál járunk
  * 13-as kategória ID-nál járunk
 \*                                                  */
 
@@ -141,6 +141,8 @@ $jogosultsagok = array(
     113 => array('nev' => 'Projekt számlák kezelése',               'kat' => 10, 'sor' => 19),
     121 => array('nev' => 'Saját számlák megtekintése',             'kat' => 10, 'sor' => 20),
     122 => array('nev' => 'Saját számlák kezelése',                 'kat' => 10, 'sor' => 21),
+    127 => array('nev' => 'Projekt felfüggesztése',                 'kat' => 10, 'sor' => 22),
+    128 => array('nev' => 'Projekt leállítása',                     'kat' => 10, 'sor' => 23),
 
     42 => array('nev' => 'Eszközök olvasása',                       'kat' => 8, 'sor' => 1),
     43 => array('nev' => 'Eszközök kezelése',                       'kat' => 8, 'sor' => 2),

@@ -36,6 +36,21 @@ if($tobb_kep){
 
 }
 
+// Új projekt feltöltésekor a projekt felelős levelet kap
+if (isset($_POST['uj_projekt_feltoltes'])) {
+    
+    $mail_hibaizenet = level_felkeszit_es_kuld('projektkezeles', $_POST['recid'], '', 'projektkezelesUjModosit', 'projektkezeles_felelose', '');
+    if( $mail_hibaizenet ){
+        echo json_encode(array(
+            'hiba'  => $mail_hibaizenet,
+            'title' => 'Hiba',
+        ));
+    }
+        
+    $weblap->leallit();
+    exit();
+}
+
 // Léptetés Előkészítés alatt státuszba
 if (isset($_POST['projekt_elokeszites_ala'])) {
     
@@ -379,7 +394,7 @@ if (isset($_POST['projekt_fajfeltoltes_utan_tovabb'])) {
 if (isset($_POST['get_projektkezeles'])) {
     
     $sor = $adatbazis_kapcsolat->s2('ikt_szam telephely_id nev', 'projektkezeles', "`recid`='{$_POST['recid']}'");
-    echo 'Azonosító: '.$sor['ikt_szam'].'<br>Szálloda: '.getSzallodaNev($sor['telephely_id']).'<br>Név: '.addslashes($sor['nev']).'<br><br>';
+    echo 'Azonosító: '.$sor['ikt_szam'].'<br>Szálloda: '.getSzallodaNev($sor['telephely_id']).'<br>Név: '.$sor['nev'].'<br><br>';
     
     $weblap->leallit();
     exit();
@@ -410,7 +425,7 @@ if (isset($_POST['projekt_felfuggeszt'])) {
     }
     
     // Jog ellenőrzése
-    if( !get_projekt_kezeles_jog($recid) ){
+    if( !_jog( JOG_PRKEZEL_FELFUGGESZTES ) ){
         echo json_encode(array(
             'hiba'  => 'Önnek nincs joga státuszt felfüggeszteni!',
             'title' => 'Hiba',
@@ -486,7 +501,7 @@ if (isset($_POST['projekt_felfuggesztes_vege'])) {
     }
     
     // Jog ellenőrzése
-    if( !get_projekt_kezeles_jog($recid) ){
+    if( !_jog( JOG_PRKEZEL_FELFUGGESZTES ) ){
         echo json_encode(array(
             'hiba'  => 'Önnek nincs joga projektet újra megnyitni!',
             'title' => 'Hiba',
@@ -544,7 +559,7 @@ if (isset($_POST['projekt_leallit'])) {
     }
     
     // Jog ellenőrzése
-    if( !get_projekt_kezeles_jog($recid) ){
+    if( !_jog( JOG_PRKEZEL_LEALLITAS ) ){
         echo json_encode(array(
             'hiba'  => 'Önnek nincs joga státuszt felfüggeszteni!',
             'title' => 'Hiba',
@@ -937,8 +952,6 @@ if (isset($_POST['projekt_team_felvesz'])) {
         if( $login === false ) { $db_error = true; }
         
         $flags = str_split($login['flags']);
-
-        
         
         // Ha nem volna elég hosszú a flags lista, akkor feltöltjük 0-kal
         for($i=0; $i<JOG_PRKEZEL_TEAM_TAG; $i++){
@@ -956,6 +969,12 @@ if (isset($_POST['projekt_team_felvesz'])) {
 
         $sql = $adatbazis_kapcsolat->u('login', array('flags'), array($flags_uj), "`recid`='{$_POST['login_recid']}'");
         if( $sql === false ) { $db_error = true; }
+    }
+    
+    // Levélben értesítés
+    $mail_hibaizenet = level_felkeszit_es_kuld('projektkezeles', $recid, '', 'projektkezelesUjTag', 'projektkezeles_tag_felveve', '', $login_recid);
+    if( $mail_hibaizenet ){
+        $db_error = true;
     }
     
     if( !$db_error ) {
@@ -1260,7 +1279,7 @@ require_once('selectek.php');
         
         // Felfüggesztés
         $statuszok = array(PRKEZEL_STAT_NYITOTT, PRKEZEL_STAT_ELOKESZITES_ALATT);
-        if( in_array($sor['stat_id'], $statuszok) && get_projekt_kezeles_jog($_GET['id']) ) {
+        if( in_array($sor['stat_id'], $statuszok) && _jog( JOG_PRKEZEL_FELFUGGESZTES ) ) {
             $gombok .= '<input type="button" class="gomb modositaskor_rejt" value="Felfüggesztés" onclick="csoportMuvelet(\'projektkezeles_felfuggeszt\')"> ';
         }
         // ... vége
@@ -1272,7 +1291,7 @@ require_once('selectek.php');
         
         // Leállítás
         $statuszok = array(PRKEZEL_STAT_NYITOTT, PRKEZEL_STAT_ELOKESZITES_ALATT, PRKEZEL_STAT_FOLYAMATBAN);
-        if( in_array($sor['stat_id'], $statuszok) && get_projekt_kezeles_jog($_GET['id']) ) {
+        if( in_array($sor['stat_id'], $statuszok) && _jog( JOG_PRKEZEL_LEALLITAS ) ) {
             $gombok .= '<input type="button" class="gomb modositaskor_rejt" value="Leállítás" onclick="csoportMuvelet(\'projektkezeles_leallit\')"> ';
         }
         
@@ -1346,6 +1365,31 @@ require_once('selectek.php');
 	// Új projektkezelés felvitele
 	if(isset($_GET['uj']) && _jog(JOG_PRKEZEL_UJ_LETREHOZ) ){
 
+        // Új feltöltéskor egy levelet is küldünk a projektfelelősnek. Ezt azért itt oldjuk meg (és nem a i_u() függvényben, mert ha nem ment volna ki a mail, akkor a működést is megállítjuk.)
+        $js_submit_elott = nl2('
+            $.ajax({
+                url : \'projektkezeles.php\',
+                type: \'POST\',
+                data: {
+                    recid               : \'\'/* Itt még nem ismert a recid */,
+                    ikt_szam            : \'Feltöltés alatt\',
+                    nev                 : $(\'#nev\').val(),
+                    telephely_id        : $(\'#telephely_id\').val(),
+                    uj_projekt_feltoltes: Date.now()
+                },
+                success: function (response) {
+                    if (response) {
+                        response = JSON.parse(response);
+                        if (response.hiba) {
+                            alert2(response.hiba, response.gomb, response.title);
+                        }else{
+                            form_ell_admin();
+                        }
+                    }
+                }
+            });
+        ');
+        
 	    // FORM
 		if(isset($_GET['ujkent'])){
 			foreach($akt_tomb as $ertek){

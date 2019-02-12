@@ -272,6 +272,8 @@ define('JOG_PRKEZEL_UJ_LETREHOZ',       108);
 define('JOG_PRKEZEL_TEAM_TAG',          109);
 define('JOG_PRKEZEL_SZERZODES_OLVAS',   110);
 define('JOG_PRKEZEL_SZERZODES_KEZEL',   111);
+define('JOG_PRKEZEL_FELFUGGESZTES',     127);
+define('JOG_PRKEZEL_LEALLITAS',         128);
 define('JOG_PRSZAMLAK_OLVAS',           112);
 define('JOG_PRSZAMLAK_KEZEL',           113);
 define('JOG_PR_EGYSZALL_MEGTEKINT',     114);

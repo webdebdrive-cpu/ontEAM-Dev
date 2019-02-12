@@ -505,7 +505,7 @@ function i_u($type, $tabla, $tomb) {
             // Iktatószám kiszámítása
             $sorszam  = get_iktatoszam_sorszam($tabla);
             if($sorszam===false){ $db_error = true; }
-            $ikt_szam = 'P'.date('y').'/'.sprintf('%07d', $sorszam);
+            $ikt_szam = 'P'.date('y').'/'.sprintf('%04d', $sorszam);
             
             // Felvesszük az értékek közé
             $i = 0;
@@ -552,7 +552,7 @@ function i_u($type, $tabla, $tomb) {
             // Iktatószám kiszámítása
             $sorszam  = get_iktatoszam_sorszam($tabla);
             if($sorszam===false){ $db_error = true; }
-            $ikt_szam = 'PSZ'.date('y').'/'.sprintf('%07d', $sorszam);
+            $ikt_szam = 'PSZ'.date('y').'/'.sprintf('%04d', $sorszam);
 
             // Felvesszük az értékek közé
             $i = 0;
@@ -1031,12 +1031,54 @@ function i_u($type, $tabla, $tomb) {
                 // Iktatószám kiszámítása
                 $sorszam  = get_iktatoszam_sorszam($tabla);
                 if($sorszam===false){ $db_error = true; }
-                $ikt_szam = 'PI'.date('y').'/'.sprintf('%07d', $sorszam);
+                $ikt_szam = 'PI'.date('y').'/'.sprintf('%04d', $sorszam);
 
                 array_push($oszlopok,  'ikt_szam');
                 array_push($ertekek,   $ikt_szam );
             }
 
+        }
+
+        // Projekt módosításakor levélküldés
+        if( $tabla == 'projektkezeles' ) {
+            
+            // Levélküldés a módosítsáról. Két eset van: projektfelelős változott vagy sem. Ha igen, akkor a régi és új felelős is kap mailt, egyébként csak a meglévő felelős
+            $prk = $adatbazis_kapcsolat->s('pfelelos', 'projektkezeles', "`recid`='{$_GET['id']}'");
+            if( $prk === false ) { $db_error = true; }
+            
+            
+            // Ha nem változott a Pfelelős
+            if( $_POST['pfelelos'] == $prk['pfelelos'] ){
+                $mail_hibaizenet = level_felkeszit_es_kuld('projektkezeles', $_GET['id'], '', 'projektkezelesUjModosit', 'projektkezeles_felelose', '');
+                if( $mail_hibaizenet ){
+                    echo json_encode(array(
+                        'hiba'  => $mail_hibaizenet,
+                        'title' => 'Hiba',
+                    ));
+                    $weblap -> leallit();
+                    exit();
+                }
+            }else{
+                $mail_hibaizenet = level_felkeszit_es_kuld('projektkezeles', $_GET['id'], '', 'projektkezelesUjModosit', 'projektkezeles_felelose', '', $_POST['pfelelos']);
+                if( $mail_hibaizenet ){
+                    echo json_encode(array(
+                        'hiba'  => $mail_hibaizenet,
+                        'title' => 'Hiba',
+                    ));
+                    $weblap -> leallit();
+                    exit();
+                }
+                $mail_hibaizenet = level_felkeszit_es_kuld('projektkezeles', $_GET['id'], '', 'projektkezelesUjModosit', 'projektkezeles_felelose', '', $prk['pfelelos']);
+                if( $mail_hibaizenet ){
+                    echo json_encode(array(
+                        'hiba'  => $mail_hibaizenet,
+                        'title' => 'Hiba',
+                    ));
+                    $weblap -> leallit();
+                    exit();
+                }
+            }
+            
         }
         
         // Projekt számla
@@ -7120,8 +7162,8 @@ function statido_to_sec($string){
 }
 
 // Levélküldés előtt jogot, értesítés pipát vizsgálunk, levél tartalmát és címzetteket kiszámoljuk
-function level_felkeszit_es_kuld($tabla, $recid, $ert_pipa, $sablon, $cimzett, $extra_szoveg){
-
+function level_felkeszit_es_kuld($tabla, $recid, $ert_pipa, $sablon, $cimzett, $extra_szoveg, $cimzett_login_recid){
+    
     global $adatbazis_kapcsolat;
     global $db_kapcs;
     $cimzett_mail = '';
@@ -7238,7 +7280,7 @@ function level_felkeszit_es_kuld($tabla, $recid, $ert_pipa, $sablon, $cimzett, $
             $mivel      = array($login['nev'], $login['teljes_nev'],  $beosztas,    $reszleg,       $login['usertel'], $login['usermail'] );
             $uzi        = str_replace( $mit, $mivel, fajlbol_olvas('../sablon/admin/mail/'.$cimzett.'.html') );
 
-            $cimzettek = $adatbazis_kapcsolat->s('nev teljes_nev usermail aktiv virtual szemelyzet_id', 'login', "`aktiv`=1 AND `virtual`=0 $sql_ertesites_kieg");
+            $cimzettek = $adatbazis_kapcsolat->s('nev teljes_nev usermail aktiv virtual szemelyzet_id', 'login', "`aktiv`=1 AND `virtual`=0 {$sql_ertesites_kieg}");
             if(!$cimzettek){
                 return false;
             }
@@ -7260,6 +7302,64 @@ function level_felkeszit_es_kuld($tabla, $recid, $ert_pipa, $sablon, $cimzett, $
             }
 
         break;
+        
+        // Projekt módosításkor a felelősét értesítjük
+        case 'projektkezeles_felelose':
+
+            // Projektfelelős a címzett
+            if( $recid ){
+                $projektkezeles = $adatbazis_kapcsolat->s2('pfelelos', 'projektkezeles', "`recid`='{$recid}'");
+            }else{
+                $projektkezeles['pfelelos'] = $_SESSION[get_db_tabla().'login_recid'];
+            }
+            
+            $mit        = array('{IKT_SZAM}',       '{NEV}',       '{SZALLODA}'                             );
+            $mivel      = array($_POST['ikt_szam'], $_POST['nev'], getSzallodaNev($_POST['telephely_id'])   );
+            $uzi = str_replace( $mit, $mivel, fajlbol_olvas('../sablon/admin/mail/'.$cimzett.'.html') );
+            
+            
+            // Ha van konkrét Login címezve (pl. Projekt felelős változott és mindkettőnke ki kell küldeni a levelet.
+            if( $cimzett_login_recid ){
+                $cimzettek = $adatbazis_kapcsolat->s('nev teljes_nev usermail aktiv virtual szemelyzet_id', 'login', "`aktiv`=1 AND `virtual`=0 AND `recid`='{$cimzett_login_recid}'");
+            }else{
+                $cimzettek = $adatbazis_kapcsolat->s('nev teljes_nev usermail aktiv virtual szemelyzet_id', 'login', "`aktiv`=1 AND `virtual`=0 AND `recid`='{$projektkezeles['pfelelos']}'");
+            }
+            if(!$cimzettek){
+                return false;
+            }
+
+        break;
+        
+        // Projekt Tema tag hozzáadása
+        case 'projektkezeles_tag_felveve':
+            
+            $projektkezeles = $adatbazis_kapcsolat->s2('ikt_szam telephely_id nev pfelelos', 'projektkezeles', "`recid`='{$recid}'");
+            $mit        = array('{IKT_SZAM}',                '{NEV}',                '{SZALLODA}'                                       );
+            $mivel      = array($projektkezeles['ikt_szam'], $projektkezeles['nev'], getSzallodaNev($projektkezeles['telephely_id'])    );
+            $uzi = str_replace( $mit, $mivel, fajlbol_olvas('../sablon/admin/mail/'.$cimzett.'.html') );
+            
+            $cimzettek = $adatbazis_kapcsolat->s('nev teljes_nev usermail aktiv virtual szemelyzet_id', 'login', "`aktiv`=1 AND `virtual`=0 AND `recid`='{$cimzett_login_recid}'");
+            if(!$cimzettek){
+                return false;
+            }
+
+        break;
+        
+        // Projekt Tema tag törlése
+        case 'projektkezeles_tag_torolve':
+            
+            $projektkezeles = $adatbazis_kapcsolat->s2('ikt_szam telephely_id nev pfelelos', 'projektkezeles', "`recid`='{$recid}'");
+
+            $mit        = array('{IKT_SZAM}',                '{NEV}',                '{SZALLODA}'                                       );
+            $mivel      = array($projektkezeles['ikt_szam'], $projektkezeles['nev'], getSzallodaNev($projektkezeles['telephely_id'])    );
+            $uzi = str_replace( $mit, $mivel, fajlbol_olvas('../sablon/admin/mail/'.$cimzett.'.html') );
+            
+            $cimzettek = $adatbazis_kapcsolat->s('nev teljes_nev usermail aktiv virtual szemelyzet_id', 'login', "`aktiv`=1 AND `virtual`=0 AND `recid`='{$cimzett_login_recid}'");
+            if(!$cimzettek){
+                return false;
+            }
+
+        break;
 
         // Bejelentés vizsgál joggal rendelkezőknek
         case '_jog'.JOG_BEJELENTES_VIZSGAL:
@@ -7270,7 +7370,7 @@ function level_felkeszit_es_kuld($tabla, $recid, $ert_pipa, $sablon, $cimzett, $
             $uzi            = str_replace( $mit, $mivel, fajlbol_olvas('../sablon/admin/mail/bejelento.html') );
 
             // Több címzett is van
-            $cimzettek = $adatbazis_kapcsolat->s('nev teljes_nev usermail usertel aktiv virtual szemelyzet_id', 'login', "substr(`flags`, ".(JOG_BEJELENTES_VIZSGAL+1).", 1)=1 AND `aktiv`=1 AND `virtual`=0 $sql_ertesites_kieg");
+            $cimzettek = $adatbazis_kapcsolat->s('nev teljes_nev usermail usertel aktiv virtual szemelyzet_id', 'login', "substr(`flags`, ".(JOG_BEJELENTES_VIZSGAL+1).", 1)=1 AND `aktiv`=1 AND `virtual`=0 {$sql_ertesites_kieg}");
             if(!$cimzettek){
                 return false;
             }
@@ -7573,6 +7673,36 @@ function level_felkeszit_es_kuld($tabla, $recid, $ert_pipa, $sablon, $cimzett, $
                         <br>'.fajlbol_olvas('../sablon/admin/mail/alairas.html');
         break;
 
+        case 'projektkezelesUjModosit':
+            $esemeny =  'projekt módosításkor';
+            $targy   =  get_nev().' projekt módosult';
+            $uzi     =  'Ön az alábbi projekt felelőse:
+                        <br>'.
+                        $uzi.'
+                        <br>'.$extra_szoveg.'
+                        <br>'.fajlbol_olvas('../sablon/admin/mail/alairas.html');
+        break;
+
+        case 'projektkezelesUjTag':
+            $esemeny =  'projekt Team tag hozzáadásakor';
+            $targy   =  get_nev().' Team taggá vált';
+            $uzi     =  'Ön az alábbi projekt tagjává vált:
+                        <br>'.
+                        $uzi.'
+                        <br>'.$extra_szoveg.'
+                        <br>'.fajlbol_olvas('../sablon/admin/mail/alairas.html');
+        break;
+
+        case 'projektkezelesTagDel':
+            $esemeny =  'projekt Team tag törlésekor';
+            $targy   =  get_nev().' Team tag negszűnése';
+            $uzi     =  'Ön továbbá nem tagja az alábbi projektnek:
+                        <br>'.
+                        $uzi.'
+                        <br>'.$extra_szoveg.'
+                        <br>'.fajlbol_olvas('../sablon/admin/mail/alairas.html');
+        break;
+
     }
 
     // Aláírásban a {GET_NEV} még át kell íni
@@ -7609,7 +7739,7 @@ function level_felkeszit_es_kuld($tabla, $recid, $ert_pipa, $sablon, $cimzett, $
 
         // Ha nincs e-mail cím, akkor ezt a megjegyzésbe is írjuk bele
         if(!$akt_cimzett['usermail']){
-            $megj .= 'A felhasználónak nincs e-mail címe, ezért a következő esemény NEM következett be:<br>';
+            $megj .= 'A felhasználónak nincs e-mail címe, ezért a következő esemény NEM következett be:'."\n";
         }
         
         // Tényleges küldés
@@ -7617,7 +7747,7 @@ function level_felkeszit_es_kuld($tabla, $recid, $ert_pipa, $sablon, $cimzett, $
         // Ha van értéke, az egy hibaüzenet, akkor sikerült küldeni, ha nincs visszatérési érték
         if( $sikeres_kuldes ){
 
-            $megj .= 'E-mail küldése nem sikerült '.$akt_cimzett['teljes_nev'].' '.$szerepkor.' '.$felhasznalonak_szo.' '.$esemeny.'('.$sikeres_kuldes.')<br><br>';
+            $megj .= 'E-mail küldése nem sikerült '.$akt_cimzett['teljes_nev'].' '.$szerepkor.' '.$felhasznalonak_szo.' '.$esemeny.'('.$sikeres_kuldes.')'."\n\n";
 
             // Popupos hibaüzenet csak MSZK vezetőnek és Diszpécsernek megy
             if( $_SESSION[get_db_tabla().'szemelyzet_id']==MSZK_VEZETO || $_SESSION[get_db_tabla().'szemelyzet_id']==DISZPECSER ){
@@ -7634,7 +7764,7 @@ function level_felkeszit_es_kuld($tabla, $recid, $ert_pipa, $sablon, $cimzett, $
 
             // Ha a címzett nem a diszpécser központi mailcím, akkor van csak megjegyzés
             if( $cimzett!='diszpecser_kozponti' ){
-                $megj .= 'E-mail elküldve '.$akt_cimzett['teljes_nev'].' '.$szerepkor.' '.$felhasznalonak_szo.' '.$esemeny.'<br><br>';
+                $megj .= 'E-mail elküldve '.$akt_cimzett['teljes_nev'].' '.$szerepkor.' '.$felhasznalonak_szo.' '.$esemeny."\n\n";
             }
 
         }
