@@ -305,10 +305,10 @@ function megsemGomb() {
         szamlaBetolt(_get('id'), oldal);
     /* Új feltöltés esete */
     }else if( $('#szamlaList li').length ){
-        /* Ezt eg lehetett volna oldani így is: $('#szamlaList li.szamla_sor:first-of-type'), de nem működött érték lista menüpont alatt. Sőt elég lett volna így is: $('#szamlaList li:first-of-type'), de szintén az értéklista menüpont miatt így kelett megoldani  */
+        /* Ezt meg lehetett volna oldani így is: $('#szamlaList li.szamla_sor:first-of-type'), de nem működött érték lista menüpont alatt. Sőt elég lett volna így is: $('#szamlaList li:first-of-type'), de szintén az értéklista menüpont miatt így kelett megoldani  */
         $('#szamlaList li').each(function () {
             if( $(this).hasClass('szamla_sor') ){
-                szamlaBetolt($(this).attr('data-recid'), oldal);
+                $(this).click();
                 return false;
             }
         });

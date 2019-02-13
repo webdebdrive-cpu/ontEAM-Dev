@@ -673,7 +673,7 @@ if(isset($_POST['igenylesek_betolt_uj_kezeleshez'])){
                                         `'.get_db_tabla().'projektigenyles`.`tipus`,
                                         `'.get_db_tabla().'projektigenyles`.`stat_id`,
                                         `'.get_db_tabla().'projektigenyles`.`telephely_id`,
-                                        `'.get_db_tabla().'projektigenyles`.`bkolt`,
+                                        `'.get_db_tabla().'projektigenyles`.`jkolt`,
                                         `'.get_db_tabla().'telephely`.`nev` as `t_nev`',
                                         'projektigenyles',
                                         "`stat_id`='".PRIGENY_STAT_JOVAHAGYVA."' AND `telephely_id` IN (".implode(',', $szallodak).")$where_kieg", $order, '', '', '', $join);
@@ -715,8 +715,8 @@ if(isset($_POST['igenylesek_betolt_uj_kezeleshez'])){
                 <td>'.$szalloda['nev'].'</td>
                 <td style="width: 30rem">'.$pri['nev'].'</td>
                 <td>'.$tipus.'</td>
-                <td class="r nowrap">'.number_format($pri['bkolt'], 0, '', ' ').'</td>
-                <td>'.datum_kiir($letrehozva['insert_dt']).'</td>
+                <td class="p r nowrap">'.number_format($pri['jkolt'], 0, '', ' ').'</td>
+                <td class="p">'.datum_kiir($letrehozva['insert_dt']).'</td>
                 <td>'.$projektben.'</td>
             </tr>
             ';
@@ -730,7 +730,7 @@ if(isset($_POST['igenylesek_betolt_uj_kezeleshez'])){
             Rendezés:
             <select onchange="igenylesek_betolt_uj_kezeleshez(this.value)">
                 <option>szálloda + becsült költség</option>
-                <option value="bkolt"'.$bkolt_selected.'>becsült költség + szálloda</option>
+                <option value="bkolt"'.$bkolt_selected.'>jóváhagyott költség + szálloda</option>
                 <option value="tipus"'.$tipus_selected.'>típus + becsült költség</option>
             </select>
             <div style="max-height: 40rem; overflow-y: auto; overflow-x: none;">
@@ -750,7 +750,7 @@ if(isset($_POST['igenylesek_betolt_uj_kezeleshez'])){
                         <br><input type="text" class="flat" placeholder="Szűrés" onkeyup="tabla_szur($(\'#prigenylesek tbody\'), this.value, 3)">
                     </th>
                     <th>
-                        Becsült költség ('.get_penznem().')
+                        Jóváhagyott költség ('.get_penznem().')
                         <br><input type="text" class="flat" placeholder="Szűrés" onkeyup="tabla_szur($(\'#prigenylesek tbody\'), this.value, 4)">
                     </th>
                     <th>
