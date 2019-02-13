@@ -3036,7 +3036,7 @@ require_once('selectek.php');
                     <div id="naploSor-'.$sor['recid'].'" class="dtr nSor kijSor" data-id="'.$sor['recid'].'" data-i="'.$i.'">
                         <div class="dtc">'.htmlspecialchars_decode( nl2br($sor['megj']) ).'</div>
                         <div class="dtc">'.$sor['insert_usr'].'</div>
-                        <div class="dtc">'.$sor['insert_dt'].'</div>
+                        <div class="dtc">'.datum_kiir($sor['insert_dt']).'</div>
                     </div>
                 ');
 

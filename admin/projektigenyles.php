@@ -853,35 +853,48 @@ if (isset($_POST['pri_eloterj_statusz_mod'])) {
 
     $stat_id_eloterjek  = json_decode($_POST['stat_id_eloterjek'],  'tömbnek');
     $pri_eloterj_recidk = json_decode($_POST['pri_eloterj_recidk'], 'tömbnek');
+    $jkoltek            = json_decode($_POST['jkoltek'],            'tömbnek');
 
     $i = 0;
     foreach($pri_eloterj_recidk as $recid){
-        $sql = $adatbazis_kapcsolat->u('projektigenyles_eloterj', array('stat_id_eloterj'), array($stat_id_eloterjek[$i]), "`recid`='{$recid}'");
+        
+        // Ezres csoportosítás törlése
+        $jkoltek[$i] = str_replace(' ', '', $jkoltek[$i]);
+        
+        // Adatok rögzítése a "pillanatfelvétel" táblában
+        $sql = $adatbazis_kapcsolat->u('projektigenyles_eloterj',   array('stat_id_eloterj',        'jkolt'     ),
+                                                                    array($stat_id_eloterjek[$i],   $jkoltek[$i]),
+                                        "`recid`='{$recid}'");
         if( $sql === false ) { $db_error = true; }
-
 
         // Rögzítéskor az eredeti projektigénylés táblában is státuszt léptetünk, illetve a projektigenyles_eloterj tábla stat_id-jét is módosítjuk
         if($_POST['rogzit']){
-            $sql = $adatbazis_kapcsolat->u('projektigenyles_eloterj', array('stat_id'), array($stat_id_eloterjek[$i]), "`recid`='{$recid}'");
+            
+            $sql = $adatbazis_kapcsolat->u('projektigenyles_eloterj',   array('stat_id',                'jkolt'     ),
+                                                                        array($stat_id_eloterjek[$i],   $jkoltek[$i]),
+                                            "`recid`='{$recid}'");
             if( $sql === false ) { $db_error = true; }
-
+            
             // Igénylések státuszsorának leírás oszlopában megjelenik előterjesztés azonosító és FB ülés dátuma.
             $eloterj = $adatbazis_kapcsolat->s2('ikt_szam ules_datum', $_POST['tabla'], "`recid`='{$_POST['eloterj_recid']}'");
             $memo = $eloterj['ikt_szam'].' '.  str_replace('-', '.', $eloterj['ules_datum']);
-
+            
             // Projektigénylés státusz léptetés
-            if(addStatusz('projektigenyles_statusz', $recid, $stat_id_eloterjek[$i], '', $memo)===false){
+            $projektigenyles_eloterj = $adatbazis_kapcsolat->s2('projektigenyles_recid', 'projektigenyles_eloterj', "`recid`='{$recid}'");
+            if(addStatusz('projektigenyles_statusz', $projektigenyles_eloterj['projektigenyles_recid'], $stat_id_eloterjek[$i], '', $memo)===false){
                 $db_error = true;
             }
-
+            
             // Előterjesztés státusz léptetés
             $dontes_rogzitve_stat = ELOT_FB_STAT_DONT_ROG;
             if($_POST['tabla']=='eloterj_bod'){
                 $dontes_rogzitve_stat = ELOT_BOD_STAT_DONT_ROG;
             }
+
             if(addStatusz($_POST['tabla'].'_statusz', $_POST['eloterj_recid'], $dontes_rogzitve_stat)===false){
                 $db_error = true;
             }
+
         }
 
         $i++;
@@ -986,6 +999,7 @@ if (isset($_GET['csv'])) {
                 `'.get_db_tabla().'projektigenyles`.`rendk` as \'Rendkívüli\',
                 `'.get_db_tabla().'projektigenyles`.`megter` as \'Megtérülő\',
                 `'.get_db_tabla().'projektigenyles`.`bkolt` as \'Becsült költsége\',
+                `'.get_db_tabla().'projektigenyles`.`jkolt` as \'Jóváhagyott költség\',
                 `'.get_db_tabla().'projektigenyles`.`stat_id` as \'Státusz\',
                 `'.get_db_tabla().'projektigenyles`.`tipus` as \'Típus\',
                 `'.get_db_tabla().'projektigenyles`.`prior` as \'Prioritás\',
@@ -1829,7 +1843,7 @@ require('selectek.php');
                     <div id="naploSor-'.$sor['recid'].'" data-id="'.$sor['recid'].'" data-i="'.$i.'" class="dtr nSor kijSor">
                         <div class="dtc">'.nl2br($sor['megj']).'</div>
                         <div class="dtc">'.$sor['insert_usr'].'</div>
-                        <div class="dtc">'.$sor['insert_dt'].'</div>
+                        <div class="dtc">'.datum_kiir($sor['insert_dt']).'</div>
                     </div>
                 ');
 

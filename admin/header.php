@@ -1374,6 +1374,10 @@ $header_html .= str_replace(
     $header_sablon
 );
 
+// Előterjesztés felületei
+if(basename(self())=='eloterj_fb.php' || basename(self())=='eloterj_bod.php'){
+    $header_html .= '<script src="../js/eloterjesztes.js?cache='.time().'"></script>';
+}
 // Energia terv JS behúzva
 if(basename(self())=='energia_terv.php'){
     $header_html .= '<script src="../js/energia_terv.js?cache='.time().'"></script>';

@@ -578,30 +578,27 @@ if(isset($_GET['modosit_ules'])){
             <input type="hidden" id="ules_datum" value="'.$ules['ules_datum'].'">
             <div class="dt naplo'.$class.'" data-tabla="eloterj_bod_kapcs" data-mellek="projektigeny">
                 <div class="dtr nFejlec">
-                    <div class="dtc">Státusz</div>
-                    <div class="dtc">Szálloda</div>
+                    <div class="dtc" style="width: 15rem">Státusz</div>
+                    <div class="dtc" style="width: 15rem">Szálloda</div>
                     <div class="dtc">Név</div>
-                    <div class="dtc">Típus</div>
+                    <div class="dtc" style="width: 10rem">Típus</div>
                     <div class="dtc r">Becsült költség</div>
+                    <div class="dtc r">Jóváhagyott költség</div>
                 </div>
         ');
 
         $i = 1;
-        $prigenyek = $adatbazis_kapcsolat->s('recid projektigenyles_recid', $megnevezes.'_kapcs', "`eloterj_recid`='{$_GET['id']}'", 'insert_dt desc');
+        $prigenyek = $adatbazis_kapcsolat->s('recid nev stat_id stat_id_eloterj telephely_id tipus bkolt jkolt', 'projektigenyles_eloterj', "`eloterj_bod_recid`='{$_GET['id']}'", 'insert_dt desc');
         foreach($prigenyek as $prigeny){
-
-            $pri = $adatbazis_kapcsolat->s2('recid nev stat_id stat_id_eloterj telephely_id tipus bkolt', 'projektigenyles_eloterj', "`recid`='{$prigeny['projektigenyles_recid']}'");
-            // Szálloda
-            $szalloda = $adatbazis_kapcsolat->s2('nev', 'telephely', "`id`='{$pri['telephely_id']}'");
-
-            //Tipus
+            
+            // Tipus
             require_once 'selectek.php';
             foreach($select_pri_tipus as $tip){
-                if($tip['value']==$pri['tipus']){
+                if($tip['value']==$prigeny['tipus']){
                     $tipus = $tip['name'];
                 }
             }
-            if(!$pri['tipus']){
+            if(!$prigeny['tipus']){
                 $tipus = '-';
             }
 
@@ -616,31 +613,35 @@ if(isset($_GET['modosit_ules'])){
             $options = '';
             foreach($statusz_tomb as $stat){
                 $selected = '';
-                if($pri['stat_id_eloterj']==$stat['value']){
+                if($prigeny['stat_id_eloterj']==$stat['value']){
                     $selected = ' selected';
                 }
                 $options .= '<option'.$selected.' value="'.$stat['value'].'">'.$stat['name'].'</option>';
             }
 
-            if($pri['stat_id_eloterj']){
-                $pri['stat_id'] = $pri['stat_id_eloterj'];
+            if($prigeny['stat_id_eloterj']){
+                $prigeny['stat_id'] = $prigeny['stat_id_eloterj'];
             }
 
             $szamla_html .= nl2('
                 <div data-id="'.$prigeny['recid'].'" data-i="'.$i.'" class="dtr nSor kijSor">
                     <div class="dtc">
-                        <div class="prig_statusz_txt">'.getStatText('projektigenyles', $pri['stat_id']).'</div>
+                        <div class="prig_statusz_txt">'.getStatText('projektigenyles', $prigeny['stat_id']).'</div>
                         <div class="dn prig_statusz_select">
-                            <select data-pri_eloterj_recid="'.$pri['recid'].'" onchange="$(\'#statusz_ment_gomb\').removeClass(\'dn\')">
+                            <select data-pri_eloterj_recid="'.$prigeny['recid'].'" onchange="$(\'#statusz_ment_gomb\').removeClass(\'dn\')">
                                 <option value="">-Válasszon-</option>
                                 '.$options.'
                             </select>
                         </div>
                     </div>
-                    <div class="dtc">'.$szalloda['nev'].'</div>
-                    <div class="dtc">'.htmlspecialchars_decode($pri['nev']).'</div>
+                    <div class="dtc">'.getSzallodaNev($prigeny['telephely_id']).'</div>
+                    <div class="dtc">'.htmlspecialchars_decode($prigeny['nev']).'</div>
                     <div class="dtc">'.$tipus.'</div>
-                    <div class="dtc r">'.number_format($pri['bkolt'], 0, '', ' ').' '.get_penznem().'</div>
+                    <div class="dtc r"><span class="bkolt">'.number_format($prigeny['bkolt'], 0, '', ' ').'</span> '.get_penznem().'</div>
+                    <div class="dtc r">
+                        <div class="jkolt_txt">'.number_format($prigeny['jkolt'], 0, '', ' ').' '.get_penznem().'</div>
+                        <div class="dn jkolt_input"><input type="text" class="f_num" data-tort="0" value="'.number_format($prigeny['jkolt'], 0, '', ' ').'"> '.get_penznem().'</div>
+                    </div>
                 </div>
             ');
             $i++;
@@ -677,7 +678,7 @@ if(isset($_GET['modosit_ules'])){
                     <div id="naploSor-'.$sor['recid'].'" data-id="'.$sor['recid'].'" data-i="'.$i.'" class="dtr nSor kijSor">
                         <div class="dtc">'.nl2br($sor['megj']).'</div>
                         <div class="dtc">'.$sor['insert_usr'].'</div>
-                        <div class="dtc">'.$sor['insert_dt'].'</div>
+                        <div class="dtc">'.datum_kiir($sor['insert_dt']).'</div>
                     </div>
                 ');
 

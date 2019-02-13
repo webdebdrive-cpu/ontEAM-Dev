@@ -129,6 +129,7 @@ foreach($akt_tomb as $ertek){
                                 \'tabla\'           : \''.$ertek['tabla'].'\',
                                 \'oszlop_keres\'    : \''.$ertek['oszlop_keres_autocomp'].'\',
                                 \'oszlop_listaz\'   : \''.$ertek['listaz'].'\',
+                                \'aktiv\'           : \''.$ertek['autocomplete_aktiv'].'\',
                                 \'rkat\'            : '.$rkat.',
                                 \'csoport\'         : '.$csoport.',
                                 \'recid\'           : \''.$_GET['id'].'\',

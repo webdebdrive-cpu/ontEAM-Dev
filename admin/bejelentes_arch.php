@@ -315,7 +315,7 @@ require_once('selectek.php');
                         <div id="naploSor-'.$sor['recid'].'" class="dtr nSor kijSor" data-id="'.$sor['recid'].'" data-i="'.$i.'">
                             <div class="dtc">'.$ikt_szam.'</div>
                             <div class="dtc">'.$telephely.' - '.$helyseg.'</div>
-                            <div class="dtc">'.$sor['insert_dt'].'</div>
+                            <div class="dtc">'.datum_kiir($sor['insert_dt']).'</div>
                             <div class="dtc">'.getStatText('munkalap', $sor['stat_id']).'</div>
                         </div>
                     ');

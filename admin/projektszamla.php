@@ -1526,7 +1526,9 @@ require_once('selectek.php');
                 $(document).ready(function () {
                     setTimeout(function(){
                         if( !$(\'.szamla_sor.kijelolve\').length ){
-                            $(\'#pr_szam_gomb\').hide(\'\');
+                            $(\'#sz_szam_gomb\').hide(\'\');
+                            $(\'#szerzodes_neve\').hide(\'\');
+                            $(\'#projekt_neve\').hide(\'\');
                         }
                     }, 500);
                     
@@ -1641,7 +1643,7 @@ require_once('selectek.php');
                     <div id="naploSor-'.$sor['recid'].'" data-id="'.$sor['recid'].'" data-i="'.$i.'" class="dtr nSor kijSor">
                         <div class="dtc">'.nl2br($sor['megj']).'</div>
                         <div class="dtc">'.$sor['insert_usr'].'</div>
-                        <div class="dtc">'.$sor['insert_dt'].'</div>
+                        <div class="dtc">'.datum_kiir($sor['insert_dt']).'</div>
                     </div>
                 ');
 

@@ -36,21 +36,6 @@ if($tobb_kep){
 
 }
 
-// Új projekt feltöltésekor a projekt felelős levelet kap
-if (isset($_POST['uj_projekt_feltoltes'])) {
-    
-    $mail_hibaizenet = level_felkeszit_es_kuld('projektkezeles', $_POST['recid'], '', 'projektkezelesUjModosit', 'projektkezeles_felelose', '');
-    if( $mail_hibaizenet ){
-        echo json_encode(array(
-            'hiba'  => $mail_hibaizenet,
-            'title' => 'Hiba',
-        ));
-    }
-        
-    $weblap->leallit();
-    exit();
-}
-
 // Léptetés Előkészítés alatt státuszba
 if (isset($_POST['projekt_elokeszites_ala'])) {
     
@@ -1048,7 +1033,7 @@ if (isset($_GET['csv'])) {
                         `'.get_db_tabla().$megnevezes.'`.`megter` as \'Megtérülő\',
                         `'.get_db_tabla().$megnevezes.'`.`rendk` as \'Rendkívüli\',
                         `'.get_db_tabla().$megnevezes.'`.`text` as \'Leírása\',
-                        `'.get_db_tabla().$megnevezes.'`.`bkolt` as \'Becsült költsége\',
+                        `'.get_db_tabla().$megnevezes.'`.`jkolt` as \'Jóváhagyott keret\',
                         `'.get_db_tabla().$megnevezes.'`.`akt_adat` as \'Aktiválási adatok\'
                         '.$lekerdezes_fromtol;
 
@@ -1364,31 +1349,6 @@ require_once('selectek.php');
     
 	// Új projektkezelés felvitele
 	if(isset($_GET['uj']) && _jog(JOG_PRKEZEL_UJ_LETREHOZ) ){
-
-        // Új feltöltéskor egy levelet is küldünk a projektfelelősnek. Ezt azért itt oldjuk meg (és nem a i_u() függvényben, mert ha nem ment volna ki a mail, akkor a működést is megállítjuk.)
-        $js_submit_elott = nl2('
-            $.ajax({
-                url : \'projektkezeles.php\',
-                type: \'POST\',
-                data: {
-                    recid               : \'\'/* Itt még nem ismert a recid */,
-                    ikt_szam            : \'Feltöltés alatt\',
-                    nev                 : $(\'#nev\').val(),
-                    telephely_id        : $(\'#telephely_id\').val(),
-                    uj_projekt_feltoltes: Date.now()
-                },
-                success: function (response) {
-                    if (response) {
-                        response = JSON.parse(response);
-                        if (response.hiba) {
-                            alert2(response.hiba, response.gomb, response.title);
-                        }else{
-                            form_ell_admin();
-                        }
-                    }
-                }
-            });
-        ');
         
 	    // FORM
 		if(isset($_GET['ujkent'])){
@@ -1414,16 +1374,16 @@ require_once('selectek.php');
         // Ha van igénylés recid-nk, akkor annak az adatait felhasználjuk
         if($_GET['igeny_id']){
             $igenyles = $adatbazis_kapcsolat->s2('*', 'projektigenyles', "`recid`='{$_GET['igeny_id']}' AND `telephely_id` IN (".implode(', ', get_akt_login_szallodai()).")");
-            $sor['nev']             = $igenyles['nev'];
-            $sor['telephely_id']    = $igenyles['telephely_id'];
-            $sor['tipus']           = $igenyles['tipus'];
-            $sor['besorol']         = $igenyles['besorol'];
-            $sor['prior']           = $igenyles['prior'];
-            $sor['bkolt']           = $igenyles['bkolt'];
-            $sor['rendk']           = $igenyles['rendk'];
-            $sor['megter']          = $igenyles['megter'];
-            $sor['text']            = $igenyles['text'];
-            $sor['projektigenyles_recid'] = $_GET['igeny_id'];
+            $sor['nev']                     = $igenyles['nev'];
+            $sor['telephely_id']            = $igenyles['telephely_id'];
+            $sor['tipus']                   = $igenyles['tipus'];
+            $sor['besorol']                 = $igenyles['besorol'];
+            $sor['prior']                   = $igenyles['prior'];
+            $sor['jkolt']                   = $igenyles['jkolt'];
+            $sor['rendk']                   = $igenyles['rendk'];
+            $sor['megter']                  = $igenyles['megter'];
+            $sor['text']                    = $igenyles['text'];
+            $sor['projektigenyles_recid']   = $_GET['igeny_id'];
         }
 
         $json_sor = array();
@@ -1729,7 +1689,7 @@ require_once('selectek.php');
                     <div id="naploSor-'.$sor['recid'].'" data-id="'.$sor['recid'].'" data-i="'.$i.'" class="dtr nSor kijSor">
                         <div class="dtc">'.nl2br($sor['megj']).'</div>
                         <div class="dtc">'.$sor['insert_usr'].'</div>
-                        <div class="dtc">'.$sor['insert_dt'].'</div>
+                        <div class="dtc">'.datum_kiir($sor['insert_dt']).'</div>
                     </div>
                 ');
 

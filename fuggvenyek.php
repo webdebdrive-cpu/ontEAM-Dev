@@ -800,7 +800,7 @@ function i_u($type, $tabla, $tomb) {
 
         }
         
-        // Projektezelés státusz beszúrása
+        // Projektezelés státusz beszúrása + levélküldés
         if( $tabla == 'projektkezeles' ) {
             $sql = $adatbazis_kapcsolat -> i($tabla.'_statusz',
                                                 array($tabla.'_recid', 'stat_id',             'login',                          'insert_dt',    'insert_usr',                             'update_usr'                           ),
@@ -809,6 +809,16 @@ function i_u($type, $tabla, $tomb) {
             if( $sql === false ) { $db_error = true; }
             $sql = $adatbazis_kapcsolat->u($tabla, array('stat_id'), array(PRKEZEL_STAT_NYITOTT), "`recid`='{$id}'");
             if( $sql === false ) { $db_error = true; }
+            
+            $mail_hibaizenet = level_felkeszit_es_kuld('projektkezeles', $id, '', 'projektkezelesUj', 'projektkezeles_felelose', '');
+            if( $mail_hibaizenet ){
+                echo json_encode(array(
+                    'hiba'  => $mail_hibaizenet,
+                    'title' => 'Hiba',
+                ));
+                $weblap -> leallit();
+                exit();
+            }
         }
         
         // Projektszámla tételek felvétele
@@ -1049,7 +1059,7 @@ function i_u($type, $tabla, $tomb) {
             
             // Ha nem változott a Pfelelős
             if( $_POST['pfelelos'] == $prk['pfelelos'] ){
-                $mail_hibaizenet = level_felkeszit_es_kuld('projektkezeles', $_GET['id'], '', 'projektkezelesUjModosit', 'projektkezeles_felelose', '');
+                $mail_hibaizenet = level_felkeszit_es_kuld('projektkezeles', $_GET['id'], '', 'projektkezelesModosit', 'projektkezeles_felelose', '');
                 if( $mail_hibaizenet ){
                     echo json_encode(array(
                         'hiba'  => $mail_hibaizenet,
@@ -1059,7 +1069,7 @@ function i_u($type, $tabla, $tomb) {
                     exit();
                 }
             }else{
-                $mail_hibaizenet = level_felkeszit_es_kuld('projektkezeles', $_GET['id'], '', 'projektkezelesUjModosit', 'projektkezeles_felelose', '', $_POST['pfelelos']);
+                $mail_hibaizenet = level_felkeszit_es_kuld('projektkezeles', $_GET['id'], '', 'projektkezelesModosit', 'projektkezeles_felelose', '', $_POST['pfelelos']);
                 if( $mail_hibaizenet ){
                     echo json_encode(array(
                         'hiba'  => $mail_hibaizenet,
@@ -1068,7 +1078,7 @@ function i_u($type, $tabla, $tomb) {
                     $weblap -> leallit();
                     exit();
                 }
-                $mail_hibaizenet = level_felkeszit_es_kuld('projektkezeles', $_GET['id'], '', 'projektkezelesUjModosit', 'projektkezeles_felelose', '', $prk['pfelelos']);
+                $mail_hibaizenet = level_felkeszit_es_kuld('projektkezeles', $_GET['id'], '', 'projektkezelesModosit', 'projektkezeles_felelose', '', $prk['pfelelos']);
                 if( $mail_hibaizenet ){
                     echo json_encode(array(
                         'hiba'  => $mail_hibaizenet,
@@ -1171,12 +1181,12 @@ function i_u($type, $tabla, $tomb) {
             
             // A hozzáadott Projekthez milyen szerződések tartoznak. Ha a projekt összege - a már hozzáadott összegek különbsgée kisebb mint a mostani szerződés összege, akkor hibaüzenet
             if( $_POST['pr_szam'] ){
-                $projekt = $adatbazis_kapcsolat->s2('bkolt', 'projektkezeles', "`ikt_szam`='{$_POST['pr_szam']}'");
+                $projekt = $adatbazis_kapcsolat->s2('jkolt', 'projektkezeles', "`ikt_szam`='{$_POST['pr_szam']}'");
                 $szerzodesek = $adatbazis_kapcsolat->s2('SUM(`szerz_ossz`)', 'projektszerzodes', "`pr_szam`='{$_POST['pr_szam']}' AND `recid`!='{$_GET['id']}'");
-                $felhasznalhato = $projekt['bkolt']-$szerzodesek['SUM(`szerz_ossz`)'];
+                $felhasznalhato = $projekt['jkolt']-$szerzodesek['SUM(`szerz_ossz`)'];
                 if( $felhasznalhato < $_POST['szerz_ossz'] ){
                     echo json_encode(array(
-                        'hiba'  => 'Projekt jóváhagyott összeg: '.number_format($projekt['bkolt'], 0, '', ' ').' '.get_penznem().'<br>Ebből felhasználható: '.number_format($felhasznalhato, 0, '', ' ').' '.get_penznem().'.<br><br>A szerződés nettó összege több, mint a választott projektből még felhasználható összeg.',
+                        'hiba'  => 'Projekt jóváhagyott összeg: '.number_format($projekt['jkolt'], 0, '', ' ').' '.get_penznem().'<br>Ebből felhasználható: '.number_format($felhasznalhato, 0, '', ' ').' '.get_penznem().'.<br><br>A szerződés nettó összege több, mint a választott projektből még felhasználható összeg.',
                         'gomb'  => '<input type="button" class="gomb" value="Ok" onclick="szurkit_zar(\'mégsem mehet mutat\'); alert2();">',
                         'title' => 'Hiba',
                     ));
@@ -1889,10 +1899,10 @@ function js_kiir($tomb, $fg = 'form_ell_regi()', $ajax = false) {
         }
         '.$obj_szerk.'
         $.ajax({
-            url : \''.self().'?id='.$_GET['id'].'\',
-            type: \'POST\',
-            data: esamp2es(\''.$param.str_replace('.php', '', basename(self())).'lista=1&amp;szerkeszt=1\'+param_kieg+\'&amp;ajax_form_modosit=\' + new Date().getTime()),
-            success: function(response) {
+            url     : \''.self().'?id='.$_GET['id'].'\',
+            type    : \'POST\',
+            data    : esamp2es(\''.$param.str_replace('.php', '', basename(self())).'lista=1&amp;szerkeszt=1\'+param_kieg+\'&amp;ajax_form_modosit=\' + new Date().getTime()),
+            success : function(response) {
 
                 if( response ) {
                     response = JSON.parse(response);
@@ -7673,7 +7683,17 @@ function level_felkeszit_es_kuld($tabla, $recid, $ert_pipa, $sablon, $cimzett, $
                         <br>'.fajlbol_olvas('../sablon/admin/mail/alairas.html');
         break;
 
-        case 'projektkezelesUjModosit':
+        case 'projektkezelesUj':
+            $esemeny =  'projekt létrehozásakor';
+            $targy   =  get_nev().' új projekt létrehozva';
+            $uzi     =  'Ön az alábbi projekt felelőse:
+                        <br>'.
+                        $uzi.'
+                        <br>'.$extra_szoveg.'
+                        <br>'.fajlbol_olvas('../sablon/admin/mail/alairas.html');
+        break;
+
+        case 'projektkezelesModosit':
             $esemeny =  'projekt módosításkor';
             $targy   =  get_nev().' projekt módosult';
             $uzi     =  'Ön az alábbi projekt felelőse:

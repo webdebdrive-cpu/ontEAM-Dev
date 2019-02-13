@@ -38,10 +38,10 @@ if($tobb_kep){
 // Előterjesztés véglegesítése
 if (isset($_POST['eloterj_veglegesit'])) {
 
-    //Státusz léptetés
+    // Státusz léptetés
     addStatusz( $megnevezes.'_statusz', $_POST['recid'], ELOT_FB_STAT_VEGLEGESITVE);
 
-    //Az eredeti projektigénylés státuszát is léptetjük:
+    // Az eredeti projektigénylés státuszát is léptetjük:
     $prik = $adatbazis_kapcsolat->s('projektigenyles_recid', $megnevezes.'_kapcs', "`eloterj_recid`='{$_POST['recid']}'");
     foreach($prik as $pri){
         addStatusz( 'projektigenyles_statusz', $pri['projektigenyles_recid'], PRIGENY_STAT_FB_TERJESZT);
@@ -147,6 +147,7 @@ if (isset($_GET['csv'])) {
             $csvcont[] = iconv($mibol, $mibe.'//TRANSLIT', 'Név'                );
             $csvcont[] = iconv($mibol, $mibe.'//TRANSLIT', 'Tipus'              );
             $csvcont[] = iconv($mibol, $mibe.'//TRANSLIT', 'Becsült költség'    );
+            $csvcont[] = iconv($mibol, $mibe.'//TRANSLIT', 'Jóváhagyott költség');
             fputcsv($open, $csvcont, ';');
             
             $prigenyek = $adatbazis_kapcsolat->s('*', 'projektigenyles_eloterj', "`eloterj_fb_recid`='{$_GET['id']}'", 'insert_dt desc');
@@ -171,6 +172,7 @@ if (isset($_GET['csv'])) {
                 $csvcont[] = iconv($mibol, $mibe.'//TRANSLIT', $igenyles['nev']);
                 $csvcont[] = iconv($mibol, $mibe.'//TRANSLIT', $tipus);
                 $csvcont[] = iconv($mibol, $mibe.'//TRANSLIT', number_format($igenyles['bkolt'], 0, '', ' ').' '.get_penznem());
+                $csvcont[] = iconv($mibol, $mibe.'//TRANSLIT', number_format($igenyles['jkolt'], 0, '', ' ').' '.get_penznem());
 
                 fputcsv($open, $csvcont, ';');
 
@@ -580,16 +582,17 @@ if(isset($_GET['modosit_ules'])){
             <input type="hidden" id="ules_datum" value="'.$ules['ules_datum'].'">
             <div class="dt naplo'.$class.'" data-tabla="eloterj_fb_kapcs" data-mellek="projektigeny">
                 <div class="dtr nFejlec">
-                    <div class="dtc">Státusz</div>
-                    <div class="dtc">Szálloda</div>
+                    <div class="dtc" style="width: 15rem">Státusz</div>
+                    <div class="dtc" style="width: 15rem">Szálloda</div>
                     <div class="dtc">Név</div>
-                    <div class="dtc">Típus</div>
+                    <div class="dtc" style="width: 10rem">Típus</div>
                     <div class="dtc r">Becsült költség</div>
+                    <div class="dtc r">Jóváhagyott költség</div>
                 </div>
         ');
 
         $i = 1;
-        $prigenyek = $adatbazis_kapcsolat->s('recid nev stat_id stat_id_eloterj telephely_id tipus bkolt', 'projektigenyles_eloterj', "`eloterj_fb_recid`='{$_GET['id']}'", 'insert_dt desc');
+        $prigenyek = $adatbazis_kapcsolat->s('recid nev stat_id stat_id_eloterj telephely_id tipus bkolt jkolt', 'projektigenyles_eloterj', "`eloterj_fb_recid`='{$_GET['id']}'", 'insert_dt desc');
         foreach($prigenyek as $prigeny){
 
             // Tipus
@@ -638,7 +641,11 @@ if(isset($_GET['modosit_ules'])){
                     <div class="dtc">'.getSzallodaNev($prigeny['telephely_id']).'</div>
                     <div class="dtc">'.htmlspecialchars_decode($prigeny['nev']).'</div>
                     <div class="dtc">'.$tipus.'</div>
-                    <div class="dtc r">'.number_format($prigeny['bkolt'], 0, '', ' ').' '.get_penznem().'</div>
+                    <div class="dtc r"><span class="bkolt">'.number_format($prigeny['bkolt'], 0, '', ' ').'</span> '.get_penznem().'</div>
+                    <div class="dtc r">
+                        <div class="jkolt_txt">'.number_format($prigeny['jkolt'], 0, '', ' ').' '.get_penznem().'</div>
+                        <div class="dn jkolt_input"><input type="text" class="f_num" data-tort="0" value="'.number_format($prigeny['jkolt'], 0, '', ' ').'"> '.get_penznem().'</div>
+                    </div>
                 </div>
             ');
             $i++;
@@ -675,7 +682,7 @@ if(isset($_GET['modosit_ules'])){
                     <div id="naploSor-'.$sor['recid'].'" data-id="'.$sor['recid'].'" data-i="'.$i.'" class="dtr nSor kijSor">
                         <div class="dtc">'.nl2br($sor['megj']).'</div>
                         <div class="dtc">'.$sor['insert_usr'].'</div>
-                        <div class="dtc">'.$sor['insert_dt'].'</div>
+                        <div class="dtc">'.datum_kiir($sor['insert_dt']).'</div>
                     </div>
                 ');
 

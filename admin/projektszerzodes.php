@@ -463,12 +463,12 @@ if (isset($_POST['van_tetel'])) {
     
     // A hozzáadott Projekthez milyen szerződések tartoznak. Ha a projekt összege - a már hozzáadott összegek különbsgée kisebb mint a mostani szerződés összege, akkor hibaüzenet
     if( $_POST['pr_szam'] ){
-        $projekt = $adatbazis_kapcsolat->s2('bkolt', 'projektkezeles', "`ikt_szam`='{$_POST['pr_szam']}'");
+        $projekt = $adatbazis_kapcsolat->s2('jkolt', 'projektkezeles', "`ikt_szam`='{$_POST['pr_szam']}'");
         $szerzodesek = $adatbazis_kapcsolat->s2('SUM(`szerz_ossz`)', 'projektszerzodes', "`pr_szam`='{$_POST['pr_szam']}'");
-        $felhasznalhato = $projekt['bkolt']-$szerzodesek['SUM(`szerz_ossz`)'];
+        $felhasznalhato = $projekt['jkolt']-$szerzodesek['SUM(`szerz_ossz`)'];
         if( $felhasznalhato < $_POST['szerz_ossz'] ){
             echo json_encode(array(
-                'hiba'  => 'Projekt jóváhagyott összeg: '.number_format($projekt['bkolt'], 0, '', ' ').' '.get_penznem().'<br>Ebből felhasználható: '.number_format($felhasznalhato, 0, '', ' ').' '.get_penznem().'.<br><br>A szerződés nettó összege több, mint a választott projektből még felhasználható összeg.',
+                'hiba'  => 'Projekt jóváhagyott összeg: '.number_format($projekt['jkolt'], 0, '', ' ').' '.get_penznem().'<br>Ebből felhasználható: '.number_format($felhasznalhato, 0, '', ' ').' '.get_penznem().'.<br><br>A szerződés nettó összege több, mint a választott projektből még felhasználható összeg.',
                 'gomb'  => '<input type="button" class="gomb" value="Ok" onclick="szurkit_zar(\'mégsem mehet mutat\'); alert2();">',
                 'title' => 'Hiba',
             ));
@@ -568,6 +568,8 @@ if (isset($_GET['csv'])) {
                             `'.get_db_tabla().$megnevezes.'`.`szerz_ossz` as \'Szerződött összeg\',
                             `'.get_db_tabla().$megnevezes.'`.`let_fel` as \'Létesítmény felelős\',
                             `'.get_db_tabla().$megnevezes.'`.`muszak_atv` as \'Műszaki átvétel\',
+                            `'.get_db_tabla().$megnevezes.'`.`muszaki_gar_kezd` as \'Műszaki garancia kezdete\',
+                            `'.get_db_tabla().$megnevezes.'`.`muszaki_gar_vege` as \'Műszaki garancia vége\',
                             `'.get_db_tabla().$megnevezes.'`.`bank_gar` as \'Bank garancia\',
                             `'.get_db_tabla().$megnevezes.'`.`bank_gar_vege` as \'Bank garancia vége\',
                             `'.get_db_tabla().$megnevezes.'`.`szamlazva` as \'Számlázva\',
@@ -649,6 +651,8 @@ if (isset($_GET['csv'])) {
                             `szerz_ossz` as \'Szerződött összeg\',
                             `let_fel` as \'Létesítmény felelős\',
                             `muszak_atv` as \'Műszaki átvétel\',
+                            `muszaki_gar_kezd` as \'Műszaki garancia kezdete\',
+                            `muszaki_gar_vege` as \'Műszaki garancia vége\',
                             `bank_gar` as \'Bank garancia\',
                             `bank_gar_vege` as \'Bank garancia vége\',
                             `szamlazva` as \'Számlázva\'
@@ -679,7 +683,7 @@ if (isset($_GET['csv'])) {
                         if($kulcs=='Létesítmény felelős'){
                             $sor = getErtek('teljes_nev', 'login', 'recid', $sor);
                         }
-                        if($kulcs=='Műszaki átvétel' || $kulcs=='Kelte' || $kulcs=='Kivitelezés kezdete' || $kulcs=='Kivitelezés vége' || $kulcs=='Bank garancia vége' || $kulcs=='Bank garancia vége'){
+                        if($kulcs=='Műszaki átvétel' || $kulcs=='Kelte' || $kulcs=='Kivitelezés kezdete' || $kulcs=='Kivitelezés vége' || $kulcs=='Műszaki garancia kezdete' || $kulcs=='Műszaki garancia vége' || $kulcs=='Bank garancia' || $kulcs=='Bank garancia vége'){
                             $sor = datum_kiir($sor);
                         }
                         if($kulcs=='Számlázva'){
@@ -1078,6 +1082,7 @@ require_once('selectek.php');
                     setTimeout(function(){
                         if( !$(\'.szamla_sor.kijelolve\').length ){
                             $(\'#pr_szam_gomb\').hide(\'\');
+                            $(\'#projekt_neve\').hide(\'\');
                         }
                     }, 500);
                     
@@ -1193,7 +1198,7 @@ require_once('selectek.php');
                     <div id="naploSor-'.$sor['recid'].'" data-id="'.$sor['recid'].'" data-i="'.$i.'" class="dtr nSor kijSor">
                         <div class="dtc">'.nl2br($sor['megj']).'</div>
                         <div class="dtc">'.$sor['insert_usr'].'</div>
-                        <div class="dtc">'.$sor['insert_dt'].'</div>
+                        <div class="dtc">'.datum_kiir($sor['insert_dt']).'</div>
                     </div>
                 ');
 
