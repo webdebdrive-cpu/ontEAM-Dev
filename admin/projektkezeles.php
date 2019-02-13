@@ -730,7 +730,7 @@ if(isset($_POST['igenylesek_betolt_uj_kezeleshez'])){
             Rendezés:
             <select onchange="igenylesek_betolt_uj_kezeleshez(this.value)">
                 <option>szálloda + becsült költség</option>
-                <option value="bkolt"'.$bkolt_selected.'>jóváhagyott költség + szálloda</option>
+                <option value="bkolt"'.$bkolt_selected.'>jóváhagyott keret + szálloda</option>
                 <option value="tipus"'.$tipus_selected.'>típus + becsült költség</option>
             </select>
             <div style="max-height: 40rem; overflow-y: auto; overflow-x: none;">
@@ -750,7 +750,7 @@ if(isset($_POST['igenylesek_betolt_uj_kezeleshez'])){
                         <br><input type="text" class="flat" placeholder="Szűrés" onkeyup="tabla_szur($(\'#prigenylesek tbody\'), this.value, 3)">
                     </th>
                     <th>
-                        Jóváhagyott költség ('.get_penznem().')
+                        Jóváhagyott keret ('.get_penznem().')
                         <br><input type="text" class="flat" placeholder="Szűrés" onkeyup="tabla_szur($(\'#prigenylesek tbody\'), this.value, 4)">
                     </th>
                     <th>

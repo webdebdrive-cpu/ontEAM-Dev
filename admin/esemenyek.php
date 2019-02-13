@@ -2236,7 +2236,7 @@ array('type' => 'html',                     'megn' => nl2('
                                                             </div>
                                                         </div>
                                                                 ')),
-    array('type' => 'text',                 'megn' => 'Jóváhagyott költség:',   'name' => 'jkolt',      'szuro' => 1,       'class' => 'oriasi f_num', 'data' => 'data-tort="0"', 'disabled' => 1, 'style' => 'width: 11.5rem;', 'post' => ' '.get_penznem(), 'nulla_is_ures_adat' => 1),
+    array('type' => 'text',                 'megn' => 'Jóváhagyott keret:',     'name' => 'jkolt',      'szuro' => 1,       'class' => 'oriasi f_num', 'data' => 'data-tort="0"', 'disabled' => 1, 'style' => 'width: 11.5rem;', 'post' => ' '.get_penznem(), 'nulla_is_ures_adat' => 1),
     array('type' => 'autocomplete',         'megn' => 'Prioritás:',             'name' => 'prior',      'class' => 'oriasi disableNav', 'szuro' => 1, 'tabla' => 'erteklista', 'oszlop_keres' => 'id', 'oszlop_keres_autocomp' => 'info', 'listaz' => 'info', 'csoport' => ERTEKLISTA_PROJEKT_PRIOR, 'id_kiir' => 'id', 'style' => 'width: 15rem'),
     array('type' => 'textarea',             'megn' => 'Leírása:',               'name' => 'text',       'szuro' => 1,      'class' => 'oriasiTargy disableNav'),
 array('type' => 'html',                     'megn' => nl2('
@@ -2277,7 +2277,7 @@ if(!_jog(JOG_PR_TOBBSZALL_KEZEL)){
     $tobb_szall_disabled = ' disabled';
 }
 
-// Jóváhagyott költség mikor szerkeszthető
+// Jóváhagyott keret mikor szerkeszthető
 $disabled_jkolt = 1;
 $alert_jkolt    = '';
 if ( isset($_GET['uj']) && !isset( $_GET['igeny_id'] ) ) {

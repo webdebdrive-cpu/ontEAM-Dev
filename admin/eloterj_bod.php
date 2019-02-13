@@ -583,7 +583,7 @@ if(isset($_GET['modosit_ules'])){
                     <div class="dtc">Név</div>
                     <div class="dtc" style="width: 10rem">Típus</div>
                     <div class="dtc r">Becsült költség</div>
-                    <div class="dtc r">Jóváhagyott költség</div>
+                    <div class="dtc r">Jóváhagyott keret</div>
                 </div>
         ');
 

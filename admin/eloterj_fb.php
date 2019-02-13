@@ -147,7 +147,7 @@ if (isset($_GET['csv'])) {
             $csvcont[] = iconv($mibol, $mibe.'//TRANSLIT', 'Név'                );
             $csvcont[] = iconv($mibol, $mibe.'//TRANSLIT', 'Tipus'              );
             $csvcont[] = iconv($mibol, $mibe.'//TRANSLIT', 'Becsült költség'    );
-            $csvcont[] = iconv($mibol, $mibe.'//TRANSLIT', 'Jóváhagyott költség');
+            $csvcont[] = iconv($mibol, $mibe.'//TRANSLIT', 'Jóváhagyott keret');
             fputcsv($open, $csvcont, ';');
             
             $prigenyek = $adatbazis_kapcsolat->s('*', 'projektigenyles_eloterj', "`eloterj_fb_recid`='{$_GET['id']}'", 'insert_dt desc');

@@ -317,7 +317,7 @@ function i_u($type, $tabla, $tomb) {
             // Iktatószám kiszámítása
             $sorszam  = get_iktatoszam_sorszam($tabla);
             if($sorszam===false){ $db_error = true; }
-            $ikt_szam = 'ELFB'.date('y').'/'.sprintf('%07d', $sorszam);
+            $ikt_szam = 'ELFB'.date('y').'/'.sprintf('%02d', $sorszam);
 
             // Felvesszük az értékek közé
             $i = 0;
@@ -335,7 +335,7 @@ function i_u($type, $tabla, $tomb) {
             // Iktatószám kiszámítása
             $sorszam  = get_iktatoszam_sorszam($tabla);
             if($sorszam===false){ $db_error = true; }
-            $ikt_szam = 'ELBO'.date('y').'/'.sprintf('%07d', $sorszam);
+            $ikt_szam = 'ELBO'.date('y').'/'.sprintf('%02d', $sorszam);
 
             // Felvesszük az értékek közé
             $i = 0;

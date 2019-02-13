@@ -39,7 +39,7 @@ function pri_eloterj_statusz_mod_mentes(rogzit, mehet){
 
         // Ha van még ki nem választott select
         if(hianyos){
-            alert2('Még '+hianyos+' adat (státuszok, jóváhagyott költségek) vár feldolgozásra.<br>Rögzítés előtt kérem dolgozza fel ezeket is!', '', 'Hiba');
+            alert2('Még '+hianyos+' adat (státuszok, jóváhagyott keret) vár feldolgozásra.<br>Rögzítés előtt kérem dolgozza fel ezeket is!', '', 'Hiba');
             return false;
         }else if(!mehet){
 

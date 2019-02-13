@@ -1150,7 +1150,7 @@ $(function() {
                     }
                 }
 
-            /* Dátum mező */
+            // Dátum mező
             }else if( $(this).hasClass('datepicker') || $(this).hasClass('datepicker_tegnapig') || $(this).hasClass('datepicker_matol') ) {
                 if( formAdatok[name] && formAdatok[name] != '0000-00-00' ) {
 
@@ -1177,17 +1177,17 @@ $(function() {
                     }
                 }
 
-            /* Numerikus mező */
+            // Numerikus mezőből kiszűrjük a szóközöket
             }else if( $(this).hasClass('f_num') ) {
                 val = val.replace(/ /g, '');
             }
 
-            /* Újsort le kell csérélni. Checkboxok miatt kell ez az if elé */
+            // Újsort le kell csérélni. Checkboxok miatt kell ez az if elé
             if(val && val!=true){
                 val = val.replace(/(\r|\n)/g, '#UJSOR#').replace(/(\t)/g, '#TAB#').replace(/'/g, '#APOSZTROF#');
             }
 
-            /* Tizedes összegeknél a pontot vesszőre kell cseérlni az ellenőrzéshez*/
+            // Tizedes összegeknél a pontot vesszőre kell cseérlni az ellenőrzéshez
             if($(this).hasClass('f_num')){
                 taroltVal = taroltVal.replace('\.', ',');
             }
@@ -1638,7 +1638,7 @@ $(function() {
             if($(this).attr('data-tort')){
                 tort = $(this).attr('data-tort');
             }
-            $(this).val( ezresek($(this).val().replace(/ /g, '').replace('.', '').replace(',', '.'), tort, ',', ' ') );
+            $(this).val( ezresek($(this).val().replace(/ /g, '').replace('.', '').replace(',', '.'), tort, ',', ' ', 'nullákat is írja ki') );
 
             // Ez azért kell, hogy ha 0 volt az értéke, kitörlöm üresnek, akkor az ezresek 0-ját vissza teszi bele, tehát a mezőről le kellene venni a 'mod' class-t, és ezt egy focus-blur-al oldom meg
             $(this).addClass('nincs_tobb_blurozas');

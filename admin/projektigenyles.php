@@ -999,7 +999,7 @@ if (isset($_GET['csv'])) {
                 `'.get_db_tabla().'projektigenyles`.`rendk` as \'Rendkívüli\',
                 `'.get_db_tabla().'projektigenyles`.`megter` as \'Megtérülő\',
                 `'.get_db_tabla().'projektigenyles`.`bkolt` as \'Becsült költsége\',
-                `'.get_db_tabla().'projektigenyles`.`jkolt` as \'Jóváhagyott költség\',
+                `'.get_db_tabla().'projektigenyles`.`jkolt` as \'Jóváhagyott keret\',
                 `'.get_db_tabla().'projektigenyles`.`stat_id` as \'Státusz\',
                 `'.get_db_tabla().'projektigenyles`.`tipus` as \'Típus\',
                 `'.get_db_tabla().'projektigenyles`.`prior` as \'Prioritás\',
