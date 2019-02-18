@@ -227,7 +227,7 @@ function i_u($type, $tabla, $tomb) {
 //exit;
     }
 
-    // Új bejegyzés esetén több mindent is le kell kezelni (iktatószám kizsámolás, plusz oszlopok beállítása
+    // Új bejegyzés esetén több mindent is le kell kezelni (iktatószám kiszámolás, plusz oszlopok beállítása
 	if($type == 'insert') {
         // Insert DT és USR lekezelése általánosan
         if( in_array($tabla.'.php', $_SESSION['ketHasabos']) ) {
@@ -563,6 +563,24 @@ function i_u($type, $tabla, $tomb) {
                 }
                 $i++;
             }
+            
+            // Illetve a projekt mezőit is frissítjük, ha van már hozzáadva Projekt szám
+            if( $_POST['pr_szam'] ){
+                $szerzodesek = $adatbazis_kapcsolat->s2('SUM(`szerz_ossz`)', 'projektszerzodes', "`pr_szam`='{$_POST['pr_szam']}'");
+                if( $szerzodesek === false ) { $db_error = true; }
+                $projekt = $adatbazis_kapcsolat->s2('jkolt', 'projektkezeles', "`ikt_szam`='{$_POST['pr_szam']}'");
+                if( $projekt === false ) { $db_error = true; }
+                
+                $sz_ossz = $szerzodesek['SUM(`szerz_ossz`)']+ $_POST['szerz_ossz'];
+                $fel_hato = $projekt['jkolt']-$sz_ossz;
+                $sql = $adatbazis_kapcsolat->u('projektkezeles', array('sz_ossz', 'fel_hato'), array($sz_ossz, $fel_hato), "`ikt_szam`='{$_POST['pr_szam']}'");
+                if( $sql === false ) { $db_error = true; }
+            }
+
+            $sz_ossz = $szerzodesek['SUM(`szerz_ossz`)']+ $_POST['szerz_ossz'];
+            $fel_hato = $projekt['jkolt']-$sz_ossz;
+            $sql = $adatbazis_kapcsolat->u('projektkezeles', array('sz_ossz', 'fel_hato'), array($sz_ossz, $fel_hato), "`ikt_szam`='{$_POST['pr_szam']}'");
+            if( $sql === false ) { $db_error = true; }
             
             array_push($oszlopok, 'loginnev'                        );
             array_push($ertekek,  $_SESSION[get_db_tabla().'user']  );
@@ -1179,21 +1197,60 @@ function i_u($type, $tabla, $tomb) {
         // Projekt szerződés
         if( $tabla == 'projektszerzodes' ){
             
+            $sor = $adatbazis_kapcsolat->s2('pr_szam', 'projektszerzodes', "`recid`='{$_GET['id']}'");
+            if( $sor === false ) { $db_error = true; }
+
             // A hozzáadott Projekthez milyen szerződések tartoznak. Ha a projekt összege - a már hozzáadott összegek különbsgée kisebb mint a mostani szerződés összege, akkor hibaüzenet
             if( $_POST['pr_szam'] ){
                 $projekt = $adatbazis_kapcsolat->s2('jkolt', 'projektkezeles', "`ikt_szam`='{$_POST['pr_szam']}'");
+                if( $projekt === false ) { $db_error = true; }
                 $szerzodesek = $adatbazis_kapcsolat->s2('SUM(`szerz_ossz`)', 'projektszerzodes', "`pr_szam`='{$_POST['pr_szam']}' AND `recid`!='{$_GET['id']}'");
+                if( $szerzodesek === false ) { $db_error = true; }
                 $felhasznalhato = $projekt['jkolt']-$szerzodesek['SUM(`szerz_ossz`)'];
                 if( $felhasznalhato < $_POST['szerz_ossz'] ){
                     echo json_encode(array(
-                        'hiba'  => 'Projekt jóváhagyott összeg: '.number_format($projekt['jkolt'], 0, '', ' ').' '.get_penznem().'<br>Ebből felhasználható: '.number_format($felhasznalhato, 0, '', ' ').' '.get_penznem().'.<br><br>A szerződés nettó összege több, mint a választott projektből még felhasználható összeg.',
+                        'hiba'  => nl2('
+                                        Projekt jóváhagyott keret: '.number_format($projekt['jkolt'], 0, '', ' ').' '.get_penznem().'
+                                        <br>Összes szerződött összeg: '.number_format($szerzodesek['SUM(`szerz_ossz`)'], 0, '', ' ').' '.get_penznem().'.
+                                        <br>Ebből még felhasználható: '.number_format($felhasznalhato, 0, '', ' ').' '.get_penznem().'.
+                                        <br>
+                                        <br>Az összes szerződés összege nagyobb, mint a jóváhagyott keret!
+                                    '),
                         'gomb'  => '<input type="button" class="gomb" value="Ok" onclick="szurkit_zar(\'mégsem mehet mutat\'); alert2();">',
                         'title' => 'Hiba',
                     ));
                     $weblap -> leallit();
                     exit();
                 }
+                
             }
+            
+            // Illetve a projekt mezőit is frissítjük, ha van már hozzáadva Projekt szám
+            // Ez két esetet jelent: lehet most adtuk hozzá:
+            if( $_POST['pr_szam'] ){
+                $szerzodesek = $adatbazis_kapcsolat->s2('SUM(`szerz_ossz`)', 'projektszerzodes', "`pr_szam`='{$_POST['pr_szam']}' AND `recid`!='{$_GET['id']}'");
+                if( $szerzodesek === false ) { $db_error = true; }
+                $projekt = $adatbazis_kapcsolat->s2('jkolt', 'projektkezeles', "`ikt_szam`='{$_POST['pr_szam']}'");
+                if( $projekt === false ) { $db_error = true; }
+                
+                $sz_ossz = $szerzodesek['SUM(`szerz_ossz`)']+ $_POST['szerz_ossz'];
+                $fel_hato = $projekt['jkolt']-$sz_ossz;
+                $sql = $adatbazis_kapcsolat->u('projektkezeles', array('sz_ossz', 'fel_hato'), array($sz_ossz, $fel_hato), "`ikt_szam`='{$_POST['pr_szam']}'");
+                if( $sql === false ) { $db_error = true; }
+                
+            // De az is lehet, hogy most vettük le, csak DB-ben létezik, ekkor is újra kell számíttatni, kicsit másképp
+            }elseif( $sor['pr_szam'] ){
+                $szerzodesek = $adatbazis_kapcsolat->s2('SUM(`szerz_ossz`)', 'projektszerzodes', "`pr_szam`='{$sor['pr_szam']}' AND `recid`!='{$_GET['id']}'");
+                if( $szerzodesek === false ) { $db_error = true; }
+                $projekt = $adatbazis_kapcsolat->s2('jkolt', 'projektkezeles', "`ikt_szam`='{$sor['pr_szam']}'");
+                if( $projekt === false ) { $db_error = true; }
+                
+                $sz_ossz = $szerzodesek['SUM(`szerz_ossz`)'];
+                $fel_hato = $projekt['jkolt']-$sz_ossz;
+                $sql = $adatbazis_kapcsolat->u('projektkezeles', array('sz_ossz', 'fel_hato'), array($sz_ossz, $fel_hato), "`ikt_szam`='{$sor['pr_szam']}'");
+                if( $sql === false ) { $db_error = true; }
+            }
+            
             
             // Ellenőrizzük, hogy a szerződés összege azonos-e a tételek összegével
             $tetelek_osszege = '';

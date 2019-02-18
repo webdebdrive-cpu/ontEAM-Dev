@@ -451,7 +451,7 @@ if (isset($_POST['van_tetel'])) {
     }
     
     // A szerződött össze nem lehet negatív
-    if($_POST['szerz_ossz']<0 ){
+    if( $szerzodes_osszege<0 ){
         echo json_encode(array(
             'hiba'  => 'A szerződött összeg nem lehet 0 vagy ettől kisebb!',
             'title' => 'Hiba',
@@ -461,14 +461,20 @@ if (isset($_POST['van_tetel'])) {
         exit();
     }
     
-    // A hozzáadott Projekthez milyen szerződések tartoznak. Ha a projekt összege - a már hozzáadott összegek különbsgée kisebb mint a mostani szerződés összege, akkor hibaüzenet
+    // A hozzáadott Projekthez milyen szerződések tartoznak. Ha a projekt összege mínusz a már hozzáadott összegek különbsége kisebb mint a mostani szerződés összege, akkor hibaüzenet
     if( $_POST['pr_szam'] ){
         $projekt = $adatbazis_kapcsolat->s2('jkolt', 'projektkezeles', "`ikt_szam`='{$_POST['pr_szam']}'");
         $szerzodesek = $adatbazis_kapcsolat->s2('SUM(`szerz_ossz`)', 'projektszerzodes', "`pr_szam`='{$_POST['pr_szam']}'");
         $felhasznalhato = $projekt['jkolt']-$szerzodesek['SUM(`szerz_ossz`)'];
-        if( $felhasznalhato < $_POST['szerz_ossz'] ){
+        if( $felhasznalhato < $szerzodes_osszege ){
             echo json_encode(array(
-                'hiba'  => 'Projekt jóváhagyott összeg: '.number_format($projekt['jkolt'], 0, '', ' ').' '.get_penznem().'<br>Ebből felhasználható: '.number_format($felhasznalhato, 0, '', ' ').' '.get_penznem().'.<br><br>A szerződés nettó összege több, mint a választott projektből még felhasználható összeg.',
+                'hiba'  => nl2('
+                                Projekt jóváhagyott keret: '.number_format($projekt['jkolt'], 0, '', ' ').' '.get_penznem().'
+                                <br>Összes szerződött összeg: '.number_format($szerzodesek['SUM(`szerz_ossz`)'], 0, '', ' ').' '.get_penznem().'.
+                                <br>Ebből még felhasználható: '.number_format($felhasznalhato, 0, '', ' ').' '.get_penznem().'.
+                                <br>
+                                <br>Az összes szerződés összege nagyobb, mint a jóváhagyott keret!
+                            '),
                 'gomb'  => '<input type="button" class="gomb" value="Ok" onclick="szurkit_zar(\'mégsem mehet mutat\'); alert2();">',
                 'title' => 'Hiba',
             ));
@@ -503,10 +509,7 @@ if (isset($_POST['van_tetel'])) {
                     ) );
     $weblap->leallit();
     exit();
-    
-    
-    $weblap->leallit();
-    exit();
+
 }
 
 // CSV generálása

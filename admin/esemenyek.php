@@ -2322,7 +2322,9 @@ $projektkezeles_tomb = $akt_tomb = array(
     array('type' => 'checkbox',             'megn' => 'Megtérülő:',             'name' => 'megter',         'szuro' => 1,   'class' => 'check', 'onclick' => 'if($(this).prop(\'checked\')){ $(\'#megter_cel_div\').show(); }else{ $(\'#megter_cel_div\').hide(); }', 'osszevon' => 1, 'post' => '<span style="margin-left: 2rem"></span>'),
     array('type' => 'checkbox',             'megn' => 'Rendkívüli:',            'name' => 'rendk',          'szuro' => 1,   'class' => 'check'),
     array('type' => 'textarea',             'megn' => 'Leírása:',               'name' => 'text',           'szuro' => 1,   'class' => 'oriasiTargy disableNav'),
-    array('type' => 'text',                 'megn' => 'Jóváhagyott keret:',     'name' => 'jkolt',          'szuro' => 1,   'class' => 'oriasi f_num', 'data' => 'data-tort="0"', 'disabled' => $disabled_jkolt, 'post' => ' '.get_penznem(), 'alert' => $alert_jkolt),
+    array('type' => 'text',                 'megn' => 'Jóváhagyott keret:',     'name' => 'jkolt',          'szuro' => 1,   'class' => 'oriasi f_num', 'data' => 'data-tort="0"', 'disabled' => $disabled_jkolt,    'post' => ' '.get_penznem(), 'alert' => $alert_jkolt),
+    array('type' => 'text',                 'megn' => 'Szerződött összeg:',     'name' => 'sz_ossz',        'szuro' => 1,   'class' => 'oriasi f_num', 'data' => 'data-tort="0"', 'disabled' => 1,                  'post' => ' '.get_penznem()),
+    array('type' => 'text',                 'megn' => 'Felhasználható:',        'name' => 'fel_hato',       'szuro' => 1,   'class' => 'oriasi f_num', 'data' => 'data-tort="0"', 'disabled' => 1,                  'post' => ' '.get_penznem()),
     array('type' => 'text',                 'megn' => 'Aktiválási adatok:',     'name' => 'akt_adat',       'szuro' => 1,   'maxlength' => 250, 'class' => 'oriasi'),
     array('type' => 'html',                 'megn' => nl2('
                                                         <div class="dtr">
