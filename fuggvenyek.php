@@ -550,9 +550,12 @@ function i_u($type, $tabla, $tomb) {
             }
             
             // Iktatószám kiszámítása
-            $sorszam  = get_iktatoszam_sorszam($tabla);
+            // Szálloda azonosító
+            $szalloda   = $adatbazis_kapcsolat->s2('props', 'telephely', "`id`='{$_POST['telephely_id']}'");
+            if( $szalloda === false ) { $db_error = true; }
+            $sorszam  = get_iktatoszam_sorszam($tabla, $_POST['telephely_id']);
             if($sorszam===false){ $db_error = true; }
-            $ikt_szam = 'PSZ'.date('y').'/'.sprintf('%04d', $sorszam);
+            $ikt_szam = 'PSZ'.date('y').'/'.get_props($szalloda['props'], 'RN').sprintf('%03d', $sorszam);
 
             // Felvesszük az értékek közé
             $i = 0;
@@ -6977,13 +6980,19 @@ function get_tortenet($megnevezes){
 }
 
 // Adott tábla iktatószámának következő sorszámának lekérése
-function get_iktatoszam_sorszam($tabla){
+function get_iktatoszam_sorszam($tabla, $telephely_id){
 
     global $adatbazis_kapcsolat;
 
     $db_error = false;
 
-    $ikt_seq = $adatbazis_kapcsolat->s2('ev sorszam', 'iktszam_seq', "`tabla`='$tabla' AND `ev`='".date('y')."'");
+    // Ha kaptunk telephely_id-t, akkor azzal is számolnunk kell még, ez is kulcs része
+    $where = '';
+    if( $telephely_id ){
+        $where = " AND `telephely_id`='{$telephely_id}'";
+    }
+    
+    $ikt_seq = $adatbazis_kapcsolat->s2('ev sorszam', 'iktszam_seq', "`tabla`='{$tabla}' AND `ev`='".date('y')."'{$where}");
     if( $ikt_seq === false ) { $db_error = true; }
     if( $ikt_seq ) {
 
@@ -6994,13 +7003,22 @@ function get_iktatoszam_sorszam($tabla){
         $sorszam++;
 
         // Letároljuk az új sorszámot
-        $sql = $adatbazis_kapcsolat -> u('iktszam_seq', array('sorszam'), array($sorszam), "`tabla`='$tabla' AND `ev`='".date('y')."'");
+        $sql = $adatbazis_kapcsolat -> u('iktszam_seq', array('sorszam'), array($sorszam), "`tabla`='{$tabla}' AND `ev`='".date('y')."'{$where}");
         if( $sql === false ) { $db_error = true; }
+        
     } else {
+        
         // Sorszám
         $sorszam = 1;
 
-        $sql = $adatbazis_kapcsolat -> i('iktszam_seq', array('sorszam', 'ev', 'tabla'), array($sorszam, date('y'), $tabla));
+        $mezok      = array('sorszam', 'ev', 'tabla');
+        $ertekek    = array($sorszam, date('y'), $tabla);
+        if( $telephely_id ){
+            array_push($mezok,   'telephely_id');
+            array_push($ertekek, $telephely_id );
+        }
+        
+        $sql = $adatbazis_kapcsolat -> i('iktszam_seq', $mezok, $ertekek);
         if( $sql === false ) { $db_error = true; }
     }
 
