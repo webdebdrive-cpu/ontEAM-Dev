@@ -1123,6 +1123,13 @@ function i_u($type, $tabla, $tomb) {
                 exit();
             }
             
+            // Ha a visszaadva pipát most kapcsoltam be, akkor ellenőrizzük, hogy szerződéshez volt-e kapcsolva. Ha igen, akkor a szerződés tétel kapcsolatot meg kell szüntetni.
+            $szamla = $adatbazis_kapcsolat->s2('visszaadva', 'projektszamla', "`recid`='{$_GET['id']}'");
+            if( $_POST['visszaadva'] && !$szamla['visszaadva'] ){
+                $sql = $adatbazis_kapcsolat->u('projektszamla_tetel', array('projektszerzodes_tetel_recid'), array('0'), "`projektszamla_recid`='{$_GET['id']}'");
+                if( $sql === false ) { $db_error = true; }
+            }
+            
             // Projekt számla mentésekor ellenőrizzük, hogy a dátumok nem múltbeliek-e. (Van pár, amelyiknél ezt ellenőrizni kell.)
             $csak_mult_datum_lehet = array(
                                             array('name' => 'ceghez_erk',    'alert' => 'Céghez érkezett dátumhoz csak mai, vagy múltbeli dátum adható meg!'),

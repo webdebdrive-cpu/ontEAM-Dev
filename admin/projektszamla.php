@@ -1283,7 +1283,7 @@ require_once('selectek.php');
             $gombok .= ' <input type="hidden" id="telephely_id_db" value="'.$sor['telephely_id'].'">';
         }
         
-        if( isset($_GET['modosit']) && get_projekt_szamla_kezel_jog($_GET['id']) ) {
+        if( isset($_GET['modosit']) && !$sor['visszaadva'] && get_projekt_szamla_kezel_jog($_GET['id']) ) {
             
             $gombok = nl2('
                 <div class="form_kuldes">
@@ -1308,8 +1308,6 @@ require_once('selectek.php');
         ');
          
     }
-
-    $js_submit_elott = 'return form_ell_admin();';
     
 	// Új projektkezelés felvitele
 	if( isset($_GET['uj']) && (_jog(JOG_PRSZAMLAK_KEZEL) || _jog(JOG_PR_SAJAT_SZAMLA_KEZEL)) ){
@@ -1463,6 +1461,22 @@ require_once('selectek.php');
         if(isset($_GET['id_hidden'])){
             $_GET['id'] = $_GET['id_hidden'];
         }
+        
+        // Ha a visszaadva pipa be van pipálva, és van rajta egy mod css class, akkor ez most kerül bepipálásra. Ebben az esetben rákérdezdünk, hogy biztosan?
+        $szamla_html .= '<script>var visszaadva_pipa_mehet = false;</script>';
+        $js_submit_elott = nl2('
+            if( !visszaadva_pipa_mehet && $(\'#visszaadva\').prop(\'checked\') && $(\'#visszaadva\').hasClass(\'mod\') ){
+                alert2( \'Szállító: \'+$(\'#szallito_id_autocomp\').val()+
+                        \'<br>Számlaszám: \'+$(\'#szla_szam\').val()+
+                        \'<br>Tárgy: \'+$(\'#targy\').val()+
+                        \'<br><br>A számla visszaadására készül. Amennyiben folytatja, a számla a továbbiakban nem módosíthatóvá válik.\'+
+                        \'<br>Ha a számla szerződéshez van kapcsolva, akkor adatai a szerződés tételeiből kiürülnek.\'+
+                        \'<br>Folytatja?\', \'<input type="button" class="gomb zold" value="Igen" onclick="visszaadva_pipa_mehet = true; mentesGomb();"><input type="button" class="gomb piros" value="Nem" onclick="alert2();">\');
+                        alert_utan_mehet_megsem_mutat_beallit();
+                        return false;
+            }
+            return form_ell_admin();
+            ');
 
 	    $sor        = $adatbazis_kapcsolat -> s2('*', $megnevezes, "`recid`='{$_GET['id']}'");
         $telephely  = $adatbazis_kapcsolat -> s2('nev modell', 'telephely', "`id`='{$sor['telephely_id']}'");

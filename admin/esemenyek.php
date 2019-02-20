@@ -2349,14 +2349,20 @@ $sz_szam_gomb = '';
 if( get_projekt_szamla_kezel_jog($_GET['id']) || isset($_GET['uj']) ){
     $gomb_felirat = 'Szerződés hozzáadása';
     $gomb_class   = '';
+    $gomb_mehet   = true;
     if (isset($_GET['modosit'])) {
-        $prsz = $adatbazis_kapcsolat->s2('sz_szam', 'projektszamla', "`recid`='{$_GET['id']}'");
+        $prsz = $adatbazis_kapcsolat->s2('sz_szam visszaadva', 'projektszamla', "`recid`='{$_GET['id']}'");
         if($prsz['sz_szam']){
             $gomb_felirat = 'Szerződés szám törlése';
             $gomb_class   = ' piros';
         }
+        if( $prsz['visszaadva'] ){
+            $gomb_mehet = false;
+        }
     }
-    $sz_szam_gomb = ' <input type="button" class="gomb alacsony'.$gomb_class.'" value="'.$gomb_felirat.'" id="sz_szam_gomb" style="margin-left: 2rem; margin-bottom: 0;" onclick="prsz_hozzaad_gomb_hozzaad_vagy_torol()">';
+    if($gomb_mehet){
+        $sz_szam_gomb = ' <input type="button" class="gomb alacsony'.$gomb_class.'" value="'.$gomb_felirat.'" id="sz_szam_gomb" style="margin-left: 2rem; margin-bottom: 0;" onclick="prsz_hozzaad_gomb_hozzaad_vagy_torol()">';
+    }
 }
 
 $disable_szerk = false;

@@ -282,7 +282,7 @@ function felh_valt( valt ) {
 // Alert2 után a Mehet mégsem gombot meg kéne mutatni. Igen ám, de az alert-et Escape-val, X-el és Ok gombbal is be lehet zárni, ezért íródott rá erre egy ilyen felkonfigurálós függvény
 function alert_utan_mehet_megsem_mutat_beallit() {
     $('.bezar').attr('onclick', 'alert2(); szurkit_zar(\'Mehet-mégsem mutat\');');
-    $('#alert2 input.gomb').attr('onclick', 'alert2(); szurkit_zar(\'Mehet-mégsem mutat\');');
+    $('#alert2 input.gomb:not(\'.zold\')').attr('onclick', 'alert2(); szurkit_zar(\'Mehet-mégsem mutat\');');
     $('.bezar').addClass('mehet_megsem_mutat');
 }
 
