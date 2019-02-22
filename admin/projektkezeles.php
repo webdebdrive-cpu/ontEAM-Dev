@@ -981,6 +981,95 @@ if (isset($_POST['projekt_team_felvesz'])) {
     exit();
 }
 
+// Cash-flow sor hozzáadása
+if (isset($_POST['projektkezeles_cf_uj'])) {
+    
+    $datumok = json_decode($_POST['datumok']);
+    $tervek  = json_decode($_POST['tervek']);
+
+    $db_error = false;
+    mysqli_autocommit($db_kapcs, false);
+    
+    // Kötelező mezők ellenőrzése
+    if( !trim($_POST['nev']) ){
+        echo json_encode(array(
+            'hiba'  => 'Kérem adja meg a cash-flow nevét!',
+            'title' => 'Hiba',
+            'focus' => 'popup_nev',
+        ));
+        $weblap->leallit();
+        exit();
+    }
+    
+    if( !$datumok ){
+        echo json_encode(array(
+            'hiba'  => 'Kérem legalább egy dátum/terv sort adjon meg!',
+            'title' => 'Hiba',
+            'focus' => 'popup_datum',
+        ));
+        $weblap->leallit();
+        exit();
+    }
+    
+    // Db-be mentés. Először a nevet.. 
+    $cf_nev = $adatbazis_kapcsolat->i('projektkezeles_cashflow_nev',    array('projektkezeles_recid',   'nev',          'login',                            'update_dt',  'update_usr',                             'insert_dt',  'insert_usr'                              ),
+                                                                        array($_POST['recid'],          $_POST['nev'],  $_SESSION[get_db_tabla().'user'],   'NOW()',      $_SESSION[get_db_tabla().'teljes_nev'],   'NOW()',      $_SESSION[get_db_tabla().'teljes_nev']    )
+                                    );
+    if( $cf_nev === false ) { $db_error = true; }
+    
+    // Majd a dátumokat
+    $i = 0;
+    foreach ( $datumok as $datum ){
+        
+        $datumok[$i] = str_replace('.', '-', $datumok[$i]);
+        $tervek[$i]  = str_replace(' ', '',  $tervek[$i] );
+        
+        // PHP alatt is ellenőrizzük az adatokat
+        if( !valos_datum_e($datumok[$i]) ){
+            echo json_encode(array(
+                'hiba'  => 'Helytelen dátum ('.$datumok[$i].') miatt nem rögzíthető az új sor!',
+                'title' => 'Hiba',
+                'focus' => 'popup_datum',
+            ));
+            $weblap->leallit();
+            exit();
+        }
+        if( $datumok[$i]<date('Y-m-d') ){
+            echo json_encode(array(
+                'hiba'  => 'Múltbeli dátum ('.$datumok[$i].') miatt nem rögzíthető az új sor!',
+                'title' => 'Hiba',
+                'focus' => 'popup_datum',
+            ));
+            $weblap->leallit();
+            exit();
+        }
+        
+        $sql = $adatbazis_kapcsolat->i('projektkezeles_cashflow',   array('projektkezeles_recid',   'cashflow_nev_recid',   'datum',       'terv',       'login',                            'update_dt',  'update_usr',                             'insert_dt',  'insert_usr'                              ),
+                                                                    array($_POST['recid'],          $cf_nev,                $datumok[$i],  $tervek[$i],  $_SESSION[get_db_tabla().'user'],   'NOW()',      $_SESSION[get_db_tabla().'teljes_nev'],   'NOW()',      $_SESSION[get_db_tabla().'teljes_nev']    )
+                                        );
+        if( $sql === false ) { $db_error = true; }
+        $i++;
+    }
+    
+    if( !$db_error ) {
+        mysqli_commit($db_kapcs);
+
+        echo json_encode(array(
+            'statusz' => 'siker'
+        ));
+    } else {
+        mysqli_rollback($db_kapcs);
+
+        echo json_encode(array(
+            'hiba'  => tranzakcioHiba(),
+            'title' => 'Hiba'
+        ));
+    }
+    
+    $weblap->leallit();
+    exit();
+}
+
 // CSV generálása
 if (isset($_GET['csv'])) {
     
@@ -1304,7 +1393,7 @@ require_once('selectek.php');
             }
         }
         
-        // Kész
+        // Kész státusz
         $statuszok = array(PRKEZEL_STAT_KESZ);
         if( in_array($sor['stat_id'], $statuszok) && get_projekt_kezeles_jog($_GET['id']) ) {
             $van_dok = $adatbazis_kapcsolat->s2('recid', 'projektkezeles_dok', "`projektkezeles_id`='{$_GET['id']}' AND `tipus`='".EL_DOK_TIPUS_GAR_BEJAR."'", '', '1');
@@ -1314,6 +1403,13 @@ require_once('selectek.php');
                 $gombok .= '<script> gomb_lezartra = \'<input type="button" class="gomb zold" onclick="projekt_lezartra()" value="Igen"><input type="button" class="gomb piros" onclick="alert2()" value="Nem">\';</script>';
                 $gombok .= '<input type="button" class="gomb modositaskor_rejt" value="Lezárt" onclick="alert2(\''.$projekt_adatok.'Biztos, hogy Lezárt státuszba helyezi a projektet?\', gomb_lezartra)"> ';
             }
+        }
+        
+        // Cash-flow fül alatt van új sor feltöltés, kitöltés és törlés
+        if (isset($_GET['cash_flow'])) {
+            $gombok .= ' <input type="button" class="gomb modositaskor_rejt" onclick="csoportMuvelet(\'projektkezeles_cf_uj\')" value="Új sor">';
+            $gombok .= ' <input type="button" class="gomb modositaskor_rejt" onclick="" value="Sor kitöltés">';
+            $gombok .= ' <input type="button" class="gomb modositaskor_rejt" onclick="" value="Sor törlés">';
         }
 
         // Ha van egyáltalán kezelésre joga, és nincs még lezárva
@@ -1484,10 +1580,130 @@ require_once('selectek.php');
 			require_once('tobb_kep.php');
 		}
 
-	// Cash flow
+	// Cash flow 
 	}elseif(isset($_GET['cash_flow'])){
+        
+        $sor = $adatbazis_kapcsolat -> s2('*', $megnevezes, "`recid`='{$_GET['id']}'");
+        
+        // Előző hónap kiszámítása
+        $elozo_ev    = date('Y');
+        $elozo_honap = date('n');
+        $elozo_honap--;
+        if($elozo_honap==0){
+            $elozo_honap = 12;
+            $elozo_ev--;
+        }
+        $elozo_ev_honap = $elozo_ev.'.'.sprintf("%02d", $elozo_honap);
+        
+        // Előző előtti hónap kiszámíása
+        $elozo_honap--;
+        if($elozo_honap==0){
+            $elozo_honap = 12;
+            $elozo_ev--;
+        }
+        $elozo_elotti_ev_honap = $elozo_ev.'.'.sprintf("%02d", $elozo_honap);
+        
+        // X tengely előállítása
+        $idtotengely = array(str_replace('.', '-', $elozo_elotti_ev_honap), str_replace('.', '-', $elozo_ev_honap));
+        $akt_ev    = date('Y');
+        $akt_honap = date('n');
+        for( $i = 0; $i<11; $i++ ){
+            array_push( $idtotengely,  $akt_ev.'-'.sprintf("%02d", $akt_honap));
+            $akt_honap++;
+            if( $akt_honap==13 ){
+                $akt_honap = 1;
+                $akt_ev++;
+            }
+        }
+        
+        // Táblázat kirajzolása
+        $idotengely_html = '';
+        $i = 0;
+        foreach( $idtotengely as $honapok ){
+            $ig = '';
+            if(!$i){
+                $ig = '-ig';
+            }
+            $idotengely_html .= '<th class="nowrap">'.datum_kiir($honapok).$ig.'</th>';
+            $i++;
+        }
+        $cash_flow_html = nl2('
+            <table class="szamla_cont_tabla szep_csikos kisbetu">
+            <thead>
+                <tr>
+                    <th>Név</th>
+                    '.$idotengely_html.'
+                </tr>
+            </thead>
+            <tbody>
+        ');
+        $cash_flow_nevek = $adatbazis_kapcsolat->s('recid nev', 'projektkezeles_cashflow_nev', "`projektkezeles_recid`='{$_GET['id']}'");
+        foreach($cash_flow_nevek as $nev){
+            $cash_flow_html .= '<tr><td>'.htmlspecialchars_decode($nev['nev']).'</td>';
+            
+            $i = 0;
+            foreach($idtotengely as $honap){
+                
+                // Az első hónap egy összesítés, az összes múltbeli adatból
+                if( !$i ){
+                    $cash_flow = $adatbazis_kapcsolat->s2('SUM(`terv`)', 'projektkezeles_cashflow', "`projektkezeles_recid`='{$_GET['id']}' AND `cashflow_nev_recid`='{$nev['recid']}' AND `datum`<='{$honap}'");
+                }else{
+                    $cash_flow = $adatbazis_kapcsolat->s2('SUM(`terv`)', 'projektkezeles_cashflow', "`projektkezeles_recid`='{$_GET['id']}' AND `cashflow_nev_recid`='{$nev['recid']}' AND `datum` LIKE '{$honap}%'");
+                }
+                
+                $cash_flow_html .= '<td class="nowrap r">'.number_format($cash_flow['SUM(`terv`)'], 0, '', ' ').'</td>';
+                $i++;
+            }
+            
+            $cash_flow_html .= '</tr>';
+        }
+        
+        // Szerződések
+        $szerzodes_recidk = $adatbazis_kapcsolat->s('recid', 'projektszerzodes', "`pr_szam`='{$sor['ikt_szam']}'");
+        $szerzodes_recidk = adatbazis2tomb($szerzodes_recidk, 'recid');
+        $cash_flow_html .= '<tr><td>Szerződések</td>';
+        $i = 0;
+        foreach($idtotengely as $honap){
 
-        $szamla_html .= 'Cash flow felülete';
+            // Az első hónap egy összesítés, az összes múltbeli adatból
+            if($szerzodes_recidk){
+                if( !$i ){
+                    $cash_flow = $adatbazis_kapcsolat->s2('SUM(`varh_ert`)', 'projektszerzodes_tetel', "`projektszerzodes_recid` IN (".implode(', ', $szerzodes_recidk).") AND `varh_erk`<='{$honap}' AND `teljesites`='0000-00-00'");
+                }else{
+                    $cash_flow = $adatbazis_kapcsolat->s2('SUM(`varh_ert`)', 'projektszerzodes_tetel', "`projektszerzodes_recid` IN (".implode(', ', $szerzodes_recidk).") AND `varh_erk` LIKE '{$honap}%' AND `teljesites`='0000-00-00'");
+                }
+            }
+
+            $cash_flow_html .= '<td class="nowrap r">'.number_format($cash_flow['SUM(`varh_ert`)'], 0, '', ' ').'</td>';
+            $i++;
+        }
+        $cash_flow_html .= '</tr>';
+        
+        // Számlák
+        $cash_flow_html .= '<tr><td>Számlák</td>';
+        $i = 0;
+        foreach($idtotengely as $honap){
+
+            // Az első hónap egy összesítés, az összes múltbeli adatból
+            if($szerzodes_recidk){
+                if( !$i ){
+                    $cash_flow = $adatbazis_kapcsolat->s2('SUM(`ertek`)', 'projektszerzodes_tetel', "`projektszerzodes_recid` IN (".implode(', ', $szerzodes_recidk).") AND `teljesites`<='{$honap}' AND `teljesites`!='0000-00-00'");
+                }else{
+                    $cash_flow = $adatbazis_kapcsolat->s2('SUM(`ertek`)', 'projektszerzodes_tetel', "`projektszerzodes_recid` IN (".implode(', ', $szerzodes_recidk).") AND `teljesites` LIKE '{$honap}%'");
+                }
+            }
+
+            $cash_flow_html .= '<td class="nowrap r">'.number_format($cash_flow['SUM(`ertek`)'], 0, '', ' ').'</td>';
+            $i++;
+        }
+        $cash_flow_html .= '</tr>';
+        
+        $cash_flow_html .= nl2('
+            </tbody>
+            </table>
+        ');
+        
+        $szamla_html .= $cash_flow_html;
 
         if( $_GET['ajax'] ) {
             echo json_encode(array(

@@ -1,3 +1,11 @@
+$(document).ready(function () {
+    /* Sorok kijelölése kattintásra */
+    $(document).on('click', '.szamla_cont_tabla tbody tr', function(e) {
+        $('.szamla_cont_tabla tbody tr').removeClass('kijelolve');
+        $(this).addClass('kijelolve');
+    }); 
+});
+
 /* Léptetés Előkészítés alatt státuszba */
 function projekt_elokeszites_ala() {
     $.ajax({

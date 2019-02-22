@@ -8306,7 +8306,7 @@ function fenntartasi_terv_muszaki_anyag($sor){
                 <tbody>
                 ';
 
-            $muszaki_anyagok = $adatbazis_kapcsolat->s('*', 'fenntartasi_terv_muszaki_anyag', "`fenntartasi_terv_id`='{$sor['recid']}'");
+            $muszaki_anyagok = $adatbazis_kapcsolat->s('*', 'fenntartasi_terv_muszaki_anyag', "`fenntartasi_terv_id`='{$sor['recid']}'", 'ktgnem_id');
             foreach($muszaki_anyagok as $anyagok){
 
                 $osszesen = 0;
@@ -8403,7 +8403,7 @@ function fenntartasi_terv_rendsz_karban($sor){
         <tbody>
         ';
 
-    $rendszeresek = $adatbazis_kapcsolat->s('*', 'fenntartasi_terv_rendsz_karban', "`fenntartasi_terv_id`='{$sor['recid']}'");
+    $rendszeresek = $adatbazis_kapcsolat->s('*', 'fenntartasi_terv_rendsz_karban', "`fenntartasi_terv_id`='{$sor['recid']}'", 'ktgnem_id');
     foreach($rendszeresek as $rendszeres){
 
         $osszesen = 0;
@@ -8503,7 +8503,7 @@ function fenntartasi_terv_eseti_karban($sor){
         <tbody>
         ';
 
-    $esetik = $adatbazis_kapcsolat->s('*', 'fenntartasi_terv_eseti_karban', "`fenntartasi_terv_id`='{$sor['recid']}'");
+    $esetik = $adatbazis_kapcsolat->s('*', 'fenntartasi_terv_eseti_karban', "`fenntartasi_terv_id`='{$sor['recid']}'", 'ktgnem_id');
     foreach($esetik as $eseti){
 
         $osszesen = '';
@@ -8603,7 +8603,7 @@ function fenntartasi_terv_hibaelharitas($sor){
         <tbody>
         ';
 
-    $hibak = $adatbazis_kapcsolat->s('*', 'fenntartasi_terv_hibaelharitas', "`fenntartasi_terv_id`='{$sor['recid']}'");
+    $hibak = $adatbazis_kapcsolat->s('*', 'fenntartasi_terv_hibaelharitas', "`fenntartasi_terv_id`='{$sor['recid']}'", 'ktgnem_id');
     foreach($hibak as $hiba){
 
         $osszesen = '';
@@ -8703,7 +8703,7 @@ function fenntartasi_terv_miniprojekt($sor){
         <tbody>
         ';
 
-    $minik = $adatbazis_kapcsolat->s('*', 'fenntartasi_terv_miniprojekt', "`fenntartasi_terv_id`='{$sor['recid']}'");
+    $minik = $adatbazis_kapcsolat->s('*', 'fenntartasi_terv_miniprojekt', "`fenntartasi_terv_id`='{$sor['recid']}'", 'ktgnem_id');
     foreach($minik as $mini){
 
         $osszesen = '';
@@ -8802,7 +8802,7 @@ function fenntartasi_terv_bwh($sor){
         <tbody>
         ';
 
-    $bwhk = $adatbazis_kapcsolat->s('*', 'fenntartasi_terv_bwh', "`fenntartasi_terv_id`='{$sor['recid']}'");
+    $bwhk = $adatbazis_kapcsolat->s('*', 'fenntartasi_terv_bwh', "`fenntartasi_terv_id`='{$sor['recid']}'", 'ktgnem_id');
     foreach($bwhk as $bwh){
 
         for($i=1; $i<13; $i++){
