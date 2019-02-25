@@ -142,3 +142,54 @@ function projekt_felfuggesztes_vege(){
         }
     });
 }
+
+/* Cashflow sor törlése */
+function cf_sor_torol(mehet){
+    
+    /* Kijelölt sor */
+    var id = $('.szamla_cont_tabla tr.kijelolve').attr('data-recid');
+    if( id=='szerzodesek' ){
+        alert2('A szerződés cash-flow nem törölhető!', '', 'Hiba');
+        popupZar();
+        setTimeout(function(){ popupZar(); }, 100);
+        return false;
+    }
+    if( id=='szamlak' ){
+        alert2('A számla cash-flow nem törölhető!', '', 'Hiba');
+        popupZar();
+        setTimeout(function(){ popupZar(); }, 100);
+        return false;
+    }
+    if(!id){
+        alert2('Kérem, előbb jelöljön ki egy cash-flow sort!', '', 'Hiba');
+        popupZar();
+        setTimeout(function(){ popupZar(); }, 100);
+        return false;
+    }
+    
+    if(!mehet){
+        alert2('Biztosan törli a kijelölt cash-fow sort?', '<input type="button" class="gomb zold" value="Igen" onclick="cf_sor_torol(\'mehet\'); alert2();"><input type="button" class="gomb piros" value="Nem" onclick="alert2();">');
+        return false;
+    }
+    
+    $.ajax({
+        url : 'projektkezeles.php',
+        type: 'POST',
+        data: {
+            recid       : id,
+            cf_sor_torol: Date.now()
+        },
+        success: function (response) {
+            if(response.substring(0, 6)=='SESKIL'){ location.href = 'index.php'; }
+            if (response) {
+                response = JSON.parse(response);
+                if (response.hiba) {
+                    alert2(response.hiba, response.gomb,response.title);
+                }else{
+                    szamlaBetolt( _get('id'), 'projektkezeles.php', 'cash_flow' );
+                }
+            }
+        }
+    });
+    
+}

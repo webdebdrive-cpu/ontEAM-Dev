@@ -1011,11 +1011,31 @@ if (isset($_POST['projektkezeles_cf_uj'])) {
         exit();
     }
     
-    // Db-be mentés. Először a nevet.. 
-    $cf_nev = $adatbazis_kapcsolat->i('projektkezeles_cashflow_nev',    array('projektkezeles_recid',   'nev',          'login',                            'update_dt',  'update_usr',                             'insert_dt',  'insert_usr'                              ),
-                                                                        array($_POST['recid'],          $_POST['nev'],  $_SESSION[get_db_tabla().'user'],   'NOW()',      $_SESSION[get_db_tabla().'teljes_nev'],   'NOW()',      $_SESSION[get_db_tabla().'teljes_nev']    )
-                                    );
-    if( $cf_nev === false ) { $db_error = true; }
+    // Új feltöltés, vagy kitöltés attól függ, hogy kaptunk-e $_POST['kitolt_recid']-t
+    if( $_POST['kitolt_recid'] ){
+
+        // Átnevezés
+        $sql = $adatbazis_kapcsolat->u('projektkezeles_cashflow_nev', array('nev'), array($_POST['nev']), "`recid`='{$_POST['kitolt_recid']}'");
+        if( $sql === false ) { $db_error = true; }
+        
+        // Korábbi sorok törlése
+        $sql = $adatbazis_kapcsolat->d('projektkezeles_cashflow', "`cashflow_nev_recid`='{$_POST['kitolt_recid']}'");
+        if( $sql === false ) { $db_error = true; }
+
+        // Újra feltöltés pedig már közös része a működésnek, később fut le. Ehhez a $cf_nev változót be kell azért állítani
+        $cf_nev = $_POST['kitolt_recid'];
+        
+    // Új cashflow sor
+    }else{
+        
+        // Db-be mentés. Először a nevet.. 
+        $cf_nev = $adatbazis_kapcsolat->i('projektkezeles_cashflow_nev',    array('projektkezeles_recid',   'nev',          'login',                            'update_dt',  'update_usr',                             'insert_dt',  'insert_usr'                              ),
+                                                                            array($_POST['recid'],          $_POST['nev'],  $_SESSION[get_db_tabla().'user'],   'NOW()',      $_SESSION[get_db_tabla().'teljes_nev'],   'NOW()',      $_SESSION[get_db_tabla().'teljes_nev']    )
+                                        );
+        if( $cf_nev === false ) { $db_error = true; }
+        
+    }
+    
     
     // Majd a dátumokat
     $i = 0;
@@ -1027,18 +1047,18 @@ if (isset($_POST['projektkezeles_cf_uj'])) {
         // PHP alatt is ellenőrizzük az adatokat
         if( !valos_datum_e($datumok[$i]) ){
             echo json_encode(array(
-                'hiba'  => 'Helytelen dátum ('.$datumok[$i].') miatt nem rögzíthető az új sor!',
-                'title' => 'Hiba',
-                'focus' => 'popup_datum',
+                'hiba'          => 'Helytelen dátum ('.datum_kiir($datumok[$i]).') miatt nem rögzíthető az új sor!',
+                'title'         => 'Hiba',
+                'focus_datum_i' => $i+1,
             ));
             $weblap->leallit();
             exit();
         }
         if( $datumok[$i]<date('Y-m-d') ){
             echo json_encode(array(
-                'hiba'  => 'Múltbeli dátum ('.$datumok[$i].') miatt nem rögzíthető az új sor!',
-                'title' => 'Hiba',
-                'focus' => 'popup_datum',
+                'hiba'          => 'Múltbeli dátum ('.datum_kiir($datumok[$i]).') miatt nem rögzíthető az új sor!',
+                'title'         => 'Hiba',
+                'focus_datum_i' => $i+1,
             ));
             $weblap->leallit();
             exit();
@@ -1055,7 +1075,65 @@ if (isset($_POST['projektkezeles_cf_uj'])) {
         mysqli_commit($db_kapcs);
 
         echo json_encode(array(
-            'statusz' => 'siker'
+            'statusz'       => 'siker',
+            'cf_nev_recid'  => $cf_nev,
+        ));
+    } else {
+        mysqli_rollback($db_kapcs);
+
+        echo json_encode(array(
+            'hiba'  => tranzakcioHiba(),
+            'title' => 'Hiba'
+        ));
+    }
+    
+    $weblap->leallit();
+    exit();
+}
+
+// Cash flow kitöltéshez adatok betöltése
+if (isset($_POST['cf_adatok_betolt'])) {
+    
+    // Cf név
+    $cf_nev = $adatbazis_kapcsolat->s2('*', 'projektkezeles_cashflow_nev', "`recid`='{$_POST['recid']}'");
+    
+    // Adatok összeszedése
+    $adatok = array();
+    $cash_flowk = $adatbazis_kapcsolat->s('datum, terv', 'projektkezeles_cashflow', "`cashflow_nev_recid`='{$cf_nev['recid']}' AND `projektkezeles_recid`='{$cf_nev['projektkezeles_recid']}'", 'datum');
+    foreach($cash_flowk as $cf){
+        array_push($adatok, array('datum' => $cf['datum'], 'terv' => $cf['terv']));
+    }
+    
+    echo json_encode(array(
+        'nev'       => htmlspecialchars_decode($cf_nev['nev']),
+        'adatok'    => $adatok
+    ));
+    
+    $weblap->leallit();
+    exit();
+}
+
+
+// Cash-flow sor törlése 
+if (isset($_POST['cf_sor_torol'])) {
+    
+    $db_error = false;
+    mysqli_autocommit($db_kapcs, false);
+    
+    // Cash-flow név törlése
+    $sql = $adatbazis_kapcsolat->d('projektkezeles_cashflow_nev', "`recid`='{$_POST['recid']}'");
+    if( $sql === false ) { $db_error = true; }
+    
+    // Cash-flow sorok törlése
+    $sql = $adatbazis_kapcsolat->d('projektkezeles_cashflow', "`cashflow_nev_recid`='{$_POST['recid']}'");
+    if( $sql === false ) { $db_error = true; }
+    
+    if( !$db_error ) {
+        mysqli_commit($db_kapcs);
+
+        echo json_encode(array(
+            'statusz'       => 'siker',
+            'cf_nev_recid'  => $cf_nev,
         ));
     } else {
         mysqli_rollback($db_kapcs);
@@ -1408,8 +1486,8 @@ require_once('selectek.php');
         // Cash-flow fül alatt van új sor feltöltés, kitöltés és törlés
         if (isset($_GET['cash_flow'])) {
             $gombok .= ' <input type="button" class="gomb modositaskor_rejt" onclick="csoportMuvelet(\'projektkezeles_cf_uj\')" value="Új sor">';
-            $gombok .= ' <input type="button" class="gomb modositaskor_rejt" onclick="" value="Sor kitöltés">';
-            $gombok .= ' <input type="button" class="gomb modositaskor_rejt" onclick="" value="Sor törlés">';
+            $gombok .= ' <input type="button" class="gomb modositaskor_rejt" onclick="kapcsolodoSzerkeszt(\'projektkezeles_cf_kitolt\');" value="Sor kitöltés">';
+            $gombok .= ' <input type="button" class="gomb modositaskor_rejt" onclick="cf_sor_torol();" value="Sor törlés">';
         }
 
         // Ha van egyáltalán kezelésre joga, és nincs még lezárva
@@ -1637,9 +1715,9 @@ require_once('selectek.php');
             </thead>
             <tbody>
         ');
-        $cash_flow_nevek = $adatbazis_kapcsolat->s('recid nev', 'projektkezeles_cashflow_nev', "`projektkezeles_recid`='{$_GET['id']}'");
+        $cash_flow_nevek = $adatbazis_kapcsolat->s('recid nev', 'projektkezeles_cashflow_nev', "`projektkezeles_recid`='{$_GET['id']}'", 'nev');
         foreach($cash_flow_nevek as $nev){
-            $cash_flow_html .= '<tr><td>'.htmlspecialchars_decode($nev['nev']).'</td>';
+            $cash_flow_html .= '<tr data-recid="'.$nev['recid'].'"><td>'.htmlspecialchars_decode($nev['nev']).'</td>';
             
             $i = 0;
             foreach($idtotengely as $honap){
@@ -1661,7 +1739,7 @@ require_once('selectek.php');
         // Szerződések
         $szerzodes_recidk = $adatbazis_kapcsolat->s('recid', 'projektszerzodes', "`pr_szam`='{$sor['ikt_szam']}'");
         $szerzodes_recidk = adatbazis2tomb($szerzodes_recidk, 'recid');
-        $cash_flow_html .= '<tr><td>Szerződések</td>';
+        $cash_flow_html .= '<tr data-recid="szerzodesek"><td>Szerződések</td>';
         $i = 0;
         foreach($idtotengely as $honap){
 
@@ -1680,7 +1758,7 @@ require_once('selectek.php');
         $cash_flow_html .= '</tr>';
         
         // Számlák
-        $cash_flow_html .= '<tr><td>Számlák</td>';
+        $cash_flow_html .= '<tr data-recid="szamlak"><td>Számlák</td>';
         $i = 0;
         foreach($idtotengely as $honap){
 
@@ -1701,6 +1779,7 @@ require_once('selectek.php');
         $cash_flow_html .= nl2('
             </tbody>
             </table>
+            <script>$(\'.szamla_cont_tabla tbody tr:first-of-type\').addClass(\'kijelolve\');</script>
         ');
         
         $szamla_html .= $cash_flow_html;

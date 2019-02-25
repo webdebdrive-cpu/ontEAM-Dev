@@ -8,18 +8,21 @@
         Dátum: <input type="text" id="popup_datum" class="datepicker_matol csillag" style="margin-right: 2rem;">
         Terv: <input type="text" id="popup_osszeg" class="csillag f_num" data-tort="0"> <span class="f_penznem"></span>
         <input type="button" class="gomb alacsony" value="Új terv adat" style="margin-left: 2rem;" onclick="uj_tervadat();">
-        <table id="tervadatok" class="csikos dn">
-            <thead>
-            <tr>
-                <th>Dátum</th>
-                <th>Terv</th>
-                <th>Törlés</th>
-            </tr>
-            </thead>
-            <tbody>
-                
-            </tbody>
-        </table>
+        
+        <div style="max-height: 30rem; overflow-y: auto">
+            <table id="tervadatok" class="csikos dn">
+                <thead>
+                <tr>
+                    <th>Dátum</th>
+                    <th>Terv</th>
+                    <th>Törlés</th>
+                </tr>
+                </thead>
+                <tbody>
+
+                </tbody>
+            </table>
+        </div>
     </div>
     <div class="kuldes">
         <input type="submit" class="gomb zold" value="Mentés" onclick="">
@@ -69,8 +72,8 @@ function uj_tervadat(){
     }
     
     html  = '<tr>';
-    html += '<td><input type="text" class="datepicker_matol" disabled value="'+$('#popup_datum').val()+'" style="margin-right: 2rem;"></td>';
-    html += '<td><input type="text" class="f_num" data-tort="0" disabled value="'+$('#popup_osszeg').val()+'"> '+PENZNEM+'</td>';
+    html += '<td><input type="text" class="csillag datepicker_matol" value="'+$('#popup_datum').val()+'" style="margin-right: 2rem;"></td>';
+    html += '<td><input type="text" class="csillag f_num" data-tort="0" value="'+$('#popup_osszeg').val()+'"> '+PENZNEM+'</td>';
     html += '<td><span class="icon link" onclick="$(this).closest(\'tr\').fadeOut(\'\', function(){ $(this).remove(); });"><i class="material-icons">delete</i></span></td>';
     html += '</tr>';
     $('#tervadatok tbody').append(html);
@@ -79,6 +82,18 @@ function uj_tervadat(){
     $('#popup_datum').val('');
     $('#popup_osszeg').val('');
     $('#popup_datum').focus();
+    
+    /* Datepickert újra inicializáljuk, mert az újsor dátum inputja így fog működni */
+    $('.datepicker_matol').datetimepicker({
+        closeOnDateSelect   : true,
+        format              :'Y.m.d',
+        mask                : '\xa0\xa0\xa0\xa0.\xa0\xa0.\xa0\xa0',
+        timepicker          : false,
+        validateOnBlur      : false,
+        scrollInput         : false,
+        minDate             : '-1970/01/02',
+        onChangeDateTime    : function(){ $('#mehet_gomb').removeAttr('disabled').addClass('gombb_alert'); $('#megsem_gomb').removeAttr('disabled'); }
+    });
     
 }
     
@@ -107,7 +122,13 @@ function projektkezeles_cf_uj() {
                 response = JSON.parse(response);
                 if(response.hiba){
                     alert2(response.hiba, response.gomb, response.title);
-                    $('#'+response.focus).addClass('hibas_ide_focus');
+                    if(response.focus){
+                        $('#'+response.focus).addClass('hibas_ide_focus');
+                    }
+                    /* i-edig sor dátum inputjába fokuszálunk, ha gond lett volna vele */
+                    if(response.focus_datum_i){
+                        $('#tervadatok tbody tr:nth-of-type('+response.focus_datum_i+') td:first-of-type input').focus();
+                    }
                 }else{
                     szamlaBetolt( _get('id'), 'projektkezeles.php', 'cash_flow' );
                     popupZar();

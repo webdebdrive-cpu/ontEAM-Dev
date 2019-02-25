@@ -161,60 +161,63 @@ if (isset($_GET['csv'])) {
     $open = fopen($fajlnev,'a');
     fwrite($open, "sep=;\n");
     if($open){
-
-        $lekerdezes_fromtol = substr($_SESSION['akt_sql'], strpos($_SESSION['akt_sql'], 'FROM'));
-
-        if( $_SESSION['nyomtatas_ids'] ) {
-            if( strstr($_SESSION['akt_sql'], 'WHERE') ) {
-                $lekerdezes_fromtol = str_replace('WHERE', "WHERE `".get_db_tabla()."eszkozkezeles`.`recid` IN (".$_SESSION['nyomtatas_ids'].") AND ", $lekerdezes_fromtol);
-            } else {
-                $lekerdezes_fromtol = str_replace('ORDER', "WHERE `".get_db_tabla()."eszkozkezeles`.`recid` IN (".$_SESSION['nyomtatas_ids'].") ORDER", $lekerdezes_fromtol);
-            }
-        }
-
-        $sql = 'SELECT
-                `'.get_db_tabla().'eszkozkezeles`.`nev` as \'Név\'
-                '.$lekerdezes_fromtol;
-
-        $query      = mysqli_query($db_kapcs, $sql);
-
+        
+        // Fejléc bellítása
         $csvhead    = array();
-        while($fejlec_nevek = mysqli_fetch_field($query)){
-            $csvhead[] = iconv2($mibol, $mibe, $fejlec_nevek -> name );
-        }
+        array_push($csvhead, iconv2($mibol, $mibe, 'Szálloda neve'));
+        array_push($csvhead, iconv2($mibol, $mibe, 'Szint neve'));
+        array_push($csvhead, iconv2($mibol, $mibe, 'Objektum neve'));
+        array_push($csvhead, iconv2($mibol, $mibe, 'Eszköz neve'));
         fputcsv($open, $csvhead, ';');
 
-        while( $sorok = mysqli_fetch_assoc($query) ){
-            $csvcont = array();
-            foreach( $sorok as $kulcs => $sor ) {
-                if($kulcs=='Szálloda'){
-                    $sor = getErtek('nev', 'telephely', 'id', $sor);
-                }
-                if($kulcs=='Bejelentett hiba'){
-                    $sor = getErtek('info', 'erteklista', 'recid', $sor);
-                }
-                if($kulcs=='Helyiség'){
-                    $sor = getErtek('nev', 'obj', 'recid', $sor);
-                }
-                if($kulcs=='Gépnév'){
-                    $sor = getErtek('nev', 'eszkozkezeles', 'recid', $sor);
-                }
-                if($kulcs=='Típus'){
-                    $sor = erteklista(ERTEKLISTA_MUNKALAP_TIP, $sor);
-                }
-                if($kulcs=='Státusz'){
-                    $sor = getStatText('munkalap', $sor);
+        $login_szallodai = get_akt_login_szallodai();
+        $szallodak = $adatbazis_kapcsolat->s('id nev', 'telephely', "`id` IN (".implode(',', $login_szallodai).")", 'nev');
+        foreach($szallodak as $szalloda){
+            
+            // Szálloda felvétele CSV-be
+            $csvsor    = array();
+            array_push($csvsor, iconv2($mibol, $mibe, $szalloda['nev']));
+            fputcsv($open, $csvsor, ';');
+            
+            $szintek = $adatbazis_kapcsolat->s('recid nev', 'obj', "`szulo`='0' AND `telephely_id`='{$szalloda['id']}'", 'sor');
+            foreach($szintek as $szint) {
+                
+                // Szint felvétele CSV-be
+                $csvsor    = array();
+                array_push($csvsor, '');
+                array_push($csvsor, iconv2($mibol, $mibe, $szint['nev']));
+                fputcsv($open, $csvsor, ';');
+                
+                $objektumok = $adatbazis_kapcsolat->s('recid nev', 'obj', "`szulo`='{$szint['recid']}'", 'sor');
+                foreach($objektumok as $obj) {
+                    
+                    // Objektum felvétele CSV-be
+                    $csvsor    = array();
+                    array_push($csvsor, '');
+                    array_push($csvsor, '');
+                    array_push($csvsor, iconv2($mibol, $mibe, $obj['nev']));
+                    fputcsv($open, $csvsor, ';');
+                    
+                    $eszkozok = $adatbazis_kapcsolat->s('nev', 'eszkozkezeles', "`telephely_id`='{$szalloda['id']}' AND `obj_id`='{$obj['recid']}'", 'nev');
+                    foreach($eszkozok as $eszkoz){
+                        
+                        // Eszköz felvétele CSV-be
+                        $csvsor    = array();
+                        array_push($csvsor, '');
+                        array_push($csvsor, '');
+                        array_push($csvsor, '');
+                        array_push($csvsor, iconv2($mibol, $mibe, $eszkoz['nev']));
+                        fputcsv($open, $csvsor, ';');
+                        
+                    }
+                    
                 }
                 
-                // Lehet nem volna elég 1-szer sőt kétszer sem ráereszteni a htmlspecialchars_decode-ot
-                $sor = htmlspecialchars_decode( $sor );
-                while(strpos($sor, '&amp;')!==false || strpos($sor, '&quot;')!==false ){
-                    $sor = htmlspecialchars_decode( $sor );
-                }
-                $csvcont[] = iconv($mibol, $mibe.'//TRANSLIT', strip_tags( $sor ) );
             }
-            fputcsv($open, $csvcont, ';');
+            
+            
         }
+
     }
     fclose($open);
 

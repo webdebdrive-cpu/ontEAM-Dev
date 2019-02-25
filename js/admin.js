@@ -5586,6 +5586,7 @@ function csv_general( that, valasztos, link_kieg ) {
             alert2('Válasszon export fajtát:<br><a href="javascript:csv_general($(\'.excel\'))">» Szerződések exportálása</a><br><a href="javascript:csv_general($(\'.excel\'), \'\', \'tetelek&id=\'+_get(\'id\'))">» Szerződések és tételek exportálása</a>', '<input type="button" class="gomb" value="Mégsem" onclick="alert2()">', 'Válasszon exportot');
         }
 
+    /* Ha nincs választás popup előtte */
     }else{
 
         var ids = new Array();
@@ -5611,15 +5612,28 @@ function csv_general( that, valasztos, link_kieg ) {
         });
 
         $.when(ajax).done(function() {
-            if( ids.length ) {
-                var onclick = $(that).attr('onclick');
-
-                $(that).attr('href', get_get(['egysegarak']) + '&csv&'+link_kieg).removeAttr('onclick');
+            
+            /* Eszközkezelésnél nincs balnavpanel, ezért ott nem kellfigyelni a kijelölt sorokat */
+            if(baseName(location.href='eszkozkezeles.php')){
+                
+                $(that).attr('href', '?csv&'+link_kieg).removeAttr('onclick');
                 $(that)[0].click();
                 $(that).attr('onclick', onclick).removeAttr('href');
-            } else {
-                alert2('Üres találati listát nem lehet exportálni!', '', 'Hiba');
+                
+            }else{
+                
+                if( ids.length ) {
+                    var onclick = $(that).attr('onclick');
+
+                    $(that).attr('href', get_get(['egysegarak']) + '&csv&'+link_kieg).removeAttr('onclick');
+                    $(that)[0].click();
+                    $(that).attr('onclick', onclick).removeAttr('href');
+                } else {
+                    alert2('Üres találati listát nem lehet exportálni!', '', 'Hiba');
+                }
+                
             }
+            
         });
 
     }

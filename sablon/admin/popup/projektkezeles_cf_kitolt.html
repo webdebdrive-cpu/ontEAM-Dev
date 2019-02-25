@@ -1,0 +1,212 @@
+<h2>Cashflow sor kitöltése</h2>
+<form class="popupForm" method="post" onsubmit="return projektkezeles_cf_uj();">
+    
+    <div class="kozep">
+        <div class="nowrap">
+            Név: <input type="text" class="csillag" id="popup_nev" maxlength="90" style="width: 60rem; margin-bottom: 1rem;">
+        </div>
+        Dátum: <input type="text" id="popup_datum" class="datepicker_matol csillag" style="margin-right: 2rem;">
+        Terv: <input type="text" id="popup_osszeg" class="csillag f_num" data-tort="0"> <span class="f_penznem"></span>
+        <input type="button" class="gomb alacsony" value="Új terv adat" style="margin-left: 2rem;" onclick="uj_tervadat();">
+        
+        <div style="max-height: 30rem; overflow-y: auto">
+            <table id="tervadatok" class="csikos">
+                <thead>
+                <tr>
+                    <th>Dátum</th>
+                    <th>Terv</th>
+                    <th>Törlés</th>
+                </tr>
+                </thead>
+                <tbody>
+
+                </tbody>
+            </table>
+        </div>
+        
+    </div>
+    <div class="kuldes">
+        <input type="submit" class="gomb zold" value="Mentés" onclick="">
+        <input type="button" class="gomb piros" value="Mégsem" onclick="popupZar();">
+        <input type="hidden" id="cf_nev_recid" value="">
+    </div>
+</form>
+<script>
+$(document).ready(function(){
+    
+    /* Kijelölt sor */
+    var id = $('.szamla_cont_tabla tr.kijelolve').attr('data-recid');
+    if( id=='szerzodesek' ){
+        alert2('A szerződés cash-flow nem szerkeszthető!', '', 'Hiba');
+        popupZar();
+        setTimeout(function(){ popupZar(); }, 100);
+        return false;
+    }
+    if( id=='szamlak' ){
+        alert2('A számla cash-flow nem szerkeszthető!', '', 'Hiba');
+        popupZar();
+        setTimeout(function(){ popupZar(); }, 100);
+        return false;
+    }
+    if(!id){
+        alert2('Kérem, előbb jelöljön ki egy cash-flow sort!', '', 'Hiba');
+        popupZar();
+        setTimeout(function(){ popupZar(); }, 100);
+        return false;
+    }
+    
+    /* Mivel ez kitöltés, ezért feldolgozáskor át kell adni, hogy melyik "cashflow név" sorról van szó */
+    $('#cf_nev_recid').val(id);
+    
+    /* f_penznem class-ú elemek lecserélése a pénznemre */
+    $('.f_penznem').each(function () {
+        $(this).replaceWith(PENZNEM);
+    });
+    
+    /* Táblázat betöltése */
+    $.ajax({
+        url : 'projektkezeles.php',
+        type: 'POST',
+        data: {
+            recid               : id,
+            cf_adatok_betolt    : Date.now()
+        },
+        success: function(response){
+            if(response.substring(0, 6)=='SESKIL'){ location.href = 'index.php'; }
+            if(response){
+                response = JSON.parse(response);
+                if(response.hiba){
+                    alert2(response.hiba, response.gomb,response.title);
+                    return false;
+                }else{
+                    $('#popup_nev').val(response.nev);
+                    
+                    for(i=0; i<response.adatok.length; i++){
+                        
+                        datum = response.adatok[i].datum.replace(/-/g, '.');
+                        terv  = ezresek( response.adatok[i].terv, 0, '', ' ' );
+                        
+                        html  = '<tr>';
+                        html += '<td><input type="text" class="csillag datepicker_matol" value="'+datum+'" style="margin-right: 2rem;"></td>';
+                        html += '<td><input type="text" class="csillag f_num" data-tort="0" value="'+terv+'"> '+PENZNEM+'</td>';
+                        html += '<td><span class="icon link" onclick="$(this).closest(\'tr\').fadeOut(\'\', function(){ $(this).remove(); });"><i class="material-icons">delete</i></span></td>';
+                        html += '</tr>';
+                        $('#tervadatok tbody').append(html);
+                    }
+                    
+                    /* Datepickert akkor inicializáljuk, ha már az adatokat betöltöttük */
+                    $('.datepicker_matol').datetimepicker({
+                        closeOnDateSelect   : true,
+                        format              :'Y.m.d',
+                        mask                : '\xa0\xa0\xa0\xa0.\xa0\xa0.\xa0\xa0',
+                        timepicker          : false,
+                        validateOnBlur      : false,
+                        scrollInput         : false,
+                        minDate             : '-1970/01/02',
+                        onChangeDateTime    : function(){ $('#mehet_gomb').removeAttr('disabled').addClass('gombb_alert'); $('#megsem_gomb').removeAttr('disabled'); }
+                    });
+                    
+                }
+            }
+        }
+    });
+});
+
+/* Új tervadat sor hozzáadása */
+function uj_tervadat(){
+    
+    /* Valós dátum szerepel-e benne */
+    if( !valid_date($('#popup_datum'), 'trueval is térj vissza') ){
+        return false;
+    }
+    
+    ma = new Date().toISOString().substr(0,10).replace(/-/g, '.');
+    if( $('#popup_datum').val()<ma || $('#popup_datum').val()=='\xa0\xa0\xa0\xa0.\xa0\xa0.\xa0\xa0' ){ 
+        alert2('Kérem mai, vagy jövőbeli dátumot adjon meg!', '', 'Hiba');
+        $('#popup_datum').addClass('hibas_ide_focus');
+        return false;
+    }
+    if( !$('#popup_osszeg').val() || $('#popup_osszeg').val()=='0' ){
+        alert2('Kérem adja meg a terv összeget!', '', 'Hiba');
+        $('#popup_datum').removeClass('hibas_ide_focus');
+        $('#popup_osszeg').addClass('hibas_ide_focus');
+        return false;
+    }
+    
+    html  = '<tr>';
+    html += '<td><input type="text" class="csillag datepicker_matol" value="'+$('#popup_datum').val()+'" style="margin-right: 2rem;"></td>';
+    html += '<td><input type="text" class="csillag f_num" data-tort="0" value="'+$('#popup_osszeg').val()+'"> '+PENZNEM+'</td>';
+    html += '<td><span class="icon link" onclick="$(this).closest(\'tr\').fadeOut(\'\', function(){ $(this).remove(); });"><i class="material-icons">delete</i></span></td>';
+    html += '</tr>';
+    $('#tervadatok tbody').append(html);
+    $('#tervadatok').removeClass('dn');
+    
+    $('#popup_datum').val('');
+    $('#popup_osszeg').val('');
+    $('#popup_datum').focus();
+    
+    /* Datepickert újra inicializáljuk, mert az újsor dátum inputja így fog működni */
+    $('.datepicker_matol').datetimepicker({
+        closeOnDateSelect   : true,
+        format              :'Y.m.d',
+        mask                : '\xa0\xa0\xa0\xa0.\xa0\xa0.\xa0\xa0',
+        timepicker          : false,
+        validateOnBlur      : false,
+        scrollInput         : false,
+        minDate             : '-1970/01/02',
+        onChangeDateTime    : function(){ $('#mehet_gomb').removeAttr('disabled').addClass('gombb_alert'); $('#megsem_gomb').removeAttr('disabled'); }
+    });
+    
+}
+    
+/* Új sorok mentése */
+function projektkezeles_cf_uj() {
+
+    var datumok = [];
+    var tervek =  [];
+    $('#tervadatok tbody tr').each(function() {
+        datumok.push( $(this).find('.datepicker_matol').val() );
+        tervek.push ( $(this).find('.f_num').val() );
+    });
+
+    $.ajax({
+        url : 'projektkezeles.php',
+        type: 'POST',
+        data: {
+            recid                   : _get('id'),
+            kitolt_recid            : $('#cf_nev_recid').val(),
+            nev                     : $('#popup_nev').val(),
+            datumok                 : JSON.stringify(datumok),
+            tervek                  : JSON.stringify(tervek),
+            projektkezeles_cf_uj    : Date.now()
+        },
+        success: function(response){
+            if(response){
+                response = JSON.parse(response);
+                if(response.hiba){
+                    
+                    alert2(response.hiba, response.gomb, response.title);
+                    $('#'+response.focus).addClass('hibas_ide_focus');
+                    
+                }else if(response.cf_nev_recid){
+                    
+                    /* Várjuk meg, míg betöltött az adatlap, és csak ezután jön a kijelölés */
+                    $.when( szamlaBetolt( _get('id'), 'projektkezeles.php', 'cash_flow' ) ).then(function () {
+                        /* Módosítás után az épp szerkesztett sor legyen kijelölve */
+                        $('.szamla_cont_tabla tbody tr').removeClass('kijelolve');
+                        $('.szamla_cont_tabla tbody tr').each(function() {
+                            if( $(this).data('recid')== response.cf_nev_recid ){
+                                $(this).addClass('kijelolve');
+                            }
+                        });
+                        popupZar();
+                    });
+                    
+                }
+            }
+        }
+    });
+
+    return false;
+}
+</script>
