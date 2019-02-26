@@ -83,7 +83,7 @@ if(isset($_POST['get_projekt_tabla'])){
                                         `'.get_db_tabla().'projektkezeles`.`nev`,
                                         `'.get_db_tabla().'projektkezeles`.`tipus`,
                                         `'.get_db_tabla().'projektkezeles`.`stat_id`,
-                                        `'.get_db_tabla().'projektkezeles`.`bkolt`,
+                                        `'.get_db_tabla().'projektkezeles`.`jkolt`,
                                         `'.get_db_tabla().'projektkezeles`.`pfelelos`,
                                         `'.get_db_tabla().'projektkezeles`.`telephely_id`,
                                         `'.get_db_tabla().'projektkezeles`.`insert_dt`
@@ -119,7 +119,7 @@ if(isset($_POST['get_projekt_tabla'])){
                 </td>
                 <td style="width: 30rem">'.$pr['nev'].'</td>
                 <td>'.$tipus.'</td>
-                <td class="r nowrap">'.number_format($pr['bkolt'], 0, '', ' ').'</td>
+                <td class="r nowrap">'.number_format($pr['jkolt'], 0, '', ' ').'</td>
                 <td>'.datum_kiir($pr['insert_dt']).'</td>
             </tr>
             ';
@@ -133,7 +133,7 @@ if(isset($_POST['get_projekt_tabla'])){
             Rendezés:
             <select onchange="get_projekt_tabla(this.value)">
                 <option>szálloda + becsült költség</option>
-                <option value="bkolt"'.$bkolt_selected.'>becsült költség + szálloda</option>
+                <option value="bkolt"'.$bkolt_selected.'>jóváhagyott keret + szálloda</option>
                 <option value="tipus"'.$tipus_selected.'>típus + becsült költség</option>
             </select>
             <div style="max-height: 40rem; overflow-y: auto; overflow-x: none;">
@@ -153,7 +153,7 @@ if(isset($_POST['get_projekt_tabla'])){
                         <br><input type="text" class="flat" placeholder="Szűrés" onkeyup="tabla_szur($(\'#prkezelesek tbody\'), this.value, 3)">
                     </th>
                     <th>
-                        Becsült költség ('.get_penznem().')
+                        Jóváhagyott keret ('.get_penznem().')
                         <br><input type="text" class="flat" placeholder="Szűrés" onkeyup="tabla_szur($(\'#prkezelesek tbody\'), this.value, 4)">
                     </th>
                     <th>

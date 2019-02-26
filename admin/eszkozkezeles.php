@@ -164,10 +164,10 @@ if (isset($_GET['csv'])) {
         
         // Fejléc bellítása
         $csvhead    = array();
-        array_push($csvhead, iconv2($mibol, $mibe, 'Szálloda neve'));
-        array_push($csvhead, iconv2($mibol, $mibe, 'Szint neve'));
-        array_push($csvhead, iconv2($mibol, $mibe, 'Objektum neve'));
-        array_push($csvhead, iconv2($mibol, $mibe, 'Eszköz neve'));
+        array_push($csvhead, iconv2($mibol, $mibe, 'Szálloda'));
+        array_push($csvhead, iconv2($mibol, $mibe, 'Szint'));
+        array_push($csvhead, iconv2($mibol, $mibe, 'Helyiség'));
+        array_push($csvhead, iconv2($mibol, $mibe, 'Eszköz'));
         fputcsv($open, $csvhead, ';');
 
         $login_szallodai = get_akt_login_szallodai();
@@ -344,8 +344,17 @@ require_once('selectek.php');
     } else {
 
         // Js, a törlés gombhoz
-        $gombok  = '<script>var gomb'.$_GET['id'].'= get_kibont_torol(\''.self().'\', \''.$torles.'\', \''.$_GET['id'].'\');</script>';
-        $gombok .= ' <input type="button" id="recordTorol" class="gombb_alert dn" onclick="alert2(\'Biztosan törli ezt a '.$szoveg.'?\', gomb'.$_GET['id'].')" value="Töröl" title="Töröl">';
+        $gombok = '';
+        // Ha van olyan élő munkalap, amin ez az eszköz van megjelölve, akkor nem törölhető
+        $van_elo_ml_on = $adatbazis_kapcsolat->s2('recid', 'munkalap', "`gep_id`='{$_GET['id']}'");
+        if($van_elo_ml_on){
+            $gombok .= ' <input type="button" id="recordTorol" class="gombb_alert dn" onclick="alert2(\'Erre az eszközre folyamatban lévő munkalap van, nem törölhető. Előbb zárja le a munkalapot!\', \'\', \'Hiba\')" value="Töröl" title="Töröl">';
+        }else{
+            
+            $gombok .= '<script>var gomb'.$_GET['id'].'= get_kibont_torol(\''.self().'\', \''.$torles.'\', \''.$_GET['id'].'\');</script>';
+            $gombok .= ' <input type="button" id="recordTorol" class="gombb_alert dn" onclick="alert2(\'Biztosan törli ezt a '.$szoveg.'?\', gomb'.$_GET['id'].')" value="Töröl" title="Töröl">';
+            
+        }
 
         if(!$nem_szerkesztheti && (isset($_GET['modosit']) || isset($_GET['obj'])) && _jog(JOG_ESZKOZ_KEZEL)){
             $gombok = nl2('

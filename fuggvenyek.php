@@ -506,6 +506,7 @@ function i_u($type, $tabla, $tomb) {
             $sorszam  = get_iktatoszam_sorszam($tabla);
             if($sorszam===false){ $db_error = true; }
             $ikt_szam = 'P'.date('y').'/'.sprintf('%04d', $sorszam);
+            $_POST['ikt_szam'] = $ikt_szam; // Erre a levélküldésnél lesz szükség
             
             // Felvesszük az értékek közé
             $i = 0;
@@ -7410,7 +7411,7 @@ function level_felkeszit_es_kuld($tabla, $recid, $ert_pipa, $sablon, $cimzett, $
             $uzi = str_replace( $mit, $mivel, fajlbol_olvas('../sablon/admin/mail/'.$cimzett.'.html') );
             
             
-            // Ha van konkrét Login címezve (pl. Projekt felelős változott és mindkettőnke ki kell küldeni a levelet.
+            // Ha van konkrét Login címezve (pl. Projekt felelős változott és mindkettőnek ki kell küldeni a levelet.
             if( $cimzett_login_recid ){
                 $cimzettek = $adatbazis_kapcsolat->s('nev teljes_nev usermail aktiv virtual szemelyzet_id', 'login', "`aktiv`=1 AND `virtual`=0 AND `recid`='{$cimzett_login_recid}'");
             }else{

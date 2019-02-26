@@ -2607,7 +2607,7 @@ array_push($postok, array('tomb' => $akt_tomb, 'uj' => 'uj'.$megnevezes, 'lista'
 $megnevezes = 'eszkozkezeles';
 $eszkozkezeles_tomb = $akt_tomb = array(
 	array('type' => 'text',                     'megn' => 'Név:',                   'name' => 'nev',            'maxlength' => 250, 'class'  => 'oriasi', 'alert' => 'Kérem töltse ki a nevet!'),
-	array('type' => 'text',                     'megn' => 'Azonosító:',             'name' => 'azon',           'maxlength' => 20,  'alert'  => 'Kérem töltse ki az azonosítót!'),
+	array('type' => 'text',                     'megn' => 'Azonosító:',             'name' => 'azon',           'maxlength' => 20),
     array('type' => 'select_felh_telephely',    'megn' => 'Szálloda:',              'name' => 'telephely_id',   'szuro' => 1,       'class'  => 'disableNav',  'style' => 'width: 100%;', 'alert' => 'Kérem válasszon szállodát!', 'onchange' => 'szallodaVane( this );'),
     array('type' => 'autocomplete',             'megn' => 'Helyiség:',              'name' => 'obj_id',                             'class'  => 'disableNav',  'style' => 'width: calc(100% - 3rem);', 'tabla' => 'obj', 'oszlop_keres' => 'recid', 'oszlop_keres_autocomp' => 'nev', 'listaz' => 'nev', 'id_kiir' => 'recid', 'alert' => 'Kérem adja meg a Helyiséget!', 'onclick' => 'szallodaVane( this );', 'post' => '<a href="javascript: obj_gen(); void(0);" class="obj_gen"><i class="material-icons">reorder</i></a>'),
     array('type' => 'textarea',                 'megn' => 'Megjegyzés:',            'name' => 'megj',                               'class'  => 'oriasiTargy disableNav', 'feltoltes' => 'Images', 'width' => '100%'),
