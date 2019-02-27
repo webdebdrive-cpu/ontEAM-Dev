@@ -6954,7 +6954,7 @@ if (isset($_GET['csv'])) {
                 `ig_el_id` as \'Igényelt elvégzés\',
                 `varh_erk` as \'Várható érkezés\',
                 `'.get_db_tabla().$megnevezes.'`.`insert_dt` as \'Munkalap létrehozás dátuma\'
-                '.$lekerdezes_fromtol;
+                '.$lekerdezes_fromtol.$_SESSION['akt_sql_order'];
 
         $query      = mysqli_query($db_kapcs, $sql);
 

@@ -958,7 +958,7 @@ if (isset($_GET['csv'])) {
 
     $mibol   = get_web_charset();
     $mibe    = 'windows-1250';
-    
+
     require 'selectek.php';
 
     if( !is_dir('export') ) {
@@ -1007,7 +1007,7 @@ if (isset($_GET['csv'])) {
                 '.$lekerdezes_fromtol;
 
         $query      = mysqli_query($db_kapcs, $sql);
-
+//echo $sql;exit;
         $csvhead    = array();
         while($fejlec_nevek = mysqli_fetch_field($query)){
             $csvhead[] = iconv2($mibol, $mibe, $fejlec_nevek -> name );
@@ -1088,6 +1088,7 @@ if (isset($_GET['csv'])) {
 if( !$_GET['ajax'] ) {
     require_once('header.php');
 }
+
 require('selectek.php');
 
     if( !$_GET['ajax'] ) {

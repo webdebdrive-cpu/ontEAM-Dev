@@ -94,7 +94,7 @@ if (isset($_GET['csv'])) {
                                                     `gep_id` as \'Gépnév\',
                                                     `stat_id` as \'Státusz\',
                                                     `'.get_db_tabla().$megnevezes.'`.`insert_dt` as \'Bejelentés dátuma\'
-                                                    '.$lekerdezes_fromtol;
+                                                    '.$lekerdezes_fromtol.$_SESSION['akt_sql_order'];
 
         $query      = mysqli_query($db_kapcs, $sql);
 

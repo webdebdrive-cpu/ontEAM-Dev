@@ -2860,15 +2860,12 @@ function szamla_lista( $where, $tabla, $kijeloltek = false, $csak_sql_miatt = fa
                 // Fontos! A rendezési sorrendet fordítva számítjuk ki, mert az irány alapból DESC az iktatószám csökkenősorrendje miatt.
                 // Ez azért fontos, mert ha másik szűrésre vált, akkor ne forduljon meg rendezés nyíl.
 
-                $i = 0;
                 // Nem nyitott státuszú, azon belül sürgősek majd iktatószám
                 // A státuszoknak is van egy sorrendje
                 $statuszok = array_reverse( array(BEJELENTES_STAT_FOLYAMATBAN, BEJELENTES_STAT_KESZ_IG, BEJELENTES_STAT_VIZSG_ALATT, BEJELENTES_STAT_VARAKOZO, BEJELENTES_STAT_ELUTASITVA, BEJELENTES_STAT_LEZART) );
                 foreach($statuszok as $stat){
-                    $bejelentesek = $adatbazis_kapcsolat->s('recid', $tabla, "`stat_id`='$stat'", '`surgos`, `ikt_szam`');
+                    $bejelentesek = $adatbazis_kapcsolat->s('recid', $tabla, "`stat_id`='{$stat}'", '`surgos`, `ikt_szam`');
                     foreach($bejelentesek as $bejelentes){
-                        $adatbazis_kapcsolat->u($tabla, array('sor'), array($i), "`recid`='{$bejelentes['recid']}'");
-                        $i++;
                         array_push($sorrend_idk, $bejelentes['recid']);
                     }
                 }
@@ -2876,8 +2873,6 @@ function szamla_lista( $where, $tabla, $kijeloltek = false, $csak_sql_miatt = fa
                 // Nyitott státuszú, azon belül sürgősek majd iktatószám
                 $bejelentesek = $adatbazis_kapcsolat->s('recid', $tabla, "`stat_id`='".BEJELENTES_STAT_NYITOTT."'", '`surgos`, `ikt_szam`');
                 foreach($bejelentesek as $bejelentes){
-                    $adatbazis_kapcsolat->u($tabla, array('sor'), array($i), "`recid`='{$bejelentes['recid']}'");
-                    $i++;
                     array_push($sorrend_idk, $bejelentes['recid']);
                 }
 
@@ -2885,8 +2880,6 @@ function szamla_lista( $where, $tabla, $kijeloltek = false, $csak_sql_miatt = fa
                 if($_GET['irany']=='desc'){
                     $sorrend_idk = array_reverse($sorrend_idk);
                 }
-
-                // $order .= 'FIELD(`'.get_db_tabla().'bejelentes`.`recid`, \''.implode('\', \'', $sorrend_idk).'\') '.$_GET['irany'];
 
             // Ha telephely szerint rendezünk, akkor pedig ezt a szempontot kell előre venni, és az irány is erre vonatkozik
             }elseif($_GET['rend']=='telephely_id'){
@@ -2915,12 +2908,6 @@ function szamla_lista( $where, $tabla, $kijeloltek = false, $csak_sql_miatt = fa
         if( $tabla=='munkalap' || $tabla=='munkalap_arch' ){
 
             $order = '';
-            // Elsődleges rendezés a csoport, ettől lesznek a csoportok is sorban (elől az önálló bejelentések). De ezt csak Diszpécsereknél renezzük így, mert csak náluk jelenik meg a csoportosítás
-
-            // Már nincs csoportosítás
-//            if(_jog(JOG_MUNKALAP_KESZITHET)){
-//                $order .= '`'.get_db_tabla().'munkalap_csoport`.`nev`, '; // <= itt fixen munkalap kell, nem a $tabla
-//            }
 
             $irany_ikt_szam  = '';
             $irany_telephely = '';
@@ -2945,8 +2932,6 @@ function szamla_lista( $where, $tabla, $kijeloltek = false, $csak_sql_miatt = fa
                 foreach($statuszok as $stat){
                     $munkalapok = $adatbazis_kapcsolat->s('recid', $tabla, "`stat_id`='$stat'", '`surgos`, `ikt_szam`');
                     foreach($munkalapok as $munkalap){
-//                        $adatbazis_kapcsolat->u($tabla, array('sor'), array($i), "`recid`='{$munkalap['recid']}'");
-//                        $i++;
                         array_push($sorrend_idk, $munkalap['recid']);
                     }
                 }
@@ -2954,8 +2939,6 @@ function szamla_lista( $where, $tabla, $kijeloltek = false, $csak_sql_miatt = fa
                 // Nyitott státuszú, azon belül sürgősek majd iktatószám
                 $munkalapok = $adatbazis_kapcsolat->s('recid', $tabla, "`stat_id`='".MUNKALAP_STAT_NYITOTT."'", '`surgos`, `ikt_szam`');
                 foreach($munkalapok as $munkalap){
-//                    $adatbazis_kapcsolat->u($tabla, array('sor'), array($i), "`recid`='{$munkalap['recid']}'");
-//                    $i++;
                     array_push($sorrend_idk, $munkalap['recid']);
                 }
 
@@ -2963,9 +2946,6 @@ function szamla_lista( $where, $tabla, $kijeloltek = false, $csak_sql_miatt = fa
                 if($_GET['irany']=='desc'){
                     $sorrend_idk = array_reverse($sorrend_idk);
                 }
-
-                //$order .= '`'.get_db_tabla().$tabla.'`.`sor` '.$_GET['irany'].'';
-                // $order .= 'FIELD(`'.get_db_tabla().'munkalap`.`recid`, \''.implode('\', \'', $sorrend_idk).'\') '.$_GET['irany'];
 
             // Ha iktatószám szerint rendezünk, akkor ez lesz a következő rendezési szempont, és az irány is erre vonatkozik
             }elseif($_GET['rend']=='ikt_szam'){
@@ -3005,6 +2985,14 @@ function szamla_lista( $where, $tabla, $kijeloltek = false, $csak_sql_miatt = fa
                 $order .= ', ';
             }
             $order .= '`'.get_db_tabla().$tabla.'`.`insert_dt` DESC';
+        }
+
+        // Rendezés projektigényeknél
+        if( $tabla=='projektigenyles' ){
+            // Ha státusz szerint rendezünk, akkor azon belül iktató szám szerint is
+            if($_GET['rend']=='stat_id'){
+                $order .= ', `'.get_db_tabla().$tabla.'`.`ikt_szam` '.$_GET['irany'];
+            }
         }
 
         // Rendezés projektszámláknál
@@ -3050,12 +3038,6 @@ function szamla_lista( $where, $tabla, $kijeloltek = false, $csak_sql_miatt = fa
             $sql_kieg .= nl2('
                                 LEFT JOIN `'.get_db_tabla().'szallito` ON (`'.get_db_tabla().'anyagigenyles`.`szallito_id`=`'.get_db_tabla().'szallito`.`id`)
                             ');
-// Korábban több táblát is JOIN-oltunk, de már nincs szükség csak a szállítóra
-//            $sql_kieg .= nl2('
-//                                LEFT JOIN `'.get_db_tabla().'szallito` ON (`'.get_db_tabla().'anyagigenyles`.`szallito_id`=`'.get_db_tabla().'szallito`.`id`)
-//                                LEFT JOIN `'.get_db_tabla().'erteklista` ON (`'.get_db_tabla().'anyagigenyles`.`kcs_21`=`'.get_db_tabla().'erteklista`.`id` AND `'.get_db_tabla().'erteklista`.`csoport`=\''.ERTEKLISTA_PENZNEM.'\')
-//                                LEFT JOIN `'.get_db_tabla().'cikkrendfej` ON (`'.get_db_tabla().'anyagigenyles`.`rndid`=`'.get_db_tabla().'cikkrendfej`.`rndid`)
-//                            ');
         }
 
         $arch = '';
@@ -3150,10 +3132,10 @@ function szamla_lista( $where, $tabla, $kijeloltek = false, $csak_sql_miatt = fa
         if( $tabla=='projektkezeles' ){
             $join = ' JOIN `'.get_db_tabla().'telephely` ON `'.get_db_tabla().'projektkezeles`.`telephely_id`=`'.get_db_tabla().'telephely`.`id`';
             if($_GET['rend']=='stat_id'){
-                $order = '`'.get_db_tabla().'projektkezeles`.`stat_id` '.$_GET['irany'].', `'.get_db_tabla().'telephely`.`nev` '.$_GET['irany'];
+                $order = '`'.get_db_tabla().'projektkezeles`.`stat_id` '.$_GET['irany'].', `'.get_db_tabla().'telephely`.`nev` '.$_GET['irany'].', `'.get_db_tabla().$tabla.'`.`ikt_szam` '.$_GET['irany'];
             }
             if($_GET['rend']=='telephely_id'){
-                $order = '`'.get_db_tabla().'telephely`.`nev` '.$_GET['irany'].', `'.get_db_tabla().'projektkezeles`.`stat_id` '.$_GET['irany'];
+                $order = '`'.get_db_tabla().'telephely`.`nev` '.$_GET['irany'].', `'.get_db_tabla().'projektkezeles`.`stat_id` '.$_GET['irany'].', `'.get_db_tabla().$tabla.'`.`ikt_szam` '.$_GET['irany'];
             }
         }
         
@@ -3166,7 +3148,7 @@ function szamla_lista( $where, $tabla, $kijeloltek = false, $csak_sql_miatt = fa
         if( isset($_GET['szamlaSorFrissit']) ){
             $limit = 1;
         }
-
+        
         $bejegyzesek = $adatbazis_kapcsolat->s($select, $tabla, $where, $order, $limit, '', '', $join);
         $sql = $adatbazis_kapcsolat->gp();
 
@@ -3184,12 +3166,20 @@ function szamla_lista( $where, $tabla, $kijeloltek = false, $csak_sql_miatt = fa
         return $sql;
     }
     // Excel exporthoz (lehet Nyomtatáshoz, PDF-hez is kell majd?)
-    if(!isset($_GET['szamlaSorFrissit']) && $tabla!='esemenyek'){
+    if(!isset($_GET['szamlaSorFrissit']) && $tabla!='esemenyek' && !isset($_GET['csv'])){
         $_SESSION['akt_sql'] = $sql;
     }
+    // Ha van $sorrend_idk információnk (azaz a bejelentés és munkalapokat nem SQL-el, hanem JS-el rendezzük), akkor a CSV export miatt az SQL-t csak előállítjuk, hogy meglegyen CSV sorrend beállításakor
+    if( !isset($_GET['csv']) ){
+        if( $sorrend_idk ){
+            $_SESSION['akt_sql_order'] = ' ORDER BY FIELD(`'.get_db_tabla().$tabla.'`.`recid`, \''.implode('\', \'', $sorrend_idk).'\') ';
+        }else{
+            $_SESSION['akt_sql_order'] = '';
+        }
+    }
 
-if(isset($_GET['debug'])) {
-    echo $_SESSION['akt_sql'] . '<br>';
+if( isset($_GET['debug']) && $_SERVER['HTTP_HOST']!='www.onteam.hu' && $_SERVER['HTTP_HOST']!='onteam.hu' ) {
+    echo $_SESSION['akt_sql']. '<br>';
 }
 
     if( $bejegyzesek ) {
@@ -5005,7 +4995,7 @@ function projektszamlaLista( $bejegyzesek, $tabla, $frissit, $kijeloltek ) {
                             <tr>
                                 <td style="width: 5rem">'.$bsz['szla_szam'].'</td>
                                 <td style="width: 10rem">'.getSzallodaNev($bsz['telephely_id']).'</td>
-                                <td class="r">'. number_format($bsz['netto'], 0, '', ' ').' '.get_penznem().'</td>
+                                <td class="r nowrap">'. number_format($bsz['netto'], 0, '', ' ').' '.get_penznem().'</td>
                             </tr>
                             <tr>
                                 <td colspan="3">'.resz_string($bsz['targy'], 60).'</td>

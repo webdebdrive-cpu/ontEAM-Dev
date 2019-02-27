@@ -3100,7 +3100,7 @@ function anyagigenyles_mar_igenyelve(cikk_id, telephely_id, ig_alatt, ig_foly, c
     });
 }
 
-/* Csoport átnevezése */
+// Csoport átnevezése
 function csoportAtnevezes( csoportID ) {
     var val = $('#csoport_nev_szerk').val(),
         page = $('#szamlaBetolt').attr('data-page');
@@ -4271,10 +4271,10 @@ function arazas_ment(){
     });
 }
 
-/* Anyagigénylés érkezetése */
+// Anyagigénylés érkezetése
 function anyagigenyles_erkeztet( ures_men_ek_pipa0_kesz, ures_men_ek_pipa1_kesz, tulrendeles_megkerdezve ) {
 
-    /* ha van már táblázat, akkor azt dolgozzuk fel */
+    // Ha van már táblázat, akkor azt dolgozzuk fel
     if($('#rendeles_tetelek').html().trim()){
 
         ures_men_ek_pipa0   = '';
@@ -5550,7 +5550,7 @@ function listanezet_nyomtat( that ) {
     });
 }
 
-/* CSV export készítő */
+// CSV export készítő
 function csv_general( that, valasztos, link_kieg ) {
 
     if(!link_kieg){
@@ -5559,32 +5559,32 @@ function csv_general( that, valasztos, link_kieg ) {
 
     if(valasztos){
 
-        /* BoD Előterjesztésnél tervnél lehet választani, hogy navpanel listát vagy Projektigényléseket szeretne-e exportálni */
+        // BoD Előterjesztésnél tervnél lehet választani, hogy navpanel listát vagy Projektigényléseket szeretne-e exportálni
         if( baseName(location.href) == 'eloterj_bod' ){
             alert2('Válasszon export fajtát:<br><a href="javascript:csv_general($(\'.excel\'))">» BoD előterjesztések exportálása</a><br><a href="javascript:csv_general($(\'.excel\'), \'\', \'projektigenyek&id=\'+_get(\'id\'))">» BoD előterjesztés részletei</a>', '<input type="button" class="gomb" value="Mégsem" onclick="alert2()">', 'Válasszon exportot');
         }
         
-        /* FB Előterjesztésnél tervnél lehet választani, hogy navpanel listát vagy Projektigényléseket szeretne-e exportálni */
+        // FB Előterjesztésnél tervnél lehet választani, hogy navpanel listát vagy Projektigényléseket szeretne-e exportálni
         if( baseName(location.href) == 'eloterj_fb' ){
             alert2('Válasszon export fajtát:<br><a href="javascript:csv_general($(\'.excel\'))">» FB előterjesztések exportálása</a><br><a href="javascript:csv_general($(\'.excel\'), \'\', \'projektigenyek&id=\'+_get(\'id\'))">» FB előterjesztés részletei</a>', '<input type="button" class="gomb" value="Mégsem" onclick="alert2()">', 'Válasszon exportot');
         }
 
-        /* Energia tervnél lehet választani, hogy tervet, vagy Egységárakat szeretne-e exportálni */
+        // Energia tervnél lehet választani, hogy tervet, vagy Egységárakat szeretne-e exportálni
         if( baseName(location.href) == 'energia_terv' ){
             alert2('Válasszon export fajtát:<br><a href="javascript:csv_general($(\'.excel\'))">» Energia tervek exportálása</a><br><a href="javascript:csv_general($(\'.excel\'), \'\', \'egysegarak&id=\'+_get(\'id\'))">» Egységárak exportálása</a>', '<input type="button" class="gomb" value="Mégsem" onclick="alert2()">', 'Válasszon exportot');
         }
 
-        /* Projektszámláknál lehet választani, hogy Számlák vagy Számlák és tételek */
+        // Projektszámláknál lehet választani, hogy Számlák vagy Számlák és tételek
         if( baseName(location.href) == 'projektszamla' ){
             alert2('Válasszon export fajtát:<br><a href="javascript:csv_general($(\'.excel\'))">» Számlák exportálása</a><br><a href="javascript:csv_general($(\'.excel\'), \'\', \'tetelek&id=\'+_get(\'id\'))">» Számlák és tételek exportálása</a>', '<input type="button" class="gomb" value="Mégsem" onclick="alert2()">', 'Válasszon exportot');
         }
 
-        /* Projektszerződéseknél lehet választani, hogy Szerződések vagy Szerződések és tételek */
+        // Projektszerződéseknél lehet választani, hogy Szerződések vagy Szerződések és tételek
         if( baseName(location.href) == 'projektszerzodes' ){
             alert2('Válasszon export fajtát:<br><a href="javascript:csv_general($(\'.excel\'))">» Szerződések exportálása</a><br><a href="javascript:csv_general($(\'.excel\'), \'\', \'tetelek&id=\'+_get(\'id\'))">» Szerződések és tételek exportálása</a>', '<input type="button" class="gomb" value="Mégsem" onclick="alert2()">', 'Válasszon exportot');
         }
 
-    /* Ha nincs választás popup előtte */
+    // Ha nincs választás popup előtte
     }else{
 
         var ids = new Array();
@@ -5595,7 +5595,6 @@ function csv_general( that, valasztos, link_kieg ) {
 
             if( display != 'none' ) {
                 ids[i] = $(this).attr('data-recid');
-
                 i++;
             }
         });
@@ -5610,10 +5609,11 @@ function csv_general( that, valasztos, link_kieg ) {
         });
 
         $.when(ajax).done(function() {
-            
-            /* Eszközkezelésnél nincs balnavpanel, ezért ott nem kellfigyelni a kijelölt sorokat */
-            if(baseName(location.href='eszkozkezeles.php')){
+
+            // Eszközkezelésnél nincs balnavpanel, ezért ott nem kellfigyelni a kijelölt sorokat
+            if(baseName(location.href=='eszkozkezeles.php')){
                 
+                var onclick = $(that).attr('onclick');
                 $(that).attr('href', '?csv&'+link_kieg).removeAttr('onclick');
                 $(that)[0].click();
                 $(that).attr('onclick', onclick).removeAttr('href');
@@ -5621,13 +5621,16 @@ function csv_general( that, valasztos, link_kieg ) {
             }else{
                 
                 if( ids.length ) {
+                    
                     var onclick = $(that).attr('onclick');
-
                     $(that).attr('href', get_get(['egysegarak']) + '&csv&'+link_kieg).removeAttr('onclick');
                     $(that)[0].click();
                     $(that).attr('onclick', onclick).removeAttr('href');
+                    
                 } else {
+                    
                     alert2('Üres találati listát nem lehet exportálni!', '', 'Hiba');
+                    
                 }
                 
             }
