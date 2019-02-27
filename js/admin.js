@@ -4437,17 +4437,14 @@ function kijeloltSzamlal( sorok, reszleg, tabla, mellek ) {
     }
 
     if( !sorok.hasClass('kijelolve') && reszleg == 'fo' ) {
-        /*$('#kmCont').find('input[type="button"]').attr('disabled', true);*/
         $('#navGombok a.torles').attr('onclick', 'naviTorles();');
 
         if( _get('id') ) {
-            /*$('.szamla_sor').removeClass('akt');*/
             $('#szamla-' + _get('id')).addClass('kijelolve');
         }
 
         jobbOldalEltuntet( sorok );
     } else if( sorok.hasClass('kijelolve') && reszleg == 'fo' ) {
-        /*$('#kmCont').find('input[type="button"]').attr('disabled', false);*/
         $('#navGombok a.torles').attr('onclick', 'tbt_alert();');
 
         jobbOldalEltuntet( sorok );
@@ -5455,13 +5452,14 @@ function naploTorol( tabla, sorID ) {
 }
 
 function gombokRejt() {
+    
     if( $('#recordSzerk').length ) {
         $('div.navGombok a.szerk').removeClass('disabled');
     } else {
         $('div.navGombok a.szerk').addClass('disabled');
     }
 
-    if( _get('modosit') ) {
+    if( _get('modosit') || _get('obj') ) {
         $('div.navGombok a.torles').removeClass('disabled').attr('onclick', 'naviTorles();');
     } else {
         $('div.navGombok a.torles').addClass('disabled');
@@ -5700,6 +5698,7 @@ function szamlaBetolt( recid, page, muvelet, szerkeszt, kerdes_nelkul, anyagigen
         /* Eszközkezelésnél linkekre active class-t tenni */
         if( page=='eszkozkezeles.php' ){
             $('.konyvtar_szerk a, .konyvtar_szerk li').removeClass('active');
+            $('.sor').removeClass('aktiv');
             if(muvelet=='obj'){
                 $('#obj_'+recid).addClass('active');
             }else{

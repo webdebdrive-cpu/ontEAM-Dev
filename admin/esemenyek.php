@@ -2399,8 +2399,8 @@ $projektszamla_tomb = $akt_tomb = array(
     array('type' => 'text',                 'megn' => '',                   'name' => 'visszaadva_dt',  'szuro' => 1,   'class' => 'kicsi datepicker_tegnapig'.$visszaadva_dt_alert_class, 'megn_szurobe' => 'Visszaadva dátum' ),
     array('type' => 'text',                 'megn' => 'Szerződés szám:',    'name' => 'sz_szam',        'szuro' => 1,   'disabled' => 1, 'post' => ' <span id="szerzodes_neve">'.$szerzodes_neve.'</span>'.$sz_szam_gomb),
     array('type' => 'text',                 'megn' => 'Projekt szám:',      'name' => 'pr_szam',        'szuro' => 1,   'disabled' => 1, 'post' => ' <span id="projekt_neve">'.$projekt_neve.'</span>'),
-    array('type' => 'autocomplete',         'megn' => 'Projekt felelős:',   'name' => 'let_fel',        'szuro' => 1,   'disabled' => 1,   'class' => 'oriasi', 'tabla' => 'login', 'oszlop_keres' => 'recid', 'oszlop_keres_autocomp' => 'teljes_nev', 'listaz' => 'teljes_nev', 'beosztas_id' => EL_BEOSZTAS_PR_FELEOS, 'id_kiir' => 'recid'),
-    array('type' => 'autocomplete',         'megn' => 'Költségviselő:',     'name' => 'kolt_vis',       'szuro' => 1,   'disabled' => 1,   'class' => 'oriasi disableNav', 'tabla' => 'erteklista', 'oszlop_keres' => 'id', 'oszlop_keres_autocomp' => 'info', 'listaz' => 'info', 'csoport' => ERTEKLISTA_KOLTSEGVISELO, 'id_kiir' => 'id'),
+    array('type' => 'autocomplete',         'megn' => 'Projekt felelős:',   'name' => 'let_fel',        'szuro' => 1,   'disabled' => 1,   'class' => 'oriasi', 'tabla' => 'login', 'oszlop_keres' => 'recid', 'oszlop_keres_autocomp' => 'teljes_nev', 'listaz' => 'teljes_nev', 'beosztas_id' => EL_BEOSZTAS_PR_FELEOS, 'id_kiir' => 'recid', 'style' => 'width: 25rem'),
+    array('type' => 'autocomplete',         'megn' => 'Költségviselő:',     'name' => 'kolt_vis',       'szuro' => 1,   'disabled' => 1,   'class' => 'oriasi disableNav', 'tabla' => 'erteklista', 'oszlop_keres' => 'id', 'oszlop_keres_autocomp' => 'info', 'listaz' => 'info', 'csoport' => ERTEKLISTA_KOLTSEGVISELO, 'id_kiir' => 'id', 'style' => 'width: 25rem'),
 );
 array_push($postok, array('tomb' => $akt_tomb, 'uj' => 'uj'.$megnevezes, 'lista' => $megnevezes.'lista', 'tabla' => $megnevezes, 'torid' => $megnevezes.'tid' ));
 
@@ -5125,7 +5125,7 @@ foreach($postok as $ertek){
         if( $sql === false ) { $db_error = true; }
 
         // Státusz tábla törlése, hacsak nem kivételes
-        $kivetelek = array('cikktorzs', 'eseti_fenntartas', 'eszkozkezeles', 'erteklista', 'felmeresi_terv', 'ktgnem', 'ktghely', 'utemezett_feladatok', 'projektszamla', 'projektszerzodes', 'rendszeres_karbantartas', 'szallito', 'szerepkor');
+        $kivetelek = array('cikktorzs', 'eseti_fenntartas', 'eszkozkezeles', 'erteklista', 'felmeresi_terv', 'ktgnem', 'ktghely', 'obj', 'projektszamla', 'projektszerzodes', 'rendszeres_karbantartas', 'szallito', 'szerepkor', 'utemezett_feladatok');
         if( !in_array($ertek['tabla'], $kivetelek) ){
             $valtozas_kapcsolodo_tablak .= 'Státusz tábla ('.$ertek['tabla'].'_statusz) törlése: '."\n";
             $sorok = $adatbazis_kapcsolat->s('*', $ertek['tabla'].'_statusz', "`{$ertek['tabla']}_recid`='{$_GET[$ertek['torid']]}'");
@@ -5137,7 +5137,7 @@ foreach($postok as $ertek){
 
         // Dokumentumok törlése
         $torolt_fajlok = '';
-        $dokos_oldalak = array('anyagigenyles', 'bejelentes', 'eseti_fenntartas', 'eszkozkezeles', 'eszkozkezeles_eng', 'felmeresi_terv', 'fenntartasi_terv', 'munkalap', 'utemezett_feladatok', 'projektigenyles', 'projektkezeles', 'projektszamla', 'projektszerzodes', 'rendszeres_karbantartas');
+        $dokos_oldalak = array('anyagigenyles', 'bejelentes', 'eseti_fenntartas', 'eszkozkezeles', 'eszkozkezeles_eng', 'felmeresi_terv', 'fenntartasi_terv', 'munkalap', 'projektigenyles', 'projektkezeles', 'projektszamla', 'projektszerzodes', 'rendszeres_karbantartas', 'utemezett_feladatok');
         if( in_array($ertek['tabla'], $dokos_oldalak) ){
             $fajlok = $adatbazis_kapcsolat->s('*', $ertek['tabla'].'_dok', "`{$ertek['tabla']}_id`='{$_GET[$ertek['torid']]}'");
 

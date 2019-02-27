@@ -112,15 +112,15 @@ if(isset($_POST['get_projekt_tabla'])){
         
         $html .= '
             <tr class="kijSor" data-i="'.$i.'" data-recid="'.$pr['recid'].'" data-ikt_szam="'.$pr['ikt_szam'].'" data-felelos="'.$pr['pfelelos'].'">
-                <td>
+                <td class="l" style="padding: 0 0.5rem">
                     '.$szalloda['nev'].'
                     <div class="dn pfelelos_txt">'.$pfelelos_neve.'</div>
                     <div class="dn pfelelos_txt nev"><a href="projektkezeles.php?id='.$pr['recid'].'&amp;modosit" target="_blank">'.$pr['nev'].'</a></div>
                 </td>
-                <td style="width: 30rem">'.$pr['nev'].'</td>
-                <td>'.$tipus.'</td>
-                <td class="r nowrap">'.number_format($pr['jkolt'], 0, '', ' ').'</td>
-                <td>'.datum_kiir($pr['insert_dt']).'</td>
+                <td class="l" style="width: 30rem; padding: 0 0.5rem">'.$pr['nev'].'</td>
+                <td class="l" style="padding: 0 0.5rem">'.$tipus.'</td>
+                <td class="r nowrap" style="padding: 0 1rem">'.number_format($pr['jkolt'], 0, '', ' ').'</td>
+                <td style="padding: 0 1rem">'.datum_kiir($pr['insert_dt']).'</td>
             </tr>
             ';
         $i++;

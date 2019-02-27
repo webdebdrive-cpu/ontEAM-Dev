@@ -332,7 +332,7 @@ require_once('selectek.php');
                 }
             }
 
-            /* Műveletek box */
+            // Műveletek box
             $gombok = nl2('
                 <div class="muveletek"'.$muv_style.'>
                     '.$gombok.'
@@ -346,9 +346,25 @@ require_once('selectek.php');
         // Js, a törlés gombhoz
         $gombok = '';
         // Ha van olyan élő munkalap, amin ez az eszköz van megjelölve, akkor nem törölhető
-        $van_elo_ml_on = $adatbazis_kapcsolat->s2('recid', 'munkalap', "`gep_id`='{$_GET['id']}'");
-        if($van_elo_ml_on){
-            $gombok .= ' <input type="button" id="recordTorol" class="gombb_alert dn" onclick="alert2(\'Erre az eszközre folyamatban lévő munkalap van, nem törölhető. Előbb zárja le a munkalapot!\', \'\', \'Hiba\')" value="Töröl" title="Töröl">';
+        if( isset($_GET['obj']) ){
+            $hiba_szoveg = 'a helyiségre';
+            $van_elo_ml_on  = $adatbazis_kapcsolat->s2('recid', 'munkalap',      "`obj_id`='{$_GET['id']}'", '', '1');
+            $van_elo_bej_en = $adatbazis_kapcsolat->s2('recid', 'bejelentes',    "`obj_id`='{$_GET['id']}'", '', '1');
+            $van_eszkoze    = $adatbazis_kapcsolat->s2('recid', 'eszkozkezeles', "`obj_id`='{$_GET['id']}'", '', '1');
+            $van_helyisege  = $adatbazis_kapcsolat->s2('recid', 'obj', "`szulo`='{$_GET['id']}'", '', '1');
+        }else{
+            $hiba_szoveg = 'az eszközre';
+            $van_elo_ml_on  = $adatbazis_kapcsolat->s2('recid', 'munkalap',   "`gep_id`='{$_GET['id']}'", '', '1');
+            $van_elo_bej_en = $adatbazis_kapcsolat->s2('recid', 'bejelentes', "`gep_id`='{$_GET['id']}'", '', '1');
+        }
+        if( $van_eszkoze ){
+            $gombok .= ' <input type="button" id="recordTorol" class="gombb_alert dn" onclick="alert2(\'Ehhez a helyiséghez eszköz van rendelve, így nem törölhető. Előbb törölje az eszközeit!\', \'\', \'Hiba\')" value="Töröl" title="Töröl">';
+        }elseif( $van_helyisege ){
+            $gombok .= ' <input type="button" id="recordTorol" class="gombb_alert dn" onclick="alert2(\'Ehhez a helyiséghez további helyiségek tartoznak, így nem törölhető. Előbb törölje a helyiségeit!\', \'\', \'Hiba\')" value="Töröl" title="Töröl">';
+        }elseif( $van_elo_ml_on || $van_elo_bej_en ){
+            
+            $gombok .= ' <input type="button" id="recordTorol" class="gombb_alert dn" onclick="alert2(\'Erre '.$hiba_szoveg.' folyamatban lévő munkalap van, nem törölhető. Előbb zárja le a munkalapot!\', \'\', \'Hiba\')" value="Töröl" title="Töröl">';
+        
         }else{
             
             $gombok .= '<script>var gomb'.$_GET['id'].'= get_kibont_torol(\''.self().'\', \''.$torles.'\', \''.$_GET['id'].'\');</script>';

@@ -130,7 +130,10 @@ if( $_GET['print']=='lista' || isset($_GET['pdf'])) {
         case 'fenntartasi_terv'     : $sorok_html = fenntartasi_tervLista( $sorok, $tabla );break;
 //        case 'utemezett_feladatok'  : $akt_tomb = $utemezett_feladatok_tomb;    break;
         case 'torzsadat'            : $sorok_html = torzsadatLista($sorok, $tabla);         break;
+        case 'projektkezeles'       : $sorok_html = projektkezelesLista( $sorok, $tabla );  break;
         case 'projektigenyles'      : $sorok_html = projektigenylesLista( $sorok, $tabla ); break;
+        case 'projektszerzodes'     : $sorok_html = projektszerzodesLista( $sorok, $tabla );break;
+        case 'projektszamla'        : $sorok_html = projektszamlaLista( $sorok, $tabla );   break;
         case 'szallito'             : $sorok_html = szallitoLista( $sorok, $tabla );        break;
         case 'szerepkor'            : $sorok_html = szerepkorLista( $sorok, $tabla );       break;
     }

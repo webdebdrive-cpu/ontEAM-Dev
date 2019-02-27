@@ -88,7 +88,7 @@ if (isset($_POST['f_szuro_mezo'])) {
     }
 
     // Kapcsolódó szállodák felsorolása
-    if( $_POST['mezo']=='telephely_id' || ($_POST['tabla'] == 'login' && $_POST['mezo']=='szalloda') ){
+    if( $_POST['mezo']=='telephely_id' || $_POST['mezo']=='dok_van_e' || ($_POST['tabla'] == 'login' && $_POST['mezo']=='szalloda') ){
 
         // Ilyenkor felülírva az operátorokat, csak egyenlőségjel van
         $operator = '<option value="equal"'.$selected_equal.'>=</option>';
@@ -153,7 +153,7 @@ if (isset($_POST['f_szuro_mezo_operator'])) {
     }
 
     // Ha az éppen kiválasztott operátor az ures, akkor az alábbit adjuk vissza és kész
-    if($_POST['selected']=='empty'){
+    if( $_POST['selected']=='empty' || $_POST['mezo']=='dok_van_e' ){
         $feltetel = nl2('
             <select class="f_felt">
                 <option value="1"'.$selected_egy.'>Igen</option>
@@ -624,6 +624,35 @@ foreach($akt_tomb_szures as $ertek){
         }
         array_push( $sz_mezo, array('eleje' => '<option value="'.$ertek['name'].'"'.$selected.'>', 'vege' => trim($ertek['megn'], ':').'</option>' ) );
     }
+}
+
+// Dokumentumos felületeken tudni kell szűrni arra is, hogy van-e dokumentuma
+$dokumentumos_oldal = array(
+    'anyagigenyles',
+    'bejelentes',
+    'bejelentes_arch',
+    'eloterj_bod',
+    'eloterj_fb',
+    'energia_terv',
+    'eseti_fenntartas',
+    'eszkozkezeles',
+    'fenntartasi_terv',
+    'munkalap',
+    'munkalap_arch',
+    'munkalap_email',
+    'projektigenyles',
+    'projektkezeles',
+    'projektszamla',
+    'projektszerzodes',
+    'rendszeres_karbantartas',
+    'utemezett_feladatok',
+    );
+if(in_array($tabla, $dokumentumos_oldal) ){
+    $selected = '';
+    if($_GET['mezo']=='dok_van_e'){
+        $selected = ' selected';
+    }
+    array_push( $sz_mezo, array('eleje' => '<option value="dok_van_e"'.$selected.'>', 'vege' => 'Van csatolt dokumentum</option>' ) );
 }
 
 // Kapcsolódó táblák szűrő mezői

@@ -60,6 +60,7 @@ SZŰRÉS LEKEZELÉSE:
 - SQL-t a get_szures_where_kieg() függvény számolja ki. Itt szintén be kell állítani a kapcsolódó táblákat
 - A kapcsolódó táblákat még az esemenyek.php isset($_POST['f_o_szures_submit']) részénél kell lekezelni
 - fuggvenyek.php-ben a kapcsolódó táblák miatt még itt állítsd be a működést: // Szűréskor kell pár JOIN-olás a külső táblákhoz
+- Lehet szűrni arra is, hogy van-e csatolt dokumentum vagy sem. Ezt a szures.php $dokumentumos_oldal változónál állítjuk be.
 
 SORREDEZÉS
 - Az A-Z és Z-A-t az admin.js bejegyzesekLista() függvény vége állítja. Illetve a header.php, maikor betölt az oldal.
@@ -67,7 +68,7 @@ SORREDEZÉS
 - Az esemenyek.php -ban a rendezhető mezőknél az alapértelmezett irányt is meg tudod adni egy tömbben, de nem kötelező (ha nincs, akkor marad ami volt). 
 
 NYOMTATÁSI NÉZETEK KIGENEÁRLÁSA:
-- header.php
+- header.php hívja meg a nyomtatas.php
 
 STÁTUSZOK KARBANTARTÁSA
 - addStatusz() függvénnyel írj be értéket és akkor rendben lesz. Ennek előfeltétele, hogy már egy státusza legyen (pl. egy alap NYITOTT).

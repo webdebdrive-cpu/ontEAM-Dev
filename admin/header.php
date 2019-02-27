@@ -972,7 +972,7 @@ require_once 'nyomtatas.php';
 
 
 $torol_dis = '';
-if( !isset($_GET['modosit']) ) {
+if( !isset($_GET['modosit']) && !isset($_GET['obj']) ) {
     $torol_dis = ' disabled';
 }
 

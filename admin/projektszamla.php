@@ -1250,11 +1250,15 @@ require_once('selectek.php');
         $i = 0;
         $_SESSION['pr_szla_tetel_targy'] = $_SESSION['pr_szla_tetel_netto_ert'] = array();
         $tetelek = $adatbazis_kapcsolat->s('*', 'projektszamla_tetel', "`projektszamla_recid`='{$_GET['id']}'", 'recid');
+        $van_kapcsolt_tetel = false;
         foreach( $tetelek as $tetel ){
             $_SESSION['pr_szla_tetel_recid'][$i]     = $tetel['recid'];
             $_SESSION['pr_szla_tetel_targy'][$i]     = $tetel['targy'];
             $_SESSION['pr_szla_tetel_netto_ert'][$i] = number_format($tetel['netto_ert'], 0, '', ' ');
             $_SESSION['pr_szla_tetel_pr_tetel'][$i]  = $tetel['projektszerzodes_tetel_recid'];
+            if( $tetel['projektszerzodes_tetel_recid'] ){
+                $van_kapcsolt_tetel = true;
+            }
             $i++;
         }
         
@@ -1264,7 +1268,7 @@ require_once('selectek.php');
         }else{
             
             // Ha van már olyan tétele, ami össze van kötve szerződéssel, akkor nem engedünk törölni
-            if( $sor['projektszerzodes_tetel_recid'] ){
+            if( $van_kapcsolt_tetel ){
                 $gombok .= ' <input type="button" id="recordTorol" class="gombb_alert dn" onclick="alert2(\'A számlának van olyan tétele, amihez már van szerződés tétel kapcsolva, így nem törölhető a számla!\', \'\', \'Hiba\')" value="Töröl" title="Töröl">';
             }else{
                 $gombok .= '<script>var gomb'.$_GET['id'].'= get_kibont_torol(\''.self().'\', \''.$torles.'\', \''.$_GET['id'].'\');</script>';

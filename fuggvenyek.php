@@ -5581,6 +5581,11 @@ function eszkozkezelesLista( $bejegyzesek, $tabla, $frissit, $kijeloltek ) {
                                 if($akt_szint==$szint['recid'] || (is_array($obj_sor) && count($obj_sor) && $szint['recid'] == $obj_sor['szulo'])){
                                     $checked = ' checked';
                                 }
+                                
+                                $class   = '';
+                                if( isset($_GET['obj']) && $_GET['id'] == $szint['recid'] ){
+                                    $class   = ' class="active"';
+                                }
 
                                 $link = '';
                                 $objektumok = $adatbazis_kapcsolat->s('recid nev', 'obj', "`szulo`='{$szint['recid']}'", 'sor');
@@ -5589,10 +5594,9 @@ function eszkozkezelesLista( $bejegyzesek, $tabla, $frissit, $kijeloltek ) {
                                 }
                                 $html .= '
                                         <li>
-                                            <a id="obj_'.$szint['recid'].'" href="javascript: szamlaBetolt(\''.$szint['recid'].'\', \'eszkozkezeles.php\', \'obj\'); void(0);"><label'.$link.' id="obj_'.$szint['recid'].'" for="szint_'.$szint['recid'].'">'.$szint['nev'].'</label></a>
+                                            <a id="obj_'.$szint['recid'].'"'.$class.' href="javascript: szamlaBetolt(\''.$szint['recid'].'\', \'eszkozkezeles.php\', \'obj\'); void(0);"><label'.$link.' id="obj_'.$szint['recid'].'" for="szint_'.$szint['recid'].'">'.$szint['nev'].'</label></a>
                                             <input type="checkbox"'.$checked.' class="asdas">
                                         ';
-                                // id="szint_'.$szint['recid'].'"
 
                                 if($objektumok){
                                     $html .= '<ol>';
@@ -5600,8 +5604,10 @@ function eszkozkezelesLista( $bejegyzesek, $tabla, $frissit, $kijeloltek ) {
                                         $obj_idk[] = $obj['recid'];
 
                                         $checked = '';
+                                        $class   = '';
                                         if($akt_obj==$obj['recid'] || (is_array($obj_sor) && count($obj_sor) && $_GET['id'] == $obj['recid'])){
                                             $checked = ' checked';
+                                            $class   = ' class="active"';
                                         }
 
                                         $link = '';
@@ -5610,7 +5616,7 @@ function eszkozkezelesLista( $bejegyzesek, $tabla, $frissit, $kijeloltek ) {
                                             $link = ' class="link"';
                                         }
                                         $html .= '<li>
-                                                    <a id="obj_'.$obj['recid'].'" href="javascript: szamlaBetolt(\''.$obj['recid'].'\', \'eszkozkezeles.php\', \'obj\'); void(0);"><label'.$link.' id="obj_'.$obj['recid'].'" for="obj_'.$obj['recid'].'">'.$obj['nev'].'</label></a>
+                                                    <a id="obj_'.$obj['recid'].'"'.$class.' href="javascript: szamlaBetolt(\''.$obj['recid'].'\', \'eszkozkezeles.php\', \'obj\'); void(0);"><label'.$link.' id="obj_'.$obj['recid'].'" for="obj_'.$obj['recid'].'">'.$obj['nev'].'</label></a>
                                                     <input type="checkbox"'.$checked.'>';
                                         // id="obj_'.$obj['recid'].'"
                                             if($eszkozok){
@@ -6818,6 +6824,13 @@ function get_szures_where_kieg($mezo, $op, $felt, $tabla){
             $felt = '0000-00-00';
         }
         return '`'.get_db_tabla().'bejelentes`.`insert_dt`'.$op.'\''.$felt.'\'';
+    // Van-e dokumentuma szűrés
+    }elseif($mezo=='dok_van_e'){
+        if( $felt>0 ){
+            return '`dok_db`>0';
+        }else{
+            return '`dok_db`=0';
+        }
     }elseif($tabla=='login' && $mezo=='jogosultsag'){
         return 'SUBSTRING(`flags`, '.($felt+1).', 1)=1';
     }elseif($tabla=='login' && $mezo=='szalloda'){
@@ -6993,8 +7006,16 @@ function get_iktatoszam_sorszam($tabla, $telephely_id){
         $where = " AND `telephely_id`='{$telephely_id}'";
     }
     
-    $ikt_seq = $adatbazis_kapcsolat->s2('ev sorszam', 'iktszam_seq', "`tabla`='{$tabla}' AND `ev`='".date('y')."'{$where}");
+    // A rendszeres karbantartás és ütemezett feladatoknál nem nullázunk sorszámot évente, hanem megyünk végig
+    // FONTOS: ilyenkor az adatbázisban adott táblának csak egy rekordja lehet az iktszam_seq-ben
+    $evszam_mentes = array('eseti_fenntartas', 'utemezett_feladatok', 'rendszeres_karbantartas');
+    if( in_array($tabla, $evszam_mentes) ){
+        $ikt_seq = $adatbazis_kapcsolat->s2('ev sorszam', 'iktszam_seq', "`tabla`='{$tabla}'{$where}");
+    }else{
+        $ikt_seq = $adatbazis_kapcsolat->s2('ev sorszam', 'iktszam_seq', "`tabla`='{$tabla}' AND `ev`='".date('y')."'{$where}");
+    }
     if( $ikt_seq === false ) { $db_error = true; }
+    
     if( $ikt_seq ) {
 
         // Sorszám
@@ -7004,7 +7025,11 @@ function get_iktatoszam_sorszam($tabla, $telephely_id){
         $sorszam++;
 
         // Letároljuk az új sorszámot
-        $sql = $adatbazis_kapcsolat -> u('iktszam_seq', array('sorszam'), array($sorszam), "`tabla`='{$tabla}' AND `ev`='".date('y')."'{$where}");
+        if( in_array($tabla, $evszam_mentes) ){
+            $sql = $adatbazis_kapcsolat -> u('iktszam_seq', array('sorszam'), array($sorszam), "`tabla`='{$tabla}'{$where}");
+        }else{
+            $sql = $adatbazis_kapcsolat -> u('iktszam_seq', array('sorszam'), array($sorszam), "`tabla`='{$tabla}' AND `ev`='".date('y')."'{$where}");
+        }
         if( $sql === false ) { $db_error = true; }
         
     } else {
@@ -7918,7 +7943,7 @@ function munkalap_letrehoz($stat_id, $telephely_id, $tipus_id, $obj_id, $gep_id,
         $hiba_txt = getErtek('info', 'erteklista', 'recid', $hiba_id);
     }
 
-    // Ha meg van adva, hogy ki legyen a létrehozó, akkor adott loginnév legyen a név/teljes név insert-nél, egyébként a Session (tehátbelépett) felhasználó
+    // Ha meg van adva, hogy ki legyen a létrehozó, akkor adott loginnév legyen a név/teljes név insert-nél, egyébként a Session (tehát belépett) felhasználó
     if($loginnev){
         $login = $adatbazis_kapcsolat->s2('nev teljes_nev', 'login', "`nev`='{$loginnev}'");
     }else{
