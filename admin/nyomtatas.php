@@ -57,6 +57,8 @@ if( $_GET['print']=='lista' || isset($_GET['pdf'])) {
                     break;
                 }
             }
+        }elseif ($_GET['mezo']=='kolt_vis') {
+            $feltetel .= getErtekLista(ERTEKLISTA_KOLTSEGVISELO, $_GET['felt']);
         }else{
             $feltetel .= $_GET['felt'];
         }

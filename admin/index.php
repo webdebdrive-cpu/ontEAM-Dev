@@ -16,94 +16,21 @@ if( isset($_GET['info']) && $_SESSION[get_db_tabla().'user'] ){
     exit;
 }
 
-
-if (isset($_GET['fb_bod'])) {
+// Tibi importjához kell
+if (isset($_GET['projekt_szerzodott_felhasznalt_kitolt'])) {
     
-    $kapcsok = $adatbazis_kapcsolat->s('*', 'eloterj_fb_kapcs');
-    foreach( $kapcsok as $kapcs ){
-        
-        $prigeny = $adatbazis_kapcsolat->s2('*', 'projektigenyles', "`recid`='{$kapcs['projektigenyles_recid']}'");
-        
-        $oszlopok = array('csoport_id', 'ikt_szam', 'egy_tobb', 'telephely_id', 'stat_id', 'nev', 'tipus', 'prior', 'besorol', 'rendk', 'megter', 'text', 'bkolt', 'loginnev', 'update_dt', 'update_usr', 'insert_dt', 'insert_usr', 'torolve');
-        $ertekek  = array();
-        foreach($oszlopok as $kulcs => $oszlop){
-            array_push($ertekek, $prigeny[$oszlop]);
-        }
-        array_push($oszlopok, 'projektigenyles_recid'           );
-        array_push($ertekek,  $kapcs['projektigenyles_recid']   );
-        array_push($oszlopok, 'eloterj_fb_recid'                );
-        array_push($ertekek,  $kapcs['eloterj_recid']           );
-
-        $sql = $adatbazis_kapcsolat->i('projektigenyles_eloterj', $oszlopok, $ertekek);
-        
-    }
-    
-    $kapcsok = $adatbazis_kapcsolat->s('*', 'eloterj_bod_kapcs');
-    foreach( $kapcsok as $kapcs ){
-        
-        $prigeny = $adatbazis_kapcsolat->s2('*', 'projektigenyles', "`recid`='{$kapcs['projektigenyles_recid']}'");
-        
-        $oszlopok = array('csoport_id', 'ikt_szam', 'egy_tobb', 'telephely_id', 'stat_id', 'nev', 'tipus', 'prior', 'besorol', 'rendk', 'megter', 'text', 'bkolt', 'loginnev', 'update_dt', 'update_usr', 'insert_dt', 'insert_usr', 'torolve');
-        $ertekek  = array();
-        foreach($oszlopok as $kulcs => $oszlop){
-            array_push($ertekek, $prigeny[$oszlop]);
-        }
-        array_push($oszlopok, 'projektigenyles_recid'           );
-        array_push($ertekek,  $kapcs['projektigenyles_recid']   );
-        array_push($oszlopok, 'eloterj_bod_recid'               );
-        array_push($ertekek,  $kapcs['eloterj_recid']           );
-
-        $sql = $adatbazis_kapcsolat->i('projektigenyles_eloterj', $oszlopok, $ertekek);
-
-    }
-    
-    exit;
-}
-
-// Jóváhagyhat limit beállítása
-if (isset($_GET['jovahagyhat_limit'])) {
-    
-    $loginok = $adatbazis_kapcsolat->s('recid', 'login', "SUBSTR(`flags`, 35, 1)=1");
-    foreach($loginok as $login){
-        $adatbazis_kapcsolat->u('login', array('jh_ft_ig'), array(1000000000), "`recid`='{$login['recid']}'");
+    $projektek = $adatbazis_kapcsolat->s('*', 'projektkezeles', "`ikt_szam`!=''");
+    foreach ($projektek as $projekt){
+        $szerzodesek = $adatbazis_kapcsolat->s2('SUM(`szerz_ossz`)', 'projektszerzodes', "`pr_szam`='{$projekt['ikt_szam']}'");
+        $sz_ossz = $szerzodesek['SUM(`szerz_ossz`)'];
+        $fel_hato = $projekt['jkolt']-$sz_ossz;
+        $adatbazis_kapcsolat->u('projektkezeles', array('sz_ossz', 'fel_hato'), array($sz_ossz, $fel_hato), "`recid`='{$projekt['recid']}'");
         echo $adatbazis_kapcsolat->gp() . '<br>';
     }
     
     exit;
 }
 
-// Megjegyzések archivumba
-if (isset($_GET['megj_archivumba'])) {
-//    $mukalapok = $adatbazis_kapcsolat->s('recid', 'munkalap_arch');
-//    foreach($mukalapok as $munkalap){
-//        $megjegyzesek = $adatbazis_kapcsolat->s('*', 'megjegyzes', "`tabla`='munkalap' AND `id`='{$munkalap['recid']}'");
-//        foreach($megjegyzesek as $m){
-//            $m['megj'] = htmlspecialchars_decode($m['megj']);
-//            $adatbazis_kapcsolat->i('megjegyzes_arch',  array('tabla',    'id',               'megj',     'loginnev',     'szerepkor',      'szerepkor_txt',     'update_dt',     'update_usr',     'insert_dt',     'insert_usr'    ),
-//                                                        array('munkalap', $munkalap['recid'], $m['megj'], $m['loginnev'], $m['szerepkor'],  $m['szerepkor_txt'], $m['update_dt'], $m['update_usr'], $m['insert_dt'], $m['insert_usr'])
-//                                    );
-//echo $adatbazis_kapcsolat->gp() . '<br>';
-//            $adatbazis_kapcsolat->d('megjegyzes', "`recid`='{$m['recid']}'");
-//echo $adatbazis_kapcsolat->gp() . '<br>';
-//        }
-//    }
-    
-    $bejelentesek = $adatbazis_kapcsolat->s('recid', 'bejelentes_arch');
-    foreach($bejelentesek as $bej){
-        $megjegyzesek = $adatbazis_kapcsolat->s('*', 'megjegyzes', "`tabla`='bejelentes' AND `id`='{$bej['recid']}'");
-        foreach($megjegyzesek as $m){
-            $m['megj'] = htmlspecialchars_decode($m['megj']);
-            $adatbazis_kapcsolat->i('megjegyzes_arch',  array('tabla',      'id',          'megj',     'loginnev',     'szerepkor',      'szerepkor_txt',     'update_dt',     'update_usr',     'insert_dt',     'insert_usr'    ),
-                                                        array('bejelentes', $bej['recid'], $m['megj'], $m['loginnev'], $m['szerepkor'],  $m['szerepkor_txt'], $m['update_dt'], $m['update_usr'], $m['insert_dt'], $m['insert_usr'])
-                                    );
-echo $adatbazis_kapcsolat->gp() . '<br>';
-            $adatbazis_kapcsolat->d('megjegyzes', "`recid`='{$m['recid']}'");
-echo $adatbazis_kapcsolat->gp() . '<br>';
-        }
-    }
-    
-    exit;
-}
 
 // Loginról értesítő levelek küldése
 if (false && isset($_GET['login_ertesit'])) {

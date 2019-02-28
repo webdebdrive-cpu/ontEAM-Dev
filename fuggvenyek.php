@@ -575,16 +575,12 @@ function i_u($type, $tabla, $tomb) {
                 $projekt = $adatbazis_kapcsolat->s2('jkolt', 'projektkezeles', "`ikt_szam`='{$_POST['pr_szam']}'");
                 if( $projekt === false ) { $db_error = true; }
                 
-                $sz_ossz = $szerzodesek['SUM(`szerz_ossz`)']+ $_POST['szerz_ossz'];
+                $sz_ossz = $szerzodesek['SUM(`szerz_ossz`)'] + $_POST['szerz_ossz'];
                 $fel_hato = $projekt['jkolt']-$sz_ossz;
                 $sql = $adatbazis_kapcsolat->u('projektkezeles', array('sz_ossz', 'fel_hato'), array($sz_ossz, $fel_hato), "`ikt_szam`='{$_POST['pr_szam']}'");
                 if( $sql === false ) { $db_error = true; }
             }
 
-            $sz_ossz = $szerzodesek['SUM(`szerz_ossz`)']+ $_POST['szerz_ossz'];
-            $fel_hato = $projekt['jkolt']-$sz_ossz;
-            $sql = $adatbazis_kapcsolat->u('projektkezeles', array('sz_ossz', 'fel_hato'), array($sz_ossz, $fel_hato), "`ikt_szam`='{$_POST['pr_szam']}'");
-            if( $sql === false ) { $db_error = true; }
             
             array_push($oszlopok, 'loginnev'                        );
             array_push($ertekek,  $_SESSION[get_db_tabla().'user']  );
@@ -2820,6 +2816,7 @@ function szamla_lista( $where, $tabla, $kijeloltek = false, $csak_sql_miatt = fa
             $order .= ' '.$_SESSION['anyagigenyles_tablazat_irany'];
             // Ha már kétszer volna benne a desc, akkor azt egyre cseréljük
             $order = str_replace('desc desc', 'desc', $order);
+            $order = str_replace('desc asc',  'asc',  $order);
         }
 
         // Rendezés anyagrendeléskor
@@ -3032,11 +3029,13 @@ function szamla_lista( $where, $tabla, $kijeloltek = false, $csak_sql_miatt = fa
         $sql = $adatbazis_kapcsolat->gp();
         $mit = 'WHERE';
 
-        // Anyagigényléskor a szállítót vesszük még fel
+        // Anyagigényléskor a szállítót, cikkrendfejtet és értéklistát vesszük még fel
         $sql_kieg = '';
         if($tabla=='anyagigenyles'){
             $sql_kieg .= nl2('
                                 LEFT JOIN `'.get_db_tabla().'szallito` ON (`'.get_db_tabla().'anyagigenyles`.`szallito_id`=`'.get_db_tabla().'szallito`.`id`)
+                                LEFT JOIN `'.get_db_tabla().'cikkrendfej` ON (`'.get_db_tabla().'anyagigenyles`.`aparecid`=`'.get_db_tabla().'cikkrendfej`.`recid`)
+                                LEFT JOIN `'.get_db_tabla().'erteklista` ON (`'.get_db_tabla().'anyagigenyles`.`kcs_21`=`'.get_db_tabla().'erteklista`.`id` AND `'.get_db_tabla().'erteklista`.`csoport`=\''.ERTEKLISTA_PENZNEM.'\')
                             ');
         }
 
@@ -7420,7 +7419,7 @@ function level_felkeszit_es_kuld($tabla, $recid, $ert_pipa, $sablon, $cimzett, $
             }else{
                 $projektkezeles['pfelelos'] = $_SESSION[get_db_tabla().'login_recid'];
             }
-            
+
             $mit        = array('{IKT_SZAM}',       '{NEV}',       '{SZALLODA}'                             );
             $mivel      = array($_POST['ikt_szam'], $_POST['nev'], getSzallodaNev($_POST['telephely_id'])   );
             $uzi = str_replace( $mit, $mivel, fajlbol_olvas('../sablon/admin/mail/'.$cimzett.'.html') );
@@ -7432,6 +7431,7 @@ function level_felkeszit_es_kuld($tabla, $recid, $ert_pipa, $sablon, $cimzett, $
             }else{
                 $cimzettek = $adatbazis_kapcsolat->s('nev teljes_nev usermail aktiv virtual szemelyzet_id', 'login', "`aktiv`=1 AND `virtual`=0 AND `recid`='{$projektkezeles['pfelelos']}'");
             }
+
             if(!$cimzettek){
                 return false;
             }

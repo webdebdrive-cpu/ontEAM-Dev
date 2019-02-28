@@ -1,7 +1,7 @@
 <?php
 // Operátor kiválasztása
 if (isset($_POST['f_szuro_mezo'])) {
-
+    
     $akt_tomb_szures = get_akt_tomb($_POST['tabla']);
 
     $selected_equal = '';
@@ -31,15 +31,16 @@ if (isset($_POST['f_szuro_mezo'])) {
     $operator = '';
     // Feltétel összerakása tömbből
     foreach ($akt_tomb_szures as $ertek){
-        if($ertek['name']==$_POST['mezo']){
 
+        if($ertek['name']==$_POST['mezo']){
+            
             // Checkbox esetén Igen/Nem
             if($ertek['type']=='checkbox'){
 
                 $operator .= '<option value="equal"'.$selected_equal.'>=</option>';
 
             // Dátum mező esetén
-            }elseif( strpos($ertek['class'], 'datepicker')!==false || strpos($ertek['class'], 'datetimepicker')!==false ){
+            }elseif( strpos($ertek['class'], 'datepicker')!==false || strpos($ertek['class'], 'datetimepicker')!==false || strpos($ertek['class'], 'datepicker_tegnapig')!==false || strpos($ertek['class'], 'datepicker_matol')!==false || strpos($ertek['class'], 'datumos_szureshez')!==false ){
 
                 $operator .= '<option value="equal"'.$selected_equal.'>=</option>';
                 $operator .= '<option value="gteq"'.$selected_gteq.'>&gt;=</option>';
@@ -67,9 +68,6 @@ if (isset($_POST['f_szuro_mezo'])) {
                 // Numerikus adatok operátora
                 if( strpos($ertek['class'], 'f_num')!==false || strpos($ertek['class'], 'datepicker')!==false){
                     $operator .= '<option value="equal"'.$selected_equal.'>=</option>';
-                    if(strpos($ertek['class'], 'datepicker')!==false){
-                        $operator .= '<option value="like"'.$selected_like.'>Tartalmazza</option>';
-                    }
                     $operator .= '<option value="gteq"'.$selected_gteq.'>&gt;=</option>';
                     $operator .= '<option value="lteq"'.$selected_lteq.'>&lt;=</option>';
                     $operator .= '<option value="gt"'.$selected_gt.'>&gt;</option>';
@@ -79,6 +77,11 @@ if (isset($_POST['f_szuro_mezo'])) {
                 }else{
                     $operator .= '<option value="equal"'.$selected_equal.'>=</option>';
                     $operator .= '<option value="like"'.$selected_like.'>Tartalmazza</option>';
+                    $operator .= '<option value="gteq"'.$selected_gteq.'>&gt;=</option>';
+                    $operator .= '<option value="lteq"'.$selected_lteq.'>&lt;=</option>';
+                    $operator .= '<option value="gt"'.$selected_gt.'>&gt;</option>';
+                    $operator .= '<option value="lt"'.$selected_lt.'>&lt;</option>';
+                    $operator .= '<option value="not_eq"'.$selected_not_eq.'>&lt;&gt;</option>';
                     $operator .= '<option value="empty"'.$selected_empty.'>Üres</option>';
                 }
 
@@ -622,6 +625,7 @@ foreach($akt_tomb_szures as $ertek){
         if($ertek['name']==$_GET['mezo']){
             $selected = ' selected';
         }
+        $ertek['megn'] = strip_tags($ertek['megn']);
         array_push( $sz_mezo, array('eleje' => '<option value="'.$ertek['name'].'"'.$selected.'>', 'vege' => trim($ertek['megn'], ':').'</option>' ) );
     }
 }
@@ -727,9 +731,11 @@ if(isset($_POST['o_szures'])){
     $osszetett_link = '';
 }
 
+
 // Tehát a 'vege' alapján rendezzük az option-okat, így lesz a szűrés lista ABC-s rendben.
 $options = '';
 $sz_mezo = tobbdim_tomb_kulcs_rendez($sz_mezo, 'vege', SORT_ASC);
+
 foreach($sz_mezo as $mezo){
     $options .= $mezo['eleje'].$mezo['vege'];
 }

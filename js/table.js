@@ -114,8 +114,13 @@ $(function() {
         });
 
         ujra_sorszamoz_uj();
+        
+        anyagrend = '';
+        if( _get('anyagrend') ){
+            anyagrend = '?anyagrend=1';
+        }
         $.ajax({
-            url : baseName(location.href)+'.php',
+            url : baseName(location.href)+'.php'+anyagrend,
             type: 'POST',
             data: {
                 oszlop: $(this).attr('id'),

@@ -1385,17 +1385,17 @@ $(function() {
         $('#ho_rendsz_het') .prop('checked', false);
     });
 
-    /* Szűrő mező váltáskor */
+    // Szűrő mező váltáskor
     $(document).on('change', '.f_szuro_mezo', function(e) {
         operator_beallit($(this));
     });
 
-    /* Operátor váltáskor is változik a feltétel mező */
+    // Operátor váltáskor is változik a feltétel mező
     $(document).on('change', '.f_szuro_mezo_operator', function(e) {
         szuro_ertek_mezo_gen($(this));
     });
 
-    /* Szűrés érvényesítése */
+    // Szűrés érvényesítése
     $(document).on('click', '.f_szures_submit', function(e) {
 
         felt = $('.f_felt').val();
@@ -5556,6 +5556,10 @@ function csv_general( that, valasztos, link_kieg ) {
     if(!link_kieg){
         link_kieg = '';
     }
+    // Anyagrendelés felülete miatt kell még ez is a linkbe
+    if( _get('anyagrend') ){
+        link_kieg += '&anyagrend=1';
+    }
 
     if(valasztos){
 
@@ -6295,21 +6299,28 @@ function objLength(obj) {
     return size;
 };
 
+// Szűrő mező kiválasztásakor hívódik meg
 function operator_beallit(that, selected, felt){
     var tabla    = that.attr('data-tabla');
 
-     $.ajax({
-        url: 'header.php',
+    // Anyagrendelés felület miatt, ezt is át kell adni GET-ként
+    anyagrend = '';
+    if( _get('anyagrend') ){
+        anyagrend = '?anyagrend=1';
+    }
+
+    $.ajax({
+        url : 'header.php'+anyagrend,
         type: 'POST',
         data: esamp2es('tabla=' + tabla + '&amp;selected=' + selected + '&amp;mezo=' + that.val() + '&amp;f_szuro_mezo=' + new Date().getTime()),
         success: function (response) {
             if(response.substring(0, 6)=='SESKIL'){ location.href = 'index.php'; }
             response = JSON.parse(response);
             if (response) {
-                /* Ha létezik az összetett változat, akkor ott jelenítjük meg */
+                // Ha létezik az összetett változat, akkor ott jelenítjük meg
                 if($('#o_operator').length){
                     $('#o_operator').html(response.operator);
-                /* Egyébként a rendes szűrés */
+                // Egyébként a rendes szűrés
                 }else{
                     $('#operator').html(response.operator);
                 }
@@ -6321,7 +6332,7 @@ function operator_beallit(that, selected, felt){
     });
 }
 
-/* Szűrő érték mező beállítása */
+// Szűrő érték mező beállítása
 function szuro_ertek_mezo_gen(that, felt){
     var tabla    = that.attr('data-tabla');
     var selected = that.find('option:selected');
@@ -6331,8 +6342,14 @@ function szuro_ertek_mezo_gen(that, felt){
         prefix = 'o_';
     }
 
+    // Anyagrendelés felület miatt, ezt is át kell adni GET-ként
+    anyagrend = '';
+    if( _get('anyagrend') ){
+        anyagrend = '?anyagrend=1';
+    }
+
     ajax = $.ajax({
-        url: 'header.php',
+        url : 'header.php'+anyagrend,
         type: 'POST',
         data: esamp2es('tabla=' + tabla + '&amp;mezo=' + $('#'+prefix+'szuro_mezo').val() + '&amp;selected=' + selected.val() + '&amp;felt=' + felt + '&amp;f_szuro_mezo_operator=' + new Date().getTime()),
         success: function (response) {
@@ -6365,7 +6382,7 @@ function szuro_ertek_mezo_gen(that, felt){
    });
 }
 
-/* Személyzet -> Beosztás -> Naptár fül alatt a felvesz gomb lekezelése */
+// Személyzet -> Beosztás -> Naptár fül alatt a felvesz gomb lekezelése
 function beosztas_naptarba_tesz(beosztas_id, felulir){
     $.ajax({
         url: 'beosztas.php',
