@@ -134,6 +134,7 @@ if( $_GET['id'] ) {
     }
 }
 
+
 /*if( $_GET['id'] ){
     $akt_lekerdezes = szamla_lista('', '', '', 'csak SQL miatt'); // Ezt azért futtatjuk le, hogy az aktuális oldalnak megfelelő $_SESSION['akt_sql'] jöjjön létre, hogy tudjunk ID-t ellenőrizni.
     $van_getid = false;

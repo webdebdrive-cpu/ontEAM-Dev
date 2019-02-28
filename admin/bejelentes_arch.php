@@ -170,6 +170,7 @@ require_once('selectek.php');
     if( $_GET['id'] ){
         $sor = $adatbazis_kapcsolat -> s2('*', $megnevezes, "`recid`='{$_GET['id']}'");
     }
+
     if($sor['dok_db']){
         $dok_db  = ' ('.$sor['dok_db'].')';
     }

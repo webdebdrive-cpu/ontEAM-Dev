@@ -2889,6 +2889,9 @@ function szamla_lista( $where, $tabla, $kijeloltek = false, $csak_sql_miatt = fa
             // Alapértelmezett rendezettség a sürgős, azon belül telephely
             }elseif($_GET['rend']=='ikt_szam'){
                 $order .= '`'.get_db_tabla().$tabla.'`.`ikt_szam` '.$_GET['irany'].', `'.get_db_tabla().'telephely`.`nev`';
+            // Végül a felvitel szerinti sorrend
+            }elseif($_GET['rend']=='recid'){
+                $order .= '`'.get_db_tabla().$tabla.'`.`recid` '.$_GET['irany'];
             }
 
         }
@@ -2956,6 +2959,10 @@ function szamla_lista( $where, $tabla, $kijeloltek = false, $csak_sql_miatt = fa
             // Ha telephely szerint rendezünk, akkor pedig ezt a szempontot kell előre venni, és az irány is erre vonatkozik
             }elseif($_GET['rend']=='telephely_id'){
                 $order .= '`'.get_db_tabla().'telephely`.`nev` '.$_GET['irany'].', `'.get_db_tabla().$tabla.'`.`ikt_szam`';
+            
+            // Végül a felvitel szerinti sorrend
+            }elseif($_GET['rend']=='recid'){
+                $order .= '`'.get_db_tabla().$tabla.'`.`recid` '.$_GET['irany'];
             }
 
             $order = trim($order, ', ');
@@ -6108,7 +6115,7 @@ function getOszlopNev( $oszlop, $kieg_nev = '' ) {
         'obj_txt'       => 'Helyiség',
         'rndid'         => 'Rendelés száma',
         'rnd_dt'        => 'Rendelés dátum',
-        'recid'         => 'Rendszer ID',
+        'recid'         => 'Felvitel',
         'rkat'          => 'Érték',
         'surgos'        => 'Sürgős',
         'statusz'       => 'Státusz',

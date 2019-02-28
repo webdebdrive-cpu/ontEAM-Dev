@@ -91,8 +91,8 @@ switch($tabla) {
         // Anyagrendeléskor más a rendezés
         if (isset($_GET['anyagrend'])) {
             // Ezek az oszlopok generálódnak ki a rendezés selectbe, lehet szépíteni az oszlopneveket, amit a getOszlopNev() függvényben kell beállítani
-            $_OPTS['rendezes']  = array('rndid', 'stat_id', 'rnd_dt');
-            $_OPTS['iranyok']   = array('desc',  'asc',     'desc'  );
+            $_OPTS['rendezes']  = array('rndid', 'stat_id', 'rnd_dt',  'recid');
+            $_OPTS['iranyok']   = array('desc',  'asc',     'desc',    'asc'  );
 
             // Default rendezés
             if( !$_GET['rend'] ) {
@@ -107,7 +107,7 @@ switch($tabla) {
         // Anyagigénylés rendezése
         }else{
             // Ezek az oszlopok generálódnak ki a rendezés selectbe, lehet szépíteni az oszlopneveket, amit a getOszlopNev() függvényben kell beállítani
-            $_OPTS['rendezes']  = array('stat_id', 'telephely_id', 'cikk_id', 'szallito_id');
+            $_OPTS['rendezes']  = array('stat_id', 'telephely_id', 'cikk_id', 'szallito_id', 'recid');
 
             // Default rendezés
             if( !$_GET['rend'] ) {
@@ -133,7 +133,7 @@ switch($tabla) {
                                 ');
 
         // Ezek az oszlopok generálódnak ki a rendezés selectbe, lehet szépíteni az oszlopneveket, amit a getOszlopNev() függvényben kell beállítani
-        $_OPTS['rendezes']  = array('ikt_szam', 'telephely_id');
+        $_OPTS['rendezes']  = array('ikt_szam', 'telephely_id',  'recid');
 
         // Default rendezés
         if( !$_GET['rend'] ) {
@@ -169,8 +169,8 @@ switch($tabla) {
                                 ');
 
         // Ezek az oszlopok generálódnak ki a rendezés selectbe, lehet szépíteni az oszlopneveket, amit a getOszlopNev() függvényben kell beállítani
-        $_OPTS['rendezes']  = array('stat_id', 'ikt_szam', 'telephely_id',  'obj_txt');
-        $_OPTS['iranyok']   = array('desc',    'desc',     'asc',           'asc'    );
+        $_OPTS['rendezes']  = array('stat_id', 'ikt_szam', 'telephely_id',  'obj_txt',  'recid' );
+        $_OPTS['iranyok']   = array('desc',    'desc',     'asc',           'asc',      'asc'   );
 
         // Default rendezés
         if( !$_GET['rend'] ) {
@@ -195,7 +195,7 @@ switch($tabla) {
                                 ');
 
         // Ezek az oszlopok generálódnak ki a rendezés selectbe, lehet szépíteni az oszlopneveket, amit a getOszlopNev() függvényben kell beállítani
-        $_OPTS['rendezes']  = array('erkezett', 'e-szamla', 'torolve', 'ikt_szam', 'statusz');
+        $_OPTS['rendezes']  = array('erkezett', 'e-szamla', 'torolve', 'ikt_szam', 'statusz',  'recid');
 
         // Default rendezés
         if( !$_GET['rend'] ) {
@@ -219,7 +219,7 @@ switch($tabla) {
                             ');
 
         // Ezek az oszlopok generálódnak ki a rendezés selectbe, lehet szépíteni az oszlopneveket, amit a getOszlopNev() függvényben kell beállítani
-        $_OPTS['rendezes']  = array('telephely_id');
+        $_OPTS['rendezes']  = array('telephely_id',  'recid');
 
         // Default rendezés
         if( !$_GET['rend'] ) {
@@ -253,7 +253,7 @@ switch($tabla) {
                             ');
 
         // Ezek az oszlopok generálódnak ki a rendezés selectbe, lehet szépíteni az oszlopneveket, amit a getOszlopNev() függvényben kell beállítani
-        $_OPTS['rendezes']  = array('id', 'nev', 'szakter_id');
+        $_OPTS['rendezes']  = array('id', 'nev', 'szakter_id', 'recid');
 
         // Default rendezés
         if( !$_GET['rend'] ) {
@@ -265,7 +265,7 @@ switch($tabla) {
         $_OPTS['select']    = '';
 
         // Ezek az oszlopok generálódnak ki a rendezés selectbe, lehet szépíteni az oszlopneveket, amit a getOszlopNev() függvényben kell beállítani
-        $_OPTS['rendezes']  = array('id', 'nev');
+        $_OPTS['rendezes']  = array('id', 'nev', 'recid');
 
         // Default rendezés
         if( !$_GET['rend'] ) {
@@ -277,7 +277,7 @@ switch($tabla) {
         $_OPTS['select']    = 'recid, ikt_szam, stat_id, nev';
 
         // Ezek az oszlopok generálódnak ki a rendezés selectbe, lehet szépíteni az oszlopneveket, amit a getOszlopNev() függvényben kell beállítani
-        $_OPTS['rendezes']  = array('ikt_szam', 'stat_id');
+        $_OPTS['rendezes']  = array('ikt_szam', 'stat_id', 'recid');
 
         // Default rendezés
         if( !$_GET['rend'] ) {
@@ -294,7 +294,7 @@ switch($tabla) {
         $_OPTS['select']    = 'recid, ikt_szam, stat_id, nev';
 
         // Ezek az oszlopok generálódnak ki a rendezés selectbe, lehet szépíteni az oszlopneveket, amit a getOszlopNev() függvényben kell beállítani
-        $_OPTS['rendezes']  = array('ikt_szam', 'stat_id');
+        $_OPTS['rendezes']  = array('ikt_szam', 'stat_id', 'recid');
 
         // Default rendezés
         if( !$_GET['rend'] ) {
@@ -328,8 +328,8 @@ switch($tabla) {
         $_OPTS['select']    = 'recid, ikt_szam, ev, stat_id, text';
 
         // Ezek az oszlopok generálódnak ki a rendezés selectbe, lehet szépíteni az oszlopneveket, amit a getOszlopNev() függvényben kell beállítani
-        $_OPTS['rendezes']  = array('stat_id', 'ikt_szam', 'ev'     );
-        $_OPTS['iranyok']   = array('desc',    'desc',     'asc'    );
+        $_OPTS['rendezes']  = array('stat_id', 'ikt_szam', 'ev',  'recid'   );
+        $_OPTS['iranyok']   = array('desc',    'desc',     'asc', 'asc'     );
 
         // Default rendezés
         if( !$_GET['rend'] ) {
@@ -341,7 +341,7 @@ switch($tabla) {
         $_OPTS['select'] = 'info'; // Függvényeknél, szamla_lista()-nál is van vele varia beállítva
 
         // Ezek az oszlopok generálódnak ki a rendezés selectbe, lehet szépíteni az oszlopneveket, amit a getOszlopNev() függvényben kell beállítani
-        $_OPTS['rendezes']  = array('csoport');
+        $_OPTS['rendezes']  = array('csoport', 'recid');
 
         // Default rendezés // Függvényeknél, szamla_lista()-nál beállítva
 
@@ -361,7 +361,7 @@ switch($tabla) {
 
 
         // Ezek az oszlopok generálódnak ki a rendezés selectbe, lehet szépíteni az oszlopneveket, amit a getOszlopNev() függvényben kell beállítani
-        $_OPTS['rendezes']  = array('id', 'aktiv', 'telephely_id', 'esnap_d');
+        $_OPTS['rendezes']  = array('id', 'aktiv', 'telephely_id', 'esnap_d', 'recid');
 
         // Default rendezés
         if( !$_GET['rend'] ) {
@@ -378,7 +378,7 @@ switch($tabla) {
         $_OPTS['select']    = 'recid nev';
 
         // Ezek az oszlopok generálódnak ki a rendezés selectbe, lehet szépíteni az oszlopneveket, amit a getOszlopNev() függvényben kell beállítani
-        $_OPTS['rendezes']  = array('nev');
+        $_OPTS['rendezes']  = array('nev', 'recid');
 
         // Default rendezés
         if( !$_GET['rend'] ) {
@@ -436,8 +436,8 @@ switch($tabla) {
 
         // Ezek az oszlopok generálódnak ki a rendezés selectbe, lehet szépíteni az oszlopneveket, amit a getOszlopNev() függvényben kell beállítani
         // 2018.09.24 Tervszám kivéve, de majd még lehet vissza kell tenni.
-        $_OPTS['rendezes']  = array('telephely_id', 'stat_id', /*'ikt_szam', */'ev'     );
-        $_OPTS['iranyok']   = array('asc',          'desc',    /*'desc',     */'asc'    );
+        $_OPTS['rendezes']  = array('telephely_id', 'stat_id', /*'ikt_szam', */'ev',  'recid'   );
+        $_OPTS['iranyok']   = array('asc',          'desc',    /*'desc',     */'asc', 'asc'     );
 
         // Default rendezés
         if( !$_GET['rend'] ) {
@@ -450,7 +450,7 @@ switch($tabla) {
         $_OPTS['select']    = 'recid id nev';
 
         // Ezek az oszlopok generálódnak ki a rendezés selectbe, lehet szépíteni az oszlopneveket, amit a getOszlopNev() függvényben kell beállítani
-        $_OPTS['rendezes']  = array('id', 'nev');
+        $_OPTS['rendezes']  = array('id', 'nev', 'recid');
 
         // Default rendezés
         if( !$_GET['rend'] ) {
@@ -467,7 +467,7 @@ switch($tabla) {
         $_OPTS['select']    = 'recid id nev';
 
         // Ezek az oszlopok generálódnak ki a rendezés selectbe, lehet szépíteni az oszlopneveket, amit a getOszlopNev() függvényben kell beállítani
-        $_OPTS['rendezes']  = array('id', 'nev');
+        $_OPTS['rendezes']  = array('id', 'nev', 'recid');
 
         // Default rendezés
         if( !$_GET['rend'] ) {
@@ -489,7 +489,7 @@ switch($tabla) {
                                 ');
 
         // Ezek az oszlopok generálódnak ki a rendezés selectbe, lehet szépíteni az oszlopneveket, amit a getOszlopNev() függvényben kell beállítani
-        $_OPTS['rendezes']  = array('teljes_nev', 'aktiv', 'szerepkor_id');
+        $_OPTS['rendezes']  = array('teljes_nev', 'aktiv', 'szerepkor_id', 'recid');
 
         // Default rendezés
         if( !$_GET['rend'] ) {
@@ -533,8 +533,8 @@ switch($tabla) {
                             ');
 
         // Ezek az oszlopok generálódnak ki a rendezés selectbe, lehet szépíteni az oszlopneveket, amit a getOszlopNev() függvényben kell beállítani
-        $_OPTS['rendezes']  = array('ikt_szam', 'telephely_id', 'stat_id', 'obj_txt');
-        $_OPTS['iranyok']   = array('desc',     'asc',          'desc',    'asc'    );
+        $_OPTS['rendezes']  = array('ikt_szam', 'telephely_id', 'stat_id', 'obj_txt',  'recid');
+        $_OPTS['iranyok']   = array('desc',     'asc',          'desc',    'asc',      'asc'  );
 
         // Default rendezés
         if( !$_GET['rend'] ) {
@@ -562,8 +562,8 @@ switch($tabla) {
 
 
         // Ezek az oszlopok generálódnak ki a rendezés selectbe, lehet szépíteni az oszlopneveket, amit a getOszlopNev() függvényben kell beállítani
-        $_OPTS['rendezes']  = array('id',   'aktiv', 'telephely_id', 'esnap_d');
-        $_OPTS['iranyok']   = array('desc', 'desc',  'asc',          'asc'    );
+        $_OPTS['rendezes']  = array('id',   'aktiv', 'telephely_id', 'esnap_d', 'recid' );
+        $_OPTS['iranyok']   = array('desc', 'desc',  'asc',          'asc',     'asc'   );
 
         // Default rendezés
         if( !$_GET['rend'] ) {
@@ -597,7 +597,7 @@ switch($tabla) {
         $_OPTS['select']    = 'recid nev';
 
         // Ezek az oszlopok generálódnak ki a rendezés selectbe, lehet szépíteni az oszlopneveket, amit a getOszlopNev() függvényben kell beállítani
-        $_OPTS['rendezes']  = array('nev');
+        $_OPTS['rendezes']  = array('nev', 'recid');
 
         // Default rendezés
         if( !$_GET['rend'] ) {
@@ -636,7 +636,7 @@ switch($tabla) {
 
 
         // Ezek az oszlopok generálódnak ki a rendezés selectbe, lehet szépíteni az oszlopneveket, amit a getOszlopNev() függvényben kell beállítani
-        $_OPTS['rendezes']  = array('id', 'aktiv', 'telephely_id', 'esnap_d');
+        $_OPTS['rendezes']  = array('id', 'aktiv', 'telephely_id', 'esnap_d', 'recid');
 
         // Default rendezés
         if( !$_GET['rend'] ) {
@@ -680,7 +680,7 @@ switch($tabla) {
                                     ');
 
         // Ezek az oszlopok generálódnak ki a rendezés selectbe, lehet szépíteni az oszlopneveket, amit a getOszlopNev() függvényben kell beállítani
-        $_OPTS['rendezes']  = array('ikt_szam', 'stat_id');
+        $_OPTS['rendezes']  = array('ikt_szam', 'stat_id', 'recid');
 
         // Default rendezés
         if( !$_GET['rend'] ) {
@@ -702,7 +702,7 @@ switch($tabla) {
                                     ');
 
         // Ezek az oszlopok generálódnak ki a rendezés selectbe, lehet szépíteni az oszlopneveket, amit a getOszlopNev() függvényben kell beállítani
-        $_OPTS['rendezes']  = array('stat_id', 'telephely_id');
+        $_OPTS['rendezes']  = array('stat_id', 'telephely_id', 'recid');
 
         // Default rendezés
         if( !$_GET['rend'] ) {
@@ -725,7 +725,7 @@ switch($tabla) {
                                     ');
 
         // Ezek az oszlopok generálódnak ki a rendezés selectbe, lehet szépíteni az oszlopneveket, amit a getOszlopNev() függvényben kell beállítani
-        $_OPTS['rendezes']  = array('telephely_id', 'fiz_hatar');
+        $_OPTS['rendezes']  = array('telephely_id', 'fiz_hatar', 'recid');
 
         // Default rendezés
         if( !$_GET['rend'] ) {
@@ -747,7 +747,7 @@ switch($tabla) {
                                     ');
 
         // Ezek az oszlopok generálódnak ki a rendezés selectbe, lehet szépíteni az oszlopneveket, amit a getOszlopNev() függvényben kell beállítani
-        $_OPTS['rendezes']  = array('telephely_id', 'sz_szam');
+        $_OPTS['rendezes']  = array('telephely_id', 'sz_szam', 'recid');
 
         // Default rendezés
         if( !$_GET['rend'] ) {
@@ -764,7 +764,7 @@ switch($tabla) {
         $_OPTS['select']    = 'recid nev rkat aktiv';
 
         // Ezek az oszlopok generálódnak ki a rendezés selectbe, lehet szépíteni az oszlopneveket, amit a getOszlopNev() függvényben kell beállítani
-        $_OPTS['rendezes']  = array('nev');
+        $_OPTS['rendezes']  = array('nev', 'recid');
 
         // Default rendezés
         if( !$_GET['rend'] ) {
@@ -802,7 +802,7 @@ switch($tabla) {
                                 ');
 
         // Ezek az oszlopok generálódnak ki a rendezés selectbe, lehet szépíteni az oszlopneveket, amit a getOszlopNev() függvényben kell beállítani
-        $_OPTS['rendezes']  = array('nev', 'id');
+        $_OPTS['rendezes']  = array('nev', 'id', 'recid');
 
         // Default rendezés
         if( !$_GET['rend'] ) {
@@ -836,7 +836,7 @@ switch($tabla) {
         $_OPTS['select']    = 'recid nev';
 
         // Ezek az oszlopok generálódnak ki a rendezés selectbe, lehet szépíteni az oszlopneveket, amit a getOszlopNev() függvényben kell beállítani
-        $_OPTS['rendezes']  = array('nev');
+        $_OPTS['rendezes']  = array('nev', 'recid');
 
         // Default rendezés
         if( !$_GET['rend'] ) {
