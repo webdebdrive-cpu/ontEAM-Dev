@@ -1535,11 +1535,12 @@ function level_kuldes( $felado_nev, $felado_mail, $cimzett_nev, $cimzett_mail, $
         }
         
         // Dev és Teszt rendszer alatt a címezett mindig az aktuális login mailcíme
-        if($_SERVER['HTTP_HOST']=='teszt.onteam.hu' || $_SERVER['HTTP_HOST']=='dev.onteam.hu'){
-            global $adatbazis_kapcsolat;
-            $login = $adatbazis_kapcsolat->s2('usermail', 'login', "`recid`='{$_SESSION[get_db_tabla().'login_recid']}'");
-            $cimzett_mail = $login['usermail'];
-        }
+// 2019.03.01 Kivettük Tibi kérésére
+//        if($_SERVER['HTTP_HOST']=='teszt.onteam.hu' || $_SERVER['HTTP_HOST']=='dev.onteam.hu'){
+//            global $adatbazis_kapcsolat;
+//            $login = $adatbazis_kapcsolat->s2('usermail', 'login', "`recid`='{$_SESSION[get_db_tabla().'login_recid']}'");
+//            $cimzett_mail = $login['usermail'];
+//        }
         
         require_once('class/class.Phpmailer.php');
         $mail = new PHPMailer;

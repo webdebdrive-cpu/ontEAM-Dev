@@ -938,7 +938,7 @@ $(function() {
         kijeloltSzamlal( sorok, 'fo' );
     });
 
-    /* Csoport előtti + ikonra kattintva nyitjuk le */
+    // Csoport előtti + ikonra kattintva nyitjuk le
     $(document).on('click', 'ul.szamla_cont li.csoport span.icon', function(e) {
         var szulo_li = $(this).parent('li');
         var id       = szulo_li.attr('data-id');
@@ -950,7 +950,7 @@ $(function() {
         e.stopPropagation();
     });
 
-    /* Könyvtárszerkezetnél egy sor kijelölése */
+    // Könyvtárszerkezetnél egy sor kijelölése
     $(document).on('click', 'ol.konyvtar_szerk li.sor', function(e) {
         $('ol.konyvtar_szerk li.sor').removeClass('aktiv');
         $(this).addClass('aktiv');
@@ -972,7 +972,7 @@ $(function() {
                 $(this).addClass('akt kijelolve');
             }
 
-            /* Navigálás */
+            // Navigálás
             var recid   = $(this).find('a.szamla').attr('data-recid'),
                 fajl    = $(this).find('a.szamla').attr('data-fajl'),
                 muvelet = $(this).find('a.szamla').attr('data-muvelet');
@@ -2656,14 +2656,6 @@ function varolistabolKivetel(csak_kerdezunk) {
 
                             szurkit();
                             location.reload();
-                            /*kijelolesEltavolit();
-                            szamlaBetolt(_get('id'), baseName(location.href) + '.php', 'modosit');
-
-                            szamlaSorok.each(function() {
-                                szamlaSorFrissit(page, $(this).attr('data-recid'));
-                            });
-                            alert2();
-                            */
                         }
                     }
                 });
@@ -2716,10 +2708,6 @@ function anyagigenyles_kuldes_jovahagyasra(csak_kerdezunk) {
 
                             szurkit();
                             location.href = 'anyagigenyles.php?tablazat&id='+idk[1];
-                            /* navpanel frissítése (minden kijelölt sort)
-                            szamlaSorok.each(function() {
-                                szamlaSorFrissit(page, $(this).attr('data-recid'));
-                            });*/
                             alert2();
                         }
                     }
@@ -2800,14 +2788,11 @@ function anyagigenyles_rendeles_keszit(csak_kerdezunk) {
 
                                 }, 1000);
 
-                                /*szurkit();
-                                location.href = 'anyagigenyles.php?id='+_get('id')+'&modosit&anyagrend';*/
-
                             }else{
 
-                                /* Adatlap frissítése */
+                                // Adatlap frissítése
                                 szamlaBetolt(_get('id'), baseName(location.href) + '.php', 'modosit');
-                                /* navpanel frissítése (minden kijelölt sort) */
+                                // navpanel frissítése (minden kijelölt sort)
                                 szamlaSorok.each(function() {
                                     szamlaSorFrissit('anyagigenyles', $(this).attr('data-recid'));
                                 });
@@ -2893,20 +2878,6 @@ function anyagigenyles_jovahagy(csak_kerdezunk, jhmen) {
                                 return false;
                             }
 
-                            /* Anyagigénylés táblázat esetén frissítjük az oldalt, egyébként adatlapra ugrunk */
-                            /*if(_get('tablazat')){
-                                szurkit();
-                                location.reload();
-                            }else{
-                                szamlaBetolt(_get('id'), baseName(location.href) + '.php');
-                                // navpanel frissítése (minden kijelölt sort)
-                                szamlaSorok.each(function() {
-                                    szamlaSorFrissit(page, $(this).attr('data-recid'));
-                                });
-                            }
-
-                            alert2();
-                            */
                            szurkit();
                            location.href='anyagigenyles.php?tablazat';
                         }
@@ -3052,11 +3023,11 @@ function anyagigenyles_mind_jovahagy(csak_kerdezunk) {
                                 return false;
                             }
 
-                            /* Anyagigénylés táblázat esetén frissítjük az oldalt, egyébként adatlapra ugrunk */
+                            // Anyagigénylés táblázat esetén frissítjük az oldalt, egyébként adatlapra ugrunk 
                             szurkit();
                             location.reload();
 
-                            /* navpanel frissítése (minden kijelölt sort) */
+                            // navpanel frissítése (minden kijelölt sort)
                             szamlaSorok.each(function() {
                                 szamlaSorFrissit(page, $(this).attr('data-recid'));
                             });
@@ -4256,16 +4227,9 @@ function arazas_ment(){
                 }
             }
 
-            /* Lista frissítése */
+            // Lista frissítése
             szurkit();
             location.reload();
-            /* 2do: sorokat befrissíteni
-            idk = $('#idk').val().split(",");
-            idk.forEach(function(id) {
-                szamlaSorFrissit('anyagigenyles', id);
-            });
-            szamlaBetolt(idk[0], 'anyagigenyles.php', 'modosit');
-            alert2();*/
 
         }
     });
@@ -5592,16 +5556,34 @@ function csv_general( that, valasztos, link_kieg ) {
     }else{
 
         var ids = new Array();
+        
+        // Anyagigénylés és anyagrendelés alatt nem a "#szamlaList li"-t nézzük végig, hanem itt egy tálázatot kell figyleni
+        if( baseName(location.href)=='anyagigenyles' ){
+            i = 0;
+            $('.szamla_cont_tabla tbody tr').each(function() {
 
-        i = 0;
-        $('#szamlaList li.szamla_sor').each(function() {
-            var display = $(this).css('display');
+                var display = $(this).css('display');
 
-            if( display != 'none' ) {
-                ids[i] = $(this).attr('data-recid');
-                i++;
-            }
-        });
+                if( display != 'none' ) {
+                    ids[i] = $(this).attr('data-recid');
+                    i++;
+                }
+            });
+            
+        // Általnos eset, tehát a "#szamlaList li" láthatóságát vizsgáljuk
+        }else{
+            i = 0;
+            $('#szamlaList li.szamla_sor').each(function() {
+
+                var display = $(this).css('display');
+
+                if( display != 'none' ) {
+                    ids[i] = $(this).attr('data-recid');
+                    i++;
+                }
+            });
+        }
+
 
         var ajax = $.ajax({
             url : 'esemenyek.php',
@@ -5614,8 +5596,8 @@ function csv_general( that, valasztos, link_kieg ) {
 
         $.when(ajax).done(function() {
 
-            // Eszközkezelésnél nincs balnavpanel, ezért ott nem kellfigyelni a kijelölt sorokat
-            if(baseName(location.href=='eszkozkezeles.php')){
+            // Eszközkezelésnél nincs balnavpanel, ezért ott nem kell figyelni a kijelölt sorokat
+            if( baseName(location.href)=='eszkozkezeles' ){
                 
                 var onclick = $(that).attr('onclick');
                 $(that).attr('href', '?csv&'+link_kieg).removeAttr('onclick');
@@ -5645,11 +5627,11 @@ function csv_general( that, valasztos, link_kieg ) {
 
 }
 
-/* Adatlap betöltése */
+// Adatlap betöltése
 var request_in_process = false;
 function szamlaBetolt( recid, page, muvelet, szerkeszt, kerdes_nelkul, anyagigenylesnel_is ) {
 
-    /* Mindenképp legyen rajta egy szurkítés */
+    // Mindenképp legyen rajta egy szurkítés
     setTimeout(function(){ szurkit(); }, 100);
 
     focused = false; /* Ezt azért kell hamisra állítani, mert alert2 bezárásakor az utoljára fókuszált elemre visszatesszük a fókuszt.
@@ -5702,14 +5684,14 @@ function szamlaBetolt( recid, page, muvelet, szerkeszt, kerdes_nelkul, anyagigen
             }
         }
 
-        /* Eszközkezelésnél linkekre active class-t tenni */
+        // Eszközkezelésnél linkekre aktiv class-t tenni
         if( page=='eszkozkezeles.php' ){
-            $('.konyvtar_szerk a, .konyvtar_szerk li').removeClass('active');
+            $('.konyvtar_szerk a, .konyvtar_szerk li').removeClass('aktiv');
             $('.sor').removeClass('aktiv');
             if(muvelet=='obj'){
-                $('#obj_'+recid).addClass('active');
+                $('#obj_'+recid).addClass('aktiv');
             }else{
-                $('#eszkoz_'+recid).addClass('active');
+                $('#eszkoz_'+recid).addClass('aktiv');
             }
         }
 
@@ -5829,21 +5811,16 @@ function szamlaBetolt( recid, page, muvelet, szerkeszt, kerdes_nelkul, anyagigen
                         param += '?uj';
                     }
 
-                    /* Bal oldali navpanel sorát is frissítjük */
+                    // Bal oldali navpanel sorát is frissítjük
                     if(page!='anyagigenyles.php' && page.replace('.php', '')!='erteklista'){
                         frissit_tabla = page.replace('.php', '');
-
-                        if( _get('obj') ) {
-                            frissit_tabla = 'obj';
-                        }
-
                         szamlaSorFrissit(frissit_tabla, recid);
                     }
 
-                    /* URL mod */
+                    // URL mod
                     window.history.pushState("", "", getHost() + param );
 
-                    /* Táblázatnál le kel venni a paddingot */
+                    // Táblázatnál le kel venni a paddingot
                     if(page=='anyagigenyles.php') {
                         if( _get('tablazat') ) {
                             $('#szamlaBetolt').addClass('nopadd');
@@ -5852,7 +5829,7 @@ function szamlaBetolt( recid, page, muvelet, szerkeszt, kerdes_nelkul, anyagigen
                         }
                     }
 
-                    /* Új ikonra kattintva mi történik */
+                    // Új ikonra kattintva mi történik
                     if( _get('szakterulet') ) {
                         $('#navGombok a.uj').attr('href', 'javascript: kapcsolodoSzerkeszt(\'szakterulet\'); void(0);');
 
@@ -5928,7 +5905,7 @@ function szamlaBetolt( recid, page, muvelet, szerkeszt, kerdes_nelkul, anyagigen
                     } else if( baseName(location.href) == 'munkalap' && _get('megjegyzesek') ) {
                         $('#navGombok a.uj').attr('href', 'javascript: kapcsolodoSzerkeszt(\'megjegyzes\'); void(0);');
 
-                    /* Munkalapon, ha nem a megjegyzés alatt vagyunk, és a usernek van előkészítés jog, akkor feljön egy popup, hogy válasszon, mit szeretne tenni */
+                    // Munkalapon, ha nem a megjegyzés alatt vagyunk, és a usernek van előkészítés jog, akkor feljön egy popup, hogy válasszon, mit szeretne tenni
                     } else if( baseName(location.href) == 'munkalap' && !_get('megjegyzesek') && _jogok[37] == 1 ) {
                         $('#navGombok a.uj').attr('href', 'javascript: uj_munkalap_elokeszites_joggal(); void(0);');
 
@@ -5998,7 +5975,7 @@ function szamlaBetolt( recid, page, muvelet, szerkeszt, kerdes_nelkul, anyagigen
 
                     $('body').removeClass('ujfeltoltes');
 
-                    /* Ha épp egy csoporton állunk, akkor elrejtük a jobb oldali tartalmakat */
+                    // Ha épp egy csoporton állunk, akkor elrejtük a jobb oldali tartalmakat
                     $('#szamlaList li.csoport').each(function () {
                         if($(this).hasClass('kijelolve')){
                             csoport_tartalom();
@@ -6035,18 +6012,22 @@ function respoVisszalepes() {
     $('#respo_visszalepes').css('display', 'none');
 }
 
-/* Bal oldali navpanel egy sorának frissítése */
+// Bal oldali navpanel egy sorának frissítése
 function szamlaSorFrissit( tabla, recid ) {
     if( tabla && recid ) {
 
         var anyagrend = '';
 
-        /* Anyagrendelés miatt figyelni kell, hogy van-e $_GET['anyagrend'] */
+        // Anyagrendelés miatt figyelni kell, hogy van-e $_GET['anyagrend']
         param_kieg = '';
         if(_get('anyagrend')){
-            param_kieg = '&amp;anyagrend';
+            param_kieg += '&amp;anyagrend';
         }
-
+        
+        // Eszközkezelés felületén ha egy objektumon állunk, akkor ezt külön paraméterben jelezzük a PHP felé
+        if( _get('obj') ){
+            param_kieg += '&amp;eszkozkezeles_obj=1';
+        }
         $.ajax({
          	url : 'esemenyek.php',
          	type: 'GET',
@@ -6054,19 +6035,22 @@ function szamlaSorFrissit( tabla, recid ) {
          	success: function(response) {
                 if(response.substring(0, 6)=='SESKIL'){ location.href = 'index.php'; }
                 if(response) {
+                    
+                    // Eszközkezelés felülete másképp működik, mert itt nem a szokásos bal navpanel van.
                     if( tabla == 'eszkozkezeles' || tabla == 'obj' ) {
+                        
                         response = JSON.parse(response);
-
-                        switch(tabla) {
-                            case 'eszkozkezeles':
-                                $('#' + tabla + '-' + recid).html(response.nev);
-                            break;
-                            case 'obj':
-                                $('#' + tabla + '_' + recid).html(response.nev);
-                            break;
+                        if( _get('obj') ){
+                            $('#obj_label_' + recid).html(response.nev);
+                        }else if( tabla == 'obj' ){
+                            $('#obj_label_' + recid).html(response.nev);
+                        }else{
+                            $('#eszkoz_' + recid).html(response.nev);
                         }
+                        
+                    // Általános eset, szokásos bal navpanel
                     } else {
-                        /* A frissítendő sor data-i értéke maradjon változatlan. Amit kapunk abban lesz az értéke */
+                        // A frissítendő sor data-i értéke maradjon változatlan. Amit kapunk abban lesz az értéke
                         response = response.replace('data-i="1"', 'data-i="' + $('#szamla-' + recid).attr('data-i') + '"');
              			$('#szamla-' + recid).replaceWith(response);
                     }

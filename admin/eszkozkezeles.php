@@ -119,16 +119,14 @@ if( $_POST['azon_ell'] ) {
                 'hiba' => 'Ez az azonosító már foglalt, válasszon másikat!',
                 'gomb' => '<input class="link gomb" value="Ok" onclick="alert2(); $(\'#azon\').focus();" type="button">'
             ));
-        }else{
-            echo json_encode(array(
-                'statusz' => 'siker'
-            ));
+            $weblap->leallit();
+            exit();
         }
-    }else{
-        echo json_encode(array(
-            'hiba' => 'Kérem töltse ki az azonosítót!'
-        ));
     }
+    
+    echo json_encode(array(
+        'statusz' => 'siker'
+    ));
 
     $weblap->leallit();
     exit();

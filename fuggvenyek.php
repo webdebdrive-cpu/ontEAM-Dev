@@ -1936,7 +1936,7 @@ function js_kiir($tomb, $fg = 'form_ell_regi()', $ajax = false) {
     $js_kieg = '';
 
     // Felmérési terv esetén meg kell hívni még egy JS függvényt, ami a bal oldali navpanelt frissíti
-    $konyvtarszerkezetesek = array(/*'eszkozkezeles.php', */'felmeresi_terv.php');
+    $konyvtarszerkezetesek = array('felmeresi_terv.php');
     $akt_php = basename(self());
     if( in_array($akt_php, $konyvtarszerkezetesek) ){
         $is_obj = 'false';
@@ -1962,6 +1962,7 @@ function js_kiir($tomb, $fg = 'form_ell_regi()', $ajax = false) {
             param_kieg = \'&amp;igeny_rogzites=1\';
         }
         '.$obj_szerk.'
+
         $.ajax({
             url     : \''.self().'?id='.$_GET['id'].'\',
             type    : \'POST\',
@@ -1991,12 +1992,11 @@ function js_kiir($tomb, $fg = 'form_ell_regi()', $ajax = false) {
 
                     '.$js_kieg.'
 
-                    szamlaSorFrissit(\''.str_replace('.php', '', basename(self())).'\', \''.$_GET['id'].'\');
                     betoltott = szamlaBetolt( \''.$_GET['id'].'\', \''.basename(self()).'\', \''.$tab.'\', \'\', \'Elhagy kérdés nélkül\' );
 
                     '.$cash_flow_fulre_lepes.'
 
-                    /* Ha lefutott az ajax, akkor még lehet dubni szeretnénk egy hibaüzenetet, vagy tájékoztatást */
+                    /* Ha lefutott az ajax, akkor még lehet dobni szeretnénk egy hibaüzenetet, vagy tájékoztatást */
                     alert2(alert_vegen);
 
                     formAdatok = response.adatok;
@@ -5580,7 +5580,7 @@ function eszkozkezelesLista( $bejegyzesek, $tabla, $frissit, $kijeloltek ) {
                                 
                                 $class   = '';
                                 if( isset($_GET['obj']) && $_GET['id'] == $szint['recid'] ){
-                                    $class   = ' class="active"';
+                                    $class   = ' class="aktiv"';
                                 }
 
                                 $link = '';
@@ -5590,7 +5590,7 @@ function eszkozkezelesLista( $bejegyzesek, $tabla, $frissit, $kijeloltek ) {
                                 }
                                 $html .= '
                                         <li>
-                                            <a id="obj_'.$szint['recid'].'"'.$class.' href="javascript: szamlaBetolt(\''.$szint['recid'].'\', \'eszkozkezeles.php\', \'obj\'); void(0);"><label'.$link.' id="obj_'.$szint['recid'].'" for="szint_'.$szint['recid'].'">'.$szint['nev'].'</label></a>
+                                            <a id="obj_'.$szint['recid'].'"'.$class.' href="javascript: szamlaBetolt(\''.$szint['recid'].'\', \'eszkozkezeles.php\', \'obj\'); void(0);"><label'.$link.' id="obj_label_'.$szint['recid'].'" for="szint_'.$szint['recid'].'">'.$szint['nev'].'</label></a>
                                             <input type="checkbox"'.$checked.' class="asdas">
                                         ';
 
@@ -5601,9 +5601,12 @@ function eszkozkezelesLista( $bejegyzesek, $tabla, $frissit, $kijeloltek ) {
 
                                         $checked = '';
                                         $class   = '';
-                                        if($akt_obj==$obj['recid'] || (is_array($obj_sor) && count($obj_sor) && $_GET['id'] == $obj['recid'])){
+
+                                        if( $akt_obj==$obj['recid'] || (is_array($obj_sor) && count($obj_sor) && $_GET['id'] == $obj['recid'])){
                                             $checked = ' checked';
-                                            $class   = ' class="active"';
+                                            if( $_GET['id'] == $obj['recid'] ){
+                                                $class = ' class="aktiv"';
+                                            }
                                         }
 
                                         $link = '';
@@ -5612,9 +5615,8 @@ function eszkozkezelesLista( $bejegyzesek, $tabla, $frissit, $kijeloltek ) {
                                             $link = ' class="link"';
                                         }
                                         $html .= '<li>
-                                                    <a id="obj_'.$obj['recid'].'"'.$class.' href="javascript: szamlaBetolt(\''.$obj['recid'].'\', \'eszkozkezeles.php\', \'obj\'); void(0);"><label'.$link.' id="obj_'.$obj['recid'].'" for="obj_'.$obj['recid'].'">'.$obj['nev'].'</label></a>
+                                                    <a id="obj_'.$obj['recid'].'"'.$class.' href="javascript: szamlaBetolt(\''.$obj['recid'].'\', \'eszkozkezeles.php\', \'obj\'); void(0);"><label'.$link.' id="obj_label_'.$obj['recid'].'" for="obj_'.$obj['recid'].'">'.$obj['nev'].'</label></a>
                                                     <input type="checkbox"'.$checked.'>';
-                                        // id="obj_'.$obj['recid'].'"
                                             if($eszkozok){
                                                 $html .= '<ol>';
                                                 foreach($eszkozok as $eszkoz){

@@ -4573,17 +4573,16 @@ if( isset($_GET['szamlaSorFrissit']) ) {
     $recid = $_GET['recid'];
 
     $tabla_idk = $tabla;
-    if( $tabla == 'obj' ) {
-        $tabla_idk = 'eszkozkezeles';
-        /* Eszközkezelésnél nem kell csinálni semmit, nav panel helyén könyvtárszerkezet van, azt nem kell frissíteni. */
-        return false;
-    }
 
     if( !in_array($recid, $_SESSION[$tabla_idk.'_idk']) ){
         exit;
     }
 
     if( $tabla && $recid ) {
+        // Eszközkezelés felületén ha objektumon állnánk, akkor a tábla obj legyen
+        if( $_GET['eszkozkezeles_obj'] ){
+            $tabla = 'obj';
+        }
         $szamla_lista = szamla_lista("`".get_db_tabla().$tabla."`.`recid` = '{$recid}'", $tabla);
         $szamla_lista = $szamla_lista[0];
         echo $szamla_lista;

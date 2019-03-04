@@ -2041,6 +2041,14 @@ if (isset($_GET['csv'])) {
     if($open){
 
         $lekerdezes_fromtol = substr($_SESSION['akt_sql'], strpos($_SESSION['akt_sql'], 'FROM'));
+        
+        if( $_SESSION['nyomtatas_ids'] ) {
+            if( strstr($_SESSION['akt_sql'], 'WHERE') ) {
+                $lekerdezes_fromtol = str_replace('WHERE', "WHERE `".get_db_tabla()."anyagigenyles`.`recid` IN (".trim($_SESSION['nyomtatas_ids'], ',').") AND ", $lekerdezes_fromtol);
+            } else {
+                $lekerdezes_fromtol = str_replace('ORDER', "WHERE `".get_db_tabla()."anyagigenyles`.`recid` IN (".trim($_SESSION['nyomtatas_ids'], ',').") ORDER", $lekerdezes_fromtol);
+            }
+        }
 
         // De azért indulunk ki az eredeti SQL-ből (és nem kezdjük a cikkrndfej táblát bejárni) mert így lesznek a kívánt rekordok az exportban is.
         if(isset($_GET['anyagrend'])){
