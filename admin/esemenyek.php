@@ -2446,7 +2446,9 @@ $projektszerzodes_tomb = $akt_tomb = array(
     array('type' => 'text',                 'megn' => 'Garancia vége:',         'name' => 'muszaki_gar_vege',   'szuro' => 1,   'class' => 'kicsi datepicker'),
     array('type' => 'text',                 'megn' => 'Bank garancia:',         'name' => 'bank_gar',           'szuro' => 1,   'class' => 'f_num', 'data' => 'data-tort="0"', 'nulla_is_ures_adat' => 1,    'osszevon' => 1, 'style' => 'width: 12rem', 'post' => ' '.get_penznem().'<span style="margin-left: 2rem"></span>'),
     array('type' => 'text',                 'megn' => 'Bank garancia vége:',    'name' => 'bank_gar_vege',      'szuro' => 1,   'class' => 'kicsi datepicker'),
-    array('type' => 'checkbox',             'megn' => 'Számlázva:',             'name' => 'szamlazva',          'szuro' => 1,   'class' => 'check',  'disabled' => 1),
+    // array('type' => 'checkbox',             'megn' => 'Számlázva:',             'name' => 'szamlazva',          'szuro' => 1,   'class' => 'check',  'disabled' => 1),
+    // Ha azonos a szálloda, partner és összeg, akkor rákérdezünk, hogy biztosan? És ha igen, akkor ezt a mezőt kell 1-re állítani.
+    array('type' => 'hidden',               'megn' => '',                       'name' => 'hasonlo_szerzodes_mehet', 'nosql' => 1),
 );
 array_push($postok, array('tomb' => $akt_tomb, 'uj' => 'uj'.$megnevezes, 'lista' => $megnevezes.'lista', 'tabla' => $megnevezes, 'torid' => $megnevezes.'tid' ));
 
@@ -5525,9 +5527,9 @@ Hiba: '.getErtek('info', 'erteklista', 'recid', $bejelentes['hiba_id']).$hiba_tx
 				$weblap -> leallit();
 
                 // Anyagigénylés törlés után a táblázathoz jutunk
-                $kieg = '';
+                $kieg = get_get(array($ertek['torid']), 'sima &');
                 if( $ertek['tabla']=='anyagigenyles' ){
-                    $kieg = '?tablazat';
+                    $kieg = get_get(array($ertek['torid'], 'modosit'), 'sima &').'&tablazat';
                 }
 				header('location:'.self().$kieg);
 				exit();
@@ -5543,8 +5545,7 @@ Hiba: '.getErtek('info', 'erteklista', 'recid', $bejelentes['hiba_id']).$hiba_tx
                 exit();
             }else{
                 $weblap -> leallit();
-                //header('location:'.self().str_replace('&amp;','&',get_get(array($ertek['torid']))).'&hiba');
-                header('location:'.self().str_replace('&amp;','&',get_get(array($ertek['torid']))).'&hiba');
+                header('location:'.self().str_replace('&amp;', '&', get_get(array($ertek['torid']))).'&hiba');
                 exit();
             }
         }

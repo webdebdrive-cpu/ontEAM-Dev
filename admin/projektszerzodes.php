@@ -436,6 +436,28 @@ if (isset($_POST['van_tetel'])) {
         exit();
     }
     
+    // Kivitelezés kezdete, nem lehet korábbi, mint a kelte
+    if($_POST['kiv_kezd'] < $_POST['kelte'] ){
+        echo json_encode(array(
+            'hiba'  => 'Kivitelezés kezdete, nem lehet korábbi, mint a kelte!',
+            'title' => 'Hiba',
+            'focus' => 'kiv_kezd',
+        ));
+        $weblap -> leallit();
+        exit();
+    }
+    
+    // Kivitelezés kezdete, nem lehet korábbi, mint a kelte
+    if($_POST['kiv_kezd'] > $_POST['kiv_vege'] ){
+        echo json_encode(array(
+            'hiba'  => 'Kivitelezés vége nem lehet korábbi, mint a kivitelezés kezdete!',
+            'title' => 'Hiba',
+            'focus' => 'kiv_vege',
+        ));
+        $weblap -> leallit();
+        exit();
+    }
+    
     // Ellenőrizzük, hogy a kiválasztott szálloda és a projekt szám stimmel-e
     if( $_POST['pr_szam'] ){
         $projekt = $adatbazis_kapcsolat->s2('telephely_id', 'projektkezeles', "`ikt_szam`='{$_POST['pr_szam']}'");
@@ -501,6 +523,25 @@ if (isset($_POST['van_tetel'])) {
             exit();
         }
         
+    }
+    
+    // Van-e már hasonló szerződés? Ha igen, akkor rákérdezünk
+    if( !$_POST['hasonlo_szerzodes_mehet'] ){
+        $szerzodes = $adatbazis_kapcsolat->s2('sz_szam', 'projektszerzodes', "`telephely_id`='{$_POST['telephely_id']}' AND `szallito_id`='{$_POST['szallito_id']}' AND `szerz_ossz`='{$_POST['szerz_ossz']}' AND `recid`!='{$_GET['id']}'");
+        if($szerzodes){
+            echo json_encode(array(
+                'hiba'  => 'Szálloda: '. getSzallodaNev($_POST['telephely_id']).'
+                            <br>Szerződő partner: '.getErtek('nev', 'szallito', 'id', $_POST['szallito_id']).'
+                            <br>Szerződött összeg: '. number_format($_POST['szerz_ossz'], 0, '', '.').' '.get_penznem().'
+                            <br>Az Ön által megadott szálloda, szerződő partner és szerződött összeg szerint már létezik szerződés.
+                            <br>Szerződés szám: '.$szerzodes['sz_szam'].'
+                            <br>Folytatja?',
+                'title' => 'Kérdés',
+                'gomb'  => '<input type="button" class="gomb zold" value="Igen" onclick="$(\'#hasonlo_szerzodes_mehet\').val(\'1\'); mentesGomb(); alert2();"><input type="button" class="gomb piros" value="Nem" onclick="alert2();">'
+            ));
+            $weblap -> leallit();
+            exit();
+        }
     }
     
     // Ha idáig eljutottunk, akkor kiírjuk hogy van (még akkor is, ha nincsenek tételek, de ez nem baj, mert a van, annyit jelent, hogy menthető az adatlap).
@@ -905,18 +946,19 @@ require_once('selectek.php');
                     url : \'projektszerzodes.php\',
                     type: \'POST\',
                     data: {
-                        kelte            : $(\'#kelte\').val(),
-                        kiv_kezd         : $(\'#kiv_kezd\').val(),
-                        kiv_vege         : $(\'#kiv_vege\').val(),
-                        muszak_atv       : $(\'#muszak_atv\').val(),
-                        bank_gar_vege    : $(\'#bank_gar_vege\').val(),
-                        telephely_id     : $(\'#telephely_id\').val(),
-                        szallito_id      : $(\'#szallito_id\').val(),
-                        targy            : $(\'#targy\').val(),
-                        kolt_vis         : $(\'#kolt_vis\').val(),
-                        pr_szam          : $(\'#pr_szam\').val(),
-                        szerz_ossz       : $(\'#szerz_ossz\').val(),
-                        van_tetel        : Date.now()
+                        kelte                   : $(\'#kelte\').val(),
+                        kiv_kezd                : $(\'#kiv_kezd\').val(),
+                        kiv_vege                : $(\'#kiv_vege\').val(),
+                        muszak_atv              : $(\'#muszak_atv\').val(),
+                        bank_gar_vege           : $(\'#bank_gar_vege\').val(),
+                        telephely_id            : $(\'#telephely_id\').val(),
+                        szallito_id             : $(\'#szallito_id\').val(),
+                        targy                   : $(\'#targy\').val(),
+                        kolt_vis                : $(\'#kolt_vis\').val(),
+                        pr_szam                 : $(\'#pr_szam\').val(),
+                        szerz_ossz              : $(\'#szerz_ossz\').val(),
+                        hasonlo_szerzodes_mehet : $(\'#hasonlo_szerzodes_mehet\').val(),
+                        van_tetel               : Date.now()
                     },
                     success: function(response){
                         if(response){
@@ -1077,7 +1119,7 @@ require_once('selectek.php');
 
 		// Ez elkészíti a $mezok változót
 		require('switch.php');
-
+        
         // Egyik sor sincs kijelölve (mert nincs találat, pl. egy szűrés miatt), akkor a létre hozta feliratokat tüntessük még el
         $szamla_html .= nl2('
                 <script>
@@ -1199,7 +1241,7 @@ require_once('selectek.php');
             foreach($sorok as $sor) {
                 $szamla_html .= nl2('
                     <div id="naploSor-'.$sor['recid'].'" data-id="'.$sor['recid'].'" data-i="'.$i.'" class="dtr nSor kijSor">
-                        <div class="dtc">'.nl2br($sor['megj']).'</div>
+                        <div class="dtc">'.htmlspecialchars_decode( nl2br($sor['megj']) ).'</div>
                         <div class="dtc">'.$sor['insert_usr'].'</div>
                         <div class="dtc">'.datum_kiir($sor['insert_dt']).'</div>
                     </div>

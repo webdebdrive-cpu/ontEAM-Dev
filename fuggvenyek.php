@@ -80,7 +80,7 @@ function i_u($type, $tabla, $tomb) {
     // Értékek párosítása
 	$i = 0;
 	foreach($tomb as $ertek) {
-        if( $ertek['type'] != 'nosql' ) {
+        if( $ertek['type'] != 'nosql' && !$ertek['nosql'] ) {
 
     		// Ha alert-es egy mező, és a post-ja üres, akkor hiba! (nem adott meg egy kötelező mezőt)
             if($ertek['alert'] != '' && $_POST[$ertek['name']] == '' && !$ertek['disabled']) {
@@ -955,18 +955,67 @@ function i_u($type, $tabla, $tomb) {
             $muvelet = 'A(z) '.$tabla.' '.$_GET['id'].'. recordját módosította.';
 
             // Végrehajtott változtatás
-            $valtozas = '';
+            $valtozas       = '';
+            $valtozas_megj  = '';
+            
+            // Mely felületeken kerüljön megjegyzésbe a módosítás
+            $mod_megjegyzesbe_mehet = false;
+            $mod_megjegyzesbe = array( 'projektszamla.php', 'projektszerzodes.php' );
+            $kiveteles_mezok  = array( 'update_dt' );
+            if( in_array( basename(self()), $mod_megjegyzesbe) ){
+                $mod_megjegyzesbe_mehet = true;
+            }
 
             $i = 1;
             foreach($record[0] as $key => $value) {
-                if( $key != 'recid' && $_POST[$key] ) {
+                if( $key && $key != 'recid' ) {
                     if( preg_match('/^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}$/', $value) ) {
                         $value = date('Y.m.d', strtotime($value));
                     }
 
-                    if( $_POST[$key] != $value ) {
+                    // Ha az újonnan kapott adat, és DB-ben tárolt adat nem egyezik
+                    // És vagy ez előző vagy az új adatnak van értéke (ne azért íródjon már be, mert üres az új érték, de 0 volt az adatbázisban)
+                    if( $_POST[$key] != $value && ($_POST[$key] || $value) ) {
                         $valtozas .= '[mezo]'.$key.'[/mezo] [ertek_regi]'.$value.'[/ertek_regi] [ertek_uj]'.$_POST[$key].'[/ertek_uj]'."\n";
 
+                        // Ha a megjegyzésbe is bele szeretnénk írni a változást, akkor pár formázást még el kell végezni
+                        if( $mod_megjegyzesbe_mehet && !in_array($key, $kiveteles_mezok) ){
+
+                            // Üres dátum mező esetének kivédése
+                            if( !($_POST[$key]>'4000-00-00' && $value == '0000-00-00') ){
+                                $mezo_neve = '';
+                                $uj_ertek = $_POST[$key];
+                                
+                                foreach( $tomb as $elem ){
+                                    // Ha az aktuális elemnél járunk
+                                    if( $elem['name']==$key ){
+                                        $mezo_neve = trim($elem['megn'], ':');
+                                        
+                                        // Dátumot formázzuk
+                                        if( strpos($elem['class'], 'datepicker')!==false || strpos($elem['class'], 'datetimepicker')!==false || strpos($elem['class'], 'datepicker_tegnapig')!==false || strpos($elem['class'], 'datepicker_holnaptol')!==false ){
+                                            $value    = datum_kiir($value);
+                                            $uj_ertek = datum_kiir($uj_ertek);
+                                        }
+
+                                        // Autocompletes mezők
+                                        if( $elem['type']=='autocomplete' ){
+                                            $uj_ertek = getErtek($elem['listaz'], $elem['tabla'], $elem['oszlop_keres'], $uj_ertek);
+                                            $value    = getErtek($elem['listaz'], $elem['tabla'], $elem['oszlop_keres'], $value   );
+                                        }
+                                        
+                                        // Szálloda select lekezelése
+                                        if( $elem['name']=='telephely_id' ){
+                                            $uj_ertek = getSzallodaNev($uj_ertek);
+                                            $value    = getSzallodaNev($value   );
+                                        }
+                                    }
+                                }
+                                
+                                if($mezo_neve){
+                                    $valtozas_megj  .= $mezo_neve.' mező előző értéke: <b>'.$value.'</b>. Új értéke: <b>'.$uj_ertek.'</b><br>';
+                                }
+                            }
+                        }
                         $i++;
                     }
                 }
@@ -978,6 +1027,15 @@ function i_u($type, $tabla, $tomb) {
                 array( $_SESSION[get_db_tabla().'login_recid'], $muvelet,    $valtozas,  $_SERVER['REMOTE_ADDR'])
             );
             if( $sql === false ) { $db_error = true; }
+            
+            // Mely felületeken kerüljön megjegyzésbe a módosítás
+            $mod_megjegyzesbe = array( 'projektszamla.php', 'projektszerzodes.php' );
+            if( in_array( basename(self()), $mod_megjegyzesbe) ){
+                if( addMegj($tabla, $_GET['id'], $valtozas_megj) === false ){
+                    $db_error = true;
+                }
+            }
+            
         }
 
         // Datetime-ot is frissítjük
@@ -1063,6 +1121,18 @@ function i_u($type, $tabla, $tomb) {
 
                 array_push($oszlopok,  'ikt_szam');
                 array_push($ertekek,   $ikt_szam );
+                
+                // Ha van már csatolt dokumentuma, akkor azokat másoljuk át az iktatószám nevű mappába
+                $alap_utvonal = '../'.get_utvonal().'projektigenyles/';
+                $konyvtar     = str_replace('/', '_', $ikt_szam);
+                mkdir( $alap_utvonal.$konyvtar );
+                $dokumentumok = $adatbazis_kapcsolat->s('*', 'projektigenyles_dok', "`projektigenyles_id`='{$_GET['id']}'");
+                if( $dokumentumok === false ) { $db_error = true; }
+                foreach( $dokumentumok as $dok ){
+                    copy($alap_utvonal.$dok['utvonal'], $alap_utvonal.$konyvtar.$dok['utvonal']);
+                    unlink($alap_utvonal.$dok['utvonal']);
+                    $adatbazis_kapcsolat->u('projektigenyles_dok', array('utvonal'), array($konyvtar.$dok['utvonal']), "`recid`='{$dok['recid']}'");
+                }
             }
 
         }
@@ -1203,6 +1273,47 @@ function i_u($type, $tabla, $tomb) {
         
         // Projekt szerződés
         if( $tabla == 'projektszerzodes' ){
+            
+            // Kivitelezés kezdete, nem lehet korábbi, mint a kelte
+            if($_POST['kiv_kezd'] < $_POST['kelte'] ){
+                echo json_encode(array(
+                    'hiba'  => 'Kivitelezés kezdete, nem lehet korábbi, mint a kelte!',
+                    'title' => 'Hiba',
+                    'focus' => 'kiv_kezd',
+                ));
+                $weblap -> leallit();
+                exit();
+            }
+            
+            // Kivitelezés kezdete, nem lehet korábbi, mint a kelte
+            if($_POST['kiv_kezd'] > $_POST['kiv_vege'] ){
+                echo json_encode(array(
+                    'hiba'  => 'Kivitelezés vége nem lehet korábbi, mint a kivitelezés kezdete!',
+                    'title' => 'Hiba',
+                    'focus' => 'kiv_vege',
+                ));
+                $weblap -> leallit();
+                exit();
+            }
+            
+            // Van-e már hasonló szerződés? Ha igen, akkor rákérdezünk
+            if( !$_POST['hasonlo_szerzodes_mehet'] ){
+                $szerzodes = $adatbazis_kapcsolat->s2('sz_szam', 'projektszerzodes', "`telephely_id`='{$_POST['telephely_id']}' AND `szallito_id`='{$_POST['szallito_id']}' AND `szerz_ossz`='{$_POST['szerz_ossz']}' AND `recid`!='{$_GET['id']}'");
+                if($szerzodes){
+                    echo json_encode(array(
+                        'hiba'  => 'Szálloda: '. getSzallodaNev($_POST['telephely_id']).'
+                                    <br>Szerződő partner: '.getErtek('nev', 'szallito', 'id', $_POST['szallito_id']).'
+                                    <br>Szerződött összeg: '. number_format($_POST['szerz_ossz'], 0, '', '.').' '.get_penznem().'
+                                    <br>Az Ön által megadott szálloda, szerződő partner és szerződött összeg szerint már létezik szerződés.
+                                    <br>Szerződés szám: '.$szerzodes['sz_szam'].'
+                                    <br>Folytatja?',
+                        'title' => 'Kérdés',
+                        'gomb'  => '<input type="button" class="gomb zold" value="Igen" onclick="$(\'#hasonlo_szerzodes_mehet\').val(\'1\'); mentesGomb(); alert2();"><input type="button" class="gomb piros" value="Nem" onclick="alert2();">'
+                    ));
+                    $weblap -> leallit();
+                    exit();
+                }
+            }
             
             $sor = $adatbazis_kapcsolat->s2('pr_szam', 'projektszerzodes', "`recid`='{$_GET['id']}'");
             if( $sor === false ) { $db_error = true; }

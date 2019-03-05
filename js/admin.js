@@ -16,6 +16,80 @@ var PENZNEM          = 'Ft';                                /* Ha Ft feliratot b
 
 var keys = {37: 1, 38: 1, 39: 1, 40: 1};
 
+/**
+*	@desc Get $_GET
+*
+*	Az aktuális $_GET változót adja vissza URL-ként. Pl: index.php?id=1&o=2 Meghívásra példa: val link = get_get(['epo', 'oldal'])
+*
+*	@param array $kivetel: ezeket a $_GET változókat figyelen kívül hagyja
+*
+*	@return string: Az URL $_GET részét adja vissza
+*/
+function get_get( tomb, sort ) {
+    if( sort === undefined ) {
+        sort = false;
+    }
+
+    var link  = location.href;
+    var tomb  = tomb;
+    var torol = [];
+
+    if( link.indexOf('?') != -1 ) {
+        /* URL szétbontása */
+        link = link.split('?');
+
+        /* Paraméterek szétbontása */
+        param = link[1].split('&');
+
+        for( key in param ) {
+            var p = param[key];
+
+            for( i in tomb ) {
+                if( param[key].indexOf('=') != -1 ) {
+                    var get = param[key].split('=');
+
+                    if( get[0] == tomb[i]) {
+                        torol.push( param[key] );
+                    }
+                } else {
+                    if( param[key] == tomb[i] ) {
+                        torol.push( param[key] );
+                    }
+                }
+            }
+        }
+
+        /* Paraméterek törlése */
+        for( key in torol ) {
+            var index = param.indexOf( torol[key] );
+            param.splice( index, 1 );
+        }
+
+        /* Link egyesítése */
+        if( !sort ) {
+            link = link[0];
+        } else {
+            link = '';
+        }
+
+        if(param.length > 0) {
+            for( key in param ) {
+                if( key == 0 ) {
+                    link += '?' + param[key];
+                } else {
+                    link += '&' + param[key];
+                }
+            }
+        }
+    } else {
+        if( sort ) {
+            link = '';
+        }
+    }
+
+    return link;
+}
+
 function preventDefault(e) {
     e = e || window.event;
     if (e.preventDefault) {
@@ -112,7 +186,11 @@ function get_gomb_mindent(){
 
 /* Kibontásnál a töröl gomb HTML-je. Hogy valid legyen kiveszem JS-be. */
 function get_kibont_torol(self, torles, get_id){
-    return '<p class="c" style="margin-top: 0.5rem"><input class="gomb zold" type="button" value="Igen" onclick="szurkit(); location.href=\'' + self + '?lista&amp;' + torles + '=' + get_id + '\'"> <input class="gomb piros" type="button" value="Nem" onclick="alert2()">';}
+    var gg = get_get(['id', 'modosit'], 1);
+    if( !gg ){
+        gg = '?';
+    }
+    return '<p class="c" style="margin-top: 0.5rem"><input class="gomb zold" type="button" value="Igen" onclick="szurkit(); location.href=\'' + self + gg + '&amp;lista&amp;' + torles + '=' + get_id + '\'"> <input class="gomb piros" type="button" value="Nem" onclick="alert2()">';}
 
 /* Kibontásnál címlap kép törlés HTML-je. Hogy valid legyen kiveszem JS-be. */
 function get_fokep_torol(self, get_id, keptorol){
