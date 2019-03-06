@@ -4414,7 +4414,10 @@ function anyagigenyles_erkeztet( ures_men_ek_pipa0_kesz, ures_men_ek_pipa1_kesz,
                 if(response){
                     response = JSON.parse(response);
                     if( response.hiba ) {
-                        alert2(response.hiba, response.gomb, 'Hiba');
+                        alert2(response.hiba, response.gomb, response.title);
+                        if(response.focus){
+                            $('#'+response.focus).addClass('hibas_ide_focus');
+                        }
                         return false;
                     }
                     szurkit();
@@ -4446,7 +4449,10 @@ function anyagigenyles_erkeztet( ures_men_ek_pipa0_kesz, ures_men_ek_pipa1_kesz,
                     response = JSON.parse(response);
 
                     if( response.hiba ) {
-                        alert2(response.hiba, '', 'Hiba');
+                        alert2(response.hiba, response.gomb, response.title);
+                        if(response.focus){
+                            $('#'+response.focus).addClass('hibas_ide_focus');
+                        }
                         return false;
                     }else{
                         $('#erkeztet_uzi').hide();

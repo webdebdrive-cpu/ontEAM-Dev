@@ -2905,24 +2905,26 @@ function szamla_lista( $where, $tabla, $kijeloltek = false, $csak_sql_miatt = fa
                 $_SESSION['anyagigenyles_tablazat_irany']  = 'desc';
             }
             switch($_SESSION['anyagigenyles_tablazat_rendez']){
-                case 'anyag_tabla_ikt_szam'     : $order = '`'.get_db_tabla().'anyagigenyles`.`ikt_szam`';  break;
-                case 'anyag_tabla_szalloda'     : $order = '`'.get_db_tabla().'telephely`.`nev`';           break;
-                case 'anyag_tabla_cikkszam'     : $order = '`'.get_db_tabla().'anyagigenyles`.`cikk_id`';   break;
-                case 'anyag_tabla_cikknev'      : $order = '`'.get_db_tabla().'anyagigenyles`.`nev`';       break;
-                case 'anyag_tabla_szallito'     : $order = '`'.get_db_tabla().'szallito`.`nev`';            break;
-                case 'anyag_tabla_ig_menny'     : $order = '`'.get_db_tabla().'anyagigenyles`.`igmen`';     break;
-                case 'anyag_tabla_mee'          : $order = '`'.get_db_tabla().'anyagigenyles`.`cikkmee`';   break;
-                case 'anyag_tabla_ig_datum'     : $order = '`'.get_db_tabla().'anyagigenyles`.`insert_dt`'; break;
-                case 'anyag_tabla_jovah_menny'  : $order = '`'.get_db_tabla().'anyagigenyles`.`jhmen`';     break;
-                case 'anyag_tabla_rend_menny'   : $order = '`'.get_db_tabla().'anyagigenyles`.`rndmen`';    break;
-                case 'anyag_tabla_rend_egysegar': $order = '`'.get_db_tabla().'anyagigenyles`.`rndear`';    break;
-                case 'anyag_tabla_penznem'      : $order = '`'.get_db_tabla().'erteklista`.`info`';         break;
-                case 'anyag_tabla_dev_rend'     : $order = '`'.get_db_tabla().'anyagigenyles`.`vrndear`';   break;
-                case 'anyag_tabla_dev_beerk'    : $order = '`'.get_db_tabla().'anyagigenyles`.`erkear`';    break;
-                case 'anyag_tabla_statusz'      : $order = '`'.get_db_tabla().'anyagigenyles`.`stat_id`';   break;
-                case 'anyag_tabla_rndid'        : $order = '`'.get_db_tabla().'anyagigenyles`.`rndid`';     break;
-                case 'anyag_tabla_rnd_dt'       : $order = '`'.get_db_tabla().'anyagigenyles`.`rnd_dt`';    break;
-                case 'anyag_tabla_rndertek'     : $order = '`'.get_db_tabla().'cikkrendfej`.`rndertek`';    break;
+                case 'anyag_tabla_ikt_szam'     : $order = '`'.get_db_tabla().'anyagigenyles`.`ikt_szam`';      break;
+                case 'anyag_tabla_szalloda'     : $order = '`'.get_db_tabla().'telephely`.`nev`';               break;
+                case 'anyag_tabla_cikkszam'     : $order = '`'.get_db_tabla().'anyagigenyles`.`cikk_id`';       break;
+                case 'anyag_tabla_cikknev'      : $order = '`'.get_db_tabla().'anyagigenyles`.`nev`';           break;
+                case 'anyag_tabla_szallito'     : $order = '`'.get_db_tabla().'szallito`.`nev`';                break;
+                case 'anyag_tabla_ig_menny'     : $order = '`'.get_db_tabla().'anyagigenyles`.`igmen`';         break;
+                case 'anyag_tabla_mee'          : $order = '`'.get_db_tabla().'anyagigenyles`.`cikkmee`';       break;
+                case 'anyag_tabla_ig_datum'     : $order = '`'.get_db_tabla().'anyagigenyles`.`insert_dt`';     break;
+                case 'anyag_tabla_jovah_menny'  : $order = '`'.get_db_tabla().'anyagigenyles`.`jhmen`';         break;
+                case 'anyag_tabla_rend_menny'   : $order = '`'.get_db_tabla().'anyagigenyles`.`rndmen`';        break;
+                case 'anyag_tabla_rend_egysegar': $order = '`'.get_db_tabla().'anyagigenyles`.`rndear`';        break;
+                case 'anyag_tabla_penznem'      : $order = '`'.get_db_tabla().'erteklista`.`info`';             break;
+                case 'anyag_tabla_dev_rend'     : $order = '`'.get_db_tabla().'anyagigenyles`.`vrndear`';       break;
+                case 'anyag_tabla_dev_beerk'    : $order = '`'.get_db_tabla().'anyagigenyles`.`erkear`';        break;
+                case 'anyag_tabla_statusz'      : $order = '`'.get_db_tabla().'anyagigenyles`.`stat_id`';       break;
+                case 'anyag_tabla_rndid'        : $order = '`'.get_db_tabla().'anyagigenyles`.`rndid`';         break;
+                case 'anyag_tabla_rnd_dt'       : $order = '`'.get_db_tabla().'anyagigenyles`.`rnd_dt`';        break;
+                case 'anyag_tabla_beerkezett'   : $order = '`'.get_db_tabla().'anyagigenyles`.`beerkezett`';    break;
+                case 'anyag_tabla_rndertek'     : $order = '`'.get_db_tabla().'anyagigenyles`.`rndmen`*`'.get_db_tabla().'anyagigenyles`.`rndear`';  break;
+                case 'anyag_tabla_beerkertek'   : $order = '`'.get_db_tabla().'anyagigenyles`.`erkmen`*`'.get_db_tabla().'anyagigenyles`.`rndear`';  break;
             }
             $order .= ' '.$_SESSION['anyagigenyles_tablazat_irany'];
             // Ha már kétszer volna benne a desc, akkor azt egyre cseréljük
@@ -4498,10 +4500,12 @@ function anyagigenylesLista( $bejegyzesek, $tabla, $frissit, $kijeloltek ) {
 
             if(isset($_GET['anyagrend'])) {
                 array_push($oszlopok,
-                    array('id' => 'anyag_tabla_rndid',    'nev' => 'Rendelés szám'),
-                    array('id' => 'anyag_tabla_rnd_dt',   'nev' => 'Rendelés dátum'),
-                    array('id' => 'anyag_tabla_rndertek', 'nev' => 'Rendelés érték'),
-                    array('id' => 'anyag_tabla_erkmen',   'nev' => 'Beérkezett mennyiség')
+                    array('id' => 'anyag_tabla_rndid',      'nev' => 'Rendelés szám'        ),
+                    array('id' => 'anyag_tabla_rnd_dt',     'nev' => 'Rendelés dátum'       ),
+                    array('id' => 'anyag_tabla_beerkezett', 'nev' => 'Beérkezett dátum'     ),
+                    array('id' => 'anyag_tabla_rndertek',   'nev' => 'Rendelés érték'       ),
+                    array('id' => 'anyag_tabla_beerkertek', 'nev' => 'Beérkezett érték'     ),
+                    array('id' => 'anyag_tabla_erkmen',     'nev' => 'Beérkezett mennyiség' )
                 );
             }
 
@@ -4551,8 +4555,9 @@ function anyagigenylesLista( $bejegyzesek, $tabla, $frissit, $kijeloltek ) {
                             }
                         }
                         if(!$van_talalat){
-                            $val['id']    = $oszl['id'];
-                            $val['width'] = 40;
+                            $val['id']      = $oszl['id'];
+                            $val['nev']     = $oszl['nev'];
+                            $val['width']   = 40;
                             $oszlopok_sorrend[] = $val;
                         }
                     }
@@ -4566,7 +4571,9 @@ function anyagigenylesLista( $bejegyzesek, $tabla, $frissit, $kijeloltek ) {
                         <table id="dragTable" class="sar-table szamla_cont_tabla'.$jClass.'" data-tabla="'.$data_tabla.'">
                         <thead>
                             <tr>');
+
                 foreach($oszlopok as $oszl) {
+
                     $order = '';
                     if($oszl['id']==$_SESSION['anyagigenyles_tablazat_rendez']){
                         if($_SESSION['anyagigenyles_tablazat_irany']=='desc'){
@@ -4656,8 +4663,6 @@ function anyagigenylesLista( $bejegyzesek, $tabla, $frissit, $kijeloltek ) {
                 // Jóváhagyásra váró érték
                 $jh_ert = $bsz['rndear']*$bsz['rndmen'];
 
-                $rndertek = getErtek('rndertek', 'cikkrendfej', 'rndid', $bsz['rndid']);
-
                 if($bsz['kulsosnek']){
                     $bsz['kulsosnek'] = '✓';
                 }else{
@@ -4687,12 +4692,16 @@ function anyagigenylesLista( $bejegyzesek, $tabla, $frissit, $kijeloltek ) {
                 );
 
                 if(isset($_GET['anyagrend'])) {
-                    $sorok['anyag_tabla_rndid']     = '<td class="c">'.$bsz['rndid'].'</td>';
-                    $sorok['anyag_tabla_rnd_dt']    = '<td class="c">'.substr(str_replace('-', '.', $bsz['rnd_dt']), 0, 10).'</td>';
-                    // A rendelés érték a Rendelt mennyiség * Rendelési egységár (Ft) oszlopok szorzata
+                    $sorok['anyag_tabla_rndid']         = '<td class="c">'.$bsz['rndid'].'</td>';
+                    $sorok['anyag_tabla_rnd_dt']        = '<td class="c">'.substr(str_replace('-', '.', $bsz['rnd_dt']    ), 0, 10).'</td>';
+                    $sorok['anyag_tabla_beerkezett']    = '<td class="c">'.substr(str_replace('-', '.', $bsz['beerkezett']), 0, 10).'</td>';
+                    // A Rendelés érték a Rendelt mennyiség * Rendelési egységár (Ft) oszlopok szorzata
                     $rendeles_ertek = $bsz['rndmen']*$bsz['rndear'];
-                    $sorok['anyag_tabla_rndertek']  = '<td class="c" data-sort="'.$rendeles_ertek.'">'.number_format($rendeles_ertek, 0, ',', ' ').' '.get_penznem().'</td>';
-                    $sorok['anyag_tabla_erkmen']    = '<td class="c" data-sort="'.$bsz['erkmen'].'">'.number_format($bsz['erkmen'], 2, ',', ' ').'</td>';
+                    $sorok['anyag_tabla_rndertek']      = '<td class="c" data-sort="'.$rendeles_ertek.'">'.number_format($rendeles_ertek, 0, ',', ' ').' '.get_penznem().'</td>';
+                    // A Beérkezett érték a Beérkezett mennyiség * Rendelési egységár (Ft) oszlopok szorzata
+                    $beerkezett_ertek = $bsz['erkmen']*$bsz['rndear'];
+                    $sorok['anyag_tabla_beerkertek']    = '<td class="c" data-sort="'.$beerkezett_ertek.'">'.number_format($beerkezett_ertek, 0, ',', ' ').' '.get_penznem().'</td>';
+                    $sorok['anyag_tabla_erkmen']        = '<td class="c" data-sort="'.$bsz['erkmen'].'">'.number_format($bsz['erkmen'], 2, ',', ' ').'</td>';
                 }
 
                 foreach($oszlopok as $oszl) {
@@ -6654,7 +6663,7 @@ function addStatusz( $tabla = false, $recid = false, $stat_id = false, $erteklis
                 if( $sql === false ) { $db_error = true; }
 
                 // További kapcsolódó táblák archiválása
-                $tablak = array(
+                $kapcs_tablak = array(
                                 array('tabla' => 'projektigenyles_dok',     'kulcs' => 'projektigenyles_id'     ),
                                 array('tabla' => 'projektigenyles_eloterj', 'kulcs' => 'recid'                  ),
                                 array('tabla' => 'projektigenyles_kapcs',   'kulcs' => 'projektigenyles_recid'  ),
@@ -6663,15 +6672,21 @@ function addStatusz( $tabla = false, $recid = false, $stat_id = false, $erteklis
                                 array('tabla' => 'projektigenyles_velemeny','kulcs' => 'projektigenyles_recid'  ),
                                 );
 
-                foreach($tablak as $tabla){
-                    $sql = 'INSERT `'.get_db_tabla().$tabla['tabla'].'_arch` SELECT * FROM `'.get_db_tabla().$tabla['tabla'].'` WHERE `'.$tabla['kulcs'].'`=\''.$pri['recid'].'\'';
+                foreach($kapcs_tablak as $ktabla){
+                    $sql = 'INSERT `'.get_db_tabla().$ktabla['tabla'].'_arch` SELECT * FROM `'.get_db_tabla().$ktabla['tabla'].'` WHERE `'.$ktabla['kulcs'].'`=\''.$pri['recid'].'\'';
                     if(!mysqli_query($db_kapcs, $sql)){
                         $db_error = true;
                     }
-                    $sql = $adatbazis_kapcsolat->d($tabla['tabla'], "`{$tabla['kulcs']}`='{$pri['recid']}'");
+                    $sql = $adatbazis_kapcsolat->d($ktabla['tabla'], "`{$ktabla['kulcs']}`='{$pri['recid']}'");
                     if( $sql === false ) { $db_error = true; }
                 }
 
+            }
+            
+            // Az anyagigénylés ha beérkezett státuszt kap, akkor ezt az időpontot eltároljuk az anyagigénylése táblába is, mert eszerint szeretnénk tudni azt rendezni is
+            if($tabla=='anyagigenyles_statusz' && $stat_id==CIKKIGN_STAT_BEERKEZETT){
+                $sql = $adatbazis_kapcsolat->u('anyagigenyles', array('beerkezett'), array('NOW()'), "`recid`='{$recid}'");
+                if( $sql === false ) { $db_error = true; }
             }
 
             if( !$db_error ) {
@@ -6925,6 +6940,10 @@ function get_szures_where_kieg($mezo, $op, $felt, $tabla){
         return '`'.get_db_tabla().'megjegyzes`.`tabla`=\''.$tabla.'\' AND `'.get_db_tabla().'megjegyzes`.`megj` LIKE \''.$felt.'\'';
     }elseif( $op_origi != 'empty' && ($tabla=='anyagigenyles' && $mezo=='nev') ){
         return '`'.get_db_tabla().'anyagigenyles`.`nev` LIKE \'%'.$felt.'%\'';
+    }elseif($tabla=='anyagigenyles' && $mezo=='beerkertek'){
+        return '`'.get_db_tabla().'anyagigenyles`.`erkmen`*`'.get_db_tabla().'anyagigenyles`.`rndear`=\''.$felt.'\'';
+    }elseif($tabla=='anyagigenyles' && $mezo=='rndertek'){
+        return '`'.get_db_tabla().'anyagigenyles`.`rndmen`*`'.get_db_tabla().'anyagigenyles`.`rndear`=\''.$felt.'\'';
     }elseif($tabla=='bejelentes' && $mezo=='telephely_id'){
         return '`'.get_db_tabla().'bejelentes`.`telephely_id`=\''.$felt.'\'';
     }elseif($tabla=='bejelentes' && $mezo=='insert_dt'){

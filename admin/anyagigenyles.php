@@ -1509,7 +1509,7 @@ if( isset($_POST['rendeles_keszit']) ) {
         $rndid = 'R'.date('y').'/'.sprintf('%04d', $sorszam);
         $pdf_utvonal = 'rendeles/'.date('y').'/'.$elozo_szallito.'/'.str_replace('/', '_', $rndid).'.pdf';
 
-        // Számoljuk ki a rendelt értéket
+        // Számoljuk ki a rendelt értéket, és beérkezett értéket
         $rndertek = 0;
         $anyagigenylesek = $adatbazis_kapcsolat->s('rndmen rndear', 'anyagigenyles', "`recid` IN (".implode(',', $idk).")");
         foreach($anyagigenylesek as $anyagi){
@@ -1567,14 +1567,18 @@ if (isset($_POST['anyagigenyles_erkeztet'])) {
         $recid = $adatbazis_kapcsolat->s2('recid', 'cikkrendfej', "`rndid`='{$_POST['rsz']}'");
         if(!$recid){
             echo json_encode(array(
-                'hiba' => 'Nincs ilyen rendelésszám az anyagigénylés naplóban!'
+                'hiba'  => 'Nincs ilyen rendelésszám az anyagigénylés naplóban!',
+                'title' => 'Hiba',
+                'focus' => 'rsz',
             ));
             $weblap->leallit();
             exit();
         }
         if($adatbazis_kapcsolat->s('recid', 'cikkrendfej', "`rndid`='{$_POST['rsz']}' AND `stat_id`>'".CIKKIGN_STAT_RESZBENBEERK."'")){
             echo json_encode(array(
-                'hiba' => 'Ehhez a megrendeléshez már rögzítve vannak a beérkezett mennyiségek!'
+                'hiba'  => 'Ehhez a megrendeléshez már rögzítve vannak a beérkezett mennyiségek!',
+                'title' => 'Hiba',
+                'focus' => 'rsz',
             ));
             $weblap->leallit();
             exit();
@@ -1667,7 +1671,7 @@ if (isset($_POST['anyagigenyles_erkeztet'])) {
             //Ha nincs ID, nem is csinálunk semmit
             if($id){
 
-                $anyagigenyles = $adatbazis_kapcsolat->s2('*', 'anyagigenyles', "`recid`='$id'");
+                $anyagigenyles = $adatbazis_kapcsolat->s2('*', 'anyagigenyles', "`recid`='{$id}'");
                 if($anyagigenyles===false){ $db_error = false; }
 
                 $marerkmen = $anyagigenyles['erkmen'];
@@ -1689,8 +1693,9 @@ if (isset($_POST['anyagigenyles_erkeztet'])) {
                 }
 
                 // Végül UPDATE cikkign SET erkmen=marerkmen+erkmen, update_usr= WHERE recid=
-                $sql = $adatbazis_kapcsolat -> u('anyagigenyles',   array('erkmen',             'update_usr'                            ),
-                                                                    array($marerkmen+$erkmen,   $_SESSION[get_db_tabla().'teljes_nev']  ),
+                $uj_erkmen = $marerkmen+$erkmen;
+                $sql = $adatbazis_kapcsolat -> u('anyagigenyles',   array('erkmen',     'update_usr'                            ),
+                                                                    array($uj_erkmen,   $_SESSION[get_db_tabla().'teljes_nev']  ),
                                                     "`recid`='$id'"
                                                 );
                 if( $sql === false ) { $db_error = true; }
@@ -2066,10 +2071,14 @@ if (isset($_GET['csv'])) {
                     `'.get_db_tabla().'anyagigenyles`.`insert_dt` as \'Igénylés dátuma\',
                     `'.get_db_tabla().'anyagigenyles`.`vrndear` as \'Deviza rend. egységár\',
                     `'.get_db_tabla().'anyagigenyles`.`jhmen` as \'Jóváhagyott mennyiség\',
+                    \'kalkulalt_rend_ertek\' as \'Rendelés érték\',
                     `'.get_db_tabla().'anyagigenyles`.`rndmen` as \'Rendelt mennyiség\',
                     `'.get_db_tabla().'anyagigenyles`.`rndear` as \'Rendelési egységár ('.get_penznem().')\',
                     `'.get_db_tabla().'anyagigenyles`.`kcs_21` as \'Pénznem\',
-                    `'.get_db_tabla().'anyagigenyles`.`rnd_dt` as \'Rendelés dátum\'
+                    `'.get_db_tabla().'anyagigenyles`.`rnd_dt` as \'Rendelés dátum\',
+                    `'.get_db_tabla().'anyagigenyles`.`erkmen` as \'Beérkezett mennyiség\',
+                    \'kalkulalt_beerk_ertek\' as \'Beérkezett érték\',
+                    `'.get_db_tabla().'anyagigenyles`.`beerkezett` as \'Beérkezett dátum\'
                     '.$lekerdezes_fromtol;
 
             $query      = mysqli_query($db_kapcs, $sql);
@@ -2078,10 +2087,6 @@ if (isset($_GET['csv'])) {
             $csvhead    = array();
             while($fejlec_nevek = mysqli_fetch_field($query)){
                 $csvhead[] = iconv2($mibol, $mibe, $fejlec_nevek -> name );
-                if($fejlec_nevek -> name=='Jóváhagyott mennyiség'){
-                    $csvhead[] = iconv2($mibol, $mibe, 'Rendelés érték' );
-                    // Ez mégse kell Tibi levele szerint 2018.11.21 $csvhead[] = iconv2($mibol, $mibe, 'Jóváhagyásra váró érték ('.get_penznem().')' );
-                }
             }
             fputcsv($open, $csvhead, ';');
             while( $sorok = mysqli_fetch_assoc($query) ){
@@ -2123,13 +2128,20 @@ if (isset($_GET['csv'])) {
                     $csvcont[] = iconv($mibol, $mibe.'//TRANSLIT', strip_tags( htmlspecialchars_decode( datum_kiir($sorok['Igénylés dátuma']) ) ) );
                     $csvcont[] = iconv($mibol, $mibe.'//TRANSLIT', strip_tags( htmlspecialchars_decode( $sorok['Deviza rend. egységár'] ) ) );
                     $csvcont[] = iconv($mibol, $mibe.'//TRANSLIT', strip_tags( htmlspecialchars_decode( $sorok['Jóváhagyott mennyiség'] ) ) );
+                    
                     $rendeles_ertek = str_replace(',', '.', $sorok['Rendelési egységár ('.get_penznem().')'])*str_replace(',', '.', $sorok['Rendelt mennyiség']);
-                    $csvcont[] = iconv($mibol, $mibe.'//TRANSLIT', strip_tags( htmlspecialchars_decode( number_format($rendeles_ertek, 2, ',', '') ) ) );
-                    // $csvcont[] = iconv($mibol, $mibe.'//TRANSLIT', strip_tags( htmlspecialchars_decode( $sorok['Rendelési egységár ('.get_penznem().')']*$sorok['Rendelt mennyiség'] ) ) );
+                    $csvcont[] = iconv($mibol, $mibe.'//TRANSLIT', strip_tags( htmlspecialchars_decode( number_format($rendeles_ertek, 0, ',', '') ) ) );
+                    
                     $csvcont[] = iconv($mibol, $mibe.'//TRANSLIT', strip_tags( htmlspecialchars_decode( $sorok['Rendelt mennyiség'] ) ) ); 
                     $csvcont[] = iconv($mibol, $mibe.'//TRANSLIT', strip_tags( htmlspecialchars_decode( $sorok['Rendelési egységár ('.get_penznem().')'] ) ) );
                     $csvcont[] = iconv($mibol, $mibe.'//TRANSLIT', strip_tags( htmlspecialchars_decode( erteklista(ERTEKLISTA_PENZNEM, $sorok['Pénznem']) ) ) );
                     $csvcont[] = iconv($mibol, $mibe.'//TRANSLIT', strip_tags( htmlspecialchars_decode( datum_kiir($sorok['Rendelés dátum']) ) ) );
+                    $csvcont[] = iconv($mibol, $mibe.'//TRANSLIT', strip_tags( htmlspecialchars_decode( number_format($sorok['Beérkezett mennyiség'], 2, ',', '') ) ) );
+                    
+                    $beerkezett_ertek = str_replace(',', '.', $sorok['Rendelési egységár ('.get_penznem().')'])*str_replace(',', '.', $sorok['Beérkezett mennyiség']);
+                    $csvcont[] = iconv($mibol, $mibe.'//TRANSLIT', strip_tags( htmlspecialchars_decode( number_format($beerkezett_ertek, 0, ',', '') ) ) );
+                    
+                    $csvcont[] = iconv($mibol, $mibe.'//TRANSLIT', strip_tags( htmlspecialchars_decode( datum_kiir($sorok['Beérkezett dátum']) ) ) );
                     
                     fputcsv($open, $csvcont, ';');
 
@@ -2822,7 +2834,8 @@ require_once('selectek.php');
         if (isset($_GET['anyagrend'])) {
             $sor_rnd = $adatbazis_kapcsolat -> s2('*', 'cikkrendfej', "`rndid`='{$sor['rndid']}'");
 
-            $sor_rnd['rndertek'] = number_format($sor_rnd['rndertek'], 0, '', ' ');
+            $sor_rnd['rndertek']    = number_format($sor_rnd['rndertek'], 0, '', ' ');
+            $sor_rnd['beerkertek']  = number_format($sor['erkmen']*$sor['rndear'], 0, '', ' ');
             $kepfajl_original   = $sor_rnd['kepfajl'];
             $sor_rnd['kepfajl'] = str_replace('rendeles/', '', $sor_rnd['kepfajl']);
 
@@ -2831,8 +2844,7 @@ require_once('selectek.php');
             }
 
         }
-
-        $sor['rnd_dt']  = str_replace('-', '.', $sor['rnd_dt']);
+        
         $sor['vrndear'] = number_format( $sor['vrndear'], 2, ',', ' ');
         $sor['rndear']  = number_format( $sor['rndear'],  2, ',', ' ');
 

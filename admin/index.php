@@ -31,6 +31,18 @@ if (isset($_GET['projekt_szerzodott_felhasznalt_kitolt'])) {
     exit;
 }
 
+// Anyagigénylés beerkezett dátum karbantartása
+//if (isset($_GET['anyagigenyles_beerkezett'])) {
+//    $anyagigenylesek = $adatbazis_kapcsolat->s('recid', 'anyagigenyles');
+//    foreach ($anyagigenylesek as $ai){
+//        $insert_dt = $adatbazis_kapcsolat->s2('insert_dt', 'anyagigenyles_statusz', "`anyagigenyles_recid`='{$ai['recid']}' AND `stat_id`='".CIKKIGN_STAT_BEERKEZETT."'", 'recid desc');
+//        if($insert_dt){
+//            $adatbazis_kapcsolat->u('anyagigenyles', array('beerkezett'), array($insert_dt['insert_dt']), "`recid`='{$ai['recid']}'");
+//            echo $adatbazis_kapcsolat->gp() . '<br>';
+//        }
+//    }
+//    exit;
+//}
 
 // Loginról értesítő levelek küldése
 if (false && isset($_GET['login_ertesit'])) {
