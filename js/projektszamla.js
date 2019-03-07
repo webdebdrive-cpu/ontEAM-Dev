@@ -77,3 +77,20 @@ function prsz_hozzaad_gomb_hozzaad_vagy_torol (){
         }
     });
 }
+
+/* Adatlapon található nettó mezőből számol ki bruttó értéket */
+function pr_szamla_bruttosit(){
+    if( !$('#brutto').val() || $('#brutto').val()=='0' ){
+        $('#brutto').val( ezresek($('#netto').val().replace(/ /g, '')*((Number(AFA)+100)/100), 0, '', ' ') );
+    }
+}
+
+/* Ha a bruttósított nettó és a valódi bruttó között 2 Ft-nál nagyobb az eltérés, akkor hibát dobunk.  */
+function pr_szamla_netto_br_ell(){
+    var brutto          = Number($('#brutto').val().replace(/ /g, ''));
+    var netto_afaval    = Number($('#netto').val().replace(/ /g, '')*((Number(AFA)+100)/100));
+    
+    if( Math.abs( brutto - netto_afaval ) > 2 ){
+        return 'A bruttó érték ('+$('#brutto').val()+') nem egyenlő a nettó érték ('+$('#netto').val()+') * '+AFA+'% ÁFÁ-val.<br>Folytatja?';
+    }
+}

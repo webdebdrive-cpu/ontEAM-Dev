@@ -2830,6 +2830,7 @@ require_once('selectek.php');
         }
         $sor = $adatbazis_kapcsolat -> s2('*', $megnevezes, "`recid`='{$_GET['id']}'");
 
+        
         // Anyagrendeléskor a cikkrendfej táblából dolgozunk.
         if (isset($_GET['anyagrend'])) {
             $sor_rnd = $adatbazis_kapcsolat -> s2('*', 'cikkrendfej', "`rndid`='{$sor['rndid']}'");
@@ -2845,6 +2846,9 @@ require_once('selectek.php');
 
         }
         
+        // Csak nappontosan áblárzoljuk
+        $sor['beerkezett'] = substr($sor['beerkezett'], 0, 10);
+        // Számok formázása
         $sor['vrndear'] = number_format( $sor['vrndear'], 2, ',', ' ');
         $sor['rndear']  = number_format( $sor['rndear'],  2, ',', ' ');
 

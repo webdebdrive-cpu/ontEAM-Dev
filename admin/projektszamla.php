@@ -1296,7 +1296,7 @@ require_once('selectek.php');
                 </div>
             '.$gombok);
         }
-
+        
         $muv_style = ' style="width: calc(100% - '.($_SESSION['defaultCsuszka'] + 16).'px);"';
         if( in_array(basename(self()), $_SESSION['ketHasabos']) && $_SESSION[get_db_tabla().'user'] ) {
             if( $_COOKIE['csuszkaSzelesseg'] ) {
@@ -1316,9 +1316,18 @@ require_once('selectek.php');
 	// Új projektkezelés felvitele
 	if( isset($_GET['uj']) && (_jog(JOG_PRSZAMLAK_KEZEL) || _jog(JOG_PR_SAJAT_SZAMLA_KEZEL)) ){
         
-        // Az űrlap feldolgozása előtti JS-t tiszta lappal indítjuk        
+        // Az űrlap feldolgozása előtti JS-t tiszta lappal indítjuk     
+        $szamla_html .= '<script>var netto_br_ell = false;</script>';
         $js_submit_elott = nl2('
-            
+
+                /* Első lépésként a bruttó és nettó mezőt ellenőrizzük */
+                var hibauzi = pr_szamla_netto_br_ell();
+                if( hibauzi && !netto_br_ell ){
+                    alert2(hibauzi, \'<input type="button" class="gomb zold" value="Igen" onclick="netto_br_ell=true; mentesGomb(); alert2();"> <input type="button" class="gomb piros" value="Nem" onclick="alert2();">\', \'Hiba\');
+                    alert_utan_mehet_megsem_mutat_beallit();
+                    return false;
+                }
+
                 var dfrd_pr_mehet = false;
                 var hibauzenet    = \'\';
                 dfrd_pr_szszamla = $.Deferred();
@@ -1468,7 +1477,18 @@ require_once('selectek.php');
         
         // Ha a visszaadva pipa be van pipálva, és van rajta egy mod css class, akkor ez most kerül bepipálásra. Ebben az esetben rákérdezdünk, hogy biztosan?
         $szamla_html .= '<script>var visszaadva_pipa_mehet = false;</script>';
+        $szamla_html .= '<script>var netto_br_ell = false;</script>';
         $js_submit_elott = nl2('
+
+            /* Első lépésként a bruttó és nettó mezőt ellenőrizzük */
+            var hibauzi = pr_szamla_netto_br_ell();
+            if( hibauzi && !netto_br_ell ){
+                alert2(hibauzi, \'<input type="button" class="gomb zold" value="Igen" onclick="netto_br_ell=true; mentesGomb(); alert2();"> <input type="button" class="gomb piros" value="Nem" onclick="alert2();">\', \'Hiba\');
+                alert_utan_mehet_megsem_mutat_beallit();
+                return false;
+            }
+
+            /* Visszaadva pipa ellenőrzése */
             if( !visszaadva_pipa_mehet && $(\'#visszaadva\').prop(\'checked\') && $(\'#visszaadva\').hasClass(\'mod\') ){
                 alert2( \'Szállító: \'+$(\'#szallito_id_autocomp\').val()+
                         \'<br>Számlaszám: \'+$(\'#szla_szam\').val()+

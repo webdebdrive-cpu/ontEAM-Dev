@@ -167,9 +167,15 @@ if (isset($_GET['csv'])) {
         array_push($csvhead, iconv2($mibol, $mibe, 'Helyiség'));
         array_push($csvhead, iconv2($mibol, $mibe, 'Eszköz'));
         fputcsv($open, $csvhead, ';');
-
+        
+        // Általános eset, ha a láthatóságomba tartozó szállodákat exportáljuk
         $login_szallodai = get_akt_login_szallodai();
-        $szallodak = $adatbazis_kapcsolat->s('id nev', 'telephely', "`id` IN (".implode(',', $login_szallodai).")", 'nev');
+        $where = "`id` IN (".implode(',', $login_szallodai).")";
+        // Elvileg csak szálloda szűrésről lehet szó itt az eszközkezelés felület alatt
+        if($_GET['mezo']=='telephely_id' && $_GET['op']=='equal' ){
+            $where = "`id`='{$_GET['felt']}'";
+        }
+        $szallodak = $adatbazis_kapcsolat->s('id nev', 'telephely', $where, 'nev');
         foreach($szallodak as $szalloda){
             
             // Szálloda felvétele CSV-be

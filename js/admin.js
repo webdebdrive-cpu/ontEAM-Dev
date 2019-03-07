@@ -13,6 +13,7 @@ var KEY_F12    =  123;
 
 var EGYSEGAR_VALASZT = 'Kérem válasszon egységár sort!';    /* Hibaüzenet */
 var PENZNEM          = 'Ft';                                /* Ha Ft feliratot bármikor módosítani kellne, akkor JS alatt elég itt átírni. */
+var AFA              = '27';                                /* Áfa */
 
 var keys = {37: 1, 38: 1, 39: 1, 40: 1};
 
@@ -1313,7 +1314,8 @@ $(function() {
         
         // Egyik sor sincs kijelölve (mert nincs találat, pl. egy szűrés miatt), akkor a gombokat mindenképp rejtsük el.
         setTimeout(function(){
-            if( !_get('uj') && !$('.szamla_sor.kijelolve').length ){
+            kiveteles_oldalak = ['dokumentumtar', 'eszkozkezeles'];
+            if( !_get('uj') && !$('.szamla_sor.kijelolve').length && !jQuery.inArray( baseName(location.href), kiveteles_oldalak ) ){
                 $('.muveletek').hide();
                 /* Pl. mobil hozzárendelésnél a gombokat nem kell elrejteni, itt nincs bal navpanel, nyilván nem lesz kijelölt sor, de a gombokat látni kell. */
                 $('.muveletek.megis_mindig_latszik').show();
@@ -5680,9 +5682,10 @@ function csv_general( that, valasztos, link_kieg ) {
 
         $.when(ajax).done(function() {
 
-            // Eszközkezelésnél nincs balnavpanel, ezért ott nem kell figyelni a kijelölt sorokat
+            // Eszközkezelésnél nincs balnavpanel, ezért ott nem kell figyelni a kijelölt sorokat, viszont a szűrést át kell adni
             if( baseName(location.href)=='eszkozkezeles' ){
                 
+                link_kieg += get_get([], 'csak a vége').substring(1);
                 var onclick = $(that).attr('onclick');
                 $(that).attr('href', '?csv&'+link_kieg).removeAttr('onclick');
                 $(that)[0].click();

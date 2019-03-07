@@ -996,6 +996,13 @@ function i_u($type, $tabla, $tomb) {
                                             $value    = datum_kiir($value);
                                             $uj_ertek = datum_kiir($uj_ertek);
                                         }
+                                        
+                                        // Számot is formázzuk
+                                        if( strpos($elem['class'], 'f_num')!==false ){
+                                            $tort     = trim( str_replace('data-tort=', '', $elem['data']), '"' );
+                                            $value    = number_format($value, $tort, ',', ' ');
+                                            $uj_ertek = number_format($uj_ertek, $tort, ',', ' ');
+                                        }
 
                                         // Autocompletes mezők
                                         if( $elem['type']=='autocomplete' ){
@@ -1294,25 +1301,6 @@ function i_u($type, $tabla, $tomb) {
                 ));
                 $weblap -> leallit();
                 exit();
-            }
-            
-            // Van-e már hasonló szerződés? Ha igen, akkor rákérdezünk
-            if( !$_POST['hasonlo_szerzodes_mehet'] ){
-                $szerzodes = $adatbazis_kapcsolat->s2('sz_szam', 'projektszerzodes', "`telephely_id`='{$_POST['telephely_id']}' AND `szallito_id`='{$_POST['szallito_id']}' AND `szerz_ossz`='{$_POST['szerz_ossz']}' AND `recid`!='{$_GET['id']}'");
-                if($szerzodes){
-                    echo json_encode(array(
-                        'hiba'  => 'Szálloda: '. getSzallodaNev($_POST['telephely_id']).'
-                                    <br>Szerződő partner: '.getErtek('nev', 'szallito', 'id', $_POST['szallito_id']).'
-                                    <br>Szerződött összeg: '. number_format($_POST['szerz_ossz'], 0, '', '.').' '.get_penznem().'
-                                    <br>Az Ön által megadott szálloda, szerződő partner és szerződött összeg szerint már létezik szerződés.
-                                    <br>Szerződés szám: '.$szerzodes['sz_szam'].'
-                                    <br>Folytatja?',
-                        'title' => 'Kérdés',
-                        'gomb'  => '<input type="button" class="gomb zold" value="Igen" onclick="$(\'#hasonlo_szerzodes_mehet\').val(\'1\'); mentesGomb(); alert2();"><input type="button" class="gomb piros" value="Nem" onclick="alert2();">'
-                    ));
-                    $weblap -> leallit();
-                    exit();
-                }
             }
             
             $sor = $adatbazis_kapcsolat->s2('pr_szam', 'projektszerzodes', "`recid`='{$_GET['id']}'");
@@ -6908,6 +6896,11 @@ function get_szures_where_kieg($mezo, $op, $felt, $tabla){
     $mezo = sql_ertek($mezo);
     $op   = sql_ertek($op);
     $felt = sql_ertek($felt);
+    
+    // Numerikus mezőt visszaalakítjuk
+    if($tabla=='anyagigenyles' && $mezo=='arfolyam'){
+        $felt = str_replace(',', '.', $felt);
+    }
 
     // Legfrisebb mezőre nem szűrünk, ez a limit-re vonatkozik
     if( $mezo == 'legfrissebb' ) {
@@ -6944,6 +6937,8 @@ function get_szures_where_kieg($mezo, $op, $felt, $tabla){
         return '`'.get_db_tabla().'anyagigenyles`.`erkmen`*`'.get_db_tabla().'anyagigenyles`.`rndear`=\''.$felt.'\'';
     }elseif($tabla=='anyagigenyles' && $mezo=='rndertek'){
         return '`'.get_db_tabla().'anyagigenyles`.`rndmen`*`'.get_db_tabla().'anyagigenyles`.`rndear`=\''.$felt.'\'';
+    }elseif($tabla=='anyagigenyles' && $mezo=='beerkezett'){
+        return '`'.get_db_tabla().'anyagigenyles`.`beerkezett` LIKE \''.str_replace('.', '-', $felt).'%\'';
     }elseif($tabla=='bejelentes' && $mezo=='telephely_id'){
         return '`'.get_db_tabla().'bejelentes`.`telephely_id`=\''.$felt.'\'';
     }elseif($tabla=='bejelentes' && $mezo=='insert_dt'){

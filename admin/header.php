@@ -938,7 +938,7 @@ if( in_array(basename(self()), $_SESSION['ketHasabos']) && $_SESSION[get_db_tabl
         $uj_link = 'javascript: kapcsolodoSzerkeszt(\'velemenyezok\'); void(0);';
 
     } else {
-        $uj_link = self().'?uj';
+        $uj_link = self().get_get(array('modosit', 'id')).'&amp;uj';
     }
 
 }
