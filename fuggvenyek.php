@@ -1019,6 +1019,9 @@ function i_u($type, $tabla, $tomb) {
                                 }
                                 
                                 if($mezo_neve){
+                                    if(!$uj_ertek){
+                                        $uj_ertek = '[üres]';
+                                    }
                                     $valtozas_megj  .= $mezo_neve.' mező előző értéke: <b>'.$value.'</b>. Új értéke: <b>'.$uj_ertek.'</b><br>';
                                 }
                             }
@@ -4490,7 +4493,7 @@ function anyagigenylesLista( $bejegyzesek, $tabla, $frissit, $kijeloltek ) {
                 array_push($oszlopok,
                     array('id' => 'anyag_tabla_rndid',      'nev' => 'Rendelés szám'        ),
                     array('id' => 'anyag_tabla_rnd_dt',     'nev' => 'Rendelés dátum'       ),
-                    array('id' => 'anyag_tabla_beerkezett', 'nev' => 'Beérkezett dátum'     ),
+                    array('id' => 'anyag_tabla_beerkezett', 'nev' => 'Beérkezés dátuma'     ),
                     array('id' => 'anyag_tabla_rndertek',   'nev' => 'Rendelés érték'       ),
                     array('id' => 'anyag_tabla_beerkertek', 'nev' => 'Beérkezett érték'     ),
                     array('id' => 'anyag_tabla_erkmen',     'nev' => 'Beérkezett mennyiség' )
@@ -7312,8 +7315,8 @@ function valos_datum_e($datum){
 
 // Többdimenziós tömb rendezése kulcs alapján
 function tobbdim_tomb_kulcs_rendez($array, $on, $order=SORT_ASC){
-
-    $new_array = array();
+    
+    $new_array      = array();
     $sortable_array = array();
 
     if (count($array) > 0) {
@@ -7329,6 +7332,27 @@ function tobbdim_tomb_kulcs_rendez($array, $on, $order=SORT_ASC){
             }
         }
 
+        $i = 0;
+        
+        foreach($sortable_array as $elemek){
+            if( mb_substr($elemek, 0, 1, 'UTF-8')=='Á' ){
+                $sortable_array[$i] = 'A'.mb_substr($elemek, 1, 0, 'UTF-8');
+            }
+            if( mb_substr($elemek, 0, 1, 'UTF-8')=='É' ){
+                $sortable_array[$i] = 'E'.mb_substr($elemek, 1, 0, 'UTF-8');
+            }
+            if( mb_substr($elemek, 0, 1, 'UTF-8')=='Í' ){
+                $sortable_array[$i] = 'I'.mb_substr($elemek, 1, 0, 'UTF-8');
+            }
+            if( mb_substr($elemek, 0, 1, 'UTF-8')=='Ó' || mb_substr($elemek, 0, 1, 'UTF-8')=='Ő' ){
+                $sortable_array[$i] = 'O'.mb_substr($elemek, 1, 0, 'UTF-8');
+            }
+            if( mb_substr($elemek, 0, 1, 'UTF-8')=='Ú' || mb_substr($elemek, 0, 1, 'UTF-8')=='Ű' ){
+                $sortable_array[$i] = 'U'.mb_substr($elemek, 1, 0, 'UTF-8');
+            }
+            $i++;
+        }
+        
         switch ($order) {
             case SORT_ASC:
                 asort($sortable_array);

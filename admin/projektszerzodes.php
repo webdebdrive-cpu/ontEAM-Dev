@@ -527,7 +527,7 @@ if (isset($_POST['van_tetel'])) {
     
     // Van-e már hasonló szerződés? Ha igen, akkor rákérdezünk
     if( !$_POST['hasonlo_szerzodes_mehet'] ){
-        $szerzodes = $adatbazis_kapcsolat->s2('sz_szam', 'projektszerzodes', "`telephely_id`='{$_POST['telephely_id']}' AND `szallito_id`='{$_POST['szallito_id']}' AND `szerz_ossz`='{$_POST['szerz_ossz']}' AND `recid`!='{$_GET['id']}'");
+        $szerzodes = $adatbazis_kapcsolat->s2('sz_szam', 'projektszerzodes', "`telephely_id`='{$_POST['telephely_id']}' AND `szallito_id`='{$_POST['szallito_id']}' AND `szerz_ossz`='{$szerzodes_osszege}'");
         if($szerzodes){
             echo json_encode(array(
                 'hiba'  => 'Szálloda: '. getSzallodaNev($_POST['telephely_id']).'

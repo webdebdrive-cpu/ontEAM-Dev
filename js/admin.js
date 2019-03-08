@@ -17,6 +17,12 @@ var AFA              = '27';                                /* Áfa */
 
 var keys = {37: 1, 38: 1, 39: 1, 40: 1};
 
+var navpanel_mentes_oldalak = ['dokumentumtar', 'eszkozkezeles'];
+var navpanel_mentes_oldal   = false;
+$(document).ready(function () {
+    navpanel_mentes_oldal = jQuery.inArray( baseName(location.href), navpanel_mentes_oldalak );
+});
+
 /**
 *	@desc Get $_GET
 *
@@ -379,12 +385,17 @@ function megsemGomb() {
     
     oldal = baseName(location.href)+'.php';
 
-    /* Adatlap módosítás esete */
+    // Adatlap módosítás esete
     if( _get('id') ){
-        szamlaBetolt(_get('id'), oldal);
-    /* Új feltöltés esete */
+        // Van pár oldal, ahol nincs navpanel oldalt, ezért ott másképp kell eljárni
+        if( navpanel_mentes_oldal ){
+            location.href = get_get(['uj']);
+        }else{
+            szamlaBetolt(_get('id'), oldal);
+        }
+    // Új feltöltés esete
     }else if( $('#szamlaList li').length ){
-        /* Ezt meg lehetett volna oldani így is: $('#szamlaList li.szamla_sor:first-of-type'), de nem működött érték lista menüpont alatt. Sőt elég lett volna így is: $('#szamlaList li:first-of-type'), de szintén az értéklista menüpont miatt így kelett megoldani  */
+        // Ezt meg lehetett volna oldani így is: $('#szamlaList li.szamla_sor:first-of-type'), de nem működött érték lista menüpont alatt. Sőt elég lett volna így is: $('#szamlaList li:first-of-type'), de szintén az értéklista menüpont miatt így kelett megoldani
         $('#szamlaList li').each(function () {
             if( $(this).hasClass('szamla_sor') ){
                 $(this).click();
@@ -393,9 +404,15 @@ function megsemGomb() {
         });
 
         
-    /* Új feltöltés esete, ha még egyetlen rekord sincs a bal navpanelen */
+    // Új feltöltés esete, ha még egyetlen rekord sincs a bal navpanelen 
     }else{
-        location.reload();
+
+        // Van pár oldal, ahol nincs navpanel oldalt, ezért ott másképp kell eljárni
+        if( navpanel_mentes_oldal ){
+            location.href = get_get(['uj']);
+        }else{
+            location.reload();
+        }
     }
 }
 
@@ -1314,8 +1331,8 @@ $(function() {
         
         // Egyik sor sincs kijelölve (mert nincs találat, pl. egy szűrés miatt), akkor a gombokat mindenképp rejtsük el.
         setTimeout(function(){
-            kiveteles_oldalak = ['dokumentumtar', 'eszkozkezeles'];
-            if( !_get('uj') && !$('.szamla_sor.kijelolve').length && !jQuery.inArray( baseName(location.href), kiveteles_oldalak ) ){
+            
+            if( !_get('uj') && !$('.szamla_sor.kijelolve').length && !navpanel_mentes_oldal ){
                 $('.muveletek').hide();
                 /* Pl. mobil hozzárendelésnél a gombokat nem kell elrejteni, itt nincs bal navpanel, nyilván nem lesz kijelölt sor, de a gombokat látni kell. */
                 $('.muveletek.megis_mindig_latszik').show();
@@ -1501,7 +1518,7 @@ $(function() {
             }
 
             var szures_link = get_get(['mezo', 'op', 'felt'])+kerdo_es+'mezo='+$('.f_szuro_mezo').val()+'&op='+$('.f_szuro_mezo_operator').val()+'&felt='+felt;
-            if(!$(this).hasClass('mehet')){
+            if( !$(this).hasClass('mehet') && !navpanel_mentes_oldal ){
 
                 link = location.href;
                 link = link.split('?');
@@ -6051,7 +6068,7 @@ function szamlaBetolt( recid, page, muvelet, szerkeszt, kerdes_nelkul, anyagigen
                         $('#navGombok a.uj').attr('href', 'javascript: kapcsolodoSzerkeszt(\'velemenyezok\'); void(0);');
 
                     } else {
-                        $('#navGombok a.uj').attr('href', baseName(location.href) + '.php?uj');
+                        $('#navGombok a.uj').attr('href', baseName(location.href) + '.php'+get_get(['uj'], 1)+'&uj');
                     }
 
                     if( isMobile ) {

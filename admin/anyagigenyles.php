@@ -2078,7 +2078,9 @@ if (isset($_GET['csv'])) {
                     `'.get_db_tabla().'anyagigenyles`.`rnd_dt` as \'Rendelés dátum\',
                     `'.get_db_tabla().'anyagigenyles`.`erkmen` as \'Beérkezett mennyiség\',
                     \'kalkulalt_beerk_ertek\' as \'Beérkezett érték\',
-                    `'.get_db_tabla().'anyagigenyles`.`beerkezett` as \'Beérkezett dátum\'
+                    `'.get_db_tabla().'anyagigenyles`.`beerkezett` as \'Beérkezés dátuma\',
+                    `'.get_db_tabla().'anyagigenyles`.`arfolyam` as \'Árfolyam\',
+                    `'.get_db_tabla().'anyagigenyles`.`atvaltva_d` as \'Árfolyam dátuma\'
                     '.$lekerdezes_fromtol;
 
             $query      = mysqli_query($db_kapcs, $sql);
@@ -2141,7 +2143,9 @@ if (isset($_GET['csv'])) {
                     $beerkezett_ertek = str_replace(',', '.', $sorok['Rendelési egységár ('.get_penznem().')'])*str_replace(',', '.', $sorok['Beérkezett mennyiség']);
                     $csvcont[] = iconv($mibol, $mibe.'//TRANSLIT', strip_tags( htmlspecialchars_decode( number_format($beerkezett_ertek, 0, ',', '') ) ) );
                     
-                    $csvcont[] = iconv($mibol, $mibe.'//TRANSLIT', strip_tags( htmlspecialchars_decode( datum_kiir($sorok['Beérkezett dátum']) ) ) );
+                    $csvcont[] = iconv($mibol, $mibe.'//TRANSLIT', strip_tags( htmlspecialchars_decode( datum_kiir($sorok['Beérkezés dátuma']) ) ) );
+                    $csvcont[] = iconv($mibol, $mibe.'//TRANSLIT', strip_tags( htmlspecialchars_decode( number_format($sorok['Árfolyam'], 4, ',', '') ) ) );
+                    $csvcont[] = iconv($mibol, $mibe.'//TRANSLIT', strip_tags( htmlspecialchars_decode( datum_kiir($sorok['Árfolyam dátuma']) ) ) );
                     
                     fputcsv($open, $csvcont, ';');
 

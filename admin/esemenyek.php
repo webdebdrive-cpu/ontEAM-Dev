@@ -2016,7 +2016,7 @@ array_push($postok, array('tomb' => $akt_tomb, 'uj' => 'uj'.$megnevezes, 'lista'
 if (isset($_GET['anyagrend'])) {
         $anyagigenyles_tomb = $akt_tomb = array(
         array('type' => 'statusz',                  'megn' => 'Státusz:',                       'name' => 'stat_id',        'szuro' => 1,   'oldal' => $megnevezes),
-        array('type' => 'text',                     'megn' => 'Anyagigénylés szám:',            'name' => 'ikt_szam',       'szuro' => 1,   'disabled' => 1,   'class' => 'normal',  'osszevon' => 1, 'post' => '<span style="margin-left: 4rem"></span>', 'style' => 'width: 8rem'),
+        array('type' => 'text',                     'megn' => 'Anyagigénylés szám:',            'name' => 'ikt_szam',       'szuro' => 1,   'disabled' => 1,   'class' => 'normal',  'osszevon' => 1, 'post' => '<span style="margin-left: 12.2rem"></span>', 'style' => 'width: 8rem'),
         array('type' => 'checkbox',                 'megn' => 'Készpénzes:',                    'name' => 'keszpenz',       'szuro' => 1,   'disabled' => 1),
         array('type' => 'select_felh_telephely',    'megn' => 'Szálloda:',                      'name' => 'telephely_id',   'szuro' => 1,   'disabled' => 1,   'class' => 'disableNav',   'style' => 'width: 100%;', 'alert' => 'Kérem válasszon szállodát!', 'onchange' => 'szallodaVane( this );'),
         array('type' => 'text',                     'megn' => 'Cikkszám:',                      'name' => 'cikk_id',        'szuro' => 1,   'disabled' => 1),
