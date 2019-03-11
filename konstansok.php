@@ -346,6 +346,7 @@ define('ERTEKLISTA_PROJEKT_PRIOR',  40);
 define('ERTEKLISTA_DOK_TIPUS',      39);
 define('ERTEKLISTA_PROJEKT_SZEREP', 41);
 define('ERTEKLISTA_KOLTSEGVISELO',  42);
+define('ERTEKLISTA_SZERZODESTKOTO', 43);
 
 // Dokumentum tipus értéklista fix, nem szerkeszthető bejegyzése
 define('EL_DOK_TIPUS_ATADASI',      1);

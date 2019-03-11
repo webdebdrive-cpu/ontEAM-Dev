@@ -71,14 +71,23 @@ $(document).on('input, blur', '#kcs_21_autocomp', function(e) {
     /* Azért van egy settimeoutban, mert a mezőt elhagyva még az autocomplete feltölti adattal. De az elhagyás pillanatában még üres. */
     setTimeout(function(){
         if( $('#kcs_21_autocomp').val() ){
-            $('#arfolyam')  .removeAttr('disabled').removeAttr('readonly');
+            $('#arfolyam')  .removeAttr('disabled').removeAttr('readonly').focus();
             $('#valtva')    .removeAttr('disabled').removeAttr('readonly');
             $('#dev_net')   .removeAttr('disabled').removeAttr('readonly');
             $('#dev_net')   .addClass('csillag');
         }else{
-            $('#arfolyam')  .val('0.0000')      .attr('disabled', 'disabled').attr('readonly', 'readonly').removeClass('mod');
+            $('#arfolyam')  .val('0,0000')      .attr('disabled', 'disabled').attr('readonly', 'readonly').removeClass('mod');
             $('#valtva')    .val('0000.00.00')  .attr('disabled', 'disabled').attr('readonly', 'readonly').removeClass('mod');
-            $('#dev_net')   .val('0.00')        .attr('disabled', 'disabled').attr('readonly', 'readonly').removeClass('mod').removeClass('csillag');
+            $('#dev_net')   .val('0,00')        .attr('disabled', 'disabled').attr('readonly', 'readonly').removeClass('mod').removeClass('csillag');
         }
     }, 200);
+});
+
+/* Építési engedély pipa lekezelése */
+$(document).on('click', '#epitesi_eng', function(e) {
+    if( $('#epitesi_eng').prop('checked') ){
+        $('#epitesi').removeAttr('disabled').removeAttr('readonly').addClass('csillag').focus();
+    }else{
+        $('#epitesi').val('').attr('disabled', 'disabled').attr('readonly', 'readonly').removeClass('mod').removeClass('csillag');
+    }
 });

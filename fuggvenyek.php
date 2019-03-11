@@ -83,6 +83,11 @@ function i_u($type, $tabla, $tomb) {
             $_POST['valtva']    = '';
             $_POST['dev_net']   = '';
         }
+        
+        // Illetve ha az építési összege meghaladná a szerződött összeget, azt ne engedjük elmenteni
+        if( str_replace(' ', '', $_POST['epitesi']) > str_replace(' ', '', $_POST['szerz_ossz']) ){
+            exit;
+        }
     }
 
     // Értékek párosítása
@@ -121,8 +126,18 @@ function i_u($type, $tabla, $tomb) {
                 $_POST[$ertek['name']] = str_replace(array(' ', ','), array('', '.'), $_POST[$ertek['name']]);
             }
 
-    		// Ha nem gomb, nem fájl és nem disabled és az oszlopnév sem üres és maga a POST egyáltalán létezik is (ne nullázzunk felül el nem küldött POST miatt)
-    		if($ertek['type'] != 'submit' && $ertek['type'] != 'button' && $ertek['type'] != 'file' && $ertek['type'] != 'flashfile' && $ertek['type'] != 'jsfile' && !($ertek['disabled'] && $ertek['name']!='szallito_id' && !$ertek['sql_disabledkor_is']/* Disabled mezőt mégis tároljuk el... így jelezhető */ && $type == 'update'/*Tiltott mezőket beszúrni lehet csak moddolni nem*/) && $ertek['name'] && isset($_POST[$ertek['name']]) ) {
+    		// Az oszlop/érték párokat felvesszük egy tömbbe, ha:
+    		if(  
+                $ertek['type'] != 'submit' && $ertek['type'] != 'button' && $ertek['type'] != 'file' && $ertek['type'] != 'flashfile' && $ertek['type'] != 'jsfile' && // ... ha megfelelő fajtájú input
+                !(
+                    $ertek['disabled'] &&
+                    $ertek['name']!='szallito_id'   && 
+                    !$ertek['sql_disabledkor_is']   &&  // Tiltott mezőt mégis eltároljuk, ha van "sql_disabledkor_is" tulajdonásga. Ez arra az esetre kell, ha egy mező betöltéskor Disabled, de az adatlap szerkesztések közben JS engedélyez egy tiltott mezőt.  Ilyenkor mentsük is el az értékét.
+                    $type == 'update'                   // Tiltott mezőket beszúrni lehet csak moddolni nem
+                )                                   && 
+                $ertek['name']                      && // oszlopnév sem üres és maga a POST egyáltalán létezik is (ne nullázzunk felül el nem küldött POST miatt)
+                isset($_POST[$ertek['name']])
+            ) {
                 array_push($oszlopok, $ertek['name']);
     			array_push($ertekek, trim($_POST[$ertek['name']]));
     		}
@@ -1560,7 +1575,6 @@ function js_kiir($tomb, $fg = 'form_ell_regi()', $ajax = false) {
                         if(volt_helytelen){
                             return false;
                         }
-
             ');
 
 
@@ -1582,8 +1596,8 @@ function js_kiir($tomb, $fg = 'form_ell_regi()', $ajax = false) {
                 }
 
                 // Ha numerikus a mező, akkor a 0,00 is üres értéknek számít
-                if(strpos($ertek['class'], 'f_num')!==false){
-                    $ret .= 'if(document.getElementById(\''.$ertek['name'].'\').value==\'0,00\'){ document.getElementById(\''.$ertek['name'].'\').className += \' alert\'; $(\'#'.$ertek['name'].'\').addClass(\'hibas_ide_focus\'); alert2(\''.$ertek['alert'].'\', \'\', \''.$hiba_txt.'\'); alert_utan_mehet_megsem_mutat_beallit(); return false; }';
+                if( strpos($ertek['class'], 'f_num')!==false ){
+                    $ret .= 'if( $(\'#'.$ertek['name'].'\').val()==\'0,00\' && !$(\'#'.$ertek['name'].'\')[0].hasAttribute(\'readonly\') && !$(\'#'.$ertek['name'].'\')[0].hasAttribute(\'disabled\') ){ document.getElementById(\''.$ertek['name'].'\').className += \' alert\'; $(\'#'.$ertek['name'].'\').addClass(\'hibas_ide_focus\'); alert2(\''.$ertek['alert'].'\', \'\', \''.$hiba_txt.'\'); alert_utan_mehet_megsem_mutat_beallit(); return false; }';
                 }
 
                 // Ha dátum tipusú a mezők ellenőrzése
@@ -1673,6 +1687,7 @@ function js_kiir($tomb, $fg = 'form_ell_regi()', $ajax = false) {
         }
     }
 
+    
     // Update_dt is kerüljön bele
     $param .= 'update_dt=\'+$(\'#update_dt\').val()+\'&amp;';
 
@@ -1783,6 +1798,7 @@ function js_kiir($tomb, $fg = 'form_ell_regi()', $ajax = false) {
         ');
     }
 
+    // Költséghely és költségnem esetén a foglalt id ellenőrzése
     if( basename(self())=='ktghely.php' || basename(self())=='ktgnem.php' ){
 
         $ret .= nl2('

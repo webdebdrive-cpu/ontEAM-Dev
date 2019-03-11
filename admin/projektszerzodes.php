@@ -937,6 +937,32 @@ require_once('selectek.php');
         
         $js_submit_elott = nl2('
             
+                /* Deviza nettó mező kötelező-e, ha igen, van-e értéke? */
+                if( $(\'#dev_net\').hasClass(\'csillag\') && ( !$(\'#dev_net\').val() || $(\'#dev_net\').val()==\'0,00\' ) ){
+
+                    alert2(\'Kérem adja meg a Deviza nettó értéket!\', \'\', \'Hiba\');
+                    alert_utan_mehet_megsem_mutat_beallit();
+                    $(\'#dev_net\').addClass(\'hibas_ide_focus\');
+                    return false;
+
+                /* "Ebből építési" mező kötelező-e, ha igen, akkor van-e értéke? */
+                }else if( $(\'#epitesi_eng\').prop(\'checked\') && (!$(\'#epitesi\').val() || $(\'#epitesi\').val()==0 ) ){
+
+                    alert2(\'Kérem adja meg, hogy a szerződött összegből mennyi az építési!\', \'\', \'Hiba\');
+                    alert_utan_mehet_megsem_mutat_beallit();
+                    $(\'#epitesi\').addClass(\'hibas_ide_focus\');
+                    return false;
+
+                /* "Ebből építési" mező értéke nem lehet több mint a szerződött összeg.*/
+                }else if( Number( $(\'#epitesi\').val().replace(/ /g, \'\') ) > Number( $(\'#szerz_ossz\').val().replace(/ /g, \'\') ) ){
+
+                    alert2(\'A szerződött összegtől nem lehet több az építési összeg!+\', \'\', \'Hiba\');
+                    alert_utan_mehet_megsem_mutat_beallit();
+                    $(\'#epitesi\').addClass(\'hibas_ide_focus\');
+                    return false;
+                    
+                }
+            
                 var dfrd_pr_mehet = false;
                 var hibauzenet    = \'\';
                 dfrd_pr_szerzodes = $.Deferred();
@@ -955,6 +981,7 @@ require_once('selectek.php');
                         kolt_vis                : $(\'#kolt_vis\').val(),
                         pr_szam                 : $(\'#pr_szam\').val(),
                         szerz_ossz              : $(\'#szerz_ossz\').val(),
+                        sz_koto                 : $(\'#sz_koto\').val(),
                         hasonlo_szerzodes_mehet : $(\'#hasonlo_szerzodes_mehet\').val(),
                         van_tetel               : Date.now()
                     },
@@ -1076,12 +1103,34 @@ require_once('selectek.php');
 	} elseif(isset($_GET['modosit'])) {
 
         $js_submit_elott = nl2('
+            /* Deviza nettó mező kötelező-e, ha igen, van-e értéke? */
             if( $(\'#dev_net\').hasClass(\'csillag\') && ( !$(\'#dev_net\').val() || $(\'#dev_net\').val()==\'0,00\' ) ){
+            
                 alert2(\'Kérem adja meg a Deviza nettó értéket!\', \'\', \'Hiba\');
+                alert_utan_mehet_megsem_mutat_beallit();
                 $(\'#dev_net\').addClass(\'hibas_ide_focus\');
                 return false;
+              
+            /* "Ebből építési" mező kötelező-e, ha igen, akkor van-e értéke? */
+            }else if( $(\'#epitesi_eng\').prop(\'checked\') && (!$(\'#epitesi\').val() || $(\'#epitesi\').val()==0 ) ){
+                
+                alert2(\'Kérem adja meg, hogy a szerződött összegből mennyi az építési!\', \'\', \'Hiba\');
+                alert_utan_mehet_megsem_mutat_beallit();
+                $(\'#epitesi\').addClass(\'hibas_ide_focus\');
+                return false;
+                
+            /* "Ebből építési" mező értéke nem lehet több mint a szerződött összeg.*/
+            }else if( Number( $(\'#epitesi\').val().replace(/ /g, \'\') ) > Number( $(\'#szerz_ossz\').val().replace(/ /g, \'\') ) ){
+
+                alert2(\'A szerződött összegtől nem lehet több az építési összeg!\', \'\', \'Hiba\');
+                alert_utan_mehet_megsem_mutat_beallit();
+                $(\'#epitesi\').addClass(\'hibas_ide_focus\');
+                return false;
+
             }else{
+            
                 return form_ell_admin();
+                
             }
             ');
         

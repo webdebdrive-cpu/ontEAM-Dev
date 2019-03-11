@@ -11,6 +11,10 @@
 \*                                                                                                                                         */
 require_once('../weblap.php');
 
+if (isset($_GET['teszt'])) {
+    var_dump($_SESSION['szures_mezo']);
+}
+
 if( isset($_GET['info']) && $_SESSION[get_db_tabla().'user'] ){
     phpinfo();
     exit;

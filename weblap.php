@@ -152,7 +152,7 @@ if( empty($_POST) && basename(self()) == 'anyagigenyles.php' && !$_GET['anyagren
 // Új feltöltés után, a szűrést jegyezzük meg. Ezt SESSION-ba törétnő eltárolással tesszük meg.
 // Csak akkor módosítjuk a seesion-t, ha egy adatlapon vaguynk
 $kiveteles_oldal = array('dokumentumtar.php', 'eszkozkezeles.php');
-if( ($_GET['id'] && isset($_GET['modosit'])) || (in_array(basename(self()), $kiveteles_oldal) && empty($_POST)) ){
+if( ($_GET['id'] && isset($_GET['modosit']) && !isset($_GET['no_lista'])) || (in_array(basename(self()), $kiveteles_oldal) && empty($_POST)) ){
     $_SESSION['szures_mezo'] = $_GET['mezo'];
     $_SESSION['szures_op']   = $_GET['op'];
     $_SESSION['szures_felt'] = $_GET['felt'];
