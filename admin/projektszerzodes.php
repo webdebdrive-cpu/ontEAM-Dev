@@ -931,8 +931,6 @@ require_once('selectek.php');
         ');
         
     }
-
-    $js_submit_elott = 'return form_ell_admin();';
     
 	// Új projektkezelés felvitele
 	if( isset($_GET['uj']) && (_jog(JOG_PRKEZEL_SZERZODES_KEZEL) || _jog(JOG_PR_SAJAT_SZERZ_KEZEL)) ){
@@ -1077,6 +1075,16 @@ require_once('selectek.php');
 	// Projektszerződés módosítása
 	} elseif(isset($_GET['modosit'])) {
 
+        $js_submit_elott = nl2('
+            if( $(\'#dev_net\').hasClass(\'csillag\') && ( !$(\'#dev_net\').val() || $(\'#dev_net\').val()==\'0,00\' ) ){
+                alert2(\'Kérem adja meg a Deviza nettó értéket!\', \'\', \'Hiba\');
+                $(\'#dev_net\').addClass(\'hibas_ide_focus\');
+                return false;
+            }else{
+                return form_ell_admin();
+            }
+            ');
+        
         // Ha Gyorskeresőből érkeznénk ide, akkor az ID-t valójában az id_hidden tartalmazza majd
         if(isset($_GET['id_hidden'])){
             $_GET['id'] = $_GET['id_hidden'];

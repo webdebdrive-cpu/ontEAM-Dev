@@ -76,6 +76,14 @@ function i_u($type, $tabla, $tomb) {
         array_push($oszlopok, 'gep_txt');
         array_push($ertekek,  $gep_txt);
     }
+    // Projektszerződésnél ha nincs pénznem információnk, akkor a devizás mezőket nullázzuk a biztosnág kedvéért
+    if( $tabla=='projektszerzodes' ){
+        if( !$_POST['kcs_21'] ){
+            $_POST['arfolyam']  = '';
+            $_POST['valtva']    = '';
+            $_POST['dev_net']   = '';
+        }
+    }
 
     // Értékek párosítása
 	$i = 0;
@@ -114,7 +122,7 @@ function i_u($type, $tabla, $tomb) {
             }
 
     		// Ha nem gomb, nem fájl és nem disabled és az oszlopnév sem üres és maga a POST egyáltalán létezik is (ne nullázzunk felül el nem küldött POST miatt)
-    		if($ertek['type'] != 'submit' && $ertek['type'] != 'button' && $ertek['type'] != 'file' && $ertek['type'] != 'flashfile' && $ertek['type'] != 'jsfile' && !($ertek['disabled'] && $ertek['name'] != 'szallito_id' && $type == 'update'/*Tiltott mezőket beszúrni lehet csak moddolni nem*/) && $ertek['name'] && isset($_POST[$ertek['name']]) ) {
+    		if($ertek['type'] != 'submit' && $ertek['type'] != 'button' && $ertek['type'] != 'file' && $ertek['type'] != 'flashfile' && $ertek['type'] != 'jsfile' && !($ertek['disabled'] && $ertek['name']!='szallito_id' && !$ertek['sql_disabledkor_is']/* Disabled mezőt mégis tároljuk el... így jelezhető */ && $type == 'update'/*Tiltott mezőket beszúrni lehet csak moddolni nem*/) && $ertek['name'] && isset($_POST[$ertek['name']]) ) {
                 array_push($oszlopok, $ertek['name']);
     			array_push($ertekek, trim($_POST[$ertek['name']]));
     		}
@@ -5159,11 +5167,15 @@ function projektszerzodesLista( $bejegyzesek, $tabla, $frissit, $kijeloltek ) {
             $li_tart = '<a class="szamla" data-recid="'.$bsz['recid'].'" data-fajl="'.$tabla.'.php" data-muvelet="modosit">
                             <table style="width: 30rem">
                             <tr>
-                                <td style="width: 10rem">'.$bsz['sz_szam'].'</td>
-                                <td style="width: 20rem">'.getSzallodaNev($bsz['telephely_id']).'</td>
+                                <td style="width: 8rem">'.$bsz['sz_szam'].'</td>
+                                <td style="width: 10rem">'.getSzallodaNev($bsz['telephely_id']).'</td>
+                                <td style="width: 7rem" class="r nowrap">'. number_format($bsz['szerz_ossz'], 0, '', ' ').' '. get_penznem().'</td>
                             </tr>
                             <tr>
-                                <td colspan="2">'.resz_string($bsz['targy'], 60).'</td>
+                                <td colspan="3">'.getErtek('nev', 'szallito', 'id', $bsz['szallito_id']).'</td>
+                            </tr>
+                            <tr>
+                                <td colspan="3">'.resz_string($bsz['targy'], 60).'</td>
                             </tr>
                             </table>
                         </a>';

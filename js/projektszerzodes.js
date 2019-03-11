@@ -65,3 +65,20 @@ function tetelek_kezelese_popup_nyit(){
         csoportMuvelet('projektszerzodes_tetelek_kezelese');
     }
 }
+
+/* Pénznem szerkesztésekor a kapcsolódó mezők disabled-ezése */
+$(document).on('input, blur', '#kcs_21_autocomp', function(e) {
+    /* Azért van egy settimeoutban, mert a mezőt elhagyva még az autocomplete feltölti adattal. De az elhagyás pillanatában még üres. */
+    setTimeout(function(){
+        if( $('#kcs_21_autocomp').val() ){
+            $('#arfolyam')  .removeAttr('disabled').removeAttr('readonly');
+            $('#valtva')    .removeAttr('disabled').removeAttr('readonly');
+            $('#dev_net')   .removeAttr('disabled').removeAttr('readonly');
+            $('#dev_net')   .addClass('csillag');
+        }else{
+            $('#arfolyam')  .val('0.0000')      .attr('disabled', 'disabled').attr('readonly', 'readonly').removeClass('mod');
+            $('#valtva')    .val('0000.00.00')  .attr('disabled', 'disabled').attr('readonly', 'readonly').removeClass('mod');
+            $('#dev_net')   .val('0.00')        .attr('disabled', 'disabled').attr('readonly', 'readonly').removeClass('mod').removeClass('csillag');
+        }
+    }, 200);
+});

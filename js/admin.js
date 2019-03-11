@@ -250,7 +250,7 @@ function login_torol(id){
 
 }
 
-/* Jogosultságok: mi milyen php-t lát */
+// Jogosultságok: mi milyen php-t lát
 function jog_mentes(id){
 
     $.ajax({
@@ -266,7 +266,7 @@ function jog_mentes(id){
 }
 
 
-/* Jog tölése*/
+// Jog tölése
 function jog_torol(id){
 
     $.ajax({
@@ -1690,7 +1690,7 @@ $(function() {
 
     });
     
-    /* Összetett szűrők törlése */
+    // Összetett szűrők törlése
     $(document).on('click', '.f_o_szures_torol', function(e) {
         $.ajax({
             url : 'esemenyek.php',

@@ -744,7 +744,9 @@ switch($tabla) {
                                     `'.get_db_tabla().$tabla_nophp.'`.`recid`,
                                     `'.get_db_tabla().$tabla_nophp.'`.`sz_szam`,
                                     `'.get_db_tabla().$tabla_nophp.'`.`telephely_id`,
-                                    `'.get_db_tabla().$tabla_nophp.'`.`targy`
+                                    `'.get_db_tabla().$tabla_nophp.'`.`targy`,
+                                    `'.get_db_tabla().$tabla_nophp.'`.`szerz_ossz`,
+                                    `'.get_db_tabla().$tabla_nophp.'`.`szallito_id`
                                     ');
 
         // Ezek az oszlopok generálódnak ki a rendezés selectbe, lehet szépíteni az oszlopneveket, amit a getOszlopNev() függvényben kell beállítani
@@ -2419,12 +2421,19 @@ if( get_projekt_szerzodes_kezel_jog($_GET['id']) || isset($_GET['uj']) ){
 
 $projekt_neve       = '';
 $szalloda_disabled  = false;
+$arfolyam_disabled  = true;
+$deviza_alert       = '';
 if (isset($_GET['modosit'])) {
     $szalloda_disabled = true;
-    $proj = $adatbazis_kapcsolat->s2('pr_szam', 'projektszerzodes', "`recid`='{$_GET['id']}'");
-    $proj = $adatbazis_kapcsolat->s2('recid nev', 'projektkezeles', "`ikt_szam`='{$proj['pr_szam']}'");
+    $proj_szerz = $adatbazis_kapcsolat->s2('pr_szam kcs_21', 'projektszerzodes', "`recid`='{$_GET['id']}'");
+    $proj = $adatbazis_kapcsolat->s2('recid nev', 'projektkezeles', "`ikt_szam`='{$proj_szerz['pr_szam']}'");
     $projekt_neve = '<a href="projektkezeles.php?id='.$proj['recid'].'&amp;modosit" target="_blank">'.$proj['nev'].'</a>';
     
+    // Ha a pénznem ki van töltve, csak akkor szerkeszthetőek az árfolyamos mezők
+    if( $proj_szerz['kcs_21'] ){
+        $arfolyam_disabled  = false;
+        $deviza_alert       = 'Kérem adja meg a Deviza nettó értéket!';
+    }
 }
 $projektszerzodes_tomb = $akt_tomb = array(
     array('type' => 'select_felh_telephely','megn' => 'Szálloda:',              'name' => 'telephely_id',       'szuro' => 1,   'class' => 'disableNav',        'style' => 'width: 100%;', 'alert' => 'Kérem válasszon szállodát!', 'disabled' => $szalloda_disabled),
@@ -2435,8 +2444,12 @@ $projektszerzodes_tomb = $akt_tomb = array(
     array('type' => 'autocomplete',         'megn' => 'Projekt felelős:',       'name' => 'let_fel',            'szuro' => 1,   'class' => 'oriasi', 'disabled' => 1, 'tabla' => 'login', 'oszlop_keres' => 'recid', 'oszlop_keres_autocomp' => 'teljes_nev', 'listaz' => 'teljes_nev', 'beosztas_id' => EL_BEOSZTAS_PR_FELEOS, 'id_kiir' => 'recid', 'style' => 'width: 25rem'),
     array('type' => 'textarea',             'megn' => 'Tárgy:',                 'name' => 'targy',              'szuro' => 1,   'class' => 'oriasiTargy disableNav', 'alert' => 'Kérem töltse ki a tárgy mezőt!'),
     array('type' => 'autocomplete',         'megn' => 'Költségviselő:',         'name' => 'kolt_vis',           'szuro' => 1,   'class' => 'oriasi disableNav', 'tabla' => 'erteklista', 'oszlop_keres' => 'id', 'oszlop_keres_autocomp' => 'info', 'listaz' => 'info', 'csoport' => ERTEKLISTA_KOLTSEGVISELO, 'id_kiir' => 'id',  'alert' => 'Kérem válasszon költségviselőt!'),
-    array('type' => 'text',                 'megn' => 'Szerződött összeg:',     'name' => 'szerz_ossz',          'szuro' => 1,   'class' => 'f_num', 'data' => 'data-tort="0"', 'nulla_is_ures_adat' => 1,  'alert' => 'Kérem adja meg a szerződött összeget!', 'style' => 'width: 12rem', 'post' => ' '. get_penznem()),
-    array('type' => 'text',                 'megn' => 'Kivitelezés kezdete:',   'name' => 'kiv_kezd',           'szuro' => 1,   'class' => 'kicsi datepicker',  'alert' => 'Kérem adja meg a kivitelezés kezdetét!',    'osszevon' => 1, 'post' => '<span style="margin-left: 2rem"></span>'),
+    array('type' => 'autocomplete',         'megn' => 'Pénznem:',               'name' => 'kcs_21',             'szuro' => 1,   'class' => 'disableNav', 'tabla' => 'erteklista', 'oszlop_keres' => 'id', 'oszlop_keres_autocomp' => 'info', 'listaz' => 'info', 'csoport' => 21, 'id_kiir' => 'id', 'style' => 'width: 5rem', 'osszevon' => 1, 'post' => '<span style="margin-left: 2rem"></span>'),
+    array('type' => 'text',                 'megn' => 'Árfolyam:',              'name' => 'arfolyam',           'szuro' => 1,   'class' => 'f_num',                             'disabled' => $arfolyam_disabled, 'data' => 'data-tort="4"', 'osszevon' => 1, 'post' => '<span style="margin-left: 2rem"></span>', 'sql_disabledkor_is' => 1),
+    array('type' => 'text',                 'megn' => 'Átváltva:',              'name' => 'valtva',             'szuro' => 1,   'class' => 'kicsi datepicker',                  'disabled' => $arfolyam_disabled, 'sql_disabledkor_is' => 1),
+    array('type' => 'text',                 'megn' => 'Deviza nettó:',          'name' => 'dev_net',            'szuro' => 1,   'class' => 'f_num', 'data' => 'data-tort="2"',  'disabled' => $arfolyam_disabled, 'sql_disabledkor_is' => 1, 'alert' => $deviza_alert),
+    array('type' => 'text',                 'megn' => 'Szerződött összeg:',     'name' => 'szerz_ossz',         'szuro' => 1,   'class' => 'f_num', 'data' => 'data-tort="0"', 'nulla_is_ures_adat' => 1,  'alert' => 'Kérem adja meg a szerződött összeget!', 'style' => 'width: 12rem', 'post' => ' '. get_penznem()),
+    array('type' => 'text',                 'megn' => 'Kivitelezés kezdete:',   'name' => 'kiv_kezd',           'szuro' => 1,   'class' => 'kicsi datepicker',  'alert' => 'Kérem adja meg a kivitelezés kezdetét!', 'osszevon' => 1, 'post' => '<span style="margin-left: 2rem"></span>'),
     array('type' => 'text',                 'megn' => 'Kivitelezés vége:',      'name' => 'kiv_vege',           'szuro' => 1,   'class' => 'kicsi datepicker',  'alert' => 'Kérem adja meg a kivitelezés végét!'),
     array('type' => 'text',                 'megn' => 'Műszaki átvétel:',       'name' => 'muszak_atv',         'szuro' => 1,   'class' => 'kicsi datepicker'),
     array('type' => 'text',                 'megn' => 'Garancia kezdete:',      'name' => 'muszaki_gar_kezd',   'szuro' => 1,   'class' => 'kicsi datepicker',  'osszevon' => 1, 'post' => '<span style="margin-left: 2rem"></span>'),
