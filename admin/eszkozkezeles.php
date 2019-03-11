@@ -475,6 +475,8 @@ require_once('selectek.php');
             $sor[$rend_mezo] = '';
         }
 
+        // Új feltöltéskor az $akt_tomb mindig az eszközkezelés, még akkor is, ha egy obj-on (helyiségen) állunk. Emiatt kell itt felülírni.
+        $akt_tomb = $eszkozkezeles_tomb;
         foreach($akt_tomb as $tomb) {
             if( $tomb['type'] == 'autocomplete' ) {
                 $sor[$tomb['name'].'_autocomp'] = '';

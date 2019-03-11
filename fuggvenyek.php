@@ -1006,8 +1006,18 @@ function i_u($type, $tabla, $tomb) {
 
                                         // Autocompletes mezők
                                         if( $elem['type']=='autocomplete' ){
-                                            $uj_ertek = getErtek($elem['listaz'], $elem['tabla'], $elem['oszlop_keres'], $uj_ertek);
-                                            $value    = getErtek($elem['listaz'], $elem['tabla'], $elem['oszlop_keres'], $value   );
+                                            if( $elem['tabla'] == 'erteklista' ){
+                                                if( $elem['oszlop_keres']=='id' ){
+                                                    $uj_ertek = getErtekLista($elem['csoport'], $uj_ertek   );
+                                                    $value    = getErtekLista($elem['csoport'], $value      );
+                                                }elseif( $elem['oszlop_keres']=='id' ){
+                                                    $uj_ertek = getErtekLista($elem['csoport'], '', $uj_ertek   );
+                                                    $value    = getErtekLista($elem['csoport'], '', $value      );
+                                                }
+                                            }else{
+                                                $uj_ertek = getErtek($elem['listaz'], $elem['tabla'], $elem['oszlop_keres'], $uj_ertek);
+                                                $value    = getErtek($elem['listaz'], $elem['tabla'], $elem['oszlop_keres'], $value   );
+                                            }
                                         }
                                         
                                         // Szálloda select lekezelése
@@ -1021,6 +1031,9 @@ function i_u($type, $tabla, $tomb) {
                                 if($mezo_neve){
                                     if(!$uj_ertek){
                                         $uj_ertek = '[üres]';
+                                    }
+                                    if(!$value){
+                                        $value = '[üres]';
                                     }
                                     $valtozas_megj  .= $mezo_neve.' mező előző értéke: <b>'.$value.'</b>. Új értéke: <b>'.$uj_ertek.'</b><br>';
                                 }

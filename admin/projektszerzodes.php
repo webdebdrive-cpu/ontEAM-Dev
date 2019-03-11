@@ -532,7 +532,7 @@ if (isset($_POST['van_tetel'])) {
             echo json_encode(array(
                 'hiba'  => 'Szálloda: '. getSzallodaNev($_POST['telephely_id']).'
                             <br>Szerződő partner: '.getErtek('nev', 'szallito', 'id', $_POST['szallito_id']).'
-                            <br>Szerződött összeg: '. number_format($_POST['szerz_ossz'], 0, '', '.').' '.get_penznem().'
+                            <br>Szerződött összeg: '. number_format($szerzodes_osszege, 0, '', '.').' '.get_penznem().'
                             <br>Az Ön által megadott szálloda, szerződő partner és szerződött összeg szerint már létezik szerződés.
                             <br>Szerződés szám: '.$szerzodes['sz_szam'].'
                             <br>Folytatja?',
