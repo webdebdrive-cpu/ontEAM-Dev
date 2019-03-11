@@ -1002,6 +1002,11 @@ if (isset($_GET['csv'])) {
                             `'.get_db_tabla().$megnevezes.'`.`telephely_id` as \'Szálloda\',
                             `'.get_db_tabla().$megnevezes.'`.`szallito_id` as \'Partner\',
                             `'.get_db_tabla().$megnevezes.'`.`targy` as \'Tárgy\',
+                            `'.get_db_tabla().$megnevezes.'`.`kcs_21` as \'Pénznem\',
+                            `'.get_db_tabla().$megnevezes.'`.`arfolyam` as \'Árfolyam\',
+                            `'.get_db_tabla().$megnevezes.'`.`valtva` as \'Átváltva\',
+                            `'.get_db_tabla().$megnevezes.'`.`dev_net` as \'Deviza nettó\',
+                            `'.get_db_tabla().$megnevezes.'`.`dev_br` as \'Deviza bruttó\',
                             `'.get_db_tabla().$megnevezes.'`.`netto` as \'Nettó érték\',
                             `'.get_db_tabla().$megnevezes.'`.`brutto` as \'Bruttó érték\',
                             `'.get_db_tabla().$megnevezes.'`.`visszaadva` as \'Visszaadva\',
@@ -1037,10 +1042,13 @@ if (isset($_GET['csv'])) {
                         if($kulcs=='Költségviselő'){
                             $sor = erteklista(ERTEKLISTA_KOLTSEGVISELO, $sor);
                         }
+                        if($kulcs=='Pénznem'){
+                            $sor = erteklista(ERTEKLISTA_PENZNEM, $sor);
+                        }
                         if($kulcs=='Felelős'){
                             $sor = getErtek('teljes_nev', 'login', 'recid', $sor);
                         }
-                        if($kulcs=='Céghez érkezett' || $kulcs=='Kelte' || $kulcs=='Teljesítés dátuma' || $kulcs=='Fizetési határidő' || $kulcs=='Visszaadva dátum'  ){
+                        if($kulcs=='Céghez érkezett' || $kulcs=='Kelte' || $kulcs=='Teljesítés dátuma' || $kulcs=='Fizetési határidő' || $kulcs=='Visszaadva dátum' || $kulcs=='Átváltva'  ){
                             $sor = datum_kiir($sor);
                         }
                         if($kulcs=='Visszaadva'){
@@ -1063,7 +1071,7 @@ if (isset($_GET['csv'])) {
                     $i++;
                 }
 
-            // Projektszerződések exportja
+            // Projektszámlák exportja
             }else{
 
                 if( strstr($_SESSION['akt_sql'], 'WHERE') ) {
@@ -1081,6 +1089,11 @@ if (isset($_GET['csv'])) {
                             `'.get_db_tabla().$megnevezes.'`.`telephely_id` as \'Szálloda\',
                             `'.get_db_tabla().$megnevezes.'`.`szallito_id` as \'Partner\',
                             `'.get_db_tabla().$megnevezes.'`.`targy` as \'Tárgy\',
+                            `'.get_db_tabla().$megnevezes.'`.`kcs_21` as \'Pénznem\',
+                            `'.get_db_tabla().$megnevezes.'`.`arfolyam` as \'Árfolyam\',
+                            `'.get_db_tabla().$megnevezes.'`.`valtva` as \'Átváltva\',
+                            `'.get_db_tabla().$megnevezes.'`.`dev_net` as \'Deviza nettó\',
+                            `'.get_db_tabla().$megnevezes.'`.`dev_br` as \'Deviza bruttó\',
                             `'.get_db_tabla().$megnevezes.'`.`netto` as \'Nettó érték\',
                             `'.get_db_tabla().$megnevezes.'`.`brutto` as \'Bruttó érték\',
                             `'.get_db_tabla().$megnevezes.'`.`visszaadva` as \'Visszaadva\',
@@ -1113,10 +1126,13 @@ if (isset($_GET['csv'])) {
                         if($kulcs=='Költségviselő'){
                             $sor = erteklista(ERTEKLISTA_KOLTSEGVISELO, $sor);
                         }
+                        if($kulcs=='Pénznem'){
+                            $sor = erteklista(ERTEKLISTA_PENZNEM, $sor);
+                        }
                         if($kulcs=='Felelős'){
                             $sor = getErtek('teljes_nev', 'login', 'recid', $sor);
                         }
-                        if($kulcs=='Céghez érkezett' || $kulcs=='Kelte' || $kulcs=='Teljesítés dátuma' || $kulcs=='Fizetési határidő' || $kulcs=='Visszaadva dátum'  ){
+                        if($kulcs=='Céghez érkezett' || $kulcs=='Kelte' || $kulcs=='Teljesítés dátuma' || $kulcs=='Fizetési határidő' || $kulcs=='Visszaadva dátum' || $kulcs=='Átváltva' ){
                             $sor = datum_kiir($sor);
                         }
                         if($kulcs=='Visszaadva'){
@@ -1320,7 +1336,24 @@ require_once('selectek.php');
         $szamla_html .= '<script>var netto_br_ell = false;</script>';
         $js_submit_elott = nl2('
 
-                /* Első lépésként a bruttó és nettó mezőt ellenőrizzük */
+                /* Deviza nettó mező kötelező-e, ha igen, van-e értéke? */
+                if( $(\'#dev_net\').hasClass(\'csillag\') && ( !$(\'#dev_net\').val() || $(\'#dev_net\').val()==\'0,00\' ) ){
+
+                    alert2(\'Kérem adja meg a Deviza nettó értéket!\', \'\', \'Hiba\');
+                    alert_utan_mehet_megsem_mutat_beallit();
+                    $(\'#dev_net\').addClass(\'hibas_ide_focus\');
+                    return false;
+                }
+                /* Deviza bruttó mező kötelező-e, ha igen, van-e értéke? */
+                if( $(\'#dev_br\').hasClass(\'csillag\') && ( !$(\'#dev_br\').val() || $(\'#dev_br\').val()==\'0,00\' ) ){
+
+                    alert2(\'Kérem adja meg a Deviza bruttó értéket!\', \'\', \'Hiba\');
+                    alert_utan_mehet_megsem_mutat_beallit();
+                    $(\'#dev_br\').addClass(\'hibas_ide_focus\');
+                    return false;
+                }
+
+                /* A bruttó és nettó mezőt is ellenőrizzük */
                 var hibauzi = pr_szamla_netto_br_ell();
                 if( hibauzi && !netto_br_ell ){
                     alert2(hibauzi, \'<input type="button" class="gomb zold" value="Igen" onclick="netto_br_ell=true; mentesGomb(); alert2();"> <input type="button" class="gomb piros" value="Nem" onclick="alert2();">\', \'Hiba\');
@@ -1479,8 +1512,25 @@ require_once('selectek.php');
         $szamla_html .= '<script>var visszaadva_pipa_mehet = false;</script>';
         $szamla_html .= '<script>var netto_br_ell = false;</script>';
         $js_submit_elott = nl2('
+            
+            /* Deviza nettó mező kötelező-e, ha igen, van-e értéke? */
+            if( $(\'#dev_net\').hasClass(\'csillag\') && ( !$(\'#dev_net\').val() || $(\'#dev_net\').val()==\'0,00\' ) ){
 
-            /* Első lépésként a bruttó és nettó mezőt ellenőrizzük */
+                alert2(\'Kérem adja meg a Deviza nettó értéket!\', \'\', \'Hiba\');
+                alert_utan_mehet_megsem_mutat_beallit();
+                $(\'#dev_net\').addClass(\'hibas_ide_focus\');
+                return false;
+            }
+            /* Deviza bruttó mező kötelező-e, ha igen, van-e értéke? */
+            if( $(\'#dev_br\').hasClass(\'csillag\') && ( !$(\'#dev_br\').val() || $(\'#dev_br\').val()==\'0,00\' ) ){
+
+                alert2(\'Kérem adja meg a Deviza bruttó értéket!\', \'\', \'Hiba\');
+                alert_utan_mehet_megsem_mutat_beallit();
+                $(\'#dev_br\').addClass(\'hibas_ide_focus\');
+                return false;
+            }
+
+            /* A bruttó és nettó mezőt is ellenőrizzük */
             var hibauzi = pr_szamla_netto_br_ell();
             if( hibauzi && !netto_br_ell ){
                 alert2(hibauzi, \'<input type="button" class="gomb zold" value="Igen" onclick="netto_br_ell=true; mentesGomb(); alert2();"> <input type="button" class="gomb piros" value="Nem" onclick="alert2();">\', \'Hiba\');

@@ -324,6 +324,56 @@ if($kepek){
 
         $i++;
     }
+    
+    // Projektek adatlapján felsoroljuk a kapcsolódó szerződések és számák dokuemtumait is
+    if( $apa_tabla == 'projektkezeles' ){
+        $projekt    = $adatbazis_kapcsolat->s2('ikt_szam', 'projektkezeles', "`recid`='{$_GET['id']}'");
+        $szerzodes  = $adatbazis_kapcsolat->s2('recid', 'projektszerzodes', "`pr_szam`='{$projekt['ikt_szam']}'");
+        $kepek      = $adatbazis_kapcsolat -> s('*', 'projektszerzodes_dok', "`projektszerzodes_id`='{$szerzodes['recid']}'", 'sor');
+        
+        if( $kepek ){
+            $tobbkep_html .= nl2('
+                                <li style="margin: 2rem 0rem 0.3rem 0">
+                                    <h3>Projektszerződések dokumentumai</h3>
+                                </li>
+                                <li class="fejlec">
+                                    <div class="kep">Kép</div>
+                                    <div class="felirat c" style="width: 30rem">Fájlnév</div>
+                                    <div class="felirat">Feltöltötte</div>
+                                    <div class="felirat">Dátum</div>
+                                    <div class="maradek torles">Szerződés</div>
+                                </li>
+                ');
+        }
+        foreach($kepek as $sor_kepek) {
+            $tobbkep_html .= get_tobbkep_thumb($sor_kepek, $i, 'projektszerzodes_dok', 'nincs törlés', $szerzodes['recid']);
+            $i++;
+        }
+        
+        
+        $szamla     = $adatbazis_kapcsolat->s2('recid', 'projektszamla', "`pr_szam`='{$projekt['ikt_szam']}'");
+        $kepek      = $adatbazis_kapcsolat -> s('*', 'projektszamla_dok', "`projektszamla_id`='{$szamla['recid']}'", 'sor');
+        
+        if( $kepek ){
+            $tobbkep_html .= nl2('
+                                <li style="margin: 2rem 0rem 0.3rem 0">
+                                    <h3>Projektszámla dokumentumai</h3>
+                                </li>
+                                <li class="fejlec">
+                                    <div class="kep">Kép</div>
+                                    <div class="felirat c" style="width: 30rem">Fájlnév</div>
+                                    <div class="felirat">Feltöltötte</div>
+                                    <div class="felirat">Dátum</div>
+                                    <div class="maradek torles">Számla</div>
+                                </li>
+                ');
+        }
+        foreach($kepek as $sor_kepek) {
+            $tobbkep_html .= get_tobbkep_thumb($sor_kepek, $i, 'projektszamla_dok', 'nincs törlés', $szamla['recid']);
+            $i++;
+        }
+    }
+    
     $tobbkep_html .= '</ul></div>';
 }
 $szamla_html .= $tobbkep_html;
@@ -333,10 +383,9 @@ $szamla_html .= $tobbkep_html;
 
 
 // A több képe thumbnailját hozza létre, egy adatbázis sorból
-function get_tobbkep_thumb($sor_kepek, $i, $tabla, $nincs_torles) {
+function get_tobbkep_thumb($sor_kepek, $i, $tobbkep_tablanev, $nincs_torles, $kulso_recid) {
 
     global $archivum;
-    global $tobbkep_tablanev;
     global $adatbazis_kapcsolat;
     
     if(!$tobbkep_tablanev){
@@ -351,6 +400,8 @@ function get_tobbkep_thumb($sor_kepek, $i, $tabla, $nincs_torles) {
 
     require_once('../weblap.php');
     $tobbkep_html = '';
+    
+    $apa_tabla = csonkit($tobbkep_tablanev, 4);
 
     $sor_kepek['utvonal'] = stripslashes(htmlspecialchars_decode($sor_kepek['utvonal']));
     $csonkit = 4;
@@ -492,10 +543,20 @@ function get_tobbkep_thumb($sor_kepek, $i, $tabla, $nincs_torles) {
         if( $nincs_torles ){
             $torles = '';
         }
+        // Ha kaptunk egy külső recid-t, akkor annak az adatlapjára mutató linket állítjuk elő
+        if( $kulso_recid ){
+            
+            switch ($apa_tabla){
+                case 'projektszerzodes' : $oszlop = 'sz_szam';      break;
+                case 'projektszamla'    : $oszlop = 'szla_szam';    break;
+            }
+            
+            $sor = $adatbazis_kapcsolat->s2($oszlop, $apa_tabla, "`recid`='{$kulso_recid}'");
+            $torles = '<a href="'.$apa_tabla.'.php?id='.$kulso_recid.'&amp;dokumentumok" target="_blank">'.$sor[$oszlop].'</a>';
+        }
 
         // Típus oszlop
         $tipus_oszlop = '';
-        $apa_tabla    = csonkit($tabla, 4);
         if( tipusos_dokumentumok( $apa_tabla ) ){
             $tipus_oszlop = '<div class="felirat">'.erteklista(ERTEKLISTA_DOK_TIPUS, $sor_kepek['tipus']).'</div>';
         }

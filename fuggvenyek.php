@@ -528,7 +528,7 @@ function i_u($type, $tabla, $tomb) {
             // Iktatószám kiszámítása
             $sorszam  = get_iktatoszam_sorszam($tabla);
             if($sorszam===false){ $db_error = true; }
-            $ikt_szam = 'P'.date('y').'/'.sprintf('%04d', $sorszam);
+            $ikt_szam = 'P'.date('y').'/'.sprintf('%03d', $sorszam);
             $_POST['ikt_szam'] = $ikt_szam; // Erre a levélküldésnél lesz szükség
             
             // Felvesszük az értékek közé
@@ -5148,6 +5148,9 @@ function projektszamlaLista( $bejegyzesek, $tabla, $frissit, $kijeloltek ) {
                                 <td class="r nowrap">'. number_format($bsz['netto'], 0, '', ' ').' '.get_penznem().'</td>
                             </tr>
                             <tr>
+                                <td colspan="3">'. getErtek('nev', 'szallito', 'id', $bsz['szallito_id']).'</td>
+                            </tr>
+                            <tr>
                                 <td colspan="3">'.resz_string($bsz['targy'], 60).'</td>
                             </tr>
                             </table>
@@ -6938,7 +6941,14 @@ function get_szures_where_kieg($mezo, $op, $felt, $tabla){
     $felt = sql_ertek($felt);
     
     // Numerikus mezőt visszaalakítjuk
-    if($tabla=='anyagigenyles' && $mezo=='arfolyam'){
+    if(
+            ($tabla=='anyagigenyles'    && $mezo=='arfolyam')  ||
+            ($tabla=='projektszamla'    && $mezo=='dev_net')   ||
+            ($tabla=='projektszamla'    && $mezo=='dev_br')    ||
+            ($tabla=='projektszamla'    && $mezo=='arfolyam')  ||
+            ($tabla=='projektszerzodes' && $mezo=='arfolyam')  ||
+            ($tabla=='projektszerzodes' && $mezo=='dev_net')
+        ){
         $felt = str_replace(',', '.', $felt);
     }
 

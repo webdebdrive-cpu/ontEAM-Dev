@@ -73,8 +73,7 @@ $(document).on('input, blur', '#kcs_21_autocomp', function(e) {
         if( $('#kcs_21_autocomp').val() ){
             $('#arfolyam')  .removeAttr('disabled').removeAttr('readonly').focus();
             $('#valtva')    .removeAttr('disabled').removeAttr('readonly');
-            $('#dev_net')   .removeAttr('disabled').removeAttr('readonly');
-            $('#dev_net')   .addClass('csillag');
+            $('#dev_net')   .removeAttr('disabled').removeAttr('readonly').addClass('csillag');
         }else{
             $('#arfolyam')  .val('0,0000')      .attr('disabled', 'disabled').attr('readonly', 'readonly').removeClass('mod');
             $('#valtva')    .val('0000.00.00')  .attr('disabled', 'disabled').attr('readonly', 'readonly').removeClass('mod');

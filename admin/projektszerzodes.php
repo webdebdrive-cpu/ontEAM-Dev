@@ -607,9 +607,16 @@ if (isset($_GET['csv'])) {
                             `'.get_db_tabla().$megnevezes.'`.`pr_szam` as \'Projekt szám\',
                             `'.get_db_tabla().$megnevezes.'`.`targy` as \'Tárgy\',
                             `'.get_db_tabla().$megnevezes.'`.`kolt_vis` as \'Költségviselő\',
+                            `'.get_db_tabla().$megnevezes.'`.`sz_koto` as \'Szerződést kötő\',
+                            `'.get_db_tabla().$megnevezes.'`.`kcs_21` as \'Pénznem\',
+                            `'.get_db_tabla().$megnevezes.'`.`arfolyam` as \'Árfolyam\',
+                            `'.get_db_tabla().$megnevezes.'`.`valtva` as \'Átváltva\',
+                            `'.get_db_tabla().$megnevezes.'`.`dev_net` as \'Deviza nettó\',
+                            `'.get_db_tabla().$megnevezes.'`.`szerz_ossz` as \'Szerződött összeg\',
+                            `'.get_db_tabla().$megnevezes.'`.`epitesi` as \'Ebből építési\',
+                            `'.get_db_tabla().$megnevezes.'`.`epitesi_eng` as \'Építési eng.\',
                             `'.get_db_tabla().$megnevezes.'`.`kiv_kezd` as \'Kivitelezés kezdete\',
                             `'.get_db_tabla().$megnevezes.'`.`kiv_vege` as \'Kivitelezés vége\',
-                            `'.get_db_tabla().$megnevezes.'`.`szerz_ossz` as \'Szerződött összeg\',
                             `'.get_db_tabla().$megnevezes.'`.`let_fel` as \'Létesítmény felelős\',
                             `'.get_db_tabla().$megnevezes.'`.`muszak_atv` as \'Műszaki átvétel\',
                             `'.get_db_tabla().$megnevezes.'`.`muszaki_gar_kezd` as \'Műszaki garancia kezdete\',
@@ -647,13 +654,19 @@ if (isset($_GET['csv'])) {
                         if($kulcs=='Költségviselő'){
                             $sor = erteklista(ERTEKLISTA_KOLTSEGVISELO, $sor);
                         }
+                        if($kulcs=='Szerződést kötő'){
+                            $sor = erteklista(ERTEKLISTA_SZERZODESTKOTO, $sor);
+                        }
+                        if($kulcs=='Pénznem'){
+                            $sor = erteklista(ERTEKLISTA_PENZNEM, $sor);
+                        }
                         if($kulcs=='Létesítmény felelős'){
                             $sor = getErtek('teljes_nev', 'login', 'recid', $sor);
                         }
-                        if($kulcs=='Műszaki átvétel' || $kulcs=='Kelte' || $kulcs=='Kivitelezés kezdete' || $kulcs=='Kivitelezés vége' || $kulcs=='Bank garancia vége' || $kulcs=='Bank garancia vége' || $kulcs=='Teljesítés'  ){
+                        if($kulcs=='Műszaki átvétel' || $kulcs=='Kelte' || $kulcs=='Kivitelezés kezdete' || $kulcs=='Kivitelezés vége' || $kulcs=='Bank garancia vége' || $kulcs=='Bank garancia vége' || $kulcs=='Teljesítés' || $kulcs=='Átváltva' ){
                             $sor = datum_kiir($sor);
                         }
-                        if($kulcs=='Számlázva'){
+                        if($kulcs=='Számlázva' || $kulcs=='Építési eng.'){
                             if($sor){
                                 $sor = 'igen';
                             }else{
@@ -690,9 +703,16 @@ if (isset($_GET['csv'])) {
                             `pr_szam` as \'Projekt szám\',
                             `targy` as \'Tárgy\',
                             `kolt_vis` as \'Költségviselő\',
+                            `sz_koto` as \'Szerződést kötő\',
+                            `kcs_21` as \'Pénznem\',
+                            `arfolyam` as \'Árfolyam\',
+                            `valtva` as \'Átváltva\',
+                            `dev_net` as \'Deviza nettó\',
+                            `szerz_ossz` as \'Szerződött összeg\',
+                            `epitesi` as \'Ebből építési\',
+                            `epitesi_eng` as \'Építési eng.\',
                             `kiv_kezd` as \'Kivitelezés kezdete\',
                             `kiv_vege` as \'Kivitelezés vége\',
-                            `szerz_ossz` as \'Szerződött összeg\',
                             `let_fel` as \'Létesítmény felelős\',
                             `muszak_atv` as \'Műszaki átvétel\',
                             `muszaki_gar_kezd` as \'Műszaki garancia kezdete\',
@@ -724,13 +744,19 @@ if (isset($_GET['csv'])) {
                         if($kulcs=='Költségviselő'){
                             $sor = erteklista(ERTEKLISTA_KOLTSEGVISELO, $sor);
                         }
+                        if($kulcs=='Szerződést kötő'){
+                            $sor = erteklista(ERTEKLISTA_SZERZODESTKOTO, $sor);
+                        }
+                        if($kulcs=='Pénznem'){
+                            $sor = erteklista(ERTEKLISTA_PENZNEM, $sor);
+                        }
                         if($kulcs=='Létesítmény felelős'){
                             $sor = getErtek('teljes_nev', 'login', 'recid', $sor);
                         }
-                        if($kulcs=='Műszaki átvétel' || $kulcs=='Kelte' || $kulcs=='Kivitelezés kezdete' || $kulcs=='Kivitelezés vége' || $kulcs=='Műszaki garancia kezdete' || $kulcs=='Műszaki garancia vége' || $kulcs=='Bank garancia' || $kulcs=='Bank garancia vége'){
+                        if($kulcs=='Műszaki átvétel' || $kulcs=='Kelte' || $kulcs=='Kivitelezés kezdete' || $kulcs=='Kivitelezés vége' || $kulcs=='Műszaki garancia kezdete' || $kulcs=='Műszaki garancia vége' || $kulcs=='Bank garancia' || $kulcs=='Bank garancia vége' || $kulcs=='Átváltva'){
                             $sor = datum_kiir($sor);
                         }
-                        if($kulcs=='Számlázva'){
+                        if($kulcs=='Számlázva' || $kulcs=='Építési eng.'){
                             if($sor){
                                 $sor = 'igen';
                             }else{
