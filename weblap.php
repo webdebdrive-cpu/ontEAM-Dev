@@ -135,22 +135,6 @@ if( $_GET['id'] ) {
 }
 
 
-/*if( $_GET['id'] ){
-    $akt_lekerdezes = szamla_lista('', '', '', 'csak SQL miatt'); // Ezt azért futtatjuk le, hogy az aktuális oldalnak megfelelő $_SESSION['akt_sql'] jöjjön létre, hogy tudjunk ID-t ellenőrizni.
-    $van_getid = false;
-//echo $akt_lekerdezes . '<br>';
-    $akt_sql = mysqli_query($db_kapcs, $akt_lekerdezes);
-    while( $akt_sor = mysqli_fetch_assoc($akt_sql) ){
-        if( $akt_sor['recid']== $_GET['id'] ){
-            $van_getid = true;
-        }
-    }
-
-    if(!$van_getid){
-        $_GET['id'] = '';
-    }
-}*/
-
 // Ha jóváhagyás joggal léptünk az anyagigénylésekhez, és nem módosítottunk még a szűrésen, akkor alapból leszűrünk az árazva státuszra.
 // Viszont emiatt kell egy get szűrés töröl is, hogy tudjuk mikor kapcsolták ki szándékosan.
 if (isset($_GET['szures_torol'])) {
@@ -163,4 +147,13 @@ if (isset($_GET['szures_torol'])) {
 }
 if( empty($_POST) && basename(self()) == 'anyagigenyles.php' && !$_GET['anyagrend'] && _jog(JOG_ANYAGIGENYLES_JOVAHAGY) && !$_GET['mezo'] && !$_SESSION['szures_torol']){
     header('Location:'.self().get_get('', 'nem &amp;').'&mezo=stat_id&op=equal&felt='.CIKKIGN_STAT_ARAZVA);
+}
+
+// Új feltöltés után, a szűrést jegyezzük meg. Ezt SESSION-ba törétnő eltárolással tesszük meg.
+// Csak akkor módosítjuk a seesion-t, ha egy adatlapon vaguynk
+$kiveteles_oldal = array('dokumentumtar.php', 'eszkozkezeles.php');
+if( ($_GET['id'] && isset($_GET['modosit'])) || (in_array(basename(self()), $kiveteles_oldal) && empty($_POST)) ){
+    $_SESSION['szures_mezo'] = $_GET['mezo'];
+    $_SESSION['szures_op']   = $_GET['op'];
+    $_SESSION['szures_felt'] = $_GET['felt'];
 }

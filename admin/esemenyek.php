@@ -4888,7 +4888,7 @@ foreach($postok as $ertek){
 
 		if(isset($_POST[$ertek['uj']])){
 
-			$u_i_ret  = i_u('insert',$ertek['tabla'],$ertek['tomb']);
+			$u_i_ret  = i_u('insert', $ertek['tabla'], $ertek['tomb']);
 			$errnum   = $u_i_ret['0'];
 			$tabla_id = $u_i_ret['1'];
 			$uj_lista   = 'uj';
@@ -4900,7 +4900,7 @@ foreach($postok as $ertek){
                 $ertek['tomb']  = $obj_tomb;
             }
 
-			$u_i_ret  = i_u('update',$ertek['tabla'],$ertek['tomb']);
+			$u_i_ret  = i_u('update', $ertek['tabla'], $ertek['tomb']);
 			$errnum   = $u_i_ret['0'];
 			$tabla_id = $u_i_ret['1'];
 			$uj_lista   = 'lista';
@@ -4948,7 +4948,12 @@ foreach($postok as $ertek){
                             header('location:'.self().'?tablazat');
                         }
                     }else{
-                        header('location:'.self().str_replace('&amp;','&',get_get(array('id', 'hiba', 'errnum', 'kephiba', 'oldal', 'epo', 'kat', 'rend', 'irany', 'order'))).'&id='.$tabla_id.'&siker');
+                        $header_kieg = '';
+                        if( $_SESSION['szures_mezo'] && $_SESSION['szures_op'] && $_SESSION['szures_felt'] ){
+                            $header_kieg = '&mezo='.$_SESSION['szures_mezo'].'&op='.$_SESSION['szures_op'].'&felt='.$_SESSION['szures_felt'];
+                        }
+
+                        header('location:'.self().str_replace('&amp;','&',get_get(array('id', 'hiba', 'errnum', 'kephiba', 'oldal', 'epo', 'kat', 'rend', 'irany', 'order'))).'&id='.$tabla_id.$header_kieg.'&siker');
                     }
                 }
             }

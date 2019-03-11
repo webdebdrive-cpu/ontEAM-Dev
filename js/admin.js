@@ -229,12 +229,12 @@ function login_mentes(id){
 
 }
 
-/* Előkészítés joggal aki rendelkezik, az így is létre tud hozni munkalapot */
+// Előkészítés joggal aki rendelkezik, az így is létre tud hozni munkalapot
 function uj_munkalap_elokeszites_joggal(){
-    alert2('<div class="c"><input type="button" class="gomb" value="Előkészítésre" onclick="location.href=\'munkalap.php?uj&amp;elokeszitesre\'" style="margin-bottom: 2rem; width: 15rem"><br><input type="button" class="gomb kek" value="Telepítettnek" onclick="location.href=\'munkalap.php?uj&amp;telepitettnek\'" style="margin-bottom: 4rem; width: 15rem"><br><input type="button" class="gomb piros" value="Mégsem" onclick="alert2()" style="margin-bottom: 1rem;"></div>', '<div class="dn">Fiktív tartalom</div>', 'Új munkalap készítése');
+    alert2('<div class="c"><input type="button" class="gomb" value="Előkészítésre" onclick="location.href=\'munkalap.php?uj&amp;elokeszitesre\'+get_szuro_link_kieg()" style="margin-bottom: 2rem; width: 15rem"><br><input type="button" class="gomb kek" value="Telepítettnek" onclick="location.href=\'munkalap.php?uj&amp;telepitettnek\'+get_szuro_link_kieg()" style="margin-bottom: 4rem; width: 15rem"><br><input type="button" class="gomb piros" value="Mégsem" onclick="alert2()" style="margin-bottom: 1rem;"></div>', '<div class="dn">Fiktív tartalom</div>', 'Új munkalap készítése');
 }
 
-/* Userek belépése az adminhoz */
+// Userek belépése az adminhoz
 function login_torol(id){
 
     $.ajax({
@@ -2211,12 +2211,12 @@ function bejBejValaszt( telephely ) {
 
     if( sor.length ) {
         var nev = sor.attr('data-nev');
-        location.href = 'bejelentes.php?uj&bejelento=' + nev + '&telephely=' + telephely;
+        location.href = 'bejelentes.php?uj&bejelento=' + nev + '&telephely=' + telephely + get_szuro_link_kieg();
     }
 }
 
 function bejBejManualis( value ) {
-    location.href = 'bejelentes.php?uj&manualisan&telephely=' + value;
+    location.href = 'bejelentes.php?uj&manualisan&telephely=' + value + get_szuro_link_kieg();
 }
 
 // Bejelentés más nevében
@@ -2241,7 +2241,7 @@ function bejBejelentok( value ) {
 
 /* Bejelentés saját vagy más nevében? */
 function bejSajatMasneven() {
-    alert2('Saját nevében jelent be hibát?', '<input class="gomb" value="Bejelentés saját néven" onclick="szurkit(); location.href=\'bejelentes.php?uj\'" type="button"><input class="gomb piros" value="Bejelentés más nevében" onclick="szurkit(); bejSzallodaValaszt()" type="button">');
+    alert2('Saját nevében jelent be hibát?', '<input class="gomb" value="Bejelentés saját néven" onclick="szurkit(); location.href=\'bejelentes.php?uj'+get_szuro_link_kieg()+'\'" type="button"><input class="gomb piros" value="Bejelentés más nevében" onclick="szurkit(); bejSzallodaValaszt()" type="button">');
 }
 
 /* Új bejelentés feltöltés: első lépés, hogy telephelyet választunk */
@@ -7439,4 +7439,13 @@ function adatlap_minden_inputjat_disabled() {
     $('#szerk_form input, #szerk_form textarea, #szerk_form select').attr('readonly', true);
     $('#szerk_form input.f_nem_rejt').attr('readonly', false);
     $('#szerk_form input.foGomb').removeAttr('disabled');
+}
+
+// A szűréssel kapcsolatos GET-ekkel néha meg kell toldani a location.href linket. Ezt központosítjuk itt. (Pl. új feltöltéskor jegyezze meg a szűrést.)
+function get_szuro_link_kieg() {
+    link_kieg = '';
+    if( _get('mezo') && _get('op') && _get('felt') ){
+        link_kieg = '&mezo='+_get('mezo')+'&op='+_get('op')+'&felt='+_get('felt');
+    }
+    return link_kieg;
 }

@@ -180,7 +180,7 @@ if (isset($_GET['csv'])) {
             
             // Szálloda felvétele CSV-be
             $csvsor    = array();
-            array_push($csvsor, iconv2($mibol, $mibe, $szalloda['nev']));
+            array_push($csvsor, iconv2($mibol, $mibe, htmlspecialchars_decode($szalloda['nev'])));
             fputcsv($open, $csvsor, ';');
             
             $szintek = $adatbazis_kapcsolat->s('recid nev', 'obj', "`szulo`='0' AND `telephely_id`='{$szalloda['id']}'", 'sor');
@@ -189,7 +189,7 @@ if (isset($_GET['csv'])) {
                 // Szint felvétele CSV-be
                 $csvsor    = array();
                 array_push($csvsor, '');
-                array_push($csvsor, iconv2($mibol, $mibe, $szint['nev']));
+                array_push($csvsor, iconv2($mibol, $mibe, htmlspecialchars_decode($szint['nev'])));
                 fputcsv($open, $csvsor, ';');
                 
                 $objektumok = $adatbazis_kapcsolat->s('recid nev', 'obj', "`szulo`='{$szint['recid']}'", 'sor');
@@ -199,7 +199,7 @@ if (isset($_GET['csv'])) {
                     $csvsor    = array();
                     array_push($csvsor, '');
                     array_push($csvsor, '');
-                    array_push($csvsor, iconv2($mibol, $mibe, $obj['nev']));
+                    array_push($csvsor, iconv2($mibol, $mibe, htmlspecialchars_decode($obj['nev'])));
                     fputcsv($open, $csvsor, ';');
                     
                     $eszkozok = $adatbazis_kapcsolat->s('nev', 'eszkozkezeles', "`telephely_id`='{$szalloda['id']}' AND `obj_id`='{$obj['recid']}'", 'nev');
@@ -210,7 +210,7 @@ if (isset($_GET['csv'])) {
                         array_push($csvsor, '');
                         array_push($csvsor, '');
                         array_push($csvsor, '');
-                        array_push($csvsor, iconv2($mibol, $mibe, $eszkoz['nev']));
+                        array_push($csvsor, iconv2($mibol, $mibe, htmlspecialchars_decode($eszkoz['nev'])));
                         fputcsv($open, $csvsor, ';');
                         
                     }

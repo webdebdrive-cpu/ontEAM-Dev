@@ -2135,7 +2135,7 @@ function js_kiir($tomb, $fg = 'form_ell_regi()', $ajax = false) {
             ');
     } else {
         $ret .= nl2('
-                ;                
+                ;
                 formModositva = false;
                 return true;
             }');
@@ -2143,10 +2143,6 @@ function js_kiir($tomb, $fg = 'form_ell_regi()', $ajax = false) {
 
     $ret .= nl2('
             $(document).ready(function() {
-                $(\'form input[type="text"], #szerk_form textarea\').keyup(function() {
-                    /*$(\'#szerk_form input[type="submit"]\').addClass(\'gombb_alert\');*/
-                });
-
                 $(\'form input[type="checkbox"]\').click(function() {
                     $(\'#szerk_form input[type="submit"]\').addClass(\'gombb_alert\');
                 });
@@ -9331,7 +9327,7 @@ function datumra_utemezes_popup($megnevezes){
     if( mb_substr($getnextvaliddate, 0, 10)=='Hibaüzenet' ){
         $getnextvaliddate = '    .  .  ';
     }
-
+    
     return json_encode(
             array(
                 'uzenet'    => 'Ön a következő ütemezést választotta:<br><div class="l" style="max-height: 20rem; overflow: auto">'.$szamla_html.'</div><br>Folytatja?',

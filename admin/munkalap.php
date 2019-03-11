@@ -174,7 +174,7 @@ if( isset($_POST['munkalapKeszit']) ) {
                                 <br><span class="piros f25">Ehhez a bejelentéshez<br>már készült munkalap!</span><br>Készít még egy munkalapot?
                                 <script>popup_villogtat();</script>
                                     '),
-                    'gomb' => '<input class="gomb zold" value="Igen" onclick="szurkit(); location.href = \'munkalap.php?uj&ujkent_bejelentes='.$id.'\';" type="button"><input class="gomb piros" value="Nem" onclick="alert2()" type="button">'
+                    'gomb' => '<input class="gomb zold" value="Igen" onclick="szurkit(); location.href = \'munkalap.php?uj&ujkent_bejelentes='.$id.'\'+get_szuro_link_kieg();" type="button"><input class="gomb piros" value="Nem" onclick="alert2()" type="button">'
                 ));
 
                 $weblap->leallit();
