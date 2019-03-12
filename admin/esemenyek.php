@@ -2369,7 +2369,7 @@ $deviza_kotelezo    = '';
 $arfolyam_disabled  = true;
 $disable_szerk      = false;
 $szerzodes_neve     = '';
-if ( $_GET['id'] ) {
+if (isset($_GET['modosit'])) {
     
     $disable_szerk = true;
     
