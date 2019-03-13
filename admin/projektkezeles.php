@@ -1819,7 +1819,6 @@ require_once('selectek.php');
             $van_kezeles = false;
             if( get_projekt_kezeles_jog($_GET['id']) && $sor['stat_id'] != PRKEZEL_STAT_LEZART ){
                 $van_kezeles = true;
-                // $torles = '<script> dok_torol_gomb_141 = \'<input type="button" class="gomb zold" value="Igen" onclick="mellekTorol(\'projektkezeles\', \'projekt_team\', \'\', \'141\');"><input type="button" class="gomb piros" value="Nem" onclick="alert2(); $(\'.torles_elott\').removeClass(\'torles_elott\').removeClass(\'kijelolve\');">'; </script> <span class="icon link" onclick="$('#kep141').addClass('torles_elott'); alert2('Biztos, hogy törli a(z) wd3.jpg dokumentumot?', dok_torol_gomb_141);"><i class="material-icons" style="font-size: 2rem">delete</i></span> </div>';
             }
             
             foreach($team_ek as $team) {

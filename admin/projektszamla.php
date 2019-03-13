@@ -35,15 +35,20 @@ if($tobb_kep){
 // Lekérdezzük, hogy van-e a projekt számla tételei között olyan, amihez van kapcsolva szerződés tétel
 if (isset($_POST['van_kapcsolt_szerzodes'])) {
     
-    $szerzodes_tetelek = $adatbazis_kapcsolat->s('recid', 'projektszamla_tetel', "`projektszamla_recid`='{$_POST['recid']}' AND `projektszerzodes_tetel_recid`!=0");
-    if ( $szerzodes_tetelek ){
+    // Csak ha kaptunk is recid-t (pl. új feltötlésnél még nem kapunk)
+    if( $_POST['recid'] && is_numeric($_POST['recid']) ){
+    
+        $szerzodes_tetelek = $adatbazis_kapcsolat->s('recid', 'projektszamla_tetel', "`projektszamla_recid`='{$_POST['recid']}' AND `projektszerzodes_tetel_recid`!=0");
+        if ( $szerzodes_tetelek ){
 
-        echo json_encode( array(
-                            'hiba'  => 'A számlának van olyan tétele, amihez van szerződés tétel kapcsolva, így a szerződés szám nem törölhető!',
-                            'title' => 'Hiba',
-                        ) );
-        $weblap -> leallit();
-        exit;
+            echo json_encode( array(
+                                'hiba'  => 'A számlának van olyan tétele, amihez van szerződés tétel kapcsolva, így a szerződés szám nem törölhető!',
+                                'title' => 'Hiba',
+                            ) );
+            $weblap -> leallit();
+            exit;
+        }
+        
     }
     
     echo json_encode( array(
@@ -1045,6 +1050,12 @@ if (isset($_GET['csv'])) {
                         if($kulcs=='Pénznem'){
                             $sor = erteklista(ERTEKLISTA_PENZNEM, $sor);
                         }
+                        if($kulcs=='Árfolyam'){
+                            $sor = number_format($sor, 4, ',', '');
+                        }
+                        if($kulcs=='Deviza nettó' || $kulcs=='Deviza bruttó'){
+                            $sor = number_format($sor, 2, ',', '');
+                        }
                         if($kulcs=='Felelős'){
                             $sor = getErtek('teljes_nev', 'login', 'recid', $sor);
                         }
@@ -1128,6 +1139,12 @@ if (isset($_GET['csv'])) {
                         }
                         if($kulcs=='Pénznem'){
                             $sor = erteklista(ERTEKLISTA_PENZNEM, $sor);
+                        }
+                        if($kulcs=='Árfolyam'){
+                            $sor = number_format($sor, 4, ',', '');
+                        }
+                        if($kulcs=='Deviza nettó' || $kulcs=='Deviza bruttó'){
+                            $sor = number_format($sor, 2, ',', '');
                         }
                         if($kulcs=='Felelős'){
                             $sor = getErtek('teljes_nev', 'login', 'recid', $sor);

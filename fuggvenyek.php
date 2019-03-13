@@ -579,7 +579,7 @@ function i_u($type, $tabla, $tomb) {
             if( $szalloda === false ) { $db_error = true; }
             $sorszam  = get_iktatoszam_sorszam($tabla, $_POST['telephely_id']);
             if($sorszam===false){ $db_error = true; }
-            $ikt_szam = 'PSZ'.date('y').'/'.get_props($szalloda['props'], 'RN').sprintf('%03d', $sorszam);
+            $ikt_szam = 'PSZ-'.date('y').'/'.get_props($szalloda['props'], 'RN').'-'.sprintf('%03d', $sorszam);
 
             // Felvesszük az értékek közé
             $i = 0;

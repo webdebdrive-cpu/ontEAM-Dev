@@ -35,15 +35,19 @@ if($tobb_kep){
 // Lekérdezzük, hogy van-e a projekt szerződés tételei között olyan, amihez van kapcsolva számla tétel
 if (isset($_POST['van_kapcsolt_szamla'])) {
     
-    $szerzodes_tetelek = $adatbazis_kapcsolat->s('recid', 'projektszerzodes_tetel', "`projektszerzodes_recid`='{$_POST['recid']}'");
-    foreach ( $szerzodes_tetelek as $tetel ){
-        if( $adatbazis_kapcsolat->s('recid', 'projektszamla_tetel', "`projektszerzodes_tetel_recid`='{$tetel['recid']}'") ){
-            echo json_encode( array(
-                                'hiba'  => 'A szerződésnek van olyan tétele, amihez van számla tétel kapcsolva, így a projekt szám nem törölhető!',
-                                'title' => 'Hiba',
-                            ) );
-            $weblap -> leallit();
-            exit;
+    // Csak ha kaptunk is recid-t (pl. új feltötlésnél még nem kapunk)
+    if( $_POST['recid'] && is_numeric($_POST['recid']) ){
+        
+        $szerzodes_tetelek = $adatbazis_kapcsolat->s('recid', 'projektszerzodes_tetel', "`projektszerzodes_recid`='{$_POST['recid']}'");
+        foreach ( $szerzodes_tetelek as $tetel ){
+            if( $adatbazis_kapcsolat->s('recid', 'projektszamla_tetel', "`projektszerzodes_tetel_recid`='{$tetel['recid']}'") ){
+                echo json_encode( array(
+                                    'hiba'  => 'A szerződésnek van olyan tétele, amihez van számla tétel kapcsolva, így a projekt szám nem törölhető!',
+                                    'title' => 'Hiba',
+                                ) );
+                $weblap -> leallit();
+                exit;
+            }
         }
     }
     
@@ -117,6 +121,7 @@ if(isset($_POST['get_projekt_tabla'])){
                     <div class="dn pfelelos_txt">'.$pfelelos_neve.'</div>
                     <div class="dn pfelelos_txt nev"><a href="projektkezeles.php?id='.$pr['recid'].'&amp;modosit" target="_blank">'.$pr['nev'].'</a></div>
                 </td>
+                <td class="l" style="width: 30rem; padding: 0 0.5rem">'.$pr['ikt_szam'].'</td>
                 <td class="l" style="width: 30rem; padding: 0 0.5rem">'.$pr['nev'].'</td>
                 <td class="l" style="padding: 0 0.5rem">'.$tipus.'</td>
                 <td class="r nowrap" style="padding: 0 1rem">'.number_format($pr['jkolt'], 0, '', ' ').'</td>
@@ -149,16 +154,20 @@ if(isset($_POST['get_projekt_tabla'])){
                         <br><input type="text" class="flat" placeholder="Szűrés" onkeyup="tabla_szur($(\'#prkezelesek tbody\'), this.value, 2)">
                     </th>
                     <th>
-                        Típus
+                        Projekt szám
                         <br><input type="text" class="flat" placeholder="Szűrés" onkeyup="tabla_szur($(\'#prkezelesek tbody\'), this.value, 3)">
                     </th>
                     <th>
-                        Jóváhagyott keret ('.get_penznem().')
+                        Típus
                         <br><input type="text" class="flat" placeholder="Szűrés" onkeyup="tabla_szur($(\'#prkezelesek tbody\'), this.value, 4)">
                     </th>
                     <th>
-                        Létrehozás dátuma
+                        Jóváhagyott keret ('.get_penznem().')
                         <br><input type="text" class="flat" placeholder="Szűrés" onkeyup="tabla_szur($(\'#prkezelesek tbody\'), this.value, 5)">
+                    </th>
+                    <th>
+                        Létrehozás dátuma
+                        <br><input type="text" class="flat" placeholder="Szűrés" onkeyup="tabla_szur($(\'#prkezelesek tbody\'), this.value, 6)">
                     </th>
                 </tr>
                 </thead>
@@ -598,6 +607,8 @@ if (isset($_GET['csv'])) {
                 } else {
                     $lekerdezes_fromtol = str_replace('ORDER', "WHERE `".get_db_tabla().$megnevezes."`.`recid` IN (".$_SESSION['nyomtatas_ids'].") ORDER", $lekerdezes_fromtol);
                 }
+                // Rendezésenél a recid-t konkretizáljuk
+                $lekerdezes_fromtol = str_replace('ORDER BY `recid`', 'ORDER BY `'.get_db_tabla().$megnevezes.'`.`recid` ', $lekerdezes_fromtol);
 
                 $sql = 'SELECT
                             `'.get_db_tabla().$megnevezes.'`.`telephely_id` as \'Szálloda\',
@@ -633,7 +644,7 @@ if (isset($_GET['csv'])) {
                             '.$lekerdezes_fromtol;
 
                 $query      = mysqli_query($db_kapcs, $sql);
-// echo $sql; exit;
+
                 $csvhead    = array();
                 while($fejlec_nevek = mysqli_fetch_field($query)){
                     $csvhead[] = iconv2($mibol, $mibe, $fejlec_nevek -> name );
@@ -659,6 +670,12 @@ if (isset($_GET['csv'])) {
                         }
                         if($kulcs=='Pénznem'){
                             $sor = erteklista(ERTEKLISTA_PENZNEM, $sor);
+                        }
+                        if($kulcs=='Árfolyam'){
+                            $sor = number_format($sor, 4, ',', '');
+                        }
+                        if($kulcs=='Deviza nettó'){
+                            $sor = number_format($sor, 2, ',', '');
                         }
                         if($kulcs=='Létesítmény felelős'){
                             $sor = getErtek('teljes_nev', 'login', 'recid', $sor);
@@ -694,7 +711,9 @@ if (isset($_GET['csv'])) {
                 } else {
                     $lekerdezes_fromtol = str_replace('ORDER', "WHERE `".get_db_tabla().$megnevezes."`.`recid` IN (".$_SESSION['nyomtatas_ids'].") ORDER", $lekerdezes_fromtol);
                 }
-
+                // Rendezésenél a recid-t konkretizáljuk
+                $lekerdezes_fromtol = str_replace('ORDER BY `recid`', 'ORDER BY `'.get_db_tabla().$megnevezes.'`.`recid` ', $lekerdezes_fromtol);
+                
                 $sql = 'SELECT
                             `telephely_id` as \'Szálloda\',
                             `sz_szam` as \'Szerződés szám\',
@@ -749,6 +768,12 @@ if (isset($_GET['csv'])) {
                         }
                         if($kulcs=='Pénznem'){
                             $sor = erteklista(ERTEKLISTA_PENZNEM, $sor);
+                        }
+                        if($kulcs=='Árfolyam'){
+                            $sor = number_format($sor, 4, ',', '');
+                        }
+                        if($kulcs=='Deviza nettó'){
+                            $sor = number_format($sor, 2, ',', '');
                         }
                         if($kulcs=='Létesítmény felelős'){
                             $sor = getErtek('teljes_nev', 'login', 'recid', $sor);
@@ -982,7 +1007,7 @@ require_once('selectek.php');
                 /* "Ebből építési" mező értéke nem lehet több mint a szerződött összeg.*/
                 }else if( Number( $(\'#epitesi\').val().replace(/ /g, \'\') ) > Number( $(\'#szerz_ossz\').val().replace(/ /g, \'\') ) ){
 
-                    alert2(\'A szerződött összegtől nem lehet több az építési összeg!+\', \'\', \'Hiba\');
+                    alert2(\'A szerződött összegtől nem lehet több az építési összeg!\', \'\', \'Hiba\');
                     alert_utan_mehet_megsem_mutat_beallit();
                     $(\'#epitesi\').addClass(\'hibas_ide_focus\');
                     return false;

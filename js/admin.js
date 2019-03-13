@@ -7107,10 +7107,10 @@ function gombok_valt(mod){
     }
 }
 
-/* Betöltéskor leszürkítünk mindent, hogy ne lehessen gombokat újra megnyomni. */
+// Betöltéskor leszürkítünk mindent, hogy ne lehessen gombokat újra megnyomni.
 function szurkit( mehet_megsem_rejt ){
     $('#ajaxfedo').removeClass('dn');
-    /* Mehet/Mégsem gombot el is rejtjük, ha azokra lett kattintva */
+    // Mehet/Mégsem gombot el is rejtjük, ha azokra lett kattintva
     if(mehet_megsem_rejt){
         $('#mehet_gomb, #megsem_gomb').attr('disabled', 1);
     }
@@ -7129,7 +7129,7 @@ function szurkit_zar( mehet_megsem_mutat ){
 
 }
 
-/* Tabindex számozása */
+// Tabindex számozása
 function tabindex_beallit(){
     $(':input[type!="hidden"]:not([readonly])').each(function (i) {
         $(this).attr('tabindex', i + 1);

@@ -1,7 +1,7 @@
-/* Projekt hozzáadása, törlése gomb: melyik legyen? Ezt dönti el ez a függvény. */
+// Projekt hozzáadása, törlése gomb: melyik legyen? Ezt dönti el ez a függvény.
 function pr_hozzaad_gomb_hozzaad_vagy_torol (){
     
-    /* Illetve megnézzük, hogy van-e kapcsolt számla tétel, mert ha igen, akkor csatolt Projektet törölni már nem lehet */
+    // Illetve megnézzük, hogy van-e kapcsolt számla tétel, mert ha igen, akkor csatolt Projektet törölni már nem lehet
     $.ajax({
         url : 'projektszerzodes.php',
         type: 'POST',
@@ -19,7 +19,7 @@ function pr_hozzaad_gomb_hozzaad_vagy_torol (){
                 
                     if( $('#pr_szam').val() ){
                         $('#pr_szam').val('');
-                        /* Törléskor csak akkor adunk hozzá 'mod' classt, ha amúgy volt eredetileg értéke */
+                        // Törléskor csak akkor adunk hozzá 'mod' classt, ha amúgy volt eredetileg értéke
                         if( $('#pr_szam').attr('value') ){
                             $('#pr_szam').addClass('mod');
                         }else{
@@ -53,7 +53,7 @@ function get_szerz_ossz(){
     }
 }
 
-/* Új feltöltéskor és szerkesztéskor is a tételek kezelése popup megnyitása előtt ellenőrzünk pár dolgot. */
+// Új feltöltéskor és szerkesztéskor is a tételek kezelése popup megnyitása előtt ellenőrzünk pár dolgot.
 function tetelek_kezelese_popup_nyit(){
     if( !get_szerz_ossz() || get_szerz_ossz()==0 ){
         alert2('Tételek kezelése előtt adja meg a szerződött összeget!', '', 'Hiba');
@@ -66,9 +66,9 @@ function tetelek_kezelese_popup_nyit(){
     }
 }
 
-/* Pénznem szerkesztésekor a kapcsolódó mezők disabled-ezése */
+// Pénznem szerkesztésekor a kapcsolódó mezők disabled-ezése
 $(document).on('input, blur', '#kcs_21_autocomp', function(e) {
-    /* Azért van egy settimeoutban, mert a mezőt elhagyva még az autocomplete feltölti adattal. De az elhagyás pillanatában még üres. */
+    // Azért van egy settimeoutban, mert a mezőt elhagyva még az autocomplete feltölti adattal. De az elhagyás pillanatában még üres.
     setTimeout(function(){
         if( $('#kcs_21_autocomp').val() ){
             $('#arfolyam')  .removeAttr('disabled').removeAttr('readonly').focus();
@@ -79,14 +79,16 @@ $(document).on('input, blur', '#kcs_21_autocomp', function(e) {
             $('#valtva')    .val('0000.00.00')  .attr('disabled', 'disabled').attr('readonly', 'readonly').removeClass('mod');
             $('#dev_net')   .val('0,00')        .attr('disabled', 'disabled').attr('readonly', 'readonly').removeClass('mod').removeClass('csillag');
         }
+        tabindex_beallit();
     }, 200);
 });
 
-/* Építési engedély pipa lekezelése */
+// Építési engedély pipa lekezelése
 $(document).on('click', '#epitesi_eng', function(e) {
     if( $('#epitesi_eng').prop('checked') ){
         $('#epitesi').removeAttr('disabled').removeAttr('readonly').addClass('csillag').focus();
     }else{
         $('#epitesi').val('').attr('disabled', 'disabled').attr('readonly', 'readonly').removeClass('mod').removeClass('csillag');
     }
+    tabindex_beallit();
 });

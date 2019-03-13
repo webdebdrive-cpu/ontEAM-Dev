@@ -89,18 +89,55 @@ if( isset($_POST['megnevezes']) && !$archivum ){
         $konyvtar_db_nev = csonkit($_POST['tabla'], 4);
         $utvonal = '../'.get_utvonal().$konyvtar_db_nev;
 
+        // Mappa esetleges létrehozása
         if(!is_dir($utvonal)){
             mkdir($utvonal, 0777);
         }
-
-        $ikt_szam = $adatbazis_kapcsolat->s2('recid ikt_szam', $_POST['konyvtar'], "`recid` = '".$_POST['sorid']."'", '', '1');
-        if( $ikt_szam ) {
-            $utvonal = $utvonal.'/'.str_replace('/', '_', $ikt_szam['ikt_szam']);
-            if( !is_dir($utvonal) ) {
+        
+        // Az útvonal, projektek esetén évszámmal is meg van még toldva
+        $ev_mappa = date('Y');
+        // Projekt számla esetén a teljesítés évét kell mappának beállítani
+        if( $konyvtar_db_nev == 'projektszamla' ){
+            $pr_szamla = $adatbazis_kapcsolat->s2('telj_datum szallito_id', 'projektszamla', "`recid` = '".$_POST['sorid']."'");
+            $ev_mappa   = substr($pr_szamla['telj_datum'], 0, 4);
+        }
+        
+        $projekt_feluletek = array('projektkezeles', 'projektszamla', 'projektszerzodes');
+        if( in_array($konyvtar_db_nev, $projekt_feluletek) ){
+            $utvonal .= '/'.$ev_mappa;
+            
+            // Mappa esetleges létrehozása
+            if(!is_dir($utvonal)){
                 mkdir($utvonal, 0777);
             }
         }
 
+        // Projekt számla esetén nincs ikt. szám oszlop, ezért ott a szallito_id a könyvtár neve
+        if( $konyvtar_db_nev == 'projektszamla' ){
+            
+            $utvonal .= '/'.$pr_szamla['szallito_id'];
+            
+        // Általános eset
+        }else{
+        
+            // Következő mappa szint az iktatószámból jön
+            // Projektszerződésnél az iktatószámnak más az oszlopneve
+            $ikt_szam_oszlop = 'ikt_szam';
+            if( $konyvtar_db_nev == 'projektszerzodes' ){
+                $ikt_szam_oszlop = 'sz_szam';
+            }
+            // Iktatószám alapján könyvtár felépítése
+            $ikt_szam = $adatbazis_kapcsolat->s2('recid '.$ikt_szam_oszlop, $_POST['konyvtar'], "`recid` = '".$_POST['sorid']."'", '', '1');
+            if( $ikt_szam ) {
+                $utvonal = $utvonal.'/'.str_replace('/', '_', $ikt_szam[$ikt_szam_oszlop]);
+            }
+        }
+        
+        // Mappa esetleges létrehozása
+        if( !is_dir($utvonal) ) {
+            mkdir($utvonal, 0777);
+        }
+        
         // JS alapú fájlfeltöltés esetén a $_FILES['file'] tömbben vannak az adatok a $_FILES[megnevezés] helyett
         if($_FILES['file']){
             $_FILES[$_POST['megnevezes']] = $_FILES['file'];
@@ -304,10 +341,13 @@ if(basename(self()) == 'eszkozkezeles.php' && isset($_GET['engedelyek'])){
     $mellek = 'engedelyek';
 }
 
+$tobbkep_html .= nl2('
+    <div>
+        <ul id="sorrendezes_tobbkep" data-tabla="'.$tobbkep_tablanev.'" data-mellek="'.$mellek.'">
+    ');
+
 if($kepek){
     $tobbkep_html .= nl2('
-                        <div>
-                            <ul id="sorrendezes_tobbkep" data-tabla="'.$tobbkep_tablanev.'" data-mellek="'.$mellek.'">
                                 <li class="fejlec">
                                     <div class="kep">Kép</div>
                                     <div class="felirat c" style="width: 30rem">Fájlnév</div>
@@ -325,57 +365,59 @@ if($kepek){
         $i++;
     }
     
-    // Projektek adatlapján felsoroljuk a kapcsolódó szerződések és számák dokuemtumait is
-    if( $apa_tabla == 'projektkezeles' ){
-        $projekt    = $adatbazis_kapcsolat->s2('ikt_szam', 'projektkezeles', "`recid`='{$_GET['id']}'");
-        $szerzodes  = $adatbazis_kapcsolat->s2('recid', 'projektszerzodes', "`pr_szam`='{$projekt['ikt_szam']}'");
-        $kepek      = $adatbazis_kapcsolat -> s('*', 'projektszerzodes_dok', "`projektszerzodes_id`='{$szerzodes['recid']}'", 'sor');
-        
-        if( $kepek ){
-            $tobbkep_html .= nl2('
-                                <li style="margin: 2rem 0rem 0.3rem 0">
-                                    <h3>Projektszerződések dokumentumai</h3>
-                                </li>
-                                <li class="fejlec">
-                                    <div class="kep">Kép</div>
-                                    <div class="felirat c" style="width: 30rem">Fájlnév</div>
-                                    <div class="felirat">Feltöltötte</div>
-                                    <div class="felirat">Dátum</div>
-                                    <div class="maradek torles">Szerződés</div>
-                                </li>
-                ');
-        }
-        foreach($kepek as $sor_kepek) {
-            $tobbkep_html .= get_tobbkep_thumb($sor_kepek, $i, 'projektszerzodes_dok', 'nincs törlés', $szerzodes['recid']);
-            $i++;
-        }
-        
-        
-        $szamla     = $adatbazis_kapcsolat->s2('recid', 'projektszamla', "`pr_szam`='{$projekt['ikt_szam']}'");
-        $kepek      = $adatbazis_kapcsolat -> s('*', 'projektszamla_dok', "`projektszamla_id`='{$szamla['recid']}'", 'sor');
-        
-        if( $kepek ){
-            $tobbkep_html .= nl2('
-                                <li style="margin: 2rem 0rem 0.3rem 0">
-                                    <h3>Projektszámla dokumentumai</h3>
-                                </li>
-                                <li class="fejlec">
-                                    <div class="kep">Kép</div>
-                                    <div class="felirat c" style="width: 30rem">Fájlnév</div>
-                                    <div class="felirat">Feltöltötte</div>
-                                    <div class="felirat">Dátum</div>
-                                    <div class="maradek torles">Számla</div>
-                                </li>
-                ');
-        }
-        foreach($kepek as $sor_kepek) {
-            $tobbkep_html .= get_tobbkep_thumb($sor_kepek, $i, 'projektszamla_dok', 'nincs törlés', $szamla['recid']);
-            $i++;
-        }
-    }
-    
-    $tobbkep_html .= '</ul></div>';
 }
+
+// Projektek adatlapján felsoroljuk a kapcsolódó szerződések és számák dokuemtumait is
+if( $apa_tabla == 'projektkezeles' ){
+    $projekt    = $adatbazis_kapcsolat->s2('ikt_szam', 'projektkezeles', "`recid`='{$_GET['id']}'");
+    $szerzodes  = $adatbazis_kapcsolat->s2('recid', 'projektszerzodes', "`pr_szam`='{$projekt['ikt_szam']}'");
+    $kepek      = $adatbazis_kapcsolat -> s('*', 'projektszerzodes_dok', "`projektszerzodes_id`='{$szerzodes['recid']}'", 'sor');
+
+    if( $kepek ){
+        $tobbkep_html .= nl2('
+                            <li style="margin: 2rem 0rem 0.3rem 0">
+                                <h3>Projektszerződések dokumentumai</h3>
+                            </li>
+                            <li class="fejlec">
+                                <div class="kep">Kép</div>
+                                <div class="felirat c" style="width: 30rem">Fájlnév</div>
+                                <div class="felirat">Feltöltötte</div>
+                                <div class="felirat">Dátum</div>
+                                <div class="maradek torles">Szerződés</div>
+                            </li>
+            ');
+    }
+    foreach($kepek as $sor_kepek) {
+        $tobbkep_html .= get_tobbkep_thumb($sor_kepek, $i, 'projektszerzodes_dok', 'nincs törlés', $szerzodes['recid']);
+        $i++;
+    }
+
+
+    $szamla     = $adatbazis_kapcsolat->s2('recid', 'projektszamla', "`pr_szam`='{$projekt['ikt_szam']}'");
+    $kepek      = $adatbazis_kapcsolat -> s('*', 'projektszamla_dok', "`projektszamla_id`='{$szamla['recid']}'", 'sor');
+
+    if( $kepek ){
+        $tobbkep_html .= nl2('
+                            <li style="margin: 2rem 0rem 0.3rem 0">
+                                <h3>Projektszámla dokumentumai</h3>
+                            </li>
+                            <li class="fejlec">
+                                <div class="kep">Kép</div>
+                                <div class="felirat c" style="width: 30rem">Fájlnév</div>
+                                <div class="felirat">Feltöltötte</div>
+                                <div class="felirat">Dátum</div>
+                                <div class="maradek torles">Számla</div>
+                            </li>
+            ');
+    }
+    foreach($kepek as $sor_kepek) {
+        $tobbkep_html .= get_tobbkep_thumb($sor_kepek, $i, 'projektszamla_dok', 'nincs törlés', $szamla['recid']);
+        $i++;
+    }
+}
+    
+$tobbkep_html .= '</ul></div>';
+
 $szamla_html .= $tobbkep_html;
 
 
@@ -394,8 +436,8 @@ function get_tobbkep_thumb($sor_kepek, $i, $tobbkep_tablanev, $nincs_torles, $ku
 
     $javaslattetel = '';
     if($_POST['megnevezes']=='javaslattetel_popup'){
-        $tabla = 'munkalap_dok';
-        $javaslattetel = 'javaslattetel';
+        $tobbkep_tablanev   = 'munkalap_dok';
+        $javaslattetel      = 'javaslattetel';
     }
 
     require_once('../weblap.php');
@@ -531,7 +573,7 @@ function get_tobbkep_thumb($sor_kepek, $i, $tobbkep_tablanev, $nincs_torles, $ku
             }else{
                 $torles = '
                             <script>
-                                dok_torol_gomb_'.$sor_kepek['recid'].' = \'<input type="button" class="gomb zold" value="Igen" onclick="mellekTorol(\\\''.$tabla.'\\\', \\\''.$betolt.'\\\', \\\''.$javaslattetel.'\\\', \\\''.$sor_kepek['recid'].'\\\');"><input type="button" class="gomb piros" value="Nem" onclick="alert2(); $(\\\'.torles_elott\\\').removeClass(\\\'torles_elott\\\').removeClass(\\\'kijelolve\\\');">\';
+                                dok_torol_gomb_'.$sor_kepek['recid'].' = \'<input type="button" class="gomb zold" value="Igen" onclick="mellekTorol(\\\''.$tobbkep_tablanev.'\\\', \\\''.$betolt.'\\\', \\\''.$javaslattetel.'\\\', \\\''.$sor_kepek['recid'].'\\\');"><input type="button" class="gomb piros" value="Nem" onclick="alert2(); $(\\\'.torles_elott\\\').removeClass(\\\'torles_elott\\\').removeClass(\\\'kijelolve\\\');">\';
                             </script>
                             <span class="icon link" onclick="$(\'#'.$azon.'\').addClass(\'torles_elott\'); alert2(\'Biztos, hogy törli a(z) '.$sor_kepek['fajlnev'].' dokumentumot?\', dok_torol_gomb_'.$sor_kepek['recid'].');"><i class="material-icons" style="font-size: 2rem">delete</i></span>
                     ';

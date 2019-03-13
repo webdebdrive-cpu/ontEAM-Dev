@@ -1,4 +1,4 @@
-/* Visszaadva pipa lekezelése. */
+// Visszaadva pipa lekezelése.
 function pl_szamla_visszaadva (){
     if( !$('#visszaadva').prop('checked') ){
         $('#visszaadva_dt').val('').blur();
@@ -8,10 +8,10 @@ function pl_szamla_visszaadva (){
     }
 }
 
-/* Projektszerződés hozzáadása, törlése gomb: melyik legyen? Ezt dönti el ez a függvény. */
+// Projektszerződés hozzáadása, törlése gomb: melyik legyen? Ezt dönti el ez a függvény.
 function prsz_hozzaad_gomb_hozzaad_vagy_torol (){
     
-    /* Illetve megnézzük, hogy van-e kapcsolt szerződés tétel, mert ha igen, akkor csatolt Projektet törölni már nem lehet */
+    // Illetve megnézzük, hogy van-e kapcsolt szerződés tétel, mert ha igen, akkor csatolt Projektet törölni már nem lehet
     $.ajax({
         url : 'projektszamla.php',
         type: 'POST',
@@ -29,7 +29,7 @@ function prsz_hozzaad_gomb_hozzaad_vagy_torol (){
     
                     if( $('#sz_szam').val() ){
 
-                        /* Törléskor csak akkor adunk hozzá 'mod' classt, ha amúgy volt eredetileg értéke */
+                        // Törléskor csak akkor adunk hozzá 'mod' classt, ha amúgy volt eredetileg értéke
                         $('#sz_szam').val('');
                         if( $('#sz_szam').attr('value') ){
                             $('#sz_szam').addClass('mod');
@@ -78,14 +78,14 @@ function prsz_hozzaad_gomb_hozzaad_vagy_torol (){
     });
 }
 
-/* Adatlapon található nettó mezőből számol ki bruttó értéket */
+// Adatlapon található nettó mezőből számol ki bruttó értéket
 function pr_szamla_bruttosit(){
     if( !$('#brutto').val() || $('#brutto').val()=='0' ){
         $('#brutto').val( ezresek($('#netto').val().replace(/ /g, '')*((Number(AFA)+100)/100), 0, '', ' ') );
     }
 }
 
-/* Ha a bruttósított nettó és a valódi bruttó között 2 Ft-nál nagyobb az eltérés, akkor hibát dobunk.  */
+// Ha a bruttósított nettó és a valódi bruttó között 2 Ft-nál nagyobb az eltérés, akkor hibát dobunk. 
 function pr_szamla_netto_br_ell(){
     var brutto          = Number($('#brutto').val().replace(/ /g, ''));
     var netto_afaval    = Number($('#netto').val().replace(/ /g, '')*((Number(AFA)+100)/100));
@@ -95,9 +95,9 @@ function pr_szamla_netto_br_ell(){
     }
 }
 
-/* Pénznem szerkesztésekor a kapcsolódó mezők disabled-ezése */
+// Pénznem szerkesztésekor a kapcsolódó mezők disabled-ezése
 $(document).on('input, blur', '#kcs_21_autocomp', function(e) {
-    /* Azért van egy settimeoutban, mert a mezőt elhagyva még az autocomplete feltölti adattal. De az elhagyás pillanatában még üres. */
+    // Azért van egy settimeoutban, mert a mezőt elhagyva még az autocomplete feltölti adattal. De az elhagyás pillanatában még üres.
     setTimeout(function(){
         if( $('#kcs_21_autocomp').val() ){
             $('#arfolyam')  .removeAttr('disabled').removeAttr('readonly').focus();
@@ -110,5 +110,6 @@ $(document).on('input, blur', '#kcs_21_autocomp', function(e) {
             $('#dev_net')   .val('0,00')        .attr('disabled', 'disabled').attr('readonly', 'readonly').removeClass('mod').removeClass('csillag');
             $('#dev_br')    .val('0,00')        .attr('disabled', 'disabled').attr('readonly', 'readonly').removeClass('mod').removeClass('csillag');
         }
+        tabindex_beallit();
     }, 200);
 });
