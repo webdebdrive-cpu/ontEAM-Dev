@@ -35,9 +35,8 @@ if($tobb_kep){
 // Lekérdezzük, hogy van-e a projekt szerződés tételei között olyan, amihez van kapcsolva számla tétel
 if (isset($_POST['van_kapcsolt_szamla'])) {
     
-    // Csak ha kaptunk is recid-t (pl. új feltötlésnél még nem kapunk)
-    if( $_POST['recid'] && is_numeric($_POST['recid']) ){
-        
+    // Új feltöltéskor ezt nem kell ellenőrizni
+    if( !$_POST['uj'] || $_POST['uj']=='false' ){
         $szerzodes_tetelek = $adatbazis_kapcsolat->s('recid', 'projektszerzodes_tetel', "`projektszerzodes_recid`='{$_POST['recid']}'");
         foreach ( $szerzodes_tetelek as $tetel ){
             if( $adatbazis_kapcsolat->s('recid', 'projektszamla_tetel', "`projektszerzodes_tetel_recid`='{$tetel['recid']}'") ){
@@ -121,7 +120,7 @@ if(isset($_POST['get_projekt_tabla'])){
                     <div class="dn pfelelos_txt">'.$pfelelos_neve.'</div>
                     <div class="dn pfelelos_txt nev"><a href="projektkezeles.php?id='.$pr['recid'].'&amp;modosit" target="_blank">'.$pr['nev'].'</a></div>
                 </td>
-                <td class="l" style="width: 30rem; padding: 0 0.5rem">'.$pr['ikt_szam'].'</td>
+                <td class="l" style="padding: 0 0.5rem">'.$pr['ikt_szam'].'</td>
                 <td class="l" style="width: 30rem; padding: 0 0.5rem">'.$pr['nev'].'</td>
                 <td class="l" style="padding: 0 0.5rem">'.$tipus.'</td>
                 <td class="r nowrap" style="padding: 0 1rem">'.number_format($pr['jkolt'], 0, '', ' ').'</td>
@@ -150,11 +149,11 @@ if(isset($_POST['get_projekt_tabla'])){
                         <br><input type="text" class="flat" placeholder="Szűrés" onkeyup="tabla_szur($(\'#prkezelesek tbody\'), this.value, 1)">
                     </th>
                     <th>
-                        Név
+                        Projekt szám
                         <br><input type="text" class="flat" placeholder="Szűrés" onkeyup="tabla_szur($(\'#prkezelesek tbody\'), this.value, 2)">
                     </th>
                     <th>
-                        Projekt szám
+                        Név
                         <br><input type="text" class="flat" placeholder="Szűrés" onkeyup="tabla_szur($(\'#prkezelesek tbody\'), this.value, 3)">
                     </th>
                     <th>
@@ -607,8 +606,6 @@ if (isset($_GET['csv'])) {
                 } else {
                     $lekerdezes_fromtol = str_replace('ORDER', "WHERE `".get_db_tabla().$megnevezes."`.`recid` IN (".$_SESSION['nyomtatas_ids'].") ORDER", $lekerdezes_fromtol);
                 }
-                // Rendezésenél a recid-t konkretizáljuk
-                $lekerdezes_fromtol = str_replace('ORDER BY `recid`', 'ORDER BY `'.get_db_tabla().$megnevezes.'`.`recid` ', $lekerdezes_fromtol);
 
                 $sql = 'SELECT
                             `'.get_db_tabla().$megnevezes.'`.`telephely_id` as \'Szálloda\',
@@ -711,8 +708,6 @@ if (isset($_GET['csv'])) {
                 } else {
                     $lekerdezes_fromtol = str_replace('ORDER', "WHERE `".get_db_tabla().$megnevezes."`.`recid` IN (".$_SESSION['nyomtatas_ids'].") ORDER", $lekerdezes_fromtol);
                 }
-                // Rendezésenél a recid-t konkretizáljuk
-                $lekerdezes_fromtol = str_replace('ORDER BY `recid`', 'ORDER BY `'.get_db_tabla().$megnevezes.'`.`recid` ', $lekerdezes_fromtol);
                 
                 $sql = 'SELECT
                             `telephely_id` as \'Szálloda\',
@@ -1126,6 +1121,10 @@ require_once('selectek.php');
             $sor['text']            = $igenyles['text'];
             $sor['projektigenyles_recid'] = $_GET['igeny_id'];
         }
+        
+        // Numerikus mezők alapértelmezett értékét beállítjuk
+        $sor['arfolyam'] = '0,0000';
+        $sor['dev_net']  = '0,00';
 
         $json_sor = array();
         foreach($sor as $kulcs => $elem){

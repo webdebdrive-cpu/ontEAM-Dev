@@ -2909,6 +2909,11 @@ function szamla_lista( $where, $tabla, $kijeloltek = false, $csak_sql_miatt = fa
     $limit = $lapozo ->getLimit();
 //echo 'sel:'.$select . ' ir:'.$irany.' or:'.$order.' lim:'.$limit.' where:'.$where.'<br>';
 
+    // Ha recid alapján rendeznénk, akkor tegyük bele a `'.get_db_tabla().$tabla.'`-t, mert CSV exportnál úgy is lesz olyan JOIN, minek van recid-ja is, és ütni fogják egymást
+    if( $_GET['rend']=='recid' ){
+        $order = '`'.get_db_tabla().$tabla.'`.`recid` '.$_GET['irany'];
+    }
+        
     // Telephely táblával JOIN-olva, ha telephely_id alapján rendezünk vagy a selectben szerepel ez az oszlop
     $bejegyzesek = array();
     $kivetelek = array('projektkezeles');

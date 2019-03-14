@@ -6068,7 +6068,11 @@ function szamlaBetolt( recid, page, muvelet, szerkeszt, kerdes_nelkul, anyagigen
                         $('#navGombok a.uj').attr('href', 'javascript: kapcsolodoSzerkeszt(\'velemenyezok\'); void(0);');
 
                     } else {
-                        $('#navGombok a.uj').attr('href', baseName(location.href) + '.php'+get_get(['uj', 'modosit'], 1)+'&uj');
+                        var gg = get_get(['uj', 'modosit'], 1);
+                        if( !gg ){
+                            gg = '?';
+                        }
+                        $('#navGombok a.uj').attr('href', baseName(location.href) + '.php'+gg+'&uj');
                     }
 
                     if( isMobile ) {

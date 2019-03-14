@@ -19,7 +19,7 @@ $(document).ready(function(){
     get_projekt_tabla('');
 });
 
-/* Projektek betöltése */
+// Projektek betöltése
 function get_projekt_tabla(order, telephely_id){
 
     $.ajax({
@@ -49,16 +49,15 @@ function get_projekt_tabla(order, telephely_id){
     });
 }
 
-/* Projekt kiválasztása */
+// Projekt kiválasztása
 function projekt_kivalaszt(){
-    /* Projektszám és projekt nevének kitöltése */
-    $('#pr_szam').val( $('#pr_szerzodes_tablazat tr.kijelolve').data('ikt_szam') );
+    // Projektszám és projekt nevének kitöltése
+    $('#pr_szam').val( $('#pr_szerzodes_tablazat tr.kijelolve').data('ikt_szam') ).addClass('mod');
     $('#pr_szam_gomb').val('Projekt szám törlése').addClass('piros');
-    $('#pr_szam').addClass('mod');
     $('#projekt_neve').html( $('#pr_szerzodes_tablazat tr.kijelolve div.nev').html() );
     
-    /* Létesítmény felelős kitöltése */
-    $('#let_fel_autocomp').val( $('#pr_szerzodes_tablazat tr.kijelolve div.pfelelos_txt').html() );
+    // Létesítmény felelős kitöltése
+    $('#let_fel_autocomp').val( $('#pr_szerzodes_tablazat tr.kijelolve div.pfelelos_txt').html() ).addClass('mod');
     $('#let_fel').val( $('#pr_szerzodes_tablazat tr.kijelolve').data('felelos') );
     
     formModositva = true;
@@ -67,7 +66,7 @@ function projekt_kivalaszt(){
     popupZar();
 }
 
-/* Szűrések */
+// Szűrések
 function tabla_szur(tabla, kulcs, oszlop) {
     var $rows = tabla.find('tr');
     var val = $.trim(kulcs).replace(/ +/g, ' ').toLowerCase();

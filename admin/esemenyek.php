@@ -685,12 +685,12 @@ switch($tabla) {
 
         // Default rendezés
         if( !$_GET['rend'] ) {
-            $_GET['rend'] = 'stat_id';
+            $_GET['rend'] = 'recid';
         }
 
         // Default rendezési irány
         if( !$_GET['irany'] ) {
-            $_GET['irany'] = '';
+            $_GET['irany'] = 'desc';
         }
     break;
     case 'projektkezeles.php':
@@ -707,12 +707,12 @@ switch($tabla) {
 
         // Default rendezés
         if( !$_GET['rend'] ) {
-            $_GET['rend'] = 'stat_id';
+            $_GET['rend'] = 'recid';
         }
 
         // Default rendezési irány
         if( !$_GET['irany'] ) {
-            $_GET['irany'] = '';
+            $_GET['irany'] = 'desc';
         }
     break;
     case 'projektszamla.php':
@@ -731,12 +731,12 @@ switch($tabla) {
 
         // Default rendezés
         if( !$_GET['rend'] ) {
-            $_GET['rend'] = 'telephely_id';
+            $_GET['rend'] = 'recid';
         }
 
         // Default rendezési irány
         if( !$_GET['irany'] ) {
-            $_GET['irany'] = '';
+            $_GET['irany'] = 'desc';
         }
     break;
     case 'projektszerzodes.php':
@@ -755,12 +755,12 @@ switch($tabla) {
 
         // Default rendezés
         if( !$_GET['rend'] ) {
-            $_GET['rend'] = 'telephely_id';
+            $_GET['rend'] = 'recid';
         }
 
         // Default rendezési irány
         if( !$_GET['irany'] ) {
-            $_GET['irany'] = '';
+            $_GET['irany'] = 'desc';
         }
     break;
     case 'rendszer.php':
@@ -2406,7 +2406,7 @@ $projektszamla_tomb = $akt_tomb = array(
     array('type' => 'autocomplete',         'megn' => 'Pénznem:',           'name' => 'kcs_21',         'szuro' => 1,   'class' => 'disableNav', 'tabla' => 'erteklista', 'oszlop_keres' => 'id', 'oszlop_keres_autocomp' => 'info', 'listaz' => 'info', 'csoport' => 21, 'id_kiir' => 'id', 'style' => 'width: 5rem', 'osszevon' => 1, 'post' => '<span style="margin-left: 2rem"></span>'),
     array('type' => 'text',                 'megn' => 'Árfolyam:',          'name' => 'arfolyam',       'szuro' => 1,   'class' => 'f_num',                             'disabled' => $arfolyam_disabled, 'data' => 'data-tort="4"', 'osszevon' => 1, 'post' => '<span style="margin-left: 2rem"></span>', 'sql_disabledkor_is' => 1),
     array('type' => 'text',                 'megn' => 'Átváltva:',          'name' => 'valtva',         'szuro' => 1,   'class' => 'kicsi datepicker',                  'disabled' => $arfolyam_disabled, 'sql_disabledkor_is' => 1),
-    array('type' => 'text',                 'megn' => 'Deviza nettó:',      'name' => 'dev_net',        'szuro' => 1,   'class' => 'f_num'.$deviza_kotelezo,    'data' => 'data-tort="2"',  'disabled' => $arfolyam_disabled, 'sql_disabledkor_is' => 1, 'osszevon' => 1, 'post' => '<span style="margin-left: 2.7rem"></span>'),
+    array('type' => 'text',                 'megn' => 'Deviza nettó:',      'name' => 'dev_net',        'szuro' => 1,   'class' => 'f_num'.$deviza_kotelezo,    'data' => 'data-tort="2"',  'disabled' => $arfolyam_disabled, 'sql_disabledkor_is' => 1, 'osszevon' => 1, 'post' => '<span style="margin-left: 2.7rem"></span>', 'onblur' => 'pr_szamla_deviza_bruttosit();'),
     array('type' => 'text',                 'megn' => 'Deviza bruttó:',     'name' => 'dev_br',         'szuro' => 1,   'class' => 'f_num'.$deviza_kotelezo,    'data' => 'data-tort="2"',  'disabled' => $arfolyam_disabled, 'sql_disabledkor_is' => 1),
     array('type' => 'text',                 'megn' => 'Nettó érték:',       'name' => 'netto',          'szuro' => 1,   'class' => 'oriasi f_num', 'data' => 'data-tort="0"', 'alert' => 'Kérem adja meg a nettó értéket!',  'post' => ' '.get_penznem().'<span style="margin-left: 2rem"></span>', 'osszevon' => 1, 'onblur' => 'pr_szamla_bruttosit();'),
     array('type' => 'text',                 'megn' => 'Bruttó érték:',      'name' => 'brutto',         'szuro' => 1,   'class' => 'oriasi f_num', 'data' => 'data-tort="0"', 'alert' => 'Kérem adja meg a bruttó értéket!', 'post' => ' '.get_penznem()),
@@ -5131,6 +5131,10 @@ foreach($postok as $ertek){
         mysqli_autocommit($db_kapcs, false);
         $valtozas_kapcsolodo_tablak = ''; // Ellogoljuk a kapcsoldó táblák adatait is
 
+        // Kérjük le a törlendő sor adatait
+        $original_sor = $adatbazis_kapcsolat->s2('*', $ertek['tabla'], "`recid`='{$_GET[$ertek['torid']]}'");
+        if( $original_sor === false ) { $db_error = true; }
+        
         // Ütmezett feladatoknál és társainál vagy törlés jog kell hozzá, vagy ha az nincs, akkor az kell, hogy magam hoztam létre
         if(
             ( $ertek['tabla']=='utemezett_feladatok'     && !_jog( JOG_UTFEL_TOROL       )  ) ||
@@ -5565,13 +5569,49 @@ Hiba: '.getErtek('info', 'erteklista', 'recid', $bejelentes['hiba_id']).$hiba_tx
 				$weblap -> leallit();
 				exit();
 			}else{
-				$weblap -> leallit();
 
                 // Anyagigénylés törlés után a táblázathoz jutunk
                 $kieg = get_get(array($ertek['torid']), 'sima &');
                 if( $ertek['tabla']=='anyagigenyles' ){
                     $kieg = get_get(array($ertek['torid'], 'modosit'), 'sima &').'&tablazat';
                 }
+                
+                    
+                // Helyiség törlése
+                if( $ertek['tabla']=='obj' ){
+
+                    $obj = $adatbazis_kapcsolat->s2('recid', 'obj', "`szulo`='{$original_sor['szulo']}' AND `sor`>'{$original_sor['sor']}'", 'sor', '1');
+                    if(!$obj){
+                        $obj = $adatbazis_kapcsolat->s2('recid', 'obj', "`szulo`='{$original_sor['szulo']}' AND `sor`<'{$original_sor['sor']}'", 'sor desc', '1');
+                    }
+
+                    // Ha egyáltalán nincs már helyiség ezen a szinten, akkor egyel fentebb ugrunk
+                    if(!$obj){
+                        $kieg = get_get(array($ertek['torid'], 'modosit', 'obj'), 'sima &').'&id='.$original_sor['szulo'].'&obj';
+                    }else{
+                        $kieg = get_get(array($ertek['torid'], 'modosit', 'obj'), 'sima &').'&id='.$obj['recid'].'&obj';
+                    }
+                    
+                }
+                        
+                // Eszköz törlésekor a következő eszközre ugrojunk, ha az nincs, akkor meg a helyiségre
+                if( $ertek['tabla']=='eszkozkezeles' ){
+                        
+                    $eszkoz = $adatbazis_kapcsolat->s2('recid', 'eszkozkezeles', "`obj_id`='{$original_sor['obj_id']}' AND `nev`>'{$original_sor['nev']}'", 'nev', '1');
+                    if(!$eszkoz){
+                        $eszkoz = $adatbazis_kapcsolat->s2('recid', 'eszkozkezeles', "`obj_id`='{$original_sor['obj_id']}' AND `nev`<'{$original_sor['nev']}'", 'nev desc', '1');
+                    }
+
+                    // Ha egyáltalán nincs már eszköz ezen a szinten, akkor a helyiségre ugrunk
+                    if(!$eszkoz){
+                        $kieg = get_get(array($ertek['torid'], 'modosit', 'obj'), 'sima &').'&id='.$original_sor['obj_id'].'&obj';
+                    }else{
+                        $kieg = get_get(array($ertek['torid'], 'modosit', 'obj'), 'sima &').'&id='.$eszkoz['recid'].'&modosit';
+                    }
+                    
+                }
+                
+				$weblap -> leallit();
 				header('location:'.self().$kieg);
 				exit();
 			}

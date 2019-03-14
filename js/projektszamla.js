@@ -17,6 +17,7 @@ function prsz_hozzaad_gomb_hozzaad_vagy_torol (){
         type: 'POST',
         data: {
             recid                   : _get('id'),
+            uj                      : _get('uj'),
             van_kapcsolt_szerzodes  : Date.now()
         },
         success: function (response) {
@@ -91,7 +92,24 @@ function pr_szamla_netto_br_ell(){
     var netto_afaval    = Number($('#netto').val().replace(/ /g, '')*((Number(AFA)+100)/100));
     
     if( Math.abs( brutto - netto_afaval ) > 2 ){
-        return 'A bruttó érték ('+$('#brutto').val()+') nem egyenlő a nettó érték ('+$('#netto').val()+') * '+AFA+'% ÁFÁ-val.<br>Folytatja?';
+        return 'A Bruttó érték ('+$('#brutto').val()+') nem egyenlő a Nettó érték ('+$('#netto').val()+') * '+AFA+'% ÁFÁ-val.<br>Folytatja?';
+    }
+}
+
+// Adatlapon található nettó mezőből számol ki bruttó értéket
+function pr_szamla_deviza_bruttosit(){
+    if( !$('#dev_br').val() || $('#dev_br').val()=='0,00' ){
+        $('#dev_br').val( ezresek($('#dev_net').val().replace(/ /g, '').replace(',', '.')*((Number(AFA)+100)/100), 2, ',', ' ') );
+    }
+}
+
+// Ha a bruttósított nettó és a valódi bruttó között 2 Ft-nál nagyobb az eltérés, akkor hibát dobunk. 
+function pr_szamla_deviza_netto_br_ell(){
+    var brutto          = Number($('#dev_br').val().replace(/ /g, '').replace(',', '.'));
+    var netto_afaval    = Number($('#dev_net').val().replace(/ /g, '').replace(',', '.')*((Number(AFA)+100)/100));
+    
+    if( Math.abs( brutto - netto_afaval ) > 1 ){
+        return 'A Deviza bruttó érték ('+$('#dev_br').val()+') nem egyenlő a Deviza nettó érték ('+$('#dev_net').val()+') * '+AFA+'% ÁFÁ-val.<br>Folytatja?';
     }
 }
 

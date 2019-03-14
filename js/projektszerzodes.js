@@ -7,6 +7,7 @@ function pr_hozzaad_gomb_hozzaad_vagy_torol (){
         type: 'POST',
         data: {
             recid               : _get('id'),
+            uj                  : _get('uj'),
             van_kapcsolt_szamla : Date.now()
         },
         success: function (response) {
@@ -22,9 +23,14 @@ function pr_hozzaad_gomb_hozzaad_vagy_torol (){
                         // Törléskor csak akkor adunk hozzá 'mod' classt, ha amúgy volt eredetileg értéke
                         if( $('#pr_szam').attr('value') ){
                             $('#pr_szam').addClass('mod');
+                            $('#let_fel_autocomp').addClass('mod');
                         }else{
                             $('#pr_szam').removeClass('mod');
+                            $('#let_fel_autocomp').removeClass('mod');
                         }
+                        $('#let_fel_autocomp').val('');
+                        $('#let_fel').val('');
+                        
                         $('#projekt_neve').html('');
                         formModositva = true;
                         $('#pr_szam_gomb').val('Projekt hozzáadása').removeClass('piros');

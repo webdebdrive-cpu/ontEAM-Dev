@@ -667,7 +667,10 @@ if($tabla == 'anyagigenyles'){
     }
     array_push( $sz_mezo, array('eleje' => '<option value="megjegyzes" data-tabla="megjegyzes"'.$selected_megj.'>', 'vege' => 'Megjegyzés</option>' ) );
 }
-if($tabla == 'bejelentes_arch' || $tabla == 'munkalap_arch'){
+
+// Vannak felületek,a hol a nav panel számát limitáljuk. Ezt egy szűrővel oldjuk meg, tehát itt szükséges, hogy legyen egy Legfrisebb nevű szűrés lehetőség.
+$legfrisebb_feluletek = array('bejelentes_arch', 'munkalap_arch', 'projektigenyles', 'projektkezeles', 'projektszamla', 'projektszerzodes');
+if( in_array($tabla, $legfrisebb_feluletek) ){
     $selected_legfrissebb  = '';
     if($_GET['mezo']=='legfrissebb'){
         $selected_legfrissebb = ' selected';

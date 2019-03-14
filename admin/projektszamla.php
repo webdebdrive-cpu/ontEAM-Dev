@@ -35,8 +35,8 @@ if($tobb_kep){
 // Lekérdezzük, hogy van-e a projekt számla tételei között olyan, amihez van kapcsolva szerződés tétel
 if (isset($_POST['van_kapcsolt_szerzodes'])) {
     
-    // Csak ha kaptunk is recid-t (pl. új feltötlésnél még nem kapunk)
-    if( $_POST['recid'] && is_numeric($_POST['recid']) ){
+    // Új feltöltéskor ezt nem kell ellenőrizni
+    if( !$_POST['uj'] || $_POST['uj']=='false' ){
     
         $szerzodes_tetelek = $adatbazis_kapcsolat->s('recid', 'projektszamla_tetel', "`projektszamla_recid`='{$_POST['recid']}' AND `projektszerzodes_tetel_recid`!=0");
         if ( $szerzodes_tetelek ){
@@ -1350,7 +1350,12 @@ require_once('selectek.php');
 	if( isset($_GET['uj']) && (_jog(JOG_PRSZAMLAK_KEZEL) || _jog(JOG_PR_SAJAT_SZAMLA_KEZEL)) ){
         
         // Az űrlap feldolgozása előtti JS-t tiszta lappal indítjuk     
-        $szamla_html .= '<script>var netto_br_ell = false;</script>';
+        $szamla_html .= nl2('
+                        <script>
+                            var netto_br_ell        = false;
+                            var netto_br_deviza_ell = false;
+                        </script>
+                        ');
         $js_submit_elott = nl2('
 
                 /* Deviza nettó mező kötelező-e, ha igen, van-e értéke? */
@@ -1374,6 +1379,14 @@ require_once('selectek.php');
                 var hibauzi = pr_szamla_netto_br_ell();
                 if( hibauzi && !netto_br_ell ){
                     alert2(hibauzi, \'<input type="button" class="gomb zold" value="Igen" onclick="netto_br_ell=true; mentesGomb(); alert2();"> <input type="button" class="gomb piros" value="Nem" onclick="alert2();">\', \'Hiba\');
+                    alert_utan_mehet_megsem_mutat_beallit();
+                    return false;
+                }
+                
+                /* A bruttó és nettó deviza mezőt is ellenőrizzük */
+                var hibauzi = pr_szamla_deviza_netto_br_ell();
+                if( hibauzi && !netto_br_deviza_ell ){
+                    alert2(hibauzi, \'<input type="button" class="gomb zold" value="Igen" onclick="netto_br_deviza_ell=true; mentesGomb(); alert2();"> <input type="button" class="gomb piros" value="Nem" onclick="alert2();">\', \'Hiba\');
                     alert_utan_mehet_megsem_mutat_beallit();
                     return false;
                 }
@@ -1494,6 +1507,11 @@ require_once('selectek.php');
             $sor['text']            = $igenyles['text'];
             $sor['projektigenyles_recid'] = $_GET['igeny_id'];
         }
+        
+        // Numerikus mezők alapértelmezett értékét beállítjuk
+        $sor['arfolyam'] = '0,0000';
+        $sor['dev_net']  = '0,00';
+        $sor['dev_br']   = '0,00';
 
         $json_sor = array();
         foreach($sor as $kulcs => $elem){
@@ -1526,8 +1544,13 @@ require_once('selectek.php');
         }
         
         // Ha a visszaadva pipa be van pipálva, és van rajta egy mod css class, akkor ez most kerül bepipálásra. Ebben az esetben rákérdezdünk, hogy biztosan?
-        $szamla_html .= '<script>var visszaadva_pipa_mehet = false;</script>';
-        $szamla_html .= '<script>var netto_br_ell = false;</script>';
+        $szamla_html .= nl2('
+                        <script>
+                            var visszaadva_pipa_mehet   = false;
+                            var netto_br_ell            = false;
+                            var netto_br_deviza_ell     = false;
+                        </script>
+                        ');
         $js_submit_elott = nl2('
             
             /* Deviza nettó mező kötelező-e, ha igen, van-e értéke? */
@@ -1551,6 +1574,14 @@ require_once('selectek.php');
             var hibauzi = pr_szamla_netto_br_ell();
             if( hibauzi && !netto_br_ell ){
                 alert2(hibauzi, \'<input type="button" class="gomb zold" value="Igen" onclick="netto_br_ell=true; mentesGomb(); alert2();"> <input type="button" class="gomb piros" value="Nem" onclick="alert2();">\', \'Hiba\');
+                alert_utan_mehet_megsem_mutat_beallit();
+                return false;
+            }
+            
+            /* A bruttó és nettó deviza mezőt is ellenőrizzük */
+            var hibauzi = pr_szamla_deviza_netto_br_ell();
+            if( hibauzi && !netto_br_deviza_ell ){
+                alert2(hibauzi, \'<input type="button" class="gomb zold" value="Igen" onclick="netto_br_deviza_ell=true; mentesGomb(); alert2();"> <input type="button" class="gomb piros" value="Nem" onclick="alert2();">\', \'Hiba\');
                 alert_utan_mehet_megsem_mutat_beallit();
                 return false;
             }
