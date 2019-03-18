@@ -699,6 +699,7 @@ switch($tabla) {
                                     `'.get_db_tabla().$tabla_nophp.'`.`recid`,
                                     `'.get_db_tabla().$tabla_nophp.'`.`stat_id`,
                                     `'.get_db_tabla().$tabla_nophp.'`.`telephely_id`,
+                                    `'.get_db_tabla().$tabla_nophp.'`.`ikt_szam`,
                                     `'.get_db_tabla().$tabla_nophp.'`.`nev`
                                     ');
 
@@ -2285,6 +2286,15 @@ if ( isset($_GET['uj']) && !isset( $_GET['igeny_id'] ) ) {
     $disabled_jkolt = 0;
 }
 
+// Felhasználható keret ha negatív, akkor legyen piros
+$fel_hato_piros = '';
+if ( isset($_GET['modosit']) ) {
+    $projekt = $adatbazis_kapcsolat->s2('fel_hato', 'projektkezeles', "`recid`='{$_GET['id']}'");
+    if( $projekt['fel_hato']<0 ){
+        $fel_hato_piros = ' piros';
+    }
+}
+
 $megnevezes = 'projektkezeles';
 $projektkezeles_tomb = $akt_tomb = array(
     array('type' => 'statusz',              'megn' => 'Státusz:',               'name' => 'stat_id',        'szuro' => 1,   'oldal' => $megnevezes),
@@ -2324,7 +2334,7 @@ $projektkezeles_tomb = $akt_tomb = array(
     array('type' => 'textarea',             'megn' => 'Leírása:',               'name' => 'text',           'szuro' => 1,   'class' => 'oriasiTargy disableNav'),
     array('type' => 'text',                 'megn' => 'Jóváhagyott keret:',     'name' => 'jkolt',          'szuro' => 1,   'class' => 'oriasi f_num', 'data' => 'data-tort="0"', 'disabled' => $disabled_jkolt,    'post' => ' '.get_penznem(), 'alert' => $alert_jkolt),
     array('type' => 'text',                 'megn' => 'Szerződött összeg:',     'name' => 'sz_ossz',        'szuro' => 1,   'class' => 'oriasi f_num', 'data' => 'data-tort="0"', 'disabled' => 1,                  'post' => ' '.get_penznem()),
-    array('type' => 'text',                 'megn' => 'Felhasználható:',        'name' => 'fel_hato',       'szuro' => 1,   'class' => 'oriasi f_num', 'data' => 'data-tort="0"', 'disabled' => 1,                  'post' => ' '.get_penznem()),
+    array('type' => 'text',                 'megn' => 'Felhasználható:',        'name' => 'fel_hato',       'szuro' => 1,   'class' => 'oriasi f_num'.$fel_hato_piros, 'data' => 'data-tort="0"', 'disabled' => 1,                  'post' => ' '.get_penznem()),
     array('type' => 'text',                 'megn' => 'Aktiválási adatok:',     'name' => 'akt_adat',       'szuro' => 1,   'maxlength' => 250, 'class' => 'oriasi'),
     array('type' => 'html',                 'megn' => nl2('
                                                         <div class="dtr">
@@ -2380,11 +2390,11 @@ if (isset($_GET['modosit'])) {
     }
 
     $pr_szamla    = $adatbazis_kapcsolat->s2('sz_szam pr_szam', 'projektszamla', "`recid`='{$_GET['id']}'");
-    $pr_szerzodes = $adatbazis_kapcsolat->s2('recid targy', 'projektszerzodes', "`sz_szam`='{$pr_szamla['sz_szam']}'");
-    $szerzodes_neve = '<a href="projektszerzodes.php?id='.$pr_szerzodes['recid'].'&amp;modosit" target="_blank">'.resz_string($pr_szerzodes['targy'], 60).'</a>';
+    $pr_szerzodes = $adatbazis_kapcsolat->s2('recid targy sz_szam', 'projektszerzodes', "`sz_szam`='{$pr_szamla['sz_szam']}'");
+    $szerzodes_neve = '<a href="projektszerzodes.php?id=x&amp;modosit&amp;mezo=sz_szam&amp;op=equal&amp;felt='.$pr_szerzodes['sz_szam'].'" target="_blank">'.resz_string($pr_szerzodes['targy'], 60).'</a>';
     
     $projekt        = $adatbazis_kapcsolat->s2('recid nev', 'projektkezeles', "`ikt_szam`='{$pr_szamla['pr_szam']}'");
-    $projekt_neve   = '<a href="projektkezeles.php?id='.$projekt['recid'].'&amp;modosit" target="_blank">'.resz_string($projekt['nev'], 60).'</a>';
+    $projekt_neve   = '<a href="projektkezeles.php?id='.$projekt['recid'].'&amp;modosit&amp;mezo=ikt_szam&amp;op=equal&amp;felt='.$pr_szamla['pr_szam'].'" target="_blank">'.resz_string($projekt['nev'], 60).'</a>';
     
     // Ha a pénznem ki van töltve, csak akkor szerkeszthetőek az árfolyamos mezők
     if( $prsz['kcs_21'] ){
@@ -2445,7 +2455,7 @@ if (isset($_GET['modosit'])) {
     $szalloda_disabled = true;
     $proj_szerz = $adatbazis_kapcsolat->s2('pr_szam kcs_21 epitesi_eng', 'projektszerzodes', "`recid`='{$_GET['id']}'");
     $proj = $adatbazis_kapcsolat->s2('recid nev', 'projektkezeles', "`ikt_szam`='{$proj_szerz['pr_szam']}'");
-    $projekt_neve = '<a href="projektkezeles.php?id='.$proj['recid'].'&amp;modosit" target="_blank">'.$proj['nev'].'</a>';
+    $projekt_neve = '<a href="projektkezeles.php?id=x&amp;modosit&amp;mezo=ikt_szam&amp;op=equal&amp;felt='.$proj_szerz['pr_szam'].'" target="_blank">'.resz_string($proj['nev'], 60).'</a>';
     
     // Ha a pénznem ki van töltve, csak akkor szerkeszthetőek az árfolyamos mezők
     if( $proj_szerz['kcs_21'] ){
@@ -2486,6 +2496,8 @@ $projektszerzodes_tomb = $akt_tomb = array(
     // array('type' => 'checkbox',             'megn' => 'Számlázva:',             'name' => 'szamlazva',          'szuro' => 1,   'class' => 'check',  'disabled' => 1),
     // Ha azonos a szálloda, partner és összeg, akkor rákérdezünk, hogy biztosan? És ha igen, akkor ezt a mezőt kell 1-re állítani.
     array('type' => 'hidden',               'megn' => '',                       'name' => 'hasonlo_szerzodes_mehet', 'nosql' => 1),
+    // Ha túlléptük a projekt limitet, rákérdezünk? És ha igen, akkor ezt a mezőt kell 1-re állítani.
+    array('type' => 'hidden',               'megn' => '',                       'name' => 'keret_tullepve_mehet', 'nosql' => 1),
 );
 array_push($postok, array('tomb' => $akt_tomb, 'uj' => 'uj'.$megnevezes, 'lista' => $megnevezes.'lista', 'tabla' => $megnevezes, 'torid' => $megnevezes.'tid' ));
 

@@ -1352,7 +1352,7 @@ function i_u($type, $tabla, $tomb) {
                 $szerzodesek = $adatbazis_kapcsolat->s2('SUM(`szerz_ossz`)', 'projektszerzodes', "`pr_szam`='{$_POST['pr_szam']}' AND `recid`!='{$_GET['id']}'");
                 if( $szerzodesek === false ) { $db_error = true; }
                 $felhasznalhato = $projekt['jkolt']-$szerzodesek['SUM(`szerz_ossz`)'];
-                if( $felhasznalhato < $_POST['szerz_ossz'] ){
+                if( $felhasznalhato < $_POST['szerz_ossz'] && !$_POST['keret_tullepve_mehet'] ){
                     echo json_encode(array(
                         'hiba'  => nl2('
                                         Projekt jóváhagyott keret: '.number_format($projekt['jkolt'], 0, '', ' ').' '.get_penznem().'
@@ -1361,8 +1361,8 @@ function i_u($type, $tabla, $tomb) {
                                         <br>
                                         <br>Az összes szerződés összege nagyobb, mint a jóváhagyott keret!
                                     '),
-                        'gomb'  => '<input type="button" class="gomb" value="Ok" onclick="szurkit_zar(\'mégsem mehet mutat\'); alert2();">',
-                        'title' => 'Hiba',
+                        'gomb'  => '<input type="button" class="gomb zold" value="Igen" onclick="$(\'#keret_tullepve_mehet\').val(1); mentesGomb();"> <input type="button" class="gomb piros" value="Nem" onclick="szurkit_zar(\'mégsem mehet mutat\'); alert2();">',
+                        'title' => 'Kérdés',
                     ));
                     $weblap -> leallit();
                     exit();
@@ -5103,8 +5103,9 @@ function projektkezelesLista( $bejegyzesek, $tabla, $frissit, $kijeloltek ) {
             }
 
             $li_tart = '<a class="szamla" data-recid="'.$bsz['recid'].'" data-fajl="'.$tabla.'.php" data-muvelet="modosit">
-                            <table style="width: 30rem">
+                            <table style="width: 37rem">
                             <tr>
+                                <td style="width: 7rem">'.$bsz['ikt_szam'].'</td>
                                 <td style="width: 10rem">'.getSzallodaNev($bsz['telephely_id']).'</td>
                                 <td style="width: 20rem">'.$statusz.'</td>
                             </tr>

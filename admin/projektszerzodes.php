@@ -118,7 +118,7 @@ if(isset($_POST['get_projekt_tabla'])){
                 <td class="l" style="padding: 0 0.5rem">
                     '.$szalloda['nev'].'
                     <div class="dn pfelelos_txt">'.$pfelelos_neve.'</div>
-                    <div class="dn pfelelos_txt nev"><a href="projektkezeles.php?id='.$pr['recid'].'&amp;modosit" target="_blank">'.$pr['nev'].'</a></div>
+                    <div class="dn pfelelos_txt nev"><a href="projektkezeles.php?id=x&amp;modosit&amp;mezo=ikt_szam&amp;op=equal&amp;felt='.$pr['ikt_szam'].'" target="_blank">'.$pr['nev'].'</a></div>
                 </td>
                 <td class="l" style="padding: 0 0.5rem">'.$pr['ikt_szam'].'</td>
                 <td class="l" style="width: 30rem; padding: 0 0.5rem">'.$pr['nev'].'</td>
@@ -496,17 +496,17 @@ if (isset($_POST['van_tetel'])) {
         $projekt = $adatbazis_kapcsolat->s2('jkolt', 'projektkezeles', "`ikt_szam`='{$_POST['pr_szam']}'");
         $szerzodesek = $adatbazis_kapcsolat->s2('SUM(`szerz_ossz`)', 'projektszerzodes', "`pr_szam`='{$_POST['pr_szam']}'");
         $felhasznalhato = $projekt['jkolt']-$szerzodesek['SUM(`szerz_ossz`)'];
-        if( $felhasznalhato < $szerzodes_osszege ){
+        if( $felhasznalhato < $szerzodes_osszege && !$_POST['keret_tullepve_mehet'] ){
             echo json_encode(array(
                 'hiba'  => nl2('
                                 Projekt jóváhagyott keret: '.number_format($projekt['jkolt'], 0, '', ' ').' '.get_penznem().'
                                 <br>Összes szerződött összeg: '.number_format($szerzodesek['SUM(`szerz_ossz`)'], 0, '', ' ').' '.get_penznem().'.
                                 <br>Ebből még felhasználható: '.number_format($felhasznalhato, 0, '', ' ').' '.get_penznem().'.
                                 <br>
-                                <br>Az összes szerződés összege nagyobb, mint a jóváhagyott keret!
+                                <br>Az összes szerződés összege nagyobb, mint a jóváhagyott keret! Biztosan folytatja?
                             '),
-                'gomb'  => '<input type="button" class="gomb" value="Ok" onclick="szurkit_zar(\'mégsem mehet mutat\'); alert2();">',
-                'title' => 'Hiba',
+                'gomb'  => '<input type="button" class="gomb zold" value="Igen" onclick="$(\'#keret_tullepve_mehet\').val(1); mentesGomb();"> <input type="button" class="gomb piros" value="Nem" onclick="szurkit_zar(\'mégsem mehet mutat\'); alert2();">',
+                'title' => 'Kérdés',
             ));
             $weblap -> leallit();
             exit();
@@ -982,7 +982,7 @@ require_once('selectek.php');
 	if( isset($_GET['uj']) && (_jog(JOG_PRKEZEL_SZERZODES_KEZEL) || _jog(JOG_PR_SAJAT_SZERZ_KEZEL)) ){
         
         $js_submit_elott = nl2('
-            
+
                 /* Deviza nettó mező kötelező-e, ha igen, van-e értéke? */
                 if( $(\'#dev_net\').hasClass(\'csillag\') && ( !$(\'#dev_net\').val() || $(\'#dev_net\').val()==\'0,00\' ) ){
 
@@ -1029,6 +1029,7 @@ require_once('selectek.php');
                         szerz_ossz              : $(\'#szerz_ossz\').val(),
                         sz_koto                 : $(\'#sz_koto\').val(),
                         hasonlo_szerzodes_mehet : $(\'#hasonlo_szerzodes_mehet\').val(),
+                        keret_tullepve_mehet    : $(\'#keret_tullepve_mehet\').val(),
                         van_tetel               : Date.now()
                     },
                     success: function(response){
@@ -1131,7 +1132,6 @@ require_once('selectek.php');
            $json_sor[$kulcs] = formAdatok_replace($elem);
         }
         $szamla_html .= '<script> formAdatok = JSON.parse(\''.json_encode($json_sor).'\'); </script>';
-        
 
 		// Ez elkészíti a $mezok változót
 		require('switch.php');

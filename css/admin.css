@@ -539,6 +539,10 @@ input.oriasi{
     width: 100%;
 }
 
+input.piros {
+    color: #f00;
+}
+
 input.datepicker, input.datepicker_tegnapig, input.datepicker_matol, #popup div.popup_tart div.dt div.dtc input[type="text"].datepicker{
     min-width: 0;
     width: 8.6rem;

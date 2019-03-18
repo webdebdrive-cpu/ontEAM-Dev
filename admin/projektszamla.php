@@ -109,8 +109,8 @@ if(isset($_POST['get_projekt_szerzodes_tabla'])){
                     '.$pr['sz_szam'].'
                     <div class="dn let_fel_txt">'.$let_fel_neve.'</div>
                     <div class="dn kolt_vis_txt">'.$kolt_vis_neve.'</div>
-                    <div class="dn targy_txt"><a href="projektszerzodes.php?id='.$pr['recid'].'&amp;modosit" target="_blank">'.resz_string($pr['targy'], 60).'</a></div>
-                    <div class="dn pr_nev_txt"><a href="projektkezeles.php?id='.$projekt['recid'].'&amp;modosit" target="_blank">'.resz_string($projekt['nev'], 60).'</a></div>
+                    <div class="dn targy_txt"><a href="projektszerzodes.php?id=x&amp;modosit&amp;mezo=sz_szam&amp;op=equal&amp;felt='.$pr['sz_szam'].'" target="_blank">'.resz_string($pr['targy'], 60).'</a></div>
+                    <div class="dn pr_nev_txt"><a href="projektkezeles.php?id=x&amp;modosit&amp;mezo=ikt_szam&amp;op=equal&amp;felt='.$pr['pr_szam'].'" target="_blank">'.resz_string($projekt['nev'], 60).'</a></div>
                 </td>
                 <td class="l" style="width: 40rem">'.nl2br2($pr['targy']).'</td>
                 <td class="r nowrap">'.number_format($pr['szerz_ossz'], 0, '', ' ').'</td>
