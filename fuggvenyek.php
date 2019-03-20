@@ -2472,7 +2472,7 @@ function szamla_lista( $where, $tabla, $kijeloltek = false, $csak_sql_miatt = fa
                             );
 
         $volt_irany_valtas = false;
-        if($_SESSION['elozo_rend']!=$_GET['rend']){
+        if( $_SESSION['elozo_rend'] && $_SESSION['elozo_rend']!=$_GET['rend'] ){
             $i = 0;
             foreach ($_OPTS['rendezes'] as $rendezes){
                 if($rendezes == $_GET['rend']){
@@ -5103,14 +5103,14 @@ function projektkezelesLista( $bejegyzesek, $tabla, $frissit, $kijeloltek ) {
             }
 
             $li_tart = '<a class="szamla" data-recid="'.$bsz['recid'].'" data-fajl="'.$tabla.'.php" data-muvelet="modosit">
-                            <table style="width: 37rem">
+                            <table style="width: 30rem">
                             <tr>
-                                <td style="width: 7rem">'.$bsz['ikt_szam'].'</td>
+                                <td style="width: 10rem">'.$bsz['ikt_szam'].'</td>
                                 <td style="width: 10rem">'.getSzallodaNev($bsz['telephely_id']).'</td>
-                                <td style="width: 20rem">'.$statusz.'</td>
+                                <td >'.$statusz.'</td>
                             </tr>
                             <tr>
-                                <td colspan="2">'.resz_string($bsz['nev'], 60).'</td>
+                                <td colspan="3" style="width: 40rem">'.resz_string($bsz['nev'], 60).'</td>
                             </tr>
                             </table>
                         </a>';
