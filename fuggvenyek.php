@@ -2472,7 +2472,7 @@ function szamla_lista( $where, $tabla, $kijeloltek = false, $csak_sql_miatt = fa
                             );
 
         $volt_irany_valtas = false;
-        if( $_SESSION['elozo_rend'] && $_SESSION['elozo_rend']!=$_GET['rend'] ){
+        if( $_SESSION[$tabla]['elozo_rend'] && $_SESSION[$tabla]['elozo_rend']!=$_GET['rend'] ){
             $i = 0;
             foreach ($_OPTS['rendezes'] as $rendezes){
                 if($rendezes == $_GET['rend']){
@@ -2484,7 +2484,7 @@ function szamla_lista( $where, $tabla, $kijeloltek = false, $csak_sql_miatt = fa
         }
 
         // Jegyezzük meg, mi volt az előző rendezés szempont, hogy kétszer ne váltsunk irányt
-        $_SESSION['elozo_rend'] = $order;
+        $_SESSION[$tabla]['elozo_rend'] = $order;
 
         $irany = $_GET['irany'];
         // Ha egy rendezésben vegyesen vannak az irányok, akkor erre az esetre letároljuk az ellenkezőjét egy másik GET-be
