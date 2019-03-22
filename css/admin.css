@@ -1161,19 +1161,19 @@ div.jsff_thumb div.torol:hover{
     padding-right: 1rem;
 }
 
-#sorrendezes li:not(.kijelolve):hover,
-#feltoltott_fajl li:not(.kijelolve):hover,
-#sorrendezes_album li:not(.kijelolve):hover,
-#sorrendezes_tobbkep li:not(.kijelolve):hover,
-#sorrendezes_bejegyzes li:not(.kijelolve):hover {
+#sorrendezes li:not(.kijelolve):not(.nohover):hover,
+#feltoltott_fajl li:not(.kijelolve):not(.nohover):hover,
+#sorrendezes_album li:not(.kijelolve):not(.nohover):hover,
+#sorrendezes_tobbkep li:not(.kijelolve):not(.nohover):hover,
+#sorrendezes_bejegyzes li:not(.kijelolve):not(.nohover):hover {
     background: #E9F1FB!important;
 }
 
-#sorrendezes li.nohover:hover,
-#feltoltott_fajl li.nohover:hover,
-#sorrendezes_album li.nohover:hover,
-#sorrendezes_tobbkep li.nohover:hover,
-#sorrendezes_bejegyzes li.nohover:hover {
+#sorrendezes li.nohover:not(.fejlec):hover,
+#feltoltott_fajl li.nohover:not(.fejlec):hover,
+#sorrendezes_album li.nohover:not(.fejlec):hover,
+#sorrendezes_tobbkep li.nohover:not(.fejlec):hover,
+#sorrendezes_bejegyzes li.nohover:not(.fejlec):hover {
     background: #fff!important;
 }
 

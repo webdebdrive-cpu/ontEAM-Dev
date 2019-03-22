@@ -517,16 +517,16 @@ $(function() {
         });
     }
 
-    /* Billentyű leütés figyelés */
+    // Billentyű leütés figyelés
     $(document).on('keyup', function(e) {
 
-        /* F5 esetén a szürkítést felhozzuk */
+        // F5 esetén a szürkítést felhozzuk
         if( e.keyCode == KEY_F5 ) {
             szurkit('mentés mégsem gombot is rejtsd el');
         }
         
 
-        /* Léptetés lefele nyíllal, lépkedve le fel */
+        // Léptetés lefele nyíllal, lépkedve le fel
         if( e.keyCode == KEY_UP || e.keyCode == KEY_DOWN ) {
 
             var className = e.target.className;
@@ -579,7 +579,7 @@ $(function() {
                 'uzemeltetesi_naplo'
             );
 
-            /* Eltávolítjuk a bal oldali kijelöléseket */
+            // Eltávolítjuk a bal oldali kijelöléseket
             kijelolesEltavolit();
 
             if( inArray(baseName(location.href), ketHasabos) ) {
@@ -644,7 +644,7 @@ $(function() {
 
                     return false;
 
-                /* Eszközkezelésnél egy könyvtárszerkezet van bal oldalt */
+                // Eszközkezelésnél egy könyvtárszerkezet van bal oldalt
                 }else if(tabla=='eszkozkezeles'){
 
                     /* Itt próbálkoztunk azzal, hogy a könyvtárakon végig lehessen lépkedni, de túl bonyolult volt, hagytunk végül. Tamással megbeszélve.
@@ -4998,27 +4998,27 @@ function inArray( keresett, tomb ) {
     return false;
 }
 
-/* Navigáció előző */
+// Navigáció előző
 function naviElozo() {
     $(document).trigger(jQuery.Event('keyup', {keyCode: KEY_UP}));
 }
 
-/* Navigáció következő */
+// Navigáció következő
 function naviKov() {
     $(document).trigger(jQuery.Event('keyup', {keyCode: KEY_DOWN}));
 }
 
 function naviElso() {
-    /* Anyagigénylésnél másképp járunk el */
+    // Anyagigénylésnél másképp járunk el
     if( baseName(location.href)=='anyagigenyles' ){
         $('table.szamla_cont_tabla tbody tr:nth-of-type(2)').addClass('kijelolve').click();
         $('#tartalomJobb').scrollTop(0);
     }else{
-        /* Bal oldali területen egy táblázat az aktív */
-        if( /*$('.szamla_cont_tabla').length ||*/ aktiv_oldal == 'szamla_cont_tabla' ) {
+        // Bal oldali területen egy táblázat az aktív
+        if( aktiv_oldal == 'szamla_cont_tabla' ) {
             $('.szamla_cont_tabla tbody tr').eq(0).trigger('click');
             $('#tartalomJobb .fht-tbody').scrollTop(0);
-        /* Navpanel az aktív felület */
+        // Navpanel az aktív felület
         } else {
             $('#szamlaList li.szamla_sor').eq(0).find('a').trigger('click');
             $('#tartalomJobb').scrollTop(0);
@@ -5247,10 +5247,15 @@ function bejegyzesekLista( that, irany, rkat, ksz ) {
 
             }
 
-            /* Megtriggerjük a keresés mezőt, hogy leszűkítsen */
+            // Megtriggerjük a keresés mezőt, hogy leszűkítsen
             if( $('#rendezesKeres').val() ) {
                 $('#rendezesKeres').trigger('keyup');
             }
+            
+            // Aktív elemre ugrás
+            setTimeout(function () {
+                scrollLeptet();
+            }, 100);
         });
     }
 }

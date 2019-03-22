@@ -3111,7 +3111,7 @@ function szamla_lista( $where, $tabla, $kijeloltek = false, $csak_sql_miatt = fa
 
         }
 
-        // Archiv menüpont alatt egy 100-as limit mindig van (ha nincs más szűrés, akkor a feltétel a lista hossza)
+        // Archiv menüpont alatt egy 1000-es limit mindig van (ha nincs más szűrés, akkor a feltétel a lista hossza)
         if( $_GET['mezo'] == 'legfrissebb' ) {
             $limit = $_GET['felt'];
             if($order){
@@ -6966,7 +6966,15 @@ function get_szures_where_kieg($mezo, $op, $felt, $tabla){
     $op_origi = $op;
     switch ($op){
         case 'equal'    : $op = '=';    break;
-        case 'not_eq'   : $op = '!=';   break;
+        case 'not_eq'   :
+            // Létrehozás dátumánál kicsit más az operátor működése
+            if( $mezo=='insert_dt' ){
+                $op = ' NOT LIKE ';
+                $felt = '%'.$felt.'%';
+            }else{
+                $op = '!=';
+            }
+        break;
         case 'gteq'     : $op = '>=';   break;
         case 'lteq'     : $op = '<=';   break;
         case 'gt'       : $op = '>';    break;
@@ -6997,12 +7005,14 @@ function get_szures_where_kieg($mezo, $op, $felt, $tabla){
         return '`'.get_db_tabla().'anyagigenyles`.`beerkezett` LIKE \''.str_replace('.', '-', $felt).'%\'';
     }elseif($tabla=='bejelentes' && $mezo=='telephely_id'){
         return '`'.get_db_tabla().'bejelentes`.`telephely_id`=\''.$felt.'\'';
-    }elseif($tabla=='bejelentes' && $mezo=='insert_dt'){
+    
+    // Létrehozás dáumára keresve általánosan így járunk el
+    }elseif($mezo=='insert_dt'){
         $felt = str_replace('.', '-', $felt);
         if($op_origi=='empty'){
             $felt = '0000-00-00';
         }
-        return '`'.get_db_tabla().'bejelentes`.`insert_dt`'.$op.'\''.$felt.'\'';
+        return '`'.get_db_tabla().$tabla.'`.`insert_dt`'.$op.'\''.$felt.'\'';
     // Van-e dokumentuma szűrés
     }elseif($mezo=='dok_van_e'){
         if( $felt>0 ){

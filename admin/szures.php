@@ -98,6 +98,11 @@ if (isset($_POST['f_szuro_mezo'])) {
 
     }
 
+    // Létrehoztam mező esetén csak egyenlőség jel van
+    if($_POST['mezo']=='insert_usr'){
+        $operator = '<option value="equal"'.$selected_like.'>=</option>';
+    }
+
     // Legfrissebb esetén = operátor
     if($_POST['mezo']=='legfrissebb') {
         $operator .= '<option value="equal"'.$selected_equal.'>=</option>';
@@ -370,6 +375,28 @@ if (isset($_POST['f_szuro_mezo_operator'])) {
                 $feltetel .= '<option value="'.$telephely['id'].'"'.$selected.'>'.$telephely['nev'].'</option>';
             }
             $feltetel .= '</select>';
+
+        }
+
+        // insert_usr esetén
+        if($_POST['mezo']=='insert_usr'){
+
+            $feltetel = nl2('
+                    <input type="text" placeholder="Feltétel..." class="f_felt" id="insert_usr_autocomp_szurobe" name="insert_usr_autocomp_szurobe" value="'.$_POST['felt'].'" onfocus="$(this).select()">
+                    <input type="hidden" id="insert_usr_szurobe" name="insert_usr_szurobe" value="">
+                    <script>
+                        $(document).ready(function() {
+                            $(\'#insert_usr_autocomp_szurobe\').autocomplete({
+                                \'php_fajl\'        : \'../autocomplete.php\',
+                                \'tabla\'           : \'login\',
+                                \'oszlop_keres\'    : \'teljes_nev\',
+                                \'oszlop_listaz\'   : \'teljes_nev\',
+                                \'id_kiir\'         : \'teljes_nev\',
+                                \'szuros\'          : \'Szűrőben hívtuk meg\'
+                            });
+                        });
+                    </script>
+                ');
 
         }
 

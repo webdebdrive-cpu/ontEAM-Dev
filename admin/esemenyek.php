@@ -2249,6 +2249,9 @@ array('type' => 'html',                     'megn' => nl2('
                                                             </div>
                                                         </div>
                                                                 ')),
+    
+    array('type' => 'nosql',                'name' => '',   'megn_szurobe' => 'Létrehozás dátuma',      'name' => 'insert_dt',    'szuro' => 1,  'class' => 'datepicker'),
+    array('type' => 'nosql',                'name' => '',   'megn_szurobe' => 'Létrehozta',             'name' => 'insert_usr',   'szuro' => 1),
 
 );
 array_push($postok, array('tomb' => $akt_tomb, 'uj' => 'uj'.$megnevezes, 'lista' => $megnevezes.'lista', 'tabla' => $megnevezes, 'torid' => $megnevezes.'tid' ));
@@ -2346,6 +2349,8 @@ $projektkezeles_tomb = $akt_tomb = array(
                                                         </div>
                                                         ')),
     array('type' => 'hidden',               'megn' => '',      'name' => 'projektigenyles_recid'),
+    array('type' => 'nosql',                'name' => '',   'megn_szurobe' => 'Létrehozás dátuma',      'name' => 'insert_dt',    'szuro' => 1,  'class' => 'datepicker'),
+    array('type' => 'nosql',                'name' => '',   'megn_szurobe' => 'Létrehozta',             'name' => 'insert_usr',   'szuro' => 1),
 );
 array_push($postok, array('tomb' => $akt_tomb, 'uj' => 'uj'.$megnevezes, 'lista' => $megnevezes.'lista', 'tabla' => $megnevezes, 'torid' => $megnevezes.'tid' ));
 
@@ -2426,6 +2431,9 @@ $projektszamla_tomb = $akt_tomb = array(
     array('type' => 'text',                 'megn' => 'Projekt szám:',      'name' => 'pr_szam',        'szuro' => 1,   'disabled' => 1, 'post' => ' <span id="projekt_neve">'.$projekt_neve.'</span>'),
     array('type' => 'autocomplete',         'megn' => 'Projekt felelős:',   'name' => 'let_fel',        'szuro' => 1,   'disabled' => 1,   'class' => 'oriasi', 'tabla' => 'login', 'oszlop_keres' => 'recid', 'oszlop_keres_autocomp' => 'teljes_nev', 'listaz' => 'teljes_nev', 'beosztas_id' => EL_BEOSZTAS_PR_FELEOS, 'id_kiir' => 'recid', 'style' => 'width: 25rem'),
     array('type' => 'autocomplete',         'megn' => 'Költségviselő:',     'name' => 'kolt_vis',       'szuro' => 1,   'disabled' => 1,   'class' => 'oriasi disableNav', 'tabla' => 'erteklista', 'oszlop_keres' => 'id', 'oszlop_keres_autocomp' => 'info', 'listaz' => 'info', 'csoport' => ERTEKLISTA_KOLTSEGVISELO, 'id_kiir' => 'id', 'style' => 'width: 25rem'),
+    
+    array('type' => 'nosql',                'name' => '',   'megn_szurobe' => 'Létrehozás dátuma',      'name' => 'insert_dt',    'szuro' => 1,  'class' => 'datepicker'),
+    array('type' => 'nosql',                'name' => '',   'megn_szurobe' => 'Létrehozta',             'name' => 'insert_usr',   'szuro' => 1),
 );
 array_push($postok, array('tomb' => $akt_tomb, 'uj' => 'uj'.$megnevezes, 'lista' => $megnevezes.'lista', 'tabla' => $megnevezes, 'torid' => $megnevezes.'tid' ));
 
@@ -2498,6 +2506,9 @@ $projektszerzodes_tomb = $akt_tomb = array(
     array('type' => 'hidden',               'megn' => '',                       'name' => 'hasonlo_szerzodes_mehet', 'nosql' => 1),
     // Ha túlléptük a projekt limitet, rákérdezünk? És ha igen, akkor ezt a mezőt kell 1-re állítani.
     array('type' => 'hidden',               'megn' => '',                       'name' => 'keret_tullepve_mehet', 'nosql' => 1),
+    
+    array('type' => 'nosql',                'name' => '',   'megn_szurobe' => 'Létrehozás dátuma',      'name' => 'insert_dt',    'szuro' => 1,  'class' => 'datepicker'),
+    array('type' => 'nosql',                'name' => '',   'megn_szurobe' => 'Létrehozta',             'name' => 'insert_usr',   'szuro' => 1),
 );
 array_push($postok, array('tomb' => $akt_tomb, 'uj' => 'uj'.$megnevezes, 'lista' => $megnevezes.'lista', 'tabla' => $megnevezes, 'torid' => $megnevezes.'tid' ));
 

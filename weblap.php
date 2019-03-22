@@ -128,7 +128,8 @@ if( $_GET['id'] && !isset($_GET['no_lista']) ){
     }
 }
 
-if( $_GET['id'] ) {
+// Ha van id, akkor ellenőrizzük, hogy én azt láthatom-e. A legfrissebbnél ezt nem tudjuk ljétszani, mert ott nincs minden id a session-ban (túl sok is volna). Itt ha rendezést állítunk (pl. Z-A), akkor nem lehetne megnyitni adott rekordot. 
+if( $_GET['id'] && $_GET['mezo']!='legfrissebb' ) {
     if( !in_array($_GET['id'], $_SESSION[csonkit(basename(self()), 4).'_idk']) ){
         exit;
     }

@@ -105,7 +105,7 @@ if( isset($_POST['megnevezes']) && !$archivum ){
         $projekt_feluletek = array('projektkezeles', 'projektszamla', 'projektszerzodes');
         if( in_array($konyvtar_db_nev, $projekt_feluletek) ){
             $utvonal .= '/'.$ev_mappa;
-            
+
             // Mappa esetleges létrehozása
             if(!is_dir($utvonal)){
                 mkdir($utvonal, 0777);
@@ -132,7 +132,7 @@ if( isset($_POST['megnevezes']) && !$archivum ){
                 $utvonal = $utvonal.'/'.str_replace('/', '_', $ikt_szam[$ikt_szam_oszlop]);
             }
         }
-        
+
         // Mappa esetleges létrehozása
         if( !is_dir($utvonal) ) {
             mkdir($utvonal, 0777);
@@ -369,16 +369,19 @@ if($kepek){
 
 // Projektek adatlapján felsoroljuk a kapcsolódó szerződések és számák dokuemtumait is
 if( $apa_tabla == 'projektkezeles' ){
-    $projekt    = $adatbazis_kapcsolat->s2('ikt_szam', 'projektkezeles', "`recid`='{$_GET['id']}'");
-    $szerzodes  = $adatbazis_kapcsolat->s2('recid', 'projektszerzodes', "`pr_szam`='{$projekt['ikt_szam']}'");
-    $kepek      = $adatbazis_kapcsolat -> s('*', 'projektszerzodes_dok', "`projektszerzodes_id`='{$szerzodes['recid']}'", 'sor');
+    $projekt        = $adatbazis_kapcsolat->s2('ikt_szam', 'projektkezeles', "`recid`='{$_GET['id']}'");
+    $szerzodesek    = $adatbazis_kapcsolat->s('recid', 'projektszerzodes', "`pr_szam`='{$projekt['ikt_szam']}'");
+    $szerzodesek    = adatbazis2tomb($szerzodesek, 'recid');
+    if( $szerzodesek ){
+        $kepek = $adatbazis_kapcsolat -> s('*', 'projektszerzodes_dok', "`projektszerzodes_id` IN (".implode(',', $szerzodesek).")", 'sor');
+    }
 
     if( $kepek ){
         $tobbkep_html .= nl2('
-                            <li style="margin: 2rem 0rem 0.3rem 0">
+                            <li class="nohover" style="margin: 2rem 0rem 0.3rem 0">
                                 <h3>Projektszerződések dokumentumai</h3>
                             </li>
-                            <li class="fejlec">
+                            <li class="fejlec nohover">
                                 <div class="kep">Kép</div>
                                 <div class="felirat c" style="width: 30rem">Fájlnév</div>
                                 <div class="felirat">Feltöltötte</div>
@@ -393,15 +396,18 @@ if( $apa_tabla == 'projektkezeles' ){
     }
 
 
-    $szamla     = $adatbazis_kapcsolat->s2('recid', 'projektszamla', "`pr_szam`='{$projekt['ikt_szam']}'");
-    $kepek      = $adatbazis_kapcsolat -> s('*', 'projektszamla_dok', "`projektszamla_id`='{$szamla['recid']}'", 'sor');
+    $szamlak     = $adatbazis_kapcsolat->s('recid', 'projektszamla', "`pr_szam`='{$projekt['ikt_szam']}'");
+    $szamlak     = adatbazis2tomb($szamlak, 'recid');
+    if( $szamlak ){
+        $kepek = $adatbazis_kapcsolat -> s('*', 'projektszamla_dok', "`projektszamla_id` IN (".implode(',', $szamlak).")", 'sor');
+    }
 
     if( $kepek ){
         $tobbkep_html .= nl2('
-                            <li style="margin: 2rem 0rem 0.3rem 0">
+                            <li class="nohover" style="margin: 2rem 0rem 0.3rem 0">
                                 <h3>Projektszámla dokumentumai</h3>
                             </li>
-                            <li class="fejlec">
+                            <li class="fejlec nohover">
                                 <div class="kep">Kép</div>
                                 <div class="felirat c" style="width: 30rem">Fájlnév</div>
                                 <div class="felirat">Feltöltötte</div>
