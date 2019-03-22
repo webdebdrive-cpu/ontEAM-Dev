@@ -9713,7 +9713,9 @@ function logolas_kapcsolodo_tablak_sorai($sorok, $tabla){
 
 // Form adatok JS tömb előállításakor kiszűrjük az újsorokat és egyéb speciális karaktereket. Ez ennek az általános függvénye
 function formAdatok_replace($string){
-    return str_replace(array("\r\n", "\r", "\n", "'", "\t", '	 '), array("#UJSOR#", "#UJSOR#", "#UJSOR#", "#APOSZTROF#", "#TAB#", "#TAB#"), $string);
+    return str_replace(     array("\r\n",    "\r",      "\n",       "'",            "\t",    '	 ',  '"'            ),
+                            array("#UJSOR#", "#UJSOR#", "#UJSOR#",  "#APOSZTROF#",  "#TAB#", "#TAB#", "#IDEZOJEL#", ),
+                    $string);
 }
 
 // Előterjesztésenk (FB-t és BoD-t is tud számolni) össze költségének kiszámítása. Kell az adatlapra, excelre, nyomtatásira is, azért van külön függvénybe szervezve

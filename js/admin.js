@@ -1278,7 +1278,7 @@ $(function() {
 
             // Újsort le kell csérélni. Checkboxok miatt kell ez az if elé
             if(val && val!=true){
-                val = val.replace(/(\r|\n)/g, '#UJSOR#').replace(/(\t)/g, '#TAB#').replace(/'/g, '#APOSZTROF#');
+                val = val.replace(/(\r|\n)/g, '#UJSOR#').replace(/(\t)/g, '#TAB#').replace(/'/g, '#APOSZTROF#').replace(/"/g, '#IDEZOJEL#');
             }
 
             // Tizedes összegeknél a pontot vesszőre kell cseérlni az ellenőrzéshez
@@ -5008,6 +5008,7 @@ function naviKov() {
     $(document).trigger(jQuery.Event('keyup', {keyCode: KEY_DOWN}));
 }
 
+// Ugrás az első sorra
 function naviElso() {
     // Anyagigénylésnél másképp járunk el
     if( baseName(location.href)=='anyagigenyles' ){
@@ -5026,17 +5027,18 @@ function naviElso() {
     }
 }
 
+// Ugrás az utolsó sorra
 function naviUtolso() {
-    /* Anyagigénylésnél másképp járunk el */
+    // Anyagigénylésnél másképp járunk el
     if( baseName(location.href)=='anyagigenyles' ){
         $('table.szamla_cont_tabla tbody tr:last-of-type').addClass('kijelolve').click();
         $('#tartalomJobb').scrollTop($('#tartalomJobb').prop('scrollHeight'));
     }else{
-        /* Bal oldali területen egy táblázat az aktív */
-        if( /*$('.szamla_cont_tabla').length ||*/ aktiv_oldal == 'szamla_cont_tabla' ) {
+        // Bal oldali területen egy táblázat az aktív
+        if( aktiv_oldal == 'szamla_cont_tabla' ) {
             $('.szamla_cont_tabla tbody tr:last-child').trigger('click');
             $('#tartalomJobb .fht-tbody').scrollTop($('#tartalomJobb .fht-tbody').prop('scrollHeight'));
-        /* Navpanel az aktív felület */
+        // Navpanel az aktív felület
         } else {
             $('#szamlaList li.szamla_sor:last-child a').trigger('click');
         }
