@@ -247,6 +247,14 @@ if (isset($_POST['f_szuro_mezo_operator'])) {
                     if( $ertek['id_kiir'] ) {
                         $id_kiir = $ertek['id_kiir'];
                     }
+                    
+                    // Projektfelelős esetén az autocompletenek további paramétereket adunk át
+                    $aktiv          = '';
+                    $beosztas_id    = '';
+                    if( $ertek['name']=='pfelelos' || $ertek['name']=='let_fel' ){
+                        $aktiv          = 1;
+                        $beosztas_id    = EL_BEOSZTAS_BERUH_IG.','.EL_BEOSZTAS_FEJL_VIG_H.','.EL_BEOSZTAS_MUSZAKI_ASSZ.','.EL_BEOSZTAS_MUSZAKI_IG.','.EL_BEOSZTAS_PR_FELEOS;
+                    }
 
                     $feltetel .= nl2('
                         <script>
@@ -259,6 +267,8 @@ if (isset($_POST['f_szuro_mezo_operator'])) {
                                     \'rkat\'            : '.$rkat.',
                                     \'csoport\'         : '.$csoport.',
                                     \'id_kiir\'         : \''.$id_kiir.'\',
+                                    \'aktiv\'           : \''.$aktiv.'\',
+                                    \'beosztas_id\'     : \''.$beosztas_id.'\',
                                     \'szuros\'          : \'Szűrőben hívtuk meg\'
                                 });
                             });
