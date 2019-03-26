@@ -2913,7 +2913,7 @@ function szamla_lista( $where, $tabla, $kijeloltek = false, $csak_sql_miatt = fa
     if( $_GET['rend']=='recid' ){
         $order = '`'.get_db_tabla().$tabla.'`.`recid` '.$_GET['irany'];
     }
-        
+
     // Telephely táblával JOIN-olva, ha telephely_id alapján rendezünk vagy a selectben szerepel ez az oszlop
     $bejegyzesek = array();
     $kivetelek = array('projektkezeles');
@@ -3112,6 +3112,10 @@ function szamla_lista( $where, $tabla, $kijeloltek = false, $csak_sql_miatt = fa
         }
 
         // Archiv menüpont alatt egy 1000-es limit mindig van (ha nincs más szűrés, akkor a feltétel a lista hossza)
+        if( ($tabla=='bejelentes_arch' || $tabla=='munkalap_arch') && !$_GET['mezo'] ){
+            $_GET['mezo'] = 'legfrissebb';
+            $_GET['felt'] = ARCHIV_NAVPANEL_LIMIT;
+        }
         if( $_GET['mezo'] == 'legfrissebb' ) {
             $limit = $_GET['felt'];
             if($order){
@@ -3177,7 +3181,7 @@ function szamla_lista( $where, $tabla, $kijeloltek = false, $csak_sql_miatt = fa
         $adatbazis_kapcsolat->s($select, $tabla, $where, $order, $limit, false, false, false, 'csak az SQL string-je kell');
         $sql = $adatbazis_kapcsolat->gp();
         $mit = 'WHERE';
-
+        
         // Anyagigényléskor a szállítót, cikkrendfejtet és értéklistát vesszük még fel
         $sql_kieg = '';
         if($tabla=='anyagigenyles'){
@@ -6776,6 +6780,7 @@ function get_akt_tomb($megn){
     global $energia_terv_tomb;
     global $eseti_fenntartas_tomb;
     global $eszkozkezeles_tomb;
+    global $erteklista_tomb;
     global $felmeresi_terv_tomb;
     global $fenntartasi_terv_tomb;
     global $login_tomb;
@@ -6799,6 +6804,7 @@ function get_akt_tomb($megn){
         case 'energia_terv'             : case 'energia_terv_arch'              : $akt_tomb = $energia_terv_tomb;           break;
         case 'eseti_fenntartas'         : case 'eseti_fenntartas_arch'          : $akt_tomb = $eseti_fenntartas_tomb;       break;
         case 'eszkozkezeles'            : case 'eszkozkezeles_arch'             : $akt_tomb = $eszkozkezeles_tomb;          break;
+        case 'erteklista'               : case 'erteklista_arch'                : $akt_tomb = $erteklista_tomb;             break;
         case 'felmeresi_terv'           : case 'felmeresi_terv_arch'            : $akt_tomb = $felmeresi_terv_tomb;         break;
         case 'fenntartasi_terv'         : case 'fenntartasi_terv_arch'          : $akt_tomb = $fenntartasi_terv_tomb;       break;
         case 'login'                    : case 'login_arch'                     : $akt_tomb = $login_tomb;                  break;

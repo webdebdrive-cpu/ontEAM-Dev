@@ -186,8 +186,8 @@ $munkAnyag_statusz = array(
     DISZPNAG_STAT_ANYAG_IGENYELVE   => 'Igényelve'
 );
 
-// Értéklista csoport - ezt elég az erteklista.php alatt kiszámolni
-if( basename(self()) == 'erteklista.php' ){
+// Értéklista csoport - ezt elég az erteklista.php/header.php alatt kiszámolni (utóbbi a szűrő miatt)
+if( basename(self()) == 'erteklista.php' || basename(self()) == 'header.php' ){
     $select_erteklista = array();
     array_push($select_erteklista, array('name' => '-Válassz-', 'value' => '' ));
     $erteklistak = $adatbazis_kapcsolat -> select('csoport nev', 'erteklista_csoport', '', 'nev');

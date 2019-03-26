@@ -52,6 +52,7 @@ $_SESSION['ketHasabos'] = array(
 );
 
 $tabla = basename(self());
+
 if( isset($_GET['szamlaLista']) || isset($_GET['szamlaSorFrissit']) ) {
     $tabla = $_GET['tabla'].'.php';
 }
@@ -1044,8 +1045,8 @@ if ($_GET['id']) { // Azért  nem az a feltétel, hogy isset( $_GET['modosit'] )
 }
 $megnevezes = 'erteklista';
 $erteklista_tomb = $akt_tomb = array(
-	array('type' => 'select_erteklista', 'megn' => 'Csoport:',              'name' => 'csoport',    'disabled' => $csakUjkent,   'class' => 'disableNav',    'alert' =>  $szoveg_reg['varos'][$megsz],    'alert' => 'Kérem válassza ki a csoportot!'),
-	array('type' => 'text',              'megn' => 'Érték:',                'name' => 'info',       'disabled' => $minden_disabled,  'maxlength' => 40, 'class' => 'oriasi',    'alert' => 'Kérem töltse ki az értéket!'),
+	array('type' => 'select_erteklista', 'megn' => 'Csoport:',  'szuro' => 1,   'name' => 'csoport',    'disabled' => $csakUjkent,   'class' => 'disableNav',    'alert' =>  $szoveg_reg['varos'][$megsz],    'alert' => 'Kérem válassza ki a csoportot!'),
+	array('type' => 'text',              'megn' => 'Érték:',    'szuro' => 1,   'name' => 'info',       'disabled' => $minden_disabled,  'maxlength' => 40, 'class' => 'oriasi',    'alert' => 'Kérem töltse ki az értéket!'),
     $pipa_ml,
     $pipa_aig,
     $pipa_aren,
@@ -2258,16 +2259,20 @@ array_push($postok, array('tomb' => $akt_tomb, 'uj' => 'uj'.$megnevezes, 'lista'
 
 
 $letrehozta_mikor = '';
+$letrehozta_feluletek = array('projektkezeles.php', 'projektszamla.php', 'projektszerzodes.php');
+$tabla = csonkit( basename(self()), 4 );
+if( in_array(basename(self()), $letrehozta_feluletek) && $_GET['id'] ) {
+    $prk = $adatbazis_kapcsolat->s2('insert_dt insert_usr', $tabla, "`recid`='{$_GET['id']}'");
+    $letrehozta_mikor .= 'Létrehozta: <b>'.$prk['insert_usr'].' '.datum_kiir($prk['insert_dt']).'</b>-kor<br>';   
+}
 if( basename(self()) == 'projektkezeles.php' && $_GET['id'] ) {
-    $prk = $adatbazis_kapcsolat->s2('egy_tobb stat_id insert_dt insert_usr', 'projektkezeles', "`recid`='{$_GET['id']}'");
-    $letrehozta_mikor .= 'Létrehozta: <b>'.$prk['insert_usr'].' '.datum_kiir($prk['insert_dt']).'</b>-kor<br>';
-    
+    $prk = $adatbazis_kapcsolat->s2('egy_tobb stat_id', 'projektkezeles', "`recid`='{$_GET['id']}'");
     $tobb_szalloda = '';
     if($prk['egy_tobb']){
         $tobb_szalloda = '1';
-    }
-    
+    }  
 }
+
 
 // Szerkesztéskor a szálloda már nem módosítható.
 $szalloda_disabled = false;
@@ -2431,7 +2436,15 @@ $projektszamla_tomb = $akt_tomb = array(
     array('type' => 'text',                 'megn' => 'Projekt szám:',      'name' => 'pr_szam',        'szuro' => 1,   'disabled' => 1, 'post' => ' <span id="projekt_neve">'.$projekt_neve.'</span>'),
     array('type' => 'autocomplete',         'megn' => 'Projekt felelős:',   'name' => 'let_fel',        'szuro' => 1,   'disabled' => 1,   'class' => 'oriasi', 'tabla' => 'login', 'oszlop_keres' => 'recid', 'oszlop_keres_autocomp' => 'teljes_nev', 'listaz' => 'teljes_nev', 'beosztas_id' => EL_BEOSZTAS_PR_FELEOS, 'id_kiir' => 'recid', 'style' => 'width: 25rem'),
     array('type' => 'autocomplete',         'megn' => 'Költségviselő:',     'name' => 'kolt_vis',       'szuro' => 1,   'disabled' => 1,   'class' => 'oriasi disableNav', 'tabla' => 'erteklista', 'oszlop_keres' => 'id', 'oszlop_keres_autocomp' => 'info', 'listaz' => 'info', 'csoport' => ERTEKLISTA_KOLTSEGVISELO, 'id_kiir' => 'id', 'style' => 'width: 25rem'),
-    
+    array('type' => 'html',                 'megn' => nl2('
+                                                        <div class="dtr">
+                                                            <div class="dtc form_bal">
+                                                            </div>
+                                                            <div class="dtc form_jobb letrehozta_infok">
+                                                                '.$letrehozta_mikor.'
+                                                            </div>
+                                                        </div>
+                                                        ')),
     array('type' => 'nosql',                'name' => '',   'megn_szurobe' => 'Létrehozás dátuma',      'name' => 'insert_dt',    'szuro' => 1,  'class' => 'datepicker'),
     array('type' => 'nosql',                'name' => '',   'megn_szurobe' => 'Létrehozta',             'name' => 'insert_usr',   'szuro' => 1),
 );
@@ -2506,7 +2519,15 @@ $projektszerzodes_tomb = $akt_tomb = array(
     array('type' => 'hidden',               'megn' => '',                       'name' => 'hasonlo_szerzodes_mehet', 'nosql' => 1),
     // Ha túlléptük a projekt limitet, rákérdezünk? És ha igen, akkor ezt a mezőt kell 1-re állítani.
     array('type' => 'hidden',               'megn' => '',                       'name' => 'keret_tullepve_mehet', 'nosql' => 1),
-    
+    array('type' => 'html',                 'megn' => nl2('
+                                                        <div class="dtr">
+                                                            <div class="dtc form_bal">
+                                                            </div>
+                                                            <div class="dtc form_jobb letrehozta_infok">
+                                                                '.$letrehozta_mikor.'
+                                                            </div>
+                                                        </div>
+                                                        ')),
     array('type' => 'nosql',                'name' => '',   'megn_szurobe' => 'Létrehozás dátuma',      'name' => 'insert_dt',    'szuro' => 1,  'class' => 'datepicker'),
     array('type' => 'nosql',                'name' => '',   'megn_szurobe' => 'Létrehozta',             'name' => 'insert_usr',   'szuro' => 1),
 );
@@ -4658,7 +4679,6 @@ if( isset($_GET['szamlaLista']) ) {
 
     $szamla_lista = szamla_lista('', $_GET['tabla'], $_GET['kijeloltek'], '', $_GET);
     $szamla_lista = $szamla_lista[0];
-
     if( $szamla_lista ) {
         echo '<div class="szamlaLapozas fent clearFix">'.$lapozas.'</div>'.$szamla_lista.'<div class="szamlaLapozas clearFix">'.$lapozas.'</div>';
     } else {

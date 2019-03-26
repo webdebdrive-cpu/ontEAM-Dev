@@ -1314,7 +1314,7 @@ require_once('selectek.php');
         $megj_db = ' ('.$sor['megj_db'].')';
     }
 
-    if( isset($_GET['modosit']) || isset($_GET['garancialis']) || isset($_GET['tortenet']) || isset($_GET['rb_anyag']) || isset($_GET['projektigeny']) || isset($_GET['cash_flow']) || isset($_GET['projekt_team']) || isset($_GET['dokumentumok']) || isset($_GET['megjegyzesek']) ) {
+    if( isset($_GET['modosit']) || isset($_GET['garancialis']) || isset($_GET['tortenet']) || isset($_GET['projektigeny']) || isset($_GET['cash_flow']) || isset($_GET['projekt_team']) || isset($_GET['dokumentumok']) || isset($_GET['megjegyzesek']) ) {
         
         // Számla fülek
         $ful_tomb = array(
@@ -1324,7 +1324,6 @@ require_once('selectek.php');
             'dokumentumok'  => 'Dokumentumok'.$dok_db,
             'cash_flow'     => 'Cash-flow',
             'projektigeny'  => 'Projektigénylések',
-            'rb_anyag'      => 'RB-anyagok',
             'garancialis'   => 'Garanciális munkák',
             'megjegyzesek'  => 'Megjegyzések'.$megj_db,
         );
@@ -1911,20 +1910,6 @@ require_once('selectek.php');
         if( $_GET['ajax'] ) {
             echo json_encode(array(
                 'tartalom' => $szamla_html.$gombok
-            ));
-        } else {
-            echo $szamla_html.$gombok;
-        }
-
-	// RB-anyagok
-	}elseif(isset($_GET['rb_anyag'])){
-
-        $szamla_html .= 'RB-anyagok felülete';
-
-        if( $_GET['ajax'] ) {
-            echo json_encode(array(
-                'tartalom' => $szamla_html.$gombok,
-                'link'     => get_get(array('ajax', 'kat', 'epo', 'oldal', 'order'), true)
             ));
         } else {
             echo $szamla_html.$gombok;

@@ -98,9 +98,16 @@ if (isset($_POST['f_szuro_mezo'])) {
 
     }
 
+    // Értéklista csoport
+    if( $_POST['tabla'] == 'erteklista' && ($_POST['mezo']=='csoport' || $_POST['mezo']=='fix_adat') ){
+        $operator = '<option value="equal"'.$selected_equal.'>=</option>';
+    }
+
     // Létrehoztam mező esetén csak egyenlőség jel van
     if($_POST['mezo']=='insert_usr'){
-        $operator = '<option value="equal"'.$selected_like.'>=</option>';
+        $operator = '<option value="equal"'.$selected_equal.'>=</option>';
+        $operator .= '<option value="not_eq"'.$selected_not_eq.'>&lt;&gt;</option>';
+        $operator .= '<option value="empty"'.$selected_empty.'>Üres</option>';
     }
 
     // Legfrissebb esetén = operátor
@@ -161,7 +168,7 @@ if (isset($_POST['f_szuro_mezo_operator'])) {
     }
 
     // Ha az éppen kiválasztott operátor az ures, akkor az alábbit adjuk vissza és kész
-    if( $_POST['selected']=='empty' || $_POST['mezo']=='dok_van_e' ){
+    if( $_POST['selected']=='empty' || $_POST['mezo']=='dok_van_e'|| $_POST['mezo']=='fix_adat' ){
         $feltetel = nl2('
             <select class="f_felt">
                 <option value="1"'.$selected_egy.'>Igen</option>
@@ -332,6 +339,16 @@ if (isset($_POST['f_szuro_mezo_operator'])) {
                     require_once('selectek.php');
 
                     $input = new Select($select_pri_besorol, $_POST['felt']);
+                    $input -> cssClass = 'f_felt';
+                    $feltetel = $input -> getHtml();
+
+                // Értéklista csoport select-je
+                }elseif( $ertek['type'] == 'select_erteklista' ){
+
+                    require_once('../class/html/class.Select.php');
+                    require_once('selectek.php');
+
+                    $input = new Select($select_erteklista, $_POST['felt']);
                     $input -> cssClass = 'f_felt';
                     $feltetel = $input -> getHtml();
 
@@ -738,6 +755,15 @@ if($tabla == 'login'){
     array_push( $sz_mezo, array('eleje' => '<option value="szalloda" data-tabla="telephely"'.$selected_szall.'>',   'vege' => 'Szálloda</option>'       ) );
     array_push( $sz_mezo, array('eleje' => '<option value="megjegyzes" data-tabla="megjegyzes"'.$selected_megj.'>', 'vege' => 'Megjegyzés</option>'     ) );
 }
+// Értéklisták esetén kell még egy szűrés: fix adat
+if($tabla == 'erteklista'){
+    $selected_fix_adat  = '';
+    if($_GET['mezo']=='fix_adat'){
+        $selected_fix_adat = ' selected';
+    }
+    array_push( $sz_mezo, array('eleje' => '<option value="fix_adat" data-tabla="fix_adat"'.$selected_fix_adat.'>', 'vege' => get_nev().' kezeli</option>' ) );
+}
+
 // Projektkezelés esetén a Team tag nevére is kell tudni szűrni
 if($tabla == 'projektkezeles'){
     $selected_team_tag  = '';

@@ -198,9 +198,9 @@ class Adatbazis{
 
 		$select = str_replace('--', '', $select);
 		$this -> legutobbiParancs = $select;
-        
+
         if($csak_stringet_allitson_elo){
-            return;
+            return true;
         }
 
         if(!$lekerdezes = mysqli_query($this -> adatbazis_kapcsolat, $select)){
@@ -225,11 +225,11 @@ class Adatbazis{
     /**
     * @desc  Select röviden (az eredeti függvényt hívja meg)
     */
-    public function s($oszlopok, $tabla, $where = null, $order = null, $limit = null, $group_by = false, $num_rows = false, $join = false){
-        return $this -> select($oszlopok, $tabla, $where, $order, $limit, $group_by, $num_rows, $join);
+    public function s($oszlopok, $tabla, $where = null, $order = null, $limit = null, $group_by = false, $num_rows = false, $join = false, $csak_sztring = false){
+        return $this -> select($oszlopok, $tabla, $where, $order, $limit, $group_by, $num_rows, $join, $csak_sztring);
     }
-    public function s2($oszlopok, $tabla, $where = null, $order = null, $limit = null, $group_by = false, $num_rows = false, $join = false){
-        $elso_sor = $this -> select($oszlopok, $tabla, $where, $order, $limit, $group_by, $num_rows, $join);
+    public function s2($oszlopok, $tabla, $where = null, $order = null, $limit = null, $group_by = false, $num_rows = false, $join = false, $csak_sztring = false){
+        $elso_sor = $this -> select($oszlopok, $tabla, $where, $order, $limit, $group_by, $num_rows, $join, $csak_sztring);
         return $elso_sor[0];
     }
 

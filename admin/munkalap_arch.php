@@ -84,6 +84,11 @@ if (isset($_GET['csv'])) {
                 $lekerdezes_fromtol = str_replace('ORDER', "WHERE `".get_db_tabla().$megnevezes."`.`recid` IN (".$_SESSION['nyomtatas_ids'].") ORDER", $lekerdezes_fromtol);
             }
         }
+        
+        // Ha van $_SESSION['akt_sql_order'], akkor eszerint rendezünk, tehát a $lekerdezes_fromtol-t elvágjuk az Order-nél
+        if( $_SESSION['akt_sql_order'] ){
+            $lekerdezes_fromtol = substr($lekerdezes_fromtol, 0, strpos($lekerdezes_fromtol, 'ORDER'));
+        }
 
         $sql = 'SELECT
                 `'.get_db_tabla().$megnevezes.'`.`recid` as \'Id\',
@@ -113,7 +118,9 @@ if (isset($_GET['csv'])) {
         while($fejlec_nevek = mysqli_fetch_field($query)){
             $csvhead[] = iconv2($mibol, $mibe, $fejlec_nevek -> name );
         }
+
         unset($csvhead[0]);
+        
         fputcsv($open, $csvhead, ';');
 
         while( $sorok = mysqli_fetch_assoc($query) ){

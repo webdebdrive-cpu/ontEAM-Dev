@@ -36,6 +36,15 @@ if( $_GET['print']=='lista' || isset($_GET['pdf'])) {
         // Státusz szövegesen jelenjen meg
         if ($_GET['mezo']=='stat_id') {
             $feltetel .= getStatText($tabla, $_GET['felt']);
+            
+        }elseif ( $tabla == 'erteklista' && $_GET['mezo']=='csoport' ) {
+            foreach($select_erteklista as $ertek){
+                if($ertek['value']==$_GET['felt']){
+                    $feltetel .= $ertek['name'];
+                    break;
+                }
+            }
+            
         }elseif ($tabla=='projektigenyles' && $_GET['mezo']=='tipus') {
             foreach($select_pri_tipus as $tipus){
                 if($tipus['value']==$_GET['felt']){
@@ -57,8 +66,16 @@ if( $_GET['print']=='lista' || isset($_GET['pdf'])) {
                     break;
                 }
             }
+        }elseif ($_GET['mezo']=='pfelelos' || $_GET['mezo']=='let_fel') {
+            $feltetel .= getErtek('teljes_nev', 'login', 'recid', $_GET['felt']);
         }elseif ($_GET['mezo']=='kolt_vis') {
             $feltetel .= getErtekLista(ERTEKLISTA_KOLTSEGVISELO, $_GET['felt']);
+        }elseif ($_GET['mezo']=='fix_adat') {
+            if( $_GET['felt'] ){
+                $feltetel .= 'Igen';
+            }else{
+                $feltetel .= 'Nem';
+            }
         }else{
             $feltetel .= $_GET['felt'];
         }
@@ -127,9 +144,10 @@ if( $_GET['print']=='lista' || isset($_GET['pdf'])) {
         case 'ktgnem'               : $sorok_html = ktgnemLista( $sorok, $tabla );          break;
         case 'eloterj_fb'           : $sorok_html = eloterj_fbLista( $sorok, $tabla );      break;
         case 'eloterj_bod'          : $sorok_html = eloterj_bodLista( $sorok, $tabla );     break;
-        case 'munkalap'             : $sorok_html = munkalapLista( $sorok, $tabla );        break;
         case 'energia_terv'         : $sorok_html = energia_tervLista( $sorok, $tabla );    break;
+        case 'erteklista'           : $sorok_html = erteklistaLista( $sorok, $tabla );      break;
         case 'fenntartasi_terv'     : $sorok_html = fenntartasi_tervLista( $sorok, $tabla );break;
+        case 'munkalap'             : $sorok_html = munkalapLista( $sorok, $tabla );        break;
 //        case 'utemezett_feladatok'  : $akt_tomb = $utemezett_feladatok_tomb;    break;
         case 'torzsadat'            : $sorok_html = torzsadatLista($sorok, $tabla);         break;
         case 'projektkezeles'       : $sorok_html = projektkezelesLista( $sorok, $tabla );  break;

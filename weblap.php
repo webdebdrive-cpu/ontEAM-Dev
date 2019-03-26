@@ -92,7 +92,6 @@ if( !$_SESSION[get_db_tabla().'user'] && !$_POST['elfelejtett_jelszo'] && basena
     exit;
 }
 
-
 // Jogosultságok karbantartása
 if( $_SESSION[get_db_tabla().'user'] ) {
     $felhasznalo = $adatbazis_kapcsolat->s2('flags flags_ert', 'login', "`nev`='{$_SESSION[get_db_tabla().'user']}'", '', '1');
