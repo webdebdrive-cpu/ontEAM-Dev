@@ -95,6 +95,8 @@ if (isset($_POST['f_szuro_mezo'])) {
 
         // Ilyenkor felülírva az operátorokat, csak egyenlőségjel van
         $operator = '<option value="equal"'.$selected_equal.'>=</option>';
+        $operator .= '<option value="not_eq"'.$selected_not_eq.'>&lt;&gt;</option>';
+        $operator .= '<option value="empty"'.$selected_empty.'>Üres</option>';
 
     }
 
