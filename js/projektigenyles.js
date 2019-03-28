@@ -1,7 +1,6 @@
 /* Projektigénylés alatt az adatlap és cash flow fül közötti váltás */
 function prigeny_ful_valt(ful){
 
-console.log( _get('modosit') );
     /* Ha nem az adatlapon vagyunk akkor szamlaBetolt */
     if( !_get('modosit') && !_get('cash_flow') ){
         betoltott = szamlaBetolt(_get('id'), 'projektigenyles.php', 'modosit');

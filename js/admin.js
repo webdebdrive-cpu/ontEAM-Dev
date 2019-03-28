@@ -6655,6 +6655,8 @@ function pri_statusz_leptet(recid, statusz){
 
     if(formModositva){
         alert2('Kérem előbb mentse el az űrlapot!', '', 'Hiba');
+    }else if( !$('#jkolt').val() || $('#jkolt').val()=='0') {
+        alert2('Kérem adja meg a jóváhagyott összeget!', '', 'Hiba');
     }else{
         $.ajax({
             url : 'projektigenyles.php',

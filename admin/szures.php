@@ -54,12 +54,14 @@ if (isset($_POST['f_szuro_mezo'])) {
             }elseif($ertek['type']=='autocomplete' || $ertek['type_szurohoz']=='autocomplete'){
 
                 $operator .= '<option value="equal"'.$selected_equal.'>=</option>';
+                $operator .= '<option value="not_eq"'.$selected_not_eq.'>&lt;&gt;</option>';
                 $operator .= '<option value="empty"'.$selected_empty.'>Üres</option>';
 
             // selectek esetén csak = vagy üres operátort ajánlunk fel
             }elseif( in_array($ertek['type'], $selectek) ){
 
                 $operator .= '<option value="equal"'.$selected_equal.'>=</option>';
+                $operator .= '<option value="not_eq"'.$selected_not_eq.'>&lt;&gt;</option>';
                 $operator .= '<option value="empty"'.$selected_empty.'>Üres</option>';
 
             // Általános esetben egy szabadszavas mező

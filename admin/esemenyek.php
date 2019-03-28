@@ -2141,7 +2141,7 @@ array_push($postok, array('tomb' => $akt_tomb, 'uj' => 'uj'.$megnevezes, 'lista'
 $megnevezes       = 'projektigenyles';
 $megter_cel_rejt  = ' class="dn"';
 $letrehozta_mikor = '';
-if( basename(self()) == 'projektigenyles.php' && $_GET['id'] ) {
+if( basename(self()) == 'projektigenyles.php' && isset($_GET['modosit']) ) {
     
     $pi = $adatbazis_kapcsolat->s2('megter stat_id egy_tobb insert_dt insert_usr', $megnevezes, "`recid`='{$_GET['id']}'");
     if($pi['megter']){

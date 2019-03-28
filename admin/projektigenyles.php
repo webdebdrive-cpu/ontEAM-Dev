@@ -1225,7 +1225,7 @@ require('selectek.php');
 
             // Csak akkor törölhető, amikor szerkeszthető
             if( in_array($sor['stat_id'], prigeny_mentheto_statuszok()) ){
-                $gombok .= ' <input type="button" id="recordTorol" class="gombb_alert dn" onclick="if( cash_flow_fulon_vagyunk() ){ cash_flow_sorok_torol(); }else{ alert2(\'Név: '.htmlspecialchars_decode2($sor['nev']).'<br>Státusz: '.getStatText($megnevezes, $sor['stat_id']).'<br><br>Projektigénylés ebben a státuszban nem törölhető!\', \'\', \'Hiba\'); }" value="Töröl" title="Töröl">';
+                $gombok .= ' <input type="button" id="recordTorol" class="gombb_alert dn" onclick="if( cash_flow_fulon_vagyunk() ){ cash_flow_sorok_torol(); }else{ alert2(\'Név: '. str_replace('\'', '', htmlspecialchars( strip_tags( htmlspecialchars_decode2($sor['nev']) ) ) ).'<br>Státusz: '.getStatText($megnevezes, $sor['stat_id']).'<br><br>Projektigénylés ebben a státuszban nem törölhető!\', \'\', \'Hiba\'); }" value="Töröl" title="Töröl">';
             // Jogosutságkezelés: csak az törölheti, akinek van hozzá joga
             } elseif( !$szerkesztheto ){
                 $gombok .= ' <input type="button" id="recordTorol" class="gombb_alert dn" onclick="if( cash_flow_fulon_vagyunk() ){ }else{ alert2(\'Önnek nincs joga projektigénylést törölni!\', \'\', \'Hiba\'); }" value="Töröl" title="Töröl">';
