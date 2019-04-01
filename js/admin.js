@@ -395,6 +395,7 @@ function megsemGomb() {
         }
     // Új feltöltés esete
     }else if( $('#szamlaList li').length ){
+
         // Ezt meg lehetett volna oldani így is: $('#szamlaList li.szamla_sor:first-of-type'), de nem működött érték lista menüpont alatt. Sőt elég lett volna így is: $('#szamlaList li:first-of-type'), de szintén az értéklista menüpont miatt így kelett megoldani
         $('#szamlaList li').each(function () {
             if( $(this).hasClass('szamla_sor') ){
@@ -5213,7 +5214,10 @@ function bejegyzesekLista( that, irany, rkat, ksz ) {
             success: function(html) {
                 if(html.substring(0, 6)=='SESKIL'){ location.href = 'index.php'; }
                 if(html) {
-                    $('#tartalomBal').html(html).scrollTop(0);
+                    
+                    if( tabla!='anyagigenyles' ){
+                        $('#tartalomBal').html(html).scrollTop(0);
+                    }
 
                     ksz_kieg = '';
                     if( ksz ) {
@@ -6032,6 +6036,9 @@ function szamlaBetolt( recid, page, muvelet, szerkeszt, kerdes_nelkul, anyagigen
                     } else if( baseName(location.href) == 'projektigenyles' && _get('megjegyzesek') ) {
                         $('#navGombok a.uj').attr('href', 'javascript: kapcsolodoSzerkeszt(\'megjegyzes\'); void(0);');
 
+                    } else if( baseName(location.href) == 'projektigenyles' && _get('megterules') ) {
+                        $('#navGombok a.uj').attr('href', 'javascript: kapcsolodoSzerkeszt(\'megterules\'); void(0);');
+
                     } else if( baseName(location.href) == 'projektkezeles' && _get('projekt_team') ) {
                         $('#navGombok a.uj').attr('href', 'javascript: kapcsolodoSzerkeszt(\'projekt_team\'); void(0);');
 
@@ -6040,9 +6047,6 @@ function szamlaBetolt( recid, page, muvelet, szerkeszt, kerdes_nelkul, anyagigen
 
                     } else if( baseName(location.href) == 'projektkezeles' && (_get('modosit') || _get('tortenet') || _get('dokumentumok') || _get('cash_flow') || _get('projektigeny') || _get('rb_anyag') || _get('garancialis') ) ) {
                         $('#navGombok a.uj').attr('href', 'javascript: csoportMuvelet(\'projektkezel_uj_feltolt\'); void(0);');
-
-                    } else if( baseName(location.href) == 'projektigenyles' && _get('megterules') ) {
-                        $('#navGombok a.uj').attr('href', 'javascript: kapcsolodoSzerkeszt(\'megterules\'); void(0);');
 
                     } else if( baseName(location.href) == 'projektszamla' && _get('megjegyzesek') ) {
                         $('#navGombok a.uj').attr('href', 'javascript: kapcsolodoSzerkeszt(\'megjegyzes\'); void(0);');
@@ -6075,7 +6079,7 @@ function szamlaBetolt( recid, page, muvelet, szerkeszt, kerdes_nelkul, anyagigen
                         $('#navGombok a.uj').attr('href', 'javascript: kapcsolodoSzerkeszt(\'velemenyezok\'); void(0);');
 
                     } else {
-                        var gg = get_get(['uj', 'modosit'], 1);
+                        var gg = get_get(['uj', 'modosit', 'id'], 1);
                         if( !gg ){
                             gg = '?';
                         }
@@ -6655,8 +6659,8 @@ function pri_statusz_leptet(recid, statusz){
 
     if(formModositva){
         alert2('Kérem előbb mentse el az űrlapot!', '', 'Hiba');
-    }else if( !$('#jkolt').val() || $('#jkolt').val()=='0') {
-        alert2('Kérem adja meg a jóváhagyott összeget!', '', 'Hiba');
+    }else if( !$('#jkolt_db').val() || $('#jkolt_db').val()=='0') {
+        csoportMuvelet('pri_jkolt_megad');
     }else{
         $.ajax({
             url : 'projektigenyles.php',

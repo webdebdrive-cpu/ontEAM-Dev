@@ -4109,12 +4109,15 @@ function utemezett_feladatokLista( $bejegyzesek, $tabla, $frissit, $kijeloltek )
             }
 
             // Telephely
-            $telephely = $adatbazis_kapcsolat->s('nev', 'telephely', 'id='.$bsz['telephely_id'], '', '1');
-            $telephely = $telephely[0]['nev'];
+            $telephely = getSzallodaNev($bsz['telephely_id']);
 
             // Helység
-            $helyseg = $adatbazis_kapcsolat->s('nev', 'obj', 'recid='.$bsz['obj_id'], '', '1');
-            $helyseg = $helyseg[0]['nev'];
+            $helyseg = $adatbazis_kapcsolat->s2('nev', 'obj', 'recid='.$bsz['obj_id'], '', '1');
+            $helyseg = $helyseg['nev'];
+            
+            // Gép
+            $gep = $adatbazis_kapcsolat->s2('nev', 'eszkozkezeles', 'recid='.$bsz['gep_id'], '', '1');
+            $gep = $gep['nev'];
 
             $aktiv = nl2('
                 <span class="icon piros">
@@ -4131,7 +4134,7 @@ function utemezett_feladatokLista( $bejegyzesek, $tabla, $frissit, $kijeloltek )
 
             $li_tart = '<a class="szamla" data-recid="'.$bsz['recid'].'" data-fajl="'.$tabla.'.php" data-muvelet="modosit">
                             <span>'.$aktiv.' '.$bsz['id'].' '.str_replace('-', '.', $bsz['esnap_d']).'</span>
-                            <span>'.$telephely.' - '.$helyseg.'</span>
+                            <span>'.trim($telephely.' - '.$helyseg.' - '.$gep, ' - ').'</span>
                             <span>'.$bsz['uf_nev'].'</span>
                         </a>';
 
@@ -4180,12 +4183,15 @@ function rendszeres_karbantartasLista( $bejegyzesek, $tabla, $frissit, $kijelolt
             }
 
             // Telephely
-            $telephely = $adatbazis_kapcsolat->s('nev', 'telephely', 'id='.$bsz['telephely_id'], '', '1');
-            $telephely = $telephely[0]['nev'];
+            $telephely = getSzallodaNev($bsz['telephely_id']);
 
             // Helység
-            $helyseg = $adatbazis_kapcsolat->s('nev', 'obj', 'recid='.$bsz['obj_id'], '', '1');
-            $helyseg = $helyseg[0]['nev'];
+            $helyseg = $adatbazis_kapcsolat->s2('nev', 'obj', 'recid='.$bsz['obj_id'], '', '1');
+            $helyseg = $helyseg['nev'];
+            
+            // Gép
+            $gep = $adatbazis_kapcsolat->s2('nev', 'eszkozkezeles', 'recid='.$bsz['gep_id'], '', '1');
+            $gep = $gep['nev'];
 
             $aktiv = nl2('
                 <span class="icon piros">
@@ -4202,7 +4208,7 @@ function rendszeres_karbantartasLista( $bejegyzesek, $tabla, $frissit, $kijelolt
 
             $li_tart = '<a class="szamla" data-recid="'.$bsz['recid'].'" data-fajl="'.$tabla.'.php" data-muvelet="modosit">
                             <span>'.$aktiv.' '.$bsz['id'].'</span>
-                            <span>'.$telephely.' - '.$helyseg.'</span>
+                            <span>'.trim($telephely.' - '.$helyseg.' - '.$gep, ' - ').'</span>
                             <span>'.$bsz['uf_nev'].'</span>
                         </a>';
 
@@ -7007,7 +7013,7 @@ function get_szures_where_kieg($mezo, $op, $felt, $tabla){
         return '`'.get_db_tabla().'anyagigenyles`.`erkmen`*`'.get_db_tabla().'anyagigenyles`.`rndear`=\''.$felt.'\'';
     }elseif($tabla=='anyagigenyles' && $mezo=='rndertek'){
         return '`'.get_db_tabla().'anyagigenyles`.`rndmen`*`'.get_db_tabla().'anyagigenyles`.`rndear`=\''.$felt.'\'';
-    }elseif($tabla=='anyagigenyles' && $mezo=='beerkezett'){
+    }elseif($tabla=='anyagigenyles' && $mezo=='beerkezett' && $op=='=' ){
         return '`'.get_db_tabla().'anyagigenyles`.`beerkezett` LIKE \''.str_replace('.', '-', $felt).'%\'';
     }elseif($tabla=='bejelentes' && $mezo=='telephely_id'){
         return '`'.get_db_tabla().'bejelentes`.`telephely_id`=\''.$felt.'\'';
@@ -9719,8 +9725,9 @@ function logolas_kapcsolodo_tablak_sorai($sorok, $tabla){
 
 // Form adatok JS tömb előállításakor kiszűrjük az újsorokat és egyéb speciális karaktereket. Ez ennek az általános függvénye
 function formAdatok_replace($string){
-    return str_replace(     array("\r\n",    "\r",      "\n",       "'",            "\t",    '	 ',  '"'            ),
-                            array("#UJSOR#", "#UJSOR#", "#UJSOR#",  "#APOSZTROF#",  "#TAB#", "#TAB#", "#IDEZOJEL#", ),
+    
+    return str_replace(     array("\r\n",    "\r",      "\n",       "'",            "\t",    '	 ',  '"',           '&quot;'     ),
+                            array("#UJSOR#", "#UJSOR#", "#UJSOR#",  "#APOSZTROF#",  "#TAB#", "#TAB#", "#IDEZOJEL#", "#IDEZOJEL#" ),
                     $string);
 }
 
@@ -9742,4 +9749,9 @@ function eloterjesztes_osszes_koltseg( $recid, $fb_bod ){
     
     return $ossz_kolts;
     
+}
+
+// Pl. "Biztosan törli?" kérdésenél ha meg szeretnénk jeleníteni még helység nevet, vagy egyéb adaot, akkor ott vigyázni kell a speciális karakterekkel
+function alert_kerdesbe_sztring( $szoveg ){
+    return str_replace('\'', '', htmlspecialchars( strip_tags( htmlspecialchars_decode($szoveg) ) ) );
 }

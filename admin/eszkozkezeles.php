@@ -372,7 +372,11 @@ require_once('selectek.php');
         }else{
             
             $gombok .= '<script>var gomb'.$_GET['id'].'= get_kibont_torol(\''.self().'\', \''.$torles.'\', \''.$_GET['id'].'\');</script>';
-            $gombok .= ' <input type="button" id="recordTorol" class="gombb_alert dn" onclick="alert2(\'Biztosan törli ezt a '.$szoveg.'?\', gomb'.$_GET['id'].')" value="Töröl" title="Töröl">';
+            if( isset($_GET['obj']) ){
+                $gombok .= ' <input type="button" id="recordTorol" class="gombb_alert dn" onclick="alert2(\'Szálloda: '. getSzallodaNev($sor['telephely_id']).'<br>Név: '.alert_kerdesbe_sztring( $sor['nev'] ).'<br><br>Biztosan törli ezt a '.$szoveg.'?\', gomb'.$_GET['id'].')" value="Töröl" title="Töröl">';
+            }else{
+                $gombok .= ' <input type="button" id="recordTorol" class="gombb_alert dn" onclick="alert2(\'Szálloda: '. getSzallodaNev($sor['telephely_id']).'<br>Helyiség: '.alert_kerdesbe_sztring( getErtek('nev', 'obj', 'recid', $sor['obj_id']) ).'<br>Gépnév: '.alert_kerdesbe_sztring( $sor['nev'] ).'<br>Biztosan törli ezt a '.$szoveg.'?\', gomb'.$_GET['id'].')" value="Töröl" title="Töröl">';
+            }
             
         }
 

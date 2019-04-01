@@ -1,0 +1,60 @@
+<h2>Jóváhagyott összeg megadása</h2>
+<form action="" id="addVarakoztat" class="popupForm" method="post" onsubmit="return pri_jkolt_megad()">
+    <div class="kozep">
+        <strong>Kérem adja meg a jóváhagyott összeget!</strong>
+        <div class="dt" style="margin-top: 2rem;">
+            <div class="dtr"> 
+                <div class="dtc form_bal">Jóváhagyott keret:</div>
+                <div class="dtc form_jobb">
+                    <input type="text" id="popup_jkolt" class="f_num" data-tort="0"> <span class="f_penznem"></span>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="kuldes">
+        <input type="submit" name="elkuld" value="Mentés">
+        <input type="button" name="megsem" class="gombb_alert" value="Mégsem" onclick="popupZar();">
+    </div>
+</form>
+<script>
+$(document).ready(function(){
+    /* f_penznem class-ú elemek lecserélése a pénznemre */
+    $('.f_penznem').each(function () {
+        $(this).replaceWith(PENZNEM);
+    });
+});
+    
+/* Hiánypótlás indokolása */
+function pri_jkolt_megad() {
+    
+    $.ajax({
+        url : 'projektigenyles.php',
+        type: 'POST',
+        data: {
+            recid           : _get('id'),
+            jkolt           : $('#popup_jkolt').val(),
+            pri_jkolt_megad : Date.now()
+        },
+        success: function(response){
+            if(response.substring(0, 6)=='SESKIL'){ location.href = 'index.php'; }
+            if(response){
+                response = JSON.parse(response);
+                if(response.hiba){
+                    alert2(response.hiba);
+                }else{
+                    // Jóváhahgyott költség átmásolása az adatlap inputba
+                    $('#jkolt')   .val( $('#popup_jkolt').val() );
+                    $('#jkolt_db').val( $('#popup_jkolt').val() );
+
+                    // Újból meghívjuk a pri_statusz_leptet() függvényt
+                    $('#jovahagyas_gomb').click();
+
+                    popupZar();
+                }
+            }
+        }
+    });
+    
+    return false;
+}
+</script>

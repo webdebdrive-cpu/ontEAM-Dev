@@ -134,6 +134,7 @@ if (isset($_GET['csv'])) {
 
         $sql = 'SELECT
                 `aktiv` as \'Aktív\',
+                `id` as \'Szállító kód\',
                 `nev` as \'Név\'
                 '.$lekerdezes_fromtol;
 
@@ -155,6 +156,10 @@ if (isset($_GET['csv'])) {
                         $sor = 'nem';
                     }
                 }
+                
+                if($kulcs=='Szállító kód'){
+                    $sor = '{EGYENLOSEG_JELET_ELE}'.$sor.'{EGYENLOSEG_JELET_ELE_VEGE}';
+                }
 
                 // Lehet nem volna elég 1-szer sőt kétszer sem ráereszteni a htmlspecialchars_decode-ot
                 $sor = htmlspecialchars_decode( $sor );
@@ -173,7 +178,11 @@ if (isset($_GET['csv'])) {
     header("Pragma: no-cache");
     header("Expires: 0");
 
-    echo fajlbol_olvas($fajlnev);
+    echo str_replace(
+                    array('"{EGYENLOSEG_JELET_ELE}',    '{EGYENLOSEG_JELET_ELE_VEGE}"',     '{EGYENLOSEG_JELET_ELE}',   '{EGYENLOSEG_JELET_ELE_VEGE}', ';="";'  ),
+                    array('="',                         '"',                                '="',                       '"',                            ';;'    ),
+                    fajlbol_olvas($fajlnev)
+            );
 
     $weblap->leallit();
     exit();

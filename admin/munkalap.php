@@ -7894,7 +7894,7 @@ require('selectek.php');
                                 <br>'.nl2br2($sor['helyiseg_text']).'
                             </div>
                             <div class="dtc vat">
-                                <a href="bejelentes.php?id='.$sor['recid'].'&modosit" target="_blank">'.$sor['ikt_szam'].'</a>
+                                <a href="bejelentes.php?id=x&amp;mezo=ikt_szam&amp;op=equal&amp;felt='.$sor['ikt_szam'].'" target="_blank">'.$sor['ikt_szam'].'</a>
                                 <br>'.datum_kiir($sor['insert_dt']).'
                                 <br>'.getStatText('bejelentes', $sor['stat_id']).'
                             </div>

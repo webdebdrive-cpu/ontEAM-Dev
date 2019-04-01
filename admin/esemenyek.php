@@ -556,6 +556,7 @@ switch($tabla) {
                                     `'.get_db_tabla().$tabla_nophp.'`.`nev` as `uf_nev`,
                                     `'.get_db_tabla().$tabla_nophp.'`.`telephely_id`,
                                     `'.get_db_tabla().$tabla_nophp.'`.`obj_id`,
+                                    `'.get_db_tabla().$tabla_nophp.'`.`gep_id`,
                                     `'.get_db_tabla().$tabla_nophp.'`.`aktiv`,
                                     `'.get_db_tabla().$tabla_nophp.'`.`esnap_d`,
                                     `'.get_db_tabla().'telephely`.`nev`,
@@ -631,6 +632,7 @@ switch($tabla) {
                                     `'.get_db_tabla().$tabla_nophp.'`.`nev` as `uf_nev`,
                                     `'.get_db_tabla().$tabla_nophp.'`.`telephely_id`,
                                     `'.get_db_tabla().$tabla_nophp.'`.`obj_id`,
+                                    `'.get_db_tabla().$tabla_nophp.'`.`gep_id`,
                                     `'.get_db_tabla().$tabla_nophp.'`.`aktiv`,
                                     `'.get_db_tabla().'telephely`.`nev`,
                                     `'.get_db_tabla().'obj`.`nev`
@@ -2160,10 +2162,10 @@ if( basename(self()) == 'projektigenyles.php' && isset($_GET['modosit']) ) {
     foreach($eloterj_kapcs as $kapcs){
         if( $kapcs['eloterj_fb_recid'] ){
             $eloterj = $adatbazis_kapcsolat->s2('ikt_szam nev', 'eloterj_fb', "`recid`='{$kapcs['eloterj_fb_recid']}'");
-            $eltoterj_html .= '<a href="eloterj_fb.php?id='.$kapcs['eloterj_fb_recid'].'&amp;modosit" target="_blank"><b>'.$eloterj['ikt_szam'].'</b></a> '. resz_string(htmlspecialchars_decode($eloterj['nev']), 60);
+            $eltoterj_html .= '<a href="eloterj_fb.php?id=x&amp;mezo=ikt_szam&amp;op=equal&amp;felt='.$eloterj['ikt_szam'].'" target="_blank"><b>'.$eloterj['ikt_szam'].'</b></a> '. resz_string(htmlspecialchars_decode($eloterj['nev']), 60);
         }elseif( $kapcs['eloterj_bod_recid'] ){
             $eloterj = $adatbazis_kapcsolat->s2('ikt_szam nev', 'eloterj_bod', "`recid`='{$kapcs['eloterj_bod_recid']}'");
-            $eltoterj_html .= '<a href="eloterj_bod.php?id='.$kapcs['eloterj_bod_recid'].'&amp;modosit" target="_blank"><b>'.$eloterj['ikt_szam'].'</b></a> '. resz_string(htmlspecialchars_decode($eloterj['nev']), 60);
+            $eltoterj_html .= '<a href="eloterj_bod.php?id=x&amp;mezo=ikt_szam&amp;op=equal&amp;felt='.$eloterj['ikt_szam'].'" target="_blank"><b>'.$eloterj['ikt_szam'].'</b></a> '. resz_string(htmlspecialchars_decode($eloterj['nev']), 60);
         }
     }
 
@@ -2261,7 +2263,7 @@ array_push($postok, array('tomb' => $akt_tomb, 'uj' => 'uj'.$megnevezes, 'lista'
 $letrehozta_mikor = '';
 $letrehozta_feluletek = array('projektkezeles.php', 'projektszamla.php', 'projektszerzodes.php');
 $tabla = csonkit( basename(self()), 4 );
-if( in_array(basename(self()), $letrehozta_feluletek) && $_GET['id'] ) {
+if( in_array(basename(self()), $letrehozta_feluletek) && isset($_GET['modosit']) ) {
     $prk = $adatbazis_kapcsolat->s2('insert_dt insert_usr', $tabla, "`recid`='{$_GET['id']}'");
     $letrehozta_mikor .= 'Létrehozta: <b>'.$prk['insert_usr'].' '.datum_kiir($prk['insert_dt']).'</b>-kor<br>';   
 }
@@ -4675,6 +4677,7 @@ if( isset($_GET['szamlaSorFrissit']) ) {
     exit();
 }
 
+// Balnavpanel kigenerálása
 if( isset($_GET['szamlaLista']) ) {
 
     $szamla_lista = szamla_lista('', $_GET['tabla'], $_GET['kijeloltek'], '', $_GET);

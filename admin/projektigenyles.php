@@ -50,6 +50,19 @@ if (isset($_POST['get_datum'])) {
     exit();
 }
 
+// Jóváhagyáskor ha meg kellett adni jóváhagyott keretet, akkor azt letároljuk
+if (isset($_POST['pri_jkolt_megad'])) {
+
+    $_POST['jkolt'] = str_replace(' ', '', $_POST['jkolt']);
+    $adatbazis_kapcsolat->u($megnevezes, array('jkolt'), array($_POST['jkolt']), "`recid`='{$_POST['recid']}'");
+    
+    echo json_encode( array('siker' => 1) );
+
+    $weblap->leallit();
+    exit();
+}
+
+
 // Véleményező hozzáadás státusz ellenőrzés
 if (isset($_POST['velemenyezok_status_ell'])) {
 
@@ -879,8 +892,11 @@ if (isset($_POST['pri_eloterj_statusz_mod'])) {
             $eloterj = $adatbazis_kapcsolat->s2('ikt_szam ules_datum', $_POST['tabla'], "`recid`='{$_POST['eloterj_recid']}'");
             $memo = $eloterj['ikt_szam'].' '.  str_replace('-', '.', $eloterj['ules_datum']);
             
-            // Projektigénylés státusz léptetés
+            // Projektigénylésbe is beíródik a jóváhagyot keret + státusz léptetés
             $projektigenyles_eloterj = $adatbazis_kapcsolat->s2('projektigenyles_recid', 'projektigenyles_eloterj', "`recid`='{$recid}'");
+            $sql = $adatbazis_kapcsolat->u('projektigenyles', array('jkolt'), array($jkoltek[$i]), "`recid`='{$projektigenyles_eloterj['projektigenyles_recid']}'");
+            if( $sql === false ) { $db_error = true; }
+            
             if(addStatusz('projektigenyles_statusz', $projektigenyles_eloterj['projektigenyles_recid'], $stat_id_eloterjek[$i], '', $memo)===false){
                 $db_error = true;
             }
@@ -1225,7 +1241,7 @@ require('selectek.php');
 
             // Csak akkor törölhető, amikor szerkeszthető
             if( in_array($sor['stat_id'], prigeny_mentheto_statuszok()) ){
-                $gombok .= ' <input type="button" id="recordTorol" class="gombb_alert dn" onclick="if( cash_flow_fulon_vagyunk() ){ cash_flow_sorok_torol(); }else{ alert2(\'Név: '. str_replace('\'', '', htmlspecialchars( strip_tags( htmlspecialchars_decode2($sor['nev']) ) ) ).'<br>Státusz: '.getStatText($megnevezes, $sor['stat_id']).'<br><br>Projektigénylés ebben a státuszban nem törölhető!\', \'\', \'Hiba\'); }" value="Töröl" title="Töröl">';
+                $gombok .= ' <input type="button" id="recordTorol" class="gombb_alert dn" onclick="if( cash_flow_fulon_vagyunk() ){ cash_flow_sorok_torol(); }else{ alert2(\'Név: '. alert_kerdesbe_sztring($sor['nev']).'<br>Státusz: '.getStatText($megnevezes, $sor['stat_id']).'<br><br>Projektigénylés ebben a státuszban nem törölhető!\', \'\', \'Hiba\'); }" value="Töröl" title="Töröl">';
             // Jogosutságkezelés: csak az törölheti, akinek van hozzá joga
             } elseif( !$szerkesztheto ){
                 $gombok .= ' <input type="button" id="recordTorol" class="gombb_alert dn" onclick="if( cash_flow_fulon_vagyunk() ){ }else{ alert2(\'Önnek nincs joga projektigénylést törölni!\', \'\', \'Hiba\'); }" value="Töröl" title="Töröl">';
@@ -1277,7 +1293,7 @@ require('selectek.php');
                     }
 
                     if( !in_array($sor['stat_id'], prigeny_fb_bod_var()) && _jog(JOG_PRIGENY_JOVAHAGY) && in_array($sor['stat_id'], prigeny_jovahagyhato_statuszok()) ) {
-                        $gombok .= ' <input type="button" class="gomb zold modositaskor_rejt" value="Jóváhagyás" title="Jóváhagyás" onclick="pri_statusz_leptet(\''.$_GET['id'].'\', \''.PRIGENY_STAT_JOVAHAGYVA.'\');">';
+                        $gombok .= ' <input type="button" class="gomb zold modositaskor_rejt" id="jovahagyas_gomb" value="Jóváhagyás" title="Jóváhagyás" onclick="pri_statusz_leptet(\''.$_GET['id'].'\', \''.PRIGENY_STAT_JOVAHAGYVA.'\');">';
                     }
                 }
 
@@ -1309,6 +1325,7 @@ require('selectek.php');
 
         // Műveletek box
         $gombok = nl2('
+            <input type="hidden" id="jkolt_db" value="'.$sor['jkolt'].'">
             <div class="muveletek"'.$muv_style.'>
                 '.$gombok.'
             </div>

@@ -134,6 +134,8 @@ if (isset($_GET['datumra_utemezes'])) {
 // CSV generálása
 if (isset($_GET['csv'])) {
 
+    require_once 'selectek_szemelyzet.php';
+    
     $mibol   = get_web_charset();
     $mibe    = 'windows-1250';
 
@@ -173,7 +175,10 @@ if (isset($_GET['csv'])) {
                 `'.get_db_tabla().$megnevezes.'`.`id` as \'Feladatszám\',
                 `'.get_db_tabla().$megnevezes.'`.`telephely_id` as \'Szálloda\',
                 `'.get_db_tabla().$megnevezes.'`.`obj_id` as \'Helyiség\',
-                `'.get_db_tabla().$megnevezes.'`.`nev` as \'Feladat\'
+                `'.get_db_tabla().$megnevezes.'`.`gep_id` as \'Gép\',
+                `'.get_db_tabla().$megnevezes.'`.`nev` as \'Feladat\',
+                `'.get_db_tabla().$megnevezes.'`.`szemelyzet_id` as \'Hozzárendelt személyzet\',
+                `'.get_db_tabla().$megnevezes.'`.`szallito_id` as \'Külső kivitelező\'
                 '.$lekerdezes_fromtol;
 
         $query      = mysqli_query($db_kapcs, $sql);
@@ -192,6 +197,19 @@ if (isset($_GET['csv'])) {
                 }
                 if($kulcs=='Helyiség'){
                     $sor = getErtek('nev', 'obj', 'recid', $sor);
+                }
+                if($kulcs=='Gép'){
+                    $sor = getErtek('nev', 'eszkozkezeles', 'recid', $sor);
+                }
+                if($kulcs=='Hozzárendelt személyzet'){
+                    foreach( $select_szemelyzet as $szemely ){
+                        if( $szemely['value'] == $sor ){
+                           $sor =  $szemely['name'];
+                        }
+                    }
+                }
+                if($kulcs=='Külső kivitelező'){
+                    $sor = getErtek('nev', 'szallito', 'id', $sor);
                 }
                 
                 // Lehet nem volna elég 1-szer sőt kétszer sem ráereszteni a htmlspecialchars_decode-ot

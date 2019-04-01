@@ -1275,61 +1275,70 @@ if(basename(self())=='anyagigenyles.php' && !isset($_GET['anyagrend'])){
     $rendezes_rejt = ' dn';
 }
 
-// Anyagigénylés tálbázatban másképp keresünk
-if(basename(self())=='anyagigenyles.php'){
-    $kereso = nl2('
+// Gyorskereső, hacsak nem rejtett oldalon van
+$szures_border = '';
+$gyorskereses_rejt_oldalak = array('dokumentumtar.php', 'eszkozkezeles.php', 'felmeresi_terv.php');
+if( !in_array(basename(self()), $rendez_rejt_oldalak) ){
+    // Anyagigénylés tálbázatban másképp keresünk
+    if( basename(self())=='anyagigenyles.php' ){
+        $kereso = nl2('
+                <span id="respo_keresGomb"><i class="material-icons search">search</i><i class="material-icons close">close</i></span>
+                <input type="text" name="ksz" id="rendezesKeres" class="disableNav" autocomplete="off" placeholder="Keresés" onkeyup="anyagigenyles_tabla_szur($(\'table.szamla_cont_tabla\'), $(this).val())">
+                <script>
+                    function anyagigenyles_tabla_szur(tabla, kulcs) {
+                        var $rows = tabla.find(\'tbody tr\');
+                        var val = $.trim(kulcs).replace(/ +/g, \' \').toLowerCase();
+
+                        $rows.show().filter(function() {
+                            var text = $(this).text().replace(/\s+/g, \' \').toLowerCase();
+                            return !~text.indexOf(val);
+                        }).hide();
+
+                        /* A fiktív sor legyen mindig látható */
+                        $(\'table.szamla_cont_tabla tr.fake\').show();
+                    }
+                </script>
+                ');
+
+    // Kereső általános esete
+    }else{
+        $kereso = nl2('
             <span id="respo_keresGomb"><i class="material-icons search">search</i><i class="material-icons close">close</i></span>
-            <input type="text" name="ksz" id="rendezesKeres" class="disableNav" autocomplete="off" placeholder="Keresés" onkeyup="anyagigenyles_tabla_szur($(\'table.szamla_cont_tabla\'), $(this).val())">
+            <input type="text" name="ksz" id="rendezesKeres" class="disableNav" autocomplete="off" placeholder="Keresés" onkeyup="altalanos_tabla_szur($(\'#szamlaList\'), $(this).val())">
             <script>
-                function anyagigenyles_tabla_szur(tabla, kulcs) {
-                    var $rows = tabla.find(\'tbody tr\');
+                function altalanos_tabla_szur(tabla, kulcs) {
+                    var $rows = tabla.find(\'li\');
                     var val = $.trim(kulcs).replace(/ +/g, \' \').toLowerCase();
 
+                    i = 1;
                     $rows.show().filter(function() {
                         var text = $(this).text().replace(/\s+/g, \' \').toLowerCase();
+                        if( ~text.indexOf(val) ) {
+                            $(this).attr(\'data-i\', i);
+                            i++;
+                        } else {
+                            $(this).attr(\'data-i\', \'\');
+                        }
                         return !~text.indexOf(val);
                     }).hide();
-
-                    /* A fiktív sor legyen mindig látható */
-                    $(\'table.szamla_cont_tabla tr.fake\').show();
                 }
             </script>
-            ');
-
-// Kereső általános esete
-}else{
-    $kereso = nl2('
-        <span id="respo_keresGomb"><i class="material-icons search">search</i><i class="material-icons close">close</i></span>
-        <input type="text" name="ksz" id="rendezesKeres" class="disableNav" autocomplete="off" placeholder="Keresés" onkeyup="altalanos_tabla_szur($(\'#szamlaList\'), $(this).val())">
-        <script>
-            function altalanos_tabla_szur(tabla, kulcs) {
-                var $rows = tabla.find(\'li\');
-                var val = $.trim(kulcs).replace(/ +/g, \' \').toLowerCase();
-
-                i = 1;
-                $rows.show().filter(function() {
-                    var text = $(this).text().replace(/\s+/g, \' \').toLowerCase();
-                    if( ~text.indexOf(val) ) {
-                        $(this).attr(\'data-i\', i);
-                        i++;
-                    } else {
-                        $(this).attr(\'data-i\', \'\');
-                    }
-                    return !~text.indexOf(val);
-                }).hide();
-            }
-        </script>
-    ');
-    // Felhasználók esetén a keresés mezőbe kerüljön a fókusz
-    if( basename(self())=='login.php' ){
-        $kereso .= nl2('
-            <script>
-                $(document).ready(function () {
-                    $(\'#rendezesKeres\').focus();
-                });
-            </script>
         ');
+        // Felhasználók esetén a keresés mezőbe kerüljön a fókusz
+        if( basename(self())=='login.php' ){
+            $kereso .= nl2('
+                <script>
+                    $(document).ready(function () {
+                        $(\'#rendezesKeres\').focus();
+                    });
+                </script>
+            ');
+        }
     }
+    
+// Ha a gyorskeresőtrejtjük, akkor a szűrésre rá kell tenni egy noborder class-t, hogy ne legyen szeparátor vonal bal oldalon
+}else{
+    $szures_border = ' noborder';
 }
 
 // Teszt rendszer felirat
@@ -1369,8 +1378,8 @@ $get_get = get_get(array('pdf'));
 
 $header_sablon = fajlbol_olvas('../sablon/admin/header.html', true);
 $header_html .= str_replace(
-    array('{CACHE}',        '{CSS}', '{CEGNEV}', '{MENUK}', '{KERESO}', '{SZURES}', '{TBALW}', '{TJOBBW}', '{TARTBAL}', '{TABLA}', '{KERESODN}', '{OLDALNEV}', '{RENDEZES}', '{REND_IRANY}', '{REND_CHANGE}', '{MEGN}', '{SELF}', '{GET_GET}', '{CSV_GET}', '{SZERK_DIS}', '{BELEPVE}', '{LAPOZAS}', '{KSZ}',       '{LEPTETO_IKONOK}', '{UJ}', '{DUPLIKAL}', '{TORLES}',   '{CSUSZKADN}', '{RENDEZES_REJT}', '{MAIL}', '{FELH_NEV}', '{RESZLEG}' ),
-    array('?cache='.time(),  $css,    get_nev(),  $menuk,    $kereso,    $szures,    $tbalw,    $tjobbw,    $tartBal,    $tabla,    $keresodn,    $oldalNev,    $rendezes,    $rend_irany,    $rend_change,    $megn,    $self,    $get_get,    $csv_get,    $szerk_dis,    $belepve,    $lapozas,    $_GET['ksz'], $lepteto_ikonok,    $uj,    $duplikal,    $torles_icon, $csuszkadn,    $rendezes_rejt,    $mail,    $felh_nev,    $reszleg   ),
+    array('{CACHE}',        '{CSS}', '{CEGNEV}', '{MENUK}', '{KERESO}', '{SZURES}', '{TBALW}', '{TJOBBW}', '{TARTBAL}', '{TABLA}', '{KERESODN}', '{OLDALNEV}', '{RENDEZES}', '{REND_IRANY}', '{REND_CHANGE}', '{MEGN}', '{SELF}', '{GET_GET}', '{CSV_GET}', '{SZERK_DIS}', '{BELEPVE}', '{LAPOZAS}', '{KSZ}',       '{LEPTETO_IKONOK}', '{UJ}', '{DUPLIKAL}', '{TORLES}',   '{CSUSZKADN}', '{RENDEZES_REJT}', '{MAIL}', '{FELH_NEV}', '{RESZLEG}', '{SZURES_NOBORDER}' ),
+    array('?cache='.time(),  $css,    get_nev(),  $menuk,    $kereso,    $szures,    $tbalw,    $tjobbw,    $tartBal,    $tabla,    $keresodn,    $oldalNev,    $rendezes,    $rend_irany,    $rend_change,    $megn,    $self,    $get_get,    $csv_get,    $szerk_dis,    $belepve,    $lapozas,    $_GET['ksz'], $lepteto_ikonok,    $uj,    $duplikal,    $torles_icon, $csuszkadn,    $rendezes_rejt,    $mail,    $felh_nev,    $reszleg,    $szures_border   ),
     $header_sablon
 );
 

@@ -714,7 +714,7 @@ if(isset($_POST['igenylesek_betolt_uj_kezeleshez'])){
             <tr class="kijSor'.$kiemelt.'" data-i="'.$i.'" data-recid="'.$pri['recid'].'">
                 <td class="l">'.$szalloda['nev'].'</td>
                 <td class="l" style="width: 30rem">'.$pri['nev'].'</td>
-                <td>'.$tipus.'</td>
+                <td class="l">'.$tipus.'</td>
                 <td class="p r nowrap">'.number_format($pri['jkolt'], 0, '', ' ').'</td>
                 <td class="p">'.datum_kiir($letrehozva['insert_dt']).'</td>
                 <td>'.$projektben.'</td>
