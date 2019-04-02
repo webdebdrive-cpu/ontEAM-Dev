@@ -1271,7 +1271,7 @@ if(in_array(basename(self()), $rendez_rejt_oldalak)){
     $rendezes_rejt = ' dn';
 }
 // Anyagigénylésnél DE nem anyagrendelésnél is rejtjük
-if(basename(self())=='anyagigenyles.php' && !isset($_GET['anyagrend'])){
+if( basename(self())=='anyagigenyles.php' ){
     $rendezes_rejt = ' dn';
 }
 
