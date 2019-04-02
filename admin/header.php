@@ -1278,7 +1278,7 @@ if( basename(self())=='anyagigenyles.php' ){
 // Gyorskereső, hacsak nem rejtett oldalon van
 $szures_border = '';
 $gyorskereses_rejt_oldalak = array('dokumentumtar.php', 'eszkozkezeles.php', 'felmeresi_terv.php');
-if( !in_array(basename(self()), $rendez_rejt_oldalak) ){
+if( !in_array(basename(self()), $gyorskereses_rejt_oldalak) ){
     // Anyagigénylés tálbázatban másképp keresünk
     if( basename(self())=='anyagigenyles.php' ){
         $kereso = nl2('
