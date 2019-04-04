@@ -191,7 +191,6 @@ if(isset($_POST['login'])) {
         }
 
         $felhasznalo = $adatbazis_kapcsolat->s2('recid nev szallito_id teljes_nev jelszo helyesseg flags flags_ert jog van_jelszo szemelyzet_id tabla_rendezes', 'login', "`nev` = '".$_POST['nev']."' AND `aktiv` = '1'");
-        
         if( $felhasznalo ) {
 
             if( $felhasznalo['van_jelszo'] ) {
@@ -297,7 +296,7 @@ if(isset($_POST['login'])) {
                         'link'    => 'beleptetes.php?kilep'
                     ));
                 } else {
-                    header('Location: index.php');
+                    header('Location: index.php?hiba');
                 }
             }
 
@@ -309,7 +308,7 @@ if(isset($_POST['login'])) {
                     'link'    => 'beleptetes.php?kilep'
                 ));
             } else {
-                header('Location: index.php');
+                header('Location: index.php?hiba');
             }
             exit();
 
@@ -323,7 +322,7 @@ if(isset($_POST['login'])) {
                 'link'    => 'beleptetes.php?kilep'
             ));
         } else {
-            header('Location: index.php');
+            header('Location: index.php?hiba');
         }
         exit();
     }
