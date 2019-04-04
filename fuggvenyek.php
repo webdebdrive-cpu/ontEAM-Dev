@@ -992,9 +992,34 @@ function i_u($type, $tabla, $tomb) {
             $i = 1;
             foreach($record[0] as $key => $value) {
                 if( $key && $key != 'recid' ) {
+                    
                     if( preg_match('/^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}$/', $value) ) {
                         $value = date('Y.m.d', strtotime($value));
                     }
+                    
+                    // Numerikus illetve dátum mezők esetén le kell kezelni, ha üres adatot kapnánk, úra legyenek formázva
+                    foreach( $tomb as $elem ){
+                        if( $elem['name']==$key ){
+                            if( strpos($elem['class'], 'f_num')!==false ){
+                                $tort  = trim( str_replace('data-tort=', '', $elem['data']), '"' );
+                                $value       = number_format($value,       $tort, ',', ' ');
+                                $_POST[$key] = number_format($_POST[$key], $tort, ',', ' ');
+                            }
+                            if( strpos($elem['class'], 'datepicker')!==false /* van még pl. "datepicker_tegnapig", de azt is felismeri az előző feltétel */ ){
+                                if(!$_POST[$key]){
+                                    $_POST[$key] = '0000-00-00';
+                                }
+                            }
+                            if( strpos($elem['class'], 'datetimepicker')!==false /* van még pl. "datepicker_tegnapig", de azt is felismeri az előző feltétel */ ){
+                                if(!$_POST[$key]){
+                                    $_POST[$key] = '0000-00-00 00:00:00';
+                                }
+                            }
+                        }
+                    }
+                    
+                    // Adatbázisból jövő adatot visszaalakítunk, ne emiatt ne legyen egyenlő a két érték
+                    $value = htmlspecialchars_decode($value);
 
                     // Ha az újonnan kapott adat, és DB-ben tárolt adat nem egyezik
                     // És vagy ez előző vagy az új adatnak van értéke (ne azért íródjon már be, mert üres az új érték, de 0 volt az adatbázisban)
@@ -1023,7 +1048,7 @@ function i_u($type, $tabla, $tomb) {
                                         // Számot is formázzuk
                                         if( strpos($elem['class'], 'f_num')!==false ){
                                             $tort     = trim( str_replace('data-tort=', '', $elem['data']), '"' );
-                                            $value    = number_format($value, $tort, ',', ' ');
+                                            $value    = number_format($value,    $tort, ',', ' ');
                                             $uj_ertek = number_format($uj_ertek, $tort, ',', ' ');
                                         }
 
