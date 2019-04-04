@@ -1317,9 +1317,10 @@ function i_u($type, $tabla, $tomb) {
             }
             if( $tetelek_osszege != $_POST['netto'] ){
                 echo json_encode(array(
-                    'hiba'  => 'A számla tételeinek összege nem egyezik meg a számla nettó értékével!<br>Így nem menthető!',
-                    'gomb'  => '<input type="button" class="gomb" value="Ok" onclick="szurkit_zar(\'mégsem mehet mutat\'); alert2();">',
-                    'title' => 'Hiba',
+                    'hiba'   => 'A számla tételeinek összege nem egyezik meg a számla nettó értékével!<br>Így nem menthető!',
+                    'gomb'   => '<input type="button" class="gomb" value="Ok" onclick="szurkit_zar(\'mégsem mehet mutat\'); alert2();">',
+                    'title'  => 'Hiba',
+                    'select' => 'netto',
                 ));
                 $weblap -> leallit();
                 exit();
@@ -2147,6 +2148,9 @@ function js_kiir($tomb, $fg = 'form_ell_regi()', $ajax = false) {
                         
                         if( response.focus ) {
                             $(\'#\'+response.focus).addClass(\'hibas_ide_focus\');
+                        }
+                        if( response.select ) {
+                            $(\'#\'+response.select).select();
                         }
 
                         return false;
@@ -9638,7 +9642,7 @@ function get_projekt_szamla_kezel_jog( $recid ){
     
     // Saját számla kezelés jog: ha a hozzá tartozó projektnek én vagyok a projektfelelőse
     if( _jog(JOG_PR_SAJAT_SZAMLA_KEZEL) ){
-        $pr_szam  = $adatbazis_kapcsolat->s2('pr_szam', 'projektszamla', "`recid`='{$recid}'");
+        $pr_szam  = $adatbazis_kapcsolat->s2('pr_szam',  'projektszamla',  "`recid`='{$recid}'");
         $pfelelos = $adatbazis_kapcsolat->s2('pfelelos', 'projektkezeles', "`ikt_szam`='{$pr_szam['pr_szam']}'");
         if( $pfelelos['pfelelos']==$_SESSION[get_db_tabla().'login_recid'] ){
             return true;

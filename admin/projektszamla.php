@@ -802,6 +802,7 @@ if (isset($_POST['van_tetel'])) {
                     'hiba'  => $elem['alert'],
                     'gomb'  => '<input type="button" class="gomb" value="Ok" onclick="alert2(); szurkit_zar(\'mehet_megsem_mutat\'); $(\'#'.$elem['name'].'\').focus();">',
                     'title' => 'Hiba',
+                    'focus' => 'visszaadva_dt',
                 ));
                 $weblap -> leallit();
                 exit();
@@ -815,8 +816,9 @@ if (isset($_POST['van_tetel'])) {
         if( $elem['alert'] && ( !$_POST[$elem['name']] || ( strpos($elem['class'], 'datepicker')!==false ) && $_POST[$elem['name']]>'4000.00.00' ) ){
             echo json_encode(array(
                 'hiba'  => $elem['alert'],
-                'gomb'  => '<input type="button" class="gomb" value="Ok" onclick="alert2(); szurkit_zar(\'mehet_megsem_mutat\'); $(\'#'.$elem['name'].'\').focus();">',
+                'gomb'  => '<input type="button" class="gomb" value="Ok" onclick="alert2();">',
                 'title' => 'Hiba',
+                'focus' => $elem['name'],
             ));
             $weblap -> leallit();
             exit();
@@ -828,8 +830,9 @@ if (isset($_POST['van_tetel'])) {
     if( $_POST['ceghez_erk']<'9000.00.00' && !valos_datum_e($_POST['ceghez_erk']) ){
         echo json_encode(array(
             'hiba'  => 'Kérem egy valós dátumot adjon meg érkezés dátumának!',
-            'gomb'  => '<input type="button" class="gomb" value="Ok" onclick="alert2(); szurkit_zar(\'mehet_megsem_mutat\'); $(\'#ceghez_erk\').focus();">',
+            'gomb'  => '<input type="button" class="gomb" value="Ok" onclick="alert2();">',
             'title' => 'Hiba',
+            'focus' => 'ceghez_erk',
         ));
         $weblap -> leallit();
         exit();
@@ -837,8 +840,9 @@ if (isset($_POST['van_tetel'])) {
     if( $_POST['kelte']<'9000.00.00' && !valos_datum_e($_POST['kelte']) ){
         echo json_encode(array(
             'hiba'  => 'Kérem egy valós dátumot adjon meg Keltének!',
-            'gomb'  => '<input type="button" class="gomb" value="Ok" onclick="alert2(); szurkit_zar(\'mehet_megsem_mutat\'); $(\'#kelte\').focus();">',
+            'gomb'  => '<input type="button" class="gomb" value="Ok" onclick="alert2();">',
             'title' => 'Hiba',
+            'focus' => 'kelte',
         ));
         $weblap -> leallit();
         exit();
@@ -846,8 +850,9 @@ if (isset($_POST['van_tetel'])) {
     if( $_POST['telj_datum']<'9000.00.00' && !valos_datum_e($_POST['telj_datum']) ){
         echo json_encode(array(
             'hiba'  => 'Kérem egy valós dátumot adjon meg Teljesítése dátumnak!',
-            'gomb'  => '<input type="button" class="gomb" value="Ok" onclick="alert2(); szurkit_zar(\'mehet_megsem_mutat\'); $(\'#telj_datum\').focus();">',
+            'gomb'  => '<input type="button" class="gomb" value="Ok" onclick="alert2();">',
             'title' => 'Hiba',
+            'focus' => 'telj_datum',
         ));
         $weblap -> leallit();
         exit();
@@ -855,8 +860,9 @@ if (isset($_POST['van_tetel'])) {
     if( $_POST['fiz_hatar']<'9000.00.00' && !valos_datum_e($_POST['fiz_hatar']) ){
         echo json_encode(array(
             'hiba'  => 'Kérem egy valós dátumot adjon meg Fizetési határidőnek!',
-            'gomb'  => '<input type="button" class="gomb" value="Ok" onclick="alert2(); szurkit_zar(\'mehet_megsem_mutat\'); $(\'#fiz_hatar\').focus();">',
+            'gomb'  => '<input type="button" class="gomb" value="Ok" onclick="alert2();">',
             'title' => 'Hiba',
+            'focus' => 'fiz_hatar',
         ));
         $weblap -> leallit();
         exit();
@@ -864,8 +870,9 @@ if (isset($_POST['van_tetel'])) {
     if( $_POST['visszaadva']=='true' && $_POST['visszaadva_dt']>'9000.00.00' ){
         echo json_encode(array(
             'hiba'  => 'Kérem adja meg a Visszaadás dátumát!',
-            'gomb'  => '<input type="button" class="gomb" value="Ok" onclick="alert2(); szurkit_zar(\'mehet_megsem_mutat\'); $(\'#visszaadva_dt\').focus();">',
+            'gomb'  => '<input type="button" class="gomb" value="Ok" onclick="alert2();">',
             'title' => 'Hiba',
+            'focus' => 'visszaadva_dt',
         ));
         $weblap -> leallit();
         exit();
@@ -873,8 +880,9 @@ if (isset($_POST['van_tetel'])) {
     if( $_POST['visszaadva']=='true' && $_POST['visszaadva_dt']<'9000.00.00' && !valos_datum_e($_POST['visszaadva_dt']) ){
         echo json_encode(array(
             'hiba'  => 'Kérem egy valós dátumot adjon meg Visszaadva dátumnak!',
-            'gomb'  => '<input type="button" class="gomb" value="Ok" onclick="alert2(); szurkit_zar(\'mehet_megsem_mutat\'); $(\'#visszaadva_dt\').focus();">',
+            'gomb'  => '<input type="button" class="gomb" value="Ok" onclick="alert2();">',
             'title' => 'Hiba',
+            'focus' => 'visszaadva_dt',
         ));
         $weblap -> leallit();
         exit();
@@ -882,7 +890,7 @@ if (isset($_POST['van_tetel'])) {
     if( $_POST['visszaadva']=='false' && $_POST['visszaadva_dt'] && $_POST['visszaadva_dt']<'9000.00.00' ){
         echo json_encode(array(
             'hiba'  => 'A Visszaadás dátumát csak akkor töltse ki, ha a visszaadva pipát be is kapcsolja!',
-            'gomb'  => '<input type="button" class="gomb" value="Ok" onclick="alert2(); szurkit_zar(\'mehet_megsem_mutat\'); $(\'#visszaadva_dt\').focus();">',
+            'gomb'  => '<input type="button" class="gomb" value="Ok" onclick="alert2();">',
             'title' => 'Hiba',
         ));
         $weblap -> leallit();
@@ -897,7 +905,7 @@ if (isset($_POST['van_tetel'])) {
         if( $pr_szerzodes['telephely_id']!=$_POST['telephely_id'] ){
             echo json_encode(array(
                 'hiba'  => 'A projekt szám nem megfelelő szállodához tartozik!',
-                'gomb'  => '<input type="button" class="gomb" value="Ok" onclick="alert2(); szurkit_zar(\'mehet_megsem_mutat\'); $(\'#telephely_id\').focus();">',
+                'gomb'  => '<input type="button" class="gomb" value="Ok" onclick="alert2();">',
                 'title' => 'Hiba',
             ));
             $weblap -> leallit();
@@ -913,8 +921,8 @@ if (isset($_POST['van_tetel'])) {
                                 <br>Még felhasználható összeg: '.number_format($pr_szerzodes['szerz_ossz']-$szamlak['SUM(`netto`)'], 0, '', ' ').' '.get_penznem().'
                                 <br>A számla nettó értéke több, mint a választott szerződésből még felhasználható összeg!
                                 '),
-                'focus' => 'netto',
-                'title' => 'Hiba',
+                'select' => 'netto',
+                'title'  => 'Hiba',
             ) );
             $weblap -> leallit();
             exit;
@@ -1431,6 +1439,8 @@ require_once('selectek.php');
                                 hibauzenet    = response.hiba;
                                 gomb          = response.gomb;
                                 title         = response.title;
+                                focus         = response.focus;
+                                select        = response.select;
                             }
                             dfrd_pr_szszamla.resolve();
                         }
@@ -1442,6 +1452,13 @@ require_once('selectek.php');
                 $.when(dfrd_pr_szszamla).then(function() {
                     if( !dfrd_pr_mehet ){
                         alert2(hibauzenet, gomb, title);
+                        alert_utan_mehet_megsem_mutat_beallit();
+                        if( focus ){
+                            $(\'#\'+focus).focus();
+                        }
+                        if( select ){
+                            $(\'#\'+select).select();
+                        }
                         return false;
                     }else{
                         urlap_mehet = true;
