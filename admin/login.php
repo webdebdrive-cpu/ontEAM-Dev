@@ -581,9 +581,11 @@ if (isset($_GET['csv'])) {
                 if($kulcs=='Telefon'){
                     $sor = '{EGYENLOSEG_JELET_ELE}'.$sor.'{EGYENLOSEG_JELET_ELE_VEGE}';
                 }
-                if($kulcs=='Beosztás' || $kulcs=='Részleg'){
-                    $sor = $adatbazis_kapcsolat->s('info', 'erteklista', "`id`='{$sor}'");
-                    $sor = $sor[0]['info'];
+                if($kulcs=='Beosztás'){
+                    $sor = getErtekLista(ERTEKLISTA_BEOSZTAS, $sor);
+                }
+                if($kulcs=='Részleg'){
+                    $sor = getErtekLista(ERTEKLISTA_RESZLEG, $sor);
                 }
                 if($kulcs=='Virtuális' || $kulcs=='Törölve' || $kulcs=='Aktiv'){
                     if( $sor ) {

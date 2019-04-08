@@ -175,8 +175,9 @@ if (isset($_POST['tetel_sorok_ment'])) {
     
     $recid                  = $_POST['recid'];
     $szamla_netto_erteke    = str_replace(' ', '', $_POST['szamla_netto_erteke']);
-    $_POST['adatok'] = json_decode( $_POST['adatok'] );
+    $_POST['adatok']        = json_decode( $_POST['adatok'] );
     
+
     // Kapott tömb indexeit cseréljük beszédesebb változókra
     $recid_adat     = 0;
     $targy_adat     = 1;
@@ -210,7 +211,7 @@ if (isset($_POST['tetel_sorok_ment'])) {
     // Tételek kimentése Session-be
     }else{
         $_SESSION['pr_szla_tetel_recid']     = $_POST['adatok'][$recid_adat][1];
-        $_SESSION['pr_szla_tetel_targy']     = $_POST['adatok'][$targy_adat][1];
+        $_SESSION['pr_szla_tetel_targy']     = str_replace('{IDEZOJEL}', '"', $_POST['adatok'][$targy_adat][1]);
         $_SESSION['pr_szla_tetel_netto_ert'] = $_POST['adatok'][$netto_ert_adat][1];
         $_SESSION['pr_szla_tetel_pr_tetel']  = $_POST['adatok'][$pr_tetel_adat][1];
     }

@@ -121,7 +121,7 @@ function i_u($type, $tabla, $tomb) {
                 $_POST[$ertek['name']] = str_replace('.', '-', $_POST[$ertek['name']]);
             }
 
-            // Szám tiupusból ki kell szűrni a szóközt (ezresítés), és a vesszőt pontra cserélni
+            // Szám típusból ki kell szűrni a szóközt (ezresítés), és a vesszőt pontra cserélni
             if(strpos($ertek['class'], 'f_num')!==false){
                 $_POST[$ertek['name']] = str_replace(array(' ', ','), array('', '.'), $_POST[$ertek['name']]);
             }
@@ -997,22 +997,24 @@ function i_u($type, $tabla, $tomb) {
                         $value = date('Y.m.d', strtotime($value));
                     }
                     
-                    // Numerikus illetve dátum mezők esetén le kell kezelni, ha üres adatot kapnánk, úra legyenek formázva
+                    $post_key = $_POST[$key];
+                    
+                    // Numerikus illetve dátum mezők esetén le kell kezelni, ha üres adatot kapnánk, újra legyenek formázva
                     foreach( $tomb as $elem ){
                         if( $elem['name']==$key ){
                             if( strpos($elem['class'], 'f_num')!==false ){
                                 $tort  = trim( str_replace('data-tort=', '', $elem['data']), '"' );
-                                $value       = number_format($value,       $tort, ',', ' ');
-                                $_POST[$key] = number_format($_POST[$key], $tort, ',', ' ');
+                                $value      = number_format($value,     $tort, ',', ' ');
+                                $post_key   = number_format($post_key,  $tort, ',', ' ');
                             }
                             if( strpos($elem['class'], 'datepicker')!==false /* van még pl. "datepicker_tegnapig", de azt is felismeri az előző feltétel */ ){
-                                if(!$_POST[$key]){
-                                    $_POST[$key] = '0000-00-00';
+                                if(!$post_key){
+                                    $post_key = '0000-00-00';
                                 }
                             }
                             if( strpos($elem['class'], 'datetimepicker')!==false /* van még pl. "datepicker_tegnapig", de azt is felismeri az előző feltétel */ ){
-                                if(!$_POST[$key]){
-                                    $_POST[$key] = '0000-00-00 00:00:00';
+                                if(!$post_key){
+                                    $post_key = '0000-00-00 00:00:00';
                                 }
                             }
                         }
@@ -1023,16 +1025,16 @@ function i_u($type, $tabla, $tomb) {
 
                     // Ha az újonnan kapott adat, és DB-ben tárolt adat nem egyezik
                     // És vagy ez előző vagy az új adatnak van értéke (ne azért íródjon már be, mert üres az új érték, de 0 volt az adatbázisban)
-                    if( $_POST[$key] != $value && ($_POST[$key] || $value) ) {
-                        $valtozas .= '[mezo]'.$key.'[/mezo] [ertek_regi]'.$value.'[/ertek_regi] [ertek_uj]'.$_POST[$key].'[/ertek_uj]'."\n";
+                    if( $post_key != $value && ($post_key || $value) ) {
+                        $valtozas .= '[mezo]'.$key.'[/mezo] [ertek_regi]'.$value.'[/ertek_regi] [ertek_uj]'.$post_key.'[/ertek_uj]'."\n";
 
                         // Ha a megjegyzésbe is bele szeretnénk írni a változást, akkor pár formázást még el kell végezni
                         if( $mod_megjegyzesbe_mehet && !in_array($key, $kiveteles_mezok) ){
 
                             // Üres dátum mező esetének kivédése
-                            if( !($_POST[$key]>'4000-00-00' && $value == '0000-00-00') ){
+                            if( !($post_key>'4000-00-00' && $value == '0000-00-00') ){
                                 $mezo_neve = '';
-                                $uj_ertek = $_POST[$key];
+                                $uj_ertek = $post_key;
                                 
                                 foreach( $tomb as $elem ){
                                     // Ha az aktuális elemnél járunk
@@ -1249,7 +1251,7 @@ function i_u($type, $tabla, $tomb) {
             }
             
         }
-        
+
         // Projekt számla
         if( $tabla == 'projektszamla' ){
             
@@ -1345,7 +1347,7 @@ function i_u($type, $tabla, $tomb) {
         
         // Projekt szerződés
         if( $tabla == 'projektszerzodes' ){
-            
+
             // Kivitelezés kezdete, nem lehet korábbi, mint a kelte
             if($_POST['kiv_kezd'] < $_POST['kelte'] ){
                 echo json_encode(array(

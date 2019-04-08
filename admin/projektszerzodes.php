@@ -210,6 +210,7 @@ if (isset($_POST['tetel_sorok_ment'])) {
         $ertek = str_replace(' ', '', $ertek);
         $tetelek_osszege += $ertek;
     }
+
     
     // Ha nincs egy sornyi tételünk sem, akkor hibaüzenet
     if( !$_POST['adatok'][$targy_adat][1] ){
@@ -232,7 +233,7 @@ if (isset($_POST['tetel_sorok_ment'])) {
     // Tételek kimentése Session-be
     }else{
         $_SESSION['pr_szer_tetel_recid']    = $_POST['adatok'][$recid_adat][1];
-        $_SESSION['pr_szer_tetel_targy']    = $_POST['adatok'][$targy_adat][1];
+        $_SESSION['pr_szer_tetel_targy']    = str_replace('{IDEZOJEL}', '"', $_POST['adatok'][$targy_adat][1]);
         $_SESSION['pr_szer_tetel_varh_erk'] = $_POST['adatok'][$varh_erk_adat][1];
         $_SESSION['pr_szer_tetel_varh_ert'] = $_POST['adatok'][$varh_ert_adat][1];
     }

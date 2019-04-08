@@ -144,7 +144,7 @@ function tetel_sorok_ment( db_nelkul/*ezt mégsem fogjuk használni*/, bezar_nel
     });
     var targyak = [];
     $('.pop_targy').each(function() {
-        targyak.push( $(this).html() );
+        targyak.push( $(this).html().replace(/"/g, '{IDEZOJEL}') );
     });
     var netto_ert = [];
     $('.pop_netto_ert').each(function() {
