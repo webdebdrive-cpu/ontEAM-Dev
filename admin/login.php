@@ -556,11 +556,10 @@ if (isset($_GET['csv'])) {
                                                     `teljes_nev` as \'Teljes név\',
                                                     `usertel` as \'Telefon\',
                                                     `usermail` as \'E-mail\',
-                                                    `szerepkor_id` as \'Szerepkör\',
+                                                    `szemelyzet_id` as \'Szerepkör\',
                                                     `beosztas_id` as \'Beosztás\',
                                                     `reszleg_id` as \'Részleg\',
                                                     `virtual` as \'Virtuális\',
-                                                    `torolve` as \'Törölve\',
                                                     `aktiv` as \'Aktiv\'
                                                     '.$lekerdezes_fromtol;
 // echo $sql . '<br>';

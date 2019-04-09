@@ -1239,7 +1239,7 @@ function i_u($type, $tabla, $tomb) {
                     $weblap -> leallit();
                     exit();
                 }
-                $mail_hibaizenet = level_felkeszit_es_kuld('projektkezeles', $_GET['id'], '', 'projektkezelesModosit', 'projektkezeles_felelose', '', $prk['pfelelos']);
+                $mail_hibaizenet = level_felkeszit_es_kuld('projektkezeles', $_GET['id'], '', 'projektkezelesModositElozo', 'projektkezeles_felelose', '', $prk['pfelelos']);
                 if( $mail_hibaizenet ){
                     echo json_encode(array(
                         'hiba'  => $mail_hibaizenet,
@@ -1384,10 +1384,10 @@ function i_u($type, $tabla, $tomb) {
                     echo json_encode(array(
                         'hiba'  => nl2('
                                         Projekt jóváhagyott keret: '.number_format($projekt['jkolt'], 0, '', ' ').' '.get_penznem().'
-                                        <br>Összes szerződött összeg: '.number_format($szerzodesek['SUM(`szerz_ossz`)'], 0, '', ' ').' '.get_penznem().'.
-                                        <br>Ebből még felhasználható: '.number_format($felhasznalhato, 0, '', ' ').' '.get_penznem().'.
+                                        <br>Összes szerződött összeg: '.number_format($szerzodesek['SUM(`szerz_ossz`)']+$_POST['szerz_ossz'], 0, '', ' ').' '.get_penznem().'.
+                                        <br>Ebből még felhasználható: '.number_format($felhasznalhato-$_POST['szerz_ossz'], 0, '', ' ').' '.get_penznem().'.
                                         <br>
-                                        <br>Az összes szerződés összege nagyobb, mint a jóváhagyott keret!
+                                        <br>Az összes szerződés összege nagyobb, mint a jóváhagyott keret! Biztosan folytatja?
                                     '),
                         'gomb'  => '<input type="button" class="gomb zold" value="Igen" onclick="$(\'#keret_tullepve_mehet\').val(1); mentesGomb();"> <input type="button" class="gomb piros" value="Nem" onclick="szurkit_zar(\'mégsem mehet mutat\'); alert2();">',
                         'title' => 'Kérdés',
@@ -6323,10 +6323,10 @@ function getOszlopNev( $oszlop, $kieg_nev = '' ) {
         'sz_szam'       => 'Szerződés szám',
         'szakter_id'    => 'Szakterület',
         'szallito_id'   => 'Szállító',
+        'szemelyzet_id' => 'Szerepkör',
         'szerepkor_id'  => 'Szerepkör',
         'telephely_id'  => 'Szálloda',
         'teljes_nev'    => 'Teljes név',
-        'torolve'       => 'Törölve',
         'torolve'       => 'Törölve',
     );
 
@@ -8059,6 +8059,16 @@ function level_felkeszit_es_kuld($tabla, $recid, $ert_pipa, $sablon, $cimzett, $
             $esemeny =  'projekt módosításkor';
             $targy   =  get_nev().' projekt módosult';
             $uzi     =  'Ön az alábbi projekt felelőse:
+                        <br>'.
+                        $uzi.'
+                        <br>'.$extra_szoveg.'
+                        <br>'.fajlbol_olvas('../sablon/admin/mail/alairas.html');
+        break;
+
+        case 'projektkezelesModositElozo':
+            $esemeny =  'projekt módosításkor';
+            $targy   =  get_nev().' projekt módosult';
+            $uzi     =  'Ön már nem felelőse az alábbi projektnek:
                         <br>'.
                         $uzi.'
                         <br>'.$extra_szoveg.'
