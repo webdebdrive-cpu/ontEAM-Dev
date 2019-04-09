@@ -454,11 +454,11 @@ require('selectek.php');
             }
 
             // Szerepkör
-            $tetel_felh = $adatbazis_kapcsolat->s2('szerepkor_id', 'login', "`nev` = '".$sor['loginnev']."'");
+            $tetel_felh = $adatbazis_kapcsolat->s2('szemelyzet_id', 'login', "`nev` = '".$sor['loginnev']."'");
             $szerepkor = '';
             if( $tetel_felh ) {
 
-                $szerepkor_sor = getSzerepkorNev($tetel_felh['szerepkor_id']);
+                $szerepkor_sor = getSzerepkorNev($tetel_felh['szemelyzet_id']);
                 if( $szerepkor_sor ) {
                     $szerepkor = '<br>('.$szerepkor_sor.')';
                 }

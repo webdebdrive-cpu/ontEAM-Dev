@@ -197,7 +197,7 @@ switch($tabla) {
                                 ');
 
         // Ezek az oszlopok generálódnak ki a rendezés selectbe, lehet szépíteni az oszlopneveket, amit a getOszlopNev() függvényben kell beállítani
-        $_OPTS['rendezes']  = array('erkezett', 'e-szamla', 'torolve', 'ikt_szam', 'statusz',  'recid');
+        $_OPTS['rendezes']  = array('erkezett', 'e-szamla', 'ikt_szam', 'statusz',  'recid');
 
         // Default rendezés
         if( !$_GET['rend'] ) {
@@ -1103,12 +1103,9 @@ $login_tomb = $akt_tomb = array(
     ),
     array('type' => 'select_szemelyzet',    'megn' => 'Szerepkör:',                 'name' => 'szemelyzet_id',  'class' => 'disableNav',        'szuro' => 1, 'alert' => 'Kérem adja meg a szerepkört!', 'disabled' => $disabled_szerepkor),
     array('type' => 'text',                 'megn' => 'E-mail:',                    'name' => 'usermail',       'class' => 'oriasi',            'szuro' => 1, 'maxlength' => 250),
-    // array('type' => 'checkbox',             'megn' => 'Kap értesítést:',            'name' => 'kap_mailt',      'class' => 'check',             'szuro' => 1, 'disabled' => $disabled_uj),
     array('type' => 'text',                 'megn' => 'Telefon:',                   'name' => 'usertel',        'class' => 'oriasi',            'szuro' => 1, 'maxlength' => 250, 'alert' => 'Kérem adja meg a telefonszámot!'),
-    //array('type' => 'autocomplete',         'megn' => 'Szerepkör:',                 'name' => 'szerepkor_id',   'class' => 'oriasi disableNav', 'szuro' => 1, 'tabla' => 'szerepkor', 'oszlop_keres' => 'recid', 'oszlop_keres_autocomp' => 'nev', 'listaz' => 'nev', 'alert' => 'Kérem adja meg a szerepkört!'),
     array('type' => 'autocomplete',         'megn' => 'Partner cég:',               'name' => 'szallito_id',    'szuro' => 1,   'disabled' => 1,   'class' => 'oriasi disableNav', 'tabla' => 'szallito', 'oszlop_keres' => 'id', 'oszlop_keres_autocomp' => 'nev', 'listaz' => 'nev', 'id_kiir' => 'id'),
 
-	//array('type' => 'submit', 'value' => 'Mentés',    'name' => 'mehet_gomb', 'class' => 'gombb'),
 );
 array_push($postok, array('tomb' => $akt_tomb, 'uj' => 'uj'.$megnevezes, 'lista' => $megnevezes.'lista', 'tabla' => $megnevezes, 'torid' => $megnevezes.'tid' ));
 

@@ -27,8 +27,8 @@ foreach($akt_tomb as $ertek){
                 $ertek['class'] .= ' csillag';
             }
 
-            // Login fülön és külső kivitelezőt válaszva nem kell a disabled
-            if( basename(self()) == 'login.php' && $sor['szerepkor_id'] == 12 ) {
+            // Login fülön s külső kivitelezőt választva nem kell a disabled
+            if( basename(self()) == 'login.php' && $sor['szemelyzet_id'] == KULSO_KIVITELEZO ) {
                 $ertek['disabled'] = false;
             }
 

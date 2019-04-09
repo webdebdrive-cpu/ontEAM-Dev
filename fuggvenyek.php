@@ -6324,7 +6324,6 @@ function getOszlopNev( $oszlop, $kieg_nev = '' ) {
         'szakter_id'    => 'Szakterület',
         'szallito_id'   => 'Szállító',
         'szemelyzet_id' => 'Szerepkör',
-        'szerepkor_id'  => 'Szerepkör',
         'telephely_id'  => 'Szálloda',
         'teljes_nev'    => 'Teljes név',
         'torolve'       => 'Törölve',

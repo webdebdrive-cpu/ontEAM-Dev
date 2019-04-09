@@ -922,8 +922,8 @@ if( isset($_POST['munkalapFelvesz']) ) {
         }
 
         $sql = $adatbazis_kapcsolat -> i('munkalap_tetel',
-                                            array('munkalap_id', 'insert_dt', 'insert_usr',                              'update_usr'                           ),
-                                            array($recid,         'NOW()',    $_SESSION[get_db_tabla().'teljes_nev'],    $_SESSION[get_db_tabla().'teljes_nev'] )
+                                            array('munkalap_id', 'loginnev',                        'insert_dt', 'insert_usr',                              'update_usr'                           ),
+                                            array($recid,        $_SESSION[get_db_tabla().'user'],  'NOW()',     $_SESSION[get_db_tabla().'teljes_nev'],    $_SESSION[get_db_tabla().'teljes_nev'] )
                                         );
         if( $sql === false ) { $db_error = true; }
 
@@ -7989,11 +7989,11 @@ require('selectek.php');
             }
 
             // Szerepkör
-            $tetel_felh = $adatbazis_kapcsolat->s2('szerepkor_id', 'login', "`nev` = '".$sor['loginnev']."'", '', '');
+            $tetel_felh = $adatbazis_kapcsolat->s2('szemelyzet_id', 'login', "`nev` = '".$sor['loginnev']."'");
             $szerepkor = '';
             if( $tetel_felh ) {
-
-                $szerepkor_sor = getSzerepkorNev($tetel_felh['szerepkor_id']);
+                
+                $szerepkor_sor = getSzerepkorNev($tetel_felh['szemelyzet_id']);
                 if( $szerepkor_sor ) {
                     $szerepkor = '<br>('.$szerepkor_sor.')';
                 }
