@@ -193,13 +193,22 @@ if (isset($_GET['csv'])) {
                     $lekerdezes_fromtol = str_replace('ORDER', "WHERE `".get_db_tabla().$megnevezes."`.`recid` IN (".$_SESSION['nyomtatas_ids'].") ORDER", $lekerdezes_fromtol);
                 }
             }
+            
+            // Ha van $_SESSION['akt_sql_order'], akkor eszerint rendezünk, tehát a $lekerdezes_fromtol-t elvágjuk az Order-nél
+            if( $_SESSION['akt_sql_order'] ){
+                $lekerdezes_fromtol = substr($lekerdezes_fromtol, 0, strpos($lekerdezes_fromtol, 'ORDER'));
+            }
+            // Ha nincs FROM rész, akkor azt még beletesszük
+            if( !$lekerdezes_fromtol ) {
+                $lekerdezes_fromtol = ' FROM `'.get_db_tabla().$megnevezes.'` ';
+            }
 
             $sql = 'SELECT
                     `'.get_db_tabla().$megnevezes.'`.`stat_id` as \'Státusz\',
                     `'.get_db_tabla().$megnevezes.'`.`ikt_szam` as \'Azonosító\',
                     `'.get_db_tabla().$megnevezes.'`.`nev` as \'Név\',
                     `'.get_db_tabla().$megnevezes.'`.`ules_datum` as \'Ülés dátuma\'
-                    '.$lekerdezes_fromtol;
+                    '.$lekerdezes_fromtol.$_SESSION['akt_sql_order'];
 
             $query      = mysqli_query($db_kapcs, $sql);
 

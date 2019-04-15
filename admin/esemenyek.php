@@ -222,18 +222,21 @@ switch($tabla) {
 
         // Ezek az oszlopok generálódnak ki a rendezés selectbe, lehet szépíteni az oszlopneveket, amit a getOszlopNev() függvényben kell beállítani
         $_OPTS['rendezes']  = array('telephely_id',  'recid');
+        $_OPTS['iranyok']   = array('asc',           'asc'  );
 
         // Default rendezés
         if( !$_GET['rend'] ) {
             $_GET['rend'] = 'telephely_id';
         }
+        
     break;
     case 'cash_flow.php':
         // Ezeket a tábla oszlopokat kérdezzük le baloldalra
         $_OPTS['select']    = 'recid';
 
         // Ezek az oszlopok generálódnak ki a rendezés selectbe, lehet szépíteni az oszlopneveket, amit a getOszlopNev() függvényben kell beállítani
-        $_OPTS['rendezes']  = array('recid');
+        $_OPTS['rendezes']  = array('recid' );
+        $_OPTS['iranyok']   = array('asc'   );
 
         // Default rendezés
         if( !$_GET['rend'] ) {
@@ -255,7 +258,8 @@ switch($tabla) {
                             ');
 
         // Ezek az oszlopok generálódnak ki a rendezés selectbe, lehet szépíteni az oszlopneveket, amit a getOszlopNev() függvényben kell beállítani
-        $_OPTS['rendezes']  = array('id', 'nev', 'szakter_id', 'recid');
+        $_OPTS['rendezes']  = array('id',  'nev', 'szakter_id', 'recid');
+        $_OPTS['iranyok']   = array('asc', 'asc', 'asc',        'asc'  );
 
         // Default rendezés
         if( !$_GET['rend'] ) {
@@ -267,7 +271,8 @@ switch($tabla) {
         $_OPTS['select']    = '';
 
         // Ezek az oszlopok generálódnak ki a rendezés selectbe, lehet szépíteni az oszlopneveket, amit a getOszlopNev() függvényben kell beállítani
-        $_OPTS['rendezes']  = array('id', 'nev', 'recid');
+        $_OPTS['rendezes']  = array('id',  'nev', 'recid');
+        $_OPTS['iranyok']   = array('asc', 'asc', 'asc'  );
 
         // Default rendezés
         if( !$_GET['rend'] ) {
@@ -279,7 +284,8 @@ switch($tabla) {
         $_OPTS['select']    = 'recid, ikt_szam, stat_id, nev';
 
         // Ezek az oszlopok generálódnak ki a rendezés selectbe, lehet szépíteni az oszlopneveket, amit a getOszlopNev() függvényben kell beállítani
-        $_OPTS['rendezes']  = array('ikt_szam', 'stat_id', 'recid');
+        $_OPTS['rendezes']  = array('ikt_szam', 'stat_id',  'recid');
+        $_OPTS['iranyok']   = array('asc',      'asc',      'asc'  );
 
         // Default rendezés
         if( !$_GET['rend'] ) {
@@ -297,6 +303,7 @@ switch($tabla) {
 
         // Ezek az oszlopok generálódnak ki a rendezés selectbe, lehet szépíteni az oszlopneveket, amit a getOszlopNev() függvényben kell beállítani
         $_OPTS['rendezes']  = array('ikt_szam', 'stat_id', 'recid');
+        $_OPTS['iranyok']   = array('asc',      'asc',     'asc'  );
 
         // Default rendezés
         if( !$_GET['rend'] ) {
@@ -314,6 +321,7 @@ switch($tabla) {
 
         // Ezek az oszlopok generálódnak ki a rendezés selectbe, lehet szépíteni az oszlopneveket, amit a getOszlopNev() függvényben kell beállítani
         $_OPTS['rendezes']  = array('recid');
+        $_OPTS['iranyok']   = array('asc'  );
 
         // Default rendezés
         if( !$_GET['rend'] ) {
@@ -343,7 +351,8 @@ switch($tabla) {
         $_OPTS['select'] = 'info'; // Függvényeknél, szamla_lista()-nál is van vele varia beállítva
 
         // Ezek az oszlopok generálódnak ki a rendezés selectbe, lehet szépíteni az oszlopneveket, amit a getOszlopNev() függvényben kell beállítani
-        $_OPTS['rendezes']  = array('csoport', 'recid');
+        $_OPTS['rendezes']  = array('csoport', 'recid'  );
+        $_OPTS['iranyok']   = array('asc',     'asc'    );
 
         // Default rendezés // Függvényeknél, szamla_lista()-nál beállítva
 
@@ -363,7 +372,8 @@ switch($tabla) {
 
 
         // Ezek az oszlopok generálódnak ki a rendezés selectbe, lehet szépíteni az oszlopneveket, amit a getOszlopNev() függvényben kell beállítani
-        $_OPTS['rendezes']  = array('id', 'aktiv', 'telephely_id', 'esnap_d', 'recid');
+        $_OPTS['rendezes']  = array('id',   'aktiv', 'telephely_id', 'esnap_d', 'recid');
+        $_OPTS['iranyok']   = array('asc',  'asc',   'asc',          'asc',     'asc'  );
 
         // Default rendezés
         if( !$_GET['rend'] ) {
@@ -381,6 +391,7 @@ switch($tabla) {
 
         // Ezek az oszlopok generálódnak ki a rendezés selectbe, lehet szépíteni az oszlopneveket, amit a getOszlopNev() függvényben kell beállítani
         $_OPTS['rendezes']  = array('nev', 'recid');
+        $_OPTS['iranyok']   = array('asc', 'asc'  );
 
         // Default rendezés
         if( !$_GET['rend'] ) {
@@ -397,6 +408,7 @@ switch($tabla) {
 
         // Ezek az oszlopok generálódnak ki a rendezés selectbe, lehet szépíteni az oszlopneveket, amit a getOszlopNev() függvényben kell beállítani
         $_OPTS['rendezes']  = array('recid');
+        $_OPTS['iranyok']   = array('asc'  );
 
         // Default rendezés
         if( !$_GET['rend'] ) {
@@ -414,6 +426,7 @@ switch($tabla) {
 
         // Ezek az oszlopok generálódnak ki a rendezés selectbe, lehet szépíteni az oszlopneveket, amit a getOszlopNev() függvényben kell beállítani
         $_OPTS['rendezes']  = array('recid');
+        $_OPTS['iranyok']   = array('asc'  );
 
         // Default rendezés
         if( !$_GET['rend'] ) {
@@ -452,7 +465,8 @@ switch($tabla) {
         $_OPTS['select']    = 'recid id nev';
 
         // Ezek az oszlopok generálódnak ki a rendezés selectbe, lehet szépíteni az oszlopneveket, amit a getOszlopNev() függvényben kell beállítani
-        $_OPTS['rendezes']  = array('id', 'nev', 'recid');
+        $_OPTS['rendezes']  = array('id',  'nev', 'recid');
+        $_OPTS['iranyok']   = array('asc', 'asc', 'asc'  );
 
         // Default rendezés
         if( !$_GET['rend'] ) {
@@ -469,7 +483,8 @@ switch($tabla) {
         $_OPTS['select']    = 'recid id nev';
 
         // Ezek az oszlopok generálódnak ki a rendezés selectbe, lehet szépíteni az oszlopneveket, amit a getOszlopNev() függvényben kell beállítani
-        $_OPTS['rendezes']  = array('id', 'nev', 'recid');
+        $_OPTS['rendezes']  = array('id',  'nev', 'recid');
+        $_OPTS['iranyok']   = array('asc', 'asc', 'asc'  );
 
         // Default rendezés
         if( !$_GET['rend'] ) {
@@ -492,6 +507,7 @@ switch($tabla) {
 
         // Ezek az oszlopok generálódnak ki a rendezés selectbe, lehet szépíteni az oszlopneveket, amit a getOszlopNev() függvényben kell beállítani
         $_OPTS['rendezes']  = array('teljes_nev', 'aktiv', 'szemelyzet_id', 'recid');
+        $_OPTS['iranyok']   = array('asc',        'asc',   'asc',           'asc'  );
 
         // Default rendezés
         if( !$_GET['rend'] ) {
@@ -584,6 +600,7 @@ switch($tabla) {
 
         // Ezek az oszlopok generálódnak ki a rendezés selectbe, lehet szépíteni az oszlopneveket, amit a getOszlopNev() függvényben kell beállítani
         $_OPTS['rendezes']  = array('recid');
+        $_OPTS['iranyok']   = array('asc'  );
 
         // Default rendezés
         if( !$_GET['rend'] ) {
@@ -601,6 +618,7 @@ switch($tabla) {
 
         // Ezek az oszlopok generálódnak ki a rendezés selectbe, lehet szépíteni az oszlopneveket, amit a getOszlopNev() függvényben kell beállítani
         $_OPTS['rendezes']  = array('nev', 'recid');
+        $_OPTS['iranyok']   = array('asc', 'asc'  );
 
         // Default rendezés
         if( !$_GET['rend'] ) {
@@ -613,6 +631,7 @@ switch($tabla) {
 
         // Ezek az oszlopok generálódnak ki a rendezés selectbe, lehet szépíteni az oszlopneveket, amit a getOszlopNev() függvényben kell beállítani
         $_OPTS['rendezes']  = array('recid');
+        $_OPTS['iranyok']   = array('asc'  );
 
         // Default rendezés
         if( !$_GET['rend'] ) {
@@ -641,6 +660,7 @@ switch($tabla) {
 
         // Ezek az oszlopok generálódnak ki a rendezés selectbe, lehet szépíteni az oszlopneveket, amit a getOszlopNev() függvényben kell beállítani
         $_OPTS['rendezes']  = array('id', 'aktiv', 'telephely_id', 'esnap_d', 'recid');
+        $_OPTS['iranyok']   = array('asc','asc',   'asc',          'asc',     'asc'  );
 
         // Default rendezés
         if( !$_GET['rend'] ) {
@@ -658,6 +678,7 @@ switch($tabla) {
 
         // Ezek az oszlopok generálódnak ki a rendezés selectbe, lehet szépíteni az oszlopneveket, amit a getOszlopNev() függvényben kell beállítani
         $_OPTS['rendezes']  = array('recid');
+        $_OPTS['iranyok']   = array('asc'  );
 
         // Default rendezés
         if( !$_GET['rend'] ) {
@@ -685,6 +706,7 @@ switch($tabla) {
 
         // Ezek az oszlopok generálódnak ki a rendezés selectbe, lehet szépíteni az oszlopneveket, amit a getOszlopNev() függvényben kell beállítani
         $_OPTS['rendezes']  = array('ikt_szam', 'stat_id', 'recid');
+        $_OPTS['iranyok']   = array('asc',      'asc',     'asc'  );
 
         // Default rendezés
         if( !$_GET['rend'] ) {
@@ -708,6 +730,7 @@ switch($tabla) {
 
         // Ezek az oszlopok generálódnak ki a rendezés selectbe, lehet szépíteni az oszlopneveket, amit a getOszlopNev() függvényben kell beállítani
         $_OPTS['rendezes']  = array('stat_id', 'telephely_id', 'recid');
+        $_OPTS['iranyok']   = array('asc',     'asc',          'asc'  );
 
         // Default rendezés
         if( !$_GET['rend'] ) {
@@ -732,6 +755,7 @@ switch($tabla) {
 
         // Ezek az oszlopok generálódnak ki a rendezés selectbe, lehet szépíteni az oszlopneveket, amit a getOszlopNev() függvényben kell beállítani
         $_OPTS['rendezes']  = array('telephely_id', 'fiz_hatar', 'recid');
+        $_OPTS['iranyok']   = array('asc',          'asc',       'asc'  );
 
         // Default rendezés
         if( !$_GET['rend'] ) {
@@ -756,6 +780,7 @@ switch($tabla) {
 
         // Ezek az oszlopok generálódnak ki a rendezés selectbe, lehet szépíteni az oszlopneveket, amit a getOszlopNev() függvényben kell beállítani
         $_OPTS['rendezes']  = array('telephely_id', 'sz_szam', 'recid');
+        $_OPTS['iranyok']   = array('asc',          'asc',     'asc'  );
 
         // Default rendezés
         if( !$_GET['rend'] ) {
@@ -773,6 +798,7 @@ switch($tabla) {
 
         // Ezek az oszlopok generálódnak ki a rendezés selectbe, lehet szépíteni az oszlopneveket, amit a getOszlopNev() függvényben kell beállítani
         $_OPTS['rendezes']  = array('nev', 'recid');
+        $_OPTS['iranyok']   = array('asc', 'asc'  );
 
         // Default rendezés
         if( !$_GET['rend'] ) {
@@ -790,6 +816,7 @@ switch($tabla) {
 
         // Ezek az oszlopok generálódnak ki a rendezés selectbe, lehet szépíteni az oszlopneveket, amit a getOszlopNev() függvényben kell beállítani
         $_OPTS['rendezes']  = array('recid');
+        $_OPTS['iranyok']   = array('asc'  );
 
         // Default rendezés
         if( !$_GET['rend'] ) {
@@ -810,7 +837,8 @@ switch($tabla) {
                                 ');
 
         // Ezek az oszlopok generálódnak ki a rendezés selectbe, lehet szépíteni az oszlopneveket, amit a getOszlopNev() függvényben kell beállítani
-        $_OPTS['rendezes']  = array('nev', 'id', 'recid');
+        $_OPTS['rendezes']  = array('nev', 'id',  'recid');
+        $_OPTS['iranyok']   = array('asc', 'asc', 'asc'  );
 
         // Default rendezés
         if( !$_GET['rend'] ) {
@@ -828,6 +856,7 @@ switch($tabla) {
 
         // Ezek az oszlopok generálódnak ki a rendezés selectbe, lehet szépíteni az oszlopneveket, amit a getOszlopNev() függvényben kell beállítani
         $_OPTS['rendezes']  = array('recid');
+        $_OPTS['iranyok']   = array('asc'  );
 
         // Default rendezés
         if( !$_GET['rend'] ) {
@@ -845,6 +874,7 @@ switch($tabla) {
 
         // Ezek az oszlopok generálódnak ki a rendezés selectbe, lehet szépíteni az oszlopneveket, amit a getOszlopNev() függvényben kell beállítani
         $_OPTS['rendezes']  = array('nev', 'recid');
+        $_OPTS['iranyok']   = array('asc', 'asc'  );
 
         // Default rendezés
         if( !$_GET['rend'] ) {
@@ -1267,9 +1297,10 @@ if( basename(self())=='munkalap_arch.php' ){
 }
 $surgos_disabled = '';
 $surgos_onclick  = '';
+$projekt_neve    = '';
 if(isset($_GET['modosit'])){
 
-    $munkalap = $adatbazis_kapcsolat->s2('szemelyzet_id mobil_loginnev stat_id mobil loginnev', $megnevezes, "`recid`='{$_GET['id']}'");
+    $munkalap = $adatbazis_kapcsolat->s2('szemelyzet_id mobil_loginnev stat_id mobil loginnev pr_szam', $megnevezes, "`recid`='{$_GET['id']}'");
     $hozrend_mobilnev = '';
     if($munkalap['szemelyzet_id']==MOBILCSOPORT && $munkalap['mobil_loginnev']){
         $torzsadat = $adatbazis_kapcsolat->s2('nev', 'torzsadat', "`felh_loginnev`='{$munkalap['mobil_loginnev']}'");
@@ -1312,6 +1343,10 @@ if(isset($_GET['modosit'])){
             $ml_leiras_ala .= '<span style="margin-left: 2rem"></span>E-mail: <a href="mailto:'.$login['usermail'].'" id="usermail">'.$login['usermail'].'</a>';
         }
     }
+    
+    // Projekt név kiszámítása
+    $proj = $adatbazis_kapcsolat->s2('recid nev', 'projektkezeles', "`ikt_szam`='{$munkalap['pr_szam']}'");
+    $projekt_neve = '<a href="projektkezeles.php?id=x&amp;modosit&amp;mezo=ikt_szam&amp;op=equal&amp;felt='.$munkalap['pr_szam'].'" target="_blank">'.resz_string($proj['nev'], 60).'</a>';
 }
 // Bejelentésből 2. munkalap készítésekor a szálloda disabled
 $ub_disabled = false;
@@ -1320,7 +1355,7 @@ if(isset($_GET['ujkent_bejelentes'])) {
     $ub_disabled = true;
     $obj_post    = '';
 }
-
+// $projekt_neve
 $munkalap_tomb = $munkalap_arch_tomb = $akt_tomb = array(
     array('type' => 'statusz',                  'megn' => 'Státusz:',                   'name' => 'stat_id',            'szuro' => 1,           'oldal' => $megnevezes),
     array('type' => 'text',                     'megn' => 'Munkalap szám:',             'name' => 'ikt_szam',           'szuro' => 1, 'disabled' => 1,        'maxlength' => 250,  'class' => 'kicsi', 'osszevon' => 1, 'post' => '<span style="margin-right: 4rem"></span>'),
@@ -1330,7 +1365,8 @@ $munkalap_tomb = $munkalap_arch_tomb = $akt_tomb = array(
     array('type' => 'select_felh_telephely',    'megn' => 'Szálloda:',                  'name' => 'telephely_id',       'szuro' => 1, 'disabled' => $csakUjkent.$ub_disabled,        'class' => 'disableNav',        'style' => 'width: 100%;', 'alert' => 'Kérem válasszon szállodát!', 'onchange' => 'szallodaVane( this );'),
     array('type' => 'autocomplete',             'megn' => 'Helyiség:',                  'name' => 'obj_id',             'szuro' => 1, 'disabled' => $csakUjkent.$ub_disabled,        'class' => 'oriasi disableNav', 'style' => 'width: calc(100% - 3rem);', 'tabla' => 'obj', 'oszlop_keres' => 'recid', 'oszlop_keres_autocomp' => 'nev', 'listaz' => 'nev', 'id_kiir' => 'recid', 'onclick' => 'szallodaVane( this );', 'post' => $obj_post),
     array('type' => 'autocomplete',             'megn' => 'Gépnév:',                    'name' => 'gep_id',             'szuro' => 1, 'disabled' => $csakUjkent,        'class' => 'oriasi disableNav', 'tabla' => 'eszkozkezeles', 'oszlop_keres' => 'recid', 'oszlop_keres_autocomp' => 'nev', 'listaz' => 'nev', 'onclick' => 'helyisegVane( this );'),
-    array('type' => 'autocomplete',             'megn' => 'Típus:',                     'name' => 'tipus_id',           'szuro' => 1, 'disabled' => $csakUjkent.$ub_disabled,        'class' => 'kozepes disableNav', 'style' => 'width: 30rem', 'tabla' => 'erteklista', 'oszlop_keres' => 'id', 'oszlop_keres_autocomp' => 'info', 'listaz' => 'info', 'csoport' => ERTEKLISTA_MUNKALAP_TIP, 'id_kiir' => 'id', 'alert' => 'Kérem adja meg a tipust!'),
+    array('type' => 'autocomplete',             'megn' => 'Típus:',                     'name' => 'tipus_id',           'szuro' => 1, 'disabled' => $csakUjkent.$ub_disabled,        'class' => 'kozepes disableNav', 'style' => 'width: 30rem', 'tabla' => 'erteklista', 'oszlop_keres' => 'id', 'oszlop_keres_autocomp' => 'info', 'complete' => 'garancialis_tipus_projekt_popup();', 'listaz' => 'info', 'csoport' => ERTEKLISTA_MUNKALAP_TIP, 'id_kiir' => 'id', 'alert' => 'Kérem adja meg a tipust!', 'osszevon' => 1, 'post' => '<span style="margin-left: 6rem"></span>'),
+    array('type' => 'text',                     'megn' => 'Projekt szám:',              'name' => 'pr_szam',            'szuro' => 1, 'disabled' => 1,   'class' => 'normal', 'style' => 'width: 10rem', 'post' => ' <span id="projekt_neve">'.$projekt_neve.'</span>'),
     array('type' => 'autocomplete',             'megn' => 'Külső kivitelező:',          'name' => 'szallito_id',        'szuro' => 1, 'disabled' => 1,                  'class' => 'oriasi disableNav', 'tabla' => 'szallito', 'oszlop_keres' => 'id', 'oszlop_keres_autocomp' => 'nev', 'listaz' => 'nev', 'id_kiir' => 'id', 'style' => 'width: 30rem', 'post' => '<span style="margin-right: 3rem"></span>', 'osszevon' => true),
     array('type' => 'text',                     'megn' => 'Jóváhagyott érték:',         'name' => 'jh_ert',             'szuro' => 1, 'disabled' => 1, 'style' => 'width: 8rem; text-align: right;', 'post' => ' '.get_penznem().' + Áfa<span style="margin-right: 3rem"></span>', 'osszevon' => true),
     array('type' => 'checkbox',                 'megn' => 'Becsült érték:',             'name' => 'becs_ertek',         'szuro' => 1, 'disabled' => 1, 'felirat_class' => ' piros dn f_becsult_ertek'), // Alapból elrejtjük, és csak akkor jelenítjük meg, ha be van pipálva (munkalap forráskódjában van erre külön kód)
@@ -3116,12 +3152,17 @@ if (isset($_POST['f_o_szures_submit'])) {
     $weblap->leallit();
     exit();
 }
-// Összetett szűrés törlése
-if (isset($_POST['f_o_szures_torol'])) {
+// Összetett szűrés törlése.
+if ( isset($_POST['f_o_szures_torol']) ) {
     unset($_SESSION['o_szuro_feltetel']);
     unset($_SESSION['o_szuro_html']);
     $weblap->leallit();
     exit();
+}
+// Akkor is törljük, ha van gyorsszűrő
+if ( ( $_GET['mezo'] && $_GET['op'] && $_GET['felt'] ) ) {
+    unset($_SESSION['o_szuro_feltetel']);
+    unset($_SESSION['o_szuro_html']);    
 }
 
 // Bejelentés más nevében

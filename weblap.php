@@ -66,7 +66,6 @@ if($weblap -> db_prefix){
     require_once('esemenyek.php');	// Ezt ne töröld, még ha üres is, kell, mert különben az admin nem működik
     require_once('meta.php');
     require_once('tartalom.php');
-
 /**
 *   Többnyelvű oldal esetére egy plusz függvény, amint ki kell venni a függvények tömbből, mert ott a taratlom.php még nem látszik
 *	Get tartalom érték

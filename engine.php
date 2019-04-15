@@ -816,7 +816,13 @@ function get_get($kivetel=array(), $amp=false){
         $kivetel = array($kivetel);
     }
 	foreach($_GET as $url => $ertek){
-        if(!in_array($url,$kivetel)){//ha nem kívétel
+        
+        // Erre azért van szükség, mert ha a GET-be JS kódot írnának és a weboldalon valahol van get_get kiírás (már pedig a canonikus URL kiíratásánál pl. van), akkor ilyen módon lehet JS-t futtatni.
+        $url   = htmlspecialchars($url);
+        $ertek = htmlspecialchars($ertek);
+        
+        // Ha nem kívétel
+        if(!in_array($url,$kivetel)){
 			if($i==0){
                 $cim  = '?'.$url.'='.$ertek;
             }else{

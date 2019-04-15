@@ -21,6 +21,9 @@ var navpanel_mentes_oldalak = ['dokumentumtar', 'eszkozkezeles'];
 var navpanel_mentes_oldal   = false;
 $(document).ready(function () {
     navpanel_mentes_oldal = jQuery.inArray( baseName(location.href), navpanel_mentes_oldalak );
+    if( navpanel_mentes_oldal<0 ){
+        navpanel_mentes_oldal = false;
+    }
 });
 
 /**
@@ -1497,10 +1500,13 @@ $(function() {
     $(document).on('click', '.f_szures_submit', function(e) {
 
         felt = $('.f_felt').val();
-        if(!felt){
+        if( !felt || felt == '\xa0\xa0\xa0\xa0.\xa0\xa0.\xa0\xa0' || felt == '\xa0\xa0\xa0\xa0.\xa0\xa0.\xa0\xa0\xa0\xa0:\xa0\xa0' || felt == '\xa0\xa0:\xa0\xa0' ){
+            
             alert2('Kérem állítsa be a szűrési feltételt!', '', 'Hiba');
+            
         }else{
-            /* Autocompletenek az ID-ját tegyük az URL-be */
+            
+            // Autocompletenek az ID-ját tegyük az URL-be
             if( $('.f_felt').attr('id') ){
                 felt_id = $('.f_felt').attr('id').replace('_autocomp', '');
                 if($('#'+felt_id).length){
@@ -1508,7 +1514,7 @@ $(function() {
                 }
             }
             
-            /* Numerikus adatokból vegyük ki a szóközt */
+            // Numerikus adatokból vegyük ki a szóközt
             if( $('.f_felt').hasClass('f_num') ){
                 felt = $('.f_felt').val().replace(/ /g, '');
             }
@@ -1684,7 +1690,7 @@ $(function() {
                 }
                 if( response.mehet ) {
                     szurkit();
-                    location.reload();
+                    location.href = get_get(['mezo', 'op', 'felt']);
                 }
             }
         });
@@ -5168,6 +5174,11 @@ function bejegyzesekLista( that, irany, rkat, ksz ) {
     var rend  = $(that).val(),
         tabla = $(that).attr('data-tabla');
 
+    // Ha a selectből választottunk ki egy rendezési szempontot, akkor először az alapértelmezett irány lesz a rendzési irány
+    if( irany == 'default' ) {
+        irany = $('option:selected', that).attr('data-irany');
+    }
+    // Egyébként amit 2. paraméterként kapunk. Ha ez üres, akkor az asc
     if( irany === undefined ) {
         irany = 'asc';
     }

@@ -89,6 +89,10 @@ if (isset($_GET['csv'])) {
         if( $_SESSION['akt_sql_order'] ){
             $lekerdezes_fromtol = substr($lekerdezes_fromtol, 0, strpos($lekerdezes_fromtol, 'ORDER'));
         }
+        // Ha nincs FROM rész, akkor azt még beletesszük
+        if( !$lekerdezes_fromtol ) {
+            $lekerdezes_fromtol = ' FROM `'.get_db_tabla().$megnevezes.'` ';
+        }
 
         $sql = 'SELECT
                 `'.get_db_tabla().$megnevezes.'`.`recid` as \'Id\',
@@ -113,7 +117,10 @@ if (isset($_GET['csv'])) {
                 '.$lekerdezes_fromtol.$_SESSION['akt_sql_order'];
 
         $query      = mysqli_query($db_kapcs, $sql);
-
+        
+//echo 'Fromtol: '.$lekerdezes_fromtol; 
+//echo 'Akt SQL order: '.$_SESSION['akt_sql_order']; 
+//exit;
         $csvhead    = array();
         while($fejlec_nevek = mysqli_fetch_field($query)){
             $csvhead[] = iconv2($mibol, $mibe, $fejlec_nevek -> name );

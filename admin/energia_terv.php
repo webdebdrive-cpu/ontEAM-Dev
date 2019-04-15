@@ -1041,6 +1041,15 @@ if (isset($_GET['csv'])) {
                 } else {
                     $lekerdezes_fromtol = str_replace('ORDER', "WHERE `recid` IN (".$_SESSION['nyomtatas_ids'].") ORDER", $lekerdezes_fromtol);
                 }
+                
+                // Ha van $_SESSION['akt_sql_order'], akkor eszerint rendezünk, tehát a $lekerdezes_fromtol-t elvágjuk az Order-nél
+                if( $_SESSION['akt_sql_order'] ){
+                    $lekerdezes_fromtol = substr($lekerdezes_fromtol, 0, strpos($lekerdezes_fromtol, 'ORDER'));
+                }
+                // Ha nincs FROM rész, akkor azt még beletesszük
+                if( !$lekerdezes_fromtol ) {
+                    $lekerdezes_fromtol = ' FROM `'.get_db_tabla().$megnevezes.'` ';
+                }
 
                 $sql = 'SELECT
                             `ikt_szam` as \'Energia terv szám\',
@@ -1050,7 +1059,7 @@ if (isset($_GET['csv'])) {
                             `dok_db` as \'Dokumentumok\',
                             `megj_db` as \'Megjegyzések\',
                             `insert_dt` as \'Energia terv dátuma\'
-                            '.$lekerdezes_fromtol;
+                            '.$lekerdezes_fromtol.$_SESSION['akt_sql_order'];
 
                 $query      = mysqli_query($db_kapcs, $sql);
 
@@ -1076,7 +1085,7 @@ if (isset($_GET['csv'])) {
 
                     fputcsv($open, $csvcont, ';');
 
-                    //100 soronként kiírtatunk
+                    // 100 soronként kiírtatunk
                     if ($i % 100 == 0) {
                         flush();
                     }

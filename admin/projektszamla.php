@@ -1006,6 +1006,15 @@ if (isset($_GET['csv'])) {
                 } else {
                     $lekerdezes_fromtol = str_replace('ORDER', "WHERE `".get_db_tabla().$megnevezes."`.`recid` IN (".$_SESSION['nyomtatas_ids'].") ORDER", $lekerdezes_fromtol);
                 }
+                
+                // Ha van $_SESSION['akt_sql_order'], akkor eszerint rendezünk, tehát a $lekerdezes_fromtol-t elvágjuk az Order-nél
+                if( $_SESSION['akt_sql_order'] ){
+                    $lekerdezes_fromtol = substr($lekerdezes_fromtol, 0, strpos($lekerdezes_fromtol, 'ORDER'));
+                }
+                // Ha nincs FROM rész, akkor azt még beletesszük
+                if( !$lekerdezes_fromtol ) {
+                    $lekerdezes_fromtol = ' FROM `'.get_db_tabla().$megnevezes.'` ';
+                }
 
                 $sql = 'SELECT
                             `'.get_db_tabla().$megnevezes.'`.`ceghez_erk` as \'Céghez érkezett\',
@@ -1032,7 +1041,7 @@ if (isset($_GET['csv'])) {
                                 
                             `'.get_db_tabla().$megnevezes.'_tetel`.`targy` as `Tétel tárgy`,
                             `'.get_db_tabla().$megnevezes.'_tetel`.`netto_ert` as `Tétel nettó érték`
-                            '.$lekerdezes_fromtol;
+                            '.$lekerdezes_fromtol.$_SESSION['akt_sql_order'];
 
                 $query      = mysqli_query($db_kapcs, $sql);
 // echo $sql; 
@@ -1099,6 +1108,15 @@ if (isset($_GET['csv'])) {
                 } else {
                     $lekerdezes_fromtol = str_replace('ORDER', "WHERE `".get_db_tabla().$megnevezes."`.`recid` IN (".$_SESSION['nyomtatas_ids'].") ORDER", $lekerdezes_fromtol);
                 }
+                
+                // Ha van $_SESSION['akt_sql_order'], akkor eszerint rendezünk, tehát a $lekerdezes_fromtol-t elvágjuk az Order-nél
+                if( $_SESSION['akt_sql_order'] ){
+                    $lekerdezes_fromtol = substr($lekerdezes_fromtol, 0, strpos($lekerdezes_fromtol, 'ORDER'));
+                }
+                // Ha nincs FROM rész, akkor azt még beletesszük
+                if( !$lekerdezes_fromtol ) {
+                    $lekerdezes_fromtol = ' FROM `'.get_db_tabla().$megnevezes.'` ';
+                }
 
                 $sql = 'SELECT
                             `'.get_db_tabla().$megnevezes.'`.`ceghez_erk` as \'Céghez érkezett\',
@@ -1122,7 +1140,7 @@ if (isset($_GET['csv'])) {
                             `'.get_db_tabla().$megnevezes.'`.`pr_szam` as \'Projekt szám\',
                             `'.get_db_tabla().$megnevezes.'`.`let_fel` as \'Felelős\',
                             `'.get_db_tabla().$megnevezes.'`.`kolt_vis` as \'Költségviselő\'
-                            '.$lekerdezes_fromtol;
+                            '.$lekerdezes_fromtol.$_SESSION['akt_sql_order'];
 
                 $query      = mysqli_query($db_kapcs, $sql);
 

@@ -189,7 +189,7 @@ if( _jog(JOG_MUNKALAP_MEGTEKINT) || _jog(JOG_MUNKALAP_MEGTEKINT_SZALL) || _jog(J
         }
     }
 
-    $menuk   .= str_replace( $akt_menu_mit, array( $style, '#'/*$aloldalak['0']*/, $megn, $menu_nev_tobbes, $aktmenuk ), $menu_sablon );
+    $menuk   .= str_replace( $akt_menu_mit, array( $style, '#', $megn, $menu_nev_tobbes, $aktmenuk ), $menu_sablon );
 }
 
 
@@ -242,7 +242,7 @@ if(_jog(JOG_CIKKTORZS_MEGTEKINT)){
         }
     }
 
-    $menuk   .= str_replace( $akt_menu_mit, array( $style, '#'/*$aloldalak['0']*/, $megn, $menu_nev_tobbes, $aktmenuk ), $menu_sablon );
+    $menuk   .= str_replace( $akt_menu_mit, array( $style, '#', $megn, $menu_nev_tobbes, $aktmenuk ), $menu_sablon );
 }
 
 // Csak bejelentő elől rejtve
@@ -282,7 +282,7 @@ if(!$_SESSION['bejelento_menu_rejt'] && ( _jog(JOG_ESZKOZ_MEGTEKINT) || _jog(JOG
         }
     }
 
-    $menuk   .= str_replace( $akt_menu_mit, array( $style, '#'/*$aloldalak['0']*/, $megn, $menu_nev_tobbes, $aktmenuk ), $menu_sablon );
+    $menuk   .= str_replace( $akt_menu_mit, array( $style, '#', $megn, $menu_nev_tobbes, $aktmenuk ), $menu_sablon );
 }
 
 // Csak bejelentő elől rejtve
@@ -425,7 +425,7 @@ if(
         }
     }
 
-    $menuk   .= str_replace( $akt_menu_mit, array( $style, '#'/*$aloldalak['0']*/, $megn, $menu_nev_tobbes, $aktmenuk ), $menu_sablon );
+    $menuk   .= str_replace( $akt_menu_mit, array( $style, '#', $megn, $menu_nev_tobbes, $aktmenuk ), $menu_sablon );
 }
 
 
@@ -473,7 +473,7 @@ if( !$_SESSION['bejelento_menu_rejt'] /* Bejelentő elől rejtve */ && (_jog(JOG
         }
     }
 
-    $menuk   .= str_replace( $akt_menu_mit, array( $style, '#'/*$aloldalak['0']*/, $megn, $menu_nev_tobbes, $aktmenuk ), $menu_sablon );
+    $menuk   .= str_replace( $akt_menu_mit, array( $style, '#', $megn, $menu_nev_tobbes, $aktmenuk ), $menu_sablon );
 }
 
 
@@ -517,7 +517,7 @@ if(_jog(JOG_TORZSADAT_MEGTEKINT) || _jog(JOG_SZABADSAGIG_MEGTEKINT) || _jog(JOG_
         }
     }
 
-    $menuk   .= str_replace( $akt_menu_mit, array( $style, '#'/*$aloldalak['0']*/, $megn, $menu_nev_tobbes, $aktmenuk ), $menu_sablon );
+    $menuk   .= str_replace( $akt_menu_mit, array( $style, '#', $megn, $menu_nev_tobbes, $aktmenuk ), $menu_sablon );
 }
 
 
@@ -696,7 +696,7 @@ if( in_array(basename(self()), $_SESSION['ketHasabos']) && $_SESSION[get_db_tabl
 }
 
 // Anyagigénylésnél a bal navpanelt elrejtük, itt helyette egy táblázatos fül van Anyagrend mod: 2018.04
-if(basename(self())=='anyagigenyles.php' /*&& !isset($_GET['anyagrend'])*/){
+if( basename(self())=='anyagigenyles.php' ){
     $tbalw  = ' style="width: 0px;"';
     $tjobbw = ' style="width: 100%"';
 }
@@ -714,7 +714,7 @@ if( in_array(basename(self()), $_SESSION['ketHasabos']) && $_SESSION[get_db_tabl
 
 
     // Rendezés
-    $rend_mezok = $adatbazis_kapcsolat->s('`column_name`', '`information_schema`.columns', '`table_schema` LIKE  \''.get_db().'\' AND  `table_name` LIKE  \''.get_db_tabla().$tabla.'\'', '', '');
+    $rend_mezok = $adatbazis_kapcsolat->s('`column_name`', '`information_schema`.columns', '`table_schema` LIKE  \''.get_db().'\' AND  `table_name` LIKE  \''.get_db_tabla().$tabla.'\'');
     $rend_mezok = adatbazis2tomb($rend_mezok, 'column_name');
 
     $rendezes = '';
@@ -724,6 +724,15 @@ if( in_array(basename(self()), $_SESSION['ketHasabos']) && $_SESSION[get_db_tabl
             $selected = '';
             if( $_GET['rend'] == $rend_mezo ) {
                 $selected = ' selected="selected"';
+            }
+            
+            // Alapértelmezett irány kikeresése
+            $i_tmp = 0;
+            foreach( $_OPTS['rendezes'] as $rend ) {
+                if( $rend == $rend_mezo ) {
+                    $irany = $_OPTS['iranyok'][$i_tmp];
+                }
+                $i_tmp++;
             }
 
             $kieg_text = '';
@@ -745,19 +754,13 @@ if( in_array(basename(self()), $_SESSION['ketHasabos']) && $_SESSION[get_db_tabl
                 $rend_mezo_txt = 'Cikkszám';
             }
 
-            $rendezes .= '<option value="'.$rend_mezo.'"'.$selected.'>'.$rend_mezo_txt.'</option>';
+            $rendezes .= '<option value="'.$rend_mezo.'"'.$selected.' data-irany="'.$irany.'">'.$rend_mezo_txt.'</option>';
 
             $i++;
         }
     }
 
-    // Rendezés onchange linkje
-    $irany = '';
-    if( $_GET['irany'] ) {
-        $irany = ', \''.$_GET['irany'].'\'';
-    }
-
-    $rend_change = 'bejegyzesekLista( this'.$irany.' );';
+    $rend_change = 'bejegyzesekLista( this, \'default\' );';
 
     if( $_GET['rend'] && in_array($_GET['rend'], $rend_mezok) ) {
         $_OPTS['order'] = $_GET['rend'];

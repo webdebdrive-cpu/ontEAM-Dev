@@ -50,12 +50,11 @@ if($tobb_kep){
 // CSV generálása
 if (isset($_GET['csv'])) {
 
-
     header("Content-type: text/csv");
     header("Content-Disposition: attachment; filename=$megnevezes.csv");
     header("Pragma: no-cache");
     header("Expires: 0");
-
+    
     $mibol   = get_web_charset();
     $mibe    = 'windows-1250';
 
@@ -82,6 +81,15 @@ if (isset($_GET['csv'])) {
             } else {
                 $lekerdezes_fromtol = str_replace('ORDER', "WHERE `recid` IN (".$_SESSION['nyomtatas_ids'].") ORDER", $lekerdezes_fromtol);
             }
+        }
+        
+        // Ha van $_SESSION['akt_sql_order'], akkor eszerint rendezünk, tehát a $lekerdezes_fromtol-t elvágjuk az Order-nél
+        if( $_SESSION['akt_sql_order'] ){
+            $lekerdezes_fromtol = substr($lekerdezes_fromtol, 0, strpos($lekerdezes_fromtol, 'ORDER'));
+        }
+        // Ha nincs FROM rész, akkor azt még beletesszük
+        if( !$lekerdezes_fromtol ) {
+            $lekerdezes_fromtol = ' FROM `'.get_db_tabla().$megnevezes.'` ';
         }
 
         $sql = 'SELECT
@@ -148,6 +156,7 @@ if (isset($_GET['csv'])) {
     // Get the contents of the output buffer
     $string = ob_get_clean();
     fclose($fh);
+    
 
     // Stream the CSV data
     exit($string);

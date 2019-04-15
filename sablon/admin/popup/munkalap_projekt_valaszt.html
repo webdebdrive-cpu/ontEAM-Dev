@@ -1,0 +1,87 @@
+<h2 id="eloterj_igneyles_csatolCim">Válasszon projektet</h2>
+<form class="popupForm" method="post">
+    <div class="kozep">
+        <div id="pr_szerzodes_tablazat"></div>
+    </div>
+    <div class="kuldes">
+        <input type="button" class="gomb zold"  value="Kiválaszt" onclick="projekt_kivalaszt()">
+        <input type="button" class="gomb piros" value="Mégsem" onclick="tipus_pr_mezok_nullaz(); popupZar();">
+    </div>
+</form>
+<script>
+$(document).ready(function(){
+    if( !$('#telephely_id').val() ){
+        $('#telephely_id').focus();
+        tipus_pr_mezok_nullaz();
+        setTimeout(function(){ popupZar(); }, 10);
+        alert2('Kérem, előbb válasszon szállodát!', '', 'Hiba');
+        return false;
+    }
+    
+    get_projekt_tabla('');
+});
+
+// Projektek betöltése
+function get_projekt_tabla(order, telephely_id){
+
+    $.ajax({
+        url : 'projektszerzodes.php',
+        type: 'POST',
+        data: {
+            recid             : _get('id'),
+            telephely_id      : $('#telephely_id').val(),
+            order             : order,
+            get_projekt_tabla : new Date().getTime()
+        },
+        success: function(response){
+            if(response.substring(0, 6)=='SESKIL'){ location.href = 'index.php'; }
+            if(response){
+                response = JSON.parse(response);
+                if( response.hiba ){
+                    popupZar();
+                    alert2( response.hiba, response.gomb, response.title );
+                    return false;
+                }else{
+                    $('#pr_szerzodes_tablazat').html(response.html);
+                    popupMutat();
+                }
+
+            }
+        }
+    });
+}
+
+// Projekt kiválasztása
+function projekt_kivalaszt(){
+    // Projektszám és projekt nevének kitöltése
+    $('#pr_szam').val( $('#pr_szerzodes_tablazat tr.kijelolve').data('ikt_szam') ).addClass('mod');
+    $('#projekt_neve').html( $('#pr_szerzodes_tablazat tr.kijelolve div.nev').html() );
+    
+    // Létesítmény felelős kitöltése
+    $('#let_fel_autocomp').val( $('#pr_szerzodes_tablazat tr.kijelolve div.pfelelos_txt').html() ).addClass('mod');
+    $('#let_fel').val( $('#pr_szerzodes_tablazat tr.kijelolve').data('felelos') );
+    
+    formModositva = true;
+    $('#mehet_gomb, #megsem_gomb').removeAttr ('disabled');
+    $('#mehet_gomb').addClass('gombb_alert');
+    popupZar();
+}
+
+// Szűrések
+function tabla_szur(tabla, kulcs, oszlop) {
+    var $rows = tabla.find('tr');
+    var val = $.trim(kulcs).replace(/ +/g, ' ').toLowerCase();
+
+    $rows.show().filter(function() {
+        var text = $(this).find('td:nth-of-type('+oszlop+')').text().replace(/\s+/g, ' ').toLowerCase();
+        return !~text.indexOf(val);
+    }).hide();
+}
+
+// Mégsem gombra kattintva a tipus és kiválasztott projekt mezőt ürítjük
+function tipus_pr_mezok_nullaz() {
+    $('#tipus_id_autocomp').val('');
+    $('#tipus_id').val('');
+    $('#pr_szam').val('');
+}
+</script>

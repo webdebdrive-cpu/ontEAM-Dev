@@ -293,7 +293,7 @@
                     $('#cikkid_origi').val(cikkid);
                 }
 
-                if(link){
+                if( link ){
                     szurkit();
                     location.href = link;
                 }else{

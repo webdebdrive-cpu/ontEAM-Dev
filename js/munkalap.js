@@ -1072,10 +1072,10 @@ function get_kulso_hozzarendeles_input_tartalmak(){
     
 }
 
-/* ML visszavételezés popup inputjait be kell állítani, alapértemlezett értékekkel feltölteni */
+// ML visszavételezés popup inputjait be kell állítani, alapértemlezett értékekkel feltölteni
 function get_ml_visszavetelezes_input_tartalmak(elokeszitesre){
     
-    /* ML adatainak elkérdezése */
+    // ML adatainak elkérdezése
     $.ajax({
         url : 'munkalap.php',
         type: 'POST',
@@ -1088,14 +1088,14 @@ function get_ml_visszavetelezes_input_tartalmak(elokeszitesre){
             if (munkalap) {
                 munkalap = JSON.parse(munkalap);
                 
-                /* Kérdés */
+                // Kérdés
                 if(elokeszitesre){
                     $('#pop_kerdes').html('Munkalapszám: '+munkalap.ikt_szam+'<br>Szálloda: '+munkalap.telephely_nev+'<br>Biztos, hogy visszaküldi a munkalapot előkészítésre?');
                 }else{
                     $('#pop_kerdes').html('Munkalapszám: '+munkalap.ikt_szam+'<br>Szálloda: '+munkalap.telephely_nev+'<br>Biztos, hogy visszaveszi a munkalapot?');
                 }
                 
-                /* Levélküldés mezőinek alapértelmezett értékének beállítsa */
+                // Levélküldés mezőinek alapértelmezett értékének beállítsa
                 $('#pop_cimzett').val(munkalap.mailcimek);
                 $('#pop_targy').val( munkalap.ikt_szam+' '+munkalap.telephely_nev+' ' );
 
@@ -1137,7 +1137,7 @@ function get_ml_visszavetelezes_input_tartalmak(elokeszitesre){
     
 }
 
-/* Megrendelés sztornó email elküldve gomb futtatása */
+// Megrendelés sztornó email elküldve gomb futtatása
 function megr_sztorno_mail_elkuldve(){
     $.ajax({
         url : 'munkalap.php',
@@ -1161,4 +1161,19 @@ function megr_sztorno_mail_elkuldve(){
             }
         }
     });
+}
+
+// ML Tipusa ha Garanciális, akkor felhozzuk a projektek popupot
+function garancialis_tipus_projekt_popup () {
+    // Ha garanciális hiba
+    if( $('#tipus_id').val()==6 ) {
+        
+        setTimeout(function(){ $('.xdsoft_datetimepicker').hide(); }, 250);
+        csoportMuvelet('munkalap_projekt_valaszt');
+        
+    // Ha nem garanciális hiba, akkor viszont ürítjük a projektszám mezőt
+    }else{
+        $('#pr_szam').val('');
+    }
+    return false;
 }

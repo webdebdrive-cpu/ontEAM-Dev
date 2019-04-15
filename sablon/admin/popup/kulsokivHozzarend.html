@@ -266,21 +266,22 @@ $(document).ready(function(){
     });
 });
 
-/* Külső kivitelező hozzárendelése */
-function kulsokivHozzarend() {
-
+// Külső kivitelező hozzárendelése
+function kulsokivHozzarend( kulso_valtas_mehet ) {
+console.log('f');
     $.ajax({
         url : 'munkalap.php',
         type: 'POST',
         data: {
-            recid            : _get('id'),
-            validate         : 'false',
-            szallito_id      : $('#pop_szallito_id').val(),
-            jh_ert           : $('#pop_jh_ert').val(),
-            varh_erk         : $('#pop_varh_erk').val(),
-            becsult_ertek    : $('#pop_becsult_ertek').prop('checked'),
-            javaslattetel    : 1,
-            kulsokivHozzarend: new Date().getTime()
+            recid               : _get('id'),
+            validate            : 'false',
+            szallito_id         : $('#pop_szallito_id').val(),
+            jh_ert              : $('#pop_jh_ert').val(),
+            varh_erk            : $('#pop_varh_erk').val(),
+            becsult_ertek       : $('#pop_becsult_ertek').prop('checked'),
+            javaslattetel       : 1,
+            kulso_valtas_mehet  : kulso_valtas_mehet,
+            kulsokivHozzarend   : new Date().getTime()
         },
         success: function(response) {
             if(response.substring(0, 6)=='SESKIL'){ location.href = 'index.php'; }

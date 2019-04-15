@@ -3337,6 +3337,25 @@ function szamla_lista( $where, $tabla, $kijeloltek = false, $csak_sql_miatt = fa
 
     }
 
+    // $sorrend_idk tömböt mindig létrehozzuk, ha még nem létezne, mert a CSV sorrendet mindig a navpaneles sorrend alapján állítjuk elő
+    if( !isset($_GET['szamlaSorFrissit']) ) {
+        if( !$sorrend_idk ) {
+            $sorrend_idk = array();
+            $lekerdezes = mysqli_query($db_kapcs, $sql);
+            while( $sor = mysqli_fetch_assoc($lekerdezes) ) {
+                array_push( $sorrend_idk, $sor['recid'] );
+            }
+        }
+        // Ha van $sorrend_idk információnk (azaz a bejelentés és munkalapokat nem SQL-el, hanem JS-el rendezzük), akkor a CSV export miatt az SQL-t csak előállítjuk, hogy meglegyen CSV sorrend beállításakor
+        if( !isset($_GET['csv']) ){
+            if( $sorrend_idk ){
+                $_SESSION['akt_sql_order'] = ' ORDER BY FIELD(`'.get_db_tabla().$tabla.'`.`recid`, \''.implode('\', \'', $sorrend_idk).'\') ';
+            }else{
+                $_SESSION['akt_sql_order'] = '';
+            }
+        }
+    }
+
     // Ha csak a darabszámra vagyunk kíváncsiak, akkor ezt írjuk ki, amit az admin.js f_szures_submit-nál kezelünk le
     if (isset($_GET['sql_db'])) {
         echo count($bejegyzesek);
@@ -3344,21 +3363,13 @@ function szamla_lista( $where, $tabla, $kijeloltek = false, $csak_sql_miatt = fa
         exit;
     }
 
-    // Weblap.php elején vizsgáljuk, hogy a kért ID-t egyáltlán láthatjuk-e vagy sem. Ekkor elég ha kapunk egy SQL-t
+    // Weblap.php elején vizsgáljuk, hogy a kért ID-t egyáltalán láthatjuk-e vagy sem. Ekkor elég ha kapunk egy SQL-t
     if($csak_sql_miatt){
         return $sql;
     }
     // Excel exporthoz (lehet Nyomtatáshoz, PDF-hez is kell majd?)
     if(!isset($_GET['szamlaSorFrissit']) && $tabla!='esemenyek' && !isset($_GET['csv'])){
         $_SESSION['akt_sql'] = $sql;
-    }
-    // Ha van $sorrend_idk információnk (azaz a bejelentés és munkalapokat nem SQL-el, hanem JS-el rendezzük), akkor a CSV export miatt az SQL-t csak előállítjuk, hogy meglegyen CSV sorrend beállításakor
-    if( !isset($_GET['csv']) ){
-        if( $sorrend_idk ){
-            $_SESSION['akt_sql_order'] = ' ORDER BY FIELD(`'.get_db_tabla().$tabla.'`.`recid`, \''.implode('\', \'', $sorrend_idk).'\') ';
-        }else{
-            $_SESSION['akt_sql_order'] = '';
-        }
     }
 
 if( isset($_GET['debug']) && $_SERVER['HTTP_HOST']!='www.onteam.hu' && $_SERVER['HTTP_HOST']!='onteam.hu' ) {

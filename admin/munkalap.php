@@ -2256,19 +2256,21 @@ if (isset($_POST['volt_mar_dontesre_var'])) {
 
 // Munkalap Javaslattétel
 if( isset($_POST['kulsokivHozzarend']) ) {
-    $recid      = $_POST['recid'];
-    $szallitoid = $_POST['szallito_id'];
-    $jh_ert     = (int) str_replace(array(' '), array(''), $_POST['jh_ert']);
-    $varh_erk   = str_replace(array('.'), array('-'), $_POST['varh_erk']);
-    $becs_ertek = ($_POST['becsult_ertek'] == 'true' ? 1 : 0 );
-    $emailkuldes_megj = '';
+    
+    $recid              = $_POST['recid'];
+    $szallitoid         = $_POST['szallito_id'];
+    $kulso_valtas_mehet = $_POST['kulso_valtas_mehet'];
+    $jh_ert             = (int) str_replace(array(' '), array(''), $_POST['jh_ert']);
+    $varh_erk           = str_replace(array('.'), array('-'), $_POST['varh_erk']);
+    $becs_ertek         = ($_POST['becsult_ertek'] == 'true' ? 1 : 0 );
+    $emailkuldes_megj   = '';
     
     $db_error = false;
     mysqli_autocommit($db_kapcs, false);
 
     if( $recid ) {
 
-        $munkalap = $sor = $adatbazis_kapcsolat->s2('stat_id szemelyzet_id telephely_id', 'munkalap', "`recid` = '{$recid}'", '', '1');
+        $munkalap = $sor = $adatbazis_kapcsolat->s2('stat_id szemelyzet_id telephely_id szallito_id', 'munkalap', "`recid` = '{$recid}'", '', '1');
         if( $munkalap === false ) { $db_error = true; }
 
         $telephely = $adatbazis_kapcsolat->s2('modell', 'telephely', "`id`='{$munkalap['telephely_id']}'");
@@ -2300,7 +2302,7 @@ if( isset($_POST['kulsokivHozzarend']) ) {
         }
         
         // Ha van levélküldés, akkor ellenőrizzük a többi mezőt is
-        if($_POST['email'] && !isset($_POST['javaslattetel'])){
+        if( $_POST['email'] && !isset($_POST['javaslattetel']) ) {
             if(!trim($_POST['cimzett'])){
                 echo json_encode(array(
                     'hiba'  => 'Kérem adja meg a címzett email címét!',
@@ -2444,7 +2446,7 @@ if( isset($_POST['kulsokivHozzarend']) ) {
         }
 
         // Van-e külső kivitelező meghatározva
-        if(!$szallitoid){
+        if( !$szallitoid ){
             echo json_encode(array(
                 'hiba'  => 'Kérem válasszon külső kivitelezőt!',
                 'title' => 'Hiba',
@@ -2489,6 +2491,21 @@ if( isset($_POST['kulsokivHozzarend']) ) {
                 exit();
             }
             
+            // Változott-e a külső kivitelező?
+            $megj_eleje = 'Javasolt kivitelező: '. getErtek('nev', 'szallito', 'id', $szallitoid);
+            if( $munkalap['szallito_id'] != $szallitoid && !$kulso_valtas_mehet ) {
+                echo json_encode(array(
+                    'hiba'  => 'Új partner megadására készül.<br>Régi partner: '. getErtek('nev', 'szallito', 'id', $munkalap['szallito_id']).'<br>Új partner: '. getErtek('nev', 'szallito', 'id', $szallitoid).'<br>Folytatja?',
+                    'gomb'  => '<input type="button" value="Igen" class="gomb zold" onclick="kulsokivHozzarend(\'mehet\');"><input type="button" value="Nem" class="gomb piros" onclick="alert2()">',
+                ));
+                $weblap->leallit();
+                exit();
+            }
+            // Ha változik a szállító, akkor a megjegyzést másképp kezdjük
+            if( $munkalap['szallito_id'] != $szallitoid ) {
+                $megj_eleje = 'Régi partner: '. getErtek('nev', 'szallito', 'id', $munkalap['szallito_id']).'.<br>Új partner: '. getErtek('nev', 'szallito', 'id', $szallitoid).'.';
+            }
+            
             // Javaslattétel update mezői. Javaslattétel esetén a direktes mezőt is töröljük mindig
             $mezok      = array('szallito_id', 'jh_ert', 'varh_erk', 'becs_ertek', 'jh1_login', 'jh1_datum',           'jh1_szerep',    'jh2_login', 'jh2_datum',           'jh2_szerep',   'szemelyzet_id', 'direktbe' );
             $ertekek    = array($szallitoid,   $jh_ert,  $varh_erk,  $becs_ertek,  '',          '0000-00-00 00:00:00', 0,               '',          '0000-00-00 00:00:00', 0,              0,               0          );
@@ -2504,7 +2521,7 @@ if( isset($_POST['kulsokivHozzarend']) ) {
             }
             
             // Megjegyzés hozzáadása
-            $megj = 'Javasolt kivitelező: '. getErtek('nev', 'szallito', 'id', $szallitoid).'<br>Érték: '. number_format($jh_ert, 0, '', ' ').' '.get_penznem().$megj_kieg.'<br>Érkezés: '.str_replace('-', '.', $varh_erk).'<br>'.$emailkuldes_megj;
+            $megj = $megj_eleje.'<br>Érték: '. number_format($jh_ert, 0, '', ' ').' '.get_penznem().$megj_kieg.'<br>Érkezés: '.str_replace('-', '.', $varh_erk).'<br>'.$emailkuldes_megj;
             if(addMegj('munkalap', $recid, $megj)===false){
                 $db_error = true;
             }
@@ -6955,7 +6972,7 @@ if (isset($_GET['csv'])) {
                 `varh_erk` as \'Várható érkezés\',
                 `'.get_db_tabla().$megnevezes.'`.`insert_dt` as \'Munkalap létrehozás dátuma\'
                 '.$lekerdezes_fromtol.$_SESSION['akt_sql_order'];
-
+// echo $sql . '<br>';
         $query      = mysqli_query($db_kapcs, $sql);
 
         $csvhead    = array();

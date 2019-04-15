@@ -60,17 +60,17 @@ foreach($akt_tomb as $ertek){
             }
 
             if(!$sor[ $ertek['name'] ]) {
-                $input -> value   = $ertek['value'];
+                $input -> value = $ertek['value'];
             }else{
                 if($ertek['szam']) {
-                    $input -> value   = number_format($sor[ $ertek['name'] ], '', '', '.');
+                    $input -> value = number_format($sor[ $ertek['name'] ], '', '', '.');
                 }else{
                     if( strstr($ertek['class'], 'datepicker') ) {
                         if( $sor[ $ertek['name'] ] != '0000-00-00' ) {
-                            $input -> value   = date('Y.m.d', strtotime($sor[ $ertek['name'] ]));
+                            $input -> value = date('Y.m.d', strtotime($sor[ $ertek['name'] ]));
                         }
                     } else {
-                        $input -> value   = $sor[ $ertek['name'] ];
+                        $input -> value = $sor[ $ertek['name'] ];
                     }
                 }
             }
@@ -137,7 +137,8 @@ foreach($akt_tomb as $ertek){
                                 \'op\'              : \''.$_GET['op'].'\',
                                 \'felt\'            : \''.$_GET['felt'].'\',
                                 \'beosztas_id\'     : \''.$ertek['beosztas_id'].'\',
-                                \'id_kiir\'         : \''.$id_kiir.'\'
+                                \'id_kiir\'         : \''.$id_kiir.'\',
+                                \'complete\'        : function(){ '.$ertek['complete'].' }
                             });
                         }, 1000);
                     });
