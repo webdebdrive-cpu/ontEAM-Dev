@@ -1538,7 +1538,7 @@ $(function() {
                     success: function (response) {
                         if(response.substring(0, 6)=='SESKIL'){ location.href = 'index.php'; }
                         if(response>SZURES_DB_LIMIT){
-                            alert2('Ezzel a szűrési feltétellel több mint '+SZURES_DB_LIMIT+' sor adatot listázna ki.<br>Biztosan folytatja?', '<input type="button" class="gomb zold" value="Igen" onclick="$(\'.f_szures_submit\').addClass(\'mehet\').click();"><input type="button" class="gomb piros" value="Nem" onclick="alert2(); $(\'.f_szures_submit\').removeClass(\'mehet\');">', 'Kérdés');
+                            alert2('Ezzel a szűrési feltétellel több mint '+ezresek(response, 0, '', ' ')+' sor adatot listázna ki.<br>Biztosan folytatja?', '<input type="button" class="gomb zold" value="Igen" onclick="$(\'.f_szures_submit\').addClass(\'mehet\').click();"><input type="button" class="gomb piros" value="Nem" onclick="alert2(); $(\'.f_szures_submit\').removeClass(\'mehet\');">', 'Kérdés');
                         }else{
                             szurkit();
                             location.href=szures_link;

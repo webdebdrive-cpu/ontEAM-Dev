@@ -127,7 +127,7 @@ function i_u($type, $tabla, $tomb) {
             }
 
     		// Az oszlop/érték párokat felvesszük egy tömbbe, ha:
-    		if(  
+    		if(
                 $ertek['type'] != 'submit' && $ertek['type'] != 'button' && $ertek['type'] != 'file' && $ertek['type'] != 'flashfile' && $ertek['type'] != 'jsfile' && // ... ha megfelelő fajtájú input
                 !(
                     $ertek['disabled'] &&
@@ -1025,7 +1025,6 @@ function i_u($type, $tabla, $tomb) {
 
                     // Ha az újonnan kapott adat, és DB-ben tárolt adat nem egyezik
                     // És vagy ez előző vagy az új adatnak van értéke (ne azért íródjon már be, mert üres az új érték, de 0 volt az adatbázisban)
-
                     if( $post_key != $value && ($post_key || $value) ) {
                         $valtozas .= '[mezo]'.$key.'[/mezo] [ertek_regi]'.$value.'[/ertek_regi] [ertek_uj]'.$post_key.'[/ertek_uj]'."\n";
 
@@ -1080,18 +1079,57 @@ function i_u($type, $tabla, $tomb) {
                                     }
                                 }
 
-                                if($mezo_neve){
-                                    if(!$uj_ertek){
+                                if( $mezo_neve ) {
+                                    if( !$uj_ertek ) {
                                         $uj_ertek = '[üres]';
                                     }
-                                    if(!$value){
+                                    if( !$value ) {
                                         $value = '[üres]';
                                     }
                                     $valtozas_megj  .= $mezo_neve.' mező előző értéke: <b>'.$value.'</b>. Új értéke: <b>'.$uj_ertek.'</b><br>';
                                 }
                             }
                         }
+                        
+                        // Ha a projektkezelésnél változott volna meg a Projektfelelős, akkor ezt át kell vinni a hozzá tartozó szerződésekbe, számlákba is
+                        if( basename(self()) == 'projektkezeles.php' && $key == 'pfelelos' ) {
+                            
+                            // Szerződések bejárása
+                            $szerzodesek = $adatbazis_kapcsolat->s('recid let_fel', 'projektszerzodes', "`pr_szam`='{$record[0]['ikt_szam']}'");
+                            if( $szerzodesek === false ) { $db_error = true; }
+                            foreach ( $szerzodesek as $szerzodes ) {
+                                
+                                $megj_kapcsolodoba = $mezo_neve.' mező előző értéke: <b>'.getErtek('teljes_nev', 'login', 'recid', $szerzodes['let_fel']).'</b>. Új értéke: <b>'.$uj_ertek.'</b><br>';
+                                
+                                $sql = $adatbazis_kapcsolat->u('projektszerzodes', array('let_fel'), array($_POST['pfelelos']), "`recid`='{$szerzodes['recid']}'");
+                                if( $sql === false ) { $db_error = true; }
+                                
+                                if( addMegj('projektszerzodes', $szerzodes['recid'], $megj_kapcsolodoba) === false ){
+                                    $db_error = true;
+                                }
+                                
+                            }
+                            
+                            // Számlák bejárása
+                            $szamlak = $adatbazis_kapcsolat->s('recid let_fel', 'projektszamla', "`pr_szam`='{$record[0]['ikt_szam']}'");
+                            if( $szamlak === false ) { $db_error = true; }
+                            foreach ( $szamlak as $szamla ) {
+                                
+                                $megj_kapcsolodoba = $mezo_neve.' mező előző értéke: <b>'.getErtek('teljes_nev', 'login', 'recid', $szamla['let_fel']).'</b>. Új értéke: <b>'.$uj_ertek.'</b><br>';
+                                
+                                $sql = $adatbazis_kapcsolat->u('projektszamla', array('let_fel'), array($_POST['pfelelos']), "`recid`='{$szamla['recid']}'");
+                                if( $sql === false ) { $db_error = true; }
+                                
+                                if( addMegj('projektszamla', $szamla['recid'], $megj_kapcsolodoba) === false ){
+                                    $db_error = true;
+                                }
+                                
+                            }
+                            
+                        }
+                        
                         $i++;
+                        
                     }
                 }
             }
@@ -2872,7 +2910,7 @@ function szamla_lista( $where, $tabla, $kijeloltek = false, $csak_sql_miatt = fa
 
         }
         // Ha van öszetett szűrés feltétel
-        if($_SESSION['o_szuro_feltetel']){
+        if( $_SESSION['o_szuro_feltetel'] ) {
             // Az eddigi Where-t egy nagy zárójelbe tesszük és ehhez vesszük hozzá az új feltételeket
             if($where){
                 $where = '('.csonkit($where, 5).') AND ';
@@ -2952,7 +2990,7 @@ function szamla_lista( $where, $tabla, $kijeloltek = false, $csak_sql_miatt = fa
     // Telephely táblával JOIN-olva, ha telephely_id alapján rendezünk vagy a selectben szerepel ez az oszlop
     $bejegyzesek = array();
     $kivetelek = array('projektkezeles');
-    if( (strpos($order, 'telephely_id')!==false || strpos($select, 'telephely_id')!==false) && !in_array($tabla, $kivetelek) ){
+    if( (strpos($order, 'telephely_id')!==false || strpos($select, 'telephely_id')!==false) && !in_array($tabla, $kivetelek) ) {
 
         // Először is az ordert felülírjuk, ha eszerint akartunk rendezni
         if(strpos($order, 'telephely_id')!==false){
@@ -3158,10 +3196,12 @@ function szamla_lista( $where, $tabla, $kijeloltek = false, $csak_sql_miatt = fa
             }
             $order .= '`'.get_db_tabla().$tabla.'`.`insert_dt` DESC';
         }
+
+        // Limit szám kiszámítása az összetett szűrőből
         $osszetett_legfrissebb = strpos($_SESSION['o_szuro_feltetel'], 'me|legfrissebb#op|equal#fe|');
-        if($osszetett_legfrissebb!==false){
+        if( $osszetett_legfrissebb!==false ) {
             // Keressük meg a "legfrissebb" szűrő feltétel vége pozíciót
-            $vege  = strpos($_SESSION['o_szuro_feltetel'], '#es', $osszetett_legfrissebb+27);
+            $vege  = strpos( $_SESSION['o_szuro_feltetel'], '#es', $osszetett_legfrissebb+27 );
 
             // A feltétel vége pozíciójából kivonva a kezdőpozíciója + a 27 lesz a limit amit keresünk => "me|legfrissebb#op|equal#fe|NA ENNEK A SZÁMNAK A HOSSZA#es"
             // Ezt a limit hosszt vágjuk ki a $_SESSION['o_szuro_feltetel'] stringből.
@@ -3329,6 +3369,26 @@ function szamla_lista( $where, $tabla, $kijeloltek = false, $csak_sql_miatt = fa
         // Összetett szűrő kapcsolódó táblája miatt kell még pár JOIN
         if ( $_GET['mezo']=='team_tag' || strpos($_SESSION['o_szuro_feltetel'], 'team_tag')!==false ) {
             $join .= ' JOIN `'.get_db_tabla().'projektkezeles_team` ON `'.get_db_tabla().'projektkezeles_team`.`projektkezeles_recid`=`'.get_db_tabla().'projektkezeles`.`recid`';
+        }
+        
+        // Gyorsszűrő limitje
+        if( $_GET['mezo'] == 'legfrissebb' ) {
+            $limit = $_GET['felt'];
+            if($order){
+                $order .= ', ';
+            }
+            $order .= '`'.get_db_tabla().$tabla.'`.`insert_dt` DESC';
+        }
+        
+        // Összetett szűrő limitjét kiszámoljuk
+        $osszetett_legfrissebb = strpos($_SESSION['o_szuro_feltetel'], 'me|legfrissebb#op|equal#fe|');
+        if( $osszetett_legfrissebb!==false ) {
+            // Keressük meg a "legfrissebb" szűrő feltétel vége pozíciót
+            $vege  = strpos( $_SESSION['o_szuro_feltetel'], '#es', $osszetett_legfrissebb+27 );
+
+            // A feltétel vége pozíciójából kivonva a kezdőpozíciója + a 27 lesz a limit amit keresünk => "me|legfrissebb#op|equal#fe|NA ENNEK A SZÁMNAK A HOSSZA#es"
+            // Ezt a limit hosszt vágjuk ki a $_SESSION['o_szuro_feltetel'] stringből.
+            $limit = substr($_SESSION['o_szuro_feltetel'], $osszetett_legfrissebb+27, $vege-($osszetett_legfrissebb+27) );
         }
 
         // Ha csak egy konkrét rekordot frissítünk a bal navpanelben, akkor a limit 1 legyen. Join esetén többször ugyanaz is kijöhet, ezért lényeges limitálni.
@@ -7114,12 +7174,39 @@ function get_szures_where_kieg($mezo, $op, $felt, $tabla){
     }
 
 }
+
 // Összetett szűrés SQL-jét állítja elő egy stringből.
-function get_o_szures_where_kieg($feltetel, $tabla){
+function get_o_szures_where_kieg ($feltetel, $tabla ) {
 
     $sql = '';
     $elemek = explode('#', $feltetel);
+    
+    // Legfrisebb feltételt kiszűrjük, ez majd egy Limit lesz az SQL végén.
+    $legfrissebb_flag = 0;
+    $limit            = '';
+    $elemek_vegleges = array();
     foreach($elemek as $elem){
+        
+        // Ha a mező a legfrisebb, akkor bekapcsolunk egy flag-et, hogy a következő mezőig ne vegyünk fel elemeket a tömbbe
+        if( $elem == 'me|legfrissebb' ){
+            
+            $legfrissebb_flag = 1;
+            
+        // Viszont a limitet kimentjük
+        } elseif( $legfrissebb_flag && substr($elem, 0, 3) == 'fe|' ) {
+            
+            $limit            = substr($elem, 3);
+            
+        // Ha nincs legfrissebb flag vagy már a következő mezőnél járunk, akkor mehetnek a tömbbe az elemek, amit a következő cilusban össze is rakunk SQL feltétellé
+        } elseif( !$legfrissebb_flag || substr($elem, 0, 3) == 'me|' ) {
+            
+            $legfrissebb_flag = 0;
+            array_push($elemek_vegleges, $elem);
+            
+        }
+    }
+
+    foreach($elemek_vegleges as $elem){
 
         switch(substr($elem, 0, 3)){
             case 'ny|':
@@ -7135,12 +7222,14 @@ function get_o_szures_where_kieg($feltetel, $tabla){
             break;
 
             case 'fe|':
+
                 $feltetel = substr($elem, 3);
 
                 $sql .= get_szures_where_kieg($mezo, $op, $feltetel, $tabla);
                 $mezo     = '';
                 $op       = '';
                 $feltetel = '';
+                
             break;
 
             case 'za|':
@@ -7157,9 +7246,13 @@ function get_o_szures_where_kieg($feltetel, $tabla){
 
         }
     }
+    
     $sql = str_replace(array(' AND  AND ', ' OR   AND ', ' AND  OR  ', ' AND ) AND '), array(' AND ', ' OR  ', ' OR  ', ') AND '), $sql);
-    // return $sql;
-    return csonkit($sql, 5);
+    $sql = csonkit($sql, 5);
+    
+// echo $sql;
+    return $sql;
+    
 }
 
 // Az adatbázisba letárolt props stringből visszaadja azt a mezőértéket, amire szükségünk van

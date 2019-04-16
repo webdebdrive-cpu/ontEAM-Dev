@@ -2493,7 +2493,7 @@ if( isset($_POST['kulsokivHozzarend']) ) {
             
             // Változott-e a külső kivitelező?
             $megj_eleje = 'Javasolt kivitelező: '. getErtek('nev', 'szallito', 'id', $szallitoid);
-            if( $munkalap['szallito_id'] != $szallitoid && !$kulso_valtas_mehet ) {
+            if( $munkalap['szallito_id'] && $munkalap['szallito_id'] != $szallitoid && !$kulso_valtas_mehet ) {
                 echo json_encode(array(
                     'hiba'  => 'Új partner megadására készül.<br>Régi partner: '. getErtek('nev', 'szallito', 'id', $munkalap['szallito_id']).'<br>Új partner: '. getErtek('nev', 'szallito', 'id', $szallitoid).'<br>Folytatja?',
                     'gomb'  => '<input type="button" value="Igen" class="gomb zold" onclick="kulsokivHozzarend(\'mehet\');"><input type="button" value="Nem" class="gomb piros" onclick="alert2()">',

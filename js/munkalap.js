@@ -1171,9 +1171,10 @@ function garancialis_tipus_projekt_popup () {
         setTimeout(function(){ $('.xdsoft_datetimepicker').hide(); }, 250);
         csoportMuvelet('munkalap_projekt_valaszt');
         
-    // Ha nem garanciális hiba, akkor viszont ürítjük a projektszám mezőt
+    // Ha nem garanciális hiba, akkor viszont ürítjük a projektszám mezőt és a mellette levő nevet is
     }else{
         $('#pr_szam').val('');
+        $('#projekt_neve').html('');
     }
     return false;
 }
