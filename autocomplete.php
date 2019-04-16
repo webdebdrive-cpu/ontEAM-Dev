@@ -123,8 +123,8 @@ if(isset($_GET['value']) && isset($_GET['tabla']) && isset($_GET['oszlop_keres']
                 }
             }
         }
-        // Illetve aktívakra is
-        if( $_GET['tabla'] == 'login' && $_GET['aktiv'] ) {
+        // Illetve aktívakra is (ha viszont a szűrőben jelenik meg az autocomplete, akkor az inaktivakat is látni szeretnénk)
+        if( $_GET['tabla'] == 'login' && $_GET['aktiv'] && !$_GET['szuros'] ) {
             if( $where_sql ) {
                 $where_sql .= " AND `aktiv` = '1'";
             } else {

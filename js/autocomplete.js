@@ -180,6 +180,7 @@
                                         szemelyzet_id   : options.szemelyzet_id,
                                         tabla           : options.tabla,
                                         menupont_szuro  : options.menupont_szuro,
+                                        szuros          : options.szuros,
                                         telephely_id    : telephely_id,
                                         value           : val
                                     },

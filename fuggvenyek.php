@@ -983,8 +983,8 @@ function i_u($type, $tabla, $tomb) {
             
             // Mely felületeken kerüljön megjegyzésbe a módosítás
             $mod_megjegyzesbe_mehet = false;
-            $mod_megjegyzesbe = array( 'projektszamla.php', 'projektszerzodes.php' );
-            $kiveteles_mezok  = array( 'update_dt' );
+            $mod_megjegyzesbe = array( 'projektkezeles.php', 'projektszamla.php', 'projektszerzodes.php' );
+            $kiveteles_mezok  = array( 'stat_id', 'update_dt' );
             if( in_array( basename(self()), $mod_megjegyzesbe) ){
                 $mod_megjegyzesbe_mehet = true;
             }
@@ -1025,16 +1025,18 @@ function i_u($type, $tabla, $tomb) {
 
                     // Ha az újonnan kapott adat, és DB-ben tárolt adat nem egyezik
                     // És vagy ez előző vagy az új adatnak van értéke (ne azért íródjon már be, mert üres az új érték, de 0 volt az adatbázisban)
+
                     if( $post_key != $value && ($post_key || $value) ) {
                         $valtozas .= '[mezo]'.$key.'[/mezo] [ertek_regi]'.$value.'[/ertek_regi] [ertek_uj]'.$post_key.'[/ertek_uj]'."\n";
 
                         // Ha a megjegyzésbe is bele szeretnénk írni a változást, akkor pár formázást még el kell végezni
                         if( $mod_megjegyzesbe_mehet && !in_array($key, $kiveteles_mezok) ){
-
                             // Üres dátum mező esetének kivédése
                             if( !($post_key>'4000-00-00' && $value == '0000-00-00') ){
+                                
                                 $mezo_neve = '';
                                 $uj_ertek = $post_key;
+
                                 
                                 foreach( $tomb as $elem ){
                                     // Ha az aktuális elemnél járunk
@@ -1077,7 +1079,7 @@ function i_u($type, $tabla, $tomb) {
                                         }
                                     }
                                 }
-                                
+
                                 if($mezo_neve){
                                     if(!$uj_ertek){
                                         $uj_ertek = '[üres]';
@@ -1102,7 +1104,6 @@ function i_u($type, $tabla, $tomb) {
             if( $sql === false ) { $db_error = true; }
             
             // Mely felületeken kerüljön megjegyzésbe a módosítás
-            $mod_megjegyzesbe = array( 'projektszamla.php', 'projektszerzodes.php' );
             if( in_array( basename(self()), $mod_megjegyzesbe) ){
                 if( addMegj($tabla, $_GET['id'], $valtozas_megj) === false ){
                     $db_error = true;
@@ -1214,12 +1215,13 @@ function i_u($type, $tabla, $tomb) {
         if( $tabla == 'projektkezeles' ) {
             
             // Levélküldés a módosítsáról. Két eset van: projektfelelős változott vagy sem. Ha igen, akkor a régi és új felelős is kap mailt, egyébként csak a meglévő felelős
-            $prk = $adatbazis_kapcsolat->s('pfelelos', 'projektkezeles', "`recid`='{$_GET['id']}'");
+            $prk = $adatbazis_kapcsolat->s2('pfelelos', 'projektkezeles', "`recid`='{$_GET['id']}'");
             if( $prk === false ) { $db_error = true; }
             
             
             // Ha nem változott a Pfelelős
             if( $_POST['pfelelos'] == $prk['pfelelos'] ){
+
                 $mail_hibaizenet = level_felkeszit_es_kuld('projektkezeles', $_GET['id'], '', 'projektkezelesModosit', 'projektkezeles_felelose', '');
                 if( $mail_hibaizenet ){
                     echo json_encode(array(
@@ -1229,7 +1231,9 @@ function i_u($type, $tabla, $tomb) {
                     $weblap -> leallit();
                     exit();
                 }
+                
             }else{
+                
                 $mail_hibaizenet = level_felkeszit_es_kuld('projektkezeles', $_GET['id'], '', 'projektkezelesModosit', 'projektkezeles_felelose', '', $_POST['pfelelos']);
                 if( $mail_hibaizenet ){
                     echo json_encode(array(
