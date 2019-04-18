@@ -313,6 +313,30 @@ if ($_GET['ujkent_bejelentes']) {
     exit();
 }
 
+// Új feltöltéskor ellenőrizzük, hogy a szálloda és projektszám megegyezik-e
+if (isset($_POST['telephely_ell'])) {
+    
+    $projekt = $adatbazis_kapcsolat->s2('telephely_id', 'projektkezeles', "`ikt_szam`='{$_POST['pr_szam']}'");
+    if( $projekt['telephely_id'] != $_POST['telephely_id'] ) {
+        
+        echo json_encode( array(
+                                'hiba'  => 'A projektszám nem megfelelő szállodához tartozik!',
+                                'title' => 'Hiba',
+                                'focus' => 'telephely_id',
+                            ) );
+        
+    } else {
+        
+        echo json_encode( array(
+                                'mehet'  => '1'
+                            ) );
+        
+    }
+    
+    $weblap->leallit();
+    exit();
+}
+
 // Munkalap törlés előtti kérdés
 if (isset($_POST['get_ml_torles'])) {
     
@@ -7668,6 +7692,65 @@ require('selectek.php');
 
 	// Új munkalap felvitele
 	if( isset($_GET['uj']) && ( _jog(JOG_MUNKALAP_UJ_LETREHOZ) ) ) {
+        
+        $js_submit_elott = nl2('
+                var dfrd_ml_mehet = false;
+                var hibauzenet    = \'\';
+                dfrd_pr_munkalap = $.Deferred();
+                $.ajax({
+                    url     : \'munkalap.php\',
+                    type    : \'POST\',
+                    async   : false,
+                    data    : {
+                        telephely_id    : $(\'#telephely_id\').val(),
+                        pr_szam         : $(\'#pr_szam\').val(),
+                        telephely_ell   : Date.now()
+                    },
+                    success: function(response) {
+                        if(response.substring(0, 6)==\'SESKIL\'){ location.href = \'index.php\'; }
+                        if(response){
+                            response = JSON.parse(response);
+                            if( response.hiba ) {
+                                hibauzenet  = response.hiba;
+                                gomb        = response.gomb;
+                                title       = response.title;
+                                focus       = response.focus;
+                            } else {
+                                dfrd_ml_mehet = true;
+                            }
+                            dfrd_pr_munkalap.resolve();
+                        }
+                        return false;
+                    }
+                });
+                
+                urlap_mehet = false;
+                $.when(dfrd_pr_munkalap).then(function() {
+                    if( !dfrd_ml_mehet ){
+                        alert2(hibauzenet, gomb, title);
+                        $(\'#\'+focus).addClass(\'hibas_ide_focus\');
+                        szurkit_zar(\'mehet_megsem_mutat\');
+                        return false;
+                    }else{
+                        urlap_mehet = true;
+                    }
+                    
+                    /* Ez a feltétel nem tévedésből van kétszer, kell ide is, meg egyel lentebb is */
+                    if(!urlap_mehet){
+                        return false;
+                    }else{
+                        return form_ell_admin();
+                    }
+                });
+                
+                
+                /* Ez a feltétel nem tévedésből van kétszer, kell ide is, meg egyel fentebb is */
+                if(!urlap_mehet){
+                    return false;
+                }else{
+                    return form_ell_admin();
+                }
+            ');
 
         // NAVIGÁCIÓ
         $navi_sablon  = fajlbol_olvas('../sablon/admin/navi.html', true);

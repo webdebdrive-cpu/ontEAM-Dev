@@ -1952,8 +1952,8 @@ require_once('selectek.php');
 
 
 	// Dokumentumok
-	}elseif( isset($_GET['dokumentumok']) ) {
-        
+    } elseif( isset($_GET['dokumentumok']) ) {
+
         if( $tobb_kep ) {
             require_once('tobb_kep.php');
         }

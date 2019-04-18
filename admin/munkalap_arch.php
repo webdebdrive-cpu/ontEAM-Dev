@@ -269,6 +269,9 @@ require('selectek.php');
     $szamla_html .= '<div class="dn" id="ikt_szam_hibauzibe">'.$sor['ikt_szam'].'</div>';
     $szamla_html .= '<div class="dn" id="telephely_hibauzibe">'. getErtek('nev', 'telephely', 'id', $sor['telephely_id']).'</div>';
 
+    // Gyors státusz szűrő szélességének beállítása
+    $szamla_html .= '<script>$(document).ready(function () { $(\'#stat_gyors_szuro_div\').css(\'width\', $(\'#tartalomBal\').width()-17 );  });</script>';
+    
     // Gombok nincsenek
     $gombok = nl2('<div class="muveletek"></div>');
 

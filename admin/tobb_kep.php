@@ -373,6 +373,8 @@ if($kepek){
 // Projektek adatlapján felsoroljuk a kapcsolódó szerződések és számák dokuemtumait is
 if( $apa_tabla == 'projektkezeles' ){
     $projekt        = $adatbazis_kapcsolat->s2('ikt_szam', 'projektkezeles', "`recid`='{$_GET['id']}'");
+    
+    $kepek          = '';
     $szerzodesek    = $adatbazis_kapcsolat->s('recid', 'projektszerzodes', "`pr_szam`='{$projekt['ikt_szam']}'");
     $szerzodesek    = adatbazis2tomb($szerzodesek, 'recid');
     if( $szerzodesek ){
@@ -394,13 +396,13 @@ if( $apa_tabla == 'projektkezeles' ){
             ');
     }
     foreach($kepek as $sor_kepek) {
-        $tobbkep_html .= get_tobbkep_thumb($sor_kepek, $i, 'projektszerzodes_dok', 'nincs törlés', $szerzodes['recid']);
+        $tobbkep_html .= get_tobbkep_thumb($sor_kepek, $i, 'projektszerzodes_dok', 'nincs törlés', $sor_kepek['projektszerzodes_id']);
         $i++;
     }
 
-
-    $szamlak     = $adatbazis_kapcsolat->s('recid', 'projektszamla', "`pr_szam`='{$projekt['ikt_szam']}'");
-    $szamlak     = adatbazis2tomb($szamlak, 'recid');
+    $kepek      = '';
+    $szamlak    = $adatbazis_kapcsolat->s('recid', 'projektszamla', "`pr_szam`='{$projekt['ikt_szam']}'");
+    $szamlak    = adatbazis2tomb($szamlak, 'recid');
     if( $szamlak ){
         $kepek = $adatbazis_kapcsolat -> s('*', 'projektszamla_dok', "`projektszamla_id` IN (".implode(',', $szamlak).")", 'sor');
     }
@@ -420,7 +422,7 @@ if( $apa_tabla == 'projektkezeles' ){
             ');
     }
     foreach($kepek as $sor_kepek) {
-        $tobbkep_html .= get_tobbkep_thumb($sor_kepek, $i, 'projektszamla_dok', 'nincs törlés', $szamla['recid']);
+        $tobbkep_html .= get_tobbkep_thumb($sor_kepek, $i, 'projektszamla_dok', 'nincs törlés', $sor_kepek['projektszamla_id']);
         $i++;
     }
 }
@@ -462,7 +464,6 @@ function get_tobbkep_thumb($sor_kepek, $i, $tobbkep_tablanev, $nincs_torles, $ku
     $kep_utvonal = '../'.get_utvonal().csonkit($tobbkep_tablanev, $csonkit).'/'.$sor_kepek['utvonal'];
 // A fájl sora akkor is jelenjen meg, ha már nem létezik, hogy a dev-be átmásolt adatok esetén ha nincs ott a fájl maga, attól még jelenjen meg.
 //    if(is_file($kep_utvonal)){
-    
         $kep_reszek = pathinfo($kep_utvonal);
         $ikon_utvonal = '../elemek/ikonok/'.strtolower($kep_reszek['extension']).'.png';
         $felirat = utf8(stripslashes($sor_kepek['fajlnev']));
@@ -556,7 +557,7 @@ function get_tobbkep_thumb($sor_kepek, $i, $tobbkep_tablanev, $nincs_torles, $ku
                                 $statusz_tipus_figyelmeztetes = 'Ebben a státuszban nem törölhető az összes Szerződéses dokumentum!<br>Előbb csatoljon fel egy másikat!';
                             }
                         }
-                        if($sor_kepek['tipus']==EL_DOK_TIPUS_ATADASI){
+                        if( $sor_kepek['tipus'] == EL_DOK_TIPUS_ATADASI ) {
                             $van_doksi = $adatbazis_kapcsolat->s('recid', 'projektkezeles_dok', "`projektkezeles_id`='{$_GET['id']}' AND `tipus`='".EL_DOK_TIPUS_ATADASI."'");
                             if( $van_doksi === false ) { $db_error = true; }
  
@@ -564,7 +565,7 @@ function get_tobbkep_thumb($sor_kepek, $i, $tobbkep_tablanev, $nincs_torles, $ku
                                 $statusz_tipus_figyelmeztetes = 'Ebben a státuszban nem törölhető az összes Átadási. jk. dokumentum!<br>Előbb csatoljon fel egy másikat!';
                             }
                         }
-                        if($sor_kepek['tipus']==EL_DOK_TIPUS_GAR_BEJAR){
+                        if( $sor_kepek['tipus'] == EL_DOK_TIPUS_GAR_BEJAR ) {
                             $van_doksi = $adatbazis_kapcsolat->s('recid', 'projektkezeles_dok', "`projektkezeles_id`='{$_GET['id']}' AND `tipus`='".EL_DOK_TIPUS_GAR_BEJAR."'");
                             if( $van_doksi === false ) { $db_error = true; }
                             if( count($van_doksi)==1 ){
@@ -596,14 +597,13 @@ function get_tobbkep_thumb($sor_kepek, $i, $tobbkep_tablanev, $nincs_torles, $ku
         }
         // Ha kaptunk egy külső recid-t, akkor annak az adatlapjára mutató linket állítjuk elő
         if( $kulso_recid ){
-            
-            switch ($apa_tabla){
+            switch ( $apa_tabla ) {
                 case 'projektszerzodes' : $oszlop = 'sz_szam';      break;
                 case 'projektszamla'    : $oszlop = 'szla_szam';    break;
             }
             
             $sor = $adatbazis_kapcsolat->s2($oszlop, $apa_tabla, "`recid`='{$kulso_recid}'");
-            $torles = '<a href="'.$apa_tabla.'.php?id='.$kulso_recid.'&amp;dokumentumok" target="_blank">'.$sor[$oszlop].'</a>';
+            $torles = '<a href="'.$apa_tabla.'.php?id=x&amp;mezo='.$oszlop.'&amp;op=equal&amp;felt='.$sor[$oszlop].'&amp;dokumentumok" target="_blank">'.$sor[$oszlop].'</a>';
         }
 
         // Típus oszlop

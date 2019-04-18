@@ -136,9 +136,9 @@ if(isset($_POST['get_projekt_tabla'])){
         $html = '
             Rendezés:
             <select onchange="get_projekt_tabla(this.value)">
-                <option>szálloda + becsült költség</option>
-                <option value="bkolt"'.$bkolt_selected.'>jóváhagyott keret + szálloda</option>
-                <option value="tipus"'.$tipus_selected.'>típus + becsült költség</option>
+                <option>szálloda + jóváhagyott keret</option>
+                <option value="jkolt"'.$bkolt_selected.'>jóváhagyott keret + szálloda</option>
+                <option value="tipus"'.$tipus_selected.'>típus + jóváhagyott keret</option>
             </select>
             <div style="max-height: 40rem; overflow-y: auto; overflow-x: none;">
                 <table class="csikos v2 kijCont csak_egy_kijelolheto" id="prkezelesek" style="cursor: default;">
@@ -1076,6 +1076,7 @@ require_once('selectek.php');
                         van_tetel               : Date.now()
                     },
                     success: function(response){
+                        if(response.substring(0, 6)==\'SESKIL\'){ location.href = \'index.php\'; }
                         if(response){
                             response = JSON.parse(response);
                             if(response.van_tetel==\'van\'){

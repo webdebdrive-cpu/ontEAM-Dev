@@ -1165,14 +1165,15 @@ function megr_sztorno_mail_elkuldve(){
 
 // ML Tipusa ha Garanciális, akkor felhozzuk a projektek popupot
 function garancialis_tipus_projekt_popup () {
-    // Ha garanciális hiba
-    if( $('#tipus_id').val()==6 ) {
+    
+    // Ha garanciális hiba és még nincs értéke a projekt számnak
+    if( $('#tipus_id').val()==6 && !$('#pr_szam').val() ) {
         
         setTimeout(function(){ $('.xdsoft_datetimepicker').hide(); }, 250);
         csoportMuvelet('munkalap_projekt_valaszt');
         
     // Ha nem garanciális hiba, akkor viszont ürítjük a projektszám mezőt és a mellette levő nevet is
-    }else{
+    } else {
         $('#pr_szam').val('');
         $('#projekt_neve').html('');
     }
