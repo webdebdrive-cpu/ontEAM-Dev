@@ -22,10 +22,10 @@ $(document).ready(function(){
 });
 
 // Projektek betöltése
-function get_projekt_tabla(order, telephely_id){
+function get_projekt_tabla(order, telephely_id) {
 
     $.ajax({
-        url : 'projektszerzodes.php',
+        url : 'munkalap.php',
         type: 'POST',
         data: {
             recid             : _get('id'),
@@ -35,13 +35,13 @@ function get_projekt_tabla(order, telephely_id){
         },
         success: function(response){
             if(response.substring(0, 6)=='SESKIL'){ location.href = 'index.php'; }
-            if(response){
+            if( response ) {
                 response = JSON.parse(response);
-                if( response.hiba ){
+                if( response.hiba ) {
                     popupZar();
                     alert2( response.hiba, response.gomb, response.title );
                     return false;
-                }else{
+                } else {
                     $('#pr_szerzodes_tablazat').html(response.html);
                     popupMutat();
                 }

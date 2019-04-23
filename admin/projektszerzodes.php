@@ -58,10 +58,10 @@ if (isset($_POST['van_kapcsolt_szamla'])) {
 }
 
 // Projekt táblázat betöltése
-if(isset($_POST['get_projekt_tabla'])){
+if( isset($_POST['get_projekt_tabla']) ) {
 
     // Ha nincs új feltöltés jogunk, akkor kilépünk
-    if( !get_projekt_szerzodes_kezel_jog($_POST['recid']) ){
+    if( !get_projekt_szerzodes_kezel_jog($_POST['recid']) ) {
         echo json_encode( array(
                             'hiba'  => 'Önnek nincs joga projekt szerződést kezelni!',
                             'title' => 'Hiba',
@@ -74,7 +74,7 @@ if(isset($_POST['get_projekt_tabla'])){
 
     // Rendezés beállítása
     $join  = ' JOIN `'.get_db_tabla().'telephely` ON `'.get_db_tabla().'projektkezeles`.`telephely_id`=`'.get_db_tabla().'telephely`.`id`';
-    switch($_POST['order']){
+    switch ( $_POST['order'] ) {
         case 'bkolt': $order = '`'.get_db_tabla().'projektkezeles`.`bkolt`, `'.get_db_tabla().'telephely`.`nev`';         $bkolt_selected = ' selected';  break;
         case 'tipus': $order = '`'.get_db_tabla().'projektkezeles`.`tipus`, `'.get_db_tabla().'projektkezeles`.`bkolt`';  $tipus_selected = ' selected';  break;
         default     : $order = '`'.get_db_tabla().'telephely`.`nev`,        `'.get_db_tabla().'projektkezeles`.`bkolt`';                                  break;
@@ -95,19 +95,19 @@ if(isset($_POST['get_projekt_tabla'])){
                                         "`telephely_id`='{$_POST['telephely_id']}'", $order, '', '', '', $join);
 //echo $adatbazis_kapcsolat->gp() . '<br>';
     $i = 1;
-    foreach($prek as $pr){
+    foreach ( $prek as $pr ) {
 
         // Szálloda
         $szalloda = $adatbazis_kapcsolat->s2('nev', 'telephely', "`id`='{$pr['telephely_id']}'");
         
         // Tipus
         require_once 'selectek.php';
-        foreach($select_pri_tipus as $tip){
-            if($tip['value']==$pr['tipus']){
+        foreach ( $select_pri_tipus as $tip ) {
+            if( $tip['value'] == $pr['tipus'] ) {
                 $tipus = $tip['name'];
             }
         }
-        if(!$pr['tipus']){
+        if( !$pr['tipus'] ) {
             $tipus = '-';
         }
 
@@ -130,7 +130,7 @@ if(isset($_POST['get_projekt_tabla'])){
         $i++;
     }
 
-    if($html){
+    if( $html ) {
 
         // Táblázat rendezhető: szálloda + becsült költség, becsült költség + szálloda, típus + becsült költség. Ezek legyenek egy lenyílóból kiválaszthatóak.
         $html = '
@@ -177,7 +177,7 @@ if(isset($_POST['get_projekt_tabla'])){
             </div>
             <script>
             ';
-    }else{
+    } else {
         $html = '<script>popupRejt(); setTimeout(function(){ popupZar(); alert2(\'Nem található projekt!\', \'\', \'Hiba\'); }, 10);</script>';
     }
 
@@ -602,8 +602,18 @@ if (isset($_GET['csv'])) {
 
                 $lekerdezes_fromtol = str_replace('FROM `'.get_db_tabla().$megnevezes.'` ', "FROM `".get_db_tabla().$megnevezes."` JOIN `".get_db_tabla().$megnevezes."_tetel` ON `".get_db_tabla().$megnevezes."`.`recid`=`".get_db_tabla().$megnevezes."_tetel`.`".$megnevezes."_recid`", $lekerdezes_fromtol);
                 
-                // Ha van bene limit, akkor a teljes adatbázist kilistázzuk (Mert ekkor a legfrisebb 1000-es he hasonló feltétel van érvényben)
+                // Ha van benne limit, akkor a teljes adatbázist kilistázzuk, de csak akkor, ha a limit az alapértelmezett (Mert ekkor a legfrisebb 1000-es he hasonló feltétel van érvényben)
+                $mindet_listazd = false;
                 if( strpos( $_SESSION['akt_sql'], 'LIMIT' )!==false ) {
+                    $limit = trim( substr( $_SESSION['akt_sql'], strpos($_SESSION['akt_sql'], 'LIMIT') ), 'LIMIT ' );
+                    if( strpos($limit, ' ') ) {
+                        $limit = substr($limit, 0, strpos($limit, ' '));
+                    }
+                    if( $limit == SZURES_DB_LIMIT ) {
+                        $mindet_listazd = true;
+                    }
+                }
+                if( $mindet_listazd ) {
                     
                     // A LIMIT-et levágjuk, illetve a balnavpanel szerinti rendezést is nullázzuk
                     $lekerdezes_fromtol = substr($lekerdezes_fromtol, 0, strpos($lekerdezes_fromtol, 'LIMIT') );
@@ -726,8 +736,18 @@ if (isset($_GET['csv'])) {
             // Projektszerződések exportja
             }else{
 
-                // Ha van bene limit, akkor a teljes adatbázist kilistázzuk (Mert ekkor a legfrisebb 1000-es he hasonló feltétel van érvényben)
+                // Ha van benne limit, akkor a teljes adatbázist kilistázzuk, de csak akkor, ha a limit az alapértelmezett (Mert ekkor a legfrisebb 1000-es he hasonló feltétel van érvényben)
+                $mindet_listazd = false;
                 if( strpos( $_SESSION['akt_sql'], 'LIMIT' )!==false ) {
+                    $limit = trim( substr( $_SESSION['akt_sql'], strpos($_SESSION['akt_sql'], 'LIMIT') ), 'LIMIT ' );
+                    if( strpos($limit, ' ') ) {
+                        $limit = substr($limit, 0, strpos($limit, ' '));
+                    }
+                    if( $limit == SZURES_DB_LIMIT ) {
+                        $mindet_listazd = true;
+                    }
+                }
+                if( $mindet_listazd ) {
                     
                     // A LIMIT-et levágjuk, illetve a balnavpanel szerinti rendezést is nullázzuk
                     $lekerdezes_fromtol = substr($lekerdezes_fromtol, 0, strpos($lekerdezes_fromtol, 'LIMIT') );

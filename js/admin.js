@@ -724,24 +724,6 @@ $(function() {
         };
     })();
 
-    /* Gyorskereső */
-    /* JS-el oldottuk meg ajax helyett
-    $(document).on('keyup', '#rendezesKeres', function(e) {
-        var that = $(this);
-
-        delay(function() {
-            $.ajax({
-                url : that.attr('data-tabla'),
-                type: 'GET',
-                data: esamp2es('ksz=' + that.val() + '&amp;gyorskereso_ajax=' + new Date().getTime()),
-                success: function (response) {
-                    if(response.substring(0, 6)=='SESKIL'){ location.href = 'index.php'; }
-                    $('#tartalomBal').html(response);
-                }
-            });
-        }, 650);
-    });*/
-
     // Általánosan kattintva a dokumentumban
     $(document).on('click', function(e) {
         $('.kijeloltek_muv').removeClass('active');
@@ -5134,7 +5116,7 @@ function scrollLeptet() {
             }
         }
 
-    /* Bal nav panel léptetése */
+    // Bal nav panel léptetése
     } else {
 
         if( $('.szamla_sor').hasClass('kijelolve') ) {
@@ -5142,7 +5124,7 @@ function scrollLeptet() {
                 activeHeight    = $('.szamla_sor.kijelolve').outerHeight(),
                 tartBalHeight   = $('#tartalomBal').outerHeight();
 
-            /* Összeadjuk az active elem magasságát és a felső eltolását */
+            // Összeadjuk az active elem magasságát és a felső eltolását
             var aTopH = active_top + activeHeight;
 
             if( (aTopH - activeHeight) < 0 ) {
@@ -6098,7 +6080,7 @@ function szamlaBetolt( recid, page, muvelet, szerkeszt, kerdes_nelkul, anyagigen
                     }
 
                     if( isMobile ) {
-                        $('#tartalomBal').css('display', 'none');
+                        $('#tartalomBal') .css('display', 'none');
                         $('#tartalomJobb').css('display', 'block');
                         $('#respo_visszalepes').css('display', 'block');
                     }

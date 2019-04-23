@@ -1316,7 +1316,7 @@ if(isset($_GET['modosit'])){
     // Sürgősség pipa
     $surgos_onclick = 'csoportMuvelet(\'surgosseg_indoklas\')';
     $surgos_disabled = true;
-    if(_jog(JOG_MUNKALAP_SURGOS_PIPAL)){
+    if( _jog(JOG_MUNKALAP_SURGOS_PIPAL) ) {
         //if($munkalap['stat_id']==MUNKALAP_STAT_NYITOTT && JOG_MUNKALAP_NYITOTT_KEZEL){
             $surgos_disabled = false;
         //}
@@ -1327,13 +1327,13 @@ if(isset($_GET['modosit'])){
     $van_bejelentes = false;
     $bejelentesek = $adatbazis_kapcsolat->s('bejelentes_id', 'munkalap_kapcs'.$arch_post, "`munkalap_id`='{$_GET['id']}'");
     $bejelentesek = adatbazis2tomb($bejelentesek, 'bejelentes_id');
-    if($bejelentesek){
+    if( $bejelentesek ) {
         $bejelentesek = $adatbazis_kapcsolat->s('recid', 'bejelentes'.$arch_post, "`recid` IN (".implode(', ', $bejelentesek).")", '', '1');
         if($bejelentesek){
             $van_bejelentes = true;
         }
     }
-    if(!$van_bejelentes){
+    if( !$van_bejelentes ) {
         $login = $adatbazis_kapcsolat->s2('teljes_nev usertel usermail', 'login', "`nev`='{$munkalap['loginnev']}'");
         $ml_leiras_ala = '<br>Létrehozta: <b id="letrehozta">'.$login['teljes_nev'].'</b> ';
         if($login['usertel']){
@@ -1365,7 +1365,7 @@ $munkalap_tomb = $munkalap_arch_tomb = $akt_tomb = array(
     array('type' => 'select_felh_telephely',    'megn' => 'Szálloda:',                  'name' => 'telephely_id',       'szuro' => 1, 'disabled' => $csakUjkent.$ub_disabled,        'class' => 'disableNav',        'style' => 'width: 100%;', 'alert' => 'Kérem válasszon szállodát!', 'onchange' => 'szallodaVane( this );'),
     array('type' => 'autocomplete',             'megn' => 'Helyiség:',                  'name' => 'obj_id',             'szuro' => 1, 'disabled' => $csakUjkent.$ub_disabled,        'class' => 'oriasi disableNav', 'style' => 'width: calc(100% - 3rem);', 'tabla' => 'obj', 'oszlop_keres' => 'recid', 'oszlop_keres_autocomp' => 'nev', 'listaz' => 'nev', 'id_kiir' => 'recid', 'onclick' => 'szallodaVane( this );', 'post' => $obj_post),
     array('type' => 'autocomplete',             'megn' => 'Gépnév:',                    'name' => 'gep_id',             'szuro' => 1, 'disabled' => $csakUjkent,        'class' => 'oriasi disableNav', 'tabla' => 'eszkozkezeles', 'oszlop_keres' => 'recid', 'oszlop_keres_autocomp' => 'nev', 'listaz' => 'nev', 'onclick' => 'helyisegVane( this );'),
-    array('type' => 'autocomplete',             'megn' => 'Típus:',                     'name' => 'tipus_id',           'szuro' => 1, 'disabled' => $csakUjkent.$ub_disabled,        'class' => 'kozepes disableNav', 'style' => 'width: 30rem', 'tabla' => 'erteklista', 'oszlop_keres' => 'id', 'oszlop_keres_autocomp' => 'info', 'complete' => 'garancialis_tipus_projekt_popup();', 'listaz' => 'info', 'csoport' => ERTEKLISTA_MUNKALAP_TIP, 'id_kiir' => 'id', 'alert' => 'Kérem adja meg a tipust!', 'osszevon' => 1, 'post' => '<span style="margin-left: 6rem"></span>'),
+    array('type' => 'autocomplete',             'megn' => 'Típus:',                     'name' => 'tipus_id',           'szuro' => 1, 'disabled' => $csakUjkent.$ub_disabled,        'class' => 'kozepes disableNav', 'style' => 'width: 30rem', 'tabla' => 'erteklista', 'oszlop_keres' => 'id', 'oszlop_keres_autocomp' => 'info', 'complete' => 'garancialis_tipus_projekt_popup();', 'listaz' => 'info', 'csoport' => ERTEKLISTA_MUNKALAP_TIP, 'id_kiir' => 'id', 'alert' => 'Kérem adja meg a tipust!', 'osszevon' => 1, 'post' => '<span style="margin-left: 6rem"></span>', 'onkeyup' => 'if( $(this).val()==\'\' ) { $(\'#pr_szam\').val(\'\'); $(\'#projekt_neve\').html(\'\'); }'),
     array('type' => 'text',                     'megn' => 'Projekt szám:',              'name' => 'pr_szam',            'szuro' => 1, 'disabled' => 1,   'class' => 'normal', 'style' => 'width: 10rem', 'post' => ' <span id="projekt_neve">'.$projekt_neve.'</span>'),
     array('type' => 'autocomplete',             'megn' => 'Külső kivitelező:',          'name' => 'szallito_id',        'szuro' => 1, 'disabled' => 1,                  'class' => 'oriasi disableNav', 'tabla' => 'szallito', 'oszlop_keres' => 'id', 'oszlop_keres_autocomp' => 'nev', 'listaz' => 'nev', 'id_kiir' => 'id', 'style' => 'width: 30rem', 'post' => '<span style="margin-right: 3rem"></span>', 'osszevon' => true),
     array('type' => 'text',                     'megn' => 'Jóváhagyott érték:',         'name' => 'jh_ert',             'szuro' => 1, 'disabled' => 1, 'style' => 'width: 8rem; text-align: right;', 'post' => ' '.get_penznem().' + Áfa<span style="margin-right: 3rem"></span>', 'osszevon' => true),
@@ -3108,16 +3108,16 @@ if (isset($_POST['f_o_szures_submit'])) {
 
     $join = '';
     // Kapcsolódó táblák miatt néha kell JOIN
-    if( strpos($_POST['feltetel'], 'megjegyzes')!==false ){
+    if( strpos($_POST['feltetel'], 'megjegyzes')!==false ) {
         $join = ' JOIN `'.get_db_tabla().'megjegyzes` ON `'.get_db_tabla().'megjegyzes`.`tabla`=\''.$_POST['tabla'].'\' AND `'.get_db_tabla().$_POST['tabla'].'`.`recid`=`'.get_db_tabla().'megjegyzes`.`id` ';
     }
     if( $_POST['tabla']=='login' && strpos($_POST['feltetel'], 'szalloda')!==false ){
         $join = ' JOIN `'.get_db_tabla().'telephely_kapcs` ON `'.get_db_tabla().$_POST['tabla'].'`.`nev`=`'.get_db_tabla().'telephely_kapcs`.`nev` ';
     }
-    if( $_POST['tabla']=='szallito' && strpos($_POST['feltetel'], 'szakterulet')!==false ){
+    if( $_POST['tabla']=='szallito' && strpos($_POST['feltetel'], 'szakterulet')!==false ) {
         $join = ' JOIN `'.get_db_tabla().'szakter_kapcs` ON `'.get_db_tabla().$_POST['tabla'].'`.`recid`=`'.get_db_tabla().'szakter_kapcs`.`szallito_id` ';
     }
-    if( $_POST['tabla']=='projektkezeles' && strpos($_POST['feltetel'], 'team_tag')!==false ){
+    if( $_POST['tabla']=='projektkezeles' && strpos($_POST['feltetel'], 'team_tag')!==false ) {
         $join = ' JOIN `'.get_db_tabla().'projektkezeles_team` ON `'.get_db_tabla().'projektkezeles_team`.`projektkezeles_recid`=`'.get_db_tabla().'projektkezeles`.`recid` ';
     }
     $sql = 'SELECT * FROM `'.get_db_tabla().$_POST['tabla'].'`'.$join.' WHERE '.get_o_szures_where_kieg($_POST['feltetel'], $_POST['tabla']);
@@ -3126,16 +3126,16 @@ if (isset($_POST['f_o_szures_submit'])) {
     if( strpos( $_POST['feltetel'], 'me|legfrissebb' ) !== false ) {
         $legfrissebb_flag = 0;
         $elemek = explode('#', $_POST['feltetel']);    
-        foreach($elemek as $elem){
-
+        foreach ( $elemek as $elem ) {
             // Ha a mező a legfrisebb, akkor bekapcsolunk egy flag-et, hogy a következő feltételnél tudjuk, az lesz a LIMIT értéke
-            if( $elem == 'me|legfrissebb' ){
+            if( $elem == 'me|legfrissebb' ) {
 
                 $legfrissebb_flag = 1;
 
             } elseif( $legfrissebb_flag && substr($elem, 0, 3) == 'fe|' ) {
 
-                $sql .= ' LIMIT '.substr($elem, 3);
+                $sql = trim( $sql, 'WHERE ' ). ' LIMIT '.substr($elem, 3);
+                $legfrissebb_flag = 0;
 
             }
         }
@@ -3143,11 +3143,11 @@ if (isset($_POST['f_o_szures_submit'])) {
     
     $lekerdez = mysqli_query($db_kapcs, $sql);
 
-    if($lekerdez){
+    if( $lekerdez ) {
         $sorok_szama = mysqli_num_rows($lekerdez);
         if( !$_POST['mehet'] && $sorok_szama > SZURES_DB_LIMIT ){
             echo json_encode(array(
-                'hiba'  => 'Ezzel a szűrési feltétellel '. number_format($sorok_szama, 0, '', ' ').' sor adatot listázna ki. Biztosan folytatja?.<br>Biztosan folytatja?',
+                'hiba'  => 'Ezzel a szűrési feltétellel '. number_format($sorok_szama, 0, '', ' ').' sor adatot listázna ki. Biztosan folytatja?<br>Biztosan folytatja?',
                 'gomb'  => '<input type="button" class="gomb zold" value="Igen" onclick="$(\'.f_o_szures_submit\').addClass(\'mehet\').click(); alert2();"><input type="button" class="gomb piros" value="Nem" onclick="alert2(); $(\'.f_o_szures_submit\').removeClass(\'mehet\');">',
                 'title' => 'Kérdés'
             ));
@@ -3159,15 +3159,18 @@ if (isset($_POST['f_o_szures_submit'])) {
         echo json_encode(array(
             'mehet' => '1'
         ));
-    }else{
+        
+    } else {
+        
         $hiba_kieg = '';
-        if($_SERVER['HTTP_HOST']=='demo.webdeb.hu'){
+        if( $_SERVER['HTTP_HOST'] == 'demo.webdeb.hu' ) {
             $hiba_kieg = '<b class="piros"><br>Nyugi, ez csak WebDeb felületen látszik debughoz:<br>'.$sql.'</b>';
         }
         echo json_encode(array(
             'hiba'  => 'A megfogalmazott feltétel hibás, nem futtatható le!'.$hiba_kieg,
             'title' => 'Hiba'
         ));
+        
     }
 
     $weblap->leallit();

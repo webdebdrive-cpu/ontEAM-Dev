@@ -23,7 +23,8 @@ $szamla_html = '';
 
 // Dokumentumok fülhöz kell majd
 $tobb_kep = true;
-if($tobb_kep){
+if( $tobb_kep ) {
+
     function get_tobbkep_darab()    { return 10;         } // Maximum hány kép tallózható be
     function get_tobbkep_csakkep()  { return '';         } // Milyen kiterjesztéseket engedünk meg (ha mindenet, legyen üres)
     function get_tobbkep_kepmeret() { return 10;         } // MB-ban
@@ -265,6 +266,128 @@ if( isset($_POST['munkalapKeszit']) ) {
     exit();
 }
 
+// Projekt táblázat betöltése
+if( isset($_POST['get_projekt_tabla']) ) {
+    
+    $html = '';
+
+    // Rendezés beállítása
+    $join  = ' JOIN `'.get_db_tabla().'telephely` ON `'.get_db_tabla().'projektkezeles`.`telephely_id`=`'.get_db_tabla().'telephely`.`id`';
+    switch ( $_POST['order'] ) {
+        case 'bkolt': $order = '`'.get_db_tabla().'projektkezeles`.`bkolt`, `'.get_db_tabla().'telephely`.`nev`';         $bkolt_selected = ' selected';  break;
+        case 'tipus': $order = '`'.get_db_tabla().'projektkezeles`.`tipus`, `'.get_db_tabla().'projektkezeles`.`bkolt`';  $tipus_selected = ' selected';  break;
+        default     : $order = '`'.get_db_tabla().'telephely`.`nev`,        `'.get_db_tabla().'projektkezeles`.`bkolt`';                                  break;
+    }
+
+    $prek = $adatbazis_kapcsolat->s('
+                                        `'.get_db_tabla().'projektkezeles`.`recid`,
+                                        `'.get_db_tabla().'projektkezeles`.`ikt_szam`,
+                                        `'.get_db_tabla().'projektkezeles`.`nev`,
+                                        `'.get_db_tabla().'projektkezeles`.`tipus`,
+                                        `'.get_db_tabla().'projektkezeles`.`stat_id`,
+                                        `'.get_db_tabla().'projektkezeles`.`jkolt`,
+                                        `'.get_db_tabla().'projektkezeles`.`pfelelos`,
+                                        `'.get_db_tabla().'projektkezeles`.`telephely_id`,
+                                        `'.get_db_tabla().'projektkezeles`.`insert_dt`
+                                            ',
+                                        'projektkezeles',
+                                        "`telephely_id`='{$_POST['telephely_id']}'", $order, '', '', '', $join);
+
+    $i = 1;
+    foreach ( $prek as $pr ) {
+
+        // Szálloda
+        $szalloda = $adatbazis_kapcsolat->s2('nev', 'telephely', "`id`='{$pr['telephely_id']}'");
+        
+        // Tipus
+        require_once 'selectek.php';
+        foreach ( $select_pri_tipus as $tip ) {
+            if( $tip['value'] == $pr['tipus'] ) {
+                $tipus = $tip['name'];
+            }
+        }
+        if( !$pr['tipus'] ) {
+            $tipus = '-';
+        }
+
+        $pfelelos_neve = getErtek('teljes_nev', 'login', 'recid', $pr['pfelelos']);
+        
+        $html .= '
+            <tr class="kijSor" data-i="'.$i.'" data-recid="'.$pr['recid'].'" data-ikt_szam="'.$pr['ikt_szam'].'" data-felelos="'.$pr['pfelelos'].'">
+                <td class="l" style="padding: 0 0.5rem">
+                    '.$szalloda['nev'].'
+                    <div class="dn pfelelos_txt">'.$pfelelos_neve.'</div>
+                    <div class="dn pfelelos_txt nev"><a href="projektkezeles.php?id=x&amp;modosit&amp;mezo=ikt_szam&amp;op=equal&amp;felt='.$pr['ikt_szam'].'" target="_blank">'.$pr['nev'].'</a></div>
+                </td>
+                <td class="l" style="padding: 0 0.5rem">'.$pr['ikt_szam'].'</td>
+                <td class="l" style="width: 30rem; padding: 0 0.5rem">'.$pr['nev'].'</td>
+                <td class="l" style="padding: 0 0.5rem">'.$tipus.'</td>
+                <td class="r nowrap" style="padding: 0 1rem">'.number_format($pr['jkolt'], 0, '', ' ').'</td>
+                <td style="padding: 0 1rem">'.datum_kiir($pr['insert_dt']).'</td>
+            </tr>
+            ';
+        $i++;
+    }
+
+    if( $html ) {
+
+        // Táblázat rendezhető: szálloda + becsült költség, becsült költség + szálloda, típus + becsült költség. Ezek legyenek egy lenyílóból kiválaszthatóak.
+        $html = '
+            Rendezés:
+            <select onchange="get_projekt_tabla(this.value)">
+                <option>szálloda + jóváhagyott keret</option>
+                <option value="jkolt"'.$bkolt_selected.'>jóváhagyott keret + szálloda</option>
+                <option value="tipus"'.$tipus_selected.'>típus + jóváhagyott keret</option>
+            </select>
+            <div style="max-height: 40rem; overflow-y: auto; overflow-x: none;">
+                <table class="csikos v2 kijCont csak_egy_kijelolheto" id="prkezelesek" style="cursor: default;">
+                <thead>
+                <tr>
+                    <th>
+                        Szálloda
+                        <br><input type="text" class="flat" placeholder="Szűrés" onkeyup="tabla_szur($(\'#prkezelesek tbody\'), this.value, 1)">
+                    </th>
+                    <th>
+                        Projekt szám
+                        <br><input type="text" class="flat" placeholder="Szűrés" onkeyup="tabla_szur($(\'#prkezelesek tbody\'), this.value, 2)">
+                    </th>
+                    <th>
+                        Név
+                        <br><input type="text" class="flat" placeholder="Szűrés" onkeyup="tabla_szur($(\'#prkezelesek tbody\'), this.value, 3)">
+                    </th>
+                    <th>
+                        Típus
+                        <br><input type="text" class="flat" placeholder="Szűrés" onkeyup="tabla_szur($(\'#prkezelesek tbody\'), this.value, 4)">
+                    </th>
+                    <th>
+                        Jóváhagyott keret ('.get_penznem().')
+                        <br><input type="text" class="flat" placeholder="Szűrés" onkeyup="tabla_szur($(\'#prkezelesek tbody\'), this.value, 5)">
+                    </th>
+                    <th>
+                        Létrehozás dátuma
+                        <br><input type="text" class="flat" placeholder="Szűrés" onkeyup="tabla_szur($(\'#prkezelesek tbody\'), this.value, 6)">
+                    </th>
+                </tr>
+                </thead>
+                <tbody>
+                    '.$html.'
+                </tbody>
+                </table>
+            </div>
+            <script>
+            ';
+    } else {
+        $html = '<script>popupRejt(); setTimeout(function(){ popupZar(); alert2(\'Nem található projekt!\', \'\', \'Hiba\'); }, 10);</script>';
+    }
+
+    echo json_encode(
+            array( 'html' => nl2($html) )
+            );
+
+    $weblap->leallit();
+    exit();
+}
+
 // Új munkalap létrehozása bejelentésből
 if ($_GET['ujkent_bejelentes']) {
 
@@ -314,7 +437,16 @@ if ($_GET['ujkent_bejelentes']) {
 }
 
 // Új feltöltéskor ellenőrizzük, hogy a szálloda és projektszám megegyezik-e
-if (isset($_POST['telephely_ell'])) {
+if( isset($_POST['telephely_ell']) ) {
+
+    // Ha nem garanciális a típus, akkor egyből mehetünk is tovább
+    if( $_POST['tipus_id'] != MUNKALAP_TIPUS_GARANCIALIS ) {
+        echo json_encode( array(
+                                'mehet'  => '1'
+                            ) );
+        $weblap->leallit();
+        exit();
+    }
     
     $projekt = $adatbazis_kapcsolat->s2('telephely_id', 'projektkezeles', "`ikt_szam`='{$_POST['pr_szam']}'");
     if( $projekt['telephely_id'] != $_POST['telephely_id'] ) {
@@ -2526,7 +2658,7 @@ if( isset($_POST['kulsokivHozzarend']) ) {
                 exit();
             }
             // Ha változik a szállító, akkor a megjegyzést másképp kezdjük
-            if( $munkalap['szallito_id'] != $szallitoid ) {
+            if( $munkalap['szallito_id'] && $munkalap['szallito_id'] != $szallitoid ) {
                 $megj_eleje = 'Régi partner: '. getErtek('nev', 'szallito', 'id', $munkalap['szallito_id']).'.<br>Új partner: '. getErtek('nev', 'szallito', 'id', $szallitoid).'.';
             }
             
@@ -2556,7 +2688,7 @@ if( isset($_POST['kulsokivHozzarend']) ) {
             }
             
         // Ha nem javaslattétel volt
-        }else{
+        } else {
 
             $sql = $adatbazis_kapcsolat -> u('munkalap',
                                                         array('szallito_id', 'szemelyzet_id',   'varh_erk', 'direktbe'),
@@ -2570,7 +2702,7 @@ if( isset($_POST['kulsokivHozzarend']) ) {
             }
 
             // A memót a megjegyzésbe is beírjuk, nem csak a státuszsorba
-            if(addMegj('munkalap', $recid, $memo)===false){
+            if( addMegj('munkalap', $recid, $memo) === false ) {
                 $db_error = true;
             }
 
@@ -7160,8 +7292,8 @@ require('selectek.php');
     $szamla_html .= '<div class="dn" id="ikt_szam_hibauzibe">'.$sor['ikt_szam'].'</div>';
     $szamla_html .= '<div class="dn" id="telephely_hibauzibe">'. getErtek('nev', 'telephely', 'id', $sor['telephely_id']).'</div>';
 
-    // Gyors státusz szűrő szélességének beállítása
-    $szamla_html .= '<script>$(document).ready(function () { $(\'#stat_gyors_szuro_div\').css(\'width\', $(\'#tartalomBal\').width()-17 );  });</script>';
+    // Gyors státusz szűrő szélességének beállítása, ha még nem volt bal navpanel szélesség megmozdítva
+    $szamla_html .= '<script>$(document).ready(function () { $(\'#stat_gyors_szuro_div\').css(\'width\', $(\'#tartalomBal\').width()-17 ); $(\'.muveletek\').css(\'width\', $(\'#tartalomJobb\').width()-17); });</script>';
 
     // Gombok kirajzolása minden oldalra
     $gombok = '';
@@ -7702,6 +7834,7 @@ require('selectek.php');
                     type    : \'POST\',
                     async   : false,
                     data    : {
+                        tipus_id        : $(\'#tipus_id\').val(),
                         telephely_id    : $(\'#telephely_id\').val(),
                         pr_szam         : $(\'#pr_szam\').val(),
                         telephely_ell   : Date.now()

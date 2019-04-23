@@ -1001,21 +1001,42 @@ if (isset($_GET['csv'])) {
 
         $lekerdezes_fromtol = substr($_SESSION['akt_sql'], strpos($_SESSION['akt_sql'], 'FROM'));
 
-        if( $_SESSION['nyomtatas_ids'] ) {
-            if( strstr($_SESSION['akt_sql'], 'WHERE') ) {
-                $lekerdezes_fromtol = str_replace('WHERE', "WHERE `".get_db_tabla()."projektigenyles`.`recid` IN (".$_SESSION['nyomtatas_ids'].") AND ", $lekerdezes_fromtol);
-            } else {
-                $lekerdezes_fromtol = str_replace('ORDER', "WHERE `".get_db_tabla()."projektigenyles`.`recid` IN (".$_SESSION['nyomtatas_ids'].") ORDER", $lekerdezes_fromtol);
+        // Ha van benne limit, akkor a teljes adatbázist kilistázzuk, de csak akkor, ha a limit az alapértelmezett (Mert ekkor a legfrisebb 1000-es he hasonló feltétel van érvényben)
+        $mindet_listazd = false;
+        if( strpos( $_SESSION['akt_sql'], 'LIMIT' )!==false ) {
+            $limit = trim( substr( $_SESSION['akt_sql'], strpos($_SESSION['akt_sql'], 'LIMIT') ), 'LIMIT ' );
+            if( strpos($limit, ' ') ) {
+                $limit = substr($limit, 0, strpos($limit, ' '));
+            }
+            if( $limit == SZURES_DB_LIMIT ) {
+                $mindet_listazd = true;
             }
         }
+        if( $mindet_listazd ) {
+
+            // A LIMIT-et levágjuk, illetve a balnavpanel szerinti rendezést is nullázzuk
+            $lekerdezes_fromtol = substr($lekerdezes_fromtol, 0, strpos($lekerdezes_fromtol, 'LIMIT') );
+            $_SESSION['akt_sql_order'] = '';
+
+        } else {
         
-        // Ha van $_SESSION['akt_sql_order'], akkor eszerint rendezünk, tehát a $lekerdezes_fromtol-t elvágjuk az Order-nél
-        if( $_SESSION['akt_sql_order'] ){
-            $lekerdezes_fromtol = substr($lekerdezes_fromtol, 0, strpos($lekerdezes_fromtol, 'ORDER'));
-        }
-        // Ha nincs FROM rész, akkor azt még beletesszük
-        if( !$lekerdezes_fromtol ) {
-            $lekerdezes_fromtol = ' FROM `'.get_db_tabla().$megnevezes.'` ';
+            if( $_SESSION['nyomtatas_ids'] ) {
+                if( strstr($_SESSION['akt_sql'], 'WHERE') ) {
+                    $lekerdezes_fromtol = str_replace('WHERE', "WHERE `".get_db_tabla()."projektigenyles`.`recid` IN (".$_SESSION['nyomtatas_ids'].") AND ", $lekerdezes_fromtol);
+                } else {
+                    $lekerdezes_fromtol = str_replace('ORDER', "WHERE `".get_db_tabla()."projektigenyles`.`recid` IN (".$_SESSION['nyomtatas_ids'].") ORDER", $lekerdezes_fromtol);
+                }
+            }
+
+            // Ha van $_SESSION['akt_sql_order'], akkor eszerint rendezünk, tehát a $lekerdezes_fromtol-t elvágjuk az Order-nél
+            if( $_SESSION['akt_sql_order'] ){
+                $lekerdezes_fromtol = substr($lekerdezes_fromtol, 0, strpos($lekerdezes_fromtol, 'ORDER'));
+            }
+            // Ha nincs FROM rész, akkor azt még beletesszük
+            if( !$lekerdezes_fromtol ) {
+                $lekerdezes_fromtol = ' FROM `'.get_db_tabla().$megnevezes.'` ';
+            }
+            
         }
 
         $sql = 'SELECT

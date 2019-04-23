@@ -1149,8 +1149,8 @@ if (isset($_POST['cf_sor_torol'])) {
 }
 
 // CSV generálása
-if (isset($_GET['csv'])) {
-    
+if( isset($_GET['csv']) ) {
+
     require_once 'selectek.php';
 
     $mibol   = get_web_charset();
@@ -1182,8 +1182,18 @@ if (isset($_GET['csv'])) {
             
             $lekerdezes_fromtol = substr($_SESSION['akt_sql'], strpos($_SESSION['akt_sql'], 'FROM'));
             
-            // Ha van bene limit, akkor a teljes adatbázist kilistázzuk (Mert ekkor a legfrisebb 1000-es he hasonló feltétel van érvényben)
+            // Ha van benne limit, akkor a teljes adatbázist kilistázzuk, de csak akkor, ha a limit az alapértelmezett (Mert ekkor a legfrisebb 1000-es he hasonló feltétel van érvényben)
+            $mindet_listazd = false;
             if( strpos( $_SESSION['akt_sql'], 'LIMIT' )!==false ) {
+                $limit = trim( substr( $_SESSION['akt_sql'], strpos($_SESSION['akt_sql'], 'LIMIT') ), 'LIMIT ' );
+                if( strpos($limit, ' ') ) {
+                    $limit = substr($limit, 0, strpos($limit, ' '));
+                }
+                if( $limit == SZURES_DB_LIMIT ) {
+                    $mindet_listazd = true;
+                }
+            }
+            if( $mindet_listazd ) {
 
                 // A LIMIT-et levágjuk, illetve a balnavpanel szerinti rendezést is nullázzuk
                 $lekerdezes_fromtol = substr($lekerdezes_fromtol, 0, strpos($lekerdezes_fromtol, 'LIMIT') );

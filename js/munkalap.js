@@ -1138,7 +1138,7 @@ function get_ml_visszavetelezes_input_tartalmak(elokeszitesre){
 }
 
 // Megrendelés sztornó email elküldve gomb futtatása
-function megr_sztorno_mail_elkuldve(){
+function megr_sztorno_mail_elkuldve() {
     $.ajax({
         url : 'munkalap.php',
         type: 'POST',
@@ -1164,7 +1164,7 @@ function megr_sztorno_mail_elkuldve(){
 }
 
 // ML Tipusa ha Garanciális, akkor felhozzuk a projektek popupot
-function garancialis_tipus_projekt_popup () {
+function garancialis_tipus_projekt_popup() {
     
     // Ha garanciális hiba és még nincs értéke a projekt számnak
     if( $('#tipus_id').val()==6 && !$('#pr_szam').val() ) {
@@ -1172,7 +1172,7 @@ function garancialis_tipus_projekt_popup () {
         setTimeout(function(){ $('.xdsoft_datetimepicker').hide(); }, 250);
         csoportMuvelet('munkalap_projekt_valaszt');
         
-    // Ha nem garanciális hiba, akkor viszont ürítjük a projektszám mezőt és a mellette levő nevet is
+    // Ha nem garanciális hiba vagy még üres, akkor viszont ürítjük a projektszám mezőt és a mellette levő nevet is
     } else {
         $('#pr_szam').val('');
         $('#projekt_neve').html('');

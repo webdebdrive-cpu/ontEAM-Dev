@@ -3896,14 +3896,14 @@ function munkalapLista( $bejegyzesek, $tabla, $frissit, $kijeloltek, $sorrend_id
                 }
             }
             $statuszok_abc = tobbdim_tomb_kulcs_rendez($statuszok_abc, 'nev');
-            foreach($statuszok_abc as $stat){
+            foreach ( $statuszok_abc as $stat ) {
                 $selected = '';
-                if($_GET['mezo']=='stat_id' && $_GET['felt']==$stat['id']){
+                if( $_GET['mezo'] == 'stat_id' && $_GET['felt'] == $stat['id'] ) {
                     $selected = ' selected';
                 }
                 $stat_select .= '<option'.$selected.' value="'.$stat['id'].'">'.$stat['nev'].'</option>';
             }
-            if($stat_select){
+            if( $stat_select ) {
                 $stat_select = '<div id="stat_gyors_szuro_div"><select id="stat_gyors_szuro" style="margin: 0.2rem 0 0 0.2rem;" onchange="if(this.value){ param = \'&amp;mezo=stat_id&amp;op=equal&amp;felt=\'+this.value; }else{ param = \'\'; } szurkit(); location.href=\''.self().get_get(array('mezo', 'op', 'felt')).'\'+param"><option value="">-Összes státusz-</option>'.$stat_select.'</select></div>';
             }
             $html = $stat_select.'<ul id="szamlaList" class="szamla_cont nobehuzas rendszer'.$jClass.'" style="margin-top: 3.2rem; backgorund: #F4F6F5">';
