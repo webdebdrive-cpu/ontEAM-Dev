@@ -1276,9 +1276,10 @@ function i_u($type, $tabla, $tomb) {
                     $weblap -> leallit();
                     exit();
                 }
-                
-            }else{
-                
+            
+            // Ha változott a Projekt felelőse
+            } else {
+
                 $mail_hibaizenet = level_felkeszit_es_kuld('projektkezeles', $_GET['id'], '', 'projektkezelesModosit', 'projektkezeles_felelose', '', $_POST['pfelelos']);
                 if( $mail_hibaizenet ){
                     echo json_encode(array(

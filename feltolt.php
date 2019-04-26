@@ -128,6 +128,13 @@ if( $_POST['megnevezes'] == 'velemeny' ) {
 // Projektszerződés jótállás füle alatti feltöltése
 if( $_POST['tabla'] == 'projektszerzodes_jotallas' ) {
 
+    // Jog ellenőrzése
+    if( !_jog( JOG_PRKEZEL_SZERZODES_KEZEL ) ) {
+        echo 'Hiba! Nincs joga fájlt feltölteni!';
+        $weblap -> leallit();
+        exit;
+    }
+    
     $utvonal = get_utvonal().'projektszerzodes_jotallas';
     if( !is_dir($utvonal) ) {
         mkdir($utvonal, 0777);
@@ -186,6 +193,13 @@ if( $_POST['tabla'] == 'projektszerzodes_jotallas' ) {
                                                                                 array(str_replace(get_utvonal().'projektszerzodes_jotallas/', '', $kepnev), $_FILES[$_POST['megnevezes']]['name']   ),
                                                                                 "`recid`='{$_POST['recid']}'"
                                                 );
+
+                $nev      = 'Fájlt töltött fel a '.$pr_szerzodes['sz_szam'].' szerződés, '.datum_kiir($pr_szerzodes_jotallas['bejaras']).' dátumú bejárás jótállásához.';
+                $valtozas = 'Fájl neve: '.$_FILES[$_POST['megnevezes']]['name'];
+                $adatbazis_kapcsolat -> i('log',
+                    array('felh_id',                                'nev', 'valtozas', 'ip'                     ),
+                    array($_SESSION[get_db_tabla().'login_recid'],  $nev,  $valtozas,  $_SERVER['REMOTE_ADDR']  )
+                );
 
             }
         break;

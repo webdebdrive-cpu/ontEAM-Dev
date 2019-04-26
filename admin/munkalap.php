@@ -274,9 +274,9 @@ if( isset($_POST['get_projekt_tabla']) ) {
     // Rendezés beállítása
     $join  = ' JOIN `'.get_db_tabla().'telephely` ON `'.get_db_tabla().'projektkezeles`.`telephely_id`=`'.get_db_tabla().'telephely`.`id`';
     switch ( $_POST['order'] ) {
-        case 'bkolt': $order = '`'.get_db_tabla().'projektkezeles`.`bkolt`, `'.get_db_tabla().'telephely`.`nev`';         $bkolt_selected = ' selected';  break;
-        case 'tipus': $order = '`'.get_db_tabla().'projektkezeles`.`tipus`, `'.get_db_tabla().'projektkezeles`.`bkolt`';  $tipus_selected = ' selected';  break;
-        default     : $order = '`'.get_db_tabla().'telephely`.`nev`,        `'.get_db_tabla().'projektkezeles`.`bkolt`';                                  break;
+        case 'jkolt'    : $order = '`'.get_db_tabla().'projektkezeles`.`jkolt`, `'.get_db_tabla().'telephely`.`nev`';         $bkolt_selected = ' selected';  break;
+        case 'tipus'    : $order = '`'.get_db_tabla().'projektkezeles`.`tipus`, `'.get_db_tabla().'projektkezeles`.`jkolt`';  $tipus_selected = ' selected';  break;
+        default         : $order = '`'.get_db_tabla().'telephely`.`nev`,        `'.get_db_tabla().'projektkezeles`.`jkolt`';                                  break;
     }
 
     $prek = $adatbazis_kapcsolat->s('

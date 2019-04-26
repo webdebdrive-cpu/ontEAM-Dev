@@ -33,8 +33,8 @@ if($tobb_kep){
 }
 
 // Lekérdezzük, hogy van-e a projekt szerződés tételei között olyan, amihez van kapcsolva számla tétel
-if (isset($_POST['van_kapcsolt_szamla'])) {
-    
+if( isset($_POST['van_kapcsolt_szamla']) ) {
+
     // Új feltöltéskor ezt nem kell ellenőrizni
     if( !$_POST['uj'] || $_POST['uj']=='false' ){
         $szerzodes_tetelek = $adatbazis_kapcsolat->s('recid', 'projektszerzodes_tetel', "`projektszerzodes_recid`='{$_POST['recid']}'");
@@ -562,8 +562,40 @@ if (isset($_POST['van_tetel'])) {
 
 }
 
+// Jótállás dokumentum törlése
+if( isset($_POST['jotallas_dok_torol']) ) {
+    
+    // Ha nincs Pr szerződés kezelés jog, akkor hibaüzenet
+    if( !_jog( JOG_PRKEZEL_SZERZODES_KEZEL ) ) {
+        echo json_encode( array(
+                            'hiba'  => 'Nincs projektszerződés kezelés joga, így a fájl nem törölhető!',
+                            'title' => 'Hiba'
+                        ) );
+        $weblap->leallit();
+        exit();
+    }
+    
+    $pr_szerzodes_jotallas  = $adatbazis_kapcsolat->s2('projektszerzodes_recid utvonal fajlnev bejaras', 'projektszerzodes_jotallas', "`recid`='{$_POST['recid']}'");
+    $pr_szerzodes           = $adatbazis_kapcsolat->s2('sz_szam', 'projektszerzodes', "`recid`='{$pr_szerzodes_jotallas['projektszerzodes_recid']}'");
+    kep_torol( '../'. get_utvonal().'projektszerzodes_jotallas/'.$pr_szerzodes_jotallas['utvonal'] );
+    $adatbazis_kapcsolat->u('projektszerzodes_jotallas', array('utvonal', 'fajlnev'), array('', ''), "`recid`='{$_POST['recid']}'");
+    
+    $nev      = 'Törölte a '.$pr_szerzodes['sz_szam'].' szerződés, '.datum_kiir($pr_szerzodes_jotallas['bejaras']).' dátumú bejárás jótállás fájlját.';
+    $valtozas = 'Fájl neve: '.$pr_szerzodes_jotallas['fajlnev'];
+    $adatbazis_kapcsolat -> i('log',
+        array('felh_id',                                'nev', 'valtozas', 'ip'                     ),
+        array($_SESSION[get_db_tabla().'login_recid'],  $nev,  $valtozas,  $_SERVER['REMOTE_ADDR']  )
+    );
+    
+    echo json_encode( array(
+                        'siker' => '1'
+                    ) );
+    $weblap->leallit();
+    exit();
+}
+
 // CSV generálása
-if (isset($_GET['csv'])) {
+if( isset($_GET['csv']) ) {
 
     $megnevezes_fajhoz = $megnevezes;
     if (isset($_GET['tetelek'])) {
@@ -1381,29 +1413,51 @@ require_once('selectek.php');
         $jotallasok = $adatbazis_kapcsolat->s('*', 'projektszerzodes_jotallas', "`projektszerzodes_recid`='{$_GET['id']}'", 'bejaras');
         foreach ( $jotallasok as $jotallas ) {
             
+            // Ha van projektszerződés kezelés jog
+            $fajl = '';
+            
             // Ha van már fájl, akkor azt megmutatjuk
             if( $jotallas['utvonal'] ) {
+
+                $utvonal     = '../'. get_utvonal().'projektszerzodes_jotallas/'.$jotallas['utvonal'];
+                $kep_reszek  = pathinfo($utvonal);
+                $ikon_utvonal = '../elemek/ikonok/'.strtolower($kep_reszek['extension']).'.png';
+
+                $torles = '';
+                if( _jog( JOG_PRKEZEL_SZERZODES_KEZEL ) ) {
+                    $torles = nl2('
+                                <div class="dn" id="dok_nevelos_nev_'.$jotallas['recid'].'">'.a_az($jotallas['fajlnev']).' '.$jotallas['fajlnev'].'</div>
+                                <span class="icon link jotallas" title="Dokumentum törlése" onclick="jotallas_dok_torol(\''.$jotallas['recid'].'\')">
+                                    <i class="material-icons" style="font-size: 2rem">
+                                        delete
+                                    </i>
+                                </span>
+                        ');
+                }
                 
-                $utvonal = '../'. get_utvonal().'projektszerzodes_jotallas/'.$jotallas['utvonal'];
-                $fajl = '<a href="'.$utvonal.'" target="_blank">'.kep_kiir( $utvonal, utf8($jotallas['fajlnev']), 30, 30, '', '', '' ).' '.$jotallas['fajlnev'].'</a>';
-                
+                $fajl = $torles.'<a href="'.$utvonal.'" target="_blank">'.kep_kiir( $ikon_utvonal, utf8($jotallas['fajlnev']), 30, 30, '', '', '', 'no thumb').' '.$jotallas['fajlnev'].'</a>';
+
             // Egyébként a feltöltés
             } else {
+
+                if( _jog( JOG_PRKEZEL_SZERZODES_KEZEL ) ) {
                 
-                $megn = $jotallas['recid'];
-                $parameterek = nl2("
-                                    'megnevezes'    : '".$megn."',
-                                    'konyvtar'      : 'projektszerzodes',
-                                    'tabla'         : 'projektszerzodes_jotallas',
-                                    'oszlop'        : 'projektszerzodes_recid',
-                                    'recid'         : '".$jotallas['recid']."'
-                                    ");
-                $minden_kesz = 'szamlaBetolt(_get(\'id\'), baseName(location.href) + \'.php\', \'jotallas\');';
-                $fajl = str_replace(    array('{PHP_FAJL}',     '{PARAMETEREK}', '{MEGN}', '{MINDEN_KESZ}'),
-                                        array('../feltolt.php', $parameterek,    $megn,    $minden_kesz   ),
-                                        $tallozas_gomb
-                                    );
+                    $megn = $jotallas['recid'];
+                    $parameterek = nl2("
+                                        'megnevezes'    : '".$megn."',
+                                        'konyvtar'      : 'projektszerzodes',
+                                        'tabla'         : 'projektszerzodes_jotallas',
+                                        'oszlop'        : 'projektszerzodes_recid',
+                                        'recid'         : '".$jotallas['recid']."'
+                                        ");
+                    $minden_kesz = 'szamlaBetolt(_get(\'id\'), baseName(location.href) + \'.php\', \'jotallas\');';
+                    $fajl = str_replace(    array('{PHP_FAJL}',     '{PARAMETEREK}', '{MEGN}', '{MINDEN_KESZ}'),
+                                            array('../feltolt.php', $parameterek,    $megn,    $minden_kesz   ),
+                                            $tallozas_gomb
+                                        );
+                }
             }
+                
             
             $szamla_html .= nl2('
                 <div class="dtr nSor">

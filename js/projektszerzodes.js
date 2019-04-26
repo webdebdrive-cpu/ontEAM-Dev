@@ -60,15 +60,47 @@ function get_szerz_ossz(){
 }
 
 // Új feltöltéskor és szerkesztéskor is a tételek kezelése popup megnyitása előtt ellenőrzünk pár dolgot.
-function tetelek_kezelese_popup_nyit(){
-    if( !get_szerz_ossz() || get_szerz_ossz()==0 ){
+function tetelek_kezelese_popup_nyit() {
+    if (!get_szerz_ossz() || get_szerz_ossz() == 0) {
         alert2('Tételek kezelése előtt adja meg a szerződött összeget!', '', 'Hiba');
         $('#szerz_ossz').addClass('hibas_ide_focus');
-    }else if( get_szerz_ossz() < 0 ){
+    } else if (get_szerz_ossz() < 0) {
         alert2('A szerződött összeg nem lehet 0 vagy negatív szám!', '', 'Hiba');
         $('#szerz_ossz').addClass('hibas_ide_focus');
-    }else{
+    } else {
         csoportMuvelet('projektszerzodes_tetelek_kezelese');
+    }
+}
+
+// Jótállás fül alatti dokumentum törlés
+function jotallas_dok_torol ( recid, mehet ) {
+    
+    if( !mehet ) {
+        
+        alert2('Biztosan törli '+$('#dok_nevelos_nev_'+recid).html()+' dokumentumot?', '<input type="button" class="gomb zold" value="Igen" onclick="jotallas_dok_torol(\''+recid+'\', \'mehet\')"><input type="button" class="gomb piros" value="Nem" onclick="alert2()">');
+        return false;
+        
+    } else {
+        
+        $.ajax({
+            url : 'projektszerzodes.php',
+            type: 'POST',
+            data: {
+                recid               : recid,
+                jotallas_dok_torol  : Date.now()
+            },
+            success: function (response) {
+                if(response.substring(0, 6)=='SESKIL'){ location.href = 'index.php'; }
+                if (response) {
+                    response = JSON.parse(response);
+                    if (response.hiba) {
+                        alert2(response.hiba, response.gomb,response.title);
+                    } else {
+                        szamlaBetolt(_get('id'), 'projektszerzodes.php', 'jotallas');
+                    }
+                }
+            }
+        });
     }
 }
 
@@ -98,3 +130,4 @@ $(document).on('click', '#epitesi_eng', function(e) {
     }
     tabindex_beallit();
 });
+

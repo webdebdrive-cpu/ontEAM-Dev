@@ -1173,7 +1173,7 @@ function garancialis_tipus_projekt_popup() {
         csoportMuvelet('munkalap_projekt_valaszt');
         
     // Ha nem garanciális hiba vagy még üres, akkor viszont ürítjük a projektszám mezőt és a mellette levő nevet is
-    } else {
+    } else if( $('#tipus_id').val()!=6 ) {
         $('#pr_szam').val('');
         $('#projekt_neve').html('');
     }
