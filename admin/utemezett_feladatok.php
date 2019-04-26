@@ -23,7 +23,7 @@ $szamla_html = '';
 
 // Dokumentumok fülhöz kell majd
 $tobb_kep = true;
-if($tobb_kep){
+if( $tobb_kep ) {
     function get_tobbkep_darab()    { return 10;        } // Maximum hány kép tallózható be
     function get_tobbkep_csakkep()  { return '';        } // Milyen kiterjesztéseket engedünk meg (ha mindenet, legyen üres)
     function get_tobbkep_kepmeret() { return 10;        } // MB-ban
@@ -36,8 +36,8 @@ if($tobb_kep){
 }
 
 // Mentés előtt popupban megmutatjuk, mi lesz az ütemezés
-if (isset($_GET['datumra_utemezes'])) {
-    
+if( isset($_GET['datumra_utemezes']) ) {
+
     echo datumra_utemezes_popup($megnevezes);
 
     /*

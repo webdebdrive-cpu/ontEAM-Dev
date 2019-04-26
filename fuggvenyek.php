@@ -32,7 +32,7 @@ function i_u($type, $tabla, $tomb) {
     }
 
     // Ha már valaki rámentett az adatlapomra, akkor hibaüzenet
-    if($type == 'update') {
+    if( $type == 'update' ) {
         $update_dt = $adatbazis_kapcsolat->s2('update_dt', $tabla, "`recid`='{$_GET['id']}'");
         if( $update_dt['update_dt'] > $_POST['update_dt'] ){
             echo json_encode(array(
@@ -65,20 +65,21 @@ function i_u($type, $tabla, $tomb) {
     $ertekek  = array();
 
     // Bejelentés és munkalap esetén az obj_id mellé a címkét is letároljuk
-    if($tabla=='bejelentes' || $tabla=='munkalap' ){
+    if( $tabla == 'bejelentes' || $tabla == 'munkalap' ) {
         $obj_txt = getErtek('nev', 'obj', 'recid', $_POST['obj_id']);
         array_push($oszlopok, 'obj_txt');
         array_push($ertekek,  $obj_txt);
     }
     // Munkalapnál meg a gép nevét
-    if($tabla=='munkalap' ){
+    if( $tabla == 'munkalap' ) {
         $gep_txt = getErtek('nev', 'eszkozkezeles', 'recid', $_POST['gep_id']);
         array_push($oszlopok, 'gep_txt');
         array_push($ertekek,  $gep_txt);
     }
     // Projektszerződésnél ha nincs pénznem információnk, akkor a devizás mezőket nullázzuk a biztosnág kedvéért
-    if( $tabla=='projektszerzodes' ){
-        if( !$_POST['kcs_21'] ){
+    if( $tabla == 'projektszerzodes' ) {
+        
+        if( !$_POST['kcs_21'] ) {
             $_POST['arfolyam']  = '';
             $_POST['valtva']    = '';
             $_POST['dev_net']   = '';
@@ -184,7 +185,7 @@ function i_u($type, $tabla, $tomb) {
         }
 
         // Havi ciklus x havonta ismétlődik
-        if($_POST['ciklho']){
+        if( $_POST['ciklho'] ) {
             array_push($oszlopok, 'ciklaltip'   );
             array_push($ertekek,  '1'           );
 
@@ -196,7 +197,7 @@ function i_u($type, $tabla, $tomb) {
 
         }
 
-        if($_POST['ciklho2']){
+        if( $_POST['ciklho2'] ) {
             array_push($oszlopok, 'ciklaltip'       );
             array_push($ertekek,  '2'               );
 
@@ -207,11 +208,11 @@ function i_u($type, $tabla, $tomb) {
             $ertekek[$index] = $_POST['ho_rendsz_het'];
         }
 
-        if($_POST['ism_het']){
+        if( $_POST['ism_het'] ) {
             array_push($oszlopok, 'ciklszorz'       );
             array_push($ertekek,  $_POST['ism_het'] );
             $cikl_nap = '';
-            if($type == 'insert') {
+            if( $type == 'insert' ) {
                 if($_POST['h']) { $cikl_nap .= '1'; }
                 if($_POST['k']) { $cikl_nap .= '2'; }
                 if($_POST['s']) { $cikl_nap .= '3'; }
@@ -219,7 +220,7 @@ function i_u($type, $tabla, $tomb) {
                 if($_POST['p']) { $cikl_nap .= '5'; }
                 if($_POST['sz']){ $cikl_nap .= '6'; }
                 if($_POST['v']) { $cikl_nap .= '7'; }
-            }else{
+            } else {
                 if($_POST['h']=='true') { $cikl_nap .= '1'; }
                 if($_POST['k']=='true') { $cikl_nap .= '2'; }
                 if($_POST['s']=='true') { $cikl_nap .= '3'; }
@@ -251,11 +252,12 @@ function i_u($type, $tabla, $tomb) {
     }
 
     // Új bejegyzés esetén több mindent is le kell kezelni (iktatószám kiszámolás, plusz oszlopok beállítása
-	if($type == 'insert') {
+	if( $type == 'insert' ) {
+        
         // Insert DT és USR lekezelése általánosan
         if( in_array($tabla.'.php', $_SESSION['ketHasabos']) ) {
             array_push($oszlopok, 'insert_dt',  'insert_usr'                          );
-            array_push($ertekek,   'NOW()',     $_SESSION[get_db_tabla().'teljes_nev']);
+            array_push($ertekek,  'NOW()',      $_SESSION[get_db_tabla().'teljes_nev']);
         }
 
         // Anyagigénylés új bejegyzés esetén
@@ -603,7 +605,6 @@ function i_u($type, $tabla, $tomb) {
                 $sql = $adatbazis_kapcsolat->u('projektkezeles', array('sz_ossz', 'fel_hato'), array($sz_ossz, $fel_hato), "`ikt_szam`='{$_POST['pr_szam']}'");
                 if( $sql === false ) { $db_error = true; }
             }
-
             
             array_push($oszlopok, 'loginnev'                        );
             array_push($ertekek,  $_SESSION[get_db_tabla().'user']  );
@@ -883,6 +884,7 @@ function i_u($type, $tabla, $tomb) {
         
         // Projektszerződés tételek felvétele
         if( $tabla == 'projektszerzodes' ) {
+            
             $i = 0;
             foreach($_SESSION['pr_szer_tetel_targy'] as $targy){
                 $varh_erk = str_replace('.', '-', $_SESSION['pr_szer_tetel_varh_erk'][$i]);
@@ -894,6 +896,11 @@ function i_u($type, $tabla, $tomb) {
                 if( $sql === false ) { $db_error = true; }
                 $i++;
             }
+
+            // Jótállás gyermektábla kialakítása
+            $jotallas = pr_szerzodes_jotallas_beallit( $id, $_POST['muszaki_gar_kezd'], $_POST['muszaki_gar_vege'], 'új feltöltés' );
+            if( $jotallas === false ) { $db_error = true; }
+            
         }
 
         // Naplózás
@@ -1295,8 +1302,8 @@ function i_u($type, $tabla, $tomb) {
         }
 
         // Projekt számla
-        if( $tabla == 'projektszamla' ){
-            
+        if( $tabla == 'projektszamla' ) {
+
             // Ellenőrizzük, hogy a visszaadva pipa be van-e pipálva, ha igen, akkor a dátum kötelező
             if( $_POST['visszaadva'] && ( !$_POST['visszaadva_dt'] || $_POST['visszaadva_dt']>'9000-00-00') ){
                 echo json_encode(array(
@@ -1388,10 +1395,10 @@ function i_u($type, $tabla, $tomb) {
         }
         
         // Projekt szerződés
-        if( $tabla == 'projektszerzodes' ){
+        if( $tabla == 'projektszerzodes' ) {
 
             // Kivitelezés kezdete, nem lehet korábbi, mint a kelte
-            if($_POST['kiv_kezd'] < $_POST['kelte'] ){
+            if( $_POST['kiv_kezd'] < $_POST['kelte'] ) {
                 echo json_encode(array(
                     'hiba'  => 'Kivitelezés kezdete, nem lehet korábbi, mint a kelte!',
                     'title' => 'Hiba',
@@ -1402,7 +1409,7 @@ function i_u($type, $tabla, $tomb) {
             }
             
             // Kivitelezés kezdete, nem lehet korábbi, mint a kelte
-            if($_POST['kiv_kezd'] > $_POST['kiv_vege'] ){
+            if( $_POST['kiv_kezd'] > $_POST['kiv_vege'] ) {
                 echo json_encode(array(
                     'hiba'  => 'Kivitelezés vége nem lehet korábbi, mint a kivitelezés kezdete!',
                     'title' => 'Hiba',
@@ -1416,7 +1423,7 @@ function i_u($type, $tabla, $tomb) {
             if( $sor === false ) { $db_error = true; }
 
             // A hozzáadott Projekthez milyen szerződések tartoznak. Ha a projekt összege - a már hozzáadott összegek különbsgée kisebb mint a mostani szerződés összege, akkor hibaüzenet
-            if( $_POST['pr_szam'] ){
+            if( $_POST['pr_szam'] ) {
                 $projekt = $adatbazis_kapcsolat->s2('jkolt', 'projektkezeles', "`ikt_szam`='{$_POST['pr_szam']}'");
                 if( $projekt === false ) { $db_error = true; }
                 $szerzodesek = $adatbazis_kapcsolat->s2('SUM(`szerz_ossz`)', 'projektszerzodes', "`pr_szam`='{$_POST['pr_szam']}' AND `recid`!='{$_GET['id']}'");
@@ -1442,7 +1449,7 @@ function i_u($type, $tabla, $tomb) {
             
             // Illetve a projekt mezőit is frissítjük, ha van már hozzáadva Projekt szám
             // Ez két esetet jelent: lehet most adtuk hozzá:
-            if( $_POST['pr_szam'] ){
+            if( $_POST['pr_szam'] ) {
                 $szerzodesek = $adatbazis_kapcsolat->s2('SUM(`szerz_ossz`)', 'projektszerzodes', "`pr_szam`='{$_POST['pr_szam']}' AND `recid`!='{$_GET['id']}'");
                 if( $szerzodesek === false ) { $db_error = true; }
                 $projekt = $adatbazis_kapcsolat->s2('jkolt', 'projektkezeles', "`ikt_szam`='{$_POST['pr_szam']}'");
@@ -1454,7 +1461,7 @@ function i_u($type, $tabla, $tomb) {
                 if( $sql === false ) { $db_error = true; }
                 
             // De az is lehet, hogy most vettük le, csak DB-ben létezik, ekkor is újra kell számíttatni, kicsit másképp
-            }elseif( $sor['pr_szam'] ){
+            } elseif( $sor['pr_szam'] ) {
                 $szerzodesek = $adatbazis_kapcsolat->s2('SUM(`szerz_ossz`)', 'projektszerzodes', "`pr_szam`='{$sor['pr_szam']}' AND `recid`!='{$_GET['id']}'");
                 if( $szerzodesek === false ) { $db_error = true; }
                 $projekt = $adatbazis_kapcsolat->s2('jkolt', 'projektkezeles', "`ikt_szam`='{$sor['pr_szam']}'");
@@ -1469,11 +1476,11 @@ function i_u($type, $tabla, $tomb) {
             
             // Ellenőrizzük, hogy a szerződés összege azonos-e a tételek összegével
             $tetelek_osszege = '';
-            foreach ( $_SESSION['pr_szer_tetel_varh_ert'] as $ertek ){
+            foreach ( $_SESSION['pr_szer_tetel_varh_ert'] as $ertek ) {
                 $ertek = str_replace(' ', '', $ertek);
                 $tetelek_osszege += $ertek;
             }
-            if( $tetelek_osszege != $_POST['szerz_ossz'] ){
+            if( $tetelek_osszege != $_POST['szerz_ossz']  ){
                 echo json_encode(array(
                     'hiba'  => 'A szerződés tételeinek összege nem egyezik meg a szerződés összegével!<br>Így nem menthető!',
                     'gomb'  => '<input type="button" class="gomb" value="Ok" onclick="szurkit_zar(\'mégsem mehet mutat\'); alert2();">',
@@ -1484,7 +1491,7 @@ function i_u($type, $tabla, $tomb) {
             }
             
             // Ellenőrizzük továbbá, hogy a szálloda és a Projekt szám azonos szállodához tartozik-e
-            if( $_POST['pr_szam'] ){
+            if( $_POST['pr_szam'] ) {
                 $projekt = $adatbazis_kapcsolat->s2('telephely_id', 'projektkezeles', "`ikt_szam`='{$_POST['pr_szam']}'");
                 if( $projekt === false ) { $db_error = true; }
                 if( $projekt['telephely_id']!=$_POST['telephely_id'] ){
@@ -1497,6 +1504,10 @@ function i_u($type, $tabla, $tomb) {
                     exit();
                 }
             }
+            
+            // Jótállás gyermektábla kialakítása.
+            $jotallas = pr_szerzodes_jotallas_beallit( $_GET['id'], $_POST['muszaki_gar_kezd'], $_POST['muszaki_gar_vege'] );
+            if( $jotallas === false ) { $db_error = true; }
             
             // Illetve a létesítmény felelőst külön fel kell még venni, mert a tiltott mező miatt ez magától nem íródna be
             array_push($oszlopok, 'let_fel',        'pr_szam'           );
@@ -9902,4 +9913,72 @@ function eloterjesztes_osszes_koltseg( $recid, $fb_bod ){
 // Pl. "Biztosan törli?" kérdésenél ha meg szeretnénk jeleníteni még helység nevet, vagy egyéb adaot, akkor ott vigyázni kell a speciális karakterekkel
 function alert_kerdesbe_sztring( $szoveg ){
     return str_replace('\'', '', htmlspecialchars( strip_tags( htmlspecialchars_decode($szoveg) ) ) );
+}
+
+// Projektszerződések mentésekor a jótállás gyermektáblák beállítása
+function pr_szerzodes_jotallas_beallit( $pr_szerzodes_id, $gar_kezd, $gar_vege, $uj_feltoltes ) {
+    
+    global $adatbazis_kapcsolat;
+
+    $db_error = false;
+    
+    $pr_szerzodes = $adatbazis_kapcsolat->s2('muszaki_gar_kezd muszaki_gar_vege', 'projektszerzodes', "`recid`='{$pr_szerzodes_id}'");
+    
+    if( $gar_vege > '4000-00-00' ) {
+        $gar_vege = '0000-00-00';
+    }
+    if( $gar_kezd > '4000-00-00' ) {
+        $gar_kezd = '0000-00-00';
+    }
+
+    // Ha van egyáltalán garancia vége időpontunk, és ha változott a garancia idő vagy új feltöltés
+    if( $gar_vege && $gar_vege!='0000-00-00' && ( $uj_feltoltes || $pr_szerzodes['muszaki_gar_kezd']!=$gar_kezd || $pr_szerzodes['muszaki_gar_vege']!=$gar_vege ) ) {
+
+        // Meglevő sorokat töröljük
+        // 2DO: jegyzőkönyveket is törölni!
+        $jotallasok = $adatbazis_kapcsolat->s('utvonal', 'projektszerzodes_jotallas', "`projektszerzodes_recid`='{$pr_szerzodes_id}'");
+        foreach( $jotallasok as $jotallas ) {
+            kep_torol( '../'.get_utvonal().'projektszerzodes_jotallas/'.$jotallas['utvonal'] );
+        }
+        $sql = $adatbazis_kapcsolat->d('projektszerzodes_jotallas', "`projektszerzodes_recid`='{$pr_szerzodes_id}'");
+        if( $sql === false ) { $db_error = true; }
+        
+        // A Garancia időből számítjuk, 3 eset van
+        // Ha csak a garancia vége időpont van megadva (azaz nincs kezdő dátum)
+        $ger_kezd_plusz_egy_ev = date('Y-m-d', strtotime("+12 months {$gar_kezd}"));
+        if( !$gar_kezd || $gar_kezd=='0000-00-00' || ( $gar_kezd && $ger_kezd_plusz_egy_ev >= $gar_vege ) ) {
+            $sql = $adatbazis_kapcsolat->i('projektszerzodes_jotallas', array('projektszerzodes_recid',     'bejaras',  'loginnev',                         'insert_dt',    'insert_usr',                             'update_usr'                              ),
+                                                                        array($pr_szerzodes_id,             $gar_vege,  $_SESSION[get_db_tabla().'user'],   'NOW()',        $_SESSION[get_db_tabla().'teljes_nev'],   $_SESSION[get_db_tabla().'teljes_nev']    )
+                                            );
+            if( $sql === false ) { $db_error = true; }
+
+        // Ha van garancia kezdő dátum
+        } else {
+        
+            // Ha a garancia vége dátum több mint egy év múlva van, akkor évente + a garancia idő vége dátummal létre kell hozni egy rekordot
+            $akt_kezd = $gar_kezd;
+            if( $ger_kezd_plusz_egy_ev <= $gar_vege ) {
+
+                while( $akt_kezd < $gar_vege ) {
+                    $sql = $adatbazis_kapcsolat->i('projektszerzodes_jotallas', array('projektszerzodes_recid',     'bejaras',  'loginnev',                         'insert_dt',    'insert_usr',                             'update_usr'                              ),
+                                                                                array($pr_szerzodes_id,             $akt_kezd,  $_SESSION[get_db_tabla().'user'],   'NOW()',        $_SESSION[get_db_tabla().'teljes_nev'],   $_SESSION[get_db_tabla().'teljes_nev']    )
+                                                    );
+                    if( $sql === false ) { $db_error = true; }
+                    $akt_kezd = date('Y-m-d', strtotime("+12 months {$akt_kezd}"));
+                }
+                $sql = $adatbazis_kapcsolat->i('projektszerzodes_jotallas', array('projektszerzodes_recid',     'bejaras',  'loginnev',                         'insert_dt',    'insert_usr',                             'update_usr'                              ),
+                                                                            array($pr_szerzodes_id,             $gar_vege,  $_SESSION[get_db_tabla().'user'],   'NOW()',        $_SESSION[get_db_tabla().'teljes_nev'],   $_SESSION[get_db_tabla().'teljes_nev']    )
+                                                );
+                if( $sql === false ) { $db_error = true; }
+            }
+            
+        }
+        
+    }
+    
+    // Ha hiba volt, azt jelezni kell, hogy a tranzakció megszakítható legyen
+    if( $db_error ) {
+        return false;
+    }
+    
 }

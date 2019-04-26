@@ -5190,47 +5190,47 @@ foreach($postok as $ertek){
         if( $ertek['tabla']=='projektigenyles' && !_jog(JOG_PRIGENY_S_KEZEL) && !_jog(JOG_PRIGENY_T_KEZEL) && !_jog(JOG_PRIGENY_B_KEZEL) && !_jog(JOG_PRIGENY_F_KEZEL) && !_jog(JOG_PRIGENY_SZ_KEZEL) ){
             $weblap -> leallit(); exit;
         }
-        if( $ertek['tabla']=='projektkezeles' ){
+        if( $ertek['tabla'] == 'projektkezeles' ) {
             // Ha nincs törlés jogunk, akkor elvágjuk a működést
             if( !get_projekt_kezeles_jog($_GET[$ertek['torid']]) ){
                 $weblap -> leallit(); exit;
             }
             // Csak nyitott projektkezelés törölhető
             $sor = $adatbazis_kapcsolat->s2('stat_id projektigenyles_recid', 'projektkezeles', "`recid`='{$_GET[$ertek['torid']]}'");
-            if($sor['stat_id']!=PRKEZEL_STAT_NYITOTT){
+            if( $sor['stat_id'] != PRKEZEL_STAT_NYITOTT ) {
                 $weblap -> leallit(); exit;
             }
             // Ha egy projekthez már tartozik igénylés, akkor sem törölhető
-            if($sor['projektigenyles_recid']){
+            if( $sor['projektigenyles_recid'] ) {
                 $weblap -> leallit(); exit;
             }
         }
-        if( $ertek['tabla']=='projektszamla' && !get_projekt_szamla_kezel_jog($_GET[$ertek['torid']]) ){
+        if( $ertek['tabla'] == 'projektszamla' && !get_projekt_szamla_kezel_jog($_GET[$ertek['torid']]) ) {
             $weblap -> leallit(); exit;
         }
-        if( $ertek['tabla']=='projektszerzodes' && !get_projekt_szerzodes_kezel_jog($_GET[$ertek['torid']]) ){
+        if( $ertek['tabla'] == 'projektszerzodes' && !get_projekt_szerzodes_kezel_jog($_GET[$ertek['torid']]) ) {
             $weblap -> leallit(); exit;
         }
-        if( $ertek['tabla']=='raktar' && !_jog(JOG_RAKTAR_KEZEL)){
+        if( $ertek['tabla'] == 'raktar' && !_jog(JOG_RAKTAR_KEZEL) ) {
             $weblap -> leallit(); exit;
         }
-        if( $ertek['tabla']=='szamla' && !_jog(JOG_SZAMLAK_TOROL)){
+        if( $ertek['tabla'] == 'szamla' && !_jog(JOG_SZAMLAK_TOROL) ) {
             $weblap -> leallit(); exit;
         }
-        if( $ertek['tabla']=='szallito' && !_jog(JOG_PARTNERTORZS_TOROL)){
+        if( $ertek['tabla'] == 'szallito' && !_jog(JOG_PARTNERTORZS_TOROL) ) {
             $weblap -> leallit(); exit;
         }
-        if( $ertek['tabla']=='szabadsagigeny' && !_jog(JOG_SZABADSAGIG_KEZEL)){
+        if( $ertek['tabla'] == 'szabadsagigeny' && !_jog(JOG_SZABADSAGIG_KEZEL) ) {
             $weblap -> leallit(); exit;
         }
         // Szerepkör és annak joga egyáltalán nem törölhető
-        if( $ertek['tabla']=='szerepkor'){
+        if( $ertek['tabla'] == 'szerepkor' ) {
             $weblap -> leallit(); exit;
         }
-        if( $ertek['tabla']=='szerepkor_jog'){
+        if( $ertek['tabla'] == 'szerepkor_jog' ) {
             $weblap -> leallit(); exit;
         }
-        if( $ertek['tabla']=='torzsadat' && !_jog(JOG_TORZSADAT_KEZEL)){
+        if( $ertek['tabla'] == 'torzsadat' && !_jog(JOG_TORZSADAT_KEZEL) ) {
             $weblap -> leallit(); exit;
         }
 
@@ -5403,7 +5403,7 @@ Hiba: '.getErtek('info', 'erteklista', 'recid', $bejelentes['hiba_id']).$hiba_tx
         }
 
         // Energia tervkor tranzakcióban töröljük az egységár sorait
-        if($ertek['tabla']=='energia_terv'){
+        if( $ertek['tabla'] == 'energia_terv' ) {
             $valtozas_kapcsolodo_tablak .= 'Energia terv törlésekor energia_terv_ear táblából az alábbi rekordok törlődtek: '."\n";
             $sorok = $adatbazis_kapcsolat->s('*', 'energia_terv_ear', "`energia_terv_id`='{$_GET[$ertek['torid']]}'");
             if( $sorok === false ) { $db_error = true; }
@@ -5413,8 +5413,8 @@ Hiba: '.getErtek('info', 'erteklista', 'recid', $bejelentes['hiba_id']).$hiba_tx
         }
 
         // FB előterjesztés törlésekor a kapcsolódó táblák és projektigénylés előterjesztés tábla törlése
-        if($ertek['tabla']=='eloterj_fb'){
-            
+        if( $ertek['tabla'] == 'eloterj_fb' ) {
+
             $elot = $adatbazis_kapcsolat->s2('stat_id', 'eloterj_fb', "`recid`='{$_GET[$ertek['torid']]}'");
             if($elot['stat_id']!=ELOT_FB_STAT_NYITOTT){
                 // Megszakítjuk, ha nincs is nyitott státuszban
@@ -5423,8 +5423,8 @@ Hiba: '.getErtek('info', 'erteklista', 'recid', $bejelentes['hiba_id']).$hiba_tx
             
             // Pillanatfelvétel rekordok törlése
             $projektigenyles_eloterj = $adatbazis_kapcsolat->s('*', 'projektigenyles_eloterj', "`eloterj_fb_recid`='{$_GET[$ertek['torid']]}'");
-            foreach($projektigenyles_eloterj as $pri_eloterj){
-                
+            foreach ( $projektigenyles_eloterj as $pri_eloterj ) {
+
                 // Logolás
                 $valtozas_kapcsolodo_tablak .= 'FB előterjesztés törlésekor a projektigenyles_eloterj pillanatfelvétel táblából az alábbi rekordok törlődtek: '."\n";
                 $valtozas_kapcsolodo_tablak .= logolas_kapcsolodo_tablak_sorai($pri_eloterj);
@@ -5436,8 +5436,8 @@ Hiba: '.getErtek('info', 'erteklista', 'recid', $bejelentes['hiba_id']).$hiba_tx
         }
         
         // BoD előterjesztés törlésekor a kapcsolódó táblák és projektigénylés előterjesztés tábla törlése
-        if($ertek['tabla']=='eloterj_bod'){
-            
+        if( $ertek['tabla'] == 'eloterj_bod' ) {
+
             $elot = $adatbazis_kapcsolat->s2('stat_id', 'eloterj_bod', "`recid`='{$_GET[$ertek['torid']]}'");
             if($elot['stat_id']!=ELOT_BOD_STAT_NYITOTT){
                 // Megszakítjuk, ha nincs is nyitott státuszban
@@ -5446,8 +5446,8 @@ Hiba: '.getErtek('info', 'erteklista', 'recid', $bejelentes['hiba_id']).$hiba_tx
             
             // Pillanatfelvétel rekordok törlése
             $projektigenyles_eloterj = $adatbazis_kapcsolat->s('*', 'projektigenyles_eloterj', "`eloterj_bod_recid`='{$_GET[$ertek['torid']]}'");
-            foreach($projektigenyles_eloterj as $pri_eloterj){
-                
+            foreach ( $projektigenyles_eloterj as $pri_eloterj ) {
+
                 // Logolás
                 $valtozas_kapcsolodo_tablak .= 'BoD előterjesztés törlésekor a projektigenyles_eloterj pillanatfelvétel táblából az alábbi rekordok törlődtek: '."\n";
                 $valtozas_kapcsolodo_tablak .= logolas_kapcsolodo_tablak_sorai($pri_eloterj);
@@ -5459,7 +5459,7 @@ Hiba: '.getErtek('info', 'erteklista', 'recid', $bejelentes['hiba_id']).$hiba_tx
         }
 
         // Fenntartási terv törlésénél ellenőrizzük, hogy a terv státusza és a felhasználó személyzettípusa stimmel-e.
-        if($ertek['tabla']=='fenntartasi_terv'){
+        if( $ertek['tabla'] == 'fenntartasi_terv' ) {
             $fenntartasi_terv = $adatbazis_kapcsolat->s2('stat_id', 'fenntartasi_terv', "`recid`='{$_GET[$ertek['torid']]}'");
             if( $fenntartasi_terv === false ) { $db_error = true; }
             if( $fenntartasi_terv['stat_id']!=ENERGIATERV_STAT_MUNKAKOZI ){
@@ -5512,8 +5512,8 @@ Hiba: '.getErtek('info', 'erteklista', 'recid', $bejelentes['hiba_id']).$hiba_tx
         }
 
         // Projektigénylés törléskor a véleményezők és azok dokumentumai
-        if($ertek['tabla']=='projektigenyles'){
-            
+        if( $ertek['tabla'] == 'projektigenyles' ) {
+
             $where = "  `projektigenyles_recid`='{$_GET[$ertek['torid']]}' AND
                                                                                 `eloterj_fb_recid` NOT IN ( SELECT `recid` FROM `".get_db_tabla()."eloterj_fb` WHERE `stat_id`='".ELOT_FB_STAT_DONT_ROG."' ) AND
                                                                                 `eloterj_bod_recid` NOT IN ( SELECT `recid` FROM `".get_db_tabla()."eloterj_bod` WHERE `stat_id`='".ELOT_BOD_STAT_DONT_ROG."' )
@@ -5550,8 +5550,8 @@ Hiba: '.getErtek('info', 'erteklista', 'recid', $bejelentes['hiba_id']).$hiba_tx
         }
         
         // Projektszámla törlésekor a tételeket is törölni kell
-        if($ertek['tabla']=='projektszamla'){
-            
+        if( $ertek['tabla'] == 'projektszamla' ) {
+
             // Ha van olyan tétele, amihez van számla csatolva, akkor nem engedjük meg a törlést, inkább vágjuk itt el a működést. Ide el se juthatunk, mert már popupban kapott figyelmeztetést.
             // Ez arra jó, hogy URL átírással se lehessen projektet törölni
             $van_szerzodese = $adatbazis_kapcsolat->s('recid', 'projektszamla_tetel', "`projektszamla_recid`='{$_GET[$ertek['torid']]}' AND `projektszerzodes_tetel_recid`!='0'");
@@ -5568,8 +5568,8 @@ Hiba: '.getErtek('info', 'erteklista', 'recid', $bejelentes['hiba_id']).$hiba_tx
         }
         
         // Projektszerződés törlésekor a tételeket is törölni kell
-        if($ertek['tabla']=='projektszerzodes'){
-            
+        if( $ertek['tabla'] == 'projektszerzodes' ) {
+
             // Ha van olyan tétele, amihez van számla csatolva, akkor nem engedjük meg a törlést, inkább vágjuk itt el a működést. Ide el se juthatunk, mert már popupban kapott figyelmeztetést.
             // Ez arra jó, hogy URL átírással se lehessen projektet törölni
             $tetelek = $adatbazis_kapcsolat->s('recid', 'projektszerzodes_tetel', "`projektszerzodes_recid`='{$_GET[$ertek['torid']]}'");
@@ -5589,9 +5589,9 @@ Hiba: '.getErtek('info', 'erteklista', 'recid', $bejelentes['hiba_id']).$hiba_tx
         }
 
         // Login táblából csak logikailag törlünk. Többi helyről fizikailag.
-        if($ertek['tabla']=='login'){
+        if( $ertek['tabla'] == 'login' ) {
             $sikeres_torles = $adatbazis_kapcsolat -> u($ertek['tabla'], array('torolve'), array(1), "`recid`='{$_GET[$ertek['torid']]}'");
-        }else{
+        } else {
 
             // Kezdeményezett művelet
             $muvelet = 'A(z) '.$ertek['tabla'].'-ból recordot törölt a következő azonosítóval: '.$_GET[$ertek['torid']].'.';
@@ -5603,7 +5603,7 @@ Hiba: '.getErtek('info', 'erteklista', 'recid', $bejelentes['hiba_id']).$hiba_tx
             if( $sor === false ) { $db_error = true; }
 
             $i = 1;
-            foreach($sor as $key => $value) {
+            foreach ( $sor as $key => $value ) {
                 $valtozas .= $i.'. [mezo]'.$key.'[/mezo] [ertek]'.$value.'[/ertek]';
                 
                 // Bizonyos mezők esetén a címkét még külön le kell tárolni
@@ -5668,25 +5668,26 @@ Hiba: '.getErtek('info', 'erteklista', 'recid', $bejelentes['hiba_id']).$hiba_tx
 
         if( $sikeres_torles === false ) { $db_error = true; }
         if( !$db_error ) {
+            
             mysqli_commit($db_kapcs);
-            if(isset($_GET['noload'])){
+            if( isset($_GET['noload']) ) {
 
                 // Visszaadjuk az elemek számát
                 echo number_format( count($adatbazis_kapcsolat->s('recid', $ertek['tabla'])), 0, '', '.' );
 
 				$weblap -> leallit();
 				exit();
-			}else{
+                
+			} else {
 
                 // Anyagigénylés törlés után a táblázathoz jutunk
                 $kieg = get_get(array($ertek['torid']), 'sima &');
-                if( $ertek['tabla']=='anyagigenyles' ){
+                if( $ertek['tabla'] == 'anyagigenyles' ) {
                     $kieg = get_get(array($ertek['torid'], 'modosit'), 'sima &').'&tablazat';
                 }
-                
                     
                 // Helyiség törlése
-                if( $ertek['tabla']=='obj' ){
+                if( $ertek['tabla'] == 'obj' ) {
 
                     $obj = $adatbazis_kapcsolat->s2('recid', 'obj', "`szulo`='{$original_sor['szulo']}' AND `sor`>'{$original_sor['sor']}'", 'sor', '1');
                     if(!$obj){
@@ -5703,15 +5704,15 @@ Hiba: '.getErtek('info', 'erteklista', 'recid', $bejelentes['hiba_id']).$hiba_tx
                 }
                         
                 // Eszköz törlésekor a következő eszközre ugrojunk, ha az nincs, akkor meg a helyiségre
-                if( $ertek['tabla']=='eszkozkezeles' ){
-                        
+                if( $ertek['tabla'] == 'eszkozkezeles' ) {
+
                     $eszkoz = $adatbazis_kapcsolat->s2('recid', 'eszkozkezeles', "`obj_id`='{$original_sor['obj_id']}' AND `nev`>'{$original_sor['nev']}'", 'nev', '1');
                     if(!$eszkoz){
                         $eszkoz = $adatbazis_kapcsolat->s2('recid', 'eszkozkezeles', "`obj_id`='{$original_sor['obj_id']}' AND `nev`<'{$original_sor['nev']}'", 'nev desc', '1');
                     }
 
                     // Ha egyáltalán nincs már eszköz ezen a szinten, akkor a helyiségre ugrunk
-                    if(!$eszkoz){
+                    if( !$eszkoz ) {
                         $kieg = get_get(array($ertek['torid'], 'modosit', 'obj'), 'sima &').'&id='.$original_sor['obj_id'].'&obj';
                     }else{
                         $kieg = get_get(array($ertek['torid'], 'modosit', 'obj'), 'sima &').'&id='.$eszkoz['recid'].'&modosit';

@@ -189,17 +189,18 @@ function get_torles_gomb_v(){
     return ')"> <input class="gomb piros" type="button" value="Nem" onclick="alert2()">';
 }
 
-/* Minden töröl gomb HTML-je. Hogy valid legyen kiveszem JS-be. */
+// Minden töröl gomb HTML-je. Hogy valid legyen kiveszem JS-be.
 function get_gomb_mindent(){
     return '<p class="c" style="margin-top: 0.5rem"><input class="gomb zold" type="button" value="Igen" onclick="document.getElementById(\'kij_torl\').submit()">  <input class="gomb piros" type="button" value="Nem" onclick="alert2()">';
 }
 
-/* Kibontásnál a töröl gomb HTML-je. Hogy valid legyen kiveszem JS-be. */
-function get_kibont_torol(self, torles, get_id){
+// Kibontásnál a töröl gomb HTML-je. Hogy valid legyen kiveszem JS-be.
+function get_kibont_torol(self, torles, get_id) {
     var gg = get_get(['id', 'modosit'], 1);
     if( !gg ){
         gg = '?';
     }
+console.log(self + gg + '&amp;lista&amp;' + torles + '=' + get_id );
     return '<p class="c" style="margin-top: 0.5rem"><input class="gomb zold" type="button" value="Igen" onclick="szurkit(); location.href=\'' + self + gg + '&amp;lista&amp;' + torles + '=' + get_id + '\'"> <input class="gomb piros" type="button" value="Nem" onclick="alert2()">';}
 
 /* Kibontásnál címlap kép törlés HTML-je. Hogy valid legyen kiveszem JS-be. */
@@ -5869,6 +5870,7 @@ function szamlaBetolt( recid, page, muvelet, szerkeszt, kerdes_nelkul, anyagigen
                         'hibaelharitas',
                         'id',
                         'jogosultsag',
+                        'jotallas',
                         'megjegyzes',
                         'megjegyzesek',
                         'megterules',

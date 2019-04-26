@@ -24,13 +24,13 @@ if( $_POST['tabla'] ) {
 }
 
 // Eszközkezelésnél az engedélyeknek van egy külön tálbája
-if(basename($_SERVER['PHP_SELF']) == 'eszkozkezeles.php' && isset($_GET['engedelyek'])){
+if( basename($_SERVER['PHP_SELF']) == 'eszkozkezeles.php' && isset($_GET['engedelyek']) ) {
     $tobbkep_tablanev = 'eszkozkezeles_eng_dok';
 }
 
 // Legutóbb feltötött fájl adatainak lekérése, tipus kiválasztásához
-if (isset($_POST['get_feltoltott_fajl'])) {
-    
+if( isset($_POST['get_feltoltott_fajl']) ) {
+
     require_once('../weblap.php');
     $dokumentum = $adatbazis_kapcsolat->s2('recid fajlnev', $_POST['tabla'].'_dok', "`{$_POST['tabla']}_id`='{$_POST['id']}'", 'recid desc', '1');
 
@@ -45,8 +45,8 @@ if (isset($_POST['get_feltoltott_fajl'])) {
 }
 
 // Dokumentum tipus letárolása
-if (isset($_POST['dokumentum_tipus_valaszt'])) {
-    
+if( isset($_POST['dokumentum_tipus_valaszt']) ) {
+
     require_once('../weblap.php');
     $sql = $adatbazis_kapcsolat->u($_POST['tabla'].'_dok', array('tipus'), array($_POST['tipus']), "`recid`='{$_POST['recid']}'");
     if( $sql === false ) { $db_error = true; }
@@ -56,10 +56,10 @@ if (isset($_POST['dokumentum_tipus_valaszt'])) {
 }
 
 // Fájlfeltöltés
-if( isset($_POST['megnevezes']) && !$archivum ){
-    
+if( isset($_POST['megnevezes']) && !$archivum ) {
+
     // Ha a megnevezés csak annyi, hogy javaslattetel_popup, akkor munkalap javaslattétel popuján töltünk fel képet, ekkor másképp kell eljárni
-    if($_POST['megnevezes']=='javaslattetel_popup'){
+    if( $_POST['megnevezes'] == 'javaslattetel_popup' ) {
 
         require_once('../weblap.php');
         $konyvtar_db_nev = csonkit($_POST['tabla'], 4);
@@ -73,7 +73,7 @@ if( isset($_POST['megnevezes']) && !$archivum ){
         }
 
         // JS alapú fájlfeltöltés esetén a $_FILES['file'] tömbben vannak az adatok a $_FILES[megnevezés] helyett
-        if($_FILES['file']){
+        if( $_FILES['file'] ) {
             $_FILES[ $_POST['megnevezes'] ] = $_FILES['file'];
         }
 
@@ -81,7 +81,7 @@ if( isset($_POST['megnevezes']) && !$archivum ){
         $tobbkep_tablanev   = 'munkalap_dok';
 
     // Általános eset
-    }else{
+    } else {
 
         require_once('../weblap.php');
 
@@ -90,19 +90,19 @@ if( isset($_POST['megnevezes']) && !$archivum ){
         $utvonal = '../'.get_utvonal().$konyvtar_db_nev;
 
         // Mappa esetleges létrehozása
-        if(!is_dir($utvonal)){
+        if( !is_dir($utvonal) ) {
             mkdir($utvonal, 0777);
         }
         
         // Az útvonal, projektek esetén évszámmal is meg van még toldva, amit a rekord insert_dt-jéből veszünk, kivéve számáknál, ott a teljesítés éve számít
         $projekt_feluletek = array('projektkezeles', 'projektszamla', 'projektszerzodes');
-        if( in_array($konyvtar_db_nev, $projekt_feluletek) ){
-            
+        if( in_array($konyvtar_db_nev, $projekt_feluletek) ) {
+
             // Projekt számla esetén a teljesítés évét kell mappának beállítani
-            if( $konyvtar_db_nev == 'projektszamla' ){
+            if( $konyvtar_db_nev == 'projektszamla' ) {
                 $pr_szamla = $adatbazis_kapcsolat->s2('telj_datum szallito_id', 'projektszamla', "`recid`='".$_POST['sorid']."'");
                 $ev_mappa   = substr($pr_szamla['telj_datum'], 0, 4);
-            }else{
+            } else {
                 $sor        = $adatbazis_kapcsolat->s2('insert_dt', $konyvtar_db_nev, "`recid`='".$_POST['sorid']."'");
                 $ev_mappa   = substr($sor['insert_dt'], 0, 4);
             }
@@ -110,23 +110,23 @@ if( isset($_POST['megnevezes']) && !$archivum ){
             $utvonal .= '/'.$ev_mappa;
 
             // Mappa esetleges létrehozása
-            if(!is_dir($utvonal)){
+            if( !is_dir($utvonal) ) {
                 mkdir($utvonal, 0777);
             }
         }
 
         // Projekt számla esetén nincs ikt. szám oszlop, ezért ott a szallito_id a könyvtár neve
-        if( $konyvtar_db_nev == 'projektszamla' ){
-            
+        if( $konyvtar_db_nev == 'projektszamla' ) {
+
             $utvonal .= '/'.$pr_szamla['szallito_id'];
             
         // Általános eset
-        }else{
-        
+        } else {
+
             // Következő mappa szint az iktatószámból jön
             // Projektszerződésnél az iktatószámnak más az oszlopneve
             $ikt_szam_oszlop = 'ikt_szam';
-            if( $konyvtar_db_nev == 'projektszerzodes' ){
+            if( $konyvtar_db_nev == 'projektszerzodes' ) {
                 $ikt_szam_oszlop = 'sz_szam';
             }
             // Iktatószám alapján könyvtár felépítése
@@ -142,19 +142,19 @@ if( isset($_POST['megnevezes']) && !$archivum ){
         }
         
         // JS alapú fájlfeltöltés esetén a $_FILES['file'] tömbben vannak az adatok a $_FILES[megnevezés] helyett
-        if($_FILES['file']){
+        if( $_FILES['file'] ) {
             $_FILES[$_POST['megnevezes']] = $_FILES['file'];
         }
     }
 
     // Ha nincs dokumentum kezelés jogunk, akkor feltöltést blokkoljuk
-    if( !dokumentum_kezeles_jog($_POST['tabla'], $_POST['sorid']) ){
+    if( !dokumentum_kezeles_jog($_POST['tabla'], $_POST['sorid']) ) {
         exit;
     }
 
 	// Tiltott fájlformátumok kiszűrése, szintén nincs feltöltés
 	$tiltott_fajlok = array('text/x-js', 'text/css', 'text/html', 'application/xhtml+xml', 'text/xml');
-    if( in_array( $_FILES[ $_POST['megnevezes'] ]['type'], $tiltott_fajlok ) ){
+    if( in_array($_FILES[$_POST['megnevezes']]['type'], $tiltott_fajlok) ) {
         echo 'Hiba!Ilyen formátumú fájl feltöltése tiltott, a fájlfeltöltés nem jött létre!';
         $weblap -> leallit();
 		exit;
@@ -165,11 +165,11 @@ if( isset($_POST['megnevezes']) && !$archivum ){
     
     // -- kiszűrése a fájl nevéből
     $fajlnev = str_replace('--', '-', $fajlnev['filename']);
-    while(strpos($fajlnev, '--')!==false){
+    while ( strpos($fajlnev, '--') !== false ) {
         $fajlnev = str_replace('--', '-', $fajlnev);
     }
 
-    switch($_FILES[ $_POST['megnevezes'] ]['error']){
+    switch ( $_FILES[$_POST['megnevezes']]['error'] ) {
 
         case 1:
             echo 'Hiba! Túl nagy méretű fájl! Maximum '.ini_get('upload_max_filesize').' engedélyezett!';
@@ -243,7 +243,9 @@ if( isset($_POST['megnevezes']) && !$archivum ){
                         $osszes_sor = $adatbazis_kapcsolat->s('recid', $_POST['tabla'], '');
 
                         echo get_tobbkep_thumb($sor_kepek, count($osszes_sor));
+                        
                     } else {
+                        
                         $sor_kep = $adatbazis_kapcsolat->s($_POST['oszlop'], $_POST['tabla'], "`".$_POST['oszlop']."` = '".$_POST['sorid']."' AND `utvonal` = '{$kep_tort}'", '', '0,1');
 
                         if( !$sor_kep ) {
@@ -303,7 +305,7 @@ $parameterek = nl2("
 // Ha minden fájl feltöltése kész, mi történjen (ide kéne egy jó ajax hívás)
 $gomb_neve   = 'Tallózás';
 $minden_kesz = '';
-if($tobbkep_tablanev=='eszkozkezeles_eng_dok'){
+if( $tobbkep_tablanev == 'eszkozkezeles_eng_dok' ) {
     $minden_kesz = 'kapcsolodoSzerkeszt(\'eszkozkezel_engedely\');';
     $gomb_neve   = 'Új engedély feltöltése';
 } else {
@@ -314,14 +316,14 @@ if($tobbkep_tablanev=='eszkozkezeles_eng_dok'){
 $multiple       = ' multiple=""';
 $tipus_fejlec   = '';
 $apa_tabla      = csonkit($tobbkep_tablanev, 4);
-if( tipusos_dokumentumok($apa_tabla) ){
+if( tipusos_dokumentumok($apa_tabla) ) {
     $tipus_fejlec   = '<div class="felirat">Típus</div>';
     $multiple       = '';
 }
 
 // Van-e dokumentum kezelés jogunk?
 $nincs_torles = '';
-if( !dokumentum_kezeles_jog($tobbkep_tablanev, $_GET['id']) ){
+if( !dokumentum_kezeles_jog($tobbkep_tablanev, $_GET['id']) ) {
     $nincs_torles = 'nincs törlés';
 }
 if( !$nincs_torles ){
@@ -331,7 +333,7 @@ if( !$nincs_torles ){
 }
 
 $tobbkep_html  = '';
-if( !$archivum ){
+if( !$archivum ) {
     $tobbkep_html .= str_replace($sorrend_ujkep_mit, $sorrend_ujkep_mivel, $sorrend_ujkep);
 }
 
@@ -340,7 +342,7 @@ $kepek = $adatbazis_kapcsolat -> s('*', $tobbkep_tablanev, "`".get_tobbkep_oszlo
 
 // Eszközkezelés engedélyeknél dátumot is kiírunk
 $mellek = 'dokumentumok';
-if(basename(self()) == 'eszkozkezeles.php' && isset($_GET['engedelyek'])){
+if( basename(self()) == 'eszkozkezeles.php' && isset($_GET['engedelyek']) ) {
     $mellek = 'engedelyek';
 }
 
@@ -349,7 +351,7 @@ $tobbkep_html .= nl2('
         <ul id="sorrendezes_tobbkep" data-tabla="'.$tobbkep_tablanev.'" data-mellek="'.$mellek.'">
     ');
 
-if($kepek){
+if( $kepek ) {
     $tobbkep_html .= nl2('
                                 <li class="fejlec">
                                     <div class="kep">Kép</div>
@@ -370,18 +372,18 @@ if($kepek){
     
 }
 
-// Projektek adatlapján felsoroljuk a kapcsolódó szerződések és számák dokuemtumait is
-if( $apa_tabla == 'projektkezeles' ){
+// Projektek adatlapján felsoroljuk a kapcsolódó szerződések és számák dokumetumait is
+if( $apa_tabla == 'projektkezeles' ) {
     $projekt        = $adatbazis_kapcsolat->s2('ikt_szam', 'projektkezeles', "`recid`='{$_GET['id']}'");
     
     $kepek          = '';
     $szerzodesek    = $adatbazis_kapcsolat->s('recid', 'projektszerzodes', "`pr_szam`='{$projekt['ikt_szam']}'");
     $szerzodesek    = adatbazis2tomb($szerzodesek, 'recid');
-    if( $szerzodesek ){
+    if( $szerzodesek ) {
         $kepek = $adatbazis_kapcsolat -> s('*', 'projektszerzodes_dok', "`projektszerzodes_id` IN (".implode(',', $szerzodesek).")", 'sor');
     }
 
-    if( $kepek ){
+    if( $kepek ) {
         $tobbkep_html .= nl2('
                             <li class="nohover" style="margin: 2rem 0rem 0.3rem 0">
                                 <h3>Projektszerződések dokumentumai</h3>
@@ -395,7 +397,7 @@ if( $apa_tabla == 'projektkezeles' ){
                             </li>
             ');
     }
-    foreach($kepek as $sor_kepek) {
+    foreach ( $kepek as $sor_kepek ) {
         $tobbkep_html .= get_tobbkep_thumb($sor_kepek, $i, 'projektszerzodes_dok', 'nincs törlés', $sor_kepek['projektszerzodes_id']);
         $i++;
     }
@@ -403,11 +405,11 @@ if( $apa_tabla == 'projektkezeles' ){
     $kepek      = '';
     $szamlak    = $adatbazis_kapcsolat->s('recid', 'projektszamla', "`pr_szam`='{$projekt['ikt_szam']}'");
     $szamlak    = adatbazis2tomb($szamlak, 'recid');
-    if( $szamlak ){
+    if( $szamlak ) {
         $kepek = $adatbazis_kapcsolat -> s('*', 'projektszamla_dok', "`projektszamla_id` IN (".implode(',', $szamlak).")", 'sor');
     }
 
-    if( $kepek ){
+    if( $kepek ) {
         $tobbkep_html .= nl2('
                             <li class="nohover" style="margin: 2rem 0rem 0.3rem 0">
                                 <h3>Projektszámla dokumentumai</h3>
@@ -421,8 +423,42 @@ if( $apa_tabla == 'projektkezeles' ){
                             </li>
             ');
     }
-    foreach($kepek as $sor_kepek) {
+    foreach ( $kepek as $sor_kepek ) {
         $tobbkep_html .= get_tobbkep_thumb($sor_kepek, $i, 'projektszamla_dok', 'nincs törlés', $sor_kepek['projektszamla_id']);
+        $i++;
+    }
+}
+
+// Projketszerződésnél pedig felsoroljuk a jótállás fül alatti dokumentumokat is
+if( $apa_tabla == 'projektszerzodes' || $apa_tabla == 'projektkezeles' ) {
+    
+    $kepek = '';
+    if( $apa_tabla == 'projektszerzodes' ) {
+        $kepek = $adatbazis_kapcsolat->s('*', 'projektszerzodes_jotallas', "`projektszerzodes_recid`='{$_GET['id']}'");
+    } elseif( $apa_tabla == 'projektkezeles' ) {
+        $projekt             = $adatbazis_kapcsolat->s2('ikt_szam', 'projektkezeles', "`recid`='{$_GET['id']}'");
+        $pr_szerzodes_recidk = $adatbazis_kapcsolat->s('recid', 'projektszerzodes', "`pr_szam`='{$projekt['ikt_szam']}'");
+        $pr_szerzodes_recidk = adatbazis2tomb($pr_szerzodes_recidk, 'recid');
+        $kepek = $adatbazis_kapcsolat->s('*', 'projektszerzodes_jotallas', "`projektszerzodes_recid` IN (".implode(', ', $pr_szerzodes_recidk).")");
+    }
+    
+
+    if( $kepek ) {
+        $tobbkep_html .= nl2('
+                            <li class="nohover" style="margin: 2rem 0rem 0.3rem 0">
+                                <h3>Projektszerződés jótállásai</h3>
+                            </li>
+                            <li class="fejlec nohover">
+                                <div class="kep">Kép</div>
+                                <div class="felirat c" style="width: 30rem">Fájlnév</div>
+                                <div class="felirat">Feltöltötte</div>
+                                <div class="felirat">Dátum</div>
+                                <div class="maradek torles">Szerződés</div>
+                            </li>
+            ');
+    }
+    foreach ( $kepek as $sor_kepek ) {
+        $tobbkep_html .= get_tobbkep_thumb($sor_kepek, $i, 'projektszerzodes_jotallas', 'nincs törlés', $sor_kepek['projektszerzodes_recid']);
         $i++;
     }
 }
@@ -436,7 +472,7 @@ $szamla_html .= $tobbkep_html;
 
 
 // A több képe thumbnailját hozza létre, egy adatbázis sorból
-function get_tobbkep_thumb($sor_kepek, $i, $tobbkep_tablanev, $nincs_torles, $kulso_recid) {
+function get_tobbkep_thumb( $sor_kepek, $i, $tobbkep_tablanev, $nincs_torles, $kulso_recid ) {
 
     global $archivum;
     global $adatbazis_kapcsolat;
@@ -446,7 +482,7 @@ function get_tobbkep_thumb($sor_kepek, $i, $tobbkep_tablanev, $nincs_torles, $ku
     }
 
     $javaslattetel = '';
-    if($_POST['megnevezes']=='javaslattetel_popup'){
+    if( $_POST['megnevezes'] == 'javaslattetel_popup' ) {
         $tobbkep_tablanev   = 'munkalap_dok';
         $javaslattetel      = 'javaslattetel';
     }
@@ -458,9 +494,14 @@ function get_tobbkep_thumb($sor_kepek, $i, $tobbkep_tablanev, $nincs_torles, $ku
 
     $sor_kepek['utvonal'] = stripslashes(htmlspecialchars_decode($sor_kepek['utvonal']));
     $csonkit = 4;
-    if($archivum) {
+    if( $archivum ) {
         $csonkit = 9;
     }
+    // Jótállás esetén nem kell csonítani a tábla nevén
+    if( $apa_tabla == 'projektszerzodes_jota' ) {
+        $csonkit = 0;
+    }
+    
     $kep_utvonal = '../'.get_utvonal().csonkit($tobbkep_tablanev, $csonkit).'/'.$sor_kepek['utvonal'];
 // A fájl sora akkor is jelenjen meg, ha már nem létezik, hogy a dev-be átmásolt adatok esetén ha nincs ott a fájl maga, attól még jelenjen meg.
 //    if(is_file($kep_utvonal)){
@@ -478,24 +519,24 @@ function get_tobbkep_thumb($sor_kepek, $i, $tobbkep_tablanev, $nincs_torles, $ku
 
         // Eszközkezelés engedélyeknél dátumot is kiírunk
         $datum = '';
-        if(basename(self()) == 'eszkozkezeles.php' && isset($_GET['engedelyek'])){
+        if( basename(self()) == 'eszkozkezeles.php' && isset($_GET['engedelyek']) ) {
             $datum = '';
-            if($sor_kepek['kezdet']!='0000-00-00'){
+            if( $sor_kepek['kezdet'] != '0000-00-00' ) {
                 $datum .= str_replace('-', '.', $sor_kepek['kezdet']);
             }
             $datum .= ' - ';
-            if($sor_kepek['veg']!='0000-00-00'){
+            if( $sor_kepek['veg'] != '0000-00-00' ) {
                 $datum .= str_replace('-', '.', $sor_kepek['veg']);
             }
         // Egyébként az insertDt
-        }else{
+        } else {
             $datum .= datum_kiir($sor_kepek['insert_dt']);
         }
 
         $sor_kepek['fajlnev'] = htmlspecialchars($sor_kepek['fajlnev']);
 
         $id_kieg = '';
-        if($_POST['megnevezes']=='javaslattetel_popup'){
+        if( $_POST['megnevezes'] == 'javaslattetel_popup' ) {
             $id_kieg = '_jt_popup';
         }
         $azon = 'kep'.$id_kieg.$sor_kepek['recid'];
@@ -503,19 +544,19 @@ function get_tobbkep_thumb($sor_kepek, $i, $tobbkep_tablanev, $nincs_torles, $ku
         // Csak az törölheti, aki feltöltötte (ha archivum, akkor meg már senki)
         $torles = '';
         $betolt = 'dokumentumok';
-        if( isset($_GET['engedelyek']) ){
+        if( isset($_GET['engedelyek']) ) {
             $betolt = 'engedelyek';
         }
-        if( $sor_kepek['loginnev'] == $_SESSION[get_db_tabla().'user'] && !$archivum ){
-            
-            // Projektkezelésenél még a státusz/dokumentum faját is figyeljük
+        if( $sor_kepek['loginnev'] == $_SESSION[get_db_tabla() . 'user'] && !$archivum ) {
+
+            // Projektkezelésenél még a státusz/dokumentum fajtát is figyeljük
             $statusz_tipus_figyelmeztetes = '';
-            if( $tobbkep_tablanev == 'projektkezeles_dok' ){
-                
+            if( $tobbkep_tablanev == 'projektkezeles_dok' ) {
+
                 $prk = $adatbazis_kapcsolat->s2('stat_id', 'projektkezeles', "`recid`='{$_GET['id']}'");
                 if( $prk === false ) { $db_error = true; }
 
-                switch( $prk['stat_id'] ){
+                switch( $prk['stat_id'] ) {
                     case PRKEZEL_STAT_ELOKESZITES_ALATT:
                         $van_doksi = $adatbazis_kapcsolat->s('recid', 'projektkezeles_dok', "`projektkezeles_id`='{$_GET['id']}'");
                         if( $van_doksi === false ) { $db_error = true; }
@@ -527,7 +568,7 @@ function get_tobbkep_thumb($sor_kepek, $i, $tobbkep_tablanev, $nincs_torles, $ku
                         if($sor_kepek['tipus']==EL_DOK_TIPUS_SZERZODES){
                             $van_doksi = $adatbazis_kapcsolat->s('recid', 'projektkezeles_dok', "`projektkezeles_id`='{$_GET['id']}' AND `tipus`='".EL_DOK_TIPUS_SZERZODES."'");
                             if( $van_doksi === false ) { $db_error = true; }
-                            if( count($van_doksi)==1 ){
+                            if( count($van_doksi)==1 ) {
                                 $statusz_tipus_figyelmeztetes = 'Ebben a státuszban nem törölhető az összes Szerződéses dokumentum!<br>Előbb csatoljon fel egy másikat!';
                             }
                         }
@@ -536,7 +577,7 @@ function get_tobbkep_thumb($sor_kepek, $i, $tobbkep_tablanev, $nincs_torles, $ku
                         if($sor_kepek['tipus']==EL_DOK_TIPUS_SZERZODES){
                             $van_doksi = $adatbazis_kapcsolat->s('recid', 'projektkezeles_dok', "`projektkezeles_id`='{$_GET['id']}' AND `tipus`='".EL_DOK_TIPUS_SZERZODES."'");
                             if( $van_doksi === false ) { $db_error = true; }
-                            if( count($van_doksi)==1 ){
+                            if( count($van_doksi) == 1 ) {
                                 $statusz_tipus_figyelmeztetes = 'Ebben a státuszban nem törölhető az összes Szerződéses dokumentum!<br>Előbb csatoljon fel egy másikat!';
                             }
                         }
@@ -544,7 +585,7 @@ function get_tobbkep_thumb($sor_kepek, $i, $tobbkep_tablanev, $nincs_torles, $ku
                             $van_doksi = $adatbazis_kapcsolat->s('recid', 'projektkezeles_dok', "`projektkezeles_id`='{$_GET['id']}' AND `tipus`='".EL_DOK_TIPUS_ATADASI."'");
                             if( $van_doksi === false ) { $db_error = true; }
  
-                            if( count($van_doksi)==1 ){
+                            if( count($van_doksi)==1 ) {
                                 $statusz_tipus_figyelmeztetes = 'Ebben a státuszban nem törölhető az összes Átadási. jk. dokumentum!<br>Előbb csatoljon fel egy másikat!';
                             }
                         }
@@ -553,7 +594,7 @@ function get_tobbkep_thumb($sor_kepek, $i, $tobbkep_tablanev, $nincs_torles, $ku
                         if($sor_kepek['tipus']==EL_DOK_TIPUS_SZERZODES){
                             $van_doksi = $adatbazis_kapcsolat->s('recid', 'projektkezeles_dok', "`projektkezeles_id`='{$_GET['id']}' AND `tipus`='".EL_DOK_TIPUS_SZERZODES."'");
                             if( $van_doksi === false ) { $db_error = true; }
-                            if( count($van_doksi)==1 ){
+                            if( count($van_doksi)==1 ) {
                                 $statusz_tipus_figyelmeztetes = 'Ebben a státuszban nem törölhető az összes Szerződéses dokumentum!<br>Előbb csatoljon fel egy másikat!';
                             }
                         }
@@ -561,14 +602,14 @@ function get_tobbkep_thumb($sor_kepek, $i, $tobbkep_tablanev, $nincs_torles, $ku
                             $van_doksi = $adatbazis_kapcsolat->s('recid', 'projektkezeles_dok', "`projektkezeles_id`='{$_GET['id']}' AND `tipus`='".EL_DOK_TIPUS_ATADASI."'");
                             if( $van_doksi === false ) { $db_error = true; }
  
-                            if( count($van_doksi)==1 ){
+                            if( count($van_doksi)==1 ) {
                                 $statusz_tipus_figyelmeztetes = 'Ebben a státuszban nem törölhető az összes Átadási. jk. dokumentum!<br>Előbb csatoljon fel egy másikat!';
                             }
                         }
                         if( $sor_kepek['tipus'] == EL_DOK_TIPUS_GAR_BEJAR ) {
                             $van_doksi = $adatbazis_kapcsolat->s('recid', 'projektkezeles_dok', "`projektkezeles_id`='{$_GET['id']}' AND `tipus`='".EL_DOK_TIPUS_GAR_BEJAR."'");
                             if( $van_doksi === false ) { $db_error = true; }
-                            if( count($van_doksi)==1 ){
+                            if( count($van_doksi)==1 ) {
                                 $statusz_tipus_figyelmeztetes = 'Ebben a státuszban nem törölhető az összes Gar. bejárási jk. dokumentum!<br>Előbb csatoljon fel egy másikat!';
                             }
                         }
@@ -576,11 +617,12 @@ function get_tobbkep_thumb($sor_kepek, $i, $tobbkep_tablanev, $nincs_torles, $ku
                 }
             }
             
-            if($statusz_tipus_figyelmeztetes){
+            if( $statusz_tipus_figyelmeztetes ) {
                 $torles = '<span class="icon link" onclick="alert2(\''.$statusz_tipus_figyelmeztetes.'\', \'\', \'Hiba\');"><i class="material-icons" style="font-size: 2rem">delete</i></span>';
             
             // Tényleges törlés gomb működése
-            }else{
+            } else {
+                
                 $torles = '
                             <script>
                                 dok_torol_gomb_'.$sor_kepek['recid'].' = \'<input type="button" class="gomb zold" value="Igen" onclick="mellekTorol(\\\''.$tobbkep_tablanev.'\\\', \\\''.$betolt.'\\\', \\\''.$javaslattetel.'\\\', \\\''.$sor_kepek['recid'].'\\\');"><input type="button" class="gomb piros" value="Nem" onclick="alert2(); $(\\\'.torles_elott\\\').removeClass(\\\'torles_elott\\\').removeClass(\\\'kijelolve\\\');">\';
@@ -592,18 +634,24 @@ function get_tobbkep_thumb($sor_kepek, $i, $tobbkep_tablanev, $nincs_torles, $ku
         }
         
         // Törlés lehetőségét mégis tiltjuk, ha nincs dokumentum kezelés jogunk
-        if( $nincs_torles ){
+        if( $nincs_torles ) {
             $torles = '';
         }
         // Ha kaptunk egy külső recid-t, akkor annak az adatlapjára mutató linket állítjuk elő
-        if( $kulso_recid ){
+        $ful = 'dokumentumok';
+        if( $kulso_recid ) {
             switch ( $apa_tabla ) {
-                case 'projektszerzodes' : $oszlop = 'sz_szam';      break;
-                case 'projektszamla'    : $oszlop = 'szla_szam';    break;
+                case 'projektszerzodes'         : $oszlop = 'sz_szam';          break;
+                case 'projektszerzodes_jota': 
+                        $apa_tabla  = 'projektszerzodes';
+                        $oszlop     = 'sz_szam';
+                        $ful        = 'jotallas';
+                break;
+                case 'projektszamla'            : $oszlop = 'szla_szam';        break;
             }
             
-            $sor = $adatbazis_kapcsolat->s2($oszlop, $apa_tabla, "`recid`='{$kulso_recid}'");
-            $torles = '<a href="'.$apa_tabla.'.php?id=x&amp;mezo='.$oszlop.'&amp;op=equal&amp;felt='.$sor[$oszlop].'&amp;dokumentumok" target="_blank">'.$sor[$oszlop].'</a>';
+            $sor    = $adatbazis_kapcsolat->s2($oszlop, $apa_tabla, "`recid`='{$kulso_recid}'");
+            $torles = '<a href="'.$apa_tabla.'.php?id=x&amp;mezo='.$oszlop.'&amp;op=equal&amp;felt='.$sor[$oszlop].'&amp;'.$ful.'" target="_blank">'.$sor[$oszlop].'</a>';
         }
 
         // Típus oszlop

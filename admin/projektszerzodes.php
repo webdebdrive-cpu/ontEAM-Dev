@@ -75,9 +75,9 @@ if( isset($_POST['get_projekt_tabla']) ) {
     // Rendezés beállítása
     $join  = ' JOIN `'.get_db_tabla().'telephely` ON `'.get_db_tabla().'projektkezeles`.`telephely_id`=`'.get_db_tabla().'telephely`.`id`';
     switch ( $_POST['order'] ) {
-        case 'bkolt': $order = '`'.get_db_tabla().'projektkezeles`.`bkolt`, `'.get_db_tabla().'telephely`.`nev`';         $bkolt_selected = ' selected';  break;
-        case 'tipus': $order = '`'.get_db_tabla().'projektkezeles`.`tipus`, `'.get_db_tabla().'projektkezeles`.`bkolt`';  $tipus_selected = ' selected';  break;
-        default     : $order = '`'.get_db_tabla().'telephely`.`nev`,        `'.get_db_tabla().'projektkezeles`.`bkolt`';                                  break;
+        case 'jkolt': $order = '`'.get_db_tabla().'projektkezeles`.`bkolt`, `'.get_db_tabla().'telephely`.`nev`';         $bkolt_selected = ' selected';  break;
+        case 'tipus': $order = '`'.get_db_tabla().'projektkezeles`.`tipus`, `'.get_db_tabla().'projektkezeles`.`jkolt`';  $tipus_selected = ' selected';  break;
+        default     : $order = '`'.get_db_tabla().'telephely`.`nev`,        `'.get_db_tabla().'projektkezeles`.`jkolt`';                                  break;
     }
 
     $prek = $adatbazis_kapcsolat->s('
@@ -93,7 +93,7 @@ if( isset($_POST['get_projekt_tabla']) ) {
                                             ',
                                         'projektkezeles',
                                         "`telephely_id`='{$_POST['telephely_id']}'", $order, '', '', '', $join);
-//echo $adatbazis_kapcsolat->gp() . '<br>';
+
     $i = 1;
     foreach ( $prek as $pr ) {
 
@@ -902,12 +902,13 @@ require_once('selectek.php');
         $megj_db = ' ('.$sor['megj_db'].')';
     }
 
-    if( isset($_GET['modosit']) || isset($_GET['tetel']) || isset($_GET['dokumentumok']) || isset($_GET['megjegyzesek']) ) {
+    if( isset($_GET['modosit']) || isset($_GET['tetel']) || isset($_GET['jotallas']) || isset($_GET['dokumentumok']) || isset($_GET['megjegyzesek']) ) {
         
         // Számla fülek
         $ful_tomb = array(
             'modosit'       => 'Adatlap',
             'tetel'         => 'Tételek',
+            'jotallas'      => 'Jótállás',
             'dokumentumok'  => 'Dokumentumok'.$dok_db,
             'megjegyzesek'  => 'Megjegyzések'.$megj_db,
         );
@@ -965,7 +966,7 @@ require_once('selectek.php');
         }
         
     // Módosítás gombok
-    }else{
+    } else {
         
         // Módosításkor beállítjuk a Session-el az adatbázisból ismert tételek adatait, így lesz jó a popupban
         $i = 0;
@@ -982,8 +983,8 @@ require_once('selectek.php');
         // Törlés gomb
         if( !get_projekt_szerzodes_kezel_jog($_GET['id']) ){
             $gombok .= ' <input type="button" id="recordTorol" class="gombb_alert dn" onclick="alert2(\'Önnek nincs joga a projekt szerződés törléséhez!\', \'\', \'Hiba\')" value="Töröl" title="Töröl">';
-        }else{
-            
+        } else {
+
             // Ha van már olyan tétele, ami össze van kötve számláva, akkor nem engedünk törölni
             $van_szamla_kapcsolva = false;
             $tetelek = $adatbazis_kapcsolat->s('recid', 'projektszerzodes_tetel', "`projektszerzodes_recid`='{$_GET['id']}'");
@@ -994,6 +995,7 @@ require_once('selectek.php');
                     break;
                 }
             }
+
             if( $van_szamla_kapcsolva ){
                 $gombok .= ' <input type="button" id="recordTorol" class="gombb_alert dn" onclick="alert2(\'A szerződésnek van olyan tétele, amihez már van számla tétel kapcsolva, így nem törölhető a szerződés!\', \'\', \'Hiba\')" value="Töröl" title="Töröl">';
             }else{
@@ -1042,7 +1044,7 @@ require_once('selectek.php');
     }
     
 	// Új projektkezelés felvitele
-	if( isset($_GET['uj']) && (_jog(JOG_PRKEZEL_SZERZODES_KEZEL) || _jog(JOG_PR_SAJAT_SZERZ_KEZEL)) ){
+	if( isset($_GET['uj']) && (_jog(JOG_PRKEZEL_SZERZODES_KEZEL) || _jog(JOG_PR_SAJAT_SZERZ_KEZEL)) ) {
         
         $js_submit_elott = nl2('
 
@@ -1214,7 +1216,7 @@ require_once('selectek.php');
         }
 
 	// Projektszerződés módosítása
-	} elseif(isset($_GET['modosit'])) {
+    } elseif( isset($_GET['modosit']) ) {
 
         $js_submit_elott = nl2('
             /* Deviza nettó mező kötelező-e, ha igen, van-e értéke? */
@@ -1326,8 +1328,8 @@ require_once('selectek.php');
 		}
 
 	// Tételek fül
-	}elseif(isset($_GET['tetel'])){
-        
+    } elseif( isset($_GET['tetel']) ) {
+
         $szamla_html .= nl2('
             <div class="dt naplo">
                 <div class="dtr nFejlec">
@@ -1363,8 +1365,66 @@ require_once('selectek.php');
             echo $szamla_html.$gombok;
         }
 
+	// Jótállás fül
+    } elseif( isset($_GET['jotallas']) ) {
+
+        $szamla_html .= nl2('
+            <div class="dt naplo">
+                <div class="dtr nFejlec">
+                    <div class="dtc">Gar. bej. dátuma</div>
+                    <div class="dtc">Gar. bej. jegyzőkönyv</div>
+                </div>
+        ');
+
+        // Tételek felsorolása
+        $tallozas_gomb = fajlbol_olvas('../sablon/admin/jsfile_pr_szerzodes_jotallas.html', 1);
+        $jotallasok = $adatbazis_kapcsolat->s('*', 'projektszerzodes_jotallas', "`projektszerzodes_recid`='{$_GET['id']}'", 'bejaras');
+        foreach ( $jotallasok as $jotallas ) {
+            
+            // Ha van már fájl, akkor azt megmutatjuk
+            if( $jotallas['utvonal'] ) {
+                
+                $utvonal = '../'. get_utvonal().'projektszerzodes_jotallas/'.$jotallas['utvonal'];
+                $fajl = '<a href="'.$utvonal.'" target="_blank">'.kep_kiir( $utvonal, utf8($jotallas['fajlnev']), 30, 30, '', '', '' ).' '.$jotallas['fajlnev'].'</a>';
+                
+            // Egyébként a feltöltés
+            } else {
+                
+                $megn = $jotallas['recid'];
+                $parameterek = nl2("
+                                    'megnevezes'    : '".$megn."',
+                                    'konyvtar'      : 'projektszerzodes',
+                                    'tabla'         : 'projektszerzodes_jotallas',
+                                    'oszlop'        : 'projektszerzodes_recid',
+                                    'recid'         : '".$jotallas['recid']."'
+                                    ");
+                $minden_kesz = 'szamlaBetolt(_get(\'id\'), baseName(location.href) + \'.php\', \'jotallas\');';
+                $fajl = str_replace(    array('{PHP_FAJL}',     '{PARAMETEREK}', '{MEGN}', '{MINDEN_KESZ}'),
+                                        array('../feltolt.php', $parameterek,    $megn,    $minden_kesz   ),
+                                        $tallozas_gomb
+                                    );
+            }
+            
+            $szamla_html .= nl2('
+                <div class="dtr nSor">
+                    <div class="dtc">'.datum_kiir($jotallas['bejaras']).'</div>
+                    <div class="dtc">'.$fajl.'</div>
+                </div>
+            ');
+        }
+        $szamla_html .= '</div>';
+        
+        if( $_GET['ajax'] ) {
+            echo json_encode(array(
+                'tartalom' => $szamla_html.$gombok,
+                'link'     => get_get(array('ajax', 'kat', 'epo', 'oldal', 'order'), true)
+            ));
+        } else {
+            echo $szamla_html.$gombok;
+        }
+
 	// Történet
-	}elseif(isset($_GET['tortenet'])){
+    } elseif( isset($_GET['tortenet']) ) {
 
         $szamla_html .= get_tortenet($megnevezes);
 

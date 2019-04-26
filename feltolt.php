@@ -16,25 +16,25 @@ if( in_array( $_FILES[$_POST['megnevezes']]['type'], $tiltott_fajlok ) ){
 $mit   = array('"', '\'', '&', '#');
 $mivel = array();
 $_FILES[$_POST['megnevezes']]['name'] = nl2(str_replace($mit, $mivel, $_FILES[$_POST['megnevezes']]['name']));
-if(kit($_FILES[$_POST['megnevezes']]['name'])=='php'){
+if( kit($_FILES[$_POST['megnevezes']]['name']) == 'php' ) {
     echo 'nice try :)';
     $weblap -> leallit();
     exit;
 }
 
 // Vélemény feltöltésének lekezelése
-if($_POST['megnevezes']=='velemeny'){
+if( $_POST['megnevezes'] == 'velemeny' ) {
 
     // Adott illető egyáltalán véleményező-e
     $prigeny = $adatbazis_kapcsolat->s2('stat_id', 'projektigenyles', "`recid`='{$_POST['projektigenyles_recid']}'");
 
-    if($prigeny['stat_id']!=PRIGENY_STAT_VEL_ALATT){
+    if( $prigeny['stat_id'] != PRIGENY_STAT_VEL_ALATT ) {
         echo 'Hiba! A projektigénylés nincs véleményezés alatt státuszban!';
         $weblap -> leallit();
         exit;
     }
     
-    if(!trim($_POST['megj']) && !$_FILES[$_POST['megnevezes']]){
+    if( !trim($_POST['megj']) && !$_FILES[$_POST['megnevezes']] ) {
         echo json_encode(array(
             'hiba'  => 'Kérem csatoljon egy véleményt, vagy írjon megjegyzést!',
             'gomb'  => '<input class="link gomb" value="Ok" onclick="alert2(); $(\'#velemeny_megj\').focus();" type="button">',
@@ -44,20 +44,20 @@ if($_POST['megnevezes']=='velemeny'){
         exit;
     }
 
-    if($adatbazis_kapcsolat->s('recid', 'projektigenyles_kapcs', "`projektigenyles_recid`='{$_POST['projektigenyles_recid']}' AND `login_recid`='{$_SESSION[get_db_tabla().'login_recid']}'", '', '1')){
-        
+    if( $adatbazis_kapcsolat->s('recid', 'projektigenyles_kapcs', "`projektigenyles_recid`='{$_POST['projektigenyles_recid']}' AND `login_recid`='{$_SESSION[get_db_tabla() . 'login_recid']}'", '', '1') ) {
+
         $utvonal = get_utvonal().'projektigenyles_velemeny';
-        if(!is_dir($utvonal)){
+        if( !is_dir($utvonal) ) {
             mkdir($utvonal, 0777);
         }
 
         $utvonal = $utvonal.'/'.date('ym');
 
-        if(!is_dir($utvonal)){
+        if( !is_dir($utvonal) ) {
             mkdir($utvonal, 0777);
         }
 
-        switch($_FILES[$_POST['megnevezes']]['error']){
+        switch ( $_FILES[$_POST['megnevezes']]['error'] ) {
 
             case 1:
                 echo 'Hiba! Túl nagy méretű fájl! Maximum '.ini_get('upload_max_filesize').' engedélyezett!';
@@ -89,13 +89,13 @@ if($_POST['megnevezes']=='velemeny'){
 
                 // Ha az illetőnek már volt feltöltve véleménye, akkor ezzel az újjal felülírjuk, azaz a korábbit töröljük
                 $korabbi_velemeny = $adatbazis_kapcsolat->s2('utvonal', 'projektigenyles_velemeny', "`projektigenyles_recid`='{$_POST['projektigenyles_recid']}' AND `login_recid`='{$_SESSION[get_db_tabla().'login_recid']}'");
-                if($korabbi_velemeny){
+                if( $korabbi_velemeny ) {
                     kep_torol(get_utvonal().'projektigenyles_velemeny/'.$korabbi_velemeny['utvonal']);
                     $adatbazis_kapcsolat->d('projektigenyles_velemeny', "`projektigenyles_recid`='{$_POST['projektigenyles_recid']}' AND `login_recid`='{$_SESSION[get_db_tabla().'login_recid']}'");
                 }
                 
                 // Fájlfeltöltés
-                if(move_uploaded_file($_FILES[$_POST['megnevezes']]['tmp_name'], $kepnev)){
+                if( move_uploaded_file($_FILES[$_POST['megnevezes']]['tmp_name'], $kepnev) ) {
 
                     // Letárolás adatbázisba is A kép neve nem tartalmazza a get_utvonal részt! Ha sikeres akkor adunk egy outputot a flashfile-nak
                     $id = $adatbazis_kapcsolat -> i( 'projektigenyles_velemeny', array('projektigenyles_recid',         'login_recid',                            'utvonal',                                                            'fajlnev',                              'insert_dt',    'insert_usr',                             'update_usr'                           ),
@@ -108,9 +108,9 @@ if($_POST['megnevezes']=='velemeny'){
         
         // A megjegyzés azért van külön ágban, mert nem biztos, hogy van fájl is.
         $van_velemeny = $adatbazis_kapcsolat->s2('recid', 'projektigenyles_velemeny', "`projektigenyles_recid`='{$_POST['projektigenyles_recid']}' AND `login_recid`='{$_SESSION[get_db_tabla().'login_recid']}'");
-        if($van_velemeny){
+        if( $van_velemeny ) {
             $adatbazis_kapcsolat->u('projektigenyles_velemeny', array('megj'), array($_POST['megj']), "`recid`='{$van_velemeny['recid']}'");
-        }else{
+        } else {
             $id = $adatbazis_kapcsolat -> i( 'projektigenyles_velemeny', array('projektigenyles_recid',         'login_recid',                            'megj'            ),
                                                                          array($_POST['projektigenyles_recid'], $_SESSION[get_db_tabla().'login_recid'],  $_POST['megj']    )
                                             );
@@ -119,6 +119,76 @@ if($_POST['megnevezes']=='velemeny'){
         // Ellenőrizzük, hogy a megmaradtaknak mindnek van-e már vélemények. Státuszt kell léptetni ha igen.
         prigeny_mindenki_velemenyezett_e($_POST['projektigenyles_recid']);
         
+    }
+    
+    $weblap -> leallit();
+    exit;
+}
+
+// Projektszerződés jótállás füle alatti feltöltése
+if( $_POST['tabla'] == 'projektszerzodes_jotallas' ) {
+
+    $utvonal = get_utvonal().'projektszerzodes_jotallas';
+    if( !is_dir($utvonal) ) {
+        mkdir($utvonal, 0777);
+    }
+
+    $pr_szerzodes_jotallas  = $adatbazis_kapcsolat->s2('projektszerzodes_recid bejaras', 'projektszerzodes_jotallas', "`recid`='{$_POST['recid']}'");
+    $pr_szerzodes           = $adatbazis_kapcsolat->s2('sz_szam insert_dt', 'projektszerzodes', "`recid`='{$pr_szerzodes_jotallas['projektszerzodes_recid']}'");
+    
+    $utvonal = $utvonal.'/'. substr($pr_szerzodes['insert_dt'], 0, 4);
+    if( !is_dir($utvonal) ) {
+        mkdir($utvonal, 0777);
+    }
+    
+    $konyvtar = str_replace('/', '_', $pr_szerzodes['sz_szam']);
+    $utvonal = $utvonal.'/'.$konyvtar;
+    if( !is_dir($utvonal) ) {
+        mkdir($utvonal, 0777);
+    }
+
+    switch ( $_FILES[$_POST['megnevezes']]['error'] ) {
+
+        case 1:
+            echo 'Hiba! Túl nagy méretű fájl! Maximum '.ini_get('upload_max_filesize').' engedélyezett!';
+        break;
+
+        case 2:
+            echo 'Hiba! Túl nagy méretű fájl!'; // A HTML form-ban is megadható volna egy méretkorlát?
+        break;
+
+        case 3:
+            echo 'Hiba! A fájl feltöltése idő közben megszakadt!';
+        break;
+
+        case 4:
+            echo 'Hiba! A fájl feltöltése ismeretlen okokból sikertelen volt!';
+        break;
+
+        case 6:
+            echo 'Hiba! A fájl feltöltése sikertelen volt! (Hiányzik a szerveren a TMP mappa.)';
+        break;
+
+        case 7:
+            echo 'Hiba! A fájl feltöltése sikertelen volt! (Nem támogatott kiterjesztés.)';
+        break;
+
+        case 0:
+            
+            // Végleges képnév a teljes elérési útvonallal, kiterjesztéssel (hozzáadjuk az eredeti fájl kiterjesztését)
+            $kepnev = $utvonal.'/'.$pr_szerzodes_jotallas['bejaras'].'_'.$_FILES[$_POST['megnevezes']]['name'];
+
+            // Fájlfeltöltés
+            if( move_uploaded_file($_FILES[$_POST['megnevezes']]['tmp_name'], $kepnev) ) {
+
+                // Letárolás adatbázisba is A kép neve nem tartalmazza a get_utvonal részt! Ha sikeres akkor adunk egy outputot a flashfile-nak
+                $id = $adatbazis_kapcsolat -> u( 'projektszerzodes_jotallas',   array('utvonal',                                                            'fajlnev'                               ),
+                                                                                array(str_replace(get_utvonal().'projektszerzodes_jotallas/', '', $kepnev), $_FILES[$_POST['megnevezes']]['name']   ),
+                                                                                "`recid`='{$_POST['recid']}'"
+                                                );
+
+            }
+        break;
     }
     
     $weblap -> leallit();
