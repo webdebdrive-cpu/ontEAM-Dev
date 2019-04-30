@@ -157,7 +157,7 @@
                                 obj_id = $('#obj_id').val();
                             }
 
-                            if(e.keyCode!=KEY_DOWN && e.keyCode!=KEY_UP && e.keyCode!=KEY_ENTER) {
+                            if (e.keyCode != KEY_DOWN && e.keyCode != KEY_UP && e.keyCode != KEY_ENTER) {
 
                                 $.ajax({
                                     url     : options.php_fajl,
@@ -411,11 +411,12 @@
                 var aktiv   = $('#autocomplete ul li.aktiv');
                 var first   = $('#autocomplete ul li:first-child');
                 if( e.keyCode==KEY_DOWN ) {
-                    if(!$('#autocomplete ul li').hasClass('aktiv')) {
+                    if (!$('#autocomplete ul li').hasClass('aktiv')) {
                         first.addClass('aktiv');
 
                     } else {
-                        if(!aktiv.is(':last-child')) {
+console.log('.');
+                        if (!aktiv.is(':last-child')) {
                             aktiv.removeClass('aktiv');
                             aktiv.next().addClass('aktiv');
                         } else {

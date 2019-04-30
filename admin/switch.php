@@ -118,33 +118,37 @@ foreach($akt_tomb as $ertek){
                 $id_kiir = $ertek['id_kiir'];
             }
 
-            $html .= nl2(
-                    // Lényeges, hogy ne legyen a string elején szóköz
-                    // Az autocomplete tulajdonságot egy kis timeout után adjuk rá, hogy az utólagosan rátett readonly biztosan rajta legyen már
-                    '<script>
-                    $(document).ready(function() {
-                        setTimeout(function(){
-                            $(\'#'.$ertek['name'].'_autocomp\').autocomplete({
-                                \'php_fajl\'        : \'../autocomplete.php\',
-                                \'tabla\'           : \''.$ertek['tabla'].'\',
-                                \'oszlop_keres\'    : \''.$ertek['oszlop_keres_autocomp'].'\',
-                                \'oszlop_listaz\'   : \''.$ertek['listaz'].'\',
-                                \'aktiv\'           : \''.$ertek['autocomplete_aktiv'].'\',
-                                \'rkat\'            : '.$rkat.',
-                                \'csoport\'         : '.$csoport.',
-                                \'recid\'           : \''.$_GET['id'].'\',
-                                \'mezo\'            : \''.$_GET['mezo'].'\',
-                                \'op\'              : \''.$_GET['op'].'\',
-                                \'felt\'            : \''.$_GET['felt'].'\',
-                                \'beosztas_id\'     : \''.$ertek['beosztas_id'].'\',
-                                \'id_kiir\'         : \''.$id_kiir.'\',
-                                \'complete\'        : function(){ '.$ertek['complete'].' }
-                            });
-                        }, 1000);
-                    });
-                </script>'
-                // Lényeges, hogy ne legyen a string végén szóköz
-              );
+            // Van olyan eset, amikor a JS-el még nem tesszük rá az autocomplete működést, mert duplán volna rátéve 
+            // (pl. helység listánál csak akkor kapja meg, ha már tudjuk a szállodát). Ha duplán kapja meg, az azért baj, mert a lefele nyíllal lépkedve duplákat ugrik a sorokon.
+            if( !$ertek['js_t_meg_ne_tedd_ra'] ) {
+                $html .= nl2(
+                        // Lényeges, hogy ne legyen a string elején szóköz
+                        // Az autocomplete tulajdonságot egy kis timeout után adjuk rá, hogy az utólagosan rátett readonly biztosan rajta legyen már
+                        '<script>
+                        $(document).ready(function() {
+                            setTimeout(function(){
+                                $(\'#'.$ertek['name'].'_autocomp\').autocomplete({
+                                    \'php_fajl\'        : \'../autocomplete.php\',
+                                    \'tabla\'           : \''.$ertek['tabla'].'\',
+                                    \'oszlop_keres\'    : \''.$ertek['oszlop_keres_autocomp'].'\',
+                                    \'oszlop_listaz\'   : \''.$ertek['listaz'].'\',
+                                    \'aktiv\'           : \''.$ertek['autocomplete_aktiv'].'\',
+                                    \'rkat\'            : '.$rkat.',
+                                    \'csoport\'         : '.$csoport.',
+                                    \'recid\'           : \''.$_GET['id'].'\',
+                                    \'mezo\'            : \''.$_GET['mezo'].'\',
+                                    \'op\'              : \''.$_GET['op'].'\',
+                                    \'felt\'            : \''.$_GET['felt'].'\',
+                                    \'beosztas_id\'     : \''.$ertek['beosztas_id'].'\',
+                                    \'id_kiir\'         : \''.$id_kiir.'\',
+                                    \'complete\'        : function(){ '.$ertek['complete'].' }
+                                });
+                            }, 1000);
+                        });
+                    </script>'
+                    // Lényeges, hogy ne legyen a string végén szóköz
+                  );
+            }
 
             // Összevonások lekezelése és tartalom összefűzése
             if(!$osszevon_flag){
