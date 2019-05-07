@@ -815,13 +815,13 @@ require_once('selectek.php');
     }
 
     // Az adatlap adatait már a legelején lekérjük
-    if( $_GET['id'] ){
+    if( $_GET['id'] ) {
         $sor = $adatbazis_kapcsolat -> s2('*', $megnevezes, "`recid`='{$_GET['id']}'");
     }
-    if($sor['dok_db']){
+    if( $sor['dok_db'] ) {
         $dok_db  = ' ('.$sor['dok_db'].')';
     }
-    if($sor['megj_db']){
+    if( $sor['megj_db'] ) {
         $megj_db = ' ('.$sor['megj_db'].')';
     }
 
@@ -916,15 +916,15 @@ require_once('selectek.php');
             $szalloda = $adatbazis_kapcsolat -> s2('nev', 'telephely', "`id`='{$obj['telephely_id']}'");
 
             $gep_nev = '';
-            if($sor['gep_id']){
+            if( $sor['gep_id'] ) {
                 $gep = $adatbazis_kapcsolat -> s2('nev', 'eszkozkezeles', "`recid`='{$sor['gep_id']}'");
-                if($gep['nev']){
+                if( $gep['nev'] ) {
                     $gep_nev = '<br>Gép: '.addslashes($gep['nev']);
                 }
             }
 
             // Hiba felirat, csak ha van hiba
-            if($sor['hiba_text']){
+            if( $sor['hiba_text'] ) {
                 $sor['hiba_text'] = '<br>Hiba: '.addslashes($sor['hiba_text']);
             }
             $gombok .= nl2('
@@ -974,25 +974,25 @@ require_once('selectek.php');
 
         // Igazolás és Elutasítás gombok
         if( $sor['stat_id']==BEJELENTES_STAT_KESZ_IG && _jog(JOG_BEJELENTES_KEZEL) ) {
-            
+
             // Részleg ellenőrzése
             $login = $adatbazis_kapcsolat->s2('reszleg_id', 'login', "`recid`='{$_SESSION[get_db_tabla().'login_recid']}'");
             $reszlegek = array($login['reszleg_id']);
             // Ha van hozzá joga, megnézzük a társrészlegeket
-            if( _jog(JOG_BEJELENTES_TARSRESZLEG_BEJ_IGAZOL) ){
+            if( _jog(JOG_BEJELENTES_TARSRESZLEG_BEJ_IGAZOL) ) {
                 $tarsreszlegek = $adatbazis_kapcsolat->s('reszleg_id', 'login_tarsreszleg', "`login_id`='{$_SESSION[get_db_tabla().'login_recid']}'");
-                foreach($tarsreszlegek as $reszleg){
+                foreach ( $tarsreszlegek as $reszleg ) {
                     array_push($reszlegek, $reszleg['reszleg_id']);
                 }
             }
 
-            // Ha adott ML részlege benne van a felhazsnálóhoz tartozó részlegek között, akkor mutatjuk csak meg ezeket a gombokat
-            if(in_array($sor['usr_reszleg_id'], $reszlegek)){
-            
+            // Ha adott ML részlege benne van a felhasználóhoz tartozó részlegek között, akkor mutatjuk csak meg ezeket a gombokat
+            if( in_array($sor['usr_reszleg_id'], $reszlegek) ) {
+
                 // Ideiglenesen egyszállodás modell esetén nem mutatjuk az elutasítás gombot 2018.06.06
                 $szalloda = $adatbazis_kapcsolat -> s2('modell', 'telephely', "`id`='{$sor['telephely_id']}'");
                 $elutasit_gomb = '';
-                if($szalloda['modell']){
+                if( $szalloda['modell'] ) {
                     $elutasit_gomb = '<input type="button" class="gomb modositaskor_rejt" value="Igazolás elutasítása" onclick="csoportMuvelet(\'bejelentesElutasit\');">';
                 }
                 $gombok .= nl2('
@@ -1010,19 +1010,19 @@ require_once('selectek.php');
             
             // Ha egyszállodás, nyitott, és van munkalapja, akkor nem készíthet újabb munkalapot
             $keszithet_ml_ot = true;
-            if( !$telephely['modell'] && $sor['stat_id']==BEJELENTES_STAT_NYITOTT ){
+            if( !$telephely['modell'] && $sor['stat_id'] == BEJELENTES_STAT_NYITOTT ) {
                 $van_kapcs = $adatbazis_kapcsolat->s2('munkalap_id', 'munkalap_kapcs', "`bejelentes_id`='{$_GET['id']}'", '', '1');
                 $letezik_munkalap = $adatbazis_kapcsolat->s2('recid', 'munkalap', "`recid`='{$van_kapcs['munkalap_id']}'");
-                if( $letezik_munkalap ){
+                if( $letezik_munkalap ) {
                     $keszithet_ml_ot = false;
                 }
             }
             
-            if($keszithet_ml_ot){
+            if( $keszithet_ml_ot ) {
                 $gombok .= nl2('
                     <input type="button" id="munkalapEgyeni" class="gomb modositaskor_rejt" value="Munkalap készítése" onclick="munkalapKeszit(\'csak kérdezünk még\')" title="Munkalap készítése">
                 ');
-            }else{
+            } else {
                 $gombok .= nl2('
                     <input type="button" id="munkalapEgyeni" class="gomb modositaskor_rejt" value="Munkalap készítése" onclick="alert2(\'Bejelentés szám: '.$sor['ikt_szam'].'<br>Hiba helye: '.$telephely['nev'].'<br>Bejelentett hiba: '. getErtek('info', 'erteklista', 'recid', $sor['hiba_id']).'<br><br>Ehhez a bejelentéshez már van munkalap.<br>Nem lehet újat készíteni!\', \'\', \'Hiba\')" title="Munkalap készítése">
                 ');
