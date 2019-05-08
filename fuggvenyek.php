@@ -7450,9 +7450,19 @@ function getSzerepkorNev($szerepkor_id){
 }
 
 // Szállodák nevét ne DB-ből kérjük már le, vagyis csak egyszer, loginnál
-function getSzallodaNev($szalloda_id){
-    foreach($_SESSION['telephelyek'] as $telephely){
-        if($telephely['id']==$szalloda_id){
+function getSzallodaNev($szalloda_id) {
+    
+    global $adatbazis_kapcsolat;
+    
+    // Ha nem lenne meg a szállodák session-ben (pl. ütemezők, amit cron futtat)
+    if( !$_SESSION['telephelyek'] ) {
+        $szalloda = $adatbazis_kapcsolat->s2('nev', 'telephely', "`id`='{$szalloda_id}'");
+        return $szalloda['nev'];
+    }
+    
+    // Egyébként sessionból a leggyorsabb visszaadni
+    foreach ( $_SESSION['telephelyek'] as $telephely ) {
+        if( $telephely['id'] == $szalloda_id ) {
             return $telephely['nev'];
         }
     }
@@ -7652,8 +7662,8 @@ function statido_to_sec($string){
 }
 
 // Levélküldés előtt jogot, értesítés pipát vizsgálunk, levél tartalmát és címzetteket kiszámoljuk
-function level_felkeszit_es_kuld($tabla, $recid, $ert_pipa, $sablon, $cimzett, $extra_szoveg, $cimzett_login_recid){
-    
+function level_felkeszit_es_kuld($tabla, $recid, $ert_pipa, $sablon, $cimzett, $extra_szoveg, $cimzett_login_recid) {
+
     global $adatbazis_kapcsolat;
     global $db_kapcs;
     $cimzett_mail = '';
@@ -8228,7 +8238,7 @@ function level_felkeszit_es_kuld($tabla, $recid, $ert_pipa, $sablon, $cimzett, $
     $targy_kieg = $kieg[0];
     $uzi_kieg   = $kieg[1];
 
-    foreach($cimzettek as $akt_cimzett){
+    foreach ( $cimzettek as $akt_cimzett ) {
 
         // Mely tábláknál ellenőrizzünk szállodát is (saját szállodák). Kivéve, ha nem a Diszpécser köztponti mailcímre megy az értesítés
         $szallodat_ellenorizz = array('bejelentes', 'munkalap', 'anyagigenyles');
@@ -8256,7 +8266,7 @@ function level_felkeszit_es_kuld($tabla, $recid, $ert_pipa, $sablon, $cimzett, $
         // Tényleges küldés
         $sikeres_kuldes = level_kuldes(get_nev(), get_mail(), $akt_cimzett['teljes_nev'], $akt_cimzett['usermail'], $targy_kieg.$targy, $uzi_kieg.$megszolitas.$uzi);
         // Ha van értéke, az egy hibaüzenet, akkor sikerült küldeni, ha nincs visszatérési érték
-        if( $sikeres_kuldes ){
+        if( $sikeres_kuldes ) {
 
             $megj .= 'E-mail küldése nem sikerült '.$akt_cimzett['teljes_nev'].' '.$szerepkor.' '.$felhasznalonak_szo.' '.$esemeny.'('.$sikeres_kuldes.')'."\n\n";
 
@@ -8271,10 +8281,10 @@ function level_felkeszit_es_kuld($tabla, $recid, $ert_pipa, $sablon, $cimzett, $
             }
 
         // Sikeres levélküldés
-        }else{
+        } else {
 
             // Ha a címzett nem a diszpécser központi mailcím, akkor van csak megjegyzés
-            if( $cimzett!='diszpecser_kozponti' ){
+            if( $cimzett != 'diszpecser_kozponti' ) {
                 $megj .= 'E-mail elküldve '.$akt_cimzett['teljes_nev'].' '.$szerepkor.' '.$felhasznalonak_szo.' '.$esemeny."\n\n";
             }
 
@@ -8283,17 +8293,17 @@ function level_felkeszit_es_kuld($tabla, $recid, $ert_pipa, $sablon, $cimzett, $
     }
 
     // Ha van megjegyzés, akkor azt hozzáadjuk
-    if($megj){
+    if( $megj ) {
         // Megjegyzés hozzáadása
         addMegj($tabla, $recid, $megj);
         // Ha volt kapcsolódó munkalap, akkor oda is beírjuk a megjegyést
-        if($munkalap_kapcs['munkalap_id']){
+        if( $munkalap_kapcs['munkalap_id'] ) {
             addMegj('munkalap', $munkalap_kapcs['munkalap_id'], $megj);
         }
     }
     mysqli_commit($db_kapcs);
     // Hibaüzenettel is visszatérhetünk
-    if($hiba){
+    if( $hiba ) {
         return $hiba;
     }
 

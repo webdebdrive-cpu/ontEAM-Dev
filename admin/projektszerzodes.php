@@ -1405,6 +1405,7 @@ require_once('selectek.php');
                 <div class="dtr nFejlec">
                     <div class="dtc">Gar. bej. dátuma</div>
                     <div class="dtc">Gar. bej. jegyzőkönyv</div>
+                    <div class="dtc">E-mail elküldve</div>
                 </div>
         ');
 
@@ -1458,11 +1459,15 @@ require_once('selectek.php');
                 }
             }
                 
-            
+            $mail_kuldve = '';
+            if( $jotallas['mail_ment']!='0000-00-00 00:00:00' ) {
+                $mail_kuldve = '<i class="material-icons">done</i>';
+            }
             $szamla_html .= nl2('
                 <div class="dtr nSor">
                     <div class="dtc">'.datum_kiir($jotallas['bejaras']).'</div>
                     <div class="dtc">'.$fajl.'</div>
+                    <div class="dtc">'.$mail_kuldve.'</div>
                 </div>
             ');
         }

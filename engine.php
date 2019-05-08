@@ -1533,8 +1533,8 @@ function kulcs_rendez($tomb, $kulcs) {
  */
 function level_kuldes( $felado_nev, $felado_mail, $cimzett_nev, $cimzett_mail, $targy, $uzi, $fajlok = '' ) {
 
-    if($cimzett_mail){
-        
+    if( $cimzett_mail ) {
+
         // Ha a feladó neve ontEAM, akkor a levél feladója esetén ezt toldjuk még meg egy "Danubius Zrt."-vel
         if( $felado_nev == get_nev() ){
             $felado_nev .= ' Danubius Zrt.';
@@ -1572,25 +1572,25 @@ function level_kuldes( $felado_nev, $felado_mail, $cimzett_nev, $cimzett_mail, $
             $mail -> AddAttachment($fajlok);
         }
 
-        if(is_array($cimzett_mail)){
+        if( is_array($cimzett_mail) ) {
             $i = 0;
-            foreach($cimzett_mail as $mail){
+            foreach ( $cimzett_mail as $mail ) {
 
                 // A második címzett már rejtve kapja meg
-                if($i){
+                if( $i ) {
                     $mail -> AddBcc($mail, $cimzett_nev[$i]);
-                }else{
+                } else {
                     $mail -> addAddress($mail, $cimzett_nev[$i]);
                 }
 
                 $i++;
 
             }
-        }elseif($cimzett_mail){
+        } elseif( $cimzett_mail ) {
             $mail -> AddAddress($cimzett_mail, $cimzett_nev);
         }
 
-        if(!$mail->Send()) {
+        if( !$mail->Send() ) {
             $mail -> ClearAddresses();
             $mail -> ClearAttachments();
             return 'Hiba: ' . $mail->ErrorInfo;
@@ -1599,6 +1599,8 @@ function level_kuldes( $felado_nev, $felado_mail, $cimzett_nev, $cimzett_mail, $
             $mail -> ClearAttachments();
             return false;
         }
+    } else {
+        return 'Hiba: Nincs címzett!';
     }
 }
 

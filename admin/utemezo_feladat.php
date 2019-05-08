@@ -12,20 +12,20 @@ $log_tmp = $log = '
 file_put_contents($log_utvonal, $log_tmp, FILE_APPEND | LOCK_EX);
 
 // Adott méret felett felezzük a log fájlt
-if( filesize($log_utvonal)>get_logfile_max_meret() ){
+if( filesize($log_utvonal) > get_logfile_max_meret() ) {
     $log_tmp = fajlbol_olvas($log_utvonal);
     $log_tmp = mb_substr($log_tmp, round(mb_strlen($log_tmp, 'UTF-8')/2), NULL, 'UTF-8');
     fajlba_mentes($log_utvonal, $log_tmp);
 }
 
 // A ciklust kétszer járjuk be: először az ütmezett feladatokat, majd a rendszeres karbantartást
-for($i_ciklus=0; $i_ciklus<2; $i_ciklus++){
-    
+for ( $i_ciklus = 0; $i_ciklus < 2; $i_ciklus++ ) {
+
     $megnevezes = 'Ütemezett feladat';
     $targyas    = 'ütemezett feladatot';
     $tabla      = 'utemezett_feladatok';
     $tipus      = MLTIPUS_UTEMEZETT_F;
-    if($i_ciklus){
+    if( $i_ciklus ) {
         $megnevezes = 'Rendszeres karbantartás';
         $targyas    = 'rendszeres karbantartást';
         $tabla      = 'rendszeres_karbantartas';
@@ -38,7 +38,7 @@ for($i_ciklus=0; $i_ciklus<2; $i_ciklus++){
     $log .= $log_tmp;
     file_put_contents($log_utvonal, $log_tmp, FILE_APPEND | LOCK_EX);
 
-    foreach($ut_feladatok as $ut_feladat){
+    foreach ( $ut_feladatok as $ut_feladat ) {
 
         // Tranzakciót indítunk
         $db_error = false;
@@ -56,7 +56,7 @@ for($i_ciklus=0; $i_ciklus<2; $i_ciklus++){
         
         // Ha az ütemezett feladatnak/rendszeres karbantartásnak a hozzárendelt személyzete külső kivitelező, akkor átírjuk
         $szemelyzet_id = $ut_feladat['szemelyzet_id'];
-        if($szemelyzet_id==KULSO_KIVITELEZO){
+        if( $szemelyzet_id == KULSO_KIVITELEZO ) {
             $szemelyzet_id = MUSZAKI_VEZETO;
         }
 
@@ -75,16 +75,16 @@ for($i_ciklus=0; $i_ciklus<2; $i_ciklus++){
 
         $log_tmp = ''; // Azért ürítem, mert már ki van írva a fájba, és ha a következő feltételekből egyik sem teljesül, akkor a LOG-ba bekerül mégegyszer ugyanaz a sor
         // Egyszállodás modell esetén a munkalap automatikusan hozzárendelt státuszban jön létre, ha telepített a hozzárendelt személyzet
-        if( !$szalloda['modell'] && $ut_feladat['szemelyzet_id']==TELEPITETT_SZEMELYZET ){
-            if( addStatusz('munkalap_statusz', $ujrecid, MUNKALAP_STAT_HOZZARENDELT, '', '', '', '', $ut_feladat['loginnev'])===false){
+        if( !$szalloda['modell'] && $ut_feladat['szemelyzet_id'] == TELEPITETT_SZEMELYZET ) {
+            if( addStatusz('munkalap_statusz', $ujrecid, MUNKALAP_STAT_HOZZARENDELT, '', '', '', '', $ut_feladat['loginnev']) === false ) {
                 $db_error = true;
                 $log_tmp = 'NEM SIKERÜLT munkalap státuszt léptetni hozzárendeltre: '.$adatbazis_kapcsolat->gp().'
 ';
             }
         }
         // Előkészítés alatt státuszban jön létre, ha külső kivitelező a hozzárendelt személyzet
-        if( !$szalloda['modell'] && $ut_feladat['szemelyzet_id']==KULSO_KIVITELEZO ){
-            if( addStatusz('munkalap_statusz', $ujrecid, MUNKALAP_STAT_ELOKESZITES_ALATT, '', '', '', '', $ut_feladat['loginnev'])===false ){
+        if( !$szalloda['modell'] && $ut_feladat['szemelyzet_id'] == KULSO_KIVITELEZO ) {
+            if( addStatusz('munkalap_statusz', $ujrecid, MUNKALAP_STAT_ELOKESZITES_ALATT, '', '', '', '', $ut_feladat['loginnev']) === false ) {
                 $db_error = true;
                 $log_tmp = 'NEM SIKERÜLT munkalap státuszt léptetni előkészítés alatt-ra: '.$adatbazis_kapcsolat->gp().'
 ';

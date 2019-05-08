@@ -2,7 +2,7 @@
 require_once('../weblap.php');
 
 if( !_jog(JOG_FELHASZNALOK_MEGTEKINT) ) {
-    if(!$_SESSION[get_db_tabla().'user']){
+    if( !$_SESSION[get_db_tabla() . 'user'] ) {
         $weblap -> leallit();
         header('Location: index.php');
         exit;
@@ -522,7 +522,7 @@ if( isset($_GET['addSzalloda']) ) {
 
 
 // CSV generálása
-if (isset($_GET['csv'])) {
+if( isset($_GET['csv']) ) {
 
     $mibol   = get_web_charset();
     $mibe    = 'windows-1250';
@@ -571,7 +571,7 @@ if (isset($_GET['csv'])) {
                                                     `virtual` as \'Virtuális\',
                                                     `aktiv` as \'Aktiv\'
                                                     '.$lekerdezes_fromtol.$_SESSION['akt_sql_order'];
-// echo $sql . '<br>';
+ 
         $query      = mysqli_query($db_kapcs, $sql);
 
         $csvhead    = array();
