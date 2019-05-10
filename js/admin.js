@@ -5871,6 +5871,7 @@ function szamlaBetolt( recid, page, muvelet, szerkeszt, kerdes_nelkul, anyagigen
                         'id',
                         'jogosultsag',
                         'jotallas',
+                        'kifizetesek',
                         'megjegyzes',
                         'megjegyzesek',
                         'megterules',

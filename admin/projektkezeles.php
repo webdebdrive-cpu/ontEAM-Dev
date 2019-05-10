@@ -1209,7 +1209,12 @@ if( isset($_GET['csv']) ) {
 
                 // Ha van $_SESSION['akt_sql_order'], akkor eszerint rendezünk, tehát a $lekerdezes_fromtol-t elvágjuk az Order-nél
                 if( $_SESSION['akt_sql_order'] ){
-                    $lekerdezes_fromtol = substr($lekerdezes_fromtol, 0, strpos($lekerdezes_fromtol, 'ORDER'));
+                    $hossz = strpos($lekerdezes_fromtol, 'ORDER');
+                    if( $hossz ) {
+                        $lekerdezes_fromtol = substr($lekerdezes_fromtol, 0, $hossz);
+                    }else{
+                        $lekerdezes_fromtol = substr($lekerdezes_fromtol, 0);
+                    }
                 }
                 
             }

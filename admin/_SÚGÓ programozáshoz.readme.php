@@ -1,6 +1,6 @@
 <?php/*
 ÚJ MENÜPONT KIALAKTÍÁSÁNÁL EZEKRE ÜGYELJ
-- események.php $_SESSION['ketHasabos'] listát bővítsd
+- esemenyek.php $_SESSION['ketHasabos'] listát bővítsd
 - ugyanitt alatta a switch($tabla) résznél is létre kell hozni egy switch-et
 - készíts egy tabla.php fájlt is (pl. a cikktorzs.php-ból)
 - header.php-ban a menüpontot alakítsd ki

@@ -83,15 +83,6 @@ if (isset($_GET['csv'])) {
             }
         }
         
-        // Ha van $_SESSION['akt_sql_order'], akkor eszerint rendezünk, tehát a $lekerdezes_fromtol-t elvágjuk az Order-nél
-        if( $_SESSION['akt_sql_order'] ){
-            $lekerdezes_fromtol = substr($lekerdezes_fromtol, 0, strpos($lekerdezes_fromtol, 'ORDER'));
-        }
-        // Ha nincs FROM rész, akkor azt még beletesszük
-        if( !$lekerdezes_fromtol ) {
-            $lekerdezes_fromtol = ' FROM `'.get_db_tabla().$megnevezes.'` ';
-        }
-
         $sql = 'SELECT
                                                     `ikt_szam` as \'Bejelentés szám\',
                                                     `'.get_db_tabla().$megnevezes.'`.`telephely_id` as \'Szálloda\',

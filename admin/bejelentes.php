@@ -722,10 +722,15 @@ if (isset($_GET['csv'])) {
                 $lekerdezes_fromtol = str_replace('ORDER', "WHERE `".get_db_tabla()."bejelentes`.`recid` IN (".$_SESSION['nyomtatas_ids'].") ORDER", $lekerdezes_fromtol);
             }
         }
-        
+  
         // Ha van $_SESSION['akt_sql_order'], akkor eszerint rendezünk, tehát a $lekerdezes_fromtol-t elvágjuk az Order-nél
         if( $_SESSION['akt_sql_order'] ){
-            $lekerdezes_fromtol = substr($lekerdezes_fromtol, 0, strpos($lekerdezes_fromtol, 'ORDER'));
+            $hossz = strpos($lekerdezes_fromtol, 'ORDER');
+            if( $hossz ) {
+                $lekerdezes_fromtol = substr($lekerdezes_fromtol, 0, $hossz);
+            }else{
+                $lekerdezes_fromtol = substr($lekerdezes_fromtol, 0);
+            }
         }
         // Ha nincs FROM rész, akkor azt még beletesszük
         if( !$lekerdezes_fromtol ) {

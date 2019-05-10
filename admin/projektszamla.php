@@ -1028,7 +1028,12 @@ if (isset($_GET['csv'])) {
 
                     // Ha van $_SESSION['akt_sql_order'], akkor eszerint rendezünk, tehát a $lekerdezes_fromtol-t elvágjuk az Order-nél
                     if( $_SESSION['akt_sql_order'] ){
-                        $lekerdezes_fromtol = substr($lekerdezes_fromtol, 0, strpos($lekerdezes_fromtol, 'ORDER'));
+                        $hossz = strpos($lekerdezes_fromtol, 'ORDER');
+                        if( $hossz ) {
+                            $lekerdezes_fromtol = substr($lekerdezes_fromtol, 0, $hossz);
+                        }else{
+                            $lekerdezes_fromtol = substr($lekerdezes_fromtol, 0);
+                        }
                     }
                     
                 }
@@ -1152,7 +1157,12 @@ if (isset($_GET['csv'])) {
 
                     // Ha van $_SESSION['akt_sql_order'], akkor eszerint rendezünk, tehát a $lekerdezes_fromtol-t elvágjuk az Order-nél
                     if( $_SESSION['akt_sql_order'] ){
-                        $lekerdezes_fromtol = substr($lekerdezes_fromtol, 0, strpos($lekerdezes_fromtol, 'ORDER'));
+                        $hossz = strpos($lekerdezes_fromtol, 'ORDER');
+                        if( $hossz ) {
+                            $lekerdezes_fromtol = substr($lekerdezes_fromtol, 0, $hossz);
+                        }else{
+                            $lekerdezes_fromtol = substr($lekerdezes_fromtol, 0);
+                        }
                     }
                     
                 }
@@ -1286,12 +1296,13 @@ require_once('selectek.php');
         $megj_db = ' ('.$sor['megj_db'].')';
     }
 
-    if( isset($_GET['modosit']) || isset($_GET['tetel']) || isset($_GET['dokumentumok']) || isset($_GET['megjegyzesek']) ) {
+    if( isset($_GET['modosit']) || isset($_GET['tetel']) || isset($_GET['dokumentumok']) || isset($_GET['megjegyzesek']) || isset($_GET['kifizetesek']) ) {
         
         // Számla fülek
         $ful_tomb = array(
             'modosit'       => 'Adatlap',
             'tetel'         => 'Tételek',
+            'kifizetesek'   => 'Kifizetések',
             'dokumentumok'  => 'Dokumentumok'.$dok_db,
             'megjegyzesek'  => 'Megjegyzések'.$megj_db,
         );
@@ -1348,14 +1359,14 @@ require_once('selectek.php');
 
         
     // Módosítás gombok
-    }else{
-        
+    } else {
+
         // Módosításkor updateljük a Session-ben a tételek adatait, így lesz jó a popupban
         $i = 0;
         $_SESSION['pr_szla_tetel_targy'] = $_SESSION['pr_szla_tetel_netto_ert'] = array();
         $tetelek = $adatbazis_kapcsolat->s('*', 'projektszamla_tetel', "`projektszamla_recid`='{$_GET['id']}'", 'recid');
         $van_kapcsolt_tetel = false;
-        foreach( $tetelek as $tetel ){
+        foreach ( $tetelek as $tetel ) {
             $_SESSION['pr_szla_tetel_recid'][$i]     = $tetel['recid'];
             $_SESSION['pr_szla_tetel_targy'][$i]     = $tetel['targy'];
             $_SESSION['pr_szla_tetel_netto_ert'][$i] = number_format($tetel['netto_ert'], 0, '', ' ');
@@ -1772,8 +1783,8 @@ require_once('selectek.php');
 		}
 
 	// Tételek fül
-	}elseif(isset($_GET['tetel'])){
-        
+    } elseif( isset($_GET['tetel']) ) {
+
         $szamla_html .= nl2('
             <div class="dt naplo">
                 <div class="dtr nFejlec">
@@ -1808,8 +1819,35 @@ require_once('selectek.php');
             echo $szamla_html.$gombok;
         }
 
+	// Kifizetések fül
+    } elseif( isset($_GET['kifizetesek']) ) {
+
+        $szamla_html .= nl2('
+            <div class="dt naplo">
+                <div class="dtr nFejlec">
+                    <div class="dtc">Bank</div>
+                    <div class="dtc r">Kifizetve</div>
+                    <div class="dtc">Bruttó</div>
+                    <div class="dtc">Valuta bruttó</div>
+                    <div class="dtc">Pénznem</div>
+                    <div class="dtc">Rögzítve</div>
+                    <div class="dtc">Rögzítette</div>
+                </div>
+        ');
+
+        // Tételek felsorolása
+        
+        if( $_GET['ajax'] ) {
+            echo json_encode(array(
+                'tartalom' => $szamla_html.$gombok,
+                'link'     => get_get(array('ajax', 'kat', 'epo', 'oldal', 'order'), true)
+            ));
+        } else {
+            echo $szamla_html.$gombok;
+        }
+
 	// Történet
-	}elseif(isset($_GET['tortenet'])){
+    } elseif( isset($_GET['tortenet']) ) {
 
         $szamla_html .= get_tortenet($megnevezes);
 
@@ -1822,7 +1860,7 @@ require_once('selectek.php');
         }
 
 	// Dokumentumok
-	}elseif( isset($_GET['dokumentumok']) ) {
+    } elseif( isset($_GET['dokumentumok']) ) {
 
         if( $tobb_kep ) {
             require_once('tobb_kep.php');
@@ -1838,7 +1876,7 @@ require_once('selectek.php');
         }
 
 	// Megjegyzések
-	}elseif(isset($_GET['megjegyzesek'])){
+    } elseif( isset($_GET['megjegyzesek']) ) {
 
         // <div class="dt naplo" class nevekből a kijCont kivéve, hogy a megjegyzéseket ne lehessen törölni
         $szamla_html .= nl2('
