@@ -1007,20 +1007,20 @@ function i_u($type, $tabla, $tomb) {
                     $post_key = $_POST[$key];
                     
                     // Numerikus illetve dátum mezők esetén le kell kezelni, ha üres adatot kapnánk, újra legyenek formázva
-                    foreach( $tomb as $elem ){
-                        if( $elem['name']==$key ){
-                            if( strpos($elem['class'], 'f_num')!==false ){
+                    foreach ( $tomb as $elem ) {
+                        if( $elem['name'] == $key ) {
+                            if( strpos($elem['class'], 'f_num') !== false ) {
                                 $tort  = trim( str_replace('data-tort=', '', $elem['data']), '"' );
                                 $value      = number_format($value,     $tort, ',', ' ');
                                 $post_key   = number_format($post_key,  $tort, ',', ' ');
                             }
-                            if( strpos($elem['class'], 'datepicker')!==false /* van még pl. "datepicker_tegnapig", de azt is felismeri az előző feltétel */ ){
-                                if(!$post_key){
+                            if( strpos($elem['class'], 'datepicker') !== false /* van még pl. "datepicker_tegnapig", de azt is felismeri az előző feltétel */ ) {
+                                if( !$post_key ) {
                                     $post_key = '0000-00-00';
                                 }
                             }
-                            if( strpos($elem['class'], 'datetimepicker')!==false /* van még pl. "datepicker_tegnapig", de azt is felismeri az előző feltétel */ ){
-                                if(!$post_key){
+                            if( strpos($elem['class'], 'datetimepicker') !== false /* van még pl. "datepicker_tegnapig", de azt is felismeri az előző feltétel */ ) {
+                                if( !$post_key ) {
                                     $post_key = '0000-00-00 00:00:00';
                                 }
                             }
@@ -1033,53 +1033,57 @@ function i_u($type, $tabla, $tomb) {
                     // Ha az újonnan kapott adat, és DB-ben tárolt adat nem egyezik
                     // És vagy ez előző vagy az új adatnak van értéke (ne azért íródjon már be, mert üres az új érték, de 0 volt az adatbázisban)
                     if( $post_key != $value && ($post_key || $value) ) {
+
                         $valtozas .= '[mezo]'.$key.'[/mezo] [ertek_regi]'.$value.'[/ertek_regi] [ertek_uj]'.$post_key.'[/ertek_uj]'."\n";
 
                         // Ha a megjegyzésbe is bele szeretnénk írni a változást, akkor pár formázást még el kell végezni
-                        if( $mod_megjegyzesbe_mehet && !in_array($key, $kiveteles_mezok) ){
+                        if( $mod_megjegyzesbe_mehet && !in_array($key, $kiveteles_mezok) ) {
                             // Üres dátum mező esetének kivédése
-                            if( !($post_key>'4000-00-00' && $value == '0000-00-00') ){
-                                
+                            if( !($post_key > '4000-00-00' && $value == '0000-00-00') ) {
+
                                 $mezo_neve = '';
                                 $uj_ertek = $post_key;
 
                                 
-                                foreach( $tomb as $elem ){
+                                foreach ( $tomb as $elem ) {
                                     // Ha az aktuális elemnél járunk
-                                    if( $elem['name']==$key ){
+                                    if( $elem['name'] == $key ) {
                                         $mezo_neve = trim($elem['megn'], ':');
                                         
                                         // Dátumot formázzuk
-                                        if( strpos($elem['class'], 'datepicker')!==false || strpos($elem['class'], 'datetimepicker')!==false || strpos($elem['class'], 'datepicker_tegnapig')!==false || strpos($elem['class'], 'datepicker_holnaptol')!==false ){
+                                        if( strpos($elem['class'], 'datepicker') !== false || strpos($elem['class'], 'datetimepicker') !== false || strpos($elem['class'], 'datepicker_tegnapig') !== false || strpos($elem['class'], 'datepicker_holnaptol') !== false ) {
                                             $value    = datum_kiir($value);
                                             $uj_ertek = datum_kiir($uj_ertek);
                                         }
                                         
                                         // Számot is formázzuk
-                                        if( strpos($elem['class'], 'f_num')!==false ){
+                                        if( strpos($elem['class'], 'f_num') !== false ) {
+                                            $value    = str_replace(array(' ', ','), array('', '.'), $value);
+                                            $uj_ertek = str_replace(array(' ', ','), array('', '.'), $uj_ertek);
+                                            
                                             $tort     = trim( str_replace('data-tort=', '', $elem['data']), '"' );
                                             $value    = number_format($value,    $tort, ',', ' ');
                                             $uj_ertek = number_format($uj_ertek, $tort, ',', ' ');
                                         }
 
                                         // Autocompletes mezők
-                                        if( $elem['type']=='autocomplete' ){
-                                            if( $elem['tabla'] == 'erteklista' ){
-                                                if( $elem['oszlop_keres']=='id' ){
+                                        if( $elem['type'] == 'autocomplete' ) {
+                                            if( $elem['tabla'] == 'erteklista' ) {
+                                                if( $elem['oszlop_keres'] == 'id' ) {
                                                     $uj_ertek = getErtekLista($elem['csoport'], $uj_ertek   );
                                                     $value    = getErtekLista($elem['csoport'], $value      );
-                                                }elseif( $elem['oszlop_keres']=='id' ){
+                                                } elseif( $elem['oszlop_keres'] == 'id' ) {
                                                     $uj_ertek = getErtekLista($elem['csoport'], '', $uj_ertek   );
                                                     $value    = getErtekLista($elem['csoport'], '', $value      );
                                                 }
-                                            }else{
+                                            } else {
                                                 $uj_ertek = getErtek($elem['listaz'], $elem['tabla'], $elem['oszlop_keres'], $uj_ertek);
                                                 $value    = getErtek($elem['listaz'], $elem['tabla'], $elem['oszlop_keres'], $value   );
                                             }
                                         }
                                         
                                         // Szálloda select lekezelése
-                                        if( $elem['name']=='telephely_id' ){
+                                        if( $elem['name'] == 'telephely_id' ) {
                                             $uj_ertek = getSzallodaNev($uj_ertek);
                                             $value    = getSzallodaNev($value   );
                                         }
