@@ -1527,11 +1527,9 @@ if( $_SESSION[get_db_tabla().'login_recid'] ) {
 } else {
 
     // Ha még nincs kért URL, akkor az aktuális cím lesz az (tahát az index.php)
-echo $_SESSION['kert_url'];
     if( !$_SESSION['kert_url'] ) {
         $_SESSION['kert_url'] = get_http().$_SERVER['HTTP_HOST'].$_SERVER['REQUEST_URI'];
     }
-echo $_SESSION['kert_url'];
 
     $felirat = '';
     if( isset($_GET['hiba']) ) {

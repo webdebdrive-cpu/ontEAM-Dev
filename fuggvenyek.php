@@ -7850,7 +7850,7 @@ function level_felkeszit_es_kuld($tabla, $recid, $ert_pipa, $sablon, $cimzett, $
 
         break;
         
-        // Projekt Tema tag hozzáadása
+        // Projekt Team tag hozzáadása
         case 'projektkezeles_tag_felveve':
             
             $projektkezeles = $adatbazis_kapcsolat->s2('ikt_szam telephely_id nev pfelelos', 'projektkezeles', "`recid`='{$recid}'");
@@ -7865,7 +7865,7 @@ function level_felkeszit_es_kuld($tabla, $recid, $ert_pipa, $sablon, $cimzett, $
 
         break;
         
-        // Projekt Tema tag törlése
+        // Projekt Team tag törlése
         case 'projektkezeles_tag_torolve':
             
             $projektkezeles = $adatbazis_kapcsolat->s2('ikt_szam telephely_id nev pfelelos', 'projektkezeles', "`recid`='{$recid}'");
