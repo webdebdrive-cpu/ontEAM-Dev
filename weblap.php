@@ -7,14 +7,14 @@ require_once('class/class.Adatbazis.php');
 require_once('class/class.Head.php');
 require_once('class/html/class.Img.php');
 
-if(is_file('statusz_text.php')){
+if( is_file('statusz_text.php') ) {
     require_once('statusz_text.php');
 }
 // Css-ben lévő képelemeket DATA-URI-ra cseréljük
-if (isset($_GET['css_img_uri'])) {
+if( isset($_GET['css_img_uri']) ) {
 
     $js_css_tomb = get_jsfajlok();
-    foreach($js_css_tomb['css'] as $css){
+    foreach ( $js_css_tomb['css'] as $css ) {
         fajlba_mentes($css, css_img_data( fajlbol_olvas($css) ));
     }
 
@@ -47,7 +47,7 @@ $weblap -> indit();
 //echo session_id();
 //echo $_SESSION['akt_sql']; exit;
 // Ha $db_prefix nem üres (tehát használunk adatbázist), akkor a következők végrehajtás kötelező
-if($weblap -> db_prefix){
+if( $weblap->db_prefix ) {
     $adatbazis_kapcsolat = $weblap -> adatbazis;
 	$adatbazis_kapcsolat -> csatlakozas(get_db_host(), get_db_user(), get_db_pass(), get_db());
 	$adatbazis_kapcsolat -> setCharset(get_db_charset());
@@ -55,7 +55,7 @@ if($weblap -> db_prefix){
     $db_kapcs = $adatbazis_kapcsolat -> adatbazis_kapcsolat; // mysqli_query-hez (ha megkell adni magát a kapcsolatot is)
 
     //SQL injection ellen
-    foreach($_GET as $kulcs => $get){
+    foreach ( $_GET as $kulcs => $get ) {
         $_GET[$kulcs] = sql_ertek($_GET[$kulcs]);
     }
     // foreach($_POST as $kulcs => $post){
@@ -86,7 +86,7 @@ if($weblap -> db_prefix){
 //}
 
 // Kiléptetés, ha nem él a SESSION és nem az index.php-n vagyunk és nem is egy ütemezőn, nem is elfelejtett jelszót kérünk le.
-if( !$_SESSION[get_db_tabla().'user'] && !$_POST['elfelejtett_jelszo'] && basename( $_SERVER['PHP_SELF'] )!='index.php' && substr(basename( $_SERVER['PHP_SELF'] ), 0, 8)!='utemezo_' && basename( $_SERVER['PHP_SELF'] )!='beleptetes.php' ){
+if( !$_SESSION[get_db_tabla() . 'user'] && !$_POST['elfelejtett_jelszo'] && basename($_SERVER['PHP_SELF']) != 'index.php' && substr(basename($_SERVER['PHP_SELF']), 0, 8) != 'utemezo_' && basename($_SERVER['PHP_SELF']) != 'beleptetes.php' && basename($_SERVER['PHP_SELF']) != 'import_szamla.php' ) {
     echo 'SESKIL<script>document.body.innerHTML = \'\'; location.href=\'index.php\'</script>';
     exit;
 }

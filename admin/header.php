@@ -15,8 +15,9 @@
 
 \*                                                                                                                      */
 require_once('../weblap.php');
-require_once('beleptetes.php'); //Ezzel tudod a beléptetést aktiválni. Részletek a beleptetes.php-ban
+require_once('beleptetes.php');
 require_once('esemenyek.php');
+
 if( isset($_GET['szerkeszt']) && $_GET['id'] ) {
     $tabla = str_replace('.php', '', basename(self()));
 
@@ -43,7 +44,7 @@ $menu_sablon     = fajlbol_olvas('../sablon/admin/menu.html',   true);
 $almenu_sablon   = fajlbol_olvas('../sablon/admin/almenu.html', true);
 
 // Home ikon, csak ha már beléptünk
-if($_SESSION[get_db_tabla().'login_recid']){
+if( $_SESSION[get_db_tabla() . 'login_recid'] ) {
     $menuk .=
             nl2('
                 <li class="link home">
@@ -66,7 +67,7 @@ if(basename(self())==$megn.'.php'){ $oldalNev = $menu_nev; }
 
 $aktmenuk  = '';
 $style = '';
-if(substr( basename(self()), 0, strlen(basename($_SERVER['PHP_SELF']))-4 ) == $megn){
+if( substr(basename(self()), 0, strlen(basename($_SERVER['PHP_SELF'])) - 4) == $megn ) {
     $style = ' class="hover{STYLE_KIEG}"';
 }
 
@@ -1504,7 +1505,7 @@ if( $_SESSION[get_db_tabla().'login_recid'] ) {
 
 } elseif( $_SESSION['nincs_jelsz'] && $_SESSION['nincs_jelsz_felhid'] ) {
 
-    $_SESSION['kert_url'] = $_SERVER['HTTP_HOST'].$_SERVER['REQUEST_URI'];
+    $_SESSION['kert_url'] = get_http().$_SERVER['HTTP_HOST'].$_SERVER['REQUEST_URI'];
 
     $felirat = '';
     if( isset($_GET['jelszoures']) ) {
@@ -1525,12 +1526,17 @@ if( $_SESSION[get_db_tabla().'login_recid'] ) {
 
 } else {
 
-    $_SESSION['kert_url'] = $_SERVER['HTTP_HOST'].$_SERVER['REQUEST_URI'];
+    // Ha még nincs kért URL, akkor az aktuális cím lesz az (tahát az index.php)
+echo $_SESSION['kert_url'];
+    if( !$_SESSION['kert_url'] ) {
+        $_SESSION['kert_url'] = get_http().$_SERVER['HTTP_HOST'].$_SERVER['REQUEST_URI'];
+    }
+echo $_SESSION['kert_url'];
 
     $felirat = '';
-    if(isset($_GET['hiba'])){
+    if( isset($_GET['hiba']) ) {
         $felirat = '<h1 style="font-size: 1.8rem">Helytelen felhasználó név vagy jelszó!</h1>';
-    }else{
+    } else {
         $felirat = '<h1 style="font-size: 2rem">Bejelentkezés</h1>';
     }
 

@@ -981,6 +981,8 @@ function i_u($type, $tabla, $tomb) {
         if( $record === false ) { $db_error = true; }
         if( $record ) {
 
+            require_once 'selectek.php';
+            
             // Kezdeményezett művelet
             $muvelet = 'A(z) '.$tabla.' '.$_GET['id'].'. recordját módosította.';
 
@@ -1043,7 +1045,6 @@ function i_u($type, $tabla, $tomb) {
 
                                 $mezo_neve = '';
                                 $uj_ertek = $post_key;
-
                                 
                                 foreach ( $tomb as $elem ) {
                                     // Ha az aktuális elemnél járunk
@@ -1086,6 +1087,20 @@ function i_u($type, $tabla, $tomb) {
                                         if( $elem['name'] == 'telephely_id' ) {
                                             $uj_ertek = getSzallodaNev($uj_ertek);
                                             $value    = getSzallodaNev($value   );
+                                        }
+                                        
+                                        // Tipus mező lekezelése
+                                        if( $elem['name'] == 'tipus' ) {
+                                            foreach( $select_pri_tipus as $select ) {
+                                                
+                                                if( $select['value']==$uj_ertek ) {
+                                                    $uj_ertek = $select['name'];
+                                                }
+                                                if( $select['value']==$value ) {
+                                                    $value = $select['name'];
+                                                }
+
+                                            }
                                         }
                                     }
                                 }

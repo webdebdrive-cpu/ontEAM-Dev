@@ -84,14 +84,16 @@ function get_logfile_max_meret(){ return 2097152; }
 function get_mail($kiir)     { return !$kiir ? 'noreply@onteam.hu' :
            mail_rejtes('<a href="mailto:'.get_mail().'">'.get_mail().'</a>');   }
 function get_megsz()         { return 'magaz';                                  }
-function get_mail_charset()  { return 'UTF-8';                                  } //ISO-8859-1, ISO-8859-2, Windows-1250, Windows-1251
+function get_mail_charset()  { return 'UTF-8';                                  } // ISO-8859-1, ISO-8859-2, Windows-1250, Windows-1251
 function get_nev()           { return 'ontEAM';                                 }
-function get_nyelvek()       { return array();                                  } //Az oldal nyelvei pl: array('hu', 'en'). Ha üres, akkor egynyelvű az oldal. Ha többnyelvű, akkor a $_SESSION['nyelv'] változó tartalmazza, hogy épp melyik nyelven is vagyunk ez alapján lehet ketté bontani a tartalmat (pl.: if($_SESSION['nyelv']==hu){...}). Az oldalon megtalálható összes szöveget érdemes kimenteni egy nagy tömbbe, tartalom.php-ba (részletes leírás ott). A képelemeket pedig érdemes valami_'.$_SESSION['nyelv'].'.png formában kirajzolni.
-function get_nyelv_detek()   { return true;                                     } //Ha ez igaz, akkor a $_SERVER['HTTP_ACCEPT_LANGUAGE'] alapján a $_SESSION['nyelv'] automatikusan megkapja az adott nyelvet
+function get_nyelvek()       { return array();                                  } // Az oldal nyelvei pl: array('hu', 'en'). Ha üres, akkor egynyelvű az oldal. Ha többnyelvű, akkor a $_SESSION['nyelv'] változó tartalmazza, hogy épp melyik nyelven is vagyunk ez alapján lehet ketté bontani a tartalmat (pl.: if($_SESSION['nyelv']==hu){...}). Az oldalon megtalálható összes szöveget érdemes kimenteni egy nagy tömbbe, tartalom.php-ba (részletes leírás ott). A képelemeket pedig érdemes valami_'.$_SESSION['nyelv'].'.png formában kirajzolni.
+function get_nyelv_detek()   { return true;                                     } // Ha ez igaz, akkor a $_SERVER['HTTP_ACCEPT_LANGUAGE'] alapján a $_SESSION['nyelv'] automatikusan megkapja az adott nyelvet
 function gu()                { return get_utvonal();                            }
 function get_utvonal()       { return 'tartalom/';                              }
 function get_penznem()       { return 'Ft';                                     }
 function get_session()       { return true;                                     }
+function get_kerturl_elotag(){ return '/hotel/admin/';                          } // WebDeb demo felületéhez kell
+
 function get_aktiv_oldalak() {
     return array(
         'index.php',
@@ -108,14 +110,14 @@ function get_responsive()    {
 function get_session_felh()  { return get_db_tabla().'felhId';                  }
 function get_teszt_mail()    { return 'teszt@webdeb.hu';                        }
 function get_mszk_mail(){
-    if($_SERVER['HTTP_HOST']=='demo.webdeb.hu'){
+    if( $_SERVER['HTTP_HOST'] == 'demo.webdeb.hu' ) {
         return 'diszpecser@wdb.hu';
     }else{
         return 'diszpecser@danubiushotels.com';
     }
 }
 function get_mszk_mail2(){
-    if($_SERVER['HTTP_HOST']=='demo.webdeb.hu'){
+    if( $_SERVER['HTTP_HOST'] == 'demo.webdeb.hu' ) {
         return 'gyongyi.szollosi@wdb.hu';
     }else{
         return 'gyongyi.szollosi@danubiushotels.com';

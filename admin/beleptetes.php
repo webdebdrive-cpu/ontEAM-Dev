@@ -6,7 +6,7 @@ $jogolsultsagos = false;
 require_once('../weblap.php');
 
 // Nem láthat bárki bármilyen tartalmat, viszont az admin bármit
-if( $_SESSION[get_db_tabla().'user'] && $_SESSION[get_db_tabla().'user'] != 'admin' ){
+if( $_SESSION[get_db_tabla() . 'user'] && $_SESSION[get_db_tabla() . 'user'] != 'admin' ) {
 
     $user_joga = $adatbazis_kapcsolat -> s2('jog', 'login', 'nev='.$_SESSION[get_db_tabla().'user']);
 
@@ -16,12 +16,12 @@ if( $_SESSION[get_db_tabla().'user'] && $_SESSION[get_db_tabla().'user'] != 'adm
     $jogok['oldalak'] = nl2br($jogok['oldalak']);
     $jogosultsagok = explode('<br />', $jogok['oldalak']);
     $i = 0;
-    foreach($jogosultsagok as $x){
+    foreach ( $jogosultsagok as $x ) {
         $jogosultsagok[$i] = trim($jogosultsagok[$i]);
         $i++;
     }
 
-    if($jogolsultsagos && !in_array( basename(self()), $jogosultsagok ) ){
+    if( $jogolsultsagos && !in_array(basename(self()), $jogosultsagok) ) {
         $adatbazis_kapcsolat -> bezar();
         header('Location:index.php?nincsjog');
         exit();
@@ -30,7 +30,7 @@ if( $_SESSION[get_db_tabla().'user'] && $_SESSION[get_db_tabla().'user'] != 'adm
 }
 
 // Jelszó csere
-if(isset($_POST['jelszo_csere'])) {
+if( isset($_POST['jelszo_csere']) ) {
 
     // Jelszó nem üres-e
     if( !empty($_POST['jlsz']) && !empty($_POST['jlsz2']) ) {
@@ -73,29 +73,31 @@ if(isset($_POST['jelszo_csere'])) {
                         $_SESSION['nincs_jelsz']        = false;
 
                         if( !$_SESSION['kert_url'] ) {
-                            $_SESSION['kert_url'] = get_domain().'/'.get_admin();
+                            $_SESSION['kert_url'] = get_http().get_domain().'/'.get_admin();
                         }
 
-                        // Vizsgáljuk, hogy csak bejelentés joga van-e. Ha igen, akkor bejelentések menüopntra visszük egyből
+                        // Vizsgáljuk, hogy csak bejelentés joga van-e. Ha igen, akkor bejelentések menüpontra visszük egyből
                         $i = 0;
                         $bejelento = true;
-                        foreach($_SESSION[get_db_tabla().'rights'] as $flag){
-
-                            if($flag && $i!=0 && $i!=1 && $i!=57 ){
+                        foreach ( $_SESSION[get_db_tabla() . 'rights'] as $flag ) {
+                            if( $flag && $i != JOG_BEJELENTES_SAJAT_RESZL && $i != JOG_BEJELENTES_KEZEL && $i != JOG_BEJELENTES_MEGTEKINT ) {
                                 $bejelento = false;
+                                break;
                             }
                             $i++;
                         }
 
-                        if($bejelento){
+                        if( $bejelento ) {
                             $_SESSION['bejelento_menu_rejt'] = 1;
+                            $_SESSION['kert_url'] = 'bejelentes.php';
+                            if($_SERVER['HTTP_HOST'] == 'demo.webdeb.hu'){
+                                $_SESSION['kert_url'] = get_kerturl_elotag().$_SESSION['kert_url'];
+                            }
                         }
-
-                        if($bejelento){
-                            header('Location: '.get_http().$_SERVER['HTTP_HOST'].'/'.get_admin().'bejelentes.php');
-                        }else{
-                            header('Location: '.get_http().$_SESSION['kert_url']);
-                        }
+                        
+                        // A megfelelő menüpont betöltése
+                        header('Location: '.$_SESSION['kert_url']);
+                        
                         $adatbazis_kapcsolat -> bezar();
                         exit();
                     }
@@ -150,7 +152,7 @@ if(isset($_POST['jelszo_csere'])) {
 }
 
 // Jelszó csere mégsem
-if(isset($_POST['megsem'])) {
+if( isset($_POST['megsem']) ) {
 
     $muvelet = $_SESSION[get_db_tabla().'teljes_nev'].' ('.$_SESSION[get_db_tabla().'user'].') mégsem választott jelszót';
     $adatbazis_kapcsolat -> i('log',
@@ -180,7 +182,7 @@ if(isset($_POST['megsem'])) {
 //}
 
 // Beléptetés
-if(isset($_POST['login'])) {
+if( isset($_POST['login']) ) {
 
     unset($_SESSION['bejelento_menu_rejt']);
     if( $_POST['nev'] ) {
@@ -241,39 +243,41 @@ if(isset($_POST['login'])) {
                     // Vizsgáljuk, hogy csak bejelentés joga van-e. Ha igen, akkor bejelentések menüopntra visszük egyből
                     $i = 0;
                     $bejelento = true;
-                    foreach($_SESSION[get_db_tabla().'rights'] as $flag){
-
-                        if($flag && $i!=0 && $i!=1 && $i!=57 ){
+                    foreach ( $_SESSION[get_db_tabla() . 'rights'] as $flag ) {
+                        if( $flag && $i != JOG_BEJELENTES_SAJAT_RESZL && $i != JOG_BEJELENTES_KEZEL && $i != JOG_BEJELENTES_MEGTEKINT ) {
                             $bejelento = false;
                         }
                         $i++;
                     }
-
-                    if($bejelento){
+                    if( $bejelento ) {
                         $_SESSION['bejelento_menu_rejt'] = 1;
+                        $_SESSION['kert_url'] = 'bejelentes.php';
+                        if($_SERVER['HTTP_HOST'] == 'demo.webdeb.hu'){
+                            $_SESSION['kert_url'] = get_kerturl_elotag().$_SESSION['kert_url'];
+                        }
                     }
 
                     if( $_POST['ajax'] ) {
-                        if($bejelento){
+                        if( $bejelento ) {
                             echo json_encode(array(
                                 'statusz' => 'bejelento'
                             ));
-                        }else{
+                        } else {
                             echo json_encode(array(
                                 'statusz' => 'siker'
                             ));
                         }
+                        
                     } else {
 
-                        if($bejelento){
-                            header('Location: '.get_http().$_SERVER['HTTP_HOST'].'/'.get_admin().'bejelentes.php');
-                        }else{
-                            header('Location: '.get_http().$_SESSION['kert_url']);
-                        }
+                        header('Location: '.$_SESSION['kert_url']);
+                        
                         $adatbazis_kapcsolat -> bezar();
                         exit();
                     }
+                    
                 } else {
+                    
                     if( $_POST['ajax'] ) {
                         echo json_encode(array(
                             'statusz' => 'hiba'
@@ -329,7 +333,7 @@ if(isset($_POST['login'])) {
 }
 
 // Kiléptetés
-if(isset($_GET['kilep'])){
+if( isset($_GET['kilep']) ) {
 
     $adatbazis_kapcsolat -> u('login', array('logout_dt'), array(date('Y-m-d H:i:s')), '`recid` = \''.$_SESSION[get_db_tabla().'login_recid'].'\'');
     $muvelet = $_SESSION[get_db_tabla().'teljes_nev'].' ('.$_SESSION[get_db_tabla().'user'].') kilépett.';
@@ -346,8 +350,8 @@ if(isset($_GET['kilep'])){
 }
 
 
-
-if(isset($_GET['nincsjog'])){
+// Nincs jog üzenet kiíratása
+if( isset($_GET['nincsjog']) ) {
 
     echo fajlbol_olvas('../sablon/admin/nincsjog.html');
 
@@ -476,7 +480,7 @@ if (isset($_GET['jogok'])) {
 }
 
 // Új login
-if (isset($_POST['uj_login'])) {
+if( isset($_POST['uj_login']) ) {
 
     $_POST['jelszo'] = md5($_POST['jelszo']);
 
@@ -487,7 +491,7 @@ if (isset($_POST['uj_login'])) {
 }
 
 // Login adatok mentése ajaxal
-if (isset($_POST['login_mentes'])) {
+if( isset($_POST['login_mentes']) ) {
 
     $adatbazis_kapcsolat->u('login', array('rendes_nev',         'nev',         'jog'),
                                      array($_POST['rendes_nev'], $_POST['nev'], $_POST['jog']),
@@ -505,7 +509,7 @@ if (isset($_POST['login_mentes'])) {
 }
 
 // Login törlése
-if (isset($_POST['login_torol'])) {
+if( isset($_POST['login_torol']) ) {
 
     $adatbazis_kapcsolat->d('login', 'recid='.$_POST['id']);
 
@@ -517,7 +521,7 @@ if (isset($_POST['login_torol'])) {
 
 
 // Új jog
-if (isset($_POST['uj_jog'])) {
+if( isset($_POST['uj_jog']) ) {
 
     $adatbazis_kapcsolat->i('jog', array('nev', 'oldalak'), array($_POST['nev'], $_POST['oldalak']));
 
@@ -525,8 +529,8 @@ if (isset($_POST['uj_jog'])) {
 
 }
 
-// Jogosultásgok mentése ajaxal
-if (isset($_POST['jog_mentes'])) {
+// Jogosultságok mentése ajaxal
+if( isset($_POST['jog_mentes']) ) {
 
     $adatbazis_kapcsolat->u('jog', array('nev', 'oldalak'), array($_POST['jog_nev'], $_POST['jog_oldalak']), 'id='.$_POST['id']);
 
@@ -537,8 +541,8 @@ if (isset($_POST['jog_mentes'])) {
 
 }
 
-// Jogosultásgok törlése
-if (isset($_POST['jog_torol'])) {
+// Jogosultságok törlése
+if( isset($_POST['jog_torol']) ) {
 
     $adatbazis_kapcsolat->d('jog', 'id='.$_POST['id']);
 
