@@ -1012,6 +1012,9 @@ function i_u($type, $tabla, $tomb) {
                     foreach ( $tomb as $elem ) {
                         if( $elem['name'] == $key ) {
                             if( strpos($elem['class'], 'f_num') !== false ) {
+                                if( !$post_key ) {
+                                    $post_key = '0';
+                                }
                                 $tort  = trim( str_replace('data-tort=', '', $elem['data']), '"' );
                                 $value      = number_format($value,     $tort, ',', ' ');
                                 $post_key   = number_format($post_key,  $tort, ',', ' ');
@@ -1049,6 +1052,7 @@ function i_u($type, $tabla, $tomb) {
                                 foreach ( $tomb as $elem ) {
                                     // Ha az aktuális elemnél járunk
                                     if( $elem['name'] == $key ) {
+                                        
                                         $mezo_neve = trim($elem['megn'], ':');
                                         
                                         // Dátumot formázzuk
@@ -1083,6 +1087,38 @@ function i_u($type, $tabla, $tomb) {
                                             }
                                         }
                                         
+                                        // Checkboxok lekezelése
+                                        if( $elem['type'] == 'checkbox' ) {
+                                            if( $uj_ertek ) {
+                                                $uj_ertek = 'igen';
+                                            } else {
+                                                $uj_ertek = 'nem';
+                                            }
+                                            if( $value ) {
+                                                $value = 'igen';
+                                            } else {
+                                                $value = 'nem';
+                                            }
+                                        }
+                                        
+                                        
+                                        // Tipus mező lekezelése
+                                        if( $elem['name'] == 'besorol' ) {
+                                            foreach( $select_pri_besorol as $select ) {
+                                                
+                                                if( $select['name'] == '- Válasszon -' ) {
+                                                    $select['name'] = '';
+                                                }
+                                                if( $select['value']==$uj_ertek ) {
+                                                    $uj_ertek = $select['name'];
+                                                }
+                                                if( $select['value']==$value ) {
+                                                    $value = $select['name'];
+                                                }
+
+                                            }
+                                        }
+                                        
                                         // Szálloda select lekezelése
                                         if( $elem['name'] == 'telephely_id' ) {
                                             $uj_ertek = getSzallodaNev($uj_ertek);
@@ -1092,13 +1128,17 @@ function i_u($type, $tabla, $tomb) {
                                         // Tipus mező lekezelése
                                         if( $elem['name'] == 'tipus' ) {
                                             foreach( $select_pri_tipus as $select ) {
-                                                
+                                               
+                                                if( $select['name'] == '- Válasszon -' ) {
+                                                    $select['name'] = '';
+                                                }
                                                 if( $select['value']==$uj_ertek ) {
                                                     $uj_ertek = $select['name'];
                                                 }
                                                 if( $select['value']==$value ) {
                                                     $value = $select['name'];
                                                 }
+                                               
 
                                             }
                                         }

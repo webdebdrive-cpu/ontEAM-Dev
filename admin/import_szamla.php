@@ -7,13 +7,15 @@
 \*                                                                                                                                         */
 require_once '../weblap.php';
 // Ha van postolt adatunk, akkor ellenőrizzük a beléptetést, és ha ez megvan, akkor tovább léptetjük az új számla feltöltéshez
-if( $_POST ) {
+if( $_POST || true ) {
     $_SESSION['kert_url'] = 'projektszamla.php?uj';
     if($_SERVER['HTTP_HOST'] == 'demo.webdeb.hu'){
         $_SESSION['kert_url'] = get_kerturl_elotag().$_SESSION['kert_url'];
     }
     
     file_put_contents('postok/'.date('Y-m-d_H:i:s').'.txt', serialize($_POST));
+    
+    //echo '<return>0 Ok</return>';
 
     require_once 'beleptetes.php';
     header('Location: '.$_SESSION['kert_url']);

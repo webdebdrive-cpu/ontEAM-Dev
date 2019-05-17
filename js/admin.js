@@ -200,7 +200,6 @@ function get_kibont_torol(self, torles, get_id) {
     if( !gg ){
         gg = '?';
     }
-console.log(self + gg + '&amp;lista&amp;' + torles + '=' + get_id );
     return '<p class="c" style="margin-top: 0.5rem"><input class="gomb zold" type="button" value="Igen" onclick="szurkit(); location.href=\'' + self + gg + '&amp;lista&amp;' + torles + '=' + get_id + '\'"> <input class="gomb piros" type="button" value="Nem" onclick="alert2()">';}
 
 /* Kibontásnál címlap kép törlés HTML-je. Hogy valid legyen kiveszem JS-be. */

@@ -59,7 +59,7 @@ if (isset($_POST['projekt_elokeszites_ala'])) {
     }
     
     // Jog ellenőrzése
-    if( !get_projekt_kezeles_jog($recid) ){
+    if( !get_projekt_kezeles_jog($recid) ) {
         echo json_encode(array(
             'hiba'  => 'Önnek nincs joga státuszt léptetni!',
             'title' => 'Hiba',
@@ -106,8 +106,8 @@ if (isset($_POST['projekt_elokeszites_ala'])) {
 }
 
 // Léptetés Folyamatban státuszba
-if (isset($_POST['projekt_folyamatbanra'])) {
-    
+if( isset($_POST['projekt_folyamatbanra']) ) {
+
     $recid = $_POST['recid'];
     
     $db_error = false;
@@ -128,7 +128,7 @@ if (isset($_POST['projekt_folyamatbanra'])) {
     }
     
     // Jog ellenőrzése
-    if( !get_projekt_kezeles_jog($recid) ){
+    if( !get_projekt_kezeles_jog($recid) ) {
         echo json_encode(array(
             'hiba'  => 'Önnek nincs joga státuszt léptetni!',
             'title' => 'Hiba',
@@ -175,8 +175,8 @@ if (isset($_POST['projekt_folyamatbanra'])) {
 }
 
 // Léptetés Kész státuszba
-if (isset($_POST['projekt_keszre'])) {
-    
+if( isset($_POST['projekt_keszre']) ) {
+
     $recid = $_POST['recid'];
     
     $db_error = false;
@@ -244,8 +244,8 @@ if (isset($_POST['projekt_keszre'])) {
 }
 
 // Léptetés Lezárt státuszba
-if (isset($_POST['projekt_lezartra'])) {
-    
+if( isset($_POST['projekt_lezartra']) ) {
+
     $recid = $_POST['recid'];
     
     $db_error = false;
@@ -313,8 +313,8 @@ if (isset($_POST['projekt_lezartra'])) {
 }
 
 // Sikeres fájlfetöltés után rákérdezünk, hogy léptessük-e tovább
-if (isset($_POST['projekt_fajfeltoltes_utan_tovabb'])) {
-    
+if( isset($_POST['projekt_fajfeltoltes_utan_tovabb']) ) {
+
     $recid = $_POST['recid'];
     
     $sor = $adatbazis_kapcsolat->s2('ikt_szam stat_id', 'projektkezeles', "`recid`='{$recid}'");
@@ -376,8 +376,8 @@ if (isset($_POST['projekt_fajfeltoltes_utan_tovabb'])) {
 }
 
 // Projekt adatának lekérdezése popup felirathoz
-if (isset($_POST['get_projektkezeles'])) {
-    
+if( isset($_POST['get_projektkezeles']) ) {
+
     $sor = $adatbazis_kapcsolat->s2('ikt_szam telephely_id nev', 'projektkezeles', "`recid`='{$_POST['recid']}'");
     echo 'Azonosító: '.$sor['ikt_szam'].'<br>Szálloda: '.getSzallodaNev($sor['telephely_id']).'<br>Név: '.$sor['nev'].'<br><br>';
     
@@ -386,8 +386,8 @@ if (isset($_POST['get_projektkezeles'])) {
 }
 
 // Projekt felfüggesztése
-if (isset($_POST['projekt_felfuggeszt'])) {
-    
+if( isset($_POST['projekt_felfuggeszt']) ) {
+
     $recid = $_POST['recid'];
     $indok = trim($_POST['indok']);
     
@@ -462,8 +462,8 @@ if (isset($_POST['projekt_felfuggeszt'])) {
 }
 
 // Projekt felfüggesztése vége
-if (isset($_POST['projekt_felfuggesztes_vege'])) {
-    
+if( isset($_POST['projekt_felfuggesztes_vege']) ) {
+
     $recid = $_POST['recid'];
     $indok = trim($_POST['indok']);
     
@@ -520,8 +520,8 @@ if (isset($_POST['projekt_felfuggesztes_vege'])) {
 }
 
 // Projekt leállítása
-if (isset($_POST['projekt_leallit'])) {
-    
+if( isset($_POST['projekt_leallit']) ) {
+
     $recid = $_POST['recid'];
     $indok = trim($_POST['indok']);
     
@@ -596,8 +596,8 @@ if (isset($_POST['projekt_leallit'])) {
 }
 
 // Projekt team hozzáadása
-if (isset($_POST['addProjektTeam'])) {
-    
+if( isset($_POST['addProjektTeam']) ) {
+
     if($_POST['prkezel_recid']){
         
         $adatbazis_kapcsolat -> d('projektkezeles_login', "`projektkezeles_recid` = '".$_POST['prkezel_recid']."'");
@@ -621,7 +621,7 @@ if (isset($_POST['addProjektTeam'])) {
 }
 
 // Igénylések táblázat betöltése
-if(isset($_POST['igenylesek_betolt_uj_kezeleshez'])){
+if( isset($_POST['igenylesek_betolt_uj_kezeleshez']) ) {
 
     // Ha nincs új feltöltés jogunk, akkor kilépünk
     if( !_jog(JOG_PRKEZEL_UJ_LETREHOZ) ){
@@ -788,8 +788,8 @@ if(isset($_POST['igenylesek_betolt_uj_kezeleshez'])){
 }
 
 // Login lista betöltése új Projekt team feltöltésekor
-if (isset($_POST['get_login_lista'])) {
-    
+if( isset($_POST['get_login_lista']) ) {
+
     $db_error = false;
     mysqli_autocommit($db_kapcs, false);
     
@@ -869,8 +869,8 @@ if (isset($_POST['get_login_lista'])) {
 }
 
 // Új projekt team rögzítése
-if (isset($_POST['projekt_team_felvesz'])) {
-    
+if( isset($_POST['projekt_team_felvesz']) ) {
+
     $recid          = $_POST['recid'];
     $nev            = trim($_POST['nev']);
     $ceg            = trim($_POST['ceg']);
@@ -982,8 +982,8 @@ if (isset($_POST['projekt_team_felvesz'])) {
 }
 
 // Cash-flow sor hozzáadása
-if (isset($_POST['projektkezeles_cf_uj'])) {
-    
+if( isset($_POST['projektkezeles_cf_uj']) ) {
+
     $datumok = json_decode($_POST['datumok']);
     $tervek  = json_decode($_POST['tervek']);
 
@@ -1092,8 +1092,8 @@ if (isset($_POST['projektkezeles_cf_uj'])) {
 }
 
 // Cash flow kitöltéshez adatok betöltése
-if (isset($_POST['cf_adatok_betolt'])) {
-    
+if( isset($_POST['cf_adatok_betolt']) ) {
+
     // Cf név
     $cf_nev = $adatbazis_kapcsolat->s2('*', 'projektkezeles_cashflow_nev', "`recid`='{$_POST['recid']}'");
     
@@ -1115,8 +1115,8 @@ if (isset($_POST['cf_adatok_betolt'])) {
 
 
 // Cash-flow sor törlése 
-if (isset($_POST['cf_sor_torol'])) {
-    
+if( isset($_POST['cf_sor_torol']) ) {
+
     $db_error = false;
     mysqli_autocommit($db_kapcs, false);
     
@@ -1340,13 +1340,13 @@ require_once('selectek.php');
     }
 
     // Az adatlap adatait már a legelején lekérjük
-    if( $_GET['id'] ){
+    if( $_GET['id'] ) {
         $sor = $adatbazis_kapcsolat -> s2('*', $megnevezes, "`recid`='{$_GET['id']}'");
     }
-    if($sor['dok_db']){
+    if( $sor['dok_db'] ) {
         $dok_db  = ' ('.$sor['dok_db'].')';
     }
-    if($sor['megj_db']){
+    if( $sor['megj_db'] ) {
         $megj_db = ' ('.$sor['megj_db'].')';
     }
 
@@ -1383,7 +1383,7 @@ require_once('selectek.php');
         );
     }
     
-    // Az egy/több szálloás pipa beállítása
+    // Az egy/több szállodás pipa beállítása
     $szamla_html .= nl2('
                             <script>
                                 $(document).ready(function () {
@@ -1426,22 +1426,22 @@ require_once('selectek.php');
         }
         
     // Módosítás gombok
-    }else{
-        
+    } else {
+
         // Több kérdés is azzal kezdődik, hogy kiírjuk a Projekt adatait, ezért egy változóba kiszervezzük
         $projekt_adatok = 'Azonosító: '.$sor['ikt_szam'].'<br>Szálloda: '.getSzallodaNev($sor['telephely_id']).'<br>Név: '.addslashes($sor['nev']).'<br><br>';
         
         // Törlés gomb
-        if( !get_projekt_kezeles_jog($_GET['id']) ){
+        if( !get_projekt_kezeles_jog($_GET['id']) ) {
             $gombok .= ' <input type="button" id="recordTorol" class="gombb_alert dn" onclick="alert2(\'Önnek nincs joga a projekt törléséhez!\', \'\', \'Hiba\')" value="Töröl" title="Töröl">';
         // Csak nyitott projekt törölhető
-        }elseif($sor['stat_id']!=PRKEZEL_STAT_NYITOTT){
+        }elseif( $sor['stat_id'] != PRKEZEL_STAT_NYITOTT ) {
             $gombok .= ' <input type="button" id="recordTorol" class="gombb_alert dn" onclick="alert2(\'Csak nyitott státuszú projekt törlhető!\', \'\', \'Hiba\')" value="Töröl" title="Töröl">';
         // Ha már tartozik hozzá projektigénylés, akkor sem törölhető
-        }elseif($sor['projektigenyles_recid']){
+        }elseif( $sor['projektigenyles_recid'] ) {
             $gombok .= ' <input type="button" id="recordTorol" class="gombb_alert dn" onclick="alert2(\'A projekthez már tartozik projektigénylés, így nem törölhető!\', \'\', \'Hiba\')" value="Töröl" title="Töröl">';
-        }else{
-            
+        } else {
+
             // Nézzük meg, hogy van-e olyan szerződés, amihez hozzá van kapcsolva. Ha van, akkor sem törölhető
             $van_szerzodese = $adatbazis_kapcsolat->s('recid', 'projektszerzodes', "`pr_szam`='{$sor['ikt_szam']}'");
             if( $van_szerzodese ){
@@ -1558,11 +1558,36 @@ require_once('selectek.php');
     $js_submit_elott = 'return form_ell_admin();';
     
 	// Új projektkezelés felvitele
-	if(isset($_GET['uj']) && _jog(JOG_PRKEZEL_UJ_LETREHOZ) ){
+    if( isset($_GET['uj']) && _jog(JOG_PRKEZEL_UJ_LETREHOZ) ) {
         
-	    // FORM
-		if(isset($_GET['ujkent'])){
-			foreach($akt_tomb as $ertek){
+        
+        // Ha új, üres projektet töltünk fel, akkor jóváhagyás előtt rákérdezünk, hogy biztos-e?
+        if( !$_GET['igeny_id'] ) {
+            $js_submit_elott = nl2('
+                                        if( !feltoltes_mehet ) {
+                                            alert2(
+                                                \'Név: \'+$(\'#nev\').val()+
+                                                \'<br>Szálloda: \'+$(\'#telephely_id option:selected\').text()+
+                                                \'<br>Jóváhagyott keret: \'+$(\'#jkolt\').val()+
+                                                \' '. get_penznem().'
+                                                <br>
+                                                <br>A jóváhagyott keret mentést követően nem módosítható!
+                                                <br>
+                                                <br>Folytatja?\',
+
+                                                \'<input type="button" class="gomb zold" value="Igen" onclick="feltoltes_mehet=true; mentesGomb();"><input type="button" class="gomb piros" value="Nem" onclick="alert2();">\'
+                                            );
+                                            alert_utan_mehet_megsem_mutat_beallit();
+                                            return false;
+                                        } else {
+                                            return form_ell_admin();
+                                        }
+                                    ');
+        }
+
+        // FORM
+		if( isset($_GET['ujkent']) ) {
+            foreach($akt_tomb as $ertek){
 				$sor[$ertek['name']]=$_SESSION[$ertek['name']];
 			}
 		}
@@ -1582,7 +1607,7 @@ require_once('selectek.php');
         }
         
         // Ha van igénylés recid-nk, akkor annak az adatait felhasználjuk
-        if($_GET['igeny_id']){
+        if( $_GET['igeny_id'] ) {
             $igenyles = $adatbazis_kapcsolat->s2('*', 'projektigenyles', "`recid`='{$_GET['igeny_id']}' AND `telephely_id` IN (".implode(', ', get_akt_login_szallodai()).")");
             $sor['nev']                     = $igenyles['nev'];
             $sor['telephely_id']            = $igenyles['telephely_id'];
@@ -1600,7 +1625,11 @@ require_once('selectek.php');
         foreach($sor as $kulcs => $elem){
            $json_sor[$kulcs] = formAdatok_replace($elem);
         }
-        $szamla_html .= '<script> formAdatok = JSON.parse(\''.json_encode($json_sor).'\'); </script>';
+        $szamla_html .= '
+                        <script>
+                            formAdatok = JSON.parse(\''.json_encode($json_sor).'\'); 
+                            var feltoltes_mehet = false;
+                         </script>';
 
 		// Ez elkészíti a $mezok változót
 		require('switch.php');
@@ -1619,7 +1648,7 @@ require_once('selectek.php');
         }
 
 	// Projektkezelés módosítása
-	} elseif(isset($_GET['modosit'])) {
+    } elseif( isset($_GET['modosit']) ) {
 
         // Ha Gyorskeresőből érkeznénk ide, akkor az ID-t valójában az id_hidden tartalmazza majd
         if(isset($_GET['id_hidden'])){
@@ -1695,8 +1724,8 @@ require_once('selectek.php');
 		}
 
 	// Cash flow 
-	}elseif(isset($_GET['cash_flow'])){
-        
+    } elseif( isset($_GET['cash_flow']) ) {
+
         $sor = $adatbazis_kapcsolat -> s2('*', $megnevezes, "`recid`='{$_GET['id']}'");
         
         // Előző hónap kiszámítása
