@@ -59,7 +59,7 @@ if( isset($_GET['szamlaLista']) || isset($_GET['szamlaSorFrissit']) ) {
 $tabla_nophp = str_replace('.php', '', $tabla);
 
 $_OPTS = array();
-switch($tabla) {
+switch ( $tabla ) {
     case 'anyagigenyles.php':
         // Ezeket a tábla oszlopokat kérdezzük le baloldalra
         $_OPTS['select']    = nl2('
@@ -91,7 +91,7 @@ switch($tabla) {
                                 ');
 
         // Anyagrendeléskor más a rendezés
-        if (isset($_GET['anyagrend'])) {
+        if( isset($_GET['anyagrend']) ) {
             // Ezek az oszlopok generálódnak ki a rendezés selectbe, lehet szépíteni az oszlopneveket, amit a getOszlopNev() függvényben kell beállítani
             $_OPTS['rendezes']  = array('rndid', 'stat_id', 'rnd_dt',  'recid');
             $_OPTS['iranyok']   = array('desc',  'asc',     'desc',    'asc'  );
@@ -107,7 +107,7 @@ switch($tabla) {
             }
 
         // Anyagigénylés rendezése
-        }else{
+        } else {
             // Ezek az oszlopok generálódnak ki a rendezés selectbe, lehet szépíteni az oszlopneveket, amit a getOszlopNev() függvényben kell beállítani
             $_OPTS['rendezes']  = array('stat_id', 'telephely_id', 'cikk_id', 'szallito_id', 'recid');
 
@@ -2480,8 +2480,10 @@ $projektszamla_tomb = $akt_tomb = array(
                                                             </div>
                                                         </div>
                                                         ')),
-    array('type' => 'nosql',                'name' => '',   'megn_szurobe' => 'Létrehozás dátuma',      'name' => 'insert_dt',    'szuro' => 1,  'class' => 'datepicker'),
-    array('type' => 'nosql',                'name' => '',   'megn_szurobe' => 'Létrehozta',             'name' => 'insert_usr',   'szuro' => 1),
+    array('type' => 'nosql',                'megn_szurobe' => 'Létrehozás dátuma',      'name' => 'insert_dt',    'szuro' => 1,  'class' => 'datepicker'),
+    array('type' => 'nosql',                'megn_szurobe' => 'Létrehozta',             'name' => 'insert_usr',   'szuro' => 1),
+    array('type' => 'hidden',               'name' => 'dhszlaid'),
+    array('type' => 'hidden',               'name' => 'orchiid'),
 );
 array_push($postok, array('tomb' => $akt_tomb, 'uj' => 'uj'.$megnevezes, 'lista' => $megnevezes.'lista', 'tabla' => $megnevezes, 'torid' => $megnevezes.'tid' ));
 
@@ -2502,34 +2504,45 @@ if( get_projekt_szerzodes_kezel_jog($_GET['id']) || isset($_GET['uj']) ){
 }
 
 $projekt_neve       = '';
+$partner_disabled   = false;
 $szalloda_disabled  = false;
 $arfolyam_disabled  = true;
 $epitesi_disabled   = true;
 $deviza_kotelezo    = '';
 $epitesi_kotelezo   = '';
-if (isset($_GET['modosit'])) {
+if( isset($_GET['modosit']) ) {
+    
     $szalloda_disabled = true;
     $proj_szerz = $adatbazis_kapcsolat->s2('pr_szam kcs_21 epitesi_eng', 'projektszerzodes', "`recid`='{$_GET['id']}'");
     $proj = $adatbazis_kapcsolat->s2('recid nev', 'projektkezeles', "`ikt_szam`='{$proj_szerz['pr_szam']}'");
     $projekt_neve = '<a href="projektkezeles.php?id=x&amp;modosit&amp;mezo=ikt_szam&amp;op=equal&amp;felt='.$proj_szerz['pr_szam'].'" target="_blank">'.resz_string($proj['nev'], 60).'</a>';
     
     // Ha a pénznem ki van töltve, csak akkor szerkeszthetőek az árfolyamos mezők
-    if( $proj_szerz['kcs_21'] ){
+    if( $proj_szerz['kcs_21'] ) {
         $arfolyam_disabled  = false;
         $deviza_kotelezo    = ' csillag';
     }
     
     // Ha ba van pipálva az építési engedély, akkor szerkeszthető az "Ebből építési" mező
-    if( $proj_szerz['epitesi_eng'] ){
+    if( $proj_szerz['epitesi_eng'] ) {
         $epitesi_disabled  = false;
         $epitesi_kotelezo  = ' csillag';
     }
+    
+    // Ha a szerződésnek a tételei számlázhoz vannak kapcsolva, akkor a partner már nem szerkeszthető
+    $tetelek = $adatbazis_kapcsolat->s('recid', 'projektszerzodes_tetel', "`projektszerzodes_recid`='{$_GET['id']}'");
+    foreach( $tetelek as $tetel ) {
+        if( $adatbazis_kapcsolat->s('recid', 'projektszamla_tetel', "`projektszerzodes_tetel_recid`='{$tetel['recid']}'") ) {
+            $partner_disabled = true;
+        }
+    }
+    
 }
 $projektszerzodes_tomb = $akt_tomb = array(
     array('type' => 'select_felh_telephely','megn' => 'Szálloda:',              'name' => 'telephely_id',       'szuro' => 1,   'class' => 'disableNav',        'style' => 'width: 100%;', 'alert' => 'Kérem válasszon szállodát!', 'disabled' => $szalloda_disabled),
     array('type' => 'text',                 'megn' => 'Szerződés szám:',        'name' => 'sz_szam',            'szuro' => 1,   'class' => 'normal',            'style' => 'width: 13rem', 'disabled' => 1, 'osszevon' => 1, 'post' => '<span style="margin-left: 4.5rem"></span>'),
     array('type' => 'text',                 'megn' => 'Kelte:',                 'name' => 'kelte',              'szuro' => 1,   'class' => 'kicsi datepicker',  'alert' => 'Kérem adja meg a Kelte dátumát!'),
-    array('type' => 'autocomplete',         'megn' => 'Szerződő partner:',      'name' => 'szallito_id',        'szuro' => 1,   'class' => 'oriasi disableNav', 'tabla' => 'szallito', 'oszlop_keres' => 'id', 'oszlop_keres_autocomp' => 'nev', 'listaz' => 'nev', 'id_kiir' => 'id', 'alert' => 'Kérem válasszon szerződő partnert!'),
+    array('type' => 'autocomplete',         'megn' => 'Szerződő partner:',      'name' => 'szallito_id',        'szuro' => 1,   'class' => 'oriasi disableNav', 'tabla' => 'szallito', 'oszlop_keres' => 'id', 'oszlop_keres_autocomp' => 'nev', 'listaz' => 'nev', 'id_kiir' => 'id', 'alert' => 'Kérem válasszon szerződő partnert!', 'disabled' => $partner_disabled),
     array('type' => 'text',                 'megn' => 'Projekt szám:',          'name' => 'pr_szam',            'szuro' => 1,   'class' => 'normal', 'disabled' => 1, 'style' => 'width: 10rem', 'post' => ' <span id="projekt_neve">'.$projekt_neve.'</span>'.$pr_szam_gomb),
     array('type' => 'autocomplete',         'megn' => 'Projekt felelős:',       'name' => 'let_fel',            'szuro' => 1,   'class' => 'oriasi', 'disabled' => 1, 'tabla' => 'login', 'oszlop_keres' => 'recid', 'oszlop_keres_autocomp' => 'teljes_nev', 'listaz' => 'teljes_nev', 'beosztas_id' => EL_BEOSZTAS_PR_FELEOS, 'id_kiir' => 'recid', 'style' => 'width: 25rem'),
     array('type' => 'textarea',             'megn' => 'Tárgy:',                 'name' => 'targy',              'szuro' => 1,   'class' => 'oriasiTargy disableNav', 'alert' => 'Kérem töltse ki a tárgy mezőt!'),

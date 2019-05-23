@@ -93,7 +93,7 @@ function i_u($type, $tabla, $tomb) {
 
     // Értékek párosítása
 	$i = 0;
-	foreach($tomb as $ertek) {
+	foreach ( $tomb as $ertek ) {
         if( $ertek['type'] != 'nosql' && !$ertek['nosql'] ) {
 
     		// Ha alert-es egy mező, és a post-ja üres, akkor hiba! (nem adott meg egy kötelező mezőt)
@@ -1375,9 +1375,21 @@ function i_u($type, $tabla, $tomb) {
                 exit();
             }
             
-            // Ha a visszaadva pipát most kapcsoltam be, akkor ellenőrizzük, hogy szerződéshez volt-e kapcsolva. Ha igen, akkor a szerződés tétel kapcsolatot meg kell szüntetni.
+            // Ha a visszaadva pipát most kapcsoltam be, akkor ellenőrizzük, hogy szerződéshez volt-e kapcsolva.
+            // Ha igen, akkor a szerződés tétel kapcsolatot meg kell szüntetni, de előtte a szerződés tételeinél a teljesítést/értéket is ki kell nullázni.
             $szamla = $adatbazis_kapcsolat->s2('visszaadva', 'projektszamla', "`recid`='{$_GET['id']}'");
             if( $_POST['visszaadva'] && !$szamla['visszaadva'] ){
+
+                $szamla_tetelek = $adatbazis_kapcsolat->s('projektszerzodes_tetel_recid', 'projektszamla_tetel', "`projektszamla_recid`='{$_GET['id']}'");
+                if( $szamla_tetelek === false ) { $db_error = true; }
+                foreach( $szamla_tetelek as $tetelek ) {
+                    $sql = $adatbazis_kapcsolat->u('projektszerzodes_tetel', array('teljesites', 'ertek'),
+                                                                             array('0000-00-00', '0'    ),
+                                                    "`recid`='{$tetelek['projektszerzodes_tetel_recid']}'");
+                    if( $sql === false ) { $db_error = true; }
+
+                }
+                
                 $sql = $adatbazis_kapcsolat->u('projektszamla_tetel', array('projektszerzodes_tetel_recid'), array('0'), "`projektszamla_recid`='{$_GET['id']}'");
                 if( $sql === false ) { $db_error = true; }
             }
@@ -1437,7 +1449,7 @@ function i_u($type, $tabla, $tomb) {
                 exit();
             }
 
-            // Vagy ha megada a dátumot, de nincs bepipálva a visszaadva, akkor meg azért hiba
+            // Vagy ha megadta a dátumot, de nincs bepipálva a visszaadva, akkor meg azért hiba
             if( !$_POST['visszaadva'] && $_POST['visszaadva_dt'] && $_POST['visszaadva_dt']<'9000-00-00' ){
                 echo json_encode(array(
                     'hiba'  => 'Csak akkor adja meg a visszaadás dátumát, ha bekapcsolta a visszaadás pipát!',
