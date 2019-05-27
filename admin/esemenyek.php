@@ -2484,6 +2484,8 @@ $projektszamla_tomb = $akt_tomb = array(
     array('type' => 'nosql',                'megn_szurobe' => 'Létrehozta',             'name' => 'insert_usr',   'szuro' => 1),
     array('type' => 'hidden',               'name' => 'dhszlaid'),
     array('type' => 'hidden',               'name' => 'orchiid'),
+    array('type' => 'hidden',               'name' => 'musz_dt'),
+    array('type' => 'hidden',               'name' => 'post_data'),
 );
 array_push($postok, array('tomb' => $akt_tomb, 'uj' => 'uj'.$megnevezes, 'lista' => $megnevezes.'lista', 'tabla' => $megnevezes, 'torid' => $megnevezes.'tid' ));
 
@@ -5599,6 +5601,22 @@ Hiba: '.getErtek('info', 'erteklista', 'recid', $bejelentes['hiba_id']).$hiba_tx
             $valtozas_kapcsolodo_tablak .= logolas_kapcsolodo_tablak_sorai($sorok);
             $sql = $adatbazis_kapcsolat->d('projektszerzodes_tetel', "`projektszerzodes_recid`='{$_GET[$ertek['torid']]}'");
             if( $sql === false ) { $db_error = true; }
+            
+            // Szerződés törlésekor a Projekt felhasználható összegét is újra kell számolni
+            $prszerzodes = $adatbazis_kapcsolat->s2('pr_szam szerz_ossz', 'projektszerzodes', "`recid`='{$_GET[$ertek['torid']]}'");
+            if( $prszerzodes === false ) { $db_error = true; }
+            if( $prszerzodes['pr_szam'] ) {
+                $szerzodesek = $adatbazis_kapcsolat->s2('SUM(`szerz_ossz`)', 'projektszerzodes', "`pr_szam`='{$prszerzodes['pr_szam']}'");
+                if( $szerzodesek === false ) { $db_error = true; }
+                $projekt = $adatbazis_kapcsolat->s2('jkolt', 'projektkezeles', "`ikt_szam`='{$prszerzodes['pr_szam']}'");
+                if( $projekt === false ) { $db_error = true; }
+                
+                $sz_ossz = $szerzodesek['SUM(`szerz_ossz`)'] - $prszerzodes['szerz_ossz'];
+                $fel_hato = $projekt['jkolt']-$sz_ossz;
+                $sql = $adatbazis_kapcsolat->u('projektkezeles', array('sz_ossz', 'fel_hato'), array($sz_ossz, $fel_hato), "`ikt_szam`='{$prszerzodes['pr_szam']}'");
+                if( $sql === false ) { $db_error = true; }
+
+            }
         }
 
         // Login táblából csak logikailag törlünk. Többi helyről fizikailag.

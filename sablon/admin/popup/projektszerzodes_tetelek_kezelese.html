@@ -162,8 +162,8 @@ function popup_tetel_sor_torol(sor_id, mehet) {
 }
 
 /* Tétel sor táblázat mentése */
-function tetel_sorok_ment(){
-    
+function tetel_sorok_ment() {
+
     var recidk = [];
     $('.pop_recid').each(function() {
         recidk.push( $(this).html() );
@@ -191,9 +191,9 @@ function tetel_sorok_ment(){
     /* A szerződése összege az Adatlapon található mező értéke 
      * De ha nem az adatlapon vagyunk, akkor meg egy rejtett inputban megtaláljuk, hogy a DB-ben mi van letárolva */
     var szerzodes_osszege = '';
-    if( $('#szerz_ossz').length ){
+    if( $('#szerz_ossz').length ) {
         szerzodes_osszege = $('#szerz_ossz').val();
-    }else{
+    } else {
         szerzodes_osszege = $('#szerz_ossz_db').val();
     }
     
@@ -210,12 +210,9 @@ function tetel_sorok_ment(){
             if(response.substring(0, 6)=='SESKIL'){ location.href = 'index.php'; }
             if(response){
                 response = JSON.parse(response);
-                if(response.hiba){
+                if( response.hiba ) {
                     alert2(response.hiba, response.gomb, response.title);
-                }else{
-                    if( !_get('modosit') && !_get('uj') ){
-                        szamlaBetolt(_get('id'), 'projektszerzodes.php', 'tetel');
-                    }
+                } else {
                     popupZar();
                 }
             }

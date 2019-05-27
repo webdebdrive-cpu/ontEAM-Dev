@@ -9,7 +9,7 @@ function pl_szamla_visszaadva (){
 }
 
 // Projektszerződés hozzáadása, törlése gomb: melyik legyen? Ezt dönti el ez a függvény.
-function prsz_hozzaad_gomb_hozzaad_vagy_torol (){
+function prsz_hozzaad_gomb_hozzaad_vagy_torol() {
     
     // Illetve megnézzük, hogy van-e kapcsolt szerződés tétel, mert ha igen, akkor csatolt Projektet törölni már nem lehet
     $.ajax({
@@ -80,14 +80,14 @@ function prsz_hozzaad_gomb_hozzaad_vagy_torol (){
 }
 
 // Adatlapon található nettó mezőből számol ki bruttó értéket
-function pr_szamla_bruttosit(){
+function pr_szamla_bruttosit() {
     if( !$('#brutto').val() || $('#brutto').val()=='0' ){
         $('#brutto').val( ezresek($('#netto').val().replace(/ /g, '')*((Number(AFA)+100)/100), 0, '', ' ') );
     }
 }
 
 // Ha a bruttósított nettó és a valódi bruttó között 2 Ft-nál nagyobb az eltérés, akkor hibát dobunk. 
-function pr_szamla_netto_br_ell(){
+function pr_szamla_netto_br_ell() {
     var brutto          = Number($('#brutto').val().replace(/ /g, ''));
     var netto_afaval    = Number($('#netto').val().replace(/ /g, '')*((Number(AFA)+100)/100));
     
@@ -97,14 +97,14 @@ function pr_szamla_netto_br_ell(){
 }
 
 // Adatlapon található nettó mezőből számol ki bruttó értéket
-function pr_szamla_deviza_bruttosit(){
+function pr_szamla_deviza_bruttosit() {
     if( !$('#dev_br').val() || $('#dev_br').val()=='0,00' ){
         $('#dev_br').val( ezresek($('#dev_net').val().replace(/ /g, '').replace(',', '.')*((Number(AFA)+100)/100), 2, ',', ' ') );
     }
 }
 
 // Ha a bruttósított nettó és a valódi bruttó között 2 Ft-nál nagyobb az eltérés, akkor hibát dobunk. 
-function pr_szamla_deviza_netto_br_ell(){
+function pr_szamla_deviza_netto_br_ell() {
     var brutto          = Number($('#dev_br').val().replace(/ /g, '').replace(',', '.'));
     var netto_afaval    = Number($('#dev_net').val().replace(/ /g, '').replace(',', '.')*((Number(AFA)+100)/100));
     

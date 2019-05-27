@@ -376,8 +376,12 @@ function alert_utan_mehet_megsem_mutat_beallit() {
 
 // Mentés gomb általános működése
 function mentesGomb() {
-    szurkit('mehet_megsem_rejt');
-    $('#szerk_form').submit();
+    /* Többször van az, hogy egy eldöntenő kérdéses hibaüzeneten az Igen-re kattintva úja a mentés gomb működését hívjuk meg. De az válthat ki újabb hiba üzenetet, ami azért nem jeleik meg, mert még most zárjuk be az előzőt.
+     * Szóval emiatt a Mentés gomb lefutásában van egy késletetés. */
+    setTimeout(function(){
+        szurkit('mehet_megsem_rejt');
+        $('#szerk_form').submit();
+    }, 301);
 }
 
 // Mégsem gomb általános működése
@@ -7123,7 +7127,7 @@ function gombok_valt(mod){
 function szurkit( mehet_megsem_rejt ){
     $('#ajaxfedo').removeClass('dn');
     // Mehet/Mégsem gombot el is rejtjük, ha azokra lett kattintva
-    if(mehet_megsem_rejt){
+    if (mehet_megsem_rejt) {
         $('#mehet_gomb, #megsem_gomb').attr('disabled', 1);
     }
 }

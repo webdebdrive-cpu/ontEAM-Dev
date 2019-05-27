@@ -594,7 +594,7 @@ function i_u($type, $tabla, $tomb) {
             }
             
             // Illetve a projekt mezőit is frissítjük, ha van már hozzáadva Projekt szám
-            if( $_POST['pr_szam'] ){
+            if( $_POST['pr_szam'] ) {
                 $szerzodesek = $adatbazis_kapcsolat->s2('SUM(`szerz_ossz`)', 'projektszerzodes', "`pr_szam`='{$_POST['pr_szam']}'");
                 if( $szerzodesek === false ) { $db_error = true; }
                 $projekt = $adatbazis_kapcsolat->s2('jkolt', 'projektkezeles', "`ikt_szam`='{$_POST['pr_szam']}'");
@@ -1392,6 +1392,16 @@ function i_u($type, $tabla, $tomb) {
                 
                 $sql = $adatbazis_kapcsolat->u('projektszamla_tetel', array('projektszerzodes_tetel_recid'), array('0'), "`projektszamla_recid`='{$_GET['id']}'");
                 if( $sql === false ) { $db_error = true; }
+                
+                // Továbbá a projektnél a felhasználható összeget csökkenteni kell a számla értékével
+                if( $_POST['pr_szam'] ) {
+                    $projekt = $adatbazis_kapcsolat->s2('fel_hato', 'projektkezeles', "`ikt_szam`='{$_POST['pr_szam']}'");
+                    if( $projekt === false ) { $db_error = true; }
+
+                    $sql = $adatbazis_kapcsolat->u('projektkezeles', array('fel_hato'), array($projekt['fel_hato']-$_POST['netto']), "`ikt_szam`='{$_POST['pr_szam']}'");
+                    if( $sql === false ) { $db_error = true; }
+
+                }
             }
             
             // Projekt számla mentésekor ellenőrizzük, hogy a dátumok nem múltbeliek-e. (Van pár, amelyiknél ezt ellenőrizni kell.)
@@ -2833,16 +2843,16 @@ function szamla_lista( $where, $tabla, $kijeloltek = false, $csak_sql_miatt = fa
         }
         
         // Projektszamla
-        if($tabla == 'projektszamla'){
+        if( $tabla == 'projektszamla' ) {
             // Saját szállodáimat láthatom
             $where = "(`".get_db_tabla()."projektszamla`.`telephely_id` IN (".implode(',', $szallodak).")) AND ";
             // Saját számla megtekintése esetén azokat a számlákat listázzuk csak ki, amelyekhez tartozó Projekteknél én vagyok a projekt felelős
             // Csak akkor szűkítünk tovább, ha nincs bekapcsolva a "Projekt szerződések megtekintése" globálisabb jog
-            if( _jog(JOG_PR_SAJAT_SZAMLA_MEGTEKINT) && !_jog(JOG_PRSZAMLAK_OLVAS) ){
+            if( _jog(JOG_PR_SAJAT_SZAMLA_MEGTEKINT) && !_jog(JOG_PRSZAMLAK_OLVAS) ) {
                 // Ezt egy SQL-ként is megcsinálhattuk volna, de azért kellett külön lekérni így az ikt. számokat, mert az SQL feltételben kétszer szerpeelt volna a WHERE szó, ami elé a legvégén 
                 // egy JOIN-t még beszúrunk. Hiába írtam volnta úgy, hogy {W H E R E}, amit lecserélek, akkor sem működött.
                 $pfelelos_prek = $adatbazis_kapcsolat->s('ikt_szam', 'projektkezeles', "`pfelelos`='{$_SESSION[get_db_tabla().'login_recid']}'");
-                if( $pfelelos_prek ){
+                if( $pfelelos_prek ) {
                     $pfelelos_prek = adatbazis2tomb($pfelelos_prek, 'ikt_szam');
                     $where .= "`".get_db_tabla()."projektszamla`.`pr_szam` IN ('". implode('\', \'', $pfelelos_prek)."') AND ";
                 }
@@ -2850,16 +2860,16 @@ function szamla_lista( $where, $tabla, $kijeloltek = false, $csak_sql_miatt = fa
         }
         
         // Projektszerződés
-        if($tabla == 'projektszerzodes'){
+        if( $tabla == 'projektszerzodes' ) {
             // Saját szállodáimat láthatom
             $where = "(`".get_db_tabla()."projektszerzodes`.`telephely_id` IN (".implode(',', $szallodak).")) AND ";
             // Saját szerződés megtekintése esetén azokat a szerződéseket listázzuk csak ki, amelyekhez tartozó Projekteknél én vagyok a projekt felelős
             // Csak akkor szűkítünk tovább, ha nincs bekapcsolva a "Projekt szerződések megtekintése" globálisabb jog
-            if( _jog(JOG_PR_SAJAT_SZERZ_MEGTEKINT) && !_jog(JOG_PRKEZEL_SZERZODES_OLVAS) ){
+            if( _jog(JOG_PR_SAJAT_SZERZ_MEGTEKINT) && !_jog(JOG_PRKEZEL_SZERZODES_OLVAS) ) {
                 // Ezt egy SQL-ként is megcsinálhattuk volna, de azért kellett külön lekérni így az ikt. számokat, mert az SQL feltételben kétszer szerpeelt volna a WHERE szó, ami elé a legvégén 
                 // egy JOIN-t még beszúrunk. Hiába írtam volnta úgy, hogy {W H E R E}, amit lecserélek, akkor sem működött.
                 $pfelelos_prek = $adatbazis_kapcsolat->s('ikt_szam', 'projektkezeles', "`pfelelos`='{$_SESSION[get_db_tabla().'login_recid']}'");
-                if( $pfelelos_prek ){
+                if( $pfelelos_prek ) {
                     $pfelelos_prek = adatbazis2tomb($pfelelos_prek, 'ikt_szam');
                     $where .= "`".get_db_tabla()."projektszerzodes`.`pr_szam` IN ('". implode('\', \'', $pfelelos_prek)."') AND ";
                 }
@@ -2867,18 +2877,18 @@ function szamla_lista( $where, $tabla, $kijeloltek = false, $csak_sql_miatt = fa
         }
 
         // Rendszeres karbantartás
-        if($tabla == 'rendszeres_karbantartas'){
+        if( $tabla == 'rendszeres_karbantartas' ) {
             // Saját szállodáimat láthatom
             $where = "`".get_db_tabla()."rendszeres_karbantartas`.`telephely_id` IN (".implode(',', $szallodak).") AND ";
         }
 
-        if($tabla == 'munkalap' || $tabla == 'munkalap_arch'){
+        if( $tabla == 'munkalap' || $tabla == 'munkalap_arch' ) {
 
             // Ki-ki csak a saját szállodáit láthatja, ez alap
             $where = "`".get_db_tabla().$tabla."`.`telephely_id` IN (".implode(',', $szallodak).") AND ";
 
             // Ha mobilcsopotos felhasználó vagyok csak azokat a munkalapokat látom, amik mobilhoz vannak rendelve és a hozzárendelt személy üres vagy én vagyok.
-            if( $_SESSION[get_db_tabla().'szemelyzet_id']==MOBILCSOPORT ){
+            if( $_SESSION[get_db_tabla() . 'szemelyzet_id'] == MOBILCSOPORT ) {
                 $login = $adatbazis_kapcsolat->s2('mobil', 'login', "`recid`='{$_SESSION[get_db_tabla().'login_recid']}'");
                 if($login['mobil']){
                     $where .= "`".get_db_tabla().$tabla."`.`szemelyzet_id`='{$_SESSION[get_db_tabla().'szemelyzet_id']}' AND (`mobil_loginnev`='' OR `mobil_loginnev`='{$_SESSION[get_db_tabla().'user']}') AND `mobil`='{$login['mobil']}' AND ";

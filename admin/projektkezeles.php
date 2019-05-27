@@ -713,7 +713,7 @@ if( isset($_POST['igenylesek_betolt_uj_kezeleshez']) ) {
         $html .= '
             <tr class="kijSor'.$kiemelt.'" data-i="'.$i.'" data-recid="'.$pri['recid'].'">
                 <td class="l">'.$szalloda['nev'].'</td>
-                <td class="l" style="width: 30rem">'.$pri['nev'].'</td>
+                <td class="l">'.$pri['nev'].'</td>
                 <td class="l">'.$tipus.'</td>
                 <td class="p r nowrap">'.number_format($pri['jkolt'], 0, '', ' ').'</td>
                 <td class="p">'.datum_kiir($letrehozva['insert_dt']).'</td>
@@ -728,13 +728,43 @@ if( isset($_POST['igenylesek_betolt_uj_kezeleshez']) ) {
         // Táblázat rendezhető: szálloda + becsült költség, becsült költség + szálloda, típus + becsült költség. Ezek legyenek egy lenyílóból kiválaszthatóak.
         $html = '
             Rendezés:
-            <select onchange="igenylesek_betolt_uj_kezeleshez(this.value)">
+            <select onchange="igenylesek_betolt_uj_kezeleshez(this.value)" style="margin-bottom: 2rem;">
                 <option>szálloda + becsült költség</option>
                 <option value="bkolt"'.$bkolt_selected.'>jóváhagyott keret + szálloda</option>
                 <option value="tipus"'.$tipus_selected.'>típus + becsült költség</option>
             </select>
+            <style type="text/css">
+                #popup div.popup_tart table {
+                    margin-top: 7rem;
+                }
+                table.fix_fejlec thead {
+                    position: fixed;
+                    margin-top: -7rem;
+                }
+                table.fix_fejlec thead tr th:nth-of-type(1), table.fix_fejlec tbody tr td:nth-of-type(1) {
+                    width: 8rem;
+                }
+                table.fix_fejlec thead tr th:nth-of-type(2), table.fix_fejlec tbody tr td:nth-of-type(2) {
+                    width: 30rem;
+                }
+                table.fix_fejlec thead tr th:nth-of-type(3), table.fix_fejlec tbody tr td:nth-of-type(3) {
+                    width: 13rem;
+                }
+                table.fix_fejlec thead tr th:nth-of-type(4), table.fix_fejlec tbody tr td:nth-of-type(4) {
+                    width: 10rem;
+                }
+                table.fix_fejlec thead tr th:nth-of-type(5), table.fix_fejlec tbody tr td:nth-of-type(5) {
+                    width: 13rem;
+                }
+                table.fix_fejlec thead tr th:nth-of-type(6), table.fix_fejlec tbody tr td:nth-of-type(6) {
+                    width: 6rem;
+                }
+                table.fix_fejlec tbody {
+                    margin-top: 10rem;
+                }
+            </style>
             <div style="max-height: 40rem; overflow-y: auto; overflow-x: none;">
-                <table class="csikos v2 kijCont csak_egy_kijelolheto" id="prigenylesek" style="cursor: default;">
+                <table class="csikos v2 kijCont csak_egy_kijelolheto fix_fejlec" id="prigenylesek" style="cursor: default;">
                 <thead>
                 <tr>
                     <th>

@@ -168,8 +168,8 @@ if( isset($_POST['get_projekt_szerzodes_tabla']) ) {
 }
 
 // Számla tétel sorok mentése
-if (isset($_POST['tetel_sorok_ment'])) {
-    
+if( isset($_POST['tetel_sorok_ment']) ) {
+
     $db_error = false;
     mysqli_autocommit($db_kapcs, false);
     
@@ -185,13 +185,13 @@ if (isset($_POST['tetel_sorok_ment'])) {
     $pr_tetel_adat  = 3;
     
     $tetelek_osszege = '';
-    foreach ( $_POST['adatok'][$netto_ert_adat][1] as $ertek ){
+    foreach ( $_POST['adatok'][$netto_ert_adat][1] as $ertek ) {
         $ertek = str_replace(' ', '', $ertek);
         $tetelek_osszege += $ertek;
     }
     
     // Ha nincs egy sornyi tételünk sem, akkor hibaüzenet
-    if( !$_POST['adatok'][$targy_adat][1] && !$_POST['db_nelkul'] ){
+    if( !$_POST['adatok'][$targy_adat][1] && !$_POST['db_nelkul'] ) {
         echo json_encode( array( 
                         'hiba'  => 'Legalább egy számla tételnek szerepelnie kell a táblázatban, üresen nem menthető!',
                         'title' => 'Hiba'
@@ -200,7 +200,7 @@ if (isset($_POST['tetel_sorok_ment'])) {
                 exit();
                 
     // Ha a számla nettó értéke nem egyenlő a tételek összegével, akkor hibaüzenet
-    }elseif( $tetelek_osszege != $szamla_netto_erteke && !$_POST['db_nelkul'] ){
+    } elseif( $tetelek_osszege != $szamla_netto_erteke && !$_POST['db_nelkul'] ) {
         echo json_encode( array( 
                         'hiba'  => 'A számla tételeinek összege ('. number_format($tetelek_osszege, 0, '', ' ').' '.get_penznem().') nem egyezik meg a számla nettó értékével ('. number_format($szamla_netto_erteke, 0, '', ' ').' '.get_penznem().')!<br>Így nem menthető!',
                         'title' => 'Hiba'
@@ -209,7 +209,7 @@ if (isset($_POST['tetel_sorok_ment'])) {
                 exit();
                 
     // Tételek kimentése Session-be
-    }else{
+    } else {
         $_SESSION['pr_szla_tetel_recid']     = $_POST['adatok'][$recid_adat][1];
         $_SESSION['pr_szla_tetel_targy']     = str_replace('{IDEZOJEL}', '"', $_POST['adatok'][$targy_adat][1]);
         $_SESSION['pr_szla_tetel_netto_ert'] = $_POST['adatok'][$netto_ert_adat][1];
@@ -217,7 +217,7 @@ if (isset($_POST['tetel_sorok_ment'])) {
     }
     
     // Ha csak SESSION-be szeretnénk elmenteni, akkor itt meg is állunk, nem megyünk tovább az adatbázis műveletekig.
-    if( $_POST['db_nelkul'] ){
+    if( $_POST['db_nelkul'] ) {
         mysqli_commit($db_kapcs);
 
         echo json_encode(array(
@@ -629,7 +629,7 @@ if( isset($_POST['pop_tetelek_feltolt']) ) {
         $pr_szerzodes = $adatbazis_kapcsolat->s2('szerz_ossz', 'projektszerzodes', "`sz_szam`='{$_POST['sz_szam']}'");
         
         // Illetve, hogy az aktuális számlán kívül milyen számlák tartoznak hozzá, és beleférünk-e a keretbe?
-        $szamlak = $adatbazis_kapcsolat->s2('SUM(`netto`)', 'projektszamla', "`sz_szam`='{$_POST['sz_szam']}' AND `recid`!='{$_POST['id']}'");
+        $szamlak = $adatbazis_kapcsolat->s2('SUM(`netto`)', 'projektszamla', "`sz_szam`='{$_POST['sz_szam']}' AND `recid`!='{$_POST['id']}' AND `visszaadva`=0");
         if( ($szamlak['SUM(`netto`)'] + $_POST['netto']) > $pr_szerzodes['szerz_ossz'] ) {
             echo json_encode( array(
                                 'hiba'  => nl2('
@@ -798,34 +798,11 @@ if( isset($_POST['van_tetel']) ) {
 
     $szamla_netto_erteke = str_replace(' ', '', $_POST['netto']);
     
-    // Vannak dátumok, amik csak múltbeliek lehetnek. Ennek ellenőrzését itt végezzük el
-    $csak_mult_datum_lehet = array(
-                                    array('name' => 'ceghez_erk',    'alert' => 'Céghez érkezett dátumhoz csak mai, vagy múltbeli dátum adható meg!'),
-                                    array('name' => 'kelte',         'alert' => 'A számla kelte dátumhoz csak mai, vagy múltbeli dátum adható meg!'),
-                                    array('name' => 'visszaadva_dt', 'alert' => 'A visszaadva dátumhoz csak mai, vagy múltbeli dátum adható meg!'),
-                                );
-    
-    foreach($csak_mult_datum_lehet as $elem){
-        
-        // Visszaadva dátumot csak akkor figyeljük, ha a visszaadva pipa be is van pipálva
-        if( $elem['name']!='visszaadva_dt' || $_POST['visszaadva']=='true' ){
-            if( $_POST[$elem['name']]>date('Y.m.d') ){
-                echo json_encode(array(
-                    'hiba'  => $elem['alert'],
-                    'gomb'  => '<input type="button" class="gomb" value="Ok" onclick="alert2(); szurkit_zar(\'mehet_megsem_mutat\'); $(\'#'.$elem['name'].'\').focus();">',
-                    'title' => 'Hiba',
-                    'focus' => 'visszaadva_dt',
-                ));
-                $weblap -> leallit();
-                exit();
-            }
-        }
-    }
     
     // Kötelező mezők ellenőrzése
-    foreach ($akt_tomb as $elem){
-                                // Ha üres             VAGY ha dátum, és az értéke nagyobb mint 4000.00.00 (tehát üres)
-        if( $elem['alert'] && ( !$_POST[$elem['name']] || ( strpos($elem['class'], 'datepicker')!==false ) && $_POST[$elem['name']]>'4000.00.00' ) ){
+    foreach ( $akt_tomb as $elem ) {
+        // Ha üres             VAGY ha dátum, és az értéke nagyobb mint 4000.00.00 (tehát üres)
+        if( $elem['alert'] && ( !trim($_POST[$elem['name']]) || ( strpos($elem['class'], 'datepicker')!==false ) && $_POST[$elem['name']]>'4000.00.00' ) ){
             echo json_encode(array(
                 'hiba'  => $elem['alert'],
                 'gomb'  => '<input type="button" class="gomb" value="Ok" onclick="alert2();">',
@@ -836,6 +813,34 @@ if( isset($_POST['van_tetel']) ) {
             exit();
         }
         
+    }
+    
+    // Vannak dátumok, amik csak múltbeliek lehetnek. Ennek ellenőrzését itt végezzük el
+    $csak_mult_datum_lehet = array(
+                                    array('name' => 'ceghez_erk',    'alert' => 'Céghez érkezett dátumhoz csak mai, vagy múltbeli dátum adható meg!'),
+                                    array('name' => 'kelte',         'alert' => 'A számla kelte dátumhoz csak mai, vagy múltbeli dátum adható meg!'),
+                                    array('name' => 'visszaadva_dt', 'alert' => 'A visszaadva dátumhoz csak mai, vagy múltbeli dátum adható meg!'),
+                                );
+    
+    foreach ( $csak_mult_datum_lehet as $elem ) {
+
+        // Visszaadva dátumot csak akkor figyeljük, ha a visszaadva pipa be is van pipálva
+        if( $elem['name'] != 'visszaadva_dt' || $_POST['visszaadva'] == 'true' ) {
+//            // Ha üres volna a mező, akkor arra külön hibaüzenetet adjunk
+//            if( $_POST[$elem['name']] >'4000.00.00' ) {
+//                
+//            }
+            if( $_POST[$elem['name']] > date('Y.m.d') ) {
+                echo json_encode(array(
+                    'hiba'  => $elem['alert'],
+                    'gomb'  => '<input type="button" class="gomb" value="Ok" onclick="alert2(); szurkit_zar(\'mehet_megsem_mutat\'); $(\'#'.$elem['name'].'\').focus();">',
+                    'title' => 'Hiba',
+                    'focus' => 'visszaadva_dt',
+                ));
+                $weblap -> leallit();
+                exit();
+            }
+        }
     }
     
     // Ellenőrizzük, hogy a dátum mezők rendben vannak-e? (Js alatt nem akar lefutni... elég összetett már a JS kód, mert űrlap elpostolása előtt még ajax-os ellenőrzés is lefut, ez kavar be). De itt - ahol az ajaxos ellenőrzések vannak - könnyen elelnőrizni tudjuk
@@ -925,7 +930,7 @@ if( isset($_POST['van_tetel']) ) {
         }
         
         // Ellenőrizzük, hogy beleférünk-e még a szerződött összegbe
-        $szamlak = $adatbazis_kapcsolat->s2('SUM(`netto`)', 'projektszamla', "`sz_szam`='{$_POST['sz_szam']}'");
+        $szamlak = $adatbazis_kapcsolat->s2('SUM(`netto`)', 'projektszamla', "`sz_szam`='{$_POST['sz_szam']}' AND `visszaadva`=0");
         if( ($szamlak['SUM(`netto`)']+$szamla_netto_erteke) > $pr_szerzodes['szerz_ossz'] ){
             echo json_encode( array(
                 'hiba'  => nl2('
@@ -1452,7 +1457,7 @@ require_once('selectek.php');
         $js_submit_elott = nl2('
 
                 /* Deviza nettó mező kötelező-e, ha igen, van-e értéke? */
-                if( $(\'#dev_net\').hasClass(\'csillag\') && ( !$(\'#dev_net\').val() || $(\'#dev_net\').val()==\'0,00\' ) ){
+                if( $(\'#dev_net\').hasClass(\'csillag\') && ( !$(\'#dev_net\').val() || $(\'#dev_net\').val()==\'0,00\' ) ) {
 
                     alert2(\'Kérem adja meg a Deviza nettó értéket!\', \'\', \'Hiba\');
                     alert_utan_mehet_megsem_mutat_beallit();
@@ -1460,7 +1465,7 @@ require_once('selectek.php');
                     return false;
                 }
                 /* Deviza bruttó mező kötelező-e, ha igen, van-e értéke? */
-                if( $(\'#dev_br\').hasClass(\'csillag\') && ( !$(\'#dev_br\').val() || $(\'#dev_br\').val()==\'0,00\' ) ){
+                if( $(\'#dev_br\').hasClass(\'csillag\') && ( !$(\'#dev_br\').val() || $(\'#dev_br\').val()==\'0,00\' ) ) {
 
                     alert2(\'Kérem adja meg a Deviza bruttó értéket!\', \'\', \'Hiba\');
                     alert_utan_mehet_megsem_mutat_beallit();
@@ -1470,7 +1475,7 @@ require_once('selectek.php');
 
                 /* A bruttó és nettó mezőt is ellenőrizzük */
                 var hibauzi = pr_szamla_netto_br_ell();
-                if( hibauzi && !netto_br_ell ){
+                if( hibauzi && !netto_br_ell ) {
                     alert2(hibauzi, \'<input type="button" class="gomb zold" value="Igen" onclick="netto_br_ell=true; mentesGomb(); alert2();"> <input type="button" class="gomb piros" value="Nem" onclick="alert2();">\', \'Hiba\');
                     alert_utan_mehet_megsem_mutat_beallit();
                     return false;
@@ -1478,7 +1483,7 @@ require_once('selectek.php');
                 
                 /* A bruttó és nettó deviza mezőt is ellenőrizzük */
                 var hibauzi = pr_szamla_deviza_netto_br_ell();
-                if( hibauzi && !netto_br_deviza_ell ){
+                if( hibauzi && !netto_br_deviza_ell ) {
                     alert2(hibauzi, \'<input type="button" class="gomb zold" value="Igen" onclick="netto_br_deviza_ell=true; mentesGomb(); alert2();"> <input type="button" class="gomb piros" value="Nem" onclick="alert2();">\', \'Hiba\');
                     alert_utan_mehet_megsem_mutat_beallit();
                     return false;
@@ -1623,14 +1628,17 @@ require_once('selectek.php');
 
         // Ha van import információnk, akkor azokkal az adatokkal töltsük fel az űrlapot
         if( $_SESSION['projekt_szamla_import'] ) {
+            $post_adatok = '';
             $_SESSION['projekt_szamla_import'] = '';
             foreach( $akt_tomb as $ertek ) {
                 $sor[$ertek['name']] = trim($_SESSION[$ertek['name']]);
                 if( strpos($ertek['class'], 'datepicker')!==false ) {
                     $sor[$ertek['name']] = str_replace('.', '-', $sor[$ertek['name']]);
                 }
+                $post_adatok .= '[mezo]'.$ertek['name'].'[/mezo][ertek]'.htmlspecialchars($sor[$ertek['name']]).'[/ertek]'."\n";
                 unset( $_SESSION[$ertek['name']] );
             }
+            $sor['post_data'] = $post_adatok;
             // Futtassuk le a deviza input elhagyást, mert ez alapján sől el, hogy a többi mező disabled-e vagy sem
             $szamla_html .= nl2('
                 <script>
@@ -1695,7 +1703,7 @@ require_once('selectek.php');
             /* A bruttó és nettó mezőt is ellenőrizzük */
             var hibauzi = pr_szamla_netto_br_ell();
             if( hibauzi && !netto_br_ell ){
-                alert2(hibauzi, \'<input type="button" class="gomb zold" value="Igen" onclick="netto_br_ell=true; mentesGomb(); alert2();"> <input type="button" class="gomb piros" value="Nem" onclick="alert2();">\', \'Hiba\');
+                alert2(hibauzi, \'<input type="button" class="gomb zold" value="Igen" onclick="netto_br_ell=true; alert2(); mentesGomb();"> <input type="button" class="gomb piros" value="Nem" onclick="alert2();">\', \'Hiba\');
                 alert_utan_mehet_megsem_mutat_beallit();
                 return false;
             }
@@ -1703,7 +1711,7 @@ require_once('selectek.php');
             /* A bruttó és nettó deviza mezőt is ellenőrizzük */
             var hibauzi = pr_szamla_deviza_netto_br_ell();
             if( hibauzi && !netto_br_deviza_ell ){
-                alert2(hibauzi, \'<input type="button" class="gomb zold" value="Igen" onclick="netto_br_deviza_ell=true; mentesGomb(); alert2();"> <input type="button" class="gomb piros" value="Nem" onclick="alert2();">\', \'Hiba\');
+                alert2(hibauzi, \'<input type="button" class="gomb zold" value="Igen" onclick="netto_br_deviza_ell=true; alert2(); mentesGomb();"> <input type="button" class="gomb piros" value="Nem" onclick="alert2();">\', \'Hiba\');
                 alert_utan_mehet_megsem_mutat_beallit();
                 return false;
             }
