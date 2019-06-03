@@ -287,17 +287,17 @@ if (isset($_POST['f_szuro_mezo_operator'])) {
                     ');
 
                 // select_szemelyzet
-                }elseif($ertek['type']=='select_szemelyzet'){
+                }elseif( $ertek['type'] == 'select_szemelyzet' ) {
 
                     require_once('../class/html/class.Select.php');
-                    require_once('selectek.php');
+                    require_once('selectek_szemelyzet.php');
 
                     $input = new Select($select_szemelyzet, $_POST['felt']);
                     $input -> cssClass = 'f_felt';
                     $feltetel = $input -> getHtml();
 
-                // select_szemelyzet
-                }elseif($ertek['type']=='select_cikltip'){
+                // select_cikltip
+                }elseif( $ertek['type'] == 'select_cikltip' ) {
 
                     require_once('../class/html/class.Select.php');
                     require_once('selectek.php');
@@ -307,7 +307,7 @@ if (isset($_POST['f_szuro_mezo_operator'])) {
                     $feltetel = $input -> getHtml();
 
                 // select_mobilcsoport
-                }elseif($ertek['type']=='select_mobilcsoport'){
+                }elseif( $ertek['type'] == 'select_mobilcsoport' ) {
 
                     require_once('../class/html/class.Select.php');
                     require_once('selectek.php');
@@ -317,7 +317,7 @@ if (isset($_POST['f_szuro_mezo_operator'])) {
                     $feltetel = $input -> getHtml();
 
                 // select_pri_tipus
-                }elseif($ertek['type']=='select_pri_tipus'){
+                }elseif( $ertek['type'] == 'select_pri_tipus' ) {
 
                     require_once('../class/html/class.Select.php');
                     require_once('selectek.php');
@@ -327,7 +327,7 @@ if (isset($_POST['f_szuro_mezo_operator'])) {
                     $feltetel = $input -> getHtml();
 
                 // select_pri_besorol
-                }elseif($_POST['mezo']=='mobil'){
+                }elseif( $_POST['mezo'] == 'mobil' ) {
 
                     require_once('../class/html/class.Select.php');
                     require_once('selectek.php');
@@ -337,7 +337,7 @@ if (isset($_POST['f_szuro_mezo_operator'])) {
                     $feltetel = $input -> getHtml();
 
                 // select_pri_besorol
-                }elseif($ertek['type']=='select_pri_besorol'){
+                }elseif( $ertek['type'] == 'select_pri_besorol' ) {
 
                     require_once('../class/html/class.Select.php');
                     require_once('selectek.php');
@@ -347,7 +347,7 @@ if (isset($_POST['f_szuro_mezo_operator'])) {
                     $feltetel = $input -> getHtml();
 
                 // Értéklista csoport select-je
-                }elseif( $ertek['type'] == 'select_erteklista' ){
+                }elseif( $ertek['type'] == 'select_erteklista' ) {
 
                     require_once('../class/html/class.Select.php');
                     require_once('selectek.php');
@@ -357,7 +357,7 @@ if (isset($_POST['f_szuro_mezo_operator'])) {
                     $feltetel = $input -> getHtml();
 
                 // Általános esetben egy szabadszavas mező
-                }else{
+                }else {
 
                     // Numerikus adatok operátora
                     if( strpos($ertek['class'], 'f_num')!==false ){

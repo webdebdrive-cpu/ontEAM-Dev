@@ -34,7 +34,7 @@ if( !in_array(basename(self()), $kiveteles_oldalak) ) {
 
 
 // Csak a felhasználók felületén mutatjuk meg még ezeken felül az általuk létrehozott szerepköröket
-if(basename(self())=='login.php'){
+if( basename(self()) == 'login.php' || basename(self()) == 'header.php'/* Szűrés miatt */ ) {
     $tovabbi_szerepkorok = $adatbazis_kapcsolat->s('recid nev', 'szerepkor', "`recid`>'12'", 'nev');
     foreach($tovabbi_szerepkorok as $szerepkor){
         array_push($select_szemelyzet, array('name' => $szerepkor['nev'],         'value' => $szerepkor['recid'],       'szin' => '', 'kulsos' => 0 ));

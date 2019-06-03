@@ -5606,7 +5606,7 @@ Hiba: '.getErtek('info', 'erteklista', 'recid', $bejelentes['hiba_id']).$hiba_tx
             $prszerzodes = $adatbazis_kapcsolat->s2('pr_szam szerz_ossz', 'projektszerzodes', "`recid`='{$_GET[$ertek['torid']]}'");
             if( $prszerzodes === false ) { $db_error = true; }
             if( $prszerzodes['pr_szam'] ) {
-                $szerzodesek = $adatbazis_kapcsolat->s2('SUM(`szerz_ossz`)', 'projektszerzodes', "`pr_szam`='{$prszerzodes['pr_szam']}'");
+                $szerzodesek = $adatbazis_kapcsolat->s2('SUM(`szerz_ossz`)', 'projektszerzodes', "`pr_szam`='{$prszerzodes['pr_szam']}' AND `visszaadva`=0");
                 if( $szerzodesek === false ) { $db_error = true; }
                 $projekt = $adatbazis_kapcsolat->s2('jkolt', 'projektkezeles', "`ikt_szam`='{$prszerzodes['pr_szam']}'");
                 if( $projekt === false ) { $db_error = true; }
