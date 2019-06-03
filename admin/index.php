@@ -16,6 +16,7 @@ if( isset($_GET['info']) && $_SESSION[get_db_tabla().'user'] ){
     exit;
 }
 
+
 // Anyagigénylés beerkezett dátum karbantartása
 //if (isset($_GET['anyagigenyles_beerkezett'])) {
 //    $anyagigenylesek = $adatbazis_kapcsolat->s('recid', 'anyagigenyles');
@@ -28,6 +29,22 @@ if( isset($_GET['info']) && $_SESSION[get_db_tabla().'user'] ){
 //    }
 //    exit;
 //}
+
+
+// Tibi importjához kell
+if( isset($_GET['projekt_szerzodott_felhasznalt_kitolt']) ) {
+
+    $projektek = $adatbazis_kapcsolat->s('*', 'projektkezeles', "`ikt_szam`!=''");
+    foreach ($projektek as $projekt){
+        $szerzodesek = $adatbazis_kapcsolat->s2('SUM(`szerz_ossz`)', 'projektszerzodes', "`pr_szam`='{$projekt['ikt_szam']}'");
+        $sz_ossz = $szerzodesek['SUM(`szerz_ossz`)'];
+        $fel_hato = $projekt['jkolt']-$sz_ossz;
+        $adatbazis_kapcsolat->u('projektkezeles', array('sz_ossz', 'fel_hato'), array($sz_ossz, $fel_hato), "`recid`='{$projekt['recid']}'");
+        echo $adatbazis_kapcsolat->gp() . '<br>';
+    }
+    
+    exit;
+}
 
 // Loginról értesítő levelek küldése
 if (false && isset($_GET['login_ertesit'])) {

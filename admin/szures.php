@@ -1,7 +1,7 @@
 <?php
 // Operátor kiválasztása
-if (isset($_POST['f_szuro_mezo'])) {
-    
+if( isset($_POST['f_szuro_mezo']) ) {
+
     $akt_tomb_szures = get_akt_tomb($_POST['tabla']);
 
     $selected_equal = '';
@@ -676,7 +676,7 @@ $akt_tomb_szures = get_akt_tomb($tabla);
 $sz_mezo = array();
 foreach($akt_tomb_szures as $ertek){
     if($ertek['szuro']){
-        if($ertek['megn_szurobe']){
+        if( $ertek['megn_szurobe'] ) {
             $ertek['megn'] = $ertek['megn_szurobe'];
         }
         $selected = '';
@@ -735,14 +735,14 @@ if( in_array($tabla, $legfrisebb_feluletek) ){
     }
     array_push( $sz_mezo, array('eleje' => '<option value="legfrissebb"'.$selected_legfrissebb.'>', 'vege' => 'Legfrissebb</option>' ) );
 }
-if($tabla == 'munkalap'){
+if( $tabla == 'munkalap' ) {
     $selected_mszk_jovahagy  = '';
     if($_GET['mezo']=='mszk_jovahagy'){
         $selected_mszk_jovahagy = ' selected';
     }
     array_push( $sz_mezo, array('eleje' => '<option value="mszk_jovahagy"'.$selected_mszk_jovahagy.'>', 'vege' => 'MSZK jóváhagyta</option>' ) );
 }
-if($tabla == 'login'){
+if( $tabla == 'login' ) {
     $selected_jog   = '';
     $selected_szall = '';
     $selected_megj  = '';
@@ -760,7 +760,7 @@ if($tabla == 'login'){
     array_push( $sz_mezo, array('eleje' => '<option value="megjegyzes" data-tabla="megjegyzes"'.$selected_megj.'>', 'vege' => 'Megjegyzés</option>'     ) );
 }
 // Értéklisták esetén kell még egy szűrés: fix adat
-if($tabla == 'erteklista'){
+if( $tabla == 'erteklista' ) {
     $selected_fix_adat  = '';
     if($_GET['mezo']=='fix_adat'){
         $selected_fix_adat = ' selected';
@@ -769,14 +769,14 @@ if($tabla == 'erteklista'){
 }
 
 // Projektkezelés esetén a Team tag nevére is kell tudni szűrni
-if($tabla == 'projektkezeles'){
+if( $tabla == 'projektkezeles' ) {
     $selected_team_tag  = '';
     if($_GET['mezo']=='team_tag'){
         $selected_team_tag = ' selected';
     }
     array_push( $sz_mezo, array('eleje' => '<option value="team_tag"'.$selected_team_tag.'>', 'vege' => 'Team tag</option>' ) );
 }
-if($tabla == 'szallito'){
+if( $tabla == 'szallito' ) {
     $selected_szakter   = '';
     $selected_megj      = '';
     if($_GET['mezo']=='szakterulet'){
@@ -792,11 +792,11 @@ if($tabla == 'szallito'){
 // HTML előlállítása
 $prefix         = '';
 $szurve         = '';
-if($_SESSION['o_szuro_feltetel']){
+if( $_SESSION['o_szuro_feltetel'] ) {
     $szurve     = ' piros';
 }
 $osszetett_link = '<span id="osszetett_szuro" onclick="csoportMuvelet(\'osszetett_szuro\')"><img class="link'.$szurve.' f_svg" src="../elemek/filter.svg"></span>';
-if(isset($_POST['o_szures'])){
+if( isset($_POST['o_szures']) ) {
     $prefix         = 'o_';
     $osszetett_link = '';
 }
@@ -806,7 +806,7 @@ if(isset($_POST['o_szures'])){
 $options = '';
 $sz_mezo = tobbdim_tomb_kulcs_rendez($sz_mezo, 'vege', SORT_ASC);
 
-foreach($sz_mezo as $mezo){
+foreach ( $sz_mezo as $mezo ) {
     $options .= $mezo['eleje'].$mezo['vege'];
 }
 $szures = nl2('
@@ -820,7 +820,7 @@ $szures = nl2('
         <div id="'.$prefix.'szures_submit" class="dib"></div>
     ');
 
-if (isset($_GET['mezo'])) {
+if( isset($_GET['mezo']) ) {
     $szures .= nl2('
         <script>
         $(document).ready(function () {

@@ -76,6 +76,12 @@ function i_u($type, $tabla, $tomb) {
         array_push($oszlopok, 'gep_txt');
         array_push($ertekek,  $gep_txt);
     }
+    
+    // Projektszámláknál a "Pénzügynek átadva" dátum fixen disabled, de mégis mentsük el, azaz itt vegyük fel
+    if( $tabla == 'projektszamla' ) {
+        array_push($oszlopok,   'p_atad_dt');
+        array_push($ertekek,    $_POST['p_atad_dt']);
+    }
     // Projektszerződésnél ha nincs pénznem információnk, akkor a devizás mezőket nullázzuk a biztosnág kedvéért
     if( $tabla == 'projektszerzodes' ) {
         
@@ -242,6 +248,8 @@ function i_u($type, $tabla, $tomb) {
         array_push($oszlopok, 'kezdho',        'kezdnap',           'vegeho',           'vegenap',          'aktkezd_d',            'aktvege_d'           );
         array_push($ertekek, $_POST['kezdho'], $_POST['kezdnap'],   $_POST['vegeho'],   $_POST['vegenap'],  $_POST['aktkezd_d'],    $_POST['aktvege_d']   );
 
+    }
+    
 //echo '<pre style="font-size: 1.4rem">';
 //print_r($oszlopok);
 //echo '</pre>';
@@ -249,7 +257,6 @@ function i_u($type, $tabla, $tomb) {
 //print_r($ertekek);
 //echo '</pre>';
 //exit;
-    }
 
     // Új bejegyzés esetén több mindent is le kell kezelni (iktatószám kiszámolás, plusz oszlopok beállítása
 	if( $type == 'insert' ) {

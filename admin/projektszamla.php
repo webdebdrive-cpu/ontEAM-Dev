@@ -242,7 +242,7 @@ if( isset($_POST['tetel_sorok_ment']) ) {
     
     // Ha ismert a szerződés ID-ja, akkor a sorokat is updatel-jük (töröljük, majd újra beszúrjuk)
     // Azért kell az is_numeric, mert JS-ből volt, hogy itt egy 'false' értéket kaptunk, és ilyenkor sem kéne beírni még adatbázisba (új feltöltés esete).
-    if( $recid && is_numeric($recid) ){
+    if( $recid && is_numeric($recid) ) {
 
         // Nem törölhetünk minden tételt, hisz lehet van számla párja, és ekkor a recid-ja nem változhat, nem törölhető majd hozható létre újból.
         $adatbazis_kapcsolat->d('projektszamla_tetel', "`projektszamla_recid`='{$recid}' AND `projektszerzodes_tetel_recid`='0'");
@@ -1405,6 +1405,9 @@ require_once('selectek.php');
                 $gombok .= '<script>var gomb'.$_GET['id'].'= get_kibont_torol(\''.self().'\', \''.$torles.'\', \''.$_GET['id'].'\');</script>';
                 $gombok .= ' <input type="button" id="recordTorol" class="gombb_alert dn" onclick="alert2(\'Biztosan törli ezt a '.$szoveg.'?\', gomb'.$_GET['id'].')" value="Töröl" title="Töröl">';
             }
+            
+            // Küldés PSzK-ba
+            $gombok .= ' <input type="button" class="gomb" onclick="$(\'#p_atad_dt\').val(\''.date('Y.m.d').'\').addClass(\'mod\').focus().blur(); " value="Küldés PSzK-ba">';
         }
         
         // Tételek kezelése, és a számla nincs még visszaadva
