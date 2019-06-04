@@ -801,7 +801,7 @@ if( isset($_GET['csv']) ) {
                 }
 
             // Projektszerződések exportja
-            }else{
+            } else {
 
                 // Ha van benne limit, akkor a teljes adatbázist kilistázzuk, de csak akkor, ha a limit az alapértelmezett (Mert ekkor a legfrisebb 1000-es he hasonló feltétel van érvényben)
                 $mindet_listazd = false;
