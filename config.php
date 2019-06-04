@@ -90,6 +90,7 @@ function get_nyelvek()       { return array();                                  
 function get_nyelv_detek()   { return true;                                     } // Ha ez igaz, akkor a $_SERVER['HTTP_ACCEPT_LANGUAGE'] alapján a $_SESSION['nyelv'] automatikusan megkapja az adott nyelvet
 function gu()                { return get_utvonal();                            }
 function get_utvonal()       { return 'tartalom/';                              }
+function get_pszk_utvonal()  { return '../'.get_utvonal().'projektszamla/p_atad_dt/'; } // Számlát amikor PSzK-ba küldik, akkor készül ideiglensen egy XML, ami asznkronhoz kell. Ezeket az ideiglenes XML-ket ebben a könyvtárban tároljuk.
 function get_penznem()       { return 'Ft';                                     }
 function get_session()       { return true;                                     }
 function get_kerturl_elotag(){ return '/hotel/admin/';                          } // WebDeb demo felületéhez kell

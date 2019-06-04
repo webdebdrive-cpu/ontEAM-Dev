@@ -78,12 +78,15 @@ function i_u($type, $tabla, $tomb) {
     }
     
     // Projektszámláknál a "Pénzügynek átadva" dátum fixen disabled, de mégis mentsük el, azaz itt vegyük fel
+    // Sőt ekkor generálunk XML-t a számlából
+    $projektszamla_xml_gen = false;
     if( $tabla == 'projektszamla' ) {
         // De csak akkor mentjük el, ha még nincs értéke
         $prsz = $adatbazis_kapcsolat->s2('p_atad_dt', 'projektszamla', "`recid`='{$_GET['id']}'");
         if( !$prsz['p_atad_dt'] || $prsz['p_atad_dt']=='0000-00-00' ) {
             array_push($oszlopok,   'p_atad_dt');
             array_push($ertekek,    $_POST['p_atad_dt']);
+            $projektszamla_xml_gen = true;
         }
     }
     // Projektszerződésnél ha nincs pénznem információnk, akkor a devizás mezőket nullázzuk a biztosnág kedvéért
@@ -1669,17 +1672,59 @@ function i_u($type, $tabla, $tomb) {
 
             }
         }
+        
+        // Ha a projektszámla most került átadásra PSzK-ba, akkor generálunk egy XML-t
+        if( $projektszamla_xml_gen ) {
+            
+            $prsz = $adatbazis_kapcsolat->s2('*', 'projektszamla', "`recid`='{$_GET['id']}'");
+            $kolt_vis = '';
+            switch( $prsz['kolt_vis'] ) {
+                case '1': $kolt_vis = 'D'; break;
+                case '3': $kolt_vis = 'S'; break;
+                case '4': $kolt_vis = 'V'; break;
+            }
+            
+            $xml = '<?xml version = "1.0" encoding="UTF-8" standalone="yes"?>	
+<projszla>
+    <recid>'.$prsz['recid'].'</recid>
+    <erk_dat>'.str_replace('-', '', $prsz['ceghez_erk']).'</erk_dat>
+    <szallkod>'.$prsz['telephely_id'].'</szallkod>
+    <szlaszam>'.$prsz['szla_szam'].'</szlaszam>
+    <telj_dat>'.str_replace('-', '', $prsz['telj_datum']).'</telj_dat>
+    <fizhat_dat>'.str_replace('-', '', $prsz['fiz_hatar']).'</fizhat_dat>
+    <szallitoid>'.$prsz['szallito_id'].'</szallitoid>
+    <targy><![CDATA['.htmlspecialchars_decode($prsz['targy']).']]></targy>
+    <netert>'.$prsz['netto'].'</netert>
+    <brutert>'.$prsz['brutto'].'</brutert>
+    <atv_dat>'.str_replace('-', '', $prsz['p_atad_dt']).'</atv_dat>
+    <iktszam>'.$prsz['ikt_szam'].'</iktszam>
+    <mellszam>'.$prsz['mell_szam'].'</mellszam>
+    <musz>'.$prsz['muszak_szam'].'</musz>
+    <musz_dat>'.str_replace('-', '', $prsz['musz_dt']).'</musz_dat>
+    <valnetert>'.$prsz['dev_net'].'</valnetert>
+    <valarf>'.$prsz['arfolyam'].'</valarf>
+    <valarf_dat>'.str_replace('-', '', $prsz['valtva']).'</valarf_dat>
+    <kcs_46>'.$kolt_vis.'</kcs_46>
+    <valutabrut>'.$prsz['dev_br'].'</valutabrut>
+</projszla>
+';
+            // Biztonság kedvéért ellenőrizzük a könyvtár meglétét is
+            if( !is_dir(get_pszk_utvonal()) ) {
+                mkdir(get_pszk_utvonal());
+            }
+            fajlba_mentes(get_pszk_utvonal().time().'_'.rand(0, 100).'.xml', $xml);
+        }
 	}
 
-	if(isset($_GET['id']) && $type == 'update'){
-		$id = $_GET['id'];
+	if( isset($_GET['id']) && $type == 'update' ) {
+        $id = $_GET['id'];
 	}
 
     // Ha kell, akkor beállítjuk még a nevid-s oszlopot
-	if($nevid != '' && $type == 'insert'){
+	if( $nevid != '' && $type == 'insert' ) {
 
-		$nevid = fajlnev_keszit($_POST[$nevid[name]]);
-		if(!$nevid){
+        $nevid = fajlnev_keszit($_POST[$nevid[name]]);
+		if( !$nevid ) {
             $nevid = 'noname';
         }
         $nevid_tomb = array();
@@ -1689,7 +1734,7 @@ function i_u($type, $tabla, $tomb) {
             array_push($nevid_tomb, $nev_id['nevid']);
         }
 
-        while(in_array($nevid, $nevid_tomb)){
+        while ( in_array($nevid, $nevid_tomb) ) {
             $nevid = fajlnev_sorszamoz($nevid);
         }
 

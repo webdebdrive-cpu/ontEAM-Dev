@@ -1,0 +1,29 @@
+<?php
+require_once('../engine.php');
+
+// Adott XML kiírtaása
+if( $_GET['f'] ) {
+    
+    if( isset($_GET['del']) ) {
+        unlink(get_pszk_utvonal().$_GET['f'].'.xml');
+    } else {
+        header('Content-Type: application/xml; charset=utf-8');
+        echo fajlbol_olvas(get_pszk_utvonal().$_GET['f'].'.xml');
+    }
+    
+    
+// Létező XML fálkok felsorolása
+} else {
+    
+    $xml_ek_kiir = '';
+    $xml_ek = konyvtar_bejar(get_pszk_utvonal());
+
+    foreach( $xml_ek as $xml ) {
+        $xml_ek_kiir .= get_http().$_SERVER['HTTP_HOST'].self().'?f='.trim(basename($xml), '.xml').',';
+    }
+    echo trim($xml_ek_kiir, ',');
+    
+}
+
+
+$weblap -> leallit();
