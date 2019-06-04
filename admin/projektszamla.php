@@ -1024,7 +1024,7 @@ if (isset($_GET['csv'])) {
                     if( strpos($limit, ' ') ) {
                         $limit = substr($limit, 0, strpos($limit, ' '));
                     }
-                    if( $limit == SZURES_DB_LIMIT ) {
+                    if( $limit == SZURES_DB_LIMIT && !$_SESSION['nyomtatas_ids_ksz'] ) {
                         $mindet_listazd = true;
                     }
                 }
@@ -1153,7 +1153,7 @@ if (isset($_GET['csv'])) {
                     if( strpos($limit, ' ') ) {
                         $limit = substr($limit, 0, strpos($limit, ' '));
                     }
-                    if( $limit == SZURES_DB_LIMIT ) {
+                    if( $limit == SZURES_DB_LIMIT && !$_SESSION['nyomtatas_ids_ksz'] ) {
                         $mindet_listazd = true;
                     }
                 }
@@ -1406,8 +1406,6 @@ require_once('selectek.php');
                 $gombok .= ' <input type="button" id="recordTorol" class="gombb_alert dn" onclick="alert2(\'Biztosan törli ezt a '.$szoveg.'?\', gomb'.$_GET['id'].')" value="Töröl" title="Töröl">';
             }
             
-            // Küldés PSzK-ba
-            $gombok .= ' <input type="button" class="gomb" onclick="$(\'#p_atad_dt\').val(\''.date('Y.m.d').'\').addClass(\'mod\').focus().blur(); " value="Küldés PSzK-ba">';
         }
         
         // Tételek kezelése, és a számla nincs még visszaadva
@@ -1422,6 +1420,11 @@ require_once('selectek.php');
         }
         
         if( isset($_GET['modosit']) && !$sor['visszaadva'] && get_projekt_szamla_kezel_jog($_GET['id']) ) {
+            
+            // Küldés PSzK-ba
+            if( !$sor['p_atad_dt'] || $sor['p_atad_dt']=='0000-00-00' ) {
+                $gombok .= ' <input type="button" class="gomb" onclick="$(\'#p_atad_dt\').val(\''.date('Y.m.d').'\').addClass(\'mod\').focus().blur(); " value="Küldés PSzK-ba">';
+            }
             
             $gombok = nl2('
                 <div class="form_kuldes">
@@ -1876,7 +1879,7 @@ require_once('selectek.php');
                     <div class="dtc">Bank</div>
                     <div class="dtc r">Kifizetve</div>
                     <div class="dtc">Bruttó</div>
-                    <div class="dtc">Valuta bruttó</div>
+                    <div class="dtc">Deviza bruttó</div>
                     <div class="dtc">Pénznem</div>
                     <div class="dtc">Rögzítve</div>
                     <div class="dtc">Rögzítette</div>

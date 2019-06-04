@@ -2450,8 +2450,8 @@ if (isset($_GET['modosit'])) {
 $projektszamla_tomb = $akt_tomb = array(
     array('type' => 'text',                 'megn' => 'Céghez érkezett:',   'name' => 'ceghez_erk',     'szuro' => 1,   'class' => 'kicsi datepicker_tegnapig',  'alert' => 'Kérem adja meg a céghez érkezés dátumát!', 'osszevon' => 1, 'post' => '<span style="margin-left: 9.4rem"></span>'),
     array('type' => 'text',                 'megn' => 'Kelte:',             'name' => 'kelte',          'szuro' => 1,   'class' => 'kicsi datepicker_tegnapig',  'alert' => 'Kérem adja meg a számla keltét!',          'osszevon' => 1, 'post' => '<span style="margin-left: 2rem"></span>'),
-    array('type' => 'text',                 'megn' => 'Műszak szám:',       'name' => 'muszak_szam',    'szuro' => 1,   'class' => 'normal', 'style' => 'width: 10rem', 'maxlength' => 7,  'osszevon' => 1, 'post' => '<span style="margin-left: 2rem"></span>'),
-    array('type' => 'text',                 'megn' => '',                   'name' => 'musz_dt',        'szuro' => 1,   'class' => 'kicsi datepicker', 'disabled' => 1, 'megn_szurobe' => 'Műszak dátum' ),
+    array('type' => 'text',                 'megn' => 'Műszak szám:',       'name' => 'muszak_szam',    'szuro' => 1,   'class' => 'normal', 'style' => 'width: 10rem', 'maxlength' => 7,  'osszevon' => 1),
+    array('type' => 'text',                 'megn' => '',                   'name' => 'musz_dt',        'szuro' => 0,   'class' => 'kicsi datepicker', 'disabled' => 1),
     array('type' => 'text',                 'megn' => 'Számlaszám:',        'name' => 'szla_szam',      'szuro' => 1,   'class' => 'normal',            'alert' => 'Kérem adja meg a számla számát!', 'style' => 'width: 31.3rem', 'osszevon' => 1, 'post' => '<span style="margin-left: 3.1rem"></span>', 'maxlength' => 100),
     array('type' => 'text',                 'megn' => 'Iktató szám:',       'name' => 'ikt_szam',       'szuro' => 1,   'class' => 'normal', 'style' => 'width: 10rem', 'maxlength' => 11),
     array('type' => 'text',                 'megn' => 'Teljesítés dátuma:', 'name' => 'telj_datum',     'szuro' => 1,   'class' => 'kicsi datepicker',  'alert' => 'Kérem adja meg a teljesítés dátumát!', 'osszevon' => 1, 'post' => '<span style="margin-left: 2rem"></span>'),
@@ -2807,7 +2807,12 @@ if (isset($_POST['f_pri_egytobb'])) {
 
 // Nyomtáshoz a látható ID-k
 if( isset($_POST['nyomtatas_ids']) ) {
-    $_SESSION['nyomtatas_ids'] = $_POST['data'];
+    
+    // Eltároljuk a bal nav panelben látható recid-kat, hogy csak ezek kerüljenek bele a CSV exportba.
+    $_SESSION['nyomtatas_ids']      = $_POST['data'];
+    // Eltároljuk azt is, hogy a gyorskeresőben mi a beírt kulcsszó. Ez azért kell, hogy tudjuk, ha esetleg üres volt és az alapértelmezett ezres limit van beálllítva szűréskor, akkor a teljes litsa jöjjön le (ne csak 1000),
+    // de ha van gyorskeresés, akkor meg szűrjünk a látható elemekre
+    $_SESSION['nyomtatas_ids_ksz']  = $_POST['ksz'];
 
     $weblap->leallit();
     exit();

@@ -79,8 +79,12 @@ function i_u($type, $tabla, $tomb) {
     
     // Projektszámláknál a "Pénzügynek átadva" dátum fixen disabled, de mégis mentsük el, azaz itt vegyük fel
     if( $tabla == 'projektszamla' ) {
-        array_push($oszlopok,   'p_atad_dt');
-        array_push($ertekek,    $_POST['p_atad_dt']);
+        // De csak akkor mentjük el, ha még nincs értéke
+        $prsz = $adatbazis_kapcsolat->s2('p_atad_dt', 'projektszamla', "`recid`='{$_GET['id']}'");
+        if( !$prsz['p_atad_dt'] || $prsz['p_atad_dt']=='0000-00-00' ) {
+            array_push($oszlopok,   'p_atad_dt');
+            array_push($ertekek,    $_POST['p_atad_dt']);
+        }
     }
     // Projektszerződésnél ha nincs pénznem információnk, akkor a devizás mezőket nullázzuk a biztosnág kedvéért
     if( $tabla == 'projektszerzodes' ) {

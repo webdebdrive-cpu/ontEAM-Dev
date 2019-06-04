@@ -671,7 +671,7 @@ if( isset($_GET['csv']) ) {
                     if( strpos($limit, ' ') ) {
                         $limit = substr($limit, 0, strpos($limit, ' '));
                     }
-                    if( $limit == SZURES_DB_LIMIT ) {
+                    if( $limit == SZURES_DB_LIMIT && !$_SESSION['nyomtatas_ids_ksz'] ) {
                         $mindet_listazd = true;
                     }
                 }
@@ -810,7 +810,7 @@ if( isset($_GET['csv']) ) {
                     if( strpos($limit, ' ') ) {
                         $limit = substr($limit, 0, strpos($limit, ' '));
                     }
-                    if( $limit == SZURES_DB_LIMIT ) {
+                    if( $limit == SZURES_DB_LIMIT && !$_SESSION['nyomtatas_ids_ksz'] ) {
                         $mindet_listazd = true;
                     }
                 }
