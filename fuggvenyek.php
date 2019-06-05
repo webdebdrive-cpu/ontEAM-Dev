@@ -84,9 +84,9 @@ function i_u($type, $tabla, $tomb) {
         // De csak akkor mentjük el, ha még nincs értéke
         $prsz = $adatbazis_kapcsolat->s2('p_atad_dt', 'projektszamla', "`recid`='{$_GET['id']}'");
         if( !$prsz['p_atad_dt'] || $prsz['p_atad_dt']=='0000-00-00' ) {
-            array_push($oszlopok,   'p_atad_dt');
-            array_push($ertekek,    $_POST['p_atad_dt']);
             $projektszamla_xml_gen = true;
+        } else {
+            $_POST['p_atad_dt'] = $prsz['p_atad_dt'];
         }
     }
     // Projektszerződésnél ha nincs pénznem információnk, akkor a devizás mezőket nullázzuk a biztosnág kedvéért
@@ -146,7 +146,7 @@ function i_u($type, $tabla, $tomb) {
                 !(
                     $ertek['disabled'] &&
                     $ertek['name']!='szallito_id'   && 
-                    !$ertek['sql_disabledkor_is']   &&  // Tiltott mezőt mégis eltároljuk, ha van "sql_disabledkor_is" tulajdonásga. Ez arra az esetre kell, ha egy mező betöltéskor Disabled, de az adatlap szerkesztések közben JS engedélyez egy tiltott mezőt.  Ilyenkor mentsük is el az értékét.
+                    !$ertek['sql_disabledkor_is']   &&  // Tiltott mezőt mégis eltároljuk, ha van "sql_disabledkor_is" tulajdonsága. Ez arra az esetre kell, ha egy mező betöltéskor Disabled, de az adatlap szerkesztések közben JS engedélyez egy tiltott mezőt.  Ilyenkor mentsük is el az értékét.
                     $type == 'update'                   // Tiltott mezőket beszúrni lehet csak moddolni nem
                 )                                   && 
                 $ertek['name']                      && // oszlopnév sem üres és maga a POST egyáltalán létezik is (ne nullázzunk felül el nem küldött POST miatt)
@@ -1686,7 +1686,7 @@ function i_u($type, $tabla, $tomb) {
             
             $xml = '<?xml version = "1.0" encoding="UTF-8" standalone="yes"?>	
 <projszla>
-    <recid>'.$prsz['recid'].'</recid>
+    <onteamid>'.$prsz['recid'].'</onteamid>
     <erk_dat>'.str_replace('-', '', $prsz['ceghez_erk']).'</erk_dat>
     <szallkod>'.$prsz['telephely_id'].'</szallkod>
     <szlaszam>'.$prsz['szla_szam'].'</szlaszam>
@@ -8448,8 +8448,13 @@ function level_felkeszit_es_kuld($tabla, $recid, $ert_pipa, $sablon, $cimzett, $
 
 
 // Egységes dátum kiíráshoz (másodperc nem kell, kötőjel helyett pont)
-function datum_kiir($datum){
-    return str_replace('-', '.', substr($datum, 0, 16));
+function datum_kiir($datum, $csak_datum = false){
+    if( $csak_datum ) {
+        $hossz = 10;
+    } else {
+        $hossz = 16;
+    }
+    return str_replace('-', '.', substr($datum, 0, $hossz));
 }
 
 

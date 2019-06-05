@@ -2451,7 +2451,7 @@ $projektszamla_tomb = $akt_tomb = array(
     array('type' => 'text',                 'megn' => 'Céghez érkezett:',   'name' => 'ceghez_erk',     'szuro' => 1,   'class' => 'kicsi datepicker_tegnapig',  'alert' => 'Kérem adja meg a céghez érkezés dátumát!', 'osszevon' => 1, 'post' => '<span style="margin-left: 9.4rem"></span>'),
     array('type' => 'text',                 'megn' => 'Kelte:',             'name' => 'kelte',          'szuro' => 1,   'class' => 'kicsi datepicker_tegnapig',  'alert' => 'Kérem adja meg a számla keltét!',          'osszevon' => 1, 'post' => '<span style="margin-left: 2rem"></span>'),
     array('type' => 'text',                 'megn' => 'Műszak szám:',       'name' => 'muszak_szam',    'szuro' => 1,   'class' => 'normal', 'style' => 'width: 10rem', 'maxlength' => 7,  'osszevon' => 1),
-    array('type' => 'text',                 'megn' => '',                   'name' => 'musz_dt',        'szuro' => 0,   'class' => 'kicsi datepicker', 'disabled' => 1),
+    array('type' => 'text',                 'megn' => '',                   'name' => 'musz_dt',        'szuro' => 0,   'class' => 'kicsi datepicker'),
     array('type' => 'text',                 'megn' => 'Számlaszám:',        'name' => 'szla_szam',      'szuro' => 1,   'class' => 'normal',            'alert' => 'Kérem adja meg a számla számát!', 'style' => 'width: 31.3rem', 'osszevon' => 1, 'post' => '<span style="margin-left: 3.1rem"></span>', 'maxlength' => 100),
     array('type' => 'text',                 'megn' => 'Iktató szám:',       'name' => 'ikt_szam',       'szuro' => 1,   'class' => 'normal', 'style' => 'width: 10rem', 'maxlength' => 11),
     array('type' => 'text',                 'megn' => 'Teljesítés dátuma:', 'name' => 'telj_datum',     'szuro' => 1,   'class' => 'kicsi datepicker',  'alert' => 'Kérem adja meg a teljesítés dátumát!', 'osszevon' => 1, 'post' => '<span style="margin-left: 2rem"></span>'),
@@ -2466,7 +2466,7 @@ $projektszamla_tomb = $akt_tomb = array(
     array('type' => 'text',                 'megn' => 'Deviza bruttó:',     'name' => 'dev_br',         'szuro' => 1,   'class' => 'f_num'.$deviza_kotelezo,    'data' => 'data-tort="2"',  'disabled' => $arfolyam_disabled, 'sql_disabledkor_is' => 1),
     array('type' => 'text',                 'megn' => 'Nettó érték:',       'name' => 'netto',          'szuro' => 1,   'class' => 'oriasi f_num', 'data' => 'data-tort="0"', 'alert' => 'Kérem adja meg a nettó értéket!',  'post' => ' '.get_penznem().'<span style="margin-left: 2rem"></span>', 'osszevon' => 1, 'onblur' => 'pr_szamla_bruttosit();'),
     array('type' => 'text',                 'megn' => 'Bruttó érték:',      'name' => 'brutto',         'szuro' => 1,   'class' => 'oriasi f_num', 'data' => 'data-tort="0"', 'alert' => 'Kérem adja meg a bruttó értéket!', 'post' => ' '.get_penznem()),
-    array('type' => 'text',                 'megn' => 'Pénzügynek átadva:', 'name' => 'p_atad_dt',      'szuro' => 1,   'class' => 'kicsi datepicker', 'disabled' => 1 ),
+    array('type' => 'text',                 'megn' => 'Pénzügynek átadva:', 'name' => 'p_atad_dt',      'szuro' => 1,   'class' => 'kicsi datepicker', 'disabled' => 1, 'sql_disabledkor_is' => true ),
     array('type' => 'checkbox',             'megn' => 'Visszaadva:',        'name' => 'visszaadva',     'szuro' => 1,   'class' => 'check', 'disabled' => $visszaadva_disabled, 'osszevon' => 1, 'post' => '<span style="margin-left: 2rem"></span>', 'onclick' => 'pl_szamla_visszaadva()'),
     array('type' => 'text',                 'megn' => '',                   'name' => 'visszaadva_dt',  'szuro' => 1,   'class' => 'kicsi datepicker_tegnapig'.$visszaadva_dt_alert_class, 'disabled' => $visszaadva_disabled, 'megn_szurobe' => 'Visszaadva dátum' ),
     array('type' => 'text',                 'megn' => 'Szerződés szám:',    'name' => 'sz_szam',        'szuro' => 1,   'disabled' => 1, 'post' => ' <span id="szerzodes_neve">'.$szerzodes_neve.'</span>'.$sz_szam_gomb),
@@ -2486,7 +2486,6 @@ $projektszamla_tomb = $akt_tomb = array(
     array('type' => 'nosql',                'megn_szurobe' => 'Létrehozta',             'name' => 'insert_usr',   'szuro' => 1),
     array('type' => 'hidden',               'name' => 'dhszlaid'),
     array('type' => 'hidden',               'name' => 'orchiid'),
-    array('type' => 'hidden',               'name' => 'musz_dt'),
     array('type' => 'hidden',               'name' => 'post_data'),
 );
 array_push($postok, array('tomb' => $akt_tomb, 'uj' => 'uj'.$megnevezes, 'lista' => $megnevezes.'lista', 'tabla' => $megnevezes, 'torid' => $megnevezes.'tid' ));

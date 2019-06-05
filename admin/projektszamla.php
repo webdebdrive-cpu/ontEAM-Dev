@@ -1877,9 +1877,9 @@ require_once('selectek.php');
             <div class="dt naplo">
                 <div class="dtr nFejlec">
                     <div class="dtc">Bank</div>
-                    <div class="dtc r">Kifizetve</div>
-                    <div class="dtc">Bruttó</div>
-                    <div class="dtc">Deviza bruttó</div>
+                    <div class="dtc">Kifizetve</div>
+                    <div class="dtc r">Bruttó</div>
+                    <div class="dtc r">Deviza bruttó</div>
                     <div class="dtc">Pénznem</div>
                     <div class="dtc">Rögzítve</div>
                     <div class="dtc">Rögzítette</div>
@@ -1887,6 +1887,22 @@ require_once('selectek.php');
         ');
 
         // Tételek felsorolása
+        $kifizetesek = $adatbazis_kapcsolat->s('*', 'projektszamla_kifizetesek', "`projektszamla_recid`='{$_GET['id']}'", 'insert_dt');
+        foreach( $kifizetesek as $kifizetes ) {
+            
+            $szamla_html .= nl2('
+                <div class="dtr nSor">
+                    <div class="dtc">'.erteklista(ERTEKLISTA_BANK, $kifizetes['bank']).'</div>
+                    <div class="dtc">'.datum_kiir($kifizetes['kifizetes']).'</div>
+                    <div class="dtc r">'.number_format($kifizetes['br_ertek'], 0, '', ' ').'</div>
+                    <div class="dtc r">'.number_format($kifizetes['dev_br'], 2, ',', ' ').'</div>
+                    <div class="dtc r">'.erteklista(ERTEKLISTA_PENZNEM, $kifizetes['kcs_21']).'</div>
+                    <div class="dtc">'.datum_kiir($kifizetes['insert_dt'], 'csak dátum').'</div>
+                    <div class="dtc">'.$kifizetes['insert_usr'].'</div>
+                </div>
+                ');
+        }
+        $szamla_html .= '</div>';
         
         if( $_GET['ajax'] ) {
             echo json_encode(array(
