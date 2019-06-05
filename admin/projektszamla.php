@@ -1606,6 +1606,10 @@ require_once('selectek.php');
             $sor[$rend_mezo] = '';
         }
         
+        // Új feltöltéskor a pénzenm HUF
+        $sor['kcs_21'] = 5;
+        $sor['kcs_21_autocomp'] = 'HUF';
+        
         // Ha van igénylés recid-nk, akkor annak az adatait felhasználjuk
         if( $_GET['igeny_id'] ) {
             $igenyles = $adatbazis_kapcsolat->s2('*', 'projektigenyles', "`recid`='{$_GET['igeny_id']}' AND `telephely_id` IN (".implode(', ', get_akt_login_szallodai()).")");

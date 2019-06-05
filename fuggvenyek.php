@@ -91,7 +91,7 @@ function i_u($type, $tabla, $tomb) {
     }
     // Projektszerződésnél ha nincs pénznem információnk, akkor a devizás mezőket nullázzuk a biztosnág kedvéért
     if( $tabla == 'projektszerzodes' ) {
-        
+
         if( !$_POST['kcs_21'] ) {
             $_POST['arfolyam']  = '';
             $_POST['valtva']    = '';
@@ -110,8 +110,8 @@ function i_u($type, $tabla, $tomb) {
         if( $ertek['type'] != 'nosql' && !$ertek['nosql'] ) {
 
     		// Ha alert-es egy mező, és a post-ja üres, akkor hiba! (nem adott meg egy kötelező mezőt)
-            if($ertek['alert'] != '' && $_POST[$ertek['name']] == '' && !$ertek['disabled']) {
-    			return array($i, '');
+            if( $ertek['alert'] != '' && $_POST[$ertek['name']] == '' && !$ertek['disabled'] ) {
+                return array($i, '');
     			break;
     		}
 
@@ -3043,7 +3043,7 @@ function szamla_lista( $where, $tabla, $kijeloltek = false, $csak_sql_miatt = fa
         }
 
         // Szűrés lekezelése
-        if ($_GET['mezo'] && $_GET['op']) {
+        if( $_GET['mezo'] && $_GET['op'] ) {
             // Az eddigi Where-t egy nagy zárójelbe tesszük és ehhez vesszük hozzá az új feltételeket
             if($where){
                 $where = '('.csonkit($where, 5).') AND ';
@@ -3261,7 +3261,7 @@ function szamla_lista( $where, $tabla, $kijeloltek = false, $csak_sql_miatt = fa
         }
         
         // Rendezés fenntartási tervnél
-        if($tabla=='fenntartasi_terv'){
+        if( $tabla == 'fenntartasi_terv' ) {
             // Ha telephely szerint rendezünk, akkor ez lesz a következő rendezési szempont, és az irány is erre vonatkozik
             if($_GET['rend']=='telephely_id'){
                 $order = '`'.get_db_tabla().'telephely`.`nev` '.$_GET['irany'].', `'.get_db_tabla().'fenntartasi_terv`.`ev` '.$_GET['ellen_irany'].', `'.get_db_tabla().'fenntartasi_terv`.`update_dt` '.$_GET['ellen_irany'].'';
@@ -3269,7 +3269,7 @@ function szamla_lista( $where, $tabla, $kijeloltek = false, $csak_sql_miatt = fa
         }
         
         // Rendezés munkalap esetén külön problémakör:
-        if( $tabla=='munkalap' || $tabla=='munkalap_arch' ){
+        if( $tabla == 'munkalap' || $tabla == 'munkalap_arch' ) {
 
             $order = '';
 
@@ -3321,11 +3321,11 @@ function szamla_lista( $where, $tabla, $kijeloltek = false, $csak_sql_miatt = fa
                 $order .= '`'.get_db_tabla().$tabla.'`.`obj_txt` '.$_GET['irany'].', `'.get_db_tabla().'telephely`.`nev` '.$_GET['irany'].'';
 
             // Ha telephely szerint rendezünk, akkor pedig ezt a szempontot kell előre venni, és az irány is erre vonatkozik
-            }elseif($_GET['rend']=='telephely_id'){
+            }elseif( $_GET['rend'] == 'telephely_id' ) {
                 $order .= '`'.get_db_tabla().'telephely`.`nev` '.$_GET['irany'].', `'.get_db_tabla().$tabla.'`.`ikt_szam`';
             
             // Végül a felvitel szerinti sorrend
-            }elseif($_GET['rend']=='recid'){
+            }elseif( $_GET['rend'] == 'recid' ) {
                 $order .= '`'.get_db_tabla().$tabla.'`.`recid` '.$_GET['irany'];
             }
 
@@ -3370,7 +3370,7 @@ function szamla_lista( $where, $tabla, $kijeloltek = false, $csak_sql_miatt = fa
         }
 
         // Rendezés projektszámláknál
-        if( $tabla=='projektszamla' ){
+        if( $tabla == 'projektszamla' ) {
             // Ha telephely szerint rendezünk, akkor ez lesz a következő rendezési szempont, és az irány is erre vonatkozik
             if($_GET['rend']=='telephely_id'){
                 $order = '`'.get_db_tabla().'telephely`.`nev` '.$_GET['irany'].', `'.get_db_tabla().'projektszamla`.`ceghez_erk` '.$_GET['irany'];
@@ -3421,16 +3421,16 @@ function szamla_lista( $where, $tabla, $kijeloltek = false, $csak_sql_miatt = fa
             $arch = '_arch';
         }
         // Bejelentésnél és csoportoknál még az értéklistát és csoportot is felvesszük
-        if($tabla=='bejelentes' || $tabla=='bejelentes_arch'){
+        if( $tabla == 'bejelentes' || $tabla == 'bejelentes_arch' ) {
             // Státusz szerinti rendezésnél nem JOIN-oljuk a telephelyeket, egyébként mindig
-            if($_GET['rend']!='stat_id'){
+            if( $_GET['rend'] != 'stat_id' ) {
                 $sql_kieg .= ' JOIN `'.get_db_tabla().'telephely` ON `'.get_db_tabla().$tabla.'`.`telephely_id`=`'.get_db_tabla().'telephely`.`id`';
             }
         }
         // Már nem használunk csoportot, de az SQL-el pedig csínján kell bánni, ezért kivéve 2018.05.28
-        if($tabla=='munkalap' || $tabla=='munkalap_arch'){
+        if( $tabla == 'munkalap' || $tabla == 'munkalap_arch' ) {
             // Státusz szerinti rendezésnél nem JOIN-oljuk a telephelyeket, egyébként mindig
-            if($_GET['rend']!='stat_id'){
+            if( $_GET['rend'] != 'stat_id' ) {
                 $sql_kieg .= ' JOIN `'.get_db_tabla().'telephely` ON `'.get_db_tabla().$tabla.'`.`telephely_id`=`'.get_db_tabla().'telephely`.`id`';
             }
         }
@@ -3445,17 +3445,19 @@ function szamla_lista( $where, $tabla, $kijeloltek = false, $csak_sql_miatt = fa
             $sql_kieg .= ' LEFT JOIN `'.get_db_tabla().'obj` ON `'.get_db_tabla().$tabla.'`.`obj_id`=`'.get_db_tabla().'obj`.`recid` ';
         }
         // Sőt a Telephely JOIN sincs még megoldva
-        if(!in_array($tabla, $kivetelek)){
+        if( !in_array($tabla, $kivetelek) ) {
             $sql_kieg .= ' JOIN `'.get_db_tabla().'telephely` ON `'.get_db_tabla().$tabla.'`.`telephely_id`=`'.get_db_tabla().'telephely`.`id`';
         }
 
         // Ha az SQL-ben nem volna WHERE feltétel, akkor az ORDER BY elé kell beszúrni a JOIN-t
         $mivel = $sql_kieg.' WHERE';
-        if(strpos($sql, 'WHERE')===false){
+        if( strpos($sql, 'WHERE') === false ) {
             $mit   = 'ORDER BY';
             $mivel = str_replace('WHERE', 'ORDER BY', $mivel);
         }
-        $sql = str_replace($mit, $mivel, $sql);
+        //$sql = str_replace($mit, $mivel, $sql);
+        // Így cseréljük le, azaz csak az első előfordulást, ne az összeset! Ez fontos.
+        $sql = preg_replace('/'.$mit.'/', $mivel, $sql, 1);
 
         $sorok = mysqli_query($db_kapcs, $sql);
         while($sor = mysqli_fetch_assoc($sorok)){
@@ -7206,7 +7208,7 @@ function beosztas_naptar($beosztas_id){
 }
 
 // A kapott mező, operátor és feltétel alapján előállítja a where feltétel kiegészítését
-function get_szures_where_kieg($mezo, $op, $felt, $tabla){
+function get_szures_where_kieg($mezo, $op, $felt, $tabla) {
 
     $mezo = sql_ertek($mezo);
     $op   = sql_ertek($op);
@@ -7259,23 +7261,23 @@ function get_szures_where_kieg($mezo, $op, $felt, $tabla){
 // echo $mezo.' - '.$op.' - '.$felt;exit;
     // Külső táblák kapcsolása
     // A szamla_lista() függvényben is állítsd be a JOIN-okat
-    if($mezo=='megjegyzes'){
+    if( $mezo == 'megjegyzes' ) {
         return '`'.get_db_tabla().'megjegyzes`.`tabla`=\''.$tabla.'\' AND `'.get_db_tabla().'megjegyzes`.`megj` LIKE \''.$felt.'\'';
-    }elseif( $op_origi != 'empty' && ($tabla=='anyagigenyles' && $mezo=='nev') ){
+    } elseif( $op_origi != 'empty' && ($tabla == 'anyagigenyles' && $mezo == 'nev') ) {
         return '`'.get_db_tabla().'anyagigenyles`.`nev` LIKE \'%'.$felt.'%\'';
-    }elseif($tabla=='anyagigenyles' && $mezo=='beerkertek'){
+    } elseif( $tabla == 'anyagigenyles' && $mezo == 'beerkertek' ) {
         return '`'.get_db_tabla().'anyagigenyles`.`erkmen`*`'.get_db_tabla().'anyagigenyles`.`rndear`=\''.$felt.'\'';
-    }elseif($tabla=='anyagigenyles' && $mezo=='rndertek'){
+    } elseif( $tabla == 'anyagigenyles' && $mezo == 'rndertek' ) {
         return '`'.get_db_tabla().'anyagigenyles`.`rndmen`*`'.get_db_tabla().'anyagigenyles`.`rndear`=\''.$felt.'\'';
-    }elseif($tabla=='anyagigenyles' && $mezo=='beerkezett' && $op=='=' ){
+    } elseif( $tabla == 'anyagigenyles' && $mezo == 'beerkezett' && $op == '=' ) {
         return '`'.get_db_tabla().'anyagigenyles`.`beerkezett` LIKE \''.str_replace('.', '-', $felt).'%\'';
-    }elseif($tabla=='bejelentes' && $mezo=='telephely_id'){
+    } elseif( $tabla == 'bejelentes' && $mezo == 'telephely_id' ) {
         return '`'.get_db_tabla().'bejelentes`.`telephely_id`=\''.$felt.'\'';
     
     // Létrehozás dáumára keresve általánosan így járunk el
-    }elseif($mezo=='insert_dt'){
+    }elseif( $mezo == 'insert_dt' ) {
         $felt = str_replace('.', '-', $felt);
-        if($op_origi=='empty'){
+        if( $op_origi == 'empty' ) {
             $felt = '0000-00-00';
         }
         return '`'.get_db_tabla().$tabla.'`.`insert_dt`'.$op.'\''.$felt.'\'';
@@ -7286,36 +7288,47 @@ function get_szures_where_kieg($mezo, $op, $felt, $tabla){
         }else{
             return '`dok_db`=0';
         }
-    }elseif($tabla=='login' && $mezo=='jogosultsag'){
+    } elseif( $tabla == 'login' && $mezo == 'jogosultsag' ) {
         return 'SUBSTRING(`flags`, '.($felt+1).', 1)=1';
-    }elseif($tabla=='login' && $mezo=='szalloda'){
+    } elseif( $tabla == 'login' && $mezo == 'szalloda' ) {
         return '`'.get_db_tabla().'telephely_kapcs`.`telephely_id`=\''.$felt.'\'';
 
     // mszk_jovahagy feltétele: a munkalap döntésre vár státuszban van, és a hozzárendelt személy vagy Műszaki vezető vagy diszpécser
-    }elseif($tabla=='munkalap' && $mezo=='mszk_jovahagy'){
-        if($felt==1){
+    } elseif( $tabla == 'munkalap' && $mezo == 'mszk_jovahagy' ) {
+        if( $felt == 1 ) {
             return '`stat_id`=\''.MUNKALAP_STAT_DONTESRE_VAR.'\' AND (`jh1_szerep` IN (\''.MSZK_VEZETO.'\', \''.MUSZAKI_IGAZGATO.'\') OR `jh2_szerep` IN (\''.MSZK_VEZETO.'\', \''.MUSZAKI_IGAZGATO.'\'))';
-        }else{
+        } else {
             return '`stat_id`=\''.MUNKALAP_STAT_DONTESRE_VAR.'\' AND (`jh1_szerep` NOT IN (\''.MSZK_VEZETO.'\', \''.MUSZAKI_IGAZGATO.'\') AND `jh2_szerep` NOT IN (\''.MSZK_VEZETO.'\', \''.MUSZAKI_IGAZGATO.'\'))';
         }
-    }elseif($tabla=='munkalap' && $mezo=='insert_dt'){
+    } elseif( $tabla == 'munkalap' && $mezo == 'insert_dt' ) {
         $felt = str_replace('.', '-', $felt);
         if($op_origi=='empty'){
             $felt = '0000-00-00';
         }
         return '`'.get_db_tabla().'munkalap`.`insert_dt`'.$op.'\''.$felt.'\'';
-    }elseif($tabla=='utemezett_feladatok' && $mezo=='telephely_id'){
+    } elseif( $tabla == 'utemezett_feladatok' && $mezo == 'telephely_id' ) {
         return '`'.get_db_tabla().'utemezett_feladatok`.`telephely_id`=\''.$felt.'\'';
-    }elseif($tabla=='utemezett_feladatok' && $mezo=='id'){
+    } elseif( $tabla == 'utemezett_feladatok' && $mezo == 'id' ) {
         return '`'.get_db_tabla().'utemezett_feladatok`.`id`=\''.$felt.'\'';
-    }elseif($tabla=='projektkezeles' && $mezo=='team_tag'){
+        
+    // Projket számlánál szűrni kell arra, hogy van-e kifizetése
+    } elseif( $tabla == 'projektszamla' && $mezo == 'kifizetes_van_e' ) {
+        $return = ' (SELECT COUNT(`'.get_db_tabla().'projektszamla_kifizetesek`.`recid`) FROM `'.get_db_tabla().'projektszamla_kifizetesek` WHERE `'.get_db_tabla().'projektszamla_kifizetesek`.`projektszamla_recid`=`'.get_db_tabla().'projektszamla`.`recid`)';
+        if( $felt ) {
+            $return .= ' > 0';
+        } else {
+            $return .= ' = 0';
+        }
+        return $return;
+        
+    } elseif( $tabla == 'projektkezeles' && $mezo == 'team_tag' ) {
         return '`'.get_db_tabla().'projektkezeles_team`.`login_recid`=\''.$felt.'\'';
-    }elseif($tabla=='szallito' && $mezo=='szakterulet'){
+    } elseif( $tabla == 'szallito' && $mezo == 'szakterulet' ) {
         return '`'.get_db_tabla().'szakter_kapcs`.`szakter_id`=\''.$felt.'\'';
-    }else{
+    } else {
 
         // Mezőnevek pontosítása
-        if( $tabla=='anyagigenyles' && $mezo=='nev' ){
+        if( $tabla == 'anyagigenyles' && $mezo == 'nev' ) {
             $mezo = get_db_tabla().'anyagigenyles`.`'.$mezo;
         }
         

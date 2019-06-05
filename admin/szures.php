@@ -30,17 +30,17 @@ if( isset($_POST['f_szuro_mezo']) ) {
 
     $operator = '';
     // Feltétel összerakása tömbből
-    foreach ($akt_tomb_szures as $ertek){
+    foreach ( $akt_tomb_szures as $ertek ) {
 
-        if($ertek['name']==$_POST['mezo']){
-            
+        if( $ertek['name'] == $_POST['mezo'] ) {
+
             // Checkbox esetén Igen/Nem
-            if($ertek['type']=='checkbox'){
+            if( $ertek['type'] == 'checkbox' ) {
 
                 $operator .= '<option value="equal"'.$selected_equal.'>=</option>';
 
             // Dátum mező esetén
-            }elseif( strpos($ertek['class'], 'datepicker')!==false || strpos($ertek['class'], 'datetimepicker')!==false || strpos($ertek['class'], 'datepicker_tegnapig')!==false || strpos($ertek['class'], 'datepicker_matol')!==false || strpos($ertek['class'], 'datumos_szureshez')!==false ){
+            }elseif( strpos($ertek['class'], 'datepicker') !== false || strpos($ertek['class'], 'datetimepicker') !== false || strpos($ertek['class'], 'datepicker_tegnapig') !== false || strpos($ertek['class'], 'datepicker_matol') !== false || strpos($ertek['class'], 'datumos_szureshez') !== false ) {
 
                 $operator .= '<option value="equal"'.$selected_equal.'>=</option>';
                 $operator .= '<option value="gteq"'.$selected_gteq.'>&gt;=</option>';
@@ -51,24 +51,24 @@ if( isset($_POST['f_szuro_mezo']) ) {
                 $operator .= '<option value="empty"'.$selected_empty.'>Üres</option>';
 
             // Autocomplete esetén a switch.php alapján gyártunk egy inputot
-            }elseif($ertek['type']=='autocomplete' || $ertek['type_szurohoz']=='autocomplete'){
+            }elseif( $ertek['type'] == 'autocomplete' || $ertek['type_szurohoz'] == 'autocomplete' ) {
 
                 $operator .= '<option value="equal"'.$selected_equal.'>=</option>';
                 $operator .= '<option value="not_eq"'.$selected_not_eq.'>&lt;&gt;</option>';
                 $operator .= '<option value="empty"'.$selected_empty.'>Üres</option>';
 
             // selectek esetén csak = vagy üres operátort ajánlunk fel
-            }elseif( in_array($ertek['type'], $selectek) ){
+            }elseif( in_array($ertek['type'], $selectek) ) {
 
                 $operator .= '<option value="equal"'.$selected_equal.'>=</option>';
                 $operator .= '<option value="not_eq"'.$selected_not_eq.'>&lt;&gt;</option>';
                 $operator .= '<option value="empty"'.$selected_empty.'>Üres</option>';
 
             // Általános esetben egy szabadszavas mező
-            }else{
+            } else {
 
                 // Numerikus adatok operátora
-                if( strpos($ertek['class'], 'f_num')!==false || strpos($ertek['class'], 'datepicker')!==false){
+                if( strpos($ertek['class'], 'f_num') !== false || strpos($ertek['class'], 'datepicker') !== false ) {
                     $operator .= '<option value="equal"'.$selected_equal.'>=</option>';
                     $operator .= '<option value="gteq"'.$selected_gteq.'>&gt;=</option>';
                     $operator .= '<option value="lteq"'.$selected_lteq.'>&lt;=</option>';
@@ -76,7 +76,7 @@ if( isset($_POST['f_szuro_mezo']) ) {
                     $operator .= '<option value="lt"'.$selected_lt.'>&lt;</option>';
                     $operator .= '<option value="not_eq"'.$selected_not_eq.'>&lt;&gt;</option>';
                     $operator .= '<option value="empty"'.$selected_empty.'>Üres</option>';
-                }else{
+                } else {
                     $operator .= '<option value="equal"'.$selected_equal.'>=</option>';
                     $operator .= '<option value="like"'.$selected_like.'>Tartalmazza</option>';
                     $operator .= '<option value="gteq"'.$selected_gteq.'>&gt;=</option>';
@@ -103,7 +103,12 @@ if( isset($_POST['f_szuro_mezo']) ) {
     }
 
     // Értéklista csoport
-    if( $_POST['tabla'] == 'erteklista' && ($_POST['mezo']=='csoport' || $_POST['mezo']=='fix_adat') ){
+    if( $_POST['tabla'] == 'erteklista' && ($_POST['mezo'] == 'csoport' || $_POST['mezo'] == 'fix_adat') ) {
+        $operator = '<option value="equal"'.$selected_equal.'>=</option>';
+    }
+
+    // Projektszámláknál a kifizetés van-e szűrés
+    if( $_POST['tabla'] == 'projektszamla' && $_POST['mezo'] == 'kifizetes_van_e' ) {
         $operator = '<option value="equal"'.$selected_equal.'>=</option>';
     }
 
@@ -171,8 +176,8 @@ if (isset($_POST['f_szuro_mezo_operator'])) {
         $_POST['felt'] = '';
     }
 
-    // Ha az éppen kiválasztott operátor az ures, akkor az alábbit adjuk vissza és kész
-    if( $_POST['selected']=='empty' || $_POST['mezo']=='dok_van_e'|| $_POST['mezo']=='fix_adat' ){
+    // Ha az éppen kiválasztott operátor az üres, akkor az alábbit adjuk vissza és kész
+    if( $_POST['selected'] == 'empty' || $_POST['mezo'] == 'dok_van_e' || $_POST['mezo'] == 'kifizetes_van_e' || $_POST['mezo'] == 'fix_adat' ) {
         $feltetel = nl2('
             <select class="f_felt">
                 <option value="1"'.$selected_egy.'>Igen</option>
@@ -181,13 +186,13 @@ if (isset($_POST['f_szuro_mezo_operator'])) {
             ');
 
     // Ha nem az üres operátort választottuk ki
-    }else{
+    } else {
 
         foreach ($akt_tomb_szures as $ertek){
-            if($ertek['name']==$_POST['mezo']){
+            if( $ertek['name'] == $_POST['mezo'] ) {
 
                 // Checkbox esetén Igen/Nem
-                if($ertek['type']=='checkbox'){
+                if( $ertek['type'] == 'checkbox' ) {
 
                     $feltetel = nl2('
                         <select class="f_felt">
@@ -198,7 +203,7 @@ if (isset($_POST['f_szuro_mezo_operator'])) {
 
 
                 // Autocomplete esetén a switch.php alapján gyártunk egy inputot
-                }elseif($ertek['type']=='autocomplete' || $ertek['type_szurohoz']=='autocomplete'){
+                }elseif( $ertek['type'] == 'autocomplete' || $ertek['type_szurohoz'] == 'autocomplete' ) {
 
                     require_once('../class/html/class.Input.php');
                     $input = new Input('text');
@@ -208,7 +213,7 @@ if (isset($_POST['f_szuro_mezo_operator'])) {
                     // Onblurra a hidden mező is nullázódjon, ha üres volna a mező
                     $ertek['onblur'] .= 'if(!$(this).val()){ $(\'#'.$ertek['name'].'\').val(\'\'); }';
 
-                    if($ertek['alert']){
+                    if( $ertek['alert'] ) {
                         $ertek['class'] .= ' csillag';
                     }
 
@@ -219,10 +224,10 @@ if (isset($_POST['f_szuro_mezo_operator'])) {
                     $input -> placeholder   = $ertek['placeholder'];
                     $input -> autocomplete  = 'off';
                     // Ha van szélesség beállítva, akkor azt hozzuk ide is át
-                    if(strpos($ertek['style'], 'width')!==false){
+                    if( strpos($ertek['style'], 'width') !== false ) {
                         $input -> style = $ertek['style'];
                     // egyébként 30rem-es
-                    }else{
+                    } else {
                         $input -> style = 'width: 30rem';
                     }
 
@@ -709,16 +714,16 @@ $dokumentumos_oldal = array(
     'rendszeres_karbantartas',
     'utemezett_feladatok',
     );
-if(in_array($tabla, $dokumentumos_oldal) ){
+if( in_array($tabla, $dokumentumos_oldal) ) {
     $selected = '';
-    if($_GET['mezo']=='dok_van_e'){
+    if( $_GET['mezo'] == 'dok_van_e' ) {
         $selected = ' selected';
     }
     array_push( $sz_mezo, array('eleje' => '<option value="dok_van_e"'.$selected.'>', 'vege' => 'Van csatolt dokumentum</option>' ) );
 }
 
 // Kapcsolódó táblák szűrő mezői
-if($tabla == 'anyagigenyles'){
+if( $tabla == 'anyagigenyles' ) {
     $selected_megj  = '';
     if($_GET['mezo']=='megjegyzes'){
         $selected_megj = ' selected';
@@ -775,6 +780,14 @@ if( $tabla == 'projektkezeles' ) {
         $selected_team_tag = ' selected';
     }
     array_push( $sz_mezo, array('eleje' => '<option value="team_tag"'.$selected_team_tag.'>', 'vege' => 'Team tag</option>' ) );
+}
+// Projektszámlánál szűrni kell tudni, hogy van-e kifizetés
+if( $tabla == 'projektszamla' ) {
+    $selected_kifizetes  = '';
+    if($_GET['mezo']=='kifizetes_van_e'){
+        $selected_kifizetes = ' selected';
+    }
+    array_push( $sz_mezo, array('eleje' => '<option value="kifizetes_van_e"'.$selected_kifizetes.'>', 'vege' => 'Van kifizetés</option>' ) );
 }
 if( $tabla == 'szallito' ) {
     $selected_szakter   = '';

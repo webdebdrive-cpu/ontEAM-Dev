@@ -338,7 +338,7 @@ if( !$archivum ) {
 }
 
 $i     = 0;
-$kepek = $adatbazis_kapcsolat -> s('*', $tobbkep_tablanev, "`".get_tobbkep_oszlopnev()."`='{$_GET['id']}'", 'sor');
+$kepek = $adatbazis_kapcsolat -> s('*', $tobbkep_tablanev, "`".get_tobbkep_oszlopnev()."`='{$_GET['id']}'", 'insert_dt');
 
 // Eszközkezelés engedélyeknél dátumot is kiírunk
 $mellek = 'dokumentumok';
@@ -380,7 +380,7 @@ if( $apa_tabla == 'projektkezeles' ) {
     $szerzodesek    = $adatbazis_kapcsolat->s('recid', 'projektszerzodes', "`pr_szam`='{$projekt['ikt_szam']}'");
     $szerzodesek    = adatbazis2tomb($szerzodesek, 'recid');
     if( $szerzodesek ) {
-        $kepek = $adatbazis_kapcsolat -> s('*', 'projektszerzodes_dok', "`projektszerzodes_id` IN (".implode(',', $szerzodesek).")", 'sor');
+        $kepek = $adatbazis_kapcsolat -> s('*', 'projektszerzodes_dok', "`projektszerzodes_id` IN (".implode(',', $szerzodesek).")", 'insert_dt');
     }
 
     if( $kepek ) {
@@ -406,7 +406,7 @@ if( $apa_tabla == 'projektkezeles' ) {
     $szamlak    = $adatbazis_kapcsolat->s('recid', 'projektszamla', "`pr_szam`='{$projekt['ikt_szam']}'");
     $szamlak    = adatbazis2tomb($szamlak, 'recid');
     if( $szamlak ) {
-        $kepek = $adatbazis_kapcsolat -> s('*', 'projektszamla_dok', "`projektszamla_id` IN (".implode(',', $szamlak).")", 'sor');
+        $kepek = $adatbazis_kapcsolat -> s('*', 'projektszamla_dok', "`projektszamla_id` IN (".implode(',', $szamlak).")", 'insert_dt');
     }
 
     if( $kepek ) {

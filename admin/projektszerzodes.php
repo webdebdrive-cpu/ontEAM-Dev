@@ -21,7 +21,7 @@ $szoveg                 = 'projekt szerződést';   // Hibaüzenetkor: Biztosan 
 
 // Dokumentumok fülhöz kell majd
 $tobb_kep = true;
-if($tobb_kep){
+if( $tobb_kep ) {
     function get_tobbkep_darab()    { return 10;         } // Maximum hány kép tallózható be
     function get_tobbkep_csakkep()  { return '';         } // Milyen kiterjesztéseket engedünk meg (ha mindenet, legyen üres)
     function get_tobbkep_kepmeret() { return 10;         } // MB-ban
@@ -1226,11 +1226,12 @@ require_once('selectek.php');
         $szamla_html .= str_replace($navi_mit, $navi_mivel, $navi_sablon);
 
 	    // FORM
-		if(isset($_GET['ujkent'])){
-			foreach($akt_tomb as $ertek){
-				$sor[$ertek['name']]=$_SESSION[$ertek['name']];
+		if( isset($_GET['ujkent']) ) {
+            foreach ( $akt_tomb as $ertek ) {
+                $sor[$ertek['name']]=$_SESSION[$ertek['name']];
 			}
 		}
+        
 	    $js = js_kiir($akt_tomb, 'form_ell_admin()');
 
 	    $form_sablon = fajlbol_olvas('../sablon/admin/form_uj.html', true);
@@ -1246,8 +1247,12 @@ require_once('selectek.php');
             $sor[$rend_mezo] = '';
         }
         
+        // Új feltöltéskor a pénzenm HUF
+        $sor['kcs_21'] = 5;
+        $sor['kcs_21_autocomp'] = 'HUF';
+        
         // Ha van igénylés recid-nk, akkor annak az adatait felhasználjuk
-        if($_GET['igeny_id']){
+        if( $_GET['igeny_id'] ) {
             $igenyles = $adatbazis_kapcsolat->s2('*', 'projektigenyles', "`recid`='{$_GET['igeny_id']}' AND `telephely_id` IN (".implode(', ', get_akt_login_szallodai()).")");
             $sor['nev']             = $igenyles['nev'];
             $sor['telephely_id']    = $igenyles['telephely_id'];

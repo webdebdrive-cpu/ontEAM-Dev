@@ -326,41 +326,6 @@ if( !$_SESSION['bejelento_menu_rejt'] && (_jog(JOG_ENERGIA_EGYSEGAR_OLVAS) || _j
     $menuk   .= str_replace( $akt_menu_mit, array( $style, '#', $megn, $menu_nev_tobbes, $aktmenuk ), $menu_sablon );
 }
 
-// Csak bejelentő elől rejtve
-if(!$_SESSION['bejelento_menu_rejt']  ){
-    // Energia
-    $menu_nev        = 'Energia';
-    $menu_nev_kis    = 'energia';
-    $menu_nev_tobbes = 'Energia';
-    $megn            = 'energia';
-    $aloldalak       = array($megn.'.php');
-    if(basename(self())==$megn.'.php' && isset($_GET['modosit'])){ $navi = $menu_nev.' szerkesztése'; }
-    if(basename(self())==$megn.'.php'){ $oldalNev = $menu_nev; }
-
-    $aktmenuk  = '';
-    // $aktmenuk .= str_replace( $akt_almenu_mit, array( $aloldalak['0'], 'Gépek'  ), $almenu_sablon );
-
-    $style = '';
-    if(substr( basename(self()), 0, strlen(basename($_SERVER['PHP_SELF']))-4 ) == $megn){
-        $style = ' class="hover{STYLE_KIEG}"';
-    }
-
-    if( $aktmenuk ) {
-        if( $style ) {
-            $style = str_replace('{STYLE_KIEG}', ' almenus', $style);
-        } else {
-            $style = ' class="almenus"';
-        }
-    } else {
-        if( $style ) {
-            $style = str_replace('{STYLE_KIEG}', '', $style);
-        }
-    }
-
-    $menuk   .= str_replace( $akt_menu_mit, array( $style, '#', $megn, $menu_nev_tobbes, $aktmenuk ), $menu_sablon );
-}
-
-
 // Projektek
 if(
         _jog(JOG_PRIGENY_S_KEZEL) || _jog(JOG_PRIGENY_SZ_MEGTEKINT) || _jog(JOG_PRIGENY_B_MEGTEKINT) || _jog(JOG_PRIGENY_EGY_MEGTEKINT) || _jog(JOG_PRIGENY_F_MEGTEKINT) || _jog(JOG_PRIGENY_TOBB_MEGTEKINT) || _jog(JOG_PRIGENY_T_MEGTEKINT) || _jog(JOG_PR_B_MEGTEKINT) || _jog(JOG_PR_F_MEGTEKINT) || _jog(JOG_PR_T_MEGTEKINT) ||

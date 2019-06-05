@@ -117,14 +117,14 @@ function pr_szamla_deviza_netto_br_ell() {
 $(document).on('input, blur', '#kcs_21_autocomp', function(e) {
     // Azért van egy settimeoutban, mert a mezőt elhagyva még az autocomplete feltölti adattal. De az elhagyás pillanatában még üres.
     setTimeout(function(){
-        if( $('#kcs_21_autocomp').val() ){
+        if ($('#kcs_21_autocomp').val() && $('#kcs_21_autocomp').val() != 'HUF') {
             $('#arfolyam')  .removeAttr('disabled').removeAttr('readonly').focus();
             $('#valtva')    .removeAttr('disabled').removeAttr('readonly');
             $('#dev_net')   .removeAttr('disabled').removeAttr('readonly').addClass('csillag');
             $('#dev_br')    .removeAttr('disabled').removeAttr('readonly').addClass('csillag');
         }else{
             $('#arfolyam')  .val('0,0000')      .attr('disabled', 'disabled').attr('readonly', 'readonly').removeClass('mod');
-            $('#valtva')    .val('0000.00.00')  .attr('disabled', 'disabled').attr('readonly', 'readonly').removeClass('mod');
+            $('#valtva')    .val('\xa0\xa0\xa0\xa0.\xa0\xa0.\xa0\xa0').attr('disabled', 'disabled').attr('readonly', 'readonly').removeClass('mod');
             $('#dev_net')   .val('0,00')        .attr('disabled', 'disabled').attr('readonly', 'readonly').removeClass('mod').removeClass('csillag');
             $('#dev_br')    .val('0,00')        .attr('disabled', 'disabled').attr('readonly', 'readonly').removeClass('mod').removeClass('csillag');
         }

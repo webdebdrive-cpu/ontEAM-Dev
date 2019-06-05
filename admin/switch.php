@@ -101,7 +101,12 @@ foreach($akt_tomb as $ertek){
                 $input -> value = $kulso_ertek[0][$ertek['listaz']];
             }
 
-            $html = $input -> getHtml().'<input type="hidden" name="'.$ertek['name'].'" id="'.$ertek['name'].'" value="'.$value.'">';
+            $html = $input -> getHtml();
+            if( $ertek['id_latszik'] ) {
+                $html = '<input type="text" readonly name="'.$ertek['name'].'" id="'.$ertek['name'].'" value="'.$value.'" style="width: 5rem"> '.$html;
+            } else {
+                $html .= '<input type="hidden" name="'.$ertek['name'].'" id="'.$ertek['name'].'" value="'.$value.'">';
+            }
 
             $rkat = 0;
             if( $ertek['rkat'] ) {
