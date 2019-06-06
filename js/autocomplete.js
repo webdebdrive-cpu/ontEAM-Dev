@@ -36,7 +36,8 @@
                 recid           : '',                   /* Az aktuális űrlap reid-ja. Néha szükség van rá                   */
                 rkat            : 0,                    /* Rendszer kategóriára szűrünk                                     */
                 szel            : 'auto',               /* Lista szélessége                                                 */
-                aktiv           : '',                   /* login táblánál tudjunk szűrni aktívakra is                      */
+                aktiv           : '',                   /* login táblánál tudjunk szűrni aktívakra is                       */
+                aktiv_szinez    : '',                   /* aktívakat zöld, inaktívakat pirossal listázzunk ki               */
                 beosztas_id     : '',                   /* login táblánál tudjunk szűrni beosztásra is                      */
                 szemelyzet_id   : '',                   /* Munkaidő ráfodítás név hozzáadásánál kell                        */
                 szuros          : '',                   /* Ha a szűrőben hívtuk meg, akkor azt ezen keresztül tudjuk jelezni*/
@@ -125,7 +126,7 @@
                                 }
                             }
 
-                            /* Ha nem a szűrőben van az autocomplete, akkor csak azokat a helyiségeket listázza ki,
+                            /*  Ha nem a szűrőben van az autocomplete, akkor csak azokat a helyiségeket listázza ki,
                              *  ami adott szállodához tartozik, ezért átküldünk egy telephely_id értékete is */
                             telephely_id = '';
                             if( !options.szuros && (
@@ -139,7 +140,7 @@
                             ) {
                                 telephely_id = $('#telephely_id').val();
                             /* De az autocomplete.php felé ekkor is jelezzük, hogy engedjen listázni */
-                            }else{
+                            } else {
                                 telephely_id = 'szuros_szoval_mehet';
                             }
 
@@ -176,6 +177,7 @@
                                         recid           : options.recid,
                                         rkat            : options.rkat,
                                         aktiv           : options.aktiv,
+                                        aktiv_szinez    : options.aktiv_szinez,
                                         beosztas_id     : options.beosztas_id,
                                         szemelyzet_id   : options.szemelyzet_id,
                                         tabla           : options.tabla,

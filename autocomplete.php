@@ -68,7 +68,7 @@ if(isset($_GET['value']) && isset($_GET['tabla']) && isset($_GET['oszlop_keres']
         }
         
         // Ha helységet vagy objektumokat kérünk le, akkor csak a felhasználóhoz tartozó szállodákat vesszük figyelembe
-        if($_GET['tabla']=='obj'){
+        if( $_GET['tabla'] == 'obj' ) {
             $akt_user_szallodai = get_akt_login_szallodai();
             $akt_user_szallodai = implode(', ', $akt_user_szallodai);
             if( $where_sql ) {
@@ -109,13 +109,13 @@ if(isset($_GET['value']) && isset($_GET['tabla']) && isset($_GET['oszlop_keres']
 
         // Login táblában szűrhetünk beosztásra is: ha van benne vessző, akkor egy egész felsorolás
         if( $_GET['tabla'] == 'login' && $_GET['beosztas_id'] ) {
-            if( strpos($_GET['beosztas_id'], ',')!==false ){
+            if( strpos($_GET['beosztas_id'], ',') !== false ) {
                 if( $where_sql ) {
                     $where_sql .= " AND `beosztas_id` IN (".$_GET['beosztas_id'].")";
                 } else {
                     $where_sql .= " WHERE `beosztas_id` IN (".$_GET['beosztas_id'].")";
                 }
-            }else{
+            } else {
                 if( $where_sql ) {
                     $where_sql .= " AND `beosztas_id` = '".$_GET['beosztas_id']."'";
                 } else {
@@ -142,7 +142,7 @@ if(isset($_GET['value']) && isset($_GET['tabla']) && isset($_GET['oszlop_keres']
         }
         
         // Objektumonnkál van, hogy csak a szinteket szeretnénk lekérdezni
-        if($obj_csak_szint){
+        if( $obj_csak_szint ) {
             if( $where_sql ) {
                 $where_sql .= " AND `szulo`=0";
             } else {
@@ -182,12 +182,16 @@ if(isset($_GET['value']) && isset($_GET['tabla']) && isset($_GET['oszlop_keres']
             $select_kieg = ' `id`,';
         }
         
-        if( $_GET['id_kiir']=='usermail' ){
+        if( $_GET['id_kiir'] == 'usermail' ) {
             $select_kieg .= ' `usermail`,';
         }
 
         if( $_GET['tabla'] == 'cikktorzs' ) {
             $select_kieg .= ' `cikkmee`,';
+        }
+        
+        if( $_GET['aktiv_szinez'] ) {
+            $select_kieg .= ' `aktiv`,';
         }
 
         // Ha törzsadatlistát kérünk le, akkor a találati listát egész bonyolultan számítjuk ki:
@@ -201,7 +205,6 @@ if(isset($_GET['value']) && isset($_GET['tabla']) && isset($_GET['oszlop_keres']
             $felhok = adatbazis2tomb($felhok, 'nev');
 
             $where_sql = " WHERE `felh_loginnev` IN ('".implode('\', \'', $felhok)."')";
-            // $loginnevek = $adatbazis_kapcsolat->s('recid nev', 'torzsadat', "`felh_loginnev` IN ('".implode('\', \'', $felhok)."')");
 
         }
         
@@ -211,9 +214,9 @@ if(isset($_GET['value']) && isset($_GET['tabla']) && isset($_GET['oszlop_keres']
             $lekerdez = mysqli_query($db_kapcs, 'SELECT DISTINCT `'.implode('`, `', $oszlop_listaz).'` FROM `'.get_db_tabla().$_GET['tabla'].'`'.$where_sql.' ORDER BY `'.$oszlop_keres[0].'`') or die(mysqli_error($db_kapcs));
 // echo 'SELECT DISTINCT `'.implode('`, `', $oszlop_listaz).'` FROM `'.get_db_tabla().$_GET['tabla'].'`'.$where_sql.' ORDER BY `'.$oszlop_keres[0].'`' . '<br>';
         // Cikktörzs esetén a rendezés cikknév szerint legyen
-        }elseif( $_GET['tabla'] == 'cikktorzs' ){
+        } elseif( $_GET['tabla'] == 'cikktorzs' ) {
             $lekerdez = mysqli_query($db_kapcs, 'SELECT DISTINCT `recid`, `'.implode('`, `', $oszlop_listaz).'`, `cikkmee` FROM `'.get_db_tabla().$_GET['tabla'].'`'.$where_sql.' ORDER BY `nev`') or die(mysqli_error($db_kapcs));
-        }else{
+        } else {
 // echo 'SELECT `recid`,'.$select_kieg.' `'.implode('`, `', $oszlop_listaz).'` FROM `'.get_db_tabla().$_GET['tabla'].'`'.$where_sql.' ORDER BY `'.$oszlop_keres[0].'`'; exit;
             $lekerdez = mysqli_query($db_kapcs, 'SELECT `recid`,'.$select_kieg.' `'.implode('`, `', $oszlop_listaz).'` FROM `'.get_db_tabla().$_GET['tabla'].'`'.$where_sql.' ORDER BY `'.$oszlop_keres[0].'`') or die(mysqli_error($db_kapcs));
         }
@@ -224,7 +227,17 @@ if(isset($_GET['value']) && isset($_GET['tabla']) && isset($_GET['oszlop_keres']
                 $cikkmee_attr = ' data-mee="'.$sor['cikkmee'].'" data-cikkid="'.$sor['id'].'"';
             }
 
-            $return .= '<li data-recid="'.$sor[$_GET['id_kiir']].'"'.$cikkmee_attr.'>';
+            // Aktív/inatkív rekordokat színezzük
+            $class = '';
+            if( $_GET['aktiv_szinez'] ) {
+                if( $sor['aktiv'] ) {
+                    $class = ' class="zold"';
+                } else {
+                    $class = ' class="piros"';
+                }
+            }
+            
+            $return .= '<li data-recid="'.$sor[$_GET['id_kiir']].'"'.$cikkmee_attr.$class.'>';
 
             if( $_GET['tabla'] == 'obj' ) {
                 $telephely = $adatbazis_kapcsolat->s('nev', 'telephely', 'id='.$sor['telephely_id'], '', '1');

@@ -363,6 +363,7 @@ define('EL_BEOSZTAS_FEJL_VIG_H',    28 );
 define('EL_BEOSZTAS_MUSZAKI_IG',    91 );
 define('EL_BEOSZTAS_MUSZAKI_ASSZ',  131);
 define('EL_BEOSZTAS_BERUH_IG',      190);
+define('EL_BEOSZTAS_DISZ_KP_VEZ',   16 );
 
 define('MLTIPUS_HIBAELHARITAS', 1);
 define('MLTIPUS_RENDSZERES_K',  2);

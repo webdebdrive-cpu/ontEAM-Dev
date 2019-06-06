@@ -3587,7 +3587,7 @@ function szamla_lista( $where, $tabla, $kijeloltek = false, $csak_sql_miatt = fa
         $_SESSION['akt_sql'] = $sql;
     }
 
-if( isset($_GET['debug']) && $_SERVER['HTTP_HOST']!='www.onteam.hu' && $_SERVER['HTTP_HOST']!='onteam.hu' ) {
+if( isset($_GET['debug']) /*&& $_SERVER['HTTP_HOST']!='www.onteam.hu'*/ && $_SERVER['HTTP_HOST']!='onteam.hu' ) {
     echo $_SESSION['akt_sql']. '<br>';
 }
 

@@ -269,7 +269,8 @@ if (isset($_POST['f_szuro_mezo_operator'])) {
                     $beosztas_id    = '';
                     if( $ertek['name']=='pfelelos' || $ertek['name']=='let_fel' ){
                         $aktiv          = 1;
-                        $beosztas_id    = EL_BEOSZTAS_BERUH_IG.','.EL_BEOSZTAS_FEJL_VIG_H.','.EL_BEOSZTAS_MUSZAKI_ASSZ.','.EL_BEOSZTAS_MUSZAKI_IG.','.EL_BEOSZTAS_PR_FELEOS;
+                        $aktiv_szinez   = 1;
+                        $beosztas_id    = EL_BEOSZTAS_BERUH_IG.','.EL_BEOSZTAS_FEJL_VIG_H.','.EL_BEOSZTAS_MUSZAKI_ASSZ.','.EL_BEOSZTAS_MUSZAKI_IG.','.EL_BEOSZTAS_PR_FELEOS.','.EL_BEOSZTAS_DISZ_KP_VEZ;
                     }
 
                     $feltetel .= nl2('
@@ -284,6 +285,7 @@ if (isset($_POST['f_szuro_mezo_operator'])) {
                                     \'csoport\'         : '.$csoport.',
                                     \'id_kiir\'         : \''.$id_kiir.'\',
                                     \'aktiv\'           : \''.$aktiv.'\',
+                                    \'aktiv_szinez\'    : \''.$aktiv_szinez.'\',
                                     \'beosztas_id\'     : \''.$beosztas_id.'\',
                                     \'szuros\'          : \'Szűrőben hívtuk meg\'
                                 });
@@ -415,7 +417,7 @@ if (isset($_POST['f_szuro_mezo_operator'])) {
         }
 
         // insert_usr esetén
-        if($_POST['mezo']=='insert_usr'){
+        if( $_POST['mezo'] == 'insert_usr' ) {
 
             $feltetel = nl2('
                     <input type="text" placeholder="Feltétel..." class="f_felt" id="insert_usr_autocomp_szurobe" name="insert_usr_autocomp_szurobe" value="'.$_POST['felt'].'" onfocus="$(this).select()">
