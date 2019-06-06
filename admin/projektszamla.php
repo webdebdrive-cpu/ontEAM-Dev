@@ -324,6 +324,13 @@ if (isset($_POST['projektszamla_kapcsolas'])) {
     $recid           = $_POST['recid'];
     $_POST['adatok'] = json_decode( $_POST['adatok'] );
     
+    // Tárgy-ban levő idézőjelek visszakonvertálása
+    $i = 0;
+    foreach ( $_POST['adatok'][$targy_adat][1] as $ertek ) {
+        $_POST['adatok'][$targy_adat][1][$i] = str_replace('|IDEZOJEL|', '"', $ertek);
+        $i++;
+    }
+    
     // Ha nincs egy sornyi tételünk sem, akkor hibaüzenet
     if( !$_POST['adatok'][$targy_adat][1]  ){
         echo json_encode( array( 
@@ -346,9 +353,9 @@ if (isset($_POST['projektszamla_kapcsolas'])) {
     
     $kifizet_var_ossz = '';
     $i = 0;
-    foreach ( $_POST['adatok'][$varhato_ert_adat][1] as $ertek ){
+    foreach ( $_POST['adatok'][$varhato_ert_adat][1] as $ertek ) {
         // A kifizetésre vár értéket csak akkor adjuk hozzá, ha a nettó érték mező üres, azaz nincs benne tényadat
-        if( !$_POST['adatok'][$netto_ert_adat][1][$i] ){
+        if( !$_POST['adatok'][$netto_ert_adat][1][$i] ) {
             $ertek = str_replace(' ', '', $ertek);
             $kifizet_var_ossz += $ertek;
         }
@@ -356,7 +363,7 @@ if (isset($_POST['projektszamla_kapcsolas'])) {
     }
 
     $kifizetett_ossz = '';
-    foreach ( $_POST['adatok'][$netto_ert_adat][1] as $ertek ){
+    foreach ( $_POST['adatok'][$netto_ert_adat][1] as $ertek ) {
         $ertek = str_replace(' ', '', $ertek);
         $kifizetett_ossz += $ertek;
     }

@@ -184,7 +184,7 @@ function projektszamla_kapcsolas( mehet ) {
     });
     var targyak = [];
     $('.pop_targy').each(function() {
-        targyak.push( $(this).html() );
+        targyak.push( $(this).html().replace(/"/g, '|IDEZOJEL|') );
     });
     var varh_erk = [];
     $('.pop_varh_erk').each(function() {
