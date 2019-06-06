@@ -5655,7 +5655,7 @@ function csv_general( that, valasztos, link_kieg ) {
 
         // Projektszámláknál lehet választani, hogy Számlák vagy Számlák és tételek
         if (baseName(location.href) == 'projektszamla') {
-            alert2('Válasszon export fajtát:<br><a href="javascript:csv_general($(\'.excel\'))">» Számlák exportálása</a><br><a href="javascript:csv_general($(\'.excel\'), \'\', \'tetelek&id=\'+_get(\'id\'))">» Számlák és tételek exportálása</a>', '<input type="button" class="gomb" value="Mégsem" onclick="alert2()">', 'Válasszon exportot');
+            alert2('Válasszon export fajtát:<br><a href="javascript:csv_general($(\'.excel\'))">» Számlák exportálása</a><br><a href="javascript:csv_general($(\'.excel\'), \'\', \'tetelek&id=\'+_get(\'id\'))">» Számlák és tételek exportálása</a><br><a href="javascript:csv_general($(\'.excel\'), \'\', \'kifizetesek&id=\'+_get(\'id\'))">» Számlák és kifizetések exportálása</a>', '<input type="button" class="gomb" value="Mégsem" onclick="alert2()">', 'Válasszon exportot');
         }
 
         // Projektszerződéseknél lehet választani, hogy Szerződések vagy Szerződések és tételek
