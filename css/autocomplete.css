@@ -30,6 +30,9 @@
 #autocomplete ul li:last-child {
 	border-bottom: none;
 }
+#autocomplete ul li.zold {
+    color: #00BC00;
+}
 
 #autocomplete ul li span {
     cursor: pointer;
