@@ -6131,6 +6131,9 @@ function respoVisszalepes() {
 
 // Bal oldali navpanel egy sorának frissítése
 function szamlaSorFrissit( tabla, recid ) {
+    
+    setTimeout(function(){ 
+    
     if( tabla && recid ) {
 
         var anyagrend = '';
@@ -6142,7 +6145,7 @@ function szamlaSorFrissit( tabla, recid ) {
         }
         
         // Eszközkezelés felületén ha egy objektumon állunk, akkor ezt külön paraméterben jelezzük a PHP felé
-        if( _get('obj') ){
+        if (_get('obj')) {
             param_kieg += '&amp;eszkozkezeles_obj=1';
         }
         $.ajax({
@@ -6175,6 +6178,7 @@ function szamlaSorFrissit( tabla, recid ) {
          	}
         });
     }
+    }, 100);
 }
 
 /* Könyvtárszerkezetek esetén a komplett bal oldalt újra kell számolni */

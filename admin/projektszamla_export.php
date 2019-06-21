@@ -17,11 +17,16 @@ if( $_GET['f'] ) {
     
     $xml_ek_kiir = '';
     $xml_ek = konyvtar_bejar(get_pszk_utvonal());
-
-    foreach( $xml_ek as $xml ) {
-        $xml_ek_kiir .= get_http().$_SERVER['HTTP_HOST'].self().'?f='.trim(basename($xml), '.xml').',';
+    if( $xml_ek ) {
+        
+        foreach( $xml_ek as $xml ) {
+            $xml_ek_kiir .= /*get_http().$_SERVER['HTTP_HOST'].self().'?f='.*/trim(basename($xml), '.xml').',';
+        }
+        echo trim($xml_ek_kiir, ',');
+        
+    } else {
+        echo '-1';
     }
-    echo trim($xml_ek_kiir, ',');
     
 }
 

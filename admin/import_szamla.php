@@ -17,29 +17,8 @@ if( $_POST ) {
     foreach( $_POST as $kulcs => $post ) {
         $_SESSION[$kulcs] = $post;
     }
-    
-    // file_put_contents('postok/'.date('Y-m-d_H:i:s').'.txt', serialize($_POST));
-    //echo '<return>0 Ok</return>';
 
     require_once 'beleptetes.php';
     header('Location: '.$_SESSION['kert_url']);
 }
-
-//if( isset($_GET['teszt']) ) {
-//    echo '
-//        <script src="../js/jquery.js"></script>
-//        <script>
-//            $.ajax({
-//                url: \'import_szamla.php\',
-//                type: \'POST\',
-//                data: {
-//                    valami: \'valami\',
-//                    fuggveny_neve: Date.now()
-//                },
-//                success: function (response) {
-//                    
-//                }
-//            });
-//        </script>';
-//}
 ?>

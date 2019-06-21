@@ -89,7 +89,7 @@ if ($_POST['engedelyDatum']) {
 }
 
 // Bal oldali navpanel frissítése, könyvtárszerkezet újra rajzolása
-if (isset($_POST['bal_panel_frissit'])) {
+if( isset($_POST['bal_panel_frissit']) ) {
 
     $bejegyzesek = array();
     $sorok = mysqli_query($db_kapcs, $_SESSION['akt_sql']);
@@ -497,13 +497,13 @@ require_once('selectek.php');
 		require('switch.php');
 
 	    $form_mit     = array('{JS}', '{JS_SUBMIT_ELOTT}', '{ACTION}', '{MEZOK}', '{MEGNEVEZES}', '{CK_EDITOR}', '{GOMBOK}', '{MUV_STYLE}'   );
-	    $form_mivel   = array($js,    $js_submit_elott,    self(),     $mezok,    $megnevezes,    $ckeditor,     $gombok,    $muv_style      );
+	    $form_mivel   = array($js,    $js_submit_elott,    self(),     $mezok,    'eszkozkezeles', $ckeditor,     $gombok,    $muv_style      );
 	    $szamla_html .= str_replace($form_mit, $form_mivel, $form_sablon);
 
         if( $_GET['ajax'] ) {
             echo json_encode(array(
-                'tartalom' => $szamla_html,
-                'link' => get_get(array('ajax', 'kat', 'epo', 'oldal', 'order'), true)
+                'tartalom'  => $szamla_html,
+                'link'      => get_get(array('ajax', 'kat', 'epo', 'oldal', 'order'), true)
             ));
         } else {
             echo $szamla_html;

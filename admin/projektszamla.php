@@ -308,8 +308,8 @@ if( isset($_POST['tetel_sorok_ment']) ) {
 }
 
 // Projekt számla kapcsoló popup mentése
-if (isset($_POST['projektszamla_kapcsolas'])) {
-    
+if( isset($_POST['projektszamla_kapcsolas']) ) {
+
     $db_error = false;
     mysqli_autocommit($db_kapcs, false);
     
@@ -332,7 +332,7 @@ if (isset($_POST['projektszamla_kapcsolas'])) {
     }
     
     // Ha nincs egy sornyi tételünk sem, akkor hibaüzenet
-    if( !$_POST['adatok'][$targy_adat][1]  ){
+    if( !$_POST['adatok'][$targy_adat][1] ) {
         echo json_encode( array( 
                         'hiba'  => 'Legalább egy szerződés tételnek szerepelnie kell a táblázatban, üresen nem menthető!',
                         'title' => 'Hiba'
@@ -391,7 +391,7 @@ if (isset($_POST['projektszamla_kapcsolas'])) {
         // Ha nincs számlája (ennek lehet az is az oka, hogy egy fiktív sor, azaz nem simert a recid),
         // akkor ellenőrizzük, hogy van-e beírva érték. Ha van, számoljuk, mert csak egy ilyen mező lehet
         // Ha van, akkor azt nem ellenőrizzük, mert akkor az egy szürke sor (már van számlája)
-        if( (!$van_szamlaja || !$_POST['adatok'][$recid_adat][1][$i]) && $ertek ){
+        if( (!$van_szamlaja || !$_POST['adatok'][$recid_adat][1][$i]) && $ertek ) {
 
             $volt_ertek++;
             // Csak egy értéket fogadunk el, ezt jegyezzük is meg
@@ -400,7 +400,7 @@ if (isset($_POST['projektszamla_kapcsolas'])) {
         }
 
         // A dátumot is ellenőrizni kell, hogy csak egy helyen lett-e beírva
-        if( (!$van_szamlaja || !$_POST['adatok'][$recid_adat][1][$i]) && $_POST['adatok'][$teljesites_adat][1][$i] && $_POST['adatok'][$teljesites_adat][1][$i]!='0000.00.00' && $_POST['adatok'][$teljesites_adat][1][$i]<'4000.00.00' ){
+        if( (!$van_szamlaja || !$_POST['adatok'][$recid_adat][1][$i]) && $_POST['adatok'][$teljesites_adat][1][$i] && $_POST['adatok'][$teljesites_adat][1][$i] != '0000.00.00' && $_POST['adatok'][$teljesites_adat][1][$i] < '4000.00.00' ) {
             $volt_teljesites++;
             // Csak egy teljesítés dátumot fogadunk el, ezt jegyezzük is meg
             $beirt_teljesites = str_replace('.', '-', $_POST['adatok'][$teljesites_adat][1][$i]);
@@ -408,7 +408,7 @@ if (isset($_POST['projektszamla_kapcsolas'])) {
         }
         
         // Várható érték oszlopban sehol nem lehet 0
-        if( !$_POST['adatok'][$varhato_ert_adat][1][$i] ){
+        if( !$van_szamlaja && !$_POST['adatok'][$varhato_ert_adat][1][$i] ) {
             echo json_encode( array( 
                             'hiba'  => 'A várható érték oszlopban nem szerepelhet üres adat!',
                             'title' => 'Hiba'
@@ -421,7 +421,7 @@ if (isset($_POST['projektszamla_kapcsolas'])) {
     }
 
     // Ha több értéket/teljesítést is kitöltöttek, akkor hiba
-    if( $volt_ertek > 1 ){
+    if( $volt_ertek > 1 ) {
         echo json_encode( array( 
                         'hiba'  => 'Csak egy szerződés tételhez írhat nettó értéket!',
                         'title' => 'Hiba'
@@ -429,7 +429,7 @@ if (isset($_POST['projektszamla_kapcsolas'])) {
                 $weblap->leallit();
                 exit();
     }
-    if( $volt_teljesites > 1 ){
+    if( $volt_teljesites > 1 ) {
         echo json_encode( array( 
                         'hiba'  => 'Csak egy szerződés tételhez írhat teljesítést!',
                         'title' => 'Hiba'
@@ -439,7 +439,7 @@ if (isset($_POST['projektszamla_kapcsolas'])) {
     }
     
     // Ha itt vagyunk, akkor csak egy nettó értéket/teljesítést írtak be. Kérdés, hogy megfelelő értéket írtak be?
-    if( $szamla_tetel['netto_ert'] != $beirt_netto_ertek ){
+    if( $szamla_tetel['netto_ert'] != $beirt_netto_ertek ) {
         echo json_encode( array(
                         'hiba'  => 'A nettó érték oszlopba kérem '.number_format($szamla_tetel['netto_ert'], 0, '', ' ') .' '. get_penznem().'-ot írjon, hisz ez az összeg szerepel a csatolni kívánt számla tételen!',
                         'title' => 'Hiba'
@@ -449,7 +449,7 @@ if (isset($_POST['projektszamla_kapcsolas'])) {
     }
     
     // Teljesítés dátuma a számla adatlapján található teljesítés dátumával egyezen meg
-    if( $szamla['telj_datum'] != $beirt_teljesites ){
+    if( $szamla['telj_datum'] != $beirt_teljesites ) {
         echo json_encode( array(
                         'hiba'  => 'A teljesítés oszlopba kérem '. datum_kiir($szamla['telj_datum']).' dátumot írjon, hisz ez szerepel a csatolni kívánt számlán!',
                         'title' => 'Hiba'
@@ -459,7 +459,7 @@ if (isset($_POST['projektszamla_kapcsolas'])) {
     }
     
     // Ha eltérő sorokban vannak új adatok, az is hiba
-    if( $teljesites_i != $ertek_i ){
+    if( $teljesites_i != $ertek_i ) {
         echo json_encode( array(
                         'hiba'  => 'Kérem azonos tételhez írja be a teljesítést és nettó értéket!',
                         'title' => 'Hiba'
@@ -469,7 +469,7 @@ if (isset($_POST['projektszamla_kapcsolas'])) {
     }
     
     // Ha a számla nettó értéke nem egyenlő a tételek összegével, akkor hibaüzenet
-    if( $kif_ossz > $szerzodes['szerz_ossz']  ){
+    if( $kif_ossz > $szerzodes['szerz_ossz'] ) {
         echo json_encode( array( 
                         'hiba'  => 'A már kifizetett ('.number_format($kifizetett_ossz, 0, '', ' ').' '.get_penznem().') és a még kifizetésre váró ('.number_format($kifizet_var_ossz, 0, '', ' ').' '.get_penznem().') számlák összege ('.number_format($kif_ossz, 0, '', ' ').' '.get_penznem().') több,<br>mint a szerződés összege ('.number_format($szerzodes['szerz_ossz'], 0, '', ' ').' '.get_penznem().')! Így nem menthető!',
                         'title' => 'Hiba',
@@ -477,7 +477,7 @@ if (isset($_POST['projektszamla_kapcsolas'])) {
                 $weblap->leallit();
                 exit();
                 
-    }elseif( $kif_ossz < $szerzodes['szerz_ossz'] && !$_POST['mehet'] ){
+    } elseif( $kif_ossz < $szerzodes['szerz_ossz'] && !$_POST['mehet'] ) {
         echo json_encode( array( 
                         'hiba'  => 'A várható összes teljesítés ('.number_format($kif_ossz, 0, '', ' ').' '.get_penznem().') kevesebb, mint a szerződött összeg ('.number_format($szerzodes['szerz_ossz'], 0, '', ' ').' '.get_penznem().')!<br>Folytatja?',
                         'gomb'  => '<input type="button" class="gomb zold" value="Igen" onclick="projektszamla_kapcsolas(\'mehet\')"><input type="button" class="gomb piros" value="Nem" onclick="alert2()">',
@@ -489,24 +489,24 @@ if (isset($_POST['projektszamla_kapcsolas'])) {
     
     // Ellenőrzések után tároljuk el a változtatásokat. 
     // Szerződés tétetel rekordok frissítése
-    if( $_POST['adatok'][$recid_adat][1][$ertek_i] ){
+    if( $_POST['adatok'][$recid_adat][1][$ertek_i] ) {
         $szerzodes_tetel_recid = $_POST['adatok'][$recid_adat][1][$ertek_i];
-    }else{
+    } else {
         $szerzodes_tetel_recid = 'most hozza majd létre';
     }
     $muvelet  = 'Projektszámla tételhez projekt tételt csatolt. Számla recid: '.$recid.', Számla száma: '.$szamla['sz_szam'].', Számla tétel recid: '.$_POST['szamla_tetel_recid'].', Szerződés tétel recid: '.$szerzodes_tetel_recid;
     $valtozas = '';
     $i = 0;
     $kapott_recidk = array();
-    foreach ( $_POST['adatok'][$recid_adat][1] as $szerzodes_tetel_recid ){
-        
+    foreach ( $_POST['adatok'][$recid_adat][1] as $szerzodes_tetel_recid ) {
+
         // Ha valós rekord, nem újonnan létrehozott fiktiv tétel
-        if( $szerzodes_tetel_recid ){
+        if( $szerzodes_tetel_recid ) {
             // Ha már van számlája, akkor az egy szürke sor volt, annak nem mentjük el az adatait
             $van_szamlaja = $adatbazis_kapcsolat->s2('recid', 'projektszamla_tetel', "`projektszerzodes_tetel_recid`='{$szerzodes_tetel_recid}'");
             if( $van_szamlaja === false ) { $db_error = true; }
-            if( !$van_szamlaja ){
-                
+            if( !$van_szamlaja ) {
+
                 $ertek_regi = $adatbazis_kapcsolat->s2('*', 'projektszerzodes_tetel', "`recid`='{$_POST['adatok'][$recid_adat][1][$i]}'");
                 if( $ertek_regi === false ) { $db_error = true; }
                 
@@ -517,9 +517,9 @@ if (isset($_POST['projektszamla_kapcsolas'])) {
                 if( $sql === false ) { $db_error = true; }
                 
                 // Logolás
-                if( $ertek_i == $i ){
+                if( $ertek_i == $i ) {
                     $valtozas .= $ertek_regi['recid'].' recid-jú szerződés tételt módosította, és EHHEZ KAPCSOLTA a számla tételt:' . "\n";
-                }else{
+                } else {
                     $valtozas .= $ertek_regi['recid'].' recid-jú szerződés tételt módosította:' . "\n";
                 }
                 $valtozas .= '[mezo]varh_ert[/mezo] [ertek_regi]'   .$ertek_regi['varh_ert']    .'[/ertek_regi] [ertek_uj]'.$_POST['adatok'][$varhato_ert_adat][1][$i]                      .'[/ertek_uj]'."\n";
@@ -528,7 +528,7 @@ if (isset($_POST['projektszamla_kapcsolas'])) {
             }
             
         // Az újonnan létrehozott fiktív tételt be kell szúrni
-        }else{
+        } else {
 
             $uj_szerzodes_tetel_recid = $adatbazis_kapcsolat->i('projektszerzodes_tetel',
                                                                     array('projektszerzodes_recid', 'targy',                                'varh_erk',                               'varh_ert',                                  'teljesites',                                'ertek',                                    'loginnev',                         'insert_dt',    'insert_usr',                             'update_usr'                            ),
@@ -540,10 +540,10 @@ if (isset($_POST['projektszamla_kapcsolas'])) {
             array_push( $_POST['adatok'][$recid_adat][1], $uj_szerzodes_tetel_recid);
 
             // Ha épp az $ertek_i-edik ciklusnál járnánk, akkor a frissen létrehozott tétel recid-ját felvesszük a tömbbe, hisz a következő lépésnél még össze is kell kapcsolni
-            if( $ertek_i == $i ){
+            if( $ertek_i == $i ) {
                 $_POST['adatok'][$recid_adat][1][$ertek_i] = $uj_szerzodes_tetel_recid;
                 $valtozas .= 'Szerződés tételt hozott létre, és EHHEZ KAPCSOLTA a számla tételt:' . "\n";
-            }else{
+            } else {
                 $valtozas .= 'Szerződés tételt hozott létre:' . "\n";
             }
             
@@ -632,19 +632,36 @@ if( isset($_POST['pop_tetelek_feltolt']) ) {
     // Ha a Projekt számlák össz nettója több mint a hozzájuk tartozó szerződésé, akkor hibaüzenet
     // Ezt csak akkor tesszük meg, ha van már hozzárendelt szerződés
     if( $_POST['sz_szam'] ) {
+        
+        // Illetve ezt az alábbi változókkal két ágra bontuk: Ft-os vagy devizás-e a számla.
+        if( !$_POST['kcs_21'] || $_POST['kcs_21']==KCS_21_HUF ) {
+            $szamla_netto_mezo      = 'netto';
+            $szerzodes_netto_mezo   = 'szerz_ossz';
+            $penznem                = get_penznem();
+            $szoveg_mod             = '';
+            $tizedesek              = 0;
+        } else {
+            $szamla_netto_mezo      = 'dev_net';
+            $szerzodes_netto_mezo   = 'dev_net';
+            $penznem                = getErtekLista(ERTEKLISTA_PENZNEM, $_POST['kcs_21']);
+            $szoveg_mod             = 'deviza ';
+            $tizedesek              = 2;
+        }
+        
         // Lekérjük, a projekt szerződéses összegét
-        $pr_szerzodes = $adatbazis_kapcsolat->s2('szerz_ossz', 'projektszerzodes', "`sz_szam`='{$_POST['sz_szam']}'");
+        $pr_szerzodes = $adatbazis_kapcsolat->s2($szerzodes_netto_mezo, 'projektszerzodes', "`sz_szam`='{$_POST['sz_szam']}'");
         
         // Illetve, hogy az aktuális számlán kívül milyen számlák tartoznak hozzá, és beleférünk-e a keretbe?
-        $szamlak = $adatbazis_kapcsolat->s2('SUM(`netto`)', 'projektszamla', "`sz_szam`='{$_POST['sz_szam']}' AND `recid`!='{$_POST['id']}' AND `visszaadva`=0");
-        if( ($szamlak['SUM(`netto`)'] + $_POST['netto']) > $pr_szerzodes['szerz_ossz'] ) {
+        $szamla_netto = str_replace( array(' ', ','), array('', '.'), $_POST[$szamla_netto_mezo]);
+        $szamlak = $adatbazis_kapcsolat->s2('SUM(`'.$szamla_netto_mezo.'`)', 'projektszamla', "`sz_szam`='{$_POST['sz_szam']}' AND `recid`!='{$_POST['id']}' AND `visszaadva`=0");
+        if( ($szamlak['SUM(`'.$szamla_netto_mezo.'`)'] + $szamla_netto) > $pr_szerzodes[$szerzodes_netto_mezo] ) {
             echo json_encode( array(
                                 'hiba'  => nl2('
-                                                Szerződött összeg: '.number_format($pr_szerzodes['szerz_ossz'], 0, '', ' ').' '.get_penznem().'
-                                                <br>Még felhasználható összeg: '.number_format($pr_szerzodes['szerz_ossz']-$szamlak['SUM(`netto`)'], 0, '', ' ').' '.get_penznem().'
-                                                <br>A számla nettó értéke több, mint a választott szerződésből még felhasználható összeg!
+                                                Szerződött összeg: '.number_format($pr_szerzodes[$szerzodes_netto_mezo], $tizedesek, ',', ' ').' '.$penznem.'
+                                                <br>Még felhasználható összeg: '.number_format($pr_szerzodes[$szerzodes_netto_mezo]-$szamlak['SUM(`'.$szamla_netto_mezo.'`)'], $tizedesek, ',', ' ').' '.$penznem.'
+                                                <br>A számla '.$szoveg_mod.'nettó értéke több, mint a választott szerződésből még felhasználható '.$szoveg_mod.'összeg!
                                                 '),
-                                'focus' => 'netto',
+                                'focus' => $szamla_netto_mezo,
                                 'title' => 'Hiba',
                             ) );
             $weblap -> leallit();
@@ -805,7 +822,6 @@ if( isset($_POST['van_tetel']) ) {
 
     $szamla_netto_erteke = str_replace(' ', '', $_POST['netto']);
     
-    
     // Kötelező mezők ellenőrzése
     foreach ( $akt_tomb as $elem ) {
         // Ha üres             VAGY ha dátum, és az értéke nagyobb mint 4000.00.00 (tehát üres)
@@ -833,10 +849,7 @@ if( isset($_POST['van_tetel']) ) {
 
         // Visszaadva dátumot csak akkor figyeljük, ha a visszaadva pipa be is van pipálva
         if( $elem['name'] != 'visszaadva_dt' || $_POST['visszaadva'] == 'true' ) {
-//            // Ha üres volna a mező, akkor arra külön hibaüzenetet adjunk
-//            if( $_POST[$elem['name']] >'4000.00.00' ) {
-//                
-//            }
+
             if( $_POST[$elem['name']] > date('Y.m.d') ) {
                 echo json_encode(array(
                     'hiba'  => $elem['alert'],
@@ -851,7 +864,7 @@ if( isset($_POST['van_tetel']) ) {
     }
     
     // Ellenőrizzük, hogy a dátum mezők rendben vannak-e? (Js alatt nem akar lefutni... elég összetett már a JS kód, mert űrlap elpostolása előtt még ajax-os ellenőrzés is lefut, ez kavar be). De itt - ahol az ajaxos ellenőrzések vannak - könnyen elelnőrizni tudjuk
-    if( $_POST['ceghez_erk']<'9000.00.00' && !valos_datum_e($_POST['ceghez_erk']) ){
+    if( $_POST['ceghez_erk'] < '9000.00.00' && !valos_datum_e($_POST['ceghez_erk']) ) {
         echo json_encode(array(
             'hiba'  => 'Kérem egy valós dátumot adjon meg érkezés dátumának!',
             'gomb'  => '<input type="button" class="gomb" value="Ok" onclick="alert2();">',
@@ -861,7 +874,7 @@ if( isset($_POST['van_tetel']) ) {
         $weblap -> leallit();
         exit();
     }
-    if( $_POST['kelte']<'9000.00.00' && !valos_datum_e($_POST['kelte']) ){
+    if( $_POST['kelte'] < '9000.00.00' && !valos_datum_e($_POST['kelte']) ) {
         echo json_encode(array(
             'hiba'  => 'Kérem egy valós dátumot adjon meg Keltének!',
             'gomb'  => '<input type="button" class="gomb" value="Ok" onclick="alert2();">',
@@ -871,7 +884,7 @@ if( isset($_POST['van_tetel']) ) {
         $weblap -> leallit();
         exit();
     }
-    if( $_POST['telj_datum']<'9000.00.00' && !valos_datum_e($_POST['telj_datum']) ){
+    if( $_POST['telj_datum'] < '9000.00.00' && !valos_datum_e($_POST['telj_datum']) ) {
         echo json_encode(array(
             'hiba'  => 'Kérem egy valós dátumot adjon meg Teljesítése dátumnak!',
             'gomb'  => '<input type="button" class="gomb" value="Ok" onclick="alert2();">',
@@ -881,7 +894,7 @@ if( isset($_POST['van_tetel']) ) {
         $weblap -> leallit();
         exit();
     }
-    if( $_POST['fiz_hatar']<'9000.00.00' && !valos_datum_e($_POST['fiz_hatar']) ){
+    if( $_POST['fiz_hatar'] < '9000.00.00' && !valos_datum_e($_POST['fiz_hatar']) ) {
         echo json_encode(array(
             'hiba'  => 'Kérem egy valós dátumot adjon meg Fizetési határidőnek!',
             'gomb'  => '<input type="button" class="gomb" value="Ok" onclick="alert2();">',
@@ -891,7 +904,7 @@ if( isset($_POST['van_tetel']) ) {
         $weblap -> leallit();
         exit();
     }
-    if( $_POST['visszaadva']=='true' && $_POST['visszaadva_dt']>'9000.00.00' ){
+    if( $_POST['visszaadva'] == 'true' && $_POST['visszaadva_dt'] > '9000.00.00' ) {
         echo json_encode(array(
             'hiba'  => 'Kérem adja meg a Visszaadás dátumát!',
             'gomb'  => '<input type="button" class="gomb" value="Ok" onclick="alert2();">',
@@ -901,7 +914,7 @@ if( isset($_POST['van_tetel']) ) {
         $weblap -> leallit();
         exit();
     }
-    if( $_POST['visszaadva']=='true' && $_POST['visszaadva_dt']<'9000.00.00' && !valos_datum_e($_POST['visszaadva_dt']) ){
+    if( $_POST['visszaadva'] == 'true' && $_POST['visszaadva_dt'] < '9000.00.00' && !valos_datum_e($_POST['visszaadva_dt']) ) {
         echo json_encode(array(
             'hiba'  => 'Kérem egy valós dátumot adjon meg Visszaadva dátumnak!',
             'gomb'  => '<input type="button" class="gomb" value="Ok" onclick="alert2();">',
@@ -911,7 +924,7 @@ if( isset($_POST['van_tetel']) ) {
         $weblap -> leallit();
         exit();
     }
-    if( $_POST['visszaadva']=='false' && $_POST['visszaadva_dt'] && $_POST['visszaadva_dt']<'9000.00.00' ){
+    if( $_POST['visszaadva'] == 'false' && $_POST['visszaadva_dt'] && $_POST['visszaadva_dt'] < '9000.00.00' ) {
         echo json_encode(array(
             'hiba'  => 'A Visszaadás dátumát csak akkor töltse ki, ha a visszaadva pipát be is kapcsolja!',
             'gomb'  => '<input type="button" class="gomb" value="Ok" onclick="alert2();">',
@@ -921,11 +934,37 @@ if( isset($_POST['van_tetel']) ) {
         exit();
     }
     
+    // Ha szálloda+partner+nettó (deb)érték már szerepel a rendszerben, akkor kell egy figyelmeztetés
+    if( !$_POST['kcs_21'] || $_POST['kcs_21']==KCS_21_HUF ) {
+        $netto_oszlop = 'netto';
+        $tizedesek    = 0;
+        $penznem      = get_penznem();
+    } else {
+        $netto_oszlop = 'dev_net';
+        $tizedesek    = 2;
+        $penznem      = getErtekLista(ERTEKLISTA_PENZNEM, $_POST['kcs_21']);
+    }
+    $szamla_netto = str_replace( array(' ', ','), array('', '.'), $_POST[$netto_oszlop]);
+
+    if( !$_POST['azonos_szamla_mehet'] && $adatbazis_kapcsolat->s('recid', 'projektszamla', "`telephely_id`='{$_POST['telephely_id']}' AND `szallito_id`='{$_POST['szallito_id']}' AND `{$netto_oszlop}`='{$szamla_netto}'") ) {
+        echo json_encode(array(
+            'hiba'  => nl2('Szálloda: '.getSzallodaNev($_POST['telephely_id']).'
+                            <br>Partner: '.getErtek('nev', 'szallito', 'id', $_POST['szallito_id']).'
+                            <br>Nettó érték: '.number_format($szamla_netto, $tizedesek, ',', ' ').' '.$penznem.'
+                            <br>
+                            <br>Ennek a partnernek, erre a szállodára már van egy ilyen értékű számlája.
+                            <br>Folytatja?'),
+            'gomb'  => '<input type="button" class="gomb zold" value="Igen" onclick="azonos_szamla_mehet=1; mentesGomb(); alert2();"><input type="button" class="gomb piros" value="Nem" onclick="alert2();">',
+        ));
+        $weblap -> leallit();
+        exit();
+    }
+
     // Ha megvan adva a szerződés szám
     if( $_POST['sz_szam'] ){
         
         // Ellenőrizzük, hogy a kiválasztott szálloda és a projekt szám stimmel-e
-        $pr_szerzodes = $adatbazis_kapcsolat->s2('telephely_id szerz_ossz', 'projektszerzodes', "`sz_szam`='{$_POST['sz_szam']}'");
+        $pr_szerzodes = $adatbazis_kapcsolat->s2('telephely_id szerz_ossz dev_net', 'projektszerzodes', "`sz_szam`='{$_POST['sz_szam']}'");
         if( $pr_szerzodes['telephely_id']!=$_POST['telephely_id'] ){
             echo json_encode(array(
                 'hiba'  => 'A projekt szám nem megfelelő szállodához tartozik!',
@@ -937,15 +976,33 @@ if( isset($_POST['van_tetel']) ) {
         }
         
         // Ellenőrizzük, hogy beleférünk-e még a szerződött összegbe
-        $szamlak = $adatbazis_kapcsolat->s2('SUM(`netto`)', 'projektszamla', "`sz_szam`='{$_POST['sz_szam']}' AND `visszaadva`=0");
-        if( ($szamlak['SUM(`netto`)']+$szamla_netto_erteke) > $pr_szerzodes['szerz_ossz'] ){
+        // Ezt viszont két ágra bontottuk, ugyanis másképp járunk el, ha a számla devizás, és másként, ha HUF-os. Ezért kerülnek beállításra az alábbi változók, de maga az ellenőrzés/hibaüzenet így egységesítve van
+        // HUF esetén (ha nincs pénznem az HUF-nak számít)
+        if( !$_POST['kcs_21'] || $_POST['kcs_21']==KCS_21_HUF ) {
+            $szamla_netto_mezo      = 'netto';
+            $szerzodes_netto_mezo   = 'szerz_ossz';
+            $penznem                = get_penznem();
+            $szoveg_mod             = '';
+            $tizedesek              = 0;
+        // Devizás számla esete
+        } else {
+            $szamla_netto_mezo      = 'dev_net';
+            $szerzodes_netto_mezo   = 'dev_net';
+            $penznem                = getErtekLista(ERTEKLISTA_PENZNEM, $_POST['kcs_21']);
+            $szoveg_mod             = 'deviza ';
+            $tizedesek              = 2;
+        }
+        // Szerződött összeg ellenőrése
+        $szamla_netto = str_replace( array(' ', ','), array('', '.'), $_POST[$szamla_netto_mezo]);
+        $szamlak = $adatbazis_kapcsolat->s2('SUM(`'.$szamla_netto_mezo.'`)', 'projektszamla', "`sz_szam`='{$_POST['sz_szam']}' AND `visszaadva`=0");
+        if( ($szamlak['SUM(`'.$szamla_netto_mezo.'`)']+$szamla_netto) > $pr_szerzodes[$szerzodes_netto_mezo] ) {
             echo json_encode( array(
                 'hiba'  => nl2('
-                                Szerződött összeg: '.number_format($pr_szerzodes['szerz_ossz'], 0, '', ' ').' '.get_penznem().'
-                                <br>Még felhasználható összeg: '.number_format($pr_szerzodes['szerz_ossz']-$szamlak['SUM(`netto`)'], 0, '', ' ').' '.get_penznem().'
-                                <br>A számla nettó értéke több, mint a választott szerződésből még felhasználható összeg!
+                                Szerződött összeg: '.number_format($pr_szerzodes[$szerzodes_netto_mezo], $tizedesek, ',', ' ').' '.$penznem.'
+                                <br>Még felhasználható összeg: '.number_format($pr_szerzodes[$szerzodes_netto_mezo]-$szamlak['SUM(`'.$szamla_netto_mezo.'`)'], $tizedesek, ',', ' ').' '.$penznem.'
+                                <br>A számla '.$szoveg_mod.'nettó értéke több, mint a választott szerződésből még felhasználható összeg!
                                 '),
-                'select' => 'netto',
+                'select' => $szamla_netto_mezo,
                 'title'  => 'Hiba',
             ) );
             $weblap -> leallit();
@@ -1562,6 +1619,8 @@ require_once('selectek.php');
             $gombok .= ' <input type="button" class="gomb" onclick="csoportMuvelet(\'projektszamla_tetelek_kezelese\');" value="Tételek kezelése">';
             // Ha nem az Adatlapon volnánk, akkor szükségünk lesz egy rejtett inputra, ami az adatbázisban levő nettó értéket tartalmazza, hogy bármelyik fül alatt szerkeszteni lehessen a tételeket, összehasonlítva az aktuális számla nettó értékével
             $gombok .= ' <input type="hidden" id="netto_db" value="'.$sor['netto'].'">';
+            $gombok .= ' <input type="hidden" id="dev_net_db" value="'.$sor['dev_net'].'">';
+            $gombok .= ' <input type="hidden" id="kcs_21_db" value="'.$sor['kcs_21'].'">';
             $gombok .= ' <input type="hidden" id="sz_szam_db" value="'.$sor['sz_szam'].'">';
             $gombok .= ' <input type="hidden" id="pr_szam_db" value="'.$sor['pr_szam'].'">';
             $gombok .= ' <input type="hidden" id="telephely_id_db" value="'.$sor['telephely_id'].'">';
@@ -1606,6 +1665,7 @@ require_once('selectek.php');
                         <script>
                             var netto_br_ell        = false;
                             var netto_br_deviza_ell = false;
+                            var azonos_szamla_mehet = \'\';
                         </script>
                         ');
         $js_submit_elott = nl2('
@@ -1643,8 +1703,8 @@ require_once('selectek.php');
                     return false;
                 }
 
-                var dfrd_pr_mehet = false;
-                var hibauzenet    = \'\';
+                var dfrd_pr_mehet       = false;
+                var hibauzenet          = \'\';
                 dfrd_pr_szszamla = $.Deferred();
                 $.ajax({
                     url : \'projektszamla.php\',
@@ -1661,12 +1721,15 @@ require_once('selectek.php');
                         szallito_id     : $(\'#szallito_id\').val(),
                         targy           : $(\'#targy\').val(),
                         kolt_vis        : $(\'#kolt_vis\').val(),
+                        kcs_21          : $(\'#kcs_21\').val(),
                         netto           : $(\'#netto\').val(),
                         brutto          : $(\'#brutto\').val(),
+                        dev_net         : $(\'#dev_net\').val(),
                         sz_szam         : $(\'#sz_szam\').val(),
                         pr_szam         : $(\'#pr_szam\').val(),
                         let_fel         : $(\'#let_fel\').val(),
                         kolt_vis        : $(\'#kolt_vis\').val(),
+                        azonos_szamla_mehet: azonos_szamla_mehet,
                         van_tetel       : Date.now()
                     },
                     success: function(response){
@@ -1755,7 +1818,7 @@ require_once('selectek.php');
         }
         
         // Új feltöltéskor a pénzenm HUF
-        $sor['kcs_21'] = 5;
+        $sor['kcs_21']          = KCS_21_HUF;
         $sor['kcs_21_autocomp'] = 'HUF';
         
         // Ha van igénylés recid-nk, akkor annak az adatait felhasználjuk
@@ -1784,7 +1847,7 @@ require_once('selectek.php');
         }
         $szamla_html .= '<script> formAdatok = JSON.parse(\''.json_encode($json_sor).'\'); </script>';
 
-        // Ha van import információnk, akkor azokkal az adatokkal töltsük fel az űrlapot
+        // Ha van PPM1 import információnk, akkor azokkal az adatokkal töltsük fel az űrlapot
         if( $_SESSION['projekt_szamla_import'] ) {
             $post_adatok = '';
             $_SESSION['projekt_szamla_import'] = '';
@@ -1797,7 +1860,7 @@ require_once('selectek.php');
                 unset( $_SESSION[$ertek['name']] );
             }
             $sor['post_data'] = $post_adatok;
-            // Futtassuk le a deviza input elhagyást, mert ez alapján sől el, hogy a többi mező disabled-e vagy sem
+            // Futtassuk le a deviza input elhagyást, mert ez alapján dől el, hogy a többi mező disabled-e vagy sem
             $szamla_html .= nl2('
                 <script>
                     $(document).ready(function () {
@@ -1923,7 +1986,15 @@ require_once('selectek.php');
             $json_sor[$kulcs] = formAdatok_replace($elem);
         }
         $szamla_html .= '<script> formAdatok = JSON.parse(\''.json_encode($json_sor).'\'); </script>';
-
+        // Futtassuk le a deviza input elhagyást, mert ez alapján dől el, hogy a többi mező disabled-e vagy sem
+        $szamla_html .= nl2('
+            <script>
+                $(document).ready(function () {
+                    $(\'#kcs_21_autocomp\').focus().blur();
+                });
+            </script>
+            ');
+        
         // Duplikáláskor feltett kérdés
         if( !get_projekt_szamla_kezel_jog($_GET['id']) ){
             $szamla_html .= nl2('

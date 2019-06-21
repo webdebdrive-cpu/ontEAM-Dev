@@ -88,6 +88,7 @@ function i_u($type, $tabla, $tomb) {
         } else {
             $_POST['p_atad_dt'] = $prsz['p_atad_dt'];
         }
+        
     }
     // Projektszerződésnél ha nincs pénznem információnk, akkor a devizás mezőket nullázzuk a biztosnág kedvéért
     if( $tabla == 'projektszerzodes' ) {
@@ -291,15 +292,15 @@ function i_u($type, $tabla, $tomb) {
             if( $sql === false ) { $db_error = true; }
 
             $i = 0;
-            foreach($oszlopok as $oszl){
-                if($oszl=='nev'){
+            foreach ( $oszlopok as $oszl ) {
+                if( $oszl == 'nev' ) {
                     $ertekek[$i] = htmlspecialchars_decode($cikktorzs['nev']);
                 }
                 $i++;
             }
 
             // Ha be volt pipálva, hogy külsősnek, akkor oracikkid-t felülírjuk, és kulsősnek pipát beállítjuk
-            if($_POST['kulsosnek']){
+            if( $_POST['kulsosnek'] ) {
                 $cikktorzs['oracikkid'] = 'MÜRBA0002';
             }
 
@@ -331,8 +332,8 @@ function i_u($type, $tabla, $tomb) {
 
             // Felvesszük az értékek közé
             $i = 0;
-            foreach($oszlopok as $oszl){
-                if($oszl=='ikt_szam'){
+            foreach ( $oszlopok as $oszl ) {
+                if( $oszl == 'ikt_szam' ) {
                     $ertekek[$i] = $ikt_szam;
                     break;
                 }
@@ -360,8 +361,8 @@ function i_u($type, $tabla, $tomb) {
 
             // Felvesszük az értékek közé
             $i = 0;
-            foreach($oszlopok as $oszl){
-                if($oszl=='ikt_szam'){
+            foreach ( $oszlopok as $oszl ) {
+                if( $oszl == 'ikt_szam' ) {
                     $ertekek[$i] = $ikt_szam;
                     break;
                 }
@@ -378,8 +379,8 @@ function i_u($type, $tabla, $tomb) {
 
             // Felvesszük az értékek közé
             $i = 0;
-            foreach($oszlopok as $oszl){
-                if($oszl=='ikt_szam'){
+            foreach ( $oszlopok as $oszl ) {
+                if( $oszl == 'ikt_szam' ) {
                     $ertekek[$i] = $ikt_szam;
                     break;
                 }
@@ -414,8 +415,8 @@ function i_u($type, $tabla, $tomb) {
 
             // Felvesszük az értékek közé
             $i = 0;
-            foreach($oszlopok as $oszl){
-                if($oszl=='id'){
+            foreach ( $oszlopok as $oszl ) {
+                if( $oszl == 'id' ) {
                     $ertekek[$i] = $id;
                     break;
                 }
@@ -515,8 +516,8 @@ function i_u($type, $tabla, $tomb) {
 
             // Felvesszük az értékek közé
             $i = 0;
-            foreach($oszlopok as $oszl){
-                if($oszl=='id'){
+            foreach ( $oszlopok as $oszl ) {
+                if( $oszl == 'id' ) {
                     $ertekek[$i] = $id;
                     break;
                 }
@@ -549,8 +550,8 @@ function i_u($type, $tabla, $tomb) {
             
             // Felvesszük az értékek közé
             $i = 0;
-            foreach($oszlopok as $oszl){
-                if($oszl=='ikt_szam'){
+            foreach ( $oszlopok as $oszl ) {
+                if( $oszl == 'ikt_szam' ) {
                     $ertekek[$i] = $ikt_szam;
                     break;
                 }
@@ -560,7 +561,6 @@ function i_u($type, $tabla, $tomb) {
             array_push($oszlopok, 'loginnev'                        );
             array_push($ertekek,  $_SESSION[get_db_tabla().'user']  );
   
-
             // Ha nincs új feltöltés jogunk, akkor kilépünk
             if( !_jog(JOG_PRKEZEL_UJ_LETREHOZ) ){
                 exit;
@@ -570,14 +570,15 @@ function i_u($type, $tabla, $tomb) {
         } else if( $tabla == 'projektszamla' ) {
             
             // Ha nics egyetlen tétel sem, akkor automatikusan létrehozunk egyet, aminek a tárgya ugyanaz mint szerződés adatlapján a tárgya nettó összeg pedig ugyanaz, mint a számla nettó értéke
-            if( !$_SESSION['pr_szla_tetel_targy'] ){
+            if( !$_SESSION['pr_szla_tetel_targy'] ) {
                 $_SESSION['pr_szla_tetel_targy']        = array($_POST['targy']);
                 $_SESSION['pr_szla_tetel_netto_ert']    = array($_POST['netto']);
                 $_SESSION['pr_szla_tetel_pr_tetel']     = array(0); // A szerződés tétel ID-ja fixen 0, hisz nincs összekötve szerződéssel a számla.
             }
             
-            array_push($oszlopok, 'loginnev'                        );
-            array_push($ertekek,  $_SESSION[get_db_tabla().'user']  );
+            // Új számla rögzítésekor a mellszam mező értéke ugyanaz lesz mint az ikt_szam mezőé.
+            array_push($oszlopok, 'loginnev',                       'mell_szam'         );
+            array_push($ertekek,  $_SESSION[get_db_tabla().'user'], $_POST['ikt_szam']  );
             
         // Projektszerződés
         } else if( $tabla == 'projektszerzodes' ) {
@@ -599,8 +600,8 @@ function i_u($type, $tabla, $tomb) {
 
             // Felvesszük az értékek közé
             $i = 0;
-            foreach($oszlopok as $oszl){
-                if($oszl=='sz_szam'){
+            foreach ( $oszlopok as $oszl ) {
+                if( $oszl == 'sz_szam' ) {
                     $ertekek[$i] = $ikt_szam;
                     break;
                 }
@@ -636,8 +637,8 @@ function i_u($type, $tabla, $tomb) {
 
             // Felvesszük az értékek közé
             $i = 0;
-            foreach($oszlopok as $oszl){
-                if($oszl=='id'){
+            foreach ( $oszlopok as $oszl ) {
+                if( $oszl == 'id' ) {
                     $ertekek[$i] = $id;
                     break;
                 }
@@ -867,7 +868,7 @@ function i_u($type, $tabla, $tomb) {
             if( $sql === false ) { $db_error = true; }
             
             $mail_hibaizenet = level_felkeszit_es_kuld('projektkezeles', $id, '', 'projektkezelesUj', 'projektkezeles_felelose', '');
-            if( $mail_hibaizenet ){
+            if( $mail_hibaizenet ) {
                 echo json_encode(array(
                     'hiba'  => $mail_hibaizenet,
                     'title' => 'Hiba',
@@ -1690,6 +1691,7 @@ function i_u($type, $tabla, $tomb) {
     <erk_dat>'.str_replace('-', '', $prsz['ceghez_erk']).'</erk_dat>
     <szallkod>'.$prsz['telephely_id'].'</szallkod>
     <szlaszam>'.$prsz['szla_szam'].'</szlaszam>
+    <pszam>'.$prsz['pr_szam'].'</pszam>
     <telj_dat>'.str_replace('-', '', $prsz['telj_datum']).'</telj_dat>
     <fizhat_dat>'.str_replace('-', '', $prsz['fiz_hatar']).'</fizhat_dat>
     <szallitoid>'.$prsz['szallito_id'].'</szallitoid>
@@ -1705,7 +1707,8 @@ function i_u($type, $tabla, $tomb) {
     <valarf>'.$prsz['arfolyam'].'</valarf>
     <valarf_dat>'.str_replace('-', '', $prsz['valtva']).'</valarf_dat>
     <kcs_46>'.$kolt_vis.'</kcs_46>
-    <valutabrut>'.$prsz['dev_br'].'</valutabrut>
+    <kcs_51>'.$prsz['kcs_21'].'<kcs_51>
+    <valbrutert>'.$prsz['dev_br'].'</valbrutert>
 </projszla>
 ';
             // Biztonság kedvéért ellenőrizzük a könyvtár meglétét is
@@ -1730,7 +1733,7 @@ function i_u($type, $tabla, $tomb) {
         $nevid_tomb = array();
         $nevidk = $adatbazis_kapcsolat -> s('nevid', $tabla, '`nevid` LIKE \''.$nevid.'%\'');
         if( $nevidk === false ) { $db_error = true; }
-        foreach($nevidk as $nev_id){
+        foreach ( $nevidk as $nev_id ) {
             array_push($nevid_tomb, $nev_id['nevid']);
         }
 
@@ -2840,41 +2843,41 @@ function szamla_lista( $where, $tabla, $kijeloltek = false, $csak_sql_miatt = fa
             
             // Projekt tipus jog alapján tovább szűkítünk
             $tipusra_szures = '';
-            if( _jog(JOG_PR_B_MEGTEKINT) ){
+            if( _jog(JOG_PR_B_MEGTEKINT) ) {
                 $tipusra_szures .= PRIGENY_TIPUS_BERUH.', ';
             }
-            if( _jog(JOG_PR_F_MEGTEKINT) ){
+            if( _jog(JOG_PR_F_MEGTEKINT) ) {
                 $tipusra_szures .= PRIGENY_TIPUS_FENNT.', ';
             }
-            if( _jog(JOG_PR_T_MEGTEKINT) ){
+            if( _jog(JOG_PR_T_MEGTEKINT) ) {
                 $tipusra_szures .= PRIGENY_TIPUS_TARGY.', ';
             }
-            if( $tipusra_szures ){
+            if( $tipusra_szures ) {
                 $tipusra_szures = "`".get_db_tabla()."projektkezeles`.`tipus` IN (".csonkit($tipusra_szures, 2).")";
             }
             
             // Globális jogosultság, ha ez be van pipálva, akkor nem kell már tovább szűrni
-            if( _jog(JOG_PRKEZEL_MEGTEKINT) ){
-                
+            if( _jog(JOG_PRKEZEL_MEGTEKINT) ) {
+
                 $where = "({$sajtat_szaloda_latokor}{$team_vagyok}) AND ";
                 
             // Ha "Projektek megtekintése" (JOG_PRKEZEL_MEGTEKINT) jog nincs bepipálva, csak akkor kell a többivel foglalkozni, mert a legtágabb jog kibővít minden más, szűkebb láthatóságot
-            }else{
-                
+            } else {
+
                 // Saját projektek megtekintése: ekkor csak azokat listázzuk, ahol én Projektfelelős vagyok
-                if( _jog(JOG_PRKEZEL_SAJAT_MEGTEKINT) ){
+                if( _jog(JOG_PRKEZEL_SAJAT_MEGTEKINT) ) {
                     $or = '';
-                    if( $tipusra_szures ){
+                    if( $tipusra_szures ) {
                         $or = ' OR ';
                     }
                     $where = "(`".get_db_tabla()."projektkezeles`.`pfelelos`='{$_SESSION[get_db_tabla().'login_recid']}' {$team_vagyok} {$or} {$tipusra_szures}) AND ";
                 
                 // Egy/több szálloda láthatósági feltétele
-                }elseif( _jog(JOG_PR_EGYSZALL_MEGTEKINT) || _jog(JOG_PR_TOBBSZALL_MEGTEKINT) ){
-                    
+                }elseif( _jog(JOG_PR_EGYSZALL_MEGTEKINT) || _jog(JOG_PR_TOBBSZALL_MEGTEKINT) ) {
+
                     // Egyszálodás projekt láthatósága
                     $lathatosag_feltetel = '';
-                    if( _jog(JOG_PR_EGYSZALL_MEGTEKINT) ){
+                    if( _jog(JOG_PR_EGYSZALL_MEGTEKINT) ) {
                         $lathatosag_feltetel .= "`".get_db_tabla()."projektkezeles`.`egy_tobb`=0 OR ";
                     }
 
@@ -3587,7 +3590,7 @@ function szamla_lista( $where, $tabla, $kijeloltek = false, $csak_sql_miatt = fa
         $_SESSION['akt_sql'] = $sql;
     }
 
-if( isset($_GET['debug']) /*&& $_SERVER['HTTP_HOST']!='www.onteam.hu'*/ && $_SERVER['HTTP_HOST']!='onteam.hu' ) {
+if( isset($_GET['debug']) && $_SERVER['HTTP_HOST']!='www.onteam.hu' && $_SERVER['HTTP_HOST']!='onteam.hu' ) {
     echo $_SESSION['akt_sql']. '<br>';
 }
 
@@ -5936,7 +5939,7 @@ function eszkozkezelesLista( $bejegyzesek, $tabla, $frissit, $kijeloltek ) {
     global $adatbazis_kapcsolat;
 
     $login_szallodai = get_akt_login_szallodai();
-    if($login_szallodai){
+    if( $login_szallodai ) {
 
         // Hogy ne az egész objektum fát generáljuk ki újra, ezért ha frissítünk eszközkezelés alatt és obj alatt, akkor csak visszaadjuk az első sort
         if( $frissit ) {
@@ -5953,7 +5956,7 @@ function eszkozkezelesLista( $bejegyzesek, $tabla, $frissit, $kijeloltek ) {
                 ';
 
         // Ha már nyitva van egy bejegyzés, akkor a könyvtárszerkezetet is kinyitogatjuk
-        if($_GET['id']){
+        if( $_GET['id'] ) {
             $akt_eszkoz = $adatbazis_kapcsolat->s2('recid telephely_id obj_id', $tabla, "`recid`='{$_GET['id']}'");
             $akt_obj    = $akt_eszkoz['obj_id'];
             $akt_szint  = $adatbazis_kapcsolat->s2('szulo', 'obj', "`recid`='$akt_obj'");
@@ -5962,29 +5965,35 @@ function eszkozkezelesLista( $bejegyzesek, $tabla, $frissit, $kijeloltek ) {
 
         // Ha van szűrés (az csak szállodára lehet)
         $sql_kieg = '';
-        if ($_GET['mezo']) {
+        if( $_GET['mezo'] ) {
             $sql_kieg .= ' AND `id`=\''.$_GET['felt'].'\'';
         }
         $sql_kieg .= " AND `inaktiv`=0";
+        
+        // Összetett szűrő esetén is szűrjünk ha kell
+        $o_szuro_kieg = get_o_szures_where_kieg($_SESSION['o_szuro_feltetel'], 'telephely');
+        if( $o_szuro_kieg ) {
+            $sql_kieg .= ' AND '.str_replace('telephely_id', 'id', $o_szuro_kieg);
+        }
 
-        // Visszadjuk az objektum ID-kat is
+        // Visszaadjuk az objektum ID-kat is
         $obj_idk = array();
 
         $szallodak = $adatbazis_kapcsolat->s('id nev', 'telephely', "`id` IN (".implode(',', $login_szallodai).")$sql_kieg", 'nev');
-        foreach($szallodak as $szalloda){
+        foreach ( $szallodak as $szalloda ) {
 
             if( isset($_GET['obj']) && $_GET['id'] ) {
                 $obj_sor = $adatbazis_kapcsolat->s2('telephely_id szulo', 'obj', "`recid` = '".$_GET['id']."'", '', '1');
             }
 
             $checked = '';
-            if($akt_eszkoz['telephely_id']==$szalloda['id'] || (is_array($obj_sor) && count($obj_sor) && $szalloda['id'] == $obj_sor['telephely_id'])){
+            if( $akt_eszkoz['telephely_id'] == $szalloda['id'] || (is_array($obj_sor) && count($obj_sor) && $szalloda['id'] == $obj_sor['telephely_id']) ) {
                 $checked = ' checked';
             }
 
             $link = '';
             $szintek = $adatbazis_kapcsolat->s('recid nev', 'obj', "`szulo`='0' AND `telephely_id`='{$szalloda['id']}'", 'sor');
-            if($szintek){
+            if( $szintek ) {
                 $link = ' class="link"';
             }
             $html .= '
@@ -5992,9 +6001,9 @@ function eszkozkezelesLista( $bejegyzesek, $tabla, $frissit, $kijeloltek ) {
                         <label'.$link.' for="telephely_'.$szalloda['id'].'">'.$szalloda['nev'].'</label>
                         <input type="checkbox"'.$checked.' id="telephely_'.$szalloda['id'].'">';
 
-                        if($szintek){
+                        if($szintek) {
                             $html .= '<ol>';
-                            foreach($szintek as $szint) {
+                            foreach ( $szintek as $szint ) {
                                 $obj_idk[] = $szint['recid'];
 
                                 $checked = '';

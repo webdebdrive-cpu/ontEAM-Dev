@@ -211,16 +211,30 @@ function tetel_sorok_ment( db_nelkul/*ezt mégsem fogjuk használni*/, bezar_nel
 function pop_tetelek_feltolt(){
     
     /* Nettó érték mező aktuális tartalma */
-    if( $('#netto').length ){
+    if( $('#netto').length ) {
         netto = $('#netto').val().replace(/ /g, '');
-    }else{
+    } else {
         netto = $('#netto_db').val().replace(/ /g, '');
     }
     
+    /* Deviza nettó érték mező aktuális tartalma */
+    if( $('#dev_net').length ) {
+        dev_net = $('#dev_net').val().replace(/ /g, '');
+    } else {
+        dev_net = $('#dev_net_db').val().replace(/ /g, '');
+    }
+    
+    /* Deviza nettó érték mező aktuális tartalma */
+    if( $('#kcs_21').length ) {
+        kcs_21 = $('#kcs_21').val().replace(/ /g, '');
+    } else {
+        kcs_21 = $('#kcs_21_db').val().replace(/ /g, '');
+    }
+    
     /* Szerződés szám mező aktuális tartalma */
-    if( $('#sz_szam').length ){
+    if( $('#sz_szam').length ) {
         sz_szam = $('#sz_szam').val();
-    }else{
+    } else {
         sz_szam = $('#sz_szam_db').val();
     }
     
@@ -231,6 +245,8 @@ function pop_tetelek_feltolt(){
             id                  : _get('id'),
             sz_szam             : sz_szam,
             netto               : netto,
+            dev_net             : dev_net,
+            kcs_21              : kcs_21,
             pop_tetelek_feltolt : Date.now()
         },
         success: function(response){

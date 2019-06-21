@@ -77,16 +77,10 @@ if( $weblap->db_prefix ) {
 *
 *	@return string: A tartalom tömb megfelelő bejegyzése
 */
-//function get_tart($azon, $nyelv = ''){
-//    global $tartalom_tomb;
-//    if(!$nyelv){
-//        $nyelv = $_SESSION['nyelv'];
-//    }
-//    return $tartalom_tomb[$azon][$nyelv];
-//}
 
 // Kiléptetés, ha nem él a SESSION és nem az index.php-n vagyunk és nem is egy ütemezőn, nem is elfelejtett jelszót kérünk le.
-if( !$_SESSION[get_db_tabla() . 'user'] && !$_POST['elfelejtett_jelszo'] && basename($_SERVER['PHP_SELF']) != 'index.php' && substr(basename($_SERVER['PHP_SELF']), 0, 8) != 'utemezo_' && basename($_SERVER['PHP_SELF']) != 'beleptetes.php' && basename($_SERVER['PHP_SELF']) != 'import_szamla.php' ) {
+$kiveteles_oldalak = array('index.php', 'import_szamla.php', 'import_szamla_kifizetes.php', 'beleptetes.php');
+if( !$_SESSION[get_db_tabla() . 'user'] && !$_POST['elfelejtett_jelszo'] && substr(basename($_SERVER['PHP_SELF']), 0, 8) != 'utemezo_' && !in_array(basename($_SERVER['PHP_SELF']), $kiveteles_oldalak) ) {
     echo 'SESKIL<script>document.body.innerHTML = \'\'; location.href=\'index.php\'</script>';
     exit;
 }

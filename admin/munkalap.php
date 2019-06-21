@@ -7127,8 +7127,14 @@ if (isset($_GET['csv'])) {
                 `ig_el_id` as \'Igényelt elvégzés\',
                 `varh_erk` as \'Várható érkezés\',
                 `'.get_db_tabla().$megnevezes.'`.`insert_dt` as \'Munkalap létrehozás dátuma\'
-                '.$lekerdezes_fromtol.$_SESSION['akt_sql_order'];
-// echo $sql . '<br>';
+                '.$lekerdezes_fromtol;
+        
+                // Ha még nincs order beállítva, akkor adjuk csak hozzá a $_SESSION['akt_sql_order']-t
+                if( strpos($lekerdezes_fromtol, 'ORDER')===false ) {
+                    $sql .= $_SESSION['akt_sql_order'];
+                }
+//echo $sql;
+//exit;
         $query      = mysqli_query($db_kapcs, $sql);
 
         $csvhead    = array();

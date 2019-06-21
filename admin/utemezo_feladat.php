@@ -146,7 +146,7 @@ for ( $i_ciklus = 0; $i_ciklus < 2; $i_ciklus++ ) {
 
         // A tényleges update
         $sql = $adatbazis_kapcsolat->u($tabla,  $oszlopok, $ertekek, "`recid`='{$ut_feladat['recid']}'");
-        if( $sql === false ) { 
+        if( $sql === false ) {
             $db_error = true;
             $log_tmp = 'NEM SIKERÜLT '.a_az($targyas).' '.$targyas.' módosítani: '.$adatbazis_kapcsolat->gp().'
 ';

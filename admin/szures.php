@@ -704,7 +704,6 @@ $dokumentumos_oldal = array(
     'eloterj_fb',
     'energia_terv',
     'eseti_fenntartas',
-    'eszkozkezeles',
     'fenntartasi_terv',
     'munkalap',
     'munkalap_arch',

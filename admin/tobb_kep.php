@@ -656,7 +656,7 @@ function get_tobbkep_thumb( $sor_kepek, $i, $tobbkep_tablanev, $nincs_torles, $k
 
         // Típus oszlop
         $tipus_oszlop = '';
-        if( tipusos_dokumentumok( $apa_tabla ) ){
+        if( tipusos_dokumentumok($apa_tabla) ) {
             $tipus_oszlop = '<div class="felirat">'.erteklista(ERTEKLISTA_DOK_TIPUS, $sor_kepek['tipus']).'</div>';
         }
         
@@ -695,20 +695,20 @@ function dokumentum_kezeles_jog($tabla, $id) {
     global $adatbazis_kapcsolat;
     
     // Projektigénylések elutasítva és jóváhagyva státuszainál
-    if( $tabla == 'projektigenyles_dok' ){
+    if( $tabla == 'projektigenyles_dok' ) {
         $pri = $adatbazis_kapcsolat->s2('stat_id', 'projektigenyles', "`recid`='{$id}'");
-        if( $pri['stat_id']==PRIGENY_STAT_ELUTASITVA || $pri['stat_id']==PRIGENY_STAT_JOVAHAGYVA ){
+        if( $pri['stat_id'] == PRIGENY_STAT_ELUTASITVA || $pri['stat_id'] == PRIGENY_STAT_JOVAHAGYVA ) {
             return false;
         }
     }
     // Projektkezeléskor ha nincs hozzá jogunk
     if( $tabla == 'projektkezeles_dok' ) {
-        if(!_jog(JOG_PRKEZEL_KEZEL)) {
+        if( !_jog(JOG_PRKEZEL_KEZEL) ) {
             return false;
         }
         // Lezárt státuszban sincs
         $prj = $adatbazis_kapcsolat->s2('stat_id', 'projektkezeles', "`recid`='{$id}'");
-        if( $prj['stat_id'] == PRKEZEL_STAT_LEZART ){
+        if( $prj['stat_id'] == PRKEZEL_STAT_LEZART ) {
             return false;
         }
     }

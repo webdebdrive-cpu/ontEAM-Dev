@@ -36,9 +36,9 @@ if( $tobb_kep ) {
 if( isset($_POST['van_kapcsolt_szamla']) ) {
 
     // Új feltöltéskor ezt nem kell ellenőrizni
-    if( !$_POST['uj'] || $_POST['uj']=='false' ){
+    if( !$_POST['uj'] || $_POST['uj'] == 'false' ) {
         $szerzodes_tetelek = $adatbazis_kapcsolat->s('recid', 'projektszerzodes_tetel', "`projektszerzodes_recid`='{$_POST['recid']}'");
-        foreach ( $szerzodes_tetelek as $tetel ){
+        foreach ( $szerzodes_tetelek as $tetel ) {
             if( $adatbazis_kapcsolat->s('recid', 'projektszamla_tetel', "`projektszerzodes_tetel_recid`='{$tetel['recid']}'") ){
                 echo json_encode( array(
                                     'hiba'  => 'A szerződésnek van olyan tétele, amihez van számla tétel kapcsolva, így a projekt szám nem törölhető!',
@@ -75,7 +75,7 @@ if( isset($_POST['get_projekt_tabla']) ) {
     // Rendezés beállítása
     $join  = ' JOIN `'.get_db_tabla().'telephely` ON `'.get_db_tabla().'projektkezeles`.`telephely_id`=`'.get_db_tabla().'telephely`.`id`';
     switch ( $_POST['order'] ) {
-        case 'jkolt': $order = '`'.get_db_tabla().'projektkezeles`.`bkolt`, `'.get_db_tabla().'telephely`.`nev`';         $bkolt_selected = ' selected';  break;
+        case 'jkolt': $order = '`'.get_db_tabla().'projektkezeles`.`jkolt`, `'.get_db_tabla().'telephely`.`nev`';         $bkolt_selected = ' selected';  break;
         case 'tipus': $order = '`'.get_db_tabla().'projektkezeles`.`tipus`, `'.get_db_tabla().'projektkezeles`.`jkolt`';  $tipus_selected = ' selected';  break;
         default     : $order = '`'.get_db_tabla().'telephely`.`nev`,        `'.get_db_tabla().'projektkezeles`.`jkolt`';                                  break;
     }
@@ -93,7 +93,7 @@ if( isset($_POST['get_projekt_tabla']) ) {
                                             ',
                                         'projektkezeles',
                                         "`telephely_id`='{$_POST['telephely_id']}'", $order, '', '', '', $join);
-
+//echo $adatbazis_kapcsolat->gp() . '<br>';
     $i = 1;
     foreach ( $prek as $pr ) {
 
@@ -1360,7 +1360,15 @@ require_once('selectek.php');
             $json_sor[$kulcs] = formAdatok_replace($elem);
         }
         $szamla_html .= '<script> formAdatok = JSON.parse(\''.json_encode($json_sor).'\'); </script>';
-
+        // Futtassuk le a deviza input elhagyást, mert ez alapján dől el, hogy a többi mező disabled-e vagy sem
+        $szamla_html .= nl2('
+            <script>
+                $(document).ready(function () {
+                    $(\'#kcs_21_autocomp\').focus().blur();
+                });
+            </script>
+            ');
+        
 	    // FORM
 	    $js = js_kiir($akt_tomb, 'form_ell_admin()', 'ajax');
 
