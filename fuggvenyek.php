@@ -1516,6 +1516,22 @@ function i_u($type, $tabla, $tomb) {
                 exit();
             }
             
+            // Ha a deviza nettó és árfolyam szorzata nem egyenlő a szerződött összeggel, akkor erre rákérdezünk
+            if( !$_POST['deviza_arf_szorzat_mehet']                 &&  // Ha még nem kaptunk mehet jelzést
+                (!$_POST['kcs_21'] || $_POST['kcs_21']!=KCS_21_HUF) &&  // Devizás a szerződés, azaz nem üres vagy HUF a deviza
+                ( round($_POST['dev_net']*$_POST['arfolyam']) != $_POST['szerz_ossz'] )      // A szorzat kerekítése nem stimmel
+            ) {
+
+                echo json_encode(array(
+                    'hiba'  => 'A Devizat nettó és Árfolyam mezők szorzata nem egyenlő a Szerződött összeggel.
+                                <br>Folytatja?',
+                    'title' => 'Kérdés',
+                    'gomb'  => '<input type="button" class="gomb zold" value="Igen" onclick="$(\'#deviza_arf_szorzat_mehet\').val(\'1\'); mentesGomb();"><input type="button" class="gomb piros" value="Nem" onclick="alert2();">'
+                ));
+                $weblap -> leallit();
+                exit();
+            }
+            
             $sor = $adatbazis_kapcsolat->s2('pr_szam', 'projektszerzodes', "`recid`='{$_GET['id']}'");
             if( $sor === false ) { $db_error = true; }
 
@@ -1569,7 +1585,6 @@ function i_u($type, $tabla, $tomb) {
                 $sql = $adatbazis_kapcsolat->u('projektkezeles', array('sz_ossz', 'fel_hato'), array($sz_ossz, $fel_hato), "`ikt_szam`='{$sor['pr_szam']}'");
                 if( $sql === false ) { $db_error = true; }
             }
-            
             
             // Ellenőrizzük, hogy a szerződés összege azonos-e a tételek összegével
             $tetelek_osszege = '';

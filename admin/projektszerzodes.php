@@ -412,6 +412,8 @@ if (isset($_POST['pop_tetelek_feltolt'])) {
 if (isset($_POST['van_tetel'])) {
     
     $szerzodes_osszege = str_replace(' ', '', $_POST['szerz_ossz']);
+    $arfolyam          = str_replace(array(' ', ','), array('', '.'), $_POST['arfolyam']);
+    $dev_net           = str_replace(array(' ', ','), array('', '.'), $_POST['dev_net']);
     
     // Kötelező mezők ellenőrzése
     foreach ($akt_tomb as $elem){
@@ -535,6 +537,7 @@ if (isset($_POST['van_tetel'])) {
                                 <br>Ebből még felhasználható: '.number_format($felhasznalhato, 0, '', ' ').' '.get_penznem().'.
                                 <br>
                                 <br>Az összes szerződés összege nagyobb, mint a jóváhagyott keret! Biztosan folytatja?
+                                <script>var deviza_szorzat_nem_stimmel_mehet = true;</script>
                             '),
                 'gomb'  => '<input type="button" class="gomb zold" value="Igen" onclick="$(\'#keret_tullepve_mehet\').val(1); mentesGomb();"> <input type="button" class="gomb piros" value="Nem" onclick="szurkit_zar(\'mégsem mehet mutat\'); alert2();">',
                 'title' => 'Kérdés',
@@ -565,7 +568,7 @@ if (isset($_POST['van_tetel'])) {
     }
     
     // Van-e már hasonló szerződés? Ha igen, akkor rákérdezünk
-    if( !$_POST['hasonlo_szerzodes_mehet'] ){
+    if( !$_POST['hasonlo_szerzodes_mehet'] ) {
         $szerzodes = $adatbazis_kapcsolat->s2('sz_szam', 'projektszerzodes', "`telephely_id`='{$_POST['telephely_id']}' AND `szallito_id`='{$_POST['szallito_id']}' AND `szerz_ossz`='{$szerzodes_osszege}'");
         if($szerzodes){
             echo json_encode(array(
@@ -581,6 +584,22 @@ if (isset($_POST['van_tetel'])) {
             $weblap -> leallit();
             exit();
         }
+    }
+    
+    // Ha a deviza nettó és árfolyam szorzata nem egyenlő a szerződött összeggel, akkor erre rákérdezünk
+    if( !$_POST['deviza_arf_szorzat_mehet']                 && // Ha még nem kaptunk mehet jelzést
+        (!$_POST['kcs_21'] || $_POST['kcs_21']!=KCS_21_HUF) && // Devizás a szerződés, azaz nem üres vagy HUF a deviza
+        ( round($dev_net*$arfolyam) != $szerzodes_osszege )
+    ) {
+
+        echo json_encode(array(
+            'hiba'  => 'A Devizat nettó és Árfolyam mezők szorzata nem egyenlő a Szerződött összeggel.
+                        <br>Folytatja?',
+            'title' => 'Kérdés',
+            'gomb'  => '<input type="button" class="gomb zold" value="Igen" onclick="$(\'#deviza_arf_szorzat_mehet\').val(\'1\'); mentesGomb(); alert2();"><input type="button" class="gomb piros" value="Nem" onclick="alert2();">'
+        ));
+        $weblap -> leallit();
+        exit();
     }
     
     // Ha idáig eljutottunk, akkor kiírjuk hogy van (még akkor is, ha nincsenek tételek, de ez nem baj, mert a van, annyit jelent, hogy menthető az adatlap).
@@ -1166,6 +1185,7 @@ require_once('selectek.php');
                         szerz_ossz              : $(\'#szerz_ossz\').val(),
                         sz_koto                 : $(\'#sz_koto\').val(),
                         hasonlo_szerzodes_mehet : $(\'#hasonlo_szerzodes_mehet\').val(),
+                        deviza_arf_szorzat_mehet: $(\'#deviza_arf_szorzat_mehet\').val(),
                         keret_tullepve_mehet    : $(\'#keret_tullepve_mehet\').val(),
                         van_tetel               : Date.now()
                     },
@@ -1305,22 +1325,22 @@ require_once('selectek.php');
                 return false;
               
             /* "Ebből építési" mező kötelező-e, ha igen, akkor van-e értéke? */
-            }else if( $(\'#epitesi_eng\').prop(\'checked\') && (!$(\'#epitesi\').val() || $(\'#epitesi\').val()==0 ) ){
+            } else if( $(\'#epitesi_eng\').prop(\'checked\') && (!$(\'#epitesi\').val() || $(\'#epitesi\').val()==0 ) ){
                 
                 alert2(\'Kérem adja meg, hogy a szerződött összegből mennyi az építési!\', \'\', \'Hiba\');
                 alert_utan_mehet_megsem_mutat_beallit();
                 $(\'#epitesi\').addClass(\'hibas_ide_focus\');
                 return false;
                 
-            /* "Ebből építési" mező értéke nem lehet több mint a szerződött összeg.*/
-            }else if( Number( $(\'#epitesi\').val().replace(/ /g, \'\') ) > Number( $(\'#szerz_ossz\').val().replace(/ /g, \'\') ) ){
+            /* "Ebből építési" mező értéke nem lehet több mint a szerződött összeg. */
+            } else if( Number( $(\'#epitesi\').val().replace(/ /g, \'\') ) > Number( $(\'#szerz_ossz\').val().replace(/ /g, \'\') ) ){
 
                 alert2(\'A szerződött összegtől nem lehet több az építési összeg!\', \'\', \'Hiba\');
                 alert_utan_mehet_megsem_mutat_beallit();
                 $(\'#epitesi\').addClass(\'hibas_ide_focus\');
                 return false;
 
-            }else{
+            } else {
             
                 return form_ell_admin();
                 
@@ -1328,23 +1348,23 @@ require_once('selectek.php');
             ');
         
         // Ha Gyorskeresőből érkeznénk ide, akkor az ID-t valójában az id_hidden tartalmazza majd
-        if(isset($_GET['id_hidden'])){
+        if( isset($_GET['id_hidden']) ) {
             $_GET['id'] = $_GET['id_hidden'];
         }
 
 	    $sor = $adatbazis_kapcsolat -> s2('*', $megnevezes, "`recid`='{$_GET['id']}'");
 
-        foreach($akt_tomb as $tomb) {
+        foreach ( $akt_tomb as $tomb ) {
             if( $tomb['type'] == 'autocomplete' ) {
                 
-                if($tomb['csoport']){
+                if( $tomb['csoport'] ) {
                     $kulso_ertek = $adatbazis_kapcsolat->s2('info', $tomb['tabla'], "`{$tomb['oszlop_keres']}`='{$sor[$tomb['name']]}' AND `csoport`='{$tomb['csoport']}'");
                     $kulso_ertek['nev'] = $kulso_ertek['info'];
                 // Létesítményfelelősnél a teljes nevet írjuk ki, nem a nev oszlopot
-                }elseif( $tomb['name'] == 'let_fel' ){
+                }elseif( $tomb['name'] == 'let_fel' ) {
                     $kulso_ertek = $adatbazis_kapcsolat->s2('recid teljes_nev', $tomb['tabla'], "`{$tomb['oszlop_keres']}`='{$sor[$tomb['name']]}'");
                     $kulso_ertek['nev'] = $kulso_ertek['teljes_nev'];
-                }else{
+                } else {
                     $kulso_ertek = $adatbazis_kapcsolat->s2('recid nev', $tomb['tabla'], "`{$tomb['oszlop_keres']}`='{$sor[$tomb['name']]}'");
                 }
 

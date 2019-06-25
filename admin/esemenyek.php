@@ -2570,6 +2570,8 @@ $projektszerzodes_tomb = $akt_tomb = array(
     array('type' => 'hidden',               'megn' => '',                       'name' => 'hasonlo_szerzodes_mehet', 'nosql' => 1),
     // Ha túlléptük a projekt limitet, rákérdezünk? És ha igen, akkor ezt a mezőt kell 1-re állítani.
     array('type' => 'hidden',               'megn' => '',                       'name' => 'keret_tullepve_mehet', 'nosql' => 1),
+    // Ha a deviza és árfolyam szorzata nem stimmel, akkor rákérdezünk. És ha igen, akkor ezt a mezőt kell 1-re állítani.
+    array('type' => 'hidden',               'megn' => '',                       'name' => 'deviza_arf_szorzat_mehet', 'nosql' => 1),
     array('type' => 'html',                 'megn' => nl2('
                                                         <div class="dtr">
                                                             <div class="dtc form_bal">

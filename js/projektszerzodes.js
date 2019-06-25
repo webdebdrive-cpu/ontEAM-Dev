@@ -104,6 +104,13 @@ function jotallas_dok_torol ( recid, mehet ) {
     }
 }
 
+// Adatlapon található deviza árfolyam és deviza nettó mezőből számol ki nettó értéket
+$(document).on('blur', '#dev_net', function(e) {
+    if( !$('#szerz_ossz').val() || $('#szerz_ossz').val()=='0' ){
+        $('#szerz_ossz').val( ezresek($('#dev_net').val().replace(/ /g, '').replace(',', '.')*($('#arfolyam').val().replace(/ /g, '').replace(',', '.')), 2, ',', ' ') );
+    }
+});
+
 // Pénznem szerkesztésekor a kapcsolódó mezők disabled-ezése
 $(document).on('input, blur', '#kcs_21_autocomp', function(e) {
     // Azért van egy settimeoutban, mert a mezőt elhagyva még az autocomplete feltölti adattal. De az elhagyás pillanatában még üres.

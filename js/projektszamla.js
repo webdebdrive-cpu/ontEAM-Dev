@@ -114,7 +114,7 @@ $(document).on('blur', '#dev_br', function(e) {
 
 // Ha a bruttósított nettó és a valódi bruttó között 2 Ft-nál nagyobb az eltérés, akkor hibát dobunk. 
 function pr_szamla_deviza_netto_br_ell() {
-    var brutto          = Number($('#dev_br').val().replace(/ /g, '').replace(',', '.'));
+    var brutto          = Number($('#dev_br') .val().replace(/ /g, '').replace(',', '.'));
     var netto_afaval    = Number($('#dev_net').val().replace(/ /g, '').replace(',', '.')*((Number(AFA)+100)/100));
     
     if( Math.abs( brutto - netto_afaval ) > 1 ){
