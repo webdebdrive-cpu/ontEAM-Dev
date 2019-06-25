@@ -845,7 +845,7 @@ if( isset($_POST['munkalapKulso']) ) {
             if( $sikeres_kuldes ) {
                 mysqli_rollback($db_kapcs);
                 echo json_encode(array(
-                    'hiba'  => 'Levélküldés közben hiba történt!',
+                    'hiba'  => 'Levélküldés közben hiba történt! '.$sikeres_kuldes,
                     'title' => 'Hiba'
                 ));
 
@@ -2547,10 +2547,10 @@ if( isset($_POST['kulsokivHozzarend']) ) {
             
             $sikeres_kuldes = level_kuldes_osszetettebb(get_nev(), get_mail(), $mailcimek, $mailcimek, $masolatok, $masolatok, $r_masolatok, $r_masolatok, $targy_kieg.$_POST['targy'], $uzi_kieg.nl2br2($_POST['uzenet']), $fajlok, 'levélpapíros');
             // Ha nem volt sikeres a levélküldés, akkor is megállítjuk a működést
-            if($sikeres_kuldes){
+            if( $sikeres_kuldes ) {
                 mysqli_rollback($db_kapcs);
                 echo json_encode(array(
-                    'hiba'  => 'Levélküldés közben hiba történt!',
+                    'hiba'  => 'Levélküldés közben hiba történt! '.$sikeres_kuldes,
                     'title' => 'Hiba'
                 ));
 
@@ -2586,12 +2586,12 @@ if( isset($_POST['kulsokivHozzarend']) ) {
                 
             
             // E-mail értesítésekről megjegyzést is írunk
-            if(addMegj('munkalap', $recid, $megj)===false){
+            if( addMegj('munkalap', $recid, $megj) === false ) {
                 $db_error = true;
             }
             
         // Ha nincs levélküldés, akkor rákérdezünk, hogy biztosan nem szerettek volna levelet küldeni?
-        }elseif(!$_POST['mehet'] && !isset($_POST['javaslattetel'])){
+        }elseif( !$_POST['mehet'] && !isset($_POST['javaslattetel']) ) {
             echo json_encode(array(
                 'hiba'  => 'Nem küldött email megrendelést.<br>Folytatja?',
                 'gomb'  => '<input type="button" class="gomb zold" value="Igen" onclick="$(\'#mehet_mail_nelkul\').val(\'1\'); $(\'#munkalapKulso\').submit();"><input type="button" class="gomb piros" value="Nem" onclick="alert2()">',
@@ -2965,10 +2965,10 @@ if (isset($_POST['munkalapVisszaElokeszitDirektbe'])) {
         $fajlok = glob($utvonal);
 
         $sikeres_kuldes = level_kuldes_osszetettebb(get_nev(), get_mail(), $mailcimek, $mailcimek, $masolatok, $masolatok, $r_masolatok, $r_masolatok, $targy_kieg.$_POST['targy'], $uzi_kieg.nl2br2($_POST['uzenet']), $fajlok, 'levélpapíros');
-        if($sikeres_kuldes){
+        if( $sikeres_kuldes ) {
             mysqli_rollback($db_kapcs);
             echo json_encode(array(
-                'hiba'  => 'Levélküldés közben hiba történt!',
+                'hiba'  => 'Levélküldés közben hiba történt! '.$sikeres_kuldes,
                 'title' => 'Hiba'
             ));
 
@@ -4973,10 +4973,10 @@ if( isset($_POST['atadasDiszpecsernekDirektbe']) ) {
             $fajlok = glob($utvonal);
 
             $sikeres_kuldes = level_kuldes_osszetettebb(get_nev(), get_mail(), $mailcimek, $mailcimek, $masolatok, $masolatok, $r_masolatok, $r_masolatok, $targy_kieg.$_POST['targy'], $uzi_kieg.nl2br2($_POST['uzenet']), $fajlok, 'levélpapíros');
-            if($sikeres_kuldes){
+            if( $sikeres_kuldes ) {
                 mysqli_rollback($db_kapcs);
                 echo json_encode(array(
-                    'hiba'  => 'Levélküldés közben hiba történt!',
+                    'hiba'  => 'Levélküldés közben hiba történt! '.$sikeres_kuldes,
                     'title' => 'Hiba'
                 ));
 
@@ -6357,10 +6357,10 @@ if (isset($_POST['munkalapVisszavetelDirektbe'])) {
         $fajlok = glob($utvonal);
 
         $sikeres_kuldes = level_kuldes_osszetettebb(get_nev(), get_mail(), $mailcimek, $mailcimek, $masolatok, $masolatok, $r_masolatok, $r_masolatok, $targy_kieg.$_POST['targy'], $uzi_kieg.nl2br2($_POST['uzenet']), $fajlok, 'levélpapíros');
-        if($sikeres_kuldes){
+        if( $sikeres_kuldes ) {
             mysqli_rollback($db_kapcs);
             echo json_encode(array(
-                'hiba'  => 'Levélküldés közben hiba történt!',
+                'hiba'  => 'Levélküldés közben hiba történt! '.$sikeres_kuldes,
                 'title' => 'Hiba'
             ));
 

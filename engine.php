@@ -1623,10 +1623,10 @@ function level_kuldes( $felado_nev, $felado_mail, $cimzett_nev, $cimzett_mail, $
  */
 function level_kuldes_osszetettebb( $felado_nev, $felado_mail, $cimzett_nev, $cimzett_mail, $masolat_nev, $masolat_mail, $r_masolat_nev, $r_masolat_mail, $targy, $uzi, $fajlok, $levelpapiros ) {
 
-    if($cimzett_mail){
-        
+    if( $cimzett_mail ) {
+
         // Ha a feladó neve ontEAM, akkor a levél feladója esetén ezt toldjuk még meg egy "Danubius Zrt."-vel
-        if( $felado_nev == get_nev() ){
+        if( $felado_nev == get_nev() ) {
             $felado_nev .= ' Danubius Zrt.';
         }
         
@@ -1634,7 +1634,7 @@ function level_kuldes_osszetettebb( $felado_nev, $felado_mail, $cimzett_nev, $ci
         $mail = new PHPMailer;
         
         // Ha azt szeretnénk, hogy levélpapíros legyen a levél, akkor még a levélpapírt betöltjük
-        if($levelpapiros){
+        if( $levelpapiros ) {
             $levelpapir = fajlbol_olvas('../sablon/levelpapir.html');
             $uzi = str_replace('{TARTALOM}', $uzi, $levelpapir);
         }
@@ -1647,49 +1647,49 @@ function level_kuldes_osszetettebb( $felado_nev, $felado_mail, $cimzett_nev, $ci
         $mail -> AltBody  = strip_tags($uzi);
         $mail -> MsgHTML($uzi);
         
-        if(is_array($fajlok)){
-            foreach($fajlok as $fajl){
+        if( is_array($fajlok) ) {
+            foreach ( $fajlok as $fajl ) {
                 $mail -> AddAttachment($fajl);
             }
 
-        }elseif($fajlok){
+        } elseif( $fajlok ) {
             $mail -> AddAttachment($fajlok);
         }
 
         // Címzett
-        if(is_array($cimzett_mail)){
+        if( is_array($cimzett_mail) ) {
             $i = 0;
-            foreach($cimzett_mail as $c_mail){
+            foreach ( $cimzett_mail as $c_mail ) {
                 $mail -> addAddress(trim($c_mail), trim($cimzett_nev[$i]));
                 $i++;
             }
-        }elseif($cimzett_mail){
+        } elseif( $cimzett_mail ) {
             $mail -> AddAddress(trim($cimzett_mail), trim($cimzett_nev));
         }
 
         // Másolatot kap
-        if(is_array($masolat_mail)){
+        if( is_array($masolat_mail) ) {
             $i = 0;
-            foreach($masolat_mail as $c_mail){
+            foreach ( $masolat_mail as $c_mail ) {
                 $mail -> addCC(trim($c_mail), trim($masolat_nev[$i]));
                 $i++;
             }
-        }elseif($masolat_mail){
+        } elseif( $masolat_mail ) {
             $mail -> addCC(trim($masolat_mail), trim($masolat_nev));
         }
 
         // Másolatot kap
-        if(is_array($r_masolat_mail)){
+        if( is_array($r_masolat_mail) ) {
             $i = 0;
-            foreach($r_masolat_mail as $c_mail){
+            foreach ( $r_masolat_mail as $c_mail ) {
                 $mail -> AddBcc(trim($c_mail), trim($r_masolat_nev[$i]));
                 $i++;
             }
-        }elseif($r_masolat_mail){
+        } elseif( $r_masolat_mail ) {
             $mail -> AddBcc(trim($r_masolat_mail), trim($r_masolat_nev));
         }
 
-        if(!$mail->Send()) {
+        if( !$mail->Send() ) {
             $mail -> ClearAddresses();
             $mail -> ClearAttachments();
             return 'Hiba: ' . $mail->ErrorInfo;
