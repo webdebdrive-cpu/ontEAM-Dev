@@ -46,11 +46,20 @@
     <input type="button" class="gomb piros escapes_megsem" value="Mégsem" onclick="popupZar();">
 </div>
 <script>
+var akt_penznem = $('#kcs_21_autocomp').val();
+if( !akt_penznem ) {
+    akt_penznem = $('#kcs_21_autocomp_db').val();
+}
+
+var kcs_21 = $('#kcs_21_db').val();
+if( !kcs_21 ) {
+    $('#kcs_21').val();
+}
 $(document).ready(function () {
-    
+
     /* f_penznem class-ú elemek lecserélése a pénznemre */
     $('.f_penznem').each(function () {
-        $(this).replaceWith(PENZNEM);
+        $(this).replaceWith(akt_penznem);
     });
     
     $('#pop_targy').focus();
@@ -77,12 +86,12 @@ function tetel_hozzaadasa() {
     var szla_varh_ert   = $('#pop_szla_varh_ert').val().trim();
 
     /* Üres adatok ellenőrzése */
-    if(!targy){
+    if( !targy ) {
         alert2('Kérem töltse ki a tárgyat!', '', 'Hiba');
         $('#pop_targy').addClass('hibas_ide_focus');
         return false;
     }
-    if( !szla_varh_erk || szla_varh_erk=='.\xa0\xa0.' ){
+    if( !szla_varh_erk || szla_varh_erk=='.\xa0\xa0.' ) {
         alert2('Kérem töltse ki a várható érkezést!', '', 'Hiba');
         $('#pop_szla_varh_erk').addClass('hibas_ide_focus');
         return false;
@@ -104,14 +113,15 @@ function tetel_hozzaadasa() {
         return false;
     }
     
-    if( !szla_varh_ert || szla_varh_ert=='0' ){
+    /* Várható érték ha üres */
+    if( !szla_varh_ert || szla_varh_ert=='0' || szla_varh_ert=='0,00' ){
         alert2('Kérem töltse ki a várható értéket!', '', 'Hiba');
         $('#pop_szla_varh_ert').addClass('hibas_ide_focus');
         return false;
     }
     
     /* Várható érték nem lehet negatív */
-    if( Number(szla_varh_ert.replace(/ /g, ''))<0 ){
+    if( Number(szla_varh_ert.replace(/ /g, '').replace(/,/g, '.'))<0 ){
         alert2('A számla várható értéke nem lehet 0 vagy ettől kisebb!', '', 'Hiba');
         $('#pop_szla_varh_ert').addClass('hibas_ide_focus');
         return false;
@@ -144,10 +154,10 @@ function tetel_hozzaadasa() {
 function popup_tetel_sor_torol(sor_id, mehet) {
     
     $('.'+sor_id).addClass('torles_elott');
-    if(!mehet){
+    if( !mehet ) {
         alert2( 'Tárgy: '       + $('.'+sor_id+' .pop_targy')   .html() +'<br>' +
                 'Várh. érk.: '  + $('.'+sor_id+' .pop_varh_erk').html() +'<br>' +
-                'Várh. ért.: '  + $('.'+sor_id+' .pop_varh_ert').html() +' ' + PENZNEM + '<br>' +
+                'Várh. ért.: '  + $('.'+sor_id+' .pop_varh_ert').html() +' ' + akt_penznem + '<br>' +
                 'Biztosan törli a szerződés tételt?', '<input type="button" class="gomb zold" value="Igen" onclick="popup_tetel_sor_torol(\''+sor_id+'\', \'mehet\'); alert2();"><input type="button" class="gomb piros escapes_megsem" value="Nem" onclick="alert2(); $(\'.torles_elott\').removeClass(\'torles_elott\');">');
         return false;
     }
@@ -190,11 +200,15 @@ function tetel_sorok_ment() {
     
     /* A szerződése összege az Adatlapon található mező értéke 
      * De ha nem az adatlapon vagyunk, akkor meg egy rejtett inputban megtaláljuk, hogy a DB-ben mi van letárolva */
-    var szerzodes_osszege = '';
-    if( $('#szerz_ossz').length ) {
-        szerzodes_osszege = $('#szerz_ossz').val();
-    } else {
-        szerzodes_osszege = $('#szerz_ossz_db').val();
+    var osszeg_mezo = 'szerz_ossz';
+    if( akt_penznem && akt_penznem != 'HUF' ) {
+        osszeg_mezo = 'dev_net';
+    }
+    
+    if( $('#'+osszeg_mezo).length ) {
+        szerzodes_osszege = $('#'+osszeg_mezo).val().replace(/ /g, '').replace(/,/g, '.');
+    }else{
+        szerzodes_osszege = $('#szerz_ossz_mindig_latszik').val().replace(/ /g, '').replace(/,/g, '.');
     }
     
     $.ajax({
@@ -203,6 +217,7 @@ function tetel_sorok_ment() {
         data: {
             adatok              : JSON.stringify(adatok),
             recid               : _get('id'),
+            kcs_21              : kcs_21,
             szerzodes_osszege   : szerzodes_osszege,
             tetel_sorok_ment    : Date.now()
         },
@@ -222,12 +237,14 @@ function tetel_sorok_ment() {
 }
 
 /* Ha van SESSION-ban adatunk, akkor abból töltsük fel a sorokat */
-function pop_tetelek_feltolt(){
+function pop_tetelek_feltolt() {
+    
     $.ajax({
         url : 'projektszerzodes.php',
         type: 'POST',
         data: {
-            pop_tetelek_feltolt : Date.now()
+            kcs_21              : kcs_21,
+            pop_tetelek_feltolt : Date.now() 
         },
         success: function(response){
             if(response.substring(0, 6)=='SESKIL'){ location.href = 'index.php'; }
@@ -246,22 +263,37 @@ function pop_tetelek_feltolt(){
 /*  Tételek kiszámítása, lássuk hol járunk a szerződéses összeghez képest */
 function tetelek_kiszamol() {
     
-    if( $('#szerz_ossz').length ){
-        szerzodes_osszeg = $('#szerz_ossz').val().replace(/ /g, '');
-    }else{
-        szerzodes_osszeg = $('#szerz_ossz_mindig_latszik').val().replace(/ /g, '');
+    /* HUF esetén nem törtet írunk ki, deviza esetén viszont törtet + "Számla várh. értéke" mező is törté kell alakítani */
+    var osszeg_mezo = 'szerz_ossz';
+    var tizedesek   = 0;
+    if( akt_penznem && akt_penznem != 'HUF' ) {
+        osszeg_mezo = 'dev_net';
+        tizedesek   = 2;
+        $('#pop_szla_varh_ert').attr('data-tort', '2');
     }
-    $('#pop_szerz_ossz').html( ezresek(szerzodes_osszeg, 0, '', ' ')+' '+PENZNEM );
+    
+    if( $('#'+osszeg_mezo).length ) {
+        szerzodes_osszege = $('#'+osszeg_mezo).val().replace(/ /g, '').replace(/,/g, '.');
+    }else{
+        szerzodes_osszege = $('#szerz_ossz_mindig_latszik').val().replace(/ /g, '').replace(/,/g, '.');
+    }
+    
+    $('#pop_szerz_ossz').html( ezresek(szerzodes_osszege, tizedesek, ',', ' ')+' '+akt_penznem );
     
     tetelek_ossz = 0;
     $('.pop_varh_ert').each(function() {
-        tetelek_ossz += Number( $(this).html().replace(/ /g, '') );
+        tetelek_ossz += Number( $(this).html().replace(/ /g, '').replace(/,/g, '.') );
     });
-    $('#pop_tetelek_ossz').html( ezresek2(tetelek_ossz)+' '+PENZNEM );
-    kulonbseg = szerzodes_osszeg - tetelek_ossz;
-    $('#pop_kulonbseg').html( ezresek2( kulonbseg )+' '+PENZNEM );
+    $('#pop_tetelek_ossz').html( ezresek(tetelek_ossz, tizedesek, ',', ' ')+' '+akt_penznem );
+
+    kulonbseg = Number(szerzodes_osszege) - Number(tetelek_ossz);
+    kulonbseg = ezresek( kulonbseg, tizedesek, ',', ' ' );
+    if( !kulonbseg ) {
+        kulonbseg = '0';
+    }
+    $('#pop_kulonbseg').html( ezresek(kulonbseg, tizedesek, ',', ' ')+' '+akt_penznem );
     $('#pop_kulonbseg').removeClass('piros');
-    if( kulonbseg!=0 ){
+    if( kulonbseg!=0 && kulonbseg!='0,00' ) {
         $('#pop_kulonbseg').addClass('piros');
     }
 }

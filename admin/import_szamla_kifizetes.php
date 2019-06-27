@@ -5,6 +5,14 @@
 
 \*                                                                                                                                         */
 //require_once '../weblap.php';
+file_put_contents('postok/'.date('Y-m-d_H:i:s').'_get.txt', serialize($_GET));
+file_put_contents('postok/'.date('Y-m-d_H:i:s').'_post.txt', serialize($_POST));
+file_put_contents('postok/'.date('Y-m-d_H:i:s').'_request.txt', serialize($_REQUEST));
+
+echo 'GET: '.serialize($_GET)."\n";
+echo 'POST: '.serialize($_POST)."\n";
+echo 'REQUEST: '.serialize($_REQUEST)."\n";
+exit;
 
 // Ha van postolt adatunk, akkor ellenőrizzük a beléptetést, és ha ez megvan, akkor tovább léptetjük az új számla feltöltéshez
 if( $_POST || isset($_GET['teszt']) ) {
