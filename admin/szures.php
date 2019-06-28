@@ -712,6 +712,7 @@ $dokumentumos_oldal = array(
     'projektkezeles',
     'projektszamla',
     'projektszerzodes',
+    'szallito',
     'rendszeres_karbantartas',
     'utemezett_feladatok',
     );

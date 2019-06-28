@@ -341,7 +341,7 @@
                                     if( type == 'checkbox' || tag == 'SELECT' ) {
                                         document.getElementById(name).focus();
                                     } else {
-                                        if($('#' + name).length){
+                                        if ($('#' + name).length) {
                                             document.getElementById(name).select();
                                         }
                                     }

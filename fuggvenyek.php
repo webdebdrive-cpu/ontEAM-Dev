@@ -2721,12 +2721,12 @@ function szamla_lista( $where, $tabla, $kijeloltek = false, $csak_sql_miatt = fa
     }
 
     // Config
-    if(!$tabla){
+    if( !$tabla ) {
         $tabla  = str_replace('.php', '', basename(self()));
     }
 
     // Dokumentumtárnál egyszerű a helyzet, nem kell számolni SQL-t
-    if($tabla=='dokumentumtar'){
+    if( $tabla == 'dokumentumtar' ) {
         return array(dokumentumtarLista(), '0');
     }
 
@@ -5928,6 +5928,7 @@ function dokumentumtarLista() {
                         array('tabla' => 'tervezes',                'nev' => 'Tervezés'                 ),
                         array('tabla' => 'utemezett_feladatok',     'nev' => 'Ütemezett feladatokok'    ),
                         array('tabla' => 'uzemeltetesi_naplo',      'nev' => 'Üzemeltetési napló'       ),
+                        array('tabla' => 'szallito',                'nev' => 'Partnertörzs'             ),
                         array('tabla' => 'projektigenyles',         'nev' => 'Projektigénylések'        ),
                         array('tabla' => 'projektigenyles_velemeny','nev' => 'Projektigénylés vélemények'),
                         array('tabla' => 'projektkezeles',          'nev' => 'Projektkezelés'           ),
@@ -5935,7 +5936,6 @@ function dokumentumtarLista() {
                         array('tabla' => 'projektszerzodes',        'nev' => 'Projekt szerződsek'       ),
                         array('tabla' => 'rendszeres_karbantartas', 'nev' => 'Rendszeres karbantartás'  ),
                         array('tabla' => 'szamla',                  'nev' => 'Számlák'                  ),
-                        array('tabla' => 'szallito',                'nev' => 'Partnertörzs'             ),
                         array('tabla' => 'torzsadat',               'nev' => 'Törzsadatok'              ),
                     );
 

@@ -15,7 +15,7 @@ require_once('../class/html/class.Img.php');
 $php_tablanev     = str_replace('.php', '', basename($_SERVER['PHP_SELF']));
 $tobbkep_tablanev = $php_tablanev.'_dok';
 $archivum = false;
-if( substr($php_tablanev, strlen($php_tablanev)-5) == '_arch' ){
+if( substr($php_tablanev, strlen($php_tablanev) - 5) == '_arch' ) {
     $tobbkep_tablanev = substr($megnevezes, 0, strlen($megnevezes)-5).'_dok_arch';
     $archivum = true;
 }
@@ -129,6 +129,10 @@ if( isset($_POST['megnevezes']) && !$archivum ) {
             if( $konyvtar_db_nev == 'projektszerzodes' ) {
                 $ikt_szam_oszlop = 'sz_szam';
             }
+            // Partnertörzsnél (szállítóknál) az id más az oszlopneve
+            if( $konyvtar_db_nev == 'szallito' ) {
+                $ikt_szam_oszlop = 'id';
+            }
             // Iktatószám alapján könyvtár felépítése
             $ikt_szam = $adatbazis_kapcsolat->s2('recid '.$ikt_szam_oszlop, $_POST['konyvtar'], "`recid` = '".$_POST['sorid']."'", '', '1');
             if( $ikt_szam ) {
@@ -208,7 +212,7 @@ if( isset($_POST['megnevezes']) && !$archivum ) {
                 }
 
                 // Fájlfeltöltés
-                if(move_uploaded_file($_FILES[ $_POST['megnevezes'] ]['tmp_name'], $kepnev)){
+                if( move_uploaded_file($_FILES[$_POST['megnevezes']]['tmp_name'], $kepnev) ) {
 
                     $apa_tabla = csonkit($_POST['tabla'], 4);
                     

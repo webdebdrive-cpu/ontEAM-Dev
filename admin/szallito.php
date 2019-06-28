@@ -22,24 +22,24 @@ $szoveg                 = 'szállítót';        //Hibaüzenetkor: Biztosan tör
 $szamla_html = '';
 
 // Dokumentumok fülhöz kell majd
-$tobb_kep = false;
-if($tobb_kep){
-    function get_tobbkep_darab()    { return 10;        } // Maximum hány kép tallózható be
-    function get_tobbkep_csakkep()  { return '.jpg,.png';} // Milyen kiterjesztéseket engedünk meg (ha mindenet, legyen üres)
-    function get_tobbkep_kepmeret() { return 10;        } // MB-ban
-    function get_tobbkep_oszlopnev(){                     // Melyik oszloppal kötjük össze a két táblát
+$tobb_kep = true;
+if( $tobb_kep ) {
+
+    function get_tobbkep_darab()    { return 10;         } // Maximum hány kép tallózható be
+    function get_tobbkep_csakkep()  { return '';         } // Milyen kiterjesztéseket engedünk meg (ha mindenet, legyen üres)
+    function get_tobbkep_kepmeret() { return 10;         } // MB-ban
+    function get_tobbkep_oszlopnev(){                      // Melyik oszloppal kötjük össze a két táblát
         global $megnevezes;
         return $megnevezes.'_id';
     }
     function get_tobbkep_tabla(){ return str_replace('.php', '', basename(self())).'_dok'; } // A képeket tartalmazó adatbázis tábla neve FONTOS: ha itt átnevezed akkor a tobbkep.php-ban is át kell írni!
-
 }
 
 // Szállítókód ellenőrzése (nem foglat-e, helyes-e?) illetve a mailcím mező ellenőrzése
-if (isset($_POST['szallitokod_ell'])) {
-    
+if( isset($_POST['szallitokod_ell']) ) {
+
     // Hossz ellenőrzése
-    if(strlen($_POST['id'])!=SZALLITOKOD_HOSSZ){
+    if( strlen($_POST['id']) != SZALLITOKOD_HOSSZ ) {
         echo json_encode(array(
             'hiba'  => 'A szállítókód hoszza '.SZALLITOKOD_HOSSZ.' karakter legyen!',
             'title' => 'Hiba',
@@ -95,7 +95,7 @@ if (isset($_POST['szallitokod_ell'])) {
 }
 
 // CSV generálása
-if (isset($_GET['csv'])) {
+if( isset($_GET['csv']) ) {
 
     $mibol   = get_web_charset();
     $mibe    = 'windows-1250';
@@ -478,12 +478,12 @@ require_once('selectek.php');
             echo $szamla_html;
         }
 
-        if($tobb_kep){
-			require_once('tobb_kep.php');
+        if( $tobb_kep ) {
+            require_once('tobb_kep.php');
 		}
 
 	// Napló
-    }elseif(isset($_GET['szakterulet'])) {
+    }elseif( isset($_GET['szakterulet']) ) {
 
         $sorok = $adatbazis_kapcsolat->s('recid szakter_id', 'szakter_kapcs', 'szallito_id='.$_GET['id'], '', '');
 
@@ -530,15 +530,17 @@ require_once('selectek.php');
         }
 
 
-	// Dokumentumok
-	}elseif( isset($_GET['dokumentumok']) ) {
+	// Dokumentumok fül
+    } elseif( isset($_GET['dokumentumok']) ) {
 
-        $szamla_html .= 'Dokumentumok felülete';
+        if( $tobb_kep ) {
+            require_once('tobb_kep.php');
+        }
 
         if( $_GET['ajax'] ) {
             echo json_encode(array(
-                'tartalom' => $szamla_html.$gombok,
-                'link'     => get_get(array('ajax', 'kat', 'epo', 'oldal', 'order'), true)
+                'tartalom'  => $szamla_html.$gombok,
+                'link'      => get_get(array('ajax', 'kat', 'epo', 'oldal', 'order'), true)
             ));
         } else {
             echo $szamla_html.$gombok;

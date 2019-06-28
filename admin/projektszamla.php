@@ -2006,7 +2006,8 @@ require_once('selectek.php');
         $szamla_html .= nl2('
             <script>
                 $(document).ready(function () {
-                    $(\'#kcs_21_autocomp\').focus().blur();
+                    $(\'#kcs_21_autocomp\').focus();
+                    $(\'#szallito_id_autocomp\').focus();
                 });
             </script>
             ');
