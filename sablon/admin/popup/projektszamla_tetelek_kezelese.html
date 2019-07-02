@@ -46,9 +46,9 @@ if( !akt_penznem ) {
     akt_penznem = $('#kcs_21_autocomp_db').val();
 }
 
-var kcs_21 = $('#kcs_21_db').val();
+var kcs_21 = $('#kcs_21').val();
 if( !kcs_21 ) {
-    $('#kcs_21').val();
+    $('#kcs_21_db').val();
 }
 
 /* JS-el figyeljük, hogy volt-e bármi változás. Ha igen, akkor Mégsem/Bezár gombra rákérdezünk, hogy biztos-e? */
@@ -312,14 +312,20 @@ function tetelek_kiszamol() {
     $('.pop_netto_ert').each(function() {
         tetelek_ossz += Number( $(this).html().replace(/ /g, '').replace(/,/g, '.') );
     });
-    $('#pop_tetelek_ossz').html( ezresek(tetelek_ossz, tizedesek, ',', ' ')+' '+akt_penznem );
-
     kulonbseg = Number(szamla_netto_erte) - Number(tetelek_ossz);
+
+    kulonbseg = ezresek( kulonbseg, tizedesek, ',', ' ' );
     if( !kulonbseg ) {
         kulonbseg = '0';
     }
+    
+    tetelek_ossz = ezresek(tetelek_ossz, tizedesek, ',', ' ');
+    if( !tetelek_ossz ) {
+        tetelek_ossz = '0';
+    }
+    $('#pop_tetelek_ossz').html( tetelek_ossz+' '+akt_penznem );
 
-    $('#pop_kulonbseg').html( ezresek( kulonbseg, tizedesek, ',', ' ' )+' '+akt_penznem );
+    $('#pop_kulonbseg').html( kulonbseg+' '+akt_penznem );
     $('#pop_kulonbseg').removeClass('piros');
     if( kulonbseg!=0 && kulonbseg!='0,00' ) {
         $('#pop_kulonbseg').addClass('piros');

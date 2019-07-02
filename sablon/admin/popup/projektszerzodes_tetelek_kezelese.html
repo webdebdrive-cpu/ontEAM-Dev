@@ -51,9 +51,9 @@ if( !akt_penznem ) {
     akt_penznem = $('#kcs_21_autocomp_db').val();
 }
 
-var kcs_21 = $('#kcs_21_db').val();
+var kcs_21 = $('#kcs_21').val();
 if( !kcs_21 ) {
-    $('#kcs_21').val();
+    $('#kcs_21_db').val();
 }
 $(document).ready(function () {
 
@@ -287,7 +287,6 @@ function tetelek_kiszamol() {
     $('#pop_tetelek_ossz').html( ezresek(tetelek_ossz, tizedesek, ',', ' ')+' '+akt_penznem );
 
     kulonbseg = Number(szerzodes_osszege) - Number(tetelek_ossz);
-    kulonbseg = ezresek( kulonbseg, tizedesek, ',', ' ' );
     if( !kulonbseg ) {
         kulonbseg = '0';
     }

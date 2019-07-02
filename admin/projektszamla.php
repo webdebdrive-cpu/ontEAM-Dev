@@ -286,7 +286,7 @@ if( isset($_POST['tetel_sorok_ment']) ) {
         }
         
     }
-    
+
     // Logolás
     $sql = $adatbazis_kapcsolat -> i(
         'log',
@@ -1565,9 +1565,10 @@ require_once('selectek.php');
     if( isset($_GET['uj']) && (_jog(JOG_PRSZAMLAK_KEZEL) || _jog(JOG_PR_SAJAT_SZAMLA_KEZEL)) ) {
         
         // Új feltöltéskor a tétel sorokat töröljük, ne az legyen, hogy szerkesztésből maradt adatokkal számoljunk
-        $_SESSION['pr_szla_tetel_targy']     = '';
-        $_SESSION['pr_szla_tetel_netto_ert'] = '';
-        $_SESSION['pr_szla_tetel_pr_tetel']  = '';
+        $_SESSION['pr_szla_tetel_targy']        = '';
+        $_SESSION['pr_szla_tetel_netto_ert']    = '';
+        $_SESSION['pr_szla_tetel_dev_net']      = '';
+        $_SESSION['pr_szla_tetel_pr_tetel']     = '';
 
         $gombok = nl2('
             <div class="form_kuldes">
@@ -2143,7 +2144,7 @@ require_once('selectek.php');
                     <div class="dtc">'.datum_kiir($kifizetes['kifizetes']).'</div>
                     <div class="dtc r">'.number_format($kifizetes['br_ertek'], 0, '', ' ').'</div>
                     <div class="dtc r">'.number_format($kifizetes['dev_br'], 2, ',', ' ').'</div>
-                    <div class="dtc r">'.erteklista(ERTEKLISTA_PENZNEM, $kifizetes['kcs_21']).'</div>
+                    <div class="dtc">'.erteklista(ERTEKLISTA_PENZNEM, $kifizetes['kcs_21']).'</div>
                     <div class="dtc">'.datum_kiir($kifizetes['insert_dt'], 'csak dátum').'</div>
                     <div class="dtc">'.$kifizetes['insert_usr'].'</div>
                 </div>

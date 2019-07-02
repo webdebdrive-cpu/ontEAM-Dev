@@ -887,7 +887,7 @@ function i_u($type, $tabla, $tomb) {
             $i = 0;
             foreach ( $_SESSION['pr_szla_tetel_targy'] as $targy ) {
                 $netto_ert  = str_replace(' ', '',  $_SESSION['pr_szla_tetel_netto_ert'][$i]);
-                $dev_net    = str_replace(' ', '',  $_SESSION['pr_szla_tetel_dev_net'] [$i]);
+                $dev_net    = str_replace(array(' ', ','), array('', '.'),  $_SESSION['pr_szla_tetel_dev_net'][$i]);
                 // Ha van deviza információnk, akkor a Ft-ot ne tároljuk le, így leszünk következetesek (pl. ha tételek kezelése popupban dolgozva jönnek létre a tételek, nem így autoatikusan, akkor sincs Ft megfelelő letárolva)
                 if( $dev_net>0 ) {
                     $netto_ert = '0';
@@ -897,15 +897,20 @@ function i_u($type, $tabla, $tomb) {
                                                     array($id,                   $targy,  $netto_ert,  $dev_net,  $_SESSION['pr_szla_tetel_pr_tetel'][$i], $_SESSION[get_db_tabla().'user'],    'NOW()',        $_SESSION[get_db_tabla().'teljes_nev'],   $_SESSION[get_db_tabla().'teljes_nev']    )
                                             );
                 if( $sql === false ) { $db_error = true; }
-                
+
                 // Illetve a projektszerződés tételénél updateljük a teljesítést és nettó értéket
                 $sql = $adatbazis_kapcsolat->u('projektszerzodes_tetel', array('teljesites', 'ertek'), array($_POST['telj_datum'], $netto_ert), "`recid`='{$_SESSION['pr_szla_tetel_pr_tetel'][$i]}'");
                 if( $sql === false ) { $db_error = true; }
                 
                 $i++;
             }
+            
+            // Feldolgozással a SESSION értékeket ki is ürítjük.
+            unset($_SESSION['pr_szla_tetel_targy']);
+            unset($_SESSION['pr_szla_tetel_netto_ert']);
+            unset($_SESSION['pr_szla_tetel_dev_net']);
         }
-        
+
         // Projektszerződés tételek felvétele
         if( $tabla == 'projektszerzodes' ) {
             
@@ -913,9 +918,9 @@ function i_u($type, $tabla, $tomb) {
             foreach ( $_SESSION['pr_szer_tetel_targy'] as $targy ) {
                 $varh_erk = str_replace('.', '-', $_SESSION['pr_szer_tetel_varh_erk'][$i]);
                 $varh_ert = str_replace(' ', '',  $_SESSION['pr_szer_tetel_varh_ert'][$i]);
-                $dev_net  = str_replace(' ', '',  $_SESSION['pr_szer_tetel_dev_net'] [$i]);
+                $dev_net  = str_replace(array(' ', ','), array('', '.'),  $_SESSION['pr_szer_tetel_dev_net'] [$i]);
                 // Ha van deviza információnk, akkor a Ft-ot ne tároljuk le, így leszünk következetesek (pl. ha tételek kezelése popupban dolgozva jönnek létre a tételek, nem így autoatikusan, akkor sincs Ft megfelelő letárolva)
-                if( $dev_net ) {
+                if( $dev_net>0 ) {
                     $varh_ert = '0';
                 }
                 $sql = $adatbazis_kapcsolat->i('projektszerzodes_tetel',
@@ -926,7 +931,7 @@ function i_u($type, $tabla, $tomb) {
                 
                 $i++;
             }
-            
+
             // Feldolgozással a SESSION értékeket ki is ürítjük.
             unset($_SESSION['pr_szer_tetel_varh_erk']);
             unset($_SESSION['pr_szer_tetel_varh_ert']);
@@ -1764,7 +1769,7 @@ function i_u($type, $tabla, $tomb) {
     <valarf>'.$prsz['arfolyam'].'</valarf>
     <valarf_dat>'.str_replace('-', '', $prsz['valtva']).'</valarf_dat>
     <kcs_46>'.$kolt_vis.'</kcs_46>
-    <kcs_51>'.$prsz['kcs_21'].'<kcs_51>
+    <kcs_51>'.$prsz['kcs_21'].'</kcs_51>
     <valbrutert>'.$prsz['dev_br'].'</valbrutert>
 </projszla>
 ';

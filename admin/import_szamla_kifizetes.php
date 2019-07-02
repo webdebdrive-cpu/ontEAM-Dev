@@ -4,62 +4,83 @@
   A POST-ként kapunk egy XML-t. Ezt feldolgozva töltjük fel a számlák kifizetések fül alatti bejegyzéseket.
 
 \*                                                                                                                                         */
-//require_once '../weblap.php';
-file_put_contents('postok/'.date('Y-m-d_H:i:s').'_get.txt', serialize($_GET));
-file_put_contents('postok/'.date('Y-m-d_H:i:s').'_post.txt', serialize($_POST));
-file_put_contents('postok/'.date('Y-m-d_H:i:s').'_request.txt', serialize($_REQUEST));
-
-echo 'GET: '.serialize($_GET)."\n";
-echo 'POST: '.serialize($_POST)."\n";
-echo 'REQUEST: '.serialize($_REQUEST)."\n";
-exit;
-
+require_once '../weblap.php';
+//file_put_contents('postok/'.date('Y-m-d_H:i:s').'_get.txt', serialize($_GET));
+//file_put_contents('postok/'.date('Y-m-d_H:i:s').'_post.txt', serialize($_POST));
 // Ha van postolt adatunk, akkor ellenőrizzük a beléptetést, és ha ez megvan, akkor tovább léptetjük az új számla feltöltéshez
-if( $_POST || isset($_GET['teszt']) ) {
+if( $_POST /*|| isset($_GET['teszt'])*/ ) {
 
-    echo serialize($_POST);
-    file_put_contents('postok/'.date('Y-m-d_H:i:s').'.txt', serialize($_POST));
-    file_put_contents('postok/'.date('Y-m-d_H:i:s').'_2.txt', serialize($_POST['xmlpszlakif']));
-    file_put_contents('postok/'.date('Y-m-d_H:i:s').'_3.txt', serialize($_POST['valami']));
+    // Tranzakciót indítunk
+    $db_error = false;
+    mysqli_autocommit($db_kapcs, false);
+    
+    // Új kifizetések fül adat érkezett
+    if( $_POST['szlakifxml'] ) {
+    
+        file_put_contents('postok/kifizetesek.xml', utf8($_POST['szlakifxml']));
 
-//    require('../class/class.XmlIterator.php');
-//
-//    $xml = new XmlIterator('postok/kifizetesek.xml');
-//    $xml -> strObjectTagname = 'projszla';
-//    
-//    // Tranzakciót indítunk
-//    $db_error = false;
-//    mysqli_autocommit($db_kapcs, false);
-//
-//    // Az első ciklus csak egyetlen tag-et dolgoz fel: onteamid
-//    foreach ( $xml as $projszla ) {
-//        
-//        // Majd váltunk a szlakif tag-re, ezt járjuk be, mert ebből már több is lehet
-//        $xml -> strObjectTagname = 'szlakif';
-//        foreach ( $xml as $szlakif ) {
-//            
-//            // XML-ben egy úgy nevezett "dhszla_id"-t kapunk. Némelyik értéklistának (így a Bankoknak) van "dhszla_id"-ja, ezzel azonosítjuk be a bankot.
-//            $bank   = $adatbazis_kapcsolat->s2('id', 'erteklista', "`dhszla_id`='".htmlspecialchars($szlakif['bank'])."'");
-//            $kcs_21 = $adatbazis_kapcsolat->s2('id', 'erteklista', "`dhszla_id`='".htmlspecialchars($szlakif['kcs_21'])."'");
-//            
-//            $sql = $adatbazis_kapcsolat->i('projektszamla_kifizetesek',     array('projektszamla_recid',    'bank',      'kifizetes',              'br_ertek',            'dev_br',              'kcs_21',  'insert_usr',              'insert_dt'                ),
-//                                                                            array($projszla['onteamid'][0], $bank['id'], $szlakif['kifizetes'][0], $szlakif['brutto'][0], $szlakif['dev_br'][0], $kcs_21,   $szlakif['insert_usr'][0], $szlakif['insert_dt'][0]   )
-//                                            );
-//            if( $sql === false ) {
-//                $db_error = true;
-//            }
-//// echo $adatbazis_kapcsolat->gp() . '<br>';
-//        }
-//
-//    }
-//    
-//    // Tranzakció kommitolása, vagy rollback-ezése
-//    if( !$db_error ) {
-//        mysqli_commit($db_kapcs);
-//    } else {
-//        echo '02 - Adatbázisba íráskor hiba történt!';
-//        mysqli_rollback($db_kapcs);
-//    }
+        require('../class/class.XmlIterator.php');
+
+        $xml = new XmlIterator('postok/kifizetesek.xml');
+        $xml -> strObjectTagname = 'projszla';
+
+        // Az első ciklus csak egyetlen tag-et dolgoz fel: onteamid
+        foreach ( $xml as $projszla ) {
+
+            // Majd váltunk a szlakif tag-re, ezt járjuk be, mert ebből már több is lehet
+            $xml -> strObjectTagname = 'szlakif';
+            foreach ( $xml as $szlakif ) {
+
+                // Ha csak egy sornak nincs ilyen adata, akkor megszakítjuk a működést
+                if( !$szlakif['szlakifid'][0] ) {
+                    echo '02 - Hiányzó szlakifid adat! Egyetlen most átadott kifizetés sor sem került letárolásra.';
+                    mysqli_rollback($db_kapcs);
+                }
+                
+                // XML-ben egy úgy nevezett "dhszla_id"-t kapunk. Némelyik értéklistának (így a Bankoknak) van "dhszla_id"-ja, ezzel azonosítjuk be a bankot.
+                $bank   = $adatbazis_kapcsolat->s2('id', 'erteklista', "`dhszla_id`='".htmlspecialchars($szlakif['bank'])."'");
+                $kcs_21 = $adatbazis_kapcsolat->s2('id', 'erteklista', "`dhszla_id`='".htmlspecialchars($szlakif['kcs_21'][0])."'");
+
+                $lezeto_sor = $adatbazis_kapcsolat->s('recid', 'projektszamla_kifizetesek', "`szlakifid`='{$szlakif['szlakifid'][0]}'");
+                if( $sql === false ) { $db_error = true; }
+                if( $lezeto_sor ) {
+                    $sql = $adatbazis_kapcsolat->u('projektszamla_kifizetesek',     array('projektszamla_recid',    'bank',      'kifizetes',              'br_ertek',            'dev_br',              'kcs_21',      'insert_usr',               'insert_dt'                ),
+                                                                                    array($projszla['onteamid'][0], $bank['id'], $szlakif['kifizetes'][0], $szlakif['brutto'][0], $szlakif['dev_br'][0], $kcs_21['id'],  $szlakif['insert_usr'],    $szlakif['insert_dt'][0]   ),
+                                                    "`szlakifid`='{$szlakif['szlakifid'][0]}'"
+                                                    );
+                } else {
+                    $sql = $adatbazis_kapcsolat->i('projektszamla_kifizetesek',     array('szlakifid',              'projektszamla_recid',    'bank',      'kifizetes',              'br_ertek',            'dev_br',              'kcs_21',      'insert_usr',               'insert_dt'                ),
+                                                                                    array($szlakif['szlakifid'][0], $projszla['onteamid'][0], $bank['id'], $szlakif['kifizetes'][0], $szlakif['brutto'][0], $szlakif['dev_br'][0], $kcs_21['id'],  $szlakif['insert_usr'],    $szlakif['insert_dt'][0]   )
+                                                    );
+                }
+                if( $sql === false ) { $db_error = true; }
+
+            }
+
+        }
+        
+    // Kifizetés sor törlése
+    } elseif( $_POST['szlakiftorol'] ) {
+        $szlakifidk = explode("\n", $_POST['szlakiftorol']);
+        foreach( $szlakifidk as $szlakifid ) {
+            $szlakifid = trim($szlakifid);
+            $sql = $adatbazis_kapcsolat->d('projektszamla_kifizetesek', "`szlakifid`='{$szlakifid}'");
+            if( $sql === false ) { $db_error = true; }
+        }
+        
+    // Ha egyik sem érkezett    
+    } else {
+        echo '03 - Nem érkezett sem új kifizetés adat, sem kifizetés törlés utasítás!';
+    }
+    
+    // Tranzakció kommitolása, vagy rollback-ezése
+    if( !$db_error ) {
+        mysqli_commit($db_kapcs);
+    } else {
+        echo '04 - Adatbázisba íráskor hiba történt!';
+        mysqli_rollback($db_kapcs);
+        exit;
+    }
 
     echo 'OK';
 

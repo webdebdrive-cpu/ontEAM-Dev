@@ -292,8 +292,8 @@ if( isset($_POST['tetel_sorok_ment']) ) {
     
     // Ha ismert a szerződés ID-ja, akkor a sorokat is updatel-jük (töröljük, majd újra beszúrjuk)
     // Azért kell az is_numeric, mert JS-ből volt, hogy itt egy 'false' értéket kaptunk, és ilyenkor sem kéne beírni még adatbázisb (új feltöltés esete).
-    if( $recid && is_numeric($recid) ){
-        
+    if( $recid && is_numeric($recid) ) {
+
         // Nem törölhetünk minden tételt, hisz lehet van számla párja, és ekkor a recid-ja nem változhat, nem törölhető majd hozható létre újból.
         $szerzodes_tetelek = $adatbazis_kapcsolat->s('recid', 'projektszerzodes_tetel', "`projektszerzodes_recid`='{$recid}'");
         if( $szerzodes_tetelek === false ) { $db_error = true; }
@@ -322,7 +322,7 @@ if( isset($_POST['tetel_sorok_ment']) ) {
                 $szamla_tetel = $adatbazis_kapcsolat->s2('recid', 'projektszamla_tetel', "`projektszerzodes_tetel_recid`='{$_SESSION['pr_szer_tetel_recid'][$i]}'");
             }
             // Ha egy fiktív sor (azaz nincs még recid-ja a sessionben, vagy ha létezik, de nincs hozzá tartozó számla, akkor létrehozzuk
-            if( !$_SESSION['pr_szer_tetel_recid'][$i] || !$szamla_tetel ){
+            if( !$_SESSION['pr_szer_tetel_recid'][$i] || !$szamla_tetel ) {
 
                 $varh_erk = str_replace('.', '-', $_SESSION['pr_szer_tetel_varh_erk'][$i]);
                 $varh_ert = str_replace(array(' ', ','), array('', '.'),  $_SESSION[$session_mezo][$i]);
@@ -353,7 +353,6 @@ if( isset($_POST['tetel_sorok_ment']) ) {
         }
         
     }
-    
     
     if( !$db_error ) {
         mysqli_commit($db_kapcs);
@@ -579,9 +578,11 @@ if( isset($_POST['van_tetel']) ) {
     if( $_SESSION['pr_szer_tetel_targy'] ) {
 
         $session_valtozo_nev = 'pr_szer_tetel_varh_ert';
-        $osszeg = $szerzodes_osszege;
+        $osszeg  = $szerzodes_osszege;
+        $tizedes = 0;
         if( $_POST['kcs_21'] && $_POST['kcs_21']!=KCS_21_HUF ) {
-            $osszeg = $dev_net;
+            $osszeg  = $dev_net;
+            $tizedes = 2;
             $session_valtozo_nev = 'pr_szer_tetel_dev_net';
         }
         
@@ -592,7 +593,7 @@ if( isset($_POST['van_tetel']) ) {
         }
         if( $tetelek_osszege != $osszeg ) {
             echo json_encode( array(
-                                'hiba'  => 'A szerződés tételeinek összeg nem egyezik meg a szerződés összegével!<br>Így nem menthető!',
+                                'hiba'  => 'A szerződés tételeinek összege ('.number_format($tetelek_osszege, $tizedes, ',', ' ').') nem egyezik meg a szerződés összegével ('.number_format($osszeg, $tizedes, ',', ' ').')!<br>Így nem menthető!',
                                 'title' => 'Hiba',
                                 'focus' => 'szerz_ossz',
                             ) );
@@ -1065,6 +1066,7 @@ require_once('selectek.php');
         $_SESSION['pr_szer_tetel_targy']    = '';
         $_SESSION['pr_szer_tetel_varh_erk'] = '';
         $_SESSION['pr_szer_tetel_varh_ert'] = '';
+        $_SESSION['pr_szer_tetel_dev_net']  = '';
 
         if( _jog(JOG_PRKEZEL_SZERZODES_KEZEL) || _jog(JOG_PR_SAJAT_SZERZ_KEZEL) ){
             $gombok = nl2('
