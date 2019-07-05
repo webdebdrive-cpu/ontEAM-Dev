@@ -149,6 +149,7 @@ if( isset($_POST['get_projekt_tabla']) ) {
                 table.fix_fejlec thead {
                     position: fixed;
                     margin-top: -7rem;
+                    width: 90%;
                 }
                 table.fix_fejlec thead tr th:nth-of-type(1), table.fix_fejlec tbody tr td:nth-of-type(1) {
                     width: 8rem;
@@ -403,11 +404,11 @@ if( isset($_POST['pop_tetelek_feltolt']) ) {
         if( $_SESSION['pr_szer_tetel_recid'][$i] ) {
             $szamla_tetel = $adatbazis_kapcsolat->s2('recid projektszamla_recid netto_ert', 'projektszamla_tetel', "`projektszerzodes_tetel_recid`='{$_SESSION['pr_szer_tetel_recid'][$i]}'");
             if( $szamla_tetel ) {
-                $szamla = $adatbazis_kapcsolat->s2('telj_datum', 'projektszamla', "`recid`='{$szamla_tetel['projektszamla_recid']}'");
-                $class = ' szerzodes_szamla_tetel_szurke';
-                $netto_ertek = number_format($szamla_tetel[$oszlop], $tizedes, ',', ' ');
-                $teljesites  = datum_kiir($szamla['telj_datum']);
-                $torol = '';
+                $szamla         = $adatbazis_kapcsolat->s2('telj_datum', 'projektszamla', "`recid`='{$szamla_tetel['projektszamla_recid']}'");
+                $class          = ' szerzodes_szamla_tetel_szurke';
+                $netto_ertek    = number_format($szamla_tetel[$oszlop], $tizedes, ',', ' ');
+                $teljesites     = datum_kiir($szamla['telj_datum']);
+                $torol          = '';
             }
         }
         
@@ -1489,14 +1490,16 @@ require_once('selectek.php');
                     <div class="dtc">Számla várh. érk.</div>
                     <div class="dtc r">Számla várh. értéke ('.getErtekLista(ERTEKLISTA_PENZNEM, $sor['kcs_21']).')</div>
                     <div class="dtc">Teljesítés</div>
-                    <div class="dtc">Érték ('.get_penznem().')</div>
+                    <div class="dtc r">Érték ('.getErtekLista(ERTEKLISTA_PENZNEM, $sor['kcs_21']).')</div>
                 </div>
         ');
 
         $osszeg_oszlop = 'varh_ert';
+        $ertek_oszlop  = 'ertek';
         $tizedesek     = 0;
         if( $sor['kcs_21'] && $sor['kcs_21']!=KCS_21_HUF ) {
             $osszeg_oszlop = 'dev_net';
+            $ertek_oszlop  = 'dev_ertek';
             $tizedesek     = 2;
         }
         
@@ -1510,7 +1513,7 @@ require_once('selectek.php');
                     <div class="dtc">'.datum_kiir($tetel['varh_erk']).'</div>
                     <div class="dtc r">'.number_format($tetel[$osszeg_oszlop], $tizedesek, ',', ' ').'</div>
                     <div class="dtc">'.datum_kiir($tetel['teljesites']).'</div>
-                    <div class="dtc">'.number_format($tetel['ertek'], 0, '', ' ').'</div>
+                    <div class="dtc r">'.number_format($tetel[$ertek_oszlop], $tizedesek, ',', ' ').'</div>
                 </div>
             ');
         }

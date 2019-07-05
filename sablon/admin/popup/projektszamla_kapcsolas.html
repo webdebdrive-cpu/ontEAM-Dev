@@ -54,7 +54,16 @@
 </div>
 <script>
 /* JS-el figyeljük, hogy volt-e bármi változás. Ha igen, akkor Mégsem/Bezár gombra rákérdezünk, hogy biztos-e? */
+var akt_penznem = $('#kcs_21_autocomp').val();
+if( !akt_penznem ) {
+    akt_penznem = $('#kcs_21_autocomp_db').val();
+}
+
 var van_valtozas = false;
+var kcs_21 = $('#kcs_21').val();
+if( !kcs_21 ) {
+    $('#kcs_21_db').val();
+}
 
 $(document).ready(function () {    
     
@@ -63,7 +72,7 @@ $(document).ready(function () {
     
     /* f_penznem class-ú elemek lecserélése a pénznemre */
     $('.f_penznem').each(function () {
-        $(this).replaceWith(PENZNEM);
+        $(this).replaceWith(akt_penznem);
     });
     
     pop_kapcsolas_feltolt();
@@ -219,6 +228,7 @@ function projektszamla_kapcsolas( mehet ) {
             adatok                  : JSON.stringify(adatok),
             recid                   : _get('id'),
             mehet                   : mehet,
+            kcs_21                  : kcs_21,
             szamla_tetel_recid      : $('#szamla_tetel_recid').val(),
             projektszamla_kapcsolas : Date.now()
         },
@@ -259,6 +269,7 @@ function pop_kapcsolas_feltolt() {
         data: {
             telephely_id            : telephely_id,
             sz_szam                 : sz_szam,
+            kcs_21                  : kcs_21,
             id                      : _get('id'),
             szamla_tetel_recid      : $('#szamla_tetel_recid').val(),
             pop_kapcsolas_feltolt   : Date.now()
@@ -300,6 +311,14 @@ function pop_kapcsolas_feltolt() {
 /*  Tételek kiszámítása, lássuk hol járunk a számla nettó értékéhez képest */
 function tetelek_kiszamol( that, elso ) {
     
+    /* HUF esetén nem törtet írunk ki, deviza esetén viszont törtet + "Számla várh. értéke" mező is törté kell alakítani */
+    var osszeg_mezo = 'netto';
+    var tizedesek   = 0;
+    if( akt_penznem && akt_penznem != 'HUF' ) {
+        osszeg_mezo = 'dev_net';
+        tizedesek   = 2;
+    }
+    
     /* Bármikor, amikor tételeket ki kell számolni, akkor már biztos, hogy volt valami változás az űrlapon. Kivéve az első betöltést. */
     if( !elso ){
         van_valtozas = true;
@@ -308,7 +327,7 @@ function tetelek_kiszamol( that, elso ) {
     /* Ezt egy ellenőrzéssel kezdjük: csak egy sorban törlhető ki a nettó a nettó érték. */
     var netto_ertek_db = 0;
     $('.pop_netto_ert').each(function() {
-        if( !$(this).prop('disabled') && $(this).val() && $(this).val()!='0' ){
+        if( !$(this).prop('disabled') && $(this).val() && $(this).val()!='0' && $(this).val() && $(this).val()!='0,00' ){
             netto_ertek_db++;
         }
         if( netto_ertek_db>1 ){
@@ -329,28 +348,28 @@ function tetelek_kiszamol( that, elso ) {
     });
 
     
-    projekt_osszege = $('#pop_szerzodes_ossz').html().replace(' '+PENZNEM, '').replace(/ /g, '');
+    projekt_osszege = $('#pop_szerzodes_ossz').html().replace(' '+akt_penznem, '').replace(/ /g, '').replace(/,/g, '.');
     
     kifizetve = 0;
     $('.pop_netto_ert').each(function() {
-        kifizetve += Number( $(this).val().replace(/ /g, '') );
+        kifizetve += Number( $(this).val().replace(/ /g, '').replace(/,/g, '.') );
     });
     
     hatralevo = 0;
     var i = 0;
     $('.pop_varhato_ert').each(function() {
         akt_id = $(this).attr('id').replace('varh_ert_', '');
-        if( !$('#ertek_'+akt_id).val() || $('#ertek_'+akt_id).val()=='0' ){
-            hatralevo += Number( $(this).val().replace(/ /g, '') );
+        if( !$('#ertek_'+akt_id).val() || $('#ertek_'+akt_id).val()=='0' || $('#ertek_'+akt_id).val()=='0,00' ){
+            hatralevo += Number( $(this).val().replace(/ /g, '').replace(/,/g, '.') );
         }
         i++;
     });
     
-    $('#pop_kifizetve').html( ezresek2(kifizetve)+' '+PENZNEM );
-    $('#pop_hatralevo').html( ezresek2(hatralevo)+' '+PENZNEM );
+    $('#pop_kifizetve').html( ezresek(kifizetve, tizedesek, ',', ' ')+' '+akt_penznem );
+    $('#pop_hatralevo').html( ezresek(hatralevo, tizedesek, ',', ' ')+' '+akt_penznem );
     
     kulonbseg = (kifizetve + hatralevo) - projekt_osszege;
-    $('#pop_kulonbozet').html( ezresek2( kulonbseg )+' '+PENZNEM );
+    $('#pop_kulonbozet').html( ezresek( kulonbseg, tizedesek, ',', ' ' )+' '+akt_penznem );
     $('#pop_kulonbozet').removeClass('piros');
     if( kulonbseg>0 ){
         $('#pop_kulonbozet').addClass('piros');

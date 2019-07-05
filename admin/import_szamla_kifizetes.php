@@ -15,13 +15,17 @@ if( $_POST /*|| isset($_GET['teszt'])*/ ) {
     mysqli_autocommit($db_kapcs, false);
     
     // Új kifizetések fül adat érkezett
-    if( $_POST['szlakifxml'] ) {
+    if( $_POST['szlakifxml'] /*|| isset($_GET['teszt'])*/ ) {
     
         file_put_contents('postok/kifizetesek.xml', utf8($_POST['szlakifxml']));
 
         require('../class/class.XmlIterator.php');
 
-        $xml = new XmlIterator('postok/kifizetesek.xml');
+//        if( isset($_GET['teszt']) ) {
+//            $xml = new XmlIterator('postok/kifizetesek_sajat.xml');
+//        } else {
+            $xml = new XmlIterator('postok/kifizetesek.xml');
+//        }
         $xml -> strObjectTagname = 'projszla';
 
         // Az első ciklus csak egyetlen tag-et dolgoz fel: onteamid
@@ -35,6 +39,14 @@ if( $_POST /*|| isset($_GET['teszt'])*/ ) {
                 if( !$szlakif['szlakifid'][0] ) {
                     echo '02 - Hiányzó szlakifid adat! Egyetlen most átadott kifizetés sor sem került letárolásra.';
                     mysqli_rollback($db_kapcs);
+                }
+                
+                // A törlendő sorok a $projszla['onteamid'][0]-ben vannak
+                $torlendok = explode(',', $projszla['szlakiftorol'][0]);
+                foreach( $torlendok as $torlendo ) {
+                    $torlendo = trim($torlendo);
+                    $sql = $adatbazis_kapcsolat->d('projektszamla_kifizetesek', "`szlakifid`='{$torlendo}'");
+                    if( $sql === false ) { $db_error = true; }
                 }
                 
                 // XML-ben egy úgy nevezett "dhszla_id"-t kapunk. Némelyik értéklistának (így a Bankoknak) van "dhszla_id"-ja, ezzel azonosítjuk be a bankot.
@@ -59,18 +71,9 @@ if( $_POST /*|| isset($_GET['teszt'])*/ ) {
 
         }
         
-    // Kifizetés sor törlése
-    } elseif( $_POST['szlakiftorol'] ) {
-        $szlakifidk = explode("\n", $_POST['szlakiftorol']);
-        foreach( $szlakifidk as $szlakifid ) {
-            $szlakifid = trim($szlakifid);
-            $sql = $adatbazis_kapcsolat->d('projektszamla_kifizetesek', "`szlakifid`='{$szlakifid}'");
-            if( $sql === false ) { $db_error = true; }
-        }
-        
     // Ha egyik sem érkezett    
     } else {
-        echo '03 - Nem érkezett sem új kifizetés adat, sem kifizetés törlés utasítás!';
+        echo '03 - Nem érkezett XML adat!';
     }
     
     // Tranzakció kommitolása, vagy rollback-ezése

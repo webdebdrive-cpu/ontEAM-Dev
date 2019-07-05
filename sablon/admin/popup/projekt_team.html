@@ -98,12 +98,12 @@ function tabla_szur(tabla, kulcs, oszlop) {
 
 /* Login táblázat egy sorára kattintva, adott login adataival feltöltjük a cellákat */
 function pop_mezok_kitolt( tr ){
-    $('#pop_nev').val( tr.find('.nev').html() );
-    $('#pop_beosztas').val( tr.find('.beosztas').html() );
+    $('#pop_nev').val( tr.find('.nev').html().replace(/&amp;/g, '&') );
+    $('#pop_beosztas').val( tr.find('.beosztas').html().replace(/&amp;/g, '&') );
     $('#pop_usertel').val( tr.find('.telefon').val() );
     $('#pop_usermail').val( tr.find('.email').val() );
     $('#pop_recid').val( tr.find('.recid').val() );
-    $('#pop_ceg').val( tr.find('.reszleg').html() );
+    $('#pop_ceg').val( tr.find('.reszleg').html().replace(/&amp;/g, '&') );
 }
 
 /* Külsős hozzáadása gomb */
