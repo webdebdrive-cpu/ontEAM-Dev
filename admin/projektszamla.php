@@ -335,11 +335,13 @@ if( isset($_POST['projektszamla_kapcsolas']) ) {
     $varh_ert_mezo  = 'varh_ert';
     $ertek_mezo     = 'ertek';
     $netto_mezo     = 'netto_ert';
+    $szerz_mezo     = 'szerz_ossz';
     $tizedesek      = 0;
     $penznem        = get_penznem();
     if( $_POST['kcs_21'] && $_POST['kcs_21']!=KCS_21_HUF ) {
         $varh_ert_mezo  = 'dev_varh_ert';
         $ertek_mezo     = 'dev_ertek';
+        $szerz_mezo     = 'dev_net';
         $netto_mezo     = 'dev_net';
         $tizedesek      = 2;
         $penznem        = getErtekLista(ERTEKLISTA_PENZNEM, $_POST['kcs_21']);
@@ -365,7 +367,7 @@ if( isset($_POST['projektszamla_kapcsolas']) ) {
     
     $szamla = $adatbazis_kapcsolat->s2('sz_szam telj_datum', 'projektszamla', "`recid`='{$recid}'");
     if( $szamla === false ) { $db_error = true; }
-    $szerzodes = $adatbazis_kapcsolat->s2('recid szerz_ossz', 'projektszerzodes', "`sz_szam`='{$szamla['sz_szam']}'");
+    $szerzodes = $adatbazis_kapcsolat->s2('recid '.$szerz_mezo, 'projektszerzodes', "`sz_szam`='{$szamla['sz_szam']}'");
     if( $szerzodes === false ) { $db_error = true; }
     // Az a számlatétel, amit épp kapcsolunk
     $szamla_tetel = $adatbazis_kapcsolat->s2($netto_mezo, 'projektszamla_tetel', "`recid`='{$_POST['szamla_tetel_recid']}'");
@@ -489,17 +491,17 @@ if( isset($_POST['projektszamla_kapcsolas']) ) {
     }
     
     // Ha a számla nettó értéke nem egyenlő a tételek összegével, akkor hibaüzenet
-    if( $kif_ossz > $szerzodes['szerz_ossz'] ) {
+    if( $kif_ossz > $szerzodes[$szerz_mezo] ) {
         echo json_encode( array( 
-                        'hiba'  => 'A már kifizetett ('.number_format($kifizetett_ossz, $tizedesek, ',', ' ').' '.$penznem.') és a még kifizetésre váró ('.number_format($kifizet_var_ossz, $tizedesek, ',', ' ').' '.$penznem.') számlák összege ('.number_format($kif_ossz, $tizedesek, ',', ' ').' '.$penznem.') több,<br>mint a szerződés összege ('.number_format($szerzodes['szerz_ossz'], $tizedesek, ',', ' ').' '.$penznem.')! Így nem menthető!',
+                        'hiba'  => 'A már kifizetett ('.number_format($kifizetett_ossz, $tizedesek, ',', ' ').' '.$penznem.') és a még kifizetésre váró ('.number_format($kifizet_var_ossz, $tizedesek, ',', ' ').' '.$penznem.') számlák összege ('.number_format($kif_ossz, $tizedesek, ',', ' ').' '.$penznem.') több,<br>mint a szerződés összege ('.number_format($szerzodes[$szerz_mezo], $tizedesek, ',', ' ').' '.$penznem.')! Így nem menthető!',
                         'title' => 'Hiba',
                         ) );
                 $weblap->leallit();
                 exit();
                 
-    } elseif( $kif_ossz < $szerzodes['szerz_ossz'] && !$_POST['mehet'] ) {
+    } elseif( $kif_ossz < $szerzodes[$szerz_mezo] && !$_POST['mehet'] ) {
         echo json_encode( array( 
-                        'hiba'  => 'A várható összes teljesítés ('.number_format($kif_ossz, $tizedesek, ',', ' ').' '.$penznem.') kevesebb, mint a szerződött összeg ('.number_format($szerzodes['szerz_ossz'], $tizedesek, ',', ' ').' '.$penznem.')!<br>Folytatja?',
+                        'hiba'  => 'A várható összes teljesítés ('.number_format($kif_ossz, $tizedesek, ',', ' ').' '.$penznem.') kevesebb, mint a szerződött összeg ('.number_format($szerzodes[$szerz_mezo], $tizedesek, ',', ' ').' '.$penznem.')!<br>Folytatja?',
                         'gomb'  => '<input type="button" class="gomb zold" value="Igen" onclick="projektszamla_kapcsolas(\'mehet\')"><input type="button" class="gomb piros" value="Nem" onclick="alert2()">',
                         'title' => 'Kérdés',
                         ) );
@@ -743,15 +745,16 @@ if( isset($_POST['pop_tetelek_feltolt']) ) {
 // Kapcsoló popup feltöltése
 if( isset($_POST['pop_kapcsolas_feltolt']) ) {
 
-    $penznem    = get_penznem();
+    $penznem    = getErtekLista(ERTEKLISTA_PENZNEM, $_POST['kcs_21']);
     $tizedesek  = 0;
-    $mezo       = 'varh_erk';
+    $mezo       = 'varh_ert';
     $netto_mezo = 'netto_ert';
+    $szerz_mezo = 'szerz_ossz';
     $ertek_mezo = 'ertek';
     if( $_POST['kcs_21'] && $_POST['kcs_21']!=KCS_21_HUF ) {
-        $penznem    = getErtekLista(ERTEKLISTA_PENZNEM, $_POST['kcs_21']);
         $netto_mezo = 'dev_net';
         $mezo       = 'dev_net';
+        $szerz_mezo = 'dev_net';
         $ertek_mezo = 'dev_ertek';
         $tizedesek  = 2;
     }
@@ -779,7 +782,7 @@ if( isset($_POST['pop_kapcsolas_feltolt']) ) {
         }
         
         // Szerződés lekérdezése
-        $szerzodes = $adatbazis_kapcsolat->s2('recid szerz_ossz telephely_id', 'projektszerzodes', "`sz_szam`='{$szamla['sz_szam']}'");
+        $szerzodes = $adatbazis_kapcsolat->s2('recid '.$szerz_mezo.' telephely_id', 'projektszerzodes', "`sz_szam`='{$szamla['sz_szam']}'");
 
         // Ellenőrizzük, hogy a kiválasztott szálloda és a projekt szám stimmel-e
         if( $szerzodes['telephely_id'] != $_POST['telephely_id'] ) {
@@ -791,7 +794,7 @@ if( isset($_POST['pop_kapcsolas_feltolt']) ) {
             exit();
         }
         
-        $szerzodes_ossz = number_format($szerzodes['szerz_ossz'], $tizedesek, ',', ' ').' '. get_penznem();
+        $szerzodes_ossz = number_format($szerzodes[$szerz_mezo], $tizedesek, ',', ' ').' '.$penznem;
         
     // Ilyen elevileg elő sem fordulhat, de jobb leellenőrizni
     } else {
@@ -829,7 +832,7 @@ if( isset($_POST['pop_kapcsolas_feltolt']) ) {
         $tabla .= nl2('
                         <tr class="pop_kapcsol_' . $id_tmp.$class . '">
                             <td class="pop_targy l">' . $tetel['targy'] . '</td>
-                            <td class="pop_varh_erk">' . datum_kiir($tetel[$mezo]) . '</td>
+                            <td class="pop_varh_erk">' . datum_kiir($tetel['varh_erk']) . '</td>
                             <td><input type="text" id="varh_ert_'.$id_tmp.'" value="'.number_format($tetel[$mezo], $tizedesek, ',', ' ').'" class="r f_num pop_varhato_ert" data-tort="'.$tizedesek.'" maxlength="12"'.$disabled.'></td>
                             <td><input type="text" value="'.datum_kiir($tetel['teljesites']).'" class="datepicker_matol pop_teljesites" maxlength="10"'.$disabled.'></td>
                             <td><input type="text" id="ertek_'.$id_tmp.'" value="'.number_format($tetel[$ertek_mezo], $tizedesek, ',', ' ').'" class="r f_num pop_netto_ert" data-tort="'.$tizedesek.'" maxlength="12"'.$disabled.'></td>
@@ -844,7 +847,7 @@ if( isset($_POST['pop_kapcsolas_feltolt']) ) {
     echo json_encode( array(
         'tabla'                 => $tabla,
         'szerzodes_ossz'        => $szerzodes_ossz,
-        'szamla_tetel_netto'    => number_format($szamla_tetel['netto_ert'], 0, '', ' '),
+        'szamla_tetel_netto'    => number_format($szamla_tetel[$netto_mezo], $tizedesek, ',', ' '),
         'szamla_telj_datum'     => datum_kiir($szamla['telj_datum']),
         ) );
     

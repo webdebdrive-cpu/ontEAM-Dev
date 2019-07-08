@@ -19,7 +19,7 @@
         <table class="csikos kijCont dn" id="pop_tetelek" style="cursor: default;">
             <thead>
             <tr>
-                <th>Tárgy</th>
+                <th style="width: 40rem">Tárgy</th>
                 <th>Számla várh. érk.</th>
                 <th>Számla várh. értéke (<span class="f_penznem"></span>)</th>
                 <th>Teljesítés</th>
@@ -84,7 +84,7 @@ $(document).ready(function () {
     });
     /* Nettó érték mezőbe kattintva, ha az üres volt, akkor a szamla_tetel_netto értéke kerüljön oda */
     $(document).on('focus', '.pop_netto_ert', function(event) {
-        if( !$(this).val() || $(this).val()=='0' ){
+        if( !$(this).val() || $(this).val()=='0' || $(this).val()=='0,00' ){
             $(this).val( $('#szamla_tetel_netto').val() );
             tetelek_kiszamol( $(this) );
         }

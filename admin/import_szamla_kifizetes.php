@@ -39,14 +39,17 @@ if( $_POST /*|| isset($_GET['teszt'])*/ ) {
                 if( !$szlakif['szlakifid'][0] ) {
                     echo '02 - Hiányzó szlakifid adat! Egyetlen most átadott kifizetés sor sem került letárolásra.';
                     mysqli_rollback($db_kapcs);
+                    exit;
                 }
                 
                 // A törlendő sorok a $projszla['onteamid'][0]-ben vannak
                 $torlendok = explode(',', $projszla['szlakiftorol'][0]);
                 foreach( $torlendok as $torlendo ) {
                     $torlendo = trim($torlendo);
-                    $sql = $adatbazis_kapcsolat->d('projektszamla_kifizetesek', "`szlakifid`='{$torlendo}'");
-                    if( $sql === false ) { $db_error = true; }
+                    if( $torlendo ) {
+                        $sql = $adatbazis_kapcsolat->d('projektszamla_kifizetesek', "`szlakifid`='{$torlendo}' AND `projektszamla_recid`='{$projszla['onteamid'][0]}'");
+                        if( $sql === false ) { $db_error = true; }
+                    }
                 }
                 
                 // XML-ben egy úgy nevezett "dhszla_id"-t kapunk. Némelyik értéklistának (így a Bankoknak) van "dhszla_id"-ja, ezzel azonosítjuk be a bankot.
