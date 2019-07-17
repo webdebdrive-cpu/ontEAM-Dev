@@ -1050,18 +1050,24 @@ function get_kulso_hozzarendeles_input_tartalmak(){
                     hely = munkalap.hely;
                 }
                 
+                gep = '';
+                if( munkalap.gep ) {
+                    gep = "Gép: " + munkalap.gep + "\n";
+                }
+                
                 if( munkalap.bejelento ){
                     bejelento = munkalap.bejelento;
                 }else{
                     bejelento = munkalap.letrehozta;
                 }
 
-                uzenet +=   "Hiba: "      + hiba      + "\n"  +
-                            "Hely: "      + hely      + "\n"  +
-                            "Bejelentő: " + bejelento + "\n"  +
-                            "\nKöszönettel,\n"                +
-                            munkalap.akt_felh_nev     + "\n"  +
-                            munkalap.akt_felh_beosztas+ "\n"  +
+                uzenet +=   "Hiba: "      + hiba      + "\n"    +
+                            "Hely: "      + hely      + "\n"    +
+                            gep                                 +
+                            "Bejelentő: " + bejelento + "\n"    +
+                            "\nKöszönettel,\n"                  +
+                            munkalap.akt_felh_nev     + "\n"    +
+                            munkalap.akt_felh_beosztas+ "\n"    +
                             munkalap.akt_felh_tel;
 
                 $('#pop_uzenet').val(uzenet);

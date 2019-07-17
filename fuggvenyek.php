@@ -663,9 +663,10 @@ function i_u($type, $tabla, $tomb) {
             
         }
 
+// Insert lefutása
 		$id = $adatbazis_kapcsolat -> insert($tabla, $oszlopok, $ertekek);
         if( $id === false ) { $db_error = true; }
-
+        
 //echo '<pre style="font-size: 1.4rem">';
 //echo $adatbazis_kapcsolat->gp() . '<br>';
 //echo '</pre>';
@@ -888,9 +889,10 @@ function i_u($type, $tabla, $tomb) {
             foreach ( $_SESSION['pr_szla_tetel_targy'] as $targy ) {
                 $netto_ert  = str_replace(' ', '',  $_SESSION['pr_szla_tetel_netto_ert'][$i]);
                 $dev_net    = str_replace(array(' ', ','), array('', '.'),  $_SESSION['pr_szla_tetel_dev_net'][$i]);
-                // Ha van deviza információnk, akkor a Ft-ot ne tároljuk le, így leszünk következetesek (pl. ha tételek kezelése popupban dolgozva jönnek létre a tételek, nem így autoatikusan, akkor sincs Ft megfelelő letárolva)
+                $arfolyam   = str_replace(array(' ', ','), array('', '.'),  $_POST['arfolyam']);
+                // Devizás számla esetén a Ft-os összeget az áfrolyamból számítjuk ki
                 if( $dev_net>0 ) {
-                    $netto_ert = '0';
+                    $netto_ert = round($dev_net*$arfolyam);
                 }
                 $sql = $adatbazis_kapcsolat->i('projektszamla_tetel',
                                                     array('projektszamla_recid', 'targy', 'netto_ert', 'dev_net', 'projektszerzodes_tetel_recid',          'loginnev',                          'insert_dt',    'insert_usr',                             'update_usr'                              ),
@@ -924,8 +926,8 @@ function i_u($type, $tabla, $tomb) {
                     $varh_ert = '0';
                 }
                 $sql = $adatbazis_kapcsolat->i('projektszerzodes_tetel',
-                                                    array('projektszerzodes_recid', 'targy', 'varh_erk', 'varh_ert', 'dev_net', 'loginnev',                          'insert_dt',    'insert_usr',                             'update_usr'                              ),
-                                                    array($id,                      $targy,  $varh_erk,  $varh_ert,  $dev_net,  $_SESSION[get_db_tabla().'user'],    'NOW()',        $_SESSION[get_db_tabla().'teljes_nev'],   $_SESSION[get_db_tabla().'teljes_nev']    )
+                                                    array('projektszerzodes_recid', 'targy', 'varh_erk', 'varh_ert', 'dev_varh_ert', 'loginnev',                          'insert_dt',    'insert_usr',                             'update_usr'                              ),
+                                                    array($id,                      $targy,  $varh_erk,  $varh_ert,  $dev_net,       $_SESSION[get_db_tabla().'user'],    'NOW()',        $_SESSION[get_db_tabla().'teljes_nev'],   $_SESSION[get_db_tabla().'teljes_nev']    )
                                             );
                 if( $sql === false ) { $db_error = true; }
                 
@@ -1423,8 +1425,8 @@ function i_u($type, $tabla, $tomb) {
                 $szamla_tetelek = $adatbazis_kapcsolat->s('projektszerzodes_tetel_recid', 'projektszamla_tetel', "`projektszamla_recid`='{$_GET['id']}'");
                 if( $szamla_tetelek === false ) { $db_error = true; }
                 foreach( $szamla_tetelek as $tetelek ) {
-                    $sql = $adatbazis_kapcsolat->u('projektszerzodes_tetel', array('teljesites', 'ertek'),
-                                                                             array('0000-00-00', '0'    ),
+                    $sql = $adatbazis_kapcsolat->u('projektszerzodes_tetel', array('teljesites', 'ertek',   'dev_ertek'),
+                                                                             array('0000-00-00', '0',       '0.00'     ),
                                                     "`recid`='{$tetelek['projektszerzodes_tetel_recid']}'");
                     if( $sql === false ) { $db_error = true; }
 
@@ -1488,7 +1490,7 @@ function i_u($type, $tabla, $tomb) {
             $mezo1      = 'pr_szla_tetel_netto_ert';
             $mezo2      = 'netto';
             $szoveg     = 'szerződés összegével';
-            if( $_POST['kcs_21'] && $_POST['kcs_21']!=KCS_21_HUF ) {
+            if( $_POST['kcs_21']!=KCS_21_HUF ) {
                 $tizedesek  = 2;
                 $mezo1      = 'pr_szla_tetel_dev_net';
                 $mezo2      = 'dev_net';
@@ -1519,6 +1521,23 @@ function i_u($type, $tabla, $tomb) {
                 ));
                 $weblap -> leallit();
                 exit();
+            }
+            
+            // Projektszámla mentésekor, ha az devizás, akkor a Ft-os értékeket az árfolyam alapján kiszámoljuk
+            if( $_POST['kcs_21']!=KCS_21_HUF ) {
+
+                $arfolyam = str_replace(array(' ', ','), array('', '.'),  $_POST['arfolyam']);
+                $tetelek = $adatbazis_kapcsolat->s('recid dev_net', 'projektszamla_tetel', "`projektszamla_recid`='{$_GET['id']}'");
+                if( $tetelek === false ) { $db_error = true; }
+                foreach( $tetelek as $tetel ) {
+                    $sql = $adatbazis_kapcsolat->u('projektszamla_tetel', array('netto_ert'), array(round($tetel['dev_net']*$arfolyam)), "`recid`='{$tetel['recid']}'");
+                    if( $sql === false ) { $db_error = true; }
+                }
+            // Ha nem devizás a számla, akkor viszont a tételeknél a deviza oszlopot nullázzuk
+            // Ez arra az esetre jó, ha devizás volt a számla, és változzuk sima Ft-ra, akkor a devzzás értékeket ürítjük
+            } else {
+                $sql = $adatbazis_kapcsolat->u('projektszamla_tetel', array('dev_net'), array(0), "`projektszamla_recid`='{$_GET['id']}'");
+                if( $sql === false ) { $db_error = true; }
             }
             
             // Illetve a szerződés számot, projekt számot, létesítmény felelőst, költség viselőt még külön fel kell még venni, mert a tiltott mező miatt ez magától nem íródna be
@@ -3038,15 +3057,15 @@ function szamla_lista( $where, $tabla, $kijeloltek = false, $csak_sql_miatt = fa
 
             // Ha saját feladatok a láthatósági kör, akkor az SQL feltétel azon múlik, hogy milyen jogai vannak a felhasználónak
             // Archív munkalaponknál nincs külön státuszra szűrés, ott ez értelmetlen
-            if( _jog(JOG_MUNKALAP_MEGTEKINT_FELADAT) && $tabla != 'munkalap_arch' ){
+            if( _jog(JOG_MUNKALAP_MEGTEKINT_FELADAT) && $tabla != 'munkalap_arch' ) {
                 $statuszra_szures = array();
-                if( _jog(JOG_MUNKALAP_IGAZOLAS) ){
+                if( _jog(JOG_MUNKALAP_IGAZOLAS) ) {
                     array_push($statuszra_szures, MUNKALAP_STAT_IGAZOLASRA_VAR);
                 }
-                if( _jog(JOG_MUNKALAP_VIZSGALAT) ){
+                if( _jog(JOG_MUNKALAP_VIZSGALAT) ) {
                     array_push($statuszra_szures, MUNKALAP_STAT_VIZSGALAT_ALATT);
                 }
-                if( _jog(JOG_MUNKALAP_KULSOS_ELOKESZIT) ){
+                if( _jog(JOG_MUNKALAP_KULSOS_ELOKESZIT) ) {
                     array_push($statuszra_szures, MUNKALAP_STAT_ELOKESZITES_ALATT);
                 }
                 if( _jog(JOG_MUNKALAP_KULSOS_DONTES) ){
@@ -3059,7 +3078,7 @@ function szamla_lista( $where, $tabla, $kijeloltek = false, $csak_sql_miatt = fa
                 }
 
                 // Szűrés azokra a státuszokra, amiket láthat
-                if($statuszra_szures){
+                if( $statuszra_szures ) {
                     $where .= "`".get_db_tabla().$tabla."`.`stat_id` IN (".implode(',', $statuszra_szures).") AND ";
                 // Ha egyiket sem láthatja, akkor legyen üres a lista
                 }else{

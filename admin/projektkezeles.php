@@ -1780,10 +1780,10 @@ require_once('selectek.php');
         $idtotengely = array(str_replace('.', '-', $elozo_elotti_ev_honap), str_replace('.', '-', $elozo_ev_honap));
         $akt_ev    = date('Y');
         $akt_honap = date('n');
-        for( $i = 0; $i<11; $i++ ){
+        for ( $i = 0; $i < 11; $i++ ) {
             array_push( $idtotengely,  $akt_ev.'-'.sprintf("%02d", $akt_honap));
             $akt_honap++;
-            if( $akt_honap==13 ){
+            if( $akt_honap == 13 ) {
                 $akt_honap = 1;
                 $akt_ev++;
             }
@@ -1792,9 +1792,9 @@ require_once('selectek.php');
         // Táblázat kirajzolása
         $idotengely_html = '';
         $i = 0;
-        foreach( $idtotengely as $honapok ){
+        foreach ( $idtotengely as $honapok ) {
             $ig = '';
-            if(!$i){
+            if( !$i ) {
                 $ig = '-ig';
             }
             $idotengely_html .= '<th class="nowrap">'.datum_kiir($honapok).$ig.'</th>';
@@ -1811,16 +1811,16 @@ require_once('selectek.php');
             <tbody>
         ');
         $cash_flow_nevek = $adatbazis_kapcsolat->s('recid nev', 'projektkezeles_cashflow_nev', "`projektkezeles_recid`='{$_GET['id']}'", 'nev');
-        foreach($cash_flow_nevek as $nev){
+        foreach ( $cash_flow_nevek as $nev ) {
             $cash_flow_html .= '<tr data-recid="'.$nev['recid'].'"><td>'.htmlspecialchars_decode($nev['nev']).'</td>';
             
             $i = 0;
-            foreach($idtotengely as $honap){
-                
+            foreach ( $idtotengely as $honap ) {
+
                 // Az első hónap egy összesítés, az összes múltbeli adatból
-                if( !$i ){
+                if( !$i ) {
                     $cash_flow = $adatbazis_kapcsolat->s2('SUM(`terv`)', 'projektkezeles_cashflow', "`projektkezeles_recid`='{$_GET['id']}' AND `cashflow_nev_recid`='{$nev['recid']}' AND `datum`<='{$honap}'");
-                }else{
+                } else {
                     $cash_flow = $adatbazis_kapcsolat->s2('SUM(`terv`)', 'projektkezeles_cashflow', "`projektkezeles_recid`='{$_GET['id']}' AND `cashflow_nev_recid`='{$nev['recid']}' AND `datum` LIKE '{$honap}%'");
                 }
                 
@@ -1836,13 +1836,13 @@ require_once('selectek.php');
         $szerzodes_recidk = adatbazis2tomb($szerzodes_recidk, 'recid');
         $cash_flow_html .= '<tr data-recid="szerzodesek"><td>Szerződések</td>';
         $i = 0;
-        foreach($idtotengely as $honap){
+        foreach ( $idtotengely as $honap ) {
 
             // Az első hónap egy összesítés, az összes múltbeli adatból
-            if($szerzodes_recidk){
-                if( !$i ){
-                    $cash_flow = $adatbazis_kapcsolat->s2('SUM(`varh_ert`)', 'projektszerzodes_tetel', "`projektszerzodes_recid` IN (".implode(', ', $szerzodes_recidk).") AND `varh_erk`<='{$honap}' AND `teljesites`='0000-00-00'");
-                }else{
+            if( $szerzodes_recidk ) {
+                if( !$i ) {
+                    $cash_flow = $adatbazis_kapcsolat->s2('SUM(`varh_ert`)', 'projektszerzodes_tetel', "`projektszerzodes_recid` IN (".implode(', ', $szerzodes_recidk).") AND `varh_erk`<='{$honap}-31' AND `teljesites`='0000-00-00'");   
+                } else {
                     $cash_flow = $adatbazis_kapcsolat->s2('SUM(`varh_ert`)', 'projektszerzodes_tetel', "`projektszerzodes_recid` IN (".implode(', ', $szerzodes_recidk).") AND `varh_erk` LIKE '{$honap}%' AND `teljesites`='0000-00-00'");
                 }
             }
@@ -1855,13 +1855,13 @@ require_once('selectek.php');
         // Számlák
         $cash_flow_html .= '<tr data-recid="szamlak"><td>Számlák</td>';
         $i = 0;
-        foreach($idtotengely as $honap){
+        foreach ( $idtotengely as $honap ) {
 
             // Az első hónap egy összesítés, az összes múltbeli adatból
-            if($szerzodes_recidk){
-                if( !$i ){
-                    $cash_flow = $adatbazis_kapcsolat->s2('SUM(`ertek`)', 'projektszerzodes_tetel', "`projektszerzodes_recid` IN (".implode(', ', $szerzodes_recidk).") AND `teljesites`<='{$honap}' AND `teljesites`!='0000-00-00'");
-                }else{
+            if( $szerzodes_recidk ) {
+                if( !$i ) {
+                    $cash_flow = $adatbazis_kapcsolat->s2('SUM(`ertek`)', 'projektszerzodes_tetel', "`projektszerzodes_recid` IN (".implode(', ', $szerzodes_recidk).") AND `teljesites`<='{$honap}-31' AND `teljesites`!='0000-00-00'");
+                } else {
                     $cash_flow = $adatbazis_kapcsolat->s2('SUM(`ertek`)', 'projektszerzodes_tetel', "`projektszerzodes_recid` IN (".implode(', ', $szerzodes_recidk).") AND `teljesites` LIKE '{$honap}%'");
                 }
             }

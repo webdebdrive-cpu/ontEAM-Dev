@@ -341,8 +341,8 @@ if( isset($_POST['projektszamla_kapcsolas']) ) {
     if( $_POST['kcs_21'] && $_POST['kcs_21']!=KCS_21_HUF ) {
         $varh_ert_mezo  = 'dev_varh_ert';
         $ertek_mezo     = 'dev_ertek';
-        $szerz_mezo     = 'dev_net';
         $netto_mezo     = 'dev_net';
+        $szerz_mezo     = 'dev_net';
         $tizedesek      = 2;
         $penznem        = getErtekLista(ERTEKLISTA_PENZNEM, $_POST['kcs_21']);
     }
@@ -414,7 +414,7 @@ if( isset($_POST['projektszamla_kapcsolas']) ) {
         // Ha nincs számlája (ennek lehet az is az oka, hogy egy fiktív sor, azaz nem simert a recid),
         // akkor ellenőrizzük, hogy van-e beírva érték. Ha van, számoljuk, mert csak egy ilyen mező lehet
         // Ha van, akkor azt nem ellenőrizzük, mert akkor az egy szürke sor (már van számlája)
-        if( (!$van_szamlaja || !$_POST['adatok'][$recid_adat][1][$i]) && $ertek>0 ) {
+        if( (!$van_szamlaja || !$_POST['adatok'][$recid_adat][1][$i]) && $ertek!=0 ) {
             $volt_ertek++;
             // Csak egy értéket fogadunk el, ezt jegyezzük is meg
             $beirt_netto_ertek = $ertek;
@@ -461,7 +461,7 @@ if( isset($_POST['projektszamla_kapcsolas']) ) {
     }
     
     // Ha itt vagyunk, akkor csak egy nettó értéket/teljesítést írtak be. Kérdés, hogy megfelelő értéket írtak be?
-    if( $szamla_tetel[$netto_mezo] != $beirt_netto_ertek ) {
+    if( number_format($szamla_tetel[$netto_mezo], $tizedesek, ',', ' ') != number_format($beirt_netto_ertek, $tizedesek, ',', ' ') ) {
         echo json_encode( array(
                         'hiba'  => 'A nettó érték oszlopba kérem '.number_format($szamla_tetel[$netto_mezo], $tizedesek, ',', ' ') .' '. $penznem.'-t írjon, hisz ez az összeg szerepel a csatolni kívánt számla tételen!',
                         'title' => 'Hiba'
@@ -491,7 +491,7 @@ if( isset($_POST['projektszamla_kapcsolas']) ) {
     }
     
     // Ha a számla nettó értéke nem egyenlő a tételek összegével, akkor hibaüzenet
-    if( $kif_ossz > $szerzodes[$szerz_mezo] ) {
+    if( number_format($kif_ossz, $tizedesek, ',', ' ') > number_format($szerzodes[$szerz_mezo], $tizedesek, ',', ' ') ) {
         echo json_encode( array( 
                         'hiba'  => 'A már kifizetett ('.number_format($kifizetett_ossz, $tizedesek, ',', ' ').' '.$penznem.') és a még kifizetésre váró ('.number_format($kifizet_var_ossz, $tizedesek, ',', ' ').' '.$penznem.') számlák összege ('.number_format($kif_ossz, $tizedesek, ',', ' ').' '.$penznem.') több,<br>mint a szerződés összege ('.number_format($szerzodes[$szerz_mezo], $tizedesek, ',', ' ').' '.$penznem.')! Így nem menthető!',
                         'title' => 'Hiba',
@@ -544,9 +544,9 @@ if( isset($_POST['projektszamla_kapcsolas']) ) {
                 } else {
                     $valtozas .= $ertek_regi['recid'].' recid-jú szerződés tételt módosította:' . "\n";
                 }
-                $valtozas .= '[mezo]'.$varh_ert_mezo.'[/mezo] [ertek_regi]' .$ertek_regi['varh_ert'].'[/ertek_regi] [ertek_uj]'.$_POST['adatok'][$varhato_ert_adat][1][$i]                      .'[/ertek_uj]'."\n";
-                $valtozas .= '[mezo]teljesites[/mezo] [ertek_regi]'         .$ertek_regi['teljesites']  .'[/ertek_regi] [ertek_uj]'.str_replace('.', '-', $_POST['adatok'][$teljesites_adat][1][$i]).'[/ertek_uj]'."\n";
-                $valtozas .= '[mezo]'.$ertek_mezo.'[/mezo] [ertek_regi]'    .$ertek_regi['ertek']       .'[/ertek_regi] [ertek_uj]'.$_POST['adatok'][$netto_ert_adat][1][$i]                        .'[/ertek_uj]'."\n";
+                $valtozas .= '[mezo]'.$varh_ert_mezo.'[/mezo] [ertek_regi]' .$ertek_regi[$varh_ert_mezo]    .'[/ertek_regi] [ertek_uj]'.$_POST['adatok'][$varhato_ert_adat][1][$i]                      .'[/ertek_uj]'."\n";
+                $valtozas .= '[mezo]teljesites[/mezo] [ertek_regi]'         .$ertek_regi['teljesites']      .'[/ertek_regi] [ertek_uj]'.str_replace('.', '-', $_POST['adatok'][$teljesites_adat][1][$i]).'[/ertek_uj]'."\n";
+                $valtozas .= '[mezo]'.$ertek_mezo.'[/mezo] [ertek_regi]'    .$ertek_regi[$ertek_mezo]       .'[/ertek_regi] [ertek_uj]'.$_POST['adatok'][$netto_ert_adat][1][$i]                        .'[/ertek_uj]'."\n";
             }
             
         // Az újonnan létrehozott fiktív tételt be kell szúrni
@@ -678,7 +678,7 @@ if( isset($_POST['pop_tetelek_feltolt']) ) {
         // Illetve, hogy az aktuális számlán kívül milyen számlák tartoznak hozzá, és beleférünk-e a keretbe?
         $szamla_netto = str_replace( array(' ', ','), array('', '.'), $_POST[$szamla_netto_mezo]);
         $szamlak = $adatbazis_kapcsolat->s2('SUM(`'.$szamla_netto_mezo.'`)', 'projektszamla', "`sz_szam`='{$_POST['sz_szam']}' AND `recid`!='{$_POST['id']}' AND `visszaadva`=0");
-        if( ($szamlak['SUM(`'.$szamla_netto_mezo.'`)'] + $szamla_netto) > $pr_szerzodes[$szerzodes_netto_mezo] ) {
+        if( number_format($szamlak['SUM(`'.$szamla_netto_mezo.'`)'] + $szamla_netto, $tizedesek, ',', ' ') > number_format( $pr_szerzodes[$szerzodes_netto_mezo], $tizedesek, ',', ' ') ) {
             echo json_encode( array(
                                 'hiba'  => nl2('
                                                 Szerződött összeg: '.number_format($pr_szerzodes[$szerzodes_netto_mezo], $tizedesek, ',', ' ').' '.$penznem.'
@@ -753,7 +753,7 @@ if( isset($_POST['pop_kapcsolas_feltolt']) ) {
     $ertek_mezo = 'ertek';
     if( $_POST['kcs_21'] && $_POST['kcs_21']!=KCS_21_HUF ) {
         $netto_mezo = 'dev_net';
-        $mezo       = 'dev_net';
+        $mezo       = 'dev_varh_ert';
         $szerz_mezo = 'dev_net';
         $ertek_mezo = 'dev_ertek';
         $tizedesek  = 2;
@@ -1037,7 +1037,7 @@ if( isset($_POST['van_tetel']) ) {
         // Szerződött összeg ellenőrése
         $szamla_netto = str_replace( array(' ', ','), array('', '.'), $_POST[$szamla_netto_mezo]);
         $szamlak = $adatbazis_kapcsolat->s2('SUM(`'.$szamla_netto_mezo.'`)', 'projektszamla', "`sz_szam`='{$_POST['sz_szam']}' AND `visszaadva`=0");
-        if( ($szamlak['SUM(`'.$szamla_netto_mezo.'`)']+$szamla_netto) > $pr_szerzodes[$szerzodes_netto_mezo] ) {
+        if( number_format($szamlak['SUM(`'.$szamla_netto_mezo.'`)']+$szamla_netto, $tizedesek, ',') > number_format($pr_szerzodes[$szerzodes_netto_mezo], $tizedesek, ',') ) {
             echo json_encode( array(
                 'hiba'  => nl2('
                                 Szerződött összeg: '.number_format($pr_szerzodes[$szerzodes_netto_mezo], $tizedesek, ',', ' ').' '.$penznem.'
@@ -1716,6 +1716,14 @@ require_once('selectek.php');
                         ');
         $js_submit_elott = nl2('
 
+                /* Árfolyam mező kötelező-e, ha igen, van-e értéke? */
+                if( $(\'#arfolyam\').hasClass(\'csillag\') && ( !$(\'#arfolyam\').val() || $(\'#arfolyam\').val()==\'0,0000\' ) ) {
+
+                    alert2(\'Kérem adja meg az Árfolyamot!\', \'\', \'Hiba\');
+                    alert_utan_mehet_megsem_mutat_beallit();
+                    $(\'#dev_net\').addClass(\'hibas_ide_focus\');
+                    return false;
+                }
                 /* Deviza nettó mező kötelező-e, ha igen, van-e értéke? */
                 if( $(\'#dev_net\').hasClass(\'csillag\') && ( !$(\'#dev_net\').val() || $(\'#dev_net\').val()==\'0,00\' ) ) {
 
@@ -1950,6 +1958,14 @@ require_once('selectek.php');
                         ');
         $js_submit_elott = nl2('
             
+            /* Árfolyam mező kötelező-e, ha igen, van-e értéke? */
+            if( $(\'#arfolyam\').hasClass(\'csillag\') && ( !$(\'#arfolyam\').val() || $(\'#arfolyam\').val()==\'0,0000\' ) ){
+
+                alert2(\'Kérem adja meg az Árfolyamot!\', \'\', \'Hiba\');
+                alert_utan_mehet_megsem_mutat_beallit();
+                $(\'#dev_net\').addClass(\'hibas_ide_focus\');
+                return false;
+            }
             /* Deviza nettó mező kötelező-e, ha igen, van-e értéke? */
             if( $(\'#dev_net\').hasClass(\'csillag\') && ( !$(\'#dev_net\').val() || $(\'#dev_net\').val()==\'0,00\' ) ){
 

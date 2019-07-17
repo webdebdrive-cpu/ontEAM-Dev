@@ -20,19 +20,16 @@
     <div id="pop_tablazat"></div>
 </div>
 
-<div class="kuldes">
-    <input type="button" name="elkuld" value="Mentés" class="gombb" onclick="munkalapErkeztetMent()">
-    <input type="button" name="elkuld" value="Mégsem" class="gomb piros" onclick="popupZar()">
-</div>
+<div class="kuldes" id="pop_gombok"></div>
 <script>
     
-	function munkalapErkeztetMent(){
+	function munkalapErkeztetMent(mod) {
 
         idk = {};
 
         i = 0;
         $('.pop_cbok').each(function() {
-            if($(this).prop('checked')){
+            if( $(this).prop('checked') ) {
                 idk[i] = $(this).attr('data-recid');
                 i++;
             }
@@ -44,6 +41,7 @@
             type: 'POST',
             data: {
                 idk                  : JSON.stringify(idk),
+                mod                  : mod,
                 munkalapErkeztetMent : new Date().getTime()
             },
             success: function(response){

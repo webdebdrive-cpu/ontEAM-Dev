@@ -4140,7 +4140,7 @@ function csoportMuvelet( oldal, mobilnal_no_statusz_hiba ) {
                 case 'munkalapErkeztet':
                     $('#popupTart').html(data);
 
-                    if(balnav_kijelol_ell()){
+                    if (balnav_kijelol_ell()) {
 
                         var recid = $('#szamlaList li.szamla_sor.kijelolve').attr('data-recid');
                         if( recid ) {
@@ -4166,6 +4166,7 @@ function csoportMuvelet( oldal, mobilnal_no_statusz_hiba ) {
                                         $('#pop_ikt_szam').val(response.ikt_szam);
                                         $('#pop_telephely').val(response.telephely);
                                         $('#pop_tablazat').html(response.tablazat);
+                                        $('#pop_gombok').html(response.gombok);
 
                                         popupNyit();
                                     }
