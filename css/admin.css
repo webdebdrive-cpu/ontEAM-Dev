@@ -961,6 +961,14 @@ div.jsff_thumb div.torol:hover{
     background: #F1EFF0;
 }
 
+#sorrendezes_tobbkep li.dn {
+    display: none;
+}
+
+#sorrendezes_tobbkep li.link {
+    cursor: pointer;
+}
+
 /* Több kép thumbnailjai */
 #sorrendezes,
 #feltoltott_fajl,

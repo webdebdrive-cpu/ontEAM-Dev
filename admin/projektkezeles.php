@@ -36,6 +36,62 @@ if($tobb_kep){
 
 }
 
+
+// Projekt újranyitása
+if( isset($_POST['projektkezeles_ujranyit']) ) {
+    $recid = $_POST['recid'];
+    
+    $db_error = false;
+    mysqli_autocommit($db_kapcs, false);
+    
+    $sor = $adatbazis_kapcsolat->s2('stat_id', 'projektkezeles', "`recid`='{$recid}'");
+    if( $sql === false ) { $db_error = true; }
+    
+    // Státusz ellenőrzése
+    if( $sor['stat_id'] != PRKEZEL_STAT_LEZART ){
+        echo json_encode(array(
+            'hiba'  => 'Csak Lezárt státuszú projekt nyitható újra!',
+            'title' => 'Hiba',
+        ));
+
+        $weblap->leallit();
+        exit();
+    }
+    
+    // Jog ellenőrzése
+    if( !_jog(JOG_PRKEZEL_UJRANYITAS) ) {
+        echo json_encode(array(
+            'hiba'  => 'Önnek nincs joga projektet újra nyitni!',
+            'title' => 'Hiba',
+        ));
+
+        $weblap->leallit();
+        exit();
+    }
+    
+    // Státusz léptetés
+    if( addStatusz( 'projektkezeles_statusz', $recid, PRKEZEL_STAT_FOLYAMATBAN ) === false ) {
+        $db_error = true;
+    }
+    
+    if( !$db_error ) {
+        mysqli_commit($db_kapcs);
+        echo json_encode(array(
+            'statusz' => 'siker',
+            'recid'   => $recid
+        ));
+    } else {
+        mysqli_rollback($db_kapcs);
+        echo json_encode(array(
+            'hiba'  => tranzakcioHiba(),
+            'title' => 'Hiba',
+        ));
+    }
+
+    $weblap->leallit();
+    exit();
+}
+
 // Léptetés Előkészítés alatt státuszba
 if (isset($_POST['projekt_elokeszites_ala'])) {
     
@@ -430,7 +486,7 @@ if( isset($_POST['projekt_felfuggeszt']) ) {
 
         $weblap->leallit();
         exit();
-    }else{
+    } else {
         $indok = 'Felfüggesztés indoklás: '.$indok;
     }
     
@@ -564,7 +620,7 @@ if( isset($_POST['projekt_leallit']) ) {
 
         $weblap->leallit();
         exit();
-    }else{
+    } else {
         $indok = 'Leállítás indoklása: '.$indok;
     }
     
@@ -805,7 +861,7 @@ if( isset($_POST['igenylesek_betolt_uj_kezeleshez']) ) {
             </div>
             <script>
             ';
-    }else{
+    } else {
         $html = '<h1>Nem található csatolható projektigénylés!</h1><script>$(\'#eloterj_igneyles_csatolForm div.kuldes\').html(\'<input type="button" class="gomb zold" value="Ok" onclick="popupZar();">\');  $(\'#eloterj_igneyles_csatolCim\').html(\'Hiba\');</script>';
     }
 
@@ -1056,7 +1112,7 @@ if( isset($_POST['projektkezeles_cf_uj']) ) {
         $cf_nev = $_POST['kitolt_recid'];
         
     // Új cashflow sor
-    }else{
+    } else {
         
         // Db-be mentés. Először a nevet.. 
         $cf_nev = $adatbazis_kapcsolat->i('projektkezeles_cashflow_nev',    array('projektkezeles_recid',   'nev',          'login',                            'update_dt',  'update_usr',                             'insert_dt',  'insert_usr'                              ),
@@ -1242,7 +1298,7 @@ if( isset($_GET['csv']) ) {
                     $hossz = strpos($lekerdezes_fromtol, 'ORDER');
                     if( $hossz ) {
                         $lekerdezes_fromtol = substr($lekerdezes_fromtol, 0, $hossz);
-                    }else{
+                    } else {
                         $lekerdezes_fromtol = substr($lekerdezes_fromtol, 0);
                     }
                 }
@@ -1316,14 +1372,14 @@ if( isset($_GET['csv']) ) {
                     if($kulcs=='Megtérülő'){
                         if($sor){
                             $sor = 'igen';
-                        }else{
+                        } else {
                             $sor = 'nem';
                         }
                     }
                     if($kulcs=='Rendkívüli'){
                         if($sor){
                             $sor = 'igen';
-                        }else{
+                        } else {
                             $sor = 'nem';
                         }
                     }
@@ -1420,7 +1476,7 @@ require_once('selectek.php');
 
                                     if( $(\'#egy_tobb\').val()>0 ){
                                         $(\'#egy_tobb_tobb\').prop(\'checked\', true)
-                                    }else{
+                                    } else {
                                         $(\'#egy_tobb_egy\').prop(\'checked\', true)
                                     }
 
@@ -1465,10 +1521,10 @@ require_once('selectek.php');
         if( !get_projekt_kezeles_jog($_GET['id']) ) {
             $gombok .= ' <input type="button" id="recordTorol" class="gombb_alert dn" onclick="alert2(\'Önnek nincs joga a projekt törléséhez!\', \'\', \'Hiba\')" value="Töröl" title="Töröl">';
         // Csak nyitott projekt törölhető
-        }elseif( $sor['stat_id'] != PRKEZEL_STAT_NYITOTT ) {
+        } elseif( $sor['stat_id'] != PRKEZEL_STAT_NYITOTT ) {
             $gombok .= ' <input type="button" id="recordTorol" class="gombb_alert dn" onclick="alert2(\'Csak nyitott státuszú projekt törlhető!\', \'\', \'Hiba\')" value="Töröl" title="Töröl">';
         // Ha már tartozik hozzá projektigénylés, akkor sem törölhető
-        }elseif( $sor['projektigenyles_recid'] ) {
+        } elseif( $sor['projektigenyles_recid'] ) {
             $gombok .= ' <input type="button" id="recordTorol" class="gombb_alert dn" onclick="alert2(\'A projekthez már tartozik projektigénylés, így nem törölhető!\', \'\', \'Hiba\')" value="Töröl" title="Töröl">';
         } else {
 
@@ -1476,11 +1532,11 @@ require_once('selectek.php');
             $van_szerzodese = $adatbazis_kapcsolat->s('recid', 'projektszerzodes', "`pr_szam`='{$sor['ikt_szam']}'");
             if( $van_szerzodese ){
                 $gombok .= ' <input type="button" id="recordTorol" class="gombb_alert dn" onclick="alert2(\'Már van olyan szerződés, amihez ez a projekthez hozzá van adva, így nem törölhető!\', \'\', \'Hiba\')" value="Töröl" title="Töröl">';
-            }else{
+            } else {
                 $gombok .= '<script>var gomb'.$_GET['id'].'= get_kibont_torol(\''.self().'\', \''.$torles.'\', \''.$_GET['id'].'\');</script>';
                 $gombok .= ' <input type="button" id="recordTorol" class="gombb_alert dn" onclick="alert2(\'Biztosan törli ezt a '.$szoveg.'?\', gomb'.$_GET['id'].')" value="Töröl" title="Töröl">';
             }
-            
+
         }
         
         // Előkészítés alatt státuszba léptetés
@@ -1489,7 +1545,7 @@ require_once('selectek.php');
             $van_dok = $adatbazis_kapcsolat->s2('recid', 'projektkezeles_dok', "`projektkezeles_id`='{$_GET['id']}'", '', '1');
             if(!$van_dok){
                 $gombok .= '<input type="button" class="gomb modositaskor_rejt" value="Előkészítés alatt" onclick="alert2(\'Előbb csatoljon egy dokumentumot a projekthez!\', \'\', \'Hiba\')"> ';
-            }else{
+            } else {
                 $gombok .= '<script> gomb_elokeszites = \'<input type="button" class="gomb zold" onclick="projekt_elokeszites_ala()" value="Igen"><input type="button" class="gomb piros" onclick="alert2()" value="Nem">\';</script>';
                 $gombok .= '<input type="button" class="gomb modositaskor_rejt" value="Előkészítés alatt" onclick="alert2(\''.$projekt_adatok.'Biztos, hogy Előkészítés alatt státuszba helyezi a projektet?\', gomb_elokeszites)"> ';
             }
@@ -1519,7 +1575,7 @@ require_once('selectek.php');
             $van_dok = $adatbazis_kapcsolat->s2('recid', 'projektkezeles_dok', "`projektkezeles_id`='{$_GET['id']}' AND `tipus`='".EL_DOK_TIPUS_SZERZODES."'", '', '1');
             if(!$van_dok){
                 $gombok .= '<input type="button" class="gomb modositaskor_rejt" value="Folyamatban" onclick="alert2(\'Előbb csatoljon egy szerződést a projekthez!\', \'\', \'Hiba\')"> ';
-            }else{
+            } else {
                 $gombok .= '<script> gomb_folyamatbanra = \'<input type="button" class="gomb zold" onclick="projekt_folyamatbanra()" value="Igen"><input type="button" class="gomb piros" onclick="alert2()" value="Nem">\';</script>';
                 $gombok .= '<input type="button" class="gomb modositaskor_rejt" value="Folyamatban" onclick="alert2(\''.$projekt_adatok.'Biztos, hogy Folyamatban státuszba helyezi a projektet?\', gomb_folyamatbanra)"> ';
             }
@@ -1531,7 +1587,7 @@ require_once('selectek.php');
             $van_dok = $adatbazis_kapcsolat->s2('recid', 'projektkezeles_dok', "`projektkezeles_id`='{$_GET['id']}' AND `tipus`='".EL_DOK_TIPUS_ATADASI."'", '', '1');
             if(!$van_dok){
                 $gombok .= '<input type="button" class="gomb modositaskor_rejt" value="Kész" onclick="alert2(\'Előbb csatoljon egy Átadási. jk. Dokumentumot a projekthez!\', \'\', \'Hiba\')"> ';
-            }else{
+            } else {
                 $gombok .= '<script> gomb_keszre = \'<input type="button" class="gomb zold" onclick="projekt_keszre()" value="Igen"><input type="button" class="gomb piros" onclick="alert2()" value="Nem">\';</script>';
                 $gombok .= '<input type="button" class="gomb modositaskor_rejt" value="Kész" onclick="alert2(\''.$projekt_adatok.'Biztos, hogy Kész státuszba helyezi a projektet?\', gomb_keszre)"> ';
             }
@@ -1543,7 +1599,7 @@ require_once('selectek.php');
             $van_dok = $adatbazis_kapcsolat->s2('recid', 'projektkezeles_dok', "`projektkezeles_id`='{$_GET['id']}' AND `tipus`='".EL_DOK_TIPUS_GAR_BEJAR."'", '', '1');
             if(!$van_dok){
                 $gombok .= '<input type="button" class="gomb modositaskor_rejt" value="Lezárt" onclick="alert2(\'Előbb csatoljon egy Gar. bejárási jk. Dokumentumot a projekthez!\', \'\', \'Hiba\')"> ';
-            }else{
+            } else {
                 $gombok .= '<script> gomb_lezartra = \'<input type="button" class="gomb zold" onclick="projekt_lezartra()" value="Igen"><input type="button" class="gomb piros" onclick="alert2()" value="Nem">\';</script>';
                 $gombok .= '<input type="button" class="gomb modositaskor_rejt" value="Lezárt" onclick="alert2(\''.$projekt_adatok.'Biztos, hogy Lezárt státuszba helyezi a projektet?\', gomb_lezartra)"> ';
             }
@@ -1554,6 +1610,13 @@ require_once('selectek.php');
             $gombok .= ' <input type="button" class="gomb modositaskor_rejt" onclick="csoportMuvelet(\'projektkezeles_cf_uj\')" value="Új sor">';
             $gombok .= ' <input type="button" class="gomb modositaskor_rejt" onclick="kapcsolodoSzerkeszt(\'projektkezeles_cf_kitolt\');" value="Sor kitöltés">';
             $gombok .= ' <input type="button" class="gomb modositaskor_rejt" onclick="cf_sor_torol();" value="Sor törlés">';
+        }
+        
+        // Ha zárt a prjekt és van újranyitás jogunk
+        if( $sor['stat_id'] == PRKEZEL_STAT_LEZART && _jog( JOG_PRKEZEL_UJRANYITAS ) ) {
+            $kerdes      = htmlspecialchars('Projekt: '.$sor['ikt_szam'].'<br>Név: '. addslashes($sor['nev']).'<br><br>Visszahelyezi folyamatba a projektet?');
+            $alert_gomb  = htmlspecialchars('<input type="button" class="gomb zold" value="Igen" onclick="projektkezeles_ujranyit()"><input type="button" class="gomb piros" value="Nem" onclick="alert2();">');
+            $gombok .= '<input type="button" class="gomb" onclick="alert2(\''.$kerdes.'\', \''.$alert_gomb.'\')" value="Újranyitás">';
         }
 
         // Ha van egyáltalán kezelésre joga, és nincs még lezárva
@@ -1681,23 +1744,23 @@ require_once('selectek.php');
     } elseif( isset($_GET['modosit']) ) {
 
         // Ha Gyorskeresőből érkeznénk ide, akkor az ID-t valójában az id_hidden tartalmazza majd
-        if(isset($_GET['id_hidden'])){
+        if( isset($_GET['id_hidden']) ) {
             $_GET['id'] = $_GET['id_hidden'];
         }
 
 	    $sor = $adatbazis_kapcsolat -> s2('*', $megnevezes, "`recid`='{$_GET['id']}'");
 
-        foreach($akt_tomb as $tomb) {
+        foreach ( $akt_tomb as $tomb ) {
             if( $tomb['type'] == 'autocomplete' ) {
                 
-                if($tomb['csoport']){
+                if( $tomb['csoport'] ) {
                     $kulso_ertek = $adatbazis_kapcsolat->s2('info', $tomb['tabla'], "`{$tomb['oszlop_keres']}`='{$sor[$tomb['name']]}' AND `csoport`='{$tomb['csoport']}'", '', '1');
                     $kulso_ertek['nev'] = $kulso_ertek['info'];
                 // Projektfelelősnél a teljes nevet írjuk ki, nem a nev oszlopot
-                }elseif( $tomb['name'] == 'pfelelos' ){
+                }elseif( $tomb['name'] == 'pfelelos' ) {
                     $kulso_ertek = $adatbazis_kapcsolat->s2('recid teljes_nev', $tomb['tabla'], "`{$tomb['oszlop_keres']}`='{$sor[$tomb['name']]}'", '', '1');
                     $kulso_ertek['nev'] = $kulso_ertek['teljes_nev'];
-                }else{
+                } else {
                     $kulso_ertek = $adatbazis_kapcsolat->s2('recid nev', $tomb['tabla'], "`{$tomb['oszlop_keres']}`='{$sor[$tomb['name']]}'", '', '1');
                 }
 
@@ -2038,7 +2101,7 @@ require_once('selectek.php');
                                     <div class="dtc">'.getStatText('projektigenyles', $igenyles['stat_id']).'</div>
                                 </div>
                             ');
-        }else{
+        } else {
             $szamla_html .= 'Ehhez a projektkezelésehez nem tartozik igénylés.';
         }
         

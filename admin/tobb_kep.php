@@ -223,6 +223,12 @@ if( isset($_POST['megnevezes']) && !$archivum ) {
                         // Illetve ekkor megjegyzéshez is bekerül a fájl neve
                         addMegj( $apa_tabla, $_POST['sorid'], 'Dokumentum hozzáadva: '.$fajlnev.'.'.$kit);
                     }
+                    // Projektszerződés menüpont alatt a dokumentum feltöltéséről szintén megjegyzést írunk
+                    // Azért van külön ágban, mert itt kifejezetten nem kell ez: echo 'tipus_beallit'; Plusz itt van egy levélküldés is
+                    if( $_POST['tabla']=='projektszerzodes_dok' ){
+                        addMegj( $apa_tabla, $_POST['sorid'], 'Dokumentum hozzáadva: '.$fajlnev.'.'.$kit);
+                        level_felkeszit_es_kuld('projektszerzodes', $_POST['sorid'], '', 'projektszerzodesUjDok', 'projektszerzodes_ujdok');
+                    }
                     
                     // Projektkezelés menüpont alatt kiírjuk, hogy sikeres feltöltés, és hogy léptessük-e tovább? Ezt a popup hívást jelezzük itt.
                     if( $_POST['tabla']=='projektkezeles_dok' ){
@@ -284,12 +290,6 @@ require_once '../class/html/class.Img.php';
 
 // Sessionok beállítása a feltöltéshez:
 $megn = 'tobbkep'.$_GET['id'];
-//$_SESSION['fajl']['megnevezes'] = $megn;                    //A $FILE változó neve, egyedi legyen
-//$_SESSION['fajl']['nev']        = $sor['nev'];              //Fájlnév, a terméknévből származtatva (kiterjesztés nem kell, fajlnev_keszit is lesz később így ez sem kell)
-//$_SESSION['fajl']['konyvtar']   = $megnevezes;              //Könyvtár, ahol a képeket gyűjtjük (eredeti termék könyvtára)
-//$_SESSION['fajl']['tabla']      = $tobbkep_tablanev;        //Képek tábla, amellyel összekapcsoljuk a termékkel
-//$_SESSION['fajl']['oszlop']     = get_tobbkep_oszlopnev();  //Képek tábla oszopa, amellyel összekapcsoljuk a termékkel
-//$_SESSION['fajl']['termek_id']  = $_GET['id'];              //A termék azonosítója, amivel összekapcsoljuk
 
 // Korlátozás csak képre
 $eng_kit = '';
@@ -329,6 +329,14 @@ if( tipusos_dokumentumok($apa_tabla) ) {
 $nincs_torles = '';
 if( !dokumentum_kezeles_jog($tobbkep_tablanev, $_GET['id']) ) {
     $nincs_torles = 'nincs törlés';
+}
+
+// Ha a projekt zárt, akkor már nem lehet dokumetumoat hozzáadni, törölni
+if( $tobbkep_tablanev == 'projektkezeles_dok'  ) {
+    $statusz = $adatbazis_kapcsolat->s2('stat_id', 'projektkezeles', "`recid`='{$_GET['id']}'");
+    if( $statusz['stat_id'] == PRKEZEL_STAT_LEZART ) {
+        $nincs_torles = 'nincs törlés';
+    }
 }
 if( !$nincs_torles ){
     $sorrend_ujkep       = fajlbol_olvas('../sablon/admin/tobbkep_ujkep.html', true);
@@ -389,20 +397,21 @@ if( $apa_tabla == 'projektkezeles' ) {
 
     if( $kepek ) {
         $tobbkep_html .= nl2('
-                            <li class="nohover" style="margin: 2rem 0rem 0.3rem 0">
+                            <li class="nohover link" style="margin: 2rem 0rem 0.3rem 0" onclick="$(\'.dok_szerzodesek\').slideToggle()">
                                 <h3>Projektszerződések dokumentumai</h3>
                             </li>
-                            <li class="fejlec nohover">
+                            <li class="fejlec nohover dn dok_szerzodesek">
                                 <div class="kep">Kép</div>
                                 <div class="felirat c" style="width: 30rem">Fájlnév</div>
                                 <div class="felirat">Feltöltötte</div>
                                 <div class="felirat">Dátum</div>
-                                <div class="maradek torles">Szerződés</div>
+                                <div class="felirat torles">Szerződés</div>
+                                <div class="maradek torles">Minősítés</div>
                             </li>
             ');
     }
     foreach ( $kepek as $sor_kepek ) {
-        $tobbkep_html .= get_tobbkep_thumb($sor_kepek, $i, 'projektszerzodes_dok', 'nincs törlés', $sor_kepek['projektszerzodes_id']);
+        $tobbkep_html .= get_tobbkep_thumb($sor_kepek, $i, 'projektszerzodes_dok', 'nincs törlés', $sor_kepek['projektszerzodes_id'], 'dok_szerzodesek dn');
         $i++;
     }
 
@@ -415,10 +424,10 @@ if( $apa_tabla == 'projektkezeles' ) {
 
     if( $kepek ) {
         $tobbkep_html .= nl2('
-                            <li class="nohover" style="margin: 2rem 0rem 0.3rem 0">
+                            <li class="nohover link" style="margin: 2rem 0rem 0.3rem 0" onclick="$(\'.dok_szamlak\').slideToggle()">
                                 <h3>Projektszámla dokumentumai</h3>
                             </li>
-                            <li class="fejlec nohover">
+                            <li class="fejlec nohover dn dok_szamlak">
                                 <div class="kep">Kép</div>
                                 <div class="felirat c" style="width: 30rem">Fájlnév</div>
                                 <div class="felirat">Feltöltötte</div>
@@ -428,7 +437,7 @@ if( $apa_tabla == 'projektkezeles' ) {
             ');
     }
     foreach ( $kepek as $sor_kepek ) {
-        $tobbkep_html .= get_tobbkep_thumb($sor_kepek, $i, 'projektszamla_dok', 'nincs törlés', $sor_kepek['projektszamla_id']);
+        $tobbkep_html .= get_tobbkep_thumb($sor_kepek, $i, 'projektszamla_dok', 'nincs törlés', $sor_kepek['projektszamla_id'], 'dok_szamlak dn');
         $i++;
     }
 }
@@ -446,13 +455,12 @@ if( $apa_tabla == 'projektszerzodes' || $apa_tabla == 'projektkezeles' ) {
         $kepek = $adatbazis_kapcsolat->s('*', 'projektszerzodes_jotallas', "`projektszerzodes_recid` IN (".implode(', ', $pr_szerzodes_recidk).")");
     }
     
-
     if( $kepek ) {
         $tobbkep_html .= nl2('
-                            <li class="nohover" style="margin: 2rem 0rem 0.3rem 0">
+                            <li class="nohover link" style="margin: 2rem 0rem 0.3rem 0" onclick="$(\'.dok_jotallas\').slideToggle()">
                                 <h3>Projektszerződés jótállásai</h3>
                             </li>
-                            <li class="fejlec nohover">
+                            <li class="fejlec dn nohover dok_jotallas">
                                 <div class="kep">Kép</div>
                                 <div class="felirat c" style="width: 30rem">Fájlnév</div>
                                 <div class="felirat">Feltöltötte</div>
@@ -462,7 +470,7 @@ if( $apa_tabla == 'projektszerzodes' || $apa_tabla == 'projektkezeles' ) {
             ');
     }
     foreach ( $kepek as $sor_kepek ) {
-        $tobbkep_html .= get_tobbkep_thumb($sor_kepek, $i, 'projektszerzodes_jotallas', 'nincs törlés', $sor_kepek['projektszerzodes_recid']);
+        $tobbkep_html .= get_tobbkep_thumb($sor_kepek, $i, 'projektszerzodes_jotallas', 'nincs törlés', $sor_kepek['projektszerzodes_recid'], 'dok_jotallas dn');
         $i++;
     }
 }
@@ -476,7 +484,7 @@ $szamla_html .= $tobbkep_html;
 
 
 // A több képe thumbnailját hozza létre, egy adatbázis sorból
-function get_tobbkep_thumb( $sor_kepek, $i, $tobbkep_tablanev, $nincs_torles, $kulso_recid ) {
+function get_tobbkep_thumb( $sor_kepek, $i, $tobbkep_tablanev, $nincs_torles, $kulso_recid , $class) {
 
     global $archivum;
     global $adatbazis_kapcsolat;
@@ -664,8 +672,37 @@ function get_tobbkep_thumb( $sor_kepek, $i, $tobbkep_tablanev, $nincs_torles, $k
             $tipus_oszlop = '<div class="felirat">'.erteklista(ERTEKLISTA_DOK_TIPUS, $sor_kepek['tipus']).'</div>';
         }
         
+        // Class
+        $class_kiir = '';
+        if( $class ) {
+            $class_kiir = ' class="'.$class.'"';
+        }
+        
+        // Projektszerződéses dokumentumok végén van minősítésre lehetőség (projektek felület alatt), ha még nem volna beállítva a típusa
+        // Ilyenkor más class nevet kell adni a törlés oszlopnak, hogy ne essen szét a táblázat
+        $minosites    = '';
+        $torles_class = 'maradek';
+        if( basename(self())=='projektkezeles.php' && $tobbkep_tablanev == 'projektszerzodes_dok' ) {
+            
+            // Ha már van típusa, akkor azt írjuk ki
+            if( $sor_kepek['tipus'] ) {
+                $gomb = getErtekLista(ERTEKLISTA_DOK_TIPUS, $sor_kepek['tipus']);
+            
+            // Egyébként egy minősítő gombot
+            } else {
+                $gomb = '<input type="button" class="gomb alacsony" value="Minősítés" onclick="dok_minosites(\''.$sor_kepek['recid'].'\')">';
+            }
+            $minosites = nl2('
+                <div class="maradek torles">
+                    '.$gomb.'
+                </div>
+                ');
+            $torles_class = 'felirat';
+            
+        }
+        
         $tobbkep_html .= nl2('
-            <li id="'.$azon.'" title="'.$sor_kepek['megj'].'" data-id="'.$sor_kepek['recid'].'" data-i="'.$i.'">
+            <li id="'.$azon.'" title="'.$sor_kepek['megj'].'" data-id="'.$sor_kepek['recid'].'" data-i="'.$i.'"'.$class_kiir.'>
                 <script>gomb'.$azon.' = get_tobbkep_megj_szerk_gomb(\''.basename(__FILE__).'\', \''.$azon.'\', \''.$sor_kepek['recid'].'\');</script>
                 <div class="kep">
                     <div>
@@ -682,7 +719,8 @@ function get_tobbkep_thumb( $sor_kepek, $i, $tobbkep_tablanev, $nincs_torles, $k
                 <div class="felirat">'.$sor_kepek['insert_usr'].'</div>
                 '.$tipus_oszlop.'
                 <div class="felirat">'.$datum.'</div>
-                <div class="maradek torles">'.$torles.'</div>
+                <div class="'.$torles_class.' torles">'.$torles.'</div>
+                '.$minosites.'
             </li>
         ');
 

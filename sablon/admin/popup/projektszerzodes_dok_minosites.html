@@ -1,0 +1,45 @@
+<h2>Dokumentum minősítése</h2>
+
+<div class="padd" style="padding-bottom: 10rem">
+    
+    <div style="margin-bottom: 1rem">
+        Kérem válassza ki a dokumentum típusát:
+    </div>
+    <input type="text" autocomplete="off" class="oriasi disableNav csillag focus" name="dok_minosit_autocomp" id="dok_minosit_autocomp">
+    <input type="hidden" name="dok_minosit" id="dok_minosit">
+    <script>
+        $(document).ready(function() {
+            $('#dok_minosit_autocomp').autocomplete({
+                'php_fajl'      : '../autocomplete.php',
+                'tabla'         : 'erteklista',
+                'oszlop_keres'  : 'info',
+                'oszlop_listaz' : 'info',
+                'csoport'       : 39,/* Dokumentum tipus */
+                'id_kiir'       : 'id'
+            });
+        });
+    </script>
+</div>
+
+<div class="kuldes">
+    <input type="button" class="gomb zold" value="Mentés" onclick="dok_minosites_beallit();">
+    <input type="button" class="gomb piros" value="Mégsem" onclick="popupZar();">
+</div>
+
+<script>
+function dok_minosites_beallit() {
+    $.ajax({
+        url : 'projektszerzodes.php',
+        type: 'POST',
+        data: {
+            recid                   : dok_sorszama,
+            tipus                   : $('#dok_minosit').val(),
+            dok_minosites_beallit   : Date.now()
+        },
+        success: function(response){
+            popupZar();
+            szamlaBetolt( _get('id'), 'projektkezeles.php', 'dokumentumok' );
+        }
+    });
+}
+</script>

@@ -32,6 +32,16 @@ if( $tobb_kep ) {
     function get_tobbkep_tabla(){ return str_replace('.php', '', basename(self())).'_dok'; } // A képeket tartalmazó adatbázis tábla neve FONTOS: ha itt átnevezed akkor a tobbkep.php-ban is át kell írni!
 }
 
+
+// Projektszerődés dokumentum típusának beállítása (Projektek dokumentum fül alatt, minősítés gombra kattintva)
+if( isset($_POST['dok_minosites_beallit']) ) {
+    
+    $adatbazis_kapcsolat->u('projektszerzodes_dok', array('tipus'), array($_POST['tipus']), "`recid`='{$_POST['recid']}'");
+    
+    $weblap -> leallit();
+    exit;
+}
+
 // Lekérdezzük, hogy van-e a projekt szerződés tételei között olyan, amihez van kapcsolva számla tétel
 if( isset($_POST['van_kapcsolt_szamla']) ) {
 
@@ -93,7 +103,7 @@ if( isset($_POST['get_projekt_tabla']) ) {
                                         `'.get_db_tabla().'projektkezeles`.`insert_dt`
                                             ',
                                         'projektkezeles',
-                                        "`telephely_id`='{$_POST['telephely_id']}'", $order, '', '', '', $join);
+                                        "`telephely_id`='{$_POST['telephely_id']}' AND `stat_id`!='".PRKEZEL_STAT_LEZART."'", $order, '', '', '', $join);
 // echo $adatbazis_kapcsolat->gp() . '<br>';
     $i = 1;
     foreach ( $prek as $pr ) {

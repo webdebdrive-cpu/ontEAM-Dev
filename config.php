@@ -3,11 +3,6 @@
 
 $weblap_indul = microtime(true);
 
-ini_set('log_errors',       '1'             );
-ini_set('error_log',        '!Errors.txt'   );  // Melyik fájlba íródjanak a hibaüzik
-ini_set('display_errors' ,  '0'             );
-error_reporting(E_ERROR);                       // Csak a hibákat írja ki
-
 require_once 'konstansok.php';
 
 // Időzóna beállítása

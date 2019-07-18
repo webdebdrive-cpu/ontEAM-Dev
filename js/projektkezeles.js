@@ -194,3 +194,33 @@ function cf_sor_torol(mehet){
     });
     
 }
+
+/* Feltöltött dokumentumok sorainak végén van egy minősítés gomb, az futtatja ezt a függvényt */
+var dok_sorszama = 0;
+function dok_minosites( sorszam ) {
+    dok_sorszama = sorszam;
+    csoportMuvelet('projektszerzodes_dok_minosites');
+}
+
+/* Projekt újranyitása */
+function projektkezeles_ujranyit() {
+    $.ajax({
+        url: 'projektkezeles.php',
+        type: 'POST',
+        data: {
+            recid                   : _get('id'),
+            projektkezeles_ujranyit : Date.now()
+        },
+        success: function (response) {
+            if(response.substring(0, 6)=='SESKIL'){ location.href = 'index.php'; }
+            if (response) {
+                response = JSON.parse(response);
+                if (response.hiba) {
+                    alert2(response.hiba, response.gomb,response.title);
+                } else {
+                    szamlaBetolt( _get('id'), 'projektkezeles.php', 'modosit' );
+                }
+            }
+        }
+    });
+}
