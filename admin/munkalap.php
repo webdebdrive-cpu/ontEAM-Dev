@@ -4014,8 +4014,8 @@ if( isset($_POST['munkalapErkeztet']) ) {
             }
         }
 
-        // ha anyagstátusz = igénylés alatt vagy igényelve, anyag beérkezett oszlopban pipáló
-        // ha anyagstátusz=rendelkezésre áll vagy üres (ez elvileg nem lehet), szürkén mutatjuk sort és nem tud pipálni
+        // Ha anyagstátusz = igénylés alatt vagy igényelve, anyag beérkezett oszlopban pipáló
+        // Ha anyagstátusz=rendelkezésre áll vagy üres (ez elvileg nem lehet), szürkén mutatjuk sort és nem tud pipálni
         $disabled = '';
         $szurkit  = '';
         if( $anyag['stat_id'] == DISZPNAG_STAT_VAN_ANYAG || $anyag['stat_id'] == '' ) {
@@ -4135,12 +4135,14 @@ if( isset($_POST['munkalapErkeztetMent']) ) {
             
             $sql = $adatbazis_kapcsolat->u('munkalap', array('visszaadva'), array(1), "`recid`='{$munkalap_id['munkalap_id']}'");
             if( $sql === false ) { $db_error = true; }
-        } else {
-            echo json_encode(array(
-                'hiba'  => 'Kérem, hogy a pipáló segítségével adja meg, mely anyagok állnak rendelkezésre!',
-                'title' => 'Hiba',
-            ));
         }
+        
+    // Ha egyetlen pipálót sem pipáltak be
+    } else {
+        echo json_encode(array(
+            'hiba'  => 'Kérem, hogy a pipáló segítségével adja meg, mely anyagok állnak rendelkezésre!',
+            'title' => 'Hiba',
+        ));
     }
 
     if( !$db_error ) {

@@ -678,7 +678,7 @@ if( isset($_POST['pop_tetelek_feltolt']) ) {
         // Illetve, hogy az aktuális számlán kívül milyen számlák tartoznak hozzá, és beleférünk-e a keretbe?
         $szamla_netto = str_replace( array(' ', ','), array('', '.'), $_POST[$szamla_netto_mezo]);
         $szamlak = $adatbazis_kapcsolat->s2('SUM(`'.$szamla_netto_mezo.'`)', 'projektszamla', "`sz_szam`='{$_POST['sz_szam']}' AND `recid`!='{$_POST['id']}' AND `visszaadva`=0");
-        if( number_format($szamlak['SUM(`'.$szamla_netto_mezo.'`)'] + $szamla_netto, $tizedesek, ',', ' ') > number_format( $pr_szerzodes[$szerzodes_netto_mezo], $tizedesek, ',', ' ') ) {
+        if( number_format($szamlak['SUM(`'.$szamla_netto_mezo.'`)'] + $szamla_netto, $tizedesek, ',', '') > number_format( $pr_szerzodes[$szerzodes_netto_mezo], $tizedesek, ',', '') ) {
             echo json_encode( array(
                                 'hiba'  => nl2('
                                                 Szerződött összeg: '.number_format($pr_szerzodes[$szerzodes_netto_mezo], $tizedesek, ',', ' ').' '.$penznem.'
@@ -812,7 +812,7 @@ if( isset($_POST['pop_kapcsolas_feltolt']) ) {
     // Tételek táblázat sorait kiszámoljuk:
     $tabla  = '';
     $i      = 0;
-    $szerzodes_tetelek = $adatbazis_kapcsolat->s('*', 'projektszerzodes_tetel', "`projektszerzodes_recid`='{$szerzodes['recid']}'");
+    $szerzodes_tetelek = $adatbazis_kapcsolat->s('*', 'projektszerzodes_tetel', "`projektszerzodes_recid`='{$szerzodes['recid']}'", 'varh_erk');
     foreach( $szerzodes_tetelek as $tetel ) {
         
         // Minden sornak adunk egy azonosítót. Mivel lehet csak egy ideiglenes sorról van szó, nem mindig van recid-nk, ezért időbélyeges azonosítót hozunk létre, megtoldva egy $i-vel.
