@@ -12,7 +12,7 @@ $html = str_replace($mit, '', $html);
 
 
 
-$mpdf = new mPDF('utf-8','A4','','','10','10','28','25');
+$mpdf = new mPDF('utf-8','A4','','','10','10','28','20','5','5');
 
 
 
