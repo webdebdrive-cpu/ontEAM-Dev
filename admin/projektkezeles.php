@@ -374,6 +374,49 @@ if( isset($_POST['projekt_lezartra']) ) {
     exit();
 }
 
+// Léptetés Folyamatban státuszba: Projektszerződésés dokumentum minődítése után kérdezünk rá, hogy tovább szeretné-e léptetni. Ha igen, akkor itt tesszük ezt meg.
+if( isset($_POST['folyamatbanra_allit']) ) {
+    
+    $recid = $_POST['recid'];
+    
+    $db_error = false;
+    mysqli_autocommit($db_kapcs, false);
+    
+    // Jog ellenőrzése
+    if( !_jog( JOG_PRKEZEL_KEZEL ) ) {
+        echo json_encode(array(
+            'hiba'  => 'Önnek nincs joga státuszt léptetni!',
+            'title' => 'Hiba',
+            'gomb'  => '<input type="button" class="gomb" value="Ok" onclick="popupZar(); szamlaBetolt( _get(\'id\'), \'projektkezeles.php\', \'dokumentumok\' );">',
+        ));
+        
+        $weblap -> leallit();
+        exit;
+    }
+    
+    // Státusz léptetés
+    if( addStatusz( 'projektkezeles_statusz', $recid, PRKEZEL_STAT_FOLYAMATBAN ) === false ) {
+        $db_error = true;
+    }
+    
+    if( !$db_error ) {
+        mysqli_commit($db_kapcs);
+        echo json_encode(array(
+            'statusz' => 'siker',
+            'recid'   => $recid
+        ));
+    } else {
+        mysqli_rollback($db_kapcs);
+        echo json_encode(array(
+            'hiba'  => tranzakcioHiba(),
+            'title' => 'Hiba',
+        ));
+    }
+    
+    $weblap->leallit();
+    exit();
+}
+
 // Sikeres fájlfetöltés után rákérdezünk, hogy léptessük-e tovább
 if( isset($_POST['projekt_fajfeltoltes_utan_tovabb']) ) {
 
@@ -1234,6 +1277,20 @@ if( isset($_POST['cf_sor_torol']) ) {
             'hiba'  => tranzakcioHiba(),
             'title' => 'Hiba'
         ));
+    }
+    
+    $weblap->leallit();
+    exit();
+}
+
+// Dokuemtnumok fül alatt egy-egy csoportot amikor kinyitunk, akkor azt is jegyezzük meg, 
+// hogy nyitva vagy zárva maradt, hogy újratöltéskor úgy maradjon, ne kelljen újra ki-be nyitni
+if( isset($_POST['dokumentumok_kibont']) ) {
+    
+    if( $_SESSION['projekt_dok'][$_POST['azon']] ) {
+        $_SESSION['projekt_dok'][$_POST['azon']] = false;
+    } else {
+        $_SESSION['projekt_dok'][$_POST['azon']] = true;
     }
     
     $weblap->leallit();

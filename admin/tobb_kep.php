@@ -397,11 +397,19 @@ if( $apa_tabla == 'projektkezeles' ) {
     }
 
     if( $kepek ) {
+        
+        // Nyitva-zárva állapot $_SESSION-ben tárolva
+        $azon = 'dok_minositesre_var_'.$_GET['id'];
+        $dn = ' dn';
+        if( $_SESSION['projekt_dok'][$azon] ) {
+            $dn = '';
+        }
+        
         $tobbkep_html .= nl2('
-                            <li class="nohover link" style="margin: 2rem 0rem 0.3rem 0" onclick="$(\'.dok_minositesre_var\').slideToggle()">
+                            <li class="nohover link" style="margin: 2rem 0rem 0.3rem 0" onclick="dokumentumok_kibont(\''.$azon.'\');">
                                 <h3>Minősítésre váró dokumentumok</h3>
                             </li>
-                            <li class="fejlec nohover dn dok_minositesre_var">
+                            <li class="fejlec nohover '.$azon.$dn.'">
                                 <div class="kep">Kép</div>
                                 <div class="felirat c" style="width: 30rem">Fájlnév</div>
                                 <div class="felirat">Feltöltötte</div>
@@ -412,7 +420,7 @@ if( $apa_tabla == 'projektkezeles' ) {
             ');
     }
     foreach ( $kepek as $sor_kepek ) {
-        $tobbkep_html .= get_tobbkep_thumb($sor_kepek, $i, 'projektszerzodes_dok', 'nincs törlés', $sor_kepek['projektszerzodes_id'], 'dok_minositesre_var dn');
+        $tobbkep_html .= get_tobbkep_thumb($sor_kepek, $i, 'projektszerzodes_dok', 'nincs törlés', $sor_kepek['projektszerzodes_id'], $azon.$dn);
         $i++;
     }
     
@@ -422,11 +430,18 @@ if( $apa_tabla == 'projektkezeles' ) {
     }
 
     if( $kepek ) {
+        
+        // Nyitva-zárva megjegyzése
+        $azon = 'dok_szerzodesek_'.$_GET['id'];
+        $dn = ' dn';
+        if( $_SESSION['projekt_dok'][$azon] ) {
+            $dn = '';
+        }
         $tobbkep_html .= nl2('
-                            <li class="nohover link" style="margin: 2rem 0rem 0.3rem 0" onclick="$(\'.dok_szerzodesek\').slideToggle()">
+                            <li class="nohover link" style="margin: 2rem 0rem 0.3rem 0" onclick="dokumentumok_kibont(\''.$azon.'\');">
                                 <h3>Szerződések</h3>
                             </li>
-                            <li class="fejlec nohover dn dok_szerzodesek">
+                            <li class="fejlec nohover '.$azon.$dn.'">
                                 <div class="kep">Kép</div>
                                 <div class="felirat c" style="width: 30rem">Fájlnév</div>
                                 <div class="felirat">Feltöltötte</div>
@@ -436,7 +451,7 @@ if( $apa_tabla == 'projektkezeles' ) {
             ');
     }
     foreach ( $kepek as $sor_kepek ) {
-        $tobbkep_html .= get_tobbkep_thumb($sor_kepek, $i, 'projektszerzodes_dok', 'nincs törlés', $sor_kepek['projektszerzodes_id'], 'dok_szerzodesek dn');
+        $tobbkep_html .= get_tobbkep_thumb($sor_kepek, $i, 'projektszerzodes_dok', 'nincs törlés', $sor_kepek['projektszerzodes_id'], $azon.$dn);
         $i++;
     }
     
@@ -450,11 +465,18 @@ if( $apa_tabla == 'projektkezeles' ) {
     }
 
     if( $kepek ) {
+        
+        // Nyitva-zárva megjegyzése
+        $azon = 'dok_szamlak_'.$_GET['id'];
+        $dn = ' dn';
+        if( $_SESSION['projekt_dok'][$azon] ) {
+            $dn = '';
+        }
         $tobbkep_html .= nl2('
-                            <li class="nohover link" style="margin: 2rem 0rem 0.3rem 0" onclick="$(\'.dok_szamlak\').slideToggle()">
+                            <li class="nohover link" style="margin: 2rem 0rem 0.3rem 0" onclick="dokumentumok_kibont(\''.$azon.'\');">
                                 <h3>Számlák</h3>
                             </li>
-                            <li class="fejlec nohover dn dok_szamlak">
+                            <li class="fejlec nohover '.$azon.$dn.'">
                                 <div class="kep">Kép</div>
                                 <div class="felirat c" style="width: 30rem">Fájlnév</div>
                                 <div class="felirat">Feltöltötte</div>
@@ -464,7 +486,7 @@ if( $apa_tabla == 'projektkezeles' ) {
             ');
     }
     foreach ( $kepek as $sor_kepek ) {
-        $tobbkep_html .= get_tobbkep_thumb($sor_kepek, $i, 'projektszamla_dok', 'nincs törlés', $sor_kepek['projektszamla_id'], 'dok_szamlak dn');
+        $tobbkep_html .= get_tobbkep_thumb($sor_kepek, $i, 'projektszamla_dok', 'nincs törlés', $sor_kepek['projektszamla_id'], $azon.$dn);
         $i++;
     }
     
@@ -488,11 +510,18 @@ if( $apa_tabla == 'projektszerzodes' || $apa_tabla == 'projektkezeles' ) {
     }
     
     if( $kepek ) {
+        
+        // Nyitva-zárva megjegyzése
+        $azon = 'dok_jotallas_'.$_GET['id'];
+        $dn = ' dn';
+        if( $_SESSION['projekt_dok'][$azon] ) {
+            $dn = '';
+        }
         $tobbkep_html .= nl2('
-                            <li class="nohover link" style="margin: 2rem 0rem 0.3rem 0" onclick="$(\'.dok_jotallas\').slideToggle()">
+                            <li class="nohover link" style="margin: 2rem 0rem 0.3rem 0" onclick="dokumentumok_kibont(\''.$azon.'\');">
                                 <h3>Jótállások</h3>
                             </li>
-                            <li class="fejlec dn nohover dok_jotallas">
+                            <li class="fejlec nohover '.$azon.$dn.'">
                                 <div class="kep">Kép</div>
                                 <div class="felirat c" style="width: 30rem">Fájlnév</div>
                                 <div class="felirat">Feltöltötte</div>
@@ -502,7 +531,7 @@ if( $apa_tabla == 'projektszerzodes' || $apa_tabla == 'projektkezeles' ) {
             ');
     }
     foreach ( $kepek as $sor_kepek ) {
-        $tobbkep_html .= get_tobbkep_thumb($sor_kepek, $i, 'projektszerzodes_jotallas', 'nincs törlés', $sor_kepek['projektszerzodes_recid'], 'dok_jotallas dn');
+        $tobbkep_html .= get_tobbkep_thumb($sor_kepek, $i, 'projektszerzodes_jotallas', 'nincs törlés', $sor_kepek['projektszerzodes_recid'], $azon.$dn);
         $i++;
     }
 
@@ -522,11 +551,18 @@ if( $apa_tabla == 'projektkezeles' ) {
         }
 
         if( $kepek ) {
+            
+            // Nyitva-zárva megjegyzése
+            $azon = 'dok_tipus_'.$tipus['id'].'_'.$_GET['id'];
+            $dn = ' dn';
+            if( $_SESSION['projekt_dok'][$azon] ) {
+                $dn = '';
+            }
             $tobbkep_html .= nl2('
-                                <li class="nohover link" style="margin: 2rem 0rem 0.3rem 0" onclick="$(\'.dok_tipus_'.$tipus['id'].'\').slideToggle()">
+                                <li class="nohover link" style="margin: 2rem 0rem 0.3rem 0" onclick="dokumentumok_kibont(\''.$azon.'\');">
                                     <h3>'.$tipus['info'].'</h3>
                                 </li>
-                                <li class="fejlec nohover dn dok_szamlak">
+                                <li class="fejlec nohover '.$azon.$dn.'">
                                     <div class="kep">Kép</div>
                                     <div class="felirat c" style="width: 30rem">Fájlnév</div>
                                     <div class="felirat">Feltöltötte</div>
@@ -536,7 +572,7 @@ if( $apa_tabla == 'projektkezeles' ) {
                 ');
         }
         foreach ( $kepek as $sor_kepek ) {
-            $tobbkep_html .= get_tobbkep_thumb($sor_kepek, $i, 'projektszamla_dok', 'nincs törlés', $sor_kepek['projektszamla_id'], 'dok_tipus_'.$tipus['id'].' dn');
+            $tobbkep_html .= get_tobbkep_thumb($sor_kepek, $i, 'projektszamla_dok', 'nincs törlés', $sor_kepek['projektszamla_id'], $azon.$dn);
             $i++;
         }
         
