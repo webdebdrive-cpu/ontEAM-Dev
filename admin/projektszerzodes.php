@@ -33,10 +33,23 @@ if( $tobb_kep ) {
 }
 
 
-// Projektszerődés dokumentum típusának beállítása (Projektek dokumentum fül alatt, minősítés gombra kattintva)
+// Projektszerődés dokumentum típusának beállítása 
+// (Projektek dokumentum fül alatt, minősítés gombra kattintva, de mivel szerződés dokumentumról van szó, ezért itt kezeljük)
 if( isset($_POST['dok_minosites_beallit']) ) {
     
     $adatbazis_kapcsolat->u('projektszerzodes_dok', array('tipus'), array($_POST['tipus']), "`recid`='{$_POST['recid']}'");
+    
+    // Meg kell nézni, hogy mi a projekt státusza. Ha előkészítés alatt, akkor rákérdezünk, hogy tovább léptet-e státuszt
+    $pr_szerzodes_doc   = $adatbazis_kapcsolat->s2('projektszerzodes_id', 'projektszerzodes_dok', "`recid`='{$_POST['recid']}'");
+    $pr_szerzodes       = $adatbazis_kapcsolat->s2('pr_szam', 'projektszerzodes', "`recid`='{$pr_szerzodes_doc['projektszerzodes_id']}'");
+    $projekt            = $adatbazis_kapcsolat->s2('recid stat_id', 'projektkezeles', "`ikt_szam`='{$pr_szerzodes['pr_szam']}'");
+    if( $projekt['stat_id']==PRKEZEL_STAT_ELOKESZITES_ALATT ) {
+        echo json_encode( array(
+                                'alert' => 'A csatolt fájlt szerződés típusú dokumentummá minősítette.<br>Folyamatba helyezi a projektet?',
+                                'title' => 'Kérdés',
+                                'gomb'  => '<input type="button" class="gomb zold" value="Igen" onclick="folyamatbanra_allit()"><input type="button" class="gomb piros" value="Nem" onclick="popupZar(); szamlaBetolt( \''.$projekt['recid'].'\', \'projektkezeles.php\', \'dokumentumok\' );">',
+                            ) );
+    }
     
     $weblap -> leallit();
     exit;

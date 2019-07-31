@@ -37,8 +37,19 @@ function dok_minosites_beallit() {
             dok_minosites_beallit   : Date.now()
         },
         success: function(response){
-            popupZar();
-            szamlaBetolt( _get('id'), 'projektkezeles.php', 'dokumentumok' );
+            if(response.substring(0, 6)=='SESKIL'){ location.href = 'index.php'; }
+            if( response ) {
+                
+                response = JSON.parse(response);
+                if( response.alert ) {
+                    alert2( response.alert, response.gomb, response.title );
+                }
+                
+            /* Ha nincs válasz, akkor csak bezárjuk a popupot, újratöltjük a felületet */
+            } else {
+                popupZar();
+                szamlaBetolt( _get('id'), 'projektkezeles.php', 'dokumentumok' );
+            }
         }
     });
 }

@@ -216,11 +216,52 @@ function projektkezeles_ujranyit() {
             if (response) {
                 response = JSON.parse(response);
                 if (response.hiba) {
-                    alert2(response.hiba, response.gomb,response.title);
+                    alert2(response.hiba, response.gomb, response.title);
                 } else {
                     szamlaBetolt( _get('id'), 'projektkezeles.php', 'modosit' );
                 }
             }
         }
     });
+}
+
+/* Projekt folyamatbanra állítása */
+function folyamatbanra_allit() {
+    $.ajax({
+        url : 'projektkezeles.php',
+        type: 'POST',
+        data: {
+            recid               : _get('id'),
+            folyamatbanra_allit : Date.now()
+        },
+        success: function (response) {
+            if(response.substring(0, 6)=='SESKIL'){ location.href = 'index.php'; }
+            if (response) {
+                response = JSON.parse(response);
+                if (response.hiba) {
+                    alert2(response.hiba, response.gomb, response.title);
+                } else {
+                    popupZar();
+                    szamlaBetolt( _get('id'), 'projektkezeles.php', 'dokumentumok' );
+                }
+            }
+        }
+    });
+}
+
+/* Dokuemtumok fül alá kell, hogy a csoporotsított dokumentumokat kinyissuk, és a kinyitást egy SESSION-ben el is tároljuk. */
+function dokumentumok_kibont( azon ) {
+    
+    $.ajax({
+        url : 'projektkezeles.php',
+        type: 'POST',
+        data: {
+            azon                : azon,
+            dokumentumok_kibont : Date.now()
+        },
+        success: function (response) {
+            $('.'+azon).slideToggle();
+        }
+    });
+
 }

@@ -142,7 +142,7 @@ function specialis_karakterek_mivel(){
     return array(' ');
 }
 
-// Projektkezeles státuszok
+// Projekt státuszok
 define('PRKEZEL_STAT_NYITOTT',          '01' );
 define('PRKEZEL_STAT_ELOKESZITES_ALATT','02' );
 define('PRKEZEL_STAT_FOLYAMATBAN',      '03' );
