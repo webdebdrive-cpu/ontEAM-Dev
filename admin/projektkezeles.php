@@ -307,7 +307,7 @@ if( isset($_POST['projekt_lezartra']) ) {
     $db_error = false;
     mysqli_autocommit($db_kapcs, false);
     
-    $sor = $adatbazis_kapcsolat->s2('stat_id', 'projektkezeles', "`recid`='{$recid}'");
+    $sor = $adatbazis_kapcsolat->s2('stat_id ikt_szam', 'projektkezeles', "`recid`='{$recid}'");
     if( $sql === false ) { $db_error = true; }
     
     // Státusz ellenőrzése
@@ -332,10 +332,16 @@ if( isset($_POST['projekt_lezartra']) ) {
         exit();
     }
     
-    // Van-e már csatolt Gar. bejárási jk. dokumentum
-    $van_dok = $adatbazis_kapcsolat->s2('recid', 'projektkezeles_dok', "`projektkezeles_id`='{$recid}' AND `tipus`='".EL_DOK_TIPUS_GAR_BEJAR."'", '', '1');
-    if( $van_dok === false ) { $db_error = true; }
-    if(!$van_dok){
+    // Adott Projekthez kapcsolódó szerződések jótállásainak mindegyikének van-e már feltölött dokumentuma?
+    // Ha csak egy olyan jótállás is létezik, aminek még nincs dokumentuma (`utvonal`=''), akkor nem engedjük lezárni.
+    $szerzodesek = $adatbazis_kapcsolat->s('recid', 'projektszerzodes', "`pr_szam`='{$sor['ikt_szam']}'");
+    if( $szerzodesek === false ) { $db_error = true; }
+    $szerzodesek = adatbazis2tomb($szerzodesek, 'recid');
+    if( $szerzodesek ) {
+        $van_hianyos_jotallas = $adatbazis_kapcsolat->s2('recid', 'projektszerzodes_jotallas', "`projektszerzodes_recid` IN (".implode(', ', $szerzodesek).") AND `utvonal`=''");
+        if( $van_hianyos_jotallas === false ) { $db_error = true; }
+    }
+    if( $van_hianyos_jotallas ) {
         echo json_encode(array(
             'hiba'  => 'Előbb csatoljon egy Gar. bejárási jk. Dokumentumot a projekthez!',
             'title' => 'Hiba',
@@ -1596,8 +1602,20 @@ require_once('selectek.php');
         // Kész státusz
         $statuszok = array(PRKEZEL_STAT_KESZ);
         if( in_array($sor['stat_id'], $statuszok) && get_projekt_kezeles_jog($_GET['id']) ) {
-            $van_dok = $adatbazis_kapcsolat->s2('recid', 'projektkezeles_dok', "`projektkezeles_id`='{$_GET['id']}' AND `tipus`='".EL_DOK_TIPUS_GAR_BEJAR."'", '', '1');
-            if(!$van_dok){
+            
+            // Korábbi feltétel, ha mégis kiderülne, hogy ez kell, de amúgy ez törölhető
+            // $van_dok = $adatbazis_kapcsolat->s2('recid', 'projektkezeles_dok', "`projektkezeles_id`='{$_GET['id']}' AND `tipus`='".EL_DOK_TIPUS_GAR_BEJAR."'", '', '1');
+            // if( !$van_dok ) { <= ez volt a feltétel ott, ahol most ez szerepel: if( $van_hianyos_jotallas ) {
+            
+            // Adott Projekthez kapcsolódó szerződések jótállásainak mindegyikének van-e már feltölött dokumentuma?
+            // Ha csak egy olyan jótállás is létezik, aminek még nincs dokumentuma (`utvonal`=''), akkor nem engedjük lezárni.
+            $szerzodesek = $adatbazis_kapcsolat->s('recid', 'projektszerzodes', "`pr_szam`='{$sor['ikt_szam']}'");
+            $szerzodesek = adatbazis2tomb($szerzodesek, 'recid');
+            if( $szerzodesek ) {
+                $van_hianyos_jotallas = $adatbazis_kapcsolat->s2('recid', 'projektszerzodes_jotallas', "`projektszerzodes_recid` IN (".implode(', ', $szerzodesek).") AND `utvonal`=''");
+            }
+
+            if( $van_hianyos_jotallas ) {
                 $gombok .= '<input type="button" class="gomb modositaskor_rejt" value="Lezárt" onclick="alert2(\'Előbb csatoljon egy Gar. bejárási jk. Dokumentumot a projekthez!\', \'\', \'Hiba\')"> ';
             } else {
                 $gombok .= '<script> gomb_lezartra = \'<input type="button" class="gomb zold" onclick="projekt_lezartra()" value="Igen"><input type="button" class="gomb piros" onclick="alert2()" value="Nem">\';</script>';

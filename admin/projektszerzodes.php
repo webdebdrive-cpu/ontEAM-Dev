@@ -1021,6 +1021,7 @@ if( isset($_GET['csv']) ) {
 $szamla_html = '';
 
 // Tartalom
+
 if( !$_GET['ajax'] ) {
     require_once('header.php');
 }

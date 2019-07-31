@@ -388,19 +388,20 @@ if( $kepek ) {
 if( $apa_tabla == 'projektkezeles' ) {
     $projekt        = $adatbazis_kapcsolat->s2('ikt_szam', 'projektkezeles', "`recid`='{$_GET['id']}'");
     
+    // A szerződéseket kétszer járjuk be: a nem minősítetteket (tehát ahol a tipus oszlop üres), majd a szerződéseket.
     $kepek          = '';
     $szerzodesek    = $adatbazis_kapcsolat->s('recid', 'projektszerzodes', "`pr_szam`='{$projekt['ikt_szam']}'");
     $szerzodesek    = adatbazis2tomb($szerzodesek, 'recid');
     if( $szerzodesek ) {
-        $kepek = $adatbazis_kapcsolat -> s('*', 'projektszerzodes_dok', "`projektszerzodes_id` IN (".implode(',', $szerzodesek).")", 'insert_dt');
+        $kepek = $adatbazis_kapcsolat -> s('*', 'projektszerzodes_dok', "`projektszerzodes_id` IN (".implode(',', $szerzodesek).") AND `tipus`=0", 'insert_dt');
     }
 
     if( $kepek ) {
         $tobbkep_html .= nl2('
-                            <li class="nohover link" style="margin: 2rem 0rem 0.3rem 0" onclick="$(\'.dok_szerzodesek\').slideToggle()">
-                                <h3>Projektszerződések dokumentumai</h3>
+                            <li class="nohover link" style="margin: 2rem 0rem 0.3rem 0" onclick="$(\'.dok_minositesre_var\').slideToggle()">
+                                <h3>Minősítésre váró dokumentumok</h3>
                             </li>
-                            <li class="fejlec nohover dn dok_szerzodesek">
+                            <li class="fejlec nohover dn dok_minositesre_var">
                                 <div class="kep">Kép</div>
                                 <div class="felirat c" style="width: 30rem">Fájlnév</div>
                                 <div class="felirat">Feltöltötte</div>
@@ -411,10 +412,36 @@ if( $apa_tabla == 'projektkezeles' ) {
             ');
     }
     foreach ( $kepek as $sor_kepek ) {
+        $tobbkep_html .= get_tobbkep_thumb($sor_kepek, $i, 'projektszerzodes_dok', 'nincs törlés', $sor_kepek['projektszerzodes_id'], 'dok_minositesre_var dn');
+        $i++;
+    }
+    
+    // Szerződések bejárása másodjára: minősített dokumentumok kiíratása, tehát ahol a tipus=szerződés
+    if( $szerzodesek ) {
+        $kepek = $adatbazis_kapcsolat -> s('*', 'projektszerzodes_dok', "`projektszerzodes_id` IN (".implode(',', $szerzodesek).") AND `tipus`='".EL_DOK_TIPUS_SZERZODES."'", 'insert_dt');
+    }
+
+    if( $kepek ) {
+        $tobbkep_html .= nl2('
+                            <li class="nohover link" style="margin: 2rem 0rem 0.3rem 0" onclick="$(\'.dok_szerzodesek\').slideToggle()">
+                                <h3>Szerződések</h3>
+                            </li>
+                            <li class="fejlec nohover dn dok_szerzodesek">
+                                <div class="kep">Kép</div>
+                                <div class="felirat c" style="width: 30rem">Fájlnév</div>
+                                <div class="felirat">Feltöltötte</div>
+                                <div class="felirat">Dátum</div>
+                                <div class="felirat torles">Szerződés</div>
+                            </li>
+            ');
+    }
+    foreach ( $kepek as $sor_kepek ) {
         $tobbkep_html .= get_tobbkep_thumb($sor_kepek, $i, 'projektszerzodes_dok', 'nincs törlés', $sor_kepek['projektszerzodes_id'], 'dok_szerzodesek dn');
         $i++;
     }
-
+    
+    
+    // Számlák
     $kepek      = '';
     $szamlak    = $adatbazis_kapcsolat->s('recid', 'projektszamla', "`pr_szam`='{$projekt['ikt_szam']}'");
     $szamlak    = adatbazis2tomb($szamlak, 'recid');
@@ -425,7 +452,7 @@ if( $apa_tabla == 'projektkezeles' ) {
     if( $kepek ) {
         $tobbkep_html .= nl2('
                             <li class="nohover link" style="margin: 2rem 0rem 0.3rem 0" onclick="$(\'.dok_szamlak\').slideToggle()">
-                                <h3>Projektszámla dokumentumai</h3>
+                                <h3>Számlák</h3>
                             </li>
                             <li class="fejlec nohover dn dok_szamlak">
                                 <div class="kep">Kép</div>
@@ -440,11 +467,16 @@ if( $apa_tabla == 'projektkezeles' ) {
         $tobbkep_html .= get_tobbkep_thumb($sor_kepek, $i, 'projektszamla_dok', 'nincs törlés', $sor_kepek['projektszamla_id'], 'dok_szamlak dn');
         $i++;
     }
+    
+    // FONTOS: Ez a dokumentum felsorolás még folytatódni fog a Projektek modul alatt, 
+    // de itt most kicsit megszakítjuk a működést, hogy a soron követekző Jótállások
+    // kilistázását a Projektszerződések felülete alatt is megjelenjen
+    
 }
 
 // Projketszerződésnél pedig felsoroljuk a jótállás fül alatti dokumentumokat is
 if( $apa_tabla == 'projektszerzodes' || $apa_tabla == 'projektkezeles' ) {
-    
+
     $kepek = '';
     if( $apa_tabla == 'projektszerzodes' ) {
         $kepek = $adatbazis_kapcsolat->s('*', 'projektszerzodes_jotallas', "`projektszerzodes_recid`='{$_GET['id']}'");
@@ -458,7 +490,7 @@ if( $apa_tabla == 'projektszerzodes' || $apa_tabla == 'projektkezeles' ) {
     if( $kepek ) {
         $tobbkep_html .= nl2('
                             <li class="nohover link" style="margin: 2rem 0rem 0.3rem 0" onclick="$(\'.dok_jotallas\').slideToggle()">
-                                <h3>Projektszerződés jótállásai</h3>
+                                <h3>Jótállások</h3>
                             </li>
                             <li class="fejlec dn nohover dok_jotallas">
                                 <div class="kep">Kép</div>
@@ -472,6 +504,42 @@ if( $apa_tabla == 'projektszerzodes' || $apa_tabla == 'projektkezeles' ) {
     foreach ( $kepek as $sor_kepek ) {
         $tobbkep_html .= get_tobbkep_thumb($sor_kepek, $i, 'projektszerzodes_jotallas', 'nincs törlés', $sor_kepek['projektszerzodes_recid'], 'dok_jotallas dn');
         $i++;
+    }
+
+}
+
+// Végül egy általános ciklus a Projektek modul alá:
+// felsoroljuk az értéklistában levő minősítés fajtákat, és felsoroljuk azokhoz tartozó dokumentumokat is. 
+// (Kivéve a szerződéseket, mert azokat fentebb már kiírtuk.)
+if( $apa_tabla == 'projektkezeles' ) {
+    $dok_tipusok = $adatbazis_kapcsolat->s('id info', 'erteklista', "`csoport`='".ERTEKLISTA_DOK_TIPUS."' AND `id`!='".EL_DOK_TIPUS_SZERZODES."'", 'info');
+    foreach( $dok_tipusok as $tipus ) {
+
+        // Tehát itt egy ciklusban ugynazt csinájuk mint fentebb, csak adott típusra szűrve
+        $kepek = '';
+        if( $szerzodesek ) {
+            $kepek = $adatbazis_kapcsolat -> s('*', 'projektszerzodes_dok', "`projektszerzodes_id` IN (".implode(',', $szerzodesek).") AND `tipus`='{$tipus['id']}'", 'insert_dt');
+        }
+
+        if( $kepek ) {
+            $tobbkep_html .= nl2('
+                                <li class="nohover link" style="margin: 2rem 0rem 0.3rem 0" onclick="$(\'.dok_tipus_'.$tipus['id'].'\').slideToggle()">
+                                    <h3>'.$tipus['info'].'</h3>
+                                </li>
+                                <li class="fejlec nohover dn dok_szamlak">
+                                    <div class="kep">Kép</div>
+                                    <div class="felirat c" style="width: 30rem">Fájlnév</div>
+                                    <div class="felirat">Feltöltötte</div>
+                                    <div class="felirat">Dátum</div>
+                                    <div class="maradek torles">Számla</div>
+                                </li>
+                ');
+        }
+        foreach ( $kepek as $sor_kepek ) {
+            $tobbkep_html .= get_tobbkep_thumb($sor_kepek, $i, 'projektszamla_dok', 'nincs törlés', $sor_kepek['projektszamla_id'], 'dok_tipus_'.$tipus['id'].' dn');
+            $i++;
+        }
+        
     }
 }
     
@@ -686,7 +754,7 @@ function get_tobbkep_thumb( $sor_kepek, $i, $tobbkep_tablanev, $nincs_torles, $k
             
             // Ha már van típusa, akkor azt írjuk ki
             if( $sor_kepek['tipus'] ) {
-                $gomb = getErtekLista(ERTEKLISTA_DOK_TIPUS, $sor_kepek['tipus']);
+                $gomb = '';
             
             // Egyébként egy minősítő gombot
             } else {

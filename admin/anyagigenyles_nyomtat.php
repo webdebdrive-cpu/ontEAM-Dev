@@ -118,7 +118,8 @@ if (isset($_GET['html_mutat'])) {
      echo $html;
 }
 
-    // error_reporting(0); //Így tudod kikapcsolni a warningokat és hibaüzeneteket
+    // Így tudod kikapcsolni a warningokat és hibaüzeneteket:
+    // error_reporting(0); 
     include('../mpdf/mpdf.php');
 
     $mit = array('<script src="../js/jquery.js"></script>', '<link href="../css/nyomtatas.css" rel="stylesheet" type="text/css">');

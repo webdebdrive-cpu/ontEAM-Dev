@@ -5455,42 +5455,15 @@ function projektkezelesLista( $bejegyzesek, $tabla, $frissit, $kijeloltek ) {
             
             // Van-e csatolt dokumentuma
             $dok_icon = '';
-            $van_dok = false;
             // Ha van saját dokumentuma, akkor van... ez a legegyszerűbb eset, nem kell tovább számolni
             if( $adatbazis_kapcsolat->s('recid', 'projektkezeles_dok', "`projektkezeles_id`='{$bsz['recid']}'") ) {
-                $van_dok = true;
-            }
-            // Ha nincs saját dokumentuma
-            if( !$van_dok ) {
-                $projekt = $adatbazis_kapcsolat->s2('ikt_szam', 'projektkezeles', "`recid`='{$bsz['recid']}'");
-                $szerzodesek    = $adatbazis_kapcsolat->s('recid', 'projektszerzodes', "`pr_szam`='{$projekt['ikt_szam']}'");
-                $szerzodesek    = adatbazis2tomb($szerzodesek, 'recid');
-                // Nézzük meg, hogy van-e olyan kapcsolódó szerződés, aminek van dokumentuma
-                if( $szerzodesek ) {
-                    $van_dok = $adatbazis_kapcsolat -> s('recid', 'projektszerzodes_dok', "`projektszerzodes_id` IN (".implode(',', $szerzodesek).")");
-                    // Ha nincs, akkor nézzük meg hogy van-e olyan kapcsolódó szerződés, aminek van jótállása
-                    if( !$van_dok ) {
-                        $van_dok = $adatbazis_kapcsolat -> s('recid', 'projektszerzodes_jotallas', "`projektszerzodes_recid` IN (".implode(', ', $szerzodesek).")");
-                    }
-                }
-                
-                // Ha nincs, akor nézzük meg, hogy van-e olyan kapcsolódó számlája, aminek van dokumentuma
-                if( !$van_dok ) {
-                    $szamlak    = $adatbazis_kapcsolat->s('recid', 'projektszamla', "`pr_szam`='{$projekt['ikt_szam']}'");
-                    $szamlak    = adatbazis2tomb($szamlak, 'recid');
-                    if( $szamlak ) {
-                        $van_dok = $adatbazis_kapcsolat -> s('recid', 'projektszamla_dok', "`projektszamla_id` IN (".implode(',', $szamlak).")");
-                    }
-                }
-                
-            }
-            if( $van_dok ) {
                 $dok_icon = nl2('
                     <span class="icon">
                         <i class="material-icons">attach_file</i>
                     </span>
                 ');
             }
+
 
             $li_tart = '<a class="szamla" data-recid="'.$bsz['recid'].'" data-fajl="'.$tabla.'.php" data-muvelet="modosit">
                             <table style="width: 30rem">

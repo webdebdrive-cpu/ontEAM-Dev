@@ -1352,6 +1352,7 @@ $header_html .= str_replace(
     $header_sablon
 );
 
+
 // Előterjesztés felületei
 if(basename(self())=='eloterj_fb.php' || basename(self())=='eloterj_bod.php'){
     $header_html .= '<script src="../js/eloterjesztes.js?cache='.time().'"></script>';
