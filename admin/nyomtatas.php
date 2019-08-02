@@ -9,13 +9,13 @@ if( $_GET['print']=='lista' || isset($_GET['pdf'])) {
     if ($_GET['mezo']) {
         $feltetel = '';
         $akt_tomb_szures = get_akt_tomb(str_replace('.php', '', basename(self())));
-        foreach ($akt_tomb_szures as $ertek){
-            if($ertek['name']==$_GET['mezo']){
+        foreach ( $akt_tomb_szures as $ertek ) {
+            if( $ertek['name'] == $_GET['mezo'] ) {
                 $feltetel .= trim($ertek['megn'], ':');
                 break;
             }
         }
-        switch ($_GET['op']){
+        switch ( $_GET['op'] ) {
             case 'equal'    : $feltetel .= ' = ';           break;
             case 'like'     : $feltetel .= ' tartalmazza '; break;
             case 'gteq'     : $feltetel .= ' >= ';          break;
@@ -87,7 +87,7 @@ if( $_GET['print']=='lista' || isset($_GET['pdf'])) {
     }
 
     // Összetett szűréskor annak a címkéjét írjuk ki: trükk: beágyazzuk rejtve az összetett szűrést, és ugyanazt a JS-el kiszámolt mondatatot írtajuk ki
-    if($_SESSION['o_szuro_feltetel']){
+    if( $_SESSION['o_szuro_feltetel'] ) {
         $feltetel  = '<script src="../js/wdb_admin_min.js"></script>';
         $feltetel .= '<script src="../js/wdb_admin_async_min.js"></script>';
         $feltetel .= '<div class="dn">'.fajlbol_olvas('../sablon/admin/popup/osszetett_szuro.html', 1).'</div>';
@@ -96,16 +96,16 @@ if( $_GET['print']=='lista' || isset($_GET['pdf'])) {
 
 
     // FB elétrejestzett lista nyomtatásakor a lekérdezésen még állítottunk
-    if(isset($_GET['fb_elo'])){
+    if( isset($_GET['fb_elo']) ) {
 
         $mit   = array('WHERE',   'ORDER');
         $mivel = array('WHERE (', ') AND `stat_id`=\''.PRIGENY_STAT_FB_TERJESZT.'\' ORDER');
         $_SESSION['akt_sql'] = str_replace($mit, $mivel, $_SESSION['akt_sql']);
         $query = mysqli_query($db_kapcs, $_SESSION['akt_sql']);
 
-        if(mysqli_num_rows($query)){
+        if( mysqli_num_rows($query) ) {
             $feltetel .= '<h1>FB elé terjesztve:</h1>';
-        }else{
+        } else {
             $feltetel .= '<h1>Nem található FB elé terjesztett projektigénylés.</h1>';
         }
     }
@@ -128,12 +128,12 @@ if( $_GET['print']=='lista' || isset($_GET['pdf'])) {
 
     $sorok = array();
     $query = mysqli_query($db_kapcs, $_SESSION['akt_sql']);
-    while($sor = mysqli_fetch_assoc($query)){
+    while ( $sor = mysqli_fetch_assoc($query) ) {
         array_push($sorok, $sor);
     }
 
     // Bal oldali navpanel kiíratása
-    switch($tabla){
+    switch ( $tabla ) {
 //        case 'anyagigenyles'        : $akt_tomb = $anyagigenyles_tomb;          break;
         case 'bejelentes'           : $sorok_html = bejelentesLista( $sorok, $tabla );      break;
 //        case 'beosztas'             : $akt_tomb = $beosztas_tomb;               break;
@@ -159,7 +159,7 @@ if( $_GET['print']=='lista' || isset($_GET['pdf'])) {
     }
 
     // Energia tervek egységár listájának nyomtatási képe
-    if(basename(self())=='energia_terv.php'){
+    if( basename(self()) == 'energia_terv.php' ) {
         if( $_GET['type'] == 'egysegarak_lista' ) {
             $sorok_html .= '
                 <table class="szamla_cont_tabla nolink fejlec_padd szep_csikos kisbetu">
@@ -212,7 +212,7 @@ if( $_GET['print']=='lista' || isset($_GET['pdf'])) {
                 ';
 
             $egysegarak = $adatbazis_kapcsolat->s('*', 'energia_terv_ear', "`energia_terv_id`='{$_GET['id']}'");
-            foreach($egysegarak as $egysegar){
+            foreach ( $egysegarak as $egysegar ) {
 
                 // Szálloda nevek
                 $szalloda_html = '';
@@ -288,7 +288,7 @@ if( $_GET['print']=='lista' || isset($_GET['pdf'])) {
         }
         
     // Fenntartási tervek egységár listájának nyomtatási képe
-    }elseif(basename(self())=='fenntartasi_terv.php'){
+    } elseif( basename(self()) == 'fenntartasi_terv.php' ) {
         if( $_GET['type'] == 'egysegarak_lista' ) {
             $sor = $adatbazis_kapcsolat->s2('*', 'fenntartasi_terv', "`recid`='{$_GET['id']}'");
             $ful_tomb = array(
@@ -385,7 +385,7 @@ if( $_GET['print']=='lista' || isset($_GET['pdf'])) {
         $sorok_html = preg_replace("/<i class=\"material-icons\">([a-z_]+)<\/i>/", "<img src=\"../elemek/ic_$1_black_24dp_2x.png\" class=\"icon\" width=\"18\">", $sorok_html);
 
         include('../html2pdf/mpdf.php');
-        $mpdf = new mPDF('', '', 0, '', 15, 15, 15, 15, 8, 8);
+        $mpdf = new mPDF('',      '', 0, '', 15, 15,   15, 15,  8,   8);
         $mpdf -> WriteHTML(fajlbol_olvas('../css/nullaz.css'), 1);
         $mpdf -> WriteHTML('
             body {

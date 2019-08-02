@@ -1,7 +1,7 @@
 <?php
 
 // Ha nyomtatunk, akkor pár adatot rögtön ki is számolunk
-if (isset($_GET['nyomtat'])) {
+if( isset($_GET['nyomtat']) ) {
     $adatok              = base64_decode($_GET['nyomtat']);
     list($sorszam, $idk) = explode('|', $adatok);
     $idk                 = json_decode($idk, true);
@@ -18,7 +18,7 @@ if (isset($_GET['nyomtat'])) {
 }
 
 // Szállítói nyomtatási kép
-if (isset($_GET['szall'])) {
+if( isset($_GET['szall']) ) {
 
     if($idk_impl){
         // Cikkenkénti összesítés
@@ -40,12 +40,12 @@ if (isset($_GET['szall'])) {
 
         $egysegar_mezo  = 'rndear';
         $egysegar_tized = 0;
-        if($kcs_21!=KCS_21_HUF){
+        if( $kcs_21 != KCS_21_HUF ) {
             $egysegar_mezo  = 'vrndear';
             $egysegar_tized = 2;
         }
         
-        foreach($anyagok as $anyag){
+        foreach ( $anyagok as $anyag ) {
 
             $rndmen = 0;
             $anyag_lek = $adatbazis_kapcsolat->s('nev cikkmee rndmen '.$egysegar_mezo, 'anyagigenyles', "`recid` IN (".$idk_impl.") AND `cikk_id`='{$anyag['cikk_id']}' AND `rndear`='{$anyag['rndear']}'");
@@ -129,7 +129,8 @@ if (isset($_GET['html_mutat'])) {
 
     $mpdf = new mPDF('utf-8');
 
-    $mpdf -> AddPage('P','','','','',10,10,25,0);
+    $mpdf -> AddPage('P',     '',   '', '', '', '10', '10', '28', '20', '5', '5');
+    // $mpdf = new mPDF('utf-8', 'A4', '', '', '10', '10', '28', '20', '5', '5');
     $mpdf -> nbpgPrefix = '/ ';
     $header = get_fejlec_top($sorszam, 'lapszámmal');
     $footer = '<div class="dtc r" style="font-size: 7px">
@@ -252,7 +253,7 @@ if (isset($_GET['cim'])) {
 }
 
 // Oracle cikkszám nyomtatási kép
-if (isset($_GET['oracle'])) {
+if( isset($_GET['oracle']) ) {
 
     $keret = get_keret($sorszam.' Oracle cikkszámonkénti összesítés');
     $telephelyek = $adatbazis_kapcsolat->s('distinct telephely_id', 'anyagigenyles', "`recid` IN (".$idk_impl.")");
@@ -274,11 +275,11 @@ if (isset($_GET['oracle'])) {
             // Anyagonként járjuk be az anyagigényléseket, összesítve a darabszámot
             $ossz = 0;
             $anyagok = $adatbazis_kapcsolat->s('distinct oracikkid', 'anyagigenyles', "`recid` IN (".$idk_impl.") AND `telephely_id`='{$telephely['id']}'");
-            foreach($anyagok as $anyag){
+            foreach ( $anyagok as $anyag ) {
                 $rndmen   = 0;
                 $ossz_tmp = 0;
                 $anyag_lek = $adatbazis_kapcsolat->s('cikk_id nev cikkmee rndmen rndear', 'anyagigenyles', "`recid` IN (".$idk_impl.") AND `oracikkid`='{$anyag['oracikkid']}' AND `telephely_id`='{$telephely['id']}'");
-                foreach($anyag_lek as $a_lek){
+                foreach ( $anyag_lek as $a_lek ) {
                     $ossz_tmp += $a_lek['rndmen']*$a_lek['rndear'];
                 }
                 $ossz += $ossz_tmp;
@@ -328,11 +329,11 @@ if (isset($_GET['oracle'])) {
 
 
 
-function get_fejlec_top($sorszam, $lapszammal){
+function get_fejlec_top($sorszam, $lapszammal) {
 
-    if($lapszammal){
+    if( $lapszammal ) {
         $lapszammal = '<span class="">{PAGENO} {nbpg}</span>';
-    }else {
+    } else {
         $lapszammal = '1. lap';
     }
 
@@ -366,18 +367,18 @@ function get_fejlec_top($sorszam, $lapszammal){
         ';
 }
 
-function get_fejlec($szallito){
+function get_fejlec($szallito) {
 
     global $adatbazis_kapcsolat;
 
     $tel_kieg = '';
     $login = $adatbazis_kapcsolat->s2('usertel', 'login', "`recid`='{$_SESSION[get_db_tabla().'login_recid']}'");
-    if($login['usertel']){
+    if( $login['usertel'] ) {
         $tel_kieg = '<br>Tel.: '.$login['usertel'];
     }
 
     $fax = '';
-    if($szallito['tel2']){
+    if( $szallito['tel2'] ) {
         $fax = '<br>Fax.: '.$szallito['tel2'];
     }
     return '

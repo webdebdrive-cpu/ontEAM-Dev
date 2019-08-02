@@ -1358,23 +1358,23 @@ function kep_forgat($utvonal, $szazalek = -90){
 * @return string A kép HTML kódja. Ha a kép nem létezik, akkor üres string
 * Pl.: $kep = kep_kiir(get_utvonal().'valami.jpg', 'címe', get_indexkep_sz(), get_indexkep_m(), 'b', 'margin: 0px', '', 'termek.php?id=1');
 */
-function kep_kiir($utvonal, $alt='', $szel = 0, $magas = 0, $cssClass = '', $style = '', $light = true, $nothumb = false){
+function kep_kiir($utvonal, $alt='', $szel = 0, $magas = 0, $cssClass = '', $style = '', $light = true, $nothumb = false ) {
     
-    if( is_file( $utvonal ) ){
-        
+    if( is_file($utvonal) ) {
+
         $kep = new Img($utvonal, $alt, $szel, $magas);
         $kep -> cssClass = $cssClass;
         $kep -> style    = $style;
-        if($nothumb){
+        if( $nothumb ) {
             $kep -> thumb = false;
         }
-        if($light){
+        if( $light ) {
             return '<a class="light" href="'.get_alk().$utvonal.'">'.$kep -> getHtml().'</a>';
-        }else{
+        } else {
             return $kep -> getHtml();
         }
         
-    }else{
+    } else {
         return '';
     }
 }
@@ -1385,8 +1385,8 @@ function kep_kiir($utvonal, $alt='', $szel = 0, $magas = 0, $cssClass = '', $sty
 * 
 * @param $kep       string Az alap kép elérési útvonala Pl( tartalom/kepek/kepnev.jpg ) (tehát kiterjesztéssel)
 */
-function kep_torol($path){
-    if(is_file($path)){
+function kep_torol($path) {
+    if( is_file($path) ) {
         unlink($path);
         remover( substr( $path, 0, strrpos($path, '.') ).'_*', 1);
     }
@@ -1398,7 +1398,7 @@ function kep_torol($path){
 * @param $fajl string A fájl aminek a kiterjesztésére kíváncsiak vagyunk
 * @return      string A fájl kiterjesztése
 */
-function kit($path){
+function kit($path) {
     return strtolower( substr( $path, strrpos($path,'.')+1, strlen($path) ) );
 }
 

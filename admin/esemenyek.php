@@ -2540,6 +2540,13 @@ if( isset($_GET['modosit']) ) {
         }
     }
     
+    // Garancia nem szerkeszthető, ha már van olyan jótállás, amihez dokumentum is lett csatolva.
+    $garancia_disabled = false;
+    $jotallasok = $adatbazis_kapcsolat->s('recid', 'projektszerzodes_jotallas', "`projektszerzodes_recid`='{$_GET['id']}' AND `utvonal`!=''");
+    if( $jotallasok ) {
+        $garancia_disabled = true;
+    }
+    
 }
 $projektszerzodes_tomb = $akt_tomb = array(
     array('type' => 'select_felh_telephely','megn' => 'Szálloda:',              'name' => 'telephely_id',       'szuro' => 1,   'class' => 'disableNav',        'style' => 'width: 100%;', 'alert' => 'Kérem válasszon szállodát!', 'disabled' => $szalloda_disabled),
@@ -2561,8 +2568,8 @@ $projektszerzodes_tomb = $akt_tomb = array(
     array('type' => 'text',                 'megn' => 'Kivitelezés kezdete:',   'name' => 'kiv_kezd',           'szuro' => 1,   'class' => 'kicsi datepicker',  'alert' => 'Kérem adja meg a kivitelezés kezdetét!', 'osszevon' => 1, 'post' => '<span style="margin-left: 2rem"></span>'),
     array('type' => 'text',                 'megn' => 'Kivitelezés vége:',      'name' => 'kiv_vege',           'szuro' => 1,   'class' => 'kicsi datepicker',  'alert' => 'Kérem adja meg a kivitelezés végét!'),
     array('type' => 'text',                 'megn' => 'Műszaki átvétel:',       'name' => 'muszak_atv',         'szuro' => 1,   'class' => 'kicsi datepicker'),
-    array('type' => 'text',                 'megn' => 'Garancia kezdete:',      'name' => 'muszaki_gar_kezd',   'szuro' => 1,   'class' => 'kicsi datepicker',  'osszevon' => 1, 'post' => '<span style="margin-left: 2rem"></span>'),
-    array('type' => 'text',                 'megn' => 'Garancia vége:',         'name' => 'muszaki_gar_vege',   'szuro' => 1,   'class' => 'kicsi datepicker'),
+    array('type' => 'text',                 'megn' => 'Garancia kezdete:',      'name' => 'muszaki_gar_kezd',   'szuro' => 1,   'class' => 'kicsi datepicker', 'disabled' => $garancia_disabled,  'osszevon' => 1, 'post' => '<span style="margin-left: 2rem"></span>'),
+    array('type' => 'text',                 'megn' => 'Garancia vége:',         'name' => 'muszaki_gar_vege',   'szuro' => 1,   'class' => 'kicsi datepicker', 'disabled' => $garancia_disabled),
     array('type' => 'text',                 'megn' => 'Bank garancia:',         'name' => 'bank_gar',           'szuro' => 1,   'class' => 'f_num', 'data' => 'data-tort="0"', 'nulla_is_ures_adat' => 1,    'osszevon' => 1, 'style' => 'width: 12rem', 'post' => ' '.get_penznem().'<span style="margin-left: 2rem"></span>'),
     array('type' => 'text',                 'megn' => 'Bank garancia vége:',    'name' => 'bank_gar_vege',      'szuro' => 1,   'class' => 'kicsi datepicker'),
     // array('type' => 'checkbox',             'megn' => 'Számlázva:',             'name' => 'szamlazva',          'szuro' => 1,   'class' => 'check',  'disabled' => 1),

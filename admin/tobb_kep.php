@@ -506,7 +506,8 @@ if( $apa_tabla == 'projektszerzodes' || $apa_tabla == 'projektkezeles' ) {
         $projekt             = $adatbazis_kapcsolat->s2('ikt_szam', 'projektkezeles', "`recid`='{$_GET['id']}'");
         $pr_szerzodes_recidk = $adatbazis_kapcsolat->s('recid', 'projektszerzodes', "`pr_szam`='{$projekt['ikt_szam']}'");
         $pr_szerzodes_recidk = adatbazis2tomb($pr_szerzodes_recidk, 'recid');
-        $kepek = $adatbazis_kapcsolat->s('*', 'projektszerzodes_jotallas', "`projektszerzodes_recid` IN (".implode(', ', $pr_szerzodes_recidk).")");
+        // Csak azokkal a jótállásokat listázzuk ki, amihez már van fájl csatolva
+        $kepek = $adatbazis_kapcsolat->s('*', 'projektszerzodes_jotallas', "`projektszerzodes_recid` IN (".implode(', ', $pr_szerzodes_recidk).") AND `utvonal`!=''");
     }
     
     if( $kepek ) {
@@ -730,6 +731,13 @@ function get_tobbkep_thumb( $sor_kepek, $i, $tobbkep_tablanev, $nincs_torles, $k
                             }
                         }
                     break;
+                }
+            }
+            
+            // Projekt szerződéseknél figylemeztetést dobunk, ha már egy dokumentum szerződésnek volna minősítve
+            if( $tobbkep_tablanev == 'projektszerzodes_dok' ) {
+                if( $sor_kepek['tipus'] == EL_DOK_TIPUS_SZERZODES ) {
+                    $statusz_tipus_figyelmeztetes = 'A dokumentum már szerződésnek lett minősítve a projektek felületen, így nem törölhető!';
                 }
             }
             

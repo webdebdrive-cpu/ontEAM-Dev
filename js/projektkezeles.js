@@ -248,20 +248,3 @@ function folyamatbanra_allit() {
         }
     });
 }
-
-/* Dokuemtumok fül alá kell, hogy a csoporotsított dokumentumokat kinyissuk, és a kinyitást egy SESSION-ben el is tároljuk. */
-function dokumentumok_kibont( azon ) {
-    
-    $.ajax({
-        url : 'projektkezeles.php',
-        type: 'POST',
-        data: {
-            azon                : azon,
-            dokumentumok_kibont : Date.now()
-        },
-        success: function (response) {
-            $('.'+azon).slideToggle();
-        }
-    });
-
-}

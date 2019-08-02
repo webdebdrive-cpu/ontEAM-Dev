@@ -1591,7 +1591,7 @@ require_once('selectek.php');
                         ');
                 }
                 
-                $fajl = $torles.'<a href="'.$utvonal.'" target="_blank">'.kep_kiir( $ikon_utvonal, utf8($jotallas['fajlnev']), 30, 30, '', '', '', 'no thumb').' '.$jotallas['fajlnev'].'</a>';
+                $fajl = '<a href="'.$utvonal.'" target="_blank">'.kep_kiir( $ikon_utvonal, utf8($jotallas['fajlnev']), 30, 30, '', '', '', 'no thumb').' '.$jotallas['fajlnev'].'</a>'.$torles;
 
             // Egyébként a feltöltés
             } else {
