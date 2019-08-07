@@ -39,16 +39,26 @@ if( isset($_POST['dok_minosites_beallit']) ) {
     
     $adatbazis_kapcsolat->u('projektszerzodes_dok', array('tipus'), array($_POST['tipus']), "`recid`='{$_POST['recid']}'");
     
-    // Meg kell nézni, hogy mi a projekt státusza. Ha előkészítés alatt, akkor rákérdezünk, hogy tovább léptet-e státuszt
-    $pr_szerzodes_doc   = $adatbazis_kapcsolat->s2('projektszerzodes_id', 'projektszerzodes_dok', "`recid`='{$_POST['recid']}'");
-    $pr_szerzodes       = $adatbazis_kapcsolat->s2('pr_szam', 'projektszerzodes', "`recid`='{$pr_szerzodes_doc['projektszerzodes_id']}'");
-    $projekt            = $adatbazis_kapcsolat->s2('recid stat_id', 'projektkezeles', "`ikt_szam`='{$pr_szerzodes['pr_szam']}'");
-    if( $projekt['stat_id']==PRKEZEL_STAT_ELOKESZITES_ALATT ) {
-        echo json_encode( array(
-                                'alert' => 'A csatolt fájlt szerződés típusú dokumentummá minősítette.<br>Folyamatba helyezi a projektet?',
-                                'title' => 'Kérdés',
-                                'gomb'  => '<input type="button" class="gomb zold" value="Igen" onclick="folyamatbanra_allit()"><input type="button" class="gomb piros" value="Nem" onclick="popupZar(); szamlaBetolt( \''.$projekt['recid'].'\', \'projektkezeles.php\', \'dokumentumok\' );">',
-                            ) );
+    // Meg kell nézni, hogy mi a projekt státusza. Ha előkészítés alatt vagy folyamatban, akkor rákérdezünk, hogy tovább léptet-e státuszt
+    if( $_POST['tipus'] == EL_DOK_TIPUS_SZERZODES || $_POST['tipus'] == EL_DOK_TIPUS_ATADASI ) {
+        $pr_szerzodes_doc   = $adatbazis_kapcsolat->s2('projektszerzodes_id', 'projektszerzodes_dok', "`recid`='{$_POST['recid']}'");
+        $pr_szerzodes       = $adatbazis_kapcsolat->s2('pr_szam', 'projektszerzodes', "`recid`='{$pr_szerzodes_doc['projektszerzodes_id']}'");
+        $projekt            = $adatbazis_kapcsolat->s2('recid stat_id', 'projektkezeles', "`ikt_szam`='{$pr_szerzodes['pr_szam']}'");
+        
+        if( $_POST['tipus'] == EL_DOK_TIPUS_SZERZODES && $projekt['stat_id'] == PRKEZEL_STAT_ELOKESZITES_ALATT ) {
+            echo json_encode( array(
+                                    'alert' => 'A csatolt fájlt szerződés típusú dokumentummá minősítette.<br>Folyamatba helyezi a projektet?',
+                                    'title' => 'Kérdés',
+                                    'gomb'  => '<input type="button" class="gomb zold" value="Igen" onclick="folyamatbanra_allit()"><input type="button" class="gomb piros" value="Nem" onclick="popupZar(); szamlaBetolt( \''.$projekt['recid'].'\', \'projektkezeles.php\', \'dokumentumok\' );">',
+                                ) );
+        }
+        if( $_POST['tipus'] == EL_DOK_TIPUS_ATADASI && $projekt['stat_id'] == PRKEZEL_STAT_FOLYAMATBAN ) {
+            echo json_encode( array(
+                                    'alert' => 'A csatolt fájlt Átadási jk. típusú dokumentummá minősítette.<br>Készre helyezi a projektet?',
+                                    'title' => 'Kérdés',
+                                    'gomb'  => '<input type="button" class="gomb zold" value="Igen" onclick="keszre_allit()"><input type="button" class="gomb piros" value="Nem" onclick="popupZar(); szamlaBetolt( \''.$projekt['recid'].'\', \'projektkezeles.php\', \'dokumentumok\' );">',
+                                ) );
+        }
     }
     
     $weblap -> leallit();
@@ -466,7 +476,7 @@ if( isset($_POST['van_tetel']) ) {
     $szerzodes_osszege = str_replace(array(' ', ','), array('', '.'), $_POST['szerz_ossz']);
     $arfolyam          = str_replace(array(' ', ','), array('', '.'), $_POST['arfolyam']);
     $dev_net           = str_replace(array(' ', ','), array('', '.'), $_POST['dev_net']);
-    
+
     // Kötelező mezők ellenőrzése
     foreach ( $akt_tomb as $elem ) {
         // Ha üres             VAGY ha dátum, és az értéke nagyobb mint 4000.00.00 (tehát üres)
@@ -481,7 +491,7 @@ if( isset($_POST['van_tetel']) ) {
         }
         
     }
-    
+
     // Ellenőrizzük, hogy a dátum mezők rendben vannak-e? (Js alatt nem akar lefutni... elég összetett már a JS kód, mert űrlap elpostolása előtt még ajax-os ellenőrzés is lefut, ez kavar be). De itt - ahol az ajaxos ellenőrzések vannak - könnyen elelnőrizni tudjuk
     if( $_POST['kelte'] < '9000.00.00' && !valos_datum_e($_POST['kelte']) ) {
         echo json_encode(array(
@@ -576,8 +586,10 @@ if( isset($_POST['van_tetel']) ) {
         exit();
     }
     
+
     // A hozzáadott Projekthez milyen szerződések tartoznak. Ha a projekt összege mínusz a már hozzáadott összegek különbsége kisebb mint a mostani szerződés összege, akkor hibaüzenet
     if( $_POST['pr_szam'] ) {
+
         $projekt = $adatbazis_kapcsolat->s2('jkolt', 'projektkezeles', "`ikt_szam`='{$_POST['pr_szam']}'");
         $szerzodesek = $adatbazis_kapcsolat->s2('SUM(`szerz_ossz`)', 'projektszerzodes', "`pr_szam`='{$_POST['pr_szam']}'");
         $felhasznalhato = $projekt['jkolt']-$szerzodesek['SUM(`szerz_ossz`)'];
@@ -627,11 +639,12 @@ if( isset($_POST['van_tetel']) ) {
         }
         
     }
-    
+
     // Van-e már hasonló szerződés? Ha igen, akkor rákérdezünk
     if( !$_POST['hasonlo_szerzodes_mehet'] ) {
+
         $szerzodes = $adatbazis_kapcsolat->s2('sz_szam', 'projektszerzodes', "`telephely_id`='{$_POST['telephely_id']}' AND `szallito_id`='{$_POST['szallito_id']}' AND `szerz_ossz`='{$szerzodes_osszege}'");
-        if($szerzodes){
+        if( $szerzodes ) {
             echo json_encode(array(
                 'hiba'  => 'Szálloda: '. getSzallodaNev($_POST['telephely_id']).'
                             <br>Szerződő partner: '.getErtek('nev', 'szallito', 'id', $_POST['szallito_id']).'
@@ -812,12 +825,17 @@ if( isset($_GET['csv']) ) {
                             `'.get_db_tabla().$megnevezes.'`.`bank_gar` as \'Bank garancia\',
                             `'.get_db_tabla().$megnevezes.'`.`bank_gar_vege` as \'Bank garancia vége\',
                             `'.get_db_tabla().$megnevezes.'`.`szamlazva` as \'Számlázva\',
-                                
+                            '.
+                            
+                            // Innentől a tételek
+                            '
                             `'.get_db_tabla().$megnevezes.'_tetel`.`targy` as `Tétel tárgy`,
                             `'.get_db_tabla().$megnevezes.'_tetel`.`varh_erk` as `Számla várh. érk.`,
                             `'.get_db_tabla().$megnevezes.'_tetel`.`varh_ert` as `Számla várh. értéke (Ft)`,
+                            `'.get_db_tabla().$megnevezes.'_tetel`.`dev_varh_ert` as `Számla várh. értéke (devizában)`,
                             `'.get_db_tabla().$megnevezes.'_tetel`.`teljesites` as `Teljesítés`,
-                            `'.get_db_tabla().$megnevezes.'_tetel`.`ertek` as `Érték`
+                            `'.get_db_tabla().$megnevezes.'_tetel`.`ertek` as `Érték`,
+                            `'.get_db_tabla().$megnevezes.'_tetel`.`dev_ertek` as `Érték (devizában)`
                             '.$lekerdezes_fromtol.$_SESSION['akt_sql_order'];
 
                 $query      = mysqli_query($db_kapcs, $sql);

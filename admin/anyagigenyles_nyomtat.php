@@ -130,7 +130,6 @@ if (isset($_GET['html_mutat'])) {
     $mpdf = new mPDF('utf-8');
 
     $mpdf -> AddPage('P',     '',   '', '', '', '10', '10', '28', '20', '5', '5');
-    // $mpdf = new mPDF('utf-8', 'A4', '', '', '10', '10', '28', '20', '5', '5');
     $mpdf -> nbpgPrefix = '/ ';
     $header = get_fejlec_top($sorszam, 'lapszámmal');
     $footer = '<div class="dtc r" style="font-size: 7px">

@@ -151,7 +151,7 @@ if(isset($_GET['value']) && isset($_GET['tabla']) && isset($_GET['oszlop_keres']
         }
         
         // Props oszlopban is keresünk
-        if( $_GET['props'] ){
+        if( $_GET['props'] ) {
             if( $where_sql ) {
                 $where_sql .= " AND `props` LIKE '%{$_GET['props']}%'";
             } else {
@@ -161,7 +161,7 @@ if(isset($_GET['value']) && isset($_GET['tabla']) && isset($_GET['oszlop_keres']
         
         // Dokumentum típus esetén ha még menüpontra is szűrünk
         // FONTOS: itt van még egy extra dolog: a szerződés tipust is kiszűrjük!
-        if( $_GET['menupont_szuro'] ){
+        if( $_GET['menupont_szuro'] ) {
             if( $where_sql ) {
                 $where_sql .= " AND `{$_GET['menupont_szuro']}`='1' AND `id`!='".EL_DOK_TIPUS_SZERZODES."'";
             } else {

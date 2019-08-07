@@ -734,10 +734,10 @@ function get_tobbkep_thumb( $sor_kepek, $i, $tobbkep_tablanev, $nincs_torles, $k
                 }
             }
             
-            // Projekt szerződéseknél figylemeztetést dobunk, ha már egy dokumentum szerződésnek volna minősítve
+            // Projekt szerződéseknél figylemeztetést dobunk, ha már egy dokumentum minősítve volna
             if( $tobbkep_tablanev == 'projektszerzodes_dok' ) {
-                if( $sor_kepek['tipus'] == EL_DOK_TIPUS_SZERZODES ) {
-                    $statusz_tipus_figyelmeztetes = 'A dokumentum már szerződésnek lett minősítve a projektek felületen, így nem törölhető!';
+                if( $sor_kepek['tipus'] ) {
+                    $statusz_tipus_figyelmeztetes = 'A dokumentum már minősítve lett a projektek felületen, így nem törölhető!';
                 }
             }
             

@@ -1121,6 +1121,11 @@ function get_ml_visszavetelezes_input_tartalmak(elokeszitesre){
                     hely = munkalap.hely;
                 }
                 
+                gep = '';
+                if( munkalap.gep ) {
+                    gep = "Gép: " + munkalap.gep + "\n";
+                }
+                
                 if( munkalap.bejelento ){
                     bejelento = munkalap.bejelento;
                 }else{
@@ -1129,6 +1134,7 @@ function get_ml_visszavetelezes_input_tartalmak(elokeszitesre){
 
                 uzenet +=   "Hiba: "      + hiba      + "\n"  +
                             "Hely: "      + hely      + "\n"  +
+                            gep                               +
                             "Bejelentő: " + bejelento + "\n"  +
                             "\nKöszönettel,\n"                +
                             munkalap.akt_felh_nev     + "\n"  +

@@ -1188,9 +1188,13 @@ if( isset($_GET['csv']) ) {
                             `'.get_db_tabla().$megnevezes.'`.`pr_szam` as \'Projekt szám\',
                             `'.get_db_tabla().$megnevezes.'`.`let_fel` as \'Felelős\',
                             `'.get_db_tabla().$megnevezes.'`.`kolt_vis` as \'Költségviselő\',
-                                
+                            '.
+                        
+                            // Innentől a tételek
+                            '
                             `'.get_db_tabla().$megnevezes.'_tetel`.`targy` as `Tétel tárgy`,
-                            `'.get_db_tabla().$megnevezes.'_tetel`.`netto_ert` as `Tétel nettó érték`
+                            `'.get_db_tabla().$megnevezes.'_tetel`.`netto_ert` as `Tétel nettó érték`,
+                            `'.get_db_tabla().$megnevezes.'_tetel`.`dev_net` as `Tétel nettó érték (devizában)`
                             '.$lekerdezes_fromtol.$_SESSION['akt_sql_order'];
 
                 $query      = mysqli_query($db_kapcs, $sql);

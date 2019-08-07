@@ -248,3 +248,27 @@ function folyamatbanra_allit() {
         }
     });
 }
+
+/* Projekt folyamatbanra állítása */
+function keszre_allit() {
+    $.ajax({
+        url : 'projektkezeles.php',
+        type: 'POST',
+        data: {
+            recid           : _get('id'),
+            keszre_allit    : Date.now()
+        },
+        success: function (response) {
+            if(response.substring(0, 6)=='SESKIL'){ location.href = 'index.php'; }
+            if (response) {
+                response = JSON.parse(response);
+                if (response.hiba) {
+                    alert2(response.hiba, response.gomb, response.title);
+                } else {
+                    popupZar();
+                    szamlaBetolt( _get('id'), 'projektkezeles.php', 'dokumentumok' );
+                }
+            }
+        }
+    });
+}
