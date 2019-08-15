@@ -142,7 +142,7 @@ function enableScroll() {
 *	@param string fajl: a php fájl amit meghívunk
 *	@param string objid: az objektum neve, amit el szeretnénk tűntetni
 */
-function torol(fajl, objid){
+function torol(fajl, objid) {
     /* Ha a tid végződésű válétozót átnevezem tid+tobbkep_torol-re, akkor nem az esemenyek.php-ban fog lefutni a termék törlése (és ott ki is lépne az algoritmus), hanem a konkrét termek.php-ban fog lefutn a többkép törlése */
     alert2('Törlés folyamatban...');
 	$.ajax({
@@ -160,8 +160,18 @@ function torol(fajl, objid){
                     $('#bejegyzesek_szama').html(response);
                     $('#'+objid).fadeOut();
                     alert2();
+                },
+                complete: function(xhr) {
+                    if( xhr.status != 200 ) {
+                        alert2(xhr.responseText, '', 'Hiba');
+                    }
                 }
             });
+        },
+        complete: function(xhr) {
+            if( xhr.status != 200 ) {
+                alert2(xhr.responseText, '', 'Hiba');
+            }
         }
     });
 }
@@ -175,6 +185,11 @@ function pipa_kapcsolo(id, valtozonev, lista_neve, sorid){
 		success: function(html){
             if(html.substring(0, 6)=='SESKIL'){ location.href = 'index.php'; }
             $('#'+id).toggleClass('aktiv');
+        },
+        complete: function(xhr) {
+            if( xhr.status != 200 ) {
+                alert2(xhr.responseText, '', 'Hiba');
+            }
         }
 	});
 }
@@ -227,6 +242,11 @@ function login_mentes(id){
             if(html.substring(0, 6)=='SESKIL'){ location.href = 'index.php'; }
             alert2(html);
             $('#jelszo_'+id).val('');
+        },
+        complete: function(xhr) {
+            if( xhr.status != 200 ) {
+                alert2(xhr.responseText, '', 'Hiba');
+            }
         }
     });
 
@@ -248,6 +268,11 @@ function login_torol(id){
             if(html.substring(0, 6)=='SESKIL'){ location.href = 'index.php'; }
             $('#login_'+id).fadeOut();
             $('#login_'+id+'_szep').fadeOut();
+        },
+        complete: function(xhr) {
+            if( xhr.status != 200 ) {
+                alert2(xhr.responseText, '', 'Hiba');
+            }
         }
     });
 
@@ -263,6 +288,11 @@ function jog_mentes(id){
         success: function(html){
             if(html.substring(0, 6)=='SESKIL'){ location.href = 'index.php'; }
             alert2(html);
+        },
+        complete: function(xhr) {
+            if( xhr.status != 200 ) {
+                alert2(xhr.responseText, '', 'Hiba');
+            }
         }
     });
 
@@ -279,6 +309,11 @@ function jog_torol(id){
         success: function(html){
             if(html.substring(0, 6)=='SESKIL'){ location.href = 'index.php'; }
             $('#jog_'+id).fadeOut();
+        },
+        complete: function(xhr) {
+            if( xhr.status != 200 ) {
+                alert2(xhr.responseText, '', 'Hiba');
+            }
         }
     });
 
@@ -348,6 +383,11 @@ function get_admin_file_thumb(tabla, oszlop, id, jquery_string){
             if(response.substring(0, 6)=='SESKIL'){ location.href = 'index.php'; }
             alert2();
             $(jquery_string).html(response);
+        },
+        complete: function(xhr) {
+            if( xhr.status != 200 ) {
+                alert2(xhr.responseText, '', 'Hiba');
+            }
         }
     });
 }
@@ -1528,6 +1568,11 @@ $(function() {
                             szurkit();
                             location.href=szures_link;
                         }
+                    },
+                    complete: function(xhr) {
+                        if( xhr.status != 200 ) {
+                            alert2(xhr.responseText, '', 'Hiba');
+                        }
                     }
                 });
 
@@ -1677,6 +1722,11 @@ $(function() {
                     szurkit();
                     location.href = get_get(['mezo', 'op', 'felt']);
                 }
+            },
+            complete: function(xhr) {
+                if( xhr.status != 200 ) {
+                    alert2(xhr.responseText, '', 'Hiba');
+                }
             }
         });
 
@@ -1694,6 +1744,11 @@ $(function() {
                 if(response.substring(0, 6)=='SESKIL'){ location.href = 'index.php'; }
                 szurkit();
                 location.reload();
+            },
+            complete: function(xhr) {
+                if( xhr.status != 200 ) {
+                    alert2(xhr.responseText, '', 'Hiba');
+                }
             }
         });
     });
@@ -1789,6 +1844,11 @@ $(function() {
             success: function (response) {
                 if(response.substring(0, 6)=='SESKIL'){ location.href = 'index.php'; }
                 $('#sor_'+cikk_id).fadeOut();
+            },
+            complete: function(xhr) {
+                if( xhr.status != 200 ) {
+                    alert2(xhr.responseText, '', 'Hiba');
+                }
             }
         });
     });
@@ -1934,6 +1994,11 @@ $(function() {
                 success: function (response) {
                     if(response.substring(0, 6)=='SESKIL'){ location.href = 'index.php'; }
                     $('#telephely_id').parent().parent().replaceWith(response);
+                },
+                complete: function(xhr) {
+                    if( xhr.status != 200 ) {
+                        alert2(xhr.responseText, '', 'Hiba');
+                    }
                 }
             });
         }
@@ -2043,6 +2108,11 @@ $(function() {
             success: function (response) {
                 if(response.substring(0, 6)=='SESKIL'){ location.href = 'index.php'; }
                 div_elem.fadeOut();
+            },
+            complete: function(xhr) {
+                if( xhr.status != 200 ) {
+                    alert2(xhr.responseText, '', 'Hiba');
+                }
             }
         });
     });
@@ -2146,7 +2216,12 @@ function sendMail( that, file ) {
                     onclick = $(that).attr('onclick');
                     $(that).removeAttr('onclick');
          		}
-         	}
+         	},
+            complete: function(xhr) {
+                if( xhr.status != 200 ) {
+                    alert2(xhr.responseText, '', 'Hiba');
+                }
+            }
         });
 
         $.when(getMailto).then(function() {
@@ -2226,6 +2301,11 @@ function bejBejelentok( value ) {
                 if( response.hiba ) {
                     alert2(response.hiba, response.gomb, response.title);
                 }
+            },
+            complete: function(xhr) {
+                if( xhr.status != 200 ) {
+                    alert2(xhr.responseText, '', 'Hiba');
+                }
             }
         });
     }
@@ -2267,7 +2347,12 @@ function bejSzallodaValaszt() {
 
                 alert2('Kérem válasszon telephelyet: <br>' + response.html, '&nbsp;');
      		}
-     	}
+     	},
+        complete: function(xhr) {
+            if( xhr.status != 200 ) {
+                alert2(xhr.responseText, '', 'Hiba');
+            }
+        }
      });
 }
 
@@ -2303,7 +2388,12 @@ function munkalapMegrendelve( recid, csak_kerdezunk ) {
                     szurkit();
                     location.href = baseName(location.href) + '.php';
          		}
-         	}
+         	},
+            complete: function(xhr) {
+                if( xhr.status != 200 ) {
+                    alert2(xhr.responseText, '', 'Hiba');
+                }
+            }
         });
     }
 }
@@ -2340,7 +2430,12 @@ function kuldesJovahagyasra( recid, csak_kerdezunk ) {
                     szurkit();
                     location.href = baseName(location.href) + '.php';
          		}
-         	}
+         	},
+            complete: function(xhr) {
+                if( xhr.status != 200 ) {
+                    alert2(xhr.responseText, '', 'Hiba');
+                }
+            }
         });
     }
 }
@@ -2377,7 +2472,12 @@ function diszKozpVezAtadas( that ) {
                     szurkit();
                     location.href = 'munkalap.php';
          		}
-         	}
+         	},
+            complete: function(xhr) {
+                if( xhr.status != 200 ) {
+                    alert2(xhr.responseText, '', 'Hiba');
+                }
+            }
         });
     } else {
         alert2('Adja meg a visszaadás okát!');
@@ -2417,7 +2517,12 @@ function diszKozpVezLezaras( that ) {
                     szamlaBetolt(_get('id'), baseName(location.href) + '.php', 'modosit');
                     popupZar();
          		}
-         	}
+         	},
+            complete: function(xhr) {
+                if( xhr.status != 200 ) {
+                    alert2(xhr.responseText, '', 'Hiba');
+                }
+            }
         });
     } else {
         alert2('Adja meg a visszaadás okát!');
@@ -2465,7 +2570,12 @@ function bejelentesElutasit( that ) {
                     szamlaBetolt(_get('id'), baseName(location.href) + '.php', 'modosit');
                     popupZar();
          		}
-         	}
+         	},
+            complete: function(xhr) {
+                if( xhr.status != 200 ) {
+                    alert2(xhr.responseText, '', 'Hiba');
+                }
+            }
         });
     }
 
@@ -2507,6 +2617,11 @@ function bejelentesIgazolas( recid, csak_kerdezunk ) {
                         szamlaBetolt(_get('id'), baseName(location.href) + '.php', 'modosit');
                         alert2();
                     }
+                },
+                complete: function(xhr) {
+                    if( xhr.status != 200 ) {
+                        alert2(xhr.responseText, '', 'Hiba');
+                    }
                 }
             });
         }
@@ -2538,6 +2653,11 @@ function tobbBejegyzesTorol() {
                         data: esamp2es('noload&amp;' + baseName(location.href) + 'tid=' + idk[key] + '&amp;becsapas=' + new Date().getTime()),
                         success: function(response) {
                             if(response.substring(0, 6)=='SESKIL'){ location.href = 'index.php'; }
+                        },
+                        complete: function(xhr) {
+                            if( xhr.status != 200 ) {
+                                alert2(xhr.responseText, '', 'Hiba');
+                            }
                         }
                     });
                 }
@@ -2746,6 +2866,11 @@ function varolistabolKivetel(csak_kerdezunk) {
                             szurkit();
                             location.reload();
                         }
+                    },
+                    complete: function(xhr) {
+                        if( xhr.status != 200 ) {
+                            alert2(xhr.responseText, '', 'Hiba');
+                        }
                     }
                 });
             } else {
@@ -2798,6 +2923,11 @@ function anyagigenyles_kuldes_jovahagyasra(csak_kerdezunk) {
                             szurkit();
                             location.href = 'anyagigenyles.php?tablazat&id='+idk[1];
                             alert2();
+                        }
+                    },
+                    complete: function(xhr) {
+                        if( xhr.status != 200 ) {
+                            alert2(xhr.responseText, '', 'Hiba');
                         }
                     }
                 });
@@ -2890,6 +3020,11 @@ function anyagigenyles_rendeles_keszit(csak_kerdezunk) {
 
                             alert2();
                         }
+                    },
+                    complete: function(xhr) {
+                        if( xhr.status != 200 ) {
+                            alert2(xhr.responseText, '', 'Hiba');
+                        }
                     }
                 });
             } else {
@@ -2970,6 +3105,11 @@ function anyagigenyles_jovahagy(csak_kerdezunk, jhmen) {
                            szurkit();
                            location.href='anyagigenyles.php?tablazat';
                         }
+                    },
+                    complete: function(xhr) {
+                        if( xhr.status != 200 ) {
+                            alert2(xhr.responseText, '', 'Hiba');
+                        }
                     }
                 });
             } else {
@@ -3048,6 +3188,11 @@ function anyagigenyles_elutasitas(csak_kerdezunk) {
 
                             alert2();
                         }
+                    },
+                    complete: function(xhr) {
+                        if( xhr.status != 200 ) {
+                            alert2(xhr.responseText, '', 'Hiba');
+                        }
                     }
                 });
             } else {
@@ -3122,6 +3267,11 @@ function anyagigenyles_mind_jovahagy(csak_kerdezunk) {
                             });
                             alert2();
                         }
+                    },
+                    complete: function(xhr) {
+                        if( xhr.status != 200 ) {
+                            alert2(xhr.responseText, '', 'Hiba');
+                        }
                     }
                 });
             } else {
@@ -3156,6 +3306,11 @@ function anyagigenyles_mar_igenyelve(cikk_id, telephely_id, ig_alatt, ig_foly, c
             }
             szurkit();
             location.reload();
+        },
+        complete: function(xhr) {
+            if( xhr.status != 200 ) {
+                alert2(xhr.responseText, '', 'Hiba');
+            }
         }
     });
 }
@@ -3182,7 +3337,12 @@ function csoportAtnevezes( csoportID ) {
 
                     $('li.csoport[data-id="' + csoportID + '"] span.csoportNev .icsopnev').text(response.value);
          		}
-         	}
+         	},
+            complete: function(xhr) {
+                if( xhr.status != 200 ) {
+                    alert2(xhr.responseText, '', 'Hiba');
+                }
+            }
         });
 
         alert2();
@@ -3256,6 +3416,11 @@ function bejegyzesElutasitas( that, csak_memo ) {
                             popupZar();
                         }
                     }
+                },
+                complete: function(xhr) {
+                    if( xhr.status != 200 ) {
+                        alert2(xhr.responseText, '', 'Hiba');
+                    }
                 }
             });
         }
@@ -3313,6 +3478,11 @@ function csoportbolTorol( oszlop ) {
                             bejegyzesekLista('#rendezesSelect', 'asc', '', '');
                             alert2();
                         }
+                    },
+                    complete: function(xhr) {
+                        if( xhr.status != 200 ) {
+                            alert2(xhr.responseText, '', 'Hiba');
+                        }
                     }
                 });
             }
@@ -3348,7 +3518,12 @@ function addCsoport() {
                         $('#insertCsop').html(response.html);
                     }
          		}
-         	}
+         	},
+            complete: function(xhr) {
+                if( xhr.status != 200 ) {
+                    alert2(xhr.responseText, '', 'Hiba');
+                }
+            }
         });
     } else {
         alert2('Kérem adja meg a csoport nevét!');
@@ -3402,6 +3577,11 @@ function csoportbaRendez( that ) {
                                 szurkit();
                                 location.reload();
                                 popupZar();
+                            }
+                        },
+                        complete: function(xhr) {
+                            if( xhr.status != 200 ) {
+                                alert2(xhr.responseText, '', 'Hiba');
                             }
                         }
                     });
@@ -3478,6 +3658,11 @@ function csoportMuvelet( oldal, mobilnal_no_statusz_hiba ) {
 
                                 $('#insertCsop').html(response.html);
                             }
+                        },
+                        complete: function(xhr) {
+                            if( xhr.status != 200 ) {
+                                alert2(xhr.responseText, '', 'Hiba');
+                            }
                         }
                     });
 
@@ -3544,6 +3729,11 @@ function csoportMuvelet( oldal, mobilnal_no_statusz_hiba ) {
 
 
                             }
+                        },
+                        complete: function(xhr) {
+                            if( xhr.status != 200 ) {
+                                alert2(xhr.responseText, '', 'Hiba');
+                            }
                         }
                     });
 
@@ -3574,6 +3764,11 @@ function csoportMuvelet( oldal, mobilnal_no_statusz_hiba ) {
                                 }
 
                                 $('#iMunkalapSelect').html(response.html);
+                            }
+                        },
+                        complete: function(xhr) {
+                            if( xhr.status != 200 ) {
+                                alert2(xhr.responseText, '', 'Hiba');
                             }
                         }
                     });
@@ -3606,6 +3801,11 @@ function csoportMuvelet( oldal, mobilnal_no_statusz_hiba ) {
                                     return false;
                                 }
 
+                            }
+                        },
+                        complete: function(xhr) {
+                            if( xhr.status != 200 ) {
+                                alert2(xhr.responseText, '', 'Hiba');
                             }
                         }
                     });
@@ -3644,6 +3844,11 @@ function csoportMuvelet( oldal, mobilnal_no_statusz_hiba ) {
                                 }
 
                             }
+                        },
+                        complete: function(xhr) {
+                            if( xhr.status != 200 ) {
+                                alert2(xhr.responseText, '', 'Hiba');
+                            }
                         }
                     });
                     $.when( ellenorzes ).then(function() {
@@ -3669,6 +3874,11 @@ function csoportMuvelet( oldal, mobilnal_no_statusz_hiba ) {
                                         }
 
                                         $('#insertTable').html(response.html);
+                                    }
+                                },
+                                complete: function(xhr) {
+                                    if( xhr.status != 200 ) {
+                                        alert2(xhr.responseText, '', 'Hiba');
                                     }
                                 }
                             });
@@ -3704,6 +3914,11 @@ function csoportMuvelet( oldal, mobilnal_no_statusz_hiba ) {
                                 }
 
                             }
+                        },
+                        complete: function(xhr) {
+                            if( xhr.status != 200 ) {
+                                alert2(xhr.responseText, '', 'Hiba');
+                            }
                         }
                     });
                     $.when( ellenorzes ).then(function() {
@@ -3728,6 +3943,11 @@ function csoportMuvelet( oldal, mobilnal_no_statusz_hiba ) {
                                         }
 
                                         $('#insertTable').html(response.html);
+                                    }
+                                },
+                                complete: function(xhr) {
+                                    if( xhr.status != 200 ) {
+                                        alert2(xhr.responseText, '', 'Hiba');
                                     }
                                 }
                             });
@@ -3788,6 +4008,11 @@ function csoportMuvelet( oldal, mobilnal_no_statusz_hiba ) {
 
                                     popupNyit();
                                 }
+                            },
+                            complete: function(xhr) {
+                                if( xhr.status != 200 ) {
+                                    alert2(xhr.responseText, '', 'Hiba');
+                                }
                             }
                         });
                     } else {
@@ -3820,6 +4045,11 @@ function csoportMuvelet( oldal, mobilnal_no_statusz_hiba ) {
                                 }
 
                             }
+                        },
+                        complete: function(xhr) {
+                            if( xhr.status != 200 ) {
+                                alert2(xhr.responseText, '', 'Hiba');
+                            }
                         }
                     });
                     $.when( ellenorzes ).then(function() {
@@ -3844,6 +4074,11 @@ function csoportMuvelet( oldal, mobilnal_no_statusz_hiba ) {
                                         }
 
                                         $('#insertTable').html(response.html);
+                                    }
+                                },
+                                complete: function(xhr) {
+                                    if( xhr.status != 200 ) {
+                                        alert2(xhr.responseText, '', 'Hiba');
                                     }
                                 }
                             });
@@ -3882,6 +4117,11 @@ function csoportMuvelet( oldal, mobilnal_no_statusz_hiba ) {
                                 }
 
                             }
+                        },
+                        complete: function(xhr) {
+                            if( xhr.status != 200 ) {
+                                alert2(xhr.responseText, '', 'Hiba');
+                            }
                         }
                     });
 
@@ -3907,6 +4147,11 @@ function csoportMuvelet( oldal, mobilnal_no_statusz_hiba ) {
                                         }
 
                                         $('#insertTable').html(response.html);
+                                    }
+                                },
+                                complete: function(xhr) {
+                                    if( xhr.status != 200 ) {
+                                        alert2(xhr.responseText, '', 'Hiba');
                                     }
                                 }
                             });
@@ -3999,6 +4244,11 @@ function csoportMuvelet( oldal, mobilnal_no_statusz_hiba ) {
 
                                 popupNyit();
                             }
+                        },
+                        complete: function(xhr) {
+                            if( xhr.status != 200 ) {
+                                alert2(xhr.responseText, '', 'Hiba');
+                            }
                         }
                     });
                 break;
@@ -4026,6 +4276,11 @@ function csoportMuvelet( oldal, mobilnal_no_statusz_hiba ) {
 
                                 $('#szoveg_kiirt').html('<p>' + response.szoveg_kiir + '</p>');
                                 popupNyit();
+                            }
+                        },
+                        complete: function(xhr) {
+                            if( xhr.status != 200 ) {
+                                alert2(xhr.responseText, '', 'Hiba');
                             }
                         }
                     });
@@ -4076,6 +4331,11 @@ function csoportMuvelet( oldal, mobilnal_no_statusz_hiba ) {
 
                                 popupNyit();
                             }
+                        },
+                        complete: function(xhr) {
+                            if( xhr.status != 200 ) {
+                                alert2(xhr.responseText, '', 'Hiba');
+                            }
                         }
                     });
                 break;
@@ -4103,6 +4363,11 @@ function csoportMuvelet( oldal, mobilnal_no_statusz_hiba ) {
 
                                 $('#szoveg_kiirt').html('<p>' + response.szoveg_kiir + '</p>');
                                 popupNyit();
+                            }
+                        },
+                        complete: function(xhr) {
+                            if( xhr.status != 200 ) {
+                                alert2(xhr.responseText, '', 'Hiba');
                             }
                         }
                     });
@@ -4132,6 +4397,11 @@ function csoportMuvelet( oldal, mobilnal_no_statusz_hiba ) {
                                 $('#popup_cim').html(response.popup_cim);
                                 $('#szoveg_kiirt').html('<p>' + response.szoveg_kiir + '</p>');
                                 popupNyit();
+                            }
+                        },
+                        complete: function(xhr) {
+                            if( xhr.status != 200 ) {
+                                alert2(xhr.responseText, '', 'Hiba');
                             }
                         }
                     });
@@ -4169,6 +4439,11 @@ function csoportMuvelet( oldal, mobilnal_no_statusz_hiba ) {
                                         $('#pop_gombok').html(response.gombok);
 
                                         popupNyit();
+                                    }
+                                },
+                                complete: function(xhr) {
+                                    if( xhr.status != 200 ) {
+                                        alert2(xhr.responseText, '', 'Hiba');
                                     }
                                 }
                             });
@@ -4236,6 +4511,11 @@ function arazas() {
                         return false;
                     }
 
+                }
+            },
+            complete: function(xhr) {
+                if( xhr.status != 200 ) {
+                    alert2(xhr.responseText, '', 'Hiba');
                 }
             }
         });
@@ -4321,6 +4601,11 @@ function arazas_ment(){
             szurkit();
             location.reload();
 
+        },
+        complete: function(xhr) {
+            if( xhr.status != 200 ) {
+                alert2(xhr.responseText, '', 'Hiba');
+            }
         }
     });
 }
@@ -4436,6 +4721,11 @@ function anyagigenyles_erkeztet( ures_men_ek_pipa0_kesz, ures_men_ek_pipa1_kesz,
                     location.reload();
                 }
                 popupZar();
+            },
+            complete: function(xhr) {
+                if( xhr.status != 200 ) {
+                    alert2(xhr.responseText, '', 'Hiba');
+                }
             }
         });
 
@@ -4478,6 +4768,11 @@ function anyagigenyles_erkeztet( ures_men_ek_pipa0_kesz, ures_men_ek_pipa1_kesz,
                         $('#rendeles_tetelek input:text').first().select();
                     }
 
+                }
+            },
+            complete: function(xhr) {
+                if( xhr.status != 200 ) {
+                    alert2(xhr.responseText, '', 'Hiba');
                 }
             }
         });
@@ -4700,6 +4995,11 @@ function mellekTorol( tabla, mellek, mellekre_valt, konkret_id ) {
 
 
                 }
+            },
+            complete: function(xhr) {
+                if( xhr.status != 200 ) {
+                    alert2(xhr.responseText, '', 'Hiba');
+                }
             }
         });
     }
@@ -4752,7 +5052,12 @@ function obj_gen(szintig) {
                     $('#popupTart').html(html);
                     popupNyit();
          		}
-         	}
+         	},
+            complete: function(xhr) {
+                if( xhr.status != 200 ) {
+                    alert2(xhr.responseText, '', 'Hiba');
+                }
+            }
         });
     } else {
         alert2('Kérem előbb válasszon szállodát!');
@@ -4828,6 +5133,11 @@ function kapcsolodoSzerkeszt( oldal ) {
                             }
 
                         }
+                    },
+                    complete: function(xhr) {
+                        if( xhr.status != 200 ) {
+                            alert2(xhr.responseText, '', 'Hiba');
+                        }
                     }
                 });
                 return false;
@@ -4858,7 +5168,12 @@ function kapcsolodoSzerkeszt( oldal ) {
                  		if(response) {
                  			$('#addReszlegek').html(response);
                  		}
-                 	}
+                 	},
+                    complete: function(xhr) {
+                        if( xhr.status != 200 ) {
+                            alert2(xhr.responseText, '', 'Hiba');
+                        }
+                    }
                 });
             break;
             
@@ -4887,7 +5202,12 @@ function kapcsolodoSzerkeszt( oldal ) {
                                 }
                             }
                  		}
-                 	}
+                 	},
+                    complete: function(xhr) {
+                        if( xhr.status != 200 ) {
+                            alert2(xhr.responseText, '', 'Hiba');
+                        }
+                    }
                 });
             break;
 
@@ -4906,6 +5226,11 @@ function kapcsolodoSzerkeszt( oldal ) {
                                             $('#popupTart').html().replace(/{GET_ID}/g, _get('id')).
                                             replace(/{SESSION_ID}/g, response)
                                         );
+                    },
+                    complete: function(xhr) {
+                        if( xhr.status != 200 ) {
+                            alert2(xhr.responseText, '', 'Hiba');
+                        }
                     }
                 });
             break;
@@ -5230,6 +5555,11 @@ function bejegyzesekLista( that, irany, rkat, ksz ) {
 
                     window.history.pushState('', '', getHost() + param );
                 }
+            },
+            complete: function(xhr) {
+                if( xhr.status != 200 ) {
+                    alert2(xhr.responseText, '', 'Hiba');
+                }
             }
         });
 
@@ -5319,7 +5649,12 @@ function felhValt( that ) {
                     }
 
          		}
-         	}
+         	},
+            complete: function(xhr) {
+                if( xhr.status != 200 ) {
+                    alert2(xhr.responseText, '', 'Hiba');
+                }
+            }
         });
     }
 
@@ -5351,7 +5686,12 @@ function addSzakterulet( szallitoID, that ) {
 
                     popupZar();
          		}
-         	}
+         	},
+            complete: function(xhr) {
+                if( xhr.status != 200 ) {
+                    alert2(xhr.responseText, '', 'Hiba');
+                }
+            }
         });
 
         $.when( ajax ).then(function() {
@@ -5394,7 +5734,12 @@ function addMegjegyzes( pageID, that ) {
 
                     popupZar();
          		}
-         	}
+         	},
+            complete: function(xhr) {
+                if( xhr.status != 200 ) {
+                    alert2(xhr.responseText, '', 'Hiba');
+                }
+            }
         });
 
         $.when( ajax ).then(function() {
@@ -5436,7 +5781,12 @@ function addProjektTeam( prkezel_recid, that ) {
 
                     popupZar();
          		}
-         	}
+         	},
+            complete: function(xhr) {
+                if( xhr.status != 200 ) {
+                    alert2(xhr.responseText, '', 'Hiba');
+                }
+            }
         });
     }
 
@@ -5469,6 +5819,11 @@ function velemeny_hozzaad(mehet){
                 }
                 if (response.kerdes) {
                     alert2(response.kerdes, '<input type="button" class="gomb zold" value="Igen" onclick="velemeny_hozzaad(\'mehet\')"> <input type="button" class="gomb piros" value="Nem" onclick="alert2()">');
+                }
+            },
+            complete: function(xhr) {
+                if( xhr.status != 200 ) {
+                    alert2(xhr.responseText, '', 'Hiba');
                 }
             }
         });
@@ -5505,6 +5860,11 @@ function velemeny_torol( velemeny_recid, mehet ) {
                     alert2();
                 }
 
+            },
+            complete: function(xhr) {
+                if( xhr.status != 200 ) {
+                    alert2(xhr.responseText, '', 'Hiba');
+                }
             }
         });
     }
@@ -5521,7 +5881,12 @@ function naploTorol( tabla, sorID ) {
          		$('#naploSor-' + sorID).fadeOut(300, function() {
                     $(this).remove();
                 });
-         	}
+         	},
+            complete: function(xhr) {
+                if( xhr.status != 200 ) {
+                    alert2(xhr.responseText, '', 'Hiba');
+                }
+            }
         });
     }
 }
@@ -6107,7 +6472,12 @@ function szamlaBetolt( recid, page, muvelet, szerkeszt, kerdes_nelkul, anyagigen
                     alert2('Nem lehet betölteni a kért oldalt!', '', 'Hiba');
                     dfrd1.resolve();
                 }
-         	}
+         	},
+            complete: function(xhr) {
+                if( xhr.status != 200 ) {
+                    alert2(xhr.responseText, '', 'Hiba');
+                }
+            }
         });
 
         return $.when(szamla, dfrd1).done(function() {
@@ -6176,7 +6546,12 @@ function szamlaSorFrissit( tabla, recid ) {
              			$('#szamla-' + recid).replaceWith(response);
                     }
          		}
-         	}
+         	},
+            complete: function(xhr) {
+                if( xhr.status != 200 ) {
+                    alert2(xhr.responseText, '', 'Hiba');
+                }
+            }
         });
     }
     }, 100);
@@ -6196,6 +6571,11 @@ function bal_panel_frissit( php, recid, obj ) {
             if (response) {
                 response = JSON.parse(response);
                 $('#tartalomBal').html(response.html);
+            }
+        },
+        complete: function(xhr) {
+            if( xhr.status != 200 ) {
+                alert2(xhr.responseText, '', 'Hiba');
             }
         }
     });
@@ -6343,6 +6723,11 @@ function gepVane() {
                     $('#gep_id').val('');
                 }
             }
+        },
+        complete: function(xhr) {
+            if( xhr.status != 200 ) {
+                alert2(xhr.responseText, '', 'Hiba');
+            }
         }
     });
 }
@@ -6392,6 +6777,11 @@ function id_foglalt_e(fajl, mezo){
             }else{
                 mezo.removeClass('foglalt_id');
             }
+        },
+        complete: function(xhr) {
+            if( xhr.status != 200 ) {
+                alert2(xhr.responseText, '', 'Hiba');
+            }
         }
     });
 }
@@ -6433,6 +6823,11 @@ function operator_beallit(that, selected, felt){
                 szuro_ertek_mezo_gen($('.f_szuro_mezo_operator'), felt);
 
                 $('#o_szures_submit').show();
+            }
+        },
+        complete: function(xhr) {
+            if( xhr.status != 200 ) {
+                alert2(xhr.responseText, '', 'Hiba');
             }
         }
     });
@@ -6478,6 +6873,11 @@ function szuro_ertek_mezo_gen(that, felt){
                                                     );
                 }
 
+            }
+        },
+        complete: function(xhr) {
+            if( xhr.status != 200 ) {
+                alert2(xhr.responseText, '', 'Hiba');
             }
         }
    });
@@ -6531,6 +6931,11 @@ function beosztas_naptarba_tesz(beosztas_id, felulir){
             if(response.hiba){
                 alert2(response.hiba, response.gomb, 'Hiba');
             }
+        },
+        complete: function(xhr) {
+            if( xhr.status != 200 ) {
+                alert2(xhr.responseText, '', 'Hiba');
+            }
         }
     });
 
@@ -6562,6 +6967,11 @@ function naptar_torol(){
             if(response.hiba){
                 alert2(response.hiba, response.gomb, 'Hiba');
             }
+        },
+        complete: function(xhr) {
+            if( xhr.status != 200 ) {
+                alert2(xhr.responseText, '', 'Hiba');
+            }
         }
     });
 }
@@ -6584,6 +6994,11 @@ function csoport_tartalom() {
             success: function (response) {
                 if(response.substring(0, 6)=='SESKIL'){ location.href = 'index.php'; }
                 $('#szamlaHidden').addClass('csoport').html(response);
+            },
+            complete: function(xhr) {
+                if( xhr.status != 200 ) {
+                    alert2(xhr.responseText, '', 'Hiba');
+                }
             }
         });
     }
@@ -6687,6 +7102,11 @@ function pri_statusz_leptet(recid, statusz){
                 if(response.hiba){
                     alert2(response.hiba, '', 'Hiba');
                 }
+            },
+            complete: function(xhr) {
+                if( xhr.status != 200 ) {
+                    alert2(xhr.responseText, '', 'Hiba');
+                }
             }
         });
     }
@@ -6742,7 +7162,12 @@ function getKonyvtar( link ) {
 
                     window.history.pushState("", "", link );
          		}
-         	}
+         	},
+            complete: function(xhr) {
+                if( xhr.status != 200 ) {
+                    alert2(xhr.responseText, '', 'Hiba');
+                }
+            }
         });
     }
 }
@@ -6803,6 +7228,11 @@ function munkalapKeszit(csak_kerdezunk, kerdesek_nelkul) {
                         szurkit_zar();
                         szamlaBetolt( idk[1], 'bejelentes.php', 'modosit' );
 
+                    }
+                },
+                complete: function(xhr) {
+                    if( xhr.status != 200 ) {
+                        alert2(xhr.responseText, '', 'Hiba');
                     }
                 }
             });
@@ -6967,6 +7397,11 @@ function felmeresi_terv_csatolva(recid){
             if(response.hiba){
                 alert2(response.hiba, response.gomb, response.title);
             }
+        },
+        complete: function(xhr) {
+            if( xhr.status != 200 ) {
+                alert2(xhr.responseText, '', 'Hiba');
+            }
         }
     });
 }
@@ -7042,6 +7477,11 @@ function beosztas_veglegesit(mehet){
                     response = JSON.parse(response);
                     alert2(response.hiba, veglegesit_gomb);
                 }
+            },
+            complete: function(xhr) {
+                if( xhr.status != 200 ) {
+                    alert2(xhr.responseText, '', 'Hiba');
+                }
             }
         });
         return false;
@@ -7065,6 +7505,11 @@ function beosztas_veglegesit(mehet){
             }else{
                 szurkit();
                 location.reload();
+            }
+        },
+        complete: function(xhr) {
+            if( xhr.status != 200 ) {
+                alert2(xhr.responseText, '', 'Hiba');
             }
         }
     });
@@ -7096,6 +7541,11 @@ function munkalapok_nyitottak_koze(mehet){
             if(response.substring(0, 6)=='SESKIL'){ location.href = 'index.php'; }
             szurkit();
             location.reload();
+        },
+        complete: function(xhr) {
+            if( xhr.status != 200 ) {
+                alert2(xhr.responseText, '', 'Hiba');
+            }
         }
     });
 }
@@ -7314,11 +7764,21 @@ function anyagigenylesHozzaad(mehet, mentes_gombbol, ajax_nelkul_hozzaad) {
 
                                 /* Idáig el kell jussunk ahhoz, hogy az anyagigenylesekMentes() függvényben a tálbázat feldolgozása elkezdődhessen */
                                 anyagigenyles_hozzaad_defer.resolve();
+                            },
+                            complete: function(xhr) {
+                                if( xhr.status != 200 ) {
+                                    alert2(xhr.responseText, '', 'Hiba');
+                                }
                             }
                         });
                         return true;
                     }
 
+                }
+            },
+            complete: function(xhr) {
+                if( xhr.status != 200 ) {
+                    alert2(xhr.responseText, '', 'Hiba');
                 }
             }
         });
@@ -7413,6 +7873,11 @@ function anyagigenylesekMentes(mehet) {
                                     location.href = response.link;
                                 }
                             }
+                        },
+                        complete: function(xhr) {
+                            if( xhr.status != 200 ) {
+                                alert2(xhr.responseText, '', 'Hiba');
+                            }
                         }
                     });
                 }
@@ -7444,6 +7909,11 @@ function get_csatolmanyok(tabla, recid) {
         success: function (response) {
             if(response.substring(0, 6)=='SESKIL'){ location.href = 'index.php'; }
             $('#pop_csatolt_fajlok').html(response);
+        },
+        complete: function(xhr) {
+            if( xhr.status != 200 ) {
+                alert2(xhr.responseText, '', 'Hiba');
+            }
         }
     });
 }
@@ -7483,6 +7953,11 @@ function dokumentumok_kibont( azon ) {
         },
         success: function (response) {
             $('.'+azon).slideToggle();
+        },
+        complete: function(xhr) {
+            if( xhr.status != 200 ) {
+                alert2(xhr.responseText, '', 'Hiba');
+            }
         }
     });
 

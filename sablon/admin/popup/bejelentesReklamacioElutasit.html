@@ -47,6 +47,11 @@ function bejelentesReklamacioElutasit() {
 
                 location.href = get_get();
             }
+        },
+        complete: function(xhr) {
+            if( xhr.status != 200 ) {
+                alert2(xhr.responseText, '', 'Hiba');
+            }
         }
     });
 

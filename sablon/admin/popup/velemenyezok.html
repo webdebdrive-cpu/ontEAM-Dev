@@ -50,6 +50,11 @@ $(document).ready(function(){
                     return false;
                 }
             }
+        },
+        complete: function(xhr) {
+            if( xhr.status != 200 ) {
+                alert2(xhr.responseText, '', 'Hiba');
+            }
         }
     });
 });
@@ -67,7 +72,7 @@ function addVelemenyezoFg() {
          	data: esamp2es('login_recid=' + login_recid + '&amp;pr_igeny_recid=' + pr_igeny_recid + '&amp;korabbi_velemeny_torlesevel=' + $('#korabbi_velemeny_torlesevel').val() + '&amp;addVelemenyezo=' + new Date().getTime()),
          	success: function(response) {
                 if(response.substring(0, 6)=='SESKIL'){ location.href = 'index.php'; }
-         		if(response) {
+         		if( response ) {
                     response = JSON.parse(response);
 
                     if( response.hiba ) {
@@ -81,7 +86,12 @@ function addVelemenyezoFg() {
 
                     popupZar();
          		}
-         	}
+         	},
+            complete: function(xhr) {
+                if( xhr.status != 200 ) {
+                    alert2(xhr.responseText, '', 'Hiba');
+                }
+            }
         });
     }
 

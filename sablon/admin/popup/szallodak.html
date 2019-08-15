@@ -49,7 +49,7 @@ function addSzalloda( loginID, that ) {
          	data: esamp2es('loginID=' + loginID + '&amp;szallIDs=' + JSON.stringify(data) + '&amp;addSzalloda=' + new Date().getTime()),
          	success: function(html) {
                 if(html.substring(0, 6)=='SESKIL'){ location.href = 'index.php'; }
-         		if(html) {
+         		if( html ) {
                     html = JSON.parse(html);
 
                     if( html.statusz == 'hiba' ) {
@@ -63,7 +63,12 @@ function addSzalloda( loginID, that ) {
 
                     popupZar();
          		}
-         	}
+         	},
+            complete: function(xhr) {
+                if( xhr.status != 200 ) {
+                    alert2(xhr.responseText, '', 'Hiba');
+                }
+            }
         });
 
         $.when( ajax ).then(function() {

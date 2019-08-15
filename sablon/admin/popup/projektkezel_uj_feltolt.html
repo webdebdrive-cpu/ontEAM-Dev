@@ -41,9 +41,9 @@ function igenylesek_betolt_uj_kezeleshez(order){
             order                           : order,
             igenylesek_betolt_uj_kezeleshez : new Date().getTime()
         },
-        success: function(response){
+        success: function(response) {
             if(response.substring(0, 6)=='SESKIL'){ location.href = 'index.php'; }
-            if(response){
+            if( response ) {
                 response = JSON.parse(response);
                 if( response.hiba ){
                     popupZar();
@@ -54,6 +54,11 @@ function igenylesek_betolt_uj_kezeleshez(order){
                     popupMutat();
                 }
                 
+            }
+        },
+        complete: function(xhr) {
+            if( xhr.status != 200 ) {
+                alert2(xhr.responseText, '', 'Hiba');
             }
         }
     });

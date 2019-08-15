@@ -1448,6 +1448,11 @@ require('selectek.php');
                                 $(\'#cash_flow_div div.kijSor\').each(function() {
                                     $(this).attr(\'data-id\', \'UJ-FELDOLGOZVA\');
                                 });
+                            },
+                            complete: function(xhr) {
+                                if( xhr.status != 200 ) {
+                                    alert2(xhr.responseText, \'\', \'Hiba\');
+                                }
                             }
                         });
 

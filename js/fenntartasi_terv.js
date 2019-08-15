@@ -45,6 +45,11 @@ function fenntartasi_terv_elesites(mehet) {
                     fulGombMeretez();
                     popupZar();
                 }
+            },
+            complete: function(xhr) {
+                if( xhr.status != 200 ) {
+                    alert2(xhr.responseText, '', 'Hiba');
+                }
             }
         });
 
@@ -100,10 +105,20 @@ function fenntartasterv_veglegesit(mehet){
                                 szurkit();
                                 szamlaBetolt(_get('id'), baseName(location.href) + '.php', 'modosit');
                             }
+                        },
+                        complete: function(xhr) {
+                            if( xhr.status != 200 ) {
+                                alert2(xhr.responseText, '', 'Hiba');
+                            }
                         }
                     });
 
                 }
+            }
+        },
+        complete: function(xhr) {
+            if( xhr.status != 200 ) {
+                alert2(xhr.responseText, '', 'Hiba');
             }
         }
     });
@@ -191,6 +206,11 @@ function sor_torol(ful, mehet){
                 szurkit();
                 szamlaBetolt(_get('id'), baseName(location.href) + '.php', ful);
             }
+        },
+        complete: function(xhr) {
+            if( xhr.status != 200 ) {
+                alert2(xhr.responseText, '', 'Hiba');
+            }
         }
     });
 }
@@ -216,6 +236,11 @@ function valtozas_jovahagyas(){
 
                 szurkit();
                 szamlaBetolt(_get('id'), baseName(location.href) + '.php', 'energia');
+            }
+        },
+        complete: function(xhr) {
+            if( xhr.status != 200 ) {
+                alert2(xhr.responseText, '', 'Hiba');
             }
         }
     });

@@ -28,12 +28,17 @@ $(document).ready(function(){
             id              : _get('id'),
             get_ml_torles   : Date.now()
         },
-        success: function(response){
+        success: function(response) {
             if(response.substring(0, 6)=='SESKIL'){ location.href = 'index.php'; }
-            if(response) {
+            if( response ) {
                 response = JSON.parse(response);
                 $('#torles_kerdes').html(response.kerdes);
                 $('#popup').show();
+            }
+        },
+        complete: function(xhr) {
+            if( xhr.status != 200 ) {
+                alert2(xhr.responseText, '', 'Hiba');
             }
         }
     });
@@ -62,9 +67,14 @@ function munkalapTorles(mehet){
             munkalaptid : _get('id'),
             indoklas    : indoklas
         },
-        success: function(response){
+        success: function(response) {
             if(response.substring(0, 6)=='SESKIL'){ location.href = 'index.php'; }
             location.reload();
+        },
+        complete: function(xhr) {
+            if( xhr.status != 200 ) {
+                alert2(xhr.responseText, '', 'Hiba');
+            }
         }
     });
     

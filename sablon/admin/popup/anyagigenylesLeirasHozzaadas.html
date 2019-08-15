@@ -39,7 +39,7 @@ $(document).ready(function(){
                 id          : _get('id'),
                 get_leiras  : Date.now()
             },
-            success: function(response){
+            success: function(response) {
                 if(response.substring(0, 6)=='SESKIL'){ location.href = 'index.php'; }
                 if(response){
                     response = JSON.parse(response);
@@ -50,6 +50,11 @@ $(document).ready(function(){
                     }
 
                     $('#anyagigenyles_leiras').val(response.txt);
+                }
+            },
+            complete: function(xhr) {
+                if( xhr.status != 200 ) {
+                    alert2(xhr.responseText, '', 'Hiba');
                 }
             }
         });
@@ -106,6 +111,11 @@ function anyagigenylesLeirasHozzaadas() {
                                 szamlaSorFrissit(page, $(this).attr('data-recid'));
                             });*/
                             popupZar();
+                        }
+                    },
+                    complete: function(xhr) {
+                        if( xhr.status != 200 ) {
+                            alert2(xhr.responseText, '', 'Hiba');
                         }
                     }
                 });

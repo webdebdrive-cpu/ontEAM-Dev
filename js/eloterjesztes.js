@@ -99,6 +99,11 @@ function pri_eloterj_statusz_mod(pri_eloterj_recidk, stat_id_eloterjek, jkoltek,
                 alert2();
                 szamlaBetolt( _get('id'), baseName(location.href) + '.php', 'projektigeny' );
             }
+        },
+        complete: function(xhr) {
+            if( xhr.status != 200 ) {
+                alert2(xhr.responseText, '', 'Hiba');
+            }
         }
     });
 }

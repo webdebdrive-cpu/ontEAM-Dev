@@ -64,9 +64,9 @@ $(document).ready(function(){
             recid           : _get('id'),
             get_login_lista : Date.now()
         },
-        success: function(response){
+        success: function(response) {
             if(response.substring(0, 6)=='SESKIL'){ location.href = 'index.php'; }
-            if(response){
+            if( response ) {
                 response = JSON.parse(response);
                 if( response.hiba ) {
                     alert2(response.hiba, response.gomb, response.title);
@@ -75,6 +75,11 @@ $(document).ready(function(){
                     $('#popup_login_kereses').focus();
                     popupMutat();
                 }
+            }
+        },
+        complete: function(xhr) {
+            if( xhr.status != 200 ) {
+                alert2(xhr.responseText, '', 'Hiba');
             }
         }
     });
@@ -135,9 +140,9 @@ function projekt_team_felvesz() {
             login_recid : $('#pop_recid').val(),
             projekt_team_felvesz : Date.now()
         },
-        success: function(response){
+        success: function(response) {
             if(response.substring(0, 6)=='SESKIL'){ location.href = 'index.php'; }
-            if(response){
+            if( response ) {
                 response = JSON.parse(response);
                 if(response.hiba){
                     if(response.hiba=='data-hiba'){
@@ -153,6 +158,11 @@ function projekt_team_felvesz() {
                     szamlaBetolt( _get('id'), baseName(location.href) + '.php', 'projekt_team' );
                     popupZar();
                 }
+            }
+        },
+        complete: function(xhr) {
+            if( xhr.status != 200 ) {
+                alert2(xhr.responseText, '', 'Hiba');
             }
         }
     });

@@ -622,6 +622,11 @@ function get_file_thumb(php, kiir_id){
             if(html.substring(0, 6)=='SESKIL'){ location.href = 'index.php'; }
             alert2();
             $('#'+kiir_id).html(html);
+        },
+        complete: function(xhr) {
+            if( xhr.status != 200 ) {
+                alert2(xhr.responseText, '', 'Hiba');
+            }
         }
     });
 }
@@ -787,6 +792,11 @@ function isz2varos(isz_id, varos_id, utvonal) {
                     if( isz_id=='szall_isz' && $('#adat_masol').is(':checked') ) {
                         $('#szaml_varos').val(html);
                     }
+                }
+            },
+            complete: function(xhr) {
+                if( xhr.status != 200 ) {
+                    alert2(xhr.responseText, '', 'Hiba');
                 }
             }
         });

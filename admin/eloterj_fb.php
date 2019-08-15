@@ -382,6 +382,11 @@ if(isset($_GET['modosit_ules'])){
                             success: function(response){
                                 if(response.substring(0, 6)==\'SESKIL\'){ location.href = \'index.php\'; }
                                 szamlaBetolt(\''.$_GET['id'].'\', \''.basename(self()).'\', \'modosit\');
+                            },
+                            complete: function(xhr) {
+                                if( xhr.status != 200 ) {
+                                    alert2(xhr.responseText, \'\', \'Hiba\');
+                                }
                             }
                         });
                     }
@@ -405,6 +410,11 @@ if(isset($_GET['modosit_ules'])){
                             success: function(response){
                                 if(response.substring(0, 6)==\'SESKIL\'){ location.href = \'index.php\'; }
                                 szamlaBetolt(\''.$_GET['id'].'\', \''.basename(self()).'\', \'modosit\');
+                            },
+                            complete: function(xhr) {
+                                if( xhr.status != 200 ) {
+                                    alert2(xhr.responseText, \'\', \'Hiba\');
+                                }
                             }
                         });
                     }

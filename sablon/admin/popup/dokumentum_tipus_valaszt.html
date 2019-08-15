@@ -35,10 +35,15 @@ $(document).ready(function(){
             tabla               : baseName(location.href),
             get_feltoltott_fajl : Date.now()
         },
-        success: function(response){
+        success: function(response) {
             if(response.substring(0, 6)=='SESKIL'){ location.href = 'index.php'; }
             if(response){
                 $('#fajl_adatok').html(response);
+            }
+        },
+        complete: function(xhr) {
+            if( xhr.status != 200 ) {
+                alert2(xhr.responseText, '', 'Hiba');
             }
         }
     });
@@ -56,13 +61,18 @@ function dokumentum_tipus_valaszt(){
             tipus                   : $('#pop_tipus').val(),
             dokumentum_tipus_valaszt: Date.now()
         },
-        success: function(response){
+        success: function(response) {
             if(response.substring(0, 6)=='SESKIL'){ location.href = 'index.php'; }
             szamlaBetolt( _get('id'), baseName(location.href) + '.php', 'dokumentumok' );
             if(leptessuk_e_tovabb){
                 projekt_fajfeltoltes_utan_tovabb();
             }
             popupZar();
+        },
+        complete: function(xhr) {
+            if( xhr.status != 200 ) {
+                alert2(xhr.responseText, '', 'Hiba');
+            }
         }
     });
 }

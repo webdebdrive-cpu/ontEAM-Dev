@@ -31,7 +31,7 @@
             },
             success: function(response) {
                 if(response.substring(0, 6)=='SESKIL'){ location.href = 'index.php'; }
-                if(response) {
+                if( response ) {
                     
                     
                     response = JSON.parse(response);
@@ -49,6 +49,11 @@
                     szamlaBetolt(_get('id'), 'munkalap.php', 'modosit').done(function() {
                         popupZar();
                     });
+                }
+            },
+            complete: function(xhr) {
+                if( xhr.status != 200 ) {
+                    alert2(xhr.responseText, '', 'Hiba');
                 }
             }
         });

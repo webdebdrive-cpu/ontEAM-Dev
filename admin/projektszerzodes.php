@@ -787,7 +787,7 @@ if( isset($_GET['csv']) ) {
                         $hossz = strpos($lekerdezes_fromtol, 'ORDER');
                         if( $hossz ) {
                             $lekerdezes_fromtol = substr($lekerdezes_fromtol, 0, $hossz);
-                        }else{
+                        } else {
                             $lekerdezes_fromtol = substr($lekerdezes_fromtol, 0);
                         }
                     }
@@ -881,7 +881,7 @@ if( isset($_GET['csv']) ) {
                         if($kulcs=='Számlázva' || $kulcs=='Építési eng.'){
                             if($sor){
                                 $sor = 'igen';
-                            }else{
+                            } else {
                                 $sor = 'nem';
                             }
                         }
@@ -918,7 +918,7 @@ if( isset($_GET['csv']) ) {
                     $lekerdezes_fromtol = substr($lekerdezes_fromtol, 0, strpos($lekerdezes_fromtol, 'LIMIT') );
                     $_SESSION['akt_sql_order'] = '';
                     
-                }else{
+                } else {
                     
                     if( strstr($_SESSION['akt_sql'], 'WHERE') ) {
                         $lekerdezes_fromtol = str_replace('WHERE', "WHERE `".get_db_tabla().$megnevezes."`.`recid` IN (".$_SESSION['nyomtatas_ids'].") AND ", $lekerdezes_fromtol);
@@ -931,7 +931,7 @@ if( isset($_GET['csv']) ) {
                         $hossz = strpos($lekerdezes_fromtol, 'ORDER');
                         if( $hossz ) {
                             $lekerdezes_fromtol = substr($lekerdezes_fromtol, 0, $hossz);
-                        }else{
+                        } else {
                             $lekerdezes_fromtol = substr($lekerdezes_fromtol, 0);
                         }
                     }
@@ -1012,7 +1012,7 @@ if( isset($_GET['csv']) ) {
                         if($kulcs=='Számlázva' || $kulcs=='Építési eng.'){
                             if($sor){
                                 $sor = 'igen';
-                            }else{
+                            } else {
                                 $sor = 'nem';
                             }
                         }
@@ -1171,7 +1171,7 @@ require_once('selectek.php');
 
             if( $van_szamla_kapcsolva ){
                 $gombok .= ' <input type="button" id="recordTorol" class="gombb_alert dn" onclick="alert2(\'A szerződésnek van olyan tétele, amihez már van számla tétel kapcsolva, így nem törölhető a szerződés!\', \'\', \'Hiba\')" value="Töröl" title="Töröl">';
-            }else{
+            } else {
                 $gombok .= '<script>var gomb'.$_GET['id'].'= get_kibont_torol(\''.self().'\', \''.$torles.'\', \''.$_GET['id'].'\');</script>';
                 $gombok .= ' <input type="button" id="recordTorol" class="gombb_alert dn" onclick="alert2(\'Biztosan törli ezt a '.$szoveg.'?\', gomb'.$_GET['id'].')" value="Töröl" title="Töröl">';
             }
@@ -1279,7 +1279,7 @@ require_once('selectek.php');
                         keret_tullepve_mehet    : $(\'#keret_tullepve_mehet\').val(),
                         van_tetel               : Date.now()
                     },
-                    success: function(response){
+                    success: function(response) {
                         if(response.substring(0, 6)==\'SESKIL\'){ location.href = \'index.php\'; }
                         if(response){
                             response = JSON.parse(response);
@@ -1289,7 +1289,7 @@ require_once('selectek.php');
                                 $(\'#szerk_form\').submit();
                                 dfrd_pr_mehet = true;
                                 return true;
-                            }else{
+                            } else {
                                 dfrd_pr_mehet = false;
                                 hibauzenet    = response.hiba;
                                 gomb          = response.gomb;
@@ -1299,7 +1299,12 @@ require_once('selectek.php');
                             dfrd_pr_szerzodes.resolve();
                         }
                         return false;
-                    }
+                    },
+                    complete: function(xhr) {
+                        if( xhr.status != 200 ) {
+                            alert2(xhr.responseText, \'\', \'Hiba\');
+                        }
+                    } 
                 });
                 
                 urlap_mehet = false;
@@ -1309,14 +1314,14 @@ require_once('selectek.php');
                         $(\'#\'+focus).addClass(\'hibas_ide_focus\');
                         szurkit_zar(\'mehet_megsem_mutat\');
                         return false;
-                    }else{
+                    } else {
                         urlap_mehet = true;
                     }
                     
                     /* Ez a feltétel nem tévedésből van kétszer, kell ide is, meg egyel lentebb is */
-                    if(!urlap_mehet){
+                    if( !urlap_mehet ) {
                         return false;
-                    }else{
+                    } else {
                         return form_ell_admin();
                     }
                 });
@@ -1325,7 +1330,7 @@ require_once('selectek.php');
                 /* Ez a feltétel nem tévedésből van kétszer, kell ide is, meg egyel fentebb is */
                 if(!urlap_mehet){
                     return false;
-                }else{
+                } else {
                     return form_ell_admin();
                 }
                 ');

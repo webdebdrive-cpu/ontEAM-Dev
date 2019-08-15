@@ -61,12 +61,12 @@ if ($_POST['azon_ell']) {
                 'hiba' => 'Ez az azonosító már foglalt, válasszon másikat!',
                 'gomb' => '<input class="link gomb" value="Ok" onclick="alert2(); $(\'#azon\').focus();" type="button">'
             ));
-        }else{
+        } else {
             echo json_encode(array(
                 'statusz' => 'siker'
             ));
         }
-    }else{
+    } else {
         echo json_encode(array(
             'hiba' => 'Kérem töltse ki az azonosítót!'
         ));
@@ -119,7 +119,7 @@ if (isset($_GET['csv'])) {
             $hossz = strpos($lekerdezes_fromtol, 'ORDER');
             if( $hossz ) {
                 $lekerdezes_fromtol = substr($lekerdezes_fromtol, 0, $hossz);
-            }else{
+            } else {
                 $lekerdezes_fromtol = substr($lekerdezes_fromtol, 0);
             }
         }
@@ -200,13 +200,13 @@ if (isset($_POST['felmeresi_terv_csatolva'])) {
                 'gomb'  => '<input type="button" class="gomb zold" value="Igen" onclick="$(\'#jsff_felmeresi_terv_felm_terv input\').click(); alert2();"><input type="button" class="gomb piros" value="Nem" onclick="alert2();">',
                 'title' => 'Kérdés',
             ));
-        }else{
+        } else {
             echo json_encode(array(
                 'tallozas_mehet'  => true,
             ));
         }
 
-    }else{
+    } else {
 
         $ft = $adatbazis_kapcsolat->s2('felm_terv', 'felmeresi_terv', "`recid`='{$_POST['recid']}'");
         if(is_file('../'.get_utvonal().$megnevezes.'/'.$ft['felm_terv'])){
@@ -215,7 +215,7 @@ if (isset($_POST['felmeresi_terv_csatolva'])) {
                 'gomb'  => '<input type="button" class="gomb zold" value="Igen" onclick="$(\'#jsff_felmeresi_terv_felm_terv input\').click(); alert2();"><input type="button" class="gomb piros" value="Nem" onclick="alert2();">',
                 'title' => 'Kérdés',
             ));
-        }else{
+        } else {
             echo json_encode(array(
                 'tallozas_mehet'  => true,
             ));
@@ -363,8 +363,13 @@ require_once('selectek.php');
                                 if(response.hiba){
                                     alert2(response.hiba, response.gomb, \'Hiba\');
                                     mehet_e = false;
-                                }else{
+                                } else {
                                     mehet_e = true;
+                                }
+                            },
+                            complete: function(xhr) {
+                                if( xhr.status != 200 ) {
+                                    alert2(xhr.responseText, \'\', \'Hiba\');
                                 }
                             }
                         });
@@ -376,7 +381,7 @@ require_once('selectek.php');
                                 szurkit();
                                 $(\'#szerk_form\').attr(\'onsubmit\', \'return form_ell_admin()\');
                                 $(\'#szerk_form\').submit();
-                            }else{
+                            } else {
                                 return false;
                             }
                         } );
@@ -394,7 +399,7 @@ require_once('selectek.php');
                 foreach($akt_tomb as $ertek){
                     if( $ertek['name'] != 'azon' ) {
                         $_SESSION[$ertek['name']] = stripslashes( $sor[$ertek['name']] );
-                    }else{
+                    } else {
                         $_SESSION[$ertek['name']] = '';
                     }
                 }
@@ -457,7 +462,7 @@ require_once('selectek.php');
                 if($tomb['csoport']){
                     $kulso_ertek = $adatbazis_kapcsolat->s2('info', $tomb['tabla'], "`{$tomb['oszlop_keres']}`='{$sor[$tomb['name']]}' AND `csoport`='{$tomb['csoport']}'", '', '1');
                     $kulso_ertek['nev'] = $kulso_ertek['info'];
-                }else{
+                } else {
                     $kulso_ertek = $adatbazis_kapcsolat->s2('recid nev', $tomb['tabla'], "`{$tomb['oszlop_keres']}`='{$sor[$tomb['name']]}'", '', '1');
                 }
 

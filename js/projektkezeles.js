@@ -26,6 +26,11 @@ function projekt_elokeszites_ala() {
                 }
                 szamlaBetolt( _get('id'), 'projektkezeles.php', 'modosit' );
             }
+        },
+        complete: function(xhr) {
+            if( xhr.status != 200 ) {
+                alert2(xhr.responseText, '', 'Hiba');
+            }
         }
     });
 }
@@ -48,6 +53,11 @@ function projekt_folyamatbanra() {
                     return false;
                 }
                 szamlaBetolt( _get('id'), 'projektkezeles.php', 'modosit' );
+            }
+        },
+        complete: function(xhr) {
+            if( xhr.status != 200 ) {
+                alert2(xhr.responseText, '', 'Hiba');
             }
         }
     });
@@ -72,6 +82,11 @@ function projekt_keszre() {
                 }
                 szamlaBetolt( _get('id'), 'projektkezeles.php', 'modosit' );
             }
+        },
+        complete: function(xhr) {
+            if( xhr.status != 200 ) {
+                alert2(xhr.responseText, '', 'Hiba');
+            }
         }
     });
 }
@@ -95,6 +110,11 @@ function projekt_lezartra() {
                 }
                 szamlaBetolt( _get('id'), 'projektkezeles.php', 'modosit' );
             }
+        },
+        complete: function(xhr) {
+            if( xhr.status != 200 ) {
+                alert2(xhr.responseText, '', 'Hiba');
+            }
         }
     });
 }
@@ -116,6 +136,11 @@ function projekt_fajfeltoltes_utan_tovabb () {
                     alert2(response.hiba, response.gomb, response.title);
                     return false;
                 }
+            }
+        },
+        complete: function(xhr) {
+            if( xhr.status != 200 ) {
+                alert2(xhr.responseText, '', 'Hiba');
             }
         }
     });
@@ -139,6 +164,11 @@ function projekt_felfuggesztes_vege(){
                     return false;
                 }
                 szamlaBetolt( _get('id'), 'projektkezeles.php', 'modosit' );
+            }
+        },
+        complete: function(xhr) {
+            if( xhr.status != 200 ) {
+                alert2(xhr.responseText, '', 'Hiba');
             }
         }
     });
@@ -190,6 +220,11 @@ function cf_sor_torol(mehet){
                     szamlaBetolt( _get('id'), 'projektkezeles.php', 'cash_flow' );
                 }
             }
+        },
+        complete: function(xhr) {
+            if( xhr.status != 200 ) {
+                alert2(xhr.responseText, '', 'Hiba');
+            }
         }
     });
     
@@ -221,6 +256,11 @@ function projektkezeles_ujranyit() {
                     szamlaBetolt( _get('id'), 'projektkezeles.php', 'modosit' );
                 }
             }
+        },
+        complete: function(xhr) {
+            if( xhr.status != 200 ) {
+                alert2(xhr.responseText, '', 'Hiba');
+            }
         }
     });
 }
@@ -245,6 +285,11 @@ function folyamatbanra_allit() {
                     szamlaBetolt( _get('id'), 'projektkezeles.php', 'dokumentumok' );
                 }
             }
+        },
+        complete: function(xhr) {
+            if( xhr.status != 200 ) {
+                alert2(xhr.responseText, '', 'Hiba');
+            }
         }
     });
 }
@@ -268,6 +313,11 @@ function keszre_allit() {
                     popupZar();
                     szamlaBetolt( _get('id'), 'projektkezeles.php', 'dokumentumok' );
                 }
+            }
+        },
+        complete: function(xhr) {
+            if( xhr.status != 200 ) {
+                alert2(xhr.responseText, '', 'Hiba');
             }
         }
     });

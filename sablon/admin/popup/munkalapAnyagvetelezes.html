@@ -101,7 +101,7 @@ function munkAnyagVetelezes() {
             },
          	success: function(response) {
                 if(response.substring(0, 6)=='SESKIL'){ location.href = 'index.php'; }
-         		if(response) {
+         		if( response ) {
                     response = JSON.parse(response);
 
                     if( response.hiba ) {
@@ -118,7 +118,12 @@ function munkAnyagVetelezes() {
                     szamlaBetolt(_get('id'), baseName(location.href) + '.php', 'tetel');
                     popupZar();
          		}
-         	}
+         	},
+            complete: function(xhr) {
+                if( xhr.status != 200 ) {
+                    alert2(xhr.responseText, '', 'Hiba');
+                }
+            }
         });
     }
 

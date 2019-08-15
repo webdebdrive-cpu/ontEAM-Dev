@@ -42,6 +42,11 @@
                                     $('#pop_telephely_id').val( $('#pop_telephely_id option:last').attr('value') );
                                     $('#pop_telephely_id').attr('readonly', true);
                                 }
+                            },
+                            complete: function(xhr) {
+                                if( xhr.status != 200 ) {
+                                    alert2(xhr.responseText, '', 'Hiba');
+                                }
                             }
                         });
                     });
@@ -476,6 +481,11 @@ function anyagigenylesKPBeszerez(csak_kerdezünk){
                 if( response.alert ) {
                     alert2(response.alert, response.gomb, response.title);
                 }
+            }
+        },
+        complete: function(xhr) {
+            if( xhr.status != 200 ) {
+                alert2(xhr.responseText, '', 'Hiba');
             }
         }
     });

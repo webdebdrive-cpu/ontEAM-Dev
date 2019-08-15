@@ -23,6 +23,11 @@ function munkalapMuszakiVezeto() {
                     szamlaBetolt(_get('id'), baseName(location.href) + '.php', 'modosit');
                     popupZar();
                 }
+            },
+            complete: function(xhr) {
+                if( xhr.status != 200 ) {
+                    alert2(xhr.responseText, '', 'Hiba');
+                }
             }
         });
 
@@ -55,6 +60,11 @@ function munkalapTeruletiVezeto() {
 
                     szamlaBetolt(_get('id'), baseName(location.href) + '.php', 'modosit');
                     popupZar();
+                }
+            },
+            complete: function(xhr) {
+                if( xhr.status != 200 ) {
+                    alert2(xhr.responseText, '', 'Hiba');
                 }
             }
         });
@@ -89,6 +99,11 @@ function munkalapAdminisztrator() {
                     szamlaBetolt(_get('id'), baseName(location.href) + '.php', 'modosit');
                     popupZar();
                 }
+            },
+            complete: function(xhr) {
+                if( xhr.status != 200 ) {
+                    alert2(xhr.responseText, '', 'Hiba');
+                }
             }
         });
 
@@ -122,6 +137,11 @@ function munkalapMuszakiVezetoHelyettes() {
                     szamlaBetolt(_get('id'), baseName(location.href) + '.php', 'modosit');
                     popupZar();
                 }
+            },
+            complete: function(xhr) {
+                if( xhr.status != 200 ) {
+                    alert2(xhr.responseText, '', 'Hiba');
+                }
             }
         });
 
@@ -152,6 +172,11 @@ function munkalapMuszakiIgazgato() {
 
                     szamlaBetolt(_get('id'), baseName(location.href) + '.php', 'modosit');
                     popupZar();
+                }
+            },
+            complete: function(xhr) {
+                if( xhr.status != 200 ) {
+                    alert2(xhr.responseText, '', 'Hiba');
                 }
             }
         });
@@ -223,6 +248,11 @@ function munkalapMobil( that ) {
                         szurkit();
                         location.reload();
                     }
+                },
+                complete: function(xhr) {
+                    if( xhr.status != 200 ) {
+                        alert2(xhr.responseText, '', 'Hiba');
+                    }
                 }
             });
         }
@@ -254,6 +284,11 @@ function munkalapMobil_sima() {
                 szamlaBetolt(_get('id'), baseName(location.href) + '.php', 'modosit');
                 popupZar();
             }
+        },
+        complete: function(xhr) {
+            if( xhr.status != 200 ) {
+                alert2(xhr.responseText, '', 'Hiba');
+            }
         }
     });
 }
@@ -280,6 +315,11 @@ function munkalapDiszpKozp() {
 
                     szamlaBetolt(_get('id'), baseName(location.href) + '.php', 'modosit');
                     popupZar();
+                }
+            },
+            complete: function(xhr) {
+                if( xhr.status != 200 ) {
+                    alert2(xhr.responseText, '', 'Hiba');
                 }
             }
         });
@@ -315,6 +355,11 @@ function munkalapKeszre(csak_kerdezunk) {
 
                     szamlaBetolt(_get('id'), 'munkalap.php', 'modosit');
                 }
+            },
+            complete: function(xhr) {
+                if( xhr.status != 200 ) {
+                    alert2(xhr.responseText, '', 'Hiba');
+                }
             }
         });
 
@@ -348,6 +393,11 @@ function munkalapRogzit(csak_kerdezunk) {
                     }
 
                     szamlaBetolt(_get('id'), 'munkalap.php', 'modosit');
+                }
+            },
+            complete: function(xhr) {
+                if( xhr.status != 200 ) {
+                    alert2(xhr.responseText, '', 'Hiba');
                 }
             }
         });
@@ -397,6 +447,11 @@ function munkalapKulsosJovahagy(csak_kerdezunk) {
                     
                     
                 }
+            },
+            complete: function(xhr) {
+                if( xhr.status != 200 ) {
+                    alert2(xhr.responseText, '', 'Hiba');
+                }
             }
         });
 
@@ -430,6 +485,11 @@ function munkalapIgazol(csak_kerdezunk) {
                     }
                     
                     szamlaBetolt(_get('id'), 'munkalap.php', 'modosit');
+                }
+            },
+            complete: function(xhr) {
+                if( xhr.status != 200 ) {
+                    alert2(xhr.responseText, '', 'Hiba');
                 }
             }
         });
@@ -465,6 +525,11 @@ function munkalapReklamacioElfogad(csak_kerdezunk) {
 
                     szamlaBetolt(_get('id'), 'munkalap.php', 'modosit');
                 }
+            },
+            complete: function(xhr) {
+                if( xhr.status != 200 ) {
+                    alert2(xhr.responseText, '', 'Hiba');
+                }
             }
         });
 
@@ -498,6 +563,11 @@ function munkalapArajanlatNyomtatva(csak_kerdezunk) {
                     }
 
                     szamlaBetolt(_get('id'), 'munkalap.php', 'modosit');
+                }
+            },
+            complete: function(xhr) {
+                if( xhr.status != 200 ) {
+                    alert2(xhr.responseText, '', 'Hiba');
                 }
             }
         });
@@ -533,6 +603,11 @@ function munkalapKulsosMegrendelve(csak_kerdezunk) {
 
                     szamlaBetolt(_get('id'), 'munkalap.php', 'modosit');
                 }
+            },
+            complete: function(xhr) {
+                if( xhr.status != 200 ) {
+                    alert2(xhr.responseText, '', 'Hiba');
+                }
             }
         });
 
@@ -566,6 +641,11 @@ function munkalapLezaras(csak_kerdezunk) {
                     }
 
                     szamlaBetolt(_get('id'), 'munkalap.php', 'modosit');
+                }
+            },
+            complete: function(xhr) {
+                if( xhr.status != 200 ) {
+                    alert2(xhr.responseText, '', 'Hiba');
                 }
             }
         });
@@ -602,6 +682,11 @@ function munkalapTelepitett(csak_kerdezunk) {
                     szamlaBetolt(_get('id'), baseName(location.href) + '.php', 'modosit');
                     popupZar();
                 }
+            },
+            complete: function(xhr) {
+                if( xhr.status != 200 ) {
+                    alert2(xhr.responseText, '', 'Hiba');
+                }
             }
         });
 
@@ -634,6 +719,11 @@ function munkalapFelvesz( recid ) {
 
                         szamlaBetolt(recid, baseName(location.href) + '.php', 'tetel');
                         alert2();
+                    }
+                },
+                complete: function(xhr) {
+                    if( xhr.status != 200 ) {
+                        alert2(xhr.responseText, '', 'Hiba');
                     }
                 }
             });
@@ -746,7 +836,12 @@ function munkFeladatTorol( recid, elem_id, mehet ) {
                     $('#'+elem_id).parents('tr').remove();
                     szamlaBetolt(recid, baseName(location.href) + '.php', 'tetel');
          		}
-         	}
+         	},
+            complete: function(xhr) {
+                if( xhr.status != 200 ) {
+                    alert2(xhr.responseText, '', 'Hiba');
+                }
+            }
         });
     } else {
         $('#'+elem_id).parents('tr').remove();
@@ -781,7 +876,12 @@ function munkAnyagTorol( recid, elem_id, mehet ) {
                     $('#'+elem_id).parents('tr').remove();
                     szamlaBetolt(recid, baseName(location.href) + '.php', 'tetel');
          		}
-         	}
+         	},
+            complete: function(xhr) {
+                if( xhr.status != 200 ) {
+                    alert2(xhr.responseText, '', 'Hiba');
+                }
+            }
         });
     } else {
         $('#'+elem_id).parents('tr').remove();
@@ -815,7 +915,12 @@ function munkMunkaidoTorol( recid, elem_id, mehet ) {
                     $('#'+elem_id).parents('tr').remove();
                     szamlaBetolt(recid, baseName(location.href) + '.php', 'tetel');
          		}
-         	}
+         	},
+            complete: function(xhr) {
+                if( xhr.status != 200 ) {
+                    alert2(xhr.responseText, '', 'Hiba');
+                }
+            }
         });
     } else {
         $('#'+elem_id).parents('tr').remove();
@@ -845,6 +950,11 @@ function munkalapVisszaNyitott(recid, mehet){
             }
             
             szamlaBetolt(recid, 'munkalap.php', 'modosit');
+        },
+        complete: function(xhr) {
+            if( xhr.status != 200 ) {
+                alert2(xhr.responseText, '', 'Hiba');
+            }
         }
     });
 }
@@ -873,6 +983,11 @@ function munkalapVisszavetel(recid, mehet){
                 }
             }
             szamlaBetolt(recid, 'munkalap.php', 'modosit');
+        },
+        complete: function(xhr) {
+            if( xhr.status != 200 ) {
+                alert2(xhr.responseText, '', 'Hiba');
+            }
         }
     });
 }
@@ -896,6 +1011,11 @@ function munkalapVarakoztatVege(){
                 }
             }
             szamlaBetolt(_get('id'), 'munkalap.php', 'modosit');
+        },
+        complete: function(xhr) {
+            if( xhr.status != 200 ) {
+                alert2(xhr.responseText, '', 'Hiba');
+            }
         }
     });
 }
@@ -933,6 +1053,11 @@ function munkalapElokeszit(szemelyzet_id, mehet) {
                     popupZar();
                     szamlaBetolt(_get('id'), baseName(location.href) + '.php', 'modosit');
                 }
+            },
+            complete: function(xhr) {
+                if( xhr.status != 200 ) {
+                    alert2(xhr.responseText, '', 'Hiba');
+                }
             }
         });
 
@@ -966,6 +1091,11 @@ function munkalapVisszaElokeszit() {
                     szamlaBetolt(_get('id'), baseName(location.href) + '.php', 'modosit');
                     popupZar();
                 }
+            },
+            complete: function(xhr) {
+                if( xhr.status != 200 ) {
+                    alert2(xhr.responseText, '', 'Hiba');
+                }
             }
         });
 
@@ -988,6 +1118,11 @@ function get_szallito_mailcim(that){
                 if(response.substring(0, 6)=='SESKIL'){ location.href = 'index.php'; }
                 if(response){
                     $('#pop_cimzett').val(response);
+                }
+            },
+            complete: function(xhr) {
+                if( xhr.status != 200 ) {
+                    alert2(xhr.responseText, '', 'Hiba');
                 }
             }
         });
@@ -1073,6 +1208,11 @@ function get_kulso_hozzarendeles_input_tartalmak(){
                 $('#pop_uzenet').val(uzenet);
                 
             }
+        },
+        complete: function(xhr) {
+            if( xhr.status != 200 ) {
+                alert2(xhr.responseText, '', 'Hiba');
+            }
         }
     });
     
@@ -1144,6 +1284,11 @@ function get_ml_visszavetelezes_input_tartalmak(elokeszitesre){
                 $('#pop_uzenet').val(uzenet);
                 
             }
+        },
+        complete: function(xhr) {
+            if( xhr.status != 200 ) {
+                alert2(xhr.responseText, '', 'Hiba');
+            }
         }
     });
     
@@ -1170,6 +1315,11 @@ function megr_sztorno_mail_elkuldve() {
 
                 szamlaBetolt(_get('id'), baseName(location.href) + '.php', 'modosit');
                 popupZar();
+            }
+        },
+        complete: function(xhr) {
+            if( xhr.status != 200 ) {
+                alert2(xhr.responseText, '', 'Hiba');
             }
         }
     });

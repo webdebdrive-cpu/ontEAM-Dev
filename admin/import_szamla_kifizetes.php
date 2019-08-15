@@ -107,6 +107,11 @@ if( $_POST /*|| isset($_GET['teszt'])*/ ) {
 //                },
 //                success: function (response) {
 //                    console.log(response);
+//                },
+//                complete: function(xhr) {
+//                    if( xhr.status != 200 ) {
+//                        alert2(xhr.responseText, \'\', \'Hiba\');
+//                    }
 //                }
 //            });
 //        </script>';

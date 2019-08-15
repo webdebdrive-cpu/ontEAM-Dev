@@ -128,7 +128,7 @@ $(document).ready(function(){
             recid       : _get('id'),
             get_statusz : Date.now()
         },
-        success: function(response){
+        success: function(response) {
             if(response.substring(0, 6)=='SESKIL'){ location.href = 'index.php'; }
             if(response){
                 response = JSON.parse(response);
@@ -137,6 +137,11 @@ $(document).ready(function(){
                     popupZar();
                     return false;
                 }
+            }
+        },
+        complete: function(xhr) {
+            if( xhr.status != 200 ) {
+                alert2(xhr.responseText, '', 'Hiba');
             }
         }
     });
@@ -163,6 +168,11 @@ $(document).ready(function(){
                 $('#setEgysegarTablazat').html(response.html);
                 $('select[name="egysk_oszlop"]').html(response.egysk_oszlop);
                 $('select[name="egysv_oszlop"]').html(response.egysv_oszlop);
+            }
+        },
+        complete: function(xhr) {
+            if( xhr.status != 200 ) {
+                alert2(xhr.responseText, '', 'Hiba');
             }
         }
     });
@@ -254,7 +264,12 @@ function egysegarMentes( that ) {
                         $('#tartalomJobb .fht-tbody').scrollTop($('#tr_ear_' + response.recid+'.kijelolve').position().top);
                     });
          		}
-         	}
+         	},
+            complete: function(xhr) {
+                if( xhr.status != 200 ) {
+                    alert2(xhr.responseText, '', 'Hiba');
+                }
+            }
         });
     }
 

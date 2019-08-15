@@ -2528,6 +2528,11 @@ require_once('selectek.php');
                                                     response = JSON.parse(response);
                                                     alert2(response.gomb+\'Biztosan törli ezt az anyagigénylést?\', gomb'.$_GET['id'].');
                                                 }
+                                            },
+                                            complete: function(xhr) {
+                                                if( xhr.status != 200 ) {
+                                                    alert2(xhr.responseText, \'\', \'Hiba\');
+                                                }
                                             }
                                         });
 

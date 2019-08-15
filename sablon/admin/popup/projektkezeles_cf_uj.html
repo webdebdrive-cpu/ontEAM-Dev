@@ -117,8 +117,8 @@ function projektkezeles_cf_uj() {
             tervek                  : JSON.stringify(tervek),
             projektkezeles_cf_uj    : Date.now()
         },
-        success: function(response){
-            if(response){
+        success: function(response) {
+            if( response ) {
                 response = JSON.parse(response);
                 if(response.hiba){
                     alert2(response.hiba, response.gomb, response.title);
@@ -133,6 +133,11 @@ function projektkezeles_cf_uj() {
                     szamlaBetolt( _get('id'), 'projektkezeles.php', 'cash_flow' );
                     popupZar();
                 }
+            }
+        },
+        complete: function(xhr) {
+            if( xhr.status != 200 ) {
+                alert2(xhr.responseText, '', 'Hiba');
             }
         }
     });

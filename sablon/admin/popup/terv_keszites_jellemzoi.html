@@ -29,7 +29,7 @@
                 ev          : $('#popup_ev').val(),
                 terv_keszit : Date.now()
             },
-            success: function(response){
+            success: function(response) {
                 if(response.substring(0, 6)=='SESKIL'){ location.href = 'index.php'; }
                 response = JSON.parse(response);
                 if( response.hiba ) {
@@ -39,6 +39,11 @@
                 }else{
                     szurkit();
                     location.href='energia_terv.php?modosit&id='+response.id;
+                }
+            },
+            complete: function(xhr) {
+                if( xhr.status != 200 ) {
+                    alert2(xhr.responseText, '', 'Hiba');
                 }
             }
         });

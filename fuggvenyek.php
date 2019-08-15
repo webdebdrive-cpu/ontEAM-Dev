@@ -2030,7 +2030,7 @@ function js_kiir($tomb, $fg = 'form_ell_regi()', $ajax = false) {
         $mod = 'false';
         $get_id = '';
         if( isset($_GET['modosit']) ) {
-            $mod = 'true';
+            $mod    = 'true';
             $get_id = '&amp;recid=\' + '.$_GET['id'].' + \'';
         }
 
@@ -2055,6 +2055,11 @@ function js_kiir($tomb, $fg = 'form_ell_regi()', $ajax = false) {
                             $(\'#szerk_form\').submit();
                         }
 
+                    },
+                    complete: function(xhr) {
+                        if( xhr.status != 200 ) {
+                            alert2(xhr.responseText, \'\', \'Hiba\');
+                        }
                     }
                 });
 
@@ -2352,6 +2357,11 @@ function js_kiir($tomb, $fg = 'form_ell_regi()', $ajax = false) {
                             $(\'#esnap_d\').val(response[\'esedekes\']);
                             return false;
 
+                        },
+                        complete: function(xhr) {
+                            if( xhr.status != 200 ) {
+                                alert2(xhr.responseText, \'\', \'Hiba\');
+                            }
                         }
                     });
                     return false;

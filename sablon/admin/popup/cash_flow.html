@@ -46,11 +46,16 @@ $(document).ready(function () {
                 egy_tobb        : 'egy',
                 f_pri_egytobb   : new Date().getTime()
             },
-            success: function(response){
+            success: function(response) {
                 if(response.substring(0, 6)=='SESKIL'){ location.href = 'index.php'; }
                 $('#cf_szalloda').replaceWith(response);
                 $('#telephely_id').focus();
                 $('.xdsoft_datetimepicker').hide();
+            },
+            complete: function(xhr) {
+                if( xhr.status != 200 ) {
+                    alert2(xhr.responseText, '', 'Hiba');
+                }
             }
         });
     }
@@ -83,7 +88,7 @@ function addCashFlow() {
         data: {
             get_datum   : Date.now()
         },
-        success: function(szerver_datum){
+        success: function(szerver_datum) {
             
             // Dátum nem múltbeli-e?
             if( datum<szerver_datum ){
@@ -118,6 +123,11 @@ function addCashFlow() {
             $('#mehet_gomb').removeAttr('disabled').addClass('gombb_alert');
 
             formModositva = true;
+        },
+        complete: function(xhr) {
+            if( xhr.status != 200 ) {
+                alert2(xhr.responseText, '', 'Hiba');
+            }
         }
     });
 

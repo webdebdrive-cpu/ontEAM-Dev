@@ -302,6 +302,11 @@ require_once('selectek.php');
                             }
 
                         }
+                    },
+                    complete: function(xhr) {
+                        if( xhr.status != 200 ) {
+                            alert2(xhr.responseText, \'\', \'Hiba\');
+                        }
                     }
                 });
             }

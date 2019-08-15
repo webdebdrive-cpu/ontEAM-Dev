@@ -33,8 +33,13 @@ $(document).ready(function(){
         },
         success: function(response) {
             if(response.substring(0, 6)=='SESKIL'){ location.href = 'index.php'; }
-            if(response) {
+            if( response ) {
                 $('#addSzallodak').html(response);
+            }
+        },
+        complete: function(xhr) {
+            if( xhr.status != 200 ) {
+                alert2(xhr.responseText, '', 'Hiba');
             }
         }
     });

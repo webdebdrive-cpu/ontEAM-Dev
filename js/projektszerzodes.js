@@ -45,6 +45,11 @@ function pr_hozzaad_gomb_hozzaad_vagy_torol (){
                 }
                 
             }
+        },
+        complete: function(xhr) {
+            if( xhr.status != 200 ) {
+                alert2(xhr.responseText, '', 'Hiba');
+            }
         }
     });
     
@@ -98,6 +103,11 @@ function jotallas_dok_torol ( recid, mehet ) {
                     } else {
                         szamlaBetolt(_get('id'), 'projektszerzodes.php', 'jotallas');
                     }
+                }
+            },
+            complete: function(xhr) {
+                if( xhr.status != 200 ) {
+                    alert2(xhr.responseText, '', 'Hiba');
                 }
             }
         });

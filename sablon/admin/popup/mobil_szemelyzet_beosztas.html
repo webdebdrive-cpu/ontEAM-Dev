@@ -33,7 +33,7 @@
             data: {
                 beosztasok_lekerdez   : new Date().getTime()
             },
-            success: function(response){
+            success: function(response) {
                 if(response.substring(0, 6)=='SESKIL'){ location.href = 'index.php'; }
                 response = JSON.parse(response);
                 $('#beosztas_nelkul').html(response.x);
@@ -41,6 +41,11 @@
                 $('.mobil_csop_b').html(response.b);
                 $('.mobil_csop_cn').html(response.cn);
                 $('.mobil_csop_d').html(response.d);
+            },
+            complete: function(xhr) {
+                if( xhr.status != 200 ) {
+                    alert2(xhr.responseText, '', 'Hiba');
+                }
             }
         });
     });
@@ -102,9 +107,14 @@
                 d_csop                      : d_csop,
                 mobil_beosztas_login_ment   : new Date().getTime()
             },
-            success: function(response){
+            success: function(response) {
                 if(response.substring(0, 6)=='SESKIL'){ location.href = 'index.php'; }
                 popupZar();
+            },
+            complete: function(xhr) {
+                if( xhr.status != 200 ) {
+                    alert2(xhr.responseText, '', 'Hiba');
+                }
             }
         });
     }

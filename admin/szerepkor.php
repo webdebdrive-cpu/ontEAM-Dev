@@ -487,6 +487,11 @@ require_once('selectek.php');
 
                                                 szurkit_zar();
                                                 formAdatok = JSON.parse(response);
+                                            },
+                                            complete: function(xhr) {
+                                                if( xhr.status != 200 ) {
+                                                    alert2(xhr.responseText, \'\', \'Hiba\');
+                                                }
                                             }
                                         });
                                         return false;

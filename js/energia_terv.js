@@ -45,7 +45,12 @@ function addSzallodaEnergia( recid, that ) {
                     });
 
          		}
-         	}
+         	},
+            complete: function(xhr) {
+                if( xhr.status != 200 ) {
+                    alert2(xhr.responseText, '', 'Hiba');
+                }
+            }
         });
     }
 
@@ -80,6 +85,11 @@ function terv_elesites(mehet) {
                         szamlaSorFrissit(baseName(location.href), response.kesz_id);
                     }
                     popupZar();
+                }
+            },
+            complete: function(xhr) {
+                if( xhr.status != 200 ) {
+                    alert2(xhr.responseText, '', 'Hiba');
                 }
             }
         });
@@ -125,6 +135,11 @@ function uj_egysegar(){
                         $('#tartalomJobb .fht-tbody').scrollTop($('#tartalomJobb .fht-tbody').prop('scrollHeight'));
                     });
                 }
+            },
+            complete: function(xhr) {
+                if( xhr.status != 200 ) {
+                    alert2(xhr.responseText, '', 'Hiba');
+                }
             }
         });
     }
@@ -168,6 +183,11 @@ function uj_egysegar_szallodak(that){
                         $('#tr_ear_' + response.recid).addClass('kijelolve');
                     });
                 }
+            },
+            complete: function(xhr) {
+                if( xhr.status != 200 ) {
+                    alert2(xhr.responseText, '', 'Hiba');
+                }
             }
         });
     }else{
@@ -210,6 +230,11 @@ function egysegar_sor_torol(mehet){
                     szamlaBetolt( _get('id'), baseName(location.href) + '.php', 'egysegarak' );
                 }
             }
+        },
+        complete: function(xhr) {
+            if( xhr.status != 200 ) {
+                alert2(xhr.responseText, '', 'Hiba');
+            }
         }
     });
 }
@@ -241,6 +266,11 @@ function energiaterv_veglegesit(mehet){
                 }
                 szurkit();
                 szamlaBetolt(_get('id'), baseName(location.href) + '.php', 'modosit');
+            }
+        },
+        complete: function(xhr) {
+            if( xhr.status != 200 ) {
+                alert2(xhr.responseText, '', 'Hiba');
             }
         }
     });

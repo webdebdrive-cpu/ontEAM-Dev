@@ -75,6 +75,11 @@ function prsz_hozzaad_gomb_hozzaad_vagy_torol() {
                     }
                 }
             }
+        },
+        complete: function(xhr) {
+            if( xhr.status != 200 ) {
+                alert2(xhr.responseText, '', 'Hiba');
+            }
         }
     });
 }

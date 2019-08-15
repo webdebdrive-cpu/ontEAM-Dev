@@ -38,6 +38,11 @@
                             o_szures_gomb_mutat();
                         }
 
+                    },
+                    complete: function(xhr) {
+                        if( xhr.status != 200 ) {
+                            alert2(xhr.responseText, '', 'Hiba');
+                        }
                     }
                 });
             });

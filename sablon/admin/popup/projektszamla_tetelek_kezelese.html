@@ -215,6 +215,11 @@ function tetel_sorok_ment( bezar_nelkul ){
 
                 }
             }
+        },
+        complete: function(xhr) {
+            if( xhr.status != 200 ) {
+                alert2(xhr.responseText, '', 'Hiba');
+            }
         }
     });
 
@@ -262,9 +267,9 @@ function pop_tetelek_feltolt(){
             kcs_21              : kcs_21,
             pop_tetelek_feltolt : Date.now()
         },
-        success: function(response){
+        success: function(response) {
             if(response.substring(0, 6)=='SESKIL'){ location.href = 'index.php'; }
-            if(response){
+            if( response ) {
                 response = JSON.parse(response);
                 
                 if(response.hiba){
@@ -284,6 +289,11 @@ function pop_tetelek_feltolt(){
                     $('#projekt_tetelek').html(response.pr_tetelek);
                 }
                 tetelek_kiszamol();
+            }
+        },
+        complete: function(xhr) {
+            if( xhr.status != 200 ) {
+                alert2(xhr.responseText, '', 'Hiba');
             }
         }
     });

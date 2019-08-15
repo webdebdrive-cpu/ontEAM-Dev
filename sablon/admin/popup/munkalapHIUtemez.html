@@ -46,9 +46,9 @@ function munkalapHIUtemez(){
             datum               : $('#hatarido_datum').val(),
             munkalapHIUtemez    : new Date().getTime()
         },
-        success: function(response){
+        success: function(response) {
             if(response.substring(0, 6)=='SESKIL'){ location.href = 'index.php'; }
-            if(response){
+            if( response ) {
                 response = JSON.parse(response);
 
                 if( response.hiba ) {
@@ -59,6 +59,11 @@ function munkalapHIUtemez(){
                 szamlaSorFrissit('munkalap', _get('id'));
                 szamlaBetolt(_get('id'), 'munkalap.php', 'modosit');
                 popupZar();
+            }
+        },
+        complete: function(xhr) {
+            if( xhr.status != 200 ) {
+                alert2(xhr.responseText, '', 'Hiba');
             }
         }
     });

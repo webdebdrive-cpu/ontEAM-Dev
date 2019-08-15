@@ -93,7 +93,7 @@ $(document).ready(function(){
             recid       : _get('id'),
             get_statusz : Date.now()
         },
-        success: function(response){
+        success: function(response) {
             if(response.substring(0, 6)=='SESKIL'){ location.href = 'index.php'; }
             if(response){
                 response = JSON.parse(response);
@@ -102,6 +102,11 @@ $(document).ready(function(){
                     popupZar();
                     return false;
                 }
+            }
+        },
+        complete: function(xhr) {
+            if( xhr.status != 200 ) {
+                alert2(xhr.responseText, '', 'Hiba');
             }
         }
     });
@@ -128,6 +133,11 @@ $(document).ready(function(){
                 $('#egysegarsor_id').val(id);
                 $('#setEgysegarTablazat').html(response.html);
                 $('#setEgysegarTablazat input, #setEgysegarTablazat select').first().select().focus();
+            }
+        },
+        complete: function(xhr) {
+            if( xhr.status != 200 ) {
+                alert2(xhr.responseText, '', 'Hiba');
             }
         }
     });
@@ -198,7 +208,12 @@ function energia_tabla_ment( that ) {
                         $('#tartalomJobb .fht-tbody').scrollTop($('#ft_em_' + response.recid).position().top);
                     });
          		}
-         	}
+         	},
+            complete: function(xhr) {
+                if( xhr.status != 200 ) {
+                    alert2(xhr.responseText, '', 'Hiba');
+                }
+            }
         });
     }
 

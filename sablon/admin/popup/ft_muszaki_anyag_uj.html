@@ -93,15 +93,20 @@
                 recid       : _get('id'),
                 get_statusz : Date.now()
             },
-            success: function(response){
+            success: function(response) {
                 if(response.substring(0, 6)=='SESKIL'){ location.href = 'index.php'; }
-                if(response){
+                if( response ) {
                     response = JSON.parse(response);
                     if( response.hiba ) {
                         alert2(response.hiba, response.gomb, response.title);
                         popupZar();
                         return false;
                     }
+                }
+            },
+            complete: function(xhr) {
+                if( xhr.status != 200 ) {
+                    alert2(xhr.responseText, '', 'Hiba');
                 }
             }
         });
@@ -117,7 +122,7 @@
                 get_muszaki_tabla   : new Date().getTime()
             },
             success: function(response) {
-                if(response) {
+                if( response ) {
                     response = JSON.parse(response);
 
                     if( response.hiba ) {
@@ -129,6 +134,11 @@
                     $('#egysegarsor_id').val(id);
                     $('#setEgysegarTablazat').html(response.html);
                     $('#setEgysegarTablazat input, #setEgysegarTablazat select').first().select().focus();
+                }
+            },
+            complete: function(xhr) {
+                if( xhr.status != 200 ) {
+                    alert2(xhr.responseText, '', 'Hiba');
                 }
             }
         });
@@ -180,7 +190,7 @@ function muszaki_tabla_ment( that ) {
          	type: 'POST',
          	data: $(that).serialize() + esamp2es('&amp;uj='+_get('id')+'&amp;id='+_get('id')+'&amp;muszaki_tabla_ment=') + new Date().getTime(),
          	success: function(response) {
-         		if(response) {
+         		if( response ) {
          			response = JSON.parse(response);
 
          			if( response.hiba ) {
@@ -198,7 +208,12 @@ function muszaki_tabla_ment( that ) {
                         $('#tartalomJobb .fht-tbody').scrollTop($('#ft_ft_' + response.recid).position().top);
                     });
          		}
-         	}
+         	},
+            complete: function(xhr) {
+                if( xhr.status != 200 ) {
+                    alert2(xhr.responseText, '', 'Hiba');
+                }
+            }
         });
     }
 
