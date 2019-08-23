@@ -1150,7 +1150,7 @@ function get_kulso_hozzarendeles_input_tartalmak(){
         }
     });
     
-    /* ML adatainak elkérdezése */
+    /* ML adatainak lekérdezése */
     $.ajax({
         url : 'munkalap.php',
         type: 'POST',

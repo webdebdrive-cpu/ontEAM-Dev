@@ -83,7 +83,7 @@ class Weblap{
     /**
     * @desc Tulajdonásgok ellenőrzése, kezdeti beállítások végrehajtása (pl.: nyelvfigyelés, adatbázis létrehozása ha kell)
     */	
-	public function indit(){
+	public function indit() {
 		
 		if( !$this -> domain        || $this -> domain == 'www.domain.hu'   ){ header('Content-Type: text/html; charset=UTF-8'); echo 'Még nincs beállítva a hivatalos domain név, az oldal nem indítható. config.php-ban pótold!';   exit(); }
 		if( !$this -> mail          || $this -> mail   == 'info@domain.hu'  ){ header('Content-Type: text/html; charset=UTF-8'); echo 'Még nincs beállítva a hivatalos e-mail cím, az oldal nem indítható. config.php-ban pótold!';   exit(); }
@@ -92,21 +92,21 @@ class Weblap{
         if( !$this -> alap_nyelv                                            ){ header('Content-Type: text/html; charset=UTF-8'); echo 'Még nincs beállítva az oldal nyelve, így az nem indítható. config.php-ban pótold!';            exit(); }
         if( get_country() == ''                                             ){ header('Content-Type: text/html; charset=UTF-8'); echo 'Még nincs beállítva az alap Country. config.php-ban pótold!ó, magyar oldal esetén Hungary!';   exit(); }
 		
-		//Ha sessiont használunk vagy nyelvet, akkor session_start
+		// Ha sessiont használunk vagy nyelvet, akkor session_start
 		if( ($this -> session || $this -> nyelvek ) && !isset( $_SESSION ) ){
-            if($_COOKIE['sess_id']){
+            if( isset($_COOKIE['sess_id']) && $_COOKIE['sess_id'] ) {
                 session_id($_COOKIE['sess_id']);
             }
             session_start();
         }
 		
 		//Ha a nyelvek tömb nem üres, akkor többnyelvű az oldal => $_GET[nyelv figyelése]
-		if( $this -> nyelvek ){
+		if( $this->nyelvek ) {
+
+            if(!$this -> alap_nyelv){ echo 'Többnyelvű oldal esetén az alapértelmezett nyelv megadása kötelező!'; exit(); }
 			
-			if(!$this -> alap_nyelv){ echo 'Többnyelvű oldal esetén az alapértelmezett nyelv megadása kötelező!'; exit(); }
-			
-			if(isset($_GET['nyelv'])){
-				$_SESSION['nyelv'] = $_GET['nyelv'];
+            if( isset($_GET['nyelv']) ) {
+                $_SESSION['nyelv'] = $_GET['nyelv'];
 			}
 			
 			//Ha a nyelv detektálása megengedett és még nincs elfogadott értéke a $_SESSION['nyelv']-nek

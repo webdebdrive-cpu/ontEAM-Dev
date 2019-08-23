@@ -127,14 +127,14 @@ function a_az($szo, $nagybetus = false){
     if(in_array($elso, $mgnhangzok)){
         if($nagybetus){
             return 'Az';
-        }else{
+        } else {
             return 'az';
         }
         
-    }else{
+    } else {
         if($nagybetus){
             return 'A';
-        }else{
+        } else {
             return 'a';
         }
     }
@@ -243,7 +243,7 @@ function byte_konvertal($bytes){
         $size = number_format($size, 2);
         $size .= ' KB';
         
-    }else{
+    } else {
         
         if($size / 1024 < 1024){
             
@@ -347,7 +347,7 @@ function csv_ellenorzes_letolt($string, $idezojel_szur = '', $nullas_betu_egyenl
     if(strstr($string, '"')){
         if($idezojel_szur){
             $string = str_replace('"', '', $string);
-        }else{
+        } else {
             $string = str_replace('"', '""', $string);
         }
     }
@@ -398,7 +398,7 @@ function cron(){
             //Ha nincs utolsó időpont megadva, akkor elsőre futtassuk le
             if($utolso_ido){
                 $utolso_ido = date2int( $utolso_ido);
-            }else{
+            } else {
                 $utolso_ido = time()-$szorzat-1;
             }
             
@@ -408,7 +408,7 @@ function cron(){
                     
                     $uj_fajl .= $sor."\n";
                     
-                }else{
+                } else {
                     
                     list($alap_fajl, $getek) = explode('?', $php_fajl);
                     if(is_file($alap_fajl)){
@@ -423,16 +423,16 @@ function cron(){
                             }
                             $uj_fajl .= $php_fajl.'|'.$gyakorisag.'|'.date('Y-m-d H:i:s', $utolso_ido-$szorzat)."\n";
 
-                        }else{
+                        } else {
                             $uj_fajl .= $sor."\n";
                         }
-                    }else{
+                    } else {
                         $uj_fajl .= 'NEM_TALALHATO!_'.$php_fajl.'|'.$gyakorisag.'|'.date('Y-m-d H:i:s', $utolso_ido)."\n";
 
                     }
                 }
 
-            }else{
+            } else {
                 //$uj_fajl .= "\n";
             }
         }
@@ -491,7 +491,7 @@ function date_formaz($datum, $nyelv = ''){
         
         return (int)$nap.' '.$honap[(int)$ho].' '.$ev;
         
-    }else{
+    } else {
         
         $honap = array('','január','február','március','április','május','június','július','augusztus','szeptember','október','november','december');
         list($ev, $ho, $nap) = explode('-', $datum);
@@ -522,7 +522,7 @@ function din_list($tabla, $oszlop, $inputnev, $php_fajl, $value = '', $id_kell =
     if($id_kell){
     	$return = '<input class="normal" type="text" name="'.$inputnev.'" id="'.$inputnev.'" value="'.$value.'" placeholder="'.$placeholder.'" onkeyup="ajax_showOptions(this,\'szukit\',event,\''.$tabla.'\',\''.$oszlop.'\',\''.$php_fajl.'\',\''.$onclickre_aktiv.'\')" onfocus="this.setAttribute( \'autocomplete\', \'off\' ); if(this.value==\''.$default.'\'){ this.value=\'\'; }" onblur="if(this.value==\'\'){ this.value=\''.$default.'\'; }" style="width: 12rem" /><input type="hidden" id="'.$inputnev.'_hidden" name="'.$inputnev.'" />';
     	$return .= '<'.str_replace('#', '', 's#cript').' type="text/javascript">$(\'#'.$inputnev.'\').attr(\'autocomplete\', \'off\');</script>';
-    }else{
+    } else {
     	$return = '<input class="normal" type="text" name="'.$inputnev.'" id="'.$inputnev.'" value="'.$value.'" placeholder="'.$placeholder.'" onkeyup="ajax_showOptions(this,\'szukit\',event,\''.$tabla.'\',\''.$oszlop.'\',\''.$php_fajl.'\',\''.$onclickre_aktiv.'\')" onfocus="this.setAttribute( \'autocomplete\', \'off\' ); if(this.value==\''.$default.'\'){ this.value=\'\'; }" onblur="if(this.value==\'\'){ this.value=\''.$default.'\'; }" style="width: 12rem" /><input type="hidden" id="'.$inputnev.'_hidden" name="'.$inputnev.'_hidden" />';
     	$return .= '<'.str_replace('#', '', 's#cript').' type="text/javascript">$(\'#'.$inputnev.'\').attr(\'autocomplete\', \'off\');</script>';
     }
@@ -551,8 +551,8 @@ function dupla_szokoz_mentesit($string){
 *
 *	@return string: (hibaüzenet) vagy semmi
 */
-function fajlba_mentes($utvonal, $tartalom){
-	if (!$handle = @fopen($utvonal, 'w+')) {
+function fajlba_mentes($utvonal, $tartalom) {
+    if (!$handle = @fopen($utvonal, 'w+')) {
 	     return 'A(z) '.$utvonal.' fájl létrehozása nem sikerült!';
 	}
 	
@@ -575,9 +575,9 @@ function fajlba_mentes($utvonal, $tartalom){
 */
 function fajlbol_olvas($path, $tomorit = false, $data_uri = false, $komment_szur = false){
 
-    if($tomorit){
+    if( $tomorit ) {
 
-	    //A cache könyvtárban alkönyvtárakat is létrehozunk ha még nem léteznének (így pl többnyelűsítéskor nincs felülírás)
+        //A cache könyvtárban alkönyvtárakat is létrehozunk ha még nem léteznének (így pl többnyelűsítéskor nincs felülírás)
         $mit     = array('sablon/', '../'); //A sablon könyvtárat illetve a ../-t ki ki kell venni az elérési útvonalból
         $mivel   = array('',        '');
 	    $utvonal = str_replace($mit, $mivel, $path);
@@ -590,7 +590,7 @@ function fajlbol_olvas($path, $tomorit = false, $data_uri = false, $komment_szur
 	        if($konyvtar!='..' && $i<$db-1){
                 $akt_utvonal .= $konyvtar.'/';
 
-                if(!is_dir($akt_utvonal)){
+                if( !is_dir($akt_utvonal) ) {
                     mkdir($akt_utvonal);
                 }
             }
@@ -602,7 +602,7 @@ function fajlbol_olvas($path, $tomorit = false, $data_uri = false, $komment_szur
             $ret = fajlbol_olvas(get_utvonal().'cache/'.$utvonal);
             
         //Egyébként vagy nem létezett, vagy ha létezett, de újabb az eredeti JS, akkor újraolvassuk, tömörítjük
-        }else{
+        } else {
 
             unlink(get_utvonal().'cache/'.$utvonal);
             $handle = @fopen($path, "r");
@@ -636,7 +636,7 @@ function fajlbol_olvas($path, $tomorit = false, $data_uri = false, $komment_szur
 
         }
         
-	}else{
+	} else {
 	    
 	    if(is_file($path) && filesize($path)){
         	$handle = @fopen($path, "r");
@@ -714,7 +714,7 @@ function fajlnev_keszit($string, $ekezet_marad = false){
 	if(strrpos($string,'.')){
 		$kit    = mb_strtolower( mb_substr($string, mb_strrpos($string,'.'), mb_strlen($string)) );	// Elmentjük a kiterjesztést ha van
 		$string = mb_strtolower( mb_substr($string, 0, mb_strrpos($string,'.')) );                  // Levesszük a kiterjesztést ha van
-	}else{
+	} else {
 		$kit    = '';                           // Nincs kiterjesztés
 		$string = mb_strtolower( $string );     // Levesszük a kiterjesztést ha van
 	}
@@ -760,7 +760,7 @@ function fajlnev_sorszamoz($string){
 		$szam = substr( $string, $_poz+1, strlen($string) );
 		$szam = number_format($szam)+1;
 		$string = $_ig.'_'.$szam;
-	}else{
+	} else {
 		$string.='_1';
 	}
 
@@ -825,10 +825,10 @@ function get_get($kivetel=array(), $amp=false){
         if(!in_array($url,$kivetel)){
 			if($i==0){
                 $cim  = '?'.$url.'='.$ertek;
-            }else{
+            } else {
                 if($amp){
                     $cim .= '&'.$url.'='.$ertek;
-                }else{
+                } else {
                     $cim .= '&amp;'.$url.'='.$ertek;
                 }
             }
@@ -858,7 +858,7 @@ function get_get_order($order){
 		if($url != 'nodesc' && $url != 'desc' && $url != 'order' && $url != 'unset'){
 			if($i==0){
 				$cim .= '?'.$url.'='.$ertek;
-			}else{
+			} else {
 				$cim .= '&amp;'.$url.'='.$ertek;
 			}
 			$i++;
@@ -867,14 +867,14 @@ function get_get_order($order){
 	
 	if(!$cim){
 		$cim .= '?order=';
-	}else{
+	} else {
 		$cim .= '&amp;order=';
 	}
 	$cim .= $order;
 	
 	if(!isset($_GET['desc']) && $_GET['order'] == $order){
 		$cim .= '&amp;desc';
-	}else{
+	} else {
 		$cim .= '&amp;nodesc';
 	}
 	return $cim;
@@ -890,7 +890,7 @@ function hd($string = ''){
     $weblap -> leallit();
     if($string){
         header('Location:'.$string);
-    }else{
+    } else {
         header('Location:'.self());
     }
 	exit();
@@ -1199,7 +1199,7 @@ function is_valid_mail_tobb($email_cimek, $hibauzenettel){
                 }
                 
             // Ha csak az általános e-mailcím viszgálót szeretnénk lefuttatni több címre
-            }else{
+            } else {
                 if( !is_valid_mail($cim) ){
                     return false;
                 }
@@ -1211,7 +1211,7 @@ function is_valid_mail_tobb($email_cimek, $hibauzenettel){
     // Ha hibaüzenettel kell visszatérjen a függvény, akkor a false lesz a visszatérés helyes mailcím esetln
     if( $hibauzenettel ){
         return false;
-    }else{
+    } else {
         return true;
     }
     
@@ -1279,7 +1279,7 @@ if(!is_file($ell_fajl)){
     }
 
 //Egy napon max egyszer jöjjön értesítés
-}else{
+} else {
     
     if(filemtime($ell_fajl)<time()-60*60*24){
         unlink($ell_fajl);
@@ -1320,7 +1320,7 @@ function kep_forgat($utvonal, $szazalek = -90){
             imagepng($rotate, $utvonal);
             
         //Más képformátumok
-        }else{
+        } else {
             
             $data       = fread(fopen($utvonal, 'rb'), filesize($utvonal));
             $src_img    = @imagecreatefromstring($data);
@@ -1336,7 +1336,7 @@ function kep_forgat($utvonal, $szazalek = -90){
         //Töröljük az összes thumbnailját is
         remover(substr($utvonal, 0, strrpos($utvonal, '.')).'_*');
         return $utvonal;
-    }else{
+    } else {
         return false;
     }
 }
@@ -1432,7 +1432,7 @@ function konyvtar_bejar($utvonal, $kivetelek = array()){
         }
         closedir($konyvtar);
         return $konyvtar_bejar_utvonalak;
-    }else{
+    } else {
         return false;
     }
 }
@@ -1513,7 +1513,7 @@ function kulcs_rendez($tomb, $kulcs) {
     		$c[] = $tomb[$key];
     	}
     	return $c;
-	}else{
+	} else {
         return array();
     }
 }
@@ -1563,7 +1563,7 @@ function level_kuldes( $felado_nev, $felado_mail, $cimzett_nev, $cimzett_mail, $
             foreach($fajlok as $fajl){
                 if($fajl['nev'] && $fajl['fajl']){
                     $mail -> AddAttachment($fajl['fajl'], $fajl['nev']);
-                }else{
+                } else {
                     $mail -> AddAttachment($fajl);
                 }
             }
@@ -1808,7 +1808,7 @@ function mail_img2cid($html, $mail, $cimzett_mail){
                     $x1 = substr($x1, 2);
                 }
                 $html = str_replace('cid:'.$x2, get_http().get_domain().$x1, $html);
-            }else{
+            } else {
         		if(!in_array($x1, $csatolva_volt)){
                     $mail -> AddEmbeddedImage($x1, $x2, $x3, 'base64', 'image/jpeg');
                     array_push($csatolva_volt, $x1);
@@ -2047,7 +2047,7 @@ function minify_css($css, $px_verzio_is = false){
         
         if( css_img() ){
             return css_img_data($uj_css);
-        }else{
+        } else {
             return $uj_css;
         }
     }
@@ -2220,7 +2220,7 @@ $szoveg = strip_tags($szoveg);
             $tmp .= ' ...';
         }
         
-    }else{
+    } else {
         $tmp = $szoveg;
     }
     
@@ -2263,7 +2263,7 @@ function sablon_gyar($sablon_fajl, $sajat_mit = '', $sajat_mivel = '', $data_uri
         }
 
     //Egyébként mind a két tömböt figyeljük, ha kell globálisan figyelve a $mit-$mivel változókat => ettől leszünk visszafelé kompatibilisek
-    }else{
+    } else {
         global $mit;
         global $mivel;
         if(!$sajat_mit)  { $sajat_mit   = $mit;   }
@@ -2305,7 +2305,7 @@ function self(){
 function self_sablon_nev($nyev_figyeles){
     if($nyev_figyeles){
         return str_replace('.php', '', basename($_SERVER['PHP_SELF'])).'_'.$_SESSION['nyelv'].'.html';
-    }else{
+    } else {
         return str_replace('php', '', basename($_SERVER['PHP_SELF'])).'html';
     }
 }
@@ -2332,7 +2332,7 @@ function sql_dump($kiir){
             if($kiir){
                 echo 'DROP TABLE IF EXISTS `'.$table.'`;'."\r\n";
                 echo $d[1]."\r\n";
-            }else{
+            } else {
                 $SQL[] = 'DROP TABLE IF EXISTS `'.$table.'`;'."\r\n".$d[1];
             }
             
@@ -2342,7 +2342,7 @@ function sql_dump($kiir){
             while ($fetch_row = mysql_fetch_array($table_query)){
                 if($kiir){
                     echo 'INSERT INTO `'.$table.'` VALUES(';
-                }else{
+                } else {
                     $insert_sql .= 'INSERT INTO `'.$table.'` VALUES(';
                 }
                 
@@ -2356,7 +2356,7 @@ function sql_dump($kiir){
                 if($kiir){
                     $resz_sql = substr($resz_sql, 0, -2);
                     echo $resz_sql .= ');'."\r\n";
-                }else{
+                } else {
                     $insert_sql = substr($insert_sql, 0, -2);
                     $insert_sql .= ');'."\r\n";
                 }
@@ -2364,7 +2364,7 @@ function sql_dump($kiir){
             if ($insert_sql){
                 if($kiir){
                     echo "\r\n";
-                }else{
+                } else {
                     $SQL[] = $insert_sql;
                 }
             }
@@ -2510,7 +2510,7 @@ function string2html($string, $kep_szelesseg = 200, $ne_linkesits = false, $ujso
                         $html .= $ujsor.'<table>'.$ujsor;
                         $tablazat_nyitva = true;
                     }
-                }else{
+                } else {
                     if($tablazat_nyitva){
                         $html .= '</table>'.$ujsor;
                         $tablazat_nyitva = false;
@@ -2523,7 +2523,7 @@ function string2html($string, $kep_szelesseg = 200, $ne_linkesits = false, $ujso
                         $html .= $ujsor.'<ul>'.$ujsor;
                         $lista_nyitva = true;
                     }
-                }else{
+                } else {
                     if($lista_nyitva){
                         $html .= '</ul>'.$ujsor;
                         $lista_nyitva = false;
@@ -2539,7 +2539,7 @@ function string2html($string, $kep_szelesseg = 200, $ne_linkesits = false, $ujso
     				    $oszlop = trim($oszlop);
     				    if( substr($oszlop,0,1) == '!' ){
                             $html .= '<th class="t'.($i%2).'">'.substr($oszlop,1,strlen($oszlop)).'</th>'.$ujsor;
-                        }else{
+                        } else {
                             $html .= '<td class="t'.($i%2).'">'.$oszlop.'</td>'.$ujsor;
                         }
     				}
@@ -2550,7 +2550,7 @@ function string2html($string, $kep_szelesseg = 200, $ne_linkesits = false, $ujso
                     
                     $html .= '<li>'.substr($sor,1,strlen($sor)).'</li>'.$ujsor;
                     
-                }else{
+                } else {
                     
                     //Címsorok
                     if(      substr($sor,0,6) == '!!!!!!' ){
@@ -2565,7 +2565,7 @@ function string2html($string, $kep_szelesseg = 200, $ne_linkesits = false, $ujso
                         $html .= $ujsor.'</p><h2>'.substr($sor,2,strlen($sor)).'</h2><p>'.$ujsor;
                     }elseif( substr($sor,0,1) == '!'    ){
                         $html .= $ujsor.'</p><h1>'.substr($sor,1,strlen($sor)).'</h1><p>'.$ujsor;
-                    }else{
+                    } else {
                         $html .= '<br>'.$sor.$ujsor;
                     }
                 }
@@ -2573,7 +2573,7 @@ function string2html($string, $kep_szelesseg = 200, $ne_linkesits = false, $ujso
 				$i++;
 			
             //Üressorból sortörést kell készíteni
-            }else{
+            } else {
                 //Ha már az előző ciklusban is üres sor volt, akkor teszünk bele egy &nbsp;-t, ebből így <p>&nbsp;</p>-k fognak keletkezni
                 if($uressor_volt){
                     $html .= '&nbsp;';
@@ -2665,7 +2665,7 @@ function szukites($akt_tomb, $megnevezes, $felirat = 'Szűkítés', $where = '',
                             }
                         }
                         
-                    }else{
+                    } else {
                         
                     
                         $lekerdez  = mysqli_query($db_kapcs, 'SELECT DISTINCT `'.$ertek['name'].'` FROM `'.get_db_tabla().$megnevezes.'`'.$where.' ORDER BY `'.$ertek['name'].'`');
@@ -2899,7 +2899,7 @@ function zip_becsomagol($fajlok = array(), $celfajl = ''){
 		
 		return file_exists($celfajl);
 	
-    }else{
+    } else {
 	   
 		return false;
 	}
@@ -2922,14 +2922,14 @@ function zip_kicsomagol($zip_fajl, $celkonyvtar, $fajlokat = array()){
         
         if($fajlokat){
             $zip -> extractTo($celkonyvtar, $fajlokat);
-        }else{
+        } else {
             $zip -> extractTo($celkonyvtar);
         }
         
         $zip -> close();
         return true;
         
-    }else{
+    } else {
         
         return false;
         

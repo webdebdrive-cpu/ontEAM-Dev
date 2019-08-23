@@ -249,7 +249,7 @@ if( isset($_POST['projekt_keszre']) ) {
     $db_error = false;
     mysqli_autocommit($db_kapcs, false);
     
-    $sor = $adatbazis_kapcsolat->s2('stat_id', 'projektkezeles', "`recid`='{$recid}'");
+    $sor = $adatbazis_kapcsolat->s2('stat_id ikt_szam', 'projektkezeles', "`recid`='{$recid}'");
     if( $sql === false ) { $db_error = true; }
     
     // Státusz ellenőrzése
@@ -274,9 +274,15 @@ if( isset($_POST['projekt_keszre']) ) {
         exit();
     }
     
-    // Van-e már csatolt Átadási Jk. dokumentum
-    $van_dok = $adatbazis_kapcsolat->s2('recid', 'projektkezeles_dok', "`projektkezeles_id`='{$recid}' AND `tipus`='".EL_DOK_TIPUS_ATADASI."'", '', '1');
-    if( $van_dok === false ) { $db_error = true; }
+    // Van-e már csatolt Átadási. jk. dokumentum
+    $szerzodesek = $adatbazis_kapcsolat->s('recid', 'projektszerzodes', "`pr_szam`='{$sor['ikt_szam']}'");
+    $szerzodesek = adatbazis2tomb($szerzodesek, 'recid');
+
+    $van_dok = '';
+    if( $szerzodesek ) {
+        $van_dok = $adatbazis_kapcsolat->s2('recid', 'projektszerzodes_dok', "`projektszerzodes_id` IN (".implode(', ', $szerzodesek).")  AND `tipus`='".EL_DOK_TIPUS_ATADASI."'", '', '1');
+    }
+    
     if(!$van_dok){
         echo json_encode(array(
             'hiba'  => 'Előbb csatoljon egy Átadási. jk. Dokumentumot a projekthez!',
@@ -1718,7 +1724,7 @@ require_once('selectek.php');
         $statuszok = array(PRKEZEL_STAT_FOLYAMATBAN);
         if( in_array($sor['stat_id'], $statuszok) && get_projekt_kezeles_jog($_GET['id']) ) {
             
-            // Van-e már csatolt szerződés dokumentum
+            // Van-e már csatolt Átadási. jk. dokumentum
             $szerzodesek = $adatbazis_kapcsolat->s('recid', 'projektszerzodes', "`pr_szam`='{$sor['ikt_szam']}'");
             $szerzodesek = adatbazis2tomb($szerzodesek, 'recid');
 
