@@ -24,7 +24,8 @@ $szamla_html = '';
 
 // Dokumentumok fülhöz kell majd
 $tobb_kep = true;
-if($tobb_kep){
+if( $tobb_kep ) {
+
     function get_tobbkep_darab()    { return 10;        } // Maximum hány kép tallózható be
     function get_tobbkep_csakkep()  { return '';        } // Milyen kiterjesztéseket engedünk meg (ha mindenet, legyen üres)
     function get_tobbkep_kepmeret() { return 10;        } // MB-ban
@@ -93,8 +94,8 @@ if( isset($_POST['projektkezeles_ujranyit']) ) {
 }
 
 // Léptetés Előkészítés alatt státuszba
-if (isset($_POST['projekt_elokeszites_ala'])) {
-    
+if( isset($_POST['projekt_elokeszites_ala']) ) {
+
     $recid = $_POST['recid'];
     
     $db_error = false;
@@ -1358,6 +1359,173 @@ if( isset($_POST['dokumentumok_kibont']) ) {
     exit();
 }
 
+// Dokumentumok küldése
+if( isset($_POST['dokumentumKuldeseTeamTagoknak']) ) {
+    
+    $recid              = $_POST['recid'];
+    $emailkuldes_megj   = '';
+    
+    $db_error = false;
+    mysqli_autocommit($db_kapcs, false);
+
+    if( $recid ) {
+        
+        // Címzettek ellenőrzése
+        if( !trim($_POST['cimzett']) ) {
+            
+            echo json_encode(array(
+                'hiba'  => 'Kérem adja meg a címzett email címét!',
+                'title' => 'Hiba',
+                'gomb'  => '<input type="button" class="gomb" value="Ok" onclick="alert2();">',
+                'focus' => 'pop_cimzett',
+            ));
+
+            $weblap->leallit();
+            exit();
+            
+        }
+
+        // Címzett mezőben levő adat ellenőrzése
+        $cimzett_hibak = is_valid_mail_tobb($_POST['cimzett'], 'Hibaüzenettel');
+        if( $cimzett_hibak ){
+            echo json_encode(array(
+                'hiba'  => $cimzett_hibak,
+                'title' => 'Hiba',
+                'focus' => 'pop_cimzett',
+            ));
+
+            $weblap->leallit();
+            exit();
+        }
+        // Másolat mezőben levő adat ellenőrzése
+        $cimzett_hibak = is_valid_mail_tobb($_POST['masolat'], 'Hibaüzenettel');
+        if( $cimzett_hibak ) {
+            echo json_encode(array(
+                'hiba'  => $cimzett_hibak,
+                'title' => 'Hiba',
+                'focus' => 'pop_masolat',
+            ));
+
+            $weblap->leallit();
+            exit();
+        }
+
+        // Címzettek tömb előállítása
+        $mailcimek = explode(',', $_POST['cimzett']);
+        $mailcimek = array_values( array_filter($mailcimek) );
+
+        // Másolatot kapnak tömb előállítása
+        $masolatok = explode(',', $_POST['masolat']);
+        $masolatok = array_values( array_filter($masolatok) );
+
+        // Tárgy ellenőrzése
+        if( !trim($_POST['targy']) ) {
+            echo json_encode(array(
+                'hiba'  => 'Kérem töltse ki az email tárgyát!',
+                'title' => 'Hiba',
+                'gomb'  => '<input type="button" class="gomb" value="Ok" onclick="alert2();">',
+                'focus' => 'pop_targy',
+            ));
+
+            $weblap->leallit();
+            exit();
+        }
+
+        // Üzenet ellenőrzése
+        if( !trim($_POST['uzenet']) ) {
+            echo json_encode(array(
+                'hiba'  => 'Kérem töltse ki a email üzenetét!',
+                'title' => 'Hiba',
+                'gomb'  => '<input type="button" class="gomb" value="Ok" onclick="alert2();">',
+                'focus' => 'pop_uzenet',
+            ));
+
+            $weblap->leallit();
+            exit();
+        }
+
+        // Attól függően, hogy melyik rendszerben vagyunk, kap a tárgy/üzenet egy [Teszt] előtagot.
+        $kieg = get_mail_teszt_felirat();
+        $targy_kieg = $kieg[0];
+        $uzi_kieg   = $kieg[1];
+
+        // Csatolmányok összeszdése
+        $mappa = $adatbazis_kapcsolat->s2('ikt_szam', 'projektkezeles', "`recid`='{$recid}'");
+        $utvonal = '../'.get_utvonal().'projektkezeles/'.str_replace('/', '_', $mappa['ikt_szam']).'/email/*';
+        $fajlok_mailnek = array();
+        $fajlok = glob($utvonal);
+
+        // Kijelölt dokumentumok hozzáadása
+        $utvonalak = explode(',', $_POST['utvonalak']);
+        foreach( $utvonalak as $utvonal ) {
+            array_push( $fajlok, $utvonal );
+        }
+
+        $sikeres_kuldes = level_kuldes_osszetettebb(get_nev(), get_mail(), $mailcimek, $mailcimek, $masolatok, $masolatok, $r_masolatok, $r_masolatok, $targy_kieg.$_POST['targy'], $uzi_kieg.nl2br2($_POST['uzenet']), $fajlok, 'levélpapíros');
+        // Ha nem volt sikeres a levélküldés, akkor is megállítjuk a működést
+        if( $sikeres_kuldes ) {
+            mysqli_rollback($db_kapcs);
+            echo json_encode(array(
+                'hiba'  => 'Levélküldés közben hiba történt! '.$sikeres_kuldes,
+                'title' => 'Hiba'
+            ));
+
+            $weblap->leallit();
+            exit();
+
+        } else {
+
+            $cimzettek          = implode(', ', $mailcimek);
+            $masolatot_kapott   = '';
+            $dokumentumok       = '';
+            foreach( $fajlok as $fajl ) {
+                $dokumentumok .= basename($fajl).', ';
+            }
+            $dokumentumok = trim( $dokumentumok, ', ' );
+            $emailkuldes_megj .= 'Dokumentumok elküldve: '.$dokumentumok."\n".'Címzettek: '.$cimzettek.' ';
+            if( $masolatok ) {
+                $masolatot_kapott   = implode(', ', $masolatok);
+                $emailkuldes_megj .= "\n".'Másolatot kaptak: '.$masolatot_kapott.' ';
+            }
+            $emailkuldes_megj .= "\n";
+
+            // E-mail küldés logolása
+            $email_recid = $adatbazis_kapcsolat->i('projektkezeles_email',  array('projektkezeles_recid',   'cimzett',   'masolat',         'targy',                     'text',                                'insert_dt', 'insert_usr'                           ),
+                                                                            array($recid,                   $cimzettek,  $masolatot_kapott, $targy_kieg.$_POST['targy'], $uzi_kieg.nl2br2($_POST['uzenet']),    'NOW()',     $_SESSION[get_db_tabla().'teljes_nev'] )
+                                        );
+            if( $email_recid === false ) { $db_error = true; }
+
+            // Fájlok mozgatása
+            if( csatolmanyok_eltesz($fajlok, $utvonal, $email_recid, $recid, 'projektkezeles') === false ){
+                $db_error = true;
+            }
+
+        }
+
+        // E-mail értesítésekről megjegyzést is írunk
+        if( addMegj('projektkezeles', $recid, $emailkuldes_megj) === false ) {
+            $db_error = true;
+        }
+
+        if( !$db_error ) {
+            mysqli_commit($db_kapcs);
+
+            echo json_encode(array(
+                'statusz' => 'siker'
+            ));
+        } else {
+            mysqli_rollback($db_kapcs);
+            echo json_encode(array(
+                'hiba'  => tranzakcioHiba(),
+                'title' => 'Hiba',
+            ));
+        }
+    }
+
+    $weblap->leallit();
+    exit();
+}
+
 // CSV generálása
 if( isset($_GET['csv']) ) {
 
@@ -1447,7 +1615,9 @@ if( isset($_GET['csv']) ) {
                         `'.get_db_tabla().$megnevezes.'`.`rendk` as \'Rendkívüli\',
                         `'.get_db_tabla().$megnevezes.'`.`text` as \'Leírása\',
                         `'.get_db_tabla().$megnevezes.'`.`jkolt` as \'Jóváhagyott keret\',
-                        `'.get_db_tabla().$megnevezes.'`.`akt_adat` as \'Aktiválási adatok\'
+                        `'.get_db_tabla().$megnevezes.'`.`akt_adat` as \'Aktiválási adatok\',
+                        `'.get_db_tabla().$megnevezes.'`.`jovahagyva` as \'Jóváhagyva\',
+                        `'.get_db_tabla().$megnevezes.'`.`jovahagyo` as \'Jóváhagyó\'
                         '.$lekerdezes_fromtol.$_SESSION['akt_sql_order'];
 
             $query      = mysqli_query($db_kapcs, $sql);
@@ -1473,9 +1643,9 @@ if( isset($_GET['csv']) ) {
                     if($kulcs=='Szálloda'){
                         $sor = getSzallodaNev($sor);
                     }
-                    if($kulcs=='Tipus'){
-                        foreach($select_pri_tipus as $tipus){
-                            if( $tipus['value'] == $sor ){
+                    if( $kulcs == 'Tipus' ) {
+                        foreach ( $select_pri_tipus as $tipus ) {
+                            if( $tipus['value'] == $sor ) {
                                 $sor = $tipus['name'];
                             }
                         }
@@ -1489,23 +1659,29 @@ if( isset($_GET['csv']) ) {
                         }
                         $sor = str_replace('- Válasszon -', '', $sor);
                     }
-                    if($kulcs=='Prioritás'){
+                    if( $kulcs == 'Prioritás' ) {
                         $sor = ertekLista( ERTEKLISTA_PROJEKT_PRIOR, $sor );
                     }
 
-                    if($kulcs=='Megtérülő'){
-                        if($sor){
+                    if( $kulcs == 'Megtérülő' ) {
+                        if( $sor ) {
                             $sor = 'igen';
                         } else {
                             $sor = 'nem';
                         }
                     }
-                    if($kulcs=='Rendkívüli'){
-                        if($sor){
+                    if( $kulcs == 'Rendkívüli' ) {
+                        if( $sor ) {
                             $sor = 'igen';
                         } else {
                             $sor = 'nem';
                         }
+                    }
+                    if( $kulcs == 'Jóváhagyva' ) {
+                        $sor = datum_kiir($sor);
+                    }
+                    if( $kulcs == 'Jóváhagyó' ) {
+                        $sor = getErtek('info', 'erteklista', 'recid', $sor);
                     }
                     $csvcont[] = iconv($mibol, $mibe.'//TRANSLIT', strip_tags( htmlspecialchars_decode( $sor ) ) );
                 }
@@ -1744,10 +1920,6 @@ require_once('selectek.php');
         $statuszok = array(PRKEZEL_STAT_KESZ);
         if( in_array($sor['stat_id'], $statuszok) && get_projekt_kezeles_jog($_GET['id']) ) {
             
-            // Korábbi feltétel, ha mégis kiderülne, hogy ez kell, de amúgy ez törölhető
-            // $van_dok = $adatbazis_kapcsolat->s2('recid', 'projektkezeles_dok', "`projektkezeles_id`='{$_GET['id']}' AND `tipus`='".EL_DOK_TIPUS_GAR_BEJAR."'", '', '1');
-            // if( !$van_dok ) { <= ez volt a feltétel ott, ahol most ez szerepel: if( $van_hianyos_jotallas ) {
-            
             // Adott Projekthez kapcsolódó szerződések jótállásainak mindegyikének van-e már feltölött dokumentuma?
             // Ha csak egy olyan jótállás is létezik, aminek még nincs dokumentuma (`utvonal`=''), akkor nem engedjük lezárni.
             $szerzodesek = $adatbazis_kapcsolat->s('recid', 'projektszerzodes', "`pr_szam`='{$sor['ikt_szam']}'");
@@ -1757,7 +1929,7 @@ require_once('selectek.php');
             }
 
             if( $van_hianyos_jotallas ) {
-                $gombok .= '<input type="button" class="gomb modositaskor_rejt" value="Lezárt" onclick="alert2(\'Előbb csatoljon egy Gar. bejárási jk. Dokumentumot a projekthez!\', \'\', \'Hiba\')"> ';
+                $gombok .= '<input type="button" class="gomb modositaskor_rejt" value="Lezárt" onclick="alert2(\'Utolsó garanciális jegyzőkönyv még nincs feltöltve, ezért a projekt nem zárható le!\', \'\', \'Hiba\')"> ';
             } else {
                 $gombok .= '<script> gomb_lezartra = \'<input type="button" class="gomb zold" onclick="projekt_lezartra()" value="Igen"><input type="button" class="gomb piros" onclick="alert2()" value="Nem">\';</script>';
                 $gombok .= '<input type="button" class="gomb modositaskor_rejt" value="Lezárt" onclick="alert2(\''.$projekt_adatok.'Biztos, hogy Lezárt státuszba helyezi a projektet?\', gomb_lezartra)"> ';
@@ -1775,7 +1947,7 @@ require_once('selectek.php');
         if( $sor['stat_id'] == PRKEZEL_STAT_LEZART && _jog( JOG_PRKEZEL_UJRANYITAS ) ) {
             $kerdes      = htmlspecialchars('Projekt: '.$sor['ikt_szam'].'<br>Név: '. addslashes($sor['nev']).'<br><br>Visszahelyezi folyamatba a projektet?');
             $alert_gomb  = htmlspecialchars('<input type="button" class="gomb zold" value="Igen" onclick="projektkezeles_ujranyit()"><input type="button" class="gomb piros" value="Nem" onclick="alert2();">');
-            $gombok .= '<input type="button" class="gomb" onclick="alert2(\''.$kerdes.'\', \''.$alert_gomb.'\')" value="Újranyitás">';
+            $gombok .= '<input type="button" class="gomb" onclick="alert2(\''.$kerdes.'\', \''.$alert_gomb.'\')" value="Újranyitás"> ';
         }
 
         // Ha van egyáltalán kezelésre joga, és nincs még lezárva
@@ -1789,6 +1961,24 @@ require_once('selectek.php');
                     </div>
                 ').$gombok;
             }
+        }
+        
+        // Csak dokumentumok fül alatt látszik
+        if( isset($_GET['dokumentumok']) ) {
+            
+            // Ha nincs Team tag, akkor a popup fel sem jön
+            $onclick = nl2('
+                    if( !$(\'.dok_jeloles:checked\').length ) {
+                        alert2(\'E-mail küldéséhez kérem válasszon legalább 1 dokumentumot!\', \'\', \'Hiba\');
+                    } else {
+                        csoportMuvelet(\'dokumentumKuldeseTeamTagoknak\');
+                    }
+                ');
+            $team = $adatbazis_kapcsolat->s('recid', 'projektkezeles_team', "`projektkezeles_recid`='{$_GET['id']}'");
+            if( !$team ) {
+                $onclick = 'alert2(\'A projekthez nincs team tag hozzárendelve!\', \'\', \'Hiba\');';
+            }
+            $gombok .= '<input type="button" class="gomb modositaskor_rejt" value="Dokumentumok küldése team tagoknak" onclick="'.$onclick.'"> ';
         }
 
         $muv_style = ' style="width: calc(100% - '.($_SESSION['defaultCsuszka'] + 16).'px);"';
@@ -2347,7 +2537,7 @@ require_once('selectek.php');
 
 	// Dokumentumok
     } elseif( isset($_GET['dokumentumok']) ) {
-
+        
         if( $tobb_kep ) {
             require_once('tobb_kep.php');
         }

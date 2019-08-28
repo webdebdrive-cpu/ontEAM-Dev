@@ -869,7 +869,7 @@ if( isset($_POST['munkalapKulso']) ) {
                 if( $email_recid === false ) { $db_error = true; }
 
                 // Fájlok mozgatása
-                if( csatolmanyok_eltesz($fajlok, $utvonal, $email_recid, $recid) === false ){
+                if( csatolmanyok_eltesz($fajlok, $utvonal, $email_recid, $recid, 'munkalap') === false ) {
                     $db_error = true;
                 }
 
@@ -2575,7 +2575,7 @@ if( isset($_POST['kulsokivHozzarend']) ) {
                 if( $email_recid === false ) { $db_error = true; }
                 
                 // Fájlok mozgatása
-                if( csatolmanyok_eltesz($fajlok, $utvonal, $email_recid, $recid) === false ){
+                if( csatolmanyok_eltesz($fajlok, $utvonal, $email_recid, $recid, 'munkalap') === false ) {
                     $db_error = true;
                 }
 
@@ -2992,7 +2992,7 @@ if (isset($_POST['munkalapVisszaElokeszitDirektbe'])) {
             if( $email_recid === false ) { $db_error = true; }
             
             // Fájlok mozgatása
-            if( csatolmanyok_eltesz($fajlok, $utvonal, $email_recid, $recid) === false ){
+            if( csatolmanyok_eltesz($fajlok, $utvonal, $email_recid, $recid, 'munkalap') === false ) {
                 $db_error = true;
             }
 
@@ -5053,7 +5053,7 @@ if( isset($_POST['atadasDiszpecsernekDirektbe']) ) {
                 if( $email_recid === false ) { $db_error = true; }
                 
                 // Fájlok mozgatása
-                if( csatolmanyok_eltesz($fajlok, $utvonal, $email_recid, $recid) === false ){
+                if( csatolmanyok_eltesz($fajlok, $utvonal, $email_recid, $recid, 'munkalap') === false ) {
                     $db_error = true;
                 }
                 
@@ -6435,7 +6435,7 @@ if (isset($_POST['munkalapVisszavetelDirektbe'])) {
             if( $email_recid === false ) { $db_error = true; }
             
             // Fájlok mozgatása
-            if( csatolmanyok_eltesz($fajlok, $utvonal, $email_recid, $recid) === false ){
+            if( csatolmanyok_eltesz($fajlok, $utvonal, $email_recid, $recid, 'munkalap') === false ) {
                 $db_error = true;
             }
             
@@ -6443,7 +6443,7 @@ if (isset($_POST['munkalapVisszavetelDirektbe'])) {
 
 
     // Ha nincs levélküldés, akkor rákérdezünk, hogy biztosan nem szerettek volna levelet küldeni?
-    }elseif(!$_POST['mehet']){
+    } elseif( !$_POST['mehet'] ) {
         echo json_encode(array(
             'hiba'  => 'Nem küldött visszavételező emailt.<br>Folytatja?',
             'gomb'  => '<input type="button" class="gomb zold" value="Igen" onclick="$(\'#mehet_mail_nelkul\').val(\'1\'); $(\'#munkalapKulso\').submit();"><input type="button" class="gomb piros" value="Nem" onclick="alert2()">',
@@ -6458,7 +6458,7 @@ if (isset($_POST['munkalapVisszavetelDirektbe'])) {
     if( $statusz === false ) { $db_error = true; }
     
     // A levélküldés memót a megjegyzésbe is beírjuk, nem csak a státuszsorba
-    if($emailkuldes_megj){
+    if( $emailkuldes_megj ) {
         if(addMegj('munkalap', $recid, $emailkuldes_megj)===false){
             $db_error = true;
         }

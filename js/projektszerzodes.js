@@ -99,7 +99,7 @@ function jotallas_dok_torol ( recid, mehet ) {
                 if (response) {
                     response = JSON.parse(response);
                     if (response.hiba) {
-                        alert2(response.hiba, response.gomb,response.title);
+                        alert2(response.hiba, response.gomb, response.title);
                     } else {
                         szamlaBetolt(_get('id'), 'projektszerzodes.php', 'jotallas');
                     }
@@ -112,6 +112,55 @@ function jotallas_dok_torol ( recid, mehet ) {
             }
         });
     }
+}
+
+// Projekt zárható-e már?
+function projekt_zarhato_e() {
+    $.ajax({
+        url : 'projektszerzodes.php',
+        type: 'POST',
+        data: {
+            recid              : _get('id'),
+            projekt_zarhato_e  : Date.now()
+        },
+        success: function (response) {
+            if(response.substring(0, 6)=='SESKIL'){ location.href = 'index.php'; }
+            if (response) {
+                response = JSON.parse(response);
+                if (response.hiba) {
+                    alert2(response.hiba, response.gomb, response.title);
+                }
+            }
+        },
+        complete: function(xhr) {
+            if( xhr.status != 200 ) {
+                alert2(xhr.responseText, '', 'Hiba');
+            }
+        }
+    });
+}
+
+// Projekt lezárása
+function projekt_lezar() {
+    $.ajax({
+        url : 'projektszerzodes.php',
+        type: 'POST',
+        data: {
+            recid           : _get('id'),
+            projekt_lezar   : Date.now()
+        },
+        success: function (response) {
+            if(response.substring(0, 6)=='SESKIL'){ location.href = 'index.php'; }
+            if (response) {
+                alert2();
+            }
+        },
+        complete: function(xhr) {
+            if( xhr.status != 200 ) {
+                alert2(xhr.responseText, '', 'Hiba');
+            }
+        }
+    });
 }
 
 // Adatlapon található deviza árfolyam és deviza nettó mezőből számol ki nettó értéket

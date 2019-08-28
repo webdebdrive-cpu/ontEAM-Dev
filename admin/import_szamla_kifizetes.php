@@ -5,8 +5,8 @@
 
 \*                                                                                                                                         */
 require_once '../weblap.php';
-//file_put_contents('postok/'.date('Y-m-d_H:i:s').'_get.txt', serialize($_GET));
-//file_put_contents('postok/'.date('Y-m-d_H:i:s').'_post.txt', serialize($_POST));
+// file_put_contents('postok/'.date('Y-m-d_H:i:s').'_get.txt', serialize($_GET));
+// file_put_contents('postok/'.date('Y-m-d_H:i:s').'_post.txt', serialize($_POST));
 // Ha van postolt adatunk, akkor ellenőrizzük a beléptetést, és ha ez megvan, akkor tovább léptetjük az új számla feltöltéshez
 if( $_POST /*|| isset($_GET['teszt'])*/ ) {
 
@@ -70,6 +70,28 @@ if( $_POST /*|| isset($_GET['teszt'])*/ ) {
                 }
                 if( $sql === false ) { $db_error = true; }
 
+            }
+            
+            // Kifizetve pipa karbantartása
+            $prszamla = $adatbazis_kapcsolat->s2('kcs_21 brutto dev_br', 'projektszamla', "`recid`='{$projszla['onteamid'][0]}'");
+            if( $prszamla === false ) { $db_error = true; }
+
+            if( $prszamla['kcs_21'] == KCS_21_HUF ) {
+                $kif_mezo   = 'br_ertek';
+                $br_mezo    = 'brutto';
+            } else {
+                $kif_mezo = 'dev_br';
+                $br_mezo  = 'dev_br';
+            }
+            $kifizetesek = $adatbazis_kapcsolat->s2('SUM(`'.$kif_mezo.'`)', 'projektszamla_kifizetesek', "`projektszamla_recid`='{$projszla['onteamid'][0]}'");
+            if( $kifizetesek === false ) { $db_error = true; }
+            
+            if( $kifizetesek['SUM(`'.$kif_mezo.'`)']>=$prszamla[$br_mezo] ) {
+                $sql = $adatbazis_kapcsolat->u('projektszamla', array('kifizetve'), array(1), "`recid`='{$projszla['onteamid'][0]}'");
+                if( $sql === false ) { $db_error = true; }
+            } else {
+                $sql = $adatbazis_kapcsolat->u('projektszamla', array('kifizetve'), array(0), "`recid`='{$projszla['onteamid'][0]}'");
+                if( $sql === false ) { $db_error = true; }
             }
 
         }

@@ -89,6 +89,25 @@ function i_u($type, $tabla, $tomb) {
             $_POST['p_atad_dt'] = $prsz['p_atad_dt'];
         }
         
+        // Szerkesztéskor a számla kifizetve pipájának lekezelése (Új feltöltéskor még nincsenek kifizetés sorok)
+        if( $type == 'update' ) {
+
+            if( $_POST['kcs_21'] == KCS_21_HUF ) {
+                $kif_mezo   = 'br_ertek';
+                $br_mezo    = 'brutto';
+            } else {
+                $kif_mezo = 'dev_br';
+                $br_mezo  = 'dev_br';
+            }
+            $kifizetesek = $adatbazis_kapcsolat->s2('SUM(`'.$kif_mezo.'`)', 'projektszamla_kifizetesek', "`projektszamla_recid`='{$_GET['id']}'");
+            if( $kifizetesek['SUM(`'.$kif_mezo.'`)']>=$_POST[$br_mezo] ) {
+                $_POST['kifizetve'] = 1;
+            } else {
+                $_POST['kifizetve'] = 0;
+            }
+
+        }
+        
     }
     // Projektszerződésnél ha nincs pénznem információnk, akkor a devizás mezőket nullázzuk a biztosnág kedvéért
     if( $tabla == 'projektszerzodes' ) {
@@ -571,10 +590,18 @@ function i_u($type, $tabla, $tomb) {
             
             // Ha nics egyetlen tétel sem, akkor automatikusan létrehozunk egyet, aminek a tárgya ugyanaz mint szerződés adatlapján a tárgya nettó összeg pedig ugyanaz, mint a számla nettó értéke
             if( !$_SESSION['pr_szla_tetel_targy'] ) {
-                $_SESSION['pr_szla_tetel_targy']        = array($_POST['targy']);
-                $_SESSION['pr_szla_tetel_netto_ert']    = array($_POST['netto']);
-                $_SESSION['pr_szla_tetel_dev_net']      = array($_POST['dev_net']);
-                $_SESSION['pr_szla_tetel_pr_tetel']     = array(0); // A szerződés tétel ID-ja fixen 0, hisz nincs összekötve szerződéssel a számla.
+                $_SESSION['pr_szla_tetel_targy']        = array($_POST['targy']     );
+                $_SESSION['pr_szla_tetel_netto_ert']    = array($_POST['netto']     );
+                $_SESSION['pr_szla_tetel_dev_net']      = array($_POST['dev_net']   );
+                $_SESSION['pr_szla_tetel_pr_tetel']     = array(0                   ); // A szerződés tétel ID-ja fixen 0, hisz nincs összekötve szerződéssel a számla.
+            }
+            
+            // Nullás számla esetén a nullás tételt hozzuk létre automatikusan
+            if( $_POST['nullas'] ) {
+                $_SESSION['pr_szla_tetel_targy']        = array(NULLAS_TETEL);
+                $_SESSION['pr_szla_tetel_netto_ert']    = array(0           );
+                $_SESSION['pr_szla_tetel_dev_net']      = array(0.00        );
+                $_SESSION['pr_szla_tetel_pr_tetel']     = array(0           ); // A szerződés tétel ID-ja fixen 0, hisz nincs összekötve szerződéssel a számla.
             }
             
             // Új számla rögzítésekor a mellszam mező értéke ugyanaz lesz mint az ikt_szam mezőé.
@@ -1420,7 +1447,7 @@ function i_u($type, $tabla, $tomb) {
             // Ha a visszaadva pipát most kapcsoltam be, akkor ellenőrizzük, hogy szerződéshez volt-e kapcsolva.
             // Ha igen, akkor a szerződés tétel kapcsolatot meg kell szüntetni, de előtte a szerződés tételeinél a teljesítést/értéket is ki kell nullázni.
             $szamla = $adatbazis_kapcsolat->s2('visszaadva', 'projektszamla', "`recid`='{$_GET['id']}'");
-            if( $_POST['visszaadva'] && !$szamla['visszaadva'] ){
+            if( $_POST['visszaadva'] && !$szamla['visszaadva'] ) {
 
                 $szamla_tetelek = $adatbazis_kapcsolat->s('projektszerzodes_tetel_recid', 'projektszamla_tetel', "`projektszamla_recid`='{$_GET['id']}'");
                 if( $szamla_tetelek === false ) { $db_error = true; }
@@ -1453,11 +1480,11 @@ function i_u($type, $tabla, $tomb) {
                                             array('name' => 'visszaadva_dt', 'alert' => 'A visszaadva dátumhoz csak mai, vagy múltbeli dátum adható meg!'   ),
                                         );
 
-            foreach($csak_mult_datum_lehet as $elem){
+            foreach ( $csak_mult_datum_lehet as $elem ) {
 
                 // Visszaadva dátumot csak akkor figyeljük, ha a visszaadva pipa be is van pipálva
-                if( $elem['name']!='visszaadva_dt' || $_POST['visszaadva'] ){
-                    if( $_POST[$elem['name']]>date('Y-m-d') ){
+                if( $elem['name'] != 'visszaadva_dt' || $_POST['visszaadva'] ) {
+                    if( $_POST[$elem['name']] > date('Y-m-d') ) {
                         echo json_encode(array(
                             'hiba'  => $elem['alert'],
                             'gomb'  => '<input type="button" class="gomb" value="Ok" onclick="alert2(); szurkit_zar(\'mehet_megsem_mutat\'); $(\'#'.$elem['name'].'\').focus();">',
@@ -1473,7 +1500,7 @@ function i_u($type, $tabla, $tomb) {
             if( $_POST['pr_szam'] ){
                 $projekt = $adatbazis_kapcsolat->s2('telephely_id', 'projektkezeles', "`ikt_szam`='{$_POST['pr_szam']}'");
                 if( $projekt === false ) { $db_error = true; }
-                if( $projekt['telephely_id']!=$_POST['telephely_id'] ){
+                if( $projekt['telephely_id'] != $_POST['telephely_id'] ) {
                     echo json_encode(array(
                         'hiba'  => 'A projekt szám nem megfelelő szállodához tartozik!',
                         'gomb'  => '<input type="button" class="gomb" value="Ok" onclick="alert2(); szurkit_zar(\'mehet_megsem_mutat\');">',
@@ -1484,33 +1511,62 @@ function i_u($type, $tabla, $tomb) {
                 }
             }
 
-            // Projekt számla mentésekor ellenőrizzük, hogy a számla nettó értéke azonos-e a tételek összegével
+            // Projekt számla mentésekor HA nem nullás a számla, akkor ellenőrizzük, hogy a számla nettó értéke azonos-e a tételek összegével
             // Deviza esetén más session-t járunk be
-            $tizedesek  = 0;
-            $mezo1      = 'pr_szla_tetel_netto_ert';
-            $mezo2      = 'netto';
-            $szoveg     = 'szerződés összegével';
-            if( $_POST['kcs_21']!=KCS_21_HUF ) {
-                $tizedesek  = 2;
-                $mezo1      = 'pr_szla_tetel_dev_net';
-                $mezo2      = 'dev_net';
-                $szoveg     = 'deviza nettóval';
+            if( !$_POST['nullas'] ) {
+                $tizedesek  = 0;
+                $mezo1      = 'pr_szla_tetel_netto_ert';
+                $mezo2      = 'netto';
+                $szoveg     = 'szerződés összegével';
+                if( $_POST['kcs_21']!=KCS_21_HUF ) {
+                    $tizedesek  = 2;
+                    $mezo1      = 'pr_szla_tetel_dev_net';
+                    $mezo2      = 'dev_net';
+                    $szoveg     = 'deviza nettóval';
+                }
+                $tetelek_osszege = '';
+                foreach ( $_SESSION[$mezo1] as $ertek ) {
+                    $ertek = str_replace(array(' ', ','), array('', '.'), $ertek);
+                    $tetelek_osszege += $ertek;
+                }
+
+                if( $tetelek_osszege != $_POST[$mezo2] ) {
+                    echo json_encode(array(
+                        'hiba'   => 'A számla tételeinek összege ('. number_format($tetelek_osszege, $tizedesek, ',', ' ').' '. erteklista(ERTEKLISTA_PENZNEM, $_POST['kcs_21']).') nem egyezik meg a számla nettó értékével('. number_format($_POST[$mezo2], $tizedesek, ',', ' ').' '. erteklista(ERTEKLISTA_PENZNEM, $_POST['kcs_21']).')!<br>Így nem menthető!',
+                        'gomb'   => '<input type="button" class="gomb" value="Ok" onclick="szurkit_zar(\'mégsem mehet mutat\'); alert2();">',
+                        'title'  => 'Hiba',
+                        'select' => 'netto',
+                    ));
+                    $weblap -> leallit();
+                    exit();
+                }
+                
+            // Ha nullás egy számla, akkor a tételeit törölni kell, létre kell hozni egy nullás sort
+            } else {
+                
+                // Nullás tételt csak akkor hozzuk létre, ha még nem volna
+                $van_nullas = $adatbazis_kapcsolat->s('recid', 'projektszamla_tetel', "`projektszamla_recid`='{$_GET['id']}' AND `netto_ert`='0' AND `dev_net`='0.00'");
+                if( $van_nullas === false ) { $db_error = true; }
+                
+                $tetelek_szama = $adatbazis_kapcsolat->s('recid', 'projektszamla_tetel', "`projektszamla_recid`='{$_GET['id']}'", '', '', '', 'num_rows');
+                if( $tetelek_szama === false ) { $db_error = true; }
+
+                // Ha nem csak a nullás tétele van, akkor töröljük őket, és létrehozzuk a nullást
+                if( !$van_nullas || $tetelek_szama>1 ) {
+
+                    $sql = $adatbazis_kapcsolat->d('projektszamla_tetel', "`projektszamla_recid`='{$_GET['id']}'");
+                    if( $sql === false ) { $db_error = true; }
+                    
+                    $sql = $adatbazis_kapcsolat->i('projektszamla_tetel',   array('projektszamla_recid',    'targy',        'insert_dt', 'insert_usr'   ),
+                                                                            array($_GET['id'],              'Nullás tétel', 'NOW()',     get_nev()      )
+                                                );
+                    if( $sql === false ) { $db_error = true; }
+                }
+
+
             }
-            $tetelek_osszege = '';
-            foreach ( $_SESSION[$mezo1] as $ertek ){
-                $ertek = str_replace(array(' ', ','), array('', '.'), $ertek);
-                $tetelek_osszege += $ertek;
-            }
-            if( $tetelek_osszege != $_POST[$mezo2] ){
-                echo json_encode(array(
-                    'hiba'   => 'A számla tételeinek összege ('. number_format($tetelek_osszege, $tizedesek, ',', ' ').' '. erteklista(ERTEKLISTA_PENZNEM, $_POST['kcs_21']).') nem egyezik meg a számla nettó értékével('. number_format($_POST[$mezo2], $tizedesek, ',', ' ').' '. erteklista(ERTEKLISTA_PENZNEM, $_POST['kcs_21']).')!<br>Így nem menthető!',
-                    'gomb'   => '<input type="button" class="gomb" value="Ok" onclick="szurkit_zar(\'mégsem mehet mutat\'); alert2();">',
-                    'title'  => 'Hiba',
-                    'select' => 'netto',
-                ));
-                $weblap -> leallit();
-                exit();
-            }
+            
+            
 
             // Vagy ha megadta a dátumot, de nincs bepipálva a visszaadva, akkor meg azért hiba
             if( !$_POST['visszaadva'] && $_POST['visszaadva_dt'] && $_POST['visszaadva_dt']<'9000-00-00' ){
@@ -1882,14 +1938,14 @@ function js_kiir($tomb, $fg = 'form_ell_regi()', $ajax = false) {
 
 
     $param = '';
-    foreach($tomb as $ertek){
+    foreach ( $tomb as $ertek ) {
         if( $ertek['type'] != 'statusz' && $ertek['type'] != 'info' ) {
-            if($ertek['name']) {
+            if( $ertek['name'] ) {
 
                 // Csak akkor figyelünk lenti paramétereket, ha egyáltalán az elem létezik. Ezzel egy csomó JS hibát elekerülhetünk és debuggolós szívásokat
                 $ret .= 'if($(\'#'.$ertek['name'].'\').length){ ';
 
-                if($ertek['alert']){
+                if( $ertek['alert'] ) {
                     $focus_autocomp = $ertek['name'];
                     if( $ertek['type'] == 'autocomplete' ) {
                         $focus_autocomp = $ertek['name'].'_autocomp';
@@ -1898,8 +1954,8 @@ function js_kiir($tomb, $fg = 'form_ell_regi()', $ajax = false) {
                     $ret .= 'if($(\'#'.$ertek['name'].'\').val()==\'\'){ document.getElementById(\''.$focus_autocomp.'\').className += \' alert\'; $(\'#'.$focus_autocomp.'\').addClass(\'hibas_ide_focus\'); alert2(\''.$ertek['alert'].'\', \'\', \''.$hiba_txt.'\'); alert_utan_mehet_megsem_mutat_beallit(); return false; }';
                 }
 
-                // Ha numerikus a mező, akkor a 0,00 is üres értéknek számít
-                if( strpos($ertek['class'], 'f_num')!==false ){
+                // Ha numerikus a mező, akkor a 0,00 is üres értéknek számít, kivéve, ha megengedjük a 0-t mint menthető értéket (Pl. projekt számláknál van ilyen)
+                if( strpos($ertek['class'], 'f_num') !== false && !$ertek['nulla_megengedett'] ) {
                     $ret .= 'if( $(\'#'.$ertek['name'].'\').val()==\'0,00\' && !$(\'#'.$ertek['name'].'\')[0].hasAttribute(\'readonly\') && !$(\'#'.$ertek['name'].'\')[0].hasAttribute(\'disabled\') ){ document.getElementById(\''.$ertek['name'].'\').className += \' alert\'; $(\'#'.$ertek['name'].'\').addClass(\'hibas_ide_focus\'); alert2(\''.$ertek['alert'].'\', \'\', \''.$hiba_txt.'\'); alert_utan_mehet_megsem_mutat_beallit(); return false; }';
                 }
 
@@ -1907,70 +1963,46 @@ function js_kiir($tomb, $fg = 'form_ell_regi()', $ajax = false) {
                 if( strpos($ertek['class'], 'datepicker')!==false || strpos($ertek['class'], 'datetimepicker')!==false ){
                     $ret .= 'if( !valid_date( $(\'#'.$ertek['name'].'\') )===false ){ return false; }';
                 }
-                if( strpos($ertek['class'], 'ora_perc')!==false ){
+                if( strpos($ertek['class'], 'ora_perc') !== false ) {
                     $ret .= 'if( valid_ido( $(\'#'.$ertek['name'].'\') )===false ){ return false; }';
                 }
 
                 // Ha dátum mező, akkor az ürességet másképp figyeljük
-                if($ertek['alert'] && (strpos($ertek['class'], 'datepicker')!==false || strpos($ertek['class'], 'datetimepicker')!==false)){
+                if( $ertek['alert'] && (strpos($ertek['class'], 'datepicker') !== false || strpos($ertek['class'], 'datetimepicker') !== false) ) {
                     $ret .= 'if(document.getElementById(\''.$ertek['name'].'\').value.substring(0,1)==\'\xa0\'){ document.getElementById(\''.$ertek['name'].'\').className += \' alert\'; $(\'#'.$ertek['name'].'\').addClass(\'hibas_ide_focus\'); alert2(\''.$ertek['alert'].'\', \'\', \''.$hiba_txt.'\'); alert_utan_mehet_megsem_mutat_beallit(); return false; } ';
                 }
 
-                // Pár mezőnélnél a 0 sem elfogadható érték
-                if($ertek['alert'] && ($ertek['name']=='szemelyzet_id' || $ertek['nulla_is_ures_adat']) ){
+                // Pár mezőnél a 0 sem elfogadható érték
+                if( $ertek['alert'] && ($ertek['name'] == 'szemelyzet_id' || $ertek['nulla_is_ures_adat']) ) {
                     $ret .= 'if(document.getElementById(\''.$ertek['name'].'\').value==\'0\'){ document.getElementById(\''.$ertek['name'].'\').className += \' alert\'; $(\'#'.$ertek['name'].'\').addClass(\'hibas_ide_focus\'); alert2(\''.$ertek['alert'].'\', \'\', \''.$hiba_txt.'\'); alert_utan_mehet_megsem_mutat_beallit(); return false; } ';
                 }
 
-                if($ertek['mail']){
+                if( $ertek['mail'] ) {
                     $ret .= "str=document.getElementById('$ertek[name]').value.trim(); if(str){ filter=/^([\w-]+(?:\.[\w-]+)*)@((?:[\w-]+\.)*\w[\w-]{0,66})\.([a-z]{2,6}(?:\.[a-z]{2})?)$/i; if (!filter.test(str)){ document.getElementById('{$ertek['name']}').className='alert'; $('#'{$ertek['name']}').addClass(\'hibas_ide_focus\'); alert2('Helytelen e-mail cím!', \'\', \''.$hiba_txt.'\'); alert_utan_mehet_megsem_mutat_beallit(); return false; } }";
                 }
 
-                if($ertek['name'] == 'jelsz2'){
+                if( $ertek['name'] == 'jelsz2' ) {
                     $ret .= 'if(document.getElementById(\'reg_jelsz\').value.length < 4 ){document.getElementById(\''.$ertek['name'].'\').className += \' alert\';alert2(\'A jelszó hossza minimum 4 karakter legyen!\', \'\', \''.$hiba_txt.'\'); alert_utan_mehet_megsem_mutat_beallit(); return false;}';
                     $ret .= 'if(document.getElementById(\'jelsz2\').value != document.getElementById(\'reg_jelsz\').value){document.getElementById(\''.$ertek['name'].'\').className += \' alert\'; alert2(\'A jelszavak nem egyeznek meg!\', \'\', \''.$hiba_txt.'\'); alert_utan_mehet_megsem_mutat_beallit(); return false;}';
                 }
 
-                if($ertek['name'] == 'isz' && $ertek['alert']){
+                if( $ertek['name'] == 'isz' && $ertek['alert'] ) {
                     $ret .= 'if(document.getElementById(\'isz\').value.length != 4){document.getElementById(\'isz\').className += \' alert\';alert2(\'Helytelen irányítószám!\', \'\', \''.$hiba_txt.'\'); return false;}';
                 }
 
-                if($ertek['name'] == 'sz_isz' && $ertek['alert']){
+                if( $ertek['name'] == 'sz_isz' && $ertek['alert'] ) {
                     $ret .= 'if(document.getElementById(\''.$ertek['name'].'\').value.length != 4){document.getElementById(\''.$ertek['name'].'\').className += \' alert\';alert2(\'Helytelen irányítószám!\', \'\', \''.$hiba_txt.'\'); alert_utan_mehet_megsem_mutat_beallit(); return false;}';
                 }
 
-                if($ertek['name'] == 'szall_isz' && $ertek['alert']){
+                if( $ertek['name'] == 'szall_isz' && $ertek['alert'] ) {
                     $ret .= 'if(document.getElementById(\''.$ertek['name'].'\').value.length != 4){document.getElementById(\''.$ertek['name'].'\').className += \' alert\';alert2(\'Helytelen irányítószám!\', \'\', \''.$hiba_txt.'\'); alert_utan_mehet_megsem_mutat_beallit(); return false;}';
                 }
 
-                // Adószám formátumának ellenőrzése (xxxxxxxx-x-xx alakú-e). Az inputra egyébként a main.js-ben található adoszam_formaz() függvényt hívd meg, de az alábbi ellenőrzéssel együtt lesz tökéletes
-                if($ertek['name'] == 'ado'){
-                    $ret .= nl2('
-                        reszek = $(\'#'.$ertek['name'].'\').val().split(\'-\');
-                        if( reszek[0].length!=8 || reszek[1].length!=1 || reszek[2].length!=2){
-                            document.getElementById(\''.$ertek['name'].'\').className += \' alert\';
-                            alert2(\'Az adószám formátuma helytelen!\', \'\', \''.$hiba_txt.'\');
-                            return false;
-                        }
-                        ');
-                }
-
-                // Adószám formátumának ellenőrzése (xx-xx-xxxxxx alakú-e). Az inputra egyébként a main.js-ben található cegjegyzekszam_formaz() függvényt hívd meg, de az alábbi ellenőrzéssel együtt lesz tökéletes
-                if($ertek['name'] == 'cegjegyzek'){
-                    $ret .= nl2('
-                        reszek = $(\'#'.$ertek['name'].'\').val().split(\'-\');
-                        if( reszek[0].length!=2 || reszek[1].length!=2 || reszek[2].length!=2){
-                            document.getElementById(\''.$ertek['name'].'\').className += \' alert\';
-                            alert2(\'Az adószám formátuma helytelen!\', \'\', \''.$hiba_txt.'\');
-                            return false;
-                        }
-                        ');
-                }
-
-                if($ertek['name'] == 'elf'){
+                if( $ertek['name'] == 'elf' ) {
                     $ret .= 'if(document.getElementById(\''.$ertek['name'].'\').checked==false){document.getElementById(\''.$ertek['name'].'\').className += \' alert\'; alert2(\'A feltételek elfogadása kötelező!\', \'\', \''.$hiba_txt.'\'); alert_utan_mehet_megsem_mutat_beallit(); return false;}';
                 }
 
-                if($ertek['name'] == 'akcar'){	//Ha van akciós ár, akkor figyelük azt is, hogy kissebb legyen
+                if( $ertek['name'] == 'akcar' ) { //Ha van akciós ár, akkor figyelük azt is, hogy kissebb legyen
                                             //Először ki kell szűrni a pontokat belőle
                     $ret .= "var ar=document.getElementById('ar').value; var akcar=document.getElementById('akcar').value; mit=new RegExp('[.]','ig'); ar=ar.replace(mit,''); akcar=akcar.replace(mit,''); if(Number(ar)<=Number(akcar)){ document.getElementById('".$ertek['name']."').className += ' alert'; alert2('Az akciós ár nem kedvezőbb a listaártól!', '', ".$hiba_txt."'); $(\'.bezar\').attr(\'onclick\', \'alert2(); szurkit_zar(\\\'Mehet-mégsem mutat\\\');\'); return false; }";
                 }
@@ -1978,9 +2010,10 @@ function js_kiir($tomb, $fg = 'form_ell_regi()', $ajax = false) {
                 $ret .= '}';
             }
 
-            if($ajax && !strstr($ertek['type'], 'file')/* tehát nem jsfile vagy sima file... */ && $ertek['type']!='nosql' ){
-                if($ertek['name']){// Ha van neve, nem HTML pl.
-                    if($ertek['type']=='checkbox'){
+            if( $ajax && !strstr($ertek['type'], 'file')/* tehát nem jsfile vagy sima file... */ && $ertek['type'] != 'nosql' ) {
+                // Ha van neve, nem HTML pl.
+                if( $ertek['name'] ) {
+                    if( $ertek['type'] == 'checkbox' ) {
                         $param .= $ertek['name'].'=\'+$(\'#'.$ertek['name'].'\').is(\':checked\')+\'&amp;';
                     }  else {
                         $param .= $ertek['name'].'=\'+$(\'#'.$ertek['name'].'\').val().replace(/&/gi, \'|ES|\')+\'&amp;';
@@ -8605,7 +8638,7 @@ function level_felkeszit_es_kuld( $tabla, $recid, $ert_pipa, $sablon, $cimzett, 
     mysqli_commit($db_kapcs);
     // Hibaüzenettel is visszatérhetünk
     if( $hiba ) {
-        return $hiba;
+        return nl2br2($megj).$hiba;
     }
 
 }
@@ -10129,8 +10162,8 @@ function get_projekt_szerzodes_kezel_jog( $recid ){
 }
 
 // Levélküldés után a csatolmányokat egy almappába tesszük
-function csatolmanyok_eltesz($fajlok, $utvonal, $email_recid, $ml_recid){
-    
+function csatolmanyok_eltesz($fajlok, $utvonal, $email_recid, $ml_recid, $tabla) {
+
     global $adatbazis_kapcsolat;
     
     $utvonal = trim($utvonal, '*');
@@ -10140,19 +10173,19 @@ function csatolmanyok_eltesz($fajlok, $utvonal, $email_recid, $ml_recid){
         mkdir($utvonal.'/'.$email_recid, 0777);
     }
 
-    foreach($fajlok as $fajl){
-        if(is_file($fajl)){
+    foreach ( $fajlok as $fajl ) {
+        if( is_file($fajl) ) {
             $fajlnev = basename($fajl);
             copy($fajl, $utvonal.'/'.$email_recid.'/'. $fajlnev);
             unlink($fajl);
-            $sql = $adatbazis_kapcsolat->i('munkalap_email_dok',    array('munkalap_recid', 'email_recid', 'fajlnev', 'loginnev',                       'update_dt',  'update_usr',                           'insert_dt', 'insert_usr'                              ),
+            $sql = $adatbazis_kapcsolat->i($tabla.'_email_dok',     array($tabla.'_recid',  'email_recid', 'fajlnev', 'loginnev',                       'update_dt',  'update_usr',                           'insert_dt', 'insert_usr'                              ),
                                                                     array($ml_recid,        $email_recid,  $fajlnev,  $_SESSION[get_db_tabla().'user'], 'NOW()',      $_SESSION[get_db_tabla().'teljes_nev'], 'NOW()',      $_SESSION[get_db_tabla().'teljes_nev']   )
                                             );
             if( $sql === false ) { $db_error = true; }
         }
     }
 
-    if($db_error){
+    if( $db_error ) {
         return false;
     } else {
         return true;

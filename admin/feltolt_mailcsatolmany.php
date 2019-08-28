@@ -2,7 +2,7 @@
 require_once('../weblap.php');
 
 // JS alapú fájlfeltöltés esetén a $_FILES['file'] tömbben vannak az adatok a $_FILES[megnevezés] helyett
-if($_FILES['file']){
+if( $_FILES['file'] ) {
     $_FILES[$_POST['megnevezes']] = $_FILES['file'];
 }
 
@@ -28,12 +28,12 @@ if( isset($_POST['megnevezes']) ){
     // Elérési útvonal kiszámítása, könyvtárak létrehozása
     $konyvtar_db_nev = $_POST['konyvtar'];
     $utvonal = '../'.get_utvonal().$konyvtar_db_nev;
-    $ikt_szam = $adatbazis_kapcsolat->s2('recid ikt_szam', 'munkalap', "`recid` = '".$_POST['sorid']."'", '', '1');
+    $ikt_szam = $adatbazis_kapcsolat->s2('recid ikt_szam', $konyvtar_db_nev, "`recid` = '".$_POST['sorid']."'", '', '1');
     if( $ikt_szam ) {
         $utvonal = $utvonal.'/'.str_replace('/', '_', $ikt_szam['ikt_szam']).'/email';
         $konyvtarak = explode('/', $utvonal);
         $konyvtarak_ut = '';
-        foreach($konyvtarak as $konyvtar){
+        foreach ( $konyvtarak as $konyvtar ) {
             $konyvtarak_ut .= $konyvtar.'/';
             if( !is_dir($konyvtarak_ut) ) {
                 mkdir($konyvtarak_ut, 0777);

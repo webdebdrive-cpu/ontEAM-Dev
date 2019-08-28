@@ -90,6 +90,59 @@ if( isset($_POST['van_kapcsolt_szamla']) ) {
     exit;
 }
 
+// Projekt zárható-e?
+if( isset($_POST['projekt_zarhato_e']) ) {
+    
+    // Ha nincs már olyan jótállás sor, aminek üres volna az útvonala, akkor rákérdezünk, hogy zárni szeretné-e a projektet
+    if( !$adatbazis_kapcsolat->s2('recid', 'projektszerzodes_jotallas', "`projektszerzodes_recid`='{$_POST['recid']}' AND `utvonal`=''") ) {
+        echo json_encode( array(
+                            'hiba'   => 'Feltöltötte az utolsó jótállást. Lezárja a projektet?',
+                            'gomb'   => '<input type="button" class="gomb zold" value="Igen" onclick="projekt_lezar();"><input type="button" class="gomb piros" value="Nem" onclick="alert2()">',
+                            'title'  => 'Kérdés',
+                        ) );
+    }
+    
+    $weblap -> leallit();
+    exit;
+}
+
+// Projekt lezárása
+if( isset($_POST['projekt_lezar']) ) {
+    
+    $db_error = false;
+    mysqli_autocommit($db_kapcs, false);
+    
+    // Szerződésből visszaszámoljuk a projektet
+    $szerzodes = $adatbazis_kapcsolat->s2('pr_szam', 'projektszerzodes', "`recid`='{$_POST['recid']}'");
+    if( $szerzodes === false ) { $db_error = true; }
+    
+    $projekt = $adatbazis_kapcsolat->s2('recid', 'projektkezeles', "`ikt_szam`='{$szerzodes['pr_szam']}'");
+    if( $projekt === false ) { $db_error = true; }
+    
+    // Státusz léptetés
+    if( addStatusz( 'projektkezeles_statusz', $projekt['recid'], PRKEZEL_STAT_LEZART, '', 'Projektszerződés utolsó jótállásakor lezárva.' ) === false ) {
+        $db_error = true;
+    }
+    
+    if( !$db_error ) {
+        mysqli_commit($db_kapcs);
+
+        echo json_encode(array(
+            'statusz' => 'siker'
+        ));
+    } else {
+        mysqli_rollback($db_kapcs);
+
+        echo json_encode(array(
+            'hiba'  => tranzakcioHiba(),
+            'title' => 'Hiba'
+        ));
+    }
+    
+    $weblap->leallit();
+    exit();
+}
+
 // Projekt táblázat betöltése
 if( isset($_POST['get_projekt_tabla']) ) {
 
@@ -1551,16 +1604,16 @@ require_once('selectek.php');
         }
         
         // Tételek felsorolása
-        $tetelek = $adatbazis_kapcsolat->s('*', 'projektszerzodes_tetel', "`projektszerzodes_recid`='{$_GET['id']}'", 'recid');
+        $tetelek = $adatbazis_kapcsolat->s('*', 'projektszerzodes_tetel', "`projektszerzodes_recid`='{$_GET['id']}'", 'varh_erk');
         foreach ( $tetelek as $tetel ) {
             
             $szamla_html .= nl2('
                 <div class="dtr nSor">
                     <div class="dtc">'.$tetel['targy'].'</div>
                     <div class="dtc">'.datum_kiir($tetel['varh_erk']).'</div>
-                    <div class="dtc r">'.number_format($tetel[$osszeg_oszlop], $tizedesek, ',', ' ').'</div>
+                    <div class="dtc r nowrap">'.number_format($tetel[$osszeg_oszlop], $tizedesek, ',', ' ').'</div>
                     <div class="dtc">'.datum_kiir($tetel['teljesites']).'</div>
-                    <div class="dtc r">'.number_format($tetel[$ertek_oszlop], $tizedesek, ',', ' ').'</div>
+                    <div class="dtc r nowrap">'.number_format($tetel[$ertek_oszlop], $tizedesek, ',', ' ').'</div>
                 </div>
             ');
         }
@@ -1629,7 +1682,10 @@ require_once('selectek.php');
                                         'oszlop'        : 'projektszerzodes_recid',
                                         'recid'         : '".$jotallas['recid']."'
                                         ");
-                    $minden_kesz = 'szamlaBetolt(_get(\'id\'), baseName(location.href) + \'.php\', \'jotallas\');';
+                    // Ha minden kész, akkor először is betöljük az adatlap jótállás fülét, frissítünk
+                    $minden_kesz  = 'szamlaBetolt(_get(\'id\'), baseName(location.href) + \'.php\', \'jotallas\');';
+                    // Illetve ellenőrizzük, hogy ez volt-e az utolsó, mert ha igen, akkor a projekt Lezárható.
+                    $minden_kesz .= 'projekt_zarhato_e();';
                     $fajl = str_replace(    array('{PHP_FAJL}',     '{PARAMETEREK}', '{MEGN}', '{MINDEN_KESZ}'),
                                             array('../feltolt.php', $parameterek,    $megn,    $minden_kesz   ),
                                             $tallozas_gomb

@@ -1223,11 +1223,6 @@ input.webdeb{
     margin: 0.0rem 0.0rem 1rem 0.0rem;
 }
 
-/* Checkbox */
-.cb input[type=checkbox] {
-	/*display: none;*/
-}
-
 .cb input[type=checkbox]:focus + label {
     border: 0.1rem solid #226294;
 }
@@ -1239,6 +1234,11 @@ input.webdeb{
     top: -0.1rem;
     vertical-align: middle;
     width: 2.1rem;
+}
+
+.cb.jobbra {
+    float: right;
+    margin-right: 1rem;
 }
 
 .cb label {

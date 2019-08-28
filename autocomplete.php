@@ -210,13 +210,18 @@ if(isset($_GET['value']) && isset($_GET['tabla']) && isset($_GET['oszlop_keres']
         }
         
 
-        // Energia terv egységárnál a nem fontos a recid, de nagyon fontos, hogy az értékek DISTINCT-elve legyenek
+        // Energia terv egységárnál nem fontos a recid, de nagyon fontos, hogy az értékek DISTINCT-elve legyenek
         if( $_GET['tabla'] == 'energia_terv_ear' ) {
             $lekerdez = mysqli_query($db_kapcs, 'SELECT DISTINCT `'.implode('`, `', $oszlop_listaz).'` FROM `'.get_db_tabla().$_GET['tabla'].'`'.$where_sql.' ORDER BY `'.$oszlop_keres[0].'`') or die(mysqli_error($db_kapcs));
 // echo 'SELECT DISTINCT `'.implode('`, `', $oszlop_listaz).'` FROM `'.get_db_tabla().$_GET['tabla'].'`'.$where_sql.' ORDER BY `'.$oszlop_keres[0].'`' . '<br>';
+        
         // Cikktörzs esetén a rendezés cikknév szerint legyen
         } elseif( $_GET['tabla'] == 'cikktorzs' ) {
             $lekerdez = mysqli_query($db_kapcs, 'SELECT DISTINCT `recid`, `'.implode('`, `', $oszlop_listaz).'`, `cikkmee` FROM `'.get_db_tabla().$_GET['tabla'].'`'.$where_sql.' ORDER BY `nev`') or die(mysqli_error($db_kapcs));
+            
+        // Projekt team tagoknál szűrni kell projekt recid-ra
+        } elseif( $_GET['tabla'] == 'projektkezeles_team' ) {
+            $lekerdez = mysqli_query($db_kapcs, 'SELECT `recid`,'.$select_kieg.' `'.implode('`, `', $oszlop_listaz).'` FROM `'.get_db_tabla().$_GET['tabla'].'`'.$where_sql.' AND `projektkezeles_recid`=\''. $_GET['recid'].'\' ORDER BY `'.$oszlop_keres[0].'`') or die(mysqli_error($db_kapcs));
         } else {
 // echo 'SELECT `recid`,'.$select_kieg.' `'.implode('`, `', $oszlop_listaz).'` FROM `'.get_db_tabla().$_GET['tabla'].'`'.$where_sql.' ORDER BY `'.$oszlop_keres[0].'`'; exit;
             $lekerdez = mysqli_query($db_kapcs, 'SELECT `recid`,'.$select_kieg.' `'.implode('`, `', $oszlop_listaz).'` FROM `'.get_db_tabla().$_GET['tabla'].'`'.$where_sql.' ORDER BY `'.$oszlop_keres[0].'`') or die(mysqli_error($db_kapcs));

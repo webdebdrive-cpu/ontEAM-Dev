@@ -322,3 +322,8 @@ function keszre_allit() {
         }
     });
 }
+
+
+function keszre_allit() {
+    
+}

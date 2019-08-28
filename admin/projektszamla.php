@@ -491,7 +491,7 @@ if( isset($_POST['projektszamla_kapcsolas']) ) {
     }
     
     // Ha a számla nettó értéke nem egyenlő a tételek összegével, akkor hibaüzenet
-    if( number_format($kif_ossz, $tizedesek, ',', ' ') > number_format($szerzodes[$szerz_mezo], $tizedesek, ',', ' ') ) {
+    if( number_format($kif_ossz, $tizedesek, ',', '') > number_format($szerzodes[$szerz_mezo], $tizedesek, ',', '') ) {
         echo json_encode( array( 
                         'hiba'  => 'A már kifizetett ('.number_format($kifizetett_ossz, $tizedesek, ',', ' ').' '.$penznem.') és a még kifizetésre váró ('.number_format($kifizet_var_ossz, $tizedesek, ',', ' ').' '.$penznem.') számlák összege ('.number_format($kif_ossz, $tizedesek, ',', ' ').' '.$penznem.') több,<br>mint a szerződés összege ('.number_format($szerzodes[$szerz_mezo], $tizedesek, ',', ' ').' '.$penznem.')! Így nem menthető!',
                         'title' => 'Hiba',
@@ -1053,8 +1053,9 @@ if( isset($_POST['van_tetel']) ) {
 
     }
         
-    // Ha van feltöltött tétel, akkor az összegüknek meg kell egyezzen a számla nettó értékével
-    if( $_SESSION['pr_szla_tetel_targy'] ) {
+    // Új feltöltéskor: Ha van feltöltött tétel és nem nullás a számla, akkor az összegüknek meg kell egyezzen a számla nettó értékével
+    // Módosításkor a fuggvenyek.php-ban kell ellenőrizni
+    if( $_SESSION['pr_szla_tetel_targy'] && !$_POST['nullas'] ) {
 
         $tetelek_osszege = 0;
         foreach ( $_SESSION[$session_mezo] as $ertek ) {
@@ -1610,7 +1611,7 @@ require_once('selectek.php');
             </div>
         ');
 
-        $gombok .= ' <input type="button" class="gomb" onclick="if( !$(\'#netto\').val() || $(\'#netto\').val()==\'0\' ){ alert2(\'Tételek kezelése előtt adja meg a számla nettó értékét!\', \'\', \'Hiba\'); }else{ csoportMuvelet(\'projektszamla_tetelek_kezelese\'); }" value="Tételek kezelése">';
+        $gombok .= ' <input type="button" class="gomb" onclick="if( $(\'#kcs_21\').val()!=\''.KCS_21_HUF.'\' && ( $(\'#arfolyam\').val()==\'\' || $(\'#arfolyam\').val()==\'0,0000\' ) ) { $(\'#arfolyam\').addClass(\'hibas_ide_focus\'); alert2(\'Tételek kezeléséhez kérem adja meg az Árfolyamot!\', \'\', \'Hiba\'); } else { if( !$(\'#netto\').val() || $(\'#netto\').val()==\'0\' ){ $(\'#netto\').addClass(\'hibas_ide_focus\'); alert2(\'Tételek kezelése előtt adja meg a számla nettó értékét!\', \'\', \'Hiba\'); } else { csoportMuvelet(\'projektszamla_tetelek_kezelese\'); } }" value="Tételek kezelése">';
 
         $muv_style = ' style="width: calc(100% - '.($_SESSION['defaultCsuszka'] + 16).'px);"';
         if( in_array(basename(self()), $_SESSION['ketHasabos']) && $_SESSION[get_db_tabla().'user'] ) {
@@ -1665,7 +1666,7 @@ require_once('selectek.php');
         // Tételek kezelése, és a számla nincs még visszaadva
         if( get_projekt_szamla_kezel_jog($_GET['id']) && !$sor['visszaadva'] ) {
             
-            $gombok .= ' <input type="button" class="gomb" onclick="csoportMuvelet(\'projektszamla_tetelek_kezelese\');" value="Tételek kezelése">';
+            $gombok .= ' <input type="button" class="gomb" onclick="if( $(\'#kcs_21\').val()!=\''.KCS_21_HUF.'\' && ( $(\'#arfolyam\').val()==\'\' || $(\'#arfolyam\').val()==\'0,0000\' ) ) { $(\'#arfolyam\').addClass(\'hibas_ide_focus\'); alert2(\'Tételek kezeléséhez kérem adja meg az Árfolyamot!\', \'\', \'Hiba\'); } else { csoportMuvelet(\'projektszamla_tetelek_kezelese\'); }" value="Tételek kezelése">';
             // Ha nem az Adatlapon volnánk, akkor szükségünk lesz egy rejtett inputra, ami az adatbázisban levő nettó értéket tartalmazza, hogy bármelyik fül alatt szerkeszteni lehessen a tételeket, összehasonlítva az aktuális számla nettó értékével
             $gombok .= ' <input type="hidden" id="netto_db" value="'.$sor['netto'].'">';
             $gombok .= ' <input type="hidden" id="dev_net_db" value="'.$sor['dev_net'].'">';
@@ -1719,6 +1720,22 @@ require_once('selectek.php');
                         </script>
                         ');
         $js_submit_elott = nl2('
+
+                /* Nettó és Bruttó mezők kötelezőek, hacsak nem nullás a számla */
+                if( !$(\'#nullas\').prop(\'checked\') && ( $(\'#netto\').val()==\'\' || $(\'#netto\').val()==\'0\' ) ) {
+
+                    alert2(\'Kérem adja meg a Nettó értéket!\', \'\', \'Hiba\');
+                    alert_utan_mehet_megsem_mutat_beallit();
+                    $(\'#netto\').addClass(\'hibas_ide_focus\');
+                    return false;
+                }
+                if( !$(\'#nullas\').prop(\'checked\') && ( $(\'#brutto\').val()==\'\' || $(\'#brutto\').val()==\'0\' ) ) {
+
+                    alert2(\'Kérem adja meg a Bruttó értéket!\', \'\', \'Hiba\');
+                    alert_utan_mehet_megsem_mutat_beallit();
+                    $(\'#brutto\').addClass(\'hibas_ide_focus\');
+                    return false;
+                }
 
                 /* Árfolyam mező kötelező-e, ha igen, van-e értéke? */
                 if( $(\'#arfolyam\').hasClass(\'csillag\') && ( !$(\'#arfolyam\').val() || $(\'#arfolyam\').val()==\'0,0000\' ) ) {
@@ -1782,6 +1799,7 @@ require_once('selectek.php');
                         kcs_21          : $(\'#kcs_21\').val(),
                         netto           : $(\'#netto\').val(),
                         brutto          : $(\'#brutto\').val(),
+                        nullas          : $(\'#nullas\').prop(\'checked\'),
                         dev_net         : $(\'#dev_net\').val(),
                         sz_szam         : $(\'#sz_szam\').val(),
                         pr_szam         : $(\'#pr_szam\').val(),
@@ -1924,6 +1942,7 @@ require_once('selectek.php');
             }
             $sor['post_data'] = $post_adatok;
             // Futtassuk le a deviza input elhagyást, mert ez alapján dől el, hogy a többi mező disabled-e vagy sem
+            // Illetve új feltöltéskor startból a 0-ás számla még biztos nincs kipipálva, ezért a kötelező mező class-t ráadjuk a nettó és bruttó mezőkre.
             $szamla_html .= nl2('
                 <script>
                     $(document).ready(function () {
@@ -1932,6 +1951,19 @@ require_once('selectek.php');
                 </script>
                 ');
         }
+        
+        // Ha nincs bepipála a 0-ás számla, akkor a nettó és bruttó mezők kötelezőek
+        $szamla_html .= nl2('
+            <script>
+                $(document).ready(function () {
+                    /* Ha nincs bepipálva a nullás pipa, akkor a nettó és bruttó mezők kötelezőek */
+                    if( !$(\'#nullas\').prop(\'checked\') ) {
+                        $(\'#netto\').addClass(\'csillag\');
+                        $(\'#brutto\').addClass(\'csillag\');
+                    }
+                });
+            </script>
+            ');
         
 		// Ez elkészíti a $mezok változót
 		require('switch.php');
@@ -1961,14 +1993,46 @@ require_once('selectek.php');
         $szamla_html .= nl2('
                         <script>
                             var visszaadva_pipa_mehet   = false;
+                            var nullas_pipa_mehet       = false;
                             var netto_br_ell            = false;
                             var netto_br_deviza_ell     = false;
                         </script>
                         ');
+        
+        // A nullás megerősítő kérdéset csak akkor tesszük fel, ha nem a nullás tétele van adott számlának
+        if( !$adatbazis_kapcsolat->s('recid', 'projektszamla_tetel', "`projektszamla_recid`='{$_GET['id']}' AND `netto_ert`='0' AND `dev_net`='0.00'") ) {
+            $nullas_megerosites = nl2('
+                /* Nullás számla megerősítő kérdés */
+                if( !nullas_pipa_mehet && $(\'#nullas\').prop(\'checked\') ) {
+                    alert2( \' 0 értékű számlát készül feldolgozni. Az eddigi tételek ki fognak ürülni.\'+
+                            \'<br>Folytatja?\',
+                            \'<input type="button" class="gomb zold" value="Igen" onclick="nullas_pipa_mehet = true; mentesGomb();"><input type="button" class="gomb piros" value="Nem" onclick="alert2();">\');
+                            alert_utan_mehet_megsem_mutat_beallit();
+                            return false;
+                }
+                ');
+        }
+        
         $js_submit_elott = nl2('
             
+            /* Nettó és Bruttó mezők kötelezőek, hacsak nem nullás a számla */
+            if( !$(\'#nullas\').prop(\'checked\') && ( $(\'#netto\').val()==\'\' || $(\'#netto\').val()==\'0\' ) ) {
+
+                alert2(\'Kérem adja meg a Nettó értéket!\', \'\', \'Hiba\');
+                alert_utan_mehet_megsem_mutat_beallit();
+                $(\'#netto\').addClass(\'hibas_ide_focus\');
+                return false;
+            }
+            if( !$(\'#nullas\').prop(\'checked\') && ( $(\'#brutto\').val()==\'\' || $(\'#brutto\').val()==\'0\' ) ) {
+
+                alert2(\'Kérem adja meg a Bruttó értéket!\', \'\', \'Hiba\');
+                alert_utan_mehet_megsem_mutat_beallit();
+                $(\'#brutto\').addClass(\'hibas_ide_focus\');
+                return false;
+            }
+            
             /* Árfolyam mező kötelező-e, ha igen, van-e értéke? */
-            if( $(\'#arfolyam\').hasClass(\'csillag\') && ( !$(\'#arfolyam\').val() || $(\'#arfolyam\').val()==\'0,0000\' ) ){
+            if( $(\'#arfolyam\').hasClass(\'csillag\') && ( !$(\'#arfolyam\').val() || $(\'#arfolyam\').val()==\'0,0000\' ) ) {
 
                 alert2(\'Kérem adja meg az Árfolyamot!\', \'\', \'Hiba\');
                 alert_utan_mehet_megsem_mutat_beallit();
@@ -1976,7 +2040,7 @@ require_once('selectek.php');
                 return false;
             }
             /* Deviza nettó mező kötelező-e, ha igen, van-e értéke? */
-            if( $(\'#dev_net\').hasClass(\'csillag\') && ( !$(\'#dev_net\').val() || $(\'#dev_net\').val()==\'0,00\' ) ){
+            if( $(\'#dev_net\').hasClass(\'csillag\') && ( !$(\'#dev_net\').val() || $(\'#dev_net\').val()==\'0,00\' ) ) {
 
                 alert2(\'Kérem adja meg a Deviza nettó értéket!\', \'\', \'Hiba\');
                 alert_utan_mehet_megsem_mutat_beallit();
@@ -1984,7 +2048,7 @@ require_once('selectek.php');
                 return false;
             }
             /* Deviza bruttó mező kötelező-e, ha igen, van-e értéke? */
-            if( $(\'#dev_br\').hasClass(\'csillag\') && ( !$(\'#dev_br\').val() || $(\'#dev_br\').val()==\'0,00\' ) ){
+            if( $(\'#dev_br\').hasClass(\'csillag\') && ( !$(\'#dev_br\').val() || $(\'#dev_br\').val()==\'0,00\' ) ) {
 
                 alert2(\'Kérem adja meg a Deviza bruttó értéket!\', \'\', \'Hiba\');
                 alert_utan_mehet_megsem_mutat_beallit();
@@ -1994,7 +2058,7 @@ require_once('selectek.php');
 
             /* A bruttó és nettó mezőt is ellenőrizzük */
             var hibauzi = pr_szamla_netto_br_ell();
-            if( hibauzi && !netto_br_ell ){
+            if( hibauzi && !netto_br_ell ) {
                 alert2(hibauzi, \'<input type="button" class="gomb zold" value="Igen" onclick="netto_br_ell=true; alert2(); mentesGomb();"> <input type="button" class="gomb piros" value="Nem" onclick="alert2();">\', \'Hiba\');
                 alert_utan_mehet_megsem_mutat_beallit();
                 return false;
@@ -2002,7 +2066,7 @@ require_once('selectek.php');
             
             /* A bruttó és nettó deviza mezőt is ellenőrizzük */
             var hibauzi = pr_szamla_deviza_netto_br_ell();
-            if( hibauzi && !netto_br_deviza_ell ){
+            if( hibauzi && !netto_br_deviza_ell ) {
                 alert2(hibauzi, \'<input type="button" class="gomb zold" value="Igen" onclick="netto_br_deviza_ell=true; alert2(); mentesGomb();"> <input type="button" class="gomb piros" value="Nem" onclick="alert2();">\', \'Hiba\');
                 alert_utan_mehet_megsem_mutat_beallit();
                 return false;
@@ -2011,7 +2075,7 @@ require_once('selectek.php');
             /* Visszaadva pipa ellenőrzése */
             if( !visszaadva_pipa_mehet && $(\'#visszaadva\').prop(\'checked\') && $(\'#visszaadva\').hasClass(\'mod\') ) {
                 
-                if( !$(\'#visszaadva_dt\').val() || $(\'#visszaadva_dt\').val()==\'\xa0\xa0\xa0\xa0.\xa0\xa0.\xa0\xa0\' ){
+                if( !$(\'#visszaadva_dt\').val() || $(\'#visszaadva_dt\').val()==\'\xa0\xa0\xa0\xa0.\xa0\xa0.\xa0\xa0\' ) {
                     alert2(\'Kérem adja meg a visszaadás dátumát!\', \'\', \'Hiba\');
                     $(\'#visszaadva_dt\').addClass(\'hibas_ide_focus\');
                     return false;
@@ -2025,6 +2089,9 @@ require_once('selectek.php');
                         alert_utan_mehet_megsem_mutat_beallit();
                         return false;
             }
+
+            '.$nullas_megerosites.'
+
             return form_ell_admin();
             ');
 
@@ -2058,11 +2125,18 @@ require_once('selectek.php');
         }
         $szamla_html .= '<script> formAdatok = JSON.parse(\''.json_encode($json_sor).'\'); </script>';
         // Futtassuk le a deviza input elhagyást, mert ez alapján dől el, hogy a többi mező disabled-e vagy sem
+        // Illetve a 0-ás számla pipa lekezelését is itt intézzük el, hogy minden lapletölsékor lefusson (ezért nem a projektszámla.js-ben van)
         $szamla_html .= nl2('
             <script>
                 $(document).ready(function () {
                     $(\'#kcs_21_autocomp\').focus();
                     $(\'#szallito_id_autocomp\').focus();
+                    
+                    /* Ha nincs bepipálva a nullás pipa, akkor a nettó és bruttó mezők kötelezőek */
+                    if( !$(\'#nullas\').prop(\'checked\') ) {
+                        $(\'#netto\').addClass(\'csillag\');
+                        $(\'#brutto\').addClass(\'csillag\');
+                    }
                 });
             </script>
             ');

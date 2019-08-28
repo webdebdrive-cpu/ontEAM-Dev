@@ -1,0 +1,306 @@
+<h2>Dokumentumok küldése team tagoknak</h2>
+<form action="" id="munkalapKulso" class="popupForm" method="post" onsubmit="return dokumentumKuldeseTeamTagoknak( this );">
+    <div class="kozep" style="min-height: 30rem">
+        
+        <div class="dt">
+            <div class="dtr"> 
+                <div class="dtc form_jobb plr0">
+                    <strong>E-mail megrendelés adatai:</strong>
+                    <br>Címzett kiválasztása: <input type="text" autocomplete="off" class="oriasi disableNav csillag" name="pop_cimzett_loginbol_autocomp" id="pop_cimzett_loginbol_autocomp" onblur="if(!$(this).val()){ $('#pop_cimzett_loginbol').val(''); }" value="" data-ne_urits="1" style="width: 30rem">
+                    <input type="hidden" name="pop_cimzett_loginbol" id="pop_cimzett_loginbol" value="">
+                    <script>
+                         $(document).ready(function() {
+                             $('#pop_cimzett_loginbol_autocomp').autocomplete({
+                                 'php_fajl'         : '../autocomplete.php',
+                                 'tabla'            : 'projektkezeles_team',
+                                 'oszlop_keres'     : 'nev',
+                                 'oszlop_listaz'    : 'nev',
+                                 'recid'            : _get('id'),
+                                 'id_kiir'          : 'usermail',
+                             });
+                        });
+                    </script>
+                    <input type="button" class="gomb alacsony zold" value="Címzett" onclick="cimzett_add('cimzett')">
+                    <input type="button" class="gomb alacsony kek" value="Másolat" onclick="cimzett_add('masolat')">
+                    <br><strong>Címzett:</strong>
+                    <br><input type="text" id="pop_cimzett" class="oriasi disableNav popup_input_margo" maxlength="250">
+                    <br><strong>Másolat:</strong>
+                    <br><input type="text" id="pop_masolat" class="oriasi disableNav popup_input_margo" maxlength="250">
+                    <br><strong>Tárgy:</strong>
+                    <br><input type="text" id="pop_targy" class="oriasi disableNav popup_input_margo csillag" maxlength="250">
+                    <div class="levelezo_grid">
+                        <div>
+                            <strong>Üzenet:</strong>
+                            <br><textarea id="pop_uzenet" class="popup_input_margo level_szoveg"></textarea>
+                            <br>
+                        </div>
+                        <div>
+                            <strong>Fájlok csatolása:</strong>
+                            <div id="jsff_mailcsatolmany" class="jsff csak_gomb">
+                                <div class="talloz">
+                                    <div class="kicsi">
+                                        <span>Tallózás</span> <input id="jsff_mailcsatolmany_input" type="file" name="files[]" multiple="" onchange="beolvasas_mailcsatolmany_popup(this.files, false);">
+                                    </div>
+                                </div>
+                            </div>
+                            <div id="pop_csatolt_fajlok"></div>
+                            
+                            <div style="margin-top: 1rem;"></div>
+                            <strong>Kiválasztott dokumentumok:</strong>
+                            <div id="pop_csatolt_dokumentumok"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="kuldes">
+        <input type="hidden" id="utvonalak">
+        <input type="submit" class="gomb zold" value="E-mail küldése partnernek">
+        <input type="button" name="megsem" class="gomb piros" value="Mégsem" onclick="popupZar();">
+    </div>
+</form>
+<script>
+$(document).ready(function(){
+    /* Külső kivitelező hozzárendelés popup inputjait be kell állítani, alapértemlezett értékekkel feltölteni */
+    /* get_kulso_hozzarendeles_input_tartalmak(); */
+    get_csatolmanyok( baseName( location.href ), _get('id') );
+    
+    /* Popup megjelenésekor a csatolt fáljokat felsoroljuk a popup képernyőjén is */
+    var csatolt_fajlok = utvonalak = '';
+    $('.dok_jeloles:checked').each(function() {
+        id = $(this).attr('id').replace('jeloles_kep', '');
+        csatolt_fajlok += '<div class="dtr">' + 
+                                '<div class="dtc vam" style="width: 2.5rem;">' + $('#kep'+id).find('.kep a').html() + '</div>' + 
+                                '<div class="dtc vam">' + $('#kep'+id).find('.fajlnev').html() + '</div>' + 
+                           '</div>';
+        utvonalak += $('#kep'+id).find('.kep a').attr('href')+',';
+    });
+    $('#utvonalak').val(utvonalak);
+    $('#pop_csatolt_dokumentumok').html(csatolt_fajlok);
+});
+
+    
+/* Külső kivitelező hozzárendelése */
+function dokumentumKuldeseTeamTagoknak( that ) {
+    
+    if( balnav_kijelol_ell() ) {
+
+        $.ajax({
+            url : 'projektkezeles.php',
+            type: 'POST',
+            data: {
+                recid               : _get('id'),
+                utvonalak           : $('#utvonalak').val(),
+                cimzett             : $('#pop_cimzett').val(),
+                masolat             : $('#pop_masolat').val(),
+                targy               : $('#pop_targy').val(),
+                uzenet              : $('#pop_uzenet').val(),
+                dokumentumKuldeseTeamTagoknak   : new Date().getTime()
+            },
+            success: function(response) {
+                if(response.substring(0, 6)=='SESKIL'){ location.href = 'index.php'; }
+                if( response ) {
+                    response = JSON.parse(response);
+
+                    if( response.hiba ) {
+                        /* Attól, hogy hibaüzenetet kapunk, még frissüljön az adatlap. Pl. csak a mailküldés nem sikerült, de a státusz tovább lett léptetve, azt látni kell. */
+                        szamlaBetolt(_get('id'), baseName(location.href) + '.php', 'dokumentumok');
+                        alert2(response.hiba, response.gomb, response.title);
+                        if(response.focus){
+                            $('#'+response.focus).addClass('hibas_ide_focus');
+                        }
+                        $('#email_kuldessel').val('0');
+                        return false;
+                    }
+
+                    szamlaBetolt(_get('id'), baseName(location.href) + '.php', 'dokumentumok');
+                    popupZar();
+                }
+            },
+            complete: function(xhr) {
+                if( xhr.status != 200 ) {
+                    alert2(xhr.responseText, '', 'Hiba');
+                }
+            }
+        });
+    }
+
+    return false;
+}
+
+/* Címzett/másolat mezőkhöz adjuk a kiválasztott mailcímet */
+function cimzett_add( mezo ){
+    
+    if(!$('#pop_cimzett_loginbol_autocomp').val()){
+        alert2('Kérem előbb válasszon címzettet!', '', 'Hiba');
+        return false;
+    }
+    
+    if(!$('#pop_cimzett_loginbol').val()){
+        alert2($('#pop_cimzett_loginbol_autocomp').val()+' felhasználónak nem ismert a mailcíme!', '', 'Hiba');
+        $('#pop_cimzett_loginbol_autocomp').addClass('hibas_ide_focus');
+        return false;
+    }
+    
+    if(mezo=='cimzett'){
+        mailcim_hozzafuz( $('#pop_cimzett') );
+    }
+    if(mezo=='masolat'){
+        mailcim_hozzafuz( $('#pop_masolat') );
+    }
+    
+    
+    $('#pop_cimzett_loginbol').val('');
+    $('#pop_cimzett_loginbol_autocomp').val('').focus();
+    
+}
+/* cimzett_add() függvény kiegészítője: mailcím hozáfűrzése vesszővel elválasztva: ha van vessző ha nincs, mindig jól fűződjön hozzá */
+function mailcim_hozzafuz( that ){
+    mezo_tartalma = that.val().trim();
+    if( that.val() ){
+        if( mezo_tartalma.slice(-1) != ',' ){
+            mezo_tartalma += ', ';
+        }else{
+            mezo_tartalma += ' ';
+        }
+    }
+    mezo_tartalma += $('#pop_cimzett_loginbol').val();
+    that.val( mezo_tartalma );
+}
+
+/* Beolvasás */
+$( document ).on('change','#jsff_mailcsatolmany_input' , function(){
+    alert2('Feltöltés...', '&nbsp;', 'Információ');
+});
+var jsff_mailcsatolmany = document.getElementById('jsff_mailcsatolmany'),
+    tests_mailcsatolmany_popup = {
+        filereader  : typeof FileReader != 'undefined',
+        dnd         : 'draggable' in document.createElement('span'),
+        formdata    : !!window.FormData,
+        progress    : 'upload' in new XMLHttpRequest
+    },
+    kepformatumok_mailcsatolmany = {
+        'image/png' : true,
+        'image/jpeg': true,
+        'image/gif' : true
+    };
+function beolvasas_mailcsatolmany_popup(fajlok, ellenorzes_kihagy) {
+
+    var voltmar = [];
+
+    var formData        = tests_mailcsatolmany_popup.formdata ? new FormData() : null;
+    var fajlok_kesz     = 0;
+
+    for (var i = 0; i < fajlok.length; i++){
+
+        formData.append('file', fajlok[i]);
+        /* Kép megjelenítése egyből: */
+        /*elonezet_mailcsatolmany_popup(fajlok[i]);*/
+
+        fajl = fajlok[i];
+
+        var progress_id = 'jsff_mailcsatolmany_popup_' + i;
+        var pg = $('<progress id="'+progress_id+'" min="0" max="100" value="0">0</progress>');
+        $('#jsff_mailcsatolmany_popup').append(pg);
+
+        var xhr = new XMLHttpRequest();
+        xhr.open('POST', 'feltolt_mailcsatolmany.php');
+
+        (function(progress_id, fajl, i){
+            xhr.upload.onprogress = function(e){
+                var percent = parseInt(e.loaded / e.total * 100);
+                $('#' + progress_id).val(percent);
+            };
+            xhr.onload = function(){
+                fajlok_kesz++;
+                $('#' + progress_id).val(100);
+                $('#' + progress_id).fadeOut(2000, function(){ $('#' + progress_id).next('br').remove(); });
+
+                if(this.responseText.substring(0,5)=='Hiba!') {
+                    if( this.responseText.substring(5) == 'A fájl létezik!' ) {
+                        voltmar[i] = fajl;
+                    } else {
+                        alert2(this.responseText.substring(5), '', 'Hiba');
+                    }
+                }else{
+                    /* Csatolmányok kiíratása */
+                    get_csatolmanyok( baseName( location.href ), _get('id') );
+                    if (fajlok_kesz == fajlok.length){
+                        minden_fajl_kesz_mailcsatolmany_popup();
+                    }
+                }
+
+                if(fajlok_kesz == fajlok.length){
+                    if( voltmar.length ) {
+                        fajl_feluliras_alert_mailcsatolmany_popup(voltmar);
+                        $('#jsff_mailcsatolmany_popup progress').hide();
+                    }
+                }
+            };
+        }(progress_id, fajl, i));
+
+        var parameterek = {'megnevezes':'mailcsatolmany_popup', 'konyvtar':'projektkezeles', 'sorid':_get('id')};
+        $.each(parameterek, function(kulcs, ertek){
+            formData.append(kulcs, ertek);
+        });
+
+        formData.append('ellenorzes_kihagy', ellenorzes_kihagy);
+
+        xhr.send(formData);
+
+    }
+
+    if( ellenorzes_kihagy ) {
+        alert2('');
+    }
+}
+felulirando_fajlok = false;
+function fajl_feluliras_alert_mailcsatolmany_popup(tomb) {
+    if( tomb ) {
+        nevek = 'A következő fájlok már léteznek, felülírja őket?';
+        for (var i = 0; i < tomb.length; i++){
+            nevek += '<p>' + tomb[i].name + '</p>';
+        }
+
+        $('#jsff_mailcsatolmany_popup progress').hide();
+
+        felulirando_fajlok = tomb;
+        alert2(nevek, '<input class="gomb zold" value="Igen" onclick="fajl_feluliras_mailcsatolmany_popup();" type="button"><input class="gomb piros" value="Nem" onclick="alert2()" type="button">', 'Hiba');
+    }
+}
+
+function fajl_feluliras_mailcsatolmany_popup() {
+    beolvasas_mailcsatolmany_popup(felulirando_fajlok, true);
+
+    felulirando_fajlok = false;
+}
+
+/* Ha minden fájl feltöltése kész, akkor itt adhat meg további utasítás */
+function minden_fajl_kesz_mailcsatolmany_popup(){
+    alert2('');
+    $('#jsff_mailcsatolmany_popup').find('progress').fadeOut(2000, function(){ $('#' + progress_id).next('br').remove(); });
+
+}
+
+/* Ha működik a drag&drop, akkor a CSS class-t megváltoztatjuk draghoverre */
+if(tests_mailcsatolmany_popup.dnd){
+
+    jsff_mailcsatolmany.ondragover = function(){
+        this.className = 'jsff hover';
+        return false;
+    };
+
+    jsff_mailcsatolmany.ondragleave = function(){
+        this.className = 'jsff';
+        return false;
+    };
+
+    jsff_mailcsatolmany.ondrop = function(e){
+        this.className = 'jsff';
+        e.preventDefault();
+        beolvasas_mailcsatolmany_popup(e.dataTransfer.files, false);
+    };
+
+}
+</script>

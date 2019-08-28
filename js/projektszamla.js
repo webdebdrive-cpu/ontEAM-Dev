@@ -1,10 +1,29 @@
-// Visszaadva pipa lekezelése.
-function pl_szamla_visszaadva (){
-    if( !$('#visszaadva').prop('checked') ){
+// Visszaadva pipa lekezelése
+function pr_szamla_visszaadva() {
+    if (!$('#visszaadva').prop('checked')) {
         $('#visszaadva_dt').val('').blur();
         $('#visszaadva_dt').removeClass('csillag');
-    }else{
+    } else {
         $('#visszaadva_dt').addClass('csillag');
+    }
+}
+
+// 0-ás számla pipa
+function pr_szamla_nullas() {
+    if ( $('#nullas').prop('checked') ) {
+        if( $('#kcs_21_autocomp').val() != 'HUF' ) {
+            $('#dev_net').val('0,00').attr('disabled', 'disabled').attr('readonly', 'readonly').removeClass('mod').removeClass('csillag');
+            $('#dev_br') .val('0,00').attr('disabled', 'disabled').attr('readonly', 'readonly').removeClass('mod').removeClass('csillag');
+        }
+        $('#netto')  .val('0').attr('disabled', 'disabled').attr('readonly', 'readonly').removeClass('mod').removeClass('csillag');
+        $('#brutto') .val('0').attr('disabled', 'disabled').attr('readonly', 'readonly').removeClass('mod').removeClass('csillag');
+    } else {
+        if( $('#kcs_21_autocomp').val() != 'HUF' ) {
+            $('#dev_net').removeAttr('disabled').removeAttr('readonly').focus().addClass('csillag');
+            $('#dev_br') .removeAttr('disabled').removeAttr('readonly').focus().addClass('csillag');
+        }
+        $('#netto')  .removeAttr('disabled').removeAttr('readonly').focus().addClass('csillag');
+        $('#brutto') .removeAttr('disabled').removeAttr('readonly').focus().addClass('csillag');
     }
 }
 
@@ -26,35 +45,35 @@ function prsz_hozzaad_gomb_hozzaad_vagy_torol() {
                 response = JSON.parse(response);
                 if (response.hiba) {
                     alert2(response.hiba, response.gomb, response.title);
-                }else{
+                } else {
     
-                    if( $('#sz_szam').val() ){
+                    if ($('#sz_szam').val()) {
 
                         // Törléskor csak akkor adunk hozzá 'mod' classt, ha amúgy volt eredetileg értéke
                         $('#sz_szam').val('');
                         if( $('#sz_szam').attr('value') ){
                             $('#sz_szam').addClass('mod');
-                        }else{
+                        } else {
                             $('#sz_szam').removeClass('mod');
                         }
                         $('#pr_szam').val('');
                         if( $('#pr_szam').attr('value') ){
                             $('#pr_szam').addClass('mod');
-                        }else{
+                        } else {
                             $('#pr_szam').removeClass('mod');
                         }
                         $('#let_fel_autocomp').val('');
                         $('#let_fel').val('');
                         if( $('#let_fel_autocomp').attr('value') ){
                             $('#let_fel_autocomp').addClass('mod');
-                        }else{
+                        } else {
                             $('#let_fel_autocomp').removeClass('mod');
                         }
                         $('#kolt_vis_autocomp').val('');
                         $('#kolt_vis').val('');
                         if( $('#kolt_vis_autocomp').attr('value') ){
                             $('#kolt_vis_autocomp').addClass('mod');
-                        }else{
+                        } else {
                             $('#kolt_vis_autocomp').removeClass('mod');
                         }
 
@@ -68,7 +87,7 @@ function prsz_hozzaad_gomb_hozzaad_vagy_torol() {
                         popupZar();
                         popupRejt();
 
-                    }else{
+                    } else {
 
                         csoportMuvelet('projektszamla_szerzodes_valaszt');
 
@@ -128,20 +147,26 @@ function pr_szamla_deviza_netto_br_ell() {
 }
 
 // Pénznem szerkesztésekor a kapcsolódó mezők disabled-ezése
+// Ez sima adatlap betöltésekor is lefut, mert az csinálunk egy blurt a kcs_21_autocomp mezőre.
 $(document).on('input, blur', '#kcs_21_autocomp', function(e) {
     // Azért van egy settimeoutban, mert a mezőt elhagyva még az autocomplete feltölti adattal. De az elhagyás pillanatában még üres.
     setTimeout(function(){
         if ($('#kcs_21_autocomp').val() && $('#kcs_21_autocomp').val() != 'HUF') {
             $('#arfolyam')  .removeAttr('disabled').removeAttr('readonly').focus().addClass('csillag');
             $('#valtva')    .removeAttr('disabled').removeAttr('readonly');
-            $('#dev_net')   .removeAttr('disabled').removeAttr('readonly').addClass('csillag');
-            $('#dev_br')    .removeAttr('disabled').removeAttr('readonly').addClass('csillag');
             
-        }else{
+            if( !$('#nullas').prop('checked') ) {
+                $('#dev_net')   .removeAttr('disabled').removeAttr('readonly').addClass('csillag');
+                $('#dev_br')    .removeAttr('disabled').removeAttr('readonly').addClass('csillag');
+            }
+            
+        } else {
+            
             $('#arfolyam')  .val('0,0000')      .attr('disabled', 'disabled').attr('readonly', 'readonly').removeClass('mod').removeClass('csillag');
             $('#valtva')    .val('\xa0\xa0\xa0\xa0.\xa0\xa0.\xa0\xa0').attr('disabled', 'disabled').attr('readonly', 'readonly').removeClass('mod');
             $('#dev_net')   .val('0,00')        .attr('disabled', 'disabled').attr('readonly', 'readonly').removeClass('mod').removeClass('csillag');
             $('#dev_br')    .val('0,00')        .attr('disabled', 'disabled').attr('readonly', 'readonly').removeClass('mod').removeClass('csillag');
+            
         }
         tabindex_beallit();
     }, 200);
