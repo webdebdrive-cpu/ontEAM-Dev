@@ -414,7 +414,7 @@ if( isset($_POST['projektszamla_kapcsolas']) ) {
         // Ha nincs számlája (ennek lehet az is az oka, hogy egy fiktív sor, azaz nem simert a recid),
         // akkor ellenőrizzük, hogy van-e beírva érték. Ha van, számoljuk, mert csak egy ilyen mező lehet
         // Ha van, akkor azt nem ellenőrizzük, mert akkor az egy szürke sor (már van számlája)
-        if( (!$van_szamlaja || !$_POST['adatok'][$recid_adat][1][$i]) && $ertek!=0 ) {
+        if( (!$van_szamlaja || !$_POST['adatok'][$recid_adat][1][$i]) ) {
             $volt_ertek++;
             // Csak egy értéket fogadunk el, ezt jegyezzük is meg
             $beirt_netto_ertek = $ertek;
@@ -678,7 +678,7 @@ if( isset($_POST['pop_tetelek_feltolt']) ) {
         // Illetve, hogy az aktuális számlán kívül milyen számlák tartoznak hozzá, és beleférünk-e a keretbe?
         $szamla_netto = str_replace( array(' ', ','), array('', '.'), $_POST[$szamla_netto_mezo]);
         $szamlak = $adatbazis_kapcsolat->s2('SUM(`'.$szamla_netto_mezo.'`)', 'projektszamla', "`sz_szam`='{$_POST['sz_szam']}' AND `recid`!='{$_POST['id']}' AND `visszaadva`=0");
-        if( number_format($szamlak['SUM(`'.$szamla_netto_mezo.'`)'] + $szamla_netto, $tizedesek, ',', '') > number_format( $pr_szerzodes[$szerzodes_netto_mezo], $tizedesek, ',', '') ) {
+        if( number_format($szamlak['SUM(`'.$szamla_netto_mezo.'`)'] + $szamla_netto, $tizedesek, '.', '') > number_format( $pr_szerzodes[$szerzodes_netto_mezo], $tizedesek, '.', '') ) {
             echo json_encode( array(
                                 'hiba'  => nl2('
                                                 Szerződött összeg: '.number_format($pr_szerzodes[$szerzodes_netto_mezo], $tizedesek, ',', ' ').' '.$penznem.'

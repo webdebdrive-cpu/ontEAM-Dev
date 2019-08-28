@@ -342,7 +342,10 @@
                                         document.getElementById(name).focus();
                                     } else {
                                         if ($('#' + name).length) {
-                                            document.getElementById(name).select();
+                                            setTimeout(function(){ 
+                                                document.getElementById(name).select() },
+                                            150);
+                                            
                                         }
                                     }
 

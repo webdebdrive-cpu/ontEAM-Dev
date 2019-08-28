@@ -114,19 +114,20 @@ function tetel_hozzaadasa() {
         return false;
     }
     
-    /* Várható érték ha üres */
-    if( !szla_varh_ert || szla_varh_ert=='0' || szla_varh_ert=='0,00' ){
+    /* Várható érték ha üres - 0 lehet! */
+    if( !szla_varh_ert /*|| szla_varh_ert=='0' || szla_varh_ert=='0,00'*/ ){
         alert2('Kérem töltse ki a várható értéket!', '', 'Hiba');
         $('#pop_szla_varh_ert').addClass('hibas_ide_focus');
         return false;
     }
     
     /* Várható érték nem lehet negatív */
-    if( Number(szla_varh_ert.replace(/ /g, '').replace(/,/g, '.'))<0 ){
+    /* De lehet!
+     * if( Number(szla_varh_ert.replace(/ /g, '').replace(/,/g, '.'))<0 ){
         alert2('A számla várható értéke nem lehet 0 vagy ettől kisebb!', '', 'Hiba');
         $('#pop_szla_varh_ert').addClass('hibas_ide_focus');
         return false;
-    }
+    }*/
     
     var id_tmp = new Date().getTime();
 
