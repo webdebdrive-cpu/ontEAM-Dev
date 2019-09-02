@@ -232,7 +232,7 @@ if (isset($_POST['addMegterules'])) {
     }
 
     // Negatív összeg
-    if($osszeg<0){
+    if( $osszeg < 0 ) {
         echo json_encode(array(
             'hiba'  => 'Nem adható meg 0-tól kisebb összeg!',
             'gomb'  => '<input class="link gomb" value="Ok" onclick="alert2(); $(\'#osszeg\').focus();" type="button">',
@@ -298,7 +298,7 @@ if (isset($_POST['velemeny_torol'])) {
     // Ha egy fájlt törlünk, akkor véleményezés alatt lesz ismét az igénylés (hisz nincs mindenhol feltöltött vélemény, nem maradhat nyitott ha az lett volna)
     $akt_stat = $adatbazis_kapcsolat->s2('stat_id', 'projektigenyles', "`recid`='{$velemeny['projektigenyles_recid']}'");
     if($akt_stat['stat_id']!=PRIGENY_STAT_VEL_ALATT){
-        if(addStatusz('projektigenyles_statusz', $velemeny['projektigenyles_recid'], PRIGENY_STAT_VEL_ALATT)===false){
+        if( addStatusz('projektigenyles_statusz', $velemeny['projektigenyles_recid'], PRIGENY_STAT_VEL_ALATT) === false ) {
             $db_error = true;
         }
     }

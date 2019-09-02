@@ -889,8 +889,30 @@ function i_u($type, $tabla, $tomb) {
 
         }
         
-        // Projektezelés státusz beszúrása + levélküldés
+        // Projektezelés státusz beszúrása + levélküldés + igénylés cash-flow áthozatala
         if( $tabla == 'projektkezeles' ) {
+            
+            // Cash-flow sorok áthozatala
+            if( $_POST['projektigenyles_recid'] ) {
+                $cash_flow = $adatbazis_kapcsolat->s('*', 'cash_flow', "`apa_recid`='{$_POST['projektigenyles_recid']}'");
+                if( $cash_flow === false ) { $db_error = true; }
+                
+                foreach( $cash_flow as $cf ) {
+                    $cf_nev_id = $adatbazis_kapcsolat->i('projektkezeles_cashflow_nev', 
+                                                            array('projektkezeles_recid',  'telephely_id',      'login',                            'insert_dt', 'insert_usr',                              'update_usr'                            ),
+                                                            array($id,                     $cf['telephely_id'], $_SESSION[get_db_tabla().'user'],   'NOW()',     $_SESSION[get_db_tabla().'teljes_nev'],    $_SESSION[get_db_tabla().'teljes_nev']  )
+                                                        );
+                    if( $cf_nev_id === false ) { $db_error = true; }
+                    
+                    $sql = $adatbazis_kapcsolat->i('projektkezeles_cashflow', 
+                                                            array('projektkezeles_recid', 'cashflow_nev_recid', 'datum',       'terv',          'login',                            'insert_dt', 'insert_usr',                              'update_usr'                            ),
+                                                            array($id,                    $cf_nev_id,           $cf['datum'],  $cf['osszeg'],   $_SESSION[get_db_tabla().'user'],   'NOW()',     $_SESSION[get_db_tabla().'teljes_nev'],    $_SESSION[get_db_tabla().'teljes_nev']  )
+                                                );
+                    if( $sql === false ) { $db_error = true; }
+                }
+                
+            }
+            
             $sql = $adatbazis_kapcsolat -> i($tabla.'_statusz',
                                                 array($tabla.'_recid', 'stat_id',             'login',                          'insert_dt',    'insert_usr',                             'update_usr'                           ),
                                                 array($id,             PRKEZEL_STAT_NYITOTT,  $_SESSION[get_db_tabla().'user'], 'NOW()',        $_SESSION[get_db_tabla().'teljes_nev'],   $_SESSION[get_db_tabla().'teljes_nev'] )
@@ -8602,6 +8624,8 @@ function level_felkeszit_es_kuld( $tabla, $recid, $ert_pipa, $sablon, $cimzett, 
         // Ha van értéke, az egy hibaüzenet, akkor sikerült küldeni, ha nincs visszatérési érték
         if( $sikeres_kuldes ) {
 
+            $sikeres_kuldes = str_replace('Could not instantiate mail function.', 'Could not instantiate mail function. - Lehet túl nagy fájlokat mellékelt?', $sikeres_kuldes);
+            
             $megj .= 'E-mail küldése nem sikerült '.$akt_cimzett['teljes_nev'].' '.$szerepkor.' '.$felhasznalonak_szo.' '.$esemeny.'('.$sikeres_kuldes.')'."\n\n";
 
             // Popupos hibaüzenet csak MSZK vezetőnek és Diszpécsernek megy
@@ -8645,7 +8669,7 @@ function level_felkeszit_es_kuld( $tabla, $recid, $ert_pipa, $sablon, $cimzett, 
 
 
 // Egységes dátum kiíráshoz (másodperc nem kell, kötőjel helyett pont)
-function datum_kiir($datum, $csak_datum = false){
+function datum_kiir($datum, $csak_datum = false) {
     if( $csak_datum ) {
         $hossz = 10;
     } else {

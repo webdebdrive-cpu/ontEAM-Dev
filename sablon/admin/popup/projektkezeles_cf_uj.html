@@ -2,12 +2,35 @@
 <form class="popupForm" method="post" onsubmit="return projektkezeles_cf_uj();">
     
     <div class="kozep">
-        <div class="nowrap">
-            Név: <input type="text" class="csillag" id="popup_nev" maxlength="90" style="width: 60rem; margin-bottom: 1rem;">
+        
+        <div class="dt">
+            <div class="dtr">
+                <div class="dtc">
+                    Szálloda:
+                </div>
+                <div class="dtc p">
+                    <div id="pop_szalloda"></div>
+                </div>
+            </div>
+            <div class="dtr">
+                <div class="dtc">
+                    Név:
+                </div>
+                <div class="dtc p">
+                    <input type="text" class="csillag" id="popup_nev" maxlength="90" style="width: 60rem; margin-bottom: 1rem;">
+                </div>
+            </div>
+            <div class="dtr">
+                <div class="dtc">
+                    Dátum:
+                </div>
+                <div class="dtc p">
+                    <input type="text" id="popup_datum" class="datepicker_matol csillag" style="margin-right: 2rem; min-width: 0; width: 8rem">
+                    Terv: <input type="text" id="popup_osszeg" class="csillag f_num" data-tort="0"> <span class="f_penznem"></span>
+                    <input type="button" class="gomb alacsony" value="Új terv adat" style="margin-left: 2rem;" onclick="uj_tervadat();">
+                </div>
+            </div>
         </div>
-        Dátum: <input type="text" id="popup_datum" class="datepicker_matol csillag" style="margin-right: 2rem;">
-        Terv: <input type="text" id="popup_osszeg" class="csillag f_num" data-tort="0"> <span class="f_penznem"></span>
-        <input type="button" class="gomb alacsony" value="Új terv adat" style="margin-left: 2rem;" onclick="uj_tervadat();">
         
         <div style="max-height: 30rem; overflow-y: auto">
             <table id="tervadatok" class="csikos dn">
@@ -47,6 +70,27 @@ $(document).ready(function(){
     /* f_penznem class-ú elemek lecserélése a pénznemre */
     $('.f_penznem').each(function () {
         $(this).replaceWith(PENZNEM);
+    });
+    
+    /* Szálloda select betöltése */
+    $.ajax({
+        url : 'projektkezeles.php',
+        type: 'POST',
+        data: {
+            recid                  : _get('id'),
+            get_szalloda_select    : Date.now()
+        },
+        success: function(response) {
+            if( response ) {
+                response = JSON.parse(response);
+                $('#pop_szalloda').html( response.szalloda );
+            }
+        },
+        complete: function(xhr) {
+            if( xhr.status != 200 ) {
+                alert2(xhr.responseText, '', 'Hiba');
+            }
+        }
     });
 });
 
@@ -112,6 +156,7 @@ function projektkezeles_cf_uj() {
         type: 'POST',
         data: {
             recid                   : _get('id'),
+            telephely_id            : $('#pop_telephely_id').val(),
             nev                     : $('#popup_nev').val(),
             datumok                 : JSON.stringify(datumok),
             tervek                  : JSON.stringify(tervek),

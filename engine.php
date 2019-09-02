@@ -1692,7 +1692,7 @@ function level_kuldes_osszetettebb( $felado_nev, $felado_mail, $cimzett_nev, $ci
         if( !$mail->Send() ) {
             $mail -> ClearAddresses();
             $mail -> ClearAttachments();
-            return 'Hiba: ' . $mail->ErrorInfo;
+            return 'Hiba: ' . str_replace('Could not instantiate mail function.', 'Could not instantiate mail function. - Lehet túl nagy fájlokat mellékelt!', $mail->ErrorInfo);
         } else {
             $mail -> ClearAddresses();
             $mail -> ClearAttachments();
@@ -1714,7 +1714,7 @@ function level_kuldes_osszetettebb( $felado_nev, $felado_mail, $cimzett_nev, $ci
 *
 * @return image adat
 */
-function logot_pecsetel( $kep, $logo, $eltolas_x = 0, $eltolas_y = 0, $kicsinyit = 20 ){
+function logot_pecsetel( $kep, $logo, $eltolas_x = 0, $eltolas_y = 0, $kicsinyit = 20 ) {
 	
 	$data           = fread(fopen($kep, 'rb'), filesize($kep));
 	$alap_kep       = imagecreatefromstring($data);
@@ -1778,7 +1778,7 @@ function logot_pecsetel( $kep, $logo, $eltolas_x = 0, $eltolas_y = 0, $kicsinyit
 *
 *   @return string: új $html, amiben a képek már cid-el szerepelnek
 */
-function mail_img2cid($html, $mail, $cimzett_mail){
+function mail_img2cid($html, $mail, $cimzett_mail) {
     preg_match_all('/<img[^>]+src="([^"]+)"[^>]*>/ms', $html, $kepek, PREG_SET_ORDER);
     if(count($kepek)){
         
@@ -1839,9 +1839,9 @@ function mail_img2cid($html, $mail, $cimzett_mail){
 *	@param  szting $tartalom: a mailto lint HTML kódja
 *	@return string: HTML forráskód, mely egy javascript-et hív meg a main.js-ből.
 */
-function mail_rejtes($tartalom){
-    
-	$pattern = "/ href=['\"]([^'\"]*)['\"]/";
+function mail_rejtes($tartalom) {
+
+    $pattern = "/ href=['\"]([^'\"]*)['\"]/";
 	preg_match_all($pattern,$tartalom, $megoldasok);
 	
 	$mailcim        = str_replace('mailto:', '', $megoldasok[1][0]);

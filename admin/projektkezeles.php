@@ -38,6 +38,61 @@ if( $tobb_kep ) {
 }
 
 
+// Szálloda select a Cash-flow popupba
+if( isset($_POST['get_szalloda_select']) ) {
+    
+    $sor = $ertek = $adatbazis_kapcsolat->s2('telephely_id egy_tobb', 'projektkezeles', "`recid`='{$_POST['recid']}'");
+    
+    // Telephelyek lekérdezése
+    $select_felh_telephely = array();
+    array_push($select_felh_telephely, array('name' => '- Válasszon -', 'value' => '' ));
+
+    $loginNev = $_SESSION[get_db_tabla().'user'];
+
+    // Kapcsolódó tábla adatai
+    $telephely_kapcs = $adatbazis_kapcsolat->s('telephely_id', 'telephely_kapcs', '`nev`=\''.$loginNev.'\'');
+    if( $telephely_kapcs ) {
+        $telephely_kapcs = adatbazis2tomb($telephely_kapcs, 'telephely_id');
+        $where = "`id` IN (".implode(',', $telephely_kapcs).")";
+    }
+    $where .= " AND `inaktiv`=0";
+
+    $telephelyek = $adatbazis_kapcsolat -> select('id recid nev modell', 'telephely', $where, 'nev');
+    foreach ( $telephelyek as $telephely ) {
+        array_push($select_felh_telephely, array('name' => $telephely['nev'], 'value' => $telephely['id'], 'data-modell' => $telephely['modell'] ));
+    }
+
+    $ertek['onchange'] = ($ertek['onchange'] ? $ertek['onchange'].' ' : '').'szalloda_modell( this );';
+
+    require_once('../class/html/class.Input.php');
+    require_once('../class/html/class.Select.php');
+    
+    // Ha egyszállodás, akkor egy kiválasztott szállodával deisabled a szálloda select
+    $selected = $ertek['telephely_id'];
+    if( !$ertek['egy_tobb'] ) {
+        $ertek['disabled'] = true;
+    }
+    $ertek['name'] = 'pop_telephely_id';
+    
+    $input = new Select($select_felh_telephely, $selected);
+    $input -> cssClass = 'csillag';
+    $input -> disabled = $ertek['disabled'];
+    $input -> id       = $ertek['name'];
+    $input -> name     = $ertek['name'];
+    $input -> naptar   = $ertek['naptar'];
+    $input -> onblur   = $ertek['onblur'];
+    $input -> onclick  = $ertek['onclick'];
+    $input -> onfocus  = $ertek['onfocus'];
+    $input -> onchange = $ertek['onchange'];
+    $input -> post     = $ertek['post'];
+    $input -> style    = $ertek['style'];
+
+    echo json_encode( array( 'szalloda' => $input -> getHtml() ) );
+    
+    $weblap->leallit();
+    exit();
+}
+
 // Projekt újranyitása
 if( isset($_POST['projektkezeles_ujranyit']) ) {
     $recid = $_POST['recid'];
@@ -846,7 +901,7 @@ if( isset($_POST['igenylesek_betolt_uj_kezeleshez']) ) {
                                         "`stat_id`='".PRIGENY_STAT_JOVAHAGYVA."' AND `telephely_id` IN (".implode(',', $szallodak).")$where_kieg", $order, '', '', '', $join);
 // echo $adatbazis_kapcsolat->gp() . '<br>';
     $i = 1;
-    foreach($priek as $pri){
+    foreach ( $priek as $pri ) {
 
         // Szálloda
         $szalloda = $adatbazis_kapcsolat->s2('nev', 'telephely', "`id`='{$pri['telephely_id']}'");
@@ -890,7 +945,7 @@ if( isset($_POST['igenylesek_betolt_uj_kezeleshez']) ) {
         $i++;
     }
 
-    if($html){
+    if( $html ) {
 
         // Táblázat rendezhető: szálloda + becsült költség, becsült költség + szálloda, típus + becsült költség. Ezek legyenek egy lenyílóból kiválaszthatóak.
         $html = '
@@ -1136,7 +1191,7 @@ if( isset($_POST['projekt_team_felvesz']) ) {
         $flags = str_split($login['flags']);
         
         // Ha nem volna elég hosszú a flags lista, akkor feltöltjük 0-kal
-        for($i=0; $i<JOG_PRKEZEL_TEAM_TAG; $i++){
+        for ( $i = 0; $i < JOG_PRKEZEL_TEAM_TAG; $i++ ) {
             if(!$flags[$i]){
                 $flags[$i] = '0';
             }
@@ -1145,7 +1200,7 @@ if( isset($_POST['projekt_team_felvesz']) ) {
 
         // A tömbből újra sztinget csinálunk
         $flags_uj = '';
-        foreach ($flags as $f){
+        foreach ( $flags as $f ) {
             $flags_uj .= $f;
         }
 
@@ -1166,10 +1221,15 @@ if( isset($_POST['projekt_team_felvesz']) ) {
             'statusz' => 'siker'
         ));
     } else {
-        mysqli_rollback($db_kapcs);
 
+        $hiba = tranzakcioHiba();
+        if( $mail_hibaizenet ) {
+            $hiba = $mail_hibaizenet;
+        }
+        
+        mysqli_rollback($db_kapcs);
         echo json_encode(array(
-            'hiba'  => tranzakcioHiba(),
+            'hiba'  => $hiba,
             'title' => 'Hiba'
         ));
     }
@@ -1188,7 +1248,16 @@ if( isset($_POST['projektkezeles_cf_uj']) ) {
     mysqli_autocommit($db_kapcs, false);
     
     // Kötelező mezők ellenőrzése
-    if( !trim($_POST['nev']) ){
+    if( !$_POST['telephely_id'] ) {
+        echo json_encode(array(
+            'hiba'  => 'Kérem válasszon szállodát!',
+            'title' => 'Hiba',
+            'focus' => 'pop_telephely_id',
+        ));
+        $weblap->leallit();
+        exit();
+    }
+    if( !trim($_POST['nev']) ) {
         echo json_encode(array(
             'hiba'  => 'Kérem adja meg a cash-flow nevét!',
             'title' => 'Hiba',
@@ -1209,10 +1278,12 @@ if( isset($_POST['projektkezeles_cf_uj']) ) {
     }
     
     // Új feltöltés, vagy kitöltés attól függ, hogy kaptunk-e $_POST['kitolt_recid']-t
-    if( $_POST['kitolt_recid'] ){
+    if( $_POST['kitolt_recid'] ) {
 
         // Átnevezés
-        $sql = $adatbazis_kapcsolat->u('projektkezeles_cashflow_nev', array('nev'), array($_POST['nev']), "`recid`='{$_POST['kitolt_recid']}'");
+        $sql = $adatbazis_kapcsolat->u('projektkezeles_cashflow_nev',   array('nev',         'telephely_id'         ),
+                                                                        array($_POST['nev'], $_POST['telephely_id'] ),
+                                        "`recid`='{$_POST['kitolt_recid']}'");
         if( $sql === false ) { $db_error = true; }
         
         // Korábbi sorok törlése
@@ -1226,13 +1297,12 @@ if( isset($_POST['projektkezeles_cf_uj']) ) {
     } else {
         
         // Db-be mentés. Először a nevet.. 
-        $cf_nev = $adatbazis_kapcsolat->i('projektkezeles_cashflow_nev',    array('projektkezeles_recid',   'nev',          'login',                            'update_dt',  'update_usr',                             'insert_dt',  'insert_usr'                              ),
-                                                                            array($_POST['recid'],          $_POST['nev'],  $_SESSION[get_db_tabla().'user'],   'NOW()',      $_SESSION[get_db_tabla().'teljes_nev'],   'NOW()',      $_SESSION[get_db_tabla().'teljes_nev']    )
+        $cf_nev = $adatbazis_kapcsolat->i('projektkezeles_cashflow_nev',    array('projektkezeles_recid',   'nev',          'telephely_id',          'login',                            'update_dt',  'update_usr',                             'insert_dt',  'insert_usr'                              ),
+                                                                            array($_POST['recid'],          $_POST['nev'],  $_POST['telephely_id'],  $_SESSION[get_db_tabla().'user'],   'NOW()',      $_SESSION[get_db_tabla().'teljes_nev'],   'NOW()',      $_SESSION[get_db_tabla().'teljes_nev']    )
                                         );
         if( $cf_nev === false ) { $db_error = true; }
         
     }
-    
     
     // Majd a dátumokat
     $i = 0;
@@ -1940,7 +2010,7 @@ require_once('selectek.php');
         if (isset($_GET['cash_flow'])) {
             $gombok .= ' <input type="button" class="gomb modositaskor_rejt" onclick="csoportMuvelet(\'projektkezeles_cf_uj\')" value="Új sor">';
             $gombok .= ' <input type="button" class="gomb modositaskor_rejt" onclick="kapcsolodoSzerkeszt(\'projektkezeles_cf_kitolt\');" value="Sor kitöltés">';
-            $gombok .= ' <input type="button" class="gomb modositaskor_rejt" onclick="cf_sor_torol();" value="Sor törlés">';
+            $gombok .= ' <input type="button" class="gomb modositaskor_rejt" onclick="cf_sor_torol();" value="Sor törlés"> ';
         }
         
         // Ha zárt a prjekt és van újranyitás jogunk
@@ -2174,7 +2244,7 @@ require_once('selectek.php');
         $elozo_ev    = date('Y');
         $elozo_honap = date('n');
         $elozo_honap--;
-        if($elozo_honap==0){
+        if( $elozo_honap == 0 ) {
             $elozo_honap = 12;
             $elozo_ev--;
         }
@@ -2182,7 +2252,7 @@ require_once('selectek.php');
         
         // Előző előtti hónap kiszámíása
         $elozo_honap--;
-        if($elozo_honap==0){
+        if( $elozo_honap == 0 ) {
             $elozo_honap = 12;
             $elozo_ev--;
         }
@@ -2216,15 +2286,21 @@ require_once('selectek.php');
             <table class="szamla_cont_tabla szep_csikos kisbetu">
             <thead>
                 <tr>
+                    <th>Szálloda</th>
                     <th>Név</th>
                     '.$idotengely_html.'
                 </tr>
             </thead>
             <tbody>
         ');
-        $cash_flow_nevek = $adatbazis_kapcsolat->s('recid nev', 'projektkezeles_cashflow_nev', "`projektkezeles_recid`='{$_GET['id']}'", 'nev');
+        $cash_flow_nevek = $adatbazis_kapcsolat->s('recid nev telephely_id', 'projektkezeles_cashflow_nev', "`projektkezeles_recid`='{$_GET['id']}'", 'nev');
         foreach ( $cash_flow_nevek as $nev ) {
-            $cash_flow_html .= '<tr data-recid="'.$nev['recid'].'"><td>'.htmlspecialchars_decode($nev['nev']).'</td>';
+            
+            $cash_flow_html .= nl2('
+                                    <tr data-recid="'.$nev['recid'].'">
+                                        <td>'.htmlspecialchars_decode($nev['nev']).'</td>
+                                        <td>'.getSzallodaNev($nev['telephely_id']).'</td>
+                                            ');
             
             $i = 0;
             foreach ( $idtotengely as $honap ) {
@@ -2246,7 +2322,11 @@ require_once('selectek.php');
         // Szerződések
         $szerzodes_recidk = $adatbazis_kapcsolat->s('recid', 'projektszerzodes', "`pr_szam`='{$sor['ikt_szam']}'");
         $szerzodes_recidk = adatbazis2tomb($szerzodes_recidk, 'recid');
-        $cash_flow_html .= '<tr data-recid="szerzodesek"><td>Szerződések</td>';
+        $cash_flow_html .= nl2('
+                                <tr data-recid="szerzodesek">
+                                    <td>Szerződések</td>
+                                    <td></td>
+                                    ');
         $i = 0;
         foreach ( $idtotengely as $honap ) {
 
@@ -2265,7 +2345,11 @@ require_once('selectek.php');
         $cash_flow_html .= '</tr>';
         
         // Számlák
-        $cash_flow_html .= '<tr data-recid="szamlak"><td>Számlák</td>';
+        $cash_flow_html .= nl2('
+                                <tr data-recid="szamlak">
+                                    <td>Számlák</td>
+                                    <td></td>
+                                    ');
         $i = 0;
         foreach ( $idtotengely as $honap ) {
 

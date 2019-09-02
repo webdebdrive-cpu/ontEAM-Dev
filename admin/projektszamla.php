@@ -331,7 +331,6 @@ if( isset($_POST['projektszamla_kapcsolas']) ) {
     $recid           = $_POST['recid'];
     $_POST['adatok'] = json_decode( $_POST['adatok'] );
     
-    
     $varh_ert_mezo  = 'varh_ert';
     $ertek_mezo     = 'ertek';
     $netto_mezo     = 'netto_ert';
@@ -411,10 +410,10 @@ if( isset($_POST['projektszamla_kapcsolas']) ) {
         $van_szamlaja = $adatbazis_kapcsolat->s2('recid', 'projektszamla_tetel', "`projektszerzodes_tetel_recid`='{$_POST['adatok'][0][1][$i]}'");
         if( $van_szamlaja === false ) { $db_error = true; }
 
-        // Ha nincs számlája (ennek lehet az is az oka, hogy egy fiktív sor, azaz nem simert a recid),
+        // Ha nincs számlája (ennek lehet az is az oka, hogy egy fiktív sor, azaz nem ismert a recid),
         // akkor ellenőrizzük, hogy van-e beírva érték. Ha van, számoljuk, mert csak egy ilyen mező lehet
         // Ha van, akkor azt nem ellenőrizzük, mert akkor az egy szürke sor (már van számlája)
-        if( (!$van_szamlaja || !$_POST['adatok'][$recid_adat][1][$i]) ) {
+        if( (!$van_szamlaja || !$_POST['adatok'][$recid_adat][1][$i] ) && $ertek ) {
             $volt_ertek++;
             // Csak egy értéket fogadunk el, ezt jegyezzük is meg
             $beirt_netto_ertek = $ertek;
@@ -490,10 +489,10 @@ if( isset($_POST['projektszamla_kapcsolas']) ) {
                 exit();
     }
     
-    // Ha a számla nettó értéke nem egyenlő a tételek összegével, akkor hibaüzenet
-    if( number_format($kif_ossz, $tizedesek, ',', '') > number_format($szerzodes[$szerz_mezo], $tizedesek, ',', '') ) {
+    // Ha a kifizetett és a még kifizetésre váró összegek meghaladják a szerződés összegével, akkor hibaüzenet
+    if( number_format($kifizetett_ossz, $tizedesek, ',', '') > number_format($szerzodes[$szerz_mezo], $tizedesek, ',', '') ) {
         echo json_encode( array( 
-                        'hiba'  => 'A már kifizetett ('.number_format($kifizetett_ossz, $tizedesek, ',', ' ').' '.$penznem.') és a még kifizetésre váró ('.number_format($kifizet_var_ossz, $tizedesek, ',', ' ').' '.$penznem.') számlák összege ('.number_format($kif_ossz, $tizedesek, ',', ' ').' '.$penznem.') több,<br>mint a szerződés összege ('.number_format($szerzodes[$szerz_mezo], $tizedesek, ',', ' ').' '.$penznem.')! Így nem menthető!',
+                        'hiba'  => 'A már kifizetett ('.number_format($kifizetett_ossz, $tizedesek, ',', ' ').' '.$penznem.') számlák összege több,<br>mint a szerződés összege ('.number_format($szerzodes[$szerz_mezo], $tizedesek, ',', ' ').' '.$penznem.')! Így nem menthető!',
                         'title' => 'Hiba',
                         ) );
                 $weblap->leallit();

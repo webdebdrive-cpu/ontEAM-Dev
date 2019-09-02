@@ -1316,7 +1316,7 @@ $munkalap_tomb = $munkalap_arch_tomb = $akt_tomb = array(
     array('type' => 'text',                     'megn' => 'Projekt szám:',              'name' => 'pr_szam',            'szuro' => 1, 'disabled' => 1,   'class' => 'normal', 'style' => 'width: 10rem', 'post' => ' <span id="projekt_neve">'.$projekt_neve.'</span>'),
     array('type' => 'autocomplete',             'megn' => 'Külső kivitelező:',          'name' => 'szallito_id',        'szuro' => 1, 'disabled' => 1,                  'class' => 'oriasi disableNav', 'tabla' => 'szallito', 'oszlop_keres' => 'id', 'oszlop_keres_autocomp' => 'nev', 'listaz' => 'nev', 'id_kiir' => 'id', 'style' => 'width: 30rem', 'post' => '<span style="margin-right: 3rem"></span>', 'osszevon' => true),
     array('type' => 'text',                     'megn' => 'Jóváhagyott érték:',         'name' => 'jh_ert',             'szuro' => 1, 'disabled' => 1, 'style' => 'width: 8rem; text-align: right;', 'post' => ' '.get_penznem().' + Áfa<span style="margin-right: 3rem"></span>', 'osszevon' => true),
-    array('type' => 'checkbox',                 'megn' => 'Becsült érték:',             'name' => 'becs_ertek',         'szuro' => 1, 'disabled' => 1, 'felirat_class' => ' piros dn f_becsult_ertek'), // Alapból elrejtjük, és csak akkor jelenítjük meg, ha be van pipálva (munkalap forráskódjában van erre külön kód)
+    array('type' => 'checkbox',                 'megn' => 'Becsült érték:',             'name' => 'becs_ertek',         'szuro' => 0, 'disabled' => 1, 'felirat_class' => ' piros dn f_becsult_ertek'), // Alapból elrejtjük, és csak akkor jelenítjük meg, ha be van pipálva (munkalap forráskódjában van erre külön kód)
     array('type' => 'checkbox',                 'megn' => 'Megrendelő email elküldve:', 'name' => 'mail_ment',          'szuro' => 1, 'disabled' => 1),
     array('type' => 'select_szemelyzet',        'megn' => 'Hozzárendelt személyzet:',   'name' => 'szemelyzet_id',      'szuro' => 1, 'disabled' => 1,                  'class' => 'disableNav',        'post'  => ' '.$hozrend_mobilnev),
     array('type' => 'text',                     'megn' => 'Igényelt elvégzés:',         'name' => 'ig_el_id',           'szuro' => 1, 'disabled' => $csakUjkent,        'class' => 'datetimepicker', 'maxlength' => 16, 'osszevon' => 1, 'post' => '<span style="margin-right: 4rem"></span>'),
@@ -4255,7 +4255,7 @@ if( isset($_POST['mellekTorol']) ) {
             }
 
             // A törölt Pr igényléseket vissza kell léptetni az előző státuszra
-            foreach( $idk as $projektigenyles_eloterj_recid ){
+            foreach( $idk as $projektigenyles_eloterj_recid ) {
                 
                 $projektigenyles_eloterj = $adatbazis_kapcsolat->s2('stat_id projektigenyles_recid', 'projektigenyles_eloterj', "`recid`='{$projektigenyles_eloterj_recid}'");
                 if( $projektigenyles_eloterj === false ) { $db_error = true; }

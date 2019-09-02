@@ -48,7 +48,7 @@ if (isset($_GET['szures_vege'])) {
 }
 
 // CSV generálása
-if (isset($_GET['csv'])) {
+if( isset($_GET['csv']) ) {
 
     $mibol   = get_web_charset();
     $mibe    = 'windows-1250';
@@ -73,7 +73,7 @@ if (isset($_GET['csv'])) {
     $fajlnev = $utvonal.'csv'.time().'.csv';
     $open = fopen($fajlnev,'a');
     fwrite($open, "sep=;\n");
-    if($open){
+    if( $open ) {
 
         $lekerdezes_fromtol = substr($_SESSION['akt_sql'], strpos($_SESSION['akt_sql'], 'FROM'));
 
@@ -90,7 +90,7 @@ if (isset($_GET['csv'])) {
             $hossz = strpos($lekerdezes_fromtol, 'ORDER');
             if( $hossz ) {
                 $lekerdezes_fromtol = substr($lekerdezes_fromtol, 0, $hossz);
-            }else{
+            } else {
                 $lekerdezes_fromtol = substr($lekerdezes_fromtol, 0);
             }
         }
@@ -115,6 +115,7 @@ if (isset($_GET['csv'])) {
                 `gep_id` as \'Gépnév\',
                 `tipus_id` as \'Típus\',
                 `szallito_id` as \'Külső kivitelező\',
+                `jh_ert` as \'Jóváhagyott érték\',
                 `szemelyzet_id` as \'Hozzárendelt személyzet\',
                 `ig_el_id` as \'Igényelt elvégzés\',
                 `varh_erk` as \'Várható érkezés\',
@@ -135,62 +136,65 @@ if (isset($_GET['csv'])) {
         
         fputcsv($open, $csvhead, ';');
 
-        while( $sorok = mysqli_fetch_assoc($query) ){
+        while ( $sorok = mysqli_fetch_assoc($query) ) {
             $csvcont = array();
 
             $bejelentes = $adatbazis_kapcsolat->s2('bejelentes_id', 'munkalap_kapcs_arch', "`munkalap_id`='{$sorok['Id']}'");
             $bejelentes = $adatbazis_kapcsolat->s2('hiba_id hiba_text helyiseg_text insert_dt', 'bejelentes_arch', "`recid`='{$bejelentes['bejelentes_id']}'");
             foreach( $sorok as $kulcs => $sor ) {
 
-                if($kulcs=='Id'){
+                if( $kulcs == 'Id' ) {
                     continue;
                 }
-                if($kulcs=='Szálloda'){
+                if( $kulcs == 'Szálloda' ) {
                     $sor = getSzallodaNev($sor);
                 }
-                if($kulcs=='Bejelentett hiba'){
+                if( $kulcs == 'Bejelentett hiba' ) {
                     $sor = getErtek('info', 'erteklista', 'recid', $bejelentes['hiba_id']);
                 }
-                if($kulcs=='Hiba leírása'){
+                if( $kulcs == 'Hiba leírása' ) {
                     $sor = $bejelentes['hiba_text'];
                 }
-                if($kulcs=='Helyiség leírása'){
+                if( $kulcs == 'Helyiség leírása' ) {
                     $sor = $bejelentes['helyiseg_text'];
                 }
-                if($kulcs=='Bejelentés dátuma'){
+                if( $kulcs == 'Bejelentés dátuma' ) {
                     $sor = $bejelentes['insert_dt'];
                 }
-                if($kulcs=='Gépnév'){
+                if( $kulcs == 'Gépnév' ) {
                     $sor = getErtek('nev', 'eszkozkezeles', 'recid', $sor);
                 }
-                if($kulcs=='Hozzárendelt személyzet'){
+                if( $kulcs == 'Hozzárendelt személyzet' ) {
                     $sor = getSzerepkorNev($sor);
                 }
-                if($kulcs=='Igényelt elvégzés' || $kulcs=='Várható érkezés'){
-                    if($sor=='0000-00-00 00:00:00'){
+                if( $kulcs == 'Igényelt elvégzés' || $kulcs == 'Várható érkezés' ) {
+                    if( $sor == '0000-00-00 00:00:00' ) {
                         $sor = '';
                     }
                 }
-                if($kulcs=='Külső kivitelező'){
+                if( $kulcs == 'Külső kivitelező' ) {
                     $sor = getErtek('nev', 'szallito', 'id', $sor);
                 }
-                if($kulcs=='Típus'){
+                if( $kulcs == 'Jóváhagyott érték' ) {
+                    $sorok[$szam] = str_replace('.', ',', $sorok[$szam]);
+                }
+                if( $kulcs == 'Típus' ) {
                     $sor = erteklista(ERTEKLISTA_MUNKALAP_TIP, $sor);
                 }
-                if($kulcs=='Státusz'){
+                if( $kulcs == 'Státusz' ) {
                     $sor = getStatText('munkalap', $sor);
                 }
-                if($kulcs=='Sürgős'){
-                    if($sor){
+                if( $kulcs == 'Sürgős' ) {
+                    if( $sor ) {
                         $sor = 'igen';
-                    }else{
+                    } else {
                         $sor = 'nem';
                     }
                 }
-                if($kulcs=='Visszaadva'){
-                    if($sor){
+                if( $kulcs == 'Visszaadva' ) {
+                    if( $sor ) {
                         $sor = 'igen';
-                    }else{
+                    } else {
                         $sor = 'nem';
                     }
                 }
@@ -298,7 +302,7 @@ require('selectek.php');
                 if($tomb['csoport']){
                     $kulso_ertek = $adatbazis_kapcsolat->s2('info', $tomb['tabla'], "`{$tomb['oszlop_keres']}`='{$sor[$tomb['name']]}' AND `csoport`='{$tomb['csoport']}'", '', '1');
                     $kulso_ertek['nev'] = $kulso_ertek['info'];
-                }else{
+                } else {
                     $kulso_ertek = $adatbazis_kapcsolat->s2('recid nev', $tomb['tabla'], "`{$tomb['oszlop_keres']}`='{$sor[$tomb['name']]}'", '', '1');
                 }
 

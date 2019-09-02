@@ -16,6 +16,96 @@ if( isset($_GET['info']) && $_SESSION[get_db_tabla().'user'] ){
     exit;
 }
 
+if( isset($_GET['teszt']) ) {
+    require_once('../class/class.Phpmailer.php');
+    
+    try {
+        
+        $mail = new PHPMailer;
+
+        $felado_mail = get_mail();
+        $felado_nev  = get_nev();
+        $cimzett_mail = 'sztyan@freemail.hu';
+        $cimzett_nev  = 'BK';
+
+        $targy = $uzi = 'teszt';
+
+        $fajlok = array(
+//                          '../'.get_utvonal().'nincskep.jpg',
+                          '../'.get_utvonal().'teszt.mp3',
+                          '../'.get_utvonal().'3mb.jpg',
+                          '../'.get_utvonal().'3mb2.jpg',
+//                          '../'.get_utvonal().'3mb3.jpg',
+                        );
+
+        $mail -> CharSet  = get_web_charset();
+        $mail -> setFrom($felado_mail, $felado_nev);
+        $mail -> addReplyTo($felado_mail, $felado_nev);
+        $mail -> Subject  = $targy;
+        $mail -> AltBody  = strip_tags($uzi);
+        $mail -> MsgHTML($uzi);
+
+        if( is_array($fajlok) ) {
+            foreach ( $fajlok as $fajl ) {
+                $mail -> AddAttachment($fajl);
+            }
+
+        } elseif( $fajlok ) {
+            $mail -> AddAttachment($fajlok);
+        }
+
+        // Címzett
+        if( is_array($cimzett_mail) ) {
+            $i = 0;
+            foreach ( $cimzett_mail as $c_mail ) {
+                $mail -> addAddress(trim($c_mail), trim($cimzett_nev[$i]));
+                $i++;
+            }
+        } elseif( $cimzett_mail ) {
+            $mail -> AddAddress(trim($cimzett_mail), trim($cimzett_nev));
+        }
+
+        // Másolatot kap
+        if( is_array($masolat_mail) ) {
+            $i = 0;
+            foreach ( $masolat_mail as $c_mail ) {
+                $mail -> addCC(trim($c_mail), trim($masolat_nev[$i]));
+                $i++;
+            }
+        } elseif( $masolat_mail ) {
+            $mail -> addCC(trim($masolat_mail), trim($masolat_nev));
+        }
+
+        // Másolatot kap
+        if( is_array($r_masolat_mail) ) {
+            $i = 0;
+            foreach ( $r_masolat_mail as $c_mail ) {
+                $mail -> AddBcc(trim($c_mail), trim($r_masolat_nev[$i]));
+                $i++;
+            }
+        } elseif( $r_masolat_mail ) {
+            $mail -> AddBcc(trim($r_masolat_mail), trim($r_masolat_nev));
+        }
+
+        if( !$mail->Send() ) {
+            $mail -> ClearAddresses();
+            $mail -> ClearAttachments();
+            echo 'Hiba: ' . $mail->ErrorInfo;
+        } else {
+            $mail -> ClearAddresses();
+            $mail -> ClearAttachments();
+            echo 'Siker';
+        }
+    
+    } catch (phpmailerException $e) {
+      echo $e->errorMessage(); //Pretty error messages from PHPMailer
+    } catch (Exception $e) {
+      echo $e->getMessage(); //Boring error messages from anything else!
+    }
+    
+    exit;
+}
+
 
 // Anyagigénylés beerkezett dátum karbantartása
 //if (isset($_GET['anyagigenyles_beerkezett'])) {
