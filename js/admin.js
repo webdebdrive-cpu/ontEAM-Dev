@@ -4898,7 +4898,7 @@ function jobbOldalEltuntet( sorok ) {
 /* Kapcsoló táblák - fülek alatti rekordok - törlése általános függvénye */
 function mellekTorol( tabla, mellek, mellekre_valt, konkret_id ) {
     /* Ha van konkrét ID? akkor azt a sort töröljuk (pl. munkalapok adatlapján a bejelentések sorai) */
-    if(konkret_id){
+    if (konkret_id) {
         var idk = {konkret_id};
     } else {
         var kijelolve = $('.kijCont .kijSor.kijelolve'),
@@ -4909,7 +4909,7 @@ function mellekTorol( tabla, mellek, mellekre_valt, konkret_id ) {
             var id = $(this).attr('data-id');
 
             /* Az ideiglenes soroknak nincs ID-ja, pontosabban az értéke UJ. Ezeket nem adjuk át az ajax-nak */
-            if(id!='UJ'){
+            if (id != 'UJ') {
                 idk[i] = id;
             }
             i++;
@@ -4920,7 +4920,7 @@ function mellekTorol( tabla, mellek, mellekre_valt, konkret_id ) {
     /* Ha javaslattétel popuban vagyunk, akkor ott 'kep_jt_popup' a kép LI sor ID prefixe, próbáljuk meg azt is kihalványítani. */
     $('#kep_jt_popup'+konkret_id).fadeOut();
     /* Javaslattétel popupban sor eltűntetése  */
-    if(mellekre_valt=='javaslattetel'){
+    if (mellekre_valt == 'javaslattetel') {
         $('#kep'+konkret_id).fadeOut();
     }
     
@@ -4930,7 +4930,7 @@ function mellekTorol( tabla, mellek, mellekre_valt, konkret_id ) {
     $('.kijCont .kijSor.kijelolve[data-id="UJ"], .kijCont .kijSor.kijelolve[data-id="UJ-FELDOLGOZVA"]').fadeOut('', function(){
         $(this).remove();
         /* Cash-flow-ban ha változás van, akkor újra kell számolni. Azért kell ide is, mert ajaxig nem biztos, hogy eljutunk. */
-        if(tabla=='cash_flow'){
+        if (tabla == 'cash_flow') {
             becsult_szetosztott_ujraszamol();
             alert2();/* Cash flownál be kell zárni a kérdést is. */
         }
@@ -4948,7 +4948,7 @@ function mellekTorol( tabla, mellek, mellekre_valt, konkret_id ) {
             },
             success: function(response) {
                 if(response.substring(0, 6)=='SESKIL'){ location.href = 'index.php'; }
-                if(response) {
+                if (response) {
                     response = JSON.parse(response);
                     if( response.hiba ) {
                         alert2(response.hiba, response.gomb, response.title);
@@ -4962,31 +4962,51 @@ function mellekTorol( tabla, mellek, mellekre_valt, konkret_id ) {
                         } else {
                             alert2();
                         }
+                        
+                        /* Arra az esetre, ha csak a levélküldéssel volt gond */
+                        if( response.mail_hiba ) {
+                            setTimeout(function(){
+                                alert2(response.mail_hiba, response.gomb, 'Hiba');
+                            }, 500);
+                        }
 
                         /* Munkalapok adatlapján a bejelentések törlésekor csak frissítünk */
-                        if(tabla=='munkalap_kapcs'){
+                        if (tabla == 'munkalap_kapcs') {
                             location.reload();
                             return false;
                         }
 
                         /* A számla betöltést csak akkor csináljuk meg, ha nincs ideiglenes sor hozzáadva, mert különben azok elvesznének */
-                        if(!$('.kijCont .kijSor[data-id="UJ"]').length){
+                        if (!$('.kijCont .kijSor[data-id="UJ"]').length) {
 
                             betoltott = szamlaBetolt(_get('id'), baseName(location.href) + '.php', mellek, '', 'kerdes_nelkul');
                             $.when( betoltott ).done(function() {
-                                if(mellekre_valt){
+                                if (mellekre_valt) {
                                     $('#ful_'+mellek).removeClass('active');
                                     $('#ful_'+mellekre_valt).addClass('active');
                                     $('#'+mellekre_valt+'_div').show();
                                     $('#szerk_form').hide();
                                 }
                             });
+                            
                         } else {
+                            
                             $('.kijCont .kijSor.kijelolve').fadeOut('', function(){
                                 $(this).remove();
+                                
+                                /* Arra az esetre, ha csak a levélküldéssel volt gond */
+                                if( response.mail_hiba ) {
+                                    alert2(response.mail_hiba, response.gomb, 'Hiba');
+                                    return;
+                                }
+                                
                                 /* Habár ez már fentebb szerepelt egyszer, azért kell ide, is, mert ha az ajax lefutott akkor tűnik el sor, akkor számoljuk újra */
-                                if(tabla=='cash_flow'){
+                                if (tabla == 'cash_flow') {
                                     becsult_szetosztott_ujraszamol();
+                                    /* Arra az esetre, ha csak a levélküldéssel volt gond */
+                                    if( response.mail_hiba ) {
+                                        alert2(response.mail_hiba, response.gomb, 'Hiba');
+                                    }
                                 }
                             });
                         }

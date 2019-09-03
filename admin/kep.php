@@ -164,7 +164,7 @@ if( !$_GET['thumb'] || ($_GET['thumb'] && !file_exists($thumbfile)) ) {
         
     // Sikertelen megnyitás esetén
 	} else {
-	   
+
         require_once('config.php');
         $handle    = fopen(get_utvonal().'nincskep.jpg', 'rb');
         $thumbnail = fread($handle, filesize(get_utvonal().'nincskep.jpg'));

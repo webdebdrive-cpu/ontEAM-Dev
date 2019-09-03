@@ -577,8 +577,8 @@ function fajlbol_olvas($path, $tomorit = false, $data_uri = false, $komment_szur
 
     if( $tomorit ) {
 
-        //A cache könyvtárban alkönyvtárakat is létrehozunk ha még nem léteznének (így pl többnyelűsítéskor nincs felülírás)
-        $mit     = array('sablon/', '../'); //A sablon könyvtárat illetve a ../-t ki ki kell venni az elérési útvonalból
+        // A cache könyvtárban alkönyvtárakat is létrehozunk ha még nem léteznének (így pl többnyelűsítéskor nincs felülírás)
+        $mit     = array('sablon/', '../'); // A sablon könyvtárat illetve a ../-t ki ki kell venni az elérési útvonalból
         $mivel   = array('',        '');
 	    $utvonal = str_replace($mit, $mivel, $path);
 	    
@@ -586,8 +586,8 @@ function fajlbol_olvas($path, $tomorit = false, $data_uri = false, $komment_szur
         $db = count($konyvtarak);
 	    $akt_utvonal = get_utvonal().'cache/';
 	    $i = 0;
-        foreach($konyvtarak as $konyvtar){
-	        if($konyvtar!='..' && $i<$db-1){
+        foreach ( $konyvtarak as $konyvtar ) {
+            if( $konyvtar != '..' && $i < $db - 1 ) {
                 $akt_utvonal .= $konyvtar.'/';
 
                 if( !is_dir($akt_utvonal) ) {
@@ -597,11 +597,11 @@ function fajlbol_olvas($path, $tomorit = false, $data_uri = false, $komment_szur
             $i++;
         }
 
-        //Ha létezik már cache fájl, és annak keletkezési dátuma nagyobb az eredeti JS fájltól, akkor csak beolvassuk
+        // Ha létezik már cache fájl, és annak keletkezési dátuma nagyobb az eredeti JS fájltól, akkor csak beolvassuk
         if( file_exists(get_utvonal().'cache/'.$utvonal) && filemtime($path) < filemtime(get_utvonal().'cache/'.$utvonal) ){
             $ret = fajlbol_olvas(get_utvonal().'cache/'.$utvonal);
             
-        //Egyébként vagy nem létezett, vagy ha létezett, de újabb az eredeti JS, akkor újraolvassuk, tömörítjük
+        // Egyébként vagy nem létezett, vagy ha létezett, de újabb az eredeti JS, akkor újraolvassuk, tömörítjük
         } else {
 
             unlink(get_utvonal().'cache/'.$utvonal);

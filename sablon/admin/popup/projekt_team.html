@@ -96,7 +96,7 @@ function tabla_szur(tabla, kulcs, oszlop) {
     }).hide();
 
     if( !$('#popup_loginok table.egyErtek tr.kijSor.kijelolve').length ){
-    }else{
+    } else {
     }
 
 }
@@ -144,19 +144,26 @@ function projekt_team_felvesz() {
             if(response.substring(0, 6)=='SESKIL'){ location.href = 'index.php'; }
             if( response ) {
                 response = JSON.parse(response);
-                if(response.hiba){
-                    if(response.hiba=='data-hiba'){
+                if( response.hiba ) {
+                    if( response.hiba=='data-hiba' ) {
                         alert2($('#'+response.focus).attr('data-hiba'), response.gomb, response.title);
-                    }else{
+                    } else {
                         alert2(response.hiba, response.gomb, response.title);
                     }
-                    if(response.focus){
+                    if( response.focus ) {
                         $('#'+response.focus).addClass('hibas_ide_focus');
                     }
                     return false;
-                }else{
+                } else {
+                    
                     szamlaBetolt( _get('id'), baseName(location.href) + '.php', 'projekt_team' );
                     popupZar();
+                    
+                    /* Arra az esetre, ha csak a levélküldéssel volt gond */
+                    if( response.mail_hiba ) {
+                        alert2(response.mail_hiba, response.gomb, 'Hiba');
+                    }
+                    
                 }
             }
         },

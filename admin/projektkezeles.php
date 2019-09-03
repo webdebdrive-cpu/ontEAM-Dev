@@ -1136,7 +1136,7 @@ if( isset($_POST['projekt_team_felvesz']) ) {
     mysqli_autocommit($db_kapcs, false);
     
     // Projekt recid-ja ismert-e?
-    if( !$recid ){
+    if( !$recid ) {
         echo json_encode( array(
                 'hiba'  => 'Ismeretlen hiba történt!',
                 'title' => 'Hiba',
@@ -1148,9 +1148,9 @@ if( isset($_POST['projekt_team_felvesz']) ) {
     // Adatok ki vannak-e töltve?
     $mezok  = array('nev', 'ceg', 'beosztas', 'usertel', 'usermail', 'szerepkor');
     $ertekek = array();
-    foreach($mezok as $mezo){
+    foreach ( $mezok as $mezo ) {
         $_POST[$mezo] = trim($_POST[$mezo]);
-        if(!$_POST[$mezo]){
+        if( !$_POST[$mezo] ) {
             echo json_encode( array(
                     'hiba'  => 'data-hiba',
                     'title' => 'Hiba',
@@ -1166,7 +1166,7 @@ if( isset($_POST['projekt_team_felvesz']) ) {
     $van_mail = $adatbazis_kapcsolat->s('recid', 'projektkezeles_team', "`projektkezeles_recid`='{$recid}' AND `usermail`='{$_POST['usermail']}'");
     if( $van_mail === false ) { $db_error = true; }
     
-    if($van_mail){
+    if( $van_mail ) {
         echo json_encode( array(
                 'hiba'  => $_POST['nev'].' - '.$_POST['usermail'].'<br>A felhasználóhoz tartozó e-mail cím már szerepel a team címei között!',
                 'title' => 'Hiba',
@@ -1184,7 +1184,7 @@ if( isset($_POST['projekt_team_felvesz']) ) {
     if( $sql === false ) { $db_error = true; }
     
     // Ha ismert a felhasználó, akkor nála beállítjuk a Projekt team tag pipát
-    if($_POST['login_recid']){
+    if( $_POST['login_recid'] ) {
         $login = $adatbazis_kapcsolat->s2('flags', 'login', "`recid`='{$_POST['login_recid']}'");
         if( $login === false ) { $db_error = true; }
         
@@ -1210,16 +1210,20 @@ if( isset($_POST['projekt_team_felvesz']) ) {
     
     // Levélben értesítés
     $mail_hibaizenet = level_felkeszit_es_kuld('projektkezeles', $recid, '', 'projektkezelesUjTag', 'projektkezeles_tag_felveve', '', $login_recid);
-    if( $mail_hibaizenet ){
-        $db_error = true;
-    }
+    // Ha a levélküldéssel volt gond, akkor az adatbázis művelet attól még lefut
+//    if( $mail_hibaizenet ) {
+//        $db_error = true;
+//    }
     
     if( !$db_error ) {
+        
         mysqli_commit($db_kapcs);
 
         echo json_encode(array(
-            'statusz' => 'siker'
+            'statusz'   => 'siker',
+            'mail_hiba' => $mail_hibaizenet
         ));
+        
     } else {
 
         $hiba = tranzakcioHiba();
@@ -2072,7 +2076,6 @@ require_once('selectek.php');
 	// Új projektkezelés felvitele
     if( isset($_GET['uj']) && _jog(JOG_PRKEZEL_UJ_LETREHOZ) ) {
         
-        
         // Ha új, üres projektet töltünk fel, akkor jóváhagyás előtt rákérdezünk, hogy biztos-e?
         if( !$_GET['igeny_id'] ) {
             $js_submit_elott = nl2('
@@ -2122,6 +2125,7 @@ require_once('selectek.php');
         if( $_GET['igeny_id'] ) {
             $igenyles = $adatbazis_kapcsolat->s2('*', 'projektigenyles', "`recid`='{$_GET['igeny_id']}' AND `telephely_id` IN (".implode(', ', get_akt_login_szallodai()).")");
             $sor['nev']                     = $igenyles['nev'];
+            $sor['egy_tobb']                = $igenyles['egy_tobb'];
             $sor['telephely_id']            = $igenyles['telephely_id'];
             $sor['tipus']                   = $igenyles['tipus'];
             $sor['besorol']                 = $igenyles['besorol'];
@@ -2286,8 +2290,8 @@ require_once('selectek.php');
             <table class="szamla_cont_tabla szep_csikos kisbetu">
             <thead>
                 <tr>
-                    <th>Szálloda</th>
                     <th>Név</th>
+                    <th>Szálloda</th>
                     '.$idotengely_html.'
                 </tr>
             </thead>
@@ -2408,13 +2412,13 @@ require_once('selectek.php');
             $i = 1;
 
             $van_kezeles = false;
-            if( get_projekt_kezeles_jog($_GET['id']) && $sor['stat_id'] != PRKEZEL_STAT_LEZART ){
+            if( get_projekt_kezeles_jog($_GET['id']) && $sor['stat_id'] != PRKEZEL_STAT_LEZART ) {
                 $van_kezeles = true;
             }
             
-            foreach($team_ek as $team) {
+            foreach ( $team_ek as $team ) {
                 $torles = '';
-                if($van_kezeles){
+                if( $van_kezeles ) {
                     $torles = nl2('
                         <script> 
                             dok_torol_gomb_'.$team['recid'].' = \'
@@ -2484,7 +2488,7 @@ require_once('selectek.php');
             if( $jotallas['utvonal'] ) {
                 
                 $utvonal = '../'. get_utvonal().'projektszerzodes_jotallas/'.$jotallas['utvonal'];
-                $fajl = '<a href="'.$utvonal.'" target="_blank">'.kep_kiir( $utvonal, utf8($jotallas['fajlnev']), 30, 30, '', '', '' ).' '.$jotallas['fajlnev'].'</a>';
+                $fajl = '<a href="'.$utvonal.'" target="_blank">'.kep_kiir( $utvonal, ' ', 30, 30, '', '', '' ).' '.$jotallas['fajlnev'].'</a>';
                 
             }
             

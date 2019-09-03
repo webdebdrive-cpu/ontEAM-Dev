@@ -894,7 +894,9 @@ function i_u($type, $tabla, $tomb) {
             
             // Cash-flow sorok áthozatala
             if( $_POST['projektigenyles_recid'] ) {
-                $cash_flow = $adatbazis_kapcsolat->s('*', 'cash_flow', "`apa_recid`='{$_POST['projektigenyles_recid']}'");
+                
+                // Telephely szerint GROUP BY-ozunk, hogy azono szállodákat egy sorban hozzunk létre
+                $cash_flow = $adatbazis_kapcsolat->s('*', 'cash_flow', "`apa_recid`='{$_POST['projektigenyles_recid']}'", '', '', 'telephely_id');
                 if( $cash_flow === false ) { $db_error = true; }
                 
                 foreach( $cash_flow as $cf ) {
@@ -904,11 +906,15 @@ function i_u($type, $tabla, $tomb) {
                                                         );
                     if( $cf_nev_id === false ) { $db_error = true; }
                     
-                    $sql = $adatbazis_kapcsolat->i('projektkezeles_cashflow', 
-                                                            array('projektkezeles_recid', 'cashflow_nev_recid', 'datum',       'terv',          'login',                            'insert_dt', 'insert_usr',                              'update_usr'                            ),
-                                                            array($id,                    $cf_nev_id,           $cf['datum'],  $cf['osszeg'],   $_SESSION[get_db_tabla().'user'],   'NOW()',     $_SESSION[get_db_tabla().'teljes_nev'],    $_SESSION[get_db_tabla().'teljes_nev']  )
-                                                );
-                    if( $sql === false ) { $db_error = true; }
+                    $cash_flow_datumok = $adatbazis_kapcsolat->s('*', 'cash_flow', "`apa_recid`='{$_POST['projektigenyles_recid']}' AND `telephely_id`='{$cf['telephely_id']}'");
+                    if( $cash_flow_datumok === false ) { $db_error = true; }
+                    foreach( $cash_flow_datumok as $cf_datumok ) {
+                        $sql = $adatbazis_kapcsolat->i('projektkezeles_cashflow', 
+                                                                array('projektkezeles_recid', 'cashflow_nev_recid', 'datum',                'terv',                 'login',                            'insert_dt', 'insert_usr',                              'update_usr'                            ),
+                                                                array($id,                    $cf_nev_id,           $cf_datumok['datum'],   $cf_datumok['osszeg'],  $_SESSION[get_db_tabla().'user'],   'NOW()',     $_SESSION[get_db_tabla().'teljes_nev'],    $_SESSION[get_db_tabla().'teljes_nev']  )
+                                                    );
+                        if( $sql === false ) { $db_error = true; }
+                    }
                 }
                 
             }
@@ -7745,26 +7751,37 @@ function getStatText($tabla, $statid, $mezo = '') {
 }
 
 // Szerepkör címkéjét ne DB-ből kérjük le, erre itt egy függvény
-function getSzerepkorNev($szerepkor_id){
-    $szerepkorok = array(
-                        '',
-                        'Telepített személyzet',        // 1
-                        'Mobilcsoport',                 // 2
-                        'Külső kivitelező',             // 3
-                        'MSZK vezető',                  // 4
-                        'Műszaki vezető',               // 5
-                        'Műszaki vezető helyettes',     // 6
-                        'Területi felelős',             // 7
-                        'Műszaki ügyintéző',            // 8
-                        'Műszaki igazgató',             // 9
-                        'Diszpécser',                   // 10
-                        'Szálloda igazgató',            // 11
-                        'Hibabejelentő',                // 12
-                        'Fejlesztési Vig.h.',           // 13
-                        'Beruházási Igazgató',          // 14
-                        'Létesítmény Felelős',          // 15
-                    );
-    return $szerepkorok[$szerepkor_id];
+function getSzerepkorNev($szerepkor_id) {
+
+    // Az első 12 szerpkör név fix
+    if( $szerepkor_id<13 ) {
+
+        $szerepkorok = array(
+                            '',
+                            'Telepített személyzet',        // 1
+                            'Mobilcsoport',                 // 2
+                            'Külső kivitelező',             // 3
+                            'MSZK vezető',                  // 4
+                            'Műszaki vezető',               // 5
+                            'Műszaki vezető helyettes',     // 6
+                            'Területi felelős',             // 7
+                            'Műszaki ügyintéző',            // 8
+                            'Műszaki igazgató',             // 9
+                            'Diszpécser',                   // 10
+                            'Szálloda igazgató',            // 11
+                            'Hibabejelentő',                // 12
+                        );
+        return $szerepkorok[$szerepkor_id];
+        
+    // A 13. szerepkörtől már dinamikus
+    } else {
+
+        global $adatbazis_kapcsolat;
+        $szerepkor = $adatbazis_kapcsolat->s2('nev', 'szerepkor', "`recid`='{$szerepkor_id}'");
+        return $szerepkor['nev'];
+        
+    }
+    
 }
 
 // Szállodák nevét ne DB-ből kérjük már le, vagyis csak egyszer, loginnál
@@ -8629,13 +8646,16 @@ function level_felkeszit_es_kuld( $tabla, $recid, $ert_pipa, $sablon, $cimzett, 
             $megj .= 'E-mail küldése nem sikerült '.$akt_cimzett['teljes_nev'].' '.$szerepkor.' '.$felhasznalonak_szo.' '.$esemeny.'('.$sikeres_kuldes.')'."\n\n";
 
             // Popupos hibaüzenet csak MSZK vezetőnek és Diszpécsernek megy
-            if( $_SESSION[get_db_tabla().'szemelyzet_id']==MSZK_VEZETO || $_SESSION[get_db_tabla().'szemelyzet_id']==DISZPECSER ){
-                $hiba .=  nl2('Hiba: E-mail küldése nem sikerült!
-                        <br>'.$cimzett_nev.' '.$szerepkor.'
-                        <br>Tel: '.$akt_cimzett['usertel'].'
-                        <br>E-mail: '.$akt_cimzett['usermail'].'
-                        <br>
-                        ');
+            if( $_SESSION[get_db_tabla().'szemelyzet_id']==MSZK_VEZETO || $_SESSION[get_db_tabla().'szemelyzet_id']==DISZPECSER ) {
+                
+                $tovabbi_info = '';
+                if( $akt_cimzett['usertel'] || $akt_cimzett['usermail'] ) {
+                    $tovabbi_info = nl2('<br>'.$cimzett_nev.' '.$szerepkor.'
+                                        <br>Tel: '.$akt_cimzett['usertel'].'
+                                        <br>E-mail: '.$akt_cimzett['usermail'].'
+                                        <br>');
+                }
+                $hiba .=  nl2('Hiba: E-mail küldése nem sikerült!'.$tovabbi_info);
             }
 
         // Sikeres levélküldés
@@ -8754,7 +8774,7 @@ function isIphone($user_agent=NULL) {
 }
 
 // Fenntartási terv energia fül alatti táblázat kirajzolása
-function fenntartasi_terv_energia($sor/* Fenntartás terv sora */){
+function fenntartasi_terv_energia($sor/* Fenntartás terv sora */) {
 
     global $adatbazis_kapcsolat;
 
@@ -8811,7 +8831,7 @@ function fenntartasi_terv_energia($sor/* Fenntartás terv sora */){
         ';
 
     // Nézzük meg, hogy az energia egységár soraiban van-e változás (feltéve ha még munkaközi)
-    if($sor['stat_id']==ENERGIATERV_STAT_MUNKAKOZI){
+    if( $sor['stat_id'] == ENERGIATERV_STAT_MUNKAKOZI ) {
         $energia_terv   = $adatbazis_kapcsolat->s2('recid', 'energia_terv', "`ev`='{$sor['ev']}' AND `stat_id`='".ENERGIATERV_STAT_ELES."'");
         $akt_eear_sorok = $adatbazis_kapcsolat->s('*', 'energia_terv_ear', "`energia_terv_id`='{$energia_terv['recid']}' AND `telephely_idk` LIKE '%{$sor['telephely_id']}%'");
         $eear_soridk    = adatbazis2tomb($akt_eear_sorok, 'sorid');
@@ -8821,7 +8841,7 @@ function fenntartasi_terv_energia($sor/* Fenntartás terv sora */){
 
     $energia_soridk = array();
     $energiak = $adatbazis_kapcsolat->s('*', 'fenntartasi_terv_energia', "`fenntartasi_terv_id`='{$sor['recid']}'");
-    foreach($energiak as $energia){
+    foreach ( $energiak as $energia ) {
 
         // Ha a gázfogyasztás sort írjuk ki, akkor azzal másképp számolunk
         $gazfogyasztas_sor = false;
@@ -8840,13 +8860,13 @@ function fenntartasi_terv_energia($sor/* Fenntartás terv sora */){
         // Számok formázása
         $mennyiseg_osszesen = 0;
         $ertek_osszesen     = 0;
-        for($i=1; $i<13; $i++){
-            if($i<10){
+        for ( $i = 1; $i < 13; $i++ ) {
+            if( $i < 10 ) {
                 $i = '0'.$i;
             }
 
-            if($sor['stat_id']==ENERGIATERV_STAT_MUNKAKOZI && !$gazfogyasztas_sor){
-                if($energia_ear['ear'.$i]!=$energia['ear'.$i]){
+            if( $sor['stat_id'] == ENERGIATERV_STAT_MUNKAKOZI && !$gazfogyasztas_sor ) {
+                if( $energia_ear['ear' . $i] != $energia['ear' . $i] ) {
                     $energia['ear'.$i] = $energia_ear['ear'.$i];
                     $energia['ft'.$i]  = $energia['em'.$i]*$energia['ear'.$i];
                     $volt_valtozas     = true;
@@ -8864,11 +8884,11 @@ function fenntartasi_terv_energia($sor/* Fenntartás terv sora */){
         $ertek_osszesen     = number_format($ertek_osszesen,      0, ',', ' ');
 
         $class = $class2 = '';
-        if( $sor['stat_id']==ENERGIATERV_STAT_MUNKAKOZI && !in_array($energia['sorid'], $eear_soridk) && !$gazfogyasztas_sor ){
+        if( $sor['stat_id']==ENERGIATERV_STAT_MUNKAKOZI && !in_array($energia['sorid'], $eear_soridk) && !$gazfogyasztas_sor ) {
             $class         .= ' piros_hat';
             $volt_valtozas  = true;
         }
-        if(futoertek_sor($energia) || $gazfogyasztas_sor){
+        if( futoertek_sor($energia) || $gazfogyasztas_sor ) {
             $class  .= ' futoertek';
             $class2 .= ' szurke';
         }
@@ -8923,16 +8943,16 @@ function fenntartasi_terv_energia($sor/* Fenntartás terv sora */){
     }
 
     // Új sorok kiszámítása, kirajzolása
-    if($sor['stat_id']==ENERGIATERV_STAT_MUNKAKOZI){
-        foreach ($eear_soridk as $sorid){
-            if(!in_array($sorid, $energia_soridk)){
+    if( $sor['stat_id'] == ENERGIATERV_STAT_MUNKAKOZI ) {
+        foreach ( $eear_soridk as $sorid ) {
+            if( !in_array($sorid, $energia_soridk) ) {
                 $volt_valtozas  = true;
 
                 $energia = $adatbazis_kapcsolat->s2('*', 'energia_terv_ear', "`energia_terv_id`='{$energia_terv['recid']}' AND `sorid`='{$sorid}'");
                 $mennyiseg_osszesen = 0;
                 $ertek_osszesen     = 0;
-                for($i=1; $i<13; $i++){
-                    if($i<10){
+                for ( $i = 1; $i < 13; $i++ ) {
+                    if( $i < 10 ) {
                         $i = '0'.$i;
                     }
 
@@ -8945,7 +8965,7 @@ function fenntartasi_terv_energia($sor/* Fenntartás terv sora */){
 
                 $class  = '';
                 $class2 = '';
-                if(futoertek_sor($energia)){
+                if( futoertek_sor($energia) ) {
                     $class  .= ' futoertek';
                     $class2 .= ' szurke';
                 }
@@ -9059,7 +9079,7 @@ function fenntartasi_terv_energia($sor/* Fenntartás terv sora */){
 }
 
 // Fenntartási terv műszaki anyag fül alatti táblázat kirajzolása
-function fenntartasi_terv_muszaki_anyag($sor){
+function fenntartasi_terv_muszaki_anyag($sor) {
 
     global $adatbazis_kapcsolat;
 
@@ -9089,11 +9109,11 @@ function fenntartasi_terv_muszaki_anyag($sor){
                 ';
 
             $muszaki_anyagok = $adatbazis_kapcsolat->s('*', 'fenntartasi_terv_muszaki_anyag', "`fenntartasi_terv_id`='{$sor['recid']}'", 'ktgnem_id');
-            foreach($muszaki_anyagok as $anyagok){
+            foreach ( $muszaki_anyagok as $anyagok ) {
 
                 $osszesen = 0;
-                for($i=1; $i<13; $i++){
-                    if($i<10){
+                for ( $i = 1; $i < 13; $i++ ) {
+                    if( $i < 10 ) {
                         $i = '0'.$i;
                     }
                     $osszesen += $anyagok['ft'.$i];
@@ -9155,7 +9175,7 @@ function fenntartasi_terv_muszaki_anyag($sor){
 }
 
 // Fenntartási terv rendszeres karbantartás fül alatti táblázat kirajzolása
-function fenntartasi_terv_rendsz_karban($sor){
+function fenntartasi_terv_rendsz_karban($sor) {
 
     global $adatbazis_kapcsolat;
 
@@ -9186,11 +9206,11 @@ function fenntartasi_terv_rendsz_karban($sor){
         ';
 
     $rendszeresek = $adatbazis_kapcsolat->s('*', 'fenntartasi_terv_rendsz_karban', "`fenntartasi_terv_id`='{$sor['recid']}'", 'ktgnem_id');
-    foreach($rendszeresek as $rendszeres){
+    foreach ( $rendszeresek as $rendszeres ) {
 
         $osszesen = 0;
-        for($i=1; $i<13; $i++){
-            if($i<10){
+        for ( $i = 1; $i < 13; $i++ ) {
+            if( $i < 10 ) {
                 $i = '0'.$i;
             }
             $osszesen += $rendszeres['ft'.$i];
@@ -9286,11 +9306,11 @@ function fenntartasi_terv_eseti_karban($sor){
         ';
 
     $esetik = $adatbazis_kapcsolat->s('*', 'fenntartasi_terv_eseti_karban', "`fenntartasi_terv_id`='{$sor['recid']}'", 'ktgnem_id');
-    foreach($esetik as $eseti){
+    foreach ( $esetik as $eseti ) {
 
         $osszesen = '';
-        for($i=1; $i<13; $i++){
-            if($i<10){
+        for ( $i = 1; $i < 13; $i++ ) {
+            if( $i < 10 ) {
                 $i = '0'.$i;
             }
             $osszesen += $eseti['ft'.$i];
@@ -9355,7 +9375,7 @@ function fenntartasi_terv_eseti_karban($sor){
 }
 
 // Fenntartási terv hibaelhárítás fül alatti táblázat kirajzolása
-function fenntartasi_terv_hibaelharitas($sor){
+function fenntartasi_terv_hibaelharitas($sor) {
 
     global $adatbazis_kapcsolat;
 
@@ -9386,11 +9406,11 @@ function fenntartasi_terv_hibaelharitas($sor){
         ';
 
     $hibak = $adatbazis_kapcsolat->s('*', 'fenntartasi_terv_hibaelharitas', "`fenntartasi_terv_id`='{$sor['recid']}'", 'ktgnem_id');
-    foreach($hibak as $hiba){
+    foreach ( $hibak as $hiba ) {
 
         $osszesen = '';
-        for($i=1; $i<13; $i++){
-            if($i<10){
+        for ( $i = 1; $i < 13; $i++ ) {
+            if( $i < 10 ) {
                 $i = '0'.$i;
             }
             $osszesen += $hiba['ft'.$i];
@@ -9454,7 +9474,7 @@ function fenntartasi_terv_hibaelharitas($sor){
 
 
 // Fenntartási terv miniprojekt fül alatti táblázat kirajzolása
-function fenntartasi_terv_miniprojekt($sor){
+function fenntartasi_terv_miniprojekt($sor) {
 
     global $adatbazis_kapcsolat;
 
@@ -9486,11 +9506,11 @@ function fenntartasi_terv_miniprojekt($sor){
         ';
 
     $minik = $adatbazis_kapcsolat->s('*', 'fenntartasi_terv_miniprojekt', "`fenntartasi_terv_id`='{$sor['recid']}'", 'ktgnem_id');
-    foreach($minik as $mini){
+    foreach ( $minik as $mini ) {
 
         $osszesen = '';
-        for($i=1; $i<13; $i++){
-            if($i<10){
+        for ( $i = 1; $i < 13; $i++ ) {
+            if( $i < 10 ) {
                 $i = '0'.$i;
             }
             $osszesen += $mini['ft'.$i];
@@ -9555,7 +9575,7 @@ function fenntartasi_terv_miniprojekt($sor){
 }
 
 // Fenntartási terv bwh fül alatti táblázat kirajzolása
-function fenntartasi_terv_bwh($sor){
+function fenntartasi_terv_bwh($sor) {
 
     global $adatbazis_kapcsolat;
 
@@ -9585,10 +9605,10 @@ function fenntartasi_terv_bwh($sor){
         ';
 
     $bwhk = $adatbazis_kapcsolat->s('*', 'fenntartasi_terv_bwh', "`fenntartasi_terv_id`='{$sor['recid']}'", 'ktgnem_id');
-    foreach($bwhk as $bwh){
+    foreach ( $bwhk as $bwh ) {
 
-        for($i=1; $i<13; $i++){
-            if($i<10){
+        for ( $i = 1; $i < 13; $i++ ) {
+            if( $i < 10 ) {
                 $i = '0'.$i;
             }
             $bwh['ft'.$i] = number_format($bwh['ft'.$i], 0, '', ' ');
@@ -9648,7 +9668,7 @@ function fenntartasi_terv_bwh($sor){
 }
 
 // Fenntartási terv összesen fül alatti táblázat kirajzolása
-function fenntartasi_terv_osszesen($sor, $ful_tomb, $sajat_szallodak){
+function fenntartasi_terv_osszesen($sor, $ful_tomb, $sajat_szallodak) {
 
     global $adatbazis_kapcsolat;
 
@@ -9679,16 +9699,16 @@ function fenntartasi_terv_osszesen($sor, $ful_tomb, $sajat_szallodak){
 
     $kivetelek = array('modosit', 'osszesen', 'tortenet', 'dokumentumok', 'megjegyzesek');
     // A BWH-t is felvesszük a kivételek közé, hacsak nem Hungáriás a user
-    if( !in_array(2120, $sajat_szallodak) || $sor['telephely_id']!=2120 ){
+    if( !in_array(2120, $sajat_szallodak) || $sor['telephely_id'] != 2120 ) {
         array_push($kivetelek, 'bwh');
     }
-    foreach($ful_tomb as $tabla_post => $ful_neve){
+    foreach ( $ful_tomb as $tabla_post => $ful_neve ) {
 
-        if( !in_array($tabla_post, $kivetelek) ){
+        if( !in_array($tabla_post, $kivetelek) ) {
 
             $ful_sorok = $adatbazis_kapcsolat->s('*', 'fenntartasi_terv_'.$tabla_post, "`fenntartasi_terv_id`='{$sor['recid']}'", '', '', 'ktgnem_id');
-            if($ful_sorok){
-                foreach($ful_sorok as $f_sor){
+            if( $ful_sorok ) {
+                foreach ( $ful_sorok as $f_sor ) {
 
                     // Mivel költségnem id szerint group by-oztunk, ezért itt le kell kérni újra a sorokat, mert lehet több azonos költségnem rekord is van adott terv_id-hoz
                     // Első lépésként ezket ezért nullázzuk is
@@ -9699,9 +9719,9 @@ function fenntartasi_terv_osszesen($sor, $ful_tomb, $sajat_szallodak){
                         $f_sor['ft'.$i] = 0;
                     }
                     $akt_ful_sorok = $adatbazis_kapcsolat->s('*', 'fenntartasi_terv_'.$tabla_post, "`fenntartasi_terv_id`='{$sor['recid']}' AND `ktgnem_id`='{$f_sor['ktgnem_id']}'");
-                    foreach($akt_ful_sorok as $akt_sor){
-                        for($i=1; $i<13; $i++){
-                            if($i<10){
+                    foreach ( $akt_ful_sorok as $akt_sor ) {
+                        for ( $i = 1; $i < 13; $i++ ) {
+                            if( $i < 10 ) {
                                 $i = '0'.$i;
                             }
                             $f_sor['ft'.$i] += $akt_sor['ft'.$i];
@@ -9709,8 +9729,8 @@ function fenntartasi_terv_osszesen($sor, $ful_tomb, $sajat_szallodak){
                     }
 
                     $honapok_osszesen = 0;
-                    for($i=1; $i<13; $i++){
-                        if($i<10){
+                    for ( $i = 1; $i < 13; $i++ ) {
+                        if( $i < 10 ) {
                             $i = '0'.$i;
                         }
                         $honapok_osszesen += $f_sor['ft'.$i];

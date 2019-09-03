@@ -268,6 +268,16 @@ function pop_kapcsolas_feltolt() {
     }else{
         sz_szam = $('#sz_szam_db').val();
     }
+    if( $('#netto').length ){
+        netto = $('#netto').val();
+    }else{
+        netto = $('#netto_db').val();
+    }
+    if( $('#dev_net').length ){
+        dev_net = $('#dev_net').val();
+    }else{
+        dev_net = $('#dev_net_db').val();
+    }
     if( $('#telephely_id').length ){
         telephely_id = $('#telephely_id').val();
     }else{
@@ -281,6 +291,7 @@ function pop_kapcsolas_feltolt() {
             telephely_id            : telephely_id,
             sz_szam                 : sz_szam,
             kcs_21                  : kcs_21,
+            netto                   : netto,
             id                      : _get('id'),
             szamla_tetel_recid      : $('#szamla_tetel_recid').val(),
             pop_kapcsolas_feltolt   : Date.now()
@@ -338,13 +349,13 @@ function tetelek_kiszamol( that, elso ) {
         van_valtozas = true;
     }
     
-    /* Ezt egy ellenőrzéssel kezdjük: csak egy sorban tölthető ki a nettó a nettó érték. */
+    /* Ezt egy ellenőrzéssel kezdjük: csak egy sorban tölthető ki a nettó érték. */
     var netto_ertek_db = 0;
     $('.pop_netto_ert').each(function() {
-        if( !$(this).prop('disabled') && $(this).val() && $(this).val()!='0' && $(this).val() && $(this).val()!='0,00' ){
+        if( !$(this).prop('disabled') && $(this).val() && $(this).val()!='0' && $(this).val() && $(this).val()!='0,00' ) {
             netto_ertek_db++;
         }
-        if( netto_ertek_db>1 ){
+        if( netto_ertek_db>1 ) {
             alert2('Csak egy szerződés tételhez írhat nettó értéket!<br>Előbb törölje ki a nettó értéket a többi sorból!', '', 'Hiba');
             that.blur().val('0');
         }
@@ -355,7 +366,7 @@ function tetelek_kiszamol( that, elso ) {
         if( !$(this).prop('disabled') && $(this).val() && $(this).val()!='\xa0\xa0\xa0\xa0.\xa0\xa0.\xa0\xa0' && $(this).val()!='    .  .  ' && $(this).val()!='0000.00.00' ){
             teljesites_db++;
         }
-        if( teljesites_db>1 ){
+        if( teljesites_db>1 ) {
             alert2('Csak egy szerződés tételhez írhat teljesítás dátumot!<br>Előbb törölje ki a teljesítés dátumot a többi sorból!', '', 'Hiba');
             that.blur().val('0000.00.00');
         }

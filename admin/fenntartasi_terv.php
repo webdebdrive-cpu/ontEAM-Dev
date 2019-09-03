@@ -3748,14 +3748,14 @@ require_once('selectek.php');
 		}
 
 	// Energia
-	}elseif(isset($_GET['energia'])){
+    } elseif( isset($_GET['energia']) ) {
 
         $tomb = fenntartasi_terv_energia($sor);
         $szamla_html  .= $tomb[0];
         $volt_valtozas = $tomb[1];
 
         // Ha van eltérés az energia egységárahoz képest, akkor egy plusz gombot kiíruratunk
-        if($volt_valtozas && $sor['stat_id']==ENERGIATERV_STAT_MUNKAKOZI && _jog(JOG_FENNTARTASI_SAJAT_SZ_KEZEL)){
+        if( $volt_valtozas && $sor['stat_id'] == ENERGIATERV_STAT_MUNKAKOZI && _jog(JOG_FENNTARTASI_SAJAT_SZ_KEZEL) ) {
             $szamla_html .= nl2('
                         <script>
                         $(document).ready(function () {

@@ -2102,7 +2102,7 @@ $megnevezes = 'beosztas_naptar';
 $beosztas_naptar_tomb = $akt_tomb = array(
 	array('type' => 'text',                     'megn' => 'Időszak:',           'name' => 'tol',            'class' => 'datetimepicker', 'megn_szurobe' => 'Időszak tól', 'maxlength' => 16, 'alert' => 'Kérem adja meg az időszak kezdetét!', 'osszevon' => 1   ),
 	array('type' => 'text',                     'megn' => ' - ',                'name' => 'ig',             'class' => 'datetimepicker', 'megn_szurobe' => 'Időszak ig',  'maxlength' => 16, 'alert' => 'Kérem adja meg az időszak végét!'                       ),
-    array('type' => 'select_beosztas',          'megn' => 'Beosztás tipus:',    'name' => 'beosztas',       'class' => 'disableNav',       'onchange' => 'if($(this).val()==1){ $(\'.beosztas_rejt\').removeClass(\'dn\'); }else{ $(\'.beosztas_rejt\').addClass(\'dn\'); }',          'alert' => 'Kérem adja meg a beosztás típusát!'),
+    array('type' => 'select_beosztas',          'megn' => 'Beosztás tipus:',    'name' => 'beosztas',       'class' => 'disableNav',       'onchange' => 'if($(this).val()==1){ $(\'.beosztas_rejt\').removeClass(\'dn\'); } else { $(\'.beosztas_rejt\').addClass(\'dn\'); }',          'alert' => 'Kérem adja meg a beosztás típusát!'),
     array('type' => 'select_szemelyzet',        'megn' => 'Szerepkör:',         'name' => 'szerepkor',      'class' => 'disableNav',      'dtr_class' => ' dn beosztas_rejt'),
     array('type' => 'autocomplete',             'megn' => 'Név:',               'name' => 'felh_loginnev',  'class' => 'disableNav',   'tabla' => 'torzsadat',  'oszlop_keres' => 'recid', 'oszlop_keres_autocomp' => 'nev', 'listaz' => 'nev', 'id_kiir' => 'recid', 'alert' => 'Kérem adja meg a személy nevét!'),
 );
@@ -2319,7 +2319,7 @@ $projektkezeles_tomb = $akt_tomb = array(
     array('type' => 'select_pri_tipus',     'megn' => 'Tipus:',                 'name' => 'tipus',          'szuro' => 1,   'class' => 'disableNav', 'osszevon' => 1, 'post' => '<span style="margin-left: 2rem"></span>', 'style' => 'width: 15rem'),
     array('type' => 'select_pri_besorol',   'megn' => 'Besorolás:',             'name' => 'besorol',        'szuro' => 1,   'class' => 'disableNav'),
     array('type' => 'autocomplete',         'megn' => 'Prioritás:',             'name' => 'prior',          'szuro' => 1,   'class' => 'oriasi disableNav', 'tabla' => 'erteklista', 'oszlop_keres' => 'id', 'oszlop_keres_autocomp' => 'info', 'listaz' => 'info', 'csoport' => ERTEKLISTA_PROJEKT_PRIOR, 'id_kiir' => 'id', 'osszevon' => 1, 'style' => 'width: 15rem', 'post' => '<span style="margin-left: 2rem"></span>'),
-    array('type' => 'checkbox',             'megn' => 'Megtérülő:',             'name' => 'megter',         'szuro' => 1,   'class' => 'check', 'onclick' => 'if($(this).prop(\'checked\')){ $(\'#megter_cel_div\').show(); }else{ $(\'#megter_cel_div\').hide(); }', 'osszevon' => 1, 'post' => '<span style="margin-left: 2rem"></span>'),
+    array('type' => 'checkbox',             'megn' => 'Megtérülő:',             'name' => 'megter',         'szuro' => 1,   'class' => 'check', 'onclick' => 'if($(this).prop(\'checked\')){ $(\'#megter_cel_div\').show(); } else { $(\'#megter_cel_div\').hide(); }', 'osszevon' => 1, 'post' => '<span style="margin-left: 2rem"></span>'),
     array('type' => 'checkbox',             'megn' => 'Rendkívüli:',            'name' => 'rendk',          'szuro' => 1,   'class' => 'check'),
     array('type' => 'textarea',             'megn' => 'Leírása:',               'name' => 'text',           'szuro' => 1,   'class' => 'oriasiTargy disableNav'),
     array('type' => 'text',                 'megn' => 'Jóváhagyott keret:',     'name' => 'jkolt',          'szuro' => 1,   'class' => 'oriasi f_num', 'data' => 'data-tort="0"', 'disabled' => $disabled_jkolt,    'post' => ' '.get_penznem(), 'alert' => $alert_jkolt),
@@ -2519,7 +2519,7 @@ $projektszerzodes_tomb = $akt_tomb = array(
     array('type' => 'textarea',             'megn' => 'Tárgy:',                 'name' => 'targy',              'szuro' => 1,   'class' => 'oriasiTargy disableNav', 'alert' => 'Kérem töltse ki a tárgy mezőt!'),
     array('type' => 'autocomplete',         'megn' => 'Költségviselő:',         'name' => 'kolt_vis',           'szuro' => 1,   'class' => 'oriasi disableNav', 'tabla' => 'erteklista', 'oszlop_keres' => 'id', 'oszlop_keres_autocomp' => 'info', 'listaz' => 'info', 'csoport' => ERTEKLISTA_KOLTSEGVISELO,  'id_kiir' => 'id',  'alert' => 'Kérem válasszon költségviselőt!', 'style' => 'width: 25rem', 'osszevon' => 1, 'post' => '<span style="margin-left: 2rem"></span>'),
     array('type' => 'autocomplete',         'megn' => 'Szerződést kötő:',       'name' => 'sz_koto',            'szuro' => 1,   'class' => 'oriasi disableNav', 'tabla' => 'erteklista', 'oszlop_keres' => 'id', 'oszlop_keres_autocomp' => 'info', 'listaz' => 'info', 'csoport' => ERTEKLISTA_SZERZODESTKOTO, 'id_kiir' => 'id',  'alert' => 'Kérem válasszon szerződéskötőt!', 'style' => 'width: 25rem'),
-    array('type' => 'autocomplete',         'megn' => 'Pénznem:',               'name' => 'kcs_21',             'szuro' => 1,   'class' => 'disableNav', 'tabla' => 'erteklista', 'oszlop_keres' => 'id', 'oszlop_keres_autocomp' => 'info', 'listaz' => 'info', 'csoport' => ERTEKLISTA_PENZNEM, 'complete' => ' setTimeout(function(){ if( !$(\'#arfolyam\').is(\':disabled\') ){ $(\'#arfolyam\').select(); }else{ $(\'#szerz_ossz\').select(); } }, 200); ', 'id_kiir' => 'id', 'style' => 'width: 5rem', 'osszevon' => 1, 'post' => '<span style="margin-left: 2rem"></span>'),
+    array('type' => 'autocomplete',         'megn' => 'Pénznem:',               'name' => 'kcs_21',             'szuro' => 1,   'class' => 'disableNav', 'tabla' => 'erteklista', 'oszlop_keres' => 'id', 'oszlop_keres_autocomp' => 'info', 'listaz' => 'info', 'csoport' => ERTEKLISTA_PENZNEM, 'complete' => ' setTimeout(function(){ if( !$(\'#arfolyam\').is(\':disabled\') ){ $(\'#arfolyam\').select(); } else { $(\'#szerz_ossz\').select(); } }, 200); ', 'id_kiir' => 'id', 'style' => 'width: 5rem', 'osszevon' => 1, 'post' => '<span style="margin-left: 2rem"></span>'),
     array('type' => 'text',                 'megn' => 'Árfolyam:',              'name' => 'arfolyam',           'szuro' => 1,   'class' => 'f_num',                             'disabled' => $arfolyam_disabled, 'data' => 'data-tort="4"', 'osszevon' => 1, 'post' => '<span style="margin-left: 2rem"></span>', 'sql_disabledkor_is' => 1),
     array('type' => 'text',                 'megn' => 'Átváltva:',              'name' => 'valtva',             'szuro' => 1,   'class' => 'kicsi datepicker',                  'disabled' => $arfolyam_disabled, 'sql_disabledkor_is' => 1),
     array('type' => 'text',                 'megn' => 'Deviza nettó:',          'name' => 'dev_net',            'szuro' => 1,   'class' => 'f_num'.$deviza_kotelezo,    'data' => 'data-tort="2"',  'disabled' => $arfolyam_disabled, 'sql_disabledkor_is' => 1),
@@ -2595,7 +2595,7 @@ if (isset($_GET['modosit'])) {
     $prik = $adatbazis_kapcsolat->s('projektigenyles_recid', 'projektigenyles_eloterj', "`eloterj_bod_recid`='{$_GET['id']}'");
     if(!$prik){
         $ossz_kolts = 'Még nincsenek csatolt projektigénylések.';
-    }else{
+    } else {
         foreach($prik as $pri){
             $pri = $adatbazis_kapcsolat->s2('bkolt', 'projektigenyles_eloterj', "`recid`='{$pri['projektigenyles_recid']}'");
             $ossz_kolts += $pri['bkolt'];
@@ -2991,7 +2991,7 @@ if( isset($_GET['sendMail']) ) {
                             }
 
                         // Több szállítót nem engedünk meg kijelölni
-                        }else{
+                        } else {
                             echo json_encode(array(
                                 'hiba'  => 'Árajánlat kéréshez csak egy szállítóhoz tartozó igényléseket jelöljön ki!',
                                 'title' => 'Hiba',
@@ -3077,7 +3077,7 @@ if( !in_array(basename(self()), $kivetelek) ){
         }
         
     // Előző oldal megjegyzésésének általános esete
-    }else{
+    } else {
         $_SESSION['elozo_oldal'] = basename(self());
     }
 }
@@ -3243,7 +3243,7 @@ if( isset($_GET['getBejBejelentok']) ) {
                     if( !$(\'#bejbejelentok table.egyErtek tr.kijSor.kijelolve\').length ){
                         $(\'#diszpFeltolt\').attr(\'disabled\', true);
                         $(\'#masnevebenFeltolt\').val(\'\');
-                    }else{
+                    } else {
                         $(\'#diszpFeltolt\').attr(\'disabled\', false);
                         $(\'#masnevebenFeltolt\').val( $(\'#bejbejelentok table.egyErtek tr.kijSor.kijelolve\').attr(\'data-nev\') );
                     }
@@ -3462,7 +3462,7 @@ if( isset($_POST['varolistabolKivetel']) ) {
             }
 
         // Általános eset
-        }else{
+        } else {
 
             // Státuszt nyitott-ra állítjuk
             foreach($idk as $id) {
@@ -4039,7 +4039,7 @@ if( isset($_POST['mellekTorol']) ) {
             if( $fajlok === false ) { $db_error = true; }
             
             // Projektigényléseknél a Törlés lehetőségét mégis tiltjuk elutasítva és jóváhagyva státuszainál
-            if( $tabla == 'projektigenyles_dok' ){
+            if( $tabla == 'projektigenyles_dok' ) {
                 // Vegyük az első fájlt (minegy melyiket vesszük, mindnél ugyanaz lesz a szülő oszlop. Másérszt újabban csak egyesével lehet törölni, szóval tényleg totál jó megoldás ez.
                 $pri = $adatbazis_kapcsolat->s2('stat_id', 'projektigenyles', "`recid`='{$fajlok[0][$szulo_oszlop]}'");
                 if( $pri === false ) { $db_error = true; }
@@ -4055,22 +4055,22 @@ if( isset($_POST['mellekTorol']) ) {
             }
             
             // Projektkezeléseknél a Törlés lehetőségét tiltjuk, ha adott státuszra jellemző dokumentumból az utolsót akarnák törölni
-            if( $tabla == 'projektkezeles_dok' ){
-                
+            if( $tabla == 'projektkezeles_dok' ) {
+
                 $tipus = $adatbazis_kapcsolat->s2('tipus', $tabla, "`recid` IN (".implode(',', $idk).") AND `loginnev`='{$_SESSION[get_db_tabla().'user']}'");
                 if( $tipus === false ) { $db_error = true; }
 
                 $prk = $adatbazis_kapcsolat->s2('stat_id', 'projektkezeles', "`recid`='{$fajlok[0][$szulo_oszlop]}'");
                 if( $prk === false ) { $db_error = true; }
 
-                switch( $prk['stat_id'] ){
-                    
+                switch( $prk['stat_id'] ) {
+
                     case PRKEZEL_STAT_ELOKESZITES_ALATT:
                         
                         $van_doksi = $adatbazis_kapcsolat->s('recid', 'projektkezeles_dok', "`projektkezeles_id`='{$fajlok[0][$szulo_oszlop]}'");
                         if( $van_doksi === false ) { $db_error = true; }
  
-                        if( count($van_doksi)==1 ){
+                            if( count($van_doksi)== 1 ) {
                             echo json_encode(array(
                                 'hiba'  => 'Ebben a státuszban nem törölhető az összes dokumentum!<br>Előbb csatoljon fel egy másikat!',
                                 'title' => 'Hiba'
@@ -4159,10 +4159,10 @@ if( isset($_POST['mellekTorol']) ) {
                                 exit();
                             }
                         }
-                        if($tipus['tipus']==EL_DOK_TIPUS_GAR_BEJAR){
+                        if( $tipus['tipus'] == EL_DOK_TIPUS_GAR_BEJAR ) {
                             $van_doksi = $adatbazis_kapcsolat->s('recid', 'projektkezeles_dok', "`projektkezeles_id`='{$fajlok[0][$szulo_oszlop]}' AND `tipus`='".EL_DOK_TIPUS_GAR_BEJAR."'");
                             if( $van_doksi === false ) { $db_error = true; }
-                            if( count($van_doksi)==1 ){
+                            if( count($van_doksi)==1 ) {
                                 echo json_encode(array(
                                     'hiba'  => 'Ebben a státuszban nem törölhető az összes Gar. bejárási jk. dokumentum!<br>Előbb csatoljon fel egy másikat!',
                                     'title' => 'Hiba'
@@ -4181,7 +4181,7 @@ if( isset($_POST['mellekTorol']) ) {
                 $mit      = 'A(z) '.str_replace('_dok', '', $tabla).' '.$recid.'. recordját módosította.';
                 $valtozas = 'A következő fájlokat törölte: <br>';
 
-                foreach($fajlok as $fajl) {
+                foreach ( $fajlok as $fajl ) {
                     $utvonal = '../'.get_utvonal().csonkit($tabla, 4).'/'.$fajl['utvonal'];
 
                     if( is_file($utvonal) ) {
@@ -4210,7 +4210,7 @@ if( isset($_POST['mellekTorol']) ) {
                         $sql = $adatbazis_kapcsolat -> d($tabla, "`recid` = '".$fajl['recid']."'");
                         if( $sql === false ) { $db_error = true; }
                         
-                    }else{
+                    } else {
                         // Töröljük a sort is
                         $sql = $adatbazis_kapcsolat -> d($tabla, "`recid` = '".$fajl['recid']."'");
                         if( $sql === false ) { $db_error = true; }
@@ -4229,7 +4229,7 @@ if( isset($_POST['mellekTorol']) ) {
                 $sql = $adatbazis_kapcsolat->u($szulo_tabla, array('dok_db'), array($dokumentumok_szama), "`recid`='{$fajl[$szulo_oszlop]}'");
                 if( $sql === false ) { $db_error = true; }
 
-            }else{
+            } else {
                 echo json_encode(array(
                     'hiba'  => 'A fájl nem található, vagy nincs joga azt törölni!',
                     'title' => 'Hiba'
@@ -4240,11 +4240,11 @@ if( isset($_POST['mellekTorol']) ) {
             }
 
         // Előterjesztésnél csak nyitott státuszban törölhető projektigénylés, illetve az igénylést visszaléptetjük az előző státuszba
-        } else if($tabla=='eloterj_fb_kapcs'){
+        } else if( $tabla == 'eloterj_fb_kapcs' ) {
 
             // Mi az előterjesztés a státusza
             $statusz = $adatbazis_kapcsolat->s2('stat_id', 'eloterj_fb', "`recid`='{$recid}'");
-            if( $statusz['stat_id']!=ELOT_FB_STAT_NYITOTT ){
+            if( $statusz['stat_id']!=ELOT_FB_STAT_NYITOTT ) {
                 echo json_encode(array(
                     'hiba'  => 'Csak nyitott státuszban törölhetőek a projektigénylések!',
                     'title' => 'Hiba'
@@ -4270,7 +4270,7 @@ if( isset($_POST['mellekTorol']) ) {
             }
 
         // Előterjesztésnél csak nyitott státuszban törölhető projektigénylés, illetve az igénylést visszaléptetjük az előző státuszba
-        } else if($tabla=='eloterj_bod_kapcs'){
+        } else if($tabla=='eloterj_bod_kapcs') {
 
             // Mi az előterjesztés a státusza
             $statusz = $adatbazis_kapcsolat->s2('stat_id', 'eloterj_bod', "`recid`='{$recid}'");
@@ -4285,7 +4285,7 @@ if( isset($_POST['mellekTorol']) ) {
             }
 
             // A törölt Pr igényléseket vissza kell léptetni az előző státuszra
-            foreach( $idk as $projektigenyles_eloterj_recid ){
+            foreach( $idk as $projektigenyles_eloterj_recid ) {
                 
                 $projektigenyles_eloterj = $adatbazis_kapcsolat->s2('stat_id projektigenyles_recid', 'projektigenyles_eloterj', "`recid`='{$projektigenyles_eloterj_recid}'");
                 if( $projektigenyles_eloterj === false ) { $db_error = true; }
@@ -4325,9 +4325,9 @@ if( isset($_POST['mellekTorol']) ) {
             prigeny_mindenki_velemenyezett_e($velemenyezo['projektigenyles_recid']);
 
         // Projektek team füle
-        } elseif($tabla=='projektkezeles_team'){
+        } elseif($tabla=='projektkezeles_team') {
             
-            if( get_projekt_kezeles_jog($_POST['recid']) ){
+            if( get_projekt_kezeles_jog($_POST['recid']) ) {
 
                 // Levélben értesítés
                 foreach ( $idk as $id ) {
@@ -4336,16 +4336,17 @@ if( isset($_POST['mellekTorol']) ) {
                     if( $login_recid === false ) { $db_error = true; }
 
                     $mail_hibaizenet = level_felkeszit_es_kuld('projektkezeles', $_POST['recid'], '', 'projektkezelesTagDel', 'projektkezeles_tag_torolve', '', $login_recid['login_recid']);
-                    if( $mail_hibaizenet ){
-                        $db_error = true;
-                    }
+                    // Ettől még az adatbázis műveletet lefuttatjuk!
+//                    if( $mail_hibaizenet ) {
+//                        $db_error = true;
+//                    }
 
                     $sql = $adatbazis_kapcsolat -> d($tabla, "`recid` IN (".implode(',', $idk).")");
                     if( $sql === false ) { $db_error = true; }
                     
                 }
                 
-            }else{
+            } else {
                 echo json_encode(array(
                     'hiba'  => 'Önnek nincs joga Projekt team-et törölni!',
                     'title' => 'Hiba'
@@ -4356,7 +4357,7 @@ if( isset($_POST['mellekTorol']) ) {
             }
 
         // Megjegyzéskor az apa tábla megj_db oszlopát karban kell tartani
-        } elseif($tabla=='megjegyzes'){
+        } elseif( $tabla == 'megjegyzes' ) {
 
             // 2018.07.27 - megjegyzéseket ne lehessen törölni
 //            $megj = $adatbazis_kapcsolat->s2('id, tabla', 'megjegyzes', "`recid`='{$idk[1]}'");
@@ -4401,19 +4402,19 @@ if( isset($_POST['mellekTorol']) ) {
 
         // Projektigényléseknél véleményezők törlésekor vissza is kell állítani a projektigénylés státuszát
         $pri_statusz_kerdez = false;
-        if($tabla=='projektigenyles_kapcs'){
+        if( $tabla == 'projektigenyles_kapcs' ) {
             // Ha nem maradt véleményező, akkor rákérdezünk, hogy menjen-e vissza nyitottba
             $maradt_velemenyezo = $adatbazis_kapcsolat->s('recid', 'projektigenyles_kapcs', "`projektigenyles_recid`='{$recid}'", '', '0,1');
             if( $maradt_velemenyezo === false ) { $db_error = true; }
-            if(!$maradt_velemenyezo){
+            if( !$maradt_velemenyezo ) {
                 $pri_statusz_kerdez = true;
             }
         }
         // Projektigényléseknél megtérülés törlésekor ellenőrizzük, hogy van-e még, mert ha nincs, az adatlapon ki kell venni a pipát
-        if($tabla=='projektigenyles_megter'){
+        if( $tabla == 'projektigenyles_megter' ) {
             $van_megter = $adatbazis_kapcsolat->s2('recid', $tabla, "`projektigenyles_recid`='{$_POST['recid']}'");
             if( $van_megter === false ) { $db_error = true; }
-            if(!$van_megter){
+            if( !$van_megter ) {
                 $sql = $adatbazis_kapcsolat->u('projektigenyles', array('megter'), array(0), "`recid`='{$_POST['recid']}'");
                 if( $sql === false ) { $db_error = true; }
             }
@@ -4422,18 +4423,21 @@ if( isset($_POST['mellekTorol']) ) {
         if( !$db_error ) {
             mysqli_commit($db_kapcs);
 
-            if($pri_statusz_kerdez){
+            if( $pri_statusz_kerdez ) {
                 echo json_encode(array(
-                                    'statusz' => 'siker',
-                                    //Ezt egyelőre kivettük, egyből nyitottra vált'alert'   => 'Ehhez a projektigényléshez nem tartozik több véleményező.<br>Állítsuk át a státuszát nyitottra?',
+                                    'statusz'   => 'siker',
+                                    // Ezt egyelőre kivettük, egyből nyitottra vált'alert'   => 'Ehhez a projektigényléshez nem tartozik több véleményező.<br>Állítsuk át a státuszát nyitottra?',
                                     //'gomb'    => '<input class="gomb zold" type="button" value="Igen" onclick="pri_statusz_leptet(\''.$recid.'\', \''.PRIGENY_STAT_NYITOTT.'\')"> <input class="gomb piros" type="button" value="Nem" onclick="alert2()">',
                                 ));
 
-            }else{
+            } else {
+
                 echo json_encode(array(
-                                    'statusz' => 'siker'
+                                    'statusz'   => 'siker',
+                                    'mail_hiba' => $mail_hibaizenet,
                                 ));
             }
+            
         } else {
             mysqli_rollback($db_kapcs);
             
@@ -4650,7 +4654,7 @@ if (isset($_POST['surgosseg_allit'])) {
     if($surgos['surgos']){
         $uj_stat_szoveg = 'nem sürgős';
         $surgos_allit   = 0;
-    }else{
+    } else {
         $uj_stat_szoveg = 'sürgős';
         $surgos_allit   = 1;
     }
@@ -4783,7 +4787,7 @@ if(isset($_GET['unset'])){
 	unset($_GET['oldal']);
 	unset($_GET['order']);
 	unset($_GET['desc']);
-}else{
+} else {
 	if(isset($_GET['kat']))		{ $_SESSION['kat']   = $_GET['kat'];  	}
 	if(isset($_GET['epo']))		{ $_SESSION['epo']   = $_GET['epo'];   	}
 	if(isset($_GET['oldal']))   { $_SESSION['oldal'] = $_GET['oldal'];  }
@@ -4813,12 +4817,12 @@ if(isset($_POST['fajl_torol'])){
         $adatbazis_kapcsolat -> u($_POST['tabla'], $_POST['oszlop'], '', 'recid='.$_POST['id']);
 
     // Egyébként a cache fájlokat töröljük
-    }else{
+    } else {
 
         // Ha a post tábla egy konkrét útvonalat tartalmaz, akkor csak azt töröljük.
         if( is_file($_POST['tabla']) ){
             unlink($_POST['tabla']);
-        }else{
+        } else {
             $utvonal = '../'.get_utvonal().'cache/jsfajlok/'.session_id().'*';
             $session_kezdetu_fajlok = glob($utvonal);
             foreach($session_kezdetu_fajlok as $utvonal){
@@ -4866,7 +4870,7 @@ function get_admin_file_thumb($tabla, $oszlop, $id){
 
         if(is_file('../elemek/ikonok/'.$kit.'.png')){
             $akt_fajl = '../elemek/ikonok/'.$kit.'.png';
-        }else{
+        } else {
             $akt_fajl = '../elemek/ikonok/ismeretlen.png';
         }
         $fajlnev = basename($utvonal);
@@ -4880,7 +4884,7 @@ function get_admin_file_thumb($tabla, $oszlop, $id){
 
                 if(is_file('../elemek/ikonok/'.$kit.'.png')){
                     $akt_fajl = '../elemek/ikonok/'.$kit.'.png';
-                }else{
+                } else {
                     $akt_fajl = '../elemek/ikonok/ismeretlen.png';
                 }
 
@@ -4980,7 +4984,7 @@ foreach($postok as $ertek){
             if($elem['type'] == 'checkbox'){
                 if($_POST[$elem['name']]=='on' || $_POST[$elem['name']]=='true'){
                     $_POST[$elem['name']] = 1;
-                }else{
+                } else {
                     $_POST[$elem['name']] = 0;
                 }
 
@@ -4989,7 +4993,7 @@ foreach($postok as $ertek){
                     $pipa_on = $adatbazis_kapcsolat -> s($elem['name'], $ertek['tabla'], 'id='.$_POST['id']);
                     if( $pipa_on[0][$elem['name']] ){
                         $adatbazis_kapcsolat -> u($ertek['tabla'], $elem['name'], '', 'id='.$_POST['id']);
-                    }else{
+                    } else {
                         $adatbazis_kapcsolat -> u($ertek['tabla'], $elem['name'], '1', 'id='.$_POST['id']);
                     }
                     $weblap -> leallit();
@@ -5070,7 +5074,7 @@ foreach($postok as $ertek){
 			$adatbazis_kapcsolat -> bezar();
 			if(isset($_POST['ugras_kepekhez'])){
                 header('location:'.self().str_replace('&amp;','&',get_get(array('id', 'hiba', 'errnum', 'kephiba', 'oldal', 'epo', 'kat', 'order'))).'&id='.$tabla_id.'#kepek');
-            }else{
+            } else {
                 // Csak akkor van továbbléptetés, ha nem ajaxosan hívtuk meg
                 if(!isset($_POST['ajax_form_modosit'])){
                     // header('location:'.self().'?uj')
@@ -5093,7 +5097,7 @@ foreach($postok as $ertek){
                         } else {
                             header('location:'.self().'?tablazat');
                         }
-                    }else{
+                    } else {
                         $header_kieg = '';
                         if( $_SESSION[basename(self())]['szures_mezo'] && $_SESSION[basename(self())]['szures_op'] && $_SESSION[basename(self())]['szures_felt'] ){
                             $header_kieg = '&mezo='.$_SESSION[basename(self())]['szures_mezo'].'&op='.$_SESSION[basename(self())]['szures_op'].'&felt='.$_SESSION[basename(self())]['szures_felt'];
@@ -5711,7 +5715,7 @@ Hiba: '.getErtek('info', 'erteklista', 'recid', $bejelentes['hiba_id']).$hiba_tx
                     // Ha egyáltalán nincs már helyiség ezen a szinten, akkor egyel fentebb ugrunk
                     if(!$obj){
                         $kieg = get_get(array($ertek['torid'], 'modosit', 'obj'), 'sima &').'&id='.$original_sor['szulo'].'&obj';
-                    }else{
+                    } else {
                         $kieg = get_get(array($ertek['torid'], 'modosit', 'obj'), 'sima &').'&id='.$obj['recid'].'&obj';
                     }
                     
@@ -5728,7 +5732,7 @@ Hiba: '.getErtek('info', 'erteklista', 'recid', $bejelentes['hiba_id']).$hiba_tx
                     // Ha egyáltalán nincs már eszköz ezen a szinten, akkor a helyiségre ugrunk
                     if( !$eszkoz ) {
                         $kieg = get_get(array($ertek['torid'], 'modosit', 'obj'), 'sima &').'&id='.$original_sor['obj_id'].'&obj';
-                    }else{
+                    } else {
                         $kieg = get_get(array($ertek['torid'], 'modosit', 'obj'), 'sima &').'&id='.$eszkoz['recid'].'&modosit';
                     }
                     
@@ -5747,7 +5751,7 @@ Hiba: '.getErtek('info', 'erteklista', 'recid', $bejelentes['hiba_id']).$hiba_tx
                 echo 'A törlés nem sikerült!';
                 $weblap -> leallit();
                 exit();
-            }else{
+            } else {
                 $weblap -> leallit();
                 header('location:'.self().str_replace('&amp;', '&', get_get(array($ertek['torid']))).'&hiba');
                 exit();
@@ -5851,7 +5855,7 @@ if(isset($_GET['modosit'])){
             $adatbazis_kapcsolat->u('munkalap', array('dok_db'), array($dokumentumok_szama), "`recid`='{$_GET['id']}'");
 
         // Általános eset
-        }else{
+        } else {
 
             $kepnev      = $fajlnev;
             $ujnev       = $kepnev.'_1';
@@ -5920,7 +5924,7 @@ if(isset($_POST['del'])){
 					remover('../'.get_utvonal().$konyvtar.'/'.$_POST['id'].'_*');
 
 				//nev és fajlnev esetében ugyanazt tesszük
-				}else{
+				} else {
 
 					$termek     = $adatbazis_kapcsolat -> select($tomb_ertek['oszlop'], $_POST['tabla'], 'id='.$ertek);
 					$sor_termek = $termek[0];
@@ -5966,7 +5970,7 @@ if(isset($_GET['keptorol']) && $_GET['keptorol']!=''){
 		if(is_file($kepnev.'.png')){ if(!unlink($kepnev.'.png')){ return 'k3'; } }
 
 	//egyébként az sorid-t
-	}else{
+	} else {
 
 		$kepnev = '../'.get_utvonal().$_GET['keptorol'];
 		if(is_file($kepnev))       { if(!unlink($kepnev)){        return 'k3'; } }
@@ -6035,7 +6039,7 @@ function kep_menedzser($megnevezes, $tomb, $tabla, $sor_id, $uj_lista, $meret, $
 				if($_FILES[$megnevezes]['type']=='image/pjpeg' || $_FILES[$megnevezes]['type']=='image/jpeg' || $_FILES[$megnevezes]['type']=='image/gif' || $_FILES[$megnevezes]['type']=='image/png' || $_FILES[$megnevezes]['type']=='image/x-png') {
 					$kepnev = substr($_FILES[$megnevezes]['name'],0,strrpos($_FILES[$megnevezes]['name'],'.'));
 					$kit    = '';//Ha képek töltönk fel, nem kell megadni a kiterjesztést!
-				}else{
+				} else {
 					$kit    = substr($_FILES[$megnevezes]['name'],strrpos($_FILES[$megnevezes]['name'],'.'),strlen($_FILES[$megnevezes]['name']));
 					$kepnev = substr($_FILES[$megnevezes]['name'],0,strrpos($_FILES[$megnevezes]['name'],'.'));
 				}
@@ -6052,7 +6056,7 @@ function kep_menedzser($megnevezes, $tomb, $tabla, $sor_id, $uj_lista, $meret, $
 					$kepnev    = str_replace($mit,$mivel,$sor[$fajl_oszlop]);
 					$overwrite = true;	//Megmondjuk a webftp-nek, hogy az adott fáljt írja felül, ne szemeteljünk, takarítsunk magunk után
 
-				}else{//Ha nincs a táblában a neve (új felöltés vagy módosítás, és sose volt kép, vagy törölve lett)
+				} else {//Ha nincs a táblában a neve (új felöltés vagy módosítás, és sose volt kép, vagy törölve lett)
 					if($uj_lista=='lista'){//Ha módosításkor nincs még kép hozzárendelve, akkor kap egy '_1'-t, hogy ne törölje az esetleges kepnev_2-t. Új feltöltéskor ezt a web_ftp() teszi meg
 
 						$i=1;
@@ -6070,7 +6074,7 @@ function kep_menedzser($megnevezes, $tomb, $tabla, $sor_id, $uj_lista, $meret, $
 						$kepnev = fajlnev_keszit(str_replace($mit,$mivel,$kepnev)).$kit;
 						$overwrite = true;	//Megmondjuk a webftp-nek, hogy az adott fáljt írja felül, ne szemeteljünk, takarítsunk magunk után
 
-					}else{//Ha új beszúrás, akkor gyártunk egy filename-t
+					} else {//Ha új beszúrás, akkor gyártunk egy filename-t
 
 						$kepnev    = fajlnev_keszit($kepnev).$kit;
 						$overwrite = false;	//Ne töröljön esetleges azonos nevű fálokat, inább gyártsun újnevűeket új beszúrásnál
@@ -6082,7 +6086,7 @@ function kep_menedzser($megnevezes, $tomb, $tabla, $sor_id, $uj_lista, $meret, $
 			case 'nev': //termék nevéből nyert képnév + az erdeti kiterjesztés HA nem kép
 				if($_FILES[$megnevezes]['type'] == 'image/pjpeg' || $_FILES[$megnevezes]['type'] == 'image/jpeg' || $_FILES[$megnevezes]['type'] == 'image/gif' || $_FILES[$megnevezes]['type'] == 'image/png' || $_FILES[$megnevezes]['type'] == 'image/x-png') {
 					$kit = '';
-				}else{
+				} else {
 					$kit = substr($_FILES[$megnevezes]['name'], strrpos($_FILES[$megnevezes]['name'], '.'), strlen($_FILES[$megnevezes]['name']));
 				}
 
@@ -6097,7 +6101,7 @@ function kep_menedzser($megnevezes, $tomb, $tabla, $sor_id, $uj_lista, $meret, $
 					$kepnev    = str_replace($mit,$mivel,$sor[$fajl_oszlop]);
 					$overwrite = true;	//Megmondjuk a webftp-nek, hogy az adott fáljt írja felül, ne szemeteljünk, takarítsunk magunk után
 
-				}else{//Ha nincs a táblában a neve (új felöltés vagy módosítás, és sose volt kép, vagy törölve lett)
+				} else {//Ha nincs a táblában a neve (új felöltés vagy módosítás, és sose volt kép, vagy törölve lett)
 
 					$kepnev = $_POST['nev'];
 					if($uj_lista=='lista'){//Ha módosításkor nincs még kép hozzárendelve, akkor kap egy '_1'-t, hogy ne törölje az esetleges kepnev_2-t. Új feltöltéskor ezt a web_ftp() teszi meg
@@ -6117,7 +6121,7 @@ function kep_menedzser($megnevezes, $tomb, $tabla, $sor_id, $uj_lista, $meret, $
 						$kepnev    = fajlnev_keszit(str_replace($mit,$mivel,$kepnev)).$kit;
 						$overwrite = true;	//Megmondjuk a webftp-nek, hogy az adott fáljt írja felül, ne szemeteljünk, takarítsunk magunk után
 
-					}else{//Ha új beszúrás, akkor gyártunk egy filename-t
+					} else {//Ha új beszúrás, akkor gyártunk egy filename-t
 
 						$kepnev    = fajlnev_keszit($kepnev).$kit;
 						$overwrite = false;	//Ne töröljön esetleges azonos nevű fálokat, inább gyártsun újnevűeket új beszúrásnál

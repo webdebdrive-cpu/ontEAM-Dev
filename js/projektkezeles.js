@@ -199,7 +199,7 @@ function cf_sor_torol(mehet){
     }
     
     if(!mehet){
-        alert2('Biztosan törli a kijelölt cash-fow sort?', '<input type="button" class="gomb zold" value="Igen" onclick="cf_sor_torol(\'mehet\'); alert2();"><input type="button" class="gomb piros" value="Nem" onclick="alert2();">');
+        alert2('Biztosan törli a kijelölt cash-flow sort?', '<input type="button" class="gomb zold" value="Igen" onclick="cf_sor_torol(\'mehet\'); alert2();"><input type="button" class="gomb piros" value="Nem" onclick="alert2();">');
         return false;
     }
     

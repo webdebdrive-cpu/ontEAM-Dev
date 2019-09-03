@@ -480,9 +480,11 @@ if( isset($_POST['projektszamla_kapcsolas']) ) {
     }
     
     // Ha eltérő sorokban vannak új adatok, az is hiba
-    if( $teljesites_i != $ertek_i ) {
+    // De a feltételt úgy fogalmazzuk meg, hogy ha van és van $teljesites_i és $ertek_i is. 
+    // Mert ha nullás értéket kapcsolunk, akkor a 0-át nem fogja értéknek tekinteni, míg a dátumot igen, és a két sor nem lesz egyenlő. Na az ilyen esetet meg kell engedni.
+    if( $teljesites_i && $ertek_i && $teljesites_i != $ertek_i ) {
         echo json_encode( array(
-                        'hiba'  => 'Kérem azonos tételhez írja be a teljesítést és nettó értéket!',
+                        'hiba'  => 'Kérem azonos tételhez írja be a teljesítést és nettó értéket!'.$teljesites_i.' '.$ertek_i,
                         'title' => 'Hiba'
                         ) );
                 $weblap->leallit();
@@ -746,11 +748,13 @@ if( isset($_POST['pop_kapcsolas_feltolt']) ) {
 
     $penznem    = getErtekLista(ERTEKLISTA_PENZNEM, $_POST['kcs_21']);
     $tizedesek  = 0;
+    $szl_netto  = 'netto';
     $mezo       = 'varh_ert';
     $netto_mezo = 'netto_ert';
     $szerz_mezo = 'szerz_ossz';
     $ertek_mezo = 'ertek';
     if( $_POST['kcs_21'] && $_POST['kcs_21']!=KCS_21_HUF ) {
+        $szl_netto  = 'dev_net';
         $netto_mezo = 'dev_net';
         $mezo       = 'dev_varh_ert';
         $szerz_mezo = 'dev_net';
@@ -760,7 +764,7 @@ if( isset($_POST['pop_kapcsolas_feltolt']) ) {
     
     // Szerződés összegének kiszámítása
     $szamla_tetel   = $adatbazis_kapcsolat->s2('projektszamla_recid '.$netto_mezo, 'projektszamla_tetel', "`recid`='{$_POST['szamla_tetel_recid']}'");
-    if($szamla_tetel['projektszamla_recid']){
+    if( $szamla_tetel['projektszamla_recid'] ) {
         $szamla = $adatbazis_kapcsolat->s2('sz_szam telj_datum', 'projektszamla', "`recid`='{$szamla_tetel['projektszamla_recid']}'");
     }
     
@@ -808,6 +812,18 @@ if( isset($_POST['pop_kapcsolas_feltolt']) ) {
         
     }
     
+    // A nettó mezőben levő összeg azonos-e a tételek összegével?
+    $tetelek = $adatbazis_kapcsolat->s2('SUM(`'.$netto_mezo.'`)', 'projektszamla_tetel', "`projektszamla_recid`='{$szamla_tetel['projektszamla_recid']}'");
+    if( $tetelek['SUM(`'.$netto_mezo.'`)']!= $_POST[$szl_netto] ) {
+        echo json_encode( array(
+            'hiba'  => 'A számla aktuális nettó értéke ('.number_format($_POST[$szl_netto], $tizedesek, ',', ' ').' '.$penznem.') nem egyenlő a tételek értékeivel ('.number_format($tetelek['SUM(`'.$netto_mezo.'`)'], $tizedesek, ',', ' ').' '.$penznem.'), így nem kapcsolható!',
+            'title' => 'Hiba'
+            ) );
+        
+        $weblap -> leallit();
+        exit();
+    }
+   
     // Tételek táblázat sorait kiszámoljuk:
     $tabla  = '';
     $i      = 0;
@@ -822,7 +838,7 @@ if( isset($_POST['pop_kapcsolas_feltolt']) ) {
         $disabled   = '';
         $torol      = '<a onclick="popup_tetel_sor_torol(\'pop_kapcsol_'.$id_tmp.'\');"><span class="icon"><i class="material-icons">delete</i></span></a>';
         $van_szamlaja = $adatbazis_kapcsolat->s('recid', 'projektszamla_tetel', "`projektszerzodes_tetel_recid`='{$tetel['recid']}'");
-        if( $van_szamlaja ){
+        if( $van_szamlaja ) {
             $disabled   = ' disabled';
             $class      = ' szerzodes_szamla_tetel_szurke';
             $torol      = '';
