@@ -216,7 +216,7 @@ function egysegarMuv( pre, muvelet ) {
             } else if( muvelet == 'visszaoszt' ) {
                 oszto = 12 - parseInt(honap) + 1;
 
-                ertek = (ertek.replace(',', '.') / (oszto / ciklus));
+                ertek = (ertek.replace(',', '.') / Math.ceil(oszto / ciklus));
 
                 if( oszlop == 'ear' ) {
                     tizedesek = 3;
@@ -226,7 +226,7 @@ function egysegarMuv( pre, muvelet ) {
                     ertek = ertek.toFixed(tizedesek);
                 }
 
-                for(var i = index; i <= 12; i += ciklus) {
+                for( var i = index; i <= 12; i += ciklus ) {
                     var uj_sorszam = ('0' + i).slice(-2);
                     $('input[name="' + oszlop + uj_sorszam + '"]').val(ezresek(ertek, tizedesek, ',', ' '));
                 }

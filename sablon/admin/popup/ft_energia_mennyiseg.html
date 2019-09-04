@@ -167,7 +167,7 @@ function mennyisegMuv( pre, muvelet ) {
             } else if( muvelet == 'visszaoszt' ) {
                 oszto = 12 - parseInt(honap) + 1;
 
-                ertek = (ertek.replace(',', '.') / (oszto / ciklus));
+                ertek = (ertek.replace(',', '.') / Math.ceil(oszto / ciklus));
                 ertek = ertek.toFixed(2);
 
                 for(var i = index; i <= 12; i += ciklus) {

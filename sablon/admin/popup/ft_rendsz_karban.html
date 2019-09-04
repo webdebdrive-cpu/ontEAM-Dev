@@ -166,7 +166,7 @@ function mennyisegMuv( pre, muvelet ) {
             } else if( muvelet == 'visszaoszt' ) {
                 oszto = 12 - parseInt(honap) + 1;
 
-                ertek = (ertek / (oszto / ciklus));
+                ertek = (ertek / Math.ceil(oszto / ciklus));
                 ertek = ertek.toFixed(0);
 
                 for(var i = index; i <= 12; i += ciklus) {
