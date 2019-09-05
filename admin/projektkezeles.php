@@ -1209,7 +1209,7 @@ if( isset($_POST['projekt_team_felvesz']) ) {
     }
     
     // Levélben értesítés
-    $mail_hibaizenet = level_felkeszit_es_kuld('projektkezeles', $recid, '', 'projektkezelesUjTag', 'projektkezeles_tag_felveve', '', $login_recid);
+    $mail_hibaizenet = level_felkeszit_es_kuld('projektkezeles', $recid, '', 'projektkezelesUjTag', 'projektkezeles_tag_felveve', '', $login_recid, $usermail);
     // Ha a levélküldéssel volt gond, akkor az adatbázis művelet attól még lefut
 //    if( $mail_hibaizenet ) {
 //        $db_error = true;

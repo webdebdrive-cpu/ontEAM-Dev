@@ -190,7 +190,7 @@ function popup_tetel_sor_torol(sor_id, mehet) {
     
 }
 
-/* Tétel sor táblázat menzése */
+/* Tétel sor táblázat mentése */
 function projektszamla_kapcsolas( mehet ) {
     
     var recidk = [];
@@ -242,9 +242,9 @@ function projektszamla_kapcsolas( mehet ) {
             if(response.substring(0, 6)=='SESKIL'){ location.href = 'index.php'; }
             if( response ) {
                 response = JSON.parse(response);
-                if(response.hiba){
+                if( response.hiba ) {
                     alert2(response.hiba, response.gomb, response.title);
-                }else{
+                } else {
                     csoportMuvelet('projektszamla_tetelek_kezelese');
                     alert2(); /* Mert lehet rákérdeztünk, hogy biztosan? Ezért bezárjuk az alert2-t. */
                 }
@@ -367,7 +367,7 @@ function tetelek_kiszamol( that, elso ) {
             teljesites_db++;
         }
         if( teljesites_db>1 ) {
-            alert2('Csak egy szerződés tételhez írhat teljesítás dátumot!<br>Előbb törölje ki a teljesítés dátumot a többi sorból!', '', 'Hiba');
+            alert2('Csak egy szerződés tételhez írhat teljesítés dátumot!<br>Előbb törölje ki a teljesítés dátumot a többi sorból!', '', 'Hiba');
             that.blur().val('0000.00.00');
         }
     });

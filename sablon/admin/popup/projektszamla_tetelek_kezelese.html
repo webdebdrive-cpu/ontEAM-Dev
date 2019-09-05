@@ -83,7 +83,7 @@ function tetel_hozzaadasa() {
         return false;
     }
 
-    if( !ertek || ertek=='0' ){
+    if( !ertek /*|| ertek=='0' A nulla megengedett a 0-ás számák miatt */ ){
         alert2('Kérem töltse ki a nettó értéket!', '', 'Hiba');
         $('#pop_ertek').addClass('hibas_ide_focus');
         return false;
@@ -181,7 +181,7 @@ function tetel_sorok_ment( bezar_nelkul ){
     var szamla_netto_erteke = '';
     if( $('#'+osszeg_mezo).length ){
         szamla_netto_erteke = $('#'+osszeg_mezo).val();
-    }else{
+    } else {
         szamla_netto_erteke = $('#'+osszeg_mezo+'_db').val();
     }
     
@@ -204,12 +204,12 @@ function tetel_sorok_ment( bezar_nelkul ){
                 } else {
                     
                     /* Adatlapot csak akkor frissítünk, és popupot csak akkor zárunk ha DB-be is elmentjük */
-                    if( !_get('modosit') && !_get('uj') ){
+                    if( _get('tetel') ){
                         szamlaBetolt(_get('id'), 'projektszamla.php', 'tetel');
                     }
                     if( !bezar_nelkul ){
                         popupZar();
-                    }else{
+                    } else {
                         csoportMuvelet('projektszamla_tetelek_kezelese');
                     }
 
@@ -313,7 +313,7 @@ function tetelek_kiszamol() {
 
     if( $('#'+osszeg_mezo).length ){
         szamla_netto_erte = $('#'+osszeg_mezo).val().replace(/ /g, '').replace(/,/g, '.');
-    }else{
+    } else {
         szamla_netto_erte = $('#'+osszeg_mezo+'_db').val().replace(/ /g, '').replace(/,/g, '.');
     }
     $('#pop_szamla_netto').html( ezresek(szamla_netto_erte, tizedesek, ',', ' ')+' '+akt_penznem );
@@ -353,7 +353,7 @@ function kapcsolas_popup_nyit( recid ) {
             alert2('Kapcsolás előtt mentse szerződésszámot a számla adatlapján!', '', 'Hiba');
             return false;
         }
-    }else{
+    } else {
         sz_szam = $('#sz_szam_db').val();
     }
     
@@ -361,7 +361,7 @@ function kapcsolas_popup_nyit( recid ) {
         alert2('Szerződés tételhez kapcsolás előtt mentse a változásokat!', '', 'Hiba');
     }else if(!sz_szam){
         alert2('Tételek kapcsolásához kérem előbb adjon egy szerződést a projekt számlához!', '', 'Hiba');
-    }else{
+    } else {
         $.get('../sablon/admin/popup/projektszamla_kapcsolas.html?cache=' + new Date().getTime(), function( data ) {
             $('#popupTart').html( data.replace('{SZAMLA_TETEL_RECID}', recid) );
             popupNyit();
@@ -377,7 +377,7 @@ function megsem_gomb( mehet ) {
     /* Ha volt változtatás, és nem volt még kérdés */
     if( van_valtozas && !mehet ){
         alert2('A változások nincsenek mentve. Folytatja?', '<input type="button" class="gomb zold" value="Igen" onclick="megsem_gomb(\'mehet\')"><input type="button" class="gomb piros escapes_megsem" value="Nem" onclick="alert2();">', 'Kérdés');
-    }else{
+    } else {
         csoportMuvelet('projektszamla_tetelek_kezelese');
         alert2();
     }
@@ -390,7 +390,7 @@ function bezar_gomb( mehet ) {
     /* Ha volt változtatás, és nem volt még kérdés */
     if( van_valtozas && !mehet ){
         alert2('A változások nincsenek mentve. Folytatja?', '<input type="button" class="gomb zold" value="Igen" onclick="bezar_gomb(\'mehet\')"><input type="button" class="gomb piros escapes_megsem" value="Nem" onclick="alert2();">', 'Kérdés');
-    }else{
+    } else {
         alert2();
         popupZar();
         /* Ez miért kellett? Csak mert gondot okozott, ha új számlát töltünk fel, bezárjuk a tétel kezelés, és frissíteni az adatlapot, ezért rákérdez, hogy biztosan elhagyjuk-e mentés nélkül... emiatt lett kiszedve.

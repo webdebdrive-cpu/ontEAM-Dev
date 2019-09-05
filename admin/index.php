@@ -16,7 +16,7 @@ if( isset($_GET['info']) && $_SESSION[get_db_tabla().'user'] ){
     exit;
 }
 
-if( isset($_GET['teszt']) ) {
+if( isset($_GET['mail_teszt']) ) {
     require_once('../class/class.Phpmailer.php');
     
     try {
@@ -106,6 +106,31 @@ if( isset($_GET['teszt']) ) {
     exit;
 }
 
+// Számla kivizetve pipa karbantartása
+if( isset($_GET['mail_teszt']) ) {
+    $szamlak = $adatbazis_kapcsolat->s('recid kcs_21', 'projektszamla');
+    foreach( $szamlak as $szamla ) {
+        
+        if( $szamla['kcs_21'] == KCS_21_HUF ) {
+            $kif_mezo   = 'br_ertek';
+            $br_mezo    = 'brutto';
+        } else {
+            $kif_mezo = 'dev_br';
+            $br_mezo  = 'dev_br';
+        }
+        $kifizetesek = $adatbazis_kapcsolat->s2('SUM(`'.$kif_mezo.'`)', 'projektszamla_kifizetesek', "`projektszamla_recid`='{$szamla['recid']}'");
+        if( $kifizetesek['SUM(`'.$kif_mezo.'`)']>=$szamla[$br_mezo] ) {
+            $kifizetve = 1;
+        } else {
+            $kifizetve = 0;
+        }
+        
+        $adatbazis_kapcsolat->u('projektszamla', array('kifizetve'), array($kifizetve), "`recid`='{$szamla['recid']}'");
+        echo $adatbazis_kapcsolat->gp() . '<br>';
+    }
+    
+    exit;
+}
 
 // Anyagigénylés beerkezett dátum karbantartása
 //if (isset($_GET['anyagigenyles_beerkezett'])) {

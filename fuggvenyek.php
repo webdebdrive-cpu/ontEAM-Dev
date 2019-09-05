@@ -7997,7 +7997,7 @@ function statido_to_sec($string){
 }
 
 // Levélküldés előtt jogot, értesítés pipát vizsgálunk, levél tartalmát és címzetteket kiszámoljuk
-function level_felkeszit_es_kuld( $tabla, $recid, $ert_pipa, $sablon, $cimzett, $extra_szoveg, $cimzett_login_recid ) {
+function level_felkeszit_es_kuld( $tabla = '', $recid = '', $ert_pipa = '', $sablon = '', $cimzett = '', $extra_szoveg = '', $cimzett_login_recid = '', $cimzett_mailcimek = '' ) {
 
     global $adatbazis_kapcsolat;
     global $db_kapcs;
@@ -8174,7 +8174,12 @@ function level_felkeszit_es_kuld( $tabla, $recid, $ert_pipa, $sablon, $cimzett, 
             $mivel      = array($projektkezeles['ikt_szam'], $projektkezeles['nev'], getSzallodaNev($projektkezeles['telephely_id'])    );
             $uzi = str_replace( $mit, $mivel, fajlbol_olvas('../sablon/admin/mail/'.$cimzett.'.html') );
             
-            $cimzettek = $adatbazis_kapcsolat->s('nev teljes_nev usermail aktiv virtual szemelyzet_id', 'login', "`aktiv`=1 AND `virtual`=0 AND `recid`='{$cimzett_login_recid}'");
+            if( $cimzett_mailcimek ) {
+                $cimzettek = array();
+                $cimzettek[0]['usermail'] = $cimzett_mailcimek;
+            } else {
+                $cimzettek = $adatbazis_kapcsolat->s('nev teljes_nev usermail aktiv virtual szemelyzet_id', 'login', "`aktiv`=1 AND `virtual`=0 AND `recid`='{$cimzett_login_recid}'");
+            }
             if( !$cimzettek ) {
                 return false;
             }
@@ -8190,7 +8195,12 @@ function level_felkeszit_es_kuld( $tabla, $recid, $ert_pipa, $sablon, $cimzett, 
             $mivel      = array($projektkezeles['ikt_szam'], $projektkezeles['nev'], getSzallodaNev($projektkezeles['telephely_id'])    );
             $uzi = str_replace( $mit, $mivel, fajlbol_olvas('../sablon/admin/mail/'.$cimzett.'.html') );
             
-            $cimzettek = $adatbazis_kapcsolat->s('nev teljes_nev usermail aktiv virtual szemelyzet_id', 'login', "`aktiv`=1 AND `virtual`=0 AND `recid`='{$cimzett_login_recid}'");
+            if( $cimzett_mailcimek ) {
+                $cimzettek = array();
+                $cimzettek[0]['usermail'] = $cimzett_mailcimek;
+            } else {
+                $cimzettek = $adatbazis_kapcsolat->s('nev teljes_nev usermail aktiv virtual szemelyzet_id', 'login', "`aktiv`=1 AND `virtual`=0 AND `recid`='{$cimzett_login_recid}'");
+            }
             if( !$cimzettek ) {
                 return false;
             }
@@ -8636,36 +8646,43 @@ function level_felkeszit_es_kuld( $tabla, $recid, $ert_pipa, $sablon, $cimzett, 
             $megj .= 'A felhasználónak nincs e-mail címe, ezért a következő esemény NEM következett be:'."\n";
         }
         
-        // Tényleges küldés
-        $sikeres_kuldes = level_kuldes(get_nev(), get_mail(), $akt_cimzett['teljes_nev'], $akt_cimzett['usermail'], $targy_kieg.$targy, $uzi_kieg.$megszolitas.$uzi);
-        // Ha van értéke, az egy hibaüzenet, akkor sikerült küldeni, ha nincs visszatérési érték
-        if( $sikeres_kuldes ) {
+        // Ha több mailcím is szerepel vesszővel elválasztva, akkor azt is le kell kezelni:
+        $mailcimek = explode(',', $akt_cimzett['usermail']);
+        foreach( $mailcimek as $mailcim ) {
 
-            $sikeres_kuldes = str_replace('Could not instantiate mail function.', 'Could not instantiate mail function. - Lehet túl nagy fájlokat mellékelt?', $sikeres_kuldes);
-            
-            $megj .= 'E-mail küldése nem sikerült '.$akt_cimzett['teljes_nev'].' '.$szerepkor.' '.$felhasznalonak_szo.' '.$esemeny.'('.$sikeres_kuldes.')'."\n\n";
+            $mailcim = trim($mailcim);
 
-            // Popupos hibaüzenet csak MSZK vezetőnek és Diszpécsernek megy
-            if( $_SESSION[get_db_tabla().'szemelyzet_id']==MSZK_VEZETO || $_SESSION[get_db_tabla().'szemelyzet_id']==DISZPECSER ) {
-                
-                $tovabbi_info = '';
-                if( $akt_cimzett['usertel'] || $akt_cimzett['usermail'] ) {
-                    $tovabbi_info = nl2('<br>'.$cimzett_nev.' '.$szerepkor.'
-                                        <br>Tel: '.$akt_cimzett['usertel'].'
-                                        <br>E-mail: '.$akt_cimzett['usermail'].'
-                                        <br>');
+            // Tényleges küldés
+            $sikeres_kuldes = level_kuldes(get_nev(), get_mail(), $akt_cimzett['teljes_nev'], $mailcim, $targy_kieg.$targy, $uzi_kieg.$megszolitas.$uzi);
+            // Ha van értéke, az egy hibaüzenet, akkor sikerült küldeni, ha nincs visszatérési érték
+            if( $sikeres_kuldes ) {
+
+                $sikeres_kuldes = str_replace('Could not instantiate mail function.', 'Could not instantiate mail function. - Lehet túl nagy fájlokat mellékelt?', $sikeres_kuldes);
+
+                $megj .= 'E-mail küldése nem sikerült '.$akt_cimzett['teljes_nev'].' '.$szerepkor.' '.$felhasznalonak_szo.' '.$esemeny.'('.$sikeres_kuldes.')'."\n\n";
+
+                // Popupos hibaüzenet csak MSZK vezetőnek és Diszpécsernek megy
+                if( $_SESSION[get_db_tabla().'szemelyzet_id']==MSZK_VEZETO || $_SESSION[get_db_tabla().'szemelyzet_id']==DISZPECSER ) {
+
+                    $tovabbi_info = '';
+                    if( $akt_cimzett['usertel'] || $mailcim ) {
+                        $tovabbi_info = nl2('<br>'.$cimzett_nev.' '.$szerepkor.'
+                                            <br>Tel: '.$akt_cimzett['usertel'].'
+                                            <br>E-mail: '.$mailcim.'
+                                            <br>');
+                    }
+                    $hiba .=  nl2('Hiba: E-mail küldése nem sikerült!'.$tovabbi_info);
                 }
-                $hiba .=  nl2('Hiba: E-mail küldése nem sikerült!'.$tovabbi_info);
+
+            // Sikeres levélküldés
+            } else {
+
+                // Ha a címzett nem a diszpécser központi mailcím, akkor van csak megjegyzés
+                if( $cimzett != 'diszpecser_kozponti' ) {
+                    $megj .= 'E-mail elküldve '.$akt_cimzett['teljes_nev'].' (e-mail: '.$mailcim.') '.$szerepkor.' '.$felhasznalonak_szo.' '.$esemeny."\n\n";
+                }
+
             }
-
-        // Sikeres levélküldés
-        } else {
-
-            // Ha a címzett nem a diszpécser központi mailcím, akkor van csak megjegyzés
-            if( $cimzett != 'diszpecser_kozponti' ) {
-                $megj .= 'E-mail elküldve '.$akt_cimzett['teljes_nev'].' '.$szerepkor.' '.$felhasznalonak_szo.' '.$esemeny."\n\n";
-            }
-
         }
 
     }

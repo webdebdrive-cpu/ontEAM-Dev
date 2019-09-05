@@ -411,9 +411,9 @@ if( isset($_POST['projektszamla_kapcsolas']) ) {
         if( $van_szamlaja === false ) { $db_error = true; }
 
         // Ha nincs számlája (ennek lehet az is az oka, hogy egy fiktív sor, azaz nem ismert a recid),
-        // akkor ellenőrizzük, hogy van-e beírva érték. Ha van, számoljuk, mert csak egy ilyen mező lehet
-        // Ha van, akkor azt nem ellenőrizzük, mert akkor az egy szürke sor (már van számlája)
-        if( (!$van_szamlaja || !$_POST['adatok'][$recid_adat][1][$i] ) && $ertek ) {
+        // akkor ellenőrizzük, hogy van-e beírva várható érkezés. Ha van, számoljunk, mert csak egy ilyen mező lehet
+        // Ha van számlája, akkor azt nem ellenőrizzük, mert akkor az egy szürke sor, azzal nem kell foglalkozni
+        if( ( !$van_szamlaja || !$_POST['adatok'][$recid_adat][1][$i] ) && ($_POST['adatok'][$teljesites_adat][1][$i]!='' && $_POST['adatok'][$teljesites_adat][1][$i]!='0000.00.00') ) {
             $volt_ertek++;
             // Csak egy értéket fogadunk el, ezt jegyezzük is meg
             $beirt_netto_ertek = $ertek;
@@ -429,14 +429,14 @@ if( isset($_POST['projektszamla_kapcsolas']) ) {
         }
         
         // Várható érték oszlopban sehol nem lehet 0
-        if( !$van_szamlaja && (!$_POST['adatok'][$varhato_ert_adat][1][$i] || $_POST['adatok'][$varhato_ert_adat][1][$i]=='0.00') ) {
-            echo json_encode( array( 
-                            'hiba'  => 'A várható érték oszlopban nem szerepelhet üres adat!',
-                            'title' => 'Hiba'
-                            ) );
-                    $weblap->leallit();
-                    exit();
-        }
+//        if( !$van_szamlaja && (!$_POST['adatok'][$varhato_ert_adat][1][$i] || $_POST['adatok'][$varhato_ert_adat][1][$i]=='0.00') ) {
+//            echo json_encode( array( 
+//                            'hiba'  => 'A várható érték oszlopban nem szerepelhet üres adat!',
+//                            'title' => 'Hiba'
+//                            ) );
+//                    $weblap->leallit();
+//                    exit();
+//        }
         
         $i++;
     }
@@ -587,7 +587,7 @@ if( isset($_POST['projektszamla_kapcsolas']) ) {
         $i++;
     }
 
-    // Számla tétel összekapcsolása a szerződés tétellel. Az $ertek_i-edig adatot kell menteni
+    // Számla tétel összekapcsolása a szerződés tétellel. Az $ertek_i-edik adatot kell menteni
     $sql = $adatbazis_kapcsolat->u('projektszamla_tetel', array('projektszerzodes_tetel_recid'), array($_POST['adatok'][$recid_adat][1][$ertek_i]), "`recid`='{$_POST['szamla_tetel_recid']}'");
     if( $sql === false ) { $db_error = true; }
     

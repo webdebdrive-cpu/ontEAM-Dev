@@ -4335,7 +4335,9 @@ if( isset($_POST['mellekTorol']) ) {
                     $login_recid = $adatbazis_kapcsolat->s2('login_recid', $tabla, "`recid`='{$id}'");
                     if( $login_recid === false ) { $db_error = true; }
 
-                    $mail_hibaizenet = level_felkeszit_es_kuld('projektkezeles', $_POST['recid'], '', 'projektkezelesTagDel', 'projektkezeles_tag_torolve', '', $login_recid['login_recid']);
+                    // Team tagból egyszerre csak egy rekordot lehet törölni. Tehát a lekérdezés nézhet ki így: `recid`='{$idk['konkret_id']}'
+                    $cimzettek = $adatbazis_kapcsolat->s2('usermail', 'projektkezeles_team', "`recid`='{$idk['konkret_id']}'");
+                    $mail_hibaizenet = level_felkeszit_es_kuld('projektkezeles', $_POST['recid'], '', 'projektkezelesTagDel', 'projektkezeles_tag_torolve', '', $login_recid['login_recid'], $cimzettek['usermail']);
                     // Ettől még az adatbázis műveletet lefuttatjuk!
 //                    if( $mail_hibaizenet ) {
 //                        $db_error = true;
