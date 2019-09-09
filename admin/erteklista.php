@@ -23,7 +23,8 @@ $szamla_html = '';
 
 // Dokumentumok fülhöz kell majd
 $tobb_kep = false;
-if($tobb_kep){
+if( $tobb_kep ) {
+
     function get_tobbkep_darab()    { return 10;        } // Maximum hány kép tallózható be
     function get_tobbkep_csakkep()  { return '.jpg,.png';} // Milyen kiterjesztéseket engedünk meg (ha mindenet, legyen üres)
     function get_tobbkep_kepmeret() { return 10;        } // MB-ban
@@ -36,7 +37,7 @@ if($tobb_kep){
 }
 
 // CSV generálása
-if (isset($_GET['csv'])) {
+if( isset($_GET['csv']) ) {
 
     $mibol   = get_web_charset();
     $mibe    = 'windows-1250';
@@ -52,8 +53,8 @@ if (isset($_GET['csv'])) {
     // Régi fájlok törlése
     $utvonal = 'export/csv/';
     $fajlok = konyvtar_bejar($utvonal);
-    foreach($fajlok as $fajl){
-        if(filemtime($fajl)<(time()-60*60)){
+    foreach ( $fajlok as $fajl ) {
+        if( filemtime($fajl) < (time() - 60 * 60) ) {
             unlink($fajl);
         }
     }
@@ -61,7 +62,7 @@ if (isset($_GET['csv'])) {
     $fajlnev = $utvonal.'csv'.time().'.csv';
     $open = fopen($fajlnev,'a');
     fwrite($open, "sep=;\n");
-    if($open){
+    if( $open ) {
 
         $lekerdezes_fromtol = substr($_SESSION['akt_sql'], strpos($_SESSION['akt_sql'], 'FROM'));
 

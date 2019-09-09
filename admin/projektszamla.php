@@ -762,8 +762,8 @@ if( isset($_POST['pop_kapcsolas_feltolt']) ) {
         $tizedesek  = 2;
     }
     
-    // FOrmázott számból kivesszük a szóközöket
-    $_POST[$szl_netto] = str_replace(' ', '', $_POST[$szl_netto]);
+    // Formázott számból kivesszük a szóközöket
+    $_POST[$szl_netto] = str_replace(array(' ', ','), array('', '.'), $_POST[$szl_netto]);
     
     // Szerződés összegének kiszámítása
     $szamla_tetel   = $adatbazis_kapcsolat->s2('projektszamla_recid '.$netto_mezo, 'projektszamla_tetel', "`recid`='{$_POST['szamla_tetel_recid']}'");

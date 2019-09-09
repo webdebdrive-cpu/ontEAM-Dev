@@ -349,7 +349,6 @@ if( isset($_GET['kilep']) ) {
     exit();
 }
 
-
 // Nincs jog üzenet kiíratása
 if( isset($_GET['nincsjog']) ) {
 
@@ -360,7 +359,7 @@ if( isset($_GET['nincsjog']) ) {
 }
 
 // Jogosultságkezelés
-if (isset($_GET['jogok'])) {
+if( isset($_GET['jogok']) ) {
     require_once 'header.php';
 
     //Jogosultságok
@@ -550,4 +549,5 @@ if( isset($_POST['jog_torol']) ) {
     exit;
 
 }
+
 ?>

@@ -199,25 +199,26 @@ class Adatbazis{
 		$select = str_replace('--', '', $select);
 		$this -> legutobbiParancs = $select;
 
-        if($csak_stringet_allitson_elo){
+        if( $csak_stringet_allitson_elo ) {
             return true;
         }
 
-        if(!$lekerdezes = mysqli_query($this -> adatbazis_kapcsolat, $select)){
-        	if($this -> debug){
-				echo $select.'<br>';
+        if( !$lekerdezes = mysqli_query($this->adatbazis_kapcsolat, $select) ) {
+
+            if( $this->debug ) {
+                echo $select.'<br>';
 				echo 'Adatbázis hiba lekérdezéskor: '. mysqli_error($this -> adatbazis_kapcsolat);
 			}
 			return false;
 		}
 
         $this -> sorok_szama = mysqli_num_rows($lekerdezes);
-        if(!$num_rows){
-	        for($i = 0; $i < $this -> sorok_szama; $i++){
-	            array_push($this -> eredmeny, mysqli_fetch_assoc($lekerdezes));
+        if( !$num_rows ) {
+            for ( $i = 0; $i < $this->sorok_szama; $i++ ) {
+                array_push($this -> eredmeny, mysqli_fetch_assoc($lekerdezes));
 	        }
 	        return $this -> eredmeny;
-        }else{
+        } else {
 			return $this -> sorok_szama;
 		}
 	}
@@ -268,7 +269,7 @@ class Adatbazis{
 
 			if(in_array($ertekek[$i], $this -> insert_kivetelek)){
 				array_push($insert_reszek,'`'.$oszlop.'`='.trim( htmlspecialchars( $ertekek[$i] ) ) );
-			}else{
+			} else {
 				array_push($insert_reszek,'`'.$oszlop.'`=\''.trim( htmlspecialchars( $ertekek[$i].'\'' ) ) );
 			}
 
@@ -286,7 +287,7 @@ class Adatbazis{
 				echo 'Adatbázis hiba sor beszúrásakor: '.mysqli_error($this -> adatbazis_kapcsolat);
 			}
 			return false;
-		}else{
+		} else {
 			return mysqli_insert_id($this -> adatbazis_kapcsolat);
 		}
 
@@ -312,7 +313,7 @@ class Adatbazis{
 
 		if($where == null){
             $delete = 'DELETE '.$this -> db_prefix.$table;
-        }else{
+        } else {
         	$where  = $this -> sqlStringBeallit($where);
             $delete = 'DELETE FROM '.$this -> db_prefix.$table.' WHERE '.$where;
         }
@@ -326,7 +327,7 @@ class Adatbazis{
 				echo 'Adatbázis hiba sor törléskor: '.mysqli_error();
 			}
 			return false;
-		}else{
+		} else {
 			return true;
 		}
 
@@ -357,7 +358,7 @@ class Adatbazis{
         if($where!='1'){
             if($where){
                 $where = $this -> sqlStringBeallit($where);
-            }else{
+            } else {
                 echo 'Nem adtál meg WHERE feltételt az UPDATE-ra. Írj egy 1-est, ha az összes sorra vonatkozik!';
                 exit;
             }
@@ -385,7 +386,7 @@ class Adatbazis{
 
 			if(in_array($ertekek[$i], $this -> insert_kivetelek)){
 				array_push($update_reszek,'`'.$oszlop.'`='. htmlspecialchars( $ertekek[$i] ) );
-			}else{
+			} else {
 				array_push($update_reszek,'`'.$oszlop.'`=\''. htmlspecialchars( $ertekek[$i] ) .'\'');
 			}
 
@@ -411,7 +412,7 @@ class Adatbazis{
 				echo 'Adatbázis hiba módosításkor: '.mysqli_error();
 			}
 			return false;
-		}else{
+		} else {
 			return true;
 		}
 
@@ -432,7 +433,7 @@ class Adatbazis{
     public function bezar(){
         if($this -> adatbazis_kapcsolat && mysqli_close($this -> adatbazis_kapcsolat)){
 			return true;
-		}else{
+		} else {
 			return false;
 		}
 
@@ -479,13 +480,13 @@ class Adatbazis{
 						$balo  = preg_replace('/^(`|\'?)(.*)(`|\'$)/', '$2', $balo); //Esetleges idézőjelek eltávolítása `teszt` => teszt 'teszt' => teszt
 						$jobbo = preg_replace('/^(`|\'?)(.*)(`|\'$)/', '$2', $jobbo);
 						$string .= "`".$balo."`".$muveleti_jel."'".$jobbo."'";
-					}else{
+					} else {
 						$string .= ' '.$reszek[$i].' ';	//or, and..
 					}
 				}
 			}
 
-		}else{
+		} else {
 
 			$mit   = array(', `asc`', ', `desc`');
 			$mivel = array(' ASC', ' DESC');

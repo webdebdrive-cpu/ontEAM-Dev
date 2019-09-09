@@ -1091,12 +1091,12 @@ function i_u($type, $tabla, $tomb) {
             $mod_megjegyzesbe_mehet = false;
             $mod_megjegyzesbe = array( 'projektkezeles.php', 'projektszamla.php', 'projektszerzodes.php' );
             $kiveteles_mezok  = array( 'stat_id', 'update_dt' );
-            if( in_array( basename(self()), $mod_megjegyzesbe) ){
+            if( in_array(basename(self()), $mod_megjegyzesbe) ) {
                 $mod_megjegyzesbe_mehet = true;
             }
 
             $i = 1;
-            foreach($record[0] as $key => $value) {
+            foreach ( $record[0] as $key => $value ) {
                 if( $key && $key != 'recid' ) {
                     
                     if( preg_match('/^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}$/', $value) ) {
@@ -1174,7 +1174,7 @@ function i_u($type, $tabla, $tomb) {
                                                 if( $elem['oszlop_keres'] == 'id' ) {
                                                     $uj_ertek = getErtekLista($elem['csoport'], $uj_ertek   );
                                                     $value    = getErtekLista($elem['csoport'], $value      );
-                                                } elseif( $elem['oszlop_keres'] == 'id' ) {
+                                                } elseif( $elem['oszlop_keres'] == 'recid' ) {
                                                     $uj_ertek = getErtekLista($elem['csoport'], '', $uj_ertek   );
                                                     $value    = getErtekLista($elem['csoport'], '', $value      );
                                                 }
@@ -1198,8 +1198,24 @@ function i_u($type, $tabla, $tomb) {
                                             }
                                         }
                                         
-                                        
                                         // Tipus mező lekezelése
+                                        if( $elem['name'] == 'besorol' ) {
+                                            foreach( $select_pri_besorol as $select ) {
+                                                
+                                                if( $select['name'] == '- Válasszon -' ) {
+                                                    $select['name'] = '';
+                                                }
+                                                if( $select['value']==$uj_ertek ) {
+                                                    $uj_ertek = $select['name'];
+                                                }
+                                                if( $select['value']==$value ) {
+                                                    $value = $select['name'];
+                                                }
+
+                                            }
+                                        }
+                                        
+                                        // Jóváhagyó mező lekezelése
                                         if( $elem['name'] == 'besorol' ) {
                                             foreach( $select_pri_besorol as $select ) {
                                                 

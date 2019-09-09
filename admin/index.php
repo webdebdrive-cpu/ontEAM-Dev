@@ -25,16 +25,16 @@ if( isset($_GET['mail_teszt']) ) {
 
         $felado_mail = get_mail();
         $felado_nev  = get_nev();
-        $cimzett_mail = 'sztyan@freemail.hu';
-        $cimzett_nev  = 'BK';
+        $cimzett_mail = 'falu@fits.hu';
+        $cimzett_nev  = 'Falu';
 
         $targy = $uzi = 'teszt';
 
         $fajlok = array(
 //                          '../'.get_utvonal().'nincskep.jpg',
-                          '../'.get_utvonal().'teszt.mp3',
-                          '../'.get_utvonal().'3mb.jpg',
-                          '../'.get_utvonal().'3mb2.jpg',
+//                          '../'.get_utvonal().'teszt.mp3',
+//                          '../'.get_utvonal().'3mb.jpg',
+//                          '../'.get_utvonal().'3mb2.jpg',
 //                          '../'.get_utvonal().'3mb3.jpg',
                         );
 
@@ -106,27 +106,30 @@ if( isset($_GET['mail_teszt']) ) {
     exit;
 }
 
-// Számla kivizetve pipa karbantartása
-if( isset($_GET['mail_teszt']) ) {
-    $szamlak = $adatbazis_kapcsolat->s('recid kcs_21', 'projektszamla');
-    foreach( $szamlak as $szamla ) {
-        
-        if( $szamla['kcs_21'] == KCS_21_HUF ) {
-            $kif_mezo   = 'br_ertek';
-            $br_mezo    = 'brutto';
-        } else {
-            $kif_mezo = 'dev_br';
-            $br_mezo  = 'dev_br';
+
+// Még nem minősített dokumentumok mind szerződés legyen
+if( isset($_GET['dok_minosites']) ) {
+    
+    $szerzodesek = $adatbazis_kapcsolat->s('recid', 'projektszerzodes');
+    foreach( $szerzodesek as $szerzodes ) {
+        $szez_docok = $adatbazis_kapcsolat->s('recid tipus', 'projektszerzodes_dok', "`projektszerzodes_id`='{$szerzodes['recid']}'");
+        foreach ( $szez_docok as $doc ) {
+            if( !$doc['tipus'] ) {
+                $adatbazis_kapcsolat->u('projektszerzodes_dok', array('tipus'), array(EL_DOK_TIPUS_SZERZODES), "`recid`='{$doc['recid']}'");
+                echo $adatbazis_kapcsolat->gp() . '<br>';
+            }
         }
-        $kifizetesek = $adatbazis_kapcsolat->s2('SUM(`'.$kif_mezo.'`)', 'projektszamla_kifizetesek', "`projektszamla_recid`='{$szamla['recid']}'");
-        if( $kifizetesek['SUM(`'.$kif_mezo.'`)']>=$szamla[$br_mezo] ) {
-            $kifizetve = 1;
-        } else {
-            $kifizetve = 0;
-        }
+    }
+    
+    exit;
+}
+
+// Projektek alatti dokumetumok újraszámolása
+if( isset($_GET['projekt_dok_ujraszamol']) ) {
+    
+    $projektek = $adatbazis_kapcsolat->s('recid', 'projektkezeles');
+    foreach( $projektek as $projekt ) {
         
-        $adatbazis_kapcsolat->u('projektszamla', array('kifizetve'), array($kifizetve), "`recid`='{$szamla['recid']}'");
-        echo $adatbazis_kapcsolat->gp() . '<br>';
     }
     
     exit;
@@ -147,7 +150,7 @@ if( isset($_GET['mail_teszt']) ) {
 
 
 // Tibi importjához kell
-if( isset($_GET['projekt_szerzodott_felhasznalt_kitolt']) ) {
+if(false &&  isset($_GET['projekt_szerzodott_felhasznalt_kitolt']) ) {
 
     $projektek = $adatbazis_kapcsolat->s('*', 'projektkezeles', "`ikt_szam`!=''");
     foreach ($projektek as $projekt){

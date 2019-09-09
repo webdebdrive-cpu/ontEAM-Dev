@@ -6311,7 +6311,7 @@ function szamlaBetolt( recid, page, muvelet, szerkeszt, kerdes_nelkul, anyagigen
                     }
 
                     // Bal oldali navpanel sorát is frissítjük
-                    if(page!='anyagigenyles.php' && page.replace('.php', '')!='erteklista'){
+                    if (page != 'anyagigenyles.php' && page.replace('.php', '') != 'erteklista') {
                         frissit_tabla = page.replace('.php', '');
                         szamlaSorFrissit(frissit_tabla, recid);
                     }
