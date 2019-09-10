@@ -2327,7 +2327,7 @@ $projektkezeles_tomb = $akt_tomb = array(
     array('type' => 'text',                 'megn' => 'Felhasználható:',        'name' => 'fel_hato',       'szuro' => 1,   'class' => 'oriasi f_num'.$fel_hato_piros, 'data' => 'data-tort="0"', 'disabled' => 1,                  'post' => ' '.get_penznem()),
     array('type' => 'text',                 'megn' => 'Aktiválási adatok:',     'name' => 'akt_adat',       'szuro' => 1,   'maxlength' => 250, 'class' => 'oriasi'),
     array('type' => 'text',                 'megn' => 'Jóváhagyva:',            'name' => 'jovahagyva',     'szuro' => 1,   'class' => 'datepicker', 'osszevon' => 1, 'post' => '<span style="margin-left: 2rem"></span>'),
-    array('type' => 'autocomplete',         'megn' => 'Jóváhagyó:',             'name' => 'jovahagyo',      'szuro' => 1,   'class' => 'oriasi disableNav', 'tabla' => 'erteklista', 'oszlop_keres' => 'recid', 'oszlop_keres_autocomp' => 'info', 'listaz' => 'info', 'csoport' => ERTEKLISTA_JOVAHAGYO, 'id_kiir' => 'recid', 'style' => 'width: 15rem'),
+    array('type' => 'autocomplete',         'megn' => 'Jóváhagyó:',             'name' => 'jovahagyo',      'szuro' => 1,   'class' => 'oriasi disableNav', 'tabla' => 'erteklista', 'oszlop_keres' => 'recid', 'oszlop_keres_autocomp' => 'info', 'listaz' => 'info', 'csoport' => ERTEKLISTA_JOVAHAGYO, 'id_kiir' => 'recid', 'style' => 'width: 30rem'),
     array('type' => 'html',                 'megn' => nl2('
                                                         <div class="dtr">
                                                             <div class="dtc form_bal">
