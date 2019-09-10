@@ -10146,10 +10146,10 @@ function get_tarsreszleg_lista($loginID){
 function tipusos_dokumentumok($tabla) {
     if( in_array($tabla, array(
                                 'projektigenyles',
-                                // 'projektkezeles', Tibi kérésére a Projektek dokumentum tálbából kivéve a Típus oszlop 2019.08.02
+                                'projektkezeles', // Tibi kérésére a Projektek dokumentum tálbából kivéve a Típus oszlop 2019.08.02
                             )
                 )
-    ){
+    ) {
         return true;
     } else {
         return false;

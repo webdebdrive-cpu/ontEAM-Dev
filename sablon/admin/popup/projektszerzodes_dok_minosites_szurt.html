@@ -1,0 +1,66 @@
+<!--
+    Ez ugyanaz mint a a sima "Dokumentum minősítése" popup, csak itt az autocomplete-nek át van adva, hogy szerződés típusra ne lehessen szűrni.
+    Illetve minőítéskor nem a szerződés dokumentumokban dolgozik, hanem a projekt(kezelés) dokuemntumokban.
+-->
+<h2>Dokumentum minősítése</h2>
+
+<div class="padd" style="padding-bottom: 10rem">
+    
+    <div style="margin-bottom: 1rem">
+        Kérem válassza ki a dokumentum típusát:
+    </div>
+    <input type="text" autocomplete="off" class="oriasi disableNav csillag focus" name="dok_minosit_autocomp" id="dok_minosit_autocomp">
+    <input type="hidden" name="dok_minosit" id="dok_minosit">
+    <script>
+        $(document).ready(function() {
+            $('#dok_minosit_autocomp').autocomplete({
+                'php_fajl'      : '../autocomplete.php',
+                'tabla'         : 'erteklista',
+                'oszlop_keres'  : 'info',
+                'oszlop_listaz' : 'info',
+                'csoport'       : 39,        /* Dokumentum típus */
+                'menupont_szuro': 'projekt', /* Szerződés típusú minősítés nem lesz így kiválasztható */
+                'id_kiir'       : 'id'
+            });
+        });
+    </script>
+</div>
+
+<div class="kuldes">
+    <input type="button" class="gomb zold" value="Mentés" onclick="dok_minosites_beallit();">
+    <input type="button" class="gomb piros" value="Mégsem" onclick="popupZar();">
+</div>
+
+<script>
+function dok_minosites_beallit() {
+    $.ajax({
+        url : 'projektkezeles.php',
+        type: 'POST',
+        data: {
+            recid                   : dok_sorszama,
+            tipus                   : $('#dok_minosit').val(),
+            dok_minosites_beallit   : Date.now()
+        },
+        success: function(response) {
+            if(response.substring(0, 6)=='SESKIL'){ location.href = 'index.php'; }
+            if( response ) {
+                
+                response = JSON.parse(response);
+                if( response.alert ) {
+                    alert2( response.alert, response.gomb, response.title );
+                }
+                
+            /* Ha nincs válasz, akkor csak bezárjuk a popupot, újratöltjük a felületet */
+            } else {
+                popupZar();
+                szamlaBetolt( _get('id'), 'projektkezeles.php', 'dokumentumok' );
+            }
+        },
+        complete: function(xhr) {
+            if( xhr.status != 200 ) {
+                alert2(xhr.responseText, '', 'Hiba');
+            }
+        }
+    });
+}
+</script>

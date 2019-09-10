@@ -2,13 +2,13 @@
 // Dinamikus lista tartalmának kigenerálása
 include('weblap.php');
 
-if(isset($_GET['value']) && isset($_GET['tabla']) && isset($_GET['oszlop_keres'])){
+if( isset($_GET['value']) && isset($_GET['tabla']) && isset($_GET['oszlop_keres']) ) {
 
     // Több oszlop is szerepelhet a $_GET['oszlop']-ban (minden oszlop értékét sortöréssel tesszük a találati listába)
     $oszlop_keres  = explode(',', str_replace(' ', '', $_GET['oszlop_keres']));
     $oszlop_listaz = explode(',', str_replace(' ', '', $_GET['oszlop_listaz']));
     // Ha úgy akarnánk lekérni objektumokat vagy eszközöket, hogy nincs kiválsztva telephely, akkor nem csinálunk semmit
-    if( ($_GET['tabla'] == 'obj' || $_GET['tabla'] == 'eszkozkezeles') && !$_GET['telephely_id'] ){
+    if( ($_GET['tabla'] == 'obj' || $_GET['tabla'] == 'eszkozkezeles') && !$_GET['telephely_id'] ) {
         $weblap -> leallit();
         exit;
     }
@@ -159,7 +159,7 @@ if(isset($_GET['value']) && isset($_GET['tabla']) && isset($_GET['oszlop_keres']
             }
         }
         
-        // Dokumentum típus esetén ha még menüpontra is szűrünk
+        // Dokumentum tipus esetén ha még menüpontra is szűrünk
         // FONTOS: itt van még egy extra dolog: a szerződés tipust is kiszűrjük!
         if( $_GET['menupont_szuro'] ) {
             if( $where_sql ) {

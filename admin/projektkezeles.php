@@ -38,6 +38,41 @@ if( $tobb_kep ) {
 }
 
 
+// Projekt dokumentum típusának beállítása 
+// Projektek dokumentum fül alatt, minősítés gombra kattintva.
+// Ha nem a projektkez direktbe feltöltött dokumentumról vna szó, hane egy szerződés dokumentumról
+// akkor az a projektszerzodes.php alatt ugyanezen post névvel van lekezelve.
+if( isset($_POST['dok_minosites_beallit']) ) {
+    
+    $adatbazis_kapcsolat->u('projektkezeles_dok', array('tipus'), array($_POST['tipus']), "`recid`='{$_POST['recid']}'");
+    
+// Sáttusz léptetésre minta, szerződéseknél így van megoldva.
+//    // Meg kell nézni, hogy mi a projekt státusza. Ha előkészítés alatt vagy folyamatban, akkor rákérdezünk, hogy tovább léptet-e státuszt
+//    if( $_POST['tipus'] == EL_DOK_TIPUS_SZERZODES || $_POST['tipus'] == EL_DOK_TIPUS_ATADASI ) {
+//        $pr_szerzodes_doc   = $adatbazis_kapcsolat->s2('projektszerzodes_id', 'projektszerzodes_dok', "`recid`='{$_POST['recid']}'");
+//        $pr_szerzodes       = $adatbazis_kapcsolat->s2('pr_szam', 'projektszerzodes', "`recid`='{$pr_szerzodes_doc['projektszerzodes_id']}'");
+//        $projekt            = $adatbazis_kapcsolat->s2('recid stat_id', 'projektkezeles', "`ikt_szam`='{$pr_szerzodes['pr_szam']}'");
+//        
+//        if( $_POST['tipus'] == EL_DOK_TIPUS_SZERZODES && $projekt['stat_id'] == PRKEZEL_STAT_ELOKESZITES_ALATT ) {
+//            echo json_encode( array(
+//                                    'alert' => 'A csatolt fájlt szerződés típusú dokumentummá minősítette.<br>Folyamatba helyezi a projektet?',
+//                                    'title' => 'Kérdés',
+//                                    'gomb'  => '<input type="button" class="gomb zold" value="Igen" onclick="folyamatbanra_allit()"><input type="button" class="gomb piros" value="Nem" onclick="popupZar(); szamlaBetolt( \''.$projekt['recid'].'\', \'projektkezeles.php\', \'dokumentumok\' );">',
+//                                ) );
+//        }
+//        if( $_POST['tipus'] == EL_DOK_TIPUS_ATADASI && $projekt['stat_id'] == PRKEZEL_STAT_FOLYAMATBAN ) {
+//            echo json_encode( array(
+//                                    'alert' => 'A csatolt fájlt Átadási jk. típusú dokumentummá minősítette.<br>Készre helyezi a projektet?',
+//                                    'title' => 'Kérdés',
+//                                    'gomb'  => '<input type="button" class="gomb zold" value="Igen" onclick="keszre_allit()"><input type="button" class="gomb piros" value="Nem" onclick="popupZar(); szamlaBetolt( \''.$projekt['recid'].'\', \'projektkezeles.php\', \'dokumentumok\' );">',
+//                                ) );
+//        }
+//    }
+    
+    $weblap -> leallit();
+    exit;
+}
+
 // Szálloda select a Cash-flow popupba
 if( isset($_POST['get_szalloda_select']) ) {
     
@@ -1527,15 +1562,15 @@ if( isset($_POST['dokumentumKuldeseTeamTagoknak']) ) {
         $mappa = $adatbazis_kapcsolat->s2('ikt_szam', 'projektkezeles', "`recid`='{$recid}'");
         $utvonal = '../'.get_utvonal().'projektkezeles/'.str_replace('/', '_', $mappa['ikt_szam']).'/email/*';
         $fajlok_mailnek = array();
-        $fajlok = glob($utvonal);
+        $fajlok_mailnek = $fajlok = glob($utvonal); // Fontos, hogy a $fajlok-ban csak a levélküldéshez feltöltött fájlokat tartalmazza, mert ezeket később archiváljuk, elpakoljuk
 
         // Kijelölt dokumentumok hozzáadása
         $utvonalak = explode(',', $_POST['utvonalak']);
-        foreach( $utvonalak as $utvonal ) {
-            array_push( $fajlok, $utvonal );
+        foreach( $utvonalak as $utvonal_tmp ) {
+            array_push( $fajlok_mailnek, $utvonal_tmp );
         }
 
-        $sikeres_kuldes = level_kuldes_osszetettebb(get_nev(), get_mail(), $mailcimek, $mailcimek, $masolatok, $masolatok, $r_masolatok, $r_masolatok, $targy_kieg.$_POST['targy'], $uzi_kieg.nl2br2($_POST['uzenet']), $fajlok, 'levélpapíros');
+        $sikeres_kuldes = level_kuldes_osszetettebb(get_nev(), get_mail(), $mailcimek, $mailcimek, $masolatok, $masolatok, $r_masolatok, $r_masolatok, $targy_kieg.$_POST['targy'], $uzi_kieg.nl2br2($_POST['uzenet']), $fajlok_mailnek, 'levélpapíros');
         // Ha nem volt sikeres a levélküldés, akkor is megállítjuk a működést
         if( $sikeres_kuldes ) {
             mysqli_rollback($db_kapcs);
@@ -1896,7 +1931,7 @@ require_once('selectek.php');
             $gombok .= ' <input type="button" id="recordTorol" class="gombb_alert dn" onclick="alert2(\'Önnek nincs joga a projekt törléséhez!\', \'\', \'Hiba\')" value="Töröl" title="Töröl">';
         // Csak nyitott projekt törölhető
         } elseif( $sor['stat_id'] != PRKEZEL_STAT_NYITOTT ) {
-            $gombok .= ' <input type="button" id="recordTorol" class="gombb_alert dn" onclick="alert2(\'Csak nyitott státuszú projekt törlhető!\', \'\', \'Hiba\')" value="Töröl" title="Töröl">';
+            $gombok .= ' <input type="button" id="recordTorol" class="gombb_alert dn" onclick="alert2(\'Csak nyitott státuszú projekt törölhető!\', \'\', \'Hiba\')" value="Töröl" title="Töröl">';
         // Ha már tartozik hozzá projektigénylés, akkor sem törölhető
         } elseif( $sor['projektigenyles_recid'] ) {
             $gombok .= ' <input type="button" id="recordTorol" class="gombb_alert dn" onclick="alert2(\'A projekthez már tartozik projektigénylés, így nem törölhető!\', \'\', \'Hiba\')" value="Töröl" title="Töröl">';

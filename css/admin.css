@@ -1169,6 +1169,10 @@ div.jsff_thumb div.torol:hover{
     padding-right: 1rem;
 }
 
+#sorrendezes_tobbkep li div.maradek.torles.l {
+    text-align: left;
+}
+
 #sorrendezes li:not(.kijelolve):not(.nohover):hover,
 #feltoltott_fajl li:not(.kijelolve):not(.nohover):hover,
 #sorrendezes_album li:not(.kijelolve):not(.nohover):hover,

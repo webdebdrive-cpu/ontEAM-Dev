@@ -232,9 +232,13 @@ function cf_sor_torol(mehet){
 
 /* Feltöltött dokumentumok sorainak végén van egy minősítés gomb, az futtatja ezt a függvényt */
 var dok_sorszama = 0;
-function dok_minosites( sorszam ) {
+function dok_minosites( sorszam, szurt ) {
     dok_sorszama = sorszam;
-    csoportMuvelet('projektszerzodes_dok_minosites');
+    if( szurt ) {
+        csoportMuvelet('projektszerzodes_dok_minosites_szurt');
+    } else {
+        csoportMuvelet('projektszerzodes_dok_minosites');
+    }
 }
 
 /* Projekt újranyitása */

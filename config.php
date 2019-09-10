@@ -8,6 +8,11 @@ require_once 'konstansok.php';
 // Időzóna beállítása
 date_default_timezone_set('Europe/Budapest');
 
+// Ne legyen logolás!
+ini_set('log_errors',       '0'             );
+ini_set('display_errors' ,  '0'             );
+error_reporting(E_ERROR);
+
  // Alapértelmezetten '', de ha értéket adunk (pl.: tabla_), akkor létrehoz egy adatbázis kapcsolatot a 'Weblap' osztály
 function get_db_tabla()   {     return 'onteam_';      }
 
