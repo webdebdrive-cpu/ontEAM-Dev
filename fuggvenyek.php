@@ -7422,11 +7422,11 @@ function get_szures_where_kieg($mezo, $op, $felt, $tabla) {
     }
 
     $op_origi = $op;
-    switch ($op){
+    switch ( $op ) {
         case 'equal'    : $op = '=';    break;
         case 'not_eq'   :
             // Létrehozás dátumánál kicsit más az operátor működése
-            if( $mezo=='insert_dt' ){
+            if( $mezo == 'insert_dt' ) {
                 $op = ' NOT LIKE ';
                 $felt = '%'.$felt.'%';
             } else {
@@ -7439,7 +7439,7 @@ function get_szures_where_kieg($mezo, $op, $felt, $tabla) {
         case 'lt'       : $op = '<';    break;
         case 'like'     : $op = ' LIKE '; $felt = '%'.$felt.'%'; break;
         case 'empty'    :
-            if($felt==1){
+            if( $felt == 1 ) {
                 $op = '=';
             } else {
                 $op = '!=';
@@ -7504,6 +7504,16 @@ function get_szures_where_kieg($mezo, $op, $felt, $tabla) {
     // Projket számlánál szűrni kell arra, hogy van-e kifizetése
     } elseif( $tabla == 'projektszamla' && $mezo == 'kifizetes_van_e' ) {
         $return = ' (SELECT COUNT(`'.get_db_tabla().'projektszamla_kifizetesek`.`recid`) FROM `'.get_db_tabla().'projektszamla_kifizetesek` WHERE `'.get_db_tabla().'projektszamla_kifizetesek`.`projektszamla_recid`=`'.get_db_tabla().'projektszamla`.`recid`)';
+        if( $felt ) {
+            $return .= ' > 0';
+        } else {
+            $return .= ' = 0';
+        }
+        return $return;
+        
+    // Projket számlánál szűrni kell arra, hogy kapcsolt szerződés van-e
+    } elseif( $tabla == 'projektszamla' && $mezo == 'kapcsolt_szerzodes_van_e' ) {
+        $return = ' (SELECT COUNT(`'.get_db_tabla().'projektszamla_tetel`.`recid`) FROM `'.get_db_tabla().'projektszamla_tetel` WHERE `'.get_db_tabla().'projektszamla_tetel`.`projektszamla_recid`=`'.get_db_tabla().'projektszamla`.`recid` AND `projektszerzodes_tetel_recid`!=0)';
         if( $felt ) {
             $return .= ' > 0';
         } else {

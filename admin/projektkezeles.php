@@ -1561,9 +1561,17 @@ if( isset($_POST['dokumentumKuldeseTeamTagoknak']) ) {
         // Csatolmányok összeszdése
         $mappa = $adatbazis_kapcsolat->s2('ikt_szam', 'projektkezeles', "`recid`='{$recid}'");
         $utvonal = '../'.get_utvonal().'projektkezeles/'.str_replace('/', '_', $mappa['ikt_szam']).'/email/*';
-        $fajlok_mailnek = array();
-        $fajlok_mailnek = $fajlok = glob($utvonal); // Fontos, hogy a $fajlok-ban csak a levélküldéshez feltöltött fájlokat tartalmazza, mert ezeket később archiváljuk, elpakoljuk
+        
+        $konyvtar_tartalma = glob($utvonal); // Fontos, hogy a $fajlok-ban csak a levélküldéshez feltöltött fájlokat tartalmazza, mert ezeket később archiváljuk, elpakoljuk
 
+        // Könyvtárak kiszűrése
+        $fajlok_vegleg = array();
+        foreach ( $konyvtar_tartalma as $elem ) {
+            if( is_file($elem) ) {
+                array_push($fajlok_vegleg, $elem);
+            }
+        }
+        $fajlok_mailnek = $fajlok = $fajlok_vegleg;
         // Kijelölt dokumentumok hozzáadása
         $utvonalak = explode(',', $_POST['utvonalak']);
         foreach( $utvonalak as $utvonal_tmp ) {
@@ -1587,9 +1595,10 @@ if( isset($_POST['dokumentumKuldeseTeamTagoknak']) ) {
             $cimzettek          = implode(', ', $mailcimek);
             $masolatot_kapott   = '';
             $dokumentumok       = '';
-            foreach( $fajlok as $fajl ) {
+            foreach( $fajlok_mailnek as $fajl ) {
                 $dokumentumok .= basename($fajl).', ';
             }
+
             $dokumentumok = trim( $dokumentumok, ', ' );
             $emailkuldes_megj .= 'Dokumentumok elküldve: '.$dokumentumok."\n".'Címzettek: '.$cimzettek.' ';
             if( $masolatok ) {

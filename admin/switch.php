@@ -503,8 +503,8 @@ foreach ( $akt_tomb as $ertek ) {
 
             $fajl_thumb  = get_admin_file_thumb($ertek['tabla'], $ertek['oszlop'], $_GET['id']);
 
-            $mit   = array('{MEGN}', '{PHP_FAJL}',          '{ENG_KIT}',        '{MERET}',  '{MINDEN_KESZ}',     '{PARAMETEREK}', '{FAJL}'      );
-            $mivel = array($megn,    $ertek['php_fajl'],    $ertek['eng_kit'],  $meret,     $minden_kesz,        $parameterek,    $fajl_thumb   );
+            $mit   = array('{MEGN}', '{PHP_FAJL}',          '{ENG_KIT}',        '{MERET}',  '{MINDEN_KESZ}',     '{PARAMETEREK}', '{FAJL}',    '{MAX_MERET}'                        );
+            $mivel = array($megn,    $ertek['php_fajl'],    $ertek['eng_kit'],  $meret,     $minden_kesz,        $parameterek,    $fajl_thumb, ini_get('upload_max_filesize')*1024  );
 
 
             $html  = str_replace($mit, $mivel, fajlbol_olvas('../sablon/admin/jsfile'.$ertek['sablon_post'].'.html', true));

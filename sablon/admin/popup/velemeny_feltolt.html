@@ -71,18 +71,22 @@
                     var fajlok_kesz     = 0;
                     var hibas_fajlok    = 0;
 
-                    if( !fajlok.length ){
+                    if( !fajlok.length ) {
                         alert2('Kérem előbb tallózon be egy fájlt!', '', 'Hiba');
                         return false;
                     }
 
-                    for (var i = 0; i < fajlok.length; i++){
+                    for (var i = 0; i < fajlok.length; i++) {
 
-                        if(tests_velemeny.formdata){
+                        if( tests_velemeny.formdata ) {
 
-                            formData.append('file', fajlok[i]);
-                            /* Kép megjelenítése egyből: */
-                            /*elonezet_velemeny(fajlok[i]);*/
+                            fajl = fajlok[i];
+                            /* Túl nagy méretű fálj problémájának lekezelése. A méret limitet a PHP iniből kapjuk. */
+                            if( fajl.size > UPLOAD_FILE_LIMIT ) {
+                                alert2(fajl.name+': túl nagy meretű fájl ('+Math.round(fajl.size/1024/1024)+'MB)!<br>Maximálisan megengedett méret: '+FILE_LIMIT_KIIRVA, '', 'Hiba');
+                                return false;
+                            }
+                            formData.append('file', fajl);
 
                             var progress_id = 'jsff_velemeny_' + i;
                             var pg = $('<progress id="'+progress_id+'" min="0" max="100" value="0">0</progress>');
@@ -96,6 +100,7 @@
                                     var percent = parseInt(e.loaded / e.total * 100);
                                     $('#' + progress_id).val(percent);
                                 };
+
                                 xhr.onload = function(){
                                     fajlok_kesz++;
                                     $('#' + progress_id).val(100);

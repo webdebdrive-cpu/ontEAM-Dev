@@ -11,7 +11,7 @@
 \*                                                                                                                                         */
 require_once('../weblap.php');
 
-if( isset($_GET['info']) && $_SESSION[get_db_tabla().'user'] ){
+if( false && isset($_GET['info']) && $_SESSION[get_db_tabla().'user'] ){
     phpinfo();
     exit;
 }

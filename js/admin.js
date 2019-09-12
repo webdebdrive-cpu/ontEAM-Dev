@@ -11,9 +11,13 @@ var KEY_MINUS  =  109;
 var KEY_F5     =  116;
 var KEY_F12    =  123;
 
-var EGYSEGAR_VALASZT = 'Kérem válasszon egységár sort!';    /* Hibaüzenet */
-var PENZNEM          = 'Ft';                                /* Ha Ft feliratot bármikor módosítani kellne, akkor JS alatt elég itt átírni. */
-var AFA              = '27';                                /* Áfa */
+/* Popupokban levő tallózásoknál nehézkesebb volna kiszámolni a PHP init fájllimitet, ezért ezt itt manuálisan állítjuk be. */
+var UPLOAD_FILE_LIMIT   = 31457280;                            /* 30MB */
+var FILE_LIMIT_KIIRVA   = '30MB';
+
+var EGYSEGAR_VALASZT    = 'Kérem válasszon egységár sort!';    /* Hibaüzenet */
+var PENZNEM             = 'Ft';                                /* Ha Ft feliratot bármikor módosítani kellne, akkor JS alatt elég itt átírni. */
+var AFA                 = '27';                                /* Áfa */
 
 var keys = {37: 1, 38: 1, 39: 1, 40: 1};
 
