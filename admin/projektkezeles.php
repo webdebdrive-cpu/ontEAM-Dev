@@ -1454,7 +1454,7 @@ if( isset($_POST['cf_sor_torol']) ) {
     exit();
 }
 
-// Dokuemtnumok fül alatt egy-egy csoportot amikor kinyitunk, akkor azt is jegyezzük meg, 
+// Dokumentumok fül alatt egy-egy csoportot amikor kinyitunk, akkor azt is jegyezzük meg, 
 // hogy nyitva vagy zárva maradt, hogy újratöltéskor úgy maradjon, ne kelljen újra ki-be nyitni
 if( isset($_POST['dokumentumok_kibont']) ) {
     
@@ -1467,6 +1467,24 @@ if( isset($_POST['dokumentumok_kibont']) ) {
     $weblap->leallit();
     exit();
 }
+
+// Kiválasztott dokumentumok bepipálásának megjegyzése
+if( isset($_POST['projekt_dok_check']) ) {
+    
+    if( $_POST['recid'] ) {
+        if( $_POST['checked']=='true' ) {
+            array_push($_SESSION['projekt_dok_kuld_check'], $_POST['recid']);
+        } else {
+            if (($key = array_search($_POST['recid'], $_SESSION['projekt_dok_kuld_check'])) !== false) {
+                unset($_SESSION['projekt_dok_kuld_check'][$key]);
+            }
+        }
+    }
+    
+    $weblap->leallit();
+    exit();
+}
+
 
 // Dokumentumok küldése
 if( isset($_POST['dokumentumKuldeseTeamTagoknak']) ) {
@@ -1620,6 +1638,9 @@ if( isset($_POST['dokumentumKuldeseTeamTagoknak']) ) {
 
         }
 
+        // A kipipált dokumentumok ürítése
+        $_SESSION['projekt_dok_kuld_check'] = array();
+        
         // E-mail értesítésekről megjegyzést is írunk
         if( addMegj('projektkezeles', $recid, $emailkuldes_megj) === false ) {
             $db_error = true;

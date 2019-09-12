@@ -4189,10 +4189,11 @@ if( isset($_POST['mellekTorol']) ) {
 
                         // Log változás
                         $valtozas .= '<strong>'.$utvonal.'</strong><br>';
-                        
+
                         // Projektigényléseknél megjegyzéshez is hozzáadjuk
                         $apa_tabla = csonkit($tabla, 4);
-                        if( tipusos_dokumentumok($apa_tabla) ) {
+                        $megj_hozaad = array('projektigenyles', 'projektkezeles', 'projektszerzodes', 'projektszamla');
+                        if( in_array($apa_tabla, $megj_hozaad) ) {
                             $fajl_tipus = $adatbazis_kapcsolat->s2('tipus', $tabla, "`recid`='{$fajl['recid']}'");
                             if( $fajl_tipus === false ) { $db_error = true; }
  

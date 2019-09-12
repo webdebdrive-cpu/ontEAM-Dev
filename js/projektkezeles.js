@@ -327,7 +327,23 @@ function keszre_allit() {
     });
 }
 
-
-function keszre_allit() {
-    
+/* Küldendő dokuemntumok bepiálásának megjegyése */
+function projekt_dok_check( recid, checked ) {
+    $.ajax({
+        url : 'projektkezeles.php',
+        type: 'POST',
+        data: {
+            recid               : recid,
+            checked             : checked,
+            projekt_dok_check   : Date.now()
+        },
+        success: function (response) {
+            if (response) {
+                response = JSON.parse(response);
+                if (response.hiba) {
+                    alert2(response.hiba);
+                }
+            }
+        }
+    });
 }

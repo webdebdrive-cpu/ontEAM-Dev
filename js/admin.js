@@ -7976,8 +7976,9 @@ function dokumentumok_kibont( azon, tabla ) {
             dokumentumok_kibont : Date.now()
         },
         success: function (response) {
-            /*szamlaBetolt(_get('id'), tabla+'.php', 'dokumentumok');*/
-            $('.'+azon).slideToggle();
+            szamlaBetolt(_get('id'), tabla+'.php', 'dokumentumok');
+            /* Ez így energiahatékonyabb volna, de a táblázat rejtés után nem rendeződik szépen, az oszlopok szélessége nem egységes a többi tálbáaztéval, ezért inkább újratöltjük a tartalmat.
+             * $('.'+azon).slideToggle();*/
         },
         complete: function(xhr) {
             if( xhr.status != 200 ) {
