@@ -44,7 +44,7 @@ if( isset($_POST['get_feltoltott_fajl']) ) {
     exit;
 }
 
-// Dokumentum tipus letárolása
+// Dokumentum típus letárolása
 if( isset($_POST['dokumentum_tipus_valaszt']) ) {
 
     require_once('../weblap.php');
@@ -672,11 +672,14 @@ function get_tobbkep_thumb($sor_kepek, $i, $tobbkep_tablanev, $nincs_torles, $ku
         $csonkit = 0;
     }
     
+    $direkt_dokumentum = false;
     $kep_utvonal = '../'.get_utvonal().csonkit($tobbkep_tablanev, $csonkit).'/'.$sor_kepek['utvonal'];
     // Itt van egy kis csavar: ha projektkezelés alatt vagyunk, és a fájl nem található, akkor lehet az egy direkt csatolt dokumentum, ezrét ez alapján is megpróbáljuk megjeleníteni a fájlt
     if( basename( self() ) == 'projektkezeles.php' && !is_file($kep_utvonal ) ) {
         // Ekkor a $tobbkep_tablanev változót is korrigáljuk, mert a később pl. a Minősítés gomb kirajzolásánál jelentősége van.
-        $tobbkep_tablanev = 'projektkezeles_dok';
+        $tobbkep_tablanev  = 'projektkezeles_dok';
+        // Illetve jelezzük, hogy ez egy direkt dokumentum, szintén a minősítéshez kell
+        $direkt_dokumentum = true;
         
         $kep_utvonal = '../'.get_utvonal().csonkit($tobbkep_tablanev, $csonkit).'/'.$sor_kepek['utvonal'];
     }
@@ -780,19 +783,19 @@ function get_tobbkep_thumb($sor_kepek, $i, $tobbkep_tablanev, $nincs_torles, $ku
             if( $tobbkep_tablanev != 'projektszerzodes_jotallas' ) {
                 // Ha szerződésről van szó, és nincs még minősítve, csak akkor jelenítjük meg a minősítést gombot
                 $torles_class = 'felirat';
-                if( $tobbkep_tablanev == 'projektszerzodes_dok' && !$sor_kepek['tipus'] ) {
+                // Direktbe feltöltött dokumentumok minősítés gombja más (számla típus ki van szűrve)
+                if( $direkt_dokumentum && !$sor_kepek['tipus'] ) {
 
-                    $minosites = nl2('
-                        <div class="felirat l">
-                            <input type="button" class="gomb alacsony" value="Minősítés" onclick="dok_minosites(\''.$sor_kepek['recid'].'\')">
-                        </div>
-                        ');
-
-                // Direktbe feltöltött dokumentumok minősítés gombja más
-                } else if( $tobbkep_tablanev = 'projektkezeles_dok' && !$sor_kepek['tipus'] ) {
                     $minosites = nl2('
                         <div class="felirat l">
                             <input type="button" class="gomb alacsony" value="Minősítés" onclick="dok_minosites(\''.$sor_kepek['recid'].'\', \'szűrt\')">
+                        </div>
+                        ');
+                // Nem direkt domunemtum minősítés (itt megengedett a számla típus)
+                } else if( !$direkt_dokumentum && !$sor_kepek['tipus'] ) {
+                    $minosites = nl2('
+                        <div class="felirat l">
+                            <input type="button" class="gomb alacsony" value="Minősítés" onclick="dok_minosites(\''.$sor_kepek['recid'].'\')">
                         </div>
                         ');
                 }

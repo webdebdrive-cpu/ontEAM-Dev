@@ -2550,8 +2550,9 @@ $projektszerzodes_tomb = $akt_tomb = array(
                                                             </div>
                                                         </div>
                                                         ')),
-    array('type' => 'nosql',                'megn_szurobe' => 'Létrehozás dátuma',      'name' => 'insert_dt',    'szuro' => 1,  'class' => 'datepicker'),
-    array('type' => 'nosql',                'megn_szurobe' => 'Létrehozta',             'name' => 'insert_usr',   'szuro' => 1),
+    array('type' => 'nosql',                'megn_szurobe' => 'Létrehozás dátuma',          'name' => 'insert_dt',              'szuro' => 1,  'class' => 'datepicker'),
+    array('type' => 'nosql',                'megn_szurobe' => 'Létrehozta',                 'name' => 'insert_usr',             'szuro' => 1),
+    array('type' => 'nosql',                'megn_szurobe' => 'Van kapcsolt számla tétel',  'name' => 'kapcsolt_szamla_van_e',  'szuro' => 1),
 );
 array_push($postok, array('tomb' => $akt_tomb, 'uj' => 'uj'.$megnevezes, 'lista' => $megnevezes.'lista', 'tabla' => $megnevezes, 'torid' => $megnevezes.'tid' ));
 

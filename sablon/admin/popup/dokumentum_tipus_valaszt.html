@@ -22,12 +22,13 @@
     
     <div class="kuldes">
         <input type="submit" name="elkuld" class="gomb zold" value="Mentés">
-        <input type="button" name="megsem" class="gomb piros" value="Mégsem" onclick="popupZar();">
+        <input type="button" name="megsem" class="gomb piros" value="Mégsem" onclick="popupZar(); if( leptessuk_e_tovabb ){ projekt_fajfeltoltes_utan_tovabb(); }">
         <!--<input type="button" name="megsem" class="gomb piros" value="Nem minősített dokumentum" onclick="popupZar(); if( leptessuk_e_tovabb ){ projekt_fajfeltoltes_utan_tovabb(); }">-->
     </div>
 </form>
 <script>
 $(document).ready(function(){
+console.log(leptessuk_e_tovabb);
     $.ajax({
         url : 'tobb_kep.php',
         type: 'POST',
@@ -65,7 +66,7 @@ function dokumentum_tipus_valaszt(){
         success: function(response) {
             if(response.substring(0, 6)=='SESKIL'){ location.href = 'index.php'; }
             szamlaBetolt( _get('id'), baseName(location.href) + '.php', 'dokumentumok' );
-            if(leptessuk_e_tovabb){
+            if( leptessuk_e_tovabb ) {
                 projekt_fajfeltoltes_utan_tovabb();
             }
             popupZar();

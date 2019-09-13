@@ -46,28 +46,27 @@ if( isset($_POST['dok_minosites_beallit']) ) {
     
     $adatbazis_kapcsolat->u('projektkezeles_dok', array('tipus'), array($_POST['tipus']), "`recid`='{$_POST['recid']}'");
     
-// Sáttusz léptetésre minta, szerződéseknél így van megoldva.
-//    // Meg kell nézni, hogy mi a projekt státusza. Ha előkészítés alatt vagy folyamatban, akkor rákérdezünk, hogy tovább léptet-e státuszt
-//    if( $_POST['tipus'] == EL_DOK_TIPUS_SZERZODES || $_POST['tipus'] == EL_DOK_TIPUS_ATADASI ) {
-//        $pr_szerzodes_doc   = $adatbazis_kapcsolat->s2('projektszerzodes_id', 'projektszerzodes_dok', "`recid`='{$_POST['recid']}'");
-//        $pr_szerzodes       = $adatbazis_kapcsolat->s2('pr_szam', 'projektszerzodes', "`recid`='{$pr_szerzodes_doc['projektszerzodes_id']}'");
-//        $projekt            = $adatbazis_kapcsolat->s2('recid stat_id', 'projektkezeles', "`ikt_szam`='{$pr_szerzodes['pr_szam']}'");
-//        
-//        if( $_POST['tipus'] == EL_DOK_TIPUS_SZERZODES && $projekt['stat_id'] == PRKEZEL_STAT_ELOKESZITES_ALATT ) {
-//            echo json_encode( array(
-//                                    'alert' => 'A csatolt fájlt szerződés típusú dokumentummá minősítette.<br>Folyamatba helyezi a projektet?',
-//                                    'title' => 'Kérdés',
-//                                    'gomb'  => '<input type="button" class="gomb zold" value="Igen" onclick="folyamatbanra_allit()"><input type="button" class="gomb piros" value="Nem" onclick="popupZar(); szamlaBetolt( \''.$projekt['recid'].'\', \'projektkezeles.php\', \'dokumentumok\' );">',
-//                                ) );
-//        }
-//        if( $_POST['tipus'] == EL_DOK_TIPUS_ATADASI && $projekt['stat_id'] == PRKEZEL_STAT_FOLYAMATBAN ) {
-//            echo json_encode( array(
-//                                    'alert' => 'A csatolt fájlt Átadási jk. típusú dokumentummá minősítette.<br>Készre helyezi a projektet?',
-//                                    'title' => 'Kérdés',
-//                                    'gomb'  => '<input type="button" class="gomb zold" value="Igen" onclick="keszre_allit()"><input type="button" class="gomb piros" value="Nem" onclick="popupZar(); szamlaBetolt( \''.$projekt['recid'].'\', \'projektkezeles.php\', \'dokumentumok\' );">',
-//                                ) );
-//        }
-//    }
+    // Meg kell nézni, hogy mi a projekt státusza. Ha előkészítés alatt vagy folyamatban, akkor rákérdezünk, hogy tovább léptet-e státuszt
+    if( $_POST['tipus'] == EL_DOK_TIPUS_SZERZODES || $_POST['tipus'] == EL_DOK_TIPUS_ATADASI ) {
+
+        $pr_dok  = $adatbazis_kapcsolat->s2('projektkezeles_id', 'projektkezeles_dok', "`recid`='{$_POST['recid']}'");
+        $projekt = $adatbazis_kapcsolat->s2('recid stat_id', 'projektkezeles', "`recid`='{$pr_dok['projektkezeles_id']}'");
+        
+        if( $_POST['tipus'] == EL_DOK_TIPUS_SZERZODES && $projekt['stat_id'] == PRKEZEL_STAT_ELOKESZITES_ALATT ) {
+            echo json_encode( array(
+                                    'alert' => 'A csatolt fájlt szerződés típusú dokumentummá minősítette.<br>Folyamatba helyezi a projektet?',
+                                    'title' => 'Kérdés',
+                                    'gomb'  => '<input type="button" class="gomb zold" value="Igen" onclick="folyamatbanra_allit()"><input type="button" class="gomb piros" value="Nem" onclick="popupZar(); szamlaBetolt( \''.$projekt['recid'].'\', \'projektkezeles.php\', \'dokumentumok\' );">',
+                                ) );
+        }
+        if( $_POST['tipus'] == EL_DOK_TIPUS_ATADASI && $projekt['stat_id'] == PRKEZEL_STAT_FOLYAMATBAN ) {
+            echo json_encode( array(
+                                    'alert' => 'A csatolt fájlt Átadási jk. típusú dokumentummá minősítette.<br>Készre helyezi a projektet?',
+                                    'title' => 'Kérdés',
+                                    'gomb'  => '<input type="button" class="gomb zold" value="Igen" onclick="keszre_allit()"><input type="button" class="gomb piros" value="Nem" onclick="popupZar(); szamlaBetolt( \''.$projekt['recid'].'\', \'projektkezeles.php\', \'dokumentumok\' );">',
+                                ) );
+        }
+    }
     
     $weblap -> leallit();
     exit;
@@ -225,7 +224,9 @@ if( isset($_POST['projekt_elokeszites_ala']) ) {
         $van_dok = $adatbazis_kapcsolat->s2('recid', 'projektszerzodes_dok', "`projektszerzodes_id` IN (".implode(', ', $szerzodesek).")", '', '1');
         if( $van_dok === false ) { $db_error = true; }
     }
-    if( !$van_dok ) {
+    $van_dok2 = $adatbazis_kapcsolat->s2('recid', 'projektkezeles_dok', "`projektkezeles_id`='{$recid}'");
+    if( $van_dok2 === false ) { $db_error = true; }
+    if( !$van_dok && !$van_dok2 ) {
         echo json_encode(array(
             'hiba'  => 'Előbb csatoljon egy dokumentumot a projekthez tartozó szerződéshez!',
             'title' => 'Hiba',
@@ -583,14 +584,13 @@ if( isset($_POST['projekt_fajfeltoltes_utan_tovabb']) ) {
     }
     
     // Nyitott státusz esetén megkérdezzük, ekkor előkészítés alatt státuszba léptetünk
-    // Ez a funckió mégsem kell
-//    if( $sor['stat_id'] == PRKEZEL_STAT_NYITOTT ){
-//        echo json_encode(array(
-//            'hiba'  => $sor['ikt_szam'].'<br>Dokumentum csatolása sikerült.<br>Előkészítés alatt státuszba helyezi most a projektet?',
-//            'gomb'  => '<input type="button" class="gomb zold" value="Igen" onclick="projekt_elokeszites_ala()"><input type="button" class="gomb piros" value="Nem" onclick="alert2()">',
-//            'recid' => $recid
-//        ));
-//    }
+    if( $sor['stat_id'] == PRKEZEL_STAT_NYITOTT ){
+        echo json_encode(array(
+            'hiba'  => $sor['ikt_szam'].'<br>Dokumentum csatolása sikerült.<br>Előkészítés alatt státuszba helyezi most a projektet?',
+            'gomb'  => '<input type="button" class="gomb zold" value="Igen" onclick="projekt_elokeszites_ala()"><input type="button" class="gomb piros" value="Nem" onclick="alert2()">',
+            'recid' => $recid
+        ));
+    }
     
     // Előkészítés alatt státusz esetén Folyamatbanra léptetjük tovább HA van már szerződéses dokumentuma
     if( $sor['stat_id'] == PRKEZEL_STAT_ELOKESZITES_ALATT ){
@@ -1982,7 +1982,7 @@ require_once('selectek.php');
         $statuszok = array(PRKEZEL_STAT_NYITOTT);
         if( in_array($sor['stat_id'], $statuszok) && get_projekt_kezeles_jog($_GET['id']) ) {
             
-            // Van-e már olyan szerződés, aminke van dokumentuma
+            // Van-e már olyan szerződés, aminek van dokumentuma
             $szerzodesek = $adatbazis_kapcsolat->s('recid', 'projektszerzodes', "`pr_szam`='{$sor['ikt_szam']}'");
             $szerzodesek = adatbazis2tomb($szerzodesek, 'recid');
 
@@ -1990,7 +1990,9 @@ require_once('selectek.php');
             if( $szerzodesek ) {
                 $van_dok = $adatbazis_kapcsolat->s2('recid', 'projektszerzodes_dok', "`projektszerzodes_id` IN (".implode(', ', $szerzodesek).")", '', '1');
             }
-            if( !$van_dok ) {
+            
+            $van_dok2 = $adatbazis_kapcsolat->s2('recid', 'projektkezeles_dok', "`projektkezeles_id`='{$_GET['id']}'");
+            if( !$van_dok && !$van_dok2 ) {
                 $gombok .= '<input type="button" class="gomb modositaskor_rejt" value="Előkészítés alatt" onclick="alert2(\'Előbb csatoljon egy dokumentumot a projekthez tartozó szerződéshez!\', \'\', \'Hiba\')"> ';
             } else {
                 $gombok .= '<script> gomb_elokeszites = \'<input type="button" class="gomb zold" onclick="projekt_elokeszites_ala()" value="Igen"><input type="button" class="gomb piros" onclick="alert2()" value="Nem">\';</script>';

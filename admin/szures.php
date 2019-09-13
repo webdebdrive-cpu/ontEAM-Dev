@@ -93,10 +93,10 @@ if( isset($_POST['f_szuro_mezo']) ) {
     }
 
     // Kapcsolódó szállodák felsorolása
-    if( $_POST['mezo']=='telephely_id' || ($_POST['tabla'] == 'login' && $_POST['mezo']=='szalloda') ){
+    if( $_POST['mezo']=='telephely_id' || ($_POST['tabla'] == 'login' && $_POST['mezo']=='szalloda') ) {
 
         // Ilyenkor felülírva az operátorokat, csak egyenlőségjel van
-        $operator = '<option value="equal"'.$selected_equal.'>=</option>';
+        $operator  = '<option value="equal"'.$selected_equal.'>=</option>';
         $operator .= '<option value="not_eq"'.$selected_not_eq.'>&lt;&gt;</option>';
         $operator .= '<option value="empty"'.$selected_empty.'>Üres</option>';
 
@@ -113,15 +113,15 @@ if( isset($_POST['f_szuro_mezo']) ) {
     }
 
     // Létrehoztam mező esetén csak egyenlőség jel van
-    if($_POST['mezo']=='insert_usr'){
+    if( $_POST['mezo'] == 'insert_usr' ) {
         $operator = '<option value="equal"'.$selected_equal.'>=</option>';
         $operator .= '<option value="not_eq"'.$selected_not_eq.'>&lt;&gt;</option>';
         $operator .= '<option value="empty"'.$selected_empty.'>Üres</option>';
     }
 
     // Legfrissebb esetén = operátor
-    if( $_POST['mezo']=='legfrissebb' || $_POST['mezo']=='dok_van_e' || $_POST['mezo']=='kapcsolt_szerzodes_van_e' ) {
-        $operator .= '<option value="equal"'.$selected_equal.'>=</option>';
+    if( $_POST['mezo']=='legfrissebb' || $_POST['mezo']=='dok_van_e' || $_POST['mezo']=='kapcsolt_szerzodes_van_e' || $_POST['mezo']=='kapcsolt_szamla_van_e' ) {
+        $operator = '<option value="equal"'.$selected_equal.'>=</option>';
     }
 
     // Megjegyzés esetén tartalmazza operátor + szabadszavas mező
@@ -177,7 +177,7 @@ if (isset($_POST['f_szuro_mezo_operator'])) {
     }
 
     // Ha az éppen kiválasztott operátor az üres, akkor az alábbit adjuk vissza és kész
-    if( $_POST['selected'] == 'empty' || $_POST['mezo'] == 'dok_van_e' || $_POST['mezo'] == 'kapcsolt_szerzodes_van_e' || $_POST['mezo'] == 'kifizetes_van_e' || $_POST['mezo'] == 'fix_adat' ) {
+    if( $_POST['selected'] == 'empty' || $_POST['mezo'] == 'dok_van_e' || $_POST['mezo'] == 'kapcsolt_szerzodes_van_e' || $_POST['mezo'] == 'kapcsolt_szamla_van_e' || $_POST['mezo'] == 'kifizetes_van_e' || $_POST['mezo'] == 'fix_adat' ) {
         $feltetel = nl2('
             <select class="f_felt">
                 <option value="1"'.$selected_egy.'>Igen</option>
@@ -203,8 +203,14 @@ if (isset($_POST['f_szuro_mezo_operator'])) {
 
 
                 // Autocomplete esetén a switch.php alapján gyártunk egy inputot
-                }elseif( $ertek['type'] == 'autocomplete' || $ertek['type_szurohoz'] == 'autocomplete' ) {
+                } elseif( $ertek['type'] == 'autocomplete' || $ertek['type_szurohoz'] == 'autocomplete' ) {
 
+                    // Összetett szűrés esetén az autocomplet mezőnek más ID-t adunk
+                    $osszetett = '';
+                    if( $_POST['osszetett'] ) {
+                        $osszetett = '_osszetett';
+                    }
+                    
                     require_once('../class/html/class.Input.php');
                     $input = new Input('text');
 
@@ -219,7 +225,7 @@ if (isset($_POST['f_szuro_mezo_operator'])) {
 
                     $input -> cssClass      = $ertek['class'].' f_felt';
                     $input -> data          = 'data-auto="1"';
-                    $input -> id            = $ertek['name'].'_autocomp_szurobe';
+                    $input -> id            = $ertek['name'].'_autocomp_szurobe'.$osszetett;
                     $input -> name          = $ertek['name'].'_autocomp_szurobe';
                     $input -> placeholder   = $ertek['placeholder'];
                     $input -> autocomplete  = 'off';
@@ -278,7 +284,7 @@ if (isset($_POST['f_szuro_mezo_operator'])) {
                     $feltetel .= nl2('
                         <script>
                             $(document).ready(function() {
-                                $(\'#'.$ertek['name'].'_autocomp_szurobe\').autocomplete({
+                                $(\'#'.$ertek['name'].'_autocomp_szurobe'.$osszetett.'\').autocomplete({
                                     \'php_fajl\'        : \'../autocomplete.php\',
                                     \'tabla\'           : \''.$ertek['tabla'].'\',
                                     \'oszlop_keres\'    : \''.$ertek['oszlop_keres_autocomp'].'\',

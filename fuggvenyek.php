@@ -7521,6 +7521,16 @@ function get_szures_where_kieg($mezo, $op, $felt, $tabla) {
         }
         return $return;
         
+    // Projket számlánál szűrni kell arra, hogy kapcsolt szerződés van-e
+    } elseif( $tabla == 'projektszerzodes' && $mezo == 'kapcsolt_szamla_van_e' ) {
+        $return = ' (SELECT COUNT(`'.get_db_tabla().'projektszamla_tetel`.`recid`) FROM `'.get_db_tabla().'projektszamla_tetel` WHERE `projektszerzodes_tetel_recid` IN (SELECT `recid` FROM `'.get_db_tabla().'projektszerzodes_tetel` WHERE `projektszerzodes_recid`=`'.get_db_tabla().'projektszerzodes`.`recid`))';
+        if( $felt ) {
+            $return .= ' > 0';
+        } else {
+            $return .= ' = 0';
+        }
+        return $return;
+        
     } elseif( $tabla == 'projektkezeles' && $mezo == 'team_tag' ) {
         return '`'.get_db_tabla().'projektkezeles_team`.`login_recid`=\''.$felt.'\'';
     } elseif( $tabla == 'szallito' && $mezo == 'szakterulet' ) {

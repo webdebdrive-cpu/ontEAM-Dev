@@ -1601,6 +1601,7 @@ $(function() {
             if($('#o_feltetel input').attr('data-auto')){
                 id = $('#o_feltetel input').attr('id');
                 id = id.replace('autocomp_', '');
+                id = id.replace('_osszetett', '');
                 feltetel_ertek = $('#'+id).val();
             }
         }
@@ -1611,7 +1612,7 @@ $(function() {
         }
 
         /* Hibaellenőrzés, majd mehet */
-        if(!feltetel_ertek){
+        if (!feltetel_ertek) {
             alert2('Kérem állítsa be a szűrési feltételt!', '', 'Hiba');
         } else {
 
@@ -6825,7 +6826,7 @@ function operator_beallit(that, selected, felt){
 
     // Anyagrendelés felület miatt, ezt is át kell adni GET-ként
     anyagrend = '';
-    if( _get('anyagrend') ){
+    if( _get('anyagrend') ) {
         anyagrend = '?anyagrend=1';
     }
 
@@ -6862,27 +6863,30 @@ function szuro_ertek_mezo_gen(that, felt){
     var tabla    = that.attr('data-tabla');
     var selected = that.find('option:selected');
 
-    var prefix = '';
-    if($('#o_operator').length){
-        prefix = 'o_';
+    // Ha összetett szűrőben vagyunk, akkor ezt jelezzük a PHP felé is
+    var prefix    = '';
+    var osszetett = '';
+    if ($('#o_operator').length) {
+        prefix    = 'o_';
+        osszetett = '&amp;osszetett=1';
     }
 
     // Anyagrendelés felület miatt, ezt is át kell adni GET-ként
     anyagrend = '';
-    if( _get('anyagrend') ){
+    if (_get('anyagrend')) {
         anyagrend = '?anyagrend=1';
     }
 
     ajax = $.ajax({
         url : 'header.php'+anyagrend,
         type: 'POST',
-        data: esamp2es('tabla=' + tabla + '&amp;mezo=' + $('#'+prefix+'szuro_mezo').val() + '&amp;selected=' + selected.val() + '&amp;felt=' + felt + '&amp;f_szuro_mezo_operator=' + new Date().getTime()),
+        data: esamp2es('tabla=' + tabla + '&amp;mezo=' + $('#'+prefix+'szuro_mezo').val() + '&amp;selected=' + selected.val() + '&amp;felt=' + felt + osszetett + '&amp;f_szuro_mezo_operator=' + new Date().getTime()),
         success: function (response) {
             if(response.substring(0, 6)=='SESKIL'){ location.href = 'index.php'; }
             response = JSON.parse(response);
-            if (response) {
+            if ( response ) {
                 $('#'+prefix+'feltetel').html(response.feltetel);
-                if(prefix){
+                if( prefix ) {
                     $('#'+prefix+'szures_submit').html( '<input type="button" class="gomb zold f_o_szuro_hozzaad" value="+" style="padding: 0.3rem 0.7rem">');
                 } else {
                     var kieg = '';

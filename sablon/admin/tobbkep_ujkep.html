@@ -40,7 +40,7 @@ function elonezet_{MEGN}(file){
         reader.readAsDataURL(file);
 
     /* Egyébként csak egy sort írunk */
-    }else{
+    } else {
         jsff_{MEGN}.innerHTML += 'Feltöltve ' + file.name + ' ' + (file.size ? (file.size/1024|0) + 'K' : '') + '<br>';
     }
 
@@ -88,12 +88,12 @@ function beolvasas_{MEGN}(fajlok, ellenorzes_kihagy) {
                 var nem_irhato_felul = false;
                 /* Ha a 'frissit' szót kaptunk válaszul, akkor újra betöltjük a dokumentumok felület tartalmát (pl. lehet megváltoztak a nyomógombok a feltöltés hatására) */
                 if( this.responseText.substring(0,7)== 'frissit' ) {
-                    if(fajlok_kesz == fajlok.length) {
+                    if( fajlok_kesz == fajlok.length ) {
                         szamlaBetolt(_get('id'), baseName(location.href) + '.php', 'dokumentumok');
                     }
                 } else {
                     /* Hibakezelés */
-                    if(this.responseText.substring(0,5)=='Hiba!') {
+                    if( this.responseText.substring(0,5)=='Hiba!' ) {
                         
                         if( this.responseText.substring(5) == 'A fájl létezik!' ) {
                             voltmar[i] = fajl;
@@ -105,13 +105,13 @@ function beolvasas_{MEGN}(fajlok, ellenorzes_kihagy) {
                     } else if(this.responseText.substring(0,13)=='tipus_beallit') {
                         
                         $('#sorrendezes_tobbkep').append(this.responseText.substring(13));
-                        if (fajlok_kesz == fajlok.length){
+                        if ( fajlok_kesz == fajlok.length ) {
                             minden_fajl_kesz_{MEGN}();
                         }
 
-                        /* A tipusválasztáson felül még a továbbléptetést is felajánjuk, ha a 'tipus_beallit'-on felül még a 'leptessuk_e_tovabb' is a visszatérési értékben van. */
+                        /* A tipusválasztáson felül még a továbbléptetést is felajánljuk, ha a 'tipus_beallit'-on felül még a 'leptessuk_e_tovabb' is a visszatérési értékben van. */
                         leptessuk_e_tovabb = '';
-                        if(this.responseText.substring(13,31)=='leptessuk_e_tovabb'){
+                        if( this.responseText.substring(13,31) == 'leptessuk_e_tovabb') {
                             leptessuk_e_tovabb = 'igen';
                         }
                         
@@ -122,10 +122,10 @@ function beolvasas_{MEGN}(fajlok, ellenorzes_kihagy) {
                         });
                         
                     /* Projekteknél, sikeres fájlfetöltés után rákérdezünk, hogy léptessük-e tovább következő státusba */
-                    }else if(this.responseText.substring(0,18)=='leptessuk_e_tovabb'){
+                    } else if(this.responseText.substring(0,18)=='leptessuk_e_tovabb') {
                         
                         $('#sorrendezes_tobbkep').append(this.responseText.substring(18));
-                        if (fajlok_kesz == fajlok.length){
+                        if (fajlok_kesz == fajlok.length) {
                             minden_fajl_kesz_{MEGN}();
                         }
                         
@@ -135,16 +135,16 @@ function beolvasas_{MEGN}(fajlok, ellenorzes_kihagy) {
                         projekt_fajfeltoltes_utan_tovabb();
                         
                     /* Simán fájl kiíratása */
-                    }else{
+                    } else {
                         
                         $('#sorrendezes_tobbkep').append(this.responseText);
-                        if (fajlok_kesz == fajlok.length){
+                        if ( fajlok_kesz == fajlok.length ) {
                             minden_fajl_kesz_{MEGN}();
                         }
                         
                     }
 
-                    if(fajlok_kesz == fajlok.length){
+                    if( fajlok_kesz == fajlok.length ) {
                         if( voltmar.length ) {
                             fajl_feluliras_alert_{MEGN}(voltmar);
                         }
