@@ -991,7 +991,7 @@ div.jsff_thumb div.torol:hover{
     position: relative;
     text-align: left;
     width: 100%;
-    min-width: 112rem; /* Ez azért kellett, mert projekt modul dokumentumok fül alatt elcsúsztak az oszlopok felsorolás után. */
+    min-width: 114rem; /* Ez azért kellett, mert projekt modul dokumentumok fül alatt elcsúsztak az oszlopok felsorolás után. */
 }
 
 #sorrendezes li div.nagyit,
@@ -1085,6 +1085,14 @@ div.jsff_thumb div.torol:hover{
     width: 2.5rem;
 }
 
+#sorrendezes_tobbkep li div.kep {
+    font-size: 1.3rem;
+}
+
+.feltoltotte_fejlec {
+    padding-left: 1.2rem;
+    width: 13rem;
+}
 
 #sorrendezes li div.kep div,
 #feltoltott_fajl li div.kep div,

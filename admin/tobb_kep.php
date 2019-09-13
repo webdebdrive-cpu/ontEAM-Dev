@@ -366,7 +366,7 @@ if( $kepek && $apa_tabla != 'projektkezeles' ) {
     $tobbkep_html .= nl2('
                                 <li class="fejlec">
                                     <div class="kep">Fájlnév</div>
-                                    <div class="felirat c" style="width: 28rem"></div>
+                                    <div class="felirat c" style="width: 28.3rem"></div>
                                     <div class="felirat">Feltöltötte</div>
                                     '.$tipus_fejlec.'
                                     <div class="felirat">Feltöltve</div>
@@ -424,10 +424,10 @@ if( $apa_tabla == 'projektkezeles' ) {
                             </li>
                             <li class="fejlec nohover '.$azon.$dn.'">
                                 <div class="felirat">Partner</div>
-                                <div class="felirat" style="min-width: 15rem;">Szerződés</div>
+                                <div class="felirat">Szerződés</div>
                                 <div class="kep">Fájlnév</div>
-                                <div class="felirat c" style="width: 28rem"></div>
-                                <div class="felirat">Feltöltötte</div>
+                                <div class="felirat c" style="width: 13.3rem"></div>
+                                <div class="felirat feltoltotte_fejlec">Feltöltötte</div>
                                 <div class="felirat">Feltöltve</div>
                                 <div class="felirat">Minősítés</div>
                                 <div class="felirat">Törlés</div>
@@ -465,9 +465,9 @@ if( $apa_tabla == 'projektkezeles' ) {
                             </li>
                             <li class="fejlec nohover '.$azon.$dn.'">
                                 <div class="felirat">Partner</div>
-                                <div class="felirat" style="min-width: 15rem;">Szerződés</div>
+                                <div class="felirat">Szerződés</div>
                                 <div class="kep">Fájlnév</div>
-                                <div class="felirat c" style="width: 28rem"></div>
+                                <div class="felirat c" style="width: 13.3rem;"></div>
                                 <div class="felirat">Feltöltötte</div>
                                 <div class="felirat">Feltöltve</div>
                                 <div class="maradek torles">Jelölés</div>
@@ -508,9 +508,9 @@ if( $apa_tabla == 'projektkezeles' ) {
                             </li>
                             <li class="fejlec nohover '.$azon.$dn.'">
                                 <div class="felirat">Partner</div>
-                                <div class="felirat" style="min-width: 15rem;">Számla</div>
+                                <div class="felirat">Számla</div>
                                 <div class="kep">Fájlnév</div>
-                                <div class="felirat c" style="width: 28rem"></div>
+                                <div class="felirat c" style="width: 13.3rem"></div>
                                 <div class="felirat">Feltöltötte</div>
                                 <div class="felirat">Feltöltve</div>
                                 <div class="maradek torles">Jelölés</div>
@@ -561,10 +561,10 @@ if( $apa_tabla == 'projektszerzodes' || $apa_tabla == 'projektkezeles' ) {
                             </li>
                             <li class="fejlec nohover '.$azon.$dn.'">
                                 <div class="felirat">Partner</div>
-                                <div class="felirat" style="min-width: 15rem;">Szerződés</div>
+                                <div class="felirat">Szerződés</div>
                                 <div class="kep">Fájlnév</div>
-                                <div class="felirat c" style="width: 28rem"></div>
-                                <div class="felirat">Feltöltötte</div>
+                                <div class="felirat c"></div>
+                                <div class="felirat" style="width: 13.3rem;">Feltöltötte</div>
                                 <div class="felirat">Feltöltve</div>
                                 <div class="maradek torles">Jelölés</div>
                             </li>
@@ -616,9 +616,9 @@ if( $apa_tabla == 'projektkezeles' ) {
                                 </li>
                                 <li class="fejlec nohover '.$azon.$dn.'">
                                     <div class="felirat">Partner</div>
-                                    <div class="felirat" style="min-width: 15rem;">Szerződés</div>
+                                    <div class="felirat">Szerződés</div>
                                     <div class="kep">Fájlnév</div>
-                                    <div class="felirat c" style="width: 28rem"></div>
+                                    <div class="felirat c" style="width: 13.3rem"></div>
                                     <div class="felirat">Feltöltötte</div>
                                     <div class="felirat">Feltöltve</div>
                                     <div class="maradek torles">Jelölés</div>
@@ -728,12 +728,21 @@ function get_tobbkep_thumb($sor_kepek, $i, $tobbkep_tablanev, $nincs_torles, $ku
         }
         if( $sor_kepek['loginnev'] == $_SESSION[get_db_tabla() . 'user'] && !$archivum ) {
 
-            $torles = '
-                        <script>
-                            dok_torol_gomb_'.$sor_kepek['recid'].' = \'<input type="button" class="gomb zold" value="Igen" onclick="mellekTorol(\\\''.$tobbkep_tablanev.'\\\', \\\''.$betolt.'\\\', \\\''.$javaslattetel.'\\\', \\\''.$sor_kepek['recid'].'\\\');"><input type="button" class="gomb piros" value="Nem" onclick="alert2(); $(\\\'.torles_elott\\\').removeClass(\\\'torles_elott\\\').removeClass(\\\'kijelolve\\\');">\';
-                        </script>
-                        <span class="icon link" onclick="$(\'#'.$azon.'\').addClass(\'torles_elott\'); alert2(\'Biztos, hogy törli a(z) '.$sor_kepek['fajlnev'].' dokumentumot?\', dok_torol_gomb_'.$sor_kepek['recid'].');"><i class="material-icons" style="font-size: 2rem">delete</i></span>
-                ';
+            // Nyelvtani szépség
+            $a_az = a_az($sor_kepek['fajlnev']);
+            
+            // Projekteknél előfordulhat, hogy van típus oszlop. Ha van ilyen oszlopnak értéke, akkor már nem törölhető
+            if( $sor_kepek['tipus'] ) {
+                $torles = '<span class="icon link" onclick="$(\'#'.$azon.'\').addClass(\'torles_elott\'); alert2(\''.ucfirst($a_az).' '.$sor_kepek['fajlnev'].' dokumentumo már minősítve van,<br>így nem törölhető!\', \'\', \'Hiba\')"><i class="material-icons" style="font-size: 2rem">delete</i></span>';
+            // Általános eset, törlés ikon
+            } else {
+                $torles = '
+                            <script>
+                                dok_torol_gomb_'.$sor_kepek['recid'].' = \'<input type="button" class="gomb zold" value="Igen" onclick="mellekTorol(\\\''.$tobbkep_tablanev.'\\\', \\\''.$betolt.'\\\', \\\''.$javaslattetel.'\\\', \\\''.$sor_kepek['recid'].'\\\');"><input type="button" class="gomb piros" value="Nem" onclick="alert2(); $(\\\'.torles_elott\\\').removeClass(\\\'torles_elott\\\').removeClass(\\\'kijelolve\\\');">\';
+                            </script>
+                            <span class="icon link" onclick="$(\'#'.$azon.'\').addClass(\'torles_elott\'); alert2(\'Biztos, hogy törli '.$a_az.' '.$sor_kepek['fajlnev'].' dokumentumot?\', dok_torol_gomb_'.$sor_kepek['recid'].');"><i class="material-icons" style="font-size: 2rem">delete</i></span>
+                    ';
+            }
             
         }
         
@@ -780,7 +789,8 @@ function get_tobbkep_thumb($sor_kepek, $i, $tobbkep_tablanev, $nincs_torles, $ku
             
             // Jótállások alatt nincs minősítés gomb
             $minosites = '';
-            if( $tobbkep_tablanev != 'projektszerzodes_jotallas' ) {
+            $nem_minositeses = array('projektszerzodes_jotallas', 'projektszamla_dok');
+            if( !in_array($tobbkep_tablanev, $nem_minositeses) ) {
                 // Ha szerződésről van szó, és nincs még minősítve, csak akkor jelenítjük meg a minősítést gombot
                 $torles_class = 'felirat';
                 // Direktbe feltöltött dokumentumok minősítés gombja más (számla típus ki van szűrve)
@@ -820,7 +830,7 @@ function get_tobbkep_thumb($sor_kepek, $i, $tobbkep_tablanev, $nincs_torles, $ku
                 <li id="'.$azon.'" title="'.$sor_kepek['megj'].'" data-id="'.$sor_kepek['recid'].'" data-i="'.$i.'"'.$class_kiir.'>
                     <script>gomb'.$azon.' = get_tobbkep_megj_szerk_gomb(\''.basename(__FILE__).'\', \''.$azon.'\', \''.$sor_kepek['recid'].'\');</script>
                     <div class="felirat">'.$partner.'</div>
-                    <div class="felirat" style="min-width: 15rem;">'.$kulso_link.'</div>
+                    <div class="felirat">'.$kulso_link.'</div>
                     <div class="kep">
                         <div>
                             <a href="'.$kep_utvonal.'" target="_blank" title="Letöltés">
@@ -828,7 +838,7 @@ function get_tobbkep_thumb($sor_kepek, $i, $tobbkep_tablanev, $nincs_torles, $ku
                             </a>
                         </div>
                     </div>
-                    <div id="megj_'.$azon.'_felirat" class="felirat c" style="width: 30rem">
+                    <div id="megj_'.$azon.'_felirat" class="felirat c">
                         <a href="'.$kep_utvonal.'" target="_blank" title="Letöltés" class="fajlnev">
                             '.mb_wordwrap($felirat, 40, '<br>', false, 'UTF-8').'
                         </a>

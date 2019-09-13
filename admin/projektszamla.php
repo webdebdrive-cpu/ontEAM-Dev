@@ -492,7 +492,7 @@ if( isset($_POST['projektszamla_kapcsolas']) ) {
     }
     
     // Ha a kifizetett és a még kifizetésre váró összegek meghaladják a szerződés összegével, akkor hibaüzenet
-    if( number_format($kifizetett_ossz, $tizedesek, ',', '') > number_format($szerzodes[$szerz_mezo], $tizedesek, ',', '') ) {
+    if( number_format($kifizetett_ossz, $tizedesek, '.', '') > number_format($szerzodes[$szerz_mezo], $tizedesek, '.', '') ) {
         echo json_encode( array( 
                         'hiba'  => 'A már kifizetett ('.number_format($kifizetett_ossz, $tizedesek, ',', ' ').' '.$penznem.') számlák összege több,<br>mint a szerződés összege ('.number_format($szerzodes[$szerz_mezo], $tizedesek, ',', ' ').' '.$penznem.')! Így nem menthető!',
                         'title' => 'Hiba',
