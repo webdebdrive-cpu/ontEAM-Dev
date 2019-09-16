@@ -27,6 +27,8 @@ if( isset($_GET['mail_teszt']) ) {
         $felado_nev  = get_nev();
         $cimzett_mail = 'falu@fits.hu';
         $cimzett_nev  = 'Falu';
+//        $cimzett_mail = 'bk@webdeb.hu';
+//        $cimzett_nev  = 'BK';
 
         $targy = $uzi = 'teszt';
 
@@ -94,7 +96,7 @@ if( isset($_GET['mail_teszt']) ) {
         } else {
             $mail -> ClearAddresses();
             $mail -> ClearAttachments();
-            echo 'Siker';
+            echo 'Sikeres levelkuldes';
         }
     
     } catch (phpmailerException $e) {

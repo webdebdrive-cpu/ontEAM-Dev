@@ -991,7 +991,6 @@ div.jsff_thumb div.torol:hover{
     position: relative;
     text-align: left;
     width: 100%;
-    min-width: 114rem; /* Ez azért kellett, mert projekt modul dokumentumok fül alatt elcsúsztak az oszlopok felsorolás után. */
 }
 
 #sorrendezes li div.nagyit,
