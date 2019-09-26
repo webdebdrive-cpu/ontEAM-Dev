@@ -374,8 +374,9 @@ if( isset($_POST['projekt_keszre']) ) {
     if( $szerzodesek ) {
         $van_dok = $adatbazis_kapcsolat->s2('recid', 'projektszerzodes_dok', "`projektszerzodes_id` IN (".implode(', ', $szerzodesek).")  AND `tipus`='".EL_DOK_TIPUS_ATADASI."'", '', '1');
     }
-    
-    if(!$van_dok){
+    $van_dok2 = $adatbazis_kapcsolat->s2('recid', 'projektkezeles_dok', "`projektkezeles_id`='{$recid}' AND `tipus`='".EL_DOK_TIPUS_ATADASI."'");
+    if( $van_dok2 === false ) { $db_error = true; }
+    if( !$van_dok && !$van_dok2 ) {
         echo json_encode(array(
             'hiba'  => 'Előbb csatoljon egy Átadási. jk. Dokumentumot a projekthez!',
             'title' => 'Hiba',
@@ -2047,9 +2048,10 @@ require_once('selectek.php');
 
             $van_dok = '';
             if( $szerzodesek ) {
-                $van_dok = $adatbazis_kapcsolat->s2('recid', 'projektszerzodes_dok', "`projektszerzodes_id` IN (".implode(', ', $szerzodesek).")  AND `tipus`='".EL_DOK_TIPUS_ATADASI."'", '', '1');
+                $van_dok = $adatbazis_kapcsolat->s2('recid', 'projektszerzodes_dok', "`projektszerzodes_id` IN (".implode(', ', $szerzodesek).") AND `tipus`='".EL_DOK_TIPUS_ATADASI."'", '', '1');
             }
-            if( !$van_dok ) {
+            $van_dok2 = $adatbazis_kapcsolat->s2('recid', 'projektkezeles_dok', "`projektkezeles_id`='{$_GET['id']}' AND `tipus`='".EL_DOK_TIPUS_ATADASI."'");
+            if( !$van_dok && !$van_dok2 ) {
                 $gombok .= '<input type="button" class="gomb modositaskor_rejt" value="Kész" onclick="alert2(\'Előbb minősítsen egy Dokumentumot Átadási. jk-nek!\', \'\', \'Hiba\')"> ';
             } else {
                 $gombok .= '<script> gomb_keszre = \'<input type="button" class="gomb zold" onclick="projekt_keszre()" value="Igen"><input type="button" class="gomb piros" onclick="alert2()" value="Nem">\';</script>';

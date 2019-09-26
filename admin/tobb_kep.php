@@ -884,7 +884,7 @@ function get_tobbkep_thumb($sor_kepek, $i, $tobbkep_tablanev, $nincs_torles, $ku
                     </div>
                     <div id="megj_'.$azon.'_felirat" class="felirat c">
                         <a href="'.$kep_utvonal.'" target="_blank" title="Letöltés" class="fajlnev">
-                            '.mb_wordwrap($felirat, 40, '<br>', false, 'UTF-8').'
+                            '.mb_wordwrap($felirat, 20, '<br>', true, 'UTF-8').'
                         </a>
                     </div>
                     <div class="felirat">'.$sor_kepek['insert_usr'].'</div>
@@ -916,7 +916,7 @@ function get_tobbkep_thumb($sor_kepek, $i, $tobbkep_tablanev, $nincs_torles, $ku
                     </div>
                     <div id="megj_'.$azon.'_felirat" class="felirat c" style="width: 30rem">
                         <a href="'.$kep_utvonal.'" target="_blank" title="Letöltés" class="fajlnev">
-                            '.mb_wordwrap($felirat, 40, '<br>', false, 'UTF-8').'
+                            '.mb_wordwrap($felirat, 20, '<br>', true, 'UTF-8').'
                         </a>
                     </div>
                     <div class="felirat">'.$sor_kepek['insert_usr'].'</div>

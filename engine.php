@@ -2210,11 +2210,11 @@ function remover($dir, $csak_thumbnail = false){
 * @return A szöveget szóköznél vágva, ...-tal kiegészítve (ha nincs letiltva), HA hosszabb mint a megadott méret 
 */
 function resz_string($szoveg, $meret, $ppp = true ){
-$szoveg = strip_tags($szoveg);
-    if(strlen($szoveg)>$meret){
-        $tmp  = substr($szoveg,0,$meret);
+    $szoveg = strip_tags($szoveg);
+    if(strlen($szoveg) > $meret ) {
+        $tmp  = substr($szoveg, 0, $meret);
         $hely = strrpos($tmp,' ');
-        $tmp  = substr($tmp,0,$hely);
+        $tmp  = substr($tmp, 0, $hely);
         
         if( $ppp ) {
             $tmp .= ' ...';
@@ -2234,8 +2234,8 @@ $szoveg = strip_tags($szoveg);
 *
 *	@return integer: az 5-re kereített érték
 */
-function round_5($osszeg){
-	return round($osszeg/5, 0) * 5;
+function round_5($osszeg) {
+    return round($osszeg/5, 0) * 5;
 }
 
 /**
@@ -2251,18 +2251,18 @@ function round_5($osszeg){
 */
 function sablon_gyar($sablon_fajl, $sajat_mit = '', $sajat_mivel = '', $data_uri = false, $szotar = array()){
 
-    //Ha csak a $sajat_mit lett megadva, akkor automatikusan sablonozunk a kulcsok alapján
-    if(!$sajat_mivel && $sajat_mit){
-        
-        //Ráadásuk fel kell cseréni a két tömböt
+    // Ha csak a $sajat_mit lett megadva, akkor automatikusan sablonozunk a kulcsok alapján
+    if( !$sajat_mivel && $sajat_mit ) {
+
+        // Ráadásuk fel kell cseréni a két tömböt
         $sajat_mivel = $sajat_mit;
-        if(is_array($sajat_mivel)){
-            foreach($sajat_mivel as $kulcs => $ertek){
+        if( is_array($sajat_mivel) ) {
+            foreach ( $sajat_mivel as $kulcs => $ertek ) {
                 $sajat_mit[$kulcs]   = '{'.strtoupper($kulcs).'}';
             }
         }
 
-    //Egyébként mind a két tömböt figyeljük, ha kell globálisan figyelve a $mit-$mivel változókat => ettől leszünk visszafelé kompatibilisek
+    // Egyébként mind a két tömböt figyeljük, ha kell globálisan figyelve a $mit-$mivel változókat => ettől leszünk visszafelé kompatibilisek
     } else {
         global $mit;
         global $mivel;
@@ -2270,15 +2270,15 @@ function sablon_gyar($sablon_fajl, $sajat_mit = '', $sajat_mivel = '', $data_uri
         if(!$sajat_mivel){ $sajat_mivel = $mivel; }
     }
     
-    //Szótárazonosítók figyelése
-    if($szotar){
-        if(!$sajat_mit){
+    // Szótárazonosítók figyelése
+    if( $szotar ) {
+        if( !$sajat_mit ) {
             $sajat_mit = array();
         }
-        if(!$sajat_mivel){
+        if( !$sajat_mivel ) {
             $sajat_mivel = array();
         }
-        foreach($szotar as $ertek){
+        foreach ( $szotar as $ertek ) {
             array_push($sajat_mit,      '{'.strtoupper($ertek).'}'  );
             array_push($sajat_mivel,    get_tart($ertek)            );
         }
@@ -2303,7 +2303,7 @@ function self(){
 *	@return string: $_SERVER['PHP_SELF']-ből nyert html sablonfájl név 
 */
 function self_sablon_nev($nyev_figyeles){
-    if($nyev_figyeles){
+    if( $nyev_figyeles ) {
         return str_replace('.php', '', basename($_SERVER['PHP_SELF'])).'_'.$_SESSION['nyelv'].'.html';
     } else {
         return str_replace('php', '', basename($_SERVER['PHP_SELF'])).'html';
@@ -2813,8 +2813,13 @@ function WebDeb_stat(){
 */
 function URL_letolt($url){
     // is curl installed?
-    if (!function_exists('curl_init')){ 
-        die('CURL nincs telepítve!');
+    if( !function_exists('curl_init') ) {
+        // die('CURL nincs telepítve!');
+        echo json_encode( array(
+                                'hiba' => 'Szerver beállítási probléma: a CURL nincs telepítve!',
+                            )
+                        );
+        exit;
     }
     
     // create a new curl resource

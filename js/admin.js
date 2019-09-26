@@ -2944,16 +2944,16 @@ function anyagigenyles_kuldes_jovahagyasra(csak_kerdezunk) {
     }
 }
 
-/* Anyagigénylés, rendelés készítése */
+// Anyagigénylés, rendelés készítése
 function anyagigenyles_rendeles_keszit(csak_kerdezunk) {
-    if(balnav_kijelol_ell()){
+    if (balnav_kijelol_ell()) {
 
         szamlaSorok = $('#szamlaList li.szamla_sor.kijelolve');
         if( szamlaSorok.length ) {
             idk = {};
 
             mehet = '';
-            if(csak_kerdezunk=='mehet'){
+            if (csak_kerdezunk == 'mehet') {
                 csak_kerdezunk  = '';
                 mehet           = 'mehet';
             }
@@ -2996,7 +2996,7 @@ function anyagigenyles_rendeles_keszit(csak_kerdezunk) {
 
                             /* Ha mehet, akkor anyagrendelésre ugrunk át
                              * 2018.11.22 Update: nem ugrunk át, met zavaró, maradunk az igénylésen, ezért csak a navpanelt frissítjük végig */
-                            if(mehet){
+                            if (mehet) {
 
                                 var navpanel_recid = $('.szamla_cont_tabla tbody tr.kijelolve').attr('data-recid');
                                 $('.szamla_cont_tabla tbody tr.kijelolve').remove();

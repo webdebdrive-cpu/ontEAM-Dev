@@ -352,7 +352,7 @@ if( isset($_POST['tetel_sorok_ment']) ) {
                 exit();
                 
     // Ha a szerződés összege nem egyenlő a tételek összegével, akkor hibaüzenet
-    }elseif( number_format($tetelek_osszege, $tizedesek, ',', ' ') != number_format($szerzodes_osszege, $tizedesek, ',', ' ') ) {
+    } elseif( number_format($tetelek_osszege, $tizedesek, ',', ' ') != number_format($szerzodes_osszege, $tizedesek, ',', ' ') ) {
         $penznem = erteklista(ERTEKLISTA_PENZNEM, $_POST['kcs_21']);
         echo json_encode( array( 
                         'hiba'  => 'A szerződés tételeinek összege ('. number_format($tetelek_osszege, $tizedesek, ',', ' ').' '.$penznem.') nem egyezik meg a szerződés összegével ('. number_format($szerzodes_osszege, $tizedesek, ',', ' ').' '.$penznem.')!<br>Így nem menthető!',
@@ -410,7 +410,7 @@ if( isset($_POST['tetel_sorok_ment']) ) {
             }
             // Ha egy fiktív sor (azaz nincs még recid-ja a sessionben, vagy ha létezik, de nincs hozzá tartozó számla, akkor létrehozzuk
             if( !$_SESSION['pr_szer_tetel_recid'][$i] || !$szamla_tetel ) {
-
+                
                 $varh_erk = str_replace('.', '-', $_SESSION['pr_szer_tetel_varh_erk'][$i]);
                 $varh_ert = str_replace(array(' ', ','), array('', '.'),  $_SESSION[$session_mezo][$i]);
                 $uj_szerzodes_tetel_recid = $adatbazis_kapcsolat->i('projektszerzodes_tetel',
@@ -419,6 +419,16 @@ if( isset($_POST['tetel_sorok_ment']) ) {
                                             );
 
                 if( $uj_szerzodes_tetel_recid === false ) { $db_error = true; }
+                
+                // Devizás számla esetén a Ft-os összeget is be kell állítani, amit az árfolyamból számítunk ki
+                if( $devizas ) {
+                    $pr_szerzodes = $adatbazis_kapcsolat->s2('arfolyam', 'projektszerzodes', "`recid`='{$recid}'");
+                    if( $pr_szerzodes === false ) { $db_error = true; }
+                    
+                    $varh_ert = $pr_szerzodes['arfolyam']*$varh_ert;
+                    $sql = $adatbazis_kapcsolat->u('projektszerzodes_tetel', array('varh_ert'), array($varh_ert), "`recid`='{$uj_szerzodes_tetel_recid}'");
+                    if( $sql === false ) { $db_error = true; }
+                }
 
                 // Az újonnan beszúrt sor recid-ját is eltároljuk SESSION-ben.
                 $_SESSION['pr_szer_tetel_recid'][$i] = $uj_szerzodes_tetel_recid;

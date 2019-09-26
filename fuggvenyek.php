@@ -945,7 +945,7 @@ function i_u($type, $tabla, $tomb) {
                 $netto_ert  = str_replace(' ', '',  $_SESSION['pr_szla_tetel_netto_ert'][$i]);
                 $dev_net    = str_replace(array(' ', ','), array('', '.'),  $_SESSION['pr_szla_tetel_dev_net'][$i]);
                 $arfolyam   = str_replace(array(' ', ','), array('', '.'),  $_POST['arfolyam']);
-                // Devizás számla esetén a Ft-os összeget az áfrolyamból számítjuk ki
+                // Devizás számla esetén a Ft-os összeget az árfolyamból számítjuk ki
                 if( $dev_net>0 ) {
                     $netto_ert = round($dev_net*$arfolyam);
                 }
@@ -976,9 +976,10 @@ function i_u($type, $tabla, $tomb) {
                 $varh_erk = str_replace('.', '-', $_SESSION['pr_szer_tetel_varh_erk'][$i]);
                 $varh_ert = str_replace(' ', '',  $_SESSION['pr_szer_tetel_varh_ert'][$i]);
                 $dev_net  = str_replace(array(' ', ','), array('', '.'),  $_SESSION['pr_szer_tetel_dev_net'] [$i]);
-                // Ha van deviza információnk, akkor a Ft-ot ne tároljuk le, így leszünk következetesek (pl. ha tételek kezelése popupban dolgozva jönnek létre a tételek, nem így autoatikusan, akkor sincs Ft megfelelő letárolva)
+                $arfolyam = str_replace(array(' ', ','), array('', '.'),  $_POST['arfolyam']);
+                // Devizás számla esetén a Ft-os összeget az árfolyamból számítjuk ki
                 if( $dev_net>0 ) {
-                    $varh_ert = '0';
+                    $varh_ert = round($dev_net*$arfolyam);
                 }
                 $sql = $adatbazis_kapcsolat->i('projektszerzodes_tetel',
                                                     array('projektszerzodes_recid', 'targy', 'varh_erk', 'varh_ert', 'dev_varh_ert', 'loginnev',                          'insert_dt',    'insert_usr',                             'update_usr'                              ),
@@ -1476,7 +1477,7 @@ function i_u($type, $tabla, $tomb) {
 
         // Projekt számla
         if( $tabla == 'projektszamla' ) {
-
+            
             // Ellenőrizzük, hogy a visszaadva pipa be van-e pipálva, ha igen, akkor a dátum kötelező
             if( $_POST['visszaadva'] && ( !$_POST['visszaadva_dt'] || $_POST['visszaadva_dt']>'9000-00-00') ){
                 echo json_encode(array(
@@ -1609,8 +1610,6 @@ function i_u($type, $tabla, $tomb) {
 
 
             }
-            
-            
 
             // Vagy ha megadta a dátumot, de nincs bepipálva a visszaadva, akkor meg azért hiba
             if( !$_POST['visszaadva'] && $_POST['visszaadva_dt'] && $_POST['visszaadva_dt']<'9000-00-00' ){
@@ -1634,7 +1633,7 @@ function i_u($type, $tabla, $tomb) {
                     if( $sql === false ) { $db_error = true; }
                 }
             // Ha nem devizás a számla, akkor viszont a tételeknél a deviza oszlopot nullázzuk
-            // Ez arra az esetre jó, ha devizás volt a számla, és változzuk sima Ft-ra, akkor a devzzás értékeket ürítjük
+            // Ez arra az esetre jó, ha devizás volt a számla, és váltottuk sima Ft-ra, akkor a devzizás értékeket ürítjük
             } else {
                 $sql = $adatbazis_kapcsolat->u('projektszamla_tetel', array('dev_net'), array(0), "`projektszamla_recid`='{$_GET['id']}'");
                 if( $sql === false ) { $db_error = true; }
@@ -1783,7 +1782,24 @@ function i_u($type, $tabla, $tomb) {
                 }
             }
             
-            // Jótállás gyermektábla kialakítása.
+            // Projektszerződés mentésekor, ha az devizás, akkor a Ft-os értékeket az árfolyam alapján kiszámoljuk
+            if( $_POST['kcs_21']!=KCS_21_HUF ) {
+
+                $arfolyam = str_replace(array(' ', ','), array('', '.'),  $_POST['arfolyam']);
+                $tetelek = $adatbazis_kapcsolat->s('recid dev_varh_ert', 'projektszerzodes_tetel', "`projektszerzodes_recid`='{$_GET['id']}'");
+                if( $tetelek === false ) { $db_error = true; }
+                foreach( $tetelek as $tetel ) {
+                    $sql = $adatbazis_kapcsolat->u('projektszerzodes_tetel', array('varh_ert'), array(round($tetel['dev_varh_ert']*$arfolyam)), "`recid`='{$tetel['recid']}'");
+                    if( $sql === false ) { $db_error = true; }
+                }
+            // Ha nem devizás a szerződés, akkor viszont a tételeknél a deviza oszlopot nullázzuk
+            // Ez arra az esetre jó, ha devizás volt a szerződés, és váltottuk sima Ft-ra, akkor a devzizás értékeket ürítjük
+            } else {
+                $sql = $adatbazis_kapcsolat->u('projektszerzodes_tetel', array('dev_varh_ert'), array(0), "`projektszerzodes_recid`='{$_GET['id']}'");
+                if( $sql === false ) { $db_error = true; }
+            }
+            
+            // Jótállás gyermektábla kialakítása
             $jotallas = pr_szerzodes_jotallas_beallit( $_GET['id'], $_POST['muszaki_gar_kezd'], $_POST['muszaki_gar_vege'] );
             if( $jotallas === false ) { $db_error = true; }
             
@@ -5561,7 +5577,7 @@ function projektkezelesLista( $bejegyzesek, $tabla, $frissit, $kijeloltek ) {
                                 <td >'.$statusz.'</td>
                             </tr>
                             <tr>
-                                <td colspan="3" style="width: 40rem">'.resz_string($bsz['nev'], 60).'</td>
+                                <td colspan="3" style="width: 40rem">'.resz_string($bsz['nev'], 50).'</td>
                             </tr>
                             </table>
                         </a>';
