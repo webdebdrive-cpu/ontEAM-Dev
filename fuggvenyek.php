@@ -2936,33 +2936,29 @@ function szamla_lista( $where, $tabla, $kijeloltek = false, $csak_sql_miatt = fa
         if($tabla == 'bejelentes' || $tabla == 'bejelentes_arch'){
             $where = "`".get_db_tabla().$tabla."`.`telephely_id` IN (".implode(',', $szallodak).") AND ";
 
-            // Ha csak a saját részleget láthat, akkor tovább szűrünk részlegre/társrészlegekre is
-            $reszlegek = $adatbazis_kapcsolat->s('reszleg_id', 'login_tarsreszleg', "`login_id`='{$_SESSION[get_db_tabla().'login_recid']}'");
-            $reszlegek = adatbazis2tomb($reszlegek, 'reszleg_id');
-            $felh = $adatbazis_kapcsolat->s2('reszleg_id', 'login', "`nev`='{$_SESSION[get_db_tabla().'user']}'");
-            array_push($reszlegek, $felh['reszleg_id']);
-            if(_jog(JOG_BEJELENTES_SAJAT_RESZL) && !_jog(JOG_BEJELENTES_MEGTEKINT)){
+            $reszlegek = get_akt_login_reszlegei();
+            if( _jog(JOG_BEJELENTES_SAJAT_RESZL) && !_jog(JOG_BEJELENTES_MEGTEKINT) ) {
                 $where .= "`usr_reszleg_id` IN (".implode(',', $reszlegek).") AND ";
             }
         }
-        if($tabla == 'eseti_fenntartas'){
+        if( $tabla == 'eseti_fenntartas' ) {
             $where = "`".get_db_tabla()."eseti_fenntartas`.`telephely_id` IN (".implode(',', $szallodak).") AND ";
         }
-        if($tabla == 'eszkozkezeles'){
+        if( $tabla == 'eszkozkezeles' ) {
             $where = "`".get_db_tabla()."eszkozkezeles`.`telephely_id` IN (".implode(',', $szallodak).") AND ";
         }
-        if($tabla == 'fenntartasi_terv'){
+        if( $tabla == 'fenntartasi_terv' ) {
             $where = "`".get_db_tabla()."fenntartasi_terv`.`telephely_id` IN (".implode(',', $szallodak).") AND ";
         }
-        if($tabla == 'utemezett_feladatok'){
+        if( $tabla == 'utemezett_feladatok' ) {
             $where = "`".get_db_tabla()."utemezett_feladatok`.`telephely_id` IN (".implode(',', $szallodak).") AND ";
         }
         // A projektigénylés láthatóságának beállításai
-        if($tabla=='projektigenyles'){
+        if( $tabla == 'projektigenyles' ) {
 
             $szallodak_kieg = '';
             // Többszállodás esetén a két többsszállodás telephely_id-t felvesszük még
-            if( _jog(JOG_PRIGENY_TOBB_MEGTEKINT) ){
+            if( _jog(JOG_PRIGENY_TOBB_MEGTEKINT) ) {
                 $szallodak_kieg = ', 4101, 4301';
             }
 
@@ -2970,10 +2966,10 @@ function szamla_lista( $where, $tabla, $kijeloltek = false, $csak_sql_miatt = fa
             $where = "`".get_db_tabla()."projektigenyles`.`telephely_id` IN (".implode(',', $szallodak).$szallodak_kieg.") AND ";
             
             // Ha csak egyszállodás, vagy csak többszállodás láthatóságom van, akkor ennek megfelelően még ki kell egészítei az SQL lekérdezést
-            if( _jog(JOG_PRIGENY_EGY_MEGTEKINT) && !_jog(JOG_PRIGENY_TOBB_MEGTEKINT) ){
+            if( _jog(JOG_PRIGENY_EGY_MEGTEKINT) && !_jog(JOG_PRIGENY_TOBB_MEGTEKINT) ) {
                 $where .= "`egy_tobb`='0' AND ";
             }
-            if( !_jog(JOG_PRIGENY_EGY_MEGTEKINT) && _jog(JOG_PRIGENY_TOBB_MEGTEKINT) ){
+            if( !_jog(JOG_PRIGENY_EGY_MEGTEKINT) && _jog(JOG_PRIGENY_TOBB_MEGTEKINT) ) {
                 $where .= "`egy_tobb`='1' AND ";
             }
 
@@ -7328,6 +7324,25 @@ function get_akt_login_szallodai($sqlt_adj_vissza, $telephely_id_oszlop_helyett_
     } else {
         return $szallodak;
     }
+}
+
+// Adott felhasználó részlegeit adja vissza egy tömbben (részlet + társrészlegeket)
+function get_akt_login_reszlegei( $felh_id = false ) {
+    
+    global $adatbazis_kapcsolat;
+    
+    // Alapértelmezetten az aktuálisan belépett felhasználó részlegei érdekelnek bennünket, de paramétereheztő másra is
+    if( !$felh_id ) {
+        $felh_id = $_SESSION[get_db_tabla().'login_recid'];
+    }
+    
+    $reszlegek = $adatbazis_kapcsolat->s('reszleg_id', 'login_tarsreszleg', "`login_id`='{$felh_id}'");
+    $reszlegek = adatbazis2tomb($reszlegek, 'reszleg_id');
+    $felh = $adatbazis_kapcsolat->s2('reszleg_id', 'login', "`nev`='{$_SESSION[get_db_tabla().'user']}'");
+    array_push($reszlegek, $felh['reszleg_id']);
+    
+    return $reszlegek;
+    
 }
 
 // A kapott munkalapID-k alapján bejárjuk a munkalapokat. Ha adott munkalapon minden anyag státusza 0 (beérkezett), akkor maga a munkalap státusza folyamatbanra állítható

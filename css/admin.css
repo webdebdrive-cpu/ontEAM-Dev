@@ -3621,3 +3621,38 @@ div.grid2o{
     grid-column-gap: 2rem;
     width: auto;
 }
+
+.box {
+    border: 0.1rem solid #55A2FA;
+    border-radius: 1rem;
+    display: inline-block;
+    margin: 0 1rem;
+}
+
+.box h2 {
+    background: #55A2FA;
+    color: #fff;
+    padding: 0.5rem 2rem;
+    border-radius: 1rem 1rem 0rem 0rem;
+}
+
+.box table.csikos tr td {
+    padding: 0;
+}
+
+.box table.csikos tr td a {
+    display: block;
+    height: 100%;
+    text-decoration: none;
+    padding: 0.5rem 2rem;
+}
+
+.box table.csikos tr td:first-of-type {
+    text-align: left;
+}
+
+.box table.csikos tr:hover {
+    background: #55A2FA;
+    cursor: pointer;
+    color: #fff;
+}

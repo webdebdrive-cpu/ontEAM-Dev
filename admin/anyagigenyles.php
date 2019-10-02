@@ -1512,7 +1512,7 @@ if( isset($_POST['rendeles_keszit']) ) {
         // Számoljuk ki a rendelt értéket, és beérkezett értéket
         $rndertek = 0;
         $anyagigenylesek = $adatbazis_kapcsolat->s('rndmen rndear', 'anyagigenyles', "`recid` IN (".implode(',', $idk).")");
-        foreach($anyagigenylesek as $anyagi){
+        foreach ( $anyagigenylesek as $anyagi ) {
             $rndertek += ($anyagi['rndmen']*$anyagi['rndear']);
         }
         // Létrehozunk egy új rendelésfej bejegyzést
@@ -1529,7 +1529,7 @@ if( isset($_POST['rendeles_keszit']) ) {
         if( $sql === false ) { $db_error = true; }
 
         // Anyagigénylés sorok updatelése (státuszt is, illetve egyéb mezőket is)
-        foreach($idk as $id) {
+        foreach ( $idk as $id ) {
             if( addStatusz( $page.'_statusz', $id, CIKKIGN_STAT_MEGRENDELVE ) === false ) {
                 $db_error = true;
             }

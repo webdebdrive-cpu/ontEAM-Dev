@@ -2384,33 +2384,30 @@ function sql_dump($kiir){
 *	@param string  Az érték string
 *	@param boolean Ha igaz, akkor megengedi a <tag>-ek használatát, alapértelmezetten hamis
 */
-function sql_ertek($ertek, $script=false){
-    
+function sql_ertek($ertek, $script = false) {
+
     global $adatbazis_kapcsolat;
     
     $ertek_kicsi = strtolower($ertek);
-    if(strpos($ertek_kicsi, 'sleep(')!==false){
+    if( strpos($ertek_kicsi, 'sleep(') !== false ) {
         $ertek = '';
     }
     
-    while(strpos($ertek, '--')!==false){
+    while ( strpos($ertek, '--') !== false ) {
         $ertek = str_replace('--', '-', $ertek);
     }
 
-	if(get_magic_quotes_gpc()){
+	if( get_magic_quotes_gpc() ) {
         $ertek = stripslashes($ertek);
 	}
 	
-	if(!is_numeric($ertek)){
+	if( !is_numeric($ertek) ) {
         $ertek = str_replace(
                             array('\n', '\r', '\"'/*CSV-be mentés (pl. szótár) miatt*/),
                             array("\n", "\r", '"'),
                             mysqli_real_escape_string($adatbazis_kapcsolat -> adatbazis_kapcsolat, $ertek) );
     }
 	
-//	if(!$script){
-//		$ertek = notags($ertek);
-//	}
 	return $ertek;
 }
 

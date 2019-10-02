@@ -364,14 +364,13 @@ if( isset($_POST['projektszamla_kapcsolas']) ) {
                 
     }
     
-    $szamla = $adatbazis_kapcsolat->s2('sz_szam telj_datum', 'projektszamla', "`recid`='{$recid}'");
+    $szamla = $adatbazis_kapcsolat->s2('sz_szam telj_datum arfolyam', 'projektszamla', "`recid`='{$recid}'");
     if( $szamla === false ) { $db_error = true; }
     $szerzodes = $adatbazis_kapcsolat->s2('recid '.$szerz_mezo, 'projektszerzodes', "`sz_szam`='{$szamla['sz_szam']}'");
     if( $szerzodes === false ) { $db_error = true; }
     // Az a számlatétel, amit épp kapcsolunk
     $szamla_tetel = $adatbazis_kapcsolat->s2($netto_mezo, 'projektszamla_tetel', "`recid`='{$_POST['szamla_tetel_recid']}'");
     if( $szamla_tetel === false ) { $db_error = true; }
-    
     
     $kifizet_var_ossz = '';
     $i = 0;
@@ -539,6 +538,16 @@ if( isset($_POST['projektszamla_kapcsolas']) ) {
                                             "`recid`='{$_POST['adatok'][$recid_adat][1][$i]}'");
                 if( $sql === false ) { $db_error = true; }
                 
+                // Ha devizás a számla, akkor nem csak a dev_ertek hanem a sima ertek mezőt is ki kell tölteni kapcsoláskor a szerőzdés tételnél.
+                // Az `ertek` mező = `dev_ertek` * szerződés árfolyama
+                if( $ertek_mezo == 'dev_ertek' ) {
+                    $sql = $adatbazis_kapcsolat->u('projektszerzodes_tetel',
+                                                                            array('ertek'),
+                                                                            array($_POST['adatok'][$netto_ert_adat][1][$i]*$szamla['arfolyam']),
+                                                "`recid`='{$_POST['adatok'][$recid_adat][1][$i]}'");
+                    if( $sql === false ) { $db_error = true; }
+                }
+
                 // Logolás
                 if( $ertek_i == $i ) {
                     $valtozas .= $ertek_regi['recid'].' recid-jú szerződés tételt módosította, és EHHEZ KAPCSOLTA a számla tételt:' . "\n";

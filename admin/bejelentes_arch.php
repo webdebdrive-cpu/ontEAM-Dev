@@ -211,20 +211,20 @@ require_once('selectek.php');
 
     $js_submit_elott = 'return form_ell_admin();';
 
-    if(isset($_GET['modosit'])) {
+    if( isset($_GET['modosit']) ) {
 
         // Ha Gyorskeresőből érkeznénk ide, akkor az ID-t valójában az id_hidden tartalmazza majd
         if(isset($_GET['id_hidden'])){
             $_GET['id'] = $_GET['id_hidden'];
         }
 
-        foreach($akt_tomb as $tomb) {
+        foreach ( $akt_tomb as $tomb ) {
             if( $tomb['type'] == 'autocomplete' ) {
 
                 if($tomb['csoport']){
                     $kulso_ertek = $adatbazis_kapcsolat->s2('info', $tomb['tabla'], "`{$tomb['oszlop_keres']}`='{$sor[$tomb['name']]}' AND `csoport`='{$tomb['csoport']}'", '', '1');
                     $kulso_ertek['nev'] = $kulso_ertek['info'];
-                }else{
+                } else {
                     $kulso_ertek = $adatbazis_kapcsolat->s2('recid nev', $tomb['tabla'], "`{$tomb['oszlop_keres']}`='{$sor[$tomb['name']]}'", '', '1');
                 }
 
@@ -265,7 +265,7 @@ require_once('selectek.php');
         }
 
 	// Történet fül
-    }elseif(isset($_GET['tortenet'])) {
+    }elseif( isset($_GET['tortenet']) ) {
 
         $szamla_html .= get_tortenet($megnevezes);
 
@@ -278,7 +278,7 @@ require_once('selectek.php');
         }
 
 	// Munkalapok fül
-	}elseif(isset($_GET['munkalapok'])){
+    } elseif( isset($_GET['munkalapok']) ) {
 
         $szamla_html .= nl2('
             <div class="dt naplo kijCont" data-tabla="munkalap_kapcs" data-mellek="munkalapok">
@@ -307,7 +307,7 @@ require_once('selectek.php');
                     $helyseg = $adatbazis_kapcsolat->s('nev', 'obj', 'recid='.$sor['obj_id'], '', '1');
                     $helyseg = $helyseg[0]['nev'];
 
-                    $ikt_szam = '<a href="munkalap_arch.php?id='.$sor['recid'].'&modosit" target="_blank">'.$sor['ikt_szam'].'</a>';
+                    $ikt_szam = '<a href="munkalap_arch.php?mezo=ikt_szam&amp;op=equal&amp;felt='.$sor['ikt_szam'].'&amp;modosit" target="_blank">'.$sor['ikt_szam'].'</a>';
                     if( !_jog(JOG_MUNKALAP_MEGTEKINT) && !_jog(JOG_MUNKALAP_MEGTEKINT_SZALL) && !_jog(JOG_MUNKALAP_MEGTEKINT_FELADAT) ){
                         $ikt_szam = $sor['ikt_szam'];
                     }

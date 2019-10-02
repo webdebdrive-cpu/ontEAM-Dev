@@ -228,7 +228,7 @@ if( isset($_POST['projekt_elokeszites_ala']) ) {
     if( $van_dok2 === false ) { $db_error = true; }
     if( !$van_dok && !$van_dok2 ) {
         echo json_encode(array(
-            'hiba'  => 'Előbb csatoljon egy dokumentumot a projekthez tartozó szerződéshez!',
+            'hiba'  => 'Előbb csatoljon dokumentumot a projekthez vagy a hozzá tartozó szerződéshez!',
             'title' => 'Hiba',
         ));
 
@@ -1994,7 +1994,7 @@ require_once('selectek.php');
             
             $van_dok2 = $adatbazis_kapcsolat->s2('recid', 'projektkezeles_dok', "`projektkezeles_id`='{$_GET['id']}'");
             if( !$van_dok && !$van_dok2 ) {
-                $gombok .= '<input type="button" class="gomb modositaskor_rejt" value="Előkészítés alatt" onclick="alert2(\'Előbb csatoljon egy dokumentumot a projekthez tartozó szerződéshez!\', \'\', \'Hiba\')"> ';
+                $gombok .= '<input type="button" class="gomb modositaskor_rejt" value="Előkészítés alatt" onclick="alert2(\'Előbb csatoljon dokumentumot a projekthez vagy a hozzá tartozó szerződéshez!\', \'\', \'Hiba\')"> ';
             } else {
                 $gombok .= '<script> gomb_elokeszites = \'<input type="button" class="gomb zold" onclick="projekt_elokeszites_ala()" value="Igen"><input type="button" class="gomb piros" onclick="alert2()" value="Nem">\';</script>';
                 $gombok .= '<input type="button" class="gomb modositaskor_rejt" value="Előkészítés alatt" onclick="alert2(\''.$projekt_adatok.'Biztos, hogy Előkészítés alatt státuszba helyezi a projektet?\', gomb_elokeszites)"> ';
