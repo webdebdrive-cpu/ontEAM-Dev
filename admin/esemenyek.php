@@ -1528,11 +1528,9 @@ $utemezett_feladatok_tomb = $akt_tomb = array(
                                                                         </div>
         ')),
 
-    array('type' => 'text',                     'megn' => 'Elvégzési idő:',     'name' => 'elv_ido_tol', 'class' => 'ora_perc', 'maxlength' => 6, 'osszevon' => 1, 'post' => ' -', 'style' => 'margin-right: 0.5rem'),
+    array('type' => 'text',                     'megn' => 'Elvégzési idő:',     'name' => 'elv_ido_tol', 'class' => 'ora_perc', 'maxlength' => 6, 'osszevon' => 1, 'post' => ' -', 'style' => 'margin-right: 0.5rem', 'szuro' => 1),
     array('type' => 'text',                     'megn' => '',                   'name' => 'elv_ido_ig',  'class' => 'ora_perc', 'maxlength' => 6),
 
-
-    //array('type' => 'submit', 'value' => 'Mentés',    'name' => 'mehet_gomb', 'class' => 'gombb'),
 );
 array_push($postok, array('tomb' => $akt_tomb, 'uj' => 'uj'.$megnevezes, 'lista' => $megnevezes.'lista', 'tabla' => $megnevezes, 'torid' => $megnevezes.'tid' ));
 
@@ -3097,28 +3095,31 @@ if (isset($_POST['o_szures'])) {
     exit();
 }
 // Összetett szűrés SQL-é alakítása
-if (isset($_POST['f_o_szures_submit'])) {
+if( isset($_REQUEST['f_o_szures_submit']) ) {
 
+    // Van, hogy a feltételt GET-ként kapjuk meg, de ekkor nem szerepelhet benne a #, így azt !HASH!-el helyettesítjük, és itt van visszaalakítva
+    $_REQUEST['feltetel'] = str_replace('!HASH!', '#', $_REQUEST['feltetel']);
+    
     $join = '';
     // Kapcsolódó táblák miatt néha kell JOIN
-    if( strpos($_POST['feltetel'], 'megjegyzes')!==false ) {
-        $join = ' JOIN `'.get_db_tabla().'megjegyzes` ON `'.get_db_tabla().'megjegyzes`.`tabla`=\''.$_POST['tabla'].'\' AND `'.get_db_tabla().$_POST['tabla'].'`.`recid`=`'.get_db_tabla().'megjegyzes`.`id` ';
+    if( strpos($_REQUEST['feltetel'], 'megjegyzes')!==false ) {
+        $join = ' JOIN `'.get_db_tabla().'megjegyzes` ON `'.get_db_tabla().'megjegyzes`.`tabla`=\''.$_REQUEST['tabla'].'\' AND `'.get_db_tabla().$_REQUEST['tabla'].'`.`recid`=`'.get_db_tabla().'megjegyzes`.`id` ';
     }
-    if( $_POST['tabla']=='login' && strpos($_POST['feltetel'], 'szalloda')!==false ){
-        $join = ' JOIN `'.get_db_tabla().'telephely_kapcs` ON `'.get_db_tabla().$_POST['tabla'].'`.`nev`=`'.get_db_tabla().'telephely_kapcs`.`nev` ';
+    if( $_REQUEST['tabla']=='login' && strpos($_REQUEST['feltetel'], 'szalloda')!==false ){
+        $join = ' JOIN `'.get_db_tabla().'telephely_kapcs` ON `'.get_db_tabla().$_REQUEST['tabla'].'`.`nev`=`'.get_db_tabla().'telephely_kapcs`.`nev` ';
     }
-    if( $_POST['tabla']=='szallito' && strpos($_POST['feltetel'], 'szakterulet')!==false ) {
-        $join = ' JOIN `'.get_db_tabla().'szakter_kapcs` ON `'.get_db_tabla().$_POST['tabla'].'`.`recid`=`'.get_db_tabla().'szakter_kapcs`.`szallito_id` ';
+    if( $_REQUEST['tabla']=='szallito' && strpos($_REQUEST['feltetel'], 'szakterulet')!==false ) {
+        $join = ' JOIN `'.get_db_tabla().'szakter_kapcs` ON `'.get_db_tabla().$_REQUEST['tabla'].'`.`recid`=`'.get_db_tabla().'szakter_kapcs`.`szallito_id` ';
     }
-    if( $_POST['tabla']=='projektkezeles' && strpos($_POST['feltetel'], 'team_tag')!==false ) {
+    if( $_REQUEST['tabla']=='projektkezeles' && strpos($_REQUEST['feltetel'], 'team_tag')!==false ) {
         $join = ' JOIN `'.get_db_tabla().'projektkezeles_team` ON `'.get_db_tabla().'projektkezeles_team`.`projektkezeles_recid`=`'.get_db_tabla().'projektkezeles`.`recid` ';
     }
-    $sql = 'SELECT * FROM `'.get_db_tabla().$_POST['tabla'].'`'.$join.' WHERE '.get_o_szures_where_kieg($_POST['feltetel'], $_POST['tabla']);
+    $sql = 'SELECT * FROM `'.get_db_tabla().$_REQUEST['tabla'].'`'.$join.' WHERE '.get_o_szures_where_kieg($_REQUEST['feltetel'], $_REQUEST['tabla']);
     
     // Ha volt 'legfrissebb' mező kitöltve, akkor még a limitet ki kell számolni
-    if( strpos( $_POST['feltetel'], 'me|legfrissebb' ) !== false ) {
+    if( strpos( $_REQUEST['feltetel'], 'me|legfrissebb' ) !== false ) {
         $legfrissebb_flag = 0;
-        $elemek = explode('#', $_POST['feltetel']);    
+        $elemek = explode('#', $_REQUEST['feltetel']);    
         foreach ( $elemek as $elem ) {
             // Ha a mező a legfrisebb, akkor bekapcsolunk egy flag-et, hogy a következő feltételnél tudjuk, az lesz a LIMIT értéke
             if( $elem == 'me|legfrissebb' ) {
@@ -3136,6 +3137,13 @@ if (isset($_POST['f_o_szures_submit'])) {
     
     $lekerdez = mysqli_query($db_kapcs, $sql);
 
+    // Ha GET-ként kaptuk, akkor most újratöltjük az oldalt, a session-ok beállítása után
+    if( $_GET['f_o_szures_submit'] ) {
+        $_SESSION['o_szuro_feltetel'] = $_REQUEST['feltetel'];
+        $_SESSION['o_szuro_html']     = $_REQUEST['html']; // Ütemezett feladatok naptár füle alatt használunk GET-es hívást. Itt HTML-t nem adunk át, ennyi hiányossága van a dolognak. Ezt amúgy is post-al kellene megoldani, ha muszáj volna mégis átadni.
+        header('Location: '.$_REQUEST['tabla'].'.php?modosit');
+    }
+    
     if( $lekerdez ) {
         $sorok_szama = mysqli_num_rows($lekerdez);
         if( !$_POST['mehet'] && $sorok_szama > SZURES_DB_LIMIT ){

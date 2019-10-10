@@ -3067,6 +3067,10 @@ input.ora_perc{
     width: 5.2rem;
 }
 
+#feltetel input.ora_perc{
+    width: 8rem;
+}
+
 div.szamlaLapozas {
     padding: 1rem 1rem 1rem 1rem;
 }

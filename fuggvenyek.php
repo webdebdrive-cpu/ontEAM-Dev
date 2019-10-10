@@ -3517,13 +3517,20 @@ function szamla_lista( $where, $tabla, $kijeloltek = false, $csak_sql_miatt = fa
         }
 
         // Archiv menüpont alatt egy 1000-es limit mindig van (ha nincs más szűrés, akkor a feltétel a lista hossza)
-        if( ($tabla=='bejelentes_arch' || $tabla=='munkalap_arch') && !$_GET['mezo'] ){
+        if( ($tabla=='bejelentes_arch' || $tabla=='munkalap_arch') && !$_GET['mezo'] ) {
             $_GET['mezo'] = 'legfrissebb';
             $_GET['felt'] = ARCHIV_NAVPANEL_LIMIT;
         }
+        // Anyagrendelések alatt, ha van anyagrendelés készítés jogunk, 
+        // és nincs szűrve semmire (összetetten sem, ez itt fontos a 0-ás alapértelmezett érték miatt), akkor nem listázunk ki semmit.
+        if( _jog(JOG_ANYAGREND_KESZIT) && $tabla=='anyagigenyles' && isset($_GET['anyagrend']) && !$_GET['mezo'] && !$_SESSION['o_szuro_feltetel'] ) {
+            $_GET['mezo'] = 'legfrissebb';
+            $_GET['felt'] = '0,0'; // Ha csak simán 0-át írnánk ide, akkor a feltételt üresnek tekintené, olyan mintha nem létezne
+        }
+
         if( $_GET['mezo'] == 'legfrissebb' ) {
             $limit = $_GET['felt'];
-            if($order){
+            if( $order ) {
                 $order .= ', ';
             }
             $order .= '`'.get_db_tabla().$tabla.'`.`insert_dt` DESC';
@@ -3538,16 +3545,16 @@ function szamla_lista( $where, $tabla, $kijeloltek = false, $csak_sql_miatt = fa
             // A feltétel vége pozíciójából kivonva a kezdőpozíciója + a 27 lesz a limit amit keresünk => "me|legfrissebb#op|equal#fe|NA ENNEK A SZÁMNAK A HOSSZA#es"
             // Ezt a limit hosszt vágjuk ki a $_SESSION['o_szuro_feltetel'] stringből.
             $limit = substr($_SESSION['o_szuro_feltetel'], $osszetett_legfrissebb+27, $vege-($osszetett_legfrissebb+27) );
-            if($order){
+            if( $order ) {
                 $order .= ', ';
             }
             $order .= '`'.get_db_tabla().$tabla.'`.`insert_dt` DESC';
         }
 
         // Rendezés projektigényeknél
-        if( $tabla=='projektigenyles' ){
+        if( $tabla == 'projektigenyles' ) {
             // Ha státusz szerint rendezünk, akkor azon belül iktató szám szerint is
-            if($_GET['rend']=='stat_id'){
+            if( $_GET['rend'] == 'stat_id' ) {
                 $order .= ', `'.get_db_tabla().$tabla.'`.`ikt_szam` '.$_GET['irany'];
             }
         }
@@ -3555,31 +3562,31 @@ function szamla_lista( $where, $tabla, $kijeloltek = false, $csak_sql_miatt = fa
         // Rendezés projektszámláknál
         if( $tabla == 'projektszamla' ) {
             // Ha telephely szerint rendezünk, akkor ez lesz a következő rendezési szempont, és az irány is erre vonatkozik
-            if($_GET['rend']=='telephely_id'){
+            if( $_GET['rend'] == 'telephely_id' ) {
                 $order = '`'.get_db_tabla().'telephely`.`nev` '.$_GET['irany'].', `'.get_db_tabla().'projektszamla`.`ceghez_erk` '.$_GET['irany'];
             }
         }
 
         // Rendezés projektszerződéseknél
-        if( $tabla=='projektszerzodes' ){
+        if( $tabla == 'projektszerzodes' ) {
             // Ha telephely szerint rendezünk, akkor ez lesz a következő rendezési szempont, és az irány is erre vonatkozik
-            if($_GET['rend']=='telephely_id'){
+            if( $_GET['rend'] == 'telephely_id' ) {
                 $order = '`'.get_db_tabla().'telephely`.`nev` '.$_GET['irany'].', `'.get_db_tabla().'projektszerzodes`.`sz_szam` '.$_GET['irany'];
             }
         }
         
         // Rendezés Ütemezett feladatoknál
-        if( $tabla=='utemezett_feladatok' ){
+        if( $tabla == 'utemezett_feladatok' ) {
             // Ha aktív szerint rendezünk, akkor azon belül esedékesség dátuma csökkenő + szálloda csökkenő
-            if($_GET['rend']=='aktiv'){
+            if( $_GET['rend'] == 'aktiv' ) {
                 $order = '`aktiv` '.$_GET['irany'].', `esnap_d` '.$_GET['irany'].', `'.get_db_tabla().'telephely`.`nev` '.$_GET['irany'];
             }
             // Ha szálloda szerint rendezünk, akkor azon belül esedékesség dátuma csökkenő + szálloda csökkenő
-            if($_GET['rend']=='telephely_id'){
+            if( $_GET['rend'] == 'telephely_id' ) {
                 $order = '`'.get_db_tabla().'telephely`.`nev` '.$_GET['irany'].', `aktiv` '.$_GET['ellen_irany'].', `esnap_d` '.$_GET['ellen_irany'];
             }
             // Ha szálloda szerint rendezünk, akkor azon belül esedékesség dátuma csökkenő + szálloda csökkenő
-            if($_GET['rend']=='esnap_d'){
+            if( $_GET['rend'] == 'esnap_d' ) {
                 $order = '`esnap_d` '.$_GET['irany'].', `aktiv` '.$_GET['irany'].', `'.get_db_tabla().'telephely`.`nev` '.$_GET['ellen_irany'];
             }
         }
@@ -3591,7 +3598,7 @@ function szamla_lista( $where, $tabla, $kijeloltek = false, $csak_sql_miatt = fa
         
         // Anyagigényléskor a szállítót, cikkrendfejtet és értéklistát vesszük még fel
         $sql_kieg = '';
-        if($tabla=='anyagigenyles'){
+        if( $tabla == 'anyagigenyles' ) {
             $sql_kieg .= nl2('
                                 LEFT JOIN `'.get_db_tabla().'szallito` ON (`'.get_db_tabla().'anyagigenyles`.`szallito_id`=`'.get_db_tabla().'szallito`.`id`)
                                 LEFT JOIN `'.get_db_tabla().'cikkrendfej` ON (`'.get_db_tabla().'anyagigenyles`.`aparecid`=`'.get_db_tabla().'cikkrendfej`.`recid`)
@@ -3600,7 +3607,7 @@ function szamla_lista( $where, $tabla, $kijeloltek = false, $csak_sql_miatt = fa
         }
 
         $arch = '';
-        if($tabla=='bejelentes_arch' || $tabla=='munkalap_arch'){
+        if( $tabla == 'bejelentes_arch' || $tabla == 'munkalap_arch' ) {
             $arch = '_arch';
         }
         // Bejelentésnél és csoportoknál még az értéklistát és csoportot is felvesszük
@@ -3648,10 +3655,10 @@ function szamla_lista( $where, $tabla, $kijeloltek = false, $csak_sql_miatt = fa
         }
 
     // Értéklistát csoport szerinti sorrendben, azon belül pedig infó szerinti sorrendben kell kilistázni
-    }elseif($tabla=='erteklista'){
+    } elseif( $tabla == 'erteklista' ) {
 
         // Gyorskeresőnél képződhet where feltétel
-        if($where){
+        if( $where ) {
             $where = ' WHERE '.$where;
         }
 
@@ -3667,7 +3674,7 @@ function szamla_lista( $where, $tabla, $kijeloltek = false, $csak_sql_miatt = fa
                 ';
 
         $sorok = mysqli_query($db_kapcs, $sql);
-        while($sor = mysqli_fetch_assoc($sorok)){
+        while ( $sor = mysqli_fetch_assoc($sorok) ) {
             array_push($bejegyzesek, $sor);
         }
 
@@ -3726,7 +3733,7 @@ function szamla_lista( $where, $tabla, $kijeloltek = false, $csak_sql_miatt = fa
         }
 
         // Ha csak egy konkrét rekordot frissítünk a bal navpanelben, akkor a limit 1 legyen. Join esetén többször ugyanaz is kijöhet, ezért lényeges limitálni.
-        if( isset($_GET['szamlaSorFrissit']) ){
+        if( isset($_GET['szamlaSorFrissit']) ) {
             $limit = 1;
         }
         
@@ -3746,7 +3753,7 @@ function szamla_lista( $where, $tabla, $kijeloltek = false, $csak_sql_miatt = fa
         }
         // Ha van $sorrend_idk információnk (azaz a bejelentés és munkalapokat nem SQL-el, hanem JS-el rendezzük), akkor a CSV export miatt az SQL-t csak előállítjuk, hogy meglegyen CSV sorrend beállításakor
         if( !isset($_GET['csv']) ){
-            if( $sorrend_idk ){
+            if( $sorrend_idk ) {
                 $_SESSION['akt_sql_order'] = ' ORDER BY FIELD(`'.get_db_tabla().$tabla.'`.`recid`, \''.implode('\', \'', $sorrend_idk).'\') ';
             } else {
                 $_SESSION['akt_sql_order'] = '';
@@ -3755,18 +3762,18 @@ function szamla_lista( $where, $tabla, $kijeloltek = false, $csak_sql_miatt = fa
     }
 
     // Ha csak a darabszámra vagyunk kíváncsiak, akkor ezt írjuk ki, amit az admin.js f_szures_submit-nál kezelünk le
-    if (isset($_GET['sql_db'])) {
+    if( isset($_GET['sql_db']) ) {
         echo count($bejegyzesek);
         $weblap -> leallit();
         exit;
     }
 
     // Weblap.php elején vizsgáljuk, hogy a kért ID-t egyáltalán láthatjuk-e vagy sem. Ekkor elég ha kapunk egy SQL-t
-    if($csak_sql_miatt){
+    if( $csak_sql_miatt ) {
         return $sql;
     }
     // Excel exporthoz (lehet Nyomtatáshoz, PDF-hez is kell majd?)
-    if(!isset($_GET['szamlaSorFrissit']) && $tabla!='esemenyek' && !isset($_GET['csv'])){
+    if( !isset($_GET['szamlaSorFrissit']) && $tabla != 'esemenyek' && !isset($_GET['csv']) ) {
         $_SESSION['akt_sql'] = $sql;
     }
 
@@ -4542,7 +4549,7 @@ function utemezett_feladatokLista( $bejegyzesek, $tabla, $frissit, $kijeloltek )
         }
 
         $i = 1;
-        foreach($bejegyzesek as $bsz) {
+        foreach ( $bejegyzesek as $bsz ) {
             $active = '';
             if( $bsz['recid'] == $_GET['id'] && !isset($_GET['print']) ) {
                 $active = ' kijelolve';
@@ -4579,7 +4586,7 @@ function utemezett_feladatokLista( $bejegyzesek, $tabla, $frissit, $kijeloltek )
                         </a>';
 
             // Bal oldali navpanel frissítésekor kijelöljük az aktuális sort
-            if($frissit){
+            if( $frissit ) {
                 // $active .= ' kijelolve';
             }
             $html .= '<li id="szamla-'.$bsz['recid'].'" class="szamla_sor'.$active.'" data-recid="'.$bsz['recid'].'" data-i="'.$i.'">'.$li_tart.'</li>';

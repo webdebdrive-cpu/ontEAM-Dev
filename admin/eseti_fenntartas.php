@@ -453,37 +453,40 @@ require_once('selectek.php');
 			require_once('tobb_kep.php');
 		}
 
-	// Státusz
-    }elseif(isset($_GET['naptar'])) {
+	// Naptár
+    } elseif(isset($_GET['naptar'])) {
 
         // Hét beoszás fejléce
         $fejlec = '';
-        if(isset($_GET['akt_nap'])){
+        if( isset($_GET['akt_nap']) ) {
             $indulo = date2int($_GET['akt_nap']);
-        }else{
+        } else {
             $indulo = time();
         }
-        for($i=0; $i<6; $i++){
+        for ( $i = 0; $i < 6; $i++ ) {
             $idobelyeg = $indulo+($i*60*60*24);
             $fejlec .= '<th>'.date('Y-m-d', $idobelyeg).'<br>'.het_napja( date('w', $idobelyeg) ).'</th>';
         }
-
-        // Hét beoszás sorai
+        
+        // Aktuális felhasználó szállodái
+        $szallodak = get_akt_login_szallodai('sql-t adj vissza');
+        
+        // Hét beosztás sorai
         $sorok = '';
-        for($i=0; $i<24; $i++){
+        for ( $i = 0; $i < 24; $i++ ) {
 
-            $ora = $i;
-            if($ora<10){
-                $ora = '0'.$ora;
-            }
+            $ora            = sprintf('%02d', $i);
+            $ora_kovetkezo  = sprintf('%02d', $i+1);
 
             $napok = '';
-            for($j=0; $j<6; $j++){
+            for ( $j = 0; $j < 6; $j++ ) {
 
-                $db = count($adatbazis_kapcsolat->s('id', $megnevezes, "`esnap_d`='".date('Y-m-d', strtotime('+'.$j.' days'))."' AND `elv_ido_tol`='$ora:00'"));
-// echo $adatbazis_kapcsolat->gp() . '<br>';
-                if(!$db){
+                $datum = date('Y-m-d', strtotime('+'.$j.' days'));
+                $db = count($adatbazis_kapcsolat->s('id', $megnevezes, "`esnap_d`='".$datum."' AND `elv_ido_tol`>='{$ora}:00' AND `elv_ido_tol`<'{$ora_kovetkezo}:00'{$szallodak}"));
+                if( !$db ) {
                     $db = '';
+                } else {
+                    $db = '<a href="'.self().'?modosit&amp;tabla='.$megnevezes.'&amp;feltetel=me|esnap_d!HASH!op|equal!HASH!fe|'.$datum.'!HASH!es|!HASH!me|elv_ido_tol!HASH!op|gteq!HASH!fe|'.$ora.':00!HASH!es|!HASH!&amp;f_o_szures_submit=1" target="_blank">'.$db.'</a>';
                 }
                 $napok .= '<td>'.$db.'</td>';
             }

@@ -7,14 +7,14 @@ if( isset($_POST['f_szuro_mezo']) ) {
     $selected_equal = '';
     $selected_like = '';
     $selected_empty = '';
-    if($_POST['selected']=='equal'      ){ $selected_equal      = ' selected'; }
-    if($_POST['selected']=='like'       ){ $selected_like       = ' selected'; }
-    if($_POST['selected']=='empty'      ){ $selected_empty      = ' selected'; }
-    if($_POST['selected']=='gteq'       ){ $selected_gteq       = ' selected'; }
-    if($_POST['selected']=='lteq'       ){ $selected_lteq       = ' selected'; }
-    if($_POST['selected']=='gt'         ){ $selected_gt         = ' selected'; }
-    if($_POST['selected']=='lt'         ){ $selected_lt         = ' selected'; }
-    if($_POST['selected']=='not_eq'     ){ $selected_not_eq     = ' selected'; }
+    if($_POST['selected']=='equal'      ) { $selected_equal      = ' selected'; }
+    if($_POST['selected']=='like'       ) { $selected_like       = ' selected'; }
+    if($_POST['selected']=='empty'      ) { $selected_empty      = ' selected'; }
+    if($_POST['selected']=='gteq'       ) { $selected_gteq       = ' selected'; }
+    if($_POST['selected']=='lteq'       ) { $selected_lteq       = ' selected'; }
+    if($_POST['selected']=='gt'         ) { $selected_gt         = ' selected'; }
+    if($_POST['selected']=='lt'         ) { $selected_lt         = ' selected'; }
+    if($_POST['selected']=='not_eq'     ) { $selected_not_eq     = ' selected'; }
 
     // A tömbben előforduló selectek tömbje. Innen tudjuk hogy csak két operátor tartozhat hozzá
     $selectek = array(
@@ -40,7 +40,7 @@ if( isset($_POST['f_szuro_mezo']) ) {
                 $operator .= '<option value="equal"'.$selected_equal.'>=</option>';
 
             // Dátum mező esetén
-            }elseif( strpos($ertek['class'], 'datepicker') !== false || strpos($ertek['class'], 'datetimepicker') !== false || strpos($ertek['class'], 'datepicker_tegnapig') !== false || strpos($ertek['class'], 'datepicker_matol') !== false || strpos($ertek['class'], 'datumos_szureshez') !== false ) {
+            } elseif( strpos($ertek['class'], 'datepicker') !== false || strpos($ertek['class'], 'datetimepicker') !== false || strpos($ertek['class'], 'datepicker_tegnapig') !== false || strpos($ertek['class'], 'datepicker_matol') !== false || strpos($ertek['class'], 'ora_perc') !== false || strpos($ertek['class'], 'datumos_szureshez') !== false ) {
 
                 $operator .= '<option value="equal"'.$selected_equal.'>=</option>';
                 $operator .= '<option value="gteq"'.$selected_gteq.'>&gt;=</option>';
@@ -51,14 +51,14 @@ if( isset($_POST['f_szuro_mezo']) ) {
                 $operator .= '<option value="empty"'.$selected_empty.'>Üres</option>';
 
             // Autocomplete esetén a switch.php alapján gyártunk egy inputot
-            }elseif( $ertek['type'] == 'autocomplete' || $ertek['type_szurohoz'] == 'autocomplete' ) {
+            } elseif( $ertek['type'] == 'autocomplete' || $ertek['type_szurohoz'] == 'autocomplete' ) {
 
                 $operator .= '<option value="equal"'.$selected_equal.'>=</option>';
                 $operator .= '<option value="not_eq"'.$selected_not_eq.'>&lt;&gt;</option>';
                 $operator .= '<option value="empty"'.$selected_empty.'>Üres</option>';
 
             // selectek esetén csak = vagy üres operátort ajánlunk fel
-            }elseif( in_array($ertek['type'], $selectek) ) {
+            } elseif( in_array($ertek['type'], $selectek) ) {
 
                 $operator .= '<option value="equal"'.$selected_equal.'>=</option>';
                 $operator .= '<option value="not_eq"'.$selected_not_eq.'>&lt;&gt;</option>';
@@ -275,7 +275,7 @@ if (isset($_POST['f_szuro_mezo_operator'])) {
                     // Projektfelelős esetén az autocompletenek további paramétereket adunk át
                     $aktiv          = '';
                     $beosztas_id    = '';
-                    if( $ertek['name']=='pfelelos' || $ertek['name']=='let_fel' ){
+                    if( $ertek['name'] == 'pfelelos' || $ertek['name'] == 'let_fel' ) {
                         $aktiv          = 1;
                         $aktiv_szinez   = 1;
                         $beosztas_id    = EL_BEOSZTAS_BERUH_IG.','.EL_BEOSZTAS_FEJL_VIG_H.','.EL_BEOSZTAS_MUSZAKI_ASSZ.','.EL_BEOSZTAS_MUSZAKI_IG.','.EL_BEOSZTAS_PR_FELEOS.','.EL_BEOSZTAS_DISZ_KP_VEZ;
@@ -389,13 +389,30 @@ if (isset($_POST['f_szuro_mezo_operator'])) {
                     } elseif( strpos($ertek['class'], 'datepicker') !== false || strpos($ertek['class'], 'datetimepicker') !== false ) {
                         $feltetel = nl2('
                             <input type="text" placeholder=" . . " class="datepicker f_felt" value="'.$_POST['felt'].'">
-                            <script>$(\'.datepicker\').datetimepicker({
-                                                            timepicker          : false,
-                                                            closeOnDateSelect   : true,
-                                                            mask                : \'\\xa0\\xa0\\xa0\\xa0.\\xa0\\xa0.\\xa0\\xa0\',
-                                                            format              :\'Y.m.d\',
-                                                            validateOnBlur      : false
-                                                        });
+                            <script>
+                                $(\'.datepicker\').datetimepicker({
+                                    timepicker          : false,
+                                    closeOnDateSelect   : true,
+                                    mask                : \'\\xa0\\xa0\\xa0\\xa0.\\xa0\\xa0.\\xa0\\xa0\',
+                                    format              :\'Y.m.d\',
+                                    validateOnBlur      : false
+                                });
+                            </script>
+                        ');
+                        
+                    // Óra perc mezők
+                    } elseif( strpos($ertek['class'], 'ora_perc') !== false ) {
+                        $feltetel = nl2('
+                            <input type="text" placeholder=" : " class="ora_perc f_felt" value="'.$_POST['felt'].'">
+                            <script>
+                                $(\'.ora_perc\').datetimepicker({
+                                    closeOnDateSelect   : true,
+                                    datepicker          : false,
+                                    format              :\'H:i\',
+                                    mask                : \'\xa0\xa0:\xa0\xa0\',
+                                    step                : 60,
+                                    validateOnBlur      : false
+                                });
                             </script>
                         ');
                     } else {

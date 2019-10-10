@@ -59,7 +59,7 @@ if( isset($_GET['datumra_utemezes']) ) {
                 $utemezes = $_GET['aktvege_d'].' után nincsenek további ütemezések.';
                 $kell_lista = false;
             }
-        }else{
+        } else {
             require_once 'selectek.php';
             $kezdho = '';
             foreach($select_honapok as $honap){
@@ -98,7 +98,7 @@ if( isset($_GET['datumra_utemezes']) ) {
 // Fontos, hogy az első ütemezés az esedékesség napja legyen, Ezért lett kivéve az alábbi kód, mert a getnextvaliddate-et futtatva már más dátum jönne ki első időpontra, pedig oda az esedékességet kell írni. 
 //    if( !is_numeric( substr($esedekes, 0, 1) ) ||  $esedekes == '    .  .  ' || $getnextvaliddate>$esedekes){
 //        $esedekes = $getnextvaliddate;
-//    }else{
+//    } else {
         $getnextvaliddate = $esedekes;
     //}
 
@@ -176,7 +176,7 @@ if (isset($_GET['csv'])) {
             $hossz = strpos($lekerdezes_fromtol, 'ORDER');
             if( $hossz ) {
                 $lekerdezes_fromtol = substr($lekerdezes_fromtol, 0, $hossz);
-            }else{
+            } else {
                 $lekerdezes_fromtol = substr($lekerdezes_fromtol, 0);
             }
         }
@@ -335,7 +335,7 @@ require_once('selectek.php');
         // Csak saját bejelentés törölhető!
         if( !_jog(JOG_UTFEL_TOROL) && $sor['loginnev'] != $_SESSION[get_db_tabla().'user'] ) {
             $gombok .= ' <input type="button" id="recordTorol" class="gombb_alert dn" onclick="alert2(\'Önnek nincs joga '.$szoveg.' törölni!\', \'\', \'Hiba\')" value="Töröl" title="Töröl">';
-        }else{
+        } else {
             $gombok .= ' <input type="button" id="recordTorol" class="gombb_alert dn" onclick="alert2(\'Biztosan törli ezt az '.$szoveg.'?\', gomb'.$_GET['id'].')" value="Töröl" title="Töröl">';
         }
 
@@ -547,7 +547,7 @@ require_once('selectek.php');
                 if($tomb['csoport']){
                     $kulso_ertek = $adatbazis_kapcsolat->s2('info', $tomb['tabla'], "`{$tomb['oszlop_keres']}`='{$sor[$tomb['name']]}' AND `csoport`='{$tomb['csoport']}'", '', '1');
                     $kulso_ertek['nev'] = $kulso_ertek['info'];
-                }else{
+                } else {
                     $kulso_ertek = $adatbazis_kapcsolat->s2('recid nev', $tomb['tabla'], "`{$tomb['oszlop_keres']}`='{$sor[$tomb['name']]}'", '', '1');
                 }
 
@@ -568,7 +568,7 @@ require_once('selectek.php');
         foreach($napok as $kulcs => $nap ){
             if(strpos((string)$sor['ciklnap'], (string)$kulcs)!==false){
                 $json_sor[$nap] = 'true';
-            }else{
+            } else {
                 $json_sor[$nap] = 'false';
             }
         }
@@ -652,36 +652,40 @@ if(isset($_GET['ut_teszt'])) {
 			require_once('tobb_kep.php');
 		}
 
-	// Státusz
-    }elseif(isset($_GET['naptar'])) {
+	// Naptár
+    } elseif(isset($_GET['naptar'])) {
 
         // Hét beoszás fejléce
         $fejlec = '';
-        if(isset($_GET['akt_nap'])){
+        if( isset($_GET['akt_nap']) ) {
             $indulo = date2int($_GET['akt_nap']);
-        }else{
+        } else {
             $indulo = time();
         }
-        for($i=0; $i<6; $i++){
+        for ( $i = 0; $i < 6; $i++ ) {
             $idobelyeg = $indulo+($i*60*60*24);
             $fejlec .= '<th>'.date('Y-m-d', $idobelyeg).'<br>'.het_napja( date('w', $idobelyeg) ).'</th>';
         }
 
-        // Hét beoszás sorai
+        // Aktuális felhasználó szállodái
+        $szallodak = get_akt_login_szallodai('sql-t adj vissza');
+        
+        // Hét beosztás sorai
         $sorok = '';
-        for($i=0; $i<24; $i++){
+        for ( $i = 0; $i < 24; $i++ ) {
 
-            $ora = $i;
-            if($ora<10){
-                $ora = '0'.$ora;
-            }
+            $ora            = sprintf('%02d', $i);
+            $ora_kovetkezo  = sprintf('%02d', $i+1);
 
             $napok = '';
-            for($j=0; $j<6; $j++){
+            for ( $j = 0; $j < 6; $j++ ) {
 
-                $db = count($adatbazis_kapcsolat->s('id', $megnevezes, "`esnap_d`='".date('Y-m-d', strtotime('+'.$j.' days'))."' AND `elv_ido_tol`='$ora:00'"));
-                if(!$db){
+                $datum = date('Y-m-d', strtotime('+'.$j.' days'));
+                $db = count($adatbazis_kapcsolat->s('id', $megnevezes, "`esnap_d`='".$datum."' AND `elv_ido_tol`>='{$ora}:00' AND `elv_ido_tol`<'{$ora_kovetkezo}:00'{$szallodak}"));
+                if( !$db ) {
                     $db = '';
+                } else {
+                    $db = '<a href="'.self().'?modosit&amp;tabla='.$megnevezes.'&amp;feltetel=me|esnap_d!HASH!op|equal!HASH!fe|'.$datum.'!HASH!es|!HASH!me|elv_ido_tol!HASH!op|gteq!HASH!fe|'.$ora.':00!HASH!es|!HASH!&amp;f_o_szures_submit=1" target="_blank">'.$db.'</a>';
                 }
                 $napok .= '<td>'.$db.'</td>';
             }
@@ -727,7 +731,7 @@ if(isset($_GET['ut_teszt'])) {
                     $utemezes = $sor['aktvege_d'].' után nincsenek további ütemezések.';
                     $kell_lista = false;
                 }
-            }else{
+            } else {
                 require_once 'selectek.php';
                 $kezdho = '';
                 foreach($select_honapok as $honap){
@@ -765,7 +769,7 @@ if(isset($_GET['ut_teszt'])) {
 //        $getnextvaliddate = getnextvaliddate(false, $esem_d, $sor['cikltip'], $sor['ciklaltip'], $sor['ciklszorz'], $sor['ciklho'], $sor['ciklhet'], $sor['ciklnap'], $sor['idoszakos'], $sor['kezdho'], $sor['kezdnap'], $sor['vegeho'], $sor['vegenap'], $aktkezd_d, $aktvege_d);
 //        if( $esedekes == '    .  .  ' || $getnextvaliddate>$esedekes){
 //            $esedekes = $getnextvaliddate;
-//        }else{
+//        } else {
             $getnextvaliddate = $esedekes;
 //        }
 
