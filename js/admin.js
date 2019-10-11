@@ -1566,8 +1566,8 @@ $(function() {
                     data: get_get(['mezo', 'op', 'felt']).replace(link+'?', '')+kerdo_es+'mezo='+$('.f_szuro_mezo').val()+'&op='+$('.f_szuro_mezo_operator').val()+'&felt='+felt+'&sql_db',
                     success: function (response) {
                         if(response.substring(0, 6)=='SESKIL'){ location.href = 'index.php'; }
-                        if(response>SZURES_DB_LIMIT){
-                            alert2('Ezzel a szűrési feltétellel több mint '+ezresek(response, 0, '', ' ')+' sor adatot listázna ki.<br>Biztosan folytatja?', '<input type="button" class="gomb zold" value="Igen" onclick="$(\'.f_szures_submit\').addClass(\'mehet\').click();"><input type="button" class="gomb piros" value="Nem" onclick="alert2(); $(\'.f_szures_submit\').removeClass(\'mehet\');">', 'Kérdés');
+                        if (response > SZURES_DB_LIMIT) {
+                            alert2('Ezzel a szűrési feltétellel '+ezresek(response, 0, '', ' ')+' sor adatot listázna ki.<br>Biztosan folytatja?', '<input type="button" class="gomb zold" value="Igen" onclick="$(\'.f_szures_submit\').addClass(\'mehet\').click();"><input type="button" class="gomb piros" value="Nem" onclick="alert2(); $(\'.f_szures_submit\').removeClass(\'mehet\');">', 'Kérdés');
                         } else {
                             szurkit();
                             location.href=szures_link;
@@ -6845,6 +6845,7 @@ function operator_beallit(that, selected, felt){
                 } else {
                     $('#operator').html(response.operator);
                 }
+                
                 szuro_ertek_mezo_gen($('.f_szuro_mezo_operator'), felt);
 
                 $('#o_szures_submit').show();
@@ -6859,61 +6860,67 @@ function operator_beallit(that, selected, felt){
 }
 
 // Szűrő érték mező beállítása
-function szuro_ertek_mezo_gen(that, felt){
-    var tabla    = that.attr('data-tabla');
-    var selected = that.find('option:selected');
+function szuro_ertek_mezo_gen(that, felt) {
+    
+    // Anyagrendelés alatt néha limit=0-val indul az oldal. Ez nem számít tényleges értéknek, emiatt ilyenkor nem is kell kiszámolni az érték mezőt, meg se jelenik
+    // Azért kellett ide ez a feltétel, mert megjelent egy Szűrés és egy Szűrés törlése gomb, feleslegesen
+    if( felt !='0' ) {
+    
+        var tabla    = that.attr('data-tabla');
+        var selected = that.find('option:selected');
 
-    // Ha összetett szűrőben vagyunk, akkor ezt jelezzük a PHP felé is
-    var prefix    = '';
-    var osszetett = '';
-    if ($('#o_operator').length) {
-        prefix    = 'o_';
-        osszetett = '&amp;osszetett=1';
-    }
-
-    // Anyagrendelés felület miatt, ezt is át kell adni GET-ként
-    anyagrend = '';
-    if (_get('anyagrend')) {
-        anyagrend = '?anyagrend=1';
-    }
-
-    ajax = $.ajax({
-        url : 'header.php'+anyagrend,
-        type: 'POST',
-        data: esamp2es('tabla=' + tabla + '&amp;mezo=' + $('#'+prefix+'szuro_mezo').val() + '&amp;selected=' + selected.val() + '&amp;felt=' + felt + osszetett + '&amp;f_szuro_mezo_operator=' + new Date().getTime()),
-        success: function (response) {
-            if(response.substring(0, 6)=='SESKIL'){ location.href = 'index.php'; }
-            response = JSON.parse(response);
-            if ( response ) {
-                $('#'+prefix+'feltetel').html(response.feltetel);
-                if( prefix ) {
-                    $('#'+prefix+'szures_submit').html( '<input type="button" class="gomb zold f_o_szuro_hozzaad" value="+" style="padding: 0.3rem 0.7rem">');
-                } else {
-                    var kieg = '';
-                    if( baseName(location.href)=='anyagigenyles' ) {
-                        kieg = '?szures_torol';
-                        if(_get('anyagrend')){
-                            kieg += '&anyagrend';
-                        }
-                    }
-                    $('#'+prefix+'szures_submit').html( '<input type="button" class="gomb f_szures_submit" value="Szűrés">'+
-                                                        '<input style="margin-left: 0.2rem" type="button" class="gomb piros" value="Szűrés töröl" onclick="szurkit(); location.href=\''+tabla+'.php'+kieg+'\'">'
-                                                    );
-                }
-
-            }
-        },
-        complete: function(xhr) {
-            if( xhr.status != 200 ) {
-                alert2(xhr.responseText, '', 'Hiba');
-            }
+        // Ha összetett szűrőben vagyunk, akkor ezt jelezzük a PHP felé is
+        var prefix    = '';
+        var osszetett = '';
+        if ($('#o_operator').length) {
+            prefix    = 'o_';
+            osszetett = '&amp;osszetett=1';
         }
-   });
 
-   $.when(ajax).then(function() {
-       fejlecPozicional();
-       fulGombMeretez();
-   });
+        // Anyagrendelés felület miatt, ezt is át kell adni GET-ként
+        anyagrend = '';
+        if (_get('anyagrend')) {
+            anyagrend = '?anyagrend=1';
+        }
+
+        ajax = $.ajax({
+            url : 'header.php'+anyagrend,
+            type: 'POST',
+            data: esamp2es('tabla=' + tabla + '&amp;mezo=' + $('#'+prefix+'szuro_mezo').val() + '&amp;selected=' + selected.val() + '&amp;felt=' + felt + osszetett + '&amp;f_szuro_mezo_operator=' + new Date().getTime()),
+            success: function (response) {
+                if(response.substring(0, 6)=='SESKIL'){ location.href = 'index.php'; }
+                response = JSON.parse(response);
+                if ( response ) {
+                    $('#'+prefix+'feltetel').html(response.feltetel);
+                    if( prefix ) {
+                        $('#'+prefix+'szures_submit').html( '<input type="button" class="gomb zold f_o_szuro_hozzaad" value="+" style="padding: 0.3rem 0.7rem">');
+                    } else {
+                        var kieg = '';
+                        if( baseName(location.href)=='anyagigenyles' ) {
+                            kieg = '?szures_torol';
+                            if (_get('anyagrend')) {
+                                kieg += '&anyagrend';
+                            }
+                        }
+                        $('#'+prefix+'szures_submit').html( '<input type="button" class="gomb f_szures_submit" value="Szűrés">'+
+                                                            '<input style="margin-left: 0.2rem" type="button" class="gomb piros" value="Szűrés töröl" onclick="szurkit(); location.href=\''+tabla+'.php'+kieg+'\'">'
+                                                        );
+                    }
+
+                }
+            },
+            complete: function(xhr) {
+                if( xhr.status != 200 ) {
+                    alert2(xhr.responseText, '', 'Hiba');
+                }
+            }
+       });
+
+       $.when(ajax).then(function() {
+           fejlecPozicional();
+           fulGombMeretez();
+       });
+   }
 }
 
 // Személyzet -> Beosztás -> Naptár fül alatt a felvesz gomb lekezelése

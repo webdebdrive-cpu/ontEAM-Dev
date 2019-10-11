@@ -2989,10 +2989,10 @@ function szamla_lista( $where, $tabla, $kijeloltek = false, $csak_sql_miatt = fa
             if(_jog(JOG_PRIGENY_EGY_MEGTEKINT)){
                 $where_jogok .= "`egy_tobb`='0' OR ";
             }
-            if(_jog(JOG_PRIGENY_TOBB_MEGTEKINT)){
+            if( _jog(JOG_PRIGENY_TOBB_MEGTEKINT) ) {
                 $where_jogok .= "`egy_tobb`='1' OR ";
             }
-            if($where_jogok){
+            if( $where_jogok ) {
                 $where .= '('.csonkit($where_jogok, 4).') AND ';
             }
 
@@ -3002,7 +3002,7 @@ function szamla_lista( $where, $tabla, $kijeloltek = false, $csak_sql_miatt = fa
             // Viszont ahol véleményező vagyok, azokat az igényléseket mindenképp lássam
             $lathato_prigenyek = $adatbazis_kapcsolat->s('projektigenyles_recid', 'projektigenyles_kapcs', "`login_recid`='{$_SESSION[get_db_tabla().'login_recid']}'");
             $lathato_prigenyek = adatbazis2tomb($lathato_prigenyek, 'projektigenyles_recid');
-            if($lathato_prigenyek){
+            if( $lathato_prigenyek ) {
                 $where .= " OR `".get_db_tabla()."projektigenyles`.`recid` IN (".implode(',', $lathato_prigenyek).") AND ";
             } else {
                 $where .= ' AND ';
@@ -3011,73 +3011,10 @@ function szamla_lista( $where, $tabla, $kijeloltek = false, $csak_sql_miatt = fa
         }        
 
         // Projektkezelés
-        if($tabla == 'projektkezeles'){
-            
-            // Ha Projekt team tag vagyok, akkor láthatom azokat a Projekteket, ahol a Projekt teamként jelen vagyok
-            if( _jog(JOG_PRKEZEL_TEAM_TAG) ){
-                $team_vagyok = ' OR `'.get_db_tabla().'projektkezeles`.`recid` IN (SELECT `projektkezeles_recid` FROM `'.get_db_tabla().'projektkezeles_team` WHERE `login_recid`=\''.$_SESSION[get_db_tabla().'login_recid'].'\')';
-            }
-            
-            // Projektek megtekintése: saját szállodák láthatósági körébe tartozó projektek lisstázása
-            $sajtat_szaloda_latokor = "`".get_db_tabla()."projektkezeles`.`telephely_id` IN (".implode(',', $szallodak).")";
-            
-            // Projekt tipus jog alapján tovább szűkítünk
-            $tipusra_szures = '';
-            if( _jog(JOG_PR_B_MEGTEKINT) ) {
-                $tipusra_szures .= PRIGENY_TIPUS_BERUH.', ';
-            }
-            if( _jog(JOG_PR_F_MEGTEKINT) ) {
-                $tipusra_szures .= PRIGENY_TIPUS_FENNT.', ';
-            }
-            if( _jog(JOG_PR_T_MEGTEKINT) ) {
-                $tipusra_szures .= PRIGENY_TIPUS_TARGY.', ';
-            }
-            if( $tipusra_szures ) {
-                $tipusra_szures = "`".get_db_tabla()."projektkezeles`.`tipus` IN (".csonkit($tipusra_szures, 2).")";
-            }
-            
-            // Globális jogosultság, ha ez be van pipálva, akkor nem kell már tovább szűrni
-            if( _jog(JOG_PRKEZEL_MEGTEKINT) ) {
+        if( $tabla == 'projektkezeles' ) {
 
-                $where = "({$sajtat_szaloda_latokor}{$team_vagyok}) AND ";
-                
-            // Ha "Projektek megtekintése" (JOG_PRKEZEL_MEGTEKINT) jog nincs bepipálva, csak akkor kell a többivel foglalkozni, mert a legtágabb jog kibővít minden más, szűkebb láthatóságot
-            } else {
-
-                // Saját projektek megtekintése: ekkor csak azokat listázzuk, ahol én Projektfelelős vagyok
-                if( _jog(JOG_PRKEZEL_SAJAT_MEGTEKINT) ) {
-                    $or = '';
-                    if( $tipusra_szures ) {
-                        $or = ' OR ';
-                    }
-                    $where = "(`".get_db_tabla()."projektkezeles`.`pfelelos`='{$_SESSION[get_db_tabla().'login_recid']}' {$team_vagyok} {$or} {$tipusra_szures}) AND ";
-                
-                // Egy/több szálloda láthatósági feltétele
-                }elseif( _jog(JOG_PR_EGYSZALL_MEGTEKINT) || _jog(JOG_PR_TOBBSZALL_MEGTEKINT) ) {
-
-                    // Egyszálodás projekt láthatósága
-                    $lathatosag_feltetel = '';
-                    if( _jog(JOG_PR_EGYSZALL_MEGTEKINT) ) {
-                        $lathatosag_feltetel .= "`".get_db_tabla()."projektkezeles`.`egy_tobb`=0 OR ";
-                    }
-
-                    // Többszállodás projekt láthatósága
-                    if( _jog(JOG_PR_TOBBSZALL_MEGTEKINT) ){
-                        $lathatosag_feltetel .= "`".get_db_tabla()."projektkezeles`.`egy_tobb`=1 OR ";
-                    }
-                    $where = "( ({$sajtat_szaloda_latokor} AND (".csonkit($lathatosag_feltetel, 4).")) {$team_vagyok} OR  {$tipusra_szures}) AND";
-                
-                // Ha csak Team tag jogunk volna
-                } else {
-                    $or = '';
-                    if($team_vagyok && $tipusra_szures){
-                        $or = ' OR ';
-                    }
-                    $where = "(".substr($team_vagyok, 4)." $or {$tipusra_szures})";
-                }
-                
-            }
-            
+            // Központosítva van ennek a feltételnek a kiszámítása
+            $where = get_projektkezeles_where_jog();
             
         }
         
@@ -10218,24 +10155,24 @@ function tipusos_dokumentumok($tabla) {
 }
 
 // Kapott recid alapján eldönti, hogy adott Projektre van-e kezelés jogom vagy sem. Azért van itt, mert törlés blokkolása miatt az esemenyek.php-hoz is kell.
-function get_projekt_kezeles_jog( $recid ){
-    
+function get_projekt_kezeles_jog($recid) {
+
     global $adatbazis_kapcsolat;
     $prk = $adatbazis_kapcsolat->s2('pfelelos telephely_id egy_tobb', 'projektkezeles', "`recid`='{$recid}'");
     // Sima kezelés jog esetén csak saját szállodákat kezelhetünk
-    if( _jog(JOG_PRKEZEL_KEZEL) && in_array($prk['telephely_id'], get_akt_login_szallodai()) ){
+    if( _jog(JOG_PRKEZEL_KEZEL) && in_array($prk['telephely_id'], get_akt_login_szallodai()) ) {
         return true;
     }
     // Saját projekt kezelés jog esetén azokat kezelhetjük, ahol projekt felelős vagyok
-    if( _jog(JOG_PRKEZEL_SAJAT_KEZEL) && $prk['pfelelos'] == $_SESSION[get_db_tabla().'login_recid'] ){
+    if( _jog(JOG_PRKEZEL_SAJAT_KEZEL) && $prk['pfelelos'] == $_SESSION[get_db_tabla() . 'login_recid'] ) {
         return true;
     }
     // Egyszállodás projekt kezelésével az egyszállodás Projekteket kezelhetjük
-    if( _jog(JOG_PR_EGYSZALL_KEZEL) && $prk['egy_tobb']==0 && in_array($prk['telephely_id'], get_akt_login_szallodai()) ){
+    if( _jog(JOG_PR_EGYSZALL_KEZEL) && $prk['egy_tobb'] == 0 && in_array($prk['telephely_id'], get_akt_login_szallodai()) ) {
         return true;
     }
     // Egyszállodás projekt kezelésével az egyszállodás Projekteket kezelhetjük
-    if( _jog(JOG_PR_TOBBSZALL_KEZEL) && $prk['egy_tobb']==1 && in_array($prk['telephely_id'], get_akt_login_szallodai()) ){
+    if( _jog(JOG_PR_TOBBSZALL_KEZEL) && $prk['egy_tobb'] == 1 && in_array($prk['telephely_id'], get_akt_login_szallodai()) ) {
         return true;
     }
     
@@ -10244,22 +10181,22 @@ function get_projekt_kezeles_jog( $recid ){
 }
 
 // Kapott recid alapján eldönti, hogy adott Projekt számlára van-e kezelés jogom vagy sem. Azért van itt, mert törlés blokkolása miatt az esemenyek.php-hoz is kell.
-function get_projekt_szamla_kezel_jog( $recid ){
-    
+function get_projekt_szamla_kezel_jog($recid) {
+
     // Ha nincs ID, akkor hamis
-    if( !$recid ){
+    if( !$recid ) {
         return false;
     }
     
     global $adatbazis_kapcsolat;
     
     // Ha van Projekt számlák kezelése globális jog, akkor biztosan kezelhetem
-    if( _jog(JOG_PRSZAMLAK_KEZEL) ){
+    if( _jog(JOG_PRSZAMLAK_KEZEL) ) {
         return true;
     }
     
     // Saját számla kezelés jog: ha a hozzá tartozó projektnek én vagyok a projektfelelőse
-    if( _jog(JOG_PR_SAJAT_SZAMLA_KEZEL) ){
+    if( _jog(JOG_PR_SAJAT_SZAMLA_KEZEL) ) {
         $pr_szam  = $adatbazis_kapcsolat->s2('pr_szam',  'projektszamla',  "`recid`='{$recid}'");
         $pfelelos = $adatbazis_kapcsolat->s2('pfelelos', 'projektkezeles', "`ikt_szam`='{$pr_szam['pr_szam']}'");
         if( $pfelelos['pfelelos']==$_SESSION[get_db_tabla().'login_recid'] ){
@@ -10272,8 +10209,8 @@ function get_projekt_szamla_kezel_jog( $recid ){
 }
 
 // Kapott recid alapján eldönti, hogy adott Projekt szerződésre van-e kezelés jogom vagy sem. Azért van itt, mert törlés blokkolása miatt az esemenyek.php-hoz is kell.
-function get_projekt_szerzodes_kezel_jog( $recid ){
-    
+function get_projekt_szerzodes_kezel_jog($recid) {
+
     global $adatbazis_kapcsolat;
     
     // Ha nincs ID, akkor hamis
@@ -10469,4 +10406,78 @@ function pr_szerzodes_jotallas_beallit( $pr_szerzodes_id, $gar_kezd, $gar_vege, 
         return false;
     }
     
+}
+
+// Projekt kezelés felülete alatt a where feltételt aszerint állítjuk be hogy milyen jogaink vannak. 
+// Ezt bal navpanel esetén, de főoldali dashboardnál is ki kell számolni, ezért központosítva van
+function get_projektkezeles_where_jog() {
+    
+    global $adatbazis_kapcsolat;
+    
+    // Ha Projekt team tag vagyok, akkor láthatom azokat a Projekteket, ahol a Projekt teamként jelen vagyok
+    if( _jog(JOG_PRKEZEL_TEAM_TAG) ) {
+        $team_vagyok = ' OR `'.get_db_tabla().'projektkezeles`.`recid` IN (SELECT `projektkezeles_recid` FROM `'.get_db_tabla().'projektkezeles_team` WHERE `login_recid`=\''.$_SESSION[get_db_tabla().'login_recid'].'\')';
+    }
+
+    // Projektek megtekintése: saját szállodák láthatósági körébe tartozó projektek lisstázása
+    $sajtat_szaloda_latokor = "`".get_db_tabla()."projektkezeles`.`telephely_id` IN (".implode(',', get_akt_login_szallodai()).")";
+
+    // Projekt típus jog alapján tovább szűkítünk
+    $tipusra_szures = '';
+    if( _jog(JOG_PR_B_MEGTEKINT) ) {
+        $tipusra_szures .= PRIGENY_TIPUS_BERUH.', ';
+    }
+    if( _jog(JOG_PR_F_MEGTEKINT) ) {
+        $tipusra_szures .= PRIGENY_TIPUS_FENNT.', ';
+    }
+    if( _jog(JOG_PR_T_MEGTEKINT) ) {
+        $tipusra_szures .= PRIGENY_TIPUS_TARGY.', ';
+    }
+    if( $tipusra_szures ) {
+        $tipusra_szures = "`".get_db_tabla()."projektkezeles`.`tipus` IN (".csonkit($tipusra_szures, 2).")";
+    }
+
+    // Globális jogosultság, ha ez be van pipálva, akkor nem kell már tovább szűrni
+    if( _jog(JOG_PRKEZEL_MEGTEKINT) ) {
+
+        $where = "({$sajtat_szaloda_latokor}{$team_vagyok}) AND ";
+
+    // Ha "Projektek megtekintése" (JOG_PRKEZEL_MEGTEKINT) jog nincs bepipálva, csak akkor kell a többivel foglalkozni, mert a legtágabb jog kibővít minden más, szűkebb láthatóságot
+    } else {
+
+        // Saját projektek megtekintése: ekkor csak azokat listázzuk, ahol én Projektfelelős vagyok
+        if( _jog(JOG_PRKEZEL_SAJAT_MEGTEKINT) ) {
+            $or = '';
+            if( $tipusra_szures ) {
+                $or = ' OR ';
+            }
+            $where = "(`".get_db_tabla()."projektkezeles`.`pfelelos`='{$_SESSION[get_db_tabla().'login_recid']}' {$team_vagyok} {$or} {$tipusra_szures}) AND ";
+
+        // Egy/több szálloda láthatósági feltétele
+        } elseif( _jog(JOG_PR_EGYSZALL_MEGTEKINT) || _jog(JOG_PR_TOBBSZALL_MEGTEKINT) ) {
+
+            // Egyszálodás projekt láthatósága
+            $lathatosag_feltetel = '';
+            if( _jog(JOG_PR_EGYSZALL_MEGTEKINT) ) {
+                $lathatosag_feltetel .= "`".get_db_tabla()."projektkezeles`.`egy_tobb`=0 OR ";
+            }
+
+            // Többszállodás projekt láthatósága
+            if( _jog(JOG_PR_TOBBSZALL_MEGTEKINT) ){
+                $lathatosag_feltetel .= "`".get_db_tabla()."projektkezeles`.`egy_tobb`=1 OR ";
+            }
+            $where = "( ({$sajtat_szaloda_latokor} AND (".csonkit($lathatosag_feltetel, 4).")) {$team_vagyok} OR  {$tipusra_szures}) AND";
+
+        // Ha csak Team tag jogunk volna
+        } else {
+            $or = '';
+            if( $team_vagyok && $tipusra_szures ) {
+                $or = ' OR ';
+            }
+            $where = "(".substr($team_vagyok, 4)." $or {$tipusra_szures})";
+        }
+
+    }
+    
+    return $where;
 }

@@ -333,6 +333,7 @@ define('ERT_ELFELEJTETT_JELSZO',        11);
 define('ERT_14_NAPJA_VARO_ML',          12);
 
 define('HIBA_ADJON_FELADAT',            ' kérem adjon hozzá egy elvégzett feladatot!');
+define('DASHB_NINCS_BEJEGYZES',         'Nem található bejegyzés!');
 define('NULLAS_TETEL',                  'Nullás tétel');
 
 // Pénznem értéklistánál a HUF értéklista ID-ja

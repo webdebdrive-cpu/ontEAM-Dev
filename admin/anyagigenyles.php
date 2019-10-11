@@ -2396,7 +2396,7 @@ require_once('selectek.php');
         // Anyagigénylés jóváhagyása
         if( _jog(JOG_ANYAGIGENYLES_JOVAHAGY) ) {
 
-            if($sor['stat_id']==CIKKIGN_STAT_ARAZVA){
+            if( $sor['stat_id'] == CIKKIGN_STAT_ARAZVA ) {
                 $gombok .= '<input type="button" class="gomb modositaskor_rejt zold" value="Jóváhagyás" onclick="anyagigenyles_jovahagy(\'csak kérdezünk még\')"> ';
                 $gombok .= '<input type="button" class="gomb modositaskor_rejt piros" value="Elutasítás" onclick="anyagigenyles_elutasitas(\'csak kérdezünk még\')"> ';
                 $gombok .= '<input type="button" class="gomb modositaskor_rejt" value="Mind jóváhagyása" onclick="anyagigenyles_mind_jovahagy(\'csak kérdezünk még\')"> ';
@@ -2432,12 +2432,12 @@ require_once('selectek.php');
 
                 $arazas        = '';
                 $kuld_jovahagy = '';
-                if($sor['stat_id']==CIKKIGN_STAT_NYITOTT){
+                if( $sor['stat_id'] == CIKKIGN_STAT_NYITOTT ) {
                     $arazas        = '<input type="button" class="gomb modositaskor_rejt" value="Árazás" onclick="arazas()"> ';
                     $kuld_jovahagy = '<input type="button" class="gomb modositaskor_rejt" value="Küldés jóváhagyásra" onclick="anyagigenyles_kuldes_jovahagyasra(\'csak kérdezünk még\')"> ';
                 }
                 $rend_keszit = '';
-                if($sor['stat_id']==CIKKIGN_STAT_JOVAHAGYVA){
+                if( $sor['stat_id'] == CIKKIGN_STAT_JOVAHAGYVA ) {
                     $rend_keszit = '<input type="button" class="gomb modositaskor_rejt" value="Rendelés készítése" onclick="anyagigenyles_rendeles_keszit(\'csak kérdezünk még\')"> ';
                 }
 
@@ -2446,7 +2446,7 @@ require_once('selectek.php');
                             ');
 
                 // Elutasított státusz alatt nincs Leírás hozzáadása gomb
-                if( $sor['stat_id']!=CIKKIGN_STAT_ELUTASITVA ){
+                if( $sor['stat_id'] != CIKKIGN_STAT_ELUTASITVA ) {
                     $gombok .= '<input type="button" class="gomb modositaskor_rejt" value="Leírás hozzáadása" title="Leírás hozzáadása" onclick="csoportMuvelet(\'anyagigenylesLeirasHozzaadas\')"> ';
                 }
 
@@ -2466,7 +2466,7 @@ require_once('selectek.php');
 
                 // Sztornó gomb
                 $sztornos_statuszok = array(CIKKIGN_STAT_NYITOTT, CIKKIGN_STAT_ARAZVA, CIKKIGN_STAT_VARAKOZO, CIKKIGN_STAT_JOVAHAGYVA);
-                if( in_array($sor['stat_id'], $sztornos_statuszok) ){
+                if( in_array($sor['stat_id'], $sztornos_statuszok) ) {
                     $gombok .= '<input type="button" class="gomb piros modositaskor_rejt" value="Sztornó" onclick="csoportMuvelet(\'anyagigenylesSztornoz\')"> ';
                 }
 
@@ -2490,7 +2490,7 @@ require_once('selectek.php');
 
         // Anyagigénylés érkeztetése
         if( _jog(JOG_ANYAGIGENYLES_KEZEL) ) {
-            if(isset($_GET['anyagrend'])){
+            if( isset($_GET['anyagrend']) ) {
                 $gombok .= nl2('
                     <input type="button" class="gomb modositaskor_rejt" value="Anyagok érkeztetése" onclick="csoportMuvelet(\'anyagigenyles_erkeztet\')">
                     <input type="button" class="gomb modositaskor_rejt" value="Készpénzes anyagbeszerzés" onclick="csoportMuvelet(\'anyagigenylesKpBeszerez\');">
@@ -2500,7 +2500,7 @@ require_once('selectek.php');
 
         // Anyagrendeléskor anyagrendelés törlés jog kell hozzá
         if (isset($_GET['anyagrend']) ) {
-            if(!_jog(JOG_ANYAGREND_TOROL)){
+            if( !_jog(JOG_ANYAGREND_TOROL) ) {
                 $gombok .= ' <input type="button" id="recordTorol" class="gombb_alert dn" onclick="alert2(\'Önnek nincs joga törléshez!\', \'\', \'Hiba\')" value="Töröl" title="Töröl">';
             } else {
                 $gombok .= ' <input type="button" id="recordTorol" class="gombb_alert dn" onclick="alert2(\'Biztosan törli ezt az anyagrendelést?\', gomb'.$_GET['id'].')" value="Töröl" title="Töröl">';
@@ -2508,7 +2508,7 @@ require_once('selectek.php');
 
         // Anyagigénylénél pedig kezelés jog
         } else {
-            if(!_jog(JOG_ANYAGIGENYLES_KEZEL)){
+            if( !_jog(JOG_ANYAGIGENYLES_KEZEL) ) {
                 $gombok .= ' <input type="button" id="recordTorol" class="gombb_alert dn" onclick="alert2(\'Önnek nincs joga törléshez!\', \'\', \'Hiba\')" value="Töröl" title="Töröl">';
             } else {
                 $gombok .= nl2('
@@ -2543,10 +2543,10 @@ require_once('selectek.php');
             }
         }
 
-        if( _jog(JOG_ANYAGIGENYLES_KEZEL) ){
+        if( _jog(JOG_ANYAGIGENYLES_KEZEL) ) {
             $hianyzo_anyagok = hianyzo_anyagok($sor['cikk_id'], $sor['telephely_id']);
             $hianyzo_anyagok = implode(',', $hianyzo_anyagok);
-            if($hianyzo_anyagok){
+            if( $hianyzo_anyagok ) {
                 $onclick = 'window.open(\'munkalap.php?recidk='.$hianyzo_anyagok.'\')';
             } else {
                 $onclick = 'alert2(\''.getErtek('nev', 'telephely', 'id', $sor['telephely_id']).'<br>'.$sor['cikk_id'].' - '.$sor['nev'].'<br>Erre az anyagra nem várnak munkalapok!\', \'\', \'Hiba\');';
@@ -2556,7 +2556,7 @@ require_once('selectek.php');
 
         // Rendelés kép gomb
         $utvonal = '../'.get_utvonal().$megnevezes.'/'.$sor['kepfajl'];
-        if(is_file($utvonal)){
+        if( is_file($utvonal) ) {
             $gombok .= ' <input type="button" class="gomb modositaskor_rejt" value="Rendelés kép" onclick="window.open(\''.$utvonal.'\')">';
         }
 
@@ -2579,8 +2579,8 @@ require_once('selectek.php');
             }
         }*/
 
-        if(isset($_GET['anyagrend'])){
-            // $muv_style = ' style="width: calc(100% - '.($_SESSION['defaultCsuszka'] + 16).'px);"';
+        if( isset($_GET['anyagrend']) ) {
+           // $muv_style = ' style="width: calc(100% - '.($_SESSION['defaultCsuszka'] + 16).'px);"';
             // if( in_array(basename(self()), $_SESSION['ketHasabos']) && $_SESSION[get_db_tabla().'user'] ) {
             //     if( $_COOKIE['csuszkaSzelesseg'] ) {
             //         $muv_style = ' style="width: calc(100% - '.(($_COOKIE['csuszkaSzelesseg'] + 16)/10).'rem);"';
@@ -2599,15 +2599,15 @@ require_once('selectek.php');
     $js_submit_elott = 'return form_ell_admin();';
 
 	// Új termék felvitele
-	if(isset($_GET['uj']) && _jog(JOG_ANYAGIGENYLES_KEZEL)){
+	if( isset($_GET['uj']) && _jog(JOG_ANYAGIGENYLES_KEZEL) ) {
 
         $akt_tomb = $anyagigenyles_tomb_feltolt;
 
 	    // FORM
-		if(isset($_GET['ujkent'])){
-			foreach($akt_tomb as $ertek){
-				$sor[$ertek['name']]=$_SESSION[$ertek['name']];
-			}
+		if( isset($_GET['ujkent']) ) {
+            foreach ( $akt_tomb as $ertek ) {
+                $sor[$ertek['name']] = $_SESSION[$ertek['name']];
+            }
 		}
 	    $js = js_kiir($akt_tomb, 'form_ell_admin()');
 
@@ -2620,11 +2620,11 @@ require_once('selectek.php');
         $rend_mezok = adatbazis2tomb($rend_mezok, 'column_name');
 
         $sor = array();
-        foreach($rend_mezok as $rend_mezo) {
+        foreach ( $rend_mezok as $rend_mezo ) {
             $sor[$rend_mezo] = '';
         }
 
-        foreach($akt_tomb as $tomb) {
+        foreach ( $akt_tomb as $tomb ) {
             if( $tomb['type'] == 'autocomplete' ) {
                 $sor[$tomb['name'].'_autocomp'] = '';
             }
@@ -2634,7 +2634,7 @@ require_once('selectek.php');
         }
         
         $json_sor = array();
-        foreach($sor as $kulcs => $elem){
+        foreach ( $sor as $kulcs => $elem ) {
             $json_sor[$kulcs] = formAdatok_replace($elem);
         }
         $szamla_html .= '<script> formAdatok = JSON.parse(\''.json_encode($json_sor).'\'); </script>';

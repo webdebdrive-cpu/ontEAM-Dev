@@ -98,7 +98,10 @@ function get_kerturl_elotag(){ return '/hotel/admin/';                          
 function get_aktiv_oldalak() {
     return array(
         'index.php',
-        'bejelentes.php'
+        'bejelentes.php',
+        'bejelentes_arch.php',
+        'munkalap.php',
+        'munkalap_arch.php',
     );
 }
 function get_responsive()    {

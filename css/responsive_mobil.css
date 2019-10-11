@@ -17,7 +17,6 @@
         top: 0;
         width: 60%;
         text-align: center;
-        /*display: none;*/
     }
 
     .sor.kethasabos div.jobb div.bborder {
@@ -722,6 +721,14 @@
         padding: 1rem 1.2rem;
         width: 100%;
     }
+    
+    .box_grid {
+        grid-template-columns: 50% 50%;
+    }
+    
+    table.csikos td {
+        font-size: 1.3rem;
+    }
 }
 
 @media only screen and (max-width: 600px) {
@@ -768,6 +775,10 @@
 
     #alert2 select {
         width: 100%!important;
+    }
+    
+    .box_grid {
+        grid-template-columns: 100%;
     }
 }
 

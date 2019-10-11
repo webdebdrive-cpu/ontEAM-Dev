@@ -3626,18 +3626,23 @@ div.grid2o{
     width: auto;
 }
 
+.box_grid {
+    display: grid;
+    grid-template-columns: 33% 33% 33%;
+}
+
 .box {
     border: 0.1rem solid #55A2FA;
-    border-radius: 1rem;
-    display: inline-block;
-    margin: 0 1rem;
+    border-radius: 0.5rem;
+    margin: 0 1rem 1rem 1rem;
 }
 
 .box h2 {
     background: #55A2FA;
     color: #fff;
+    font-size: 1.6rem;
     padding: 0.5rem 2rem;
-    border-radius: 1rem 1rem 0rem 0rem;
+    border-radius: 0.5rem 0.5rem 0rem 0rem;
 }
 
 .box table.csikos tr td {
@@ -3648,7 +3653,7 @@ div.grid2o{
     display: block;
     height: 100%;
     text-decoration: none;
-    padding: 0.5rem 2rem;
+    padding: 0.5rem 1rem;
 }
 
 .box table.csikos tr td:first-of-type {
@@ -3659,4 +3664,10 @@ div.grid2o{
     background: #55A2FA;
     cursor: pointer;
     color: #fff;
+}
+
+
+.box table.csikos tr td:nth-of-type(2) {
+    text-align: right;
+    white-space: nowrap;
 }
