@@ -3153,7 +3153,6 @@ function szamla_lista( $where, $tabla, $kijeloltek = false, $csak_sql_miatt = fa
             if( _jog(JOG_MUNKALAP_MEGTEKINT_SZALL) ){
                 $where .= '';
             }
-
             // Ha saját feladatok a láthatósági kör, akkor az SQL feltétel azon múlik, hogy milyen jogai vannak a felhasználónak
             // Archív munkalaponknál nincs külön státuszra szűrés, ott ez értelmetlen
             if( _jog(JOG_MUNKALAP_MEGTEKINT_FELADAT) && $tabla != 'munkalap_arch' ) {
@@ -3228,17 +3227,21 @@ function szamla_lista( $where, $tabla, $kijeloltek = false, $csak_sql_miatt = fa
         // Szűrés lekezelése
         if( $_GET['mezo'] && $_GET['op'] ) {
             // Az eddigi Where-t egy nagy zárójelbe tesszük és ehhez vesszük hozzá az új feltételeket
-            if($where){
+            if( $where ) {
                 $where = '('.csonkit($where, 5).') AND ';
             }
 
             // Dátum mezők (sajnos itt class-ra már nem tudok keresni, szóval konkrét mezőnevek alapján dől el)
             $datum_mezok = array('insert_dt');
-            if( in_array($_GET['mezo'], $datum_mezok) && $_GET['op']=='equal' ){
+            if( in_array($_GET['mezo'], $datum_mezok) && $_GET['op'] == 'equal' ) {
                 $_GET['op'] = 'like';
             }
 
-            $where .= get_szures_where_kieg($_GET['mezo'], $_GET['op'], $_GET['felt'], $tabla).' AND ';
+            // Kiegészítő SQL hozzáfűzése, ha kell
+            $where_kieg = get_szures_where_kieg($_GET['mezo'], $_GET['op'], $_GET['felt'], $tabla);
+            if( $where_kieg ) {
+                $where .= $where_kieg.' AND ';
+            }
 
         }
         // Ha van öszetett szűrés feltétel
@@ -3256,7 +3259,7 @@ function szamla_lista( $where, $tabla, $kijeloltek = false, $csak_sql_miatt = fa
         }
 
         // Anyagigénylés/anyagrendelés lekezelése
-        if($tabla=='anyagigenyles'){
+        if( $tabla == 'anyagigenyles' ) {
             // Jóváhagyva státuszig anyagigénylés, afelett rendelés
             if (isset($_GET['anyagrend'])) {
                 $where .= "`".get_db_tabla()."anyagigenyles`.`stat_id`>".CIKKIGN_STAT_JOVAHAGYVA;
@@ -3525,7 +3528,7 @@ function szamla_lista( $where, $tabla, $kijeloltek = false, $csak_sql_miatt = fa
         // és nincs szűrve semmire (összetetten sem, ez itt fontos a 0-ás alapértelmezett érték miatt), akkor nem listázunk ki semmit.
         if( _jog(JOG_ANYAGREND_KESZIT) && $tabla=='anyagigenyles' && isset($_GET['anyagrend']) && !$_GET['mezo'] && !$_SESSION['o_szuro_feltetel'] ) {
             $_GET['mezo'] = 'legfrissebb';
-            $_GET['felt'] = '0,0'; // Ha csak simán 0-át írnánk ide, akkor a feltételt üresnek tekintené, olyan mintha nem létezne
+            $_GET['felt'] = '0'; // Ha csak simán 0-át írnánk ide, akkor a feltételt üresnek tekintené, olyan mintha nem létezne
         }
 
         if( $_GET['mezo'] == 'legfrissebb' ) {

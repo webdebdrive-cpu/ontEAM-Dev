@@ -150,7 +150,9 @@ if( isset($_POST['f_szuro_mezo']) ) {
     }
 
     // Operátor select bezárása
-    $operator = '<select class="f_szuro_mezo_operator" data-tabla="'.$_POST['tabla'].'">'.$operator.'</select>';
+    if( $operator ) {
+        $operator = '<select class="f_szuro_mezo_operator" data-tabla="'.$_POST['tabla'].'">'.$operator.'</select>';
+    }
 
     echo json_encode( array('operator' => $operator) );
 
@@ -687,7 +689,7 @@ if (isset($_POST['f_szuro_mezo_operator'])) {
         }
 
         // Legfrissebb esetén
-        if($_POST['mezo']=='legfrissebb') {
+        if( $_POST['mezo'] == 'legfrissebb' ) {
             $feltetel .= '<input type="text" placeholder="Feltétel..." class="f_felt" value="'.$_POST['felt'].'" onfocus="$(this).select()">';
         }
 
@@ -759,10 +761,10 @@ if( $tabla == 'anyagigenyles' ) {
 }
 
 // Vannak felületek,a hol a nav panel számát limitáljuk. Ezt egy szűrővel oldjuk meg, tehát itt szükséges, hogy legyen egy Legfrisebb nevű szűrés lehetőség.
-$legfrisebb_feluletek = array('bejelentes_arch', 'munkalap_arch', 'projektigenyles', 'projektkezeles', 'projektszamla', 'projektszerzodes');
+$legfrisebb_feluletek = array('anyagigenyles', 'bejelentes_arch', 'munkalap_arch', 'projektigenyles', 'projektkezeles', 'projektszamla', 'projektszerzodes');
 if( in_array($tabla, $legfrisebb_feluletek) ){
     $selected_legfrissebb  = '';
-    if($_GET['mezo']=='legfrissebb'){
+    if( $_GET['mezo'] == 'legfrissebb' && $_GET['felt']/* Tehát nem 0 sorra van szűkítve, ez egy speciális eset anyagrendeléseknél */ ) {
         $selected_legfrissebb = ' selected';
     }
     array_push( $sz_mezo, array('eleje' => '<option value="legfrissebb"'.$selected_legfrissebb.'>', 'vege' => 'Legfrissebb</option>' ) );
