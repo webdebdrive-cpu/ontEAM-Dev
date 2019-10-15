@@ -253,6 +253,7 @@ if (isset($_GET['csv'])) {
 if( !$_GET['ajax'] && !isset($_GET['ut_teszt']) ) {
     require_once('header.php');
 }
+
 require_once('selectek.php');
 
     if( !$_GET['ajax'] ) {
@@ -653,7 +654,7 @@ if(isset($_GET['ut_teszt'])) {
 		}
 
 	// Naptár
-    } elseif(isset($_GET['naptar'])) {
+    } elseif( isset($_GET['naptar']) ) {
 
         // Hét beoszás fejléce
         $fejlec = '';
@@ -685,7 +686,7 @@ if(isset($_GET['ut_teszt'])) {
                 if( !$db ) {
                     $db = '';
                 } else {
-                    $db = '<a href="'.self().'?modosit&amp;tabla='.$megnevezes.'&amp;feltetel=me|esnap_d!HASH!op|equal!HASH!fe|'.$datum.'!HASH!es|!HASH!me|elv_ido_tol!HASH!op|gteq!HASH!fe|'.$ora.':00!HASH!es|!HASH!&amp;f_o_szures_submit=1" target="_blank">'.$db.'</a>';
+                    $db = '<a href="'.self().'?modosit&amp;tabla='.$megnevezes.'&amp;feltetel=me|esnap_d!HASH!op|equal!HASH!fe|'.$datum.'!HASH!es|!HASH!me|elv_ido_tol!HASH!op|gteq!HASH!fe|'.$ora.':00!HASH!es|!HASH!me|elv_ido_tol!HASH!op|lteq!HASH!fe|'.$ora_kovetkezo.':00!HASH!es|!HASH!&amp;f_o_szures_submit=1" target="_blank">'.$db.'</a>';
                 }
                 $napok .= '<td>'.$db.'</td>';
             }

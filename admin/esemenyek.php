@@ -3099,7 +3099,7 @@ if( isset($_REQUEST['f_o_szures_submit']) ) {
 
     // Van, hogy a feltételt GET-ként kapjuk meg, de ekkor nem szerepelhet benne a #, így azt !HASH!-el helyettesítjük, és itt van visszaalakítva
     $_REQUEST['feltetel'] = str_replace('!HASH!', '#', $_REQUEST['feltetel']);
-    
+
     $join = '';
     // Kapcsolódó táblák miatt néha kell JOIN
     if( strpos($_REQUEST['feltetel'], 'megjegyzes')!==false ) {
@@ -3134,48 +3134,54 @@ if( isset($_REQUEST['f_o_szures_submit']) ) {
             }
         }
     }
-    
+
     $lekerdez = mysqli_query($db_kapcs, $sql);
 
     // Ha GET-ként kaptuk, akkor most újratöltjük az oldalt, a session-ok beállítása után
     if( $_GET['f_o_szures_submit'] ) {
+        session_start();
         $_SESSION['o_szuro_feltetel'] = $_REQUEST['feltetel'];
         $_SESSION['o_szuro_html']     = $_REQUEST['html']; // Ütemezett feladatok naptár füle alatt használunk GET-es hívást. Itt HTML-t nem adunk át, ennyi hiányossága van a dolognak. Ezt amúgy is post-al kellene megoldani, ha muszáj volna mégis átadni.
+        session_write_close();
         header('Location: '.$_REQUEST['tabla'].'.php?modosit');
     }
     
-    if( $lekerdez ) {
-        $sorok_szama = mysqli_num_rows($lekerdez);
-        if( !$_POST['mehet'] && $sorok_szama > SZURES_DB_LIMIT ){
+    if( !$_GET['f_o_szures_submit'] ) {
+    
+        if( $lekerdez ) {
+            $sorok_szama = mysqli_num_rows($lekerdez);
+            if( !$_POST['mehet'] && $sorok_szama > SZURES_DB_LIMIT ){
+                echo json_encode(array(
+                    'hiba'  => 'Ezzel a szűrési feltétellel '. number_format($sorok_szama, 0, '', ' ').' sor adatot listázna ki. Biztosan folytatja?<br>Biztosan folytatja?',
+                    'gomb'  => '<input type="button" class="gomb zold" value="Igen" onclick="$(\'.f_o_szures_submit\').addClass(\'mehet\').click(); alert2();"><input type="button" class="gomb piros" value="Nem" onclick="alert2(); $(\'.f_o_szures_submit\').removeClass(\'mehet\');">',
+                    'title' => 'Kérdés'
+                ));
+                $weblap->leallit();
+                exit();
+            }
+            $_SESSION['o_szuro_feltetel'] = $_POST['feltetel'];
+            $_SESSION['o_szuro_html']     = $_POST['html'];
             echo json_encode(array(
-                'hiba'  => 'Ezzel a szűrési feltétellel '. number_format($sorok_szama, 0, '', ' ').' sor adatot listázna ki. Biztosan folytatja?<br>Biztosan folytatja?',
-                'gomb'  => '<input type="button" class="gomb zold" value="Igen" onclick="$(\'.f_o_szures_submit\').addClass(\'mehet\').click(); alert2();"><input type="button" class="gomb piros" value="Nem" onclick="alert2(); $(\'.f_o_szures_submit\').removeClass(\'mehet\');">',
-                'title' => 'Kérdés'
+                'mehet' => '1'
             ));
-            $weblap->leallit();
-            exit();
+
+        } else {
+
+            $hiba_kieg = '';
+            if( $_SERVER['HTTP_HOST'] == 'demo.webdeb.hu' ) {
+                $hiba_kieg = '<b class="piros"><br>Nyugi, ez csak WebDeb felületen látszik debughoz:<br>'.$sql.'</b>';
+            }
+            echo json_encode(array(
+                'hiba'  => 'A megfogalmazott feltétel hibás, nem futtatható le!'.$hiba_kieg,
+                'title' => 'Hiba'
+            ));
+
         }
-        $_SESSION['o_szuro_feltetel'] = $_POST['feltetel'];
-        $_SESSION['o_szuro_html']     = $_POST['html'];
-        echo json_encode(array(
-            'mehet' => '1'
-        ));
         
-    } else {
-        
-        $hiba_kieg = '';
-        if( $_SERVER['HTTP_HOST'] == 'demo.webdeb.hu' ) {
-            $hiba_kieg = '<b class="piros"><br>Nyugi, ez csak WebDeb felületen látszik debughoz:<br>'.$sql.'</b>';
-        }
-        echo json_encode(array(
-            'hiba'  => 'A megfogalmazott feltétel hibás, nem futtatható le!'.$hiba_kieg,
-            'title' => 'Hiba'
-        ));
-        
+        $weblap->leallit();
+        exit();
     }
 
-    $weblap->leallit();
-    exit();
 }
 // Összetett szűrés törlése.
 if ( isset($_POST['f_o_szures_torol']) ) {

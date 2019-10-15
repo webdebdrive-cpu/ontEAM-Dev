@@ -270,7 +270,6 @@ function i_u($type, $tabla, $tomb) {
             array_push($ertekek,  ''            );
         }
 
-
         // Úgy általánosságban még hozzáadjuk a kezdho, kezdnap, vegeho, vegenap értékeket
         array_push($oszlopok, 'kezdho',        'kezdnap',           'vegeho',           'vegenap',          'aktkezd_d',            'aktvege_d'           );
         array_push($ertekek, $_POST['kezdho'], $_POST['kezdnap'],   $_POST['vegeho'],   $_POST['vegenap'],  $_POST['aktkezd_d'],    $_POST['aktvege_d']   );

@@ -66,7 +66,7 @@ for ( $i_ciklus = 0; $i_ciklus < 2; $i_ciklus++ ) {
             $db_error = true;
             $log_tmp = 'NEM SIKERÜLT új munkalapot létrehozni: '.$adatbazis_kapcsolat->gp().'
 ';
-        }else{
+        } else {
             $log_tmp = 'Munkalap létrehozva: '.$adatbazis_kapcsolat->gp().'
 ';
         }
@@ -96,7 +96,7 @@ for ( $i_ciklus = 0; $i_ciklus < 2; $i_ciklus++ ) {
                 $db_error = true;
                 $log_tmp = 'NEM SIKERÜLT az új munkalapot módosítani: '.$adatbazis_kapcsolat->gp().'
 ';
-            }else{
+            } else {
                 $log_tmp = 'Az új munkalap módosítva: '.$adatbazis_kapcsolat->gp().'
 ';
             }
@@ -113,7 +113,7 @@ for ( $i_ciklus = 0; $i_ciklus < 2; $i_ciklus++ ) {
         $ertekek  = array(date('Y-m-d'),    $ut_feladat['esnap_d'], get_nev()   );
 
         // Ha nem határidős (azaz ciklikus), akkor futtatjuk ütemező programot, ami visszaadja következő esedékességet
-        if($ut_feladat['cikltip']!='l'){
+        if( $ut_feladat['cikltip'] != 'l' ) {
 
             $esem_d     = substr(str_replace('-', '.', $ut_feladat['esem_d']),  0, 10);
             $esnap_d    = substr(str_replace('-', '.', $ut_feladat['esnap_d']), 0, 10);
@@ -137,7 +137,7 @@ for ( $i_ciklus = 0; $i_ciklus < 2; $i_ciklus++ ) {
             array_push($ertekek,  $esnap_d );
 
         // Ha határidős volt, akkor inaktiváljuk
-        }else{
+        } else {
 
             array_push($oszlopok, 'aktiv');
             array_push($ertekek,  0      );
@@ -150,7 +150,7 @@ for ( $i_ciklus = 0; $i_ciklus < 2; $i_ciklus++ ) {
             $db_error = true;
             $log_tmp = 'NEM SIKERÜLT '.a_az($targyas).' '.$targyas.' módosítani: '.$adatbazis_kapcsolat->gp().'
 ';
-        }else{
+        } else {
             $log_tmp = $megnevezes.' módosítva: '.$adatbazis_kapcsolat->gp().'
 ';
         }
@@ -198,7 +198,7 @@ foreach($eseti_fenntartasok as $eseti){
         $db_error = true;
         $log_tmp = 'NEM SIKERÜLT új munkalapot létrehozni: '.$adatbazis_kapcsolat->gp().'
 ';
-    }else{
+    } else {
         $log_tmp = 'Munkalap létrehozva: '.$adatbazis_kapcsolat->gp().'
 ';
     }
@@ -227,7 +227,7 @@ foreach($eseti_fenntartasok as $eseti){
             $db_error = true;
             $log_tmp = 'NEM SIKERÜLT az új munkalapot módosítani: '.$adatbazis_kapcsolat->gp().'
 ';
-        }else{
+        } else {
             $log_tmp = 'Az új munkalap módosítva: '.$adatbazis_kapcsolat->gp().'
 ';
         }
@@ -246,7 +246,7 @@ foreach($eseti_fenntartasok as $eseti){
         $db_error = true;
         $log_tmp = 'NEM SIKERÜLT '.a_az($targyas).' '.$targyas.' módosítani: '.$adatbazis_kapcsolat->gp().'
 ';
-    }else{
+    } else {
         $log_tmp = $megnevezes.' módosítva: '.$adatbazis_kapcsolat->gp().'
 ';
     }

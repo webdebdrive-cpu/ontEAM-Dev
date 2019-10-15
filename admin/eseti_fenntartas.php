@@ -467,7 +467,7 @@ require_once('selectek.php');
             $idobelyeg = $indulo+($i*60*60*24);
             $fejlec .= '<th>'.date('Y-m-d', $idobelyeg).'<br>'.het_napja( date('w', $idobelyeg) ).'</th>';
         }
-        
+
         // Aktuális felhasználó szállodái
         $szallodak = get_akt_login_szallodai('sql-t adj vissza');
         
@@ -482,7 +482,12 @@ require_once('selectek.php');
             for ( $j = 0; $j < 6; $j++ ) {
 
                 $datum = date('Y-m-d', strtotime('+'.$j.' days'));
-                $db = count($adatbazis_kapcsolat->s('id', $megnevezes, "`esnap_d`='".$datum."' AND `elv_ido_tol`>='{$ora}:00' AND `elv_ido_tol`<'{$ora_kovetkezo}:00'{$szallodak}"));
+                // 8 órához számítjuk azokat az időpontokat is, ahol az elv_ido_tol nincs kitöltve
+                if( $ora=='08' ) {
+                    $db = count($adatbazis_kapcsolat->s('id', $megnevezes, "`esnap_d`='".$datum."' AND ((`elv_ido_tol`>='{$ora}:00' AND `elv_ido_tol`<'{$ora_kovetkezo}:00') OR `elv_ido_tol`='00:00'){$szallodak}"));
+                } else {
+                    $db = count($adatbazis_kapcsolat->s('id', $megnevezes, "`esnap_d`='".$datum."' AND `elv_ido_tol`>='{$ora}:00' AND `elv_ido_tol`<'{$ora_kovetkezo}:00'{$szallodak}"));
+                }
                 if( !$db ) {
                     $db = '';
                 } else {
