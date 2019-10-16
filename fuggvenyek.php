@@ -2864,10 +2864,10 @@ function szamla_lista( $where, $tabla, $kijeloltek = false, $csak_sql_miatt = fa
     }
 
     // Ha csak az SQL kell, hogy lássuk, mik a kapott ID-k, akkor a rendezéssel ne bajlódjunk
-    if(!$csak_sql_miatt){
+    if( !$csak_sql_miatt ) {
         // Előterjesztéseknél ha státusz szerint rendezünk, akkor azon belül iktatószám
-        if(basename(self())=='eloterj_fb.php' || basename(self())=='eloterj_bod.php'){
-            if($order=='stat_id'){
+        if( basename(self()) == 'eloterj_fb.php' || basename(self()) == 'eloterj_bod.php' ) {
+            if( $order == 'stat_id' ) {
                 $order = '`stat_id`, `ikt_szam`';
             }
         }
@@ -2880,10 +2880,10 @@ function szamla_lista( $where, $tabla, $kijeloltek = false, $csak_sql_miatt = fa
                             );
 
         $volt_irany_valtas = false;
-        if( $_SESSION[$tabla]['elozo_rend'] && $_SESSION[$tabla]['elozo_rend']!=$_GET['rend'] ){
+        if( $_SESSION[$tabla]['elozo_rend'] && $_SESSION[$tabla]['elozo_rend'] != $_GET['rend'] ) {
             $i = 0;
-            foreach ($_OPTS['rendezes'] as $rendezes){
-                if($rendezes == $_GET['rend']){
+            foreach ( $_OPTS['rendezes'] as $rendezes ) {
+                if( $rendezes == $_GET['rend'] ) {
                     $_GET['irany'] = $_OPTS['iranyok'][$i];
                     $volt_irany_valtas = true;
                 }
@@ -2896,14 +2896,14 @@ function szamla_lista( $where, $tabla, $kijeloltek = false, $csak_sql_miatt = fa
 
         $irany = $_GET['irany'];
         // Ha egy rendezésben vegyesen vannak az irányok, akkor erre az esetre letároljuk az ellenkezőjét egy másik GET-be
-        if($_GET['irany']=='desc'){
+        if( $_GET['irany'] == 'desc' ) {
             $_GET['ellen_irany'] = '';
         } else {
             $_GET['ellen_irany'] = 'desc';
         }
         // Aktív esetén a rendezés irányát meg kell fordítani (tehát az aktívak, egyesek legyenek elől)
-        if($order=='aktiv'){
-            if($irany=='desc'){
+        if( $order == 'aktiv' ) {
+            if( $irany == 'desc' ) {
                 $irany = 'asc';
             } else {
                 $irany = 'desc';
@@ -2913,7 +2913,7 @@ function szamla_lista( $where, $tabla, $kijeloltek = false, $csak_sql_miatt = fa
     }
 
     // Ha nem egy konkrét recid-t keresünk, akkor állítsuk elő a where feltételt
-    if(!$where){
+    if( !$where ) {
 
         if( $tabla == 'rendszer' ) {
             if( $_GET['rkat'] ) {
@@ -2926,13 +2926,13 @@ function szamla_lista( $where, $tabla, $kijeloltek = false, $csak_sql_miatt = fa
         }
 
         $szallodak = get_akt_login_szallodai();
-        if($tabla == 'anyagigenyles'){
+        if( $tabla == 'anyagigenyles' ) {
             $where = "`".get_db_tabla()."anyagigenyles`.`telephely_id` IN (".implode(',', $szallodak).") AND ";
         }
 
         // Bejelentéseknél szűrünk a törölve oszlop értékére is (logikailag törölt sorok nem látszanak)
         // Illetve csak a beloginolt user szállodáihoz tartozó bejegyzések látszanak
-        if($tabla == 'bejelentes' || $tabla == 'bejelentes_arch'){
+        if( $tabla == 'bejelentes' || $tabla == 'bejelentes_arch' ) {
             $where = "`".get_db_tabla().$tabla."`.`telephely_id` IN (".implode(',', $szallodak).") AND ";
 
             $reszlegek = get_akt_login_reszlegei();
@@ -3269,15 +3269,15 @@ function szamla_lista( $where, $tabla, $kijeloltek = false, $csak_sql_miatt = fa
         }
 
         // Rendezés anyagigényléskor Anyagrend mod: 2018.04
-        if($tabla=='anyagigenyles' /*&& !isset($_GET['anyagrend'])*/){
+        if( $tabla == 'anyagigenyles' /* && !isset($_GET['anyagrend']) */ ) {
 
             // Táblázatos rendezés miatt itt másképp kell a rendezést megoldani
             // Alapértelmezett irány beállítása
-            if(!$_SESSION['anyagigenyles_tablazat_rendez']){
+            if( !$_SESSION['anyagigenyles_tablazat_rendez'] ) {
                 $_SESSION['anyagigenyles_tablazat_rendez'] = 'anyag_tabla_ikt_szam';
                 $_SESSION['anyagigenyles_tablazat_irany']  = 'desc';
             }
-            switch($_SESSION['anyagigenyles_tablazat_rendez']){
+            switch ( $_SESSION['anyagigenyles_tablazat_rendez'] ) {
                 case 'anyag_tabla_ikt_szam'     : $order = '`'.get_db_tabla().'anyagigenyles`.`ikt_szam`';      break;
                 case 'anyag_tabla_szalloda'     : $order = '`'.get_db_tabla().'telephely`.`nev`';               break;
                 case 'anyag_tabla_cikkszam'     : $order = '`'.get_db_tabla().'anyagigenyles`.`cikk_id`';       break;
@@ -3306,32 +3306,32 @@ function szamla_lista( $where, $tabla, $kijeloltek = false, $csak_sql_miatt = fa
         }
 
         // Rendezés anyagrendeléskor
-        if($tabla=='anyagigenyles' && isset($_GET['anyagrend'])){
-            if($_GET['rend']=='stat_id'){
+        if( $tabla == 'anyagigenyles' && isset($_GET['anyagrend']) ) {
+            if( $_GET['rend'] == 'stat_id' ) {
                 $order = '`'.get_db_tabla().'anyagigenyles`.`stat_id` '.$_GET['irany'].', `'.get_db_tabla().'anyagigenyles`.`rndid` '.$_GET['ellen_irany'].'';
             }
-            if($_GET['rend']=='rnd_dt'){
+            if( $_GET['rend'] == 'rnd_dt' ) {
                 $order = '`'.get_db_tabla().'anyagigenyles`.`rnd_dt` '.$_GET['irany'].', `'.get_db_tabla().'anyagigenyles`.`rndid` '.$_GET['irany'].'';
             }
         }
 
         // Rendezés beosztásnál
-        if($tabla=='beosztas'){
+        if( $tabla == 'beosztas' ) {
             // Ha telephely szerint rendezünk, akkor ez lesz a következő rendezési szempont, és az irány is erre vonatkozik
-            if($_GET['rend']=='telephely_id'){
+            if( $_GET['rend'] == 'telephely_id' ) {
                 $order = '`'.get_db_tabla().'telephely`.`nev` '.$_GET['irany'].', `'.get_db_tabla().'beosztas`.`tol`';
             }
         }
 
         // Bejelentéseknél a rendezés külön problémakör:
-        if($tabla=='bejelentes' || $tabla=='bejelentes_arch'){
+        if( $tabla == 'bejelentes' || $tabla == 'bejelentes_arch' ) {
 
             $order = '';
 
             $irany_ikt_szam  = '';
             $irany_telephely = '';
 
-            if($_GET['rend']=='stat_id'){
+            if( $_GET['rend'] == 'stat_id' ) {
 
                 if( !$_GET['irany'] ) {
                     $_GET['irany'] = 'desc';
@@ -3381,7 +3381,7 @@ function szamla_lista( $where, $tabla, $kijeloltek = false, $csak_sql_miatt = fa
             }
 
         }
-        
+
         // Rendezés fenntartási tervnél
         if( $tabla == 'fenntartasi_terv' ) {
             // Ha telephely szerint rendezünk, akkor ez lesz a következő rendezési szempont, és az irány is erre vonatkozik
@@ -3722,6 +3722,9 @@ if( isset($_GET['debug']) && $_SERVER['HTTP_HOST']!='www.onteam.hu' && $_SERVER[
 
     if( $bejegyzesek ) {
         switch($tabla) {
+            case 'anyag_szamla':
+                $html = anyag_szamlaLista( $bejegyzesek, $tabla, $frissit, $kijeloltek );
+            break;
             case 'anyagigenyles':
                 $html = anyagigenylesLista( $bejegyzesek, $tabla, $frissit, $kijeloltek );
             break;
@@ -3750,6 +3753,9 @@ if( isset($_GET['debug']) && $_SERVER['HTTP_HOST']!='www.onteam.hu' && $_SERVER[
             case 'energia':
                 $html = energiaLista( $bejegyzesek, $tabla, $frissit, $kijeloltek );
             break;
+            case 'energia_szamla':
+                $html = energia_szamlaLista( $bejegyzesek, $tabla, $frissit, $kijeloltek );
+            break;
             case 'energia_terv':
                 $html = energia_tervLista( $bejegyzesek, $tabla, $frissit, $kijeloltek );
             break;
@@ -3767,6 +3773,9 @@ if( isset($_GET['debug']) && $_SERVER['HTTP_HOST']!='www.onteam.hu' && $_SERVER[
             break;
             case 'felmeresi_terv':
                 $html = felmeresi_tervLista( $bejegyzesek, $tabla, $frissit, $kijeloltek );
+            break;
+            case 'fenntartasi_szamla':
+                $html = fenntartasi_szamlaLista( $bejegyzesek, $tabla, $frissit, $kijeloltek );
             break;
             case 'fenntartasi_szerzodes':
                 $html = fenntartasi_szerzodesLista( $bejegyzesek, $tabla, $frissit, $kijeloltek );
@@ -3870,6 +3879,49 @@ if( isset($_GET['debug']) && $_SERVER['HTTP_HOST']!='www.onteam.hu' && $_SERVER[
     return array(nl2($html), $idk_vissza);
     // return nl2($html);
 
+}
+
+
+
+function anyag_szamlaLista( $bejegyzesek, $tabla, $frissit, $kijeloltek ) {
+
+    if( $bejegyzesek ) {
+
+        if( !$frissit ) {
+            $html = '<ul id="szamlaList" class="szamla_cont rendszer">';
+        }
+
+        $i = 1;
+        foreach ( $bejegyzesek as $bsz ) {
+            $active = '';
+            if( $bsz['recid'] == $_GET['id'] && !isset($_GET['print']) ) {
+                $active = ' kijelolve';
+            }
+
+            $li_tart = '<a class="szamla" data-recid="'.$bsz['recid'].'" data-fajl="'.$tabla.'.php" data-muvelet="modosit">
+                            <table>
+                            <tr> 
+                                <td style="width: 12rem">'.$bsz['ikt_szam'].'</td>
+                                <td style="width: 8rem">'.$bsz['szlaszam'].'</td>
+                                <td>'.datum_kiir($bsz['fizhat_d']).'</td>
+                            </tr>
+                            </table>
+                        </a>';
+
+            // Bal oldali navpanel frissítésekor kijelöljük az aktuális sort
+            $html .= '<li id="szamla-'.$bsz['recid'].'" class="szamla_sor'.$active.'" data-recid="'.$bsz['recid'].'" data-i="'.$i.'">'.$li_tart.'</li>';
+
+            $i++;
+        }
+
+        if( !$frissit ) {
+            $html .= '</ul>';
+        }
+
+        return nl2($html);
+    }
+
+    return false;
 }
 
 function bejelentesLista( $bejegyzesek, $tabla, $frissit, $kijeloltek, $sorrend_idk ) {
@@ -4675,7 +4727,7 @@ function eseti_fenntartasLista( $bejegyzesek, $tabla, $frissit, $kijeloltek ) {
 
 
             // Bal oldali navpanel frissítésekor kijelöljük az aktuális sort
-            if($frissit){
+            if( $frissit ) {
                 // $active .= ' kijelolve';
             }
             $html .= '<li id="szamla-'.$bsz['recid'].'" class="szamla_sor'.$active.'" data-recid="'.$bsz['recid'].'" data-i="'.$i.'">'.$li_tart.'</li>';
@@ -4698,8 +4750,7 @@ function eseti_fenntartasLista( $bejegyzesek, $tabla, $frissit, $kijeloltek ) {
     return false;
 }
 
-function fenntartasi_szerzodesLista( $bejegyzesek, $tabla, $frissit, $kijeloltek ) {
-    global $adatbazis_kapcsolat;
+function fenntartasi_szamlaLista( $bejegyzesek, $tabla, $frissit, $kijeloltek ) {
 
     if( $bejegyzesek ) {
 
@@ -4708,20 +4759,63 @@ function fenntartasi_szerzodesLista( $bejegyzesek, $tabla, $frissit, $kijeloltek
         }
 
         $i = 1;
-        foreach($bejegyzesek as $bsz) {
+        foreach ( $bejegyzesek as $bsz ) {
             $active = '';
             if( $bsz['recid'] == $_GET['id'] && !isset($_GET['print']) ) {
                 $active = ' kijelolve';
             }
 
             $li_tart = '<a class="szamla" data-recid="'.$bsz['recid'].'" data-fajl="'.$tabla.'.php" data-muvelet="modosit">
-                            <span>'.$bsz['recid'].'</span>
+                            <table>
+                            <tr> 
+                                <td style="width: 12rem">'.$bsz['ikt_szam'].'</td>
+                                <td style="width: 8rem">'.$bsz['szlaszam'].'</td>
+                                <td>'.datum_kiir($bsz['fizhat_d']).'</td>
+                            </tr>
+                            </table>
                         </a>';
 
             // Bal oldali navpanel frissítésekor kijelöljük az aktuális sort
-            if($frissit){
-                // $active .= ' kijelolve';
+            $html .= '<li id="szamla-'.$bsz['recid'].'" class="szamla_sor'.$active.'" data-recid="'.$bsz['recid'].'" data-i="'.$i.'">'.$li_tart.'</li>';
+
+            $i++;
+        }
+
+        if( !$frissit ) {
+            $html .= '</ul>';
+        }
+
+        return nl2($html);
+    }
+
+    return false;
+}
+
+function fenntartasi_szerzodesLista( $bejegyzesek, $tabla, $frissit, $kijeloltek ) {
+
+    if( $bejegyzesek ) {
+
+        if( !$frissit ) {
+            $html = '<ul id="szamlaList" class="szamla_cont rendszer">';
+        }
+
+        $i = 1;
+        foreach ( $bejegyzesek as $bsz ) {
+            $active = '';
+            if( $bsz['recid'] == $_GET['id'] && !isset($_GET['print']) ) {
+                $active = ' kijelolve';
             }
+
+            $li_tart = '<a class="szamla" data-recid="'.$bsz['recid'].'" data-fajl="'.$tabla.'.php" data-muvelet="modosit">
+                            <table>
+                            <tr> 
+                                <td style="width: 12rem">'.$bsz['szszam'].'</td>
+                                <td>'.datum_kiir($bsz['bef_d']).'</td>
+                            </tr>
+                            </table>
+                        </a>';
+
+            // Bal oldali navpanel frissítésekor kijelöljük az aktuális sort
             $html .= '<li id="szamla-'.$bsz['recid'].'" class="szamla_sor'.$active.'" data-recid="'.$bsz['recid'].'" data-i="'.$i.'">'.$li_tart.'</li>';
 
             $i++;
@@ -4755,7 +4849,7 @@ function fenntartasi_tervLista( $bejegyzesek, $tabla, $frissit, $kijeloltek ) {
 
             // Ha a usernek nem csak egy szállodája van, akkor kiírjuk a szálloda nevét
             $szalloda_neve = '';
-            if(!$_SESSION['egyszallodas_user']){
+            if( !$_SESSION['egyszallodas_user'] ) {
                 $szalloda_neve = getSzallodaNev($bsz['telephely_id']);
             }
 
@@ -4773,7 +4867,7 @@ function fenntartasi_tervLista( $bejegyzesek, $tabla, $frissit, $kijeloltek ) {
                         </a>';
 
             // Bal oldali navpanel frissítésekor kijelöljük az aktuális sort
-            if($frissit){
+            if( $frissit ) {
                 // $active .= ' kijelolve';
             }
             $html .= '<li id="szamla-'.$bsz['recid'].'" class="szamla_sor'.$active.'" data-recid="'.$bsz['recid'].'" data-i="'.$i.'">'.$li_tart.'</li>';
@@ -5787,6 +5881,48 @@ function energiaLista( $bejegyzesek, $tabla, $frissit, $kijeloltek ) {
     return false;
 }
 
+
+function energia_szamlaLista( $bejegyzesek, $tabla, $frissit, $kijeloltek ) {
+
+    if( $bejegyzesek ) {
+
+        if( !$frissit ) {
+            $html = '<ul id="szamlaList" class="szamla_cont rendszer">';
+        }
+
+        $i = 1;
+        foreach ( $bejegyzesek as $bsz ) {
+            $active = '';
+            if( $bsz['recid'] == $_GET['id'] && !isset($_GET['print']) ) {
+                $active = ' kijelolve';
+            }
+
+            $li_tart = '<a class="szamla" data-recid="'.$bsz['recid'].'" data-fajl="'.$tabla.'.php" data-muvelet="modosit">
+                            <table>
+                            <tr> 
+                                <td style="width: 12rem">'.$bsz['ikt_szam'].'</td>
+                                <td style="width: 8rem">'.$bsz['szlaszam'].'</td>
+                                <td>'.datum_kiir($bsz['fizhat_d']).'</td>
+                            </tr>
+                            </table>
+                        </a>';
+
+            // Bal oldali navpanel frissítésekor kijelöljük az aktuális sort
+            $html .= '<li id="szamla-'.$bsz['recid'].'" class="szamla_sor'.$active.'" data-recid="'.$bsz['recid'].'" data-i="'.$i.'">'.$li_tart.'</li>';
+
+            $i++;
+        }
+
+        if( !$frissit ) {
+            $html .= '</ul>';
+        }
+
+        return nl2($html);
+    }
+
+    return false;
+}
+
 function tervezesLista( $bejegyzesek, $tabla, $frissit, $kijeloltek ) {
     global $adatbazis_kapcsolat;
 
@@ -5996,14 +6132,17 @@ function dokumentumtarLista() {
 
     // Ezen menüpontok dokumentumait járjuk be
     $menupontok = array(
+                        array('tabla' => 'anyag_szamla',            'nev' => 'Anyag számlák'            ),
                         array('tabla' => 'anyagigenyles',           'nev' => 'Anyagigénylések'          ),
                         array('tabla' => 'bejelentes',              'nev' => 'Bejelentések'             ),
                         array('tabla' => 'beosztas',                'nev' => 'Beosztások'               ),
                         array('tabla' => 'cikktorzs',               'nev' => 'Cikktörzs'                ),
                         array('tabla' => 'munkalap',                'nev' => 'Munkalapok'               ),
                         array('tabla' => 'energia',                 'nev' => 'Energia'                  ),
+                        array('tabla' => 'energia_szamla',          'nev' => 'Energia számlák'          ),
                         array('tabla' => 'eseti_fenntartas',        'nev' => 'Eseti fenntartás'         ),
                         array('tabla' => 'eszkozkezeles',           'nev' => 'Eszközkezelés'            ),
+                        array('tabla' => 'fenntartasi_szamla',      'nev' => 'Fenntartási számlák'      ),
                         array('tabla' => 'fenntartasi_szerzodes',   'nev' => 'Fenntartási szerződések'  ),
                         array('tabla' => 'fenntartasi_terv',        'nev' => 'Fenntartási terv'         ),
                         array('tabla' => 'raktar',                  'nev' => 'Raktár'                   ),
@@ -6021,12 +6160,12 @@ function dokumentumtarLista() {
                         array('tabla' => 'torzsadat',               'nev' => 'Törzsadatok'              ),
                     );
 
-    foreach($menupontok as $menu){
+    foreach ( $menupontok as $menu ) {
 
         $checked = '';
-        if($_GET['konyvtar']){
+        if( $_GET['konyvtar'] ) {
             $kapott_konyvtar = substr($_GET['konyvtar'], 0, strpos($_GET['konyvtar'], '/'));
-            if($kapott_konyvtar == $menu['tabla']){
+            if( $kapott_konyvtar == $menu['tabla'] ) {
                 $checked = ' checked';
             }
         }
@@ -6039,22 +6178,22 @@ function dokumentumtarLista() {
             $alkonyvtarak = array();
             $post = '_dok';
             // Projektigénylés véleményél nincs _dok postfix
-            if($menu['tabla']=='projektigenyles_velemeny'){
+            if( $menu['tabla'] == 'projektigenyles_velemeny' ) {
                 $post = '';
             }
 
             $alkak = $adatbazis_kapcsolat->s('utvonal', $menu['tabla'].$post);
-            foreach($alkak as $alk){
+            foreach ( $alkak as $alk ) {
                 $konyvtar = substr($alk['utvonal'], 0, strpos($alk['utvonal'], '/'));
                 array_push($alkonyvtarak, $konyvtar);
             }
 
-            if($alkonyvtarak){
+            if( $alkonyvtarak ) {
                 $html .= '<ol>';
 
                 $alkonyvtarak = array_unique($alkonyvtarak);
                 sort($alkonyvtarak);
-                foreach($alkonyvtarak as $alk){
+                foreach ( $alkonyvtarak as $alk ) {
 
                     $html .= '
                             <li>

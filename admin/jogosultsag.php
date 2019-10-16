@@ -1,8 +1,8 @@
 <?php
 /*                                                  *\
  * FONTOS:
- * 129-es ID-nál járunk
- * 13-as kategória ID-nál járunk
+ * 130-es ID-nál járunk
+ * 14-as kategória ID-nál járunk
 \*                                                  */
 
 $jogosultsagKatok = array(
@@ -20,6 +20,7 @@ $jogosultsagKatok = array(
     8 => array('nev' => 'Eszközök',                 'sor' => 11),
    12 => array('nev' => 'Fenntartási terv',         'sor' => 12),
    13 => array('nev' => 'Dokumentumok',             'sor' => 13),
+   14 => array('nev' => 'Fenntartás',               'sor' => 14),
 );
 
 $jogosultsagok = array(
@@ -158,12 +159,10 @@ $jogosultsagok = array(
     101 => array('nev' => 'Munkaközi terv törlése',                 'kat' => 12, 'sor' => 7),
     102 => array('nev' => 'Terv élesítése',                         'kat' => 12, 'sor' => 8),
     
-    87 => array('nev' => 'Fenntartási szerződések olvasása',        'kat' => 13, 'sor' => 1),
-    88 => array('nev' => 'Fenntartási szerződések kezelése',        'kat' => 13, 'sor' => 2),
-    89 => array('nev' => 'Fenntartási szerződések törlése',         'kat' => 13, 'sor' => 3),
-    90 => array('nev' => 'Számlák olvasása',                        'kat' => 13, 'sor' => 4),
-    91 => array('nev' => 'Számlák kezelése',                        'kat' => 13, 'sor' => 5),
-    92 => array('nev' => 'Számlák törlése',                         'kat' => 13, 'sor' => 6),
+// Az alábbi 3 nincs is igazából használva, ezt akár át lehet nevezni, másra használni
+90 => array('nev' => 'Számlák olvasása',                        'kat' => 13, 'sor' => 4),
+91 => array('nev' => 'Számlák kezelése',                        'kat' => 13, 'sor' => 5),
+92 => array('nev' => 'Számlák törlése',                         'kat' => 13, 'sor' => 6),
     93 => array('nev' => 'Partnertörzs olvasása',                   'kat' => 13, 'sor' => 7),
     94 => array('nev' => 'Partnertörzs kezelése',                   'kat' => 13, 'sor' => 8),
     99 => array('nev' => 'Partnertörzs név szerkesztése',           'kat' => 13, 'sor' => 9),
@@ -171,4 +170,9 @@ $jogosultsagok = array(
     96 => array('nev' => 'Dokumentumtár olvasása',                  'kat' => 13, 'sor' => 11),
     97 => array('nev' => 'Dokumentumtár kezelése',                  'kat' => 13, 'sor' => 12),
     98 => array('nev' => 'Dokumentumtár törlése',                   'kat' => 13, 'sor' => 13),
+    
+    87  => array('nev' => 'Anyag számlák olvasása',                  'kat' => 14, 'sor' => 1),
+    88  => array('nev' => 'Energia számlák olvasása',                'kat' => 14, 'sor' => 2),
+    89  => array('nev' => 'Fenntartási számlák olvasása',            'kat' => 14, 'sor' => 3),
+    130 => array('nev' => 'Fenntartási szerződések olvasása',        'kat' => 14, 'sor' => 4),
 );

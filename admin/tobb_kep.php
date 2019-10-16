@@ -941,6 +941,12 @@ function dokumentum_kezeles_jog($tabla, $id) {
     
     global $adatbazis_kapcsolat;
     
+    // Bizonyos felületeken fixen nincs szerkesztés jog
+    $fixen_nincs = array('anyag_szamla_dok', 'energia_szamla_dok', 'fenntartasi_szamla_dok', 'fenntartasi_szerzodes_dok');
+    if( in_array($tabla, $fixen_nincs) ) {
+        return false;
+    }
+    
     // Projektigénylések elutasítva és jóváhagyva státuszainál
     if( $tabla == 'projektigenyles_dok' ) {
         $pri = $adatbazis_kapcsolat->s2('stat_id', 'projektigenyles', "`recid`='{$id}'");

@@ -8060,10 +8060,10 @@ require('selectek.php');
         }
 
 	// Munkalap módosítása
-	} elseif(isset($_GET['modosit'])) {
+    } elseif( isset($_GET['modosit']) ) {
 
         // Ha Gyorskeresőből érkeznénk ide, akkor az ID-t valójában az id_hidden tartalmazza majd
-        if(isset($_GET['id_hidden'])){
+        if( isset($_GET['id_hidden']) ) {
             $_GET['id'] = $_GET['id_hidden'];
         }
 
@@ -8076,7 +8076,7 @@ require('selectek.php');
         // Jóváhagyott érték legyen formázva, úgy is csak ki van írva
         $sor['jh_ert'] = number_format($sor['jh_ert'], 0, '', ' ');
 
-        foreach($akt_tomb as $tomb) {
+        foreach ( $akt_tomb as $tomb ) {
             if( $tomb['type'] == 'autocomplete' ) {
 
                 if($tomb['csoport']){

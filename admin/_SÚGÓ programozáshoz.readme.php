@@ -2,7 +2,7 @@
 ÚJ MENÜPONT KIALAKTÍÁSÁNÁL EZEKRE ÜGYELJ
 - esemenyek.php $_SESSION['ketHasabos'] listát bővítsd
 - ugyanitt alatta a switch($tabla) résznél is létre kell hozni egy switch-et
-- készíts egy tabla.php fájlt is (pl. a cikktorzs.php-ból)
+- készíts egy tabla.php fájlt is (a !minta.php-ból)
 - header.php-ban a menüpontot alakítsd ki
 - admin.js-ben a ketHasabos = new Array rész felsorolását bővítsd ki
 - fuggvenyek.php-ben a szamla_lista() függvényt bővítsd ki a if( $bejegyzesek ) résznél, és annak megfelelően egy új függvényt is hozz létre.

@@ -589,6 +589,7 @@ $(function() {
             }
 
             var ketHasabos = new Array(
+                'anyag_szamla',
                 'anyagigenyles',
                 'anyagrendeles',
                 'bejelentes',
@@ -601,11 +602,13 @@ $(function() {
                 'eloterj_bod',
                 'eloterj_fb',
                 'energia',
+                'energia_szamla',
                 'energia_terv',
                 'erteklista',
                 'eseti_fenntartas',
                 'eszkozkezeles',
                 'felmeresi_terv',
+                'fenntartasi_szamla',
                 'fenntartasi_szerzodes',
                 'fenntartasi_terv',
                 'ktghely',

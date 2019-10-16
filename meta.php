@@ -2,33 +2,31 @@
 // Az oldal title-ja
 function get_title(){
 
-    global $adatbazis_kapcsolat;
-
 	$title = get_nev().' - ';
-    if( $_SERVER['HTTP_HOST']=='teszt.onteam.hu' ){
+    if( $_SERVER['HTTP_HOST'] == 'teszt.onteam.hu' ) {
         $title = '[teszt] '.$title;
     }
-    if( $_SERVER['HTTP_HOST']=='dev.onteam.hu' ){
+    if( $_SERVER['HTTP_HOST'] == 'dev.onteam.hu' ) {
         $title = '[dev] '.$title;
     }
-	// global $tartalom_tomb; Ha tartalom többől generálunk ki tartalmat
 
-	switch(basename(self())){
+	switch ( basename(self()) ) {
 
         case 'index.php': 
-            if(!$_SESSION[get_db_tabla().'login_recid']){
+            if( !$_SESSION[get_db_tabla() . 'login_recid'] ) {
                 $title .= 'Bejelentkezés';
-            }else{
+            } else {
                 $title = trim($title, ' - ');
             }
         break;
         case 'anyagigenyles.php':
-            if (isset($_GET['anyagrend'])) {
+            if( isset($_GET['anyagrend']) ) {
                 $title .= 'Anyagrendelések';
-            }else{
+            } else {
                 $title .= 'Anyagigénylések';
             }
         break;
+        case 'anyag_szamla.php'             : $title .= 'Anyag számlák';            break;
         case 'bejelentes.php'               : $title .= 'Bejelentések';             break;
         case 'bejelentes_arch.php'          : $title .= 'Archív bejelentések';      break;
         case 'beosztas.php'                 : $title .= 'Beosztások';               break;
@@ -38,11 +36,13 @@ function get_title(){
         case 'eloterj_fb.php'               : $title .= 'FB előterjesztés';         break;
         case 'eloterj_bod.php'              : $title .= 'BoD előterjesztés';        break;
         case 'energia.php'                  : $title .= 'Energia';                  break;
+        case 'energia_szamla.php'           : $title .= 'Energia számlák';          break;
         case 'energia_terv.php'             : $title .= 'Energia egységárak';       break;
         case 'erteklista.php'               : $title .= 'Értéklisták';              break;
         case 'eseti_fenntartas.php'         : $title .= 'Eseti fenntartás';         break;
         case 'eszkozkezeles.php'            : $title .= 'Eszközkezelés';            break;
         case 'felmeresi_terv.php'           : $title .= 'Felmérési tervek';         break;
+        case 'fenntartasi_szamla.php'       : $title .= 'Fenntartási számla';       break;
         case 'fenntartasi_szerzodes.php'    : $title .= 'Fenntartási szerződések';  break;
         case 'fenntartasi_terv.php'         : $title .= 'Fenntartási terv';         break;
         case 'ktghely.php'                  : $title .= 'Költséghelyek';            break;
@@ -73,42 +73,32 @@ function get_title(){
 }
 
 // Az oldal leírása
-function get_description(){
-	return get_title();
+function get_description() {
+    return get_title();
 }
 
 // Kulcsszavak
-function get_keywords(){
+function get_keywords() {
     return get_title();
 }
 
 
 // Canonical URL
-function get_canonical(){
-
-// Teszteléshez: ha pretty URL-eket használunk, akkor így láthatjuk, hogy mi is a valódi PHP fájl, és milyen GET-eink vannak
-if (isset($_GET['canon'])) {
-    echo '<pre style="font-size: 1.4rem">';
-    echo self();
-    print_r($_GET);
-    echo '</pre>';
-}
-
-	global $adatbazis_kapcsolat;
+function get_canonical() {
 
     $domain = get_http().get_domain();
 
-	switch(basename(self())){
+	switch ( basename(self()) ) {
 
         default:
-            return '<link rel="canonical" href="'.trim( trim( $domain.self().get_get(), '='), '?').'">';
+            return '<link rel="canonical" href="'.$domain.htmlspecialchars($_SERVER['REQUEST_URI']).'">';
         break;
 
 	}
 }
 
 // Közösségioldalak metatagjai
-function get_og(){
+function get_og() {
 
     global $adatbazis_kapcsolat;
 
@@ -117,7 +107,7 @@ function get_og(){
 
     $og_meta = '';
 
-    if(get_facebook()){
+    if( get_facebook() ) {
         // Megosztáskor látszani fog egy Like gomb is, amivel azonnal lájkolni lehet az oldalt
         $og_meta .= '<meta property="article:publisher" content="'.get_facebook().'">';
         // Megosztáskor látszani fog egy Follow gomb is, amivel azonnal követni lehet a profilt
@@ -134,7 +124,7 @@ function get_og(){
 //    $og_meta .= '<meta itemprop="description" content="'.$desc.'">';
 
 
-	switch(basename(self())){
+	switch ( basename(self()) ) {
 //		case 'index.php':
 //            $kep = get_http().get_domain().'/elemek/valami.png';
 //            $og_meta .= '<meta property="og:image" content="'.$kep.'">';

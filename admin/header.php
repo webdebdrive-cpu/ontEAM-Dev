@@ -337,15 +337,24 @@ if(
     $menu_nev_kis    = 'rojektek';
     $menu_nev_tobbes = 'Projektek';
     $megn            = 'projektigenyles';
-    $aloldalak       = array('projektigenyles.php', 'projektkezeles.php', 'projektszerzodes.php', 'cash_flow.php', 'eloterj_fb.php', 'eloterj_bod.php', 'projektszamla.php');
+    $aloldalak       = array(
+                            'projektigenyles.php',  'projektkezeles.php',       'projektszerzodes.php',     'cash_flow.php',
+                            'eloterj_fb.php',       'eloterj_bod.php',          'projektszamla.php',        'anyag_szamla.php',
+                            'energia_szamla.php',   'fenntartasi_szamla.php',   'fenntartasi_szerzodes.php',
+                            );
     if(basename(self())==$megn.'.php' && isset($_GET['modosit'])){ $navi = $menu_nev.' szerkesztése'; }
-    if(basename(self())=='projektigenyles.php') { $oldalNev = 'Projektek / <span id="rekord_neve">Projektigénylések</span><span class="dn" id="rekord_neve_egyes">projektigénylés</span><span class="dn" id="rekord_neve_targy">projektigénylést</span>';                       }
-    if(basename(self())=='projektkezeles.php')  { $oldalNev = 'Projektek / <span id="rekord_neve">Projektek</span><span class="dn" id="rekord_neve_egyes">projekt</span><span class="dn" id="rekord_neve_targy">projektet</span>';                               }
-    if(basename(self())=='projektszerzodes.php'){ $oldalNev = 'Projektek / <span id="rekord_neve">Projekt szerződések</span><span class="dn" id="rekord_neve_egyes">projekt szerződés</span><span class="dn" id="rekord_neve_targy">projekt szerződést</span>';                 }
-    if(basename(self())=='projektszamla.php')   { $oldalNev = 'Projektek / <span id="rekord_neve">Projekt számlák</span><span class="dn" id="rekord_neve_egyes">projekt számla</span><span class="dn" id="rekord_neve_targy">projekt számlát</span>';                           }
-    if(basename(self())=='cash_flow.php')       { $oldalNev = 'Projektek / <span id="rekord_neve">Cash Flow</span><span class="dn" id="rekord_neve_egyes">Cash Flow</span><span class="dn" id="rekord_neve_targy">Cash Flow-t</span>';                                          }
-    if(basename(self())=='eloterj_fb.php')      { $oldalNev = 'Projektek / Előterjesztés / <span id="rekord_neve">FB előterjesztések</span><span class="dn" id="rekord_neve_egyes">FB előterjesztés</span><span class="dn" id="rekord_neve_targy">FB előterjesztést</span>';    }
-    if(basename(self())=='eloterj_bod.php')     { $oldalNev = 'Projektek / Előterjesztés / <span id="rekord_neve">BoD előterjesztések</span><span class="dn" id="rekord_neve_egyes">BoD előterjesztés</span><span class="dn" id="rekord_neve_targy">BoD előterjesztést</span>'; }
+    if(basename(self())=='projektigenyles.php')         { $oldalNev = 'Projektek / <span id="rekord_neve">Projektigénylések</span><span class="dn" id="rekord_neve_egyes">projektigénylés</span><span class="dn" id="rekord_neve_targy">projektigénylést</span>';                       }
+    if(basename(self())=='projektkezeles.php')          { $oldalNev = 'Projektek / <span id="rekord_neve">Projektek</span><span class="dn" id="rekord_neve_egyes">projekt</span><span class="dn" id="rekord_neve_targy">projektet</span>';                                              }
+    if(basename(self())=='projektszerzodes.php')        { $oldalNev = 'Projektek / <span id="rekord_neve">Projekt szerződések</span><span class="dn" id="rekord_neve_egyes">projekt szerződés</span><span class="dn" id="rekord_neve_targy">projekt szerződést</span>';                 }
+    if(basename(self())=='projektszamla.php')           { $oldalNev = 'Projektek / <span id="rekord_neve">Projekt számlák</span><span class="dn" id="rekord_neve_egyes">projekt számla</span><span class="dn" id="rekord_neve_targy">projekt számlát</span>';                           }
+    if(basename(self())=='cash_flow.php')               { $oldalNev = 'Projektek / <span id="rekord_neve">Cash Flow</span><span class="dn" id="rekord_neve_egyes">Cash Flow</span><span class="dn" id="rekord_neve_targy">Cash Flow-t</span>';                                          }
+    if(basename(self())=='eloterj_fb.php')              { $oldalNev = 'Projektek / Előterjesztés / <span id="rekord_neve">FB előterjesztések</span><span class="dn" id="rekord_neve_egyes">FB előterjesztés</span><span class="dn" id="rekord_neve_targy">FB előterjesztést</span>';    }
+    if(basename(self())=='eloterj_bod.php')             { $oldalNev = 'Projektek / Előterjesztés / <span id="rekord_neve">BoD előterjesztések</span><span class="dn" id="rekord_neve_egyes">BoD előterjesztés</span><span class="dn" id="rekord_neve_targy">BoD előterjesztést</span>'; }
+    
+    if(basename(self())=='anyag_szamla.php')            { $oldalNev = 'Projektek / <span id="rekord_neve">Anyag számlák</span><span class="dn" id="rekord_neve_egyes">Anyag számla</span><span class="dn" id="rekord_neve_targy">Anyag számlát</span>';                                      }
+    if(basename(self())=='energia_szamla.php')          { $oldalNev = 'Projektek / <span id="rekord_neve">Energia számlák</span><span class="dn" id="rekord_neve_egyes">Energia számla</span><span class="dn" id="rekord_neve_targy">Energia számlát</span>';                              }
+    if(basename(self())=='fenntartasi_szamla.php')      { $oldalNev = 'Projektek / <span id="rekord_neve">Fenntartási számlák</span><span class="dn" id="rekord_neve_egyes">Fenntartási számla</span><span class="dn" id="rekord_neve_targy">Fenntartási számlát</span>';              }
+    if(basename(self())=='fenntartasi_szerzodes.php')   { $oldalNev = 'Projektek / <span id="rekord_neve">Fenntartási szerződések</span><span class="dn" id="rekord_neve_egyes">Fenntartási szerződés</span><span class="dn" id="rekord_neve_targy">Fenntartási szerződést</span>'; }
 
     $aktmenuk  = '';
     if( _jog(JOG_PRIGENY_S_KEZEL) || _jog(JOG_PRIGENY_SZ_MEGTEKINT) || _jog(JOG_PRIGENY_B_MEGTEKINT) || _jog(JOG_PRIGENY_EGY_MEGTEKINT) || _jog(JOG_PRIGENY_F_MEGTEKINT) || _jog(JOG_PRIGENY_TOBB_MEGTEKINT) || _jog(JOG_PRIGENY_T_MEGTEKINT) ){
@@ -362,7 +371,8 @@ if(
     }
     $aktmenuk .= str_replace( $akt_almenu_mit, array( $aloldalak['3'], 'Cash-flow'              ), $almenu_sablon );
 
-    if(_jog(JOG_ELOTERJ_MEGTEKINT)){
+
+    if( _jog(JOG_ELOTERJ_MEGTEKINT) ) {
         $aktmenuk .= nl2('
             <ul class="alalmenu_cont">
                 <a class="nolink">Előterjesztések</a>
@@ -373,7 +383,20 @@ if(
             </ul>
         ');
     }
-
+    
+    if( _jog(JOG_ANYAG_SZAMLAK_OLVAS) ) {
+        $aktmenuk .= str_replace( $akt_almenu_mit, array( $aloldalak['7'], 'Anyag számlák'          ), $almenu_sablon );
+    }
+    if( _jog(JOG_ENERGIA_SZAMLAK_OLVAS) ) {
+        $aktmenuk .= str_replace( $akt_almenu_mit, array( $aloldalak['8'], 'Energia számlák'        ), $almenu_sablon );
+    }
+    if( _jog(JOG_FENNTARTASI_SZAMLAK_OLVAS) ) {
+        $aktmenuk .= str_replace( $akt_almenu_mit, array( $aloldalak['9'], 'Fenntartási számlák'    ), $almenu_sablon );
+    }
+    if( _jog(JOG_FENNTARTASI_SZERZ_OLVAS) ) {
+        $aktmenuk .= str_replace( $akt_almenu_mit, array( $aloldalak['10'],'Fenntartási szerződések'), $almenu_sablon );
+    }
+    
     $style = '';
     if(substr( basename(self()), 0, strlen(basename($_SERVER['PHP_SELF']))-4 ) == $megn){
         $style = ' class="hover{STYLE_KIEG}"';
@@ -400,26 +423,22 @@ if( !$_SESSION['bejelento_menu_rejt'] /* Bejelentő elől rejtve */ && (_jog(JOG
     $menu_nev        = 'Dokumentumok';
     $menu_nev_kis    = 'dokumentumok';
     $menu_nev_tobbes = 'Dokumentumok';
-    $megn            = 'fenntartasi_szerzodes';
-    $aloldalak       = array($megn.'.php', 'szamla.php', 'szallito.php', 'dokumentumtar.php');
+    $megn            = 'szamla';
+    $aloldalak       = array('szamla.php', 'szallito.php', 'dokumentumtar.php');
     if(basename(self())==$megn.'.php' && isset($_GET['modosit'])){ $navi = $menu_nev.' szerkesztése'; }
-    if(basename(self())=='fenntartasi_szerzodes.php')   { $oldalNev = 'Dokumentumok / <span id="rekord_neve">Fenntartási szerződések</span><span class="dn" id="rekord_neve_egyes">fenntartási szerződés</span><span class="dn" id="rekord_neve_targy">fenntartási szerződést</span>';  }
     if(basename(self())=='szamla.php')                  { $oldalNev = 'Dokumentumok / <span id="rekord_neve">Számlák</span><span class="dn" id="rekord_neve_egyes">számla</span><span class="dn" id="rekord_neve_targy">számlákat</span>';                                              }
     if(basename(self())=='szallito.php')                { $oldalNev = 'Dokumentumok / <span id="rekord_neve">Partnertörzs</span><span class="dn" id="rekord_neve_egyes">partnertörzs</span><span class="dn" id="rekord_neve_targy">partnertörzset</span>';                              }
     if(basename(self())=='dokumentumtar.php')           { $oldalNev = 'Dokumentumok / <span id="rekord_neve">Dokumentumtár</span><span class="dn" id="rekord_neve_egyes">dokumentumtár</span><span class="dn" id="rekord_neve_targy">dokumentumtárat</span>';                           }
 
     $aktmenuk  = '';
-    if( _jog(JOG_FENNTARTASI_SZERZ_OLVAS) ){
-        $aktmenuk .= str_replace( $akt_almenu_mit, array( $aloldalak['0'], 'Fenntartási szerződések'), $almenu_sablon );
-    }
     if( _jog(JOG_SZAMLAK_OLVAS) ){
-        $aktmenuk .= str_replace( $akt_almenu_mit, array( $aloldalak['1'], 'Számlák'                ), $almenu_sablon );
+        $aktmenuk .= str_replace( $akt_almenu_mit, array( $aloldalak['0'], 'Számlák'                ), $almenu_sablon );
     }
     if( _jog(JOG_PARTNERTORZS_OLVAS) ){
-        $aktmenuk .= str_replace( $akt_almenu_mit, array( $aloldalak['2'], 'Partnertörzs'           ), $almenu_sablon );
+        $aktmenuk .= str_replace( $akt_almenu_mit, array( $aloldalak['1'], 'Partnertörzs'           ), $almenu_sablon );
     }
     if( _jog(JOG_DOKUMENTUMTAR_OLVAS) ){
-        $aktmenuk .= str_replace( $akt_almenu_mit, array( $aloldalak['3'], 'Dokumentumtár'          ), $almenu_sablon );
+        $aktmenuk .= str_replace( $akt_almenu_mit, array( $aloldalak['2'], 'Dokumentumtár'          ), $almenu_sablon );
     }
 
     $style = '';
@@ -1021,6 +1040,11 @@ $tabla_nev = basename(self());
 if( substr($tabla_nev, strlen($tabla_nev) - 9) == '_arch.php' ) {
     $uj = $duplikal = $torles_icon = '';
 }
+// Illetve van pár tábla, ahol szintén nem lehet sem újat felteni, sem törölni
+$disabled_tablak = array('anyag_szamla.php', 'energia_szamla.php', 'fenntartasi_szamla.php', 'fenntartasi_szerzodes.php');
+if( in_array($tabla_nev, $disabled_tablak) ) {
+    $uj = $duplikal = $torles_icon = '';
+}
 
 if( basename(self())=='anyagigenyles.php' && !_jog(JOG_ANYAGIGENYLES_KEZEL)){
     $torles_icon    = '';
@@ -1108,20 +1132,13 @@ if( basename(self()) == 'felmeresi_terv.php' && !_jog(JOG_FT_KEZEL) ) {
     $uj = $duplikal = '';
 }
 
-if( basename(self()) == 'fenntartasi_szerzodes.php' && !_jog(JOG_FENNTARTASI_SZERZ_KEZEL) ) {
-    $uj = $duplikal = '';
-}
-if( basename(self()) == 'fenntartasi_szerzodes.php' && !_jog(JOG_FENNTARTASI_SZERZ_TOROL) ) {
-    $torles_icon    = '';
-}
-
-if(basename(self())=='fenntartasi_terv.php'){
-    if ( !_jog(JOG_FENNTARTASI_SAJAT_SZ_KEZEL) ){
+if( basename(self()) == 'fenntartasi_terv.php' ) {
+    if( !_jog(JOG_FENNTARTASI_SAJAT_SZ_KEZEL) ) {
         $uj = $duplikal = '';
     }
 
     // Törléshez törlés jog mindenképp kell. Ezen felül vizsgáljuk a login személyzettípusát + terv státuszát, de ezt már törléskor kezeljük le.
-    if(!_jog(JOG_FENNTARTASI_TERV_TOROL)){
+    if( !_jog(JOG_FENNTARTASI_TERV_TOROL) ) {
         $torles_icon = '';
     }
 }

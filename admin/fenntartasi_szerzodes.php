@@ -2,7 +2,7 @@
 require_once('../weblap.php');
 
 if( !_jog(JOG_FENNTARTASI_SZERZ_OLVAS) ) {
-    if(!$_SESSION[get_db_tabla().'user']){
+    if( !$_SESSION[get_db_tabla() . 'user'] ) {
         $weblap -> leallit();
         header('Location: index.php');
         exit;
@@ -22,8 +22,8 @@ $szoveg                 = 'szerződést';         // Hibaüzenetkor: Biztosan t�
 $szamla_html = '';
 
 // Dokumentumok fülhöz kell majd
-$tobb_kep = false;
-if($tobb_kep){
+$tobb_kep = true;
+if( $tobb_kep ) {
     function get_tobbkep_darab()    { return 10;         } // Maximum hány kép tallózható be
     function get_tobbkep_csakkep()  { return '.jpg,.png';} // Milyen kiterjesztéseket engedünk meg (ha mindenet, legyen üres)
     function get_tobbkep_kepmeret() { return 10;         } // MB-ban
@@ -49,21 +49,19 @@ require_once('selectek.php');
     if( $_GET['id'] ){
         $sor = $adatbazis_kapcsolat -> s2('*', $megnevezes, "`recid`='{$_GET['id']}'");
     }
-    if($sor['dok_db']){
+    
+    if( $sor['dok_db'] ) {
         $dok_db  = ' ('.$sor['dok_db'].')';
     }
-    if($sor['megj_db']){
+    if( $sor['megj_db'] ) {
         $megj_db = ' ('.$sor['megj_db'].')';
     }
 
-    if( isset($_GET['modosit']) || isset($_GET['szamlak']) || isset($_GET['verziok']) || isset($_GET['cash_flow']) || isset($_GET['szerzodes']) || isset($_GET['dokumentumok']) || isset($_GET['megjegyzesek']) ) {
+    if( isset($_GET['modosit']) || isset($_GET['tetel']) || isset($_GET['dokumentumok']) || isset($_GET['megjegyzesek']) ) {
         // Számla fülek
         $ful_tomb = array(
             'modosit'       => 'Adatlap',
-            'szerzodes'     => 'Szerződés tételek',
-            'verziok'       => 'Verziók',
-            'cash_flow'     => 'Cash-flow',
-            'szamlak'       => 'Számlák',
+            'tetel'         => 'Szerződés tételek',
             'dokumentumok'  => 'Dokumentumok'.$dok_db,
             'megjegyzesek'  => 'Megjegyzések'.$megj_db,
         );
@@ -119,20 +117,20 @@ require_once('selectek.php');
 	    $gombok = '<script>var gomb'.$_GET['id'].'= get_kibont_torol(\''.self().'\', \''.$torles.'\', \''.$_GET['id'].'\');</script>';
 
         // Jogosutságkezelés
-        if(!_jog(JOG_FENNTARTASI_SZERZ_TOROL)){
+        if( true /* !_jog(... fenntartási szerződés törlés jog ...) */ ){
             $gombok .= ' <input type="button" id="recordTorol" class="gombb_alert dn" onclick="alert2(\'Nincs jogosultsága törölni ezt a '.$szoveg.'!\', \'\', \'Hiba\')" value="Töröl" title="Töröl">';
-        }else{
+        } else {
             $gombok .= ' <input type="button" id="recordTorol" class="gombb_alert dn" onclick="alert2(\'Biztosan törli ezt a '.$szoveg.'?\', gomb'.$_GET['id'].')" value="Töröl" title="Töröl">';
         }
 
-        if( _jog(JOG_FENNTARTASI_SZERZ_KEZEL) ){
-            $gombok = nl2('
-                <div class="form_kuldes">
-                    <input type="button" class="gombb mentes_gomb" name="mehet_gomb" id="mehet_gomb" disabled value="Mentés" onclick="mentesGomb();">
-                    <input type="button" class="gomb piros" disabled id="megsem_gomb" value="Mégsem" onclick="megsemGomb();">
-                </div>
-            ').$gombok;
-        }
+//        if( _jog(... fenntartási szerződés írás jog ...) ){
+//            $gombok = nl2('
+//                <div class="form_kuldes">
+//                    <input type="button" class="gombb mentes_gomb" name="mehet_gomb" id="mehet_gomb" disabled value="Mentés" onclick="mentesGomb();">
+//                    <input type="button" class="gomb piros" disabled id="megsem_gomb" value="Mégsem" onclick="megsemGomb();">
+//                </div>
+//            ').$gombok;
+//        }
 
         $muv_style = ' style="width: calc(100% - '.($_SESSION['defaultCsuszka'] + 16).'px);"';
         if( in_array(basename(self()), $_SESSION['ketHasabos']) && $_SESSION[get_db_tabla().'user'] ) {
@@ -150,13 +148,13 @@ require_once('selectek.php');
     }
     
 	// Új rekord felvitele
-	if(isset($_GET['uj']) && !$csak_szerkesztheto){
+	if( isset($_GET['uj']) ) {
 
-	    // FORM
-		if(isset($_GET['ujkent'])){
-			foreach($akt_tomb as $ertek){
-				$sor[$ertek['name']]=$_SESSION[$ertek['name']];
-			}
+        // FORM
+		if( isset($_GET['ujkent']) ) {
+            foreach ( $akt_tomb as $ertek ) {
+                $sor[$ertek['name']] = $_SESSION[$ertek['name']];
+            }
 		}
 	    $js = js_kiir($akt_tomb, 'form_ell_admin()');
 
@@ -169,18 +167,18 @@ require_once('selectek.php');
         $rend_mezok = adatbazis2tomb($rend_mezok, 'column_name');
 
         $sor = array();
-        foreach($rend_mezok as $rend_mezo) {
+        foreach ( $rend_mezok as $rend_mezo ) {
             $sor[$rend_mezo] = '';
         }
 
-        foreach($akt_tomb as $tomb) {
+        foreach ( $akt_tomb as $tomb ) {
             if( $tomb['type'] == 'autocomplete' ) {
                 $sor[$tomb['name'].'_autocomp'] = '';
             }
         }
 
         $json_sor = array();
-        foreach($sor as $kulcs => $elem){
+        foreach ( $sor as $kulcs => $elem ) {
             $json_sor[$kulcs] = formAdatok_replace($elem);
         }
         $szamla_html .= '<script> formAdatok = JSON.parse(\''.json_encode($json_sor).'\'); </script>';
@@ -202,22 +200,22 @@ require_once('selectek.php');
         }
 
 	// Rekord módosítása
-	}elseif(isset($_GET['modosit'])) {
+    } elseif( isset($_GET['modosit']) ) {
 
         // Ha Gyorskeresőből érkeznénk ide, akkor az ID-t valójában az id_hidden tartalmazza majd
-        if(isset($_GET['id_hidden'])){
+        if( isset($_GET['id_hidden']) ) {
             $_GET['id'] = $_GET['id_hidden'];
         }
 
-	    $sor = $adatbazis_kapcsolat -> s2('*', $megnevezes, 'recid='.$_GET['id']);
+	    $sor = $adatbazis_kapcsolat -> s2('*', $megnevezes, "`recid`='{$_GET['id']}'");
 
-        foreach($akt_tomb as $tomb) {
+        foreach ( $akt_tomb as $tomb ) {
             if( $tomb['type'] == 'autocomplete' ) {
                 
-                if($tomb['csoport']){
+                if( $tomb['csoport'] ) {
                     $kulso_ertek = $adatbazis_kapcsolat->s2('info', $tomb['tabla'], "`{$tomb['oszlop_keres']}`='{$sor[$tomb['name']]}' AND `csoport`='{$tomb['csoport']}'", '', '1');
                     $kulso_ertek['nev'] = $kulso_ertek['info'];
-                }else{
+                } else {
                     $kulso_ertek = $adatbazis_kapcsolat->s2('recid nev', $tomb['tabla'], "`{$tomb['oszlop_keres']}`='{$sor[$tomb['name']]}'", '', '1');
                 }
 
@@ -229,7 +227,7 @@ require_once('selectek.php');
         }
 
         $json_sor = array();
-        foreach($sor as $kulcs => $elem){
+        foreach ( $sor as $kulcs => $elem ) {
             $json_sor[$kulcs] = formAdatok_replace($elem);
         }
         $szamla_html .= '<script> formAdatok = JSON.parse(\''.json_encode($json_sor).'\'); </script>';
@@ -258,82 +256,64 @@ require_once('selectek.php');
             echo $szamla_html;
         }
 
-        if($tobb_kep){
-			require_once('tobb_kep.php');
+        if( $tobb_kep ) {
+            require_once('tobb_kep.php');
 		}
 
-	// Cash flow
-	}elseif(isset($_GET['cash_flow'])){
-
-        $szamla_html .= 'Cash flow felülete';
-
-        if( $_GET['ajax'] ) {
-            echo json_encode(array(
-                'tartalom'  => $szamla_html.$gombok,
-                'link'      => get_get(array('ajax', 'kat', 'epo', 'oldal', 'order'), true)
-            ));
-        } else {
-            echo $szamla_html;
-        }
-
 	// Szerződés tételek
-	}elseif(isset($_GET['szerzodes'])){
+    } elseif( isset($_GET['tetel']) ) {
 
-        $szamla_html .= 'Szerződés tételek felülete';
-
-        if( $_GET['ajax'] ) {
-            echo json_encode(array(
-                'tartalom'  => $szamla_html.$gombok,
-                'link'      => get_get(array('ajax', 'kat', 'epo', 'oldal', 'order'), true)
-            ));
-        } else {
-            echo $szamla_html;
+        $szamla_html .= nl2('
+            <div class="dt naplo">
+                <div class="dtr nFejlec">
+                    <div class="dtc">Szálloda</div>
+                    <div class="dtc">Teljesítés</div>
+                    <div class="dtc r">Nettó érték</div>
+                    <div class="dtc r">Valuta nettó érték</div>
+                </div>
+        ');
+        
+        // Tételek felsorolása
+        $tetelek = $adatbazis_kapcsolat->s('telephely_id, sz_d, sz_ert, sz_vert', 'fenntartasi_szerzodes_tetel', "`aparecid`='{$_GET['id']}'", 'sz_d');
+        foreach ( $tetelek as $tetel ) {
+            
+            $szamla_html .= nl2('
+                <div class="dtr nSor">
+                    <div class="dtc">'.getSzallodaNev($tetel['telephely_id']).'</div>
+                    <div class="dtc">'.datum_kiir($tetel['sz_d']).'</div>
+                    <div class="dtc r nowrap">'.number_format($tetel['sz_ert'],  0, ',', ' ').'</div>
+                    <div class="dtc r nowrap">'.number_format($tetel['sz_vert'], 2, ',', ' ').'</div>
+                </div>
+            ');
         }
-
-	// Verziók
-	}elseif(isset($_GET['verziok'])){
-
-        $szamla_html .= 'Verziók felülete';
-
+        $szamla_html .= '</div>';
+        
         if( $_GET['ajax'] ) {
             echo json_encode(array(
-                'tartalom'  => $szamla_html.$gombok,
-                'link'      => get_get(array('ajax', 'kat', 'epo', 'oldal', 'order'), true)
+                'tartalom' => $szamla_html.$gombok,
+                'link'     => get_get(array('ajax', 'kat', 'epo', 'oldal', 'order'), true)
             ));
         } else {
-            echo $szamla_html;
-        }
-
-	// Számlák
-	}elseif(isset($_GET['szamlak'])){
-
-        $szamla_html .= 'Számlák felülete';
-
-        if( $_GET['ajax'] ) {
-            echo json_encode(array(
-                'tartalom'  => $szamla_html.$gombok,
-                'link'      => get_get(array('ajax', 'kat', 'epo', 'oldal', 'order'), true)
-            ));
-        } else {
-            echo $szamla_html;
+            echo $szamla_html.$gombok;
         }
 
 	// Dokumentumok
-	}elseif( isset($_GET['dokumentumok']) ) {
+    } elseif( isset($_GET['dokumentumok']) ) {
 
-        $szamla_html .= 'Dokumentumok felülete';
+        if( $tobb_kep ) {
+            require_once('tobb_kep.php');
+        }
 
         if( $_GET['ajax'] ) {
             echo json_encode(array(
-                'tartalom'  => $szamla_html.$gombok,
-                'link'      => get_get(array('ajax', 'kat', 'epo', 'oldal', 'order'), true)
+                'tartalom' => $szamla_html.$gombok
             ));
         } else {
-            echo $szamla_html;
+            echo $szamla_html.$gombok;
         }
 
 	// Megjegyzések
-	}elseif(isset($_GET['megjegyzesek'])){
+    } elseif( isset($_GET['megjegyzesek']) ) {
 
         // <div class="dt naplo" class nevekből a kijCont kivéve, hogy a megjegyzéseket ne lehessen törölni
         $szamla_html .= nl2('
@@ -349,7 +329,7 @@ require_once('selectek.php');
 
         if( $sorok ) {
             $i = 1;
-            foreach($sorok as $sor) {
+            foreach ( $sorok as $sor ) {
                 $szamla_html .= nl2('
                     <div id="naploSor-'.$sor['recid'].'" data-id="'.$sor['recid'].'" data-i="'.$i.'" class="dtr nSor kijSor">
                         <div class="dtc">'.htmlspecialchars_decode( nl2br2($sor['megj']) ).'</div>

@@ -728,7 +728,7 @@ if (isset($_GET['csv'])) {
             $hossz = strpos($lekerdezes_fromtol, 'ORDER');
             if( $hossz ) {
                 $lekerdezes_fromtol = substr($lekerdezes_fromtol, 0, $hossz);
-            }else{
+            } else {
                 $lekerdezes_fromtol = substr($lekerdezes_fromtol, 0);
             }
         }
@@ -768,14 +768,14 @@ if (isset($_GET['csv'])) {
                 if($kulcs=='Bejelentett hiba'){
                     $sor = getErtekLista('', '', $sor);
                 }
-                if($kulcs=='Gépnév'){
+                if( $kulcs == 'Gépnév' ) {
                     $sor = $adatbazis_kapcsolat->s2('nev', 'eszkozkezeles', "`recid`='{$sor}'");
                     $sor = $sor['nev'];
                 }
-                if($kulcs=='Státusz'){
+                if( $kulcs == 'Státusz' ) {
                     $sor = getStatText('bejelentes', $sor);
                 }
-                if($kulcs=='Bejelentés dátuma'){
+                if( $kulcs == 'Bejelentés dátuma' ) {
                     $sor = datum_kiir($sor);
                 }
                 
@@ -1168,7 +1168,7 @@ require_once('selectek.php');
         }
 
 	// Bejelentés módosítása
-	}elseif(isset($_GET['modosit'])) {
+    } elseif( isset($_GET['modosit']) ) {
 
         // Ha Gyorskeresőből érkeznénk ide, akkor az ID-t valójában az id_hidden tartalmazza majd
         if(isset($_GET['id_hidden'])){
@@ -1185,13 +1185,13 @@ require_once('selectek.php');
         $sor['hiba_text']       = str_replace($mit, $mivel, $sor['hiba_text']);
         $sor['helyiseg_text']   = str_replace($mit, $mivel, $sor['helyiseg_text']);
         
-        foreach($akt_tomb as $tomb) {
+        foreach ( $akt_tomb as $tomb ) {
             if( $tomb['type'] == 'autocomplete' ) {
 
-                if($tomb['csoport']){
+                if( $tomb['csoport'] ) {
                     $kulso_ertek = $adatbazis_kapcsolat->s2('info', $tomb['tabla'], "`{$tomb['oszlop_keres']}`='{$sor[$tomb['name']]}' AND `csoport`='{$tomb['csoport']}'", '', '1');
                     $kulso_ertek['nev'] = $kulso_ertek['info'];
-                }else{
+                } else {
                     $kulso_ertek = $adatbazis_kapcsolat->s2('recid nev', $tomb['tabla'], "`{$tomb['oszlop_keres']}`='{$sor[$tomb['name']]}'", '', '1');
                 }
 
@@ -1245,7 +1245,7 @@ require_once('selectek.php');
         }
 
 	// Történet fül
-    }elseif(isset($_GET['tortenet'])) {
+    } elseif( isset($_GET['tortenet']) ) {
 
         $szamla_html .= get_tortenet($megnevezes);
 
@@ -1258,7 +1258,7 @@ require_once('selectek.php');
         }
 
 	// Munkalapok fül
-	}elseif(isset($_GET['munkalapok'])){
+    } elseif( isset($_GET['munkalapok']) ) {
 
         $szamla_html .= nl2('
             <div class="dt naplo kijCont" data-tabla="munkalap_kapcs" data-mellek="munkalapok">
@@ -1317,7 +1317,7 @@ require_once('selectek.php');
 
 
     // Dokumentumok fül
-    }elseif( isset($_GET['dokumentumok']) ) {
+    } elseif( isset($_GET['dokumentumok']) ) {
 
         if( $tobb_kep ) {
             require_once('tobb_kep.php');
@@ -1332,7 +1332,7 @@ require_once('selectek.php');
         }
 
     // Megjegyzés
-    }elseif(isset($_GET['megjegyzesek'])) {
+    } elseif( isset($_GET['megjegyzesek']) ) {
 
         // <div class="dt naplo" class nevekből a kijCont kivéve, hogy a megjegyzéseket ne lehessen törölni
         $szamla_html .= nl2('
