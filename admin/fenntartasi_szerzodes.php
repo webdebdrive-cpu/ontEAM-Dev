@@ -61,7 +61,7 @@ require_once('selectek.php');
         // Számla fülek
         $ful_tomb = array(
             'modosit'       => 'Adatlap',
-            'tetel'         => 'Szerződés tételek',
+            'tetel'         => 'Tételek',
             'dokumentumok'  => 'Dokumentumok'.$dok_db,
             'megjegyzesek'  => 'Megjegyzések'.$megj_db,
         );

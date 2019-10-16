@@ -43,15 +43,6 @@ array_push($select_oracikkid, array('name'  => 'MÜZEM0004',     'value' => 'MÜ
 array_push($select_oracikkid, array('name'  => 'MVEGY0003',     'value' => 'MVEGY0003'));
 array_push($select_oracikkid, array('name'  => 'MÜSEG0001',     'value' => 'MÜSEG0001'));
 
-/* Úgy látom, nincs is használva, kivettem. 2018.06.01 - Éljen, itt van a nyár!
-// Select tömb előállítása rendszer kategóriákhoz
-$select_rkat = array();
-array_push($select_rkat, array('name' => '- Válasszon -', 'value' => '' ));
-$rkat = $adatbazis_kapcsolat -> select('recid nev', 'rendszer_kat', '', 'nev');
-foreach($rkat as $rkat_sor){
-	array_push($select_rkat, array('name' => $rkat_sor['nev'], 'value' => $rkat_sor['recid'] ));
-}*/
-
 // Select tömb Ütemezés típushoz
 $select_cikltip = array();
 if( basename(self())!='eseti_fenntartas.php' ){
@@ -195,3 +186,11 @@ if( basename(self()) == 'erteklista.php' || basename(self()) == 'header.php' ) {
         array_push($select_erteklista, array('name' => $erteklista['nev'], 'value' => (int)$erteklista['csoport'] ));
     }
 }
+
+// Szerződés típusok
+$select_szerzodes_tipus = array();
+array_push($select_szerzodes_tipus, array('name' => '- Válasszon -', 'value' => '' ));
+array_push($select_szerzodes_tipus, array('name' => 'Típus 1',  'value' => '1' ));
+array_push($select_szerzodes_tipus, array('name' => 'Típus 2',  'value' => '2' ));
+array_push($select_szerzodes_tipus, array('name' => 'Típus 3',  'value' => '3'));
+array_push($select_szerzodes_tipus, array('name' => 'Típus 4',  'value' => '4' ));

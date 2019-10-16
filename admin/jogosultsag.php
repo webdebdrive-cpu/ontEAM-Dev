@@ -2,7 +2,7 @@
 /*                                                  *\
  * FONTOS:
  * 130-es ID-nál járunk
- * 14-as kategória ID-nál járunk
+ * 13-as kategória ID-nál járunk
 \*                                                  */
 
 $jogosultsagKatok = array(
@@ -18,9 +18,8 @@ $jogosultsagKatok = array(
    10 => array('nev' => 'Projektek',                'sor' => 9),
    11 => array('nev' => 'Felmérési tervek',         'sor' => 10),
     8 => array('nev' => 'Eszközök',                 'sor' => 11),
-   12 => array('nev' => 'Fenntartási terv',         'sor' => 12),
+   12 => array('nev' => 'Fenntartás',               'sor' => 12),
    13 => array('nev' => 'Dokumentumok',             'sor' => 13),
-   14 => array('nev' => 'Fenntartás',               'sor' => 14),
 );
 
 $jogosultsagok = array(
@@ -152,6 +151,10 @@ $jogosultsagok = array(
     44 => array('nev' => 'Felmérési tervek olvasása',               'kat' => 11, 'sor' => 1),
     45 => array('nev' => 'Felmérési tervek kezelése',               'kat' => 11, 'sor' => 2),
     
+    130 => array('nev' => 'Fenntartási szerződések megtekintése',   'kat' => 12, 'sor' => 1),
+    89  => array('nev' => 'Fenntartási számlák megtekintése',       'kat' => 12, 'sor' => 2),
+    88  => array('nev' => 'Energia számlák megtekintése',           'kat' => 12, 'sor' => 3),
+    87  => array('nev' => 'Anyag számlák megtekintése',             'kat' => 12, 'sor' => 4),
     103 => array('nev' => 'Energia egységár olvasása',              'kat' => 12, 'sor' => 1),
     104 => array('nev' => 'Energia egységár kezelés',               'kat' => 12, 'sor' => 2),
     84  => array('nev' => 'Terv olvasása',                          'kat' => 12, 'sor' => 3),
@@ -171,8 +174,4 @@ $jogosultsagok = array(
     97 => array('nev' => 'Dokumentumtár kezelése',                  'kat' => 13, 'sor' => 12),
     98 => array('nev' => 'Dokumentumtár törlése',                   'kat' => 13, 'sor' => 13),
     
-    87  => array('nev' => 'Anyag számlák olvasása',                  'kat' => 14, 'sor' => 1),
-    88  => array('nev' => 'Energia számlák olvasása',                'kat' => 14, 'sor' => 2),
-    89  => array('nev' => 'Fenntartási számlák olvasása',            'kat' => 14, 'sor' => 3),
-    130 => array('nev' => 'Fenntartási szerződések olvasása',        'kat' => 14, 'sor' => 4),
 );
