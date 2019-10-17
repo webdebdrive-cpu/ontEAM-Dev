@@ -156,4 +156,3 @@ class Weblap{
         //exit;ITT NEM LEHET EXIT
 	}
 }
-?>

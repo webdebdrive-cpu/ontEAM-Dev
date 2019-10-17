@@ -9,9 +9,15 @@ require_once 'konstansok.php';
 date_default_timezone_set('Europe/Budapest');
 
 // Ne legyen logolás!
-ini_set('log_errors',       '0'             );
-ini_set('display_errors' ,  '0'             );
-error_reporting(E_ERROR);
+if( $_SERVER['HTTP_HOST'] == 'demo.webdeb.hu' ) {
+    ini_set('log_errors',       '1'             );
+    ini_set('display_errors' ,  '1'             );
+    error_reporting(E_ERROR);
+} else {
+    ini_set('log_errors',       '0'             );
+    ini_set('display_errors' ,  '0'             );
+    error_reporting(E_ERROR);
+}
 
  // Alapértelmezetten '', de ha értéket adunk (pl.: tabla_), akkor létrehoz egy adatbázis kapcsolatot a 'Weblap' osztály
 function get_db_tabla()   {     return 'onteam_';      }
@@ -255,4 +261,3 @@ foreach($_GET as $kulcs => $get){
     $_GET[$kulcs] = str_replace('!SHARP!', '#', $_GET[$kulcs]);
     $_GET[$kulcs] = stripslashes($_GET[$kulcs]);
 }
-?>

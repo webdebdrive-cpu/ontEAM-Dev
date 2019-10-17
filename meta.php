@@ -135,4 +135,3 @@ function get_og() {
 
 	return $og_meta;
 }
-?>

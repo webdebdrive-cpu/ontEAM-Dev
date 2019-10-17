@@ -2937,4 +2937,3 @@ function zip_kicsomagol($zip_fajl, $celkonyvtar, $fajlokat = array()){
         
     }
 }
-?>

@@ -6387,5 +6387,3 @@ function kep_menedzser($megnevezes, $tomb, $tabla, $sor_id, $uj_lista, $meret, $
 	}
 
 }
-
-?>

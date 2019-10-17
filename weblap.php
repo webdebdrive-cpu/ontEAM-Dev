@@ -79,7 +79,7 @@ if( $weblap->db_prefix ) {
 */
 
 // Kiléptetés, ha nem él a SESSION és nem az index.php-n vagyunk és nem is egy ütemezőn, nem is elfelejtett jelszót kérünk le.
-$kiveteles_oldalak = array('index.php', 'import_szamla.php', 'import_szamla_kifizetes.php', 'beleptetes.php');
+$kiveteles_oldalak = array('index.php', 'import_szamla.php', 'import_szamla_kifizetes.php', 'beleptetes.php', 'andoc.php');
 if( !$_SESSION[get_db_tabla() . 'user'] && !$_POST['elfelejtett_jelszo'] && substr(basename($_SERVER['PHP_SELF']), 0, 8) != 'utemezo_' && !in_array(basename($_SERVER['PHP_SELF']), $kiveteles_oldalak) ) {
     echo 'SESKIL<script>document.body.innerHTML = \'\'; location.href=\'index.php\'</script>';
     exit;
