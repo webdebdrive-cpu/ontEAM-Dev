@@ -7946,7 +7946,13 @@ function get_csatolmanyok(tabla, recid) {
         },
         success: function (response) {
             if(response.substring(0, 6)=='SESKIL'){ location.href = 'index.php'; }
-            $('#pop_csatolt_fajlok').html(response);
+            response = JSON.parse(response);
+            if( response.nincs_jog ) {
+                popupZar();
+                alert2('Nincs joga Dokumentumok küldéséhez!', '', 'Hiba');
+            } else {
+                $('#pop_csatolt_fajlok').html(response.html);
+            }
         },
         complete: function(xhr) {
             if( xhr.status != 200 ) {

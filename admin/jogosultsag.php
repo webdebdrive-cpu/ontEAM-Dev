@@ -151,16 +151,16 @@ $jogosultsagok = array(
     44 => array('nev' => 'Felmérési tervek olvasása',               'kat' => 11, 'sor' => 1),
     45 => array('nev' => 'Felmérési tervek kezelése',               'kat' => 11, 'sor' => 2),
     
-    130 => array('nev' => 'Fenntartási szerződések megtekintése',   'kat' => 12, 'sor' => 1),
-    89  => array('nev' => 'Fenntartási számlák megtekintése',       'kat' => 12, 'sor' => 2),
-    88  => array('nev' => 'Energia számlák megtekintése',           'kat' => 12, 'sor' => 3),
-    87  => array('nev' => 'Anyag számlák megtekintése',             'kat' => 12, 'sor' => 4),
     103 => array('nev' => 'Energia egységár olvasása',              'kat' => 12, 'sor' => 1),
     104 => array('nev' => 'Energia egységár kezelés',               'kat' => 12, 'sor' => 2),
     84  => array('nev' => 'Terv olvasása',                          'kat' => 12, 'sor' => 3),
     85  => array('nev' => 'Terv kezelése',                          'kat' => 12, 'sor' => 4),
-    101 => array('nev' => 'Munkaközi terv törlése',                 'kat' => 12, 'sor' => 7),
-    102 => array('nev' => 'Terv élesítése',                         'kat' => 12, 'sor' => 8),
+    101 => array('nev' => 'Munkaközi terv törlése',                 'kat' => 12, 'sor' => 5),
+    102 => array('nev' => 'Terv élesítése',                         'kat' => 12, 'sor' => 6),
+    130 => array('nev' => 'Fenntartási szerződések megtekintése',   'kat' => 12, 'sor' => 7),
+    89  => array('nev' => 'Fenntartási számlák megtekintése',       'kat' => 12, 'sor' => 8),
+    88  => array('nev' => 'Energia számlák megtekintése',           'kat' => 12, 'sor' => 9),
+    87  => array('nev' => 'Anyag számlák megtekintése',             'kat' => 12, 'sor' => 10),
     
 // Az alábbi 3 nincs is igazából használva, ezt akár át lehet nevezni, másra használni
 90 => array('nev' => 'Számlák olvasása',                        'kat' => 13, 'sor' => 4),

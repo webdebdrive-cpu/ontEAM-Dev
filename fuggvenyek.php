@@ -123,6 +123,20 @@ function i_u($type, $tabla, $tomb) {
             exit;
         }
     }
+    
+    // Ütemezett feladatok, rendszeres karbantartás és eseti fenntartásoknál ha nem volna ismert az Elvégzési idő, akkor alapértelmezett értéket kap
+    $elv_ido = array('utemezett_feladatok', 'rendszeres_karbantartas', 'eseti_fenntartas');
+    if( in_array($tabla, $elv_ido) ) {
+
+        if( !$_POST['elv_ido_tol'] || strlen($_POST['elv_ido_tol'])>5 /* Ekkor üres. Az üres szóközöket nem tudjuk másképp felismerni */ ) {
+            $_POST['elv_ido_tol'] = '08:00';
+        }
+
+        if( !$_POST['elv_ido_ig'] || strlen($_POST['elv_ido_ig'])>5 /* Ekkor üres. Az üres szóközöket nem tudjuk másképp felismerni */ ) {
+            $_POST['elv_ido_ig'] = '17:00';
+        }
+
+    }
 
     // Értékek párosítása
 	$i = 0;

@@ -2121,7 +2121,10 @@ require_once('selectek.php');
             if( !$team ) {
                 $onclick = 'alert2(\'A projekthez nincs team tag hozzárendelve!\', \'\', \'Hiba\');';
             }
-            $gombok .= '<input type="button" class="gomb modositaskor_rejt" value="Dokumentumok küldése team tagoknak" onclick="'.$onclick.'"> ';
+            
+            if( _jog(JOG_PRKEZEL_KEZEL) ) {
+                $gombok .= '<input type="button" class="gomb modositaskor_rejt" value="Dokumentumok küldése team tagoknak" onclick="'.$onclick.'"> ';
+            }
         }
 
         $muv_style = ' style="width: calc(100% - '.($_SESSION['defaultCsuszka'] + 16).'px);"';

@@ -869,6 +869,17 @@ function get_tobbkep_thumb($sor_kepek, $i, $tobbkep_tablanev, $nincs_torles, $ku
                 $torles_width = '13.5';
             }
             
+            // Ha nincs projekt kezelés jog, akkor dokuemntumot nem lehet küldeni, emiatt a kijelölést is elrejtjük
+            $checkbox = '';
+            if( _jog(JOG_PRKEZEL_KEZEL) ) {
+                $checkbox = nl2('
+                        <div class="cb jobbra">
+                            <input type="checkbox" class="check dok_jeloles" onclick="projekt_dok_check(\''.$sor_kepek['recid'].'\', $(this).is(\':checked\'))" id="jeloles_'.$azon.'"'.$checked.'>
+                            <label for="jeloles_'.$azon.'"></label>
+                        </div>
+                    ');
+            }
+            
             // Projektek alatt a származtatott dokumentumok oszlopsorrendje eltér az általános esettől
             $tobbkep_html .= nl2('
                 <li id="'.$azon.'" title="'.$sor_kepek['megj'].'" data-id="'.$sor_kepek['recid'].'" data-i="'.$i.'"'.$class_kiir.'>
@@ -893,10 +904,7 @@ function get_tobbkep_thumb($sor_kepek, $i, $tobbkep_tablanev, $nincs_torles, $ku
                     '.$minosites.'
                     <div class="felirat" style="width: '.$torles_width.'rem">'.$torles.'</div>
                     <div class="maradek" style="width: 6rem">
-                        <div class="cb jobbra">
-                            <input type="checkbox" class="check dok_jeloles" onclick="projekt_dok_check(\''.$sor_kepek['recid'].'\', $(this).is(\':checked\'))" id="jeloles_'.$azon.'"'.$checked.'>
-                            <label for="jeloles_'.$azon.'"></label>
-                        </div>
+                        '.$checkbox.'
                     </div>
                 </li>
             ');

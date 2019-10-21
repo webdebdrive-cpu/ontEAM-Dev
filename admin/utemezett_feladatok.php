@@ -682,11 +682,11 @@ if(isset($_GET['ut_teszt'])) {
             for ( $j = 0; $j < 6; $j++ ) {
 
                 $datum = date('Y-m-d', strtotime('+'.$j.' days'));
-                $db = count($adatbazis_kapcsolat->s('id', $megnevezes, "`esnap_d`='".$datum."' AND `elv_ido_tol`>='{$ora}:00' AND `elv_ido_tol`<'{$ora_kovetkezo}:00'{$szallodak}"));
+                $db = count($adatbazis_kapcsolat->s('id', $megnevezes, "`esnap_d`='".$datum."' AND `elv_ido_tol`>='{$ora}:00' AND `elv_ido_tol`<'{$ora_kovetkezo}:00'{$szallodak} AND `aktiv`=1"));
                 if( !$db ) {
                     $db = '';
                 } else {
-                    $db = '<a href="'.self().'?modosit&amp;tabla='.$megnevezes.'&amp;feltetel=me|esnap_d!HASH!op|equal!HASH!fe|'.$datum.'!HASH!es|!HASH!me|elv_ido_tol!HASH!op|gteq!HASH!fe|'.$ora.':00!HASH!es|!HASH!me|elv_ido_tol!HASH!op|lteq!HASH!fe|'.$ora_kovetkezo.':00!HASH!es|!HASH!&amp;f_o_szures_submit=1" target="_blank">'.$db.'</a>';
+                    $db = '<a href="'.self().'?modosit&amp;tabla='.$megnevezes.'&amp;feltetel=me|esnap_d!HASH!op|equal!HASH!fe|'.$datum.'!HASH!es|!HASH!me|elv_ido_tol!HASH!op|gteq!HASH!fe|'.$ora.':00!HASH!es|!HASH!me|elv_ido_tol!HASH!op|lt!HASH!fe|'.$ora_kovetkezo.':00!HASH!es|!HASH!me|aktiv!HASH!op|equal!HASH!fe|1!HASH!es|!HASH!&amp;f_o_szures_submit=1" target="_blank">'.$db.'</a>';
                 }
                 $napok .= '<td>'.$db.'</td>';
             }
