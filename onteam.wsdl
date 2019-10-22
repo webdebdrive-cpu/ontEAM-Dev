@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding ="utf-8"?>
+<definitions name="ontEAM Webservice"
+	targetNamespace="http://demo.webdeb.hu/danubiushotel.hu/onteam.wsdl"
+	xmlns:tns="onteam.webservice.wsdl"
+	xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/"
+	xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+	xmlns:xsd1="onteam.webservice.xsd"
+	xmlns:soapenc="http://schemas.xmlsoap.org/soap/encoding/"
+	xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/"
+	xmlns="http://schemas.xmlsoap.org/wsdl/">
+<!-- definition of datatypes -->
+	<types>
+	<schema targetNamespace="onteam.webservice.xsd" xmlns="http://www.w3.org/2000/10/XMLSchema">
+		<element name="xml">
+		<complexType><all><element name="value" type="string" /></all></complexType>
+		</element>
+		<element name="message">
+		<complexType><all><element name="value" type="string" /></all></complexType>
+		</element>
+	</schema>
+	</types>
+<!-- response messages -->
+	<message name='returns_message'>
+	<part name='message' type='xsd:message'/>
+	</message>
+<!-- request messages -->
+	<message name='SzamlaAdatokImport'>
+	<part name='xml' type='xsd:xml'/>
+	</message>
+<!-- server's services -->
+	<portType name='SOAP ws'>
+		<operation name='SzamlaAdatokImport'>
+		<input message='tns:SzamlaAdatokImport'/>
+		<output message='tns:returns_message'/>
+		</operation>
+	</portType>
+<!-- server encoding -->
+	<binding name='SOAP ws_webservices' type='tns:SOAP ws'>
+	<soap:binding style='rpc' transport='http://schemas.xmlsoap.org/soap/http'/>
+		<operation name='SzamlaAdatokImport'>
+		<soap:operation soapAction='urn:xmethods-delayed-quotes#SzamlaAdatokImport'/>
+		<input><soap:body use='encoded' namespace='urn:xmethods-delayed-quotes' encodingStyle='http://schemas.xmlsoap.org/soap/encoding/'/></input>
+		<output><soap:body use='encoded' namespace='urn:xmethods-delayed-quotes' encodingStyle='http://schemas.xmlsoap.org/soap/encoding/'/></output>
+		</operation>
+	</binding>
+<!-- access to service provider -->
+	<service name='example'>
+	<port name='example_0' binding='SOAP ws_webservices'>
+	<soap:address location='http://demo.webdeb.hu/danubiushotel.hu/andoc.php'/>
+	</port>
+	</service>
+</definitions>

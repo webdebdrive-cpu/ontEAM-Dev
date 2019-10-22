@@ -8,8 +8,8 @@ require_once 'konstansok.php';
 // Időzóna beállítása
 date_default_timezone_set('Europe/Budapest');
 
-// Ne legyen logolás!
-if( $_SERVER['HTTP_HOST'] == 'demo.webdeb.hu' ) {
+// Ne legyen logolás, csak demo felületen!
+if( $_SERVER['HTTP_HOST'] == 'demo.webdeb.hu' || $_SERVER['HTTP_HOST'] == 'dev.onteam.hu' ) {
     ini_set('log_errors',       '1'             );
     ini_set('display_errors' ,  '1'             );
     error_reporting(E_ERROR);
@@ -55,6 +55,16 @@ function get_db_pass() {
         case 'onteam.hu'            : return 'HMERDQgx0JHp124U';
         case 'teszt.onteam.hu'      : return 'iChtTeSbI4GXIlXg';
         case 'dev.onteam.hu'        : return 'iChtTeSbI4GXIlXg';
+    }
+}
+function get_url_elotag() {
+    switch ( $_SERVER['HTTP_HOST'] ) {
+        case 'localhost'            : return 'localhost/';
+        case 'demo.webdeb.hu'       : return 'http://demo.webdeb.hu/danubiushotel.hu/';
+        case 'teszt.onteam.hu'      : return 'https://teszt.onteam.hu/';
+        case 'dev.onteam.hu'        : return 'https://dev.onteam.hu/';
+        case 'onteam.hu'            : return 'https://www.onteam.hu/';
+        case 'www.onteam.hu'        : return 'https://www.onteam.hu/';
     }
 }
 
@@ -155,7 +165,7 @@ function get_doctype() { return '';                 } //transitional, frameset (
 function get_noskype() { return true;               }
 function get_language(){ return get_alapnyelv();    }
 function get_favicon() {
-    if(is_file('favicon.ico')){
+    if( is_file('favicon.ico') ) {
         return 'favicon.ico';
     }else{
         return '';

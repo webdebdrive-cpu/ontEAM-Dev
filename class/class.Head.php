@@ -112,7 +112,7 @@ class Head{
         if(get_alk()){
             if( basename( dirname(self()) ).'/' == get_admin()){
                 $head .= '<base href="'.get_alk().get_admin().'">';
-            }else{
+            } else {
                 $head .= '<base href="'.get_alk().'">';
             }
         }
@@ -123,18 +123,18 @@ class Head{
             $head .= '<meta name="viewport" content="initial-scale=1.0,maximum-scale=1.0, user-scalable=0,width=device-width">';
         }
 
-		if($this -> favicon){
-			$head .= '<link rel="shortcut icon" href="/favicon.ico" type="image/x-icon">';
+		if( $this->favicon ) {
+            $head .= '<link rel="shortcut icon" href="/favicon.ico" type="image/x-icon">';
             $head .= '<link rel="icon" href="/favicon.png">';
 		}
 
         //CSS és JS tömörítés
-        if( basename( dirname(self()) ).'/' == get_admin()){
+        if( basename(dirname(self())) . '/' == get_admin() ) {
             $js_css         = get_jsfajlok_admin();
             $css_min_fajl   = '../css/wdb_admin_min.css';
             $js_min_fajl    = '../js/wdb_admin_min.js';
             $js_async_fajl  = '../js/wdb_admin_async_min.js';
-        }else{
+        } else {
             $js_css         = get_jsfajlok();
             $css_min_fajl   = 'css/wdb_min.css';
             $js_min_fajl    = 'js/wdb_min.js';
@@ -142,24 +142,24 @@ class Head{
         }
 
         $css            = '';
-        if(is_file($css_min_fajl)){
+        if( is_file($css_min_fajl) ) {
             $utolso_mod = filemtime($css_min_fajl);
-        }else{
+        } else {
             $utolso_mod = 0;
         }
         $volt_mod       = false;
 
-        //Megnézzük, hogy volt-e bárhol változás időbélyeg szerint
-        foreach($js_css['css'] as $css_fajl){
-            if(is_file($css_fajl) && filemtime($css_fajl)>$utolso_mod ){
+        // Megnézzük, hogy volt-e bárhol változás időbélyeg szerint
+        foreach ( $js_css['css'] as $css_fajl ) {
+            if( is_file($css_fajl) && filemtime($css_fajl) > $utolso_mod ) {
                 $volt_mod = true;
                 break;
             }
         }
 
-        //Ha volt változás, akkor újrageneráljuk a $css_fajl-t
-        if($volt_mod || isset($_GET['minify'])){
-            foreach($js_css['css'] as $css_fajl){
+        // Ha volt változás, akkor újrageneráljuk a $css_fajl-t
+        if( $volt_mod || isset($_GET['minify']) ) {
+            foreach ( $js_css['css'] as $css_fajl ) {
                 $css .= minify_css($css_fajl /*, Ha megadsz egy 2. paramétert, akkor a rem-ekből PX-t IS csinál, hogy a korábbi IE-vel is kompatibilis legyen*/);
             }
             fajlba_mentes($css_min_fajl, $css);
@@ -168,40 +168,40 @@ class Head{
 
 
 
-        //JS tömörítés
+        // JS tömörítés
         $async_js      = '';
         $js            = '';
-        if(is_file($js_min_fajl)){
+        if( is_file($js_min_fajl) ) {
             $utolso_mod = filemtime($js_min_fajl);
-        }else{
+        } else {
             $utolso_mod = 0;
         }
         $volt_mod      = false;
 
-        //Megnézzük, hogy volt-e bárhol változás időbélyeg szetint
-        foreach($js_css['js'] as $js_fajl){
-            if(strpos($js_fajl, '!js/')!==false){
+        // Megnézzük, hogy volt-e bárhol változás időbélyeg szetint
+        foreach ( $js_css['js'] as $js_fajl ) {
+            if( strpos($js_fajl, '!js/') !== false ) {
                 $js_fajl = str_replace('!js/', 'js/', $js_fajl);
             }
-            if(is_file($js_fajl) && filemtime($js_fajl)>$utolso_mod ){
+            if( is_file($js_fajl) && filemtime($js_fajl) > $utolso_mod ) {
                 $volt_mod = true;
                 break;
             }
         }
 
         //Ha volt változás, akkor újrageneráljuk a $css_fajl-t
-        if($volt_mod || isset($_GET['minify'])){
-            foreach($js_css['js'] as $js_fajl){
-                if(!$admin_oldal){//Adminnál nem lehet csak úgy rátömöríteni a JS-re?
+        if( $volt_mod || isset($_GET['minify']) ) {
+            foreach ( $js_css['js'] as $js_fajl ) {
+                if( !$admin_oldal ) {//Adminnál nem lehet csak úgy rátömöríteni a JS-re?
                     if(strpos($js_fajl, '!js/')!==false){
                         $js .= fajlbol_olvas( str_replace('!js/', 'js/', $js_fajl), 1, '', 'Kommenteket szűrve a JS-ből');
-                    }else{
+                    } else {
                         $async_js .= fajlbol_olvas($js_fajl, 'Tömörítéssel', '', 'Kommenteket szűrve a JS-ből');
                     }
-                }else{
+                } else {
                     if(strpos($js_fajl, '!js/')!==false){
                         $js .= fajlbol_olvas( str_replace('!js/', 'js/', $js_fajl), 1, '', 'Kommenteket szűrve a JS-ből');
-                    }else{
+                    } else {
                         $async_js .= fajlbol_olvas($js_fajl, '', '', 'Kommenteket szűrve a JS-ből');
                     }
 
@@ -268,7 +268,7 @@ class Head{
 	public function setTitle($title){
         if($this -> title_hossz){
             $this -> title = resz_string( notags($title), $this -> title_hossz, false );
-        }else{
+        } else {
             $this -> title = str_replace( '"', '', notags($title) );
         }
 	}
@@ -292,7 +292,7 @@ class Head{
 	public function setDesc($desc){
         if($this -> desc_hossz){
             $this -> desc = str_replace( '"', '', resz_string(notags($desc), $this -> desc_hossz, false) );
-        }else{
+        } else {
             $this -> desc = str_replace( '"', '', notags($desc));
         }
 	}
@@ -316,7 +316,7 @@ class Head{
 	public function setKeywords($keywords){
         if($this -> keywords_hossz){
             $this -> keywords = str_replace( '"', '', resz_string(notags($keywords), $this -> keywords_hossz, false) );
-        }else{
+        } else {
             $this -> keywords = str_replace( '"', '', notags($keywords));
         }
 	}

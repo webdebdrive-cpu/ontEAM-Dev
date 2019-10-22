@@ -1,4 +1,5 @@
 <?php
+
 // Ha $db_prefix nem üres (tehát használunk adatbázist), akkor a következők végrehajtás kötelező
 require_once('config.php');
 require_once('engine.php');
@@ -44,8 +45,6 @@ $weblap -> mail_charset    = get_mail_charset();
 
 $weblap -> indit();
 
-//echo session_id();
-//echo $_SESSION['akt_sql']; exit;
 // Ha $db_prefix nem üres (tehát használunk adatbázist), akkor a következők végrehajtás kötelező
 if( $weblap->db_prefix ) {
     $adatbazis_kapcsolat = $weblap -> adatbazis;
@@ -54,18 +53,17 @@ if( $weblap->db_prefix ) {
 	$adatbazis_kapcsolat -> debug = get_debug();             // Ez nem kötelező. Ha igaz, akkor sikertelen lekérdezés esetén kiírja a parancsot
     $db_kapcs = $adatbazis_kapcsolat -> adatbazis_kapcsolat; // mysqli_query-hez (ha megkell adni magát a kapcsolatot is)
 
-    //SQL injection ellen
+    // SQL injection ellen
     foreach ( $_GET as $kulcs => $get ) {
         $_GET[$kulcs] = sql_ertek($_GET[$kulcs]);
     }
-    // foreach($_POST as $kulcs => $post){
-    //     $_POST[$kulcs] = sql_ertek($_POST[$kulcs]);
-    // }
+
 }
 // Majd a weblap indulhat, ekkor tölthető ki a meta (később már lesz kimenet)
     require_once('esemenyek.php');	// Ezt ne töröld, még ha üres is, kell, mert különben az admin nem működik
     require_once('meta.php');
     require_once('tartalom.php');
+
 /**
 *   Többnyelvű oldal esetére egy plusz függvény, amint ki kell venni a függvények tömbből, mert ott a taratlom.php még nem látszik
 *	Get tartalom érték
@@ -77,9 +75,8 @@ if( $weblap->db_prefix ) {
 *
 *	@return string: A tartalom tömb megfelelő bejegyzése
 */
-
 // Kiléptetés, ha nem él a SESSION és nem az index.php-n vagyunk és nem is egy ütemezőn, nem is elfelejtett jelszót kérünk le.
-$kiveteles_oldalak = array('index.php', 'import_szamla.php', 'import_szamla_kifizetes.php', 'beleptetes.php', 'andoc.php');
+$kiveteles_oldalak = array('index.php', 'import_szamla.php', 'import_szamla_kifizetes.php', 'beleptetes.php', 'andoc.php', 'andoc2.php');
 if( !$_SESSION[get_db_tabla() . 'user'] && !$_POST['elfelejtett_jelszo'] && substr(basename($_SERVER['PHP_SELF']), 0, 8) != 'utemezo_' && !in_array(basename($_SERVER['PHP_SELF']), $kiveteles_oldalak) ) {
     echo 'SESKIL<script>document.body.innerHTML = \'\'; location.href=\'index.php\'</script>';
     exit;
@@ -109,9 +106,10 @@ if( in_array(basename(self()), $archivok) && !isset($_GET['mezo']) && !$_SESSION
 // Ehhez a nav panel kiszámításakor a recid-kat is kiszámoljuk egy tömbbe, hogy többet egy ilyen bonyolult SQL-t ne kelljen lefuttatni
 // Ezt viszont nem tesszük meg, ha van $_POST-olt adat, mert azok ajax hívások, ott meg feleslegesen szintén ne számolgassuk ki a bonyolult SQL-t.
 // Ugyanígy az autocomplete.php esetén sem hívjuk meg
-if( empty($_POST) && basename(self())!='autocomplete.php' && basename(self())!='szakter_autocomplete.php' && basename(self())!='velemeny_autocomplete.php' && !isset($_GET['no_lista']) ){
-    list($balNavPanelHTMLje, $balNavPanelRECIDk) = szamla_lista(); // Ezt azért futtatjuk le, hogy az aktuális oldalnak megfelelő $_SESSION['akt_sql'] jöjjön létre, hogy tudjunk ID-t ellenőrizni.
-    $_SESSION[csonkit(basename(self()), 4).'_idk'] = $balNavPanelRECIDk; // Egy Session-ben is eltároljuk az ID-kat, hogy ajax-al egy sort meghívva, ne töltse be, ha adott ID nem tartozik a felhasználó látokörébe
+$kiveteles_oldalak = array('autocomplete.php', 'szakter_autocomplete.php', 'velemeny_autocomplete.php', 'andoc.php', 'andoc2.php');
+if( empty($_POST) && !in_array( basename(self()), $kiveteles_oldalak ) && !isset($_GET['no_lista']) ) {
+    list($balNavPanelHTMLje, $balNavPanelRECIDk) = szamla_lista();          // Ezt azért futtatjuk le, hogy az aktuális oldalnak megfelelő $_SESSION['akt_sql'] jöjjön létre, hogy tudjunk ID-t ellenőrizni.
+    $_SESSION[csonkit(basename(self()), 4).'_idk'] = $balNavPanelRECIDk;    // Egy Session-ben is eltároljuk az ID-kat, hogy ajax-al egy sort meghívva, ne töltse be, ha adott ID nem tartozik a felhasználó látokörébe
 }
 
 if( $_GET['id'] && !isset($_GET['no_lista']) ){

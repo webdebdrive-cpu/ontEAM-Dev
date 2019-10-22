@@ -1,0 +1,70 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema">
+
+<xs:element name="xml">
+    <xs:complexType>
+        <xs:sequence>
+            
+            <xs:element name="szamla">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:attribute name="registernumber" type="xs:string" use="required"/> 
+                        <xs:element name="tipus" use="required">
+                            <xs:simpleType>
+                                <xs:restriction base="xs:string">
+                                    <xs:enumeration value="anyag"/>
+                                    <xs:enumeration value="energia"/>
+                                    <xs:enumeration value="fenntartasi"/>
+                                </xs:restriction>
+                            </xs:simpleType>
+                        </xs:element> 
+                        <xs:element name="ikt_szam" type="xs:string" use="required"/>
+                        <xs:element name="erk_d" type="xs:date" use="required"/>
+                        <xs:element name="szlaszam" type="xs:string" use="required"/>
+                        <xs:element name="szalloda" type="xs:string" use="required"/>
+                        <xs:element name="szallito" type="xs:string" use="required"/>
+                        <xs:element name="telj_d" type="xs:date" use="required"/>
+                        <xs:element name="fizhat_d" type="xs:date" use="required"/>
+                        <xs:element name="fizmod" type="xs:string" use="required"/>
+                        <xs:element name="targy" type="xs:string"/>
+                        <xs:element name="netert" type="xs:integer" use="required"/>
+                        <xs:element name="brutert" type="xs:integer" use="required"/>
+                        <xs:element name="vnetert" type="xs:decimal"/>
+                        <xs:element name="vbrutert" type="xs:decimal"/>
+                        <xs:element name="penznem" type="xs:string" use="required"/>
+                        <xs:element name="statusz" type="xs:string" use="required"/>
+                        <xs:element name="elutleir" type="xs:string"/>
+                        <xs:element name="atvaltva_d" type="xs:date"/>
+                        
+                        <xs:element name="tetel">
+                            <xs:complexType>
+                                <xs:sequence>
+                                    
+                                    <xs:element name="szalloda" type="xs:string" use="required"/>
+                                    <xs:element name="targy" type="xs:string"/>
+                                    <xs:element name="ktgnem" type="xs:string" use="required"/>
+                                    <xs:element name="netert" type="xs:integer" use="required"/>
+                                    <xs:element name="vnetert" type="xs:decimal"/>
+                                    <xs:element name="statusz" type="xs:string" use="required"/>
+                                    <xs:element name="ktghely" type="xs:string" use="required"/>
+                                    <xs:element name="igazol_usr" type="xs:string"/>
+                                    <xs:element name="igazol_dt" type="xs:date"/>
+                                    <xs:element name="szszam" type="xs:string" use="required"/>
+                                    <xs:element name="verzio" type="xs:string" use="required"/>
+                                    <xs:element name="sorid" type="xs:string" use="required"/>
+                        
+                                </xs:sequence>
+                            </xs:complexType>
+                        </xs:element>
+                        
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+            
+
+            
+        </xs:sequence>
+    </xs:complexType>
+</xs:element>
+
+</xs:schema> 

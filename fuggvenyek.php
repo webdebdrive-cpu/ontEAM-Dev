@@ -7970,17 +7970,17 @@ function getSzallodaNev($szalloda_id) {
 }
 
 // Szállodák nevét ne DB-ből kérjük már le, vagyis csak egyszer, loginnál
-function getErtekLista($erteklista_csoport, $erteklista_id, $erteklista_recid){
-    if($erteklista_csoport){
-        foreach($_SESSION['erteklista'] as $erteklista){
-            if($erteklista['csoport']==$erteklista_csoport && $erteklista['id']==$erteklista_id){
+function getErtekLista($erteklista_csoport, $erteklista_id, $erteklista_recid) {
+    if( $erteklista_csoport ) {
+        foreach ( $_SESSION['erteklista'] as $erteklista ) {
+            if( $erteklista['csoport'] == $erteklista_csoport && $erteklista['id'] == $erteklista_id ) {
                 return $erteklista['info'];
             }
         }
     }
-    if($erteklista_recid){
-        foreach($_SESSION['erteklista'] as $erteklista){
-            if($erteklista['recid']==$erteklista_recid){
+    if( $erteklista_recid ) {
+        foreach ( $_SESSION['erteklista'] as $erteklista ) {
+            if( $erteklista['recid'] == $erteklista_recid ) {
                 return $erteklista['info'];
             }
         }
