@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding ="utf-8"?>
 <definitions name="ontEAM Webservice"
-	targetNamespace="http://demo.webdeb.hu/danubiushotel.hu/onteam.wsdl"
+	targetNamespace="https://dev.onteam.hu/onteam.wsdl"
 	xmlns:tns="onteam.webservice.wsdl"
 	xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/"
 	xmlns:xsd="http://www.w3.org/2001/XMLSchema"
@@ -46,7 +46,7 @@
 <!-- access to service provider -->
 	<service name='example'>
 	<port name='example_0' binding='SOAP ws_webservices'>
-	<soap:address location='http://demo.webdeb.hu/danubiushotel.hu/andoc.php'/>
+	<soap:address location='https://dev.onteam.hu/onteam.wsdl/andoc.php'/>
 	</port>
 	</service>
 </definitions>

@@ -29,13 +29,13 @@ class ServerClass {
     
     // Számla importálása
     public function SzamlaAdatokImport( $xml ) {
-        
+
         global $adatbazis_kapcsolat;
         global $db_kapcs;
         
         $db_error           = false;
         $elfogadott_tipusok = array('anyag', 'energia', 'fenntartasi');
-        
+
         $szamlak = simplexml_load_string($xml, 'SimpleXMLElement');
 
         foreach ( $szamlak as $szamla ) {
@@ -89,7 +89,6 @@ class ServerClass {
             if( trim($szamla -> statusz) == '' ) {
                 Throw new SOAPFault ('Server', 'Hiányzó státusz!');
             }
-            
             // Visszafejtendő adatok
             $telephely = $adatbazis_kapcsolat->s2('id', 'telephely', "`nev`='{$szamla -> szalloda}'");
             if( !$telephely ) {
@@ -103,7 +102,7 @@ class ServerClass {
             if( !$penznem ) {
                 Throw new SOAPFault ('Server', 'Nem ismert pénznem!');
             }
-            
+
             // Tételek
             $tetelek = $szamla -> tetel;
             if( !count($tetelek) ) {
@@ -116,7 +115,7 @@ class ServerClass {
                 case 'energia'      : $tabla = 'energia_szamla';        break;
                 case 'fenntartasi'  : $tabla = 'fenntartasi_szamla';    break;
             }
-            
+
             // Ha az alapvető adatokon nem akadtunk fenn, akkor szúrjuk be vagy updateljük a számlát, attól föggően, hogy az Andok azonsoító ismert-e.
             // Ehhez az első lépés, a mező/érték párokat beállítani.
             $mezok = array(
@@ -160,7 +159,6 @@ class ServerClass {
             
             $aparecid = $adatbazis_kapcsolat->s2('recid', $tabla, "`andoc_azon`='{$andoc_azon}'");
             $aparecid = $aparecid['recid'];
-
             if( $aparecid === false ) { $db_error = true; }
             
             // Insert
