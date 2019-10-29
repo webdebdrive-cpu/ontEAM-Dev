@@ -48,7 +48,7 @@ class ServerClass {
             if(  trim($szamla['registernumber']) == '' ) {
                 Throw new SOAPFault ('Server', 'Hiányzó Andoc azonosító!');
             }
-            $andoc_azon = $szamla['registernumber'];
+            $andoc_id = $szamla['andoc_id'];
             
             if( !in_array($szamla -> tipus, $elfogadott_tipusok) ) {
                 Throw new SOAPFault ('Server', 'Helytelen tipus!');
@@ -90,14 +90,14 @@ class ServerClass {
                 Throw new SOAPFault ('Server', 'Hiányzó státusz!');
             }
             // Visszafejtendő adatok
-            $telephely = $adatbazis_kapcsolat->s2('id', 'telephely', "`nev`='{$szamla -> szalloda}'");
-            if( !$telephely ) {
-                Throw new SOAPFault ('Server', 'Nem ismert szálloda név!');
-            }
-            $szallito = $adatbazis_kapcsolat->s2('id', 'szallito', "`nev`='{$szamla -> szallito}'");
-            if( !$szallito ) {
-                Throw new SOAPFault ('Server', 'Nem ismert szállító név!');
-            }
+//            $telephely = $adatbazis_kapcsolat->s2('id', 'telephely', "`nev`='{$szamla -> szalloda}'");
+//            if( !$telephely ) {
+//                Throw new SOAPFault ('Server', 'Nem ismert szálloda név!');
+//            }
+//            $szallito = $adatbazis_kapcsolat->s2('id', 'szallito', "`nev`='{$szamla -> szallito}'");
+//            if( !$szallito ) {
+//                Throw new SOAPFault ('Server', 'Nem ismert szállító név!');
+//            }
             $penznem = $adatbazis_kapcsolat->s2('id', 'erteklista', "`csoport`='".ERTEKLISTA_PENZNEM."' AND `info`='{$szamla -> penznem}'");
             if( !$penznem ) {
                 Throw new SOAPFault ('Server', 'Nem ismert pénznem!');
@@ -119,54 +119,82 @@ class ServerClass {
             // Ha az alapvető adatokon nem akadtunk fenn, akkor szúrjuk be vagy updateljük a számlát, attól föggően, hogy az Andok azonsoító ismert-e.
             // Ehhez az első lépés, a mező/érték párokat beállítani.
             $mezok = array(
-                            'ikt_szam',
                             'erk_d',
-                            'szlaszam',
-                            'telephely_id',
-                            'szallito_id',
+                            'kelte',
+                            'muszak_szam',
+                            'musz_dt',
+                            'szla_szam',
+                            'ikt_szam',
                             'telj_d',
                             'fizhat_d',
-                            'fizmod',
+                            'telephely_id',
+                            'szallito_id',
                             'targy',
+                            'kcs_21',
+                            'atvaltva_d',
+                            'vnetert',
+                            'vbrutert',
                             'brutert',
                             'netert',
-                            'vbrutert',
-                            'vnetert',
-                            'kcs_21',
-                            'stat_id',
+                            'nullas',
+                            'visszaadva',
+                            'visszaadva_dt',
+                            'fizmod',
                             'elutleir',
-                            'atvaltva_d',
+                            'stat_id',
+                            'megjegyz',
+                            'szev',
+                            'szhonap',
+                            'vontol_d',
+                            'vonig_d',
+                            'ktgnemid',
+                            'ktghelyid',
+                            'kolt_vis',
                         );
             $ertekek = array(
-                            $szamla -> ikt_szam,
                             $szamla -> erk_d,
-                            $szamla -> szlaszam,
-                            $telephely['id'],
-                            $szallito['id'],
+                            $szamla -> kelte,
+                            $szamla -> muszak_szam,
+                            $szamla -> musz_d,
+                            $szamla -> szla_szam,
+                            $szamla -> ikt_szam,
                             $szamla -> telj_d,
                             $szamla -> fizhat_d,
-                            $szamla -> fizmod,
+                            $szamla -> telephely_id,
+                            $szamla -> szallito_id,
                             $szamla -> targy,
-                            $szamla -> brutert,
-                            $szamla -> netert,
+                            $penznem['id'],
+                            $szamla -> atvaltva_d,
                             $szamla -> vbrutert,
                             $szamla -> vnetert,
-                            $penznem['id'],
-                            $szamla -> stat_id,
+                            $szamla -> netert,
+                            $szamla -> brutert,
+                            $szamla -> nullas,
+                            $szamla -> visszaadva,
+                            $szamla -> visszaadva_dt,
+                            $szamla -> fizmod,
                             $szamla -> elutleir, 
-                            $szamla -> atvaltva_d,
+                            $szamla -> stat_id,
+                            $szamla -> megjegyz,
+                            $szamla -> szev,
+                            $szamla -> szhonap,
+                            $szamla -> vontol_d,
+                            $szamla -> vonig_d,
+                            $szamla -> ktgnemid,
+                            $szamla -> ktghelyid,
+                            $szamla -> kolt_vis,
                         );
             
-            $aparecid = $adatbazis_kapcsolat->s2('recid', $tabla, "`andoc_azon`='{$andoc_azon}'");
+            $aparecid = $adatbazis_kapcsolat->s2('recid', $tabla, "`andoc_id`='{$andoc_id}'");
             $aparecid = $aparecid['recid'];
             if( $aparecid === false ) { $db_error = true; }
             
             // Insert
             if( !$aparecid ) {
 
-                // Insertnél kell az andoc_azon is
-                array_push($mezok,      'andoc_azon'    );
-                array_push($ertekek,    $andoc_azon     );
+                // Insertnél kell az andoc_id is
+                array_push($mezok,      'andoc_id'    );
+                array_push($ertekek,    $andoc_id     );
                 $aparecid = $adatbazis_kapcsolat->i($tabla, $mezok, $ertekek);
                 if( $aparecid === false ) { $db_error = true; }
                 $return_uzi    = 'beszúrva';
@@ -175,7 +203,7 @@ class ServerClass {
             // Update
             } else {
                 
-                $sql = $adatbazis_kapcsolat->u($tabla, $mezok, $ertekek, "`andoc_azon`='{$andoc_azon}'");
+                $sql = $adatbazis_kapcsolat->u($tabla, $mezok, $ertekek, "`andoc_id`='{$andoc_id}'");
                 if( $aparecid === false ) { $db_error = true; }
                 $return_uzi     = 'frissítve';
                 $insert_update  = 'update';
@@ -183,12 +211,15 @@ class ServerClass {
             }
             
             // Ha update-ről van szó, akkor minden tételt törlünk a tételek bejárása előtt, hogy újra létre lehessen hozni
-            if( $insert_update == 'update' ) {
-                $sql = $adatbazis_kapcsolat->d($tabla.'_tetel', "`aparecid` = '{$aparecid}'");
-                if( $sql === false ) { $db_error = true; }
-            }
+            // Mivel a tételnek is van andoc_id-ja, ezért mégsem így járunk el, hanem tudjuk ezt is updatelni
+//            if( $insert_update == 'update' ) {
+//                $sql = $adatbazis_kapcsolat->d($tabla.'_tetel', "`aparecid` = '{$aparecid}'");
+//                if( $sql === false ) { $db_error = true; }
+//            }
             // Tételek bejárása
             foreach ( $tetelek as $tetel ) {
+                
+                $andoc_id = $tetel['andoc_id'];
                 
                 // Kötelező mezők ellenőrzése
                 if( trim($tetel -> szalloda) == '' ) {
@@ -221,20 +252,20 @@ class ServerClass {
                 }
 
                 // Visszafejtendő adatok
-                $telephely = $adatbazis_kapcsolat->s2('id', 'telephely', "`nev`='{$tetel -> szalloda}'");
-                if( !$telephely ) {
-                    Throw new SOAPFault ('Server', 'Nem ismert szálloda név a tételeknél!');
-                }
-                $ktgnem = $adatbazis_kapcsolat->s2('recid', 'ktgnem', "`nev`='{$tetel -> ktgnem}'");
-                if( $ktgnem === false ) { $db_error = true; }
-                if( !$ktgnem['recid'] ) {
-                    Throw new SOAPFault ('Server', 'Nem ismert költségnem a tételeknél!');
-                }
-                $ktghely = $adatbazis_kapcsolat->s2('recid', 'ktghely', "`nev`='{$tetel -> ktghely}'");
-                if( $ktghely === false ) { $db_error = true; }
-                if( !$ktghely['recid'] ) {
-                    Throw new SOAPFault ('Server', 'Nem ismert költséghely a tételeknél!');
-                }
+//                $telephely = $adatbazis_kapcsolat->s2('id', 'telephely', "`nev`='{$tetel -> szalloda}'");
+//                if( !$telephely ) {
+//                    Throw new SOAPFault ('Server', 'Nem ismert szálloda név a tételeknél!');
+//                }
+//                $ktgnem = $adatbazis_kapcsolat->s2('recid', 'ktgnem', "`nev`='{$tetel -> ktgnem}'");
+//                if( $ktgnem === false ) { $db_error = true; }
+//                if( !$ktgnem['recid'] ) {
+//                    Throw new SOAPFault ('Server', 'Nem ismert költségnem a tételeknél!');
+//                }
+//                $ktghely = $adatbazis_kapcsolat->s2('recid', 'ktghely', "`nev`='{$tetel -> ktghely}'");
+//                if( $ktghely === false ) { $db_error = true; }
+//                if( !$ktghely['recid'] ) {
+//                    Throw new SOAPFault ('Server', 'Nem ismert költséghely a tételeknél!');
+//                }
                 
                 // Tételek beszúrása
                 $mezok   = array(
@@ -242,33 +273,78 @@ class ServerClass {
                                 'telephely_id',
                                 'targy',
                                 'ktgnemid',
+                                'ktghelyid',
                                 'netert',
                                 'vnetert',
                                 'stat_id',
-                                'ktghelyid',
                                 'igazol_usr',
                                 'igazol_dt',
                                 'szszam',
                                 'verzio',
-                                'sorid',
+                                'bank',
+                                'kifizetes',
+                                'brertek',
+                                'vbrutert',
+                                'kcs_21',
+                                'rogzitve',
+                                'rogzitette',
+                                'cikkid',
+                                'oracikkid',
+                                'rndert',
+                                'modert',
+                                'vnrdert',
+                                'vmodert',
+                                'kcs_35',
                             );
                 $ertekek = array(
                                 $aparecid,
-                                $telephely['id'],
+                                $tetel -> telephely_id,
                                 $tetel -> targy,
-                                $ktgnem['recid'],
+                                $tetel -> ktgnem,
+                                $tetel -> ktghely,
                                 $tetel -> netert,
                                 $tetel -> vnetert,
                                 $tetel -> stat_id,
-                                $ktghely['recid'],
                                 $tetel -> igazol_usr,
                                 $tetel -> igazol_dt,
                                 $tetel -> szszam,
                                 $tetel -> verzio,
-                                $tetel -> sorid,
+                                $tetel -> bank,
+                                $tetel -> kifizetes,
+                                $tetel -> brertek,
+                                $tetel -> vbrutert,
+                                $tetel -> kcs_21,
+                                $tetel -> rogzitve,
+                                $tetel -> rogzitette,
+                                $tetel -> cikkid,
+                                $tetel -> oracikkid,
+                                $tetel -> rndert,
+                                $tetel -> modert,
+                                $tetel -> vnrdert,
+                                $tetel -> vmodert,
+                                $tetel -> kcs_35,
                             );
-                $sql = $adatbazis_kapcsolat->i($tabla.'_tetel', $mezok, $ertekek);
-                if( $sql === false ) { $db_error = true; }
+                
+                $aparecid = $adatbazis_kapcsolat->s2('recid', $tabla.'_tetel', "`andoc_id`='{$andoc_id}'");
+                $aparecid = $aparecid['recid'];
+                if( $aparecid === false ) { $db_error = true; }
+
+                // Insert
+                if( !$aparecid ) {
+
+                    // Insertnél kell az andoc_id is
+                    array_push($mezok,      'andoc_id'    );
+                    array_push($ertekek,    $andoc_id     );
+                    $aparecid = $adatbazis_kapcsolat->i($tabla.'_tetel', $mezok, $ertekek);
+                    if( $aparecid === false ) { $db_error = true; }
+
+                // Update
+                } else {
+
+                    $sql = $adatbazis_kapcsolat->u($tabla.'_tetel', $mezok, $ertekek, "`andoc_id`='{$andoc_id}'");
+                    if( $aparecid === false ) { $db_error = true; }
+
+                }
                 
             }
             

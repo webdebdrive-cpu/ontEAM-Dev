@@ -99,34 +99,13 @@ if( isset($_GET['csv']) ) {
             $lekerdezes_fromtol = ' FROM `'.get_db_tabla().$megnevezes.'` ';
         }
 
-        $sql = 'SELECT
-                `'.get_db_tabla().$megnevezes.'`.`recid` as \'Id\',
-                `'.get_db_tabla().$megnevezes.'`.`telephely_id` as \'Szálloda\',
-                `obj_txt` as \'Helyiség\',
-                1 as \'Helyiség leírása\',
-                `ikt_szam` as \'Munkalap szám\',
-                `'.get_db_tabla().$megnevezes.'`.`update_dt` as \'Bejelentett hiba\',
-                `'.get_db_tabla().$megnevezes.'`.`insert_dt` as \'Bejelentés dátuma\',
-                2 as \'Hiba leírása\',
-                `surgos` as \'Sürgős\',
-                `stat_id` as \'Státusz\',
-                `visszaadva` as \'Visszaadva\',
-                `text` as \'Leírás\',
-                `gep_id` as \'Gépnév\',
-                `tipus_id` as \'Típus\',
-                `szallito_id` as \'Külső kivitelező\',
-                `jh_ert` as \'Jóváhagyott érték\',
-                `szemelyzet_id` as \'Hozzárendelt személyzet\',
-                `ig_el_id` as \'Igényelt elvégzés\',
-                `varh_erk` as \'Várható érkezés\',
-                `'.get_db_tabla().$megnevezes.'`.`insert_dt` as \'Munkalap létrehozás dátuma\'
-                '.$lekerdezes_fromtol.$_SESSION['akt_sql_order'];
+        $sql = 'SELECT `onteam_munkalap_arch`.`recid` as \'Id\', `onteam_munkalap_arch`.`telephely_id` as \'Szálloda\', `obj_txt` as \'Helyiség\', 1 as \'Helyiség leírása\', `ikt_szam` as \'Munkalap szám\', `onteam_munkalap_arch`.`update_dt` as \'Bejelentett hiba\', `onteam_munkalap_arch`.`insert_dt` as \'Bejelentés dátuma\', 2 as \'Hiba leírása\', `surgos` as \'Sürgős\', `stat_id` as \'Státusz\', `visszaadva` as \'Visszaadva\', `text` as \'Leírás\', `gep_id` as \'Gépnév\', `tipus_id` as \'Típus\', `szallito_id` as \'Külső kivitelező\', `jh_ert` as \'Jóváhagyott érték\', `szemelyzet_id` as \'Hozzárendelt személyzet\', `ig_el_id` as \'Igényelt elvégzés\', `varh_erk` as \'Várható érkezés\', `onteam_munkalap_arch`.`insert_dt` as \'Munkalap létrehozás dátuma\' FROM `onteam_munkalap_arch` WHERE (`onteam_munkalap_arch`.`telephely_id` IN (1012,1013,1022,1023,1032,1033,1040,1050,1060,1106,2012,2022,2023,2032,2050,2060,2070,2080,2090,2100,2101,2110,2120,2130,3040,4101,4238,4241,4242,4301,5411)) AND `onteam_munkalap_arch`.`stat_id`=\'19\' AND `onteam_munkalap_arch`.`telephely_id`=\'1060\'';
 
         $query      = mysqli_query($db_kapcs, $sql);
         
 //echo 'Fromtol: '.$lekerdezes_fromtol; 
 //echo 'Akt SQL order: '.$_SESSION['akt_sql_order']; 
-//exit;
+//exit; 
         $csvhead    = array();
         while($fejlec_nevek = mysqli_fetch_field($query)){
             $csvhead[] = iconv2($mibol, $mibe, $fejlec_nevek -> name );
@@ -174,6 +153,12 @@ if( isset($_GET['csv']) ) {
                 }
                 if( $kulcs == 'Külső kivitelező' ) {
                     $sor = getErtek('nev', 'szallito', 'id', $sor);
+// Ideiglenes megoldás: a kivitelező nevét a megjegyzésből számítjuk vissza
+// De maradjon itt a kód, mert erre még lehet szükség lesz
+$megj = $adatbazis_kapcsolat->s2('megj', 'megjegyzes_arch', "`tabla`='munkalap' AND `id`='{$sorok['Id']}' AND `megj` LIKE 'Kivitelező%'");
+$megj['megj'] = str_replace('Kivitelező: ', '', $megj['megj']);
+$ujsor = strpos($megj['megj'], "\n");
+$sor  = substr($megj['megj'], 0, $ujsor) ;
                 }
                 if( $kulcs == 'Jóváhagyott érték' ) {
                     $sorok[$szam] = str_replace('.', ',', $sorok[$szam]);

@@ -156,7 +156,7 @@ switch ( $tabla ) {
                                     `'.get_db_tabla().$tabla_nophp.'`.`recid`,
                                     `'.get_db_tabla().$tabla_nophp.'`.`stat_id`,
                                     `'.get_db_tabla().$tabla_nophp.'`.`ikt_szam`,
-                                    `'.get_db_tabla().$tabla_nophp.'`.`szlaszam`,
+                                    `'.get_db_tabla().$tabla_nophp.'`.`szla_szam`,
                                     `'.get_db_tabla().$tabla_nophp.'`.`fizhat_d`
                                 ');
 
@@ -365,7 +365,7 @@ switch ( $tabla ) {
                                     `'.get_db_tabla().$tabla_nophp.'`.`recid`,
                                     `'.get_db_tabla().$tabla_nophp.'`.`stat_id`,
                                     `'.get_db_tabla().$tabla_nophp.'`.`ikt_szam`,
-                                    `'.get_db_tabla().$tabla_nophp.'`.`szlaszam`,
+                                    `'.get_db_tabla().$tabla_nophp.'`.`szla_szam`,
                                     `'.get_db_tabla().$tabla_nophp.'`.`fizhat_d`
                                 ');
 
@@ -471,7 +471,7 @@ switch ( $tabla ) {
                                     `'.get_db_tabla().$tabla_nophp.'`.`recid`,
                                     `'.get_db_tabla().$tabla_nophp.'`.`stat_id`,
                                     `'.get_db_tabla().$tabla_nophp.'`.`ikt_szam`,
-                                    `'.get_db_tabla().$tabla_nophp.'`.`szlaszam`,
+                                    `'.get_db_tabla().$tabla_nophp.'`.`szla_szam`,
                                     `'.get_db_tabla().$tabla_nophp.'`.`fizhat_d`
                                 ');
 
@@ -984,7 +984,7 @@ $anyag_szamla_tomb = $akt_tomb = array(
     array('type' => 'statusz',      'megn' => 'Státusz:',                   'name' => 'stat_id',        'szuro' => 1,  'oldal' => $megnevezes),
     array('type' => 'text',         'megn' => 'Érkezés dátuma:',            'name' => 'erk_d',          'szuro' => 1,  'disabled' => 1, 'class' => 'datepicker', 'osszevon' => 1, 'post' => '<span style="margin-left: 6.7rem"></span>'),
     array('type' => 'text',         'megn' => 'Teljesítés:',                'name' => 'telj_d',         'szuro' => 1,  'disabled' => 1, 'class' => 'datepicker'),
-    array('type' => 'text',         'megn' => 'Számlaszám:',                'name' => 'szlaszam',       'szuro' => 1,  'disabled' => 1, 'class' => 'normal', 'style' => 'width: 31.3rem', 'osszevon' => 1, 'post' => '<span style="margin-left: 2rem"></span>'),
+    array('type' => 'text',         'megn' => 'Számlaszám:',                'name' => 'szla_szam',      'szuro' => 1,  'disabled' => 1, 'class' => 'normal', 'style' => 'width: 31.3rem', 'osszevon' => 1, 'post' => '<span style="margin-left: 2rem"></span>'),
     array('type' => 'text',         'megn' => 'Iktatószám:',                'name' => 'ikt_szam',       'szuro' => 1,  'disabled' => 1, 'class' => 'normal'),
     array('type' => 'text',         'megn' => 'Fiz. Határidő:',             'name' => 'fizhat_d',       'szuro' => 1,  'disabled' => 1, 'class' => 'datepicker', 'osszevon' => 1, 'post' => '<span style="margin-left: 23.6rem"></span>'),
     array('type' => 'text',         'megn' => 'Fizetési mód:',              'name' => 'fizmod',         'szuro' => 1,  'disabled' => 1, 'class' => 'normal'),
@@ -2771,7 +2771,7 @@ if( basename(self()) == 'energia_szamla.php' && $_GET['id'] ) {
 $energia_szamla_tomb = $akt_tomb = array(
     array('type' => 'statusz',      'megn' => 'Státusz:',                   'name' => 'stat_id',        'szuro' => 1,  'oldal' => $megnevezes),
     array('type' => 'text',         'megn' => 'Érkezés dátuma:',            'name' => 'erk_d',          'szuro' => 1,  'disabled' => 1, 'class' => 'datepicker'),
-    array('type' => 'text',         'megn' => 'Számlaszám:',                'name' => 'szlaszam',       'szuro' => 1,  'disabled' => 1, 'class' => 'normal', 'osszevon' => 1, 'post' => '<span style="margin-left: 5.1rem"></span>', 'style' => 'width: 31.3rem'),
+    array('type' => 'text',         'megn' => 'Számlaszám:',                'name' => 'szla_szam',      'szuro' => 1,  'disabled' => 1, 'class' => 'normal', 'osszevon' => 1, 'post' => '<span style="margin-left: 5.1rem"></span>', 'style' => 'width: 31.3rem'),
     array('type' => 'text',         'megn' => 'Iktatószám:',                'name' => 'ikt_szam',       'szuro' => 1,  'disabled' => 1, 'class' => 'normal'),
     array('type' => 'text',         'megn' => 'Teljesítés:',                'name' => 'telj_d',         'szuro' => 1,  'disabled' => 1, 'class' => 'datepicker', 'osszevon' => 1, 'post' => '<span style="margin-left: 4.6rem"></span>'),
     array('type' => 'text',         'megn' => 'Fiz. Határidő:',             'name' => 'fizhat_d',       'szuro' => 1,  'disabled' => 1, 'class' => 'datepicker', 'osszevon' => 1, 'post' => '<span style="margin-left: 4rem"></span>'),
@@ -2824,7 +2824,7 @@ if( basename(self()) == 'fenntartasi_szamla.php' && $_GET['id'] ) {
 $fenntartasi_szamla_tomb = $akt_tomb = array(
     array('type' => 'statusz',      'megn' => 'Státusz:',                   'name' => 'stat_id',        'szuro' => 1,  'oldal' => $megnevezes),
     array('type' => 'text',         'megn' => 'Érkezés dátuma:',            'name' => 'erk_d',          'szuro' => 1,  'disabled' => 1, 'class' => 'datepicker'),
-    array('type' => 'text',         'megn' => 'Számlaszám:',                'name' => 'szlaszam',       'szuro' => 1,  'disabled' => 1, 'class' => 'normal', 'osszevon' => 1, 'post' => '<span style="margin-left: 5.1rem"></span>', 'style' => 'width: 31.3rem'),
+    array('type' => 'text',         'megn' => 'Számlaszám:',                'name' => 'szla_szam',      'szuro' => 1,  'disabled' => 1, 'class' => 'normal', 'osszevon' => 1, 'post' => '<span style="margin-left: 5.1rem"></span>', 'style' => 'width: 31.3rem'),
     array('type' => 'text',         'megn' => 'Iktatószám:',                'name' => 'ikt_szam',       'szuro' => 1,  'disabled' => 1, 'class' => 'normal'),
     array('type' => 'text',         'megn' => 'Teljesítés:',                'name' => 'telj_d',         'szuro' => 1,  'disabled' => 1, 'class' => 'datepicker', 'osszevon' => 1, 'post' => '<span style="margin-left: 4.6rem"></span>'),
     array('type' => 'text',         'megn' => 'Fiz. Határidő:',             'name' => 'fizhat_d',       'szuro' => 1,  'disabled' => 1, 'class' => 'datepicker', 'osszevon' => 1, 'post' => '<span style="margin-left: 4rem"></span>'),

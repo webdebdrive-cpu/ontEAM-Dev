@@ -3730,7 +3730,7 @@ function szamla_lista( $where, $tabla, $kijeloltek = false, $csak_sql_miatt = fa
         $_SESSION['akt_sql'] = $sql;
     }
 
-if( isset($_GET['debug']) && $_SERVER['HTTP_HOST']!='www.onteam.hu' && $_SERVER['HTTP_HOST']!='onteam.hu' ) {
+if( isset($_GET['debug']) && $_SERVER['HTTP_HOST']!='teszt.onteam.hu' && $_SERVER['HTTP_HOST']!='dev.onteam.hu' && $_SERVER['HTTP_HOST']!='www.onteam.hu' && $_SERVER['HTTP_HOST']!='onteam.hu' ) {
     echo $_SESSION['akt_sql']. '<br>';
 }
 
@@ -3916,7 +3916,7 @@ function anyag_szamlaLista( $bejegyzesek, $tabla, $frissit, $kijeloltek ) {
                             <table>
                             <tr> 
                                 <td style="width: 12rem">'.$bsz['ikt_szam'].'</td>
-                                <td style="width: 8rem">'.$bsz['szlaszam'].'</td>
+                                <td style="width: 8rem">'.$bsz['szla_szam'].'</td>
                                 <td>'.datum_kiir($bsz['fizhat_d']).'</td>
                             </tr>
                             </table>
@@ -4363,16 +4363,16 @@ function munkalapLista( $bejegyzesek, $tabla, $frissit, $kijeloltek, $sorrend_id
             require 'selectek_szemelyzet.php';
 
             $szemelyzet = '';
-            if($bsz['szallito_id']){
+            if( $bsz['szallito_id'] ) {
                 $szemelyzet = getErtek('nev', 'szallito', 'id', $bsz['szallito_id']);
-            }elseif($bsz['szemelyzet_id']){
+            } elseif( $bsz['szemelyzet_id'] ) {
 
                 // Ha a személyzettípus külső kivitelező, akkor a külső cég neve jelenjen meg
 //                if($bsz['szemelyzet_id']==KULSO_KIVITELEZO){
 //                    $szemelyzet = getErtek('nev', 'szallito', 'id', $bsz['szallito_id']);
 //                } else {
-                    foreach($select_szemelyzet as $szemely){
-                        if($szemely['value']==$bsz['szemelyzet_id']){
+                    foreach ( $select_szemelyzet as $szemely ) {
+                        if( $szemely['value'] == $bsz['szemelyzet_id'] ) {
                             $szemelyzet = $szemely['name'];
                         }
                     }
@@ -4381,7 +4381,7 @@ function munkalapLista( $bejegyzesek, $tabla, $frissit, $kijeloltek, $sorrend_id
             }
 
             // Mobilcsoport esetén látszódjon a betűjel is
-            if($bsz['szemelyzet_id']==MOBILCSOPORT){
+            if( $bsz['szemelyzet_id'] == MOBILCSOPORT ) {
                 $szemelyzet .= ' '.strtoupper($bsz['mobil']).'';
             }
 
@@ -4783,7 +4783,7 @@ function fenntartasi_szamlaLista( $bejegyzesek, $tabla, $frissit, $kijeloltek ) 
                             <table>
                             <tr> 
                                 <td style="width: 12rem">'.$bsz['ikt_szam'].'</td>
-                                <td style="width: 8rem">'.$bsz['szlaszam'].'</td>
+                                <td style="width: 8rem">'.$bsz['szla_szam'].'</td>
                                 <td>'.datum_kiir($bsz['fizhat_d']).'</td>
                             </tr>
                             </table>
@@ -5915,7 +5915,7 @@ function energia_szamlaLista( $bejegyzesek, $tabla, $frissit, $kijeloltek ) {
                             <table>
                             <tr> 
                                 <td style="width: 12rem">'.$bsz['ikt_szam'].'</td>
-                                <td style="width: 8rem">'.$bsz['szlaszam'].'</td>
+                                <td style="width: 8rem">'.$bsz['szla_szam'].'</td>
                                 <td>'.datum_kiir($bsz['fizhat_d']).'</td>
                             </tr>
                             </table>
@@ -8883,7 +8883,7 @@ function datum_kiir($datum, $csak_datum = false) {
 
 
 // Új munkalap készítése kiszervezve
-function munkalap_letrehoz($stat_id, $telephely_id, $tipus_id, $obj_id, $gep_id, $surgos=0, $text='', $szemelyzet_id=0, $szallito_id=0, $uf_szam='', $esnap_d='0000-00-00', $hiba_id = 0, $loginnev = ''){
+function munkalap_letrehoz($stat_id, $telephely_id, $tipus_id, $obj_id, $gep_id, $surgos=0, $text='', $szemelyzet_id=0, $szallito_id='', $uf_szam='', $esnap_d='0000-00-00', $hiba_id = 0, $loginnev = ''){
 
     global $adatbazis_kapcsolat;
 

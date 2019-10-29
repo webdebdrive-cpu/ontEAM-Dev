@@ -360,4 +360,3 @@ if( $_SERVER['HTTP_HOST']!='www.onteam.hu' && $_SERVER['HTTP_HOST']!='onteam.hu'
 
     echo $html;
 }
-?>

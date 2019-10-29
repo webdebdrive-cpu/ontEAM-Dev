@@ -886,7 +886,7 @@ if ($_POST['arazas_ment']) {
     mysqli_autocommit($db_kapcs, false);
 
     // Több sor esetén a rendelt mennyiséghez az igényelt mennyiséget írjuk be
-    if(count($idk)>1){
+    if( count($idk) > 1 ) {
         foreach($idk as $id){
             $anyagig = $adatbazis_kapcsolat->s2('igmen', 'anyagigenyles', "`recid`='{$id}'");
             if( $anyagig === false ) { $db_error = true; }
