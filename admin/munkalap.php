@@ -1029,7 +1029,7 @@ if( isset($_POST['munkalapElokeszit']) ) {
                 'title' => 'Hiba',
             ));
         }
-    }else{
+    } else {
         echo json_encode(array(
             'hiba'  => 'Kérem válasszon egy hozzárendelt személyt!',
             'title' => 'Hiba',
@@ -1222,7 +1222,7 @@ if( isset($_POST['munkalapKeszre']) ) {
                 $db_error = true;
             }
 
-        }else{
+        } else {
             // Készre állítjuk a munkalapot
             if( !addStatusz( 'munkalap_statusz', $recid, MUNKALAP_STAT_LEZARASRA_VAR ) ) {
                 $db_error = true;
@@ -1283,7 +1283,7 @@ if( isset($_POST['munkalapKeszre']) ) {
             }
 
         // Ha a munkalapnak nincs bejelentése, akkor munkalap ID-ját adjunk át, de ezt egy "m" betűvel jelezzük is
-        }else{
+        } else {
             array_push($mail_megy, 'm'.$recid);
         }
 
@@ -1617,7 +1617,7 @@ if( isset($_POST['munkalapKulsosJovahagy']) ) {
             }
 
         // Ha már a 2. jóváhagyásról van szó, akkor státuszt is léptetünk
-        }else{
+        } else {
 
             $masodik_jovahagyo = '1';
 
@@ -2400,7 +2400,7 @@ if (isset($_POST['volt_mar_dontesre_var'])) {
                             </div>
                             ')
         ));
-    }else{
+    } else {
         echo json_encode(array(
             'mehet' => 1
         ));
@@ -2426,6 +2426,11 @@ if( isset($_POST['kulsokivHozzarend']) ) {
 
     if( $recid ) {
 
+        // A szállító ne nulla legyen, hanem üres string
+        if( !$szallitoid ) {
+            $szallitoid = '';
+        }
+        
         $munkalap = $sor = $adatbazis_kapcsolat->s2('stat_id szemelyzet_id telephely_id szallito_id', 'munkalap', "`recid` = '{$recid}'", '', '1');
         if( $munkalap === false ) { $db_error = true; }
 
@@ -2557,7 +2562,7 @@ if( isset($_POST['kulsokivHozzarend']) ) {
                 $weblap->leallit();
                 exit();
                 
-            }else{
+            } else {
                 
                 $cimzettek          = implode(', ', $mailcimek);
                 $masolatot_kapott   = '';
@@ -2862,7 +2867,7 @@ if (isset($_POST['munkalapVisszaElokeszit'])) {
         }
         
     // Egyébként vissza tesszük a ML-ot előkészített státuszba
-    }else{
+    } else {
         munkalap_vissza_elokeszitesbe($recid);
     }
     
@@ -2975,7 +2980,7 @@ if (isset($_POST['munkalapVisszaElokeszitDirektbe'])) {
             $weblap->leallit();
             exit();
             
-        }else{
+        } else {
 
             $cimzettek          = implode(', ', $mailcimek);
             $masolatot_kapott   = '';
@@ -4827,7 +4832,7 @@ if( isset($_POST['atadasDiszpecsernek']) ) {
                                             );
             if( $sql === false ) { $db_error = true; }
         // Ha nem hozzárendelt státuszban vagyunk, akkor frissítjük a ML-ot, de hozzárendelt státusz alatt még csak egy státusz léptetés történik majd
-        }else{
+        } else {
             // Frissítjuk a munkalap visszaadva sorát, ürítjük a személyzeteket és egyéb adatokat
             $sql = $adatbazis_kapcsolat -> u('munkalap',
                                                 array('visszaadva', 'szemelyzet_id', 'szallito_id', 'jh_ert',    'becs_ertek',  'mail_ment',    'direktbe', 'mobil_loginnev', 'mobil', 'varh_erk',              'update_usr'                           ),
@@ -4858,7 +4863,7 @@ if( isset($_POST['atadasDiszpecsernek']) ) {
                 $db_error = true;
             }
         // Egyébként Nyitott státuszra állítjuk a ML-ot
-        }else{
+        } else {
             if( !addStatusz( 'munkalap_statusz', $recid, MUNKALAP_STAT_NYITOTT, $erteklista_id, $memo ) ) {
                 $db_error = true;
             }
@@ -5034,7 +5039,7 @@ if( isset($_POST['atadasDiszpecsernekDirektbe']) ) {
                 $weblap->leallit();
                 exit();
                 
-            }else{
+            } else {
                 
                 $cimzettek          = implode(', ', $mailcimek);
                 $masolatot_kapott   = '';
@@ -5081,7 +5086,7 @@ if( isset($_POST['atadasDiszpecsernekDirektbe']) ) {
         // Frissítjuk a munkalap visszaadva sorát, ürítjük a személyzeteket és egyéb adatokat
         $sql = $adatbazis_kapcsolat -> u('munkalap',
                                             array('visszaadva', 'szemelyzet_id', 'mobil_loginnev', 'szallito_id', 'mobil', 'jh_ert', 'varh_erk',            'becs_ertek',   'mail_ment',    'direktbe', 'update_usr'                           ),
-                                            array( 1,            0,              '',                0,            '',      '',       '0000-00-00 00:00:00',  0,             0,              0,          $_SESSION[get_db_tabla().'teljes_nev'] ),
+                                            array( 1,            0,              '',               '',            '',      '',       '0000-00-00 00:00:00',  0,             0,              0,          $_SESSION[get_db_tabla().'teljes_nev'] ),
                                             "`recid` = '{$recid}'"
                                         );
         if( $sql === false ) { $db_error = true; }
@@ -5176,7 +5181,7 @@ if( isset($_POST['feladatHozzaadas']) ) {
             }
 
         // Minden más státuszban
-        }else{
+        } else {
 
             // Nézzük meg, hogy van-e tétel a munkalapon. Ha nincs, akkor hibaüzenet
             $akt_tetel = $adatbazis_kapcsolat->s2('recid', 'munkalap_tetel', "`munkalap_id` = '{$recid}'", 'recid desc', '1');
@@ -5527,7 +5532,7 @@ if( isset($_POST['munkalapTeruletiVezeto']) ) {
             if( addStatusz( 'munkalap_statusz', $recid, MUNKALAP_STAT_ELOKESZITES_ALATT ) === false ) {
                 $db_error = true;
             }
-        }else{
+        } else {
             if( addStatusz( 'munkalap_statusz', $recid, MUNKALAP_STAT_HOZZARENDELT ) === false ) {
                 $db_error = true;
             }
@@ -5682,7 +5687,7 @@ if( isset($_POST['munkalapMuszakiVezeto']) ) {
                 }
             }
 
-        }else{
+        } else {
 
             if( addStatusz( 'munkalap_statusz', $recid, MUNKALAP_STAT_HOZZARENDELT ) === false ) {
                 $db_error = true;
@@ -5786,7 +5791,7 @@ if( isset($_POST['munkalapMuszakiVezetoHelyettes']) ) {
             if( addStatusz( 'munkalap_statusz', $recid, MUNKALAP_STAT_ELOKESZITES_ALATT ) === false ) {
                 $db_error = true;
             }
-        }else{
+        } else {
             if( addStatusz( 'munkalap_statusz', $recid, MUNKALAP_STAT_HOZZARENDELT ) === false ) {
                 $db_error = true;
             }
@@ -5866,7 +5871,7 @@ if( isset($_POST['munkalapAdminisztrator']) ) {
             if( addStatusz( 'munkalap_statusz', $recid, MUNKALAP_STAT_ELOKESZITES_ALATT ) === false ) {
                 $db_error = true;
             }
-        }else{
+        } else {
             if( addStatusz( 'munkalap_statusz', $recid, MUNKALAP_STAT_HOZZARENDELT ) === false ) {
                 $db_error = true;
             }
@@ -5974,7 +5979,7 @@ if( isset($_POST['munkalapDiszpKozp']) ) {
                 $db_error = true;
             }
 
-        }else{
+        } else {
             if( addStatusz( 'munkalap_statusz', $recid, MUNKALAP_STAT_HOZZARENDELT ) === false ) {
                 $db_error = true;
             }
@@ -6076,7 +6081,7 @@ if( isset($_POST['munkalapMuszakiIgazgato']) ) {
             if( addStatusz( 'munkalap_statusz', $recid, MUNKALAP_STAT_ELOKESZITES_ALATT ) === false ) {
                 $db_error = true;
             }
-        }else{
+        } else {
             if( addStatusz( 'munkalap_statusz', $recid, MUNKALAP_STAT_HOZZARENDELT ) === false ) {
                 $db_error = true;
             }
@@ -6418,7 +6423,7 @@ if (isset($_POST['munkalapVisszavetelDirektbe'])) {
             $weblap->leallit();
             exit();
             
-        }else{
+        } else {
             
             $cimzettek          = implode(', ', $mailcimek);
             $masolatot_kapott   = '';
@@ -6768,7 +6773,7 @@ if (isset($_POST['munkalapSztornoz'])) {
             }
 
         // Egyébként kérdezünk
-        }else{
+        } else {
             echo json_encode(array(
                 'hiba'  => 'A munkalaphoz tartozó bejelentést nyitott státuszba helyezi vagy elutasítja?',
                 'gomb'  => '<input type="button" class="gomb zold" value="Nyitott státuszba" onclick="munkalapSztornoz(\'nyitott\')"><input type="button" class="gomb piros" value="Elutasítás" onclick="munkalapSztornoz(\'elutasit\')">',
@@ -6810,7 +6815,7 @@ if (isset($_POST['munkalapSztornoz'])) {
             }
 
         // Minden más esetben bejelentés folyamatban státuszba kerül
-        }else{
+        } else {
             if( addStatusz('bejelentes_statusz', $bejelentes_recid, BEJELENTES_STAT_FOLYAMATBAN, '', $memo) === false ) {
                 $db_error = true;
             }
@@ -7080,7 +7085,7 @@ if (isset($_POST['megr_sztorno_mail_elkuldve'])) {
         
         // ML adatok ürítése, de visszaadva pipa bepipálásával
         $sql = $adatbazis_kapcsolat->u('munkalap',  array('visszaadva', 'szemelyzet_id', 'szallito_id', 'jh_ert',  'becs_ertek',  'mail_ment', 'direktbe', 'vissza_mod', 'vissza_erteklista_id',    'mobil_loginnev', 'mobil',  'varh_erk',            'update_usr'                          ),
-                                                    array(1,            0,               0,             0,         0,             0,           0,          0,            0,                         '',               '',       '0000-00-00 00:00:00', $_SESSION[get_db_tabla().'teljes_nev']),
+                                                    array(1,            0,               '',             0,         0,             0,           0,          0,            0,                         '',               '',       '0000-00-00 00:00:00', $_SESSION[get_db_tabla().'teljes_nev']),
                                                     "`recid`='{$recid}'");
         if( $sql === false ) { $db_error = true; }
         
@@ -7108,7 +7113,7 @@ if (isset($_POST['megr_sztorno_mail_elkuldve'])) {
         munkalap_vissza_elokeszitesbe($recid);
         
     // Ilyen nem fordulhat elő, de nem árt bele egy védelem
-    }else{
+    } else {
         echo json_encode(array(
             'hiba'  => 'A munkalaphoz nem sikerült nyitott státuszba léptetni, mivel nem ismert a visszaadás módja!',
             'title' => 'Hiba',
@@ -7248,14 +7253,14 @@ if( isset($_GET['csv']) ) {
                 if( $kulcs == 'Sürgős' ) {
                     if($sor){
                         $sor = 'igen';
-                    }else{
+                    } else {
                         $sor = 'nem';
                     }
                 }
                 if( $kulcs == 'Visszaadva' ) {
                     if($sor){
                         $sor = 'igen';
-                    }else{
+                    } else {
                         $sor = 'nem';
                     }
                 }
@@ -7438,13 +7443,13 @@ require('selectek.php');
         // Csak az törölhet, akinek van ilyen joga
         if(!_jog(JOG_MUNKALAP_TOROL)){
             $gombok .= ' <input type="button" id="recordTorol" class="gombb_alert dn" onclick="alert2(\'Nincs jogosultsága munkalap törléséhez!\', \'\', \'Hiba\')" value="Töröl">';
-        }else{
+        } else {
             // Egyébként nézzük meg, hogy van-e tétel vagy bejelentés rajta. Ha van, akkor sem törölhető
             if($adatbazis_kapcsolat->s('recid', 'munkalap_tetel', "`munkalap_id`='{$_GET['id']}'")){
                 $gombok .= ' <input type="button" id="recordTorol" class="gombb_alert dn" onclick="alert2(\'Munkalapszám: '.$sor['ikt_szam'].'<br>Szálloda: '.getErtek('nev', 'telephely', 'id', $sor['telephely_id']).'<br>Ennek a munkalapnak már vannak tételei, ezért nem törölhető!\', \'\', \'Hiba\')" value="Töröl">';
             }elseif($adatbazis_kapcsolat->s('recid ', 'munkalap_kapcs', "`munkalap_id` = '{$_GET['id']}'")){
                 $gombok .= ' <input type="button" id="recordTorol" class="gombb_alert dn" onclick="alert2(\'Munkalap törlése előtt vegye le róla a bejelentéseket!\', \'\', \'Hiba\')" value="Töröl">';
-            }else{
+            } else {
                 $gombok .= ' <input type="button" id="recordTorol" class="gombb_alert dn" onclick="csoportMuvelet(\'munkalapTorles\')" value="Töröl">';
             }
 
@@ -7931,14 +7936,14 @@ require('selectek.php');
                         $(\'#\'+focus).addClass(\'hibas_ide_focus\');
                         szurkit_zar(\'mehet_megsem_mutat\');
                         return false;
-                    }else{
+                    } else {
                         urlap_mehet = true;
                     }
                     
                     /* Ez a feltétel nem tévedésből van kétszer, kell ide is, meg egyel lentebb is */
                     if(!urlap_mehet){
                         return false;
-                    }else{
+                    } else {
                         return form_ell_admin();
                     }
                 });
@@ -7947,7 +7952,7 @@ require('selectek.php');
                 /* Ez a feltétel nem tévedésből van kétszer, kell ide is, meg egyel fentebb is */
                 if(!urlap_mehet){
                     return false;
-                }else{
+                } else {
                     return form_ell_admin();
                 }
             ');
@@ -8082,7 +8087,7 @@ require('selectek.php');
                 if($tomb['csoport']){
                     $kulso_ertek = $adatbazis_kapcsolat->s2('info', $tomb['tabla'], "`{$tomb['oszlop_keres']}`='{$sor[$tomb['name']]}' AND `csoport`='{$tomb['csoport']}'", '', '1');
                     $kulso_ertek['nev'] = $kulso_ertek['info'];
-                }else{
+                } else {
                     $kulso_ertek = $adatbazis_kapcsolat->s2('recid nev', $tomb['tabla'], "`{$tomb['oszlop_keres']}`='{$sor[$tomb['name']]}'", '', '1');
                 }
 
@@ -8112,7 +8117,7 @@ require('selectek.php');
                     duplikaKerdes = \'Önnek nincs joga új munkalapot létrehozni!\';
                 </script>
             ');
-        }else{
+        } else {
             $szamla_html .= nl2('
                 <script>
                     duplikalGomb  = "<p class=\"c\"><input class=\"gomb zold\" type=\"button\" value=\"Igen\" onclick=\"szurkit(); location.href = \''.basename(self()).'?uj&ujkent='.$_GET['id'].'\'; \"><input class=\"gomb piros\" type=\"button\" value=\"Nem\" onclick=\"alert2()\"></p>";

@@ -685,19 +685,6 @@ if( isset($_POST['pop_tetelek_feltolt']) ) {
         // Lekérjük, a projekt szerződéses összegét
         $pr_szerzodes = $adatbazis_kapcsolat->s2($szerzodes_netto_mezo.', kcs_21', 'projektszerzodes', "`sz_szam`='{$_POST['sz_szam']}'");
         
-        // Ha a számla pénzneme és a szerződés pénzneme nem azonos, akkor hibaüzenetet
-        if( $pr_szerzodes['kcs_21'] != $_POST['kcs_21'] ) {
-            echo json_encode( array(
-                                'hiba'  => nl2('
-                                                A számla tétele nem kapcsolható a szerződés tételhez,
-                                                <br>mert a számla pénzneme nem egyezik a szerződés pénznemével!
-                                                '),
-                                'title' => 'Hiba',
-                            ) );
-            $weblap -> leallit();
-            exit;
-        }
-        
         // Illetve, hogy az aktuális számlán kívül milyen számlák tartoznak hozzá, és beleférünk-e a keretbe?
         $szamla_netto = str_replace( array(' ', ','), array('', '.'), $_POST[$szamla_netto_mezo]);
         $szamlak = $adatbazis_kapcsolat->s2('SUM(`'.$szamla_netto_mezo.'`)', 'projektszamla', "`sz_szam`='{$_POST['sz_szam']}' AND `recid`!='{$_POST['id']}' AND `visszaadva`=0");
@@ -810,7 +797,7 @@ if( isset($_POST['pop_kapcsolas_feltolt']) ) {
         }
         
         // Szerződés lekérdezése
-        $szerzodes = $adatbazis_kapcsolat->s2('recid '.$szerz_mezo.' telephely_id', 'projektszerzodes', "`sz_szam`='{$szamla['sz_szam']}'");
+        $szerzodes = $adatbazis_kapcsolat->s2('recid kcs_21 '.$szerz_mezo.' telephely_id', 'projektszerzodes', "`sz_szam`='{$szamla['sz_szam']}'");
 
         // Ellenőrizzük, hogy a kiválasztott szálloda és a projekt szám stimmel-e
         if( $szerzodes['telephely_id'] != $_POST['telephely_id'] ) {
@@ -824,7 +811,21 @@ if( isset($_POST['pop_kapcsolas_feltolt']) ) {
         
         $szerzodes_ossz = number_format($szerzodes[$szerz_mezo], $tizedesek, ',', ' ').' '.$penznem;
         
-    // Ilyen elevileg elő sem fordulhat, de jobb leellenőrizni
+        // Ha a szerződés és a számla pénzneme nem azonos, akkor hibaüzenet
+        if( $szerzodes['kcs_21'] != $_POST['kcs_21'] ) {
+            echo json_encode( array(
+                'hiba'  => nl2('
+                                A számla tétele nem kapcsolható a szerződés tételhez,
+                                <br>mert a számla pénzneme nem egyezik a szerződés pénznemével!
+                                '),
+                'title' => 'Hiba'
+                ) );
+
+            $weblap -> leallit();
+            exit();
+        }
+        
+    // Ilyen elvileg elő sem fordulhat, de jobb leellenőrizni
     } else {
 
         echo json_encode( array(
@@ -1068,19 +1069,6 @@ if( isset($_POST['van_tetel']) ) {
             ));
             $weblap -> leallit();
             exit();
-        }
-        
-        // Ha a számla pénzneme és a szerződés pénzneme nem azonos, akkor hibaüzenetet
-        if( $pr_szerzodes['kcs_21'] != $_POST['kcs_21'] ) {
-            echo json_encode( array(
-                                'hiba'  => nl2('
-                                                A számla tétele nem kapcsolható a szerződés tételhez,
-                                                <br>mert a számla pénzneme nem egyezik a szerződés pénznemével!
-                                                '),
-                                'title' => 'Hiba',
-                            ) );
-            $weblap -> leallit();
-            exit;
         }
         
         // Ellenőrizzük, hogy beleférünk-e még a szerződött összegbe
