@@ -355,8 +355,8 @@ class Adatbazis{
     public function update($tabla, $oszlopok, $ertekek, $where, $limit = ''){
 
         //Update esetén veszélyes, ha nincs megadva feltétel, mert mindent felülírunk. Emiat kötelezővé tesze, hogy legalább egy 1-es meg legyen adva, így elkerülve azt a tévedést, ha üresen maradna
-        if($where!='1'){
-            if($where){
+        if( $where != '1' ) {
+            if( $where ) {
                 $where = $this -> sqlStringBeallit($where);
             } else {
                 echo 'Nem adtál meg WHERE feltételt az UPDATE-ra. Írj egy 1-est, ha az összes sorra vonatkozik!';
@@ -366,26 +366,26 @@ class Adatbazis{
 
         $update = 'UPDATE `'.$this -> db_prefix.$tabla.'` SET ';
 
-        if(!is_array($oszlopok)){
+        if( !is_array($oszlopok) ) {
             $oszlopok = array($oszlopok);
         }
 
-        if(!is_array($ertekek)){
+        if( !is_array($ertekek) ) {
             $ertekek = array($ertekek);
         }
 
         $i = 0;
         $update_reszek = array();
 
-        //Tömb újraindexelése (arra az esetre, ha pl. egy unset miatt a tömb foghíjas lenne)
+        // Tömb újraindexelése (arra az esetre, ha pl. egy unset miatt a tömb foghíjas lenne)
         $oszlopok = array_values($oszlopok);
         $ertekek  = array_values($ertekek);
-		foreach($oszlopok as $oszlop){
-			//$oszlop      = sql_ertek($oszlop);
+		foreach ( $oszlopok as $oszlop ) {
+            //$oszlop      = sql_ertek($oszlop);
 			$ertekek[$i] = sql_ertek($ertekek[$i], true);
 
-			if(in_array($ertekek[$i], $this -> insert_kivetelek)){
-				array_push($update_reszek,'`'.$oszlop.'`='. htmlspecialchars( $ertekek[$i] ) );
+			if( in_array($ertekek[$i], $this->insert_kivetelek) ) {
+                array_push($update_reszek,'`'.$oszlop.'`='. htmlspecialchars( $ertekek[$i] ) );
 			} else {
 				array_push($update_reszek,'`'.$oszlop.'`=\''. htmlspecialchars( $ertekek[$i] ) .'\'');
 			}
@@ -395,20 +395,20 @@ class Adatbazis{
 
 		$update .= implode(', ', $update_reszek);
 
-		if($where != null){
-			$update .= ' WHERE '.$where;
+		if( $where != null ) {
+            $update .= ' WHERE '.$where;
 		}
 
-        if($limit){
+        if( $limit ) {
             $update .= ' LIMIT '.$limit;
         }
 
 		$update = str_replace('--', '', $update);
 		$this -> legutobbiParancs = $update;
 
-        if(!$lekerdezes = mysqli_query($this -> adatbazis_kapcsolat, $update)){
-        	if($this -> debug){
-				echo $update.'<br>';
+        if( !$lekerdezes = mysqli_query($this->adatbazis_kapcsolat, $update) ) {
+            if( $this->debug ) {
+                echo $update.'<br>';
 				echo 'Adatbázis hiba módosításkor: '.mysqli_error();
 			}
 			return false;

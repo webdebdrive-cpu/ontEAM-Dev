@@ -1504,7 +1504,8 @@ function i_u($type, $tabla, $tomb) {
             
             // Ha a visszaadva pipát most kapcsoltam be, akkor ellenőrizzük, hogy szerződéshez volt-e kapcsolva.
             // Ha igen, akkor a szerződés tétel kapcsolatot meg kell szüntetni, de előtte a szerződés tételeinél a teljesítést/értéket is ki kell nullázni.
-            $szamla = $adatbazis_kapcsolat->s2('visszaadva', 'projektszamla', "`recid`='{$_GET['id']}'");
+            $szamla = $adatbazis_kapcsolat->s2('visszaadva pr_szam', 'projektszamla', "`recid`='{$_GET['id']}'");
+            $szamla_pr_szam_projektkezeles_update_hez = $szamla['pr_szam']; // Ez az i_u() függvény legvégén kell, hogy az új és a régi pr_szam-ot is újra lehessen számolni
             if( $_POST['visszaadva'] && !$szamla['visszaadva'] ) {
 
                 $szamla_tetelek = $adatbazis_kapcsolat->s('projektszerzodes_tetel_recid', 'projektszamla_tetel', "`projektszamla_recid`='{$_GET['id']}'");
@@ -1928,7 +1929,20 @@ function i_u($type, $tabla, $tomb) {
             fajlba_mentes(get_pszk_utvonal().time().'_'.rand(0, 100).'.xml', $xml);
         }
 	}
-
+    
+    // Ha update volt, ha insert, projekt számla módosításakor a projekt számlázott összegét frissíteni kell
+    // Update esetén ez két eset, hisz mi van, ha épp a pr_szam változott. Ezért a régit és az újat is újra kell számolni
+    if( $tabla == 'projektszamla' ) {
+        // A számla korábbi pr_szam-ával is lefuttatuk a karbantartást...
+        if( projektkezeles_szamlazott_osszeg($szamla_pr_szam_projektkezeles_update_hez) === false ) {
+            $db_error = true;
+        }
+        // ... meg az új pr_szam-al is.
+        if( projektkezeles_szamlazott_osszeg($_POST['pr_szam']) === false ) {
+            $db_error = true;
+        }
+    }
+    
 	if( isset($_GET['id']) && $type == 'update' ) {
         $id = $_GET['id'];
 	}
@@ -10632,4 +10646,34 @@ function get_projektkezeles_where_jog() {
     }
     
     return $where;
+}
+
+// Projekteknél a számlázott összeget számoljuk ki a kapcsolódó számlák összegéből.
+// Azért van itt központilag függgvényesítve, mert nem csak a projektkezeles.php-ban van rá szükség, hanem mondjuk az i_u() függvényben is
+function projektkezeles_szamlazott_osszeg ( $pr_szam ) {
+    
+    global $db_kapcs;
+    
+    if( $pr_szam ) {
+        
+        $update1 = mysqli_query($db_kapcs, "UPDATE `".get_db_tabla()."projektkezeles` 
+                                        SET `szla_ossz`=( 
+                                                        SELECT SUM(`netto`) FROM `".get_db_tabla()."projektszamla` WHERE `visszaadva`=0 AND `pr_szam`='{$pr_szam}'
+                                                        )
+                                         WHERE `ikt_szam`='{$pr_szam}'");
+                                         
+        $update2 = mysqli_query($db_kapcs, "UPDATE `".get_db_tabla()."projektkezeles` SET `sz_elteres`=`sz_ossz`-`szla_ossz` WHERE `ikt_szam`='{$pr_szam}'");
+        
+        if( !$update1 || !$update2 ) {
+            return false;
+        } else {
+            return true;
+        }
+        
+    // Ha nem volt projektszámunk, akkor sikeresen updateltük azt
+    } else {
+        return true;
+    }
+    
+    
 }

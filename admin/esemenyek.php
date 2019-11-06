@@ -2383,11 +2383,15 @@ if ( isset($_GET['uj']) && !isset( $_GET['igeny_id'] ) ) {
 }
 
 // Felhasználható keret ha negatív, akkor legyen piros
-$fel_hato_piros = '';
+$fel_hato_piros   = '';
+$sz_elteres_piros = '';
 if ( isset($_GET['modosit']) ) {
-    $projekt = $adatbazis_kapcsolat->s2('fel_hato', 'projektkezeles', "`recid`='{$_GET['id']}'");
-    if( $projekt['fel_hato']<0 ){
+    $projekt = $adatbazis_kapcsolat->s2('fel_hato sz_elteres', 'projektkezeles', "`recid`='{$_GET['id']}'");
+    if( $projekt['fel_hato'] < 0 ) {
         $fel_hato_piros = ' piros';
+    }
+    if( $projekt['sz_elteres'] < 0 ) {
+        $sz_elteres_piros = ' piros';
     }
 }
 
@@ -2422,18 +2426,20 @@ $projektkezeles_tomb = $akt_tomb = array(
         ')),
     array('type' => 'select_felh_telephely','megn' => 'Szálloda:',    'tobb_szalloda' => $tobb_szalloda,           'name' => 'telephely_id',   'szuro' => 1,       'class' => 'disableNav',        'style' => 'width: 100%;', 'alert' => 'Kérem válasszon szállodát!', 'onchange' => 'szallodaVane( this );', 'disabled' => $szalloda_disabled),
     
-    array('type' => 'select_pri_tipus',     'megn' => 'Tipus:',                 'name' => 'tipus',          'szuro' => 1,   'class' => 'disableNav', 'osszevon' => 1, 'post' => '<span style="margin-left: 2rem"></span>', 'style' => 'width: 15rem'),
-    array('type' => 'select_pri_besorol',   'megn' => 'Besorolás:',             'name' => 'besorol',        'szuro' => 1,   'class' => 'disableNav'),
-    array('type' => 'autocomplete',         'megn' => 'Prioritás:',             'name' => 'prior',          'szuro' => 1,   'class' => 'oriasi disableNav', 'tabla' => 'erteklista', 'oszlop_keres' => 'id', 'oszlop_keres_autocomp' => 'info', 'listaz' => 'info', 'csoport' => ERTEKLISTA_PROJEKT_PRIOR, 'id_kiir' => 'id', 'osszevon' => 1, 'style' => 'width: 15rem', 'post' => '<span style="margin-left: 2rem"></span>'),
-    array('type' => 'checkbox',             'megn' => 'Megtérülő:',             'name' => 'megter',         'szuro' => 1,   'class' => 'check', 'onclick' => 'if($(this).prop(\'checked\')){ $(\'#megter_cel_div\').show(); } else { $(\'#megter_cel_div\').hide(); }', 'osszevon' => 1, 'post' => '<span style="margin-left: 2rem"></span>'),
-    array('type' => 'checkbox',             'megn' => 'Rendkívüli:',            'name' => 'rendk',          'szuro' => 1,   'class' => 'check'),
-    array('type' => 'textarea',             'megn' => 'Leírása:',               'name' => 'text',           'szuro' => 1,   'class' => 'oriasiTargy disableNav'),
-    array('type' => 'text',                 'megn' => 'Jóváhagyott keret:',     'name' => 'jkolt',          'szuro' => 1,   'class' => 'oriasi f_num', 'data' => 'data-tort="0"', 'disabled' => $disabled_jkolt,    'post' => ' '.get_penznem(), 'alert' => $alert_jkolt),
-    array('type' => 'text',                 'megn' => 'Szerződött összeg:',     'name' => 'sz_ossz',        'szuro' => 1,   'class' => 'oriasi f_num', 'data' => 'data-tort="0"', 'disabled' => 1,                  'post' => ' '.get_penznem()),
-    array('type' => 'text',                 'megn' => 'Felhasználható:',        'name' => 'fel_hato',       'szuro' => 1,   'class' => 'oriasi f_num'.$fel_hato_piros, 'data' => 'data-tort="0"', 'disabled' => 1,                  'post' => ' '.get_penznem()),
-    array('type' => 'text',                 'megn' => 'Aktiválási adatok:',     'name' => 'akt_adat',       'szuro' => 1,   'maxlength' => 250, 'class' => 'oriasi'),
-    array('type' => 'text',                 'megn' => 'Jóváhagyva:',            'name' => 'jovahagyva',     'szuro' => 1,   'class' => 'datepicker', 'osszevon' => 1, 'post' => '<span style="margin-left: 2rem"></span>'),
-    array('type' => 'autocomplete',         'megn' => 'Jóváhagyó:',             'name' => 'jovahagyo',      'szuro' => 1,   'class' => 'oriasi disableNav', 'tabla' => 'erteklista', 'oszlop_keres' => 'recid', 'oszlop_keres_autocomp' => 'info', 'listaz' => 'info', 'csoport' => ERTEKLISTA_JOVAHAGYO, 'id_kiir' => 'recid', 'style' => 'width: 30rem'),
+    array('type' => 'select_pri_tipus',     'megn' => 'Tipus:',                             'name' => 'tipus',          'szuro' => 1,   'class' => 'disableNav', 'osszevon' => 1, 'post' => '<span style="margin-left: 2rem"></span>', 'style' => 'width: 15rem'),
+    array('type' => 'select_pri_besorol',   'megn' => 'Besorolás:',                         'name' => 'besorol',        'szuro' => 1,   'class' => 'disableNav'),
+    array('type' => 'autocomplete',         'megn' => 'Prioritás:',                         'name' => 'prior',          'szuro' => 1,   'class' => 'oriasi disableNav', 'tabla' => 'erteklista', 'oszlop_keres' => 'id', 'oszlop_keres_autocomp' => 'info', 'listaz' => 'info', 'csoport' => ERTEKLISTA_PROJEKT_PRIOR, 'id_kiir' => 'id', 'osszevon' => 1, 'style' => 'width: 15rem', 'post' => '<span style="margin-left: 2rem"></span>'),
+    array('type' => 'checkbox',             'megn' => 'Megtérülő:',                         'name' => 'megter',         'szuro' => 1,   'class' => 'check', 'onclick' => 'if($(this).prop(\'checked\')){ $(\'#megter_cel_div\').show(); } else { $(\'#megter_cel_div\').hide(); }', 'osszevon' => 1, 'post' => '<span style="margin-left: 2rem"></span>'),
+    array('type' => 'checkbox',             'megn' => 'Rendkívüli:',                        'name' => 'rendk',          'szuro' => 1,   'class' => 'check'),
+    array('type' => 'textarea',             'megn' => 'Leírása:',                           'name' => 'text',           'szuro' => 1,   'class' => 'oriasiTargy disableNav'),
+    array('type' => 'text',                 'megn' => 'Jóváhagyott keret:',                 'name' => 'jkolt',          'szuro' => 1,   'class' => 'oriasi f_num', 'data' => 'data-tort="0"', 'disabled' => $disabled_jkolt,    'post' => ' '.get_penznem(), 'alert' => $alert_jkolt),
+    array('type' => 'text',                 'megn' => 'Szerződött összeg:',                 'name' => 'sz_ossz',        'szuro' => 1,   'class' => 'oriasi f_num', 'data' => 'data-tort="0"', 'disabled' => 1,                  'post' => ' '.get_penznem()),
+    array('type' => 'text',                 'megn' => 'Számlázott összeg:',                 'name' => 'szla_ossz',      'szuro' => 1,   'class' => 'oriasi f_num', 'data' => 'data-tort="0"', 'disabled' => 1,                  'post' => ' '.get_penznem()),
+    array('type' => 'text',                 'megn' => 'Szerződött / Számlázott eltérés:',   'name' => 'sz_elteres',     'szuro' => 1,   'class' => 'oriasi f_num'.$sz_elteres_piros, 'data' => 'data-tort="0"', 'disabled' => 1,                  'post' => ' '.get_penznem()),
+    array('type' => 'text',                 'megn' => 'Felhasználható keret:',              'name' => 'fel_hato',       'szuro' => 1,   'class' => 'oriasi f_num'.$fel_hato_piros, 'data' => 'data-tort="0"', 'disabled' => 1,                  'post' => ' '.get_penznem()),
+    array('type' => 'text',                 'megn' => 'Aktiválási adatok:',                 'name' => 'akt_adat',       'szuro' => 1,   'maxlength' => 250, 'class' => 'oriasi'),
+    array('type' => 'text',                 'megn' => 'Jóváhagyva:',                        'name' => 'jovahagyva',     'szuro' => 1,   'class' => 'datepicker', 'osszevon' => 1, 'post' => '<span style="margin-left: 2rem"></span>'),
+    array('type' => 'autocomplete',         'megn' => 'Jóváhagyó:',                         'name' => 'jovahagyo',      'szuro' => 1,   'class' => 'oriasi disableNav', 'tabla' => 'erteklista', 'oszlop_keres' => 'recid', 'oszlop_keres_autocomp' => 'info', 'listaz' => 'info', 'csoport' => ERTEKLISTA_JOVAHAGYO, 'id_kiir' => 'recid', 'style' => 'width: 30rem'),
     array('type' => 'html',                 'megn' => nl2('
                                                         <div class="dtr">
                                                             <div class="dtc form_bal">
@@ -2444,8 +2450,8 @@ $projektkezeles_tomb = $akt_tomb = array(
                                                         </div>
                                                         ')),
     array('type' => 'hidden',               'megn' => '',      'name' => 'projektigenyles_recid'),
-    array('type' => 'nosql',                'megn_szurobe' => 'Létrehozás dátuma',      'name' => 'insert_dt',    'szuro' => 1,  'class' => 'datepicker'),
-    array('type' => 'nosql',                'megn_szurobe' => 'Létrehozta',             'name' => 'insert_usr',   'szuro' => 1),
+    array('type' => 'nosql',                'megn_szurobe' => 'Létrehozás dátuma',          'name' => 'insert_dt',    'szuro' => 1,  'class' => 'datepicker'),
+    array('type' => 'nosql',                'megn_szurobe' => 'Létrehozta',                 'name' => 'insert_usr',   'szuro' => 1),
 );
 array_push($postok, array('tomb' => $akt_tomb, 'uj' => 'uj'.$megnevezes, 'lista' => $megnevezes.'lista', 'tabla' => $megnevezes, 'torid' => $megnevezes.'tid' ));
 
@@ -5073,7 +5079,7 @@ if( !isset($_GET['oldal'])) { $_GET['oldal']=0;     }
 
 // ESEMÉNYEK
 // Flashfáljok törlése
-if(isset($_POST['fajl_torol'])){
+if( isset($_POST['fajl_torol']) ) {
 
     // Ha ismert az ID
     if( is_numeric($_POST['id']) ){
@@ -5396,70 +5402,70 @@ foreach($postok as $ertek){
 	if( isset( $_GET[$ertek['torid']] ) ) {
 
         // Archiv táblából biztosan nem törlünk
-        if( substr($ertek['tabla'], strlen($ertek['tabla'])-5) == '_arch' ){
+        if( substr($ertek['tabla'], strlen($ertek['tabla']) - 5) == '_arch' ) {
             $weblap -> leallit(); exit;
         }
 
         // Jogosultságkezelés
-        if($ertek['tabla']=='anyagigenyles' && !_jog(JOG_ANYAGIGENYLES_KEZEL)){
+        if( $ertek['tabla'] == 'anyagigenyles' && !_jog(JOG_ANYAGIGENYLES_KEZEL) ) {
             $weblap -> leallit(); exit;
         }
-        if($ertek['tabla']=='bejelentes' && !_jog(JOG_BEJELENTES_TORLESE)){
+        if( $ertek['tabla'] == 'bejelentes' && !_jog(JOG_BEJELENTES_TORLESE) ) {
             $weblap -> leallit(); exit;
         }
-        if( $ertek['tabla']=='beosztas' && !_jog(JOG_BEOSZTASOK_KEZEL)){
+        if( $ertek['tabla'] == 'beosztas' && !_jog(JOG_BEOSZTASOK_KEZEL) ) {
             $weblap -> leallit(); exit;
         }
-        if( $ertek['tabla']=='cikktorzs' && !_jog(JOG_CIKKTORZS_KEZEL)){
+        if( $ertek['tabla'] == 'cikktorzs' && !_jog(JOG_CIKKTORZS_KEZEL) ) {
             $weblap -> leallit(); exit;
         }
-        if($ertek['tabla']=='eloterj_bod' && !_jog(JOG_ELOTERJ_KEZEL)){
+        if( $ertek['tabla'] == 'eloterj_bod' && !_jog(JOG_ELOTERJ_KEZEL) ) {
             $weblap -> leallit(); exit;
         }
-        if($ertek['tabla']=='eloterj_fb' && !_jog(JOG_ELOTERJ_KEZEL)){
+        if( $ertek['tabla'] == 'eloterj_fb' && !_jog(JOG_ELOTERJ_KEZEL) ) {
             $weblap -> leallit(); exit;
         }
-        if($ertek['tabla']=='energia_terv' && !_jog(JOG_ENERGIA_EGYSEGAR_KEZEL)){
+        if( $ertek['tabla'] == 'energia_terv' && !_jog(JOG_ENERGIA_EGYSEGAR_KEZEL) ) {
             $weblap -> leallit(); exit;
         }
-        if($ertek['tabla']=='erteklista' && !_jog(JOG_ERTEKLISTAK_KEZEL)){
+        if( $ertek['tabla'] == 'erteklista' && !_jog(JOG_ERTEKLISTAK_KEZEL) ) {
             $weblap -> leallit(); exit;
         }
         // Értéklista ha fix adat, akkor nem törölhető
-        if($ertek['tabla']=='erteklista'){
+        if( $ertek['tabla'] == 'erteklista' ) {
             $fix_adat = $adatbazis_kapcsolat->s2('fix_adat', 'erteklista', "`recid`='{$_GET['erteklistatid']}'");
             if($fix_adat['fix_adat']){
                 $weblap -> leallit(); exit;
             }
         }
-        if($ertek['tabla']=='erteklista' && !_jog(JOG_SZEREPKOR_KEZEL)){
+        if( $ertek['tabla'] == 'erteklista' && !_jog(JOG_SZEREPKOR_KEZEL) ) {
             $weblap -> leallit(); exit;
         }
-        if($ertek['tabla']=='eszkozkezeles' && !_jog(JOG_ESZKOZ_KEZEL)){
+        if( $ertek['tabla'] == 'eszkozkezeles' && !_jog(JOG_ESZKOZ_KEZEL) ) {
             $weblap -> leallit(); exit;
         }
-        if($ertek['tabla']=='felmeresi_terv' && !_jog(JOG_FT_KEZEL)){
+        if( $ertek['tabla'] == 'felmeresi_terv' && !_jog(JOG_FT_KEZEL) ) {
             $weblap -> leallit(); exit;
         }
-        if($ertek['tabla']=='fenntartasi_szerzodes' && !_jog(JOG_FENNTARTASI_SZERZ_TOROL)){
+        if( $ertek['tabla'] == 'fenntartasi_szerzodes' && !_jog(JOG_FENNTARTASI_SZERZ_TOROL) ) {
             $weblap -> leallit(); exit;
         }
-        if($ertek['tabla']=='fenntartasi_terv' && !_jog(JOG_FENNTARTASI_TERV_TOROL)){
+        if( $ertek['tabla'] == 'fenntartasi_terv' && !_jog(JOG_FENNTARTASI_TERV_TOROL) ) {
             $weblap -> leallit(); exit;
         }
         // Login egyáltalán nem törölhető
-        if($ertek['tabla']=='login'){
+        if( $ertek['tabla'] == 'login' ) {
             $weblap -> leallit(); exit;
         }
-        if($ertek['tabla']=='munkalap' && !_jog(JOG_MUNKALAP_TOROL)){
+        if( $ertek['tabla'] == 'munkalap' && !_jog(JOG_MUNKALAP_TOROL) ) {
             $weblap -> leallit(); exit;
         }
-        if( $ertek['tabla']=='projektigenyles' && !_jog(JOG_PRIGENY_S_KEZEL) && !_jog(JOG_PRIGENY_T_KEZEL) && !_jog(JOG_PRIGENY_B_KEZEL) && !_jog(JOG_PRIGENY_F_KEZEL) && !_jog(JOG_PRIGENY_SZ_KEZEL) ){
+        if( $ertek['tabla'] == 'projektigenyles' && !_jog(JOG_PRIGENY_S_KEZEL) && !_jog(JOG_PRIGENY_T_KEZEL) && !_jog(JOG_PRIGENY_B_KEZEL) && !_jog(JOG_PRIGENY_F_KEZEL) && !_jog(JOG_PRIGENY_SZ_KEZEL) ) {
             $weblap -> leallit(); exit;
         }
         if( $ertek['tabla'] == 'projektkezeles' ) {
             // Ha nincs törlés jogunk, akkor elvágjuk a működést
-            if( !get_projekt_kezeles_jog($_GET[$ertek['torid']]) ){
+            if( !get_projekt_kezeles_jog($_GET[$ertek['torid']]) ) {
                 $weblap -> leallit(); exit;
             }
             // Csak nyitott projektkezelés törölhető
@@ -5527,7 +5533,7 @@ foreach($postok as $ertek){
 
         // Csak az törölheti, aki létrehozta (itt nem vizsgálunk külön törlés jogot)
         $csak_aki_letrehozta_torolheti = array('projektigenyles');
-        if( in_array($ertek['tabla'], $csak_aki_letrehozta_torolheti) ){
+        if( in_array($ertek['tabla'], $csak_aki_letrehozta_torolheti) ) {
             $loginnev = $adatbazis_kapcsolat->s2('loginnev', $ertek['tabla'], "`recid`='{$_GET[$ertek['torid']]}'");
             if( $loginnev === false ) { $db_error = true; }
 
@@ -5547,7 +5553,7 @@ foreach($postok as $ertek){
 
         // Státusz tábla törlése, hacsak nem kivételes
         $kivetelek = array('cikktorzs', 'eseti_fenntartas', 'eszkozkezeles', 'erteklista', 'felmeresi_terv', 'ktgnem', 'ktghely', 'obj', 'projektszamla', 'projektszerzodes', 'rendszeres_karbantartas', 'szallito', 'szerepkor', 'utemezett_feladatok');
-        if( !in_array($ertek['tabla'], $kivetelek) ){
+        if( !in_array($ertek['tabla'], $kivetelek) ) {
             $valtozas_kapcsolodo_tablak .= 'Státusz tábla ('.$ertek['tabla'].'_statusz) törlése: '."\n";
             $sorok = $adatbazis_kapcsolat->s('*', $ertek['tabla'].'_statusz', "`{$ertek['tabla']}_recid`='{$_GET[$ertek['torid']]}'");
             if( $sorok === false ) { $db_error = true; }
@@ -5559,10 +5565,10 @@ foreach($postok as $ertek){
         // Dokumentumok törlése
         $torolt_fajlok = '';
         $dokos_oldalak = array('anyagigenyles', 'bejelentes', 'eseti_fenntartas', 'eszkozkezeles', 'eszkozkezeles_eng', 'felmeresi_terv', 'fenntartasi_terv', 'munkalap', 'projektigenyles', 'projektkezeles', 'projektszamla', 'projektszerzodes', 'rendszeres_karbantartas', 'utemezett_feladatok');
-        if( in_array($ertek['tabla'], $dokos_oldalak) ){
+        if( in_array($ertek['tabla'], $dokos_oldalak) ) {
             $fajlok = $adatbazis_kapcsolat->s('*', $ertek['tabla'].'_dok', "`{$ertek['tabla']}_id`='{$_GET[$ertek['torid']]}'");
 
-            foreach($fajlok as $fajl){
+            foreach ( $fajlok as $fajl ) {
                 $torolt_fajlok .= '../'.get_utvonal().$ertek['tabla'].'/'.$fajl['utvonal'].'<br>';
                 kep_torol('../'.get_utvonal().$ertek['tabla'].'/'.$fajl['utvonal']);
             }
@@ -5580,7 +5586,7 @@ foreach($postok as $ertek){
         kep_torol('../'.get_utvonal().$fajl['felm_terv']);
 
         // Bejelentések törlésekor több mindent is teszünk
-        if($ertek['tabla']=='bejelentes'){
+        if( $ertek['tabla'] == 'bejelentes' ) {
 
             // Csak nyitott és folyamatban státusz törölhető
             $bejelentes = $adatbazis_kapcsolat->s2('stat_id ikt_szam insert_dt obj_id helyiseg_text hiba_id hiba_text', 'bejelentes', "`recid`='{$_GET[$ertek['torid']]}'");
@@ -5599,21 +5605,21 @@ foreach($postok as $ertek){
                     $van_getid = true;
                 }
             }
-            if(!$van_getid){
+            if( !$van_getid ) {
                 exit;
             }
 
             // Munkalapokhoz megjegyzést írunk
             $munkalapok = $adatbazis_kapcsolat->s('munkalap_id', 'munkalap_kapcs', "`bejelentes_id`='{$_GET[$ertek['torid']]}'");
             if( $munkalapok === false ) { $db_error = true; }
-            foreach($munkalapok as $munkalap){
+            foreach($munkalapok as $munkalap ) {
 
                 $helyiseg_txt = '';
-                if($bejelentes['helyiseg_text']){
+                if( $bejelentes['helyiseg_text'] ) {
                     $helyiseg_txt = "\r\n".$bejelentes['helyiseg_text'];
                 }
                 $hiba_txt = '';
-                if($bejelentes['hiba_text']){
+                if( $bejelentes['hiba_text'] ) {
                     $hiba_txt = "\r\n".$bejelentes['hiba_text'];
                 }
 
@@ -5622,7 +5628,7 @@ Bejelentés dátuma: '.$bejelentes['insert_dt'].'
 Helyiség: '.getErtek('nev', 'obj', 'recid', $bejelentes['obj_id']).$helyiseg_txt.'
 Hiba: '.getErtek('info', 'erteklista', 'recid', $bejelentes['hiba_id']).$hiba_txt.'
 ';
-                if( addMegj('munkalap', $munkalap['munkalap_id'], $megj) === false ){
+                if( addMegj('munkalap', $munkalap['munkalap_id'], $megj) === false ) {
                     $db_error = true;
                 }
             }
@@ -5641,13 +5647,13 @@ Hiba: '.getErtek('info', 'erteklista', 'recid', $bejelentes['hiba_id']).$hiba_tx
         }
 
         // Munkalap törlésének feltételei
-        if($ertek['tabla']=='munkalap'){
+        if( $ertek['tabla'] == 'munkalap' ) {
 
             // Ha van még tétele vagy bejeletése, akkor nem törölhetjük
             if(
                     $adatbazis_kapcsolat->s('recid', 'munkalap_tetel', "`munkalap_id`='{$_GET[$ertek['torid']]}'") ||
                     $adatbazis_kapcsolat->s('recid', 'munkalap_kapcs', "`munkalap_id`='{$_GET[$ertek['torid']]}'")
-                ){
+                ) {
                 exit;
             }
 
@@ -5656,12 +5662,12 @@ Hiba: '.getErtek('info', 'erteklista', 'recid', $bejelentes['hiba_id']).$hiba_tx
             szamla_lista('', '', '', 'csak SQL miatt');
             $van_getid = false;
             $akt_sql = mysqli_query($db_kapcs, $_SESSION['akt_sql']);
-            while( $akt_sor = mysqli_fetch_assoc($akt_sql) ){
+            while ( $akt_sor = mysqli_fetch_assoc($akt_sql) ) {
                 if( $akt_sor['recid']== $_GET[$ertek['torid']] ){
                     $van_getid = true;
                 }
             }
-            if(!$van_getid){
+            if( !$van_getid ) {
                 exit;
             }
             
@@ -5832,6 +5838,11 @@ Hiba: '.getErtek('info', 'erteklista', 'recid', $bejelentes['hiba_id']).$hiba_tx
             $valtozas_kapcsolodo_tablak .= logolas_kapcsolodo_tablak_sorai($sorok);
             $sql = $adatbazis_kapcsolat->d('projektszamla_tetel', "`projektszamla_recid`='{$_GET[$ertek['torid']]}'");
             if( $sql === false ) { $db_error = true; }
+            
+            // Ha számlát törlünk, akkor a hozzá tartozó projektnél újra kell számolni a számlázott összeg mezőt
+            if( projektkezeles_szamlazott_osszeg($original_sor['pr_szam']) === false ) {
+                $db_error = true;
+            }
         }
         
         // Projektszerződés törlésekor a tételeket is törölni kell
