@@ -10653,7 +10653,7 @@ function get_projektkezeles_where_jog() {
 function projektkezeles_szamlazott_osszeg ( $pr_szam ) {
     
     global $db_kapcs;
-    
+
     if( $pr_szam ) {
         
         $update1 = mysqli_query($db_kapcs, "UPDATE `".get_db_tabla()."projektkezeles` 
@@ -10661,6 +10661,7 @@ function projektkezeles_szamlazott_osszeg ( $pr_szam ) {
                                                         SELECT SUM(`netto`) FROM `".get_db_tabla()."projektszamla` WHERE `visszaadva`=0 AND `pr_szam`='{$pr_szam}'
                                                         )
                                          WHERE `ikt_szam`='{$pr_szam}'");
+
                                          
         $update2 = mysqli_query($db_kapcs, "UPDATE `".get_db_tabla()."projektkezeles` SET `sz_elteres`=`sz_ossz`-`szla_ossz` WHERE `ikt_szam`='{$pr_szam}'");
         

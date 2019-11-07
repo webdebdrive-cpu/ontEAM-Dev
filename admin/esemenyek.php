@@ -5838,11 +5838,7 @@ Hiba: '.getErtek('info', 'erteklista', 'recid', $bejelentes['hiba_id']).$hiba_tx
             $valtozas_kapcsolodo_tablak .= logolas_kapcsolodo_tablak_sorai($sorok);
             $sql = $adatbazis_kapcsolat->d('projektszamla_tetel', "`projektszamla_recid`='{$_GET[$ertek['torid']]}'");
             if( $sql === false ) { $db_error = true; }
-            
-            // Ha számlát törlünk, akkor a hozzá tartozó projektnél újra kell számolni a számlázott összeg mezőt
-            if( projektkezeles_szamlazott_osszeg($original_sor['pr_szam']) === false ) {
-                $db_error = true;
-            }
+
         }
         
         // Projektszerződés törlésekor a tételeket is törölni kell
@@ -5958,6 +5954,15 @@ Hiba: '.getErtek('info', 'erteklista', 'recid', $bejelentes['hiba_id']).$hiba_tx
             if( $sql === false ) { $db_error = true; }
 
             $sikeres_torles = $adatbazis_kapcsolat -> d($ertek['tabla'], "`recid`='{$_GET[$ertek['torid']]}'");
+        }
+        
+        // Ha számlát törlünk, akkor a hozzá tartozó projektnél újra kell számolni a számlázott összeg mezőt
+        // Azért hívjuk meg itt és nem fentebb, mert a DELETE utasítás után kell kiszámolni.
+        if( $ertek['tabla'] == 'projektszamla' ) {
+
+            if( projektkezeles_szamlazott_osszeg($original_sor['pr_szam']) === false ) {
+                $db_error = true;
+            }
         }
 
         if( $sikeres_torles === false ) { $db_error = true; }
