@@ -24,9 +24,9 @@ if( $_GET['print']=='lista' || isset($_GET['pdf'])) {
             case 'lt'       : $feltetel .= ' < ';           break;
             case 'not_eq'   : $feltetel .= ' <> ';          break;
             case 'empty':
-                if($_GET['felt']==0){
+                if( $_GET['felt'] == 0 ) {
                     $feltetel .= ' nem üres';
-                }else{
+                } else {
                     $feltetel .= ' üres';
                 }
                 $_GET['felt'] = '';
@@ -73,10 +73,10 @@ if( $_GET['print']=='lista' || isset($_GET['pdf'])) {
         }elseif ($_GET['mezo']=='fix_adat') {
             if( $_GET['felt'] ){
                 $feltetel .= 'Igen';
-            }else{
+            } else {
                 $feltetel .= 'Nem';
             }
-        }else{
+        } else {
             $feltetel .= $_GET['felt'];
         }
 

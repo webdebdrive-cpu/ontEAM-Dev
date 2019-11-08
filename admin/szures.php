@@ -1,4 +1,7 @@
 <?php
+if( $_GET['mezo']=='legfrissebb' && $_GET['felt']=='-' ) {
+    $_GET['mezo'] = $_GET['op'] = $_GET['felt'] = '';
+}
 // Operátor kiválasztása
 if( isset($_POST['f_szuro_mezo']) ) {
 
@@ -161,20 +164,20 @@ if( isset($_POST['f_szuro_mezo']) ) {
 }
 
 // Feltétel mező kigenerálása operátor váltáskor történik
-if (isset($_POST['f_szuro_mezo_operator'])) {
+if( isset($_POST['f_szuro_mezo_operator']) ) {
 
     $akt_tomb_szures = get_akt_tomb($_POST['tabla']);
 
     $selected_null = '';
     $selected_egy  = '';
-    if($_POST['felt']=='0'){
+    if( $_POST['felt'] == '0' ) {
         $selected_null = ' selected';
     }
-    if($_POST['felt']=='1'){
+    if( $_POST['felt'] == '1' ) {
         $selected_egy = ' selected';
     }
 
-    if($_POST['felt']=='undefined'){
+    if( $_POST['felt'] == 'undefined' ) {
         $_POST['felt'] = '';
     }
 
@@ -374,7 +377,7 @@ if (isset($_POST['f_szuro_mezo_operator'])) {
                     $feltetel = $input -> getHtml();
 
                 // Általános esetben egy szabadszavas mező
-                }else {
+                } else {
 
                     // Numerikus adatok operátora
                     if( strpos($ertek['class'], 'f_num') !== false ) {
@@ -871,4 +874,3 @@ if( isset($_GET['mezo']) ) {
         </script>
         ');
 }
-?>

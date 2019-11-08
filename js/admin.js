@@ -6824,7 +6824,7 @@ function objLength(obj) {
 };
 
 // Szűrő mező kiválasztásakor hívódik meg
-function operator_beallit(that, selected, felt){
+function operator_beallit(that, selected, felt) {
     var tabla    = that.attr('data-tabla');
 
     // Anyagrendelés felület miatt, ezt is át kell adni GET-ként
@@ -6848,7 +6848,7 @@ function operator_beallit(that, selected, felt){
                 } else {
                     $('#operator').html(response.operator);
                 }
-                
+
                 szuro_ertek_mezo_gen($('.f_szuro_mezo_operator'), felt);
 
                 $('#o_szures_submit').show();
@@ -6867,7 +6867,7 @@ function szuro_ertek_mezo_gen(that, felt) {
     
     // Anyagrendelés alatt néha limit=0-val indul az oldal. Ez nem számít tényleges értéknek, emiatt ilyenkor nem is kell kiszámolni az érték mezőt, meg se jelenik
     // Azért kellett ide ez a feltétel, mert megjelent egy Szűrés és egy Szűrés törlése gomb, feleslegesen
-    if( felt !='0' ) {
+    if( felt ) {
     
         var tabla    = that.attr('data-tabla');
         var selected = that.find('option:selected');
@@ -6922,6 +6922,7 @@ function szuro_ertek_mezo_gen(that, felt) {
        $.when(ajax).then(function() {
            fejlecPozicional();
            fulGombMeretez();
+           $('#feltetel input').focus();
        });
    }
 }

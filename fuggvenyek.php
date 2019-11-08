@@ -3492,7 +3492,7 @@ function szamla_lista( $where, $tabla, $kijeloltek = false, $csak_sql_miatt = fa
         // és nincs szűrve semmire (összetetten sem, ez itt fontos a 0-ás alapértelmezett érték miatt), akkor nem listázunk ki semmit.
         if( _jog(JOG_ANYAGREND_KESZIT) && $tabla=='anyagigenyles' && isset($_GET['anyagrend']) && !$_GET['mezo'] && !$_SESSION['o_szuro_feltetel'] ) {
             $_GET['mezo'] = 'legfrissebb';
-            $_GET['felt'] = '0'; // Ha csak simán 0-át írnánk ide, akkor a feltételt üresnek tekintené, olyan mintha nem létezne
+            $_GET['felt'] = '-'; // Ha csak simán 0-át írnánk ide, akkor a feltételt üresnek tekintené, olyan mintha nem létezne
         }
 
         if( $_GET['mezo'] == 'legfrissebb' ) {
@@ -10662,7 +10662,6 @@ function projektkezeles_szamlazott_osszeg ( $pr_szam ) {
                                                         )
                                          WHERE `ikt_szam`='{$pr_szam}'");
 
-                                         
         $update2 = mysqli_query($db_kapcs, "UPDATE `".get_db_tabla()."projektkezeles` SET `sz_elteres`=`sz_ossz`-`szla_ossz` WHERE `ikt_szam`='{$pr_szam}'");
         
         if( !$update1 || !$update2 ) {
@@ -10675,6 +10674,5 @@ function projektkezeles_szamlazott_osszeg ( $pr_szam ) {
     } else {
         return true;
     }
-    
     
 }
