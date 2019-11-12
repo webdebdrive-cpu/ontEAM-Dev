@@ -5712,7 +5712,7 @@ Hiba: '.getErtek('info', 'erteklista', 'recid', $bejelentes['hiba_id']).$hiba_tx
         if( $ertek['tabla'] == 'eloterj_bod' ) {
 
             $elot = $adatbazis_kapcsolat->s2('stat_id', 'eloterj_bod', "`recid`='{$_GET[$ertek['torid']]}'");
-            if($elot['stat_id']!=ELOT_BOD_STAT_NYITOTT){
+            if( $elot['stat_id'] != ELOT_BOD_STAT_NYITOTT ) {
                 // Megszakítjuk, ha nincs is nyitott státuszban
                 exit;
             }
@@ -5865,7 +5865,7 @@ Hiba: '.getErtek('info', 'erteklista', 'recid', $bejelentes['hiba_id']).$hiba_tx
             $prszerzodes = $adatbazis_kapcsolat->s2('pr_szam szerz_ossz', 'projektszerzodes', "`recid`='{$_GET[$ertek['torid']]}'");
             if( $prszerzodes === false ) { $db_error = true; }
             if( $prszerzodes['pr_szam'] ) {
-                $szerzodesek = $adatbazis_kapcsolat->s2('SUM(`szerz_ossz`)', 'projektszerzodes', "`pr_szam`='{$prszerzodes['pr_szam']}' AND `visszaadva`=0");
+                $szerzodesek = $adatbazis_kapcsolat->s2('SUM(`szerz_ossz`)', 'projektszerzodes', "`pr_szam`='{$prszerzodes['pr_szam']}'");
                 if( $szerzodesek === false ) { $db_error = true; }
                 $projekt = $adatbazis_kapcsolat->s2('jkolt', 'projektkezeles', "`ikt_szam`='{$prszerzodes['pr_szam']}'");
                 if( $projekt === false ) { $db_error = true; }
@@ -5956,10 +5956,9 @@ Hiba: '.getErtek('info', 'erteklista', 'recid', $bejelentes['hiba_id']).$hiba_tx
             $sikeres_torles = $adatbazis_kapcsolat -> d($ertek['tabla'], "`recid`='{$_GET[$ertek['torid']]}'");
         }
         
-        // Ha számlát törlünk, akkor a hozzá tartozó projektnél újra kell számolni a számlázott összeg mezőt
+        // Ha számlát/szerződést törlünk, akkor a hozzá tartozó projektnél újra kell számolni a számlázott összeg mezőt
         // Azért hívjuk meg itt és nem fentebb, mert a DELETE utasítás után kell kiszámolni.
-        if( $ertek['tabla'] == 'projektszamla' ) {
-
+        if( $ertek['tabla'] == 'projektszamla' || $ertek['tabla'] == 'projektszerzodes' ) {
             if( projektkezeles_szamlazott_osszeg($original_sor['pr_szam']) === false ) {
                 $db_error = true;
             }

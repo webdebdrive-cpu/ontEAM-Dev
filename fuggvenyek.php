@@ -1505,7 +1505,7 @@ function i_u($type, $tabla, $tomb) {
             // Ha a visszaadva pipát most kapcsoltam be, akkor ellenőrizzük, hogy szerződéshez volt-e kapcsolva.
             // Ha igen, akkor a szerződés tétel kapcsolatot meg kell szüntetni, de előtte a szerződés tételeinél a teljesítést/értéket is ki kell nullázni.
             $szamla = $adatbazis_kapcsolat->s2('visszaadva pr_szam', 'projektszamla', "`recid`='{$_GET['id']}'");
-            $szamla_pr_szam_projektkezeles_update_hez = $szamla['pr_szam']; // Ez az i_u() függvény legvégén kell, hogy az új és a régi pr_szam-ot is újra lehessen számolni
+            $pr_szam_projektkezeles_update_hez = $szamla['pr_szam']; // Ez az i_u() függvény legvégén kell, hogy az új és a régi pr_szam-ot is újra lehessen számolni
             if( $_POST['visszaadva'] && !$szamla['visszaadva'] ) {
 
                 $szamla_tetelek = $adatbazis_kapcsolat->s('projektszerzodes_tetel_recid', 'projektszamla_tetel', "`projektszamla_recid`='{$_GET['id']}'");
@@ -1556,7 +1556,7 @@ function i_u($type, $tabla, $tomb) {
             }
             
             // Ellenőrizzük továbbá, hogy a szálloda és a Projekt szám azonos szállodához tartozik-e
-            if( $_POST['pr_szam'] ){
+            if( $_POST['pr_szam'] ) {
                 $projekt = $adatbazis_kapcsolat->s2('telephely_id', 'projektkezeles', "`ikt_szam`='{$_POST['pr_szam']}'");
                 if( $projekt === false ) { $db_error = true; }
                 if( $projekt['telephely_id'] != $_POST['telephely_id'] ) {
@@ -1660,6 +1660,8 @@ function i_u($type, $tabla, $tomb) {
         }
         
         // Projekt szerződés
+        $szerzodes = $adatbazis_kapcsolat->s2('pr_szam', 'projektszerzodes', "`recid`='{$_GET['id']}'");
+        $pr_szam_projektkezeles_update_hez = $szerzodes['pr_szam'];
         if( $tabla == 'projektszerzodes' ) {
 
             // Kivitelezés kezdete, nem lehet korábbi, mint a kelte
@@ -1932,9 +1934,9 @@ function i_u($type, $tabla, $tomb) {
     
     // Ha update volt, ha insert, projekt számla módosításakor a projekt számlázott összegét frissíteni kell
     // Update esetén ez két eset, hisz mi van, ha épp a pr_szam változott. Ezért a régit és az újat is újra kell számolni
-    if( $tabla == 'projektszamla' ) {
+    if( $tabla == 'projektszamla' || $tabla == 'projektszerzodes' ) {
         // A számla korábbi pr_szam-ával is lefuttatuk a karbantartást...
-        if( projektkezeles_szamlazott_osszeg($szamla_pr_szam_projektkezeles_update_hez) === false ) {
+        if( projektkezeles_szamlazott_osszeg($pr_szam_projektkezeles_update_hez) === false ) {
             $db_error = true;
         }
         // ... meg az új pr_szam-al is.
@@ -4875,16 +4877,10 @@ function fenntartasi_tervLista( $bejegyzesek, $tabla, $frissit, $kijeloltek ) {
                 $active = ' kijelolve';
             }
 
-            // Ha a usernek nem csak egy szállodája van, akkor kiírjuk a szálloda nevét
-            $szalloda_neve = '';
-            if( !$_SESSION['egyszallodas_user'] ) {
-                $szalloda_neve = getSzallodaNev($bsz['telephely_id']);
-            }
-
             $li_tart = '<a class="szamla" data-recid="'.$bsz['recid'].'" data-fajl="'.$tabla.'.php" data-muvelet="modosit">
                             <table>
                             <tr> 
-                                <td style="width: 8rem">'.$szalloda_neve.'</td>
+                                <td style="width: 8rem">'.getSzallodaNev($bsz['telephely_id']).'</td>
                                 <td style="width: 4rem">'.$bsz['ev'].'</td>
                                 <td>'.getStatText('energia_terv', $bsz['stat_id']).'</td>
                             </tr>
