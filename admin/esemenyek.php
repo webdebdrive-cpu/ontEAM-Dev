@@ -2450,6 +2450,7 @@ $projektkezeles_tomb = $akt_tomb = array(
                                                         </div>
                                                         ')),
     array('type' => 'hidden',               'megn' => '',      'name' => 'projektigenyles_recid'),
+    array('type' => 'nosql',                'megn' => 'Van minősítésre váró dokumentum',    'name' => 'dok_db_min_var',    'szuro' => 1,  'class' => 'datepicker'),
     array('type' => 'nosql',                'megn_szurobe' => 'Létrehozás dátuma',          'name' => 'insert_dt',    'szuro' => 1,  'class' => 'datepicker'),
     array('type' => 'nosql',                'megn_szurobe' => 'Létrehozta',                 'name' => 'insert_usr',   'szuro' => 1),
 );
@@ -4443,6 +4444,7 @@ if( isset($_POST['mellekTorol']) ) {
  
                     break;
                 }
+                
             }
 
             if( $fajlok ) {
@@ -4497,6 +4499,18 @@ if( isset($_POST['mellekTorol']) ) {
                 $dokumentumok_szama = count( $adatbazis_kapcsolat->s('recid', $tabla, "`{$szulo_oszlop}`='{$fajl[$szulo_oszlop]}'") );
                 $sql = $adatbazis_kapcsolat->u($szulo_tabla, array('dok_db'), array($dokumentumok_szama), "`recid`='{$fajl[$szulo_oszlop]}'");
                 if( $sql === false ) { $db_error = true; }
+                
+                // Illetve projektkezelésnél adott projekt minősítésre váró dokumentumait újra összeszámoljuk
+                if( $szulo_tabla == 'projektkezeles' ) {
+                    if( projekt_minositesre_varo_dok_szamol($fajlok[0][$szulo_oszlop]) === false ) { $db_error = true; }
+                }
+                if( $szulo_tabla == 'projektszerzodes' ) {
+                    $szerzodes = $adatbazis_kapcsolat->s2('pr_szam', 'projektszerzodes', "`recid`='{$fajl[$szulo_oszlop]}'");
+                    if( $szerzodes === false ) { $db_error = true; }
+                    $projekt = $adatbazis_kapcsolat->s2('recid', 'projektkezeles', "`ikt_szam`='{$szerzodes['pr_szam']}'");
+                    if( $projekt === false ) { $db_error = true; }
+                    if( projekt_minositesre_varo_dok_szamol($projekt['recid']) === false ) { $db_error = true; }
+                }
 
             } else {
                 echo json_encode(array(

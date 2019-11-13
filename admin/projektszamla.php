@@ -499,7 +499,9 @@ if( isset($_POST['projektszamla_kapcsolas']) ) {
                 $weblap->leallit();
                 exit();
                 
-    } elseif( $kif_ossz < $szerzodes[$szerz_mezo] && !$_POST['mehet'] ) {
+    } 
+    /* Tibi kérte, hogy ez ne legyen: 2019. 11. 11. 17:16
+    elseif( $kif_ossz < $szerzodes[$szerz_mezo] && !$_POST['mehet'] ) {
         echo json_encode( array( 
                         'hiba'  => 'A várható összes teljesítés ('.number_format($kif_ossz, $tizedesek, ',', ' ').' '.$penznem.') kevesebb, mint a szerződött összeg ('.number_format($szerzodes[$szerz_mezo], $tizedesek, ',', ' ').' '.$penznem.')!<br>Folytatja?',
                         'gomb'  => '<input type="button" class="gomb zold" value="Igen" onclick="projektszamla_kapcsolas(\'mehet\')"><input type="button" class="gomb piros" value="Nem" onclick="alert2()">',
@@ -507,7 +509,7 @@ if( isset($_POST['projektszamla_kapcsolas']) ) {
                         ) );
                 $weblap->leallit();
                 exit();
-    }
+    }*/
     
     // Ellenőrzések után tároljuk el a változtatásokat. 
     // Szerződés tétetel rekordok frissítése

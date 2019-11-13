@@ -341,9 +341,50 @@ function projekt_dok_check( recid, checked ) {
             if (response) {
                 response = JSON.parse(response);
                 if (response.hiba) {
-                    alert2(response.hiba);
+                    alert2(response.hiba, response.gomb, response.title);
                 }
+            }
+        },
+        complete: function(xhr) {
+            if( xhr.status != 200 ) {
+                alert2(xhr.responseText, '', 'Hiba');
             }
         }
     });
+}
+
+/* Minősített dokumentumról töröljük a minősítést */
+function minosites_torol( recid, tabla, mehet ) {
+    if( !mehet ) {
+        alert2('Biztosan törli a minősítést a következő dokumentumról:<br>'+$('#megj_kep'+recid+'_felirat a').html(), '<input type="button" class="gomb zold" value="Igen" onclick="minosites_torol( \''+recid+'\', \''+tabla+'\', \'mehet\' );"> <input type="button" class="gomb piros" value="Nem" onclick="alert2()">');
+        return false;
+    }
+    
+    $.ajax({
+        url : 'projektkezeles.php',
+        type: 'POST',
+        data: {
+            recid           : recid,
+            tabla           : tabla,
+            minosites_torol : Date.now()
+        },
+        success: function (response) {
+            if(response.substring(0, 6)=='SESKIL'){ location.href = 'index.php'; }
+            if (response) {
+                response = JSON.parse(response);
+                if (response.hiba) {
+                    alert2(response.hiba, response.gomb, response.title);
+                } else {
+                    szamlaBetolt( _get('id'), 'projektkezeles.php', 'dokumentumok' );
+                }
+                
+            }
+        },
+        complete: function(xhr) {
+            if( xhr.status != 200 ) {
+                alert2(xhr.responseText, '', 'Hiba');
+            }
+        }
+    });
+    
 }

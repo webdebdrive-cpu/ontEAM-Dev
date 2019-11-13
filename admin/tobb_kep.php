@@ -49,7 +49,16 @@ if( isset($_POST['dokumentum_tipus_valaszt']) ) {
 
     require_once('../weblap.php');
     $sql = $adatbazis_kapcsolat->u($_POST['tabla'].'_dok', array('tipus'), array($_POST['tipus']), "`recid`='{$_POST['recid']}'");
-    if( $sql === false ) { $db_error = true; }
+    
+    // Ilyen elvileg csak a projekt kezelés felületen fordulhat elő
+    if( $_POST['tabla'] == 'projektkezeles' ) {
+        $pr_id = $adatbazis_kapcsolat->s2('projektkezeles_id', 'projektkezeles_dok', "`recid`='{$_POST['recid']}'");
+        projekt_minositesre_varo_dok_szamol($pr_id['projektkezeles_id']);
+    }
+    
+    // Logolás
+    $dok = $adatbazis_kapcsolat->s2($_POST['tabla'].'_id fajlnev', $_POST['tabla'].'_dok', "`recid`='{$_POST['recid']}'");
+    addMegj($_POST['tabla'], $dok[$_POST['tabla'].'_id'], $dok['fajlnev'].' dokumentum '. getErtekLista(ERTEKLISTA_DOK_TIPUS, $_POST['tipus']).' típusnak minősítve');
     
     $weblap -> leallit();
     exit;
@@ -216,7 +225,7 @@ if( isset($_POST['megnevezes']) && !$archivum ) {
 
                     $apa_tabla = csonkit($_POST['tabla'], 4);
                     
-                    // Tipus választó popup-ot így hívjuk meg, hogy egy tipus_beallit szringgel kezdjük a visszaküldött adatokat
+                    // Tipus választó popup-ot így hívjuk meg, hogy egy tipus_beallit sztringgel kezdjük a visszaküldött adatokat
                     if( tipusos_dokumentumok( $apa_tabla ) ){
                         echo 'tipus_beallit';
                         
@@ -238,6 +247,7 @@ if( isset($_POST['megnevezes']) && !$archivum ) {
                             exit;
                         }
                         echo 'leptessuk_e_tovabb';
+                        
                     }
                     
                     $kep_tort = str_replace('../'.get_utvonal().$konyvtar_db_nev.'/', '', $kepnev);
@@ -272,6 +282,16 @@ if( isset($_POST['megnevezes']) && !$archivum ) {
                     $dokumentumok_szama = count( $adatbazis_kapcsolat->s('recid', $_POST['tabla'], "`{$_POST['oszlop']}`='{$_POST['sorid']}'") );
                     $adatbazis_kapcsolat->u($konyvtar_db_nev, array('dok_db'), array($dokumentumok_szama), "`recid`='{$_POST['sorid']}'");
 
+                    
+                    // Illetve projektkezelésnél/projektszerződésnél adott projekt minősítésre váró dokumentumait újra összeszámoljuk
+                    if( $_POST['tabla']=='projektkezeles_dok' ) {
+                        projekt_minositesre_varo_dok_szamol($_POST['sorid']);
+                    }
+                    if( $_POST['tabla']=='projektszerzodes_dok' ) {
+                        $szerzodes = $adatbazis_kapcsolat->s2('pr_szam', 'projektszerzodes', "`recid`='{$_POST['sorid']}'");
+                        $projekt   = $adatbazis_kapcsolat->s2('recid', 'projektkezeles', "`ikt_szam`='{$szerzodes['pr_szam']}'");
+                        projekt_minositesre_varo_dok_szamol($projekt['recid']);
+                    }
                 }
             }
         break;
@@ -403,7 +423,7 @@ if( $apa_tabla == 'projektkezeles' ) {
     // Direktbe ide feltöltött dokumentumok, aminknek a tipusa üres => minősítésre váróak
     $kepek_direkt = $adatbazis_kapcsolat->s('*', 'projektkezeles_dok', "`projektkezeles_id`='{$_GET['id']}' AND `tipus`='0'");
     
-    // A szerződéseket kétszer járjuk be: a nem minősítetteket (tehát ahol a tipus oszlop üres), majd a szerződéseket.
+    // A szerződéseket kétszer járjuk be: a minősítésre váróakat (tehát ahol a tipus oszlop üres), majd a szerződéseket.
     $kepek          = array();
     $szerzodesek    = $adatbazis_kapcsolat->s('recid', 'projektszerzodes', "`pr_szam`='{$projekt['ikt_szam']}'");
     $szerzodesek    = adatbazis2tomb($szerzodesek, 'recid');
@@ -416,6 +436,7 @@ if( $apa_tabla == 'projektkezeles' ) {
                                             // Csatlakozzunk a szerződés sorához a szallito_id miatt, majd tovább csatlakozunk a szállítókhoz, a nev oszlop miatt
                                             'JOIN `'.get_db_tabla().'projektszerzodes` ON `'.get_db_tabla().'projektszerzodes_dok`.`projektszerzodes_id`=`'.get_db_tabla().'projektszerzodes`.`recid`
                                              JOIN `'.get_db_tabla().'szallito` ON `'.get_db_tabla().'projektszerzodes`.`szallito_id`=`'.get_db_tabla().'szallito`.`id` ');
+    
     }
 
     // Direkt és szerződés dokumentumokat kezeljük egybe
@@ -481,6 +502,7 @@ if( $apa_tabla == 'projektkezeles' ) {
                                 <div class="felirat c" style="width: 13.3rem;"></div>
                                 <div class="felirat">Feltöltötte</div>
                                 <div class="felirat">Feltöltve</div>
+                                <div class="felirat">Minősítés törlése</div>
                                 <div class="maradek torles" style="width: 19.5rem">Jelölés</div>
                             </li>
             ');
@@ -524,6 +546,7 @@ if( $apa_tabla == 'projektkezeles' ) {
                                 <div class="felirat c" style="width: 13.3rem"></div>
                                 <div class="felirat">Feltöltötte</div>
                                 <div class="felirat">Feltöltve</div>
+                                <div class="felirat">Minősítés törlése</div>
                                 <div class="maradek torles" style="width: 19.5rem">Jelölés</div>
                             </li>
             ');
@@ -602,6 +625,7 @@ if( /*$apa_tabla == 'projektszerzodes' ||*/ $apa_tabla == 'projektkezeles' ) {
                                     <div class="felirat c"></div>
                                     <div class="felirat" style="width: 13.3rem;">Feltöltötte</div>
                                     <div class="felirat">Feltöltve</div>
+                                    <div class="felirat">Minősítés törlése</div>
                                     <div class="maradek torles" style="width: 19.5rem;">Jelölés</div>
                                 </li>
                 ');
@@ -659,6 +683,7 @@ if( $apa_tabla == 'projektkezeles' ) {
                                     <div class="felirat c" style="width: 13.3rem"></div>
                                     <div class="felirat">Feltöltötte</div>
                                     <div class="felirat">Feltöltve</div>
+                                    <div class="felirat">Minősítés törlése</div>
                                     <div class="maradek torles" style="width: 19.5rem;">Jelölés</div>
                                 </li>
                 ');
@@ -839,13 +864,20 @@ function get_tobbkep_thumb($sor_kepek, $i, $tobbkep_tablanev, $nincs_torles, $ku
                             <input type="button" class="gomb alacsony" value="Minősítés" onclick="dok_minosites(\''.$sor_kepek['recid'].'\', \'szűrt\')">
                         </div>
                         ');
-                // Nem direkt domunemtum minősítés (itt megengedett a számla típus)
+                // Nem direkt dokumentum minősítés (itt megengedett a számla típus)
                 } else if( !$direkt_dokumentum && !$sor_kepek['tipus'] ) {
                     $minosites = nl2('
                         <div class="felirat l" style="width: 6rem">
                             <input type="button" class="gomb alacsony" value="Minősítés" onclick="dok_minosites(\''.$sor_kepek['recid'].'\')">
                         </div>
                         ');
+                // Ha nem minősíthető egy dokumentum (mert már minősítve van), akkor meg a minősítés törölhető róla
+                } else {
+                    $minosites = nl2('
+                                    <div class="felirat l">
+                                        <b class="piros link f18" title="Minősítés törlése" onclick="minosites_torol(\''.$sor_kepek['recid'].'\', \''.$tobbkep_tablanev.'\')">✖</b>
+                                    </div>
+                                    ');
                 }
             }
             

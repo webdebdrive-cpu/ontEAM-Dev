@@ -247,6 +247,11 @@ function projektszamla_kapcsolas( mehet ) {
                 } else {
                     csoportMuvelet('projektszamla_tetelek_kezelese');
                     alert2(); /* Mert lehet rákérdeztünk, hogy biztosan? Ezért bezárjuk az alert2-t. */
+                    
+                    /* Ha a tételek fülön vagyunk, akkor frissítjük a tartalmat */
+                    if( _get('tetel') ) {
+                        szamlaBetolt(_get('id'), 'projektszamla.php', 'tetel');
+                    }
                 }
             }
         },

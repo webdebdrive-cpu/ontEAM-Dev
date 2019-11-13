@@ -6,6 +6,15 @@ body{
     font-weight: 400;
 }
 
+.piros.link{
+    color: #000;
+    transition: all ease-in-out 0.2s;
+}
+.piros.link:hover {
+    color: #f00;
+    transition: all ease-in-out 0.2s;
+}
+
 tr.s0{ background: #F9FAFE; border-bottom: 0.1rem solid #E3EBF1; }
 tr.s1{ border-bottom: 0.1rem solid #E3EBF1; }
 

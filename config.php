@@ -88,7 +88,16 @@ function get_alk()           { return
                    ($_SERVER['HTTP_HOST']=='localhost') ? '' : '';              } // Rewritre rule localhoston is működjön, itt a www mappán belüli mappát add meg
 function get_country()       { return 'Hungary';                                } // Pl.: Hungary
 function css_img()           { return true;                                     } //Ha igaz, akkor a CSS-ben levő képeket DATA URI-ként beágyazza a CSS tartalmába, egyébént marad sima hivatkozás
-function get_domain()        { return 'www.onteam.hu';                          }
+function get_domain()        {
+    switch ( $_SERVER['HTTP_HOST'] ) {
+        case 'localhost'            : return 'localhost/';
+        case 'demo.webdeb.hu'       : return 'demo.webdeb.hu/danubiushotel.hu';
+        case 'teszt.onteam.hu'      : return 'teszt.onteam.hu';
+        case 'dev.onteam.hu'        : return 'dev.onteam.hu';
+        case 'onteam.hu'            : return 'www.onteam.hu';
+        case 'www.onteam.hu'        : return 'www.onteam.hu';
+    }
+}
 function get_http()          {
     if (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] != 'off') {
         return 'https://';

@@ -123,7 +123,7 @@ if( isset($_POST['f_szuro_mezo']) ) {
     }
 
     // Legfrissebb esetén = operátor
-    if( $_POST['mezo']=='legfrissebb' || $_POST['mezo']=='dok_van_e' || $_POST['mezo']=='kapcsolt_szerzodes_van_e' || $_POST['mezo']=='kapcsolt_szamla_van_e' ) {
+    if( $_POST['mezo']=='legfrissebb' || $_POST['mezo']=='dok_van_e' || $_POST['mezo']=='dok_db_min_var' || $_POST['mezo']=='kapcsolt_szerzodes_van_e' || $_POST['mezo']=='kapcsolt_szamla_van_e' ) {
         $operator = '<option value="equal"'.$selected_equal.'>=</option>';
     }
 
@@ -182,7 +182,7 @@ if( isset($_POST['f_szuro_mezo_operator']) ) {
     }
 
     // Ha az éppen kiválasztott operátor az üres, akkor az alábbit adjuk vissza és kész
-    if( $_POST['selected'] == 'empty' || $_POST['mezo'] == 'dok_van_e' || $_POST['mezo'] == 'kapcsolt_szerzodes_van_e' || $_POST['mezo'] == 'kapcsolt_szamla_van_e' || $_POST['mezo'] == 'kifizetes_van_e' || $_POST['mezo'] == 'fix_adat' ) {
+    if( $_POST['selected'] == 'empty' || $_POST['mezo'] == 'dok_van_e' || $_POST['mezo'] == 'dok_db_min_var' || $_POST['mezo'] == 'kapcsolt_szerzodes_van_e' || $_POST['mezo'] == 'kapcsolt_szamla_van_e' || $_POST['mezo'] == 'kifizetes_van_e' || $_POST['mezo'] == 'fix_adat' ) {
         $feltetel = nl2('
             <select class="f_felt">
                 <option value="1"'.$selected_egy.'>Igen</option>
@@ -850,6 +850,11 @@ if( isset($_POST['o_szures']) ) {
 // Tehát a 'vege' alapján rendezzük az option-okat, így lesz a szűrés lista ABC-s rendben.
 $options = '';
 $sz_mezo = tobbdim_tomb_kulcs_rendez($sz_mezo, 'vege', SORT_ASC);
+
+// Szűrés és szűrés töröl gombok rejtése
+if( isset($_GET['anyagrend']) && $_GET['mezo']=='legfrissebb' && $_GET['op']=='equal' && $_GET['felt']=='0' ) {
+    
+}
 
 foreach ( $sz_mezo as $mezo ) {
     $options .= $mezo['eleje'].$mezo['vege'];

@@ -40,7 +40,7 @@ if( $tobb_kep ) {
 
 // Projekt dokumentum típusának beállítása 
 // Projektek dokumentum fül alatt, minősítés gombra kattintva.
-// Ha nem a projektkez direktbe feltöltött dokumentumról vna szó, hane egy szerződés dokumentumról
+// Ha nem a projektkez direktbe feltöltött dokumentumról van szó, hanem egy szerződés dokumentumról
 // akkor az a projektszerzodes.php alatt ugyanezen post névvel van lekezelve.
 if( isset($_POST['dok_minosites_beallit']) ) {
     
@@ -68,6 +68,44 @@ if( isset($_POST['dok_minosites_beallit']) ) {
         }
     }
     
+    // Logolás
+    $pr_id = $adatbazis_kapcsolat->s2('projektkezeles_id fajlnev', 'projektkezeles_dok', "`recid`='{$_POST['recid']}'");
+    addMegj('projektkezeles', $pr_id['projektkezeles_id'], $pr_id['fajlnev'].' dokumentum '. getErtekLista(ERTEKLISTA_DOK_TIPUS, $_POST['tipus']).' típusnak minősítve');
+
+    
+    // Updateljük a minősítésre váró dokumentumok számát
+    projekt_minositesre_varo_dok_szamol($pr_id['projektkezeles_id']);
+    
+    $weblap -> leallit();
+    exit;
+}
+
+// Minősítés törlése
+if( isset($_POST['minosites_torol']) ) {
+    
+    // Jog ellenőrzése
+    if( !_jog(JOG_PRKEZEL_KEZEL) ) {
+        echo json_encode( array(
+                                'hiba'  => 'Önnek nincs joga minősítés törléséhez!',
+                                'title' => 'Hiba',
+                                ) );
+        $weblap -> leallit();
+        exit;
+    }
+    
+    // Minősítés törlése...
+    $adatbazis_kapcsolat->u($_POST['tabla'], array('tipus'), array(0), "`recid`='{$_POST['recid']}'");
+    echo json_encode( array(
+                            'siker'  => true,
+                            ) );
+
+    $apa_oszlop = str_replace('_dok', '_id', $_POST['tabla']);
+    $apa_tabla  = str_replace('_dok', '',    $_POST['tabla']);
+    $dok = $adatbazis_kapcsolat->s2($apa_oszlop.' fajlnev', $_POST['tabla'], "`recid`='{$_POST['recid']}'");
+    
+    // Logolás
+    addMegj($apa_tabla, $dok[$apa_oszlop], $dok['fajlnev'].' dokumentumról törölve a minősítés');
+
     $weblap -> leallit();
     exit;
 }
@@ -366,19 +404,19 @@ if( isset($_POST['projekt_keszre']) ) {
         exit();
     }
     
-    // Van-e már csatolt Átadási. jk. dokumentum
+    // Van-e már csatolt Átadási. jk. dokumentum vagy Teljesítésigazolás dokumentum
     $szerzodesek = $adatbazis_kapcsolat->s('recid', 'projektszerzodes', "`pr_szam`='{$sor['ikt_szam']}'");
     $szerzodesek = adatbazis2tomb($szerzodesek, 'recid');
 
     $van_dok = '';
     if( $szerzodesek ) {
-        $van_dok = $adatbazis_kapcsolat->s2('recid', 'projektszerzodes_dok', "`projektszerzodes_id` IN (".implode(', ', $szerzodesek).")  AND `tipus`='".EL_DOK_TIPUS_ATADASI."'", '', '1');
+        $van_dok = $adatbazis_kapcsolat->s2('recid', 'projektszerzodes_dok', "`projektszerzodes_id` IN (".implode(', ', $szerzodesek).")  AND (`tipus`='".EL_DOK_TIPUS_ATADASI."' OR `tipus`='".EL_DOK_TIPUS_TELJESITES."')", '', '1');
     }
-    $van_dok2 = $adatbazis_kapcsolat->s2('recid', 'projektkezeles_dok', "`projektkezeles_id`='{$recid}' AND `tipus`='".EL_DOK_TIPUS_ATADASI."'");
+    $van_dok2 = $adatbazis_kapcsolat->s2('recid', 'projektkezeles_dok', "`projektkezeles_id`='{$recid}' AND (`tipus`='".EL_DOK_TIPUS_ATADASI."' OR `tipus`='".EL_DOK_TIPUS_TELJESITES."')");
     if( $van_dok2 === false ) { $db_error = true; }
     if( !$van_dok && !$van_dok2 ) {
         echo json_encode(array(
-            'hiba'  => 'Előbb csatoljon egy Átadási. jk. Dokumentumot a projekthez!',
+            'hiba'  => 'Előbb minősítsen egy dokumentumot Átadási. jk. vagy Teljesítésigazolásnak!',
             'title' => 'Hiba',
         ));
 
@@ -453,7 +491,7 @@ if( isset($_POST['projekt_lezartra']) ) {
     }
     if( $van_hianyos_jotallas ) {
         echo json_encode(array(
-            'hiba'  => 'Előbb csatoljon egy Gar. bejárási jk. Dokumentumot a projekthez!',
+            'hiba'  => 'Előbb minősítsen egy dokumentumot Gar. bejárási jknek!',
             'title' => 'Hiba',
         ));
 
@@ -2048,11 +2086,11 @@ require_once('selectek.php');
 
             $van_dok = '';
             if( $szerzodesek ) {
-                $van_dok = $adatbazis_kapcsolat->s2('recid', 'projektszerzodes_dok', "`projektszerzodes_id` IN (".implode(', ', $szerzodesek).") AND `tipus`='".EL_DOK_TIPUS_ATADASI."'", '', '1');
+                $van_dok = $adatbazis_kapcsolat->s2('recid', 'projektszerzodes_dok', "`projektszerzodes_id` IN (".implode(', ', $szerzodesek).") AND (`tipus`='".EL_DOK_TIPUS_ATADASI."' OR `tipus`='".EL_DOK_TIPUS_TELJESITES."')", '', '1');
             }
-            $van_dok2 = $adatbazis_kapcsolat->s2('recid', 'projektkezeles_dok', "`projektkezeles_id`='{$_GET['id']}' AND `tipus`='".EL_DOK_TIPUS_ATADASI."'");
+            $van_dok2 = $adatbazis_kapcsolat->s2('recid', 'projektkezeles_dok', "`projektkezeles_id`='{$_GET['id']}' AND (`tipus`='".EL_DOK_TIPUS_ATADASI."' OR `tipus`='".EL_DOK_TIPUS_TELJESITES."')");
             if( !$van_dok && !$van_dok2 ) {
-                $gombok .= '<input type="button" class="gomb modositaskor_rejt" value="Kész" onclick="alert2(\'Előbb minősítsen egy Dokumentumot Átadási. jk-nek!\', \'\', \'Hiba\')"> ';
+                $gombok .= '<input type="button" class="gomb modositaskor_rejt" value="Kész" onclick="alert2(\'Előbb minősítsen egy dokumentumot Átadási. jk-nek vagy Teljesítésigazolásnak!\', \'\', \'Hiba\')"> ';
             } else {
                 $gombok .= '<script> gomb_keszre = \'<input type="button" class="gomb zold" onclick="projekt_keszre()" value="Igen"><input type="button" class="gomb piros" onclick="alert2()" value="Nem">\';</script>';
                 $gombok .= '<input type="button" class="gomb modositaskor_rejt" value="Kész" onclick="alert2(\''.$projekt_adatok.'Biztos, hogy Kész státuszba helyezi a projektet?\', gomb_keszre)"> ';

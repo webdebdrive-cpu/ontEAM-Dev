@@ -61,6 +61,12 @@ if( isset($_POST['dok_minosites_beallit']) ) {
         }
     }
     
+    // Updateljük a minősítésre váró dokumentumok számát
+    $dok        = $adatbazis_kapcsolat->s2('projektszerzodes_id', 'projektszerzodes_dok', "`recid`='{$_POST['recid']}'");
+    $szerzodes  = $adatbazis_kapcsolat->s2('pr_szam', 'projektszerzodes', "`recid`='{$dok['projektszerzodes_id']}'");
+    $projekt    = $adatbazis_kapcsolat->s2('recid', 'projektkezeles', "`ikt_szam`='{$szerzodes['pr_szam']}'");
+    projekt_minositesre_varo_dok_szamol($projekt['recid']);
+    
     $weblap -> leallit();
     exit;
 }

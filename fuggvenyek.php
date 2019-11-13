@@ -7612,11 +7612,18 @@ function get_szures_where_kieg($mezo, $op, $felt, $tabla) {
         }
         return '`'.get_db_tabla().$tabla.'`.`insert_dt`'.$op.'\''.$felt.'\'';
     // Van-e dokumentuma szűrés
-    }elseif($mezo=='dok_van_e'){
-        if( $felt>0 ){
+    }elseif( $mezo == 'dok_van_e' ) {
+        if( $felt > 0 ) {
             return '`dok_db`>0';
         } else {
             return '`dok_db`=0';
+        }
+    // Minősítésre váró dokumentuma van-e
+    }elseif( $mezo == 'dok_db_min_var' ) {
+        if( $felt > 0 ) {
+            return '`dok_db_min_var`>0';
+        } else {
+            return '`dok_db_min_var`=0';
         }
     } elseif( $tabla == 'login' && $mezo == 'jogosultsag' ) {
         return 'SUBSTRING(`flags`, '.($felt+1).', 1)=1';
@@ -8222,7 +8229,7 @@ function level_felkeszit_es_kuld( $tabla = '', $recid = '', $ert_pipa = '', $sab
 
             $felhasznalonak_szo = 'bejelentőnek';
 
-            if(substr($recid, 0, 1)=='m'){
+            if( substr($recid, 0, 1) == 'm' ) {
                 $munkalap   = $adatbazis_kapcsolat->s2('text', 'munkalap', "`recid`='".substr($recid, 1)."'");
                 $hiba       = htmlspecialchars_decode( nl2br2( $munkalap['text'] ) );
             } else {
@@ -8393,7 +8400,7 @@ function level_felkeszit_es_kuld( $tabla = '', $recid = '', $ert_pipa = '', $sab
             // Nem kell sablon beolvasni, mert a levél tartalmát itt elő tudjuk állítani:
             $uzi = 'Szerződés szám: '.$projektszerzodes['sz_szam'].'
                 <br>Tárgy: '. resz_string($projektszerzodes['targy'], 100).'
-                <br>Projekt szám: '.$projektszerzodes['pr_szam'].'
+                <br>Projekt szám: <a href="'. get_http().get_domain().'/admin/projektkezeles.php?&amp;dokumentumok&amp;mezo=ikt_szam&amp;op=equal&amp;felt='.$projektszerzodes['pr_szam'].'" target="_blank">'.$projektszerzodes['pr_szam'].'</a>
                 <br>Szálloda: '. getSzallodaNev($projektszerzodes['telephely_id']).'
                 <br>
                 '; 
@@ -8774,6 +8781,7 @@ function level_felkeszit_es_kuld( $tabla = '', $recid = '', $ert_pipa = '', $sab
         break;
 
         case 'projektszerzodesUjDok':
+
             $esemeny =  'projektszerződés új dokumentum feltöltésekor';
             $targy   =  get_nev().' minősítésre váró dokumentum';
             $uzi     =  'Az alábbi szerződéshez minősítésre váró dokumentumot töltöttek fel:
@@ -8781,6 +8789,7 @@ function level_felkeszit_es_kuld( $tabla = '', $recid = '', $ert_pipa = '', $sab
                         $uzi.'
                         <br>'.$extra_szoveg.'
                         <br>'.fajlbol_olvas('../sablon/admin/mail/alairas.html');
+
         break;
 
     }
@@ -10667,6 +10676,44 @@ function projektkezeles_szamlazott_osszeg ( $pr_szam ) {
         }
         
     // Ha nem volt projektszámunk, akkor sikeresen updateltük azt
+    } else {
+        return true;
+    }
+    
+}
+
+// Mivel szűrni kell tudni arra, hogy adott projektnek van-e minősítésre váró dokumentuma, ezért dokaumenutmok
+// mozgásakor ezt mindig nyilván kell tartani
+function projekt_minositesre_varo_dok_szamol( $pr_id ) {
+    
+    global $adatbazis_kapcsolat;
+    
+    $db_error = false;
+    
+    // Akkor számoljuk össze
+    $kepek_direkt = $adatbazis_kapcsolat->s('recid', 'projektkezeles_dok', "`projektkezeles_id`='{$pr_id}' AND `tipus`='0'", '', '', '', 'num_rows');
+    if( $kepek_direkt === false ) { $db_error = true; }
+    
+    $projekt = $adatbazis_kapcsolat->s2('ikt_szam', 'projektkezeles', "`recid`='{$pr_id}'");
+    if( $projekt === false ) { $db_error = true; }
+    
+    $szerzodesek = $adatbazis_kapcsolat->s('recid', 'projektszerzodes', "`pr_szam`='{$projekt['ikt_szam']}'");
+    if( $szerzodesek === false ) { $db_error = true; }
+    $szerzodesek = adatbazis2tomb($szerzodesek, 'recid');
+    
+    // Ha van szerződés, akkor a szerződés dokumentumokat is kirajzoljuk
+    if( $szerzodesek ) {
+        $kepek = $adatbazis_kapcsolat -> s('recid', 'projektszerzodes_dok', "`projektszerzodes_id` IN (".implode(',', $szerzodesek).") AND `tipus`='0'", '', '', '', 'num_rows');
+        if( $kepek === false ) { $db_error = true; }
+    }
+    
+    // Végül update
+    $sql = $adatbazis_kapcsolat->u('projektkezeles', array('dok_db_min_var'), array($kepek_direkt+$kepek), "`recid`='{$pr_id}'");
+    if( $sql === false ) { $db_error = true; }
+    
+    // Visszatéréskor jeleheztjük a DB hibát
+    if( $db_error ) {
+        return false;
     } else {
         return true;
     }

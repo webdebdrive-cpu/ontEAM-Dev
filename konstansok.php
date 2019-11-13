@@ -363,6 +363,7 @@ define('EL_DOK_TIPUS_ATADASI',      1);
 define('EL_DOK_TIPUS_GAR_BEJAR',    2);
 define('EL_DOK_TIPUS_SZERZODES',    3);
 define('EL_DOK_TIPUS_MUNKATER_ATAD',4);
+define('EL_DOK_TIPUS_TELJESITES',   10);
 // Beosztások értéklista fix bejegyzése
 define('EL_BEOSZTAS_PR_FELEOS',     189);
 define('EL_BEOSZTAS_FEJL_VIG_H',    28 );
@@ -390,5 +391,3 @@ define('GAZFOGYASZTAS_DIJELEM', 'Gáz fogyasztás (m3)'   );
 
 define('VISSZA_MOD_VISSZAADAS',  1);
 define('VISSZA_MOD_VISSZAELOK',  2);
-
-?>
