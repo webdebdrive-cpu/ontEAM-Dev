@@ -9,8 +9,8 @@ $url_elotag = get_url_elotag();
 
 $soap = new SoapClient($url_elotag.'onteam.wsdl', 
                         array(
-                            'uri'       => $url_elotag.'andoc.php',
-                            'location'  => $url_elotag.'andoc.php',
+                            'uri'       => $url_elotag.'onteam.php',
+                            // 'location'  => $url_elotag.'onteam.php',
                             'trace'     => true,
                             'encoding'  => 'utf-8',
                             'cache_wsdl'=> WSDL_CACHE_NONE,
@@ -27,13 +27,16 @@ $header_params  = new SoapVar($auth, SOAP_ENC_OBJECT);
 $header         = new SoapHeader('ontEAM', 'belepes', $header_params, false);
 $soap -> __setSoapHeaders( array($header) );
 
-if( isset($_GET['szamla']) ) {
+// Számla import
+$get = 'szamla';
+$nev = 'Számla';
+if( isset($_GET[$get]) ) {
     
-    if( !$_POST['xml'] ) {
+    if( !$_POST['xml'] && !isset($_GET['teszt']) ) {
         
         echo '
-            <form method="post" action="'.self().'?szamla">
-                <h1>Számla XML</h1>
+            <form method="post" action="'.self().'?'.$get.'">
+                <h1>'.$nev.' XML</h1>
                 <textarea name="xml" style="width: 50rem; height: 20rem"></textarea>
                 <br><input type="submit" value="Mehet">
             </form>
@@ -41,22 +44,27 @@ if( isset($_GET['szamla']) ) {
         
     } else {
         // Számla import
-        // $xml = fajlbol_olvas('szamla_minta.xml');
-        $xml = $_POST['xml'];
+        if( isset($_GET['teszt']) ) {
+            $xml = fajlbol_olvas($get.'_minta.xml');
+        } else {
+            $xml = $_POST['xml'];
+        }
         $xml = trim( str_replace('<?xml version="1.0" encoding="utf-8" ?>', '', $xml) );
         var_dump( $soap -> SzamlaAdatokImport( $xml ) );
     }
     
 }
 
-
-if( isset($_GET['szerzodes']) ) {
+// Szállító import
+$get = 'szerzodes';
+$nev = 'Szerződés';
+if( isset($_GET[$get]) ) {
     
-    if( !$_POST['xml'] ) {
+    if( !$_POST['xml'] && !isset($_GET['teszt']) ) {
         
         echo '
-            <form method="post" action="'.self().'?szerzodes">
-                <h1>Szerződés XML</h1>
+            <form method="post" action="'.self().'?'.$get.'">
+                <h1>'.$nev.' XML</h1>
                 <textarea name="xml" style="width: 50rem; height: 20rem"></textarea>
                 <br><input type="submit" value="Mehet">
             </form>
@@ -64,10 +72,97 @@ if( isset($_GET['szerzodes']) ) {
         
     } else {
         // Szerződés import
-        //$xml = fajlbol_olvas('szerzodes_minta.xml');
-        $xml = $_POST['xml'];
+        if( isset($_GET['teszt']) ) {
+            $xml = fajlbol_olvas($get.'_minta.xml');
+        } else {
+            $xml = $_POST['xml'];
+        }
         $xml = trim( str_replace('<?xml version="1.0" encoding="utf-8" ?>', '', $xml) );
         var_dump( $soap -> SzerzodesAdatokImport( $xml ) );    
+    }
+    
+}
+
+// Szállító import
+$get = 'koltsegnem';
+$nev = 'Költségnem';
+if( isset($_GET[$get]) ) {
+    
+    if( !$_POST['xml'] && !isset($_GET['teszt']) ) {
+        
+        echo '
+            <form method="post" action="'.self().'?'.$get.'">
+                <h1>'.$nev.' XML</h1>
+                <textarea name="xml" style="width: 50rem; height: 20rem"></textarea>
+                <br><input type="submit" value="Mehet">
+            </form>
+            ';
+        
+    } else {
+        
+        if( isset($_GET['teszt']) ) {
+            $xml = fajlbol_olvas($get.'_minta.xml');
+        } else {
+            $xml = $_POST['xml'];
+        }
+        $xml = trim( str_replace('<?xml version="1.0" encoding="utf-8" ?>', '', $xml) );
+        var_dump( $soap -> KoltsegnemAdatokImport( $xml ) );    
+    }
+    
+}
+
+// Szállító import
+$get = 'koltseghely';
+$nev = 'Költséghely';
+if( isset($_GET[$get]) ) {
+    
+    if( !$_POST['xml'] && !isset($_GET['teszt']) ) {
+        
+        echo '
+            <form method="post" action="'.self().'?'.$get.'">
+                <h1>'.$nev.' XML</h1>
+                <textarea name="xml" style="width: 50rem; height: 20rem"></textarea>
+                <br><input type="submit" value="Mehet">
+            </form>
+            ';
+        
+    } else {
+        
+        if( isset($_GET['teszt']) ) {
+            $xml = fajlbol_olvas($get.'_minta.xml');
+        } else {
+            $xml = $_POST['xml'];
+        }
+        $xml = trim( str_replace('<?xml version="1.0" encoding="utf-8" ?>', '', $xml) );
+        var_dump( $soap -> KoltseghelyAdatokImport( $xml ) );    
+    }
+    
+}
+
+// Szállító import
+$get = 'szallito';
+$nev = 'Szállító';
+if( isset($_GET[$get]) ) {
+    
+    if( !$_POST['xml'] && !isset($_GET['teszt']) ) {
+        
+        echo '
+            <form method="post" action="'.self().'?'.$get.'">
+                <h1>'.$nev.' XML</h1>
+                <textarea name="xml" style="width: 50rem; height: 20rem"></textarea>
+                <br><input type="submit" value="Mehet">
+            </form>
+            ';
+        
+    } else {
+        
+        if( isset($_GET['teszt']) ) {
+            $xml = fajlbol_olvas($get.'_minta.xml');
+        } else {
+            $xml = $_POST['xml'];
+        }
+        $xml = trim( str_replace('<?xml version="1.0" encoding="utf-8" ?>', '', $xml) );
+        var_dump( $soap -> SzallitoAdatokImport( $xml ) );    
     }
     
 }

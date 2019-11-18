@@ -50,7 +50,7 @@
     <input type="button" class="gomb piros escapes_megsem" value="Mégsem" onclick="megsem_gomb();">
     <input type="hidden" id="szamla_tetel_recid" value="{SZAMLA_TETEL_RECID}">
     <input type="hidden" id="szamla_tetel_netto" value="">
-    <input type="hidden" id="szamla_telj_datum" value="">
+    <input type="hidden" id="szamla_telj_dt" value="">
 </div>
 <script>
 /* JS-el figyeljük, hogy volt-e bármi változás. Ha igen, akkor Mégsem/Bezár gombra rákérdezünk, hogy biztos-e? */
@@ -91,7 +91,7 @@ $(document).ready(function () {
     });
     $(document).on('focus', '.pop_teljesites', function(event) {
         if( !$(this).val() || $(this).val()=='\xa0\xa0\xa0\xa0.\xa0\xa0.\xa0\xa0' || $(this).val()=='    .  .  ' || $(this).val()=='0000.00.00' ){
-            $(this).val( $('#szamla_telj_datum').val() );
+            $(this).val( $('#szamla_telj_dt').val() );
             tetelek_kiszamol( $(this) );
         }
     });
@@ -321,7 +321,7 @@ function pop_kapcsolas_feltolt() {
                 /* Adatok tényleges feltöltése */
                 $('#pop_szerzodes_ossz').html(response.szerzodes_ossz);
                 $('#szamla_tetel_netto').val(response.szamla_tetel_netto);
-                $('#szamla_telj_datum').val(response.szamla_telj_datum);
+                $('#szamla_telj_dt').val(response.szamla_telj_dt);
                 if( response.tabla ){
                     $('#pop_tetelek tbody').append(response.tabla);
                     $('#pop_tetelek').removeClass('dn');

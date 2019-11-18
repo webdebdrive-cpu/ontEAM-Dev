@@ -123,7 +123,7 @@ if( isset($_POST['munkalapKeszit']) ) {
                     $modell = $adatbazis_kapcsolat->s2('modell', 'telephely', "`id`='{$akt_bejelentes['telephely_id']}'");
                     if( $modell === false ) { $db_error = true; }
 
-                    if(!$modell['modell']){
+                    if(!$modell['modell'] ) {
 
                         $keszithet_ml_ot = true;
                         $van_kapcs = $adatbazis_kapcsolat->s2('munkalap_id', 'munkalap_kapcs', "`bejelentes_id`='{$id}'", '', '1');
@@ -135,7 +135,7 @@ if( isset($_POST['munkalapKeszit']) ) {
                             $keszithet_ml_ot = false;
                         }
 
-                        if(!$keszithet_ml_ot){
+                        if( !$keszithet_ml_ot ) {
                             echo json_encode(array(
                                 'hiba'  => 'Nyitott státuszú bejelentésből nem készíthető újabb munkalap! (Egyszállodás modellben)',
                                 'title' => 'Hiba',
@@ -246,7 +246,7 @@ if( isset($_POST['munkalapKeszit']) ) {
             if( $sql === false ) { $db_error = true; }
 
         }
-
+        
         if( !$db_error ) {
             mysqli_commit($db_kapcs);
             echo json_encode(array(

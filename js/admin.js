@@ -7215,7 +7215,7 @@ function getKonyvtar( link ) {
 // Munkalap készítése FONTOS, hogy ne a munkalap.js-ben legyen, mert a bejelentesek.php-ben látni kell!
 function munkalapKeszit(csak_kerdezunk, kerdesek_nelkul) {
 
-    if(balnav_kijelol_ell()){
+    if (balnav_kijelol_ell()) {
 
         szurkit();
 

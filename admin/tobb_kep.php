@@ -109,8 +109,8 @@ if( isset($_POST['megnevezes']) && !$archivum ) {
 
             // Projekt számla esetén a teljesítés évét kell mappának beállítani
             if( $konyvtar_db_nev == 'projektszamla' ) {
-                $pr_szamla = $adatbazis_kapcsolat->s2('telj_datum szallito_id', 'projektszamla', "`recid`='".$_POST['sorid']."'");
-                $ev_mappa   = substr($pr_szamla['telj_datum'], 0, 4);
+                $pr_szamla = $adatbazis_kapcsolat->s2('telj_dt szallito_id', 'projektszamla', "`recid`='".$_POST['sorid']."'");
+                $ev_mappa   = substr($pr_szamla['telj_dt'], 0, 4);
             } else {
                 $sor        = $adatbazis_kapcsolat->s2('insert_dt', $konyvtar_db_nev, "`recid`='".$_POST['sorid']."'");
                 $ev_mappa   = substr($sor['insert_dt'], 0, 4);

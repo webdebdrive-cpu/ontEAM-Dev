@@ -59,12 +59,12 @@ if( $_POST /*|| isset($_GET['teszt'])*/ ) {
                 $lezeto_sor = $adatbazis_kapcsolat->s('recid', 'projektszamla_kifizetesek', "`szlakifid`='{$szlakif['szlakifid'][0]}'");
                 if( $sql === false ) { $db_error = true; }
                 if( $lezeto_sor ) {
-                    $sql = $adatbazis_kapcsolat->u('projektszamla_kifizetesek',     array('projektszamla_recid',    'bank',      'kifizetes',              'br_ertek',            'dev_br',              'kcs_21',      'insert_usr',               'insert_dt'                ),
+                    $sql = $adatbazis_kapcsolat->u('projektszamla_kifizetesek',     array('projektszamla_recid',    'bank',      'kifizetes_dt',           'br_ertek',            'dev_br',              'kcs_21',      'insert_usr',               'insert_dt'                ),
                                                                                     array($projszla['onteamid'][0], $bank['id'], $szlakif['kifizetes'][0], $szlakif['brutto'][0], $szlakif['dev_br'][0], $kcs_21['id'],  $szlakif['insert_usr'],    $szlakif['insert_dt'][0]   ),
                                                     "`szlakifid`='{$szlakif['szlakifid'][0]}'"
                                                     );
                 } else {
-                    $sql = $adatbazis_kapcsolat->i('projektszamla_kifizetesek',     array('szlakifid',              'projektszamla_recid',    'bank',      'kifizetes',              'br_ertek',            'dev_br',              'kcs_21',      'insert_usr',               'insert_dt'                ),
+                    $sql = $adatbazis_kapcsolat->i('projektszamla_kifizetesek',     array('szlakifid',              'projektszamla_recid',    'bank',      'kifizetes_dt',           'br_ertek',            'dev_br',              'kcs_21',      'insert_usr',               'insert_dt'                ),
                                                                                     array($szlakif['szlakifid'][0], $projszla['onteamid'][0], $bank['id'], $szlakif['kifizetes'][0], $szlakif['brutto'][0], $szlakif['dev_br'][0], $kcs_21['id'],  $szlakif['insert_usr'],    $szlakif['insert_dt'][0]   )
                                                     );
                 }

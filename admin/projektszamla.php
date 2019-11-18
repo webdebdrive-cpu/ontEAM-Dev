@@ -235,7 +235,7 @@ if( isset($_POST['tetel_sorok_ment']) ) {
     }
 
     // Adott projektszámla rekord lekérdezése
-    $prszamla = $adatbazis_kapcsolat->s2('telj_datum', 'projektszamla', "`recid`='{$recid}'");
+    $prszamla = $adatbazis_kapcsolat->s2('telj_dt', 'projektszamla', "`recid`='{$recid}'");
     if( $prszamla === false ) { $db_error = true; }
     
     // Loglás
@@ -364,7 +364,7 @@ if( isset($_POST['projektszamla_kapcsolas']) ) {
                 
     }
     
-    $szamla = $adatbazis_kapcsolat->s2('sz_szam telj_datum arfolyam', 'projektszamla', "`recid`='{$recid}'");
+    $szamla = $adatbazis_kapcsolat->s2('sz_szam telj_dt arfolyam', 'projektszamla', "`recid`='{$recid}'");
     if( $szamla === false ) { $db_error = true; }
     $szerzodes = $adatbazis_kapcsolat->s2('recid '.$szerz_mezo, 'projektszerzodes', "`sz_szam`='{$szamla['sz_szam']}'");
     if( $szerzodes === false ) { $db_error = true; }
@@ -469,9 +469,9 @@ if( isset($_POST['projektszamla_kapcsolas']) ) {
     }
     
     // Teljesítés dátuma a számla adatlapján található teljesítés dátumával egyezen meg
-    if( $szamla['telj_datum'] != $beirt_teljesites ) {
+    if( $szamla['telj_dt'] != $beirt_teljesites ) {
         echo json_encode( array(
-                        'hiba'  => 'A teljesítés oszlopba kérem '. datum_kiir($szamla['telj_datum']).' dátumot írjon, hisz ez szerepel a csatolni kívánt számlán!',
+                        'hiba'  => 'A teljesítés oszlopba kérem '. datum_kiir($szamla['telj_dt']).' dátumot írjon, hisz ez szerepel a csatolni kívánt számlán!',
                         'title' => 'Hiba'
                         ) );
                 $weblap->leallit();
@@ -779,7 +779,7 @@ if( isset($_POST['pop_kapcsolas_feltolt']) ) {
     // Szerződés összegének kiszámítása
     $szamla_tetel   = $adatbazis_kapcsolat->s2('projektszamla_recid '.$netto_mezo, 'projektszamla_tetel', "`recid`='{$_POST['szamla_tetel_recid']}'");
     if( $szamla_tetel['projektszamla_recid'] ) {
-        $szamla = $adatbazis_kapcsolat->s2('sz_szam telj_datum', 'projektszamla', "`recid`='{$szamla_tetel['projektszamla_recid']}'");
+        $szamla = $adatbazis_kapcsolat->s2('sz_szam telj_dt', 'projektszamla', "`recid`='{$szamla_tetel['projektszamla_recid']}'");
     }
     
     // Szerződés számot post-ként is megkapjuk. Ha mégsem akkor hibát dobunk.
@@ -891,7 +891,7 @@ if( isset($_POST['pop_kapcsolas_feltolt']) ) {
         'tabla'                 => $tabla,
         'szerzodes_ossz'        => $szerzodes_ossz,
         'szamla_tetel_netto'    => number_format($szamla_tetel[$netto_mezo], $tizedesek, ',', ' '),
-        'szamla_telj_datum'     => datum_kiir($szamla['telj_datum']),
+        'szamla_telj_dt'        => datum_kiir($szamla['telj_dt']),
         ) );
     
     $weblap -> leallit();
@@ -919,8 +919,8 @@ if( isset($_POST['van_tetel']) ) {
     
     // Vannak dátumok, amik csak múltbeliek lehetnek. Ennek ellenőrzését itt végezzük el
     $csak_mult_datum_lehet = array(
-                                    array('name' => 'ceghez_erk',    'alert' => 'Céghez érkezett dátumhoz csak mai, vagy múltbeli dátum adható meg!'),
-                                    array('name' => 'kelte',         'alert' => 'A számla kelte dátumhoz csak mai, vagy múltbeli dátum adható meg!'),
+                                    array('name' => 'erk_dt',        'alert' => 'Céghez érkezett dátumhoz csak mai, vagy múltbeli dátum adható meg!'),
+                                    array('name' => 'kelte_dt',      'alert' => 'A számla kelte dátumhoz csak mai, vagy múltbeli dátum adható meg!'),
                                     array('name' => 'visszaadva_dt', 'alert' => 'A visszaadva dátumhoz csak mai, vagy múltbeli dátum adható meg!'),
                                 );
     
@@ -943,42 +943,42 @@ if( isset($_POST['van_tetel']) ) {
     }
     
     // Ellenőrizzük, hogy a dátum mezők rendben vannak-e? (Js alatt nem akar lefutni... elég összetett már a JS kód, mert űrlap elpostolása előtt még ajax-os ellenőrzés is lefut, ez kavar be). De itt - ahol az ajaxos ellenőrzések vannak - könnyen elelnőrizni tudjuk
-    if( $_POST['ceghez_erk'] < '9000.00.00' && !valos_datum_e($_POST['ceghez_erk']) ) {
+    if( $_POST['erk_dt'] < '9000.00.00' && !valos_datum_e($_POST['erk_dt']) ) {
         echo json_encode(array(
             'hiba'  => 'Kérem egy valós dátumot adjon meg érkezés dátumának!',
             'gomb'  => '<input type="button" class="gomb" value="Ok" onclick="alert2();">',
             'title' => 'Hiba',
-            'focus' => 'ceghez_erk',
+            'focus' => 'erk_dt',
         ));
         $weblap -> leallit();
         exit();
     }
-    if( $_POST['kelte'] < '9000.00.00' && !valos_datum_e($_POST['kelte']) ) {
+    if( $_POST['kelte_dt'] < '9000.00.00' && !valos_datum_e($_POST['kelte_dt']) ) {
         echo json_encode(array(
             'hiba'  => 'Kérem egy valós dátumot adjon meg Keltének!',
             'gomb'  => '<input type="button" class="gomb" value="Ok" onclick="alert2();">',
             'title' => 'Hiba',
-            'focus' => 'kelte',
+            'focus' => 'kelte_dt',
         ));
         $weblap -> leallit();
         exit();
     }
-    if( $_POST['telj_datum'] < '9000.00.00' && !valos_datum_e($_POST['telj_datum']) ) {
+    if( $_POST['telj_dt'] < '9000.00.00' && !valos_datum_e($_POST['telj_dt']) ) {
         echo json_encode(array(
             'hiba'  => 'Kérem egy valós dátumot adjon meg Teljesítése dátumnak!',
             'gomb'  => '<input type="button" class="gomb" value="Ok" onclick="alert2();">',
             'title' => 'Hiba',
-            'focus' => 'telj_datum',
+            'focus' => 'telj_dt',
         ));
         $weblap -> leallit();
         exit();
     }
-    if( $_POST['fiz_hatar'] < '9000.00.00' && !valos_datum_e($_POST['fiz_hatar']) ) {
+    if( $_POST['fizhat_dt'] < '9000.00.00' && !valos_datum_e($_POST['fizhat_dt']) ) {
         echo json_encode(array(
             'hiba'  => 'Kérem egy valós dátumot adjon meg Fizetési határidőnek!',
             'gomb'  => '<input type="button" class="gomb" value="Ok" onclick="alert2();">',
             'title' => 'Hiba',
-            'focus' => 'fiz_hatar',
+            'focus' => 'fizhat_dt',
         ));
         $weblap -> leallit();
         exit();
@@ -1211,17 +1211,17 @@ if( isset($_GET['csv']) ) {
                 }
 
                 $sql = 'SELECT
-                            `'.get_db_tabla().$megnevezes.'`.`ceghez_erk` as \'Céghez érkezett\',
-                            `'.get_db_tabla().$megnevezes.'`.`kelte` as \'Kelte\',
+                            `'.get_db_tabla().$megnevezes.'`.`erk_dt` as \'Céghez érkezett\',
+                            `'.get_db_tabla().$megnevezes.'`.`kelte_dt` as \'Kelte\',
                             `'.get_db_tabla().$megnevezes.'`.`szla_szam` as \'Számlaszám\',
-                            `'.get_db_tabla().$megnevezes.'`.`telj_datum` as \'Teljesítés dátuma\',
-                            `'.get_db_tabla().$megnevezes.'`.`fiz_hatar` as \'Fizetési határidő\',
+                            `'.get_db_tabla().$megnevezes.'`.`telj_dt` as \'Teljesítés dátuma\',
+                            `'.get_db_tabla().$megnevezes.'`.`fizhat_dt` as \'Fizetési határidő\',
                             `'.get_db_tabla().$megnevezes.'`.`telephely_id` as \'Szálloda\',
                             `'.get_db_tabla().$megnevezes.'`.`szallito_id` as \'Partner\',
                             `'.get_db_tabla().$megnevezes.'`.`targy` as \'Tárgy\',
                             `'.get_db_tabla().$megnevezes.'`.`kcs_21` as \'Pénznem\',
                             `'.get_db_tabla().$megnevezes.'`.`arfolyam` as \'Árfolyam\',
-                            `'.get_db_tabla().$megnevezes.'`.`valtva` as \'Átváltva\',
+                            `'.get_db_tabla().$megnevezes.'`.`atvaltva_dt` as \'Átváltva\',
                             `'.get_db_tabla().$megnevezes.'`.`dev_net` as \'Deviza nettó\',
                             `'.get_db_tabla().$megnevezes.'`.`dev_br` as \'Deviza bruttó\',
                             `'.get_db_tabla().$megnevezes.'`.`netto` as \'Nettó érték\',
@@ -1346,17 +1346,17 @@ if( isset($_GET['csv']) ) {
                 }
 
                 $sql = 'SELECT
-                            `'.get_db_tabla().$megnevezes.'`.`ceghez_erk` as \'Céghez érkezett\',
-                            `'.get_db_tabla().$megnevezes.'`.`kelte` as \'Kelte\',
+                            `'.get_db_tabla().$megnevezes.'`.`erk_dt` as \'Céghez érkezett\',
+                            `'.get_db_tabla().$megnevezes.'`.`kelte_dt` as \'Kelte\',
                             `'.get_db_tabla().$megnevezes.'`.`szla_szam` as \'Számlaszám\',
-                            `'.get_db_tabla().$megnevezes.'`.`telj_datum` as \'Teljesítés dátuma\',
-                            `'.get_db_tabla().$megnevezes.'`.`fiz_hatar` as \'Fizetési határidő\',
+                            `'.get_db_tabla().$megnevezes.'`.`telj_dt` as \'Teljesítés dátuma\',
+                            `'.get_db_tabla().$megnevezes.'`.`fizhat_dt` as \'Fizetési határidő\',
                             `'.get_db_tabla().$megnevezes.'`.`telephely_id` as \'Szálloda\',
                             `'.get_db_tabla().$megnevezes.'`.`szallito_id` as \'Partner\',
                             `'.get_db_tabla().$megnevezes.'`.`targy` as \'Tárgy\',
                             `'.get_db_tabla().$megnevezes.'`.`kcs_21` as \'Pénznem\',
                             `'.get_db_tabla().$megnevezes.'`.`arfolyam` as \'Árfolyam\',
-                            `'.get_db_tabla().$megnevezes.'`.`valtva` as \'Átváltva\',
+                            `'.get_db_tabla().$megnevezes.'`.`atvaltva_dt` as \'Átváltva\',
                             `'.get_db_tabla().$megnevezes.'`.`dev_net` as \'Deviza nettó\',
                             `'.get_db_tabla().$megnevezes.'`.`dev_br` as \'Deviza bruttó\',
                             `'.get_db_tabla().$megnevezes.'`.`netto` as \'Nettó érték\',
@@ -1369,7 +1369,7 @@ if( isset($_GET['csv']) ) {
                             `'.get_db_tabla().$megnevezes.'`.`kolt_vis` as \'Költségviselő\',
                                 
                             `'.get_db_tabla().$megnevezes.'_kifizetesek`.`bank` as `Kifizetés bank`,
-                            `'.get_db_tabla().$megnevezes.'_kifizetesek`.`kifizetes` as `Kifizetés kifizetve`,
+                            `'.get_db_tabla().$megnevezes.'_kifizetesek`.`kifizetes_dt` as `Kifizetés kifizetve`,
                             `'.get_db_tabla().$megnevezes.'_kifizetesek`.`br_ertek` as `Kifizetés bruttó`,
                             `'.get_db_tabla().$megnevezes.'_kifizetesek`.`dev_br` as `Kifizetés deviza bruttó`,
                             `'.get_db_tabla().$megnevezes.'_kifizetesek`.`insert_dt` as `Kifizetés rögzítve`,
@@ -1485,17 +1485,17 @@ if( isset($_GET['csv']) ) {
                 }
 
                 $sql = 'SELECT
-                            `'.get_db_tabla().$megnevezes.'`.`ceghez_erk` as \'Céghez érkezett\',
-                            `'.get_db_tabla().$megnevezes.'`.`kelte` as \'Kelte\',
+                            `'.get_db_tabla().$megnevezes.'`.`erk_dt` as \'Céghez érkezett\',
+                            `'.get_db_tabla().$megnevezes.'`.`kelte_dt` as \'Kelte\',
                             `'.get_db_tabla().$megnevezes.'`.`szla_szam` as \'Számlaszám\',
-                            `'.get_db_tabla().$megnevezes.'`.`telj_datum` as \'Teljesítés dátuma\',
-                            `'.get_db_tabla().$megnevezes.'`.`fiz_hatar` as \'Fizetési határidő\',
+                            `'.get_db_tabla().$megnevezes.'`.`telj_dt` as \'Teljesítés dátuma\',
+                            `'.get_db_tabla().$megnevezes.'`.`fizhat_dt` as \'Fizetési határidő\',
                             `'.get_db_tabla().$megnevezes.'`.`telephely_id` as \'Szálloda\',
                             `'.get_db_tabla().$megnevezes.'`.`szallito_id` as \'Partner\',
                             `'.get_db_tabla().$megnevezes.'`.`targy` as \'Tárgy\',
                             `'.get_db_tabla().$megnevezes.'`.`kcs_21` as \'Pénznem\',
                             `'.get_db_tabla().$megnevezes.'`.`arfolyam` as \'Árfolyam\',
-                            `'.get_db_tabla().$megnevezes.'`.`valtva` as \'Átváltva\',
+                            `'.get_db_tabla().$megnevezes.'`.`atvaltva_dt` as \'Átváltva\',
                             `'.get_db_tabla().$megnevezes.'`.`dev_net` as \'Deviza nettó\',
                             `'.get_db_tabla().$megnevezes.'`.`dev_br` as \'Deviza bruttó\',
                             `'.get_db_tabla().$megnevezes.'`.`netto` as \'Nettó érték\',
@@ -1828,11 +1828,11 @@ require_once('selectek.php');
                     url : \'projektszamla.php\',
                     type: \'POST\',
                     data: {
-                        ceghez_erk      : $(\'#ceghez_erk\').val(),
-                        kelte           : $(\'#kelte\').val(),
+                        erk_dt          : $(\'#erk_dt\').val(),
+                        kelte_dt        : $(\'#kelte_dt\').val(),
                         szla_szam       : $(\'#szla_szam\').val(),
-                        telj_datum      : $(\'#telj_datum\').val(),
-                        fiz_hatar       : $(\'#fiz_hatar\').val(),
+                        telj_dt         : $(\'#telj_dt\').val(),
+                        fizhat_dt       : $(\'#fizhat_dt\').val(),
                         visszaadva      : $(\'#visszaadva\').prop(\'checked\'),
                         visszaadva_dt   : $(\'#visszaadva_dt\').val(),
                         telephely_id    : $(\'#telephely_id\').val(),
@@ -2266,8 +2266,8 @@ require_once('selectek.php');
         
         // Tételek felsorolása
         $tetelek = $adatbazis_kapcsolat->s('*', 'projektszamla_tetel', "`projektszamla_recid`='{$_GET['id']}'", 'recid');
-        foreach($tetelek as $tetel){
-            
+        foreach ( $tetelek as $tetel ) {
+
             $pr_tetel = $adatbazis_kapcsolat->s2('targy', 'projektszerzodes_tetel', "`recid`='{$tetel['projektszerzodes_tetel_recid']}'");
             
             $szamla_html .= nl2('
@@ -2312,7 +2312,7 @@ require_once('selectek.php');
             $szamla_html .= nl2('
                 <div class="dtr nSor">
                     <div class="dtc">'.erteklista(ERTEKLISTA_BANK, $kifizetes['bank']).'</div>
-                    <div class="dtc">'.datum_kiir($kifizetes['kifizetes']).'</div>
+                    <div class="dtc">'.datum_kiir($kifizetes['kifizetes_dt']).'</div>
                     <div class="dtc r">'.number_format($kifizetes['br_ertek'], 0, '', ' ').'</div>
                     <div class="dtc r">'.number_format($kifizetes['dev_br'], 2, ',', ' ').'</div>
                     <div class="dtc">'.erteklista(ERTEKLISTA_PENZNEM, $kifizetes['kcs_21']).'</div>

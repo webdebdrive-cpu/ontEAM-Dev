@@ -507,10 +507,10 @@ if( isset($_POST['pop_tetelek_feltolt']) ) {
         if( $_SESSION['pr_szer_tetel_recid'][$i] ) {
             $szamla_tetel = $adatbazis_kapcsolat->s2('recid projektszamla_recid '.$oszlop, 'projektszamla_tetel', "`projektszerzodes_tetel_recid`='{$_SESSION['pr_szer_tetel_recid'][$i]}'");
             if( $szamla_tetel ) {
-                $szamla         = $adatbazis_kapcsolat->s2('telj_datum', 'projektszamla', "`recid`='{$szamla_tetel['projektszamla_recid']}'");
+                $szamla         = $adatbazis_kapcsolat->s2('telj_dt', 'projektszamla', "`recid`='{$szamla_tetel['projektszamla_recid']}'");
                 $class          = ' szerzodes_szamla_tetel_szurke';
                 $netto_ertek    = number_format($szamla_tetel[$oszlop], $tizedes, ',', ' ');
-                $teljesites     = datum_kiir($szamla['telj_datum']);
+                $teljesites     = datum_kiir($szamla['telj_dt']);
                 $torol          = '';
             }
         }
@@ -562,11 +562,11 @@ if( isset($_POST['van_tetel']) ) {
     }
 
     // Ellenőrizzük, hogy a dátum mezők rendben vannak-e? (Js alatt nem akar lefutni... elég összetett már a JS kód, mert űrlap elpostolása előtt még ajax-os ellenőrzés is lefut, ez kavar be). De itt - ahol az ajaxos ellenőrzések vannak - könnyen elelnőrizni tudjuk
-    if( $_POST['kelte'] < '9000.00.00' && !valos_datum_e($_POST['kelte']) ) {
+    if( $_POST['kelte_dt'] < '9000.00.00' && !valos_datum_e($_POST['kelte_dt']) ) {
         echo json_encode(array(
             'hiba'  => 'Kérem egy valós dátumot adjon meg Keltének!',
             'title' => 'Hiba',
-            'focus' => 'kelte',
+            'focus' => 'kelte_dt',
         ));
         $weblap -> leallit();
         exit();
@@ -609,7 +609,7 @@ if( isset($_POST['van_tetel']) ) {
     }
     
     // Kivitelezés kezdete, nem lehet korábbi, mint a kelte
-    if( $_POST['kiv_kezd'] < $_POST['kelte'] ) {
+    if( $_POST['kiv_kezd'] < $_POST['kelte_dt'] ) {
         echo json_encode(array(
             'hiba'  => 'Kivitelezés kezdete, nem lehet korábbi, mint a kelte!',
             'title' => 'Hiba',
@@ -619,7 +619,7 @@ if( isset($_POST['van_tetel']) ) {
         exit();
     }
     
-    // Kivitelezés kezdete, nem lehet korábbi, mint a kelte
+    // Kivitelezés kezdete, nem lehet korábbi, mint a kivitelezés vége
     if( $_POST['kiv_kezd'] > $_POST['kiv_vege'] ) {
         echo json_encode(array(
             'hiba'  => 'Kivitelezés vége nem lehet korábbi, mint a kivitelezés kezdete!',
@@ -872,7 +872,7 @@ if( isset($_GET['csv']) ) {
                 $sql = 'SELECT
                             `'.get_db_tabla().$megnevezes.'`.`telephely_id` as \'Szálloda\',
                             `'.get_db_tabla().$megnevezes.'`.`sz_szam` as \'Szerződés szám\',
-                            `'.get_db_tabla().$megnevezes.'`.`kelte` as \'Kelte\',
+                            `'.get_db_tabla().$megnevezes.'`.`kelte_dt` as \'Kelte\',
                             `'.get_db_tabla().$megnevezes.'`.`szallito_id` as \'Szerződő partner\',
                             `'.get_db_tabla().$megnevezes.'`.`pr_szam` as \'Projekt szám\',
                             `'.get_db_tabla().$megnevezes.'`.`targy` as \'Tárgy\',
@@ -880,7 +880,7 @@ if( isset($_GET['csv']) ) {
                             `'.get_db_tabla().$megnevezes.'`.`sz_koto` as \'Szerződést kötő\',
                             `'.get_db_tabla().$megnevezes.'`.`kcs_21` as \'Pénznem\',
                             `'.get_db_tabla().$megnevezes.'`.`arfolyam` as \'Árfolyam\',
-                            `'.get_db_tabla().$megnevezes.'`.`valtva` as \'Átváltva\',
+                            `'.get_db_tabla().$megnevezes.'`.`atvaltva_dt` as \'Átváltva\',
                             `'.get_db_tabla().$megnevezes.'`.`dev_net` as \'Deviza nettó\',
                             `'.get_db_tabla().$megnevezes.'`.`szerz_ossz` as \'Szerződött összeg\',
                             `'.get_db_tabla().$megnevezes.'`.`epitesi` as \'Ebből építési\',
@@ -1014,7 +1014,7 @@ if( isset($_GET['csv']) ) {
                 $sql = 'SELECT
                             `telephely_id` as \'Szálloda\',
                             `sz_szam` as \'Szerződés szám\',
-                            `kelte` as \'Kelte\',
+                            `kelte_dt` as \'Kelte\',
                             `szallito_id` as \'Szerződő partner\',
                             `pr_szam` as \'Projekt szám\',
                             `targy` as \'Tárgy\',
@@ -1022,7 +1022,7 @@ if( isset($_GET['csv']) ) {
                             `sz_koto` as \'Szerződést kötő\',
                             `kcs_21` as \'Pénznem\',
                             `arfolyam` as \'Árfolyam\',
-                            `valtva` as \'Átváltva\',
+                            `atvaltva_dt` as \'Átváltva\',
                             `dev_net` as \'Deviza nettó\',
                             `szerz_ossz` as \'Szerződött összeg\',
                             `epitesi` as \'Ebből építési\',
@@ -1328,7 +1328,7 @@ require_once('selectek.php');
                     url : \'projektszerzodes.php\',
                     type: \'POST\',
                     data: {
-                        kelte                   : $(\'#kelte\').val(),
+                        kelte_dt                : $(\'#kelte_dt\').val(),
                         kiv_kezd                : $(\'#kiv_kezd\').val(),
                         kiv_vege                : $(\'#kiv_vege\').val(),
                         muszak_atv              : $(\'#muszak_atv\').val(),

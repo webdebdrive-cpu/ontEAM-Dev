@@ -113,9 +113,9 @@ function i_u($type, $tabla, $tomb) {
     if( $tabla == 'projektszerzodes' ) {
 
         if( !$_POST['kcs_21'] ) {
-            $_POST['arfolyam']  = '';
-            $_POST['valtva']    = '';
-            $_POST['dev_net']   = '';
+            $_POST['arfolyam']      = '';
+            $_POST['atvaltva_dt']   = '';
+            $_POST['dev_net']       = '';
         }
         
         // Illetve ha az építési összege meghaladná a szerződött összeget, azt ne engedjük elmenteni
@@ -969,7 +969,7 @@ function i_u($type, $tabla, $tomb) {
                 if( $sql === false ) { $db_error = true; }
 
                 // Illetve a projektszerződés tételénél updateljük a teljesítést és nettó értéket
-                $sql = $adatbazis_kapcsolat->u('projektszerzodes_tetel', array('teljesites', 'ertek'), array($_POST['telj_datum'], $netto_ert), "`recid`='{$_SESSION['pr_szla_tetel_pr_tetel'][$i]}'");
+                $sql = $adatbazis_kapcsolat->u('projektszerzodes_tetel', array('teljesites', 'ertek'), array($_POST['telj_dt'], $netto_ert), "`recid`='{$_SESSION['pr_szla_tetel_pr_tetel'][$i]}'");
                 if( $sql === false ) { $db_error = true; }
                 
                 $i++;
@@ -1534,8 +1534,8 @@ function i_u($type, $tabla, $tomb) {
             
             // Projekt számla mentésekor ellenőrizzük, hogy a dátumok nem múltbeliek-e. (Van pár, amelyiknél ezt ellenőrizni kell.)
             $csak_mult_datum_lehet = array(
-                                            array('name' => 'ceghez_erk',    'alert' => 'Céghez érkezett dátumhoz csak mai, vagy múltbeli dátum adható meg!'),
-                                            array('name' => 'kelte',         'alert' => 'A számla kelte dátumhoz csak mai, vagy múltbeli dátum adható meg!' ),
+                                            array('name' => 'erk_dt',        'alert' => 'Céghez érkezett dátumhoz csak mai, vagy múltbeli dátum adható meg!'),
+                                            array('name' => 'kelte_dt',      'alert' => 'A számla kelte dátumhoz csak mai, vagy múltbeli dátum adható meg!' ),
                                             array('name' => 'visszaadva_dt', 'alert' => 'A visszaadva dátumhoz csak mai, vagy múltbeli dátum adható meg!'   ),
                                         );
 
@@ -1665,7 +1665,7 @@ function i_u($type, $tabla, $tomb) {
         if( $tabla == 'projektszerzodes' ) {
 
             // Kivitelezés kezdete, nem lehet korábbi, mint a kelte
-            if( $_POST['kiv_kezd'] < $_POST['kelte'] ) {
+            if( $_POST['kiv_kezd'] < $_POST['kelte_dt'] ) {
                 echo json_encode(array(
                     'hiba'  => 'Kivitelezés kezdete, nem lehet korábbi, mint a kelte!',
                     'title' => 'Hiba',
@@ -1675,7 +1675,7 @@ function i_u($type, $tabla, $tomb) {
                 exit();
             }
             
-            // Kivitelezés kezdete, nem lehet korábbi, mint a kelte
+            // Kivitelezés kezdete, nem lehet korábbi, mint a kivitelezés vége
             if( $_POST['kiv_kezd'] > $_POST['kiv_vege'] ) {
                 echo json_encode(array(
                     'hiba'  => 'Kivitelezés vége nem lehet korábbi, mint a kivitelezés kezdete!',
@@ -1901,12 +1901,12 @@ function i_u($type, $tabla, $tomb) {
             $xml = '<?xml version = "1.0" encoding="UTF-8" standalone="yes"?>	
 <projszla>
     <onteamid>'.$prsz['recid'].'</onteamid>
-    <erk_dat>'.str_replace('-', '', $prsz['ceghez_erk']).'</erk_dat>
+    <erk_dat>'.str_replace('-', '', $prsz['erk_dt']).'</erk_dat>
     <szallkod>'.$prsz['telephely_id'].'</szallkod>
     <szlaszam>'.$prsz['szla_szam'].'</szlaszam>
     <pszam>'.$prsz['pr_szam'].'</pszam>
-    <telj_dat>'.str_replace('-', '', $prsz['telj_datum']).'</telj_dat>
-    <fizhat_dat>'.str_replace('-', '', $prsz['fiz_hatar']).'</fizhat_dat>
+    <telj_dat>'.str_replace('-', '', $prsz['telj_dt']).'</telj_dat>
+    <fizhat_dat>'.str_replace('-', '', $prsz['fizhat_dt']).'</fizhat_dat>
     <szallitoid>'.$prsz['szallito_id'].'</szallitoid>
     <targy><![CDATA['.htmlspecialchars_decode($prsz['targy']).']]></targy>
     <netert>'.$prsz['netto'].'</netert>
@@ -1918,7 +1918,7 @@ function i_u($type, $tabla, $tomb) {
     <musz_dat>'.str_replace('-', '', $prsz['musz_dt']).'</musz_dat>
     <valnetert>'.$prsz['dev_net'].'</valnetert>
     <valarf>'.$prsz['arfolyam'].'</valarf>
-    <valarf_dat>'.str_replace('-', '', $prsz['valtva']).'</valarf_dat>
+    <valarf_dat>'.str_replace('-', '', $prsz['atvaltva_dt']).'</valarf_dat>
     <kcs_46>'.$kolt_vis.'</kcs_46>
     <kcs_51>'.$prsz['kcs_21'].'</kcs_51>
     <valbrutert>'.$prsz['dev_br'].'</valbrutert>
@@ -3532,7 +3532,7 @@ function szamla_lista( $where, $tabla, $kijeloltek = false, $csak_sql_miatt = fa
         if( $tabla == 'projektszamla' ) {
             // Ha telephely szerint rendezünk, akkor ez lesz a következő rendezési szempont, és az irány is erre vonatkozik
             if( $_GET['rend'] == 'telephely_id' ) {
-                $order = '`'.get_db_tabla().'telephely`.`nev` '.$_GET['irany'].', `'.get_db_tabla().'projektszamla`.`ceghez_erk` '.$_GET['irany'];
+                $order = '`'.get_db_tabla().'telephely`.`nev` '.$_GET['irany'].', `'.get_db_tabla().'projektszamla`.`erk_dt` '.$_GET['irany'];
             }
         }
 
@@ -3933,7 +3933,7 @@ function anyag_szamlaLista( $bejegyzesek, $tabla, $frissit, $kijeloltek ) {
                             <tr> 
                                 <td style="width: 12rem">'.$bsz['ikt_szam'].'</td>
                                 <td style="width: 8rem">'.$bsz['szla_szam'].'</td>
-                                <td>'.datum_kiir($bsz['fizhat_d']).'</td>
+                                <td>'.datum_kiir($bsz['fizhat_dt']).'</td>
                             </tr>
                             </table>
                         </a>';
@@ -4059,22 +4059,22 @@ function bejelentesLista( $bejegyzesek, $tabla, $frissit, $kijeloltek, $sorrend_
 
             // Nyitott státuszú bejegyzések navpanelen félkövérrel jelenjenek meg
             $bold = '';
-            if( $bsz['stat_id'] == BEJELENTES_STAT_NYITOTT ){
+            if( $bsz['stat_id'] == BEJELENTES_STAT_NYITOTT ) {
                 $bold    = ' class="b"';
                 $active .= ' nyitott_statuszu'; // Innen fogjuk tudni, hogy a csoporosítás gombokat mutassuk-e meg vagy sem
             }
 
             // Egyszálloda esetén, ha nyitott a státusz, van munkalap készíthet jog, és ponstosan egy ML-ja van, és a ML-nak két státusza van (ez csak Nyitott és hozzárendelt lehet), akkor legyen szürke a háttér
             $rejtsuk = false;
-            if( _jog(JOG_MUNKALAP_KESZITHET) && $bsz['stat_id']==BEJELENTES_STAT_NYITOTT){
+            if( _jog(JOG_MUNKALAP_KESZITHET) && $bsz['stat_id'] == BEJELENTES_STAT_NYITOTT ) {
                 $szalloda  = $adatbazis_kapcsolat->s2('modell', 'telephely', "`id`='{$bsz['telephely_id']}'");
-                if(!$szalloda['modell']){
+                if( !$szalloda['modell'] ) {
                     $van_kapcs = $adatbazis_kapcsolat->s('munkalap_id', 'munkalap_kapcs', "`bejelentes_id`='{$bsz['recid']}'");
                     if( count($van_kapcs)==1 ){
                         $letezik_munkalap = $adatbazis_kapcsolat->s2('recid', 'munkalap', "`recid`='{$van_kapcs[0]['munkalap_id']}'");
-                        if($letezik_munkalap){
+                        if( $letezik_munkalap ) {
                             $statuszok = $adatbazis_kapcsolat->s('recid', 'munkalap_statusz', "`munkalap_recid`='{$letezik_munkalap['recid']}'");
-                            if(count($statuszok)==2){
+                            if( count($statuszok) == 2 ) {
                                 $active .= ' szurke_hat';
                                 $rejtsuk = true;
                             }
@@ -4084,7 +4084,7 @@ function bejelentesLista( $bejegyzesek, $tabla, $frissit, $kijeloltek, $sorrend_
             }
 
             // Korábban szürke színnel voltak kiírva azok a nyitott bejelentések, amikhez tartozott munkalap, de ezeket végül teljesen elrejtjük.
-            if($rejtsuk){
+            if( $rejtsuk ) {
                 continue;
             }
 
@@ -4253,7 +4253,7 @@ function munkalapLista( $bejegyzesek, $tabla, $frissit, $kijeloltek, $sorrend_id
             $statuszok = adatbazis2tomb($statuszok, 'stat_id');
             foreach($statuszok as $stat){
                 $text = getStatText($tabla, $stat);
-                if($text){
+                if( $text ) {
                     array_push($statuszok_abc, array('id' => $stat, 'nev' => $text));
                 }
             }
@@ -4461,7 +4461,7 @@ function munkalapLista( $bejegyzesek, $tabla, $frissit, $kijeloltek, $sorrend_id
                                 <td style="width: 11rem;" class="ikt_szam">'.$bsz['ikt_szam'].'</td>
                                 <td style="width: 9rem;">'.getStatText($tabla, $bsz['stat_id'], 'rovid').'</td>
                                 '.$szalloda_neve.'
-                                <td>'.$bsz['obj_txt'].$gep_txt.'</td>
+                                <td>'.htmlspecialchars_decode($bsz['obj_txt']).$gep_txt.'</td>
                             </tr>
                             <tr>
                                 <td>'.$ml_tipus.'</td>
@@ -4800,7 +4800,7 @@ function fenntartasi_szamlaLista( $bejegyzesek, $tabla, $frissit, $kijeloltek ) 
                             <tr> 
                                 <td style="width: 12rem">'.$bsz['ikt_szam'].'</td>
                                 <td style="width: 8rem">'.$bsz['szla_szam'].'</td>
-                                <td>'.datum_kiir($bsz['fizhat_d']).'</td>
+                                <td>'.datum_kiir($bsz['fizhat_dt']).'</td>
                             </tr>
                             </table>
                         </a>';
@@ -4840,7 +4840,7 @@ function fenntartasi_szerzodesLista( $bejegyzesek, $tabla, $frissit, $kijeloltek
                             <table>
                             <tr> 
                                 <td style="width: 12rem">'.$bsz['szszam'].'</td>
-                                <td>'.datum_kiir($bsz['bef_d']).'</td>
+                                <td>'.datum_kiir($bsz['bef_dt']).'</td>
                             </tr>
                             </table>
                         </a>';
@@ -5926,7 +5926,7 @@ function energia_szamlaLista( $bejegyzesek, $tabla, $frissit, $kijeloltek ) {
                             <tr> 
                                 <td style="width: 12rem">'.$bsz['ikt_szam'].'</td>
                                 <td style="width: 8rem">'.$bsz['szla_szam'].'</td>
-                                <td>'.datum_kiir($bsz['fizhat_d']).'</td>
+                                <td>'.datum_kiir($bsz['fizhat_dt']).'</td>
                             </tr>
                             </table>
                         </a>';
@@ -6844,7 +6844,7 @@ function getOszlopNev( $oszlop, $kieg_nev = '' ) {
         'esnap_d'       => 'Esedékesség',
         'erkezett'      => 'Érkezett',
         'ev'            => 'Tervező év',
-        'fiz_hatar'     => 'Fizetési határidő',
+        'fizhat_dt'     => 'Fizetési határidő',
         'id'            => 'Kód',
         'ikt_szam'      => $kieg_nev.' szám',
         'nev'           => 'Név',

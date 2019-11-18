@@ -76,8 +76,8 @@ if( $weblap->db_prefix ) {
 *	@return string: A tartalom tömb megfelelő bejegyzése
 */
 // Kiléptetés, ha nem él a SESSION és nem az index.php-n vagyunk és nem is egy ütemezőn, nem is elfelejtett jelszót kérünk le.
-$kiveteles_oldalak = array('index.php', 'import_szamla.php', 'import_szamla_kifizetes.php', 'beleptetes.php', 'andoc.php', 'andoc2.php');
-if( !$_SESSION[get_db_tabla() . 'user'] && !$_POST['elfelejtett_jelszo'] && substr(basename($_SERVER['PHP_SELF']), 0, 8) != 'utemezo_' && !in_array(basename($_SERVER['PHP_SELF']), $kiveteles_oldalak) ) {
+$kiveteles_oldalak = array('index.php', 'import_szamla.php', 'import_szamla_kifizetes.php', 'beleptetes.php');
+if( !$_SESSION[get_db_tabla() . 'user'] && !$_POST['elfelejtett_jelszo'] && substr(basename($_SERVER['PHP_SELF']), 0, 8) != 'utemezo_' && !in_array(basename($_SERVER['PHP_SELF']), $kiveteles_oldalak) && substr(basename($_SERVER['PHP_SELF']), 0, 5)!='andoc' ) {
     echo 'SESKIL<script>document.body.innerHTML = \'\'; location.href=\'index.php\'</script>';
     exit;
 }
@@ -106,8 +106,8 @@ if( in_array(basename(self()), $archivok) && !isset($_GET['mezo']) && !$_SESSION
 // Ehhez a nav panel kiszámításakor a recid-kat is kiszámoljuk egy tömbbe, hogy többet egy ilyen bonyolult SQL-t ne kelljen lefuttatni
 // Ezt viszont nem tesszük meg, ha van $_POST-olt adat, mert azok ajax hívások, ott meg feleslegesen szintén ne számolgassuk ki a bonyolult SQL-t.
 // Ugyanígy az autocomplete.php esetén sem hívjuk meg
-$kiveteles_oldalak = array('autocomplete.php', 'szakter_autocomplete.php', 'velemeny_autocomplete.php', 'andoc.php', 'andoc2.php');
-if( empty($_POST) && !in_array( basename(self()), $kiveteles_oldalak ) && !isset($_GET['no_lista']) ) {
+$kiveteles_oldalak = array('autocomplete.php', 'szakter_autocomplete.php', 'velemeny_autocomplete.php');
+if( empty($_POST) && !in_array( basename(self()), $kiveteles_oldalak ) && !isset($_GET['no_lista']) && substr(basename($_SERVER['PHP_SELF']), 0, 5)!='andoc' ) {
     list($balNavPanelHTMLje, $balNavPanelRECIDk) = szamla_lista();          // Ezt azért futtatjuk le, hogy az aktuális oldalnak megfelelő $_SESSION['akt_sql'] jöjjön létre, hogy tudjunk ID-t ellenőrizni.
     $_SESSION[csonkit(basename(self()), 4).'_idk'] = $balNavPanelRECIDk;    // Egy Session-ben is eltároljuk az ID-kat, hogy ajax-al egy sort meghívva, ne töltse be, ha adott ID nem tartozik a felhasználó látokörébe
 }

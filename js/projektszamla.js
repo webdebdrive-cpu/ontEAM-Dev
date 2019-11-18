@@ -152,8 +152,8 @@ $(document).on('input, blur', '#kcs_21_autocomp', function(e) {
     // Azért van egy settimeoutban, mert a mezőt elhagyva még az autocomplete feltölti adattal. De az elhagyás pillanatában még üres.
     setTimeout(function(){
         if ($('#kcs_21_autocomp').val() && $('#kcs_21_autocomp').val() != 'HUF') {
-            $('#arfolyam')  .removeAttr('disabled').removeAttr('readonly').focus().addClass('csillag');
-            $('#valtva')    .removeAttr('disabled').removeAttr('readonly');
+            $('#arfolyam')      .removeAttr('disabled').removeAttr('readonly').focus().addClass('csillag');
+            $('#atvaltva_dt')   .removeAttr('disabled').removeAttr('readonly');
             
             if( !$('#nullas').prop('checked') ) {
                 $('#dev_net')   .removeAttr('disabled').removeAttr('readonly').addClass('csillag');
@@ -162,10 +162,10 @@ $(document).on('input, blur', '#kcs_21_autocomp', function(e) {
             
         } else {
             
-            $('#arfolyam')  .val('0,0000')      .attr('disabled', 'disabled').attr('readonly', 'readonly').removeClass('mod').removeClass('csillag');
-            $('#valtva')    .val('\xa0\xa0\xa0\xa0.\xa0\xa0.\xa0\xa0').attr('disabled', 'disabled').attr('readonly', 'readonly').removeClass('mod');
-            $('#dev_net')   .val('0,00')        .attr('disabled', 'disabled').attr('readonly', 'readonly').removeClass('mod').removeClass('csillag');
-            $('#dev_br')    .val('0,00')        .attr('disabled', 'disabled').attr('readonly', 'readonly').removeClass('mod').removeClass('csillag');
+            $('#arfolyam')      .val('0,0000')      .attr('disabled', 'disabled').attr('readonly', 'readonly').removeClass('mod').removeClass('csillag');
+            $('#atvaltva_dt')   .val('\xa0\xa0\xa0\xa0.\xa0\xa0.\xa0\xa0').attr('disabled', 'disabled').attr('readonly', 'readonly').removeClass('mod');
+            $('#dev_net')       .val('0,00')        .attr('disabled', 'disabled').attr('readonly', 'readonly').removeClass('mod').removeClass('csillag');
+            $('#dev_br')        .val('0,00')        .attr('disabled', 'disabled').attr('readonly', 'readonly').removeClass('mod').removeClass('csillag');
             
         }
         tabindex_beallit();

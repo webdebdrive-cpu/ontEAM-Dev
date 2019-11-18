@@ -19,12 +19,12 @@
                             </xs:simpleType>
                         </xs:element> 
                         <xs:element name="ikt_szam" type="xs:string" use="required"/>
-                        <xs:element name="erk_d" type="xs:date" use="required"/>
+                        <xs:element name="erk_dt" type="xs:date" use="required"/>
                         <xs:element name="szlaszam" type="xs:string" use="required"/>
                         <xs:element name="szalloda" type="xs:string" use="required"/>
                         <xs:element name="szallito" type="xs:string" use="required"/>
-                        <xs:element name="telj_d" type="xs:date" use="required"/>
-                        <xs:element name="fizhat_d" type="xs:date" use="required"/>
+                        <xs:element name="telj_dt" type="xs:date" use="required"/>
+                        <xs:element name="fizhat_dt" type="xs:date" use="required"/>
                         <xs:element name="fizmod" type="xs:string" use="required"/>
                         <xs:element name="targy" type="xs:string"/>
                         <xs:element name="netert" type="xs:integer" use="required"/>
@@ -34,7 +34,7 @@
                         <xs:element name="penznem" type="xs:string" use="required"/>
                         <xs:element name="statusz" type="xs:string" use="required"/>
                         <xs:element name="elutleir" type="xs:string"/>
-                        <xs:element name="atvaltva_d" type="xs:date"/>
+                        <xs:element name="atvaltva_dt" type="xs:date"/>
                         
                         <xs:element name="tetel">
                             <xs:complexType>
@@ -42,11 +42,11 @@
                                     
                                     <xs:element name="szalloda" type="xs:string" use="required"/>
                                     <xs:element name="targy" type="xs:string"/>
-                                    <xs:element name="ktgnem" type="xs:string" use="required"/>
+                                    <xs:element name="ktgnem_id" type="xs:string" use="required"/>
                                     <xs:element name="netert" type="xs:integer" use="required"/>
                                     <xs:element name="vnetert" type="xs:decimal"/>
                                     <xs:element name="statusz" type="xs:string" use="required"/>
-                                    <xs:element name="ktghely" type="xs:string" use="required"/>
+                                    <xs:element name="ktghely_id" type="xs:string" use="required"/>
                                     <xs:element name="igazol_usr" type="xs:string"/>
                                     <xs:element name="igazol_dt" type="xs:date"/>
                                     <xs:element name="szszam" type="xs:string" use="required"/>
