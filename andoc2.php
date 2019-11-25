@@ -7,6 +7,7 @@ ini_set('soap.wsdl_cache_enabled', '0');
 
 $url_elotag = get_url_elotag();
 
+// Új soap kliens inicializálása
 $soap = new SoapClient($url_elotag.'onteam.wsdl', 
                         array(
                             'uri'       => $url_elotag.'onteam.php',
@@ -23,8 +24,10 @@ $auth = array(
             'password' => 'AontEAM3',
         );
 
+// Fejléc előállítása
 $header_params  = new SoapVar($auth, SOAP_ENC_OBJECT);
 $header         = new SoapHeader('ontEAM', 'belepes', $header_params, false);
+// Header hívás
 $soap -> __setSoapHeaders( array($header) );
 
 // Számla import

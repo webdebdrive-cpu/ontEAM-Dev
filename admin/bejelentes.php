@@ -991,7 +991,7 @@ require_once('selectek.php');
                 }
             }
 
-            // Ha adott ML részlege benne van a felhasználóhoz tartozó részlegek között, akkor mutatjuk csak meg ezeket a gombokat
+            // Ha adott Bejelentés részlege benne van a felhasználóhoz tartozó részlegek között, akkor mutatjuk csak meg ezeket a gombokat
             if( in_array($sor['usr_reszleg_id'], $reszlegek) ) {
 
                 // Ideiglenesen egyszállodás modell esetén nem mutatjuk az elutasítás gombot 2018.06.06

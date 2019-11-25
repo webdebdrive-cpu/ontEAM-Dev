@@ -195,7 +195,7 @@ if( _jog(JOG_MUNKALAP_MEGTEKINT) || _jog(JOG_MUNKALAP_MEGTEKINT_SZALL) || _jog(J
 
 
 // Anyagok
-if(_jog(JOG_ANYAIGENLES_MEGTEKINT) || _jog(JOG_ANYAGREND_MEGTEKINT) || _jog(JOG_RAKTAR_MEGTEKINT) || _jog(JOG_CIKKTORZS_MEGTEKINT)){
+if( _jog(JOG_ANYAIGENLES_MEGTEKINT) || _jog(JOG_ANYAGREND_MEGTEKINT) || _jog(JOG_RAKTAR_MEGTEKINT) || _jog(JOG_CIKKTORZS_MEGTEKINT) ) {
     $menu_nev        = 'Anyagok';
     $menu_nev_kis    = 'anyagok';
     $menu_nev_tobbes = 'Anyagok';
@@ -212,22 +212,22 @@ if(_jog(JOG_ANYAIGENLES_MEGTEKINT) || _jog(JOG_ANYAGREND_MEGTEKINT) || _jog(JOG_
                                                     }
     if(basename(self())=='raktar.php')              { $oldalNev = 'Anyagok / <span id="rekord_neve">Raktár</span><span class="dn" id="rekord_neve_egyes">raktár</span><span class="dn" id="rekord_neve_targy">raktárat</span>';           }
 
-    $aktmenuk  = '';
-if(_jog(JOG_ANYAIGENLES_MEGTEKINT)){
+$aktmenuk  = '';
+if( _jog(JOG_ANYAIGENLES_MEGTEKINT) ) {
     $aktmenuk .= str_replace( $akt_almenu_mit, array( $aloldalak['1'], 'Anyagigénylések'), $almenu_sablon );
 }
-if(_jog(JOG_ANYAGREND_MEGTEKINT)){
+if( _jog(JOG_ANYAGREND_MEGTEKINT) ) {
     $aktmenuk .= str_replace( $akt_almenu_mit, array( $aloldalak['2'], 'Anyagrendelések'), $almenu_sablon );
 }
-if(_jog(JOG_RAKTAR_MEGTEKINT)){
+if( _jog(JOG_RAKTAR_MEGTEKINT) ) {
     $aktmenuk .= str_replace( $akt_almenu_mit, array( $aloldalak['3'], 'Raktár'         ), $almenu_sablon );
 }
-if(_jog(JOG_CIKKTORZS_MEGTEKINT)){
+if( _jog(JOG_CIKKTORZS_MEGTEKINT) ) {
     $aktmenuk .= str_replace( $akt_almenu_mit, array( $aloldalak['0'], 'Cikktörzs'      ), $almenu_sablon );
 }
 
     $style = '';
-    if(substr( basename(self()), 0, strlen(basename($_SERVER['PHP_SELF']))-4 ) == $megn){
+    if( substr(basename(self()), 0, strlen(basename($_SERVER['PHP_SELF'])) - 4) == $megn ) {
         $style = ' class="hover{STYLE_KIEG}"';
     }
 
@@ -350,7 +350,7 @@ if(
         _jog(JOG_PRKEZEL_MEGTEKINT) || _jog(JOG_PRKEZEL_SAJAT_MEGTEKINT) || _jog(JOG_PRKEZEL_TEAM_TAG) || _jog(JOG_PR_EGYSZALL_MEGTEKINT) || _jog(JOG_PR_TOBBSZALL_MEGTEKINT) ||
         _jog(JOG_PRKEZEL_SZERZODES_OLVAS) || _jog(JOG_PR_SAJAT_SZERZ_MEGTEKINT) ||
         _jog(JOG_PRSZAMLAK_OLVAS) || _jog(JOG_PR_SAJAT_SZAMLA_MEGTEKINT)
-    ){
+    ) {
     $menu_nev        = 'Projektek';
     $menu_nev_kis    = 'rojektek';
     $menu_nev_tobbes = 'Projektek';

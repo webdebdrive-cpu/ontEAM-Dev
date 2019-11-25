@@ -27,7 +27,7 @@ function get_db_host()    { return ( $_SERVER['HTTP_HOST'] == 'demo.webdeb.hu' ?
 function get_db()         {
     switch ( $_SERVER['HTTP_HOST'] ) {
         case 'localhost'            : return 'wdbtesthu';
-        case 'demo.webdeb.hu'       : return 'wdbtesthu';
+        case 'demo.webdeb.hu'       : return 'wdbhu_wdbhu';
         case 'demo.szinvatrend.hu'  : return 'szinvatrendhu1';
         case 'www.onteam.hu'        : return 'onteam_live';
         case 'onteam.hu'            : return 'onteam_live';
@@ -38,7 +38,7 @@ function get_db()         {
 function get_db_user() {
     switch ( $_SERVER['HTTP_HOST'] ) {
         case 'localhost'            : return 'krixx';
-        case 'demo.webdeb.hu'       : return 'wdbtestdb';
+        case 'demo.webdeb.hu'       : return 'wdbhu_wdbhu';
         case 'demo.szinvatrend.hu'  : return 'szinvatrendhu';
         case 'www.onteam.hu'        : return 'onteam_live';
         case 'onteam.hu'            : return 'onteam_live';
@@ -49,7 +49,7 @@ function get_db_user() {
 function get_db_pass() {
     switch($_SERVER['HTTP_HOST']){
         case 'localhost'            : return 'e8zfZWdYO1ew';
-        case 'demo.webdeb.hu'       : return 'oelohvah';
+        case 'demo.webdeb.hu'       : return 'h3rbdzto';
         case 'demo.szinvatrend.hu'  : return 'vikike';
         case 'www.onteam.hu'        : return 'HMERDQgx0JHp124U';
         case 'onteam.hu'            : return 'HMERDQgx0JHp124U';
@@ -106,7 +106,7 @@ function get_http()          {
     }
 }
 function get_logfile_max_meret(){ return 2097152; }
-function get_mail($kiir)     { return !$kiir ? 'noreply@onteam.hu' :
+function get_mail($kiir = '')     { return !$kiir ? 'noreply@onteam.hu' :
            mail_rejtes('<a href="mailto:'.get_mail().'">'.get_mail().'</a>');   }
 function get_megsz()         { return 'magaz';                                  }
 function get_mail_charset()  { return 'UTF-8';                                  } // ISO-8859-1, ISO-8859-2, Windows-1250, Windows-1251

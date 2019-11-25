@@ -204,6 +204,9 @@ class ServerClass {
                     }
 
                 }
+                
+                // szallito_id esetén fontos, hogy meglegyenek a keződ 0-k
+                $szallito_id = sprintf('%05d', $szamla -> szallito_id);
 
                 // Ha az alapvető adatokon nem akadtunk fenn, akkor szúrjuk be vagy updateljük a számlát, attól föggően, hogy az Andok azonsoító ismert-e.
                 // Ehhez az első lépés, a mező/érték párokat beállítani.
@@ -224,6 +227,7 @@ class ServerClass {
                                 'dev_br',
                                 'brutto',
                                 'netto',
+                                'kifizetve',
                                 'nullas',
                                 'visszaadva',
                                 'visszaadva_dt',
@@ -237,7 +241,7 @@ class ServerClass {
                                 $szamla -> telj_dt,
                                 $szamla -> fizhat_dt,
                                 $szamla -> telephely_id,
-                                $szamla -> szallito_id,
+                                $szallito_id,
                                 $szamla -> targy,
                                 $szamla -> kcs_21,
                                 $szamla -> atvaltva_dt,
@@ -246,6 +250,7 @@ class ServerClass {
                                 $szamla -> dev_net,
                                 $szamla -> netto,
                                 $szamla -> brutto,
+                                $szamla -> kifizetve,
                                 $szamla -> nullas,
                                 $szamla -> visszaadva,
                                 $szamla -> visszaadva_dt,
@@ -395,6 +400,9 @@ class ServerClass {
                     if( !trim($kifizetes -> szallito_id) ) {
                         Throw new SOAPFault ('Server', 'Hiányzó partner a kifizetéseknél!');
                     }
+                    
+                    // szallito_id esetén fontos, hogy meglegyenek a keződ 0-k
+                    $szallito_id = sprintf('%05d', $kifizetes -> szallito_id);
 
                     // Kifizetések beszúrása
                     $mezok   = array(
@@ -416,7 +424,7 @@ class ServerClass {
                                     $aparecid,
                                     $kifizetes -> szlakifid,
                                     $kifizetes -> szla_szam,
-                                    $kifizetes -> szallito_id,
+                                    $szallito_id,
                                     $kifizetes -> bank,
                                     $kifizetes -> kifizetes_dt,
                                     $kifizetes -> br_ertek,
@@ -562,6 +570,9 @@ class ServerClass {
                     if( !trim($szerzodes -> hatalyos) ) {
                         Throw new SOAPFault ('Server', 'Hiányzó hatályos!');
                     }
+                    
+                    // szallito_id esetén fontos, hogy meglegyenek a keződ 0-k
+                    $szallito_id = sprintf('%05d', $szerzodes -> szallito_id);
 
                     $mezok = array(
                                     'szszam',
@@ -591,7 +602,7 @@ class ServerClass {
                                     $szerzodes -> kelte_dt,
                                     $szerzodes -> verzio,
                                     $szerzodes -> sztipus,
-                                    $szerzodes -> szallito_id,
+                                    $szallito_id,
                                     $szerzodes -> targy,
                                     $szerzodes -> erv_dt,
                                     $szerzodes -> bef_dt,
@@ -629,6 +640,9 @@ class ServerClass {
                     if( !trim($szerzodes -> epitesi_eng) && !trim($szerzodes -> epitesi) ) {
                         Throw new SOAPFault ('Server', 'Hiányzó építési összeg!');
                     }
+                    
+                    // szallito_id esetén fontos, hogy meglegyenek a keződ 0-k
+                    $szallito_id = sprintf('%05d', $szerzodes -> szallito_id);
 
                     $mezok = array(
                                     'telephely_id',
@@ -659,7 +673,7 @@ class ServerClass {
                                     $szerzodes -> sz_szam,
                                     $szerzodes -> pr_szam,
                                     $szerzodes -> kelte_dt,
-                                    $szerzodes -> szallito_id,
+                                    $szallito_id,
                                     $szerzodes -> targy,
                                     $szerzodes -> kolt_vis,
                                     $szerzodes -> sz_koto,

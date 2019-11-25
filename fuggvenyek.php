@@ -1,13 +1,22 @@
 <?php
-/*                                                                                                                          *\
-    Ide írd meg a saját, globális függvényeidet. Mivel ez a header() előtt meghívódik, kimenetele a fájlnak ne legyen.
-\*                                                                                                                          */
 
-
-
-
-
-
+// Főmenüpntok láthatóságát központosítjuk, hogy a header.php-ban és a dasboard-on is fel lehessen használni, ne két helyen kelljen módosítani
+function bejelentes_lathat() {
+    return _jog(JOG_BEJELENTES_MEGTEKINT) || _jog(JOG_BEJELENTES_SAJAT_RESZL);
+}
+function munkalap_lathat() {
+    return _jog(JOG_MUNKALAP_MEGTEKINT) || _jog(JOG_MUNKALAP_MEGTEKINT_SZALL) || _jog(JOG_MUNKALAP_MEGTEKINT_FELADAT) || _jog(JOG_UTFEL_MEGTEKINT) || _jog(JOG_RENDSZ_KARB_MEGTEKINT) || _jog(JOG_ESETI_FENN_MEGTEKINT);
+}
+function anyagigenyles_lathat() {
+    return _jog(JOG_ANYAIGENLES_MEGTEKINT) || _jog(JOG_ANYAGREND_MEGTEKINT) || _jog(JOG_RAKTAR_MEGTEKINT) || _jog(JOG_CIKKTORZS_MEGTEKINT);
+}
+function projektek_lathat() {
+    return 
+        _jog(JOG_PRIGENY_S_KEZEL) || _jog(JOG_PRIGENY_SZ_MEGTEKINT) || _jog(JOG_PRIGENY_B_MEGTEKINT) || _jog(JOG_PRIGENY_EGY_MEGTEKINT) || _jog(JOG_PRIGENY_F_MEGTEKINT) || _jog(JOG_PRIGENY_TOBB_MEGTEKINT) || _jog(JOG_PRIGENY_T_MEGTEKINT) || _jog(JOG_PR_B_MEGTEKINT) || _jog(JOG_PR_F_MEGTEKINT) || _jog(JOG_PR_T_MEGTEKINT) ||
+        _jog(JOG_PRKEZEL_MEGTEKINT) || _jog(JOG_PRKEZEL_SAJAT_MEGTEKINT) || _jog(JOG_PRKEZEL_TEAM_TAG) || _jog(JOG_PR_EGYSZALL_MEGTEKINT) || _jog(JOG_PR_TOBBSZALL_MEGTEKINT) ||
+        _jog(JOG_PRKEZEL_SZERZODES_OLVAS) || _jog(JOG_PR_SAJAT_SZERZ_MEGTEKINT) ||
+        _jog(JOG_PRSZAMLAK_OLVAS) || _jog(JOG_PR_SAJAT_SZAMLA_MEGTEKINT);
+}
 
 /**
 *	Insert & Update
@@ -2858,7 +2867,7 @@ function web_ftp($valtozo, $kepnev, $size=409600, $overwrite=false, $csakkep=tru
  * @param $csak_sql_miatt: Ha nem akarjuk a bal navpenalt kiszámolni, csak a lekérdezés SQL-e kell
  * @param $getek: néha szükség van arra, hogy a GET-eket átadjuk, mert ez kell az adatok kiszámításhoz.
  *  */
-function szamla_lista( $where, $tabla, $kijeloltek = false, $csak_sql_miatt = false, $getek = false ) {
+function szamla_lista( $where = '', $tabla = '', $kijeloltek = false, $csak_sql_miatt = false, $getek = false ) {
 
     global $adatbazis_kapcsolat;
     global $db_kapcs;
@@ -7403,7 +7412,7 @@ function get_akt_tomb($megn){
 }
 
 // Az aktuálisan bejelentkezett felhasználóhoz rendelt szállodák ID-ját adja vissza. Ez többször előfroduló igény, azért van kiszervezve függvénybe.
-function get_akt_login_szallodai($sqlt_adj_vissza, $telephely_id_oszlop_helyett_masik_oszlop, $masik_user) {
+function get_akt_login_szallodai($sqlt_adj_vissza = '', $telephely_id_oszlop_helyett_masik_oszlop = '', $masik_user = '') {
     global $adatbazis_kapcsolat;
 
     // Aktuális felhasználó, vagy valaki más?
