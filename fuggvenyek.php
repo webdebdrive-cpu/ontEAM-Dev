@@ -184,7 +184,7 @@ function i_u($type, $tabla, $tomb) {
             }
 
     		// Az oszlop/érték párokat felvesszük egy tömbbe, ha:
-    		if(
+    		if (
                 $ertek['type'] != 'submit' && $ertek['type'] != 'button' && $ertek['type'] != 'file' && $ertek['type'] != 'flashfile' && $ertek['type'] != 'jsfile' && // ... ha megfelelő fajtájú input
                 !(
                     $ertek['disabled'] &&
@@ -3499,9 +3499,10 @@ function szamla_lista( $where = '', $tabla = '', $kijeloltek = false, $csak_sql_
             $_GET['mezo'] = 'legfrissebb';
             $_GET['felt'] = ARCHIV_NAVPANEL_LIMIT;
         }
-        // Anyagrendelések alatt, ha van anyagrendelés készítés jogunk, 
+        // Anyagrendelések alatt, ha a szerepkör mszk ügyintéző vagy mszk vezető,
         // és nincs szűrve semmire (összetetten sem, ez itt fontos a 0-ás alapértelmezett érték miatt), akkor nem listázunk ki semmit.
-        if( _jog(JOG_ANYAGREND_KESZIT) && $tabla=='anyagigenyles' && isset($_GET['anyagrend']) && !$_GET['mezo'] && !$_SESSION['o_szuro_feltetel'] ) {
+        $nullas_szerepkorok = array(MSZK_VEZETO, MUSZAKI_ADMINISZTRATOR);
+        if( in_array($_SESSION[get_db_tabla().'szemelyzet_id'], $nullas_szerepkorok) && $tabla=='anyagigenyles' && isset($_GET['anyagrend']) && !$_GET['mezo'] && !$_SESSION['o_szuro_feltetel'] ) {
             $_GET['mezo'] = 'legfrissebb';
             $_GET['felt'] = '-'; // Ha csak simán 0-át írnánk ide, akkor a feltételt üresnek tekintené, olyan mintha nem létezne
         }
@@ -7996,7 +7997,7 @@ function getSzallodaNev($szalloda_id) {
 }
 
 // Szállodák nevét ne DB-ből kérjük már le, vagyis csak egyszer, loginnál
-function getErtekLista($erteklista_csoport, $erteklista_id, $erteklista_recid) {
+function getErtekLista($erteklista_csoport = '', $erteklista_id = '', $erteklista_recid = '') {
     if( $erteklista_csoport ) {
         foreach ( $_SESSION['erteklista'] as $erteklista ) {
             if( $erteklista['csoport'] == $erteklista_csoport && $erteklista['id'] == $erteklista_id ) {

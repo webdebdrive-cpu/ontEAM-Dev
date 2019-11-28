@@ -188,7 +188,7 @@ if( isset($_POST['login']) ) {
     if( $_POST['nev'] ) {
         $helyesseg = sha1($_POST['nev'].$_POST['jelszo']);
 
-        if($sha1){
+        if( $sha1 ) {
             $_POST['jelszo'] = sha1($_POST['jelszo']);
         }
 
@@ -196,7 +196,6 @@ if( isset($_POST['login']) ) {
         if( $felhasznalo ) {
 
             if( $felhasznalo['van_jelszo'] ) {
-
                 if( $felhasznalo['jelszo'] == $_POST['jelszo'] && $felhasznalo['helyesseg'] == $helyesseg ) {
 
                     $_SESSION[get_db_tabla().'user']            = $felhasznalo['nev'];
@@ -549,5 +548,3 @@ if( isset($_POST['jog_torol']) ) {
     exit;
 
 }
-
-?>

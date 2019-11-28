@@ -4,5 +4,3 @@
     Tip: Ha a name és a value azonos, elég a value értéket megadni!
 
 \*                                                                   */
-
-?>

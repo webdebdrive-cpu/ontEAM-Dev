@@ -1,10 +1,9 @@
 <?xml version="1.0" encoding ="utf-8"?>
-<definitions name="ontEAM Webservice"
+<definitions name="ontEAM-Webservice"
 	targetNamespace="https://dev.onteam.hu/andoc.php?wsdl.wsdl"
 	xmlns:tns="https://dev.onteam.hu/andoc.php?wsdl.wsdl"
 	xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/"
 	xmlns:xsd="http://www.w3.org/2001/XMLSchema"
-	xmlns:xsd1="https://dev.onteam.hu/andoc.php?wsdl.xsd"
 	xmlns:soapenc="http://schemas.xmlsoap.org/soap/encoding/"
 	xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/"
 	xmlns="http://schemas.xmlsoap.org/wsdl/">
@@ -76,7 +75,7 @@
 	<part name='szallito_xml' type='xsd:szallito_xml'/>
 	</message>
 <!-- server's services -->
-	<portType name='ontEAM Webservice'>
+	<portType name='ontEAM-Webservice'>
 		<operation name='SzamlaAdatokImport'>
 		<input message='tns:SzamlaAdatokImport'/>
 		<output message='tns:returns_szamla_valasz'/>
@@ -99,37 +98,37 @@
 		</operation>
 	</portType>
 <!-- server encoding -->
-	<binding name='ontEAM Webservice_webservices' type='tns:ontEAM Webservice'>
+	<binding name='ontEAM-Webservice_webservices' type='tns:ontEAM-Webservice'>
 	<soap:binding style='rpc' transport='http://schemas.xmlsoap.org/soap/http'/>
 		<operation name='SzamlaAdatokImport'>
 		<soap:operation soapAction='urn:xmethods-delayed-quotes#SzamlaAdatokImport'/>
-		<input><soap:body use='encoded' namespace='urn:xmethods-delayed-quotes' encodingStyle='http://schemas.xmlsoap.org/soap/encoding/'/></input>
-		<output><soap:body use='encoded' namespace='urn:xmethods-delayed-quotes' encodingStyle='http://schemas.xmlsoap.org/soap/encoding/'/></output>
+		<input><soap:body use='literal' namespace='urn:xmethods-delayed-quotes' encodingStyle='http://schemas.xmlsoap.org/soap/encoding/'/></input>
+		<output><soap:body use='literal' namespace='urn:xmethods-delayed-quotes' encodingStyle='http://schemas.xmlsoap.org/soap/encoding/'/></output>
 		</operation>
 		<operation name='SzerzodesAdatokImport'>
 		<soap:operation soapAction='urn:xmethods-delayed-quotes#SzerzodesAdatokImport'/>
-		<input><soap:body use='encoded' namespace='urn:xmethods-delayed-quotes' encodingStyle='http://schemas.xmlsoap.org/soap/encoding/'/></input>
-		<output><soap:body use='encoded' namespace='urn:xmethods-delayed-quotes' encodingStyle='http://schemas.xmlsoap.org/soap/encoding/'/></output>
+		<input><soap:body use='literal' namespace='urn:xmethods-delayed-quotes' encodingStyle='http://schemas.xmlsoap.org/soap/encoding/'/></input>
+		<output><soap:body use='literal' namespace='urn:xmethods-delayed-quotes' encodingStyle='http://schemas.xmlsoap.org/soap/encoding/'/></output>
 		</operation>
 		<operation name='KoltsegnemAdatokImport'>
 		<soap:operation soapAction='urn:xmethods-delayed-quotes#KoltsegnemAdatokImport'/>
-		<input><soap:body use='encoded' namespace='urn:xmethods-delayed-quotes' encodingStyle='http://schemas.xmlsoap.org/soap/encoding/'/></input>
-		<output><soap:body use='encoded' namespace='urn:xmethods-delayed-quotes' encodingStyle='http://schemas.xmlsoap.org/soap/encoding/'/></output>
+		<input><soap:body use='literal' namespace='urn:xmethods-delayed-quotes' encodingStyle='http://schemas.xmlsoap.org/soap/encoding/'/></input>
+		<output><soap:body use='literal' namespace='urn:xmethods-delayed-quotes' encodingStyle='http://schemas.xmlsoap.org/soap/encoding/'/></output>
 		</operation>
 		<operation name='KoltseghelyAdatokImport'>
 		<soap:operation soapAction='urn:xmethods-delayed-quotes#KoltseghelyAdatokImport'/>
-		<input><soap:body use='encoded' namespace='urn:xmethods-delayed-quotes' encodingStyle='http://schemas.xmlsoap.org/soap/encoding/'/></input>
-		<output><soap:body use='encoded' namespace='urn:xmethods-delayed-quotes' encodingStyle='http://schemas.xmlsoap.org/soap/encoding/'/></output>
+		<input><soap:body use='literal' namespace='urn:xmethods-delayed-quotes' encodingStyle='http://schemas.xmlsoap.org/soap/encoding/'/></input>
+		<output><soap:body use='literal' namespace='urn:xmethods-delayed-quotes' encodingStyle='http://schemas.xmlsoap.org/soap/encoding/'/></output>
 		</operation>
 		<operation name='SzallitoAdatokImport'>
 		<soap:operation soapAction='urn:xmethods-delayed-quotes#SzallitoAdatokImport'/>
-		<input><soap:body use='encoded' namespace='urn:xmethods-delayed-quotes' encodingStyle='http://schemas.xmlsoap.org/soap/encoding/'/></input>
-		<output><soap:body use='encoded' namespace='urn:xmethods-delayed-quotes' encodingStyle='http://schemas.xmlsoap.org/soap/encoding/'/></output>
+		<input><soap:body use='literal' namespace='urn:xmethods-delayed-quotes' encodingStyle='http://schemas.xmlsoap.org/soap/encoding/'/></input>
+		<output><soap:body use='literal' namespace='urn:xmethods-delayed-quotes' encodingStyle='http://schemas.xmlsoap.org/soap/encoding/'/></output>
 		</operation>
 	</binding>
 <!-- access to service provider -->
 	<service name='ontEAM'>
-	<port name='ontEAM_0' binding='ontEAM Webservice_webservices'>
+	<port name='ontEAM_0' binding='tns:ontEAM-Webservice_webservices'>
 	<soap:address location='https://dev.onteam.hu/andoc.php'/>
 	</port>
 	</service>
