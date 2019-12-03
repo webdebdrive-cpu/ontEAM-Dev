@@ -4808,9 +4808,15 @@ function fenntartasi_szamlaLista( $bejegyzesek, $tabla, $frissit, $kijeloltek ) 
             $li_tart = '<a class="szamla" data-recid="'.$bsz['recid'].'" data-fajl="'.$tabla.'.php" data-muvelet="modosit">
                             <table>
                             <tr> 
-                                <td style="width: 12rem">'.$bsz['ikt_szam'].'</td>
+                                <td style="width: 6rem">'.$bsz['ikt_szam'].'</td>
                                 <td style="width: 8rem">'.$bsz['szla_szam'].'</td>
-                                <td>'.datum_kiir($bsz['fizhat_dt']).'</td>
+                                <td>'. number_format($bsz['netto'], 0, '', '').' '. get_penznem().'</td>
+                            </tr>
+                            <tr> 
+                                <td colspan="3">'.getErtek('nev', 'szallito', 'id', $bsz['szallito_id']).'</td>
+                            </tr>
+                            <tr> 
+                                <td colspan="3">'.resz_string($bsz['targy'], 60).'</td>
                             </tr>
                             </table>
                         </a>';

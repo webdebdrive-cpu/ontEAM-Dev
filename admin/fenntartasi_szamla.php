@@ -57,11 +57,12 @@ require_once('selectek.php');
         $megj_db = ' ('.$sor['megj_db'].')';
     }
 
-    if( isset($_GET['modosit']) || isset($_GET['tetel']) || isset($_GET['dokumentumok']) || isset($_GET['megjegyzesek']) ) {
+    if( isset($_GET['modosit']) || isset($_GET['tetel']) || isset($_GET['kifizetesek']) || isset($_GET['dokumentumok']) || isset($_GET['megjegyzesek']) ) {
         // Számla fülek
         $ful_tomb = array(
             'modosit'       => 'Adatlap',
-            'tetel'         => 'Számla tételek',
+            'tetel'         => 'Tételek',
+            'kifizetesek'   => 'Kifizetések',
             'dokumentumok'  => 'Dokumentumok'.$dok_db,
             'megjegyzesek'  => 'Megjegyzések'.$megj_db,
         );
@@ -208,7 +209,13 @@ require_once('selectek.php');
         }
 
 	    $sor = $adatbazis_kapcsolat -> s2('*', $megnevezes, "`recid`='{$_GET['id']}'");
-
+        
+        // Fizetési módokat szövegesen írjuk ki (amúgy szem szerkeszthető az adatlap)
+        switch ($sor['fizmod']) {
+            case 'u': $sor['fizmod'] = 'Utalás';    break;
+            case 'k': $sor['fizmod'] = 'Készpénz';  break;
+        }
+        
         foreach ( $akt_tomb as $tomb ) {
             if( $tomb['type'] == 'autocomplete' ) {
                 
@@ -260,7 +267,7 @@ require_once('selectek.php');
             require_once('tobb_kep.php');
 		}
 
-	// Szerződés tételek
+	// Számla tételek
     } elseif( isset($_GET['tetel']) ) {
 
         $szamla_html .= nl2('
@@ -275,29 +282,73 @@ require_once('selectek.php');
                     <div class="dtc">Költséghely</div>
                     <div class="dtc">Igazoló</div>
                     <div class="dtc">Igazolás ideje</div>
+                    <div class="dtc">Szerz.szám</div>
                     <div class="dtc">Szerz.verzió</div>
                 </div>
         ');
         
         // Tételek felsorolása
-        $tetelek = $adatbazis_kapcsolat->s('*', 'fenntartasi_szamla_tetel', "`aparecid`='{$_GET['id']}'", 'igazol_dt');
+        $tetelek = $adatbazis_kapcsolat->s('*', 'fenntartasi_szamla_tetel', "`fenntartasi_szamla_recid`='{$_GET['id']}'", 'igazol_dt');
         foreach ( $tetelek as $tetel ) {
             
             $szamla_html .= nl2('
                 <div class="dtr nSor">
                     <div class="dtc">'.getSzallodaNev($tetel['telephely_id']).'</div>
                     <div class="dtc">'.$tetel['targy'].'</div>
-                    <div class="dtc">'.$tetel['ktgnemid'].'</div>
-                    <div class="dtc r nowrap">'.number_format($tetel['netert'],  0, ',', ' ').'</div>
-                    <div class="dtc r nowrap">'.number_format($tetel['vnetert'], 2, ',', ' ').'</div>
-                    <div class="dtc">'.$tetel['statid'].'</div>
-                    <div class="dtc">'.$tetel['ktghelyid'].'</div>
+                    <div class="dtc">'.getErtek('nev', 'ktgnem', 'id', $tetel['ktgnem_id']).'</div>
+                    <div class="dtc r nowrap">'.number_format($tetel['netto_ert'],  0, ',', ' ').'</div>
+                    <div class="dtc r nowrap">'.number_format($tetel['dev_net'], 2, ',', ' ').'</div>
+                    <div class="dtc">'.$tetel['stat_id'].'</div>
+                    <div class="dtc">'.getErtek('nev', 'ktghely', 'id', $tetel['ktghely_id']).'</div>
                     <div class="dtc">'.$tetel['igazol_usr'].'</div>
                     <div class="dtc">'.datum_kiir($tetel['igazol_dt']).'</div>
                     <div class="dtc">'.$tetel['szszam'].'</div>
                     <div class="dtc">'.$tetel['verzio'].'</div>
                 </div>
             ');
+        }
+        $szamla_html .= '</div>';
+        
+        if( $_GET['ajax'] ) {
+            echo json_encode(array(
+                'tartalom' => $szamla_html.$gombok,
+                'link'     => get_get(array('ajax', 'kat', 'epo', 'oldal', 'order'), true)
+            ));
+        } else {
+            echo $szamla_html.$gombok;
+        }
+        
+	// Kifizetések fül
+    } elseif( isset($_GET['kifizetesek']) ) {
+
+        $szamla_html .= nl2('
+            <div class="dt naplo">
+                <div class="dtr nFejlec">
+                    <div class="dtc">Bank</div>
+                    <div class="dtc">Kifizetve</div>
+                    <div class="dtc r">Bruttó</div>
+                    <div class="dtc r">Deviza bruttó</div>
+                    <div class="dtc">Pénznem</div>
+                    <div class="dtc">Rögzítve</div>
+                    <div class="dtc">Rögzítette</div>
+                </div>
+        ');
+
+        // Tételek felsorolása
+        $kifizetesek = $adatbazis_kapcsolat->s('*', 'fenntartasi_szamla_kifizetesek', "`fenntartasi_szamla_recid`='{$_GET['id']}'", 'insert_dt');
+        foreach( $kifizetesek as $kifizetes ) {
+            
+            $szamla_html .= nl2('
+                <div class="dtr nSor">
+                    <div class="dtc">'.erteklista(ERTEKLISTA_BANK, $kifizetes['bank']).'</div>
+                    <div class="dtc">'.datum_kiir($kifizetes['kifizetes_dt']).'</div>
+                    <div class="dtc r">'.number_format($kifizetes['br_ertek'], 0, '', ' ').'</div>
+                    <div class="dtc r">'.number_format($kifizetes['dev_br'], 2, ',', ' ').'</div>
+                    <div class="dtc">'.erteklista(ERTEKLISTA_PENZNEM, $kifizetes['kcs_21']).'</div>
+                    <div class="dtc">'.datum_kiir($kifizetes['rogzitve_dt'], 'csak dátum').'</div>
+                    <div class="dtc">'.$kifizetes['rogzitette'].'</div>
+                </div>
+                ');
         }
         $szamla_html .= '</div>';
         

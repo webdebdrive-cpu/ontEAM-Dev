@@ -1025,4 +1025,3 @@ function mb_wordwrap($str, $width = 75, $break = "\n", $cut = false, $charset = 
     }
     return implode($break, $result);
 }
-?>

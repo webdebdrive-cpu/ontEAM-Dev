@@ -113,9 +113,6 @@ class ServerClass {
                 if( !valos_datum_e($szamla -> fizhat_dt) ) {
                     Throw new SOAPFault ('Server', 'Helytelen fizetési határidő!');
                 }
-                if( !trim($szamla -> fizmod) ) {
-                    Throw new SOAPFault ('Server', 'Hiányzó fizetési mód!');
-                }
                 if( !trim($szamla -> netto) ) {
                     Throw new SOAPFault ('Server', 'Hiányzó nettó érték!');
                 }
@@ -129,9 +126,6 @@ class ServerClass {
                 $penznem = $adatbazis_kapcsolat->s2('recid', 'erteklista', "`csoport`='".ERTEKLISTA_PENZNEM."' AND `id`='{$szamla -> kcs_21}'");
                 if( !$penznem ) {
                     Throw new SOAPFault ('Server', 'Nem ismert pénznem!');
-                }
-                if( !trim($szamla -> stat_id) ) {
-                    Throw new SOAPFault ('Server', 'Hiányzó státusz!');
                 }
                 $tetelek = $szamla -> tetel;
                 if( !count($tetelek) ) {
@@ -151,9 +145,6 @@ class ServerClass {
                     }
                     if( !trim($szamla -> targy) ) {
                         Throw new SOAPFault ('Server', 'Hiányzó tárgy');
-                    }
-                    if( !trim($szamla -> kolt_vis) ) {
-                        Throw new SOAPFault ('Server', 'Hiányzó költségviselő');
                     }
                 }
                 if( $szamla -> tipus == self::SZAMLA_TIPUS_ENERGIA ) {
@@ -225,8 +216,8 @@ class ServerClass {
                                 'arfolyam',
                                 'dev_net',
                                 'dev_br',
-                                'brutto',
                                 'netto',
+                                'brutto',
                                 'kifizetve',
                                 'nullas',
                                 'visszaadva',
@@ -246,8 +237,8 @@ class ServerClass {
                                 $szamla -> kcs_21,
                                 $szamla -> atvaltva_dt,
                                 $szamla -> arfolyam,
-                                $szamla -> dev_br,
                                 $szamla -> dev_net,
+                                $szamla -> dev_br,
                                 $szamla -> netto,
                                 $szamla -> brutto,
                                 $szamla -> kifizetve,
@@ -396,14 +387,6 @@ class ServerClass {
 
                     $andoc_id = $kifizetes['andoc_id'];
 
-                    // Kifizetések kötelező mezők ellenőrzése
-                    if( !trim($kifizetes -> szallito_id) ) {
-                        Throw new SOAPFault ('Server', 'Hiányzó partner a kifizetéseknél!');
-                    }
-                    
-                    // szallito_id esetén fontos, hogy meglegyenek a keződ 0-k
-                    $szallito_id = sprintf('%05d', $kifizetes -> szallito_id);
-
                     // Kifizetések beszúrása
                     $mezok   = array(
                                     $apa_recid_oszlop,
@@ -479,7 +462,6 @@ class ServerClass {
         global $db_kapcs;
 
         $szerzodesek = simplexml_load_string($szerzodes_xml, 'SimpleXMLElement');
-
         foreach ( $szerzodesek as $szerzodes ) {
 
             // Tranzakciót indítunk
@@ -792,7 +774,7 @@ class ServerClass {
                                 'nev',
                             );
                 $ertekek = array(
-                                $koltsegnem -> id,
+                                sprintf('%07d', $koltsegnem -> id),
                                 $koltsegnem -> nev,
                             );
 
@@ -850,7 +832,6 @@ class ServerClass {
         global $db_kapcs;
 
         $koltseghelyek = simplexml_load_string($koltseghely_xml, 'SimpleXMLElement');
-
         foreach ( $koltseghelyek as $koltseghely ) {
 
             // Tranzakciót indítunk
@@ -888,13 +869,13 @@ class ServerClass {
                 if( !trim($koltseghely -> nev) ) {
                     Throw new SOAPFault ('Server', 'Hiányzó név!');
                 }
-
+                
                 $mezok = array(
                                 'id',
                                 'nev',
                             );
                 $ertekek = array(
-                                $koltseghely -> id,
+                                sprintf('%04d', $koltseghely -> id),
                                 $koltseghely -> nev,
                             );
 
@@ -990,6 +971,9 @@ class ServerClass {
                     Throw new SOAPFault ('Server', 'Hiányzó név!');
                 }
                 
+                // szallito_id esetén fontos, hogy meglegyenek a keződ 0-k
+                $szallito_id = sprintf('%05d', $szallito -> id);
+                
                 $mezok = array(
                                 'id',
                                 'nev',
@@ -1008,7 +992,7 @@ class ServerClass {
                                 'text',
                             );
                 $ertekek = array(
-                                $szallito -> id,
+                                $szallito_id,
                                 $szallito -> nev,
                                 $szallito -> aktiv,
                                 $szallito -> isz,

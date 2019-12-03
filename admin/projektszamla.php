@@ -1608,7 +1608,7 @@ require_once('selectek.php');
         $megj_db = ' ('.$sor['megj_db'].')';
     }
 
-    if( isset($_GET['modosit']) || isset($_GET['tetel']) || isset($_GET['dokumentumok']) || isset($_GET['megjegyzesek']) || isset($_GET['kifizetesek']) ) {
+    if( isset($_GET['modosit']) || isset($_GET['tetel']) || isset($_GET['kifizetesek']) || isset($_GET['dokumentumok']) || isset($_GET['megjegyzesek']) ) {
         
         // Számla fülek
         $ful_tomb = array(

@@ -2212,9 +2212,9 @@ function remover($dir, $csak_thumbnail = false){
 function resz_string($szoveg, $meret, $ppp = true ){
     $szoveg = strip_tags($szoveg);
     if(strlen($szoveg) > $meret ) {
-        $tmp  = substr($szoveg, 0, $meret);
-        $hely = strrpos($tmp,' ');
-        $tmp  = substr($tmp, 0, $hely);
+        $tmp  = mb_substr($szoveg, 0, $meret, get_web_charset());
+        $hely = mb_strrpos($tmp, ' ', false, get_web_charset());
+        $tmp  = mb_substr($tmp, 0, $hely, get_web_charset());
         
         if( $ppp ) {
             $tmp .= ' ...';
