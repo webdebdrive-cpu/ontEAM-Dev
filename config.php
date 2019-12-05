@@ -120,7 +120,7 @@ function get_penznem()       { return 'Ft';                                     
 function get_session()       { return true;                                     }
 function get_kerturl_elotag(){ return '/hotel/admin/';                          } // WebDeb demo felületéhez kell
 
-function get_aktiv_oldalak() {
+function get_respos_oldalak() {
     return array(
         'index.php',
         'bejelentes.php',
@@ -129,13 +129,14 @@ function get_aktiv_oldalak() {
         'munkalap_arch.php',
     );
 }
+// Amennyiben az oldal responzív, úgy a meta tagokban tiltjuk az oldal nagyíthatóságát (mobilon nem zoom-olunk hanem responzívek vagyunk)
 function get_responsive()    {
-    if( in_array(basename(self()), get_aktiv_oldalak()) ) {
+    if( in_array(basename(self()), get_respos_oldalak()) ) {
         return true;
     }
 
     return false;
-} // Amennyiben az oldal responzív, úgy a meta tagokban tiltjuk az oldal nagyíthatóságát (mobilon nem zoom-olunk hanem responzívek vagyunk)
+}
 function get_session_felh()  { return get_db_tabla().'felhId';                  }
 function get_teszt_mail()    { return 'teszt@webdeb.hu';                        }
 function get_mszk_mail(){

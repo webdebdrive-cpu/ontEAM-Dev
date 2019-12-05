@@ -482,7 +482,7 @@ class ServerClass {
                 case self::SZERZ_TIPUS_PROJEKT         : $tabla = 'projektszerzodes';         break;
             }
             $apa_recid_oszlop = $tabla.'_recid';
-            
+
             // Törléshez ismernünk kell az andoc_id-t és a számla típusát
             // Delete
             if( $szerzodes -> torles == 1 ) {
@@ -567,6 +567,7 @@ class ServerClass {
                                     'bef_dt',
                                     'felmondas',
                                     'netto',
+                                    'vnetert',
                                     'p_nev',
                                     'p_beosztas',
                                     'p_cim',
@@ -590,6 +591,7 @@ class ServerClass {
                                     $szerzodes -> bef_dt,
                                     $szerzodes -> felmondas,
                                     $szerzodes -> netto,
+                                    $szerzodes -> dev_net,
                                     $szerzodes -> p_nev,
                                     $szerzodes -> p_beosztas,
                                     $szerzodes -> p_cim,
@@ -710,7 +712,7 @@ class ServerClass {
  
                 }
             }
-
+// return $adatbazis_kapcsolat->gp() . '<br>';
             // Tranzakció kommitolása, vagy rollback-ezése
             if( !$db_error ) {
                 mysqli_commit($db_kapcs);

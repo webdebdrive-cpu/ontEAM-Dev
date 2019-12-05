@@ -1,0 +1,53 @@
+/* Fenntartási menüpont alatt a táblázatnak nem csak a fejlécét, hanem az első oszlopait is fixálni kell. 
+ * Ezért felel ez a CSS
+*/
+
+/* Fixált tábla konténer beállításai */
+#fixTable {
+    border-left: 0.1rem solid #ccc;
+    overflow-x: auto;
+    position: relative;
+}
+
+#fixTable table.szamla_cont_tabla.szep_csikos th, table.szamla_cont_tabla.szep_csikos td {
+    border-left: 0;
+    border-top-width: 0;
+}
+/* Egy fixált cella általános jellemzője */
+table.szamla_cont_tabla.kisbetu th.fix, table.szamla_cont_tabla.kisbetu td.fix {
+    box-shadow: inset 0rem 0 0rem 0.1rem #ccc;
+    border: none;
+    position: sticky;
+        left: 0rem;
+        top: auto;
+    min-width: 6rem;
+    max-width: 6rem;
+}
+table.szamla_cont_tabla.kisbetu td.fix {
+    background: #fff;
+}
+table.szamla_cont_tabla.kisbetu tfoot td.fix {
+    background: #F1EFF0;
+}
+table.szamla_cont_tabla.kisbetu tr.kijelolve td.fix {
+    background: #55A2FA;
+}
+
+/* Energia fül alatt az első oszlopok sorban */
+table.szamla_cont_tabla.kisbetu th.fix.energia1, table.szamla_cont_tabla.kisbetu td.fix.energia1 {
+    left: 6rem;
+    min-width: 10.8rem;
+    max-width: 10.8rem;
+}
+
+table.szamla_cont_tabla.kisbetu th.fix.energia2, table.szamla_cont_tabla.kisbetu td.fix.energia2 {
+    left: 16.8rem;
+    min-width: 20rem;
+    max-width: 20rem;
+}
+
+table.szamla_cont_tabla.kisbetu th.fix.energia3, table.szamla_cont_tabla.kisbetu td.fix.energia3 {
+    left: 36.8rem;
+    min-width: 7.6rem;
+    max-width: 7.6rem;
+}

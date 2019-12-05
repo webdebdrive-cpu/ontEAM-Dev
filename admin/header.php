@@ -609,8 +609,14 @@ $head -> js_css        = get_jsfajlok_admin();
 $head -> extrak        = '<link href="https://fonts.googleapis.com/css?family=Open+Sans:300,400,600,700" rel="stylesheet">';
 $head -> extrak       .= '<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">';
 
-if( in_array(basename(self()), get_aktiv_oldalak()) ) {
+// Respos CSS meghívás
+if( in_array(basename(self()), get_respos_oldalak()) ) {
     $head -> extrak   .= '<link href="../css/responsive_mobil.css" rel="stylesheet">';
+}
+// Ha adott aloldalnak volna egydi css-e, akkor azt is meghívjuk
+$egyedi_css = '../css/'. str_replace('.php', '', basename(self())).'.css';
+if( is_file($egyedi_css) ) {
+    $head -> extrak   .= '<link href="'.$egyedi_css.'" rel="stylesheet">';
 }
 
 $header_html .= $head -> getHtml();

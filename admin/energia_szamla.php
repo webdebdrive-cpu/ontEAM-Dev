@@ -57,11 +57,12 @@ require_once('selectek.php');
         $megj_db = ' ('.$sor['megj_db'].')';
     }
 
-    if( isset($_GET['modosit']) || isset($_GET['tetel']) || isset($_GET['dokumentumok']) || isset($_GET['megjegyzesek']) ) {
+    if( isset($_GET['modosit']) || isset($_GET['tetel']) || isset($_GET['kifizetesek']) || isset($_GET['dokumentumok']) || isset($_GET['megjegyzesek']) ) {
         // Számla fülek
         $ful_tomb = array(
             'modosit'       => 'Adatlap',
-            'tetel'         => 'Számla tételek',
+            'tetel'         => 'Tételek',
+            'kifizetesek'   => 'Kifizetések',
             'dokumentumok'  => 'Dokumentumok'.$dok_db,
             'megjegyzesek'  => 'Megjegyzések'.$megj_db,
         );
@@ -202,6 +203,8 @@ require_once('selectek.php');
 	// Rekord módosítása
     } elseif( isset($_GET['modosit']) ) {
 
+        $honapok = array('Január', 'Február', 'Március', 'Április', 'Május', 'Június', 'Július', 'Augusztus', 'Szeptember', 'Október', 'November', 'December');
+        
         // Ha Gyorskeresőből érkeznénk ide, akkor az ID-t valójában az id_hidden tartalmazza majd
         if( isset($_GET['id_hidden']) ) {
             $_GET['id'] = $_GET['id_hidden'];
@@ -209,6 +212,9 @@ require_once('selectek.php');
 
 	    $sor = $adatbazis_kapcsolat -> s2('*', $megnevezes, "`recid`='{$_GET['id']}'");
 
+        // A hónapot szövegesen kell megjeleníteni. Ezért itt felülírjuk. Olyna mintha eleve így lett volna eltárolva.
+        $sor['szhonap'] = $honapok[$sor['szhonap']-1];
+        
         foreach ( $akt_tomb as $tomb ) {
             if( $tomb['type'] == 'autocomplete' ) {
                 
@@ -260,20 +266,82 @@ require_once('selectek.php');
             require_once('tobb_kep.php');
 		}
 
-	// Szerződés tételek
+	// Számla tételek
     } elseif( isset($_GET['tetel']) ) {
 
-        $szamla_html .= 'Számla tételek felülete';
-
+        $szamla_html .= nl2('
+            <div class="dt naplo">
+                <div class="dtr nFejlec">
+                    <div class="dtc r">Nettó érték</div>
+                    <div class="dtc r">Deviza nettó</div>
+                </div>
+        ');
+        
+        // Tételek felsorolása
+        $tetelek = $adatbazis_kapcsolat->s('*', 'fenntartasi_szamla_tetel', "`fenntartasi_szamla_recid`='{$_GET['id']}'", 'igazol_dt');
+        foreach ( $tetelek as $tetel ) {
+            
+            $szamla_html .= nl2('
+                <div class="dtr nSor">
+                    <div class="dtc r nowrap">'.number_format($tetel['netto_ert'],  0, ',', ' ').'</div>
+                    <div class="dtc r nowrap">'.number_format($tetel['dev_net'], 2, ',', ' ').'</div>
+                </div>
+            ');
+        }
+        $szamla_html .= '</div>';
+        
         if( $_GET['ajax'] ) {
             echo json_encode(array(
-                'tartalom'  => $szamla_html.$gombok,
-                'link'      => get_get(array('ajax', 'kat', 'epo', 'oldal', 'order'), true)
+                'tartalom' => $szamla_html.$gombok,
+                'link'     => get_get(array('ajax', 'kat', 'epo', 'oldal', 'order'), true)
             ));
         } else {
-            echo $szamla_html;
+            echo $szamla_html.$gombok;
         }
 
+	// Kifizetések fül
+    } elseif( isset($_GET['kifizetesek']) ) {
+
+        $szamla_html .= nl2('
+            <div class="dt naplo">
+                <div class="dtr nFejlec">
+                    <div class="dtc">Bank</div>
+                    <div class="dtc">Kifizetve</div>
+                    <div class="dtc r">Bruttó</div>
+                    <div class="dtc r">Deviza bruttó</div>
+                    <div class="dtc">Pénznem</div>
+                    <div class="dtc">Rögzítve</div>
+                    <div class="dtc">Rögzítette</div>
+                </div>
+        ');
+
+        // Tételek felsorolása
+        $kifizetesek = $adatbazis_kapcsolat->s('*', 'energia_szamla_kifizetesek', "`energia_szamla_recid`='{$_GET['id']}'", 'insert_dt');
+        foreach( $kifizetesek as $kifizetes ) {
+            
+            $szamla_html .= nl2('
+                <div class="dtr nSor">
+                    <div class="dtc">'.erteklista(ERTEKLISTA_BANK, $kifizetes['bank']).'</div>
+                    <div class="dtc">'.datum_kiir($kifizetes['kifizetes_dt']).'</div>
+                    <div class="dtc r">'.number_format($kifizetes['br_ertek'], 0, '', ' ').'</div>
+                    <div class="dtc r">'.number_format($kifizetes['dev_br'], 2, ',', ' ').'</div>
+                    <div class="dtc">'.erteklista(ERTEKLISTA_PENZNEM, $kifizetes['kcs_21']).'</div>
+                    <div class="dtc">'.datum_kiir($kifizetes['rogzitve_dt'], 'csak dátum').'</div>
+                    <div class="dtc">'.$kifizetes['rogzitette'].'</div>
+                </div>
+                ');
+        }
+        $szamla_html .= '</div>';
+        
+        if( $_GET['ajax'] ) {
+            echo json_encode(array(
+                'tartalom' => $szamla_html.$gombok,
+                'link'     => get_get(array('ajax', 'kat', 'epo', 'oldal', 'order'), true)
+            ));
+        } else {
+            echo $szamla_html.$gombok;
+        }
+        
 	// Dokumentumok
     } elseif( isset($_GET['dokumentumok']) ) {
 

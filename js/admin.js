@@ -2136,6 +2136,7 @@ function fixTable() {
             tartalomScrollHeight = $('#tartalomJobb').prop('scrollHeight');
 
         if( tartalomScrollHeight > tartalomHeight ) {
+
             $('#fixTable').height($('#tartalomJobb').height() - 50);
 
             var fHeader = $('#fixTable .fht-thead').height();
@@ -2173,11 +2174,24 @@ function fixTable() {
                             'width': width
                         });
                     });
+                    
+                    /*$('#fixTable table tr td.fix').css( {
+                        'position': 'sticky',
+                        'left': 0,
+                        'top': 'auto',
+                        'width': '5rem'
+                    });*/
                 }
             });
         } else {
-            $('#fixTable table').css('width', '100%');
+            // $('#fixTable table').css('width', '100%');
         }
+        
+        //  A fixTable konténer szélességét beállítjuk (ablak szélessége - a bal navpabe szélessége ráhagyással
+        // Erre azért van szükség, mert az első pár oszlopot fixáltuk (ahogy a fejléceket is). Tehát ez lesz a konténer szélessége
+        // amiben a táblázat vízszintesen scrollozható lesz
+        szelesseg = $(window).width()-$('#tartalomBal').width()-50;
+        $('#fixTable').css('width', szelesseg+'px');
     }
 }
 

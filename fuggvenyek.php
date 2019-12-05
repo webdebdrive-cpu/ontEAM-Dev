@@ -4121,7 +4121,7 @@ function bejelentesLista( $bejegyzesek, $tabla, $frissit, $kijeloltek, $sorrend_
                                 <td style="width: 9rem">'.$bsz['ikt_szam'].'</td>
                                 <td style="width: 9rem">'.getStatText($tabla, $bsz['stat_id']).'</td>
                                 <td style="width: 7rem">'.str_replace('-', '.', substr($bsz['insert_dt'], 0, 16) ).'</td>
-                                <td>'.$szalloda_neve.$bsz['obj_txt'].'</td>
+                                <td>'.$szalloda_neve.htmlspecialchars_decode(htmlspecialchars_decode($bsz['obj_txt'])).'</td>
                             </tr>
                             <tr>
                                 <td colspan="4">'.getErtekLista('', '', $bsz['hiba_id']).'</td>
@@ -4471,7 +4471,7 @@ function munkalapLista( $bejegyzesek, $tabla, $frissit, $kijeloltek, $sorrend_id
                                 <td style="width: 11rem;" class="ikt_szam">'.$bsz['ikt_szam'].'</td>
                                 <td style="width: 9rem;">'.getStatText($tabla, $bsz['stat_id'], 'rovid').'</td>
                                 '.$szalloda_neve.'
-                                <td>'.htmlspecialchars_decode($bsz['obj_txt']).$gep_txt.'</td>
+                                <td>'.htmlspecialchars_decode(htmlspecialchars_decode($bsz['obj_txt'])).$gep_txt.'</td>
                             </tr>
                             <tr>
                                 <td>'.$ml_tipus.'</td>
@@ -9001,10 +9001,10 @@ function fenntartasi_terv_energia($sor/* Fenntartás terv sora */) {
         <table class="szamla_cont_tabla nolink fejlec_padd szep_csikos kisbetu energia_tabla">
         <thead>
         <tr>
-            <th class="ktgnem_kod"><span>Ktgnem kód</span></th>
-            <th style="min-width: 10rem; width: 10rem"><span>Ktgnem név</span></th>
-            <th style="min-width: 20rem; width: 20rem"><span>Tárgy</span></th>
-            <th><span>Mee</span></th>
+            <th class="ktgnem_kod fix"><span>Ktgnem kód</span></th>
+            <th class="fix energia1" style="min-width: 10rem; width: 10rem"><span>Ktgnem név</span></th>
+            <th class="fix energia2" style="min-width: 20rem; width: 20rem"><span>Tárgy</span></th>
+            <th class="fix energia3"><span>Mee</span></th>
             <th><span>Mennyiség összesen</span></th>
             <th><span>Érték összesen</span></th>
             <th><span>Egységár Január</span></th>
@@ -9113,10 +9113,10 @@ function fenntartasi_terv_energia($sor/* Fenntartás terv sora */) {
 
         $szamla_html .= '
             <tr id="ft_em_'.$energia['recid'].'" data-recid="'.$energia['recid'].'" class="ftt_menny'.$class.'">
-                <td>'.$energia['ktgnem_id'].'</td>
-                <td class="wrap">'.getErtek('nev', 'ktgnem', 'id', $energia['ktgnem_id']).'</td>
-                <td class="wrap">'.str_replace('m3', 'm<sup>3</sup>', $energia['dijelem']).'</td>
-                <td>'.str_replace('m3', 'm<sup>3</sup>', $energia['mee']).'</td>
+                <td class="fix">'.$energia['ktgnem_id'].'</td>
+                <td class="fix energia1 wrap">'.getErtek('nev', 'ktgnem', 'id', $energia['ktgnem_id']).'</td>
+                <td class="fix energia2 wrap">'.str_replace('m3', 'm<sup>3</sup>', $energia['dijelem']).'</td>
+                <td class="fix energia3">'.str_replace('m3', 'm<sup>3</sup>', $energia['mee']).'</td>
                 <td class="r mennyossz'.$class2.'">'.$mennyiseg_osszesen.'</td>
                 <td class="r ertekossz'.$class2.'">'.$ertek_osszesen.'</td>
                 <td class="r'.$class2.'">'.$energia['ear01'].'</td>
@@ -9241,10 +9241,10 @@ function fenntartasi_terv_energia($sor/* Fenntartás terv sora */) {
     $szamla_html .= nl2('
                         </tbody>
                         <tfoot class="nowrap">
-                            <td></td>
-                            <td></td>
-                            <td></td>
-                            <td></td>
+                            <td class="fix"></td>
+                            <td class="fix energia1"></td>
+                            <td class="fix energia2"></td>
+                            <td class="fix energia3"></td>
                             <td class="r"></td>
                             <td class="r" id="szum_ertek_o"></td>
                             <td></td>

@@ -767,6 +767,10 @@ textarea.oriasiTargy{
     width: 100%;
 }
 
+textarea.oriasiTargy.alacsony, textarea.oriasi.alacsony {
+    height: 5rem;
+}
+
 textarea:focus{
     border: 0.1rem solid #55a2fa;
 }
@@ -1947,10 +1951,10 @@ table.szamla_cont_tabla.nolink th{
 table.szamla_cont_tabla.fejlec_padd th{
     padding: 1rem 0.4rem;
 }
-table.szamla_cont_tabla.szep_csikos th, table.szamla_cont_tabla.szep_csikos td{
+table.szamla_cont_tabla.szep_csikos th, table.szamla_cont_tabla.szep_csikos td {
     border: 0.1rem solid #ccc;
 }
-table.szamla_cont_tabla.kisbetu th, table.szamla_cont_tabla.kisbetu td{
+table.szamla_cont_tabla.kisbetu th, table.szamla_cont_tabla.kisbetu td {
     font-size: 1.1rem;
 }
 
