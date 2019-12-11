@@ -13,6 +13,7 @@
     border-left: 0;
     border-top-width: 0;
 }
+
 /* Egy fixált cella általános jellemzője */
 table.szamla_cont_tabla.kisbetu th.fix, table.szamla_cont_tabla.kisbetu td.fix {
     box-shadow: inset 0rem 0 0rem 0.1rem #ccc;
@@ -20,8 +21,6 @@ table.szamla_cont_tabla.kisbetu th.fix, table.szamla_cont_tabla.kisbetu td.fix {
     position: sticky;
         left: 0rem;
         top: auto;
-    min-width: 6rem;
-    max-width: 6rem;
 }
 table.szamla_cont_tabla.kisbetu td.fix {
     background: #fff;
@@ -35,19 +34,149 @@ table.szamla_cont_tabla.kisbetu tr.kijelolve td.fix {
 
 /* Energia fül alatt az első oszlopok sorban */
 table.szamla_cont_tabla.kisbetu th.fix.energia1, table.szamla_cont_tabla.kisbetu td.fix.energia1 {
+    left: 0rem;
+    min-width: 6rem;
+    max-width: 6rem;
+}
+
+table.szamla_cont_tabla.kisbetu th.fix.energia2, table.szamla_cont_tabla.kisbetu td.fix.energia2 {
     left: 6rem;
     min-width: 10.8rem;
     max-width: 10.8rem;
 }
 
-table.szamla_cont_tabla.kisbetu th.fix.energia2, table.szamla_cont_tabla.kisbetu td.fix.energia2 {
+table.szamla_cont_tabla.kisbetu th.fix.energia3, table.szamla_cont_tabla.kisbetu td.fix.energia3 {
     left: 16.8rem;
     min-width: 20rem;
     max-width: 20rem;
 }
 
-table.szamla_cont_tabla.kisbetu th.fix.energia3, table.szamla_cont_tabla.kisbetu td.fix.energia3 {
+table.szamla_cont_tabla.kisbetu th.fix.energia4, table.szamla_cont_tabla.kisbetu td.fix.energia4 {
     left: 36.8rem;
     min-width: 7.6rem;
     max-width: 7.6rem;
+}
+
+/* Műszaki anyag fül alatt az első oszlopok sorban */
+table.szamla_cont_tabla.kisbetu th.fix.muszaki1, table.szamla_cont_tabla.kisbetu td.fix.muszaki1 {
+    left: 0rem;
+    min-width: 5.5rem;
+    max-width: 5.5rem;
+}
+table.szamla_cont_tabla.kisbetu th.fix.muszaki2, table.szamla_cont_tabla.kisbetu td.fix.muszaki2 {
+    left: 5.5rem;
+    min-width: 7rem;
+    max-width: 7rem;
+}
+
+/* Rendszeres karbantartás fül alatt az első oszlopok sorban */
+table.szamla_cont_tabla.kisbetu th.fix.rendszeres1, table.szamla_cont_tabla.kisbetu td.fix.rendszeres1 {
+    left: 0rem;
+    min-width: 5.5rem;
+    max-width: 5.5rem;
+}
+table.szamla_cont_tabla.kisbetu th.fix.rendszeres2, table.szamla_cont_tabla.kisbetu td.fix.rendszeres2 {
+    left: 5.5rem;
+    min-width: 7rem;
+    max-width: 7rem;
+}
+table.szamla_cont_tabla.kisbetu th.fix.rendszeres3, table.szamla_cont_tabla.kisbetu td.fix.rendszeres3 {
+    left: 15.5rem;
+    min-width: 20rem;
+    max-width: 20rem;
+}
+
+/* Eseti fenntartás fül alatt az első oszlopok sorban */
+table.szamla_cont_tabla.kisbetu th.fix.eseti1, table.szamla_cont_tabla.kisbetu td.fix.eseti1 {
+    left: 0rem;
+    min-width: 5.5rem;
+    max-width: 5.5rem;
+}
+table.szamla_cont_tabla.kisbetu th.fix.eseti2, table.szamla_cont_tabla.kisbetu td.fix.eseti2 {
+    left: 5.5rem;
+    min-width: 22rem;
+    max-width: 22rem;
+}
+table.szamla_cont_tabla.kisbetu th.fix.eseti3, table.szamla_cont_tabla.kisbetu td.fix.eseti3 {
+    left: 27.5rem;
+    min-width: 20rem;
+    max-width: 20rem;
+}
+table.szamla_cont_tabla.kisbetu th.fix.eseti4, table.szamla_cont_tabla.kisbetu td.fix.eseti4 {
+    left: 47.5rem;
+    min-width: 20rem;
+    max-width: 20rem;
+}
+
+/* Hibaelhárítás fül alatt az első oszlopok sorban */
+table.szamla_cont_tabla.kisbetu th.fix.hiba1, table.szamla_cont_tabla.kisbetu td.fix.hiba1 {
+    left: 0rem;
+    min-width: 5.5rem;
+    max-width: 5.5rem;
+}
+table.szamla_cont_tabla.kisbetu th.fix.hiba2, table.szamla_cont_tabla.kisbetu td.fix.hiba2 {
+    left: 5.5rem;
+    min-width: 22rem;
+    max-width: 22rem;
+}
+table.szamla_cont_tabla.kisbetu th.fix.hiba3, table.szamla_cont_tabla.kisbetu td.fix.hiba3 {
+    left: 27.5rem;
+    min-width: 20rem;
+    max-width: 20rem;
+}
+
+/* Miniprojekt fül alatt az első oszlopok sorban */
+table.szamla_cont_tabla.kisbetu th.fix.mini1, table.szamla_cont_tabla.kisbetu td.fix.mini1 {
+    left: 0rem;
+    min-width: 5.5rem;
+    max-width: 5.5rem;
+}
+table.szamla_cont_tabla.kisbetu th.fix.mini2, table.szamla_cont_tabla.kisbetu td.fix.mini2 {
+    left: 5.5rem;
+    min-width: 22rem;
+    max-width: 22rem;
+}
+table.szamla_cont_tabla.kisbetu th.fix.mini3, table.szamla_cont_tabla.kisbetu td.fix.mini3 {
+    left: 27.5rem;
+    min-width: 20rem;
+    max-width: 20rem;
+}
+table.szamla_cont_tabla.kisbetu th.fix.mini4, table.szamla_cont_tabla.kisbetu td.fix.mini4 {
+    left: 47.5rem;
+    min-width: 20rem;
+    max-width: 20rem;
+}
+
+/* BWH fül alatt az első oszlopok sorban */
+table.szamla_cont_tabla.kisbetu th.fix.bwh1, table.szamla_cont_tabla.kisbetu td.fix.bwh1 {
+    left: 0rem;
+    min-width: 5.5rem;
+    max-width: 5.5rem;
+}
+table.szamla_cont_tabla.kisbetu th.fix.bwh2, table.szamla_cont_tabla.kisbetu td.fix.bwh2 {
+    left: 5.5rem;
+    min-width: 22rem;
+    max-width: 22rem;
+}
+table.szamla_cont_tabla.kisbetu th.fix.bwh3, table.szamla_cont_tabla.kisbetu td.fix.bwh3 {
+    left: 27.5rem;
+    min-width: 20rem;
+    max-width: 20rem;
+}
+table.szamla_cont_tabla.kisbetu th.fix.bwh4, table.szamla_cont_tabla.kisbetu td.fix.bwh4 {
+    left: 47.5rem;
+    min-width: 20rem;
+    max-width: 20rem;
+}
+
+/* Összesen fül alatt az első oszlopok sorban */
+table.szamla_cont_tabla.kisbetu th.fix.ossz1, table.szamla_cont_tabla.kisbetu td.fix.ossz1 {
+    left: 0rem;
+    min-width: 5.5rem;
+    max-width: 5.5rem;
+}
+table.szamla_cont_tabla.kisbetu th.fix.ossz2, table.szamla_cont_tabla.kisbetu td.fix.ossz2 {
+    left: 5.5rem;
+    min-width: 22rem;
+    max-width: 22rem;
 }

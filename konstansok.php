@@ -33,7 +33,7 @@ define('CIKKIGN_STAT_TOROLT',            '51');
 define('CIKKIGN_STAT_NEM_ERKEZETT',      '90');
 define('CIKKIGN_STAT_ELUTASITVA',        '91');
 
-// Cikkrendfej státuszok
+// Anyagigénylés/rendelés státuszok
 define('CIKKRNDFEJ_STAT_MEGRENDELVE',    '30');
 define('CIKKRNDFEJ_STAT_RESZBEN_BEERK',  '35');
 define('CIKKRNDFEJ_STAT_BEERKEZETT',     '40');
@@ -100,10 +100,22 @@ define('PRIGENY_STAT_VARAKOZO',             '11' );
 define('PRIGENY_STAT_JOVAHAGYVA',           '12' );
 
 // Fenntartási terv státuszok
-define('ENERGIATERV_STAT_MUNKAKOZI',  '05');
-define('ENERGIATERV_STAT_KESZ',       '10');
-define('ENERGIATERV_STAT_ELES',       '15');
+define('ENERGIATERV_STAT_MUNKAKOZI',        '05');
+define('ENERGIATERV_STAT_KESZ',             '10');
+define('ENERGIATERV_STAT_ELES',             '15');
 
+// Anyag számla státuszok
+define('A_SZAMLA_STAT_FELDOLGOZASRA_VAR',   '01');
+define('A_SZAMLA_STAT_IGAZOLASRA_VAR',      '02');
+
+// Energia számla státuszok
+define('E_SZAMLA_STAT_FELDOLGOZASRA_VAR',   '01');
+
+// Fenntatási terv számla státuszok
+define('F_SZAMLA_STAT_FELDOLGOZASRA_VAR',   '01');
+
+// Projektszámla státuszok
+define('P_SZAMLA_STAT_FELDOLGOZASRA_VAR',   '01');
 
 // Menteni, csak ezekben a státuszokban lehet
 function prigeny_mentheto_statuszok(){

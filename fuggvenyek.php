@@ -159,8 +159,8 @@ function i_u($type, $tabla, $tomb) {
     		}
 
             // Ha az adott esemenyek.php tomb sora tartalmaz nevid jelzést, akkor ezt a sort eltároljuk, mert ennek a nevéből gyártuk névid-t
-            if($ertek['nevid'] == true) {
-    			$nevid = $ertek;
+            if( $ertek['nevid'] == true ) {
+                $nevid = $ertek;
     		}
 
     		// Wysiwyg útvonalszépítés a feltöltött képekre, HA van egyáltalán fájlfeltöltés
@@ -206,14 +206,14 @@ function i_u($type, $tabla, $tomb) {
     // Dátumra ütemezés, ha az ütemezett feladatokat módosítjuk/töltjük fel
     if( $tabla == 'utemezett_feladatok' || $tabla == 'rendszeres_karbantartas' ) {
 
-        if($_POST['cikltip']=='l'){
+        if( $_POST['cikltip'] == 'l' ) {
             array_push($oszlopok, 'ciklaltip'       );
             array_push($ertekek,  ''                );
             array_push($oszlopok, 'ciklszorz'       );
             array_push($ertekek,  ''                );
         }
         // Napi cilus, X naponként ismétlődik
-        if($_POST['ciklnap'] && $_POST['cikltip']!='m' && $_POST['cikltip']!='w'){
+        if( $_POST['ciklnap'] && $_POST['cikltip'] != 'm' && $_POST['cikltip'] != 'w' ) {
             array_push($oszlopok, 'ciklaltip'       );
             array_push($ertekek,  '1'               );
 
@@ -223,7 +223,7 @@ function i_u($type, $tabla, $tomb) {
 
         // Napi ciklus, hétköznaponként ismétlődik
         $hetkoz_kent = '';
-        if($type == 'insert') {
+        if( $type == 'insert' ) {
             if($_POST['hetkoz_kent']){
                 $hetkoz_kent = '1';
             }
@@ -5057,14 +5057,15 @@ function anyagigenylesLista( $bejegyzesek, $tabla, $frissit, $kijeloltek ) {
                 array('id' => 'anyag_tabla_rbs',            'nev' => 'RB-s anyag'),
             );
 
-            if(isset($_GET['anyagrend'])) {
+            if( isset($_GET['anyagrend']) ) {
                 array_push($oszlopok,
                     array('id' => 'anyag_tabla_rndid',      'nev' => 'Rendelés szám'        ),
                     array('id' => 'anyag_tabla_rnd_dt',     'nev' => 'Rendelés dátum'       ),
                     array('id' => 'anyag_tabla_beerkezett', 'nev' => 'Beérkezés dátuma'     ),
                     array('id' => 'anyag_tabla_rndertek',   'nev' => 'Rendelés érték'       ),
                     array('id' => 'anyag_tabla_beerkertek', 'nev' => 'Beérkezett érték'     ),
-                    array('id' => 'anyag_tabla_erkmen',     'nev' => 'Beérkezett mennyiség' )
+                    array('id' => 'anyag_tabla_erkmen',     'nev' => 'Beérkezett mennyiség' ),
+                    array('id' => 'anyag_tabla_szlamen',    'nev' => 'Számla mennyiség'     )
                 );
             }
 
@@ -5190,7 +5191,7 @@ function anyagigenylesLista( $bejegyzesek, $tabla, $frissit, $kijeloltek ) {
             foreach($bejegyzesek as $bsz) {
 
                 // Rendelési érték számítás
-                if( $bsz['stat_id']==CIKKIGN_STAT_ARAZVA ){
+                if( $bsz['stat_id'] == CIKKIGN_STAT_ARAZVA ) {
                     $rendelesi_ertek += $bsz['rndmen']*$bsz['rndear'];
                 }
 
@@ -5203,7 +5204,7 @@ function anyagigenylesLista( $bejegyzesek, $tabla, $frissit, $kijeloltek ) {
                 $telephely = $adatbazis_kapcsolat->s2('nev', 'telephely', 'id='.$bsz['telephely_id'], '', '1');
 
                 $bold = '';
-                if( $bsz['stat_id'] == CIKKIGN_STAT_NYITOTT ){
+                if( $bsz['stat_id'] == CIKKIGN_STAT_NYITOTT ) {
                     $bold = ' b';
                 }
 
@@ -5215,14 +5216,14 @@ function anyagigenylesLista( $bejegyzesek, $tabla, $frissit, $kijeloltek ) {
                 $eredeti_ertekek['jhmen_'.$bsz['recid']] = number_format($bsz['rndmen'], 2, ',', ' ');
 
                 // Bal oldali navpanel frissítésekor kijelöljük az aktuális sort
-                if($frissit){
+                if( $frissit ) {
                     // $active .= ' kijelolve';
                 }
 
                 // Jóváhagyásra váró érték
                 $jh_ert = $bsz['rndear']*$bsz['rndmen'];
 
-                if($bsz['kulsosnek']){
+                if( $bsz['kulsosnek'] ) {
                     $bsz['kulsosnek'] = '✓';
                 } else {
                     $bsz['kulsosnek'] = '';
@@ -5250,7 +5251,7 @@ function anyagigenylesLista( $bejegyzesek, $tabla, $frissit, $kijeloltek ) {
                     'anyag_tabla_rbs'           => '<td class="c">'.$bsz['kulsosnek'].'</td>'
                 );
 
-                if(isset($_GET['anyagrend'])) {
+                if( isset($_GET['anyagrend']) ) {
                     $sorok['anyag_tabla_rndid']         = '<td class="c">'.$bsz['rndid'].'</td>';
                     $sorok['anyag_tabla_rnd_dt']        = '<td class="c">'.substr(str_replace('-', '.', $bsz['rnd_dt']    ), 0, 10).'</td>';
                     $sorok['anyag_tabla_beerkezett']    = '<td class="c">'.substr(str_replace('-', '.', $bsz['beerkezett']), 0, 10).'</td>';
@@ -5261,9 +5262,10 @@ function anyagigenylesLista( $bejegyzesek, $tabla, $frissit, $kijeloltek ) {
                     $beerkezett_ertek = $bsz['erkmen']*$bsz['rndear'];
                     $sorok['anyag_tabla_beerkertek']    = '<td class="c" data-sort="'.$beerkezett_ertek.'">'.number_format($beerkezett_ertek, 0, ',', ' ').' '.get_penznem().'</td>';
                     $sorok['anyag_tabla_erkmen']        = '<td class="c" data-sort="'.$bsz['erkmen'].'">'.number_format($bsz['erkmen'], 2, ',', ' ').'</td>';
+                    $sorok['anyag_tabla_szlamen']       = '<td class="c" data-sort="'.$bsz['szlamen'].'">'.number_format($bsz['szlamen'], 2, ',', ' ').'</td>';
                 }
 
-                foreach($oszlopok as $oszl) {
+                foreach ( $oszlopok as $oszl ) {
                     $html .= $sorok[$oszl['id']];
                 }
 
@@ -7150,10 +7152,10 @@ function addStatusz( $tabla = false, $recid = false, $stat_id = false, $erteklis
     $db_error = false;
     $kulso_kulcs = str_replace('_statusz', '', $tabla);
 
-    if($adott_ido){
+    if( $adott_ido ) {
         $adott_ido = trim($adott_ido);
-        $adott_ido  = str_replace('.', '-', $adott_ido);
-        if(strlen($adott_ido)==16){
+        $adott_ido = str_replace('.', '-', $adott_ido);
+        if( strlen($adott_ido) == 16 ) {
             $adott_ido .= ':00';
         }
         $now  = $adott_ido;
@@ -7166,12 +7168,12 @@ function addStatusz( $tabla = false, $recid = false, $stat_id = false, $erteklis
     // Ütemezők esetén is legyen teljes_nev, amit be tudunk írni
     $teljes_nev = $_SESSION[get_db_tabla().'teljes_nev'];
     $login      = $_SESSION[get_db_tabla().'user'];
-    if($adott_nev){
+    if( $adott_nev ) {
         $login      = $adatbazis_kapcsolat->s2('nev teljes_nev', 'login', "`nev`='{$adott_nev}'");
         $teljes_nev = $login['teljes_nev'];
         $login      = $login['nev'];
     }
-    if($rendszer_a_user){
+    if( $rendszer_a_user ) {
         $teljes_nev = get_nev();
     }
 
@@ -7180,6 +7182,7 @@ function addStatusz( $tabla = false, $recid = false, $stat_id = false, $erteklis
         // Lekérjük az az éppen aktuális státuszt
         $akt_statusz = $adatbazis_kapcsolat->s2('recid stat_id insert_dt', $tabla, "`{$kulso_kulcs}_recid`='{$recid}'", 'recid desc', '1');
         if( $sql === false ) { $db_error = true; }
+ 
         // Ha új státusz, vagy munkalap előkészítés alatt státusz (tehát ez jöhet többször egymás után is)
         if( $akt_statusz && ( $akt_statusz['stat_id']!=$stat_id || $akt_statusz['stat_id']==MUNKALAP_STAT_ELOKESZITES_ALATT ) ) {
 
@@ -7327,7 +7330,7 @@ function addStatusz( $tabla = false, $recid = false, $stat_id = false, $erteklis
         }
 
         // Ha azonos a státusz mint ahová léptetünk akkor is true-val térünk vissza
-        if($akt_statusz['stat_id']==$stat_id){
+        if( $akt_statusz['stat_id'] == $stat_id ) {
             return true;
         }
     }
@@ -7484,8 +7487,8 @@ function munkalap_folyamatbanra_halehet($munkalapidk){
             $db_error = true;
             return false;
         }
-        if(!$sql){
-            if(!addStatusz( 'munkalap_statusz', $mukalap_id, MUNKALAP_STAT_NYITOTT )){
+        if( !$sql ) {
+            if( !addStatusz('munkalap_statusz', $mukalap_id, MUNKALAP_STAT_NYITOTT) ) {
                 $db_error = true;
             }
         }
@@ -9001,10 +9004,10 @@ function fenntartasi_terv_energia($sor/* Fenntartás terv sora */) {
         <table class="szamla_cont_tabla nolink fejlec_padd szep_csikos kisbetu energia_tabla">
         <thead>
         <tr>
-            <th class="ktgnem_kod fix"><span>Ktgnem kód</span></th>
-            <th class="fix energia1" style="min-width: 10rem; width: 10rem"><span>Ktgnem név</span></th>
-            <th class="fix energia2" style="min-width: 20rem; width: 20rem"><span>Tárgy</span></th>
-            <th class="fix energia3"><span>Mee</span></th>
+            <th class="ktgnem_kod fix energia1"><span>Ktgnem kód</span></th>
+            <th class="fix energia2" style="min-width: 10rem; width: 10rem"><span>Ktgnem név</span></th>
+            <th class="fix energia3" style="min-width: 20rem; width: 20rem"><span>Tárgy</span></th>
+            <th class="fix energia4"><span>Mee</span></th>
             <th><span>Mennyiség összesen</span></th>
             <th><span>Érték összesen</span></th>
             <th><span>Egységár Január</span></th>
@@ -9113,10 +9116,10 @@ function fenntartasi_terv_energia($sor/* Fenntartás terv sora */) {
 
         $szamla_html .= '
             <tr id="ft_em_'.$energia['recid'].'" data-recid="'.$energia['recid'].'" class="ftt_menny'.$class.'">
-                <td class="fix">'.$energia['ktgnem_id'].'</td>
-                <td class="fix energia1 wrap">'.getErtek('nev', 'ktgnem', 'id', $energia['ktgnem_id']).'</td>
-                <td class="fix energia2 wrap">'.str_replace('m3', 'm<sup>3</sup>', $energia['dijelem']).'</td>
-                <td class="fix energia3">'.str_replace('m3', 'm<sup>3</sup>', $energia['mee']).'</td>
+                <td class="fix energia1">'.$energia['ktgnem_id'].'</td>
+                <td class="fix energia2 wrap">'.getErtek('nev', 'ktgnem', 'id', $energia['ktgnem_id']).'</td>
+                <td class="fix energia3 wrap">'.str_replace('m3', 'm<sup>3</sup>', $energia['dijelem']).'</td>
+                <td class="fix energia4">'.str_replace('m3', 'm<sup>3</sup>', $energia['mee']).'</td>
                 <td class="r mennyossz'.$class2.'">'.$mennyiseg_osszesen.'</td>
                 <td class="r ertekossz'.$class2.'">'.$ertek_osszesen.'</td>
                 <td class="r'.$class2.'">'.$energia['ear01'].'</td>
@@ -9190,10 +9193,10 @@ function fenntartasi_terv_energia($sor/* Fenntartás terv sora */) {
                 
                 $szamla_html .= '
                     <tr id="ft_em_'.$sorid.'" data-recid="'.$sorid.'" class="ftt_menny zold_hat'.$class.'">
-                        <td>'.$ktgnem['id'].'</td>
-                        <td>'.$ktgnem['nev'].'</td>
-                        <td>'.$energia['dijelem'].'</td>
-                        <td>'.str_replace('m3', 'm<sup>3</sup>', $energia['mee']).'</td>
+                        <td class="fix energia1">'.$ktgnem['id'].'</td>
+                        <td class="fix energia2">'.$ktgnem['nev'].'</td>
+                        <td class="fix energia3">'.$energia['dijelem'].'</td>
+                        <td class="fix energia4">'.str_replace('m3', 'm<sup>3</sup>', $energia['mee']).'</td>
                         <td class="r'.$class2.'">'.$mennyiseg_osszesen.'</td>
                         <td class="r ertekossz'.$class2.'">'.$ertek_osszesen.'</td>
                         <td class="r'.$class2.'">'.$energia['ear01'].'</td>
@@ -9241,10 +9244,10 @@ function fenntartasi_terv_energia($sor/* Fenntartás terv sora */) {
     $szamla_html .= nl2('
                         </tbody>
                         <tfoot class="nowrap">
-                            <td class="fix"></td>
                             <td class="fix energia1"></td>
                             <td class="fix energia2"></td>
                             <td class="fix energia3"></td>
+                            <td class="fix energia4"></td>
                             <td class="r"></td>
                             <td class="r" id="szum_ertek_o"></td>
                             <td></td>
@@ -9306,8 +9309,8 @@ function fenntartasi_terv_muszaki_anyag($sor) {
                 <table class="szamla_cont_tabla nolink fejlec_padd szep_csikos kisbetu muszaki_anyag_tabla">
                 <thead>
                 <tr>
-                    <th class="ktgnem_kod"><span>Ktgnem kód</span></th>
-                    <th style="min-width: 10rem; width: 10rem"><span>Ktgnem név</span></th>
+                    <th class="ktgnem_kod fix muszaki1"><span>Ktgnem kód</span></th>
+                    <th class="fix muszaki2" style="min-width: 10rem; width: 10rem"><span>Ktgnem név</span></th>
                     <th><span>Összesen</span></th>
                     <th><span>Január</span></th>
                     <th><span>Február</span></th>
@@ -9342,8 +9345,8 @@ function fenntartasi_terv_muszaki_anyag($sor) {
 
                 $szamla_html .= '
                     <tr id="ft_ft_'.$anyagok['recid'].'" data-recid="'.$anyagok['recid'].'" class="ftt_menny">
-                        <td>'.$anyagok['ktgnem_id'].'</td>
-                        <td class="wrap">'.getErtek('nev', 'ktgnem', 'id', $anyagok['ktgnem_id']).'</td>
+                        <td class="fix muszaki1">'.$anyagok['ktgnem_id'].'</td>
+                        <td class="fix muszaki2 wrap">'.getErtek('nev', 'ktgnem', 'id', $anyagok['ktgnem_id']).'</td>
                         <td class="r ftossz">'.$osszesen.'</td>
                         <td class="r ft01">'.$anyagok['ft01'].'</td>
                         <td class="r ft02">'.$anyagok['ft02'].'</td>
@@ -9364,8 +9367,8 @@ function fenntartasi_terv_muszaki_anyag($sor) {
             $szamla_html .= nl2('
                                 </tbody>
                                 <tfoot class="nowrap">
-                                    <td></td>
-                                    <td></td>
+                                    <td class="fix muszaki1"></td>
+                                    <td class="fix muszaki2"></td>
                                     <td class="r" id="szum_ftossz"></td>
                                     <td class="r" id="szum_ft01"></td>
                                     <td class="r" id="szum_ft02"></td>
@@ -9402,9 +9405,9 @@ function fenntartasi_terv_rendsz_karban($sor) {
         <table class="szamla_cont_tabla nolink fejlec_padd szep_csikos kisbetu rendsz_karban_tabla">
         <thead>
         <tr>
-            <th class="ktgnem_kod"><span>Ktgnem kód</span></th>
-            <th style="min-width: 10rem; width: 10rem"><span>Ktgnem név</span></th>
-            <th style="min-width: 20rem; width: 20rem"><span>Tárgy</span></th>
+            <th class="ktgnem_kod fix rendszeres1"><span>Ktgnem kód</span></th>
+            <th class="fix rendszeres2" style="min-width: 10rem; width: 10rem"><span>Ktgnem név</span></th>
+            <th class="fix rendszeres3" style="min-width: 20rem; width: 20rem"><span>Tárgy</span></th>
             <th><span>Összesen</span></th>
             <th><span>Január</span></th>
             <th><span>Február</span></th>
@@ -9439,9 +9442,9 @@ function fenntartasi_terv_rendsz_karban($sor) {
 
         $szamla_html .= '
             <tr id="ft_ft_'.$rendszeres['recid'].'" data-recid="'.$rendszeres['recid'].'" class="ftt_menny">
-                <td>'.$rendszeres['ktgnem_id'].'</td>
-                <td class="wrap">'.getErtek('nev', 'ktgnem', 'id', $rendszeres['ktgnem_id']).'</td>
-                <td class="wrap">'.$rendszeres['targy'].'</td>
+                <td class="fix rendszeres1">'.$rendszeres['ktgnem_id'].'</td>
+                <td class="wrap fix rendszeres2">'.getErtek('nev', 'ktgnem', 'id', $rendszeres['ktgnem_id']).'</td>
+                <td class="wrap fix rendszeres3">'.$rendszeres['targy'].'</td>
                 <td class="r ftossz">'.$osszesen.'</td>
                 <td class="r ft01">'.$rendszeres['ft01'].'</td>
                 <td class="r ft02">'.$rendszeres['ft02'].'</td>
@@ -9462,9 +9465,9 @@ function fenntartasi_terv_rendsz_karban($sor) {
     $szamla_html .= nl2('
                         </tbody>
                         <tfoot class="nowrap">
-                            <td></td>
-                            <td></td>
-                            <td></td>
+                            <td class="fix rendszeres1"></td>
+                            <td class="fix rendszeres2"></td>
+                            <td class="fix rendszeres3"></td>
                             <td class="r" id="szum_ftossz"></td>
                             <td class="r" id="szum_ft01"></td>
                             <td class="r" id="szum_ft02"></td>
@@ -9501,10 +9504,10 @@ function fenntartasi_terv_eseti_karban($sor){
         <table class="szamla_cont_tabla nolink fejlec_padd szep_csikos kisbetu eseti_karban_tabla width_auto">
         <thead>
         <tr>
-            <th class="ktgnem_kod"><span>Ktgnem kód</span></th>
-            <th style="min-width: 10rem; width: 10rem"><span>Ktgnem név</span></th>
-            <th style="min-width: 20rem; width: 20rem"><span>Tárgy</span></th>
-            <th style="min-width: 20rem; width: 20rem"><span>Részletes leírás</span></th>
+            <th class="ktgnem_kod fix eseti1"><span>Ktgnem kód</span></th>
+            <th class="fix eseti2" style="min-width: 10rem; width: 10rem"><span>Ktgnem név</span></th>
+            <th class="fix eseti3" style="min-width: 20rem; width: 20rem"><span>Tárgy</span></th>
+            <th class="fix eseti4" style="min-width: 20rem; width: 20rem"><span>Részletes leírás</span></th>
             <th><span>Összesen</span></th>
             <th><span>Január</span></th>
             <th><span>Február</span></th>
@@ -9538,10 +9541,10 @@ function fenntartasi_terv_eseti_karban($sor){
 
         $szamla_html .= '
             <tr id="ft_ft_'.$eseti['recid'].'" data-recid="'.$eseti['recid'].'" class="ftt_menny">
-                <td>'.$eseti['ktgnem_id'].'</td>
-                <td style="min-width: 10rem; width: 10rem" class="wrap">'.getErtek('nev', 'ktgnem', 'id', $eseti['ktgnem_id']).'</td>
-                <td style="min-width: 20rem; width: 20rem" class="wrap">'.$eseti['targy'].'</td>
-                <td style="min-width: 20rem; width: 20rem" class="wrap">'.nl2br2($eseti['leir']).'</td>
+                <td class="fix eseti1">'.$eseti['ktgnem_id'].'</td>
+                <td class="fix eseti2" style="min-width: 10rem; width: 10rem" class="wrap">'.getErtek('nev', 'ktgnem', 'id', $eseti['ktgnem_id']).'</td>
+                <td class="fix eseti3" style="min-width: 20rem; width: 20rem" class="wrap">'.$eseti['targy'].'</td>
+                <td class="fix eseti4" style="min-width: 20rem; width: 20rem" class="wrap">'.nl2br2($eseti['leir']).'</td>
                 <td class="r ftossz">'.$osszesen.'</td>
                 <td class="r ft01">'.$eseti['ft01'].'</td>
                 <td class="r ft02">'.$eseti['ft02'].'</td>
@@ -9562,10 +9565,10 @@ function fenntartasi_terv_eseti_karban($sor){
     $szamla_html .= nl2('
                         </tbody>
                         <tfoot class="nowrap">
-                            <td></td>
-                            <td></td>
-                            <td></td>
-                            <td></td>
+                            <td class="fix eseti1"></td>
+                            <td class="fix eseti2"></td>
+                            <td class="fix eseti3"></td>
+                            <td class="fix eseti4"></td>
                             <td class="r" id="szum_ftossz"></td>
                             <td class="r" id="szum_ft01"></td>
                             <td class="r" id="szum_ft02"></td>
@@ -9602,9 +9605,9 @@ function fenntartasi_terv_hibaelharitas($sor) {
         <table class="szamla_cont_tabla nolink fejlec_padd szep_csikos kisbetu hibaelharitas_tabla">
         <thead>
         <tr>
-            <th class="ktgnem_kod"><span>Ktgnem kód</span></th>
-            <th style="min-width: 10rem; width: 10rem"><span>Ktgnem név</span></th>
-            <th style="min-width: 20rem; width: 20rem"><span>Részletes leírás</span></th>
+            <th class="ktgnem_kod fix hiba1"><span>Ktgnem kód</span></th>
+            <th class="fix hiba2" style="min-width: 10rem; width: 10rem"><span>Ktgnem név</span></th>
+            <th class="fix hiba3" style="min-width: 20rem; width: 20rem"><span>Részletes leírás</span></th>
             <th><span>Összesen</span></th>
             <th><span>Január</span></th>
             <th><span>Február</span></th>
@@ -9638,9 +9641,9 @@ function fenntartasi_terv_hibaelharitas($sor) {
 
         $szamla_html .= '
             <tr id="ft_ft_'.$hiba['recid'].'" data-recid="'.$hiba['recid'].'" class="ftt_menny">
-                <td>'.$hiba['ktgnem_id'].'</td>
-                <td class="wrap">'.getErtek('nev', 'ktgnem', 'id', $hiba['ktgnem_id']).'</td>
-                <td class="wrap">'.nl2br2($hiba['leir']).'</td>
+                <td class="fix hiba1">'.$hiba['ktgnem_id'].'</td>
+                <td class="wrap fix hiba2">'.getErtek('nev', 'ktgnem', 'id', $hiba['ktgnem_id']).'</td>
+                <td class="wrap fix hiba3">'.nl2br2($hiba['leir']).'</td>
                 <td class="r ftossz">'.$osszesen.'</td>
                 <td class="r ft01">'.$hiba['ft01'].'</td>
                 <td class="r ft02">'.$hiba['ft02'].'</td>
@@ -9661,9 +9664,9 @@ function fenntartasi_terv_hibaelharitas($sor) {
     $szamla_html .= nl2('
                         </tbody>
                         <tfoot class="nowrap">
-                            <td></td>
-                            <td></td>
-                            <td></td>
+                            <td class="fix hiba1"></td>
+                            <td class="fix hiba2"></td>
+                            <td class="fix hiba3"></td>
                             <td class="r" id="szum_ftossz"></td>
                             <td class="r" id="szum_ft01"></td>
                             <td class="r" id="szum_ft02"></td>
@@ -9701,10 +9704,10 @@ function fenntartasi_terv_miniprojekt($sor) {
         <table class="szamla_cont_tabla nolink fejlec_padd szep_csikos kisbetu miniprojekt_tabla width_auto">
         <thead>
         <tr>
-            <th class="ktgnem_kod"><span>Ktgnem kód</span></th>
-            <th style="min-width: 10rem; width: 10rem"><span>Ktgnem név</span></th>
-            <th style="min-width: 20rem; width: 20rem"><span>Tárgy</span></th>
-            <th style="min-width: 20rem; width: 20rem"><span>Részletes leírás</span></th>
+            <th class="ktgnem_kod fix mini1"><span>Ktgnem kód</span></th>
+            <th class="fix mini2" style="min-width: 10rem; width: 10rem"><span>Ktgnem név</span></th>
+            <th class="fix mini3" style="min-width: 20rem; width: 20rem"><span>Tárgy</span></th>
+            <th class="fix mini4" style="min-width: 20rem; width: 20rem"><span>Részletes leírás</span></th>
             <th><span>Összesen</span></th>
             <th><span>Január</span></th>
             <th><span>Február</span></th>
@@ -9738,10 +9741,10 @@ function fenntartasi_terv_miniprojekt($sor) {
 
         $szamla_html .= '
             <tr id="ft_ft_'.$mini['recid'].'" data-recid="'.$mini['recid'].'" class="ftt_menny">
-                <td>'.$mini['ktgnem_id'].'</td>
-                <td style="min-width: 10rem; width: 10rem" class="wrap">'.getErtek('nev', 'ktgnem', 'id', $mini['ktgnem_id']).'</td>
-                <td style="min-width: 20rem; width: 20rem" class="wrap">'.$mini['targy'].'</td>
-                <td style="min-width: 20rem; width: 20rem" class="wrap">'.nl2br2($mini['leir']).'</td>
+                <td class="fix mini1">'.$mini['ktgnem_id'].'</td>
+                <td class="fix mini2" style="min-width: 10rem; width: 10rem" class="wrap">'.getErtek('nev', 'ktgnem', 'id', $mini['ktgnem_id']).'</td>
+                <td class="fix mini3" style="min-width: 20rem; width: 20rem" class="wrap">'.$mini['targy'].'</td>
+                <td class="fix mini4" style="min-width: 20rem; width: 20rem" class="wrap">'.nl2br2($mini['leir']).'</td>
                 <td class="r ftossz">'.$osszesen.'</td>
                 <td class="r ft01">'.$mini['ft01'].'</td>
                 <td class="r ft02">'.$mini['ft02'].'</td>
@@ -9762,10 +9765,10 @@ function fenntartasi_terv_miniprojekt($sor) {
     $szamla_html .= nl2('
                         </tbody>
                         <tfoot class="nowrap">
-                            <td></td>
-                            <td></td>
-                            <td></td>
-                            <td></td>
+                            <td class="fix mini1"></td>
+                            <td class="fix mini2"></td>
+                            <td class="fix mini3"></td>
+                            <td class="fix mini4"></td>
                             <td class="r" id="szum_ftossz"></td>
                             <td class="r" id="szum_ft01"></td>
                             <td class="r" id="szum_ft02"></td>
@@ -9801,10 +9804,10 @@ function fenntartasi_terv_bwh($sor) {
         <table class="szamla_cont_tabla nolink fejlec_padd szep_csikos kisbetu bwh_tabla">
         <thead>
         <tr>
-            <th class="ktgnem_kod"><span>Ktgnem kód</span></th>
-            <th style="min-width: 10rem; width: 10rem"><span>Ktgnem név</span></th>
-            <th style="min-width: 20rem; width: 20rem"><span>Tárgy</span></th>
-            <th style="min-width: 20rem; width: 20rem"><span>Leírás</span></th>
+            <th class="ktgnem_kod fix bwh1"><span>Ktgnem kód</span></th>
+            <th class="fix bwh2" style="min-width: 10rem; width: 10rem"><span>Ktgnem név</span></th>
+            <th class="fix bwh3" style="min-width: 20rem; width: 20rem"><span>Tárgy</span></th>
+            <th class="fix bwh4" style="min-width: 20rem; width: 20rem"><span>Leírás</span></th>
             <th><span>Január</span></th>
             <th><span>Február</span></th>
             <th><span>Március</span></th>
@@ -9834,10 +9837,10 @@ function fenntartasi_terv_bwh($sor) {
 
         $szamla_html .= '
             <tr id="ft_ft_'.$bwh['recid'].'" data-recid="'.$bwh['recid'].'" class="ftt_menny">
-                <td>'.$bwh['ktgnem_id'].'</td>
-                <td class="wrap">'.getErtek('nev', 'ktgnem', 'id', $bwh['ktgnem_id']).'</td>
-                <td class="wrap">'.$bwh['targy'].'</td>
-                <td class="wrap">'.nl2br2($bwh['leir']).'</td>
+                <td class="fix bwh1">'.$bwh['ktgnem_id'].'</td>
+                <td class="wrap fix bwh2">'.getErtek('nev', 'ktgnem', 'id', $bwh['ktgnem_id']).'</td>
+                <td class="wrap fix bwh3">'.$bwh['targy'].'</td>
+                <td class="wrap fix bwh4">'.nl2br2($bwh['leir']).'</td>
                 <td class="r ft01">'.$bwh['ft01'].'</td>
                 <td class="r ft02">'.$bwh['ft02'].'</td>
                 <td class="r ft03">'.$bwh['ft03'].'</td>
@@ -9857,10 +9860,10 @@ function fenntartasi_terv_bwh($sor) {
     $szamla_html .= nl2('
                         </tbody>
                         <tfoot class="nowrap">
-                            <td></td>
-                            <td></td>
-                            <td></td>
-                            <td></td>
+                            <td class="fix bwh1"></td>
+                            <td class="fix bwh2"></td>
+                            <td class="fix bwh3"></td>
+                            <td class="fix bwh4"></td>
                             <td class="r" id="szum_ft01"></td>
                             <td class="r" id="szum_ft02"></td>
                             <td class="r" id="szum_ft03"></td>
@@ -9895,8 +9898,8 @@ function fenntartasi_terv_osszesen($sor, $ful_tomb, $sajat_szallodak) {
         <table class="szamla_cont_tabla nolink fejlec_padd szep_csikos kisbetu osszesen_tabla">
         <thead>
         <tr>
-            <th class="ktgnem_kod"><span>Ktgnem kód</span></th>
-            <th style="min-width: 10rem; width: 10rem;"><span>Ktgnem név</span></th>
+            <th class="ktgnem_kod fix ossz1"><span>Ktgnem kód</span></th>
+            <th class="fix ossz2" style="min-width: 10rem; width: 10rem;"><span>Ktgnem név</span></th>
             <th><span>Összesen</span></th>
             <th><span>Január</span></th>
             <th><span>Február</span></th>
@@ -9930,8 +9933,8 @@ function fenntartasi_terv_osszesen($sor, $ful_tomb, $sajat_szallodak) {
 
                     // Mivel költségnem id szerint group by-oztunk, ezért itt le kell kérni újra a sorokat, mert lehet több azonos költségnem rekord is van adott terv_id-hoz
                     // Első lépésként ezket ezért nullázzuk is
-                    for($i=1; $i<13; $i++){
-                        if($i<10){
+                    for ( $i = 1; $i < 13; $i++ ) {
+                        if( $i < 10 ) {
                             $i = '0'.$i;
                         }
                         $f_sor['ft'.$i] = 0;
@@ -9958,8 +9961,8 @@ function fenntartasi_terv_osszesen($sor, $ful_tomb, $sajat_szallodak) {
 
                     $szamla_html .= '
                         <tr id="ft_ft_'.$tabla_post.$f_sor['recid'].'" data-recid="'.$f_sor['recid'].'" class="ftt_menny">
-                            <td>'.$f_sor['ktgnem_id'].'</td>
-                            <td class="wrap">'.getErtek('nev', 'ktgnem', 'id', $f_sor['ktgnem_id']).'</td>
+                            <td class="fix ossz1">'.$f_sor['ktgnem_id'].'</td>
+                            <td class="wrap fix ossz2">'.getErtek('nev', 'ktgnem', 'id', $f_sor['ktgnem_id']).'</td>
                             <td class="r fto '.$tabla_post.'">'.$honapok_osszesen.'</td>
                             <td class="r ft01 '.$tabla_post.'">'.$f_sor['ft01'].'</td>
                             <td class="r ft02 '.$tabla_post.'">'.$f_sor['ft02'].'</td>
@@ -9979,14 +9982,14 @@ function fenntartasi_terv_osszesen($sor, $ful_tomb, $sajat_szallodak) {
 
                 $szamla_html .= '
                     <tr id="ft_ft_'.$tabla_post.$f_sor['recid'].'" data-recid="'.$f_sor['recid'].'" class="ftt_menny piros">
-                        <td>
+                        <td class="fix ossz1">
                             <script>
                                 $(document).ready(function () {
                                     energia_szummaz(\'osszesen_tabla\', \''.$tabla_post.'\');
                                 });
                             </script>
                         </td>
-                        <td>'.$ful_neve.' összesen</td>
+                        <td class="fix ossz2">'.$ful_neve.' összesen</td>
                         <td class="r" id="szum_fto_'.$tabla_post.'">Ö2</td>
                         <td class="r" id="szum_ft01_'.$tabla_post.'"></td>
                         <td class="r" id="szum_ft02_'.$tabla_post.'"></td>
@@ -10009,8 +10012,8 @@ function fenntartasi_terv_osszesen($sor, $ful_tomb, $sajat_szallodak) {
     $szamla_html .= nl2('
                         </tbody>
                         <tfoot class="nowrap">
-                            <td></td>
-                            <td></td>
+                            <td class="fix ossz1"></td>
+                            <td class="fix ossz2"></td>
                             <td class="r" id="szum_fto"></td>
                             <td class="r" id="szum_ft01"></td>
                             <td class="r" id="szum_ft02"></td>

@@ -1,0 +1,40 @@
+<h2>Rendelés kiválasztó</h2>
+
+<div class="kozep" id="popup_tablazat"></div>
+<div class="kuldes">
+    <input type="button" class="gomb zold" value="Ok" onclick="rendeles_kivalaszt();">
+    <input type="button" class="gomb piros" value="Mégsem" onclick="popupZar();">
+</div>
+
+<script>
+$(document).ready(function(){
+    $.ajax({
+        url : 'anyag_szamla.php',
+        type: 'POST',
+        data: {
+            szamla_id                   : valasztott_szamla_recid,       /* Ez a változó a anyag_szamla_valaszto.html popupban jön létre, ott kap értéket a kiválasztott számla alapján. */
+            szamla_tetel_id             : valasztott_szamla_tetel_recid, /* Ez a változó a anyag_szamla_tetel_valaszto.html popupban jön létre, ott kap értéket a kiválasztott számla tétel alapján. */
+            get_anyagrendeles_tetelek   : Date.now()
+        },
+        success: function(response){
+            if(response.substring(0, 6)=='SESKIL'){ location.href = 'index.php'; }
+            if( response ) {
+                response = JSON.parse(response);
+                if( response.hiba ) {
+                    alert2(response.hiba, response.gomb, response.title);
+                } else {
+                    $('#popup_tablazat').html(response.tablazat);
+                }
+            }
+        }
+    });
+});
+
+// Rendelés sor kiválasztása. Itt annyi történik, hogy JS-ben eltároljuk, hogy melyik számla tétel sorhoz melyik rendelés sor tartozzon.
+// Aztán ezt majd adatbázisban is letároljuk, de ezt a számla tétel popup mentésakor csak. De az összekapcsoltságot JS változóval ideiglenesen eltároljuk.
+function rendeles_kivalaszt() {
+    anyagszamla_tetel_anyagend_tetel_kapcs[valasztott_szamla_tetel_recid] = $('#anyagrend_tetelek tr.kijelolve').attr('data-recid');
+    // Meghívjuk az anyagszámla tétel választót. Ekkor még változatlan a valasztott_szamla_recid, tehát az adott számla tételeit fogjuk kilistázni
+    csoportMuvelet('anyag_szamla_tetel_valaszto');
+}
+</script>

@@ -57,7 +57,7 @@ class ServerClass {
             if(  !trim($szamla['andoc_id']) ) {
                 Throw new SOAPFault ('Server', 'Hiányzó Andoc azonosító!');
             }
-            $andoc_id = $szamla['andoc_id'];
+            $szamla_andoc_id = $andoc_id = $szamla['andoc_id'];
             if( !$szamla -> tipus ) {
                 Throw new SOAPFault ('Server', 'Hiányzó számlatípus!');
             }
@@ -70,7 +70,7 @@ class ServerClass {
                 case self::SZAMLA_TIPUS_ANYAG           : $tabla = 'anyag_szamla';          break;
             }
             $apa_recid_oszlop = $tabla.'_recid';
-            
+
             // Törléshez ismernünk kell az andoc_id-t és a számla típusát
             // Delete
             if( $szamla -> torles == 1 ) {
@@ -177,6 +177,9 @@ class ServerClass {
                     if( !trim($szamla -> telephely_id) ) {
                         Throw new SOAPFault ('Server', 'Hiányzó szálloda');
                     }
+                    if( !trim($szamla -> rndid) ) {
+                        Throw new SOAPFault ('Server', 'Hiányzó rendelés id');
+                    }
                     if( !trim($szamla -> targy) ) {
                         Throw new SOAPFault ('Server', 'Hiányzó tárgy');
                     }
@@ -194,6 +197,13 @@ class ServerClass {
                         Throw new SOAPFault ('Server', 'Hiányzó deviza bruttó érték!');
                     }
 
+                }
+                
+                // Iktatószám csak egyedi lehet
+                $sql = $adatbazis_kapcsolat->s('recid', $tabla, "`ikt_szam`='{$szamla -> ikt_szam}' AND `andoc_id`!='{$andoc_id}'");
+                if( $sql === false ) { $db_error = true; }
+                if( $sql ) {
+                    Throw new SOAPFault ('Server', 'Hiba! Ez az iktatószám már foglalt: '.$szamla -> ikt_szam);
                 }
                 
                 // szallito_id esetén fontos, hogy meglegyenek a keződ 0-k
@@ -222,7 +232,6 @@ class ServerClass {
                                 'nullas',
                                 'visszaadva',
                                 'visszaadva_dt',
-                                'stat_id',
                             );
                 $ertekek = array(
                                 $szamla -> erk_dt,
@@ -245,25 +254,28 @@ class ServerClass {
                                 $szamla -> nullas,
                                 $szamla -> visszaadva,
                                 $szamla -> visszaadva_dt,
-                                $szamla -> stat_id,
                             );
 
                 // További mezők felvétele, számla típusától függően
                 if( $szamla -> tipus == self::SZAMLA_TIPUS_FENNTARTASI ) {
                     array_push($mezok,     'kcs_25',            'fizmod',           'elutleir'          );
                     array_push($ertekek,   $szamla -> kcs_25,   $szamla -> fizmod,  $szamla -> elutleir );
+                    $feldolgozasra_var_stat = F_SZAMLA_STAT_FELDOLGOZASRA_VAR;
                 }
                 if( $szamla -> tipus == self::SZAMLA_TIPUS_PROJEKT ) {
                     array_push($mezok,      'muszak_szam',          'musz_dt',          'kolt_vis'          );
                     array_push($ertekek,    $szamla -> muszak_szam, $szamla -> musz_dt, $szamla -> kolt_vis );
+                    $feldolgozasra_var_stat = P_SZAMLA_STAT_FELDOLGOZASRA_VAR;
                 }
                 if( $szamla -> tipus == self::SZAMLA_TIPUS_ENERGIA ) {
                     array_push($mezok,      'megjegyz',             'szev',          'szhonap',             'vontol_dt',            'vonig_dt',          'ktgnem_id',            'ktghely_id',           'elutleir'           );
                     array_push($ertekek,    $szamla -> megjegyz,    $szamla -> szev, $szamla -> szhonap,    $szamla -> vontol_dt,   $szamla -> vonig_dt,  $szamla -> ktgnem_id,  $szamla -> ktghely_id,  $szamla -> elutleir  );
+                    $feldolgozasra_var_stat = E_SZAMLA_STAT_FELDOLGOZASRA_VAR;
                 }
                 if( $szamla -> tipus == self::SZAMLA_TIPUS_ANYAG ) {
-                    array_push($mezok,     'kcs_25',            'megjegyz',          'fizmod',          'elutleir'          );
-                    array_push($ertekek,   $szamla -> kcs_25,   $szamla -> megjegyz, $szamla -> fizmod, $szamla -> elutleir );
+                    array_push($mezok,     'kcs_25',            'megjegyz',          'fizmod',          'elutleir',          'rndid'            );
+                    array_push($ertekek,   $szamla -> kcs_25,   $szamla -> megjegyz, $szamla -> fizmod, $szamla -> elutleir, $szamla -> rndid   );
+                    $feldolgozasra_var_stat = A_SZAMLA_STAT_FELDOLGOZASRA_VAR;
                 }
 
                 $aparecid = $adatbazis_kapcsolat->s2('recid', $tabla, "`andoc_id`='{$andoc_id}'");
@@ -281,6 +293,17 @@ class ServerClass {
                     $aparecid = $adatbazis_kapcsolat->i($tabla, $mezok, $ertekek);
                     if( $aparecid === false ) { $db_error = true; }
 
+                    // A státuszt átírjuk feldolgozásra vár státuszra.
+                    // Hiába adtak meg az XML-ben státusz kódot, új beszúráskor fixen ezt írjuk be
+                    $sql = $adatbazis_kapcsolat->u($tabla, array('stat_id'), array($feldolgozasra_var_stat), "`recid`='{$aparecid}'");
+                    if( $sql === false ) { $db_error = true; }
+                    // Illetve beállítjuk kezdőstátusznak is a feldolgzva vár státuszt
+                    $sql = $adatbazis_kapcsolat -> i($tabla.'_statusz',
+                                                    array($tabla.'_recid',   'stat_id',               'login',          'insert_dt', 'insert_usr',  'update_usr'    ),
+                                                    array($aparecid,         $feldolgozasra_var_stat, self::IU_USER,    'NOW()',     self::IU_USER, self::IU_USER   )
+                                                );
+                    if( $sql === false ) { $db_error = true; }
+
                 // Update
                 } else {
 
@@ -288,6 +311,14 @@ class ServerClass {
                     
                     $sql = $adatbazis_kapcsolat->u($tabla, $mezok, $ertekek, "`andoc_id`='{$andoc_id}'");
                     if( $sql === false ) { $db_error = true; }
+                    
+                    // Státusz léptetéssel dolgozzuk fel a kapott státuszt
+                    if( $szamla -> stat_id ) {
+                        if( addStatusz($tabla.'_statusz', $aparecid, $szamla -> stat_id ) === false ) {
+                            $db_error = true;
+                        }
+                    }
+                    
                 }
 
                 // Tételek bejárása
@@ -325,9 +356,6 @@ class ServerClass {
                         }
                         if( !trim($tetel -> ktghely_id) ) {
                             Throw new SOAPFault ('Server', 'Hiányzó költséghely a tételeknél!');
-                        }
-                        if( !trim($tetel -> kcs_35) ) {
-                            Throw new SOAPFault ('Server', 'Hiányzó számlát módosító tétel!');
                         }
                     }
 
@@ -446,10 +474,10 @@ class ServerClass {
             // Tranzakció kommitolása, vagy rollback-ezése
             if( !$db_error ) {
                 mysqli_commit($db_kapcs);
-                return 'A számla, és a tételei, kifizetései sikeresen '.$return_uzi.'! ID: '.$andoc_id;
+                return 'A számla, és a tételei, kifizetései sikeresen '.$return_uzi.'! ID: '.$szamla_andoc_id;
             } else {
                 mysqli_rollback($db_kapcs);
-                return 'A számla feldolgozása közben ismeretlen hiba történt: ID: '.$andoc_id;
+                return 'A számla feldolgozása közben ismeretlen hiba történt: ID: '.$szamla_andoc_id;
             }
         }
         

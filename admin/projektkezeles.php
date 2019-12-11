@@ -1060,7 +1060,7 @@ if( isset($_POST['igenylesek_betolt_uj_kezeleshez']) ) {
                 }
             </style>
             <div style="max-height: 40rem; overflow-y: auto; overflow-x: none;">
-                <table class="csikos v2 kijCont csak_egy_kijelolheto fix_fejlec" id="prigenylesek" style="cursor: default;">
+                <table class="csikos v2 kijCont csak_egy_kijelolheto fix_fejlec hoveres" id="prigenylesek" style="cursor: default;">
                 <thead>
                 <tr>
                     <th>

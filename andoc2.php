@@ -52,6 +52,7 @@ if( isset($_GET[$get]) ) {
         } else {
             $xml = $_POST['xml'];
         }
+
         $xml = trim( str_replace('<?xml version="1.0" encoding="utf-8" ?>', '', $xml) );
         var_dump( $soap -> SzamlaAdatokImport( $xml ) );
     }

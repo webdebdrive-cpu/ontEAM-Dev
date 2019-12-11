@@ -180,8 +180,8 @@ if (isset($_POST['van_mar_ilyen_anyagigenyles'])) {
                 <th>Név</th>
             </tr>
             ');
-        foreach($anyagigenylesek as $anyag){
-            
+        foreach ( $anyagigenylesek as $anyag ) {
+
             $telephely = $adatbazis_kapcsolat->s2('nev', 'telephely', "`id`='{$_POST['telephely_id']}'");
             $tablazat .= nl2('
                             <tr>
@@ -2303,12 +2303,12 @@ require_once('selectek.php');
         );
 
         $kivetelek = array('ajax', 'uj');
-        foreach($ful_tomb as $key => $value){
+        foreach ( $ful_tomb as $key => $value ) {
             array_push($kivetelek, $key);
         }
 
         $fulek = '';
-        foreach($ful_tomb as $key => $value) {
+        foreach ( $ful_tomb as $key => $value ) {
 
             // Anyagrendelés alatt Anyagignylés fül nem kell Anyagrend mod: 2018.04
             // if( !(isset($_GET['anyagrend']) && $key=='tablazat') ){
@@ -2328,10 +2328,10 @@ require_once('selectek.php');
                 }
 
                 // Hogy JS alatt is biztosan lássuk ezt a get-et
-                if(isset($_GET['anyagrend'])){
+                if( isset($_GET['anyagrend']) ) {
                     $_GET['anyagrend'] = 1;
                 }
-                if($key=='tablazat'){
+                if( $key == 'tablazat' ) {
                     $fulek .= '<a href="'.self().get_get($kivetelek).'&amp;tablazat"'.$active.' data-oldal="'.$key.'">'.$value.'</a>';
                 } else {
                     $fulek .= '<a href="javascript: szamlaBetolt(\''.$id_betolteshez.'\', \''.basename(self()).'\', \''.$key.'\', \'\', \'\', \'Mindenképp tölsön be\'); void(0);"'.$active.' data-oldal="'.$key.'">'.$value.'</a>';

@@ -1,0 +1,36 @@
+<h2>Számla kiválasztó</h2>
+<div class="kozep" id="popup_tablazat"></div>
+<div class="kuldes">
+    <input type="button" class="gomb zold" value="Mehet" onclick="szamla_kivalaszt();">
+    <input type="button" class="gomb piros" value="Mégsem" onclick="popupZar();">
+</div>
+<script>
+$(document).ready(function(){
+    $.ajax({
+        url : 'anyag_szamla.php',
+        type: 'POST',
+        data: {
+            get_feld_var_szamlak   : Date.now()
+        },
+        success: function(response){
+            if(response.substring(0, 6)=='SESKIL'){ location.href = 'index.php'; }
+            if( response ) {
+                response = JSON.parse(response);
+                if( response.hiba ) {
+                    alert2(response.hiba, response.gomb, response.title);
+                } else {
+                    $('#popup_tablazat').html(response.tablazat);
+                }
+            }
+        }
+    });
+});
+
+// JS változóba eltároljuk a kiválasztott sor ID-ját, majd egy új popup-ot nyitva a választott számla tételeit kilistázzuk
+var valasztott_szamla_recid                 = '';
+var anyagszamla_tetel_anyagend_tetel_kapcs  = {};
+function szamla_kivalaszt() {
+    valasztott_szamla_recid = $('#feld_var_szamlak tr.kijelolve').attr('data-recid');
+    csoportMuvelet('anyag_szamla_tetel_valaszto');
+}
+</script>

@@ -266,7 +266,7 @@ if( isset($_POST['get_projekt_tabla']) ) {
                 }
             </style>
             <div style="max-height: 40rem; overflow-y: auto; overflow-x: none;">
-                <table class="csikos v2 kijCont csak_egy_kijelolheto fix_fejlec" id="prkezelesek" style="cursor: default;">
+                <table class="csikos v2 kijCont csak_egy_kijelolheto fix_fejlec hoveres" id="prkezelesek" style="cursor: default;">
                 <thead>
                 <tr>
                     <th>

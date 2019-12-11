@@ -8,13 +8,6 @@ if($_GET['o'])    { $_GET['o']     = sql_ertek($_GET['o']);     }
 if($_GET['lh'])   { $_GET['lh']    = sql_ertek($_GET['lh']);    }
 if($_GET['ksz'])  { $_GET['ksz']   = sql_ertek($_GET['ksz']);   }
 
-// Itt hívjuk meg a Cron függvényt, ami a lefuttatandó webcímeket íratja ki (& helyett &amp;-al elválasztva a paramétereket). 
-// Ezt a footerben lévő ajax hívja meg és ez alapján nyitja meg az egyes hivatkozásokat.
-if (isset($_GET['cron_futtat'])) {
-    echo cron();
-    exit;
-}
-
 // A HTML kód előállítása (<head>)
 $head = $weblap -> head_keszit();
 
@@ -41,22 +34,14 @@ $head -> extrak             = '';
 
 echo $head -> getHtml();
 
+echo '<body>';
 
-//Sitebuild esetén ki lehessen próbálni háttérkép nélkül
-$body_style = '';
-if (isset($_GET['latvanyterv'])) {
-    $body_style = ' style="background: url(\'tartalom/latvanyterv.png\') no-repeat top center;"';
-    echo '<style type="text/css">.opa{ opacity: 0.5; }</style>';
-}
-?><body<?php echo $body_style?>><?php
-
-//Ezt a JS-t lehető legkésőbbi időpontban írasd ki, amikor még nem kapsz JS hibát mondjuk a Jquery hiánya miatt.
-if(get_nyelvek()){
+// Ezt a JS-t lehető legkésőbbi időpontban írasd ki, amikor még nem kapsz JS hibát mondjuk a Jquery hiánya miatt.
+if( get_nyelvek() ) {
     $utvonal = 'js/wdb_min_'.$_SESSION['nyelv'].'.js';
-}else{
+} else {
     $utvonal = 'js/wdb_min.js';
 }
-if(filesize($utvonal)){
+if( filesize($utvonal) ) {
     echo '<script src="'.$utvonal.'"></script>';
 }
-?>

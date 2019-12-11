@@ -1,0 +1,68 @@
+<h2>Számla tétel kiválasztó</h2>
+
+<div class="kozep" id="popup_tablazat"></div>
+<div class="kuldes">
+    <input type="button" class="gomb zold" value="Mentés" onclick="anyag_szamla_tetelek_ment();">
+    <input type="button" class="gomb piros" value="Mégsem" onclick="csoportMuvelet('anyag_szamla_valaszto');">
+</div>
+
+<script>
+$(document).ready(function(){
+    $.ajax({
+        url : 'anyag_szamla.php',
+        type: 'POST',
+        data: {
+            kapcsolasok         : JSON.stringify(anyagszamla_tetel_anyagend_tetel_kapcs), /* Ezzel adjuk át a számla tétel és rendelés tétel közti kapcsolatot */
+            szamla_id           : valasztott_szamla_recid, /* Ez a változó a anyag_szamla_valaszto.html popupban jön létre, ott kap értéket a kiválasztott számla alapján. */
+            get_szamla_tetelek  : Date.now()
+        },
+        success: function(response){
+            if(response.substring(0, 6)=='SESKIL'){ location.href = 'index.php'; }
+            if( response ) {
+                response = JSON.parse(response);
+                if( response.hiba ) {
+                    alert2(response.hiba, response.gomb, response.title);
+                } else {
+                    $('#popup_tablazat').html(response.tablazat);
+                }
+            }
+        }
+    });
+});
+
+// JS változóba eltároljuk a kiválasztott sor ID-ját, majd egy új popup-ot nyitva az anyagrendeléseket listázzuk ki
+var valasztott_szamla_tetel_recid = '';
+function anyag_szamla_tetel_rendeles_kivalaszt( tetel_id ) {
+    if( $('#modosit_'+tetel_id).is(':checked') ) {
+        alert2('Ez egy módosító számlatétel, rendelés nem választható hozzá!', '', 'Hiba');
+    } else {
+        valasztott_szamla_tetel_recid = tetel_id;
+        csoportMuvelet('anyag_szamla_anyagrendeles_valaszto');
+    }
+}
+
+// Anyagszámla és rendelés tételek közti kapcsolat mentése
+function anyag_szamla_tetelek_ment() {
+    $.ajax({
+        url : 'anyag_szamla.php',
+        type: 'POST',
+        data: {
+            id                          : _get('id'),
+            kapcsolasok                 : JSON.stringify(anyagszamla_tetel_anyagend_tetel_kapcs),   /* Ezzel adjuk át a számla tétel és rendelés tétel közti kapcsolatot */
+            anyag_szamla_tetelek_ment   : Date.now()
+        },
+        success: function(response){
+            if(response.substring(0, 6)=='SESKIL'){ location.href = 'index.php'; }
+            if( response ) {
+                response = JSON.parse(response);
+                if (response.hiba) {
+                    alert2(response.hiba, response.gomb, response.title);
+                } else {
+                    szamlaBetolt( _get('id'), 'anyag_szamla.php', 'modosit' );
+                    popupZar();
+                }
+            }
+        }
+    });
+}
+</script>
