@@ -1,7 +1,7 @@
 <?php
 /*                                                  *\
  * FONTOS:
- * 130-es ID-nál járunk
+ * 131-es ID-nál járunk
  * 13-as kategória ID-nál járunk
 \*                                                  */
 
@@ -161,6 +161,7 @@ $jogosultsagok = array(
     89  => array('nev' => 'Fenntartási számlák megtekintése',       'kat' => 12, 'sor' => 8),
     88  => array('nev' => 'Energia számlák megtekintése',           'kat' => 12, 'sor' => 9),
     87  => array('nev' => 'Anyag számlák megtekintése',             'kat' => 12, 'sor' => 10),
+    131 => array('nev' => 'Anyag számlák kezelése',                 'kat' => 12, 'sor' => 11),
     
 // Az alábbi 3 nincs is igazából használva, ezt akár át lehet nevezni, másra használni
 90 => array('nev' => 'Számlák olvasása',                        'kat' => 13, 'sor' => 4),

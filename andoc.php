@@ -177,7 +177,7 @@ class ServerClass {
                     if( !trim($szamla -> telephely_id) ) {
                         Throw new SOAPFault ('Server', 'Hiányzó szálloda');
                     }
-                    if( !trim($szamla -> rndid) ) {
+                    if( !trim($szamla -> rnd_id) ) {
                         Throw new SOAPFault ('Server', 'Hiányzó rendelés id');
                     }
                     if( !trim($szamla -> targy) ) {
@@ -273,8 +273,8 @@ class ServerClass {
                     $feldolgozasra_var_stat = E_SZAMLA_STAT_FELDOLGOZASRA_VAR;
                 }
                 if( $szamla -> tipus == self::SZAMLA_TIPUS_ANYAG ) {
-                    array_push($mezok,     'kcs_25',            'megjegyz',          'fizmod',          'elutleir',          'rndid'            );
-                    array_push($ertekek,   $szamla -> kcs_25,   $szamla -> megjegyz, $szamla -> fizmod, $szamla -> elutleir, $szamla -> rndid   );
+                    array_push($mezok,     'kcs_25',            'megjegyz',          'fizmod',          'elutleir',          'rnd_id'            );
+                    array_push($ertekek,   $szamla -> kcs_25,   $szamla -> megjegyz, $szamla -> fizmod, $szamla -> elutleir, $szamla -> rnd_id   );
                     $feldolgozasra_var_stat = A_SZAMLA_STAT_FELDOLGOZASRA_VAR;
                 }
 
@@ -293,11 +293,9 @@ class ServerClass {
                     $aparecid = $adatbazis_kapcsolat->i($tabla, $mezok, $ertekek);
                     if( $aparecid === false ) { $db_error = true; }
 
-                    // A státuszt átírjuk feldolgozásra vár státuszra.
-                    // Hiába adtak meg az XML-ben státusz kódot, új beszúráskor fixen ezt írjuk be
+                    // Új beszúráskor a kezdőstátusz fixen a feldolgozásra vár lesz
                     $sql = $adatbazis_kapcsolat->u($tabla, array('stat_id'), array($feldolgozasra_var_stat), "`recid`='{$aparecid}'");
                     if( $sql === false ) { $db_error = true; }
-                    // Illetve beállítjuk kezdőstátusznak is a feldolgzva vár státuszt
                     $sql = $adatbazis_kapcsolat -> i($tabla.'_statusz',
                                                     array($tabla.'_recid',   'stat_id',               'login',          'insert_dt', 'insert_usr',  'update_usr'    ),
                                                     array($aparecid,         $feldolgozasra_var_stat, self::IU_USER,    'NOW()',     self::IU_USER, self::IU_USER   )
@@ -311,14 +309,7 @@ class ServerClass {
                     
                     $sql = $adatbazis_kapcsolat->u($tabla, $mezok, $ertekek, "`andoc_id`='{$andoc_id}'");
                     if( $sql === false ) { $db_error = true; }
-                    
-                    // Státusz léptetéssel dolgozzuk fel a kapott státuszt
-                    if( $szamla -> stat_id ) {
-                        if( addStatusz($tabla.'_statusz', $aparecid, $szamla -> stat_id ) === false ) {
-                            $db_error = true;
-                        }
-                    }
-                    
+                                        
                 }
 
                 // Tételek bejárása
@@ -375,8 +366,8 @@ class ServerClass {
 
                     // További mezők felvétele, számla típusától függően
                     if( $szamla -> tipus == self::SZAMLA_TIPUS_FENNTARTASI ) {
-                        array_push($mezok,      'verzio', 'szszam',     'igazol_usr',         'igazol_dt',         'telephely_id',         'targy',            'ktgnem_id',           'ktghely_id',          'stat_id'         );
-                        array_push($ertekek,    $tetel -> verzio,       $tetel -> szszam,   $tetel -> igazol_usr, $tetel -> igazol_dt, $tetel -> telephely_id, $tetel -> targy,    $tetel -> ktgnem_id,   $tetel -> ktghely_id,  $tetel -> stat_id );
+                        array_push($mezok,      'verzio',           'szszam',           'igazol_usr',           'igazol_dt',         'telephely_id',            'targy',            'ktgnem_id',            'ktghely_id'            );
+                        array_push($ertekek,    $tetel -> verzio,   $tetel -> szszam,   $tetel -> igazol_usr,   $tetel -> igazol_dt, $tetel -> telephely_id,    $tetel -> targy,    $tetel -> ktgnem_id,    $tetel -> ktghely_id    );
                     }
                     if( $szamla -> tipus == self::SZAMLA_TIPUS_PROJEKT) {
                         array_push($mezok,      'targy',            'dev_br'            );

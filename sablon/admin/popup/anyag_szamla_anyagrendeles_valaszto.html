@@ -22,6 +22,7 @@ $(document).ready(function(){
                 response = JSON.parse(response);
                 if( response.hiba ) {
                     alert2(response.hiba, response.gomb, response.title);
+                    popupZar();
                 } else {
                     $('#popup_tablazat').html(response.tablazat);
                 }

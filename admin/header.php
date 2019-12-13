@@ -1070,6 +1070,9 @@ if( basename(self()) == 'anyagigenyles.php' && !isset($_GET['megjegyzesek']) && 
 }
 
 // Anyag számlánál az új ikonnak látható, de törlés nincs
+if( basename(self()) == 'anyag_szamla.php' && !_jog(JOG_ANYAG_SZAMLAK_KEZEL) ) {
+    $uj = '';
+}
 if( basename(self()) == 'anyag_szamla.php' ) {
     $duplikal = $torles_icon = '';
 }

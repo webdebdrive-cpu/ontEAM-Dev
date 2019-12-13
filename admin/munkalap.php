@@ -6106,18 +6106,18 @@ if( isset($_POST['munkalapMuszakiIgazgato']) ) {
 }
 
 // Határidőre ütemezés
-if (isset($_POST['munkalapHIUtemez'])) {
+if( isset($_POST['munkalapHIUtemez']) ) {
 
     $recid = $_POST['recid'];
     $datum = str_replace('.', '-', $_POST['datum']);
 
-    if($recid){
+    if( $recid ) {
 
         $db_error = false;
         mysqli_autocommit($db_kapcs, false);
 
         // Dátum nem lehet korábbi mint a jelen
-        if($_POST['datum']<=date('Y.m.d')){
+        if( $_POST['datum'] <= date('Y.m.d') ) {
             echo json_encode(array(
                 'hiba'  => 'Csak jövőbeli dátumra ütemezhető egy munkalap!',
                 'title' => 'Hiba',
@@ -6127,7 +6127,7 @@ if (isset($_POST['munkalapHIUtemez'])) {
         }
 
         // Dátum helyes-e?
-        if( !valos_datum_e($_POST['datum'])){
+        if( !valos_datum_e($_POST['datum']) ) {
             echo json_encode(array(
                 'hiba'  => 'Helytelen dátum! Kérem válasszon egy érvényes dátumot!',
                 'title' => 'Hiba',
@@ -6142,7 +6142,7 @@ if (isset($_POST['munkalapHIUtemez'])) {
         }
 
         // És egy megjegyzést is
-        if(addMegj('munkalap', $recid, $megj)===false){
+        if( addMegj('munkalap', $recid, $megj) === false ) {
             $db_error = true;
         }
 
@@ -6157,7 +6157,7 @@ if (isset($_POST['munkalapHIUtemez'])) {
         // Ha van bejelentése, akkor azt várakozóra kell tenni
         $bejelentesek = $adatbazis_kapcsolat->s('bejelentes_id', 'munkalap_kapcs', "`munkalap_id`='{$recid}'");
         if( $bejelentesek === false ) { $db_error = true; }
-        foreach($bejelentesek as $bej){
+         foreach ( $bejelentesek as $bej ) {
             if( addStatusz( 'bejelentes_statusz', $bej['bejelentes_id'], BEJELENTES_STAT_VARAKOZO ) === false ) {
                 $db_error = true;
             }
@@ -6183,7 +6183,7 @@ if (isset($_POST['munkalapHIUtemez'])) {
 }
 
 // Határidőre ütemezésből vissza nyitottba
-if (isset($_POST['munkalapVisszaNyitott'])) {
+if( isset($_POST['munkalapVisszaNyitott']) ) {
 
     $db_error = false;
     mysqli_autocommit($db_kapcs, false);
@@ -6194,7 +6194,7 @@ if (isset($_POST['munkalapVisszaNyitott'])) {
 
     // Munkalaphoz tartozó Bejelentések státuszát pedig folyamatbanra léptetjük
     $bejelentesek = $adatbazis_kapcsolat->s('bejelentes_id', 'munkalap_kapcs', "`munkalap_id`='{$recid}'");
-    foreach($bejelentesek as $bej){
+    foreach ( $bejelentesek as $bej ) {
 
         // Adott bejelentésenk van-e több munkalapja?
         $munkalapok = $adatbazis_kapcsolat->s('munkalap_id', 'munkalap_kapcs', "`bejelentes_id`='{$bej['bejelentes_id']}' AND `munkalap_id`!='{$recid}'");
@@ -6202,13 +6202,13 @@ if (isset($_POST['munkalapVisszaNyitott'])) {
         $munkalapok = adatbazis2tomb($munkalapok, 'munkalap_id');
 
         $hataridore_utemezett = '';
-        if($munkalapok){
+        if( $munkalapok ) {
             $hataridore_utemezett = $adatbazis_kapcsolat->s('recid', 'munkalap', "`stat_id`='".MUNKALAP_STAT_HATIDO_UTEMEZETT."' AND `recid` IN (".implode(',', $munkalapok).")");
             if( $hataridore_utemezett === false ) { $db_error = true; }
         }
 
         // Ha nincs több határidőre ütemezett munkalapja, akkor Folyamatban státuszt kap
-        if(!$hataridore_utemezett){
+        if( !$hataridore_utemezett ) {
             $statusz = addStatusz( 'bejelentes_statusz', $bej['bejelentes_id'], BEJELENTES_STAT_FOLYAMATBAN );
             if( $statusz === false ) { $db_error = true; }
         }
@@ -6233,7 +6233,7 @@ if (isset($_POST['munkalapVisszaNyitott'])) {
 }
 
 // Határidőre ütemezésből vissza nyitottba
-if (isset($_POST['munkalapVisszavetel'])) {
+if( isset($_POST['munkalapVisszavetel']) ) {
 
     $db_error = false;
     mysqli_autocommit($db_kapcs, false);
@@ -6244,7 +6244,7 @@ if (isset($_POST['munkalapVisszavetel'])) {
     if( $munkalap === false ) { $db_error = true; }
 
     // Jog ellenőrzése
-    if( !_jog(JOG_MUNKALAP_NYITOTT_KEZEL) ){
+    if( !_jog(JOG_MUNKALAP_NYITOTT_KEZEL) ) {
         mysqli_rollback($db_kapcs);
         echo json_encode(array(
             'hiba'  => 'Önnek nincs joga a munkalapot visszavenni!',
@@ -6255,7 +6255,7 @@ if (isset($_POST['munkalapVisszavetel'])) {
     }
 
     // Státusz ellenőrzése
-    if($munkalap['stat_id']!=MUNKALAP_STAT_HOZZARENDELT ){
+    if( $munkalap['stat_id'] != MUNKALAP_STAT_HOZZARENDELT ) {
         mysqli_rollback($db_kapcs);
         echo json_encode(array(
             'hiba'  => 'A munkalap nincs hozzárendelt státuszban, így már nem lehet visszavenni!',
@@ -6292,7 +6292,7 @@ if (isset($_POST['munkalapVisszavetel'])) {
 }
 
 // ML visszavételezése ha direktbe volt hozzárendelve a kivitelező
-if (isset($_POST['munkalapVisszavetelDirektbe'])) {
+if( isset($_POST['munkalapVisszavetelDirektbe']) ) {
 
     $db_error = false;
     mysqli_autocommit($db_kapcs, false);
@@ -6303,7 +6303,7 @@ if (isset($_POST['munkalapVisszavetelDirektbe'])) {
     if( $munkalap === false ) { $db_error = true; }
 
     // Jog ellenőrzése
-    if( !_jog(JOG_MUNKALAP_NYITOTT_KEZEL) ){
+    if( !_jog(JOG_MUNKALAP_NYITOTT_KEZEL) ) {
         mysqli_rollback($db_kapcs);
         echo json_encode(array(
             'hiba'  => 'Önnek nincs joga a munkalapot visszavenni!',
@@ -6314,7 +6314,7 @@ if (isset($_POST['munkalapVisszavetelDirektbe'])) {
     }
 
     // Státusz ellenőrzése
-    if($munkalap['stat_id']!=MUNKALAP_STAT_HOZZARENDELT ){
+    if( $munkalap['stat_id'] != MUNKALAP_STAT_HOZZARENDELT ) {
         mysqli_rollback($db_kapcs);
         echo json_encode(array(
             'hiba'  => 'A munkalap nincs hozzárendelt státuszban, így már nem lehet visszavenni!',
@@ -6325,7 +6325,7 @@ if (isset($_POST['munkalapVisszavetelDirektbe'])) {
     }
     
     // Ha van levélküldés, akkor ellenőrizzük a többi mezőt is
-    if($_POST['email']){
+    if( $_POST['email'] ) {
         if(!trim($_POST['cimzett'])){
             echo json_encode(array(
                 'hiba'  => 'Kérem adja meg a címzett email címét!',

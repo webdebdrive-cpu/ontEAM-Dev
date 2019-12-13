@@ -2291,8 +2291,8 @@ function js_kiir($tomb, $fg = 'form_ell_regi()', $ajax = false) {
         $ret .= nl2('
 
                 /* Hozzárendelt személy ha külsős, akkor a Külső kivitelező kitöltése kötelező */
-                if($(\'#szemelyzet_id\').val()==3){
-                    if( !$(\'#szallito_id\').val() ){
+                if( $(\'#szemelyzet_id\').val()=='.KULSO_KIVITELEZO.' ) {
+                    if( !$(\'#szallito_id\').val() ) {
                         alert2(\'Kérem adja meg a külső kivitelezőt!\', \'\', \'Hiba\');
                         $(\'#szallito_id_autocomp\').addClass(\'hibas_ide_focus\');
                         return false;
@@ -3097,68 +3097,7 @@ function szamla_lista( $where = '', $tabla = '', $kijeloltek = false, $csak_sql_
         }
 
         if( $tabla == 'munkalap' || $tabla == 'munkalap_arch' ) {
-
-            // Ki-ki csak a saját szállodáit láthatja, ez alap
-            $where = "`".get_db_tabla().$tabla."`.`telephely_id` IN (".implode(',', $szallodak).") AND ";
-
-            // Ha mobilcsopotos felhasználó vagyok csak azokat a munkalapokat látom, amik mobilhoz vannak rendelve és a hozzárendelt személy üres vagy én vagyok.
-            if( $_SESSION[get_db_tabla() . 'szemelyzet_id'] == MOBILCSOPORT ) {
-                $login = $adatbazis_kapcsolat->s2('mobil', 'login', "`recid`='{$_SESSION[get_db_tabla().'login_recid']}'");
-                if($login['mobil']){
-                    $where .= "`".get_db_tabla().$tabla."`.`szemelyzet_id`='{$_SESSION[get_db_tabla().'szemelyzet_id']}' AND (`mobil_loginnev`='' OR `mobil_loginnev`='{$_SESSION[get_db_tabla().'user']}') AND `mobil`='{$login['mobil']}' AND ";
-                // Ha nincs mobilcsoportom, akkor nem látok munkalapokat
-                } else {
-                    $where .= ' FALSE AND ';
-                }
-
-            // Ha nem mobilcsoport vagyok, akkor még a saját szállodák jogra kell figyelni:
-            } else {
-
-                // Saját szem. tip. megtekintése: saját szállodák + hozzárendelt személyzet: tehát tovább szűrünk hozzárendelt személyzetre, amit a felhasználókon, majd személyezeten át kapunk meg
-                if(_jog(JOG_MUNKALAP_MEGTEKINT)){
-                    // Hozzárendelt személyzet megállapítása. Ez egyenlő a Személyzet beosztásával.
-                    $where .= "`".get_db_tabla().$tabla."`.`szemelyzet_id`='{$_SESSION[get_db_tabla().'szemelyzet_id']}' AND ";
-                    if(!$_SESSION[get_db_tabla().'szemelyzet_id']){
-                        $where .= ' FALSE AND ';
-                    }
-                }
-            }
-
-            // Azaz ha saját szállodáim/saját feladataim jogom van, akkor az egy lazább feltétel, nem szűrünk hozzárendelt személyzetre
-            if( _jog(JOG_MUNKALAP_MEGTEKINT_SZALL) ){
-                $where .= '';
-            }
-            // Ha saját feladatok a láthatósági kör, akkor az SQL feltétel azon múlik, hogy milyen jogai vannak a felhasználónak
-            // Archív munkalaponknál nincs külön státuszra szűrés, ott ez értelmetlen
-            if( _jog(JOG_MUNKALAP_MEGTEKINT_FELADAT) && $tabla != 'munkalap_arch' ) {
-                $statuszra_szures = array();
-                if( _jog(JOG_MUNKALAP_IGAZOLAS) ) {
-                    array_push($statuszra_szures, MUNKALAP_STAT_IGAZOLASRA_VAR);
-                }
-                if( _jog(JOG_MUNKALAP_VIZSGALAT) ) {
-                    array_push($statuszra_szures, MUNKALAP_STAT_VIZSGALAT_ALATT);
-                }
-                if( _jog(JOG_MUNKALAP_KULSOS_ELOKESZIT) ) {
-                    array_push($statuszra_szures, MUNKALAP_STAT_ELOKESZITES_ALATT);
-                }
-                if( _jog(JOG_MUNKALAP_KULSOS_DONTES) ){
-                    array_push($statuszra_szures, MUNKALAP_STAT_DONTESRE_VAR);
-                }
-                if( _jog(JOG_MUNKALAP_KULSOS_MEGREND) ){
-                    array_push($statuszra_szures, MUNKALAP_STAT_HOZREND_MEGREND_VAR);
-                    array_push($statuszra_szures, MUNKALAP_STAT_AJANLAT_NYOMTATVA);
-                    array_push($statuszra_szures, MUNKALAP_STAT_SZTORNO_VAR);
-                }
-
-                // Szűrés azokra a státuszokra, amiket láthat
-                if( $statuszra_szures ) {
-                    $where .= "`".get_db_tabla().$tabla."`.`stat_id` IN (".implode(',', $statuszra_szures).") AND ";
-                // Ha egyiket sem láthatja, akkor legyen üres a lista
-                } else {
-                    $where .= ' FALSE AND ';
-                }
-            }
-
+            $where = get_munkalap_lathatosag_feltetel($tabla, $szallodak);
         }
 
         // Keresés
@@ -3166,13 +3105,13 @@ function szamla_lista( $where = '', $tabla = '', $kijeloltek = false, $csak_sql_
 
             // Ki kell szűrni az " ... as " részeket.
             $select_feldogloz = nl2($_OPTS['select']);
-            if(strpos($select_feldogloz, '` as `')!==false){
+            if( strpos($select_feldogloz, '` as `') !== false ) {
                 $as_resz = strpos($select_feldogloz, '` as `');
 
                 $select_tmp = substr($select_feldogloz, 1, $as_resz);
                 // Maradékból vágjuk ki az as `ami ide van írva` részt. 4. ` karaterig vágunk
                 $maradek    = substr($select_feldogloz, $as_resz);
-                for($i=0; $i<4; $i++){
+                for ( $i = 0; $i < 4; $i++ ) {
                     $maradek = substr($maradek, 0, strpos('`'));
                 }
                 $select_feldogloz = $select_tmp.$maradek;
@@ -3180,9 +3119,9 @@ function szamla_lista( $where = '', $tabla = '', $kijeloltek = false, $csak_sql_
 
             $selectek = explode(' ', $select_feldogloz);
             $ksz_where = '';
-            foreach($selectek as $select_tmp) {
+            foreach ( $selectek as $select_tmp ) {
                 if( $select_tmp && $select_tmp != 'recid' ) {
-                    if(strpos($select_tmp, '`')!==false){
+                    if( strpos($select_tmp, '`') !== false ) {
                         $ksz_where .= trim($select_tmp, ',')." LIKE '%{$_GET['ksz']}%' OR ";
 
                         // Ékezet sensitive verzió: $ksz_where .= trim($select_tmp, ',')." LIKE '%{$_GET['ksz']}%' COLLATE utf8_bin OR ";
@@ -3193,7 +3132,7 @@ function szamla_lista( $where = '', $tabla = '', $kijeloltek = false, $csak_sql_
                 }
             }
 
-            if($ksz_where){
+            if( $ksz_where ) {
                 $where .= '('.trim($ksz_where, ' OR ').') AND ';
             }
 
@@ -3921,8 +3860,6 @@ if( isset($_GET['debug']) && $_SERVER['HTTP_HOST']!='teszt.onteam.hu' && $_SERVE
 
 }
 
-
-
 function anyag_szamlaLista( $bejegyzesek, $tabla, $frissit, $kijeloltek ) {
 
     if( $bejegyzesek ) {
@@ -3941,9 +3878,12 @@ function anyag_szamlaLista( $bejegyzesek, $tabla, $frissit, $kijeloltek ) {
             $li_tart = '<a class="szamla" data-recid="'.$bsz['recid'].'" data-fajl="'.$tabla.'.php" data-muvelet="modosit">
                             <table>
                             <tr> 
-                                <td style="width: 12rem">'.$bsz['ikt_szam'].'</td>
-                                <td style="width: 8rem">'.$bsz['szla_szam'].'</td>
-                                <td>'.datum_kiir($bsz['fizhat_dt']).'</td>
+                                <td style="width: 12rem">'.getSzallodaNev($bsz['telephely_id']).'</td>
+                                <td style="width: 10rem" class="r">'.number_format($bsz['netto'], 0, '', ' ').' '.get_penznem().'</td>
+                                <td></td>
+                            </tr>
+                            <tr> 
+                                <td colspan="3">'. getErtek('nev', 'szallito', 'id', $bsz['szallito_id']).'</td>
                             </tr>
                             </table>
                         </a>';
@@ -5942,9 +5882,12 @@ function energia_szamlaLista( $bejegyzesek, $tabla, $frissit, $kijeloltek ) {
             $li_tart = '<a class="szamla" data-recid="'.$bsz['recid'].'" data-fajl="'.$tabla.'.php" data-muvelet="modosit">
                             <table>
                             <tr> 
-                                <td style="width: 12rem">'.$bsz['ikt_szam'].'</td>
-                                <td style="width: 8rem">'.$bsz['szla_szam'].'</td>
-                                <td>'.datum_kiir($bsz['fizhat_dt']).'</td>
+                                <td style="width: 12rem">'.getSzallodaNev($bsz['telephely_id']).'</td>
+                                <td style="width: 10rem" class="r">'.number_format($bsz['netto'], 0, '', ' ').' '.get_penznem().'</td>
+                                <td></td>
+                            </tr>
+                            <tr> 
+                                <td colspan="3">'. getErtek('nev', 'szallito', 'id', $bsz['szallito_id']).'</td>
                             </tr>
                             </table>
                         </a>';
@@ -10737,4 +10680,74 @@ function projekt_minositesre_varo_dok_szamol( $pr_id ) {
         return true;
     }
     
+}
+
+// Adott felhasználónak milyen SQL feltételt kell összeállítani, ha a Munkalapok felületére lép?
+// Ezt központosítjuk itt, hisz nem csak a bal navpanelben lesz rá szükség, hanem a nyitólapi dashboard-nál is
+function get_munkalap_lathatosag_feltetel($tabla, $szallodak) {
+    
+    global $adatbazis_kapcsolat;
+    
+    // Ki-ki csak a saját szállodáit láthatja, ez alap
+    $where = "`".get_db_tabla().$tabla."`.`telephely_id` IN (".implode(',', $szallodak).") AND ";
+
+    // Ha mobilcsopotos felhasználó vagyok csak azokat a munkalapokat látom, amik mobilhoz vannak rendelve és a hozzárendelt személy üres vagy én vagyok.
+    if( $_SESSION[get_db_tabla() . 'szemelyzet_id'] == MOBILCSOPORT ) {
+        $login = $adatbazis_kapcsolat->s2('mobil', 'login', "`recid`='{$_SESSION[get_db_tabla().'login_recid']}'");
+        if( $login['mobil'] ) {
+            $where .= "`".get_db_tabla().$tabla."`.`szemelyzet_id`='{$_SESSION[get_db_tabla().'szemelyzet_id']}' AND (`mobil_loginnev`='' OR `mobil_loginnev`='{$_SESSION[get_db_tabla().'user']}') AND `mobil`='{$login['mobil']}' AND ";
+        // Ha nincs mobilcsoportom, akkor nem látok munkalapokat
+        } else {
+            $where .= ' FALSE AND ';
+        }
+
+    // Ha nem mobilcsoport vagyok, akkor még a saját szállodák jogra kell figyelni:
+    } else {
+
+        // Saját szem. tip. megtekintése: saját szállodák + hozzárendelt személyzet: tehát tovább szűrünk hozzárendelt személyzetre, amit a felhasználókon, majd személyezeten át kapunk meg
+        if( _jog(JOG_MUNKALAP_MEGTEKINT) ) {
+            // Hozzárendelt személyzet megállapítása. Ez egyenlő a Személyzet beosztásával.
+            $where .= "`".get_db_tabla().$tabla."`.`szemelyzet_id`='{$_SESSION[get_db_tabla().'szemelyzet_id']}' AND ";
+            if( !$_SESSION[get_db_tabla() . 'szemelyzet_id'] ) {
+                $where .= ' FALSE AND ';
+            }
+        }
+    }
+
+    // Azaz ha saját szállodáim/saját feladataim jogom van, akkor az egy lazább feltétel, nem szűrünk hozzárendelt személyzetre
+    if( _jog(JOG_MUNKALAP_MEGTEKINT_SZALL) ) {
+        $where .= '';
+    }
+    // Ha saját feladatok a láthatósági kör, akkor az SQL feltétel azon múlik, hogy milyen jogai vannak a felhasználónak
+    // Archív munkalaponknál nincs külön státuszra szűrés, ott ez értelmetlen
+    if( _jog(JOG_MUNKALAP_MEGTEKINT_FELADAT) && $tabla != 'munkalap_arch' ) {
+        $statuszra_szures = array();
+        if( _jog(JOG_MUNKALAP_IGAZOLAS) ) {
+            array_push($statuszra_szures, MUNKALAP_STAT_IGAZOLASRA_VAR);
+        }
+        if( _jog(JOG_MUNKALAP_VIZSGALAT) ) {
+            array_push($statuszra_szures, MUNKALAP_STAT_VIZSGALAT_ALATT);
+        }
+        if( _jog(JOG_MUNKALAP_KULSOS_ELOKESZIT) ) {
+            array_push($statuszra_szures, MUNKALAP_STAT_ELOKESZITES_ALATT);
+        }
+        if( _jog(JOG_MUNKALAP_KULSOS_DONTES) ) {
+            array_push($statuszra_szures, MUNKALAP_STAT_DONTESRE_VAR);
+        }
+        if( _jog(JOG_MUNKALAP_KULSOS_MEGREND) ) {
+            array_push($statuszra_szures, MUNKALAP_STAT_HOZREND_MEGREND_VAR);
+            array_push($statuszra_szures, MUNKALAP_STAT_AJANLAT_NYOMTATVA);
+            array_push($statuszra_szures, MUNKALAP_STAT_SZTORNO_VAR);
+        }
+
+        // Szűrés azokra a státuszokra, amiket láthat
+        if( $statuszra_szures ) {
+            $where .= "`".get_db_tabla().$tabla."`.`stat_id` IN (".implode(',', $statuszra_szures).") AND ";
+        // Ha egyiket sem láthatja, akkor legyen üres a lista
+        } else {
+            $where .= ' FALSE AND ';
+        }
+    }
+    
+    return $where;
 }

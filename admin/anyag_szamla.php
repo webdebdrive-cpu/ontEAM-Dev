@@ -38,45 +38,56 @@ if( $tobb_kep ) {
 // Feldolgozásra váró számlák kilistázása
 if( isset($_POST['get_feld_var_szamlak']) ) {
     
-    $szamlak = $adatbazis_kapcsolat->s('recid telephely_id szallito_id szla_szam telj_dt netto dev_net', 'anyag_szamla', "`stat_id`='".A_SZAMLA_STAT_FELDOLGOZASRA_VAR."'");
-    
-    $tablazat = nl2('
-        <div style="max-height: 40rem; overflow-y: auto; overflow-x: none;">
-            <table id="feld_var_szamlak" class="csikos v2 kijCont csak_egy_kijelolheto fix_fejlec hoveres">
-            <tr>
-                <th>Rendelés szám</th>
-                <th>Szálloda</th>
-                <th>Szállító</th>
-                <th>Számlaszám</th>
-                <th>Teljesítés dátuma</th>
-                <th>Nettó érték/<br>Deviza nettó</th>
-            </tr>
-        ');
-    foreach ( $szamlak as $szamla ) {
+    if( _jog(JOG_ANYAG_SZAMLAK_KEZEL) ) {
         
-        $netto = number_format($szamla['netto'], 0, '', ' ');
-        if( $szamla['dev_net'] ) {
-            $netto = number_format($szamla['dev_net'], 2, ',', ' ');
-        }
-        
-        $tablazat .= nl2('
-            <tr class="kijSor" data-recid="'.$szamla['recid'].'">
-                <td>?</td>
-                <td>'.getSzallodaNev($szamla['telephely_id']).'</td>
-                <td>'.getErtek('nev', 'szallito', 'id', $szamla['szallito_id']).'</td>
-                <td>'.$szamla['szla_szam'].'</td>
-                <td>'.datum_kiir($szamla['telj_dt']).'</td>
-                <td class="r">'.$netto.'</td>
-            </tr>
+        $szamlak = $adatbazis_kapcsolat->s('recid telephely_id szallito_id szla_szam telj_dt netto dev_net rnd_id', 'anyag_szamla', "`stat_id`='".A_SZAMLA_STAT_FELDOLGOZASRA_VAR."'");
+
+        $tablazat = nl2('
+            <div style="max-height: 40rem; overflow-y: auto; overflow-x: none;">
+                <table id="feld_var_szamlak" class="csikos v2 kijCont csak_egy_kijelolheto fix_fejlec hoveres">
+                <tr>
+                    <th>Rendelés szám</th>
+                    <th>Szálloda</th>
+                    <th>Szállító</th>
+                    <th>Számlaszám</th>
+                    <th>Teljesítés dátuma</th>
+                    <th>Nettó érték/<br>Deviza nettó</th>
+                </tr>
             ');
+        foreach ( $szamlak as $szamla ) {
+
+            $netto = number_format($szamla['netto'], 0, '', ' ');
+            if( $szamla['dev_net'] ) {
+                $netto = number_format($szamla['dev_net'], 2, ',', ' ');
+            }
+
+            $tablazat .= nl2('
+                <tr class="kijSor" data-recid="'.$szamla['recid'].'">
+                    <td>'.$szamla['rnd_id'].'</td>
+                    <td>'.getSzallodaNev($szamla['telephely_id']).'</td>
+                    <td>'.getErtek('nev', 'szallito', 'id', $szamla['szallito_id']).'</td>
+                    <td>'.$szamla['szla_szam'].'</td>
+                    <td>'.datum_kiir($szamla['telj_dt']).'</td>
+                    <td class="r">'.$netto.'</td>
+                </tr>
+                ');
+        }
+
+        $tablazat .= nl2('
+                </table>
+            </div>
+            ');
+        
+        echo json_encode( array('tablazat' => $tablazat) );
+        
+    } else {
+        echo json_encode( array(
+                                'hiba'  => 'Önnek nincs joga számlát kiválasztani!',
+                                'title' => 'Hiba'
+                                )
+                        );
     }
     
-    $tablazat .= nl2('
-            </table>
-        </div>
-        ');
-    
-    echo json_encode( array('tablazat' => $tablazat) );
     
     
     $weblap -> leallit();
@@ -86,69 +97,79 @@ if( isset($_POST['get_feld_var_szamlak']) ) {
 // Kiválasztott számla tételeinek felsorolása
 if( isset($_POST['get_szamla_tetelek']) ) {
     
-    // Javasriptből kaptunk egy tömbböt, ilyen formában: tomb[szamla_tetel_recid] = anyagrendeles_recid
-    $kapcsolasok = json_decode($_POST['kapcsolasok'], 'tömbbe');
+    if( _jog(JOG_ANYAG_SZAMLAK_KEZEL) ) {
+        
+        // Javasriptből kaptunk egy tömbböt, ilyen formában: tomb[szamla_tetel_recid] = anyagrendeles_recid
+        $kapcsolasok = json_decode($_POST['kapcsolasok'], 'tömbbe');
 
-    // Tételek bejárása
-    $tetelek = $adatbazis_kapcsolat->s('recid ktgnem_id netto_ert cikk_id', 'anyag_szamla_tetel', "`anyag_szamla_recid`='{$_POST['szamla_id']}'");
-    
-    $tablazat = nl2('
-        <div style="max-height: 40rem; overflow-y: auto; overflow-x: none;">
-            <table id="feld_var_szamlak" class="csikos v2 fix_fejlec hoveres">
-            <tr>
-                <th>Név</th>
-                <th>Mee</th>
-                <th>Rendelt mennyiség</th>
-                <th>Beérkezett mennyiség</th>
-                <th>Már számlázott mennyiség</th>
-                <th>Számlázott mennyiség</th>
-                <th>Rendelési egységár</th>
-                <th>Számlázott egységár</th>
-                <th>Nettó érték</th>
-                <th>Cikkszám</th>
-                <th>Cikknév</th>
-                <th>Rendelés kiválasztása</th>
-                <th>Módosító tétel</th>
-            </tr>
-        ');
-    foreach ( $tetelek as $tetel ) {
-        
-        // Ha már van kacsolat a számla tétel és az anyagrendelés tétel között, akkor a rendelés adatait is kitöltjük
-        $anyagrend = '';
-        if( $kapcsolasok[$tetel['recid']] ) {
-            $anyagrend = $adatbazis_kapcsolat->s2('cikkmee rndmen erkmen szlamen rndear', 'anyagigenyles', "`recid`='{$kapcsolasok[$tetel['recid']]}'");
-        }
-        
-        $tablazat .= nl2('
-            <tr data-recid="'.$tetel['recid'].'">
-                <td>'.getErtek('nev', 'ktgnem', 'id', $tetel['ktgnem_id']).'</td>
-                <td>'.$anyagrend['cikkmee'].'</td>
-                <td class="nowrap">'.number_format($anyagrend['rndmen'], 2, ',', ' ').'</td>
-                <td class="nowrap">'.number_format($anyagrend['erkmen'], 2, ',', ' ').'</td>
-                <td>?</td>
-                <td class="nowrap">'.number_format($anyagrend['szlamen'], 2, ',', ' ').'</td>
-                <td class="nowrap">'.number_format($anyagrend['rndear'], 4, ',', ' ').'</td>
-                <td>?</td>
-                <td class="nowrap">'.number_format($tetel['netto_ert'], 0, '', ',').'</td>
-                <td>'.$tetel['cikk_id'].'</td>
-                <td>'.getErtek('nev', 'cikktorzs', 'id', $tetel['cikk_id']).'</td>
-                <td><input type="button" class="gomb alacsony" value="Kiválaszt" onclick="anyag_szamla_tetel_rendeles_kivalaszt(\''.$tetel['recid'].'\')"></td>
-                <td>
-                    <div class="cb">
-                        <input type="checkbox" class="check" id="modosit_'.$tetel['recid'].'">
-                        <label for="modosit_'.$tetel['recid'].'"></label>
-                    </div>
-                </td>
-            </tr>
+        // Tételek bejárása
+        $tetelek = $adatbazis_kapcsolat->s('recid ktgnem_id netto_ert cikk_id', 'anyag_szamla_tetel', "`anyag_szamla_recid`='{$_POST['szamla_id']}'");
+
+        $tablazat = nl2('
+            <div style="max-height: 40rem; overflow-y: auto; overflow-x: none;">
+                <table id="feld_var_szamlak" class="csikos v2 fix_fejlec hoveres">
+                <tr>
+                    <th>Név</th>
+                    <th>Mee</th>
+                    <th>Rendelt mennyiség</th>
+                    <th>Beérkezett mennyiség</th>
+                    <th>Már számlázott mennyiség</th>
+                    <th>Számlázott mennyiség</th>
+                    <th>Rendelési egységár</th>
+                    <th>Számlázott egységár</th>
+                    <th>Nettó érték</th>
+                    <th>Cikkszám</th>
+                    <th>Cikknév</th>
+                    <th>Rendelés kiválasztása</th>
+                    <th>Módosító tétel</th>
+                </tr>
             ');
+        foreach ( $tetelek as $tetel ) {
+
+            // Ha már van kacsolat a számla tétel és az anyagrendelés tétel között, akkor a rendelés adatait is kitöltjük
+            $anyagrend = '';
+            if( $kapcsolasok[$tetel['recid']] ) {
+                $anyagrend = $adatbazis_kapcsolat->s2('cikkmee rndmen erkmen szlamen rndear', 'anyagigenyles', "`recid`='{$kapcsolasok[$tetel['recid']]}'");
+            }
+
+            $tablazat .= nl2('
+                <tr data-recid="'.$tetel['recid'].'">
+                    <td>'.getErtek('nev', 'ktgnem', 'id', $tetel['ktgnem_id']).'</td>
+                    <td>'.$anyagrend['cikkmee'].'</td>
+                    <td class="nowrap">'.number_format($anyagrend['rndmen'], 2, ',', ' ').'</td>
+                    <td class="nowrap">'.number_format($anyagrend['erkmen'], 2, ',', ' ').'</td>
+                    <td>?</td>
+                    <td class="nowrap">'.number_format($anyagrend['szlamen'], 2, ',', ' ').'</td>
+                    <td class="nowrap">'.number_format($anyagrend['rndear'], 4, ',', ' ').'</td>
+                    <td>?</td>
+                    <td class="nowrap">'.number_format($tetel['netto_ert'], 0, '', ',').'</td>
+                    <td>'.$tetel['cikk_id'].'</td>
+                    <td>'.getErtek('nev', 'cikktorzs', 'id', $tetel['cikk_id']).'</td>
+                    <td><input type="button" class="gomb alacsony" value="Kiválaszt" onclick="anyag_szamla_tetel_rendeles_kivalaszt(\''.$tetel['recid'].'\')"></td>
+                    <td>
+                        <div class="cb">
+                            <input type="checkbox" class="check" id="modosit_'.$tetel['recid'].'">
+                            <label for="modosit_'.$tetel['recid'].'"></label>
+                        </div>
+                    </td>
+                </tr>
+                ');
+        }
+
+        $tablazat .= nl2('
+                </table>
+            </div>
+            ');
+
+        echo json_encode( array('tablazat' => $tablazat) );
+    
+    } else {
+        echo json_encode( array(
+                                'hiba'  => 'Önnek nincs joga számlát kiválasztani!',
+                                'title' => 'Hiba'
+                                )
+                        );
     }
-    
-    $tablazat .= nl2('
-            </table>
-        </div>
-        ');
-    
-    echo json_encode( array('tablazat' => $tablazat) );
     
     
     $weblap -> leallit();
@@ -158,52 +179,61 @@ if( isset($_POST['get_szamla_tetelek']) ) {
 // Anyagrendelések kilistázása egy számlat tétel alapján
 if( isset($_POST['get_anyagrendeles_tetelek']) ) {
     
-    $szamla = $adatbazis_kapcsolat->s2('rndid', 'anyag_szamla', "`recid`='{$_POST['szamla_id']}'");
+    if( _jog(JOG_ANYAG_SZAMLAK_KEZEL) ) {
     
-    // A rendelés kiválasztás popupon, azokat a rendelés tételeket kell megjeleníteni, melyeknél a rendelés szám megegyezik a kiválasztott számla rendelés számával 
-    // és a számlázott mennyiség < beérkezett mennyiség, mert ezeknél a tételeknél várunk még számlát.
-    // Továbbá melyeknek részben beérkezett vagy beérkezett a státusza és szállító az, ami a kiválasztott számla szállítója, telephely pedig szintén az előbb kiválasztott számla telephelye.
-    $anyagrendelesek = $adatbazis_kapcsolat->s('recid rndid cikk_id cikkmee ikt_szam rndmen erkmen szlamen rndear', 'anyagigenyles', "`rndid`='{$szamla['rndid']}' AND `szlamen`<`erkmen`");
+        $szamla = $adatbazis_kapcsolat->s2('rnd_id', 'anyag_szamla', "`recid`='{$_POST['szamla_id']}'");
 
-    $tablazat = nl2('
-        <div style="max-height: 40rem; overflow-y: auto; overflow-x: none;">
-            <table id="anyagrend_tetelek" class="csikos v2 kijCont csak_egy_kijelolheto fix_fejlec hoveres">
-            <tr>
-                <th>Rendelés szám</th>
-                <th>Cikkszám</th>
-                <th>Cikknév</th>
-                <th>Mee</th>
-                <th>Anyagig. Szám</th>
-                <th>Rendelt mennyiség</th>
-                <th>Beérkezett mennyiség</th>
-                <th>Már számlázott mennyiség</th>
-                <th>Rendelési egységár</th>
-            </tr>
-        ');
-    foreach ( $anyagrendelesek as $rendeles ) {
-        
-        $tablazat .= nl2('
-            <tr class="kijSor" data-recid="'.$rendeles['recid'].'">
-                <td>'.$rendeles['rndid'].'</td>
-                <td>'.$rendeles['cikk_id'].'</td>
-                <td>'.getErtek('nev', 'cikktorzs', 'id', $rendeles['cikk_id']).'</td>
-                <td>'.$rendeles['cikkmee'].'</td>
-                <td>'.$rendeles['ikt_szam'].'</td>
-                <td class="r">'.number_format($rendeles['rndmen'],  2, ',', ' ').'</td>
-                <td class="r">'.number_format($rendeles['erkmen'],  2, ',', ' ').'</td>
-                <td class="r">'.number_format($rendeles['szlamen'], 2, ',', ' ').'</td>
-                <td class="r">'.number_format($rendeles['rndear'],  4, ',', ' ').'</td>
-            </tr>
+        // A rendelés kiválasztás popupon, azokat a rendelés tételeket kell megjeleníteni, melyeknél a rendelés szám megegyezik a kiválasztott számla rendelés számával 
+        // és a számlázott mennyiség < beérkezett mennyiség, mert ezeknél a tételeknél várunk még számlát.
+        // Továbbá melyeknek részben beérkezett vagy beérkezett a státusza és szállító az, ami a kiválasztott számla szállítója, telephely pedig szintén az előbb kiválasztott számla telephelye.
+        $anyagrendelesek = $adatbazis_kapcsolat->s('recid rndid cikk_id cikkmee ikt_szam rndmen erkmen szlamen rndear', 'anyagigenyles', "`rndid`='{$szamla['rnd_id']}' AND `szlamen`<`erkmen`");
+
+        $tablazat = nl2('
+            <div style="max-height: 40rem; overflow-y: auto; overflow-x: none;">
+                <table id="anyagrend_tetelek" class="csikos v2 kijCont csak_egy_kijelolheto fix_fejlec hoveres">
+                <tr>
+                    <th>Rendelés szám</th>
+                    <th>Cikkszám</th>
+                    <th>Cikknév</th>
+                    <th>Mee</th>
+                    <th>Anyagig. Szám</th>
+                    <th>Rendelt mennyiség</th>
+                    <th>Beérkezett mennyiség</th>
+                    <th>Már számlázott mennyiség</th>
+                    <th>Rendelési egységár</th>
+                </tr>
             ');
+        foreach ( $anyagrendelesek as $rendeles ) {
+
+            $tablazat .= nl2('
+                <tr class="kijSor" data-recid="'.$rendeles['recid'].'">
+                    <td>'.$rendeles['rndid'].'</td>
+                    <td>'.$rendeles['cikk_id'].'</td>
+                    <td>'.getErtek('nev', 'cikktorzs', 'id', $rendeles['cikk_id']).'</td>
+                    <td>'.$rendeles['cikkmee'].'</td>
+                    <td>'.$rendeles['ikt_szam'].'</td>
+                    <td class="r">'.number_format($rendeles['rndmen'],  2, ',', ' ').'</td>
+                    <td class="r">'.number_format($rendeles['erkmen'],  2, ',', ' ').'</td>
+                    <td class="r">'.number_format($rendeles['szlamen'], 2, ',', ' ').'</td>
+                    <td class="r">'.number_format($rendeles['rndear'],  4, ',', ' ').'</td>
+                </tr>
+                ');
+        }
+
+        $tablazat .= nl2('
+                </table>
+            </div>
+            ');
+
+        echo json_encode( array('tablazat' => $tablazat) );
+    
+    } else {
+        echo json_encode( array(
+                                'hiba'  => 'Önnek nincs joga számlát kiválasztani!',
+                                'title' => 'Hiba'
+                                )
+                        );
     }
-    
-    $tablazat .= nl2('
-            </table>
-        </div>
-        ');
-    
-    echo json_encode( array('tablazat' => $tablazat) );
-    
     
     $weblap -> leallit();
     exit;
@@ -224,7 +254,7 @@ if( isset($_POST['anyag_szamla_tetelek_ment']) ) {
     }
     
     // Az anyagrendelés sorába hozzáadjuk a már számlázott összeget a meglevőhöz
-    // Illetve a számla tétel sorába is letároljuk a rendelés azonosítóját és rndid-ját.
+    // Illetve a számla tétel sorába is letároljuk a rendelés azonosítóját és rnd_id-ját.
     foreach( $kapcsolasok as $kulcs => $kapcs ) {
         
         // Számlázott mennyiség növelése
@@ -237,8 +267,8 @@ if( isset($_POST['anyag_szamla_tetelek_ment']) ) {
         // Anyagrendelés ID-k eltárolása tételekhez
         $anyagrendeles = $adatbazis_kapcsolat->s2('ikt_szam, rndid', 'anyagigenyles', "`recid`='{$kapcs}'");
         $sql = $adatbazis_kapcsolat->u('anyag_szamla_tetel',
-                                                            array('anyagigenles_szam',          'rndid'                 ),
-                                                            array($anyagrendeles['ikt_szam'],   $anyagrendeles['rndid'] ),
+                                                            array('anyagigenles_szam',          'rnd_id'                 ),
+                                                            array($anyagrendeles['ikt_szam'],   $anyagrendeles['rndid']  ),
                                         "`recid`='{$kulcs}'");
         if( !$sql ) { $db_error = true; }
     }
