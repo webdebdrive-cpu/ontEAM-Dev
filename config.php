@@ -105,8 +105,9 @@ function get_http()          {
         return 'http://';
     }
 }
-function get_logfile_max_meret(){ return 2097152; }
-function get_mail($kiir = '')     { return !$kiir ? 'noreply@onteam.hu' :
+function get_sorrend_tomb_max_meret()   { return 5000;      } // CSV exportba csak úgy tudjuk a képernyő sorrendjét lehozni, ha egy ORDER BY FIELD rendezéssel a már ismert sorrendben kérjük le a mezőket. De nagyon hosszú lista esetén ez az SQL ki tud akadni, ezért limitáljuk,hogy ezt hány soron át tesszük meg.
+function get_logfile_max_meret()        { return 2097152;   }
+function get_mail($kiir = '')           { return !$kiir ? 'noreply@onteam.hu' :
            mail_rejtes('<a href="mailto:'.get_mail().'">'.get_mail().'</a>');   }
 function get_megsz()         { return 'magaz';                                  }
 function get_mail_charset()  { return 'UTF-8';                                  } // ISO-8859-1, ISO-8859-2, Windows-1250, Windows-1251

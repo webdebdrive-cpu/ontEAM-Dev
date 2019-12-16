@@ -83,6 +83,16 @@ if (isset($_GET['csv'])) {
             }
         }
         
+        // Ha van $_SESSION['akt_sql_order'], akkor eszerint rendezünk, tehát a $lekerdezes_fromtol-t elvágjuk az Order-nél
+        if( $_SESSION['akt_sql_order'] ){
+            $hossz = strpos($lekerdezes_fromtol, 'ORDER');
+            if( $hossz ) {
+                $lekerdezes_fromtol = substr($lekerdezes_fromtol, 0, $hossz);
+            } else {
+                $lekerdezes_fromtol = substr($lekerdezes_fromtol, 0);
+            }
+        }
+        
         $sql = 'SELECT
                                                     `ikt_szam` as \'Bejelentés szám\',
                                                     `'.get_db_tabla().$megnevezes.'`.`telephely_id` as \'Szálloda\',
@@ -94,7 +104,6 @@ if (isset($_GET['csv'])) {
                                                     `stat_id` as \'Státusz\',
                                                     `'.get_db_tabla().$megnevezes.'`.`insert_dt` as \'Bejelentés dátuma\'
                                                     '.$lekerdezes_fromtol.$_SESSION['akt_sql_order'];
-
         $query      = mysqli_query($db_kapcs, $sql);
 
         $csvhead    = array();

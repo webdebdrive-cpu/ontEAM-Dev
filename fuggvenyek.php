@@ -3324,21 +3324,21 @@ function szamla_lista( $where = '', $tabla = '', $kijeloltek = false, $csak_sql_
                 // Nem nyitott státuszú, azon belül sürgősek majd iktatószám
                 // A státuszoknak is van egy sorrendje
                 $statuszok = array_reverse( array(BEJELENTES_STAT_FOLYAMATBAN, BEJELENTES_STAT_KESZ_IG, BEJELENTES_STAT_VIZSG_ALATT, BEJELENTES_STAT_VARAKOZO, BEJELENTES_STAT_ELUTASITVA, BEJELENTES_STAT_LEZART) );
-                foreach($statuszok as $stat){
+                foreach ( $statuszok as $stat ) {
                     $bejelentesek = $adatbazis_kapcsolat->s('recid', $tabla, "`stat_id`='{$stat}'", '`surgos`, `ikt_szam`');
-                    foreach($bejelentesek as $bejelentes){
+                    foreach ( $bejelentesek as $bejelentes ) {
                         array_push($sorrend_idk, $bejelentes['recid']);
                     }
                 }
 
                 // Nyitott státuszú, azon belül sürgősek majd iktatószám
                 $bejelentesek = $adatbazis_kapcsolat->s('recid', $tabla, "`stat_id`='".BEJELENTES_STAT_NYITOTT."'", '`surgos`, `ikt_szam`');
-                foreach($bejelentesek as $bejelentes){
+                foreach ( $bejelentesek as $bejelentes ) {                    
                     array_push($sorrend_idk, $bejelentes['recid']);
                 }
 
                 // Fordított sorrendben a recid-kat is megfordítjuk
-                if($_GET['irany']=='desc'){
+                if( $_GET['irany'] == 'desc' ) {
                     $sorrend_idk = array_reverse($sorrend_idk);
                 }
 
@@ -3393,31 +3393,31 @@ function szamla_lista( $where = '', $tabla = '', $kijeloltek = false, $csak_sql_
                 // Nem nyitott státuszú, azon belül sürgősek majd iktatószám
                 // A státuszoknak is van egy sorrendje
                 $statuszok = array_reverse( array( MUNKALAP_STAT_BEOSZTAS_NELKUL, MUNKALAP_STAT_HOZZARENDELT, MUNKALAP_STAT_FELVEVE, MUNKALAP_STAT_ANYAGRAVAR, MUNKALAP_STAT_IGAZOLASRA_VAR, MUNKALAP_STAT_IGAZOLT, MUNKALAP_STAT_VIZSGALAT_ALATT, MUNKALAP_STAT_ELOKESZITES_ALATT, MUNKALAP_STAT_DONTESRE_VAR, MUNKALAP_STAT_AJANLAT_NYOMTATVA, MUNKALAP_STAT_HOZREND_MEGREND_VAR, MUNKALAP_STAT_HATIDO_UTEMEZETT, MUNKALAP_STAT_VARAKOZO, MUNKALAP_STAT_LEZARASRA_VAR, MUNKALAP_STAT_LEZART, MUNKALAP_STAT_ELUTASITVA, MUNKALAP_STAT_TOROLT, MUNKALAP_STAT_SZTORNO_VAR, MUNKALAP_STAT_SZTORNO ) );
-                foreach($statuszok as $stat){
+                foreach ( $statuszok as $stat ) {
                     $munkalapok = $adatbazis_kapcsolat->s('recid', $tabla, "`stat_id`='$stat'", '`surgos`, `ikt_szam`');
-                    foreach($munkalapok as $munkalap){
+                    foreach ( $munkalapok as $munkalap ) {
                         array_push($sorrend_idk, $munkalap['recid']);
                     }
                 }
 
                 // Nyitott státuszú, azon belül sürgősek majd iktatószám
                 $munkalapok = $adatbazis_kapcsolat->s('recid', $tabla, "`stat_id`='".MUNKALAP_STAT_NYITOTT."'", '`surgos`, `ikt_szam`');
-                foreach($munkalapok as $munkalap){
+                foreach ( $munkalapok as $munkalap ) {
                     array_push($sorrend_idk, $munkalap['recid']);
                 }
 
                 // Fordított sorrendben a recid-kat is megfordítjuk
-                if($_GET['irany']=='desc'){
+                if( $_GET['irany'] == 'desc' ) {
                     $sorrend_idk = array_reverse($sorrend_idk);
                 }
 
             // Ha iktatószám szerint rendezünk, akkor ez lesz a következő rendezési szempont, és az irány is erre vonatkozik
-            }elseif($_GET['rend']=='ikt_szam'){
+            }elseif( $_GET['rend'] == 'ikt_szam' ) {
 
                 $order .= '`'.get_db_tabla().$tabla.'`.`ikt_szam` '.$_GET['irany'].', `'.get_db_tabla().'telephely`.`nev`';
 
             // Helyiség név szerinti rendezés
-            }elseif($_GET['rend']=='obj_id'){
+            } elseif( $_GET['rend'] == 'obj_id' ) {
                 $order .= '`'.get_db_tabla().$tabla.'`.`obj_txt` '.$_GET['irany'].', `'.get_db_tabla().'telephely`.`nev` '.$_GET['irany'].'';
 
             // Ha telephely szerint rendezünk, akkor pedig ezt a szempontot kell előre venni, és az irány is erre vonatkozik
@@ -3662,16 +3662,20 @@ function szamla_lista( $where = '', $tabla = '', $kijeloltek = false, $csak_sql_
 
     // $sorrend_idk tömböt mindig létrehozzuk, ha még nem létezne, mert a CSV sorrendet mindig a navpaneles sorrend alapján állítjuk elő
     if( !isset($_GET['szamlaSorFrissit']) ) {
+
         if( !$sorrend_idk ) {
             $sorrend_idk = array();
             $lekerdezes = mysqli_query($db_kapcs, $sql);
             while( $sor = mysqli_fetch_assoc($lekerdezes) ) {
+                // Ha túl sok ID-t veszünk fel a $sorrend_idk többe, akkor az SQL ORDER BY FIELD része is túl hosszú lesz, nem fog tudni lefutni, üres excel jön majd le.
+                // Sajnos ez azt is jelenti, hogy az itt megadott limiten felüli számú sort nem lehetn sorrendbe kiexportálni. Maximum az első X lesz sorrendben
                 array_push( $sorrend_idk, $sor['recid'] );
             }
         }
         // Ha van $sorrend_idk információnk (azaz a bejelentés és munkalapokat nem SQL-el, hanem JS-el rendezzük), akkor a CSV export miatt az SQL-t csak előállítjuk, hogy meglegyen CSV sorrend beállításakor
         if( !isset($_GET['csv']) ){
             if( $sorrend_idk ) {
+                $sorrend_idk = array_slice($sorrend_idk, 0, get_sorrend_tomb_max_meret());
                 $_SESSION['akt_sql_order'] = ' ORDER BY FIELD(`'.get_db_tabla().$tabla.'`.`recid`, \''.implode('\', \'', $sorrend_idk).'\') ';
             } else {
                 $_SESSION['akt_sql_order'] = '';

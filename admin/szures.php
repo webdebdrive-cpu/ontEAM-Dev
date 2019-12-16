@@ -128,27 +128,27 @@ if( isset($_POST['f_szuro_mezo']) ) {
     }
 
     // Megjegyzés esetén tartalmazza operátor + szabadszavas mező
-    if($_POST['mezo']=='megjegyzes'){
+    if( $_POST['mezo'] == 'megjegyzes' ) {
         $operator .= '<option value="like"'.$selected_like.'>Tartalmazza</option>';
     }
 
     // MSZK jóváhagyta operátora
-    if($_POST['mezo']=='mszk_jovahagy'){
+    if( $_POST['mezo'] == 'mszk_jovahagy' ) {
         $operator .= '<option value="equal"'.$selected_equal.'>=</option>';
     }
 
     // Szakterület esetén = operátor + autocomplete
-    if($_POST['mezo']=='szakterulet'){
+    if( $_POST['mezo'] == 'szakterulet' ) {
         $operator .= '<option value="equal"'.$selected_equal.'>=</option>';
     }
 
     // Team tag operátora
-    if($_POST['mezo']=='team_tag'){
+    if( $_POST['mezo'] == 'team_tag' ) {
         $operator .= '<option value="equal"'.$selected_equal.'>=</option>';
     }
 
     // Jogosultságnál, Státusznál és Mobilcsoportnál csak =
-    if($_POST['mezo']=='jogosultsag' || $_POST['mezo']=='stat_id' || ( $_POST['mezo']=='mobil' && $_POST['tabla'] == 'munkalap' ) ){
+    if( $_POST['mezo'] == 'jogosultsag' || $_POST['mezo'] == 'stat_id' || ( $_POST['mezo'] == 'mobil' && $_POST['tabla'] == 'munkalap' ) ) {
         $operator = '<option value="equal"'.$selected_equal.'>=</option>';
     }
 
@@ -390,20 +390,37 @@ if( isset($_POST['f_szuro_mezo_operator']) ) {
                                             </script>
                                         ');
 
-                    // Dátum mezők (mindig csak dátum pontos)
+                    // Dátum mezők (mindig csak dátum pontos ez a mező. 
                     } elseif( strpos($ertek['class'], 'datepicker') !== false || strpos($ertek['class'], 'datetimepicker') !== false ) {
-                        $feltetel = nl2('
-                            <input type="text" placeholder=" . . " class="datepicker f_felt" value="'.$_POST['felt'].'">
-                            <script>
-                                $(\'.datepicker\').datetimepicker({
-                                    timepicker          : false,
-                                    closeOnDateSelect   : true,
-                                    mask                : \'\\xa0\\xa0\\xa0\\xa0.\\xa0\\xa0.\\xa0\\xa0\',
-                                    format              :\'Y.m.d\',
-                                    validateOnBlur      : false
-                                });
-                            </script>
-                        ');
+                        // Létrehozás dátum mégis dátumidős
+                        if( $_POST['mezo'] == 'insert_dt' ) {
+                            $feltetel = nl2('
+                                <input type="text" placeholder=" . . " class="datetimepicker f_felt" value="'.$_POST['felt'].'" style="width: 14rem">
+                                <script>
+                                    $(\'.datetimepicker\').datetimepicker({
+                                        timepicker          : true,
+                                        closeOnDateSelect   : true,
+                                        mask                : \'\\xa0\\xa0\\xa0\\xa0.\\xa0\\xa0.\\xa0\\xa0\\xa0\\xa0:\\xa0\\xa0\',
+                                        format              :\'Y.m.d H:i\',
+                                        validateOnBlur      : false
+                                    });
+                                </script>
+                            ');
+                        // Általános dátum mező
+                        } else {
+                            $feltetel = nl2('
+                                <input type="text" placeholder=" . . " class="datepicker f_felt" value="'.$_POST['felt'].'">
+                                <script>
+                                    $(\'.datepicker\').datetimepicker({
+                                        timepicker          : false,
+                                        closeOnDateSelect   : true,
+                                        mask                : \'\\xa0\\xa0\\xa0\\xa0.\\xa0\\xa0.\\xa0\\xa0\',
+                                        format              :\'Y.m.d\',
+                                        validateOnBlur      : false
+                                    });
+                                </script>
+                            ');
+                        }
                         
                     // Óra perc mezők
                     } elseif( strpos($ertek['class'], 'ora_perc') !== false ) {
