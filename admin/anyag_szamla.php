@@ -103,7 +103,7 @@ if( isset($_POST['get_szamla_tetelek']) ) {
         $kapcsolasok = json_decode($_POST['kapcsolasok'], 'tömbbe');
 
         // Tételek bejárása
-        $tetelek = $adatbazis_kapcsolat->s('recid ktgnem_id netto_ert cikk_id', 'anyag_szamla_tetel', "`anyag_szamla_recid`='{$_POST['szamla_id']}'");
+        $tetelek = $adatbazis_kapcsolat->s('recid ktgnem_id netto_ert cikk_id mee szlamen szlaear', 'anyag_szamla_tetel', "`anyag_szamla_recid`='{$_POST['szamla_id']}'");
 
         $tablazat = nl2('
             <div style="max-height: 40rem; overflow-y: auto; overflow-x: none;">
@@ -129,22 +129,30 @@ if( isset($_POST['get_szamla_tetelek']) ) {
             // Ha már van kacsolat a számla tétel és az anyagrendelés tétel között, akkor a rendelés adatait is kitöltjük
             $anyagrend = '';
             if( $kapcsolasok[$tetel['recid']] ) {
-                $anyagrend = $adatbazis_kapcsolat->s2('cikkmee rndmen erkmen szlamen rndear', 'anyagigenyles', "`recid`='{$kapcsolasok[$tetel['recid']]}'");
+                $anyagrend = $adatbazis_kapcsolat->s2('nev rndmen erkmen szlamen rndear', 'anyagigenyles', "`recid`='{$kapcsolasok[$tetel['recid']]}'");
+            }
+            
+            $hibas_sor = '';
+            if( $anyagrend['erkmen'] && $anyagrend['erkmen'] < $tetel['szlamen'] ) {
+                $hibas_sor = ' class="piros"';
+            }
+            if( $anyagrend['rndear'] && $anyagrend['rndear'] < $tetel['szlaear'] ) {
+                $hibas_sor = ' class="piros"';
             }
 
             $tablazat .= nl2('
-                <tr data-recid="'.$tetel['recid'].'">
-                    <td>'.getErtek('nev', 'ktgnem', 'id', $tetel['ktgnem_id']).'</td>
-                    <td>'.$anyagrend['cikkmee'].'</td>
+                <tr'.$hibas_sor.' data-recid="'.$tetel['recid'].'">
+                    <td>?</td>
+                    <td>'.$tetel['mee'].'</td>
                     <td class="nowrap">'.number_format($anyagrend['rndmen'], 2, ',', ' ').'</td>
                     <td class="nowrap">'.number_format($anyagrend['erkmen'], 2, ',', ' ').'</td>
-                    <td>?</td>
-                    <td class="nowrap">'.number_format($anyagrend['szlamen'], 2, ',', ' ').'</td>
+                    <td>'.number_format($anyagrend['szlamen'], 4, ',', ' ').'</td>
+                    <td class="nowrap">'.number_format($tetel['szlamen'], 2, ',', ' ').'</td>
                     <td class="nowrap">'.number_format($anyagrend['rndear'], 4, ',', ' ').'</td>
-                    <td>?</td>
-                    <td class="nowrap">'.number_format($tetel['netto_ert'], 0, '', ',').'</td>
+                    <td class="nowrap">'.number_format($tetel['szlaear'], 4, ',', ' ').'</td>
+                    <td class="nowrap">'.number_format($tetel['netto_ert'], 0, ',', ' ').'</td>
                     <td>'.$tetel['cikk_id'].'</td>
-                    <td>'.getErtek('nev', 'cikktorzs', 'id', $tetel['cikk_id']).'</td>
+                    <td>'.$anyagrend['nev'].'</td>
                     <td><input type="button" class="gomb alacsony" value="Kiválaszt" onclick="anyag_szamla_tetel_rendeles_kivalaszt(\''.$tetel['recid'].'\')"></td>
                     <td>
                         <div class="cb">
@@ -176,10 +184,16 @@ if( isset($_POST['get_szamla_tetelek']) ) {
     exit;
 }
 
-// Anyagrendelések kilistázása egy számlat tétel alapján
+// Anyagrendelések kilistázása egy számla tétel alapján
 if( isset($_POST['get_anyagrendeles_tetelek']) ) {
     
     if( _jog(JOG_ANYAG_SZAMLAK_KEZEL) ) {
+        
+        $foglalt_anyagrend_sorok = array();
+        $kapcsolasok = json_decode($_POST['kapcsolasok'], 'tömbbe');
+        foreach ( $kapcsolasok as $kapcs ) {
+            array_push($foglalt_anyagrend_sorok, $kapcs);
+        }
     
         $szamla = $adatbazis_kapcsolat->s2('rnd_id', 'anyag_szamla', "`recid`='{$_POST['szamla_id']}'");
 
@@ -205,8 +219,13 @@ if( isset($_POST['get_anyagrendeles_tetelek']) ) {
             ');
         foreach ( $anyagrendelesek as $rendeles ) {
 
+            $szurke = '';
+            if( in_array($rendeles['recid'], $foglalt_anyagrend_sorok) ) {
+                $szurke = ' szurke';
+            }
+            
             $tablazat .= nl2('
-                <tr class="kijSor" data-recid="'.$rendeles['recid'].'">
+                <tr class="kijSor'.$szurke.'" data-recid="'.$rendeles['recid'].'">
                     <td>'.$rendeles['rndid'].'</td>
                     <td>'.$rendeles['cikk_id'].'</td>
                     <td>'.getErtek('nev', 'cikktorzs', 'id', $rendeles['cikk_id']).'</td>
@@ -239,7 +258,7 @@ if( isset($_POST['get_anyagrendeles_tetelek']) ) {
     exit;
 }
 
-// Anyagrendelések kilistázása egy számlat tétel alapján
+// Anyagrendelések és számla tételek összekapcsolása
 if( isset($_POST['anyag_szamla_tetelek_ment']) ) {
     
     $db_error = false;
@@ -257,17 +276,38 @@ if( isset($_POST['anyag_szamla_tetelek_ment']) ) {
     // Illetve a számla tétel sorába is letároljuk a rendelés azonosítóját és rnd_id-ját.
     foreach( $kapcsolasok as $kulcs => $kapcs ) {
         
+        $szamla_tetel  = $adatbazis_kapcsolat->s2('netto_ert szlamen cikk_id szlaear', 'anyag_szamla_tetel', "`recid`='{$kulcs}'");
+        $anyagrendeles = $adatbazis_kapcsolat->s2('ikt_szam rndid erkmen rndear', 'anyagigenyles', "`recid`='{$kapcs}'");
+        
+        // A számlázott mennyiség nem lehet nagyobb, mint a beérkezett mennyiség!
+        if( $anyagrendeles['erkmen'] < $szamla_tetel['szlamen'] ) {
+            echo json_encode(array(
+                'hiba'  => 'Cikkszám: '.$szamla_tetel['cikk_id'].'<br>A számlázott mennyiség nem lehet nagyobb, mint a beérkezett mennyiség!<br>A számla nem menthető!',
+                'title' => 'Hiba',
+            ));
+            $weblap -> leallit();
+            exit;
+        }
+        
+        // Számlázási egységár nem lehet nagyobb a rendelési egységárnál
+        if( $anyagrendeles['rndear'] < $szamla_tetel['szlaear'] ) {
+            echo json_encode(array(
+                'hiba'  => 'Cikkszám: '.$szamla_tetel['cikk_id'].'<br>Számlázási egységár nem lehet nagyobb a rendelési egységárnál!<br>A számla nem menthető!',
+                'title' => 'Hiba',
+            ));
+            $weblap -> leallit();
+            exit;
+        }
+        
         // Számlázott mennyiség növelése
-        $szamla_tetel = $adatbazis_kapcsolat->s2('netto_ert', 'anyag_szamla_tetel', "`recid`='{$kulcs}'");
         if( !$szamla_tetel ) { $db_error = true; }
         if( !mysqli_query($db_kapcs, 'UPDATE `'.get_db_tabla().'anyagigenyles` SET `szlamen`=`szlamen`+'.$szamla_tetel['netto_ert'].' WHERE `recid`=\''.$kapcs.'\'') ) {
             $db_error = true;
         }
         
         // Anyagrendelés ID-k eltárolása tételekhez
-        $anyagrendeles = $adatbazis_kapcsolat->s2('ikt_szam, rndid', 'anyagigenyles', "`recid`='{$kapcs}'");
         $sql = $adatbazis_kapcsolat->u('anyag_szamla_tetel',
-                                                            array('anyagigenles_szam',          'rnd_id'                 ),
+                                                            array('anyagigenyles_szam',         'rnd_id'                 ),
                                                             array($anyagrendeles['ikt_szam'],   $anyagrendeles['rndid']  ),
                                         "`recid`='{$kulcs}'");
         if( !$sql ) { $db_error = true; }

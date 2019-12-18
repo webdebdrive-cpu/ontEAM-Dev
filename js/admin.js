@@ -6941,7 +6941,10 @@ function szuro_ertek_mezo_gen(that, felt) {
    $.when(ajax).then(function() {
        fejlecPozicional();
        fulGombMeretez();
-       $('#feltetel input').focus();
+       // A feltétel mezőre fókuszálunk, de csak akkor, ha az nem dátum (mert zavaró, ha egy szűrés utáni lapletöltéskor a dátumválasztó ott feljön)
+       if( !$('#feltetel input').hasClass('datepicker') && !$('#feltetel input').hasClass('datetimepicker') ) {
+           $('#feltetel input').focus();
+       }
    });
 }
 

@@ -2,8 +2,8 @@
 $html = '';
 
 // Temporális tábla létrehozására minta
-//  mysqli_query($db_kapcs, 'CREATE TEMPORARY TABLE `'. get_db_tabla().'_bejelentes_tmp` ENGINE=MYISAM SELECT * FROM `'. get_db_tabla().'bejelentes` WHERE `telephely_id` IN ('.implode(',', get_akt_login_szallodai()).') ');
-//  mysqli_query($db_kapcs, 'DROP TEMPORARY TABLE `'. get_db_tabla().'_bejelentes_tmp`') or trigger_error($db_kapcs -> error);
+// mysqli_query($db_kapcs, 'CREATE TEMPORARY TABLE `'. get_db_tabla().'_bejelentes_tmp` ENGINE=MYISAM SELECT * FROM `'. get_db_tabla().'bejelentes` WHERE `telephely_id` IN ('.implode(',', get_akt_login_szallodai()).') ');
+// mysqli_query($db_kapcs, 'DROP TEMPORARY TABLE `'. get_db_tabla().'_bejelentes_tmp`') or trigger_error($db_kapcs -> error);
 
 
 // Éles és teszt-en még ne látszódjon, csak dev-en és saját környezetben
@@ -24,18 +24,18 @@ if( $_SERVER['HTTP_HOST']!='www.onteam.hu' && $_SERVER['HTTP_HOST']!='onteam.hu'
         if( _jog(JOG_BEJELENTES_SAJAT_RESZL) && !_jog(JOG_BEJELENTES_MEGTEKINT) ) {
             $sql_kieg .= "`usr_reszleg_id` IN (".implode(',', $reszlegek).") AND ";
         }
-    //        // Társrészlegek bejelentéseinek igazolása joggal
-    //        if( _jog(JOG_BEJELENTES_TARSRESZLEG_BEJ_IGAZOL) ) {
-    //            $sql_kieg = " AND `usr_reszleg_id` IN (".implode(',', $reszlegek).")";
-    //        
-    //        // Saját szállodák bejelentéseinek megtekintése joggal
-    //        } else if( _jog(JOG_BEJELENTES_MEGTEKINT) ) {
-    //            $sql_kieg = '';
-    //        
-    //        // Saját részleg bejelentések megtekintése joggal
-    //        } else if( _jog(JOG_BEJELENTES_SAJAT_RESZL) ) {
-    //            $sql_kieg = " AND `usr_reszleg_id`='{$felh['reszleg_id']}'";
-    //        }
+//        // Társrészlegek bejelentéseinek igazolása joggal
+//        if( _jog(JOG_BEJELENTES_TARSRESZLEG_BEJ_IGAZOL) ) {
+//            $sql_kieg = " AND `usr_reszleg_id` IN (".implode(',', $reszlegek).")";
+//        
+//        // Saját szállodák bejelentéseinek megtekintése joggal
+//        } else if( _jog(JOG_BEJELENTES_MEGTEKINT) ) {
+//            $sql_kieg = '';
+//        
+//        // Saját részleg bejelentések megtekintése joggal
+//        } else if( _jog(JOG_BEJELENTES_SAJAT_RESZL) ) {
+//            $sql_kieg = " AND `usr_reszleg_id`='{$felh['reszleg_id']}'";
+//        }
 
         // Igazolásra váró bejelentések keresése
         $link_neve  = 'Igazolásra vár';
@@ -138,7 +138,7 @@ if( $_SERVER['HTTP_HOST']!='www.onteam.hu' && $_SERVER['HTTP_HOST']!='onteam.hu'
         $statuszok = array(
                         array('nev' => 'Nyitott',                   'stat_id' => MUNKALAP_STAT_NYITOTT),
                         array('nev' => 'Hozzárendelt',              'stat_id' => MUNKALAP_STAT_HOZZARENDELT),
-                        array('nev' => 'Felvéve',                   'stat_id' => MUNKALAP_STAT_HOZZARENDELT),
+                        array('nev' => 'Felvéve',                   'stat_id' => MUNKALAP_STAT_FELVEVE),
                         array('nev' => 'Előkészítés alatt',         'stat_id' => MUNKALAP_STAT_ELOKESZITES_ALATT),
                         array('nev' => 'Anyagra vár',               'stat_id' => MUNKALAP_STAT_ANYAGRAVAR),
                         array('nev' => 'Várakozó',                  'stat_id' => MUNKALAP_STAT_VARAKOZO),

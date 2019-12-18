@@ -2700,6 +2700,10 @@ table.csikos span.icon .material-icons {
     font-size: 2rem;
 }
 
+table.csikos tr.szurke {
+    opacity: 0.5;
+}
+
 span.icon.zold .material-icons {
     color: #005c12;
 }
@@ -2847,10 +2851,6 @@ ul.telephelyek li.alkat:only-child:after {
     margin: auto;
     margin-top: 4rem;
     width: 24.3rem;
-}
-
-table.csikos{
-
 }
 
 table.csikos.al{

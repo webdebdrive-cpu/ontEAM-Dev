@@ -136,20 +136,20 @@ class ServerClass {
                 // Van pár kötelező mező, ami már számlatípus specifikus
                 if( $szamla -> tipus == self::SZAMLA_TIPUS_FENNTARTASI ) {
                     if( !trim($szamla -> fizmod) ) {
-                        Throw new SOAPFault ('Server', 'Hiányzó fizetési mód');
+                        Throw new SOAPFault ('Server', 'Hiányzó fizetési mód!');
                     }
                 }
                 if( $szamla -> tipus == self::SZAMLA_TIPUS_PROJEKT ) {
                     if( !trim($szamla -> telephely_id) ) {
-                        Throw new SOAPFault ('Server', 'Hiányzó szálloda');
+                        Throw new SOAPFault ('Server', 'Hiányzó szálloda!');
                     }
                     if( !trim($szamla -> targy) ) {
-                        Throw new SOAPFault ('Server', 'Hiányzó tárgy');
+                        Throw new SOAPFault ('Server', 'Hiányzó tárgy!');
                     }
                 }
                 if( $szamla -> tipus == self::SZAMLA_TIPUS_ENERGIA ) {
                     if( !trim($szamla -> telephely_id) ) {
-                        Throw new SOAPFault ('Server', 'Hiányzó szálloda');
+                        Throw new SOAPFault ('Server', 'Hiányzó szálloda!');
                     }
                     if( !trim($szamla -> szev) ) {
                         Throw new SOAPFault ('Server', 'Hiányzó számlázott év!');
@@ -164,27 +164,27 @@ class ServerClass {
                         Throw new SOAPFault ('Server', 'Hiányzó von.időszak (ig-)!');
                     }
                     if( !trim($szamla -> ktgnem_id) ) {
-                        Throw new SOAPFault ('Server', 'Hiányzó költségnem');
+                        Throw new SOAPFault ('Server', 'Hiányzó költségnem!');
                     }
                     if( !trim($szamla -> ktghely_id) ) {
-                        Throw new SOAPFault ('Server', 'Hiányzó költséghely');
+                        Throw new SOAPFault ('Server', 'Hiányzó költséghely!');
                     }
                     if( trim($szamla -> ktghely_id) != 7020 ) {
-                        Throw new SOAPFault ('Server', 'Helytelen költséghely. Csak energia lehet (ID=7020)');
+                        Throw new SOAPFault ('Server', 'Helytelen költséghely. Csak energia lehet (ID=7020)!');
                     }
                 }
                 if( $szamla -> tipus == self::SZAMLA_TIPUS_ANYAG ) {
                     if( !trim($szamla -> telephely_id) ) {
-                        Throw new SOAPFault ('Server', 'Hiányzó szálloda');
+                        Throw new SOAPFault ('Server', 'Hiányzó szálloda!');
                     }
                     if( !trim($szamla -> rnd_id) ) {
-                        Throw new SOAPFault ('Server', 'Hiányzó rendelés id');
+                        Throw new SOAPFault ('Server', 'Hiányzó rendelés id!');
                     }
                     if( !trim($szamla -> targy) ) {
-                        Throw new SOAPFault ('Server', 'Hiányzó tárgy');
+                        Throw new SOAPFault ('Server', 'Hiányzó tárgy!');
                     }
                     if( !trim($szamla -> fizmod) ) {
-                        Throw new SOAPFault ('Server', 'Hiányzó fizetési mód');
+                        Throw new SOAPFault ('Server', 'Hiányzó fizetési mód!');
                     }
                 }
                 // Ha nem HUF-os a számla, akkor pár mező még kötelezővé válik, az összes számlánál
@@ -348,6 +348,18 @@ class ServerClass {
                         if( !trim($tetel -> ktghely_id) ) {
                             Throw new SOAPFault ('Server', 'Hiányzó költséghely a tételeknél!');
                         }
+                        if( !trim($tetel -> szlamen) ) {
+                            Throw new SOAPFault ('Server', 'Hiányzó számlázott mennyiség a tételeknél!');
+                    }
+                        if( !trim($tetel -> szlamee) ) {
+                            Throw new SOAPFault ('Server', 'Hiányzó mennyiségi egység a tételeknél!');
+                        }
+                        if( !trim($tetel -> szlaear) ) {
+                            Throw new SOAPFault ('Server', 'Hiányzó egységár a tételeknél!');
+                        }
+                        if( !trim($tetel -> vszlaear) && $szamla -> kcs_21 != self::KCS_21_HUF ) {
+                            Throw new SOAPFault ('Server', 'Hiányzó deviza egységár a tételeknél!');
+                        }
                     }
 
                     // Tételek beszúrása
@@ -374,8 +386,8 @@ class ServerClass {
                         array_push($ertekek,    $tetel -> targy,    $tetel -> dev_br    );
                     }
                     if( $szamla -> tipus == self::SZAMLA_TIPUS_ANYAG) {
-                        array_push($mezok,      'ktgnem_id',           'ktghely_id',            'cikk_id',           'rndert',           'modert',           'vnrdert',          'vmodert',          'oracikkid',            'kcs_35'            );
-                        array_push($ertekek,    $tetel -> ktgnem_id,   $tetel -> ktghely_id,    $tetel -> cikk_id,   $tetel -> rndert,   $tetel -> modert,   $tetel -> vnrdert,   $tetel -> vmodert,   $tetel -> oracikkid,  $tetel -> kcs_35    );
+                        array_push($mezok,      'ktgnem_id',           'ktghely_id',            'cikk_id',           'rndert',           'modert',           'vnrdert',          'vmodert',             'oracikkid',          'kcs_35',          'szlamen',          'szlamee',          'szlaear'            );
+                        array_push($ertekek,    $tetel -> ktgnem_id,   $tetel -> ktghely_id,    $tetel -> cikk_id,   $tetel -> rndert,   $tetel -> modert,   $tetel -> vnrdert,   $tetel -> vmodert,    $tetel -> oracikkid,  $tetel -> kcs_35,  $tetel -> szlamen,  $tetel -> szlamee,  $tetel -> szlaear    );
                     }
 
                     $tetel_letezik = $adatbazis_kapcsolat->s2('recid', $tabla.'_tetel', "`andoc_id`='{$andoc_id}'");
