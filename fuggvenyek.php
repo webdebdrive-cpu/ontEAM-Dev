@@ -16,6 +16,7 @@ function projektek_lathat() {
         _jog(JOG_PRKEZEL_MEGTEKINT) || _jog(JOG_PRKEZEL_SAJAT_MEGTEKINT) || _jog(JOG_PRKEZEL_TEAM_TAG) || _jog(JOG_PR_EGYSZALL_MEGTEKINT) || _jog(JOG_PR_TOBBSZALL_MEGTEKINT) ||
         _jog(JOG_PRKEZEL_SZERZODES_OLVAS) || _jog(JOG_PR_SAJAT_SZERZ_MEGTEKINT) ||
         _jog(JOG_PRSZAMLAK_OLVAS) || _jog(JOG_PR_SAJAT_SZAMLA_MEGTEKINT);
+    
 }
 
 /**
@@ -4752,15 +4753,14 @@ function fenntartasi_szamlaLista( $bejegyzesek, $tabla, $frissit, $kijeloltek ) 
             $li_tart = '<a class="szamla" data-recid="'.$bsz['recid'].'" data-fajl="'.$tabla.'.php" data-muvelet="modosit">
                             <table>
                             <tr> 
-                                <td style="width: 6rem">'.$bsz['ikt_szam'].'</td>
                                 <td style="width: 8rem">'.$bsz['szla_szam'].'</td>
                                 <td>'. number_format($bsz['netto'], 0, '', '').' '. get_penznem().'</td>
                             </tr>
                             <tr> 
-                                <td colspan="3">'.getErtek('nev', 'szallito', 'id', $bsz['szallito_id']).'</td>
+                                <td colspan="2">'.getErtek('nev', 'szallito', 'id', $bsz['szallito_id']).'</td>
                             </tr>
                             <tr> 
-                                <td colspan="3">'.resz_string($bsz['targy'], 60).'</td>
+                                <td colspan="2">'.resz_string($bsz['targy'], 60).'</td>
                             </tr>
                             </table>
                         </a>';

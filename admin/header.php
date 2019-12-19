@@ -345,12 +345,7 @@ if( !$_SESSION['bejelento_menu_rejt'] && (_jog(JOG_ENERGIA_EGYSEGAR_OLVAS) || _j
 }
 
 // Projektek
-if(
-        _jog(JOG_PRIGENY_S_KEZEL) || _jog(JOG_PRIGENY_SZ_MEGTEKINT) || _jog(JOG_PRIGENY_B_MEGTEKINT) || _jog(JOG_PRIGENY_EGY_MEGTEKINT) || _jog(JOG_PRIGENY_F_MEGTEKINT) || _jog(JOG_PRIGENY_TOBB_MEGTEKINT) || _jog(JOG_PRIGENY_T_MEGTEKINT) || _jog(JOG_PR_B_MEGTEKINT) || _jog(JOG_PR_F_MEGTEKINT) || _jog(JOG_PR_T_MEGTEKINT) ||
-        _jog(JOG_PRKEZEL_MEGTEKINT) || _jog(JOG_PRKEZEL_SAJAT_MEGTEKINT) || _jog(JOG_PRKEZEL_TEAM_TAG) || _jog(JOG_PR_EGYSZALL_MEGTEKINT) || _jog(JOG_PR_TOBBSZALL_MEGTEKINT) ||
-        _jog(JOG_PRKEZEL_SZERZODES_OLVAS) || _jog(JOG_PR_SAJAT_SZERZ_MEGTEKINT) ||
-        _jog(JOG_PRSZAMLAK_OLVAS) || _jog(JOG_PR_SAJAT_SZAMLA_MEGTEKINT)
-    ) {
+if( projektek_lathat() ) {
     $menu_nev        = 'Projektek';
     $menu_nev_kis    = 'rojektek';
     $menu_nev_tobbes = 'Projektek';

@@ -22,89 +22,52 @@ if( $_SERVER['HTTP_HOST']!='www.onteam.hu' && $_SERVER['HTTP_HOST']!='onteam.hu'
         // Igazolásra váró bejelentések:
         $sql_kieg = '';
         if( _jog(JOG_BEJELENTES_SAJAT_RESZL) && !_jog(JOG_BEJELENTES_MEGTEKINT) ) {
-            $sql_kieg .= "`usr_reszleg_id` IN (".implode(',', $reszlegek).") AND ";
+            $sql_kieg .= " AND `usr_reszleg_id` IN (".implode(',', $reszlegek).")";
         }
-//        // Társrészlegek bejelentéseinek igazolása joggal
-//        if( _jog(JOG_BEJELENTES_TARSRESZLEG_BEJ_IGAZOL) ) {
-//            $sql_kieg = " AND `usr_reszleg_id` IN (".implode(',', $reszlegek).")";
-//        
-//        // Saját szállodák bejelentéseinek megtekintése joggal
-//        } else if( _jog(JOG_BEJELENTES_MEGTEKINT) ) {
-//            $sql_kieg = '';
-//        
-//        // Saját részleg bejelentések megtekintése joggal
-//        } else if( _jog(JOG_BEJELENTES_SAJAT_RESZL) ) {
-//            $sql_kieg = " AND `usr_reszleg_id`='{$felh['reszleg_id']}'";
-//        }
+        
+        // Státuszok bejárása, sorok képzése belőle
+        $statuszok = array(
+                        array('nev' => 'Nyitott',                   'stat_id' => BEJELENTES_STAT_NYITOTT),
+                        array('nev' => 'Folyamatban',               'stat_id' => BEJELENTES_STAT_FOLYAMATBAN),
+                        array('nev' => 'Elutasítva',                'stat_id' => BEJELENTES_STAT_ELUTASITVA),
+                        array('nev' => 'Várakozó',                  'stat_id' => BEJELENTES_STAT_VARAKOZO),
+                        array('nev' => 'Igazolásra vár',            'stat_id' => BEJELENTES_STAT_KESZ_IG),
+                        array('nev' => 'Vizsgálat alatt',           'stat_id' => BEJELENTES_STAT_VIZSG_ALATT),
+                        array('nev' => 'Lezárt',                    'stat_id' => BEJELENTES_STAT_LEZART),
+                    );
 
-        // Igazolásra váró bejelentések keresése
-        $link_neve  = 'Igazolásra vár';
-        $statusz    = BEJELENTES_STAT_KESZ_IG;
-        $db = $adatbazis_kapcsolat->s('recid', 'bejelentes', "`stat_id`='".$statusz."' AND `telephely_id` IN (".implode(',', $szallodak)."){$sql_kieg}", '', '', '', 'Num rows');
-        if( $db ) {
+        $tabla = 'bejelentes';
+        foreach( $statuszok as $statusz ) {
+                    
+            $db = $adatbazis_kapcsolat->s('recid', 'bejelentes', "`stat_id`='{$statusz['stat_id']}' AND `telephely_id` IN (".implode(',', $szallodak)."){$sql_kieg}", '', '', '', 'Num rows');
+            if( $db ) {
+                
+                // Ha túl sok találat van, akkor rá kérdezünk, hogy biztosan szeretné-e listázni
+                $js   = '';
+                $link = $tabla.'.php?mezo=stat_id&amp;op=equal&amp;felt='.$statusz['stat_id'].'&amp;modosit'.$link_kieg;
+                if( $db > SZURES_DB_LIMIT ) {
+                    $js = '
+                        <script>
+                        function kerdes_'.$tabla.'_'.$statusz['stat_id'].$fgv_kieg.'() {
+                            alert2(\'Ezzel a szűrési feltétellel '.number_format($db, 0, '', '.').' sor adatot listázna ki.<br>Biztosan folytatja?\', \'<input type="button" class="gomb zold" value="Igen" onclick="location.href=\\\''.$link.'\\\'"><input type="button" class="gomb piros" value="Nem" onclick="alert2()">\', \'Kérdés\');
+                        }
+                        </script>
+                        ';
+                    $link = 'javascript:kerdes_'.$tabla.'_'.$statusz['stat_id'].$fgv_kieg.'();';
+                }
 
-            // Ha túl sok találat van, akkor rá kérdezünk, hogy biztosan szeretné-e listázni
-            $js   = '';
-            $link = 'bejelentes.php?mezo=stat_id&amp;op=equal&amp;felt='.$statusz.'&amp;modosit';
-            if( $db > SZURES_DB_LIMIT ) {
-                $js = '
-                    <script>
-                    function kerdes_bej_'.$statusz.'() {
-                        alert2(\'Ezzel a szűrési feltétellel '.number_format($db, 0, '', '.').' sor adatot listázna ki.<br>Biztosan folytatja?\', \'<input type="button" class="gomb zold" value="Igen" onclick="location.href=\\\''.$link.'\\\'"><input type="button" class="gomb piros" value="Nem" onclick="alert2()">\', \'Kérdés\');
-                    }
-                    </script>
-                    ';
-                $link = 'javascript:kerdes_bej_'.$statusz.'();';
+                $sorok .= nl2('
+                            <tr>
+                                <td>
+                                    '.$js.'
+                                    <a href="'.$link.'">'.$statusz['nev'].':</a>
+                                </td>
+                                <td>
+                                    <a href="'.$link.'">'.number_format($db, 0, '', '.').' db.</a>
+                                </td>
+                            </tr>
+                            ');
             }
-
-            $sorok .= nl2('
-                        <tr>
-                            <td>
-                                '.$js.'
-                                <a href="'.$link.'">'.$link_neve.':</a>
-                            </td>
-                            <td>
-                                <a href="'.$link.'">'.number_format($db, 0, '', '.').' db.</a>
-                            </td>
-                        </tr>
-                        ');
-        }
-
-        // Vizsgálat alatti bejelentések: Bejelentések vizsgálat jog kell hozzá
-        $db = 0;
-        $statusz    = BEJELENTES_STAT_VIZSG_ALATT;
-        $link_neve  = 'Vizsgálat alatt';
-        if( _jog(JOG_BEJELENTES_VIZSGAL) ) {
-            $db = $adatbazis_kapcsolat->s('recid', 'bejelentes', "`stat_id`='".$statusz."' AND `telephely_id` IN (".implode(',', $szallodak)."){$sql_kieg}", '', '', '', 'Num rows');
-        }
-        // Ha van Vizsgálat alatti bejelentés
-        if( $db ) {
-
-            // Ha túl sok találat van, akkor rá kérdezünk, hogy biztosan szeretné-e listázni
-            $js   = '';
-            $link = 'bejelentes.php?mezo=stat_id&amp;op=equal&amp;felt='.$statusz.'&amp;modosit';
-            if( $db > SZURES_DB_LIMIT ) {
-                $js = '
-                    <script>
-                    function kerdes_bej_'.$statusz.'() {
-                        alert2(\'Ezzel a szűrési feltétellel '.number_format($db, 0, '', '.').' sor adatot listázna ki.<br>Biztosan folytatja?\', \'<input type="button" class="gomb zold" value="Igen" onclick="location.href=\\\''.$link.'\\\'"><input type="button" class="gomb piros" value="Nem" onclick="alert2()">\', \'Kérdés\');
-                    }
-                    </script>
-                    ';
-                $link = 'javascript:kerdes_bej_'.$statusz.'();';
-            }
-
-            $sorok .= nl2('
-                        <tr>
-                            <td>
-                                '.$js.'
-                                <a href="'.$link.'">'.$link_neve.':</a>
-                            </td>
-                            <td>
-                                <a href="'.$link.'">'.number_format($db, 0, '', '.').' db.</a>
-                            </td>
-                        </tr>
-                        ');
         }
 
         if( $sorok ) {
@@ -134,6 +97,8 @@ if( $_SERVER['HTTP_HOST']!='www.onteam.hu' && $_SERVER['HTTP_HOST']!='onteam.hu'
         $where = get_munkalap_lathatosag_feltetel('munkalap', $szallodak);
         $where = '('.csonkit($where, 5).') ';
         
+        $login = $adatbazis_kapcsolat->s2('jh_ft_ig', 'login', "`recid`='{$_SESSION[get_db_tabla().'login_recid']}'");
+        
         // Státuszok bejárása, sorok képzése belőle
         $statuszok = array(
                         array('nev' => 'Nyitott',                   'stat_id' => MUNKALAP_STAT_NYITOTT),
@@ -152,36 +117,40 @@ if( $_SERVER['HTTP_HOST']!='www.onteam.hu' && $_SERVER['HTTP_HOST']!='onteam.hu'
                         array('nev' => 'Megr. Sztornóra vár',       'stat_id' => MUNKALAP_STAT_SZTORNO_VAR),
                     );
         
+        $tabla = 'munkalap';
         foreach( $statuszok as $statusz ) {
-            
-            // Döntésre vár státusz kétszer szerpel benne egymás után, és ez két külön esetet jelent
+
+            // Döntésre vár státusz kétszer szerepel benne egymás után, és ez két külön esetet jelent
             $fgv_kieg = $link_kieg = $sql_kieg = '';
             if( $statusz['stat_id'] == MUNKALAP_STAT_DONTESRE_VAR ) {
                 $link_kieg  = '&amp;dv=sz_ig';
-                $sql_kieg   = " AND `jh1_szerep`!='".MSZK_VEZETO."' AND `jh2_szerep`!='".MSZK_VEZETO."' ";
+                $sql_kieg   = " AND `jh1_szerep`!='".MSZK_VEZETO."' AND `jh2_szerep`!='".MSZK_VEZETO."' AND `jh_ert`<='{$login['jh_ft_ig']}'";
             }
             if( $elozo_stat == $statusz['stat_id'] ) {
                 $fgv_kieg   = '2';
                 $link_kieg  = '&amp;dv=mszk_vez';
-                $sql_kieg   = " AND `jh1_szerep`!='".SZALLODA_IGAZGATO."' AND `jh2_szerep`!='".SZALLODA_IGAZGATO."' ";
+                $sql_kieg   = " AND `jh1_szerep`!='".SZALLODA_IGAZGATO."' AND `jh2_szerep`!='".SZALLODA_IGAZGATO."' AND `jh_ert`<='{$login['jh_ft_ig']}'";
             }
             $elozo_stat = $statusz['stat_id'];
                     
-            $db = $adatbazis_kapcsolat->s('recid', 'munkalap', "`stat_id`='".$statusz['stat_id']."' AND {$where}{$sql_kieg}", '', '', '', 'Num rows');
+            $db = $adatbazis_kapcsolat->s('recid', $tabla, "`stat_id`='".$statusz['stat_id']."' AND {$where}{$sql_kieg}", '', '', '', 'Num rows');
+if( isset($_GET['teszt']) ) {
+    echo $adatbazis_kapcsolat->gp() . '<br>';
+}
             if( $db ) {
                 
                 // Ha túl sok találat van, akkor rá kérdezünk, hogy biztosan szeretné-e listázni
                 $js   = '';
-                $link = 'munkalap.php?mezo=stat_id&amp;op=equal&amp;felt='.$statusz['stat_id'].'&amp;modosit'.$link_kieg;
+                $link = $tabla.'.php?mezo=stat_id&amp;op=equal&amp;felt='.$statusz['stat_id'].'&amp;modosit'.$link_kieg;
                 if( $db > SZURES_DB_LIMIT ) {
                     $js = '
                         <script>
-                        function kerdes_ml_'.$statusz['stat_id'].$fgv_kieg.'() {
+                        function kerdes_'.$tabla.'_'.$statusz['stat_id'].$fgv_kieg.'() {
                             alert2(\'Ezzel a szűrési feltétellel '.number_format($db, 0, '', '.').' sor adatot listázna ki.<br>Biztosan folytatja?\', \'<input type="button" class="gomb zold" value="Igen" onclick="location.href=\\\''.$link.'\\\'"><input type="button" class="gomb piros" value="Nem" onclick="alert2()">\', \'Kérdés\');
                         }
                         </script>
                         ';
-                    $link = 'javascript:kerdes_ml_'.$statusz['stat_id'].$fgv_kieg.'();';
+                    $link = 'javascript:kerdes_'.$tabla.'_'.$statusz['stat_id'].$fgv_kieg.'();';
                 }
 
                 $sorok .= nl2('

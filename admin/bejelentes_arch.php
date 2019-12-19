@@ -71,7 +71,7 @@ if (isset($_GET['csv'])) {
     fwrite($open, "sep=;\n");
     ob_start();
 
-    if($open){
+    if( $open ) {
 
         $lekerdezes_fromtol = substr($_SESSION['akt_sql'], strpos($_SESSION['akt_sql'], 'FROM'));
 

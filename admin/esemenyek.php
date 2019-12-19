@@ -165,7 +165,7 @@ switch ( $tabla ) {
 
         // Default rendezés
         if( !$_GET['rend'] ) {
-            $_GET['rend'] = 'ikt_szam';
+            $_GET['rend'] = 'recid';
         }
 
         // Default rendezési irány
@@ -373,7 +373,7 @@ switch ( $tabla ) {
 
         // Default rendezés
         if( !$_GET['rend'] ) {
-            $_GET['rend'] = 'ikt_szam';
+            $_GET['rend'] = 'recid';
         }
 
         // Default rendezési irány
@@ -480,7 +480,7 @@ switch ( $tabla ) {
 
         // Default rendezés
         if( !$_GET['rend'] ) {
-            $_GET['rend'] = 'ikt_szam';
+            $_GET['rend'] = 'recid';
         }
 
         // Default rendezési irány
