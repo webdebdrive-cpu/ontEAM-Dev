@@ -1732,7 +1732,7 @@ if( isset($_GET['csv']) ) {
     $fajlnev = $utvonal.'csv'.time().'.csv';
     $open = fopen($fajlnev,'a');
     fwrite($open, "sep=;\n");
-    if($open){
+    if( $open ) {
 
         if( $_SESSION['nyomtatas_ids'] ) {
             

@@ -2466,14 +2466,17 @@ if (isset($_GET['csv'])) {
     fwrite($open, "sep=;\n");
     ob_start();
 
-    if($open){
+    if( $open ) {
 
         $lekerdezes_fromtol = substr($_SESSION['akt_sql'], strpos($_SESSION['akt_sql'], 'FROM'));
         
         // A fenntartási terv sorára is szükség lesz
         $fterv_sor = $adatbazis_kapcsolat->s2('stat_id ev telephely_id ikt_szam', 'fenntartasi_terv', "`recid`='{$_GET['id']}'");
 
-        if( $_SESSION['nyomtatas_ids'] ) {
+        // Eredetileg csak a bal navpanelben is megjelenő sorokat listázzuk ki (cél, hogy illetéktelen sorokhoz ne lehessen hozzáférni).
+        // Viszont ha érvényben volna egy LIMIT is az aktuális SQL-ben, akkor ezt az ID ellenőrzést mégsem tesszük meg (mert van egy alapértelmezett 1000-es lista limit,
+        // de ha több sor is van adott feltételre, akkor az CSV-ben minden sort látni szeretnénk.
+        if( $_SESSION['nyomtatas_ids'] && strpos( $_SESSION['akt_sql'], 'LIMIT' )===false ) {
 
             // Energia egységár exportja
             if (isset($_GET['energia'])) {

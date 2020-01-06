@@ -3040,7 +3040,7 @@ if( isset($_POST['nyomtatas_ids']) ) {
     
     // Eltároljuk a bal nav panelben látható recid-kat, hogy csak ezek kerüljenek bele a CSV exportba.
     $_SESSION['nyomtatas_ids']      = $_POST['data'];
-    // Eltároljuk azt is, hogy a gyorskeresőben mi a beírt kulcsszó. Ez azért kell, hogy tudjuk, ha esetleg üres volt és az alapértelmezett ezres limit van beálllítva szűréskor, akkor a teljes litsa jöjjön le (ne csak 1000),
+    // Eltároljuk azt is, hogy a gyorskeresőben mi a beírt kulcsszó. Ez azért kell, hogy tudjuk, ha esetleg üres volt, és az alapértelmezett ezres limit van beálllítva szűréskor, akkor a teljes litsa jöjjön le (ne csak 1000),
     // de ha van gyorskeresés, akkor meg szűrjünk a látható elemekre
     $_SESSION['nyomtatas_ids_ksz']  = $_POST['ksz'];
 

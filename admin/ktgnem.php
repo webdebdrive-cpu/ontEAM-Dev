@@ -74,11 +74,14 @@ if (isset($_GET['csv'])) {
     $fajlnev = $utvonal.'csv'.time().'.csv';
     $open = fopen($fajlnev,'a');
     fwrite($open, "sep=;\n");
-    if($open){
+    if( $open ) {
 
         $lekerdezes_fromtol = substr($_SESSION['akt_sql'], strpos($_SESSION['akt_sql'], 'FROM'));
 
-        if( $_SESSION['nyomtatas_ids'] ) {
+        // Eredetileg csak a bal navpanelben is megjelenő sorokat listázzuk ki (cél, hogy illetéktelen sorokhoz ne lehessen hozzáférni).
+        // Viszont ha érvényben volna egy LIMIT is az aktuális SQL-ben, akkor ezt az ID ellenőrzést mégsem tesszük meg (mert van egy alapértelmezett 1000-es lista limit,
+        // de ha több sor is van adott feltételre, akkor az CSV-ben minden sort látni szeretnénk.
+        if( $_SESSION['nyomtatas_ids'] && strpos( $_SESSION['akt_sql'], 'LIMIT' )===false ) {
             if( strstr($_SESSION['akt_sql'], 'WHERE') ) {
                 $lekerdezes_fromtol = str_replace('WHERE', "WHERE `".get_db_tabla()."ktgnem`.`recid` IN (".$_SESSION['nyomtatas_ids'].") AND ", $lekerdezes_fromtol);
             } else {
@@ -87,7 +90,7 @@ if (isset($_GET['csv'])) {
         }
         
         // Ha van $_SESSION['akt_sql_order'], akkor eszerint rendezünk, tehát a $lekerdezes_fromtol-t elvágjuk az Order-nél
-        if( $_SESSION['akt_sql_order'] ){
+        if( $_SESSION['akt_sql_order'] ) {
             $hossz = strpos($lekerdezes_fromtol, 'ORDER');
             if( $hossz ) {
                 $lekerdezes_fromtol = substr($lekerdezes_fromtol, 0, $hossz);

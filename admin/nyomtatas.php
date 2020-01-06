@@ -110,7 +110,10 @@ if( $_GET['print']=='lista' || isset($_GET['pdf'])) {
         }
     }
 
-    if( $_SESSION['nyomtatas_ids'] ) {
+        // Eredetileg csak a bal navpanelben is megjelenő sorokat listázzuk ki (cél, hogy illetéktelen sorokhoz ne lehessen hozzáférni).
+        // Viszont ha érvényben volna egy LIMIT is az aktuális SQL-ben, akkor ezt az ID ellenőrzést mégsem tesszük meg (mert van egy alapértelmezett 1000-es lista limit,
+        // de ha több sor is van adott feltételre, akkor az CSV-ben minden sort látni szeretnénk.
+        if( $_SESSION['nyomtatas_ids'] && strpos( $_SESSION['akt_sql'], 'LIMIT' )===false ) {
         if( strstr($_SESSION['akt_sql'], 'WHERE') ) {
             $_SESSION['akt_sql'] = str_replace('WHERE', "WHERE `". get_db_tabla()."$tabla`.`recid` IN (".$_SESSION['nyomtatas_ids'].") AND ", $_SESSION['akt_sql']);
         } else {

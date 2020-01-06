@@ -105,15 +105,15 @@ if( in_array(basename(self()), $archivok) && !isset($_GET['mezo']) && !$_SESSION
 // Ha olyan $_GET['id']-t akarnék megnézni, ami az aktuális SQL-nek nem is eredménye, akkor kinullázzuk: ne lehessen leskelődni
 // Ehhez a nav panel kiszámításakor a recid-kat is kiszámoljuk egy tömbbe, hogy többet egy ilyen bonyolult SQL-t ne kelljen lefuttatni
 // Ezt viszont nem tesszük meg, ha van $_POST-olt adat, mert azok ajax hívások, ott meg feleslegesen szintén ne számolgassuk ki a bonyolult SQL-t.
-// Ugyanígy az autocomplete.php esetén sem hívjuk meg
+// Ugyanígy az autocomplete.php esetén sem hívjuk meg, meg még van pár kivételes oldal.
 $kiveteles_oldalak = array('index.php', 'autocomplete.php', 'szakter_autocomplete.php', 'velemeny_autocomplete.php');
 if( empty($_POST) && !in_array( basename(self()), $kiveteles_oldalak ) && !isset($_GET['no_lista']) && substr(basename($_SERVER['PHP_SELF']), 0, 5)!='andoc' ) {
     list($balNavPanelHTMLje, $balNavPanelRECIDk) = szamla_lista();          // Ezt azért futtatjuk le, hogy az aktuális oldalnak megfelelő $_SESSION['akt_sql'] jöjjön létre, hogy tudjunk ID-t ellenőrizni.
     $_SESSION[csonkit(basename(self()), 4).'_idk'] = $balNavPanelRECIDk;    // Egy Session-ben is eltároljuk az ID-kat, hogy ajax-al egy sort meghívva, ne töltse be, ha adott ID nem tartozik a felhasználó látokörébe
 }
 
-if( $_GET['id'] && !isset($_GET['no_lista']) ){
-    if(!in_array($_GET['id'], $balNavPanelRECIDk)){
+if( $_GET['id'] && !isset($_GET['no_lista']) ) {
+    if( !in_array($_GET['id'], $balNavPanelRECIDk) ) {
         $_GET['id'] = '';
     }
 }

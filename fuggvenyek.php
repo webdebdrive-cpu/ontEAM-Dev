@@ -1771,15 +1771,22 @@ function i_u($type, $tabla, $tomb) {
             $tizedesek  = 0;
             $mezo1      = 'pr_szer_tetel_varh_ert';
             $mezo2      = 'szerz_ossz';
+            $mezo3      = 'varh_ert';
             $szoveg     = 'szerződés összegével';
             if( $_POST['kcs_21'] && $_POST['kcs_21']!=KCS_21_HUF ) {
                 $tizedesek  = 2;
                 $mezo1      = 'pr_szer_tetel_dev_net';
                 $mezo2      = 'dev_net';
+                $mezo3      = 'dev_varh_ert';
                 $szoveg     = 'deviza nettóval';
             }
             $tetelek_osszege = '';
-            foreach ( $_SESSION[$mezo1] as $ertek ) {
+            // Korábban $_SESSION-ből dolgoztunk, de ez problémát okozott, ha két projektszerződés adatlap meg volt nyitva egy-egy tabon. Keveredtek a SESSION-ök. 
+            // Továbbá úgy láttam, hogy a tételek még az adatlap mentése előtt eltárolódnak az adatbázisban, tehát ezen a ponton tényleg nem $_SESSION-ből kellene már dolgozni.
+            // foreach ( $_SESSION[$mezo1] as $ertek ) {
+            $tetelek = $adatbazis_kapcsolat->s($mezo3, 'projektszerzodes_tetel', "`projektszerzodes_recid`='{$_GET['id']}'");
+            foreach( $tetelek as $tetel ) {
+                $ertek = $tetel[$mezo3];
                 $ertek = str_replace(array(' ', ','), array('', '.'), $ertek);
                 $tetelek_osszege += $ertek;
             }
@@ -10406,7 +10413,7 @@ function csatolmanyok_eltesz($fajlok, $utvonal, $email_recid, $ml_recid, $tabla)
 }
 
 // Egy rekord törlésekor a hozzá kapcsolódó gyermektáblákból törölt adatokat is szeretnénk logolni. Ezért átadunk neki egy adatbázis lekérdezésből kapott tömböt, és ő visszaadja a log szövegét.
-function logolas_kapcsolodo_tablak_sorai($sorok, $tabla){
+function logolas_kapcsolodo_tablak_sorai($sorok, $tabla = ''){
     
     $valtozas = '';
     foreach($sorok as $sor){
