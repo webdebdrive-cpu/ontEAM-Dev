@@ -58,16 +58,22 @@ if (isset($_GET['csv'])) {
     $mibol   = get_web_charset();
     $mibe    = 'windows-1250';
 
-    if( !is_dir('export') ) {
-        mkdir('export');
+    $target  = 'export';
+
+    if( !is_dir($target) ) {
+        mkdir($target);
     }
 
-    if( !is_dir('export/csv') ) {
-        mkdir('export/csv');
+    $target .= '/csv';
+
+    if( !is_dir($target) ) {
+        mkdir($target);
     }
+
+    $filename = $target.'/'.$_GET['filename'];
 
     // Open the output stream
-    $open = fopen('php://output', 'w');
+    $open = fopen($filename, 'w');
     fwrite($open, "sep=;\n");
     ob_start();
 
@@ -97,16 +103,16 @@ if (isset($_GET['csv'])) {
         }
         
         $sql = 'SELECT
-                                                    `ikt_szam` as \'Bejelentés szám\',
-                                                    `'.get_db_tabla().$megnevezes.'`.`telephely_id` as \'Szálloda\',
-                                                    `hiba_id` as \'Bejelentett hiba\',
-                                                    `hiba_text` as \'Hiba leírása\',
-                                                    `obj_txt` as \'Helyiség\',
-                                                    `helyiseg_text` as \'Hely leírása\',
-                                                    `gep_id` as \'Gépnév\',
-                                                    `stat_id` as \'Státusz\',
-                                                    `'.get_db_tabla().$megnevezes.'`.`insert_dt` as \'Bejelentés dátuma\'
-                                                    '.$lekerdezes_fromtol.$_SESSION['akt_sql_order'];
+                `ikt_szam` as \'Bejelentés szám\',
+                `'.get_db_tabla().$megnevezes.'`.`telephely_id` as \'Szálloda\',
+                `hiba_id` as \'Bejelentett hiba\',
+                `hiba_text` as \'Hiba leírása\',
+                `obj_txt` as \'Helyiség\',
+                `helyiseg_text` as \'Hely leírása\',
+                `gep_id` as \'Gépnév\',
+                `stat_id` as \'Státusz\',
+                `'.get_db_tabla().$megnevezes.'`.`insert_dt` as \'Bejelentés dátuma\'
+                '.$lekerdezes_fromtol.$_SESSION['akt_sql_order'];
         $query      = mysqli_query($db_kapcs, $sql);
 
         $csvhead    = array();
@@ -162,7 +168,9 @@ if (isset($_GET['csv'])) {
     
 
     // Stream the CSV data
-    exit($string);
+    // exit($string);
+
+    echo $filename;
 
     $weblap->leallit();
     exit();

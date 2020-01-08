@@ -6126,11 +6126,29 @@ function csv_general( that, valasztos, link_kieg ) {
             } else {
                 
                 if( ids.length ) {
+                    alert2('CSV generálása folyamatban... <br><br><span class="link" onclick="ajax_abort();">Folyamat megszakítása.</span>');
+
+                    var link = get_get(['egysegarak']) + '&csv&' + link_kieg;
                     
-                    var onclick = $(that).attr('onclick');
+                    window.csv_filename = 'csv' + new Date().getTime() + '.csv';
+                    window.ajax = $.ajax({
+                        url : link,
+                        type: 'GET',
+                        data: {
+                            filename: window.csv_filename
+                        },
+                        success: function(response) {
+                            if(response) {
+                                alert2();
+                                location.href = response;
+                            }
+                        }
+                    });
+
+                    /*var onclick = $(that).attr('onclick');
                     $(that).attr('href', get_get(['egysegarak']) + '&csv&'+link_kieg).removeAttr('onclick');
                     $(that)[0].click();
-                    $(that).attr('onclick', onclick).removeAttr('href');
+                    $(that).attr('onclick', onclick).removeAttr('href');*/
                     
                 } else {
                     
@@ -6144,6 +6162,24 @@ function csv_general( that, valasztos, link_kieg ) {
 
     }
 
+}
+
+// Ajax megszakítása
+function ajax_abort() {
+    window.ajax.abort();
+
+    if( window.csv_filename ) {
+        $.ajax({
+            url : 'esemenyek.php',
+            type: 'POST',
+            data: {
+                filename: window.csv_filename,
+                csv_file_torol: new Date().getTime()
+            }
+        });
+    }
+
+    alert2();
 }
 
 // Adatlap betöltése

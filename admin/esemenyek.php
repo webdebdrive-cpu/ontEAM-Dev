@@ -3010,11 +3010,27 @@ array_push($postok, array('tomb' => $akt_tomb, 'uj' => 'uj'.$megnevezes, 'lista'
 
 
 
+if( isset($_POST['teszt_kiiratas']) ) {
+    for( $i = 0; $i < 10; $i++ ) { 
+        echo 'kiir'.$i.'-<br>';
+    }
+
+    $weblap->leallit();
+    exit();
+}
 
 
+// Ajax megszakítása
+if( isset($_POST['csv_file_torol']) ) {
+    $filename = $_POST['filename'];
 
+    if( $filename ) {
+        unlink('export/csv/'.$filename);
+    }
 
-
+    $weblap->leallit();
+    exit();
+}
 
 // Egy vagy többszállodás select Projektigényléshez, Projektekhez
 if (isset($_POST['f_pri_egytobb'])) {
