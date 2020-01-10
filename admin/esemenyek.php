@@ -3000,21 +3000,21 @@ $felmeresi_terv_tomb = $akt_tomb = array(
 array_push($postok, array('tomb' => $akt_tomb, 'uj' => 'uj'.$megnevezes, 'lista' => $megnevezes.'lista', 'tabla' => $megnevezes, 'torid' => $megnevezes.'tid' ));
 //{KOVETKEZO_TOMB}
 
+// Ajax megszakítása
+if( isset($_POST['csv_file_torol']) ) {
+    $filename = $_POST['filename'];
 
+    if( $filename ) {
+        unlink('export/csv/'.$filename);
+    }
 
+    echo json_encode(array(
+        'statusz' => 'OK'
+    ));
 
-
-
-
-
-
-
-
-
-
-
-
-
+    $weblap->leallit();
+    exit();
+}
 
 // Egy vagy többszállodás select Projektigényléshez, Projektekhez
 if (isset($_POST['f_pri_egytobb'])) {

@@ -50,26 +50,31 @@ if($tobb_kep){
 // CSV generálása
 if (isset($_GET['csv'])) {
 
-    header("Content-type: text/csv");
-    header("Content-Disposition: attachment; filename=$megnevezes.csv");
-    header("Pragma: no-cache");
-    header("Expires: 0");
-    
+    // Progresshez szükséges fejlécek
+    header('X-Accel-Buffering: no');
+    header('Content-Type: text/octet-stream');
+    header('Cache-Control: no-cache');
+
     $mibol   = get_web_charset();
     $mibe    = 'windows-1250';
 
-    if( !is_dir('export') ) {
-        mkdir('export');
+    $target  = 'export';
+
+    if( !is_dir($target) ) {
+        mkdir($target);
     }
 
-    if( !is_dir('export/csv') ) {
-        mkdir('export/csv');
+    $target .= '/csv';
+
+    if( !is_dir($target) ) {
+        mkdir($target);
     }
+
+    $filename = $target.'/'.$_POST['filename'];
 
     // Open the output stream
-    $open = fopen('php://output', 'w');
+    $open = fopen($filename, 'w');
     fwrite($open, "sep=;\n");
-    ob_start();
 
     if( $open ) {
 
@@ -97,16 +102,16 @@ if (isset($_GET['csv'])) {
         }
         
         $sql = 'SELECT
-                                                    `ikt_szam` as \'Bejelentés szám\',
-                                                    `'.get_db_tabla().$megnevezes.'`.`telephely_id` as \'Szálloda\',
-                                                    `hiba_id` as \'Bejelentett hiba\',
-                                                    `hiba_text` as \'Hiba leírása\',
-                                                    `obj_txt` as \'Helyiség\',
-                                                    `helyiseg_text` as \'Hely leírása\',
-                                                    `gep_id` as \'Gépnév\',
-                                                    `stat_id` as \'Státusz\',
-                                                    `'.get_db_tabla().$megnevezes.'`.`insert_dt` as \'Bejelentés dátuma\'
-                                                    '.$lekerdezes_fromtol.$_SESSION['akt_sql_order'];
+                `ikt_szam` as \'Bejelentés szám\',
+                `'.get_db_tabla().$megnevezes.'`.`telephely_id` as \'Szálloda\',
+                `hiba_id` as \'Bejelentett hiba\',
+                `hiba_text` as \'Hiba leírása\',
+                `obj_txt` as \'Helyiség\',
+                `helyiseg_text` as \'Hely leírása\',
+                `gep_id` as \'Gépnév\',
+                `stat_id` as \'Státusz\',
+                `'.get_db_tabla().$megnevezes.'`.`insert_dt` as \'Bejelentés dátuma\'
+                '.$lekerdezes_fromtol.$_SESSION['akt_sql_order'];
         $query      = mysqli_query($db_kapcs, $sql);
 
         $csvhead    = array();
@@ -115,8 +120,11 @@ if (isset($_GET['csv'])) {
         }
         fputcsv($open, $csvhead, ';');
 
+        // Összes sor
+        $osszes_sor = mysqli_num_rows($query);
+
         $i = 0;
-        while( $sorok = mysqli_fetch_assoc($query) ){
+        while( $sorok = mysqli_fetch_assoc($query) ) {
 
             $csvcont = array();
             foreach( $sorok as $kulcs => $sor ) {
@@ -148,22 +156,37 @@ if (isset($_GET['csv'])) {
             fputcsv($open, $csvcont, ';');
 
             // 100 soronként kiírtatunk
-            if ($i % 100 == 0) {
+            if($i % 1000 == 0 && $i > 0) {
+                // Progress
+                echo json_encode(array('pr' => number_format(($i / $osszes_sor) * 100, 0, '', ''))).PHP_EOL;
+                
+                // Felszabadítás
+                ob_flush();
                 flush();
             }
 
             $i++;
         }
+
+        // Progress
+        echo json_encode(array('pr' => '100')).PHP_EOL;
+        
+        // Felszabadítás
+        ob_flush();
+        flush();
     }
 
     // Get the contents of the output buffer
-    $string = ob_get_clean();
     fclose($fh);
+
+    echo json_encode(array(
+        'filename' => $filename
+    ));
+
+    // Felszabadítás
+    ob_flush();
+    flush();
     
-
-    // Stream the CSV data
-    exit($string);
-
     $weblap->leallit();
     exit();
 }
