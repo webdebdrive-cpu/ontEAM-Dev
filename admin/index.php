@@ -1,6 +1,10 @@
 <?php
 // Nyitólap
 
+if( isset($_GET['info']) ) {
+    phpinfo();
+}
+
 // 2014-nél régebbi szerződésekhez tartozó dokumentumok automatikusan szerződés tipusuak.
 if( isset($_GET['ez_kell_meg_elesre']) ) {
     require_once('../weblap.php');

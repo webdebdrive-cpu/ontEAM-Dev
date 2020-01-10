@@ -694,9 +694,13 @@ $tartBal  = '';
 $keresodn = ' dn';
 $rendezes = '';
 $uj_link  = '';
+
+// Pl. Archiv bejelentések és munkalapok esetén ha alapértelmezetten a legfrisebb 1000 rekordot kérjük le, akkor a rendezésnél is ez legyen kiírva.
+if( $_GET['mezo'] == 'legfrissebb' ) {
+    $_GET['rend'] = 'legfrissebb';
+}
 if( in_array(basename(self()), $_SESSION['ketHasabos']) && $_SESSION[get_db_tabla().'user'] ) {
     $tabla = str_replace('.php', '', basename(self()));
-
 
     // Rendezés
     $rend_mezok = $adatbazis_kapcsolat->s('`column_name`', '`information_schema`.columns', '`table_schema` LIKE  \''.get_db().'\' AND  `table_name` LIKE  \''.get_db_tabla().$tabla.'\'');
@@ -704,7 +708,7 @@ if( in_array(basename(self()), $_SESSION['ketHasabos']) && $_SESSION[get_db_tabl
 
     $rendezes = '';
     $i = 1;
-    foreach($rend_mezok as $rend_mezo) {
+    foreach ( $rend_mezok as $rend_mezo ) {
         if( in_array($rend_mezo, $_OPTS['rendezes']) ) {
             $selected = '';
             if( $_GET['rend'] == $rend_mezo ) {
@@ -772,12 +776,12 @@ if( in_array(basename(self()), $_SESSION['ketHasabos']) && $_SESSION[get_db_tabl
 
     $tartBal = '';
     // Anyagigénylésnél nincs bal nev panel
-    if(basename(self())!='anyagigenyles.php'){
+    if( basename(self()) != 'anyagigenyles.php' ) {
         // $tartBal = szamla_lista();
         $tartBal = $balNavPanelHTMLje;
     }
 
-    if (isset($_GET['gyorskereso_ajax'])) {
+    if( isset($_GET['gyorskereso_ajax']) ) {
         echo $tartBal;
         $weblap -> leallit();
         exit;

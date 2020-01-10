@@ -3385,7 +3385,12 @@ if( isset($_REQUEST['f_o_szures_submit']) ) {
     if( $_REQUEST['tabla']=='projektkezeles' && strpos($_REQUEST['feltetel'], 'team_tag')!==false ) {
         $join = ' JOIN `'.get_db_tabla().'projektkezeles_team` ON `'.get_db_tabla().'projektkezeles_team`.`projektkezeles_recid`=`'.get_db_tabla().'projektkezeles`.`recid` ';
     }
-    $sql = 'SELECT * FROM `'.get_db_tabla().$_REQUEST['tabla'].'`'.$join.' WHERE '.get_o_szures_where_kieg($_REQUEST['feltetel'], $_REQUEST['tabla']);
+    $osszetett_where = get_o_szures_where_kieg($_REQUEST['feltetel'], $_REQUEST['tabla']);
+    $sql = 'SELECT * FROM `'.get_db_tabla().$_REQUEST['tabla'].'`'.$join.' WHERE '.$telephelyre_szur.$osszetett_where;
+    // Ha a $osszetett_where üres akkor marad egy AND maradt az SQL végén
+    if( !$osszetett_where ) {
+        $sql = csonkit($sql, 5);
+    }
     
     // Ha volt 'legfrissebb' mező kitöltve, akkor még a limitet ki kell számolni
     if( strpos( $_REQUEST['feltetel'], 'me|legfrissebb' ) !== false ) {
@@ -3419,11 +3424,12 @@ if( isset($_REQUEST['f_o_szures_submit']) ) {
     
     if( !$_GET['f_o_szures_submit'] ) {
     
+        // Ha sikeres a lekérdezés
         if( $lekerdez ) {
             $sorok_szama = mysqli_num_rows($lekerdez);
             if( !$_POST['mehet'] && $sorok_szama > SZURES_DB_LIMIT ){
                 echo json_encode(array(
-                    'hiba'  => 'Ezzel a szűrési feltétellel '. number_format($sorok_szama, 0, '', ' ').' sor adatot listázna ki. Biztosan folytatja?<br>Biztosan folytatja?',
+                    'hiba'  => 'Ezzel a szűrési feltétellel '. number_format($sorok_szama, 0, '', ' ').' sor adatot listázna ki.<br>Biztosan folytatja?',
                     'gomb'  => '<input type="button" class="gomb zold" value="Igen" onclick="$(\'.f_o_szures_submit\').addClass(\'mehet\').click(); alert2();"><input type="button" class="gomb piros" value="Nem" onclick="alert2(); $(\'.f_o_szures_submit\').removeClass(\'mehet\');">',
                     'title' => 'Kérdés'
                 ));
@@ -3436,6 +3442,7 @@ if( isset($_REQUEST['f_o_szures_submit']) ) {
                 'mehet' => '1'
             ));
 
+        // Nem sikeres a lekérdezés
         } else {
 
             $hiba_kieg = '';

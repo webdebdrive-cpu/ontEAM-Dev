@@ -868,11 +868,6 @@ if( isset($_POST['o_szures']) ) {
 $options = '';
 $sz_mezo = tobbdim_tomb_kulcs_rendez($sz_mezo, 'vege', SORT_ASC);
 
-// Szűrés és szűrés töröl gombok rejtése
-if( isset($_GET['anyagrend']) && $_GET['mezo']=='legfrissebb' && $_GET['op']=='equal' && $_GET['felt']=='0' ) {
-    
-}
-
 foreach ( $sz_mezo as $mezo ) {
     $options .= $mezo['eleje'].$mezo['vege'];
 }

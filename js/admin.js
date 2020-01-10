@@ -6882,70 +6882,79 @@ function operator_beallit(that, selected, felt) {
 // Szűrő érték mező beállítása
 function szuro_ertek_mezo_gen(that, felt) {
     
-    var tabla    = that.attr('data-tabla');
-    var selected = that.find('option:selected');
-
-    // Ha összetett szűrőben vagyunk, akkor ezt jelezzük a PHP felé is
-    var prefix    = '';
-    var osszetett = '';
-    if ($('#o_operator').length) {
-        prefix    = 'o_';
-        osszetett = '&amp;osszetett=1';
+    // Anyagrendelés alatt néha limit=0-val indul az oldal. Ez nem számít tényleges értéknek, emiatt ilyenkor nem is kell kiszámolni az érték mezőt, meg se jelenik
+    // Azért kellett ide ez a feltétel, mert megjelent egy Szűrés és egy Szűrés törlése gomb, feleslegesen
+    var mehet = true;
+    if( _get('anyagrend') && felt =='' ) {
+        mehet = false;
     }
+    if( mehet ) {
+    
+        var tabla    = that.attr('data-tabla');
+        var selected = that.find('option:selected');
 
-    // Anyagrendelés felület miatt, ezt is át kell adni GET-ként
-    anyagrend = '';
-    if (_get('anyagrend')) {
-        anyagrend = '?anyagrend=1';
-    }
-
-    ajax = $.ajax({
-        url : 'header.php'+anyagrend,
-        type: 'POST',
-        data: esamp2es('tabla=' + tabla + '&amp;mezo=' + $('#'+prefix+'szuro_mezo').val() + '&amp;selected=' + selected.val() + '&amp;felt=' + felt + osszetett + '&amp;f_szuro_mezo_operator=' + new Date().getTime()),
-        success: function (response) {
-            if(response.substring(0, 6)=='SESKIL'){ location.href = 'index.php'; }
-            response = JSON.parse(response);
-            if ( response ) {
-                $('#'+prefix+'feltetel').html(response.feltetel);
-                if( prefix ) {
-                    $('#'+prefix+'szures_submit').html( '<input type="button" class="gomb zold f_o_szuro_hozzaad" value="+" style="padding: 0.3rem 0.7rem">');
-                } else {
-                    var kieg = '';
-                    if( baseName(location.href)=='anyagigenyles' ) {
-                        kieg = '?szures_torol';
-                        if (_get('anyagrend')) {
-                            kieg += '&anyagrend';
-                        }
-                    }
-                    $('#'+prefix+'szures_submit').html( '<input type="button" class="gomb f_szures_submit" value="Szűrés">'+
-                                                        '<input style="margin-left: 0.2rem" type="button" class="gomb piros" value="Szűrés töröl" onclick="szurkit(); location.href=\''+tabla+'.php'+kieg+'\'">'
-                                                    );
-                }
-                
-                if( !$('#szuro_mezo').val() ) {
-                    $('#'+prefix+'szures_submit').hide();
-                } else {
-                    $('#'+prefix+'szures_submit').show();
-                }
-                
-            }
-        },
-        complete: function(xhr) {
-            if( xhr.status != 200 ) {
-                alert2(xhr.responseText, '', 'Hiba');
-            }
+        // Ha összetett szűrőben vagyunk, akkor ezt jelezzük a PHP felé is
+        var prefix    = '';
+        var osszetett = '';
+        if ($('#o_operator').length) {
+            prefix    = 'o_';
+            osszetett = '&amp;osszetett=1';
         }
-   });
 
-   $.when(ajax).then(function() {
-       fejlecPozicional();
-       fulGombMeretez();
-       // A feltétel mezőre fókuszálunk, de csak akkor, ha az nem dátum (mert zavaró, ha egy szűrés utáni lapletöltéskor a dátumválasztó ott feljön)
-       if( !$('#feltetel input').hasClass('datepicker') && !$('#feltetel input').hasClass('datetimepicker') ) {
-           $('#feltetel input').focus();
-       }
-   });
+        // Anyagrendelés felület miatt, ezt is át kell adni GET-ként
+        anyagrend = '';
+        if (_get('anyagrend')) {
+            anyagrend = '?anyagrend=1';
+        }
+
+        ajax = $.ajax({
+            url : 'header.php'+anyagrend,
+            type: 'POST',
+            data: esamp2es('tabla=' + tabla + '&amp;mezo=' + $('#'+prefix+'szuro_mezo').val() + '&amp;selected=' + selected.val() + '&amp;felt=' + felt + osszetett + '&amp;f_szuro_mezo_operator=' + new Date().getTime()),
+            success: function (response) {
+                if(response.substring(0, 6)=='SESKIL'){ location.href = 'index.php'; }
+                response = JSON.parse(response);
+                if ( response ) {
+                    $('#'+prefix+'feltetel').html(response.feltetel);
+                    if( prefix ) {
+                        $('#'+prefix+'szures_submit').html( '<input type="button" class="gomb zold f_o_szuro_hozzaad" value="+" style="padding: 0.3rem 0.7rem">');
+                    } else {
+                        var kieg = '';
+                        if( baseName(location.href)=='anyagigenyles' ) {
+                            kieg = '?szures_torol';
+                            if (_get('anyagrend')) {
+                                kieg += '&anyagrend';
+                            }
+                        }
+                        $('#'+prefix+'szures_submit').html( '<input type="button" class="gomb f_szures_submit" value="Szűrés">'+
+                                                            '<input style="margin-left: 0.2rem" type="button" class="gomb piros" value="Szűrés töröl" onclick="szurkit(); location.href=\''+tabla+'.php'+kieg+'\'">'
+                                                        );
+                    }
+
+                    if( !$('#szuro_mezo').val() ) {
+                        $('#'+prefix+'szures_submit').hide();
+                    } else {
+                        $('#'+prefix+'szures_submit').show();
+                    }
+
+                }
+            },
+            complete: function(xhr) {
+                if( xhr.status != 200 ) {
+                    alert2(xhr.responseText, '', 'Hiba');
+                }
+            }
+       });
+
+       $.when(ajax).then(function() {
+           fejlecPozicional();
+           fulGombMeretez();
+           // A feltétel mezőre fókuszálunk, de csak akkor, ha az nem dátum (mert zavaró, ha egy szűrés utáni lapletöltéskor a dátumválasztó ott feljön)
+           if( !$('#feltetel input').hasClass('datepicker') && !$('#feltetel input').hasClass('datetimepicker') ) {
+               $('#feltetel input').focus();
+           }
+       });
+    }
 }
 
 // Személyzet -> Beosztás -> Naptár fül alatt a felvesz gomb lekezelése
