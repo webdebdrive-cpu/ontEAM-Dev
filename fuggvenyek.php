@@ -3063,7 +3063,7 @@ function szamla_lista( $where = '', $tabla = '', $kijeloltek = false, $csak_sql_
             $where = get_projektkezeles_where_jog();
             
         }
-        
+
         // Projektszamla
         if( $tabla == 'projektszamla' ) {
             // Saját szállodáimat láthatom
@@ -3169,10 +3169,16 @@ function szamla_lista( $where = '', $tabla = '', $kijeloltek = false, $csak_sql_
         // Ha van öszetett szűrés feltétel
         if( $_SESSION['o_szuro_feltetel'] ) {
             // Az eddigi Where-t egy nagy zárójelbe tesszük és ehhez vesszük hozzá az új feltételeket
-            if($where){
+            if( $where ) {
                 $where = '('.csonkit($where, 5).') AND ';
             }
-            $where .= get_o_szures_where_kieg($_SESSION['o_szuro_feltetel'], $tabla).' AND ';
+
+            // Ha van get_o_szures_where_kieg() feltételünk is, akkor még azzal is megtoldjuk  a $where-t
+            // Nem feltétlenük van SQL-ünk, ha van $_SESSION['o_szuro_feltetel']. Pl. ha a szűrés csak annyi tartalmaz, hogy Legfrisebb 100.
+            $osszetett_szures_where = get_o_szures_where_kieg($_SESSION['o_szuro_feltetel'], $tabla);
+            if( $osszetett_szures_where ) {
+                $where .= $osszetett_szures_where.' AND ';
+            }
         }
 
         // Ha van $_GET['idk'] változónk, akkor azokra az ID-kra még pluszban szűrünk

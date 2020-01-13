@@ -6989,7 +6989,7 @@ function szuro_ertek_mezo_gen(that, felt) {
                                                         );
                     }
 
-                    if( !$('#szuro_mezo').val() ) {
+                    if( !$('#'+prefix+'szuro_mezo').val() ) {
                         $('#'+prefix+'szures_submit').hide();
                     } else {
                         $('#'+prefix+'szures_submit').show();
