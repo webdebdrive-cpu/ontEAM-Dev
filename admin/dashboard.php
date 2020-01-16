@@ -1,11 +1,6 @@
 <?php
 $html = '';
 
-// Temporális tábla létrehozására minta
-// mysqli_query($db_kapcs, 'CREATE TEMPORARY TABLE `'. get_db_tabla().'_bejelentes_tmp` ENGINE=MYISAM SELECT * FROM `'. get_db_tabla().'bejelentes` WHERE `telephely_id` IN ('.implode(',', get_akt_login_szallodai()).') ');
-// mysqli_query($db_kapcs, 'DROP TEMPORARY TABLE `'. get_db_tabla().'_bejelentes_tmp`') or trigger_error($db_kapcs -> error);
-
-
 // Éles és teszt-en még ne látszódjon, csak dev-en és saját környezetben
 if( $_SERVER['HTTP_HOST']!='www.onteam.hu' && $_SERVER['HTTP_HOST']!='onteam.hu' && $_SERVER['HTTP_HOST']!='teszt.onteam.hu' ) {
     
@@ -188,51 +183,14 @@ if( isset($_GET['teszt']) ) {
     if( anyagigenyles_lathat() ) {
 
         $sorok = '';
-        // Igénylés jóváhagyása jog
-        if( _jog(JOG_ANYAGIGENYLES_JOVAHAGY) ) {
-
-            // Árazva anyagigénylések keresése
-            $link_neve  = 'Árazva (jóváhagyásra vár)';
-            $statusz    = CIKKIGN_STAT_ARAZVA;
-            $db = $adatbazis_kapcsolat->s('recid', 'anyagigenyles', "`stat_id`='".$statusz."' AND `telephely_id` IN (".implode(',', $szallodak).")", '', '', '', 'Num rows');
-            if( $db ) {
-
-                // Ha túl sok találat van, akkor rá kérdezünk, hogy biztosan szeretné-e listázni
-                $js   = '';
-                $link = 'anyagigenyles.php?mezo=stat_id&amp;op=equal&amp;felt='.$statusz.'&amp;tablazat';
-                if( $db > SZURES_DB_LIMIT ) {
-                    $js = '
-                        <script>
-                        function kerdes_anyag_'.$statusz['stat_id'].'() {
-                            alert2(\'Ezzel a szűrési feltétellel '.number_format($db, 0, '', '.').' sor adatot listázna ki.<br>Biztosan folytatja?\', \'<input type="button" class="gomb zold" value="Igen" onclick="location.href=\\\''.$link.'\\\'"><input type="button" class="gomb piros" value="Nem" onclick="alert2()">\', \'Kérdés\');
-                        }
-                        </script>
-                        ';
-                    $link = 'javascript:kerdes_anyag_'.$statusz['stat_id'].'();';
-                }
-
-                $sorok .= nl2('
-                            <tr>
-                                <td>
-                                    '.$js.'
-                                    <a href="'.$link.'">'.$link_neve.':</a>
-                                </td>
-                                <td>
-                                    <a href="'.$link.'">'.number_format($db, 0, '', '.').' db.</a>
-                                </td>
-                            </tr>
-                            ');
-            }
-
-        }
-
-        // Anyagrendelés készítése jog
-        if( _jog(JOG_ANYAGREND_KESZIT) ) {
-
-            // Státuszok bejárása, sorok képzése belőle
+        // Státuszok bejárása, sorok képzése belőle
+        // Anyagigénylés láthatóság esetén
+        if( _jog(JOG_ANYAIGENLES_MEGTEKINT) ) {
             $statuszok = array(
+                            array('nev' => 'Árazva (jóváhagyásra vár)', 'stat_id' => CIKKIGN_STAT_ARAZVA),
                             array('nev' => 'Jóváhagyva',                'stat_id' => CIKKIGN_STAT_JOVAHAGYVA),
                             array('nev' => 'Nyitott (árazásra vár)',    'stat_id' => CIKKIGN_STAT_NYITOTT),
+                            array('nev' => 'Várakozó',                  'stat_id' => CIKKIGN_STAT_VARAKOZO),
                         );
             foreach( $statuszok as $statusz ) {
 
@@ -242,6 +200,9 @@ if( isset($_GET['teszt']) ) {
                     // Ha túl sok találat van, akkor rá kérdezünk, hogy biztosan szeretné-e listázni
                     $js   = '';
                     $link = 'anyagigenyles.php?mezo=stat_id&amp;op=equal&amp;felt='.$statusz['stat_id'].'&amp;tablazat';
+                    if( $statusz['anyagrend'] ) {
+                        $link .= '&amp;anyagrend=1';
+                    }
                     if( $db > SZURES_DB_LIMIT ) {
                         $js = '
                             <script>
@@ -266,16 +227,16 @@ if( isset($_GET['teszt']) ) {
                                 ');
                 }
             }
-
         }
-
-        // Anyagrendelés érkeztetése jog
-        if( _jog(JOG_ANYAGIGENYLES_KEZEL) ) {
-
-            // Státuszok bejárása, sorok képzése belőle
+        
+        // Anyagrendelés felületre
+        if( _jog(JOG_ANYAGREND_MEGTEKINT) ) {
             $statuszok = array(
-                            array('nev' => 'Megrendelve<br>(érkeztetésre vár)',         'stat_id' => CIKKIGN_STAT_MEGRENDELVE),
-                            array('nev' => 'Részben beérkezett<br>(érkeztetésre vár)',  'stat_id' => CIKKIGN_STAT_RESZBENBEERK),
+                            array('nev' => 'Megrendelve<br>(érkeztetésre vár)',         'stat_id' => CIKKIGN_STAT_MEGRENDELVE   ),
+                            array('nev' => 'Részben beérkezett<br>(érkeztetésre vár)',  'stat_id' => CIKKIGN_STAT_RESZBENBEERK  ),
+                            array('nev' => 'Beérkezett',                                'stat_id' => CIKKIGN_STAT_BEERKEZETT    ),
+                            array('nev' => 'Törölt',                                    'stat_id' => CIKKIGN_STAT_TOROLT        ),
+                            array('nev' => 'Elutasítva',                                'stat_id' => CIKKIGN_STAT_ELUTASITVA    ),
                         );
             foreach( $statuszok as $statusz ) {
 
@@ -284,7 +245,10 @@ if( isset($_GET['teszt']) ) {
 
                     // Ha túl sok találat van, akkor rá kérdezünk, hogy biztosan szeretné-e listázni
                     $js   = '';
-                    $link = 'anyagigenyles.php?anyagrend=1&amp;mezo=stat_id&amp;op=equal&amp;felt='.$statusz['stat_id'].'&amp;tablazat';
+                    $link = 'anyagigenyles.php?mezo=stat_id&amp;op=equal&amp;felt='.$statusz['stat_id'].'&amp;tablazat&amp;anyagrend=1';
+                    if( $statusz['anyagrend'] ) {
+                        $link .= '&amp;anyagrend=1';
+                    }
                     if( $db > SZURES_DB_LIMIT ) {
                         $js = '
                             <script>
@@ -309,7 +273,6 @@ if( isset($_GET['teszt']) ) {
                                 ');
                 }
             }
-
         }
 
         if( $sorok ) {

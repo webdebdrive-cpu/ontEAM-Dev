@@ -3522,6 +3522,11 @@ function szamla_lista( $where = '', $tabla = '', $kijeloltek = false, $csak_sql_
                 $order = '`esnap_d` '.$_GET['irany'].', `aktiv` '.$_GET['irany'].', `'.get_db_tabla().'telephely`.`nev` '.$_GET['ellen_irany'];
             }
         }
+        
+        // Nullás limit visszaállítása
+        if( $limit == '-' ) {
+            $limit = '0';
+        }
 
         // Ez azért kell, hogy az SQL stringünk meglegyen. A WHERE szót le fogjuk még cserélni JOIN-okkal
         $adatbazis_kapcsolat->s($select, $tabla, $where, $order, $limit, false, false, false, 'csak az SQL string-je kell');
@@ -3610,6 +3615,7 @@ function szamla_lista( $where = '', $tabla = '', $kijeloltek = false, $csak_sql_
             array_push($bejegyzesek, $sor);
         }
 
+    // Általános eset
     } else {
 
         // Szűréskor kell pár JOIN-olás a külső táblákhoz
@@ -3713,7 +3719,7 @@ function szamla_lista( $where = '', $tabla = '', $kijeloltek = false, $csak_sql_
         $_SESSION['akt_sql'] = $sql;
     }
 
-if( isset($_GET['debug']) && $_SERVER['HTTP_HOST']!='teszt.onteam.hu' && $_SERVER['HTTP_HOST']!='dev.onteam.hu' && $_SERVER['HTTP_HOST']!='www.onteam.hu' && $_SERVER['HTTP_HOST']!='onteam.hu' ) {
+if( isset($_GET['debug']) && $_SERVER['HTTP_HOST']!='teszt.onteam.hu' && /*$_SERVER['HTTP_HOST']!='dev.onteam.hu' &&*/ $_SERVER['HTTP_HOST']!='www.onteam.hu' && $_SERVER['HTTP_HOST']!='onteam.hu' ) {
     echo $_SESSION['akt_sql']. '<br>';
 }
 
@@ -7693,7 +7699,7 @@ function get_o_szures_where_kieg ($feltetel, $tabla ) {
         // Viszont a limitet kimentjük
         } elseif( $legfrissebb_flag && substr($elem, 0, 3) == 'fe|' ) {
             
-            $limit            = substr($elem, 3);
+            $limit = substr($elem, 3);
             
         // Ha nincs legfrissebb flag vagy már a következő mezőnél járunk, akkor mehetnek a tömbbe az elemek, amit a következő cilusban össze is rakunk SQL feltétellé
         } elseif( !$legfrissebb_flag || substr($elem, 0, 3) == 'me|' ) {

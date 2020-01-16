@@ -420,7 +420,7 @@
                         first.addClass('aktiv');
 
                     } else {
-console.log('.');
+
                         if (!aktiv.is(':last-child')) {
                             aktiv.removeClass('aktiv');
                             aktiv.next().addClass('aktiv');
