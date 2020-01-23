@@ -1,0 +1,30 @@
+#sorrendezes_tobbkep {
+    width: 122rem;
+}
+div.projektkezeles_fixszel #sorrendezes_tobbkep li {
+    width: auto;
+}
+div.projektkezeles_fixszel #sorrendezes_tobbkep li div.felirat {
+    width: auto;
+}
+div.projektkezeles_fixszel #sorrendezes_tobbkep li > div:nth-of-type(1) {
+    width: 17.6rem;
+}
+div.projektkezeles_fixszel #sorrendezes_tobbkep li > div:nth-of-type(2),
+div.projektkezeles_fixszel #sorrendezes_tobbkep li > div:nth-of-type(5),
+div.projektkezeles_fixszel #sorrendezes_tobbkep li > div:nth-of-type(6)
+{
+    width: 15.0rem;
+}
+div.projektkezeles_fixszel #sorrendezes_tobbkep li > div:nth-of-type(3) {
+    width: 5rem;
+}
+div.projektkezeles_fixszel #sorrendezes_tobbkep li > div:nth-of-type(4) {
+    width: 30.0rem;
+}
+div.projektkezeles_fixszel #sorrendezes_tobbkep li > div:nth-of-type(7) {
+    width: 10.0rem;
+}
+div.projektkezeles_fixszel #sorrendezes_tobbkep li > div:nth-of-type(8) {
+    width: 8.0rem;
+}

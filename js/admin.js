@@ -6126,18 +6126,18 @@ function csv_general( that, valasztos, link_kieg ) {
             } else {
                 
                 if( ids.length ) {
-                    alert2('CSV generálása folyamatban, kérem várjon! <div class="progress-bar loading"><span></span></div><span class="megszakitas" onclick="ajax_abort();">Folyamat megszakítása.</span>');
+                    /*alert2('CSV generálása folyamatban, kérem várjon! <div class="progress-bar loading"><span></span></div><span class="megszakitas" onclick="ajax_abort();">Folyamat megszakítása.</span>');
                     
                     var link = get_get(['egysegarak']) + '&csv&' + link_kieg;
                     window.csv_filename = 'csv' + new Date().getTime() + '.csv';
 
-                    /* Elküldendő adatok */
+                    // Elküldendő adatok
                     var data = new FormData();
                     data.append('filename', window.csv_filename);
 
                     var xhr = new XMLHttpRequest();
 
-                    /* Elmentjük az ajax hívást, hogy később megszakítható legyen */
+                    // Elmentjük az ajax hívást, hogy később megszakítható legyen
                     window.ajax = xhr;
                     
                     xhr.onreadystatechange = function() {
@@ -6164,11 +6164,11 @@ function csv_general( that, valasztos, link_kieg ) {
                     
                     xhr.open('POST', link, true);
                     xhr.send(data);
-
-                    /*var onclick = $(that).attr('onclick');
+                    */
+                    var onclick = $(that).attr('onclick');
                     $(that).attr('href', get_get(['egysegarak']) + '&csv&'+link_kieg).removeAttr('onclick');
                     $(that)[0].click();
-                    $(that).attr('onclick', onclick).removeAttr('href');*/
+                    $(that).attr('onclick', onclick).removeAttr('href');
                     
                 } else {
                     

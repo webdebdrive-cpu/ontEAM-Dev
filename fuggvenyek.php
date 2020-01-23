@@ -9508,9 +9508,9 @@ function fenntartasi_terv_eseti_karban($sor){
         $szamla_html .= '
             <tr id="ft_ft_'.$eseti['recid'].'" data-recid="'.$eseti['recid'].'" class="ftt_menny">
                 <td class="fix eseti1">'.$eseti['ktgnem_id'].'</td>
-                <td class="fix eseti2" style="min-width: 10rem; width: 10rem" class="wrap">'.getErtek('nev', 'ktgnem', 'id', $eseti['ktgnem_id']).'</td>
-                <td class="fix eseti3" style="min-width: 20rem; width: 20rem" class="wrap">'.$eseti['targy'].'</td>
-                <td class="fix eseti4" style="min-width: 20rem; width: 20rem" class="wrap">'.nl2br2($eseti['leir']).'</td>
+                <td class="wrap fix eseti2" style="min-width: 10rem; width: 10rem">'.getErtek('nev', 'ktgnem', 'id', $eseti['ktgnem_id']).'</td>
+                <td class="wrap fix eseti3" style="min-width: 20rem; width: 20rem">'.$eseti['targy'].'</td>
+                <td class="wrap fix eseti4" style="min-width: 20rem; width: 20rem">'.nl2br2($eseti['leir']).'</td>
                 <td class="r ftossz">'.$osszesen.'</td>
                 <td class="r ft01">'.$eseti['ft01'].'</td>
                 <td class="r ft02">'.$eseti['ft02'].'</td>
@@ -9708,9 +9708,9 @@ function fenntartasi_terv_miniprojekt($sor) {
         $szamla_html .= '
             <tr id="ft_ft_'.$mini['recid'].'" data-recid="'.$mini['recid'].'" class="ftt_menny">
                 <td class="fix mini1">'.$mini['ktgnem_id'].'</td>
-                <td class="fix mini2" style="min-width: 10rem; width: 10rem" class="wrap">'.getErtek('nev', 'ktgnem', 'id', $mini['ktgnem_id']).'</td>
-                <td class="fix mini3" style="min-width: 20rem; width: 20rem" class="wrap">'.$mini['targy'].'</td>
-                <td class="fix mini4" style="min-width: 20rem; width: 20rem" class="wrap">'.nl2br2($mini['leir']).'</td>
+                <td class="fix mini2 wrap" style="min-width: 10rem; width: 10rem">'.getErtek('nev', 'ktgnem', 'id', $mini['ktgnem_id']).'</td>
+                <td class="fix mini3 wrap" style="min-width: 20rem; width: 20rem">'.$mini['targy'].'</td>
+                <td class="fix mini4 wrap" style="min-width: 20rem; width: 20rem">'.nl2br2($mini['leir']).'</td>
                 <td class="r ftossz">'.$osszesen.'</td>
                 <td class="r ft01">'.$mini['ft01'].'</td>
                 <td class="r ft02">'.$mini['ft02'].'</td>

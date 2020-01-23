@@ -375,17 +375,6 @@ if( basename(self()) == 'eszkozkezeles.php' && isset($_GET['engedelyek']) ) {
     $mellek = 'engedelyek';
 }
 
-// Projektek dokumentum fül alatt a felsorolás kap egy fix szélességet, 
-// mert így tudjuk csak elérni, hogy az egész oldalon egységesek legyenek az oszlopszélességek
-if( $apa_tabla == 'projektkezeles' ) {
-    $tobbkep_html .= nl2('
-                        <style type="text/css">
-                            #sorrendezes_tobbkep li{
-                                min-width: 114rem;
-                            }
-                        </style>');
-}
-
 $tobbkep_html .= nl2('
     <div>
         <ul id="sorrendezes_tobbkep" data-tabla="'.$tobbkep_tablanev.'" data-mellek="'.$mellek.'">
@@ -458,12 +447,12 @@ if( $apa_tabla == 'projektkezeles' ) {
                                 <div class="felirat">Partner</div>
                                 <div class="felirat">Szerződés</div>
                                 <div class="kep">Fájlnév</div>
-                                <div class="felirat c" style="width: 13.3rem"></div>
+                                <div class="felirat c"></div>
                                 <div class="felirat feltoltotte_fejlec">Feltöltötte</div>
                                 <div class="felirat">Feltöltve</div>
-                                <div class="felirat" style="width: 8.9rem">Minősítés</div>
-                                <div class="felirat" style="width: 4rem">Törlés</div>
-                                <div class="maradek torles" style="width: 6rem">Jelölés</div>
+                                <div class="felirat">Minősítés</div>
+                                <div class="felirat">Törlés</div>
+                                <div class="maradek torles">Jelölés</div>
                             </li>
             ');
     }
@@ -499,11 +488,12 @@ if( $apa_tabla == 'projektkezeles' ) {
                                 <div class="felirat">Partner</div>
                                 <div class="felirat">Szerződés</div>
                                 <div class="kep">Fájlnév</div>
-                                <div class="felirat c" style="width: 13.3rem;"></div>
+                                <div class="felirat c"></div>
                                 <div class="felirat">Feltöltötte</div>
                                 <div class="felirat">Feltöltve</div>
                                 <div class="felirat">Minősítés törlése</div>
-                                <div class="maradek torles" style="width: 19.5rem">Jelölés</div>
+                                <div class="felirat"></div>
+                                <div class="maradek torles">Jelölés</div>
                             </li>
             ');
     }
@@ -543,11 +533,12 @@ if( $apa_tabla == 'projektkezeles' ) {
                                 <div class="felirat">Partner</div>
                                 <div class="felirat">Számla</div>
                                 <div class="kep">Fájlnév</div>
-                                <div class="felirat c" style="width: 13.3rem"></div>
+                                <div class="felirat c"></div>
                                 <div class="felirat">Feltöltötte</div>
                                 <div class="felirat">Feltöltve</div>
-                                <div class="felirat">Minősítés törlése</div>
-                                <div class="maradek torles" style="width: 19.5rem">Jelölés</div>
+                                <div class="felirat">Minősítés</div>
+                                <div class="felirat"></div>
+                                <div class="maradek torles">Jelölés</div>
                             </li>
             ');
     }
@@ -623,10 +614,11 @@ if( /*$apa_tabla == 'projektszerzodes' ||*/ $apa_tabla == 'projektkezeles' ) {
                                     <div class="felirat">Szerződés</div>
                                     <div class="kep">Fájlnév</div>
                                     <div class="felirat c"></div>
-                                    <div class="felirat" style="width: 13.3rem;">Feltöltötte</div>
+                                    <div class="felirat">Feltöltötte</div>
                                     <div class="felirat">Feltöltve</div>
                                     <div class="felirat">Minősítés törlése</div>
-                                    <div class="maradek torles" style="width: 19.5rem;">Jelölés</div>
+                                    <div class="felirat"></div>
+                                    <div class="maradek torles">Jelölés</div>
                                 </li>
                 ');
         }
@@ -680,11 +672,12 @@ if( $apa_tabla == 'projektkezeles' ) {
                                     <div class="felirat">Partner</div>
                                     <div class="felirat">Szerződés</div>
                                     <div class="kep">Fájlnév</div>
-                                    <div class="felirat c" style="width: 13.3rem"></div>
+                                    <div class="felirat c"></div>
                                     <div class="felirat">Feltöltötte</div>
                                     <div class="felirat">Feltöltve</div>
                                     <div class="felirat">Minősítés törlése</div>
-                                    <div class="maradek torles" style="width: 19.5rem;">Jelölés</div>
+                                    <div class="felirat"></div>
+                                    <div class="maradek torles">Jelölés</div>
                                 </li>
                 ');
         }
@@ -697,6 +690,15 @@ if( $apa_tabla == 'projektkezeles' ) {
 }
     
 $tobbkep_html .= '</ul></div>';
+
+// Projektkezelés dokuemtnum felsorolásánál fix oszlopszélességekkel dolgozunk 
+// (Az egészet becsomagoljuk egy DIV-be, amit megCSS-ezünk)
+if( $apa_tabla == 'projektkezeles' ) {
+    $tobbkep_html = nl2('
+                        <link href="../css/projektkezeles_dok.css" rel="stylesheet" type="text/css">
+                        <div class="projektkezeles_fixszel">'.$tobbkep_html.'</div>
+                    ');
+}
 
 $szamla_html .= $tobbkep_html;
 
@@ -851,7 +853,7 @@ function get_tobbkep_thumb($sor_kepek, $i, $tobbkep_tablanev, $nincs_torles, $ku
         if( basename(self())=='projektkezeles.php' && in_array($tobbkep_tablanev, $tobbkep_tabla_kivetelek) ) {
             
             // Jótállások alatt nincs minősítés gomb
-            $minosites = '';
+            $minosites = '<div class="felirat"></div>';
             $nem_minositeses = array('projektszerzodes_jotallas', 'projektszamla_dok');
             if( !in_array($tobbkep_tablanev, $nem_minositeses) ) {
                 // Ha szerződésről van szó, és nincs még minősítve, csak akkor jelenítjük meg a minősítést gombot
@@ -860,14 +862,14 @@ function get_tobbkep_thumb($sor_kepek, $i, $tobbkep_tablanev, $nincs_torles, $ku
                 if( $direkt_dokumentum && !$sor_kepek['tipus'] ) {
 
                     $minosites = nl2('
-                        <div class="felirat l" style="width: 6rem">
+                        <div class="felirat l">
                             <input type="button" class="gomb alacsony" value="Minősítés" onclick="dok_minosites(\''.$sor_kepek['recid'].'\', \'szűrt\')">
                         </div>
                         ');
                 // Nem direkt dokumentum minősítés (itt megengedett a számla típus)
                 } else if( !$direkt_dokumentum && !$sor_kepek['tipus'] ) {
                     $minosites = nl2('
-                        <div class="felirat l" style="width: 6rem">
+                        <div class="felirat l">
                             <input type="button" class="gomb alacsony" value="Minősítés" onclick="dok_minosites(\''.$sor_kepek['recid'].'\')">
                         </div>
                         ');
@@ -875,7 +877,7 @@ function get_tobbkep_thumb($sor_kepek, $i, $tobbkep_tablanev, $nincs_torles, $ku
                 } else {
                     $minosites = nl2('
                                     <div class="felirat l">
-                                        <b class="piros link f18" title="Minősítés törlése" onclick="minosites_torol(\''.$sor_kepek['recid'].'\', \''.$tobbkep_tablanev.'\')">✖</b>
+                                        <input type="button" class="gomb alacsony" value="Törlés" onclick="minosites_torol(\''.$sor_kepek['recid'].'\', \''.$tobbkep_tablanev.'\')">
                                     </div>
                                     ');
                 }
@@ -893,12 +895,6 @@ function get_tobbkep_thumb($sor_kepek, $i, $tobbkep_tablanev, $nincs_torles, $ku
             }
             if( in_array($sor_kepek['recid'], $_SESSION['projekt_dok_kuld_check']) ) {
                 $checked = ' checked';
-            }
-            
-            // Ha nincs törlés, akkor nincs minősítés sem, egész más szélességet kell beállítani
-            $torles_width = '5';
-            if( !$torles ) {
-                $torles_width = '13.5';
             }
             
             // Ha nincs projekt kezelés jog, akkor dokuemntumot nem lehet küldeni, emiatt a kijelölést is elrejtjük
@@ -934,7 +930,7 @@ function get_tobbkep_thumb($sor_kepek, $i, $tobbkep_tablanev, $nincs_torles, $ku
                     '.$tipus_oszlop.'
                     <div class="felirat">'.$datum.'</div>
                     '.$minosites.'
-                    <div class="felirat" style="width: '.$torles_width.'rem">'.$torles.'</div>
+                    <div class="felirat">'.$torles.'</div>
                     <div class="maradek" style="width: 6rem">
                         '.$checkbox.'
                     </div>

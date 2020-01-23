@@ -3428,14 +3428,14 @@ th.ktgnem_kod {
     width: 5rem;
 }
 
-tr.ftt_menny input{
+tr.ftt_menny input {
     width: 6rem;
 }
 
-tr.ftt_menny td{
+tr.ftt_menny td {
     white-space: nowrap;
 }
-tr.ftt_menny td.wrap{
+tr.ftt_menny td.wrap {
     white-space: normal;
 }
 

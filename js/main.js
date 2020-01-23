@@ -312,7 +312,7 @@ function esamp2es(string){
 *
 *	@return string: a formázott számérték
 */
-function ezresek(number, decimals, decPoint, thousandsSep, nullat_is_ijrk_ki){
+function ezresek(number, decimals, decPoint, thousandsSep, nullat_is_irja_ki){
 
     number = (number + '').replace(/[^0-9+\-Ee.]/g, '');
     var n = !isFinite(+number) ? 0 : +number;
@@ -336,7 +336,7 @@ function ezresek(number, decimals, decPoint, thousandsSep, nullat_is_ijrk_ki){
     }
     
     eredmeny = s.join(dec);
-    if( eredmeny == '0' && !nullat_is_ijrk_ki ){
+    if( eredmeny == '0' && !nullat_is_irja_ki ){
         eredmeny = '';
     }
     
