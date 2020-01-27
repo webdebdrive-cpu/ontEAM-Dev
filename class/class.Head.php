@@ -116,9 +116,9 @@ class Head{
                 $head .= '<base href="'.get_alk().'">';
             }
         }
-        //HTML 5 alatt nem valid, .hataccess-ben kell meagdni: $head .= '<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" /> ';//CSS3-hoz kell, hogy IE alatt is menjen FUCK
+        // HTML 5 alatt nem valid, .hataccess-ben kell meagdni: $head .= '<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" /> ';//CSS3-hoz kell, hogy IE alatt is menjen FUCK
 
-        //Amennyiben az oldal responzív, úgy a meta tagokban tiltjuk az oldal nagyíthatóságát (mobilon nem zoom-olunk hanem responzívek vagyunk)
+        // Amennyiben az oldal responzív, úgy a meta tagokban tiltjuk az oldal nagyíthatóságát (mobilon nem zoom-olunk hanem responzívek vagyunk)
         if(get_responsive() /*|| basename( dirname(self()) ).'/' == get_admin()*/ ){
             $head .= '<meta name="viewport" content="initial-scale=1.0,maximum-scale=1.0, user-scalable=0,width=device-width">';
         }
@@ -128,7 +128,7 @@ class Head{
             $head .= '<link rel="icon" href="/favicon.png">';
 		}
 
-        //CSS és JS tömörítés
+        // CSS és JS tömörítés
         if( basename(dirname(self())) . '/' == get_admin() ) {
             $js_css         = get_jsfajlok_admin();
             $css_min_fajl   = '../css/wdb_admin_min.css';
@@ -189,7 +189,7 @@ class Head{
             }
         }
 
-        //Ha volt változás, akkor újrageneráljuk a $css_fajl-t
+        // Ha volt változás, akkor újrageneráljuk a $css_fajl-t
         if( $volt_mod || isset($_GET['minify']) ) {
             foreach ( $js_css['js'] as $js_fajl ) {
                 if( !$admin_oldal ) {//Adminnál nem lehet csak úgy rátömöríteni a JS-re?
@@ -228,7 +228,7 @@ class Head{
             fajlba_mentes($js_async_fajl, $async_js);
             fajlba_mentes($js_min_fajl,   $js);
 
-            foreach(get_nyelvek() as $nyelv){
+            foreach ( get_nyelvek() as $nyelv ) {
                 $js_mit     = array();
                 $js_mivel   = array();
                 foreach($tartalom_tomb as $kulcs => $tart) {
@@ -244,8 +244,8 @@ class Head{
         }
 
 
-		if($this -> extrak){
-			$head .= $this -> extrak;
+		if( $this->extrak ) {
+            $head .= $this -> extrak;
 		}
 
 		$head .= '</head>';
