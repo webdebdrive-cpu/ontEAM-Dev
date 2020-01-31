@@ -3391,7 +3391,7 @@ function szamla_lista( $where = '', $tabla = '', $kijeloltek = false, $csak_sql_
             $irany_telephely = '';
 
             // Ha státusz szerint rendezünk
-            if($_GET['rend']=='stat_id'){
+            if( $_GET['rend'] == 'stat_id' ) {
 
                 if( !$_GET['irany'] ) {
                     $_GET['irany'] = 'desc';
@@ -3426,7 +3426,7 @@ function szamla_lista( $where = '', $tabla = '', $kijeloltek = false, $csak_sql_
                 }
 
             // Ha iktatószám szerint rendezünk, akkor ez lesz a következő rendezési szempont, és az irány is erre vonatkozik
-            }elseif( $_GET['rend'] == 'ikt_szam' ) {
+            } elseif( $_GET['rend'] == 'ikt_szam' ) {
 
                 $order .= '`'.get_db_tabla().$tabla.'`.`ikt_szam` '.$_GET['irany'].', `'.get_db_tabla().'telephely`.`nev`';
 
@@ -3435,11 +3435,11 @@ function szamla_lista( $where = '', $tabla = '', $kijeloltek = false, $csak_sql_
                 $order .= '`'.get_db_tabla().$tabla.'`.`obj_txt` '.$_GET['irany'].', `'.get_db_tabla().'telephely`.`nev` '.$_GET['irany'].'';
 
             // Ha telephely szerint rendezünk, akkor pedig ezt a szempontot kell előre venni, és az irány is erre vonatkozik
-            }elseif( $_GET['rend'] == 'telephely_id' ) {
+            } elseif( $_GET['rend'] == 'telephely_id' ) {
                 $order .= '`'.get_db_tabla().'telephely`.`nev` '.$_GET['irany'].', `'.get_db_tabla().$tabla.'`.`ikt_szam`';
             
             // Végül a felvitel szerinti sorrend
-            }elseif( $_GET['rend'] == 'recid' ) {
+            } elseif( $_GET['rend'] == 'recid' ) {
                 $order .= '`'.get_db_tabla().$tabla.'`.`recid` '.$_GET['irany'];
             }
 
@@ -3587,7 +3587,7 @@ function szamla_lista( $where = '', $tabla = '', $kijeloltek = false, $csak_sql_
         $sql = preg_replace('/'.$mit.'/', $mivel, $sql, 1);
 
         $sorok = mysqli_query($db_kapcs, $sql);
-        while($sor = mysqli_fetch_assoc($sorok)){
+        while ( $sor = mysqli_fetch_assoc($sorok) ) {
             array_push($bejegyzesek, $sor);
         }
 
@@ -3693,7 +3693,7 @@ function szamla_lista( $where = '', $tabla = '', $kijeloltek = false, $csak_sql_
             }
         }
         // Ha van $sorrend_idk információnk (azaz a bejelentés és munkalapokat nem SQL-el, hanem JS-el rendezzük), akkor a CSV export miatt az SQL-t csak előállítjuk, hogy meglegyen CSV sorrend beállításakor
-        if( !isset($_GET['csv']) ){
+        if( !isset($_GET['csv']) ) {
             if( $sorrend_idk ) {
                 $sorrend_idk = array_slice($sorrend_idk, 0, get_sorrend_tomb_max_meret());
                 $_SESSION['akt_sql_order'] = ' ORDER BY FIELD(`'.get_db_tabla().$tabla.'`.`recid`, \''.implode('\', \'', $sorrend_idk).'\') ';
@@ -3705,7 +3705,53 @@ function szamla_lista( $where = '', $tabla = '', $kijeloltek = false, $csak_sql_
 
     // Ha csak a darabszámra vagyunk kíváncsiak, akkor ezt írjuk ki, amit az admin.js f_szures_submit-nál kezelünk le
     if( isset($_GET['sql_db']) ) {
-        echo count($bejegyzesek);
+        $db = count($bejegyzesek);
+        
+        // Nyitott bejelentéseknél a le kell vonni a lerejtett sorokat
+        // Itt azt a feltételt kell lekezelni, mint ami a bejelentesLista függvényben is van
+        if( $tabla == 'bejelentes' ) {
+            if( _jog(JOG_MUNKALAP_KESZITHET) ) {
+                foreach( $bejegyzesek as $bejelentes ) {
+                    
+                    $rejtsuk = false;
+                    if( $bejelentes['stat_id'] == BEJELENTES_STAT_NYITOTT ) {
+                    
+                        $szalloda  = $adatbazis_kapcsolat->s2('modell', 'telephely', "`id`='{$bejelentes['telephely_id']}'");
+
+                        if( !$szalloda['modell'] ) {
+                            $van_kapcs = $adatbazis_kapcsolat->s('munkalap_id', 'munkalap_kapcs', "`bejelentes_id`='{$bejelentes['recid']}'");
+                            if( count($van_kapcs) == 1 ) {
+                                $letezik_munkalap = $adatbazis_kapcsolat->s2('recid', 'munkalap', "`recid`='{$van_kapcs[0]['munkalap_id']}'");
+                                if( $letezik_munkalap ) {
+                                    $statuszok = $adatbazis_kapcsolat->s('recid', 'munkalap_statusz', "`munkalap_recid`='{$letezik_munkalap['recid']}'");
+                                    if( count($statuszok) == 2 ) {
+                                        $rejtsuk = true;
+                                    }
+                                }
+                            }
+                        }
+                        
+                    }
+                    if( $rejtsuk ) {
+                        $db--;
+                    }
+                }
+            }
+        }
+        
+        // Munkalapoknál is ki kell vonni azokat a sorokat, ahol a jóváhagyható keretem miatt el van rejtve
+        if( $tabla == 'munkalap' ) {
+            
+            $login = $adatbazis_kapcsolat->s2('jh_ft_ig', 'login', "`recid`='{$_SESSION[get_db_tabla().'login_recid']}'");
+            foreach( $bejegyzesek as $munkalap ) {
+                if( $munkalap['stat_id'] == MUNKALAP_STAT_DONTESRE_VAR && $munkalap['jh_ert'] > $login['jh_ft_ig'] ) {
+                    $db--;
+                }
+            }
+            
+        }
+        
+        echo $db;
         $weblap -> leallit();
         exit;
     }
@@ -3719,7 +3765,7 @@ function szamla_lista( $where = '', $tabla = '', $kijeloltek = false, $csak_sql_
         $_SESSION['akt_sql'] = $sql;
     }
 
-if( isset($_GET['debug']) && $_SERVER['HTTP_HOST']!='teszt.onteam.hu' && /*$_SERVER['HTTP_HOST']!='dev.onteam.hu' &&*/ $_SERVER['HTTP_HOST']!='www.onteam.hu' && $_SERVER['HTTP_HOST']!='onteam.hu' ) {
+if( isset($_GET['debug']) && $_SERVER['HTTP_HOST']!='teszt.onteam.hu' && $_SERVER['HTTP_HOST']!='dev.onteam.hu' && $_SERVER['HTTP_HOST']!='www.onteam.hu' && $_SERVER['HTTP_HOST']!='onteam.hu' ) {
     echo $_SESSION['akt_sql']. '<br>';
 }
 
@@ -4044,7 +4090,7 @@ function bejelentesLista( $bejegyzesek, $tabla, $frissit, $kijeloltek, $sorrend_
                 $szalloda  = $adatbazis_kapcsolat->s2('modell', 'telephely', "`id`='{$bsz['telephely_id']}'");
                 if( !$szalloda['modell'] ) {
                     $van_kapcs = $adatbazis_kapcsolat->s('munkalap_id', 'munkalap_kapcs', "`bejelentes_id`='{$bsz['recid']}'");
-                    if( count($van_kapcs)==1 ){
+                    if( count($van_kapcs) == 1 ) {
                         $letezik_munkalap = $adatbazis_kapcsolat->s2('recid', 'munkalap', "`recid`='{$van_kapcs[0]['munkalap_id']}'");
                         if( $letezik_munkalap ) {
                             $statuszok = $adatbazis_kapcsolat->s('recid', 'munkalap_statusz', "`munkalap_recid`='{$letezik_munkalap['recid']}'");
@@ -4212,7 +4258,7 @@ function munkalapLista( $bejegyzesek, $tabla, $frissit, $kijeloltek, $sorrend_id
 
         // Ha nem adunk meg $tabla-t, akkor nyomtatási nézetben vagyunk
         $nohover = '';
-        if(!$tabla){
+        if( !$tabla ) {
             $nohover = ' nohover';
         }
         
@@ -4246,7 +4292,7 @@ function munkalapLista( $bejegyzesek, $tabla, $frissit, $kijeloltek, $sorrend_id
         }
 
         $i = 1;
-        foreach($bejegyzesek as $bsz) {
+        foreach ( $bejegyzesek as $bsz ) {
 //            if( false/* Csoportra bontás kikapcsolva 2017.12.11 */ && !$frissit && $tabla && _jog(JOG_MUNKALAP_HATIDO_UTEMEZ) && !isset($_GET['print']) ) {
 //                $aktCsoport = $bsz['csoport_id'];
 //
@@ -4291,7 +4337,7 @@ function munkalapLista( $bejegyzesek, $tabla, $frissit, $kijeloltek, $sorrend_id
 //            }
 
             // Ha a státusz döntésre vár, és a felhasználónak túl alacsony a jóváhagyható limite, akkor meg se jelenítjük, nem is számolunk tovább
-            if( $bsz['stat_id'] == MUNKALAP_STAT_DONTESRE_VAR && $bsz['jh_ert']>$login['jh_ft_ig'] ){
+            if( $bsz['stat_id'] == MUNKALAP_STAT_DONTESRE_VAR && $bsz['jh_ert'] > $login['jh_ft_ig'] ) {
                 continue;
             }
 
@@ -5069,15 +5115,15 @@ function anyagigenylesLista( $bejegyzesek, $tabla, $frissit, $kijeloltek ) {
                     }
 
                     // Ha olyan oszlop is van, ami adott felhasználónál még nincs letárolva, akkor alapértelmezett szélességgel kerüljön be
-                    foreach($oszlopok as $oszl){
+                    foreach ( $oszlopok as $oszl ) {
                         $van_talalat = false;
-                        foreach($oszlopok_sorrend as $oszl_s){
-                            if($oszl_s['id']==$oszl['id']){
+                        foreach ( $oszlopok_sorrend as $oszl_s ) {
+                            if( $oszl_s['id'] == $oszl['id'] ) {
                                 $van_talalat = true;
                                 continue;
                             }
                         }
-                        if(!$van_talalat){
+                        if( !$van_talalat ) {
                             $val['id']      = $oszl['id'];
                             $val['nev']     = $oszl['nev'];
                             $val['width']   = 40;
@@ -5095,7 +5141,7 @@ function anyagigenylesLista( $bejegyzesek, $tabla, $frissit, $kijeloltek ) {
                         <thead>
                             <tr>');
 
-                foreach($oszlopok as $oszl) {
+                foreach ( $oszlopok as $oszl ) {
 
                     $order = '';
                     if($oszl['id']==$_SESSION['anyagigenyles_tablazat_rendez']){
@@ -7837,7 +7883,7 @@ function get_tortenet($megnevezes){
 }
 
 // Adott tábla iktatószámának következő sorszámának lekérése
-function get_iktatoszam_sorszam($tabla, $telephely_id){
+function get_iktatoszam_sorszam($tabla, $telephely_id = ''){
 
     global $adatbazis_kapcsolat;
 
@@ -8800,7 +8846,7 @@ function level_felkeszit_es_kuld( $tabla = '', $recid = '', $ert_pipa = '', $sab
             $sajat_szallodak = get_akt_login_szallodai('', '', $akt_cimzett['nev']);
 
             // Ha adott rekord szállodája a usernek nem saját szállodája, akkor nem küldünk levelet
-            if( !in_array($szalloda['telephely_id'], $sajat_szallodak) ){
+            if( !in_array($szalloda['telephely_id'], $sajat_szallodak) ) {
                 continue;
             }
         }
@@ -10770,6 +10816,17 @@ function get_munkalap_lathatosag_feltetel($tabla, $szallodak) {
         } else {
             $where .= ' FALSE AND ';
         }
+    }
+    
+    // Dasboardról kaphatunk még szűrést döntésre váróra ($_GET['dv']);
+    if( $_GET['dv'] ) {
+        $login = $adatbazis_kapcsolat->s2('jh_ft_ig', 'login', "`recid`='{$_SESSION[get_db_tabla().'login_recid']}'");
+    }
+    if( $_GET['dv'] == 'sz_ig' ) {
+        $where .= " `jh1_szerep`!='".MSZK_VEZETO."' AND `jh2_szerep`!='".MSZK_VEZETO."' AND `jh_ert`<='{$login['jh_ft_ig']}' AND ";
+    }
+    if( $_GET['dv'] == 'mszk_vez' ) {
+        $where .= " `jh1_szerep`!='".SZALLODA_IGAZGATO."' AND `jh2_szerep`!='".SZALLODA_IGAZGATO."' AND `jh_ert`<='{$login['jh_ft_ig']}' AND ";
     }
     
     return $where;

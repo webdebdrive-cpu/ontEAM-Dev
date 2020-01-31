@@ -1,5 +1,5 @@
 #sorrendezes_tobbkep {
-    width: 122rem;
+    width: 124rem;
 }
 div.projektkezeles_fixszel #sorrendezes_tobbkep li {
     width: auto;
@@ -7,10 +7,10 @@ div.projektkezeles_fixszel #sorrendezes_tobbkep li {
 div.projektkezeles_fixszel #sorrendezes_tobbkep li div.felirat {
     width: auto;
 }
+div.projektkezeles_fixszel #sorrendezes_tobbkep li > div:nth-of-type(2),
 div.projektkezeles_fixszel #sorrendezes_tobbkep li > div:nth-of-type(1) {
     width: 17.6rem;
 }
-div.projektkezeles_fixszel #sorrendezes_tobbkep li > div:nth-of-type(2),
 div.projektkezeles_fixszel #sorrendezes_tobbkep li > div:nth-of-type(5),
 div.projektkezeles_fixszel #sorrendezes_tobbkep li > div:nth-of-type(6)
 {

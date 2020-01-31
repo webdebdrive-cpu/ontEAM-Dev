@@ -10,6 +10,10 @@
 </form>
 <script>
 $(document).ready(function(){
+    
+    setTimeout(function(){ $('.xdsoft_datetimepicker').hide(); }, 300);
+    
+    
     if( !$('#telephely_id').val() ){
         $('#telephely_id').focus();
         tipus_pr_mezok_nullaz();

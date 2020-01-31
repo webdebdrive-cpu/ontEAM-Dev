@@ -2,7 +2,7 @@
 $html = '';
 
 // Éles és teszt-en még ne látszódjon, csak dev-en és saját környezetben
-if( $_SERVER['HTTP_HOST']!='www.onteam.hu' && $_SERVER['HTTP_HOST']!='onteam.hu' && $_SERVER['HTTP_HOST']!='teszt.onteam.hu' ) {
+if( $_SERVER['HTTP_HOST']!='www.onteam.hu' && $_SERVER['HTTP_HOST']!='onteam.hu' ) {
     
     // Aktuális loginhoz szállódáit, részlegeit lekérjük.
     $szallodak = get_akt_login_szallodai();
@@ -34,7 +34,37 @@ if( $_SERVER['HTTP_HOST']!='www.onteam.hu' && $_SERVER['HTTP_HOST']!='onteam.hu'
         $tabla = 'bejelentes';
         foreach( $statuszok as $statusz ) {
                     
-            $db = $adatbazis_kapcsolat->s('recid', 'bejelentes', "`stat_id`='{$statusz['stat_id']}' AND `telephely_id` IN (".implode(',', $szallodak)."){$sql_kieg}", '', '', '', 'Num rows');
+            // Nyitott bejelentéseknél a le kell vonni a lerejtett sorokat
+            // Itt azt a feltételt kell lekezelni, mint ami a bejelentesLista függvényben is van
+            if( _jog(JOG_MUNKALAP_KESZITHET) && $statusz['stat_id'] == BEJELENTES_STAT_NYITOTT ) {
+                $db = 0;
+                
+                $bejelentesek = $adatbazis_kapcsolat->s('recid telephely_id', 'bejelentes', "`stat_id`='{$statusz['stat_id']}' AND `telephely_id` IN (".implode(',', $szallodak)."){$sql_kieg}");
+                foreach( $bejelentesek as $bejelentes ) {
+                    $szalloda  = $adatbazis_kapcsolat->s2('modell', 'telephely', "`id`='{$bejelentes['telephely_id']}'");
+                    
+                    $rejtsuk = false;
+                    if( !$szalloda['modell'] ) {
+                        $van_kapcs = $adatbazis_kapcsolat->s('munkalap_id', 'munkalap_kapcs', "`bejelentes_id`='{$bejelentes['recid']}'");
+                        if( count($van_kapcs) == 1 ) {
+                            $letezik_munkalap = $adatbazis_kapcsolat->s2('recid', 'munkalap', "`recid`='{$van_kapcs[0]['munkalap_id']}'");
+                            if( $letezik_munkalap ) {
+                                $statuszok = $adatbazis_kapcsolat->s('recid', 'munkalap_statusz', "`munkalap_recid`='{$letezik_munkalap['recid']}'");
+                                if( count($statuszok) == 2 ) {
+                                    $rejtsuk = true;
+                                }
+                            }
+                        }
+                    }
+                    if( !$rejtsuk ) {
+                        $db++;
+                    }
+                }
+                
+            // Általános eset
+            } else {
+                $db = $adatbazis_kapcsolat->s('recid', 'bejelentes', "`stat_id`='{$statusz['stat_id']}' AND `telephely_id` IN (".implode(',', $szallodak)."){$sql_kieg}", '', '', '', 'Num rows');
+            }
             if( $db ) {
                 
                 // Ha túl sok találat van, akkor rá kérdezünk, hogy biztosan szeretné-e listázni
@@ -129,9 +159,7 @@ if( $_SERVER['HTTP_HOST']!='www.onteam.hu' && $_SERVER['HTTP_HOST']!='onteam.hu'
             $elozo_stat = $statusz['stat_id'];
                     
             $db = $adatbazis_kapcsolat->s('recid', $tabla, "`stat_id`='".$statusz['stat_id']."' AND {$where}{$sql_kieg}", '', '', '', 'Num rows');
-if( isset($_GET['teszt']) ) {
-    echo $adatbazis_kapcsolat->gp() . '<br>';
-}
+
             if( $db ) {
                 
                 // Ha túl sok találat van, akkor rá kérdezünk, hogy biztosan szeretné-e listázni

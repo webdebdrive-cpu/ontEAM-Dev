@@ -92,7 +92,6 @@
 *	respo_kepek()           A class="respo"-val ellátott képeknél a data-src-desktop, data-src-tablet és data-src-mobil attribútomban megadott src-ket cserélgeti a paraméterként is megadható határoknál.
 *	szokoz_szur()           A kapott stringből kiszűri a szóközöket (pl. kosár e-mail cím begépeléséhez)
 *   sql_ertek()             SQL érték beszúrásához
-*   textarea_limit()        Textarea maximális karaterszmának limitálása
 */
 
 /* PHP-ban is használt a_az függvény */
@@ -1047,29 +1046,6 @@ function szokoz_szur(string){
 */
 function sql_ertek(string){
     return string.replace('&', '!ES!').replace('+', '!PLUSZ!').replace('#', '!SHARP!');
-}
-
-
-/**
-*	@desc Textarea limit
-*	Textarea maximális karaterszmának limitálása
-*
-*	@param string textid: a textarea id-je
-*	@param int limit: max. karakter szám
-*	@param string infodiv: a div id-je, amibe a hátramaradt karterkereket számoljuk
-*/
-function textarea_limit(textid, limit, infodiv){
-
-    var text = $('#'+textid).val();
-	var textlength = text.length;
-	if(textlength > limit){
-		$('#' + infodiv).html('Maximálisan megengedett karakterszám: ' + limit);
-		$('#'+textid).val(text.substr(0,limit));
-		return false;
-	}else{
-		$('#' + infodiv).html((limit - textlength) + ' karakter maradt.');
-		return true;
-	}
 }
 
 /* Pl. egy php fál elrési útvonalakor csak az utolsó rész érdekel */

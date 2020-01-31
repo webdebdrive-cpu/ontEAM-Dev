@@ -8,17 +8,17 @@ $mezok          = '';
 foreach ( $akt_tomb as $ertek ) {
 
     // Sessionből feltöltjük a sort, ha üres. Újként szerkesztéshez kell, remélem nem kavar be máshol
-    if( (isset($_GET['ujkent']) || isset($_GET['ujkent_bejelentes'])) && !$sor[$ertek['name']] && $_SESSION[$ertek['name']]){
+    if( (isset($_GET['ujkent']) || isset($_GET['ujkent_bejelentes'])) && !$sor[$ertek['name']] && $_SESSION[$ertek['name']] ) {
         $sor[$ertek['name']] = $_SESSION[$ertek['name']];
     }
 
-	switch($ertek['type']){
+	switch ( $ertek['type'] ) {
 
         case 'autocomplete':
             $input = new Input('text');
 
             // Ha ezresít, automatikusan meghívunk rá két JS-t
-            if( $ertek['ezresit'] ){
+            if( $ertek['ezresit'] ) {
                 $ertek['onkeyup'] .= '; onlyNumbers($(this)); this.value=ezresek(this.value,\'.\')';
                 $sor[$ertek['name']] = number_format($sor[$ertek['name']], 0, '', '.');
             }
@@ -145,6 +145,7 @@ foreach ( $akt_tomb as $ertek ) {
                                     \'op\'              : \''.$_GET['op'].'\',
                                     \'felt\'            : \''.$_GET['felt'].'\',
                                     \'beosztas_id\'     : \''.$ertek['beosztas_id'].'\',
+                                    \'szemelyzet_id\'   : \''.$ertek['szemelyzet_id'].'\',
                                     \'id_kiir\'         : \''.$id_kiir.'\',
                                     \'complete\'        : function(){ '.$ertek['complete'].' }
                                 });
@@ -1395,8 +1396,13 @@ foreach ( $akt_tomb as $ertek ) {
             if( $ertek['alert'] ) {
                 $ertek['class'] .= ' csillag';
             }
+            
+            $akt_value = $sor['tipus'];
+            if( $ertek['value'] ) {
+                $akt_value = $ertek['value'];
+            }
 
-            $input = new Select($select_pri_tipus, $sor['tipus']);
+            $input = new Select($select_pri_tipus, $akt_value);
             $input -> cssClass = $ertek['class'];
             $input -> disabled = $ertek['disabled'];
             $input -> id       = $ertek['name'];
@@ -1629,7 +1635,7 @@ foreach ( $akt_tomb as $ertek ) {
             if( $ertek['osszevon'] ) {
                 $osszevon_flag = 1;
             } else {
-                $osszevon_flag = 0;
+                $osszevon_f= 0;
                 $mezok .= "</div></div>";
             }
         break;
@@ -1777,13 +1783,12 @@ foreach ( $akt_tomb as $ertek ) {
 
 		case 'textarea':
 
-            if(!$sor[ $ertek['name'] ]){
+            if( !$sor[$ertek['name']] ) {
                 $sor[ $ertek['name'] ] = $ertek['value'];
             }
             if( $ertek['alert'] ) {
                 $ertek['class'] .= ' csillag';
             }
-
             $tag = new Tag($ertek['type'], $sor[ $ertek['name'] ]);
             $tag -> cssClass    = $ertek['class'];
             $tag -> disabled    = $ertek['disabled'];
@@ -1837,12 +1842,6 @@ foreach ( $akt_tomb as $ertek ) {
 
             $html .= $tag -> getHtml().$wysiwyg_html;
 
-            // Ha limitálva van a textarea (WYSIWYG-et nem célszerű együtt használni)
-            if($ertek['limit']){
-                $html .= '<script>$(function(){ $(\'#'.$ertek['name'].'\').keyup(function(){ textarea_limit(\''.$ertek['name'].'\', '.$ertek['limit'].', \''.$ertek['name'].'_info\'); }) }); </script>';
-                $html .= '<div id="'.$ertek['name'].'_info"></div>';
-            }
-
             // Összevonások lekezelése és tartalom összefűzése
             if( !$osszevon_flag ) {
                 $mezok .= nl2("
@@ -1865,4 +1864,3 @@ foreach ( $akt_tomb as $ertek ) {
         break;
 	}
 }
-?>

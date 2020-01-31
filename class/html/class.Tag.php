@@ -20,10 +20,13 @@ class Tag{
     /** @var string - data*/
     public $data     = '';
 
-    /** @var string - az input id-je*/
+    /** @var string - a tag id-je*/
     public $id           = '';
 
-    /** @var string - az input css-osztálya*/
+    /** @var int - maxlength érték */
+    public $maxlength    = '';
+
+    /** @var string - a tag css-osztálya*/
     public $name         = '';
 
     /** @var string - onfocus érték*/
@@ -113,6 +116,7 @@ class Tag{
         if($this -> cssClass    ){ $return .= ' class="'        .$this -> cssClass      .'"'; }
         if($this -> data        ){ $return .= ' '.$this -> data;                              }
         if($this -> disabled    ){ $return .= ' readonly';                                    }
+        if($this -> maxlength   ){ $return .= ' maxlength="'    .$this -> maxlength     .'"'; }
         if($this -> name        ){ $return .= ' name="'         .$this -> name          .'"'; }
         if($this -> id          ){ $return .= ' id="'           .$this -> id            .'"'; }
         if($this -> onblur      ){ $return .= ' onblur="'       .$this -> onblur        .'"'; }
@@ -153,4 +157,3 @@ class Tag{
     }
 
 }
-?>

@@ -377,12 +377,14 @@ define('EL_DOK_TIPUS_GAR_BEJAR',    2);
 define('EL_DOK_TIPUS_SZERZODES',    3);
 define('EL_DOK_TIPUS_MUNKATER_ATAD',4);
 define('EL_DOK_TIPUS_TELJESITES',   10);
+
 // Beosztások értéklista fix bejegyzése
 define('EL_BEOSZTAS_PR_FELEOS',     189);
 define('EL_BEOSZTAS_FEJL_VIG_H',    28 );
 define('EL_BEOSZTAS_MUSZAKI_IG',    91 );
 define('EL_BEOSZTAS_MUSZAKI_ASSZ',  131);
 define('EL_BEOSZTAS_BERUH_IG',      190);
+define('EL_BEOSZTAS_TER_FELELOS',   111);
 define('EL_BEOSZTAS_DISZ_KP_VEZ',   16 );
 
 define('MLTIPUS_HIBAELHARITAS', 1);

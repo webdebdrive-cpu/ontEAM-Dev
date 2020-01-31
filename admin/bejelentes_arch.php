@@ -54,7 +54,7 @@ if (isset($_GET['csv'])) {
     header('X-Accel-Buffering: no');
     header('Content-Type: text/octet-stream');
     header('Cache-Control: no-cache');
-
+$_SESSION['process'] = proc_open('php');
     $mibol   = get_web_charset();
     $mibe    = 'windows-1250';
 

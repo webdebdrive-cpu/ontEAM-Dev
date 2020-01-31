@@ -781,7 +781,7 @@ if( isset($_POST['pop_kapcsolas_feltolt']) ) {
     if( $szamla_tetel['projektszamla_recid'] ) {
         $szamla = $adatbazis_kapcsolat->s2('sz_szam telj_dt', 'projektszamla', "`recid`='{$szamla_tetel['projektszamla_recid']}'");
     }
-    
+
     // Szerződés számot post-ként is megkapjuk. Ha mégsem akkor hibát dobunk.
     if( $_POST['sz_szam'] ) {
 

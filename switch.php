@@ -654,12 +654,6 @@ foreach($akt_tomb as $ertek){
             }
             
             $html .= $tag -> getHtml().$wysiwyg_html;
-
-            //Ha limitálva van a textarea (WYSIWYG-et nem célszerű együtt használni)
-            if($ertek['limit']){
-                $html .= '<script>$(function(){ $(\'#'.$ertek['name'].'\').keyup(function(){ textarea_limit(\''.$ertek['name'].'\', '.$ertek['limit'].', \''.$ertek['name'].'_info\'); }) }); </script>';
-                $html .= '<div id="'.$ertek['name'].'_info"></div>';
-            }
             
             //Összevonások lekezelése és tartalom összefűzése
             if(!$osszevon_flag){
