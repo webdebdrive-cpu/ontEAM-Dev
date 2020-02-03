@@ -149,12 +149,12 @@ if( $_SERVER['HTTP_HOST']!='www.onteam.hu' && $_SERVER['HTTP_HOST']!='onteam.hu'
             $fgv_kieg = $link_kieg = $sql_kieg = '';
             if( $statusz['stat_id'] == MUNKALAP_STAT_DONTESRE_VAR ) {
                 $link_kieg  = '&amp;dv=sz_ig';
-                $sql_kieg   = " AND `jh1_szerep`!='".MSZK_VEZETO."' AND `jh2_szerep`!='".MSZK_VEZETO."' AND `jh_ert`<='{$login['jh_ft_ig']}'";
+                $sql_kieg   = " AND `jh1_szerep`!='".SZALLODA_IGAZGATO."' AND `jh2_szerep`!='".SZALLODA_IGAZGATO."' AND `jh_ert`<='{$login['jh_ft_ig']}'";
             }
             if( $elozo_stat == $statusz['stat_id'] ) {
                 $fgv_kieg   = '2';
                 $link_kieg  = '&amp;dv=mszk_vez';
-                $sql_kieg   = " AND `jh1_szerep`!='".SZALLODA_IGAZGATO."' AND `jh2_szerep`!='".SZALLODA_IGAZGATO."' AND `jh_ert`<='{$login['jh_ft_ig']}'";
+                $sql_kieg   = " AND `jh1_szerep`!='".MSZK_VEZETO."' AND `jh2_szerep`!='".MSZK_VEZETO."' AND `jh_ert`<='{$login['jh_ft_ig']}'";
             }
             $elozo_stat = $statusz['stat_id'];
                     

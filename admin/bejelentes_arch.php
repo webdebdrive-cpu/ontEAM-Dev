@@ -9,7 +9,35 @@ Játékszabályok:
 - Csoportot lehessen egyben visszatenni nyitottnak, de ekkor nem bomlik fel a csoport.
 
 */
+if( isset($_GET['csv']) ) {
+    // Progresshez szükséges fejlécek
+    header('X-Accel-Buffering: no');
+    header('Content-Type: text/octet-stream');
+    header('Cache-Control: no-cache');
+    
 
+//LONG RUNNING TASK
+for($i = 0; $i < 10; $i++) {
+	
+    echo json_encode(array('pr' => number_format(($i / $osszes_sor) * 100, 0, '', ''))).PHP_EOL;
+    ob_flush();
+    flush();
+	//Hard work!!
+	sleep(1);
+}
+
+// Progress
+echo json_encode(array('pr' => '100')).PHP_EOL;
+
+// Felszabadítás
+ob_flush();
+flush();
+
+sleep(1);
+send_message($serverTime, 'COMPLETE', 100);
+    
+    exit;
+}
 require_once('../weblap.php');
 
 
@@ -48,13 +76,13 @@ if($tobb_kep){
 }
 
 // CSV generálása
-if (isset($_GET['csv'])) {
+if( isset($_GET['csv']) ) {
 
     // Progresshez szükséges fejlécek
     header('X-Accel-Buffering: no');
     header('Content-Type: text/octet-stream');
     header('Cache-Control: no-cache');
-$_SESSION['process'] = proc_open('php');
+    
     $mibol   = get_web_charset();
     $mibe    = 'windows-1250';
 

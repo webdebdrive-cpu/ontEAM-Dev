@@ -3765,7 +3765,7 @@ function szamla_lista( $where = '', $tabla = '', $kijeloltek = false, $csak_sql_
         $_SESSION['akt_sql'] = $sql;
     }
 
-if( isset($_GET['debug']) && $_SERVER['HTTP_HOST']!='teszt.onteam.hu' && $_SERVER['HTTP_HOST']!='dev.onteam.hu' && $_SERVER['HTTP_HOST']!='www.onteam.hu' && $_SERVER['HTTP_HOST']!='onteam.hu' ) {
+if( isset($_GET['debug']) && $_SERVER['HTTP_HOST']!='teszt.onteam.hu' /*&& $_SERVER['HTTP_HOST']!='dev.onteam.hu'*/ && $_SERVER['HTTP_HOST']!='www.onteam.hu' && $_SERVER['HTTP_HOST']!='onteam.hu' ) {
     echo $_SESSION['akt_sql']. '<br>';
 }
 
@@ -10823,10 +10823,10 @@ function get_munkalap_lathatosag_feltetel($tabla, $szallodak) {
         $login = $adatbazis_kapcsolat->s2('jh_ft_ig', 'login', "`recid`='{$_SESSION[get_db_tabla().'login_recid']}'");
     }
     if( $_GET['dv'] == 'sz_ig' ) {
-        $where .= " `jh1_szerep`!='".MSZK_VEZETO."' AND `jh2_szerep`!='".MSZK_VEZETO."' AND `jh_ert`<='{$login['jh_ft_ig']}' AND ";
+        $where .= " `jh1_szerep`!='".SZALLODA_IGAZGATO."' AND `jh2_szerep`!='".SZALLODA_IGAZGATO."' AND `jh_ert`<='{$login['jh_ft_ig']}' AND ";
     }
     if( $_GET['dv'] == 'mszk_vez' ) {
-        $where .= " `jh1_szerep`!='".SZALLODA_IGAZGATO."' AND `jh2_szerep`!='".SZALLODA_IGAZGATO."' AND `jh_ert`<='{$login['jh_ft_ig']}' AND ";
+        $where .= " `jh1_szerep`!='".MSZK_VEZETO."' AND `jh2_szerep`!='".MSZK_VEZETO."' AND `jh_ert`<='{$login['jh_ft_ig']}' AND ";
     }
     
     return $where;
