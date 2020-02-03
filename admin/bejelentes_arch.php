@@ -9,37 +9,8 @@ Játékszabályok:
 - Csoportot lehessen egyben visszatenni nyitottnak, de ekkor nem bomlik fel a csoport.
 
 */
-if( isset($_GET['csv']) ) {
-    // Progresshez szükséges fejlécek
-    header('X-Accel-Buffering: no');
-    header('Content-Type: text/octet-stream');
-    header('Cache-Control: no-cache');
-    
 
-//LONG RUNNING TASK
-for($i = 0; $i < 10; $i++) {
-	
-    echo json_encode(array('pr' => number_format(($i / $osszes_sor) * 100, 0, '', ''))).PHP_EOL;
-    ob_flush();
-    flush();
-	//Hard work!!
-	sleep(1);
-}
-
-// Progress
-echo json_encode(array('pr' => '100')).PHP_EOL;
-
-// Felszabadítás
-ob_flush();
-flush();
-
-sleep(1);
-send_message($serverTime, 'COMPLETE', 100);
-    
-    exit;
-}
 require_once('../weblap.php');
-
 
 if( !_jog(JOG_BEJELENTES_MEGTEKINT) && !_jog(JOG_BEJELENTES_SAJAT_RESZL) ) {
     if(!$_SESSION[get_db_tabla().'user']){
@@ -50,29 +21,6 @@ if( !_jog(JOG_BEJELENTES_MEGTEKINT) && !_jog(JOG_BEJELENTES_SAJAT_RESZL) ) {
     header('Content-Type: text/html; charset=utf-8');
     $weblap -> leallit();
     exit('Nincs megfelelő jogosultság az oldal eléréséhez!');
-}
-
-// Config
-$megnevezes             = pathinfo(self());
-$megnevezes             = $megnevezes['filename'];
-$megnevezes_origi       = substr($megnevezes, 0, strlen($megnevezes)-5);
-$akt_tomb               = $bejelentes_arch_tomb;
-$torles                 = $megnevezes.'tid';
-$szoveg                 = 'bejelentést';        //Hibaüzenetkor: Biztosan törlöd a $szoveg?
-
-$szamla_html = '';
-
-// Dokumentumok fülhöz kell majd
-$tobb_kep = true;
-if($tobb_kep){
-    function get_tobbkep_darab()    { return 10;        } // Maximum hány kép tallózható be
-    function get_tobbkep_csakkep()  { return '';        } // Milyen kiterjesztéseket engedünk meg (ha mindenet, legyen üres)
-    function get_tobbkep_kepmeret() { return 10;        } // MB-ban
-    function get_tobbkep_oszlopnev(){                     // Melyik oszloppal kötjük össze a két táblát
-        global $megnevezes_origi;
-        return $megnevezes_origi.'_id';
-    }
-    function get_tobbkep_tabla(){ return 'bejelentes_arch_dok'; } // A képeket tartalmazó adatbázis tábla neve FONTOS: ha itt átnevezed akkor a tobbkep.php-ban is át kell írni!
 }
 
 // CSV generálása
@@ -141,7 +89,7 @@ if( isset($_GET['csv']) ) {
                 `'.get_db_tabla().$megnevezes.'`.`insert_dt` as \'Bejelentés dátuma\'
                 '.$lekerdezes_fromtol.$_SESSION['akt_sql_order'];
         $query      = mysqli_query($db_kapcs, $sql);
-
+        
         $csvhead    = array();
         while($fejlec_nevek = mysqli_fetch_field($query)){
             $csvhead[] = iconv2($mibol, $mibe, $fejlec_nevek -> name );
@@ -150,7 +98,7 @@ if( isset($_GET['csv']) ) {
 
         // Összes sor
         $osszes_sor = mysqli_num_rows($query);
-
+        echo mysqli_error($db_kapcs) .'<br />';exit();
         $i = 0;
         while( $sorok = mysqli_fetch_assoc($query) ) {
 
@@ -204,6 +152,8 @@ if( isset($_GET['csv']) ) {
         flush();
     }
 
+    sleep(1);
+
     // Get the contents of the output buffer
     fclose($fh);
 
@@ -217,6 +167,29 @@ if( isset($_GET['csv']) ) {
     
     $weblap->leallit();
     exit();
+}
+
+// Config
+$megnevezes             = pathinfo(self());
+$megnevezes             = $megnevezes['filename'];
+$megnevezes_origi       = substr($megnevezes, 0, strlen($megnevezes)-5);
+$akt_tomb               = $bejelentes_arch_tomb;
+$torles                 = $megnevezes.'tid';
+$szoveg                 = 'bejelentést';        //Hibaüzenetkor: Biztosan törlöd a $szoveg?
+
+$szamla_html = '';
+
+// Dokumentumok fülhöz kell majd
+$tobb_kep = true;
+if($tobb_kep){
+    function get_tobbkep_darab()    { return 10;        } // Maximum hány kép tallózható be
+    function get_tobbkep_csakkep()  { return '';        } // Milyen kiterjesztéseket engedünk meg (ha mindenet, legyen üres)
+    function get_tobbkep_kepmeret() { return 10;        } // MB-ban
+    function get_tobbkep_oszlopnev(){                     // Melyik oszloppal kötjük össze a két táblát
+        global $megnevezes_origi;
+        return $megnevezes_origi.'_id';
+    }
+    function get_tobbkep_tabla(){ return 'bejelentes_arch_dok'; } // A képeket tartalmazó adatbázis tábla neve FONTOS: ha itt átnevezed akkor a tobbkep.php-ban is át kell írni!
 }
 
 // Tartalom

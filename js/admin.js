@@ -6034,7 +6034,6 @@ function listanezet_nyomtat( that ) {
 
 // CSV export készítő
 function csv_general( that, valasztos, link_kieg ) {
-
     if (!link_kieg) {
         link_kieg = '';
     }
@@ -6143,29 +6142,29 @@ function csv_general( that, valasztos, link_kieg ) {
 
                         if(xhr.readyState > 2) {
                             response = xhr.responseText.split("\n");
-console.log(xhr.responseText);
+
                             var filtered = response.filter(function (el) {
                                 return el != "";
                             });
                             
                             response = JSON.parse(filtered[filtered.length - 1]);
-
-                            /*if( response.pr ) {
+console.log(response);
+                            if( response.pr ) {
                                 $('#alert2 .progress-bar').removeClass('loading');
                                 $('#alert2 .progress-bar span').css('width', response.pr + '%');
                             }
 
-                            if( response.filename ) {
+                            /*if( response.filename ) {
                                 $('#alert2 .progress-bar span').css('width', '100%');
                                 location.href = response.filename;
                             }*/
                         }
                     };
                     
-                    var onclick = $(that).attr('onclick');
+                    /*var onclick = $(that).attr('onclick');
                     $(that).attr('href', get_get(['egysegarak']) + '&csv&'+link_kieg).removeAttr('onclick');
                     $(that)[0].click();
-                    $(that).attr('onclick', onclick).removeAttr('href');
+                    $(that).attr('onclick', onclick).removeAttr('href');*/
                     
                 } else {
                     
