@@ -6148,16 +6148,17 @@ function csv_general( that, valasztos, link_kieg ) {
                             });
                             
                             response = JSON.parse(filtered[filtered.length - 1]);
-console.log(response);
+
                             if( response.pr ) {
                                 $('#alert2 .progress-bar').removeClass('loading');
                                 $('#alert2 .progress-bar span').css('width', response.pr + '%');
                             }
 
-                            /*if( response.filename ) {
+                            if( response.filename ) {
                                 $('#alert2 .progress-bar span').css('width', '100%');
                                 location.href = response.filename;
-                            }*/
+                                alert2();
+                            }
                         }
                     };
                     

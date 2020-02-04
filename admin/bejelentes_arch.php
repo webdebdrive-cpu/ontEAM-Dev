@@ -97,8 +97,7 @@ if( isset($_GET['csv']) ) {
                 `'.get_db_tabla().$megnevezes.'`.`insert_dt` as \'Bejelentés dátuma\'
                 '.$lekerdezes_fromtol.$_SESSION['akt_sql_order'];
         $query      = mysqli_query($db_kapcs, $sql);
-var_dump($sql);
-exit;
+        
         $csvhead    = array();
         while($fejlec_nevek = mysqli_fetch_field($query)){
             $csvhead[] = iconv2($mibol, $mibe, $fejlec_nevek -> name );
