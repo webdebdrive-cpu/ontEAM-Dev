@@ -690,28 +690,9 @@ if( isset($_POST['bejelentesReklamacioElutasit']) ) {
 // CSV generálása
 if( isset($_GET['csv']) ) {
 
-    header("Content-type: text/csv");
-    header("Content-Disposition: attachment; filename=$megnevezes.csv");
-    header("Pragma: no-cache");
-    header("Expires: 0");
-
-    $mibol   = get_web_charset();
-    $mibe    = 'windows-1250';
-
-    if( !is_dir('export') ) {
-        mkdir('export');
-    }
-
-    if( !is_dir('export/csv') ) {
-        mkdir('export/csv');
-    }
-
-    // Open the output stream
-    $open = fopen('php://output', 'w');
-    fwrite($open, "sep=;\n");
-    ob_start();
-
-    if($open){
+    // CSV export előkészítése
+    list($mibol, $mibe, $filename, $open) = csv_export_elokeszit($megnevezes);
+    if( $open ) {
 
         $lekerdezes_fromtol = substr($_SESSION['akt_sql'], strpos($_SESSION['akt_sql'], 'FROM'));
 
@@ -741,34 +722,45 @@ if( isset($_GET['csv']) ) {
         }
 
         $sql = 'SELECT
-                    `ikt_szam` as \'Bejelentés szám\',
-                    `'.get_db_tabla().$megnevezes.'`.`telephely_id` as \'Szálloda\',
-                    `hiba_id` as \'Bejelentett hiba\',
-                    `hiba_text` as \'Hiba leírása\',
-                    `obj_txt` as \'Helyiség\',
-                    `helyiseg_text` as \'Hely leírása\',
-                    `gep_id` as \'Gépnév\',
-                    `stat_id` as \'Státusz\',
-                    `'.get_db_tabla().$megnevezes.'`.`insert_dt` as \'Bejelentés dátuma\'
-                    '.$lekerdezes_fromtol.$_SESSION['akt_sql_order'];
+                `ikt_szam` as \'Bejelentés szám\',
+                `'.get_db_tabla().$megnevezes.'`.`telephely_id` as \'Szálloda\',
+                `hiba_id` as \'Bejelentett hiba\',
+                `hiba_text` as \'Hiba leírása\',
+                `obj_txt` as \'Helyiség\',
+                `helyiseg_text` as \'Hely leírása\',
+                `gep_id` as \'Gépnév\',
+                `stat_id` as \'Státusz\',
+                `'.get_db_tabla().$megnevezes.'`.`insert_dt` as \'Bejelentés dátuma\'
+                '.$lekerdezes_fromtol;
+                $query = mysqli_query($db_kapcs, $sql);
 
+                // Nagyobb CSV-kre kérdezzünk rá előzetesen
+                $osszes_sor = mysqli_num_rows($query);
+                if( !$_GET['mehet'] && $osszes_sor>CSV_EXPORT_LIMIT ) {
+                    $gomb = '<input type="button" class="gomb zold" value="Igen" onclick="$(\'#navGombok .excel\').attr(\'onclick\', \'csv_general( this, \\\'\\\', \\\'&mehet=1\\\');\'); $(\'.navGombok a.excel\').click();"> <input type="button" class="gomb piros" value="Nem" onclick="alert2()">';
+                    echo json_encode(array('hiba' => 'A CSV export több mint '.CSV_EXPORT_LIMIT.' sort tartalmaz. Ennek előállítása hosszabb időbe telik majd.<br>Biztosan folytatja?', 'gomb' => $gomb));
+                    $weblap -> leallit();
+                    exit;
+                } else {
+                    $sql .= $_SESSION['akt_sql_order'];    
+                }
+        
         $query      = mysqli_query($db_kapcs, $sql);
-
         $csvhead    = array();
-        while($fejlec_nevek = mysqli_fetch_field($query)){
+        while ( $fejlec_nevek = mysqli_fetch_field($query) ) {
             $csvhead[] = iconv2($mibol, $mibe, $fejlec_nevek -> name );
         }
         fputcsv($open, $csvhead, ';');
 
         $i = 0;
-        while( $sorok = mysqli_fetch_assoc($query) ){
+        while( $sorok = mysqli_fetch_assoc($query) ) {
 
             $csvcont = array();
             foreach( $sorok as $kulcs => $sor ) {
-                if($kulcs=='Szálloda'){
+                if( $kulcs == 'Szálloda' ) {
                     $sor = getSzallodaNev($sor);
                 }
-                if($kulcs=='Bejelentett hiba'){
+                if( $kulcs == 'Bejelentett hiba' ) {
                     $sor = getErtekLista('', '', $sor);
                 }
                 if( $kulcs == 'Gépnév' ) {
@@ -784,7 +776,7 @@ if( isset($_GET['csv']) ) {
                 
                 // Lehet nem volna elég 1-szer sőt kétszer sem ráereszteni a htmlspecialchars_decode-ot
                 $sor = htmlspecialchars_decode( $sor );
-                while(strpos($sor, '&amp;')!==false || strpos($sor, '&quot;')!==false ){
+                while ( strpos($sor, '&amp;') !== false || strpos($sor, '&quot;') !== false ) {
                     $sor = htmlspecialchars_decode( $sor );
                 }
                 $csvcont[] = iconv($mibol, $mibe.'//TRANSLIT', strip_tags( $sor ) );
@@ -792,24 +784,28 @@ if( isset($_GET['csv']) ) {
 
             fputcsv($open, $csvcont, ';');
 
-            // 100 soronként kiírtatunk
-            if ($i % 100 == 0) {
+            // 100 soronként kiíratunk
+            if( $i % 1000 == 0 && $i > 0 ) {
+                // Progress
+                echo json_encode(array('pr' => number_format(($i / $osszes_sor) * 100, 0, '', ''))).PHP_EOL;
+                
+                // Felszabadítás
+                ob_flush();
                 flush();
             }
 
             $i++;
         }
+
+        // Progress
+        echo json_encode(array('pr' => '100')).PHP_EOL;
+        
+        // Felszabadítás
+        ob_flush();
+        flush();
     }
 
-    // Get the contents of the output buffer
-    $string = ob_get_clean();
-    fclose($fh);
-
-    // Stream the CSV data
-    exit($string);
-
-    $weblap->leallit();
-    exit();
+    csv_export_lezar($fh, $filename);
 }
 
 // Tartalom

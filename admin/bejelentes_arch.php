@@ -34,32 +34,8 @@ if( !_jog(JOG_BEJELENTES_MEGTEKINT) && !_jog(JOG_BEJELENTES_SAJAT_RESZL) ) {
 // CSV generálása
 if( isset($_GET['csv']) ) {
 
-    // Progresshez szükséges fejlécek
-    header('X-Accel-Buffering: no');
-    header('Content-Type: text/octet-stream');
-    header('Cache-Control: no-cache');
-    
-    $mibol   = get_web_charset();
-    $mibe    = 'windows-1250';
-
-    $target  = 'export';
-
-    if( !is_dir($target) ) {
-        mkdir($target);
-    }
-
-    $target .= '/csv';
-
-    if( !is_dir($target) ) {
-        mkdir($target);
-    }
-
-    $filename = $target.'/'.$_POST['filename'];
-
-    // Open the output stream
-    $open = fopen($filename, 'w');
-    fwrite($open, "sep=;\n");
-
+    // CSV export előkészítése
+    list($mibol, $mibe, $filename, $open) = csv_export_elokeszit($megnevezes);
     if( $open ) {
 
         $lekerdezes_fromtol = substr($_SESSION['akt_sql'], strpos($_SESSION['akt_sql'], 'FROM'));
@@ -84,6 +60,10 @@ if( isset($_GET['csv']) ) {
                 $lekerdezes_fromtol = substr($lekerdezes_fromtol, 0);
             }
         }
+        // Ha nincs FROM rész, akkor azt még beletesszük
+        if( !$lekerdezes_fromtol ) {
+            $lekerdezes_fromtol = ' FROM `'.get_db_tabla().$megnevezes.'` ';
+        }
         
         $sql = 'SELECT
                 `ikt_szam` as \'Bejelentés szám\',
@@ -95,43 +75,52 @@ if( isset($_GET['csv']) ) {
                 `gep_id` as \'Gépnév\',
                 `stat_id` as \'Státusz\',
                 `'.get_db_tabla().$megnevezes.'`.`insert_dt` as \'Bejelentés dátuma\'
-                '.$lekerdezes_fromtol.$_SESSION['akt_sql_order'];
-        $query      = mysqli_query($db_kapcs, $sql);
+                '.$lekerdezes_fromtol;
+                $query = mysqli_query($db_kapcs, $sql);
+                
+                // Nagyobb CSV-kre kérdezzünk rá előzetesen
+                $osszes_sor = mysqli_num_rows($query);
+                if( !$_GET['mehet'] && $osszes_sor>CSV_EXPORT_LIMIT ) {
+                    $gomb = '<input type="button" class="gomb zold" value="Igen" onclick="$(\'#navGombok .excel\').attr(\'onclick\', \'csv_general( this, \\\'\\\', \\\'&mehet=1\\\');\'); $(\'.navGombok a.excel\').click();"> <input type="button" class="gomb piros" value="Nem" onclick="alert2()">';
+                    echo json_encode(array('hiba' => 'A CSV export több mint '.CSV_EXPORT_LIMIT.' sort tartalmaz. Ennek előállítása hosszabb időbe telik majd.<br>Biztosan folytatja?', 'gomb' => $gomb));
+                    $weblap -> leallit();
+                    exit;
+                } else {
+                    $sql .= $_SESSION['akt_sql_order'];    
+                }
         
+        $query      = mysqli_query($db_kapcs, $sql);
         $csvhead    = array();
-        while($fejlec_nevek = mysqli_fetch_field($query)){
+        while ( $fejlec_nevek = mysqli_fetch_field($query) ) {
             $csvhead[] = iconv2($mibol, $mibe, $fejlec_nevek -> name );
         }
         fputcsv($open, $csvhead, ';');
-
-        // Összes sor
-        $osszes_sor = mysqli_num_rows($query);
 
         $i = 0;
         while( $sorok = mysqli_fetch_assoc($query) ) {
 
             $csvcont = array();
             foreach( $sorok as $kulcs => $sor ) {
-                if($kulcs=='Szálloda'){
+                if( $kulcs == 'Szálloda' ) {
                     $sor = getSzallodaNev($sor);
                 }
-                if($kulcs=='Bejelentett hiba'){
+                if( $kulcs == 'Bejelentett hiba' ) {
                     $sor = getErtekLista('', '', $sor);
                 }
-                if($kulcs=='Gépnév'){
+                if( $kulcs == 'Gépnév' ) {
                     $sor = $adatbazis_kapcsolat->s2('nev', 'eszkozkezeles', "`recid`='{$sor}'");
                     $sor = $sor['nev'];
                 }
-                if($kulcs=='Státusz'){
+                if( $kulcs == 'Státusz' ) {
                     $sor = getStatText('bejelentes', $sor);
                 }
-                if($kulcs=='Bejelentés dátuma'){
+                if( $kulcs == 'Bejelentés dátuma' ) {
                     $sor = datum_kiir($sor);
                 }
                 
                 // Lehet nem volna elég 1-szer sőt kétszer sem ráereszteni a htmlspecialchars_decode-ot
                 $sor = htmlspecialchars_decode( $sor );
-                while(strpos($sor, '&amp;')!==false || strpos($sor, '&quot;')!==false ){
+                while ( strpos($sor, '&amp;') !== false || strpos($sor, '&quot;') !== false ) {
                     $sor = htmlspecialchars_decode( $sor );
                 }
                 $csvcont[] = iconv($mibol, $mibe.'//TRANSLIT', strip_tags( $sor ) );
@@ -139,8 +128,8 @@ if( isset($_GET['csv']) ) {
 
             fputcsv($open, $csvcont, ';');
 
-            // 100 soronként kiírtatunk
-            if($i % 1000 == 0 && $i > 0) {
+            // 100 soronként kiíratunk
+            if( $i % 1000 == 0 && $i > 0 ) {
                 // Progress
                 echo json_encode(array('pr' => number_format(($i / $osszes_sor) * 100, 0, '', ''))).PHP_EOL;
                 
@@ -160,28 +149,14 @@ if( isset($_GET['csv']) ) {
         flush();
     }
 
-    sleep(1);
-
-    // Get the contents of the output buffer
-    fclose($fh);
-
-    echo json_encode(array(
-        'filename' => $filename
-    ));
-
-    // Felszabadítás
-    ob_flush();
-    flush();
-    
-    $weblap->leallit();
-    exit();
+    csv_export_lezar($fh, $filename);
 }
 
 $szamla_html = '';
 
 // Dokumentumok fülhöz kell majd
 $tobb_kep = true;
-if($tobb_kep){
+if( $tobb_kep ) {
     function get_tobbkep_darab()    { return 10;        } // Maximum hány kép tallózható be
     function get_tobbkep_csakkep()  { return '';        } // Milyen kiterjesztéseket engedünk meg (ha mindenet, legyen üres)
     function get_tobbkep_kepmeret() { return 10;        } // MB-ban

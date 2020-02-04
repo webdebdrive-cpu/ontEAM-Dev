@@ -707,7 +707,7 @@ $szamla_html .= $tobbkep_html;
 
 
 // A több képe thumbnailját hozza létre, egy adatbázis sorból
-function get_tobbkep_thumb($sor_kepek, $i, $tobbkep_tablanev, $nincs_torles, $kulso_recid, $class) {
+function get_tobbkep_thumb($sor_kepek = '', $i = '', $tobbkep_tablanev = '', $nincs_torles = '', $kulso_recid = '', $class = '') {
 
     global $archivum;
     global $adatbazis_kapcsolat;

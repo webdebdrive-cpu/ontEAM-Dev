@@ -10831,3 +10831,61 @@ function get_munkalap_lathatosag_feltetel($tabla, $szallodak) {
     
     return $where;
 }
+
+// Minden CSV export előtt ezeket be kell állítani
+function csv_export_elokeszit($megnevezes) {
+    // Progresshez szükséges fejlécek
+    header('X-Accel-Buffering: no');
+    header('Content-Type: text/octet-stream');
+    header('Cache-Control: no-cache');
+    
+    $mibol   = get_web_charset();
+    $mibe    = 'windows-1250';
+
+    $target  = 'export';
+
+    if( !is_dir($target) ) {
+        mkdir($target);
+    }
+
+    $target .= '/csv';
+
+    if( !is_dir($target) ) {
+        mkdir($target);
+    }
+    
+    // Régi fájlok törlése
+    $fajlok = konyvtar_bejar($target);
+    foreach($fajlok as $fajl){
+        if(filemtime($fajl)<(time()-60*60)){
+            unlink($fajl);
+        }
+    }
+
+    $filename = $target.'/'.$megnevezes.'_'.time().'.csv';
+
+    // Open the output stream
+    $open = fopen($filename, 'w');
+    fwrite($open, "sep=;\n");
+    
+    return array($mibol, $mibe, $filename, $open);
+}
+
+function csv_export_lezar($fh, $filename) {
+    
+    global $weblap;
+    
+    // Get the contents of the output buffer
+    fclose($fh);
+
+    echo json_encode(array(
+        'filename' => $filename
+    ));
+
+    // Felszabadítás
+    ob_flush();
+    flush();
+    
+    $weblap->leallit();
+    exit();
+}

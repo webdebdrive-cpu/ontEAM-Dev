@@ -97,30 +97,9 @@ if( isset($_POST['szallitokod_ell']) ) {
 // CSV generálása
 if( isset($_GET['csv']) ) {
 
-    $mibol   = get_web_charset();
-    $mibe    = 'windows-1250';
-
-    if( !is_dir('export') ) {
-        mkdir('export');
-    }
-
-    if( !is_dir('export/csv') ) {
-        mkdir('export/csv');
-    }
-
-    // Régi fájlok törlése
-    $utvonal = 'export/csv/';
-    $fajlok = konyvtar_bejar($utvonal);
-    foreach($fajlok as $fajl){
-        if(filemtime($fajl)<(time()-60*60)){
-            unlink($fajl);
-        }
-    }
-
-    $fajlnev = $utvonal.'csv'.time().'.csv';
-    $open = fopen($fajlnev,'a');
-    fwrite($open, "sep=;\n");
-    if($open){
+    // CSV export előkészítése
+    list($mibol, $mibe, $filename, $open) = csv_export_elokeszit($megnevezes);
+    if( $open ) {
 
         $lekerdezes_fromtol = substr($_SESSION['akt_sql'], strpos($_SESSION['akt_sql'], 'FROM'));
 
@@ -140,7 +119,7 @@ if( isset($_GET['csv']) ) {
             $hossz = strpos($lekerdezes_fromtol, 'ORDER');
             if( $hossz ) {
                 $lekerdezes_fromtol = substr($lekerdezes_fromtol, 0, $hossz);
-            }else{
+            } else {
                 $lekerdezes_fromtol = substr($lekerdezes_fromtol, 0);
             }
         }
@@ -153,56 +132,82 @@ if( isset($_GET['csv']) ) {
                 `aktiv` as \'Aktív\',
                 `id` as \'Szállító kód\',
                 `nev` as \'Név\'
-                '.$lekerdezes_fromtol.$_SESSION['akt_sql_order'];
+                '.$lekerdezes_fromtol;
+        $query = mysqli_query($db_kapcs, $sql);
+
+        // Nagyobb CSV-kre kérdezzünk rá előzetesen
+        $osszes_sor = mysqli_num_rows($query);
+        if( !$_GET['mehet'] && $osszes_sor>CSV_EXPORT_LIMIT ) {
+            $gomb = '<input type="button" class="gomb zold" value="Igen" onclick="$(\'#navGombok .excel\').attr(\'onclick\', \'csv_general( this, \\\'\\\', \\\'&mehet=1\\\');\'); $(\'.navGombok a.excel\').click();"> <input type="button" class="gomb piros" value="Nem" onclick="alert2()">';
+            echo json_encode(array('hiba' => 'A CSV export több mint '.CSV_EXPORT_LIMIT.' sort tartalmaz. Ennek előállítása hosszabb időbe telik majd.<br>Biztosan folytatja?', 'gomb' => $gomb));
+            $weblap -> leallit();
+            exit;
+        } else {
+            $sql .= $_SESSION['akt_sql_order'];    
+        }
 
         $query      = mysqli_query($db_kapcs, $sql);
-
         $csvhead    = array();
-        while($fejlec_nevek = mysqli_fetch_field($query)){
+        while ( $fejlec_nevek = mysqli_fetch_field($query) ) {
             $csvhead[] = iconv2($mibol, $mibe, $fejlec_nevek -> name );
         }
         fputcsv($open, $csvhead, ';');
 
-        while( $sorok = mysqli_fetch_assoc($query) ){
+        $i = 0;
+        while( $sorok = mysqli_fetch_assoc($query) ) {
+
             $csvcont = array();
             foreach( $sorok as $kulcs => $sor ) {
-                if($kulcs=='Aktív'){
-                    if($sor){
+                if( $kulcs == 'Aktív' ) {
+                    if( $sor ) {
                         $sor = 'igen';
-                    }else{
+                    } else {
                         $sor = 'nem';
                     }
                 }
                 
-                if($kulcs=='Szállító kód'){
+                if( $kulcs == 'Szállító kód' ) {
                     $sor = '{EGYENLOSEG_JELET_ELE}'.$sor.'{EGYENLOSEG_JELET_ELE_VEGE}';
                 }
 
                 // Lehet nem volna elég 1-szer sőt kétszer sem ráereszteni a htmlspecialchars_decode-ot
                 $sor = htmlspecialchars_decode( $sor );
-                while(strpos($sor, '&amp;')!==false || strpos($sor, '&quot;')!==false ){
+                while ( strpos($sor, '&amp;') !== false || strpos($sor, '&quot;') !== false ) {
                     $sor = htmlspecialchars_decode( $sor );
                 }
-                $csvcont[] = iconv($mibol, $mibe.'//TRANSLIT', strip_tags( $sor ) );
+                $sor = str_replace(
+                                array('"{EGYENLOSEG_JELET_ELE}',    '{EGYENLOSEG_JELET_ELE_VEGE}"',     '{EGYENLOSEG_JELET_ELE}',   '{EGYENLOSEG_JELET_ELE_VEGE}', ';="";'  ),
+                                array('="',                         '"',                                '="',                       '"',                            ';;'    ),
+                                $sor
+                        );
+                $sor = iconv($mibol, $mibe.'//TRANSLIT', strip_tags( $sor ) );
+                $csvcont[] = $sor;
             }
+
             fputcsv($open, $csvcont, ';');
+
+            // 100 soronként kiíratunk
+            if( $i % 1000 == 0 && $i > 0 ) {
+                // Progress
+                echo json_encode(array('pr' => number_format(($i / $osszes_sor) * 100, 0, '', ''))).PHP_EOL;
+                
+                // Felszabadítás
+                ob_flush();
+                flush();
+            }
+
+            $i++;
         }
+
+        // Progress
+        echo json_encode(array('pr' => '100')).PHP_EOL;
+
+        // Felszabadítás
+        ob_flush();
+        flush();
     }
-    fclose($open);
 
-    header("Content-type: text/csv");
-    header("Content-Disposition: attachment; filename=$megnevezes.csv");
-    header("Pragma: no-cache");
-    header("Expires: 0");
-
-    echo str_replace(
-                    array('"{EGYENLOSEG_JELET_ELE}',    '{EGYENLOSEG_JELET_ELE_VEGE}"',     '{EGYENLOSEG_JELET_ELE}',   '{EGYENLOSEG_JELET_ELE_VEGE}', ';="";'  ),
-                    array('="',                         '"',                                '="',                       '"',                            ';;'    ),
-                    fajlbol_olvas($fajlnev)
-            );
-
-    $weblap->leallit();
-    exit();
+    csv_export_lezar($fh, $filename);
 }
 
 // Tartalom

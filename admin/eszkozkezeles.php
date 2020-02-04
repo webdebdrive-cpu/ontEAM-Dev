@@ -133,31 +133,10 @@ if( $_POST['azon_ell'] ) {
 }
 
 // CSV generálása
-if (isset($_GET['csv'])) {
+if( isset($_GET['csv']) ) {
 
-    $mibol   = get_web_charset();
-    $mibe    = 'windows-1250';
-
-    if( !is_dir('export') ) {
-        mkdir('export');
-    }
-
-    if( !is_dir('export/csv') ) {
-        mkdir('export/csv');
-    }
-
-    // Régi fájlok törlése
-    $utvonal = 'export/csv/';
-    $fajlok = konyvtar_bejar($utvonal);
-    foreach($fajlok as $fajl){
-        if(filemtime($fajl)<(time()-60*60)){
-            unlink($fajl);
-        }
-    }
-
-    $fajlnev = $utvonal.'csv'.time().'.csv';
-    $open = fopen($fajlnev,'a');
-    fwrite($open, "sep=;\n");
+    // CSV export előkészítése
+    list($mibol, $mibe, $filename, $open) = csv_export_elokeszit($megnevezes);
     if($open){
         
         // Fejléc bellítása
@@ -172,68 +151,110 @@ if (isset($_GET['csv'])) {
         $login_szallodai = get_akt_login_szallodai();
         $where = "`id` IN (".implode(',', $login_szallodai).")";
         // Elvileg csak szálloda szűrésről lehet szó itt az eszközkezelés felület alatt
-        if($_GET['mezo']=='telephely_id' && $_GET['op']=='equal' ){
+        if( $_GET['mezo'] == 'telephely_id' && $_GET['op'] == 'equal' ) {
             $where = "`id`='{$_GET['felt']}'";
         }
+        
+        // Számoljuk meg, hogy hány sorunk van összesen
+        $osszes_sor = 0;
         $szallodak = $adatbazis_kapcsolat->s('id nev', 'telephely', $where, 'nev');
-        foreach($szallodak as $szalloda){
-            
-            // Szálloda felvétele CSV-be
-            $csvsor    = array();
-            array_push($csvsor, iconv2($mibol, $mibe, htmlspecialchars_decode($szalloda['nev'])));
-            fputcsv($open, $csvsor, ';');
-            
+        foreach ( $szallodak as $szalloda ) {
             $szintek = $adatbazis_kapcsolat->s('recid nev', 'obj', "`szulo`='0' AND `telephely_id`='{$szalloda['id']}'", 'sor');
-            foreach($szintek as $szint) {
-                
-                // Szint felvétele CSV-be
-                $csvsor    = array();
-                array_push($csvsor, '');
-                array_push($csvsor, iconv2($mibol, $mibe, htmlspecialchars_decode($szint['nev'])));
-                fputcsv($open, $csvsor, ';');
-                
+            foreach ( $szintek as $szint ) {
                 $objektumok = $adatbazis_kapcsolat->s('recid nev', 'obj', "`szulo`='{$szint['recid']}'", 'sor');
-                foreach($objektumok as $obj) {
-                    
-                    // Objektum felvétele CSV-be
-                    $csvsor    = array();
-                    array_push($csvsor, '');
-                    array_push($csvsor, '');
-                    array_push($csvsor, iconv2($mibol, $mibe, htmlspecialchars_decode($obj['nev'])));
-                    fputcsv($open, $csvsor, ';');
-                    
+                foreach ( $objektumok as $obj ) {
                     $eszkozok = $adatbazis_kapcsolat->s('nev', 'eszkozkezeles', "`telephely_id`='{$szalloda['id']}' AND `obj_id`='{$obj['recid']}'", 'nev');
-                    foreach($eszkozok as $eszkoz){
-                        
-                        // Eszköz felvétele CSV-be
-                        $csvsor    = array();
-                        array_push($csvsor, '');
-                        array_push($csvsor, '');
-                        array_push($csvsor, '');
-                        array_push($csvsor, iconv2($mibol, $mibe, htmlspecialchars_decode($eszkoz['nev'])));
-                        fputcsv($open, $csvsor, ';');
-                        
+                    foreach ( $eszkozok as $eszkoz ) {
+                        $osszes_sor++;
                     }
-                    
                 }
-                
             }
-            
-            
         }
 
+        $i = 0;
+        $szallodak = $adatbazis_kapcsolat->s('id nev', 'telephely', $where, 'nev');
+        foreach ( $szallodak as $szalloda ) {
+
+            // Szálloda felvétele CSV-be
+            $csvcont = array();
+            array_push($csvcont, iconv2($mibol, $mibe, htmlspecialchars_decode($szalloda['nev'])));
+            fputcsv($open, $csvcont, ';');
+            
+            $szintek = $adatbazis_kapcsolat->s('recid nev', 'obj', "`szulo`='0' AND `telephely_id`='{$szalloda['id']}'", 'sor');
+            foreach ( $szintek as $szint ) {
+
+                // Szint felvétele CSV-be
+                $csvcont    = array();
+                array_push($csvcont, '');
+                array_push($csvcont, iconv2($mibol, $mibe, htmlspecialchars_decode($szint['nev'])));
+                fputcsv($open, $csvcont, ';');
+                
+                $objektumok = $adatbazis_kapcsolat->s('recid nev', 'obj', "`szulo`='{$szint['recid']}'", 'sor');
+                foreach ( $objektumok as $obj ) {
+
+                    // Objektum felvétele CSV-be
+                    $csvcont    = array();
+                    array_push($csvcont, '');
+                    array_push($csvcont, '');
+                    array_push($csvcont, iconv2($mibol, $mibe, htmlspecialchars_decode($obj['nev'])));
+                    fputcsv($open, $csvcont, ';');
+                    
+                    $eszkozok = $adatbazis_kapcsolat->s('nev', 'eszkozkezeles', "`telephely_id`='{$szalloda['id']}' AND `obj_id`='{$obj['recid']}'", 'nev');
+                    foreach ( $eszkozok as $eszkoz ) {
+
+                        // Eszköz felvétele CSV-be
+                        $csvcont    = array();
+                        array_push($csvcont, '');
+                        array_push($csvcont, '');
+                        array_push($csvcont, '');
+                        array_push($csvcont, iconv2($mibol, $mibe, htmlspecialchars_decode($eszkoz['nev'])));
+                        fputcsv($open, $csvcont, ';');
+                        
+                    }
+                    // 100 soronként kiíratunk
+                    if( $i % 1000 == 0 && $i > 0 ) {
+                        // Progress
+                        echo json_encode(array('pr' => number_format(($i / $osszes_sor) * 100, 0, '', ''))).PHP_EOL;
+
+                        // Felszabadítás
+                        ob_flush();
+                        flush();
+                    }
+                    $i++;
+                }
+                // 100 soronként kiíratunk
+                if( $i % 1000 == 0 && $i > 0 ) {
+                    // Progress
+                    echo json_encode(array('pr' => number_format(($i / $osszes_sor) * 100, 0, '', ''))).PHP_EOL;
+
+                    // Felszabadítás
+                    ob_flush();
+                    flush();
+                }
+                $i++;
+            }
+            // 100 soronként kiíratunk
+            if( $i % 1000 == 0 && $i > 0 ) {
+                // Progress
+                echo json_encode(array('pr' => number_format(($i / $osszes_sor) * 100, 0, '', ''))).PHP_EOL;
+                
+                // Felszabadítás
+                ob_flush();
+                flush();
+            }
+            $i++;
+        }
+
+        // Progress
+        echo json_encode(array('pr' => '100')).PHP_EOL;
+
+        // Felszabadítás
+        ob_flush();
+        flush();
+
     }
-    fclose($open);
 
-    header("Content-type: text/csv");
-    header("Content-Disposition: attachment; filename=$megnevezes.csv");
-    header("Pragma: no-cache");
-    header("Expires: 0");
-
-    echo fajlbol_olvas($fajlnev);
-
-    $weblap->leallit();
-    exit();
+    csv_export_lezar($fh, $filename);
 }
 
 

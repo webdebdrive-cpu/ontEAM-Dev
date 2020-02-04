@@ -392,9 +392,11 @@ define('MLTIPUS_RENDSZERES_K',  2);
 define('MLTIPUS_UTEMEZETT_F',   3);
 define('MLTIPUS_ESETI_FENNT',   5);
 
-// Archiv felületek limitjei
+// Limit értékek
 define('ARCHIV_NAVPANEL_LIMIT', 1000);
 define('SZURES_DB_LIMIT',       1000);
+//define('CSV_EXPORT_LIMIT',      10000);
+define('CSV_EXPORT_LIMIT',      1);
 
 // Fűtőértékkel kapcsolatos konstansok
 define('FUTOERTEK_KOD',         '5114400'               );

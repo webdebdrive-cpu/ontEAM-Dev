@@ -6125,7 +6125,7 @@ function csv_general( that, valasztos, link_kieg ) {
             } else {
                 
                 if( ids.length ) {
-                    alert2('CSV generálása folyamatban,&nbsp;kérem várjon! <div class="progress-bar loading"><span></span></div>', '', 'Üzenet');
+                    alert2('<div class="progress-bar-uzenet">Adatok összegyűjtése adatbázisból,&nbsp;ez hosszabb ideig is eltarthat...</div><div class="progress-bar loading"><span></span></div><div class="progress-bar-percent"></div>', '&nbsp;', 'Üzenet');
                     
                     var link = get_get(['egysegarak']) + '&csv&' + link_kieg;
                     window.csv_filename = 'csv' + new Date().getTime() + '.csv';
@@ -6138,13 +6138,25 @@ function csv_general( that, valasztos, link_kieg ) {
 
                     xhr.open('POST', link, true);
                     xhr.send(data);
+
                     xhr.onreadystatechange = function() {
 
-                        if(xhr.readyState > 2) {
-                            response = xhr.responseText.split("\n");
-
+                        // Nagyobb méretű CSV előtt rákérdezünk, hogy biztosan le akarja-e tölteni?
+                        if( xhr.responseText && xhr.responseText.indexOf('\n')==-1 ) {
+                            response = JSON.parse(xhr.responseText);
+                            if( response.hiba ) {
+                                alert2(response.hiba, response.gomb);
+                                return false;
+                            }
+                        }
+                        
+                        if (xhr.readyState > 2) {
+                            
+                            $('.progress-bar-uzenet').html('CSV összeállítása folyamatban,&nbsp;mindjárt elkészül a fájl...', '&nbsp;');
+                            
+                            response = xhr.responseText.split('\n');
                             var filtered = response.filter(function (el) {
-                                return el != "";
+                                return el != '';
                             });
                             
                             response = JSON.parse(filtered[filtered.length - 1]);
@@ -6152,6 +6164,7 @@ function csv_general( that, valasztos, link_kieg ) {
                             if( response.pr ) {
                                 $('#alert2 .progress-bar').removeClass('loading');
                                 $('#alert2 .progress-bar span').css('width', response.pr + '%');
+                                $('#alert2 .progress-bar-percent').html(response.pr + '%');
                             }
 
                             if( response.filename ) {
@@ -6160,9 +6173,11 @@ function csv_general( that, valasztos, link_kieg ) {
                                 alert2();
                             }
                         }
-                    };
+                    }; 
                     
-                    /*var onclick = $(that).attr('onclick');
+                    /*
+                    Ez a rész az új fajta letöltéshez nem kell. 
+                    var onclick = $(that).attr('onclick');
                     $(that).attr('href', get_get(['egysegarak']) + '&csv&'+link_kieg).removeAttr('onclick');
                     $(that)[0].click();
                     $(that).attr('onclick', onclick).removeAttr('href');*/

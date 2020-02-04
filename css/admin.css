@@ -3714,6 +3714,10 @@ div.grid2o{
     width: 20%;
 }
 
+.progress-bar-percent {
+    text-align: center;
+}
+
 @keyframes progress-loading {
     0% {
         left: 0%;
