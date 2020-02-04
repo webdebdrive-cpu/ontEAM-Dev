@@ -12,6 +12,14 @@ Játékszabályok:
 
 require_once('../weblap.php');
 
+// Config
+$megnevezes             = pathinfo(self());
+$megnevezes             = $megnevezes['filename'];
+$megnevezes_origi       = substr($megnevezes, 0, strlen($megnevezes)-5);
+$akt_tomb               = $bejelentes_arch_tomb;
+$torles                 = $megnevezes.'tid';
+$szoveg                 = 'bejelentést';        // Hibaüzenetkor: Biztosan törlöd a $szoveg?
+
 if( !_jog(JOG_BEJELENTES_MEGTEKINT) && !_jog(JOG_BEJELENTES_SAJAT_RESZL) ) {
     if(!$_SESSION[get_db_tabla().'user']){
         $weblap -> leallit();
@@ -89,7 +97,8 @@ if( isset($_GET['csv']) ) {
                 `'.get_db_tabla().$megnevezes.'`.`insert_dt` as \'Bejelentés dátuma\'
                 '.$lekerdezes_fromtol.$_SESSION['akt_sql_order'];
         $query      = mysqli_query($db_kapcs, $sql);
-        
+var_dump($sql);
+exit;
         $csvhead    = array();
         while($fejlec_nevek = mysqli_fetch_field($query)){
             $csvhead[] = iconv2($mibol, $mibe, $fejlec_nevek -> name );
@@ -98,7 +107,7 @@ if( isset($_GET['csv']) ) {
 
         // Összes sor
         $osszes_sor = mysqli_num_rows($query);
-        echo mysqli_error($db_kapcs) .'<br />';exit();
+
         $i = 0;
         while( $sorok = mysqli_fetch_assoc($query) ) {
 
@@ -168,14 +177,6 @@ if( isset($_GET['csv']) ) {
     $weblap->leallit();
     exit();
 }
-
-// Config
-$megnevezes             = pathinfo(self());
-$megnevezes             = $megnevezes['filename'];
-$megnevezes_origi       = substr($megnevezes, 0, strlen($megnevezes)-5);
-$akt_tomb               = $bejelentes_arch_tomb;
-$torles                 = $megnevezes.'tid';
-$szoveg                 = 'bejelentést';        //Hibaüzenetkor: Biztosan törlöd a $szoveg?
 
 $szamla_html = '';
 
