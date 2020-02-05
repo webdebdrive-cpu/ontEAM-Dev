@@ -6169,7 +6169,7 @@ function csv_general( that, valasztos, link_kieg ) {
 
                             if( response.filename ) {
                                 $('#alert2 .progress-bar span').css('width', '100%');
-                                location.href = response.filename;
+                                location.href = baseName(location.href)+'.php?csv_download='+response.filename+'&nev='+response.nev;
                                 alert2();
                             }
                         }

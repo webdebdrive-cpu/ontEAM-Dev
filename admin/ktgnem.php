@@ -132,13 +132,20 @@ if( isset($_GET['csv']) ) {
 
                 // Lehet nem volna elég 1-szer sőt kétszer sem ráereszteni a htmlspecialchars_decode-ot
                 $sor = htmlspecialchars_decode( $sor );
-                while(strpos($sor, '&amp;')!==false || strpos($sor, '&quot;')!==false ){
+                while ( strpos($sor, '&amp;') !== false || strpos($sor, '&quot;') !== false ) {
                     $sor = htmlspecialchars_decode( $sor );
                 }
-                $csvcont[] = iconv($mibol, $mibe.'//TRANSLIT', strip_tags( $sor ) );
+                $sor = str_replace(
+                                array('"{EGYENLOSEG_JELET_ELE}',    '{EGYENLOSEG_JELET_ELE_VEGE}"',     '{EGYENLOSEG_JELET_ELE}',   '{EGYENLOSEG_JELET_ELE_VEGE}', ';="";'  ),
+                                array('="',                         '"',                                '="',                       '"',                            ';;'    ),
+                                $sor
+                        );
+                $sor = iconv($mibol, $mibe.'//TRANSLIT', strip_tags( $sor ) );
+                $csvcont[] = $sor;
             }
 
             fputcsv($open, $csvcont, ';');
+
             // 100 soronként kiíratunk
             if( $i % 1000 == 0 && $i > 0 ) {
                 // Progress
@@ -151,8 +158,15 @@ if( isset($_GET['csv']) ) {
 
             $i++;
         }
+
+        // Progress
+        echo json_encode(array('pr' => '100')).PHP_EOL;
+
+        // Felszabadítás
+        ob_flush();
+        flush();
     }
-    csv_export_lezar($fh, $filename);
+    csv_export_lezar($fh, $filename, 'Költségnemek');
 }
 
 // Tartalom

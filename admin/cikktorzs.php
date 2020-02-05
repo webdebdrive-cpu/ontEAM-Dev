@@ -143,7 +143,7 @@ if( isset($_GET['csv']) ) {
 
     }
 
-    csv_export_lezar($fh, $filename);
+    csv_export_lezar($fh, $filename, 'Cikktörzs');
 }
 
 // Tartalom

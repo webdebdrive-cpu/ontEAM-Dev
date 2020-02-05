@@ -10842,22 +10842,19 @@ function csv_export_elokeszit($megnevezes) {
     $mibol   = get_web_charset();
     $mibe    = 'windows-1250';
 
-    $target  = 'export';
-
+    $target  = CSV_EXPORT_UTVONAL_1;
     if( !is_dir($target) ) {
         mkdir($target);
     }
-
-    $target .= '/csv';
-
+    $target .= CSV_EXPORT_UTVONAL_2;
     if( !is_dir($target) ) {
         mkdir($target);
     }
     
     // Régi fájlok törlése
     $fajlok = konyvtar_bejar($target);
-    foreach($fajlok as $fajl){
-        if(filemtime($fajl)<(time()-60*60)){
+    foreach ( $fajlok as $fajl ) {
+        if( filemtime($fajl) < (time() - CSV_EXPORT_ELAVULAS) ) {
             unlink($fajl);
         }
     }
@@ -10871,7 +10868,8 @@ function csv_export_elokeszit($megnevezes) {
     return array($mibol, $mibe, $filename, $open);
 }
 
-function csv_export_lezar($fh, $filename) {
+// Minden CSV export után ezeket be kell állítani
+function csv_export_lezar($fh, $filename, $nev = '') {
     
     global $weblap;
     
@@ -10879,7 +10877,8 @@ function csv_export_lezar($fh, $filename) {
     fclose($fh);
 
     echo json_encode(array(
-        'filename' => $filename
+        'filename'  => $filename,
+        'nev'       => $nev,
     ));
 
     // Felszabadítás

@@ -7,6 +7,9 @@ define('NYOMTATAS_KIVETELES_CIM',   2032            );
 define('SZALLITOKOD_HOSSZ',         5               );
 define('DISZPECSER_TELEFONSZAM',    '30/703 0560, 1/889 5988');
 define('MSZK_MAILCIM',              'mszk@danubiushotels.com');
+define('CSV_EXPORT_UTVONAL_1',      'export');
+define('CSV_EXPORT_UTVONAL_2',      '/csv');
+define('CSV_EXPORT_ELAVULAS',       3600); // 60 * 60
 
 // Státuszok
 // Bejelentés státuszok
@@ -397,6 +400,7 @@ define('ARCHIV_NAVPANEL_LIMIT', 1000);
 define('SZURES_DB_LIMIT',       1000);
 //define('CSV_EXPORT_LIMIT',      10000);
 define('CSV_EXPORT_LIMIT',      1);
+
 
 // Fűtőértékkel kapcsolatos konstansok
 define('FUTOERTEK_KOD',         '5114400'               );

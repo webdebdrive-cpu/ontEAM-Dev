@@ -2279,7 +2279,7 @@ if( basename(self()) == 'projektigenyles.php' && isset($_GET['modosit']) ) {
 
 // Ha nincs "Több szállodás igények kezelése" jogunk, akkor az Egyszállodás/Többszállodás pipák nem szerkeszthetőek.
 $tobb_szall_disabled = '';
-if(!_jog(JOG_PRIGENY_TOBB_KEZEL)){
+if( !_jog(JOG_PRIGENY_TOBB_KEZEL) ) {
     $tobb_szall_disabled = ' disabled';
 }
 
@@ -2375,13 +2375,13 @@ if( basename(self()) == 'projektkezeles.php' && $_GET['id'] ) {
 
 // Szerkesztéskor a szálloda már nem módosítható.
 $szalloda_disabled = false;
-if (isset($_GET['modosit']) || isset($_GET['igeny_id'])) {
+if( isset($_GET['modosit']) || isset($_GET['igeny_id']) ) {
     $szalloda_disabled = true;
 }
 
 // Ha nincs "Több szállodás igények kezelése" jogunk, akkor az Egyszállodás/Többszállodás pipák nem szerkeszthetőek.
 $tobb_szall_disabled = '';
-if(!_jog(JOG_PR_TOBBSZALL_KEZEL)){
+if( !_jog(JOG_PR_TOBBSZALL_KEZEL) ) {
     $tobb_szall_disabled = ' disabled';
 }
 
@@ -2482,15 +2482,15 @@ array_push($postok, array('tomb' => $akt_tomb, 'uj' => 'uj'.$megnevezes, 'lista'
 $megnevezes = 'projektszamla';
 // Visszaadva pipát csak kezelés joggal lehet használni
 $visszaadva_disabled = true;
-if( get_projekt_szamla_kezel_jog($_GET['id']) ){
+if( get_projekt_szamla_kezel_jog($_GET['id']) ) {
     $visszaadva_disabled = false;
 }
 $sz_szam_gomb = '';
-if( get_projekt_szamla_kezel_jog($_GET['id']) || isset($_GET['uj']) ){
+if( get_projekt_szamla_kezel_jog($_GET['id']) || isset($_GET['uj']) ) {
     $gomb_felirat = 'Szerződés hozzáadása';
     $gomb_class   = '';
     $gomb_mehet   = true;
-    if (isset($_GET['modosit'])) {
+    if( isset($_GET['modosit']) ) {
         $prsz = $adatbazis_kapcsolat->s2('sz_szam visszaadva', 'projektszamla', "`recid`='{$_GET['id']}'");
         if($prsz['sz_szam']){
             $gomb_felirat = 'Szerződés szám törlése';
@@ -2500,7 +2500,7 @@ if( get_projekt_szamla_kezel_jog($_GET['id']) || isset($_GET['uj']) ){
             $gomb_mehet = false;
         }
     }
-    if($gomb_mehet){
+    if( $gomb_mehet ) {
         $sz_szam_gomb = ' <input type="button" class="gomb alacsony'.$gomb_class.'" value="'.$gomb_felirat.'" id="sz_szam_gomb" style="margin-left: 2rem; margin-bottom: 0;" onclick="prsz_hozzaad_gomb_hozzaad_vagy_torol()">';
     }
 }
@@ -2516,7 +2516,7 @@ if( isset($_GET['modosit']) ) {
     
     $visszaadva_dt_alert_class = '';
     $prsz = $adatbazis_kapcsolat->s2('visszaadva kcs_21 nullas', 'projektszamla', "`recid`='{$_GET['id']}'");
-    if( $prsz['visszaadva'] ){
+    if( $prsz['visszaadva'] ) {
         $visszaadva_dt_alert_class = ' csillag';
     }
 
@@ -3010,20 +3010,28 @@ $felmeresi_terv_tomb = $akt_tomb = array(
 
 );
 array_push($postok, array('tomb' => $akt_tomb, 'uj' => 'uj'.$megnevezes, 'lista' => $megnevezes.'lista', 'tabla' => $megnevezes, 'torid' => $megnevezes.'tid' ));
-//{KOVETKEZO_TOMB}
 
-// Ajax megszakítása
-if( isset($_POST['csv_file_torol']) ) {
-    $filename = $_POST['filename'];
-
-    if( $filename ) {
-        unlink('export/csv/'.$filename);
+// CSV export letöltése
+if( isset($_GET['csv_download']) ) {
+    
+    // Ha nincs megadva a név, akkor a php fájl nev lesz a CSV neve
+    if( !$_GET['nev'] ) {
+        $_GET['nev'] = str_replace('.php', '', basename(self()));
     }
+    // Biztonsági óvintézkedések: csak csv kiterjesztés tölthető le
+    // Illetve ne lehessen a könyvtárból kilépni
+    $_GET['csv_download'] = basename($_GET['csv_download']);
+    if( kit($_GET['csv_download'])=='csv' ) {
+    
+        header("Cache-Control: public");
+        header("Content-Description: File Transfer");
+        header("Content-Disposition: attachment; filename={$_GET['nev']}.csv");
+        header("Content-Type: application/CSV");
+        header("Content-Transfer-Encoding: binary");
 
-    echo json_encode(array(
-        'statusz' => 'OK'
-    ));
-
+        // Beolvasás, kiíratás
+        readfile(CSV_EXPORT_UTVONAL_1.CSV_EXPORT_UTVONAL_2.'/'.$_GET['csv_download']);
+    }
     $weblap->leallit();
     exit();
 }

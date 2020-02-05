@@ -225,19 +225,7 @@ $sor  = substr($megj['megj'], 0, $ujsor) ;
         flush();
     }
 
-    // Get the contents of the output buffer
-    fclose($fh);
-
-    echo json_encode(array(
-        'filename' => $filename
-    ));
-
-    // Felszabadítás
-    ob_flush();
-    flush();
-    
-    $weblap->leallit();
-    exit();
+    csv_export_lezar($fh, $filename, 'Archív-Munkalap');
 }
 
 // Tartalom
