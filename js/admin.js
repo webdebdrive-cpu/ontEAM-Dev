@@ -6059,6 +6059,24 @@ function csv_general( that, valasztos, link_kieg ) {
             alert2('Válasszon export fajtát:<br><a href="javascript:csv_general($(\'.excel\'))">» Energia tervek exportálása</a><br><a href="javascript:csv_general($(\'.excel\'), \'\', \'egysegarak&id=\'+_get(\'id\'))">» Egységárak exportálása</a>', '<input type="button" class="gomb" value="Mégsem" onclick="alert2()">', 'Válasszon exportot');
         }
 
+        // Energia tervnél lehet választani, hogy tervet, vagy Egységárakat szeretne-e exportálni
+        if (baseName(location.href) == 'fenntartasi_terv') {
+            var bwh_link = '';
+            if( bwh_s_adatlap ) {
+                bwh_link = '<br><a href="javascript:csv_general($(\'.excel\'), \'\', \'ful=bwh\')">» Cukrászat-BWH</a>';
+            }
+            alert2('Válasszon export fajtát:<br><a href="javascript:csv_general($(\'.excel\'))">» Fenntartási tervek listája</a>'+
+                                            '<br><a href="javascript:csv_general($(\'.excel\'), \'\', \'ful=energia\')">» Energia</a>'+
+                                            '<br><a href="javascript:csv_general($(\'.excel\'), \'\', \'ful=muszaki_anyag\')">» Műszaki anyag</a>'+
+                                            '<br><a href="javascript:csv_general($(\'.excel\'), \'\', \'vrendsz_karban\')">» Rendszeres karbantartás</a>'+
+                                            '<br><a href="javascript:csv_general($(\'.excel\'), \'\', \'ful=eseti_karban\')">» Eseti fenntartás</a>'+
+                                            '<br><a href="javascript:csv_general($(\'.excel\'), \'\', \'ful=hibaelharitas\')">» Hibaelhárítás</a>'+
+                                            '<br><a href="javascript:csv_general($(\'.excel\'), \'\', \'ful=miniprojekt\')">» Mini projekt</a>'+
+                                            bwh_link +
+                                            '<br><a href="javascript:csv_general($(\'.excel\'), \'\', \'ful=osszesen\')">» Összesen</a>',
+                                            '<input type="button" class="gomb" value="Mégsem" onclick="alert2()">', 'Válasszon exportot');
+        }
+
         // Projektszámláknál lehet választani, hogy Számlák vagy Számlák és tételek
         if (baseName(location.href) == 'projektszamla') {
             alert2('Válasszon export fajtát:<br><a href="javascript:csv_general($(\'.excel\'))">» Számlák exportálása</a><br><a href="javascript:csv_general($(\'.excel\'), \'\', \'tetelek&id=\'+_get(\'id\'))">» Számlák és tételek exportálása</a><br><a href="javascript:csv_general($(\'.excel\'), \'\', \'kifizetesek&id=\'+_get(\'id\'))">» Számlák és kifizetések exportálása</a>', '<input type="button" class="gomb" value="Mégsem" onclick="alert2()">', 'Válasszon exportot');

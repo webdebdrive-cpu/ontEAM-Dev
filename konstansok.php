@@ -10,6 +10,7 @@ define('MSZK_MAILCIM',              'mszk@danubiushotels.com');
 define('CSV_EXPORT_UTVONAL_1',      'export');
 define('CSV_EXPORT_UTVONAL_2',      '/csv');
 define('CSV_EXPORT_ELAVULAS',       3600); // 60 * 60
+define('HUNGARIA_SZALLODA',         2102);
 
 // Státuszok
 // Bejelentés státuszok
@@ -398,8 +399,7 @@ define('MLTIPUS_ESETI_FENNT',   5);
 // Limit értékek
 define('ARCHIV_NAVPANEL_LIMIT', 1000);
 define('SZURES_DB_LIMIT',       1000);
-// define('CSV_EXPORT_LIMIT',      30000);
-define('CSV_EXPORT_LIMIT',      1);
+define('CSV_EXPORT_LIMIT',      30000);
 
 
 // Fűtőértékkel kapcsolatos konstansok
