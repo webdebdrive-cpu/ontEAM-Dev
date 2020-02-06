@@ -789,33 +789,14 @@ if( isset($_POST['jotallas_dok_torol']) ) {
 // CSV generálása
 if( isset($_GET['csv']) ) {
 
-    $megnevezes_fajhoz = $megnevezes;
+    $csv_neve = 'Projektszerződés';
     if( isset($_GET['tetelek']) ) {
-        $megnevezes_fajhoz .= '_tetelek';
+        $csv_neve .= '-tételek';
     }
-
-    header("Content-type: text/csv");
-    header("Content-Disposition: attachment; filename=$megnevezes_fajhoz.csv");
-    header("Pragma: no-cache");
-    header("Expires: 0");
-
-    $mibol   = get_web_charset();
-    $mibe    = 'windows-1250';
-
-    if( !is_dir('export') ) {
-        mkdir('export');
-    }
-
-    if( !is_dir('export/csv') ) {
-        mkdir('export/csv');
-    }
-
-    // Open the output stream
-    $open = fopen('php://output', 'w');
-    fwrite($open, "sep=;\n");
-    ob_start();
-
-    if($open){
+    
+    // CSV export előkészítése
+    list($mibol, $mibe, $filename, $open) = csv_export_elokeszit($megnevezes);
+    if( $open ) {
 
         $lekerdezes_fromtol = substr($_SESSION['akt_sql'], strpos($_SESSION['akt_sql'], 'FROM'));
 
@@ -906,6 +887,20 @@ if( isset($_GET['csv']) ) {
                             `'.get_db_tabla().$megnevezes.'_tetel`.`ertek` as `Érték`,
                             `'.get_db_tabla().$megnevezes.'_tetel`.`dev_ertek` as `Érték (devizában)`
                             '.$lekerdezes_fromtol.$_SESSION['akt_sql_order'];
+                
+                $query = mysqli_query($db_kapcs, $sql);
+
+                // Nagyobb CSV-kre kérdezzünk rá előzetesen
+                $osszes_sor = mysqli_num_rows($query);
+//  Itt ilyet ne csináljunk, mert a csv_link_cserel_kattint 3 paraméterét nem tudom kimenteni
+//                if( !$_GET['mehet'] && $osszes_sor>CSV_EXPORT_LIMIT ) {
+//                    $gomb = '<input type="button" class="gomb zold" value="Igen" onclick="csv_link_cserel_kattint();"> <input type="button" class="gomb piros" value="Nem" onclick="alert2()">';
+//                    echo json_encode(array('hiba' => 'A CSV export több mint '.number_format(CSV_EXPORT_LIMIT, 0, '', ' ').' sort tartalmaz. Ennek előállítása hosszabb időbe telik majd.<br>Biztosan folytatja?', 'gomb' => $gomb));
+//                    $weblap -> leallit();
+//                    exit;
+//                } else {
+//                    $sql .= $_SESSION['akt_sql_order'];    
+//                }
 
                 $query      = mysqli_query($db_kapcs, $sql);
 
@@ -916,39 +911,39 @@ if( isset($_GET['csv']) ) {
                 fputcsv($open, $csvhead, ';');
 
                 $i = 0;
-                while( $sorok = mysqli_fetch_assoc($query) ){
+                while ( $sorok = mysqli_fetch_assoc($query) ) {
 
                     $csvcont = array();
                     foreach( $sorok as $kulcs => $sor ) {
-                        if($kulcs=='Szálloda'){
+                        if( $kulcs == 'Szálloda' ) {
                             $sor = getSzallodaNev($sor);
                         }
-                        if($kulcs=='Szerződő partner'){
+                        if( $kulcs == 'Szerződő partner' ) {
                             $sor = getErtek('nev', 'szallito', 'id', $sor);
                         }
-                        if($kulcs=='Költségviselő'){
+                        if( $kulcs == 'Költségviselő' ) {
                             $sor = erteklista(ERTEKLISTA_KOLTSEGVISELO, $sor);
                         }
-                        if($kulcs=='Szerződést kötő'){
+                        if( $kulcs == 'Szerződést kötő' ) {
                             $sor = erteklista(ERTEKLISTA_SZERZODESTKOTO, $sor);
                         }
-                        if($kulcs=='Pénznem'){
+                        if( $kulcs == 'Pénznem' ) {
                             $sor = erteklista(ERTEKLISTA_PENZNEM, $sor);
                         }
-                        if($kulcs=='Árfolyam'){
+                        if( $kulcs == 'Árfolyam' ) {
                             $sor = number_format($sor, 4, ',', '');
                         }
-                        if($kulcs=='Deviza nettó'){
+                        if( $kulcs == 'Deviza nettó' ) {
                             $sor = number_format($sor, 2, ',', '');
                         }
-                        if($kulcs=='Létesítmény felelős'){
+                        if( $kulcs == 'Létesítmény felelős' ) {
                             $sor = getErtek('teljes_nev', 'login', 'recid', $sor);
                         }
-                        if($kulcs=='Műszaki átvétel' || $kulcs=='Kelte' || $kulcs=='Kivitelezés kezdete' || $kulcs=='Kivitelezés vége' || $kulcs=='Bank garancia vége' || $kulcs=='Bank garancia vége' || $kulcs=='Teljesítés' || $kulcs=='Átváltva' ){
+                        if( $kulcs == 'Műszaki átvétel' || $kulcs == 'Kelte' || $kulcs == 'Kivitelezés kezdete' || $kulcs == 'Kivitelezés vége' || $kulcs == 'Bank garancia vége' || $kulcs == 'Bank garancia vége' || $kulcs == 'Teljesítés' || $kulcs == 'Átváltva' ) {
                             $sor = datum_kiir($sor);
                         }
-                        if($kulcs=='Számlázva' || $kulcs=='Építési eng.'){
-                            if($sor){
+                        if( $kulcs == 'Számlázva' || $kulcs == 'Építési eng.' ) {
+                            if( $sor ) {
                                 $sor = 'igen';
                             } else {
                                 $sor = 'nem';
@@ -959,8 +954,13 @@ if( isset($_GET['csv']) ) {
 
                     fputcsv($open, $csvcont, ';');
 
-                    // 100 soronként kiírtatunk
-                    if ($i % 100 == 0) {
+                    // 1000 soronként kiíratunk
+                    if( $i % 1000 == 0 && $i > 0 ) {
+                        // Progress
+                        echo json_encode(array('pr' => number_format(($i / $osszes_sor) * 100, 0, '', ''))).PHP_EOL;
+
+                        // Felszabadítás
+                        ob_flush();
                         flush();
                     }
 
@@ -1037,6 +1037,19 @@ if( isset($_GET['csv']) ) {
                             `bank_gar_vege` as \'Bank garancia vége\',
                             `szamlazva` as \'Számlázva\'
                             '.$lekerdezes_fromtol.$_SESSION['akt_sql_order'];
+                $query = mysqli_query($db_kapcs, $sql);
+
+                // Nagyobb CSV-kre kérdezzünk rá előzetesen
+                $osszes_sor = mysqli_num_rows($query);
+//  Itt ilyet ne csináljunk, mert a csv_link_cserel_kattint 3 paraméterét nem tudom kimenteni
+//                if( !$_GET['mehet'] && $osszes_sor>CSV_EXPORT_LIMIT ) {
+//                    $gomb = '<input type="button" class="gomb zold" value="Igen" onclick="$(\'#navGombok .excel\').attr(\'onclick\', \'csv_general( this, \\\'\\\', \\\'&mehet=1\\\');\'); $(\'.navGombok a.excel\').click();"> <input type="button" class="gomb piros" value="Nem" onclick="alert2()">';
+//                    echo json_encode(array('hiba' => 'A CSV export több mint '.number_format(CSV_EXPORT_LIMIT, 0, '', ' ').' sort tartalmaz. Ennek előállítása hosszabb időbe telik majd.<br>Biztosan folytatja?', 'gomb' => $gomb));
+//                    $weblap -> leallit();
+//                    exit;
+//                } else {
+//                    $sql .= $_SESSION['akt_sql_order'];    
+//                }
 
                 $query      = mysqli_query($db_kapcs, $sql);
 
@@ -1047,39 +1060,39 @@ if( isset($_GET['csv']) ) {
                 fputcsv($open, $csvhead, ';');
 
                 $i = 0;
-                while( $sorok = mysqli_fetch_assoc($query) ){
+                while ( $sorok = mysqli_fetch_assoc($query) ) {
 
                     $csvcont = array();
                     foreach( $sorok as $kulcs => $sor ) {
-                        if($kulcs=='Szálloda'){
+                        if( $kulcs == 'Szálloda' ) {
                             $sor = getSzallodaNev($sor);
                         }
-                        if($kulcs=='Szerződő partner'){
+                        if( $kulcs == 'Szerződő partner' ) {
                             $sor = getErtek('nev', 'szallito', 'id', $sor);
                         }
-                        if($kulcs=='Költségviselő'){
+                        if( $kulcs == 'Költségviselő' ) {
                             $sor = erteklista(ERTEKLISTA_KOLTSEGVISELO, $sor);
                         }
-                        if($kulcs=='Szerződést kötő'){
+                        if( $kulcs == 'Szerződést kötő' ) {
                             $sor = erteklista(ERTEKLISTA_SZERZODESTKOTO, $sor);
                         }
-                        if($kulcs=='Pénznem'){
+                        if( $kulcs == 'Pénznem' ) {
                             $sor = erteklista(ERTEKLISTA_PENZNEM, $sor);
                         }
-                        if($kulcs=='Árfolyam'){
+                        if( $kulcs == 'Árfolyam' ) {
                             $sor = number_format($sor, 4, ',', '');
                         }
-                        if($kulcs=='Deviza nettó'){
+                        if( $kulcs == 'Deviza nettó' ) {
                             $sor = number_format($sor, 2, ',', '');
                         }
-                        if($kulcs=='Létesítmény felelős'){
+                        if( $kulcs == 'Létesítmény felelős' ) {
                             $sor = getErtek('teljes_nev', 'login', 'recid', $sor);
                         }
-                        if($kulcs=='Műszaki átvétel' || $kulcs=='Kelte' || $kulcs=='Kivitelezés kezdete' || $kulcs=='Kivitelezés vége' || $kulcs=='Műszaki garancia kezdete' || $kulcs=='Műszaki garancia vége' || $kulcs=='Bank garancia' || $kulcs=='Bank garancia vége' || $kulcs=='Átváltva'){
+                        if( $kulcs == 'Műszaki átvétel' || $kulcs == 'Kelte' || $kulcs == 'Kivitelezés kezdete' || $kulcs == 'Kivitelezés vége' || $kulcs == 'Műszaki garancia kezdete' || $kulcs == 'Műszaki garancia vége' || $kulcs == 'Bank garancia' || $kulcs == 'Bank garancia vége' || $kulcs == 'Átváltva' ) {
                             $sor = datum_kiir($sor);
                         }
-                        if($kulcs=='Számlázva' || $kulcs=='Építési eng.'){
-                            if($sor){
+                        if( $kulcs == 'Számlázva' || $kulcs == 'Építési eng.' ) {
+                            if( $sor ) {
                                 $sor = 'igen';
                             } else {
                                 $sor = 'nem';
@@ -1090,8 +1103,13 @@ if( isset($_GET['csv']) ) {
 
                     fputcsv($open, $csvcont, ';');
 
-                    // 100 soronként kiírtatunk
-                    if ($i % 100 == 0) {
+                    // 1000 soronként kiíratunk
+                    if( $i % 1000 == 0 && $i > 0 ) {
+                        // Progress
+                        echo json_encode(array('pr' => number_format(($i / $osszes_sor) * 100, 0, '', ''))).PHP_EOL;
+
+                        // Felszabadítás
+                        ob_flush();
                         flush();
                     }
 
@@ -1099,20 +1117,18 @@ if( isset($_GET['csv']) ) {
                 }
 
             }
-
         }
+        
+        // Progress
+        echo json_encode(array('pr' => '100')).PHP_EOL;
+
+        // Felszabadítás
+        ob_flush();
+        flush();
 
     }
 
-    // Get the contents of the output buffer
-    $string = ob_get_clean();
-    fclose($fh);
-
-    // Stream the CSV data
-    exit($string);
-
-    $weblap->leallit();
-    exit();
+    csv_export_lezar($fh, $filename, $csv_neve);
 }
 
 

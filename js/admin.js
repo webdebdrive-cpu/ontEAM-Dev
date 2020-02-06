@@ -6113,81 +6113,76 @@ function csv_general( that, valasztos, link_kieg ) {
 
         $.when(ajax).done(function() {
 
-            // Eszközkezelésnél nincs balnavpanel, ezért ott nem kell figyelni a kijelölt sorokat, viszont a szűrést át kell adni
-            if (baseName(location.href) == 'eszkozkezeles') {
-                
-                link_kieg += get_get([], 'csak a vége').substring(1);
-                var onclick = $(that).attr('onclick');
-                $(that).attr('href', '?csv&'+link_kieg).removeAttr('onclick');
-                $(that)[0].click();
-                $(that).attr('onclick', onclick).removeAttr('href');
-                
-            } else {
-                
-                if( ids.length ) {
-                    alert2('<div class="progress-bar-uzenet">Adatok összegyűjtése adatbázisból,&nbsp;ez hosszabb ideig is eltarthat...</div><div class="progress-bar loading"><span></span></div><div class="progress-bar-percent"></div>', '&nbsp;', 'Üzenet');
-                    
-                    var link = get_get(['egysegarak']) + '&csv&' + link_kieg;
-                    window.csv_filename = 'csv' + new Date().getTime() + '.csv';
+            if( ids.length || baseName(location.href) == 'eszkozkezeles' /*|| baseName(location.href) == 'felmeresi_terv'|| baseName(location.href) == 'dokumentumtar' <= ezek még nincsenek kidolgozva*/ ) {
+                alert2('<div class="progress-bar-uzenet">Adatok összegyűjtése adatbázisból,&nbsp;ez hosszabb ideig is eltarthat...</div><div class="progress-bar loading"><span></span></div><div class="progress-bar-percent"></div>', '&nbsp;', 'Üzenet');
 
-                    // Elküldendő adatok
-                    var data = new FormData();
-                    data.append('filename', window.csv_filename);
-
-                    var xhr = new XMLHttpRequest();
-
-                    xhr.open('POST', link, true);
-                    xhr.send(data);
-
-                    xhr.onreadystatechange = function() {
-
-                        // Nagyobb méretű CSV előtt rákérdezünk, hogy biztosan le akarja-e tölteni?
-                        if( xhr.responseText && xhr.responseText.indexOf('\n')==-1 ) {
-                            response = JSON.parse(xhr.responseText);
-                            if( response.hiba ) {
-                                alert2(response.hiba, response.gomb);
-                                return false;
-                            }
-                        }
-                        
-                        if (xhr.readyState > 2) {
-                            
-                            $('.progress-bar-uzenet').html('CSV összeállítása folyamatban,&nbsp;mindjárt elkészül a fájl...', '&nbsp;');
-                            
-                            response = xhr.responseText.split('\n');
-                            var filtered = response.filter(function (el) {
-                                return el != '';
-                            });
-                            
-                            response = JSON.parse(filtered[filtered.length - 1]);
-
-                            if( response.pr ) {
-                                $('#alert2 .progress-bar').removeClass('loading');
-                                $('#alert2 .progress-bar span').css('width', response.pr + '%');
-                                $('#alert2 .progress-bar-percent').html(response.pr + '%');
-                            }
-
-                            if( response.filename ) {
-                                $('#alert2 .progress-bar span').css('width', '100%');
-                                location.href = baseName(location.href)+'.php?csv_download='+response.filename+'&nev='+response.nev;
-                                alert2();
-                            }
-                        }
-                    }; 
-                    
-                    /*
-                    Ez a rész az új fajta letöltéshez nem kell. 
-                    var onclick = $(that).attr('onclick');
-                    $(that).attr('href', get_get(['egysegarak']) + '&csv&'+link_kieg).removeAttr('onclick');
-                    $(that)[0].click();
-                    $(that).attr('onclick', onclick).removeAttr('href');*/
-                    
-                } else {
-                    
-                    alert2('Üres találati listát nem lehet exportálni!', '', 'Hiba');
-                    
+                // Ha a linkben nincs kérdőjel, akkor azzal meg kell még toldani
+                var link_eleje = get_get(['egysegarak']);
+                if( link_eleje.indexOf('?') == -1 ) {
+                    link_eleje += '?';
                 }
-                
+
+                var link = link_eleje + '&csv&' + link_kieg;
+                window.csv_filename = 'csv' + new Date().getTime() + '.csv';
+
+                // Elküldendő adatok
+                var data = new FormData();
+                data.append('filename', window.csv_filename);
+                // Az aktuális ID-t is átküldjük, van olyan felület, ahol erre szükség van
+                data.append('id', _get('id'));
+
+                var xhr = new XMLHttpRequest();
+
+                xhr.open('POST', link, true);
+                xhr.send(data);
+
+                xhr.onreadystatechange = function() {
+
+                    // Nagyobb méretű CSV előtt rákérdezünk, hogy biztosan le akarja-e tölteni?
+                    if( xhr.responseText && xhr.responseText.indexOf('\n')==-1 ) {
+                        response = JSON.parse(xhr.responseText);
+                        if( response.hiba ) {
+                            alert2(response.hiba, response.gomb);
+                            return false;
+                        }
+                    }
+
+                    if (xhr.readyState > 2) {
+
+                        $('.progress-bar-uzenet').html('CSV összeállítása folyamatban,&nbsp;mindjárt elkészül a fájl...', '&nbsp;');
+
+                        response = xhr.responseText.split('\n');
+                        var filtered = response.filter(function (el) {
+                            return el != '';
+                        });
+
+                        response = JSON.parse(filtered[filtered.length - 1]);
+
+                        if( response.pr ) {
+                            $('#alert2 .progress-bar').removeClass('loading');
+                            $('#alert2 .progress-bar span').css('width', response.pr + '%');
+                            $('#alert2 .progress-bar-percent').html(response.pr + '%');
+                        }
+
+                        if( response.filename ) {
+                            $('#alert2 .progress-bar span').css('width', '100%');
+                            location.href = baseName(location.href)+'.php?csv_download='+response.filename+'&nev='+response.nev;
+                            alert2();
+                        }
+                    }
+                }; 
+
+                /*
+                Ez a rész az új fajta letöltéshez nem kell. 
+                var onclick = $(that).attr('onclick');
+                $(that).attr('href', get_get(['egysegarak']) + '&csv&'+link_kieg).removeAttr('onclick');
+                $(that)[0].click();
+                $(that).attr('onclick', onclick).removeAttr('href');*/
+
+            } else {
+
+                alert2('Üres találati listát nem lehet exportálni!', '', 'Hiba');
+
             }
             
         });
@@ -8088,4 +8083,16 @@ function dokumentumok_kibont( azon, tabla ) {
         }
     });
 
+}
+
+// CSV export előtt kérdezünk. De csak egyszer tegyük, ezért az onclick-et át kell írni, ha Igen-t választott a user
+function csv_link_cserel_kattint() {
+    var valasztos = '';
+    var onclick = $('#navGombok .excel').attr('onclick');
+    if( onclick.indexOf('választós')>=0 ) {
+        valasztos = 'választós';
+    }
+    $('#navGombok .excel').attr('onclick', 'csv_general( this, \''+valasztos+'\', \'&mehet=1\');');
+    $('.navGombok a.excel').click();
+    $('#navGombok .excel').attr('onclick', 'csv_general( this, \''+valasztos+'\', \'\');');
 }

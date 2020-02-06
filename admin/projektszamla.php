@@ -21,7 +21,7 @@ $szoveg                 = 'projekt számlát';   // Hibaüzenetkor: Biztosan tö
 
 // Dokumentumok fülhöz kell majd
 $tobb_kep = true;
-if($tobb_kep){
+if( $tobb_kep ) {
     function get_tobbkep_darab()    { return 10;         } // Maximum hány kép tallózható be
     function get_tobbkep_csakkep()  { return '';         } // Milyen kiterjesztéseket engedünk meg (ha mindenet, legyen üres)
     function get_tobbkep_kepmeret() { return 10;         } // MB-ban
@@ -73,13 +73,6 @@ if( isset($_POST['get_projekt_szerzodes_tabla']) ) {
     
     $html = '';
 
-//    // Rendezés beállítása
-//     $join  = ' JOIN `'.get_db_tabla().'telephely` ON `'.get_db_tabla().'projektszerzodes`.`telephely_id`=`'.get_db_tabla().'telephely`.`id`';
-//    // Rendezést egyelőre kivettük, ezért mindig a default fog érvényesülni
-//    switch($_POST['order']){
-//        case 'bkolt': $order = '`'.get_db_tabla().'projektszerzodes`.`szerz_ossz`,  `'.get_db_tabla().'telephely`.`nev`';               $sz_osszeg_selected = ' selected';  break;
-//        default     : $order = '`'.get_db_tabla().'telephely`.`nev`,                `'.get_db_tabla().'projektszerzodes`.`szerz_ossz`';                                     break;
-//    }
     // Nincs rendezés, fixen a projekt szerződés szerint rendezünk
     $order = '`'.get_db_tabla().'projektszerzodes`.`sz_szam`';
 
@@ -1131,32 +1124,15 @@ if( isset($_POST['van_tetel']) ) {
 // CSV generálása
 if( isset($_GET['csv']) ) {
 
-    $megnevezes_fajhoz = $megnevezes;
-    if (isset($_GET['tetelek'])) {
-        $megnevezes_fajhoz .= '_tetelek';
+    $csv_neve = 'Projekt-számlák';
+    if( isset($_GET['tetelek']) ) {
+        $csv_neve = 'Projekt-számla-tételek';
+    } elseif( isset($_GET['kifizetesek']) ) {
+        $csv_neve = 'Projekt-számla-kifizetések';
     }
-
-    header("Content-type: text/csv");
-    header("Content-Disposition: attachment; filename=$megnevezes_fajhoz.csv");
-    header("Pragma: no-cache");
-    header("Expires: 0");
-
-    $mibol   = get_web_charset();
-    $mibe    = 'windows-1250';
-
-    if( !is_dir('export') ) {
-        mkdir('export');
-    }
-
-    if( !is_dir('export/csv') ) {
-        mkdir('export/csv');
-    }
-
-    // Open the output stream
-    $open = fopen('php://output', 'w');
-    fwrite($open, "sep=;\n");
-    ob_start();
-
+    
+    // CSV export előkészítése
+    list($mibol, $mibe, $filename, $open) = csv_export_elokeszit($megnevezes);
     if( $open ) {
 
         $lekerdezes_fromtol = substr($_SESSION['akt_sql'], strpos($_SESSION['akt_sql'], 'FROM'));
@@ -1240,9 +1216,21 @@ if( isset($_GET['csv']) ) {
                             `'.get_db_tabla().$megnevezes.'_tetel`.`netto_ert` as `Tétel nettó érték`,
                             `'.get_db_tabla().$megnevezes.'_tetel`.`dev_net` as `Tétel nettó érték (devizában)`
                             '.$lekerdezes_fromtol.$_SESSION['akt_sql_order'];
+                $query = mysqli_query($db_kapcs, $sql);
 
+                // Nagyobb CSV-kre kérdezzünk rá előzetesen
+                $osszes_sor = mysqli_num_rows($query);
+//  Itt ilyet ne csináljunk, mert a csv_link_cserel_kattint 3 paraméterét nem tudom kimenteni
+//                if( !$_GET['mehet'] && $osszes_sor>CSV_EXPORT_LIMIT ) {
+//                    $gomb = '<input type="button" class="gomb zold" value="Igen" onclick="$(\'#navGombok .excel\').attr(\'onclick\', \'csv_general( this, \\\'\\\', \\\'&mehet=1\\\');\'); $(\'.navGombok a.excel\').click();"> <input type="button" class="gomb piros" value="Nem" onclick="alert2()">';
+//                    echo json_encode(array('hiba' => 'A CSV export több mint '.number_format(CSV_EXPORT_LIMIT, 0, '', ' ').' sort tartalmaz. Ennek előállítása hosszabb időbe telik majd.<br>Biztosan folytatja?', 'gomb' => $gomb));
+//                    $weblap -> leallit();
+//                    exit;
+//                } else {
+//                    $sql .= $_SESSION['akt_sql_order'];    
+//                }
                 $query      = mysqli_query($db_kapcs, $sql);
-// echo $sql; 
+
                 $csvhead    = array();
                 while($fejlec_nevek = mysqli_fetch_field($query)){
                     $csvhead[] = iconv2($mibol, $mibe, $fejlec_nevek -> name );
@@ -1290,8 +1278,13 @@ if( isset($_GET['csv']) ) {
 
                     fputcsv($open, $csvcont, ';');
 
-                    // 100 soronként kiírtatunk
-                    if ($i % 100 == 0) {
+                    // 1000 soronként kiíratunk
+                    if( $i % 1000 == 0 && $i > 0 ) {
+                        // Progress
+                        echo json_encode(array('pr' => number_format(($i / $osszes_sor) * 100, 0, '', ''))).PHP_EOL;
+
+                        // Felszabadítás
+                        ob_flush();
                         flush();
                     }
 
@@ -1375,9 +1368,20 @@ if( isset($_GET['csv']) ) {
                             `'.get_db_tabla().$megnevezes.'_kifizetesek`.`insert_dt` as `Kifizetés rögzítve`,
                             `'.get_db_tabla().$megnevezes.'_kifizetesek`.`insert_usr` as `Kifizetés rögzítette`
                             '.$lekerdezes_fromtol.$_SESSION['akt_sql_order'];
+                $query = mysqli_query($db_kapcs, $sql);
 
+                // Nagyobb CSV-kre kérdezzünk rá előzetesen
+                $osszes_sor = mysqli_num_rows($query);
+//  Itt ilyet ne csináljunk, mert a csv_link_cserel_kattint 3 paraméterét nem tudom kimenteni
+//                if( !$_GET['mehet'] && $osszes_sor>CSV_EXPORT_LIMIT ) {
+//                    $gomb = '<input type="button" class="gomb zold" value="Igen" onclick="$(\'#navGombok .excel\').attr(\'onclick\', \'csv_general( this, \\\'\\\', \\\'&mehet=1\\\');\'); $(\'.navGombok a.excel\').click();"> <input type="button" class="gomb piros" value="Nem" onclick="alert2()">';
+//                    echo json_encode(array('hiba' => 'A CSV export több mint '.number_format(CSV_EXPORT_LIMIT, 0, '', ' ').' sort tartalmaz. Ennek előállítása hosszabb időbe telik majd.<br>Biztosan folytatja?', 'gomb' => $gomb));
+//                    $weblap -> leallit();
+//                    exit;
+//                } else {
+//                    $sql .= $_SESSION['akt_sql_order'];    
+//                }
                 $query      = mysqli_query($db_kapcs, $sql);
-// echo $sql;
                 $csvhead    = array();
                 while($fejlec_nevek = mysqli_fetch_field($query)){
                     $csvhead[] = iconv2($mibol, $mibe, $fejlec_nevek -> name );
@@ -1431,8 +1435,13 @@ if( isset($_GET['csv']) ) {
 
                     fputcsv($open, $csvcont, ';');
 
-                    // 100 soronként kiírtatunk
-                    if ($i % 100 == 0) {
+                    // 1000 soronként kiíratunk
+                    if( $i % 1000 == 0 && $i > 0 ) {
+                        // Progress
+                        echo json_encode(array('pr' => number_format(($i / $osszes_sor) * 100, 0, '', ''))).PHP_EOL;
+
+                        // Felszabadítás
+                        ob_flush();
                         flush();
                     }
 
@@ -1507,7 +1516,19 @@ if( isset($_GET['csv']) ) {
                             `'.get_db_tabla().$megnevezes.'`.`let_fel` as \'Felelős\',
                             `'.get_db_tabla().$megnevezes.'`.`kolt_vis` as \'Költségviselő\'
                             '.$lekerdezes_fromtol.$_SESSION['akt_sql_order'];
+                $query = mysqli_query($db_kapcs, $sql);
 
+                // Nagyobb CSV-kre kérdezzünk rá előzetesen
+                $osszes_sor = mysqli_num_rows($query);
+//  Itt ilyet ne csináljunk, mert a csv_link_cserel_kattint 3 paraméterét nem tudom kimenteni
+//                if( !$_GET['mehet'] && $osszes_sor>CSV_EXPORT_LIMIT ) {
+//                    $gomb = '<input type="button" class="gomb zold" value="Igen" onclick="$(\'#navGombok .excel\').attr(\'onclick\', \'csv_general( this, \\\'\\\', \\\'&mehet=1\\\');\'); $(\'.navGombok a.excel\').click();"> <input type="button" class="gomb piros" value="Nem" onclick="alert2()">';
+//                    echo json_encode(array('hiba' => 'A CSV export több mint '.number_format(CSV_EXPORT_LIMIT, 0, '', ' ').' sort tartalmaz. Ennek előállítása hosszabb időbe telik majd.<br>Biztosan folytatja?', 'gomb' => $gomb));
+//                    $weblap -> leallit();
+//                    exit;
+//                } else {
+//                    $sql .= $_SESSION['akt_sql_order'];    
+//                }
                 $query      = mysqli_query($db_kapcs, $sql);
 
                 $csvhead    = array();
@@ -1557,8 +1578,13 @@ if( isset($_GET['csv']) ) {
 
                     fputcsv($open, $csvcont, ';');
 
-                    // 100 soronként kiírtatunk
-                    if ($i % 100 == 0) {
+                    // 1000 soronként kiíratunk
+                    if( $i % 1000 == 0 && $i > 0 ) {
+                        // Progress
+                        echo json_encode(array('pr' => number_format(($i / $osszes_sor) * 100, 0, '', ''))).PHP_EOL;
+
+                        // Felszabadítás
+                        ob_flush();
                         flush();
                     }
 
@@ -1568,18 +1594,16 @@ if( isset($_GET['csv']) ) {
             }
 
         }
+        // Progress
+        echo json_encode(array('pr' => '100')).PHP_EOL;
+        
+        // Felszabadítás
+        ob_flush();
+        flush();
 
     }
 
-    // Get the contents of the output buffer
-    $string = ob_get_clean();
-    fclose($fh);
-
-    // Stream the CSV data
-    exit($string);
-
-    $weblap->leallit();
-    exit();
+    csv_export_lezar($fh, $filename, $csv_neve);
 }
 
 

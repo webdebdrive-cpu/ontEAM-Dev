@@ -29,7 +29,7 @@ $szamla_html = '';
 
 // Dokumentumok fülhöz kell majd
 $tobb_kep = true;
-if($tobb_kep){
+if( $tobb_kep ) {
     function get_tobbkep_darab()    { return 10;        } // Maximum hány kép tallózható be
     function get_tobbkep_csakkep()  { return '';        } // Milyen kiterjesztéseket engedünk meg (ha mindenet, legyen üres)
     function get_tobbkep_kepmeret() { return 10;        } // MB-ban
@@ -44,9 +44,9 @@ if($tobb_kep){
 // Engedély dátum megadása
 if ($_POST['engedelyDatum']) {
 
-    //Dátumok ellenőrzése
-    if($_POST['kezdet']!='0000-00-00'){
-        if(!valos_datum_e($_POST['kezdet'])){
+    // Dátumok ellenőrzése
+    if( $_POST['kezdet'] != '0000-00-00' ) {
+        if( !valos_datum_e($_POST['kezdet']) ) {
             echo json_encode(array(
                 'hiba' => 'Érvénytelen hatályba lépés dátumot adott meg!',
                 'gomb' => '<input class="link gomb" value="Ok" onclick="alert2(); $(\'#esz_eng_kezdet\').focus();" type="button">'
@@ -56,8 +56,8 @@ if ($_POST['engedelyDatum']) {
             exit();
         }
     }
-    if($_POST['veg']!='0000-00-00'){
-        if(!valos_datum_e($_POST['veg'])){
+    if( $_POST['veg'] != '0000-00-00' ) {
+        if( !valos_datum_e($_POST['veg']) ) {
             echo json_encode(array(
                 'hiba' => 'Érvénytelen hatályosság lejártát dátumot adott meg!',
                 'gomb' => '<input class="link gomb" value="Ok" onclick="alert2(); $(\'#esz_eng_veg\').focus();" type="button">'
@@ -68,8 +68,8 @@ if ($_POST['engedelyDatum']) {
         }
     }
 
-    if($_POST['kezdet']!='0000-00-00' && $_POST['veg']!='0000-00-00'){
-        if($_POST['kezdet']>$_POST['veg']){
+    if( $_POST['kezdet'] != '0000-00-00' && $_POST['veg'] != '0000-00-00' ) {
+        if( $_POST['kezdet'] > $_POST['veg'] ) {
             echo json_encode(array(
                 'hiba' => 'A kezdődátum nem lehet későbbi a végdátumtól!',
                 'gomb' => '<input class="link gomb" value="Ok" onclick="alert2(); $(\'#esz_eng_kezdet\').focus();" type="button">'
@@ -137,9 +137,9 @@ if( isset($_GET['csv']) ) {
 
     // CSV export előkészítése
     list($mibol, $mibe, $filename, $open) = csv_export_elokeszit($megnevezes);
-    if($open){
-        
-        // Fejléc bellítása
+    if( $open ) {
+
+        // Fejléc beállítása
         $csvhead    = array();
         array_push($csvhead, iconv2($mibol, $mibe, 'Szálloda'));
         array_push($csvhead, iconv2($mibol, $mibe, 'Szint'));
@@ -156,23 +156,24 @@ if( isset($_GET['csv']) ) {
         }
         
         // Számoljuk meg, hogy hány sorunk van összesen
-        $osszes_sor = 0;
-        $szallodak = $adatbazis_kapcsolat->s('id nev', 'telephely', $where, 'nev');
-        foreach ( $szallodak as $szalloda ) {
-            $szintek = $adatbazis_kapcsolat->s('recid nev', 'obj', "`szulo`='0' AND `telephely_id`='{$szalloda['id']}'", 'sor');
-            foreach ( $szintek as $szint ) {
-                $objektumok = $adatbazis_kapcsolat->s('recid nev', 'obj', "`szulo`='{$szint['recid']}'", 'sor');
-                foreach ( $objektumok as $obj ) {
-                    $eszkozok = $adatbazis_kapcsolat->s('nev', 'eszkozkezeles', "`telephely_id`='{$szalloda['id']}' AND `obj_id`='{$obj['recid']}'", 'nev');
-                    foreach ( $eszkozok as $eszkoz ) {
-                        $osszes_sor++;
-                    }
-                }
-            }
-        }
-
+//        $osszes_sor = 0;
+//        $szallodak = $adatbazis_kapcsolat->s('id nev', 'telephely', $where, 'nev');
+//        foreach ( $szallodak as $szalloda ) {
+//            $szintek = $adatbazis_kapcsolat->s('recid nev', 'obj', "`szulo`='0' AND `telephely_id`='{$szalloda['id']}'", 'sor');
+//            foreach ( $szintek as $szint ) {
+//                $objektumok = $adatbazis_kapcsolat->s('recid nev', 'obj', "`szulo`='{$szint['recid']}'", 'sor');
+//                foreach ( $objektumok as $obj ) {
+//                    $eszkozok = $adatbazis_kapcsolat->s('nev', 'eszkozkezeles', "`telephely_id`='{$szalloda['id']}' AND `obj_id`='{$obj['recid']}'", 'nev');
+//                    foreach ( $eszkozok as $eszkoz ) {
+//                        $osszes_sor++;
+//                    }
+//                }
+//            }
+//        }
+        
         $i = 0;
         $szallodak = $adatbazis_kapcsolat->s('id nev', 'telephely', $where, 'nev');
+        $osszes_sor = count($szallodak);
         foreach ( $szallodak as $szalloda ) {
 
             // Szálloda felvétele CSV-be
@@ -211,33 +212,14 @@ if( isset($_GET['csv']) ) {
                         fputcsv($open, $csvcont, ';');
                         
                     }
-                    // 100 soronként kiíratunk
-                    if( $i % 1000 == 0 && $i > 0 ) {
-                        // Progress
-                        echo json_encode(array('pr' => number_format(($i / $osszes_sor) * 100, 0, '', ''))).PHP_EOL;
-
-                        // Felszabadítás
-                        ob_flush();
-                        flush();
-                    }
-                    $i++;
+                    
                 }
-                // 100 soronként kiíratunk
-                if( $i % 1000 == 0 && $i > 0 ) {
-                    // Progress
-                    echo json_encode(array('pr' => number_format(($i / $osszes_sor) * 100, 0, '', ''))).PHP_EOL;
-
-                    // Felszabadítás
-                    ob_flush();
-                    flush();
-                }
-                $i++;
             }
-            // 100 soronként kiíratunk
-            if( $i % 1000 == 0 && $i > 0 ) {
+            // Szállodánként kiíratunk
+            if( $i > 0 ) {
                 // Progress
                 echo json_encode(array('pr' => number_format(($i / $osszes_sor) * 100, 0, '', ''))).PHP_EOL;
-                
+
                 // Felszabadítás
                 ob_flush();
                 flush();
@@ -254,7 +236,7 @@ if( isset($_GET['csv']) ) {
 
     }
 
-    csv_export_lezar($fh, $filename);
+    csv_export_lezar($fh, $filename, 'Eszközkezelés');
 }
 
 

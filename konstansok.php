@@ -398,7 +398,8 @@ define('MLTIPUS_ESETI_FENNT',   5);
 // Limit értékek
 define('ARCHIV_NAVPANEL_LIMIT', 1000);
 define('SZURES_DB_LIMIT',       1000);
-define('CSV_EXPORT_LIMIT',      30000);
+// define('CSV_EXPORT_LIMIT',      30000);
+define('CSV_EXPORT_LIMIT',      1);
 
 
 // Fűtőértékkel kapcsolatos konstansok

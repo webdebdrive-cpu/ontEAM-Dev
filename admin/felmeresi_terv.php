@@ -52,7 +52,7 @@ if (isset($_POST['bal_panel_frissit'])) {
 }
 
 // Foglalt azonosító ellenőrzése
-if ($_POST['azon_ell']) {
+if( $_POST['azon_ell'] ) {
 
     $_POST['azon'] = trim($_POST['azon']);
     if($_POST['azon']){
@@ -77,73 +77,37 @@ if ($_POST['azon_ell']) {
 }
 
 // CSV generálása
-if (isset($_GET['csv'])) {
+if( isset($_GET['csv']) ) {
 
-    $mibol   = get_web_charset();
-    $mibe    = 'windows-1250';
-
-    if( !is_dir('export') ) {
-        mkdir('export');
-    }
-
-    if( !is_dir('export/csv') ) {
-        mkdir('export/csv');
-    }
-
-    // Régi fájlok törlése
-    $utvonal = 'export/csv/';
-    $fajlok = konyvtar_bejar($utvonal);
-    foreach($fajlok as $fajl){
-        if(filemtime($fajl)<(time()-60*60)){
-            unlink($fajl);
-        }
-    }
-
-    $fajlnev = $utvonal.'csv'.time().'.csv';
-    $open = fopen($fajlnev,'a');
-    fwrite($open, "sep=;\n");
-    if($open){
-
-        $lekerdezes_fromtol = substr($_SESSION['akt_sql'], strpos($_SESSION['akt_sql'], 'FROM'));
-
-        // Eredetileg csak a bal navpanelben is megjelenő sorokat listázzuk ki (cél, hogy illetéktelen sorokhoz ne lehessen hozzáférni).
-        // Viszont ha érvényben volna az alapértelmezett LIMIT az aktuális SQL-ben, akkor ezt az ID ellenőrzést mégsem tesszük meg,
-        // hisz minden sort ki szeretnénk írtani. De ha a bámrilyen más LIMIT szerepel benne, akkor meg a CSV-ben is a limitált mennyiséget szeretnénk látni.
-        if( $_SESSION['nyomtatas_ids'] && strpos( $_SESSION['akt_sql'], 'LIMIT '.SZURES_DB_LIMIT )===false ) {
-            if( strstr($_SESSION['akt_sql'], 'WHERE') ) {
-                $lekerdezes_fromtol = str_replace('WHERE', "WHERE `".get_db_tabla().$megnevezes."`.`recid` IN (".$_SESSION['nyomtatas_ids'].") AND ", $lekerdezes_fromtol);
-            } else {
-                $lekerdezes_fromtol = str_replace('ORDER', "WHERE `".get_db_tabla().$megnevezes."`.`recid` IN (".$_SESSION['nyomtatas_ids'].") ORDER", $lekerdezes_fromtol);
-            }
-        }
-        
-        // Ha van $_SESSION['akt_sql_order'], akkor eszerint rendezünk, tehát a $lekerdezes_fromtol-t elvágjuk az Order-nél
-        if( $_SESSION['akt_sql_order'] ){
-            $hossz = strpos($lekerdezes_fromtol, 'ORDER');
-            if( $hossz ) {
-                $lekerdezes_fromtol = substr($lekerdezes_fromtol, 0, $hossz);
-            } else {
-                $lekerdezes_fromtol = substr($lekerdezes_fromtol, 0);
-            }
-        }
-        // Ha nincs FROM rész, akkor azt még beletesszük
-        if( !$lekerdezes_fromtol ) {
-            $lekerdezes_fromtol = ' FROM `'.get_db_tabla().$megnevezes.'` ';
-        }
+    // CSV export előkészítése
+    list($mibol, $mibe, $filename, $open) = csv_export_elokeszit($megnevezes);
+    if( $open ) {
 
         $sql = 'SELECT
                 `'.get_db_tabla().$megnevezes.'`.`nev` as \'Név\'
-                '.$lekerdezes_fromtol.$_SESSION['akt_sql_order'];
+                '. csv_export_get_from_tol($megnevezes);
+        $query = mysqli_query($db_kapcs, $sql);
+
+        // Nagyobb CSV-kre kérdezzünk rá előzetesen
+        $osszes_sor = mysqli_num_rows($query);
+        if( !$_GET['mehet'] && $osszes_sor>CSV_EXPORT_LIMIT ) {
+            $gomb = '<input type="button" class="gomb zold" value="Igen" onclick="$(\'#navGombok .excel\').attr(\'onclick\', \'csv_general( this, \\\'\\\', \\\'&mehet=1\\\');\'); $(\'.navGombok a.excel\').click();"> <input type="button" class="gomb piros" value="Nem" onclick="alert2()">';
+            echo json_encode(array('hiba' => 'A CSV export több mint '.number_format(CSV_EXPORT_LIMIT, 0, '', ' ').' sort tartalmaz. Ennek előállítása hosszabb időbe telik majd.<br>Biztosan folytatja?', 'gomb' => $gomb));
+            $weblap -> leallit();
+            exit;
+        } else {
+            $sql .= $_SESSION['akt_sql_order'];    
+        }
+        
 
         $query      = mysqli_query($db_kapcs, $sql);
-
         $csvhead    = array();
-        while($fejlec_nevek = mysqli_fetch_field($query)){
+        while ( $fejlec_nevek = mysqli_fetch_field($query) ) {
             $csvhead[] = iconv2($mibol, $mibe, $fejlec_nevek -> name );
         }
         fputcsv($open, $csvhead, ';');
 
-        while( $sorok = mysqli_fetch_assoc($query) ){
+        while ( $sorok = mysqli_fetch_assoc($query) ) {
             $csvcont = array();
             foreach( $sorok as $kulcs => $sor ) {
                 if($kulcs=='Szálloda'){
@@ -172,20 +136,30 @@ if (isset($_GET['csv'])) {
                 }
                 $csvcont[] = iconv($mibol, $mibe.'//TRANSLIT', strip_tags( $sor ) );
             }
+            
             fputcsv($open, $csvcont, ';');
+            
+            // 1000 soronként kiíratunk
+            if( $i % 1000 == 0 && $i > 0 ) {
+                // Progress
+                echo json_encode(array('pr' => number_format(($i / $osszes_sor) * 100, 0, '', ''))).PHP_EOL;
+                
+                // Felszabadítás
+                ob_flush();
+                flush();
+            }
+
+            $i++;
         }
+        // Progress
+        echo json_encode(array('pr' => '100')).PHP_EOL;
+        
+        // Felszabadítás
+        ob_flush();
+        flush();
     }
-    fclose($open);
-
-    header("Content-type: text/csv");
-    header("Content-Disposition: attachment; filename=$megnevezes.csv");
-    header("Pragma: no-cache");
-    header("Expires: 0");
-
-    echo fajlbol_olvas($fajlnev);
-
-    $weblap->leallit();
-    exit();
+    
+    csv_export_lezar($fh, $filename, 'Felmérési terv');
 }
 
 // Felmérési terv fájl létezik-e?

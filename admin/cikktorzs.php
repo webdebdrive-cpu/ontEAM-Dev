@@ -54,7 +54,7 @@ if( isset($_GET['csv']) ) {
 
         if( !$_GET['mehet'] && $osszes_sor>CSV_EXPORT_LIMIT ) {
             $gomb = '<input type="button" class="gomb zold" value="Igen" onclick="$(\'#navGombok .excel\').attr(\'onclick\', \'csv_general( this, \\\'\\\', \\\'&mehet=1\\\');\'); $(\'.navGombok a.excel\').click();"> <input type="button" class="gomb piros" value="Nem" onclick="alert2()">';
-            echo json_encode(array('hiba' => 'A CSV export több mint '.CSV_EXPORT_LIMIT.' sort tartalmaz. Ennek előállítása hosszabb időbe telik majd.<br>Biztosan folytatja?', 'gomb' => $gomb));
+            echo json_encode(array('hiba' => 'A CSV export több mint '.number_format(CSV_EXPORT_LIMIT, 0, '', ' ').' sort tartalmaz. Ennek előállítása hosszabb időbe telik majd.<br>Biztosan folytatja?', 'gomb' => $gomb));
             $weblap -> leallit();
             exit;
         } else {
@@ -94,7 +94,7 @@ if( isset($_GET['csv']) ) {
 
             fputcsv($open, $csvcont, ';');
 
-            // 100 soronként kiíratunk
+            // 1000 soronként kiíratunk
             if( $i % 1000 == 0 && $i > 0 ) {
                 // Progress
                 echo json_encode(array('pr' => number_format(($i / $osszes_sor) * 100, 0, '', ''))).PHP_EOL;

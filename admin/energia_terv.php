@@ -295,7 +295,7 @@ if (isset($_POST['terv_keszit'])) {
 
         }
 
-    }else{
+    } else {
 
         // Új terv létrehozása
         $uj_id = $adatbazis_kapcsolat->i('energia_terv',
@@ -380,7 +380,7 @@ if (isset($_POST['terv_elesites'])) {
             ));
             $weblap->leallit();
             exit();
-        }else{
+        } else {
             echo json_encode(array(
                 'hiba'  => 'A következő egységár terv élesítésére készül:<br><br>Tervező év: '.$energia_terv['ev'].'<br>Tervszám: '.$energia_terv['ikt_szam'].'<br><br>Folytatja?',
                 'gomb'  => '<input type="button" class="gomb zold" value="Igen" onclick="terv_elesites(\'mehet\')"><input type="button" class="gomb piros" value="Nem" onclick="alert2()">',
@@ -704,7 +704,7 @@ if (isset($_POST['uj_egysegar'])) {
         if( $uj_egysegar_recid === false ) { $db_error = true; }
 
     // Ha nem kaptunk szállodát csak egységárrecid-t, akkor meg azok szállodáival hozzuk létre az új sort
-    }else{
+    } else {
         $energia_terv = $adatbazis_kapcsolat->s2('recid telephely_idk dijelem', 'energia_terv_ear', "`recid`='{$egysegar_recid}'");
         if( $energia_terv === false ) { $db_error = true; }
 
@@ -888,33 +888,15 @@ if (isset($_POST['energiaterv_veglegesit'])) {
 }
 
 // CSV generálása
-if (isset($_GET['csv'])) {
+if( isset($_GET['csv']) ) {
 
-    if (isset($_GET['egysegarak'])) {
-        $megnevezes .= '_egysegarak';
+    $csv_neve = 'Energia-tervek';
+    if( isset($_GET['egysegarak']) ) {
+        $csv_neve = 'Energia-egységárak';
     }
-
-    header("Content-type: text/csv");
-    header("Content-Disposition: attachment; filename=$megnevezes.csv");
-    header("Pragma: no-cache");
-    header("Expires: 0");
-
-    $mibol   = get_web_charset();
-    $mibe    = 'windows-1250';
-
-    if( !is_dir('export') ) {
-        mkdir('export');
-    }
-
-    if( !is_dir('export/csv') ) {
-        mkdir('export/csv');
-    }
-
-    // Open the output stream
-    $open = fopen('php://output', 'w');
-    fwrite($open, "sep=;\n");
-    ob_start();
-
+    
+    // CSV export előkészítése
+    list($mibol, $mibe, $filename, $open) = csv_export_elokeszit($megnevezes);
     if( $open ) {
 
         $lekerdezes_fromtol = substr($_SESSION['akt_sql'], strpos($_SESSION['akt_sql'], 'FROM'));
@@ -925,7 +907,7 @@ if (isset($_GET['csv'])) {
         if( $_SESSION['nyomtatas_ids'] && strpos( $_SESSION['akt_sql'], 'LIMIT '.SZURES_DB_LIMIT )===false ) {
 
             // Energia egységár exportja
-            if (isset($_GET['egysegarak'])) {
+            if( isset($_GET['egysegarak']) ) {
 
                 $sql = 'SELECT
                             `telephely_idk` as \'Szállodák\',
@@ -970,11 +952,11 @@ if (isset($_GET['csv'])) {
                             `dnem12` as \'Devizanem December\',
                             `arf12` as \'Árfolyam December\'
 
-                            FROM `'.get_db_tabla().'energia_terv_ear` WHERE `energia_terv_id`=\''.$_GET['id'].'\'
+                            FROM `'.get_db_tabla().'energia_terv_ear` WHERE `energia_terv_id`=\''.$_POST['id'].'\'
                             ';
                 $query      = mysqli_query($db_kapcs, $sql);
 
-                $eterv_sor = $adatbazis_kapcsolat->s2('ikt_szam ev stat_id', 'energia_terv', "`recid`='{$_GET['id']}'");
+                $eterv_sor = $adatbazis_kapcsolat->s2('ikt_szam ev stat_id', 'energia_terv', "`recid`='{$_POST['id']}'");
 
                 // CSV első sora évszám, tervszám (ha van), státusz
                 $csvhead    = array();
@@ -984,41 +966,41 @@ if (isset($_GET['csv'])) {
                 fputcsv($open, $csvhead, ';');
 
                 $csvhead    = array();
-                while($fejlec_nevek = mysqli_fetch_field($query)){
+                while ( $fejlec_nevek = mysqli_fetch_field($query) ) {
                     $csvhead[] = iconv2($mibol, $mibe, $fejlec_nevek -> name );
                 }
                 fputcsv($open, $csvhead, ';');
 
                 $i = 0;
-                while( $sorok = mysqli_fetch_assoc($query) ){
+                while ( $sorok = mysqli_fetch_assoc($query) ) {
 
                     $csvcont = array();
                     $oszlop_i = 0;
                     foreach( $sorok as $kulcs => $sor ) {
-                        if($kulcs=='Szállodák'){
+                        if( $kulcs == 'Szállodák' ) {
                             $telepehely_nevek = array();
                             $telephely_idk = explode(',', $sor);
-                            foreach($telephely_idk as $t_id){
+                            foreach ( $telephely_idk as $t_id ) {
                                 array_push($telepehely_nevek, getSzallodaNev($t_id));
                             }
                             sort($telepehely_nevek);
                             $sor = implode(', ', $telepehely_nevek);
                         }
-                        if($kulcs=='Költségnem név'){
+                        if( $kulcs == 'Költségnem név' ) {
                             $sor = getErtek('nev', 'ktgnem', 'id', $sor);
                         }
-                        if( strpos($kulcs, 'Devizanem')!==false ){
+                        if( strpos($kulcs, 'Devizanem') !== false ) {
                             $sor = getErtekLista(ERTEKLISTA_PENZNEM, $sor);
                         }
                         
                         // Ha már a 4. oszlopnál járunk, akkor csak számok jönnek, azokban cseréljük le a pontot vesszőre
-                        if($oszlop_i>4){
+                        if( $oszlop_i > 4 ) {
                             $sor = str_replace('.', ',', $sor);
                         }
                         
                         // Lehet nem volna elég 1-szer sőt kétszer sem ráereszteni a htmlspecialchars_decode-ot
                         $sor = htmlspecialchars_decode( $sor );
-                        while(strpos($sor, '&amp;')!==false || strpos($sor, '&quot;')!==false ){
+                        while ( strpos($sor, '&amp;') !== false || strpos($sor, '&quot;') !== false ) {
                             $sor = htmlspecialchars_decode( $sor );
                         }
                         $csvcont[] = iconv($mibol, $mibe.'//TRANSLIT', strip_tags( $sor ) );
@@ -1028,8 +1010,13 @@ if (isset($_GET['csv'])) {
 
                     fputcsv($open, $csvcont, ';');
 
-                    //100 soronként kiírtatunk
-                    if ($i % 100 == 0) {
+                    // 1000 soronként kiíratunk
+                    if( $i % 1000 == 0 && $i > 0 ) {
+                        // Progress
+                        echo json_encode(array('pr' => number_format(($i / $osszes_sor) * 100, 0, '', ''))).PHP_EOL;
+
+                        // Felszabadítás
+                        ob_flush();
                         flush();
                     }
 
@@ -1037,7 +1024,7 @@ if (isset($_GET['csv'])) {
                 }
 
             // Energia terv exportja
-            }else{
+            } else {
 
                 if( strstr($_SESSION['akt_sql'], 'WHERE') ) {
                     $lekerdezes_fromtol = str_replace('WHERE', "WHERE `recid` IN (".$_SESSION['nyomtatas_ids'].") AND ", $lekerdezes_fromtol);
@@ -1050,7 +1037,7 @@ if (isset($_GET['csv'])) {
                     $hossz = strpos($lekerdezes_fromtol, 'ORDER');
                     if( $hossz ) {
                         $lekerdezes_fromtol = substr($lekerdezes_fromtol, 0, $hossz);
-                    }else{
+                    } else {
                         $lekerdezes_fromtol = substr($lekerdezes_fromtol, 0);
                     }
                 }
@@ -1068,17 +1055,30 @@ if (isset($_GET['csv'])) {
                             `megj_db` as \'Megjegyzések\',
                             `insert_dt` as \'Energia terv dátuma\'
                             '.$lekerdezes_fromtol.$_SESSION['akt_sql_order'];
+                $query = mysqli_query($db_kapcs, $sql);
 
+                // Nagyobb CSV-kre kérdezzünk rá előzetesen
+                $osszes_sor = mysqli_num_rows($query);
+//  Itt ilyet ne csináljunk, mert a csv_link_cserel_kattint 3 paraméterét nem tudom kimenteni
+//                if( !$_GET['mehet'] && $osszes_sor>CSV_EXPORT_LIMIT ) {
+//                    $gomb = '<input type="button" class="gomb zold" value="Igen" onclick="$(\'#navGombok .excel\').attr(\'onclick\', \'csv_general( this, \\\'\\\', \\\'&mehet=1\\\');\'); $(\'.navGombok a.excel\').click();"> <input type="button" class="gomb piros" value="Nem" onclick="alert2()">';
+//                    echo json_encode(array('hiba' => 'A CSV export több mint '.number_format(CSV_EXPORT_LIMIT, 0, '', ' ').' sort tartalmaz. Ennek előállítása hosszabb időbe telik majd.<br>Biztosan folytatja?', 'gomb' => $gomb));
+//                    $weblap -> leallit();
+//                    exit;
+//                } else {
+//                    $sql .= $_SESSION['akt_sql_order'];    
+//                }
+                
                 $query      = mysqli_query($db_kapcs, $sql);
 
                 $csvhead    = array();
-                while($fejlec_nevek = mysqli_fetch_field($query)){
+                while ( $fejlec_nevek = mysqli_fetch_field($query) ) {
                     $csvhead[] = iconv2($mibol, $mibe, $fejlec_nevek -> name );
                 }
                 fputcsv($open, $csvhead, ';');
 
                 $i = 0;
-                while( $sorok = mysqli_fetch_assoc($query) ){
+                while ( $sorok = mysqli_fetch_assoc($query) ) {
 
                     $csvcont = array();
                     foreach( $sorok as $kulcs => $sor ) {
@@ -1093,8 +1093,13 @@ if (isset($_GET['csv'])) {
 
                     fputcsv($open, $csvcont, ';');
 
-                    // 100 soronként kiírtatunk
-                    if ($i % 100 == 0) {
+                    // 1000 soronként kiíratunk
+                    if( $i % 1000 == 0 && $i > 0 ) {
+                        // Progress
+                        echo json_encode(array('pr' => number_format(($i / $osszes_sor) * 100, 0, '', ''))).PHP_EOL;
+
+                        // Felszabadítás
+                        ob_flush();
                         flush();
                     }
 
@@ -1102,20 +1107,18 @@ if (isset($_GET['csv'])) {
                 }
 
             }
-
+            
         }
 
+        // Progress
+        echo json_encode(array('pr' => '100')).PHP_EOL;
+
+        // Felszabadítás
+        ob_flush();
+        flush();
     }
 
-    // Get the contents of the output buffer
-    $string = ob_get_clean();
-    fclose($fh);
-
-    // Stream the CSV data
-    exit($string);
-
-    $weblap->leallit();
-    exit();
+    csv_export_lezar($fh, $filename, $csv_neve);
 }
 
 // Tartalom
@@ -1204,7 +1207,7 @@ require_once('selectek.php');
             $gombok .= ' <input type="button" id="recordTorol" class="gombb_alert dn" onclick="alert2(\'Nincs jogosultsága '.$szoveg.' törölni!\', \'\', \'Hiba\')" value="Töröl" title="Töröl">';
         }elseif( $sor['stat_id']!=ENERGIATERV_STAT_MUNKAKOZI ){
             $gombok .= ' <input type="button" id="recordTorol" class="gombb_alert dn" onclick="alert2(\'Az energia terv státusza nem munkaközi, így nem törölhető!\', \'\', \'Hiba\')" value="Töröl" title="Töröl">';
-        }else{
+        } else {
             $gombok .= ' <input type="button" id="recordTorol" class="gombb_alert dn" onclick="alert2(\'A következő egységár terv törlésére készül:<br><br>Tervező év: '.$sor['ev'].'<br><br>Biztos, hogy törli?\', gomb'.$_GET['id'].')" value="Töröl" title="Töröl">';
         }
 
@@ -1221,7 +1224,7 @@ require_once('selectek.php');
                     $gombok .= '<input type="button" class="gomb modositaskor_rejt" value="Sor törlése" onclick="egysegar_sor_torol()"> ';
                     $gombok .= '<input type="button" class="gomb modositaskor_rejt" value="Véglegesítés" onclick="energiaterv_veglegesit()"> ';
                 // Tervek fül
-                }else{
+                } else {
                     $gombok .= '<input type="button" class="gomb modositaskor_rejt" value="Véglegesítés" onclick="energiaterv_veglegesit()"> ';
                 }
 
@@ -1254,7 +1257,7 @@ require_once('selectek.php');
         ');
 
     // Ha nem éles a terv, akkor törlésnél jelezzük ezt
-    }else{
+    } else {
         $gombok .= ' <input type="button" id="recordTorol" class="gombb_alert dn" onclick="alert2(\'Az energia terv már éles, így nem törölhető!\', \'\', \'Hiba\')" value="Töröl" title="Töröl">';
     }
 
@@ -1326,7 +1329,7 @@ require_once('selectek.php');
                 if($tomb['csoport']){
                     $kulso_ertek = $adatbazis_kapcsolat->s2('info', $tomb['tabla'], "`{$tomb['oszlop_keres']}`='{$sor[$tomb['name']]}' AND `csoport`='{$tomb['csoport']}'", '', '1');
                     $kulso_ertek['nev'] = $kulso_ertek['info'];
-                }else{
+                } else {
                     $kulso_ertek = $adatbazis_kapcsolat->s2('recid nev', $tomb['tabla'], "`{$tomb['oszlop_keres']}`='{$sor[$tomb['name']]}'", '', '1');
                 }
 
@@ -1455,7 +1458,7 @@ require_once('selectek.php');
                 if($futoertekes_sor){
                     $egysegar['arf'.$sorszam]  = '';
                     $egysegar['dnem'.$sorszam] = '';
-                }else{
+                } else {
                     $egysegar['arf'.$sorszam] = number_format($egysegar['arf'.$sorszam], 5, ',', ' ');
                     $egysegar['ear'.$sorszam] = number_format($egysegar['ear'.$sorszam], 3, ',', ' ');
                 }
@@ -1632,14 +1635,14 @@ function szalloda_koltsnem_dijelem_azonos($terv_id, $telephely_idk, $ktgnem_id, 
     if($ear_id){
         $van_egyezes = $adatbazis_kapcsolat->s('recid', 'energia_terv_ear', "`recid`!='{$ear_id}' AND `energia_terv_id`='{$terv_id}' AND `telephely_idk` LIKE '%{$telephely_idk}%' AND `ktgnem_id`='{$ktgnem_id}' AND `dijelem`='{$dijelem}'");
         if($van_egyezes===false){ return false; }
-    }else{
+    } else {
         $van_egyezes = $adatbazis_kapcsolat->s('recid', 'energia_terv_ear', "`energia_terv_id`='{$terv_id}' AND `telephely_idk` LIKE '%{$telephely_idk}%' AND `ktgnem_id`='{$ktgnem_id}' AND `dijelem`='{$dijelem}'");
         if($van_egyezes===false){ return false; }
     }
 
     if( $telephely_idk && $ktgnem_id && $dijelem && $van_egyezes ){
         return 'Azonos díjelem megnevezések szálloda - költségnem összerendelésen belül!';
-    }else{
+    } else {
         return '';
     }
 

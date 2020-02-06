@@ -92,7 +92,7 @@ if( isset($_GET['csv']) ) {
                 $osszes_sor = mysqli_num_rows($query);
                 if( !$_GET['mehet'] && $osszes_sor>CSV_EXPORT_LIMIT ) {
                     $gomb = '<input type="button" class="gomb zold" value="Igen" onclick="$(\'#navGombok .excel\').attr(\'onclick\', \'csv_general( this, \\\'\\\', \\\'&mehet=1\\\');\'); $(\'.navGombok a.excel\').click();"> <input type="button" class="gomb piros" value="Nem" onclick="alert2()">';
-                    echo json_encode(array('hiba' => 'A CSV export több mint '.CSV_EXPORT_LIMIT.' sort tartalmaz. Ennek előállítása hosszabb időbe telik majd.<br>Biztosan folytatja?', 'gomb' => $gomb));
+                    echo json_encode(array('hiba' => 'A CSV export több mint '.number_format(CSV_EXPORT_LIMIT, 0, '', ' ').' sort tartalmaz. Ennek előállítása hosszabb időbe telik majd.<br>Biztosan folytatja?', 'gomb' => $gomb));
                     $weblap -> leallit();
                     exit;
                 } else {

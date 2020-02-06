@@ -69,42 +69,21 @@ if (isset($_POST['eloterj_visszanyit'])) {
 }
 
 // CSV generálása
-if (isset($_GET['csv'])) {
+if( isset($_GET['csv']) ) {
 
     require_once 'selectek.php';
     
-    $mibol   = get_web_charset();
-    $mibe    = 'windows-1250';
+    // CSV export előkészítése
+    list($mibol, $mibe, $filename, $open) = csv_export_elokeszit($megnevezes);
+    if( $open ) {
 
-    if( !is_dir('export') ) {
-        mkdir('export');
-    }
+        if( isset($_GET['projektigenyek']) ) {
 
-    if( !is_dir('export/csv') ) {
-        mkdir('export/csv');
-    }
-
-    //Régi fájlok törlése
-    $utvonal = 'export/csv/';
-    $fajlok = konyvtar_bejar($utvonal);
-    foreach($fajlok as $fajl){
-        if(filemtime($fajl)<(time()-60*60)){
-            unlink($fajl);
-        }
-    }
-
-    $fajlnev = $utvonal.'csv'.time().'.csv';
-    $open = fopen($fajlnev,'a');
-    fwrite($open, "sep=;\n");
-    if($open){
-
-        if( isset($_GET['projektigenyek']) ){
-            
-            $csv_fajl_neve = 'BoD_eloterjesztes_reszletei';
+            $csv_fajl_neve = 'BoD-előterjesztés-részletei';
             
             // Előterjesztés mezőit vegyük fel az exportba
             $csvcont = array();
-            $eloterjesztes = $adatbazis_kapcsolat->s2('*', 'eloterj_bod', "`recid`='{$_GET['id']}'");
+            $eloterjesztes = $adatbazis_kapcsolat->s2('*', 'eloterj_bod', "`recid`='{$_POST['id']}'");
             $csvcont[] = iconv($mibol, $mibe.'//TRANSLIT', 'Előterjesztés adatai:' );
             fputcsv($open, $csvcont, ';');
             
@@ -130,7 +109,7 @@ if (isset($_GET['csv'])) {
             
             $csvcont = array();
             $csvcont[] = iconv($mibol, $mibe.'//TRANSLIT', 'Összes költség:' );
-            $csvcont[] = iconv($mibol, $mibe.'//TRANSLIT', eloterjesztes_osszes_koltseg($_GET['id'], 'bod') );
+            $csvcont[] = iconv($mibol, $mibe.'//TRANSLIT', eloterjesztes_osszes_koltseg($_POST['id'], 'bod') );
             fputcsv($open, $csvcont, ';');
             
             $csvcont = array();
@@ -149,15 +128,17 @@ if (isset($_GET['csv'])) {
             $csvcont[] = iconv($mibol, $mibe.'//TRANSLIT', 'Becsült költség'    );
             fputcsv($open, $csvcont, ';');
             
-            $prigenyek = $adatbazis_kapcsolat->s('*', 'projektigenyles_eloterj', "`eloterj_bod_recid`='{$_GET['id']}'", 'insert_dt desc');
-            foreach($prigenyek as $igenyles){
+            $prigenyek = $adatbazis_kapcsolat->s('*', 'projektigenyles_eloterj', "`eloterj_bod_recid`='{$_POST['id']}'", 'insert_dt desc');
+            $osszes_sor = count($prigenyek);
+            $i = 0;
+            foreach ( $prigenyek as $igenyles ) {
 
-                foreach($select_pri_tipus as $tip){
-                    if($tip['value']==$igenyles['tipus']){
+                foreach ( $select_pri_tipus as $tip ) {
+                    if( $tip['value'] == $igenyles['tipus'] ) {
                         $tipus = $tip['name'];
                     }
                 }
-                if(!$igenyles['tipus']){
+                if( !$igenyles['tipus'] ) {
                     $tipus = '-';
                 }
 
@@ -169,41 +150,27 @@ if (isset($_GET['csv'])) {
                 $csvcont[] = iconv($mibol, $mibe.'//TRANSLIT', number_format($igenyles['bkolt'], 0, '', ' ').' '.get_penznem());
 
                 fputcsv($open, $csvcont, ';');
+                
+                // 1000 soronként kiíratunk
+                if( $i % 1000 == 0 && $i > 0 ) {
+                    // Progress
+                    echo json_encode(array('pr' => number_format(($i / $osszes_sor) * 100, 0, '', ''))).PHP_EOL;
 
+                    // Felszabadítás
+                    ob_flush();
+                    flush();
+                }
+
+                $i++;
             }
                 
 
         // Navpanel exportja
-        }else{
+        } else {
             
-            $csv_fajl_neve = $megnevezes;
+            $csv_fajl_neve = 'BoD-előterjesztés';
             
-            $lekerdezes_fromtol = substr($_SESSION['akt_sql'], strpos($_SESSION['akt_sql'], 'FROM'));
-
-            // Eredetileg csak a bal navpanelben is megjelenő sorokat listázzuk ki (cél, hogy illetéktelen sorokhoz ne lehessen hozzáférni).
-            // Viszont ha érvényben volna az alapértelmezett LIMIT az aktuális SQL-ben, akkor ezt az ID ellenőrzést mégsem tesszük meg,
-            // hisz minden sort ki szeretnénk írtani. De ha a bámrilyen más LIMIT szerepel benne, akkor meg a CSV-ben is a limitált mennyiséget szeretnénk látni.
-            if( $_SESSION['nyomtatas_ids'] && strpos( $_SESSION['akt_sql'], 'LIMIT '.SZURES_DB_LIMIT )===false ) {
-                if( strstr($_SESSION['akt_sql'], 'WHERE') ) {
-                    $lekerdezes_fromtol = str_replace('WHERE', "WHERE `".get_db_tabla().$megnevezes."`.`recid` IN (".$_SESSION['nyomtatas_ids'].") AND ", $lekerdezes_fromtol);
-                } else {
-                    $lekerdezes_fromtol = str_replace('ORDER', "WHERE  `".get_db_tabla().$megnevezes."`.`recid` IN (".$_SESSION['nyomtatas_ids'].") ORDER", $lekerdezes_fromtol);
-                }
-            }
-            
-            // Ha van $_SESSION['akt_sql_order'], akkor eszerint rendezünk, tehát a $lekerdezes_fromtol-t elvágjuk az Order-nél
-            if( $_SESSION['akt_sql_order'] ){
-                $hossz = strpos($lekerdezes_fromtol, 'ORDER');
-                if( $hossz ) {
-                    $lekerdezes_fromtol = substr($lekerdezes_fromtol, 0, $hossz);
-                }else{
-                    $lekerdezes_fromtol = substr($lekerdezes_fromtol, 0);
-                }
-            }
-            // Ha nincs FROM rész, akkor azt még beletesszük
-            if( !$lekerdezes_fromtol ) {
-                $lekerdezes_fromtol = ' FROM `'.get_db_tabla().$megnevezes.'` ';
-            }
+            $lekerdezes_fromtol = csv_export_get_from_tol($megnevezes);
 
             $sql = 'SELECT
                     `'.get_db_tabla().$megnevezes.'`.`stat_id` as \'Státusz\',
@@ -211,16 +178,28 @@ if (isset($_GET['csv'])) {
                     `'.get_db_tabla().$megnevezes.'`.`nev` as \'Név\',
                     `'.get_db_tabla().$megnevezes.'`.`ules_datum` as \'Ülés dátuma\'
                     '.$lekerdezes_fromtol.$_SESSION['akt_sql_order'];
+            $query = mysqli_query($db_kapcs, $sql);
 
+            // Nagyobb CSV-kre kérdezzünk rá előzetesen
+            $osszes_sor = mysqli_num_rows($query);
+//            if( !$_GET['mehet'] && $osszes_sor>CSV_EXPORT_LIMIT ) {
+//                $gomb = '<input type="button" class="gomb zold" value="Igen" onclick="$(\'#navGombok .excel\').attr(\'onclick\', \'csv_general( this, \\\'\\\', \\\'&mehet=1\\\');\'); $(\'.navGombok a.excel\').click();"> <input type="button" class="gomb piros" value="Nem" onclick="alert2()">';
+//                echo json_encode(array('hiba' => 'A CSV export több mint '.number_format(CSV_EXPORT_LIMIT, 0, '', ' ').' sort tartalmaz. Ennek előállítása hosszabb időbe telik majd.<br>Biztosan folytatja?', 'gomb' => $gomb));
+//                $weblap -> leallit();
+//                exit;
+//            } else {
+//                $sql .= $_SESSION['akt_sql_order'];    
+//            }
             $query      = mysqli_query($db_kapcs, $sql);
 
             $csvhead    = array();
-            while($fejlec_nevek = mysqli_fetch_field($query)){
+            while ( $fejlec_nevek = mysqli_fetch_field($query) ) {
                 $csvhead[] = iconv2($mibol, $mibe, $fejlec_nevek -> name );
             }
             fputcsv($open, $csvhead, ';');
 
-            while( $sorok = mysqli_fetch_assoc($query) ){
+            $i = 0;
+            while ( $sorok = mysqli_fetch_assoc($query) ) {
 
                 $csvcont = array();
                 foreach( $sorok as $kulcs => $sor ) {
@@ -237,22 +216,30 @@ if (isset($_GET['csv'])) {
                 }
 
                 fputcsv($open, $csvcont, ';');
+
+                // 1000 soronként kiíratunk
+                if( $i % 1000 == 0 && $i > 0 ) {
+                    // Progress
+                    echo json_encode(array('pr' => number_format(($i / $osszes_sor) * 100, 0, '', ''))).PHP_EOL;
+
+                    // Felszabadítás
+                    ob_flush();
+                    flush();
+                }
+
+                $i++;
             }
-            
         }
+        // Progress
+        echo json_encode(array('pr' => '100')).PHP_EOL;
+
+        // Felszabadítás
+        ob_flush();
+        flush();
 
     }
-    fclose($open);
-
-    header("Content-type: text/csv");
-    header("Content-Disposition: attachment; filename=$csv_fajl_neve.csv");
-    header("Pragma: no-cache");
-    header("Expires: 0");
-
-    echo fajlbol_olvas($fajlnev);
-
-    $weblap->leallit();
-    exit();
+    
+    csv_export_lezar($fh, $filename, $csv_fajl_neve);
 }
 
 
@@ -272,7 +259,7 @@ require_once('selectek.php');
 
 // Ülés mezőre fókuszálás
 $ulesre_fokuszalj = false;
-if(isset($_GET['modosit_ules'])){
+if( isset($_GET['modosit_ules']) ) {
     $_GET['modosit'] = 1;
     $ulesre_fokuszalj = true;
 }
@@ -282,13 +269,13 @@ if(isset($_GET['modosit_ules'])){
     }
 
     // Az adatlap adatait már a legelején lekérjük
-    if( $_GET['id'] ){
+    if( $_GET['id'] ) {
         $sor = $adatbazis_kapcsolat -> s2('*', $megnevezes, "`recid`='{$_GET['id']}'");
     }
-    if($sor['dok_db']){
+    if( $sor['dok_db'] ) {
         $dok_db  = ' ('.$sor['dok_db'].')';
     }
-    if($sor['megj_db']){
+    if( $sor['megj_db'] ) {
         $megj_db = ' ('.$sor['megj_db'].')';
     }
 
@@ -303,7 +290,7 @@ if(isset($_GET['modosit_ules'])){
         );
 
         $fulek = '';
-        foreach($ful_tomb as $key => $value) {
+        foreach ( $ful_tomb as $key => $value ) {
 
             $active = 'active';
             if( isset($_GET[$key]) ) {
@@ -351,16 +338,16 @@ if(isset($_GET['modosit_ules'])){
         // Js, a törlés gombhoz
         $gombok  = '<script>var gomb'.$_GET['id'].'= get_kibont_torol(\''.self().'\', \''.$torles.'\', \''.$_GET['id'].'\');</script>';
 
-        if(!_jog(JOG_ELOTERJ_KEZEL)){
+        if( !_jog(JOG_ELOTERJ_KEZEL) ) {
             $gombok .= ' <input type="button" id="recordTorol" class="gombb_alert dn" onclick="alert2(\'Önnek nincs joga előterjesztsét törölni!\', \'\', \'Hiba\')" value="Töröl" title="Töröl">';
-        }elseif($sor['stat_id']!=ELOT_BOD_STAT_NYITOTT){
+        } elseif( $sor['stat_id'] != ELOT_BOD_STAT_NYITOTT ) {
             $gombok .= ' <input type="button" id="recordTorol" class="gombb_alert dn" onclick="alert2(\'BoD előterjesztés csak nyitott státuszban törölhető!\', \'\', \'Hiba\')" value="Töröl" title="Töröl">';
-        }else{
+        } else {
             $gombok .= ' <input type="button" id="recordTorol" class="gombb_alert dn" onclick="alert2(\'Biztosan törli ezt a '.$szoveg.'?\', gomb'.$_GET['id'].')" value="Töröl" title="Töröl">';
         }
 
-        //Nyitott státuszban látható gombok
-        if($sor['stat_id']==ELOT_BOD_STAT_NYITOTT){
+        // Nyitott státuszban látható gombok
+        if( $sor['stat_id'] == ELOT_BOD_STAT_NYITOTT ) {
             $gombok .= '<input type="button" class="gomb modositaskor_rejt" value="Igénylés csatolása" title="Igénylés csatolása" onclick="csoportMuvelet(\'eloterj_igneyles_csatol\');"> ';
             $gombok .= '
                 <script>
@@ -389,7 +376,7 @@ if(isset($_GET['modosit_ules'])){
         }
 
         // Véglegesítve státuszban látható gombok
-        if($sor['stat_id']==ELOT_BOD_STAT_VEGLEGESITVE){
+        if( $sor['stat_id'] == ELOT_BOD_STAT_VEGLEGESITVE ) {
             $gombok .= '
                 <script>
                     visszanyit_gombok = \'<input type="button" class="gomb zold" value="Igen" onclick="eloterj_visszanyit()"><input type="button" class="gomb piros" value="Nem" onclick="alert2()">\';
@@ -416,7 +403,7 @@ if(isset($_GET['modosit_ules'])){
             $gombok .= '<input type="button" class="gomb modositaskor_rejt" value="Visszanyitás" title="Visszanyitás" onclick="alert2(\'Ha folytatja, az előterjesztés Nyitott státuszba kerül, a projekt igénylései előző státuszukba kerülnek.<br>Folytatja?\', visszanyit_gombok);"> ';
 
             // Projektigények fül alatt érhető csak el
-            if (isset($_GET['projektigeny'])) {
+            if( isset($_GET['projektigeny']) ) {
                 $gombok .= '<input type="button" class="gomb modositaskor_rejt" value="BoD döntés feldolgozása" title="BoD döntés feldolgozása" onclick="eloterj_dontes_feldolgoz()"> ';
                 $gombok .= '<input id="statusz_ment_gomb" type="button" class="gomb zold dn modositaskor_rejt" value="Státuszok mentése" title="Státuszok mentése" onclick="pri_eloterj_statusz_mod_mentes()"> ';
                 $gombok .= '<input type="button" class="gomb zold modositaskor_rejt" value="Státuszok rögzítése" title="Státuszok rögzítése" onclick="pri_eloterj_statusz_mod_mentes(\'rogzít\')"> ';
@@ -524,7 +511,7 @@ if(isset($_GET['modosit_ules'])){
                 if($tomb['csoport']){
                     $kulso_ertek = $adatbazis_kapcsolat->s2('info', $tomb['tabla'], "`{$tomb['oszlop_keres']}`='{$sor[$tomb['name']]}' AND `csoport`='{$tomb['csoport']}'", '', '1');
                     $kulso_ertek['nev'] = $kulso_ertek['info'];
-                }else{
+                } else {
                     $kulso_ertek = $adatbazis_kapcsolat->s2('recid nev', $tomb['tabla'], "`{$tomb['oszlop_keres']}`='{$sor[$tomb['name']]}'", '', '1');
                 }
 
