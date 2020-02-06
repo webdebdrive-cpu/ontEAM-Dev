@@ -37,33 +37,6 @@ if( isset($_GET['csv']) ) {
     // CSV export előkészítése
     list($mibol, $mibe, $filename, $open) = csv_export_elokeszit($megnevezes);
     if( $open ) {
-
-        $lekerdezes_fromtol = substr($_SESSION['akt_sql'], strpos($_SESSION['akt_sql'], 'FROM'));
-
-        // Eredetileg csak a bal navpanelben is megjelenő sorokat listázzuk ki (cél, hogy illetéktelen sorokhoz ne lehessen hozzáférni).
-        // Viszont ha érvényben volna egy LIMIT is az aktuális SQL-ben, akkor ezt az ID ellenőrzést mégsem tesszük meg (mert van egy alapértelmezett 1000-es lista limit,
-        // de ha több sor is van adott feltételre, akkor az CSV-ben minden sort látni szeretnénk.
-        if( $_SESSION['nyomtatas_ids'] && strpos( $_SESSION['akt_sql'], 'LIMIT' )===false ) {
-            if( strstr($_SESSION['akt_sql'], 'WHERE') ) {
-                $lekerdezes_fromtol = str_replace('WHERE', "WHERE `recid` IN (".$_SESSION['nyomtatas_ids'].") AND ", $lekerdezes_fromtol);
-            } else {
-                $lekerdezes_fromtol = str_replace('ORDER', "WHERE `recid` IN (".$_SESSION['nyomtatas_ids'].") ORDER", $lekerdezes_fromtol);
-            }
-        }
-        
-        // Ha van $_SESSION['akt_sql_order'], akkor eszerint rendezünk, tehát a $lekerdezes_fromtol-t elvágjuk az Order-nél
-        if( $_SESSION['akt_sql_order'] ){
-            $hossz = strpos($lekerdezes_fromtol, 'ORDER');
-            if( $hossz ) {
-                $lekerdezes_fromtol = substr($lekerdezes_fromtol, 0, $hossz);
-            } else {
-                $lekerdezes_fromtol = substr($lekerdezes_fromtol, 0);
-            }
-        }
-        // Ha nincs FROM rész, akkor azt még beletesszük
-        if( !$lekerdezes_fromtol ) {
-            $lekerdezes_fromtol = ' FROM `'.get_db_tabla().$megnevezes.'` ';
-        }
         
         $sql = 'SELECT
                 `ikt_szam` as \'Bejelentés szám\',
@@ -75,20 +48,20 @@ if( isset($_GET['csv']) ) {
                 `gep_id` as \'Gépnév\',
                 `stat_id` as \'Státusz\',
                 `'.get_db_tabla().$megnevezes.'`.`insert_dt` as \'Bejelentés dátuma\'
-                '.$lekerdezes_fromtol;
+                '.csv_export_get_from_tol($megnevezes);
                 $query = mysqli_query($db_kapcs, $sql);
                 
                 // Nagyobb CSV-kre kérdezzünk rá előzetesen
                 $osszes_sor = mysqli_num_rows($query);
                 if( !$_GET['mehet'] && $osszes_sor>CSV_EXPORT_LIMIT ) {
                     $gomb = '<input type="button" class="gomb zold" value="Igen" onclick="$(\'#navGombok .excel\').attr(\'onclick\', \'csv_general( this, \\\'\\\', \\\'&mehet=1\\\');\'); $(\'.navGombok a.excel\').click();"> <input type="button" class="gomb piros" value="Nem" onclick="alert2()">';
-                    echo json_encode(array('hiba' => 'A CSV export több mint '.CSV_EXPORT_LIMIT.' sort tartalmaz. Ennek előállítása hosszabb időbe telik majd.<br>Biztosan folytatja?', 'gomb' => $gomb));
+                    echo json_encode(array('hiba' => 'A CSV export több mint '.number_format(CSV_EXPORT_LIMIT, 0, '', ' ').' sort tartalmaz. Ennek előállítása hosszabb időbe telik majd.<br>Biztosan folytatja?', 'gomb' => $gomb));
                     $weblap -> leallit();
                     exit;
                 } else {
                     $sql .= $_SESSION['akt_sql_order'];    
                 }
-        
+
         $query      = mysqli_query($db_kapcs, $sql);
         $csvhead    = array();
         while ( $fejlec_nevek = mysqli_fetch_field($query) ) {

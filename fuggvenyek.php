@@ -10868,6 +10868,39 @@ function csv_export_elokeszit($megnevezes) {
     return array($mibol, $mibe, $filename, $open);
 }
 
+// $lekerdezes_fromtol változó kiszámítása
+function csv_export_get_from_tol( $megnevezes ) {
+    
+    $lekerdezes_fromtol = substr($_SESSION['akt_sql'], strpos($_SESSION['akt_sql'], 'FROM'));
+
+    // Eredetileg csak a bal navpanelben is megjelenő sorokat listázzuk ki (cél, hogy illetéktelen sorokhoz ne lehessen hozzáférni).
+    // Viszont ha érvényben volna az alapértelmezett LIMIT az aktuális SQL-ben, akkor ezt az ID ellenőrzést mégsem tesszük meg,
+    // hisz minden sort ki szeretnénk írtani. De ha a bámrilyen más LIMIT szerepel benne, akkor meg a CSV-ben is a limitált mennyiséget szeretnénk látni.
+    if( $_SESSION['nyomtatas_ids'] && strpos( $_SESSION['akt_sql'], 'LIMIT '.SZURES_DB_LIMIT )===false ) {
+        if( strstr($_SESSION['akt_sql'], 'WHERE') ) {
+            $lekerdezes_fromtol = str_replace('WHERE', "WHERE `recid` IN (".$_SESSION['nyomtatas_ids'].") AND ", $lekerdezes_fromtol);
+        } else {
+            $lekerdezes_fromtol = str_replace('ORDER', "WHERE `recid` IN (".$_SESSION['nyomtatas_ids'].") ORDER", $lekerdezes_fromtol);
+        }
+    }
+
+    // Ha van $_SESSION['akt_sql_order'], akkor eszerint rendezünk, tehát a $lekerdezes_fromtol-t elvágjuk az Order-nél
+    if( $_SESSION['akt_sql_order'] ){
+        $hossz = strpos($lekerdezes_fromtol, 'ORDER');
+        if( $hossz ) {
+            $lekerdezes_fromtol = substr($lekerdezes_fromtol, 0, $hossz);
+        } else {
+            $lekerdezes_fromtol = substr($lekerdezes_fromtol, 0);
+        }
+    }
+    // Ha nincs FROM rész, akkor azt még beletesszük
+    if( !$lekerdezes_fromtol ) {
+        $lekerdezes_fromtol = ' FROM `'.get_db_tabla().$megnevezes.'` ';
+    }
+
+    return $lekerdezes_fromtol;
+}
+
 // Minden CSV export után ezeket be kell állítani
 function csv_export_lezar($fh, $filename, $nev = '') {
     

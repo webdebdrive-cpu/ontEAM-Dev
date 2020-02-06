@@ -54,33 +54,6 @@ if( isset($_GET['csv']) ) {
     list($mibol, $mibe, $filename, $open) = csv_export_elokeszit($megnevezes);
     if( $open ) {
 
-        $lekerdezes_fromtol = substr($_SESSION['akt_sql'], strpos($_SESSION['akt_sql'], 'FROM'));
-
-        // Eredetileg csak a bal navpanelben is megjelenő sorokat listázzuk ki (cél, hogy illetéktelen sorokhoz ne lehessen hozzáférni).
-        // Viszont ha érvényben volna egy LIMIT is az aktuális SQL-ben, akkor ezt az ID ellenőrzést mégsem tesszük meg (mert van egy alapértelmezett 1000-es lista limit,
-        // de ha több sor is van adott feltételre, akkor az CSV-ben minden sort látni szeretnénk.
-        if( $_SESSION['nyomtatas_ids'] && strpos( $_SESSION['akt_sql'], 'LIMIT' )===false ) {
-            if( strstr($_SESSION['akt_sql'], 'WHERE') ) {
-                $lekerdezes_fromtol = str_replace('WHERE', "WHERE `".get_db_tabla().$megnevezes."`.`recid` IN (".$_SESSION['nyomtatas_ids'].") AND ", $lekerdezes_fromtol);
-            } else {
-                $lekerdezes_fromtol = str_replace('ORDER', "WHERE `".get_db_tabla().$megnevezes."`.`recid` IN (".$_SESSION['nyomtatas_ids'].") ORDER", $lekerdezes_fromtol);
-            }
-        }
-        
-        // Ha van $_SESSION['akt_sql_order'], akkor eszerint rendezünk, tehát a $lekerdezes_fromtol-t elvágjuk az Order-nél
-        if( $_SESSION['akt_sql_order'] ){
-            $hossz = strpos($lekerdezes_fromtol, 'ORDER');
-            if( $hossz ) {
-                $lekerdezes_fromtol = substr($lekerdezes_fromtol, 0, $hossz);
-            } else {
-                $lekerdezes_fromtol = substr($lekerdezes_fromtol, 0);
-            }
-        }
-        // Ha nincs FROM rész, akkor azt még beletesszük
-        if( !$lekerdezes_fromtol ) {
-            $lekerdezes_fromtol = ' FROM `'.get_db_tabla().$megnevezes.'` ';
-        }
-
         $sql = 'SELECT
                 `'.get_db_tabla().$megnevezes.'`.`id` as \'Feladatszám\',
                 `'.get_db_tabla().$megnevezes.'`.`telephely_id` as \'Szálloda\',
@@ -89,7 +62,7 @@ if( isset($_GET['csv']) ) {
                 `'.get_db_tabla().$megnevezes.'`.`nev` as \'Feladat\',
                 `'.get_db_tabla().$megnevezes.'`.`szemelyzet_id` as \'Hozzárendelt személyzet\',
                 `'.get_db_tabla().$megnevezes.'`.`szallito_id` as \'Külső kivitelező\'
-                '.$lekerdezes_fromtol;
+                '. csv_export_get_from_tol($megnevezes);
                 $query = mysqli_query($db_kapcs, $sql);
                 
                 // Nagyobb CSV-kre kérdezzünk rá előzetesen

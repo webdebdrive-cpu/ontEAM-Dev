@@ -54,33 +54,6 @@ if( isset($_GET['csv']) ) {
     list($mibol, $mibe, $filename, $open) = csv_export_elokeszit($megnevezes);
     if( $open ) {
 
-        $lekerdezes_fromtol = substr($_SESSION['akt_sql'], strpos($_SESSION['akt_sql'], 'FROM'));
-
-        // Eredetileg csak a bal navpanelben is megjelenő sorokat listázzuk ki (cél, hogy illetéktelen sorokhoz ne lehessen hozzáférni).
-        // Viszont ha érvényben volna egy LIMIT is az aktuális SQL-ben, akkor ezt az ID ellenőrzést mégsem tesszük meg (mert van egy alapértelmezett 1000-es lista limit,
-        // de ha több sor is van adott feltételre, akkor az CSV-ben minden sort látni szeretnénk.
-        if( $_SESSION['nyomtatas_ids'] && strpos( $_SESSION['akt_sql'], 'LIMIT' )===false ) {
-            if( strstr($_SESSION['akt_sql'], 'WHERE') ) {
-                $lekerdezes_fromtol = str_replace('WHERE', "WHERE `".get_db_tabla().$megnevezes."`.`recid` IN (".$_SESSION['nyomtatas_ids'].") AND ", $lekerdezes_fromtol);
-            } else {
-                $lekerdezes_fromtol = str_replace('ORDER', "WHERE `".get_db_tabla().$megnevezes."`.`recid` IN (".$_SESSION['nyomtatas_ids'].") ORDER", $lekerdezes_fromtol);
-            }
-        }
-        
-        // Ha van $_SESSION['akt_sql_order'], akkor eszerint rendezünk, tehát a $lekerdezes_fromtol-t elvágjuk az Order-nél
-        if( $_SESSION['akt_sql_order'] ){
-            $hossz = strpos($lekerdezes_fromtol, 'ORDER');
-            if( $hossz ) {
-                $lekerdezes_fromtol = substr($lekerdezes_fromtol, 0, $hossz);
-            } else {
-                $lekerdezes_fromtol = substr($lekerdezes_fromtol, 0);
-            }
-        }
-        // Ha nincs FROM rész, akkor azt még beletesszük
-        if( !$lekerdezes_fromtol ) {
-            $lekerdezes_fromtol = ' FROM `'.get_db_tabla().$megnevezes.'` ';
-        }
-
         $sql = 'SELECT
                 `'.get_db_tabla().$megnevezes.'`.`recid` as \'Id\',
                 `'.get_db_tabla().$megnevezes.'`.`telephely_id` as \'Szálloda\',
@@ -102,7 +75,7 @@ if( isset($_GET['csv']) ) {
                 `ig_el_id` as \'Igényelt elvégzés\',
                 `varh_erk` as \'Várható érkezés\',
                 `'.get_db_tabla().$megnevezes.'`.`insert_dt` as \'Munkalap létrehozás dátuma\'
-                '.$lekerdezes_fromtol;
+                '. csv_export_get_from_tol($megnevezes);
                 $query = mysqli_query($db_kapcs, $sql);
                 
                 // Nagyobb CSV-kre kérdezzünk rá előzetesen
@@ -165,10 +138,10 @@ if( isset($_GET['csv']) ) {
                     $sor = getErtek('nev', 'szallito', 'id', $sor);
 // Ideiglenes megoldás: a kivitelező nevét a megjegyzésből számítjuk vissza
 // De maradjon itt a kód, mert erre még lehet szükség lesz
-$megj = $adatbazis_kapcsolat->s2('megj', 'megjegyzes_arch', "`tabla`='munkalap' AND `id`='{$sorok['Id']}' AND `megj` LIKE 'Kivitelező%'");
-$megj['megj'] = str_replace('Kivitelező: ', '', $megj['megj']);
-$ujsor = strpos($megj['megj'], "\n");
-$sor  = substr($megj['megj'], 0, $ujsor) ;
+//$megj = $adatbazis_kapcsolat->s2('megj', 'megjegyzes_arch', "`tabla`='munkalap' AND `id`='{$sorok['Id']}' AND `megj` LIKE 'Kivitelező%'");
+//$megj['megj'] = str_replace('Kivitelező: ', '', $megj['megj']);
+//$ujsor = strpos($megj['megj'], "\n");
+//$sor  = substr($megj['megj'], 0, $ujsor) ;
                 }
                 if( $kulcs == 'Jóváhagyott érték' ) {
                     $sorok[$szam] = str_replace('.', ',', $sorok[$szam]);

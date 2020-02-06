@@ -7133,19 +7133,8 @@ if( isset($_GET['csv']) ) {
     list($mibol, $mibe, $filename, $open) = csv_export_elokeszit($megnevezes);
     if( $open ) {
 
-        $lekerdezes_fromtol = substr($_SESSION['akt_sql'], strpos($_SESSION['akt_sql'], 'FROM'));
-
-        // Eredetileg csak a bal navpanelben is megjelenő sorokat listázzuk ki (cél, hogy illetéktelen sorokhoz ne lehessen hozzáférni).
-        // Viszont ha érvényben volna egy LIMIT is az aktuális SQL-ben, akkor ezt az ID ellenőrzést mégsem tesszük meg (mert van egy alapértelmezett 1000-es lista limit,
-        // de ha több sor is van adott feltételre, akkor az CSV-ben minden sort látni szeretnénk.
-        if( $_SESSION['nyomtatas_ids'] && strpos( $_SESSION['akt_sql'], 'LIMIT' )===false ) {
-            if( strstr($_SESSION['akt_sql'], 'WHERE') ) {
-                $lekerdezes_fromtol = str_replace('WHERE', "WHERE `".get_db_tabla().$megnevezes."`.`recid` IN (".$_SESSION['nyomtatas_ids'].") AND ", $lekerdezes_fromtol);
-            } else {
-                $lekerdezes_fromtol = str_replace('ORDER', "WHERE `".get_db_tabla().$megnevezes."`.`recid` IN (".$_SESSION['nyomtatas_ids'].") ORDER", $lekerdezes_fromtol);
-            }
-        }
-
+        $lekerdezes_fromtol = csv_export_get_from_tol($megnevezes);
+        
         $sql = 'SELECT
                 `'.get_db_tabla().$megnevezes.'`.`recid` as \'Id\',
                 `'.get_db_tabla().$megnevezes.'`.`telephely_id` as \'Szálloda\',
@@ -7167,7 +7156,7 @@ if( isset($_GET['csv']) ) {
                 `ig_el_id` as \'Igényelt elvégzés\',
                 `varh_erk` as \'Várható érkezés\',
                 `'.get_db_tabla().$megnevezes.'`.`insert_dt` as \'Munkalap létrehozás dátuma\'
-                '.$lekerdezes_fromtol;
+                '. $lekerdezes_fromtol;
                 $query = mysqli_query($db_kapcs, $sql);
         
                 // Nagyobb CSV-kre kérdezzünk rá előzetesen
