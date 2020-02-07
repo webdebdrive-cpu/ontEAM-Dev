@@ -1704,6 +1704,30 @@ if( isset($_POST['dokumentumKuldeseTeamTagoknak']) ) {
     exit();
 }
 
+// Szerepkör lekérdezése
+if( isset($_POST['get_szerepkor']) ) {
+    
+    $login = $adatbazis_kapcsolat->s2('szemelyzet_id', 'login', "`recid`='{$_POST['login_id']}'");
+
+    $where = '';
+    if( $login['szemelyzet_id'] == TERULETI_FELELOS ) {
+        $where = "`modell`='1'";
+    }
+    $szalloda = $adatbazis_kapcsolat->s('id nev', 'telephely', $where);
+    $telephely_select  = '<select class="disableNav csillag" name="telephely_id" id="telephely_id" onchange="szallodaVane( this ); szalloda_modell( this );" style="width: 100%;" tabindex="12">';
+    $telephely_select .= '<option value="">- Válasszon -</option>';
+    $telephely_select .= tomb2option($szalloda, 'id', 'nev');
+    $telephely_select .= '</select>';
+    
+    echo json_encode(array(
+        'szemelyzet_id'     => $login['szemelyzet_id'],
+        'telephely_select'  => $telephely_select,
+    ));
+
+    $weblap->leallit();
+    exit();
+}
+
 // CSV generálása
 if( isset($_GET['csv']) ) {
 
@@ -2124,7 +2148,7 @@ require_once('selectek.php');
         }
 
         // Ha van egyáltalán kezelésre joga, és nincs még lezárva
-        if( get_projekt_kezeles_jog($_GET['id']) && $sor['stat_id']!=PRKEZEL_STAT_LEZART ){
+        if( get_projekt_kezeles_jog($_GET['id']) && $sor['stat_id']!=PRKEZEL_STAT_LEZART ) {
 
             if(!$nem_szerkesztheti && isset($_GET['modosit']) /*&& $sor['stat_id']==PRIGENY_STAT_LETRE_ALATT Átmenetileg végig szerkeszthető */){
                 $gombok = nl2('

@@ -8019,10 +8019,10 @@ require('selectek.php');
         }
 
         // Ha van előkészítés joga
-        if (_jog(JOG_MUNKALAP_KULSOS_ELOKESZIT)) {
+        if( _jog(JOG_MUNKALAP_KULSOS_ELOKESZIT) ) {
 
             // És előkészíésre szeretné létrehozni, akkor beállítjuk a hozzárenelt személyzetet saját magára, meg egy hidden inputként is hozzáfűzzük
-            if (isset($_GET['elokeszitesre'])) {
+            if( isset($_GET['elokeszitesre']) ) {
                 $mezok .= nl2('
                             <script>$(\'#szemelyzet_id\').val(\''.$_SESSION[get_db_tabla().'szemelyzet_id'].'\')</script>
                             <input type="hidden" name="szemelyzet_id" value="'.$_SESSION[get_db_tabla().'szemelyzet_id'].'">
@@ -8031,7 +8031,7 @@ require('selectek.php');
             }
 
             // Ha telepítettnek szeretnék létrehozni a munkalapot, akkor ugyanezt eljátszuk, mint az előbb, csak más személyzettípussal
-            if (isset($_GET['telepitettnek'])) {
+            if( isset($_GET['telepitettnek']) ) {
                 $mezok .= nl2('
                             <script>$(\'#szemelyzet_id\').val(\''.TELEPITETT_SZEMELYZET.'\')</script>
                             <input type="hidden" name="szemelyzet_id" value="'.TELEPITETT_SZEMELYZET.'">

@@ -1,3 +1,5 @@
+// main.js-ben is vannak konstansok.
+
 // Billentyűkódok
 var KEY_BACKSP =   8;
 var KEY_TAB    =   9;
@@ -11,7 +13,11 @@ var KEY_MINUS  =  109;
 var KEY_F5     =  116;
 var KEY_F12    =  123;
 
-/* Popupokban levő tallózásoknál nehézkesebb volna kiszámolni a PHP init fájllimitet, ezért ezt itt manuálisan állítjuk be. */
+// Szerepkörök, egyéb lista értékek
+var SZEREPKOR_TER_FELELOS   =  7;
+var PROJEKT_TIPUS           =  2;
+
+// Popupokban levő tallózásoknál nehézkesebb volna kiszámolni a PHP init fájllimitet, ezért ezt itt manuálisan állítjuk be.
 var UPLOAD_FILE_LIMIT   = 31457280;                            /* 30MB */
 var FILE_LIMIT_KIIRVA   = '30MB';
 

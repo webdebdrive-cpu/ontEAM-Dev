@@ -10,7 +10,7 @@ $(document).ready(function () {
 /* Léptetés Előkészítés alatt státuszba */
 function projekt_elokeszites_ala() {
     $.ajax({
-        url : 'projektkezeles.php',
+        url : PHP_SELF,
         type: 'POST',
         data: {
             recid                   : _get('id'),
@@ -38,7 +38,7 @@ function projekt_elokeszites_ala() {
 /* Léptetés Folyamatban státuszba */
 function projekt_folyamatbanra() {
     $.ajax({
-        url : 'projektkezeles.php',
+        url : PHP_SELF,
         type: 'POST',
         data: {
             recid                   : _get('id'),
@@ -66,7 +66,7 @@ function projekt_folyamatbanra() {
 /* Léptetés Kész státuszba */
 function projekt_keszre() {
     $.ajax({
-        url : 'projektkezeles.php',
+        url : PHP_SELF,
         type: 'POST',
         data: {
             recid           : _get('id'),
@@ -94,7 +94,7 @@ function projekt_keszre() {
 /* Léptetés Kész státuszba */
 function projekt_lezartra() {
     $.ajax({
-        url : 'projektkezeles.php',
+        url : PHP_SELF,
         type: 'POST',
         data: {
             recid           : _get('id'),
@@ -122,7 +122,7 @@ function projekt_lezartra() {
 /* Sikeres fájlfeltöltés után rákérdezünk, hogy léptessük-e tovább a Projektet */
 function projekt_fajfeltoltes_utan_tovabb () {
     $.ajax({
-        url : 'projektkezeles.php',
+        url : PHP_SELF,
         type: 'POST',
         data: {
             recid                           : _get('id'),
@@ -149,7 +149,7 @@ function projekt_fajfeltoltes_utan_tovabb () {
 /* Felfüggesztés vége */
 function projekt_felfuggesztes_vege(){
     $.ajax({
-        url : 'projektkezeles.php',
+        url : PHP_SELF,
         type: 'POST',
         data: {
             recid                       : _get('id'),
@@ -204,7 +204,7 @@ function cf_sor_torol(mehet){
     }
     
     $.ajax({
-        url : 'projektkezeles.php',
+        url : PHP_SELF,
         type: 'POST',
         data: {
             recid       : id,
@@ -272,7 +272,7 @@ function projektkezeles_ujranyit() {
 /* Projekt folyamatbanra állítása */
 function folyamatbanra_allit() {
     $.ajax({
-        url : 'projektkezeles.php',
+        url : PHP_SELF,
         type: 'POST',
         data: {
             recid               : _get('id'),
@@ -301,7 +301,7 @@ function folyamatbanra_allit() {
 /* Projekt folyamatbanra állítása */
 function keszre_allit() {
     $.ajax({
-        url : 'projektkezeles.php',
+        url : PHP_SELF,
         type: 'POST',
         data: {
             recid           : _get('id'),
@@ -330,7 +330,7 @@ function keszre_allit() {
 /* Küldendő dokuemntumok bepiálásának megjegyése */
 function projekt_dok_check( recid, checked ) {
     $.ajax({
-        url : 'projektkezeles.php',
+        url : PHP_SELF,
         type: 'POST',
         data: {
             recid               : recid,
@@ -361,7 +361,7 @@ function minosites_torol( recid, tabla, mehet ) {
     }
     
     $.ajax({
-        url : 'projektkezeles.php',
+        url : PHP_SELF,
         type: 'POST',
         data: {
             recid           : recid,
@@ -383,6 +383,39 @@ function minosites_torol( recid, tabla, mehet ) {
         complete: function(xhr) {
             if( xhr.status != 200 ) {
                 alert2(xhr.responseText, '', 'Hiba');
+            }
+        }
+    });
+    
+}
+
+/* Amikor kiválasztottak egy projekt felelőst, akkor ellenőrizzük, hogy Területi felelős-e, ha igen, akkor annak megfelelően lesz szerekszthető pár mező */
+function projekt_felelos_beallitva( login_id ) {
+    
+    var aktualis_szalloda = $('#telephely_id').val();
+    
+    $.ajax({
+        url : PHP_SELF,
+        type: 'POST',
+        data: {
+            login_id        : login_id,
+            get_szerepkor   : Date.now()
+        },
+        success: function (response) {
+            if (response) {
+                response = JSON.parse(response);
+                if( response.szemelyzet_id == SZEREPKOR_TER_FELELOS ) {
+                    $('#tipus').val(PROJEKT_TIPUS).prop('disabled', true);
+                } else {
+                    $('#tipus').val('').prop('disabled', false);
+                }
+                $('#telephely_id').replaceWith(response.telephely_select);
+                
+                /* Eredeti szálloda visszaírása, ha lehetséges */
+                $('#telephely_id').val(aktualis_szalloda);
+                if (!$('#telephely_id option[value="' +aktualis_szalloda+ '"]').prop('selected', true).length) {
+                    $('#telephely_id').val('');
+                }
             }
         }
     });

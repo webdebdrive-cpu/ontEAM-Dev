@@ -1,3 +1,5 @@
+var PHP_SELF = baseName(location.href)+'.php';
+
 /* Jquery kiegészítés CursorTo */
 (function ($) {
 
@@ -1053,13 +1055,13 @@ function baseName(str) {
 
     var base = new String(str);
 
-    if(base.indexOf('?') != -1){
+    if (base.indexOf('?') != -1) {
         base = base.substring(0, base.lastIndexOf('?'));
     }
     base = base.substring(base.lastIndexOf('/') + 1);
 
-    if(base.indexOf(".") != -1) {
-        base = base.substring(0, base.indexOf("."));
+    if (base.indexOf('.') != -1) {
+        base = base.substring(0, base.indexOf('.'));
     }
 
     return base;
