@@ -86,9 +86,6 @@ define('MUNKALAP_STAT_VARAKOZO',            '20');
 define('MUNKALAP_STAT_AJANLAT_NYOMTATVA',   '21');
 define('MUNKALAP_STAT_SZTORNO_VAR',         '22');
 
-// Munkalap típusok
-define('MUNKALAP_TIPUS_GARANCIALIS',        '6');
-
 // Projektigénylés státuszok
 define('PRIGENY_STAT_NYITOTT',              '01' );
 define('PRIGENY_STAT_LETRE_ALATT',          '02' );
@@ -391,10 +388,12 @@ define('EL_BEOSZTAS_BERUH_IG',      190);
 define('EL_BEOSZTAS_TER_FELELOS',   111);
 define('EL_BEOSZTAS_DISZ_KP_VEZ',   16 );
 
+// Munkalap típusok
 define('MLTIPUS_HIBAELHARITAS', 1);
 define('MLTIPUS_RENDSZERES_K',  2);
 define('MLTIPUS_UTEMEZETT_F',   3);
 define('MLTIPUS_ESETI_FENNT',   5);
+define('MLTIPUS_GARANCIALIS',   6);
 
 // Limit értékek
 define('ARCHIV_NAVPANEL_LIMIT', 1000);

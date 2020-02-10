@@ -1836,6 +1836,15 @@ if( isset($_POST['projekt_munkalap_levesz']) ) {
     exit();
 }
 
+// Projekt státusz léptetés folyamatbanra
+if( isset($_POST['projektkezeles_folyamatbanra']) ) {
+    
+    addStatusz( 'projektkezeles_statusz', $_POST['recid'], PRKEZEL_STAT_FOLYAMATBAN );
+    
+    $weblap->leallit();
+    exit();
+}
+
 // CSV generálása
 if( isset($_GET['csv']) ) {
 

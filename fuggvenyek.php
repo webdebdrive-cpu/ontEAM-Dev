@@ -8279,7 +8279,7 @@ function level_felkeszit_es_kuld( $tabla = '', $recid = '', $ert_pipa = '', $sab
 
             // Aktív-e és nem virtuális-e a felhasználó, van-e mailcíme? Ha nem, kilépünk
             $login = $adatbazis_kapcsolat -> s2('teljes_nev usermail usertel aktiv virtual szemelyzet_id flags_ert', 'login', "`nev` = '{$bejelentes['loginnev']}'");
-            if(!$login['aktiv'] || $login['virtual'] || !$login['usermail'] || ($ert_pipa!='-1' && substr($login['flags_ert'], $ert_pipa, 1)!=1) ){
+            if( !$login['aktiv'] || $login['virtual'] || !$login['usermail'] || ($ert_pipa != '-1' && substr($login['flags_ert'], $ert_pipa, 1) != 1) ) {
                 return false;
             }
 
@@ -8289,6 +8289,7 @@ function level_felkeszit_es_kuld( $tabla = '', $recid = '', $ert_pipa = '', $sab
             if(!$telefon)     { $telefon       = $login['usertel'];     }
 
             $cimzettek = array( array('nev' => $bejelentes['loginnev'], 'teljes_nev' => $cimzett_nev, 'usermail' => $cimzett_mail, 'usertel' => $telefon, 'szemelyzet_id' => $bejelentes['szemelyzet_id']) );
+
         break;
 
         // Diszpécserek központi címe
@@ -8676,6 +8677,21 @@ function level_felkeszit_es_kuld( $tabla = '', $recid = '', $ert_pipa = '', $sab
             $esemeny =  'bejelentés törlésekor';
             $targy   =  get_nev().' '.$bejelentes['ikt_szam'].' hibabejelentést törölték';
             $uzi     =  $uzi.fajlbol_olvas('../sablon/admin/mail/alairas.html');
+        break;
+
+        case 'bejelentes_projekt_kapcsolas':
+
+            $bejelentes = $adatbazis_kapcsolat->s2('ikt_szam', $tabla, "`recid`='{$recid}'");
+
+            $esemeny =  'munkalap projekthez kapcsoláskor';
+            $targy   =  get_nev().' '.$bejelentes['ikt_szam'].' hibabejelentés projekthez kapcsolva';
+            $uzi     =  $uzi.'
+                        <br>
+                        <br>Tájékoztatjuk, hogy a kért hibaelhárítást az alábbi projekt keretein belül végezzük el:
+                        <br>'.
+                        $extra_szoveg.
+                        fajlbol_olvas('../sablon/admin/mail/alairas.html');
+
         break;
 
         case 'elfelejtettJelszo':
@@ -10928,9 +10944,66 @@ function csv_export_lezar($fh, $filename, $nev = '') {
 function projekt_munkalap_osszekot($pr_id, $ml_id) {
     
     global $adatbazis_kapcsolat;
+    global $db_kapcs;
+    global $weblap;
+    
+    // Tranzakció indul
+    $db_error = false;
+    mysqli_autocommit($db_kapcs, false);
+    
+    $pr = $adatbazis_kapcsolat->s2('ikt_szam stat_id nev tipus', 'projektkezeles', "`recid`='{$pr_id}'");
+    if( $pr === false ) { $db_error = true; }
+//    $ml = $adatbazis_kapcsolat->s2('recid', 'munkalap', "`recid`='{$ml_id}'");
+//    if( $ml === false ) { $db_error = true; }
+    
+    // Összekötés
+    $sql = $adatbazis_kapcsolat->u('munkalap', array('pr_szam', 'tipus_id'), array($pr['ikt_szam'], MLTIPUS_ESETI_FENNT), "`recid`='{$ml_id}'");
+    if( $sql === false ) { $db_error = true; }
+    
+    // Megjegyzés a ML-ra
+    require_once 'selectek.php';
+    $tipus_neve = '';
+    foreach( $select_pri_tipus as $pr_tipus ) {
+        if( $pr['tipus'] && $pr['tipus'] == $pr_tipus['value'] ) {
+            $tipus_neve = $pr_tipus['name'];
+            break;
+        }
+    }
+    
+    $pr_szam_es_nev = $pr['ikt_szam'].' - '.htmlspecialchars_decode($pr['nev']);
+    
+    $megj_ml_ra = $tipus_neve.' projekttípus projekthez kapcsolva.<br>'.$pr_szam_es_nev;
 
-    $pr = $adatbazis_kapcsolat->s2('ikt_szam', 'projektkezeles', "`recid`='{$pr_id}'");
-    $adatbazis_kapcsolat->u('munkalap', array('pr_szam'), array($pr['ikt_szam']), "`recid`='{$ml_id}'");
+    if( addMegj('munkalap', $ml_id, $megj_ml_ra)===false ) {
+        $db_error = true;
+    }
+    
+    // Ha a ML-hoz tartozik bejelentés is
+    $bejelentes = $adatbazis_kapcsolat->s2('bejelentes_id', 'munkalap_kapcs', "`munkalap_id`='{$ml_id}'");
+    if( $bejelentes === false ) { $db_error = true; }
+    if( $bejelentes ) {
+        $mail_hibauzenet = level_felkeszit_es_kuld('bejelentes', $bejelentes['bejelentes_id'], '-1', 'bejelentes_projekt_kapcsolas', 'bejelento', $pr_szam_es_nev);
+    }
+    
+    // Tranzakció kommitolása, vagy rollback-ezése
+    if( !$db_error ) {
+        mysqli_commit($db_kapcs);
+    } else {
+        mysqli_rollback($db_kapcs);
+    }
+    
+    // Ha a projket státusza még nem volna folyamatban sem, akkor felajánljuk a státusz léptetését
+    if( $pr['stat_id'] < PRKEZEL_STAT_FOLYAMATBAN ) {
+        
+        echo    json_encode( array(
+                            'hiba'  => 'Munkalapot kapcsol projekthez, amely '. getStatText('projektkezeles', $pr['stat_id']).'.<br>Folyamatban státuszba helyezi a projektet?',
+                            'gomb'  => '<input type="button" class="gomb zold" value="Igen" onclick="projektkezeles_folyamatbanra(\''.$pr_id.'\')"> <input type="button" class="gomb piros" value="Nem" onclick="szamlaBetolt(_get(\'id\'), PHP_SELF, \'modosit\');">',
+                            'title' => 'Kérdés'
+                            )
+                );
+        $weblap->leallit();
+        exit();
+    }
     
 }
 

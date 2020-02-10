@@ -470,7 +470,8 @@ if( isset($_POST['get_projekt_tabla_hozzaad']) ) {
 // Munkalap hozzáadása projekthez
 if( isset($_POST['projekt_hozzaad']) ) {
     
-    $adatbazis_kapcsolat->u('munkalap', array('pr_szam'), array($_POST['pr_szam']), "`recid`='{$_POST['recid']}'");
+    $pr = $adatbazis_kapcsolat->s2('recid', 'projektkezeles', "`ikt_szam`='{$_POST['pr_szam']}'");
+    projekt_munkalap_osszekot($pr['recid'], $_POST['recid']);    
     
     echo json_encode(array('siker' => 1));
     
@@ -541,7 +542,7 @@ if( $_GET['ujkent_bejelentes'] ) {
 if( isset($_POST['telephely_ell']) ) {
 
     // Ha nem garanciális a típus, akkor egyből mehetünk is tovább
-    if( $_POST['tipus_id'] != MUNKALAP_TIPUS_GARANCIALIS ) {
+    if( $_POST['tipus_id'] != MLTIPUS_GARANCIALIS ) {
         echo json_encode( array(
                                 'mehet'  => '1'
                             ) );

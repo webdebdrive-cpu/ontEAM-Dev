@@ -8120,3 +8120,24 @@ function csv_link_cserel_kattint() {
     $('.navGombok a.excel').click();
     $('#navGombok .excel').attr('onclick', 'csv_general( this, \''+valasztos+'\', \'\');');
 }
+
+// Projektigénylés státusz léptetése folyamatbanra (ez itt kell legyen az admin.js-ben, nem szervezehtő ki csak egy php alá)
+function projektkezeles_folyamatbanra( pr_recid ) {
+    $.ajax({
+        url : 'projektkezeles.php',
+        type: 'POST',
+        data: {
+            recid                       : pr_recid,
+            projektkezeles_folyamatbanra: Date.now()
+        },
+        success: function (response) {
+            if(response.substring(0, 6)=='SESKIL'){ location.href = 'index.php'; }
+            szamlaBetolt(_get('id'), PHP_SELF, 'modosit');
+        },
+        complete: function(xhr) {
+            if( xhr.status != 200 ) {
+                alert2(xhr.responseText, '', 'Hiba');
+            }
+        }
+    });
+}
