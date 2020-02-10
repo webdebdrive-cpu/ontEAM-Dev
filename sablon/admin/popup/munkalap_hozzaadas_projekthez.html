@@ -1,0 +1,90 @@
+<h2 id="eloterj_igneyles_csatolCim">Munkalap hozzáadása projekthez (ML)</h2>
+<form class="popupForm" method="post">
+    <div class="kozep">
+        <div id="pr_szerzodes_tablazat"></div>
+    </div>
+    <div class="kuldes">
+        <input type="button" class="gomb zold"  value="Kiválaszt" onclick="projekt_hozzaad()">
+        <input type="button" class="gomb piros" value="Mégsem" onclick="popupZar();">
+    </div>
+</form>
+<script>
+$(document).ready(function() {
+    
+    if( !$('#telephely_id').val() ) {
+        $('#telephely_id').focus();
+        
+        setTimeout(function(){ popupZar(); }, 10);
+        alert2('Kérem, előbb válasszon szállodát!', '', 'Hiba');
+        return false;
+    }
+    
+    $.ajax({
+        url : 'munkalap.php',
+        type: 'POST',
+        data: {
+            recid                       : _get('id'),
+            telephely_id                : $('#telephely_id').val(),
+            get_projekt_tabla_hozzaad   : new Date().getTime()
+        },
+        success: function(response) {
+            if(response.substring(0, 6)=='SESKIL'){ location.href = 'index.php'; }
+            if( response ) {
+                response = JSON.parse(response);
+                if( response.hiba ) {
+                    popupZar();
+                    alert2( response.hiba, response.gomb, response.title );
+                    return false;
+                } else {
+                    $('#pr_szerzodes_tablazat').html(response.html);
+                    popupMutat();
+                }
+
+            }
+        },
+        complete: function(xhr) {
+            if( xhr.status != 200 ) {
+                alert2(xhr.responseText, '', 'Hiba');
+            }
+        }
+    });
+    
+});
+
+
+// Projekt kiválasztása
+function projekt_hozzaad() {
+    
+    $.ajax({
+        url : 'munkalap.php',
+        type: 'POST',
+        data: {
+            recid           : _get('id'),
+            pr_szam         : $('#pr_szerzodes_tablazat tr.kijelolve').attr('data-ikt_szam'),
+            projekt_hozzaad : Date.now()
+        },
+        success: function(response) {
+            if( response ) {
+                response = JSON.parse(response);
+                if( response.hiba ) {
+                    alert2(response.hiba);
+                }
+                popupZar();
+                szamlaBetolt(_get('id'), PHP_SELF, 'modosit');
+            }
+        }
+    });
+    
+}
+
+// Szűrések
+function tabla_szur(tabla, kulcs, oszlop) {
+    var $rows = tabla.find('tr');
+    var val = $.trim(kulcs).replace(/ +/g, ' ').toLowerCase();
+
+    $rows.show().filter(function() {
+        var text = $(this).find('td:nth-of-type('+oszlop+')').text().replace(/\s+/g, ' ').toLowerCase();
+        return !~text.indexOf(val);
+    }).hide();
+}
+</script>

@@ -7,6 +7,8 @@ $(document).ready(function () {
     
 });
 
+var pr_ml_levesz_id = '';
+
 /* Léptetés Előkészítés alatt státuszba */
 function projekt_elokeszites_ala() {
     $.ajax({

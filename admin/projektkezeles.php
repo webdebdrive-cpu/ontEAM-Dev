@@ -1728,6 +1728,114 @@ if( isset($_POST['get_szerepkor']) ) {
     exit();
 }
 
+// Munkalap hozzáadásakor a ML-ok táblázatának előállítása
+if( isset($_POST['get_ml_ok']) ) {
+    
+    require_once 'selectek_szemelyzet.php';
+    
+    $projektkezeles = $adatbazis_kapcsolat->s2('ikt_szam nev telephely_id', 'projektkezeles', "`recid`='{$_POST['recid']}'");
+    $tablazat = nl2(
+                    'Projekt szám: <b>'.$projektkezeles['ikt_szam'].'</b>
+                    <br>Projekt neve: <b>'.htmlspecialchars_decode($projektkezeles['nev']).'</b>
+                    <br>Szálloda: <b>'.getSzallodaNev($projektkezeles['telephely_id']).'</b>
+                    <br>'
+                    );
+    
+    $i = 1;
+    $munkalapok = $adatbazis_kapcsolat->s('recid ikt_szam stat_id tipus_id szemelyzet_id szallito_id text', 'munkalap', "`telephely_id`='{$projektkezeles['telephely_id']}' AND `pr_szam`='' AND `tipus_id` NOT IN (".MLTIPUS_RENDSZERES_K.", ".MLTIPUS_UTEMEZETT_F.")");
+    foreach( $munkalapok as $ml ) {
+
+        $szemelyzet = '';
+        foreach( $select_szemelyzet as $szem ) {
+            if( $ml['szemelyzet_id'] && $ml['szemelyzet_id'] == $szem['value'] ) {
+                $szemelyzet = $szem['name'];
+                break;
+            }
+        }
+        if( $ml['szemelyzet_id'] == KULSO_KIVITELEZO ) {
+            $szemelyzet .= ': '.getErtek('nev', 'szallito', 'id', $ml['szallito_id']);
+        }
+        
+        $tablazat .= '
+            <tr class="kijSor" data-i="'.$i.'" data-recid="'.$ml['recid'].'" data-ikt_szam="'.$ml['ikt_szam'].'">
+                <td class="l">'.$ml['ikt_szam'].'</td>
+                <td class="l">'.getErtekLista(ERTEKLISTA_MUNKALAP_TIP, $ml['tipus_id']).'</td>
+                <td class="l">'.$szemelyzet.'</td>
+                <td class="l">'. htmlspecialchars_decode( resz_string($ml['text'], 30) ).'</td>
+                <td class="r">'. getStatText('munkalap', $ml['stat_id']).'</td>
+            </tr>
+            ';
+        $i++;
+    }
+    if( $i>1 ) {
+
+        // Táblázat rendezhető: szálloda + becsült költség, becsült költség + szálloda, típus + becsült költség. Ezek legyenek egy lenyílóból kiválaszthatóak.
+        $tablazat = '
+            <div style="max-height: 40rem; overflow-y: auto; overflow-x: none;">
+                <table class="csikos v2 kijCont csak_egy_kijelolheto" id="prkezelesek" style="cursor: default;">
+                <thead>
+                <tr>
+                    <th>
+                        Munkalap szám
+                        <br><input type="text" class="flat" placeholder="Szűrés" onkeyup="tabla_szur($(\'#prkezelesek tbody\'), this.value, 1)">
+                    </th>
+                    <th>
+                        Munkalap típus
+                        <br><input type="text" class="flat" placeholder="Szűrés" onkeyup="tabla_szur($(\'#prkezelesek tbody\'), this.value, 2)">
+                    </th>
+                    <th>
+                        Hozzárendelt személyzet/partner
+                        <br><input type="text" class="flat" placeholder="Szűrés" onkeyup="tabla_szur($(\'#prkezelesek tbody\'), this.value, 3)">
+                    </th>
+                    <th>
+                        Munkalap leírás
+                        <br><input type="text" class="flat" placeholder="Szűrés" onkeyup="tabla_szur($(\'#prkezelesek tbody\'), this.value, 4)">
+                    </th>
+                    <th>
+                        Munkalap státusza
+                        <br><input type="text" class="flat" placeholder="Szűrés" onkeyup="tabla_szur($(\'#prkezelesek tbody\'), this.value, 5)">
+                    </th>
+                </tr>
+                </thead>
+                <tbody>
+                    '.$tablazat.'
+                </tbody>
+                </table>
+            </div>
+            <script>
+            ';
+    } else {
+        $tablazat = '<script>popupRejt(); setTimeout(function(){ popupZar(); alert2(\'Nem található munkalap!\', \'\', \'Hiba\'); }, 10);</script>';
+    }
+    
+    echo json_encode( array('tablazat' => $tablazat) );
+    
+    $weblap->leallit();
+    exit();
+}
+
+// Munkalap hozzáadása
+if( isset($_POST['munkalap_hozzaad']) ) {
+    
+    projekt_munkalap_osszekot($_POST['recid'], $_POST['ml_id']);
+    
+    echo json_encode(array('siker' => 1));
+    
+    $weblap->leallit();
+    exit();
+}
+
+// Munkalap levétele
+if( isset($_POST['projekt_munkalap_levesz']) ) {
+    
+    projekt_munkalap_levesz($_POST['ml_id']);
+    
+    echo json_encode(array('siker' => 1));
+    
+    $weblap->leallit();
+    exit();
+}
+
 // CSV generálása
 if( isset($_GET['csv']) ) {
 
@@ -1930,7 +2038,7 @@ require_once('selectek.php');
         $megj_db = ' ('.$sor['megj_db'].')';
     }
 
-    if( isset($_GET['modosit']) || isset($_GET['garancialis']) || isset($_GET['tortenet']) || isset($_GET['projektigeny']) || isset($_GET['cash_flow']) || isset($_GET['projekt_team']) || isset($_GET['jotallas']) || isset($_GET['dokumentumok']) || isset($_GET['megjegyzesek']) ) {
+    if( isset($_GET['modosit']) || isset($_GET['tortenet']) || isset($_GET['projektigeny']) || isset($_GET['cash_flow']) || isset($_GET['projekt_team']) || isset($_GET['jotallas']) || isset($_GET['munkalapok']) || isset($_GET['garancialis']) || isset($_GET['dokumentumok']) || isset($_GET['megjegyzesek']) ) {
         
         // Számla fülek
         $ful_tomb = array(
@@ -1941,13 +2049,14 @@ require_once('selectek.php');
             'dokumentumok'  => 'Dokumentumok'.$dok_db,
             'cash_flow'     => 'Cash-flow',
             'projektigeny'  => 'Projektigénylések',
+            'munkalapok'    => 'Munkalapok',
             'garancialis'   => 'Garanciális munkák',
             'megjegyzesek'  => 'Megjegyzések'.$megj_db,
         );
 
         $fulek = '';
-        foreach($ful_tomb as $key => $value) {
-            
+        foreach ( $ful_tomb as $key => $value ) {
+
             $active = 'active';
             if( isset($_GET[$key]) ) {
                 $active = ' class="active"';
@@ -2691,13 +2800,102 @@ require_once('selectek.php');
             echo $szamla_html.$gombok;
         }
 
+	// Munkalapok
+    } elseif( isset($_GET['munkalapok']) ) {
+        
+        $szamla_html .= nl2('
+            <div class="dt naplo">
+                <div class="dtr nFejlec">
+                    <div class="dtc">Munkalap szám</div>
+                    <div class="dtc">Munkalap típus</div>
+                    <div class="dtc">Hozzárendelt személyzet/Partner</div>
+                    <div class="dtc">Munkalap státusza</div>
+                    <div class="dtc">Munkalap levétele</div>
+                </div>
+        ');
+        
+        $projekt    = $adatbazis_kapcsolat->s2('ikt_szam', 'projektkezeles', "`recid`='{$_GET['id']}'");
+        $munkalapok = $adatbazis_kapcsolat->s('recid ikt_szam stat_id tipus_id szemelyzet_id szallito_id', 'munkalap', "`pr_szam`='{$projekt['ikt_szam']}' AND `stat_id`!='".MUNKALAP_STAT_TOROLT."' AND `stat_id`!='".MUNKALAP_STAT_SZTORNO."'");
+        foreach ( $munkalapok as $munkalap ) {
+            
+            // Személyzet kiíratása
+            $szemelyzet = '';
+            foreach ( $select_szemelyzet as $szemelyzet ) {
+                if( $munkalap['szemelyzet_id'] && $szemelyzet['value'] == $munkalap['szemelyzet_id'] ) {
+                    $szemelyzet = $szemelyzet['name'];
+                    break;
+                }
+            }
+            // Ha külső kivitelező, akkor a partner nevét is odaírjuk
+            if( $munkalap['szemelyzet_id'] == KULSO_KIVITELEZO ) {
+                $szemelyzet .= ': '.getErtek('nev', 'szallito', 'id', $munkalap['szallito_id']);
+            }
+            
+            $szamla_html .= nl2('
+                <div class="dtr nSor">
+                    <div class="dtc"><a href="munkalap.php?id=x&amp;modosit&amp;mezo=ikt_szam&amp;op=equal&amp;felt='.$munkalap['ikt_szam'].'" target="_blank">'.$munkalap['ikt_szam'].'</a></div>
+                    <div class="dtc">
+                        '.getErtekLista(ERTEKLISTA_MUNKALAP_TIP, $munkalap['tipus_id']).'
+                    </div>
+                    <div class="dtc">'.$szemelyzet.'</div>
+                    <div class="dtc">'.getStatText('munkalap', $munkalap['stat_id']).'</div>
+                    <div class="dtc"><span class="icon link" onclick="pr_ml_levesz_id = \''.$munkalap['recid'].'\'; csoportMuvelet(\'projektkezeles_ml_levetel\');"> <i class="material-icons" style="font-size: 2rem">delete</i></span></div>
+                </div>
+            ');
+        }
+        // Archiv munkalapokat is járjuk be
+        $munkalapok_arch = $adatbazis_kapcsolat->s('ikt_szam stat_id tipus_id szemelyzet_id szallito_id', 'munkalap_arch', "`pr_szam`='{$projekt['ikt_szam']}' AND `stat_id`!='".MUNKALAP_STAT_TOROLT."' AND `stat_id`!='".MUNKALAP_STAT_SZTORNO."'");
+        foreach ( $munkalapok_arch as $munkalap ) {
+            
+            // Személyzet kiíratása
+            $szemelyzet = '';
+            foreach ( $select_szemelyzet as $szemelyzet ) {
+                if( $munkalap['szemelyzet_id'] && $szemelyzet['value'] == $munkalap['szemelyzet_id'] ) {
+                    $szemelyzet = $szemelyzet['name'];
+                    break;
+                }
+            }
+            // Ha külső kivitelező, akkor a partner nevét is odaírjuk
+            if( $munkalap['szemelyzet_id'] == KULSO_KIVITELEZO ) {
+                $szemelyzet .= ': '.getErtek('nev', 'szallito', 'id', $munkalap['szallito_id']);
+            }
+            
+            $szamla_html .= nl2('
+                <div class="dtr nSor">
+                    <div class="dtc"><a href="munkalap.php?id=x&amp;modosit&amp;mezo=ikt_szam&amp;op=equal&amp;felt='.$munkalap['ikt_szam'].'" target="_blank">'.$munkalap['ikt_szam'].'</a></div>
+                    <div class="dtc">
+                        '.getErtekLista(ERTEKLISTA_MUNKALAP_TIP, '', $munkalap['tipus_id']).'
+                    </div>
+                    <div class="dtc">'.$szemelyzet.'</div>
+                    <div class="dtc">'.getStatText('munkalap', $munkalap['stat_id']).'</div>
+                    <div class="dtc"><span class="icon link" onclick=""> <i class="material-icons" style="font-size: 2rem">delete</i></span></div>
+                </div>
+            ');
+        }
+        $szamla_html .= '</div>';
+        
+        // ML-ot hozzáadni csak Projektek kezelése joggal lehet
+        if( _jog(JOG_PRKEZEL_KEZEL) ) {
+            $szamla_html .= '<div class="r"><input type="button" class="gomb" value="Hozzáadás" onclick="csoportMuvelet(\'projektkezeles_ml_hozzaad\')"></div>';
+        }
+        
+
+        if( $_GET['ajax'] ) {
+            echo json_encode(array(
+                'tartalom' => $szamla_html.$gombok,
+                'link'     => get_get(array('ajax', 'kat', 'epo', 'oldal', 'order'), true)
+            ));
+        } else {
+            echo $szamla_html.$gombok;
+        }
+
 	// Garanciális munkák
     } elseif( isset($_GET['garancialis']) ) {
 
         $szamla_html .= nl2('
             <div class="dt naplo">
                 <div class="dtr nFejlec">
-                    <div class="dtc">Munkalap száma</div>
+                    <div class="dtc">Munkalap szám</div>
                     <div class="dtc">Helyiség</div>
                     <div class="dtc">Külső kivitelező</div>
                     <div class="dtc">Leírás</div>

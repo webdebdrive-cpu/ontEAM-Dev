@@ -1341,3 +1341,31 @@ function garancialis_tipus_projekt_popup() {
     }
     return false;
 }
+
+/* Munkalapon a projekt törlése gomb */
+function projekt_torelese( mehet ) {
+    
+    if( !mehet ) {
+        alert2('Biztosan törli a projektet?', '<input type="button" class="gomb zold" value="Igen" onclick="projekt_torelese(\'mehet\');"> <input type="button" class="gomb piros" value="Nem" onclick="alert2();">');
+        return false;
+    }
+    
+    $.ajax({
+        url : 'munkalap.php',
+        type: 'POST',
+        data: {
+            recid           : _get('id'),
+            projekt_torelese: Date.now()
+        },
+        success: function (response) {
+            if (response) {
+                response = JSON.parse(response);
+                if (response.hiba) {
+                    alert2(response.hiba, response.gomb, 'Hiba');
+                }
+                popupZar();
+                szamlaBetolt(_get('id'), PHP_SELF, 'modosit');
+            }
+        }
+    });
+}

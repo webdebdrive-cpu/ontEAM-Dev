@@ -1,5 +1,5 @@
 <h2 id="eloterj_igneyles_csatolCim">Igénylés csatolása</h2>
-<form action="" id="eloterj_igneyles_csatolForm" class="popupForm" method="post" onsubmit="return eloterj_igneyles_csatol();">
+<form id="eloterj_igneyles_csatolForm" class="popupForm" method="post" onsubmit="return eloterj_igneyles_csatol();">
     <div class="kozep">
         <div id="igenyles_tablazat"></div>
     </div>
@@ -14,7 +14,7 @@
     });
 	function eloterj_igneyles_csatol(mehet){
         
-        if(!$('#prigenylesek tr.kijelolve').length){
+        if( !$('#prigenylesek tr.kijelolve').length ) {
             alert2('Válasszon legalább egy projekt igénylést!', '', 'Hiba');
             return false;
         }

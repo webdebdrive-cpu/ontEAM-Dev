@@ -388,6 +388,107 @@ if( isset($_POST['get_projekt_tabla']) ) {
     exit();
 }
 
+// Projekt táblázat betöltése
+if( isset($_POST['get_projekt_tabla_hozzaad']) ) {
+
+    require_once 'selectek_szemelyzet.php';
+    
+    $html       = '';
+    $szemelyzet = '';
+    
+    $munkalap = $adatbazis_kapcsolat->s2('ikt_szam text telephely_id szemelyzet_id szallito_id', 'munkalap', "`recid`='{$_POST['recid']}'");
+    if( $munkalap['szemelyzet_id'] ) {
+        foreach( $select_szemelyzet as $szem ) {
+            if( $munkalap['szemelyzet_id'] == $szem['value'] ) {
+                $szemelyzet = $szem['name'];
+                break;
+            }
+        }
+        if( $munkalap['szemelyzet_id'] == KULSO_KIVITELEZO ) {
+            $szemelyzet .= ': '. getErtek('nev', 'szallito', 'id', $munkalap['szallito_id']);
+        }
+    }
+    
+    $html .= nl2('
+        Munkalap száma: <b>'.$munkalap['ikt_szam'].'</b>
+        <br>Leírás: <b>'.htmlspecialchars_decode( resz_string($munkalap['text'], 30) ).'</b>
+        <br>Szálloda: <b>'. getSzallodaNev($munkalap['telephely_id']).'</b>
+        <br>Hozzárendelt személyzet: <b>'.$szemelyzet.'</b>
+        ');
+
+    $prek = $adatbazis_kapcsolat->s('`recid`, `ikt_szam`, `nev`, `tipus`, `stat_id`, `jkolt`, `pfelelos`, `telephely_id`, `insert_dt`',
+                                        'projektkezeles',
+                                        "`telephely_id`='{$_POST['telephely_id']}' AND `pfelelos`='{$_SESSION[get_db_tabla().'login_recid']}'");
+    $i = 1;
+    foreach ( $prek as $pr ) {
+        
+        $html .= '
+            <tr class="kijSor" data-i="'.$i.'" data-recid="'.$pr['recid'].'" data-ikt_szam="'.$pr['ikt_szam'].'" data-felelos="'.$pr['pfelelos'].'">
+                <td class="l">'.$pr['ikt_szam'].'</td>
+                <td class="l">'.$pr['nev'].'</td>
+            </tr>
+            ';
+        $i++;
+    }
+
+    if( $i > 1 ) {
+
+        $html = '
+            <div style="max-height: 40rem; overflow-y: auto; overflow-x: none;">
+                <table class="csikos v2 kijCont csak_egy_kijelolheto" id="prkezelesek" style="cursor: default;">
+                <thead>
+                <tr>
+                    <th>
+                        Projekt szám
+                        <br><input type="text" class="flat" placeholder="Szűrés" onkeyup="tabla_szur($(\'#prkezelesek tbody\'), this.value, 2)">
+                    </th>
+                    <th>
+                        Név
+                        <br><input type="text" class="flat" placeholder="Szűrés" onkeyup="tabla_szur($(\'#prkezelesek tbody\'), this.value, 3)">
+                    </th>
+                </tr>
+                </thead>
+                <tbody>
+                    '.$html.'
+                </tbody>
+                </table>
+            </div>
+            <script>
+            ';
+    } else {
+        $html = '<script>popupRejt(); setTimeout(function(){ popupZar(); alert2(\'Nem található projekt!\', \'\', \'Hiba\'); }, 10);</script>';
+    }
+
+    echo json_encode(
+            array( 'html' => nl2($html) )
+            );
+
+    $weblap->leallit();
+    exit();
+}
+
+// Munkalap hozzáadása projekthez
+if( isset($_POST['projekt_hozzaad']) ) {
+    
+    $adatbazis_kapcsolat->u('munkalap', array('pr_szam'), array($_POST['pr_szam']), "`recid`='{$_POST['recid']}'");
+    
+    echo json_encode(array('siker' => 1));
+    
+    $weblap->leallit();
+    exit();
+}
+
+// Munkalapon projekt törlése
+if( isset($_POST['projekt_torelese']) ) {
+    
+    $adatbazis_kapcsolat->u('munkalap', array('pr_szam'), array(''), "`recid`='{$_POST['recid']}'");
+    
+    echo json_encode(array('siker' => 1));
+    
+    $weblap->leallit();
+    exit();
+}
+
 // Új munkalap létrehozása bejelentésből
 if( $_GET['ujkent_bejelentes'] ) {
 

@@ -10923,3 +10923,22 @@ function csv_export_lezar($fh, $filename, $nev = '') {
     $weblap->leallit();
     exit();
 }
+
+// Munkalap és projekt összekötése
+function projekt_munkalap_osszekot($pr_id, $ml_id) {
+    
+    global $adatbazis_kapcsolat;
+
+    $pr = $adatbazis_kapcsolat->s2('ikt_szam', 'projektkezeles', "`recid`='{$pr_id}'");
+    $adatbazis_kapcsolat->u('munkalap', array('pr_szam'), array($pr['ikt_szam']), "`recid`='{$ml_id}'");
+    
+}
+
+// Munkalap és projekt összekötése
+function projekt_munkalap_levesz($ml_id) {
+    
+    global $adatbazis_kapcsolat;
+
+    $adatbazis_kapcsolat->u('munkalap', array('pr_szam'), array(''), "`recid`='{$ml_id}'");
+    
+}

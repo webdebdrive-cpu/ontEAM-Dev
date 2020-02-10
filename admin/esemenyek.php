@@ -1356,23 +1356,24 @@ $bejelentes_dok_tomb = $akt_tomb = array(
 // Munkalap tömb
 $megnevezes = 'munkalap';
 $arch_post  = '';
-if( basename(self())=='munkalap_arch.php' ){
+if( basename(self()) == 'munkalap_arch.php' ) {
     $arch_post  = '_arch';
     $megnevezes = 'munkalap_arch';
 }
-$surgos_disabled = '';
-$surgos_onclick  = '';
-$projekt_neve    = '';
+$surgos_disabled        = '';
+$surgos_onclick         = '';
+$projekt_neve           = '';
+$projekt_hozzaad_torol  = '';
 if( isset($_GET['modosit']) ) {
 
-    $munkalap = $adatbazis_kapcsolat->s2('szemelyzet_id mobil_loginnev stat_id mobil loginnev pr_szam', $megnevezes, "`recid`='{$_GET['id']}'");
+    $munkalap = $adatbazis_kapcsolat->s2('szemelyzet_id mobil_loginnev stat_id tipus_id mobil loginnev pr_szam', 'munkalap', "`recid`='{$_GET['id']}'");
     $hozrend_mobilnev = '';
-    if($munkalap['szemelyzet_id']==MOBILCSOPORT && $munkalap['mobil_loginnev']){
+    if( $munkalap['szemelyzet_id'] == MOBILCSOPORT && $munkalap['mobil_loginnev'] ) {
         $torzsadat = $adatbazis_kapcsolat->s2('nev', 'torzsadat', "`felh_loginnev`='{$munkalap['mobil_loginnev']}'");
         $hozrend_mobilnev .= $torzsadat['nev'];
     }
-    if($munkalap['mobil']){
-        if($hozrend_mobilnev){
+    if( $munkalap['mobil'] ) {
+        if( $hozrend_mobilnev ) {
             $hozrend_mobilnev .= ' | ';
         }
         $hozrend_mobilnev .= ' Mobilcsoport: <b>'.strtoupper($munkalap['mobil']).'</b>';
@@ -1394,24 +1395,40 @@ if( isset($_GET['modosit']) ) {
     $bejelentesek = adatbazis2tomb($bejelentesek, 'bejelentes_id');
     if( $bejelentesek ) {
         $bejelentesek = $adatbazis_kapcsolat->s('recid', 'bejelentes'.$arch_post, "`recid` IN (".implode(', ', $bejelentesek).")", '', '1');
-        if($bejelentesek){
+        if( $bejelentesek ) {
             $van_bejelentes = true;
         }
     }
     if( !$van_bejelentes ) {
         $login = $adatbazis_kapcsolat->s2('teljes_nev usertel usermail', 'login', "`nev`='{$munkalap['loginnev']}'");
         $ml_leiras_ala = '<br>Létrehozta: <b id="letrehozta">'.$login['teljes_nev'].'</b> ';
-        if($login['usertel']){
+        if( $login['usertel'] ) {
             $ml_leiras_ala .= '<span style="margin-left: 2rem"></span>Telefon: <a href="tel:'.$login['usertel'].'" id="usertel">'.$login['usertel'].'</a>';
         }
-        if($login['usermail']){
+        if( $login['usermail'] ) {
             $ml_leiras_ala .= '<span style="margin-left: 2rem"></span>E-mail: <a href="mailto:'.$login['usermail'].'" id="usermail">'.$login['usermail'].'</a>';
         }
     }
     
-    // Projekt név kiszámítása
-    $proj = $adatbazis_kapcsolat->s2('recid nev', 'projektkezeles', "`ikt_szam`='{$munkalap['pr_szam']}'");
-    $projekt_neve = '<a href="projektkezeles.php?id=x&amp;modosit&amp;mezo=ikt_szam&amp;op=equal&amp;felt='.$munkalap['pr_szam'].'" target="_blank">'.resz_string($proj['nev'], 60).'</a>';
+    // Projektszám mögötti tartalom
+    if( !$munkalap['pr_szam'] ) {
+        
+        // Hozzáadás projekthez feltételei
+        $tiltott_statuszok = array(MLTIPUS_RENDSZERES_K, MLTIPUS_UTEMEZETT_F);
+        if( $_SESSION[get_db_tabla().'szemelyzet_id'] == TERULETI_FELELOS && !in_array($munkalap['tipus_id'], $tiltott_statuszok) ) {
+            $projekt_hozzaad_torol = '<input type="button" class="gomb alacsony" value="Hozzáadás projekthez" onclick="csoportMuvelet(\'munkalap_hozzaadas_projekthez\');">';
+        }
+        
+    } else {
+        
+        $projekt_hozzaad_torol = '<input type="button" class="gomb alacsony piros" value="Projekt törlése" onclick="projekt_torelese()">';
+        
+        // Projekt név kiszámítása
+        $proj = $adatbazis_kapcsolat->s2('recid nev', 'projektkezeles', "`ikt_szam`='{$munkalap['pr_szam']}'");
+        $projekt_neve = '<a href="projektkezeles.php?id=x&amp;modosit&amp;mezo=ikt_szam&amp;op=equal&amp;felt='.$munkalap['pr_szam'].'" target="_blank">'.resz_string($proj['nev'], 60).'</a>';
+        
+    }
+    
 }
 // Bejelentésből 2. munkalap készítésekor a szálloda disabled
 $ub_disabled = false;
@@ -1431,7 +1448,7 @@ $munkalap_tomb = $munkalap_arch_tomb = $akt_tomb = array(
     array('type' => 'autocomplete',             'megn' => 'Helyiség:',                  'name' => 'obj_id',             'szuro' => 1, 'disabled' => $csakUjkent.$ub_disabled,       'class' => 'oriasi disableNav', 'style' => 'width: calc(100% - 3rem);', 'tabla' => 'obj',           'oszlop_keres' => 'recid', 'oszlop_keres_autocomp' => 'nev', 'listaz' => 'nev', 'id_kiir' => 'recid', 'js_t_meg_ne_tedd_ra' => 1, 'onclick' => 'szallodaVane( this );', 'post' => $obj_post),
     array('type' => 'autocomplete',             'megn' => 'Gépnév:',                    'name' => 'gep_id',             'szuro' => 1, 'disabled' => $csakUjkent,                    'class' => 'oriasi disableNav',                                         'tabla' => 'eszkozkezeles', 'oszlop_keres' => 'recid', 'oszlop_keres_autocomp' => 'nev', 'listaz' => 'nev', 'onclick' => 'helyisegVane( this );'),
     array('type' => 'autocomplete',             'megn' => 'Típus:',                     'name' => 'tipus_id',           'szuro' => 1, 'disabled' => $csakUjkent.$ub_disabled,       'class' => 'kozepes disableNav', 'style' => 'width: 30rem',             'tabla' => 'erteklista',    'oszlop_keres' => 'id',    'oszlop_keres_autocomp' => 'info', 'complete' => 'garancialis_tipus_projekt_popup();', 'listaz' => 'info', 'csoport' => ERTEKLISTA_MUNKALAP_TIP, 'id_kiir' => 'id', 'alert' => 'Kérem adja meg a tipust!', 'osszevon' => 1, 'post' => '<span style="margin-left: 6rem"></span>', 'onkeyup' => 'if( $(this).val()==\'\' ) { $(\'#pr_szam\').val(\'\'); $(\'#projekt_neve\').html(\'\'); }'),
-    array('type' => 'text',                     'megn' => 'Projekt szám:',              'name' => 'pr_szam',            'szuro' => 1, 'disabled' => 1,   'class' => 'normal', 'style' => 'width: 10rem', 'post' => ' <span id="projekt_neve">'.$projekt_neve.'</span>'),
+    array('type' => 'text',                     'megn' => 'Projekt szám:',              'name' => 'pr_szam',            'szuro' => 1, 'disabled' => 1,                  'class' => 'normal', 'style' => 'width: 10rem', 'post' => ' <span id="projekt_neve">'.$projekt_neve.'</span>'.$projekt_hozzaad_torol),
     array('type' => 'autocomplete',             'megn' => 'Külső kivitelező:',          'name' => 'szallito_id',        'szuro' => 1, 'disabled' => 1,                  'class' => 'oriasi disableNav', 'tabla' => 'szallito', 'oszlop_keres' => 'id', 'oszlop_keres_autocomp' => 'nev', 'listaz' => 'nev', 'id_kiir' => 'id', 'style' => 'width: 30rem', 'post' => '<span style="margin-right: 3rem"></span>', 'osszevon' => true),
     array('type' => 'text',                     'megn' => 'Jóváhagyott érték:',         'name' => 'jh_ert',             'szuro' => 1, 'disabled' => 1, 'style' => 'width: 8rem; text-align: right;', 'post' => ' '.get_penznem().' + Áfa<span style="margin-right: 3rem"></span>', 'osszevon' => true),
     array('type' => 'checkbox',                 'megn' => 'Becsült érték:',             'name' => 'becs_ertek',         'szuro' => 0, 'disabled' => 1, 'felirat_class' => ' piros dn f_becsult_ertek'), // Alapból elrejtjük, és csak akkor jelenítjük meg, ha be van pipálva (munkalap forráskódjában van erre külön kód)
