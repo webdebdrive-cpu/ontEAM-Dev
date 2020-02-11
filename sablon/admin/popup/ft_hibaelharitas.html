@@ -192,7 +192,7 @@ function hiba_tabla_ment( that ) {
          			}
                     energia_szummaz();
                     popupZar();
-                    szamlaBetolt(_get('id'), baseName(location.href) + '.php', 'hibaelharitas').done(function() {
+                    szamlaBetolt(_get('id'), PHP_SELF, 'hibaelharitas').done(function() {
                         $('.szamla_cont_tabla tr').removeClass('kijelolve');
                         $('#ft_ft_' + response.recid).addClass('kijelolve');
                         $('#tartalomJobb .fht-tbody').scrollTop($('#ft_ft_' + response.recid).position().top);

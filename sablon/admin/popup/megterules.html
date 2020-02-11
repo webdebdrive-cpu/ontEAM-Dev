@@ -75,7 +75,7 @@ function addMegterules( pageID, that ) {
                         return false;
                     }
 
-         			szamlaBetolt(pageID, baseName(location.href) + '.php', 'megterules').done(function() {
+         			szamlaBetolt(pageID, PHP_SELF, 'megterules').done(function() {
                         $('#naploSor-' + response.kapcsID).addClass('uj');
                     });
 

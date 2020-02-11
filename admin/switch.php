@@ -59,10 +59,10 @@ foreach ( $akt_tomb as $ertek ) {
                 }
             }
 
-            if(!$sor[ $ertek['name'] ]) {
+            if( !$sor[$ertek['name']] ) {
                 $input -> value = $ertek['value'];
             } else {
-                if($ertek['szam']) {
+                if( $ertek['szam'] ) {
                     $input -> value = number_format($sor[ $ertek['name'] ], '', '', '.');
                 } else {
                     if( strstr($ertek['class'], 'datepicker') ) {
@@ -74,7 +74,7 @@ foreach ( $akt_tomb as $ertek ) {
                     }
                 }
             }
-            if($ertek['value_felulir']){
+            if( $ertek['value_felulir'] ) {
                 $input -> value   = $ertek['value_felulir'];
             }
 
@@ -92,7 +92,7 @@ foreach ( $akt_tomb as $ertek ) {
 
             // Lekérdezzük a külső tábla értékét
             $tabla = $ertek['tabla'];
-            if($ertek['tabla']=='obj_csakszint'){
+            if( $ertek['tabla'] == 'obj_csakszint' ) {
                 $tabla = 'obj';
             }
             $kulso_ertek = $adatbazis_kapcsolat->s($ertek['listaz'], $tabla, '`'.$ertek['oszlop_keres'].'`=\''.$kulso_val.'\''.$csoport_where, '', '1');

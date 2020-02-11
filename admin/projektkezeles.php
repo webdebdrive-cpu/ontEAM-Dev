@@ -1828,7 +1828,7 @@ if( isset($_POST['munkalap_hozzaad']) ) {
 // Munkalap levétele
 if( isset($_POST['projekt_munkalap_levesz']) ) {
     
-    projekt_munkalap_levesz($_POST['ml_id']);
+    projekt_munkalap_levesz($_POST['ml_id'], $_POST['ml_tipus'], $_POST['ml_stornoz']);
     
     echo json_encode(array('siker' => 1));
     
@@ -2829,9 +2829,9 @@ require_once('selectek.php');
             
             // Személyzet kiíratása
             $szemelyzet = '';
-            foreach ( $select_szemelyzet as $szemelyzet ) {
-                if( $munkalap['szemelyzet_id'] && $szemelyzet['value'] == $munkalap['szemelyzet_id'] ) {
-                    $szemelyzet = $szemelyzet['name'];
+            foreach ( $select_szemelyzet as $szem ) {
+                if( $munkalap['szemelyzet_id'] && $szem['value'] == $munkalap['szemelyzet_id'] ) {
+                    $szemelyzet = $szem['name'];
                     break;
                 }
             }

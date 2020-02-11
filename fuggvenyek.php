@@ -10995,9 +10995,16 @@ function projekt_munkalap_osszekot($pr_id, $ml_id) {
     // Ha a projket státusza még nem volna folyamatban sem, akkor felajánljuk a státusz léptetését
     if( $pr['stat_id'] < PRKEZEL_STAT_FOLYAMATBAN ) {
         
+        // Amikor befrissítjük az adatlapot, melyik fülre érkezzünk
+        // ML esetén az adatlapra, projektek felületen a Munkalap fülre
+        $ful = 'modosit';
+        if( basename(self()) == 'projektkezeles.php' ) {
+            $ful = 'munkalapok';
+        }
+        
         echo    json_encode( array(
                             'hiba'  => 'Munkalapot kapcsol projekthez, amely '. getStatText('projektkezeles', $pr['stat_id']).'.<br>Folyamatban státuszba helyezi a projektet?',
-                            'gomb'  => '<input type="button" class="gomb zold" value="Igen" onclick="projektkezeles_folyamatbanra(\''.$pr_id.'\')"> <input type="button" class="gomb piros" value="Nem" onclick="szamlaBetolt(_get(\'id\'), PHP_SELF, \'modosit\');">',
+                            'gomb'  => '<input type="button" class="gomb zold" value="Igen" onclick="projektkezeles_folyamatbanra(\''.$pr_id.'\', \''.$ful.'\')"> <input type="button" class="gomb piros" value="Nem" onclick="szamlaBetolt(_get(\'id\'), PHP_SELF, \''.$ful.'\');">',
                             'title' => 'Kérdés'
                             )
                 );
@@ -11007,11 +11014,91 @@ function projekt_munkalap_osszekot($pr_id, $ml_id) {
     
 }
 
-// Munkalap és projekt összekötése
-function projekt_munkalap_levesz($ml_id) {
+// Munkalap levétele projektről
+function projekt_munkalap_levesz($ml_id, $ml_tipus = '', $ml_stornoz = '') {
     
     global $adatbazis_kapcsolat;
+    global $weblap;
+    global $db_kapcs;
+    
+    // Tranzakció indul
+    $db_error = false;
+    mysqli_autocommit($db_kapcs, false);
+    
+    $oszlopok = array('pr_szam');
+    $ertekek  = array('');
+    
+    // Ha kapunk típust értéket is, akkor a ML típusán is változtatunk
+    if( $ml_tipus ) {
+        array_push($oszlopok, 'tipus_id');
+        array_push($ertekek,  $ml_tipus );
+    }
+    
+    // Ha a ML-ot sztornózni is kell
+    if( $ml_stornoz ) {
+        
+        // Ha a ML-nak van bejelentése, akkor nem sztornózható
+        $bejelentes = $adatbazis_kapcsolat->s2('bejelentes_id', 'munkalap_kapcs', "`munkalap_id`='{$ml_id}'");
+        if( $bejelentes === false ) { $db_error = true; }
+        $bejelentes = $adatbazis_kapcsolat->s2('recid', 'bejelentes', "`recid`='{$bejelentes['bejelentes_id']}'");
+        if( $bejelentes === false ) { $db_error = true; }
+        if( $bejelentes ) {
+            echo json_encode(array(
+                                    'hiba'  => 'Ennek a munkalapnak van bejelentése.<br>Nem sztornózható!',
+                                    'title' => 'Hiba'
+                                ));
+            $weblap -> leallit();
+            exit;
+        }
+        
+        // Ha van tétele munkavégzéssel, akkor sem sztornózható
+        $tetelek = $adatbazis_kapcsolat->s('recid', 'munkalap_feladat', "`munkalap_id`='{$ml_id}'");
+        if( $tetelek === false ) { $db_error = true; }
+        if( $tetelek ) {
+            echo json_encode(array(
+                                    'hiba'  => 'Ezen a munkalapon már történt munkavégzés.<br>Nem sztornózható!',
+                                    'title' => 'Hiba'
+                                ));
+            $weblap -> leallit();
+            exit;
+        }
+        
+        // Ha idáig eljutottunk, akkor a ML sztornózható
+        if( addStatusz('munkalap_statusz', $ml_id, MUNKALAP_STAT_SZTORNO) === false ) {
+            $db_error = true;
+        }
+        
+    }
 
-    $adatbazis_kapcsolat->u('munkalap', array('pr_szam'), array(''), "`recid`='{$ml_id}'");
+    // Projekt visszaszámolása, mert kell a megjegyzéshez
+    $ml = $adatbazis_kapcsolat->s2('pr_szam', 'munkalap', "`recid`='{$ml_id}'");
+    if( $ml === false ) { $db_error = true; }
+    $pr = $adatbazis_kapcsolat->s2('ikt_szam nev tipus', 'projektkezeles', "`ikt_szam`='{$ml['pr_szam']}'");
+    if( $pr === false ) { $db_error = true; }
+    $sql = $adatbazis_kapcsolat->u('munkalap', $oszlopok, $ertekek, "`recid`='{$ml_id}'");
+    if( $sql === false ) { $db_error = true; }
+    
+    require_once 'selectek.php';
+    $tipus_neve = '';
+    foreach( $select_pri_tipus as $pr_tipus ) {
+        if( $pr['tipus'] && $pr['tipus'] == $pr_tipus['value'] ) {
+            $tipus_neve = $pr_tipus['name'];
+            break;
+        }
+    }
+    $megj = nl2('
+                '.$tipus_neve.' projektből törölve.
+                <br>'.$pr['ikt_szam'].' - '.htmlspecialchars_decode($pr['nev']).'
+                ');
+    if( addMegj('munkalap', $ml_id, $megj) === false ) {
+        $db_error = true;
+    }
+    
+    // Tranzakció kommitolása, vagy rollback-ezése
+    if( !$db_error ) {
+        mysqli_commit($db_kapcs);
+    } else {
+        mysqli_rollback($db_kapcs);
+    }
     
 }

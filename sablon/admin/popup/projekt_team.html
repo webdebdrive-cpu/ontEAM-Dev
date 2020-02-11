@@ -156,7 +156,7 @@ function projekt_team_felvesz() {
                     return false;
                 } else {
                     
-                    szamlaBetolt( _get('id'), baseName(location.href) + '.php', 'projekt_team' );
+                    szamlaBetolt( _get('id'), PHP_SELF, 'projekt_team' );
                     popupZar();
                     
                     /* Arra az esetre, ha csak a levélküldéssel volt gond */

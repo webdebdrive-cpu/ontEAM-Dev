@@ -80,7 +80,7 @@ function addVelemenyezoFg() {
                         return false;
                     }
 
-         			szamlaBetolt(pr_igeny_recid, baseName(location.href) + '.php', 'velemenyezok').done(function() {
+         			szamlaBetolt(pr_igeny_recid, PHP_SELF, 'velemenyezok').done(function() {
                         $('#naploSor-' + response.kapcsID).addClass('uj');
                     });
 

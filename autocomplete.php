@@ -222,6 +222,12 @@ if( isset($_GET['value']) && isset($_GET['tabla']) && isset($_GET['oszlop_keres'
         // Projekt team tagoknál szűrni kell projekt recid-ra
         } elseif( $_GET['tabla'] == 'projektkezeles_team' ) {
             $lekerdez = mysqli_query($db_kapcs, 'SELECT `recid`,'.$select_kieg.' `'.implode('`, `', $oszlop_listaz).'` FROM `'.get_db_tabla().$_GET['tabla'].'`'.$where_sql.' AND `projektkezeles_recid`=\''. $_GET['recid'].'\' ORDER BY `'.$oszlop_keres[0].'`') or die(mysqli_error($db_kapcs));
+            
+        // Ha a Projektek felületen kérjük le a ML típusokat, akkor a ML levétel popupjában vagyunk.
+        // Itt a listból ki kell venni az ütemezett feladat és rendszeres karbantartás típusokat
+        } elseif( $_GET['felt'] == 'projektkezeles_ml_levetel' ) {
+            $where_sql .= ' AND `id` NOT IN ('.MLTIPUS_RENDSZERES_K.', '.MLTIPUS_UTEMEZETT_F.')';
+            $lekerdez = mysqli_query($db_kapcs, 'SELECT `recid`,'.$select_kieg.' `'.implode('`, `', $oszlop_listaz).'` FROM `'.get_db_tabla().$_GET['tabla'].'`'.$where_sql.' ORDER BY `'.$oszlop_keres[0].'`') or die(mysqli_error($db_kapcs));
         } else {
 // echo 'SELECT `recid`,'.$select_kieg.' `'.implode('`, `', $oszlop_listaz).'` FROM `'.get_db_tabla().$_GET['tabla'].'`'.$where_sql.' ORDER BY `'.$oszlop_keres[0].'`'; exit;
             $lekerdez = mysqli_query($db_kapcs, 'SELECT `recid`,'.$select_kieg.' `'.implode('`, `', $oszlop_listaz).'` FROM `'.get_db_tabla().$_GET['tabla'].'`'.$where_sql.' ORDER BY `'.$oszlop_keres[0].'`') or die(mysqli_error($db_kapcs));
@@ -275,4 +281,3 @@ if( isset($_GET['value']) && isset($_GET['tabla']) && isset($_GET['oszlop_keres'
 }
 
 $weblap -> leallit();
-?>

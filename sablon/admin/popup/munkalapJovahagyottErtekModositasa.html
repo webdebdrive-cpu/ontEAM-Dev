@@ -68,7 +68,7 @@ function munkalapJovahagyottErtekModositasa() {
                         return false;
                     }
 
-                    szamlaBetolt(_get('id'), baseName(location.href) + '.php', 'modosit');
+                    szamlaBetolt(_get('id'), PHP_SELF, 'modosit');
                     popupZar();
                 }
             },

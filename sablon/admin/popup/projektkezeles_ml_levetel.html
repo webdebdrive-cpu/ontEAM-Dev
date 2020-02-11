@@ -1,10 +1,20 @@
 <h2>Munkalap levétele projektről</h2>
 <form class="popupForm" method="post" onsubmit="return projekt_munkalap_levesz();">
     <div class="kozep">
-        <br>Munkalap új típusa: <input type="text" id="ml_uj_tipusa">
-        <br><input type="checkbox" id="ml_stornozasa"> munkalap sztornózása
-        <br>
-        <br><b>Biztos, hogy leveszi a munkalapot a projektről?</b>
+        <div style="margin-bottom: 1rem">
+            Munkalap új típusa: <input type="text" class="csillag" name="ml_uj_tipusa_autocomp" id="ml_uj_tipusa_autocomp">
+            <input type="hidden" id="ml_uj_tipusa" name="ml_uj_tipusa">
+        </div>
+        <div style="margin-bottom: 1rem">
+            Munkalap sztornózása:
+            <div class="cb">
+                <input type="checkbox" class="check" id="ml_stornozasa">
+                <label for="ml_stornozasa"></label>
+            </div>
+        </div>
+        <div style="margin: 5rem 0">
+            <b>Biztos, hogy leveszi a munkalapot a projektről?</b>
+        </div>
     </div>
     <div class="kuldes">
         <input type="submit" name="elkuld" value="Igen">
@@ -12,15 +22,38 @@
     </div>
 </form>
 <script>
+/* ML típus autocomplete */
+$(document).ready(function() {
+    setTimeout(function(){
+        $('#ml_uj_tipusa_autocomp').autocomplete({
+            'php_fajl'      : '../autocomplete.php',
+            'tabla'         : 'erteklista',
+            'oszlop_keres'  : 'info',
+            'oszlop_listaz' : 'info',
+            'csoport'       : 6/*ERTEKLISTA_MUNKALAP_TIP*/,
+            'id_kiir'       : 'id',
+            'felt'          : 'projektkezeles_ml_levetel',
+        });
+    }, 1000);
+});
 
 /* Projekt leállítása */
 function projekt_munkalap_levesz(){
+    
+    if( !$('#ml_uj_tipusa').val() ) {
+        alert2('Kérem előbb válasszon munkalap típust!', '', 'Hiba');
+        $('#ml_uj_tipusa_autocomp').addClass('hibas_ide_focus');
+        return false;
+    }
+    
     $.ajax({
         url : 'projektkezeles.php',
         type: 'POST',
         data: {
             recid                   : _get('id'),
             ml_id                   : pr_ml_levesz_id,
+            ml_tipus                : $('#ml_uj_tipusa').val(),
+            ml_stornoz              : $('#ml_stornozasa').is(':checked'),
             projekt_munkalap_levesz : Date.now()
         },
         success: function(response) {

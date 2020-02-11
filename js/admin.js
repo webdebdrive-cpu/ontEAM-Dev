@@ -8122,7 +8122,7 @@ function csv_link_cserel_kattint() {
 }
 
 // Projektigénylés státusz léptetése folyamatbanra (ez itt kell legyen az admin.js-ben, nem szervezehtő ki csak egy php alá)
-function projektkezeles_folyamatbanra( pr_recid ) {
+function projektkezeles_folyamatbanra( pr_recid, ful ) {
     $.ajax({
         url : 'projektkezeles.php',
         type: 'POST',
@@ -8132,7 +8132,7 @@ function projektkezeles_folyamatbanra( pr_recid ) {
         },
         success: function (response) {
             if(response.substring(0, 6)=='SESKIL'){ location.href = 'index.php'; }
-            szamlaBetolt(_get('id'), PHP_SELF, 'modosit');
+            szamlaBetolt(_get('id'), PHP_SELF, ful);
         },
         complete: function(xhr) {
             if( xhr.status != 200 ) {

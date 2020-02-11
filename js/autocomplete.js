@@ -33,7 +33,7 @@
                 php_fajl        : 'autocomplete.php',   /* PHP fájl, amit meghívunk                                         */
                 popupba         : '',
                 props           : '',                   /* Pl. ktgnem keresésnél a feltétel kiegészül még egy props oszlopban való kereséssel */
-                recid           : '',                   /* Az aktuális űrlap reid-ja. Néha szükség van rá                   */
+                recid           : '',                   /* Az aktuális űrlap recid-ja. Néha szükség van rá                   */
                 rkat            : 0,                    /* Rendszer kategóriára szűrünk                                     */
                 szel            : 'auto',               /* Lista szélessége                                                 */
                 aktiv           : '',                   /* login táblánál tudjunk szűrni aktívakra is                       */

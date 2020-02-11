@@ -39,7 +39,7 @@ function addHianypotlas() {
                     return false;
                 }
 
-                szamlaBetolt(recid, baseName(location.href) + '.php', 'modosit').done(function() {
+                szamlaBetolt(recid, PHP_SELF, 'modosit').done(function() {
                     $('#naploSor-' + response.kapcsID).addClass('uj');
                 });
 

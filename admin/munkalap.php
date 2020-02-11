@@ -482,8 +482,7 @@ if( isset($_POST['projekt_hozzaad']) ) {
 // Munkalapon projekt törlése
 if( isset($_POST['projekt_torelese']) ) {
     
-    $adatbazis_kapcsolat->u('munkalap', array('pr_szam'), array(''), "`recid`='{$_POST['recid']}'");
-    
+    projekt_munkalap_levesz($_POST['recid']);
     echo json_encode(array('siker' => 1));
     
     $weblap->leallit();
@@ -510,7 +509,7 @@ if( $_GET['ujkent_bejelentes'] ) {
     if( $sql === false ) { $db_error = true; }
 
     // Bejelentés státuszát is léptetjük, mert van hogy már volt munkalapja, csak sztornózták és nyitottá vált a bejeletnés, és ekkor is folyamatbanra kell tenni
-    if( addStatusz('bejelentes_statusz', $_GET['ujkent_bejelentes'], BEJELENTES_STAT_FOLYAMATBAN) === false){
+    if( addStatusz('bejelentes_statusz', $_GET['ujkent_bejelentes'], BEJELENTES_STAT_FOLYAMATBAN) === false ) {
         $db_error = true;
     }
 

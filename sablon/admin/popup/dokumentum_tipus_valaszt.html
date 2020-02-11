@@ -65,7 +65,7 @@ function dokumentum_tipus_valaszt(){
         },
         success: function(response) {
             if(response.substring(0, 6)=='SESKIL'){ location.href = 'index.php'; }
-            szamlaBetolt( _get('id'), baseName(location.href) + '.php', 'dokumentumok' );
+            szamlaBetolt( _get('id'), PHP_SELF, 'dokumentumok' );
             if( leptessuk_e_tovabb ) {
                 projekt_fajfeltoltes_utan_tovabb();
             }

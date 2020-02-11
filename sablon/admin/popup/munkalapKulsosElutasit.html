@@ -77,7 +77,7 @@ function munkalapKulsosElutasit() {
                 }
                 
                 popupZar();
-                szamlaBetolt(_get('id'), baseName(location.href) + '.php', 'modosit');
+                szamlaBetolt(_get('id'), PHP_SELF, 'modosit');
             }
         },
         complete: function(xhr) {

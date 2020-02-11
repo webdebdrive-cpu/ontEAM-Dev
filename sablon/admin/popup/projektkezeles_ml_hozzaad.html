@@ -56,10 +56,10 @@ function munkalap_hozzaad() {
                 response = JSON.parse(response);
                 if( response.hiba ) {
                     alert2(response.hiba, response.gomb, response.title);
-                    return false;
+                } else {
+                    szamlaBetolt(_get('id'), PHP_SELF, 'munkalapok');
                 }
                 popupZar();
-                szamlaBetolt(_get('id'), PHP_SELF, 'munkalapok');
             }
         },
         complete: function(xhr) {

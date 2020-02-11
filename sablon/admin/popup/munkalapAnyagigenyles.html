@@ -123,7 +123,7 @@ function munkAnyagIgenyles( csak_kerdezunk ) {
                         return false;
                     }
 
-                    szamlaBetolt(_get('id'), baseName(location.href) + '.php', 'tetel');
+                    szamlaBetolt(_get('id'), PHP_SELF, 'tetel');
                     popupZar();
                     alert2();
          		}

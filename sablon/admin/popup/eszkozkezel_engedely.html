@@ -63,7 +63,7 @@
                     }
 
                 }
-                szamlaBetolt(_get('id'), baseName(location.href) + '.php', 'engedelyek');
+                szamlaBetolt(_get('id'), PHP_SELF, 'engedelyek');
                 popupZar(); 
             },
             complete: function(xhr) {

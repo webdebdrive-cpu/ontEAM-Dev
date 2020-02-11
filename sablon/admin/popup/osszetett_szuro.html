@@ -14,7 +14,7 @@
             $(document).ready(function(){
                 
                 /* Fontos, hogy anyagigénylésnél az anyagrend paraméter is megjelenjen az URL-ben, ha anyagrendelés felületen volnánk, mert az $_SESSION['elozo_oldal'] kiszámításához (összetett szűrő) kell */
-                var url = baseName(location.href)+'.php';
+                var url = PHP_SELF;
                 if(baseName(location.href)=='anyagigenyles'){
                     if( _get('anyagrend') ){
                         url += '?anyagrend';

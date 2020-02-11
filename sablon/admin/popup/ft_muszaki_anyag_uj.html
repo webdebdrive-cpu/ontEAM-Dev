@@ -202,7 +202,7 @@ function muszaki_tabla_ment( that ) {
          			}
                     energia_szummaz();
                     popupZar();
-                    szamlaBetolt(_get('id'), baseName(location.href) + '.php', 'muszaki_anyag').done(function() {
+                    szamlaBetolt(_get('id'), PHP_SELF, 'muszaki_anyag').done(function() {
                         $('.szamla_cont_tabla tr').removeClass('kijelolve');
                         $('#ft_ft_' + response.recid).addClass('kijelolve');
                         $('#tartalomJobb .fht-tbody').scrollTop($('#ft_ft_' + response.recid).position().top);

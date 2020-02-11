@@ -105,7 +105,7 @@ function dokumentumKuldeseTeamTagoknak( that ) {
 
                     if( response.hiba ) {
                         /* Attól, hogy hibaüzenetet kapunk, még frissüljön az adatlap. Pl. csak a mailküldés nem sikerült, de a státusz tovább lett léptetve, azt látni kell. */
-                        szamlaBetolt(_get('id'), baseName(location.href) + '.php', 'dokumentumok');
+                        szamlaBetolt(_get('id'), PHP_SELF, 'dokumentumok');
                         alert2(response.hiba, response.gomb, response.title);
                         if(response.focus){
                             $('#'+response.focus).addClass('hibas_ide_focus');
@@ -114,7 +114,7 @@ function dokumentumKuldeseTeamTagoknak( that ) {
                         return false;
                     }
 
-                    szamlaBetolt(_get('id'), baseName(location.href) + '.php', 'dokumentumok');
+                    szamlaBetolt(_get('id'), PHP_SELF, 'dokumentumok');
                     popupZar();
                 }
             },
