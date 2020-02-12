@@ -406,17 +406,20 @@ function projekt_felelos_beallitva( login_id ) {
         success: function (response) {
             if (response) {
                 response = JSON.parse(response);
-                if( response.szemelyzet_id == SZEREPKOR_TER_FELELOS ) {
-                    $('#tipus').val(PROJEKT_TIPUS).prop('disabled', true);
-                } else {
-                    $('#tipus').val('').prop('disabled', false);
-                }
-                $('#telephely_id').replaceWith(response.telephely_select);
                 
-                /* Eredeti szálloda visszaírása, ha lehetséges */
-                $('#telephely_id').val(aktualis_szalloda);
-                if (!$('#telephely_id option[value="' +aktualis_szalloda+ '"]').prop('selected', true).length) {
-                    $('#telephely_id').val('');
+                if( _get('uj') ) {
+                    if( response.szemelyzet_id == SZEREPKOR_TER_FELELOS ) {
+                        $('#tipus').val(PROJEKT_TIPUS).prop('disabled', true);
+                    } else {
+                        $('#tipus').val('').prop('disabled', false);
+                    }
+                    $('#telephely_id').replaceWith(response.telephely_select);
+
+                    /* Eredeti szálloda visszaírása, ha lehetséges */
+                    $('#telephely_id').val(aktualis_szalloda);
+                    if (!$('#telephely_id option[value="' +aktualis_szalloda+ '"]').prop('selected', true).length) {
+                        $('#telephely_id').val('');
+                    }
                 }
             }
         }

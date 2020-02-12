@@ -2419,8 +2419,8 @@ if( isset($_GET['csv']) ) {
         $megnevezes .= '_muszaki_anyag';
         $csv_cim     = 'Műszaki-anyag';
     }
-    if( $_GET['ful'] == 'rendszeres_karbantartas' ) {
-        $megnevezes .= '_rendszeres_karbantartas';
+    if( $_GET['ful'] == 'rendsz_karban' ) {
+        $megnevezes .= '_rendsz_karban';
         $csv_cim     = 'Rendszeres-karbantartás';
     }
     if( $_GET['ful'] == 'eseti_karban' ) {

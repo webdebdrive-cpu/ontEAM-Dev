@@ -2885,7 +2885,7 @@ require_once('selectek.php');
         
         // ML-ot hozzáadni csak Projektek kezelése joggal lehet
         if( _jog(JOG_PRKEZEL_KEZEL) ) {
-            $szamla_html .= '<div class="r"><input type="button" class="gomb" value="Hozzáadás" onclick="csoportMuvelet(\'projektkezeles_ml_hozzaad\')"></div>';
+            $szamla_html .= '<div class="jsff" style="margin-top: 2rem"><input type="button" class="gomb" value="Hozzáadás" onclick="csoportMuvelet(\'projektkezeles_ml_hozzaad\')"></div>';
         }
         
 

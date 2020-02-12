@@ -59,7 +59,7 @@ function i_u($type, $tabla, $tomb) {
             $terv = $adatbazis_kapcsolat->s2('stat_id', 'fenntartasi_terv', "`recid`='{$_GET['id']}'");
             if( $terv === false ) { $db_error = true; }
 
-            if($terv['stat_id']!=ENERGIATERV_STAT_MUNKAKOZI){
+            if($terv['stat_id'] != ENERGIATERV_STAT_MUNKAKOZI ) {
                 exit;
             }
         }
@@ -85,6 +85,13 @@ function i_u($type, $tabla, $tomb) {
         $gep_txt = getErtek('nev', 'eszkozkezeles', 'recid', $_POST['gep_id']);
         array_push($oszlopok, 'gep_txt');
         array_push($ertekek,  $gep_txt);
+    }
+    
+    // Projekteknél, feltöltéskor Területi felelősként belépve a típus fixen fenntartás
+    if( $type == 'insert' && $tabla == 'projektkezeles' ) {
+        if( $_SESSION[get_db_tabla().'szemelyzet_id'] == TERULETI_FELELOS ) {
+            $_POST['tipus'] = PRIGENY_TIPUS_FENNT;
+        }
     }
     
     // Projektszámláknál a "Pénzügynek átadva" dátum fixen disabled, de mégis mentsük el, azaz itt vegyük fel

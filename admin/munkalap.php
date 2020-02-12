@@ -438,7 +438,7 @@ if( isset($_POST['get_projekt_tabla_hozzaad']) ) {
                 <table class="csikos v2 kijCont csak_egy_kijelolheto" id="prkezelesek" style="cursor: default;">
                 <thead>
                 <tr>
-                    <th>
+                    <th style="width: 10rem">
                         Projekt szám
                         <br><input type="text" class="flat" placeholder="Szűrés" onkeyup="tabla_szur($(\'#prkezelesek tbody\'), this.value, 2)">
                     </th>
