@@ -6074,10 +6074,10 @@ function csv_general( that, valasztos, link_kieg ) {
             alert2('Válasszon export fajtát:<br><a href="javascript:csv_general($(\'.excel\'))">» Fenntartási tervek listája</a>'+
                                             '<br><a href="javascript:csv_general($(\'.excel\'), \'\', \'ful=energia\')">» Energia</a>'+
                                             '<br><a href="javascript:csv_general($(\'.excel\'), \'\', \'ful=muszaki_anyag\')">» Műszaki anyag</a>'+
-                                            '<br><a href="javascript:csv_general($(\'.excel\'), \'\', \'vrendsz_karban\')">» Rendszeres karbantartás</a>'+
+                                            '<br><a href="javascript:csv_general($(\'.excel\'), \'\', \'ful=rendsz_karban\')">» Rendszeres karbantartás</a>'+
                                             '<br><a href="javascript:csv_general($(\'.excel\'), \'\', \'ful=eseti_karban\')">» Eseti fenntartás</a>'+
                                             '<br><a href="javascript:csv_general($(\'.excel\'), \'\', \'ful=hibaelharitas\')">» Hibaelhárítás</a>'+
-                                            '<br><a href="javascript:csv_general($(\'.excel\'), \'\', \'ful=miniprojekt\')">» Mini projekt</a>'+
+                                            '<br><a href="javascript:csv_general($(\'.excel\'), \'\', \'ful=miniprojekt\')">» Miniprojekt</a>'+
                                             bwh_link +
                                             '<br><a href="javascript:csv_general($(\'.excel\'), \'\', \'ful=osszesen\')">» Összesen</a>',
                                             '<input type="button" class="gomb" value="Mégsem" onclick="alert2()">', 'Válasszon exportot');

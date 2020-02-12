@@ -225,7 +225,7 @@ if( isset($_GET['csv']) ) {
         flush();
     }
 
-    csv_export_lezar($fh, $filename, 'Ütemezett feladatok');
+    csv_export_lezar($fh, $filename, 'Ütemezett-feladatok');
 }
 
 // Tartalom

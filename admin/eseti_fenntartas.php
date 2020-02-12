@@ -149,7 +149,7 @@ if( isset($_GET['csv']) ) {
         flush();
     }
 
-    csv_export_lezar($fh, $filename, 'Eseti fenntartás');
+    csv_export_lezar($fh, $filename, 'Eseti-fenntartás');
 }
 
 // Tartalom

@@ -159,7 +159,7 @@ if( isset($_GET['csv']) ) {
         flush();
     }
     
-    csv_export_lezar($fh, $filename, 'Felmérési terv');
+    csv_export_lezar($fh, $filename, 'Felmérési-terv');
 }
 
 // Felmérési terv fájl létezik-e?

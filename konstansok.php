@@ -10,7 +10,7 @@ define('MSZK_MAILCIM',              'mszk@danubiushotels.com');
 define('CSV_EXPORT_UTVONAL_1',      'export');
 define('CSV_EXPORT_UTVONAL_2',      '/csv');
 define('CSV_EXPORT_ELAVULAS',       3600); // 60 * 60
-define('HUNGARIA_SZALLODA',         2102);
+define('HUNGARIA_SZALLODA',         2120);
 
 // Státuszok
 // Bejelentés státuszok

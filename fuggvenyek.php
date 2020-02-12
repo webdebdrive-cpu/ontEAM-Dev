@@ -9089,7 +9089,7 @@ function fenntartasi_terv_energia($sor/* Fenntartás terv sora */) {
     $volt_valtozas  = false;
 
     $energia_soridk = array();
-    $energiak = $adatbazis_kapcsolat->s('*', 'fenntartasi_terv_energia', "`fenntartasi_terv_id`='{$sor['recid']}'");
+    $energiak = $adatbazis_kapcsolat->s('*', 'fenntartasi_terv_energia', "`fenntartasi_terv_id`='{$sor['recid']}'", 'ktgnem_id');
     foreach ( $energiak as $energia ) {
 
         // Ha a gázfogyasztás sort írjuk ki, akkor azzal másképp számolunk
@@ -10896,9 +10896,9 @@ function csv_export_get_from_tol( $megnevezes ) {
     $no_nyomtatas_id = array('anyagigenyles');
     if( !in_array($megnevezes, $no_nyomtatas_id) && $_SESSION['nyomtatas_ids'] && strpos( $_SESSION['akt_sql'], 'LIMIT '.SZURES_DB_LIMIT )===false ) {
         if( strstr($_SESSION['akt_sql'], 'WHERE') ) {
-            $lekerdezes_fromtol = str_replace('WHERE', "WHERE `recid` IN (".$_SESSION['nyomtatas_ids'].") AND ", $lekerdezes_fromtol);
+            $lekerdezes_fromtol = str_replace('WHERE', "WHERE `".get_db_tabla()."{$megnevezes}`.`recid` IN (".$_SESSION['nyomtatas_ids'].") AND ", $lekerdezes_fromtol);
         } else {
-            $lekerdezes_fromtol = str_replace('ORDER', "WHERE `recid` IN (".$_SESSION['nyomtatas_ids'].") ORDER", $lekerdezes_fromtol);
+            $lekerdezes_fromtol = str_replace('ORDER', "WHERE `".get_db_tabla()."{$megnevezes}`.`recid` IN (".$_SESSION['nyomtatas_ids'].") ORDER", $lekerdezes_fromtol);
         }
     }
 

@@ -2423,7 +2423,7 @@ if( isset($_GET['csv']) ) {
         $megnevezes .= '_rendszeres_karbantartas';
         $csv_cim     = 'Rendszeres-karbantartás';
     }
-    if( $_GET['ful'] == 'eseti_fenntartas' ) {
+    if( $_GET['ful'] == 'eseti_karban' ) {
         $megnevezes .= '_eseti_fenntartas';
         $csv_cim     = 'Eseti-fenntartás';
     }
@@ -2529,7 +2529,7 @@ if( isset($_GET['csv']) ) {
                             `em12` as \'Mennyiség December\',
                             `ft12` as \'Érték December\'
 
-                            FROM `'.get_db_tabla().'fenntartasi_terv_energia` WHERE `fenntartasi_terv_id`=\''. $_POST['id'].'\'
+                            FROM `'.get_db_tabla().'fenntartasi_terv_energia` WHERE `fenntartasi_terv_id`=\''. $_POST['id'].'\' ORDER BY `ktgnem_id`
                             ';
                 $query      = mysqli_query($db_kapcs, $sql);
 
@@ -2643,7 +2643,7 @@ if( isset($_GET['csv']) ) {
                             `ft11` as \'November\',
                             `ft12` as \'December\'
 
-                            FROM `'.get_db_tabla().'fenntartasi_terv_muszaki_anyag` WHERE `fenntartasi_terv_id`=\''.$_POST['id'].'\'
+                            FROM `'.get_db_tabla().'fenntartasi_terv_muszaki_anyag` WHERE `fenntartasi_terv_id`=\''.$_POST['id'].'\' ORDER BY `ktgnem_id`
                             ';
                 $query      = mysqli_query($db_kapcs, $sql);
 
@@ -2723,7 +2723,7 @@ if( isset($_GET['csv']) ) {
                 fputcsv($open, $csvcont, ';');
 
             // Rendszeres karbantartás exportja
-            }elseif( $_GET['ful'] == 'rendsz_karban' ) {
+            } elseif( $_GET['ful'] == 'rendsz_karban' ) {
 
                 $sql = 'SELECT
                             `ktgnem_id` as \'Költségnem kód\',
@@ -2742,7 +2742,7 @@ if( isset($_GET['csv']) ) {
                             `ft11` as \'November\',
                             `ft12` as \'December\'
 
-                            FROM `'.get_db_tabla().'fenntartasi_terv_rendsz_karban` WHERE `fenntartasi_terv_id`=\''.$_POST['id'].'\'
+                            FROM `'.get_db_tabla().'fenntartasi_terv_rendsz_karban` WHERE `fenntartasi_terv_id`=\''.$_POST['id'].'\' ORDER BY `ktgnem_id`
                             ';
                 $query      = mysqli_query($db_kapcs, $sql);
 
@@ -2820,7 +2820,7 @@ if( isset($_GET['csv']) ) {
                 fputcsv($open, $csvcont, ';');
 
             // Eseti fenntartás exportja
-            }elseif( $_GET['ful'] == 'eseti_karban' ) {
+            } elseif( $_GET['ful'] == 'eseti_karban' ) {
 
                 $sql = 'SELECT
                             `ktgnem_id` as \'Költségnem kód\',
@@ -2840,7 +2840,7 @@ if( isset($_GET['csv']) ) {
                             `ft11` as \'November\',
                             `ft12` as \'December\'
 
-                            FROM `'.get_db_tabla().'fenntartasi_terv_eseti_karban` WHERE `fenntartasi_terv_id`=\''.$_POST['id'].'\'
+                            FROM `'.get_db_tabla().'fenntartasi_terv_eseti_karban` WHERE `fenntartasi_terv_id`=\''.$_POST['id'].'\' ORDER BY `ktgnem_id`
                             ';
                 $query      = mysqli_query($db_kapcs, $sql);
 
@@ -2918,7 +2918,7 @@ if( isset($_GET['csv']) ) {
                 fputcsv($open, $csvcont, ';');
 
             // Hibalehárítás exportja
-            }elseif( $_GET['ful'] == 'hibaelharitas' ) {
+            } elseif( $_GET['ful'] == 'hibaelharitas' ) {
 
                 $sql = 'SELECT
                             `ktgnem_id` as \'Költségnem kód\',
@@ -2937,7 +2937,7 @@ if( isset($_GET['csv']) ) {
                             `ft11` as \'November\',
                             `ft12` as \'December\'
 
-                            FROM `'.get_db_tabla().'fenntartasi_terv_hibaelharitas` WHERE `fenntartasi_terv_id`=\''.$_POST['id'].'\'
+                            FROM `'.get_db_tabla().'fenntartasi_terv_hibaelharitas` WHERE `fenntartasi_terv_id`=\''.$_POST['id'].'\' ORDER BY `ktgnem_id`
                             ';
                 $query      = mysqli_query($db_kapcs, $sql);
 
@@ -3016,7 +3016,7 @@ if( isset($_GET['csv']) ) {
 
 
             // Miniprojekt exportja
-            }elseif( $_GET['ful'] == 'miniprojekt' ) {
+            } elseif( $_GET['ful'] == 'miniprojekt' ) {
 
                 $sql = 'SELECT
                             `ktgnem_id` as \'Költségnem kód\',
@@ -3036,7 +3036,7 @@ if( isset($_GET['csv']) ) {
                             `ft11` as \'November\',
                             `ft12` as \'December\'
 
-                            FROM `'.get_db_tabla().'fenntartasi_terv_miniprojekt` WHERE `fenntartasi_terv_id`=\''.$_POST['id'].'\'
+                            FROM `'.get_db_tabla().'fenntartasi_terv_miniprojekt` WHERE `fenntartasi_terv_id`=\''.$_POST['id'].'\' ORDER BY `ktgnem_id`
                             ';
                 $query      = mysqli_query($db_kapcs, $sql);
 
@@ -3049,10 +3049,10 @@ if( isset($_GET['csv']) ) {
                 fputcsv($open, $csv_leiras,     ';');
                 
                 $csvhead    = array();
-                while($fejlec_nevek = mysqli_fetch_field($query)){
+                while ( $fejlec_nevek = mysqli_fetch_field($query) ) {
                     $csvhead[] = iconv2($mibol, $mibe, $fejlec_nevek -> name );
                     // Részletes leírás oszlop után a kalkulált oszlopot még beszúrjuk
-                    if($fejlec_nevek -> name=='Részletes leírás'){
+                    if( $fejlec_nevek->name == 'Részletes leírás' ) {
                         $csvhead[] = iconv2($mibol, $mibe, 'Összesen' );
                     }
                 }
@@ -3063,7 +3063,7 @@ if( isset($_GET['csv']) ) {
                 $honapok = array('Január', 'Február', 'Március', 'Április', 'Május', 'Június', 'Július', 'Augusztus', 'Szeptember', 'Október', 'November', 'December');
                 $ertekek     = array();
                 $ertekek_mindosszesen = 0;
-                while( $sorok = mysqli_fetch_assoc($query) ){
+                while ( $sorok = mysqli_fetch_assoc($query) ) {
 
                     $osszesen = 0;
                     for($i_tmp=0; $i_tmp<12; $i_tmp++){
@@ -3116,7 +3116,7 @@ if( isset($_GET['csv']) ) {
                 fputcsv($open, $csvcont, ';');
                 
             // BWH exportja
-            }elseif( $_GET['ful'] == 'bwh' ) {
+            } elseif( $_GET['ful'] == 'bwh' ) {
 
                 $sql = 'SELECT
                             `ktgnem_id` as \'Költségnem kód\',
@@ -3136,7 +3136,7 @@ if( isset($_GET['csv']) ) {
                             `ft11` as \'November\',
                             `ft12` as \'December\'
 
-                            FROM `'.get_db_tabla().'fenntartasi_terv_bwh` WHERE `fenntartasi_terv_id`=\''.$_POST['id'].'\'
+                            FROM `'.get_db_tabla().'fenntartasi_terv_bwh` WHERE `fenntartasi_terv_id`=\''.$_POST['id'].'\' ORDER BY `ktgnem_id`
                             ';
                 $query      = mysqli_query($db_kapcs, $sql);
 
@@ -3207,7 +3207,7 @@ if( isset($_GET['csv']) ) {
                 fputcsv($open, $csvcont, ';');
 
             // Összesen exportja
-            }elseif( $_GET['ful'] == 'osszesen' ) {
+            } elseif( $_GET['ful'] == 'osszesen' ) {
 
                 // Adatlap adatai
                 fputcsv($open, $csv_ful_neve,   ';');
@@ -3472,7 +3472,7 @@ require_once('selectek.php');
         );
 
         $fulek = '';
-        foreach($ful_tomb as $key => $value) {
+        foreach ( $ful_tomb as $key => $value ) {
 
             // A BWH fül csak Hungária (2120) szálloda esetén látszik
             if( (in_array(HUNGARIA_SZALLODA, $sajat_szallodak) && $sor['telephely_id']==HUNGARIA_SZALLODA) || $key != 'bwh' ){
@@ -3932,12 +3932,12 @@ require_once('selectek.php');
         
 
 	// Miniprojekt
-	}elseif(isset($_GET['miniprojekt'])){
+    } elseif( isset($_GET['miniprojekt']) ) {
 
         $szamla_html .= fenntartasi_terv_miniprojekt($sor);
 
         // Ha van a get-ben em id, akkor azt a sort jelöljük meg
-        if( isset($_GET['ft'])){
+        if( isset($_GET['ft']) ) {
             $szamla_html .= nl2('
                             <script>
                                 $(\'#ft_ft_'.$_GET['ft'].'\').addClass(\'kijelolve\');
@@ -3966,7 +3966,7 @@ require_once('selectek.php');
         }
 
 	// BWH - csak ha Hungária (2120) a login szállodái között van
-	}elseif(isset($_GET['bwh']) && in_array(HUNGARIA_SZALLODA, $sajat_szallodak) ){
+    } elseif( isset($_GET['bwh']) && in_array(HUNGARIA_SZALLODA, $sajat_szallodak) ) {
 
         $szamla_html .= fenntartasi_terv_bwh($sor);
 

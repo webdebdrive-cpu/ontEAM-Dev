@@ -64,7 +64,7 @@ if( isset($_GET['csv']) ) {
                 `'.get_db_tabla().$megnevezes.'`.`szallito_id` as \'Külső kivitelező\'
                 '. csv_export_get_from_tol($megnevezes);
                 $query = mysqli_query($db_kapcs, $sql);
-                
+
                 // Nagyobb CSV-kre kérdezzünk rá előzetesen
                 $osszes_sor = mysqli_num_rows($query);
                 if( !$_GET['mehet'] && $osszes_sor>CSV_EXPORT_LIMIT ) {
@@ -139,7 +139,7 @@ if( isset($_GET['csv']) ) {
         flush();
     }
 
-    csv_export_lezar($fh, $filename, 'Rendszeres karbantartás');
+    csv_export_lezar($fh, $filename, 'Rendszeres-karbantartás');
 }
 
 // Tartalom
