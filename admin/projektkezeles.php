@@ -1337,7 +1337,7 @@ if( isset($_POST['projektkezeles_cf_uj']) ) {
     }
     if( !trim($_POST['nev']) ) {
         echo json_encode(array(
-            'hiba'  => 'Kérem adja meg a cash-flow nevét!',
+            'hiba'  => 'Kérem, adja meg a tervsor nevét!',
             'title' => 'Hiba',
             'focus' => 'popup_nev',
         ));
@@ -1347,7 +1347,7 @@ if( isset($_POST['projektkezeles_cf_uj']) ) {
     
     if( !$datumok ){
         echo json_encode(array(
-            'hiba'  => 'Kérem legalább egy dátum/terv sort adjon meg!',
+            'hiba'  => 'Kérem, egy dátum/terv adatot adjon meg!',
             'title' => 'Hiba',
             'focus' => 'popup_datum',
         ));

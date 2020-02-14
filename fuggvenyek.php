@@ -1797,7 +1797,7 @@ function i_u($type, $tabla, $tomb) {
                 $ertek = str_replace(array(' ', ','), array('', '.'), $ertek);
                 $tetelek_osszege += $ertek;
             }
-            if( $tetelek_osszege != $_POST[$mezo2] ) {
+            if( strval($tetelek_osszege) != strval($_POST[$mezo2]) ) {
                 echo json_encode(array(
                     'hiba'  => 'A szerződés tételeinek összege ('.number_format($tetelek_osszege, $tizedesek, ',', ' ').' '. getErtekLista(ERTEKLISTA_PENZNEM, $_POST['kcs_21']).') nem egyezik meg a '.$szoveg.' ('.number_format($_POST[$mezo2], $tizedesek, ',', ' ').' '. getErtekLista(ERTEKLISTA_PENZNEM, $_POST['kcs_21']).')!<br>Így nem menthető!',
                     'gomb'  => '<input type="button" class="gomb" value="Ok" onclick="szurkit_zar(\'mégsem mehet mutat\'); alert2();">',
