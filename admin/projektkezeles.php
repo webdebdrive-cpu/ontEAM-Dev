@@ -1731,6 +1731,18 @@ if( isset($_POST['get_szerepkor']) ) {
 // Munkalap hozzáadásakor a ML-ok táblázatának előállítása
 if( isset($_POST['get_ml_ok']) ) {
     
+    // Jog ellenőrzése
+    if( !_jog(JOG_PRKEZEL_KEZEL) && !_jog(JOG_PRKEZEL_SAJAT_KEZEL) ) {
+        echo json_encode(
+                array(
+                    'hiba'  => 'Nincs joga Munkalapot hozzáadni!',
+                    'title' => 'Hiba',
+                )
+            );
+        $weblap -> leallit();
+        exit;
+    }
+    
     require_once 'selectek_szemelyzet.php';
     
     $projektkezeles = $adatbazis_kapcsolat->s2('ikt_szam nev telephely_id', 'projektkezeles', "`recid`='{$_POST['recid']}'");
@@ -1816,6 +1828,18 @@ if( isset($_POST['get_ml_ok']) ) {
 
 // Munkalap hozzáadása
 if( isset($_POST['munkalap_hozzaad']) ) {
+    
+    // Jog ellenőrzése
+    if( !_jog(JOG_PRKEZEL_KEZEL) && !_jog(JOG_PRKEZEL_SAJAT_KEZEL) ) {
+        echo json_encode(
+                array(
+                    'hiba'  => 'Nincs joga Munkalapot hozzáadni!',
+                    'title' => 'Hiba',
+                )
+            );
+        $weblap -> leallit();
+        exit;
+    }
     
     projekt_munkalap_osszekot($_POST['recid'], $_POST['ml_id']);
     
@@ -2813,7 +2837,7 @@ require_once('selectek.php');
     } elseif( isset($_GET['munkalapok']) ) {
         
         // ML-ot hozzáadni csak Projektek kezelése joggal lehet
-        if( _jog(JOG_PRKEZEL_KEZEL) ) {
+        if( _jog(JOG_PRKEZEL_KEZEL) || _jog(JOG_PRKEZEL_SAJAT_KEZEL) ) {
             $szamla_html .= '<div class="c" style="margin-bottom: 1rem"><input type="button" class="gomb" value="Hozzáadás" onclick="csoportMuvelet(\'projektkezeles_ml_hozzaad\')"></div>';
         }
         

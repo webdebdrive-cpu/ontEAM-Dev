@@ -965,7 +965,6 @@ if( !in_array($megn, $nem_kell_szuro)){
 // NYOMTATÁS itt lesz lekezelve, itt hívjuk meg
 require_once 'nyomtatas.php';
 
-
 $torol_dis = '';
 if( !isset($_GET['modosit']) && !isset($_GET['obj']) ) {
     $torol_dis = ' disabled';
@@ -980,7 +979,7 @@ if( (isset($_GET['modosit']) && isset($_GET['szerkeszt'])) || !isset($_GET['modo
 $uj_dis = '';
 if( isset($_GET['uj']) ) {
     // Kivéve projekt szerkesztéskor
-    if(basename(self())!='projektkezeles.php' ){
+    if( basename(self()) != 'projektkezeles.php' ) {
         $uj_dis = ' disabled';
     }
 }
@@ -1172,34 +1171,34 @@ if( basename(self()) == 'munkalap.php' ) {
 }
 
 // Ütemezett feladatok
-if(basename(self())=='utemezett_feladatok.php' && !_jog(JOG_UTFEL_KEZEL) ){
+if( basename(self()) == 'utemezett_feladatok.php' && !_jog(JOG_UTFEL_KEZEL) ) {
     $uj = $duplikal = '';
 }
-if(basename(self())=='utemezett_feladatok.php' && !_jog(JOG_UTFEL_TOROL) ){
+if( basename(self()) == 'utemezett_feladatok.php' && !_jog(JOG_UTFEL_TOROL) ) {
     $torles_icon    = '';
 }
 
 // Új Projektigénylés feltöltésekor külön jogot vizsgálunk
-if( basename(self())=='projektigenyles.php' && !_jog(JOG_PRIGENY_LETREHOZ) ){
+if( basename(self()) == 'projektigenyles.php' && !_jog(JOG_PRIGENY_LETREHOZ) ) {
     $uj = $duplikal = '';
 }
 // Projektigénylések: ha egyik joga sincs meg, akkor nincs szerkesztés lehetőség
-if( basename(self())=='projektigenyles.php' && !_jog(JOG_PRIGENY_S_KEZEL) && !_jog(JOG_PRIGENY_T_KEZEL) && !_jog(JOG_PRIGENY_B_KEZEL) && !_jog(JOG_PRIGENY_F_KEZEL) && !_jog(JOG_PRIGENY_SZ_KEZEL) && !_jog(JOG_PRIGENY_EGY_KEZEL) && !_jog(JOG_PRIGENY_TOBB_KEZEL) ){
+if( basename(self())=='projektigenyles.php' && !_jog(JOG_PRIGENY_S_KEZEL) && !_jog(JOG_PRIGENY_T_KEZEL) && !_jog(JOG_PRIGENY_B_KEZEL) && !_jog(JOG_PRIGENY_F_KEZEL) && !_jog(JOG_PRIGENY_SZ_KEZEL) && !_jog(JOG_PRIGENY_EGY_KEZEL) && !_jog(JOG_PRIGENY_TOBB_KEZEL) ) {
     $torles_icon    = '';
 }
 
 // Új Projektterv feltöltésekor külön jogot vizsgálunk
-if( basename(self())=='projektkezeles.php' && !_jog(JOG_PRKEZEL_UJ_LETREHOZ) ){
+if( basename(self())=='projektkezeles.php' && !_jog(JOG_PRKEZEL_UJ_LETREHOZ) ) {
     $uj = $duplikal = '';
 }
 
 // Projektszámlák: ha egyik joga sincs meg, akkor nincs szerkesztés lehetőség
-if( basename(self())=='projektszamla.php' && !_jog(JOG_PRSZAMLAK_KEZEL) && !_jog(JOG_PR_SAJAT_SZAMLA_KEZEL) ){
+if( basename(self())=='projektszamla.php' && !_jog(JOG_PRSZAMLAK_KEZEL) && !_jog(JOG_PR_SAJAT_SZAMLA_KEZEL) ) {
     $uj = $duplikal = '';
 }
 
 // Projektiszerződések: ha egyik joga sincs meg, akkor nincs szerkesztés lehetőség
-if( basename(self())=='projektszerzodes.php' && !_jog(JOG_PRKEZEL_SZERZODES_KEZEL) && !_jog(JOG_PR_SAJAT_SZERZ_KEZEL) ){
+if( basename(self())=='projektszerzodes.php' && !_jog(JOG_PRKEZEL_SZERZODES_KEZEL) && !_jog(JOG_PR_SAJAT_SZERZ_KEZEL) ) {
     $uj = $duplikal = '';
 }
 
@@ -1375,7 +1374,6 @@ if( in_array(basename(self()), $nincs_lepteto_ikon) ){
 }
 
 $get_get = get_get(array('pdf'));
-
 $header_sablon = fajlbol_olvas('../sablon/admin/header.html', true);
 $header_html .= str_replace(
     array('{CACHE}',        '{CSS}', '{CEGNEV}', '{MENUK}', '{KERESO}', '{SZURES}', '{TBALW}', '{TJOBBW}', '{TARTBAL}', '{TABLA}', '{KERESODN}', '{OLDALNEV}', '{RENDEZES}', '{REND_IRANY}', '{REND_CHANGE}', '{MEGN}', '{SELF}', '{GET_GET}', '{CSV_GET}', '{SZERK_DIS}', '{BELEPVE}', '{LAPOZAS}', '{KSZ}',       '{LEPTETO_IKONOK}', '{UJ}', '{DUPLIKAL}', '{TORLES}',   '{CSUSZKADN}', '{RENDEZES_REJT}', '{MAIL}', '{FELH_NEV}', '{RESZLEG}', '{SZURES_NOBORDER}' ),
@@ -1383,42 +1381,41 @@ $header_html .= str_replace(
     $header_sablon
 );
 
-
 // Előterjesztés felületei
-if(basename(self())=='eloterj_fb.php' || basename(self())=='eloterj_bod.php'){
+if( basename(self()) == 'eloterj_fb.php' || basename(self()) == 'eloterj_bod.php' ) {
     $header_html .= '<script src="../js/eloterjesztes.js?cache='.time().'"></script>';
 }
 // Energia terv JS behúzva
-if(basename(self())=='energia_terv.php'){
+if( basename(self()) == 'energia_terv.php' ) {
     $header_html .= '<script src="../js/energia_terv.js?cache='.time().'"></script>';
 }
 // Fenntartási terv JS behúzva
-if(basename(self())=='fenntartasi_terv.php'){
+if( basename(self()) == 'fenntartasi_terv.php' ) {
     $header_html .= '<script src="../js/fenntartasi_terv.js?cache='.time().'"></script>';
 }
 // Munkalapokkal kapcsolatos JS-eket külön fájlba szedjük össze
-if(basename(self())=='munkalap.php'){
+if( basename(self()) == 'munkalap.php' ) {
     $header_html .= '<script src="../js/munkalap.js?cache='.time().'"></script>';
 }
 // Projektigénylésekkel kapcsolatos JS-eket külön fájlba szedjük össze
-if(basename(self())=='projektigenyles.php'){
+if( basename(self()) == 'projektigenyles.php' ) {
     $header_html .= '<script src="../js/projektigenyles.js?cache='.time().'"></script>';
 }
 // Projektkezeléssel kapcsolatos JS-eket külön fájlba szedjük össze
-if(basename(self())=='projektkezeles.php'){
+if( basename(self()) == 'projektkezeles.php' ) {
     $header_html .= '<script src="../js/projektkezeles.js?cache='.time().'"></script>';
 }
 // Projektszámlákkal kapcsolatos JS-eket külön fájlba szedjük össze
-if(basename(self())=='projektszamla.php'){
+if( basename(self()) == 'projektszamla.php' ) {
     $header_html .= '<script src="../js/projektszamla.js?cache='.time().'"></script>';
 }
 // Projektszerződéssel kapcsolatos JS-eket külön fájlba szedjük össze
-if(basename(self())=='projektszerzodes.php'){
+if( basename(self()) == 'projektszerzodes.php' ) {
     $header_html .= '<script src="../js/projektszerzodes.js?cache='.time().'"></script>';
 }
 $header_html .= '<script src="../js/jquery.fixedheadertable.js?cache='.time().'"></script>';
 
-if(isIphone()){
+if( isIphone() ) {
     $header_html .= nl2('
         <style type="text/css">
             html, body{

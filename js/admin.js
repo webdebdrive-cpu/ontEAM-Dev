@@ -6499,11 +6499,11 @@ function szamlaBetolt( recid, page, muvelet, szerkeszt, kerdes_nelkul, anyagigen
                         $('#navGombok a.uj').attr('href', 'javascript: kapcsolodoSzerkeszt(\'megjegyzes\'); void(0);');
 
                     // Munkalapon, ha nem a megjegyzés alatt vagyunk, és a usernek van előkészítés jog, akkor feljön egy popup, hogy válasszon, mit szeretne tenni
-                    } else if( baseName(location.href) == 'munkalap' && !_get('megjegyzesek') && _jogok[37] == 1 ) {
+                    } else if( baseName(location.href) == 'munkalap' && !_get('megjegyzesek') && _jogok[5] == 1 ) {
                         $('#navGombok a.uj').attr('href', 'javascript: uj_munkalap_elokeszites_joggal(); void(0);');
 
                     } else if( baseName(location.href) == 'munkalap' && !_get('megjegyzesek') && _jogok[5] == 0 ) {
-                        $('#navGombok a.uj').attr('href', 'javascript: alert2(\'Önnek nincs joga új munkalapot létrehozni!\'); void(0);');
+                        $('#navGombok a.uj').attr('href', 'javascript: alert2(\'Önnek nincs joga új munkalapot létrehozni!\', \'\', \'Hiba\'); void(0);');
 
                     } else if( baseName(location.href) == 'rendszeres_karbantartas' && _get('megjegyzesek') ) {
                         $('#navGombok a.uj').attr('href', 'javascript: kapcsolodoSzerkeszt(\'megjegyzes\'); void(0);');

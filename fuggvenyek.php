@@ -3263,7 +3263,7 @@ function szamla_lista( $where = '', $tabla = '', $kijeloltek = false, $csak_sql_
     if( (strpos($order, 'telephely_id')!==false || strpos($select, 'telephely_id')!==false) && !in_array($tabla, $kivetelek) ) {
 
         // Először is az ordert felülírjuk, ha eszerint akartunk rendezni
-        if(strpos($order, 'telephely_id')!==false){
+        if( strpos($order, 'telephely_id') !== false ) {
             $order = '`'.get_db_tabla().'telephely`.`nev` '.$_GET['irany'];
         }
 
@@ -3539,7 +3539,7 @@ function szamla_lista( $where = '', $tabla = '', $kijeloltek = false, $csak_sql_
         $adatbazis_kapcsolat->s($select, $tabla, $where, $order, $limit, false, false, false, 'csak az SQL string-je kell');
         $sql = $adatbazis_kapcsolat->gp();
         $mit = 'WHERE';
-        
+
         // Anyagigényléskor a szállítót, cikkrendfejtet és értéklistát vesszük még fel
         $sql_kieg = '';
         if( $tabla == 'anyagigenyles' ) {
@@ -3589,7 +3589,7 @@ function szamla_lista( $where = '', $tabla = '', $kijeloltek = false, $csak_sql_
             $mit   = 'ORDER BY';
             $mivel = str_replace('WHERE', 'ORDER BY', $mivel);
         }
-        //$sql = str_replace($mit, $mivel, $sql);
+        // $sql = str_replace($mit, $mivel, $sql);
         // Így cseréljük le, azaz csak az első előfordulást, ne az összeset! Ez fontos.
         $sql = preg_replace('/'.$mit.'/', $mivel, $sql, 1);
 
@@ -3628,7 +3628,7 @@ function szamla_lista( $where = '', $tabla = '', $kijeloltek = false, $csak_sql_
         // Szűréskor kell pár JOIN-olás a külső táblákhoz
         $join = '';
         // Rendezés Cikktörzsnél: Ha szerepkör szerint rendezünk, akkor a JOIN-olt értéklista tábla info-ja szerint rendezünk, mert a szerepkör szöveges tartalma ez valójában
-        if($tabla=='cikktorzs' && $_GET['rend']=='szakter_id'){
+        if( $tabla == 'cikktorzs' && $_GET['rend'] == 'szakter_id' ) {
             $join = ' JOIN `'.get_db_tabla().'erteklista` ON `'.get_db_tabla().$tabla.'`.`szakter_id`=`'.get_db_tabla().'erteklista`.`id` AND `'.get_db_tabla().'erteklista`.`csoport`=\''.ERTEKLISTA_SZAKTER.'\'';
             $order = '`'.get_db_tabla().'erteklista`.`info` '.$_GET['irany'];
         }
@@ -3683,6 +3683,7 @@ function szamla_lista( $where = '', $tabla = '', $kijeloltek = false, $csak_sql_
         }
         
         $bejegyzesek = $adatbazis_kapcsolat->s($select, $tabla, $where, $order, $limit, '', '', $join);
+
         $sql = $adatbazis_kapcsolat->gp();
 
     }
@@ -3900,7 +3901,7 @@ if( isset($_GET['debug']) && $_SERVER['HTTP_HOST']!='teszt.onteam.hu' /*&& $_SER
         }
     }
 
-    if(!$html && !$frissit){
+    if( !$html && !$frissit ) {
         $html = '<div class="p c b">Nincs találat a megadott feltételekre!</div>';
     }
 
@@ -5324,7 +5325,7 @@ function anyagigenylesLista( $bejegyzesek, $tabla, $frissit, $kijeloltek ) {
             // A bal navpaneles listát is kirajzoljuk, mert léptetéshez, árazás popuphoz kell. Szóval ott lesz a forráskódban, de rejtve
             if( !$frissit ) {
                 //
-                if (!isset($_GET['teszt'])) {
+                if( !isset($_GET['teszt']) ) {
                     $style = ' style="display: none"';
                 }
                 $html .= '<ul id="szamlaList" class="szamla_cont rendszer kijelolheto csoport_nevre_kattintas"'.$style.'>';

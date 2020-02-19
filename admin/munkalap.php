@@ -390,7 +390,7 @@ if( isset($_POST['get_projekt_tabla']) ) {
 
 // Projekt táblázat betöltése
 if( isset($_POST['get_projekt_tabla_hozzaad']) ) {
-
+    
     require_once 'selectek_szemelyzet.php';
     
     $html       = '';
@@ -7399,20 +7399,19 @@ if( !$_GET['ajax'] ) {
 
 require('selectek.php');
 
-
     if( !$_GET['ajax'] ) {
         echo '<div id="szamlaHidden" class="dn"></div><div id="szamlaBetolt" data-recid="'.$_GET['id'].'" data-page="'.str_replace('.php', '', basename(self())).'">';
     }
 
     // Az adatlap adatait már a legelején lekérjük
-    if( $_GET['id'] ){
+    if( $_GET['id'] ) {
         $sor = $adatbazis_kapcsolat -> s2('*', $megnevezes, "`recid`='{$_GET['id']}'");
     }
 
-    if($sor['dok_db']){
+    if( $sor['dok_db'] ) {
         $dok_db  = ' ('.$sor['dok_db'].')';
     }
-    if($sor['megj_db']){
+    if( $sor['megj_db'] ) {
         $megj_db = ' ('.$sor['megj_db'].')';
     }
 
@@ -7982,170 +7981,177 @@ require('selectek.php');
     $js_submit_elott = 'return form_ell_admin();';
 
 	// Új munkalap felvitele
-	if( isset($_GET['uj']) && ( _jog(JOG_MUNKALAP_UJ_LETREHOZ) ) ) {
+	if( isset($_GET['uj']) ) {
         
-        $js_submit_elott = nl2('
-                var dfrd_ml_mehet = false;
-                var hibauzenet    = \'\';
-                dfrd_pr_munkalap = $.Deferred();
-                $.ajax({
-                    url     : \'munkalap.php\',
-                    type    : \'POST\',
-                    async   : false,
-                    data    : {
-                        tipus_id        : $(\'#tipus_id\').val(),
-                        telephely_id    : $(\'#telephely_id\').val(),
-                        pr_szam         : $(\'#pr_szam\').val(),
-                        telephely_ell   : Date.now()
-                    },
-                    success: function(response) {
-                        if(response.substring(0, 6)==\'SESKIL\'){ location.href = \'index.php\'; }
-                        if(response){
-                            response = JSON.parse(response);
-                            if( response.hiba ) {
-                                hibauzenet  = response.hiba;
-                                gomb        = response.gomb;
-                                title       = response.title;
-                                focus       = response.focus;
-                            } else {
-                                dfrd_ml_mehet = true;
+        // Jog ellenőrzése
+        if( !_jog(JOG_MUNKALAP_UJ_LETREHOZ) ) {
+            $szamla_html = 'Nincs joga új ML-ot feltölteni!';
+        // Ha van jogunk új ML feltöltésre
+        } else {
+            
+            $js_submit_elott = nl2('
+                    var dfrd_ml_mehet = false;
+                    var hibauzenet    = \'\';
+                    dfrd_pr_munkalap = $.Deferred();
+                    $.ajax({
+                        url     : \'munkalap.php\',
+                        type    : \'POST\',
+                        async   : false,
+                        data    : {
+                            tipus_id        : $(\'#tipus_id\').val(),
+                            telephely_id    : $(\'#telephely_id\').val(),
+                            pr_szam         : $(\'#pr_szam\').val(),
+                            telephely_ell   : Date.now()
+                        },
+                        success: function(response) {
+                            if(response.substring(0, 6)==\'SESKIL\'){ location.href = \'index.php\'; }
+                            if(response){
+                                response = JSON.parse(response);
+                                if( response.hiba ) {
+                                    hibauzenet  = response.hiba;
+                                    gomb        = response.gomb;
+                                    title       = response.title;
+                                    focus       = response.focus;
+                                } else {
+                                    dfrd_ml_mehet = true;
+                                }
+                                dfrd_pr_munkalap.resolve();
                             }
-                            dfrd_pr_munkalap.resolve();
+                            return false;
+                        },
+                        complete: function(xhr) {
+                            if( xhr.status != 200 ) {
+                                alert2(xhr.responseText, \'\', \'Hiba\');
+                            }
                         }
-                        return false;
-                    },
-                    complete: function(xhr) {
-                        if( xhr.status != 200 ) {
-                            alert2(xhr.responseText, \'\', \'Hiba\');
+                    });
+
+                    urlap_mehet = false;
+                    $.when(dfrd_pr_munkalap).then(function() {
+                        if( !dfrd_ml_mehet ){
+                            alert2(hibauzenet, gomb, title);
+                            $(\'#\'+focus).addClass(\'hibas_ide_focus\');
+                            szurkit_zar(\'mehet_megsem_mutat\');
+                            return false;
+                        } else {
+                            urlap_mehet = true;
                         }
-                    }
-                });
-                
-                urlap_mehet = false;
-                $.when(dfrd_pr_munkalap).then(function() {
-                    if( !dfrd_ml_mehet ){
-                        alert2(hibauzenet, gomb, title);
-                        $(\'#\'+focus).addClass(\'hibas_ide_focus\');
-                        szurkit_zar(\'mehet_megsem_mutat\');
-                        return false;
-                    } else {
-                        urlap_mehet = true;
-                    }
-                    
-                    /* Ez a feltétel nem tévedésből van kétszer, kell ide is, meg egyel lentebb is */
+
+                        /* Ez a feltétel nem tévedésből van kétszer, kell ide is, meg egyel lentebb is */
+                        if(!urlap_mehet){
+                            return false;
+                        } else {
+                            return form_ell_admin();
+                        }
+                    });
+
+
+                    /* Ez a feltétel nem tévedésből van kétszer, kell ide is, meg egyel fentebb is */
                     if(!urlap_mehet){
                         return false;
                     } else {
                         return form_ell_admin();
                     }
-                });
-                
-                
-                /* Ez a feltétel nem tévedésből van kétszer, kell ide is, meg egyel fentebb is */
-                if(!urlap_mehet){
-                    return false;
-                } else {
-                    return form_ell_admin();
+                ');
+
+            // NAVIGÁCIÓ
+            $navi_sablon  = fajlbol_olvas('../sablon/admin/navi.html', true);
+            $navi_mit     = array('{NAVI_FELIRAT}',  '{GOMBOK}', '{GYK}');
+            $navi_mivel   = array( $navi,             '',         $gyk2 );
+            $szamla_html .= str_replace($navi_mit, $navi_mivel, $navi_sablon);
+
+            // FORM
+            if( $_GET['ujkent'] ) {
+                $sor = $adatbazis_kapcsolat -> s2('*', $megnevezes, "`recid`='{$_GET['ujkent']}'");
+                if( $sor ) {
+
+                    foreach ( $akt_tomb as $ertek ) {
+                        if( $ertek['name'] != 'ikt_szam' ) {
+                            $_SESSION[$ertek['name']] = stripslashes( $sor[$ertek['name']] );
+                        } else {
+                            $_SESSION[$ertek['name']] = '';
+                        }
+                    }
                 }
-            ');
-
-        // NAVIGÁCIÓ
-        $navi_sablon  = fajlbol_olvas('../sablon/admin/navi.html', true);
-        $navi_mit     = array('{NAVI_FELIRAT}',  '{GOMBOK}', '{GYK}');
-        $navi_mivel   = array( $navi,             '',         $gyk2 );
-        $szamla_html .= str_replace($navi_mit, $navi_mivel, $navi_sablon);
-
-	    // FORM
-		if($_GET['ujkent']) {
-            $sor = $adatbazis_kapcsolat -> s2('*', $megnevezes, "`recid`='{$_GET['ujkent']}'");
-            if( $sor ) {
 
                 foreach($akt_tomb as $ertek) {
-                    if( $ertek['name'] != 'ikt_szam' ) {
-                        $_SESSION[$ertek['name']] = stripslashes( $sor[$ertek['name']] );
-                    } else {
-                        $_SESSION[$ertek['name']] = '';
-                    }
-    			}
+                    $sor[$ertek['name']] = $_SESSION[$ertek['name']];
+                }
             }
 
-            foreach($akt_tomb as $ertek) {
-				$sor[$ertek['name']] = $_SESSION[$ertek['name']];
-			}
-		}
+            $js = js_kiir($akt_tomb, 'form_ell_admin()');
 
-	    $js = js_kiir($akt_tomb, 'form_ell_admin()');
+            $form_sablon = fajlbol_olvas('../sablon/admin/form_uj.html', true);
 
-	    $form_sablon = fajlbol_olvas('../sablon/admin/form_uj.html', true);
+            // Javascript-es ellenőrzéshez
+            $tabla = str_replace('.php', '', basename(self()));
 
-        // Javascript-es ellenőrzéshez
-        $tabla = str_replace('.php', '', basename(self()));
+            // Erre miért volt szükség? Az újként szerkesztés így nem működik
+            $rend_mezok = $adatbazis_kapcsolat->s('`column_name`', '`information_schema`.columns', '`table_schema` LIKE  \''.get_db().'\' AND  `table_name` LIKE  \''.get_db_tabla().$tabla.'\'', '', '');
+            $rend_mezok = adatbazis2tomb($rend_mezok, 'column_name');
 
-        // Erre miért volt szükség? Az újként szerkesztés így nem működik
-        $rend_mezok = $adatbazis_kapcsolat->s('`column_name`', '`information_schema`.columns', '`table_schema` LIKE  \''.get_db().'\' AND  `table_name` LIKE  \''.get_db_tabla().$tabla.'\'', '', '');
-        $rend_mezok = adatbazis2tomb($rend_mezok, 'column_name');
-
-        $sor = array();
-        foreach($rend_mezok as $rend_mezo) {
-            $sor[$rend_mezo] = '';
-        }
-
-        foreach($akt_tomb as $tomb) {
-            if( $tomb['type'] == 'autocomplete' ) {
-                $sor[$tomb['name'].'_autocomp'] = '';
-            }
-        }
-
-        // Adatok feltöltése rózsaszínezés ellen
-        if($_GET['ujkent_bejelentes']) {
-            $sor['telephely_id']        = $bejelentes['telephely_id'];
-            $sor['obj_id_autocomp']     = getErtek('nev', 'obj', 'recid', $bejelentes['obj_id']);
-            $sor['gep_id_autocomp']     = getErtek('nev', 'eszkozkezeles', 'recid', $bejelentes['gep_id']);
-            $sor['tipus_id_autocomp']   = erteklista(6, 1);
-        }
-        $sor['ig_el_id'] = $sor['varh_erk'] = '0000-00-00 00:00:00';
-
-        $json_sor = array();
-        foreach($sor as $kulcs => $elem){
-            $json_sor[$kulcs] = formAdatok_replace($elem);
-        }
-        $szamla_html .= '<script> formAdatok = JSON.parse(\''.json_encode($json_sor).'\'); </script>';
-
-		// Ez elkészíti a $mezok változót
-		require('switch.php');
-
-        $mezok .= '<input type="hidden" id="ujkentSzerkID" name="ujkentSzerkID" value="'.$_GET['ujkent'].'">';
-        if (isset($_GET['ujkent_bejelentes'])) {
-            $mezok .= '<input type="hidden" id="ujkentSzerkBejelentesbol" name="ujkentSzerkBejelentesbol" value="'.$_GET['ujkent_bejelentes'].'">';
-        }
-
-        // Ha van előkészítés joga
-        if( _jog(JOG_MUNKALAP_KULSOS_ELOKESZIT) ) {
-
-            // És előkészíésre szeretné létrehozni, akkor beállítjuk a hozzárenelt személyzetet saját magára, meg egy hidden inputként is hozzáfűzzük
-            if( isset($_GET['elokeszitesre']) ) {
-                $mezok .= nl2('
-                            <script>$(\'#szemelyzet_id\').val(\''.$_SESSION[get_db_tabla().'szemelyzet_id'].'\')</script>
-                            <input type="hidden" name="szemelyzet_id" value="'.$_SESSION[get_db_tabla().'szemelyzet_id'].'">
-                            <input type="hidden" name="statuszba_tovabb_leptet" value="'.MUNKALAP_STAT_ELOKESZITES_ALATT.'">
-                            ');
+            $sor = array();
+            foreach ( $rend_mezok as $rend_mezo ) {
+                $sor[$rend_mezo] = '';
             }
 
-            // Ha telepítettnek szeretnék létrehozni a munkalapot, akkor ugyanezt eljátszuk, mint az előbb, csak más személyzettípussal
-            if( isset($_GET['telepitettnek']) ) {
-                $mezok .= nl2('
-                            <script>$(\'#szemelyzet_id\').val(\''.TELEPITETT_SZEMELYZET.'\')</script>
-                            <input type="hidden" name="szemelyzet_id" value="'.TELEPITETT_SZEMELYZET.'">
-                            <input type="hidden" name="statuszba_tovabb_leptet" value="'.MUNKALAP_STAT_HOZZARENDELT.'">
-                            ');
+            foreach ( $akt_tomb as $tomb ) {
+                if( $tomb['type'] == 'autocomplete' ) {
+                    $sor[$tomb['name'].'_autocomp'] = '';
+                }
             }
 
+            // Adatok feltöltése rózsaszínezés ellen
+            if( $_GET['ujkent_bejelentes'] ) {
+                $sor['telephely_id']        = $bejelentes['telephely_id'];
+                $sor['obj_id_autocomp']     = getErtek('nev', 'obj', 'recid', $bejelentes['obj_id']);
+                $sor['gep_id_autocomp']     = getErtek('nev', 'eszkozkezeles', 'recid', $bejelentes['gep_id']);
+                $sor['tipus_id_autocomp']   = erteklista(6, 1);
+            }
+            $sor['ig_el_id'] = $sor['varh_erk'] = '0000-00-00 00:00:00';
+
+            $json_sor = array();
+            foreach ( $sor as $kulcs => $elem ) {
+                $json_sor[$kulcs] = formAdatok_replace($elem);
+            }
+            $szamla_html .= '<script> formAdatok = JSON.parse(\''.json_encode($json_sor).'\'); </script>';
+
+            // Ez elkészíti a $mezok változót
+            require('switch.php');
+
+            $mezok .= '<input type="hidden" id="ujkentSzerkID" name="ujkentSzerkID" value="'.$_GET['ujkent'].'">';
+            if (isset($_GET['ujkent_bejelentes'])) {
+                $mezok .= '<input type="hidden" id="ujkentSzerkBejelentesbol" name="ujkentSzerkBejelentesbol" value="'.$_GET['ujkent_bejelentes'].'">';
+            }
+
+            // Ha van előkészítés joga
+            if( _jog(JOG_MUNKALAP_KULSOS_ELOKESZIT) ) {
+
+                // És előkészíésre szeretné létrehozni, akkor beállítjuk a hozzárenelt személyzetet saját magára, meg egy hidden inputként is hozzáfűzzük
+                if( isset($_GET['elokeszitesre']) ) {
+                    $mezok .= nl2('
+                                <script>$(\'#szemelyzet_id\').val(\''.$_SESSION[get_db_tabla().'szemelyzet_id'].'\')</script>
+                                <input type="hidden" name="szemelyzet_id" value="'.$_SESSION[get_db_tabla().'szemelyzet_id'].'">
+                                <input type="hidden" name="statuszba_tovabb_leptet" value="'.MUNKALAP_STAT_ELOKESZITES_ALATT.'">
+                                ');
+                }
+
+                // Ha telepítettnek szeretnék létrehozni a munkalapot, akkor ugyanezt eljátszuk, mint az előbb, csak más személyzettípussal
+                if( isset($_GET['telepitettnek']) ) {
+                    $mezok .= nl2('
+                                <script>$(\'#szemelyzet_id\').val(\''.TELEPITETT_SZEMELYZET.'\')</script>
+                                <input type="hidden" name="szemelyzet_id" value="'.TELEPITETT_SZEMELYZET.'">
+                                <input type="hidden" name="statuszba_tovabb_leptet" value="'.MUNKALAP_STAT_HOZZARENDELT.'">
+                                ');
+                }
+
+            }
+
+            $form_mit     = array('{JS}', '{JS_SUBMIT_ELOTT}', '{ACTION}', '{MEZOK}', '{MEGNEVEZES}', '{CK_EDITOR}', '{GOMBOK}', '{MUV_STYLE}'   );
+            $form_mivel   = array($js,    $js_submit_elott,    self(),     $mezok,    $megnevezes,    $ckeditor,     $gombok,    $muv_style      );
+            $szamla_html .= str_replace($form_mit, $form_mivel, $form_sablon);
+        
         }
-
-	    $form_mit     = array('{JS}', '{JS_SUBMIT_ELOTT}', '{ACTION}', '{MEZOK}', '{MEGNEVEZES}', '{CK_EDITOR}', '{GOMBOK}', '{MUV_STYLE}'   );
-	    $form_mivel   = array($js,    $js_submit_elott,    self(),     $mezok,    $megnevezes,    $ckeditor,     $gombok,    $muv_style      );
-	    $szamla_html .= str_replace($form_mit, $form_mivel, $form_sablon);
-
 
         if( $_GET['ajax'] ) {
             echo json_encode(array(
