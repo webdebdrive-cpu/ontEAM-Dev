@@ -1416,12 +1416,14 @@ if( isset($_GET['modosit']) ) {
         // Hozzáadás projekthez feltételei
         $tiltott_statuszok = array(MLTIPUS_RENDSZERES_K, MLTIPUS_UTEMEZETT_F);
         if( $_SESSION[get_db_tabla().'szemelyzet_id'] == TERULETI_FELELOS && !in_array($munkalap['tipus_id'], $tiltott_statuszok) ) {
-            $projekt_hozzaad_torol = '<input type="button" class="gomb alacsony" value="Hozzáadás projekthez" onclick="csoportMuvelet(\'munkalap_hozzaadas_projekthez\');">';
+            // Egyelőre még sem kell:
+            // $projekt_hozzaad_torol = '<input type="button" class="gomb alacsony" value="Hozzáadás projekthez" onclick="csoportMuvelet(\'munkalap_hozzaadas_projekthez\');">';
         }
         
     } else {
         
-        $projekt_hozzaad_torol = '<input type="button" class="gomb alacsony piros" value="Projekt törlése" onclick="projekt_torelese()">';
+        // Egyelőre még sem kell:
+        // projekt_hozzaad_torol = '<input type="button" class="gomb alacsony piros" value="Projekt törlése" onclick="projekt_torelese()">';
         
         // Projekt név kiszámítása
         $proj = $adatbazis_kapcsolat->s2('recid nev', 'projektkezeles', "`ikt_szam`='{$munkalap['pr_szam']}'");

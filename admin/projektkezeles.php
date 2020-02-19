@@ -2812,6 +2812,11 @@ require_once('selectek.php');
 	// Munkalapok
     } elseif( isset($_GET['munkalapok']) ) {
         
+        // ML-ot hozzáadni csak Projektek kezelése joggal lehet
+        if( _jog(JOG_PRKEZEL_KEZEL) ) {
+            $szamla_html .= '<div class="c" style="margin-bottom: 1rem"><input type="button" class="gomb" value="Hozzáadás" onclick="csoportMuvelet(\'projektkezeles_ml_hozzaad\')"></div>';
+        }
+        
         $szamla_html .= nl2('
             <div class="dt naplo">
                 <div class="dtr nFejlec">
@@ -2882,11 +2887,6 @@ require_once('selectek.php');
             ');
         }
         $szamla_html .= '</div>';
-        
-        // ML-ot hozzáadni csak Projektek kezelése joggal lehet
-        if( _jog(JOG_PRKEZEL_KEZEL) ) {
-            $szamla_html .= '<div class="jsff" style="margin-top: 2rem"><input type="button" class="gomb" value="Hozzáadás" onclick="csoportMuvelet(\'projektkezeles_ml_hozzaad\')"></div>';
-        }
         
 
         if( $_GET['ajax'] ) {
