@@ -2428,7 +2428,7 @@ if ( isset($_GET['modosit']) ) {
 $megnevezes = 'projektkezeles';
 // Ha a felhasználó szerepköre Területi felelős, akkor a projekt típusát nem tudja szerkeszteni, és a projekt felelősök közt is csak területi felelős beosztásút tud kiválasztani.
 $tipus_disabled = $tipus_value = 0;
-$beosztasok = EL_BEOSZTAS_BERUH_IG.','.EL_BEOSZTAS_FEJL_VIG_H.','.EL_BEOSZTAS_MUSZAKI_ASSZ.','.EL_BEOSZTAS_MUSZAKI_IG.','.EL_BEOSZTAS_PR_FELEOS.','.EL_BEOSZTAS_DISZ_KP_VEZ;
+$beosztasok = EL_BEOSZTAS_BERUH_IG.','.EL_BEOSZTAS_FEJL_VIG_H.','.EL_BEOSZTAS_MUSZAKI_ASSZ.','.EL_BEOSZTAS_MUSZAKI_IG.','.EL_BEOSZTAS_PR_FELEOS.','.EL_BEOSZTAS_DISZ_KP_VEZ.','.EL_BEOSZTAS_TER_FELELOS;
 if( $_SESSION[get_db_tabla().'szemelyzet_id'] == TERULETI_FELELOS ) {
     $beosztasok     = EL_BEOSZTAS_TER_FELELOS;
     $tipus_disabled = 1;

@@ -88,9 +88,24 @@ function i_u($type, $tabla, $tomb) {
     }
     
     // Projekteknél, feltöltéskor Területi felelősként belépve a típus fixen fenntartás
-    if( $type == 'insert' && $tabla == 'projektkezeles' ) {
-        if( $_SESSION[get_db_tabla().'szemelyzet_id'] == TERULETI_FELELOS ) {
-            $_POST['tipus'] = PRIGENY_TIPUS_FENNT;
+    if( $tabla == 'projektkezeles' ) {
+        if( $type == 'insert' ) {
+            if( $_SESSION[get_db_tabla().'szemelyzet_id'] == TERULETI_FELELOS ) {
+                $_POST['tipus'] = PRIGENY_TIPUS_FENNT;
+            }
+        }
+        
+        // Ha insert, ha update: ha a projekt felelős beosztása Területi felelős, a szálloda meg egyszállodás, akkor hibaüzenet. Ez nem megengedett
+        $pr_felelos = $adatbazis_kapcsolat->s2('beosztas_id', 'login', "`recid`='{$_POST['pfelelos']}'");
+        $szalloda   = $adatbazis_kapcsolat->s2('modell', 'telephely', "`id`='{$_POST['telephely_id']}'");
+
+        if( $pr_felelos['beosztas_id'] == EL_BEOSZTAS_TER_FELELOS && !$szalloda['modell'] ) {
+            echo json_encode(array(
+                                    'hiba'  => 'A választott projektfelelős területi felelős beosztású,<br>egyszállodás projekt nem rendelhető hozzá!',
+                                    'title' => 'Hiba',
+                                ));
+            $weblap -> leallit();
+            exit;
         }
     }
     
