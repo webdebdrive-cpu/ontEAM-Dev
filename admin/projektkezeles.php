@@ -3,7 +3,7 @@ require_once('../weblap.php');
 
 // Ha egyik megtekintés joggal sem rendelkezünk
 if( !_jog(JOG_PRKEZEL_MEGTEKINT) && !_jog(JOG_PRKEZEL_SAJAT_MEGTEKINT) && !_jog(JOG_PRKEZEL_TEAM_TAG) && !_jog(JOG_PR_EGYSZALL_MEGTEKINT) && !_jog(JOG_PR_TOBBSZALL_MEGTEKINT) && !_jog(JOG_PR_B_MEGTEKINT) && !_jog(JOG_PR_F_MEGTEKINT) && !_jog(JOG_PR_T_MEGTEKINT) ) {
-    if(!$_SESSION[get_db_tabla().'user']){
+    if( !$_SESSION[get_db_tabla() . 'user'] ) {
         $weblap -> leallit();
         header('Location: index.php');
         exit;
@@ -1390,7 +1390,7 @@ if( isset($_POST['projektkezeles_cf_uj']) ) {
         $tervek[$i]  = str_replace(' ', '',  $tervek[$i] );
         
         // PHP alatt is ellenőrizzük az adatokat
-        if( !valos_datum_e($datumok[$i]) ){
+        if( !valos_datum_e($datumok[$i]) ) {
             echo json_encode(array(
                 'hiba'          => 'Helytelen dátum ('.datum_kiir($datumok[$i]).') miatt nem rögzíthető az új sor!',
                 'title'         => 'Hiba',
@@ -1399,7 +1399,7 @@ if( isset($_POST['projektkezeles_cf_uj']) ) {
             $weblap->leallit();
             exit();
         }
-        if( $datumok[$i]<date('Y-m-d') ){
+        if( $datumok[$i] < date('Y-m-d') ) {
             echo json_encode(array(
                 'hiba'          => 'Múltbeli dátum ('.datum_kiir($datumok[$i]).') miatt nem rögzíthető az új sor!',
                 'title'         => 'Hiba',
