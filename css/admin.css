@@ -464,6 +464,12 @@ table.table_mod td:nth-of-type(2){
     padding: 0;
 }
 
+table.fix_fejlec thead {
+    position: fixed;
+    margin-top: -7rem;
+    margin-right: 2.6rem;
+}
+
 input{
     color: #4c4c4c;
     background: #fff;

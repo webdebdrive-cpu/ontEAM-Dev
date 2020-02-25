@@ -391,6 +391,7 @@ if( isset($_POST['projektszamla_kapcsolas']) ) {
     $volt_teljesites    = 0;
     $beirt_netto_ertek  = 0;
     $beirt_teljesites   = 0;
+
     foreach ( $_POST['adatok'][$netto_ert_adat][1] as $ertek ) {
         
         // Számokból a szóközt vegyük ki, vesszőt pontra cseréljük
@@ -450,7 +451,7 @@ if( isset($_POST['projektszamla_kapcsolas']) ) {
                 $weblap->leallit();
                 exit();
     }
-    
+
     // Ha itt vagyunk, akkor csak egy nettó értéket/teljesítést írtak be. Kérdés, hogy megfelelő értéket írtak be?
     if( number_format($szamla_tetel[$netto_mezo], $tizedesek, ',', ' ') != number_format($beirt_netto_ertek, $tizedesek, ',', ' ') ) {
         echo json_encode( array(
@@ -460,7 +461,6 @@ if( isset($_POST['projektszamla_kapcsolas']) ) {
                 $weblap->leallit();
                 exit();
     }
-    
     // Teljesítés dátuma a számla adatlapján található teljesítés dátumával egyezen meg
     if( $szamla['telj_dt'] != $beirt_teljesites ) {
         echo json_encode( array(
@@ -503,7 +503,7 @@ if( isset($_POST['projektszamla_kapcsolas']) ) {
                 $weblap->leallit();
                 exit();
     }*/
-    
+
     // Ellenőrzések után tároljuk el a változtatásokat. 
     // Szerződés tétetel rekordok frissítése
     if( $_POST['adatok'][$recid_adat][1][$ertek_i] ) {

@@ -66,15 +66,15 @@ if (isset($_POST['anyagigenyles_mar_igenyelve'])) {
     $munkalap_anyag = $adatbazis_kapcsolat->s2('cikk_nev cikk_mee', 'munkalap_anyag', "`munkalap_id` IN (".$munkalapok.") AND `cikk_id`='{$_POST['cikk_id']}' AND `telephely_id`='{$_POST['telephely_id']}'");
     if( $munkalap_anyag === false ) { $db_error = true; }
     // Előbb csak kérdezünk
-    if($_POST['csak_kerdezunk']){
+    if( $_POST['csak_kerdezunk'] ) {
 
         require 'selectek.php';
 
         $kerdes = nl2( getErtek('nev', 'telephely', 'id', $_POST['telephely_id']).'
                         <br>'.$_POST['cikk_id'].' '.$munkalap_anyag['cikk_nev'].'
                         <br>
-                        <br>Diszpécsernaplóban igénylésre váró mennyiség: '.$_POST['ig_alatt'].' '.str_replace('m3', 'm<sup>3</sup>', $munkalap_anyag['cikk_mee']).'
-                        <br>Már igényelt mennyiség: '.$_POST['ig_men'].' '.str_replace('m3', 'm<sup>3</sup>', $munkalap_anyag['cikk_mee']).'
+                        <br>Diszpécsernaplóban igénylésre váró mennyiség: '.$_POST['ig_alatt'].' '.str_replace(array('m2', 'm3'), array('m<sup>2</sup>', 'm<sup>3</sup>'), $munkalap_anyag['cikk_mee']).'
+                        <br>Már igényelt mennyiség: '.number_format($_POST['ig_men'], 2, ',', ' ').' '.str_replace(array('m2', 'm3'), array('m<sup>2</sup>', 'm<sup>3</sup>'), $munkalap_anyag['cikk_mee']).'
                         <br>Ha folytatja, a diszpécsernaplóban igénylésre váró mennyiség státusza át lesz állítva "'.$munkAnyag_statusz[DISZPNAG_STAT_ANYAG_IGENYELVE].'" státuszra.
                         <br>
                         <br>Folytatja?');
@@ -548,7 +548,7 @@ if( isset($_POST['arazas']) ) {
                     </tr>
                     <tr>
                         <td class="p r">Igényelt mennyiség:</td>
-                        <td class="p" colspan="3">'.number_format($ossz_ig_menny, 2, ',', ' ').' '.str_replace('m3', 'm<sup>3</sup>', $igenyles['cikkmee']).'</td>
+                        <td class="p" colspan="3">'.number_format($ossz_ig_menny, 2, ',', ' ').' '.str_replace(array('m2', 'm3'), array('m<sup>2</sup>', 'm<sup>3</sup>'), $igenyles['cikkmee']).'</td>
                     </tr>
                     <tr>
                         <td class="p r">Szállító:</td>
@@ -1089,7 +1089,7 @@ if( isset($_POST['anyagigenyles_jovahagy']) ) {
             $igenyles = $adatbazis_kapcsolat->s2('nev cikk_id rndmen rndear cikkmee kcs_21 igmen', 'anyagigenyles', "`recid`='{$id}'");
             if($_POST['jhmen']==0 || $_POST['jhmen']==0.00){
                 echo json_encode(array(
-                    'hiba'  => 'A jóváhagyott mennyiség nem lehet 0 '.str_replace('m3', 'm<sup>3</sup>', $igenyles['cikkmee']).'!<script>$(\'#jhmen_'.$id.'\').addClass(\'hibas_ide_focus\')</script>',
+                    'hiba'  => 'A jóváhagyott mennyiség nem lehet 0 '.str_replace(array('m2', 'm3'), array('m<sup>2</sup>', 'm<sup>3</sup>'), $igenyles['cikkmee']).'!<script>$(\'#jhmen_'.$id.'\').addClass(\'hibas_ide_focus\')</script>',
                     'gomb'  => '<input type="button" class="gomb" value="Ok" onclick="alert2(); $(\'#jhmen_'.$id.'\').select()">',
                     'focus' => 'jhmen'
                 ));
@@ -1122,7 +1122,7 @@ if( isset($_POST['anyagigenyles_jovahagy']) ) {
                 'hiba' => nl2('
                             Cikkszám: '.$igenyles['cikk_id'].'
                             <br>Cikk név: '.$igenyles['nev'].'
-                            <br>Mennyiség: '.number_format($_POST['jhmen'], 2, ',', ' ').' '.str_replace('m3', 'm<sup>3</sup>', $igenyles['cikkmee']).'
+                            <br>Mennyiség: '.number_format($_POST['jhmen'], 2, ',', ' ').' '.str_replace(array('m2', 'm3'), array('m<sup>2</sup>', 'm<sup>3</sup>'), $igenyles['cikkmee']).'
                             <br>Jóváhagyott érték: '. number_format($_POST['jhmen']*$igenyles['rndear'], 0, '', ' ').' '. get_penznem()/*Igen ide a Ft-kell és nem az utolsó tétel pénzneme */.'
                             <br>
                             <br>Biztosan jóváhagyja az anyagigénylést?
@@ -1275,7 +1275,7 @@ if( isset($_POST['anyagigenyles_mind_jovahagy']) ) {
 
             if($igeny['jhmen']==0.00 ){
                 echo json_encode(array(
-                    'hiba'  => 'A jóváhagyott mennyiség nem lehet 0 '.str_replace('m3', 'm<sup>3</sup>', $igeny['cikkmee']).'!<script>$(\'#jhmen_'.$igeny['recid'].'\').addClass(\'hibas_ide_focus\')</script>',
+                    'hiba'  => 'A jóváhagyott mennyiség nem lehet 0 '.str_replace(array('m2', 'm3'), array('m<sup>2</sup>', 'm<sup>3</sup>'), $igeny['cikkmee']).'!<script>$(\'#jhmen_'.$igeny['recid'].'\').addClass(\'hibas_ide_focus\')</script>',
                     'gomb'  => '<input type="button" class="gomb" value="Ok" onclick="alert2(); $(\'#jhmen_'.$igeny['recid'].'\').select()">',
                     'focus' => 'jhmen'
                 ));
@@ -2774,7 +2774,7 @@ require_once('selectek.php');
                                 <td class="r piros" id="th'.$telephely['telephely_id'].'a'.$anyag['cikk_id'].'">'.number_format($ig_var, 2, ',', ' ').'</td>
                                 <td class="r">'.number_format($anyag_var, 2, ',', ' ').'</td>
                                 <td class="r zold">'.number_format($folyamatban, 2, ',', ' ').'</td>
-                                <td id="th'.$telephely['telephely_id'].'a'.$anyag['cikk_id'].'_mee">'.str_replace('m3', 'm<sup>3</sup>', $akt_anyag['cikk_mee']).'</td>
+                                <td id="th'.$telephely['telephely_id'].'a'.$anyag['cikk_id'].'_mee">'.str_replace(array('m2', 'm3'), array('m<sup>2</sup>', 'm<sup>3</sup>'), $akt_anyag['cikk_mee']).'</td>
                                 <td id="th'.$telephely['telephely_id'].'a'.$anyag['cikk_id'].'_igleir">'.nl2br2($akt_anyag['igleir']).'</td>
                                 <td><input type="button" value="Mutat" class="gomb" onclick="window.open(\'munkalap.php?recidk='.$akt_munkalapok.'\')"></td>
                                 <td><input type="button" value="Igénylés" class="gomb f_anyagigenyles_mezok_kitolt" data-recid_egyedi_azon="'.$recid_egyedi_azon.'" data-telephely_id="'.$telephely['telephely_id'].'" data-cikk_id="'.$anyag['recid'].'" data-cikk_id2="'.$anyag['cikk_id'].'"></td>

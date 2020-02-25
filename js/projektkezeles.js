@@ -408,11 +408,13 @@ function projekt_felelos_beallitva( login_id ) {
                 response = JSON.parse(response);
                 
                 if( _get('uj') ) {
+                    /*
+                    Erre mégsincs szükség? DEL?
                     if( response.szemelyzet_id == SZEREPKOR_TER_FELELOS ) {
                         $('#tipus').val(PROJEKT_TIPUS).prop('disabled', true);
                     } else {
                         $('#tipus').val('').prop('disabled', false);
-                    }
+                    }*/
                     $('#telephely_id').replaceWith(response.telephely_select);
 
                     /* Eredeti szálloda visszaírása, ha lehetséges */

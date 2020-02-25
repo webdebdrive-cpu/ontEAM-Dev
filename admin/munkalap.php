@@ -340,7 +340,7 @@ if( isset($_POST['get_projekt_tabla']) ) {
                 <option value="tipus"'.$tipus_selected.'>típus + jóváhagyott keret</option>
             </select>
             <div style="max-height: 40rem; overflow-y: auto; overflow-x: none;">
-                <table class="csikos v2 kijCont csak_egy_kijelolheto" id="prkezelesek" style="cursor: default;">
+                <table class="csikos v2 kijCont fix_fejlec csak_egy_kijelolheto" id="prkezelesek" style="cursor: default;">
                 <thead>
                 <tr>
                     <th>
@@ -8580,10 +8580,10 @@ require('selectek.php');
 	// Anyagigénylés fül
     } elseif( isset($_GET['anyagigenyles']) ) {
 
-        $sorok = $adatbazis_kapcsolat->s('recid cikk_id szuk_men', 'munkalap_anyag', "`munkalap_id` = '".$_GET['id']."' AND `stat_id` IN (".DISZPNAG_STAT_ANYAGRA_VAR.", ".DISZPNAG_STAT_ANYAG_IGENYELVE.")", 'insert_dt desc', '');
-
+        $sorok = $adatbazis_kapcsolat->s('recid cikk_id szuk_men telephely_id', 'munkalap_anyag', "`munkalap_id` = '".$_GET['id']."' AND `stat_id` IN (".DISZPNAG_STAT_ANYAGRA_VAR.", ".DISZPNAG_STAT_ANYAG_IGENYELVE.")", 'insert_dt desc');
         if( $sorok ) {
             $szamla_html .= nl2('
+                A táblázat a munkalapon hiányzó anyagok összes folyamatban lévő igénylését tartalmazza.
                 <table class="csikos full">
                     <tr>
                         <th>Ikt szám</th>
@@ -8595,12 +8595,9 @@ require('selectek.php');
                     </tr>
             ');
 
-            $i = 1;
             foreach ( $sorok as $sor ) {
-                $anyag_sor = $adatbazis_kapcsolat->s2('ikt_szam cikk_id nev igmen rndmen cikkmee stat_id', 'anyagigenyles', "`cikk_id` = '".$sor['cikk_id']."'", '', '1');
-
-                if( $anyag_sor ) {
-
+                $anyag_sorok = $adatbazis_kapcsolat->s('ikt_szam cikk_id nev igmen rndmen cikkmee stat_id', 'anyagigenyles', "`cikk_id`='".$sor['cikk_id']."' AND `telephely_id`='{$sor['telephely_id']}'");
+                foreach( $anyag_sorok as $anyag_sor ) {
                     $szamla_html .= nl2('
                         <tr>
                             <td>'.$anyag_sor['ikt_szam'].'</td>
@@ -8612,7 +8609,6 @@ require('selectek.php');
                         </tr>
                     ');
                 }
-                $i++;
             }
 
             $szamla_html .= '</table>';

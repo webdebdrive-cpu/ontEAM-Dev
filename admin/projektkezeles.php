@@ -1033,10 +1033,6 @@ if( isset($_POST['igenylesek_betolt_uj_kezeleshez']) ) {
                 #popup div.popup_tart table {
                     margin-top: 7rem;
                 }
-                table.fix_fejlec thead {
-                    position: fixed;
-                    margin-top: -7rem;
-                }
                 table.fix_fejlec thead tr th:nth-of-type(1), table.fix_fejlec tbody tr td:nth-of-type(1) {
                     width: 8rem;
                 }
@@ -1720,7 +1716,7 @@ if( isset($_POST['get_szerepkor']) ) {
     $telephely_select .= '</select>';
     
     echo json_encode(array(
-        'szemelyzet_id'     => $login['szemelyzet_id'],
+        // Del? 'szemelyzet_id'     => $login['szemelyzet_id'],
         'telephely_select'  => $telephely_select,
     ));
 
@@ -1784,7 +1780,7 @@ if( isset($_POST['get_ml_ok']) ) {
         // Táblázat rendezhető: szálloda + becsült költség, becsült költség + szálloda, típus + becsült költség. Ezek legyenek egy lenyílóból kiválaszthatóak.
         $tablazat = '
             <div style="max-height: 40rem; overflow-y: auto; overflow-x: none;">
-                <table class="csikos v2 kijCont csak_egy_kijelolheto" id="prkezelesek" style="cursor: default;">
+                <table class="csikos v2 kijCont fix_fejlec csak_egy_kijelolheto" id="prkezelesek" style="cursor: default;">
                 <thead>
                 <tr>
                     <th>

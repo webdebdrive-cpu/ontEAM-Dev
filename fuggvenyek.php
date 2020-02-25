@@ -1537,6 +1537,7 @@ function i_u($type, $tabla, $tomb) {
             // Ha a visszaadva pipát most kapcsoltam be, akkor ellenőrizzük, hogy szerződéshez volt-e kapcsolva.
             // Ha igen, akkor a szerződés tétel kapcsolatot meg kell szüntetni, de előtte a szerződés tételeinél a teljesítést/értéket is ki kell nullázni.
             $szamla = $adatbazis_kapcsolat->s2('visszaadva pr_szam', 'projektszamla', "`recid`='{$_GET['id']}'");
+
             $pr_szam_projektkezeles_update_hez = $szamla['pr_szam']; // Ez az i_u() függvény legvégén kell, hogy az új és a régi pr_szam-ot is újra lehessen számolni
             if( $_POST['visszaadva'] && !$szamla['visszaadva'] ) {
 
@@ -1693,8 +1694,10 @@ function i_u($type, $tabla, $tomb) {
         
         // Projekt szerződés
         $szerzodes = $adatbazis_kapcsolat->s2('pr_szam', 'projektszerzodes', "`recid`='{$_GET['id']}'");
-        $pr_szam_projektkezeles_update_hez = $szerzodes['pr_szam'];
         if( $tabla == 'projektszerzodes' ) {
+            
+            // A pr_szam-ot kimentjük egy változóba, ha épp a projektszerzodes táblát updateltük
+            $pr_szam_projektkezeles_update_hez = $szerzodes['pr_szam'];
 
             // Kivitelezés kezdete, nem lehet korábbi, mint a kelte
             if( $_POST['kiv_kezd'] < $_POST['kelte_dt'] ) {
@@ -5764,7 +5767,7 @@ function projektszerzodesLista( $bejegyzesek, $tabla, $frissit, $kijeloltek ) {
         }
 
         $i = 1;
-        foreach($bejegyzesek as $bsz) {
+        foreach ( $bejegyzesek as $bsz ) {
 
             $li_tart = '<a class="szamla" data-recid="'.$bsz['recid'].'" data-fajl="'.$tabla.'.php" data-muvelet="modosit">
                             <table style="width: 30rem">
