@@ -13,7 +13,7 @@ if( !_jog(JOG_PRIGENY_S_KEZEL) && !_jog(JOG_PRIGENY_SZ_MEGTEKINT) && !_jog(JOG_P
 }
 
 // Cash-flow fül helyett módosítra lépünk
-if(isset($_GET['cash_flow'])){
+if( isset($_GET['cash_flow']) ) {
     $_GET['modosit'] = 1;
     unset($_GET['cash_flow']);
 }
@@ -29,7 +29,7 @@ $szamla_html = '';
 
 // Dokumentumok fülhöz kell majd
 $tobb_kep = true;
-if($tobb_kep){
+if( $tobb_kep ) {
     function get_tobbkep_darab()    { return 1;         } // Maximum hány kép tallózható be
     function get_tobbkep_csakkep()  { return '';        } // Milyen kiterjesztéseket engedünk meg (ha mindenet, legyen üres)
     function get_tobbkep_kepmeret() { return 10;        } // MB-ban
@@ -42,8 +42,8 @@ if($tobb_kep){
 }
 
 // Pontos dátum lekérdezése (szeurver óráját használjuk)
-if (isset($_POST['get_datum'])) {
-    
+if( isset($_POST['get_datum']) ) {
+
     echo date('Y.m.d');
     
     $weblap->leallit();
@@ -51,7 +51,7 @@ if (isset($_POST['get_datum'])) {
 }
 
 // Jóváhagyáskor ha meg kellett adni jóváhagyott keretet, akkor azt letároljuk
-if (isset($_POST['pri_jkolt_megad'])) {
+if( isset($_POST['pri_jkolt_megad']) ) {
 
     $_POST['jkolt'] = str_replace(' ', '', $_POST['jkolt']);
     $adatbazis_kapcsolat->u($megnevezes, array('jkolt'), array($_POST['jkolt']), "`recid`='{$_POST['recid']}'");
@@ -64,7 +64,7 @@ if (isset($_POST['pri_jkolt_megad'])) {
 
 
 // Véleményező hozzáadás státusz ellenőrzés
-if (isset($_POST['velemenyezok_status_ell'])) {
+if( isset($_POST['velemenyezok_status_ell']) ) {
 
     $stat = $adatbazis_kapcsolat->s2('stat_id', $megnevezes, "`recid`='{$_POST['recid']}'");
     if( !in_array($stat['stat_id'], prigeny_velemenyezo_hozzaad_statuszok()) ){
@@ -85,7 +85,7 @@ if( isset($_POST['addVelemenyezo']) ) {
     $pr_igeny_recid = $_POST['pr_igeny_recid'];
 
     // Jogosultságkezelés
-    if(!JOG_VELEMENYEZO_HOZZAAD){
+    if( !JOG_VELEMENYEZO_HOZZAAD ) {
 
         echo json_encode(array(
             'hiba' => 'Önnek nincs joga véleményezőt hozzáadni!'
@@ -97,7 +97,7 @@ if( isset($_POST['addVelemenyezo']) ) {
 
     // Státusz ellenőrzése
     $stat = $adatbazis_kapcsolat->s2('stat_id', $megnevezes, "`recid`='{$_POST['pr_igeny_recid']}'");
-    if($stat['stat_id']!=PRIGENY_STAT_NYITOTT && $stat['stat_id']!=PRIGENY_STAT_HIANYPOTOLT && $stat['stat_id']!=PRIGENY_STAT_VEL_ALATT){
+    if( $stat['stat_id'] != PRIGENY_STAT_NYITOTT && $stat['stat_id'] != PRIGENY_STAT_HIANYPOTOLT && $stat['stat_id'] != PRIGENY_STAT_VEL_ALATT ) {
         echo json_encode(array(
             'hiba' => 'Véleményezőt hozzáadni csak nyitott, hiánypótolt vagy véleményezés alatt státuszokban lehet!'
         ));
@@ -123,12 +123,12 @@ if( isset($_POST['addVelemenyezo']) ) {
     if( $pr_igeny_recid ) {
 
         // Töröljük a korábbi véleményét ha van
-        if($_POST['korabbi_velemeny_torlesevel']){
+        if( $_POST['korabbi_velemeny_torlesevel'] ) {
             $akt_velemeny = $adatbazis_kapcsolat->s2('recid utvonal', 'projektigenyles_velemeny', "`projektigenyles_recid`='{$pr_igeny_recid}' AND `login_recid`='{$login_recid}'");
             if($akt_velemeny===false){ $db_error = true; }
 
             $fajlnev = '../'.get_utvonal().'projektigenyles_velemeny/'.$akt_velemeny['utvonal'];
-            if(is_file($fajlnev)){
+            if( is_file($fajlnev) ) {
                 unlink($fajlnev);
             }
             $sql = $adatbazis_kapcsolat->d('projektigenyles_velemeny', "`recid`='{$akt_velemeny['recid']}'");
@@ -149,7 +149,7 @@ if( isset($_POST['addVelemenyezo']) ) {
 
             // Ha hozzáadunk egy véleményezőt, akkor a státuszt biztosan léptethetjük véleményezés alattra
             $akt_stat = $adatbazis_kapcsolat->s2('stat_id', 'projektigenyles', "`recid`='{$pr_igeny_recid}'");
-            if($akt_stat['stat_id']!=PRIGENY_STAT_VEL_ALATT){
+            if( $akt_stat['stat_id'] != PRIGENY_STAT_VEL_ALATT ) {
                 if(addStatusz('projektigenyles_statusz', $pr_igeny_recid, PRIGENY_STAT_VEL_ALATT)===false){
                     $db_error = true;
                 }
@@ -210,7 +210,7 @@ if (isset($_POST['addMegterules'])) {
     }
     
     // Terület ellenőrzése
-    if(!$terulet){
+    if( !$terulet ) {
         echo json_encode(array(
             'hiba'  => 'Kérem válasszon területet!',
             'gomb'  => '<input class="link gomb" value="Ok" onclick="alert2(); $(\'#erteklista_id_autocomp\').focus();" type="button">',
@@ -221,7 +221,7 @@ if (isset($_POST['addMegterules'])) {
     }
 
     // Ha nincs megadva az összeg
-    if(!$osszeg){
+    if( !$osszeg ) {
         echo json_encode(array(
             'hiba'  => 'Kérem adja meg az összeget!',
             'gomb'  => '<input class="link gomb" value="Ok" onclick="alert2(); $(\'#osszeg\').focus();" type="button">',
@@ -288,7 +288,7 @@ if (isset($_POST['velemeny_torol'])) {
 
     // Vélemény törlése
     $fajl = '../'.get_utvonal().'projektigenyles_velemeny/'.$velemeny['utvonal'];
-    if(is_file($fajl)){
+    if( is_file($fajl) ) {
         unlink($fajl);
         remover('../'.get_utvonal().'projektigenyles_velemeny/'.$velemeny['utvonal'].'_*');
     }
@@ -297,7 +297,7 @@ if (isset($_POST['velemeny_torol'])) {
 
     // Ha egy fájlt törlünk, akkor véleményezés alatt lesz ismét az igénylés (hisz nincs mindenhol feltöltött vélemény, nem maradhat nyitott ha az lett volna)
     $akt_stat = $adatbazis_kapcsolat->s2('stat_id', 'projektigenyles', "`recid`='{$velemeny['projektigenyles_recid']}'");
-    if($akt_stat['stat_id']!=PRIGENY_STAT_VEL_ALATT){
+    if( $akt_stat['stat_id'] != PRIGENY_STAT_VEL_ALATT ) {
         if( addStatusz('projektigenyles_statusz', $velemeny['projektigenyles_recid'], PRIGENY_STAT_VEL_ALATT) === false ) {
             $db_error = true;
         }
@@ -345,7 +345,7 @@ if (isset($_POST['van_e_velemeny'])) {
                 'kerdes' => 'Önnek már van feltölött véleménye. Biztosan felülírja?'
             ));
         // Ha nincs vélemény, akkor mehet egyből a feltöltés
-        }else{
+        } else {
             echo json_encode(array(
                 'mehet' => '1'
             ));
@@ -488,7 +488,7 @@ if (isset($_POST['pri_statusz_leptet'])) {
         echo json_encode(array(
             'statusz' => 'siker'
         ));
-    }else{
+    } else {
         mysqli_rollback($db_kapcs);
 
         echo json_encode(array(
@@ -571,7 +571,7 @@ if( isset($_POST['addHianypotlas']) ) {
         echo json_encode(array(
             'statusz' => 'siker'
         ));
-    }else{
+    } else {
         mysqli_rollback($db_kapcs);
 
         echo json_encode(array(
@@ -621,7 +621,7 @@ if( isset($_POST['addVarakoztat']) ) {
         echo json_encode(array(
             'statusz' => 'siker'
         ));
-    }else{
+    } else {
         mysqli_rollback($db_kapcs);
 
         echo json_encode(array(
@@ -775,7 +775,7 @@ if(isset($_POST['igenylesek_betolt'])){
                 </tbody>
                 </table>
             </div>';
-    }else{
+    } else {
         $html = '<h1>Nem található csatolható projektigénylés!</h1><script>$(\'#eloterj_igneyles_csatolForm div.kuldes\').html(\'<input type="button" class="gomb zold" value="Ok" onclick="popupZar();">\');  $(\'#eloterj_igneyles_csatolCim\').html(\'Hiba\');</script>';
     }
 
@@ -845,7 +845,7 @@ if (isset($_POST['eloterj_igneyles_csatol'])) {
         echo json_encode(array(
             'statusz' => 'siker'
         ));
-    }else{
+    } else {
         mysqli_rollback($db_kapcs);
 
         echo json_encode(array(
@@ -923,7 +923,7 @@ if (isset($_POST['pri_eloterj_statusz_mod'])) {
         echo json_encode(array(
             'statusz' => 'siker'
         ));
-    }else{
+    } else {
         mysqli_rollback($db_kapcs);
 
         echo json_encode(array(
@@ -1085,7 +1085,7 @@ if( isset($_GET['csv']) ) {
                 if($kulcs=='Rendkívüli'){
                     if($sor){
                         $sor = 'igen';
-                    }else{
+                    } else {
                         $sor = 'nem';
                     }
                 }
@@ -1093,7 +1093,7 @@ if( isset($_GET['csv']) ) {
                 if($kulcs=='Megtérülő'){
                     if($sor){
                         $sor = 'igen';
-                    }else{
+                    } else {
                         $sor = 'nem';
                     }
                 }
@@ -1182,7 +1182,7 @@ require('selectek.php');
                 $fulek .= '<a id="ful_'.$key.'" href="javascript:prigeny_ful_valt(\'cash_flow\');"'.$active.' data-oldal="'.$key.'">'.$value.'</a>';
             }else if($key=='modosit'){
                 $fulek .= '<a id="ful_'.$key.'" href="javascript:prigeny_ful_valt(\'adatlap\');"'.$active.' data-oldal="'.$key.'">'.$value.'</a>';
-            }else{
+            } else {
                 $fulek .= '<a id="ful_'.$key.'" href="javascript: szamlaBetolt(\''.$_GET['id'].'\', \''.basename(self()).'\', \''.$key.'\'); void(0);"'.$active.' data-oldal="'.$key.'">'.$value.'</a>';
             }
         }
@@ -1202,7 +1202,7 @@ require('selectek.php');
                                     prigeny_tipus_beallit();
                                     if( $(\'#egy_tobb\').val()>0 ){
                                         $(\'#egy_tobb_tobb\').prop(\'checked\', true)
-                                    }else{
+                                    } else {
                                         $(\'#egy_tobb_egy\').prop(\'checked\', true)
                                     }
 
@@ -1268,7 +1268,7 @@ require('selectek.php');
 
         // Ha a státusz elutasítva vagy jóváhagyva, akkor semmilyen gomb nem érhető el
         if($sor['stat_id'] == PRIGENY_STAT_ELUTASITVA || $sor['stat_id'] == PRIGENY_STAT_JOVAHAGYVA ){
-            $gombok .= ' <input type="button" id="recordTorol" class="gombb_alert dn" onclick="if( cash_flow_fulon_vagyunk() ){ alert2(\'Cash-flow ebben a státuszban már nem törölhető!\', \'\', \'Hiba\'); }else{ alert2(\'Projektigénylés ebben a státuszban már nem törölhető!\', \'\', \'Hiba\'); }" value="Töröl" title="Töröl">';
+            $gombok .= ' <input type="button" id="recordTorol" class="gombb_alert dn" onclick="if( cash_flow_fulon_vagyunk() ){ alert2(\'Cash-flow ebben a státuszban már nem törölhető!\', \'\', \'Hiba\'); } else { alert2(\'Projektigénylés ebben a státuszban már nem törölhető!\', \'\', \'Hiba\'); }" value="Töröl" title="Töröl">';
         }
         if( $sor['stat_id'] != PRIGENY_STAT_ELUTASITVA && $sor['stat_id'] != PRIGENY_STAT_JOVAHAGYVA ){
             // Js, a törlés gombhoz
@@ -1276,22 +1276,22 @@ require('selectek.php');
 
             // Csak akkor törölhető, amikor szerkeszthető
             if( in_array($sor['stat_id'], prigeny_mentheto_statuszok()) ){
-                $gombok .= ' <input type="button" id="recordTorol" class="gombb_alert dn" onclick="if( cash_flow_fulon_vagyunk() ){ cash_flow_sorok_torol(); }else{ alert2(\'Név: '. alert_kerdesbe_sztring($sor['nev']).'<br>Státusz: '.getStatText($megnevezes, $sor['stat_id']).'<br><br>Projektigénylés ebben a státuszban nem törölhető!\', \'\', \'Hiba\'); }" value="Töröl" title="Töröl">';
+                $gombok .= ' <input type="button" id="recordTorol" class="gombb_alert dn" onclick="if( cash_flow_fulon_vagyunk() ){ cash_flow_sorok_torol(); } else { alert2(\'Név: '. alert_kerdesbe_sztring($sor['nev']).'<br>Státusz: '.getStatText($megnevezes, $sor['stat_id']).'<br><br>Projektigénylés ebben a státuszban nem törölhető!\', \'\', \'Hiba\'); }" value="Töröl" title="Töröl">';
             // Jogosutságkezelés: csak az törölheti, akinek van hozzá joga
             } elseif( !$szerkesztheto ){
-                $gombok .= ' <input type="button" id="recordTorol" class="gombb_alert dn" onclick="if( cash_flow_fulon_vagyunk() ){ }else{ alert2(\'Önnek nincs joga projektigénylést törölni!\', \'\', \'Hiba\'); }" value="Töröl" title="Töröl">';
+                $gombok .= ' <input type="button" id="recordTorol" class="gombb_alert dn" onclick="if( cash_flow_fulon_vagyunk() ){ } else { alert2(\'Önnek nincs joga projektigénylést törölni!\', \'\', \'Hiba\'); }" value="Töröl" title="Töröl">';
             // Ha csak saját igénylések kezelése joga van és más kezelés nincs, és az igénylést nem saját maga hozta létre
             }elseif( !$csak_sajat_kezelheti ) {
-                $gombok .= ' <input type="button" id="recordTorol" class="gombb_alert dn" onclick="if( cash_flow_fulon_vagyunk() ){ alert2(\'Ön csak saját Cash-flow-t törölhet!\', \'\', \'Hiba\'); }else{ alert2(\'Ön csak saját projektigénylést törölhet!\', \'\', \'Hiba\'); }" value="Töröl" title="Töröl">';
+                $gombok .= ' <input type="button" id="recordTorol" class="gombb_alert dn" onclick="if( cash_flow_fulon_vagyunk() ){ alert2(\'Ön csak saját Cash-flow-t törölhet!\', \'\', \'Hiba\'); } else { alert2(\'Ön csak saját projektigénylést törölhet!\', \'\', \'Hiba\'); }" value="Töröl" title="Töröl">';
             } else {
-                $gombok .= ' <input type="button" id="recordTorol" class="gombb_alert dn" onclick="if( cash_flow_fulon_vagyunk() ){ }else{ alert2(\'Biztosan törli ezt a '.$szoveg.'?\', gomb'.$_GET['id'].'); }" value="Töröl" title="Töröl">';
+                $gombok .= ' <input type="button" id="recordTorol" class="gombb_alert dn" onclick="if( cash_flow_fulon_vagyunk() ){ } else { alert2(\'Biztosan törli ezt a '.$szoveg.'?\', gomb'.$_GET['id'].'); }" value="Töröl" title="Töröl">';
             }
 
             // Ha a prigény létrehozás alatt van, akkor érhető el csak az Igénylés rögzítése gomb
             if( $sor['stat_id']==PRIGENY_STAT_LETRE_ALATT ){
                 if (isset($_GET['modosit'])) {
                     $gombok .= ' <input type="button" class="gomb modositaskor_rejt" value="Igénylés rögzítése" title="Igénylés rögzítése" id="igenyles_rogzit_gomb" onclick="$(\'#igeny_rogzit\').val(1); szurkit(); $(\'#szerk_form\').submit();">';
-                }else{
+                } else {
                     $gombok .= ' <input type="button" class="gomb modositaskor_rejt" value="Igénylés rögzítése" title="Igénylés rögzítése" id="igenyles_rogzit_gomb" onclick="szurkit(); location.href=\''.self().'?id='.$_GET['id'].'&amp;modosit&amp;rogzit\'">';
                 }
             }
@@ -1381,7 +1381,7 @@ require('selectek.php');
                                         alert2(\'Ha módosítja a vállalatot vagy egyszállodás modellre vált, a cash-flowban rögzített adatok törlődni fognak!<br>Biztosan folytatja a műveletet?\', \'<input type="button" class="gomb zold" onclick="volt_figyelmeztetes = true; $(\\\'#szerk_form\\\').submit();" value="Igen"> <input type="button" class="gomb piros" onclick="alert2(); szurkit_zar(\\\'mégsem mehet gomb mutat\\\')" value="Nem">\');
                                         return false;
                                     }
-                                }else{
+                                } else {
                                     volt_figyelmeztetes = false;
                                 }
                                 ';
@@ -1398,7 +1398,7 @@ require('selectek.php');
                                         }
                                     });
                                 /* Ha egy telephely sincs rögzítve, akkor is tovább mehetünk. */
-                                }else{
+                                } else {
                                     kulonbozo_telephelyek = true;
                                 }
 
@@ -1582,7 +1582,7 @@ require('selectek.php');
                 if($tomb['csoport']){
                     $kulso_ertek = $adatbazis_kapcsolat->s2('info', $tomb['tabla'], "`{$tomb['oszlop_keres']}`='{$sor[$tomb['name']]}' AND `csoport`='{$tomb['csoport']}'", '', '1');
                     $kulso_ertek['nev'] = $kulso_ertek['info'];
-                }else{
+                } else {
                     $kulso_ertek = $adatbazis_kapcsolat->s2('recid nev', $tomb['tabla'], "`{$tomb['oszlop_keres']}`='{$sor[$tomb['name']]}'", '', '1');
                 }
 
@@ -1666,7 +1666,7 @@ require('selectek.php');
                     $(\'#kulonbseg\')    .html( kulonbseg                                                        +\' '.get_penznem().'\');
                     if( $(\'#becs_kolt\').html() != $(\'#szetoszt_kolt\').html() ){
                         $(\'#kulonbseg\').addClass(\'piros\');
-                    }else{
+                    } else {
                         $(\'#kulonbseg\').removeClass(\'piros\');
                     }
                 }
@@ -1686,11 +1686,11 @@ require('selectek.php');
 
         $cash_flowk = $adatbazis_kapcsolat->s("`".get_db_tabla()."cash_flow`.`recid`, `".get_db_tabla()."cash_flow`.`telephely_id`, `".get_db_tabla()."cash_flow`.`datum`, `".get_db_tabla()."cash_flow`.`osszeg`", 'cash_flow', "`apa_recid`='".$_GET['id']."'", "`".get_db_tabla()."telephely`.`nev`, `".get_db_tabla()."cash_flow`.`datum`", '', '', '', " JOIN `".get_db_tabla()."telephely` ON `".get_db_tabla()."telephely`.`id`=`".get_db_tabla()."cash_flow`.`telephely_id`");
         $i = 1;
-        foreach($cash_flowk as $cf) {
+        foreach ( $cash_flowk as $cf ) {
 
-            if($sor['egy_tobb']==0){
+            if( $sor['egy_tobb'] == 0 ) {
                 $szalloda = $adatbazis_kapcsolat->s2('nev', 'telephely', "`id`='{$sor['telephely_id']}'");
-            }else{
+            } else {
                 $szalloda = $adatbazis_kapcsolat->s2('nev', 'telephely', "`id`='{$cf['telephely_id']}'");
             }
 
@@ -1760,12 +1760,12 @@ require('selectek.php');
             echo $szamla_html;
         }
 
-        if($tobb_kep){
-			require_once('tobb_kep.php');
+        if( $tobb_kep ) {
+            require_once('tobb_kep.php');
 		}
 
     // Véleményezők fül
-    }elseif(isset($_GET['velemenyezok'])) {
+    } elseif( isset($_GET['velemenyezok']) ) {
 
         // Fejlécek
         $szamla_html .= '<div id="tablazatBeszur">';
@@ -1784,7 +1784,7 @@ require('selectek.php');
         $i = 1;
         $velemenyezok = $adatbazis_kapcsolat->s('login_recid', 'projektigenyles_kapcs', "`projektigenyles_recid`='{$_GET['id']}'");
         $velemenyezok = adatbazis2tomb($velemenyezok, 'login_recid');
-        if($velemenyezok){
+        if( $velemenyezok ) {
             $velemenyezok = $adatbazis_kapcsolat->s('recid teljes_nev', 'login', "`recid` IN (".implode(',', $velemenyezok).")", 'teljes_nev');
             foreach($velemenyezok as $velemenyezo) {
 
@@ -1796,7 +1796,7 @@ require('selectek.php');
                 $torles_html   = '';
                 $velemeny = $adatbazis_kapcsolat->s2('recid utvonal fajlnev megj insert_dt', 'projektigenyles_velemeny', "`projektigenyles_recid`='{$_GET['id']}' AND `login_recid`='{$velemenyezo['recid']}'");
 //echo $adatbazis_kapcsolat->gp() . '<br>';
-                if($velemeny){
+                if($velemeny ) {
                     $fajl = '../'.get_utvonal().'projektigenyles_velemeny/'.$velemeny['utvonal'];
                     $felirat = $velemeny['fajlnev'];
                     $kep     = new Img($fajl, $felirat, 150, 150);
@@ -1816,7 +1816,7 @@ require('selectek.php');
                                             ');
 
                     // Törölni csak saját fájlt lehet
-                    if($velemenyezo['recid']==$_SESSION[get_db_tabla().'login_recid']){
+                    if( $velemenyezo['recid'] == $_SESSION[get_db_tabla() . 'login_recid'] ) {
                         $torles_html = nl2('
                                         <a href="javascript:velemeny_torol(\''.$velemeny['recid'].'\')" title="Törlés">
                                             <i class="material-icons piros">delete</i>
@@ -1851,7 +1851,7 @@ require('selectek.php');
         }
 
 	// Történet
-	}elseif(isset($_GET['tortenet'])){
+    } elseif( isset($_GET['tortenet']) ) {
 
         $szamla_html .= get_tortenet($megnevezes);
 
@@ -1864,7 +1864,7 @@ require('selectek.php');
         }
 
 	// Dokumentumok
-	}elseif( isset($_GET['dokumentumok']) ) {
+	} elseif( isset($_GET['dokumentumok']) ) {
 
         if( $tobb_kep ) {
             require_once('tobb_kep.php');
@@ -1880,7 +1880,7 @@ require('selectek.php');
         }
 
 	// Megjegyzések
-	}elseif(isset($_GET['megjegyzesek'])){
+    } elseif( isset($_GET['megjegyzesek']) ) {
 
         // <div class="dt naplo" class nevekből a kijCont kivéve, hogy a megjegyzéseket ne lehessen törölni
         $szamla_html .= nl2('
@@ -1918,8 +1918,8 @@ require('selectek.php');
             echo $szamla_html.$gombok;
         }
 
-	//Megtérülés
-	}elseif(isset($_GET['megterules'])){
+	// Megtérülés
+    } elseif( isset($_GET['megterules']) ) {
 
         $szamla_html .= nl2('
             <div class="dt naplo kijCont" data-tabla="projektigenyles_megter" data-mellek="megterules">
@@ -1932,7 +1932,7 @@ require('selectek.php');
         $sorok = $adatbazis_kapcsolat->s('recid terulet osszeg insert_usr insert_dt', 'projektigenyles_megter', "`projektigenyles_recid` = '".$_GET['id']."'", 'insert_dt desc');
         $i = 1;
 
-        foreach($sorok as $sor) {
+        foreach ( $sorok as $sor ) {
 
             $szamla_html .= nl2('
                 <div id="naploSor-'.$sor['recid'].'" data-id="'.$sor['recid'].'" data-i="'.$i.'" class="dtr nSor kijSor">
