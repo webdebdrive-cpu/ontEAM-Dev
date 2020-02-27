@@ -51,7 +51,7 @@ if (isset($_POST['get_adatok'])) {
 }
 
 // Már igényelve gomb feldolgozás
-if (isset($_POST['anyagigenyles_mar_igenyelve'])) {
+if( isset($_POST['anyagigenyles_mar_igenyelve']) ) {
 
     // Tranzakció indul
     $db_error = false;
@@ -70,12 +70,14 @@ if (isset($_POST['anyagigenyles_mar_igenyelve'])) {
 
         require 'selectek.php';
 
-        $kerdes = nl2( getErtek('nev', 'telephely', 'id', $_POST['telephely_id']).'
-                        <br>'.$_POST['cikk_id'].' '.$munkalap_anyag['cikk_nev'].'
+        $kerdes = nl2( 
+                        'Szálloda: '.getErtek('nev', 'telephely', 'id', $_POST['telephely_id']).'
+                        <br>Cikk: '.$_POST['cikk_id'].' '.$munkalap_anyag['cikk_nev'].'
                         <br>
-                        <br>Diszpécsernaplóban igénylésre váró mennyiség: '.$_POST['ig_alatt'].' '.str_replace(array('m2', 'm3'), array('m<sup>2</sup>', 'm<sup>3</sup>'), $munkalap_anyag['cikk_mee']).'
-                        <br>Már igényelt mennyiség: '.number_format($_POST['ig_men'], 2, ',', ' ').' '.str_replace(array('m2', 'm3'), array('m<sup>2</sup>', 'm<sup>3</sup>'), $munkalap_anyag['cikk_mee']).'
-                        <br>Ha folytatja, a diszpécsernaplóban igénylésre váró mennyiség státusza át lesz állítva "'.$munkAnyag_statusz[DISZPNAG_STAT_ANYAG_IGENYELVE].'" státuszra.
+                        <br>Munkalapon igénylésre vár: '.$_POST['ig_alatt'].' '.str_replace(array('m2', 'm3'), array('m<sup>2</sup>', 'm<sup>3</sup>'), $munkalap_anyag['cikk_mee']).'
+                        <br>Már igényelve: '.number_format($_POST['anyag_var'], 2, ',', ' ').' '.str_replace(array('m2', 'm3'), array('m<sup>2</sup>', 'm<sup>3</sup>'), $munkalap_anyag['cikk_mee']).'
+                        <br>Igénylés rendelés folyamatban: '.number_format($_POST['ig_foly'], 2, ',', ' ').' '.str_replace(array('m2', 'm3'), array('m<sup>2</sup>', 'm<sup>3</sup>'), $munkalap_anyag['cikk_mee']).'
+                        <br>Ha folytatja, az igénylésre váró mennyiség státusza át lesz állítva "'.$munkAnyag_statusz[DISZPNAG_STAT_ANYAG_IGENYELVE].'" státuszra.
                         <br>
                         <br>Folytatja?');
         echo json_encode(array(
@@ -106,7 +108,7 @@ if (isset($_POST['anyagigenyles_mar_igenyelve'])) {
 
 
 // Anyag rendelékezésre állás
-if (isset($_POST['f_anyag_rendelkezesre_all'])) {
+if( isset($_POST['f_anyag_rendelkezesre_all']) ) {
 
     // Tranzakció indul
     $db_error = false;
@@ -121,6 +123,8 @@ if (isset($_POST['f_anyag_rendelkezesre_all'])) {
     $munkalapok = adatbazis2tomb($munkalapok, 'munkalap_id');
     if(munkalap_folyamatbanra_halehet($munkalapok)===false){ $db_error = true; }
 
+    echo json_encode( array('siker' => '1') );
+    
     // Tranzakció kommitolása, vagy rollback-ezése
     if( !$db_error ) {
         mysqli_commit($db_kapcs);
@@ -133,7 +137,7 @@ if (isset($_POST['f_anyag_rendelkezesre_all'])) {
 }
 
 // Van-e várólistát anyagigénylés
-if (isset($_POST['van_e_varoslista'])) {
+if( isset($_POST['van_e_varoslista']) ) {
 
     if( is_array($idk) ) {
         if($adatbazis_kapcsolat->s2('recid', 'anyagigenyles', "`recid` IN (".implode(',', $idk).") AND `stat_id`='".CIKKIGN_STAT_VARAKOZO."'")){
@@ -165,8 +169,8 @@ if($tobb_kep){
 }
 
 // Van-e olyan anyagigénylés, ami a kapott szálloda + cikkszám párossal, anyagiégnylés státuszban van. Új anyagigénylés hozzáadásakor ellenőrizzük.
-if (isset($_POST['van_mar_ilyen_anyagigenyles'])) {
-    
+if( isset($_POST['van_mar_ilyen_anyagigenyles']) ) {
+
     $cikktorzs = $adatbazis_kapcsolat->s2('nev id', 'cikktorzs', "`recid`='{$_POST['cikk_id']}'");
     $anyagigenylesek = $adatbazis_kapcsolat->s('recid insert_dt', 'anyagigenyles', "`telephely_id`='{$_POST['telephely_id']}' AND `cikk_id`='{$cikktorzs['id']}' AND `stat_id`<='".CIKKIGN_STAT_JOVAHAGYVA."'");
     if( $anyagigenylesek && !$_POST['mehet'] ){
@@ -218,7 +222,7 @@ if (isset($_POST['van_mar_ilyen_anyagigenyles'])) {
 }
 
 // Get leírás
-if (isset($_POST['get_leiras'])) {
+if( isset($_POST['get_leiras']) ) {
 
     $anyagig = $adatbazis_kapcsolat->s2('igleir', 'anyagigenyles', "`recid`='{$_POST['id']}'");
     echo json_encode(array(
@@ -2695,12 +2699,12 @@ require_once('selectek.php');
         // Igénylésre váró anyagok a munkalapokon:
         // A beloginolt user szállodáit érintő munkalapokat szedjük össze
         $szallodak = get_akt_login_szallodai();
-        if($szallodak){
+        if( $szallodak ) {
 
             // Vegyük a loginolt user azon munkalapjait, amik anyagra vár státuszban vannak
             $munkalapok = $adatbazis_kapcsolat->s('recid', 'munkalap', "`telephely_id` IN (".implode(',', $szallodak).") AND `stat_id`='".MUNKALAP_STAT_ANYAGRAVAR."'");
             $munkalapok = adatbazis2tomb($munkalapok, 'recid');
-            if($munkalapok){
+            if( $munkalapok ) {
 
                 $anyagok_html = '';
                 $anyag_sql = " AND `szuk_men`>0 AND `stat_id`='".DISZPNAG_STAT_ANYAGRA_VAR."'";
@@ -2708,11 +2712,11 @@ require_once('selectek.php');
                 $munkalapok = implode(',', $munkalapok);
                 $telephelyek = $adatbazis_kapcsolat->s('distinct telephely_id', 'munkalap_anyag', "`munkalap_id` IN (".$munkalapok.") AND `stat_id`!='".DISZPNAG_STAT_VAN_ANYAG."'".$anyag_sql);
 
-                foreach($telephelyek as $telephely){
+                foreach ( $telephelyek as $telephely ) {
 
                     // Azon belül anyagonként járjuk be
                     $anyagok = $adatbazis_kapcsolat->s('distinct cikk_id', 'munkalap_anyag', "`munkalap_id` IN (".$munkalapok.") AND `stat_id`!='".DISZPNAG_STAT_VAN_ANYAG."' AND `telephely_id`='{$telephely['telephely_id']}'".$anyag_sql);
-                    foreach($anyagok as $anyag){
+                    foreach ( $anyagok as $anyag ) {
 
                         $anyag = $adatbazis_kapcsolat->s2('recid id', 'cikktorzs', "`id`='{$anyag['cikk_id']}'");
                         $anyag['cikk_id'] = $anyag['id'];
@@ -2727,18 +2731,18 @@ require_once('selectek.php');
                         // Igénylés alatti darabszám kiszámítása
                         $ig_var = 0;
                         $akt_anyagok = $adatbazis_kapcsolat->s('recid szuk_men', 'munkalap_anyag', "`munkalap_id` IN (".$munkalapok.") AND `cikk_id`='{$anyag['cikk_id']}' AND `telephely_id`='{$telephely['telephely_id']}' AND `stat_id`='".DISZPNAG_STAT_ANYAGRA_VAR."'".$anyag_sql);
-                        foreach($akt_anyagok as $akt_anyag){
+                        foreach ( $akt_anyagok as $akt_anyag ) {
                             $ig_var += $akt_anyag['szuk_men'];
                         }
 
                         // Anyagra váró darabszám kiszámítása (ugyanaz, csak másik státuszt figyelünk)
                         $anyag_var = 0;
                         $akt_anyagok = $adatbazis_kapcsolat->s('szuk_men', 'munkalap_anyag', "`munkalap_id` IN (".$munkalapok.") AND `cikk_id`='{$anyag['cikk_id']}' AND `telephely_id`='{$telephely['telephely_id']}' AND `stat_id`='".DISZPNAG_STAT_ANYAG_IGENYELVE."'".$anyag_sql);
-                        foreach($akt_anyagok as $akt_anyag){
+                        foreach ( $akt_anyagok as $akt_anyag ) {
                             $anyag_var += $akt_anyag['szuk_men'];
                         }
 
-                        //A cikktörzs rec_id-jáéra van szükségünk a későbbiekben. ID alapján megkeressük
+                        // A cikktörzs rec_id-jáéra van szükségünk a későbbiekben. ID alapján megkeressük
                         $cikkid_origi = $cikk_id;
                         $cikk_id = $adatbazis_kapcsolat->s('recid', 'cikktorzs', "`id`='{$cikkid_origi}'");
                         $cikk_id = $cikk_id[0]['recid'];
@@ -2746,12 +2750,12 @@ require_once('selectek.php');
                         // Rendelés folyamatban kiszámítása: az összes olyan anyagigénylés, ahol adott anyag cikkszámmal dolgozunk és a státusza nem "törölt" és nem "lezárt"
                         $folyamatban = 0;
                         $folyamatbanok = $adatbazis_kapcsolat->s('stat_id igmen rndmen erkmen', 'anyagigenyles', "`cikk_id`='{$anyag['cikk_id']}' AND `telephely_id`='{$telephely['telephely_id']}' AND `stat_id` IN ('".CIKKIGN_STAT_NYITOTT."', '".CIKKIGN_STAT_ARAZVA."', '".CIKKIGN_STAT_JOVAHAGYVA."', '".CIKKIGN_STAT_MEGRENDELVE."', '".CIKKIGN_STAT_RESZBENBEERK."') ");
-                        foreach($folyamatbanok as $foly){
-                            if( $foly['stat_id']==CIKKIGN_STAT_NYITOTT ){
+                        foreach ( $folyamatbanok as $foly ) {
+                            if( $foly['stat_id'] == CIKKIGN_STAT_NYITOTT ) {
                                 $folyamatban += $foly['igmen'];
-                            }elseif(in_array($foly['stat_id'], array(CIKKIGN_STAT_ARAZVA, CIKKIGN_STAT_JOVAHAGYVA, CIKKIGN_STAT_MEGRENDELVE) ) ){
+                            } elseif( in_array($foly['stat_id'], array(CIKKIGN_STAT_ARAZVA, CIKKIGN_STAT_JOVAHAGYVA, CIKKIGN_STAT_MEGRENDELVE)) ) {
                                 $folyamatban += $foly['rndmen'];
-                            }elseif( $foly['stat_id']==CIKKIGN_STAT_RESZBENBEERK ){
+                            } elseif( $foly['stat_id'] == CIKKIGN_STAT_RESZBENBEERK ) {
                                 $folyamatban += ($foly['rndmen']-$foly['erkmen']);
                             }
                         }
@@ -2759,16 +2763,16 @@ require_once('selectek.php');
                         $szalloda = $adatbazis_kapcsolat->s2('nev', 'telephely', "`id`='{$telephely['telephely_id']}'");
 
                         $mar_igenyelve = '(nincs igénylés)';
-                        if($folyamatban){
-                            $mar_igenyelve = '<input type="button" value="Már igényelve" class="gomb" onclick="anyagigenyles_mar_igenyelve(\''.$anyag['cikk_id'].'\', \''.$telephely['telephely_id'].'\', \''.number_format($ig_var, 2, ',', ' ').'\', \''.number_format($anyag_var, 2, ',', ' ').'\', \'csak kérezünk\')">';
+                        if( $folyamatban ) {
+                            $mar_igenyelve = '<input type="button" value="Már igényelve" class="gomb" onclick="anyagigenyles_mar_igenyelve(\''.$anyag['cikk_id'].'\', \''.$telephely['telephely_id'].'\', \''.number_format($ig_var, 2, ',', ' ').'\', \''.number_format($anyag_var, 2, ',', ' ').'\', \''.number_format($folyamatban, 2, ',', ' ').'\', \'csak kérezünk\')">';
                         }
 
                         // Kiíratáshoz
                         $akt_anyag = $adatbazis_kapcsolat->s2('cikk_nev cikk_id szuk_men cikk_mee igleir', 'munkalap_anyag', "`munkalap_id` IN (".$munkalapok.") AND `telephely_id`='{$telephely['telephely_id']}' AND `cikk_id`='{$anyag['cikk_id']}'");
 
                         $anyagok_html .= nl2('
-                            <tr id="sor_'.$anyag['cikk_id'].'">
-                                <td>'.$szalloda['nev'].'</td>
+                            <tr id="sor_'.$recid_egyedi_azon.'">
+                                <td id="telephely_'.$recid_egyedi_azon.'">'.$szalloda['nev'].'</td>
                                 <td id="cikk_id_'.$recid_egyedi_azon.'">'.$akt_anyag['cikk_id'].'</td>
                                 <td id="cikk_nev_'.$recid_egyedi_azon.'" class="l">'.$akt_anyag['cikk_nev'].'</td>
                                 <td class="r piros" id="th'.$telephely['telephely_id'].'a'.$anyag['cikk_id'].'">'.number_format($ig_var, 2, ',', ' ').'</td>
@@ -2779,20 +2783,21 @@ require_once('selectek.php');
                                 <td><input type="button" value="Mutat" class="gomb" onclick="window.open(\'munkalap.php?recidk='.$akt_munkalapok.'\')"></td>
                                 <td><input type="button" value="Igénylés" class="gomb f_anyagigenyles_mezok_kitolt" data-recid_egyedi_azon="'.$recid_egyedi_azon.'" data-telephely_id="'.$telephely['telephely_id'].'" data-cikk_id="'.$anyag['recid'].'" data-cikk_id2="'.$anyag['cikk_id'].'"></td>
                                 <td>'.$mar_igenyelve.'</td>
-                                <td><input type="button" value="Anyag rendelkezésre áll" class="gomb f_anyag_rendelkezesre_all" data-telephely_id="'.$telephely['telephely_id'].'" data-cikkid_origi="'.$anyag['cikk_id'].'" data-cikk_id="'.$anyag['cikk_id'].'"></td>
+                                <td><input type="button" value="Anyag rendelkezésre áll" class="gomb f_anyag_rendelkezesre_all" id="gomb_anyag_r_all_'.$recid_egyedi_azon.'" data-telephely_id="'.$telephely['telephely_id'].'" data-cikkid_origi="'.$anyag['cikk_id'].'" data-cikk_id="'.$anyag['cikk_id'].'"></td>
                             </tr>
                         ');
                     }
                 }
 
-                if($anyagok_html){
-                    $szamla_html .= nl2('<p style="margin: 2rem 0 0.2rem 0" class="b">Igénylésre váró anyagok a munkalapokon:</p>
+                if( $anyagok_html ) {
+                    $szamla_html .= nl2('
+                    <p style="margin: 2rem 0 0.2rem 0" class="b">Igénylésre váró anyagok a munkalapokon:</p>
                     <table class="csikos tomorit hoveres">
                         <tr>
                             <th>Szálloda</th>
                             <th>Cikk</th>
                             <th>Név</th>
-                            <th>Munkalapon igénylés alatt</th>
+                            <th>Munkalapon igénylésre vár</th>
                             <th>Munkalapon anyagra vár (igényelve)</th>
                             <th>Igénylés rendelés folyamatában</th>
                             <th>Mee</th>

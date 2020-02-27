@@ -61,8 +61,7 @@ SZŰRÉS LEKEZELÉSE:
 - A kapcsolódó táblákat még az esemenyek.php isset($_POST['f_o_szures_submit']) részénél kell lekezelni
 - fuggvenyek.php-ben a kapcsolódó táblák miatt még itt állítsd be a működést: // Szűréskor kell pár JOIN-olás a külső táblákhoz
 - Lehet szűrni arra is, hogy van-e csatolt dokumentum vagy sem. Ezt a szures.php $dokumentumos_oldal változónál állítjuk be.
-- Összetett szűrés előtt feljön egy kérdés, hogy X ezer sor lesz kilistázva, folytatja-e. Ezt az esemenyek.php-ban számoljuk ki. Itt fontos, hogy adott szálloda láthatósággal is számoljunk tehát új felület kialakításakor vedd fel a $telephely_ids_tablak tömbbe az új php fájl nevét.
-
+ 
 SORREDEZÉS
 - Az A-Z és Z-A-t az admin.js bejegyzesekLista() függvény vége állítja. Illetve a header.php, maikor betölt az oldal.
 - A kilsitázott tételek valódi sorrendjét a fuggvenyek.php -ban szamla_lista() függvény elején kerül beállításra

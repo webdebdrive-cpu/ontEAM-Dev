@@ -178,7 +178,7 @@ function get_doctype() { return '';                 } //transitional, frameset (
 function get_noskype() { return true;               }
 function get_language(){ return get_alapnyelv();    }
 function get_favicon() {
-    if( is_file('favicon.ico') ) {
+    if( is_file('/favicon.ico') ) {
         return 'favicon.ico';
     }else{
         return '';

@@ -1814,59 +1814,6 @@ $(function() {
         $(this).select();
     });
 
-    /* Anyagigénylésnél a mennyiség mező kitöltése szálloda + anyag ismerete alapján */
-    $(document).on('focus', '.f_anyagig_menny_feltolt', function(e) {
-        if(!$(this).val()){
-            anyagig_id = '#th'+$('#telephely_id').val()+'a'+$('#nev').val();
-            $('#igmen').val( $(anyagig_id).html() );
-        }
-    });
-
-    $(document).on('click', '.f_anyagigenyles_mezok_kitolt', function(e) {
-
-        recid_egyedi_azon   = $(this).attr('data-recid_egyedi_azon');
-        telephely_id        = $(this).attr('data-telephely_id');
-        cikk_id             = $(this).attr('data-cikk_id');
-        cikk_id2            = $(this).attr('data-cikk_id2');
-        nev_autocompl       = $('#cikk_nev_'+recid_egyedi_azon).html();
-        igmen               = $('#th'+telephely_id+'a'+cikk_id2).html();
-        mee                 = $('#th'+telephely_id+'a'+cikk_id2+'_mee').html();
-        igleir              = $('#th'+telephely_id+'a'+cikk_id2+'_igleir').html().replace(/<br\s*[\/]?>/gi, "\n");
-
-        $('#telephely_id')  .val(telephely_id).addClass('mod');
-        $('#nev_autocomp')  .val(nev_autocompl);
-        $('#nev_autocomp')  .attr('data-origin-val', nev_autocompl).addClass('mod');
-        $('#nev')           .val(cikk_id).addClass('mod');
-        $('#igmen')         .val(igmen).addClass('mod');
-        $('#igleir')        .val(igleir).addClass('mod');
-        $('.insertMee')     .html(mee);
-
-        $('#mehet_gomb').removeAttr('disabled').addClass('gombb_alert');
-        $('#megsem_gomb').removeAttr('disabled');
-
-    });
-    $(document).on('click', '.f_anyag_rendelkezesre_all', function(e) {
-
-        telephely_id = $(this).attr('data-telephely_id');
-        cikkid_origi = $(this).attr('data-cikkid_origi');
-        cikk_id      = $(this).attr('data-cikk_id');
-
-        $.ajax({
-            url : 'anyagigenyles.php',
-            type: 'POST',
-            data: esamp2es('telephely_id=' + telephely_id + '&amp;cikk_id=' + cikkid_origi + '&amp;f_anyag_rendelkezesre_all=' + new Date().getTime()),
-            success: function (response) {
-                if(response.substring(0, 6)=='SESKIL'){ location.href = 'index.php'; }
-                $('#sor_'+cikk_id).fadeOut();
-            },
-            complete: function(xhr) {
-                if( xhr.status != 200 ) {
-                    alert2(xhr.responseText, '', 'Hiba');
-                }
-            }
-        });
-    });
-
     /* Loginnév mező formázása */
     $(document).on('keyup', '.f_loginnev', function(e) {
         $(this).val( $(this).val().replace(/[^a-zA-Z0-9._@éáűőúöüóíÉÁŰŐÚÖÜÓÍ]+/g, '') );
@@ -3307,40 +3254,6 @@ function anyagigenyles_mind_jovahagy(csak_kerdezunk) {
             }
         }
     }
-}
-
-/* Anyagigénylés már igényelve gomb */
-function anyagigenyles_mar_igenyelve(cikk_id, telephely_id, ig_alatt, ig_foly, csak_kerdezunk){
-    $.ajax({
-        url : 'anyagigenyles.php',
-        type: 'POST',
-        data: {
-            cikk_id                     : cikk_id,
-            telephely_id                : telephely_id,
-            ig_alatt                    : ig_alatt,
-            ig_foly                     : ig_foly,
-            csak_kerdezunk              : csak_kerdezunk,
-            anyagigenyles_mar_igenyelve : Date.now()
-        },
-        success: function (response) {
-            if(response.substring(0, 6)=='SESKIL'){ location.href = 'index.php'; }
-            if(response) {
-                response = JSON.parse(response);
-
-                if( response.hiba ) {
-                    alert2(response.hiba, response.gomb, response.title);
-                    return false;
-                }
-            }
-            szurkit();
-            location.reload();
-        },
-        complete: function(xhr) {
-            if( xhr.status != 200 ) {
-                alert2(xhr.responseText, '', 'Hiba');
-            }
-        }
-    });
 }
 
 // Csoport átnevezése

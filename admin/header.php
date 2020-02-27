@@ -1385,34 +1385,19 @@ $header_html .= str_replace(
 if( basename(self()) == 'eloterj_fb.php' || basename(self()) == 'eloterj_bod.php' ) {
     $header_html .= '<script src="../js/eloterjesztes.js?cache='.time().'"></script>';
 }
-// Energia terv JS behúzva
-if( basename(self()) == 'energia_terv.php' ) {
-    $header_html .= '<script src="../js/energia_terv.js?cache='.time().'"></script>';
+
+// Ha van adott PHP nevű JS, akkor azt húzzuk be
+$php_fajl = pathinfo(self());
+$php_fajl = $php_fajl['filename'];
+$js_file    = '../js/'.$php_fajl.'.js';
+$css_file   = '../css/'.$php_fajl.'.css';
+if( is_file($js_file) ) {
+    $header_html .= '<script src="'.$js_file.'?cache='.time().'"></script>';
 }
-// Fenntartási terv JS behúzva
-if( basename(self()) == 'fenntartasi_terv.php' ) {
-    $header_html .= '<script src="../js/fenntartasi_terv.js?cache='.time().'"></script>';
+if( is_file($css_file) ) {
+    $header_html .= '<style type="text/css">'.minify_css($css_file).'</style>';
 }
-// Munkalapokkal kapcsolatos JS-eket külön fájlba szedjük össze
-if( basename(self()) == 'munkalap.php' ) {
-    $header_html .= '<script src="../js/munkalap.js?cache='.time().'"></script>';
-}
-// Projektigénylésekkel kapcsolatos JS-eket külön fájlba szedjük össze
-if( basename(self()) == 'projektigenyles.php' ) {
-    $header_html .= '<script src="../js/projektigenyles.js?cache='.time().'"></script>';
-}
-// Projektkezeléssel kapcsolatos JS-eket külön fájlba szedjük össze
-if( basename(self()) == 'projektkezeles.php' ) {
-    $header_html .= '<script src="../js/projektkezeles.js?cache='.time().'"></script>';
-}
-// Projektszámlákkal kapcsolatos JS-eket külön fájlba szedjük össze
-if( basename(self()) == 'projektszamla.php' ) {
-    $header_html .= '<script src="../js/projektszamla.js?cache='.time().'"></script>';
-}
-// Projektszerződéssel kapcsolatos JS-eket külön fájlba szedjük össze
-if( basename(self()) == 'projektszerzodes.php' ) {
-    $header_html .= '<script src="../js/projektszerzodes.js?cache='.time().'"></script>';
-}
+
 $header_html .= '<script src="../js/jquery.fixedheadertable.js?cache='.time().'"></script>';
 
 if( isIphone() ) {
