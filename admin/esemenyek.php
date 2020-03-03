@@ -3430,7 +3430,10 @@ if( isset($_REQUEST['f_o_szures_submit']) ) {
     if( !$osszetett_where ) {
         $sql = csonkit($sql, 5);
     }
-    
+//echo '<pre style="font-size: 1.4rem">';
+//var_dump($sql);
+//echo '</pre>';
+//exit;
     // Ha volt 'legfrissebb' mező kitöltve, akkor még a limitet ki kell számolni
     if( strpos( $_REQUEST['feltetel'], 'me|legfrissebb' ) !== false ) {
         $legfrissebb_flag = 0;

@@ -7645,7 +7645,7 @@ function get_szures_where_kieg($mezo, $op, $felt, $tabla) {
         break;
     }
 
-// echo $mezo.' - '.$op.' - '.$felt;exit;
+//echo $mezo.' - '.$op.' - '.$felt;exit;
     // Külső táblák kapcsolása
     // A szamla_lista() függvényben is állítsd be a JOIN-okat
     if( $mezo == 'megjegyzes' ) {
@@ -7761,11 +7761,11 @@ function get_o_szures_where_kieg ($feltetel, $tabla ) {
     $legfrissebb_flag = 0;
     $limit            = '';
     $elemek_vegleges = array();
-    foreach($elemek as $elem){
-        
+    foreach ( $elemek as $elem ) {
+
         // Ha a mező a legfrisebb, akkor bekapcsolunk egy flag-et, hogy a következő mezőig ne vegyünk fel elemeket a tömbbe
-        if( $elem == 'me|legfrissebb' ){
-            
+        if( $elem == 'me|legfrissebb' ) {
+
             $legfrissebb_flag = 1;
             
         // Viszont a limitet kimentjük
@@ -7782,9 +7782,9 @@ function get_o_szures_where_kieg ($feltetel, $tabla ) {
         }
     }
 
-    foreach($elemek_vegleges as $elem){
+    foreach ( $elemek_vegleges as $elem ) {
 
-        switch(substr($elem, 0, 3)){
+        switch ( substr($elem, 0, 3) ) {
             case 'ny|':
                 $sql .= '(';
             break;
@@ -7798,7 +7798,6 @@ function get_o_szures_where_kieg ($feltetel, $tabla ) {
             break;
 
             case 'fe|':
-
                 $feltetel = substr($elem, 3);
 
                 $sql .= get_szures_where_kieg($mezo, $op, $feltetel, $tabla);
@@ -7826,7 +7825,6 @@ function get_o_szures_where_kieg ($feltetel, $tabla ) {
     $sql = str_replace(array(' AND  AND ', ' OR   AND ', ' AND  OR  ', ' AND ) AND '), array(' AND ', ' OR  ', ' OR  ', ') AND '), $sql);
     $sql = csonkit($sql, 5);
     
-// echo $sql;
     return $sql;
     
 }
@@ -9025,8 +9023,8 @@ function munkalap_letrehoz($stat_id, $telephely_id, $tipus_id, $obj_id, $gep_id,
 
 }
 
-// Kezelés jogot visszaadó függvény (felvéve státusz alatt)
-function get_kezeles_jog($szemelyzet_id){
+// ML kezelés jogot visszaadó függvény (felvéve státusz alatt)
+function get_kezeles_jog($szemelyzet_id) {
     $kezeles_jog = false;
     if(
             ( _jog(JOG_MUNKALAP_SAJAT_KEZEL)        && $szemelyzet_id == $_SESSION[get_db_tabla().'szemelyzet_id'] ) ||
@@ -10755,8 +10753,8 @@ function projektkezeles_szamlazott_osszeg ( $pr_szam ) {
     
 }
 
-// Mivel szűrni kell tudni arra, hogy adott projektnek van-e minősítésre váró dokumentuma, ezért dokaumenutmok
-// mozgásakor ezt mindig nyilván kell tartani
+// Mivel szűrni kell tudni arra, hogy adott projektnek van-e minősítésre váró dokumentuma,
+// ezért dokumenutmok mozgásakor ezt mindig nyilván kell tartani
 function projekt_minositesre_varo_dok_szamol( $pr_id ) {
     
     global $adatbazis_kapcsolat;
@@ -10979,11 +10977,11 @@ function projekt_munkalap_osszekot($pr_id, $ml_id) {
     
     $pr = $adatbazis_kapcsolat->s2('ikt_szam stat_id nev tipus', 'projektkezeles', "`recid`='{$pr_id}'");
     if( $pr === false ) { $db_error = true; }
-//    $ml = $adatbazis_kapcsolat->s2('recid', 'munkalap', "`recid`='{$ml_id}'");
-//    if( $ml === false ) { $db_error = true; }
     
     // Összekötés
-    $sql = $adatbazis_kapcsolat->u('munkalap', array('pr_szam', 'tipus_id'), array($pr['ikt_szam'], MLTIPUS_ESETI_FENNT), "`recid`='{$ml_id}'");
+    $sql = $adatbazis_kapcsolat->u('munkalap',  array('pr_szam',        'tipus_id',             'pr_ml_ful' ),
+                                                array($pr['ikt_szam'],  MLTIPUS_ESETI_FENNT,    1           ),
+                                    "`recid`='{$ml_id}'");
     if( $sql === false ) { $db_error = true; }
     
     // Megjegyzés a ML-ra

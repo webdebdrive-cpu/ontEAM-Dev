@@ -1252,7 +1252,7 @@ if( basename(self()) == 'szerepkor_jog.php' ) {
     $uj = $duplikal = '';
 }
 
-if( basename(self())=='torzsadat.php' && !_jog(JOG_TORZSADAT_KEZEL)){
+if( basename(self()) == 'torzsadat.php' && !_jog(JOG_TORZSADAT_KEZEL) ) {
     $torles_icon    = '';
     $uj = $duplikal = '';
 }
@@ -1260,17 +1260,17 @@ if( basename(self())=='torzsadat.php' && !_jog(JOG_TORZSADAT_KEZEL)){
 // Excel export
 $valasztos = '';
 $valasztos_feluletek = array('eloterj_bod.php', 'eloterj_fb.php', 'energia_terv.php', 'fenntartasi_terv.php', 'projektszamla.php', 'projektszerzodes.php');
-if( in_array(basename(self()), $valasztos_feluletek)  ){
+if( in_array(basename(self()), $valasztos_feluletek) ) {
     $valasztos = 'választós';
 }
 $csv_get = 'csv_general( this, \''.$valasztos.'\' );';
 
 $rendez_rejt_oldalak = array('dokumentumtar.php', 'eszkozkezeles.php', 'felmeresi_terv.php');
-if(in_array(basename(self()), $rendez_rejt_oldalak)){
+if( in_array(basename(self()), $rendez_rejt_oldalak) ) {
     $rendezes_rejt = ' dn';
 }
 // Anyagigénylésnél DE nem anyagrendelésnél is rejtjük
-if( basename(self())=='anyagigenyles.php' ){
+if( basename(self()) == 'anyagigenyles.php' ) {
     $rendezes_rejt = ' dn';
 }
 
@@ -1377,7 +1377,7 @@ $get_get = get_get(array('pdf'));
 $header_sablon = fajlbol_olvas('../sablon/admin/header.html', true);
 $header_html .= str_replace(
     array('{CACHE}',        '{CSS}', '{VERZIO}',    '{CEGNEV}', '{MENUK}', '{KERESO}', '{SZURES}', '{TBALW}', '{TJOBBW}', '{TARTBAL}', '{TABLA}', '{KERESODN}', '{OLDALNEV}', '{RENDEZES}', '{REND_IRANY}', '{REND_CHANGE}', '{MEGN}', '{SELF}', '{GET_GET}', '{CSV_GET}', '{SZERK_DIS}', '{BELEPVE}', '{LAPOZAS}', '{KSZ}',       '{LEPTETO_IKONOK}', '{UJ}', '{DUPLIKAL}', '{TORLES}',   '{CSUSZKADN}', '{RENDEZES_REJT}', '{MAIL}', '{FELH_NEV}', '{RESZLEG}', '{SZURES_NOBORDER}'  ),
-    array('?cache='.time(),  $css,   get_verzio(),  get_nev(),  $menuk,    $kereso,    $szures,    $tbalw,    $tjobbw,    $tartBal,    $tabla,    $keresodn,    $oldalNev,    $rendezes,    $rend_irany,    $rend_change,    $megn,    $self,    $get_get,    $csv_get,    $szerk_dis,    $belepve,    $lapozas,    $_GET['ksz'], $lepteto_ikonok,    $uj,    $duplikal,    $torles_icon, $csuszkadn,    $rendezes_rejt,    $mail,    $felh_nev,    $reszleg,    $szures_border       ),
+    array('?cache='.time(),  $css,   get_verzio(),  get_nev(),  $menuk,    $kereso,    $szures,    $tbalw,    $tjobbw,    $tartBal,    $tabla,    $keresodn,    $oldalNev,    $rendezes,    $rend_irany,    $rend_change,    $megn,    $self,    $get_get,    $csv_get,    $szerk_dis,    $belepve,    $lapozas,    $_GET['ksz'],  $lepteto_ikonok,    $uj,    $duplikal,    $torles_icon, $csuszkadn,    $rendezes_rejt,    $mail,    $felh_nev,    $reszleg,    $szures_border       ),
     $header_sablon
 );
 

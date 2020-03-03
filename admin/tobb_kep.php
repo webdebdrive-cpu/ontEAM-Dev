@@ -897,7 +897,7 @@ function get_tobbkep_thumb($sor_kepek = '', $i = '', $tobbkep_tablanev = '', $ni
                 $checked = ' checked';
             }
             
-            // Ha nincs projekt kezelés jog, akkor dokuemntumot nem lehet küldeni, emiatt a kijelölést is elrejtjük
+            // Ha nincs projekt kezelés jog, akkor dokumentumot nem lehet küldeni, emiatt a kijelölést is elrejtjük
             $checkbox = '';
             if( _jog(JOG_PRKEZEL_KEZEL) ) {
                 $checkbox = nl2('

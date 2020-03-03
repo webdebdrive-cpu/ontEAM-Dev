@@ -2849,7 +2849,7 @@ require_once('selectek.php');
         ');
         
         $projekt    = $adatbazis_kapcsolat->s2('ikt_szam', 'projektkezeles', "`recid`='{$_GET['id']}'");
-        $munkalapok = $adatbazis_kapcsolat->s('recid ikt_szam stat_id tipus_id szemelyzet_id szallito_id', 'munkalap', "`pr_szam`='{$projekt['ikt_szam']}' AND `stat_id`!='".MUNKALAP_STAT_TOROLT."' AND `stat_id`!='".MUNKALAP_STAT_SZTORNO."'");
+        $munkalapok = $adatbazis_kapcsolat->s('recid ikt_szam stat_id tipus_id szemelyzet_id szallito_id', 'munkalap', "`pr_szam`='{$projekt['ikt_szam']}' AND `pr_ml_ful`=1 AND `stat_id`!='".MUNKALAP_STAT_TOROLT."' AND `stat_id`!='".MUNKALAP_STAT_SZTORNO."'");
         foreach ( $munkalapok as $munkalap ) {
             
             // Személyzet kiíratása

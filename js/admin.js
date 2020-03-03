@@ -2559,7 +2559,7 @@ function bejelentesElutasit( that ) {
 
 function bejelentesIgazolas( recid, csak_kerdezunk ) {
 
-    if(balnav_kijelol_ell()){
+    if (balnav_kijelol_ell()) {
 
         if( csak_kerdezunk === undefined ) {
             csak_kerdezunk = false;
@@ -2605,7 +2605,7 @@ function bejelentesIgazolas( recid, csak_kerdezunk ) {
 
 function tobbBejegyzesTorol() {
 
-    if(balnav_kijelol_ell()){
+    if (balnav_kijelol_ell()) {
 
         szamlaSorok = $('#szamlaList li.szamla_sor.kijelolve');
 

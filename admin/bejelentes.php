@@ -326,14 +326,14 @@ if( isset($_POST['bejelentesIgazolas']) ) {
         $login = $adatbazis_kapcsolat->s2('reszleg_id', 'login', "`recid`='{$_SESSION[get_db_tabla().'login_recid']}'");
         $reszlegek = array($login['reszleg_id']);
         // Ha van hozzá joga, megnézzük a társrészlegeket
-        if( _jog(JOG_BEJELENTES_TARSRESZLEG_BEJ_IGAZOL) ){
+        if( _jog(JOG_BEJELENTES_TARSRESZLEG_BEJ_IGAZOL) ) {
             $tarsreszlegek = $adatbazis_kapcsolat->s('reszleg_id', 'login_tarsreszleg', "`login_id`='{$_SESSION[get_db_tabla().'login_recid']}'");
-            foreach($tarsreszlegek as $reszleg){
+            foreach ( $tarsreszlegek as $reszleg ) {
                 array_push($reszlegek, $reszleg['reszleg_id']);
             }
         }
         // Ha adott ML részlege nincs benne a felhasználóhoz tartozó részlegek között, akkor hibaüzenet
-        if(!in_array($bejelentes['usr_reszleg_id'], $reszlegek)){
+        if( !in_array($bejelentes['usr_reszleg_id'], $reszlegek) ) {
             echo json_encode(array(
                 'hiba'  => 'A bejelentés nem tartozik az Ön részlegéhez!',
                 'title' => 'Hiba'
@@ -378,11 +378,11 @@ if( isset($_POST['bejelentesIgazolas']) ) {
 }
 
 // Bejelentés reklamáció elfogadása előtt a munkalapok kilistázása
-if (isset($_POST['rekl_elfogad_ml_ok'])) {
+if( isset($_POST['rekl_elfogad_ml_ok']) ) {
 
     $munkalapok = $adatbazis_kapcsolat->s('munkalap_id', 'munkalap_kapcs', "`bejelentes_id`='{$_POST['recid']}'");
     $munkalapok = adatbazis2tomb($munkalapok, 'munkalap_id');
-    if($munkalapok){
+    if( $munkalapok ) {
 
         $html = nl2('
                     <table class="csikos">
@@ -394,15 +394,15 @@ if (isset($_POST['rekl_elfogad_ml_ok'])) {
                     </tr>
                     ');
         $munkalapok = $adatbazis_kapcsolat->s('recid ikt_szam telephely_id stat_id', 'munkalap', "`recid` IN (".implode(', ', $munkalapok).")");
-        foreach($munkalapok as $munkalap){
+        foreach ( $munkalapok as $munkalap ) {
 
             // Csak nyitott, folyamatban és az aktuális sátuszt kínáljuk fel
             $statusz = '<select class="rekl_elfogad_ml_stat" data-id="'.$munkalap['recid'].'">';
-            foreach( $_stat_text['munkalap'] as $stat_id => $stat ){
+            foreach ( $_stat_text['munkalap'] as $stat_id => $stat ) {
 
                 if( in_array($stat_id, array($munkalap['stat_id'], MUNKALAP_STAT_NYITOTT, MUNKALAP_STAT_HOZZARENDELT)) ){
                     $selected = '';
-                    if( $stat_id==$munkalap['stat_id'] ){
+                    if( $stat_id == $munkalap['stat_id'] ) {
                         $selected = ' selected';
                     }
                     $statusz .= '<option value="'.$stat_id.'"'.$selected.'>'.$stat['nev'].'</option>';
@@ -863,9 +863,9 @@ require_once('selectek.php');
 
         // Nyitott státuszú bejelentés elutasítása
         if( $sor['stat_id']==BEJELENTES_STAT_NYITOTT && _jog(JOG_BEJELENTES_ELUTASIT) ) {
-//Korábban rákérdeztünk, de ez kivéve 2018.02.14 velentin napkor :)
-//<script> gomb_b_elut = \'<input type="button" class="gomb zold" onclick="csoportMuvelet(\\\'elutasitas\\\');" value="Igen"><input type="button" class="gomb piros" onclick="alert2()" value="Nem">\';</script>
-//<input type="button" class="gomb modositaskor_rejt" value="Bejelentés elutasítása" title="Bejelentés elutasítása" onclick="alert2(\'Biztosan elutasítja a bejelentést?\', gomb_b_elut);">
+// Korábban rákérdeztünk, de ez kivéve 2018.02.14 velentin napkor :)
+// <script> gomb_b_elut = \'<input type="button" class="gomb zold" onclick="csoportMuvelet(\\\'elutasitas\\\');" value="Igen"><input type="button" class="gomb piros" onclick="alert2()" value="Nem">\';</script>
+// <input type="button" class="gomb modositaskor_rejt" value="Bejelentés elutasítása" title="Bejelentés elutasítása" onclick="alert2(\'Biztosan elutasítja a bejelentést?\', gomb_b_elut);">
 
             $gombok .= nl2('
                             <input type="button" class="gomb modositaskor_rejt" value="Bejelentés elutasítása" title="Bejelentés elutasítása" onclick="csoportMuvelet(\'elutasitas\');">

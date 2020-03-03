@@ -2446,10 +2446,10 @@ require_once('selectek.php');
             }
         }
 
-        // Anyagigénylés készít jög
+        // Anyagigénylés készít jog
         if( _jog(JOG_ANYAGREND_KESZIT) ) {
 
-            if(!isset($_GET['anyagrend'])){
+            if( !isset($_GET['anyagrend']) ) {
 
                 $arazas        = '';
                 $kuld_jovahagy = '';

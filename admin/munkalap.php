@@ -1288,7 +1288,7 @@ if( isset($_POST['munkalapKeszre']) ) {
         }
 
         // Előbb csak kérdezünk
-        if (isset($_POST['csak_kerdezunk'])) {
+        if( isset($_POST['csak_kerdezunk']) ) {
 
             echo json_encode(array(
                 'hiba' => 'Biztosan készre jelenti a munkalapot?',
@@ -2153,16 +2153,16 @@ if( isset($_POST['munkalapReklamacioElutasit']) ) {
         if( !$db_error ) {
 
             // Ha a státusza vizsgálat alatt, akkor levelet is küldünk
-            if( $munkalap['stat_id']==MUNKALAP_STAT_VIZSGALAT_ALATT ){
+            if( $munkalap['stat_id'] == MUNKALAP_STAT_VIZSGALAT_ALATT ) {
                 mysqli_commit($db_kapcs);
 
                 // Levélküldés
                 $hiba = '';
                 $valasz = level_felkeszit_es_kuld('munkalap', $recid, ERT_MUNK_VIZSGALAT_UTAN, 'munkalapVizsgalatUtan', '_jog'.JOG_MUNKALAP_IGAZOLAS, '<br>'.nl2br2($memo).'<br>');
-                if( substr($valasz, 0, 4)=='Hiba' ){
+                if( substr($valasz, 0, 4) == 'Hiba' ) {
                     $hiba .= $valasz;
                 }
-                if($hiba){
+                if( $hiba ) {
                     echo json_encode(array(
                         'hiba'  => $hiba,
                         'title' => 'Hiba',
@@ -3785,7 +3785,7 @@ if( isset($_POST['getMunkalapFeladatok']) ) {
         }
 
         // Ha a munkalap vizsgálat vagy lezárásra vár státusz alatt van, vagy ha nyitott az utolsó tétele, akkor mutatjuk meg popupban az utolsó tétel feladatait.
-        if( $sor['stat_id']==MUNKALAP_STAT_VIZSGALAT_ALATT || $sor['stat_id']==MUNKALAP_STAT_LEZARASRA_VAR || $utolso_tetel_nyitott ){
+        if( $sor['stat_id'] == MUNKALAP_STAT_VIZSGALAT_ALATT || $sor['stat_id'] == MUNKALAP_STAT_LEZARASRA_VAR || $utolso_tetel_nyitott ) {
 
             $munkalap_feladatok = $adatbazis_kapcsolat->s('recid erteklista_id memo', 'munkalap_feladat', "`munkalap_id` = '{$recid}' AND `tetel_id` = '".$akt_tetel['recid']."'");
             if( $munkalap_feladatok === false ) { $db_error = true; }
@@ -7504,8 +7504,8 @@ require('selectek.php');
 
         // Átadás gombok rejtése, ha azonos a saját szerepkörrel
         $szemelyzet_id_rejt = array();
-        foreach($select_szemelyzet as $szemelyzet){
-            if($_SESSION[get_db_tabla().'szemelyzet_id'] == $szemelyzet['value']){
+        foreach ( $select_szemelyzet as $szemelyzet ) {
+            if( $_SESSION[get_db_tabla() . 'szemelyzet_id'] == $szemelyzet['value'] ) {
                 $szemelyzet_id_rejt[$szemelyzet['value']] = ' class="dn"';
             }
         }
@@ -7638,7 +7638,7 @@ require('selectek.php');
         if(
                 ( $sor['stat_id']==MUNKALAP_STAT_HOZZARENDELT && $sor['szemelyzet_id']==KULSO_KIVITELEZO && ( _jog(JOG_MUNKALAP_KEZEL_KULSO) || ( _jog(JOG_MUNKALAP_SAJAT_KEZEL) && $_SESSION[get_db_tabla().'szemelyzet_id']==KULSO_KIVITELEZO ) ) ) ||
                 ( $sor['stat_id']==MUNKALAP_STAT_FELVEVE && in_array($sor['szemelyzet_id'], $felvehetik) && $kezeles_jog )
-           ){
+           ) {
             $gombok .= '<input type="button" class="gomb zold modositaskor_rejt" value="Készre jelentés" onclick="munkalapKeszre(\'csak kérdezünk még\');"> ';
         }
 
@@ -7680,12 +7680,12 @@ require('selectek.php');
         }
 
         // Nyitott státusz + Nyitottak kezel jog
-        if($sor['stat_id']==MUNKALAP_STAT_NYITOTT && _jog(JOG_MUNKALAP_NYITOTT_KEZEL)){
+        if( $sor['stat_id'] == MUNKALAP_STAT_NYITOTT && _jog(JOG_MUNKALAP_NYITOTT_KEZEL) ) {
 
             $szemelyzet_tipusok = '';
             $select_szemelyzet_sorrend = tobbdim_tomb_kulcs_rendez($select_szemelyzet, 'hozzarendel_sor');
-            foreach($select_szemelyzet_sorrend as $value) {
-                if($value['kulsos']){
+            foreach ( $select_szemelyzet_sorrend as $value ) {
+                if( $value['kulsos'] ) {
                     $szemelyzet_tipusok .= '<li onclick="munkalapElokeszit('.$value['value'].')">'.$value['name'].'</li>';
                 }
             }
@@ -7711,38 +7711,6 @@ require('selectek.php');
                     </div>
                 </div>
             ');
-
-                // Korábban ebből volt még jópár:
-//                <li'.$szemelyzet_id_rejt[TELEPITETT_SZEMELYZET].'><a onclick="munkalapTelepitett(\'csak kérdezünk még\');">Telepítettnek</a></li>
-//                <li'.$szemelyzet_id_rejt[MOBILCSOPORT]./* Korábbi onclick ez volt:  onclick="csoportMuvelet(\'munkalap_mobil\'); */'>
-//                    <script> gomb_mobil = \'<input type="button" class="gomb zold" onclick="munkalapMobil_sima()" value="Igen"><input type="button" class="gomb piros" onclick="alert2()" value="Nem">\';</script>
-//                    <a onclick="alert2(\'Biztosan átadja mobilnak?\', gomb_mobil)">Mobilnak</a>
-//                </li>
-//                <li'.$szemelyzet_id_rejt[KULSO_KIVITELEZO].'><a onclick="csoportMuvelet(\'munkalap_kulso\');">Külsőnek</a></li>
-//                <li'.$szemelyzet_id_rejt[MUSZAKI_VEZETO_HELYETTES].'>
-//                    <script> gomb_muszh = \'<input type="button" class="gomb zold" onclick="munkalapMuszakiVezetoHelyettes()" value="Igen"><input type="button" class="gomb piros" onclick="alert2()" value="Nem">\';</script>
-//                    <a onclick="alert2(\'Biztosan átadja a műszaki vezető helyettesnek?\', gomb_muszh)">Műszaki vezető helyettesnek</a>
-//                </li>
-//                <li'.$szemelyzet_id_rejt[MUSZAKI_VEZETO].'>
-//                    <script> gomb_musz = \'<input type="button" class="gomb zold" onclick="munkalapMuszakiVezeto()" value="Igen"><input type="button" class="gomb piros" onclick="alert2()" value="Nem">\'; </script>
-//                    <a onclick="alert2(\'Biztosan átadja a műszaki vezetőnek?\', gomb_musz)">Műszaki vezetőnek</a>
-//                </li>
-//                <li'.$szemelyzet_id_rejt[TERULETI_FELELOS].'>
-//                    <script> gomb_ter = \'<input type="button" class="gomb zold" onclick="munkalapTeruletiVezeto()" value="Igen"><input type="button" class="gomb piros" onclick="alert2()" value="Nem">\'; </script>
-//                    <a onclick="alert2(\'Biztosan átadja a területi felelősnek?\', gomb_ter)">Területi felelősnek</a>
-//                </li>
-//                <li'.$szemelyzet_id_rejt[MUSZAKI_ADMINISZTRATOR].'>
-//                    <script> gomb_muszu = \'<input type="button" class="gomb zold" onclick="munkalapAdminisztrator()" value="Igen"><input type="button" class="gomb piros" onclick="alert2()" value="Nem">\';</script>
-//                    <a onclick="alert2(\'Biztosan átadja a műszaki ügyintézőnek?\', gomb_muszu)">Műszaki ügyintézőnek</a>
-//                </li>
-//                <li'.$szemelyzet_id_rejt[MSZK_VEZETO].'>
-//                    <script> gomb_mszk = \'<input type="button" class="gomb zold" onclick="munkalapDiszpKozp()" value="Igen"><input type="button" class="gomb piros" onclick="alert2()" value="Nem">\';</script>
-//                    <a onclick="alert2(\'Biztosan átadja a MSZK vezetőnek?\', gomb_mszk)">MSZK vezetőnek</a>
-//                </li>
-//                <li'.$szemelyzet_id_rejt[MUSZAKI_IGAZGATO].'>
-//                    <script> gomb_muszaki_ig = \'<input type="button" class="gomb zold" onclick="munkalapMuszakiIgazgato()" value="Igen"><input type="button" class="gomb piros" onclick="alert2()" value="Nem">\';</script>
-//                    <a onclick="alert2(\'Biztosan átadja a Műszaki igazgatónak?\', gomb_muszaki_ig)">Műszaki igazgatónak</a>
-//                </li>
 
         }
 
@@ -7863,7 +7831,7 @@ require('selectek.php');
            ) {
                 // Hozzárendelt státusz esetén, ha a ML direktbe volt hozzárendelve, más popup jön fel
                 $onclick = 'csoportMuvelet(\'atadasDiszpecsernek\');';
-                if( $sor['stat_id']==MUNKALAP_STAT_HOZZARENDELT && $sor['direktbe'] ){
+                if( $sor['stat_id'] == MUNKALAP_STAT_HOZZARENDELT && $sor['direktbe'] ) {
                     $onclick = 'csoportMuvelet(\'atadasDiszpecsernekDirektbe\');';
                 }
                 $gombok .= '<input type="button" class="gomb piros modositaskor_rejt" value="Visszaadás" onclick="'.$onclick.'"> ';
@@ -7927,7 +7895,7 @@ require('selectek.php');
             $gombok .= '<input type="button" class="gomb modositaskor_rejt" value="Lezárás" onclick="csoportMuvelet(\'munkalapReklamacioElutasit\');"> ';
         }
 
-        // Lezárás2: Kész státusz + kezelés jog
+        // Lezárás2: Lezárásra vár + kezelés jog
         if( $sor['stat_id'] == MUNKALAP_STAT_LEZARASRA_VAR && $kezeles_jog ) {
             $gombok .= '<input type="button" class="gomb modositaskor_rejt" value="Lezárás" onclick="munkalapRogzit(\'csak kérdezünk még\');"> ';
         }
