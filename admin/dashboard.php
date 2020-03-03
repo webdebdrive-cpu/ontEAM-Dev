@@ -32,9 +32,9 @@ if( $_SERVER['HTTP_HOST']!='www.onteam.hu' && $_SERVER['HTTP_HOST']!='onteam.hu'
             $o_szuro_feltetel = csonkit($o_szuro_feltetel, 2);
             
             // Vegyük azokat a Bejelentéseket, amik BEJELENTES_STAT_KESZ_IG státuszúak, és a részlegük benne van a $reszlegek-ben
-            $bejelentesek = $adatbazis_kapcsolat->s('recid', 'bejelentes', "`stat_id`='".BEJELENTES_STAT_KESZ_IG."' AND `usr_reszleg_id` IN (".implode(', ', $reszlegek)."){$telephely_sql}");
-            $link = 'bejelentes.php?tabla=bejelentes&amp;feltetel=me|stat_id!HASH!op|equal!HASH!fe|'.BEJELENTES_STAT_KESZ_IG.'!HASH!es|!HASH!ny'.$o_szuro_feltetel.'za|!HASH!es|!HASH!&amp;f_o_szures_submit=1';
-            $db = count($bejelentesek);
+            $db     = $adatbazis_kapcsolat->s('recid', 'bejelentes', "`stat_id`='".BEJELENTES_STAT_KESZ_IG."' AND `usr_reszleg_id` IN (".implode(', ', $reszlegek)."){$telephely_sql}", '', '', '', 'num rows');
+            $link   = 'bejelentes.php?tabla=bejelentes&amp;feltetel=me|stat_id!HASH!op|equal!HASH!fe|'.BEJELENTES_STAT_KESZ_IG.'!HASH!es|!HASH!ny'.$o_szuro_feltetel.'za|!HASH!es|!HASH!&amp;f_o_szures_submit=1&amp;dashboard=Bejelentés igazolása';
+            
             if( $db ) {
                 $feladatok .= nl2('
                                     <tr>
@@ -59,10 +59,9 @@ if( $_SERVER['HTTP_HOST']!='www.onteam.hu' && $_SERVER['HTTP_HOST']!='onteam.hu'
         // Reklamáció kezelése
         if( _jog(JOG_BEJELENTES_VIZSGAL) ) {
             
-            $bejelentesek = $adatbazis_kapcsolat->s('recid', 'bejelentes', "`stat_id`='".BEJELENTES_STAT_VIZSG_ALATT."'{$telephely_sql}");
-            $link = 'bejelentes.php?mezo=stat_id&amp;op=equal&amp;felt='.BEJELENTES_STAT_VIZSG_ALATT.'&amp;modosit';
+            $db     = $adatbazis_kapcsolat->s('recid', 'bejelentes', "`stat_id`='".BEJELENTES_STAT_VIZSG_ALATT."'{$telephely_sql}", '', '', '', 'num rows');
+            $link   = 'bejelentes.php?mezo=stat_id&amp;op=equal&amp;felt='.BEJELENTES_STAT_VIZSG_ALATT.'&amp;modosit&amp;dashboard=Reklamáció kezelése';
             
-            $db = count($bejelentesek);
             if( $db ) {
                 $feladatok .= nl2('
                                     <tr>
@@ -88,7 +87,7 @@ if( $_SERVER['HTTP_HOST']!='www.onteam.hu' && $_SERVER['HTTP_HOST']!='onteam.hu'
         if( _jog(JOG_MUNKALAP_KEZEL_KULSO) || ( _jog(JOG_MUNKALAP_SAJAT_KEZEL) && $_SESSION[get_db_tabla().'szemelyzet_id']==KULSO_KIVITELEZO )
             || _jog(JOG_MUNKALAP_KEZEL_TELEPITETT) || _jog(JOG_MUNKALAP_KEZEL_MOBIL)
         ) {
-            
+
             // Azt, hogy milyen SQL-t kérünk le, függ a jogoktól
             // Kezdjük egy nagy nyitó zárüjellel, ezt az összetett szűrőnél is
             $sql               = '(';
@@ -133,12 +132,9 @@ if( $_SERVER['HTTP_HOST']!='www.onteam.hu' && $_SERVER['HTTP_HOST']!='onteam.hu'
             $sql               = csonkit($sql, 4).')';
             $o_szuro_feltetel  = csonkit($o_szuro_feltetel, 9).'!HASH!za|!HASH!es|!HASH!&amp;f_o_szures_submit=1';
             
-            $munkalapok = $adatbazis_kapcsolat->s('recid', 'munkalap', "{$sql}{$telephely_sql_mlhoz}");
-
-            // Összerakjuk a linket
-            $link = 'munkalap.php?tabla=munkalap&amp;feltetel='.$o_szuro_feltetel;
+            $db     = $adatbazis_kapcsolat->s('recid', 'munkalap', "{$sql}{$telephely_sql_mlhoz}", '', '', '', 'num rows');
+            $link   = 'munkalap.php?tabla=munkalap&amp;feltetel='.$o_szuro_feltetel.'&amp;dashboard=Munkalap készre jelentése';
             
-            $db = count($munkalapok);
             if( $db ) {
                 $feladatok .= nl2('
                                     <tr>
@@ -161,17 +157,13 @@ if( $_SERVER['HTTP_HOST']!='www.onteam.hu' && $_SERVER['HTTP_HOST']!='onteam.hu'
         
         
         // Munkalap lezárása
-        if( _jog(JOG_MUNKALAP_VIZSGALAT) || _jog(JOG_MUNKALAP_SAJAT_KEZEL) || _jog(JOG_MUNKALAP_KEZEL_TELEPITETT) || _jog(JOG_MUNKALAP_KEZEL_MOBIL) || _jog(JOG_MUNKALAP_KEZEL_KULSO) ) {
+        if( _jog(JOG_MUNKALAP_SAJAT_KEZEL) || _jog(JOG_MUNKALAP_KEZEL_TELEPITETT) || _jog(JOG_MUNKALAP_KEZEL_MOBIL) || _jog(JOG_MUNKALAP_KEZEL_KULSO) ) {
             
             // Azt, hogy milyen SQL-t kérünk le, függ a jogoktól
             // Kezdjük egy nagy nyitó zárüjellel, ezt az összetett szűrőnél is
             $sql               = '(';
             $o_szuro_feltetel  = '!HASH!ny|';
             
-            if( _jog(JOG_MUNKALAP_VIZSGALAT) ) {
-                $sql                .= "`stat_id`='".MUNKALAP_STAT_VIZSGALAT_ALATT."' OR ";
-                $o_szuro_feltetel   .= '!HASH!me|stat_id!HASH!op|equal!HASH!fe|'.MUNKALAP_STAT_VIZSGALAT_ALATT.'!HASH!va|';
-            }
             if( _jog(JOG_MUNKALAP_SAJAT_KEZEL) ) {
                 $sql                .= "(`stat_id`='".MUNKALAP_STAT_LEZARASRA_VAR."' AND `szemelyzet_id`='".$_SESSION[get_db_tabla().'szemelyzet_id']."') OR ";
                 $o_szuro_feltetel   .= '!HASH!ny|!HASH!me|stat_id!HASH!op|equal!HASH!fe|'.MUNKALAP_STAT_LEZARASRA_VAR.'!HASH!es|!HASH!me|szemelyzet_id!HASH!op|equal!HASH!fe|'.$_SESSION[get_db_tabla().'szemelyzet_id'].'!HASH!za|!HASH!va|';
@@ -193,10 +185,9 @@ if( $_SERVER['HTTP_HOST']!='www.onteam.hu' && $_SERVER['HTTP_HOST']!='onteam.hu'
             $sql               = csonkit($sql, 4).')';
             $o_szuro_feltetel  = csonkit($o_szuro_feltetel, 9).'!HASH!za|!HASH!es|!HASH!&amp;f_o_szures_submit=1';
             
-            $munkalapok = $adatbazis_kapcsolat->s('recid', 'munkalap', "{$sql}{$telephely_sql_mlhoz}");
-            $link = 'munkalap.php?tabla=munkalap&amp;feltetel='.$o_szuro_feltetel;
+            $db     = $adatbazis_kapcsolat->s('recid', 'munkalap', "{$sql}{$telephely_sql_mlhoz}", '', '', '', 'num rows');
+            $link   = 'munkalap.php?tabla=munkalap&amp;feltetel='.$o_szuro_feltetel.'&amp;dashboard=Munkalap lezárása';
             
-            $db = count($munkalapok);
             if( $db ) {
                 $feladatok .= nl2('
                                     <tr>
@@ -228,7 +219,7 @@ if( $_SERVER['HTTP_HOST']!='www.onteam.hu' && $_SERVER['HTTP_HOST']!='onteam.hu'
             
             $felvehetik = array(TELEPITETT_SZEMELYZET, MOBILCSOPORT);
             if( _jog(JOG_MUNKALAP_SAJAT_KEZEL) && in_array($_SESSION[get_db_tabla().'szemelyzet_id'], $felvehetik) ) {
-                $sql                .= "(`stat_id`='".MUNKALAP_STAT_HOZZARENDELT."' AND `szemelyzet_id`='".$_SESSION[get_db_tabla().'szemelyzet_id']."') OR ";
+                $sql                .= "(`stat_id`='".MUNKALAP_STAT_HOZZARENDELT."' AND `szemelyzet_id`='{$_SESSION[get_db_tabla().'szemelyzet_id']}') OR ";
                 $o_szuro_feltetel   .= '!HASH!ny|!HASH!me|stat_id!HASH!op|equal!HASH!fe|'.MUNKALAP_STAT_HOZZARENDELT.'!HASH!es|!HASH!me|szemelyzet_id!HASH!op|equal!HASH!fe|'.$_SESSION[get_db_tabla().'szemelyzet_id'].'!HASH!za|!HASH!va|';
             }
             if( _jog(JOG_MUNKALAP_KEZEL_TELEPITETT) ) {
@@ -244,11 +235,9 @@ if( $_SERVER['HTTP_HOST']!='www.onteam.hu' && $_SERVER['HTTP_HOST']!='onteam.hu'
             $sql               = csonkit($sql, 4).')';
             $o_szuro_feltetel  = csonkit($o_szuro_feltetel, 9).'!HASH!za|!HASH!es|!HASH!&amp;f_o_szures_submit=1';
             
-            $munkalapok = $adatbazis_kapcsolat->s('recid', 'munkalap', "{$sql}{$telephely_sql_mlhoz}");
-
-            $link = 'munkalap.php?tabla=munkalap&amp;feltetel='.$o_szuro_feltetel;
+            $db   = $adatbazis_kapcsolat->s('recid', 'munkalap', "{$sql}{$telephely_sql_mlhoz}", '', '', '', 'num rows');
+            $link = 'munkalap.php?tabla=munkalap&amp;feltetel='.$o_szuro_feltetel.'&amp;dashboard=Munkalap felvétele';
             
-            $db = count($munkalapok);
             if( $db ) {
                 $feladatok .= nl2('
                                     <tr>
@@ -274,7 +263,7 @@ if( $_SERVER['HTTP_HOST']!='www.onteam.hu' && $_SERVER['HTTP_HOST']!='onteam.hu'
         if( _jog(JOG_MUNKALAP_IGAZOLAS) ) {
 
             $munkalapok = $adatbazis_kapcsolat->s('recid', 'munkalap', "`stat_id`='".MUNKALAP_STAT_IGAZOLASRA_VAR."'{$telephely_sql_mlhoz}");
-            $link       = 'munkalap.php?mezo=stat_id&amp;op=equal&amp;felt='.MUNKALAP_STAT_IGAZOLASRA_VAR.'&amp;modosit';
+            $link       = 'munkalap.php?mezo=stat_id&amp;op=equal&amp;felt='.MUNKALAP_STAT_IGAZOLASRA_VAR.'&amp;modosit&amp;dashboard=Munkalap igazolása';
             
             $db = count($munkalapok);
             if( $db ) {
@@ -301,10 +290,9 @@ if( $_SERVER['HTTP_HOST']!='www.onteam.hu' && $_SERVER['HTTP_HOST']!='onteam.hu'
         // Munkalap vizsgálata
         if( _jog(JOG_MUNKALAP_VIZSGALAT) ) {
 
-            $munkalapok = $adatbazis_kapcsolat->s('recid', 'munkalap', "`stat_id`='".MUNKALAP_STAT_VIZSGALAT_ALATT."'{$telephely_sql_mlhoz}");
-            $link       = 'munkalap.php?mezo=stat_id&amp;op=equal&amp;felt='.MUNKALAP_STAT_VIZSGALAT_ALATT.'&amp;modosit';
+            $db     = $adatbazis_kapcsolat->s('recid', 'munkalap', "`stat_id`='".MUNKALAP_STAT_VIZSGALAT_ALATT."'{$telephely_sql_mlhoz}", '', '', '', 'num rows');
+            $link   = 'munkalap.php?mezo=stat_id&amp;op=equal&amp;felt='.MUNKALAP_STAT_VIZSGALAT_ALATT.'&amp;modosit&amp;dashboard=Munkalap vizsgálata';
             
-            $db = count($munkalapok);
             if( $db ) {
                 $feladatok .= nl2('
                                     <tr>
@@ -327,12 +315,11 @@ if( $_SERVER['HTTP_HOST']!='www.onteam.hu' && $_SERVER['HTTP_HOST']!='onteam.hu'
         
         
         // Külsős munka előkészítése
-        if( _jog(JOG_MUNKALAP_NYITOTT_KEZEL) ) {
+        if( _jog(JOG_MUNKALAP_KULSOS_ELOKESZIT) ) {
 
-            $munkalapok = $adatbazis_kapcsolat->s('recid', 'munkalap', "`stat_id`='".MUNKALAP_STAT_NYITOTT."'{$telephely_sql_mlhoz}");
-            $link       = 'munkalap.php?mezo=stat_id&amp;op=equal&amp;felt='.MUNKALAP_STAT_NYITOTT.'&amp;modosit';
+            $db     = $adatbazis_kapcsolat->s('recid', 'munkalap', "`stat_id`='".MUNKALAP_STAT_ELOKESZITES_ALATT."' AND `szemelyzet_id`='{$_SESSION[get_db_tabla().'szemelyzet_id']}'{$telephely_sql_mlhoz}", '', '', '', 'num rows');
+            $link   = 'munkalap.php?tabla=munkalap&amp;feltetel=me|stat_id!HASH!op|equal!HASH!fe|'.MUNKALAP_STAT_ELOKESZITES_ALATT.'!HASH!es|!HASH!me|szemelyzet_id!HASH!op|equal!HASH!fe|'.$_SESSION[get_db_tabla().'szemelyzet_id'].'!HASH!es|!HASH!&amp;f_o_szures_submit=1&amp;dashboard=Külsős munka előkészítése';
             
-            $db = count($munkalapok);
             if( $db ) {
                 $feladatok .= nl2('
                                     <tr>
@@ -357,11 +344,10 @@ if( $_SERVER['HTTP_HOST']!='www.onteam.hu' && $_SERVER['HTTP_HOST']!='onteam.hu'
         // Külsős munka jóváhagyása
         if( _jog(JOG_MUNKALAP_KULSOS_DONTES) ) {
 
-            $munkalapok        = $adatbazis_kapcsolat->s('recid', 'munkalap', "`stat_id`='".MUNKALAP_STAT_DONTESRE_VAR."' AND `jh1_szerep`!='{$_SESSION[get_db_tabla().'szemelyzet_id']}' AND `jh2_szerep`!='{$_SESSION[get_db_tabla().'szemelyzet_id']}'{$telephely_sql_mlhoz}");
-            $o_szuro_feltetel  = '!HASH!me|stat_id!HASH!op|equal!HASH!fe|'.MUNKALAP_STAT_DONTESRE_VAR.'!HASH!es|!HASH!me|jh1_szerep!HASH!op|not_eq!HASH!fe|'.$_SESSION[get_db_tabla().'szemelyzet_id'].'!HASH!es|!HASH!me|jh2_szerep!HASH!op|not_eq!HASH!fe|'.$_SESSION[get_db_tabla().'szemelyzet_id'].'!HASH!es|!HASH!&amp;f_o_szures_submit=1';
-            $link = 'munkalap.php?tabla=munkalap&amp;feltetel='.$o_szuro_feltetel;
+            $db                 = $adatbazis_kapcsolat->s('recid', 'munkalap', "`stat_id`='".MUNKALAP_STAT_DONTESRE_VAR."' AND `jh1_szerep`!='{$_SESSION[get_db_tabla().'szemelyzet_id']}' AND `jh2_szerep`!='{$_SESSION[get_db_tabla().'szemelyzet_id']}'{$telephely_sql_mlhoz}", '', '', '', 'num rows');
+            $o_szuro_feltetel   = '!HASH!me|stat_id!HASH!op|equal!HASH!fe|'.MUNKALAP_STAT_DONTESRE_VAR.'!HASH!es|!HASH!me|jh1_szerep!HASH!op|not_eq!HASH!fe|'.$_SESSION[get_db_tabla().'szemelyzet_id'].'!HASH!es|!HASH!me|jh2_szerep!HASH!op|not_eq!HASH!fe|'.$_SESSION[get_db_tabla().'szemelyzet_id'].'!HASH!es|!HASH!&amp;f_o_szures_submit=1';
+            $link               = 'munkalap.php?tabla=munkalap&amp;feltetel='.$o_szuro_feltetel.'&amp;dashboard=Külsős munka jóváhagyása';
             
-            $db = count($munkalapok);
             if( $db ) {
                 $feladatok .= nl2('
                                     <tr>
@@ -386,10 +372,9 @@ if( $_SERVER['HTTP_HOST']!='www.onteam.hu' && $_SERVER['HTTP_HOST']!='onteam.hu'
         // Külső munka megrendelése
         if( _jog(JOG_MUNKALAP_KULSOS_MEGREND) ) {
 
-            $munkalapok = $adatbazis_kapcsolat->s('recid', 'munkalap', "`stat_id`='".MUNKALAP_STAT_AJANLAT_NYOMTATVA."'{$telephely_sql_mlhoz}");
-            $link       = 'munkalap.php?mezo=stat_id&amp;op=equal&amp;felt='.MUNKALAP_STAT_AJANLAT_NYOMTATVA.'&amp;modosit';
+            $db     = $adatbazis_kapcsolat->s('recid', 'munkalap', "`stat_id`='".MUNKALAP_STAT_AJANLAT_NYOMTATVA."'{$telephely_sql_mlhoz}", '', '', '', 'num rows');
+            $link   = 'munkalap.php?mezo=stat_id&amp;op=equal&amp;felt='.MUNKALAP_STAT_AJANLAT_NYOMTATVA.'&amp;modosit&amp;dashboard=Külső munka megrendelése';
             
-            $db = count($munkalapok);
             if( $db ) {
                 $feladatok .= nl2('
                                     <tr>
@@ -414,10 +399,9 @@ if( $_SERVER['HTTP_HOST']!='www.onteam.hu' && $_SERVER['HTTP_HOST']!='onteam.hu'
         // Megr. sztornó email elküldése
         if( _jog(JOG_MUNKALAP_KULSOS_MEGREND) ) {
 
-            $munkalapok = $adatbazis_kapcsolat->s('recid', 'munkalap', "`stat_id`='".MUNKALAP_STAT_SZTORNO_VAR."'{$telephely_sql_mlhoz}");
-            $link       = 'munkalap.php?mezo=stat_id&amp;op=equal&amp;felt='.MUNKALAP_STAT_SZTORNO_VAR.'&amp;modosit';
+            $db     = $adatbazis_kapcsolat->s('recid', 'munkalap', "`stat_id`='".MUNKALAP_STAT_SZTORNO_VAR."'{$telephely_sql_mlhoz}", '', '', '', 'num rows');
+            $link   = 'munkalap.php?mezo=stat_id&amp;op=equal&amp;felt='.MUNKALAP_STAT_SZTORNO_VAR.'&amp;modosit&amp;dashboard=Megr. sztornó email elküldése';
             
-            $db = count($munkalapok);
             if( $db ) {
                 $feladatok .= nl2('
                                     <tr>
@@ -439,13 +423,49 @@ if( $_SERVER['HTTP_HOST']!='www.onteam.hu' && $_SERVER['HTTP_HOST']!='onteam.hu'
         
         
         
+        // Munkalapon hiányzó anyag igénylése
+        if( _jog(JOG_ANYAGIGENYLES_KEZEL) && !_jog(JOG_MUNKALAP_MEGTEKINT_FELADAT) ) {
+            
+            $where_kieg = '';
+            if( _jog(JOG_MUNKALAP_MEGTEKINT) ) {
+                // Hozzárendelt személyzet megállapítása. Ez egyenlő a Személyzet beosztásával.
+                $where_kieg = "`".get_db_tabla()."munkalap`.`szemelyzet_id`='{$_SESSION[get_db_tabla().'szemelyzet_id']}' AND ";
+                if( !$_SESSION[get_db_tabla() . 'szemelyzet_id'] ) {
+                    $where_kieg .= ' FALSE AND ';
+                }
+            }
+
+            $munkalapok = mysqli_query($db_kapcs, "SELECT `".get_db_tabla()."munkalap`.`recid` FROM `".get_db_tabla()."munkalap` JOIN `".get_db_tabla()."munkalap_anyag` ON `".get_db_tabla()."munkalap`.`recid`=`".get_db_tabla()."munkalap_anyag`.`munkalap_id` WHERE {$where_kieg}`".get_db_tabla()."munkalap`.`stat_id`='".MUNKALAP_STAT_ANYAGRAVAR."' AND `".get_db_tabla()."munkalap_anyag`.`stat_id`='".MUNKALAP_ANYAG_STAT_AI_SZUKS."' GROUP BY `".get_db_tabla()."munkalap_anyag`.`munkalap_id`");
+            $db         = mysqli_num_rows($munkalapok);
+            $link       = 'munkalap.php?mezo=anyag_stat_id&amp;op=equal&amp;felt='.MUNKALAP_ANYAG_STAT_AI_SZUKS.'&amp;modosit&amp;dashboard=Munkalapon hiányzó anyag igénylése';
+
+            if( $db ) {
+                $feladatok .= nl2('
+                                    <tr>
+                                        <td>
+                                            <a href="'.$link.'">
+                                                Munkalapon hiányzó anyag igénylése
+                                            </a>
+                                        </td>
+                                        <td>
+                                            <a href="'.$link.'">
+                                                '.number_format($db, 0, '', '.').' db
+                                            </a>
+                                        </td>
+                                    </tr>
+                                    ');
+            }
+        }
+        
+        
+        
+        
         // Anyagigénylés jóváhagyása
         if( _jog(JOG_ANYAGIGENYLES_JOVAHAGY) ) {
 
-            $anyagig_ek = $adatbazis_kapcsolat->s('recid', 'anyagigenyles', "`stat_id`='".CIKKIGN_STAT_ARAZVA."'{$telephely_sql}");
-            $link       = 'anyagigenyles.php?mezo=stat_id&amp;op=equal&amp;felt='.CIKKIGN_STAT_ARAZVA.'&amp;tablazat';
+            $db     = $adatbazis_kapcsolat->s('recid', 'anyagigenyles', "`stat_id`='".CIKKIGN_STAT_ARAZVA."'{$telephely_sql}", '', '', '', 'num rows');
+            $link   = 'anyagigenyles.php?mezo=stat_id&amp;op=equal&amp;felt='.CIKKIGN_STAT_ARAZVA.'&amp;tablazat&amp;dashboard=Anyagigénylés jóváhagyása';
             
-            $db = count($anyagig_ek);
             if( $db ) {
                 $feladatok .= nl2('
                                     <tr>
@@ -470,10 +490,9 @@ if( $_SERVER['HTTP_HOST']!='www.onteam.hu' && $_SERVER['HTTP_HOST']!='onteam.hu'
         // Anyagigénylés árazása
         if( _jog(JOG_ANYAGREND_KESZIT) ) {
 
-            $anyagig_ek = $adatbazis_kapcsolat->s('recid', 'anyagigenyles', "`stat_id`='".CIKKIGN_STAT_NYITOTT."'{$telephely_sql}");
-            $link       = 'anyagigenyles.php?mezo=stat_id&amp;op=equal&amp;felt='.CIKKIGN_STAT_NYITOTT.'&amp;tablazat';
+            $db     = $adatbazis_kapcsolat->s('recid', 'anyagigenyles', "`stat_id`='".CIKKIGN_STAT_NYITOTT."'{$telephely_sql}", '', '', '', 'num rows');
+            $link   = 'anyagigenyles.php?mezo=stat_id&amp;op=equal&amp;felt='.CIKKIGN_STAT_NYITOTT.'&amp;tablazat&amp;dashboard=Anyagigénylés árazása';
             
-            $db = count($anyagig_ek);
             if( $db ) {
                 $feladatok .= nl2('
                                     <tr>
@@ -499,7 +518,7 @@ if( $_SERVER['HTTP_HOST']!='www.onteam.hu' && $_SERVER['HTTP_HOST']!='onteam.hu'
         if( _jog(JOG_ANYAGREND_KESZIT) ) {
 
             $anyagig_ek = $adatbazis_kapcsolat->s('recid', 'anyagigenyles', "`stat_id`='".CIKKIGN_STAT_JOVAHAGYVA."'{$telephely_sql}");
-            $link       = 'anyagigenyles.php?mezo=stat_id&amp;op=equal&amp;felt='.CIKKIGN_STAT_JOVAHAGYVA.'&amp;tablazat';
+            $link       = 'anyagigenyles.php?mezo=stat_id&amp;op=equal&amp;felt='.CIKKIGN_STAT_JOVAHAGYVA.'&amp;tablazat&amp;dashboard=Anyagrendelés elkészítése';
             
             $db = count($anyagig_ek);
             if( $db ) {
@@ -524,10 +543,10 @@ if( $_SERVER['HTTP_HOST']!='www.onteam.hu' && $_SERVER['HTTP_HOST']!='onteam.hu'
         
         
         // Dokumentumok minősítése
-        if( _jog(JOG_PRKEZEL_KEZEL) ) {
+        if( _jog(JOG_PRKEZEL_KEZEL) || _jog(JOG_PRKEZEL_SAJAT_KEZEL) ) {
 
             $projektek  = $adatbazis_kapcsolat->s('recid', 'projektkezeles', "`dok_db_min_var`>'0'{$telephely_sql}");
-            $link       = 'projektkezeles.php?mezo=dok_db_min_var&amp;op=equal&amp;felt=1&amp;modosit';
+            $link       = 'projektkezeles.php?mezo=dok_db_min_var&amp;op=equal&amp;felt=1&amp;modosit&amp;dashboard=Dokumentumok minősítése';
             
             $db = count($projektek);
             if( $db ) {

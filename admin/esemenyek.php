@@ -1,6 +1,4 @@
 <?php
-// Tömbök létrehozása
-
 require_once('../weblap.php');
 
 $_SESSION['defaultCsuszka'] = 400;
@@ -3362,6 +3360,7 @@ $kivetelek = array('header.php', 'esemenyek.php');
 if( !in_array(basename(self()), $kivetelek) ){
     if( $_SESSION['elozo_oldal']!='mobil_hozzarendel.php' ){
         if($_SESSION['o_szuro_feltetel'] && $_SESSION['elozo_oldal']!=basename(self()) && $_SESSION['elozo_oldal']!='anyagigenyles.php' && $_SESSION['elozo_oldal']!='anyagigenyles.php?anyagrend'){
+            unset($_SESSION['dashboard_feladat']);
             unset($_SESSION['o_szuro_feltetel']);
             unset($_SESSION['o_szuro_html']);
         }
@@ -3404,6 +3403,17 @@ if (isset($_POST['o_szures'])) {
     $weblap->leallit();
     exit();
 }
+
+// Dashboardról ha jövünk, akkor a gyors szűrésnél feladatként ki kell írni, hogy szűrt állapotban vagyunk
+if( $_GET['dashboard'] ) {
+    $_SESSION['dashboard_feladat'] = $_GET['dashboard'];
+}
+if( isset($_GET['dashboard_feladat_torol']) ) {
+    unset($_SESSION['dashboard_feladat']);
+    unset($_SESSION['o_szuro_feltetel']);
+    unset($_SESSION['o_szuro_html']);
+    hd();
+}
 // Összetett szűrés SQL-é alakítása
 if( isset($_REQUEST['f_o_szures_submit']) ) {
 
@@ -3430,6 +3440,7 @@ if( isset($_REQUEST['f_o_szures_submit']) ) {
     if( !$osszetett_where ) {
         $sql = csonkit($sql, 5);
     }
+    
 //echo '<pre style="font-size: 1.4rem">';
 //var_dump($sql);
 //echo '</pre>';

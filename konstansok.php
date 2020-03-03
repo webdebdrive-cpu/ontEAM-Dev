@@ -86,6 +86,9 @@ define('MUNKALAP_STAT_VARAKOZO',            '20');
 define('MUNKALAP_STAT_AJANLAT_NYOMTATVA',   '21');
 define('MUNKALAP_STAT_SZTORNO_VAR',         '22');
 
+// Munkalap anyag státuszok
+define('MUNKALAP_ANYAG_STAT_AI_SZUKS',      '01');
+
 // Projektigénylés státuszok
 define('PRIGENY_STAT_NYITOTT',              '01' );
 define('PRIGENY_STAT_LETRE_ALATT',          '02' );

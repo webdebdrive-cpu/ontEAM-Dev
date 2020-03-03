@@ -55,11 +55,11 @@ function i_u($type, $tabla, $tomb) {
         }
 
         // Fenntartási terv és energia terv is csak akkor szerkeszthető, ha munkaközi
-        if( $tabla == 'fenntartasi_terv' && $tabla == 'energia_terv' ){
+        if( $tabla == 'fenntartasi_terv' && $tabla == 'energia_terv' ) {
             $terv = $adatbazis_kapcsolat->s2('stat_id', 'fenntartasi_terv', "`recid`='{$_GET['id']}'");
             if( $terv === false ) { $db_error = true; }
 
-            if($terv['stat_id'] != ENERGIATERV_STAT_MUNKAKOZI ) {
+             if( $terv['stat_id'] != ENERGIATERV_STAT_MUNKAKOZI ) {
                 exit;
             }
         }
@@ -247,15 +247,15 @@ function i_u($type, $tabla, $tomb) {
         // Napi ciklus, hétköznaponként ismétlődik
         $hetkoz_kent = '';
         if( $type == 'insert' ) {
-            if($_POST['hetkoz_kent']){
+            if( $_POST['hetkoz_kent'] ) {
                 $hetkoz_kent = '1';
             }
         } else {
-            if($_POST['hetkoz_kent']=='true'){
+            if( $_POST['hetkoz_kent'] == 'true' ) {
                 $hetkoz_kent = '1';
             }
         }
-        if($hetkoz_kent){
+        if( $hetkoz_kent ) {
             array_push($oszlopok, 'ciklaltip'   );
             array_push($ertekek,  '2'           );
 
@@ -599,7 +599,7 @@ function i_u($type, $tabla, $tomb) {
             array_push($ertekek,   $_SESSION[get_db_tabla().'user'] );
             
             // Ha nincs új feltöltés jogunk, akkor kilépünk
-            if( !_jog(JOG_PRIGENY_LETREHOZ) ){
+            if( !_jog(JOG_PRIGENY_LETREHOZ) ) {
                 exit;
             }
 
@@ -1054,7 +1054,7 @@ function i_u($type, $tabla, $tomb) {
         $valtozas = '[mezo]recid[/mezo] [ertek]'.$id.'[/ertek]'."\n";
 
         $i = 2;
-        foreach($_POST as $key => $value) {
+        foreach ( $_POST as $key => $value ) {
             if( $key != 'mehet_gomb' && $key != 'uj'.$tabla ) {
                 $valtozas .= '[mezo]'.$key.'[/mezo] [ertek]'.$value.'[/ertek]'."\n";
 
@@ -1421,7 +1421,7 @@ function i_u($type, $tabla, $tomb) {
             $prigeny = $adatbazis_kapcsolat->s2('egy_tobb telephely_id', $tabla, "`recid`='{$_GET['id']}'");
 
             // Ha többszállodás
-            if($prigeny['egy_tobb']==1){
+            if( $prigeny['egy_tobb'] == 1 ) {
 
                 // Változott a telephely, akkor töröljük a Cash-flow adatokat
                 if($prigeny['telephely_id']!=$_POST['telephely_id']){
@@ -1465,7 +1465,7 @@ function i_u($type, $tabla, $tomb) {
                 mkdir( $alap_utvonal.$konyvtar );
                 $dokumentumok = $adatbazis_kapcsolat->s('*', 'projektigenyles_dok', "`projektigenyles_id`='{$_GET['id']}'");
                 if( $dokumentumok === false ) { $db_error = true; }
-                foreach( $dokumentumok as $dok ){
+                foreach( $dokumentumok as $dok ) {
                     copy($alap_utvonal.$dok['utvonal'], $alap_utvonal.$konyvtar.$dok['utvonal']);
                     unlink($alap_utvonal.$dok['utvonal']);
                     $adatbazis_kapcsolat->u('projektigenyles_dok', array('utvonal'), array($konyvtar.$dok['utvonal']), "`recid`='{$dok['recid']}'");
@@ -1977,10 +1977,12 @@ function i_u($type, $tabla, $tomb) {
     // Ha update volt, ha insert, projekt számla módosításakor a projekt számlázott összegét frissíteni kell
     // Update esetén ez két eset, hisz mi van, ha épp a pr_szam változott. Ezért a régit és az újat is újra kell számolni
     if( $tabla == 'projektszamla' || $tabla == 'projektszerzodes' ) {
+
         // A számla korábbi pr_szam-ával is lefuttatuk a karbantartást...
         if( projektkezeles_szamlazott_osszeg($pr_szam_projektkezeles_update_hez) === false ) {
             $db_error = true;
         }
+
         // ... meg az új pr_szam-al is.
         if( projektkezeles_szamlazott_osszeg($_POST['pr_szam']) === false ) {
             $db_error = true;
@@ -2760,16 +2762,16 @@ function web_ftp($valtozo, $kepnev, $size=409600, $overwrite=false, $csakkep=tru
     }
 
     // Ha túllépi a méretlimitet: hiba1
-	if($_FILES[$valtozo]['size'] > $size){
-		return array($kepnev, 'k1');
+	if( $_FILES[$valtozo]['size'] > $size ) {
+        return array($kepnev, 'k1');
 	}
 
 	$tiltott_fajlok = array('text/x-js', 'text/css', 'text/html', 'application/xhtml+xml', 'text/xml');
 	// Ha csakképet engedünk, és nem képformátumú: hiba2
-	if($csakkep && !$flashfeltoltes && !($_FILES[$valtozo]['type']=='image/pjpeg' || $_FILES[$valtozo]['type']=='image/jpeg' || $_FILES[$valtozo]['type']=='image/gif' || $_FILES[$valtozo]['type']=='image/png' || $_FILES[$valtozo]['type']=='image/x-png')) {
-		return array($kepnev,'k2');
-	}elseif(in_array($_FILES[$valtozo]['type'],$tiltott_fajlok)){
-		return array($kepnev,'k2b');
+	if( $csakkep && !$flashfeltoltes && !($_FILES[$valtozo]['type'] == 'image/pjpeg' || $_FILES[$valtozo]['type'] == 'image/jpeg' || $_FILES[$valtozo]['type'] == 'image/gif' || $_FILES[$valtozo]['type'] == 'image/png' || $_FILES[$valtozo]['type'] == 'image/x-png') ) {
+        return array($kepnev,'k2');
+	} elseif( in_array($_FILES[$valtozo]['type'], $tiltott_fajlok) ) {
+        return array($kepnev,'k2b');
 	}
 
     // Ha kell, levesszük a kiterjesztést
@@ -2908,8 +2910,8 @@ function szamla_lista( $where = '', $tabla = '', $kijeloltek = false, $csak_sql_
     global $weblap;
 
     // Van, hogy pár GET-et is át szeretnénk adni
-    if($getek){
-        foreach($getek as $kulcs => $get){
+    if( $getek ) {
+        foreach ( $getek as $kulcs => $get ) {
             $_GET[$kulcs] = $get;
         }
     }
@@ -3185,7 +3187,11 @@ function szamla_lista( $where = '', $tabla = '', $kijeloltek = false, $csak_sql_
             }
 
             // Kiegészítő SQL hozzáfűzése, ha kell
-            $where_kieg = get_szures_where_kieg($_GET['mezo'], $_GET['op'], $_GET['felt'], $tabla);
+            if( $_GET['mezo'] == 'anyag_stat_id' ) {
+                $where_kieg = "`".get_db_tabla()."munkalap`.`stat_id`='".MUNKALAP_STAT_ANYAGRAVAR."' AND `".get_db_tabla()."munkalap_anyag`.`stat_id`='".MUNKALAP_ANYAG_STAT_AI_SZUKS."'";
+            } else {
+                $where_kieg = get_szures_where_kieg($_GET['mezo'], $_GET['op'], $_GET['felt'], $tabla);
+            }
             if( $where_kieg ) {
                 $where .= $where_kieg.' AND ';
             }
@@ -3482,7 +3488,9 @@ function szamla_lista( $where = '', $tabla = '', $kijeloltek = false, $csak_sql_
         $nullas_szerepkorok = array(MSZK_VEZETO, MUSZAKI_ADMINISZTRATOR);
         if( in_array($_SESSION[get_db_tabla().'szemelyzet_id'], $nullas_szerepkorok) && $tabla=='anyagigenyles' && isset($_GET['anyagrend']) && !$_GET['mezo'] && !$_SESSION['o_szuro_feltetel'] ) {
             $_GET['mezo'] = 'legfrissebb';
-            $_GET['felt'] = '-'; // Ha csak simán 0-át írnánk ide, akkor a feltételt üresnek tekintené, olyan mintha nem létezne
+            // Korábban ez volt, így lehetett elérni azt, hogy üres legyen a találati lista startból
+            //  $_GET['felt'] = '-'; // Ha csak simán 0-át írnánk ide, akkor a feltételt üresnek tekintené, olyan mintha nem létezne
+            $_GET['felt'] = 200; // Ha csak simán 0-át írnánk ide, akkor a feltételt üresnek tekintené, olyan mintha nem létezne
         }
 
         if( $_GET['mezo'] == 'legfrissebb' ) {
@@ -3600,6 +3608,12 @@ function szamla_lista( $where = '', $tabla = '', $kijeloltek = false, $csak_sql_
         if( !in_array($tabla, $kivetelek) ) {
             $sql_kieg .= ' JOIN `'.get_db_tabla().'telephely` ON `'.get_db_tabla().$tabla.'`.`telephely_id`=`'.get_db_tabla().'telephely`.`id`';
         }
+        
+        // Ha a mező anyag_stat_id, akkor még a munkalap_anyag táblhoz JOIN-olunk
+        // Ilyen szűrés feltétel nincs is valójában, ezt Dashboardról tudjuk kezdeményezni
+        if ( $_GET['mezo']=='anyag_stat_id' ) {
+            $sql_kieg .= ' JOIN `'.get_db_tabla().'munkalap_anyag` ON `'.get_db_tabla().'munkalap`.`recid`=`'.get_db_tabla().'munkalap_anyag`.`munkalap_id`';
+        }
 
         // Ha az SQL-ben nem volna WHERE feltétel, akkor az ORDER BY elé kell beszúrni a JOIN-t
         $mivel = $sql_kieg.' WHERE';
@@ -3660,12 +3674,12 @@ function szamla_lista( $where = '', $tabla = '', $kijeloltek = false, $csak_sql_
             $join = ' JOIN `'.get_db_tabla().'telephely_kapcs` ON `'.get_db_tabla().'login`.`nev`=`'.get_db_tabla().'telephely_kapcs`.`nev`';
         }
         // Rendezés projektkezelés esetén
-        if( $tabla=='projektkezeles' ){
+        if( $tabla == 'projektkezeles' ) {
             $join = ' JOIN `'.get_db_tabla().'telephely` ON `'.get_db_tabla().'projektkezeles`.`telephely_id`=`'.get_db_tabla().'telephely`.`id`';
-            if($_GET['rend']=='stat_id'){
+            if( $_GET['rend'] == 'stat_id' ) {
                 $order = '`'.get_db_tabla().'projektkezeles`.`stat_id` '.$_GET['irany'].', `'.get_db_tabla().'telephely`.`nev` '.$_GET['irany'].', `'.get_db_tabla().$tabla.'`.`ikt_szam` '.$_GET['irany'];
             }
-            if($_GET['rend']=='telephely_id'){
+            if( $_GET['rend'] == 'telephely_id' ) {
                 $order = '`'.get_db_tabla().'telephely`.`nev` '.$_GET['irany'].', `'.get_db_tabla().'projektkezeles`.`stat_id` '.$_GET['irany'].', `'.get_db_tabla().$tabla.'`.`ikt_szam` '.$_GET['irany'];
             }
         }
@@ -3678,7 +3692,7 @@ function szamla_lista( $where = '', $tabla = '', $kijeloltek = false, $csak_sql_
         // Gyorsszűrő limitje
         if( $_GET['mezo'] == 'legfrissebb' ) {
             $limit = $_GET['felt'];
-            if($order){
+            if( $order ) {
                 $order .= ', ';
             }
             $order .= '`'.get_db_tabla().$tabla.'`.`insert_dt` DESC';
@@ -8561,7 +8575,7 @@ function level_felkeszit_es_kuld( $tabla = '', $recid = '', $ert_pipa = '', $sab
 
             // Előkészítéskor a ML hozzárendelt személyzet szerepkörű és "külsős: előkészítés jogú" felhasználók
             $sql_kieg = '';
-            if($sablon=='munkalapElokeszit'){
+            if( $sablon == 'munkalapElokeszit' ) {
                 $sql_kieg = "`szemelyzet_id`='{$munkalap['szemelyzet_id']}' AND ";
             }
 
@@ -10583,7 +10597,7 @@ function alert_kerdesbe_sztring( $szoveg ){
 }
 
 // Projektszerződések mentésekor a jótállás gyermektáblák beállítása
-function pr_szerzodes_jotallas_beallit( $pr_szerzodes_id, $gar_kezd, $gar_vege, $uj_feltoltes ) {
+function pr_szerzodes_jotallas_beallit( $pr_szerzodes_id, $gar_kezd = '', $gar_vege = '', $uj_feltoltes = '' ) {
     
     global $adatbazis_kapcsolat;
 
@@ -10735,6 +10749,9 @@ function projektkezeles_szamlazott_osszeg ( $pr_szam ) {
         $update1 = mysqli_query($db_kapcs, "UPDATE `".get_db_tabla()."projektkezeles` 
                                         SET `szla_ossz`=( 
                                                         SELECT SUM(`netto`) FROM `".get_db_tabla()."projektszamla` WHERE `visszaadva`=0 AND `pr_szam`='{$pr_szam}'
+                                                        ),
+                                            `sz_ossz`=(
+                                                        SELECT SUM(`szerz_ossz`) FROM `".get_db_tabla()."projektszerzodes` WHERE `pr_szam`='{$pr_szam}'
                                                         )
                                          WHERE `ikt_szam`='{$pr_szam}'");
 

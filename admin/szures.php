@@ -147,8 +147,8 @@ if( isset($_POST['f_szuro_mezo']) ) {
         $operator .= '<option value="equal"'.$selected_equal.'>=</option>';
     }
 
-    // Jogosultságnál, Státusznál és Mobilcsoportnál csak =
-    if( $_POST['mezo'] == 'jogosultsag' || $_POST['mezo'] == 'stat_id' || ( $_POST['mezo'] == 'mobil' && $_POST['tabla'] == 'munkalap' ) ) {
+    // Jogosultságnál, Státusznál és Mobilcsoportnál, Dashboradnál csak =
+    if( $_POST['mezo'] == 'jogosultsag' || $_POST['mezo'] == 'stat_id' || $_POST['mezo'] == 'dashboard_feladat' || ( $_POST['mezo'] == 'mobil' && $_POST['tabla'] == 'munkalap' ) ) {
         $operator = '<option value="equal"'.$selected_equal.'>=</option>';
     }
 
@@ -486,7 +486,7 @@ if( isset($_POST['f_szuro_mezo_operator']) ) {
         }
 
         // Megjegyzés esetén tartalmazza operátor + szabadszavas mező
-        if($_POST['mezo']=='megjegyzes'){
+        if( $_POST['mezo'] == 'megjegyzes' ) {
 
             $feltetel = nl2('
                     <input type="text" placeholder="Feltétel..." class="f_felt" value="'.$_POST['felt'].'" onfocus="$(this).select()">
@@ -495,7 +495,7 @@ if( isset($_POST['f_szuro_mezo_operator']) ) {
         }
 
         // Megjegyzés esetén tartalmazza operátor + szabadszavas mező
-        if($_POST['mezo']=='mszk_jovahagy'){
+        if( $_POST['mezo'] == 'mszk_jovahagy' ) {
 
             $feltetel = nl2('
                 <select class="f_felt">
@@ -507,7 +507,7 @@ if( isset($_POST['f_szuro_mezo_operator']) ) {
         }
 
         // Szakterület esetén = operátor + autocomplete
-        if($_POST['mezo']=='team_tag'){
+        if( $_POST['mezo'] == 'team_tag' ) {
 
             $ertek['tabla']                 = 'login';
             $ertek['oszlop_keres']          = 'recid';
@@ -586,7 +586,7 @@ if( isset($_POST['f_szuro_mezo_operator']) ) {
         }
 
         // Szakterület esetén = operátor + autocomplete
-        if($_POST['mezo']=='szakterulet'){
+        if( $_POST['mezo'] == 'szakterulet' ) {
 
             $ertek['tabla']                 = 'erteklista';
             $ertek['oszlop_keres']          = 'recid';
@@ -693,13 +693,13 @@ if( isset($_POST['f_szuro_mezo_operator']) ) {
         }
 
         // Státusz esetén
-        if($_POST['mezo']=='stat_id'){
+        if( $_POST['mezo'] == 'stat_id' ) {
 
             $feltetel = '<select class="f_felt">';
             $feltetel .= '<option value="">-Válasszon státuszt-</option>';
-            foreach($_stat_text[$_POST['tabla']] as $kulcs => $statusz){
+            foreach ( $_stat_text[$_POST['tabla']] as $kulcs => $statusz ) {
                 $selected = '';
-                if($_POST['felt']==$kulcs){
+                if( $_POST['felt'] == $kulcs ) {
                     $selected = ' selected';
                 }
                 $feltetel .= '<option value="'.$kulcs.'"'.$selected.'>'.$statusz['nev'].'</option>';
@@ -713,9 +713,27 @@ if( isset($_POST['f_szuro_mezo_operator']) ) {
             $feltetel .= '<input type="text" placeholder="Feltétel..." class="f_felt" value="'.$_POST['felt'].'" onfocus="$(this).select()">';
         }
 
+        // Dasboard esetén
+        if( $_POST['mezo'] == 'dashboard_feladat' ) {
+            $feltetel .= '<input type="text" placeholder="Feltétel..." class="f_felt" value="'.$_SESSION['dashboard_feladat'].'">';
+        }
+
     }
 
-    echo json_encode( array('feltetel' => $feltetel) );
+    // Szűrés gomb rejtése, ha Dashbosard feladat szűrés van beállítva
+    $link_kieg   = '';
+    $szures_gomb = '<input type="button" class="gomb f_szures_submit" value="Szűrés">';
+    if( $_SESSION['dashboard_feladat'] ) {
+        $link_kieg   = '&amp;dashboard_feladat_torol';
+        $szures_gomb = '';
+    }
+    
+    echo json_encode( array(
+                            'feltetel'      => $feltetel,
+                            'szures_gomb'   => $szures_gomb,
+                            'link_kieg'     => $link_kieg
+                        )
+                    );
 
     $weblap -> leallit();
     exit;
@@ -728,13 +746,13 @@ $akt_tomb_szures = get_akt_tomb($tabla);
 
 // A szűrési mezőket egy tömbbe vesszük fel, mert a 2. felében lesz az option megnevezése, ami alapján rendezzük a listát
 $sz_mezo = array();
-foreach($akt_tomb_szures as $ertek){
-    if($ertek['szuro']){
+foreach ( $akt_tomb_szures as $ertek ) {
+    if( $ertek['szuro'] ) {
         if( $ertek['megn_szurobe'] ) {
             $ertek['megn'] = $ertek['megn_szurobe'];
         }
         $selected = '';
-        if($ertek['name']==$_GET['mezo']){
+        if( $ertek['name'] == $_GET['mezo'] ) {
             $selected = ' selected';
         }
         $ertek['megn'] = strip_tags($ertek['megn']);
@@ -774,7 +792,7 @@ if( in_array($tabla, $dokumentumos_oldal) ) {
 // Kapcsolódó táblák szűrő mezői
 if( $tabla == 'anyagigenyles' ) {
     $selected_megj  = '';
-    if($_GET['mezo']=='megjegyzes'){
+    if( $_GET['mezo'] == 'megjegyzes' ) {
         $selected_megj = ' selected';
     }
     array_push( $sz_mezo, array('eleje' => '<option value="megjegyzes" data-tabla="megjegyzes"'.$selected_megj.'>', 'vege' => 'Megjegyzés</option>' ) );
@@ -782,7 +800,7 @@ if( $tabla == 'anyagigenyles' ) {
 
 // Vannak felületek,a hol a nav panel számát limitáljuk. Ezt egy szűrővel oldjuk meg, tehát itt szükséges, hogy legyen egy Legfrisebb nevű szűrés lehetőség.
 $legfrisebb_feluletek = array('anyagigenyles', 'bejelentes_arch', 'munkalap_arch', 'projektigenyles', 'projektkezeles', 'projektszamla', 'projektszerzodes');
-if( in_array($tabla, $legfrisebb_feluletek) ){
+if( in_array($tabla, $legfrisebb_feluletek) ) {
     $selected_legfrissebb  = '';
     if( $_GET['mezo'] == 'legfrissebb' && $_GET['felt']/* Tehát nem 0 sorra van szűkítve, ez egy speciális eset anyagrendeléseknél */ ) {
         $selected_legfrissebb = ' selected';
@@ -857,13 +875,18 @@ $szurve         = '';
 // Itt szándékosan figyelünk két feltételt is: ha csak az o_szuro_feltetel volna megadva,
 // akkor nem jelezzük a felhasználó felé, hogy van összetett szűrés a háttérben.
 // Például ha dashboard-ról jönnek át, akkor összetett szűrővel csinálunk lekérdezést, de ez nem derül ki a felhaszná felé.
-if( $_SESSION['o_szuro_feltetel'] /*&& $_SESSION['o_szuro_html']*/ ) {
-    $szurve     = ' piros';
+if( $_SESSION['o_szuro_feltetel'] && $_SESSION['o_szuro_html'] ) {
+    $szurve = ' piros';
 }
 $osszetett_link = '<span id="osszetett_szuro" onclick="csoportMuvelet(\'osszetett_szuro\')"><img class="link'.$szurve.' f_svg" src="../elemek/filter.svg"></span>';
 if( isset($_POST['o_szures']) ) {
     $prefix         = 'o_';
     $osszetett_link = '';
+}
+
+// Ha Dashboard-ról érkeztünk, akkor nincs szűrés lehetőség
+if( $_SESSION['dashboard_feladat'] ) {
+    $sz_mezo = array( array('eleje' => '<option value="dashboard_feladat" selected>', 'vege' => 'Feladat</option>' ) );
 }
 
 
@@ -890,6 +913,15 @@ if( isset($_GET['mezo']) ) {
         <script>
         $(document).ready(function () {
             operator_beallit($(\'.f_szuro_mezo\'), \''.$_GET['op'].'\', \''.addslashes($_GET['felt']).'\');
+        });
+        </script>
+        ');
+}
+if( $_SESSION['dashboard_feladat'] ) {
+    $szures .= nl2('
+        <script>
+        $(document).ready(function () {
+            operator_beallit($(\'.f_szuro_mezo\'), \'equal\', \''.$_SESSION['dashboard_feladat'].'\');
         });
         </script>
         ');

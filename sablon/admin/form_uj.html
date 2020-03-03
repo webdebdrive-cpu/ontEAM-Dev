@@ -69,9 +69,12 @@
                             $input.val( $input.val().substring(0, 3)+'00' );
                         }
                     });
-
+                    
                     /* Fókuszálás az űrlap első nem disabled mezőjére */
-                    $('#szerk_form input:text, #szerk_form textarea, #szerk_form select').filter(':not(:disabled)').filter(":not([readonly='readonly'])").first().focus().select();
+                    /* A késleletés azért kell, mert a gyors szűrő érték mezőjére is ráfókuszálunk, de új feltöltéskor az adatlap első elemére fókuszálni fontosabb. */
+                    setTimeout(function(){ 
+                        $('#szerk_form input:text, #szerk_form textarea, #szerk_form select').filter(':not(:disabled)').filter(":not([readonly='readonly'])").first().focus().select();
+                    }, 1000);
 
                     /* Readonly mezőkre ne lehessen tabozni */
                     $('#szerk_form input').filter("[readonly='readonly']").each(function() {

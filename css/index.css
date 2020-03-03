@@ -15,13 +15,12 @@
     display: grid;
     grid-template-columns: 50% 50%;
     width: 99vw;
-    height: 100vh;
 }
 
 .dashboard > div {
     border-right: 0.1rem solid #ccc;
     border-bottom: 0.1rem solid #ccc;
-    height: 50vh;
+    height: 43vh;
     overflow-y: auto;
 }
 
@@ -40,6 +39,9 @@
 }
 
 .box table.csikos tr td {
+    background: #fff;
+    border-top: 0.1rem solid #d6d6d6;
+    border-bottom: 0.1rem solid #d6d6d6;
     padding: 0;
 }
 
@@ -54,10 +56,9 @@
     text-align: left;
 }
 
-.box table.csikos tr:hover {
-    background: #55A2FA;
+.box table.csikos tr:hover td {
+    background: #F1F8FF;
     cursor: pointer;
-    color: #fff;
 }
 
 .box table.csikos tr td:nth-of-type(2) {

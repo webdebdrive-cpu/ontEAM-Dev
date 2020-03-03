@@ -5372,7 +5372,7 @@ function scrollLeptet() {
                 var tartBalHeight = $('#szamlaBetolt').outerHeight();
             }
 
-            /* Összeadjuk az active elem magasságát és a felső eltolását */
+            // Összeadjuk az active elem magasságát és a felső eltolását
             var aTopH = active_top + activeHeight;
 
             if( (aTopH - activeHeight) < 0 ) {
@@ -6908,7 +6908,14 @@ function szuro_ertek_mezo_gen(that, felt) {
                                 kieg += '&anyagrend';
                             }
                         }
-                        $('#'+prefix+'szures_submit').html( '<input type="button" class="gomb f_szures_submit" value="Szűrés">'+
+                        if( response.link_kieg ) {
+                            if( kieg ) {
+                                kieg += '&'+response.link_kieg;
+                            } else {
+                                kieg += '?'+response.link_kieg;
+                            }
+                        }
+                        $('#'+prefix+'szures_submit').html( response.szures_gomb +
                                                             '<input style="margin-left: 0.2rem" type="button" class="gomb piros" value="Szűrés töröl" onclick="szurkit(); location.href=\''+tabla+'.php'+kieg+'\'">'
                                                         );
                     }
@@ -7402,7 +7409,7 @@ function munkAnyagHozzaad( formID, igenyles ) {
         sz_td = '<td class="c">' + szuk_menny.val() + '<input type="hidden" name="addCikkSzukMenny[]" value="' + szuk_menny.val() + '"></td>';
     }
 
-    /* A cikktörzs a cikkszámot is tartalmazza. Az első kötőjelig ezért eldobjuk a cikk nevét, mert az a cikkszám. */
+    // A cikktörzs a cikkszámot is tartalmazza. Az első kötőjelig ezért eldobjuk a cikk nevét, mert az a cikkszám.
     csak_cikknev = cikknev.val();
     csak_cikknev = csak_cikknev.substr(csak_cikknev.indexOf(' - ')+1);
     var table_sor = '<tr class="anyag_sor_'+id_tmp+'">' +
