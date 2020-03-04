@@ -84,9 +84,7 @@ if( $_SERVER['HTTP_HOST']!='www.onteam.hu' && $_SERVER['HTTP_HOST']!='onteam.hu'
         
         
         // Munkalap készre jelentése. Ez két feltételből lett összegyúrva
-        if( _jog(JOG_MUNKALAP_KEZEL_KULSO) || ( _jog(JOG_MUNKALAP_SAJAT_KEZEL) && $_SESSION[get_db_tabla().'szemelyzet_id']==KULSO_KIVITELEZO )
-            || _jog(JOG_MUNKALAP_KEZEL_TELEPITETT) || _jog(JOG_MUNKALAP_KEZEL_MOBIL)
-        ) {
+        if( _jog(JOG_MUNKALAP_KEZEL_KULSO) || _jog(JOG_MUNKALAP_SAJAT_KEZEL) || _jog(JOG_MUNKALAP_KEZEL_TELEPITETT) || _jog(JOG_MUNKALAP_KEZEL_MOBIL) ) {
 
             // Azt, hogy milyen SQL-t kérünk le, függ a jogoktól
             // Kezdjük egy nagy nyitó zárüjellel, ezt az összetett szűrőnél is
@@ -109,29 +107,30 @@ if( $_SERVER['HTTP_HOST']!='www.onteam.hu' && $_SERVER['HTTP_HOST']!='onteam.hu'
             // Ha Telepített vagy Mobilcsoport vagyok, és van saját szerepkör kezelés jogom, akkor a saját szerepkörömnek megfelelő ML-okat tudom készre jelenteni
             $felvehetik = array(TELEPITETT_SZEMELYZET, MOBILCSOPORT);
             if( _jog(JOG_MUNKALAP_SAJAT_KEZEL) && in_array($_SESSION[get_db_tabla().'szemelyzet_id'], $felvehetik) ) {
-                $o_szuro_feltetel_szemelyzet   .= '!HASH!me|szemelyzet_id!HASH!op|equal!HASH!fe|'.$_SESSION[get_db_tabla().'szemelyzet_id'].'!HASH!va|';
+                $o_szuro_feltetel_szemelyzet .= '!HASH!me|szemelyzet_id!HASH!op|equal!HASH!fe|'.$_SESSION[get_db_tabla().'szemelyzet_id'].'!HASH!va|';
                 array_push($szemelyzet_idk, $_SESSION[get_db_tabla().'szemelyzet_id']);
             }
             // Telepített joggal azokat a ML-okat tudom készre jelenteni, ahol a hozzárendelt személy Telepített
             if( _jog(JOG_MUNKALAP_KEZEL_TELEPITETT) ) { 
-                $o_szuro_feltetel_szemelyzet .= '|!HASH!me|szemelyzet_id!HASH!op|equal!HASH!fe|'.TELEPITETT_SZEMELYZET.'!HASH!va';
+                $o_szuro_feltetel_szemelyzet .= '!HASH!me|szemelyzet_id!HASH!op|equal!HASH!fe|'.TELEPITETT_SZEMELYZET.'!HASH!va|';
                 array_push($szemelyzet_idk, TELEPITETT_SZEMELYZET);
             }
             // és Mobil joggal azokat a ML-okat tudom készre jelenteni, ahol a hozzárendelt személy Mobil
             if( _jog(JOG_MUNKALAP_KEZEL_MOBIL) ) {
-                $o_szuro_feltetel_szemelyzet .= '|!HASH!me|szemelyzet_id!HASH!op|equal!HASH!fe|'.MOBILCSOPORT.'!HASH!va';
+                $o_szuro_feltetel_szemelyzet .= '!HASH!me|szemelyzet_id!HASH!op|equal!HASH!fe|'.MOBILCSOPORT.'!HASH!va|';
                 array_push($szemelyzet_idk, MOBILCSOPORT);
             }
             if( $szemelyzet_idk ) {
                 // Ez a másik nagy feltétel, külön zárójelbe zárva
+                $o_szuro_feltetel_szemelyzet = csonkit($o_szuro_feltetel_szemelyzet, 9);
                 $sql                .= "(`stat_id`='".MUNKALAP_STAT_FELVEVE."' AND `szemelyzet_id` IN (".implode(', ', $szemelyzet_idk).") ) OR ";
-                $o_szuro_feltetel   .= '!HASH!ny|!HASH!me|stat_id!HASH!op|equal!HASH!fe|'.MUNKALAP_STAT_FELVEVE.'!HASH!es|!HASH!ny'.$o_szuro_feltetel_szemelyzet.'!HASH!za|!HASH!za|!HASH!va|';
+                $o_szuro_feltetel   .= '!HASH!ny|!HASH!me|stat_id!HASH!op|equal!HASH!fe|'.MUNKALAP_STAT_FELVEVE.'!HASH!es|!HASH!ny|'.$o_szuro_feltetel_szemelyzet.'!HASH!za|!HASH!za|!HASH!va|';
             }
-            
+
             // SQL utolsó OR-ját levájuk, és a nagy bezárójelet bezárjuk, összetettnél is
             $sql               = csonkit($sql, 4).')';
             $o_szuro_feltetel  = csonkit($o_szuro_feltetel, 9).'!HASH!za|!HASH!es|!HASH!&amp;f_o_szures_submit=1';
-            
+
             $db     = $adatbazis_kapcsolat->s('recid', 'munkalap', "{$sql}{$telephely_sql_mlhoz}", '', '', '', 'num rows');
             $link   = 'munkalap.php?tabla=munkalap&amp;feltetel='.$o_szuro_feltetel.'&amp;dashboard=Munkalap készre jelentése';
             
@@ -434,10 +433,10 @@ if( $_SERVER['HTTP_HOST']!='www.onteam.hu' && $_SERVER['HTTP_HOST']!='onteam.hu'
                     $where_kieg .= ' FALSE AND ';
                 }
             }
-
-            $munkalapok = mysqli_query($db_kapcs, "SELECT `".get_db_tabla()."munkalap`.`recid` FROM `".get_db_tabla()."munkalap` JOIN `".get_db_tabla()."munkalap_anyag` ON `".get_db_tabla()."munkalap`.`recid`=`".get_db_tabla()."munkalap_anyag`.`munkalap_id` WHERE {$where_kieg}`".get_db_tabla()."munkalap`.`stat_id`='".MUNKALAP_STAT_ANYAGRAVAR."' AND `".get_db_tabla()."munkalap_anyag`.`stat_id`='".MUNKALAP_ANYAG_STAT_AI_SZUKS."' GROUP BY `".get_db_tabla()."munkalap_anyag`.`munkalap_id`");
+            
+            $munkalapok = mysqli_query($db_kapcs, "SELECT `".get_db_tabla()."munkalap`.`recid` FROM `".get_db_tabla()."munkalap` JOIN `".get_db_tabla()."munkalap_anyag` ON `".get_db_tabla()."munkalap`.`recid`=`".get_db_tabla()."munkalap_anyag`.`munkalap_id` WHERE {$where_kieg}`".get_db_tabla()."munkalap`.`stat_id`='".MUNKALAP_STAT_ANYAGRAVAR."' AND `".get_db_tabla()."munkalap_anyag`.`stat_id`='".MUNKALAP_ANYAG_STAT_AI_SZUKS."'{$telephely_sql_mlhoz} GROUP BY `".get_db_tabla()."munkalap_anyag`.`munkalap_id`");
             $db         = mysqli_num_rows($munkalapok);
-            $link       = 'munkalap.php?mezo=anyag_stat_id&amp;op=equal&amp;felt='.MUNKALAP_ANYAG_STAT_AI_SZUKS.'&amp;modosit&amp;dashboard=Munkalapon hiányzó anyag igénylése';
+            $link       = 'munkalap.php?mezo=anyag_stat_id&amp;op=equal&amp;felt='.MUNKALAP_ANYAG_STAT_AI_SZUKS.'&amp;modosit&amp;dashboard='.DASHBOARD_ML_H_A_CIMKE;
 
             if( $db ) {
                 $feladatok .= nl2('

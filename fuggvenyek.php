@@ -2987,6 +2987,7 @@ function szamla_lista( $where = '', $tabla = '', $kijeloltek = false, $csak_sql_
     }
 
     // Ha nem egy konkrét recid-t keresünk, akkor állítsuk elő a where feltételt
+    $group_by = '';
     if( !$where ) {
 
         if( $tabla == 'rendszer' ) {
@@ -3189,6 +3190,7 @@ function szamla_lista( $where = '', $tabla = '', $kijeloltek = false, $csak_sql_
             // Kiegészítő SQL hozzáfűzése, ha kell
             if( $_GET['mezo'] == 'anyag_stat_id' ) {
                 $where_kieg = "`".get_db_tabla()."munkalap`.`stat_id`='".MUNKALAP_STAT_ANYAGRAVAR."' AND `".get_db_tabla()."munkalap_anyag`.`stat_id`='".MUNKALAP_ANYAG_STAT_AI_SZUKS."'";
+                $group_by   = " GROUP BY `".get_db_tabla()."munkalap_anyag`.`munkalap_id`";
             } else {
                 $where_kieg = get_szures_where_kieg($_GET['mezo'], $_GET['op'], $_GET['felt'], $tabla);
             }
@@ -3213,7 +3215,7 @@ function szamla_lista( $where = '', $tabla = '', $kijeloltek = false, $csak_sql_
         }
 
         // Ha van $_GET['idk'] változónk, akkor azokra az ID-kra még pluszban szűrünk
-        if ($_GET['recidk']) {
+        if( $_GET['recidk'] ) {
             $where .= '`'.get_db_tabla().$tabla.'`.`recid` IN ('.$_GET['recidk'].') AND ';
         }
 
@@ -3238,13 +3240,13 @@ function szamla_lista( $where = '', $tabla = '', $kijeloltek = false, $csak_sql_
     // Lapozás előkészítése
     require_once('../class/class.Lapozo.php');
 
-    if(!$_GET['oldal']){
+    if( !$_GET['oldal'] ) {
         $_GET['oldal'] = 1;
     }
 
     $_GET['epo'] = 9999999999999;
 
-    $bejegyzesek = $adatbazis_kapcsolat->s('recid', $tabla, $where);
+    $bejegyzesek = $adatbazis_kapcsolat->s('recid', $tabla, $where.$group_by);
     $lapozo = new Lapozo;
     $lapozo -> elem_osszes      = count($bejegyzesek);
     $lapozo -> fajl             = $_SERVER['PHP_SELF'];
@@ -3277,7 +3279,7 @@ function szamla_lista( $where = '', $tabla = '', $kijeloltek = false, $csak_sql_
 //echo 'sel:'.$select . ' ir:'.$irany.' or:'.$order.' lim:'.$limit.' where:'.$where.'<br>';
 
     // Ha recid alapján rendeznénk, akkor tegyük bele a `'.get_db_tabla().$tabla.'`-t, mert CSV exportnál úgy is lesz olyan JOIN, minek van recid-ja is, és ütni fogják egymást
-    if( $_GET['rend']=='recid' ){
+    if( $_GET['rend'] == 'recid' ) {
         $order = '`'.get_db_tabla().$tabla.'`.`recid` '.$_GET['irany'];
     }
 
@@ -3388,18 +3390,18 @@ function szamla_lista( $where = '', $tabla = '', $kijeloltek = false, $csak_sql_
                 }
 
             // Ha telephely szerint rendezünk, akkor pedig ezt a szempontot kell előre venni, és az irány is erre vonatkozik
-            }elseif($_GET['rend']=='telephely_id'){
+            } elseif( $_GET['rend'] == 'telephely_id' ) {
                 $order .= '`'.get_db_tabla().'telephely`.`nev` '.$_GET['irany'].', `'.get_db_tabla().$tabla.'`.`ikt_szam`';
 
             // Helyiség név szerinti rendezés
-            }elseif($_GET['rend']=='obj_txt'){
+            } elseif( $_GET['rend'] == 'obj_txt' ) {
                 $order .= '`'.get_db_tabla().$tabla.'`.`obj_txt` '.$_GET['irany'].', `'.get_db_tabla().'telephely`.`nev` '.$_GET['irany'];
 
             // Alapértelmezett rendezettség a sürgős, azon belül telephely
-            }elseif($_GET['rend']=='ikt_szam'){
+            } elseif( $_GET['rend'] == 'ikt_szam' ) {
                 $order .= '`'.get_db_tabla().$tabla.'`.`ikt_szam` '.$_GET['irany'].', `'.get_db_tabla().'telephely`.`nev`';
             // Végül a felvitel szerinti sorrend
-            }elseif($_GET['rend']=='recid'){
+            } elseif( $_GET['rend'] == 'recid' ) {
                 $order .= '`'.get_db_tabla().$tabla.'`.`recid` '.$_GET['irany'];
             }
 
@@ -3458,7 +3460,6 @@ function szamla_lista( $where = '', $tabla = '', $kijeloltek = false, $csak_sql_
 
             // Ha iktatószám szerint rendezünk, akkor ez lesz a következő rendezési szempont, és az irány is erre vonatkozik
             } elseif( $_GET['rend'] == 'ikt_szam' ) {
-
                 $order .= '`'.get_db_tabla().$tabla.'`.`ikt_szam` '.$_GET['irany'].', `'.get_db_tabla().'telephely`.`nev`';
 
             // Helyiség név szerinti rendezés
@@ -3489,8 +3490,12 @@ function szamla_lista( $where = '', $tabla = '', $kijeloltek = false, $csak_sql_
         if( in_array($_SESSION[get_db_tabla().'szemelyzet_id'], $nullas_szerepkorok) && $tabla=='anyagigenyles' && isset($_GET['anyagrend']) && !$_GET['mezo'] && !$_SESSION['o_szuro_feltetel'] ) {
             $_GET['mezo'] = 'legfrissebb';
             // Korábban ez volt, így lehetett elérni azt, hogy üres legyen a találati lista startból
-            //  $_GET['felt'] = '-'; // Ha csak simán 0-át írnánk ide, akkor a feltételt üresnek tekintené, olyan mintha nem létezne
-            $_GET['felt'] = 200; // Ha csak simán 0-át írnánk ide, akkor a feltételt üresnek tekintené, olyan mintha nem létezne
+            $_GET['felt'] = '-'; // Ha csak simán 0-át írnánk ide, akkor a feltételt üresnek tekintené, olyan mintha nem létezne
+        }
+        // Bármilyen más szereplő esetén (ugyanúgy Anyagrendelések alatt) pedig 200-as legyen a lista, ne az 1000-es
+        if( !in_array($_SESSION[get_db_tabla().'szemelyzet_id'], $nullas_szerepkorok) && $tabla=='anyagigenyles' && isset($_GET['anyagrend']) && !$_GET['mezo'] && !$_SESSION['o_szuro_feltetel'] ) {
+            $_GET['mezo'] = 'legfrissebb';
+            $_GET['felt'] = ANYAGREND_NEM_MSZK_LIMIT;
         }
 
         if( $_GET['mezo'] == 'legfrissebb' ) {
@@ -3562,7 +3567,7 @@ function szamla_lista( $where = '', $tabla = '', $kijeloltek = false, $csak_sql_
         }
 
         // Ez azért kell, hogy az SQL stringünk meglegyen. A WHERE szót le fogjuk még cserélni JOIN-okkal
-        $adatbazis_kapcsolat->s($select, $tabla, $where, $order, $limit, false, false, false, 'csak az SQL string-je kell');
+        $adatbazis_kapcsolat->s($select, $tabla, $where.$group_by, $order, $limit, false, false, false, 'csak az SQL string-je kell');
         $sql = $adatbazis_kapcsolat->gp();
         $mit = 'WHERE';
 
@@ -3624,7 +3629,12 @@ function szamla_lista( $where = '', $tabla = '', $kijeloltek = false, $csak_sql_
         // $sql = str_replace($mit, $mivel, $sql);
         // Így cseréljük le, azaz csak az első előfordulást, ne az összeset! Ez fontos.
         $sql = preg_replace('/'.$mit.'/', $mivel, $sql, 1);
-
+// echo $sql . '<br>';
+        
+        // Ha csak egy sort frissítünk, akkor a dashboard varia miatt itt a GROUP BY-t mégegyszer bele kell fogalmazni a feltételbe
+        if( $frissit && $_SESSION['dashboard_feladat'] == DASHBOARD_ML_H_A_CIMKE ) {
+            $sql .= ' GROUP BY `'.get_db_tabla().'munkalap_anyag`.`munkalap_id`';
+        }
         $sorok = mysqli_query($db_kapcs, $sql);
         while ( $sor = mysqli_fetch_assoc($sorok) ) {
             array_push($bejegyzesek, $sor);
@@ -3714,8 +3724,7 @@ function szamla_lista( $where = '', $tabla = '', $kijeloltek = false, $csak_sql_
             $limit = 1;
         }
         
-        $bejegyzesek = $adatbazis_kapcsolat->s($select, $tabla, $where, $order, $limit, '', '', $join);
-
+        $bejegyzesek = $adatbazis_kapcsolat->s($select, $tabla, $where.$group_by, $order, $limit, '', '', $join);
         $sql = $adatbazis_kapcsolat->gp();
 
     }

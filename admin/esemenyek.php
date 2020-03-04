@@ -2608,7 +2608,6 @@ $projektszamla_tomb = $akt_tomb = array(
 array_push($postok, array('tomb' => $akt_tomb, 'uj' => 'uj'.$megnevezes, 'lista' => $megnevezes.'lista', 'tabla' => $megnevezes, 'torid' => $megnevezes.'tid' ));
 
 
-
 $megnevezes   = 'projektszerzodes';
 $pr_szam_gomb = '';
 if( get_projekt_szerzodes_kezel_jog($_GET['id']) || isset($_GET['uj']) ){
@@ -2724,7 +2723,7 @@ array_push($postok, array('tomb' => $akt_tomb, 'uj' => 'uj'.$megnevezes, 'lista'
 
 
 // FB előterjesztés
-if (isset($_GET['modosit'])) {
+if( isset($_GET['modosit']) ) {
     $ossz_kolts = '';
     $ossz_kolts = eloterjesztes_osszes_koltseg( $_GET['id'], 'fb' );
 }
@@ -2751,13 +2750,13 @@ array_push($postok, array('tomb' => $akt_tomb, 'uj' => 'uj'.$megnevezes, 'lista'
 
 
 // BoD előterjesztés
-if (isset($_GET['modosit'])) {
+if( isset($_GET['modosit']) ) {
     $ossz_kolts = '';
     $prik = $adatbazis_kapcsolat->s('projektigenyles_recid', 'projektigenyles_eloterj', "`eloterj_bod_recid`='{$_GET['id']}'");
-    if(!$prik){
+    if( !$prik ) {
         $ossz_kolts = 'Még nincsenek csatolt projektigénylések.';
     } else {
-        foreach($prik as $pri){
+        foreach ( $prik as $pri ) {
             $pri = $adatbazis_kapcsolat->s2('bkolt', 'projektigenyles_eloterj', "`recid`='{$pri['projektigenyles_recid']}'");
             $ossz_kolts += $pri['bkolt'];
         }
@@ -3263,7 +3262,7 @@ if( isset($_GET['sendMail']) ) {
                                     foreach($anyagigenyles_mailba as $tomb) {
                                         // $return .= $tomb['megn'];
 
-                                        switch($tomb['name']) {
+                                        switch ( $tomb['name'] ) {
                                             case 'stat_id':
                                                 $statusz_sor = $adatbazis_kapcsolat->s2('stat_id', $tabla, "`recid` = '{$id}'");
 
@@ -3358,8 +3357,8 @@ if (isset($_POST['elfelejtett_jelszo'])) {
 $kivetelek = array('header.php', 'esemenyek.php');
 
 if( !in_array(basename(self()), $kivetelek) ){
-    if( $_SESSION['elozo_oldal']!='mobil_hozzarendel.php' ){
-        if($_SESSION['o_szuro_feltetel'] && $_SESSION['elozo_oldal']!=basename(self()) && $_SESSION['elozo_oldal']!='anyagigenyles.php' && $_SESSION['elozo_oldal']!='anyagigenyles.php?anyagrend'){
+    if( $_SESSION['elozo_oldal'] != 'mobil_hozzarendel.php' ) {
+        if( ($_SESSION['o_szuro_feltetel'] || $_SESSION['dashboard_feladat']) && $_SESSION['elozo_oldal'] != basename(self()) && $_SESSION['elozo_oldal'] != 'anyagigenyles.php' && $_SESSION['elozo_oldal'] != 'anyagigenyles.php?anyagrend' ) {
             unset($_SESSION['dashboard_feladat']);
             unset($_SESSION['o_szuro_feltetel']);
             unset($_SESSION['o_szuro_html']);
@@ -3367,18 +3366,18 @@ if( !in_array(basename(self()), $kivetelek) ){
     }
 // var_dump($_SESSION['elozo_oldal']);
     // Az anyigénylés/rendelés egy és ugyanaz a PHP fálj, ezért ezt itt külön kell lekezelni, még a $_SESSION['elozo_oldal'] = basename(self()); rész előtt
-    if( basename(self())=='anyagigenyles.php' || basename(self())=='anyagigenyles.php?anyagrend' ){
+    if( basename(self()) == 'anyagigenyles.php' || basename(self()) == 'anyagigenyles.php?anyagrend' ) {
 
 // echo $_SESSION['elozo_oldal'];
-        if( isset($_GET['anyagrend']) ){
-            if($_SESSION['elozo_oldal']!='anyagigenyles.php?anyagrend'){
+        if( isset($_GET['anyagrend']) ) {
+            if( $_SESSION['elozo_oldal'] != 'anyagigenyles.php?anyagrend' ) {
                 unset($_SESSION['o_szuro_feltetel']);
                 unset($_SESSION['o_szuro_html']);
             }
             $_SESSION['elozo_oldal']='anyagigenyles.php?anyagrend';
         }
-        if( !isset($_GET['anyagrend']) ){
-            if( $_SESSION['elozo_oldal']!='anyagigenyles.php' ){
+        if( !isset($_GET['anyagrend']) ) {
+            if( $_SESSION['elozo_oldal'] != 'anyagigenyles.php' ) {
                 unset($_SESSION['o_szuro_feltetel']);
                 unset($_SESSION['o_szuro_html']);
             }
@@ -3392,7 +3391,7 @@ if( !in_array(basename(self()), $kivetelek) ){
 }
 
 // Összetett szűrés inicializálása
-if (isset($_POST['o_szures'])) {
+if( isset($_POST['o_szures']) ) {
     require_once 'szures.php';
 
     echo json_encode(array(
@@ -3408,6 +3407,13 @@ if (isset($_POST['o_szures'])) {
 if( $_GET['dashboard'] ) {
     $_SESSION['dashboard_feladat'] = $_GET['dashboard'];
 }
+// Ha a $_SESSION['dashboard_feladat'] "Munkalapon hiányzó anyag igénylése", akkor gondoskodni kell arról, hogy a $_GET['anyag_stat_id'] létezzen
+// Ez azért szükséges, hogy a ML főmenüre kattintva megmaradjon a Dashboard feladat aktuális szűrése, míg a szűrést nem törliks
+if( $_SESSION['dashboard_feladat'] == DASHBOARD_ML_H_A_CIMKE ) {
+    $_GET['mezo']   = 'anyag_stat_id';
+    $_GET['op']     = 'equal';
+}
+
 if( isset($_GET['dashboard_feladat_torol']) ) {
     unset($_SESSION['dashboard_feladat']);
     unset($_SESSION['o_szuro_feltetel']);
@@ -5086,15 +5092,16 @@ if( isset($_GET['szamlaSorFrissit']) ) {
 
     $tabla_idk = $tabla;
 
-    if( !in_array($recid, $_SESSION[$tabla_idk.'_idk']) ){
+    if( !in_array($recid, $_SESSION[$tabla_idk . '_idk']) ) {
         exit;
     }
 
     if( $tabla && $recid ) {
         // Eszközkezelés felületén ha objektumon állnánk, akkor a tábla obj legyen
-        if( $_GET['eszkozkezeles_obj'] ){
+        if( $_GET['eszkozkezeles_obj'] ) {
             $tabla = 'obj';
         }
+
         $szamla_lista = szamla_lista("`".get_db_tabla().$tabla."`.`recid` = '{$recid}'", $tabla);
         $szamla_lista = $szamla_lista[0];
         echo $szamla_lista;

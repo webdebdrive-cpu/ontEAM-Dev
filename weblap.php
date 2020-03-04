@@ -59,6 +59,7 @@ if( $weblap->db_prefix ) {
     }
 
 }
+
 // Majd a weblap indulhat, ekkor tölthető ki a meta (később már lesz kimenet)
     require_once('esemenyek.php');	// Ezt ne töröld, még ha üres is, kell, mert különben az admin nem működik
     require_once('meta.php');

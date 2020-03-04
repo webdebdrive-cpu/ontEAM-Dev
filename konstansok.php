@@ -399,9 +399,10 @@ define('MLTIPUS_ESETI_FENNT',   5);
 define('MLTIPUS_GARANCIALIS',   6);
 
 // Limit értékek
-define('ARCHIV_NAVPANEL_LIMIT', 1000);
-define('SZURES_DB_LIMIT',       1000);
-define('CSV_EXPORT_LIMIT',      30000);
+define('ARCHIV_NAVPANEL_LIMIT',     1000);
+define('SZURES_DB_LIMIT',           1000);
+define('CSV_EXPORT_LIMIT',          30000);
+define('ANYAGREND_NEM_MSZK_LIMIT',  200);
 
 
 // Fűtőértékkel kapcsolatos konstansok
@@ -414,3 +415,6 @@ define('GAZFOGYASZTAS_DIJELEM', 'Gáz fogyasztás (m3)'   );
 
 define('VISSZA_MOD_VISSZAADAS',  1);
 define('VISSZA_MOD_VISSZAELOK',  2);
+
+// Dashboard
+define('DASHBOARD_ML_H_A_CIMKE',  'Munkalapon hiányzó anyag igénylése'); // Ez az egy azért van konstansban, mert egy helyen a működést is befolyásolja: 
