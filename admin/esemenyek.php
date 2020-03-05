@@ -3409,7 +3409,7 @@ if( $_GET['dashboard'] ) {
 }
 // Ha a $_SESSION['dashboard_feladat'] "Munkalapon hiányzó anyag igénylése", akkor gondoskodni kell arról, hogy a $_GET['anyag_stat_id'] létezzen
 // Ez azért szükséges, hogy a ML főmenüre kattintva megmaradjon a Dashboard feladat aktuális szűrése, míg a szűrést nem törliks
-if( $_SESSION['dashboard_feladat'] == DASHBOARD_ML_H_A_CIMKE ) {
+if( $_SESSION['dashboard_feladat'] == DASHBOARD_H_A_ML_CIMKE ) {
     $_GET['mezo']   = 'anyag_stat_id';
     $_GET['op']     = 'equal';
 }

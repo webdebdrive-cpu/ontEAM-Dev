@@ -3632,7 +3632,7 @@ function szamla_lista( $where = '', $tabla = '', $kijeloltek = false, $csak_sql_
 // echo $sql . '<br>';
         
         // Ha csak egy sort frissítünk, akkor a dashboard varia miatt itt a GROUP BY-t mégegyszer bele kell fogalmazni a feltételbe
-        if( $frissit && $_SESSION['dashboard_feladat'] == DASHBOARD_ML_H_A_CIMKE ) {
+        if( $frissit && $_SESSION['dashboard_feladat'] == DASHBOARD_H_A_ML_CIMKE ) {
             $sql .= ' GROUP BY `'.get_db_tabla().'munkalap_anyag`.`munkalap_id`';
         }
         $sorok = mysqli_query($db_kapcs, $sql);

@@ -2711,7 +2711,6 @@ require_once('selectek.php');
                 // Szállodánként járjuk be, és azon belül az egyes anyagokat összegezzük
                 $munkalapok = implode(',', $munkalapok);
                 $telephelyek = $adatbazis_kapcsolat->s('distinct telephely_id', 'munkalap_anyag', "`munkalap_id` IN (".$munkalapok.") AND `stat_id`!='".DISZPNAG_STAT_VAN_ANYAG."'".$anyag_sql);
-
                 foreach ( $telephelyek as $telephely ) {
 
                     // Azon belül anyagonként járjuk be
@@ -2742,7 +2741,7 @@ require_once('selectek.php');
                             $anyag_var += $akt_anyag['szuk_men'];
                         }
 
-                        // A cikktörzs rec_id-jáéra van szükségünk a későbbiekben. ID alapján megkeressük
+                        // A cikktörzs rec_id-jára van szükségünk a későbbiekben. ID alapján megkeressük
                         $cikkid_origi = $cikk_id;
                         $cikk_id = $adatbazis_kapcsolat->s('recid', 'cikktorzs', "`id`='{$cikkid_origi}'");
                         $cikk_id = $cikk_id[0]['recid'];

@@ -417,4 +417,4 @@ define('VISSZA_MOD_VISSZAADAS',  1);
 define('VISSZA_MOD_VISSZAELOK',  2);
 
 // Dashboard
-define('DASHBOARD_ML_H_A_CIMKE',  'Munkalapon hiányzó anyag igénylése'); // Ez az egy azért van konstansban, mert egy helyen a működést is befolyásolja: 
+define('DASHBOARD_H_A_ML_CIMKE',  'Hiányzó anyag igénylésére váró munkalapok'); // Ez az egy azért van konstansban, mert egy helyen a működést is befolyásolja: 

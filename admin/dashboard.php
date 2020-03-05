@@ -423,6 +423,49 @@ if( $_SERVER['HTTP_HOST']!='www.onteam.hu' && $_SERVER['HTTP_HOST']!='onteam.hu'
         
         
         // Munkalapon hiányzó anyag igénylése
+        if( _jog(JOG_ANYAGIGENYLES_KEZEL) ) {
+            
+            // Ami itt következik lekérdezés, azt az anyagigenyles.php?uj felületen az "Igénylésre váró anyagok a munkalapokon" címkéjű tálbázat alapján állítjuk elő
+            $db = 0;
+            $munkalapok = $adatbazis_kapcsolat->s('recid', 'munkalap', "`telephely_id` IN (".implode(',', $szallodak).") AND `stat_id`='".MUNKALAP_STAT_ANYAGRAVAR."'");
+            $munkalapok = adatbazis2tomb($munkalapok, 'recid');
+            if( $munkalapok ) {
+                $anyag_sql = " AND `szuk_men`>0 AND `stat_id`='".DISZPNAG_STAT_ANYAGRA_VAR."'";
+                // Szállodánként járjuk be, és azon belül az egyes anyagokat összegezzük
+                $munkalapok = implode(',', $munkalapok);
+                $telephelyek = $adatbazis_kapcsolat->s('distinct telephely_id', 'munkalap_anyag', "`munkalap_id` IN (".$munkalapok.") AND `stat_id`!='".DISZPNAG_STAT_VAN_ANYAG."'".$anyag_sql);
+                foreach ( $telephelyek as $telephely ) {
+                    // Azon belül anyagonként járjuk be
+                    $anyagok = $adatbazis_kapcsolat->s('distinct cikk_id', 'munkalap_anyag', "`munkalap_id` IN (".$munkalapok.") AND `stat_id`!='".DISZPNAG_STAT_VAN_ANYAG."' AND `telephely_id`='{$telephely['telephely_id']}'".$anyag_sql);
+                    foreach ( $anyagok as $anyag ) {
+                        $db++;
+                    }
+                }
+            }
+            
+            $link       = 'anyagigenyles.php?uj';
+            if( $db ) {
+                $feladatok .= nl2('
+                                    <tr>
+                                        <td>
+                                            <a href="'.$link.'">
+                                                Munkalapon hiányzó anyag igénylése
+                                            </a>
+                                        </td>
+                                        <td>
+                                            <a href="'.$link.'">
+                                                '.number_format($db, 0, '', '.').' db
+                                            </a>
+                                        </td>
+                                    </tr>
+                                    ');
+            }
+        }
+        
+        
+        
+        
+        // DASHBOARD_H_A_ML_CIMKE
         if( _jog(JOG_ANYAGIGENYLES_KEZEL) && !_jog(JOG_MUNKALAP_MEGTEKINT_FELADAT) ) {
             
             $where_kieg = '';
@@ -436,14 +479,14 @@ if( $_SERVER['HTTP_HOST']!='www.onteam.hu' && $_SERVER['HTTP_HOST']!='onteam.hu'
             
             $munkalapok = mysqli_query($db_kapcs, "SELECT `".get_db_tabla()."munkalap`.`recid` FROM `".get_db_tabla()."munkalap` JOIN `".get_db_tabla()."munkalap_anyag` ON `".get_db_tabla()."munkalap`.`recid`=`".get_db_tabla()."munkalap_anyag`.`munkalap_id` WHERE {$where_kieg}`".get_db_tabla()."munkalap`.`stat_id`='".MUNKALAP_STAT_ANYAGRAVAR."' AND `".get_db_tabla()."munkalap_anyag`.`stat_id`='".MUNKALAP_ANYAG_STAT_AI_SZUKS."'{$telephely_sql_mlhoz} GROUP BY `".get_db_tabla()."munkalap_anyag`.`munkalap_id`");
             $db         = mysqli_num_rows($munkalapok);
-            $link       = 'munkalap.php?mezo=anyag_stat_id&amp;op=equal&amp;felt='.MUNKALAP_ANYAG_STAT_AI_SZUKS.'&amp;modosit&amp;dashboard='.DASHBOARD_ML_H_A_CIMKE;
+            $link       = 'munkalap.php?mezo=anyag_stat_id&amp;op=equal&amp;felt='.MUNKALAP_ANYAG_STAT_AI_SZUKS.'&amp;modosit&amp;dashboard='.DASHBOARD_H_A_ML_CIMKE;
 
             if( $db ) {
                 $feladatok .= nl2('
                                     <tr>
                                         <td>
                                             <a href="'.$link.'">
-                                                Munkalapon hiányzó anyag igénylése
+                                                '.DASHBOARD_H_A_ML_CIMKE.'
                                             </a>
                                         </td>
                                         <td>
