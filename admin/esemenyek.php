@@ -2094,7 +2094,7 @@ $megnevezes = 'anyagigenyles';
 // Mennyiségi egység kiszámítása
 $cikkmee    = 'db';
 $post       = '';
-if (isset($_GET['id'])) {
+if( isset($_GET['id']) ) {
     $anyagigenyles = $adatbazis_kapcsolat->s2('cikk_id', $megnevezes, "`recid`='{$_GET['id']}'");
 
     $cikktorzs     = $adatbazis_kapcsolat->s2('cikkmee', 'cikktorzs', "`id`='{$anyagigenyles['cikk_id']}'");
@@ -2102,7 +2102,7 @@ if (isset($_GET['id'])) {
 }
 
 $style = '';
-if (isset($_GET['modosit'])) {
+if( isset($_GET['modosit']) ) {
     $igenyles = $adatbazis_kapcsolat->s2('stat_id', $megnevezes, "`recid`='{$_GET['id']}'");
     // Ha az anyagigénylés legalább megrendelve vagy nagyobb státuszban van, akkor jelenik meg rajta a rendelés kép gomb.
     if($igenyles['stat_id']>=CIKKIGN_STAT_MEGRENDELVE){
@@ -3358,13 +3358,23 @@ $kivetelek = array('header.php', 'esemenyek.php');
 
 if( !in_array(basename(self()), $kivetelek) ){
     if( $_SESSION['elozo_oldal'] != 'mobil_hozzarendel.php' ) {
-        if( ($_SESSION['o_szuro_feltetel'] || $_SESSION['dashboard_feladat']) && $_SESSION['elozo_oldal'] != basename(self()) && $_SESSION['elozo_oldal'] != 'anyagigenyles.php' && $_SESSION['elozo_oldal'] != 'anyagigenyles.php?anyagrend' ) {
+        if( 
+                // Ha van összetett szűrés vagy dashboard feladat aktívan...
+                ($_SESSION['o_szuro_feltetel'] || $_SESSION['dashboard_feladat']) &&
+                (
+                    // ... és az előző oldal nem azonos az aktuálissal
+                    $_SESSION['elozo_oldal'] != basename(self()) 
+                    // ... vagy ha anyagrendelés és anyagigénylés között váltunk, akkor kiürítjük ezeket a SESSION-öket.
+                    || ( $_SESSION['elozo_oldal'] == 'anyagigenyles.php'            && basename(self()) == 'anyagigenyles.php' &&  isset($_GET['anyagrend']) )
+                    || ( $_SESSION['elozo_oldal'] == 'anyagigenyles.php?anyagrend'  && basename(self()) == 'anyagigenyles.php' && !isset($_GET['anyagrend']) )
+                )
+        ) {
             unset($_SESSION['dashboard_feladat']);
             unset($_SESSION['o_szuro_feltetel']);
             unset($_SESSION['o_szuro_html']);
         }
     }
-// var_dump($_SESSION['elozo_oldal']);
+
     // Az anyigénylés/rendelés egy és ugyanaz a PHP fálj, ezért ezt itt külön kell lekezelni, még a $_SESSION['elozo_oldal'] = basename(self()); rész előtt
     if( basename(self()) == 'anyagigenyles.php' || basename(self()) == 'anyagigenyles.php?anyagrend' ) {
 
@@ -5344,22 +5354,22 @@ if(isset($_POST['sorrendezes'])){
     exit;
 }
 
-foreach($postok as $ertek){
-	// Új feltételt használok, hogy feleslegesen ne kelljen minden tömböt bejárni. Csak az aktuális php fájl nevével megegyező tömböt pászátzza végig
+foreach ( $postok as $ertek ) {
+    // Új feltételt használok, hogy feleslegesen ne kelljen minden tömböt bejárni. Csak az aktuális php fájl nevével megegyező tömböt pászátzza végig
     // if(isset($_POST[$ertek['uj']]) || isset($_POST[$ertek['lista']])){//ÚJ TERMÉK FELTÖLTÉSE
 	if( (isset($_POST[$ertek['uj']]) || isset($_POST[$ertek['lista']])) ){
 
 		// Checkboxból 1 és 0, számok ezresítése
-		foreach($ertek['tomb'] as $elem){
-            if($elem['type'] == 'checkbox'){
-                if($_POST[$elem['name']]=='on' || $_POST[$elem['name']]=='true'){
+		foreach ( $ertek['tomb'] as $elem ) {
+            if( $elem['type'] == 'checkbox' ) {
+                if( $_POST[$elem['name']] == 'on' || $_POST[$elem['name']] == 'true' ) {
                     $_POST[$elem['name']] = 1;
                 } else {
                     $_POST[$elem['name']] = 0;
                 }
 
                 // Pipa ki-be kapcsolás, Ajaxos hívással
-                if( isset($_POST['pipa_'.$elem['name']]) ){
+                if( isset($_POST['pipa_' . $elem['name']]) ) {
                     $pipa_on = $adatbazis_kapcsolat -> s($elem['name'], $ertek['tabla'], 'id='.$_POST['id']);
                     if( $pipa_on[0][$elem['name']] ){
                         $adatbazis_kapcsolat -> u($ertek['tabla'], $elem['name'], '', 'id='.$_POST['id']);
@@ -5378,7 +5388,7 @@ foreach($postok as $ertek){
         }
 
 		// Ha az újként szerkesztés post nem üres, akkor beállítjuk a $_POST-olt értékeket egy SESSION-ba, majd ezzekkel az adatokkal indul egy új feltöltés adatlapja
-		if($_POST[$ertek['tabla'].'ujkent_szerk']) {
+		if( $_POST[$ertek['tabla'] . 'ujkent_szerk'] ) {
             if( $_GET['ujkent'] ) {
                 $id = $_GET['ujkent'];
             } else {
@@ -5433,25 +5443,25 @@ foreach($postok as $ertek){
 		// KÉPEK VÉGE
 
 		$url = '';
-		if(isset($_GET['id'])){
-			$url      = '&id='.$_GET['id'];
+		if( isset($_GET['id']) ) {
+            $url      = '&id='.$_GET['id'];
 			$tabla_id = $_GET['id'];
 		}
 
 		// Ha hibamentes volt a feltöltés (adatbázis beszúráskor az adatok illetve képhiba is rendben van)
-		if( $errnum == '' && $kephiba['1'] <= 0){
+		if( $errnum == '' && $kephiba['1'] <= 0 ) {
 
-			$adatbazis_kapcsolat -> bezar();
-			if(isset($_POST['ugras_kepekhez'])){
+            $adatbazis_kapcsolat -> bezar();
+			if( isset($_POST['ugras_kepekhez']) ) {
                 header('location:'.self().str_replace('&amp;','&',get_get(array('id', 'hiba', 'errnum', 'kephiba', 'oldal', 'epo', 'kat', 'order'))).'&id='.$tabla_id.'#kepek');
             } else {
                 // Csak akkor van továbbléptetés, ha nem ajaxosan hívtuk meg
                 if(!isset($_POST['ajax_form_modosit'])){
                     // header('location:'.self().'?uj')
                     // Mégis a létrehozott adatlapra érkezzünk:
-//exit;
+
                     // Anyagigénylés feltöltésekor a táblázatra érkezzünk
-                    if($ertek['tabla']=='anyagigenyles'){
+                    if( $ertek['tabla'] == 'anyagigenyles' ) {
 
                         // A táblázat igénylés dátum szerinti csökkenő sorrendben jelenjenek meg
                         $_SESSION['anyagigenyles_tablazat_rendez'] = 'anyag_tabla_ig_datum';

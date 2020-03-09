@@ -7150,7 +7150,7 @@ if (isset($_POST['megr_sztorno_mail_elkuldve'])) {
     if( $sor === false ) { $db_error = true; }
     
     // Státusz ellenőrzése
-    if( $sor['stat_id'] != MUNKALAP_STAT_SZTORNO_VAR ){
+    if( $sor['stat_id'] != MUNKALAP_STAT_SZTORNO_VAR ) {
         echo json_encode(array(
             'hiba'  => 'A munkalaphoz ebben a státuszban nem léptethető tovább!',
             'title' => 'Hiba',
@@ -7160,7 +7160,7 @@ if (isset($_POST['megr_sztorno_mail_elkuldve'])) {
     }
     
     // Jog ellenőrzése
-    if( !_jog(JOG_MUNKALAP_KULSOS_MEGREND) ){
+    if( !_jog(JOG_MUNKALAP_KULSOS_MEGREND) ) {
         echo json_encode(array(
             'hiba'  => 'Nincs joga ebben a státuszban munkalapot tovább léptetni!',
             'title' => 'Hiba',
@@ -7170,8 +7170,8 @@ if (isset($_POST['megr_sztorno_mail_elkuldve'])) {
     }
 
     // Szokásos mezők nullázása, de erre két ág van:
-    if($sor['vissza_mod']==VISSZA_MOD_VISSZAADAS){
-        
+    if( $sor['vissza_mod'] == VISSZA_MOD_VISSZAADAS ) {
+
         // Mi a ML utolsó nyitott tétele?
         $utolso_tetel = $adatbazis_kapcsolat->s2('recid', 'munkalap_tetel', "`munkalap_id`='{$recid}' AND `atadta_dt`='0000-00-00 00:00:00'", 'recid desc', '1');
         if( $utolso_tetel === false ) { $db_error = true; }
@@ -7209,8 +7209,8 @@ if (isset($_POST['megr_sztorno_mail_elkuldve'])) {
         }
         
     // Ha Vissza előkészítés gobmról jutottunk ide:
-    }elseif($sor['vissza_mod']==VISSZA_MOD_VISSZAELOK){
-        
+    }elseif( $sor['vissza_mod'] == VISSZA_MOD_VISSZAELOK ) {
+
         munkalap_vissza_elokeszitesbe($recid);
         
     // Ilyen nem fordulhat elő, de nem árt bele egy védelem

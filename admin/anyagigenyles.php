@@ -24,7 +24,7 @@ $szamla_html = '';
 // Az $id-k tömböt és a $page változót innen kaptjuk
 require_once 'anyagigenyles_nyomtat.php';
 
-if (isset($_POST['get_cikkszam'])) {
+if( isset($_POST['get_cikkszam']) ) {
 
     $cikktozs = $adatbazis_kapcsolat->s2('id', 'cikktorzs', "`recid`='{$_POST['recid']}'");
     echo $cikktozs['id'];
@@ -34,7 +34,7 @@ if (isset($_POST['get_cikkszam'])) {
 }
 
 // Anyagigénylés adatok beolvasása
-if (isset($_POST['get_adatok'])) {
+if( isset($_POST['get_adatok']) ) {
 
     $anyagigenyles = $adatbazis_kapcsolat->s2('ikt_szam cikk_id nev igmen cikkmee', 'anyagigenyles', "`recid`='{$_POST['id']}'");
 
@@ -153,7 +153,7 @@ if( isset($_POST['van_e_varoslista']) ) {
 
 // Dokumentumok fülhöz kell majd
 $tobb_kep = true;
-if($tobb_kep){
+if( $tobb_kep ) {
     function get_tobbkep_darab()    { return 10;        } // Maximum hány kép tallózható be
     function get_tobbkep_csakkep()  { return '';        } // Milyen kiterjesztéseket engedünk meg (ha mindenet, legyen üres)
     function get_tobbkep_kepmeret() { return 10;        } // MB-ban
@@ -2373,15 +2373,15 @@ require_once('selectek.php');
     if( isset($_GET['uj']) ) {
 
         // Újat csak "Anyagigénylés kezelése" joggal lehet
-        if(_jog(JOG_ANYAGIGENYLES_KEZEL)) { // $(\'#szerk_form\').submit()
-            $gombok = nl2('
+        if( _jog(JOG_ANYAGIGENYLES_KEZEL) ) {
+                $gombok = nl2('
                 <div class="form_kuldes">
                     <input type="button" class="gombb mentes_gomb ne_rejtsd_el" name="mehet_gomb" id="mehet_gomb" disabled value="Anyagigénylés" onclick="szurkit(\'mehet_megsem_rejt\'); anyagigenylesekMentes();">
                     <input type="button" class="gomb piros ne_rejtsd_el" disabled id="megsem_gomb" value="Mégsem" onclick="megsemGomb();">
                 </div>
             ');
 
-            if(isset($_GET['anyagrend'])){
+            if( isset($_GET['anyagrend']) ) {
                 $muv_style = ' style="width: calc(100% - '.($_SESSION['defaultCsuszka'] + 16).'px);"';
                 if( in_array(basename(self()), $_SESSION['ketHasabos']) && $_SESSION[get_db_tabla().'user'] ) {
                     if( $_COOKIE['csuszkaSzelesseg'] ) {
@@ -2654,6 +2654,11 @@ require_once('selectek.php');
             }
         }
         
+        // Ne legyen üres a mező, mert rákattintva 0-val feltöltődik, és elpirosodik.
+        if( !$sor['igmen'] ) {
+            $sor['igmen'] = '0,00';
+        }
+        
         $json_sor = array();
         foreach ( $sor as $kulcs => $elem ) {
             $json_sor[$kulcs] = formAdatok_replace($elem);
@@ -2825,7 +2830,7 @@ require_once('selectek.php');
         }
 
 	// Táblázat
-    } elseif(isset($_GET['tablazat'])) {
+    } elseif( isset($_GET['tablazat']) ) {
 
         // A füle CSS-ét itt felülírjuk, illetve a táblázat rendezőt és egyés ide vonatkozós JS-t is meghívunk
         $szamla_html .= nl2('

@@ -1898,7 +1898,7 @@ $(function() {
         }
     });
 
-    /* Bejelentés más nevében Tovább gomb ki-be kapcsolása */
+    // Bejelentés más nevében Tovább gomb ki-be kapcsolása
     $(document).on('click', 'table.egyErtek tr.kijSor', function() {
         $(this).parents('table.egyErtek').find('tr.kijSor').removeClass('kijelolve');
         $(this).addClass('kijelolve');
@@ -4746,7 +4746,7 @@ function kijeloltSzamlal( sorok, reszleg, tabla, mellek ) {
         jobbOldalEltuntet( sorok );
     }
 
-    /* Ha egy kapcsolódó táblás alodal fülön vagyunk, és nincs kijelölve egy sor sem */
+    // Ha egy kapcsolódó táblás alodal fülön vagyunk, és nincs kijelölve egy sor sem
     if( !sorok.hasClass('kijelolve') && reszleg == 'mellek' ) {
 
         $('#navGombok a.torles').addClass('disabled').attr('onclick', '');
@@ -4991,7 +4991,7 @@ function kijelolesEltavolit() {
     jobbOldalEltuntet( $('#szamlaList li.szamla_sor') );
 }
 
-/* Helyiség választó popup tartalmának előállítása */
+// Helyiség választó popup tartalmának előállítása
 function obj_gen(szintig) {
 
     var telephely_id = $('#telephely_id').val();
@@ -5575,7 +5575,7 @@ function gombokNullaz() {
     $('#kilepes_gomb').val('Kilépés');
 }
 
-/* Felhasználó váltás */
+// Felhasználó váltás
 function felhValt( that ) {
     var felh_nev  = $( that ).find('input[name="login_nev"]').val(),
         felh_jlsz = $( that ).find('input[name="login_jelszo"]').val();
@@ -5866,9 +5866,9 @@ function gombokRejt() {
         $('div.navGombok a.torles').addClass('disabled');
     }
 
-    /* Új feltöltéskor az Új ikont disabled... */
+    // Új feltöltéskor az Új ikont disabled...
     if( _get('uj') ) {
-        /* Kivéve projekt szerkesztéskor */
+        // Kivéve projekt szerkesztéskor
         if( baseName(location.href)=='projektkezeles' ){
             $('div.navGombok a.uj').removeClass('disabled');
         } else {
@@ -5883,10 +5883,10 @@ function _get( ertek ) {
     var link  = location.href;
 
     if( link.indexOf('?') != -1 ) {
-        /* URL szétbontása */
+        // URL szétbontása
         link = link.split('?');
 
-        /* Paraméterek szétbontása */
+        // Paraméterek szétbontása
         akt_param = link[1].split('&');
 
         for( key in akt_param ) {
@@ -7658,7 +7658,7 @@ function szurkit_zar( mehet_megsem_mutat ){
 }
 
 // Tabindex számozása
-function tabindex_beallit(){
+function tabindex_beallit() {
     $(':input[type!="hidden"]:not([readonly])').each(function (i) {
         $(this).attr('tabindex', i + 1);
     });
@@ -7743,7 +7743,7 @@ function anyagigenylesHozzaad(mehet, mentes_gombbol, ajax_nelkul_hozzaad) {
         return false;
     }
 
-    /* Ajax nélkül veszük fel a sort, nem kell már ellenőrizni. Anyagigénylés gombra kattintva, a megerősítő kérdés után. */
+    // Ajax nélkül veszük fel a sort, nem kell már ellenőrizni. Anyagigénylés gombra kattintva, a megerősítő kérdés után.
     if(ajax_nelkul_hozzaad){
         data['cikkmee'] = form.find('.insertMee').text() + ' <input type="hidden" name="cikkmee[]" value="' + form.find('.insertMee').text() + '">';
 
@@ -7985,14 +7985,26 @@ function get_csatolmanyok(tabla, recid) {
 // Adatlapon minden inputot elszürkítünk, disabled-re állítunk.
 // Pl. ha nincs mentés gombunk, vagy nincs találat a bal navpanelben
 function adatlap_minden_inputjat_disabled() {
-    // Checbox-ok labeljeire is kell egy readonly, hogy ne lehessen rákattintani
-    $('#szerk_form input[type="checkbox"]').each(function() {
-        $('label[for="'+$(this).attr('id')+'"]').attr('readonly', true);
-    });
+    
 
-    $('#szerk_form input, #szerk_form textarea, #szerk_form select').attr('readonly', true);
-    $('#szerk_form input.f_nem_rejt').attr('readonly', false);
-    $('#szerk_form input.foGomb').removeAttr('disabled');
+    mehet = true;
+    if( PHP_SELF == 'anyagigenyles.php' ) {
+        if( location.href.indexOf('?uj=')>0 || location.href.indexOf('?&uj=') ) {
+            mehet = false;
+        }
+    }
+    
+    if( mehet ) {
+        // Checbox-ok labeljeire is kell egy readonly, hogy ne lehessen rákattintani
+        $('#szerk_form input[type="checkbox"]').each(function() {
+            $('label[for="'+$(this).attr('id')+'"]').attr('readonly', true);
+        });
+
+        $('#szerk_form input, #szerk_form textarea, #szerk_form select').attr('readonly', true);
+        $('#szerk_form input.f_nem_rejt').attr('readonly', false);
+        $('#szerk_form input.foGomb').removeAttr('disabled');
+    }
+    
 }
 
 // A szűréssel kapcsolatos GET-ekkel néha meg kell toldani a location.href linket. Ezt központosítjuk itt. (Pl. új feltöltéskor jegyezze meg a szűrést.)
