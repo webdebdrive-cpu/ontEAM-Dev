@@ -307,7 +307,7 @@ function pop_kapcsolas_feltolt() {
             if( response ) {
                 response = JSON.parse(response);
                 
-                if(response.hiba){
+                if( response.hiba ) {
                     alert2(response.hiba, response.gomb, response.title);
                     if( response.focus ){
                         $('#'+response.focus).addClass('hibas_ide_focus');

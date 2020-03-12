@@ -507,9 +507,14 @@ $(function() {
 
     // Ha nincs kjelölve a bal navpanelben egy sor sem, akkor az első lesz a kijelöltünk
     setTimeout(function() {
+        
+        // Cash flow esetén ezt nem kell megtenni, azaz nem kell első sorra ugrani
+        if( PHP_SELF=='cash_flow.php' ) {
+            return false;
+        }
 
         // Anyagigénylésnél nem a bal navpanelre kattintunk, hanem a táblázat első sorára
-        if( baseName(location.href)=='anyagigenyles' ){ /* && !_get('anyagrend') */
+        if( PHP_SELF=='anyagigenyles.php' ) {
             if( !$('table.szamla_cont_tabla tr.kijelolve').length ){
                 $('table.szamla_cont_tabla tbody tr:first-of-type').addClass('kijelolve').click();
             }
@@ -528,7 +533,7 @@ $(function() {
     $('#ajaxfedo').addClass('dn');
 
     click = false;
-    $(document).on('mousedown', function(event) {
+    $(document).on('mousedown', function (event) {
         if( event.target.id == 'csuszkaallit' ) {
             click = true;
 
@@ -1372,11 +1377,11 @@ $(function() {
         }
         
         // Egyik sor sincs kijelölve (mert nincs találat, pl. egy szűrés miatt), akkor a gombokat mindenképp rejtsük el.
-        setTimeout(function(){
+        setTimeout(function () {
             
             if( !_get('uj') && !$('.szamla_sor.kijelolve').length && !navpanel_mentes_oldal ){
                 $('.muveletek').hide();
-                /* Pl. mobil hozzárendelésnél a gombokat nem kell elrejteni, itt nincs bal navpanel, nyilván nem lesz kijelölt sor, de a gombokat látni kell. */
+                // Pl. mobil hozzárendelésnél a gombokat nem kell elrejteni, itt nincs bal navpanel, nyilván nem lesz kijelölt sor, de a gombokat látni kell.
                 $('.muveletek.megis_mindig_latszik').show();
                 adatlap_minden_inputjat_disabled();
             }
@@ -1434,20 +1439,20 @@ $(function() {
         }
     });
 
-    /* Oldal töltésekor megjelenítjük az ajaxfedőt hogy semmi másra ne lehessen kattintani. */
+    // Oldal töltésekor megjelenítjük az ajaxfedőt hogy semmi másra ne lehessen kattintani.
     $(document).ajaxSend(function(event, xhr, options) {
         if( baseName(options.url) != 'kapcs_autocomplete' && baseName(options.url) != 'szakter_autocomplete' && baseName(options.url) != 'autocomplete' ) {
             $('#ajaxfedo').removeClass('dn');
         }
     });
 
-    /* Ha egy ajax hívás lefutott, akkor az ajaxfedo-t elrejtjük, illetve az input.focus-t kijelöljük */
+    // Ha egy ajax hívás lefutott, akkor az ajaxfedo-t elrejtjük, illetve az input.focus-t kijelöljük
     $(document).ajaxComplete(function (event, xhr, settings) {
-        /* Felhasználóknál szálloda hozzáadása popup miatt ezt mégis kivettük, mert nem működött az autocomplete popupban: $('form.popupForm input.focus').select();*/
+        // Felhasználóknál szálloda hozzáadása popup miatt ezt mégis kivettük, mert nem működött az autocomplete popupban: $('form.popupForm input.focus').select();
         $('#ajaxfedo').addClass('dn');
 
         if( $('#szamlaList li.csoport').hasClass('kijelolve') ) {
-            /* Ha épp egy csoporton állunk, akkor elrejtük a jobb oldali tartalmakat */
+            // Ha épp egy csoporton állunk, akkor elrejtük a jobb oldali tartalmakat
             $('#szamlaList li.csoport').each(function () {
                 if($(this).hasClass('kijelolve')){
                     csoport_tartalom();
@@ -1455,9 +1460,9 @@ $(function() {
             });
         } else {
 
-            /* Ha lefutott az ajax, akkor gondoskodjunk róla, hogy csak egy sor legyen kijelölve a bal oldali nav panelben. */
+            // Ha lefutott az ajax, akkor gondoskodjunk róla, hogy csak egy sor legyen kijelölve a bal oldali nav panelben.
             if( !request_in_process ) {
-                /* Anyagigénylés alatt ezt mégsem tesszük meg, mert ott több sor kijelölése engedélyezett. Sőt ha engedélyezve lenne más menüpont alatt is a több kijelölés, csoportosítás, akkor azt szintén fel kellene venni itt kivételbe. */
+                // Anyagigénylés alatt ezt mégsem tesszük meg, mert ott több sor kijelölése engedélyezett. Sőt ha engedélyezve lenne más menüpont alatt is a több kijelölés, csoportosítás, akkor azt szintén fel kellene venni itt kivételbe.
                 if( baseName(location.href) != 'anyagigenyles' ){
                     $('#szamlaList li.szamla_sor').removeClass('kijelolve akt');
                     $('#szamla-' + _get('id')).addClass('akt kijelolve');
@@ -4849,7 +4854,7 @@ function mellekTorol( tabla, mellek, mellekre_valt, konkret_id ) {
         kijelolve.each(function() {
             var id = $(this).attr('data-id');
 
-            /* Az ideiglenes soroknak nincs ID-ja, pontosabban az értéke UJ. Ezeket nem adjuk át az ajax-nak */
+            // Az ideiglenes soroknak nincs ID-ja, pontosabban az értéke UJ. Ezeket nem adjuk át az ajax-nak
             if (id != 'UJ') {
                 idk[i] = id;
             }
@@ -4858,22 +4863,23 @@ function mellekTorol( tabla, mellek, mellekre_valt, konkret_id ) {
 
     }
 
-    /* Ha javaslattétel popuban vagyunk, akkor ott 'kep_jt_popup' a kép LI sor ID prefixe, próbáljuk meg azt is kihalványítani. */
+    // Ha javaslattétel popuban vagyunk, akkor ott 'kep_jt_popup' a kép LI sor ID prefixe, próbáljuk meg azt is kihalványítani.
     $('#kep_jt_popup'+konkret_id).fadeOut();
-    /* Javaslattétel popupban sor eltűntetése  */
+    // Javaslattétel popupban sor eltűntetése
     if (mellekre_valt == 'javaslattetel') {
         $('#kep'+konkret_id).fadeOut();
     }
     
 
-    /* Ha vannak olyan ideiglenes soraink (aminek az Id-ja UJ), azokat elég csak eltűnteni
-      Pl.: Projektigénylésnél a cash-flow fül */
+    // Ha vannak olyan ideiglenes soraink (aminek az Id-ja UJ), azokat elég csak eltűnteni
+    //  Pl.: Projektigénylésnél a cash-flow fül
     $('.kijCont .kijSor.kijelolve[data-id="UJ"], .kijCont .kijSor.kijelolve[data-id="UJ-FELDOLGOZVA"]').fadeOut('', function(){
         $(this).remove();
-        /* Cash-flow-ban ha változás van, akkor újra kell számolni. Azért kell ide is, mert ajaxig nem biztos, hogy eljutunk. */
+        // Cash-flow-ban ha változás van, akkor újra kell számolni. Azért kell ide is, mert ajaxig nem biztos, hogy eljutunk.
         if (tabla == 'cash_flow') {
             becsult_szetosztott_ujraszamol();
-            alert2();/* Cash flownál be kell zárni a kérdést is. */
+            // Cash flownál be kell zárni a kérdést is.
+            alert2();
         }
     });
 
@@ -4911,13 +4917,13 @@ function mellekTorol( tabla, mellek, mellekre_valt, konkret_id ) {
                             }, 500);
                         }
 
-                        /* Munkalapok adatlapján a bejelentések törlésekor csak frissítünk */
+                        // Munkalapok adatlapján a bejelentések törlésekor csak frissítünk
                         if (tabla == 'munkalap_kapcs') {
                             location.reload();
                             return false;
                         }
 
-                        /* A számla betöltést csak akkor csináljuk meg, ha nincs ideiglenes sor hozzáadva, mert különben azok elvesznének */
+                        // A számla betöltést csak akkor csináljuk meg, ha nincs ideiglenes sor hozzáadva, mert különben azok elvesznének
                         if (!$('.kijCont .kijSor[data-id="UJ"]').length) {
 
                             betoltott = szamlaBetolt(_get('id'), baseName(location.href) + '.php', mellek, '', 'kerdes_nelkul');
@@ -5064,7 +5070,7 @@ function addObj( that ) {
     popupZar();
 }
 
-/* Kapcsolódó táblák, azaz fülek alatti tartalom szerkesztéséhez kapcsolódó popupok, amiket sablonból olvasunk be */
+// Kapcsolódó táblák, azaz fülek alatti tartalom szerkesztéséhez kapcsolódó popupok, amiket sablonból olvasunk be
 function kapcsolodoSzerkeszt( oldal ) {
 
     $.get('../sablon/admin/popup/' + oldal + '.html?cache=' + new Date().getTime(), function( data ) {
@@ -5105,7 +5111,7 @@ function kapcsolodoSzerkeszt( oldal ) {
 
             break;
             case 'ft_energia_mennyiseg':
-                /* Fenntartási terv energia fülén ha egy sornak van futoertek class-ja, akkor arra a sorra meghívva a kitöltés gombot, biztosan hibaüzenetet kapunk (hogy nem szerkeszthető sor), így a popupot meg se jelenítsük. */
+                // Fenntartási terv energia fülén ha egy sornak van futoertek class-ja, akkor arra a sorra meghívva a kitöltés gombot, biztosan hibaüzenetet kapunk (hogy nem szerkeszthető sor), így a popupot meg se jelenítsük.
                 if($('.szamla_cont_tabla tr.kijelolve').hasClass('futoertek')){
                     return false;
                 }
@@ -5152,13 +5158,13 @@ function kapcsolodoSzerkeszt( oldal ) {
                     },
                  	success: function(response) {
                         if(response.substring(0, 6)=='SESKIL'){ location.href = 'index.php'; }
-                 		if(response) {
+                 		if (response) {
                  			$('#addSzallodak').html(response);
 
-                            /* Új felhasználó feltöltésekor van erre szükség: a már kiválasztott szállodák bepipálása */
+                            // Új felhasználó feltöltésekor van erre szükség: a már kiválasztott szállodák bepipálása
                             if($('#szallodak_hidden').length && $('#szallodak_hidden').val()){
                                 var szallodak = JSON.parse($('#szallodak_hidden').val());
-                                for(var i in szallodak) {
+                                for (var i in szallodak) {
                                     $('input[value='+szallodak[i]+']').prop("checked", true);
                                 }
                             }
@@ -5172,7 +5178,7 @@ function kapcsolodoSzerkeszt( oldal ) {
                 });
             break;
 
-            /* Véleménye feltötléskor pár adatra szükségünk van PHP-ból */
+            // Véleménye feltötléskor pár adatra szükségünk van PHP-ból
             case 'velemeny_feltolt':
 
                 $.ajax({
@@ -5774,7 +5780,7 @@ function velemeny_hozzaad(mehet){
             success: function (response) {
                 if(response.substring(0, 6)=='SESKIL'){ location.href = 'index.php'; }
                 response = JSON.parse(response);
-                /* Ha még nincs véleménye, akkor nincs kérdés, mehet egyből */
+                // Ha még nincs véleménye, akkor nincs kérdés, mehet egyből
                 if (response.mehet) {
                     kapcsolodoSzerkeszt('velemeny_feltolt');
                 }
@@ -6157,22 +6163,22 @@ function szamlaBetolt( recid, page, muvelet, szerkeszt, kerdes_nelkul, anyagigen
 
     var dfrd1 = $.Deferred();
 
-    if( recid && page ) {
+    if( page ) {
 
-        /* Ha létezik az anyagrend GET, akkor ezt tovább kell adni */
+        // Ha létezik az anyagrend GET, akkor ezt tovább kell adni
         anyagrend = '';
         if(_get('anyagrend')){
             anyagrend = 'anyagrend=1&amp;';
         }
 
-        /* Anyagigénylés alatt a művelet ha táblázat, nem frissítjük újra az egész oldal tartalmát (táblázat sorain lépkedve ne frissüljenek az adatok)
-         * De az anyagigénylés fülre kattintva mégis be kell tölteni, erre hasznájuk a  "tablazat_" műveletet */
+        // Anyagigénylés alatt a művelet ha táblázat, nem frissítjük újra az egész oldal tartalmát (táblázat sorain lépkedve ne frissüljenek az adatok)
+        // De az anyagigénylés fülre kattintva mégis be kell tölteni, erre hasznájuk a  "tablazat_" műveletet
         muvelet_param = muvelet;
-        if(muvelet=='tablazat_'){
+        if (muvelet == 'tablazat_') {
             muvelet_param = 'tablazat&amp;teljes_tartalom=1';
         }
 
-        /* Anyagigénylésnél a szűrés paramétereket is tovább kell még adni */
+        // Anyagigénylésnél a szűrés paramétereket is tovább kell még adni
         if( page=='anyagigenyles.php' ){
             if(_get('mezo')){
                 anyagrend += 'mezo='+_get('mezo')+'&amp;';
@@ -6196,17 +6202,16 @@ function szamlaBetolt( recid, page, muvelet, szerkeszt, kerdes_nelkul, anyagigen
             }
         }
 
-        /* Ha nem ismert a művelet, akkor találjuk ki. Ez arra az esetre jó, ha nem tudjuk, melyik fül alatt vagyunk, és maradni szeretnénk adott fül alatt.
-         *  Ekkor ne paraméterezzük fel a szamlaBetolt() függvényt művelettel.
-         *  */
+        // Ha nem ismert a művelet, akkor találjuk ki. Ez arra az esetre jó, ha nem tudjuk, melyik fül alatt vagyunk, és maradni szeretnénk adott fül alatt.
+        // Ekkor ne paraméterezzük fel a szamlaBetolt() függvényt művelettel.
         if(!muvelet_param){
             if(_get('modosit')      ){ muvelet_param = 'modosit';       }
             if(_get('megjegyzesek') ){ muvelet_param = 'megjegyzesek';  }
             if(_get('dokumentumok') ){ muvelet_param = 'dokumentumok';  }
             if(_get('tortenet')     ){ muvelet_param = 'tortenet';      }
 
-            /* Ha így sincs, akkor legyen a módosítás */
-            if(!muvelet_param){
+            // Ha így sincs, akkor legyen a módosítás
+            if (!muvelet_param) {
                 muvelet_param = 'modosit';
             }
 
@@ -6224,12 +6229,11 @@ function szamlaBetolt( recid, page, muvelet, szerkeszt, kerdes_nelkul, anyagigen
          	data: esamp2es('id=' + recid + no_lista+'&amp;ajax=1&amp;' + szerk + anyagrend + muvelet_param + '=' + new Date().getTime()),
          	success: function(html) {
                 if(html.substring(0, 6)=='SESKIL'){ location.href = 'index.php'; }
-         		if(html) {
+         		if (html) {
                     html = JSON.parse(html);
 
-                    /* #szamlaBetolt tartalmának lecserélése
-                     * Ha anyagigénylés táblázat alatt vagyunk akkor ne frissítsük a tartalmat, csak a gombokat.
-                     */
+                    // #szamlaBetolt tartalmának lecserélése
+                    // Ha anyagigénylés táblázat alatt vagyunk akkor ne frissítsük a tartalmat, csak a gombokat.
                     if( page=='anyagigenyles.php' && muvelet=='tablazat' ){
                         $('#szamlaFulek').html(html.fulek);
                         $('div.muveletek').replaceWith(html.tartalom).promise().done(function() {
@@ -7106,7 +7110,7 @@ function balnav_kijelol_ell(egy_csoport_reszben_szabad, kivetel_ell){
             //Ha csak egy csoportból vannak megjelölve rekordok, de nem mind
             if(!tobb_resz_csoport){
 
-                /* Ha nincs megengedve, hogy egy csoport részben legyen kijelölve, akkor szólunk */
+                // Ha nincs megengedve, hogy egy csoport részben legyen kijelölve, akkor szólunk
                 if(!egy_csoport_reszben_szabad){
                     alert2('Külön csoportosított '+$('#rekord_neve').html().toLowerCase()+' egyszerre nem jelölhetők!', '', 'Hiba');
                     return false;

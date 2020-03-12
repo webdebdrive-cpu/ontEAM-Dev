@@ -1,15 +1,4 @@
 <?php
-/*
-Játékszabályok:
-
-- Két eset van: Egy bejelentés egy munkalap illetve egy bejelentés több munkalap
-- Ha egy munkalapot csoportosítunk, akkor a benne levő munkalapok automatikusan várakozóra is kerülnek
-  (és áttételesen a hozzá tartozó bejelentés is).
-- Ha kiveszünk belőle egy elemet, akkor annak státusza nyitottra vált (és áttételesen a hozzá tartozó bejelentés is).
-- Csoportot lehessen egyben visszatenni nyitottnak, de ekkor nem bomlik fel a csoport.
-
-*/
-
 require_once('../weblap.php');
 
 // Config

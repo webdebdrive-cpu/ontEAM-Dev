@@ -438,7 +438,7 @@ if( isset($_POST['getSzallodak']) ) {
     }
 
     $html = '';
-    foreach($telephelyek as $telephely) {
+    foreach ( $telephelyek as $telephely ) {
         $checked = '';
         if( in_array($telephely['id'], $kijelolek) ) {
             $checked = ' checked="checked"';
@@ -453,7 +453,9 @@ if( isset($_POST['getSzallodak']) ) {
                     </div>
                 </div>
                 <div class="dtc">
-                    '.$telephely['nev'].'
+                    <label class="link" for="telephely-'.$telephely['recid'].'">
+                        '.$telephely['nev'].'
+                    </label>
                 </div>
             </div>
         ');
@@ -1375,7 +1377,7 @@ require_once('selectek.php');
 		}
 
 	// Egységár
-	}elseif(isset($_GET['egysegarak'])){
+    } elseif( isset($_GET['egysegarak']) ) {
 
         $szamla_html .= '
         <div id="fixTable">

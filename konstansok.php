@@ -417,4 +417,7 @@ define('VISSZA_MOD_VISSZAADAS',  1);
 define('VISSZA_MOD_VISSZAELOK',  2);
 
 // Dashboard
-define('DASHBOARD_H_A_ML_CIMKE',  'Hiányzó anyag igénylésére váró munkalapok'); // Ez az egy azért van konstansban, mert egy helyen a működést is befolyásolja: 
+define('DASHBOARD_H_A_ML_CIMKE',  'Hiányzó anyag igénylésére váró munkalapok'); // Ez az egy azért van konstansban, mert egy helyen a működést is befolyásolja.
+
+// Cash-flow
+define('CASH_FLOW_MAX_HONAPOK',  60);

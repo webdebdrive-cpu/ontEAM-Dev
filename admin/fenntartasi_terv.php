@@ -2767,7 +2767,7 @@ if( isset($_GET['csv']) ) {
                 $i = 0;
 
                 $honapok = array('Január', 'Február', 'Március', 'Április', 'Május', 'Június', 'Július', 'Augusztus', 'Szeptember', 'Október', 'November', 'December');
-                $ertekek     = array();
+                $ertekek = array();
                 $ertekek_mindosszesen = 0;
                 while ( $sorok = mysqli_fetch_assoc($query) ) {
 
@@ -2780,7 +2780,7 @@ if( isset($_GET['csv']) ) {
 
                     $kulcs_i = 0;
                     $csvcont = array();
-                    foreach( $sorok as $kulcs => $sor ) {
+                    foreach ( $sorok as $kulcs => $sor ) {
                         if( $kulcs == 'Költségnem név' ) {
                             $sor = getErtek('nev', 'ktgnem', 'id', $sor);
                         }
@@ -3833,7 +3833,7 @@ require_once('selectek.php');
 
         $szamla_html .= fenntartasi_terv_rendsz_karban($sor);
 
-        // Ha van a get-ben em id, akkor azt a sort jelöljük meg
+        // Ha van a get-ben ft id, akkor azt a sort jelöljük meg
         if( isset($_GET['ft'])){
             $szamla_html .= nl2('
                             <script>
@@ -3867,7 +3867,7 @@ require_once('selectek.php');
 
         $szamla_html .= fenntartasi_terv_eseti_karban($sor);
 
-        // Ha van a get-ben em id, akkor azt a sort jelöljük meg
+        // Ha van a get-ben ft id, akkor azt a sort jelöljük meg
         if( isset($_GET['ft'])){
             $szamla_html .= nl2('
                             <script>
@@ -3901,7 +3901,7 @@ require_once('selectek.php');
 
         $szamla_html .= fenntartasi_terv_hibaelharitas($sor);
 
-        // Ha van a get-ben em id, akkor azt a sort jelöljük meg
+        // Ha van a get-ben ft id, akkor azt a sort jelöljük meg
         if( isset($_GET['ft'])){
             $szamla_html .= nl2('
                             <script>
@@ -3936,7 +3936,7 @@ require_once('selectek.php');
 
         $szamla_html .= fenntartasi_terv_miniprojekt($sor);
 
-        // Ha van a get-ben em id, akkor azt a sort jelöljük meg
+        // Ha van a get-ben ft id, akkor azt a sort jelöljük meg
         if( isset($_GET['ft']) ) {
             $szamla_html .= nl2('
                             <script>
@@ -3970,8 +3970,8 @@ require_once('selectek.php');
 
         $szamla_html .= fenntartasi_terv_bwh($sor);
 
-        // Ha van a get-ben em id, akkor azt a sort jelöljük meg
-        if( isset($_GET['ft'])){
+        // Ha van a get-ben ft id, akkor azt a sort jelöljük meg
+        if( isset($_GET['ft']) ) {
             $szamla_html .= nl2('
                             <script>
                                 $(\'#ft_ft_'.$_GET['ft'].'\').addClass(\'kijelolve\');
@@ -4000,7 +4000,7 @@ require_once('selectek.php');
         }
 
 	// Összesítő fül
-	}elseif(isset($_GET['osszesen']) ){
+    } elseif( isset($_GET['osszesen']) ) {
 
         $szamla_html .= fenntartasi_terv_osszesen($sor, $ful_tomb, $sajat_szallodak);
 

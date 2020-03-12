@@ -2,18 +2,6 @@
  * Ezért felel ez a CSS
 */
 
-/* Fixált tábla konténer beállításai */
-#fixTable {
-    border-left: 0.1rem solid #ccc;
-    overflow-x: auto;
-    position: relative;
-}
-
-#fixTable table.szamla_cont_tabla.szep_csikos th, table.szamla_cont_tabla.szep_csikos td {
-    border-left: 0;
-    border-top-width: 0;
-}
-
 /* Egy fixált cella általános jellemzője */
 table.szamla_cont_tabla.kisbetu th.fix, table.szamla_cont_tabla.kisbetu td.fix {
     box-shadow: inset 0rem 0 0rem 0.1rem #ccc;

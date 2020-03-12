@@ -65,7 +65,7 @@ echo $adatbazis -> getParancs()."<br>";
 $adatbazis -> bezar();
 */
 
-class Adatbazis{
+class Adatbazis {
 
     /** @var Adatbázis kapcsolat*/
 	public $adatbazis_kapcsolat;
@@ -170,15 +170,15 @@ class Adatbazis{
 
         $select = 'SELECT '.$oszlopok.' FROM '.$tabla;
 
-        if($join){
-            $select .= $join;
+        if( $join ) {
+            $select .= ' '.$join;
         }
 
-		if($where != null){
-			$select .= ' WHERE '.$where;
+		if( $where != null ) {
+            $select .= ' WHERE '.$where;
 		}
 
-        if($order != null){
+        if( $order != null ) {
             if($order == '`rand()`' || $order == '`RAND()`' ){
                 $order = 'RAND()';
             }
@@ -188,12 +188,12 @@ class Adatbazis{
 			$select .= ' ORDER BY '.$order;
 		}
 
-		if($group_by != null){
-			$select .= ' GROUP BY '.$group_by;
+		if( $group_by != null ) {
+            $select .= ' GROUP BY '.$group_by;
 		}
 
-        if($limit != null){
-			$select .= ' LIMIT '.$limit;
+        if( $limit != null ) {
+            $select .= ' LIMIT '.$limit;
 		}
 
 		$select = str_replace('--', '', $select);

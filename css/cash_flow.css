@@ -1,0 +1,87 @@
+.cash_flow_adatlap_grid {
+    display: grid;
+    grid-template-columns: 50% 50%;
+    font-size: 1.4rem;
+}
+
+.cash_flow_adatlap_grid > div > div {
+    display: grid;
+    grid-template-columns: 10% 90%;
+    padding: 0.2rem 0rem;
+    align-items: center;
+}
+
+.cash_flow_adatlap_grid > div:nth-of-type(2) > div {
+    display: grid;
+    grid-template-columns: 35% 65%;
+    padding: 0.2rem 0rem;
+    align-items: center;
+}
+
+input[type='text'] {
+    margin-right: 0.2rem;
+}
+
+.ev {
+    width: 6rem;
+}
+.ho {
+    width: 4rem;
+}
+
+label {
+    width: 35rem;
+}
+
+#szallodak_lista {
+    display: block;
+}
+
+/* Cashflow táblázat első oszlopának fixálása */
+/* Egy fixált cella általános jellemzője */
+table.szamla_cont_tabla.kisbetu th.fix, table.szamla_cont_tabla.kisbetu td.fix {
+    box-shadow: inset 0rem 0 0rem 0.1rem #ccc;
+    border: none;
+    position: sticky;
+        left: 0rem;
+        top: auto;
+}
+table.szamla_cont_tabla.kisbetu td.fix {
+    background: #fff;
+}
+table.szamla_cont_tabla.kisbetu tfoot td.fix {
+    background: #F1EFF0;
+}
+table.szamla_cont_tabla.kisbetu tr.kijelolve td.fix {
+    background: #55A2FA;
+}
+/* Cash-flow fül alatt az első oszlopok sorban */
+table.szamla_cont_tabla.kisbetu th.fix.cf1, table.szamla_cont_tabla.kisbetu td.fix.cf1 {
+    left: 0rem;
+    min-width: 20rem;
+    max-width: 20rem;
+}
+
+td.kibont:after {
+    content: '▼';
+    position: absolute;
+        top: 0rem;
+        right: 0.3rem;
+    transition: all ease-in-out 0.2s;
+}
+
+td.kibont.kibontva:after {
+    content: '▼';
+    position: absolute;
+        top: 0.2rem;
+    transform: rotate(61deg);
+    transition: all ease-in-out 0.2s;
+}
+
+/* Minden cella lehet nowrap-os */
+#fixTable table.szamla_cont_tabla.szep_csikos th, table.szamla_cont_tabla.szep_csikos td {
+    white-space: nowrap;
+}
+table.szamla_cont_tabla.szep_csikos td.wrap {
+    white-space: normal;
+}

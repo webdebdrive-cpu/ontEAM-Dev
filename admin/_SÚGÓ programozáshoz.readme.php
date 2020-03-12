@@ -45,6 +45,7 @@ TÖRLÉSKOR A KAPCSOLÓDÓ TÁBLÁK LEKEZELÉSE:
 - esemenyek.php-ben a if( isset( $_GET[$ertek['torid']] ) ) részt keres, és ennek a végén találod.
  
 BAL OLDALI NAVIGÁCIÓS PANEL TÉTELEINEK KISZÁMÍTÁSA (WHERE LEKÉRDEZÉS) + NAV PANEL TARTALMÁNAK KIÍRATÁSA ÉS RENDEZÉSE + RENDEZÉSI IRÁNY NYILAI
+- Ha nincs bal nav panelre szükség, akkor azt a header.php-ben tudod beállítani a $bal_nav_mentes tömbnél
 - fuggvenyek szamla_lista()-ban kerül kiszámításra a where feltétel. Ez a header.php és esemenyek.php-ban hívódik meg (+ weblap.php-ban is, hogy az ID-kat ellenőrizzük)
 - A lista tartalmát viszont a függvényekben tudod beállítani: szamla_lista().
 - Bal oldali nav panel rendezése (sok JOIN-al) szintén a fuggvenyek.php szamla_lista() részben tudod beállítani

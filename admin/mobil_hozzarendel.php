@@ -2,7 +2,7 @@
 require_once('../weblap.php');
 
 if( !_jog(JOG_MUNKALAP_NYITOTT_KEZEL)) {
-    if(!$_SESSION[get_db_tabla().'user']){
+    if( !$_SESSION[get_db_tabla() . 'user'] ) {
         $weblap -> leallit();
         header('Location: index.php');
         exit;
@@ -26,8 +26,8 @@ $sajat_szallodak = get_akt_login_szallodai();
 $sajat_szallodak_id_sztring = implode(',', $sajat_szallodak);
 
 // Csoportosítás mentése
-if (isset($_POST['beosztas_kerdez'])) {
-    
+if( isset($_POST['beosztas_kerdez']) ) {
+
     $uzenet = 'Biztos, hogy véglegesíti a mobil csoporthoz rendelést?';
     $hianyos_csop = array();
     $csoportok = array('a', 'b', 'cn', 'd');
@@ -57,8 +57,8 @@ if (isset($_POST['beosztas_kerdez'])) {
 }
 
 // Csoportosítás mentése
-if (isset($_POST['beosztas_veglegesit'])) {
-    
+if( isset($_POST['beosztas_veglegesit']) ) {
+
     // Tranzakció indul
     $db_error = false;
     mysqli_autocommit($db_kapcs, false);
@@ -96,7 +96,7 @@ if (isset($_POST['beosztas_veglegesit'])) {
 }
 
 // Nyitottak közé
-if (isset($_POST['munkalapok_nyitottak_koze'])) {
+if( isset($_POST['munkalapok_nyitottak_koze']) ) {
 
     var_dump(addStatusz('munkalap_statusz', $_POST['recid'], MUNKALAP_STAT_NYITOTT));
     
@@ -105,11 +105,11 @@ if (isset($_POST['munkalapok_nyitottak_koze'])) {
 }
 
 // Nyitottak közé
-if (isset($_POST['beosztasok_lekerdez'])) {
+if( isset($_POST['beosztasok_lekerdez']) ) {
 
     $loginok_tomb = array();
     $loginok = $adatbazis_kapcsolat->s('recid nev teljes_nev mobil', 'login', "`aktiv`>0 AND `szemelyzet_id`='".MOBILCSOPORT."'", 'nev');
-    foreach($loginok as $login){
+    foreach ( $loginok as $login ) {
         if(!$login['mobil']){
             $login['mobil'] = 'x';
         }
@@ -122,16 +122,16 @@ if (isset($_POST['beosztasok_lekerdez'])) {
 }
 
 // Mobilcsoport login hozzárendelés
-if (isset($_POST['mobil_beosztas_login_ment'])) {
+if( isset($_POST['mobil_beosztas_login_ment']) ) {
 
     // Tranzakció indul
     $db_error = false;
     mysqli_autocommit($db_kapcs, false);
     
     $csoportok = array('x', 'a', 'b', 'cn', 'd');
-    foreach($csoportok as $csoport){
-        if($_POST[$csoport.'_csop']){
-            
+    foreach ( $csoportok as $csoport ) {
+        if( $_POST[$csoport . '_csop'] ) {
+
             $mobil = $csoport;
             if($mobil=='x'){
                 $mobil = '';
@@ -178,13 +178,13 @@ require_once('selectek.php');
 
     $sor = $adatbazis_kapcsolat -> s2('*', $megnevezes, 'recid='.$_GET['id']);
 
-    foreach($akt_tomb as $tomb) {
+    foreach ( $akt_tomb as $tomb ) {
         if( $tomb['type'] == 'autocomplete' ) {
             
-            if($tomb['csoport']){
+            if( $tomb['csoport'] ) {
                 $kulso_ertek = $adatbazis_kapcsolat->s2('info', $tomb['tabla'], "`{$tomb['oszlop_keres']}`='{$sor[$tomb['name']]}' AND `csoport`='{$tomb['csoport']}'", '', '1');
                 $kulso_ertek['nev'] = $kulso_ertek['info'];
-            }else{
+            } else {
                 $kulso_ertek = $adatbazis_kapcsolat->s2('recid nev', $tomb['tabla'], "`{$tomb['oszlop_keres']}`='{$sor[$tomb['name']]}'", '', '1');
             }
 
@@ -230,7 +230,7 @@ require_once('selectek.php');
                         stop: function( event, ui ) {
                             if($(\'.mobilcsop_a li\').length || $(\'.mobilcsop_b li\').length || $(\'.mobilcsop_cn li\').length || $(\'.mobilcsop_d li\').length){
                                 $(\'#beosztas_veglegesit_gomb\').removeClass(\'dn\');
-                            }else{
+                            } else {
                                 $(\'#beosztas_veglegesit_gomb\').addClass(\'dn\');
                             }
                         },

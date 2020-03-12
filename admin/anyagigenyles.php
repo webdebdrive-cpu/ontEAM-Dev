@@ -2424,7 +2424,7 @@ require_once('selectek.php');
             }
 
             // Ha jóváhagyás joga van, és a státusza árazva, akkor a jóváhagyott mennyiség enabled és értéke a rendelt mennyiség
-            if($sor['stat_id']==CIKKIGN_STAT_ARAZVA){
+            if( $sor['stat_id'] == CIKKIGN_STAT_ARAZVA ) {
                 $gombok .= nl2('
                     <script>
                         $(document).ready(function() {
@@ -2494,12 +2494,12 @@ require_once('selectek.php');
             // Anyagrendelés alatt csak a Leírás hozzáadása gomb látszik
             } else {
 
-                if( $sor['stat_id']!=CIKKIGN_STAT_ELUTASITVA ){
+                if( $sor['stat_id'] != CIKKIGN_STAT_ELUTASITVA ) {
                     $gombok .= nl2('
                                     <div class="kijeloltek_muv">
                                 ');
                     // Elutasított státusz alatt nincs Leírás hozzáadása gomb
-                    if( $sor['stat_id']!=CIKKIGN_STAT_ELUTASITVA ){
+                    if( $sor['stat_id'] != CIKKIGN_STAT_ELUTASITVA ) {
                         $gombok .= '<input type="button" class="gomb modositaskor_rejt" value="Leírás hozzáadása" title="Leírás hozzáadása" onclick="csoportMuvelet(\'anyagigenylesLeirasHozzaadas\')"> ';
                     }
                     $gombok .= nl2('

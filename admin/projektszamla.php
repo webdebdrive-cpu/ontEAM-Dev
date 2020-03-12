@@ -749,6 +749,21 @@ if( isset($_POST['pop_tetelek_feltolt']) ) {
 
 // Kapcsoló popup feltöltése
 if( isset($_POST['pop_kapcsolas_feltolt']) ) {
+    
+    // Mindenek előtt ellenőrizzük, hogy a szerződés partnerkódja azonos-e a számla partner kódjával
+    $szamla_tetel   = $adatbazis_kapcsolat->s2('projektszamla_recid', 'projektszamla_tetel', "`recid`='{$_POST['szamla_tetel_recid']}'");
+    $szamla         = $adatbazis_kapcsolat->s2('sz_szam szallito_id', 'projektszamla', "`recid`='{$szamla_tetel['projektszamla_recid']}'");
+    $szerzodes      = $adatbazis_kapcsolat->s2('szallito_id', 'projektszerzodes', "`sz_szam`='{$szamla['sz_szam']}'");
+
+    if( $szamla['szallito_id'] != $szerzodes['szallito_id'] ) {
+        echo json_encode( array(
+            'hiba'  => 'A számla partnerkódja nem egyezik a szerződés partnerkódjával, kérem ellenőrizze!',
+            'title' => 'Hiba'
+            ) );
+
+        $weblap -> leallit();
+        exit();
+    }
 
     $penznem    = getErtekLista(ERTEKLISTA_PENZNEM, $_POST['kcs_21']);
     $tizedesek  = 0;

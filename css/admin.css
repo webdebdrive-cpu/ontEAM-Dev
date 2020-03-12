@@ -3696,3 +3696,16 @@ div.grid2o{
     cursor: pointer;
     font-size: 1.2rem;
 }
+
+/* Fixált tábla konténer beállításai */
+#fixTable {
+    border-left: 0.1rem solid #ccc;
+    overflow-x: auto;
+    position: relative;
+}
+
+#fixTable table.szamla_cont_tabla.szep_csikos th, table.szamla_cont_tabla.szep_csikos td {
+    border-left: 0;
+    border-top-width: 0;
+    vertical-align: middle;
+}

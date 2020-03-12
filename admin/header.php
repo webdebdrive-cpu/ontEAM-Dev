@@ -200,7 +200,7 @@ if( _jog(JOG_ANYAIGENLES_MEGTEKINT) || _jog(JOG_ANYAGREND_MEGTEKINT) || _jog(JOG
     $menu_nev_kis    = 'anyagok';
     $menu_nev_tobbes = 'Anyagok';
     $megn            = 'anyagok';
-    $aloldalak       = array('cikktorzs.php', 'anyagigenyles.php?tablazat', 'anyagigenyles.php?anyagrend=1&tablazat', 'raktar.php');
+    $aloldalak       = array('cikktorzs.php', 'anyagigenyles.php?tablazat', 'anyagigenyles.php?anyagrend=1&amp;tablazat', 'raktar.php');
     if(basename(self())==$megn.'.php' && isset($_GET['modosit'])){ $navi = $menu_nev.' szerkesztése'; }
     if(basename(self())=='cikktorzs.php')           { $oldalNev = 'Anyagok / <span id="rekord_neve">Cikktörzs</span><span class="dn" id="rekord_neve_egyes">cikktörzs</span><span class="dn" id="rekord_neve_targy">cikktörzset</span>';        }
     if(basename(self())=='anyagigenyles.php')       {
@@ -351,7 +351,7 @@ if( projektek_lathat() ) {
     $menu_nev_tobbes = 'Projektek';
     $megn            = 'projektigenyles';
     $aloldalak       = array(
-                            'projektigenyles.php',  'projektkezeles.php',       'projektszerzodes.php',     'cash_flow.php',
+                            'projektigenyles.php',  'projektkezeles.php',       'projektszerzodes.php',     'cash_flow.php?modosit',
                             'eloterj_fb.php',       'eloterj_bod.php',          'projektszamla.php',        
                             );
     if(basename(self())==$megn.'.php' && isset($_GET['modosit'])){ $navi = $menu_nev.' szerkesztése'; }
@@ -681,7 +681,8 @@ if( in_array(basename(self()), $_SESSION['ketHasabos']) && $_SESSION[get_db_tabl
 }
 
 // Anyagigénylésnél a bal navpanelt elrejtük, itt helyette egy táblázatos fül van Anyagrend mod: 2018.04
-if( basename(self())=='anyagigenyles.php' ){
+$bal_nav_mentes = array('anyagigenyles.php', 'cash_flow.php');
+if( in_array(basename(self()), $bal_nav_mentes) ) {
     $tbalw  = ' style="width: 0px;"';
     $tjobbw = ' style="width: 100%"';
 }
@@ -775,9 +776,8 @@ if( in_array(basename(self()), $_SESSION['ketHasabos']) && $_SESSION[get_db_tabl
     }
 
     $tartBal = '';
-    // Anyagigénylésnél nincs bal nev panel
+    // Anyagigénylésnél 
     if( basename(self()) != 'anyagigenyles.php' ) {
-        // $tartBal = szamla_lista();
         $tartBal = $balNavPanelHTMLje;
     }
 
@@ -1398,7 +1398,7 @@ if( is_file($css_file) ) {
     $header_html .= '<style type="text/css">'.minify_css($css_file).'</style>';
 }
 
-$header_html .= '<script src="../js/jquery.fixedheadertable.js?cache='.time().'"></script>';
+$header_html .= '<script src="../js/jquery.fixedheadertable.js"></script>';
 
 if( isIphone() ) {
     $header_html .= nl2('

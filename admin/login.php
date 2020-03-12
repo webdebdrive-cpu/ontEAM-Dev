@@ -244,7 +244,7 @@ if( isset($_POST['getSzallodak']) ) {
     }
 
     $html = '';
-    foreach($telephelyek as $telephely) {
+    foreach ( $telephelyek as $telephely ) {
         $checked = '';
         if( in_array($telephely['id'], $felh_szallodak) ) {
             $checked = ' checked="checked"';

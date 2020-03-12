@@ -1,0 +1,76 @@
+<h2>Szállodák hozzáadása</h2>
+<form id="addSzallodaForm" class="popupForm" method="post">
+    <div class="kozep" style="min-height: 26rem; width: 50rem">
+        <div class="dt szalloda_hozzaad">
+            <div class="dtr">
+                <div class="dtc">
+                    <input type="button" name="megsem" class="gomb" value="Pesti szállodák" onclick="szallodakJelol( 'pesti' );" style="width: 13rem">
+                    <input type="button" name="megsem" class="gomb" value="Vidéki szállodák" onclick="szallodakJelol( 'videki' );" style="width: 13rem">
+                    <input type="button" name="megsem" class="gomb" value="Mind jelölése" onclick="szallodakJelol( 'mind' );" style="width: 13rem">
+                    <input type="button" name="megsem" class="gomb" value="Mind ürítése" onclick="szallodakJelol( 'urit' );" style="width: 13rem">
+                </div>
+                <div class="dtc form_jobb">
+                    <div class="szallodak_keret">
+                        <div id="addSzallodak" class="dt szallodak"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="kuldes">
+        <input type="button" name="elkuld" class="gomb zold" value="Hozzáadás" onclick="szalloda_hozaad();">
+        <input type="button" name="megsem" class="gomb piros" value="Mégsem" onclick="popupZar();">
+    </div>
+</form>
+<script>
+$(document).ready(function(){
+    $.ajax({
+        url : PHP_SELF,
+        type: 'POST',
+        data: {
+            getSzallodak : new Date().getTime()
+        },
+        success: function(response) {
+            if(response.substring(0, 6)=='SESKIL'){ location.href = 'index.php'; }
+            if( response) {
+                $('#addSzallodak').html(response);
+            }
+        },
+        complete: function(xhr) {
+            if( xhr.status != 200 ) {
+                alert2(xhr.responseText, '', 'Hiba');
+            }
+        }
+    });
+});
+function szalloda_hozaad() {
+
+    var telephelyek = $('#addSzallodaForm').find('input[name="telephely[]"]:checked');
+    var szalloda_idk = '';
+    telephelyek.each(function(i) {
+        szalloda_idk += $(this).val()+',';
+    });
+
+    /* Kiíratás, illetv session-ben eltárolás */
+    $.ajax({
+        url : PHP_SELF,
+        type: 'POST',
+        data: {
+            szallodak       : szalloda_idk,
+            szallodak_ment  : Date.now()
+        },
+        success: function(response){
+            if(response.substring(0, 6)=='SESKIL'){ location.href = 'index.php'; }
+            if( response ) {
+                response = JSON.parse(response);
+                if( response.hiba ) {
+                    alert2(response.hiba, response.gomb, response.title);
+                    return false;
+                }
+                $('#szallodak_lista').html(response.html);
+            }
+        }
+    });
+    popupZar();
+}
+</script>

@@ -1,0 +1,61 @@
+<div class="cash_flow_adatlap_grid">
+    <div>
+        <div>
+            <div>
+                Időszak:
+            </div>
+            <div>
+                <input type="text" id="ev_tol" value="{EV_TOL}" class="ev csillag" placeholder="Év" onkeyup="onlyNumbers( $(this) );" maxlength="4">
+                <input type="text" id="ho_tol" value="{HO_TOL}" class="ho csillag" placeholder="Hó" onkeyup="onlyNumbers( $(this) );" maxlength="2">-tól
+                <span style="margin-left: 2rem;"></span>
+                <input type="text" id="ev_ig" value="{EV_IG}" class="ev csillag" placeholder="Év" onkeyup="onlyNumbers( $(this) );" maxlength="4">
+                <input type="text" id="ho_ig" value="{HO_IG}" class="ho csillag" placeholder="Hó" onkeyup="onlyNumbers( $(this) );" maxlength="2">-ig
+            </div>
+        </div>
+        <div>
+            <div>
+                Szállodák:
+            </div>
+            <div>
+                <input id="szalloda_gomb" type="button" class="gomb" value="Szállodák hozzáadása" onclick="kapcsolodoSzerkeszt('szallodak_cash_flow');void(0);">
+            </div>
+        </div>
+        <div id="szallodak_lista">
+            {H_SZALLODAK}
+        </div>
+    </div>
+    <div>
+        <div>
+            <div>
+                Bontás:
+            </div>
+            <div>
+                <select id="bontas">
+                    {BONTAS}
+                </select>
+            </div>
+        </div>
+        <div>
+            <div>
+                Projekt igényekkel együtt:
+            </div>
+            <div>
+                <div class="cb">
+                    <input type="checkbox" id="pri_egyutt"{PRI_EGYUTT}>
+                    <label for="pri_egyutt"></label>
+                </div>
+            </div>
+        </div>
+        <div>
+            <div>
+                Szétosztásra váró számlatételekkel együtt:
+            </div>
+            <div>
+                <div class="cb">
+                    <input type="checkbox" id="szetosztas_egyutt"{SZETOSZTAS_EGYUTT}>
+                    <label for="szetosztas_egyutt"></label>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
