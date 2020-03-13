@@ -1,0 +1,31 @@
+<h2>Szerződés tételek</h2>
+<div class="kozep">
+    <div id="szamla_tetelek_tablazat" style="margin-bottom: 2rem"></div>
+    <div class="c">
+        <input type="button" class="gomb piros" value="Bezár" onclick="popupZar();">
+    </div>
+</div>
+<script>
+$(document).ready(function(){
+    $.ajax({
+        url : PHP_SELF,
+        type: 'POST',
+        data: {
+            /* A cash_flow_pr_szam a popup hívás előtt kap értéket. */
+            pr_szam                     : cash_flow_pr_szam,
+            cash_flow_szerzodesek_mutat : Date.now()
+        },
+        success: function(response) {
+            if (response) {
+                response = JSON.parse(response);
+                if (response.hiba) {
+                    alert2(response.hiba, response.gomb, response.title)
+                    return false;
+                }
+                
+                $('#szamla_tetelek_tablazat').html(response.html);
+            }
+        }
+    });
+});
+</script>
