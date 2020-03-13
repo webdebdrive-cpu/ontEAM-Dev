@@ -481,7 +481,7 @@ require_once('selectek.php');
                         </tr>
                         <tr id="tervezett_igeny_'.$projekt_igeny['recid'].'" class="'.$dn.' projekt_igeny_'.$projekt_igeny['recid'].'">
                             <td class="fix cf1"><a href="projektigenyles.php?id='.$projekt_igeny['recid'].'&amp;cash_flow&amp;mezo=ikt_szam&amp;op=equal&amp;felt='.$projekt_igeny['ikt_szam'].'" target="_blank">Tervezett</a></td>
-                            <td class="r">'.number_format($tervezett_sum, 0, '', ' ').'</td>
+                            <td class="r">'.number_format($tervezett_igeny_sum, 0, '', ' ').'</td>
                             '.$tervezett_igeny_html.'
                         </tr>
                         ');
@@ -617,7 +617,6 @@ require_once('selectek.php');
                 
                 $szetosztasra_varo = $adatbazis_kapcsolat->s('SUBSTRING(`telj_dt`, 1, '.$datum_hossz.') as `datum_honapig`, SUM(`netto_ert`)', 'projektszamla_tetel', "`projektszerzodes_tetel_recid`='0' AND `telj_dt`>='{$_SESSION['cash_flow_ev_tol']}-{$_SESSION['cash_flow_ho_tol']}-01' AND `telj_dt`<='{$_SESSION['cash_flow_ev_ig']}-{$_SESSION['cash_flow_ho_ig']}-31'", '', '', 'datum_honapig', '',
                                                              'LEFT JOIN `'.get_db_tabla().'projektszamla` ON `'.get_db_tabla().'projektszamla`.`recid`=`'.get_db_tabla().'projektszamla_tetel`.`projektszamla_recid`');
-
                 $szetosztasra_varo_html = '';
                 $szetosztasra_varo_sum  = 0;
                 foreach( $bontas as $cim => $honapok ) {
