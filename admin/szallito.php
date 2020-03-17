@@ -50,7 +50,7 @@ if( isset($_POST['szallitokod_ell']) ) {
     }
     
     // Numerikus-e?
-    if(!is_numeric($_POST['id'])){
+    if( !is_numeric($_POST['id']) ) {
         echo json_encode(array(
             'hiba'  => 'A szállítókód csak számokat tartalmazhat!',
             'gomb'  => '<input type="button" value="Ok" class="gomb" onclick="szurkit_zar(\'mégsem mehet mutat\'); alert2();">',
@@ -63,7 +63,7 @@ if( isset($_POST['szallitokod_ell']) ) {
     
     // Szabad-e még?
     $foglalt_id = $adatbazis_kapcsolat->s('id', 'szallito', "`id`='{$_POST['id']}'");
-    if($foglalt_id){
+    if( $foglalt_id ) {
         echo json_encode(array(
             'hiba'  => 'Ez a szállítókód már foglalt!',
             'title' => 'Hiba',
@@ -75,7 +75,7 @@ if( isset($_POST['szallitokod_ell']) ) {
     
     // E-mail címek validálása
     $hibauzenet = is_valid_mail_tobb($_POST['email'], 'hibaüzenettel');
-    if( $hibauzenet ){
+    if( $hibauzenet ) {
         echo json_encode(array(
             'hiba'  => $hibauzenet,
             'title' => 'Hiba',
@@ -104,7 +104,19 @@ if( isset($_GET['csv']) ) {
         $sql = 'SELECT
                 `aktiv` as \'Aktív\',
                 `id` as \'Szállító kód\',
-                `nev` as \'Név\'
+                `nev` as \'Név\',
+                `isz` as \'Irsz\',
+                `varos` as \'Város\',
+                `utca` as \'Utca\',
+                `lcim` as \'Lev.cím\',
+                `bank` as \'Bankszámlaszám\',
+                `knev` as \'Kapcs.név\',
+                `tel` as \'Telefon\',
+                `tel2` as \'Fax\',
+                `email` as \'E-mail\',
+                `adoszam` as \'Adószám\',
+                `cg` as \'Cg\',
+                `text` as \'Leírás\'
                 '. csv_export_get_from_tol($megnevezes);
         $query = mysqli_query($db_kapcs, $sql);
 

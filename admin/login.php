@@ -61,7 +61,7 @@ if( isset($_POST['jogokhozzaad']) ) {
             $kulcs = str_replace('jog-', '', $key);
             if($value=='true'){
                 $jogok[$kulcs] = 1;
-            }else{
+            } else {
                 $jogok[$kulcs] = 0;
             }
         }
@@ -91,7 +91,7 @@ if( isset($_POST['jogokhozzaad']) ) {
     require_once('jogosultsag.php');
     $i      = 0;
     $jogEll = array();
-    foreach($jogosultsagok as $jog) {
+    foreach ( $jogosultsagok as $jog ) {
         if( $jogok[$i] ) {
             $jogEll['jog-'.$i] = 1;
         } else {
@@ -134,13 +134,13 @@ if( isset($_POST['ertekhozzaad']) ) {
 
     // Tömb sorrendezése
     $ertek      = array();
-    foreach($_POST as $key => $value) {
+    foreach ( $_POST as $key => $value ) {
 
         if( strpos($key, 'ert-')!==false ){
             $kulcs = str_replace('ert-', '', $key);
-            if($value=='true'){
+            if( $value == 'true' ) {
                 $ertek[$kulcs] = 1;
-            }else{
+            } else {
                 $ertek[$kulcs] = 0;
             }
         }
@@ -169,7 +169,7 @@ if( isset($_POST['ertekhozzaad']) ) {
     require_once('ertesitesek.php');
     $i      = 0;
     $ertEll = array();
-    foreach($ertesitesek as $ert) {
+    foreach ( $ertesitesek as $ert ) {
         if( $ertek[$i] ) {
             $ertEll['ert-'.$i] = 1;
         } else {
@@ -728,7 +728,7 @@ require_once('selectek.php');
                                         if(response.focus){
                                             $(\'#\'+response.focus).addClass(\'hibas_ide_focus\');
                                         }
-                                    }else{
+                                    } else {
                                         $(\'#szerk_form\').submit();
                                     }
 
@@ -797,7 +797,7 @@ require_once('selectek.php');
                 foreach($akt_tomb as $ertek) {
                     if( $ertek['name'] != 'nev' && $ertek['name'] != 'van_jelszo' ) {
                         $_SESSION[$ertek['name']] = stripslashes( $sor[$ertek['name']] );
-                    }else{
+                    } else {
                         $_SESSION[$ertek['name']] = '';
                     }
     			}
@@ -860,7 +860,7 @@ require_once('selectek.php');
                                     gomb_folytatja = \'<input type="button" class="gomb zold" value="Igen" onclick="form_ell_admin()"><input type="button" class="gomb piros" value="Nem" onclick="alert2()">\';
                                     alert2(\'A szerepkör megváltozott: \'+$(\'#szemelyzet_id option:selected\').text()+\'<br>Ha folytatja, az új szerepkör jogsultságai is beállításra kerülnek!<br>Folytatja?\', gomb_folytatja);
                                     return false;
-                                }else{
+                                } else {
                                     return form_ell_admin();
                                 }
                                 ');
@@ -876,7 +876,7 @@ require_once('selectek.php');
                 if($tomb['csoport']){
                     $kulso_ertek = $adatbazis_kapcsolat->s2('info', $tomb['tabla'], "`{$tomb['oszlop_keres']}`='{$sor[$tomb['name']]}' AND `csoport`='{$tomb['csoport']}'", '', '1');
                     $kulso_ertek['nev'] = $kulso_ertek['info'];
-                }else{
+                } else {
                     $kulso_ertek = $adatbazis_kapcsolat->s2('recid nev', $tomb['tabla'], "`{$tomb['oszlop_keres']}`='{$sor[$tomb['name']]}'", '', '1');
                 }
 
@@ -1177,7 +1177,7 @@ require_once('selectek.php');
                                 '.$tarsreszleg_gomb.'
                             </div>
                         </div>');
-            }else{
+            } else {
                 $szamla_html .= nl2('
                         <script>
                             $(document).ready(function () {
@@ -1408,7 +1408,7 @@ require_once('selectek.php');
                                 <input type="button" class="gomb piros" disabled id="megsem_gomb" value="Mégsem" onclick="megsemGomb();">
                                 '.$tarsreszleg_gomb.'
                             </div>');
-            }else{
+            } else {
                 $szamla_html .= nl2('
                         <script>
                             $(document).ready(function () {

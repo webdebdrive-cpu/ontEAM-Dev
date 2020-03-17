@@ -2,7 +2,7 @@
 require_once('../weblap.php');
 
 // Ha nincs jogunk, akkor nem láthatjuk ezt a modult
-if( false /* Jogot kellene ide írni */ ) {
+if( !_jog(JOG_PR_TELJES_CASH_FLOW) ) {
     if( !$_SESSION[get_db_tabla() . 'user'] ) {
         $weblap -> leallit();
         header('Location: index.php');
@@ -92,6 +92,18 @@ if( isset($_POST['cash_flow_elkeszitese']) ) {
         echo json_encode(   array(
                                 'hiba'  => 'Kérem adja meg a kezdő évet!',
                                 'title' => 'Hiba',
+                                'gomb'  => '<input type="button" class="gomb" value="Ok" onclick="alert2(); $(\'#ev_tol\').select();">',
+                                'focus' => 'ev_tol',
+                            )
+                        );
+        $weblap -> leallit();
+        exit;
+    }
+    if( $_POST['ev_tol']<2000 || $_POST['ev_tol']>9999 ) {
+        echo json_encode(   array(
+                                'hiba'  => 'Hibás kezdő év!',
+                                'title' => 'Hiba',
+                                'gomb'  => '<input type="button" class="gomb" value="Ok" onclick="alert2(); $(\'#ev_tol\').select();">',
                                 'focus' => 'ev_tol',
                             )
                         );
@@ -102,6 +114,18 @@ if( isset($_POST['cash_flow_elkeszitese']) ) {
         echo json_encode(   array(
                                 'hiba'  => 'Kérem adja meg a kezdő hónapot!',
                                 'title' => 'Hiba',
+                                'gomb'  => '<input type="button" class="gomb" value="Ok" onclick="alert2(); $(\'#ho_tol\').select();">',
+                                'focus' => 'ho_tol',
+                            )
+                        );
+        $weblap -> leallit();
+        exit;
+    }
+    if( $_POST['ho_tol']<1 || $_POST['ho_tol']>12 ) {
+        echo json_encode(   array(
+                                'hiba'  => 'Hibás kezdő hónap!',
+                                'title' => 'Hiba',
+                                'gomb'  => '<input type="button" class="gomb" value="Ok" onclick="alert2(); $(\'#ho_tol\').select();">',
                                 'focus' => 'ho_tol',
                             )
                         );
@@ -118,10 +142,32 @@ if( isset($_POST['cash_flow_elkeszitese']) ) {
         $weblap -> leallit();
         exit;
     }
+    if( $_POST['ev_ig']<2000 || $_POST['ev_ig']>9999 ) {
+        echo json_encode(   array(
+                                'hiba'  => 'Hibás záró év!',
+                                'title' => 'Hiba',
+                                'gomb'  => '<input type="button" class="gomb" value="Ok" onclick="alert2(); $(\'#ev_ig\').select();">',
+                                'focus' => 'ev_ig',
+                            )
+                        );
+        $weblap -> leallit();
+        exit;
+    }
     if( !$_POST['ho_ig'] ) {
         echo json_encode(   array(
                                 'hiba'  => 'Kérem adja meg a záró hónapot!',
                                 'title' => 'Hiba',
+                                'focus' => 'ho_ig',
+                            )
+                        );
+        $weblap -> leallit();
+        exit;
+    }
+    if( $_POST['ho_ig']<1 || $_POST['ho_ig']>12 ) {
+        echo json_encode(   array(
+                                'hiba'  => 'Hibás záró hónap!',
+                                'title' => 'Hiba',
+                                'gomb'  => '<input type="button" class="gomb" value="Ok" onclick="alert2(); $(\'#ho_ig\').select();">',
                                 'focus' => 'ho_ig',
                             )
                         );
@@ -383,7 +429,7 @@ require_once('selectek.php');
     } elseif( isset($_GET['cash_flow']) ) {
         
         // Ha nincsenek beállítások, akkor hibaüzenet
-        if( !$_SESSION['cash_flow_ev_tol'] ) {
+        if( !$_SESSION['cash_flow_ev_tol'] || !$_SESSION['cash_flow_szallodak'] ) {
             
             $szamla_html .= '<h1 class="f20">Kérem előbb válasszon időszakot és szállodákat,<br>hogy a cash-flow táblázatot elő lehessen állítani!</h1>';
             
@@ -415,7 +461,7 @@ require_once('selectek.php');
                     <table class="szamla_cont_tabla nolink fejlec_padd szep_csikos kisbetu miniprojekt_tabla width_auto">
                     <thead>
                     <tr>
-                        <th class="ktgnem_kod fix mini1">Szálloda / Projekt / CF típus</th>
+                        <th class="ktgnem_kod fix mini1 kibont f_osszes_kibont">Szálloda / Projekt / CF típus</th>
                         <th>Összesen</th>
                         '.$cimek_fejlecbe.'
                     </tr>
@@ -437,8 +483,11 @@ require_once('selectek.php');
                 $szalloda_sum  = array();
                 // Projektigénylések kilistázása, ha ez a pipa be volt pipálva
                 if( $_SESSION['cash_flow_pri_egyutt'] ) {
-                    $projekt_igenyek = $adatbazis_kapcsolat->s('`'.get_db_tabla().'projektigenyles`.`recid`, `'.get_db_tabla().'projektigenyles`.`ikt_szam` , `'.get_db_tabla().'projektigenyles`.`nev`', 'projektigenyles', "`".get_db_tabla()."projektigenyles`.`telephely_id`='{$szalloda_id}' AND ISNULL(`".get_db_tabla()."projektkezeles`.`projektigenyles_recid`)", '', '', '', '',
-                                                               'LEFT JOIN `'.get_db_tabla().'projektkezeles`  ON `'.get_db_tabla().'projektkezeles`.`projektigenyles_recid`=`'.get_db_tabla().'projektigenyles`.`recid`');
+                    $projekt_igenyek = $adatbazis_kapcsolat->s('`'.get_db_tabla().'projektigenyles`.`recid`, `'.get_db_tabla().'projektigenyles`.`ikt_szam` , `'.get_db_tabla().'projektigenyles`.`nev`', 'projektigenyles', "`".get_db_tabla()."projektigenyles`.`telephely_id`='{$szalloda_id}' AND ISNULL(`".get_db_tabla()."projektkezeles`.`projektigenyles_recid`) AND `".get_db_tabla()."cash_flow`.`datum`>='{$_SESSION['cash_flow_ev_tol']}-{$_SESSION['cash_flow_ho_tol']}-01' AND `".get_db_tabla()."cash_flow`.`datum`<='{$_SESSION['cash_flow_ev_ig']}-{$_SESSION['cash_flow_ho_ig']}-31'", '', '', "`".get_db_tabla()."projektigenyles`.`ikt_szam`", '',
+                                                               '
+                                                                LEFT JOIN `'.get_db_tabla().'projektkezeles`  ON `'.get_db_tabla().'projektkezeles`.`projektigenyles_recid`=`'.get_db_tabla().'projektigenyles`.`recid`
+                                                                LEFT JOIN `'.get_db_tabla().'cash_flow` ON `'.get_db_tabla().'cash_flow`.`apa_recid`=`'.get_db_tabla().'projektigenyles`.`recid`
+                                                                ');
                     foreach( $projekt_igenyek as $projekt_igeny ) {
                         
                         $projekt_igeny_sum    = array();
@@ -473,13 +522,14 @@ require_once('selectek.php');
                             }
                             $projekt_igeny_sum_html .= '<td class="r">'.number_format($projekt_igeny_ossz, 0, '', ' ').'</td>';
                         }
+                        
                         $projekt_sorok .= nl2('
-                        <tr id="projekt_igeny_'.$projekt_igeny['recid'].'" class="'.$dn.' szalloda_'.$szalloda_id.'">
+                        <tr id="projekt_igeny_'.$projekt_igeny['recid'].'" class="projektigeny_sor '.$dn.' szalloda_'.$szalloda_id.'">
                             <td class="fix cf1 kibont f_projekt_kibont wrap"><b>'.$projekt_igeny['ikt_szam'].'</b><br>'.$projekt_igeny['nev'].'</td>
                             <td class="r">'.number_format($pr_igeny_ossz_sum, 0, '', ' ').'</td>
                             '.$projekt_igeny_sum_html.'
                         </tr>
-                        <tr id="tervezett_igeny_'.$projekt_igeny['recid'].'" class="'.$dn.' projekt_igeny_'.$projekt_igeny['recid'].'">
+                        <tr id="tervezett_igeny_'.$projekt_igeny['recid'].'" class="tervezett_sor '.$dn.' projekt_igeny_'.$projekt_igeny['recid'].'">
                             <td class="fix cf1"><a href="projektigenyles.php?id='.$projekt_igeny['recid'].'&amp;cash_flow&amp;mezo=ikt_szam&amp;op=equal&amp;felt='.$projekt_igeny['ikt_szam'].'" target="_blank">Tervezett</a></td>
                             <td class="r">'.number_format($tervezett_igeny_sum, 0, '', ' ').'</td>
                             '.$tervezett_igeny_html.'
@@ -490,7 +540,20 @@ require_once('selectek.php');
                 }
                 
                 // Projektek kilistázása
-                $projektek = $adatbazis_kapcsolat->s('recid ikt_szam nev pfelelos', 'projektkezeles', "`telephely_id`='{$szalloda_id}'");
+                // Régi: $projektek = $adatbazis_kapcsolat->s('recid ikt_szam nev pfelelos', 'projektkezeles', "`telephely_id`='{$szalloda_id}'");
+                $projektek = $adatbazis_kapcsolat->s('`'.get_db_tabla().'projektkezeles`.`recid`, `'.get_db_tabla().'projektkezeles`.`ikt_szam`, `'.get_db_tabla().'projektkezeles`.`nev`, `'.get_db_tabla().'projektkezeles`.`pfelelos`', 'projektkezeles', "`".get_db_tabla()."projektkezeles`.`telephely_id`='{$szalloda_id}' AND 
+                                                    (
+                                                    (`".get_db_tabla()."projektkezeles_cashflow`.`datum`>='{$_SESSION['cash_flow_ev_tol']}-{$_SESSION['cash_flow_ho_tol']}-01' AND `".get_db_tabla()."projektkezeles_cashflow`.`datum`<='{$_SESSION['cash_flow_ev_ig']}-{$_SESSION['cash_flow_ho_ig']}-31') OR
+                                                    (`".get_db_tabla()."projektszerzodes_tetel`.`teljesites`>='{$_SESSION['cash_flow_ev_tol']}-{$_SESSION['cash_flow_ho_tol']}-01' AND `".get_db_tabla()."projektszerzodes_tetel`.`teljesites`<='{$_SESSION['cash_flow_ev_ig']}-{$_SESSION['cash_flow_ho_ig']}-31') OR
+                                                     `".get_db_tabla()."projektszerzodes_tetel`.`teljesites`='0000-00-00'
+                                                    )
+                                                    ", '', '', "`".get_db_tabla()."projektkezeles`.`ikt_szam`", '',
+                                                    '
+                                                    LEFT JOIN `'.get_db_tabla().'projektszerzodes` ON `'.get_db_tabla().'projektszerzodes`.`pr_szam`=`'.get_db_tabla().'projektkezeles`.`ikt_szam`
+                                                    LEFT JOIN `'.get_db_tabla().'projektszerzodes_tetel` ON `'.get_db_tabla().'projektszerzodes_tetel`.`projektszerzodes_recid`=`'.get_db_tabla().'projektszerzodes`.`recid`
+                                                    LEFT JOIN `'.get_db_tabla().'projektkezeles_cashflow` ON `'.get_db_tabla().'projektkezeles_cashflow`.`projektkezeles_recid`=`'.get_db_tabla().'projektkezeles`.`recid`
+                                                     '
+                                                            );
                 foreach( $projektek as $projekt ) {
 
                     $projekt_sum    = array();
@@ -552,41 +615,46 @@ require_once('selectek.php');
                         }
                         $szamlazott_html .= '<td class="r">'.number_format($szamlazott_osszeg, 0, '', ' ').'</td>';
                     }
+                    
+                    // Ez kell-e?
+                    // Egy sort csak akkor írunk ki, ha legalább egy helyen van is benne érték
+                    //if( $pr_ossz_sum || $tervezett_sum || $szerzodes_sum || $szamlazott_sum ) {
 
-                    // Projektek szumma sor
-                    $projekt_sum_html = '';
-                    foreach( $bontas as $cim => $honapok ) {
-                        $pr_ossz = 0;
-                        foreach ( $honapok as $honap ) {
-                            $pr_ossz              += $projekt_sum[$honap];
-                            $szalloda_sum[$honap] += $projekt_sum[$honap];
-                            $pr_ossz_sum          += $projekt_sum[$honap];
+                        // Projektek szumma sor
+                        $projekt_sum_html = '';
+                        foreach( $bontas as $cim => $honapok ) {
+                            $pr_ossz = 0;
+                            foreach ( $honapok as $honap ) {
+                                $pr_ossz              += $projekt_sum[$honap];
+                                $szalloda_sum[$honap] += $projekt_sum[$honap];
+                                $pr_ossz_sum          += $projekt_sum[$honap];
+                            }
+                            $projekt_sum_html .= '<td class="r">'.number_format($pr_ossz, 0, '', ' ').'</td>';
                         }
-                        $projekt_sum_html .= '<td class="r">'.number_format($pr_ossz, 0, '', ' ').'</td>';
-                    }
 
-                    $projekt_sorok .= nl2('
-                    <tr id="projekt_'.$projekt['recid'].'" class="'.$dn.' szalloda_'.$szalloda_id.'">
-                        <td class="fix cf1 kibont f_projekt_kibont wrap"><b>'.$projekt['ikt_szam'].'</b> '.getErtek('teljes_nev', 'login', 'recid', $projekt['pfelelos']).'<br>'.$projekt['nev'].'</td>
-                        <td class="r">'.number_format($pr_ossz_sum, 0, '', ' ').'</td>
-                        '.$projekt_sum_html.'
-                    </tr>
-                    <tr id="tervezett_'.$projekt['recid'].'" class="'.$dn.' projekt_'.$projekt['recid'].'">
-                        <td class="fix cf1"><a href="projektkezeles.php?id='.$projekt['recid'].'&amp;cash_flow&amp;mezo=ikt_szam&amp;op=equal&amp;felt='.$projekt['ikt_szam'].'" target="_blank">Tervezett</a></td>
-                        <td class="r">'.number_format($tervezett_sum, 0, '', ' ').'</td>
-                        '.$tervezett_html.'
-                    </tr>
-                    <tr id="szerzodott_'.$projekt['recid'].'" class="'.$dn.' projekt_'.$projekt['recid'].'">
-                        <td class="fix cf1"><a href="javascript:cash_flow_pr_szam=\''.$projekt['ikt_szam'].'\'; csoportMuvelet(\'cash_flow_szerzodesek_mutat\'); void(0);">Szerződött</a></td>
-                        <td class="r">'.number_format($szerzodes_sum, 0, '', ' ').'</td>
-                        '.$szerzodott_html.'
-                    </tr>
-                    <tr id="szamlazott_'.$projekt['recid'].'" class="'.$dn.' projekt_'.$projekt['recid'].'">
-                        <td class="fix cf1"><a href="javascript:cash_flow_pr_szam=\''.$projekt['ikt_szam'].'\'; csoportMuvelet(\'cash_flow_szamlak_mutat\'); void(0);">Számlázott</a></td>
-                        <td class="r">'.number_format($szamlazott_sum, 0, '', ' ').'</td>
-                        '.$szamlazott_html.'
-                    </tr>
-                    ');
+                        $projekt_sorok .= nl2('
+                        <tr id="projekt_'.$projekt['recid'].'" class="projekt_sor '.$dn.' szalloda_'.$szalloda_id.'">
+                            <td class="fix cf1 kibont f_projekt_kibont wrap"><b>'.$projekt['ikt_szam'].'</b> '.getErtek('teljes_nev', 'login', 'recid', $projekt['pfelelos']).'<br>'.$projekt['nev'].'</td>
+                            <td class="r">'.number_format($pr_ossz_sum, 0, '', ' ').'</td>
+                            '.$projekt_sum_html.'
+                        </tr>
+                        <tr id="tervezett_'.$projekt['recid'].'" class="tervezett_sor '.$dn.' projekt_'.$projekt['recid'].'">
+                            <td class="fix cf1"><a href="projektkezeles.php?id='.$projekt['recid'].'&amp;cash_flow&amp;mezo=ikt_szam&amp;op=equal&amp;felt='.$projekt['ikt_szam'].'" target="_blank">Tervezett</a></td>
+                            <td class="r">'.number_format($tervezett_sum, 0, '', ' ').'</td>
+                            '.$tervezett_html.'
+                        </tr>
+                        <tr id="szerzodott_'.$projekt['recid'].'" class="szerzodott_sor '.$dn.' projekt_'.$projekt['recid'].'">
+                            <td class="fix cf1"><a href="javascript:cash_flow_pr_szam=\''.$projekt['ikt_szam'].'\'; csoportMuvelet(\'cash_flow_szerzodesek_mutat\'); void(0);">Szerződött</a></td>
+                            <td class="r">'.number_format($szerzodes_sum, 0, '', ' ').'</td>
+                            '.$szerzodott_html.'
+                        </tr>
+                        <tr id="szamlazott_'.$projekt['recid'].'" class="szamlazott_sor '.$dn.' projekt_'.$projekt['recid'].'">
+                            <td class="fix cf1"><a href="javascript:cash_flow_pr_szam=\''.$projekt['ikt_szam'].'\'; csoportMuvelet(\'cash_flow_szamlak_mutat\'); void(0);">Számlázott</a></td>
+                            <td class="r">'.number_format($szamlazott_sum, 0, '', ' ').'</td>
+                            '.$szamlazott_html.'
+                        </tr>
+                        ');
+//                    }
                 }
 
                 $szalloda_ossz_sum = 0;
@@ -602,7 +670,7 @@ require_once('selectek.php');
                 }
 
                 $szamla_html .= nl2('
-                <tr id="szalloda_'.$szalloda_id.'">
+                <tr id="szalloda_'.$szalloda_id.'" class="szalloda_sor">
                     <td class="fix cf1 kibont f_szalloda_kibont">'.getSzallodaNev($szalloda_id).'</td>
                     <td class="r">'.number_format($szalloda_ossz_sum, 0, '', ' ').'</td>
                     '.$szalloda_sum_html.'
@@ -677,7 +745,7 @@ require_once('selectek.php');
         </div>
                 ');
         }
-        
+
         if( $_GET['ajax'] ) {
             echo json_encode(array(
                 'tartalom' => $szamla_html.$gombok,

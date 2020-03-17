@@ -332,6 +332,7 @@ define('JOG_PARTNERTORZS_TOROL',        95);
 define('JOG_DOKUMENTUMTAR_OLVAS',       96);
 define('JOG_DOKUMENTUMTAR_KEZEL',       97);
 define('JOG_DOKUMENTUMTAR_TOROL',       98);
+define('JOG_PR_TELJES_CASH_FLOW',      132);
 
 // ÉRTESÍTÉSEK
 define('ERT_KESZRE_JELENTESKOR',         0);

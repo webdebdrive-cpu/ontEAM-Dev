@@ -6,14 +6,14 @@
 
 .cash_flow_adatlap_grid > div > div {
     display: grid;
-    grid-template-columns: 10% 90%;
-    padding: 0.2rem 0rem;
+    grid-template-columns: 35% 65%;
+    padding: 0.2rem 2rem 0.2rem 0rem;
     align-items: center;
 }
 
 .cash_flow_adatlap_grid > div:nth-of-type(2) > div {
     display: grid;
-    grid-template-columns: 35% 65%;
+    grid-template-columns: 10% 90%;
     padding: 0.2rem 0rem;
     align-items: center;
 }
@@ -62,7 +62,8 @@ table.szamla_cont_tabla.kisbetu th.fix.cf1, table.szamla_cont_tabla.kisbetu td.f
     max-width: 20rem;
 }
 
-td.kibont:after {
+td.kibont:after, th.kibont:after {
+    cursor: pointer;
     content: '▼';
     position: absolute;
         top: 0rem;
@@ -70,12 +71,16 @@ td.kibont:after {
     transition: all ease-in-out 0.2s;
 }
 
-td.kibont.kibontva:after {
+td.kibont.kibontva:after, th.kibont.kibontva:after {
     content: '▼';
     position: absolute;
         top: 0.2rem;
     transform: rotate(61deg);
     transition: all ease-in-out 0.2s;
+}
+
+th.kibont:after, th.kibont.kibontva:after {
+    top: 1rem;
 }
 
 /* Minden cella lehet nowrap-os */
@@ -85,3 +90,44 @@ td.kibont.kibontva:after {
 table.szamla_cont_tabla.szep_csikos td.wrap {
     white-space: normal;
 }
+
+/* Táblázat színezése */
+.szalloda_sor, table.szamla_cont_tabla.kisbetu .szalloda_sor td.fix {
+    background: #DDE2FD;
+}
+
+.projektigeny_sor, table.szamla_cont_tabla.kisbetu .projektigeny_sor td.fix {
+    background: #DBEEFF;
+}
+
+.projekt_sor, table.szamla_cont_tabla.kisbetu .projekt_sor td.fix {
+    background: #F1F8FF;
+}
+
+.tervezett_sor, table.szamla_cont_tabla.kisbetu .tervezett_sor td.fix {
+    background: #FFDFFF;
+}
+
+.szerzodott_sor, table.szamla_cont_tabla.kisbetu .szerzodott_sor td.fix {
+    background: #DFFFE1;
+}
+
+.szamlazott_sor, table.szamla_cont_tabla.kisbetu .szamlazott_sor td.fix {
+    background: #FFFDEF;
+}
+
+#szetosztasra_varo_szla_tetelek, table.szamla_cont_tabla.kisbetu #szetosztasra_varo_szla_tetelek td.fix {
+    background: #fff;
+}
+
+#osszesen_lablec, table.szamla_cont_tabla.kisbetu #osszesen_lablec td.fix {
+    background: #FFFBEF;
+    color: #f00;
+}
+/* Hover */
+/*table.szamla_cont_tabla.kisbetu tr:hover td, table.szamla_cont_tabla.kisbetu tr:hover td.fix, table.szamla_cont_tabla.kisbetu #szetosztasra_varo_szla_tetelek:hover td.fix, table.szamla_cont_tabla.kisbetu #osszesen_lablec:hover td.fix {
+    background: transparent;
+}*/
+/*table.szamla_cont_tabla tbody tr:hover {
+    background: initial;
+}*/

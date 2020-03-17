@@ -370,14 +370,15 @@ if( projektek_lathat() ) {
     if( _jog(JOG_PRKEZEL_MEGTEKINT) || _jog(JOG_PRKEZEL_SAJAT_MEGTEKINT) || _jog(JOG_PRKEZEL_TEAM_TAG) || _jog(JOG_PR_EGYSZALL_MEGTEKINT) || _jog(JOG_PR_TOBBSZALL_MEGTEKINT) || _jog(JOG_PR_B_MEGTEKINT) || _jog(JOG_PR_F_MEGTEKINT) || _jog(JOG_PR_T_MEGTEKINT) ) {
         $aktmenuk .= str_replace( $akt_almenu_mit, array( $aloldalak['1'], 'Projektek' ), $almenu_sablon );
     }
-    if( _jog(JOG_PRKEZEL_SZERZODES_OLVAS) || _jog(JOG_PR_SAJAT_SZERZ_MEGTEKINT) ){
+    if( _jog(JOG_PRKEZEL_SZERZODES_OLVAS) || _jog(JOG_PR_SAJAT_SZERZ_MEGTEKINT) ) {
         $aktmenuk .= str_replace( $akt_almenu_mit, array( $aloldalak['2'], 'Projekt szerződések'), $almenu_sablon );
     }
-    if( _jog(JOG_PRSZAMLAK_OLVAS) || _jog(JOG_PR_SAJAT_SZAMLA_MEGTEKINT) ){
+    if( _jog(JOG_PRSZAMLAK_OLVAS) || _jog(JOG_PR_SAJAT_SZAMLA_MEGTEKINT) ) {
         $aktmenuk .= str_replace( $akt_almenu_mit, array( $aloldalak['6'], 'Projekt számlák'), $almenu_sablon );
     }
-    $aktmenuk .= str_replace( $akt_almenu_mit, array( $aloldalak['3'], 'Cash-flow'              ), $almenu_sablon );
-
+    if( _jog(JOG_PR_TELJES_CASH_FLOW) ) {
+        $aktmenuk .= str_replace( $akt_almenu_mit, array( $aloldalak['3'], 'Cash-flow'              ), $almenu_sablon );
+    }
 
     if( _jog(JOG_ELOTERJ_MEGTEKINT) ) {
         $aktmenuk .= nl2('
@@ -607,11 +608,6 @@ $head -> extrak       .= '<link href="https://fonts.googleapis.com/icon?family=M
 // Respos CSS meghívás
 if( in_array(basename(self()), get_respos_oldalak()) ) {
     $head -> extrak   .= '<link href="../css/responsive_mobil.css" rel="stylesheet">';
-}
-// Ha adott aloldalnak volna egydi css-e, akkor azt is meghívjuk
-$egyedi_css = '../css/'. str_replace('.php', '', basename(self())).'.css';
-if( is_file($egyedi_css) ) {
-    $head -> extrak   .= '<link href="'.$egyedi_css.'" rel="stylesheet">';
 }
 
 $header_html .= $head -> getHtml();
