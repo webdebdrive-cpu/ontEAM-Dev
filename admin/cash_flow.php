@@ -314,6 +314,59 @@ if( isset($_POST['cash_flow_szamlak_mutat']) ) {
     exit();
 }
 
+// Szétosztásra váró számla tételek
+if( isset($_POST['cash_flow_szetosztasra_mutat']) ) {
+    
+    $html = '';
+    $szetosztasra_varo = $adatbazis_kapcsolat->s(
+                                                // Lekrédezett oszlopok
+                                                'projektszamla_recid, netto_ert, telj_dt',
+                                                // Tábla
+                                                'projektszamla_tetel',
+                                                // Where feltétel:
+                                                "
+                                                `projektszerzodes_tetel_recid`='0'
+                                                AND `".get_db_tabla()."projektszamla`.`visszaadva`='0'
+                                                AND `".get_db_tabla()."projektszamla`.`telephely_id` IN (".$_SESSION['cash_flow_szallodak'].") 
+                                                AND `".get_db_tabla()."projektszamla`.`telj_dt`>='{$_SESSION['cash_flow_ev_tol']}-{$_SESSION['cash_flow_ho_tol']}-01' 
+                                                AND `".get_db_tabla()."projektszamla`.`telj_dt`<='{$_SESSION['cash_flow_ev_ig']}-{$_SESSION['cash_flow_ho_ig']}-31'",
+                                                // Limit Order Group by Numrows
+                                                '', '', '', '',
+                                                // Join-ok:
+                                                'LEFT JOIN `'.get_db_tabla().'projektszamla` ON `'.get_db_tabla().'projektszamla`.`recid`=`'.get_db_tabla().'projektszamla_tetel`.`projektszamla_recid`');
+
+    if( $szetosztasra_varo ) {
+        $html = nl2('
+                    <table class="csikos">
+                    <tr>
+                        <th>Számla szám</th>
+                        <th class="r">Várható érték</th>
+                        <th class="r">Teljesítés</th>
+                    </tr>
+                ');
+        foreach( $szetosztasra_varo as $szetosztas ) {
+            $szamla = $adatbazis_kapcsolat->s2('recid szla_szam', 'projektszamla', "`recid`='{$szetosztas['projektszamla_recid']}'");
+            $html .= nl2('
+                        <tr>
+                            <td class="l"><a href="projektszamla.php?id='.$szamla['recid'].'&amp;tetel&amp;mezo=szla_szam&amp;op=equal&amp;felt='.$szamla['szla_szam'].'" target="_blank">'.$szamla['szla_szam'].'</a></td>
+                            <td class="r">'.number_format($szetosztas['netto_ert'], 0, ',', ' ').'</td>
+                            <td class="r">'.datum_kiir($szetosztas['telj_dt']).'</td>
+                        </tr>
+                        ');
+        }
+        $html .= '</table>';
+    } else {
+        $html = '<div class="b">Nem található olyan szétosztásra váró számla tétel<br>ahol a teljesítés dátuma '.$_SESSION['cash_flow_ev_tol'].'.'.$_SESSION['cash_flow_ho_tol'].'.01 és '.$_SESSION['cash_flow_ev_ig'].'.'.$_SESSION['cash_flow_ho_ig'].'.31 közötti volna.</div>';
+    }
+    
+    echo json_encode(array(
+                        'html' => $html
+                    ));
+
+    $weblap->leallit();
+    exit();
+}
+
 
 
 // Tartalom
@@ -540,20 +593,30 @@ require_once('selectek.php');
                 }
                 
                 // Projektek kilistázása
-                // Régi: $projektek = $adatbazis_kapcsolat->s('recid ikt_szam nev pfelelos', 'projektkezeles', "`telephely_id`='{$szalloda_id}'");
-                $projektek = $adatbazis_kapcsolat->s('`'.get_db_tabla().'projektkezeles`.`recid`, `'.get_db_tabla().'projektkezeles`.`ikt_szam`, `'.get_db_tabla().'projektkezeles`.`nev`, `'.get_db_tabla().'projektkezeles`.`pfelelos`', 'projektkezeles', "`".get_db_tabla()."projektkezeles`.`telephely_id`='{$szalloda_id}' AND 
+                // E bonyolult lekérdezés arra szolgál, hogy csak azokat a projekteket kérjük le, ami a megadott időpontban és szállodánál értintett
+                $projektek = $adatbazis_kapcsolat->s(
+                                                    // Lekért oszlopok:
+                                                    '`'.get_db_tabla().'projektkezeles`.`recid`, `'.get_db_tabla().'projektkezeles`.`ikt_szam`, `'.get_db_tabla().'projektkezeles`.`nev`, `'.get_db_tabla().'projektkezeles`.`pfelelos`',
+                                                    // Tábla:
+                                                    'projektkezeles',
+                                                    // Where feltételek:
+                                                    "`".get_db_tabla()."projektkezeles`.`telephely_id`='{$szalloda_id}' AND
                                                     (
-                                                    (`".get_db_tabla()."projektkezeles_cashflow`.`datum`>='{$_SESSION['cash_flow_ev_tol']}-{$_SESSION['cash_flow_ho_tol']}-01' AND `".get_db_tabla()."projektkezeles_cashflow`.`datum`<='{$_SESSION['cash_flow_ev_ig']}-{$_SESSION['cash_flow_ho_ig']}-31') OR
-                                                    (`".get_db_tabla()."projektszerzodes_tetel`.`teljesites`>='{$_SESSION['cash_flow_ev_tol']}-{$_SESSION['cash_flow_ho_tol']}-01' AND `".get_db_tabla()."projektszerzodes_tetel`.`teljesites`<='{$_SESSION['cash_flow_ev_ig']}-{$_SESSION['cash_flow_ho_ig']}-31') OR
-                                                     `".get_db_tabla()."projektszerzodes_tetel`.`teljesites`='0000-00-00'
+                                                        (`".get_db_tabla()."projektkezeles_cashflow`.`datum`>='{$_SESSION['cash_flow_ev_tol']}-{$_SESSION['cash_flow_ho_tol']}-01' AND `".get_db_tabla()."projektkezeles_cashflow`.`datum`<='{$_SESSION['cash_flow_ev_ig']}-{$_SESSION['cash_flow_ho_ig']}-31') OR
+                                                        (`".get_db_tabla()."projektszerzodes_tetel`.`teljesites`>='{$_SESSION['cash_flow_ev_tol']}-{$_SESSION['cash_flow_ho_tol']}-01' AND `".get_db_tabla()."projektszerzodes_tetel`.`teljesites`<='{$_SESSION['cash_flow_ev_ig']}-{$_SESSION['cash_flow_ho_ig']}-31') OR
+                                                        (`".get_db_tabla()."projektszerzodes_tetel`.`teljesites`='0000-00-00' AND `".get_db_tabla()."projektszerzodes_tetel`.`varh_erk`>='{$_SESSION['cash_flow_ev_tol']}-{$_SESSION['cash_flow_ho_tol']}-01' AND `".get_db_tabla()."projektszerzodes_tetel`.`varh_erk`<='{$_SESSION['cash_flow_ev_ig']}-{$_SESSION['cash_flow_ho_ig']}-31')
                                                     )
-                                                    ", '', '', "`".get_db_tabla()."projektkezeles`.`ikt_szam`", '',
+                                                    ", '', '',
+                                                    // Group by
+                                                    "`".get_db_tabla()."projektkezeles`.`ikt_szam`", '',
+                                                    // Join-ok
                                                     '
                                                     LEFT JOIN `'.get_db_tabla().'projektszerzodes` ON `'.get_db_tabla().'projektszerzodes`.`pr_szam`=`'.get_db_tabla().'projektkezeles`.`ikt_szam`
                                                     LEFT JOIN `'.get_db_tabla().'projektszerzodes_tetel` ON `'.get_db_tabla().'projektszerzodes_tetel`.`projektszerzodes_recid`=`'.get_db_tabla().'projektszerzodes`.`recid`
                                                     LEFT JOIN `'.get_db_tabla().'projektkezeles_cashflow` ON `'.get_db_tabla().'projektkezeles_cashflow`.`projektkezeles_recid`=`'.get_db_tabla().'projektkezeles`.`recid`
                                                      '
                                                             );
+                                                    
                 foreach( $projektek as $projekt ) {
 
                     $projekt_sum    = array();
@@ -683,8 +746,22 @@ require_once('selectek.php');
             // (igen itt fordítva van, akkor kell csinálni, ha hamis, mert azaz alapértelmezés, hogy be van pipálva)
             if( !$_SESSION['cash_flow_szetosztas_egyutt'] ) {
                 
-                $szetosztasra_varo = $adatbazis_kapcsolat->s('SUBSTRING(`telj_dt`, 1, '.$datum_hossz.') as `datum_honapig`, SUM(`netto_ert`)', 'projektszamla_tetel', "`projektszerzodes_tetel_recid`='0' AND `telj_dt`>='{$_SESSION['cash_flow_ev_tol']}-{$_SESSION['cash_flow_ho_tol']}-01' AND `telj_dt`<='{$_SESSION['cash_flow_ev_ig']}-{$_SESSION['cash_flow_ho_ig']}-31'", '', '', 'datum_honapig', '',
-                                                             'LEFT JOIN `'.get_db_tabla().'projektszamla` ON `'.get_db_tabla().'projektszamla`.`recid`=`'.get_db_tabla().'projektszamla_tetel`.`projektszamla_recid`');
+                $szetosztasra_varo = $adatbazis_kapcsolat->s(
+                                                            // Lekrédezett oszlopok
+                                                            'SUBSTRING(`telj_dt`, 1, '.$datum_hossz.') as `datum_honapig`, SUM(`netto_ert`)',
+                                                            // Tábla
+                                                            'projektszamla_tetel',
+                                                            // Where feltétel:
+                                                            "
+                                                            `projektszerzodes_tetel_recid`='0'
+                                                            AND `".get_db_tabla()."projektszamla`.`visszaadva`='0'
+                                                            AND `".get_db_tabla()."projektszamla`.`telephely_id` IN (".$_SESSION['cash_flow_szallodak'].") 
+                                                            AND `".get_db_tabla()."projektszamla`.`telj_dt`>='{$_SESSION['cash_flow_ev_tol']}-{$_SESSION['cash_flow_ho_tol']}-01' 
+                                                            AND `".get_db_tabla()."projektszamla`.`telj_dt`<='{$_SESSION['cash_flow_ev_ig']}-{$_SESSION['cash_flow_ho_ig']}-31'",
+                                                            // Group by:
+                                                            '', '', 'datum_honapig', '',
+                                                            // Join-ok:
+                                                            'LEFT JOIN `'.get_db_tabla().'projektszamla` ON `'.get_db_tabla().'projektszamla`.`recid`=`'.get_db_tabla().'projektszamla_tetel`.`projektszamla_recid`');
                 $szetosztasra_varo_html = '';
                 $szetosztasra_varo_sum  = 0;
                 foreach( $bontas as $cim => $honapok ) {
@@ -704,7 +781,7 @@ require_once('selectek.php');
                 
                 $szamla_html .= nl2('
                 <tr id="szetosztasra_varo_szla_tetelek">
-                    <td class="fix cf1">Szétosztásra váró számla tételek</td>
+                    <td class="fix cf1"><a href="javascript:csoportMuvelet(\'cash_flow_szetosztas_mutat\'); void(0);">Szétosztásra váró számla tételek</a></td>
                     <td class="r">'.number_format($szetosztasra_varo_sum, 0, '', ' ').'</td>
                     '.$szetosztasra_varo_html.'
                 </tr>

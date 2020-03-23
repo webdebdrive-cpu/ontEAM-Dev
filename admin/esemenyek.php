@@ -3450,8 +3450,14 @@ if( isset($_REQUEST['f_o_szures_submit']) ) {
     if( $_REQUEST['tabla']=='projektkezeles' && strpos($_REQUEST['feltetel'], 'team_tag')!==false ) {
         $join = ' JOIN `'.get_db_tabla().'projektkezeles_team` ON `'.get_db_tabla().'projektkezeles_team`.`projektkezeles_recid`=`'.get_db_tabla().'projektkezeles`.`recid` ';
     }
+
+    $where = '';
+    if( $_REQUEST['tabla'] == 'munkalap' || $_REQUEST['tabla'] == 'munkalap_arch' ) {
+        $where = get_munkalap_lathatosag_feltetel($_REQUEST['tabla'], get_akt_login_szallodai());
+    }
     $osszetett_where = get_o_szures_where_kieg($_REQUEST['feltetel'], $_REQUEST['tabla']);
-    $sql = 'SELECT * FROM `'.get_db_tabla().$_REQUEST['tabla'].'`'.$join.' WHERE '.$telephelyre_szur.$osszetett_where;
+    $sql = 'SELECT * FROM `'.get_db_tabla().$_REQUEST['tabla'].'`'.$join.' WHERE '.$where.$osszetett_where;
+    
     // Ha a $osszetett_where üres akkor marad egy AND maradt az SQL végén
     if( !$osszetett_where ) {
         $sql = csonkit($sql, 5);

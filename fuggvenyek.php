@@ -3755,7 +3755,7 @@ function szamla_lista( $where = '', $tabla = '', $kijeloltek = false, $csak_sql_
     // Ha csak a darabszámra vagyunk kíváncsiak, akkor ezt írjuk ki, amit az admin.js f_szures_submit-nál kezelünk le
     if( isset($_GET['sql_db']) ) {
         $db = count($bejegyzesek);
-        
+
         // Nyitott bejelentéseknél a le kell vonni a lerejtett sorokat
         // Itt azt a feltételt kell lekezelni, mint ami a bejelentesLista függvényben is van
         if( $tabla == 'bejelentes' ) {
@@ -3788,7 +3788,7 @@ function szamla_lista( $where = '', $tabla = '', $kijeloltek = false, $csak_sql_
             }
         }
         
-        // Munkalapoknál is ki kell vonni azokat a sorokat, ahol a jóváhagyható keretem miatt el van rejtve
+        // Munkalapoknál is ki kell vonni azokat a sorokat, ahol a jóváhagyható keret miatt el van rejtve
         if( $tabla == 'munkalap' ) {
             
             $login = $adatbazis_kapcsolat->s2('jh_ft_ig', 'login', "`recid`='{$_SESSION[get_db_tabla().'login_recid']}'");
