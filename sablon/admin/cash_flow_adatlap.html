@@ -59,3 +59,12 @@
         </div>
     </div>
 </div>
+<script>
+    /*  A lap alján levő gomb így lesz középen (teljes képernyő miatt 100%-ra kell húzni ezt is)
+        Ez mehetett volna a cash_flow.js-be is, de azért kell ide, hogy a fülökön váltva is mindig középen maradjon.
+        Tehát ha ez a HTML betölt, akkor mindig le kell futtatni.
+     */
+	$(document).ready(function(){
+        $('.megis_mindig_latszik').css('width', '100%');
+    });
+</script>

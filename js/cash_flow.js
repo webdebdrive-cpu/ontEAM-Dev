@@ -1,9 +1,6 @@
 $(document).ready(function () {
     // Adatlap megjelenésekor a tól év mezőben villog kurzor.
     $('#ev_tol').focus();
-    
-    // A lap alján levő gomb így lesz középen (teljes képernyő miatt 100%-ra kell húzni ezt is)
-    $('.megis_mindig_latszik').css('width', '100%');
 });
 
 // Mezőbeírt adatok ellenőzése, mentése SESSION-be
@@ -48,13 +45,25 @@ function cash_flow_elkeszitese() {
 // Cash-flow táblázatnál sorok mutatása, rejtése
 $(document).on('click', '.f_szalloda_kibont, .f_projekt_kibont', function(e) {
     alert2('Adatok betöltése folyamatban, kérem várjon...', '&nbsp;', 'Üzenet');
+    
+    var kibontva_volt = $(this).hasClass('kibontva');
     that = $(this);
     setTimeout(function(){
         that.toggleClass('kibontva');
         var id = that.parent('tr').attr('id');
         // Ha van egyáltalán ilyen class-ú sor
         if( $('.'+id).length ) {
-            $('.'+id).fadeToggle(function(){ alert2(); });
+            
+            // Ha volt kibontva class neve a tr-nek, akkor mindent bezárunk
+            if( kibontva_volt ) {
+                $('.'+id).fadeOut(function(){ alert2(); });
+                $('.'+id+'_zar').fadeOut(function(){ alert2(); });
+                // Szállodát bezárva, az alatta levő projekt is bezáródik, emiatt le kell venni a kibontva class-t
+                $('.'+id+' td.fix').removeClass('kibontva');
+            } else {
+                $('.'+id).fadeIn(function(){ alert2(); });
+            }
+            
         // Ha nincs, akkor is be kell zárni az alert-et
         } else {
             alert2();
@@ -65,9 +74,27 @@ $(document).on('click', '.f_szalloda_kibont, .f_projekt_kibont', function(e) {
 
 // Cash-flow táblázatnál sorok mutatása, rejtése
 $(document).on('click', '.f_osszes_kibont', function(e) {
+    
+    var kibontva_volt = false;
+    if( $(this).hasClass('kibontva') ) {
+        kibontva_volt = true;
+    }
+    
     alert2('Adatok betöltése folyamatban, kérem várjon...', '&nbsp;', 'Üzenet');
-    $('tr.dn').fadeToggle(function(){ alert2(); });
-    $('td.kibont, th.kibont').toggleClass('kibontva');
+    if( $(this).hasClass('kibontva') ) {
+        $('tr.projektigeny_sor, tr.projekt_sor, tr.tervezett_sor, tr.szerzodott_sor, tr.szamlazott_sor').fadeOut( function(){ alert2(); } );
+        $('td.kibont, th.kibont').removeClass('kibontva');
+    } else {
+        $('tr.projektigeny_sor, tr.projekt_sor, tr.tervezett_sor, tr.szerzodott_sor, tr.szamlazott_sor').fadeIn( function(){ alert2(); } );
+        $('td.kibont, th.kibont').addClass('kibontva');
+    }
+    
+    // Class saját class lekezelése
+    if( kibontva_volt ) {
+        $(this).removeClass('kibontva');
+    } else {
+        $(this).addClass('kibontva');
+    }
     
 });
 

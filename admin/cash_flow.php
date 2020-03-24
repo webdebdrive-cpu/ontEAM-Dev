@@ -662,62 +662,57 @@ require_once('selectek.php');
                     }
 
 
-                    $szamlazott      = $adatbazis_kapcsolat->s('SUBSTRING(`teljesites`, 1, '.$datum_hossz.') as `datum_honapig`, SUM(`varh_ert`)', 'projektszerzodes_tetel', "`projektszerzodes_recid` IN ( SELECT `recid` FROM `".get_db_tabla()."projektszerzodes` WHERE `pr_szam`='{$projekt['ikt_szam']}') AND `teljesites`>='{$_SESSION['cash_flow_ev_tol']}-{$_SESSION['cash_flow_ho_tol']}-01' AND `teljesites`<='{$_SESSION['cash_flow_ev_ig']}-{$_SESSION['cash_flow_ho_ig']}-31'", '', '', 'datum_honapig');
+                    $szamlazott      = $adatbazis_kapcsolat->s('SUBSTRING(`teljesites`, 1, '.$datum_hossz.') as `datum_honapig`, SUM(`ertek`)', 'projektszerzodes_tetel', "`projektszerzodes_recid` IN ( SELECT `recid` FROM `".get_db_tabla()."projektszerzodes` WHERE `pr_szam`='{$projekt['ikt_szam']}') AND `teljesites`>='{$_SESSION['cash_flow_ev_tol']}-{$_SESSION['cash_flow_ho_tol']}-01' AND `teljesites`<='{$_SESSION['cash_flow_ev_ig']}-{$_SESSION['cash_flow_ho_ig']}-31'", '', '', 'datum_honapig');
                     $szamlazott_html = '';
                     foreach( $bontas as $cim => $honapok ) {
                         $szamlazott_osszeg = 0;
                         foreach ( $honapok as $honap ) {
                             foreach( $szamlazott as $szamlaz ) {
                                 if( $szamlaz['datum_honapig'] == $honap ) {
-                                    $szamlazott_osszeg    += $szamlaz['SUM(`varh_ert`)'];
-                                    $projekt_sum[$honap]  += $szamlaz['SUM(`varh_ert`)'];
-                                    $szamlazott_sum       += $szamlaz['SUM(`varh_ert`)'];
+                                    $szamlazott_osszeg    += $szamlaz['SUM(`ertek`)'];
+                                    $projekt_sum[$honap]  += $szamlaz['SUM(`ertek`)'];
+                                    $szamlazott_sum       += $szamlaz['SUM(`ertek`)'];
                                     break;
                                 }
                             }
                         }
                         $szamlazott_html .= '<td class="r">'.number_format($szamlazott_osszeg, 0, '', ' ').'</td>';
                     }
-                    
-                    // Ez kell-e?
-                    // Egy sort csak akkor írunk ki, ha legalább egy helyen van is benne érték
-                    //if( $pr_ossz_sum || $tervezett_sum || $szerzodes_sum || $szamlazott_sum ) {
 
-                        // Projektek szumma sor
-                        $projekt_sum_html = '';
-                        foreach( $bontas as $cim => $honapok ) {
-                            $pr_ossz = 0;
-                            foreach ( $honapok as $honap ) {
-                                $pr_ossz              += $projekt_sum[$honap];
-                                $szalloda_sum[$honap] += $projekt_sum[$honap];
-                                $pr_ossz_sum          += $projekt_sum[$honap];
-                            }
-                            $projekt_sum_html .= '<td class="r">'.number_format($pr_ossz, 0, '', ' ').'</td>';
+                    // Projektek szumma sor
+                    $projekt_sum_html = '';
+                    foreach( $bontas as $cim => $honapok ) {
+                        $pr_ossz = 0;
+                        foreach ( $honapok as $honap ) {
+                            $pr_ossz              += $projekt_sum[$honap];
+                            $szalloda_sum[$honap] += $projekt_sum[$honap];
+                            $pr_ossz_sum          += $projekt_sum[$honap];
                         }
+                        $projekt_sum_html .= '<td class="r">'.number_format($pr_ossz, 0, '', ' ').'</td>';
+                    }
 
-                        $projekt_sorok .= nl2('
-                        <tr id="projekt_'.$projekt['recid'].'" class="projekt_sor '.$dn.' szalloda_'.$szalloda_id.'">
-                            <td class="fix cf1 kibont f_projekt_kibont wrap"><b>'.$projekt['ikt_szam'].'</b> '.getErtek('teljes_nev', 'login', 'recid', $projekt['pfelelos']).'<br>'.$projekt['nev'].'</td>
-                            <td class="r">'.number_format($pr_ossz_sum, 0, '', ' ').'</td>
-                            '.$projekt_sum_html.'
-                        </tr>
-                        <tr id="tervezett_'.$projekt['recid'].'" class="tervezett_sor '.$dn.' projekt_'.$projekt['recid'].'">
-                            <td class="fix cf1"><a href="projektkezeles.php?id='.$projekt['recid'].'&amp;cash_flow&amp;mezo=ikt_szam&amp;op=equal&amp;felt='.$projekt['ikt_szam'].'" target="_blank">Tervezett</a></td>
-                            <td class="r">'.number_format($tervezett_sum, 0, '', ' ').'</td>
-                            '.$tervezett_html.'
-                        </tr>
-                        <tr id="szerzodott_'.$projekt['recid'].'" class="szerzodott_sor '.$dn.' projekt_'.$projekt['recid'].'">
-                            <td class="fix cf1"><a href="javascript:cash_flow_pr_szam=\''.$projekt['ikt_szam'].'\'; csoportMuvelet(\'cash_flow_szerzodesek_mutat\'); void(0);">Szerződött</a></td>
-                            <td class="r">'.number_format($szerzodes_sum, 0, '', ' ').'</td>
-                            '.$szerzodott_html.'
-                        </tr>
-                        <tr id="szamlazott_'.$projekt['recid'].'" class="szamlazott_sor '.$dn.' projekt_'.$projekt['recid'].'">
-                            <td class="fix cf1"><a href="javascript:cash_flow_pr_szam=\''.$projekt['ikt_szam'].'\'; csoportMuvelet(\'cash_flow_szamlak_mutat\'); void(0);">Számlázott</a></td>
-                            <td class="r">'.number_format($szamlazott_sum, 0, '', ' ').'</td>
-                            '.$szamlazott_html.'
-                        </tr>
-                        ');
-//                    }
+                    $projekt_sorok .= nl2('
+                    <tr id="projekt_'.$projekt['recid'].'" class="projekt_sor '.$dn.' szalloda_'.$szalloda_id.'">
+                        <td class="fix cf1 kibont f_projekt_kibont wrap"><b>'.$projekt['ikt_szam'].'</b> '.getErtek('teljes_nev', 'login', 'recid', $projekt['pfelelos']).'<br>'.$projekt['nev'].'</td>
+                        <td class="r">'.number_format($pr_ossz_sum, 0, '', ' ').'</td>
+                        '.$projekt_sum_html.'
+                    </tr>
+                    <tr id="tervezett_'.$projekt['recid'].'" class="tervezett_sor '.$dn.' szalloda_'.$szalloda_id.'_zar projekt_'.$projekt['recid'].'">
+                        <td class="fix cf1"><a href="projektkezeles.php?id='.$projekt['recid'].'&amp;cash_flow&amp;mezo=ikt_szam&amp;op=equal&amp;felt='.$projekt['ikt_szam'].'" target="_blank">Tervezett</a></td>
+                        <td class="r">'.number_format($tervezett_sum, 0, '', ' ').'</td>
+                        '.$tervezett_html.'
+                    </tr>
+                    <tr id="szerzodott_'.$projekt['recid'].'" class="szerzodott_sor '.$dn.' szalloda_'.$szalloda_id.'_zar projekt_'.$projekt['recid'].'">
+                        <td class="fix cf1"><a href="javascript:cash_flow_pr_szam=\''.$projekt['ikt_szam'].'\'; csoportMuvelet(\'cash_flow_szerzodesek_mutat\'); void(0);">Szerződött</a></td>
+                        <td class="r">'.number_format($szerzodes_sum, 0, '', ' ').'</td>
+                        '.$szerzodott_html.'
+                    </tr>
+                    <tr id="szamlazott_'.$projekt['recid'].'" class="szamlazott_sor '.$dn.' szalloda_'.$szalloda_id.'_zar projekt_'.$projekt['recid'].'">
+                        <td class="fix cf1"><a href="javascript:cash_flow_pr_szam=\''.$projekt['ikt_szam'].'\'; csoportMuvelet(\'cash_flow_szamlak_mutat\'); void(0);">Számlázott</a></td>
+                        <td class="r">'.number_format($szamlazott_sum, 0, '', ' ').'</td>
+                        '.$szamlazott_html.'
+                    </tr>
+                    ');
                 }
 
                 $szalloda_ossz_sum = 0;
@@ -855,10 +850,6 @@ function hozzaadott_szallodak_kiir() {
                 '.$telephely['nev'].'
             </div>
         ');
-    }
-    
-    if( $html ) {
-        $html = '<b>Hozzáadott szállodák:</b>'.$html;
     }
     
     return $html;

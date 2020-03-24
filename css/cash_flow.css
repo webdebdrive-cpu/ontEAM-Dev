@@ -35,6 +35,12 @@ label {
 
 #szallodak_lista {
     display: block;
+    margin-left: 8rem;
+}
+
+/* Hover a sorokon */
+table.szamla_cont_tabla.kisbetu tr:hover, #szetosztasra_varo_szla_tetelek:hover {
+    background: #F1F8FF;
 }
 
 /* Cashflow táblázat első oszlopának fixálása */
@@ -101,33 +107,29 @@ table.szamla_cont_tabla.szep_csikos td.wrap {
 }
 
 .projekt_sor, table.szamla_cont_tabla.kisbetu .projekt_sor td.fix {
-    background: #F1F8FF;
-}
-
-.tervezett_sor, table.szamla_cont_tabla.kisbetu .tervezett_sor td.fix {
-    background: #FFDFFF;
-}
-
-.szerzodott_sor, table.szamla_cont_tabla.kisbetu .szerzodott_sor td.fix {
-    background: #DFFFE1;
-}
-
-.szamlazott_sor, table.szamla_cont_tabla.kisbetu .szamlazott_sor td.fix {
-    background: #FFFDEF;
+    background: #ECEFFE;
 }
 
 #szetosztasra_varo_szla_tetelek, table.szamla_cont_tabla.kisbetu #szetosztasra_varo_szla_tetelek td.fix {
-    background: #fff;
+    background: #B4FCB9;
 }
 
 #osszesen_lablec, table.szamla_cont_tabla.kisbetu #osszesen_lablec td.fix {
-    background: #FFFBEF;
     color: #f00;
 }
-/* Hover */
-/*table.szamla_cont_tabla.kisbetu tr:hover td, table.szamla_cont_tabla.kisbetu tr:hover td.fix, table.szamla_cont_tabla.kisbetu #szetosztasra_varo_szla_tetelek:hover td.fix, table.szamla_cont_tabla.kisbetu #osszesen_lablec:hover td.fix {
-    background: transparent;
-}*/
-/*table.szamla_cont_tabla tbody tr:hover {
-    background: initial;
-}*/
+
+/* Tervezett, szerződött, számlázott sorok jobbra igazítva */
+.tervezett_sor td.fix, .szerzodott_sor td.fix, .szamlazott_sor td.fix {
+    text-align: right;
+    padding-right: 0.5rem;
+}
+
+@media only screen and (max-width: 1500px) {
+    .cash_flow_adatlap_grid > div:nth-of-type(2) > div {
+        grid-template-columns: 15% 85%;
+    }
+    
+    #szallodak_lista {
+        margin-left: 15%;
+    }
+}
