@@ -20,6 +20,9 @@ $akt_tomb               = $cash_flow_tomb;
 $torles                 = $megnevezes.'tid';
 $szoveg                 = 'cash-flow-t';   // Hibaüzenetkor: Biztosan törlöd a $szoveg?
 
+$csv_mibol   = get_web_charset();
+$csv_mibe    = 'windows-1250';
+
 $szamla_html = '';
 
 // Dokumentumok fülhöz kell majd
@@ -242,36 +245,88 @@ if( isset($_POST['cash_flow_elkeszitese']) ) {
 // Szerződés tételek kiíratása popup-ba
 if( isset($_POST['cash_flow_szerzodesek_mutat']) ) {
     
+    $projekt    = $adatbazis_kapcsolat->s2('nev telephely_id', 'projektkezeles', "`ikt_szam`='{$_POST['pr_szam']}'");
+    $szalloda   = getSzallodaNev($projekt['telephely_id']);
+    
     $html = '';
+    $csv = '';
+    $csv .= csv_ellenorzes_letolt(iconv2($csv_mibol, $csv_mibe, 'Projekt szám:' )).';';
+    $csv .= csv_ellenorzes_letolt(iconv2($csv_mibol, $csv_mibe, $_POST['pr_szam'].' '.$projekt['nev'] )).';'."\n";
+    
+    $csv .= csv_ellenorzes_letolt(iconv2($csv_mibol, $csv_mibe, 'Szálloda:' )).';';
+    $csv .= csv_ellenorzes_letolt(iconv2($csv_mibol, $csv_mibe, $szalloda )).';'."\n";
+
+    
     $szamlazott_tetelek = $adatbazis_kapcsolat->s('`projektszerzodes_recid`, `varh_erk`, `varh_ert`', 'projektszerzodes_tetel', "`teljesites`='0000-00-00' AND `projektszerzodes_recid` IN ( SELECT `recid` FROM `".get_db_tabla()."projektszerzodes` WHERE `pr_szam`='{$_POST['pr_szam']}') AND `varh_erk`>='{$_SESSION['cash_flow_ev_tol']}-{$_SESSION['cash_flow_ho_tol']}-01' AND `varh_erk`<='{$_SESSION['cash_flow_ev_ig']}-{$_SESSION['cash_flow_ho_ig']}-31'", 'varh_erk');
     if( $szamlazott_tetelek ) {
         $html = nl2('
                     <table class="csikos">
                     <tr>
-                        <th>Szerződés szám</th>
-                        <th class="r">Várható érték</th>
-                        <th class="r">Várható érkezés</th>
+                        <th class="l">Szerződés szám</th>
+                        <th class="l">Partner</th>
+                        <th class="l">Számla várh. érk.</th>
+                        <th class="r">Számla várh. értéke (HUF)</th>
                     </tr>
                 ');
+        $csv .= csv_ellenorzes_letolt(iconv2($csv_mibol, $csv_mibe, 'Szerződés szám' )).';';
+        $csv .= csv_ellenorzes_letolt(iconv2($csv_mibol, $csv_mibe, 'Partner' )).';';
+        $csv .= csv_ellenorzes_letolt(iconv2($csv_mibol, $csv_mibe, 'Számla várh. érk.' )).';';
+        $csv .= csv_ellenorzes_letolt(iconv2($csv_mibol, $csv_mibe, 'Számla várh. értéke (HUF)' )).';'."\n";
         foreach( $szamlazott_tetelek as $szamlazott ) {
-            $szerzodes = $adatbazis_kapcsolat->s2('recid sz_szam', 'projektszerzodes', "`recid`='{$szamlazott['projektszerzodes_recid']}'");
+            $szerzodes = $adatbazis_kapcsolat->s2('recid sz_szam szallito_id', 'projektszerzodes', "`recid`='{$szamlazott['projektszerzodes_recid']}'");
+            $szallito = $szerzodes['szallito_id'].' - '.getErtek('nev', 'szallito', 'id', $szerzodes['szallito_id']);
+            $varh_erk = datum_kiir($szamlazott['varh_erk']);
+            $varh_ert = number_format($szamlazott['varh_ert'], 0, ',', ' ');
             $html .= nl2('
                         <tr>
                             <td class="l"><a href="projektszerzodes.php?id='.$szerzodes['recid'].'&amp;tetel&amp;mezo=sz_szam&amp;op=equal&amp;felt='.$szerzodes['sz_szam'].'" target="_blank">'.$szerzodes['sz_szam'].'</a></td>
-                            <td class="r">'.number_format($szamlazott['varh_ert'], 0, ',', ' ').'</td>
-                            <td class="r">'.datum_kiir($szamlazott['varh_erk']).'</td>
+                            <td class="l">'.$szallito.'</td>
+                            <td class="l">'.$varh_erk.'</td>
+                            <td class="r nowrap">'.$varh_ert.'</td>
                         </tr>
                         ');
+            $csv .= csv_ellenorzes_letolt(iconv2($csv_mibol, $csv_mibe, $szerzodes['sz_szam'] )).';';
+            $csv .= '='.csv_ellenorzes_letolt(iconv2($csv_mibol, $csv_mibe, $szallito)).';';
+            $csv .= csv_ellenorzes_letolt(iconv2($csv_mibol, $csv_mibe, $varh_erk )).';';
+            $csv .= csv_ellenorzes_letolt(iconv2($csv_mibol, $csv_mibe, $szamlazott['varh_ert'] )).';'."\n";
         }
-        $html .= '</table>';
+        
+        $fajlnev = 'cash-flow-szerzodes-'.time();
+        fajlba_mentes(CSV_EXPORT_UTVONAL_1.CSV_EXPORT_UTVONAL_2.'/'.$fajlnev.'.csv', $csv);
+        
+        $link = self().'?cash_flow_szerzodesek_export='.$fajlnev;
+        $html .= nl2('
+            </table>
+            ');
+        
+        $excel_html = nl2('
+            <div class="excel_grid">
+                <div>
+                    <a href="'.$link.'" target="_blank"><img src="../elemek/admin/excel.svg" alt="Excel"></a>
+                </div>
+                <div>
+                    <a href="'.$link.'" target="_blank">Excel export</a>
+                </div>
+            </div>
+            ');
+        
     } else {
         $html = '<div class="b">Nem található olyan szerződés tétel a '.$_POST['pr_szam'].' számú projekthez, ami nincs teljesítve,<br>és a várható érkezés dátuma '.$_SESSION['cash_flow_ev_tol'].'.'.$_SESSION['cash_flow_ho_tol'].'.01 és '.$_SESSION['cash_flow_ev_ig'].'.'.$_SESSION['cash_flow_ho_ig'].'.31 közötti volna.</div>';
     }
     
     echo json_encode(array(
-                        'html' => $html
+                        'html'       => $html,
+                        'excel_html' => $excel_html
                     ));
 
+    $weblap->leallit();
+    exit();
+}
+if( isset($_GET['cash_flow_szerzodesek_export']) ) {
+    
+    cash_flow_csv_export_elokeszit($_GET['cash_flow_szerzodesek_export']);
+    echo fajlbol_olvas(CSV_EXPORT_UTVONAL_1.CSV_EXPORT_UTVONAL_2.'/'.$_GET['cash_flow_szerzodesek_export'].'.csv');
+    
     $weblap->leallit();
     exit();
 }
@@ -279,37 +334,88 @@ if( isset($_POST['cash_flow_szerzodesek_mutat']) ) {
 // Számla tételek kiíratása popup-ba
 if( isset($_POST['cash_flow_szamlak_mutat']) ) {
     
+    $projekt    = $adatbazis_kapcsolat->s2('nev telephely_id', 'projektkezeles', "`ikt_szam`='{$_POST['pr_szam']}'");
+    $szalloda   = getSzallodaNev($projekt['telephely_id']);
+    
     $html = '';
+    $csv = '';
+    $csv .= csv_ellenorzes_letolt(iconv2($csv_mibol, $csv_mibe, 'Projekt szám:' )).';';
+    $csv .= csv_ellenorzes_letolt(iconv2($csv_mibol, $csv_mibe, $_POST['pr_szam'].' '.$projekt['nev'] )).';'."\n";
+    
+    $csv .= csv_ellenorzes_letolt(iconv2($csv_mibol, $csv_mibe, 'Szálloda:' )).';';
+    $csv .= csv_ellenorzes_letolt(iconv2($csv_mibol, $csv_mibe, $szalloda )).';'."\n";
+    
     $szamlazott_tetelek = $adatbazis_kapcsolat->s('`projektszamla_recid`, `telj_dt`, `netto_ert`', 'projektszamla_tetel', "`projektszerzodes_tetel_recid`!=0 AND `projektszamla_recid` IN ( SELECT `recid` FROM `".get_db_tabla()."projektszamla` WHERE `pr_szam`='{$_POST['pr_szam']}') AND `".get_db_tabla()."projektszamla`.`telj_dt`>='{$_SESSION['cash_flow_ev_tol']}-{$_SESSION['cash_flow_ho_tol']}-01' AND `".get_db_tabla()."projektszamla`.`telj_dt`<='{$_SESSION['cash_flow_ev_ig']}-{$_SESSION['cash_flow_ho_ig']}-31'", "`".get_db_tabla()."projektszamla`.`telj_dt`", '', '', '',
                           "LEFT JOIN `".get_db_tabla()."projektszamla` ON `".get_db_tabla()."projektszamla`.`recid`=`".get_db_tabla()."projektszamla_tetel`.`projektszamla_recid`");
     if( $szamlazott_tetelek ) {
         $html = nl2('
                     <table class="csikos">
                     <tr>
-                        <th>Számla szám</th>
-                        <th class="r">Várható érték</th>
-                        <th class="r">Teljesítés</th>
+                        <th class="l">Számla szám</th>
+                        <th class="l">Partner</th>
+                        <th class="l">Teljesítés</th>
+                        <th class="r">Érték (HUF)</th>
                     </tr>
                 ');
+        $csv .= csv_ellenorzes_letolt(iconv2($csv_mibol, $csv_mibe, 'Számla szám' )).';';
+        $csv .= csv_ellenorzes_letolt(iconv2($csv_mibol, $csv_mibe, 'Partner' )).';';
+        $csv .= csv_ellenorzes_letolt(iconv2($csv_mibol, $csv_mibe, 'Teljesítés' )).';';
+        $csv .= csv_ellenorzes_letolt(iconv2($csv_mibol, $csv_mibe, 'Érték (HUF)' )).';'."\n";
         foreach( $szamlazott_tetelek as $szamlazott ) {
-            $szamla = $adatbazis_kapcsolat->s2('recid szla_szam', 'projektszamla', "`recid`='{$szamlazott['projektszamla_recid']}'");
+            $szamla     = $adatbazis_kapcsolat->s2('recid szla_szam szallito_id', 'projektszamla', "`recid`='{$szamlazott['projektszamla_recid']}'");
+            $szallito   = $szamla['szallito_id'].' - '.getErtek('nev', 'szallito', 'id', $szamla['szallito_id']);
+            $teljesites = datum_kiir($szamlazott['telj_dt']);
+            $ertek      = number_format($szamlazott['netto_ert'], 0, ',', ' ');
             $html .= nl2('
                         <tr>
                             <td class="l"><a href="projektszamla.php?id='.$szamla['recid'].'&amp;tetel&amp;mezo=szla_szam&amp;op=equal&amp;felt='.$szamla['szla_szam'].'" target="_blank">'.$szamla['szla_szam'].'</a></td>
-                            <td class="r">'.number_format($szamlazott['netto_ert'], 0, ',', ' ').'</td>
-                            <td class="r">'.datum_kiir($szamlazott['telj_dt']).'</td>
+                            <td class="l">'.$szallito.'</td>
+                            <td class="l">'.$teljesites.'</td>
+                            <td class="r nowrap">'.$ertek.'</td>
                         </tr>
                         ');
+            $csv .= csv_ellenorzes_letolt(iconv2($csv_mibol, $csv_mibe, $szamla['szla_szam'] )).';';
+            $csv .= '='.csv_ellenorzes_letolt(iconv2($csv_mibol, $csv_mibe, $szallito)).';';
+            $csv .= csv_ellenorzes_letolt(iconv2($csv_mibol, $csv_mibe, $teljesites )).';';
+            $csv .= csv_ellenorzes_letolt(iconv2($csv_mibol, $csv_mibe, $szamlazott['netto_ert'] )).';'."\n";
         }
-        $html .= '</table>';
+        
+        $fajlnev = 'cash-flow-szamla-'.time();
+        fajlba_mentes(CSV_EXPORT_UTVONAL_1.CSV_EXPORT_UTVONAL_2.'/'.$fajlnev.'.csv', $csv);
+        
+        $link = self().'?cash_flow_szamlak_export='.$fajlnev;
+        $html .= nl2('
+            </table>
+            ');
+        
+        $excel_html = nl2('
+            <div class="excel_grid">
+                <div>
+                    <a href="'.$link.'" target="_blank"><img src="../elemek/admin/excel.svg" alt="Excel"></a>
+                </div>
+                <div>
+                    <a href="'.$link.'" target="_blank">Excel export</a>
+                </div>
+            </div>
+            ');
+        
     } else {
         $html = '<div class="b">Nem található olyan szerződés tétel a '.$_POST['pr_szam'].' számú projekthez,<br>ahol a teljesítés dátuma '.$_SESSION['cash_flow_ev_tol'].'.'.$_SESSION['cash_flow_ho_tol'].'.01 és '.$_SESSION['cash_flow_ev_ig'].'.'.$_SESSION['cash_flow_ho_ig'].'.31 közötti volna.</div>';
     }
     
     echo json_encode(array(
-                        'html' => $html
+                        'html'       => $html,
+                        'excel_html' => $excel_html
                     ));
 
+    $weblap->leallit();
+    exit();
+}
+if( isset($_GET['cash_flow_szamlak_export']) ) {
+    
+    cash_flow_csv_export_elokeszit($_GET['cash_flow_szamlak_export']);
+    echo fajlbol_olvas(CSV_EXPORT_UTVONAL_1.CSV_EXPORT_UTVONAL_2.'/'.$_GET['cash_flow_szamlak_export'].'.csv');
+    
     $weblap->leallit();
     exit();
 }
@@ -318,9 +424,10 @@ if( isset($_POST['cash_flow_szamlak_mutat']) ) {
 if( isset($_POST['cash_flow_szetosztasra_mutat']) ) {
     
     $html = '';
+    $csv = '';
     $szetosztasra_varo = $adatbazis_kapcsolat->s(
-                                                // Lekrédezett oszlopok
-                                                'projektszamla_recid, netto_ert, telj_dt',
+                                                // Lekérdezett oszlopok
+                                                'projektszerzodes_tetel_recid, projektszamla_recid, netto_ert, telj_dt',
                                                 // Tábla
                                                 'projektszamla_tetel',
                                                 // Where feltétel:
@@ -339,30 +446,104 @@ if( isset($_POST['cash_flow_szetosztasra_mutat']) ) {
         $html = nl2('
                     <table class="csikos">
                     <tr>
-                        <th>Számla szám</th>
+                        <th class="l">Számla szám</th>
+                        <th class="l">Partner</th>
+                        <th class="l">Szálloda</th>
+                        <th class="l">Teljesítés</th>
                         <th class="r">Várható érték</th>
-                        <th class="r">Teljesítés</th>
+                        <th class="l">Szerződés szám</th>
+                        <th class="l">Projekt szám</th>
                     </tr>
                 ');
+        $csv .= csv_ellenorzes_letolt(iconv2($csv_mibol, $csv_mibe, 'Számla szám' )).';';
+        $csv .= csv_ellenorzes_letolt(iconv2($csv_mibol, $csv_mibe, 'Partner' )).';';
+        $csv .= csv_ellenorzes_letolt(iconv2($csv_mibol, $csv_mibe, 'Szálloda' )).';';
+        $csv .= csv_ellenorzes_letolt(iconv2($csv_mibol, $csv_mibe, 'Teljesítés' )).';';
+        $csv .= csv_ellenorzes_letolt(iconv2($csv_mibol, $csv_mibe, 'Várható érték' )).';';
+        $csv .= csv_ellenorzes_letolt(iconv2($csv_mibol, $csv_mibe, 'Szerződés szám' )).';';
+        $csv .= csv_ellenorzes_letolt(iconv2($csv_mibol, $csv_mibe, 'Projekt szám' )).';'."\n";
         foreach( $szetosztasra_varo as $szetosztas ) {
-            $szamla = $adatbazis_kapcsolat->s2('recid szla_szam', 'projektszamla', "`recid`='{$szetosztas['projektszamla_recid']}'");
+            $szamla     = $adatbazis_kapcsolat->s2('recid szla_szam sz_szam pr_szam szallito_id telephely_id', 'projektszamla', "`recid`='{$szetosztas['projektszamla_recid']}'");
+            $projekt    = $adatbazis_kapcsolat->s2('nev', 'projektkezeles', "`ikt_szam`='{$szamla['pr_szam']}'");
+            
+            $szallito   = $szamla['szallito_id'].' - '.getErtek('nev', 'szallito', 'id', $szamla['szallito_id']);
+            $szalloda   = getSzallodaNev($szamla['telephely_id']);
+            $teljesites = datum_kiir($szetosztas['telj_dt']);
+            $netto_ert  = number_format($szetosztas['netto_ert'], 0, ',', ' ');
             $html .= nl2('
                         <tr>
                             <td class="l"><a href="projektszamla.php?id='.$szamla['recid'].'&amp;tetel&amp;mezo=szla_szam&amp;op=equal&amp;felt='.$szamla['szla_szam'].'" target="_blank">'.$szamla['szla_szam'].'</a></td>
-                            <td class="r">'.number_format($szetosztas['netto_ert'], 0, ',', ' ').'</td>
-                            <td class="r">'.datum_kiir($szetosztas['telj_dt']).'</td>
+                            <td class="l">'.$szallito.'</td>
+                            <td class="l">'.$szalloda.'</td>
+                            <td class="l">'.$teljesites.'</td>
+                            <td class="r nowrap">'.$netto_ert.'</td>
+                            <td class="l">'.$szamla['sz_szam'].'</td>
+                            <td class="l">'.$szamla['pr_szam'].' '.$projekt['nev'].'</td>
                         </tr>
                         ');
+            $csv .= csv_ellenorzes_letolt(iconv2($csv_mibol, $csv_mibe, $szamla['szla_szam'] )).';';
+            $csv .= '='.csv_ellenorzes_letolt(iconv2($csv_mibol, $csv_mibe, $szallito)).';';
+            $csv .= csv_ellenorzes_letolt(iconv2($csv_mibol, $csv_mibe, $szalloda )).';';
+            $csv .= csv_ellenorzes_letolt(iconv2($csv_mibol, $csv_mibe, $teljesites )).';';
+            $csv .= csv_ellenorzes_letolt(iconv2($csv_mibol, $csv_mibe, $netto_ert )).';';
+            $csv .= csv_ellenorzes_letolt(iconv2($csv_mibol, $csv_mibe, $szamla['sz_szam'] )).';';
+            $csv .= csv_ellenorzes_letolt(iconv2($csv_mibol, $csv_mibe, $szamla['pr_szam'].' '.$projekt['nev'] )).';'."\n";
         }
-        $html .= '</table>';
+        
+        $fajlnev = 'cash-flow-szetosztasra-varo-'.time();
+        fajlba_mentes(CSV_EXPORT_UTVONAL_1.CSV_EXPORT_UTVONAL_2.'/'.$fajlnev.'.csv', $csv);
+        
+        $link = self().'?cash_flow_szetosztasra_export='.$fajlnev;
+        $html .= nl2('
+            </table>
+            ');
+        
+        $excel_html = nl2('
+            <div class="excel_grid">
+                <div>
+                    <a href="'.$link.'" target="_blank"><img src="../elemek/admin/excel.svg" alt="Excel"></a>
+                </div>
+                <div>
+                    <a href="'.$link.'" target="_blank">Excel export</a>
+                </div>
+            </div>
+            ');
+        
     } else {
         $html = '<div class="b">Nem található olyan szétosztásra váró számla tétel<br>ahol a teljesítés dátuma '.$_SESSION['cash_flow_ev_tol'].'.'.$_SESSION['cash_flow_ho_tol'].'.01 és '.$_SESSION['cash_flow_ev_ig'].'.'.$_SESSION['cash_flow_ho_ig'].'.31 közötti volna.</div>';
     }
     
     echo json_encode(array(
-                        'html' => $html
+                        'html'       => $html,
+                        'excel_html' => $excel_html,
                     ));
 
+    $weblap->leallit();
+    exit();
+}
+if( isset($_GET['cash_flow_szetosztasra_export']) ) {
+    
+    cash_flow_csv_export_elokeszit($_GET['cash_flow_szetosztasra_export']);
+    echo fajlbol_olvas(CSV_EXPORT_UTVONAL_1.CSV_EXPORT_UTVONAL_2.'/'.$_GET['cash_flow_szetosztasra_export'].'.csv');
+    
+    $weblap->leallit();
+    exit();
+}
+
+// CSV generálása
+if( isset($_GET['csv']) ) {
+    
+    if( isset($_GET['szallodankent']) ) {
+        cash_flow_csv_export_elokeszit('cash_flow_export_szalloda');
+        echo fajlbol_olvas('cash_flow_export_szalloda'.session_id().'.csv');
+    } else if( isset($_GET['projektenkent']) ) {
+        cash_flow_csv_export_elokeszit('cash_flow_export_projekt');
+        echo fajlbol_olvas('cash_flow_export_projekt'.session_id().'.csv');
+    } else if( isset($_GET['reszletes']) ) {
+        cash_flow_csv_export_elokeszit('cash_flow_export_reszletes');
+        echo fajlbol_olvas('cash_flow_export_reszletes'.session_id().'.csv');
+    }
+    
     $weblap->leallit();
     exit();
 }
@@ -489,17 +670,28 @@ require_once('selectek.php');
         // Egyébként a táblázat kirajzolása
         } else {
             
+            $csv_szalloda = $csv_projekt = $csv_reszletes = '';
+            $csv_szalloda   .= csv_ellenorzes_letolt(iconv2($csv_mibol, $csv_mibe, 'Szálloda' ))                     .';'.csv_ellenorzes_letolt(iconv2($csv_mibol, $csv_mibe, 'Összesen' )).';';
+            $csv_projekt    .= csv_ellenorzes_letolt(iconv2($csv_mibol, $csv_mibe, 'Szálloda / Projekt' ))           .';'.csv_ellenorzes_letolt(iconv2($csv_mibol, $csv_mibe, 'Összesen' )).';';
+            $csv_reszletes  .= csv_ellenorzes_letolt(iconv2($csv_mibol, $csv_mibe, 'Szálloda / Projekt / CF típus' )).';'.csv_ellenorzes_letolt(iconv2($csv_mibol, $csv_mibe, 'Összesen' )).';';
+            
             $datum_hossz = 7; // Hónappontos
             if( $_SESSION['cash_flow_bontas'] == 'heti' ) {
-                $datum_hossz = 10; // Nappontos - heti bontáshoz már szükségünk van a napokra is, mert egy heti bontásbna nappontos dátumok vannak.
+                $datum_hossz = 10; // Nappontos - heti bontáshoz már szükségünk van a napokra is, mert egy heti bontásban nappontos dátumok vannak.
             }
             
-            // Hónapokok kiszámítása, és a fejléc előállítása
+            // Hónapok kiszámítása, és a fejléc előállítása
             $bontas = get_honapok_szama($_SESSION['cash_flow_ev_tol'], $_SESSION['cash_flow_ho_tol'], $_SESSION['cash_flow_ev_ig'], $_SESSION['cash_flow_ho_ig'], 'tömbként');
             $cimek_fejlecbe = '';
             foreach( $bontas as $cim => $honapok ) {
                 $cimek_fejlecbe .= '<th>'.datum_kiir($cim).'</th>';
+                $csv_szalloda   .= csv_ellenorzes_letolt(iconv2($csv_mibol, $csv_mibe, datum_kiir($cim) )).';';
+                $csv_projekt    .= csv_ellenorzes_letolt(iconv2($csv_mibol, $csv_mibe, datum_kiir($cim) )).';';
+                $csv_reszletes  .= csv_ellenorzes_letolt(iconv2($csv_mibol, $csv_mibe, datum_kiir($cim) )).';';
             }
+            $csv_szalloda   .= "\n";
+            $csv_projekt    .= "\n";
+            $csv_reszletes  .= "\n";
 
             $szamla_html .= nl2('
                 <script>
@@ -532,8 +724,10 @@ require_once('selectek.php');
             $szallodak = explode(',', $_SESSION['cash_flow_szallodak']);
             foreach ( $szallodak as $szalloda_id ) {
 
-                $projekt_sorok = '';
-                $szalloda_sum  = array();
+                $projekt_sorok              = '';
+                $projektigeny_csv           = '';
+                $projektigeny_reszletes_csv = '';
+                $szalloda_sum               = array();
                 // Projektigénylések kilistázása, ha ez a pipa be volt pipálva
                 if( $_SESSION['cash_flow_pri_egyutt'] ) {
                     $projekt_igenyek = $adatbazis_kapcsolat->s('`'.get_db_tabla().'projektigenyles`.`recid`, `'.get_db_tabla().'projektigenyles`.`ikt_szam` , `'.get_db_tabla().'projektigenyles`.`nev`', 'projektigenyles', "`".get_db_tabla()."projektigenyles`.`telephely_id`='{$szalloda_id}' AND ISNULL(`".get_db_tabla()."projektkezeles`.`projektigenyles_recid`) AND `".get_db_tabla()."cash_flow`.`datum`>='{$_SESSION['cash_flow_ev_tol']}-{$_SESSION['cash_flow_ho_tol']}-01' AND `".get_db_tabla()."cash_flow`.`datum`<='{$_SESSION['cash_flow_ev_ig']}-{$_SESSION['cash_flow_ho_ig']}-31'", '', '', "`".get_db_tabla()."projektigenyles`.`ikt_szam`", '',
@@ -549,6 +743,8 @@ require_once('selectek.php');
                         
                         $tervezett_igeny        = $adatbazis_kapcsolat->s('SUBSTRING(`datum`, 1, '.$datum_hossz.') as `datum_honapig`, SUM(`osszeg`)', 'cash_flow', "`apa_recid`='{$projekt_igeny['recid']}' AND `datum`>='{$_SESSION['cash_flow_ev_tol']}-{$_SESSION['cash_flow_ho_tol']}-01' AND `datum`<='{$_SESSION['cash_flow_ev_ig']}-{$_SESSION['cash_flow_ho_ig']}-31'", '', '', 'datum_honapig');
                         $tervezett_igeny_html   = '';
+                        $projektigeny_terv_csv  = csv_ellenorzes_letolt(iconv2($csv_mibol, $csv_mibe, 'Tervezett' )).';';
+                        $csv_tmp                = '';
                         foreach( $bontas as $cim => $honapok ) {
                             $tervezett_osszeg = 0;
                             foreach( $honapok as $honap ) {
@@ -561,11 +757,17 @@ require_once('selectek.php');
                                     }
                                 }
                             }
-                            $tervezett_igeny_html .= '<td class="r">'.number_format($tervezett_osszeg, 0, '', ' ').'</td>';
+                            $tervezett_igeny_html   .= '<td class="r">'.number_format($tervezett_osszeg, 0, '', ' ').'</td>';
+                            $csv_tmp                .= csv_ellenorzes_letolt(iconv2($csv_mibol, $csv_mibe, $tervezett_osszeg )).';';
                         }
+                        $projektigeny_terv_csv  .= csv_ellenorzes_letolt(iconv2($csv_mibol, $csv_mibe, $tervezett_igeny_sum )).';'.$csv_tmp."\n";
                         
                         // Projektigénylés szumma sor
-                        $projekt_igeny_sum_html = '';
+                        $projekt_igeny_sum_html     = '';
+                        $projekt_sorok_csv_tmp_sum  = '';
+                        $projektigeny_csv          .= csv_ellenorzes_letolt(iconv2($csv_mibol, $csv_mibe, $projekt_igeny['ikt_szam'].' '.$projekt_igeny['nev'] )).';';
+                        $projektigeny_reszletes_csv.= csv_ellenorzes_letolt(iconv2($csv_mibol, $csv_mibe, $projekt_igeny['ikt_szam'].' '.$projekt_igeny['nev'] )).';';
+                        $csv_tmp                    = '';
                         foreach( $bontas as $cim => $honapok ) {
                             $projekt_igeny_ossz = 0;
                             foreach ( $honapok as $honap ) {
@@ -573,8 +775,13 @@ require_once('selectek.php');
                                 $szalloda_sum[$honap]   += $projekt_igeny_sum[$honap];
                                 $pr_igeny_ossz_sum      += $projekt_igeny_sum[$honap];
                             }
-                            $projekt_igeny_sum_html .= '<td class="r">'.number_format($projekt_igeny_ossz, 0, '', ' ').'</td>';
+                            $projekt_igeny_sum_html     .= '<td class="r">'.number_format($projekt_igeny_ossz, 0, '', ' ').'</td>';
+                            $csv_tmp                    .= csv_ellenorzes_letolt(iconv2($csv_mibol, $csv_mibe, $projekt_igeny_ossz )).';';
                         }
+                        $projektigeny_csv           .= csv_ellenorzes_letolt(iconv2($csv_mibol, $csv_mibe, $pr_igeny_ossz_sum )).';'.$csv_tmp."\n";
+                        $projektigeny_reszletes_csv .= csv_ellenorzes_letolt(iconv2($csv_mibol, $csv_mibe, $pr_igeny_ossz_sum )).';'.$csv_tmp."\n"
+                                                    .$projektigeny_terv_csv;
+                        
                         
                         $projekt_sorok .= nl2('
                         <tr id="projekt_igeny_'.$projekt_igeny['recid'].'" class="projektigeny_sor '.$dn.' szalloda_'.$szalloda_id.'">
@@ -588,12 +795,15 @@ require_once('selectek.php');
                             '.$tervezett_igeny_html.'
                         </tr>
                         ');
+                        $projekt_sorok_csv .= csv_ellenorzes_letolt(iconv2($csv_mibol, $csv_mibe, $pr_igeny_ossz_sum )).';'.$projekt_sorok_csv_tmp_sum."\n";
+                        $projekt_sorok_csv .= csv_ellenorzes_letolt(iconv2($csv_mibol, $csv_mibe, $tervezett_igeny_sum )).';'.$projekt_sorok_csv_tmp."\n";
                     }
                     
                 }
                 
                 // Projektek kilistázása
                 // E bonyolult lekérdezés arra szolgál, hogy csak azokat a projekteket kérjük le, ami a megadott időpontban és szállodánál értintett
+                $projekt_szumma                 = '';
                 $projektek = $adatbazis_kapcsolat->s(
                                                     // Lekért oszlopok:
                                                     '`'.get_db_tabla().'projektkezeles`.`recid`, `'.get_db_tabla().'projektkezeles`.`ikt_szam`, `'.get_db_tabla().'projektkezeles`.`nev`, `'.get_db_tabla().'projektkezeles`.`pfelelos`',
@@ -624,10 +834,16 @@ require_once('selectek.php');
                     $szerzodes_sum  = 0;
                     $szamlazott_sum = 0;
                     $pr_ossz_sum    = 0;
+                    
+                    $projekt_terv_csv               = '';
+                    $projekt_szerz_csv              = '';
+                    $projekt_szaml_csv              = '';
 
                     // Tervezett összegek összeadása
                     $tervezett = $adatbazis_kapcsolat->s('SUBSTRING(`datum`, 1, '.$datum_hossz.') as `datum_honapig`, SUM(`terv`)', 'projektkezeles_cashflow', "`projektkezeles_recid`='{$projekt['recid']}' AND `datum`>='{$_SESSION['cash_flow_ev_tol']}-{$_SESSION['cash_flow_ho_tol']}-01' AND `datum`<='{$_SESSION['cash_flow_ev_ig']}-{$_SESSION['cash_flow_ho_ig']}-31'", '', '', 'datum_honapig');
-                    $tervezett_html = '';
+                    $tervezett_html     = '';
+                    $csv_tmp            = '';
+                    $projekt_terv_csv   .= csv_ellenorzes_letolt(iconv2($csv_mibol, $csv_mibe, 'Tervezett' )).';';
                     foreach( $bontas as $cim => $honapok ) {
                         $tervezett_osszeg = 0;
                         foreach ( $honapok as $honap ) {
@@ -641,11 +857,15 @@ require_once('selectek.php');
                             }
                         }
                         $tervezett_html .= '<td class="r">'.number_format($tervezett_osszeg, 0, '', ' ').'</td>';
+                        $csv_tmp        .= csv_ellenorzes_letolt(iconv2($csv_mibol, $csv_mibe, $tervezett_osszeg )).';';
                     }
+                    $projekt_terv_csv .= csv_ellenorzes_letolt(iconv2($csv_mibol, $csv_mibe, $tervezett_sum )).';'.$csv_tmp."\n";
 
                     // Szerződött összegek összeadása
-                    $szerzodott      = $adatbazis_kapcsolat->s('SUBSTRING(`varh_erk`, 1, '.$datum_hossz.') as `datum_honapig`, SUM(`varh_ert`)', 'projektszerzodes_tetel', "`teljesites`='0000-00-00' AND `projektszerzodes_recid` IN ( SELECT `recid` FROM `".get_db_tabla()."projektszerzodes` WHERE `pr_szam`='{$projekt['ikt_szam']}') AND `varh_erk`>='{$_SESSION['cash_flow_ev_tol']}-{$_SESSION['cash_flow_ho_tol']}-01' AND `varh_erk`<='{$_SESSION['cash_flow_ev_ig']}-{$_SESSION['cash_flow_ho_ig']}-31'", '', '', 'datum_honapig');
-                    $szerzodott_html = '';
+                    $szerzodott         = $adatbazis_kapcsolat->s('SUBSTRING(`varh_erk`, 1, '.$datum_hossz.') as `datum_honapig`, SUM(`varh_ert`)', 'projektszerzodes_tetel', "`teljesites`='0000-00-00' AND `projektszerzodes_recid` IN ( SELECT `recid` FROM `".get_db_tabla()."projektszerzodes` WHERE `pr_szam`='{$projekt['ikt_szam']}') AND `varh_erk`>='{$_SESSION['cash_flow_ev_tol']}-{$_SESSION['cash_flow_ho_tol']}-01' AND `varh_erk`<='{$_SESSION['cash_flow_ev_ig']}-{$_SESSION['cash_flow_ho_ig']}-31'", '', '', 'datum_honapig');
+                    $szerzodott_html    = '';
+                    $csv_tmp            = '';
+                    $projekt_szerz_csv .= csv_ellenorzes_letolt(iconv2($csv_mibol, $csv_mibe, 'Szerződött' )).';';
                     foreach( $bontas as $cim => $honapok ) {
                         $szerzodott_osszeg = 0;
                         foreach ( $honapok as $honap ) {
@@ -659,11 +879,15 @@ require_once('selectek.php');
                             }
                         }
                         $szerzodott_html .= '<td class="r">'.number_format($szerzodott_osszeg, 0, '', ' ').'</td>';
+                        $csv_tmp         .= csv_ellenorzes_letolt(iconv2($csv_mibol, $csv_mibe, $szerzodott_osszeg )).';';
                     }
+                    $projekt_szerz_csv .= csv_ellenorzes_letolt(iconv2($csv_mibol, $csv_mibe, $szerzodes_sum )).';'.$csv_tmp."\n";
 
-
-                    $szamlazott      = $adatbazis_kapcsolat->s('SUBSTRING(`teljesites`, 1, '.$datum_hossz.') as `datum_honapig`, SUM(`ertek`)', 'projektszerzodes_tetel', "`projektszerzodes_recid` IN ( SELECT `recid` FROM `".get_db_tabla()."projektszerzodes` WHERE `pr_szam`='{$projekt['ikt_szam']}') AND `teljesites`>='{$_SESSION['cash_flow_ev_tol']}-{$_SESSION['cash_flow_ho_tol']}-01' AND `teljesites`<='{$_SESSION['cash_flow_ev_ig']}-{$_SESSION['cash_flow_ho_ig']}-31'", '', '', 'datum_honapig');
-                    $szamlazott_html = '';
+                    
+                    $szamlazott         = $adatbazis_kapcsolat->s('SUBSTRING(`teljesites`, 1, '.$datum_hossz.') as `datum_honapig`, SUM(`ertek`)', 'projektszerzodes_tetel', "`projektszerzodes_recid` IN ( SELECT `recid` FROM `".get_db_tabla()."projektszerzodes` WHERE `pr_szam`='{$projekt['ikt_szam']}') AND `teljesites`>='{$_SESSION['cash_flow_ev_tol']}-{$_SESSION['cash_flow_ho_tol']}-01' AND `teljesites`<='{$_SESSION['cash_flow_ev_ig']}-{$_SESSION['cash_flow_ho_ig']}-31'", '', '', 'datum_honapig');
+                    $szamlazott_html    = '';
+                    $csv_tmp            = '';
+                    $projekt_szaml_csv .= csv_ellenorzes_letolt(iconv2($csv_mibol, $csv_mibe, 'Számlázott' )).';';
                     foreach( $bontas as $cim => $honapok ) {
                         $szamlazott_osszeg = 0;
                         foreach ( $honapok as $honap ) {
@@ -677,10 +901,15 @@ require_once('selectek.php');
                             }
                         }
                         $szamlazott_html .= '<td class="r">'.number_format($szamlazott_osszeg, 0, '', ' ').'</td>';
+                        $csv_tmp         .= csv_ellenorzes_letolt(iconv2($csv_mibol, $csv_mibe, $szamlazott_osszeg )).';';
                     }
+                    $projekt_szaml_csv .= csv_ellenorzes_letolt(iconv2($csv_mibol, $csv_mibe, $szamlazott_sum )).';'.$csv_tmp."\n";
 
                     // Projektek szumma sor
-                    $projekt_sum_html = '';
+                    $projekt_sum_html          = '';
+                    $csv_tmp                   = '';
+                    $projekt_szumma           .= csv_ellenorzes_letolt(iconv2($csv_mibol, $csv_mibe, $projekt['ikt_szam'].' '.$projekt['nev'] )).';';
+                    $projekt_szumma_reszletes .= csv_ellenorzes_letolt(iconv2($csv_mibol, $csv_mibe, $projekt['ikt_szam'].' '.$projekt['nev'] )).';';
                     foreach( $bontas as $cim => $honapok ) {
                         $pr_ossz = 0;
                         foreach ( $honapok as $honap ) {
@@ -689,8 +918,14 @@ require_once('selectek.php');
                             $pr_ossz_sum          += $projekt_sum[$honap];
                         }
                         $projekt_sum_html .= '<td class="r">'.number_format($pr_ossz, 0, '', ' ').'</td>';
+                        $csv_tmp          .= csv_ellenorzes_letolt(iconv2($csv_mibol, $csv_mibe, $pr_ossz )).';';
                     }
-
+                    $projekt_szumma           .= csv_ellenorzes_letolt(iconv2($csv_mibol, $csv_mibe, $pr_ossz_sum )).';'.$csv_tmp."\n";
+                    $projekt_szumma_reszletes .= csv_ellenorzes_letolt(iconv2($csv_mibol, $csv_mibe, $pr_ossz_sum )).';'.$csv_tmp."\n"
+                                              .$projekt_terv_csv
+                                              .$projekt_szerz_csv
+                                              .$projekt_szaml_csv;
+                    
                     $projekt_sorok .= nl2('
                     <tr id="projekt_'.$projekt['recid'].'" class="projekt_sor '.$dn.' szalloda_'.$szalloda_id.'">
                         <td class="fix cf1 kibont f_projekt_kibont wrap"><b>'.$projekt['ikt_szam'].'</b> '.getErtek('teljes_nev', 'login', 'recid', $projekt['pfelelos']).'<br>'.$projekt['nev'].'</td>
@@ -717,6 +952,11 @@ require_once('selectek.php');
 
                 $szalloda_ossz_sum = 0;
                 $szalloda_sum_html = '';
+                $szalloda_nev = getSzallodaNev($szalloda_id);
+                $csv_szalloda   .= csv_ellenorzes_letolt(iconv2($csv_mibol, $csv_mibe, $szalloda_nev )).';';
+                $csv_projekt    .= csv_ellenorzes_letolt(iconv2($csv_mibol, $csv_mibe, $szalloda_nev )).';';
+                $csv_reszletes  .= csv_ellenorzes_letolt(iconv2($csv_mibol, $csv_mibe, $szalloda_nev )).';';
+                $csv_tmp = '';
                 foreach( $bontas as $cim => $honapok ) {
                     $nagy_osszesito = 0;
                     foreach ( $honapok as $honap ) {
@@ -725,7 +965,15 @@ require_once('selectek.php');
                         $nagy_osszesito_sum[$honap] += $szalloda_sum[$honap];
                     }
                     $szalloda_sum_html  .= '<td class="r">'.number_format($nagy_osszesito, 0, '', ' ').'</td>';
+                    $csv_tmp .= csv_ellenorzes_letolt(iconv2($csv_mibol, $csv_mibe, $nagy_osszesito )).';';
                 }
+                $csv_szalloda   .= csv_ellenorzes_letolt(iconv2($csv_mibol, $csv_mibe, $szalloda_ossz_sum )).';'.$csv_tmp."\n";
+                $csv_projekt    .= csv_ellenorzes_letolt(iconv2($csv_mibol, $csv_mibe, $szalloda_ossz_sum )).';'.$csv_tmp."\n"
+                                .$projektigeny_csv
+                                .$projekt_szumma;
+                $csv_reszletes  .= csv_ellenorzes_letolt(iconv2($csv_mibol, $csv_mibe, $szalloda_ossz_sum )).';'.$csv_tmp."\n"
+                                .$projektigeny_reszletes_csv
+                                .$projekt_szumma_reszletes;
 
                 $szamla_html .= nl2('
                 <tr id="szalloda_'.$szalloda_id.'" class="szalloda_sor">
@@ -759,6 +1007,10 @@ require_once('selectek.php');
                                                             'LEFT JOIN `'.get_db_tabla().'projektszamla` ON `'.get_db_tabla().'projektszamla`.`recid`=`'.get_db_tabla().'projektszamla_tetel`.`projektszamla_recid`');
                 $szetosztasra_varo_html = '';
                 $szetosztasra_varo_sum  = 0;
+                $csv_szalloda   .= csv_ellenorzes_letolt(iconv2($csv_mibol, $csv_mibe, 'Szétosztásra váró számla tételek' )).';';
+                $csv_projekt    .= csv_ellenorzes_letolt(iconv2($csv_mibol, $csv_mibe, 'Szétosztásra váró számla tételek' )).';';
+                $csv_reszletes  .= csv_ellenorzes_letolt(iconv2($csv_mibol, $csv_mibe, 'Szétosztásra váró számla tételek' )).';';
+                $csv_tmp = '';
                 foreach( $bontas as $cim => $honapok ) {
                     $szetosztasra_varo_osszeg = 0;
                     foreach ( $honapok as $honap ) {
@@ -772,7 +1024,11 @@ require_once('selectek.php');
                         }
                     }
                     $szetosztasra_varo_html .= '<td class="r">'.number_format($szetosztasra_varo_osszeg, 0, '', ' ').'</td>';
+                    $csv_tmp .= csv_ellenorzes_letolt(iconv2($csv_mibol, $csv_mibe, $szetosztasra_varo_osszeg )).';';
                 }
+                $csv_szalloda   .= csv_ellenorzes_letolt(iconv2($csv_mibol, $csv_mibe, $szetosztasra_varo_sum )).';'.$csv_tmp."\n";
+                $csv_projekt    .= csv_ellenorzes_letolt(iconv2($csv_mibol, $csv_mibe, $szetosztasra_varo_sum )).';'.$csv_tmp."\n";
+                $csv_reszletes  .= csv_ellenorzes_letolt(iconv2($csv_mibol, $csv_mibe, $szetosztasra_varo_sum )).';'.$csv_tmp."\n";
                 
                 $szamla_html .= nl2('
                 <tr id="szetosztasra_varo_szla_tetelek">
@@ -786,6 +1042,10 @@ require_once('selectek.php');
             // Teljes összesítés
             $osszesito_html = '';
             $vegso_nagy_sum = 0;
+            $csv_szalloda   .= csv_ellenorzes_letolt(iconv2($csv_mibol, $csv_mibe, 'Összesen' )).';';
+            $csv_projekt    .= csv_ellenorzes_letolt(iconv2($csv_mibol, $csv_mibe, 'Összesen' )).';';
+            $csv_reszletes  .= csv_ellenorzes_letolt(iconv2($csv_mibol, $csv_mibe, 'Összesen' )).';';
+            $csv_tmp         = '';
             foreach( $bontas as $cim => $honapok ) {
                 $vegso_nagy_ossz = 0;
                 foreach ( $honapok as $honap ) {
@@ -793,7 +1053,11 @@ require_once('selectek.php');
                     $vegso_nagy_sum     += $nagy_osszesito_sum[$honap];
                 }
                 $osszesito_html .= '<td class="r">'.number_format($vegso_nagy_ossz, 0, '', ' ').'</td>';
+                $csv_tmp        .= csv_ellenorzes_letolt(iconv2($csv_mibol, $csv_mibe, $vegso_nagy_ossz )).';';
             }
+            $csv_szalloda   .= csv_ellenorzes_letolt(iconv2($csv_mibol, $csv_mibe, $vegso_nagy_sum )).';'.$csv_tmp."\n";
+            $csv_projekt    .= csv_ellenorzes_letolt(iconv2($csv_mibol, $csv_mibe, $vegso_nagy_sum )).';'.$csv_tmp."\n";
+            $csv_reszletes  .= csv_ellenorzes_letolt(iconv2($csv_mibol, $csv_mibe, $vegso_nagy_sum )).';'.$csv_tmp."\n";
             
             $szamla_html .= nl2('
             <tr id="osszesen_lablec">
@@ -817,6 +1081,10 @@ require_once('selectek.php');
         </div>
                 ');
         }
+        
+        fajlba_mentes('cash_flow_export_szalloda'.session_id().'.csv',  $csv_szalloda);
+        fajlba_mentes('cash_flow_export_projekt'.session_id().'.csv',   $csv_projekt);
+        fajlba_mentes('cash_flow_export_reszletes'.session_id().'.csv', $csv_reszletes);
 
         if( $_GET['ajax'] ) {
             echo json_encode(array(
@@ -940,6 +1208,36 @@ function get_honapok_szama($ev_tol, $ho_tol, $ev_ig, $ho_ig, $tombkent = false) 
             return $honapok;
         } else {
             return $honapok_szama;
+        }
+    }
+    
+}
+
+// CSV export fejléc központosítva
+function cash_flow_csv_export_elokeszit($fajlnev) {
+    // CSV export előkészítése
+    header('Pragma: public');
+    header('Expires: 0');
+    header('Cache-Control: must-revalidate, post-check=0, pre-check=0');
+    header('Cache-Control: private', false);
+    header('Content-Type: application/octet-stream');
+    header('Content-Disposition: attachment; filename="'.$fajlnev.'.csv";');
+    header('Content-Transfer-Encoding: binary');
+    
+    $target  = CSV_EXPORT_UTVONAL_1;
+    if( !is_dir($target) ) {
+        mkdir($target);
+    }
+    $target .= CSV_EXPORT_UTVONAL_2;
+    if( !is_dir($target) ) {
+        mkdir($target);
+    }
+    
+    // Régi fájlok törlése
+    $fajlok = konyvtar_bejar($target);
+    foreach ( $fajlok as $fajl ) {
+        if( filemtime($fajl) < (time() - CSV_EXPORT_ELAVULAS) ) {
+            unlink($fajl);
         }
     }
     

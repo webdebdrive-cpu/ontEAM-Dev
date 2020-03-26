@@ -1,6 +1,7 @@
 <h2>Szétosztásra váró számla tételek</h2>
 <div class="kozep">
     <div id="szamla_tetelek_tablazat" style="margin-bottom: 2rem"></div>
+    <div id="excel_export"></div>
     <div class="c">
         <input type="button" class="gomb piros" value="Bezár" onclick="popupZar();">
     </div>
@@ -22,6 +23,7 @@ $(document).ready(function(){
                 }
                 
                 $('#szamla_tetelek_tablazat').html(response.html);
+                $('#excel_export').html(response.excel_html);
             }
         }
     });

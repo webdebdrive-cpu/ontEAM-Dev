@@ -89,6 +89,14 @@ th.kibont:after, th.kibont.kibontva:after {
     top: 1rem;
 }
 
+table.szamla_cont_tabla.szep_csikos td {
+    cursor: default;
+}
+
+table.szamla_cont_tabla.szep_csikos tr td:first-of-type {
+    cursor: pointer;
+}
+
 /* Minden cella lehet nowrap-os */
 #fixTable table.szamla_cont_tabla.szep_csikos th, table.szamla_cont_tabla.szep_csikos td {
     white-space: nowrap;
@@ -118,10 +126,34 @@ table.szamla_cont_tabla.szep_csikos td.wrap {
     color: #f00;
 }
 
+.excel_grid {
+    align-items: center;
+    display: grid;
+    grid-template-columns: 4rem 1fr;
+    margin-top: 2rem;
+}
+
+.excel_grid:hover div:nth-of-type(2) a {
+    display: grid;
+    text-decoration: underline;
+    height: 2.8rem;
+    align-items: center;
+    width: 100%;
+}
+
+#szamla_tetelek_tablazat {
+    max-height: 40rem;
+    overflow-y: auto;
+}
+
 /* Tervezett, szerződött, számlázott sorok jobbra igazítva */
 .tervezett_sor td.fix, .szerzodott_sor td.fix, .szamlazott_sor td.fix {
     text-align: right;
     padding-right: 0.5rem;
+}
+
+table.csikos td.nowrap {
+    white-space: nowrap;
 }
 
 @media only screen and (max-width: 1500px) {

@@ -45,6 +45,12 @@ $weblap -> mail_charset    = get_mail_charset();
 
 $weblap -> indit();
 
+// Ha még nincs kért URL, akkor az aktuális cím lesz az (tehát az index.php)
+// Session csak ettől a ponttól van
+if( !$_SESSION['kert_url'] ) {
+    $_SESSION['kert_url'] = get_http().$_SERVER['HTTP_HOST'].$_SERVER['REQUEST_URI'];
+}
+
 // Ha $db_prefix nem üres (tehát használunk adatbázist), akkor a következők végrehajtás kötelező
 if( $weblap->db_prefix ) {
     $adatbazis_kapcsolat = $weblap -> adatbazis;
@@ -83,6 +89,7 @@ if( !$_SESSION[get_db_tabla() . 'user'] && !$_POST['elfelejtett_jelszo'] && subs
     exit;
 }
 
+    
 // Jogosultságok karbantartása
 if( $_SESSION[get_db_tabla().'user'] ) {
     $felhasznalo = $adatbazis_kapcsolat->s2('flags flags_ert', 'login', "`nev`='{$_SESSION[get_db_tabla().'user']}'", '', '1');

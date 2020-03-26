@@ -1255,7 +1255,7 @@ if( basename(self()) == 'torzsadat.php' && !_jog(JOG_TORZSADAT_KEZEL) ) {
 
 // Excel export
 $valasztos = '';
-$valasztos_feluletek = array('eloterj_bod.php', 'eloterj_fb.php', 'energia_terv.php', 'fenntartasi_terv.php', 'projektszamla.php', 'projektszerzodes.php');
+$valasztos_feluletek = array('cash_flow.php', 'eloterj_bod.php', 'eloterj_fb.php', 'energia_terv.php', 'fenntartasi_terv.php', 'projektszamla.php', 'projektszerzodes.php');
 if( in_array(basename(self()), $valasztos_feluletek) ) {
     $valasztos = 'választós';
 }
@@ -1500,11 +1500,6 @@ if( $_SESSION[get_db_tabla().'login_recid'] ) {
     echo str_replace($mit, $mivel, fajlbol_olvas('../sablon/admin/nincs_jelszo.html', 1));
 
 } else {
-
-    // Ha még nincs kért URL, akkor az aktuális cím lesz az (tahát az index.php)
-    if( !$_SESSION['kert_url'] ) {
-        $_SESSION['kert_url'] = get_http().$_SERVER['HTTP_HOST'].$_SERVER['REQUEST_URI'];
-    }
 
     $felirat = '';
     if( isset($_GET['hiba']) ) {

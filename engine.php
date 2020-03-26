@@ -333,28 +333,28 @@ function csv_ellenorzes_frissit($string){
 *
 *   @return string Az ellenőrzött érték
 */
-function csv_ellenorzes_letolt($string, $idezojel_szur = '', $nullas_betu_egyenlo_nelkul = ''){
-    
+function csv_ellenorzes_letolt($string, $idezojel_szur = '', $nullas_betu_egyenlo_nelkul = '') {
+
     //Ha ékezetes nagy betűvel kezdődött egy szó, valami miatt lemaradt, ezért minden szót ezzel kezdek.
     $string = nl2br2( htmlspecialchars_decode( trim($string) ) );
     $kell_egyenlo = false;
-    if(!$nullas_betu_egyenlo_nelkul){
-        if(is_numeric($string) && substr($string, 0, 1)=='0'){
+    if( !$nullas_betu_egyenlo_nelkul ) {
+        if( is_numeric($string) && substr($string, 0, 1) == '0' ) {
             $kell_egyenlo = true;
         }
     }
-    //Idézőjel lekezelése
-    if(strstr($string, '"')){
-        if($idezojel_szur){
+    // Idézőjel lekezelése
+    if( strstr($string, '"') ) {
+        if( $idezojel_szur ) {
             $string = str_replace('"', '', $string);
         } else {
             $string = str_replace('"', '""', $string);
         }
     }
     
-    //Az a biztos, ha mindig idézőjel közé tesszük (nem csak ha pontosvessző is van közte) az egyéb speciális karakterek miatt
+    // Az a biztos, ha mindig idézőjel közé tesszük (nem csak ha pontosvessző is van közte) az egyéb speciális karakterek miatt
     $string = '"'.$string.'"';
-    if($kell_egyenlo){
+    if( $kell_egyenlo ) {
         $string = '='.$string;
     }
     

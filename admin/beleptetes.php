@@ -6,7 +6,7 @@ $jogolsultsagos = false;
 require_once('../weblap.php');
 
 // Nem láthat bárki bármilyen tartalmat, viszont az admin bármit
-if( $_SESSION[get_db_tabla() . 'user'] && $_SESSION[get_db_tabla() . 'user'] != 'admin' ) {
+if( $_SESSION[get_db_tabla() . 'user'] && $_SESSION[get_db_tabla().'user'] != 'admin' ) {
 
     $user_joga = $adatbazis_kapcsolat -> s2('jog', 'login', 'nev='.$_SESSION[get_db_tabla().'user']);
 
@@ -40,7 +40,7 @@ if( isset($_POST['jelszo_csere']) ) {
         if( $hossz>=8 && $hossz<=20 ){
 
             // Tartalmaz-e betűt és számot
-            if (preg_match('/[A-Za-z].*[0-9]|[0-9].*[A-Za-z]/', $_POST['jlsz'])){
+            if( preg_match('/[A-Za-z].*[0-9]|[0-9].*[A-Za-z]/', $_POST['jlsz']) ) {
 
                 // Azonosak-e
                 if( $_POST['jlsz'] == $_POST['jlsz2'] ) {
@@ -96,6 +96,9 @@ if( isset($_POST['jelszo_csere']) ) {
                         }
                         
                         // A megfelelő menüpont betöltése
+                        if( substr($_SESSION['kert_url'], 0, 4) != 'http' ) {
+                            $_SESSION['kert_url'] = 'https://'.$_SESSION['kert_url'];
+                        }
                         header('Location: '.$_SESSION['kert_url']);
                         
                         $adatbazis_kapcsolat -> bezar();
@@ -212,9 +215,9 @@ if( isset($_POST['login']) ) {
 
                     // A felhasználó egyszállodás-e vagy sem (ha igen, a navpanelben nem írjuk ki külön a szálloda nevét)
                     $szallodak = $adatbazis_kapcsolat->s('telephely_id', 'telephely_kapcs', "`nev`='{$felhasznalo['nev']}'");
-                    if(count($szallodak)==1){
+                    if( count($szallodak) == 1 ) {
                         $_SESSION['egyszallodas_user'] = 1;
-                    }else{
+                    } else {
                         unset($_SESSION['egyszallodas_user']);
                     }
                     
@@ -222,14 +225,14 @@ if( isset($_POST['login']) ) {
                     if( $felhasznalo['tabla_rendezes'] ) {
                         $rendezes = json_decode(htmlspecialchars_decode($felhasznalo['tabla_rendezes']), true);
 
-                        foreach($rendezes as $key => $value) {
+                        foreach ( $rendezes as $key => $value ) {
                             $_SESSION[$key] = $value;
                         }
                     }
 
-//                    if(!$_SESSION['kert_url']){
-//                        $_SESSION['kert_url'] = get_domain().'/'.get_admin();
-//                    }
+                    if( !$_SESSION['kert_url'] ) {
+                        $_SESSION['kert_url'] = get_http().get_domain().'/'.get_admin();
+                    }
 
                     // Logolások
                     $muvelet = $_SESSION[get_db_tabla().'teljes_nev'].' ('.$_SESSION[get_db_tabla().'user'].') bejelentkezett';
@@ -269,6 +272,9 @@ if( isset($_POST['login']) ) {
                         
                     } else {
 
+                        if( substr($_SESSION['kert_url'], 0, 4) != 'http' ) {
+                            $_SESSION['kert_url'] = 'https://'.$_SESSION['kert_url'];
+                        }
                         header('Location: '.$_SESSION['kert_url']);
                         
                         $adatbazis_kapcsolat -> bezar();

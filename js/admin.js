@@ -5969,6 +5969,11 @@ function csv_general( that, valasztos, link_kieg ) {
 
     if (valasztos) {
 
+        // Cash-flow
+        if (baseName(location.href) == 'cash_flow') {
+            alert2('Válasszon export fajtát:<br><a href="'+PHP_SELF+'?csv&amp;szallodankent" target="_blank">» Cash-flow szállodánként</a><br><a href="'+PHP_SELF+'?csv&amp;projektenkent" target="_blank">» Cash-flow projektenként</a><br><a href="'+PHP_SELF+'?csv&amp;reszletes" target="_blank">» Cash-flow részletes</a>', '<input type="button" class="gomb" value="Mégsem" onclick="alert2()">', 'Válasszon exportot');
+        }
+
         // BoD Előterjesztésnél tervnél lehet választani, hogy navpanel listát vagy Projektigényléseket szeretne-e exportálni
         if (baseName(location.href) == 'eloterj_bod') {
             alert2('Válasszon export fajtát:<br><a href="javascript:csv_general($(\'.excel\'))">» BoD előterjesztések exportálása</a><br><a href="javascript:csv_general($(\'.excel\'), \'\', \'projektigenyek&id=\'+_get(\'id\'))">» BoD előterjesztés részletei</a>', '<input type="button" class="gomb" value="Mégsem" onclick="alert2()">', 'Válasszon exportot');
@@ -6113,14 +6118,7 @@ function csv_general( that, valasztos, link_kieg ) {
                             alert2();
                         }
                     }
-                }; 
-
-                /*
-                Ez a rész az új fajta letöltéshez nem kell. 
-                var onclick = $(that).attr('onclick');
-                $(that).attr('href', get_get(['egysegarak']) + '&csv&'+link_kieg).removeAttr('onclick');
-                $(that)[0].click();
-                $(that).attr('onclick', onclick).removeAttr('href');*/
+                };
 
             } else {
 
