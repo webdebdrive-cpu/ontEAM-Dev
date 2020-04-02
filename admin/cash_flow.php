@@ -81,7 +81,7 @@ if( isset($_POST['szallodak_ment']) ) {
     
     $_SESSION['cash_flow_szallodak'] = trim($_POST['szallodak'], ',');
 
-    echo json_encode( array('html' => hozzaadott_szallodak_kiir()) );
+    echo json_encode( array('html' => '<div></div><div>'.hozzaadott_szallodak_kiir().'</div>') );
 
     $weblap->leallit();
     exit();
@@ -189,7 +189,7 @@ if( isset($_POST['cash_flow_elkeszitese']) ) {
     }
     
     // Dátum adathelyesség ellenőrzése
-    if( $_POST['ev_tol'].'-'.sprintf("%02d", $_POST['ho_tol'])>=$_POST['ev_ig'].'-'.sprintf("%02d", $_POST['ho_ig']) ) {
+    if( $_POST['ev_tol'].'-'.sprintf("%02d", $_POST['ho_tol'])>$_POST['ev_ig'].'-'.sprintf("%02d", $_POST['ho_ig']) ) {
         echo json_encode(   array(
                                 'hiba'  => 'Záró hónap nem lehet korábbi mint a kezdő hónap!',
                                 'title' => 'Hiba',
@@ -212,10 +212,13 @@ if( isset($_POST['cash_flow_elkeszitese']) ) {
         exit;
     }
     
-    $_SESSION['cash_flow_ev_tol']   = $_POST['ev_tol'];
-    $_SESSION['cash_flow_ho_tol']   = sprintf("%02d", $_POST['ho_tol']);
-    $_SESSION['cash_flow_ev_ig']    = $_POST['ev_ig'];
-    $_SESSION['cash_flow_ho_ig']    = sprintf("%02d", $_POST['ho_ig']);
+    $_SESSION['cash_flow_ev_tol']       = $_POST['ev_tol'];
+    $_SESSION['cash_flow_ho_tol']       = sprintf("%02d", $_POST['ho_tol']);
+    $_SESSION['cash_flow_ev_ig']        = $_POST['ev_ig'];
+    $_SESSION['cash_flow_ho_ig']        = sprintf("%02d", $_POST['ho_ig']);
+    
+    // Adott záróhónap hány napos? Ez az információ kelleni fog a hibaüzentbe később.
+    $_SESSION['cash_flow_ho_ig_napok']  = date('t', date2int($_POST['ev_ig'].'-'.$_POST['ho_ig'].'-01'));
     
     $_SESSION['cash_flow_bontas']   = $_POST['bontas'];
     
@@ -311,7 +314,7 @@ if( isset($_POST['cash_flow_szerzodesek_mutat']) ) {
             ');
         
     } else {
-        $html = '<div class="b">Nem található olyan szerződés tétel a '.$_POST['pr_szam'].' számú projekthez, ami nincs teljesítve,<br>és a várható érkezés dátuma '.$_SESSION['cash_flow_ev_tol'].'.'.$_SESSION['cash_flow_ho_tol'].'.01 és '.$_SESSION['cash_flow_ev_ig'].'.'.$_SESSION['cash_flow_ho_ig'].'.31 közötti volna.</div>';
+        $html = '<div class="b">Nem található olyan szerződés tétel a '.$_POST['pr_szam'].' számú projekthez, ami nincs teljesítve,<br>és a várható érkezés dátuma '.$_SESSION['cash_flow_ev_tol'].'.'.$_SESSION['cash_flow_ho_tol'].'.01 és '.$_SESSION['cash_flow_ev_ig'].'.'.$_SESSION['cash_flow_ho_ig'].'.'.$_SESSION['cash_flow_ho_ig_napok'].' közötti volna.</div>';
     }
     
     echo json_encode(array(
@@ -400,7 +403,7 @@ if( isset($_POST['cash_flow_szamlak_mutat']) ) {
             ');
         
     } else {
-        $html = '<div class="b">Nem található olyan szerződés tétel a '.$_POST['pr_szam'].' számú projekthez,<br>ahol a teljesítés dátuma '.$_SESSION['cash_flow_ev_tol'].'.'.$_SESSION['cash_flow_ho_tol'].'.01 és '.$_SESSION['cash_flow_ev_ig'].'.'.$_SESSION['cash_flow_ho_ig'].'.31 közötti volna.</div>';
+        $html = '<div class="b">Nem található olyan szerződés tétel a '.$_POST['pr_szam'].' számú projekthez,<br>ahol a teljesítés dátuma '.$_SESSION['cash_flow_ev_tol'].'.'.$_SESSION['cash_flow_ho_tol'].'.01 és '.$_SESSION['cash_flow_ev_ig'].'.'.$_SESSION['cash_flow_ho_ig'].'.'.$_SESSION['cash_flow_ho_ig_napok'].' közötti volna.</div>';
     }
     
     echo json_encode(array(
@@ -510,7 +513,7 @@ if( isset($_POST['cash_flow_szetosztasra_mutat']) ) {
             ');
         
     } else {
-        $html = '<div class="b">Nem található olyan szétosztásra váró számla tétel<br>ahol a teljesítés dátuma '.$_SESSION['cash_flow_ev_tol'].'.'.$_SESSION['cash_flow_ho_tol'].'.01 és '.$_SESSION['cash_flow_ev_ig'].'.'.$_SESSION['cash_flow_ho_ig'].'.31 közötti volna.</div>';
+        $html = '<div class="b">Nem található olyan szétosztásra váró számla tétel<br>ahol a teljesítés dátuma '.$_SESSION['cash_flow_ev_tol'].'.'.$_SESSION['cash_flow_ho_tol'].'.01 és '.$_SESSION['cash_flow_ev_ig'].'.'.$_SESSION['cash_flow_ho_ig'].'.'.$_SESSION['cash_flow_ho_ig_napok'].' közötti volna.</div>';
     }
     
     echo json_encode(array(
@@ -685,9 +688,9 @@ require_once('selectek.php');
             $cimek_fejlecbe = '';
             foreach( $bontas as $cim => $honapok ) {
                 $cimek_fejlecbe .= '<th>'.datum_kiir($cim).'</th>';
-                $csv_szalloda   .= csv_ellenorzes_letolt(iconv2($csv_mibol, $csv_mibe, datum_kiir($cim) )).';';
-                $csv_projekt    .= csv_ellenorzes_letolt(iconv2($csv_mibol, $csv_mibe, datum_kiir($cim) )).';';
-                $csv_reszletes  .= csv_ellenorzes_letolt(iconv2($csv_mibol, $csv_mibe, datum_kiir($cim) )).';';
+                $csv_szalloda   .= str_replace(array('<br>', '-'), array("\n", "\n"), csv_ellenorzes_letolt(iconv2($csv_mibol, $csv_mibe, $cim))).';';
+                $csv_projekt    .= str_replace(array('<br>', '-'), array("\n", "\n"), csv_ellenorzes_letolt(iconv2($csv_mibol, $csv_mibe, $cim))).';';
+                $csv_reszletes  .= str_replace(array('<br>', '-'), array("\n", "\n"), csv_ellenorzes_letolt(iconv2($csv_mibol, $csv_mibe, $cim))).';';
             }
             $csv_szalloda   .= "\n";
             $csv_projekt    .= "\n";

@@ -2287,11 +2287,18 @@ require_once('selectek.php');
 	// Tételek fül
     } elseif( isset($_GET['tetel']) ) {
 
+        // Ha devizás a számla
+        $extra_sorok = '';
+        if( $sor['kcs_21'] != KCS_21_HUF ) {
+            $extra_sorok .= '<div class="dtc r">Nettó érték (HUF)</div>';
+        }
+        
         $szamla_html .= nl2('
             <div class="dt naplo">
                 <div class="dtr nFejlec">
                     <div class="dtc">Tárgy</div>
                     <div class="dtc r">Nettó érték ('.getErtekLista(ERTEKLISTA_PENZNEM, $sor['kcs_21']).')</div>
+                    '.$extra_sorok.'
                     <div class="dtc">Szerződés tétel</div>
                 </div>
         ');
@@ -2308,11 +2315,17 @@ require_once('selectek.php');
         foreach ( $tetelek as $tetel ) {
 
             $pr_tetel = $adatbazis_kapcsolat->s2('targy', 'projektszerzodes_tetel', "`recid`='{$tetel['projektszerzodes_tetel_recid']}'");
+
+            $extra_sorok = '';
+            if( $sor['kcs_21'] != KCS_21_HUF ) {
+                $extra_sorok .= '<div class="dtc r">'.number_format($tetel['netto_ert'], 0, ',', ' ').'</div>';
+            }
             
             $szamla_html .= nl2('
                 <div class="dtr nSor">
                     <div class="dtc">'.$tetel['targy'].'</div>
                     <div class="dtc r">'.number_format($tetel[$osszeg_oszlop], $tizedesek, ',', ' ').'</div>
+                    '.$extra_sorok.'
                     <div class="dtc">'.htmlspecialchars_decode($pr_tetel['targy']).'</div>
                 </div>
             ');

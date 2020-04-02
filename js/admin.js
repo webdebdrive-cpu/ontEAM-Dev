@@ -2088,6 +2088,7 @@ $(function() {
     }, 50);
 });
 
+// Ha egy táblázatnak fixálva van a fejléce (sőt akár a lábléce is), akkor megjelenéskor ezt-azt be kell állítani, hogy szép legyen az elrendezése
 function fixTable() {
     if( $('#fixTable').length ) {
         var tartalomHeight = $('#tartalomJobb').height(),
@@ -2133,19 +2134,11 @@ function fixTable() {
                         });
                     });
                     
-                    /*$('#fixTable table tr td.fix').css( {
-                        'position': 'sticky',
-                        'left': 0,
-                        'top': 'auto',
-                        'width': '5rem'
-                    });*/
                 }
             });
-        } else {
-            // $('#fixTable table').css('width', '100%');
         }
         
-        //  A fixTable konténer szélességét beállítjuk (ablak szélessége - a bal navpabe szélessége ráhagyással
+        // A fixTable konténer szélességét beállítjuk (ablak szélessége - a bal navpabe szélessége ráhagyással
         // Erre azért van szükség, mert az első pár oszlopot fixáltuk (ahogy a fejléceket is). Tehát ez lesz a konténer szélessége
         // amiben a táblázat vízszintesen scrollozható lesz
         szelesseg = $(window).width()-$('#tartalomBal').width()-50;
@@ -2153,7 +2146,7 @@ function fixTable() {
     }
 }
 
-/* Mailto beállítása a felső ikonsor mail ikonjához */
+// Mailto beállítása a felső ikonsor mail ikonjához
 function sendMail( that, file ) {
     szamlaSorok = $('.szamla_cont_tabla tr.kijelolve');
 
@@ -2243,7 +2236,7 @@ function fulGombMeretez() {
     }
 }
 
-/* Projektigénylésnél ha a tipus nem Beruházás, akkor a Besorolás ne is jelenjen meg, értéke nullázódjon. */
+// Projektigénylésnél ha a tipus nem Beruházás, akkor a Besorolás ne is jelenjen meg, értéke nullázódjon.
 function prigeny_tipus_beallit(){
     if($('.f_prigeny_tipus #tipus').val()!='1'){
         $('#besorolas_panel').hide();

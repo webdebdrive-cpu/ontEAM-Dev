@@ -5,11 +5,11 @@
                 Időszak:
             </div>
             <div>
-                <input type="text" id="ev_tol" value="{EV_TOL}" class="ev csillag" placeholder="Év" onkeyup="onlyNumbers( $(this) );" maxlength="4">
-                <input type="text" id="ho_tol" value="{HO_TOL}" class="ho csillag" placeholder="Hó" onkeyup="onlyNumbers( $(this) );" maxlength="2">-tól
+                <input type="text" id="ev_tol" value="{EV_TOL}" class="ev csillag kijelol" placeholder="Év" onkeyup="onlyNumbers( $(this) );" maxlength="4">
+                <input type="text" id="ho_tol" value="{HO_TOL}" class="ho csillag kijelol" placeholder="Hó" onkeyup="onlyNumbers( $(this) );" maxlength="2">-tól
                 <span style="margin-left: 2rem;"></span>
-                <input type="text" id="ev_ig" value="{EV_IG}" class="ev csillag" placeholder="Év" onkeyup="onlyNumbers( $(this) );" maxlength="4">
-                <input type="text" id="ho_ig" value="{HO_IG}" class="ho csillag" placeholder="Hó" onkeyup="onlyNumbers( $(this) );" maxlength="2">-ig
+                <input type="text" id="ev_ig" value="{EV_IG}" class="ev csillag kijelol" placeholder="Év" onkeyup="onlyNumbers( $(this) );" maxlength="4">
+                <input type="text" id="ho_ig" value="{HO_IG}" class="ho csillag kijelol" placeholder="Hó" onkeyup="onlyNumbers( $(this) );" maxlength="2">-ig
             </div>
         </div>
         <div>
@@ -46,7 +46,7 @@
         </div>
     </div>
     <div>
-        <div>
+        <div class="szallodak_grid">
             <div>
                 Szállodák:
             </div>
@@ -54,8 +54,9 @@
                 <input id="szalloda_gomb" type="button" class="gomb" value="Szállodák hozzáadása" onclick="kapcsolodoSzerkeszt('szallodak_cash_flow');void(0);">
             </div>
         </div>
-        <div id="szallodak_lista">
-            {H_SZALLODAK}
+        <div class="szallodak_grid" id="szallodak_lista">
+            <div></div>
+            <div>{H_SZALLODAK}</div>
         </div>
     </div>
 </div>

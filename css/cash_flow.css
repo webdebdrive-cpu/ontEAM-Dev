@@ -11,7 +11,7 @@
     align-items: center;
 }
 
-.cash_flow_adatlap_grid > div:nth-of-type(2) > div {
+.cash_flow_adatlap_grid .szallodak_grid{
     display: grid;
     grid-template-columns: 10% 90%;
     padding: 0.2rem 0rem;
@@ -31,11 +31,6 @@ input[type='text'] {
 
 label {
     width: 35rem;
-}
-
-#szallodak_lista {
-    display: block;
-    margin-left: 8rem;
 }
 
 /* Hover a sorokon */
@@ -66,6 +61,16 @@ table.szamla_cont_tabla.kisbetu th.fix.cf1, table.szamla_cont_tabla.kisbetu td.f
     left: 0rem;
     min-width: 20rem;
     max-width: 20rem;
+}
+
+/* Cash-flow fül alatt minden más oszlop szélessége is egyésges */
+table.szamla_cont_tabla.kisbetu th:first-of-type {
+    min-width: 20rem;
+    max-width: 20rem;
+}
+table.szamla_cont_tabla.kisbetu th:not(:first-of-type) {
+    min-width: 10rem;
+    max-width: 10rem;
 }
 
 td.kibont:after, th.kibont:after {
@@ -159,9 +164,5 @@ table.csikos td.nowrap {
 @media only screen and (max-width: 1500px) {
     .cash_flow_adatlap_grid > div:nth-of-type(2) > div {
         grid-template-columns: 15% 85%;
-    }
-    
-    #szallodak_lista {
-        margin-left: 15%;
     }
 }

@@ -3,6 +3,11 @@ $(document).ready(function () {
     $('#ev_tol').focus();
 });
 
+// Mezőkbe kattintva az jelölődjön ki
+$(document).on('click', '.kijelol', function(e) {
+    $(this).select();
+});
+
 // Mezőbeírt adatok ellenőzése, mentése SESSION-be
 function cash_flow_elkeszitese() {
     
@@ -69,6 +74,8 @@ $(document).on('click', '.f_szalloda_kibont, .f_projekt_kibont', function(e) {
             alert2();
         }
         fixTable();
+        $('#fixTable table').width('auto');
+        $('#fixTable table th').attr('style', '');
     }, 20);
 });
 
