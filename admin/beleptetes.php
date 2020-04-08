@@ -99,6 +99,8 @@ if( isset($_POST['jelszo_csere']) ) {
                         if( substr($_SESSION['kert_url'], 0, 4) != 'http' ) {
                             $_SESSION['kert_url'] = 'https://'.$_SESSION['kert_url'];
                         }
+                        // Ajax hívást azt vegyük ki belőle
+                        $_SESSION['kert_url'] = str_replace('ajax=1', '', $_SESSION['kert_url']);
                         header('Location: '.$_SESSION['kert_url']);
                         
                         $adatbazis_kapcsolat -> bezar();
@@ -275,6 +277,8 @@ if( isset($_POST['login']) ) {
                         if( substr($_SESSION['kert_url'], 0, 4) != 'http' ) {
                             $_SESSION['kert_url'] = 'https://'.$_SESSION['kert_url'];
                         }
+                        // Ajax hívást azt vegyük ki belőle
+                        $_SESSION['kert_url'] = str_replace('ajax=1', '', $_SESSION['kert_url']);
                         header('Location: '.$_SESSION['kert_url']);
                         
                         $adatbazis_kapcsolat -> bezar();

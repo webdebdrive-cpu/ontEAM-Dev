@@ -257,7 +257,8 @@ if( isset($_POST['cash_flow_szerzodesek_mutat']) ) {
     $csv .= csv_ellenorzes_letolt(iconv2($csv_mibol, $csv_mibe, $_POST['pr_szam'].' '.$projekt['nev'] )).';'."\n";
     
     $csv .= csv_ellenorzes_letolt(iconv2($csv_mibol, $csv_mibe, 'Szálloda:' )).';';
-    $csv .= csv_ellenorzes_letolt(iconv2($csv_mibol, $csv_mibe, $szalloda )).';'."\n";
+    $csv .= csv_ellenorzes_letolt(iconv2($csv_mibol, $csv_mibe, $szalloda )).';'."\n"; 
+    $csv .= "\n"; 
 
     
     $szamlazott_tetelek = $adatbazis_kapcsolat->s('`projektszerzodes_recid`, `varh_erk`, `varh_ert`', 'projektszerzodes_tetel', "`teljesites`='0000-00-00' AND `projektszerzodes_recid` IN ( SELECT `recid` FROM `".get_db_tabla()."projektszerzodes` WHERE `pr_szam`='{$_POST['pr_szam']}') AND `varh_erk`>='{$_SESSION['cash_flow_ev_tol']}-{$_SESSION['cash_flow_ho_tol']}-01' AND `varh_erk`<='{$_SESSION['cash_flow_ev_ig']}-{$_SESSION['cash_flow_ho_ig']}-31'", 'varh_erk');
@@ -347,6 +348,7 @@ if( isset($_POST['cash_flow_szamlak_mutat']) ) {
     
     $csv .= csv_ellenorzes_letolt(iconv2($csv_mibol, $csv_mibe, 'Szálloda:' )).';';
     $csv .= csv_ellenorzes_letolt(iconv2($csv_mibol, $csv_mibe, $szalloda )).';'."\n";
+    $csv .= "\n"; 
     
     $szamlazott_tetelek = $adatbazis_kapcsolat->s('`projektszamla_recid`, `telj_dt`, `netto_ert`', 'projektszamla_tetel', "`projektszerzodes_tetel_recid`!=0 AND `projektszamla_recid` IN ( SELECT `recid` FROM `".get_db_tabla()."projektszamla` WHERE `pr_szam`='{$_POST['pr_szam']}') AND `".get_db_tabla()."projektszamla`.`telj_dt`>='{$_SESSION['cash_flow_ev_tol']}-{$_SESSION['cash_flow_ho_tol']}-01' AND `".get_db_tabla()."projektszamla`.`telj_dt`<='{$_SESSION['cash_flow_ev_ig']}-{$_SESSION['cash_flow_ho_ig']}-31'", "`".get_db_tabla()."projektszamla`.`telj_dt`", '', '', '',
                           "LEFT JOIN `".get_db_tabla()."projektszamla` ON `".get_db_tabla()."projektszamla`.`recid`=`".get_db_tabla()."projektszamla_tetel`.`projektszamla_recid`");
@@ -688,9 +690,9 @@ require_once('selectek.php');
             $cimek_fejlecbe = '';
             foreach( $bontas as $cim => $honapok ) {
                 $cimek_fejlecbe .= '<th>'.datum_kiir($cim).'</th>';
-                $csv_szalloda   .= str_replace(array('<br>', '-'), array("\n", "\n"), csv_ellenorzes_letolt(iconv2($csv_mibol, $csv_mibe, $cim))).';';
-                $csv_projekt    .= str_replace(array('<br>', '-'), array("\n", "\n"), csv_ellenorzes_letolt(iconv2($csv_mibol, $csv_mibe, $cim))).';';
-                $csv_reszletes  .= str_replace(array('<br>', '-'), array("\n", "\n"), csv_ellenorzes_letolt(iconv2($csv_mibol, $csv_mibe, $cim))).';';
+                $csv_szalloda   .= '='.str_replace(array('<br>', '-'), array(" ", "."), csv_ellenorzes_letolt(iconv2($csv_mibol, $csv_mibe, $cim))).';';
+                $csv_projekt    .= '='.str_replace(array('<br>', '-'), array(" ", "."), csv_ellenorzes_letolt(iconv2($csv_mibol, $csv_mibe, $cim))).';';
+                $csv_reszletes  .= '='.str_replace(array('<br>', '-'), array(" ", "."), csv_ellenorzes_letolt(iconv2($csv_mibol, $csv_mibe, $cim))).';';
             }
             $csv_szalloda   .= "\n";
             $csv_projekt    .= "\n";

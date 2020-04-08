@@ -1,3 +1,7 @@
+#szamlaBetolt {
+    padding: 0.5rem;
+}
+
 .cash_flow_adatlap_grid {
     display: grid;
     grid-template-columns: 50% 50%;
@@ -16,6 +20,14 @@
     grid-template-columns: 10% 90%;
     padding: 0.2rem 0rem;
     align-items: center;
+}
+.cash_flow_adatlap_grid .szallodak_grid> div:nth-of-type(1) {
+    text-align: right;
+    padding-right: 1rem;
+}
+
+.datum_koz {
+    margin-left: 2rem;
 }
 
 input[type='text'] {
@@ -59,18 +71,18 @@ table.szamla_cont_tabla.kisbetu tr.kijelolve td.fix {
 /* Cash-flow fül alatt az első oszlopok sorban */
 table.szamla_cont_tabla.kisbetu th.fix.cf1, table.szamla_cont_tabla.kisbetu td.fix.cf1 {
     left: 0rem;
-    min-width: 20rem;
-    max-width: 20rem;
+    min-width: 18rem;
+    max-width: 18rem;
 }
 
 /* Cash-flow fül alatt minden más oszlop szélessége is egyésges */
 table.szamla_cont_tabla.kisbetu th:first-of-type {
-    min-width: 20rem;
-    max-width: 20rem;
+    min-width: 18rem;
+    max-width: 18rem;
 }
 table.szamla_cont_tabla.kisbetu th:not(:first-of-type) {
-    min-width: 10rem;
-    max-width: 10rem;
+    min-width: 7rem;
+    max-width: 7rem;
 }
 
 td.kibont:after, th.kibont:after {
@@ -164,5 +176,34 @@ table.csikos td.nowrap {
 @media only screen and (max-width: 1500px) {
     .cash_flow_adatlap_grid > div:nth-of-type(2) > div {
         grid-template-columns: 15% 85%;
+    }
+}
+
+@media only screen and (max-width: 940px) {
+    .cash_flow_adatlap_grid > div:nth-of-type(2) > div {
+        grid-template-columns: 100%;
+    }
+    .cash_flow_adatlap_grid .szallodak_grid > div:nth-of-type(1) {
+        text-align: left;
+        padding-bottom: 0.6rem;
+    }
+    
+}
+
+@media only screen and (max-width: 870px) {
+    .cash_flow_adatlap_grid > div > div {
+        grid-template-columns: 50% 50%;
+    }
+    .datum_koz {
+        display: none;
+    }
+}
+
+@media only screen and (max-width: 520px) {
+    .cash_flow_adatlap_grid {
+        grid-template-columns: 100%;
+    }
+    .cash_flow_adatlap_grid> div:nth-of-type(1) {
+        padding-bottom: 2rem;
     }
 }

@@ -2094,7 +2094,8 @@ function fixTable() {
         var tartalomHeight = $('#tartalomJobb').height(),
             tartalomScrollHeight = $('#tartalomJobb').prop('scrollHeight');
 
-        if( tartalomScrollHeight > tartalomHeight ) {
+        if( $('#fixTable').height > $('#tartalomJobb').height() ) {
+        // if( true || tartalomScrollHeight > tartalomHeight ) {
 
             $('#fixTable').height($('#tartalomJobb').height() - 50);
 
@@ -2142,6 +2143,9 @@ function fixTable() {
         // Erre azért van szükség, mert az első pár oszlopot fixáltuk (ahogy a fejléceket is). Tehát ez lesz a konténer szélessége
         // amiben a táblázat vízszintesen scrollozható lesz
         szelesseg = $(window).width()-$('#tartalomBal').width()-50;
+        if( PHP_SELF == 'cash_flow.php' ) {
+            szelesseg = $(window).width()-$('#tartalomBal').width()-13;
+        }
         $('#fixTable').css('width', szelesseg+'px');
     }
 }

@@ -1084,12 +1084,16 @@ if( basename(self())=='beosztas.php' && !_jog(JOG_BEOSZTASOK_KEZEL)){
     $uj = $duplikal = '';
 }
 
-if( basename(self())=='cikktorzs.php' && !_jog(JOG_CIKKTORZS_KEZEL)){
+if( basename(self()) == 'cash_flow.php' ) {
+    $torles_icon = $uj = $duplikal = '';
+}
+
+if( basename(self()) == 'cikktorzs.php' && !_jog(JOG_CIKKTORZS_KEZEL) ) {
     $torles_icon    = '';
     $uj = $duplikal = '';
 }
 
-if( basename(self())=='dokumentumtar.php' && !_jog(JOG_DOKUMENTUMTAR_KEZEL)){
+if( basename(self()) == 'dokumentumtar.php' && !_jog(JOG_DOKUMENTUMTAR_KEZEL) ) {
     $torles_icon    = '';
     $uj = $duplikal = '';
 }
@@ -1103,12 +1107,12 @@ if( basename(self())=='energia_terv.php' &&  !_jog(JOG_ENERGIA_EGYSEGAR_KEZEL)) 
     $uj = $duplikal = '';
 }
 
-if(basename(self())=='eloterj_bod.php' && !_jog(JOG_ELOTERJ_KEZEL)){
+if( basename(self()) == 'eloterj_bod.php' && !_jog(JOG_ELOTERJ_KEZEL) ) {
     $torles_icon    = '';
     $uj = $duplikal = '';
 }
 
-if(basename(self())=='eloterj_fb.php' && !_jog(JOG_ELOTERJ_KEZEL)){
+if( basename(self()) == 'eloterj_fb.php' && !_jog(JOG_ELOTERJ_KEZEL) ) {
     $torles_icon    = '';
     $uj = $duplikal = '';
 }
@@ -1124,10 +1128,10 @@ if( basename(self()) == 'szerepkor.php' && !_jog(JOG_SZEREPKOR_KEZEL) ) {
 }
 
 // Eseti fenntartás
-if(basename(self())=='eseti_fenntartas.php' && !_jog(JOG_ESETI_FENN_KEZEL) ){
+if( basename(self()) == 'eseti_fenntartas.php' && !_jog(JOG_ESETI_FENN_KEZEL) ) {
     $uj = $duplikal = '';
 }
-if(basename(self())=='eseti_fenntartas.php' && !_jog(JOG_ESETI_FENN_TOROL) ){
+if( basename(self()) == 'eseti_fenntartas.php' && !_jog(JOG_ESETI_FENN_TOROL) ) {
     $torles_icon    = '';
 }
 
@@ -1363,17 +1367,29 @@ $lepteto_ikonok = nl2('
             <i class="material-icons">skip_next</i>
         </a>
     ');
-// Eszközkezelés alatt nincs léptetés
-$nincs_lepteto_ikon = array('dokumentumtar.php', 'eszkozkezeles.php', 'felmeresi_terv.php');
+// Nyomtatás ikon
+$nyomtatas_ikon = nl2('
+        <a class="nyomtat" title="Nyomtatás" onclick="alert2(\'#nyomtatasi_nezet\', nyomtat_megsem, \'Válasszon nyomtatási nézetet\')">
+            <i class="material-icons">print</i>
+        </a>
+    ');
+
+// Bizonyos oldalak alatt nincs léptetés
+$nincs_lepteto_ikon = array('cash_flow.php', 'dokumentumtar.php', 'eszkozkezeles.php', 'felmeresi_terv.php');
 if( in_array(basename(self()), $nincs_lepteto_ikon) ){
     $lepteto_ikonok = '';
+}
+// Bizonyos oldalak alatt nincs nyomtatás
+$nincs_nyomtatas_ikon = array('cash_flow.php');
+if( in_array(basename(self()), $nincs_nyomtatas_ikon) ){
+    $nyomtatas_ikon = '';
 }
 
 $get_get = get_get(array('pdf'));
 $header_sablon = fajlbol_olvas('../sablon/admin/header.html', true);
 $header_html .= str_replace(
-    array('{CACHE}',        '{CSS}', '{VERZIO}',    '{CEGNEV}', '{MENUK}', '{KERESO}', '{SZURES}', '{TBALW}', '{TJOBBW}', '{TARTBAL}', '{TABLA}', '{KERESODN}', '{OLDALNEV}', '{RENDEZES}', '{REND_IRANY}', '{REND_CHANGE}', '{MEGN}', '{SELF}', '{GET_GET}', '{CSV_GET}', '{SZERK_DIS}', '{BELEPVE}', '{LAPOZAS}', '{KSZ}',       '{LEPTETO_IKONOK}', '{UJ}', '{DUPLIKAL}', '{TORLES}',   '{CSUSZKADN}', '{RENDEZES_REJT}', '{MAIL}', '{FELH_NEV}', '{RESZLEG}', '{SZURES_NOBORDER}'  ),
-    array('?cache='.time(),  $css,   get_verzio(),  get_nev(),  $menuk,    $kereso,    $szures,    $tbalw,    $tjobbw,    $tartBal,    $tabla,    $keresodn,    $oldalNev,    $rendezes,    $rend_irany,    $rend_change,    $megn,    $self,    $get_get,    $csv_get,    $szerk_dis,    $belepve,    $lapozas,    $_GET['ksz'],  $lepteto_ikonok,    $uj,    $duplikal,    $torles_icon, $csuszkadn,    $rendezes_rejt,    $mail,    $felh_nev,    $reszleg,    $szures_border       ),
+    array('{CACHE}',        '{CSS}', '{VERZIO}',    '{CEGNEV}', '{MENUK}', '{KERESO}', '{SZURES}', '{TBALW}', '{TJOBBW}', '{TARTBAL}', '{TABLA}', '{KERESODN}', '{OLDALNEV}', '{RENDEZES}', '{REND_IRANY}', '{REND_CHANGE}', '{MEGN}', '{SELF}', '{GET_GET}', '{CSV_GET}', '{SZERK_DIS}', '{BELEPVE}', '{LAPOZAS}', '{KSZ}',       '{LEPTETO_IKONOK}', '{UJ}', '{DUPLIKAL}', '{TORLES}',    '{NYOMTATAS}',   '{CSUSZKADN}', '{RENDEZES_REJT}', '{MAIL}', '{FELH_NEV}', '{RESZLEG}', '{SZURES_NOBORDER}'  ),
+    array('?cache='.time(),  $css,   get_verzio(),  get_nev(),  $menuk,    $kereso,    $szures,    $tbalw,    $tjobbw,    $tartBal,    $tabla,    $keresodn,    $oldalNev,    $rendezes,    $rend_irany,    $rend_change,    $megn,    $self,    $get_get,    $csv_get,    $szerk_dis,    $belepve,    $lapozas,    $_GET['ksz'],  $lepteto_ikonok,    $uj,    $duplikal,    $torles_icon,  $nyomtatas_ikon, $csuszkadn,    $rendezes_rejt,    $mail,    $felh_nev,    $reszleg,    $szures_border       ),
     $header_sablon
 );
 
