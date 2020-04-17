@@ -243,7 +243,7 @@ class Adatbazis {
     * @param  array  Beszúrandó értékek
     * @return int    Legutóbb beszúrt sor id-je
     */
-    public function insert($tabla, $oszlopok, $ertekek){
+    public function insert($tabla, $oszlopok, $ertekek) {
 
 		$insert = 'INSERT INTO `'.$this -> db_prefix.$tabla.'` SET ';
 
@@ -309,21 +309,29 @@ class Adatbazis {
     * @param  string Where feltétel (opcionális)
     * @return boolean Igaz, ha sikerült a törlés, és hamis ha nem
     */
-    public function delete($table, $where = null){
+    public function delete($table, $where = null, $order = null, $limit = null) {
 
-		if($where == null){
+        if( $where == null ) {
             $delete = 'DELETE '.$this -> db_prefix.$table;
         } else {
         	$where  = $this -> sqlStringBeallit($where);
             $delete = 'DELETE FROM '.$this -> db_prefix.$table.' WHERE '.$where;
         }
+        
+        if( $order ) {
+            $delete .= ' ORDER BY '.$this -> sqlStringBeallit($order);
+        }
+        
+        if( $limit ) {
+            $delete .= ' LIMIT '.$limit;
+        }
 
         $delete = str_replace('--', '', $delete);
         $this -> legutobbiParancs = $delete;
 
-		if(!mysqli_query($this -> adatbazis_kapcsolat, $delete)){
-			if($this -> debug){
-				echo $delete.'<br>';
+		if( !mysqli_query($this->adatbazis_kapcsolat, $delete) ) {
+            if( $this->debug ) {
+                echo $delete.'<br>';
 				echo 'Adatbázis hiba sor törléskor: '.mysqli_error();
 			}
 			return false;
@@ -336,8 +344,8 @@ class Adatbazis {
     /**
     * @desc  Delete röviden (az eredeti függvényt hívja meg)
     */
-    public function d($table, $where = null){
-        return $this -> delete($table, $where);
+    public function d($table, $where = null, $order = null, $limit = null){
+        return $this -> delete($table, $where, $order, $limit);
     }
 
 

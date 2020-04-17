@@ -1,0 +1,67 @@
+<h2>Munkaidő hozzáadása</h2>
+<style type="text/css">
+    #ev {
+        margin-right: 2rem;
+        width: 5rem;
+    }
+    #ho {
+        margin-right: 2rem;
+    }
+    #ora {
+        margin-right: 2rem;
+        width: 3rem;
+    }
+</style>
+<div class="kozep">
+    Év: <input type="text" class="csillag" id="ev" maxlength="4" onkeyup="onlyNumbers( $(this) );">
+    Hónap: <select id="ho" class="csillag">
+                <option value="0">- Hónap -</option>
+                <option value="01">január</option>
+                <option value="02">február</option>
+                <option value="03">március</option>
+                <option value="04">április</option>
+                <option value="05">május</option>
+                <option value="06">június</option>
+                <option value="07">július</option>
+                <option value="08">augusztus</option>
+                <option value="09">szeptember</option>
+                <option value="10">október</option>
+                <option value="11">november</option>
+                <option value="12">december</option>
+            </select>
+    Óra: <input type="text" class="csillag" id="ora" maxlength="2" onkeyup="onlyNumbers( $(this) );">
+</div>
+
+<div class="kuldes">
+    <input type="button" class="gomb zold" value="Hozzáad" onclick="uj_munkaido();">
+    <input type="button" class="gomb piros" value="Mégsem" onclick="popupZar();">
+</div>
+
+<script>
+function uj_munkaido() {
+    $.ajax({
+        url : PHP_SELF,
+        type: 'POST',
+        data: {
+            recid       : _get('id'),
+            ev          : $('#ev').val(),
+            ho          : $('#ho').val(),
+            ora         : $('#ora').val(),
+            uj_munkaido :Date.now()
+        },
+        success: function(response){
+            if( response ) {
+                response = JSON.parse(response);
+                if( response.hiba ) {
+                    alert2(response.hiba, response.gomb, response.title);
+                    $('#'+response.focus).addClass('hibas_ide_focus');
+                    return false;
+                }
+                
+                szamlaBetolt(_get('id'), PHP_SELF, 'napi_munkaido');
+                popupZar();
+            }
+        }
+    });
+}
+</script>

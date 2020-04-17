@@ -21,7 +21,6 @@ $szoveg                 = 'beosztást';        //Hibaüzenetkor: Biztosan törl�
 
 $szamla_html = '';
 
-
 // Adott beosztás adatinak lekérése kiíratáshoz
 if( isset($_POST['get_beosztas_adatok']) ) {
 
@@ -313,7 +312,7 @@ require_once('selectek.php');
         // Gombok
         $gombok = nl2('
             <div class="form_kuldes">
-                <input type="button" class="gombb mentes_gomb" name="mehet_gomb" id="mehet_gomb" disabled value="Mentés" onclick="mentesGomb();">
+                <input type="button" class="gomb zold" name="mehet_gomb" id="mehet_gomb" disabled value="Mentés" onclick="mentesGomb();">
                 <input type="button" class="gomb piros" disabled id="megsem_gomb" value="Mégsem" onclick="megsemGomb();">
             </div>
         ');
@@ -332,12 +331,12 @@ require_once('selectek.php');
             </div>
         ');
 
-
-    } elseif(isset($_GET['naptar'])) {
+    // Naptár fül gombjai
+    } elseif( isset($_GET['naptar']) ) {
 
         $beosztas = $adatbazis_kapcsolat->s2('tol ig', 'beosztas', "`recid`='{$_GET['id']}'");
 
-        if(_jog(JOG_BEOSZTASOK_KEZEL)){
+        if( _jog(JOG_BEOSZTASOK_KEZEL) ) {
             $gombok = nl2('
                 <div class="muveletek" style="width: calc(100% - '.($_SESSION['defaultCsuszka'] + 16).'px);">
                     <div class="form_kuldes">
@@ -393,12 +392,12 @@ require_once('selectek.php');
     $js_submit_elott = 'return form_ell_admin();';
 
 	// Új termék felvitele
-	if(isset($_GET['uj']) && _jog(JOG_BEOSZTASOK_KEZEL) && !$csak_szerkesztheto){
+	if( isset($_GET['uj']) && _jog(JOG_BEOSZTASOK_KEZEL) && !$csak_szerkesztheto ) {
 
-	    //FORM
-		if(isset($_GET['ujkent'])){
-			foreach($akt_tomb as $ertek){
-				$sor[$ertek['name']]=$_SESSION[$ertek['name']];
+        // FORM
+		if( isset($_GET['ujkent']) ) {
+            foreach ( $akt_tomb as $ertek ) {
+                $sor[$ertek['name']]=$_SESSION[$ertek['name']];
 			}
 		}
 	    $js = js_kiir($akt_tomb, 'form_ell_admin()');
@@ -450,16 +449,15 @@ require_once('selectek.php');
         }
 
 	// Beosztás módosítása
-	}elseif(isset($_GET['modosit'])) {
+    } elseif( isset($_GET['modosit']) ) {
 
         // Ha Gyorskeresőből érkeznénk ide, akkor az ID-t valójában az id_hidden tartalmazza majd
-        if(isset($_GET['id_hidden'])){
+        if( isset($_GET['id_hidden']) ) {
             $_GET['id'] = $_GET['id_hidden'];
         }
 
-	    $sor = $adatbazis_kapcsolat -> s2('*', $megnevezes, 'recid='.$_GET['id']);
-
-        foreach($akt_tomb as $tomb) {
+	    $sor = $adatbazis_kapcsolat -> s2('*', $megnevezes, "`recid`='{$_GET['id']}'");
+        foreach ( $akt_tomb as $tomb ) {
             if( $tomb['type'] == 'autocomplete' ) {
 
                 if($tomb['csoport']){
@@ -509,7 +507,7 @@ require_once('selectek.php');
         if( $_GET['ajax'] ) {
             echo json_encode(array(
                 'tartalom' => $szamla_html,
-                'link' => get_get(array('ajax', 'kat', 'epo', 'oldal', 'order'), true)
+                'link'     => get_get(array('ajax', 'kat', 'epo', 'oldal', 'order'), true)
             ));
         } else {
             echo $szamla_html;
@@ -518,11 +516,11 @@ require_once('selectek.php');
         if($tobb_kep){
 			require_once('tobb_kep.php');
 		}
-
+        
 	// Naptár
-	}elseif(isset($_GET['naptar'])){
+    } elseif( isset($_GET['naptar']) ) {
 
-		// Ez elkészíti a $mezok változót
+        // Ez elkészíti a $mezok változót
         $akt_tomb = $beosztas_naptar_tomb;
 
 	    // FORM
@@ -553,7 +551,7 @@ require_once('selectek.php');
         }
 
 	// Történet
-	}elseif(isset($_GET['tortenet'])){
+    } elseif( isset($_GET['tortenet']) ) {
 
         $szamla_html .= get_tortenet($megnevezes);
 
@@ -566,7 +564,7 @@ require_once('selectek.php');
         }
 
 	// Dokumentumok
-	}elseif( isset($_GET['dokumentumok']) ) {
+    } elseif( isset($_GET['dokumentumok']) ) {
 
         $szamla_html .= 'Dokumentumok felülete';
 

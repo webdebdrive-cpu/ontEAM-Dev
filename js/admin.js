@@ -6283,6 +6283,7 @@ function szamlaBetolt( recid, page, muvelet, szerkeszt, kerdes_nelkul, anyagigen
                         'modosit_ules',
                         'munkalapok',
                         'muszaki_anyag',
+                        'napi_munkaido',
                         'naplo',
                         'naptar',
                         'obj',

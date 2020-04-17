@@ -23,7 +23,7 @@ $szamla_html = '';
 
 // Dokumentumok fülhöz kell majd
 $tobb_kep = false;
-if($tobb_kep){
+if( $tobb_kep ) {
     function get_tobbkep_darab()    { return 10;        } // Maximum hány kép tallózható be
     function get_tobbkep_csakkep()  { return '.jpg,.png';} // Milyen kiterjesztéseket engedünk meg (ha mindenet, legyen üres)
     function get_tobbkep_kepmeret() { return 10;        } // MB-ban
@@ -33,6 +33,66 @@ if($tobb_kep){
     }
     function get_tobbkep_tabla(){ return str_replace('.php', '', basename(self())).'_dok'; } // A képeket tartalmazó adatbázis tábla neve FONTOS: ha itt átnevezed akkor a tobbkep.php-ban is át kell írni!
 
+}
+
+// Új napi munkaidó hozzáadása
+if( isset($_POST['uj_munkaido']) ) {
+    
+    // Adathelyességek ellenőrzése
+    if( $_POST['ev']<date('Y') ) {
+        echo json_encode( array(
+            'hiba'  => 'Az év mező tartalma minimum az aktuális év ('.date('Y').') lehet!',
+            'title' => 'Hiba',
+            'focus' => 'ev',
+        ) );
+        
+        $weblap -> leallit();
+        exit;
+    }
+    if( $_POST['ho']<1 || $_POST['ho']>12 ) {
+        echo json_encode( array(
+            'hiba'  => 'Kérem válasszon hónapot!',
+            'title' => 'Hiba',
+            'focus' => 'ho',
+        ) );
+        $weblap -> leallit();
+        exit;
+    }
+    if( $_POST['ora']<4 || $_POST['ora']>12 ) {
+        echo json_encode( array(
+            'hiba'  => 'Az óra mező tartalma minimum 4, maximum 12 lehet.',
+            'title' => 'Hiba',
+            'focus' => 'ora',
+        ) );
+        $weblap -> leallit();
+        exit;
+    }
+    
+    $datum = $_POST['ev'].'-'.$_POST['ho'].'-01';
+    
+    // Időpont beszúrása
+    $adatbazis_kapcsolat->i('torzsadat_napi_munkaido',  array('torzsadat_id',  'datum', 'ora',          'insert_dt', 'insert_usr',                           'update_usr'                           ),
+                                                        array($_POST['recid'], $datum,  $_POST['ora'],  'now()',     $_SESSION[get_db_tabla().'teljes_nev'], $_SESSION[get_db_tabla().'teljes_nev'] )
+                            );
+    echo json_encode( array(
+        'siker'  => '1',
+    ) );
+    
+    $weblap -> leallit();
+    exit;
+}
+
+// Utolsó napi munkaidő törlése
+if( isset($_POST['munkaido_torol']) ) {
+    
+    $adatbazis_kapcsolat->d('torzsadat_napi_munkaido', "`torzsadat_id`='{$_POST['recid']}'", 'datum desc', '1');
+    
+    echo json_encode( array(
+        'siker'  => '1',
+    ) );
+    
+    $weblap -> leallit();
+    exit;
 }
 
 // CSV generálása
@@ -144,11 +204,12 @@ require_once('selectek.php');
         $megj_db = ' ('.$sor['megj_db'].')';
     }
 
-    if( isset($_GET['modosit']) || isset($_GET['beosztasok']) || isset($_GET['szabadsag']) || isset($_GET['tortenet']) || isset($_GET['dokumentumok']) || isset($_GET['megjegyzesek']) ) {
+    if( isset($_GET['modosit']) || isset($_GET['napi_munkaido']) || isset($_GET['beosztasok']) || isset($_GET['szabadsag']) || /*isset($_GET['tortenet']) ||*/ isset($_GET['dokumentumok']) || isset($_GET['megjegyzesek']) ) {
         // Számla fülek
         $ful_tomb = array(
             'modosit'       => 'Adatlap',
-            'tortenet'      => 'Történet',
+            'napi_munkaido' => 'Napi munkaidő',
+            // 'tortenet'      => 'Történet',
             'beosztasok'    => 'Beosztások',
             'szabadsag'     => 'Szabadság',
             'dokumentumok'  => 'Dokumentumok'.$dok_db,
@@ -200,7 +261,32 @@ require_once('selectek.php');
                 </div>
             ');
         }
+        
+    // Napi munkaidő gombjai
+    } elseif( isset($_GET['napi_munkaido']) ) {
 
+        // Gombok
+        $gombok = nl2('
+            <div class="form_kuldes">
+                <input type="button" class="gomb zold" value="Új hozzáadása" onclick="csoportMuvelet(\'torzsadat_napi_munkaido_hozzaad\');">
+                <input type="button" class="gomb piros" value="Utolsó sor törlése" onclick="munkaido_torol();">
+            </div>
+        ');
+
+        $muv_style = ' style="width: calc(100% - '.($_SESSION['defaultCsuszka'] + 16).'px);"';
+        if( in_array(basename(self()), $_SESSION['ketHasabos']) && $_SESSION[get_db_tabla().'user'] ) {
+            if( $_COOKIE['csuszkaSzelesseg'] ) {
+                $muv_style = ' style="width: calc(100% - '.(($_COOKIE['csuszkaSzelesseg'] + 16)/10).'rem);"';
+            }
+        }
+
+        // Műveletek box
+        $gombok = nl2('
+            <div class="muveletek"'.$muv_style.'>
+                '.$gombok.'
+            </div>
+        ');
+        
     // Módosítás gombok
     } else {
 
@@ -236,12 +322,12 @@ require_once('selectek.php');
     $js_submit_elott = 'return form_ell_admin();';
 
 	// Új rekord felvitele
-	if(isset($_GET['uj'])  && _jog(JOG_TORZSADAT_KEZEL) && !$csak_szerkesztheto){
+	if( isset($_GET['uj']) && _jog(JOG_TORZSADAT_KEZEL) && !$csak_szerkesztheto ) {
 
-	    //FORM
-		if(isset($_GET['ujkent'])){
-			foreach($akt_tomb as $ertek){
-				$sor[$ertek['name']]=$_SESSION[$ertek['name']];
+        //FORM
+		if( isset($_GET['ujkent']) ) {
+            foreach ( $akt_tomb as $ertek ) {
+                $sor[$ertek['name']]=$_SESSION[$ertek['name']];
 			}
 		}
 	    $js = js_kiir($akt_tomb, 'form_ell_admin()');
@@ -289,14 +375,14 @@ require_once('selectek.php');
         }
 
 	// Törzsadat módosítása
-	}elseif(isset($_GET['modosit'])) {
+    } elseif( isset($_GET['modosit']) ) {
 
         // Ha Gyorskeresőből érkeznénk ide, akkor az ID-t valójában az id_hidden tartalmazza majd
-        if(isset($_GET['id_hidden'])){
+        if( isset($_GET['id_hidden']) ) {
             $_GET['id'] = $_GET['id_hidden'];
         }
 
-        foreach($akt_tomb as $tomb) {
+        foreach ( $akt_tomb as $tomb ) {
             if( $tomb['type'] == 'autocomplete' ) {
 
                 if($tomb['csoport']){
@@ -348,9 +434,55 @@ require_once('selectek.php');
         if($tobb_kep){
 			require_once('tobb_kep.php');
 		}
+        
+
+	// Napi munkaidő
+    } elseif( isset($_GET['napi_munkaido']) ) {
+
+        $sor = $adatbazis_kapcsolat -> s2('nev', $megnevezes, "`recid`='{$_GET['id']}'");
+        // Táblázat kirajzolása
+        $szamla_html .= nl2('
+            <input type="hidden" id="nev" value="'.$sor['nev'].'">
+            <table class="csikos" id="napi_munkaido">
+            <tr>
+                <th>Dátum</th>
+                <th>Óra</th>
+            </tr>
+            ');
+        $munkaidok = $adatbazis_kapcsolat->s('*', 'torzsadat_napi_munkaido', "`torzsadat_id`='{$_GET['id']}'", 'datum');
+        if( !$munkaidok ) {
+            $szamla_html .= nl2('
+                <tr>
+                    <td colspan="100%">Jelenleg nem található bejegyzés!</td>
+                </tr>
+                ');
+        }
+        foreach( $munkaidok as $munkaido ) {
+            $szamla_html .= nl2('
+                <tr>
+                    <td>
+                        '.datum_kiir($munkaido['datum']).'
+                        <input type="hidden" value="'. date_formaz( substr($munkaido['datum'], 0, 7), '', 'csak hónap').'">
+                    </td>
+                    <td>'.$munkaido['ora'].'</td>
+                </tr>
+                ');
+        }
+        $szamla_html .= nl2('
+            </table>
+            ');
+        
+        if( $_GET['ajax'] ) {
+            echo json_encode(array(
+                'tartalom' => $szamla_html.$gombok,
+                'link'     => get_get(array('ajax', 'kat', 'epo', 'oldal', 'order'), true)
+            ));
+        } else {
+            echo $szamla_html.$gombok;
+        }
 
 	// Beosztások
-	}elseif(isset($_GET['beosztasok'])){
+    } elseif( isset($_GET['beosztasok']) ) {
 
         $szamla_html .= 'Beosztások felülete';
 
@@ -377,7 +509,7 @@ require_once('selectek.php');
             echo $szamla_html.$gombok;
         }
 
-	// Történet
+/*	// Történet
 	}elseif(isset($_GET['tortenet'])){
 
         $szamla_html .= get_tortenet($megnevezes);
@@ -389,7 +521,7 @@ require_once('selectek.php');
         } else {
             echo $szamla_html.$gombok;
         }
-
+*/
 	// Dokumentumok
 	}elseif( isset($_GET['dokumentumok']) ) {
 

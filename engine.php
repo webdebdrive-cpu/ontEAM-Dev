@@ -473,23 +473,31 @@ function date2int($datum){
 *
 *	@return string: a formázott kimenet
 */
-function date_formaz($datum, $nyelv = ''){
+function date_formaz($datum, $nyelv = '', $csak_honap = ''){
     
-    if($nyelv=='en'){
-        
+    if( $nyelv == 'en' ) {
+
         $honap = array('', 'January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December');
         list($ev, $ho, $nap) = explode('-', $datum);
         list($nap)           = explode(' ', $nap);
         
-        return (int)$nap.' '.$honap[(int)$ho].' '.$ev;
+        if( $csak_honap ) {
+            return $honap[(int)$ho].' '.$ev;
+        } else {
+            return (int)$nap.' '.$honap[(int)$ho].' '.$ev;
+        }
         
-    }elseif($nyelv=='de'){
+    } elseif( $nyelv == 'de' ) {
 
         $honap = array('', 'Januar', 'Februar', 'März', 'April', 'Mai', 'Juni', 'Juli', 'August', 'September', 'Oktober', 'November', 'Dezember');
         list($ev, $ho, $nap) = explode('-', $datum);
         list($nap)           = explode(' ', $nap);
         
-        return (int)$nap.' '.$honap[(int)$ho].' '.$ev;
+        if( $csak_honap ) {
+            return $honap[(int)$ho].' '.$ev;
+        } else {
+            return (int)$nap.' '.$honap[(int)$ho].' '.$ev;
+        }
         
     } else {
         
@@ -497,7 +505,11 @@ function date_formaz($datum, $nyelv = ''){
         list($ev, $ho, $nap) = explode('-', $datum);
         list($nap)           = explode(' ', $nap);
         
-        return $ev.'. '.$honap[(int)$ho].' '.(int)$nap.'.';
+        if( $csak_honap ) {
+            return $ev.'. '.$honap[(int)$ho];
+        } else {
+            return $ev.'. '.$honap[(int)$ho].' '.(int)$nap.'.';
+        }
         
     }
     
