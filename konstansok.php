@@ -5,6 +5,7 @@ define('NYOMTATAS_ADOSZAM_GUNDEL',  '10505898-2-42' );
 define('NYOMTATAS_FIX_CIM',         1040            );
 define('NYOMTATAS_KIVETELES_CIM',   2032            );
 define('SZALLITOKOD_HOSSZ',         5               );
+define('JELSZO_MIN_HOSSZ',          8               );
 define('DISZPECSER_TELEFONSZAM',    '30/703 0560, 1/889 5988');
 define('MSZK_MAILCIM',              'mszk@danubiushotels.com');
 define('CSV_EXPORT_UTVONAL_1',      'export');

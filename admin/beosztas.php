@@ -23,20 +23,20 @@ $szamla_html = '';
 
 
 // Adott beosztás adatinak lekérése kiíratáshoz
-if (isset($_POST['get_beosztas_adatok'])) {
+if( isset($_POST['get_beosztas_adatok']) ) {
 
     $naptar     = $adatbazis_kapcsolat->s2('felh_loginnev beosztas tol ig', 'beosztas_naptar', "`recid`='{$_POST['id']}'");
     $szemelyzet = $adatbazis_kapcsolat->s2('nev szemelyzet_id', 'torzsadat', "`felh_loginnev`='{$naptar['felh_loginnev']}'");
 
     $ret = $szemelyzet['nev'].' - ';
-    if($naptar['beosztas']==1){
+    if( $naptar['beosztas'] == 1 ) {
         require 'selectek.php';
-        foreach($select_szemelyzet as $szerepkor){
-            if($szerepkor['value']==$szemelyzet['szemelyzet_id']){
+        foreach ( $select_szemelyzet as $szerepkor ) {
+            if( $szerepkor['value'] == $szemelyzet['szemelyzet_id'] ) {
                 $ret .= $szerepkor['name'];
             }
         }
-    }else{
+} else {
         $ret .= 'Szabadság';
     }
 
@@ -48,7 +48,7 @@ if (isset($_POST['get_beosztas_adatok'])) {
 }
 
 // Naptárba tevés
-if (isset($_POST['beosztas_naptarba_tesz'])) {
+if( isset($_POST['beosztas_naptarba_tesz']) ) {
 
     // Tranzakció indul
     $db_error = false;
@@ -74,33 +74,33 @@ if (isset($_POST['beosztas_naptarba_tesz'])) {
     if($utkozes===false){ $db_error = true; }
 
     // Ha nincs ütközés, vagy felülírhatjuk, akkor beszúrjuk
-    if(!$utkozes || $_POST['felulir']){
+    if( !$utkozes || $_POST['felulir'] ) {
         $sql = $adatbazis_kapcsolat->i('beosztas_naptar',   array('beosztas_id',         'tol',        'ig',           'beosztas',         'szerepkor',        'felh_loginnev'),
                                                             array($_POST['beosztas_id'], $_POST['tol'], $_POST['ig'], $_POST['beosztas'], $_POST['szerepkor'], $felh_loginnev)
                                         );
         if($sql===false){ $db_error = true; }
 
         // Ha felül kell írni, akkor 3 estet le kell kezelni
-        if($_POST['felulir']){
+        if( $_POST['felulir'] ) {
 
-            //Ha teljes az átfedés, akkor az eredeti bejegyzést töröljük, hisz egy új jött létre helyette
+            // Ha teljes az átfedés, akkor az eredeti bejegyzést töröljük, hisz egy új jött létre helyette
             $sql1 = $adatbazis_kapcsolat->d('beosztas_naptar', "`beosztas_id`='{$_POST['beosztas_id']}' AND `felh_loginnev`='$felh_loginnev' AND `tol`>'{$_POST['tol']}' AND `ig`<'{$_POST['ig']}'");
             $sql2 = $adatbazis_kapcsolat->d('beosztas_naptar', "`beosztas_id`='{$_POST['beosztas_id']}' AND `felh_loginnev`='$felh_loginnev' AND `tol`<'{$_POST['tol']}' AND `ig`>'{$_POST['ig']}'");
 
-            //Jobbról-balról ha belőg az új beosztás, akkor arrébb toljuk a vég/kezdő időpontot
+            // Jobbról-balról ha belőg az új beosztás, akkor arrébb toljuk a vég/kezdő időpontot
             $sql3 = $adatbazis_kapcsolat->u('beosztas_naptar', array('tol'), array($_POST['ig']),  "`beosztas_id`='{$_POST['beosztas_id']}' AND `felh_loginnev`='$felh_loginnev' AND `tol`<'{$_POST['ig']}' AND `ig`>'{$_POST['ig']}'  ");
             $sql4 = $adatbazis_kapcsolat->u('beosztas_naptar', array('ig'),  array($_POST['tol']), "`beosztas_id`='{$_POST['beosztas_id']}' AND `felh_loginnev`='$felh_loginnev' AND `ig`>'{$_POST['tol']}' AND `tol`<'{$_POST['tol']}'");
-            if($sql1===false || $sql2===false || $sql3===false || $sql4===false){
+            if( $sql1 === false || $sql2 === false || $sql3 === false || $sql4 === false ) {
                 $db_error = true;
             }
 
         }
 
     // Ha van ütközés, rákérdezünk, hogy biztosan?
-    }else{
+    } else {
 
         //a már megengedtük a felülírást, akkor nem kérdezzük meg újra
-        if(!$_POST['felulir']){
+        if( !$_POST['felulir'] ) {
             echo json_encode( array('hiba' => 'Az új beosztás időpontja ütközik. Felülírja?', 'gomb' => '<input type="button" class="gomb zold" value="Igen" onclick="beosztas_naptarba_tesz(\''.$_POST['beosztas_id'].'\', \'írd felül\'); alert2();"> <input type="button" class="gomb piros" value="Nem" onclick="alert2()">'));
             mysqli_rollback($db_kapcs);
         }
@@ -116,7 +116,7 @@ if (isset($_POST['beosztas_naptarba_tesz'])) {
                                 )
                         );
         mysqli_commit($db_kapcs);
-    }else{
+} else {
         echo json_encode( array('hiba' => 'Az adatbázisba írás során hiba történt!'));
         mysqli_rollback($db_kapcs);
     }
@@ -142,7 +142,7 @@ if (isset($_POST['naptar_torol'])) {
     if(!$db_error){
         echo json_encode( array('siker' => 'siker', 'naptar' => beosztas_naptar($beosztas_id)) );
         mysqli_commit($db_kapcs);
-    }else{
+} else {
         echo json_encode( array('hiba' => 'Az adatbázisba írás során hiba történt!'));
         mysqli_rollback($db_kapcs);
     }
@@ -361,7 +361,7 @@ require_once('selectek.php');
             // Jogosutságkezelés: csak az törölheti, aki létrehozta
             if($sor['loginnev']!=$_SESSION[get_db_tabla().'user']){
                 $gombok .= ' <input type="button" id="recordTorol" class="gombb_alert dn" onclick="alert2(\'Csak saját bejegyzés törölhető!\', \'\', \'Hiba\')" value="Töröl" title="Töröl">';
-            }else{
+        } else {
                 $gombok .= ' <input type="button" id="recordTorol" class="gombb_alert dn" onclick="alert2(\'Biztosan törli ezt a '.$szoveg.'?\', gomb'.$_GET['id'].')" value="Töröl" title="Töröl">';
             }
         }
@@ -465,7 +465,7 @@ require_once('selectek.php');
                 if($tomb['csoport']){
                     $kulso_ertek = $adatbazis_kapcsolat->s2('info', $tomb['tabla'], "`{$tomb['oszlop_keres']}`='{$sor[$tomb['name']]}' AND `csoport`='{$tomb['csoport']}'", '', '1');
                     $kulso_ertek['nev'] = $kulso_ertek['info'];
-                }else{
+            } else {
                     $kulso_ertek = $adatbazis_kapcsolat->s2('recid nev', $tomb['tabla'], "`{$tomb['oszlop_keres']}`='{$sor[$tomb['name']]}'", '', '1');
                 }
 

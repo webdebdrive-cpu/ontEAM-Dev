@@ -656,7 +656,7 @@ $(function() {
 
                 // Anyagigénylésnél használt táblázat esetén valójában a táblázat következő sorára kell ugrani, ami a helyben rendezetség miatt nem ugyanaz, mint a bal oldali navpanelé
                 if( tabla=='anyagigenyles' || aktiv_oldal == 'szamla_cont_tabla' ) {
-
+                    
                     var active   = $('.szamla_cont_tabla tr.kijelolve').index('.szamla_cont_tabla tbody tr'),
                         szamlaDb = $('.szamla_cont_tabla tbody tr').length - 1;
                         $('.szamla_cont_tabla tr').removeClass('kijelolve');
@@ -666,8 +666,10 @@ $(function() {
                         ugras = 1;
                     }
 
+                    var irany = 0;
                     if( e.keyCode == KEY_UP ) {
                         kovSzamlaSor = active - 1;
+                        irany = -1;
 
                         if( kovSzamlaSor < ugras ) {
                             kovSzamlaSor = ugras;/* 2018.09.21 Tibi kérésére az első soron felfele nyílra lépve maradunk az első soron, nem pedig az utolsóra lépünk át */
@@ -682,6 +684,7 @@ $(function() {
                         }
                     } else if( e.keyCode == KEY_DOWN ) {
                         kovSzamlaSor = active + 1;
+                        irany = 1;
 
                         if( kovSzamlaSor > szamlaDb ) {
                             kovSzamlaSor = active; /* 2018.09.21 Tibi kérésére az utolsó soron lefele nyílra lépve maradunk az utolsó soron, nem pedig az elsőre lépünk át */
@@ -696,7 +699,16 @@ $(function() {
                         }
                     }
 
-                    $('.szamla_cont_tabla tbody tr:nth-of-type('+(kovSzamlaSor+1)+')').addClass('kijelolve');
+                    // Ha a következő sor látszik, akkor az legyen a kijelölt sor
+                    if( $('.szamla_cont_tabla tbody tr:nth-of-type('+(kovSzamlaSor+1)+')').is(':visible') ) {
+                        $('.szamla_cont_tabla tbody tr:nth-of-type('+(kovSzamlaSor+1)+')').addClass('kijelolve');
+                    // Ha nem látszik, akkor keressük meg a következő aktiív sort, ami még létezik és már látszik, és az lesz kijelölve
+                    } else {
+                        while( $('.szamla_cont_tabla tbody tr:nth-of-type('+(kovSzamlaSor+1)+')').length && !$('.szamla_cont_tabla tbody tr:nth-of-type('+(kovSzamlaSor+1)+')').is(':visible') ) {
+                            kovSzamlaSor += irany;
+                        }
+                        $('.szamla_cont_tabla tbody tr:nth-of-type('+(kovSzamlaSor+1)+')').addClass('kijelolve');
+                    }
 
                     if( aktiv_oldal != 'szamla_cont_tabla' ) {
                         $('#szamlaList li').removeClass('kijelolve');

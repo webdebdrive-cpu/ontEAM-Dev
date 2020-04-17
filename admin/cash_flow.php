@@ -675,7 +675,38 @@ require_once('selectek.php');
         // Egyébként a táblázat kirajzolása
         } else {
             
-            $csv_szalloda = $csv_projekt = $csv_reszletes = '';
+            // A CSV-t az adatlapon megjelölt beállítások kiíratásával kezdjük
+            $csv_beallitasok  = csv_ellenorzes_letolt(iconv2($csv_mibol, $csv_mibe, 'Időszak:' )).';';
+            $csv_beallitasok .= csv_ellenorzes_letolt(iconv2($csv_mibol, $csv_mibe, $_SESSION['cash_flow_ev_tol'].'.'.$_SESSION['cash_flow_ho_tol'].'-'.$_SESSION['cash_flow_ev_ig'].'.'.$_SESSION['cash_flow_ho_ig'] )).';';
+            $csv_beallitasok .= "\n";
+            $bontas = ucfirst($_SESSION['cash_flow_bontas']);
+            if( $bontas == 'Negyed' ) {
+                $bontas = 'Negyedéves';
+            }
+            
+            $csv_beallitasok .= csv_ellenorzes_letolt(iconv2($csv_mibol, $csv_mibe, 'Bontás:' )).';';
+            $csv_beallitasok .= csv_ellenorzes_letolt(iconv2($csv_mibol, $csv_mibe, $bontas )).';';
+            $csv_beallitasok .= "\n";
+            if( $_SESSION['cash_flow_pri_egyutt'] ) {
+                $csv_beallitasok .= csv_ellenorzes_letolt(iconv2($csv_mibol, $csv_mibe, 'Projekt igényekkel együtt' )).';';
+                $csv_beallitasok .= "\n";
+            }
+            if( !$_SESSION['cash_flow_szetosztas_egyutt'] ) {
+                $csv_beallitasok .= csv_ellenorzes_letolt(iconv2($csv_mibol, $csv_mibe, 'Szétosztásra váró számlatételekkel együtt' )).';';
+                $csv_beallitasok .= "\n";
+            }
+            $csv_beallitasok .= csv_ellenorzes_letolt(iconv2($csv_mibol, $csv_mibe, 'Szállodák:' )).';';
+            $szalloda_nevek = array();
+            $szallodak = explode(',', $_SESSION['cash_flow_szallodak']);
+            foreach ( $szallodak as $szalloda_id ) {
+                array_push($szalloda_nevek, getSzallodaNev($szalloda_id));
+            }
+            sort($szalloda_nevek);
+            $csv_beallitasok .= csv_ellenorzes_letolt(iconv2($csv_mibol, $csv_mibe, implode(', ', $szalloda_nevek) )).';';
+            $csv_beallitasok .= "\n";
+            $csv_beallitasok .= "\n";
+            
+            $csv_szalloda = $csv_projekt = $csv_reszletes = $csv_beallitasok;
             $csv_szalloda   .= csv_ellenorzes_letolt(iconv2($csv_mibol, $csv_mibe, 'Szálloda' ))                     .';'.csv_ellenorzes_letolt(iconv2($csv_mibol, $csv_mibe, 'Összesen' )).';';
             $csv_projekt    .= csv_ellenorzes_letolt(iconv2($csv_mibol, $csv_mibe, 'Szálloda / Projekt' ))           .';'.csv_ellenorzes_letolt(iconv2($csv_mibol, $csv_mibe, 'Összesen' )).';';
             $csv_reszletes  .= csv_ellenorzes_letolt(iconv2($csv_mibol, $csv_mibe, 'Szálloda / Projekt / CF típus' )).';'.csv_ellenorzes_letolt(iconv2($csv_mibol, $csv_mibe, 'Összesen' )).';';
@@ -787,14 +818,17 @@ require_once('selectek.php');
                         $projektigeny_reszletes_csv .= csv_ellenorzes_letolt(iconv2($csv_mibol, $csv_mibe, $pr_igeny_ossz_sum )).';'.$csv_tmp."\n"
                                                     .$projektigeny_terv_csv;
                         
-                        
+                        $kibonthato = '';
+                        if( $pr_igeny_ossz_sum ) {
+                            $kibonthato = ' kibont';
+                        }
                         $projekt_sorok .= nl2('
                         <tr id="projekt_igeny_'.$projekt_igeny['recid'].'" class="projektigeny_sor '.$dn.' szalloda_'.$szalloda_id.'">
-                            <td class="fix cf1 kibont f_projekt_kibont wrap"><b>'.$projekt_igeny['ikt_szam'].'</b><br>'.$projekt_igeny['nev'].'</td>
+                            <td class="fix cf1'.$kibonthato.' f_projekt_kibont wrap"><b>'.$projekt_igeny['ikt_szam'].'</b><br>'.$projekt_igeny['nev'].'</td>
                             <td class="r">'.number_format($pr_igeny_ossz_sum, 0, '', ' ').'</td>
                             '.$projekt_igeny_sum_html.'
                         </tr>
-                        <tr id="tervezett_igeny_'.$projekt_igeny['recid'].'" class="tervezett_sor '.$dn.' projekt_igeny_'.$projekt_igeny['recid'].'">
+                        <tr id="tervezett_igeny_'.$projekt_igeny['recid'].'" class="tervezett_sor'.$kibonthato.' '.$dn.' szalloda_'.$szalloda_id.'_zar projekt_igeny_'.$projekt_igeny['recid'].'">
                             <td class="fix cf1"><a href="projektigenyles.php?id='.$projekt_igeny['recid'].'&amp;cash_flow&amp;mezo=ikt_szam&amp;op=equal&amp;felt='.$projekt_igeny['ikt_szam'].'" target="_blank">Tervezett</a></td>
                             <td class="r">'.number_format($tervezett_igeny_sum, 0, '', ' ').'</td>
                             '.$tervezett_igeny_html.'
@@ -931,23 +965,28 @@ require_once('selectek.php');
                                               .$projekt_szerz_csv
                                               .$projekt_szaml_csv;
                     
+                    // Ha a összum nulla, akkor feleslegesen ne is lehessen lenyitni ezt a sort
+                    $kibonthato = '';
+                    if( $pr_ossz_sum ) {
+                        $kibonthato = ' kibont';
+                    }
                     $projekt_sorok .= nl2('
                     <tr id="projekt_'.$projekt['recid'].'" class="projekt_sor '.$dn.' szalloda_'.$szalloda_id.'">
-                        <td class="fix cf1 kibont f_projekt_kibont wrap"><b>'.$projekt['ikt_szam'].'</b> '.getErtek('teljes_nev', 'login', 'recid', $projekt['pfelelos']).'<br>'.$projekt['nev'].'</td>
+                        <td class="fix cf1'.$kibonthato.' f_projekt_kibont wrap"><b>'.$projekt['ikt_szam'].'</b> '.getErtek('teljes_nev', 'login', 'recid', $projekt['pfelelos']).'<br>'.$projekt['nev'].'</td>
                         <td class="r">'.number_format($pr_ossz_sum, 0, '', ' ').'</td>
                         '.$projekt_sum_html.'
                     </tr>
-                    <tr id="tervezett_'.$projekt['recid'].'" class="tervezett_sor '.$dn.' szalloda_'.$szalloda_id.'_zar projekt_'.$projekt['recid'].'">
+                    <tr id="tervezett_'.$projekt['recid'].'" class="tervezett_sor'.$kibonthato.' '.$dn.' szalloda_'.$szalloda_id.'_zar projekt_'.$projekt['recid'].'">
                         <td class="fix cf1"><a href="projektkezeles.php?id='.$projekt['recid'].'&amp;cash_flow&amp;mezo=ikt_szam&amp;op=equal&amp;felt='.$projekt['ikt_szam'].'" target="_blank">Tervezett</a></td>
                         <td class="r">'.number_format($tervezett_sum, 0, '', ' ').'</td>
                         '.$tervezett_html.'
                     </tr>
-                    <tr id="szerzodott_'.$projekt['recid'].'" class="szerzodott_sor '.$dn.' szalloda_'.$szalloda_id.'_zar projekt_'.$projekt['recid'].'">
+                    <tr id="szerzodott_'.$projekt['recid'].'" class="szerzodott_sor'.$kibonthato.' '.$dn.' szalloda_'.$szalloda_id.'_zar projekt_'.$projekt['recid'].'">
                         <td class="fix cf1"><a href="javascript:cash_flow_pr_szam=\''.$projekt['ikt_szam'].'\'; csoportMuvelet(\'cash_flow_szerzodesek_mutat\'); void(0);">Szerződött</a></td>
                         <td class="r">'.number_format($szerzodes_sum, 0, '', ' ').'</td>
                         '.$szerzodott_html.'
                     </tr>
-                    <tr id="szamlazott_'.$projekt['recid'].'" class="szamlazott_sor '.$dn.' szalloda_'.$szalloda_id.'_zar projekt_'.$projekt['recid'].'">
+                    <tr id="szamlazott_'.$projekt['recid'].'" class="szamlazott_sor'.$kibonthato.' '.$dn.' szalloda_'.$szalloda_id.'_zar projekt_'.$projekt['recid'].'">
                         <td class="fix cf1"><a href="javascript:cash_flow_pr_szam=\''.$projekt['ikt_szam'].'\'; csoportMuvelet(\'cash_flow_szamlak_mutat\'); void(0);">Számlázott</a></td>
                         <td class="r">'.number_format($szamlazott_sum, 0, '', ' ').'</td>
                         '.$szamlazott_html.'
@@ -980,9 +1019,13 @@ require_once('selectek.php');
                                 .$projektigeny_reszletes_csv
                                 .$projekt_szumma_reszletes;
 
+                $kibonthato = '';
+                if( $szalloda_ossz_sum ) {
+                    $kibonthato = ' kibont f_szalloda_kibont';
+                }
                 $szamla_html .= nl2('
                 <tr id="szalloda_'.$szalloda_id.'" class="szalloda_sor">
-                    <td class="fix cf1 kibont f_szalloda_kibont">'.getSzallodaNev($szalloda_id).'</td>
+                    <td class="fix cf1'.$kibonthato.'">'.getSzallodaNev($szalloda_id).'</td>
                     <td class="r">'.number_format($szalloda_ossz_sum, 0, '', ' ').'</td>
                     '.$szalloda_sum_html.'
                 </tr>
@@ -1086,6 +1129,11 @@ require_once('selectek.php');
         </div>
                 ');
         }
+        
+        // A csak 0-ás cellák elől vegyük le az egyenlődég jelet
+        $csv_szalloda   = str_replace('="0"', '0', $csv_szalloda);
+        $csv_projekt    = str_replace('="0"', '0', $csv_projekt);
+        $csv_reszletes  = str_replace('="0"', '0', $csv_reszletes);
         
         fajlba_mentes('cash_flow_export_szalloda'.session_id().'.csv',  $csv_szalloda);
         fajlba_mentes('cash_flow_export_projekt'.session_id().'.csv',   $csv_projekt);

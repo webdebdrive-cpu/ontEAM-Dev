@@ -37,7 +37,7 @@ if( isset($_POST['jelszo_csere']) ) {
 
         // Elég hosszúak-e
         $hossz = mb_strlen($_POST['jlsz'], 'UTF-8');
-        if( $hossz>=8 && $hossz<=20 ){
+        if( $hossz >= 8 && $hossz <= 20 ) {
 
             // Tartalmaz-e betűt és számot
             if( preg_match('/[A-Za-z].*[0-9]|[0-9].*[A-Za-z]/', $_POST['jlsz']) ) {

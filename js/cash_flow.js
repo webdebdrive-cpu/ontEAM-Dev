@@ -1,11 +1,21 @@
 $(document).ready(function () {
     // Adatlap megjelenésekor a tól év mezőben villog kurzor.
     $('#ev_tol').focus();
+    
+    // A speciális oldalelrednezés miatt a füleken igazítani kell
+    $('#szamlaFulek').css({'margin-top':'-43px', 'margin-left':'5px'});
+    
 });
 
 // Mezőkbe kattintva az jelölődjön ki
 $(document).on('click', '.kijelol', function(e) {
     $(this).select();
+});
+
+// Mezőkbe kattintva az jelölődjön ki
+$(document).on('click', '.szamla_cont_tabla tbody tr', function(e) {
+    $('.szamla_cont_tabla tbody tr').removeClass('kijelolve');
+    $(this).addClass('kijelolve');
 });
 
 // Mezőbeírt adatok ellenőzése, mentése SESSION-be
@@ -48,7 +58,7 @@ function cash_flow_elkeszitese() {
 }
 
 // Cash-flow táblázatnál sorok mutatása, rejtése
-$(document).on('click', '.f_szalloda_kibont, .f_projekt_kibont', function(e) {
+$(document).on('click', '.f_szalloda_kibont, .f_projekt_kibont.kibont', function(e) {
     alert2('Adatok betöltése folyamatban, kérem várjon...', '&nbsp;', 'Üzenet');
     
     var kibontva_volt = $(this).hasClass('kibontva');
@@ -65,6 +75,7 @@ $(document).on('click', '.f_szalloda_kibont, .f_projekt_kibont', function(e) {
                 $('.'+id+'_zar').fadeOut(function(){ alert2(); });
                 // Szállodát bezárva, az alatta levő projekt is bezáródik, emiatt le kell venni a kibontva class-t
                 $('.'+id+' td.fix').removeClass('kibontva');
+
             } else {
                 $('.'+id).fadeIn(function(){ alert2(); });
             }
@@ -92,7 +103,7 @@ $(document).on('click', '.f_osszes_kibont', function(e) {
         $('tr.projektigeny_sor, tr.projekt_sor, tr.tervezett_sor, tr.szerzodott_sor, tr.szamlazott_sor').fadeOut( function(){ alert2(); } );
         $('td.kibont, th.kibont').removeClass('kibontva');
     } else {
-        $('tr.projektigeny_sor, tr.projekt_sor, tr.tervezett_sor, tr.szerzodott_sor, tr.szamlazott_sor').fadeIn( function(){ alert2(); } );
+        $('tr.projektigeny_sor, tr.projekt_sor, tr.tervezett_sor.kibont, tr.szerzodott_sor.kibont, tr.szamlazott_sor.kibont').fadeIn( function(){ alert2(); } );
         $('td.kibont, th.kibont').addClass('kibontva');
     }
     

@@ -500,10 +500,15 @@ if(isset($_GET['ut_teszt'])) {
     $aktkezd_d  = str_replace('-', '.', $sor['aktkezd_d']);
     $aktvege_d  = str_replace('-', '.', $sor['aktvege_d']);
 
+    $idoszakos_cimke = 'Időszakos ütemezés:';
+    if( $utemezes == 'Folyamatos' ) {
+        $idoszakos_cimke = 'Ütemezés:';
+    }
+    
     $szamla_html .=  "esemd: $esem_d<br>cikltip: $sor[cikltip]<br>ciklaltip: $sor[ciklaltip]<br>ciklszorz: $sor[ciklszorz]<br>ciklho: $sor[ciklho]<br>ciklhet: $sor[ciklhet]<br>ciklnap: $sor[ciklnap]<br>idoszakos: $sor[idoszakos]<br>kezdho: $sor[kezdho]<br>kezdnap: $sor[kezdnap]<br>vegeho: $sor[vegeho]<br>vegenap: $sor[vegenap]<br>aktkezd_d: $aktkezd_d<br>aktvege_d: $aktvege_d";
     $getnextvaliddate = getnextvaliddate(false, $esem_d, $sor['cikltip'], $sor['ciklaltip'], $sor['ciklszorz'], $sor['ciklho'], $sor['ciklhet'], $sor['ciklnap'], $sor['idoszakos'], $sor['kezdho'], $sor['kezdnap'], $sor['vegeho'], $sor['vegenap'], $aktkezd_d, $aktvege_d);
     $szamla_html .= '<br>Szabály: ' . getcimke( $sor['cikltip'], $sor['ciklaltip'], $sor['ciklszorz'], $sor['ciklho'], $sor['ciklhet'], $sor['ciklnap'], $getnextvaliddate).'<br><br>';
-    $szamla_html .= '<hr>Ütemezés: ' . $utemezes;
+    $szamla_html .= '<br>'.$idoszakos_cimke.' <span class="nowrap">'.$utemezes.'</span>';
     $szamla_html .= '<hr>Esedékes: ' . $sor['esnap_d'].' '.het_napja_txt($sor['esnap_d']);
     $szamla_html .= '<hr>Utolsó végrehajtás: ' . $esnap_d .' '.het_napja_txt($esnap_d);
     $szamla_html .= '<br>Következő: ' . $getnextvaliddate.' '.het_napja_txt($getnextvaliddate);
@@ -666,8 +671,13 @@ if(isset($_GET['ut_teszt'])) {
 //        }
 
 // $szamla_html .=  "esemd: $esem_d<br>cikltip: $sor[cikltip]<br>ciklaltip: $sor[ciklaltip]<br>ciklszorz: $sor[ciklszorz]<br>ciklho: $sor[ciklho]<br>ciklhet: $sor[ciklhet]<br>ciklnap: $sor[ciklnap]<br>idoszakos: $sor[idoszakos]<br>kezdho: $sor[kezdho]<br>kezdnap: $sor[kezdnap]<br>vegeho: $sor[vegeho]<br>vegenap: $sor[vegenap]<br>aktkezd_d: $aktkezd_d<br>aktvege_d: $aktvege_d";
+        
+            $idoszakos_cimke = 'Időszakos ütemezés:';
+        if( $utemezes == 'Folyamatos' ) {
+            $idoszakos_cimke = 'Ütemezés:';
+        }
         $szamla_html .= '<br>Szabály: ' . getcimke( $sor['cikltip'], $sor['ciklaltip'], $sor['ciklszorz'], $sor['ciklho'], $sor['ciklhet'], $sor['ciklnap'], $getnextvaliddate);
-        $szamla_html .= '<br>Ütemezés: ' . $utemezes;
+        $szamla_html .= '<br>'.$idoszakos_cimke.' <span class="nowrap">'.$utemezes.'</span>';
         $szamla_html .= '<br>Esedékes: ' . $esedekes.' '.het_napja_txt($esedekes);
         $szamla_html .= '<br>';
         $szamla_html .= '<br>Várható ütemezés:<br>';

@@ -1265,18 +1265,22 @@ if( in_array(basename(self()), $valasztos_feluletek) ) {
 }
 $csv_get = 'csv_general( this, \''.$valasztos.'\' );';
 
-$rendez_rejt_oldalak = array('dokumentumtar.php', 'eszkozkezeles.php', 'felmeresi_terv.php');
+// Rendezés rejtése bizonyos oldalak alatt
+$rendez_rejt_oldalak = array('anyagigenyles.php', 'cash_flow.php', 'dokumentumtar.php', 'eszkozkezeles.php', 'felmeresi_terv.php');
 if( in_array(basename(self()), $rendez_rejt_oldalak) ) {
     $rendezes_rejt = ' dn';
 }
-// Anyagigénylésnél DE nem anyagrendelésnél is rejtjük
-if( basename(self()) == 'anyagigenyles.php' ) {
-    $rendezes_rejt = ' dn';
+
+// Ha el akarjuk rejteni a szűrést, akkor azt csináljuk, hogy felülírjuk a szűrést a semmivel
+$szures_rejt_oldalak = array('cash_flow.php');
+if( in_array(basename(self()), $szures_rejt_oldalak) ) {
+    $szures = '';
 }
+
 
 // Gyorskereső, hacsak nem rejtett oldalon van
 $szures_border = '';
-$gyorskereses_rejt_oldalak = array('dokumentumtar.php', 'eszkozkezeles.php', 'felmeresi_terv.php');
+$gyorskereses_rejt_oldalak = array('cash_flow.php', 'dokumentumtar.php', 'eszkozkezeles.php', 'felmeresi_terv.php');
 if( !in_array(basename(self()), $gyorskereses_rejt_oldalak) ) {
     // Anyagigénylés tálbázatban másképp keresünk
     if( basename(self()) == 'anyagigenyles.php' ) {

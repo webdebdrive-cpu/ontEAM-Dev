@@ -192,7 +192,7 @@ function i_u($type, $tabla, $tomb) {
             }
 
             // Ha felhasználó adatlapját módosítjuk, és van megadva jelszó, akkor lecseréljük a mostanit
-            if($tabla=='felh' && $ertek['name']=='reg_jelsz' && $_POST[$ertek['name']]) {
+            if( $tabla == 'felh' && $ertek['name'] == 'reg_jelsz' && $_POST[$ertek['name']] ) {
                 $_POST[$ertek['name']] = sha1($_POST[$ertek['name']]); //sha1 helyett más elkódolást is használhatnánk, de ez javasolt. A lényeg, hogy legyen összhangban a class.Felhasznalo konfigjával
             }
 
@@ -514,21 +514,21 @@ function i_u($type, $tabla, $tomb) {
         } elseif( $tabla == 'login' ) {
 
             // Loginnév hossza nem lehet rövidebb mint 8 karakter
-            if( mb_strlen( $_POST['nev'], 'UTF-8' )<8 ){
+            if( mb_strlen($_POST['nev'], 'UTF-8') < JELSZO_MIN_HOSSZ ) {
                 header('Location:login.php?uj&rovid_nev');
                 $weblap -> leallit();
                 exit;
             }
 
             // Ha illegális karaktert használt
-            if( preg_match('/[^a-zA-Z0-9._@éáűőúöüóíÉÁŰŐÚÖÜÓÍ]+/', $_POST['nev']) ){
+            if( preg_match('/[^a-zA-Z0-9._@éáűőúöüóíÉÁŰŐÚÖÜÓÍ]+/', $_POST['nev']) ) {
                 header('Location:login.php?uj&hibasnev');
                 $weblap -> leallit();
                 exit;
             }
 
             // Nem lehet ugyanazt a loginnevet kétszer felhasználni
-            if($adatbazis_kapcsolat->s('recid', 'login', "`nev`='{$_POST['nev']}'")){
+            if( $adatbazis_kapcsolat->s('recid', 'login', "`nev`='{$_POST['nev']}'") ) {
                 header('Location:login.php?uj&foglalt_nev');
                 $weblap -> leallit();
                 exit;
@@ -845,7 +845,7 @@ function i_u($type, $tabla, $tomb) {
         if( $tabla == 'login' ) {
             // Szállodák feldolgozása
             $adatok = explode(',', str_replace(array('"', '{', '}'), '', $_POST['szallodak_hidden']));
-            foreach($adatok as $adat){
+            foreach ( $adatok as $adat ) {
                 list($x, $telephely_id) = explode(':', $adat);
                 $sql = $adatbazis_kapcsolat->i('telephely_kapcs',
                                                             array('nev',        'telephely_id', 'insert_dt',    'insert_usr',                             'update_usr'                           ),
@@ -856,10 +856,10 @@ function i_u($type, $tabla, $tomb) {
             
             // Társrészlegek feldolgozása
             $adatok = explode(',', str_replace(array('"', '{', '}'), '', $_POST['tarsreszlegek_hidden']));
-            foreach($adatok as $adat){
+            foreach ( $adatok as $adat ) {
                 list($x, $reszleg_id) = explode(':', $adat);
                 // Részlegid-k felvétele, ha nem az adatlap részlege
-                if($reszleg_id != $_POST['reszleg_id']){
+                if( $reszleg_id != $_POST['reszleg_id'] ) {
                     $sql = $adatbazis_kapcsolat->i('login_tarsreszleg',
                                                                 array('login_id',   'reszleg_id', 'insert_dt',    'insert_usr',                             ),
                                                                 array($id,          $reszleg_id,  'NOW()',        $_SESSION[get_db_tabla().'teljes_nev']    )
@@ -913,8 +913,8 @@ function i_u($type, $tabla, $tomb) {
             if( $sql === false ) { $db_error = true; }
 
             // Ha van előkészítés jogunk, és post-ként kaptunk is "elokeszitett_statuszba" információt, akkor rögtön léptetjük is tovább a sáttuszát
-            if (_jog(JOG_MUNKALAP_KULSOS_ELOKESZIT) && $_POST['statuszba_tovabb_leptet']) {
-                if ( addStatusz($tabla.'_statusz', $id, $_POST['statuszba_tovabb_leptet']) === false ){
+            if( _jog(JOG_MUNKALAP_KULSOS_ELOKESZIT) && $_POST['statuszba_tovabb_leptet'] ) {
+                if( addStatusz($tabla . '_statusz', $id, $_POST['statuszba_tovabb_leptet']) === false ) {
                     $db_error = true;
                 }
             }
@@ -1386,7 +1386,7 @@ function i_u($type, $tabla, $tomb) {
             
             // Mailcímek helyességének ellenőrzése
             $hibauzenet = is_valid_mail_tobb($_POST['usermail'], 'hibaüzenettel');
-            if( $hibauzenet ){
+            if( $hibauzenet ) {
                 echo json_encode(array(
                     'hiba'  => $hibauzenet,
                     'title' => 'Hiba',
@@ -1886,7 +1886,7 @@ function i_u($type, $tabla, $tomb) {
         if( $tabla == 'torzsadat' ) {
             $login_nev = $adatbazis_kapcsolat->s2('felh_loginnev', $tabla, "`recid`='{$_GET['id']}'");
             if( $login_nev === false ) { $db_error = true; }
-            if($login_nev){
+            if( $login_nev ) {
                 $sql = $adatbazis_kapcsolat->u('login', array('aktiv'), array($_POST['aktiv']), "`nev`='{$login_nev['felh_loginnev']}'");
                 if( $sql === false ) { $db_error = true; }
             }
@@ -1908,7 +1908,7 @@ function i_u($type, $tabla, $tomb) {
                     'oldal'    => basename(self())
                 );
 
-                foreach($tomb as $value) {
+                foreach ( $tomb as $value ) {
                     if( $value['type'] == 'autocomplete' ) {
                         $value['tabla'] = str_replace('_csakszint', '', $value['tabla']);
                         $kulso_ertek = $adatbazis_kapcsolat->s('recid nev', $value['tabla'], 'recid='.$sor[0][$value['name']], '', '1');
@@ -2284,7 +2284,7 @@ function js_kiir($tomb, $fg = 'form_ell_regi()', $ajax = false) {
     }
 
     // Új felhasználó feltöltésekor a szállodát is ki kell választani
-    if( basename(self())=='login.php' && isset($_GET['uj']) ){
+    if( basename(self()) == 'login.php' && isset($_GET['uj']) ) {
         $ret .= nl2('
             if( !$(\'#szallodak_hidden\').val() || $(\'#szallodak_hidden\').val()==\'{}\' ){
                 alert2(\'Mentés előtt válasszon szállodát!\', \'<input type="button" class="gomb" value="Ok" onclick="kapcsolodoSzerkeszt(\\\'szallodak\\\'); alert2();">\', \'Hiba\');
@@ -2296,7 +2296,7 @@ function js_kiir($tomb, $fg = 'form_ell_regi()', $ajax = false) {
     }
 
     // Ha épp most vettük ki a pipát a "Jelszóval rendelkezik" mezőből, akkor ellenőrizzük, hogy van-e egyáltalán mailcím.
-    if( basename(self())=='login.php' && isset($_GET['modosit']) ){
+    if( basename(self()) == 'login.php' && isset($_GET['modosit']) ) {
         $ret .= nl2('
             if( !nincs_mailcim_mehet && $(\'#van_jelszo\').prop(\'checked\')==false && $(\'#van_jelszo\').hasClass(\'mod\') && !$(\'#usermail\').val() ){
                 alert2( $(\'#teljes_nev\').val()+\' felhasználónak nincs e-mail címe,<br>'.get_nev().' nem tud értesítő emailt küldeni új jelszóról.<br><br>Folytatja?\', \'<input type="button" class="gomb zold" value="Igen" onclick="nincs_mailcim_mehet = true; $(\\\'#szerk_form\\\').submit();"> <input type="button" class="gomb piros" value="Nem" onclick="alert2();">\');
@@ -7573,7 +7573,7 @@ function beosztas_naptar($beosztas_id){
 
     $events = '';
     if( $naptar_sorok ) {
-        foreach($naptar_sorok as $ns) {
+        foreach ( $naptar_sorok as $ns ) {
 
             // Személyzet név
             $szemelyzet = $adatbazis_kapcsolat->s2('nev', 'torzsadat', "`felh_loginnev`='".$ns['felh_loginnev']."'");
@@ -10152,6 +10152,7 @@ function datumra_utemezes_popup($megnevezes){
     global $adatbazis_kapcsolat;
 
     include('datumra_utemezes.php');
+    include('selectek.php');
     
     // Üres értékeket 0-val adjunk át
     $sor = $adatbazis_kapcsolat->s2('*', $megnevezes, "`recid`='{$_GET['id']}'");
@@ -10170,25 +10171,25 @@ function datumra_utemezes_popup($megnevezes){
     }
 
     $utemezes = 'Folyamatos';
-    if($_GET['idoszakos']){
-        if($_GET['aktkezd_d']>'0000.00.00' && $_GET['aktkezd_d']>'0000.00.00'){
+    if( $_GET['idoszakos'] ) {
+        if( $_GET['aktkezd_d'] > '0000.00.00' && $_GET['aktkezd_d'] > '0000.00.00' ) {
             $utemezes = $_GET['aktkezd_d'].'-'.$_GET['aktvege_d'];
-            if($_GET['aktvege_d']<date('Y-m-d')){
+            if( $_GET['aktvege_d'] < date('Y-m-d') ) {
                 $utemezes = $_GET['aktvege_d'].' után nincsenek további ütemezések.';
                 $kell_lista = false;
             }
         } else {
-            require_once 'selectek.php';
+            
             $kezdho = '';
-            foreach($select_honapok as $honap){
-                if($honap['value']==$_GET['kezdho']){
+            foreach ( $select_honapok as $honap ) {
+                if( $honap['value'] == $_GET['kezdho'] ) {
                     $kezdho = $honap['name'];
                     break;
                 }
             }
             $vegeho = '';
-            foreach($select_honapok as $honap){
-                if($honap['value']==$_GET['vegeho']){
+            foreach ( $select_honapok as $honap ) {
+                if( $honap['value'] == $_GET['vegeho'] ) {
                     $vegeho = $honap['name'];
                     break;
                 }
@@ -10197,7 +10198,7 @@ function datumra_utemezes_popup($megnevezes){
         }
     }
 
-    if(!$_GET['esem_d'] || $_GET['esem_d']=='0000.00.00'){
+    if( !$_GET['esem_d'] || $_GET['esem_d'] == '0000.00.00' ) {
         $_GET['esem_d'] = date('Y.m.d');
     }
     
@@ -10223,9 +10224,12 @@ function datumra_utemezes_popup($megnevezes){
         $getnextvaliddate = $esedekes;
     //}
 
-
+    $idoszakos_cimke = 'Időszakos ütemezés:';
+    if( $utemezes == 'Folyamatos' ) {
+        $idoszakos_cimke = 'Ütemezés:';
+    }
     $szamla_html .= '<br>Szabály: ' . getcimke( $_GET['cikltip'], $_GET['ciklaltip'], $_GET['ciklszorz_'], $_GET['ciklho'], $_GET['ciklhet'], $_GET['ciklnap'], $getnextvaliddate);
-    $szamla_html .= '<br>Ütemezés: ' . $utemezes;
+    $szamla_html .= '<br>'.$idoszakos_cimke.' <span class="nowrap">'.$utemezes.'</span>';
     $szamla_html .= '<br>Esedékes: ' . $esedekes.' '.het_napja_txt($esedekes);
     $szamla_html .= '<br>';
     $szamla_html .= '<br>Várható ütemezés:<br>';

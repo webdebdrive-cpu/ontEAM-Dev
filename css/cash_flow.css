@@ -46,7 +46,7 @@ label {
 }
 
 /* Hover a sorokon */
-table.szamla_cont_tabla.kisbetu tr:hover, #szetosztasra_varo_szla_tetelek:hover {
+table.szamla_cont_tabla.kisbetu tr:not('kijelolve'):hover, #szetosztasra_varo_szla_tetelek:not('kijelolve'):hover {
     background: #F1F8FF;
 }
 
