@@ -1,0 +1,48 @@
+#muszak {
+    margin: 3rem 0 0.5rem 0;
+}
+
+table.beosztas th, table.beosztas td {
+    border: 0.1rem solid #ccc;
+}
+
+table.beosztas th {
+    border-bottom: 0.2rem solid #000;
+    font-size: 1.2rem;
+    font-weight: normal;
+    padding: 0.3rem 0.3rem;
+}
+table.beosztas td {
+    font-size: 1.2rem;
+    min-width: 2.8rem;
+    padding: 0.3rem 0.5rem;
+    text-align: center;
+}
+table.beosztas tr td:first-of-type {
+    font-size: 1.2rem;
+    text-align: left;
+    white-space: nowrap;
+}
+table.beosztas tr td.szerk:hover {
+    box-shadow: inset 0rem 0rem 0.3rem 0.1rem #55A2FA;
+}
+
+table.beosztas th.sarga, table.beosztas td.sarga {
+    background: #FFFFD5;
+}
+table.beosztas th.sarga {
+    color: #f00;
+}
+
+table.beosztas td.foglalt {
+    background: #EFEFEF;
+}
+
+ul.dropItem {
+    background: none;
+}
+
+ul.dropItem li {
+    margin: 0.4rem 0;
+    padding: 0.5rem;
+}

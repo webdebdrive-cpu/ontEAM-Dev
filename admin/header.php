@@ -463,25 +463,36 @@ if(_jog(JOG_TORZSADAT_MEGTEKINT) || _jog(JOG_SZABADSAGIG_MEGTEKINT) || _jog(JOG_
     $menu_nev_kis    = 'személyzet';
     $menu_nev_tobbes = 'Személyzet';
     $megn            = 'torzsadat';
-    $aloldalak       = array($megn.'.php', 'szabadsagigeny.php', 'beosztas.php');
+    $aloldalak       = array($megn.'.php', 'szabadsagigeny.php', 'beosztas.php', 'beosztas_muszak.php', 'beosztas_unnepnapok.php');
     if(basename(self())==$megn.'.php' && isset($_GET['modosit'])){ $navi = $menu_nev.' szerkesztése'; }
-    if(basename(self())=='torzsadat.php')       { $oldalNev = 'Személyzet / <span id="rekord_neve">Törzsadatok</span><span class="dn" id="rekord_neve_egyes">törzsadat</span><span class="dn" id="rekord_neve_targy">törzsadatot</span>';               }
-    if(basename(self())=='szabadsagigeny.php')  { $oldalNev = 'Személyzet / <span id="rekord_neve">Szabadságigények</span><span class="dn" id="rekord_neve_egyes">szabadságigény</span><span class="dn" id="rekord_neve_targy">szabadságigényt</span>'; }
-    if(basename(self())=='beosztas.php')        { $oldalNev = 'Személyzet / <span id="rekord_neve">Beosztások</span><span class="dn" id="rekord_neve_egyes">beosztás</span><span class="dn" id="rekord_neve_targy">beosztást</span>';                   }
-
+    if(basename(self())=='torzsadat.php')           { $oldalNev = 'Személyzet / <span id="rekord_neve">Törzsadatok</span><span class="dn" id="rekord_neve_egyes">törzsadat</span><span class="dn" id="rekord_neve_targy">törzsadatot</span>';               }
+    if(basename(self())=='szabadsagigeny.php')      { $oldalNev = 'Személyzet / <span id="rekord_neve">Szabadságigények</span><span class="dn" id="rekord_neve_egyes">szabadságigény</span><span class="dn" id="rekord_neve_targy">szabadságigényt</span>'; }
+    if(basename(self())=='beosztas_muszak.php')     { $oldalNev = 'Személyzet / Beosztások / <span id="rekord_neve">Műszak</span><span class="dn" id="rekord_neve_egyes">Műszak</span><span class="dn" id="rekord_neve_targy">Műszakot</span>';             }
+    if(basename(self())=='beosztas_unnepnapok.php') { $oldalNev = 'Személyzet / Beosztások / <span id="rekord_neve">Ünnepnapok</span><span class="dn" id="rekord_neve_egyes">Ünnepnap</span><span class="dn" id="rekord_neve_targy">Ünnepnapot</span>';     }
+    if(basename(self())=='beosztas.php')            { $oldalNev = 'Személyzet / Beosztások / <span id="rekord_neve">Beosztások</span><span class="dn" id="rekord_neve_egyes">Beosztás</span><span class="dn" id="rekord_neve_targy">Beosztást</span>';      }
+    
     $aktmenuk  = '';
-    if(_jog(JOG_TORZSADAT_MEGTEKINT)){
+    if( _jog(JOG_TORZSADAT_MEGTEKINT) ) {
         $aktmenuk .= str_replace( $akt_almenu_mit, array( $aloldalak['0'], 'Törzsadatok'        ), $almenu_sablon );
     }
-    if(_jog(JOG_SZABADSAGIG_MEGTEKINT)){
+    if( _jog(JOG_SZABADSAGIG_MEGTEKINT) ) {
         $aktmenuk .= str_replace( $akt_almenu_mit, array( $aloldalak['1'], 'Szabadságigények'   ), $almenu_sablon );
     }
-    if(_jog(JOG_BEOSZTASOK_MEGTEKINT)){
-        $aktmenuk .= str_replace( $akt_almenu_mit, array( $aloldalak['2'], 'Beosztások'         ), $almenu_sablon );
+    if( _jog(JOG_BEOSZTASOK_MEGTEKINT) ) {
+        $aktmenuk .= nl2('
+            <ul class="alalmenu_cont">
+                <a class="nolink">Beosztások</a>
+                <ul class="alalmenu">
+                    <li><a href="'.$aloldalak['3'].'">Műszak</a></li>
+                    <li><a href="'.$aloldalak['4'].'">Ünnepnapok</a></li>
+                    <li><a href="'.$aloldalak['2'].'">Beosztások</a></li>
+                </ul>
+            </ul>
+        ');
     }
 
     $style = '';
-    if(substr( basename(self()), 0, strlen(basename($_SERVER['PHP_SELF']))-4 ) == $megn){
+    if( substr(basename(self()), 0, strlen(basename($_SERVER['PHP_SELF'])) - 4) == $megn ) {
         $style = ' class="hover{STYLE_KIEG}"';
     }
 
@@ -811,13 +822,7 @@ if( in_array(basename(self()), $_SESSION['ketHasabos']) && $_SESSION[get_db_tabl
     // Bejelentés más nevében
     } elseif( basename(self()) == 'bejelentes.php' && _jog(JOG_BEJELENTES_MAS_NEVEBEN) ) {
         $uj_link = 'javascript: bejSzallodaValaszt(); void(0);';
-
-    } elseif( basename(self()) == 'beosztas.php' && isset($_GET['megjegyzesek']) ) {
-        $uj_link = 'javascript: kapcsolodoSzerkeszt(\'megjegyzes\'); void(0);';
-
-    } elseif( basename(self()) == 'beosztas.php' && isset($_GET['naptar']) ) {
-        $uj_link = 'javascript: $(\'#szerk_form div.dt\').show(); void(0)';
-
+        
     } elseif( basename(self()) == 'cikktorzs.php' && isset($_GET['megjegyzesek']) ) {
         $uj_link = 'javascript: kapcsolodoSzerkeszt(\'megjegyzes\'); void(0);';
 
@@ -1075,13 +1080,12 @@ if(basename(self())=='bejelentes.php' && (!_jog(JOG_BEJELENTES_KEZEL)) && !_jog(
     $uj = $duplikal = '';
 }
 
-if(basename(self())=='bejelentes.php' && !_jog(JOG_BEJELENTES_TORLESE)){
+if( basename(self()) == 'bejelentes.php' && !_jog(JOG_BEJELENTES_TORLESE) ) {
     $torles_icon    = '';
 }
 
-if( basename(self())=='beosztas.php' && !_jog(JOG_BEOSZTASOK_KEZEL)){
-    $torles_icon    = '';
-    $uj = $duplikal = '';
+if( (basename(self()) == 'beosztas.php' || basename(self()) == 'beosztas_muszak.php' || basename(self()) == 'beosztas_unnepnapok.php') && !_jog(JOG_BEOSZTASOK_KEZEL) ) {
+    $torles_icon = $uj = $duplikal = '';
 }
 
 if( basename(self()) == 'cash_flow.php' ) {

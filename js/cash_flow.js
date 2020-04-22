@@ -3,7 +3,18 @@ $(document).ready(function () {
     $('#ev_tol').focus();
     
     // A speciális oldalelrednezés miatt a füleken igazítani kell
-    $('#szamlaFulek').css({'margin-top':'-43px', 'margin-left':'5px'});
+    if( getKepernyoSzel()<=1280 ) {
+        $('#szamlaFulek').css({'margin-top':'-28px', 'margin-left':'5px'});
+    } else {
+        $('#szamlaFulek').css({'margin-top':'-43px', 'margin-left':'5px'});
+    }
+    $(window).resize(function() {
+        if( getKepernyoSzel()<=1280 ) {
+            $('#szamlaFulek').css({'margin-top':'-28px', 'margin-left':'5px'});
+        } else {
+            $('#szamlaFulek').css({'margin-top':'-43px', 'margin-left':'5px'});
+        }
+    });
     
 });
 

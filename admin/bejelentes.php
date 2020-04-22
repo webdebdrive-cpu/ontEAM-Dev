@@ -38,7 +38,7 @@ if( $tobb_kep ) {
     function get_tobbkep_darab()    { return 10;        } // Maximum hány kép tallózható be
     function get_tobbkep_csakkep()  { return '';        } // Milyen kiterjesztéseket engedünk meg (ha mindenet, legyen üres)
     function get_tobbkep_kepmeret() { return 10;        } // MB-ban
-    function get_tobbkep_oszlopnev(){                      // Melyik oszloppal kötjük össze a két táblát
+    function get_tobbkep_oszlopnev(){                     // Melyik oszloppal kötjük össze a két táblát
         global $megnevezes;
         return $megnevezes.'_id';
     }
@@ -1026,12 +1026,11 @@ require_once('selectek.php');
     $js_submit_elott = 'return form_ell_admin();';
 
 	// Új bejelentés felvitele
-	if(isset($_GET['uj'])){
+	if( isset($_GET['uj']) ) {
 
-	    // FORM
         // Újként szerkesztéskor feltöltjük a mezők tartalmát
-		if($_GET['ujkent']){
-            $sor = $adatbazis_kapcsolat -> s2('*', $megnevezes, 'recid='.$_GET['ujkent']);
+		if( $_GET['ujkent'] ) {
+            $sor = $adatbazis_kapcsolat -> s2('*', $megnevezes, "`recid`='{$_GET['ujkent']}'");
             if( $sor ) {
                 foreach($akt_tomb as $ertek) {
                     if( $ertek['name'] != 'ikt_szam' ) {

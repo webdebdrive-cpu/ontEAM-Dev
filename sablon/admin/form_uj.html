@@ -69,6 +69,21 @@
                             $input.val( $input.val().substring(0, 3)+'00' );
                         }
                     });
+                    $('.ora_perc_felora').datetimepicker({
+                        closeOnDateSelect   : true,
+                        datepicker          : false,
+                        format              :'H:i',
+                        mask                : /*'__:__'*/'\xa0\xa0:\xa0\xa0',
+                        step                : 30,
+                        validateOnBlur      : false,
+                        scrollInput         : false,
+                        onChangeDateTime    : function(dp, $input){
+                            $('#mehet_gomb').removeAttr('disabled').addClass('gombb_alert');
+                            $('#megsem_gomb').removeAttr('disabled');
+                            /* Órapontosak vagyunk */
+                            $input.val( $input.val().substring(0, 3)+'00' );
+                        }
+                    });
                     
                     /* Fókuszálás az űrlap első nem disabled mezőjére */
                     /* A késleletés azért kell, mert a gyors szűrő érték mezőjére is ráfókuszálunk, de új feltöltéskor az adatlap első elemére fókuszálni fontosabb. */

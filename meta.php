@@ -30,6 +30,8 @@ function get_title(){
         case 'bejelentes.php'               : $title .= 'Bejelentések';             break;
         case 'bejelentes_arch.php'          : $title .= 'Archív bejelentések';      break;
         case 'beosztas.php'                 : $title .= 'Beosztások';               break;
+        case 'beosztas_muszak.php'          : $title .= 'Műszak';                   break;
+        case 'beosztas_unnepnapok.php'      : $title .= 'Ünnepnapok';               break;
         case 'cash_flow.php'                : $title .= 'Cash Flow';                break;
         case 'cikktorzs.php'                : $title .= 'Cikktörzs';                break;
         case 'dokumentumtar.php'            : $title .= 'Dokumentumtár';            break;
@@ -51,6 +53,7 @@ function get_title(){
         case 'munkalap.php'                 : $title .= 'Munkalapok';               break;
         case 'munkalap_arch.php'            : $title .= 'Archív munkalapok';        break;
         case 'mobil_hozzarendel.php'        : $title .= 'Mobil hozzárendelés';      break;
+        case 'unnepnapok.php'               : $title .= 'Ünnepnapok';               break;
         case 'utemezett_feladatok.php'      : $title .= 'Ütemzett feladatok';       break;
         case 'uzemeltetesi_naplo.php'       : $title .= 'Üzemeltetési napló';       break;
         case 'projektigenyles.php'          : $title .= 'Projektigénylések';        break;

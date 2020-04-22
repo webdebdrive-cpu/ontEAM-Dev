@@ -1,7 +1,7 @@
 <?php
 /*                                                  *\
  * FONTOS:
- * 132-es ID-nál járunk
+ * 134-es ID-nál járunk
  * 13-as kategória ID-nál járunk
 \*                                                  */
 
@@ -99,6 +99,8 @@ $jogosultsagok = array(
     28 => array('nev' => 'Szabadságigények kezelése',   'kat' => 4, 'sor' => 4),
     29 => array('nev' => 'Beosztások olvasása',         'kat' => 4, 'sor' => 5),
     30 => array('nev' => 'Beosztások kezelése',         'kat' => 4, 'sor' => 6),
+    133=> array('nev' => 'MSzK beosztás olvasása',      'kat' => 4, 'sor' => 7),
+    134=> array('nev' => 'MSzK beosztás kezelése',      'kat' => 4, 'sor' => 8),
     
     123=> array('nev' => 'Új létrehozása',                          'kat' => 7, 'sor' => 0),
     39 => array('nev' => 'Saját igénylések kezelése',               'kat' => 7, 'sor' => 1),

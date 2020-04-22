@@ -11,6 +11,7 @@ function munkaido_torol(mehet) {
                 munkaido_torol: Date.now()
             },
             success: function (response) {
+                if(response.substring(0, 6)=='SESKIL'){ location.href = 'index.php'; }
                 if (response) {
                     response = JSON.parse(response);
                     if( response.hiba ) {
@@ -20,7 +21,9 @@ function munkaido_torol(mehet) {
                     }
                     
                     alert2();
-                    $('#napi_munkaido tr:last-of-type').fadeOut();
+                    $('#napi_munkaido tr:last-of-type').fadeOut(function(){
+                                szamlaBetolt(_get('id'), PHP_SELF, 'napi_munkaido');
+                            });
                 }
             }
         });

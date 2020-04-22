@@ -1,0 +1,6 @@
+ul.szamla_cont li a span.szin {
+    border: 0.1rem solid #D8D8D8;
+    display: inline-block;
+    height: 1.3rem;
+    width: 1.3rem;
+}

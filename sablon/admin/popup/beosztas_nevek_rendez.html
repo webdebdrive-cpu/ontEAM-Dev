@@ -1,0 +1,57 @@
+<h2>Mobil személyzet sorrendje</h2>
+<div class="kozep" id="mobil_nevek"></div>
+<div class="kuldes">
+    <input type="submit" name="elkuld" value="Mentés" onclick="mobil_sorrend_ment()">
+    <input type="button" name="megsem" class="gombb_alert" value="Mégsem" onclick="popupZar();">
+</div>
+<script>
+$(document).ready(function(){
+    $.ajax({
+        url : PHP_SELF,
+        type: 'POST',
+        data: {
+            recid           : _get('id'),
+            get_mobil_nevek : Date.now()
+        },
+        success: function(response){
+            if(response){
+                response = JSON.parse(response);
+                
+                $('#mobil_nevek').html(response.nevek);
+                
+                // Dropable tulajdonsággal felruházzuk a listát:
+                $('ul.droptrue').sortable({
+                    connectWith: 'ul.dropItem',
+                    start: function( event, ui ) {
+
+                    },
+                    stop: function( event, ui ) {
+
+                    },
+
+                    helper: function(e, tr) {
+                        var helper = tr.clone();
+                        helper.css({'width': '21rem'});
+                        helper.find('.dtc').css({'display': 'none'});
+                        helper.find('.dtc.latszik').css({'display': 'table-cell'});
+                        return helper;
+                    },
+
+                    placeholder: 'highlight'
+                });
+
+                $('ul.dropfalse').sortable({
+                    connectWith: 'ul.dropItem',
+                    dropOnEmpty: false
+                });
+
+
+                $('.dropItem').disableSelection();
+                
+            }
+        }
+    });
+});
+
+
+</script>

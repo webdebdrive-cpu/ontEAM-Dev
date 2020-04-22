@@ -256,6 +256,9 @@ define('JOG_SZABADSAGIG_MEGTEKINT',     27);
 define('JOG_SZABADSAGIG_KEZEL',         28);
 define('JOG_BEOSZTASOK_MEGTEKINT',      29);
 define('JOG_BEOSZTASOK_KEZEL',          30);
+define('JOG_MSZK_BEOSZTAS_MEGTEKINT',  133);
+define('JOG_MSZK_BEOSZTAS_KEZEL',      134);
+
 define('JOG_UTFEL_MEGTEKINT',           32);
 define('JOG_UTFEL_KEZEL',               33);
 define('JOG_UTFEL_TOROL',               80);
@@ -423,3 +426,9 @@ define('DASHBOARD_H_A_ML_CIMKE',  'Hiányzó anyag igénylésére váró munkala
 
 // Cash-flow
 define('CASH_FLOW_MAX_HONAPOK',  60);
+
+// Beosztás fix műszak jelei
+define('BEOSZTAS_FIX_SZABADNAP_JEL',  'SZ');
+define('BEOSZTAS_FIX_PIHENONAP_JEL',  'P');
+define('BEOSZTAS_FIX_BETEGSEG_JEL',   'B');
+define('TELEPHELY_SZK',              1106);

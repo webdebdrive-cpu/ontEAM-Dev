@@ -15,6 +15,8 @@ $_SESSION['ketHasabos'] = array(
     'bejelentes_arch.php',
     'bejovo_szamlak.php',
     'beosztas.php',
+    'beosztas_muszak.php',
+    'beosztas_unnepnapok.php',
     'cash_flow.php',
     'cikktorzs.php',
     'dokumentumtar.php',
@@ -237,22 +239,72 @@ switch ( $tabla ) {
         // Ezeket a tábla oszlopokat kérdezzük le baloldalra
         $_OPTS['select']    = nl2('
                                 `'.get_db_tabla().$tabla_nophp.'`.`recid`,
-                                `'.get_db_tabla().$tabla_nophp.'`.`cim`,
                                 `'.get_db_tabla().$tabla_nophp.'`.`telephely_id`,
-                                `'.get_db_tabla().$tabla_nophp.'`.`tol`,
-                                `'.get_db_tabla().$tabla_nophp.'`.`ig`,
-                                `'.get_db_tabla().'telephely`.`nev`
+                                `'.get_db_tabla().$tabla_nophp.'`.`ev`,
+                                `'.get_db_tabla().$tabla_nophp.'`.`ho`
                             ');
 
         // Ezek az oszlopok generálódnak ki a rendezés selectbe, lehet szépíteni az oszlopneveket, amit a getOszlopNev() függvényben kell beállítani
-        $_OPTS['rendezes']  = array('telephely_id',  'recid');
-        $_OPTS['iranyok']   = array('asc',           'asc'  );
+        $_OPTS['rendezes']  = array('ev',   'telephely_id'  );
+        $_OPTS['iranyok']   = array('desc', 'asc'           );
+
+        // Default rendezés
+        if( !$_GET['rend'] ) {
+            $_GET['rend'] = 'ev';
+        }
+        
+        // Default rendezési irány
+        if( !$_GET['irany'] ) {
+            $_GET['irany'] = 'desc';
+        }
+        
+    break;
+    case 'beosztas_muszak.php':
+
+        // Ezeket a tábla oszlopokat kérdezzük le baloldalra
+        $_OPTS['select']    = nl2('
+                                `'.get_db_tabla().$tabla_nophp.'`.`recid`,
+                                `'.get_db_tabla().$tabla_nophp.'`.`telephely_id`,
+                                `'.get_db_tabla().$tabla_nophp.'`.`nev`,
+                                `'.get_db_tabla().$tabla_nophp.'`.`tol`,
+                                `'.get_db_tabla().$tabla_nophp.'`.`ig`,
+                                `'.get_db_tabla().$tabla_nophp.'`.`ora`,
+                                `'.get_db_tabla().$tabla_nophp.'`.`jel`,
+                                `'.get_db_tabla().$tabla_nophp.'`.`szin`
+                            ');
+
+        // Ezek az oszlopok generálódnak ki a rendezés selectbe, lehet szépíteni az oszlopneveket, amit a getOszlopNev() függvényben kell beállítani
+        $_OPTS['rendezes']  = array('telephely_id'  );
+        $_OPTS['iranyok']   = array('asc'           );
 
         // Default rendezés
         if( !$_GET['rend'] ) {
             $_GET['rend'] = 'telephely_id';
         }
-        
+
+    break;
+    case 'beosztas_unnepnapok.php':
+
+        // Ezeket a tábla oszlopokat kérdezzük le baloldalra
+        $_OPTS['select']    = nl2('
+                                `'.get_db_tabla().$tabla_nophp.'`.`recid`,
+                                `'.get_db_tabla().$tabla_nophp.'`.`datum`,
+                                `'.get_db_tabla().$tabla_nophp.'`.`leiras`
+                            ');
+
+        // Ezek az oszlopok generálódnak ki a rendezés selectbe, lehet szépíteni az oszlopneveket, amit a getOszlopNev() függvényben kell beállítani
+        $_OPTS['rendezes']  = array('datum'  );
+        $_OPTS['iranyok']   = array('asc'           );
+
+        // Default rendezés
+        if( !$_GET['rend'] ) {
+            $_GET['rend'] = 'datum';
+        }
+
+        // Default rendezési irány
+        if( !$_GET['irany'] ) {
+            $_GET['irany'] = 'asc';
+        }
     break;
     case 'cash_flow.php':
         // Ezeket a tábla oszlopokat kérdezzük le baloldalra
@@ -2211,46 +2263,48 @@ array_push($postok, array('tomb' => $akt_tomb, 'uj' => 'uj'.$megnevezes, 'lista'
 
 
 // Beosztások
-$disabled = '';
-if(!isset($_GET['uj'])){
+$disabled = $telephely_disabled = '';
+if( !isset($_GET['uj']) ) {
     $disabled = '1';
+}
+// MSZK beosztás kezelés jog esetén a szálloda fixen a TELEPHELY_SZK (Ezt az új feltöltésnél, a beosztás.php-ban állítjuk)
+if( _jog(JOG_MSZK_BEOSZTAS_KEZEL) ) {
+    $telephely_disabled = 1;
 }
 $megnevezes = 'beosztas';
 $beosztas_tomb = $akt_tomb = array(
-	array('type' => 'text',                     'megn' => 'Cím:',               'name' => 'cim',                                        'szuro' => 1,   'class' => 'oriasi',       'maxlength' => 250),
-    array('type' => 'select_felh_telephely',    'megn' => 'Szálloda:',          'name' => 'telephely_id',   'disabled' => $disabled,    'szuro' => 1,   'class' => 'disableNav',    'style' => 'width: 100%;', 'alert' => 'Kérem válasszon szállodát!', 'onchange' => 'szallodaVane( this ); '),
-	array('type' => 'text',                     'megn' => 'Időszak:',           'name' => 'tol',            'disabled' => $disabled,    'szuro' => 1,   'class' => 'kicsi datepicker', 'megn_szurobe' => 'Időpont tól', 'osszevon' => 1),
-	array('type' => 'text',                     'megn' => ' - ',                'name' => 'ig',             'disabled' => $disabled,    'szuro' => 1,   'class' => 'kicsi datepicker', 'megn_szurobe' => 'Időpont ig'),
+    array('type' => 'select_felh_telephely',    'megn' => 'Szálloda:',  'name' => 'telephely_id',   'disabled' => $disabled.$telephely_disabled,    'szuro' => 1,   'class' => 'csillag disableNav',    'style' => 'width: 100%;',  'alert' => 'Kérem válasszon szállodát!'),
+	array('type' => 'text',                     'megn' => 'Év:',        'name' => 'ev',             'disabled' => $disabled,    'szuro' => 1,   'class' => 'csillag',               'style' => 'width: 6rem;', 'osszevon' => 1, 'maxlength' => 4, 'onkeyup' => 'onlyNumbers( $(this) )',     'alert' => 'Kérem adja meg az évet!'),
+	array('type' => 'select_honapok',           'megn' => 'Hó:',        'name' => 'ho',             'disabled' => $disabled,    'szuro' => 1,   'class' => 'csillag disableNav',                                           'alert' => 'Kérem válasszon hónapot!'),
 );
-if(!isset($_GET['uj'])){
-    array_push( $beosztas_tomb,
-                array('type' => 'text',                     'megn' => 'Készítette:',        'name' => 'insert_usr',     'disabled' => 1,            'szuro' => 1,   'class' => 'oriasi'),
-                array('type' => 'text',                     'megn' => 'Készítés ideje:',    'name' => 'insert_dt',      'disabled' => 1,            'szuro' => 1,   'class' => 'datetimepicker'),
-                array('type' => 'text',                     'megn' => 'Utoljára mentette:', 'name' => 'update_usr',     'disabled' => 1,            'szuro' => 1,   'class' => 'oriasi'),
-                array('type' => 'text',                     'megn' => 'Mentés ideje:',      'name' => 'update_dt',      'disabled' => 1,            'szuro' => 1,   'class' => 'datetimepicker')
-            );
+array_push($postok, array('tomb' => $akt_tomb, 'uj' => 'uj'.$megnevezes, 'lista' => $megnevezes.'lista', 'tabla' => $megnevezes, 'torid' => $megnevezes.'tid' ));
+
+// Beosztás műszak
+// MSZK beosztás kezelés jog esetén a szálloda fixen a TELEPHELY_SZK (Ezt az új feltöltésnél, a beosztás.php-ban állítjuk)
+$telephely_disabled = '';
+if( _jog(JOG_MSZK_BEOSZTAS_KEZEL) ) {
+    $telephely_disabled = 1;
 }
-array_push($postok, array('tomb' => $akt_tomb, 'uj' => 'uj'.$megnevezes, 'lista' => $megnevezes.'lista', 'tabla' => $megnevezes, 'torid' => $megnevezes.'tid' ));
-
-$megnevezes = 'beosztas_naptar';
-$beosztas_naptar_tomb = $akt_tomb = array(
-	array('type' => 'text',                     'megn' => 'Időszak:',           'name' => 'tol',            'class' => 'datetimepicker', 'megn_szurobe' => 'Időszak tól', 'maxlength' => 16, 'alert' => 'Kérem adja meg az időszak kezdetét!', 'osszevon' => 1   ),
-	array('type' => 'text',                     'megn' => ' - ',                'name' => 'ig',             'class' => 'datetimepicker', 'megn_szurobe' => 'Időszak ig',  'maxlength' => 16, 'alert' => 'Kérem adja meg az időszak végét!'                       ),
-    array('type' => 'select_beosztas',          'megn' => 'Beosztás tipus:',    'name' => 'beosztas',       'class' => 'disableNav',       'onchange' => 'if($(this).val()==1){ $(\'.beosztas_rejt\').removeClass(\'dn\'); } else { $(\'.beosztas_rejt\').addClass(\'dn\'); }',          'alert' => 'Kérem adja meg a beosztás típusát!'),
-    array('type' => 'select_szemelyzet',        'megn' => 'Szerepkör:',         'name' => 'szerepkor',      'class' => 'disableNav',      'dtr_class' => ' dn beosztas_rejt'),
-    array('type' => 'autocomplete',             'megn' => 'Név:',               'name' => 'felh_loginnev',  'class' => 'disableNav',   'tabla' => 'torzsadat',  'oszlop_keres' => 'recid', 'oszlop_keres_autocomp' => 'nev', 'listaz' => 'nev', 'id_kiir' => 'recid', 'alert' => 'Kérem adja meg a személy nevét!'),
-);
-array_push($postok, array('tomb' => $akt_tomb, 'uj' => 'uj'.$megnevezes, 'lista' => $megnevezes.'lista', 'tabla' => $megnevezes, 'torid' => $megnevezes.'tid' ));
-
-
-
-// Szabadságigény
-$megnevezes = 'szabadsagigeny';
-$szabadsagigeny_tomb = $akt_tomb = array(
+$megnevezes = 'beosztas_muszak';
+$beosztas_muszak_tomb = $akt_tomb = array(
+    array('type' => 'select_felh_telephely',    'megn' => 'Szálloda:',      'name' => 'telephely_id',   'class' => 'csillag disableNav',        'szuro' => 1, 'alert' => 'Kérem válasszon szállodát!', 'style' => 'width: 100%', 'disabled' => $telephely_disabled),
+    array('type' => 'text',                     'megn' => 'Név:',           'name' => 'nev',            'class' => 'csillag',                   'szuro' => 1, 'maxlength' => 30,    'alert' => 'Kérem adja meg a műszak nevét!'),
+    array('type' => 'text',                     'megn' => 'Tól-ig:',        'name' => 'tol',            'class' => 'ora_perc_felora csillag',   'szuro' => 1, 'maxlength' => 6,     'osszevon' => 1, 'post' => ' -', 'style' => 'margin-right: 0.5rem', 'alert' => 'Kérem adja meg a kezdő időpontot!'),
+    array('type' => 'text',                     'megn' => '',               'name' => 'ig',             'class' => 'ora_perc_felora csillag',                 'maxlength' => 6,     'alert' => 'Kérem adja meg a záró időpontot!'),
+    array('type' => 'text',                     'megn' => 'Óra',            'name' => 'ora',            'class' => 'csillag',                   'szuro' => 1, 'maxlength' => 3,     'alert' => 'Kérem adja meg az óra mező értékét!', 'style' => 'width: 5rem;', 'onkeyup' => 'onlyNumbers($(this))'),
+    array('type' => 'text',                     'megn' => 'Jel',            'name' => 'jel',            'class' => 'csillag',                   'szuro' => 1, 'maxlength' => 4,     'alert' => 'Kérem adja meg a jel mező értékét!',  'style' => 'width: 5rem;'),
+    array('type' => 'colorpicker',              'megn' => 'Szín',           'name' => 'szin',           'class' => 'dn',                        'alert' => 'Kérem adja meg a színt!'),
 
 );
 array_push($postok, array('tomb' => $akt_tomb, 'uj' => 'uj'.$megnevezes, 'lista' => $megnevezes.'lista', 'tabla' => $megnevezes, 'torid' => $megnevezes.'tid' ));
 
+// Beosztás ünnepnapok
+$megnevezes = 'beosztas_unnepnapok';
+$beosztas_unnepnapok_tomb = $akt_tomb = array(
+    array('type' => 'text',         'megn' => 'Dátum:',         'name' => 'datum',  'class' => 'csillag datepicker',    'szuro' => 1, 'maxlength' => 10,    'alert' => 'Kérem adja meg a dátumot!'),
+    array('type' => 'textarea',     'megn' => 'Leírás:',        'name' => 'leiras', 'class' => 'csillag oriasi',        'szuro' => 1, 'maxlength' => 100,   'alert' => 'Kérem adja meg a leírást!'),
+);
+array_push($postok, array('tomb' => $akt_tomb, 'uj' => 'uj'.$megnevezes, 'lista' => $megnevezes.'lista', 'tabla' => $megnevezes, 'torid' => $megnevezes.'tid' ));
 
 
 // Projektigénylés
@@ -5531,6 +5585,12 @@ foreach ( $postok as $ertek ) {
         if( $ertek['tabla'] == 'beosztas' && !_jog(JOG_BEOSZTASOK_KEZEL) ) {
             $weblap -> leallit(); exit;
         }
+        if( $ertek['tabla'] == 'beosztas_muszak' && !_jog(JOG_BEOSZTASOK_KEZEL) ) {
+            $weblap -> leallit(); exit;
+        }
+        if( $ertek['tabla'] == 'beosztas_unnepnapok' && !_jog(JOG_BEOSZTASOK_KEZEL) ) {
+            $weblap -> leallit(); exit;
+        }
         if( $ertek['tabla'] == 'cikktorzs' && !_jog(JOG_CIKKTORZS_KEZEL) ) {
             $weblap -> leallit(); exit;
         }
@@ -5667,7 +5727,7 @@ foreach ( $postok as $ertek ) {
         if( $sql === false ) { $db_error = true; }
 
         // Státusz tábla törlése, hacsak nem kivételes
-        $kivetelek = array('cikktorzs', 'eseti_fenntartas', 'eszkozkezeles', 'erteklista', 'felmeresi_terv', 'ktgnem', 'ktghely', 'obj', 'projektszamla', 'projektszerzodes', 'rendszeres_karbantartas', 'szallito', 'szerepkor', 'utemezett_feladatok');
+        $kivetelek = array('beosztas', 'beosztas_muszak', 'beosztas_unnepnapok', 'cikktorzs', 'eseti_fenntartas', 'eszkozkezeles', 'erteklista', 'felmeresi_terv', 'ktgnem', 'ktghely', 'obj', 'projektszamla', 'projektszerzodes', 'rendszeres_karbantartas', 'szallito', 'szerepkor', 'utemezett_feladatok');
         if( !in_array($ertek['tabla'], $kivetelek) ) {
             $valtozas_kapcsolodo_tablak .= 'Státusz tábla ('.$ertek['tabla'].'_statusz) törlése: '."\n";
             $sorok = $adatbazis_kapcsolat->s('*', $ertek['tabla'].'_statusz', "`{$ertek['tabla']}_recid`='{$_GET[$ertek['torid']]}'");
@@ -5759,6 +5819,14 @@ Hiba: '.getErtek('info', 'erteklista', 'recid', $bejelentes['hiba_id']).$hiba_tx
             // Levelet küldünk a központi diszpécser mailcímére
             level_felkeszit_es_kuld('bejelentes', $_GET[$ertek['torid']], '', 'bejelentes_torolve', 'diszpecser_kozponti');
 
+        }
+        
+        // Beosztásnál a neveket és naptárbejegyzéseket is törölni kell
+        if( $ertek['tabla'] == 'beosztas' ) {
+            $sql = $adatbazis_kapcsolat->d('beosztas_nevek', "`beosztas_recid`='{$_GET[$ertek['torid']]}'");
+            if( $sql === false ) { $db_error = true; }
+            $sql = $adatbazis_kapcsolat->d('beosztas_naptar', "`beosztas_recid`='{$_GET[$ertek['torid']]}'");
+            if( $sql === false ) { $db_error = true; }
         }
 
         // Munkalap törlésének feltételei
@@ -5929,7 +5997,7 @@ Hiba: '.getErtek('info', 'erteklista', 'recid', $bejelentes['hiba_id']).$hiba_tx
         }
         
         // Projekt nem törölhető, hamár van olyan szerződés, amihez ez a projekt hozzá van rendelve
-        if($ertek['tabla']=='projektkezeles'){
+        if( $ertek['tabla'] == 'projektkezeles' ) {
             $pr_kezeles = $adatbazis_kapcsolat->s2('ikt_szam', 'projektkezeles', "`recid`='{$_GET[$ertek['torid']]}'");
             $van_szerzodese = $adatbazis_kapcsolat->s('recid', 'projektszerzodes', "`pr_szam`='{$pr_kezeles['ikt_szam']}'");
             if( $van_szerzodese ){
@@ -5991,6 +6059,12 @@ Hiba: '.getErtek('info', 'erteklista', 'recid', $bejelentes['hiba_id']).$hiba_tx
                 if( $sql === false ) { $db_error = true; }
 
             }
+        }
+        
+        // Törzsadatnál a Napi munkaidőket is törölni kell
+        if( $ertek['tabla'] == 'torzsadat' ) {
+            $sql = $adatbazis_kapcsolat->d('torzsadat_napi_munkaido', "`torzsadat_recid`='{$_GET[$ertek['torid']]}'");
+            if( $sql === false ) { $db_error = true; }
         }
 
         // Login táblából csak logikailag törlünk. Többi helyről fizikailag.

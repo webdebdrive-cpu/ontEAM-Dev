@@ -37,7 +37,7 @@ function i_u($type, $tabla, $tomb) {
 	global $weblap;
 
     // Archiv táblába biztosan nem írunk
-    if( substr($tabla, strlen($tabla)-5) == '_arch' ){
+    if( substr($tabla, strlen($tabla) - 5) == '_arch' ) {
         return false;
     }
 
@@ -64,7 +64,7 @@ function i_u($type, $tabla, $tomb) {
             }
         }
     }
-
+    
     // Tranzakció indul
     $db_error = false;
     mysqli_autocommit($db_kapcs, false);
@@ -85,6 +85,32 @@ function i_u($type, $tabla, $tomb) {
         $gep_txt = getErtek('nev', 'eszkozkezeles', 'recid', $_POST['gep_id']);
         array_push($oszlopok, 'gep_txt');
         array_push($ertekek,  $gep_txt);
+    }
+    
+    // Műszaknál nem módosítható már az adatlap, ha a műszak már fel lett használva egy naptárban
+    // A színe kivétel, az szerkeszthető. 
+    if( $tabla == 'beosztas_muszak' && $type == 'update' ) {
+        
+        // Van-e egyáltalán használatban? Mert ha nincs, az egésszel nem is kell foglalkozni
+        if( $adatbazis_kapcsolat->s('recid', 'beosztas_naptar', "`beosztas_muszak_recid`='{$_GET['id']}'", '', '1') ) {
+
+            $muszak = $adatbazis_kapcsolat->s2('*', 'beosztas_muszak', "`recid`='{$_GET['id']}'");
+            if (
+                    $muszak['telephely_id'] != $_POST['telephely_id'] ||
+                    $muszak['nev']          != $_POST['nev'] ||
+                    $muszak['tol']          != $_POST['tol'] ||
+                    $muszak['ig']           != $_POST['ig'] ||
+                    $muszak['ora']          != $_POST['ora'] ||
+                    $muszak['jel']          != $_POST['jel']
+            ) {
+                echo json_encode(array(
+                                        'hiba'  => 'A műszak már használatban van, így nem módosítható!',
+                                        'title' => 'Hiba',
+                                    ));
+                $weblap -> leallit();
+                exit;
+            }
+        }
     }
     
     // Projekteknél, feltöltéskor Területi felelősként belépve a típus fixen fenntartás
@@ -807,7 +833,7 @@ function i_u($type, $tabla, $tomb) {
             }
 
         }
-
+    
         // Energia terv státusz beszúrása
         if( $tabla == 'energia_terv' ) {
             $sql = $adatbazis_kapcsolat -> i($tabla.'_statusz',
@@ -3343,8 +3369,18 @@ function szamla_lista( $where = '', $tabla = '', $kijeloltek = false, $csak_sql_
         // Rendezés beosztásnál
         if( $tabla == 'beosztas' ) {
             // Ha telephely szerint rendezünk, akkor ez lesz a következő rendezési szempont, és az irány is erre vonatkozik
+            if( $_GET['rend'] == 'ev' ) {
+                $order = '`'.get_db_tabla().'beosztas`.`ev` '.$_GET['irany'].', `'.get_db_tabla().'beosztas`.`ho` '.$_GET['irany'].', `'.get_db_tabla().'telephely`.`nev` '.$_GET['ellen_irany'].'';
+            }
             if( $_GET['rend'] == 'telephely_id' ) {
-                $order = '`'.get_db_tabla().'telephely`.`nev` '.$_GET['irany'].', `'.get_db_tabla().'beosztas`.`tol`';
+                $order = '`'.get_db_tabla().'telephely`.`nev` '.$_GET['irany'].', `'.get_db_tabla().'beosztas`.`ev` '.$_GET['irany'].', `'.get_db_tabla().'beosztas`.`ho` '.$_GET['irany'].'';
+            }
+        }
+
+        // Rendezés beosztás műszaknál
+        if( $tabla == 'beosztas_muszak' ) {
+            if( $_GET['rend'] == 'telephely_id' ) {
+                $order = '`'.get_db_tabla().'telephely`.`nev` '.$_GET['irany'].', `'.get_db_tabla().'beosztas_muszak`.`nev` '.$_GET['irany'];
             }
         }
 
@@ -3836,6 +3872,12 @@ if( isset($_GET['debug']) && $_SERVER['HTTP_HOST']!='teszt.onteam.hu' /*&& $_SER
             case 'beosztas':
                 $html = beosztasLista( $bejegyzesek, $tabla, $frissit, $kijeloltek );
             break;
+            case 'beosztas_muszak':
+                $html = beosztas_muszakLista( $bejegyzesek, $tabla, $frissit, $kijeloltek, $sorrend_idk);
+            break;
+            case 'beosztas_unnepnapok':
+                $html = beosztas_unnepnapokLista( $bejegyzesek, $tabla, $frissit, $kijeloltek, $sorrend_idk);
+            break;
             case 'cash_flow':
                 $html = cash_flowLista( $bejegyzesek, $tabla, $frissit, $kijeloltek );
             break;
@@ -4279,6 +4321,84 @@ function bejelentesLista( $bejegyzesek, $tabla, $frissit, $kijeloltek, $sorrend_
                     });
                 </script>
                 ');
+        }
+
+        return nl2($html);
+    }
+
+    return false;
+}
+
+function beosztas_muszakLista( $bejegyzesek, $tabla, $frissit, $kijeloltek, $sorrend_idk) {
+    global $adatbazis_kapcsolat;
+
+    if( $bejegyzesek ) {
+
+        if( !$frissit ) {
+            $html = '<ul id="szamlaList" class="szamla_cont rendszer">';
+        }
+
+
+        $i = 1;
+        foreach ( $bejegyzesek as $bsz ) {
+            $active = '';
+            if( $bsz['recid'] == $_GET['id'] && !isset($_GET['print']) ) {
+                $active = ' kijelolve';
+            }
+
+            $li_tart = '<a class="szamla" data-recid="'.$bsz['recid'].'" data-fajl="'.$tabla.'.php" data-muvelet="modosit">
+                            <span><span class="szin" style="background: #'.$bsz['szin'].'"></span> '.getSzallodaNev($bsz['telephely_id']).'</span>
+                            <span>'.$bsz['nev'].' '.$bsz['jel'].'</span>
+                            <span>'.$bsz['tol'].'-'.$bsz['ig'].' '.$bsz['ora'].'</span>
+                        </a>';
+
+            $html .= '<li id="szamla-'.$bsz['recid'].'" class="szamla_sor'.$active.'" data-recid="'.$bsz['recid'].'" data-i="'.$i.'">'.$li_tart.'</li>';
+
+            $i++;
+        }
+
+        if( !$frissit ) {
+            $html .= nl2('
+                </ul>
+            ');
+        }
+
+        return nl2($html);
+    }
+
+    return false;
+}
+
+function beosztas_unnepnapokLista( $bejegyzesek, $tabla, $frissit, $kijeloltek, $sorrend_idk) {
+    global $adatbazis_kapcsolat;
+
+    if( $bejegyzesek ) {
+
+        if( !$frissit ) {
+            $html = '<ul id="szamlaList" class="szamla_cont rendszer">';
+        }
+
+
+        $i = 1;
+        foreach ( $bejegyzesek as $bsz ) {
+            $active = '';
+            if( $bsz['recid'] == $_GET['id'] && !isset($_GET['print']) ) {
+                $active = ' kijelolve';
+            }
+
+            $li_tart = '<a class="szamla" data-recid="'.$bsz['recid'].'" data-fajl="'.$tabla.'.php" data-muvelet="modosit">
+                            <span>'.datum_kiir($bsz['datum']).' '. resz_string($bsz['leiras'], 60).'</span>
+                        </a>';
+
+            $html .= '<li id="szamla-'.$bsz['recid'].'" class="szamla_sor'.$active.'" data-recid="'.$bsz['recid'].'" data-i="'.$i.'">'.$li_tart.'</li>';
+
+            $i++;
+        }
+
+        if( !$frissit ) {
+            $html .= nl2('
+                </ul>
+            ');
         }
 
         return nl2($html);
@@ -5497,19 +5617,14 @@ function beosztasLista( $bejegyzesek, $tabla, $frissit, $kijeloltek ) {
         }
 
         $i = 1;
-        foreach($bejegyzesek as $bsz) {
+        foreach ( $bejegyzesek as $bsz ) {
             $active = '';
             if( $bsz['recid'] == $_GET['id'] && !isset($_GET['print']) ) {
                 $active = ' kijelolve';
             }
 
-            // Telephely
-            $telephely = $adatbazis_kapcsolat->s('nev', 'telephely', 'id='.$bsz['telephely_id'], '', '1');
-            $telephely = $telephely[0]['nev'];
-
             $li_tart = '<a class="szamla" data-recid="'.$bsz['recid'].'" data-fajl="'.$tabla.'.php" data-muvelet="modosit">
-                            <span>'.$bsz['cim'].'</span>
-                            <span>'.$telephely.' '.str_replace('-', '.', $bsz['tol']).' - '.str_replace('-', '.', $bsz['ig']).'</span>
+                            <span>'. getSzallodaNev($bsz['telephely_id']).' '.date_formaz($bsz['ev'].'-'.$bsz['ho'], '', 'csak hónap').'</span>
                         </a>';
 
             // Bal oldali navpanel frissítésekor kijelöljük az aktuális sort
@@ -6919,6 +7034,7 @@ function getOszlopNev( $oszlop, $kieg_nev = '' ) {
         'csoport'       => 'Név',
         'cim'           => 'Cím',
         'cikk_id'       => 'Cikkszám',
+        'datum'         => 'Dátum',
         'e-szamla'      => 'E-számla',
         'esnap_d'       => 'Esedékesség',
         'erkezett'      => 'Érkezett',
@@ -6948,6 +7064,9 @@ function getOszlopNev( $oszlop, $kieg_nev = '' ) {
     // Néhol át kell írni az általános mezőneveket (pl. loginnál a nev nem Név, hanem Login név)
     if( basename(self()) == 'bejelentes.php' || basename(self()) == 'bejelentes_arch.php' ) {
         $oszlopNevek['surgos'] = 'Státusz';
+    }
+    if( basename(self()) == 'beosztas.php' ) {
+        $oszlopNevek['ev'] = 'Időszak';
     }
     if( basename(self()) == 'login.php' ) {
         $oszlopNevek['nev'] = 'Login név';
@@ -7427,6 +7546,8 @@ function get_akt_tomb($megn){
     global $anyagigenyles_tomb;
     global $bejelentes_tomb;
     global $beosztas_tomb;
+    global $beosztas_muszak_tomb;
+    global $beosztas_unnepnapok_tomb;
     global $cikktorzs_tomb;
     global $eloterj_fb_tomb;
     global $eloterj_bod_tomb;
@@ -7451,6 +7572,8 @@ function get_akt_tomb($megn){
         case 'anyagigenyles'            : case 'anyagigenyles_arch'             : $akt_tomb = $anyagigenyles_tomb;          break;
         case 'bejelentes'               : case 'bejelentes_arch'                : $akt_tomb = $bejelentes_tomb;             break;
         case 'beosztas'                 : case 'beosztas_arch'                  : $akt_tomb = $beosztas_tomb;               break;
+        case 'beosztas_muszak'          : case 'beosztas_muszak_arch'           : $akt_tomb = $beosztas_muszak_tomb;        break;
+        case 'beosztas_unnepnapok'      : case 'beosztas_unnepnapok_arch'       : $akt_tomb = $beosztas_unnepnapok_tomb;    break;
         case 'cikktorzs'                : case 'cikktorzs_arch'                 : $akt_tomb = $cikktorzs_tomb;              break;
         case 'eloterj_fb'               : case 'eloterj_fb_arch'                : $akt_tomb = $eloterj_fb_tomb;             break;
         case 'eloterj_bod'              : case 'eloterj_bod_arch'               : $akt_tomb = $eloterj_bod_tomb;            break;
@@ -7473,8 +7596,8 @@ function get_akt_tomb($megn){
     }
 
     // Beállítjuk mindenhol a megn_szurobe értéket, mert ez alapján fogjuk rendezni
-    foreach($akt_tomb as $kulcs => $elem){
-        if( !$akt_tomb[$kulcs]['megn_szurobe'] ){
+    foreach ( $akt_tomb as $kulcs => $elem ) {
+        if( !$akt_tomb[$kulcs]['megn_szurobe'] ) {
             $akt_tomb[$kulcs]['megn_szurobe'] = $akt_tomb[$kulcs]['megn'];
         }
     }
@@ -7488,7 +7611,7 @@ function get_akt_login_szallodai($sqlt_adj_vissza = '', $telephely_id_oszlop_hel
 
     // Aktuális felhasználó, vagy valaki más?
     $user = $_SESSION[get_db_tabla().'user'];
-    if($masik_user){
+    if( $masik_user ) {
         $user = $masik_user;
     }
 
@@ -7497,13 +7620,13 @@ function get_akt_login_szallodai($sqlt_adj_vissza = '', $telephely_id_oszlop_hel
     $szallodak = adatbazis2tomb($szallodak, 'telephely_id');
 
     // SQL-t adjunk vissza
-    if($sqlt_adj_vissza){
+    if( $sqlt_adj_vissza ) {
         $oszlop = 'telephely_id';
         if($telephely_id_oszlop_helyett_masik_oszlop){
             $oszlop = $telephely_id_oszlop_helyett_masik_oszlop;
         }
         // Ha tartozik hozzá szálloda
-        if($szallodak){
+        if( $szallodak ) {
             return ' AND `'.$oszlop.'` IN ('.implode(', ', $szallodak).')';
         // Ha nem tartozik hozzá szálloda, akkor így válik majd hamissá az SQL feltétele
         } else {

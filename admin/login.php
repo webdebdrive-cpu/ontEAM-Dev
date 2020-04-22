@@ -684,13 +684,13 @@ require_once('selectek.php');
     $gombok .= $tarsreszleg_gomb;
 
     // Új feltöltés alatti gombok
-    if (isset($_GET['uj'])) {
+    if( isset($_GET['uj']) ) {
         $gombok .= nl2('
                         <input type="button" class="gomb" value="Szállodák hozzáadása" onclick="kapcsolodoSzerkeszt(\'szallodak\');">
                         <input type="hidden" name="szallodak_hidden" id="szallodak_hidden">
                         <input type="hidden" name="tarsreszlegek_hidden" id="tarsreszlegek_hidden">
                         ');
-        if(_jog(JOG_FELHASZNALOK_KEZEL)){
+        if( _jog(JOG_FELHASZNALOK_KEZEL) ) {
             $gombok = nl2('
                 <div class="form_kuldes">
                     <input type="button" class="gombb mentes_gomb" name="mehet_gomb" id="mehet_gomb" disabled value="Mentés" onclick="uj_login_feltolt_ellenozesek();">

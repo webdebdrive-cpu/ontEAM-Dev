@@ -71,8 +71,8 @@ if( isset($_POST['uj_munkaido']) ) {
     $datum = $_POST['ev'].'-'.$_POST['ho'].'-01';
     
     // Időpont beszúrása
-    $adatbazis_kapcsolat->i('torzsadat_napi_munkaido',  array('torzsadat_id',  'datum', 'ora',          'insert_dt', 'insert_usr',                           'update_usr'                           ),
-                                                        array($_POST['recid'], $datum,  $_POST['ora'],  'now()',     $_SESSION[get_db_tabla().'teljes_nev'], $_SESSION[get_db_tabla().'teljes_nev'] )
+    $adatbazis_kapcsolat->i('torzsadat_napi_munkaido',  array('torzsadat_recid', 'datum', 'ora',          'insert_dt', 'insert_usr',                           'update_usr'                           ),
+                                                        array($_POST['recid'],   $datum,  $_POST['ora'],  'NOW()',     $_SESSION[get_db_tabla().'teljes_nev'], $_SESSION[get_db_tabla().'teljes_nev'] )
                             );
     echo json_encode( array(
         'siker'  => '1',
@@ -85,7 +85,7 @@ if( isset($_POST['uj_munkaido']) ) {
 // Utolsó napi munkaidő törlése
 if( isset($_POST['munkaido_torol']) ) {
     
-    $adatbazis_kapcsolat->d('torzsadat_napi_munkaido', "`torzsadat_id`='{$_POST['recid']}'", 'datum desc', '1');
+    $adatbazis_kapcsolat->d('torzsadat_napi_munkaido', "`torzsadat_recid`='{$_POST['recid']}'", 'datum desc', '1');
     
     echo json_encode( array(
         'siker'  => '1',
@@ -449,7 +449,7 @@ require_once('selectek.php');
                 <th>Óra</th>
             </tr>
             ');
-        $munkaidok = $adatbazis_kapcsolat->s('*', 'torzsadat_napi_munkaido', "`torzsadat_id`='{$_GET['id']}'", 'datum');
+        $munkaidok = $adatbazis_kapcsolat->s('*', 'torzsadat_napi_munkaido', "`torzsadat_recid`='{$_GET['id']}'", 'datum');
         if( !$munkaidok ) {
             $szamla_html .= nl2('
                 <tr>

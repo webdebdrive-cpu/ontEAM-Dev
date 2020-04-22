@@ -152,11 +152,18 @@ require_once('selectek.php');
 	// Új rekord felvitele
 	if( isset($_GET['uj']) ) {
 
-        // FORM
-		if( isset($_GET['ujkent']) ) {
-            foreach ( $akt_tomb as $ertek ) {
-                $sor[$ertek['name']] = $_SESSION[$ertek['name']];
+        // Újként szerkesztéskor feltöltjük a mezők tartalmát
+		if( $_GET['ujkent'] ) {
+            $sor = $adatbazis_kapcsolat -> s2('*', $megnevezes, "`recid`='{$_GET['ujkent']}'");
+            if( $sor ) {
+                foreach ( $akt_tomb as $ertek ) {
+                    $_SESSION[$ertek['name']] = stripslashes( $sor[$ertek['name']] );
+    			}
             }
+
+			foreach ( $akt_tomb as $ertek ) {
+                $sor[$ertek['name']] = $_SESSION[$ertek['name']];
+			}
 		}
 	    $js = js_kiir($akt_tomb, 'form_ell_admin()');
 
@@ -233,7 +240,13 @@ require_once('selectek.php');
             $json_sor[$kulcs] = formAdatok_replace($elem);
         }
         $szamla_html .= '<script> formAdatok = JSON.parse(\''.json_encode($json_sor).'\'); </script>';
-
+        $szamla_html .= nl2('
+            <script>
+                duplikalGomb  = "<p class=\"c\"><input class=\"gomb zold\" type=\"button\" value=\"Igen\" onclick=\"szurkit(); location.href = \''.basename(self()).'?uj&amp;ujkent='.$_GET['id'].'\'; \"><input class=\"gomb piros\" type=\"button\" value=\"Nem\" onclick=\"alert2()\"></p>";
+                duplikaKerdes = \'Azonosító: '.$sor['ikt_szam'].'<br>Szálloda: '.$telephely.'<br><br>Biztos, hogy duplikálja?\';
+            </script>
+        ');
+        
 	    // FORM
 	    $js = js_kiir($akt_tomb, 'form_ell_admin()', 'ajax');
 

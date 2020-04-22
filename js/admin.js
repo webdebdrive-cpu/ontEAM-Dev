@@ -607,6 +607,8 @@ $(function() {
                 'bejelentes_arch',
                 'bejovo_szamlak',
                 'beosztas',
+                'beosztas_muszak',
+                'beosztas_szabadnapok',
                 'cash_flow',
                 'cikktorzs',
                 'dokumentumtar',
@@ -1831,7 +1833,7 @@ $(function() {
         $(this).select();
     });
 
-    /* Loginnév mező formázása */
+    // Loginnév mező formázása
     $(document).on('keyup', '.f_loginnev', function(e) {
         $(this).val( $(this).val().replace(/[^a-zA-Z0-9._@éáűőúöüóíÉÁŰŐÚÖÜÓÍ]+/g, '') );
     });
@@ -2106,8 +2108,8 @@ function fixTable() {
         var tartalomHeight = $('#tartalomJobb').height(),
             tartalomScrollHeight = $('#tartalomJobb').prop('scrollHeight');
 
-        if( $('#fixTable').height > $('#tartalomJobb').height() ) {
-        // if( true || tartalomScrollHeight > tartalomHeight ) {
+        // Ha a táblázat megasabb mint a képernyő magassága, akkor is újra kell számolni
+        if( tartalomScrollHeight > tartalomHeight || $('#fixTable').height > $('#tartalomJobb').height() ) {
 
             $('#fixTable').height($('#tartalomJobb').height() - 50);
 
@@ -6282,6 +6284,7 @@ function szamlaBetolt( recid, page, muvelet, szerkeszt, kerdes_nelkul, anyagigen
                         'modosit',
                         'modosit_ules',
                         'munkalapok',
+                        'muszak',
                         'muszaki_anyag',
                         'napi_munkaido',
                         'naplo',
@@ -6308,6 +6311,7 @@ function szamlaBetolt( recid, page, muvelet, szerkeszt, kerdes_nelkul, anyagigen
                         'tortenet',
                         'tetel',
                         'ujkent',
+                        'unnepnapok',
                         'velemenyezok'
                     ], true);
 
@@ -6336,7 +6340,7 @@ function szamlaBetolt( recid, page, muvelet, szerkeszt, kerdes_nelkul, anyagigen
                     window.history.pushState("", "", getHost() + param );
 
                     // Táblázatnál le kel venni a paddingot
-                    if(page=='anyagigenyles.php') {
+                    if (page == 'anyagigenyles.php') {
                         if( _get('tablazat') ) {
                             $('#szamlaBetolt').addClass('nopadd');
                         } else {
@@ -7660,7 +7664,7 @@ function szurkit_zar( mehet_megsem_mutat ){
     setTimeout(function() {
 
         $('#ajaxfedo').addClass('dn');
-        if(mehet_megsem_mutat){
+        if (mehet_megsem_mutat) {
             $('#mehet_gomb, #megsem_gomb').removeAttr ('disabled');
         }
 
@@ -7998,7 +8002,6 @@ function get_csatolmanyok(tabla, recid) {
 // Pl. ha nincs mentés gombunk, vagy nincs találat a bal navpanelben
 function adatlap_minden_inputjat_disabled() {
     
-
     mehet = true;
     if( PHP_SELF == 'anyagigenyles.php' ) {
         if( location.href.indexOf('?uj=')>0 || location.href.indexOf('?&uj=') ) {
