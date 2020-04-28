@@ -2459,6 +2459,7 @@ input.autocomp, input.autocomp.mod, input.autocomp:focus{
     top: 0rem;
     right: 0rem;
     width: 6rem;
+    z-index: 1;
 }
 
 #popup div.popup_kont div.bezar:before, #alert2 div.bezar:before,
@@ -2482,7 +2483,7 @@ input.autocomp, input.autocomp.mod, input.autocomp:focus{
     border-radius: 0.6rem;
     min-height: 15rem;
     min-width: 40rem;
-    max-height: 80rem;
+    max-height: 50rem;
     max-width: 100rem;
     overflow-y: auto;
     padding: 6rem 0rem 0rem 0rem;

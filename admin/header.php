@@ -483,9 +483,9 @@ if(_jog(JOG_TORZSADAT_MEGTEKINT) || _jog(JOG_SZABADSAGIG_MEGTEKINT) || _jog(JOG_
             <ul class="alalmenu_cont">
                 <a class="nolink">Beosztások</a>
                 <ul class="alalmenu">
+                    <li><a href="'.$aloldalak['2'].'">Beosztások</a></li>
                     <li><a href="'.$aloldalak['3'].'">Műszak</a></li>
                     <li><a href="'.$aloldalak['4'].'">Ünnepnapok</a></li>
-                    <li><a href="'.$aloldalak['2'].'">Beosztások</a></li>
                 </ul>
             </ul>
         ');
@@ -1084,7 +1084,11 @@ if( basename(self()) == 'bejelentes.php' && !_jog(JOG_BEJELENTES_TORLESE) ) {
     $torles_icon    = '';
 }
 
-if( (basename(self()) == 'beosztas.php' || basename(self()) == 'beosztas_muszak.php' || basename(self()) == 'beosztas_unnepnapok.php') && !_jog(JOG_BEOSZTASOK_KEZEL) ) {
+if( basename(self()) == 'beosztas.php' && !_jog(JOG_BEOSZTASOK_KEZEL) ) {
+    $torles_icon = $uj = $duplikal = '';
+}
+
+if( (basename(self()) == 'beosztas_muszak.php' || basename(self()) == 'beosztas_unnepnapok.php') && !_jog(JOG_MSZK_BEOSZTAS_KEZEL) ) {
     $torles_icon = $uj = $duplikal = '';
 }
 

@@ -305,7 +305,7 @@ if( isset($_POST['f_szuro_mezo_operator']) ) {
                             });
                         </script>
                     ');
-
+                    
                 // select_szemelyzet
                 } elseif( $ertek['type'] == 'select_szemelyzet' ) {
 
@@ -376,6 +376,17 @@ if( isset($_POST['f_szuro_mezo_operator']) ) {
                     $input -> cssClass = 'f_felt';
                     $feltetel = $input -> getHtml();
 
+
+                // select_unnepnap_tipus
+                }elseif( $ertek['type'] == 'select_unnepnap_tipus' ) {
+
+                    require_once('../class/html/class.Select.php');
+                    require_once('selectek.php');
+
+                    $input = new Select($select_unnepnap_tipus, $_POST['felt']);
+                    $input -> cssClass = 'f_felt';
+                    $feltetel = $input -> getHtml();
+                    
                 // Általános esetben egy szabadszavas mező
                 } else {
 

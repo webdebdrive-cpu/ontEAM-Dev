@@ -38,11 +38,14 @@ if( $tobb_kep ) {
 // CSV generálása
 if( isset($_GET['csv']) ) {
 
+    require 'selectek.php';
+    
     // CSV export előkészítése
     list($mibol, $mibe, $filename, $open) = csv_export_elokeszit($megnevezes);
     if( $open ) {
 
         $sql = 'SELECT
+                `'.get_db_tabla().'beosztas_unnepnapok`.`tipus` as \'Típus\',
                 `'.get_db_tabla().'beosztas_unnepnapok`.`datum` as \'Dátum\',
                 `'.get_db_tabla().'beosztas_unnepnapok`.`leiras` as \'Leírás\'
                 '. csv_export_get_from_tol($megnevezes);
@@ -73,6 +76,17 @@ if( isset($_GET['csv']) ) {
             foreach( $sorok as $kulcs => $sor ) {
                 if( $kulcs == 'Dátum' ) {
                     $sor = datum_kiir($sor);
+                }
+                
+                if( $kulcs == 'Típus' ) {
+                    if( $sor ) {
+                        foreach ( $select_unnepnap_tipus as $tipus ) {
+                            if( $tipus['value'] == $sor ) {
+                                $sor = $tipus['name'];
+                                break;
+                            }
+                        }
+                    }
                 }
 
                 // Lehet nem volna elég 1-szer sőt kétszer sem ráereszteni a htmlspecialchars_decode-ot
@@ -130,14 +144,14 @@ require_once('selectek.php');
         $megj_db = ' ('.$sor['megj_db'].')';
     }
     
-    if( isset($_GET['modosit']) /*|| isset($_GET['tortenet']) || isset($_GET['dokumentumok']) || isset($_GET['megjegyzesek'])*/ ) {
+    if( isset($_GET['modosit']) /*|| isset($_GET['tortenet']) || isset($_GET['dokumentumok'])*/ || isset($_GET['megjegyzesek']) ) {
 
         // Számla fülek
         $ful_tomb = array(
             'modosit'       => 'Adatlap',
 //            'tortenet'      => 'Történet',
 //            'dokumentumok'  => 'Dokumentumok'.$dok_db,
-//            'megjegyzesek'  => 'Megjegyzések'.$megj_db,
+            'megjegyzesek'  => 'Megjegyzések'.$megj_db,
         );
 
         $fulek = '';
@@ -186,10 +200,17 @@ require_once('selectek.php');
     } else {
 
 	    // Js, a törlés gombhoz
-	    $gombok = '<script>var gomb'.$_GET['id'].'= get_kibont_torol(\''.self().'\', \''.$torles.'\', \''.$_GET['id'].'\');</script>';
-        $gombok .= ' <input type="button" id="recordTorol" class="gombb_alert dn" onclick="alert2(\'Biztosan törli ezt a '.$szoveg.'?\', gomb'.$_GET['id'].')" value="Töröl" title="Töröl">';
+        // Ha a dátum szerepel már beosztásban, akkor másképp kérdezünk rá.
+        $van_beosztas = $adatbazis_kapcsolat->s('recid', 'beosztas_naptar', "`datum`='{$sor['datum']}'", '', '1');
+        if( $van_beosztas ) {
+            $kerdes = datum_kiir($sor['datum']).'<br>Ez az ünnepnap már szerepel beosztásban.<br>Biztos, hogy törli?';
+        } else {
+            $kerdes = 'Biztosan törli ezt a '.$szoveg.'?';
+        }
+	    $gombok  = '<script>var gomb'.$_GET['id'].'= get_kibont_torol(\''.self().'\', \''.$torles.'\', \''.$_GET['id'].'\');</script>';
+        $gombok .= ' <input type="button" id="recordTorol" class="gombb_alert dn" onclick="alert2(\''.$kerdes.'\', gomb'.$_GET['id'].')" value="Töröl" title="Töröl">';
 
-        if( _jog(JOG_BEOSZTASOK_KEZEL) ) {
+        if( _jog(JOG_MSZK_BEOSZTAS_KEZEL) ) {
             $gombok = nl2('
                 <div class="form_kuldes">
                     <input type="button" class="gombb mentes_gomb" name="mehet_gomb" id="mehet_gomb" disabled value="Mentés" onclick="mentesGomb();">

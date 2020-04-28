@@ -2254,7 +2254,7 @@ $torzsadat_tomb = $akt_tomb = array(
 	array('type' => 'text',                 'megn' => 'Munkavállaló neve:',     'name' => 'nev',            'maxlength' => 250,     'szuro' => 1,   'class' => 'oriasi',            'alert' => 'Kérem adja meg a munkavállaló nevét!'),
 	array('type' => 'text',                 'megn' => 'Születési ideje:',       'name' => 'szul_datum',                             'szuro' => 1,   'class' => 'kicsi datepicker',  'alert' => 'Kérem adja meg a születés idejét!'),
 	array('type' => 'text',                 'megn' => 'Szakmája:',              'name' => 'szakma',         'maxlength' => 250,     'szuro' => 1,   'class' => 'oriasi'),
-    array('type' => 'select_szemelyzet',    'megn' => 'Beosztása:',             'name' => 'szemelyzet_id',                          'szuro' => 1,   'class' => 'disableNav',        'alert' => 'Kérem adja meg a beosztást!'),
+    array('type' => 'autocomplete',         'megn' => 'Beosztás:',              'name' => 'beosztas_id',                            'szuro' => 1,   'class' => 'oriasi disableNav', 'tabla' => 'erteklista', 'oszlop_keres' => 'id', 'oszlop_keres_autocomp' => 'info', 'listaz' => 'info', 'csoport' => ERTEKLISTA_BEOSZTAS, 'id_kiir' => 'id', 'alert' => 'Kérem adja meg a beosztást!'),
 	array('type' => 'text',                 'megn' => 'Munkaviszony kezdete:',  'name' => 'munka_kezd',                             'szuro' => 1,   'class' => 'kicsi datepicker',  'alert' => 'Kérem adja meg a munkaviszony kezdetét!'),
 	array('type' => 'text',                 'megn' => 'Kompetenciák:',          'name' => 'komp',           'maxlength' => 250,     'szuro' => 1,   'class' => 'oriasi'),
 );
@@ -2287,7 +2287,8 @@ if( _jog(JOG_MSZK_BEOSZTAS_KEZEL) ) {
 }
 $megnevezes = 'beosztas_muszak';
 $beosztas_muszak_tomb = $akt_tomb = array(
-    array('type' => 'select_felh_telephely',    'megn' => 'Szálloda:',      'name' => 'telephely_id',   'class' => 'csillag disableNav',        'szuro' => 1, 'alert' => 'Kérem válasszon szállodát!', 'style' => 'width: 100%', 'disabled' => $telephely_disabled),
+    array('type' => 'checkbox',                 'megn' => 'Aktív:',         'name' => 'aktiv',          'szuro' => 1,   'class' => 'check'),
+	array('type' => 'select_felh_telephely',    'megn' => 'Szálloda:',      'name' => 'telephely_id',   'class' => 'csillag disableNav',        'szuro' => 1, 'alert' => 'Kérem válasszon szállodát!', 'style' => 'width: 100%', 'disabled' => $telephely_disabled),
     array('type' => 'text',                     'megn' => 'Név:',           'name' => 'nev',            'class' => 'csillag',                   'szuro' => 1, 'maxlength' => 30,    'alert' => 'Kérem adja meg a műszak nevét!'),
     array('type' => 'text',                     'megn' => 'Tól-ig:',        'name' => 'tol',            'class' => 'ora_perc_felora csillag',   'szuro' => 1, 'maxlength' => 6,     'osszevon' => 1, 'post' => ' -', 'style' => 'margin-right: 0.5rem', 'alert' => 'Kérem adja meg a kezdő időpontot!'),
     array('type' => 'text',                     'megn' => '',               'name' => 'ig',             'class' => 'ora_perc_felora csillag',                 'maxlength' => 6,     'alert' => 'Kérem adja meg a záró időpontot!'),
@@ -2301,8 +2302,9 @@ array_push($postok, array('tomb' => $akt_tomb, 'uj' => 'uj'.$megnevezes, 'lista'
 // Beosztás ünnepnapok
 $megnevezes = 'beosztas_unnepnapok';
 $beosztas_unnepnapok_tomb = $akt_tomb = array(
-    array('type' => 'text',         'megn' => 'Dátum:',         'name' => 'datum',  'class' => 'csillag datepicker',    'szuro' => 1, 'maxlength' => 10,    'alert' => 'Kérem adja meg a dátumot!'),
-    array('type' => 'textarea',     'megn' => 'Leírás:',        'name' => 'leiras', 'class' => 'csillag oriasi',        'szuro' => 1, 'maxlength' => 100,   'alert' => 'Kérem adja meg a leírást!'),
+	array('type' => 'select_unnepnap_tipus',    'megn' => 'Típus:',     'name' => 'tipus',  'class' => 'csillag disableNav',    'szuro' => 1, 'alert' => 'Kérem válasszon típust!'),
+    array('type' => 'text',                     'megn' => 'Dátum:',     'name' => 'datum',  'class' => 'csillag datepicker',    'szuro' => 1, 'maxlength' => 10,    'alert' => 'Kérem adja meg a dátumot!'),
+    array('type' => 'textarea',                 'megn' => 'Leírás:',    'name' => 'leiras', 'class' => 'csillag oriasi',        'szuro' => 1, 'maxlength' => 100,   'alert' => 'Kérem adja meg a leírást!'),
 );
 array_push($postok, array('tomb' => $akt_tomb, 'uj' => 'uj'.$megnevezes, 'lista' => $megnevezes.'lista', 'tabla' => $megnevezes, 'torid' => $megnevezes.'tid' ));
 
@@ -5585,10 +5587,10 @@ foreach ( $postok as $ertek ) {
         if( $ertek['tabla'] == 'beosztas' && !_jog(JOG_BEOSZTASOK_KEZEL) ) {
             $weblap -> leallit(); exit;
         }
-        if( $ertek['tabla'] == 'beosztas_muszak' && !_jog(JOG_BEOSZTASOK_KEZEL) ) {
+        if( $ertek['tabla'] == 'beosztas_muszak' && !_jog(JOG_MSZK_BEOSZTAS_KEZEL) ) {
             $weblap -> leallit(); exit;
         }
-        if( $ertek['tabla'] == 'beosztas_unnepnapok' && !_jog(JOG_BEOSZTASOK_KEZEL) ) {
+        if( $ertek['tabla'] == 'beosztas_unnepnapok' && !_jog(JOG_MSZK_BEOSZTAS_KEZEL) ) {
             $weblap -> leallit(); exit;
         }
         if( $ertek['tabla'] == 'cikktorzs' && !_jog(JOG_CIKKTORZS_KEZEL) ) {
@@ -5827,6 +5829,13 @@ Hiba: '.getErtek('info', 'erteklista', 'recid', $bejelentes['hiba_id']).$hiba_tx
             if( $sql === false ) { $db_error = true; }
             $sql = $adatbazis_kapcsolat->d('beosztas_naptar', "`beosztas_recid`='{$_GET[$ertek['torid']]}'");
             if( $sql === false ) { $db_error = true; }
+        }
+        
+        // Műszaknál ellenőrizzük, hogy nem szerepel-e beosztásban. Ha igen, akkor már nem törölhető.
+        if( $ertek['tabla'] == 'beosztas_muszak' ) {
+            $van_muszak = $adatbazis_kapcsolat->s('recid', 'beosztas_naptar', "`beosztas_muszak_recid`='{$_GET[$ertek['torid']]}'",'', '1');
+            if( $van_muszak === false ) { $db_error = true; }
+            if( $van_muszak ) { exit; }
         }
 
         // Munkalap törlésének feltételei

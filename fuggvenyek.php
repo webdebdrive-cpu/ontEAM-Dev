@@ -1161,7 +1161,7 @@ function i_u($type, $tabla, $tomb) {
             
             // Mely felületeken kerüljön megjegyzésbe a módosítás
             $mod_megjegyzesbe_mehet = false;
-            $mod_megjegyzesbe = array( 'projektkezeles.php', 'projektszamla.php', 'projektszerzodes.php' );
+            $mod_megjegyzesbe = array( 'beosztas_muszak.php', 'beosztas_unnepnapok.php', 'projektkezeles.php', 'projektszamla.php', 'projektszerzodes.php' );
             $kiveteles_mezok  = array( 'stat_id', 'update_dt' );
             if( in_array(basename(self()), $mod_megjegyzesbe) ) {
                 $mod_megjegyzesbe_mehet = true;
@@ -1305,14 +1305,38 @@ function i_u($type, $tabla, $tomb) {
                                         }
                                         
                                         // Szálloda select lekezelése
+                                        if( $elem['name'] == 'szin' ) {
+                                            $uj_ertek = '<div class="szin" style="background-color: #'.$uj_ertek.'"></div>';
+                                            $value    = '<div class="szin" style="background-color: #'.$value.'"></div>';
+                                        }
+                                        
+                                        // Szálloda select lekezelése
                                         if( $elem['name'] == 'telephely_id' ) {
                                             $uj_ertek = getSzallodaNev($uj_ertek);
                                             $value    = getSzallodaNev($value   );
                                         }
                                         
-                                        // Tipus mező lekezelése
-                                        if( $elem['name'] == 'tipus' ) {
+                                        // Tipus mező lekezelése projekteknél
+                                        if( $elem['name'] == 'tipus' && in_array($tabla, array('projektigenyles', 'projektkezeles')) ) {
                                             foreach( $select_pri_tipus as $select ) {
+                                               
+                                                if( $select['name'] == '- Válasszon -' ) {
+                                                    $select['name'] = '';
+                                                }
+                                                if( $select['value']==$uj_ertek ) {
+                                                    $uj_ertek = $select['name'];
+                                                }
+                                                if( $select['value']==$value ) {
+                                                    $value = $select['name'];
+                                                }
+                                               
+
+                                            }
+                                        }
+                                        
+                                        // Tipus mező lekezelése beosztás ünnepnapoknál
+                                        if( $elem['name'] == 'tipus' && $tabla == 'beosztas_unnepnapok' ) {
+                                            foreach( $select_unnepnap_tipus as $select ) {
                                                
                                                 if( $select['name'] == '- Válasszon -' ) {
                                                     $select['name'] = '';
@@ -3026,19 +3050,30 @@ function szamla_lista( $where = '', $tabla = '', $kijeloltek = false, $csak_sql_
             }
         }
 
+        // Csak a beloginolt user szállodáihoz tartozó bejegyzések látszanak az alábbi felületeken
         $szallodak = get_akt_login_szallodai();
         if( $tabla == 'anyagigenyles' ) {
             $where = "`".get_db_tabla()."anyagigenyles`.`telephely_id` IN (".implode(',', $szallodak).") AND ";
         }
 
-        // Bejelentéseknél szűrünk a törölve oszlop értékére is (logikailag törölt sorok nem látszanak)
-        // Illetve csak a beloginolt user szállodáihoz tartozó bejegyzések látszanak
+        // Bejelentéseknél a részleg is számít
         if( $tabla == 'bejelentes' || $tabla == 'bejelentes_arch' ) {
             $where = "`".get_db_tabla().$tabla."`.`telephely_id` IN (".implode(',', $szallodak).") AND ";
-
             $reszlegek = get_akt_login_reszlegei();
             if( _jog(JOG_BEJELENTES_SAJAT_RESZL) && !_jog(JOG_BEJELENTES_MEGTEKINT) ) {
                 $where .= "`usr_reszleg_id` IN (".implode(',', $reszlegek).") AND ";
+            }
+        }
+        
+        // Beosztás műszaknál a jogon is múlik, mit lát
+        if( $tabla == 'beosztas_muszak' ) {
+            // MSZK jog esetén az MSzK szállodát láthatja
+            if( _jog(JOG_MSZK_BEOSZTAS_MEGTEKINT) ) {
+                $where = "`".get_db_tabla()."beosztas_muszak`.`telephely_id`='".TELEPHELY_SZK."' AND ";
+            
+            // Egyébként a saját szállodáját
+            } else {
+                $where = "`".get_db_tabla()."beosztas_muszak`.`telephely_id` IN (".implode(',', $szallodak).") AND ";
             }
         }
         if( $tabla == 'eseti_fenntartas' ) {
@@ -4338,7 +4373,6 @@ function beosztas_muszakLista( $bejegyzesek, $tabla, $frissit, $kijeloltek, $sor
             $html = '<ul id="szamlaList" class="szamla_cont rendszer">';
         }
 
-
         $i = 1;
         foreach ( $bejegyzesek as $bsz ) {
             $active = '';
@@ -4347,9 +4381,8 @@ function beosztas_muszakLista( $bejegyzesek, $tabla, $frissit, $kijeloltek, $sor
             }
 
             $li_tart = '<a class="szamla" data-recid="'.$bsz['recid'].'" data-fajl="'.$tabla.'.php" data-muvelet="modosit">
-                            <span><span class="szin" style="background: #'.$bsz['szin'].'"></span> '.getSzallodaNev($bsz['telephely_id']).'</span>
-                            <span>'.$bsz['nev'].' '.$bsz['jel'].'</span>
-                            <span>'.$bsz['tol'].'-'.$bsz['ig'].' '.$bsz['ora'].'</span>
+                            <span><span class="szin" style="background: #'.$bsz['szin'].'"></span> '.getSzallodaNev($bsz['telephely_id']).' '.$bsz['nev'].'</span>
+                            <span>'.$bsz['tol'].'-'.$bsz['ig'].' '.$bsz['ora'].' óra</span>
                         </a>';
 
             $html .= '<li id="szamla-'.$bsz['recid'].'" class="szamla_sor'.$active.'" data-recid="'.$bsz['recid'].'" data-i="'.$i.'">'.$li_tart.'</li>';

@@ -432,3 +432,8 @@ define('BEOSZTAS_FIX_SZABADNAP_JEL',  'SZ');
 define('BEOSZTAS_FIX_PIHENONAP_JEL',  'P');
 define('BEOSZTAS_FIX_BETEGSEG_JEL',   'B');
 define('TELEPHELY_SZK',              1106);
+
+// Beosztás ünnepnap típusok
+define('BEOSZTAS_UNNEPNAP_MUNKASZUNET', 1);
+define('BEOSZTAS_UNNEPNAP_PIHENO',      2);
+define('BEOSZTAS_UNNEPNAP_HELYETTES',   3);

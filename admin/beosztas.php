@@ -569,8 +569,11 @@ require_once('selectek.php');
         if( $honap<10 ) {
             $honap = '0'.$honap;
         }
-        $unnepnapok = $adatbazis_kapcsolat->s('datum', 'beosztas_unnepnapok', "`datum` LIKE '{$sor['ev']}-{$honap}%'");
-        $unnepnapok = adatbazis2tomb($unnepnapok, 'datum');
+        // Ünnepnapok és helyettesítő napokat felvesszük egy tömbbe
+        $unnepnapok         = $adatbazis_kapcsolat->s('datum', 'beosztas_unnepnapok', "`datum` LIKE '{$sor['ev']}-{$honap}%' AND `tipus` IN (".BEOSZTAS_UNNEPNAP_MUNKASZUNET.", ".BEOSZTAS_UNNEPNAP_PIHENO.")");
+        $unnepnapok         = adatbazis2tomb($unnepnapok, 'datum');
+        $helyettesito_napok = $adatbazis_kapcsolat->s('datum', 'beosztas_unnepnapok', "`datum` LIKE '{$sor['ev']}-{$honap}%' AND `tipus` IN (".BEOSZTAS_UNNEPNAP_HELYETTES.")");
+        $helyettesito_napok = adatbazis2tomb($helyettesito_napok, 'datum');
 
         $datumok_tomb = array();
         $napok_szama = date('t', strtotime($sor['ev'].'-'.$honap.'-01'));
@@ -583,13 +586,14 @@ require_once('selectek.php');
             
             
             $sarga = '';
+            $datum = $sor['ev'].'-'.$honap.'-'.$nap_nulakkal;
             // Szombat vasárnap kiemelve
             $het_napja = date('w', strtotime($sor['ev'].'-'.$honap.'-'.$nap_nulakkal));
-            if( $het_napja == 0 || $het_napja == 6 ) {
+            if( ($het_napja == 0 || $het_napja == 6) && !in_array($datum, $helyettesito_napok) ) {
                 $sarga = ' class="sarga"';
             
             // Ünepnapok szintúgy
-            } else if( in_array($sor['ev'].'-'.$honap.'-'.$nap_nulakkal, $unnepnapok) ) {
+            } else if( in_array($datum, $unnepnapok) ) {
                 $sarga = ' class="sarga"';
             }
             array_push($datumok_tomb, array('datum' => $sor['ev'].'-'.$honap.'-'.$nap_nulakkal, 'sarga' => $sarga));
@@ -600,14 +604,15 @@ require_once('selectek.php');
         // Műszakok
         $muszak_select = '<select id="muszak" class="disableNav">';
         $muszak_select .= '<option value="">-Válasszon műszakot-</option>';
-        $muszakok = $adatbazis_kapcsolat->s('*', 'beosztas_muszak', "`telephely_id`='{$sor['telephely_id']}'", 'nev');
+        $muszakok = $adatbazis_kapcsolat->s('*', 'beosztas_muszak', "`telephely_id`='{$sor['telephely_id']}' AND `aktiv`=1", 'nev');
 
         foreach( $muszakok as $muszak ) {
             $muszak_select .= '<option value="'.$muszak['recid'].'|sep|'.$muszak['jel'].'|sep|'.$muszak['szin'].'|sep|'.$muszak['ora'].'|sep|'.$muszak['tol'].'|sep|'.$muszak['ig'].'" style="background: #'.$muszak['szin'].'">'.$muszak['nev'].' ('.$muszak['jel'].' '.$muszak['tol'].'-'.$muszak['ig'].')</option>';
         }
         
         $muszak_select .= '<option value="0|sep|'.BEOSZTAS_FIX_SZABADNAP_JEL.'">Szabadság ('.BEOSZTAS_FIX_SZABADNAP_JEL.')</option>';
-        $muszak_select .= '<option value="0|sep|'.BEOSZTAS_FIX_PIHENONAP_JEL.'">Pihenőnap ('.BEOSZTAS_FIX_PIHENONAP_JEL.')</option>';
+        // A beosztás felületen a műszak lenyílóból ki kell venni a pihenőnapot mert azt nem személyenként kell megadni, hanem a törvényből jön.
+        // $muszak_select .= '<option value="0|sep|'.BEOSZTAS_FIX_PIHENONAP_JEL.'">Pihenőnap ('.BEOSZTAS_FIX_PIHENONAP_JEL.')</option>';
         $muszak_select .= '<option value="0|sep|'.BEOSZTAS_FIX_BETEGSEG_JEL.'">Betegség ('.BEOSZTAS_FIX_BETEGSEG_JEL.')</option>';
         $muszak_select .= '<option value="|del|">Nincs beosztás</option>';
         $muszak_select .= '</select>';
@@ -634,10 +639,12 @@ require_once('selectek.php');
                 // Diszpécser vagy mobilcsoport usereket kell kilistázni, akik Aktívak, nem virtuálisak
                 $felhasznalok = $adatbazis_kapcsolat->s('nev', 'login', "(`szemelyzet_id`='".DISZPECSER."' OR `szemelyzet_id`='".MOBILCSOPORT."') AND `aktiv`=1 AND `virtual`=0");
                 $felhasznalok = adatbazis2tomb($felhasznalok, 'nev');
+            
             // Általános szálloda esetén
             } else {
-                // Kik azok, akik adott szállodában érintettek
-                $login_nevek  = $adatbazis_kapcsolat->s('nev', 'telephely_kapcs', "`telephely_id`='{$sor['telephely_id']}'");
+                
+                // A hozzám tartozó szállodákhoz tartozó telepített személyek (akik Aktívak, nem virtuálisak)
+                $login_nevek  = $adatbazis_kapcsolat->s('DISTINCT `nev`', 'telephely_kapcs', "`telephely_id` IN (".implode(', ', get_akt_login_szallodai()).")");
                 $login_nevek  = adatbazis2tomb($login_nevek, 'nev');
                 // Telepített személyek, akik Aktívak, nem virtuálisak
                 $felhasznalok = $adatbazis_kapcsolat->s('nev', 'login', "`nev` IN ('". implode('\', \'', $login_nevek)."') AND `szemelyzet_id`='".TELEPITETT_SZEMELYZET."' AND `aktiv`=1 AND `virtual`=0");
@@ -661,7 +668,7 @@ require_once('selectek.php');
         }
         
         foreach( $nevek as $nev ) {
-            
+
             $naptar_adatok = $adatbazis_kapcsolat->s('*', 'beosztas_naptar', "`beosztas_nevek_recid`='{$nev['recid']}' AND `beosztas_recid`='{$_GET['id']}'");
             $napok_td = '';
             $orak     = 0;
@@ -704,14 +711,16 @@ require_once('selectek.php');
             }
             
             // A tervórák első körben a munkanapok (nem sárga hátterűek) * 8 órával. Aztán majd lehet az illető aktuális napi munkaidejével szorozzuk fel.
-            $terv_orak = $munkanapok_szama * 8;
+            $napi_munkaido = $adatbazis_kapcsolat->s2('ora', 'torzsadat_napi_munkaido', "`torzsadat_recid`='{$nev['torzsadat_recid']}' AND `datum`<='{$sor['ev']}-{$honap}-01'", 'datum desc', '1');
+            
+            $terv_orak = $munkanapok_szama * $napi_munkaido['ora'];
             $jobb_oldal .= nl2('
                 <tr>
                     <td>'.$nev['nev'].'</td>
                     '.$napok_td.'
                     <td class="nowrap">'.number_format($terv_orak, 0, '', ' ').'</td>
                     <td class="nowrap">'.number_format($orak, 0, '', ' ').'</td>
-                    <td class="nowrap">'.number_format($terv_orak-$orak, 0, '', ' ').'</td>
+                    <td class="nowrap">'.number_format($orak-$terv_orak, 0, '', ' ').'</td>
                 </tr>
                 ');
         }

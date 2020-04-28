@@ -7,6 +7,17 @@ if( false && isset($_GET['info']) && $_SESSION[get_db_tabla().'user'] ){
     exit;
 }
 
+// Loginból törzsadat feltöltése
+if( isset($_GET['torzsadat_feltolt']) ) {
+    $loginok = $adatbazis_kapcsolat->s('*', 'login', "`szemelyzet_id` IN (".TELEPITETT_SZEMELYZET.", ".MOBILCSOPORT.", ".DISZPECSER.")");
+    foreach( $loginok as $login ) {
+        $adatbazis_kapcsolat->i('torzsadat', array('nev',                'felh_loginnev',   'beosztas_id',          'aktiv',         'torolve'         ),
+                                             array($login['teljes_nev'], $login['nev'],     $login['beosztas_id'],   $login['aktiv'], $login['torolve'] )
+                                );
+echo $adatbazis_kapcsolat->gp() . '<br>';
+    }
+}
+
 // Levélküldés tesztelése
 if( false && isset($_GET['mail_teszt']) ) {
     require_once('../class/class.Phpmailer.php');

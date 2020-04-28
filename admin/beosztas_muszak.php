@@ -1,7 +1,7 @@
 <?php
 require_once('../weblap.php');
 
-if( !_jog(JOG_BEOSZTASOK_MEGTEKINT) ) {
+if( !_jog(JOG_BEOSZTASOK_MEGTEKINT) && !_jog(JOG_MSZK_BEOSZTAS_MEGTEKINT) ) {
     if(!$_SESSION[get_db_tabla().'user']){
         $weblap -> leallit();
         header('Location: index.php');
@@ -49,7 +49,8 @@ if( isset($_GET['csv']) ) {
                 `'.get_db_tabla().'beosztas_muszak`.`tol` as \'Tól\',
                 `'.get_db_tabla().'beosztas_muszak`.`ig` as \'Ig\',
                 `'.get_db_tabla().'beosztas_muszak`.`ora` as \'Óra\',
-                `'.get_db_tabla().'beosztas_muszak`.`szin` as \'Szín\'
+                `'.get_db_tabla().'beosztas_muszak`.`szin` as \'Szín\',
+                `'.get_db_tabla().'beosztas_muszak`.`aktiv` as \'Aktív\'
                 '. csv_export_get_from_tol($megnevezes);
         $query = mysqli_query($db_kapcs, $sql);
 
@@ -79,8 +80,12 @@ if( isset($_GET['csv']) ) {
                 if( $kulcs == 'Szálloda' ) {
                     $sor = getSzallodaNev($sor);
                 }
-                if( $kulcs == 'Bejelentett hiba' ) {
-                    $sor = getErtekLista('', '', $sor);
+                if( $kulcs == 'Aktív' ) {
+                    if( $sor ) {
+                        $sor = 'igen';
+                    } else {
+                        $sor = 'nem';
+                    }
                 }
 
                 // Lehet nem volna elég 1-szer sőt kétszer sem ráereszteni a htmlspecialchars_decode-ot
@@ -138,14 +143,14 @@ require_once('selectek.php');
         $megj_db = ' ('.$sor['megj_db'].')';
     }
     
-    if( isset($_GET['modosit']) /*|| isset($_GET['tortenet']) || isset($_GET['dokumentumok']) || isset($_GET['megjegyzesek'])*/ ) {
+    if( isset($_GET['modosit']) /*|| isset($_GET['tortenet']) || isset($_GET['dokumentumok'])*/ || isset($_GET['megjegyzesek']) ) {
 
         // Számla fülek
         $ful_tomb = array(
             'modosit'       => 'Adatlap',
 //            'tortenet'      => 'Történet',
 //            'dokumentumok'  => 'Dokumentumok'.$dok_db,
-//            'megjegyzesek'  => 'Megjegyzések'.$megj_db,
+            'megjegyzesek'  => 'Megjegyzések'.$megj_db,
         );
 
         $fulek = '';
@@ -195,13 +200,18 @@ require_once('selectek.php');
 
 	    // Js, a törlés gombhoz
 	    $gombok = '<script>var gomb'.$_GET['id'].'= get_kibont_torol(\''.self().'\', \''.$torles.'\', \''.$_GET['id'].'\');</script>';
-        if( _jog(JOG_BEOSZTASOK_KEZEL) ) {
-            $gombok .= ' <input type="button" id="recordTorol" class="gombb_alert dn" onclick="alert2(\'Biztosan törli ezt a '.$szoveg.'?\', gomb'.$_GET['id'].')" value="Töröl" title="Töröl">';
+        if( _jog(JOG_BEOSZTASOK_KEZEL) || _jog(JOG_MSZK_BEOSZTAS_KEZEL) ) {
+            $van_muszak = $adatbazis_kapcsolat->s('recid', 'beosztas_naptar', "`beosztas_muszak_recid`='{$_GET['id']}'",'', '1');
+            if( $van_muszak ) {
+                $gombok .= ' <input type="button" id="recordTorol" class="gombb_alert dn" onclick="alert2(\''.getSzallodaNev($sor['telephely_id']).'<br>'.$sor['nev'].'<br>Ez a műszak már szerepel beosztásban. Nem törölhető!\', \'\', \'Hiba\')" value="Töröl" title="Töröl">';
+            } else {
+                $gombok .= ' <input type="button" id="recordTorol" class="gombb_alert dn" onclick="alert2(\'Biztosan törli ezt a '.$szoveg.'?\', gomb'.$_GET['id'].')" value="Töröl" title="Töröl">';
+            }
         } else {
             $gombok .= ' <input type="button" id="recordTorol" class="gombb_alert dn" onclick="alert2(\'Önnek nincs joga műszak törléséhez!\', \'\', \'Hiba\')" value="Töröl" title="Töröl">';
         }
         
-        if( _jog(JOG_BEOSZTASOK_KEZEL) ) {
+        if( ($sor['telephely_id']!=TELEPHELY_SZK && _jog(JOG_BEOSZTASOK_KEZEL)) || ($sor['telephely_id']==TELEPHELY_SZK && _jog(JOG_MSZK_BEOSZTAS_KEZEL)) ) {
             $gombok = nl2('
                 <div class="form_kuldes">
                     <input type="button" class="gombb mentes_gomb" name="mehet_gomb" id="mehet_gomb" disabled value="Mentés" onclick="mentesGomb();">
@@ -277,7 +287,7 @@ require_once('selectek.php');
         ');
 
 	// Új termék felvitele
-	if( isset($_GET['uj']) && _jog(JOG_BEOSZTASOK_KEZEL) ) {
+	if( isset($_GET['uj']) && (_jog(JOG_BEOSZTASOK_KEZEL) || _jog(JOG_MSZK_BEOSZTAS_KEZEL)) ) {
 
         // Újként szerkesztéskor feltöltjük a mezők tartalmát
 		if( $_GET['ujkent'] ) {
@@ -379,7 +389,7 @@ require_once('selectek.php');
         $szamla_html .= nl2('
             <script>
                 duplikalGomb  = "<p class=\"c\"><input class=\"gomb zold\" type=\"button\" value=\"Igen\" onclick=\"szurkit(); location.href = \''.basename(self()).'?uj&amp;ujkent='.$_GET['id'].'\'; \"><input class=\"gomb piros\" type=\"button\" value=\"Nem\" onclick=\"alert2()\"></p>";
-                duplikaKerdes = \'Szálloda: '.getSzallodaNev($sor['telephely_id']).'<br>Név: '.$sor['nev'].'<br><br>Biztos, hogy duplikálja?\';
+                duplikaKerdes = \'Szálloda: '.getSzallodaNev($sor['telephely_id']).'<br>Név: '.addcslashes($sor['nev']).'<br><br>Biztos, hogy duplikálja?\';
             </script>
         ');
         

@@ -1063,14 +1063,14 @@ if( isset($_GET['csv']) ) {
                     $sor = getSzallodaNev($sor);
                 }
                 
-                if($kulcs=='Prioritás'){
+                if( $kulcs == 'Prioritás' ) {
                     $sor = erteklista(ERTEKLISTA_PROJEKT_PRIOR, $sor);
                 }
                 
-                if($kulcs=='Típus'){
-                    if($sor){
-                        foreach($select_pri_tipus as $tipus){
-                            if($tipus['value']==$sor){
+                if( $kulcs == 'Típus' ) {
+                    if( $sor ) {
+                        foreach ( $select_pri_tipus as $tipus ) {
+                            if( $tipus['value'] == $sor ) {
                                 $sor = $tipus['name'];
                                 break;
                             }
@@ -1078,12 +1078,12 @@ if( isset($_GET['csv']) ) {
                     }
                 }
                 
-                if($kulcs=='Státusz'){
+                if( $kulcs == 'Státusz' ) {
                     $sor = getStatText($megnevezes, $sor);
                 }
                 
-                if($kulcs=='Rendkívüli'){
-                    if($sor){
+                if( $kulcs == 'Rendkívüli' ) {
+                    if( $sor ) {
                         $sor = 'igen';
                     } else {
                         $sor = 'nem';

@@ -6545,7 +6545,7 @@ function respoVisszalepes() {
 
 // Bal oldali navpanel egy sorának frissítése
 function szamlaSorFrissit( tabla, recid ) {
-    
+
     setTimeout(function(){ 
     
     if( tabla && recid ) {

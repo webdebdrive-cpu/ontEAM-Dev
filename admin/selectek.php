@@ -178,13 +178,21 @@ $munkAnyag_statusz = array(
 );
 
 // Értéklista csoport - ezt elég az erteklista.php/header.php alatt kiszámolni (utóbbi a szűrő miatt)
-if( basename(self()) == 'erteklista.php' || basename(self()) == 'header.php' ) {
+if( basename(self()) == 'erteklista.php' || basename(self()) == 'header.php'/*Szűrés miatt*/ ) {
     $select_erteklista = array();
     array_push($select_erteklista, array('name' => '-Válassz-', 'value' => '' ));
     $erteklistak = $adatbazis_kapcsolat -> select('csoport nev', 'erteklista_csoport', '', 'nev');
     foreach ( $erteklistak as $erteklista ) {
         array_push($select_erteklista, array('name' => $erteklista['nev'], 'value' => (int)$erteklista['csoport'] ));
     }
+}
+
+if( basename(self()) == 'beosztas_unnepnapok.php' || basename(self()) == 'header.php'/*Szűrés miatt*/ ) {
+    $select_unnepnap_tipus = array();
+    array_push($select_unnepnap_tipus, array('name' => '- Válasszon -',         'value' => '' ));
+    array_push($select_unnepnap_tipus, array('name' => 'Munkaszüneti nap',      'value' => BEOSZTAS_UNNEPNAP_MUNKASZUNET    ));
+    array_push($select_unnepnap_tipus, array('name' => 'Pihenő nap',            'value' => BEOSZTAS_UNNEPNAP_PIHENO         ));
+    array_push($select_unnepnap_tipus, array('name' => 'Helyettesítő munkanap', 'value' => BEOSZTAS_UNNEPNAP_HELYETTES      ));
 }
 
 // Szerződés típusok

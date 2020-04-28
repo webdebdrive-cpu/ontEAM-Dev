@@ -38,6 +38,17 @@ if( $tobb_kep ) {
 // Új napi munkaidó hozzáadása
 if( isset($_POST['uj_munkaido']) ) {
     
+    // Jogosultság ellenőrzése
+    if( !_jog(JOG_TORZSADAT_KEZEL) ) {
+        echo json_encode( array(
+            'hiba'  => 'Önnek nincs joga Napi munkaidőt hozzáadni!',
+            'title' => 'Hiba',
+        ) );
+        
+        $weblap -> leallit();
+        exit;
+    }
+    
     // Adathelyességek ellenőrzése
     if( $_POST['ev']<date('Y') ) {
         echo json_encode( array(
@@ -84,6 +95,17 @@ if( isset($_POST['uj_munkaido']) ) {
 
 // Utolsó napi munkaidő törlése
 if( isset($_POST['munkaido_torol']) ) {
+    
+    // Jogosultság ellenőrzése
+    if( !_jog(JOG_TORZSADAT_KEZEL) ) {
+        echo json_encode( array(
+            'hiba'  => 'Önnek nincs joga Napi munkaidőt törölni!',
+            'title' => 'Hiba',
+        ) );
+        
+        $weblap -> leallit();
+        exit;
+    }
     
     $adatbazis_kapcsolat->d('torzsadat_napi_munkaido', "`torzsadat_recid`='{$_POST['recid']}'", 'datum desc', '1');
     
@@ -265,27 +287,30 @@ require_once('selectek.php');
     // Napi munkaidő gombjai
     } elseif( isset($_GET['napi_munkaido']) ) {
 
-        // Gombok
-        $gombok = nl2('
-            <div class="form_kuldes">
-                <input type="button" class="gomb zold" value="Új hozzáadása" onclick="csoportMuvelet(\'torzsadat_napi_munkaido_hozzaad\');">
-                <input type="button" class="gomb piros" value="Utolsó sor törlése" onclick="munkaido_torol();">
-            </div>
-        ');
+        if( _jog(JOG_TORZSADAT_KEZEL) ) {
+        
+            // Gombok
+            $gombok = nl2('
+                <div class="form_kuldes">
+                    <input type="button" class="gomb zold" value="Új hozzáadása" onclick="csoportMuvelet(\'torzsadat_napi_munkaido_hozzaad\');">
+                    <input type="button" class="gomb piros" value="Utolsó sor törlése" onclick="munkaido_torol();">
+                </div>
+            ');
 
-        $muv_style = ' style="width: calc(100% - '.($_SESSION['defaultCsuszka'] + 16).'px);"';
-        if( in_array(basename(self()), $_SESSION['ketHasabos']) && $_SESSION[get_db_tabla().'user'] ) {
-            if( $_COOKIE['csuszkaSzelesseg'] ) {
-                $muv_style = ' style="width: calc(100% - '.(($_COOKIE['csuszkaSzelesseg'] + 16)/10).'rem);"';
+            $muv_style = ' style="width: calc(100% - '.($_SESSION['defaultCsuszka'] + 16).'px);"';
+            if( in_array(basename(self()), $_SESSION['ketHasabos']) && $_SESSION[get_db_tabla().'user'] ) {
+                if( $_COOKIE['csuszkaSzelesseg'] ) {
+                    $muv_style = ' style="width: calc(100% - '.(($_COOKIE['csuszkaSzelesseg'] + 16)/10).'rem);"';
+                }
             }
-        }
 
-        // Műveletek box
-        $gombok = nl2('
-            <div class="muveletek"'.$muv_style.'>
-                '.$gombok.'
-            </div>
-        ');
+            // Műveletek box
+            $gombok = nl2('
+                <div class="muveletek"'.$muv_style.'>
+                    '.$gombok.'
+                </div>
+            ');
+        }
         
     // Módosítás gombok
     } else {
