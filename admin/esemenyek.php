@@ -2290,8 +2290,8 @@ $beosztas_muszak_tomb = $akt_tomb = array(
     array('type' => 'checkbox',                 'megn' => 'Aktív:',         'name' => 'aktiv',          'szuro' => 1,   'class' => 'check'),
 	array('type' => 'select_felh_telephely',    'megn' => 'Szálloda:',      'name' => 'telephely_id',   'class' => 'csillag disableNav',        'szuro' => 1, 'alert' => 'Kérem válasszon szállodát!', 'style' => 'width: 100%', 'disabled' => $telephely_disabled),
     array('type' => 'text',                     'megn' => 'Név:',           'name' => 'nev',            'class' => 'csillag',                   'szuro' => 1, 'maxlength' => 30,    'alert' => 'Kérem adja meg a műszak nevét!'),
-    array('type' => 'text',                     'megn' => 'Tól-ig:',        'name' => 'tol',            'class' => 'ora_perc_felora csillag',   'szuro' => 1, 'maxlength' => 6,     'osszevon' => 1, 'post' => ' -', 'style' => 'margin-right: 0.5rem', 'alert' => 'Kérem adja meg a kezdő időpontot!'),
-    array('type' => 'text',                     'megn' => '',               'name' => 'ig',             'class' => 'ora_perc_felora csillag',                 'maxlength' => 6,     'alert' => 'Kérem adja meg a záró időpontot!'),
+    array('type' => 'text',                     'megn' => 'Tól-ig:',        'name' => 'tol',            'class' => 'ora_perc_felora',           'szuro' => 1, 'maxlength' => 6, 'megn_szurobe' => 'Tól',     'osszevon' => 1, 'post' => ' -', 'style' => 'margin-right: 0.5rem'),
+    array('type' => 'text',                     'megn' => '',               'name' => 'ig',             'class' => 'ora_perc_felora',           'szuro' => 1, 'maxlength' => 6, 'megn_szurobe' => 'Ig'),
     array('type' => 'text',                     'megn' => 'Óra',            'name' => 'ora',            'class' => 'csillag',                   'szuro' => 1, 'maxlength' => 3,     'alert' => 'Kérem adja meg az óra mező értékét!', 'style' => 'width: 5rem;', 'onkeyup' => 'onlyNumbers($(this))'),
     array('type' => 'text',                     'megn' => 'Jel',            'name' => 'jel',            'class' => 'csillag',                   'szuro' => 1, 'maxlength' => 4,     'alert' => 'Kérem adja meg a jel mező értékét!',  'style' => 'width: 5rem;'),
     array('type' => 'colorpicker',              'megn' => 'Szín',           'name' => 'szin',           'class' => 'dn',                        'alert' => 'Kérem adja meg a színt!'),
@@ -2302,7 +2302,7 @@ array_push($postok, array('tomb' => $akt_tomb, 'uj' => 'uj'.$megnevezes, 'lista'
 // Beosztás ünnepnapok
 $megnevezes = 'beosztas_unnepnapok';
 $beosztas_unnepnapok_tomb = $akt_tomb = array(
-	array('type' => 'select_unnepnap_tipus',    'megn' => 'Típus:',     'name' => 'tipus',  'class' => 'csillag disableNav',    'szuro' => 1, 'alert' => 'Kérem válasszon típust!'),
+	array('type' => 'select_unnepnap_tipus',    'megn' => 'Típus:',     'name' => 'tipus',  'class' => 'csillag',    'szuro' => 1, 'alert' => 'Kérem válasszon típust!'),
     array('type' => 'text',                     'megn' => 'Dátum:',     'name' => 'datum',  'class' => 'csillag datepicker',    'szuro' => 1, 'maxlength' => 10,    'alert' => 'Kérem adja meg a dátumot!'),
     array('type' => 'textarea',                 'megn' => 'Leírás:',    'name' => 'leiras', 'class' => 'csillag oriasi',        'szuro' => 1, 'maxlength' => 100,   'alert' => 'Kérem adja meg a leírást!'),
 );

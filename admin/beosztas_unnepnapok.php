@@ -35,6 +35,27 @@ if( $tobb_kep ) {
     function get_tobbkep_tabla(){ return str_replace('.php', '', basename(self())).'_dok'; } // A képeket tartalmazó adatbázis tábla neve FONTOS: ha itt átnevezed akkor a tobbkep.php-ban is át kell írni! 'kepek';       } // A képeket tartalmazó adatbázis tábla neve FONTOS: ha itt átnevezed akkor a tobbkep.php-ban is át kell írni!
 }
 
+// Új mentés előtt ellenőrizni kell, hogy adott ünnepnap létezik-e
+if( isset($_POST['unnepnap_letezik_e']) ) {
+    
+    $datum_db = str_replace('.', '-', $_POST['datum']);
+    if( $adatbazis_kapcsolat->s2('recid', 'beosztas_unnepnapok', "`datum`='{$datum_db}'") ) {
+        echo json_encode(
+                            array(
+                                'hiba'  => $_POST['datum'].'<br>Ez a nap már szerepel az ünnepnapok között.',
+                                'title' => 'Hiba',
+                                'focus' => 'datum',
+                            )
+            );
+        $weblap -> leallit();
+        exit;
+    }
+    
+    echo json_encode(array('mehet' => '1'));
+    $weblap -> leallit();
+    exit;
+}
+
 // CSV generálása
 if( isset($_GET['csv']) ) {
 
@@ -178,7 +199,7 @@ require_once('selectek.php');
         // Gombok
         $gombok = nl2('
             <div class="form_kuldes">
-                <input type="button" class="gomb zold" name="mehet_gomb" id="mehet_gomb" disabled value="Mentés" onclick="mentesGomb();">
+                <input type="button" class="gomb zold" name="mehet_gomb" id="mehet_gomb" disabled value="Mentés" onclick="unnepnap_letezik_e();">
                 <input type="button" class="gomb piros" disabled id="megsem_gomb" value="Mégsem" onclick="megsemGomb();">
             </div>
         ');
@@ -189,6 +210,49 @@ require_once('selectek.php');
                 $muv_style = ' style="width: calc(100% - '.(($_COOKIE['csuszkaSzelesseg'] + 16)/10).'rem);"';
             }
         }
+        
+    $gombok .= nl2('
+                <script>
+                function unnepnap_letezik_e() {
+
+                    szurkit(\'mehet_megsem_rejt\');
+                    
+                    $.ajax({
+                        url: PHP_SELF,
+                        type: \'POST\',
+                        data: {
+                            datum               : $(\'#datum\').val(),
+                            unnepnap_letezik_e  : Date.now()
+                        },
+                        success: function (response) {
+                            if(response.substring(0, 6)==\'SESKIL\'){ location.href = \'index.php\'; }
+                            if(response) {
+                                response = JSON.parse(response);
+                                if( response.hiba ) {
+                                    alert2(response.hiba, response.gomb, response.title);
+                                    alert_utan_mehet_megsem_mutat_beallit();
+                                    if( response.focus ) {
+                                        $(\'#\'+response.focus).addClass(\'hibas_ide_focus\');
+                                    }
+                                } else {
+                                    $(\'input, select\').removeClass(\'mod\');
+                                        setTimeout(function () {
+                                            $(\'#szerk_form\').submit();
+                                        }, 301);
+                                }
+                            }
+                            return false;
+                        },
+                        complete: function(xhr) {
+                            if( xhr.status != 200 ) {
+                                alert2(xhr.responseText, \'\', \'Hiba\');
+                            }
+                        }
+                    });
+
+                }
+                </script>
+        ');
 
         // Műveletek box
         $gombok = nl2('
@@ -241,7 +305,6 @@ require_once('selectek.php');
             $(\'#datum\').addClass(\'hibas_ide_focus\');
             return false;
         }
-        
 
         return form_ell_admin();
         ';

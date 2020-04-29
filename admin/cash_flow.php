@@ -612,6 +612,35 @@ require_once('selectek.php');
     
     $js_submit_elott = '';
     
+    // A speciális oldalelrednezés miatt a füleken igazítani kell
+    // Ráadásul ez ki sem tehető a cash_flow.js-be, mert fül váltások alatt is újra és újra le kell fusson
+    $szamla_html .= nl2('
+        <script>
+            $(window).resize(function() {
+                if( getKepernyoSzel()<=1280 ) {
+                    $(\'#szamlaFulek\').css({\'margin-top\':\'-28px\', \'margin-left\':\'5px\'});
+                } else {
+                    $(\'#szamlaFulek\').css({\'margin-top\':\'-43px\', \'margin-left\':\'5px\'});
+                }
+            });
+            setTimeout(function () {
+                if( getKepernyoSzel()<=1280 ) {
+                    $(\'#szamlaFulek\').css({\'margin-top\':\'-28px\', \'margin-left\':\'5px\'});
+                } else {
+                    $(\'#szamlaFulek\').css({\'margin-top\':\'-43px\', \'margin-left\':\'5px\'});
+                }
+            }, 50);
+            setTimeout(function () {
+                if( getKepernyoSzel()<=1280 ) {
+                    $(\'#szamlaFulek\').css({\'margin-top\':\'-28px\', \'margin-left\':\'5px\'});
+                } else {
+                    $(\'#szamlaFulek\').css({\'margin-top\':\'-43px\', \'margin-left\':\'5px\'});
+                }
+
+            }, 150);
+
+        </script>');
+    
     // Adatlap
 	if( isset($_GET['modosit']) ) {
         

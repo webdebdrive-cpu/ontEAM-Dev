@@ -62,6 +62,7 @@ SZŰRÉS LEKEZELÉSE:
 - A kapcsolódó táblákat még az esemenyek.php isset($_POST['f_o_szures_submit']) részénél kell lekezelni
 - fuggvenyek.php-ben a kapcsolódó táblák miatt még itt állítsd be a működést: // Szűréskor kell pár JOIN-olás a külső táblákhoz
 - Lehet szűrni arra is, hogy van-e csatolt dokumentum vagy sem. Ezt a szures.php $dokumentumos_oldal változónál állítjuk be.
+- Ha a szűrőben megjelenő listában egyedi nevet szeretnél adni, akkor az esemeny tömbben a 'megn_szurobe' paraméterben tudod megadni.
  
 SORREDEZÉS
 - Az A-Z és Z-A-t az admin.js bejegyzesekLista() függvény vége állítja. Illetve a header.php, maikor betölt az oldal.

@@ -236,7 +236,6 @@ if( isset($_GET['csv']) ) {
                     $sor = $honap[$sor];
                 }
 
-
                 // Lehet nem volna elég 1-szer sőt kétszer sem ráereszteni a htmlspecialchars_decode-ot
                 $sor = htmlspecialchars_decode( $sor );
                 while ( strpos($sor, '&amp;') !== false || strpos($sor, '&quot;') !== false ) {
@@ -619,14 +618,15 @@ require_once('selectek.php');
         
         $jobb_oldal .= $muszak_select.
             nl2('
-            <table class="beosztas">
-            <tr>
-                <th>Név</th>
-                '.$napok_th.'
-                <th>Terv<br>óra</th>
-                <th>Tény<br>óra</th>
-                <th>Egyenleg</th>
-            </tr>
+            <div id="fixTable">
+                <table class="beosztas">
+                <tr>
+                    <th>Név</th>
+                    '.$napok_th.'
+                    <th>Terv<br>óra</th>
+                    <th>Tény<br>óra</th>
+                    <th>Egyenleg</th>
+                </tr>
             ');
         
         // Felhasználók kilistázása
@@ -725,7 +725,10 @@ require_once('selectek.php');
                 ');
         }
         
-        $jobb_oldal .= '</table>';
+        $jobb_oldal .= nl2('
+                </table>
+            </div>
+            ');
 
         $action = 'javascript:void(0);';
 

@@ -458,7 +458,7 @@ if( !$_SESSION['bejelento_menu_rejt'] /* Bejelentő elől rejtve */ && (_jog(JOG
 
 
 // Személyzet
-if(_jog(JOG_TORZSADAT_MEGTEKINT) || _jog(JOG_SZABADSAGIG_MEGTEKINT) || _jog(JOG_BEOSZTASOK_MEGTEKINT)){
+if( _jog(JOG_TORZSADAT_MEGTEKINT) || _jog(JOG_SZABADSAGIG_MEGTEKINT) || _jog(JOG_BEOSZTASOK_MEGTEKINT) || _jog(JOG_MSZK_BEOSZTAS_MEGTEKINT) ) {
     $menu_nev        = 'Személyzet';
     $menu_nev_kis    = 'személyzet';
     $menu_nev_tobbes = 'Személyzet';
@@ -478,7 +478,7 @@ if(_jog(JOG_TORZSADAT_MEGTEKINT) || _jog(JOG_SZABADSAGIG_MEGTEKINT) || _jog(JOG_
     if( _jog(JOG_SZABADSAGIG_MEGTEKINT) ) {
         $aktmenuk .= str_replace( $akt_almenu_mit, array( $aloldalak['1'], 'Szabadságigények'   ), $almenu_sablon );
     }
-    if( _jog(JOG_BEOSZTASOK_MEGTEKINT) ) {
+    if( _jog(JOG_BEOSZTASOK_MEGTEKINT) || _jog(JOG_MSZK_BEOSZTAS_MEGTEKINT) ) {
         $aktmenuk .= nl2('
             <ul class="alalmenu_cont">
                 <a class="nolink">Beosztások</a>

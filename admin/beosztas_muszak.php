@@ -93,6 +93,17 @@ if( isset($_GET['csv']) ) {
                 while ( strpos($sor, '&amp;') !== false || strpos($sor, '&quot;') !== false ) {
                     $sor = htmlspecialchars_decode( $sor );
                 }
+                
+                // Névnél kell elé egyenlőségjel
+                if( $kulcs == 'Név' ) {
+                    $sor = iconv($mibol, $mibe.'//TRANSLIT', strip_tags( htmlspecialchars_decode( '{EGYENLOSEG_JELET_ELE}'.$sor.'{EGYENLOSEG_JELET_ELE_VEGE}' ) ) );
+                    $sor = str_replace(
+                                    array('"{EGYENLOSEG_JELET_ELE}',    '{EGYENLOSEG_JELET_ELE_VEGE}"',     '{EGYENLOSEG_JELET_ELE}',   '{EGYENLOSEG_JELET_ELE_VEGE}', ';="";'  ),
+                                    array('="',                         '"',                                '="',                       '"',                            ';;'    ),
+                                    $sor
+                            );
+                }
+                
                 $csvcont[] = iconv($mibol, $mibe.'//TRANSLIT', strip_tags( $sor ) );
             }
 

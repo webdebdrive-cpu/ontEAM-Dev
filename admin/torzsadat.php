@@ -80,6 +80,17 @@ if( isset($_POST['uj_munkaido']) ) {
     }
     
     $datum = $_POST['ev'].'-'.$_POST['ho'].'-01';
+    // 
+    $van_mar = $adatbazis_kapcsolat -> s2('recid', 'torzsadat_napi_munkaido', "`torzsadat_recid`='{$_POST['recid']}' AND `datum`='{$datum}'");
+    if( $van_mar ) {
+        echo json_encode( array(
+            'hiba'  => date_formaz($datum, '', 'nap nélkül').'<br>Erre a dátumra már van munkaidő rögzítve!',
+            'title' => 'Hiba',
+            'focus' => 'ho',
+        ) );
+        $weblap -> leallit();
+        exit;
+    }
     
     // Időpont beszúrása
     $adatbazis_kapcsolat->i('torzsadat_napi_munkaido',  array('torzsadat_recid', 'datum', 'ora',          'insert_dt', 'insert_usr',                           'update_usr'                           ),
@@ -475,13 +486,6 @@ require_once('selectek.php');
             </tr>
             ');
         $munkaidok = $adatbazis_kapcsolat->s('*', 'torzsadat_napi_munkaido', "`torzsadat_recid`='{$_GET['id']}'", 'datum');
-        if( !$munkaidok ) {
-            $szamla_html .= nl2('
-                <tr>
-                    <td colspan="100%">Jelenleg nem található bejegyzés!</td>
-                </tr>
-                ');
-        }
         foreach( $munkaidok as $munkaido ) {
             $szamla_html .= nl2('
                 <tr>

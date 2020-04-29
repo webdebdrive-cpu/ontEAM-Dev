@@ -608,7 +608,7 @@ $(function() {
                 'bejovo_szamlak',
                 'beosztas',
                 'beosztas_muszak',
-                'beosztas_szabadnapok',
+                'beosztas_unnepnapok',
                 'cash_flow',
                 'cikktorzs',
                 'dokumentumtar',

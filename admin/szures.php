@@ -110,6 +110,11 @@ if( isset($_POST['f_szuro_mezo']) ) {
         $operator = '<option value="equal"'.$selected_equal.'>=</option>';
     }
 
+    // Beosztás hónap választásnál cska egyenlőség van
+    if( $_POST['tabla'] == 'beosztas' && $_POST['mezo'] == 'ho' ) {
+        $operator = '<option value="equal"'.$selected_equal.'>=</option>';
+    }
+
     // Projektszámláknál a kifizetés van-e szűrés
     if( $_POST['tabla'] == 'projektszamla' && $_POST['mezo'] == 'kifizetes_van_e' ) {
         $operator = '<option value="equal"'.$selected_equal.'>=</option>';
@@ -384,6 +389,16 @@ if( isset($_POST['f_szuro_mezo_operator']) ) {
                     require_once('selectek.php');
 
                     $input = new Select($select_unnepnap_tipus, $_POST['felt']);
+                    $input -> cssClass = 'f_felt';
+                    $feltetel = $input -> getHtml();
+
+                // select_honapok
+                }elseif( $ertek['type'] == 'select_honapok' ) {
+
+                    require_once('../class/html/class.Select.php');
+                    require_once('selectek.php');
+
+                    $input = new Select($select_honapok, $_POST['ho']);
                     $input -> cssClass = 'f_felt';
                     $feltetel = $input -> getHtml();
                     

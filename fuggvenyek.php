@@ -113,6 +113,20 @@ function i_u($type, $tabla, $tomb) {
         }
     }
     
+    // Beosztás ünnepnapokból nem lehet két azonos dátumú
+    if( $tabla == 'beosztas_unnepnapok' && $type == 'update' ) {
+        
+        $naptar_foglalt = $adatbazis_kapcsolat->s2('recid', 'beosztas_unnepnapok', "`datum`='{$_POST['datum']}' AND `recid`!='{$_GET['id']}'", '', '1');
+        if( $naptar_foglalt ) {
+            echo json_encode(array(
+                                    'hiba'  => datum_kiir($_POST['datum']).'<br>Ez a nap már szerepel az ünnepnapok között.',
+                                    'title' => 'Hiba',
+                                ));
+            $weblap -> leallit();
+            exit;
+        }
+    }
+    
     // Projekteknél, feltöltéskor Területi felelősként belépve a típus fixen fenntartás
     if( $tabla == 'projektkezeles' ) {
         if( $type == 'insert' ) {
@@ -3065,15 +3079,15 @@ function szamla_lista( $where = '', $tabla = '', $kijeloltek = false, $csak_sql_
             }
         }
         
-        // Beosztás műszaknál a jogon is múlik, mit lát
-        if( $tabla == 'beosztas_muszak' ) {
+        // Beosztásoknál a jogon is múlik, mit lát
+        if( $tabla == 'beosztas' || $tabla == 'beosztas_muszak' ) {
             // MSZK jog esetén az MSzK szállodát láthatja
             if( _jog(JOG_MSZK_BEOSZTAS_MEGTEKINT) ) {
-                $where = "`".get_db_tabla()."beosztas_muszak`.`telephely_id`='".TELEPHELY_SZK."' AND ";
+                $where = "`".get_db_tabla()."{$tabla}`.`telephely_id`='".TELEPHELY_SZK."' AND ";
             
             // Egyébként a saját szállodáját
             } else {
-                $where = "`".get_db_tabla()."beosztas_muszak`.`telephely_id` IN (".implode(',', $szallodak).") AND ";
+                $where = "`".get_db_tabla()."{$tabla}`.`telephely_id` IN (".implode(',', $szallodak).") AND ";
             }
         }
         if( $tabla == 'eseti_fenntartas' ) {

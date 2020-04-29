@@ -1,3 +1,7 @@
+.sor.kethasabos div.bal {
+    display: none;
+}
+
 #szamlaBetolt {
     padding: 0.5rem;
 }
@@ -53,20 +57,27 @@ table.szamla_cont_tabla.kisbetu tr:not('kijelolve'):hover, #szetosztasra_varo_sz
 /* Cashflow táblázat első oszlopának fixálása */
 /* Egy fixált cella általános jellemzője */
 table.szamla_cont_tabla.kisbetu th.fix, table.szamla_cont_tabla.kisbetu td.fix {
-    box-shadow: inset 0rem 0 0rem 0.1rem #ccc;
+    box-shadow:  0 0 0 0.1rem #ccc;
     border: none;
     position: sticky;
         left: 0rem;
         top: auto;
 }
+table.szamla_cont_tabla.kisbetu #osszesen_lablec td.fix {
+    box-shadow: inset -1px -1px 0 0.05rem #ccc;
+}
+
 table.szamla_cont_tabla.kisbetu td.fix {
     background: #fff;
 }
 table.szamla_cont_tabla.kisbetu tfoot td.fix {
     background: #F1EFF0;
 }
-table.szamla_cont_tabla.kisbetu tr.kijelolve td.fix {
+table.szamla_cont_tabla.kisbetu tr.kijelolve td.fix, #szetosztasra_varo_szla_tetelek.kijelolve, table.szamla_cont_tabla.kisbetu #szetosztasra_varo_szla_tetelek.kijelolve td.fix {
     background: #55A2FA;
+}
+table.szamla_cont_tabla.kisbetu #osszesen_lablec.kijelolve td, table.szamla_cont_tabla.kisbetu #osszesen_lablec.kijelolve td.fix, table.szamla_cont_tabla.kisbetu #szetosztasra_varo_szla_tetelek.kijelolve td.fix a {
+    color: #fff;
 }
 /* Cash-flow fül alatt az első oszlopok sorban */
 table.szamla_cont_tabla.kisbetu th.fix.cf1, table.szamla_cont_tabla.kisbetu td.fix.cf1 {
@@ -117,6 +128,7 @@ table.szamla_cont_tabla.szep_csikos tr td:first-of-type {
 /* Minden cella lehet nowrap-os */
 #fixTable table.szamla_cont_tabla.szep_csikos th, table.szamla_cont_tabla.szep_csikos td {
     white-space: nowrap;
+    border-top: 0.1rem solid #CCCCCC;
 }
 table.szamla_cont_tabla.szep_csikos td.wrap {
     white-space: normal;

@@ -935,6 +935,7 @@ Aktiválni az alábbi JS hívással tudod. Ezt a HTML kódban az inputok után h
 					if(currentDate > maxDate) {
 						return;
 					}
+
 					input.val(_xdsoft_datetime.str());
 					datetimepicker.trigger('close.xdsoft');
 				});
@@ -1296,7 +1297,10 @@ Aktiválni az alábbi JS hívással tudod. Ezt a HTML kódban az inputok után h
 					}
 					datetimepicker.data('changed', true);
 					datetimepicker.trigger('xchange.xdsoft');
-					datetimepicker.trigger('changedatetime.xdsoft');
+					/*
+                     * Ezt azért vettem ki, mert az óra választónál a félórás értékekre nem lehetett rákattintani
+                     * datetimepicker.trigger('changedatetime.xdsoft');
+                     * */
 				});
 
 
@@ -1365,7 +1369,7 @@ Aktiválni az alábbi JS hívással tudod. Ezt a HTML kódban az inputok után h
 			setPos = function () {
 				var offset = datetimepicker.data('input').offset(), top = offset.top + datetimepicker.data('input')[0].offsetHeight - 1, left = offset.left, position = "absolute";
 				if (options.fixed) {
-					top -= $(window).scrollTop();
+					top  -= $(window).scrollTop();
 					left -= $(window).scrollLeft();
 					position = "fixed";
 				} else {
@@ -1396,7 +1400,7 @@ Aktiválni az alábbi JS hívással tudod. Ezt a HTML kódban az inputok után h
 						setPos();
 						$(window)
 							.off('resize.xdsoft', setPos)
-							.on('resize.xdsoft', setPos);
+							.on ('resize.xdsoft', setPos);
 
 						if (options.closeOnWithoutClick) {
 							$([document.body, window]).on('mousedown.xdsoft', function arguments_callee6() {
@@ -1429,7 +1433,7 @@ Aktiválni az alábbi JS hívással tudod. Ezt a HTML kódban az inputok után h
 				})
 				.data('input', input);
 
-			timer = 0;
+			timer  = 0;
 			timer1 = 0;
 
 			datetimepicker.data('xdsoft_datetime', _xdsoft_datetime);
@@ -1689,7 +1693,7 @@ function datum_formatumra_formaz_ora(input) {
     uj = '';
 
     for (i = 0; i < n; i++) {
-        if(!isNaN(parseFloat(input.substr(i, 1)))){
+        if (!isNaN(parseFloat(input.substr(i, 1)))) {
             switch (i) {
                 case 2:
                     uj = uj + ':' + input.substr(i, 1);
@@ -1703,12 +1707,12 @@ function datum_formatumra_formaz_ora(input) {
     }
 
     /* Legyen az a hatás, hogy ő írta be a kettőspontot */
-    if(eredeti_hossz==3 && utolso_kar==':'){
+    if (eredeti_hossz == 3 && utolso_kar == ':') {
         uj += ':';
     }
 
     /* Ha üres az input értéke, akkor az alapértelmeeztt értéket írjuk bele */
-    if(!uj){
+    if (!uj) {
         uj = '\xa0\xa0:\xa0\xa0';
     }
     return uj.substring(0, 5);

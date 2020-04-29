@@ -2,21 +2,20 @@ $(document).ready(function () {
     // Adatlap megjelenésekor a tól év mezőben villog kurzor.
     $('#ev_tol').focus();
     
-    // A speciális oldalelrednezés miatt a füleken igazítani kell
-    if( getKepernyoSzel()<=1280 ) {
-        $('#szamlaFulek').css({'margin-top':'-28px', 'margin-left':'5px'});
-    } else {
-        $('#szamlaFulek').css({'margin-top':'-43px', 'margin-left':'5px'});
-    }
-    $(window).resize(function() {
-        if( getKepernyoSzel()<=1280 ) {
-            $('#szamlaFulek').css({'margin-top':'-28px', 'margin-left':'5px'});
-        } else {
-            $('#szamlaFulek').css({'margin-top':'-43px', 'margin-left':'5px'});
-        }
-    });
-    
 });
+
+// Chrome alatt a belső border másképp kellett megoldani. Jó nagy hokizás.
+if (navigator.appVersion.indexOf("Chrome/") != -1) {
+    setTimeout(function () {
+        $('table.szamla_cont_tabla.kisbetu th.fix, table.szamla_cont_tabla.kisbetu td.fix').css('box-shadow', '0 0.1rem 0 0.1rem #ccc');
+    }, 60);
+}
+// Ugyanez Edge-el
+if (/Edge/.test(navigator.userAgent)) {
+    setTimeout(function () {
+        $('table.szamla_cont_tabla.kisbetu th.fix, table.szamla_cont_tabla.kisbetu td.fix').css('box-shadow', 'inset 0 0 0 0.1rem #ccc');
+    }, 60);
+}
 
 // Mezőkbe kattintva az jelölődjön ki
 $(document).on('click', '.kijelol', function(e) {
