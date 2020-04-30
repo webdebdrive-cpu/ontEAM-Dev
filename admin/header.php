@@ -1335,16 +1335,6 @@ if( !in_array(basename(self()), $gyorskereses_rejt_oldalak) ) {
                 }
             </script>
         ');
-        // Felhasználók esetén a keresés mezőbe kerüljön a fókusz
-        if( basename(self()) == 'login.php' ) {
-            $kereso .= nl2('
-                <script>
-                    $(document).ready(function () {
-                        $(\'#rendezesKeres\').focus();
-                    });
-                </script>
-            ');
-        }
     }
     
 // Ha a gyorskeresőtrejtjük, akkor a szűrésre rá kell tenni egy noborder class-t, hogy ne legyen szeparátor vonal bal oldalon
@@ -1455,7 +1445,7 @@ if( self('basename') == 'beosztas.php' ) {
             <div id="nyomtatasi_nezet">
                 Válasszon nyomtatási nézetet:
                 <br><a class="link" onclick="listanezet_nyomtat( this );" target="_blank">» Beosztások listája</a>
-                <br><a class="link" href="'.self('basename').get_get().'&print=lista&tablazat" target="_blank">» Beosztás táblázat nyomtatása</a>
+                <br><a class="link" onclick="beosztas_tablazat_nyomtat( this );" target="_blank">» Beosztás táblázat nyomtatása</a>
             </div>
         </div>
     ');

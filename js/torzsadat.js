@@ -1,3 +1,8 @@
+// Gyorskeresőben villogjon a kurzor lapbetöltéskor
+$(document).ready(function () {
+    $('#rendezesKeres').focus();
+});
+
 function munkaido_torol(mehet) {
     if( !mehet ) {
         alert2($('#nev').val()+'<br>'+$('#napi_munkaido tr:last-of-type td:nth-of-type(1) input[type="hidden"]').val()+'<br><br>Biztos, hogy törli a napi munkaidő adatot?',

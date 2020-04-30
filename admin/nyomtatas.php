@@ -167,12 +167,18 @@ if( $_GET['print'] == 'lista' || isset($_GET['pdf']) ) {
         case 'szallito'             : $sorok_html = szallitoLista( $sorok, $tabla );        break;
         case 'szerepkor'            : $sorok_html = szerepkorLista( $sorok, $tabla );       break;
     }
+    
+    $title = 'Listanézet '.date('Y.m.d H:i:s');
 
     // Energia tervek egységár listájának nyomtatási képe
     if( self('basename') == 'beosztas.php' && isset($_GET['tablazat']) ) {
+        
+        $title = 'Beosztás '.date('Y.m.d H:i:s');
         $sorok_html .= '<link href="../css/beosztas.css" rel="stylesheet" type="text/css">';
         $sor = $adatbazis_kapcsolat->s2('*', 'beosztas', "`recid`='{$_GET['id']}'");
+        $sorok_html .= '<h1 class="f18">'. getSzallodaNev($sor['telephely_id']).' '. date_formaz($sor['ev'].'-'.$sor['ho'], '', 'csak hónap').'</h1>';
         $sorok_html .= get_beosztas_tablazat( $sor );
+        
         
     // Energia tervek egységár listájának nyomtatási képe
     }else if( self('basename') == 'energia_terv.php' ) {
@@ -342,7 +348,7 @@ if( $_GET['print'] == 'lista' || isset($_GET['pdf']) ) {
             <script src="../js/main.js"></script>
             <script src="../js/fenntartasi_terv.js"></script>
             <img src="../elemek/admin/nyomtat.gif" alt="Nyomtat" class="nyomtat_ikon nyomtat_dn link" onclick="window.print();">
-            <title>Listanézet '.date('Y.m.d H:i:s').'</title>
+            <title>'.$title.'</title>
             <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
 
             <div class="a4_allo">

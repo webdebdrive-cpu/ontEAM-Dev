@@ -5584,13 +5584,13 @@ foreach ( $postok as $ertek ) {
         if( $ertek['tabla'] == 'bejelentes' && !_jog(JOG_BEJELENTES_TORLESE) ) {
             $weblap -> leallit(); exit;
         }
-        if( $ertek['tabla'] == 'beosztas' && !_jog(JOG_BEOSZTASOK_KEZEL) ) {
+        if( $ertek['tabla'] == 'beosztas' && !_jog(JOG_BEOSZTASOK_KEZEL) && !_jog(JOG_MSZK_BEOSZTAS_KEZEL) ) {
             $weblap -> leallit(); exit;
         }
-        if( $ertek['tabla'] == 'beosztas_muszak' && !_jog(JOG_MSZK_BEOSZTAS_KEZEL) ) {
+        if( $ertek['tabla'] == 'beosztas_muszak' && !_jog(JOG_BEOSZTASOK_KEZEL) && !_jog(JOG_MSZK_BEOSZTAS_KEZEL) ) {
             $weblap -> leallit(); exit;
         }
-        if( $ertek['tabla'] == 'beosztas_unnepnapok' && !_jog(JOG_MSZK_BEOSZTAS_KEZEL) ) {
+        if( $ertek['tabla'] == 'beosztas_unnepnapok' && !_jog(JOG_BEOSZTASOK_KEZEL) && !_jog(JOG_MSZK_BEOSZTAS_KEZEL) ) {
             $weblap -> leallit(); exit;
         }
         if( $ertek['tabla'] == 'cikktorzs' && !_jog(JOG_CIKKTORZS_KEZEL) ) {

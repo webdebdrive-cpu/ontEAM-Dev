@@ -5935,6 +5935,11 @@ function _get( ertek ) {
     return false;
 }
 
+// Az alábbi két link azért nem direkbe PHP-ból van átadva, mert ott még első betöltéskor nem létezik a GET['id']
+function beosztas_tablazat_nyomtat() {
+    window.open(get_get() + '&print=lista&tablazat=1', '_blank');
+}
+
 function egysegarak_nyomtat() {
     window.open(get_get() + '&print=lista&type=egysegarak_lista', '_blank');
 }

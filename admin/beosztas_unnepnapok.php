@@ -310,7 +310,7 @@ require_once('selectek.php');
         ';
 
 	// Új termék felvitele
-	if( isset($_GET['uj']) && _jog(JOG_BEOSZTASOK_KEZEL) ) {
+	if( isset($_GET['uj']) && (_jog(JOG_BEOSZTASOK_KEZEL) || _jog(JOG_MSZK_BEOSZTAS_KEZEL) ) ) {
 
         // Újként szerkesztéskor feltöltjük a mezők tartalmát
 		if( $_GET['ujkent'] ) {

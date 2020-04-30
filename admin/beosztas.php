@@ -38,6 +38,19 @@ if( $tobb_kep ) {
 // Adott szálloda adott év+hó-ra létezik-e már. Ha igen, hiba!
 if( isset($_POST['beosztas_letezik_e']) ) {
     
+    // Ha az év nem 4 karakter, akkor hiba
+    if( strlen($_POST['ev'])!=4 ) {
+        echo json_encode(
+                            array(
+                                'hiba'  => 'Kérem az év mezőbe 4 karakter hosszú számot írjon!',
+                                'title' => 'Hiba',
+                                'focus' => 'ev',
+                            )
+            );
+        $weblap -> leallit();
+        exit;
+    }
+    
     if( $adatbazis_kapcsolat->s2('recid', 'beosztas', "`telephely_id`='{$_POST['telephely_id']}' AND `ev`='{$_POST['ev']}' AND `ho`='{$_POST['ho']}'") ) {
         $szalloda_neve = getSzallodaNev($_POST['telephely_id']);
         echo json_encode(
@@ -451,7 +464,7 @@ require_once('selectek.php');
     }
 
 	// Új termék felvitele
-	if( isset($_GET['uj']) && _jog(JOG_BEOSZTASOK_KEZEL) ) {
+	if( isset($_GET['uj']) && (_jog(JOG_BEOSZTASOK_KEZEL) || _jog(JOG_MSZK_BEOSZTAS_KEZEL) ) ) {
 
         $js_submit_elott = 'return form_ell_admin();';
         
@@ -579,10 +592,6 @@ require_once('selectek.php');
         $jobb_oldal = get_beosztas_tablazat( $sor );
 
         $action = 'javascript:void(0);';
-
-        // A csak 0-ás cellák elől vegyük le az egyenlődég jelet
-        $csv = str_replace('="0"', '0', $csv);
-        fajlba_mentes('csv/beosztas_tablazat'.session_id().'.csv',  $csv);
         
 	    $szamla_html .= str_replace(
             array('{JS}', '{JS_SUBMIT_ELOTT}', '{ACTION}', '{MEZOK}', '{MEGNEVEZES}', '{KEP}',     '{CK_EDITOR}', '{GOMBOK}', '{UPDATE_DT}'     ),
@@ -712,7 +721,7 @@ function get_beosztas_tablazat( $sor ) {
         ');
 
     // Felhasználók kilistázása
-    $nevek = $adatbazis_kapcsolat -> s('recid nev torzsadat_recid', 'beosztas_nevek', "`beosztas_recid`='{$_GET['id']}'", 'mobilos, sor, nev');
+    $nevek = $adatbazis_kapcsolat -> s('recid nev torzsadat_recid', 'beosztas_nevek', "`beosztas_recid`='{$sor['recid']}'", 'mobilos, sor, nev');
     // Ha még nincsenek nevek, akkor létrehozzuk őket => ez egy pillanatfelvétel az aktuális törzsadat adatbázisról
     if( !$nevek ) {
 
@@ -743,15 +752,15 @@ function get_beosztas_tablazat( $sor ) {
                 $mobilos = 1;
             }
             $adatbazis_kapcsolat->i('beosztas_nevek', array('beosztas_recid', 'torzsadat_recid',    'nev',              'mobilos',  'sor',               'update_usr',                           'insert_dt', 'insert_usr'                            ),
-                                                      array($sor['id'],       $torzsadat['recid'],  $torzsadat['nev'],  $mobilos,   $torzsadat['sor'],   $_SESSION[get_db_tabla().'teljes_nev'], 'NOW()',      $_SESSION[get_db_tabla().'teljes_nev'] )
+                                                      array($sor['recid'],     $torzsadat['recid'],  $torzsadat['nev'],  $mobilos,   $torzsadat['sor'],   $_SESSION[get_db_tabla().'teljes_nev'], 'NOW()',      $_SESSION[get_db_tabla().'teljes_nev'] )
                                     );
         }
-        $nevek = $adatbazis_kapcsolat -> s('recid nev torzsadat_recid', 'beosztas_nevek', "`beosztas_recid`='{$_GET['id']}'", 'mobilos, sor, nev');
+        $nevek = $adatbazis_kapcsolat -> s('recid nev torzsadat_recid', 'beosztas_nevek', "`beosztas_recid`='{$sor['recid']}'", 'mobilos, sor, nev');
     }
 
     foreach( $nevek as $nev ) {
 
-        $naptar_adatok = $adatbazis_kapcsolat->s('*', 'beosztas_naptar', "`beosztas_nevek_recid`='{$nev['recid']}' AND `beosztas_recid`='{$_GET['id']}'");
+        $naptar_adatok = $adatbazis_kapcsolat->s('*', 'beosztas_naptar', "`beosztas_nevek_recid`='{$nev['recid']}' AND `beosztas_recid`='{$sor['recid']}'");
         $napok_td = '';
         $orak     = 0;
         $munkanapok_szama = 0;
@@ -818,6 +827,10 @@ function get_beosztas_tablazat( $sor ) {
             </table>
         </div>
         ');
+    
+    // A csak 0-ás cellák elől vegyük le az egyenlődég jelet
+    $csv = str_replace('="0"', '0', $csv);
+    fajlba_mentes('csv/beosztas_tablazat'.session_id().'.csv',  $csv);
     
     return $jobb_oldal;
 }
