@@ -22,6 +22,10 @@ body{
     background: #fff;
 }
 
+.nyomtatasi_elonezetben_sem_taszik {
+    display: none !important;
+}
+
 .vat{ vertical-align: top; }
 
 div.a4_allo {

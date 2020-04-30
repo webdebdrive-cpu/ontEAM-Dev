@@ -4114,7 +4114,7 @@ function anyag_szamlaLista( $bejegyzesek, $tabla, $frissit, $kijeloltek ) {
     return false;
 }
 
-function bejelentesLista( $bejegyzesek, $tabla, $frissit, $kijeloltek, $sorrend_idk ) {
+function bejelentesLista( $bejegyzesek, $tabla, $frissit = '', $kijeloltek = '', $sorrend_idk = '' ) {
     global $adatbazis_kapcsolat;
 
     // Legyen-e JS rendezés, vagy sem?
@@ -4378,7 +4378,7 @@ function bejelentesLista( $bejegyzesek, $tabla, $frissit, $kijeloltek, $sorrend_
     return false;
 }
 
-function beosztas_muszakLista( $bejegyzesek, $tabla, $frissit, $kijeloltek, $sorrend_idk) {
+function beosztas_muszakLista( $bejegyzesek, $tabla, $frissit = '', $kijeloltek = '') {
     global $adatbazis_kapcsolat;
 
     if( $bejegyzesek ) {
@@ -4416,7 +4416,7 @@ function beosztas_muszakLista( $bejegyzesek, $tabla, $frissit, $kijeloltek, $sor
     return false;
 }
 
-function beosztas_unnepnapokLista( $bejegyzesek, $tabla, $frissit, $kijeloltek, $sorrend_idk) {
+function beosztas_unnepnapokLista( $bejegyzesek, $tabla, $frissit = '', $kijeloltek = '') {
     global $adatbazis_kapcsolat;
 
     if( $bejegyzesek ) {
@@ -5654,7 +5654,7 @@ function szabadsagigenyLista( $bejegyzesek, $tabla, $frissit, $kijeloltek ) {
     return false;
 }
 
-function beosztasLista( $bejegyzesek, $tabla, $frissit, $kijeloltek ) {
+function beosztasLista( $bejegyzesek, $tabla, $frissit = '', $kijeloltek = '' ) {
     global $adatbazis_kapcsolat;
 
     if( $bejegyzesek ) {
@@ -5826,7 +5826,7 @@ function projektigenylesLista( $bejegyzesek, $tabla, $frissit, $kijeloltek ) {
     return false;
 }
 
-function projektkezelesLista( $bejegyzesek, $tabla, $frissit, $kijeloltek ) {
+function projektkezelesLista( $bejegyzesek, $tabla, $frissit = '', $kijeloltek = '' ) {
     global $adatbazis_kapcsolat;
 
     if( $bejegyzesek ) {

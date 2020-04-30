@@ -1,14 +1,14 @@
 <?php
 require_once '../weblap.php';
 
-if( $_GET['print']=='lista' || isset($_GET['pdf'])) {
+if( $_GET['print'] == 'lista' || isset($_GET['pdf']) ) {
 
     require 'selectek.php';
-    $tabla = str_replace('.php', '', basename(self()));
+    $tabla = str_replace('.php', '', self('basename'));
 
-    if ($_GET['mezo']) {
+    if( $_GET['mezo'] ) {
         $feltetel = '';
-        $akt_tomb_szures = get_akt_tomb(str_replace('.php', '', basename(self())));
+        $akt_tomb_szures = get_akt_tomb(str_replace('.php', '', self('basename')));
         foreach ( $akt_tomb_szures as $ertek ) {
             if( $ertek['name'] == $_GET['mezo'] ) {
                 $feltetel .= trim($ertek['megn'], ':');
@@ -66,11 +66,11 @@ if( $_GET['print']=='lista' || isset($_GET['pdf'])) {
                     break;
                 }
             }
-        }elseif ($_GET['mezo']=='pfelelos' || $_GET['mezo']=='let_fel') {
+        } elseif( $_GET['mezo'] == 'pfelelos' || $_GET['mezo'] == 'let_fel' ) {
             $feltetel .= getErtek('teljes_nev', 'login', 'recid', $_GET['felt']);
-        }elseif ($_GET['mezo']=='kolt_vis') {
+        } elseif( $_GET['mezo'] == 'kolt_vis' ) {
             $feltetel .= getErtekLista(ERTEKLISTA_KOLTSEGVISELO, $_GET['felt']);
-        }elseif ($_GET['mezo']=='fix_adat') {
+        } elseif( $_GET['mezo'] == 'fix_adat' ) {
             if( $_GET['felt'] ){
                 $feltetel .= 'Igen';
             } else {
@@ -80,7 +80,7 @@ if( $_GET['print']=='lista' || isset($_GET['pdf'])) {
             $feltetel .= $_GET['felt'];
         }
 
-        if($_GET['ksz']){
+        if( $_GET['ksz'] ) {
             $feltetel .= ' Tovább szűkítve a következő keresőszóval: '.$_GET['ksz'];
         }
         $feltetel = 'Szűrő feltételek: <b>'.$feltetel.'</b>';
@@ -134,12 +134,19 @@ if( $_GET['print']=='lista' || isset($_GET['pdf'])) {
     while ( $sor = mysqli_fetch_assoc($query) ) {
         array_push($sorok, $sor);
     }
-
+    
     // Bal oldali navpanel kiíratása
     switch ( $tabla ) {
 //        case 'anyagigenyles'        : $akt_tomb = $anyagigenyles_tomb;          break;
         case 'bejelentes'           : $sorok_html = bejelentesLista( $sorok, $tabla );      break;
-//        case 'beosztas'             : $akt_tomb = $beosztas_tomb;               break;
+        case 'beosztas'             :
+            // Ha a táblázatot nyomtatjuk ki, akkor feleslegesen a listát ne számoljuk ki
+            if( !isset($_GET['tablazat']) ) {
+                $sorok_html = beosztasLista($sorok, $tabla);
+            }
+        break;
+        case 'beosztas_muszak'      : $sorok_html = beosztas_muszakLista($sorok, $tabla);   break;
+        case 'beosztas_unnepnapok'  : $sorok_html = beosztas_unnepnapokLista($sorok, $tabla); break;
 //        case 'cikktorzs'            : $akt_tomb = $cikktorzs_tomb;              break;
 //        case 'eszkozkezeles'        : $akt_tomb = $eszkozkezeles_tomb;          break;
         case 'login'                : $sorok_html = loginLista( $sorok, $tabla ); $akt_tomb = $login_tomb;  break;
@@ -162,7 +169,13 @@ if( $_GET['print']=='lista' || isset($_GET['pdf'])) {
     }
 
     // Energia tervek egységár listájának nyomtatási képe
-    if( basename(self()) == 'energia_terv.php' ) {
+    if( self('basename') == 'beosztas.php' && isset($_GET['tablazat']) ) {
+        $sorok_html .= '<link href="../css/beosztas.css" rel="stylesheet" type="text/css">';
+        $sor = $adatbazis_kapcsolat->s2('*', 'beosztas', "`recid`='{$_GET['id']}'");
+        $sorok_html .= get_beosztas_tablazat( $sor );
+        
+    // Energia tervek egységár listájának nyomtatási képe
+    }else if( self('basename') == 'energia_terv.php' ) {
         if( $_GET['type'] == 'egysegarak_lista' ) {
             $sorok_html .= '
                 <table class="szamla_cont_tabla nolink fejlec_padd szep_csikos kisbetu">
@@ -291,7 +304,7 @@ if( $_GET['print']=='lista' || isset($_GET['pdf'])) {
         }
         
     // Fenntartási tervek egységár listájának nyomtatási képe
-    } elseif( basename(self()) == 'fenntartasi_terv.php' ) {
+    } elseif( self('basename') == 'fenntartasi_terv.php' ) {
         if( $_GET['type'] == 'egysegarak_lista' ) {
             $sor = $adatbazis_kapcsolat->s2('*', 'fenntartasi_terv', "`recid`='{$_GET['id']}'");
             $ful_tomb = array(

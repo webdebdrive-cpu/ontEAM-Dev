@@ -540,13 +540,13 @@ if( isset($_GET['csv']) ) {
     
     if( isset($_GET['szallodankent']) ) {
         cash_flow_csv_export_elokeszit('cash_flow_export_szalloda');
-        echo fajlbol_olvas('cash_flow_export_szalloda'.session_id().'.csv');
+        echo fajlbol_olvas('csv/cash_flow_export_szalloda'.session_id().'.csv');
     } else if( isset($_GET['projektenkent']) ) {
         cash_flow_csv_export_elokeszit('cash_flow_export_projekt');
-        echo fajlbol_olvas('cash_flow_export_projekt'.session_id().'.csv');
+        echo fajlbol_olvas('csv/cash_flow_export_projekt'.session_id().'.csv');
     } else if( isset($_GET['reszletes']) ) {
         cash_flow_csv_export_elokeszit('cash_flow_export_reszletes');
-        echo fajlbol_olvas('cash_flow_export_reszletes'.session_id().'.csv');
+        echo fajlbol_olvas('csv/cash_flow_export_reszletes'.session_id().'.csv');
     }
     
     $weblap->leallit();
@@ -637,7 +637,7 @@ require_once('selectek.php');
                     $(\'#szamlaFulek\').css({\'margin-top\':\'-43px\', \'margin-left\':\'5px\'});
                 }
 
-            }, 150);
+            }, 200);
 
         </script>');
     
@@ -1164,9 +1164,9 @@ require_once('selectek.php');
         $csv_projekt    = str_replace('="0"', '0', $csv_projekt);
         $csv_reszletes  = str_replace('="0"', '0', $csv_reszletes);
         
-        fajlba_mentes('cash_flow_export_szalloda'.session_id().'.csv',  $csv_szalloda);
-        fajlba_mentes('cash_flow_export_projekt'.session_id().'.csv',   $csv_projekt);
-        fajlba_mentes('cash_flow_export_reszletes'.session_id().'.csv', $csv_reszletes);
+        fajlba_mentes('csv/cash_flow_export_szalloda'.session_id().'.csv',  $csv_szalloda);
+        fajlba_mentes('csv/cash_flow_export_projekt'.session_id().'.csv',   $csv_projekt);
+        fajlba_mentes('csv/cash_flow_export_reszletes'.session_id().'.csv', $csv_reszletes);
 
         if( $_GET['ajax'] ) {
             echo json_encode(array(

@@ -112,7 +112,8 @@ if( isset($_POST['f_szuro_mezo']) ) {
 
     // Beosztás hónap választásnál cska egyenlőség van
     if( $_POST['tabla'] == 'beosztas' && $_POST['mezo'] == 'ho' ) {
-        $operator = '<option value="equal"'.$selected_equal.'>=</option>';
+        $operator  = '<option value="equal"'.$selected_equal.'>=</option>';
+        $operator .= '<option value="not_eq"'.$selected_not_eq.'>&lt;&gt;</option>';
     }
 
     // Projektszámláknál a kifizetés van-e szűrés
@@ -122,7 +123,7 @@ if( isset($_POST['f_szuro_mezo']) ) {
 
     // Létrehoztam mező esetén csak egyenlőség jel van
     if( $_POST['mezo'] == 'insert_usr' ) {
-        $operator = '<option value="equal"'.$selected_equal.'>=</option>';
+        $operator  = '<option value="equal"'.$selected_equal.'>=</option>';
         $operator .= '<option value="not_eq"'.$selected_not_eq.'>&lt;&gt;</option>';
         $operator .= '<option value="empty"'.$selected_empty.'>Üres</option>';
     }

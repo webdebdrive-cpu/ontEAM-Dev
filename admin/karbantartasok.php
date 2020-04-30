@@ -8,7 +8,7 @@ if( false && isset($_GET['info']) && $_SESSION[get_db_tabla().'user'] ){
 }
 
 // Loginból törzsadat feltöltése
-if( isset($_GET['torzsadat_feltolt']) ) {
+if( false && isset($_GET['torzsadat_feltolt']) ) {
     $loginok = $adatbazis_kapcsolat->s('*', 'login', "`szemelyzet_id` IN (".TELEPITETT_SZEMELYZET.", ".MOBILCSOPORT.", ".DISZPECSER.")");
     foreach( $loginok as $login ) {
         $adatbazis_kapcsolat->i('torzsadat', array('nev',                'felh_loginnev',   'beosztas_id',          'aktiv',         'torolve'         ),

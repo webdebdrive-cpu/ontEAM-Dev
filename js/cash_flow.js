@@ -94,9 +94,16 @@ $(document).on('click', '.f_szalloda_kibont, .f_projekt_kibont.kibont', function
         } else {
             alert2();
         }
+        
         fixTable();
+        /*
+        Ezt azért vettük ki, mert ha a tálbzatnak nem volt túl sok oszlopa, csak fél területet foglat el
+        és lenyitottunk egy szállodát, akkor a táblázat fejléce bemozdult, szétesett.
+        Ezek nélkül ezt nem teszi. Reméljük más esetben sincs ezekre szükség.
+        
         $('#fixTable table').width('auto');
         $('#fixTable table th').attr('style', '');
+        */
     }, 20);
 });
 

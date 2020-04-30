@@ -1084,11 +1084,11 @@ if( basename(self()) == 'bejelentes.php' && !_jog(JOG_BEJELENTES_TORLESE) ) {
     $torles_icon    = '';
 }
 
-if( basename(self()) == 'beosztas.php' && !_jog(JOG_BEOSZTASOK_KEZEL) ) {
+if( basename(self()) == 'beosztas.php' && !_jog(JOG_BEOSZTASOK_KEZEL) && !_jog(JOG_MSZK_BEOSZTAS_KEZEL) ) {
     $torles_icon = $uj = $duplikal = '';
 }
 
-if( (basename(self()) == 'beosztas_muszak.php' || basename(self()) == 'beosztas_unnepnapok.php') && !_jog(JOG_MSZK_BEOSZTAS_KEZEL) ) {
+if( (basename(self()) == 'beosztas_muszak.php' || basename(self()) == 'beosztas_unnepnapok.php') && !_jog(JOG_BEOSZTASOK_KEZEL) && !_jog(JOG_MSZK_BEOSZTAS_KEZEL) ) {
     $torles_icon = $uj = $duplikal = '';
 }
 
@@ -1267,7 +1267,7 @@ if( basename(self()) == 'torzsadat.php' && !_jog(JOG_TORZSADAT_KEZEL) ) {
 
 // Excel export
 $valasztos = '';
-$valasztos_feluletek = array('cash_flow.php', 'eloterj_bod.php', 'eloterj_fb.php', 'energia_terv.php', 'fenntartasi_terv.php', 'projektszamla.php', 'projektszerzodes.php');
+$valasztos_feluletek = array('beosztas.php', 'cash_flow.php', 'eloterj_bod.php', 'eloterj_fb.php', 'energia_terv.php', 'fenntartasi_terv.php', 'projektszamla.php', 'projektszerzodes.php');
 if( in_array(basename(self()), $valasztos_feluletek) ) {
     $valasztos = 'választós';
 }
@@ -1449,7 +1449,17 @@ if( $_SERVER['HTTP_HOST'] != 'demo.webdeb.hu' ) {
 }
 
 // Nyomtatási popup
-if( basename(self()) == 'energia_terv.php' ) {
+if( self('basename') == 'beosztas.php' ) {
+    $header_html .= nl2('
+        <div class="dn">
+            <div id="nyomtatasi_nezet">
+                Válasszon nyomtatási nézetet:
+                <br><a class="link" onclick="listanezet_nyomtat( this );" target="_blank">» Beosztások listája</a>
+                <br><a class="link" href="'.self('basename').get_get().'&print=lista&tablazat" target="_blank">» Beosztás táblázat nyomtatása</a>
+            </div>
+        </div>
+    ');
+}else if( basename(self()) == 'energia_terv.php' ) {
     $header_html .= nl2('
         <div class="dn">
             <div id="nyomtatasi_nezet">

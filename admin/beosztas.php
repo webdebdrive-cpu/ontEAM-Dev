@@ -1,7 +1,7 @@
 <?php
 require_once('../weblap.php');
 
-if( !_jog(JOG_BEOSZTASOK_MEGTEKINT) ) {
+if( !_jog(JOG_BEOSZTASOK_MEGTEKINT) && !_jog(JOG_MSZK_BEOSZTAS_MEGTEKINT) ) {
     if(!$_SESSION[get_db_tabla().'user']){
         $weblap -> leallit();
         header('Location: index.php');
@@ -192,82 +192,96 @@ if( isset($_POST['get_illeto_muszakja']) ) {
 
 // CSV generálása
 if( isset($_GET['csv']) ) {
-
-    $honap = array('', 'január', 'február', 'március', 'április', 'május', 'június', 'július', 'augusztus', 'szeptember', 'október', 'november', 'december');
     
-    // CSV export előkészítése
-    list($mibol, $mibe, $filename, $open) = csv_export_elokeszit($megnevezes);
-    if( $open ) {
+    // Beosztás táblázat
+    if( isset($_GET['tablazat']) ) {
+        
+        beosztas_csv_export_elokeszit('beosztas_tablazat');
+        echo fajlbol_olvas('csv/beosztas_tablazat'.session_id().'.csv');
+        
+        $weblap->leallit();
+        exit();
+        
+    // Sima lista
+    } else {
+        
+        $honap = array('', 'január', 'február', 'március', 'április', 'május', 'június', 'július', 'augusztus', 'szeptember', 'október', 'november', 'december');
 
-        $sql = 'SELECT
-                `'.get_db_tabla().'beosztas`.`telephely_id` as \'Szálloda\',
-                `'.get_db_tabla().'beosztas`.`ev` as \'Év\',
-                `'.get_db_tabla().'beosztas`.`ho` as \'Hónap\'
-                '. csv_export_get_from_tol($megnevezes);
-        $query = mysqli_query($db_kapcs, $sql);
+        // CSV export előkészítése
+        list($mibol, $mibe, $filename, $open) = csv_export_elokeszit($megnevezes);
+        if( $open ) {
 
-        // Nagyobb CSV-kre kérdezzünk rá előzetesen
-        $osszes_sor = mysqli_num_rows($query);
-        if( !$_GET['mehet'] && $osszes_sor>CSV_EXPORT_LIMIT ) {
-            $gomb = '<input type="button" class="gomb zold" value="Igen" onclick="$(\'#navGombok .excel\').attr(\'onclick\', \'csv_general( this, \\\'\\\', \\\'&mehet=1\\\');\'); $(\'.navGombok a.excel\').click();"> <input type="button" class="gomb piros" value="Nem" onclick="alert2()">';
-            echo json_encode(array('hiba' => 'A CSV export több mint '.number_format(CSV_EXPORT_LIMIT, 0, '', ' ').' sort tartalmaz. Ennek előállítása hosszabb időbe telik majd.<br>Biztosan folytatja?', 'gomb' => $gomb));
-            $weblap -> leallit();
-            exit;
-        } else {
-            $sql .= $_SESSION['akt_sql_order'];    
-        }
+            $sql = 'SELECT
+                    `'.get_db_tabla().'beosztas`.`telephely_id` as \'Szálloda\',
+                    `'.get_db_tabla().'beosztas`.`ev` as \'Év\',
+                    `'.get_db_tabla().'beosztas`.`ho` as \'Hónap\'
+                    '. csv_export_get_from_tol($megnevezes);
+            $query = mysqli_query($db_kapcs, $sql);
 
-        $query      = mysqli_query($db_kapcs, $sql);
-        $csvhead    = array();
-        while ( $fejlec_nevek = mysqli_fetch_field($query) ) {
-            $csvhead[] = iconv2($mibol, $mibe, $fejlec_nevek -> name );
-        }
-        fputcsv($open, $csvhead, ';');
+            // Nagyobb CSV-kre kérdezzünk rá előzetesen
+            $osszes_sor = mysqli_num_rows($query);
+            if( !$_GET['mehet'] && $osszes_sor>CSV_EXPORT_LIMIT ) {
+                $gomb = '<input type="button" class="gomb zold" value="Igen" onclick="$(\'#navGombok .excel\').attr(\'onclick\', \'csv_general( this, \\\'\\\', \\\'&mehet=1\\\');\'); $(\'.navGombok a.excel\').click();"> <input type="button" class="gomb piros" value="Nem" onclick="alert2()">';
+                echo json_encode(array('hiba' => 'A CSV export több mint '.number_format(CSV_EXPORT_LIMIT, 0, '', ' ').' sort tartalmaz. Ennek előállítása hosszabb időbe telik majd.<br>Biztosan folytatja?', 'gomb' => $gomb));
+                $weblap -> leallit();
+                exit;
+            } else {
+                $sql .= $_SESSION['akt_sql_order'];    
+            }
 
-        $i = 0;
-        while( $sorok = mysqli_fetch_assoc($query) ) {
+            $query      = mysqli_query($db_kapcs, $sql);
+            $csvhead    = array();
+            while ( $fejlec_nevek = mysqli_fetch_field($query) ) {
+                $csvhead[] = iconv2($mibol, $mibe, $fejlec_nevek -> name );
+            }
+            fputcsv($open, $csvhead, ';');
 
-            $csvcont = array();
-            foreach( $sorok as $kulcs => $sor ) {
-                if( $kulcs == 'Szálloda' ) {
-                    $sor = getSzallodaNev($sor);
-                }
-                if( $kulcs == 'Hónap' ) {
-                    $sor = $honap[$sor];
-                }
+            $i = 0;
+            while( $sorok = mysqli_fetch_assoc($query) ) {
 
-                // Lehet nem volna elég 1-szer sőt kétszer sem ráereszteni a htmlspecialchars_decode-ot
-                $sor = htmlspecialchars_decode( $sor );
-                while ( strpos($sor, '&amp;') !== false || strpos($sor, '&quot;') !== false ) {
+                $csvcont = array();
+                foreach( $sorok as $kulcs => $sor ) {
+                    if( $kulcs == 'Szálloda' ) {
+                        $sor = getSzallodaNev($sor);
+                    }
+                    if( $kulcs == 'Hónap' ) {
+                        $sor = $honap[$sor];
+                    }
+
+                    // Lehet nem volna elég 1-szer sőt kétszer sem ráereszteni a htmlspecialchars_decode-ot
                     $sor = htmlspecialchars_decode( $sor );
+                    while ( strpos($sor, '&amp;') !== false || strpos($sor, '&quot;') !== false ) {
+                        $sor = htmlspecialchars_decode( $sor );
+                    }
+                    $csvcont[] = iconv($mibol, $mibe.'//TRANSLIT', strip_tags( $sor ) );
                 }
-                $csvcont[] = iconv($mibol, $mibe.'//TRANSLIT', strip_tags( $sor ) );
+
+                fputcsv($open, $csvcont, ';');
+
+                // 1000 soronként kiíratunk
+                if( $i % 1000 == 0 && $i > 0 ) {
+                    // Progress
+                    echo json_encode(array('pr' => number_format(($i / $osszes_sor) * 100, 0, '', ''))).PHP_EOL;
+
+                    // Felszabadítás
+                    ob_flush();
+                    flush();
+                }
+
+                $i++;
             }
 
-            fputcsv($open, $csvcont, ';');
+            // Progress
+            echo json_encode(array('pr' => '100')).PHP_EOL;
 
-            // 1000 soronként kiíratunk
-            if( $i % 1000 == 0 && $i > 0 ) {
-                // Progress
-                echo json_encode(array('pr' => number_format(($i / $osszes_sor) * 100, 0, '', ''))).PHP_EOL;
-                
-                // Felszabadítás
-                ob_flush();
-                flush();
-            }
-
-            $i++;
+            // Felszabadítás
+            ob_flush();
+            flush();
         }
 
-        // Progress
-        echo json_encode(array('pr' => '100')).PHP_EOL;
-
-        // Felszabadítás
-        ob_flush();
-        flush();
+        csv_export_lezar($fh, $filename, 'Beosztások');
     }
 
-    csv_export_lezar($fh, $filename, 'Beosztások');
 }
 
 // Tartalom
@@ -400,7 +414,7 @@ require_once('selectek.php');
 	    // Js, a törlés gombhoz
 	    $gombok = '<script>var gomb'.$_GET['id'].'= get_kibont_torol(\''.self().'\', \''.$torles.'\', \''.$_GET['id'].'\');</script>';
 
-        if( !_jog(JOG_BEOSZTASOK_KEZEL) ) {
+        if( !_jog(JOG_BEOSZTASOK_KEZEL) && !_jog(JOG_MSZK_BEOSZTAS_KEZEL) ) {
             $gombok .= ' <input type="button" id="recordTorol" class="gombb_alert dn" onclick="alert2(\'Önnek nincs joga beosztást törölni!\', \'\', \'Hiba\')" value="Töröl" title="Töröl">';
         } else {
             $gombok .= ' <input type="button" id="recordTorol" class="gombb_alert dn" onclick="alert2(\'Biztosan törli ezt a '.$szoveg.'?\', gomb'.$_GET['id'].')" value="Töröl" title="Töröl">';
@@ -411,7 +425,7 @@ require_once('selectek.php');
             $mobil_sorrend_gomb = '<input type="button" class="gomb" value="Nevek rendezése" onclick="csoportMuvelet(\'beosztas_nevek_rendez\');">';
         }
         
-        if( _jog(JOG_BEOSZTASOK_KEZEL) ) {
+        if( _jog(JOG_BEOSZTASOK_KEZEL) || _jog(JOG_MSZK_BEOSZTAS_KEZEL) ) {
             $gombok = nl2('
                 <div class="form_kuldes">
                     '.$mobil_sorrend_gomb.'
@@ -501,7 +515,7 @@ require_once('selectek.php');
         if( $_GET['ajax'] ) {
             echo json_encode(array(
                 'tartalom' => $szamla_html,
-                'link' => get_get(array('ajax', 'kat', 'epo', 'oldal', 'order'), true)
+                'link'     => get_get(array('ajax', 'kat', 'epo', 'oldal', 'order'), true)
             ));
         } else {
             echo $szamla_html;
@@ -539,11 +553,12 @@ require_once('selectek.php');
         foreach ( $sor as $kulcs => $elem ) {
             $json_sor[$kulcs] = formAdatok_replace($elem);
         }
+        $szalloda_nev = getSzallodaNev($sor['telephely_id']);
         $szamla_html .= '<script> formAdatok = JSON.parse(\''.json_encode($json_sor).'\'); </script>';
         $szamla_html .= nl2('
             <script>
                 duplikalGomb  = "<p class=\"c\"><input class=\"gomb zold\" type=\"button\" value=\"Igen\" onclick=\"szurkit(); location.href = \''.basename(self()).'?uj&amp;ujkent='.$_GET['id'].'\'; \"><input class=\"gomb piros\" type=\"button\" value=\"Nem\" onclick=\"alert2()\"></p>";
-                duplikaKerdes = \'Szálloda: '.getSzallodaNev($sor['telephely_id']).'<br>Dátum: '.date_formaz($sor['ev'].'-'.$sor['ho'], '', 'csak hó').'<br><br>Biztos, hogy duplikálja?\';
+                duplikaKerdes = \'Szálloda: '.$szalloda_nev.'<br>Dátum: '.date_formaz($sor['ev'].'-'.$sor['ho'], '', 'csak hó').'<br><br>Biztos, hogy duplikálja?\';
             </script>
         ');
         
@@ -561,177 +576,14 @@ require_once('selectek.php');
 		// Ez elkészíti a $mezok változót
 		require('switch.php');
 
-        $jobb_oldal = '';
-        
-        $napok_th = '';
-        $honap = $sor['ho'];
-        if( $honap<10 ) {
-            $honap = '0'.$honap;
-        }
-        // Ünnepnapok és helyettesítő napokat felvesszük egy tömbbe
-        $unnepnapok         = $adatbazis_kapcsolat->s('datum', 'beosztas_unnepnapok', "`datum` LIKE '{$sor['ev']}-{$honap}%' AND `tipus` IN (".BEOSZTAS_UNNEPNAP_MUNKASZUNET.", ".BEOSZTAS_UNNEPNAP_PIHENO.")");
-        $unnepnapok         = adatbazis2tomb($unnepnapok, 'datum');
-        $helyettesito_napok = $adatbazis_kapcsolat->s('datum', 'beosztas_unnepnapok', "`datum` LIKE '{$sor['ev']}-{$honap}%' AND `tipus` IN (".BEOSZTAS_UNNEPNAP_HELYETTES.")");
-        $helyettesito_napok = adatbazis2tomb($helyettesito_napok, 'datum');
-
-        $datumok_tomb = array();
-        $napok_szama = date('t', strtotime($sor['ev'].'-'.$honap.'-01'));
-        for( $i = 0; $i<$napok_szama; $i++ ) {
-            
-            $nap = $nap_nulakkal = $i+1;
-            if( $nap_nulakkal<10 ) {
-                $nap_nulakkal = '0'.$nap_nulakkal;
-            }
-            
-            
-            $sarga = '';
-            $datum = $sor['ev'].'-'.$honap.'-'.$nap_nulakkal;
-            // Szombat vasárnap kiemelve
-            $het_napja = date('w', strtotime($sor['ev'].'-'.$honap.'-'.$nap_nulakkal));
-            if( ($het_napja == 0 || $het_napja == 6) && !in_array($datum, $helyettesito_napok) ) {
-                $sarga = ' class="sarga"';
-            
-            // Ünepnapok szintúgy
-            } else if( in_array($datum, $unnepnapok) ) {
-                $sarga = ' class="sarga"';
-            }
-            array_push($datumok_tomb, array('datum' => $sor['ev'].'-'.$honap.'-'.$nap_nulakkal, 'sarga' => $sarga));
-
-            $napok_th .= '<th'.$sarga.'>'.$nap.'<br>'.nap_neve($sor['ev'], $honap, $nap_nulakkal).'</th>';
-        }
-        
-        // Műszakok
-        $muszak_select = '<select id="muszak" class="disableNav">';
-        $muszak_select .= '<option value="">-Válasszon műszakot-</option>';
-        $muszakok = $adatbazis_kapcsolat->s('*', 'beosztas_muszak', "`telephely_id`='{$sor['telephely_id']}' AND `aktiv`=1", 'nev');
-
-        foreach( $muszakok as $muszak ) {
-            $muszak_select .= '<option value="'.$muszak['recid'].'|sep|'.$muszak['jel'].'|sep|'.$muszak['szin'].'|sep|'.$muszak['ora'].'|sep|'.$muszak['tol'].'|sep|'.$muszak['ig'].'" style="background: #'.$muszak['szin'].'">'.$muszak['nev'].' ('.$muszak['jel'].' '.$muszak['tol'].'-'.$muszak['ig'].')</option>';
-        }
-        
-        $muszak_select .= '<option value="0|sep|'.BEOSZTAS_FIX_SZABADNAP_JEL.'">Szabadság ('.BEOSZTAS_FIX_SZABADNAP_JEL.')</option>';
-        // A beosztás felületen a műszak lenyílóból ki kell venni a pihenőnapot mert azt nem személyenként kell megadni, hanem a törvényből jön.
-        // $muszak_select .= '<option value="0|sep|'.BEOSZTAS_FIX_PIHENONAP_JEL.'">Pihenőnap ('.BEOSZTAS_FIX_PIHENONAP_JEL.')</option>';
-        $muszak_select .= '<option value="0|sep|'.BEOSZTAS_FIX_BETEGSEG_JEL.'">Betegség ('.BEOSZTAS_FIX_BETEGSEG_JEL.')</option>';
-        $muszak_select .= '<option value="|del|">Nincs beosztás</option>';
-        $muszak_select .= '</select>';
-        
-        $jobb_oldal .= $muszak_select.
-            nl2('
-            <div id="fixTable">
-                <table class="beosztas">
-                <tr>
-                    <th>Név</th>
-                    '.$napok_th.'
-                    <th>Terv<br>óra</th>
-                    <th>Tény<br>óra</th>
-                    <th>Egyenleg</th>
-                </tr>
-            ');
-        
-        // Felhasználók kilistázása
-        $nevek = $adatbazis_kapcsolat -> s('recid nev torzsadat_recid', 'beosztas_nevek', "`beosztas_recid`='{$_GET['id']}'", 'mobilos, sor, nev');
-        // Ha még nincsenek nevek, akkor létrehozzuk őket => ez egy pillanatfelvétel az aktuális törzsadat adatbázisról
-        if( !$nevek ) {
-            
-            // SZK Szálloda esetén
-            if( $sor['telephely_id'] == TELEPHELY_SZK ) {
-                // Diszpécser vagy mobilcsoport usereket kell kilistázni, akik Aktívak, nem virtuálisak
-                $felhasznalok = $adatbazis_kapcsolat->s('nev', 'login', "(`szemelyzet_id`='".DISZPECSER."' OR `szemelyzet_id`='".MOBILCSOPORT."') AND `aktiv`=1 AND `virtual`=0");
-                $felhasznalok = adatbazis2tomb($felhasznalok, 'nev');
-            
-            // Általános szálloda esetén
-            } else {
-                
-                // A hozzám tartozó szállodákhoz tartozó telepített személyek (akik Aktívak, nem virtuálisak)
-                $login_nevek  = $adatbazis_kapcsolat->s('DISTINCT `nev`', 'telephely_kapcs', "`telephely_id` IN (".implode(', ', get_akt_login_szallodai()).")");
-                $login_nevek  = adatbazis2tomb($login_nevek, 'nev');
-                // Telepített személyek, akik Aktívak, nem virtuálisak
-                $felhasznalok = $adatbazis_kapcsolat->s('nev', 'login', "`nev` IN ('". implode('\', \'', $login_nevek)."') AND `szemelyzet_id`='".TELEPITETT_SZEMELYZET."' AND `aktiv`=1 AND `virtual`=0");
-                $felhasznalok = adatbazis2tomb($felhasznalok, 'nev');
-            }
-            
-            $torzsadatok  = $nevek = $adatbazis_kapcsolat->s('recid nev felh_loginnev sor', 'torzsadat', "`felh_loginnev` IN ('". implode('\', \'', $felhasznalok)."')", 'nev');
-            foreach( $torzsadatok as $torzsadat ) {
-                
-                // Lekérdezzük, hogy adott felhasználó mobilcsoport-e
-                $login = $adatbazis_kapcsolat->s2('szemelyzet_id', 'login', "`nev`='{$torzsadat['felh_loginnev']}'");
-                $mobilos = 0;
-                if( $login['szemelyzet_id']==MOBILCSOPORT ) {
-                    $mobilos = 1;
-                }
-                $adatbazis_kapcsolat->i('beosztas_nevek', array('beosztas_recid', 'torzsadat_recid',    'nev',              'mobilos',  'sor',               'update_usr',                           'insert_dt', 'insert_usr'                            ),
-                                                          array($_GET['id'],      $torzsadat['recid'],  $torzsadat['nev'],  $mobilos,   $torzsadat['sor'],   $_SESSION[get_db_tabla().'teljes_nev'], 'NOW()',      $_SESSION[get_db_tabla().'teljes_nev'] )
-                                        );
-            }
-            $nevek = $adatbazis_kapcsolat -> s('recid nev torzsadat_recid', 'beosztas_nevek', "`beosztas_recid`='{$_GET['id']}'", 'mobilos, sor, nev');
-        }
-        
-        foreach( $nevek as $nev ) {
-
-            $naptar_adatok = $adatbazis_kapcsolat->s('*', 'beosztas_naptar', "`beosztas_nevek_recid`='{$nev['recid']}' AND `beosztas_recid`='{$_GET['id']}'");
-            $napok_td = '';
-            $orak     = 0;
-            $munkanapok_szama = 0;
-            foreach( $datumok_tomb as $datum ) {
-                $class   = '';
-                $onclick = '';
-                if( $datum['sarga'] ) {
-                    $class = ' sarga';
-                } else {
-                    $munkanapok_szama++;
-                }
-                
-                // Van-e esetleg az illetőnek másik szállodában már beosztása?
-                $data_jel = $data_szin = $data_ora = $data_tol = $data_ig = $jel = $szin = '';
-                $foglalt = $adatbazis_kapcsolat->s2('recid ora', 'beosztas_naptar', "`beosztas_nevek_recid` IN (SELECT `recid` FROM `".get_db_tabla()."beosztas_nevek` WHERE `torzsadat_recid`='{$nev['torzsadat_recid']}' AND `recid`!='{$nev['recid']}') AND `datum`='{$datum['datum']}'");
-                if( $foglalt ) {
-                    $class .= ' foglalt';
-                    $jel    = '✖';
-                    $orak  += $foglalt['ora'];
-                    $onclick = ' onclick="get_illeto_muszakja(\''.$foglalt['recid'].'\')"';
-                } else {
-                    $class .= ' szerk';
-                    foreach ( $naptar_adatok as $adat ) {
-                        if( $adat['datum'] == $datum['datum'] ) {
-                            $data_jel   = ' data-jel="'.$adat['jel'].'"';
-                            $data_szin  = ' data-szin="'.$adat['szin'].'"';
-                            $data_ora   = ' data-ora="'.$adat['ora'].'"';
-                            $data_tol   = ' data-tol="'.$adat['tol'].'"';
-                            $data_ig    = ' data-ig="'.$adat['ig'].'"';
-                            $jel        = $adat['jel'];
-                            $szin       = ' style="background-color: #'.$adat['szin'].'"';
-                            $orak += $adat['ora'];
-                            continue;
-                        }
-                    }
-                }
-                
-                $napok_td .= '<td class="'.$class.'" data-nev_id="'.$nev['recid'].'" data-datum="'.$datum['datum'].'"'.$data_jel.$data_szin.$data_ora.$data_tol.$data_ig.$szin.$onclick.'>'.$jel.'</td>';
-            }
-            
-            // A tervórák első körben a munkanapok (nem sárga hátterűek) * 8 órával. Aztán majd lehet az illető aktuális napi munkaidejével szorozzuk fel.
-            $napi_munkaido = $adatbazis_kapcsolat->s2('ora', 'torzsadat_napi_munkaido', "`torzsadat_recid`='{$nev['torzsadat_recid']}' AND `datum`<='{$sor['ev']}-{$honap}-01'", 'datum desc', '1');
-            
-            $terv_orak = $munkanapok_szama * $napi_munkaido['ora'];
-            $jobb_oldal .= nl2('
-                <tr>
-                    <td>'.$nev['nev'].'</td>
-                    '.$napok_td.'
-                    <td class="nowrap">'.number_format($terv_orak, 0, '', ' ').'</td>
-                    <td class="nowrap">'.number_format($orak, 0, '', ' ').'</td>
-                    <td class="nowrap">'.number_format($orak-$terv_orak, 0, '', ' ').'</td>
-                </tr>
-                ');
-        }
-        
-        $jobb_oldal .= nl2('
-                </table>
-            </div>
-            ');
+        $jobb_oldal = get_beosztas_tablazat( $sor );
 
         $action = 'javascript:void(0);';
 
+        // A csak 0-ás cellák elől vegyük le az egyenlődég jelet
+        $csv = str_replace('="0"', '0', $csv);
+        fajlba_mentes('csv/beosztas_tablazat'.session_id().'.csv',  $csv);
+        
 	    $szamla_html .= str_replace(
             array('{JS}', '{JS_SUBMIT_ELOTT}', '{ACTION}', '{MEZOK}', '{MEGNEVEZES}', '{KEP}',     '{CK_EDITOR}', '{GOMBOK}', '{UPDATE_DT}'     ),
             array( $js,   $js_submit_elott,    $action,    $mezok,    $megnevezes,    $jobb_oldal, $ckeditor,     $gombok,    $sor['update_dt'] ),
@@ -751,72 +603,6 @@ require_once('selectek.php');
             require_once('tobb_kep.php');
 		}
 
-	/*// Történet
-    } elseif( isset($_GET['tortenet']) ) {
-
-        $szamla_html .= get_tortenet($megnevezes);
-
-        if( $_GET['ajax'] ) {
-            echo json_encode(array(
-                'tartalom' => $szamla_html.$gombok
-            ));
-        } else {
-            echo $szamla_html.$gombok;
-        }
-
-	// Dokumentumok
-    } elseif( isset($_GET['dokumentumok']) ) {
-
-        $szamla_html .= 'Dokumentumok felülete';
-
-        if( $_GET['ajax'] ) {
-            echo json_encode(array(
-                'tartalom' => $szamla_html.$gombok,
-                'link' => get_get(array('ajax', 'kat', 'epo', 'oldal', 'order'), true)
-            ));
-        } else {
-            echo $szamla_html.$gombok;
-        }
-
-	// Megjegyzések
-    } elseif( isset($_GET['megjegyzesek']) ) {
-
-        // <div class="dt naplo" class nevekből a kijCont kivéve, hogy a megjegyzéseket ne lehessen törölni
-        $szamla_html .= nl2('
-            <div class="dt naplo" data-tabla="megjegyzes" data-mellek="megjegyzesek">
-                <div class="dtr nFejlec">
-                    <div class="dtc">Megjegyzés</div>
-                    <div class="dtc">Hozzáadta</div>
-                    <div class="dtc">Hozzáadva</div>
-                </div>
-        ');
-
-        $sorok = $adatbazis_kapcsolat->s('recid megj insert_usr insert_dt', 'megjegyzes', "`id` = '".$_GET['id']."' AND `tabla` = '".str_replace('.php', '', basename(self()))."'", 'recid desc');
-
-        if( $sorok ) {
-            $i = 1;
-            foreach ( $sorok as $sor ) {
-                $szamla_html .= nl2('
-                    <div id="naploSor-'.$sor['recid'].'" data-id="'.$sor['recid'].'" data-i="'.$i.'" class="dtr nSor kijSor">
-                        <div class="dtc">'.htmlspecialchars_decode( nl2br2($sor['megj']) ).'</div>
-                        <div class="dtc">'.$sor['insert_usr'].'</div>
-                        <div class="dtc">'.datum_kiir($sor['insert_dt']).'</div>
-                    </div>
-                ');
-
-                $i++;
-            }
-        }
-
-        if( $_GET['ajax'] ) {
-            echo json_encode(array(
-                'tartalom' => $szamla_html.$gombok,
-                'link' => get_get(array('ajax', 'kat', 'epo', 'oldal', 'order'), true)
-            ));
-        } else {
-            echo $szamla_html.$gombok;
-        }
-*/
 	}
 
     if( !$_GET['ajax'] ) {
@@ -833,4 +619,235 @@ function nap_neve($ev, $ho, $nap) {
     $mivel = array('Hét', 'Ke',   'Sze', 'Csü',  'Pén', 'Szo', 'Vas');
     $angolul = date('D', strtotime($ev.'-'.$ho.'-'.$nap));
     return str_replace($mit, $mivel, $angolul);
+}
+
+// Beosztás táblázat kirajzolása központosítva, nyomtatási nézet miatt
+function get_beosztas_tablazat( $sor ) {
+    
+    global $adatbazis_kapcsolat;
+    
+    $csv_mibol   = get_web_charset();
+    $csv_mibe    = 'windows-1250';
+    
+    $napok_th = '';
+    $honap = $sor['ho'];
+    if( $honap<10 ) {
+        $honap = '0'.$honap;
+    }
+    // Ünnepnapok és helyettesítő napokat felvesszük egy tömbbe
+    $unnepnapok         = $adatbazis_kapcsolat->s('datum', 'beosztas_unnepnapok', "`datum` LIKE '{$sor['ev']}-{$honap}%' AND `tipus` IN (".BEOSZTAS_UNNEPNAP_MUNKASZUNET.", ".BEOSZTAS_UNNEPNAP_PIHENO.")");
+    $unnepnapok         = adatbazis2tomb($unnepnapok, 'datum');
+    $helyettesito_napok = $adatbazis_kapcsolat->s('datum', 'beosztas_unnepnapok', "`datum` LIKE '{$sor['ev']}-{$honap}%' AND `tipus` IN (".BEOSZTAS_UNNEPNAP_HELYETTES.")");
+    $helyettesito_napok = adatbazis2tomb($helyettesito_napok, 'datum');
+
+    $csv  = '';
+    $csv .= csv_ellenorzes_letolt(iconv2($csv_mibol, $csv_mibe, 'Szálloda:')).';';
+    $csv .= csv_ellenorzes_letolt(iconv2($csv_mibol, $csv_mibe, getSzallodaNev($sor['telephely_id']))).';';
+    $csv .= "\n";
+    $csv .= csv_ellenorzes_letolt(iconv2($csv_mibol, $csv_mibe, 'Év. hónap:')).';';
+    $csv .= csv_ellenorzes_letolt(iconv2($csv_mibol, $csv_mibe, date_formaz($sor['ev'].'-'.$sor['ho'], '', 'csak hó'))).';';
+    $csv .= "\n";
+    $csv .= "\n";
+    $csv .= csv_ellenorzes_letolt(iconv2($csv_mibol, $csv_mibe, 'Név')).';';
+
+    $datumok_tomb = array();
+    $napok_szama = date('t', strtotime($sor['ev'].'-'.$honap.'-01'));
+    for( $i = 0; $i<$napok_szama; $i++ ) {
+
+        $nap = $nap_nulakkal = $i+1;
+        if( $nap_nulakkal<10 ) {
+            $nap_nulakkal = '0'.$nap_nulakkal;
+        }
+
+
+        $sarga = '';
+        $datum = $sor['ev'].'-'.$honap.'-'.$nap_nulakkal;
+        // Szombat vasárnap kiemelve
+        $het_napja = date('w', strtotime($sor['ev'].'-'.$honap.'-'.$nap_nulakkal));
+        if( ($het_napja == 0 || $het_napja == 6) && !in_array($datum, $helyettesito_napok) ) {
+            $sarga = ' class="sarga"';
+
+        // Ünepnapok szintúgy
+        } else if( in_array($datum, $unnepnapok) ) {
+            $sarga = ' class="sarga"';
+        }
+        array_push($datumok_tomb, array('datum' => $sor['ev'].'-'.$honap.'-'.$nap_nulakkal, 'sarga' => $sarga));
+
+        $nap_neve = nap_neve($sor['ev'], $honap, $nap_nulakkal);
+        $napok_th .= '<th'.$sarga.'>'.$nap.'<br>'.$nap_neve.'</th>';
+        $csv .= '='.csv_ellenorzes_letolt(iconv2($csv_mibol, $csv_mibe, $nap.' '.$nap_neve)).';';
+    }
+    $csv .= csv_ellenorzes_letolt(iconv2($csv_mibol, $csv_mibe, 'Terv óra')).';';
+    $csv .= csv_ellenorzes_letolt(iconv2($csv_mibol, $csv_mibe, 'Tény óra')).';';
+    $csv .= csv_ellenorzes_letolt(iconv2($csv_mibol, $csv_mibe, 'Egyenleg')).';';
+    $csv .= "\n";
+
+    // Műszakok
+    $muszak_select  = '<select id="muszak" class="disableNav nyomtatasi_elonezetben_sem_taszik">';
+    $muszak_select .= '<option value="">-Válasszon műszakot-</option>';
+    $muszakok = $adatbazis_kapcsolat->s('*', 'beosztas_muszak', "`telephely_id`='{$sor['telephely_id']}' AND `aktiv`=1", 'nev');
+
+    foreach( $muszakok as $muszak ) {
+        $muszak_select .= '<option value="'.$muszak['recid'].'|sep|'.$muszak['jel'].'|sep|'.$muszak['szin'].'|sep|'.$muszak['ora'].'|sep|'.$muszak['tol'].'|sep|'.$muszak['ig'].'" style="background: #'.$muszak['szin'].'">'.$muszak['nev'].' ('.$muszak['jel'].' '.$muszak['tol'].'-'.$muszak['ig'].')</option>';
+    }
+
+    $muszak_select .= '<option value="0|sep|'.BEOSZTAS_FIX_SZABADNAP_JEL.'">Szabadság ('.BEOSZTAS_FIX_SZABADNAP_JEL.')</option>';
+    // A beosztás felületen a műszak lenyílóból ki kell venni a pihenőnapot mert azt nem személyenként kell megadni, hanem a törvényből jön.
+    // $muszak_select .= '<option value="0|sep|'.BEOSZTAS_FIX_PIHENONAP_JEL.'">Pihenőnap ('.BEOSZTAS_FIX_PIHENONAP_JEL.')</option>';
+    $muszak_select .= '<option value="0|sep|'.BEOSZTAS_FIX_BETEGSEG_JEL.'">Betegség ('.BEOSZTAS_FIX_BETEGSEG_JEL.')</option>';
+    $muszak_select .= '<option value="|del|">Nincs beosztás</option>';
+    $muszak_select .= '</select>';
+
+    $jobb_oldal .= $muszak_select.
+        nl2('
+        <div id="fixTable">
+            <table class="beosztas">
+            <tr>
+                <th>Név</th>
+                '.$napok_th.'
+                <th>Terv<br>óra</th>
+                <th>Tény<br>óra</th>
+                <th>Egyenleg</th>
+            </tr>
+        ');
+
+    // Felhasználók kilistázása
+    $nevek = $adatbazis_kapcsolat -> s('recid nev torzsadat_recid', 'beosztas_nevek', "`beosztas_recid`='{$_GET['id']}'", 'mobilos, sor, nev');
+    // Ha még nincsenek nevek, akkor létrehozzuk őket => ez egy pillanatfelvétel az aktuális törzsadat adatbázisról
+    if( !$nevek ) {
+
+        // SZK Szálloda esetén
+        if( $sor['telephely_id'] == TELEPHELY_SZK ) {
+            // Diszpécser vagy mobilcsoport usereket kell kilistázni, akik Aktívak, nem virtuálisak
+            $felhasznalok = $adatbazis_kapcsolat->s('nev', 'login', "(`szemelyzet_id`='".DISZPECSER."' OR `szemelyzet_id`='".MOBILCSOPORT."') AND `aktiv`=1 AND `virtual`=0");
+            $felhasznalok = adatbazis2tomb($felhasznalok, 'nev');
+
+        // Általános szálloda esetén
+        } else {
+
+            // A hozzám tartozó szállodákhoz tartozó telepített személyek (akik Aktívak, nem virtuálisak)
+            $login_nevek  = $adatbazis_kapcsolat->s('DISTINCT `nev`', 'telephely_kapcs', "`telephely_id` IN (".implode(', ', get_akt_login_szallodai()).")");
+            $login_nevek  = adatbazis2tomb($login_nevek, 'nev');
+            // Telepített személyek, akik Aktívak, nem virtuálisak
+            $felhasznalok = $adatbazis_kapcsolat->s('nev', 'login', "`nev` IN ('". implode('\', \'', $login_nevek)."') AND `szemelyzet_id`='".TELEPITETT_SZEMELYZET."' AND `aktiv`=1 AND `virtual`=0");
+            $felhasznalok = adatbazis2tomb($felhasznalok, 'nev');
+        }
+
+        $torzsadatok  = $nevek = $adatbazis_kapcsolat->s('recid nev felh_loginnev sor', 'torzsadat', "`felh_loginnev` IN ('". implode('\', \'', $felhasznalok)."')", 'nev');
+        foreach( $torzsadatok as $torzsadat ) {
+
+            // Lekérdezzük, hogy adott felhasználó mobilcsoport-e
+            $login = $adatbazis_kapcsolat->s2('szemelyzet_id', 'login', "`nev`='{$torzsadat['felh_loginnev']}'");
+            $mobilos = 0;
+            if( $login['szemelyzet_id']==MOBILCSOPORT ) {
+                $mobilos = 1;
+            }
+            $adatbazis_kapcsolat->i('beosztas_nevek', array('beosztas_recid', 'torzsadat_recid',    'nev',              'mobilos',  'sor',               'update_usr',                           'insert_dt', 'insert_usr'                            ),
+                                                      array($sor['id'],       $torzsadat['recid'],  $torzsadat['nev'],  $mobilos,   $torzsadat['sor'],   $_SESSION[get_db_tabla().'teljes_nev'], 'NOW()',      $_SESSION[get_db_tabla().'teljes_nev'] )
+                                    );
+        }
+        $nevek = $adatbazis_kapcsolat -> s('recid nev torzsadat_recid', 'beosztas_nevek', "`beosztas_recid`='{$_GET['id']}'", 'mobilos, sor, nev');
+    }
+
+    foreach( $nevek as $nev ) {
+
+        $naptar_adatok = $adatbazis_kapcsolat->s('*', 'beosztas_naptar', "`beosztas_nevek_recid`='{$nev['recid']}' AND `beosztas_recid`='{$_GET['id']}'");
+        $napok_td = '';
+        $orak     = 0;
+        $munkanapok_szama = 0;
+        $csv .= csv_ellenorzes_letolt(iconv2($csv_mibol, $csv_mibe, $nev['nev'])).';';
+        foreach( $datumok_tomb as $datum ) {
+            $class   = '';
+            $onclick = '';
+            if( $datum['sarga'] ) {
+                $class = ' sarga';
+            } else {
+                $munkanapok_szama++;
+            }
+
+            // Van-e esetleg az illetőnek másik szállodában már beosztása?
+            $data_jel = $data_szin = $data_ora = $data_tol = $data_ig = $jel = $szin = '';
+            $foglalt = $adatbazis_kapcsolat->s2('recid ora', 'beosztas_naptar', "`beosztas_nevek_recid` IN (SELECT `recid` FROM `".get_db_tabla()."beosztas_nevek` WHERE `torzsadat_recid`='{$nev['torzsadat_recid']}' AND `recid`!='{$nev['recid']}') AND `datum`='{$datum['datum']}'");
+            if( $foglalt ) {
+                $class .= ' foglalt';
+                $jel    = '✖';
+                $orak  += $foglalt['ora'];
+                $onclick = ' onclick="get_illeto_muszakja(\''.$foglalt['recid'].'\')"';
+            } else {
+                $class .= ' szerk';
+                foreach ( $naptar_adatok as $adat ) {
+                    if( $adat['datum'] == $datum['datum'] ) {
+                        $data_jel   = ' data-jel="'.$adat['jel'].'"';
+                        $data_szin  = ' data-szin="'.$adat['szin'].'"';
+                        $data_ora   = ' data-ora="'.$adat['ora'].'"';
+                        $data_tol   = ' data-tol="'.$adat['tol'].'"';
+                        $data_ig    = ' data-ig="'.$adat['ig'].'"';
+                        $jel        = $adat['jel'];
+                        $szin       = ' style="background-color: #'.$adat['szin'].'"';
+                        $orak += $adat['ora'];
+                        continue;
+                    }
+                }
+            }
+
+            $napok_td .= '<td class="'.$class.'" data-nev_id="'.$nev['recid'].'" data-datum="'.$datum['datum'].'"'.$data_jel.$data_szin.$data_ora.$data_tol.$data_ig.$szin.$onclick.'>'.$jel.'</td>';
+            $csv .= '='.csv_ellenorzes_letolt(iconv2($csv_mibol, $csv_mibe, $jel)).';';
+        }
+
+        // A tervórák első körben a munkanapok (nem sárga hátterűek) * 8 órával. Aztán majd lehet az illető aktuális napi munkaidejével szorozzuk fel.
+        $napi_munkaido = $adatbazis_kapcsolat->s2('ora', 'torzsadat_napi_munkaido', "`torzsadat_recid`='{$nev['torzsadat_recid']}' AND `datum`<='{$sor['ev']}-{$honap}-01'", 'datum desc', '1');
+
+        $terv_orak = $munkanapok_szama * $napi_munkaido['ora'];
+
+        $csv .= csv_ellenorzes_letolt(iconv2($csv_mibol, $csv_mibe, $terv_orak)).';';
+        $csv .= csv_ellenorzes_letolt(iconv2($csv_mibol, $csv_mibe, $orak)).';';
+        $csv .= csv_ellenorzes_letolt(iconv2($csv_mibol, $csv_mibe, $orak-$terv_orak)).';';
+        $csv .= "\n";
+        $jobb_oldal .= nl2('
+            <tr>
+                <td>'.$nev['nev'].'</td>
+                '.$napok_td.'
+                <td class="nowrap">'.number_format($terv_orak, 0, '', ' ').'</td>
+                <td class="nowrap">'.number_format($orak, 0, '', ' ').'</td>
+                <td class="nowrap">'.number_format($orak-$terv_orak, 0, '', ' ').'</td>
+            </tr>
+            ');
+    }
+
+    $jobb_oldal .= nl2('
+            </table>
+        </div>
+        ');
+    
+    return $jobb_oldal;
+}
+
+// CSV export fejléc központosítva
+function beosztas_csv_export_elokeszit($fajlnev) {
+    // CSV export előkészítése
+    header('Pragma: public');
+    header('Expires: 0');
+    header('Cache-Control: must-revalidate, post-check=0, pre-check=0');
+    header('Cache-Control: private', false);
+    header('Content-Type: application/octet-stream');
+    header('Content-Disposition: attachment; filename="'.$fajlnev.'.csv";');
+    header('Content-Transfer-Encoding: binary');
+    
+    $target  = CSV_EXPORT_UTVONAL_1;
+    if( !is_dir($target) ) {
+        mkdir($target);
+    }
+    $target .= CSV_EXPORT_UTVONAL_2;
+    if( !is_dir($target) ) {
+        mkdir($target);
+    }
+    
+    // Régi fájlok törlése
+    $fajlok = konyvtar_bejar($target);
+    foreach ( $fajlok as $fajl ) {
+        if( filemtime($fajl) < (time() - CSV_EXPORT_ELAVULAS) ) {
+            unlink($fajl);
+        }
+    }
+    
 }

@@ -2119,16 +2119,17 @@ function fixTable() {
             $('#fixTable .fht-tbody').height($('#tartalomJobb').height() - 50 - fHeader - fFooter);
             $('#fixTable table').fixedHeaderTable({
                 footer: true,
-                width: '100%',
+                width: 'auto', /* Ez itt 100% volt, de azért vettük le autora, mert Cash-flow táblázatnál, ha csak 2 hónapos volt a táblázat, azaz a képernyő 
+ *                              csak kis részét foglalta el, akkor hülyén nézett ki, hogy szétnyúlt 100%-ra. Pedig ilyen esetben is elő tud fodulni, hogy a fejléceket fixálni kell. */
                 create: function() {
                     $('#fixTable').find('.fht-thead thead tr th').each(function() {
-                        var width = $(this).outerWidth(),
+                        var width = $(this).outerWidth()+10/*A +10 azért kellett mert Cash-flow táblázatnál ha csak 2 hónapos volt a táblázat, azaz a képernyő csak kis részét foglalta el, akkor a fejlécek szélessége kicsivel kevesebb volt mint a többi sor oszlopszélességei. Így most jó. */,
                             index = $(this).index();
 
                         $('#fixTable .fht-tbody table tr th').eq(index).css({
                             'min-width': width,
                             'max-width': width,
-                            'width': width
+                            'width'    : width
                         });
                     });
 
@@ -2139,13 +2140,13 @@ function fixTable() {
                         $('#fixTable .fht-thead thead tr th').eq(index).css({
                             'min-width': width,
                             'max-width': width,
-                            'width': width
+                            'width'    : width
                         });
 
                         $('#fixTable .fht-tfoot tfoot tr td').eq(index).css({
                             'min-width': width,
                             'max-width': width,
-                            'width': width
+                            'width'    : width
                         });
                     });
                     
@@ -2160,7 +2161,13 @@ function fixTable() {
         if( PHP_SELF == 'cash_flow.php' ) {
             szelesseg = $(window).width()-$('#tartalomBal').width()-13;
         }
+        // Ha a táblázat nincs olyan széles mint a képernyő, akkor ne a képernyő szélén legyen a scroll
+        if( $('#fixTable table').width()<szelesseg ) {
+            szelesseg = $('#fixTable table').width()+18;
+        }
+        
         $('#fixTable').css('width', szelesseg+'px');
+
     }
 }
 
@@ -5979,6 +5986,11 @@ function csv_general( that, valasztos, link_kieg ) {
     }
 
     if (valasztos) {
+
+        // Cash-flow
+        if (baseName(location.href) == 'beosztas') {
+            alert2('Válasszon export fajtát:<br><a href="javascript:csv_general($(\'.excel\'), \'\')">» Beosztás lista</a><br><a href="'+PHP_SELF+'?csv&amp;tablazat" target="_blank">» Beosztás táblázat</a>', '<input type="button" class="gomb" value="Mégsem" onclick="alert2()">', 'Válasszon exportot');
+        }
 
         // Cash-flow
         if (baseName(location.href) == 'cash_flow') {

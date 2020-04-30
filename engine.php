@@ -2302,10 +2302,20 @@ function sablon_gyar($sablon_fajl, $sajat_mit = '', $sajat_mivel = '', $data_uri
 /**
 *	Self ($_SERVER["PHP_SELF"] rövidebben)
 *	
+*	@param bool: $basename: ha igaz, akkor basename()-elve adja vissza az adott oldal nevét
+*	@param bool: $kit_nelkul: ha igaz, akkor kiterjesztés nélkül adja vissza. (pl. sima aloldalnál a sajblon nevéhez jöhet jól: echo sablon_gyar(self('kiterjesztés nélkül').'.html', $mit, $mivel);
 *	@return string: $_SERVER["PHP_SELF"]
 */
-function self(){
-	return $_SERVER['PHP_SELF'];
+function self($basename = false, $kit_nelkul = false) {
+    $self = $_SERVER['PHP_SELF'];
+    if( $basename ) {
+        $pathinfo = pathinfo($self);
+        $self = $pathinfo['basename'];
+        if( $kit_nelkul ) {
+            $self = $pathinfo['filename'];
+        }
+    }
+    return $self;
 }
 
 /**
