@@ -8087,6 +8087,9 @@ require('selectek.php');
             }
             $szamla_html .= '<script> formAdatok = JSON.parse(\''.json_encode($json_sor).'\'); </script>';
 
+            // Ha duplikálunk egy meglévő ML-ot, akkor még előfordulhat, hogy az idézőjelekkel gond van, ezért mégegyszer visszakonvertáljuk.
+            $_SESSION['text'] = htmlspecialchars_decode($_SESSION['text']);
+            
             // Ez elkészíti a $mezok változót
             require('switch.php');
 
@@ -8171,6 +8174,8 @@ require('selectek.php');
         foreach($sor as $kulcs => $elem){
             $json_sor[$kulcs] = formAdatok_replace($elem);
         }
+        
+        $sor['text'] = htmlspecialchars_decode($sor['text']);
 
         $szamla_html .= '<script> formAdatok = JSON.parse(\''.json_encode($json_sor).'\'); </script>';
 
@@ -8206,6 +8211,8 @@ require('selectek.php');
 				$sor[$ertek['name']] = $_SESSION[$ertek['name']];
 			}
 		}
+        
+        
 
 		// Ez elkészíti a $mezok változót
 		require('switch.php');
