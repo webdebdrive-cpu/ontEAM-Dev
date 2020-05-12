@@ -694,10 +694,10 @@ if( isset($_POST['projekt_felfuggeszt']) ) {
     if( $sql === false ) { $db_error = true; }
     
     // Státusz ellenőrzése
-    $statuszok = array(PRKEZEL_STAT_NYITOTT, PRKEZEL_STAT_ELOKESZITES_ALATT);
+    $statuszok = array(PRKEZEL_STAT_NYITOTT, PRKEZEL_STAT_ELOKESZITES_ALATT, PRKEZEL_STAT_FOLYAMATBAN);
     if( !in_array($sor['stat_id'], $statuszok) ){
         echo json_encode(array(
-            'hiba'  => 'Csak Nyitott és Előkészítés alatt státuszú projekt függeszthető fel!',
+            'hiba'  => 'Csak Nyitott, Előkészítés alatt és Folyamatban státuszú projekt függeszthető fel!',
             'title' => 'Hiba',
         ));
 
@@ -2194,7 +2194,7 @@ require_once('selectek.php');
         }
         
         // Felfüggesztés
-        $statuszok = array(PRKEZEL_STAT_NYITOTT, PRKEZEL_STAT_ELOKESZITES_ALATT);
+        $statuszok = array(PRKEZEL_STAT_NYITOTT, PRKEZEL_STAT_ELOKESZITES_ALATT, PRKEZEL_STAT_FOLYAMATBAN);
         if( in_array($sor['stat_id'], $statuszok) && _jog( JOG_PRKEZEL_FELFUGGESZTES ) ) {
             $gombok .= '<input type="button" class="gomb modositaskor_rejt" value="Felfüggesztés" onclick="csoportMuvelet(\'projektkezeles_felfuggeszt\')"> ';
         }

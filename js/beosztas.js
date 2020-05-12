@@ -1,3 +1,8 @@
+// Kezdjük azzal, hogy a tálbázatot rendbe tesszük 
+// (főleg sok soros táblázatnál, alacsony magasságú képernyőnél szükséges ez).
+$(document).ready(function () {
+    fixTable();
+});
 $(document).on('click', '.szerk', function(e) {
     
     if( !$('#muszak').val() ) {

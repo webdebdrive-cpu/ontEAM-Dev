@@ -1,0 +1,73 @@
+<style type="text/css">
+    .kozep {
+        max-height: 40rem;
+        overflow-y: auto;
+    }
+</style>
+<h2>Személyzet törlése</h2>
+<div class="kozep" id="tablazat"></div>
+<div class="kuldes">
+    <input type="submit" name="elkuld" value="Törlés" onclick="szemelyzet_torles()">
+    <input type="button" name="megsem" class="gombb_alert" value="Mégsem" onclick="popupZar();">
+</div>
+<script>
+
+$.ajax({
+    url : PHP_SELF,
+    type: 'POST',
+    data: {
+        beosztas_recid      : _get('id'),
+        get_szemelyzet_torol: Date.now()
+    },
+    success: function(response){
+        if( response ) {
+            response = JSON.parse(response);
+
+            $('#tablazat').html(response.html);
+
+        }
+    }
+});
+
+// Kiválasztott személyzetek hozzáadása
+function szemelyzet_torles (mehet) {
+    
+    var recidk = '';
+    var nevek  = '';
+    $('.szemelyzet_torol').each(function() {
+        if( $(this).prop('checked') ) {
+            recid  = $(this).attr('data-recid');
+            recidk += recid+',';
+            nevek  += $('.torzs_nev_'+recid).html()+'<br>';
+        }
+    });
+    
+    if( !recidk ) {
+        alert2('Kérem jelöljön meg legalább egy személyt!', '', 'Hiba');
+        return false;
+    }
+    
+    if( !mehet ) {
+        nevek = '';
+        alert2(nevek+'Biztos, hogy törli a beosztásból?', 
+                '<input type="button" class="gomb zold" value="Igen" onclick="szemelyzet_torles(\'mehet\')"> <input type="button" class="gomb piros" value="Nem" onclick="alert2();">', 'Kérdés');
+        return false;
+    }
+
+    
+    $.ajax({
+        url : PHP_SELF,
+        type: 'POST',
+        data: {
+            recidk              : recidk,
+            beosztas_recid      : _get('id'),
+            szemelyzet_torles   : Date.now()
+        },
+        success: function(response){
+            szamlaBetolt(_get('id'), PHP_SELF, 'modosit');
+            popupZar();
+        }
+    });
+}
+
+</script>

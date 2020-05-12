@@ -202,6 +202,156 @@ if( isset($_POST['get_illeto_muszakja']) ) {
     exit;   
 }
 
+// Személyzet lista azokról, akik hozzáadhatóak
+// Akik szerepköre telepített vagy mobil vagy diszpécser és van többszállodás modellű szállodája és benne vannak a személyzet táblában DE nincsenek benne az aktuális beosztás táblában.
+if( isset($_POST['get_szemelyzet_hozzaad']) ) {
+    
+    // Vegyük azokat a telephelyeket, amik adott felhasználóhoz tartoznak ÉS többszállodások
+    $telephelyek = $adatbazis_kapcsolat->s('id', 'telephely', "`id` IN (".implode(', ', get_akt_login_szallodai()).") AND `modell`=1");
+    $telephelyek = adatbazis2tomb($telephelyek, 'id');
+
+    // A hozzám tartozó szállodákhoz tartozó telepített személyek (akik Aktívak, nem virtuálisak)
+    $login_nevek  = $adatbazis_kapcsolat->s('DISTINCT `nev`', 'telephely_kapcs', "`telephely_id` IN (".implode(', ', $telephelyek).")");
+    $login_nevek  = adatbazis2tomb($login_nevek, 'nev');
+
+    // Telepített személyek, akik Aktívak, nem virtuálisak
+    $felhasznalok = $adatbazis_kapcsolat->s('nev', 'login', "`nev` IN ('". implode('\', \'', $login_nevek)."') AND `szemelyzet_id` IN ('".TELEPITETT_SZEMELYZET."', '".MOBILCSOPORT."') AND `aktiv`=1 AND `virtual`=0");
+    $felhasznalok = adatbazis2tomb($felhasznalok, 'nev');
+
+    // Kik a már hozzáadott felhasználók
+    $hozzaadott_nevek = $adatbazis_kapcsolat->s('torzsadat_recid', 'beosztas_nevek', "`beosztas_recid`='{$_POST['beosztas_recid']}'");
+    $hozzaadott_nevek = adatbazis2tomb($hozzaadott_nevek, 'torzsadat_recid');
+    $sql_kieg = '';
+    if( $hozzaadott_nevek ) {
+        $sql_kieg = " AND `recid` NOT IN (".implode(',', $hozzaadott_nevek).")";
+    }
+
+    $html = nl2('
+        <table class="csikos">
+        <tr>
+            <th></th>
+            <th>Név</th>
+            <th>Szerepkör</th>
+            <th>Utolsó beosztás helye</th>
+        </tr>
+        ');
+    $torzsadatok = $adatbazis_kapcsolat->s('recid nev felh_loginnev', 'torzsadat', "`felh_loginnev` IN ('". implode('\', \'', $felhasznalok)."'){$sql_kieg}", 'sor, nev');
+    if( !$torzsadatok ) {
+        echo json_encode(
+                            array(
+                                'hiba'  => 'Jelenleg nem található további személyzet!',
+                                'title' => 'Hiba',
+                                )
+                        );
+        $weblap -> leallit();
+        exit;
+    }
+    foreach( $torzsadatok as $torzsadat ) {
+        
+        $utolso_beosztas_szalloda = '';
+        $utolso_beosztas = $adatbazis_kapcsolat->s2('beosztas_recid', 'beosztas_nevek', "`torzsadat_recid`='{$torzsadat['recid']}'", 'insert_dt desc', '1');
+        if( $utolso_beosztas ) {
+            $beosztas = $adatbazis_kapcsolat->s2('telephely_id', 'beosztas', "`recid`='{$utolso_beosztas['beosztas_recid']}'");
+            $utolso_beosztas_szalloda = getSzallodaNev($beosztas['telephely_id']);
+        }
+        
+        $login  = $adatbazis_kapcsolat->s2('szemelyzet_id', 'login', "`nev`='{$torzsadat['felh_loginnev']}'");
+        $html .= nl2('
+            <tr>
+                <td>
+                    <div class="cb">
+                        <input type="checkbox" id="torzs_'.$torzsadat['recid'].'" class="szemelyzet_hozzaad" data-recid="'.$torzsadat['recid'].'">
+                        <label for="torzs_'.$torzsadat['recid'].'"></label>
+                    </div>
+                </td>
+                <td class="l">'.$torzsadat['nev'].'</td>
+                <td class="l">'.getSzerepkorNev($login['szemelyzet_id']).'</td>
+                <td class="l">'.$utolso_beosztas_szalloda.'</td>
+            </tr>
+            ');
+    }
+    $html .= nl2('</table>');
+    
+    echo json_encode(array('html' => $html));
+    
+    $weblap -> leallit();
+    exit;   
+}
+
+// Személyzet felvétele a listára
+if( isset($_POST['szemelyzet_hozzaad']) ) {
+    
+    $_POST['recidk'] = trim($_POST['recidk'], ',');
+    $szemelyek = explode(',', $_POST['recidk']);
+    $_SESSION['friss_szemelyek'] = $szemelyek;
+    foreach( $szemelyek as $szemely ) {
+        
+        $torzsadat  = $adatbazis_kapcsolat->s2('nev sor felh_loginnev', 'torzsadat', "`recid`='{$szemely}'");
+        if( $torzsadat ) {
+            $login      = $adatbazis_kapcsolat->s2('szemelyzet_id', 'felh', "`nev`='{$torzsadat['nev']}'");
+            $mobilos = '';
+            if( $login['szemelyzet_id'] == MOBILCSOPORT ) {
+                $mobilos = 1;
+            }
+
+            $adatbazis_kapcsolat->i('beosztas_nevek',   array('beosztas_recid',         'torzsadat_recid',  'nev',              'mobilos', 'sor',               'insert_dt', 'insert_usr',                           'update_usr'                           ),
+                                                        array($_POST['beosztas_recid'], $szemely,           $torzsadat['nev'],  $mobilos,  $torzsadat['sor'],   'NOW()',     $_SESSION[get_db_tabla().'teljes_nev'], $_SESSION[get_db_tabla().'teljes_nev'] )
+                                    );
+        }
+    }
+    
+    $weblap -> leallit();
+    exit;  
+}
+
+
+// Személyzet lista törléshez
+if( isset($_POST['get_szemelyzet_torol']) ) {
+    
+    // Kik a már hozzáadott felhasználók
+    $html = nl2('
+        <table class="csikos">
+        <tr>
+            <th></th>
+            <th class="l">Név</th>
+        </tr>
+        ');
+    $beosztas_nevek = $adatbazis_kapcsolat->s('recid nev', 'beosztas_nevek', "`beosztas_recid`='{$_POST['beosztas_recid']}'", 'mobilos, sor, nev');
+    foreach( $beosztas_nevek as $beosztas_nev ) {
+        
+        $html .= nl2('
+            <tr>
+                <td>
+                    <div class="cb">
+                        <input type="checkbox" id="torzs_'.$beosztas_nev['recid'].'" class="szemelyzet_torol" data-recid="'.$beosztas_nev['recid'].'">
+                        <label for="torzs_'.$beosztas_nev['recid'].'"></label>
+                    </div>
+                </td>
+                <td class="l" class="torzs_nev_'.$beosztas_nev['recid'].'">'.$beosztas_nev['nev'].'</td>
+            </tr>
+            ');
+    }
+    $html .= nl2('</table>');
+    
+    echo json_encode(array('html' => $html));
+    
+    $weblap -> leallit();
+    exit;   
+}
+
+
+// Személyzet felvétele a listára
+if( isset($_POST['szemelyzet_torles']) ) {
+    
+    $szemelyek = trim($_POST['recidk'], ',');
+    if( $szemelyek ) {
+        $adatbazis_kapcsolat->d('beosztas_nevek', "`recid` IN ({$szemelyek})");
+        $adatbazis_kapcsolat->d('beosztas_naptar', "`beosztas_nevek_recid` IN ({$szemelyek}) AND `beosztas_recid`='{$_POST['beosztas_recid']}'");
+    }
+    
+    $weblap -> leallit();
+    exit;  
+}
 
 // CSV generálása
 if( isset($_GET['csv']) ) {
@@ -346,7 +496,7 @@ require_once('selectek.php');
         );
     }
 
-    // Gombok kirajzolása minden oldalra
+    // Gombok kirajzolása
     $gombok = '';
     if( isset($_GET['uj']) ) {
         // Gombok
@@ -436,6 +586,16 @@ require_once('selectek.php');
         $mobil_sorrend_gomb = '';
         if( $sor['telephely_id'] == TELEPHELY_SZK ) {
             $mobil_sorrend_gomb = '<input type="button" class="gomb" value="Nevek rendezése" onclick="csoportMuvelet(\'beosztas_nevek_rendez\');">';
+        }
+        
+        // Ha adott felhasználónak van többszállodás szállodája, akkor: Személyzet hozzáadása gomb megjelenítése
+        $szallodak = get_akt_login_szallodai();
+        if( $szallodak ) {
+            $tobbszallodas = $adatbazis_kapcsolat->s('recid', 'telephely', "`id` IN (". implode(', ', $szallodak).") AND `modell`='1'");
+            if( $tobbszallodas ) {
+                $gombok .= '<input type="button" class="gomb" value="Személyzet hozzáadása" onclick="csoportMuvelet(\'beosztas_szemelyzet_hozzaad\');"> ';
+                $gombok .= '<input type="button" class="gomb" value="Személyzet törlése" onclick="csoportMuvelet(\'beosztas_szemelyzet_torol\');">';
+            }
         }
         
         if( _jog(JOG_BEOSZTASOK_KEZEL) || _jog(JOG_MSZK_BEOSZTAS_KEZEL) ) {
@@ -714,9 +874,9 @@ function get_beosztas_tablazat( $sor ) {
             <tr>
                 <th>Név</th>
                 '.$napok_th.'
-                <th>Terv<br>óra</th>
-                <th>Tény<br>óra</th>
-                <th>Egyenleg</th>
+                <th title="Munkanapok száma * napi munkaórák száma">Terv<br>óra</th>
+                <th title="Adott sorban található tényleges munkaórák száma">Tény<br>óra</th>
+                <th title="Tény órák - Terv órák száma">Egyenleg</th>
             </tr>
         ');
 
@@ -812,8 +972,14 @@ function get_beosztas_tablazat( $sor ) {
         $csv .= csv_ellenorzes_letolt(iconv2($csv_mibol, $csv_mibe, $orak)).';';
         $csv .= csv_ellenorzes_letolt(iconv2($csv_mibol, $csv_mibe, $orak-$terv_orak)).';';
         $csv .= "\n";
+        
+        $uj = '';
+        if( in_array($nev['torzsadat_recid'], $_SESSION['friss_szemelyek']) ) {
+            $uj = ' class="uj"';
+        }
+        
         $jobb_oldal .= nl2('
-            <tr>
+            <tr'.$uj.'>
                 <td>'.$nev['nev'].'</td>
                 '.$napok_td.'
                 <td class="nowrap">'.number_format($terv_orak, 0, '', ' ').'</td>
@@ -831,6 +997,9 @@ function get_beosztas_tablazat( $sor ) {
     // A csak 0-ás cellák elől vegyük le az egyenlődég jelet
     $csv = str_replace('="0"', '0', $csv);
     fajlba_mentes('csv/beosztas_tablazat'.session_id().'.csv',  $csv);
+    
+    // Kirajzolás után többé nem számít újnak az új
+    unset( $_SESSION['friss_szemelyek'] );
     
     return $jobb_oldal;
 }

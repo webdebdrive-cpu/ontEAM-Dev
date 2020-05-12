@@ -1,0 +1,70 @@
+<style type="text/css">
+    .kozep {
+        max-height: 40rem;
+        overflow-y: auto;
+    }
+</style>
+<h2>Személyzet hozzáadása</h2>
+<div class="kozep" id="tablazat"></div>
+<div class="kuldes">
+    <input type="submit" name="elkuld" value="Hozzáad" onclick="szemelyzet_hozzaad()">
+    <input type="button" name="megsem" class="gombb_alert" value="Mégsem" onclick="popupZar();">
+</div>
+<script>
+$(document).ready(function(){
+    $.ajax({
+        url : PHP_SELF,
+        type: 'POST',
+        data: {
+            beosztas_recid          : _get('id'),
+            get_szemelyzet_hozzaad  : Date.now()
+        },
+        success: function(response){
+            if( response ) {
+                response = JSON.parse(response);
+                
+                if( response.hiba ) {
+                    alert2(response.hiba, response.gomb, response.title);
+                    popupZar();
+                } else {
+                    $('#tablazat').html(response.html);
+                }
+                
+            }
+        }
+    });
+});
+
+// Kiválasztott személyzetek hozzáadása
+function szemelyzet_hozzaad () {
+    
+    var recidk = '';
+    $('.szemelyzet_hozzaad').each(function() {
+        if( $(this).prop('checked') ) {
+            recidk += $(this).attr('data-recid')+',';
+        }
+    });
+    
+    if( !recidk ) {
+        alert2('Kérem jelöljön meg legalább egy személyt!', '', 'Hiba');
+        return false;
+    }
+
+    
+    $.ajax({
+        url : PHP_SELF,
+        type: 'POST',
+        data: {
+            recidk              : recidk,
+            beosztas_recid      : _get('id'),
+            szemelyzet_hozzaad  : Date.now()
+        },
+        success: function(response){
+            szamlaBetolt(_get('id'), PHP_SELF, 'modosit');
+            popupZar();
+        }
+    });
+}
+
+
+</script>

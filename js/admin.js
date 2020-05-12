@@ -2111,7 +2111,7 @@ function fixTable() {
         // Ha a táblázat megasabb mint a képernyő magassága, akkor is újra kell számolni
         if( tartalomScrollHeight > tartalomHeight || $('#fixTable').height > $('#tartalomJobb').height() ) {
 
-            $('#fixTable').height($('#tartalomJobb').height() - 50);
+            $('#fixTable').height($('#tartalomJobb').height() - 150);
 
             var fHeader = $('#fixTable .fht-thead').height();
             var fFooter = $('#fixTable .fht-tfoot').height();
