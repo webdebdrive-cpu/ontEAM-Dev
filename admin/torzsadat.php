@@ -128,6 +128,18 @@ if( isset($_POST['munkaido_torol']) ) {
     exit;
 }
 
+// Saját beosztás táblázat kirajzolása
+if( isset($_POST['sajat_beosztas_mutat']) ) {
+    
+    $tomb = array('ev' => $_POST['ev'], 'ho' => $_POST['ho']);
+    echo json_encode(
+                        array('html' => get_beosztas_tablazat_torzsadathoz($tomb, $_POST['torzsadat_id']))
+                    );
+    
+    $weblap -> leallit();
+    exit;
+}
+
 // CSV generálása
 if( isset($_GET['csv']) ) {
 
@@ -513,7 +525,40 @@ require_once('selectek.php');
 	// Beosztások
     } elseif( isset($_GET['beosztasok']) ) {
 
-        $szamla_html .= 'Beosztások felülete';
+        
+        // A táblázat formázása miatt meghívjuk ezt a CSS-t
+        $szamla_html .= '<link href="../css/beosztas.css" rel="stylesheet" type="text/css">';
+        
+        $evek_tol = 2020;
+        $evek_ig  = 2030;
+        $evek_select = '<select id="ev" class="csillag disableNav" style="margin-right: 2rem">';
+        $evek_select .= '<option value="">- Válasszon -</option>';
+        for( $i = $evek_tol; $i<$evek_ig; $i++ ) {
+            $selected = '';
+            if( $i == date('Y') ) {
+                $selected = ' selected';
+            }
+            $evek_select .= '<option'.$selected.' value="'.$i.'">'.$i.'</option>';
+        }
+        $evek_select .= '</select>';
+        
+        $honap_select = '<select id="ho" class="csillag disableNav" style="margin-right: 2rem">';
+        foreach( $select_honapok as $honap ){
+            $selected = '';
+            if( $honap['value'] == date('n') ) {
+                $selected = ' selected';
+            }
+            $honap_select .= '<option'.$selected.' value="'.$honap['value'].'">'.$honap['name'].'</option>';
+        }
+        $honap_select .= '</select>';
+        
+        
+        $szamla_html .= nl2('
+                            Év: '.$evek_select.'
+                            Hó: '.$honap_select.'
+                            <input type="button" value="Mutat" class="gomb alacsony" onclick="sajat_beosztas_mutat()">
+                            <div id="tablazat"></div>
+                        ');
 
         if( $_GET['ajax'] ) {
             echo json_encode(array(
@@ -525,7 +570,7 @@ require_once('selectek.php');
         }
 
 	// Szabadságok
-	}elseif(isset($_GET['szabadsag'])){
+    } elseif( isset($_GET['szabadsag']) ) {
 
         $szamla_html .= 'Szabadság felülete';
 
@@ -566,7 +611,7 @@ require_once('selectek.php');
         }
 
 	// Megjegyzések
-	}elseif(isset($_GET['megjegyzesek'])){
+    } elseif( isset($_GET['megjegyzesek']) ) {
 
         // <div class="dt naplo" class nevekből a kijCont kivéve, hogy a megjegyzéseket ne lehessen törölni
         $szamla_html .= nl2('
@@ -612,4 +657,141 @@ require_once('selectek.php');
 
 if( !$_GET['ajax'] ) {
     require_once('footer.php');
+}
+
+
+// Beosztás táblázat kirajzolása központosítva, nyomtatási nézet miatt
+function get_beosztas_tablazat_torzsadathoz( $sor, $torzsadat_id ) {
+    
+    global $adatbazis_kapcsolat;
+    
+    $napok_th = '';
+    $honap = $sor['ho'];
+    if( $honap<10 ) {
+        $honap = '0'.$honap;
+    }
+    // Ünnepnapok és helyettesítő napokat felvesszük egy tömbbe
+    $unnepnapok         = $adatbazis_kapcsolat->s('datum', 'beosztas_unnepnapok', "`datum` LIKE '{$sor['ev']}-{$honap}%' AND `tipus` IN (".BEOSZTAS_UNNEPNAP_MUNKASZUNET.", ".BEOSZTAS_UNNEPNAP_PIHENO.")");
+    $unnepnapok         = adatbazis2tomb($unnepnapok, 'datum');
+    $helyettesito_napok = $adatbazis_kapcsolat->s('datum', 'beosztas_unnepnapok', "`datum` LIKE '{$sor['ev']}-{$honap}%' AND `tipus` IN (".BEOSZTAS_UNNEPNAP_HELYETTES.")");
+    $helyettesito_napok = adatbazis2tomb($helyettesito_napok, 'datum');
+
+    $datumok_tomb = array();
+    $napok_szama = date('t', strtotime($sor['ev'].'-'.$honap.'-01'));
+    for( $i = 0; $i<$napok_szama; $i++ ) {
+
+        $nap = $nap_nulakkal = $i+1;
+        if( $nap_nulakkal<10 ) {
+            $nap_nulakkal = '0'.$nap_nulakkal;
+        }
+
+        $sarga = '';
+        $datum = $sor['ev'].'-'.$honap.'-'.$nap_nulakkal;
+        // Szombat vasárnap kiemelve
+        $het_napja = date('w', strtotime($sor['ev'].'-'.$honap.'-'.$nap_nulakkal));
+        if( ($het_napja == 0 || $het_napja == 6) && !in_array($datum, $helyettesito_napok) ) {
+            $sarga = ' class="sarga"';
+
+        // Ünnepnapok szintúgy
+        } else if( in_array($datum, $unnepnapok) ) {
+            $sarga = ' class="sarga"';
+        }
+        array_push($datumok_tomb, array('datum' => $sor['ev'].'-'.$honap.'-'.$nap_nulakkal, 'sarga' => $sarga));
+
+        $nap_neve = nap_neve($sor['ev'], $honap, $nap_nulakkal);
+        $napok_th .= '<th'.$sarga.'>'.$nap.'<br>'.$nap_neve.'</th>';
+    }
+
+    $jobb_oldal .=
+        nl2('
+        <div id="fixTable">
+            <table class="beosztas">
+            <tr>
+                '.$napok_th.'
+                <th title="Munkanapok * napi munkaidő">Terv<br>óra</th>
+                <th title="Beosztott napok * műszakok óraszáma">Tény<br>óra</th>
+                <th title="Tény órák - terv órák">Egyenleg</th>
+            </tr>
+        ');
+    
+    $muszakok         = array();
+    $szabadnapok      = array();
+    $napok_td         = '';
+    $orak             = 0;
+    $munkanapok_szama = 0;
+    foreach( $datumok_tomb as $datum ) {
+        
+        $naptar_adatok = $adatbazis_kapcsolat->s2('*', 'beosztas_naptar', "`beosztas_nevek_recid` IN (SELECT `recid` FROM `".get_db_tabla()."beosztas_nevek` WHERE `torzsadat_recid`='{$torzsadat_id}') AND `datum`='{$datum['datum']}'");
+        
+        array_push($muszakok, $naptar_adatok['beosztas_muszak_recid']);
+        if( !$naptar_adatok['beosztas_muszak_recid'] && $naptar_adatok['jel'] ) {
+            array_push($szabadnapok, $naptar_adatok['jel']);
+        }
+        
+        $class   = '';
+        if( $datum['sarga'] ) {
+            $class = ' sarga';
+        } else {
+            $munkanapok_szama++;
+        }
+        
+        $szin = '';
+        if( $naptar_adatok['szin'] ) {
+            $szin = ' style="background-color: #'.$naptar_adatok['szin'].'"';
+        }
+        $orak += $naptar_adatok['ora'];
+
+        $napok_td .= '<td class="'.$class.'"'.$szin.'>'.$naptar_adatok['jel'].'</td>';
+    }
+
+    // A tervórák első körben a munkanapok (nem sárga hátterűek) * 8 órával. Aztán majd lehet az illető aktuális napi munkaidejével szorozzuk fel.
+    $napi_munkaido = $adatbazis_kapcsolat->s2('ora', 'torzsadat_napi_munkaido', "`torzsadat_recid`='{$torzsadat_id}' AND `datum`<='{$sor['ev']}-{$honap}-01'", 'datum desc', '1');
+
+    $terv_orak = $munkanapok_szama * $napi_munkaido['ora'];
+
+    $jobb_oldal .= nl2('
+        <tr>
+            '.$napok_td.'
+            <td class="nowrap">'.number_format($terv_orak, 0, '', ' ').'</td>
+            <td class="nowrap">'.number_format($orak, 0, '', ' ').'</td>
+            <td class="nowrap">'.number_format($orak-$terv_orak, 0, '', ' ').'</td>
+        </tr>
+        ');
+
+    $jobb_oldal .= nl2('
+            </table>
+        </div>
+        ');
+    
+    // Műszakok összestése
+    if( $muszakok || $szabadnapok ) {
+        $jobb_oldal .= nl2('
+            <h2 style="margin-top: 2rem;">Műszakok</h2>
+            <div class="muszakok">
+            ');
+        $muszakok = array_unique($muszakok);
+        foreach( $muszakok as $muszak ) {
+            if( $muszak['beosztas_muszak_recid'] ) {
+                $muszak = $adatbazis_kapcsolat->s2('*', 'beosztas_muszak', "`recid`='{$muszak['beosztas_muszak_recid']}'");
+                $jobb_oldal .= '<div>'.getSzallodaNev($muszak['telephely_id']).' <span style="background: #'.$muszak['szin'].'; padding: 0 1rem;">'.$muszak['nev'].' ('.$muszak['jel'].' '.$muszak['tol'].'-'.$muszak['ig'].')<span></div>';
+            }
+        }
+        
+        $szabadnapok = array_unique($szabadnapok);
+        foreach( $szabadnapok as $szabadnap ) {
+            if( $szabadnap == BEOSZTAS_FIX_BETEGSEG_JEL ) {
+                $jobb_oldal .= '<div>Betegség (B)</div>';
+            }
+            if( $szabadnap == BEOSZTAS_FIX_PIHENONAP_JEL ) {
+                $jobb_oldal .= '<div>Pihenőnap (P)</div>';
+            }
+            if( $szabadnap == BEOSZTAS_FIX_SZABADNAP_JEL ) {
+                $jobb_oldal .= '<div>Szabadnap (SZ)</div>';
+            }
+        }
+        $jobb_oldal .= nl2('</div>');
+        
+    }
+    
+    return $jobb_oldal;
 }

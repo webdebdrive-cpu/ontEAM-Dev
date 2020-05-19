@@ -11326,3 +11326,11 @@ function projekt_munkalap_levesz($ml_id, $ml_tipus = '', $ml_stornoz = '') {
     }
     
 }
+
+// A nap nevét visszaadó függvény
+function nap_neve($ev, $ho, $nap) {
+    $mit   = array('Mon', 'Tue',  'Wed', 'Thu',  'Fri', 'Sat', 'Sun');
+    $mivel = array('Hét', 'Ke',   'Sze', 'Csü',  'Pén', 'Szo', 'Vas');
+    $angolul = date('D', strtotime($ev.'-'.$ho.'-'.$nap));
+    return str_replace($mit, $mivel, $angolul);
+}

@@ -1,7 +1,7 @@
 <?php
 /*                                                  *\
  * FONTOS:
- * 134-es ID-nál járunk
+ * 135-es ID-nál járunk
  * 13-as kategória ID-nál járunk
 \*                                                  */
 
@@ -93,14 +93,15 @@ $jogosultsagok = array(
     55 => array('nev' => 'Eseti fenntartás kezelése',    'kat' => 9, 'sor' => 2),
     82 => array('nev' => 'Törlés',                       'kat' => 9, 'sor' => 3),
     
-    25 => array('nev' => 'Törzsadatok olvasása',        'kat' => 4, 'sor' => 1),
-    26 => array('nev' => 'Törzsadatok kezelése',        'kat' => 4, 'sor' => 2),
-    27 => array('nev' => 'Szabadságigények olvasása',   'kat' => 4, 'sor' => 3),
-    28 => array('nev' => 'Szabadságigények kezelése',   'kat' => 4, 'sor' => 4),
-    29 => array('nev' => 'Beosztások olvasása',         'kat' => 4, 'sor' => 5),
-    30 => array('nev' => 'Beosztások kezelése',         'kat' => 4, 'sor' => 6),
-    133=> array('nev' => 'MSzK beosztás olvasása',      'kat' => 4, 'sor' => 7),
-    134=> array('nev' => 'MSzK beosztás kezelése',      'kat' => 4, 'sor' => 8),
+    25 => array('nev' => 'Törzsadatok megtekintése',        'kat' => 4, 'sor' => 1),
+    26 => array('nev' => 'Törzsadatok kezelése',            'kat' => 4, 'sor' => 2),
+    135=> array('nev' => 'Saját törzsadatok megtekintése',  'kat' => 4, 'sor' => 3),
+    27 => array('nev' => 'Szabadságigények megtekintése',   'kat' => 4, 'sor' => 4),
+    28 => array('nev' => 'Szabadságigények kezelése',       'kat' => 4, 'sor' => 5),
+    29 => array('nev' => 'Beosztások megtekintése',         'kat' => 4, 'sor' => 6),
+    30 => array('nev' => 'Beosztások kezelése',             'kat' => 4, 'sor' => 7),
+    133=> array('nev' => 'MSzK beosztás megtekintése',      'kat' => 4, 'sor' => 8),
+    134=> array('nev' => 'MSzK beosztás kezelése',          'kat' => 4, 'sor' => 9),
     
     123=> array('nev' => 'Új létrehozása',                          'kat' => 7, 'sor' => 0),
     39 => array('nev' => 'Saját igénylések kezelése',               'kat' => 7, 'sor' => 1),

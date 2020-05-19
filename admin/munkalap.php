@@ -2818,7 +2818,7 @@ if( isset($_POST['kulsokivHozzarend']) ) {
             mysqli_commit($db_kapcs);
             
             // Javaslattételkor levélküldés
-            if(isset($_POST['javaslattetel'])) {
+            if( isset($_POST['javaslattetel']) ) {
                 $hiba = '';
                 $valasz = level_felkeszit_es_kuld('munkalap', $recid, ERT_MUNK_KK_JT_UTAN, 'munkalapKkJtUtan', '_jog'.JOG_MUNKALAP_KULSOS_DONTES);
                 if( substr($valasz, 0, 4)=='Hiba' ){

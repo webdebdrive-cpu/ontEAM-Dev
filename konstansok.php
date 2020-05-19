@@ -252,6 +252,7 @@ define('JOG_MUNKALAP_TOROL',            68);
 define('JOG_MUNKALAP_ANYAG_ERKEZTET',   70);
 define('JOG_TORZSADAT_MEGTEKINT',       25);
 define('JOG_TORZSADAT_KEZEL',           26);
+define('JOG_TORZSADAT_SAJAT_MEGTEKINT',135);
 define('JOG_SZABADSAGIG_MEGTEKINT',     27);
 define('JOG_SZABADSAGIG_KEZEL',         28);
 define('JOG_BEOSZTASOK_MEGTEKINT',      29);

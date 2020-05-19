@@ -215,7 +215,7 @@ if( isset($_POST['get_szemelyzet_hozzaad']) ) {
     $login_nevek  = adatbazis2tomb($login_nevek, 'nev');
 
     // Telepített személyek, akik Aktívak, nem virtuálisak
-    $felhasznalok = $adatbazis_kapcsolat->s('nev', 'login', "`nev` IN ('". implode('\', \'', $login_nevek)."') AND `szemelyzet_id` IN ('".TELEPITETT_SZEMELYZET."', '".MOBILCSOPORT."') AND `aktiv`=1 AND `virtual`=0");
+    $felhasznalok = $adatbazis_kapcsolat->s('nev', 'login', "`nev` IN ('". implode('\', \'', $login_nevek)."') AND `szemelyzet_id` IN ('".TELEPITETT_SZEMELYZET."', '".MOBILCSOPORT."', '".DISZPECSER."') AND `aktiv`=1 AND `virtual`=0");
     $felhasznalok = adatbazis2tomb($felhasznalok, 'nev');
 
     // Kik a már hozzáadott felhasználók
@@ -235,7 +235,7 @@ if( isset($_POST['get_szemelyzet_hozzaad']) ) {
             <th>Utolsó beosztás helye</th>
         </tr>
         ');
-    $torzsadatok = $adatbazis_kapcsolat->s('recid nev felh_loginnev', 'torzsadat', "`felh_loginnev` IN ('". implode('\', \'', $felhasznalok)."'){$sql_kieg}", 'sor, nev');
+    $torzsadatok = $adatbazis_kapcsolat->s('recid nev felh_loginnev', 'torzsadat', "`felh_loginnev` IN ('". implode('\', \'', $felhasznalok)."'){$sql_kieg}", 'nev');
     if( !$torzsadatok ) {
         echo json_encode(
                             array(
@@ -327,7 +327,7 @@ if( isset($_POST['get_szemelyzet_torol']) ) {
                         <label for="torzs_'.$beosztas_nev['recid'].'"></label>
                     </div>
                 </td>
-                <td class="l" class="torzs_nev_'.$beosztas_nev['recid'].'">'.$beosztas_nev['nev'].'</td>
+                <td class="l torzs_nev_'.$beosztas_nev['recid'].'">'.$beosztas_nev['nev'].'</td>
             </tr>
             ');
     }
@@ -782,14 +782,6 @@ if( !$_GET['ajax'] ) {
     require_once('footer.php');
 }
 
-// A nap nevét visszaadó függvény
-function nap_neve($ev, $ho, $nap) {
-    $mit   = array('Mon', 'Tue',  'Wed', 'Thu',  'Fri', 'Sat', 'Sun');
-    $mivel = array('Hét', 'Ke',   'Sze', 'Csü',  'Pén', 'Szo', 'Vas');
-    $angolul = date('D', strtotime($ev.'-'.$ho.'-'.$nap));
-    return str_replace($mit, $mivel, $angolul);
-}
-
 // Beosztás táblázat kirajzolása központosítva, nyomtatási nézet miatt
 function get_beosztas_tablazat( $sor ) {
     
@@ -828,7 +820,6 @@ function get_beosztas_tablazat( $sor ) {
             $nap_nulakkal = '0'.$nap_nulakkal;
         }
 
-
         $sarga = '';
         $datum = $sor['ev'].'-'.$honap.'-'.$nap_nulakkal;
         // Szombat vasárnap kiemelve
@@ -836,7 +827,7 @@ function get_beosztas_tablazat( $sor ) {
         if( ($het_napja == 0 || $het_napja == 6) && !in_array($datum, $helyettesito_napok) ) {
             $sarga = ' class="sarga"';
 
-        // Ünepnapok szintúgy
+        // Ünnepnapok szintúgy
         } else if( in_array($datum, $unnepnapok) ) {
             $sarga = ' class="sarga"';
         }
@@ -874,9 +865,9 @@ function get_beosztas_tablazat( $sor ) {
             <tr>
                 <th>Név</th>
                 '.$napok_th.'
-                <th title="Munkanapok száma * napi munkaórák száma">Terv<br>óra</th>
-                <th title="Adott sorban található tényleges munkaórák száma">Tény<br>óra</th>
-                <th title="Tény órák - Terv órák száma">Egyenleg</th>
+                <th title="Munkanapok * napi munkaidő">Terv<br>óra</th>
+                <th title="Beosztott napok * műszakok óraszáma">Tény<br>óra</th>
+                <th title="Tény órák - terv órák">Egyenleg</th>
             </tr>
         ');
 

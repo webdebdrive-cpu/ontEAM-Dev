@@ -34,3 +34,36 @@ function munkaido_torol(mehet) {
         });
     }
 }
+
+
+// Saját beosztás betöltése
+function sajat_beosztas_mutat() {
+    if( !$('#ev').val() ) {
+        alert2('Kérem válasszon évet!', '', 'Hiba');
+        $('#ev').addClass('hibas_ide_focus');
+        return false;
+    }
+    if( !$('#ho').val() ) {
+        alert2('Kérem válasszon hónapot!', '', 'Hiba');
+        $('#ho').addClass('hibas_ide_focus');
+        return false;
+    }
+    
+    $.ajax({
+        url : PHP_SELF,
+        type: 'POST',
+        data: {
+            ev                  : $('#ev').val(),
+            ho                  : $('#ho').val(),
+            torzsadat_id        : _get('id'),
+            sajat_beosztas_mutat: Date.now()
+        },
+        success: function (response) {
+            if(response.substring(0, 6)=='SESKIL'){ location.href = 'index.php'; }
+            if (response) {
+                response = JSON.parse(response);
+                $('#tablazat').html( response.html );
+            }
+        }
+    });
+}
