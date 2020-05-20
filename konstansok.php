@@ -159,6 +159,11 @@ function specialis_karakterek_mivel(){
     return array(' ');
 }
 
+// Ha egy felhasználót létrehozunk, módosítunk, akkor az alábbi személyzetek esetén a módosítás automatikusan átkerül a törzsadatokba
+function loginbol_torzsadatot_szemelyzetek(){
+    return array(TELEPITETT_SZEMELYZET, MOBILCSOPORT, DISZPECSER, MUSZAKI_VEZETO, MUSZAKI_ADMINISZTRATOR, TERULETI_FELELOS, MSZK_VEZETO, MUSZAKI_IGAZGATO);
+}
+
 // Projekt státuszok
 define('PRKEZEL_STAT_NYITOTT',          '01' );
 define('PRKEZEL_STAT_ELOKESZITES_ALATT','02' );
@@ -355,6 +360,7 @@ define('ERT_MUNK_KK_JH_UTAN',            9);
 define('ERT_ANYAGIG_JOVAHAGYAS',        10);
 define('ERT_ELFELEJTETT_JELSZO',        11);
 define('ERT_14_NAPJA_VARO_ML',          12);
+define('ERT_BEOSZTAS_ELL',              14);
 
 define('HIBA_ADJON_FELADAT',            ' kérem adjon hozzá egy elvégzett feladatot!');
 define('DASHB_NINCS_BEJEGYZES',         'Nem található bejegyzés!');

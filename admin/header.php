@@ -458,7 +458,7 @@ if( !$_SESSION['bejelento_menu_rejt'] /* Bejelentő elől rejtve */ && (_jog(JOG
 
 
 // Személyzet
-if( _jog(JOG_TORZSADAT_MEGTEKINT) || _jog(JOG_SZABADSAGIG_MEGTEKINT) || _jog(JOG_BEOSZTASOK_MEGTEKINT) || _jog(JOG_MSZK_BEOSZTAS_MEGTEKINT) ) {
+if( _jog(JOG_TORZSADAT_MEGTEKINT) || _jog(JOG_SZABADSAGIG_MEGTEKINT) || _jog(JOG_BEOSZTASOK_MEGTEKINT) || _jog(JOG_MSZK_BEOSZTAS_MEGTEKINT) || _jog(JOG_TORZSADAT_SAJAT_MEGTEKINT) ) {
     $menu_nev        = 'Személyzet';
     $menu_nev_kis    = 'személyzet';
     $menu_nev_tobbes = 'Személyzet';
@@ -472,7 +472,7 @@ if( _jog(JOG_TORZSADAT_MEGTEKINT) || _jog(JOG_SZABADSAGIG_MEGTEKINT) || _jog(JOG
     if(basename(self())=='beosztas.php')            { $oldalNev = 'Személyzet / Beosztások / <span id="rekord_neve">Beosztások</span><span class="dn" id="rekord_neve_egyes">Beosztás</span><span class="dn" id="rekord_neve_targy">Beosztást</span>';      }
     
     $aktmenuk  = '';
-    if( _jog(JOG_TORZSADAT_MEGTEKINT) ) {
+    if( _jog(JOG_TORZSADAT_MEGTEKINT) || _jog(JOG_TORZSADAT_SAJAT_MEGTEKINT) ) {
         $aktmenuk .= str_replace( $akt_almenu_mit, array( $aloldalak['0'], 'Törzsadatok'        ), $almenu_sablon );
     }
     if( _jog(JOG_SZABADSAGIG_MEGTEKINT) ) {

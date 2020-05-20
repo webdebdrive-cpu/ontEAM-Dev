@@ -127,6 +127,123 @@ function i_u($type, $tabla, $tomb) {
         }
     }
     
+    // Felhasználók szerkesztésekor
+    if( $tabla == 'login' && $type == 'update' ) {
+
+        $login = $adatbazis_kapcsolat->s2('aktiv virtual szemelyzet_id', 'login', "`recid`='{$_GET['id']}'");
+        
+        // Ha olyan szerepkörről van szó, amit törzsadatba is szinkronizálunk
+        if( in_array($login['szemelyzet_id'], loginbol_torzsadatot_szemelyzetek() ) ) {
+            // Ha változott az aktív/virtuális pipa
+            if( !$_POST['torzsadatba_mehet'] && ($login['aktiv'] != $_POST['aktiv'] || $login['virtual'] != $_POST['virtual']) ) {
+                echo json_encode(array(
+                                        'hiba'  => nl2('
+                                                        '. $_POST['teljes_nev'].' – '.getSzerepkorNev($_POST['szemelyzet_id']).'
+                                                        <br>
+                                                        <br>A felhasználó Aktív/Virtuális státusza megváltozott.
+                                                        <br>Ha folytatja, adatait frissítjük a személyzet adatbázisában is.
+                                                        <br>Folytatja?
+                                                        '),
+                                        'gomb'  => '<input type="button" class="gomb zold" value="Igen" onclick="$(\'#torzsadatba_mehet\').val(1); mentesGomb();"><input type="button" class="gomb piros" value="Nem" onclick="alert2">',
+                                        'title' => 'Kérdés',
+                                    ));
+                $weblap -> leallit();
+                exit;
+            }
+            
+            // Aktiv/Virtuál pipa törzsadatoknál is frissül
+            $torzsadat = $adatbazis_kapcsolat->s2('*', 'torzsadat', "`felh_loginnev`='{$_POST['nev']}'");
+            if( $torzsadat === false ) { $db_error = true; }
+
+            // Törzsadat tábla updatelése és annak logjába írás
+            if( torzsadat_update_es_log($torzsadat) === false ) {
+                $db_error = true;
+            }
+
+        }
+        
+        // Ha most kerülne be a személyzet a műszakiak közé, akkor kérdésfeltevés, majd törzsadat létrehozása/updatelése
+        if( !in_array($login['szemelyzet_id'], loginbol_torzsadatot_szemelyzetek() ) && in_array($_POST['szemelyzet_id'], loginbol_torzsadatot_szemelyzetek() ) ) {
+            
+            // Kérdésfeltevés
+            if( !$_POST['torzsadatba_mehet'] ) {
+                echo json_encode(array(
+                                        'hiba'  => nl2('
+                                                        '. $_POST['teljes_nev'].' – '.getSzerepkorNev($_POST['szemelyzet_id']).'
+                                                        <br>
+                                                        <br>A felhasználó új szerepköre szerint a műszaki személyzethez tartozik.
+                                                        <br>Ha folytatja, adatait felvesszük/frissítjük a személyzet adatbázisába is.
+                                                        <br>Folytatja?
+                                                        '),
+                                        // FONTOS, hogy itt az Igen gombon a form_ell_admin()-t hiívjuk meg és ne a mentesGomb() függvényt, mert így nem fog feljönni újra a személyzet jogokkal kapcsolatos kérdés popup újra.
+                                        'gomb'  => '<input type="button" class="gomb zold" value="Igen" onclick="$(\'#torzsadatba_mehet\').val(1); form_ell_admin();"><input type="button" class="gomb piros" value="Nem" onclick="alert2">',
+                                        'title' => 'Kérdés',
+                                    ));
+                $weblap -> leallit();
+                exit;
+                
+            // Törzsadat oldal lekezelése
+            } else {
+                
+                $torzsadat = $adatbazis_kapcsolat->s2('*', 'torzsadat', "`felh_loginnev`='{$_POST['nev']}'");
+                if( $torzsadat === false ) { $db_error = true; }
+                // Létrehozzuk, ha még nem létezne
+                if( !$torzsadat ) {
+                    $uj_torzs = $adatbazis_kapcsolat->i('torzsadat',
+                                                                array('nev',                'felh_loginnev', 'aktiv',         'virtual'         ),
+                                                                array($_POST['teljes_nev'], $_POST['nev'],   $_POST['aktiv'], $_POST['virtual'] )
+                                                        );
+                    if( $uj_torzs === false ) { $db_error = true; }
+                    if( addMegj('torzsadat', $uj_torzs, 'Új személyzet hozzáadva') === false ) {
+                        $db_error = true;
+                    }
+                    
+                // Updateljük, ha létezne
+                } else {
+                    // Törzsadat tábla updatelése és annak logjába írás
+                    if( torzsadat_update_es_log($torzsadat) === false ) {
+                        $db_error = true;
+                    }
+                }
+                
+            }
+        }
+        
+        // Ha most kerülne ki a személyzet a műszakiak közül, akkor kérdésfeltevés, majd törzsadat inaktiválása
+        if( in_array($login['szemelyzet_id'], loginbol_torzsadatot_szemelyzetek() ) && !in_array($_POST['szemelyzet_id'], loginbol_torzsadatot_szemelyzetek() ) ) {
+            
+            // Kérdésfeltevés
+            if( !$_POST['torzsadatba_mehet'] ) {
+                echo json_encode(array(
+                                        'hiba'  => nl2('
+                                                        '. $_POST['teljes_nev'].' – '.getSzerepkorNev($_POST['szemelyzet_id']).'
+                                                        <br>
+                                                        <br>A felhasználó új szerepköre szerint NEM TARTOZIK a műszaki személyzethez.
+                                                        <br>Ha folytatja, inaktívvá tesszük a személyzet adatbázisában.
+                                                        <br>Folytatja?
+                                                        '),
+                                        // FONTOS, hogy itt az Igen gombon a form_ell_admin()-t hiívjuk meg és ne a mentesGomb() függvényt, mert így nem fog feljönni újra a személyzet jogokkal kapcsolatos kérdés popup újra.
+                                        'gomb'  => '<input type="button" class="gomb zold" value="Igen" onclick="$(\'#torzsadatba_mehet\').val(1); form_ell_admin();"><input type="button" class="gomb piros" value="Nem" onclick="alert2">',
+                                        'title' => 'Kérdés',
+                                    ));
+                $weblap -> leallit();
+                exit;
+                
+            // Törzsadat oldal lekezelése
+            } else {
+                
+                $torzsadat = $adatbazis_kapcsolat->s2('*', 'torzsadat', "`felh_loginnev`='{$_POST['nev']}'");
+                if( $torzsadat === false ) { $db_error = true; }
+                
+                // Törzsadat tábla updatelése és annak logjába írás
+                if( torzsadat_update_es_log($torzsadat, 'inaktivál') === false ) {
+                    $db_error = true;
+                }
+                
+            }
+        }
+    }
+    
     // Projekteknél, feltöltéskor Területi felelősként belépve a típus fixen fenntartás
     if( $tabla == 'projektkezeles' ) {
         if( $type == 'insert' ) {
@@ -578,6 +695,21 @@ function i_u($type, $tabla, $tomb) {
             if( $_POST['szemelyzet_id'] ) {
                 $szerepkor = $adatbazis_kapcsolat->s2('flags', 'szerepkor', "`recid`='{$_POST['szemelyzet_id']}'", '', '1');
                 if( $szerepkor === false ) { $db_error = true; }
+                
+                // Ha a szerepköre műszakis, akkor még egy pipát 1-esre állítunk: "Saját törzsadatok megtekintése" jogot is automatikusan megkapja
+                if( in_array($_POST['szemelyzet_id'], loginbol_torzsadatot_szemelyzetek() ) ) {
+
+                    if( strlen($szerepkor['flags'])<JOG_TORZSADAT_SAJAT_MEGTEKINT ) {
+                        $hianyzo_hossz = JOG_TORZSADAT_SAJAT_MEGTEKINT - strlen($szerepkor['flags']);
+                        for( $i=0; $i<$hianyzo_hossz; $i++ ) {
+                            $szerepkor['flags'] .= '0';
+                        }
+                    }
+
+                    $jogok = substr($szerepkor['flags'], 0, JOG_TORZSADAT_SAJAT_MEGTEKINT).'1'.substr($szerepkor['flags'], JOG_TORZSADAT_SAJAT_MEGTEKINT+1);
+                    $szerepkor['flags'] = $jogok;
+                }
+                // Jogosultság pipál felvétele a tömbbe
                 if( $szerepkor['flags'] ) {
                     array_push($oszlopok, 'flags'             );
                     array_push($ertekek,   $szerepkor['flags']);
@@ -883,6 +1015,7 @@ function i_u($type, $tabla, $tomb) {
 
         // Szállodákat és társrészlegeket is beállítjuk
         if( $tabla == 'login' ) {
+
             // Szállodák feldolgozása
             $adatok = explode(',', str_replace(array('"', '{', '}'), '', $_POST['szallodak_hidden']));
             foreach ( $adatok as $adat ) {
@@ -893,7 +1026,7 @@ function i_u($type, $tabla, $tomb) {
                                                 );
                 if( $sql === false ) { $db_error = true; }
             }
-            
+
             // Társrészlegek feldolgozása
             $adatok = explode(',', str_replace(array('"', '{', '}'), '', $_POST['tarsreszlegek_hidden']));
             foreach ( $adatok as $adat ) {
@@ -906,6 +1039,25 @@ function i_u($type, $tabla, $tomb) {
                                                     );
                 }
                 if( $sql === false ) { $db_error = true; }
+            }
+            
+            // Létrehozást logoljuk a megjegyzéseknél
+            if( addMegj('login', $id, 'Új felhasználó hozzáadva') === false ) {
+                $db_error = true;
+            }
+            
+            // Biszonyos személyttípusok esetén a törzsadat párját is létre kell hozni
+            if( in_array($_POST['szemelyzet_id'], loginbol_torzsadatot_szemelyzetek() ) ) {
+                $torzs_id = $adatbazis_kapcsolat->i('torzsadat',
+                                                array('nev',                'felh_loginnev', 'virtual',         'aktiv',            'insert_dt',    'insert_usr'                            ),
+                                                array($_POST['teljes_nev'], $_POST['nev'],   $_POST['virtual'], $_POST['aktiv'],    'NOW()',        $_SESSION[get_db_tabla().'teljes_nev']  )
+                                        );
+                if( $torzs_id === false ) { $db_error = true; }
+                
+                // Létrehozást itt is logoljuk
+                if( addMegj('torzsadat', $torzs_id, 'Új személyzet hozzáadva') === false ) {
+                    $db_error = true;
+                }
             }
         }
 
@@ -1160,7 +1312,7 @@ function i_u($type, $tabla, $tomb) {
         }
 
         // Ha volt változás, akkor logoljuk
-        $record = $adatbazis_kapcsolat->s('*', $tabla, 'recid='.$_GET['id'], '', '1');
+        $record = $adatbazis_kapcsolat->s('*', $tabla, "`recid`='{$_GET['id']}'", '', '1');
         if( $record === false ) { $db_error = true; }
         if( $record ) {
 
@@ -1175,7 +1327,7 @@ function i_u($type, $tabla, $tomb) {
             
             // Mely felületeken kerüljön megjegyzésbe a módosítás
             $mod_megjegyzesbe_mehet = false;
-            $mod_megjegyzesbe = array( 'beosztas_muszak.php', 'beosztas_unnepnapok.php', 'projektkezeles.php', 'projektszamla.php', 'projektszerzodes.php' );
+            $mod_megjegyzesbe = array( 'beosztas_muszak.php', 'beosztas_unnepnapok.php', 'login.php', 'projektkezeles.php', 'projektszamla.php', 'projektszerzodes.php', 'torzsadat.php' );
             $kiveteles_mezok  = array( 'stat_id', 'update_dt' );
             if( in_array(basename(self()), $mod_megjegyzesbe) ) {
                 $mod_megjegyzesbe_mehet = true;
@@ -3205,6 +3357,14 @@ function szamla_lista( $where = '', $tabla = '', $kijeloltek = false, $csak_sql_
         if( $tabla == 'rendszeres_karbantartas' ) {
             // Saját szállodáimat láthatom
             $where = "`".get_db_tabla()."rendszeres_karbantartas`.`telephely_id` IN (".implode(',', $szallodak).") AND ";
+        }
+
+        // Törzsadatok
+        if( $tabla == 'torzsadat' ) {
+            // Ha csak saját törzsadat jogom van, és semmi más, akkor a balnavpanelre se listázzunk ki mást
+            if( _jog(JOG_TORZSADAT_SAJAT_MEGTEKINT) && !_jog(JOG_TORZSADAT_MEGTEKINT) ) {
+                $where = "`felh_loginnev`='{$_SESSION[get_db_tabla().'user']}'";
+            }
         }
 
         if( $tabla == 'munkalap' || $tabla == 'munkalap_arch' ) {
@@ -11333,4 +11493,53 @@ function nap_neve($ev, $ho, $nap) {
     $mivel = array('Hét', 'Ke',   'Sze', 'Csü',  'Pén', 'Szo', 'Vas');
     $angolul = date('D', strtotime($ev.'-'.$ho.'-'.$nap));
     return str_replace($mit, $mivel, $angolul);
+}
+
+// Login szerkesztésekor a törzsadat is frissüljön, és ez a törzsadat logjába is kerüljön bele
+function torzsadat_update_es_log( $torzsadat, $inaktival = '' ) {
+    
+    global $adatbazis_kapcsolat;
+    
+    $db_error = false;
+    
+    // Ha a felhasználó és törzsadat közti szinkron megszűnik, akkor a törzsadatot inaktiválni kell
+    $post_aktiv = $_POST['aktiv'];
+    if( $inaktival ) {
+        $post_aktiv = '0';
+    }
+    
+    // Törzsadat megjegyzésébe is logolunk
+    $megj_be = '';
+    if( $torzsadat['aktiv'] != $post_aktiv ) {
+        if( $torzsadat['aktiv'] ) {
+            $megj_be .= 'Aktiv mező előző értéke: <b>igen</b>. Új értéke: <b>nem</b><br>';
+        } else {
+            $megj_be .= 'Aktiv mező előző értéke: <b>nem</b>. Új értéke: <b>igen</b><br>';
+        }
+    }
+    if( $torzsadat['virtual'] != $_POST['virtual'] ) {
+        if( $torzsadat['virtual'] ) {
+            $megj_be .= 'Virtuális mező előző értéke: <b>igen</b>. Új értéke: <b>nem</b><br>';
+        } else {
+            $megj_be .= 'Virtuális mező előző értéke: <b>nem</b>. Új értéke: <b>igen</b><br>';
+        }
+    }
+    if( $torzsadat['nev'] != $_POST['teljes_nev'] ) {
+        $megj_be .= 'Munkavállaló neve mező előző értéke: <b>'.$torzsadat['nev'].'</b>. Új értéke: <b>'.$_POST['teljes_nev'].'</b><br>';
+    }
+
+    $sql = $adatbazis_kapcsolat->u('torzsadat', array('aktiv',      'virtual',          'nev'               ),
+                                                array($post_aktiv,  $_POST['virtual'], $_POST['teljes_nev'] ),
+                                            "`felh_loginnev`='{$_POST['nev']}'");
+    if( $sql === false ) { $db_error = true; }
+
+    if( addMegj('torzsadat', $torzsadat['recid'], $megj_be) === false ) {
+        $db_error = true;
+    }
+    
+    if( $db_error ) {
+        return false;
+    } else {
+        return true;
+    }
 }

@@ -954,7 +954,7 @@ function get_beosztas_tablazat( $sor ) {
             $csv .= '='.csv_ellenorzes_letolt(iconv2($csv_mibol, $csv_mibe, $jel)).';';
         }
 
-        // A tervórák első körben a munkanapok (nem sárga hátterűek) * 8 órával. Aztán majd lehet az illető aktuális napi munkaidejével szorozzuk fel.
+        // A tervórák első körben a munkanapok (nem sárga hátterűek) * az illető aktuális napi munkaidejével
         $napi_munkaido = $adatbazis_kapcsolat->s2('ora', 'torzsadat_napi_munkaido', "`torzsadat_recid`='{$nev['torzsadat_recid']}' AND `datum`<='{$sor['ev']}-{$honap}-01'", 'datum desc', '1');
 
         $terv_orak = $munkanapok_szama * $napi_munkaido['ora'];

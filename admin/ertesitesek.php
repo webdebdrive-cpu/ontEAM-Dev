@@ -1,15 +1,16 @@
 <?php
 /*                                                  *\
  * FONTOS:
- * 12-es ID-nál járunk
- * 3 -es kategória ID-nál járunk
+ * 14-es ID-nál járunk
+ * 4 -es kategória ID-nál járunk
 \*                                                  */
 
 $ertesitesekKatok = array(
     0 => array('nev' => 'Bejelentések',             'sor' => 0),
     1 => array('nev' => 'Munkalapok',               'sor' => 1),
     2 => array('nev' => 'Anyagok',                  'sor' => 2),
-    3 => array('nev' => 'Egyéb',                    'sor' => 3),
+    3 => array('nev' => 'Felhasználók',             'sor' => 3),
+    4 => array('nev' => 'Személyzet',               'sor' => 4),
 );
 
 $ertesitesek = array(
@@ -34,5 +35,7 @@ $ertesitesek = array(
     10  => array('nev' => 'Igénylés jóváhagyása előtt',                                                 'kat' => 2, 'sor' => 1, 'i' => 'árazva'),
 
     11  => array('nev' => 'Amikor egy felhasználó elfelejti a jelszavát',                               'kat' => 3, 'sor' => 1),
+    
+    14  => array('nev' => 'Munkaidőbeosztás szerinti szálloda nincs hozzárendelve felhasználóhoz',      'kat' => 4, 'sor' => 1),
 );
  

@@ -39,7 +39,7 @@ if($tobb_kep){
 if( isset($_POST['jogokhozzaad']) ) {
     
     // Ha a usernek nincs joga felhasználót kezelni, akkor ne tudjon jogokat változtatni
-    if( !_jog(JOG_FELHASZNALOK_KEZEL) ){
+    if( !_jog(JOG_FELHASZNALOK_KEZEL) ) {
         exit;
     }
     
@@ -211,6 +211,24 @@ if( isset($_POST['login_letezik']) ) {
         echo json_encode(array(
             'hiba'  => $hibauzenet,
             'title' => 'Hiba',
+        ));
+
+        $weblap->leallit();
+        exit();
+    }
+    
+    // Ha a személyzettípusa benne van az alábbiakban, akkor rákérdezés
+    if( in_array($_POST['szemelyzet_id'], loginbol_torzsadatot_szemelyzetek() ) && $_POST['torzsadatba_mehet'] == 'false' ) {
+        echo json_encode(array(
+            'hiba'  => nl2('
+                            '.$_POST['teljes_nev'].' – '.getSzerepkorNev($_POST['szemelyzet_id']).'
+                            <br>
+                            <br>Az új felhasználó szerepköre szerint a műszaki személyzethez tartozik.
+                            <br>Ha folytatja, adatait felvesszük a személyzet adatbázisába is.
+                            <br>Folytatja?
+                            '),
+            'gomb'  => '<input type="button" class="gomb zold" value="Igen" onclick="torzsadatba_mehet = true; uj_login_feltolt_ellenozesek();"><input type="button" class="gomb piros" value="Nem" onclick="alert2()">',
+            'title' => 'Kérdés',
         ));
 
         $weblap->leallit();
@@ -701,6 +719,7 @@ require_once('selectek.php');
         
         $gombok .= nl2('
                     <script>
+                    var torzsadatba_mehet = false;
                     function uj_login_feltolt_ellenozesek() {
 
                         szurkit(\'mehet_megsem_rejt\');
@@ -716,7 +735,7 @@ require_once('selectek.php');
                         $.ajax({
                             url : \'login.php\',
                             type: \'POST\',
-                            data: esamp2es(\'nev=\' + $(\'#nev\').val() + \'&amp;usermail=\' + $(\'#usermail\').val() + \'&amp;login_letezik=\' + new Date().getTime()),
+                            data: esamp2es(\'nev=\' + $(\'#nev\').val() + \'&amp;teljes_nev=\' + $(\'#teljes_nev\').val()+ \'&amp;torzsadatba_mehet=\' + torzsadatba_mehet + \'&amp;usermail=\' + $(\'#usermail\').val() + \'&amp;szemelyzet_id=\' + $(\'#szemelyzet_id\').val() + \'&amp;login_letezik=\' + new Date().getTime()),
                             success: function(response) {
                                 if(response.substring(0, 6)==\'SESKIL\'){ location.href = \'index.php\'; }
                                 if(response) {
@@ -747,9 +766,9 @@ require_once('selectek.php');
             ');
         
     // Módosítás alatti gombok
-    }elseif (isset($_GET['modosit'])) {
-        
-        if( _jog(JOG_FELHASZNALOK_KEZEL) || _jog(JOG_FELHASZNALOK_JELSZO) ){
+    } elseif( isset($_GET['modosit']) ) {
+
+        if( _jog(JOG_FELHASZNALOK_KEZEL) || _jog(JOG_FELHASZNALOK_JELSZO) ) {
             $gombok = nl2('
                 <div class="form_kuldes">
                     <input type="button" class="gombb mentes_gomb" name="mehet_gomb" id="mehet_gomb" disabled value="Mentés" onclick="mentesGomb();">
@@ -776,25 +795,25 @@ require_once('selectek.php');
 
 	// Új felhasználó felvitele
     $js_submit_elott = 'return form_ell_admin();';
-	if(isset($_GET['uj']) && _jog(JOG_FELHASZNALOK_KEZEL)){
+	if( isset($_GET['uj']) && _jog(JOG_FELHASZNALOK_KEZEL) ) {
 
         // Hibaüzenetek lekezelése
-        if (isset($_GET['rovid_nev'])) {
+        if( isset($_GET['rovid_nev']) ) {
             $navi = '<span class="piros">A Login név hossza nem lehet kevesebb mint 8 karakter!</span>';
         }
-        if (isset($_GET['hibasnev'])) {
+        if( isset($_GET['hibasnev']) ) {
             $navi = '<span class="piros">Csak betűket, számokat, alulvonsát (_) és pontot (.) használhat!</span>';
         }
-        if (isset($_GET['foglalt_nev'])) {
+        if( isset($_GET['foglalt_nev']) ) {
             $navi = '<span class="piros">Ez a loginnév már foglalt!</span>';
         }
 
 	    // FORM
-		if($_GET['ujkent']) {
+		if( $_GET['ujkent'] ) {
             $sor = $adatbazis_kapcsolat -> s2('*', $megnevezes, 'recid='.$_GET['ujkent']);
             if( $sor ) {
 
-                foreach($akt_tomb as $ertek) {
+                foreach ( $akt_tomb as $ertek ) {
                     if( $ertek['name'] != 'nev' && $ertek['name'] != 'van_jelszo' ) {
                         $_SESSION[$ertek['name']] = stripslashes( $sor[$ertek['name']] );
                     } else {
@@ -866,7 +885,7 @@ require_once('selectek.php');
                                 ');
 
         // Ha Gyorskeresőből érkeznénk ide, akkor az ID-t valójában az id_hidden tartalmazza majd
-        if(isset($_GET['id_hidden'])){
+        if( isset($_GET['id_hidden']) ) {
             $_GET['id'] = $_GET['id_hidden'];
         }
 
@@ -937,7 +956,7 @@ require_once('selectek.php');
 		}
 
 	// Jogosultság
-    }elseif(isset($_GET['jogosultsag'])) {
+    }elseif( isset($_GET['jogosultsag']) ) {
 
         require_once('jogosultsag.php');
 

@@ -1,7 +1,7 @@
 <?php
 require_once('../weblap.php');
 
-if( !_jog(JOG_TORZSADAT_MEGTEKINT) ) {
+if( !_jog(JOG_TORZSADAT_MEGTEKINT) && !_jog(JOG_TORZSADAT_SAJAT_MEGTEKINT) ) {
     if(!$_SESSION[get_db_tabla().'user']){
         $weblap -> leallit();
         header('Location: index.php');
@@ -765,7 +765,10 @@ function get_beosztas_tablazat_torzsadathoz( $sor, $torzsadat_id ) {
     
     // Műszakok összestése
     if( $muszakok || $szabadnapok ) {
-        $jobb_oldal .= nl2('
+        
+        $volt_muszak    = false;
+        $muszakok_html  = '';
+        $muszakok_html .= nl2('
             <h2 style="margin-top: 2rem;">Műszakok</h2>
             <div class="muszakok">
             ');
@@ -773,24 +776,31 @@ function get_beosztas_tablazat_torzsadathoz( $sor, $torzsadat_id ) {
         foreach( $muszakok as $muszak ) {
             if( $muszak['beosztas_muszak_recid'] ) {
                 $muszak = $adatbazis_kapcsolat->s2('*', 'beosztas_muszak', "`recid`='{$muszak['beosztas_muszak_recid']}'");
-                $jobb_oldal .= '<div>'.getSzallodaNev($muszak['telephely_id']).' <span style="background: #'.$muszak['szin'].'; padding: 0 1rem;">'.$muszak['nev'].' ('.$muszak['jel'].' '.$muszak['tol'].'-'.$muszak['ig'].')<span></div>';
+                $muszakok_html .= '<div>'.getSzallodaNev($muszak['telephely_id']).' <span style="background: #'.$muszak['szin'].'; padding: 0 1rem;">'.$muszak['nev'].' ('.$muszak['jel'].' '.$muszak['tol'].'-'.$muszak['ig'].')<span></div>';
+                $volt_muszak = true;
             }
         }
         
         $szabadnapok = array_unique($szabadnapok);
         foreach( $szabadnapok as $szabadnap ) {
             if( $szabadnap == BEOSZTAS_FIX_BETEGSEG_JEL ) {
-                $jobb_oldal .= '<div>Betegség (B)</div>';
+                $muszakok_html .= '<div>Betegség (B)</div>';
+                $volt_muszak = true;
             }
             if( $szabadnap == BEOSZTAS_FIX_PIHENONAP_JEL ) {
-                $jobb_oldal .= '<div>Pihenőnap (P)</div>';
+                $muszakok_html .= '<div>Pihenőnap (P)</div>';
+                $volt_muszak = true;
             }
             if( $szabadnap == BEOSZTAS_FIX_SZABADNAP_JEL ) {
-                $jobb_oldal .= '<div>Szabadnap (SZ)</div>';
+                $muszakok_html .= '<div>Szabadnap (SZ)</div>';
+                $volt_muszak = true;
             }
         }
-        $jobb_oldal .= nl2('</div>');
+        $muszakok_html .= nl2('</div>');
         
+    }
+    if( $volt_muszak ) {
+        $jobb_oldal .= $muszakok_html;
     }
     
     return $jobb_oldal;
