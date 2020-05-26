@@ -927,12 +927,13 @@ function get_beosztas_tablazat( $sor ) {
 
             // Van-e esetleg az illetőnek másik szállodában már beosztása?
             $data_jel = $data_szin = $data_ora = $data_tol = $data_ig = $jel = $szin = '';
-            $foglalt = $adatbazis_kapcsolat->s2('recid ora', 'beosztas_naptar', "`beosztas_nevek_recid` IN (SELECT `recid` FROM `".get_db_tabla()."beosztas_nevek` WHERE `torzsadat_recid`='{$nev['torzsadat_recid']}' AND `recid`!='{$nev['recid']}') AND `datum`='{$datum['datum']}'");
+            $foglalt = $adatbazis_kapcsolat->s2('recid ora beosztas_recid beosztas_muszak_recid', 'beosztas_naptar', "`beosztas_nevek_recid` IN (SELECT `recid` FROM `".get_db_tabla()."beosztas_nevek` WHERE `torzsadat_recid`='{$nev['torzsadat_recid']}' AND `recid`!='{$nev['recid']}') AND `datum`='{$datum['datum']}'");
             if( $foglalt ) {
                 $class .= ' foglalt';
                 $jel    = '✖';
                 $orak  += $foglalt['ora'];
-                $onclick = ' onclick="get_illeto_muszakja(\''.$foglalt['recid'].'\')"';
+                $muszak   = $adatbazis_kapcsolat->s2('nev telephely_id ora', 'beosztas_muszak', "`recid`='{$foglalt['beosztas_muszak_recid']}'");
+                $onclick  = ' onclick="get_illeto_muszakja(\''.$foglalt['recid'].'\')" title="'.getSzallodaNev($muszak['telephely_id']).' '.$muszak['nev'].' '.$muszak['ora'].'"';
             } else {
                 $class .= ' szerk';
                 foreach ( $naptar_adatok as $adat ) {

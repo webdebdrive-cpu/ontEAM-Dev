@@ -2255,10 +2255,10 @@ $torzsadat_tomb = $akt_tomb = array(
     array('type' => 'checkbox',     'megn' => 'Virtuális:',             'name' => 'virtual',                                'szuro' => 1,   'class' => 'check', 'disabled' => 1),
     array('type' => 'text',         'megn' => 'Login név:',             'name' => 'felh_loginnev',                          'szuro' => 1,   'disabled' => 1),
 	array('type' => 'text',         'megn' => 'Munkavállaló neve:',     'name' => 'nev',            'maxlength' => 250,     'szuro' => 1,   'class' => 'oriasi', 'disabled' => 1,   'alert' => 'Kérem adja meg a munkavállaló nevét!'),
-	array('type' => 'text',         'megn' => 'Születési ideje:',       'name' => 'szul_datum',                             'szuro' => 1,   'class' => 'kicsi datepicker',          'alert' => 'Kérem adja meg a születés idejét!'),
+	array('type' => 'text',         'megn' => 'Születési ideje:',       'name' => 'szul_datum',                             'szuro' => 1,   'class' => 'kicsi datepicker'),
 	array('type' => 'text',         'megn' => 'Szakmája:',              'name' => 'szakma',         'maxlength' => 250,     'szuro' => 1,   'class' => 'oriasi'),
     array('type' => 'autocomplete', 'megn' => 'Beosztás:',              'name' => 'beosztas_id',                            'szuro' => 1,   'class' => 'oriasi disableNav', 'tabla' => 'erteklista', 'oszlop_keres' => 'id', 'oszlop_keres_autocomp' => 'info', 'listaz' => 'info', 'csoport' => ERTEKLISTA_BEOSZTAS, 'id_kiir' => 'id', 'alert' => 'Kérem adja meg a beosztást!'),
-	array('type' => 'text',         'megn' => 'Munkaviszony kezdete:',  'name' => 'munka_kezd',                             'szuro' => 1,   'class' => 'kicsi datepicker',  'alert' => 'Kérem adja meg a munkaviszony kezdetét!'),
+	array('type' => 'text',         'megn' => 'Munkaviszony kezdete:',  'name' => 'munka_kezd',                             'szuro' => 1,   'class' => 'kicsi datepicker'),
 	array('type' => 'text',         'megn' => 'Kompetenciák:',          'name' => 'komp',           'maxlength' => 250,     'szuro' => 1,   'class' => 'oriasi'),
 );
 array_push($postok, array('tomb' => $akt_tomb, 'uj' => 'uj'.$megnevezes, 'lista' => $megnevezes.'lista', 'tabla' => $megnevezes, 'torid' => $megnevezes.'tid' ));

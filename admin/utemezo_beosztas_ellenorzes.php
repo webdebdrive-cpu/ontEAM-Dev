@@ -14,7 +14,7 @@ if( filesize($log_utvonal) > get_logfile_max_meret() ) {
     fajlba_mentes($log_utvonal, $log_tmp);
 }
 
-// Adott nap, illetve másap milyen beosztások vannak?
+// Adott nap, illetve másnap milyen beosztások vannak?
 $beosztasok = $adatbazis_kapcsolat->s('beosztas_nevek_recid beosztas_recid datum', 'beosztas_naptar', "`datum`='".date('Y-m-d')."' OR `datum`='".date('Y-m-d', time()+(60*60*24))."'");
 $log_tmp = $adatbazis_kapcsolat->gp() . '
 ';
@@ -54,7 +54,7 @@ foreach( $beosztasok as $beosztas ) {
     file_put_contents($log_utvonal, $log_tmp, FILE_APPEND | LOCK_EX);
     
     if( !$van_szallodaja ) {
-        $level_uzi .= datum_kiir($beosztas['datum']).' '.$torzsadat['nev'].' ('.$torzsadat['felh_loginnev'].') '. getSzallodaNev($telephely['telephely_id']).'<br>
+        $level_uzi .= datum_kiir($beosztas['datum']).' Név: '.$torzsadat['nev'].' (Loginnév: '.$torzsadat['felh_loginnev'].') Szálloda: '. getSzallodaNev($telephely['telephely_id']).'<br>
 ';
     }
 }
@@ -81,7 +81,8 @@ Levél tartalma:
     $cimzettek = $adatbazis_kapcsolat->s('nev teljes_nev usermail', 'login', "substr(`flags_ert`, ".(ERT_BEOSZTAS_ELL+1).", 1)=1 AND `aktiv`=1 AND `virtual`=0");
     foreach( $cimzettek as $cimzett ) {
         
-        $sikeres_kuldes = level_kuldes(get_nev(), get_mail(), $login['teljes_nev'], $login['usermail'], get_nev().' munkaidőbeosztás szerinti szálloda nincs hozzárendelve felhasználóhoz', $uzi);
+        $akt_uzi = str_replace('{NEV}', $cimzett['teljes_nev'], $uzi);
+        $sikeres_kuldes = level_kuldes(get_nev(), get_mail(), $cimzett['teljes_nev'], $cimzett['usermail'], get_nev().' munkaidőbeosztás szerinti szálloda nincs hozzárendelve felhasználóhoz', $akt_uzi);
         
         $log_tmp = $cimzett['teljes_nev'].' ('.$cimzett['usermail'].')
 ';

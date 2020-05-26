@@ -1256,13 +1256,11 @@ if( basename(self()) == 'szerepkor.php' ) {
 
 // Szerepkör jogoknál semmi értelme az új és törlés ikonoknak
 if( basename(self()) == 'szerepkor_jog.php' ) {
-    $torles_icon    = '';
-    $uj = $duplikal = '';
+    $torles_icon = $uj = $duplikal = '';
 }
 
-if( basename(self()) == 'torzsadat.php' && !_jog(JOG_TORZSADAT_KEZEL) ) {
-    $torles_icon    = '';
-    $uj = $duplikal = '';
+if( basename(self()) == 'torzsadat.php' ) {
+    $torles_icon = $uj = $duplikal = '';
 }
 
 // Excel export

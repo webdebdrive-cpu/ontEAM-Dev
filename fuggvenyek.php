@@ -1013,7 +1013,7 @@ function i_u($type, $tabla, $tomb) {
             if( $sql === false ) { $db_error = true; }
         }
 
-        // Szállodákat és társrészlegeket is beállítjuk
+        // Szállodákat és társrészlegeket is beállítjuk, törzsadat párját létrehozzuk, annak napi munkaidőt állítunk be
         if( $tabla == 'login' ) {
 
             // Szállodák feldolgozása
@@ -1046,7 +1046,7 @@ function i_u($type, $tabla, $tomb) {
                 $db_error = true;
             }
             
-            // Biszonyos személyttípusok esetén a törzsadat párját is létre kell hozni
+            // Biszonyos személyzettípusok esetén a törzsadat párját is létre kell hozni
             if( in_array($_POST['szemelyzet_id'], loginbol_torzsadatot_szemelyzetek() ) ) {
                 $torzs_id = $adatbazis_kapcsolat->i('torzsadat',
                                                 array('nev',                'felh_loginnev', 'virtual',         'aktiv',            'insert_dt',    'insert_usr'                            ),
@@ -1058,6 +1058,12 @@ function i_u($type, $tabla, $tomb) {
                 if( addMegj('torzsadat', $torzs_id, 'Új személyzet hozzáadva') === false ) {
                     $db_error = true;
                 }
+                
+                // Napi munkaidő beállítása
+                $sql = $adatbazis_kapcsolat->i('torzsadat_napi_munkaido',   array('torzsadat_recid', 'datum',       'ora',  'insert_dt',    'insert_usr'                            ),
+                                                                            array($torzs_id,         date('Y-m-d'), 8,      'NOW()',        $_SESSION[get_db_tabla().'teljes_nev']  )
+                                                );
+                if( $sql === false ) { $db_error = true; }
             }
         }
 
@@ -1480,6 +1486,12 @@ function i_u($type, $tabla, $tomb) {
                                         if( $elem['name'] == 'telephely_id' ) {
                                             $uj_ertek = getSzallodaNev($uj_ertek);
                                             $value    = getSzallodaNev($value   );
+                                        }
+                                        
+                                        // Szerepkör lekezelése
+                                        if( $elem['name'] == 'szemelyzet_id' ) {
+                                            $uj_ertek = getSzerepkorNev($uj_ertek);
+                                            $value    = getSzerepkorNev($value   );
                                         }
                                         
                                         // Tipus mező lekezelése projekteknél

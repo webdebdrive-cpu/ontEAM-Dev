@@ -722,7 +722,6 @@ function get_beosztas_tablazat_torzsadathoz( $sor, $torzsadat_id ) {
     foreach( $datumok_tomb as $datum ) {
         
         $naptar_adatok = $adatbazis_kapcsolat->s2('*', 'beosztas_naptar', "`beosztas_nevek_recid` IN (SELECT `recid` FROM `".get_db_tabla()."beosztas_nevek` WHERE `torzsadat_recid`='{$torzsadat_id}') AND `datum`='{$datum['datum']}'");
-        
         array_push($muszakok, $naptar_adatok['beosztas_muszak_recid']);
         if( !$naptar_adatok['beosztas_muszak_recid'] && $naptar_adatok['jel'] ) {
             array_push($szabadnapok, $naptar_adatok['jel']);
