@@ -940,7 +940,7 @@ function get_beosztas_tablazat( $sor ) {
 
             // Van-e esetleg az illetőnek másik szállodában már beosztása?
             $data_jel = $data_szin = $data_ora = $data_tol = $data_ig = $jel = $szin = '';
-            $foglalt = $adatbazis_kapcsolat->s2('recid jel ora beosztas_recid beosztas_muszak_recid', 'beosztas_naptar', "`beosztas_nevek_recid` IN (SELECT `recid` FROM `".get_db_tabla()."beosztas_nevek` WHERE `torzsadat_recid`='{$nev['torzsadat_recid']}' AND `recid`!='{$nev['recid']}') AND `datum`='{$datum['datum']}'");
+            $foglalt  = $adatbazis_kapcsolat->s2('recid jel ora beosztas_recid beosztas_muszak_recid', 'beosztas_naptar', "`beosztas_nevek_recid` IN (SELECT `recid` FROM `".get_db_tabla()."beosztas_nevek` WHERE `torzsadat_recid`='{$nev['torzsadat_recid']}' AND `recid`!='{$nev['recid']}') AND `datum`='{$datum['datum']}'");
             if( $foglalt ) {
                 $class .= ' foglalt';
                 $jel    = '✖';
@@ -982,8 +982,21 @@ function get_beosztas_tablazat( $sor ) {
 
         // A tervórák első körben a munkanapok (nem sárga hátterűek) * az illető aktuális napi munkaidejével
         $napi_munkaido = $adatbazis_kapcsolat->s2('ora', 'torzsadat_napi_munkaido', "`torzsadat_recid`='{$nev['torzsadat_recid']}' AND `datum`<='{$sor['ev']}-{$honap}-01'", 'datum desc', '1');
-
         $terv_orak = $munkanapok_szama * $napi_munkaido['ora'];
+        
+        // Viszont ha az illetőnek a $napi_munkaideje épp adott hónapra esik (lehet nem is 1-ére), akkor csak az attól a dátumtól számított napok számra számít
+        $akt_honapra_eso_napi_munkaido = $adatbazis_kapcsolat->s2('ora datum', 'torzsadat_napi_munkaido', "`torzsadat_recid`='{$nev['torzsadat_recid']}' AND `datum` LIKE '{$sor['ev']}-{$honap}%'");
+        if( $akt_honapra_eso_napi_munkaido ) {
+            $munkanapok_szama = 0;
+            // Ekkor a munkanapok számát újra ki kell számolni
+            foreach( $datumok_tomb as $datum ) {
+                if( !$datum['sarga'] && $datum['datum']>= $akt_honapra_eso_napi_munkaido['datum'] ) {
+                    $munkanapok_szama++;
+                }
+            }
+            
+            $terv_orak = $munkanapok_szama * $akt_honapra_eso_napi_munkaido['ora'];
+        }
 
         $csv .= csv_ellenorzes_letolt(iconv2($csv_mibol, $csv_mibe, $terv_orak)).';';
         $csv .= csv_ellenorzes_letolt(iconv2($csv_mibol, $csv_mibe, $orak)).';';
