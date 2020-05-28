@@ -184,16 +184,29 @@ if( isset($_POST['beosztas_tabla_ment']) ) {
 // Adott illető műszakja hol van?
 if( isset($_POST['get_illeto_muszakja']) ) {
     
-    $naptar   = $adatbazis_kapcsolat->s2('beosztas_recid beosztas_nevek_recid', 'beosztas_naptar', "`recid`='{$_POST['naptar_recid']}'");
+    $naptar   = $adatbazis_kapcsolat->s2('jel beosztas_recid beosztas_muszak_recid beosztas_nevek_recid', 'beosztas_naptar', "`recid`='{$_POST['naptar_recid']}'");
     $nev      = $adatbazis_kapcsolat->s2('nev', 'beosztas_nevek', "`recid`='{$naptar['beosztas_nevek_recid']}'");
     $beosztas = $adatbazis_kapcsolat->s2('telephely_id', 'beosztas', "`recid`='{$naptar['beosztas_recid']}'");
+    $muszak   = $adatbazis_kapcsolat->s2('nev ora', 'beosztas_muszak', "`recid`='{$naptar['beosztas_muszak_recid']}'");
+    
+    if( !$naptar['beosztas_muszak_recid'] && in_array($naptar['jel'], array(BEOSZTAS_FIX_SZABADNAP_JEL, BEOSZTAS_FIX_PIHENONAP_JEL, BEOSZTAS_FIX_BETEGSEG_JEL) ) ) {
+        $muszak_text = '';
+        switch ( $naptar['jel'] ) {
+            case BEOSZTAS_FIX_SZABADNAP_JEL: $muszak_text .= 'Szabadnap'; break;
+            case BEOSZTAS_FIX_PIHENONAP_JEL: $muszak_text .= 'Pihenőnap'; break;
+            case BEOSZTAS_FIX_BETEGSEG_JEL : $muszak_text .= 'Betegség';  break;
+        }
+    } else {
+        $muszak_text = 'Műszak: '.$muszak['nev'].' '.$muszak['ora'].' óra';
+    }
     
     $szalloda_neve  = getSzallodaNev($beosztas['telephely_id']);
     $szalloda_neve2 = getSzallodaNev($_POST['uj_telephely_id']);
     
     echo json_encode(
-            array(  'hiba' => $nev['nev'].' kolléga már be van osztva erre a napra '.a_az($szalloda_neve).' '.$szalloda_neve.' szállodában.<br>
-                            '. ucfirst(a_az($szalloda_neve2)).' '.$szalloda_neve2.' beosztáshoz előbb szüntesse meg a jelenlegi beosztását.',
+            array(  'hiba' => $nev['nev'].' kolléga már be van osztva erre a napra '.a_az($szalloda_neve).' '.$szalloda_neve.' szállodában.
+                <br>'.$muszak_text.'
+                <br>'. ucfirst(a_az($szalloda_neve2)).' '.$szalloda_neve2.' beosztáshoz előbb szüntesse meg a jelenlegi beosztását.',
                     'title' => 'Hiba'
                 )
         );
@@ -927,13 +940,25 @@ function get_beosztas_tablazat( $sor ) {
 
             // Van-e esetleg az illetőnek másik szállodában már beosztása?
             $data_jel = $data_szin = $data_ora = $data_tol = $data_ig = $jel = $szin = '';
-            $foglalt = $adatbazis_kapcsolat->s2('recid ora beosztas_recid beosztas_muszak_recid', 'beosztas_naptar', "`beosztas_nevek_recid` IN (SELECT `recid` FROM `".get_db_tabla()."beosztas_nevek` WHERE `torzsadat_recid`='{$nev['torzsadat_recid']}' AND `recid`!='{$nev['recid']}') AND `datum`='{$datum['datum']}'");
+            $foglalt = $adatbazis_kapcsolat->s2('recid jel ora beosztas_recid beosztas_muszak_recid', 'beosztas_naptar', "`beosztas_nevek_recid` IN (SELECT `recid` FROM `".get_db_tabla()."beosztas_nevek` WHERE `torzsadat_recid`='{$nev['torzsadat_recid']}' AND `recid`!='{$nev['recid']}') AND `datum`='{$datum['datum']}'");
             if( $foglalt ) {
                 $class .= ' foglalt';
                 $jel    = '✖';
                 $orak  += $foglalt['ora'];
-                $muszak   = $adatbazis_kapcsolat->s2('nev telephely_id ora', 'beosztas_muszak', "`recid`='{$foglalt['beosztas_muszak_recid']}'");
-                $onclick  = ' onclick="get_illeto_muszakja(\''.$foglalt['recid'].'\')" title="'.getSzallodaNev($muszak['telephely_id']).' '.$muszak['nev'].' '.$muszak['ora'].'"';
+                // Ha nincs beosztas_muszak_recid és a fix műszakok egyike, akkor azt kell kiírni
+                if( !$foglalt['beosztas_muszak_recid'] && in_array($foglalt['jel'], array(BEOSZTAS_FIX_SZABADNAP_JEL, BEOSZTAS_FIX_PIHENONAP_JEL, BEOSZTAS_FIX_BETEGSEG_JEL) ) ) {
+                    $beosztas = $adatbazis_kapcsolat->s2('telephely_id', 'beosztas', "`recid`='{$foglalt['beosztas_recid']}'");
+                    $title = getSzallodaNev($beosztas['telephely_id']).' ';
+                    switch ( $foglalt['jel'] ) {
+                        case BEOSZTAS_FIX_SZABADNAP_JEL: $title .= 'Szabadnap'; break;
+                        case BEOSZTAS_FIX_PIHENONAP_JEL: $title .= 'Pihenőnap'; break;
+                        case BEOSZTAS_FIX_BETEGSEG_JEL : $title .= 'Betegség';  break;
+                    }
+                } else {
+                    $muszak   = $adatbazis_kapcsolat->s2('nev telephely_id ora', 'beosztas_muszak', "`recid`='{$foglalt['beosztas_muszak_recid']}'");
+                    $title = getSzallodaNev($muszak['telephely_id']).' '.$muszak['nev'].' '.$muszak['ora'];
+                }
+                $onclick  = ' onclick="get_illeto_muszakja(\''.$foglalt['recid'].'\')" title="'.$title.'"';
             } else {
                 $class .= ' szerk';
                 foreach ( $naptar_adatok as $adat ) {
