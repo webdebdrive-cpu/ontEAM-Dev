@@ -1221,7 +1221,7 @@ $(function() {
 
     });
 
-    /* Oldal elhagyásakor rákérdezünk, hogy biztosan */
+    // Oldal elhagyásakor rákérdezünk, hogy biztosan
     $(window).bind('beforeunload', function(e) {
         if( formModositva && !_get('jogosultsag') ) {
             return 'Biztos elhagyja az oldalt mentés nélkül?';
@@ -6949,7 +6949,11 @@ function szuro_ertek_mezo_gen(that, felt) {
                             }
                         }
                         $('#'+prefix+'szures_submit').html( response.szures_gomb +
-                                                            '<input style="margin-left: 0.2rem" type="button" class="gomb piros" value="Szűrés töröl" onclick="szurkit(); location.href=\''+tabla+'.php'+kieg+'\'">'
+                                                                                                                                                              // szurkit(); <= itt még ne volt hívva egy ilyen szürkítés is. De ezt azért vettük ki,
+                                                                                                                                                              // mert felhasználóknál szűkítve valamire, majd módosítva az adatlapot, majd szükítés törlésére kattintva
+                                                                                                                                                              // az oldal amikor megkérdezi, hogy biztosan elhagyjuk mentés nélkül, és arra kattintunk, hogy maradunk,
+                                                                                                                                                              // akkor a szürkítés megmaradt
+                                                            '<input style="margin-left: 0.2rem" type="button" class="gomb piros" value="Szűrés töröl" onclick="location.href=\''+tabla+'.php'+kieg+'\'; ">'
                                                         );
                     }
 
