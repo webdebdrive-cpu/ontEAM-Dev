@@ -7514,6 +7514,14 @@ require('selectek.php');
                 $szemelyzet_id_rejt[$szemelyzet['value']] = ' class="dn"';
             }
         }
+        // Korábban ez volt:
+//        // Átadás gombok rejtése, ha azonos a saját szerepkörrel
+//        $szemelyzet_id_rejt = array();
+//        foreach ( $select_szemelyzet as $szemelyzet ) {
+//            if( $_SESSION[get_db_tabla() . 'szemelyzet_id'] == $szemelyzet['value'] ) {
+//                $szemelyzet_id_rejt[$szemelyzet['value']] = ' class="dn"';
+//            }
+//        }
 
         // Mobilcsoportnak átadás rejtése, ha egyszállodások vagyunk
         if(!$telephely['modell']) {
