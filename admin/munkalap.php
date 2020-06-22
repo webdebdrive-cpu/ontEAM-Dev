@@ -7503,9 +7503,14 @@ require('selectek.php');
         $feladat      = $adatbazis_kapcsolat->s2('recid', 'munkalap_feladat', "`tetel_id`='{$utolso_tetel['recid']}'", '', '1');
 
         // Átadás gombok rejtése, ha azonos a saját szerepkörrel
+        // 2020.06.22-i update: kivéve ha Műszaki vezető az illető, és egyszállodás a modell, akkor átadjhatja magának is
         $szemelyzet_id_rejt = array();
         foreach ( $select_szemelyzet as $szemelyzet ) {
-            if( $_SESSION[get_db_tabla() . 'szemelyzet_id'] == $szemelyzet['value'] ) {
+            if( 
+                // Ha többszállodás a modell, vagy a személyzet nem Műszaki vezető, ÉS saját magam vagyok a személyzete, akkor oda nem adható át a ML
+                ($telephely['modell'] || $_SESSION[get_db_tabla() . 'szemelyzet_id'] != MUSZAKI_VEZETO) 
+                && $_SESSION[get_db_tabla() . 'szemelyzet_id'] == $szemelyzet['value']
+                ) {
                 $szemelyzet_id_rejt[$szemelyzet['value']] = ' class="dn"';
             }
         }
