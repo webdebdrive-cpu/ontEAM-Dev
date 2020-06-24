@@ -543,7 +543,9 @@ switch ( $tabla ) {
         $_OPTS['select']    = nl2('
                                     `'.get_db_tabla().$tabla_nophp.'`.`recid`,
                                     `'.get_db_tabla().$tabla_nophp.'`.`szszam`,
-                                    `'.get_db_tabla().$tabla_nophp.'`.`bef_dt`
+                                    `'.get_db_tabla().$tabla_nophp.'`.`netto`,
+                                    `'.get_db_tabla().$tabla_nophp.'`.`szallito_id`,
+                                    `'.get_db_tabla().$tabla_nophp.'`.`targy`
                                 ');
 
         // Ezek az oszlopok generálódnak ki a rendezés selectbe, lehet szépíteni az oszlopneveket, amit a getOszlopNev() függvényben kell beállítani
@@ -2974,7 +2976,7 @@ $fenntartasi_szerzodes_tomb = $akt_tomb = array(
     array('type' => 'autocomplete', 'megn' => 'Pénznem:',                   'name' => 'kcs_21',         'szuro' => 1,  'disabled' => 1, 'class' => 'disableNav', 'tabla' => 'erteklista', 'oszlop_keres' => 'id', 'oszlop_keres_autocomp' => 'info', 'listaz' => 'info', 'csoport' => ERTEKLISTA_PENZNEM, 'id_kiir' => 'id', 'style' => 'width: 4.6rem', 'osszevon' => 1, 'post' => '<span style="margin-left: 4rem"></span>'),
     array('type' => 'text',         'megn' => 'Számla fizetési határidő:',  'name' => 'szlafizhi',      'szuro' => 1,  'disabled' => 1, 'class' => 'normal', 'post' => ' nap', 'style' => 'width: 8.6rem'),
     array('type' => 'text',         'megn' => 'Deviza nettó:',              'name' => 'vnetert',        'szuro' => 1,  'disabled' => 1, 'class' => 'f_num',    'data' => 'data-tort="2"', 'style' => 'width: 8.7rem'),
-    array('type' => 'text',         'megn' => 'Nettó érték:',               'name' => 'netert',         'szuro' => 1,  'disabled' => 1, 'class' => 'f_num',    'data' => 'data-tort="0"'),
+    array('type' => 'text',         'megn' => 'Nettó érték:',               'name' => 'netto',          'szuro' => 1,  'disabled' => 1, 'class' => 'f_num',    'data' => 'data-tort="0"'),
     array('type' => 'text',         'megn' => 'Aláírva:',                   'name' => 'alairva_dt',     'szuro' => 1,  'disabled' => 1, 'class' => 'datepicker', 'osszevon' => 1, 'post' => '<span style="margin-left: 8.2rem"></span>'),
     array('type' => 'text',         'megn' => 'Felmondás:',                 'name' => 'felmondas',      'szuro' => 1,  'disabled' => 1, 'class' => 'normal', 'post' => ' nap', 'style' => 'width: 8.6rem'),
     

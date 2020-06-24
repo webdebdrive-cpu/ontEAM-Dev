@@ -5253,7 +5253,13 @@ function fenntartasi_szerzodesLista( $bejegyzesek, $tabla, $frissit, $kijeloltek
                             <table>
                             <tr> 
                                 <td style="width: 12rem">'.$bsz['szszam'].'</td>
-                                <td>'.datum_kiir($bsz['bef_dt']).'</td>
+                                <td>'. number_format($bsz['netto'], 0, '', ' ').'</td>
+                            </tr>
+                            <tr> 
+                                <td colspan="2">'.getErtek('nev', 'szallito', 'id', $bsz['szallito_id']).'</td>
+                            </tr>
+                            <tr> 
+                                <td colspan="2">'.resz_string($bsz['targy'], 60).'</td>
                             </tr>
                             </table>
                         </a>';

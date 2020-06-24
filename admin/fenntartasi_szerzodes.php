@@ -274,7 +274,7 @@ require_once('selectek.php');
         ');
         
         // Tételek felsorolása
-        $tetelek = $adatbazis_kapcsolat->s('telephely_id, sz_d, sz_ert, sz_vert', 'fenntartasi_szerzodes_tetel', "`aparecid`='{$_GET['id']}'", 'sz_d');
+        $tetelek = $adatbazis_kapcsolat->s('telephely_id, sz_d, sz_ert, sz_vert', 'fenntartasi_szerzodes_tetel', "`fenntartasi_szerzodes_recid`='{$_GET['id']}'", 'sz_d');
         foreach ( $tetelek as $tetel ) {
             
             $szamla_html .= nl2('

@@ -278,7 +278,7 @@ require_once('selectek.php');
         ');
         
         // Tételek felsorolása
-        $tetelek = $adatbazis_kapcsolat->s('*', 'fenntartasi_szamla_tetel', "`fenntartasi_szamla_recid`='{$_GET['id']}'", 'igazol_dt');
+        $tetelek = $adatbazis_kapcsolat->s('*', 'energia_szamla_tetel', "`fenntartasi_szamla_recid`='{$_GET['id']}'", 'igazol_dt');
         foreach ( $tetelek as $tetel ) {
             
             $szamla_html .= nl2('
