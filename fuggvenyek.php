@@ -4724,9 +4724,13 @@ function munkalapLista( $bejegyzesek, $tabla, $frissit, $kijeloltek, $sorrend_id
 //                }
 //            }
 
-            // Ha a státusz döntésre vár, és a felhasználónak túl alacsony a jóváhagyható limite, akkor meg se jelenítjük, nem is számolunk tovább
-            if( $bsz['stat_id'] == MUNKALAP_STAT_DONTESRE_VAR && $bsz['jh_ert'] > $login['jh_ft_ig'] ) {
-                continue;
+            // Ha a státusz döntésre vár, és a felhasználónak túl alacsony a jóváhagyható limite,
+            // akkor meg se jelenítjük, nem is számolunk tovább
+            // Update 2020.07.13: Műszaki vezető esetén mindegy mi a limit, nem foglalkozunk bele, ő láthatja.
+            if( $_SESSION[get_db_tabla().'szemelyzet_id'] != MUSZAKI_VEZETO ) {
+                if( $bsz['stat_id'] == MUNKALAP_STAT_DONTESRE_VAR && $bsz['jh_ert'] > $login['jh_ft_ig'] ) {
+                    continue;
+                }
             }
 
             // Sűrgős pipa
