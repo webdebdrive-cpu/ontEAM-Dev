@@ -901,7 +901,7 @@ $prefix         = '';
 $szurve         = '';
 // Itt szándékosan figyelünk két feltételt is: ha csak az o_szuro_feltetel volna megadva,
 // akkor nem jelezzük a felhasználó felé, hogy van összetett szűrés a háttérben.
-// Például ha dashboard-ról jönnek át, akkor összetett szűrővel csinálunk lekérdezést, de ez nem derül ki a felhaszná felé.
+// Például ha dashboard-ról jönnek át, akkor összetett szűrővel csinálunk lekérdezést, de ez nem derül ki a felhasználó felé.
 if( $_SESSION['o_szuro_feltetel'] && $_SESSION['o_szuro_html'] ) {
     $szurve = ' piros';
 }

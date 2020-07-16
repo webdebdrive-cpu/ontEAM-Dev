@@ -3453,7 +3453,7 @@ function szamla_lista( $where = '', $tabla = '', $kijeloltek = false, $csak_sql_
                 $where = '('.csonkit($where, 5).') AND ';
             }
 
-            // Ha van get_o_szures_where_kieg() feltételünk is, akkor még azzal is megtoldjuk  a $where-t
+            // Ha van get_o_szures_where_kieg() feltételünk is, akkor még azzal is megtoldjuk a $where-t
             // Nem feltétlenük van SQL-ünk, ha van $_SESSION['o_szuro_feltetel']. Pl. ha a szűrés csak annyi tartalmaz, hogy Legfrisebb 100.
             $osszetett_szures_where = get_o_szures_where_kieg($_SESSION['o_szuro_feltetel'], $tabla);
             if( $osszetett_szures_where ) {
@@ -4652,7 +4652,6 @@ function munkalapLista( $bejegyzesek, $tabla, $frissit, $kijeloltek, $sorrend_id
         
         // Szükség lesz a login max jóváhagyó értékére, hogy azokat a ML-okat, aminek magasabb a jóváhagyott értéke, ki se listázzuk
         $login = $adatbazis_kapcsolat->s2('jh_ft_ig', 'login', "`recid`='{$_SESSION[get_db_tabla().'login_recid']}'");
-
         if( !$frissit ) {
 
             $stat_select = '';
@@ -4724,13 +4723,11 @@ function munkalapLista( $bejegyzesek, $tabla, $frissit, $kijeloltek, $sorrend_id
 //                }
 //            }
 
-            // Ha a státusz döntésre vár, és a felhasználónak túl alacsony a jóváhagyható limite,
-            // akkor meg se jelenítjük, nem is számolunk tovább
-            // Update 2020.07.13: Műszaki vezető esetén mindegy mi a limit, nem foglalkozunk bele, ő láthatja.
-            if( $_SESSION[get_db_tabla().'szemelyzet_id'] != MUSZAKI_VEZETO ) {
-                if( $bsz['stat_id'] == MUNKALAP_STAT_DONTESRE_VAR && $bsz['jh_ert'] > $login['jh_ft_ig'] ) {
-                    continue;
-                }
+            // Ha a státusz döntésre vár, és nincs "Saját szállodák megtekintése" jogunk (mert akkor mindent meg kell mutatni), 
+            // de van "Külsős jóváhagyás" jogunk limittel (emiatt tehát figyelni kell a limitre),
+            // és a ML jóváhagyott értéke több mint a mi limitünk, akkor nem íratjuk ki
+            if( $bsz['stat_id'] == MUNKALAP_STAT_DONTESRE_VAR && !_jog(JOG_MUNKALAP_MEGTEKINT_SZALL) && _jog(JOG_MUNKALAP_KULSOS_DONTES) && $bsz['jh_ert'] > $login['jh_ft_ig'] ) {
+                continue;
             }
 
             // Sűrgős pipa

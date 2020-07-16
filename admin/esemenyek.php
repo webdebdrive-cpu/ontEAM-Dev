@@ -3425,10 +3425,11 @@ if( !in_array(basename(self()), $kivetelek) ){
                 (
                     // ... és az előző oldal nem azonos az aktuálissal
                     $_SESSION['elozo_oldal'] != basename(self()) 
-                    // ... vagy ha anyagrendelés és anyagigénylés között váltunk, akkor kiürítjük ezeket a SESSION-öket.
+                    // ... vagy ha anyagrendelés és anyagigénylés között váltunk
                     || ( $_SESSION['elozo_oldal'] == 'anyagigenyles.php'            && basename(self()) == 'anyagigenyles.php' &&  isset($_GET['anyagrend']) )
                     || ( $_SESSION['elozo_oldal'] == 'anyagigenyles.php?anyagrend'  && basename(self()) == 'anyagigenyles.php' && !isset($_GET['anyagrend']) )
                 )
+                // akkor kiürítjük ezeket a SESSION-öket.
         ) {
             unset($_SESSION['dashboard_feladat']);
             unset($_SESSION['o_szuro_feltetel']);

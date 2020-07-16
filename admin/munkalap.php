@@ -7874,9 +7874,14 @@ require('selectek.php');
 
         // "Döntés alatt" státusz + döntés jog + egyik jóváhagyó szerepkörű se legyek
         if( $sor['stat_id'] == MUNKALAP_STAT_DONTESRE_VAR && _jog(JOG_MUNKALAP_KULSOS_DONTES) && $sor['jh1_szerep'] != $_SESSION[get_db_tabla() . 'szemelyzet_id'] && $sor['jh2_szerep'] != $_SESSION[get_db_tabla() . 'szemelyzet_id'] ) {
-            $gombok .= '<input type="button" class="gomb modositaskor_rejt" value="Külsős jóváhagyása" onclick="munkalapKulsosJovahagy(\'csak kérdezünk még\');"> ';
-            $gombok .= '<input type="button" class="gomb modositaskor_rejt" value="Külsős elutasítása" onclick="csoportMuvelet(\'munkalapKulsosElutasit\')"> ';
+            // Illetve a limitünk legyen magasabb mint a ML jóváhagyott értéke
+            $login = $adatbazis_kapcsolat->s2('jh_ft_ig', 'login', "`recid`='{$_SESSION[get_db_tabla().'login_recid']}'");
+            if( $sor['jh_ert'] < $login['jh_ft_ig'] ) {
+                $gombok .= '<input type="button" class="gomb modositaskor_rejt" value="Külsős jóváhagyása" onclick="munkalapKulsosJovahagy(\'csak kérdezünk még\');"> ';
+                $gombok .= '<input type="button" class="gomb modositaskor_rejt" value="Külsős elutasítása" onclick="csoportMuvelet(\'munkalapKulsosElutasit\')"> ';
+            }
         }
+        
 
         // Anyagra vár és anyag érkeztetése jog
         if( $sor['stat_id'] == MUNKALAP_STAT_ANYAGRAVAR && _jog(JOG_MUNKALAP_ANYAG_ERKEZTET) ) {
