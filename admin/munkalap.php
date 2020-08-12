@@ -795,6 +795,18 @@ if( isset($_POST['munkalapMobil_sima']) ) {
         if( !addStatusz( 'munkalap_statusz', $recid, MUNKALAP_STAT_BEOSZTAS_NELKUL ) ) {
             $db_error = true;
         }
+        
+        // Van-e munkalaphoz tartozó bejelentés, és az nyitott-e? Ha igen, akkor folyamatbanra állítjuk.
+        // 2020.08.12-én került be, mert elő tudott fordulni, hogy a ML státusza változik, míg a hozzá tartozó bejelentés végig Nyitott marad. Ez még vagy 4 helyre bekerült.
+        $bejelentes = $adatbazis_kapcsolat->s2('bejelentes_id', 'munkalap_kapcs', "`munkalap_id`='{$recid}'");
+        if( $bejelentes === false ) { $db_error = true; }
+        $bejelentes = $adatbazis_kapcsolat->s2('recid stat_id', 'bejelentes', "`recid`='{$bejelentes['bejelentes_id']}'");
+        if( $bejelentes === false ) { $db_error = true; }
+        if( $bejelentes['stat_id']==BEJELENTES_STAT_NYITOTT ){
+            if( addStatusz( 'bejelentes_statusz', $bejelentes['recid'], BEJELENTES_STAT_FOLYAMATBAN ) === false ) {
+                $db_error = true;
+            }
+        }
 
         if( !$db_error ) {
             mysqli_commit($db_kapcs);
@@ -1008,6 +1020,18 @@ if( isset($_POST['munkalapKulso']) ) {
         if( addMegj('munkalap', $recid, $memo) === false ) {
             $db_error = true;
         }
+        
+        // Van-e munkalaphoz tartozó bejelentés, és az nyitott-e? Ha igen, akkor folyamatbanra állítjuk.
+        // 2020.08.12-én került be, mert elő tudott fordulni, hogy a ML státusza változik, míg a hozzá tartozó bejelentés végig Nyitott marad. Ez még vagy 4 helyre bekerült.
+        $bejelentes = $adatbazis_kapcsolat->s2('bejelentes_id', 'munkalap_kapcs', "`munkalap_id`='{$recid}'");
+        if( $bejelentes === false ) { $db_error = true; }
+        $bejelentes = $adatbazis_kapcsolat->s2('recid stat_id', 'bejelentes', "`recid`='{$bejelentes['bejelentes_id']}'");
+        if( $bejelentes === false ) { $db_error = true; }
+        if( $bejelentes['stat_id']==BEJELENTES_STAT_NYITOTT ){
+            if( addStatusz( 'bejelentes_statusz', $bejelentes['recid'], BEJELENTES_STAT_FOLYAMATBAN ) === false ) {
+                $db_error = true;
+            }
+        }
 
         if( !$db_error ) {
             mysqli_commit($db_kapcs);
@@ -1099,6 +1123,18 @@ if( isset($_POST['munkalapElokeszit']) ) {
         if( !addStatusz( 'munkalap_statusz', $recid, MUNKALAP_STAT_ELOKESZITES_ALATT ) ) {
             $db_error = true;
         }
+        
+        // Van-e munkalaphoz tartozó bejelentés, és az nyitott-e? Ha igen, akkor folyamatbanra állítjuk.
+        // 2020.08.12-én került be, mert elő tudott fordulni, hogy a ML státusza változik, míg a hozzá tartozó bejelentés végig Nyitott marad. Ez még vagy 4 helyre bekerült.
+        $bejelentes = $adatbazis_kapcsolat->s2('bejelentes_id', 'munkalap_kapcs', "`munkalap_id`='{$recid}'");
+        if( $bejelentes === false ) { $db_error = true; }
+        $bejelentes = $adatbazis_kapcsolat->s2('recid stat_id', 'bejelentes', "`recid`='{$bejelentes['bejelentes_id']}'");
+        if( $bejelentes === false ) { $db_error = true; }
+         if( $bejelentes['stat_id'] == BEJELENTES_STAT_NYITOTT ) {
+            if( addStatusz( 'bejelentes_statusz', $bejelentes['recid'], BEJELENTES_STAT_FOLYAMATBAN ) === false ) {
+                $db_error = true;
+            }
+        }
 
         if( !$db_error ) {
             mysqli_commit($db_kapcs);
@@ -1189,7 +1225,7 @@ if( isset($_POST['munkalapFelvesz']) ) {
         if( $bejelentes === false ) { $db_error = true; }
         $bejelentes = $adatbazis_kapcsolat->s2('recid stat_id', 'bejelentes', "`recid`='{$bejelentes['bejelentes_id']}'");
         if( $bejelentes === false ) { $db_error = true; }
-        if($bejelentes['stat_id']==BEJELENTES_STAT_NYITOTT){
+        if( $bejelentes['stat_id'] == BEJELENTES_STAT_NYITOTT ) {
             if( addStatusz( 'bejelentes_statusz', $bejelentes['recid'], BEJELENTES_STAT_FOLYAMATBAN ) === false ) {
                 $db_error = true;
             }
@@ -3343,7 +3379,7 @@ if( isset($_POST['diszKozpVezAtadas']) ) {
             if( $sql === false ) { $db_error = true; }
 
             if( $munk_bejek ) {
-                foreach($munk_bejek as $munk_bej) {
+                foreach ( $munk_bejek as $munk_bej ) {
                     if( !addStatusz( 'bejelentes_statusz', $munk_bej['bejelentes_id'], BEJELENTES_STAT_FOLYAMATBAN, '', $memo ) ) {
                         $db_error = true;
                     }
@@ -5524,6 +5560,18 @@ if( isset($_POST['munkalapTelepitett']) ) {
         // Státusz léptetés
         if( !addStatusz( 'munkalap_statusz', $recid, MUNKALAP_STAT_HOZZARENDELT ) ) {
             $db_error = true;
+        }
+        
+        // Van-e munkalaphoz tartozó bejelentés, és az nyitott-e? Ha igen, akkor folyamatbanra állítjuk.
+        // 2020.08.12-én került be, mert elő tudott fordulni, hogy a ML státusza változik, míg a hozzá tartozó bejelentés végig Nyitott marad. Ez még vagy 4 helyre bekerült.
+        $bejelentes = $adatbazis_kapcsolat->s2('bejelentes_id', 'munkalap_kapcs', "`munkalap_id`='{$recid}'");
+        if( $bejelentes === false ) { $db_error = true; }
+        $bejelentes = $adatbazis_kapcsolat->s2('recid stat_id', 'bejelentes', "`recid`='{$bejelentes['bejelentes_id']}'");
+        if( $bejelentes === false ) { $db_error = true; }
+        if( $bejelentes['stat_id'] == BEJELENTES_STAT_NYITOTT ) {
+            if( addStatusz( 'bejelentes_statusz', $bejelentes['recid'], BEJELENTES_STAT_FOLYAMATBAN ) === false ) {
+                $db_error = true;
+            }
         }
 
         if( !$db_error ) {

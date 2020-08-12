@@ -657,7 +657,7 @@ function munkalapLezaras(csak_kerdezunk) {
 /* Munkalap átadása telepített csoportnak */
 function munkalapTelepitett(csak_kerdezunk) {
 
-    if(balnav_kijelol_ell()){
+    if (balnav_kijelol_ell()) {
 
         alert2();
 
@@ -1023,12 +1023,12 @@ function munkalapVarakoztatVege(){
 /* Munkalap személyzet előkészítése  */
 function munkalapElokeszit(szemelyzet_id, mehet) {
 
-    if(!mehet){
+    if (!mehet) {
         alert2('Biztosan előkészíti a munkalapot?', '<input type="button" class="gomb zold" value="Igen" onclick="munkalapElokeszit('+szemelyzet_id+', \'mehet\')"><input type="button" class="gomb piros" value="Nem" onclick="alert2()">');
         return false;
     }
 
-    if(balnav_kijelol_ell()){
+    if (balnav_kijelol_ell()) {
 
         $.ajax({
             url : 'munkalap.php',
