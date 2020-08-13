@@ -103,7 +103,7 @@ function get_domain()        {
 function get_http()          {
     if (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] != 'off') {
         return 'https://';
-    }else{
+    } else {
         return 'http://';
     }
 }
@@ -144,15 +144,19 @@ function get_session_felh()  { return get_db_tabla().'felhId';                  
 function get_teszt_mail()    { return 'teszt@webdeb.hu';                        }
 function get_mszk_mail(){
     if( $_SERVER['HTTP_HOST'] == 'demo.webdeb.hu' ) {
-        return 'diszpecser@wdb.hu';
-    }else{
+        return 'bk@webdeb.hu';
+    } else if( $_SERVER['HTTP_HOST'] == 'dev.onteam.hu' ) {
+        return 'korcsmaros@szinvatrend.hu';
+    } else {
         return 'diszpecser@danubiushotels.com';
     }
 }
 function get_mszk_mail2(){
     if( $_SERVER['HTTP_HOST'] == 'demo.webdeb.hu' ) {
-        return 'gyongyi.szollosi@wdb.hu';
-    }else{
+        return 'bk@webdeb.hu';
+    } else if( $_SERVER['HTTP_HOST'] == 'dev.onteam.hu' ) {
+        return 'korcsmaros@szinvatrend.hu';
+    } else {
         return 'gyongyi.szollosi@danubiushotels.com';
     }
 }
@@ -180,7 +184,7 @@ function get_language(){ return get_alapnyelv();    }
 function get_favicon() {
     if( is_file('/favicon.ico') ) {
         return 'favicon.ico';
-    }else{
+    } else {
         return '';
     }
 }

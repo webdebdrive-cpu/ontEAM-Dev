@@ -1130,10 +1130,10 @@ function get_szallito_mailcim(that){
     
 }
 
-/* Külső kivitelező hozzárendelés popup inputjait be kell állítani, alapértemlezett értékekkel feltölteni */
+// Külső kivitelező hozzárendelés popup inputjait be kell állítani, alapértemlezett értékekkel feltölteni
 function get_kulso_hozzarendeles_input_tartalmak(){
     
-    /* Datepicker beállítása */
+    // Datepicker beállítása
     $('.pop_datetimepicker').datetimepicker({
         closeOnDateSelect   : false,
         format              :'Y.m.d H:i',
@@ -1150,7 +1150,7 @@ function get_kulso_hozzarendeles_input_tartalmak(){
         }
     });
     
-    /* ML adatainak lekérdezése */
+    // ML adatainak lekérdezése
     $.ajax({
         url : 'munkalap.php',
         type: 'POST',
@@ -1163,7 +1163,7 @@ function get_kulso_hozzarendeles_input_tartalmak(){
             if (munkalap) {
                 munkalap = JSON.parse(munkalap);
                 
-                /* Levélküldés mezőinek alapértelmezett értékének beállítsa */
+                // Levélküldés mezőinek alapértelmezett értékének beállítása
                 $('#pop_targy').val( 'Hibabejelentés '+munkalap.ikt_szam+' '+munkalap.telephely_nev+' ' );
 
                 uzenet =    "Tisztelt Partnerünk,\n\n"                      +
