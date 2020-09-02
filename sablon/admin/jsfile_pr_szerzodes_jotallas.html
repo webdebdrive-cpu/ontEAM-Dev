@@ -47,9 +47,9 @@ function beolvasas_{MEGN}(fajlok){
     
     for (var i = 0; i < fajlok.length; i++){
 
-        formData.append('file', fajlok[i]);
-        /* Kép megjelenítése egyből: */
-        /*elonezet_{MEGN}(fajlok[i]);*/
+        var fajl = fajlok[i];
+
+        formData.append('file', fajl);
 
         var progress_id = 'jsff_{MEGN}_' + i;
         var pg = $('<progress id="'+progress_id+'" min="0" max="100" value="0">0</progress>');
@@ -63,6 +63,7 @@ function beolvasas_{MEGN}(fajlok){
                 var percent = parseInt(e.loaded / e.total * 100);
                 $('#' + progress_id).val(percent);
             };
+
             /* Túl nagy méretű fálj problémájának lekezelése. A méret limitet a PHP iniből kapjuk. */
             if( fajl.size > 31457280 ) {
                 xhr.abort();

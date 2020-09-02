@@ -14,7 +14,7 @@ if( filesize($log_utvonal) > get_logfile_max_meret() ) {
     fajlba_mentes($log_utvonal, $log_tmp);
 }
 
-// Projektszerződések jótállásaiból azokat vesszük, ahola bejárás 30 napon belül van
+// Projektszerződések jótállásaiból azokat vesszük, ahol a bejárás 30 napon belül van
 $jotallasok = $adatbazis_kapcsolat->s('recid projektszerzodes_recid bejaras', 'projektszerzodes_jotallas', "`bejaras`<='".date('Y-m-d', time()+60*60*24*30)."' AND `mail_ment`='0000-00-00 00:00:00'");
 $log_tmp = $adatbazis_kapcsolat->gp() . '
 ';
