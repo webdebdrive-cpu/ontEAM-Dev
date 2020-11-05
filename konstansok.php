@@ -362,6 +362,8 @@ define('ERT_ELFELEJTETT_JELSZO',        11);
 define('ERT_14_NAPJA_VARO_ML',          12);
 define('ERT_BEOSZTAS_ELL',              14);
 
+define('ERT_GAR_BEJARAS',               15);
+
 define('HIBA_ADJON_FELADAT',            ' kérem adjon hozzá egy elvégzett feladatot!');
 define('DASHB_NINCS_BEJEGYZES',         'Nem található bejegyzés!');
 define('NULLAS_TETEL',                  'Nullás tétel');

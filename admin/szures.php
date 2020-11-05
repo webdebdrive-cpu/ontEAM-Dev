@@ -116,6 +116,11 @@ if( isset($_POST['f_szuro_mezo']) ) {
         $operator .= '<option value="not_eq"'.$selected_not_eq.'>&lt;&gt;</option>';
     }
 
+    // Projektszerződésnél a jótállás van-e szűrés
+    if( $_POST['tabla'] == 'projektszerzodes' && $_POST['mezo'] == 'jotallas_van_e' ) {
+        $operator = '<option value="equal"'.$selected_equal.'>=</option>';
+    }
+
     // Projektszámláknál a kifizetés van-e szűrés
     if( $_POST['tabla'] == 'projektszamla' && $_POST['mezo'] == 'kifizetes_van_e' ) {
         $operator = '<option value="equal"'.$selected_equal.'>=</option>';
@@ -188,7 +193,7 @@ if( isset($_POST['f_szuro_mezo_operator']) ) {
     }
 
     // Ha az éppen kiválasztott operátor az üres, akkor az alábbit adjuk vissza és kész
-    if( $_POST['selected'] == 'empty' || $_POST['mezo'] == 'dok_van_e' || $_POST['mezo'] == 'dok_db_min_var' || $_POST['mezo'] == 'kapcsolt_szerzodes_van_e' || $_POST['mezo'] == 'kapcsolt_szamla_van_e' || $_POST['mezo'] == 'kifizetes_van_e' || $_POST['mezo'] == 'fix_adat' ) {
+    if( $_POST['selected'] == 'empty' || $_POST['mezo'] == 'dok_van_e' || $_POST['mezo'] == 'dok_db_min_var' || $_POST['mezo'] == 'kapcsolt_szerzodes_van_e' || $_POST['mezo'] == 'kapcsolt_szamla_van_e' || $_POST['mezo'] == 'kifizetes_van_e' || $_POST['mezo'] == 'jotallas_van_e' || $_POST['mezo'] == 'fix_adat' ) {
         $feltetel = nl2('
             <select class="f_felt">
                 <option value="1"'.$selected_egy.'>Igen</option>
@@ -875,10 +880,18 @@ if( $tabla == 'projektkezeles' ) {
     }
     array_push( $sz_mezo, array('eleje' => '<option value="team_tag"'.$selected_team_tag.'>', 'vege' => 'Team tag</option>' ) );
 }
+// Projektszerződésnél szűrni kell tudni, hogy van-e jótállás
+if( $tabla == 'projektszerzodes' ) {
+    $selected_jotallas  = '';
+    if( $_GET['mezo'] == 'jotallas_van_e' ) {
+        $selected_jotallas = ' selected';
+    }
+    array_push( $sz_mezo, array('eleje' => '<option value="jotallas_van_e"'.$selected_jotallas.'>', 'vege' => 'Van jótállás</option>' ) );
+}
 // Projektszámlánál szűrni kell tudni, hogy van-e kifizetés
 if( $tabla == 'projektszamla' ) {
     $selected_kifizetes  = '';
-    if($_GET['mezo']=='kifizetes_van_e'){
+    if( $_GET['mezo'] == 'kifizetes_van_e' ) {
         $selected_kifizetes = ' selected';
     }
     array_push( $sz_mezo, array('eleje' => '<option value="kifizetes_van_e"'.$selected_kifizetes.'>', 'vege' => 'Van kifizetés</option>' ) );

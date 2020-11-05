@@ -33,9 +33,9 @@ foreach ( $jotallasok as $jotallas ) {
     $login        = $adatbazis_kapcsolat->s2('teljes_nev usermail', 'login', "`recid`='{$projekt['pfelelos']}'");
 
     $uzi = 
-'Tisztelt '.$login['teljes_nev'].'!
+'Tisztelt {NEV}!
 <br>
-<br>Önnek az alábbi projekt szerződés, garanciális bejárása lesz esedékes 30 nap múlva:
+<br>Az alábbi projekt szerződés garanciális bejárása lesz esedékes:
 <br>
 <br>Szerződés szám: '.$pr_szerzodes['sz_szam'].'
 <br>Szálloda: '.getSzallodaNev($pr_szerzodes['telephely_id']).'
@@ -47,14 +47,25 @@ foreach ( $jotallasok as $jotallas ) {
     $targy_kieg = $kieg[0];
     $uzi_kieg   = $kieg[1];
 
-    $sikeres_kuldes = level_kuldes(get_nev(), get_mail(), $login['teljes_nev'], $login['usermail'], $targy_kieg.'Értesítés garanciális bejárásáról', $uzi_kieg.$uzi);
+    $idobelyeg  = date('Y-m-d H:i:s');
+    
+    // Egy levél megy a projektfelelősnek.
+    $sikeres_kuldes = level_kuldes(get_nev(), get_mail(), $login['teljes_nev'], $login['usermail'], $targy_kieg.'Értesítés garanciális bejárásáról', $uzi_kieg.str_replace('{NEV}', $login['teljes_nev'], $uzi));
+    $megj = 'Garanciális bejárásáról értesítő email elküldve: '.$login['teljes_nev'].' ('.$login['usermail'].') '.datum_kiir($idobelyeg).' időpontban.';
+    $log_tmp = 'Értesítő levél elküldve garanciális bejárásáról: '.$login['teljes_nev'].' - '.$login['usermail'].'
+';
+    // Illetve még azoknak, akiknél ez az értesítés be van kacsolva
+    $loginok = $adatbazis_kapcsolat->s('teljes_nev usermail', 'login', "SUBSTR( `flags_ert`, ".(ERT_GAR_BEJARAS+1).", 1 )=1");
+    foreach( $loginok as $login ) {
+        $sikeres_kuldes = level_kuldes(get_nev(), get_mail(), $login['teljes_nev'], $login['usermail'], $targy_kieg.'Értesítés garanciális bejárásáról', $uzi_kieg.str_replace('{NEV}', $login['teljes_nev'], $uzi));
+        $megj    .= 'Garanciális bejárásáról értesítő email elküldve: '.$login['teljes_nev'].' ('.$login['usermail'].') '.datum_kiir($idobelyeg).' időpontban.<br>';
+        $log_tmp .= 'Értesítő levél elküldve garanciális bejárásáról: '.$login['teljes_nev'].' - '.$login['usermail'].'
+';
+    }
+    
     // Ha van értéke, az egy hibaüzenet, akkor sikerült küldeni, ha nincs visszatérési érték
     if( !$sikeres_kuldes ) {
-
-        $idobelyeg = date('Y-m-d H:i:s');
         
-        $log_tmp = 'Értesítő levél elküldve garanciális bejárásáról: '.$login['teljes_nev'].' - '.$login['usermail'].'
-';
         $log .= $log_tmp;
         file_put_contents($log_utvonal, $log_tmp, FILE_APPEND | LOCK_EX);
         $sql = $adatbazis_kapcsolat->u('projektszerzodes_jotallas', array('mail_ment'), array($idobelyeg), "`recid`='{$jotallas['recid']}'");
@@ -66,7 +77,6 @@ foreach ( $jotallasok as $jotallas ) {
         }
         
         // Megjegyzésbe is beleírjuk
-        $megj = 'Garanciális bejárásáról értesítő email elküldve: '.$login['teljes_nev'].' ('.$login['usermail'].') '.datum_kiir($idobelyeg).' időpontban.';
         if( addMegj('projektszerzodes', $jotallas['projektszerzodes_recid'], $megj) === false ) {
             $db_error = true;
         }

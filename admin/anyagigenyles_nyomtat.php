@@ -6,15 +6,28 @@ if( isset($_GET['nyomtat']) ) {
     list($sorszam, $idk) = explode('|', $adatok);
     $idk                 = json_decode($idk, true);
     $idk_impl            = implode(',', $idk);
+    $session_user        = $_SESSION[get_db_tabla().'user'];
 
+// Ha hiányzik egy PDF, akkor kézzel így tudod létrehozni:
+if( isset($_GET['teszt']) ) {
+    
+    $anyagrendeles_idja = 10592;        // Ide a az anyagrendelés recid-ját add meg
+    $session_user       = 'vargavik';   // Ide azt a User nevet add meg, amit a PDF alján a dátumnál látni szeretnél
+    // Futtasd le ezt a PDF előállításához:
+    // https://www.onteam.hu/admin/anyagigenyles.php?nyomtat=&szall&html_mutat=1&teszt
+    
+    $rendeles           = $adatbazis_kapcsolat->s2('rndid', 'anyagigenyles', "`recid`='{$anyagrendeles_idja}'");
+    $sorszam            = str_replace('/', '_', $rendeles['rndid']);   // Ide az anyagrendelés szorszámát add meg (ebből következik a PDF neve, azért kell)
+    $idk                = array($anyagrendeles_idja, $anyagrendeles_idja); // <= Szándékosan van kétszer felvéve, csak így működik!!!
+    $idk_impl           = $anyagrendeles_idja;
+}
     // Szállító kiszámítása
     $szallito = $adatbazis_kapcsolat->s2('szallito_id kcs_21', 'anyagigenyles', "`recid`='{$idk[1]}'");
-//echo $adatbazis_kapcsolat->gp() . '<br>';
+
     $kcs_21   = $szallito['kcs_21'];
     $penznem  = $adatbazis_kapcsolat->s2('info', 'erteklista', "`csoport`='".ERTEKLISTA_PENZNEM."' AND `id`='{$kcs_21}'");
     $szallito = $adatbazis_kapcsolat->s2('id nev knev tel tel2 email isz varos utca', 'szallito', "`id`='{$szallito['szallito_id']}'");
-//echo $adatbazis_kapcsolat->gp() . '<br>';
-//echo $szallito['id'];exit;
+
 }
 
 // Szállítói nyomtatási kép
@@ -36,7 +49,6 @@ if( isset($_GET['szall']) ) {
         // Anyagonként járjuk be az anyagigényléseket, összesítve a darabszámot
         $ossz     = 0;
         $anyagok = $adatbazis_kapcsolat->s('distinct cikk_id, rndear', 'anyagigenyles', "`recid` IN (".$idk_impl.")");
-//echo $adatbazis_kapcsolat->gp() . '<br>';
 
         $egysegar_mezo  = 'rndear';
         $egysegar_tized = 0;
@@ -75,7 +87,6 @@ if( isset($_GET['szall']) ) {
                         ';
 
     }
-
 
     // Lényegi tartalom
     $tartalom = '
@@ -125,15 +136,13 @@ if (isset($_GET['html_mutat'])) {
     $mit = array('<script src="../js/jquery.js"></script>', '<link href="../css/nyomtatas.css" rel="stylesheet" type="text/css">');
     $html = str_replace($mit, '', $html);
 
-
-
     $mpdf = new mPDF('utf-8');
 
     $mpdf -> AddPage('P',     '',   '', '', '', '10', '10', '28', '20', '5', '5');
     $mpdf -> nbpgPrefix = '/ ';
     $header = get_fejlec_top($sorszam, 'lapszámmal');
     $footer = '<div class="dtc r" style="font-size: 7px">
-        '.$_SESSION[get_db_tabla().'user'].'
+        '.$session_user.'
         '.date('Y.m.d H:i:s').'
     </div>';
     $mpdf ->SetHTMLHeader( $header, '', true);
@@ -153,7 +162,10 @@ if (isset($_GET['html_mutat'])) {
     }
 
     $mpdf -> Output(iconv('UTF-8', 'Windows-1250', '../'.get_utvonal().'rendeles/'.date('y').'/'.$szallito['id'].'/'.str_replace('/', '_', $sorszam).'.pdf'), 'F');
-// echo date('y').'/'.$szallito['id'].'/'.str_replace('/', '_', $sorszam).'.pdf';
+if( isset($_GET['teszt']) ) {        
+    echo 'Fájl ide létrehozva: '.get_utvonal().'rendeles/'. date('y').'/'.$szallito['id'].'/'.str_replace('/', '_', $sorszam).'.pdf';
+    exit;
+}
     // Így tudod megnyitni  a PDF-et (olyan mintha egy PDF kiterjesztésű fájlra hivatkoznál)
     if (!isset($_GET['html_mutat'])) {
         $mpdf -> Output();

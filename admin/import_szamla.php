@@ -12,6 +12,8 @@ if( $_POST ) {
     $_SESSION['kert_url'] = 'projektszamla.php?uj';
     if( $_SERVER['HTTP_HOST'] == 'demo.webdeb.hu' ) {
         $_SESSION['kert_url'] = get_kerturl_elotag().$_SESSION['kert_url'];
+    } else {
+        $_SESSION['kert_url'] = 'https://'.$_SERVER['HTTP_HOST'].'/admin/'.$_SESSION['kert_url'];
     }
     $_SESSION['projekt_szamla_import'] = '1';
     foreach( $_POST as $kulcs => $post ) {
@@ -21,4 +23,3 @@ if( $_POST ) {
     require_once 'beleptetes.php';
     header('Location: '.$_SESSION['kert_url']);
 }
-?>

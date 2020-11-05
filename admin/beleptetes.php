@@ -89,7 +89,7 @@ if( isset($_POST['jelszo_csere']) ) {
 
                         if( $bejelento ) {
                             $_SESSION['bejelento_menu_rejt'] = 1;
-                            $_SESSION['kert_url'] = 'bejelentes.php';
+                            $_SESSION['kert_url'] = 'https://'.$_SERVER['HTTP_HOST'].'/admin/bejelentes.php';
                             if($_SERVER['HTTP_HOST'] == 'demo.webdeb.hu'){
                                 $_SESSION['kert_url'] = get_kerturl_elotag().$_SESSION['kert_url'];
                             }
@@ -255,7 +255,7 @@ if( isset($_POST['login']) ) {
                     }
                     if( $bejelento ) {
                         $_SESSION['bejelento_menu_rejt'] = 1;
-                        $_SESSION['kert_url'] = 'bejelentes.php';
+                        $_SESSION['kert_url'] = 'https://'.$_SERVER['HTTP_HOST'].'/admin/bejelentes.php';
                         if($_SERVER['HTTP_HOST'] == 'demo.webdeb.hu'){
                             $_SESSION['kert_url'] = get_kerturl_elotag().$_SESSION['kert_url'];
                         }

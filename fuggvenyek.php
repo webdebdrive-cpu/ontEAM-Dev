@@ -2111,6 +2111,7 @@ function i_u($type, $tabla, $tomb) {
         }
 
         // Szeméyzet aktív/inaktív váltása a hozzá tartozó login-t is aktív/inaktiválja
+        // Ilyen eset egyébként szerintem nincs is, mert az aktív pipa nem módosítható Törzsadatoknál
         if( $tabla == 'torzsadat' ) {
             $login_nev = $adatbazis_kapcsolat->s2('felh_loginnev', $tabla, "`recid`='{$_GET['id']}'");
             if( $login_nev === false ) { $db_error = true; }
@@ -8077,6 +8078,16 @@ function get_szures_where_kieg($mezo, $op, $felt, $tabla) {
     } elseif( $tabla == 'utemezett_feladatok' && $mezo == 'id' ) {
         return '`'.get_db_tabla().'utemezett_feladatok`.`id`=\''.$felt.'\'';
         
+    // Projket szerződésnél szűrni kell arra, hogy van-e jótállás
+    } elseif( $tabla == 'projektszerzodes' && $mezo == 'jotallas_van_e' ) {
+        $return = ' (SELECT COUNT(`'.get_db_tabla().'projektszerzodes_jotallas`.`recid`) FROM `'.get_db_tabla().'projektszerzodes_jotallas` WHERE `'.get_db_tabla().'projektszerzodes_jotallas`.`projektszerzodes_recid`=`'.get_db_tabla().'projektszerzodes`.`recid`)';
+        if( $felt ) {
+            $return .= ' > 0';
+        } else {
+            $return .= ' = 0';
+        }
+        return $return;
+        
     // Projket számlánál szűrni kell arra, hogy van-e kifizetése
     } elseif( $tabla == 'projektszamla' && $mezo == 'kifizetes_van_e' ) {
         $return = ' (SELECT COUNT(`'.get_db_tabla().'projektszamla_kifizetesek`.`recid`) FROM `'.get_db_tabla().'projektszamla_kifizetesek` WHERE `'.get_db_tabla().'projektszamla_kifizetesek`.`projektszamla_recid`=`'.get_db_tabla().'projektszamla`.`recid`)';
@@ -11550,6 +11561,7 @@ function torzsadat_update_es_log( $torzsadat, $inaktival = '' ) {
     $sql = $adatbazis_kapcsolat->u('torzsadat', array('aktiv',      'virtual',          'nev'               ),
                                                 array($post_aktiv,  $_POST['virtual'], $_POST['teljes_nev'] ),
                                             "`felh_loginnev`='{$_POST['nev']}'");
+
     if( $sql === false ) { $db_error = true; }
 
     if( addMegj('torzsadat', $torzsadat['recid'], $megj_be) === false ) {

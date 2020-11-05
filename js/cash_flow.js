@@ -28,7 +28,7 @@ $(document).on('click', '.szamla_cont_tabla tbody tr', function(e) {
     $(this).addClass('kijelolve');
 });
 
-// Mezőbeírt adatok ellenőzése, mentése SESSION-be
+// Mezőbe írt adatok ellenőzése, mentése SESSION-be
 function cash_flow_elkeszitese() {
     
     $.ajax({
