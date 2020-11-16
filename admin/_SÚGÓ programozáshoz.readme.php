@@ -102,3 +102,7 @@ FÓKOSZÁLÁSOK
  
 JOBB OLDALI NAVPANELRE KATTINTVA BETÖLT EGY SOR, LEFUT A HÁTTÉRBEN EGY AJAX
 - Ezzel kapcsolatos JS-t itt találod: admin.js szamlaBetolt();
+  
+SZÁMLA IMPORT WEBSERVICE ANDOCBÓL
+- andoc.php-kezeli
+ 

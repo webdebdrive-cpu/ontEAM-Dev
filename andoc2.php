@@ -1,7 +1,7 @@
 <?php
 require_once 'weblap.php';
 
-header('Content-Type: text/html; charset='. get_web_charset());
+header('Content-Type: text/html; charset='.get_web_charset());
 
 ini_set('soap.wsdl_cache_enabled', '0');
 

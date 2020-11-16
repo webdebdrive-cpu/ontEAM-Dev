@@ -233,13 +233,13 @@ if( isset($_POST['get_leiras']) ) {
 }
 
 // Van-e olyan munkalap, ami ezt a cikket hiányolná
-if (isset($_POST['varnak_e_anyagra'])) {
+if( isset($_POST['varnak_e_anyagra']) ) {
 
     $gomb = '';
     $hianyzo_anyagok = hianyzo_anyagok($_POST['cikk_id'], $_POST['telephely_id']);
     $db = count($hianyzo_anyagok);
     $hianyzo_anyagok = implode(',', $hianyzo_anyagok);
-    if($hianyzo_anyagok){
+    if( $hianyzo_anyagok ) {
         $gomb = $db.' db munkalap vár erre az anyagra: <br><input type="button" value="Mutat" class="gomb" onclick="window.open(\'munkalap.php?recidk='.$hianyzo_anyagok.'\')"><br>';
     }
 
@@ -1606,17 +1606,17 @@ if (isset($_POST['anyagigenyles_erkeztet'])) {
 
         // Beloginolt user szállodáira is szűrünk
         $szallodak = get_akt_login_szallodai();
-        if($szallodak){
+        if( $szallodak ) {
 
             $igenylesek = $adatbazis_kapcsolat->s('recid telephely_id cikk_id nev igmen rndmen erkmen cikkmee szallito_id stat_id', 'anyagigenyles', "`aparecid`='{$recid['recid']}' AND `telephely_id` IN (".implode(',', $szallodak).")");
-            foreach($igenylesek as $igeny){
+            foreach ( $igenylesek as $igeny ) {
 
                 $telephely = $adatbazis_kapcsolat->s2('nev', 'telephely', "`id`='{$igeny['telephely_id']}'");
 
                 $gomb = '(nincs)';
                 $hianyzo_anyagok = hianyzo_anyagok($igeny['cikk_id'], $igeny['telephely_id']);
                 $hianyzo_anyagok = implode(',', $hianyzo_anyagok);
-                if($hianyzo_anyagok){
+                if( $hianyzo_anyagok ) {
                     $gomb = '<input type="button" value="Mutat" class="gomb" onclick="window.open(\'munkalap.php?recidk='.$hianyzo_anyagok.'\')">';
                 }
 

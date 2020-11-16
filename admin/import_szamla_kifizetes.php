@@ -138,4 +138,3 @@ if( $_POST /*|| isset($_GET['teszt'])*/ ) {
 //            });
 //        </script>';
 //}
-?>
