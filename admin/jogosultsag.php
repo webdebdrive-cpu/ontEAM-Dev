@@ -1,7 +1,7 @@
 <?php
 /*                                                  *\
  * FONTOS:
- * 135-es ID-nál járunk
+ * 139-es ID-nál járunk
  * 13-as kategória ID-nál járunk
 \*                                                  */
 
@@ -162,10 +162,14 @@ $jogosultsagok = array(
     101 => array('nev' => 'Munkaközi terv törlése',                 'kat' => 12, 'sor' => 5),
     102 => array('nev' => 'Terv élesítése',                         'kat' => 12, 'sor' => 6),
     130 => array('nev' => 'Fenntartási szerződések megtekintése',   'kat' => 12, 'sor' => 7),
-    89  => array('nev' => 'Fenntartási számlák megtekintése',       'kat' => 12, 'sor' => 8),
-    88  => array('nev' => 'Energia számlák megtekintése',           'kat' => 12, 'sor' => 9),
-    87  => array('nev' => 'Anyag számlák megtekintése',             'kat' => 12, 'sor' => 10),
-    131 => array('nev' => 'Anyag számlák kezelése',                 'kat' => 12, 'sor' => 11),
+    136 => array('nev' => 'Fenntartási szerződések kezelése',       'kat' => 12, 'sor' => 8),
+    89  => array('nev' => 'Fenntartási számlák megtekintése',       'kat' => 12, 'sor' => 9),
+    137 => array('nev' => 'Fenntartási számlák kezelése',           'kat' => 12, 'sor' => 10),
+    88  => array('nev' => 'Energia számlák megtekintése',           'kat' => 12, 'sor' => 11),
+    138 => array('nev' => 'Energia számlák kezelése',               'kat' => 12, 'sor' => 12),
+    87  => array('nev' => 'Anyag számlák megtekintése',             'kat' => 12, 'sor' => 13),
+    131 => array('nev' => 'Anyag számlák kezelése',                 'kat' => 12, 'sor' => 14),
+    139 => array('nev' => 'Számlák igazolása',                      'kat' => 12, 'sor' => 15),
     
 // Az alábbi 3 nincs is igazából használva, ezt akár át lehet nevezni, másra használni
 90 => array('nev' => 'Számlák olvasása',                        'kat' => 13, 'sor' => 4),

@@ -610,7 +610,7 @@ function i_u($type, $tabla, $tomb) {
 
         // Értéklista új bejegyzés esetén
         } else if( $tabla == 'erteklista' ) {
-            $ertek = $adatbazis_kapcsolat->s2('id', 'erteklista', "`csoport` = '".$_POST['csoport']."'", 'id desc');
+            $ertek = $adatbazis_kapcsolat->s2('id', 'erteklista', "`csoport`='".$_POST['csoport']."'", 'id desc');
 
             if( $ertek ) {
                 $ertek_id = $ertek['id'] + 1;

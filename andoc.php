@@ -45,443 +45,589 @@ class ServerClass {
         global $adatbazis_kapcsolat;
         global $db_kapcs;
 
-        $szamlak = simplexml_load_string($szamla_xml, 'SimpleXMLElement');
+        $szamla = simplexml_load_string($szamla_xml, 'SimpleXMLElement');
 
-        foreach ( $szamlak as $szamla ) {
+        // Tranzakciót indítunk
+        $db_error = false;
+        mysqli_autocommit($db_kapcs, false);
 
-            // Tranzakciót indítunk
-            $db_error = false;
-            mysqli_autocommit($db_kapcs, false);
-            
-            // Kötelező mezők ellenőrzése ami Insert, update és delete utasításhoz is kellenek
-            if(  !trim($szamla['andoc_id']) ) {
-                Throw new SOAPFault ('Server', 'Hiányzó Andoc azonosító!');
-            }
-            $szamla_andoc_id = $andoc_id = $szamla['andoc_id'];
-            if( !$szamla -> tipus ) {
-                Throw new SOAPFault ('Server', 'Hiányzó számlatípus!');
-            }
-            
-            // Típus alapján az adatbázis táblák azonosítása
-            switch( $szamla -> tipus ) {
-                case self::SZAMLA_TIPUS_FENNTARTASI     : $tabla = 'fenntartasi_szamla';    break;
-                case self::SZAMLA_TIPUS_PROJEKT         : $tabla = 'projektszamla';         break;
-                case self::SZAMLA_TIPUS_ENERGIA         : $tabla = 'energia_szamla';        break;
-                case self::SZAMLA_TIPUS_ANYAG           : $tabla = 'anyag_szamla';          break;
-            }
-            $apa_recid_oszlop = $tabla.'_recid';
+// Throw new SOAPFault ('Server', $szamla -> data -> register['registernumber']);
+        // Kötelező mezők ellenőrzése ami Insert, update és delete utasításhoz is kellenek
+        if(  !trim($szamla -> data -> register['registernumber']) ) {
+            Throw new SOAPFault ('Server', 'Hiányzó Andoc azonosító!');
+        }
+        $szamla_andoc_id = $andoc_id = $szamla -> data -> register['registernumber'];
+        if( !$szamla  -> data -> register -> binding_properties -> operator['id'] ) {
+            Throw new SOAPFault ('Server', 'Hiányzó számlatípus!');
+        }
 
-            // Törléshez ismernünk kell az andoc_id-t és a számla típusát
-            // Delete
-            if( $szamla -> torles == 1 ) {
-                
-                $apa_tabla = $adatbazis_kapcsolat->s2('recid', $tabla, "`andoc_id`='{$andoc_id}'");
-                if( !$apa_tabla ) {
-                    Throw new SOAPFault ('Server', 'Nem ismert Andoc azonosító. A törlés nem sikerült!');
+        // Típus alapján az adatbázis táblák azonosítása
+        $szamla_tipus = $szamla -> data -> register -> binding_properties -> operator['id'];
+        switch( $szamla_tipus ) {
+            case self::SZAMLA_TIPUS_FENNTARTASI     : $tabla = 'fenntartasi_szamla';    break;
+            case self::SZAMLA_TIPUS_PROJEKT         : $tabla = 'projektszamla';         break;
+            case self::SZAMLA_TIPUS_ENERGIA         : $tabla = 'energia_szamla';        break;
+            case self::SZAMLA_TIPUS_ANYAG           : $tabla = 'anyag_szamla';          break;
+        }
+        $apa_recid_oszlop = $tabla.'_recid';
+
+        // Újabban nincs törlés funkció
+//        // Törléshez ismernünk kell az andoc_id-t és a számla típusát
+//        // Delete
+//        if( $szamla -> torles == 1 ) {
+//
+//            $apa_tabla = $adatbazis_kapcsolat->s2('recid', $tabla, "`andoc_id`='{$andoc_id}'");
+//            if( !$apa_tabla ) {
+//                Throw new SOAPFault ('Server', 'Nem ismert Andoc azonosító. A törlés nem sikerült!');
+//            }
+//
+//            $return_uzi = 'törölve';
+//
+//            $sql = $adatbazis_kapcsolat->d($tabla, "`andoc_id`='{$andoc_id}'");
+//            if( $sql === false ) { $db_error = true; }
+//            $sql = $adatbazis_kapcsolat->d($tabla.'_tetel', "`{$apa_recid_oszlop}`='{$apa_tabla['recid']}'");
+//            if( $sql === false ) { $db_error = true; }
+//            $sql = $adatbazis_kapcsolat->d($tabla.'_kifizetesek', "`{$apa_recid_oszlop}`='{$apa_tabla['recid']}'");
+//            if( $sql === false ) { $db_error = true; }
+//
+//        // Insert/update
+//        } else {
+
+            // A számla adatai a "data -> register -> properties -> container"-ben lesz
+            // mégpedig abban, amelyiknek "NIK1" a neve
+            $szamla_adatok = array();
+            foreach( $szamla -> data -> register -> properties -> container as $cont ) {
+                if( $cont['name'] == 'NIK1' ) {
+
+                    // Ezen belül van egy csomó "row -> property" értéke is
+                    // Ezekből csinálunk egy tömböt, hogy ne kelljen állandóan foreach-ebejárni
+                    // hanem tudunk adott jellemzőre hivatkozni
+                    foreach ($cont -> row -> property as $prop) {
+                        $kulcs = (string)$prop['name'][0];
+                        $szamla_adatok[$kulcs] = (string)$prop[0];
+                    }
+                    break;
+
                 }
-                
-                $return_uzi = 'törölve';
-                
-                $sql = $adatbazis_kapcsolat->d($tabla, "`andoc_id`='{$andoc_id}'");
+            }
+
+            // Ez nem kötelező egyelőre
+//            if( !trim($szamla_adatok['Danubius azonosító']) ) {
+//                Throw new SOAPFault ('Server', 'Hiányzó iktatószám!');
+//            }
+            if( !valos_datum_e($szamla_adatok['Számla kelte']) ) {
+                Throw new SOAPFault ('Server', 'Helytelen keltezés!');
+            }
+            if( !valos_datum_e($szamla_adatok['Számla érkezés dátuma']) ) {
+                Throw new SOAPFault ('Server', 'Helytelen érkezés dátum!');
+            }
+            if( !valos_datum_e($szamla_adatok['Iktatás dátuma']) ) {
+                Throw new SOAPFault ('Server', 'Helytelen iktatás dátum!');
+            }
+            if( !trim($szamla_adatok['Rögzítő neve']) ) {
+                Throw new SOAPFault ('Server', 'Hiányzó rögzítő név!');
+            }
+            if( !trim($szamla_adatok['Számla sorszáma']) ) {
+                Throw new SOAPFault ('Server', 'Hiányzó számlaszám!');
+            }
+            if( !trim($szamla_adatok['Szálloda - Klaszter']) ) {
+                Throw new SOAPFault ('Server', 'Hiányzó szálloda!');
+            }
+            if( !trim($szamla_adatok['Partnerkód']) ) {
+                Throw new SOAPFault ('Server', 'Hiányzó szállító!');
+            }
+            if( !valos_datum_e($szamla_adatok['Teljesítés dátuma']) ) {
+                Throw new SOAPFault ('Server', 'Helytelen teljesítés dátum!');
+            }
+            if( !valos_datum_e($szamla_adatok['Fizetési határidő']) ) {
+                Throw new SOAPFault ('Server', 'Helytelen fizetési határidő!');
+            }
+            // Egyelőre ezt még nem kapjuk meg, majd kézzel kitöltik
+            // Ha a jövőben sem lesz meg, akkor még a tételeket lehetne összeadni, abból kiszámolni.
+//            if( !trim($szamla -> netto) ) {
+//                Throw new SOAPFault ('Server', 'Hiányzó nettó érték!');
+//            }
+            if( !trim($szamla_adatok['Számla bruttó összege']) ) {
+                Throw new SOAPFault ('Server', 'Hiányzó bruttó érték!');
+            }
+            
+            $nullas = 0;
+            if( $szamla_adatok['Számla bruttó összege'] == '0' ) {
+                $nullas = 1;
+            }
+            
+            // Itt most HUF-ot kapunk, tehát az értéket és nem a kódot.
+            if( !trim($szamla_adatok['Pénznem']) ) {
+                Throw new SOAPFault ('Server', 'Hiányzó pénznem!');
+            }
+
+            // Ha olyan értéket kapnánk, mint amilyen értékű pénznem nem is létezik, akkor létrehozzuk
+            $penznem = $adatbazis_kapcsolat->s2('id', 'erteklista', "`csoport`='".ERTEKLISTA_PENZNEM."' AND `info`='{$szamla_adatok['Pénznem']}'");
+            if( !$penznem ) {
+                $ertek = $adatbazis_kapcsolat->s2('id', 'erteklista', "`csoport`='".ERTEKLISTA_PENZNEM."'", 'id desc');
+                if( $ertek ) {
+                    $ertek_id = $ertek['id'] + 1;
+                } else {
+                    $ertek_id = 1;
+                }
+                $penznem['id'] = $ertek_id;
+                $adatbazis_kapcsolat->i('erteklista', array('csoport',          'id',       'info',                     'dhszla_id'              ),
+                                                      array(ERTEKLISTA_PENZNEM, $ertek_id,  $szamla_adatok['Pénznem'],  $szamla_adatok['Pénznem'])
+                                        );
+            }
+
+            $i = 0;
+            $szamla_tetelek = array();
+            foreach( $szamla -> data -> register -> properties -> container as $cont ) {
+                if( $cont['name'] == 'IK1' ) {
+
+                    foreach ($cont -> row as $row) {
+                        foreach ($row -> property as $prop) {
+                            $kulcs = (string)$prop['name'][0];
+                            $szamla_tetelek[$i][$kulcs] = (string)$prop[0];
+                        }
+                        $i++;
+                    }
+                    break;
+
+                }
+            }
+
+            if( !count($szamla_tetelek) ) {
+                Throw new SOAPFault ('Server', 'Hiányzó tételek!');
+            }
+            
+            // Kifizetésekkel sem foglalkozunk már, nem használunk ilyen gyermek táblát
+            // $kifizetesek = $szamla -> kifizetes;
+
+            // Van pár kötelező mező, ami már számlatípus specifikus
+            if( $szamla_tipus == self::SZAMLA_TIPUS_FENNTARTASI ) {
+                if( !trim($szamla_adatok['Fizetés módja']) ) {
+                    Throw new SOAPFault ('Server', 'Hiányzó fizetési mód!');
+                }
+            }
+
+            if( $szamla_tipus == self::SZAMLA_TIPUS_PROJEKT ) {
+                if( !trim($szamla -> targy) ) {
+                    Throw new SOAPFault ('Server', 'Hiányzó tárgy!');
+                }
+            }
+            if( $szamla_tipus == self::SZAMLA_TIPUS_ENERGIA ) {
+                if( !trim($szamla_adatok['Szálloda - Klaszter']) ) {
+                    Throw new SOAPFault ('Server', 'Hiányzó szálloda!');
+                }
+                if( !trim($szamla -> szev) ) {
+                    Throw new SOAPFault ('Server', 'Hiányzó számlázott év!');
+                }
+                if( !trim($szamla -> szhonap) ) {
+                    Throw new SOAPFault ('Server', 'Hiányzó számlázott hónap!');
+                }
+                if( !trim($szamla -> vontol_dt) ) {
+                    Throw new SOAPFault ('Server', 'Hiányzó von.időszak (tól-)!');
+                }
+                if( !trim($szamla -> vonig_dt) ) {
+                    Throw new SOAPFault ('Server', 'Hiányzó von.időszak (ig-)!');
+                }
+                if( !trim($szamla -> ktgnem_id) ) {
+                    Throw new SOAPFault ('Server', 'Hiányzó költségnem!');
+                }
+                if( !trim($szamla -> ktghely_id) ) {
+                    Throw new SOAPFault ('Server', 'Hiányzó költséghely!');
+                }
+                if( trim($szamla -> ktghely_id) != 7020 ) {
+                    Throw new SOAPFault ('Server', 'Helytelen költséghely. Csak energia lehet (ID=7020)!');
+                }
+            }
+            if( $szamla_tipus == self::SZAMLA_TIPUS_ANYAG ) {
+                if( !trim($szamla_adatok['Szálloda - Klaszter']) ) {
+                    Throw new SOAPFault ('Server', 'Hiányzó szálloda!');
+                }
+                if( !trim($szamla -> rnd_id) ) {
+                    Throw new SOAPFault ('Server', 'Hiányzó rendelés id!');
+                }
+                if( !trim($szamla -> targy) ) {
+                    Throw new SOAPFault ('Server', 'Hiányzó tárgy!');
+                }
+                if( !trim($szamla -> fizmod) ) {
+                    Throw new SOAPFault ('Server', 'Hiányzó fizetési mód!');
+                }
+            }
+            // Ha nem HUF-os a számla, akkor pár mező még kötelezővé válik, az összes számlánál
+            // Ezt kivettük, hisz nem kapunk deviza nettó/bruttó értékeket
+//            if( $penznem['id'] != self::KCS_21_HUF ) {
+//
+//                if( !trim($szamla -> dev_net) ) {
+//                    Throw new SOAPFault ('Server', 'Hiányzó deviza nettó érték!');
+//                }
+//                if( !trim($szamla -> dev_br) ) {
+//                    Throw new SOAPFault ('Server', 'Hiányzó deviza bruttó érték!');
+//                }
+//
+//            }
+
+            // Csak ez a két fizetési mód létezik:
+            $fizmod = '';
+            if( mb_strtolower($szamla_adatok['Fizetés módja'], 'UTF-8') == 'készpénz' ) {
+                $fizmod = 'k';
+            }
+            if( mb_strtolower($szamla_adatok['Fizetés módja'], 'UTF-8') == 'utalás' ) {
+                $fizmod = 'u';
+            }
+            $eszamla = '0';
+            if( mb_strtolower($szamla_adatok['E-Számla'], 'UTF-8') == 'igen' ) {
+                $eszamla = '1';
+            }
+            
+            $igazolo = '0';
+            if( mb_strtolower($szamla_adatok['Igazoló döntés'], 'UTF-8') == 'igazolva' ) {
+                $igazolo = '1';
+            }
+            
+            $utalvanyozva = '0';
+            if( mb_strtolower($szamla_adatok['Utalványozó döntés']) == 'utalványozva' ) {
+                $utalvanyozva = '1';
+            }
+
+            // Iktatószám csak egyedi lehet
+            $sql = $adatbazis_kapcsolat->s('recid', $tabla, "`ikt_szam`='{$szamla_adatok['Danubius azonosító']}' AND `andoc_id`!='{$andoc_id}'");
+            if( $sql === false ) { $db_error = true; }
+            if( $sql ) {
+                Throw new SOAPFault ('Server', 'Hiba! Ez az iktatószám már foglalt: '.$szamla_adatok['Danubius azonosító']);
+            }
+
+            // Elutasítás leírása + Utalványozás leírása egyben
+            $eutleir = trim($szamla['Teljesítés igazolás elutasítás oka'].' '.$szamla['Utalványozás elutasítás oka']);
+            
+            // szallito_id esetén fontos, hogy meglegyenek a keződ 0-k
+            $szallito_id = sprintf('%05d', $szamla_adatok['Partnerkód']);
+
+            // Ha az alapvető adatokon nem akadtunk fenn, akkor szúrjuk be vagy updateljük a számlát, attól föggően, hogy az Andok azonsoító ismert-e.
+            // Ehhez az első lépés, a mező/érték párokat beállítani.
+            $mezok = array(
+                            'erk_dt',
+                            'kelte_dt',
+                            'szla_szam',
+                            'ikt_szam',
+                            'telj_dt',
+                            'fizhat_dt',
+                            'telephely_id',
+                            'szallito_id',
+                            'targy',
+                            'kcs_21',
+                            'atvaltva_dt',
+                            'arfolyam',
+                            'arfolyam_szall',
+                            'dev_net',
+                            'dev_br',
+                            'netto',
+                            'brutto',
+                            'kif_ossz',
+                            'ut_kif_dt',
+                            'kifizetve',
+                            'eszamla',
+                            'visszaadva',
+                            'visszaadva_dt',
+                            'erk_xml',
+                            'igazolo',
+                            'utalvanyozva',
+                            'megjegyz',
+                            'nullas',
+                        );
+            $ertekek = array(
+                            $szamla_adatok['Számla érkezés dátuma'],
+                            $szamla_adatok['Számla kelte'],
+                            $szamla_adatok['Számla sorszáma'],
+                            $szamla_adatok['Danubius azonosító'],
+                            $szamla_adatok['Teljesítés dátuma'],
+                            $szamla_adatok['Fizetési határidő'],
+                            $szamla_adatok['Szálloda - Klaszter'],
+                            $szallito_id,
+                            $szamla_adatok['Számla tárgya'],
+                            $penznem['id'],
+                            $szamla_adatok['Átváltva - NINCS ILYEN MEZŐ'],
+                            $szamla_adatok['Belső árfolyam'],
+                            $szamla_adatok['Szállító árfolyama'],
+                            $szamla_adatok['Dev net - NINCS ILYEN MEZŐ'],
+                            $szamla_adatok['Dev brutt - NINCS ILYEN MEZŐ'],
+                            $szamla_adatok['Nettó - NINCS ILYEN MEZŐ'],
+                            $szamla_adatok['Számla bruttó összege'],
+                            $szamla_adatok['Kifizetett összeg'],
+                            $szamla_adatok['Utolsó kifizetés dátuma'],
+                            $szamla_adatok['Kifizetve - NINCS ILYEN MEZŐ'],
+                            $eszamla,
+                            $szamla_adatok['Visszaadva - NINCS ILYEN MEZŐ'],
+                            $szamla_adatok['Visszaadva dátum - NINCS ILYEN MEZŐ'],
+                            $szamla_xml,
+                            $igazolo,
+                            $utalvanyozva,
+                            $szamla_adatok['Megjegyzés'],
+                            $nullas,
+                        );
+            
+            // További mezők felvétele, számla típusától függően
+            if( $szamla_tipus == self::SZAMLA_TIPUS_FENNTARTASI ) {
+                array_push($mezok,     'pr_szam',                               'fizmod',   'elutleir'                                   );
+                array_push($ertekek,   $szamla_adatok['Beruházási projektkód'], $fizmod,    $szamla['Teljesítés igazolás elutasítás oka']);
+                $feldolgozasra_var_stat = F_SZAMLA_STAT_FELDOLGOZASRA_VAR;
+            }
+            if( $szamla_tipus == self::SZAMLA_TIPUS_PROJEKT ) {
+                array_push($mezok,      'pr_szam',                               'sz_szam'/*,                                          'muszak_szam',                'musz_dt',          'kolt_vis'     */);
+                array_push($ertekek,    $szamla_adatok['Beruházási projektkód'], $szamla_adatok['Kapcsolódó szerződés/megrendelés']/*, $szamla -> muszak_szam, $szamla -> musz_dt, $szamla -> kolt_vis  */);
+                $feldolgozasra_var_stat = P_SZAMLA_STAT_FELDOLGOZASRA_VAR;
+            }
+            if( $szamla_tipus == self::SZAMLA_TIPUS_ENERGIA ) {
+                array_push($mezok,      'megjegyz',             'szev',          'szhonap',             'vontol_dt',            'vonig_dt',          'ktgnem_id',            'ktghely_id',           'elutleir'                                     );
+                array_push($ertekek,    $szamla -> megjegyz,    $szamla -> szev, $szamla -> szhonap,    $szamla -> vontol_dt,   $szamla -> vonig_dt,  $szamla -> ktgnem_id,  $szamla -> ktghely_id,  $szamla['Teljesítés igazolás elutasítás oka']  );
+                $feldolgozasra_var_stat = E_SZAMLA_STAT_FELDOLGOZASRA_VAR;
+            }
+            if( $szamla_tipus == self::SZAMLA_TIPUS_ANYAG ) {
+                array_push($mezok,     'kcs_25',            'megjegyz',          'fizmod',          'elutleir',                                     'rnd_id'            );
+                array_push($ertekek,   $szamla -> kcs_25,   $szamla -> megjegyz, $szamla -> fizmod, $szamla['Teljesítés igazolás elutasítás oka'],  $szamla -> rnd_id   );
+                $feldolgozasra_var_stat = A_SZAMLA_STAT_FELDOLGOZASRA_VAR;
+            }
+
+            $aparecid = $adatbazis_kapcsolat->s2('recid', $tabla, "`andoc_id`='{$andoc_id}'");
+            $aparecid = $aparecid['recid'];
+            if( $aparecid === false ) { $db_error = true; }
+
+            // Insert
+            if( !$aparecid ) {
+
+                $return_uzi = 'beszúrva';
+
+                // Insertnél kell az andoc_id is
+                array_push($mezok,      'andoc_id', 'insert_usr',  'update_usr',   'insert_dt'  );
+                array_push($ertekek,    $andoc_id,  self::IU_USER,  self::IU_USER, 'NOW()'      );
+                $aparecid = $adatbazis_kapcsolat->i($tabla, $mezok, $ertekek);
+                if( $aparecid === false ) { $db_error = true; }
+
+                // Új beszúráskor a kezdőstátusz fixen a feldolgozásra vár lesz
+                $sql = $adatbazis_kapcsolat->u($tabla, array('stat_id'), array($feldolgozasra_var_stat), "`recid`='{$aparecid}'");
                 if( $sql === false ) { $db_error = true; }
-                $sql = $adatbazis_kapcsolat->d($tabla.'_tetel', "`{$apa_recid_oszlop}`='{$apa_tabla['recid']}'");
+                $sql = $adatbazis_kapcsolat -> i($tabla.'_statusz',
+                                                array($tabla.'_recid',   'stat_id',               'login',          'insert_dt', 'insert_usr',  'update_usr'    ),
+                                                array($aparecid,         $feldolgozasra_var_stat, self::IU_USER,    'NOW()',     self::IU_USER, self::IU_USER   )
+                                            );
                 if( $sql === false ) { $db_error = true; }
-                $sql = $adatbazis_kapcsolat->d($tabla.'_kifizetesek', "`{$apa_recid_oszlop}`='{$apa_tabla['recid']}'");
-                if( $sql === false ) { $db_error = true; }
-                
-            // Insert/update
+
+            // Update
             } else {
-            
-                if( !trim($szamla -> ikt_szam) ) {
-                    Throw new SOAPFault ('Server', 'Hiányzó iktatószám!');
-                }
-                if( !valos_datum_e($szamla -> kelte_dt) ) {
-                    Throw new SOAPFault ('Server', 'Helytelen keltezés!');
-                }
-                if( !valos_datum_e($szamla -> erk_dt) ) {
-                    Throw new SOAPFault ('Server', 'Helytelen érkezés dátum!');
-                }
-                if( !trim($szamla -> szla_szam) ) {
-                    Throw new SOAPFault ('Server', 'Hiányzó számlaszám!');
-                }
-                if( !trim($szamla -> szallito_id) ) {
-                    Throw new SOAPFault ('Server', 'Hiányzó szállító!');
-                }
-                if( !valos_datum_e($szamla -> telj_dt) ) {
-                    Throw new SOAPFault ('Server', 'Helytelen teljesítés dátum!');
-                }
-                if( !valos_datum_e($szamla -> fizhat_dt) ) {
-                    Throw new SOAPFault ('Server', 'Helytelen fizetési határidő!');
-                }
-                if( !trim($szamla -> netto) ) {
-                    Throw new SOAPFault ('Server', 'Hiányzó nettó érték!');
-                }
-                if( !trim($szamla -> brutto) ) {
-                    Throw new SOAPFault ('Server', 'Hiányzó bruttó érték!');
-                }
-                if( !trim($szamla -> kcs_21) ) {
-                    Throw new SOAPFault ('Server', 'Hiányzó pénznem!');
-                }
-                // Ha olyan értéket kapnánk, mint amilyen értékű pénznem nem is létezik, akkor hibát dobunk
-                $penznem = $adatbazis_kapcsolat->s2('recid', 'erteklista', "`csoport`='".ERTEKLISTA_PENZNEM."' AND `id`='{$szamla -> kcs_21}'");
-                if( !$penznem ) {
-                    Throw new SOAPFault ('Server', 'Nem ismert pénznem!');
-                }
-                $tetelek = $szamla -> tetel;
-                if( !count($tetelek) ) {
-                    Throw new SOAPFault ('Server', 'Hiányzó tételek!');
-                }
-                $kifizetesek = $szamla -> kifizetes;
 
-                // Van pár kötelező mező, ami már számlatípus specifikus
-                if( $szamla -> tipus == self::SZAMLA_TIPUS_FENNTARTASI ) {
-                    if( !trim($szamla -> fizmod) ) {
-                        Throw new SOAPFault ('Server', 'Hiányzó fizetési mód!');
-                    }
-                }
-                if( $szamla -> tipus == self::SZAMLA_TIPUS_PROJEKT ) {
-                    if( !trim($szamla -> telephely_id) ) {
-                        Throw new SOAPFault ('Server', 'Hiányzó szálloda!');
-                    }
-                    if( !trim($szamla -> targy) ) {
-                        Throw new SOAPFault ('Server', 'Hiányzó tárgy!');
-                    }
-                }
-                if( $szamla -> tipus == self::SZAMLA_TIPUS_ENERGIA ) {
-                    if( !trim($szamla -> telephely_id) ) {
-                        Throw new SOAPFault ('Server', 'Hiányzó szálloda!');
-                    }
-                    if( !trim($szamla -> szev) ) {
-                        Throw new SOAPFault ('Server', 'Hiányzó számlázott év!');
-                    }
-                    if( !trim($szamla -> szhonap) ) {
-                        Throw new SOAPFault ('Server', 'Hiányzó számlázott hónap!');
-                    }
-                    if( !trim($szamla -> vontol_dt) ) {
-                        Throw new SOAPFault ('Server', 'Hiányzó von.időszak (tól-)!');
-                    }
-                    if( !trim($szamla -> vonig_dt) ) {
-                        Throw new SOAPFault ('Server', 'Hiányzó von.időszak (ig-)!');
-                    }
-                    if( !trim($szamla -> ktgnem_id) ) {
-                        Throw new SOAPFault ('Server', 'Hiányzó költségnem!');
-                    }
-                    if( !trim($szamla -> ktghely_id) ) {
-                        Throw new SOAPFault ('Server', 'Hiányzó költséghely!');
-                    }
-                    if( trim($szamla -> ktghely_id) != 7020 ) {
-                        Throw new SOAPFault ('Server', 'Helytelen költséghely. Csak energia lehet (ID=7020)!');
-                    }
-                }
-                if( $szamla -> tipus == self::SZAMLA_TIPUS_ANYAG ) {
-                    if( !trim($szamla -> telephely_id) ) {
-                        Throw new SOAPFault ('Server', 'Hiányzó szálloda!');
-                    }
-                    if( !trim($szamla -> rnd_id) ) {
-                        Throw new SOAPFault ('Server', 'Hiányzó rendelés id!');
-                    }
-                    if( !trim($szamla -> targy) ) {
-                        Throw new SOAPFault ('Server', 'Hiányzó tárgy!');
-                    }
-                    if( !trim($szamla -> fizmod) ) {
-                        Throw new SOAPFault ('Server', 'Hiányzó fizetési mód!');
-                    }
-                }
-                // Ha nem HUF-os a számla, akkor pár mező még kötelezővé válik, az összes számlánál
-                if( $szamla -> kcs_21 != self::KCS_21_HUF ) {
+                $return_uzi = 'módosítva';
 
-                    if( !trim($szamla -> dev_net) ) {
-                        Throw new SOAPFault ('Server', 'Hiányzó deviza nettó érték!');
-                    }
-                    if( !trim($szamla -> dev_br) ) {
-                        Throw new SOAPFault ('Server', 'Hiányzó deviza bruttó érték!');
-                    }
-
-                }
-                
-                // Iktatószám csak egyedi lehet
-                $sql = $adatbazis_kapcsolat->s('recid', $tabla, "`ikt_szam`='{$szamla -> ikt_szam}' AND `andoc_id`!='{$andoc_id}'");
+                $sql = $adatbazis_kapcsolat->u($tabla, $mezok, $ertekek, "`andoc_id`='{$andoc_id}'");
                 if( $sql === false ) { $db_error = true; }
-                if( $sql ) {
-                    Throw new SOAPFault ('Server', 'Hiba! Ez az iktatószám már foglalt: '.$szamla -> ikt_szam);
+
+            }
+
+            // Tételek bejárása
+            foreach ( $szamla_tetelek as $tetel ) {
+
+                // Tételek kötelező mezők ellenőrzése
+                if( !trim($tetel['Nettó sorösszeg']) ) {
+                    Throw new SOAPFault ('Server', 'Hiányzó nettó sorösszeg a tételeknél!');
+                }
+
+                if( $szamla_tipus == self::SZAMLA_TIPUS_FENNTARTASI) {
+                    if( !trim($tetel['Főkönyvi számlaszám']) ) {
+                        Throw new SOAPFault ('Server', 'Hiányzó költségnem a tételeknél!');
+                    }
+                    if( !trim($tetel['Költséghely']) ) {
+                        Throw new SOAPFault ('Server', 'Hiányzó költséghely a tételeknél!');
+                    }
+                }
+                if( $szamla_tipus == self::SZAMLA_TIPUS_PROJEKT) {
+                    if( !trim($tetel -> targy) ) {
+                        Throw new SOAPFault ('Server', 'Hiányzó tárgy a tételeknél!');
+                    }
+                }
+                if( $szamla_tipus == self::SZAMLA_TIPUS_ANYAG) {
+                    if( !trim($tetel -> ktgnem_id) ) {
+                        Throw new SOAPFault ('Server', 'Hiányzó költségnem a tételeknél!');
+                    }
+                    if( !trim($tetel -> ktghely_id) ) {
+                        Throw new SOAPFault ('Server', 'Hiányzó költséghely a tételeknél!');
+                    }
+                    if( !trim($tetel -> szlamen) ) {
+                        Throw new SOAPFault ('Server', 'Hiányzó számlázott mennyiség a tételeknél!');
+                    }
+                    if( !trim($tetel -> szlamee) ) {
+                        Throw new SOAPFault ('Server', 'Hiányzó mennyiségi egység a tételeknél!');
+                    }
+                    if( !trim($tetel -> szlaear) ) {
+                        Throw new SOAPFault ('Server', 'Hiányzó egységár a tételeknél!');
+                    }
+                    if( !trim($tetel -> vszlaear) && $szamla -> kcs_21 != self::KCS_21_HUF ) {
+                        Throw new SOAPFault ('Server', 'Hiányzó deviza egységár a tételeknél!');
+                    }
                 }
                 
-                // szallito_id esetén fontos, hogy meglegyenek a keződ 0-k
-                $szallito_id = sprintf('%05d', $szamla -> szallito_id);
+                $afa_tetel = $tetel['ÁFA %'].' %';
+                $afa_kod = $adatbazis_kapcsolat->s2('id', 'erteklista', "`csoport`='".ERTEKLISTA_AFA_KOD."' AND `info`='{$afa_tetel}'");
+                if( !$afa_kod ) {
+                    $ertek = $adatbazis_kapcsolat->s2('id', 'erteklista', "`csoport`='".ERTEKLISTA_AFA_KOD."'", 'id desc');
+                    if( $ertek ) {
+                        $ertek_id = $ertek['id'] + 1;
+                    } else {
+                        $ertek_id = 1;
+                    }
+                    $afa_kod['id'] = $ertek_id;
+                    $adatbazis_kapcsolat->i('erteklista', array('csoport',          'id',       'info'    ),
+                                                          array(ERTEKLISTA_AFA_KOD, $ertek_id,  $afa_tetel)
+                                            );
+                }
 
-                // Ha az alapvető adatokon nem akadtunk fenn, akkor szúrjuk be vagy updateljük a számlát, attól föggően, hogy az Andok azonsoító ismert-e.
-                // Ehhez az első lépés, a mező/érték párokat beállítani.
-                $mezok = array(
-                                'erk_dt',
-                                'kelte_dt',
-                                'szla_szam',
-                                'ikt_szam',
-                                'telj_dt',
-                                'fizhat_dt',
-                                'telephely_id',
-                                'szallito_id',
+                // Tételek beszúrása
+                $mezok   = array(
+                                $apa_recid_oszlop,
                                 'targy',
-                                'kcs_21',
-                                'atvaltva_dt',
-                                'arfolyam',
+                                'netto_ert',
+                                'brutto_ert',
+                                'afa_ossz',
+                                'afa_kod',
                                 'dev_net',
-                                'dev_br',
-                                'netto',
-                                'brutto',
-                                'kifizetve',
-                                'nullas',
-                                'visszaadva',
-                                'visszaadva_dt',
+                                'ktgnem_id',
+                                'ktghely_id',
+                                'flex',
+                                'update_usr',
                             );
                 $ertekek = array(
-                                $szamla -> erk_dt,
-                                $szamla -> kelte_dt,
-                                $szamla -> szla_szam,
-                                $szamla -> ikt_szam,
-                                $szamla -> telj_dt,
-                                $szamla -> fizhat_dt,
-                                $szamla -> telephely_id,
-                                $szallito_id,
-                                $szamla -> targy,
-                                $szamla -> kcs_21,
-                                $szamla -> atvaltva_dt,
-                                $szamla -> arfolyam,
-                                $szamla -> dev_net,
-                                $szamla -> dev_br,
-                                $szamla -> netto,
-                                $szamla -> brutto,
-                                $szamla -> kifizetve,
-                                $szamla -> nullas,
-                                $szamla -> visszaadva,
-                                $szamla -> visszaadva_dt,
+                                $aparecid,
+                                $tetel['Sor megnevezése'],
+                                $tetel['Nettó sorösszeg'],
+                                $tetel['Bruttó sorösszeg'],
+                                $tetel['ÁFA Összege'],
+                                $afa_kod['id'],
+                                $tetel -> dev_net,
+                                $tetel['Főkönyvi számlaszám'],
+                                $tetel['Költséghely'],
+                                $tetel['Flexmező'],
+                                self::IU_USER,
                             );
 
                 // További mezők felvétele, számla típusától függően
-                if( $szamla -> tipus == self::SZAMLA_TIPUS_FENNTARTASI ) {
-                    array_push($mezok,     'kcs_25',            'fizmod',           'elutleir'          );
-                    array_push($ertekek,   $szamla -> kcs_25,   $szamla -> fizmod,  $szamla -> elutleir );
-                    $feldolgozasra_var_stat = F_SZAMLA_STAT_FELDOLGOZASRA_VAR;
+                if( $szamla_tipus == self::SZAMLA_TIPUS_FENNTARTASI ) {
+                    // Nem kell további mezőket felvenni
                 }
-                if( $szamla -> tipus == self::SZAMLA_TIPUS_PROJEKT ) {
-                    array_push($mezok,      'muszak_szam',          'musz_dt',          'kolt_vis'          );
-                    array_push($ertekek,    $szamla -> muszak_szam, $szamla -> musz_dt, $szamla -> kolt_vis );
-                    $feldolgozasra_var_stat = P_SZAMLA_STAT_FELDOLGOZASRA_VAR;
+                if( $szamla_tipus == self::SZAMLA_TIPUS_PROJEKT) {
+                    array_push($mezok,      'targy',            'dev_br'            );
+                    array_push($ertekek,    $tetel -> targy,    $tetel -> dev_br    );
                 }
-                if( $szamla -> tipus == self::SZAMLA_TIPUS_ENERGIA ) {
-                    array_push($mezok,      'megjegyz',             'szev',          'szhonap',             'vontol_dt',            'vonig_dt',          'ktgnem_id',            'ktghely_id',           'elutleir'           );
-                    array_push($ertekek,    $szamla -> megjegyz,    $szamla -> szev, $szamla -> szhonap,    $szamla -> vontol_dt,   $szamla -> vonig_dt,  $szamla -> ktgnem_id,  $szamla -> ktghely_id,  $szamla -> elutleir  );
-                    $feldolgozasra_var_stat = E_SZAMLA_STAT_FELDOLGOZASRA_VAR;
-                }
-                if( $szamla -> tipus == self::SZAMLA_TIPUS_ANYAG ) {
-                    array_push($mezok,     'kcs_25',            'megjegyz',          'fizmod',          'elutleir',          'rnd_id'            );
-                    array_push($ertekek,   $szamla -> kcs_25,   $szamla -> megjegyz, $szamla -> fizmod, $szamla -> elutleir, $szamla -> rnd_id   );
-                    $feldolgozasra_var_stat = A_SZAMLA_STAT_FELDOLGOZASRA_VAR;
+                if( $szamla_tipus == self::SZAMLA_TIPUS_ANYAG) {
+                    array_push($mezok,      'ktgnem_id',           'ktghely_id',            'cikk_id',           'rndert',           'modert',           'vnrdert',          'vmodert',             'oracikkid',          'kcs_35',          'szlamen',          'szlamee',          'szlaear'            );
+                    array_push($ertekek,    $tetel -> ktgnem_id,   $tetel -> ktghely_id,    $tetel -> cikk_id,   $tetel -> rndert,   $tetel -> modert,   $tetel -> vnrdert,   $tetel -> vmodert,    $tetel -> oracikkid,  $tetel -> kcs_35,  $tetel -> szlamen,  $tetel -> szlamee,  $tetel -> szlaear    );
                 }
 
-                $aparecid = $adatbazis_kapcsolat->s2('recid', $tabla, "`andoc_id`='{$andoc_id}'");
-                $aparecid = $aparecid['recid'];
-                if( $aparecid === false ) { $db_error = true; }
-
-                // Insert
-                if( !$aparecid ) {
-
-                    $return_uzi = 'beszúrva';
+                // Egyelőre a tételnél nem ismert az andocid, így insert/update-el sem foglakozunk, mindig insert lesz
+//                $tetel_letezik = $adatbazis_kapcsolat->s2('recid', $tabla.'_tetel', "`andoc_id`='{$andoc_id}'");
+//                $tetel_letezik = $tetel_letezik['recid'];
+//                if( $tetel_letezik === false ) { $db_error = true; }
+//
+//                // Insert
+//                if( !$tetel_letezik ) {
 
                     // Insertnél kell az andoc_id is
-                    array_push($mezok,      'andoc_id', 'insert_usr',  'update_usr',   'insert_dt'  );
-                    array_push($ertekek,    $andoc_id,  self::IU_USER,  self::IU_USER, 'NOW()'      );
-                    $aparecid = $adatbazis_kapcsolat->i($tabla, $mezok, $ertekek);
-                    if( $aparecid === false ) { $db_error = true; }
+                    array_push($mezok,      'insert_usr',   'insert_dt' );
+                    array_push($ertekek,    self::IU_USER,  'NOW()'     );
+                    $sql = $adatbazis_kapcsolat->i($tabla.'_tetel', $mezok, $ertekek);
+                    if( $sql === false ) { $db_error = true; }
 
-                    // Új beszúráskor a kezdőstátusz fixen a feldolgozásra vár lesz
-                    $sql = $adatbazis_kapcsolat->u($tabla, array('stat_id'), array($feldolgozasra_var_stat), "`recid`='{$aparecid}'");
-                    if( $sql === false ) { $db_error = true; }
-                    $sql = $adatbazis_kapcsolat -> i($tabla.'_statusz',
-                                                    array($tabla.'_recid',   'stat_id',               'login',          'insert_dt', 'insert_usr',  'update_usr'    ),
-                                                    array($aparecid,         $feldolgozasra_var_stat, self::IU_USER,    'NOW()',     self::IU_USER, self::IU_USER   )
-                                                );
-                    if( $sql === false ) { $db_error = true; }
 
                 // Update
-                } else {
+//                } else {
+//
+//                    $sql = $adatbazis_kapcsolat->u($tabla.'_tetel', $mezok, $ertekek, "`andoc_id`='{$andoc_id}'");
+//                    if( $sql === false ) { $db_error = true; }
+//
+//                }
 
-                    $return_uzi = 'módosítva';
-                    
-                    $sql = $adatbazis_kapcsolat->u($tabla, $mezok, $ertekek, "`andoc_id`='{$andoc_id}'");
-                    if( $sql === false ) { $db_error = true; }
-                                        
-                }
-
-                // Tételek bejárása
-                foreach ( $tetelek as $tetel ) {
-
-                    $andoc_id = $tetel['andoc_id'];
-
-                    // Tételek kötelező mezők ellenőrzése
-                    if( !trim($tetel -> netto) ) {
-                        Throw new SOAPFault ('Server', 'Hiányzó nettó érték a tételeknél!');
-                    }
-
-                    if( $szamla -> tipus == self::SZAMLA_TIPUS_FENNTARTASI) {
-                        if( !trim($tetel -> telephely_id) ) {
-                            Throw new SOAPFault ('Server', 'Hiányzó szálloda a tételeknél!');
-                        }
-                        if( !trim($tetel -> targy) ) {
-                            Throw new SOAPFault ('Server', 'Hiányzó tárgy a tételeknél!');
-                        }
-                        if( !trim($tetel -> ktgnem_id) ) {
-                            Throw new SOAPFault ('Server', 'Hiányzó költségnem a tételeknél!');
-                        }
-                        if( !trim($tetel -> ktghely_id) ) {
-                            Throw new SOAPFault ('Server', 'Hiányzó költséghely a tételeknél!');
-                        }
-                    }
-                    if( $szamla -> tipus == self::SZAMLA_TIPUS_PROJEKT) {
-                        if( !trim($tetel -> targy) ) {
-                            Throw new SOAPFault ('Server', 'Hiányzó tárgy a tételeknél!');
-                        }
-                    }
-                    if( $szamla -> tipus == self::SZAMLA_TIPUS_ANYAG) {
-                        if( !trim($tetel -> ktgnem_id) ) {
-                            Throw new SOAPFault ('Server', 'Hiányzó költségnem a tételeknél!');
-                        }
-                        if( !trim($tetel -> ktghely_id) ) {
-                            Throw new SOAPFault ('Server', 'Hiányzó költséghely a tételeknél!');
-                        }
-                        if( !trim($tetel -> szlamen) ) {
-                            Throw new SOAPFault ('Server', 'Hiányzó számlázott mennyiség a tételeknél!');
-                    }
-                        if( !trim($tetel -> szlamee) ) {
-                            Throw new SOAPFault ('Server', 'Hiányzó mennyiségi egység a tételeknél!');
-                        }
-                        if( !trim($tetel -> szlaear) ) {
-                            Throw new SOAPFault ('Server', 'Hiányzó egységár a tételeknél!');
-                        }
-                        if( !trim($tetel -> vszlaear) && $szamla -> kcs_21 != self::KCS_21_HUF ) {
-                            Throw new SOAPFault ('Server', 'Hiányzó deviza egységár a tételeknél!');
-                        }
-                    }
-
-                    // Tételek beszúrása
-                    $mezok   = array(
-                                    $apa_recid_oszlop,
-                                    'netto_ert',
-                                    'dev_net',
-                                    'update_usr',
-                                );
-                    $ertekek = array(
-                                    $aparecid,
-                                    $tetel -> netto,
-                                    $tetel -> dev_net,
-                                    self::IU_USER,
-                                );
-
-                    // További mezők felvétele, számla típusától függően
-                    if( $szamla -> tipus == self::SZAMLA_TIPUS_FENNTARTASI ) {
-                        array_push($mezok,      'verzio',           'szszam',           'igazol_usr',           'igazol_dt',         'telephely_id',            'targy',            'ktgnem_id',            'ktghely_id'            );
-                        array_push($ertekek,    $tetel -> verzio,   $tetel -> szszam,   $tetel -> igazol_usr,   $tetel -> igazol_dt, $tetel -> telephely_id,    $tetel -> targy,    $tetel -> ktgnem_id,    $tetel -> ktghely_id    );
-                    }
-                    if( $szamla -> tipus == self::SZAMLA_TIPUS_PROJEKT) {
-                        array_push($mezok,      'targy',            'dev_br'            );
-                        array_push($ertekek,    $tetel -> targy,    $tetel -> dev_br    );
-                    }
-                    if( $szamla -> tipus == self::SZAMLA_TIPUS_ANYAG) {
-                        array_push($mezok,      'ktgnem_id',           'ktghely_id',            'cikk_id',           'rndert',           'modert',           'vnrdert',          'vmodert',             'oracikkid',          'kcs_35',          'szlamen',          'szlamee',          'szlaear'            );
-                        array_push($ertekek,    $tetel -> ktgnem_id,   $tetel -> ktghely_id,    $tetel -> cikk_id,   $tetel -> rndert,   $tetel -> modert,   $tetel -> vnrdert,   $tetel -> vmodert,    $tetel -> oracikkid,  $tetel -> kcs_35,  $tetel -> szlamen,  $tetel -> szlamee,  $tetel -> szlaear    );
-                    }
-
-                    $tetel_letezik = $adatbazis_kapcsolat->s2('recid', $tabla.'_tetel', "`andoc_id`='{$andoc_id}'");
-                    $tetel_letezik = $tetel_letezik['recid'];
-                    if( $tetel_letezik === false ) { $db_error = true; }
-
-                    // Insert
-                    if( !$tetel_letezik ) {
-
-                        // Insertnél kell az andoc_id is
-                        array_push($mezok,      'andoc_id', 'insert_usr',   'insert_dt' );
-                        array_push($ertekek,    $andoc_id,  self::IU_USER,  'NOW()'     );
-                        $sql = $adatbazis_kapcsolat->i($tabla.'_tetel', $mezok, $ertekek);
-                        if( $sql === false ) { $db_error = true; }
-
-                    // Update
-                    } else {
-
-                        $sql = $adatbazis_kapcsolat->u($tabla.'_tetel', $mezok, $ertekek, "`andoc_id`='{$andoc_id}'");
-                        if( $sql === false ) { $db_error = true; }
-
-                    }
-    
-                }
-
-                // Kifizetések bejárása
-                foreach ( $kifizetesek as $kifizetes ) {
-
-                    $andoc_id = $kifizetes['andoc_id'];
-
-                    // Kifizetések beszúrása
-                    $mezok   = array(
-                                    $apa_recid_oszlop,
-                                    'szlakifid',
-                                    'szla_szam',
-                                    'szallito_id',
-                                    'bank',
-                                    'kifizetes_dt',
-                                    'br_ertek',
-                                    'rogzitve_dt',
-                                    'rogzitette',
-                                    'dev_br',
-                                    'kcs_21',
-                                    'loginnev',
-                                    'update_usr',
-                                );
-                    $ertekek = array(
-                                    $aparecid,
-                                    $kifizetes -> szlakifid,
-                                    $kifizetes -> szla_szam,
-                                    $szallito_id,
-                                    $kifizetes -> bank,
-                                    $kifizetes -> kifizetes_dt,
-                                    $kifizetes -> br_ertek,
-                                    $kifizetes -> rogzitve_dt,
-                                    $kifizetes -> rogzitette,
-                                    $kifizetes -> dev_br,
-                                    $kifizetes -> kcs_21,
-                                    self::IU_USER,
-                                    self::IU_USER,
-                                );
-
-                    $kifizetes_letezik = $adatbazis_kapcsolat->s2('recid', $tabla.'_kifizetesek', "`andoc_id`='{$andoc_id}'");
-                    $kifizetes_letezik = $kifizetes_letezik['recid'];
-                    if( $kifizetes_letezik === false ) { $db_error = true; }
-
-                    // Insert
-                    if( !$kifizetes_letezik ) {
-
-                        // Insertnél kell az andoc_id is
-                        array_push($mezok,      'andoc_id', 'insert_usr',   'insert_dt' );
-                        array_push($ertekek,    $andoc_id,  self::IU_USER,  'NOW()'     );
-                        $sql = $adatbazis_kapcsolat->i($tabla.'_kifizetesek', $mezok, $ertekek);
-                        if( $sql === false ) { $db_error = true; }
-
-                    // Update
-                    } else {
-
-                        $sql = $adatbazis_kapcsolat->u($tabla.'_kifizetesek', $mezok, $ertekek, "`andoc_id`='{$andoc_id}'");
-                        if( $sql === false ) { $db_error = true; }
-
-                    }
-    
-                }
             }
-
-            // Tranzakció kommitolása, vagy rollback-ezése
-            if( !$db_error ) {
-                mysqli_commit($db_kapcs);
-                return 'A számla, és a tételei, kifizetései sikeresen '.$return_uzi.'! ID: '.$szamla_andoc_id;
+            
+            // Partner insert/update
+            $aktiv = 0;
+            if( mb_strtolower($szamla_adatok['Partner státusza'], 'UTF-8') == 'aktív' ) {
+                $aktiv = 1;
+            }
+            $partner = $adatbazis_kapcsolat->s2('id', 'szallito', "`id`='{$szamla_adatok['Partnerkód']}'");
+            $mezok   = array('aktiv', 'nev',                         'utca',                        'bank',                                   'adoszam'                        );
+            $ertekek = array($aktiv,  $szamla_adatok['Partner név'], $szamla_adatok['Partner cím'], $szamla_adatok['Partner bankszámlaszám'], $szamla_adatok['Partner adószám']);
+            if( $partner ) {
+                $adatbazis_kapcsolat->u('szallito', $mezok, $ertekek, "`id`='{$szamla_adatok['Partnerkód']}'");
             } else {
-                mysqli_rollback($db_kapcs);
-                return 'A számla feldolgozása közben ismeretlen hiba történt: ID: '.$szamla_andoc_id;
+                array_push($mezok,   'id'                           );
+                array_push($ertekek, $szamla_adatok['Partnerkód']   );
+                $adatbazis_kapcsolat->i('szallito', $mezok, $ertekek);
             }
+
+            // Kifizetésekkel újabban nem foglalkozunk
+//            // Kifizetések bejárása
+//            foreach ( $kifizetesek as $kifizetes ) {
+//
+//                $andoc_id = $kifizetes['andoc_id'];
+//
+//                // Kifizetések beszúrása
+//                $mezok   = array(
+//                                $apa_recid_oszlop,
+//                                'szlakifid',
+//                                'szla_szam',
+//                                'szallito_id',
+//                                'bank',
+//                                'kifizetes_dt',
+//                                'br_ertek',
+//                                'rogzitve_dt',
+//                                'rogzitette',
+//                                'dev_br',
+//                                'kcs_21',
+//                                'loginnev',
+//                                'update_usr',
+//                            );
+//                $ertekek = array(
+//                                $aparecid,
+//                                $kifizetes -> szlakifid,
+//                                $kifizetes -> szla_szam,
+//                                $szallito_id,
+//                                $kifizetes -> bank,
+//                                $kifizetes -> kifizetes_dt,
+//                                $kifizetes -> br_ertek,
+//                                $kifizetes -> rogzitve_dt,
+//                                $kifizetes -> rogzitette,
+//                                $kifizetes -> dev_br,
+//                                $kifizetes -> kcs_21,
+//                                self::IU_USER,
+//                                self::IU_USER,
+//                            );
+//
+//                $kifizetes_letezik = $adatbazis_kapcsolat->s2('recid', $tabla.'_kifizetesek', "`andoc_id`='{$andoc_id}'");
+//                $kifizetes_letezik = $kifizetes_letezik['recid'];
+//                if( $kifizetes_letezik === false ) { $db_error = true; }
+//
+//                // Insert
+//                if( !$kifizetes_letezik ) {
+//
+//                    // Insertnél kell az andoc_id is
+//                    array_push($mezok,      'andoc_id', 'insert_usr',   'insert_dt' );
+//                    array_push($ertekek,    $andoc_id,  self::IU_USER,  'NOW()'     );
+//                    $sql = $adatbazis_kapcsolat->i($tabla.'_kifizetesek', $mezok, $ertekek);
+//                    if( $sql === false ) { $db_error = true; }
+//
+//                // Update
+//                } else {
+//
+//                    $sql = $adatbazis_kapcsolat->u($tabla.'_kifizetesek', $mezok, $ertekek, "`andoc_id`='{$andoc_id}'");
+//                    if( $sql === false ) { $db_error = true; }
+//
+//                }
+//
+//            }
+//        }
+
+        // Tranzakció kommitolása, vagy rollback-ezése
+        if( !$db_error ) {
+            mysqli_commit($db_kapcs);
+            return 'A számla, és a tételei sikeresen '.$return_uzi.'! ID: '.$szamla_andoc_id;
+        } else {
+            mysqli_rollback($db_kapcs);
+            return 'A számla feldolgozása közben ismeretlen hiba történt: ID: '.$szamla_andoc_id;
         }
         
     }

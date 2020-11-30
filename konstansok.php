@@ -330,8 +330,11 @@ define('JOG_FENNTARTASI_TERV_ELESIT',   102);
 define('JOG_ANYAG_SZAMLAK_OLVAS',       87);
 define('JOG_ANYAG_SZAMLAK_KEZEL',       131);
 define('JOG_ENERGIA_SZAMLAK_OLVAS',     88);
+define('JOG_ENERGIA_SZAMLAK_KEZEL',     138);
 define('JOG_FENNTARTASI_SZAMLAK_OLVAS', 89); 
+define('JOG_FENNTARTASI_SZAMLAK_KEZEL', 137); 
 define('JOG_FENNTARTASI_SZERZ_OLVAS',   130); 
+define('JOG_FENNTARTASI_SZERZ_KEZEL',   136); 
 define('JOG_SZAMLAK_OLVAS',             90);
 define('JOG_SZAMLAK_KEZEL',             91);
 define('JOG_SZAMLAK_TOROL',             92);
@@ -343,6 +346,7 @@ define('JOG_DOKUMENTUMTAR_OLVAS',       96);
 define('JOG_DOKUMENTUMTAR_KEZEL',       97);
 define('JOG_DOKUMENTUMTAR_TOROL',       98);
 define('JOG_PR_TELJES_CASH_FLOW',      132);
+define('SZAMLAK_IGAZOLASA',            139);
 
 // ÉRTESÍTÉSEK
 define('ERT_KESZRE_JELENTESKOR',         0);
@@ -380,6 +384,7 @@ define('ERTEKLISTA_RESZLEG',        17);
 define('ERTEKLISTA_BEOSZTAS',       18);
 define('ERTEKLISTA_SZAKTER',        19);
 define('ERTEKLISTA_PENZNEM',        21);
+define('ERTEKLISTA_AFA_KOD',        22);
 define('ERTEKLISTA_AFA_TIPUS',      25);
 define('ERTEKLISTA_PROJEKT_PRIOR',  40);
 define('ERTEKLISTA_DOK_TIPUS',      39);

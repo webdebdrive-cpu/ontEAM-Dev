@@ -67,8 +67,8 @@ require_once('selectek.php');
             'megjegyzesek'  => 'Megjegyzések'.$megj_db,
         );
         $fulek = '';
-        foreach($ful_tomb as $key => $value) {
-            
+        foreach ( $ful_tomb as $key => $value ) {
+
             $active = 'active';
             if( isset($_GET[$key]) ) {
                 $active = ' class="active"';
@@ -273,15 +273,16 @@ require_once('selectek.php');
         $szamla_html .= nl2('
             <div class="dt naplo">
                 <div class="dtr nFejlec">
-                    <div class="dtc">Szálloda</div>
+                    <!--<div class="dtc">Szálloda</div>-->
                     <div class="dtc">Tárgy</div>
                     <div class="dtc">Költségnem</div>
                     <div class="dtc r">Nettó érték</div>
+                    <div class="dtc r">Bruttó érték</div>
                     <div class="dtc r">Deviza nettó</div>
-                    <div class="dtc">Státusz</div>
+                    <!--<div class="dtc">Státusz</div>-->
                     <div class="dtc">Költséghely</div>
-                    <div class="dtc">Igazoló</div>
-                    <div class="dtc">Igazolás ideje</div>
+                    <!--<div class="dtc">Igazoló</div>-->
+                    <!--<div class="dtc">Igazolás ideje</div>-->
                     <div class="dtc">Szerz.szám</div>
                     <div class="dtc">Szerz.verzió</div>
                 </div>
@@ -293,15 +294,16 @@ require_once('selectek.php');
             
             $szamla_html .= nl2('
                 <div class="dtr nSor">
-                    <div class="dtc">'.getSzallodaNev($tetel['telephely_id']).'</div>
+                    <!--<div class="dtc">'.getSzallodaNev($tetel['telephely_id']).'</div>-->
                     <div class="dtc">'.$tetel['targy'].'</div>
                     <div class="dtc">'.getErtek('nev', 'ktgnem', 'id', $tetel['ktgnem_id']).'</div>
                     <div class="dtc r nowrap">'.number_format($tetel['netto_ert'],  0, ',', ' ').'</div>
+                    <div class="dtc r nowrap">'.number_format($tetel['brutto_ert'],  0, ',', ' ').'</div>
                     <div class="dtc r nowrap">'.number_format($tetel['dev_net'], 2, ',', ' ').'</div>
-                    <div class="dtc">'.$tetel['stat_id'].'</div>
+                    <!--<div class="dtc">'.$tetel['stat_id'].'</div>-->
                     <div class="dtc">'.getErtek('nev', 'ktghely', 'id', $tetel['ktghely_id']).'</div>
-                    <div class="dtc">'.$tetel['igazol_usr'].'</div>
-                    <div class="dtc">'.datum_kiir($tetel['igazol_dt']).'</div>
+                    <!--<div class="dtc">'.$tetel['igazol_usr'].'</div>-->
+                    <!--<div class="dtc">'.datum_kiir($tetel['igazol_dt']).'</div>-->
                     <div class="dtc">'.$tetel['szszam'].'</div>
                     <div class="dtc">'.$tetel['verzio'].'</div>
                 </div>

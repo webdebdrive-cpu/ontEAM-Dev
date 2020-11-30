@@ -1,4 +1,5 @@
 <?php
+// Ez a fájl az andoc.php-ban megírt webservice osztályt futtatkja
 require_once 'weblap.php';
 
 header('Content-Type: text/html; charset='.get_web_charset());
@@ -6,9 +7,12 @@ header('Content-Type: text/html; charset='.get_web_charset());
 ini_set('soap.wsdl_cache_enabled', '0');
 
 $url_elotag = get_url_elotag();
-
+$wsdl_fajl = 'onteam.wsdl';
+if( $_SERVER['HTTP_HOST'] == 'demo.webdeb.hu' ) {
+    $wsdl_fajl = 'onteam_wd_demo.wsdl';
+}
 // Új soap kliens inicializálása
-$soap = new SoapClient($url_elotag.'onteam.wsdl', 
+$soap = new SoapClient($url_elotag.$wsdl_fajl, 
                         array(
                             'uri'       => $url_elotag.'onteam.php',
                             // 'location'  => $url_elotag.'onteam.php',
@@ -35,6 +39,8 @@ $get = 'szamla';
 $nev = 'Számla';
 if( isset($_GET[$get]) ) {
     
+    // Ez ahhoz kell, hogy manuálisan teszteljető legyen,
+    // de a gyakorlatban majd az ANdoc POST hívással kommunikál
     if( !$_POST['xml'] && !isset($_GET['teszt']) ) {
         
         echo '
@@ -48,13 +54,22 @@ if( isset($_GET[$get]) ) {
     } else {
         // Számla import
         if( isset($_GET['teszt']) ) {
-            $xml = fajlbol_olvas($get.'_minta.xml');
+            $xml = fajlbol_olvas($get.'_minta_uj.xml');
         } else {
             $xml = $_POST['xml'];
         }
 
-        $xml = trim( str_replace('<?xml version="1.0" encoding="utf-8" ?>', '', $xml) );
-        var_dump( $soap -> SzamlaAdatokImport( $xml ) );
+        $xml = trim( str_replace('<?xml version="1.0" encoding="utf-8"?>', '', $xml) );
+
+//        $szamla = simplexml_load_string($xml, 'SimpleXMLElement');
+//        var_dump($szamla);
+//        $szamla = $szamla[0];
+//        echo 'f';
+//        exit;
+        
+        echo '<pre style="font-size: 1.4rem">';
+        print_r($soap -> SzamlaAdatokImport( $xml ));
+        echo '</pre>';
     }
     
 }
