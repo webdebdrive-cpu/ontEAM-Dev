@@ -287,7 +287,14 @@ if(!$_SESSION['bejelento_menu_rejt'] && ( _jog(JOG_ESZKOZ_MEGTEKINT) || _jog(JOG
 }
 
 // Csak bejelentő elől rejtve
-if( !$_SESSION['bejelento_menu_rejt'] && (_jog(JOG_ENERGIA_EGYSEGAR_OLVAS) || _jog(JOG_FENNTARTASI_SAJAT_SZ_OLVAS)) ) {
+if( !$_SESSION['bejelento_menu_rejt'] && (
+                                            _jog(JOG_ENERGIA_EGYSEGAR_OLVAS)        ||
+                                            _jog(JOG_FENNTARTASI_SAJAT_SZ_OLVAS)    ||
+                                            _jog(JOG_FENNTARTASI_SZERZ_OLVAS)       ||
+                                            _jog(JOG_FENNTARTASI_SZAMLAK_OLVAS)     ||
+                                            _jog(JOG_ENERGIA_SZAMLAK_OLVAS)         ||
+                                            _jog(JOG_ANYAG_SZAMLAK_OLVAS)
+        ) ) {
     // Tervezés
     $menu_nev        = 'Fenntartás';
     $menu_nev_kis    = 'fenntartás';
@@ -876,6 +883,17 @@ if( in_array(basename(self()), $_SESSION['ketHasabos']) && $_SESSION[get_db_tabl
     } elseif( basename(self()) == 'felmeresi_terv.php' && isset($_GET['megjegyzesek']) ) {
         $uj_link = 'javascript: kapcsolodoSzerkeszt(\'megjegyzes\'); void(0);';
 
+    } elseif( basename(self()) == 'fenntartasi_szamla.php' ) {
+        if( !_jog(JOG_FENNTARTASI_SZAMLAK_KEZEL) ) {
+            $uj_link = 'javascript: alert2(\'Önnek nincs joga fenntartási számlát feltölteni!\', \'\', \'Hiba\'); void(0);';
+        } else {
+            if( isset($_GET['megjegyzesek']) ) {
+                $uj_link = 'javascript: kapcsolodoSzerkeszt(\'megjegyzes\'); void(0);';
+            } else {
+                $uj_link = 'javascript: fenntartasi_szamla_feltolt(); void(0);';
+            }
+        }
+
     } elseif( basename(self()) == 'fenntartasi_terv.php' && !_jog(JOG_FENNTARTASI_SAJAT_SZ_KEZEL) ) {
         $uj_link = 'javascript: alert2(\'Önnek nincs joga fenntartási tervet feltölteni!\', \'\', \'Hiba\'); void(0);';
 
@@ -1048,11 +1066,17 @@ if( substr($tabla_nev, strlen($tabla_nev) - 9) == '_arch.php' ) {
     $uj = $duplikal = $torles_icon = '';
 }
 // Illetve van pár tábla, ahol szintén nem lehet sem újat felteni, sem törölni
-$disabled_tablak = array('energia_szamla.php', 'fenntartasi_szamla.php', 'fenntartasi_szerzodes.php');
+$disabled_tablak = array('energia_szamla.php', 'fenntartasi_szerzodes.php');
 if( in_array($tabla_nev, $disabled_tablak) ) {
     $uj = $duplikal = $torles_icon = '';
 }
 
+if( basename(self()) == 'fenntartasi_szamla.php' ) {
+    $duplikal = $torles_icon = '';
+}
+if( basename(self()) == 'fenntartasi_szamla.php' && !_jog(JOG_FENNTARTASI_SZAMLAK_KEZEL) ) {
+    $uj = '';
+}
 if( basename(self()) == 'anyagigenyles.php' && !_jog(JOG_ANYAGIGENYLES_KEZEL) ) {
     $torles_icon    = '';
 }

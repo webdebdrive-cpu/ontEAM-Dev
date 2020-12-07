@@ -25,7 +25,9 @@ class ServerClass {
     const SZERZ_TIPUS_PROJEKT       = 2;
     
     const KCS_21_HUF                = 5;
+    const KCS_21_TXT                = 'HUF';
     const IU_USER                   = 'Andoc';
+    const CHAR_CODING               = 'UTF-8';
     
     // Változók
     private $user_is_valid = false;
@@ -112,9 +114,9 @@ class ServerClass {
             }
 
             // Ez nem kötelező egyelőre
-//            if( !trim($szamla_adatok['Danubius azonosító']) ) {
-//                Throw new SOAPFault ('Server', 'Hiányzó iktatószám!');
-//            }
+            if( !trim($szamla_adatok['Danubius azonosító']) ) {
+                Throw new SOAPFault ('Server', 'Hiányzó Danubius azonosító!');
+            }
             if( !valos_datum_e($szamla_adatok['Számla kelte']) ) {
                 Throw new SOAPFault ('Server', 'Helytelen keltezés!');
             }
@@ -156,9 +158,16 @@ class ServerClass {
                 $nullas = 1;
             }
             
-            // Itt most HUF-ot kapunk, tehát az értéket és nem a kódot.
+            // Itt most "HUF", "EUR" stb-t kapunk, tehát az értéket és nem a kódot.
             if( !trim($szamla_adatok['Pénznem']) ) {
                 Throw new SOAPFault ('Server', 'Hiányzó pénznem!');
+            }
+            $szamla_adatok['Pénznem'] = mb_strtoupper($szamla_adatok['Pénznem'], self::CHAR_CODING);
+            
+            // Ha nem HUF a pénznem, akkor az összegek a deviza mezőbe kerüljenek fejben és tételeknél is
+            if( $szamla_adatok['Pénznem'] != self::KCS_21_TXT ) {
+                $szamla_adatok['Deviza bruttó összege'] = $szamla_adatok['Számla bruttó összege'];
+                $szamla_adatok['Számla bruttó összege'] = '0';
             }
 
             // Ha olyan értéket kapnánk, mint amilyen értékű pénznem nem is létezik, akkor létrehozzuk
@@ -267,24 +276,24 @@ class ServerClass {
 
             // Csak ez a két fizetési mód létezik:
             $fizmod = '';
-            if( mb_strtolower($szamla_adatok['Fizetés módja'], 'UTF-8') == 'készpénz' ) {
+            if( mb_strtolower($szamla_adatok['Fizetés módja'], self::CHAR_CODING) == 'készpénz' ) {
                 $fizmod = 'k';
             }
-            if( mb_strtolower($szamla_adatok['Fizetés módja'], 'UTF-8') == 'utalás' ) {
+            if( mb_strtolower($szamla_adatok['Fizetés módja'], self::CHAR_CODING) == 'utalás' ) {
                 $fizmod = 'u';
             }
             $eszamla = '0';
-            if( mb_strtolower($szamla_adatok['E-Számla'], 'UTF-8') == 'igen' ) {
+            if( mb_strtolower($szamla_adatok['E-Számla'], self::CHAR_CODING) == 'igen' ) {
                 $eszamla = '1';
             }
             
-            $igazolo = '0';
-            if( mb_strtolower($szamla_adatok['Igazoló döntés'], 'UTF-8') == 'igazolva' ) {
-                $igazolo = '1';
+            $igazolva = '0';
+            if( mb_strtolower($szamla_adatok['Igazoló döntés'], self::CHAR_CODING) == 'igazolva' ) {
+                $igazolva = '1';
             }
             
             $utalvanyozva = '0';
-            if( mb_strtolower($szamla_adatok['Utalványozó döntés']) == 'utalványozva' ) {
+            if( mb_strtolower($szamla_adatok['Utalványozó döntés'], self::CHAR_CODING) == 'utalványozva' ) {
                 $utalvanyozva = '1';
             }
 
@@ -328,7 +337,7 @@ class ServerClass {
                             'visszaadva',
                             'visszaadva_dt',
                             'erk_xml',
-                            'igazolo',
+                            'igazolva',
                             'utalvanyozva',
                             'megjegyz',
                             'nullas',
@@ -348,7 +357,7 @@ class ServerClass {
                             $szamla_adatok['Belső árfolyam'],
                             $szamla_adatok['Szállító árfolyama'],
                             $szamla_adatok['Dev net - NINCS ILYEN MEZŐ'],
-                            $szamla_adatok['Dev brutt - NINCS ILYEN MEZŐ'],
+                            $szamla_adatok['Deviza bruttó összege'],
                             $szamla_adatok['Nettó - NINCS ILYEN MEZŐ'],
                             $szamla_adatok['Számla bruttó összege'],
                             $szamla_adatok['Kifizetett összeg'],
@@ -358,7 +367,7 @@ class ServerClass {
                             $szamla_adatok['Visszaadva - NINCS ILYEN MEZŐ'],
                             $szamla_adatok['Visszaadva dátum - NINCS ILYEN MEZŐ'],
                             $szamla_xml,
-                            $igazolo,
+                            $igazolva,
                             $utalvanyozva,
                             $szamla_adatok['Megjegyzés'],
                             $nullas,
@@ -391,14 +400,16 @@ class ServerClass {
             if( $aparecid === false ) { $db_error = true; }
 
             // Insert
+            $insert_update = '';
             if( !$aparecid ) {
 
-                $return_uzi = 'beszúrva';
+                $return_uzi    = 'beszúrva';
+                $insert_update = 'insert';
 
                 // Insertnél kell az andoc_id is
                 array_push($mezok,      'andoc_id', 'insert_usr',  'update_usr',   'insert_dt'  );
                 array_push($ertekek,    $andoc_id,  self::IU_USER,  self::IU_USER, 'NOW()'      );
-                $aparecid = $adatbazis_kapcsolat->i($tabla, $mezok, $ertekek);
+                $aparecid = $adatbazis_kapcsolat->i($tabla.'_atmeneti', $mezok, $ertekek);
                 if( $aparecid === false ) { $db_error = true; }
 
                 // Új beszúráskor a kezdőstátusz fixen a feldolgozásra vár lesz
@@ -413,7 +424,8 @@ class ServerClass {
             // Update
             } else {
 
-                $return_uzi = 'módosítva';
+                $return_uzi    = 'módosítva';
+                $insert_update = 'update';
 
                 $sql = $adatbazis_kapcsolat->u($tabla, $mezok, $ertekek, "`andoc_id`='{$andoc_id}'");
                 if( $sql === false ) { $db_error = true; }
@@ -476,16 +488,22 @@ class ServerClass {
                                                           array(ERTEKLISTA_AFA_KOD, $ertek_id,  $afa_tetel)
                                             );
                 }
+                
+                // HUF/Deviza esetén más mezőket használunk DB-ben, illetve Deviza esetén nincs bruttó eltárolva
+                $netto_mezo_tetel = 'netto_ert';
+                if( $szamla_adatok['Pénznem'] != self::KCS_21_TXT ) {
+                    $netto_mezo_tetel          = 'dev_net';
+                    $tetel['Bruttó sorösszeg'] = '0';
+                }
 
                 // Tételek beszúrása
                 $mezok   = array(
                                 $apa_recid_oszlop,
                                 'targy',
-                                'netto_ert',
+                                $netto_mezo_tetel,
                                 'brutto_ert',
                                 'afa_ossz',
                                 'afa_kod',
-                                'dev_net',
                                 'ktgnem_id',
                                 'ktghely_id',
                                 'flex',
@@ -498,7 +516,6 @@ class ServerClass {
                                 $tetel['Bruttó sorösszeg'],
                                 $tetel['ÁFA Összege'],
                                 $afa_kod['id'],
-                                $tetel -> dev_net,
                                 $tetel['Főkönyvi számlaszám'],
                                 $tetel['Költséghely'],
                                 $tetel['Flexmező'],
@@ -527,11 +544,14 @@ class ServerClass {
 //                if( !$tetel_letezik ) {
 
                     // Insertnél kell az andoc_id is
+                    $tabla_kieg = '';
+                    if( $insert_update == 'insert' ) {
+                        $tabla_kieg = '_atmeneti';
+                    }
                     array_push($mezok,      'insert_usr',   'insert_dt' );
                     array_push($ertekek,    self::IU_USER,  'NOW()'     );
-                    $sql = $adatbazis_kapcsolat->i($tabla.'_tetel', $mezok, $ertekek);
+                    $sql = $adatbazis_kapcsolat->i($tabla.'_tetel'.$tabla_kieg, $mezok, $ertekek);
                     if( $sql === false ) { $db_error = true; }
-
 
                 // Update
 //                } else {
@@ -545,7 +565,7 @@ class ServerClass {
             
             // Partner insert/update
             $aktiv = 0;
-            if( mb_strtolower($szamla_adatok['Partner státusza'], 'UTF-8') == 'aktív' ) {
+            if( mb_strtolower($szamla_adatok['Partner státusza'], self::CHAR_CODING) == 'aktív' ) {
                 $aktiv = 1;
             }
             $partner = $adatbazis_kapcsolat->s2('id', 'szallito', "`id`='{$szamla_adatok['Partnerkód']}'");

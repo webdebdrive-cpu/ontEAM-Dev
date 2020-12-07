@@ -33,7 +33,7 @@
                 php_fajl        : 'autocomplete.php',   /* PHP fájl, amit meghívunk                                         */
                 popupba         : '',
                 props           : '',                   /* Pl. ktgnem keresésnél a feltétel kiegészül még egy props oszlopban való kereséssel */
-                recid           : '',                   /* Az aktuális űrlap recid-ja. Néha szükség van rá                   */
+                recid           : '',                   /* Az aktuális űrlap recid-ja. Néha szükség van rá                  */
                 rkat            : 0,                    /* Rendszer kategóriára szűrünk                                     */
                 szel            : 'auto',               /* Lista szélessége                                                 */
                 aktiv           : '',                   /* login táblánál tudjunk szűrni aktívakra is                       */
@@ -314,7 +314,7 @@
                     if( mezo.attr('name').indexOf('_autocomp') !== -1 ) {
                         mezo_nev = mezo.attr('name').replace('_autocomp', '');
                         $('input[name="' + mezo_nev + '"]').val(recid);
-                        
+
                         /* Egy érték kiválasztásakor mi fusson le. Lehessen paraméterként átadni egy függvényt vagy bármilyen JS kódot, ami akkor fut le, ha megvan az érték kiválasztása
                          * Viszont ha az inputunk neve pop_cimzett_loginbol, akkor ezt mégse tegyük meg, mert egy popup-on két autocpmlete is volt, és az elsőnek van oncomplete-je, és a 2-nál is mindig lefutott */
                         if( mezo.attr('name')!='pop_cimzett_loginbol_autocomp' ){

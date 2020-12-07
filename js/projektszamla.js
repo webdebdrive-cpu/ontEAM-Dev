@@ -8,25 +8,6 @@ function pr_szamla_visszaadva() {
     }
 }
 
-// 0-ás számla pipa
-function pr_szamla_nullas() {
-    if ( $('#nullas').prop('checked') ) {
-        if( $('#kcs_21_autocomp').val() != 'HUF' ) {
-            $('#dev_net').val('0,00').attr('disabled', 'disabled').attr('readonly', 'readonly').removeClass('mod').removeClass('csillag');
-            $('#dev_br') .val('0,00').attr('disabled', 'disabled').attr('readonly', 'readonly').removeClass('mod').removeClass('csillag');
-        }
-        $('#netto')  .val('0').attr('disabled', 'disabled').attr('readonly', 'readonly').removeClass('mod').removeClass('csillag');
-        $('#brutto') .val('0').attr('disabled', 'disabled').attr('readonly', 'readonly').removeClass('mod').removeClass('csillag');
-    } else {
-        if( $('#kcs_21_autocomp').val() != 'HUF' ) {
-            $('#dev_net').removeAttr('disabled').removeAttr('readonly').focus().addClass('csillag');
-            $('#dev_br') .removeAttr('disabled').removeAttr('readonly').focus().addClass('csillag');
-        }
-        $('#netto')  .removeAttr('disabled').removeAttr('readonly').focus().addClass('csillag');
-        $('#brutto') .removeAttr('disabled').removeAttr('readonly').focus().addClass('csillag');
-    }
-}
-
 // Projektszerződés hozzáadása, törlése gomb: melyik legyen? Ezt dönti el ez a függvény.
 function prsz_hozzaad_gomb_hozzaad_vagy_torol() {
     

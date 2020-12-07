@@ -110,7 +110,7 @@ function tetel_hozzaadasa() {
     
     $('.pop_mentes_megsem').removeClass('dn');
     
-    /* A tétel sorokat csak Sessio-ba, kimentjük. Ez azért van, mert a tételek kezelése popupra rányitjuk a kapcsolás popupot, majd visszatérve ide (azaz újra betöltve) 
+    /* A tétel sorokat csak Session-ba, kimentjük. Ez azért van, mert a tételek kezelése popupra rányitjuk a kapcsolás popupot, majd visszatérve ide (azaz újra betöltve) 
      * SESSION-ből lehessen reprodukálni, de DB-be még nem menethetünk csak, ha a Mentés gombra kattintottak. */
 
 }
@@ -138,11 +138,11 @@ function popup_tetel_sor_torol(sor_id, mehet){
     
     $('.pop_mentes_megsem').removeClass('dn');
     
-    /* A tétel sorokat csak Sessio-ba, kimentjük. Ez azért van, mert a tételek kezelése popupra rányitjuk a kapcsolás popupot, majd visszatérve ide (azaz újra betöltve) 
+    /* A tétel sorokat csak Session-ba, kimentjük. Ez azért van, mert a tételek kezelése popupra rányitjuk a kapcsolás popupot, majd visszatérve ide (azaz újra betöltve) 
      * SESSION-ből lehessen reprodukálni, de DB-be még nem menethetünk csak, ha a Mentés gombra kattintottak. */
 }
 
-/* Tétel sor táblázat menzése */
+/* Tétel sor táblázat mentése */
 function tetel_sorok_ment( bezar_nelkul ){
     
     var recidk = [];
@@ -169,15 +169,12 @@ function tetel_sorok_ment( bezar_nelkul ){
                     ['pr_tetel',  pr_tetel]
                 ];
     
-    /* A szerződése összege az Adatlapon található mező értéke 
+    /* A szerződés összege az Adatlapon található mező értéke 
      * De ha nem az adatlapon vagyunk, akkor meg egy rejtett inputban megtaláljuk, hogy a DB-ben mi van letárolva */
     var osszeg_mezo = 'netto';
     if( akt_penznem && akt_penznem != 'HUF' ) {
         osszeg_mezo = 'dev_net';
     }
-    
-    /* A számla nettó értéke az Adatlapon található mező értéke 
-     * De ha nem az adatlapon vagyunk, akkor meg egy rejtett inputban megtaláljuk, hogy a DB-ben mi van letárolva */
     var szamla_netto_erteke = '';
     if( $('#'+osszeg_mezo).length ){
         szamla_netto_erteke = $('#'+osszeg_mezo).val();
