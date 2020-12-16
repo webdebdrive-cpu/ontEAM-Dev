@@ -81,6 +81,9 @@ if( isset($_POST['fenntartasi_szamla_get_koztes']) ) {
 // Számla igazolása
 if( isset($_POST['szamla_igazol']) ) {
     
+    $db_error = false;
+    mysqli_autocommit($db_kapcs, false);
+    
     // Ha már igazolva volna, akkor hibaüzenet
     $sor = $adatbazis_kapcsolat->s2('igazolva_dt', 'fenntartasi_szamla', "`recid`='{$_POST['id']}'");
     if( $sor['igazolva_dt']!='0000-00-00 00:00:00' ) {
@@ -93,7 +96,7 @@ if( isset($_POST['szamla_igazol']) ) {
     }
     
     // Ha nincs joga hozzá, akkor hibaüzenet
-    if( !_jog(JOG_FENNTARTASI_SZAMLAK_KEZEL) || !_jog(SZAMLAK_IGAZOLASA) ) {
+    if( !_jog(SZAMLAK_IGAZOLASA) ) {
         echo json_encode(array(
                                 'hiba'  => 'Önnek nincs joga számlát igazolni!',
                                 'title' => 'Hiba',
@@ -102,12 +105,25 @@ if( isset($_POST['szamla_igazol']) ) {
         exit;
     }
     
-
-    $adatbazis_kapcsolat->u('fenntartasi_szamla', array('igazolva', 'igazolva_dt', 'igazolva_usr'                           ),
-                                                  array(1,          'NOW()',       $_SESSION[get_db_tabla().'teljes_nev']   ),
-                                                "`recid`='{$_POST['id']}'");
-                                                
-    echo json_encode(array('siker' => 1));
+    // Adatbázisba mentés
+    $sql = $adatbazis_kapcsolat->u('fenntartasi_szamla', array('igazolva', 'igazolva_dt', 'igazolva_usr'                           ),
+                                                         array(1,          'NOW()',       $_SESSION[get_db_tabla().'teljes_nev']   ),
+                                    "`recid`='{$_POST['id']}'");
+    if( $sql === false ) { $db_error = true; }
+    
+    // Illetve az XML visszát is intézzük
+    if( xml_vissza($_POST['id']) !== false ) { $db_error = true; }
+    
+    if( !$db_error ) {
+        mysqli_commit($db_kapcs);
+        echo json_encode( array('siker' => 1 ) );
+    } else {
+        mysqli_rollback($db_kapcs);
+        echo json_encode(array(
+            'hiba'  => tranzakcioHiba(),
+            'title' => 'Hiba'
+        ));
+    }
     
     $weblap -> leallit();
     exit;
@@ -116,8 +132,11 @@ if( isset($_POST['szamla_igazol']) ) {
 // Számla elutasít
 if( isset($_POST['fenntartasiSzamlaElutasit']) ) {
     
+    $db_error = false;
+    mysqli_autocommit($db_kapcs, false);
+    
     // Ha nincs joga hozzá, akkor hibaüzenet
-    if( !_jog(JOG_FENNTARTASI_SZAMLAK_KEZEL) || !_jog(SZAMLAK_IGAZOLASA) ) {
+    if( !_jog(SZAMLAK_IGAZOLASA) ) {
         echo json_encode(array(
                                 'hiba'  => 'Önnek nincs joga számlát elutasítani!',
                                 'title' => 'Hiba',
@@ -126,11 +145,25 @@ if( isset($_POST['fenntartasiSzamlaElutasit']) ) {
         exit;
     }
     
-    $adatbazis_kapcsolat->u('fenntartasi_szamla', array('igazolva', 'elutleir',     'igazolva_dt', 'igazolva_usr'                           ),
-                                                  array(0,          $_POST['memo'], 'NOW()',       $_SESSION[get_db_tabla().'teljes_nev']   ),
-                                                "`recid`='{$_POST['id']}'");
+    // Adatbázisba mentés
+    $sql = $adatbazis_kapcsolat->u('fenntartasi_szamla', array('igazolva', 'elutleir',     'igazolva_dt', 'igazolva_usr'                           ),
+                                                         array(0,          $_POST['memo'], 'NOW()',       $_SESSION[get_db_tabla().'teljes_nev']   ),
+                                    "`recid`='{$_POST['id']}'");
+    if( $sql === false ) { $db_error = true; }
+    
+    // Illetve az XML visszát is intézzük
+    if( xml_vissza($_POST['id']) !== false ) { $db_error = true; }
                                                 
-    echo json_encode(array('siker' => 1));
+    if( !$db_error ) {
+        mysqli_commit($db_kapcs);
+        echo json_encode( array('siker' => 1 ) );
+    } else {
+        mysqli_rollback($db_kapcs);
+        echo json_encode(array(
+            'hiba'  => tranzakcioHiba(),
+            'title' => 'Hiba'
+        ));
+    }
     
     $weblap -> leallit();
     exit;
@@ -166,8 +199,23 @@ if( isset($_POST['pop_tetelek_feltolt']) ) {
     foreach( $_SESSION['fennt_szla_tetel_targy'] as $targy ) {
         
         $szla_netto_ert = $_SESSION[$session_mezo][$i];
+        $torles = '';
+        if( !$_SESSION['fennt_szla_tetel_andocos'][$i] ) {
+            $torles = '
+                        <a onclick="popup_tetel_sor_torol(\'pop_tetel_'.$_SESSION['fennt_szla_tetel_recid'][$i].'\');">
+                            <span class="icon">
+                                <i class="material-icons">
+                                    delete
+                                </i>
+                            </span>
+                        </a>
+                ';
+        }
         
         // Minden sornak adunk egy azonosítót. Mivel lehet csak egy ideiglenes sorról van szó, nem mindig van recid-nk, ezért időbélyeges azonosítót hozunk létre, megtoldva egy $i-vel.
+        if( !$_SESSION['fennt_szla_tetel_recid'][$i] ) {
+            $_SESSION['fennt_szla_tetel_recid'][$i] = time().rand(0,1000);
+        }
         $html .= nl2('
                         <tr class="pop_tetel_'.$_SESSION['fennt_szla_tetel_recid'][$i].'">
                             <td class="pop_targy l">'.htmlspecialchars($_SESSION['fennt_szla_tetel_targy'][$i]).'</td>
@@ -182,15 +230,10 @@ if( isset($_POST['pop_tetelek_feltolt']) ) {
                                 </a>
                             </td>
                             <td>
-                                <a onclick="popup_tetel_sor_torol(\'pop_tetel_'.$_SESSION['fennt_szla_tetel_recid'][$i].'\');">
-                                    <span class="icon">
-                                        <i class="material-icons">
-                                            delete
-                                        </i>
-                                    </span>
-                                </a>
+                                '.$torles.'
                                 <input type="hidden" class="pop_ktgnem" name="pop_ktgnem_id" value="'.$_SESSION['fennt_szla_tetel_ktgnem'][$i].'">
                                 <input type="hidden" class="pop_ktghely" name="pop_ktghely_id" value="'.$_SESSION['fennt_szla_tetel_ktghely'][$i].'">
+                                <input type="hidden" class="pop_valtozott" value="'.$_SESSION['fennt_szla_tetel_valtozott'][$i].'">
                                 <input type="hidden" class="pop_recid" name="recid" value="'.$_SESSION['fennt_szla_tetel_recid'][$i].'">
                             </td>
                         </tr>');
@@ -211,6 +254,9 @@ if( isset($_POST['tetel_sorok_ment']) ) {
     $db_error = false;
     mysqli_autocommit($db_kapcs, false);
     
+    if( $_POST['recid'] == 'false' ) {
+        $_POST['recid'] = '';
+    }
     $recid                  = $_POST['recid'];
     $szamla_netto_erteke    = str_replace(array(' ', ','), array('', '.'), $_POST['szamla_netto_erteke']);
     $_POST['adatok']        = json_decode( $_POST['adatok'] );
@@ -221,13 +267,16 @@ if( isset($_POST['tetel_sorok_ment']) ) {
     $netto_ert_adat = 2;
     $ktgnem_adat    = 3;
     $ktghely_adat   = 4;
+    $valtozott_adat = 5;
     
     $tetelek_osszege = '';
+    $i = 0;
     foreach ( $_POST['adatok'][$netto_ert_adat][1] as $ertek ) {
-        $ertek = str_replace(array(' ', ','), array('', '.'), $ertek);
-        $tetelek_osszege += $ertek;
+        $_POST['adatok'][$netto_ert_adat][1][$i] = str_replace(array(' ', ','), array('', '.'), $ertek);
+        $tetelek_osszege += $_POST['adatok'][$netto_ert_adat][1][$i];
+        $i++;
     }
-    
+
     // Deviza esetén tört számokkal is számolunk
     $penznem   = get_penznem();
     $devizas   = false;
@@ -252,7 +301,7 @@ if( isset($_POST['tetel_sorok_ment']) ) {
     // Ha a számla nettó értéke nem egyenlő a tételek összegével, akkor hibaüzenet
     } elseif( number_format($tetelek_osszege, $tizedesek, ',', ' ') != number_format($szamla_netto_erteke, $tizedesek, ',', ' ') ) {
         echo json_encode( array( 
-                        'hiba'  => 'A számla tételeinek összege ('. number_format($tetelek_osszege, $tizedesek, ',', ' ').' '.$penznem.') nem egyezik meg a számla nettó értékével ('. number_format($szamla_netto_erteke, $tizedesek, ',', ' ').' '.$penznem.')!<br>Így nem menthető!',
+                        'hiba'  => 'A számla tételeinek összege ('. number_format($tetelek_osszege, $tizedesek, ',', ' ').' '.$penznem.') nem egyezik meg a számla nettó értékével ('.number_format($szamla_netto_erteke, $tizedesek, ',', ' ').' '.$penznem.')!<br>Így nem menthető!',
                         'title' => 'Hiba'
                         ) );
                 $weblap->leallit();
@@ -269,6 +318,7 @@ if( isset($_POST['tetel_sorok_ment']) ) {
         }
         $_SESSION['fennt_szla_tetel_ktgnem']    = $_POST['adatok'][$ktgnem_adat][1];
         $_SESSION['fennt_szla_tetel_ktghely']   = $_POST['adatok'][$ktghely_adat][1];
+        $_SESSION['fennt_szla_tetel_valtozott'] = $_POST['adatok'][$valtozott_adat][1];
     }
     
     // Adatbázisba mentést csak akkor csinálnuk, ha már meglevő számlát szerkesztünk
@@ -280,20 +330,28 @@ if( isset($_POST['tetel_sorok_ment']) ) {
             $targy   = $_POST['adatok'][$targy_adat][1][$i];
             $ktgnem  = $_POST['adatok'][$ktgnem_adat][1][$i];
             $ktghely = $_POST['adatok'][$ktghely_adat][1][$i];
+            $valtozott = 0;
+            if( $_POST['adatok'][$valtozott_adat][1][$i] ) {
+                $valtozott = 1;
+            }
             // Ha ismerjük a tétel recid-ját, akkor update
             if( $_POST['adatok'][$recid_adat][1][$i] ) {
                 $sql = $adatbazis_kapcsolat->u('fenntartasi_szamla_tetel',
-                                                array('targy', $db_mezo, 'ktgnem_id',    'ktghely_id'),
-                                                array($targy,  $netto,   $ktgnem,        $ktghely    ), 
+                                                array('targy', $db_mezo, 'ktgnem_id',    'ktghely_id',  'valtozott' ),
+                                                array($targy,  $netto,   $ktgnem,        $ktghely,      $valtozott  ), 
                                                 "`recid`='{$_POST['adatok'][$recid_adat][1][$i]}'");
                 if( $sql === false ) { $db_error = true; }
             // Egyébként insert
             } else {
-                $sql = $adatbazis_kapcsolat->i('fenntartasi_szamla_tetel', 
-                                                array('fenntartasi_szamla_recid', 'targy', $db_mezo, 'ktgnem_id',    'ktghely_id'),
-                                                array($recid,                     $targy,  $netto,   $ktgnem,        $ktghely    )
+                
+                $rownum = $adatbazis_kapcsolat->s2('MAX(`rownum`)', 'fenntartasi_szamla_tetel', "`fenntartasi_szamla_recid`='{$recid}'");
+                $rownum = $rownum['MAX(`rownum`)']+1;
+                $uj_id = $adatbazis_kapcsolat->i('fenntartasi_szamla_tetel', 
+                                                array('fenntartasi_szamla_recid', 'rownum', 'targy', $db_mezo, 'ktgnem_id',    'ktghely_id', 'valtozott'),
+                                                array($recid,                     $rownum,  $targy,  $netto,   $ktgnem,        $ktghely,     '1'        )
                                             );
                 if( $sql === false ) { $db_error = true; }
+                $_SESSION['fennt_szla_tetel_recid'][$i] = $uj_id;
             }
             $i++;
         }
@@ -400,31 +458,33 @@ require_once('selectek.php');
         $_SESSION['fennt_szla_tetel_dev_net'][$i]   = number_format($tetel['dev_net'],   2, ',', ' ');
         $_SESSION['fennt_szla_tetel_ktgnem'][$i]    = $tetel['ktgnem_id'];
         $_SESSION['fennt_szla_tetel_ktghely'][$i]   = $tetel['ktghely_id'];
+        $_SESSION['fennt_szla_tetel_valtozott'][$i] = $tetel['valtozott'];
+        $_SESSION['fennt_szla_tetel_andocos'][$i]   = $tetel['andocos'];
 
         $i++;
     }
     
     // Gombok kirajzolása minden oldalra
+    // Fenntartási számla mentésekor HA nem nullás a számla, akkor ellenőrizzük, hogy a számla nettó értéke azonos-e a tételek összegével
+    // Deviza esetén más session-t járunk be
+    $tizedesek  = 0;
+    $mezo1      = 'ossz_netto';
+    $mezo2      = 'netto';
+    if( $szamla['kcs_21']!=KCS_21_HUF ) {
+        $tizedesek  = 2;
+        $mezo1      = 'ossz_dev_net';
+        $mezo2      = 'dev_net';
+    }
+    
     $gombok = '';
     if( isset($_GET['uj']) && _jog(JOG_FENNTARTASI_SZAMLAK_KEZEL) ) {
-        
-        // Fenntartási számla mentésekor HA nem nullás a számla, akkor ellenőrizzük, hogy a számla nettó értéke azonos-e a tételek összegével
-        // Deviza esetén más session-t járunk be
-        $tizedesek  = 0;
-        $mezo1      = 'ossz_netto';
-        $mezo2      = 'netto';
-        if( $szamla['kcs_21']!=KCS_21_HUF ) {
-            $tizedesek  = 2;
-            $mezo1      = 'ossz_dev_net';
-            $mezo2      = 'dev_net';
-        }
         
         // Új számla rögzítésekor így ellenőrizzük a nettó és tételek összegének azonosságát
         $js_submit_elott = nl2('
 
-            var tetelek_ossz = ezresek($(\'#'.$mezo1.'\').val(), '.$tizedesek.', \',\', \' \');
+            var tetelek_ossz = ezresek($(\'#'.$mezo1.'\').val().replace(/ /g, \'\').replace(/,/g, \'.\'), '.$tizedesek.', \',\', \' \');
             if( $(\'#nullas\').is(\':checked\') == false ) {
-                if( $(\'#'.$mezo2.'\').val() != ezresek($(\'#'.$mezo1.'\').val(), '.$tizedesek.', \',\', \' \') ) {
+                if( $(\'#'.$mezo2.'\').val() != tetelek_ossz ) {
                     alert2(\'A számla tételeinek összege (\'+tetelek_ossz+\' \'+$(\'#kcs_21_autocomp\').val()+\') nem egyezik meg a számla nettó értékével(\'+$(\'#'.$mezo2.'\').val()+\' \'+$(\'#kcs_21_autocomp\').val()+\')!<br>Így nem menthető!\', \'\', \'Hiba\');
                     return false;
                 }
@@ -464,13 +524,13 @@ require_once('selectek.php');
         ');
 
     // Módosítás gombok
-    } else if( _jog(JOG_FENNTARTASI_SZAMLAK_KEZEL) ) {
+    } else {
 
         // Js, a törlés gombhoz
 	    $gombok = '<script>var gomb'.$_GET['id'].'= get_kibont_torol(\''.self().'\', \''.$torles.'\', \''.$_GET['id'].'\');</script>';
 
         // Jogosutságkezelés
-        if( true /* !_jog(... fenntartási számla törlés jog ...) */ ){
+        if( _jog(JOG_FENNTARTASI_SZAMLAK_KEZEL) ){
             $gombok .= ' <input type="button" id="recordTorol" class="gombb_alert dn" onclick="alert2(\'Nincs jogosultsága törölni ezt a '.$szoveg.'!\', \'\', \'Hiba\')" value="Töröl" title="Töröl">';
         } else {
             $gombok .= ' <input type="button" id="recordTorol" class="gombb_alert dn" onclick="alert2(\'Biztosan törli ezt a '.$szoveg.'?\', gomb'.$_GET['id'].')" value="Töröl" title="Töröl">';
@@ -480,17 +540,23 @@ require_once('selectek.php');
             $gombok .= '<input type="button" class="gomb modositaskor_rejt" value="Igazolás" onclick="szamla_igazol()"> ';
             $gombok .= '<input type="button" class="gomb modositaskor_rejt" value="Elutasítás" onclick="csoportMuvelet(\'fenntartasiSzamlaElutasit\');"> ';
         }
-        $gombok .= '<input type="button" class="gomb" value="Tételek kezelése" onclick="csoportMuvelet(\'fenntartasiszamla_tetelek_kezelese\');"> ';
-        // Ez a popuphoz kell
-        $gombok .= '<input type="hidden" id="kcs_21_autocomp_db" value="'.getErtekLista(ERTEKLISTA_PENZNEM, $sor['kcs_21']).'">';
+        
+        // Szerkesztéshez az kell, hogy legyen jogunk, illetve a számla ne legyen még igazolva/elutasítva
+        if( _jog(JOG_FENNTARTASI_SZAMLAK_KEZEL) && $sor['igazolva_dt'] == '0000-00-00 00:00:00' ){
+            $gombok .= '<input type="button" class="gomb" value="Tételek kezelése" onclick="csoportMuvelet(\'fenntartasiszamla_tetelek_kezelese\');"> ';
+            // Ez a popuphoz kell
+            $gombok .= '<input type="hidden" id="kcs_21_autocomp_db" value="'.getErtekLista(ERTEKLISTA_PENZNEM, $sor['kcs_21']).'">';
+            $gombok .= '<input type="hidden" id="kcs_21_db" value="'.$sor['kcs_21'].'">';
+            $gombok .= '<input type="hidden" id="netto_db" value="'.number_format($sor['netto'], $tizedesek, ',', ' ').'">';
+            $gombok .= '<input type="hidden" id="dev_net_db" value="'.number_format($sor['dev_net'], $tizedesek, ',', ' ').'">';
+            $gombok = nl2('
+                <div class="form_kuldes">
+                    <input type="button" class="gombb mentes_gomb" name="mehet_gomb" id="mehet_gomb" disabled value="Mentés" onclick="mentesGomb();">
+                    <input type="button" class="gomb piros" disabled id="megsem_gomb" value="Mégsem" onclick="megsemGomb();">
+                </div>
+            ').$gombok;
+        }
 
-
-        $gombok = nl2('
-            <div class="form_kuldes">
-                <input type="button" class="gombb mentes_gomb" name="mehet_gomb" id="mehet_gomb" disabled value="Mentés" onclick="mentesGomb();">
-                <input type="button" class="gomb piros" disabled id="megsem_gomb" value="Mégsem" onclick="megsemGomb();">
-            </div>
-        ').$gombok;
 
         $muv_style = ' style="width: calc(100% - '.($_SESSION['defaultCsuszka'] + 16).'px);"';
         if( in_array(basename(self()), $_SESSION['ketHasabos']) && $_SESSION[get_db_tabla().'user'] ) {
@@ -510,7 +576,6 @@ require_once('selectek.php');
 	// Új rekord felvitele
 	if( isset($_GET['uj']) ) {
 
-        // FORM
         // Itt úgy fogunk tenni,mintha újként szerkesztenénk, viszont nem a session-ból keresünk ide értékeket
         // hanem a kapott andocid alapján az átmeneti táblából. Magyarul egy sima lekérdezéssel meg is van a $sor tömb.
         $sor = $adatbazis_kapcsolat->s2('*', 'fenntartasi_szamla_atmeneti', "`andoc_id`='{$_GET['andoc_id']}'");
@@ -820,8 +885,20 @@ require_once('selectek.php');
 	// Dokumentumok
     } elseif( isset($_GET['dokumentumok']) ) {
 
-        if( $tobb_kep ) {
-            require_once('tobb_kep.php');
+//        if( $tobb_kep ) {
+//            require_once('tobb_kep.php');
+//        }
+        // Itt az XML-ből kapott dokumentum linkjét jelenítjük meg
+        if( $sor['dok_link'] ) {
+            $szamla_html .= nl2('
+                Fődokumentum link:
+                <br><input type="text" value="'.$sor['dok_link'].'" readonly style="width: 100%; margin: 1rem 0">
+                <br><input type="button" class="gomb" value="Dokumentum megtekintése" onclick="window.open(\''.$sor['dok_link'].'\')">
+                <br>Bejövő xml:
+                <br>').'<textarea class="oriasiTargy" readonly>'.$sor['erk_xml'].'</textarea>'.nl2('
+                <br>            
+                <br>Kimenő xml:
+                <br>').'<textarea class="oriasiTargy" readonly>'.$sor['kuld_xml'].'</textarea>';
         }
 
         if( $_GET['ajax'] ) {
@@ -879,4 +956,90 @@ require_once('selectek.php');
 
 if( !$_GET['ajax'] ) {
     require_once('footer.php');
+}
+
+// Igazoláskor, elutasításkor, utalványozáskor gyártunk egy XML vissza fájlt, és azt beírjuk az adatbázisba
+function xml_vissza( $szamla_id ) {
+    
+    global $adatbazis_kapcsolat;
+    
+    $db_error = false;
+    
+    $szamla = $adatbazis_kapcsolat->s2('igazolva andoc_id telephely_id kcs_21 kuld_xml', 'fenntartasi_szamla', "`recid`='{$szamla_id}'");
+    if( $szamla === false ) { $db_error = true; }
+    
+    // Igazolva érték XML-be
+    if( $szamla['igazolva'] ) {
+        $igazolva = 'Igazolva';
+    } else {
+        $igazolva = 'Elutasítva';
+    }
+    
+    // XML dekódolása
+    $szamla['kuld_xml'] = htmlspecialchars_decode($szamla['kuld_xml']);
+    
+    // A számla devizája dönti el, hogy a tételbe melyik nettó mező kerüljön
+    if( $szamla['kcs_21'] == KCS_21_HUF ) {
+        $netto_mezo = 'netto_ert';
+    } else {
+        $netto_mezo = 'dev_net';
+    }
+
+    $tetelek = $adatbazis_kapcsolat->s('*', 'fenntartasi_szamla_tetel', "`fenntartasi_szamla_recid`='{$szamla_id}' AND `valtozott`='1'");
+    if( $tetelek === false ) { $db_error = true; }
+    
+    $tetel_xml = '';
+    $i = 0;
+    foreach( $tetelek as $tetel ) {
+        
+        $afa        = getErtekLista(ERTEKLISTA_AFA_KOD, $tetel['afa_kod']);
+        $szalloda   = getSzallodaNev($szamla['telephely_id']);
+        $tetel_xml .= '
+            <row rownumberonpage="'.$tetel['rownum'].'">
+              <property name="Sor megnevezése">'.$tetel['targy'].'</property>
+              <property name="Nettó sorösszeg">'.$tetel[$netto_mezo].'</property>
+              <property name="Főkönyvi számlaszám">'.$tetel['ktgnem_id'].'</property>
+              <property name="Költséghely">'.$tetel['ktghely_id'].'</property>
+            </row>
+            ';
+        $i++;
+    }
+   
+    
+    $xml = $szamla['kuld_xml'].
+           date('Y-m-d H:i:s').'
+<?xml version="1.0" encoding="utf-8"?>
+<xml>
+  <data>
+    <register registernumber="'.$szamla['andoc_id'].'" operation="update">
+      <workflow_node_name>[AUTO] Utalványozásra küldés</workflow_node_name>
+      <properties>
+        <container name="NIK1">
+          <row rownumberonpage="1">
+            <property name="Igazoló döntés">'.$igazolva.'</property>
+          </row>
+        </container>
+        <container name="IK1">
+          '.$tetel_xml.'
+        </container>
+      </properties>
+    </register>
+  </data>
+</xml>
+
+
+
+';
+    
+    $sql = $adatbazis_kapcsolat->u('fenntartasi_szamla',    array('kuld_xml'),
+                                                            array($xml),
+                                    "`recid`='{$szamla_id}'");
+    if( $tetelek === false ) { $db_error = true; }
+    
+    // Tételeknél nullázzuk a változott pipát
+    $sql = $adatbazis_kapcsolat->u('fenntartasi_szamla_tetel', array('valtozott'), array(0), "`fenntartasi_szamla_recid`='{$szamla_id}' AND `valtozott`='1'");
+    if( $sql === false ) { $db_error = true; }
+    
+    return $db_error;
+    
 }

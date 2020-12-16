@@ -299,7 +299,7 @@
                 if( link ){
                     szurkit();
                     location.href = link;
-                }else{
+                } else {
                     var li_val = $('#autocomplete ul li.aktiv').html();
 
                     if( li_val.indexOf('&') !== -1 ) {
@@ -483,7 +483,7 @@
                         if(link){
                             szurkit();
                             location.href = link;
-                        }else{
+                        } else {
                             var li_val = $('#autocomplete ul li.aktiv').html();
 
                             if( li_val.indexOf('&') !== -1 ) {

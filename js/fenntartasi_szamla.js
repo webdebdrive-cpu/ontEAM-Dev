@@ -24,7 +24,10 @@ function szamla_igazol(mehet) {
                     return false;
                 }
                 szamlaBetolt(_get('id'), 'fenntartasi_szamla.php');
-                alert2('Számla sikeresen igazolva!', '', 'Üzenet');
+                
+                setTimeout(function () {
+                    alert2('Számla sikeresen igazolva!', '', 'Üzenet');
+                }, 200);
             }
         }
     });

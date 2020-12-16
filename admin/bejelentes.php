@@ -194,7 +194,7 @@ if( isset($_POST['bejelentesElutasit']) ) {
         if( $bejelentes === false ) { $db_error = true; }
 
         // Jog ellenőrzése
-        if(!_jog(JOG_BEJELENTES_KEZEL)){
+        if( !_jog(JOG_BEJELENTES_KEZEL) ) {
             echo json_encode(array(
                 'hiba'  => 'Önnek nincs joga bejelentést kezelni!',
                 'title' => 'Hiba'
@@ -302,7 +302,7 @@ if( isset($_POST['bejelentesIgazolas']) ) {
         if( $bejelentes === false ) { $db_error = true; }
 
         // Jog ellenőrzése
-        if(!_jog(JOG_BEJELENTES_KEZEL)){
+        if( !_jog(JOG_BEJELENTES_KEZEL) ) {
             echo json_encode(array(
                 'hiba'  => 'Önnek nincs joga bejelentést kezelni!',
                 'title' => 'Hiba'

@@ -877,9 +877,6 @@ if( in_array(basename(self()), $_SESSION['ketHasabos']) && $_SESSION[get_db_tabl
     } elseif( basename(self()) == 'eszkozkezeles.php' && isset($_GET['megjegyzesek']) ) {
         $uj_link = 'javascript: kapcsolodoSzerkeszt(\'megjegyzes\'); void(0);';
 
-    } elseif( basename(self()) == 'fenntartasi_szerzodes.php' && isset($_GET['megjegyzesek']) ) {
-        $uj_link = 'javascript: kapcsolodoSzerkeszt(\'megjegyzes\'); void(0);';
-
     } elseif( basename(self()) == 'felmeresi_terv.php' && isset($_GET['megjegyzesek']) ) {
         $uj_link = 'javascript: kapcsolodoSzerkeszt(\'megjegyzes\'); void(0);';
 
@@ -891,6 +888,17 @@ if( in_array(basename(self()), $_SESSION['ketHasabos']) && $_SESSION[get_db_tabl
                 $uj_link = 'javascript: kapcsolodoSzerkeszt(\'megjegyzes\'); void(0);';
             } else {
                 $uj_link = 'javascript: fenntartasi_szamla_feltolt(); void(0);';
+            }
+        }
+
+    } elseif( basename(self()) == 'fenntartasi_szerzodes.php' ) {
+        if( !_jog(JOG_FENNTARTASI_SZERZ_KEZEL) ) {
+            $uj_link = 'javascript: alert2(\'Önnek nincs joga fenntartási szerződést feltölteni!\', \'\', \'Hiba\'); void(0);';
+        } else {
+            if( isset($_GET['megjegyzesek']) ) {
+                $uj_link = 'javascript: kapcsolodoSzerkeszt(\'megjegyzes\'); void(0);';
+            } else {
+                $uj_link = 'javascript: fenntartasi_szerzodes_feltolt(); void(0);';
             }
         }
 
@@ -1066,15 +1074,18 @@ if( substr($tabla_nev, strlen($tabla_nev) - 9) == '_arch.php' ) {
     $uj = $duplikal = $torles_icon = '';
 }
 // Illetve van pár tábla, ahol szintén nem lehet sem újat felteni, sem törölni
-$disabled_tablak = array('energia_szamla.php', 'fenntartasi_szerzodes.php');
+$disabled_tablak = array('energia_szamla.php');
 if( in_array($tabla_nev, $disabled_tablak) ) {
     $uj = $duplikal = $torles_icon = '';
 }
 
-if( basename(self()) == 'fenntartasi_szamla.php' ) {
+if( basename(self()) == 'fenntartasi_szamla.php' || basename(self()) == 'fenntartasi_szerzodes.php' ) {
     $duplikal = $torles_icon = '';
 }
 if( basename(self()) == 'fenntartasi_szamla.php' && !_jog(JOG_FENNTARTASI_SZAMLAK_KEZEL) ) {
+    $uj = '';
+}
+if( basename(self()) == 'fenntartasi_szerzodes.php' && !_jog(JOG_FENNTARTASI_SZERZ_KEZEL) ) {
     $uj = '';
 }
 if( basename(self()) == 'anyagigenyles.php' && !_jog(JOG_ANYAGIGENYLES_KEZEL) ) {

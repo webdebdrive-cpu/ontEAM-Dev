@@ -196,9 +196,12 @@ if( basename(self()) == 'beosztas_unnepnapok.php' || basename(self()) == 'header
 }
 
 // Szerződés típusok
-$select_szerzodes_tipus = array();
-array_push($select_szerzodes_tipus, array('name' => '- Válasszon -', 'value' => '' ));
-array_push($select_szerzodes_tipus, array('name' => 'Típus 1',  'value' => '1' ));
-array_push($select_szerzodes_tipus, array('name' => 'Típus 2',  'value' => '2' ));
-array_push($select_szerzodes_tipus, array('name' => 'Típus 3',  'value' => '3'));
-array_push($select_szerzodes_tipus, array('name' => 'Típus 4',  'value' => '4' ));
+if( basename(self()) == 'fenntartasi_szerzodes.php' || basename(self()) == 'header.php'/*Szűrés miatt*/ ) {
+    $select_szerzodes_tipus = array();
+    array_push($select_szerzodes_tipus, array('name' => '- Válasszon -', 'value' => '' ));
+    array_push($select_szerzodes_tipus, array('name' => 'Keretszerződés',           'value' => 'ks' ));
+    array_push($select_szerzodes_tipus, array('name' => 'Karbantartási szerződés',  'value' => 'ka' ));
+    array_push($select_szerzodes_tipus, array('name' => 'Egyedi megrendelés',       'value' => 'em' ));
+    array_push($select_szerzodes_tipus, array('name' => 'Egyéb szerződés',          'value' => 'sz' ));
+    array_push($select_szerzodes_tipus, array('name' => 'Energia szerződés',        'value' => 'es' ));
+}

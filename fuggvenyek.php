@@ -390,6 +390,12 @@ function i_u($type, $tabla, $tomb) {
     		$i++;
         }
 	}
+    
+    // Fenntartási szerződéseknél pár mezőt még kézzel külön hozzá kell adni
+    if( $tabla == 'fenntartasi_szerzodes' ) {
+        array_push($oszlopok, 'p_nev',          'p_beosztas',           'p_cim',            'p_email',          'p_tel',            'p_fax'         );
+        array_push($ertekek,   $_POST['p_nev'],  $_POST['p_beosztas'],   $_POST['p_cim'],   $_POST['p_email'],   $_POST['p_tel'],   $_POST['p_fax'] );
+    }
 
     // Dátumra ütemezés, ha az ütemezett feladatokat módosítjuk/töltjük fel
     if( $tabla == 'utemezett_feladatok' || $tabla == 'rendszeres_karbantartas' ) {
@@ -1021,14 +1027,16 @@ function i_u($type, $tabla, $tomb) {
             if( $sql === false ) { $db_error = true; }
         }
         
-        // Fenntartási száml tételek felvétele
+        // Fenntartási számla tételek felvétele
         if( $tabla == 'fenntartasi_szamla' ) {
             $i = 0;
             foreach ( $_SESSION['fennt_szla_tetel_targy'] as $targy ) {
                 $netto_ert  = str_replace(' ', '',  $_SESSION['fennt_szla_tetel_netto_ert'][$i]);
                 $dev_net    = str_replace(array(' ', ','), array('', '.'),  $_SESSION['fennt_szla_tetel_dev_net'][$i]);
+                $targy      = $_SESSION['fennt_szla_tetel_targy'][$i];
                 $ktgnem     = $_SESSION['fennt_szla_tetel_ktgnem'][$i];
                 $ktghely    = $_SESSION['fennt_szla_tetel_ktghely'][$i];
+                $valtozott  = $_SESSION['fennt_szla_tetel_valtozott'][$i];
                 
                 // Ha ismert a recid, akkor kérjük le az átmeneti táblából az adatokat és azokban írjuk át a SESSION adatait, és így mentjük le
                 if( $_SESSION['fennt_szla_tetel_recid'][$i] ) {
@@ -1036,6 +1044,7 @@ function i_u($type, $tabla, $tomb) {
                     if( $tetel === false ) { $db_error = true; }
  
                     // Session adataival felülírjuk az átmeneti tábla adatait
+                    $tetel['targy']         = $targy;
                     $tetel['netto_ert']     = $netto_ert;
                     $tetel['dev_net']       = $dev_net;
                     $tetel['ktgnem_id']     = $ktgnem;
@@ -1043,7 +1052,7 @@ function i_u($type, $tabla, $tomb) {
                     
                     $ertekek = array();
                     $mezok   = array(
-                        'andoc_id',
+                        'rownum',
                         'telephely_id',
                         'targy',
                         'ktgnem_id',
@@ -1059,6 +1068,7 @@ function i_u($type, $tabla, $tomb) {
                         'igazol_dt',
                         'szszam',
                         'verzio',
+                        'andocos',
                         'flex',
                         'sorid',
                         );
@@ -1067,17 +1077,20 @@ function i_u($type, $tabla, $tomb) {
                         array_push($ertekek, htmlspecialchars_decode($tetel[$mezo]));
                     }
 
-                    array_push($mezok,   'fenntartasi_szamla_recid', 'loginnev',                        'insert_dt', 'insert_usr',                          'update_usr'                           );
-                    array_push($ertekek, $id,                        $_SESSION[get_db_tabla().'user'],  'NOW()',     $_SESSION[get_db_tabla().'teljes_nev'], $_SESSION[get_db_tabla().'teljes_nev']);
+                    array_push($mezok,   'fenntartasi_szamla_recid', 'valtozott', 'loginnev',                        'insert_dt', 'insert_usr',                           'update_usr'                           );
+                    array_push($ertekek, $id,                        $valtozott,  $_SESSION[get_db_tabla().'user'],  'NOW()',     $_SESSION[get_db_tabla().'teljes_nev'], $_SESSION[get_db_tabla().'teljes_nev'] );
 
                     $sql = $adatbazis_kapcsolat->i('fenntartasi_szamla_tetel', $mezok, $ertekek);
                     if( $sql === false ) { $db_error = true; }
 
                 // Ha nincs átmeneti megfelelője
                 } else {
+                    
+                    $rownum = $adatbazis_kapcsolat->s2('MAX(`rownum`)', 'fenntartasi_szamla_tetel', "`fenntartasi_szamla_recid`='{$id}'");
+                    $rownum = $rownum['MAX(`rownum`)']+1;
                     $sql = $adatbazis_kapcsolat->i('fenntartasi_szamla_tetel',
-                                                        array('fenntartasi_szamla_recid', 'targy', 'netto_ert', 'dev_net', 'ktgnem_id', 'ktghely_id', 'loginnev',                          'insert_dt',    'insert_usr',                             'update_usr'                              ),
-                                                        array($id,                        $targy,  $netto_ert,  $dev_net,  $ktgnem,     $ktghely,     $_SESSION[get_db_tabla().'user'],    'NOW()',        $_SESSION[get_db_tabla().'teljes_nev'],   $_SESSION[get_db_tabla().'teljes_nev']    )
+                                                        array('fenntartasi_szamla_recid', 'rownum', 'targy', 'netto_ert', 'dev_net', 'ktgnem_id', 'ktghely_id', 'valtozott', 'loginnev',                          'insert_dt',    'insert_usr',                             'update_usr'                              ),
+                                                        array($id,                        $rownum,  $targy,  $netto_ert,  $dev_net,  $ktgnem,     $ktghely,     '1',         $_SESSION[get_db_tabla().'user'],    'NOW()',        $_SESSION[get_db_tabla().'teljes_nev'],   $_SESSION[get_db_tabla().'teljes_nev']    )
                                                 );
                 }
                 if( $sql === false ) { $db_error = true; }
@@ -1085,11 +1098,14 @@ function i_u($type, $tabla, $tomb) {
             }
 
             // Andoc_id-t és a létrehozással kapcsolatos adatokat még letároljuk az éles fej táblában
-            $szamla = $adatbazis_kapcsolat->s2('andoc_id erk_xml insert_dt', 'fenntartasi_szamla_atmeneti', "`recid`='{$_POST['atmeneti_recid']}'");
+            $szamla = $adatbazis_kapcsolat->s2('andoc_id vonalkod erk_xml dok_link insert_dt', 'fenntartasi_szamla_atmeneti', "`recid`='{$_POST['atmeneti_recid']}'");
             if( $szamla === false ) { $db_error = true; }
+            $szamla['erk_xml']  = htmlspecialchars_decode($szamla['erk_xml']);
+            $szamla['vonalkod'] = htmlspecialchars_decode($szamla['vonalkod']);
+            $szamla['dok_link'] = htmlspecialchars_decode($szamla['dok_link']);
             $sql = $adatbazis_kapcsolat->u('fenntartasi_szamla', 
-                                                                array('andoc_id',           'ont_erk_dt',         'erk_xml'          ),
-                                                                array($szamla['andoc_id'],  $szamla['insert_dt'],  $szamla['erk_xml']),
+                                                                array('andoc_id',           'ont_erk_dt',         'erk_xml',            'vonalkod',           'dok_link'          ),
+                                                                array($szamla['andoc_id'],  $szamla['insert_dt'], $szamla['erk_xml'],   $szamla['vonalkod'],  $szamla['dok_link'] ),
                                                             "`recid`='{$id}'");
             if( $sql === false ) { $db_error = true; }
             
@@ -1105,6 +1121,49 @@ function i_u($type, $tabla, $tomb) {
             unset($_SESSION['fennt_szla_tetel_dev_net']);
             unset($_SESSION['fennt_szla_tetel_ktgnem']);
             unset($_SESSION['fennt_szla_tetel_ktghely']);
+        }
+        
+        // Fenntartási szerződés tételek felvétele
+        if( $tabla == 'fenntartasi_szerzodes' ) {
+
+            $i = 0;
+            foreach ( $_SESSION['fennt_szerz_tetel_telephely_id'] as $telephely ) {
+                $netto_ert  = str_replace(' ', '',  $_SESSION['fennt_szerz_tetel_netto_ert'][$i]);
+                $dev_net    = str_replace(array(' ', ','), array('', '.'),  $_SESSION['fennt_szerz_tetel_dev_net'][$i]);
+                $telephely  = $_SESSION['fennt_szerz_tetel_telephely_id'][$i];
+                $telj_dt    = $_SESSION['fennt_szerz_tetel_telj_dt'][$i];
+                $valtozott  = $_SESSION['fennt_szerz_tetel_valtozott'][$i];
+                
+                $rownum = $adatbazis_kapcsolat->s2('MAX(`rownum`)', 'fenntartasi_szerzodes_tetel', "`fenntartasi_szerzodes_recid`='{$id}'");
+                $rownum = $rownum['MAX(`rownum`)']+1;
+                $sql = $adatbazis_kapcsolat->i('fenntartasi_szerzodes_tetel',
+                                                    array('fenntartasi_szerzodes_recid',    'rownum', 'telephely_id', 'telj_dt', 'netto_ert', 'dev_net', 'valtozott', 'loginnev',                          'insert_dt',    'insert_usr',                             'update_usr'                              ),
+                                                    array($id,                              $rownum,  $telephely,     $telj_dt,  $netto_ert,  $dev_net,  '1',         $_SESSION[get_db_tabla().'user'],    'NOW()',        $_SESSION[get_db_tabla().'teljes_nev'],   $_SESSION[get_db_tabla().'teljes_nev']    )
+                                            );
+
+                if( $sql === false ) { $db_error = true; }
+                $i++;
+            }
+
+            // Andoc_id-t és a létrehozással kapcsolatos adatokat még letároljuk az éles fej táblában
+            $szerzodes = $adatbazis_kapcsolat->s2('andoc_id erk_xml insert_dt vonalkod', 'fenntartasi_szerzodes_atmeneti', "`recid`='{$_POST['atmeneti_recid']}'");
+            if( $szerzodes === false ) { $db_error = true; }
+            $szerzodes['erk_xml']  = htmlspecialchars_decode($szerzodes['erk_xml']);
+            $sql = $adatbazis_kapcsolat->u('fenntartasi_szerzodes', 
+                                                                array('andoc_id',              'vonalkod',              'ont_erk_dt',            'erk_xml'               ),
+                                                                array($szerzodes['andoc_id'],  $szerzodes['vonalkod'],  $szerzodes['insert_dt'], $szerzodes['erk_xml']   ),
+                                                            "`recid`='{$id}'");
+            if( $sql === false ) { $db_error = true; }
+            
+            // Töröljük az átmeneti táblát
+            $sql = $adatbazis_kapcsolat->d('fenntartasi_szerzodes_atmeneti', "`recid`='{$_POST['atmeneti_recid']}'");
+            if( $sql === false ) { $db_error = true; }
+
+            // Feldolgozással a SESSION értékeket ki is ürítjük.
+            unset($_SESSION['fennt_szerz_tetel_telephely_id']);
+            unset($_SESSION['fennt_szerz_tetel_telj_dt']);
+            unset($_SESSION['fennt_szerz_tetel_netto_ert']);
+            unset($_SESSION['fennt_szerz_tetel_dev_net']);
         }
 
         // Szállodákat és társrészlegeket is beállítjuk, törzsadat párját létrehozzuk, annak napi munkaidőt állítunk be

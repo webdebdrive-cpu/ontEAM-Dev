@@ -6436,8 +6436,12 @@ function szamlaBetolt( recid, page, muvelet, szerkeszt, kerdes_nelkul, anyagigen
                             $('#navGombok a.uj').attr('href', 'javascript: fenntartasi_szamla_feltolt(); void(0);');
                         }
 
-                    } else if( baseName(location.href) == 'fenntartasi_szerzodes' && _get('megjegyzesek') ) {
-                        $('#navGombok a.uj').attr('href', 'javascript: kapcsolodoSzerkeszt(\'megjegyzes\'); void(0);');
+                    } else if( baseName(location.href) == 'fenntartasi_szerzodes' ) {
+                        if( _get('megjegyzesek') ) {
+                            $('#navGombok a.uj').attr('href', 'javascript: kapcsolodoSzerkeszt(\'megjegyzes\'); void(0);');
+                        } else {
+                            $('#navGombok a.uj').attr('href', 'javascript: fenntartasi_szerzodes_feltolt(); void(0);');
+                        }
 
                     } else if( baseName(location.href) == 'fenntartasi_terv' && _get('megjegyzesek') ) {
                         $('#navGombok a.uj').attr('href', 'javascript: kapcsolodoSzerkeszt(\'megjegyzes\'); void(0);');
@@ -7652,9 +7656,14 @@ function munkalapok_nyitottak_koze(mehet){
     });
 }
 
-/* Az űrlap gombjait váltjuk: mentés / mégsem látsszon vagy a kék gombok. Illetve form módosított-e vagy sem.  */
+// Az űrlap gombjait váltjuk: Mentés / Mégsem látsszon vagy a kék gombok. Illetve form módosított-e vagy sem.
 function gombok_valt(mod){
-
+    
+    // Fenntartási szerződésnél a Mentés / Mégsem gombok akkor is látszódjanak, ha az űrlap nincs módosítva.
+    if( baseName(location.href) == 'fenntartasi_szerzodes' ) {
+        mod = true;
+    }
+    
     if( mod ) {
         $('#kilepes_gomb').val('Kilépés mentés nélkül');
         $('#mehet_gomb').attr('disabled', false).addClass('gombb_alert');
@@ -7665,7 +7674,7 @@ function gombok_valt(mod){
         formModositva = true;
     } else {
         $('#kilepes_gomb').val('Kilépés');
-        /* Új anyagigénylés feltöltésénél a gombot inkább ne rejtsük el sose. Mert itt gond volt abból, hogy a Hozzáadás gomb lenyomása után nem lehetett az alap űrlapot elmenteni. */
+        // Új anyagigénylés feltöltésénél a gombot inkább ne rejtsük el sose. Mert itt gond volt abból, hogy a Hozzáadás gomb lenyomása után nem lehetett az alap űrlapot elmenteni.
         if(!$('#mehet_gomb').hasClass('ne_rejtsd_el')){
             $('#mehet_gomb').attr('disabled', true).removeClass('gombb_alert');
         }

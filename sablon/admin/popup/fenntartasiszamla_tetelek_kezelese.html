@@ -138,12 +138,13 @@ function tetel_hozzaadasa() {
     /* Ha ismert a sor_id, akkor update */
     if( sor_id ) {
 
-        $('.pop_tetel_'+sor_id+' .pop_targy').html( $('#pop_targy').val() );
-        $('.pop_tetel_'+sor_id+' .pop_netto_ert').html( $('#pop_ertek').val() );
-        $('.pop_tetel_'+sor_id+' .pop_ktgnem_autocomp').html( $('#ktgnem_id_autocomp').val() );
+        $('.pop_tetel_'+sor_id+' .pop_targy').html( targy );
+        $('.pop_tetel_'+sor_id+' .pop_netto_ert').html( ertek );
+        $('.pop_tetel_'+sor_id+' .pop_ktgnem_autocomp').html( ktgnem_txt );
         $('.pop_tetel_'+sor_id+' .pop_ktgnem').val( ktgnem_id );
-        $('.pop_tetel_'+sor_id+' .pop_ktghely_autocomp').html( $('#ktghely_id_autocomp').val() );
+        $('.pop_tetel_'+sor_id+' .pop_ktghely_autocomp').html( ktghely_txt );
         $('.pop_tetel_'+sor_id+' .pop_ktghely').val( ktghely_id );
+        $('.pop_tetel_'+sor_id+' .pop_valtozott').val( 1 );
 
     /* Egybként új sor hozzáadása */
     } else {
@@ -157,6 +158,7 @@ function tetel_hozzaadasa() {
                             '<td><a onclick="popup_tetel_sor_torol(\'pop_tetel_'+id_tmp+'\');"><span class="icon"><i class="material-icons">delete</i></span></a>'+
                                 '<input type="hidden" class="pop_ktgnem" name="pop_ktgnem_id" value="'+ktgnem_id+'">' +
                                 '<input type="hidden" class="pop_ktghely" name="pop_ktghely_id" value="'+ktghely_id+'">' +
+                                '<input type="hidden" class="pop_valtozott" value="1">' +        
                                 '<input type="hidden" class="pop_recid" name="recid" value="'+sor_id+'">' +        
                             '</td>' +
                         '</tr>';
@@ -252,13 +254,18 @@ function tetel_sorok_ment( bezar_nelkul ){
     $('.pop_ktghely').each(function() {
         ktghelyek.push( $(this).val() );
     });
+    var valtozott = [];
+    $('.pop_valtozott').each(function() {
+        valtozott.push( $(this).val() );
+    });
     
     var adatok = [
                     ['recidk',    recidk],
                     ['targyak',   targyak],
                     ['netto_ert', netto_ert],
                     ['ktgnemek',  ktgnemek],
-                    ['ktghelyek', ktghelyek]
+                    ['ktghelyek', ktghelyek],
+                    ['valtozott', valtozott]
                 ];
     
     /* A számla nettó értéke az Adatlapon található mező értéke 

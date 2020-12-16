@@ -2982,7 +2982,7 @@ $fenntartasi_szamla_tomb = $akt_tomb = array(
     array('type' => 'checkbox',     'megn' => 'Kifizetve:',                 'name' => 'kifizetve',      'szuro' => 1,  'disabled' => $disabled, 'class' => 'check', 'sql_disabledkor_is' => 1, 'post' => ' <span style="margin-left: 2rem"></span>'),
     $elutleir,
     array('type' => 'textarea',     'megn' => 'Megjegyzés:',                'name' => 'megjegyz',       'szuro' => 1,  'disabled' => $disabled, 'class' => 'oriasiTargy disableNav'),
-    array('type' => 'text',         'megn' => 'Kifizetett összeg:',         'name' => 'kif_ossz',       'szuro' => 1,  'disabled' => $disabled, 'class' => 'oriasi f_num',      'data' => 'data-tort="2"', 'post' => ' '.get_penznem().'<span style="margin-left: 2rem"></span>', 'osszevon' => 1,   'nulla_is_ures_adat' => 1),
+    array('type' => 'text',         'megn' => 'Kifizetett összeg:',         'name' => 'kif_ossz',       'szuro' => 1,  'disabled' => $disabled, 'class' => 'oriasi f_num',      'data' => 'data-tort="2"', 'post' => '<span style="margin-left: 2rem"></span>', 'osszevon' => 1,   'nulla_is_ures_adat' => 1),
     array('type' => 'text',         'megn' => 'Utolsó kifizetés dátuma:',   'name' => 'ut_kif_dt',      'szuro' => 1,  'disabled' => $disabled, 'class' => 'kicsi datepicker',  'sql_disabledkor_is' => 1),
 );
 array_push($postok, array('tomb' => $akt_tomb, 'uj' => 'uj'.$megnevezes, 'lista' => $megnevezes.'lista', 'tabla' => $megnevezes, 'torid' => $megnevezes.'tid' ));
@@ -3005,10 +3005,12 @@ $fenntartasi_szerzodes_tomb = $akt_tomb = array(
     array('type' => 'text',         'megn' => 'Érvényesség vége:',          'name' => 'bef_dt',         'szuro' => 1,  'disabled' => 1, 'class' => 'datepicker'),
     array('type' => 'autocomplete', 'megn' => 'Pénznem:',                   'name' => 'kcs_21',         'szuro' => 1,  'disabled' => 1, 'class' => 'disableNav', 'tabla' => 'erteklista', 'oszlop_keres' => 'id', 'oszlop_keres_autocomp' => 'info', 'listaz' => 'info', 'csoport' => ERTEKLISTA_PENZNEM, 'id_kiir' => 'id', 'style' => 'width: 4.6rem', 'osszevon' => 1, 'post' => '<span style="margin-left: 4rem"></span>'),
     array('type' => 'text',         'megn' => 'Számla fizetési határidő:',  'name' => 'szlafizhi',      'szuro' => 1,  'disabled' => 1, 'class' => 'normal', 'post' => ' nap', 'style' => 'width: 8.6rem'),
-    array('type' => 'text',         'megn' => 'Deviza nettó:',              'name' => 'vnetert',        'szuro' => 1,  'disabled' => 1, 'class' => 'f_num',    'data' => 'data-tort="2"', 'style' => 'width: 8.7rem'),
+    array('type' => 'text',         'megn' => 'Deviza nettó:',              'name' => 'dev_net',        'szuro' => 1,  'disabled' => 1, 'class' => 'f_num',    'data' => 'data-tort="2"', 'style' => 'width: 8.7rem', 'osszevon' => 1, 'post' => '<span style="margin-left: 9.3rem"></span>'),
+    array('type' => 'text',         'megn' => 'Árfolyam:',                  'name' => 'arfolyam',       'szuro' => 1,  'disabled' => $disabled, 'class' => 'f_num f_select',    'data' => 'data-tort="4"', 'sql_disabledkor_is' => 1),
     array('type' => 'text',         'megn' => 'Nettó érték:',               'name' => 'netto',          'szuro' => 1,  'disabled' => 1, 'class' => 'f_num',    'data' => 'data-tort="0"'),
     array('type' => 'text',         'megn' => 'Aláírva:',                   'name' => 'alairva_dt',     'szuro' => 1,  'disabled' => 1, 'class' => 'datepicker', 'osszevon' => 1, 'post' => '<span style="margin-left: 8.2rem"></span>'),
     array('type' => 'text',         'megn' => 'Felmondás:',                 'name' => 'felmondas',      'szuro' => 1,  'disabled' => 1, 'class' => 'normal', 'post' => ' nap', 'style' => 'width: 8.6rem'),
+    array('type' => 'text',         'megn' => 'Fizetési feltétel:',         'name' => 'fiz_felt',       'szuro' => 1,  'disabled' => 1, 'class' => 'oriasi', 'maxlength' => 300),
     
     array('type' => 'html',                     'megn' => nl2('
                                                                 <div class="dtr mutat_szinva_tmp">
@@ -3018,16 +3020,16 @@ $fenntartasi_szerzodes_tomb = $akt_tomb = array(
                                                                     <div class="dtc form_jobb" style="padding: 0rem 0 0rem 1rem">
                                                                         <fieldset style="width: auto; margin-top: 0.2rem; margin-left: -0.5rem;">
                                                                             <div class="p2">
-                                                                                <span style="margin-left: 2.4rem;"></span>Név: <input type="text" autocomplete="off" style="width: 28rem;" readonly="readonly" name="p_nev" id="p_nev" value="'.$fsz['p_nev'].'" tabindex="-1">
-                                                                                <span style="margin-left: 2rem;"></span>Beosztás: <input type="text" autocomplete="off" style="width: 28rem;" readonly="readonly" name="p_beosztas" id="p_beosztas" value="'.$fsz['p_beosztas'].'" tabindex="-1">
+                                                                                <span style="margin-left: 2.4rem;"></span>Név: <input type="text" autocomplete="off" style="width: 28rem;" name="p_nev" id="p_nev" value="'.$fsz['p_nev'].'" tabindex="-1">
+                                                                                <span style="margin-left: 2rem;"></span>Beosztás: <input type="text" autocomplete="off" style="width: 28rem;" name="p_beosztas" id="p_beosztas" value="'.$fsz['p_beosztas'].'" tabindex="-1">
                                                                             </div>
                                                                             <div class="p2">
-                                                                                <span style="margin-left: 2.4rem;"></span>Cím: <input type="text" autocomplete="off" style="width: 28rem;" readonly="readonly" name="p_cim" id="p_cim" value="'.$fsz['p_cim'].'" tabindex="-1">
-                                                                                <span style="margin-left: 3.7rem;"></span>E-mail: <input type="text" autocomplete="off" style="width: 28rem;" readonly="readonly" name="p_email" id="p_email" value="'.$fsz['p_email'].'" tabindex="-1">
+                                                                                <span style="margin-left: 2.4rem;"></span>Cím: <input type="text" autocomplete="off" style="width: 28rem;" name="p_cim" id="p_cim" value="'.$fsz['p_cim'].'" tabindex="-1">
+                                                                                <span style="margin-left: 3.7rem;"></span>E-mail: <input type="text" autocomplete="off" style="width: 28rem;" name="p_email" id="p_email" value="'.$fsz['p_email'].'" tabindex="-1">
                                                                             </div>
                                                                             <div class="p2">
-                                                                                Telefon: <input type="text" autocomplete="off" style="width: 28rem;" readonly="readonly" name="p_tel" id="p_tel" value="'.$fsz['p_tel'].'" tabindex="-1">
-                                                                                <span style="margin-left: 5.6rem;"></span>Fax: <input type="text" autocomplete="off" style="width: 28rem;" readonly="readonly" name="p_fax" id="p_fax" value="'.$fsz['p_fax'].'" tabindex="-1">
+                                                                                Telefon: <input type="text" autocomplete="off" style="width: 28rem;" name="p_tel" id="p_tel" value="'.$fsz['p_tel'].'" tabindex="-1">
+                                                                                <span style="margin-left: 5.6rem;"></span>Fax: <input type="text" autocomplete="off" style="width: 28rem;" name="p_fax" id="p_fax" value="'.$fsz['p_fax'].'" tabindex="-1">
                                                                             </div>
                                                                         </fieldset>
                                                                     </div>
