@@ -8250,7 +8250,7 @@ require('selectek.php');
         $munkalap_kapcs = $adatbazis_kapcsolat->s('recid', 'munkalap_kapcs', "`munkalap_id` = '".$sor['recid']."'", '', '');
 
         // Duplikáláskor feltett kérdés
-        if(!_jog(JOG_MUNKALAP_KESZITHET)){
+        if( !_jog(JOG_MUNKALAP_KESZITHET) ) {
             $szamla_html .= nl2('
                 <script>
                     duplikalGomb  = "<p class=\"c\"><input class=\"gomb zold\" type=\"button\" value=\"Ok\" onclick=\"alert2()\"></p>";
