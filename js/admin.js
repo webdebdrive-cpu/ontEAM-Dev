@@ -808,8 +808,13 @@ $(function() {
     $('input[readonly]')   .removeAttr('onclick').removeAttr('onblur');
     $('select[readonly]')  .removeAttr('onclick').removeAttr('onblur');
     $('textarea[readonly]').removeAttr('onclick').removeAttr('onblur');
+    // Beléjük kattintva jelöljük ki a tartalmát, de csak az első kattintáskor
     $(document).on('mousedown', 'input[readonly], select[readonly], textarea[readonly]', function(e) {
-        $(this).select();
+        if( !$(this).hasClass('input_kijelolve') ) {
+            $('.input_kijelolve').removeClass('input_kijelolve');
+            $(this).addClass('input_kijelolve');
+            $(this).select();
+        }
         return false;
     });
     $(document).on('click', 'label[readonly]', function(e) {
@@ -7660,7 +7665,10 @@ function munkalapok_nyitottak_koze(mehet){
 function gombok_valt(mod){
     
     // Fenntartási szerződésnél a Mentés / Mégsem gombok akkor is látszódjanak, ha az űrlap nincs módosítva.
-    if( baseName(location.href) == 'fenntartasi_szerzodes' ) {
+    // Ez csak új feltöltésnél érdekes, mert az átmeneti táblából ha menteni szeretnénk adatokat, akkor az űrlapon csak nem kötelező mezők vannak
+    // amiket üresen is el kell tudni menteni.
+    // Viszont sima módosítás állapotban ne látszójanak, mert akkor a bal navpaelen lépkedve mindig megkérdezni a rendszer, hogy elhagyom-e az adatlapot.
+    if( _get('uj') && baseName(location.href) == 'fenntartasi_szerzodes' ) {
         mod = true;
     }
     

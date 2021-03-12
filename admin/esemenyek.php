@@ -522,6 +522,8 @@ switch ( $tabla ) {
                                     `'.get_db_tabla().$tabla_nophp.'`.`szla_szam`,
                                     `'.get_db_tabla().$tabla_nophp.'`.`szallito_id`,
                                     `'.get_db_tabla().$tabla_nophp.'`.`targy`,
+                                    `'.get_db_tabla().$tabla_nophp.'`.`igazolva`,
+                                    `'.get_db_tabla().$tabla_nophp.'`.`igazolva_dt`,
                                     `'.get_db_tabla().$tabla_nophp.'`.`netto`
                                 ');
 
@@ -3020,16 +3022,16 @@ $fenntartasi_szerzodes_tomb = $akt_tomb = array(
                                                                     <div class="dtc form_jobb" style="padding: 0rem 0 0rem 1rem">
                                                                         <fieldset style="width: auto; margin-top: 0.2rem; margin-left: -0.5rem;">
                                                                             <div class="p2">
-                                                                                <span style="margin-left: 2.4rem;"></span>Név: <input type="text" autocomplete="off" style="width: 28rem;" name="p_nev" id="p_nev" value="'.$fsz['p_nev'].'" tabindex="-1">
-                                                                                <span style="margin-left: 2rem;"></span>Beosztás: <input type="text" autocomplete="off" style="width: 28rem;" name="p_beosztas" id="p_beosztas" value="'.$fsz['p_beosztas'].'" tabindex="-1">
+                                                                                <span style="margin-left: 2.4rem;"></span>Név: <input type="text" autocomplete="off" style="width: 28rem;" name="p_nev" id="p_nev" value="'.$fsz['p_nev'].'" tabindex="1">
+                                                                                <span style="margin-left: 2rem;"></span>Beosztás: <input type="text" autocomplete="off" style="width: 28rem;" name="p_beosztas" id="p_beosztas" value="'.$fsz['p_beosztas'].'" tabindex="2">
                                                                             </div>
                                                                             <div class="p2">
-                                                                                <span style="margin-left: 2.4rem;"></span>Cím: <input type="text" autocomplete="off" style="width: 28rem;" name="p_cim" id="p_cim" value="'.$fsz['p_cim'].'" tabindex="-1">
-                                                                                <span style="margin-left: 3.7rem;"></span>E-mail: <input type="text" autocomplete="off" style="width: 28rem;" name="p_email" id="p_email" value="'.$fsz['p_email'].'" tabindex="-1">
+                                                                                <span style="margin-left: 2.4rem;"></span>Cím: <input type="text" autocomplete="off" style="width: 28rem;" name="p_cim" id="p_cim" value="'.$fsz['p_cim'].'" tabindex="3">
+                                                                                <span style="margin-left: 3.7rem;"></span>E-mail: <input type="text" autocomplete="off" style="width: 28rem;" name="p_email" id="p_email" value="'.$fsz['p_email'].'" tabindex="4">
                                                                             </div>
                                                                             <div class="p2">
-                                                                                Telefon: <input type="text" autocomplete="off" style="width: 28rem;" name="p_tel" id="p_tel" value="'.$fsz['p_tel'].'" tabindex="-1">
-                                                                                <span style="margin-left: 5.6rem;"></span>Fax: <input type="text" autocomplete="off" style="width: 28rem;" name="p_fax" id="p_fax" value="'.$fsz['p_fax'].'" tabindex="-1">
+                                                                                Telefon: <input type="text" autocomplete="off" style="width: 28rem;" name="p_tel" id="p_tel" value="'.$fsz['p_tel'].'" tabindex="5">
+                                                                                <span style="margin-left: 5.6rem;"></span>Fax: <input type="text" autocomplete="off" style="width: 28rem;" name="p_fax" id="p_fax" value="'.$fsz['p_fax'].'" tabindex="6">
                                                                             </div>
                                                                         </fieldset>
                                                                     </div>
@@ -3037,6 +3039,12 @@ $fenntartasi_szerzodes_tomb = $akt_tomb = array(
                                                                 ')
                                                             ),
     array('type' => 'textarea',     'megn' => 'Megjegyzés:',                'name' => 'megjegyz',       'szuro' => 1,  'disabled' => 1, 'class' => 'oriasi alacsony'),
+    array('type' => 'none', 'name' => 'p_nev'),
+    array('type' => 'none', 'name' => 'p_beosztas'),
+    array('type' => 'none', 'name' => 'p_cim'),
+    array('type' => 'none', 'name' => 'p_email'),
+    array('type' => 'none', 'name' => 'p_tel'),
+    array('type' => 'none', 'name' => 'p_fax'),
 );
 array_push($postok, array('tomb' => $akt_tomb, 'uj' => 'uj'.$megnevezes, 'lista' => $megnevezes.'lista', 'tabla' => $megnevezes, 'torid' => $megnevezes.'tid' ));
 

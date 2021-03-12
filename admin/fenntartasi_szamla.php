@@ -49,7 +49,7 @@ if( isset($_POST['fenntartasi_szamla_get_koztes']) ) {
                     <th class="l">Szálloda</th>
                     <th class="l">Szállító</th>
                     <th class="l">Számlaszám</th>
-                    <th class="l">Teljesítés dáma</th>
+                    <th class="c">Teljesítés dáma</th>
                 </tr>
                 </thead>
                 <tbody>
@@ -57,10 +57,10 @@ if( isset($_POST['fenntartasi_szamla_get_koztes']) ) {
         foreach( $szamlak as $szamla ) {
             $html .= nl2('
                     <tr data-andoc_id="'.$szamla['andoc_id'].'">
-                        <td>'.getSzallodaNev($szamla['telephely_id']).'</td>
-                        <td>'.getErtek('nev', 'szallito', 'id', $szamla['szallito_id']).'</td>
-                        <td>'.htmlspecialchars($szamla['szla_szam']).'</td>
-                        <td>'.datum_kiir($szamla['telj_dt']).'</td>
+                        <td class="l">'.getSzallodaNev($szamla['telephely_id']).'</td>
+                        <td class="l">'.getErtek('nev', 'szallito', 'id', $szamla['szallito_id']).'</td>
+                        <td class="l">'.htmlspecialchars($szamla['szla_szam']).'</td>
+                        <td class="c">'.datum_kiir($szamla['telj_dt']).'</td>
                     </tr>
                 ');
         }

@@ -192,6 +192,13 @@ class ServerClass {
                     Throw new SOAPFault ('Server', 'Helytelen fizetési határidő!');
                 }
             }
+            if( $szamla_adatok['Danubius azonosító'] ) {
+                $letezo_ikt_szam = $adatbazis_kapcsolat->s2('recid', $tabla, "`ikt_szam`='{$szamla_adatok['Danubius azonosító']}' AND `szallito_id`='{$szamla_adatok['Partnerkód']}' AND `andoc_id`!='{$andoc_id}'");
+//Throw new SOAPFault ('Server', $adatbazis_kapcsolat->gp() );
+                if( $letezo_ikt_szam ) {
+                    Throw new SOAPFault ('Server', $szamla_adatok['Danubius azonosító'].' számlaszám már létezik ezzel a partnerrel a feldolgozott számlák között!');
+                }
+            }
             
             // Ha van pénznem adatunk (update esetén nem feltétlen van)
             if( $szamla_adatok['Pénznem'] ) {
@@ -243,7 +250,7 @@ class ServerClass {
                 }
             }
 
-            if( !count($szamla_tetelek) ) {
+            if( !count($szamla_tetelek) && $insert_update == 'insert' ) {
                 Throw new SOAPFault ('Server', 'Hiányzó tételek!');
             }
             
@@ -336,13 +343,6 @@ class ServerClass {
             $utalvanyozva = '0';
             if( mb_strtolower($szamla_adatok['Utalványozó döntés'], self::CHAR_CODING) == 'utalványozva' ) {
                 $utalvanyozva = '1';
-            }
-
-            // Iktatószám csak egyedi lehet
-            $sql = $adatbazis_kapcsolat->s('recid', $tabla, "`ikt_szam`='{$szamla_adatok['Danubius azonosító']}' AND `andoc_id`!='{$andoc_id}'");
-            if( $sql === false ) { $db_error = true; }
-            if( $sql ) {
-                Throw new SOAPFault ('Server', 'Hiba! Ez az iktatószám már foglalt: '.$szamla_adatok['Danubius azonosító']);
             }
 
             // Elutasítás leírása + Utalványozás leírása egyben
@@ -438,10 +438,9 @@ class ServerClass {
                                                 array($aparecid,         $feldolgozasra_var_stat, self::IU_USER,    'NOW()',     self::IU_USER, self::IU_USER   )
                                             );
                 if( $sql === false ) { $db_error = true; }
-
             // Update
             } else {
-                
+
                 // Ha a számla még nincs igazolva, akkor addig nem updatelhető
                 if( $elesben_van['igazolva_dt']=='0000-00-00 00:00:00' ) {
                     Throw new SOAPFault ('Server', 'A számla nincs igazolva, így az nem módosítható még!');
@@ -453,13 +452,12 @@ class ServerClass {
                 $sor = $adatbazis_kapcsolat->s2('erk_xml', $tabla, "`andoc_id`='{$andoc_id}'");
                 if( $sor === false ) { $db_error = true; }
                 $sor['erk_xml'] = htmlspecialchars_decode($sor['erk_xml']).$szamla_xml;
-                
+    
                 array_push($mezok,     'erk_xml',       'update_usr'    );
                 array_push($ertekek,   $sor['erk_xml'], self::IU_USER   );
 
                 $sql = $adatbazis_kapcsolat->u($tabla, $mezok, $ertekek, "`andoc_id`='{$andoc_id}'");
                 if( $sql === false ) { $db_error = true; }
-
             }
 
             // Tételek bejárása
@@ -506,6 +504,7 @@ class ServerClass {
                         Throw new SOAPFault ('Server', 'Hiányzó deviza egységár a tételeknél!');
                     }
                 }
+    
                 
                 $afa_tetel = $tetel['ÁFA %'].' %';
                 $afa_kod = $adatbazis_kapcsolat->s2('id', 'erteklista', "`csoport`='".ERTEKLISTA_AFA_KOD."' AND `info`='{$afa_tetel}'");
@@ -834,11 +833,6 @@ class ServerClass {
         if( $szerzodes_adatok['Pénznem'] ) {
             $szerzodes_adatok['Pénznem'] = mb_strtoupper($szerzodes_adatok['Pénznem'], self::CHAR_CODING);
 
-            // Ha nem HUF a pénznem, akkor az összegek a deviza mezőbe kerüljenek fejben és tételeknél is
-            if( $szerzodes_adatok['Pénznem'] != self::KCS_21_TXT ) {
-                // 2do?
-            }
-
             // Ha olyan értéket kapnánk, mint amilyen értékű pénznem nem is létezik, akkor létrehozzuk
             $penznem = $adatbazis_kapcsolat->s2('id', 'erteklista', "`csoport`='".ERTEKLISTA_PENZNEM."' AND `info`='{$szerzodes_adatok['Pénznem']}'");
             if( !$penznem ) {
@@ -854,6 +848,13 @@ class ServerClass {
                                         );
             }
         }
+        if( $szerzodes_adatok['Szerződés iktatószáma'] ) {
+            $letezo_szszam = $adatbazis_kapcsolat->s2('recid', $tabla, "`szszam`='{$szerzodes_adatok['Szerződés iktatószáma']}' AND `andoc_id`!='{$andoc_id}'");
+            if( $letezo_szszam ) {
+                Throw new SOAPFault ('Server', $szerzodes_adatok['Szerződés iktatószáma'].' szerződés szám már létezik a feldolgozott szerződések között!');
+            }
+        }
+        
         
         // Szerződés típusok
         if( $szerzodes_adatok['Szerződés Típus'] ) {

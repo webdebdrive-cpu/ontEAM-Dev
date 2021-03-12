@@ -1766,16 +1766,12 @@ ul.szamla_cont li a span.szso span.statusz {
     width: 1rem;
 }
 
-ul.szamla_cont li a span.ikt_szam {
+ul.szamla_cont li td.ikonok {
+    width: 4rem;
+    white-space: nowrap;
 }
-
-ul.szamla_cont li a span.targy {
-}
-
-ul.szamla_cont li a span.netto {
-}
-
-ul.szamla_cont li a span.statusz {
+ul.szamla_cont li td.ikonok.keskeny {
+    width: 2rem;
 }
 
 ul.szamla_cont li a:hover {
@@ -1965,7 +1961,7 @@ table.szamla_cont_tabla.kisbetu th, table.szamla_cont_tabla.kisbetu td {
 }
 
 table.szamla_cont_tabla tr td{
-    padding: 0.1rem 0.2rem;
+    padding: 0.1rem 0.9rem;
 }
 table.szamla_cont_tabla tfoot tr td{
     background: #F1EFF0;
@@ -2677,8 +2673,20 @@ input.autocomp, input.autocomp.mod, input.autocomp:focus{
 span.icon {
     display: inline-block!important;
     height: 1.5rem;
+    font-size: 1.6rem;
     vertical-align: bottom;
     width: 0.8rem;
+}
+span.icon.piros {
+    font-size: 1.4rem;
+}
+span.icon.sarga, span.icon.zold {
+    color: #FFC029;
+    font-weight: 600;
+    text-shadow: 0rem 0rem  0.3rem rgba(255, 255, 255, 1);
+}
+span.icon.zold {
+    color: #75B54B;
 }
 
 span.icon.jotallas {

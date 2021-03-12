@@ -31,7 +31,6 @@ function projektek_lathat() {
 *	@return array: első része a $errnum második pedig a beszúrt vagy módosított sor id-je
 */
 function i_u($type, $tabla, $tomb) {
-
 	global $adatbazis_kapcsolat;
 	global $db_kapcs;
 	global $weblap;
@@ -390,12 +389,6 @@ function i_u($type, $tabla, $tomb) {
     		$i++;
         }
 	}
-    
-    // Fenntartási szerződéseknél pár mezőt még kézzel külön hozzá kell adni
-    if( $tabla == 'fenntartasi_szerzodes' ) {
-        array_push($oszlopok, 'p_nev',          'p_beosztas',           'p_cim',            'p_email',          'p_tel',            'p_fax'         );
-        array_push($ertekek,   $_POST['p_nev'],  $_POST['p_beosztas'],   $_POST['p_cim'],   $_POST['p_email'],   $_POST['p_tel'],   $_POST['p_fax'] );
-    }
 
     // Dátumra ütemezés, ha az ütemezett feladatokat módosítjuk/töltjük fel
     if( $tabla == 'utemezett_feladatok' || $tabla == 'rendszeres_karbantartas' ) {
@@ -924,7 +917,7 @@ function i_u($type, $tabla, $tomb) {
 // Insert lefutása
 		$id = $adatbazis_kapcsolat -> insert($tabla, $oszlopok, $ertekek);
         if( $id === false ) { $db_error = true; }
-        
+
 //echo '<pre style="font-size: 1.4rem">';
 //echo $adatbazis_kapcsolat->gp() . '<br>';
 //echo '</pre>';
@@ -1154,7 +1147,7 @@ function i_u($type, $tabla, $tomb) {
                                                                 array($szerzodes['andoc_id'],  $szerzodes['vonalkod'],  $szerzodes['insert_dt'], $szerzodes['erk_xml']   ),
                                                             "`recid`='{$id}'");
             if( $sql === false ) { $db_error = true; }
-            
+
             // Töröljük az átmeneti táblát
             $sql = $adatbazis_kapcsolat->d('fenntartasi_szerzodes_atmeneti', "`recid`='{$_POST['atmeneti_recid']}'");
             if( $sql === false ) { $db_error = true; }
@@ -1420,7 +1413,6 @@ function i_u($type, $tabla, $tomb) {
                                             array( $_SESSION[get_db_tabla().'login_recid'], $muvelet,    $valtozas,  $_SERVER['REMOTE_ADDR'])
                                         );
         if( $sql === false ) { $db_error = true; }
-
 
     // Update
 	} else {
@@ -2330,6 +2322,7 @@ function i_u($type, $tabla, $tomb) {
 
 		$id = $adatbazis_kapcsolat -> update($tabla, $oszlopok, $ertekek, "`recid`='{$_GET['id']}'");
         if( $id === false ) { $db_error = true; }
+
 // echo $adatbazis_kapcsolat->gp() . '<br>';
 // mysqli_commit($db_kapcs);
 // exit;
@@ -3441,6 +3434,9 @@ function szamla_lista( $where = '', $tabla = '', $kijeloltek = false, $csak_sql_
         if( $tabla == 'anyagigenyles' ) {
             $where = "`".get_db_tabla()."anyagigenyles`.`telephely_id` IN (".implode(',', $szallodak).") AND ";
         }
+        if( $tabla == 'anyag_szamla' ) {
+            $where = "`".get_db_tabla()."anyag_szamla`.`telephely_id` IN (".implode(',', $szallodak).") AND ";
+        }
 
         // Bejelentéseknél a részleg is számít
         if( $tabla == 'bejelentes' || $tabla == 'bejelentes_arch' ) {
@@ -3462,12 +3458,21 @@ function szamla_lista( $where = '', $tabla = '', $kijeloltek = false, $csak_sql_
                 $where = "`".get_db_tabla()."{$tabla}`.`telephely_id` IN (".implode(',', $szallodak).") AND ";
             }
         }
+        if( $tabla == 'energia_szamla' ) {
+            $where = "`".get_db_tabla()."energia_szamla`.`telephely_id` IN (".implode(',', $szallodak).") AND ";
+        }
         if( $tabla == 'eseti_fenntartas' ) {
             $where = "`".get_db_tabla()."eseti_fenntartas`.`telephely_id` IN (".implode(',', $szallodak).") AND ";
         }
         if( $tabla == 'eszkozkezeles' ) {
             $where = "`".get_db_tabla()."eszkozkezeles`.`telephely_id` IN (".implode(',', $szallodak).") AND ";
         }
+        if( $tabla == 'fenntartasi_szamla' ) {
+            $where = "`".get_db_tabla()."fenntartasi_szamla`.`telephely_id` IN (".implode(',', $szallodak).") AND ";
+        }
+//        if( $tabla == 'fenntartasi_szerzodes' ) {
+//            $where = "`".get_db_tabla()."fenntartasi_szerzodes`.`telephely_id` IN (".implode(',', $szallodak).") AND ";
+//        }
         if( $tabla == 'fenntartasi_terv' ) {
             $where = "`".get_db_tabla()."fenntartasi_terv`.`telephely_id` IN (".implode(',', $szallodak).") AND ";
         }
@@ -5402,7 +5407,7 @@ function fenntartasi_szamlaLista( $bejegyzesek, $tabla, $frissit, $kijeloltek ) 
     if( $bejegyzesek ) {
 
         if( !$frissit ) {
-            $html = '<ul id="szamlaList" class="szamla_cont rendszer">';
+            $html = '<ul id="szamlaList" class="szamla_cont rendszer nobehuzas">';
         }
 
         $i = 1;
@@ -5411,10 +5416,21 @@ function fenntartasi_szamlaLista( $bejegyzesek, $tabla, $frissit, $kijeloltek ) 
             if( $bsz['recid'] == $_GET['id'] && !isset($_GET['print']) ) {
                 $active = ' kijelolve';
             }
+            
+            $ikon = '';
+            if( !$bsz['igazolva'] ) {
+                $ikon = '<span class="icon sarga">?</span>';
+                if( $bsz['igazolva_dt']!='0000-00-00 00:00:00' ) {
+                    $ikon = '<span class="icon piros">✖</span>';
+                }
+            } else {
+                $ikon = '<span class="icon zold">✓</span>';
+            }
 
             $li_tart = '<a class="szamla" data-recid="'.$bsz['recid'].'" data-fajl="'.$tabla.'.php" data-muvelet="modosit">
                             <table>
                             <tr> 
+                                <td class="ikonok keskeny c" rowspan="3">'.$ikon.'</td>
                                 <td style="width: 8rem">'.$bsz['szla_szam'].'</td>
                                 <td>'.number_format($bsz['netto'], 0, ',', ' ').' '.get_penznem().'</td>
                             </tr>

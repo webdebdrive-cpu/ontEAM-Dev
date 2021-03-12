@@ -68,7 +68,7 @@ if( isset($_POST['fenntartasi_szerzodes_get_koztes']) ) {
                         <td class="l">'.$szerzodes['szszam'].'</td>
                         <td class="l">'.$szerzodes['szallito_id'].' '.getErtek('nev', 'szallito', 'id', $szerzodes['szallito_id']).'</td>
                         <td class="l">'.resz_string($szerzodes['targy'], 40).'</td>
-                        <td class="r nowrap">'.number_format($szerzodes[$netto_oszlop], $tizedes, ',', ' ').'</td>
+                        <td class="r nowrap">'.number_format($szerzodes[$netto_oszlop], $tizedes, ',', ' ').' '.erteklista(ERTEKLISTA_PENZNEM, $szerzodes['kcs_21']).'</td>
                     </tr>
                 ');
         }
@@ -81,6 +81,24 @@ if( isset($_POST['fenntartasi_szerzodes_get_koztes']) ) {
     }
     
     echo json_encode( array('html' => $html) );
+    
+    $weblap -> leallit();
+    exit;
+}
+
+// Szerződés szám foglat-e vagy sem?
+if( isset($_POST['szszam_letezik']) ) {
+    
+    if( $adatbazis_kapcsolat->s('recid', 'fenntartasi_szerzodes', "`szszam`='{$_POST['szszam']}'") ) {
+        echo json_encode( array(
+                            'hiba'  => 'Ez a szerződés szám már foglalt, így nem menthető!',
+                            'title' => 'Hiba',
+                            ) );
+    } else {
+        echo json_encode( array(
+                            'ok'  => 1,
+                            ) );
+    }
     
     $weblap -> leallit();
     exit;
@@ -422,7 +440,7 @@ require_once('selectek.php');
                 <input type="hidden" id="van_tetel" value="">
                 <input type="hidden" id="ossz_netto" value="'.$ossz_netto.'">
                 <input type="hidden" id="ossz_dev_net" value="'.$ossz_dev_net.'">
-                <input type="button" class="gombb mentes_gomb gombb_alert" name="mehet_gomb" id="mehet_gomb" value="Mentés" onclick="if( form_ell_admin_elott() ){ $(\'#szerk_form\').submit(); }">
+                <input type="button" class="gombb mentes_gomb gombb_alert" name="mehet_gomb" id="mehet_gomb" value="Mentés" onclick="if( form_ell_admin_elott() ){ uj_szerzodes_ellenorzes(); }">
                 <input type="button" class="gomb piros" id="megsem_gomb" value="Mégsem" onclick="megsemGomb();">
             </div>
         ');
@@ -441,6 +459,48 @@ require_once('selectek.php');
                 '.$gombok.'
             </div>
         ');
+        
+        $gombok .= nl2('
+                    <script>
+                    function uj_szerzodes_ellenorzes() {
+
+                        szurkit(\'mehet_megsem_rejt\');
+
+                        formModositva = false;
+
+                        /* Szerződés szám foglalt-e már */
+                        $.ajax({
+                            url : \'fenntartasi_szerzodes.php\',
+                            type: \'POST\',
+                            data: esamp2es(\'szszam=\' + $(\'#szszam\').val() + \'&amp;szszam_letezik=\' + new Date().getTime()),
+                            success: function(response) {
+                                if(response.substring(0, 6)==\'SESKIL\'){ location.href = \'index.php\'; }
+                                if(response) {
+                                    response = JSON.parse(response);
+
+                                    if( response.hiba ) {
+                                        alert2(response.hiba, response.gomb, response.title);
+                                        alert_utan_mehet_megsem_mutat_beallit();
+                                        if(response.focus){
+                                            $(\'#\'+response.focus).addClass(\'hibas_ide_focus\');
+                                        }
+                                    } else {
+                                        $(\'#szerk_form\').submit();
+                                    }
+
+                                }
+                                return false;
+                            },
+                            complete: function(xhr) {
+                                if( xhr.status != 200 ) {
+                                    alert2(xhr.responseText, \'\', \'Hiba\');
+                                }
+                            }
+                        });
+
+                    }
+                    </script>
+            ');
 
     // Módosítás gombok
     } else {

@@ -302,13 +302,13 @@ if( !$_SESSION['bejelento_menu_rejt'] && (
     $megn            = 'energia_terv';
     $aloldalak       = array($megn.'.php');
     if(basename(self())==$megn.'.php' && isset($_GET['modosit'])){ $navi = $menu_nev.' szerkesztése'; }
-    if(basename(self())==$megn.'.php'){ $oldalNev = $oldalNev = 'Tervezés / <span id="rekord_neve">Energia egységárak</span><span class="dn" id="rekord_neve_egyes">energia egységár</span><span class="dn" id="rekord_neve_targy">energia egységárat</span>'; }
-    if(basename(self())=='fenntartasi_terv.php'){ $oldalNev = $oldalNev = 'Fenntartás / <span id="rekord_neve">Fenntartási tervek</span><span class="dn" id="rekord_neve_egyes">fenntartási terv</span><span class="dn" id="rekord_neve_targy">fenntartási tervet</span>'; }
+    if(basename(self())==$megn.'.php')                  { $oldalNev = 'Fenntartás / <span id="rekord_neve">Energia egységárak</span><span class="dn" id="rekord_neve_egyes">energia egységár</span><span class="dn" id="rekord_neve_targy">energia egységárat</span>';              }
+    if(basename(self())=='fenntartasi_terv.php')        { $oldalNev = 'Fenntartás / <span id="rekord_neve">Fenntartási tervek</span><span class="dn" id="rekord_neve_egyes">fenntartási terv</span><span class="dn" id="rekord_neve_targy">fenntartási tervet</span>';              }
 
-    if(basename(self())=='anyag_szamla.php')            { $oldalNev = 'Tervezés / <span id="rekord_neve">Anyag számlák</span><span class="dn" id="rekord_neve_egyes">Anyag számla</span><span class="dn" id="rekord_neve_targy">Anyag számlát</span>';                                      }
-    if(basename(self())=='energia_szamla.php')          { $oldalNev = 'Tervezés / <span id="rekord_neve">Energia számlák</span><span class="dn" id="rekord_neve_egyes">Energia számla</span><span class="dn" id="rekord_neve_targy">Energia számlát</span>';                              }
-    if(basename(self())=='fenntartasi_szamla.php')      { $oldalNev = 'Tervezés / <span id="rekord_neve">Fenntartási számlák</span><span class="dn" id="rekord_neve_egyes">Fenntartási számla</span><span class="dn" id="rekord_neve_targy">Fenntartási számlát</span>';              }
-    if(basename(self())=='fenntartasi_szerzodes.php')   { $oldalNev = 'Tervezés / <span id="rekord_neve">Fenntartási szerződések</span><span class="dn" id="rekord_neve_egyes">Fenntartási szerződés</span><span class="dn" id="rekord_neve_targy">Fenntartási szerződést</span>'; }
+    if(basename(self())=='anyag_szamla.php')            { $oldalNev = 'Fenntartás / <span id="rekord_neve">Anyag számlák</span><span class="dn" id="rekord_neve_egyes">Anyag számla</span><span class="dn" id="rekord_neve_targy">Anyag számlát</span>';                            }
+    if(basename(self())=='energia_szamla.php')          { $oldalNev = 'Fenntartás / <span id="rekord_neve">Energia számlák</span><span class="dn" id="rekord_neve_egyes">Energia számla</span><span class="dn" id="rekord_neve_targy">Energia számlát</span>';                      }
+    if(basename(self())=='fenntartasi_szamla.php')      { $oldalNev = 'Fenntartás / <span id="rekord_neve">Fenntartási számlák</span><span class="dn" id="rekord_neve_egyes">Fenntartási számla</span><span class="dn" id="rekord_neve_targy">Fenntartási számlát</span>';          }
+    if(basename(self())=='fenntartasi_szerzodes.php')   { $oldalNev = 'Fenntartás / <span id="rekord_neve">Fenntartási szerződések</span><span class="dn" id="rekord_neve_egyes">Fenntartási szerződés</span><span class="dn" id="rekord_neve_targy">Fenntartási szerződést</span>';}
 
     
     $aktmenuk  = '';

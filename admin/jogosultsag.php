@@ -171,10 +171,10 @@ $jogosultsagok = array(
     131 => array('nev' => 'Anyag számlák kezelése',                 'kat' => 12, 'sor' => 14),
     139 => array('nev' => 'Számlák igazolása',                      'kat' => 12, 'sor' => 15),
     
-// Az alábbi 3 nincs is igazából használva, ezt akár át lehet nevezni, másra használni
-90 => array('nev' => 'Számlák olvasása',                        'kat' => 13, 'sor' => 4),
-91 => array('nev' => 'Számlák kezelése',                        'kat' => 13, 'sor' => 5),
-92 => array('nev' => 'Számlák törlése',                         'kat' => 13, 'sor' => 6),
+    // Az alábbi 3 nincs is igazából használva, ezt akár át lehet nevezni, másra használni
+    90 => array('torolve' => 'TÖRÖLVE', 'nev' => 'Számlák olvasása','kat' => 13, 'sor' => 4),
+    91 => array('torolve' => 'TÖRÖLVE', 'nev' => 'Számlák kezelése','kat' => 13, 'sor' => 5),
+    92 => array('torolve' => 'TÖRÖLVE', 'nev' => 'Számlák törlése', 'kat' => 13, 'sor' => 6),
     93 => array('nev' => 'Partnertörzs olvasása',                   'kat' => 13, 'sor' => 7),
     94 => array('nev' => 'Partnertörzs kezelése',                   'kat' => 13, 'sor' => 8),
     99 => array('nev' => 'Partnertörzs név szerkesztése',           'kat' => 13, 'sor' => 9),

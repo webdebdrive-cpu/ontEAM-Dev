@@ -1,6 +1,5 @@
 <?php
 // WebDeb Engine v2.7 2016.12.22
-
 $weblap_indul = microtime(true);
 
 require_once 'konstansok.php';
@@ -9,7 +8,7 @@ require_once 'konstansok.php';
 date_default_timezone_set('Europe/Budapest');
 
 // Ne legyen logolás, csak demo felületen!
-if( $_SERVER['HTTP_HOST'] == 'demo.webdeb.hu' || $_SERVER['HTTP_HOST'] == 'dev.onteam.hu' ) {
+if( $_SERVER['HTTP_HOST'] == 'demo.webdeb.hu' || $_SERVER['HTTP_HOST'] == 'dev.onteam.hu' || $_SERVER['HTTP_HOST'] == 'teszt.onteam.hu' ) {
     ini_set('log_errors',       '1'             );
     ini_set('display_errors' ,  '1'             );
     error_reporting(E_ERROR);

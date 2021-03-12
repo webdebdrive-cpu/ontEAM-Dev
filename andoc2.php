@@ -7,11 +7,16 @@ header('Content-Type: text/html; charset='.get_web_charset());
 ini_set('soap.wsdl_cache_enabled', '0');
 
 $url_elotag = get_url_elotag();
-$wsdl_fajl = 'onteam.wsdl';
-if( $_SERVER['HTTP_HOST'] == 'demo.webdeb.hu' ) {
-    $wsdl_fajl = 'onteam_wd_demo.wsdl';
+
+switch ( $_SERVER['HTTP_HOST'] ) {
+    case 'demo.webdeb.hu'       : $wsdl_fajl = 'onteam_wd_demo.wsdl';   break;
+    case 'www.onteam.hu'        : $wsdl_fajl = 'onteam.wsdl';           break;
+    case 'onteam.hu'            : $wsdl_fajl = 'onteam.wsdl';           break;
+    case 'teszt.onteam.hu'      : $wsdl_fajl = 'teszt.onteam.wsdl';     break;
+    case 'dev.onteam.hu'        : $wsdl_fajl = 'dev.onteam.wsdl';       break;
 }
-// Új soap kliens inicializálása
+
+// Új SOAP kliens inicializálása
 $soap = new SoapClient($url_elotag.$wsdl_fajl, 
                         array(
                             'uri'       => $url_elotag.'onteam.php',
