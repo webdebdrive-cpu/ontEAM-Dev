@@ -49,7 +49,7 @@ if( isset($_POST['fenntartasi_szamla_get_koztes']) ) {
                     <th class="l">Szálloda</th>
                     <th class="l">Szállító</th>
                     <th class="l">Számlaszám</th>
-                    <th class="c">Teljesítés dáma</th>
+                    <th class="c">Teljesítés dátuma</th>
                 </tr>
                 </thead>
                 <tbody>
@@ -576,7 +576,7 @@ require_once('selectek.php');
 	// Új rekord felvitele
 	if( isset($_GET['uj']) ) {
 
-        // Itt úgy fogunk tenni,mintha újként szerkesztenénk, viszont nem a session-ból keresünk ide értékeket
+        // Itt úgy fogunk tenni, mintha újként szerkesztenénk, viszont nem a session-ból keresünk ide értékeket
         // hanem a kapott andocid alapján az átmeneti táblából. Magyarul egy sima lekérdezéssel meg is van a $sor tömb.
         $sor = $adatbazis_kapcsolat->s2('*', 'fenntartasi_szamla_atmeneti', "`andoc_id`='{$_GET['andoc_id']}'");
 

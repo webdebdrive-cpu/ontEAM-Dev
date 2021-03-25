@@ -1,0 +1,37 @@
+table.csikos tr.kijelolve:nth-of-type(2n) {
+    background: #55A2FA;
+}
+b.pipa {
+    color: #75B54B;
+    font-size: 2rem;
+}
+b.x {
+    color: #C44B4B;
+    font-size: 2rem;
+}
+.indoklas {
+    padding: 1.5rem;
+    border-bottom: 0.1rem solid #8e8e8e;
+}
+
+div.naplo div.nSor div.dtc:nth-of-type(1) {
+    width: 18rem;
+}
+
+div.naplo div.nSor div.dtc:nth-of-type(2) {
+    width: 5rem;
+}
+div.naplo div.nSor div.dtc:nth-of-type(4) {
+    width: 15rem;
+}
+
+.szerk {
+    font-size: 2rem;
+}
+.szerk:hover {
+    text-decoration: none;
+}
+
+table.szamla_cont_tabla tr td:nth-last-of-type(2), table.szamla_cont_tabla tr td:nth-last-of-type(3) {
+    width: 30rem;
+}

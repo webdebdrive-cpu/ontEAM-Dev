@@ -922,8 +922,6 @@ function i_u($type, $tabla, $tomb) {
 //echo $adatbazis_kapcsolat->gp() . '<br>';
 //echo '</pre>';
 //exit;
-//mysqli_commit($db_kapcs);
-//exit;
 
         // Új bejegyzés létrehozása utáni teendők
         // Itt újabb if felételek jönnek a táblákra. Azért kerültek ide, mert itt már felhasználjuk a létrejött bejegyzés ID-ját (ezért nem fentebb kezeltük le)
@@ -1020,7 +1018,7 @@ function i_u($type, $tabla, $tomb) {
             if( $sql === false ) { $db_error = true; }
         }
         
-        // Fenntartási számla tételek felvétele
+        // Fenntartási számla tételeinek felvétele, köztes tábla törlése
         if( $tabla == 'fenntartasi_szamla' ) {
             $i = 0;
             foreach ( $_SESSION['fennt_szla_tetel_targy'] as $targy ) {
@@ -1327,34 +1325,130 @@ function i_u($type, $tabla, $tomb) {
             }
         }
         
-        // Projektszámla tételek felvétele
+        // Projektszámla tételek felvétele régi működése
+//        if( $tabla == 'projektszamla' ) {
+//            $i = 0;
+//            foreach ( $_SESSION['pr_szla_tetel_targy'] as $targy ) {
+//                $netto_ert  = str_replace(' ', '',  $_SESSION['pr_szla_tetel_netto_ert'][$i]);
+//                $dev_net    = str_replace(array(' ', ','), array('', '.'),  $_SESSION['pr_szla_tetel_dev_net'][$i]);
+//                $arfolyam   = str_replace(array(' ', ','), array('', '.'),  $_POST['arfolyam']);
+//                // Devizás számla esetén a Ft-os összeget az árfolyamból számítjuk ki
+//                if( $dev_net>0 ) {
+//                    $netto_ert = round($dev_net*$arfolyam);
+//                }
+//                $sql = $adatbazis_kapcsolat->i('projektszamla_tetel',
+//                                                    array('projektszamla_recid', 'targy', 'netto_ert', 'dev_net', 'projektszerzodes_tetel_recid',          'loginnev',                          'insert_dt',    'insert_usr',                             'update_usr'                              ),
+//                                                    array($id,                   $targy,  $netto_ert,  $dev_net,  $_SESSION['pr_szla_tetel_pr_tetel'][$i], $_SESSION[get_db_tabla().'user'],    'NOW()',        $_SESSION[get_db_tabla().'teljes_nev'],   $_SESSION[get_db_tabla().'teljes_nev']    )
+//                                            );
+//                if( $sql === false ) { $db_error = true; }
+//
+//                // Illetve a projektszerződés tételénél updateljük a teljesítést és nettó értéket
+//                $sql = $adatbazis_kapcsolat->u('projektszerzodes_tetel', array('teljesites', 'ertek'), array($_POST['telj_dt'], $netto_ert), "`recid`='{$_SESSION['pr_szla_tetel_pr_tetel'][$i]}'");
+//                if( $sql === false ) { $db_error = true; }
+//                
+//                $i++;
+//            }
+//            
+//            // Feldolgozással a SESSION értékeket ki is ürítjük.
+//            unset($_SESSION['pr_szla_tetel_targy']);
+//            unset($_SESSION['pr_szla_tetel_netto_ert']);
+//            unset($_SESSION['pr_szla_tetel_dev_net']);
+//        }
+        
+        // Projekt számla tételeinek felvétele, köztes tábla törlése
         if( $tabla == 'projektszamla' ) {
             $i = 0;
             foreach ( $_SESSION['pr_szla_tetel_targy'] as $targy ) {
                 $netto_ert  = str_replace(' ', '',  $_SESSION['pr_szla_tetel_netto_ert'][$i]);
                 $dev_net    = str_replace(array(' ', ','), array('', '.'),  $_SESSION['pr_szla_tetel_dev_net'][$i]);
-                $arfolyam   = str_replace(array(' ', ','), array('', '.'),  $_POST['arfolyam']);
-                // Devizás számla esetén a Ft-os összeget az árfolyamból számítjuk ki
-                if( $dev_net>0 ) {
-                    $netto_ert = round($dev_net*$arfolyam);
-                }
-                $sql = $adatbazis_kapcsolat->i('projektszamla_tetel',
-                                                    array('projektszamla_recid', 'targy', 'netto_ert', 'dev_net', 'projektszerzodes_tetel_recid',          'loginnev',                          'insert_dt',    'insert_usr',                             'update_usr'                              ),
-                                                    array($id,                   $targy,  $netto_ert,  $dev_net,  $_SESSION['pr_szla_tetel_pr_tetel'][$i], $_SESSION[get_db_tabla().'user'],    'NOW()',        $_SESSION[get_db_tabla().'teljes_nev'],   $_SESSION[get_db_tabla().'teljes_nev']    )
-                                            );
-                if( $sql === false ) { $db_error = true; }
-
-                // Illetve a projektszerződés tételénél updateljük a teljesítést és nettó értéket
-                $sql = $adatbazis_kapcsolat->u('projektszerzodes_tetel', array('teljesites', 'ertek'), array($_POST['telj_dt'], $netto_ert), "`recid`='{$_SESSION['pr_szla_tetel_pr_tetel'][$i]}'");
-                if( $sql === false ) { $db_error = true; }
+                $targy      = $_SESSION['pr_szla_tetel_targy'][$i];
+                $ktgnem     = $_SESSION['pr_szla_tetel_ktgnem'][$i];
+                $ktghely    = $_SESSION['pr_szla_tetel_ktghely'][$i];
+                $valtozott  = $_SESSION['pr_szla_tetel_valtozott'][$i];
                 
+                // Ha ismert a recid, akkor kérjük le az átmeneti táblából az adatokat és azokban írjuk át a SESSION adatait, és így mentjük le
+                if( $_SESSION['pr_szla_tetel_recid'][$i] ) {
+                    $tetel = $adatbazis_kapcsolat->s2('*', 'projektszamla_tetel_atmeneti', "`recid`='{$_SESSION['pr_szla_tetel_recid'][$i]}'");
+                    if( $tetel === false ) { $db_error = true; }
+ 
+                    // Session adataival felülírjuk az átmeneti tábla adatait
+                    $tetel['targy']         = $targy;
+                    $tetel['netto_ert']     = $netto_ert;
+                    $tetel['dev_net']       = $dev_net;
+                    $tetel['ktgnem_id']     = $ktgnem;
+                    $tetel['ktghely_id']    = $ktghely;
+                    
+                    $ertekek = array();
+                    $mezok   = array(
+                        'rownum',
+                        'telephely_id',
+                        'targy',
+                        'ktgnem_id',
+                        'netto_ert',
+                        'brutto_ert',
+                        'afa_ossz',
+                        'afa_kod',
+                        'dev_net',
+                        'dev_br',
+                        'stat_id',
+                        'ktghely_id',
+                        'igazol_usr',
+                        'igazol_dt',
+                        'szszam',
+                        'verzio',
+                        'andocos',
+                        'flex',
+                        'sorid',
+                        );
+
+                    foreach( $mezok as $mezo ) {
+                        array_push($ertekek, htmlspecialchars_decode($tetel[$mezo]));
+                    }
+
+                    array_push($mezok,   'projektszamla_recid', 'valtozott', 'loginnev',                        'insert_dt', 'insert_usr',                           'update_usr'                           );
+                    array_push($ertekek, $id,                   $valtozott,  $_SESSION[get_db_tabla().'user'],  'NOW()',     $_SESSION[get_db_tabla().'teljes_nev'], $_SESSION[get_db_tabla().'teljes_nev'] );
+
+                    $sql = $adatbazis_kapcsolat->i('projektszamla_tetel', $mezok, $ertekek);
+                    if( $sql === false ) { $db_error = true; }
+
+                // Ha nincs átmeneti megfelelője
+                } else {
+                    
+                    $rownum = $adatbazis_kapcsolat->s2('MAX(`rownum`)', 'projektszamla_tetel', "`projektszamla_recid`='{$id}'");
+                    $rownum = $rownum['MAX(`rownum`)']+1;
+                    $sql = $adatbazis_kapcsolat->i('projektszamla_tetel',
+                                                        array('projektszamla_recid', 'rownum', 'targy', 'netto_ert', 'dev_net', 'ktgnem_id', 'ktghely_id', 'valtozott', 'loginnev',                          'insert_dt',    'insert_usr',                             'update_usr'                              ),
+                                                        array($id,                   $rownum,  $targy,  $netto_ert,  $dev_net,  $ktgnem,     $ktghely,     '1',         $_SESSION[get_db_tabla().'user'],    'NOW()',        $_SESSION[get_db_tabla().'teljes_nev'],   $_SESSION[get_db_tabla().'teljes_nev']    )
+                                                );
+                }
+                if( $sql === false ) { $db_error = true; }
                 $i++;
             }
+
+            // Andoc_id-t és a létrehozással kapcsolatos adatokat még letároljuk az éles fej táblában
+            $szamla = $adatbazis_kapcsolat->s2('andoc_id vonalkod erk_xml dok_link insert_dt', 'projektszamla_atmeneti', "`recid`='{$_POST['atmeneti_recid']}'");
+            if( $szamla === false ) { $db_error = true; }
+            $szamla['erk_xml']  = htmlspecialchars_decode($szamla['erk_xml']);
+            $szamla['vonalkod'] = htmlspecialchars_decode($szamla['vonalkod']);
+            $szamla['dok_link'] = htmlspecialchars_decode($szamla['dok_link']);
+            $sql = $adatbazis_kapcsolat->u('projektszamla', 
+                                                        array('andoc_id',           'ont_erk_dt',         'erk_xml',            'vonalkod',           'dok_link'          ),
+                                                        array($szamla['andoc_id'],  $szamla['insert_dt'], $szamla['erk_xml'],   $szamla['vonalkod'],  $szamla['dok_link'] ),
+                                                    "`recid`='{$id}'");
+            if( $sql === false ) { $db_error = true; }
             
+            // Töröljük az átmeneti tábla számláját és tételeit is
+            $sql = $adatbazis_kapcsolat->d('projektszamla_tetel_atmeneti', "`projektszamla_recid`='{$_POST['atmeneti_recid']}'");
+            if( $sql === false ) { $db_error = true; }
+            $sql = $adatbazis_kapcsolat->d('projektszamla_atmeneti', "`recid`='{$_POST['atmeneti_recid']}'");
+            if( $sql === false ) { $db_error = true; }
+
             // Feldolgozással a SESSION értékeket ki is ürítjük.
             unset($_SESSION['pr_szla_tetel_targy']);
             unset($_SESSION['pr_szla_tetel_netto_ert']);
             unset($_SESSION['pr_szla_tetel_dev_net']);
+            unset($_SESSION['pr_szla_tetel_ktgnem']);
+            unset($_SESSION['pr_szla_tetel_ktghely']);
         }
 
         // Projektszerződés tételek felvétele

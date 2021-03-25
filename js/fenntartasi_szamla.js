@@ -1,7 +1,9 @@
+// Fenntartási számla feltöltése köztes táblából
 function fenntartasi_szamla_feltolt() {
     csoportMuvelet('fenntartasi_szamla_feltolt');
 }
 
+// Számla igazolása
 function szamla_igazol(mehet) {
     
     if (!mehet) {

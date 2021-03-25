@@ -931,10 +931,17 @@ if( in_array(basename(self()), $_SESSION['ketHasabos']) && $_SESSION[get_db_tabl
 
     } elseif( basename(self()) == 'projektkezeles.php' && !isset($_GET['megjegyzesek']) ) {
         $uj_link = 'javascript: csoportMuvelet(\'projektkezel_uj_feltolt\'); void(0);';
-
-    } elseif( basename(self()) == 'projektszamla.php' && isset($_GET['megjegyzesek']) ) {
-        $uj_link = 'javascript: kapcsolodoSzerkeszt(\'megjegyzes\'); void(0);';
-
+        
+    } elseif( basename(self()) == 'projektszamla.php' ) {
+        if( !_jog(JOG_PRSZAMLAK_KEZEL) ) {
+            $uj_link = 'javascript: alert2(\'Önnek nincs joga projekt számlát feltölteni!\', \'\', \'Hiba\'); void(0);';
+        } else {
+            if( isset($_GET['megjegyzesek']) ) {
+                $uj_link = 'javascript: kapcsolodoSzerkeszt(\'megjegyzes\'); void(0);';
+            } else {
+                $uj_link = 'javascript: pr_szamla_feltolt(); void(0);';
+            }
+        }
     } elseif( basename(self()) == 'projektszerzodes.php' && isset($_GET['megjegyzesek']) ) {
         $uj_link = 'javascript: kapcsolodoSzerkeszt(\'megjegyzes\'); void(0);';
         
@@ -1235,9 +1242,12 @@ if( basename(self())=='projektkezeles.php' && !_jog(JOG_PRKEZEL_UJ_LETREHOZ) ) {
     $uj = $duplikal = '';
 }
 
-// Projektszámlák: ha egyik joga sincs meg, akkor nincs szerkesztés lehetőség
-if( basename(self())=='projektszamla.php' && !_jog(JOG_PRSZAMLAK_KEZEL) && !_jog(JOG_PR_SAJAT_SZAMLA_KEZEL) ) {
-    $uj = $duplikal = '';
+// Projektszámlák: nincs szerkesztés lehetőség
+if( basename(self()) == 'projektszamla.php' ) {
+    $duplikal = $torles_icon = '';
+}
+if( basename(self()) == 'projektszamla.php' && !_jog(JOG_PRSZAMLAK_KEZEL) ) {
+    $uj = '';
 }
 
 // Projektiszerződések: ha egyik joga sincs meg, akkor nincs szerkesztés lehetőség

@@ -1,3 +1,40 @@
+// Projekt számla feltöltése köztes táblából
+function pr_szamla_feltolt() {
+    csoportMuvelet('projektszamla_feltolt');
+}
+
+// Számla igazolása
+function szamla_igazol(mehet) {
+    
+    if (!mehet) {
+        alert2('Biztosan igazolja a számlát?', '<input type="button" class="gomb zold" value="Igen" onclick="szamla_igazol(\'-mehet-\')"> <input type="button" class="gomb piros" value="Nem" onclick="alert2()">');
+        return false;
+    }
+    
+    $.ajax({
+        url : 'projektszamla.php',
+        type: 'POST',
+        data: {
+            id           : _get('id'),
+            szamla_igazol: Date.now()
+        },
+        success: function (response) {
+            if (response) {
+                response = JSON.parse(response);
+                if (response.hiba) {
+                    alert2(response.hiba, response.gomb, response.title);
+                    return false;
+                }
+                szamlaBetolt(_get('id'), 'projektszamla.php');
+                
+                setTimeout(function () {
+                    alert2('Számla sikeresen igazolva!', '', 'Üzenet');
+                }, 200);
+            }
+        }
+    });
+}
+
 // Visszaadva pipa lekezelése
 function pr_szamla_visszaadva() {
     if (!$('#visszaadva').prop('checked')) {
