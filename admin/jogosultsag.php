@@ -1,7 +1,7 @@
 <?php
 /*                                                  *\
  * FONTOS:
- * 139-es ID-nál járunk
+ * 140-es ID-nál járunk
  * 13-as kategória ID-nál járunk
 \*                                                  */
 
@@ -142,12 +142,13 @@ $jogosultsagok = array(
     120 => array('nev' => 'Saját szerződések kezelése',             'kat' => 10, 'sor' => 17),
     112 => array('nev' => 'Projekt számlák megtekintése',           'kat' => 10, 'sor' => 18),
     113 => array('nev' => 'Projekt számlák kezelése',               'kat' => 10, 'sor' => 19),
-    121 => array('nev' => 'Saját számlák megtekintése',             'kat' => 10, 'sor' => 20),
-    122 => array('nev' => 'Saját számlák kezelése',                 'kat' => 10, 'sor' => 21),
-    127 => array('nev' => 'Projekt felfüggesztése',                 'kat' => 10, 'sor' => 22),
-    128 => array('nev' => 'Projekt leállítása',                     'kat' => 10, 'sor' => 23),
-    129 => array('nev' => 'Projekt újranyitás',                     'kat' => 10, 'sor' => 24),
-    132 => array('nev' => 'Teljes Cash-flow',                       'kat' => 10, 'sor' => 25),
+    140 => array('nev' => 'Projekt számlák igazolása',              'kat' => 10, 'sor' => 20),
+    121 => array('nev' => 'Saját számlák megtekintése',             'kat' => 10, 'sor' => 21),
+    122 => array('nev' => 'Saját számlák kezelése',                 'kat' => 10, 'sor' => 22),
+    127 => array('nev' => 'Projekt felfüggesztése',                 'kat' => 10, 'sor' => 23),
+    128 => array('nev' => 'Projekt leállítása',                     'kat' => 10, 'sor' => 24),
+    129 => array('nev' => 'Projekt újranyitás',                     'kat' => 10, 'sor' => 25),
+    132 => array('nev' => 'Teljes Cash-flow',                       'kat' => 10, 'sor' => 26),
 
     42 => array('nev' => 'Eszközök olvasása',                       'kat' => 8, 'sor' => 1),
     43 => array('nev' => 'Eszközök kezelése',                       'kat' => 8, 'sor' => 2),

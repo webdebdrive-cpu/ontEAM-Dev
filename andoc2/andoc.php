@@ -193,17 +193,31 @@ class ServerClass {
                 }
             }
             // Foglalt számlaszám ellenőrzése
-            if( $szamla_adatok['Danubius azonosító'] ) {
+            if( $szamla_adatok['Számla sorszáma'] ) {
                 // Átmeneti táblában
-                $letezo_ikt_szam = $adatbazis_kapcsolat->s2('recid', $tabla.'_atmeneti', "`ikt_szam`='{$szamla_adatok['Danubius azonosító']}' AND `szallito_id`='{$szamla_adatok['Partnerkód']}' AND `andoc_id`!='{$andoc_id}'");
+                $letezo_ikt_szam = $adatbazis_kapcsolat->s2('recid', $tabla.'_atmeneti', "`szla_szam`='{$szamla_adatok['Számla sorszáma']}' AND `szallito_id`='{$szamla_adatok['Partnerkód']}' AND `andoc_id`!='{$andoc_id}'");
                 if( $letezo_ikt_szam ) {
-                    Throw new SOAPFault ('Server', $szamla_adatok['Danubius azonosító'].' számlaszám már létezik ezzel a partnerrel a FELDOLGOZÁSRA VÁRÓ számlák között!');
+                    Throw new SOAPFault ('Server', '"'.$szamla_adatok['Számla sorszáma'].'" számlaszám már létezik ezzel a partnerrel a FELDOLGOZÁSRA VÁRÓ számlák között!');
                 }
                 
                 // Éles táblában
-                $letezo_ikt_szam = $adatbazis_kapcsolat->s2('recid', $tabla, "`ikt_szam`='{$szamla_adatok['Danubius azonosító']}' AND `szallito_id`='{$szamla_adatok['Partnerkód']}' AND `andoc_id`!='{$andoc_id}'");
+                $letezo_ikt_szam = $adatbazis_kapcsolat->s2('recid', $tabla, "`szla_szam`='{$szamla_adatok['Számla sorszáma']}' AND `szallito_id`='{$szamla_adatok['Partnerkód']}' AND `andoc_id`!='{$andoc_id}'");
                 if( $letezo_ikt_szam ) {
-                    Throw new SOAPFault ('Server', $szamla_adatok['Danubius azonosító'].' számlaszám már létezik ezzel a partnerrel a FELDOLGOZOTT számlák között!');
+                    Throw new SOAPFault ('Server', '"'.$szamla_adatok['Számla sorszáma'].'" számlaszám már létezik ezzel a partnerrel a FELDOLGOZOTT számlák között!');
+                }
+            }
+            // Foglalt iktatószám ellenőrzése
+            if( $szamla_adatok['Danubius azonosító'] ) {
+                // Átmeneti táblában
+                $letezo_ikt_szam = $adatbazis_kapcsolat->s2('recid', $tabla.'_atmeneti', "`ikt_szam`='{$szamla_adatok['Danubius azonosító']}' AND `andoc_id`!='{$andoc_id}'");
+                if( $letezo_ikt_szam ) {
+                    Throw new SOAPFault ('Server', '"'.$szamla_adatok['Danubius azonosító'].'" Danubius azonosító már létezik a FELDOLGOZÁSRA VÁRÓ számlák között!');
+                }
+                
+                // Éles táblában
+                $letezo_ikt_szam = $adatbazis_kapcsolat->s2('recid', $tabla, "`ikt_szam`='{$szamla_adatok['Danubius azonosító']}' AND `andoc_id`!='{$andoc_id}'");
+                if( $letezo_ikt_szam ) {
+                    Throw new SOAPFault ('Server', '"'.$szamla_adatok['Danubius azonosító'].'" Danubius azonosító már létezik a FELDOLGOZOTT számlák között!');
                 }
             }
             
@@ -275,6 +289,10 @@ class ServerClass {
             if( $szamla_tipus == self::SZAMLA_TIPUS_PROJEKT ) {
                 if( $insert_update == 'insert' && !trim($szamla_adatok['Fizetés módja']) ) {
                     Throw new SOAPFault ('Server', 'Hiányzó fizetési mód!');
+                }
+                // Ha a pénznem nem HUF, akkor kötelező az árfolyam mező
+                if( $szamla_adatok['Pénznem'] != self::KCS_21_TXT && !trim($szamla_adatok['Belső árfolyam']) ) {
+                    Throw new SOAPFault ('Server', 'Devizás számla esetén az árfolyam kitöltése kötelező!');
                 }
             }
             if( $szamla_tipus == self::SZAMLA_TIPUS_ENERGIA ) {
@@ -440,14 +458,15 @@ class ServerClass {
                 $aparecid = $adatbazis_kapcsolat->i($tabla.'_atmeneti', $mezok, $ertekek);
                 if( $aparecid === false ) { $db_error = true; }
 
+                // UPDATE: számláknál nem használunk státusz egyáltalán
                 // Új beszúráskor a kezdőstátusz fixen a feldolgozásra vár lesz
-                $sql = $adatbazis_kapcsolat->u($tabla, array('stat_id'), array($feldolgozasra_var_stat), "`recid`='{$aparecid}'");
-                if( $sql === false ) { $db_error = true; }
-                $sql = $adatbazis_kapcsolat -> i($tabla.'_statusz',
-                                                array($tabla.'_recid',   'stat_id',               'login',          'insert_dt', 'insert_usr',  'update_usr'    ),
-                                                array($aparecid,         $feldolgozasra_var_stat, self::IU_USER,    'NOW()',     self::IU_USER, self::IU_USER   )
-                                            );
-                if( $sql === false ) { $db_error = true; }
+//                $sql = $adatbazis_kapcsolat->u($tabla, array('stat_id'), array($feldolgozasra_var_stat), "`recid`='{$aparecid}'");
+//                if( $sql === false ) { $db_error = true; }
+//                $sql = $adatbazis_kapcsolat -> i($tabla.'_statusz',
+//                                                array($tabla.'_recid',   'stat_id',               'login',          'insert_dt', 'insert_usr',  'update_usr'    ),
+//                                                array($aparecid,         $feldolgozasra_var_stat, self::IU_USER,    'NOW()',     self::IU_USER, self::IU_USER   )
+//                                            );
+//                if( $sql === false ) { $db_error = true; }
 
             // Update
             } else {
@@ -867,13 +886,13 @@ class ServerClass {
             // Átmeneti táblában
             $letezo_szszam = $adatbazis_kapcsolat->s2('recid', $tabla.'_atmeneti', "`szszam`='{$szerzodes_adatok['Szerződés iktatószáma']}' AND `andoc_id`!='{$andoc_id}'");
             if( $letezo_szszam ) {
-                Throw new SOAPFault ('Server', $szerzodes_adatok['Szerződés iktatószáma'].' szerződés szám már létezik a FELDOLGOZANDÓ szerződések között!');
+                Throw new SOAPFault ('Server', '"'.$szerzodes_adatok['Szerződés iktatószáma'].'" Szerződés iktatószám már létezik a FELDOLGOZANDÓ szerződések között!');
             }
             
             // Éles táblában
             $letezo_szszam = $adatbazis_kapcsolat->s2('recid', $tabla, "`szszam`='{$szerzodes_adatok['Szerződés iktatószáma']}' AND `andoc_id`!='{$andoc_id}'");
             if( $letezo_szszam ) {
-                Throw new SOAPFault ('Server', $szerzodes_adatok['Szerződés iktatószáma'].' szerződés szám már létezik a FELDOLGOZOTT szerződések között!');
+                Throw new SOAPFault ('Server', '"'.$szerzodes_adatok['Szerződés iktatószáma'].'" Szerződés iktatószám szám már létezik a FELDOLGOZOTT szerződések között!');
             }
         }
         

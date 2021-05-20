@@ -1,6 +1,6 @@
 <?php
-// Ez a fájl az andoc.php-ban megírt webservice osztályt futtatkja
-require_once 'weblap.php';
+// Ez a fájl az andoc.php-ban megírt webservice osztályt futtatja
+require_once '../weblap.php';
 
 header('Content-Type: text/html; charset='.get_web_charset());
 
@@ -20,7 +20,7 @@ switch ( $_SERVER['HTTP_HOST'] ) {
 $soap = new SoapClient($url_elotag.$wsdl_fajl, 
                         array(
                             'uri'       => $url_elotag.'onteam.php',
-                            // 'location'  => $url_elotag.'onteam.php',
+                            //'location'  => $url_elotag.'onteam.php',
                             'trace'     => true,
                             'encoding'  => 'utf-8',
                             'cache_wsdl'=> WSDL_CACHE_NONE,

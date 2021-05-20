@@ -59,11 +59,11 @@ function get_db_pass() {
 function get_url_elotag() {
     switch ( $_SERVER['HTTP_HOST'] ) {
         case 'localhost'            : return 'localhost/';
-        case 'demo.webdeb.hu'       : return 'http://demo.webdeb.hu/danubiushotel.hu/';
-        case 'teszt.onteam.hu'      : return 'https://teszt.onteam.hu/';
-        case 'dev.onteam.hu'        : return 'https://dev.onteam.hu/';
-        case 'onteam.hu'            : return 'https://www.onteam.hu/';
-        case 'www.onteam.hu'        : return 'https://www.onteam.hu/';
+        case 'demo.webdeb.hu'       : return 'http://demo.webdeb.hu/danubiushotel.hu/andoc2/';
+        case 'teszt.onteam.hu'      : return 'https://teszt.onteam.hu/andoc2/';
+        case 'dev.onteam.hu'        : return 'https://dev.onteam.hu/andoc2/';
+        case 'onteam.hu'            : return 'https://www.onteam.hu/andoc2/';
+        case 'www.onteam.hu'        : return 'https://www.onteam.hu/andoc2/';
     }
 }
 

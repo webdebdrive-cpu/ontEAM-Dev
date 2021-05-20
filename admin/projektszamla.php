@@ -106,7 +106,7 @@ if( isset($_POST['szamla_igazol']) ) {
     }
     
     // Ha nincs joga hozzá, akkor hibaüzenet
-    if( !_jog(SZAMLAK_IGAZOLASA) ) {
+    if( !_jog(JOG_PRSZAMLAK_IGAZOL) ) {
         echo json_encode(array(
                                 'hiba'  => 'Önnek nincs joga számlát igazolni!',
                                 'title' => 'Hiba',
@@ -146,7 +146,7 @@ if( isset($_POST['projektSzamlaElutasit']) ) {
     mysqli_autocommit($db_kapcs, false);
     
     // Ha nincs joga hozzá, akkor hibaüzenet
-    if( !_jog(SZAMLAK_IGAZOLASA) ) {
+    if( !_jog(JOG_PRSZAMLAK_IGAZOL) ) {
         echo json_encode(array(
                                 'hiba'  => 'Önnek nincs joga számlát elutasítani!',
                                 'title' => 'Hiba',
@@ -2010,13 +2010,13 @@ require_once('selectek.php');
         $megj_db = ' ('.$sor['megj_db'].')';
     }
 
-    if( isset($_GET['modosit']) || isset($_GET['tetel']) || isset($_GET['tortenet']) || isset($_GET['kifizetesek']) || isset($_GET['dokumentumok']) || isset($_GET['megjegyzesek']) ) {
+    if( isset($_GET['modosit']) || isset($_GET['tetel']) || isset($_GET['tortenet']) /*|| isset($_GET['kifizetesek'])*/ || isset($_GET['dokumentumok']) || isset($_GET['megjegyzesek']) ) {
         // Számla fülek
         $ful_tomb = array(
             'modosit'       => 'Adatlap',
             'tetel'         => 'Tételek',
             'tortenet'      => 'Történet',
-            'kifizetesek'   => 'Kifizetések',
+            // 'kifizetesek'   => 'Kifizetések',
             'dokumentumok'  => 'Dokumentumok'.$dok_db,
             'megjegyzesek'  => 'Megjegyzések'.$megj_db,
         );
@@ -2111,7 +2111,10 @@ require_once('selectek.php');
                 <input type="button" class="gomb piros" disabled id="megsem_gomb" value="Mégsem" onclick="megsemGomb();">
             </div>
         ');
-        $gombok .= '<input type="button" class="gomb" value="Tételek kezelése" onclick="csoportMuvelet(\'projektszamla_tetelek_kezelese\');"> ';
+        
+        // A fenntartási számlák új feltöltésének mintájára is készült egy tételek kezelése gomb, de ide az eredetileg is használt változatra van szükség új felvitelben is
+        // $gombok .= '<input type="button" class="gomb" value="Tételek kezelése" onclick="csoportMuvelet(\'projektszamla_tetelek_kezelese\');"> ';
+        $gombok .= '<input type="button" class="gomb" value="Tételek kezelése" onclick="if( $(\'#kcs_21\').val()!=\''.KCS_21_HUF.'\' && ( $(\'#arfolyam\').val()==\'\' || $(\'#arfolyam\').val()==\'0,0000\' ) ) { $(\'#arfolyam\').addClass(\'hibas_ide_focus\'); alert2(\'Tételek kezeléséhez kérem adja meg az Árfolyamot!\', \'\', \'Hiba\'); } else { csoportMuvelet(\'projektszamla_tetelek_kezelese_modosit\'); }"> ';
 
         $muv_style = ' style="width: calc(100% - '.($_SESSION['defaultCsuszka'] + 16).'px);"';
         if( in_array(basename(self()), $_SESSION['ketHasabos']) && $_SESSION[get_db_tabla().'user'] ) {
@@ -2161,7 +2164,7 @@ require_once('selectek.php');
             }
         }
         
-        if( $sor['igazolva_dt']=='0000-00-00 00:00:00' && _jog(SZAMLAK_IGAZOLASA) ) {
+        if( $sor['igazolva_dt']=='0000-00-00 00:00:00' && _jog(JOG_PRSZAMLAK_IGAZOL) ) {
             $gombok .= '<input type="button" class="gomb modositaskor_rejt" value="Igazolás" onclick="szamla_igazol()"> ';
             $gombok .= '<input type="button" class="gomb modositaskor_rejt" value="Elutasítás" onclick="csoportMuvelet(\'projektSzamlaElutasit\');"> ';
         }
@@ -2761,7 +2764,7 @@ require_once('selectek.php');
         } else {
             echo $szamla_html.$gombok;
         }
-
+/*
 	// Kifizetések fül
     } elseif( isset($_GET['kifizetesek']) ) {
 
@@ -2804,7 +2807,7 @@ require_once('selectek.php');
         } else {
             echo $szamla_html.$gombok;
         }
-
+*/
 	// Történet
     } elseif( isset($_GET['tortenet']) ) {
 

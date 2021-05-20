@@ -306,6 +306,7 @@ define('JOG_PRKEZEL_LEALLITAS',         128);
 define('JOG_PRKEZEL_UJRANYITAS',        129);
 define('JOG_PRSZAMLAK_OLVAS',           112);
 define('JOG_PRSZAMLAK_KEZEL',           113);
+define('JOG_PRSZAMLAK_IGAZOL',          140);
 define('JOG_PR_EGYSZALL_MEGTEKINT',     114);
 define('JOG_PR_EGYSZALL_KEZEL',         115);
 define('JOG_PR_TOBBSZALL_MEGTEKINT',    116);
