@@ -1004,11 +1004,8 @@ function xml_vissza( $szamla_id ) {
             ';
         $i++;
     }
-   
     
-    $xml = $szamla['kuld_xml'].
-           date('Y-m-d H:i:s').'
-<?xml version="1.0" encoding="utf-8"?>
+    $valasz_xml = '<?xml version="1.0" encoding="utf-8"?>
 <xml>
   <data>
     <register registernumber="'.$szamla['andoc_id'].'" operation="update">
@@ -1026,6 +1023,19 @@ function xml_vissza( $szamla_id ) {
     </register>
   </data>
 </xml>
+';
+   
+    $fejlec = array(
+        "Content-type: text/xml",
+        "Content-length: ".strlen($valasz_xml),
+        "Connection: close",
+    );
+    
+    URL_post(ANDOC_POST_KULD_URL, $valasz_xml, $fejlec);
+   
+    $xml = $szamla['kuld_xml'].
+           date('Y-m-d H:i:s').'
+           '.$valasz_xml.'
 
 
 

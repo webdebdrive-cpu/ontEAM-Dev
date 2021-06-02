@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding ="utf-8"?>
 <definitions name="ontEAM-Webservice"
-	targetNamespace="https://www.onteam.hu/andoc.php?wsdl.wsdl"
-	xmlns:tns="https://www.onteam.hu/andoc.php?wsdl.wsdl"
+	targetNamespace="https://www.onteam.hu/andoc2/andoc.php?wsdl.wsdl"
+	xmlns:tns="https://www.onteam.hu/andoc2/andoc.php?wsdl.wsdl"
 	xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/"
 	xmlns:xsd="http://www.w3.org/2001/XMLSchema"
 	xmlns:soapenc="http://schemas.xmlsoap.org/soap/encoding/"

@@ -84,7 +84,7 @@ if( isset($_POST['szamla_igazol']) ) {
     $db_error = false;
     mysqli_autocommit($db_kapcs, false);
     
-    // Ha már igazolva volna, akkor hibaüzenet
+    // Ha még nincs szerződés kapcsolva, akkor hibaüzenet
     $sor = $adatbazis_kapcsolat->s2('sz_szam igazolva_dt', 'projektszamla', "`recid`='{$_POST['id']}'");
     if( !$sor['sz_szam'] ) {
         echo json_encode(array(
@@ -160,9 +160,7 @@ if( isset($_POST['projektSzamlaElutasit']) ) {
                                                     array(0,          $_POST['memo'], 'NOW()',       $_SESSION[get_db_tabla().'teljes_nev']   ),
                                     "`recid`='{$_POST['id']}'");
     if( $sql === false ) { $db_error = true; }
-// echo $adatbazis_kapcsolat->gp() . '<br>';
-// echo 'f';
-// exit;
+
     // Illetve az XML visszát is intézzük
     if( xml_vissza($_POST['id']) !== false ) { $db_error = true; }
                                                 
@@ -3006,11 +3004,8 @@ function xml_vissza( $szamla_id ) {
             ';
         $i++;
     }
-   
     
-    $xml = $szamla['kuld_xml'].
-           date('Y-m-d H:i:s').'
-<?xml version="1.0" encoding="utf-8"?>
+    $valasz_xml = '<?xml version="1.0" encoding="utf-8"?>
 <xml>
   <data>
     <register registernumber="'.$szamla['andoc_id'].'" operation="update">
@@ -3030,6 +3025,19 @@ function xml_vissza( $szamla_id ) {
     </register>
   </data>
 </xml>
+';
+    
+    $fejlec = array(
+        "Content-type: text/xml",
+        "Content-length: ".strlen($valasz_xml),
+        "Connection: close",
+    );
+    
+    URL_post(ANDOC_POST_KULD_URL, $valasz_xml, $fejlec);
+   
+    $xml = $szamla['kuld_xml'].
+           date('Y-m-d H:i:s').'
+           '.$valasz_xml.'
 
 
 

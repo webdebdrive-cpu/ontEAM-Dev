@@ -1,5 +1,5 @@
 <?php
-require_once 'weblap.php';
+require_once '../weblap.php';
 
 $url_elotag = get_url_elotag();
 
@@ -46,7 +46,7 @@ class ServerClass {
 
         global $adatbazis_kapcsolat;
         global $db_kapcs;
-
+        
         $szamla = simplexml_load_string($szamla_xml, 'SimpleXMLElement');
         $szamla_xml = date('Y-m-d H:i:s').$szamla_xml."\n\n\n";
 
@@ -197,7 +197,7 @@ class ServerClass {
                 // Átmeneti táblában
                 $letezo_ikt_szam = $adatbazis_kapcsolat->s2('recid', $tabla.'_atmeneti', "`szla_szam`='{$szamla_adatok['Számla sorszáma']}' AND `szallito_id`='{$szamla_adatok['Partnerkód']}' AND `andoc_id`!='{$andoc_id}'");
                 if( $letezo_ikt_szam ) {
-                    Throw new SOAPFault ('Server', '"'.$szamla_adatok['Számla sorszáma'].'" számlaszám már létezik ezzel a partnerrel a FELDOLGOZÁSRA VÁRÓ számlák között!');
+                    Throw new SOAPFault('Server', '"'.$szamla_adatok['Számla sorszáma'].'" számlaszám már létezik ezzel a partnerrel a FELDOLGOZÁSRA VÁRÓ számlák között!');
                 }
                 
                 // Éles táblában

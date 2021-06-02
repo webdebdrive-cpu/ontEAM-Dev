@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding ="utf-8"?>
 <definitions name="ontEAM-Webservice"
-	targetNamespace="https://dev.onteam.hu/andoc.php?wsdl.wsdl"
-	xmlns:tns="https://dev.onteam.hu/andoc.php?wsdl.wsdl"
+	targetNamespace="https://dev.onteam.hu/andoc2/andoc.php?wsdl.wsdl"
+	xmlns:tns="https://dev.onteam.hu/andoc2/andoc.php?wsdl.wsdl"
 	xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/"
 	xmlns:xsd="http://www.w3.org/2001/XMLSchema"
 	xmlns:soapenc="http://schemas.xmlsoap.org/soap/encoding/"
@@ -9,7 +9,7 @@
 	xmlns="http://schemas.xmlsoap.org/wsdl/">
 <!-- definition of datatypes -->
 	<types>
-	<schema targetNamespace="https://dev.onteam.hu/andoc.php?wsdl.xsd" xmlns="http://www.w3.org/2000/10/XMLSchema">
+	<schema targetNamespace="https://dev.onteam.hu/andoc2/andoc.php?wsdl.xsd" xmlns="http://www.w3.org/2000/10/XMLSchema">
 		<element name="szamla_xml">
 		<complexType><all><element name="value" type="string" /></all></complexType>
 		</element>
@@ -129,7 +129,7 @@
 <!-- access to service provider -->
 	<service name='ontEAM'>
 	<port name='ontEAM_0' binding='tns:ontEAM-Webservice_webservices'>
-	<soap:address location='https://dev.onteam.hu/andoc.php'/>
+	<soap:address location='https://dev.onteam.hu/andoc2/andoc.php'/>
 	</port>
 	</service>
 </definitions>

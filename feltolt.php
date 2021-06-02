@@ -188,7 +188,7 @@ if( $_POST['tabla'] == 'projektszerzodes_jotallas' ) {
             // Fájlfeltöltés
             if( move_uploaded_file($_FILES[$_POST['megnevezes']]['tmp_name'], $kepnev) ) {
 
-                // Letárolás adatbázisba is A kép neve nem tartalmazza a get_utvonal részt! Ha sikeres akkor adunk egy outputot a flashfile-nak
+                // Letárolás adatbázisba is. A kép neve nem tartalmazza a get_utvonal részt! Ha sikeres akkor adunk egy outputot a flashfile-nak
                 $id = $adatbazis_kapcsolat -> u( 'projektszerzodes_jotallas',   array('utvonal',                                                            'fajlnev'                               ),
                                                                                 array(str_replace(get_utvonal().'projektszerzodes_jotallas/', '', $kepnev), $_FILES[$_POST['megnevezes']]['name']   ),
                                                                                 "`recid`='{$_POST['recid']}'"

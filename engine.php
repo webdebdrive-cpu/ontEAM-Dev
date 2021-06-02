@@ -2882,6 +2882,32 @@ function URL_letolt($url){
     return $output;
 }
 
+/**
+* @desc URL-re postolás
+* 
+* @param strinig $url: az URL címe
+* @param strinig $data: a POST-olandó adat
+* 
+* @return string A válaszul kapott string
+*/
+function URL_post($url, $data, $fejlec) {
+    $ch = curl_init();
+    curl_setopt($ch, CURLOPT_URL, $url);
+    curl_setopt($ch, CURLOPT_POST, count($data));
+    curl_setopt($ch, CURLOPT_POSTFIELDS, $data);
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+    curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 0); 
+    curl_setopt($ch, CURLOPT_TIMEOUT, 500);
+    curl_setopt($ch, CURLOPT_HTTPHEADER, $fejlec);
+    curl_setopt($ch, CURLOPT_VERBOSE, true);
+    
+    $output = curl_exec($ch);
+
+    curl_close($ch);
+    
+    return $output;
+}
+
 
 /**
 * @desc ZIP készítése egy tömbből
