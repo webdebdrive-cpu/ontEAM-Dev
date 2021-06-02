@@ -22,7 +22,11 @@ function szamla_igazol(mehet) {
             if (response) {
                 response = JSON.parse(response);
                 if (response.hiba) {
-                    alert2(response.hiba, response.gomb, response.title);
+                    szamlaBetolt(_get('id'), 'fenntartasi_szamla.php');
+                    setTimeout(function () {
+                        alert2(response.hiba, response.gomb, response.title);
+                    }, 500);
+                    
                     return false;
                 }
                 szamlaBetolt(_get('id'), 'fenntartasi_szamla.php');

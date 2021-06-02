@@ -8065,14 +8065,14 @@ function addStatusz( $tabla = false, $recid = false, $stat_id = false, $erteklis
 // Megjegyzés beszúrása
 function addMegj( $tabla, $id, $megj ) {
     // Ha van egyáltalán megjegyzés
-    if(trim($megj)){
+    if( trim($megj) ) {
         global $adatbazis_kapcsolat;
         $szerepkor = getSzerepkorNev($_SESSION[get_db_tabla().'szemelyzet_id']);
         $ins   = $adatbazis_kapcsolat->i('megjegyzes',  array('tabla', 'id', 'megj', 'loginnev',                       'szerepkor',                                 'szerepkor_txt',    'update_usr',                           'insert_dt', 'insert_usr'                           ),
                                                         array($tabla,  $id, $megj,   $_SESSION[get_db_tabla().'user'], $_SESSION[get_db_tabla().'szemelyzet_id'],   $szerepkor,         $_SESSION[get_db_tabla().'teljes_nev'], 'NOW()',      $_SESSION[get_db_tabla().'teljes_nev'])
                                         );
         if($ins===false){ return false; }
-
+ 
         // Adott tábla megj_db oszlop karban tartása
         $megj_db = $adatbazis_kapcsolat->s('recid', 'megjegyzes', "`tabla`='{$tabla}' AND `id`='{$id}'");
         if($megj_db===flase){ return false; }

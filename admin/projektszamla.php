@@ -115,14 +115,24 @@ if( isset($_POST['szamla_igazol']) ) {
         exit;
     }
     
-    // Adatbázisba mentés
-    $sql = $adatbazis_kapcsolat->u('projektszamla', array('igazolva', 'igazolva_dt', 'igazolva_usr'                           ),
-                                                    array(1,          'NOW()',       $_SESSION[get_db_tabla().'teljes_nev']   ),
-                                    "`recid`='{$_POST['id']}'");
-    if( $sql === false ) { $db_error = true; }
-    
     // Illetve az XML visszát is intézzük
-    if( xml_vissza($_POST['id']) !== false ) { $db_error = true; }
+    if( xml_vissza($_POST['id']) !== false ) {
+        echo json_encode(array(
+                                'hiba'  => 'Az Andoc felé küldött visszaigazoló XML elküldése során hiba történt!<br>A számlát nem sikerült igazolni.',
+                                'title' => 'Hiba',
+                        ));
+        mysqli_commit($db_kapcs);
+        $weblap -> leallit();
+        exit;
+        
+    // Adatbázisba mentés csak akkor, ha nem volt gond az XML küldéssel
+    } else {
+        $sql = $adatbazis_kapcsolat->u('projektszamla', array('igazolva', 'igazolva_dt', 'igazolva_usr'                           ),
+                                                        array(1,          'NOW()',       $_SESSION[get_db_tabla().'teljes_nev']   ),
+                                        "`recid`='{$_POST['id']}'");
+        if( $sql === false ) { $db_error = true; }
+        
+    }
     
     if( !$db_error ) {
         mysqli_commit($db_kapcs);
@@ -154,15 +164,25 @@ if( isset($_POST['projektSzamlaElutasit']) ) {
         $weblap -> leallit();
         exit;
     }
-    
-    // Adatbázisba mentés
-    $sql = $adatbazis_kapcsolat->u('projektszamla', array('igazolva', 'elutleir',     'igazolva_dt', 'igazolva_usr'                           ),
-                                                    array(0,          $_POST['memo'], 'NOW()',       $_SESSION[get_db_tabla().'teljes_nev']   ),
-                                    "`recid`='{$_POST['id']}'");
-    if( $sql === false ) { $db_error = true; }
 
     // Illetve az XML visszát is intézzük
-    if( xml_vissza($_POST['id']) !== false ) { $db_error = true; }
+    if( xml_vissza($_POST['id']) !== false ) {
+        echo json_encode(array(
+                                'hiba'  => 'Az Andoc felé küldött visszaigazoló XML elküldése során hiba történt!<br>A számlát nem sikerült elutasítani.',
+                                'title' => 'Hiba',
+                        ));
+        mysqli_commit($db_kapcs);
+        $weblap -> leallit();
+        exit;
+        
+    // Adatbázisba mentés csak akkor, ha nem volt gond az XML küldéssel
+    } else {
+        $sql = $adatbazis_kapcsolat->u('projektszamla', array('igazolva', 'elutleir',     'igazolva_dt', 'igazolva_usr'                           ),
+                                                        array(0,          $_POST['memo'], 'NOW()',       $_SESSION[get_db_tabla().'teljes_nev']   ),
+                                        "`recid`='{$_POST['id']}'");
+        if( $sql === false ) { $db_error = true; }
+    }
+    
                                                 
     if( !$db_error ) {
         mysqli_commit($db_kapcs);
@@ -3033,24 +3053,32 @@ function xml_vissza( $szamla_id ) {
         "Connection: close",
     );
     
-    URL_post(ANDOC_POST_KULD_URL, $valasz_xml, $fejlec);
-   
-    $xml = $szamla['kuld_xml'].
-           date('Y-m-d H:i:s').'
-           '.$valasz_xml.'
+    // Válasz XML postolása
+    $valasz = URL_post(ANDOC_POST_KULD_URL, $valasz_xml, $fejlec);
+    // Most egyelőre legyen fixen hibás, hogy lehessen tesztelni a hibá esetet
+    if( true || $valasz === false ) {
+        addMegj('projektszamla', $szamla_id, 'Az alábbi válasz XML-t nem sikerült elküldeni:<br>'.htmlspecialchars($valasz_xml));
+        $db_error = true;
+    // Ezt csak akkor módosítjuk, ha az XML küldése is rendben volt
+    } else {
+        
+        $xml = $szamla['kuld_xml'].
+               date('Y-m-d H:i:s').'
+               '.$valasz_xml.'
 
 
 
-';
-    
-    $sql = $adatbazis_kapcsolat->u('projektszamla', array('kuld_xml'),
-                                                    array($xml),
-                                    "`recid`='{$szamla_id}'");
-    if( $tetelek === false ) { $db_error = true; }
-    
-    // Tételeknél nullázzuk a változott pipát
-    $sql = $adatbazis_kapcsolat->u('projektszamla_tetel', array('valtozott'), array(0), "`projektszamla_recid`='{$szamla_id}' AND `valtozott`='1'");
-    if( $sql === false ) { $db_error = true; }
+    ';
+
+        $sql = $adatbazis_kapcsolat->u('projektszamla', array('kuld_xml'),
+                                                        array($xml),
+                                        "`recid`='{$szamla_id}'");
+        if( $tetelek === false ) { $db_error = true; }
+
+        // Tételeknél nullázzuk a változott pipát
+        $sql = $adatbazis_kapcsolat->u('projektszamla_tetel', array('valtozott'), array(0), "`projektszamla_recid`='{$szamla_id}' AND `valtozott`='1'");
+        if( $sql === false ) { $db_error = true; }
+    }
     
     return $db_error;
     

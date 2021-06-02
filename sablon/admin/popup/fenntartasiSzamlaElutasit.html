@@ -39,9 +39,11 @@ function fenntartasiSzamlaElutasit() {
             if(response.substring(0, 6)=='SESKIL'){ location.href = 'index.php'; }
             if(response) {
                 response = JSON.parse(response);
-
                 if( response.hiba ) {
-                    alert2(response.hiba, response.gomb, response.title);
+                    szamlaBetolt(_get('id'), 'fenntartasi_szamla.php');
+                    setTimeout(function () {
+                        alert2(response.hiba, response.gomb, response.title);
+                    }, 500);
                     return false;
                 }
                 popupZar();
