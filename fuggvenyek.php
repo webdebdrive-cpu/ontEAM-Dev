@@ -1089,14 +1089,14 @@ function i_u($type, $tabla, $tomb) {
             }
 
             // Andoc_id-t és a létrehozással kapcsolatos adatokat még letároljuk az éles fej táblában
-            $szamla = $adatbazis_kapcsolat->s2('andoc_id vonalkod erk_xml dok_link insert_dt', 'fenntartasi_szamla_atmeneti', "`recid`='{$_POST['atmeneti_recid']}'");
+            $szamla = $adatbazis_kapcsolat->s2('andoc_id vonalkod erk_xml dok_link ikt_usr insert_dt', 'fenntartasi_szamla_atmeneti', "`recid`='{$_POST['atmeneti_recid']}'");
             if( $szamla === false ) { $db_error = true; }
             $szamla['erk_xml']  = htmlspecialchars_decode($szamla['erk_xml']);
             $szamla['vonalkod'] = htmlspecialchars_decode($szamla['vonalkod']);
             $szamla['dok_link'] = htmlspecialchars_decode($szamla['dok_link']);
             $sql = $adatbazis_kapcsolat->u('fenntartasi_szamla', 
-                                                                array('andoc_id',           'ont_erk_dt',         'erk_xml',            'vonalkod',           'dok_link'          ),
-                                                                array($szamla['andoc_id'],  $szamla['insert_dt'], $szamla['erk_xml'],   $szamla['vonalkod'],  $szamla['dok_link'] ),
+                                                                array('andoc_id',           'ont_erk_dt',         'erk_xml',            'vonalkod',           'dok_link',           'ikt_usr'          ),
+                                                                array($szamla['andoc_id'],  $szamla['insert_dt'], $szamla['erk_xml'],   $szamla['vonalkod'],  $szamla['dok_link'],  $szamla['ikt_usr'] ),
                                                             "`recid`='{$id}'");
             if( $sql === false ) { $db_error = true; }
             
@@ -1137,12 +1137,12 @@ function i_u($type, $tabla, $tomb) {
             }
 
             // Andoc_id-t és a létrehozással kapcsolatos adatokat még letároljuk az éles fej táblában
-            $szerzodes = $adatbazis_kapcsolat->s2('andoc_id erk_xml insert_dt vonalkod', 'fenntartasi_szerzodes_atmeneti', "`recid`='{$_POST['atmeneti_recid']}'");
+            $szerzodes = $adatbazis_kapcsolat->s2('andoc_id erk_xml insert_dt vonalkod ikt_usr', 'fenntartasi_szerzodes_atmeneti', "`recid`='{$_POST['atmeneti_recid']}'");
             if( $szerzodes === false ) { $db_error = true; }
             $szerzodes['erk_xml']  = htmlspecialchars_decode($szerzodes['erk_xml']);
             $sql = $adatbazis_kapcsolat->u('fenntartasi_szerzodes', 
-                                                                array('andoc_id',              'vonalkod',              'ont_erk_dt',            'erk_xml'               ),
-                                                                array($szerzodes['andoc_id'],  $szerzodes['vonalkod'],  $szerzodes['insert_dt'], $szerzodes['erk_xml']   ),
+                                                                array('andoc_id',              'vonalkod',              'ont_erk_dt',            'erk_xml',             'ikt_usr'               ),
+                                                                array($szerzodes['andoc_id'],  $szerzodes['vonalkod'],  $szerzodes['insert_dt'], $szerzodes['erk_xml'], $szerzodes['ikt_usr']   ),
                                                             "`recid`='{$id}'");
             if( $sql === false ) { $db_error = true; }
 
@@ -1426,17 +1426,17 @@ function i_u($type, $tabla, $tomb) {
             }
 
             // Andoc_id-t és a létrehozással kapcsolatos adatokat még letároljuk az éles fej táblában
-            $szamla = $adatbazis_kapcsolat->s2('andoc_id vonalkod erk_xml dok_link insert_dt', 'projektszamla_atmeneti', "`recid`='{$_POST['atmeneti_recid']}'");
+            $szamla = $adatbazis_kapcsolat->s2('andoc_id vonalkod erk_xml dok_link ikt_usr insert_dt', 'projektszamla_atmeneti', "`recid`='{$_POST['atmeneti_recid']}'");
             if( $szamla === false ) { $db_error = true; }
             $szamla['erk_xml']  = htmlspecialchars_decode($szamla['erk_xml']);
             $szamla['vonalkod'] = htmlspecialchars_decode($szamla['vonalkod']);
             $szamla['dok_link'] = htmlspecialchars_decode($szamla['dok_link']);
             $sql = $adatbazis_kapcsolat->u('projektszamla', 
-                                                        array('andoc_id',           'ont_erk_dt',         'erk_xml',            'vonalkod',           'dok_link'          ),
-                                                        array($szamla['andoc_id'],  $szamla['insert_dt'], $szamla['erk_xml'],   $szamla['vonalkod'],  $szamla['dok_link'] ),
+                                                        array('andoc_id',           'ont_erk_dt',         'erk_xml',            'vonalkod',           'dok_link',           'ikt_usr'          ),
+                                                        array($szamla['andoc_id'],  $szamla['insert_dt'], $szamla['erk_xml'],   $szamla['vonalkod'],  $szamla['dok_link'],  $szamla['ikt_usr'] ),
                                                     "`recid`='{$id}'");
             if( $sql === false ) { $db_error = true; }
-            
+
             // Töröljük az átmeneti tábla számláját és tételeit is
             $sql = $adatbazis_kapcsolat->d('projektszamla_tetel_atmeneti', "`projektszamla_recid`='{$_POST['atmeneti_recid']}'");
             if( $sql === false ) { $db_error = true; }

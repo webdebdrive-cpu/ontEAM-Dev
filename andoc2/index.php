@@ -9,11 +9,11 @@ ini_set('soap.wsdl_cache_enabled', '0');
 $url_elotag = get_url_elotag();
 
 switch ( $_SERVER['HTTP_HOST'] ) {
-    case 'demo.webdeb.hu'       : $wsdl_fajl = 'andoc2/onteam_wd_demo.wsdl';    break;
-    case 'www.onteam.hu'        : $wsdl_fajl = 'andoc2/onteam.wsdl';            break;
-    case 'onteam.hu'            : $wsdl_fajl = 'andoc2/onteam.wsdl';            break;
-    case 'teszt.onteam.hu'      : $wsdl_fajl = 'andoc2/teszt.onteam.wsdl';      break;
-    case 'dev.onteam.hu'        : $wsdl_fajl = 'andoc2/dev.onteam.wsdl';        break;
+    case 'demo.webdeb.hu'       : $wsdl_fajl = 'onteam_wd_demo.wsdl';    break;
+    case 'www.onteam.hu'        : $wsdl_fajl = 'onteam.wsdl';            break;
+    case 'onteam.hu'            : $wsdl_fajl = 'onteam.wsdl';            break;
+    case 'teszt.onteam.hu'      : $wsdl_fajl = 'teszt.onteam.wsdl';      break;
+    case 'dev.onteam.hu'        : $wsdl_fajl = 'dev.onteam.wsdl';        break;
 }
 
 // Új SOAP kliens inicializálása
@@ -63,11 +63,15 @@ try {
             $xml = $_POST['xml'];
             $log_utvonal = '../andoc.log';
             $log = '*****************************
+    FOGADOTT XML
     '.date('Y.m.d H:i:s').'
     Ip: '.$_SERVER['REMOTE_ADDR'].'
     URL: '.get_http().$_SERVER['HTTP_HOST'].$_SERVER['REQUEST_URI'].'
     POST:
     '.$xml.'
+
+
+
     ';
             file_put_contents($log_utvonal, $log, FILE_APPEND | LOCK_EX);
             if( filesize($log_utvonal)>(get_logfile_max_meret()) ){
@@ -111,6 +115,10 @@ try {
             }
             $xml = trim( str_replace('<?xml version="1.0" encoding="utf-8" ?>', '', $xml) );
             $soap -> SzerzodesAdatokImport( $xml );    
+            
+            // Webservicenek így adjunk át hibát vagy sikeres üzenetet
+            echo '<xml><result>OK</result><error /></xml>';
+            
         }
 
     }

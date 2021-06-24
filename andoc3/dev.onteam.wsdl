@@ -1,0 +1,135 @@
+<?xml version="1.0" encoding ="utf-8"?>
+<definitions name="ontEAM-Webservice"
+	targetNamespace="https://dev.onteam.hu/andoc2/andoc.php?wsdl.wsdl"
+	xmlns:tns="https://dev.onteam.hu/andoc2/andoc.php?wsdl.wsdl"
+	xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/"
+	xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+	xmlns:soapenc="http://schemas.xmlsoap.org/soap/encoding/"
+	xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/"
+	xmlns="http://schemas.xmlsoap.org/wsdl/">
+<!-- definition of datatypes -->
+	<types>
+	<schema targetNamespace="https://dev.onteam.hu/andoc2/andoc.php?wsdl.xsd" xmlns="http://www.w3.org/2000/10/XMLSchema">
+		<element name="szamla_xml">
+		<complexType><all><element name="value" type="string" /></all></complexType>
+		</element>
+		<element name="szerzodes_xml">
+		<complexType><all><element name="value" type="string" /></all></complexType>
+		</element>
+		<element name="koltsegnem_xml">
+		<complexType><all><element name="value" type="string" /></all></complexType>
+		</element>
+		<element name="koltseghely_xml">
+		<complexType><all><element name="value" type="string" /></all></complexType>
+		</element>
+		<element name="szallito_xml">
+		<complexType><all><element name="value" type="string" /></all></complexType>
+		</element>
+		<element name="szamla_valasz">
+		<complexType><all><element name="value" type="string" /></all></complexType>
+		</element>
+		<element name="szerzodes_valasz">
+		<complexType><all><element name="value" type="string" /></all></complexType>
+		</element>
+		<element name="koltsegnem_valasz">
+		<complexType><all><element name="value" type="string" /></all></complexType>
+		</element>
+		<element name="koltseghely_valasz">
+		<complexType><all><element name="value" type="string" /></all></complexType>
+		</element>
+		<element name="szallito_valasz">
+		<complexType><all><element name="value" type="string" /></all></complexType>
+		</element>
+	</schema>
+	</types>
+<!-- response messages -->
+	<message name='returns_szamla_valasz'>
+	<part name='szamla_valasz' type='xsd:szamla_valasz'/>
+	</message>
+	<message name='returns_szerzodes_valasz'>
+	<part name='szerzodes_valasz' type='xsd:szerzodes_valasz'/>
+	</message>
+	<message name='returns_koltsegnem_valasz'>
+	<part name='koltsegnem_valasz' type='xsd:koltsegnem_valasz'/>
+	</message>
+	<message name='returns_koltseghely_valasz'>
+	<part name='koltseghely_valasz' type='xsd:koltseghely_valasz'/>
+	</message>
+	<message name='returns_szallito_valasz'>
+	<part name='szallito_valasz' type='xsd:szallito_valasz'/>
+	</message>
+<!-- request messages -->
+	<message name='SzamlaAdatokImport'>
+	<part name='szamla_xml' type='xsd:szamla_xml'/>
+	</message>
+	<message name='SzerzodesAdatokImport'>
+	<part name='szerzodes_xml' type='xsd:szerzodes_xml'/>
+	</message>
+	<message name='KoltsegnemAdatokImport'>
+	<part name='koltsegnem_xml' type='xsd:koltsegnem_xml'/>
+	</message>
+	<message name='KoltseghelyAdatokImport'>
+	<part name='koltseghely_xml' type='xsd:koltseghely_xml'/>
+	</message>
+	<message name='SzallitoAdatokImport'>
+	<part name='szallito_xml' type='xsd:szallito_xml'/>
+	</message>
+<!-- server's services -->
+	<portType name='ontEAM-Webservice'>
+		<operation name='SzamlaAdatokImport'>
+		<input message='tns:SzamlaAdatokImport'/>
+		<output message='tns:returns_szamla_valasz'/>
+		</operation>
+		<operation name='SzerzodesAdatokImport'>
+		<input message='tns:SzerzodesAdatokImport'/>
+		<output message='tns:returns_szerzodes_valasz'/>
+		</operation>
+		<operation name='KoltsegnemAdatokImport'>
+		<input message='tns:KoltsegnemAdatokImport'/>
+		<output message='tns:returns_koltsegnem_valasz'/>
+		</operation>
+		<operation name='KoltseghelyAdatokImport'>
+		<input message='tns:KoltseghelyAdatokImport'/>
+		<output message='tns:returns_koltseghely_valasz'/>
+		</operation>
+		<operation name='SzallitoAdatokImport'>
+		<input message='tns:SzallitoAdatokImport'/>
+		<output message='tns:returns_szallito_valasz'/>
+		</operation>
+	</portType>
+<!-- server encoding -->
+	<binding name='ontEAM-Webservice_webservices' type='tns:ontEAM-Webservice'>
+	<soap:binding style='rpc' transport='http://schemas.xmlsoap.org/soap/http'/>
+		<operation name='SzamlaAdatokImport'>
+		<soap:operation soapAction='urn:xmethods-delayed-quotes#SzamlaAdatokImport'/>
+		<input><soap:body use='literal' namespace='urn:xmethods-delayed-quotes' encodingStyle='http://schemas.xmlsoap.org/soap/encoding/'/></input>
+		<output><soap:body use='literal' namespace='urn:xmethods-delayed-quotes' encodingStyle='http://schemas.xmlsoap.org/soap/encoding/'/></output>
+		</operation>
+		<operation name='SzerzodesAdatokImport'>
+		<soap:operation soapAction='urn:xmethods-delayed-quotes#SzerzodesAdatokImport'/>
+		<input><soap:body use='literal' namespace='urn:xmethods-delayed-quotes' encodingStyle='http://schemas.xmlsoap.org/soap/encoding/'/></input>
+		<output><soap:body use='literal' namespace='urn:xmethods-delayed-quotes' encodingStyle='http://schemas.xmlsoap.org/soap/encoding/'/></output>
+		</operation>
+		<operation name='KoltsegnemAdatokImport'>
+		<soap:operation soapAction='urn:xmethods-delayed-quotes#KoltsegnemAdatokImport'/>
+		<input><soap:body use='literal' namespace='urn:xmethods-delayed-quotes' encodingStyle='http://schemas.xmlsoap.org/soap/encoding/'/></input>
+		<output><soap:body use='literal' namespace='urn:xmethods-delayed-quotes' encodingStyle='http://schemas.xmlsoap.org/soap/encoding/'/></output>
+		</operation>
+		<operation name='KoltseghelyAdatokImport'>
+		<soap:operation soapAction='urn:xmethods-delayed-quotes#KoltseghelyAdatokImport'/>
+		<input><soap:body use='literal' namespace='urn:xmethods-delayed-quotes' encodingStyle='http://schemas.xmlsoap.org/soap/encoding/'/></input>
+		<output><soap:body use='literal' namespace='urn:xmethods-delayed-quotes' encodingStyle='http://schemas.xmlsoap.org/soap/encoding/'/></output>
+		</operation>
+		<operation name='SzallitoAdatokImport'>
+		<soap:operation soapAction='urn:xmethods-delayed-quotes#SzallitoAdatokImport'/>
+		<input><soap:body use='literal' namespace='urn:xmethods-delayed-quotes' encodingStyle='http://schemas.xmlsoap.org/soap/encoding/'/></input>
+		<output><soap:body use='literal' namespace='urn:xmethods-delayed-quotes' encodingStyle='http://schemas.xmlsoap.org/soap/encoding/'/></output>
+		</operation>
+	</binding>
+<!-- access to service provider -->
+	<service name='ontEAM'>
+	<port name='ontEAM_0' binding='tns:ontEAM-Webservice_webservices'>
+	<soap:address location='https://dev.onteam.hu/andoc2/andoc.php'/>
+	</port>
+	</service>
+</definitions>

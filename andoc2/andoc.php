@@ -97,6 +97,10 @@ class ServerClass {
             case self::SZAMLA_TIPUS_PROJEKT         : $tabla = 'projektszamla';         break;
             case self::SZAMLA_TIPUS_ENERGIA         : $tabla = 'energia_szamla';        break;
             case self::SZAMLA_TIPUS_ANYAG           : $tabla = 'anyag_szamla';          break;
+            default                                 : $tabla = '!hiba!';                break;
+        }
+        if( $tabla == '!hiba!' ) {
+            Throw new SOAPFault ('Server', 'Nem azonosítható be a számla főtípusa!');
         }
         $apa_recid_oszlop = $tabla.'_recid';
         
@@ -222,13 +226,20 @@ class ServerClass {
             }
             
             // Ha van pénznem adatunk (update esetén nem feltétlen van)
+            $arfolyam = 0;
             if( $szamla_adatok['Pénznem'] ) {
                 $szamla_adatok['Pénznem'] = mb_strtoupper($szamla_adatok['Pénznem'], self::CHAR_CODING);
 
+                // Ha devizás és nincs megadva árfolyam, akkor hiba
+                if( $szamla_adatok['Pénznem'] != self::KCS_21_TXT && !trim($szamla_adatok['Belső árfolyam']) ) {
+                    Throw new SOAPFault ('Server', 'Devizás számla esetén az Árfolyam mező kitöltése kötelező!');
+                }
+                
                 // Ha nem HUF a pénznem, akkor az összegek a deviza mezőbe kerüljenek fejben és tételeknél is
                 if( $szamla_adatok['Pénznem'] != self::KCS_21_TXT ) {
+                    $arfolyam = $szamla_adatok['Belső árfolyam'];
                     $szamla_adatok['Deviza bruttó összege'] = $szamla_adatok['Számla bruttó összege'];
-                    $szamla_adatok['Számla bruttó összege'] = '0';
+                    $szamla_adatok['Számla bruttó összege'] = $szamla_adatok['Számla bruttó összege']*$szamla_adatok['Belső árfolyam'];
                 }
 
                 // Ha olyan értéket kapnánk, mint amilyen értékű pénznem nem is létezik, akkor létrehozzuk
@@ -384,6 +395,7 @@ class ServerClass {
             if( $szamla_adatok['Számla kelte']                  ) { array_push($mezok, 'kelte_dt'       ); array_push($ertekek, $szamla_adatok['Számla kelte']);            }
             if( $szamla_adatok['Számla sorszáma']               ) { array_push($mezok, 'szla_szam'      ); array_push($ertekek, $szamla_adatok['Számla sorszáma']);         }
             if( $szamla_adatok['Danubius azonosító']            ) { array_push($mezok, 'ikt_szam'       ); array_push($ertekek, $szamla_adatok['Danubius azonosító']);      }
+            if( $szamla_adatok['Rögzítő neve']                  ) { array_push($mezok, 'ikt_usr'        ); array_push($ertekek, $szamla_adatok['Rögzítő neve']);            }
             if( $szamla_adatok['Vonalkód']                      ) { array_push($mezok, 'vonalkod'       ); array_push($ertekek, $szamla_adatok['Vonalkód']);                }
             if( $szamla_adatok['Teljesítés dátuma']             ) { array_push($mezok, 'telj_dt'        ); array_push($ertekek, $szamla_adatok['Teljesítés dátuma']);       }
             if( $szamla_adatok['Fizetési határidő']             ) { array_push($mezok, 'fizhat_dt'      ); array_push($ertekek, $szamla_adatok['Fizetési határidő']);       }
@@ -457,7 +469,7 @@ class ServerClass {
                 array_push($ertekek,   $szamla_xml, $andoc_id,  self::IU_USER,  self::IU_USER, 'NOW()'      );
                 $aparecid = $adatbazis_kapcsolat->i($tabla.'_atmeneti', $mezok, $ertekek);
                 if( $aparecid === false ) { $db_error = true; }
-
+ 
                 // UPDATE: számláknál nem használunk státusz egyáltalán
                 // Új beszúráskor a kezdőstátusz fixen a feldolgozásra vár lesz
 //                $sql = $adatbazis_kapcsolat->u($tabla, array('stat_id'), array($feldolgozasra_var_stat), "`recid`='{$aparecid}'");
@@ -491,132 +503,148 @@ class ServerClass {
             }
 
             // Tételek bejárása
-            foreach ( $szamla_tetelek as $tetel ) {
+            // 2021.06.22. 8:30-i levél alapján: 
+            // Update fogadásakor, ha a fogadott rekord már benne van éles táblába (azaz nem az átmenetibe van), tételeket nem fogadjuk be, csak fej adatokat írjuk felül
+            // Magyarul csak akkor dolgozzuk fel, ha insert, vagy ha az átmeneti táblában van 
+            if( $insert_update == 'insert' || $atmenetiben_van ) {
+                
+                foreach ( $szamla_tetelek as $tetel ) {
 
-                // Tételek kötelező mezők ellenőrzése
-                if( !trim($tetel['rownumberonpage']) ) {
-                    Throw new SOAPFault ('Server', 'Hiányzó rownumberonpage a tételeknél!');
-                }
-                if( $insert_update == 'insert' && !trim($tetel['Nettó sorösszeg']) ) {
-                    Throw new SOAPFault ('Server', 'Hiányzó nettó sorösszeg a tételeknél!');
-                }
+                    // Tételek kötelező mezők ellenőrzése
+                    if( !trim($tetel['rownumberonpage']) ) {
+                        Throw new SOAPFault ('Server', 'Hiányzó rownumberonpage a tételeknél!');
+                    }
+                    if( $insert_update == 'insert' && !trim($tetel['Nettó sorösszeg']) ) {
+                        Throw new SOAPFault ('Server', 'Hiányzó nettó sorösszeg a tételeknél!');
+                    }
 
-                if( $szamla_tipus == self::SZAMLA_TIPUS_FENNTARTASI) {
-                    if( $insert_update == 'insert' && !trim($tetel['Főkönyvi számlaszám']) ) {
-                        Throw new SOAPFault ('Server', 'Hiányzó költségnem a tételeknél!');
+                    if( $szamla_tipus == self::SZAMLA_TIPUS_FENNTARTASI) {
+                        if( $insert_update == 'insert' && !trim($tetel['Főkönyvi számlaszám']) ) {
+                            Throw new SOAPFault ('Server', 'Hiányzó költségnem a tételeknél!');
+                        }
+                        if( $insert_update == 'insert' && !trim($tetel['Költséghely']) ) {
+                            Throw new SOAPFault ('Server', 'Hiányzó költséghely a tételeknél!');
+                        }
                     }
-                    if( $insert_update == 'insert' && !trim($tetel['Költséghely']) ) {
-                        Throw new SOAPFault ('Server', 'Hiányzó költséghely a tételeknél!');
+                    if( $szamla_tipus == self::SZAMLA_TIPUS_PROJEKT) {
+                        if( $insert_update == 'insert' && !trim($tetel['Főkönyvi számlaszám']) ) {
+                            Throw new SOAPFault ('Server', 'Hiányzó költségnem a tételeknél!');
+                        }
+                        if( $insert_update == 'insert' && !trim($tetel['Költséghely']) ) {
+                            Throw new SOAPFault ('Server', 'Hiányzó költséghely a tételeknél!');
+                        }
                     }
-                }
-                if( $szamla_tipus == self::SZAMLA_TIPUS_PROJEKT) {
-                    if( $insert_update == 'insert' && !trim($tetel['Főkönyvi számlaszám']) ) {
-                        Throw new SOAPFault ('Server', 'Hiányzó költségnem a tételeknél!');
+                    if( $szamla_tipus == self::SZAMLA_TIPUS_ANYAG) {
+                        if( !trim($tetel -> ktgnem_id) ) {
+                            Throw new SOAPFault ('Server', 'Hiányzó költségnem a tételeknél!');
+                        }
+                        if( !trim($tetel -> ktghely_id) ) {
+                            Throw new SOAPFault ('Server', 'Hiányzó költséghely a tételeknél!');
+                        }
+                        if( !trim($tetel -> szlamen) ) {
+                            Throw new SOAPFault ('Server', 'Hiányzó számlázott mennyiség a tételeknél!');
+                        }
+                        if( !trim($tetel -> szlamee) ) {
+                            Throw new SOAPFault ('Server', 'Hiányzó mennyiségi egység a tételeknél!');
+                        }
+                        if( !trim($tetel -> szlaear) ) {
+                            Throw new SOAPFault ('Server', 'Hiányzó egységár a tételeknél!');
+                        }
+                        if( !trim($tetel -> vszlaear) && $szamla -> kcs_21 != self::KCS_21_HUF ) {
+                            Throw new SOAPFault ('Server', 'Hiányzó deviza egységár a tételeknél!');
+                        }
                     }
-                    if( $insert_update == 'insert' && !trim($tetel['Költséghely']) ) {
-                        Throw new SOAPFault ('Server', 'Hiányzó költséghely a tételeknél!');
+
+                    $afa_tetel = $tetel['ÁFA %'].' %';
+                    $afa_kod = $adatbazis_kapcsolat->s2('id', 'erteklista', "`csoport`='".ERTEKLISTA_AFA_KOD."' AND `info`='{$afa_tetel}'");
+                    if( !$afa_kod ) {
+                        $ertek = $adatbazis_kapcsolat->s2('id', 'erteklista', "`csoport`='".ERTEKLISTA_AFA_KOD."'", 'id desc');
+                        if( $ertek ) {
+                            $ertek_id = $ertek['id'] + 1;
+                        } else {
+                            $ertek_id = 1;
+                        }
+                        $afa_kod['id'] = $ertek_id;
+                        $sql = $adatbazis_kapcsolat->i('erteklista',    array('csoport',          'id',       'info'    ),
+                                                                        array(ERTEKLISTA_AFA_KOD, $ertek_id,  $afa_tetel)
+                                                        );
+                        if( $sql === false ) { $db_error = true; }
                     }
-                }
-                if( $szamla_tipus == self::SZAMLA_TIPUS_ANYAG) {
-                    if( !trim($tetel -> ktgnem_id) ) {
-                        Throw new SOAPFault ('Server', 'Hiányzó költségnem a tételeknél!');
+
+                    // HUF/Deviza esetén más mezőket használunk DB-ben, illetve Deviza esetén nincs bruttó eltárolva
+                    
+                    $netto_ert  = $tetel['Nettó sorösszeg'];
+                    $brutto_ert = $tetel['Bruttó sorösszeg'];
+                    $dev_net    = '0';
+                    $dev_br     = '0';
+                    if( $szamla_adatok['Pénznem'] != self::KCS_21_TXT ) {
+                        $dev_net    = $tetel['Nettó sorösszeg'];
+                        $dev_br     = $tetel['Bruttó sorösszeg'];
+                        $netto_ert  = $tetel['Nettó sorösszeg'] *$arfolyam;
+                        $brutto_ert = $tetel['Bruttó sorösszeg']*$arfolyam;
                     }
-                    if( !trim($tetel -> ktghely_id) ) {
-                        Throw new SOAPFault ('Server', 'Hiányzó költséghely a tételeknél!');
+
+                    // Tételek beszúrása
+                    $mezok   = array(
+                                    $apa_recid_oszlop,
+                                    'rownum',
+                                    'update_usr',
+                                    'netto_ert',
+                                    'brutto_ert',
+                                    'dev_net',
+                                    'dev_br',
+                                );
+                    $ertekek = array(
+                                    $aparecid,
+                                    $tetel['rownumberonpage'],
+                                    self::IU_USER,
+                                    $netto_ert,
+                                    $brutto_ert,
+                                    $dev_net,
+                                    $dev_br,
+                                );
+                    if( $tetel['Sor megnevezése']       ) { array_push($mezok, 'targy'              ); array_push($ertekek, $tetel['Sor megnevezése']               ); }
+                    if( $tetel['ÁFA Összege']           ) { array_push($mezok, 'afa_ossz', 'afa_kod'); array_push($ertekek, $tetel['ÁFA Összege'], $afa_kod['id']   ); }
+                    if( $tetel['Főkönyvi számlaszám']   ) { array_push($mezok, 'ktgnem_id'          ); array_push($ertekek, $tetel['Főkönyvi számlaszám']           ); }
+                    if( $tetel['Költséghely']           ) { array_push($mezok, 'ktghely_id'         ); array_push($ertekek, $tetel['Költséghely']                   ); }
+                    if( $tetel['Flexmező']              ) { array_push($mezok, 'flex'               ); array_push($ertekek, $tetel['Flexmező']                      ); }
+
+                    // További mezők felvétele, számla típusától függően
+                    if( $szamla_tipus == self::SZAMLA_TIPUS_FENNTARTASI ) {
+                        // Nem kell további mezőket felvenni
                     }
-                    if( !trim($tetel -> szlamen) ) {
-                        Throw new SOAPFault ('Server', 'Hiányzó számlázott mennyiség a tételeknél!');
+                    if( $szamla_tipus == self::SZAMLA_TIPUS_PROJEKT) {
+                        // Nem kell további mezőket felvenni
                     }
-                    if( !trim($tetel -> szlamee) ) {
-                        Throw new SOAPFault ('Server', 'Hiányzó mennyiségi egység a tételeknél!');
+                    if( $szamla_tipus == self::SZAMLA_TIPUS_ANYAG) {
+                        array_push($mezok,      'ktgnem_id',           'ktghely_id',            'cikk_id',           'rndert',           'modert',           'vnrdert',          'vmodert',             'oracikkid',          'kcs_35',          'szlamen',          'szlamee',          'szlaear'            );
+                        array_push($ertekek,    $tetel -> ktgnem_id,   $tetel -> ktghely_id,    $tetel -> cikk_id,   $tetel -> rndert,   $tetel -> modert,   $tetel -> vnrdert,   $tetel -> vmodert,    $tetel -> oracikkid,  $tetel -> kcs_35,  $tetel -> szlamen,  $tetel -> szlamee,  $tetel -> szlaear    );
                     }
-                    if( !trim($tetel -> szlaear) ) {
-                        Throw new SOAPFault ('Server', 'Hiányzó egységár a tételeknél!');
-                    }
-                    if( !trim($tetel -> vszlaear) && $szamla -> kcs_21 != self::KCS_21_HUF ) {
-                        Throw new SOAPFault ('Server', 'Hiányzó deviza egységár a tételeknél!');
-                    }
-                }
-    
-                $afa_tetel = $tetel['ÁFA %'].' %';
-                $afa_kod = $adatbazis_kapcsolat->s2('id', 'erteklista', "`csoport`='".ERTEKLISTA_AFA_KOD."' AND `info`='{$afa_tetel}'");
-                if( !$afa_kod ) {
-                    $ertek = $adatbazis_kapcsolat->s2('id', 'erteklista', "`csoport`='".ERTEKLISTA_AFA_KOD."'", 'id desc');
-                    if( $ertek ) {
-                        $ertek_id = $ertek['id'] + 1;
+
+                    // Tétel létezik-e már?
+                    $tetel_letezik = $adatbazis_kapcsolat->s2('recid', $tabla.'_tetel', "`{$tabla}_recid`='{$aparecid}' AND `rownum`='{$tetel['rownumberonpage']}'");
+                    $tetel_letezik = $tetel_letezik['recid'];
+                    if( $tetel_letezik === false ) { $db_error = true; }
+
+                    // Insert
+                    if( !$tetel_letezik ) {
+
+                        $tabla_kieg = '';
+                        if( $insert_update == 'insert' ) {
+                            $tabla_kieg = '_atmeneti';
+                        }
+                        array_push($mezok,   'andocos', 'insert_usr',   'insert_dt' );
+                        array_push($ertekek, '1',       self::IU_USER,  'NOW()'     );
+                        $sql = $adatbazis_kapcsolat->i($tabla.'_tetel'.$tabla_kieg, $mezok, $ertekek);
+                        if( $sql === false ) { $db_error = true; }
+
+                    // Update
                     } else {
-                        $ertek_id = 1;
+
+                        $sql = $adatbazis_kapcsolat->u($tabla.'_tetel', $mezok, $ertekek, "`rownum`='{$tetel['rownumberonpage']}'");
+                        if( $sql === false ) { $db_error = true; }
+
                     }
-                    $afa_kod['id'] = $ertek_id;
-                    $sql = $adatbazis_kapcsolat->i('erteklista',    array('csoport',          'id',       'info'    ),
-                                                                    array(ERTEKLISTA_AFA_KOD, $ertek_id,  $afa_tetel)
-                                                    );
-                    if( $sql === false ) { $db_error = true; }
-                }
-
-                // HUF/Deviza esetén más mezőket használunk DB-ben, illetve Deviza esetén nincs bruttó eltárolva
-                $netto_mezo_tetel = 'netto_ert';
-                if( $szamla_adatok['Pénznem'] != self::KCS_21_TXT ) {
-                    $netto_mezo_tetel          = 'dev_net';
-                    $tetel['Bruttó sorösszeg'] = '0';
-                }
-
-                // Tételek beszúrása
-                $mezok   = array(
-                                $apa_recid_oszlop,
-                                'rownum',
-                                'update_usr',
-                            );
-                $ertekek = array(
-                                $aparecid,
-                                $tetel['rownumberonpage'],
-                                self::IU_USER,
-                            );
-                if( $tetel['Sor megnevezése']       ) { array_push($mezok, 'targy'              ); array_push($ertekek, $tetel['Sor megnevezése']               ); }
-                if( $tetel['Nettó sorösszeg']       ) { array_push($mezok, $netto_mezo_tetel    ); array_push($ertekek, $tetel['Nettó sorösszeg']               ); }
-                if( $tetel['Bruttó sorösszeg']      ) { array_push($mezok, 'brutto_ert'         ); array_push($ertekek, $tetel['Bruttó sorösszeg']              ); }
-                if( $tetel['ÁFA Összege']           ) { array_push($mezok, 'afa_ossz', 'afa_kod'); array_push($ertekek, $tetel['ÁFA Összege'], $afa_kod['id']   ); }
-                if( $tetel['Főkönyvi számlaszám']   ) { array_push($mezok, 'ktgnem_id'          ); array_push($ertekek, $tetel['Főkönyvi számlaszám']           ); }
-                if( $tetel['Költséghely']           ) { array_push($mezok, 'ktghely_id'         ); array_push($ertekek, $tetel['Költséghely']                   ); }
-                if( $tetel['Flexmező']              ) { array_push($mezok, 'flex'               ); array_push($ertekek, $tetel['Flexmező']                      ); }
-
-                // További mezők felvétele, számla típusától függően
-                if( $szamla_tipus == self::SZAMLA_TIPUS_FENNTARTASI ) {
-                    // Nem kell további mezőket felvenni
-                }
-                if( $szamla_tipus == self::SZAMLA_TIPUS_PROJEKT) {
-                    // Nem kell további mezőket felvenni
-                }
-                if( $szamla_tipus == self::SZAMLA_TIPUS_ANYAG) {
-                    array_push($mezok,      'ktgnem_id',           'ktghely_id',            'cikk_id',           'rndert',           'modert',           'vnrdert',          'vmodert',             'oracikkid',          'kcs_35',          'szlamen',          'szlamee',          'szlaear'            );
-                    array_push($ertekek,    $tetel -> ktgnem_id,   $tetel -> ktghely_id,    $tetel -> cikk_id,   $tetel -> rndert,   $tetel -> modert,   $tetel -> vnrdert,   $tetel -> vmodert,    $tetel -> oracikkid,  $tetel -> kcs_35,  $tetel -> szlamen,  $tetel -> szlamee,  $tetel -> szlaear    );
-                }
-
-                // Tétel létezik-e már?
-                $tetel_letezik = $adatbazis_kapcsolat->s2('recid', $tabla.'_tetel', "`{$tabla}_recid`='{$aparecid}' AND `rownum`='{$tetel['rownumberonpage']}'");
-                $tetel_letezik = $tetel_letezik['recid'];
-                if( $tetel_letezik === false ) { $db_error = true; }
-
-                // Insert
-                if( !$tetel_letezik ) {
-
-                    $tabla_kieg = '';
-                    if( $insert_update == 'insert' ) {
-                        $tabla_kieg = '_atmeneti';
-                    }
-                    array_push($mezok,   'andocos', 'insert_usr',   'insert_dt' );
-                    array_push($ertekek, '1',       self::IU_USER,  'NOW()'     );
-                    $sql = $adatbazis_kapcsolat->i($tabla.'_tetel'.$tabla_kieg, $mezok, $ertekek);
-                    if( $sql === false ) { $db_error = true; }
-//Throw new SOAPFault ('Server', $adatbazis_kapcsolat->gp());
-//Throw new SOAPFault ('Server', $db_error);
-
-                // Update
-                } else {
-
-                    $sql = $adatbazis_kapcsolat->u($tabla.'_tetel', $mezok, $ertekek, "`rownum`='{$tetel['rownumberonpage']}'");
-                    if( $sql === false ) { $db_error = true; }
-
                 }
             }
 
@@ -844,9 +872,10 @@ class ServerClass {
             if( !trim($szerzodes_adatok['Pénznem']) ) {
                 Throw new SOAPFault ('Server', 'Hiányzó pénznem!');
             }
-            if( !trim($szerzodes_adatok['Szerződés összege']) && !trim($szerzodes_adatok['Szerződés Ft összege'])  ) {
-                Throw new SOAPFault ('Server', 'Hiányzó szerződés összeg (sem Ft sem devizás nincs)!');
+            if( !trim($szerzodes_adatok['Szerződés Ft összege'])  ) {
+                Throw new SOAPFault ('Server', 'Hiányzó szerződés összeg!');
             }
+            
         // Módosításkor a dátum mezőket kell figyelni, hogy ha van, akkor helyesek-e
         } else {
             if( $szerzodes_adatok['Iktatás dátuma'] && !valos_datum_e($szerzodes_adatok['Iktatás dátuma']) ) {
@@ -866,6 +895,16 @@ class ServerClass {
         if( $szerzodes_adatok['Pénznem'] ) {
             $szerzodes_adatok['Pénznem'] = mb_strtoupper($szerzodes_adatok['Pénznem'], self::CHAR_CODING);
 
+            // Ha devizás és nincs megadva deviza összeg, akkor hiba
+            if( $szerzodes_adatok['Pénznem'] != self::KCS_21_TXT && !trim($szerzodes_adatok['Szerződés összege']) ) {
+                Throw new SOAPFault ('Server', 'Devizás szerződés esetén a Szerződés összege mező kitöltése kötelező!');
+            }
+
+            // Ha devizás és nincs megadva árfolyam, akkor hiba
+            if( $szerzodes_adatok['Pénznem'] != self::KCS_21_TXT && !trim($szerzodes_adatok['Árfolyam']) ) {
+                Throw new SOAPFault ('Server', 'Devizás szerződés esetén az Árfolyam mező kitöltése kötelező!');
+            }
+            
             // Ha olyan értéket kapnánk, mint amilyen értékű pénznem nem is létezik, akkor létrehozzuk
             $penznem = $adatbazis_kapcsolat->s2('id', 'erteklista', "`csoport`='".ERTEKLISTA_PENZNEM."' AND `info`='{$szerzodes_adatok['Pénznem']}'");
             if( !$penznem ) {
@@ -881,6 +920,7 @@ class ServerClass {
                                         );
             }
         }
+        
         // Foglalt szerződésszám ellenőrzése
         if( $szerzodes_adatok['Szerződés iktatószáma'] ) {
             // Átmeneti táblában
@@ -895,7 +935,6 @@ class ServerClass {
                 Throw new SOAPFault ('Server', '"'.$szerzodes_adatok['Szerződés iktatószáma'].'" Szerződés iktatószám szám már létezik a FELDOLGOZOTT szerződések között!');
             }
         }
-        
         
         // Szerződés típusok
         if( $szerzodes_adatok['Szerződés Típus'] ) {
@@ -985,7 +1024,6 @@ class ServerClass {
         }
         
         // Itt jönne a tételek importja, de Andoc szerződéseknél nincsenek tételek
-        
         // Partner insert/update
         if( $szerzodes_adatok['Partnerkód'] ) {
             $mezok   = array();

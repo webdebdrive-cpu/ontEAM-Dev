@@ -116,7 +116,7 @@ if( isset($_POST['szamla_igazol']) ) {
     }
     
     // Illetve az XML visszát is intézzük
-    if( xml_vissza($_POST['id']) !== false ) {
+    if( xml_vissza($_POST['id'], 'Igazolva', '') !== false ) {
         echo json_encode(array(
                                 'hiba'  => 'Az Andoc felé küldött visszaigazoló XML elküldése során hiba történt!<br>A számlát nem sikerült igazolni.',
                                 'title' => 'Hiba',
@@ -166,7 +166,7 @@ if( isset($_POST['projektSzamlaElutasit']) ) {
     }
 
     // Illetve az XML visszát is intézzük
-    if( xml_vissza($_POST['id']) !== false ) {
+    if( xml_vissza($_POST['id'], 'Elutasítva', $_POST['memo']) !== false ) {
         echo json_encode(array(
                                 'hiba'  => 'Az Andoc felé küldött visszaigazoló XML elküldése során hiba történt!<br>A számlát nem sikerült elutasítani.',
                                 'title' => 'Hiba',
@@ -2916,8 +2916,21 @@ require_once('selectek.php');
 	// Dokumentumok
     } elseif( isset($_GET['dokumentumok']) ) {
 
-        if( $tobb_kep ) {
-            require_once('tobb_kep.php');
+//        if( $tobb_kep ) {
+//            require_once('tobb_kep.php');
+//        }
+        
+        // Itt az XML-ből kapott dokumentum linkjét jelenítjük meg
+        if( $sor['dok_link'] ) {
+            $szamla_html .= nl2('
+                Fődokumentum link:
+                <br><input type="text" value="'.$sor['dok_link'].'" readonly style="width: 100%; margin: 1rem 0">
+                <br><input type="button" class="gomb" value="Dokumentum megtekintése" onclick="window.open(\''.$sor['dok_link'].'\')">
+                <br>Bejövő xml:
+                <br>').'<textarea class="oriasiTargy" style="height: 30rem;" readonly>'.$sor['erk_xml'].'</textarea>'.nl2('
+                <br>            
+                <br>Kimenő xml:
+                <br>').'<textarea class="oriasiTargy" style="height: 30rem;" readonly>'.$sor['kuld_xml'].'</textarea>';
         }
 
         if( $_GET['ajax'] ) {
@@ -2979,7 +2992,7 @@ if( !$_GET['ajax'] ) {
 }
 
 // Igazoláskor, elutasításkor, utalványozáskor gyártunk egy XML vissza fájlt, és azt beírjuk az adatbázisba
-function xml_vissza( $szamla_id ) {
+function xml_vissza( $szamla_id, $igazolva = '', $oka = '' ) {
     
     global $adatbazis_kapcsolat;
     
@@ -2987,13 +3000,6 @@ function xml_vissza( $szamla_id ) {
     
     $szamla = $adatbazis_kapcsolat->s2('igazolva andoc_id telephely_id kcs_21 sz_szam pr_szam kuld_xml', 'projektszamla', "`recid`='{$szamla_id}'");
     if( $szamla === false ) { $db_error = true; }
-    
-    // Igazolva érték XML-be
-    if( $szamla['igazolva'] ) {
-        $igazolva = 'Igazolva';
-    } else {
-        $igazolva = 'Elutasítva';
-    }
     
     // XML dekódolása
     $szamla['kuld_xml'] = htmlspecialchars_decode($szamla['kuld_xml']);
@@ -3025,7 +3031,7 @@ function xml_vissza( $szamla_id ) {
         $i++;
     }
     
-    $valasz_xml = '<?xml version="1.0" encoding="utf-8"?>
+    $valasz_xml = 'psInputXml=<?xml version="1.0" encoding="utf-8"?>
 <xml>
   <data>
     <register registernumber="'.$szamla['andoc_id'].'" operation="update">
@@ -3034,6 +3040,7 @@ function xml_vissza( $szamla_id ) {
         <container name="NIK1">
           <row rownumberonpage="1">
             <property name="Igazoló döntés">'.$igazolva.'</property>
+            <property name="Teljesítés igazolás elutasítás oka">'.$oka.'</property>
             <property name="Szerződés iktatószáma">'.$szamla['sz_szam'].'</property>
             <property name="Projektazonosító (egyéb)">'.$szamla['pr_szam'].'</property>
           </row>
@@ -3048,20 +3055,55 @@ function xml_vissza( $szamla_id ) {
 ';
     
     $fejlec = array(
-        "Content-type: text/xml",
+        "Content-type: application/x-www-form-urlencoded",
         "Content-length: ".strlen($valasz_xml),
         "Connection: close",
     );
     
     // Válasz XML postolása
     $valasz = URL_post(ANDOC_POST_KULD_URL, $valasz_xml, $fejlec);
-    // Most egyelőre legyen fixen hibás, hogy lehessen tesztelni a hibá esetet
-    if( true || $valasz === false ) {
+    
+    // Logolás
+    $log_utvonal = '../andoc.log';
+    $log = '*****************************
+    KÜLDÖTT XML
+    '.date('Y.m.d H:i:s').'
+    Ip: '.$_SERVER['REMOTE_ADDR'].'
+    URL: '.get_http().$_SERVER['HTTP_HOST'].$_SERVER['REQUEST_URI'].'
+    POST:
+    '.$valasz_xml.'
+
+
+
+    ';
+    file_put_contents($log_utvonal, $log, FILE_APPEND | LOCK_EX);
+
+    // Logolás
+    $log_utvonal = '../andoc.log';
+    $log = '*****************************
+    KAPOTT XML
+    '.date('Y.m.d H:i:s').'
+    Ip: '.$_SERVER['REMOTE_ADDR'].'
+    URL: '.get_http().$_SERVER['HTTP_HOST'].$_SERVER['REQUEST_URI'].'
+    POST:
+    '.$valasz.'
+        
+        
+        
+    ';
+    file_put_contents($log_utvonal, $log, FILE_APPEND | LOCK_EX);
+            
+    // A kapott választ feldolgozató állapotra kell hozni, hogy értelmezni lehessen, ehhez ki kell törölni belőle a sallangot
+    $mit   = array('<?xml version="1.0" encoding="utf-8"?>', '<string xmlns="AndocWebServices.WebService_AndocSimple"><?xml version="1.0" encoding="utf-8" standalone="yes"?>', '</xml></string>');
+    $mivel = array('',                                       '',                                                                                                                '</xml>'         );
+    $kapott_xml = new SimpleXMLElement(trim(str_replace($mit, $mivel, htmlspecialchars_decode($valasz))));
+
+    // Ha Andoc-ék nem tudják fogadni a választ, akkor hibaüzenet
+    if( $kapott_xml -> result != 'I' ) {
         addMegj('projektszamla', $szamla_id, 'Az alábbi válasz XML-t nem sikerült elküldeni:<br>'.htmlspecialchars($valasz_xml));
         $db_error = true;
     // Ezt csak akkor módosítjuk, ha az XML küldése is rendben volt
     } else {
-        
         $xml = $szamla['kuld_xml'].
                date('Y-m-d H:i:s').'
                '.$valasz_xml.'

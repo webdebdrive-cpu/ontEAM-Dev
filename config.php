@@ -57,13 +57,15 @@ function get_db_pass() {
     }
 }
 function get_url_elotag() {
+    $konyvtar = dirname(self());
     switch ( $_SERVER['HTTP_HOST'] ) {
         case 'localhost'            : return 'localhost/';
-        case 'demo.webdeb.hu'       : return 'http://demo.webdeb.hu/danubiushotel.hu/andoc2/';
-        case 'teszt.onteam.hu'      : return 'https://teszt.onteam.hu/andoc2/';
-        case 'dev.onteam.hu'        : return 'https://dev.onteam.hu/andoc2/';
-        case 'onteam.hu'            : return 'https://www.onteam.hu/andoc2/';
-        case 'www.onteam.hu'        : return 'https://www.onteam.hu/andoc2/';
+        case 'demo.webdeb.hu'       : return 'http://demo.webdeb.hu/danubiushotel.hu'.$konyvtar.'/';
+        case 'demo.szinvatrend.hu'  : return 'https://demo.szinvatrend.hu'.$konyvtar.'/';
+        case 'teszt.onteam.hu'      : return 'https://teszt.onteam.hu'.$konyvtar.'/';
+        case 'dev.onteam.hu'        : return 'https://dev.onteam.hu'.$konyvtar.'/';
+        case 'onteam.hu'            : return 'https://www.onteam.hu'.$konyvtar.'/';
+        case 'www.onteam.hu'        : return 'https://www.onteam.hu'.$konyvtar.'/';
     }
 }
 
@@ -77,7 +79,7 @@ function get_teszt_rendszer() {
 }
 
 
-function get_verzio()     { return 'V1.178';                                    } // Fejlécben szereplő verzió szám
+function get_verzio()     { return 'V1.187';                                    } // Fejlécben szereplő verzió szám
 function get_db_charset() { return 'UTF8';                                      } // Karakterkódolás (Figyelem! UTF-8 helyett itt UTF8)
 function get_debug()      { return false;                                       } // Hibás adatbázislekérdezések megjelennek vagy sem
 
@@ -93,6 +95,7 @@ function get_domain()        {
     switch ( $_SERVER['HTTP_HOST'] ) {
         case 'localhost'            : return 'localhost/';
         case 'demo.webdeb.hu'       : return 'demo.webdeb.hu/danubiushotel.hu';
+        case 'demo.szinvatrend.hu'  : return 'demo.szinvatrend.hu';
         case 'teszt.onteam.hu'      : return 'teszt.onteam.hu';
         case 'dev.onteam.hu'        : return 'dev.onteam.hu';
         case 'onteam.hu'            : return 'www.onteam.hu';
