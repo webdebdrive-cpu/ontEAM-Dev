@@ -46,6 +46,7 @@
             <tr>
                 <th>Tárgy</th>
                 <th>Nettó érték (<span class="f_penznem"></span>)</th>
+                <th>Bruttó érték (<span class="f_penznem"></span>)</th>
                 <th>Költségnem</th>
                 <th>Költséghely</th>
                 <th>Szerkesztés</th>
@@ -106,6 +107,7 @@ function tetel_hozzaadasa() {
     var ktgnem_id   = $('#ktgnem_id').val().trim();
     var ktghely_id  = $('#ktghely_id').val().trim();
     var sor_id      = $('#tetel_sor_id').val().trim();
+    var brutto      = number_format( $('#pop_ertek').val().trim().replace(/ /gi, '').replace(',', '.')*$('#arfolyam_db').val().trim().replace(/ /gi, '').replace(',', '.'), 2, ',', ' ' );
 
     van_valtozas = true;
 
@@ -140,6 +142,7 @@ function tetel_hozzaadasa() {
 
         $('.pop_tetel_'+sor_id+' .pop_targy').html( targy );
         $('.pop_tetel_'+sor_id+' .pop_netto_ert').html( ertek );
+        $('.pop_tetel_'+sor_id+' .pop_brutto_ert').html( brutto );
         $('.pop_tetel_'+sor_id+' .pop_ktgnem_autocomp').html( ktgnem_txt );
         $('.pop_tetel_'+sor_id+' .pop_ktgnem').val( ktgnem_id );
         $('.pop_tetel_'+sor_id+' .pop_ktghely_autocomp').html( ktghely_txt );
@@ -152,6 +155,7 @@ function tetel_hozzaadasa() {
         var table_sor = '<tr class="pop_tetel_'+id_tmp+'">' +
                             '<td class="pop_targy l">' + targy + '</td>' +
                             '<td class="pop_netto_ert r">' + ertek + '</td>' +
+                            '<td class="pop_brutto_ert r">' + brutto + '</td>' +
                             '<td class="l pop_ktgnem_autocomp">'+ktgnem_txt+'</td>' +
                             '<td class="l pop_ktghely_autocomp">'+ktghely_txt+ '</td>' +
                             '<td><a class="szerk" onclick="popup_tetel_sor_szerk(\'pop_tetel_'+id_tmp+'\');">🖉</a></td>' +
@@ -288,6 +292,7 @@ function tetel_sorok_ment( bezar_nelkul ){
             adatok              : JSON.stringify(adatok),
             recid               : _get('id'),
             kcs_21              : kcs_21,
+            arfolyam            : $('#arfolyam_db').val(),
             torolt_sorok        : torolt_sorok,
             szamla_netto_erteke : szamla_netto_erteke,
             tetel_sorok_ment    : Date.now()

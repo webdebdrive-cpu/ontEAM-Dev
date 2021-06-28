@@ -1024,6 +1024,7 @@ function i_u($type, $tabla, $tomb) {
             foreach ( $_SESSION['fennt_szla_tetel_targy'] as $targy ) {
                 $netto_ert  = str_replace(' ', '',  $_SESSION['fennt_szla_tetel_netto_ert'][$i]);
                 $dev_net    = str_replace(array(' ', ','), array('', '.'),  $_SESSION['fennt_szla_tetel_dev_net'][$i]);
+                $dev_br     = str_replace(array(' ', ','), array('', '.'),  $_SESSION['fennt_szla_tetel_dev_br'][$i]);
                 $targy      = $_SESSION['fennt_szla_tetel_targy'][$i];
                 $ktgnem     = $_SESSION['fennt_szla_tetel_ktgnem'][$i];
                 $ktghely    = $_SESSION['fennt_szla_tetel_ktghely'][$i];
@@ -1109,7 +1110,9 @@ function i_u($type, $tabla, $tomb) {
             // Feldolgozással a SESSION értékeket ki is ürítjük.
             unset($_SESSION['fennt_szla_tetel_targy']);
             unset($_SESSION['fennt_szla_tetel_netto_ert']);
+            unset($_SESSION['fennt_szla_tetel_brutto_ert']);
             unset($_SESSION['fennt_szla_tetel_dev_net']);
+            unset($_SESSION['fennt_szla_tetel_dev_br']);
             unset($_SESSION['fennt_szla_tetel_ktgnem']);
             unset($_SESSION['fennt_szla_tetel_ktghely']);
         }
