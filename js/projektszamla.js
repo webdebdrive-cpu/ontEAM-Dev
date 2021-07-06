@@ -154,7 +154,7 @@ $(document).on('blur', '#dev_net', function(e) {
 // Adatlapon található deviza árfolyam és deviza nettó mezőből számol ki nettó értéket
 $(document).on('blur', '#dev_br', function(e) {
     if( !$('#netto').val() || $('#netto').val()=='0' ){
-        $('#netto').val( ezresek($('#dev_net').val().replace(/ /g, '').replace(',', '.')*($('#arfolyam').val().replace(/ /g, '').replace(',', '.')), 2, ',', ' ') );
+        $('#netto').val( ezresek($('#dev_net').val().replace(/ /g, '').replace(',', '.')*($('#arfolyam').val().replace(/ /g, '').replace(',', '.')), 0, ',', ' ') );
     }
 });
 

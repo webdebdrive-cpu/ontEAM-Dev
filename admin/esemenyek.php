@@ -2565,14 +2565,14 @@ if( get_projekt_szamla_kezel_jog($_GET['id']) || isset($_GET['uj']) ) {
     $gomb_felirat = 'Szerződés hozzáadása';
     $gomb_class   = '';
     $gomb_mehet   = true;
-    if( isset($_GET['modosit']) ) {
+    if( basename(self()) == 'projektszamla.php' && isset($_GET['modosit']) ) {
         $prsz = $adatbazis_kapcsolat->s2('sz_szam pr_szam kcs_21 visszaadva nullas', 'projektszamla', "`recid`='{$_GET['id']}'");
         if($prsz['sz_szam']){
             $gomb_felirat = 'Szerződés szám törlése';
             $gomb_class   = ' piros';
         }
         $visszaadva_dt_alert_class = '';
-        if( $prsz['visszaadva'] ){
+        if( $prsz['visszaadva'] ) {
             $gomb_mehet = false;
             $visszaadva_dt_alert_class = ' csillag';
         }
@@ -2917,15 +2917,31 @@ array_push($postok, array('tomb' => $akt_tomb, 'uj' => 'uj'.$megnevezes, 'lista'
 
 
 // Fenntartási számla
-$megnevezes = 'fenntartasi_szamla';
+$megnevezes   = 'fenntartasi_szamla';
+$sz_szam_gomb = '';
+if( _jog(JOG_FENNTARTASI_SZERZ_KEZEL) || isset($_GET['uj']) ) {
+    $gomb_felirat = 'Szerződés hozzáadása';
+    $gomb_class   = '';
+    if( basename(self()) == 'fenntartasi_szamla.php' && isset($_GET['modosit']) ) {
+        $f_szla = $adatbazis_kapcsolat->s2('sz_szam', 'fenntartasi_szamla', "`recid`='{$_GET['id']}'");
+        if( $f_szla['sz_szam'] ) {
+            $gomb_felirat = 'Szerződés szám törlése';
+            $gomb_class   = ' piros';
+        }
+    }
+    $sz_szam_gomb = ' <input type="button" class="gomb alacsony'.$gomb_class.'" value="'.$gomb_felirat.'" id="sz_szam_gomb" style="margin-left: 2rem; margin-bottom: 0;" onclick="fennt_hozzaad_gomb_hozzaad_vagy_torol()">';
+}
 if( basename(self()) == 'fenntartasi_szamla.php' && $_GET['id'] ) {
-    $f_szla = $adatbazis_kapcsolat->s2('elutleir', $megnevezes, "`recid`='{$_GET['id']}'");
     
     // Elutasítás oka mezőt csak akkor jelenítjük meg, ha van is értéke
     $elutleir = array();
     if( $f_szla['elutleir'] ) {
         $elutleir = array('type' => 'textarea',     'megn' => 'Elutasítás oka:',            'name' => 'elutleir',       'szuro' => 1,  'disabled' => 1, 'class' => 'oriasiTargy alacsony disableNav');
     }
+    
+    $fennt_szerzodes    = $adatbazis_kapcsolat->s2('recid targy szszam', 'fenntartasi_szerzodes', "`szszam`='{$f_szla['sz_szam']}'");
+    $szerzodes_neve     = '<a href="fenntartasi_szerzodes.php?id=x&amp;modosit&amp;mezo=szszam&amp;op=equal&amp;felt='.$fennt_szerzodes['szszam'].'" target="_blank">'.resz_string($fennt_szerzodes['targy'], 60).'</a>';
+   
 }
 
 
@@ -2977,6 +2993,7 @@ $fenntartasi_szamla_tomb = $akt_tomb = array(
     array('type' => 'textarea',     'megn' => 'Megjegyzés:',                'name' => 'megjegyz',       'szuro' => 1,  'disabled' => 1, 'class' => 'oriasiTargy disableNav'),
     array('type' => 'text',         'megn' => 'Kifizetett összeg:',         'name' => 'kif_ossz',       'szuro' => 1,  'disabled' => 1, 'class' => 'oriasi f_num',      'data' => 'data-tort="2"', 'post' => '<span style="margin-left: 2rem"></span>', 'osszevon' => 1,   'nulla_is_ures_adat' => 1),
     array('type' => 'text',         'megn' => 'Utolsó kifizetés dátuma:',   'name' => 'ut_kif_dt',      'szuro' => 1,  'disabled' => 1, 'class' => 'kicsi datepicker',  'sql_disabledkor_is' => 1),
+    array('type' => 'text',         'megn' => 'Szerződés szám:',            'name' => 'sz_szam',        'szuro' => 1,  'disabled' => 1, 'post' => ' <span id="szerzodes_neve">'.$szerzodes_neve.'</span>'.$sz_szam_gomb),
 );
 array_push($postok, array('tomb' => $akt_tomb, 'uj' => 'uj'.$megnevezes, 'lista' => $megnevezes.'lista', 'tabla' => $megnevezes, 'torid' => $megnevezes.'tid' ));
 

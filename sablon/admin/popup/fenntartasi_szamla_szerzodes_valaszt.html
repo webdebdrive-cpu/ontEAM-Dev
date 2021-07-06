@@ -1,0 +1,95 @@
+<h2 id="eloterj_igneyles_csatolCim">Válasszon szerződést</h2>
+<form class="popupForm" method="post">
+    <div class="kozep">
+        <div id="fennt_szerzodes_tablazat"></div>
+    </div>
+    <div class="kuldes">
+        <input type="button" class="gomb zold"  value="Kiválaszt" onclick="fenntartasi_szerzodes_kivalaszt()">
+        <input type="button" class="gomb piros" value="Mégsem" onclick="popupZar();">
+    </div>
+</form>
+<script>
+$(document).ready(function(){
+    
+    /* Szálloda ellenőrzése */
+    if( !$('#telephely_id').val() ){
+        setTimeout(function(){ popupZar(); }, 10);
+        alert2('Kérem, előbb válasszon szállodát!', '', 'Hiba');
+        $('#telephely_id').addClass('hibas_ide_focus');
+        return false;
+    }
+    
+    /* Partner ellenőrzése */
+    if( !$('#szallito_id').val() ){
+        setTimeout(function(){ popupZar(); }, 10);
+        alert2('Kérem, előbb válasszon partnert!', '', 'Hiba');
+        $('#szallito_id_autocomp').addClass('hibas_ide_focus');
+        return false;
+    }
+    
+    get_fenntartasi_szerzodes_tabla('');
+});
+
+/* Fenntartási szerződések betöltése */
+function get_fenntartasi_szerzodes_tabla(order){
+
+    $.ajax({
+        url : 'fenntartasi_szamla.php',
+        type: 'POST',
+        data: {
+            recid                           : _get('id'),
+            telephely_id                    : $('#telephely_id').val(),
+            szallito_id                     : $('#szallito_id').val(),
+            order                           : order,
+            get_fenntartasi_szerzodes_tabla : new Date().getTime()
+        },
+        success: function(response) {
+            if(response.substring(0, 6)=='SESKIL'){ location.href = 'index.php'; }
+            if( response ) {
+                response = JSON.parse(response);
+                if( response.hiba ){
+                    popupZar();
+                    alert2( response.hiba, response.gomb, response.title );
+                    return false;
+                }else{
+                    $('#fennt_szerzodes_tablazat').html(response.html);
+                    popupMutat();
+                }
+
+            }
+        },
+        complete: function(xhr) {
+            if( xhr.status != 200 ) {
+                alert2(xhr.responseText, '', 'Hiba');
+            }
+        }
+    });
+}
+
+/* Fenntartási szerződés kiválasztása */
+function fenntartasi_szerzodes_kivalaszt(){
+    /* Szerződés szám kitöltése */
+    $('#sz_szam').val( $('#fennt_szerzodes_tablazat tr.kijelolve').data('szszam') );
+    $('#sz_szam_gomb').val('Szerződés szám törlése').addClass('piros');
+    $('#sz_szam').addClass('mod');
+    
+    /* Projekt tárgyat is írjuk ki */
+    $('#szerzodes_neve').html( $('#fennt_szerzodes_tablazat tr.kijelolve div.targy_txt').html() );
+    
+    formModositva = true;
+    $('#mehet_gomb, #megsem_gomb').removeAttr ('disabled');
+    $('#mehet_gomb').addClass('gombb_alert');
+    popupZar();
+}
+
+/* Szűrések */
+function tabla_szur(tabla, kulcs, oszlop) {
+    var $rows = tabla.find('tr');
+    var val = $.trim(kulcs).replace(/ +/g, ' ').toLowerCase();
+
+    $rows.show().filter(function() {
+        var text = $(this).find('td:nth-of-type('+oszlop+')').text().replace(/\s+/g, ' ').toLowerCase();
+        return !~text.indexOf(val);
+    }).hide();
+}
+</script>

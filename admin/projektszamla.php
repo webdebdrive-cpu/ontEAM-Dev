@@ -722,16 +722,6 @@ if( isset($_POST['projektszamla_kapcsolas']) ) {
             $teljesites_i     = $i;
         }
         
-        // Várható érték oszlopban sehol nem lehet 0
-//        if( !$van_szamlaja && (!$_POST['adatok'][$varhato_ert_adat][1][$i] || $_POST['adatok'][$varhato_ert_adat][1][$i]=='0.00') ) {
-//            echo json_encode( array( 
-//                            'hiba'  => 'A várható érték oszlopban nem szerepelhet üres adat!',
-//                            'title' => 'Hiba'
-//                            ) );
-//                    $weblap->leallit();
-//                    exit();
-//        }
-        
         $i++;
     }
 
@@ -793,17 +783,7 @@ if( isset($_POST['projektszamla_kapcsolas']) ) {
                 $weblap->leallit();
                 exit();
                 
-    } 
-    /* Tibi kérte, hogy ez ne legyen: 2019. 11. 11. 17:16
-    elseif( $kif_ossz < $szerzodes[$szerz_mezo] && !$_POST['mehet'] ) {
-        echo json_encode( array( 
-                        'hiba'  => 'A várható összes teljesítés ('.number_format($kif_ossz, $tizedesek, ',', ' ').' '.$penznem.') kevesebb, mint a szerződött összeg ('.number_format($szerzodes[$szerz_mezo], $tizedesek, ',', ' ').' '.$penznem.')!<br>Folytatja?',
-                        'gomb'  => '<input type="button" class="gomb zold" value="Igen" onclick="projektszamla_kapcsolas(\'mehet\')"><input type="button" class="gomb piros" value="Nem" onclick="alert2()">',
-                        'title' => 'Kérdés',
-                        ) );
-                $weblap->leallit();
-                exit();
-    }*/
+    }
 
     // Ellenőrzések után tároljuk el a változtatásokat. 
     // Szerződés tétetel rekordok frissítése
@@ -838,8 +818,8 @@ if( isset($_POST['projektszamla_kapcsolas']) ) {
                 // Az `ertek` mező = `dev_ertek` * szerződés árfolyama
                 if( $ertek_mezo == 'dev_ertek' ) {
                     $sql = $adatbazis_kapcsolat->u('projektszerzodes_tetel',
-                                                                            array('ertek'),
-                                                                            array($_POST['adatok'][$netto_ert_adat][1][$i]*$szamla['arfolyam']),
+                                                                        array('varh_ert',                                                     'ertek'                                                       ),
+                                                                        array($_POST['adatok'][$varhato_ert_adat][1][$i]*$szamla['arfolyam'], $_POST['adatok'][$netto_ert_adat][1][$i]*$szamla['arfolyam']  ),
                                                 "`recid`='{$_POST['adatok'][$recid_adat][1][$i]}'");
                     if( $sql === false ) { $db_error = true; }
                 }
@@ -863,6 +843,16 @@ if( isset($_POST['projektszamla_kapcsolas']) ) {
                                                                     array($szerzodes['recid'],      $_POST['adatok'][$targy_adat][1][$i],   $_POST['adatok'][$varh_erk_adat][1][$i],  $_POST['adatok'][$varhato_ert_adat][1][$i],  $_POST['adatok'][$teljesites_adat][1][$i],   $_POST['adatok'][$netto_ert_adat][1][$i],   $_SESSION[get_db_tabla().'user'],   'NOW()',        $_SESSION[get_db_tabla().'teljes_nev'],   $_SESSION[get_db_tabla().'teljes_nev']  )
                                         );
             if( $uj_szerzodes_tetel_recid === false ) { $db_error = true; }
+            
+            // Ha devizás a számla, akkor nem csak a dev_ertek hanem a sima ertek mezőt is ki kell tölteni kapcsoláskor a szerőzdés tételnél.
+            // Az `netto_ert` mező = `dev_net` * szerződés árfolyama
+            if( $ertek_mezo == 'dev_ertek' ) {
+                $sql = $adatbazis_kapcsolat->u('projektszerzodes_tetel',
+                                                                        array('varh_ert',                                                     'ertek'                                                       ),
+                                                                        array($_POST['adatok'][$varhato_ert_adat][1][$i]*$szamla['arfolyam'], $_POST['adatok'][$netto_ert_adat][1][$i]*$szamla['arfolyam']  ),
+                                            "`recid`='{$uj_szerzodes_tetel_recid}'");
+                if( $sql === false ) { $db_error = true; }
+            }
             
             // Az újonnan létrehozott sorokat vegyük fel a tömbbe, mert ami nem a tömb része, azt törölni fogjuk (hisz onnan fogjuk tudni, mely sorokat törölték a popup táblázatából)
             array_push( $_POST['adatok'][$recid_adat][1], $uj_szerzodes_tetel_recid);
@@ -1108,9 +1098,9 @@ if( isset($_POST['pop_tetelek_feltolt_modosit']) ) {
         
         $html .= nl2('
                         <tr class="pop_tetel_'.$id_tmp.$class.'">
-                            <td class="pop_targy l">' . $_SESSION['pr_szla_tetel_targy'][$i] . '</td>
-                            <td class="pop_netto_ert r">' . $szla_netto_ert . '</td>
-                            <td class="pop_pr_tetel l" data-pr_tetel_recid="' . $pr_tetel['recid'] . '">'.$targy.'</td>
+                            <td class="pop_targy l">'.$_SESSION['pr_szla_tetel_targy'][$i].'</td>
+                            <td class="pop_netto_ert r">'.$szla_netto_ert.'</td>
+                            <td class="pop_pr_tetel l" data-pr_tetel_recid="'.$pr_tetel['recid'].'">'.$targy.'</td>
                             <td>
                                 '.$torol.'
                                 <span class="dn pop_recid">'.$_SESSION['pr_szla_tetel_recid'][$i].'</span>
@@ -1165,7 +1155,6 @@ if( isset($_POST['pop_kapcsolas_feltolt']) ) {
     $_POST[$szl_netto] = str_replace(array(' ', ','), array('', '.'), $_POST[$szl_netto]);
     
     // Szerződés összegének kiszámítása
-    $szamla_tetel   = $adatbazis_kapcsolat->s2('projektszamla_recid '.$netto_mezo, 'projektszamla_tetel', "`recid`='{$_POST['szamla_tetel_recid']}'");
     if( $szamla_tetel['projektszamla_recid'] ) {
         $szamla = $adatbazis_kapcsolat->s2('sz_szam telj_dt', 'projektszamla', "`recid`='{$szamla_tetel['projektszamla_recid']}'");
     }
@@ -2131,7 +2120,6 @@ require_once('selectek.php');
         ');
         
         // A fenntartási számlák új feltöltésének mintájára is készült egy tételek kezelése gomb, de ide az eredetileg is használt változatra van szükség új felvitelben is
-        // $gombok .= '<input type="button" class="gomb" value="Tételek kezelése" onclick="csoportMuvelet(\'projektszamla_tetelek_kezelese\');"> ';
         $gombok .= '<input type="button" class="gomb" value="Tételek kezelése" onclick="if( $(\'#kcs_21\').val()!=\''.KCS_21_HUF.'\' && ( $(\'#arfolyam\').val()==\'\' || $(\'#arfolyam\').val()==\'0,0000\' ) ) { $(\'#arfolyam\').addClass(\'hibas_ide_focus\'); alert2(\'Tételek kezeléséhez kérem adja meg az Árfolyamot!\', \'\', \'Hiba\'); } else { csoportMuvelet(\'projektszamla_tetelek_kezelese_modosit\'); }"> ';
 
         $muv_style = ' style="width: calc(100% - '.($_SESSION['defaultCsuszka'] + 16).'px);"';

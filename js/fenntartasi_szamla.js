@@ -38,3 +38,63 @@ function szamla_igazol(mehet) {
         }
     });
 }
+
+// Fenntartási szerződés hozzáadása, törlése gomb: melyik legyen? Ezt dönti el ez a függvény.
+function fennt_hozzaad_gomb_hozzaad_vagy_torol() {
+    
+    $.ajax({
+        url : 'fenntartasi_szamla.php',
+        type: 'POST',
+        data: {
+            recid                   : _get('id'),
+            uj                      : _get('uj'),
+            van_kapcsolt_szerzodes  : Date.now()
+        },
+        success: function (response) {
+            if(response.substring(0, 6)=='SESKIL'){ location.href = 'index.php'; }
+            if (response) {
+                response = JSON.parse(response);
+                if (response.hiba) {
+                    alert2(response.hiba, response.gomb, response.title);
+                } else {
+    
+                    if ($('#sz_szam').val()) {
+
+                        // Törléskor csak akkor adunk hozzá 'mod' classt, ha amúgy volt eredetileg értéke
+                        $('#sz_szam').val('');
+                        if( $('#sz_szam').attr('value') ){
+                            $('#sz_szam').addClass('mod');
+                        } else {
+                            $('#sz_szam').removeClass('mod');
+                        }
+
+                        $('#szerzodes_neve').html('');
+
+                        formModositva = true;
+                        $('#sz_szam_gomb').val('Szerződés hozzáadása').removeClass('piros');
+                        $('#mehet_gomb').addClass('gombb_alert');
+                        szurkit_zar('mehet_megsem_mutat');
+                        popupZar();
+                        popupRejt();
+
+                    } else {
+
+                        csoportMuvelet('fenntartasi_szamla_szerzodes_valaszt');
+
+                    }
+                }
+            }
+        },
+        complete: function(xhr) {
+            if( xhr.status != 200 ) {
+                alert2(xhr.responseText, '', 'Hiba');
+            }
+        }
+    });
+}
+
+// Adatlapon található deviza árfolyam és deviza nettó mezőből számol ki nettó/bruttó értéket
+$(document).on('blur', '#dev_net', function(e) {
+    $('#netto' ).val( ezresek($('#dev_net').val().replace(/ /g, '').replace(',', '.')*($('#arfolyam').val().replace(/ /g, '').replace(',', '.')), 0, ',', ' ') );
+    $('#brutto').val( ezresek($('#dev_br' ).val().replace(/ /g, '').replace(',', '.')*($('#arfolyam').val().replace(/ /g, '').replace(',', '.')), 0, ',', ' ') );
+});

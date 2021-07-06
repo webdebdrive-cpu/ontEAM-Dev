@@ -122,11 +122,13 @@ if( isset($_POST['pop_tetelek_feltolt']) ) {
         $penznem                = getErtekLista(ERTEKLISTA_PENZNEM, $szerzodes['kcs_21']);
         $tizedesek              = 2;
         $session_mezo           = 'fennt_szerz_tetel_dev_net';
+        $session_varhato_ert    = 'fennt_szerz_tetel_dev_varh_ert';
     } else {
         $szerzodes_netto_mezo   = 'netto_ert';
         $penznem                = get_penznem();
         $tizedesek              = 0;
         $session_mezo           = 'fennt_szerz_tetel_netto_ert';
+        $session_varhato_ert    = 'fennt_szerz_tetel_varh_ert';
     }
     
     // Tételek táblázat sorait kiszámoljuk:
@@ -156,7 +158,10 @@ if( isset($_POST['pop_tetelek_feltolt']) ) {
         $tetelek_html .= nl2('
                         <tr class="pop_tetel_'.$_SESSION['fennt_szerz_tetel_recid'][$i].'">
                             <td class="pop_telephely l">'.getSzallodaNev($_SESSION['fennt_szerz_tetel_telephely_id'][$i]).'</td>
-                            <td class="pop_telj_dt l">'. datum_kiir($_SESSION['fennt_szerz_tetel_telj_dt'][$i]).'</td>
+                            <td class="pop_targy l">'.$_SESSION['fennt_szerz_tetel_targy'][$i].'</td>
+                            <td class="pop_varh_erk l">'.datum_kiir($_SESSION['fennt_szerz_tetel_varh_erk'][$i]).'</td>
+                            <td class="pop_varh_ert r">'.number_format(str_replace(array(',', ' '), array('.', ''), $_SESSION[$session_varhato_ert][$i]), $tizedesek, ',', ' ').'</td>
+                            <td class="pop_telj_dt l">'.datum_kiir($_SESSION['fennt_szerz_tetel_telj_dt'][$i]).'</td>
                             <td class="pop_netto_ert r">'.number_format(str_replace(array(',', ' '), array('.', ''), $_SESSION[$session_mezo][$i]), $tizedesek, ',', ' ').'</td>
                             <td>
                                 <a class="szerk" onclick="popup_tetel_sor_szerk(\'pop_tetel_'.$_SESSION['fennt_szerz_tetel_recid'][$i].'\');">
@@ -206,11 +211,19 @@ if( isset($_POST['tetel_sorok_ment']) ) {
     // Kapott tömb indexeit cseréljük beszédesebb változókra
     $recid_adat     = 0;
     $telephely_adat = 1;
-    $telj_dt_adat   = 2;
-    $netto_ert_adat = 3;
-    $valtozott_adat = 4;
+    $targy_adat     = 2;
+    $varh_erk_adat  = 3;
+    $varh_ert_adat  = 4;
+    $telj_dt_adat   = 5;
+    $netto_ert_adat = 6;
+    $valtozott_adat = 7;
     
     $tetelek_osszege = '';
+    $i = 0;
+    foreach ( $_POST['adatok'][$varh_ert_adat][1] as $ertek ) {
+        $_POST['adatok'][$varh_ert_adat][1][$i] = str_replace(array(' ', ','), array('', '.'), $ertek);
+        $i++;
+    }
     $i = 0;
     foreach ( $_POST['adatok'][$netto_ert_adat][1] as $ertek ) {
         $_POST['adatok'][$netto_ert_adat][1][$i] = str_replace(array(' ', ','), array('', '.'), $ertek);
@@ -223,11 +236,13 @@ if( isset($_POST['tetel_sorok_ment']) ) {
     $devizas   = false;
     $tizedesek = 0;
     $db_mezo   = 'netto_ert';
+    $varh_mezo = 'varh_ert';
     if( $_POST['kcs_21'] && $_POST['kcs_21']!=KCS_21_HUF ) {
         $devizas   = true;
         $tizedesek = 2;
         $penznem   = getErtekLista(ERTEKLISTA_PENZNEM, $_POST['kcs_21']);
         $db_mezo   = 'dev_net';
+        $varh_mezo = 'dev_varh_ert';
     }
     
     // Ha nincs egy sornyi tételünk sem, akkor hibaüzenet
@@ -252,9 +267,16 @@ if( isset($_POST['tetel_sorok_ment']) ) {
     } else {
         $_SESSION['fennt_szerz_tetel_recid']        = $_POST['adatok'][$recid_adat][1];
         $_SESSION['fennt_szerz_tetel_telephely_id'] = $_POST['adatok'][$telephely_adat][1];
+        $_SESSION['fennt_szerz_tetel_targy']        = str_replace('{IDEZOJEL}', '"', $_POST['adatok'][$targy_adat][1]);
+        $_SESSION['fennt_szerz_tetel_varh_erk']     = $_POST['adatok'][$varh_erk_adat][1];
+        if( $devizas ) {
+            $_SESSION['fennt_szerz_tetel_dev_varh_ert'] = $_POST['adatok'][$varh_ert_adat][1];
+        } else {
+            $_SESSION['fennt_szerz_tetel_varh_ert']     = $_POST['adatok'][$varh_ert_adat][1];
+        }
         $_SESSION['fennt_szerz_tetel_telj_dt']      = $_POST['adatok'][$telj_dt_adat][1];
         if( $devizas ) {
-            $_SESSION['fennt_szerz_tetel_dev_net'] = str_replace(',', '.', $_POST['adatok'][$netto_ert_adat][1]);
+            $_SESSION['fennt_szerz_tetel_dev_net']  = str_replace(',', '.', $_POST['adatok'][$netto_ert_adat][1]);
         } else {
             $_SESSION['fennt_szerz_tetel_netto_ert'] = str_replace(',', '.', $_POST['adatok'][$netto_ert_adat][1]);
         }
@@ -263,10 +285,17 @@ if( isset($_POST['tetel_sorok_ment']) ) {
 
     // Adatbázisba mentést csak akkor csinálnuk, ha már meglevő szerződést szerkesztünk
     if( $recid ) {
+        
+        $fennt_szerz = $adatbazis_kapcsolat->s2('arfolyam', 'fenntartasi_szerzodes', "`recid`='{$recid}'");
+        if( $fennt_szerz === false ) { $db_error = true; }
+        
         $i = 0;
         foreach ($_POST['adatok'][$telephely_adat][1] as $telephely) {
 
             $telephely  = $_POST['adatok'][$telephely_adat][1][$i];
+            $targy      = $_POST['adatok'][$targy_adat][1][$i];
+            $varh_erk   = $_POST['adatok'][$varh_erk_adat][1][$i];
+            $varh_ert   = $_POST['adatok'][$varh_ert_adat][1][$i];
             $telj_dt    = $_POST['adatok'][$telj_dt_adat][1][$i];
             $netto      = $_POST['adatok'][$netto_ert_adat][1][$i];
             $valtozott = 0;
@@ -275,21 +304,29 @@ if( isset($_POST['tetel_sorok_ment']) ) {
             }
             // Ha ismerjük a tétel recid-ját, akkor update
             if( $_POST['adatok'][$recid_adat][1][$i] ) {
-                $sql = $adatbazis_kapcsolat->u('fenntartasi_szerzodes_tetel',
-                                                array('telephely_id', 'telj_dt', $db_mezo,    'valtozott' ),
-                                                array($telephely,     $telj_dt,  $netto,      $valtozott  ), 
-                                                "`recid`='{$_POST['adatok'][$recid_adat][1][$i]}'");
+                
+                $mezok      = array('telephely_id', 'targy',  'varh_erk', $varh_mezo, 'telj_dt', $db_mezo,    'valtozott' );
+                $ertekek    = array($telephely,     $targy,   $varh_erk,  $varh_ert,  $telj_dt,  $netto,      $valtozott  );
+                if( $devizas ) {
+                    array_push($mezok,   'netto_ert',                       'varh_ert'                          );
+                    array_push($ertekek, $netto*$fennt_szerz['arfolyam'],   $varh_ert*$fennt_szerz['arfolyam']  );
+                }
+                
+                $sql = $adatbazis_kapcsolat->u('fenntartasi_szerzodes_tetel', $mezok, $ertekek, "`recid`='{$_POST['adatok'][$recid_adat][1][$i]}'");
                 if( $sql === false ) { $db_error = true; }
                 
             // Egyébként insert
             } else {
+                $mezok      = array('fenntartasi_szerzodes_recid', 'rownum', 'telephely_id', 'targy',  'varh_erk', $varh_mezo, 'telj_dt', $db_mezo, 'valtozott', 'loginnev',                         'insert_dt',    'insert_usr',                             'update_usr'                          );
+                $ertekek    = array($recid,                        $rownum,  $telephely,     $targy,   $varh_erk,  $varh_ert,  $telj_dt,  $netto,   '1',         $_SESSION[get_db_tabla().'user'],   'NOW()',        $_SESSION[get_db_tabla().'teljes_nev'],   $_SESSION[get_db_tabla().'teljes_nev']);
+                if( $devizas ) {
+                    array_push($mezok,   'netto_ert',                       'varh_ert'                          );
+                    array_push($ertekek, $netto*$fennt_szerz['arfolyam'],   $varh_ert*$fennt_szerz['arfolyam']  );
+                }
                 
                 $rownum = $adatbazis_kapcsolat->s2('MAX(`rownum`)', 'fenntartasi_szerzodes_tetel', "`fenntartasi_szerzodes_recid`='{$recid}'");
                 $rownum = $rownum['MAX(`rownum`)']+1;
-                $uj_id = $adatbazis_kapcsolat->i('fenntartasi_szerzodes_tetel', 
-                                                array('fenntartasi_szerzodes_recid', 'rownum', 'telephely_id', 'telj_dt', $db_mezo, 'valtozott'),
-                                                array($recid,                        $rownum,  $telephely,     $telj_dt,  $netto,   '1'        )
-                                            );
+                $uj_id = $adatbazis_kapcsolat->i('fenntartasi_szerzodes_tetel', $mezok, $ertekek);
                 if( $sql === false ) { $db_error = true; }
                 $_SESSION['fennt_szerz_tetel_recid'][$i] = $uj_id;
             }
@@ -383,13 +420,28 @@ require_once('selectek.php');
     $i = 0;
     $ossz_netto   = 0;
     $ossz_dev_net = 0;
-    $_SESSION['fennt_szerz_tetel_recid'] = $_SESSION['fennt_szerz_tetel_telephely_id'] = $_SESSION['fennt_szerz_tetel_telj_dt'] = $_SESSION['fennt_szerz_tetel_netto_ert'] = $_SESSION['fennt_szerz_tetel_dev_net'] = array();
+    $_SESSION['fennt_szerz_tetel_recid']        =
+    $_SESSION['fennt_szerz_tetel_telephely_id'] =
+    $_SESSION['fennt_szerz_tetel_targy']        =
+    $_SESSION['fennt_szerz_tetel_varh_erk']     =
+    $_SESSION['fennt_szerz_tetel_varh_ert']     =
+    $_SESSION['fennt_szerz_tetel_dev_varh_ert'] =
+    $_SESSION['fennt_szerz_tetel_telj_dt']      =
+    $_SESSION['fennt_szerz_tetel_netto_ert']    =
+    $_SESSION['fennt_szerz_tetel_dev_net']      =
+    $_SESSION['fennt_szerz_tetel_valtozott']    =
+    $_SESSION['fennt_szerz_tetel_andocos']      =
+                                                array();
     foreach ( $tetelek as $tetel ) {
         $ossz_netto   += $tetel['netto_ert'];
         $ossz_dev_net += $tetel['dev_net'];
         $_SESSION['fennt_szerz_tetel_recid'][$i]        = $tetel['recid'];
         $_SESSION['fennt_szerz_tetel_telephely_id'][$i] = $tetel['telephely_id'];
-        $_SESSION['fennt_szerz_tetel_telj_dt'][$i]      = $tetel['telj_dt'];
+        $_SESSION['fennt_szerz_tetel_targy'][$i]        = $tetel['targy'];
+        $_SESSION['fennt_szerz_tetel_varh_erk'][$i]     = str_replace('-', '.', $tetel['varh_erk']);
+        $_SESSION['fennt_szerz_tetel_varh_ert'][$i]     = number_format($tetel['varh_ert'], 0, '', ' ');
+        $_SESSION['fennt_szerz_tetel_dev_varh_ert'][$i] = number_format($tetel['dev_varh_ert'], 2, ',', ' ');
+        $_SESSION['fennt_szerz_tetel_telj_dt'][$i]      = str_replace('-', '.', $tetel['telj_dt']);
         $_SESSION['fennt_szerz_tetel_netto_ert'][$i]    = number_format($tetel['netto_ert'], 0, '', ' ');
         $_SESSION['fennt_szerz_tetel_dev_net'][$i]      = number_format($tetel['dev_net'],   2, ',', ' ');
         $_SESSION['fennt_szerz_tetel_valtozott'][$i]    = $tetel['valtozott'];
@@ -400,7 +452,6 @@ require_once('selectek.php');
     
     $js_submit_elott = 'return form_ell_admin();';
     
-    // Gombok kirajzolása minden oldalra
     // Fenntartási szerződés mentésekor ellenőrizzük, hogy a szerződés nettó értéke azonos-e a tételek összegével
     // Deviza esetén más session-t járunk be
     $tizedesek  = 0;
@@ -415,6 +466,19 @@ require_once('selectek.php');
     // Gombok kirajzolása minden oldalra
     $gombok = '';
     if( isset($_GET['uj']) && _jog(JOG_FENNTARTASI_SZERZ_OLVAS) ) {
+        
+        // Új feltöltéskor a tétel sorokat töröljük, ne az legyen, hogy szerkesztésből maradt adatokkal számoljunk
+        $_SESSION['fennt_szerz_tetel_recid']        = '';
+        $_SESSION['fennt_szerz_tetel_telephely_id'] = '';
+        $_SESSION['fennt_szerz_tetel_targy']        = '';
+        $_SESSION['fennt_szerz_tetel_varh_erk']     = '';
+        $_SESSION['fennt_szerz_tetel_telj_dt']      = '';
+        $_SESSION['fennt_szerz_tetel_varh_ert']     = '';
+        $_SESSION['fennt_szerz_tetel_dev_varh_ert'] = '';
+        $_SESSION['fennt_szerz_tetel_netto_ert']    = '';
+        $_SESSION['fennt_szerz_tetel_dev_net']      = '';
+        $_SESSION['fennt_szerz_tetel_valtozott']    = '';
+        $_SESSION['fennt_szerz_tetel_andocos']      = '';
         
         // Új szerződés rögzítésekor ellenőrizni kell, hogy van-e már legalább egy tétel
         // Illetve a tételek összege azonos-e a szerződés nettójával
@@ -666,22 +730,35 @@ require_once('selectek.php');
             <div class="dt naplo">
                 <div class="dtr nFejlec">
                     <div class="dtc">Szálloda</div>
+                    <div class="dtc">Tárgy</div>
+                    <div class="dtc">Számla várh. érk.</div>
+                    <div class="dtc r">Számla várh.<br>értéke ('.getErtekLista(ERTEKLISTA_PENZNEM, $sor['kcs_21']).')</div>
                     <div class="dtc">Teljesítés</div>
-                    <div class="dtc r">Nettó érték</div>
-                    <div class="dtc r">Valuta nettó érték</div>
+                    <div class="dtc r">Érték ('.getErtekLista(ERTEKLISTA_PENZNEM, $sor['kcs_21']).')</div>
                 </div>
         ');
         
+        $osszeg_oszlop = 'varh_ert';
+        $ertek_oszlop  = 'netto_ert';
+        $tizedesek     = 0;
+        if( $sor['kcs_21'] && $sor['kcs_21']!=KCS_21_HUF ) {
+            $osszeg_oszlop = 'dev_varh_ert';
+            $ertek_oszlop  = 'dev_net';
+            $tizedesek     = 2;
+        }
+        
         // Tételek felsorolása
-        $tetelek = $adatbazis_kapcsolat->s('telephely_id, telj_dt, netto_ert, dev_net', 'fenntartasi_szerzodes_tetel', "`fenntartasi_szerzodes_recid`='{$_GET['id']}'", 'telj_dt');
+        $tetelek = $adatbazis_kapcsolat->s('telephely_id, targy, telj_dt, netto_ert, dev_net', 'fenntartasi_szerzodes_tetel', "`fenntartasi_szerzodes_recid`='{$_GET['id']}'", 'telj_dt');
         foreach ( $tetelek as $tetel ) {
             
             $szamla_html .= nl2('
                 <div class="dtr nSor">
                     <div class="dtc">'.getSzallodaNev($tetel['telephely_id']).'</div>
+                    <div class="dtc">'.$tetel['targy'].'</div>
+                    <div class="dtc">'.datum_kiir($tetel['varh_erk']).'</div>
+                    <div class="dtc r nowrap">'.number_format($tetel[$osszeg_oszlop],  0, ',', ' ').'</div>
                     <div class="dtc">'.datum_kiir($tetel['telj_dt']).'</div>
-                    <div class="dtc r nowrap">'.number_format($tetel['netto_ert'],  0, ',', ' ').'</div>
-                    <div class="dtc r nowrap">'.number_format($tetel['dev_net'], 2, ',', ' ').'</div>
+                    <div class="dtc r nowrap">'.number_format($tetel[$ertek_oszlop], $tizedesek, ',', ' ').'</div>
                 </div>
             ');
         }

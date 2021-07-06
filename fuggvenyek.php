@@ -1,6 +1,6 @@
 <?php
 
-// Főmenüpntok láthatóságát központosítjuk, hogy a header.php-ban és a dasboard-on is fel lehessen használni, ne két helyen kelljen módosítani
+// Főmenüpontok láthatóságát központosítjuk, hogy a header.php-ban és a dasboard-on is fel lehessen használni, ne két helyen kelljen módosítani
 function bejelentes_lathat() {
     return _jog(JOG_BEJELENTES_MEGTEKINT) || _jog(JOG_BEJELENTES_SAJAT_RESZL);
 }
@@ -1122,17 +1122,27 @@ function i_u($type, $tabla, $tomb) {
 
             $i = 0;
             foreach ( $_SESSION['fennt_szerz_tetel_telephely_id'] as $telephely ) {
-                $netto_ert  = str_replace(' ', '',  $_SESSION['fennt_szerz_tetel_netto_ert'][$i]);
-                $dev_net    = str_replace(array(' ', ','), array('', '.'),  $_SESSION['fennt_szerz_tetel_dev_net'][$i]);
-                $telephely  = $_SESSION['fennt_szerz_tetel_telephely_id'][$i];
-                $telj_dt    = $_SESSION['fennt_szerz_tetel_telj_dt'][$i];
-                $valtozott  = $_SESSION['fennt_szerz_tetel_valtozott'][$i];
+                $telephely      = $_SESSION['fennt_szerz_tetel_telephely_id'][$i];
+                $targy          = $_SESSION['fennt_szerz_tetel_targy'][$i];
+                $varh_erk       = $_SESSION['fennt_szerz_tetel_varh_erk'][$i];
+                $varh_ert       = str_replace(' ', '', $_SESSION['fennt_szerz_tetel_varh_ert'][$i]);
+                $dev_varh_ert   = str_replace(array(' ', ','), array('', '.'), $_SESSION['fennt_szerz_tetel_dev_varh_ert'][$i]);
+                $telj_dt        = $_SESSION['fennt_szerz_tetel_telj_dt'][$i];
+                $netto_ert      = str_replace(' ', '', $_SESSION['fennt_szerz_tetel_netto_ert'][$i]);
+                $dev_net        = str_replace(array(' ', ','), array('', '.'), $_SESSION['fennt_szerz_tetel_dev_net'][$i]);
+                $valtozott      = $_SESSION['fennt_szerz_tetel_valtozott'][$i];
+                
+                // Devizás szerződés esetén a Ft-os mezőket az árfolyam alapján töltsük ki
+                if( $_POST['kcs_21'] != KCS_21_HUF ) {
+                    $varh_ert  = $dev_varh_ert * str_replace(array(' ', ','), array('', '.'), $_POST['arfolyam']);
+                    $netto_ert = $dev_net      * str_replace(array(' ', ','), array('', '.'), $_POST['arfolyam']);
+                }
                 
                 $rownum = $adatbazis_kapcsolat->s2('MAX(`rownum`)', 'fenntartasi_szerzodes_tetel', "`fenntartasi_szerzodes_recid`='{$id}'");
                 $rownum = $rownum['MAX(`rownum`)']+1;
                 $sql = $adatbazis_kapcsolat->i('fenntartasi_szerzodes_tetel',
-                                                    array('fenntartasi_szerzodes_recid',    'rownum', 'telephely_id', 'telj_dt', 'netto_ert', 'dev_net', 'valtozott', 'loginnev',                          'insert_dt',    'insert_usr',                             'update_usr'                              ),
-                                                    array($id,                              $rownum,  $telephely,     $telj_dt,  $netto_ert,  $dev_net,  '1',         $_SESSION[get_db_tabla().'user'],    'NOW()',        $_SESSION[get_db_tabla().'teljes_nev'],   $_SESSION[get_db_tabla().'teljes_nev']    )
+                                                    array('fenntartasi_szerzodes_recid',    'rownum', 'telephely_id', 'targy', 'varh_erk', 'varh_ert',  'dev_varh_ert', 'telj_dt',  'netto_ert', 'dev_net', 'valtozott', 'loginnev',                          'insert_dt',    'insert_usr',                             'update_usr'                              ),
+                                                    array($id,                              $rownum,  $telephely,     $targy,  $varh_erk,  $varh_ert,   $dev_varh_ert,  $telj_dt,   $netto_ert,  $dev_net,  '1',         $_SESSION[get_db_tabla().'user'],    'NOW()',        $_SESSION[get_db_tabla().'teljes_nev'],   $_SESSION[get_db_tabla().'teljes_nev']    )
                                             );
 
                 if( $sql === false ) { $db_error = true; }
@@ -1327,36 +1337,6 @@ function i_u($type, $tabla, $tomb) {
                 exit();
             }
         }
-        
-        // Projektszámla tételek felvétele régi működése
-//        if( $tabla == 'projektszamla' ) {
-//            $i = 0;
-//            foreach ( $_SESSION['pr_szla_tetel_targy'] as $targy ) {
-//                $netto_ert  = str_replace(' ', '',  $_SESSION['pr_szla_tetel_netto_ert'][$i]);
-//                $dev_net    = str_replace(array(' ', ','), array('', '.'),  $_SESSION['pr_szla_tetel_dev_net'][$i]);
-//                $arfolyam   = str_replace(array(' ', ','), array('', '.'),  $_POST['arfolyam']);
-//                // Devizás számla esetén a Ft-os összeget az árfolyamból számítjuk ki
-//                if( $dev_net>0 ) {
-//                    $netto_ert = round($dev_net*$arfolyam);
-//                }
-//                $sql = $adatbazis_kapcsolat->i('projektszamla_tetel',
-//                                                    array('projektszamla_recid', 'targy', 'netto_ert', 'dev_net', 'projektszerzodes_tetel_recid',          'loginnev',                          'insert_dt',    'insert_usr',                             'update_usr'                              ),
-//                                                    array($id,                   $targy,  $netto_ert,  $dev_net,  $_SESSION['pr_szla_tetel_pr_tetel'][$i], $_SESSION[get_db_tabla().'user'],    'NOW()',        $_SESSION[get_db_tabla().'teljes_nev'],   $_SESSION[get_db_tabla().'teljes_nev']    )
-//                                            );
-//                if( $sql === false ) { $db_error = true; }
-//
-//                // Illetve a projektszerződés tételénél updateljük a teljesítést és nettó értéket
-//                $sql = $adatbazis_kapcsolat->u('projektszerzodes_tetel', array('teljesites', 'ertek'), array($_POST['telj_dt'], $netto_ert), "`recid`='{$_SESSION['pr_szla_tetel_pr_tetel'][$i]}'");
-//                if( $sql === false ) { $db_error = true; }
-//                
-//                $i++;
-//            }
-//            
-//            // Feldolgozással a SESSION értékeket ki is ürítjük.
-//            unset($_SESSION['pr_szla_tetel_targy']);
-//            unset($_SESSION['pr_szla_tetel_netto_ert']);
-//            unset($_SESSION['pr_szla_tetel_dev_net']);
-//        }
         
         // Projekt számla tételeinek felvétele, köztes tábla törlése
         if( $tabla == 'projektszamla' ) {
@@ -1873,7 +1853,7 @@ function i_u($type, $tabla, $tomb) {
             }
             if( !$_POST['nullas'] ) {
 
-                if( $tetelek_osszege != $_POST[$mezo2] ) {
+                if( number_format($tetelek_osszege, $tizedesek, ',', ' ') != number_format($_POST[$mezo2], $tizedesek, ',', ' ') ) {
                     echo json_encode(array(
                         'hiba'   => 'A számla tételeinek összege ('. number_format($tetelek_osszege, $tizedesek, ',', ' ').' '. erteklista(ERTEKLISTA_PENZNEM, $_POST['kcs_21']).') nem egyezik meg a számla nettó értékével('. number_format($_POST[$mezo2], $tizedesek, ',', ' ').' '. erteklista(ERTEKLISTA_PENZNEM, $_POST['kcs_21']).')!<br>Így nem menthető!',
                         'gomb'   => '<input type="button" class="gomb" value="Ok" onclick="szurkit_zar(\'mégsem mehet mutat\'); alert2();">',
@@ -1903,6 +1883,10 @@ function i_u($type, $tabla, $tomb) {
                     exit();
                 }
             }
+            
+            // Illetve a szerződés számot még külön fel kell még venni, mert a tiltott mező miatt ez magától nem íródna be
+            array_push($oszlopok, 'sz_szam',          'netto',          'brutto'         );
+            array_push($ertekek,  $_POST['sz_szam'],  $_POST['netto'],  $_POST['brutto'] );
         }
 
         // Loginnál szerepkörök lekezelése + Jelszóval rendelkezik pipa kiszedése esetén e-mail értesítés küldése
