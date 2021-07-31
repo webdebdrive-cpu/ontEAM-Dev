@@ -396,6 +396,7 @@ class ServerClass {
             if( $szamla_adatok['Számla sorszáma']               ) { array_push($mezok, 'szla_szam'      ); array_push($ertekek, $szamla_adatok['Számla sorszáma']);         }
             if( $szamla_adatok['Danubius azonosító']            ) { array_push($mezok, 'ikt_szam'       ); array_push($ertekek, $szamla_adatok['Danubius azonosító']);      }
             if( $szamla_adatok['Rögzítő neve']                  ) { array_push($mezok, 'ikt_usr'        ); array_push($ertekek, $szamla_adatok['Rögzítő neve']);            }
+            if( $szamla_adatok['Számla típusa']                 ) { array_push($mezok, 'tipus'          ); array_push($ertekek, $szamla_adatok['Számla típusa']);           }
             if( $szamla_adatok['Vonalkód']                      ) { array_push($mezok, 'vonalkod'       ); array_push($ertekek, $szamla_adatok['Vonalkód']);                }
             if( $szamla_adatok['Teljesítés dátuma']             ) { array_push($mezok, 'telj_dt'        ); array_push($ertekek, $szamla_adatok['Teljesítés dátuma']);       }
             if( $szamla_adatok['Fizetési határidő']             ) { array_push($mezok, 'fizhat_dt'      ); array_push($ertekek, $szamla_adatok['Fizetési határidő']);       }
@@ -808,7 +809,7 @@ class ServerClass {
         $szerzodes_andoc_id = $andoc_id = $szerzodes -> data -> register['registernumber'];
         // Szerződés típust nem vizsgálunk, egyelőre mindent fenntartási szerődésnek veszünk
         $tabla = 'fenntartasi_szerzodes';
-//        if( !$szerzodes_adatok['Számla főtípus'] ) {
+//        if( !$szerzodes_adatok['Szerződés főtípus'] ) {
 //            Throw new SOAPFault ('Server', 'Hiányzó számlatípus!');
 //        }
 //        switch( $szerzodes -> tipus ) {

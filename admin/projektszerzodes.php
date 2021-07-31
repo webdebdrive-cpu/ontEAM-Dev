@@ -1228,7 +1228,7 @@ require_once('selectek.php');
         // Módosításkor beállítjuk a Session-el az adatbázisból ismert tételek adatait, így lesz jó a popupban
         $i = 0;
         $_SESSION['pr_szer_tetel_recid'] = $_SESSION['pr_szer_tetel_targy'] = $_SESSION['pr_szer_tetel_varh_erk'] = $_SESSION['pr_szer_tetel_varh_ert'] = array();
-        $tetelek = $adatbazis_kapcsolat->s('*', 'projektszerzodes_tetel', "`projektszerzodes_recid`='{$_GET['id']}'", 'recid');
+        $tetelek = $adatbazis_kapcsolat->s('*', 'projektszerzodes_tetel', "`projektszerzodes_recid`='{$_GET['id']}'", 'insert_dt');
         foreach ( $tetelek as $tetel ) {
             $_SESSION['pr_szer_tetel_recid'][$i]    = $tetel['recid'];
             $_SESSION['pr_szer_tetel_targy'][$i]    = $tetel['targy'];
@@ -1644,7 +1644,7 @@ require_once('selectek.php');
         }
         
         // Tételek felsorolása
-        $tetelek = $adatbazis_kapcsolat->s('*', 'projektszerzodes_tetel', "`projektszerzodes_recid`='{$_GET['id']}'", 'varh_erk');
+        $tetelek = $adatbazis_kapcsolat->s('*', 'projektszerzodes_tetel', "`projektszerzodes_recid`='{$_GET['id']}'", 'insert_dt');
         foreach ( $tetelek as $tetel ) {
             
             $extra_sorok = '';

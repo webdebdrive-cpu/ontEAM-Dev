@@ -664,6 +664,53 @@ foreach ( $akt_tomb as $ertek ) {
             }
         break;
 
+		case 'select_energianem':
+
+            if( $ertek['alert'] ) {
+                $ertek['class'] .= ' csillag';
+            }
+
+            $input = new Select($select_energianem, $sor['energianem']);
+            $input -> cssClass = $ertek['class'];
+            $input -> disabled = $ertek['disabled'];
+            $input -> id       = $ertek['name'];
+            $input -> name     = $ertek['name'];
+            $input -> naptar   = $ertek['naptar'];
+            $input -> onblur   = $ertek['onblur'];
+            $input -> onclick  = $ertek['onclick'];
+            $input -> onfocus  = $ertek['onfocus'];
+            $input -> style    = $ertek['style'];
+
+            if( $ertek['i'] ) {
+                $input -> post = ' <div class="tooltip di"><img src="../elemek/admin/info.gif" alt="i" class="tooltip"><div>'.$ertek['i'].'</div></div> '.$input -> post;
+            }
+
+            // Ezt csak akkor aktiváld, ha alapértelmezett értéket szeretnél neki definiálni, de VIGYÁZZ!, a $sor['VALAMI']-t se írja felül, hisz a konstruktornak ez ad értéket! Pl. így: if(!$ertek['value']){ $ertek['value'] = $sor['VALAMI']; }
+            // $input -> value    = $ertek['value'];
+
+            $html = $input -> getHtml();
+
+            // Összevonások lekezelése és tartalom összefűzése
+            if( !$osszevon_flag ) {
+                $mezok .= nl2("
+                                <div class=\"dtr{$ertek['dtr_class']}\">
+                                    <div class=\"dtc form_bal\"><span>{$ertek['megn']}</span></div>
+                                    <div class=\"dtc form_jobb\">
+                            ");
+            } else {
+                $mezok .= '<span class="formText">'.$ertek['megn'].'</span>';
+            }
+
+            $mezok .= $html;
+
+            if( $ertek['osszevon'] ) {
+                $osszevon_flag = 1;
+            } else {
+                $osszevon_flag = 0;
+                $mezok .= "</div></div>";
+            }
+        break;
+
 		case 'select_erteklista':
 
             if( $ertek['alert'] ) {

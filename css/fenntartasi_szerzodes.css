@@ -18,11 +18,18 @@ div.naplo div.nSor div.dtc:nth-of-type(1) {
     width: 18rem;
 }
 
-div.naplo div.nSor div.dtc:nth-of-type(2) {
-    width: 5rem;
+
+div.naplo div.nSor div.dtc:nth-of-type(3) {
+    width: 15rem;
 }
 div.naplo div.nSor div.dtc:nth-of-type(4) {
     width: 15rem;
+}
+div.naplo div.nSor div.dtc:nth-of-type(5) {
+    width: 10rem;
+}
+div.naplo div.nSor div.dtc:nth-of-type(6) {
+    width: 12rem;
 }
 
 .szerk {

@@ -110,7 +110,7 @@ function tetel_hozzaadasa() {
     
     var targy           = $('#pop_targy').val().trim();
     var szla_varh_erk   = $('#pop_szla_varh_erk').val().trim();
-    var szla_varh_ert   = $('#pop_szla_varh_ert').val().trim();
+    var szla_varh_ert   = $('#pop_szla_varh_ert').val().trim().replace(/,/g, '.');
 
     /* Üres adatok ellenőrzése */
     if(!targy){
@@ -148,16 +148,18 @@ function tetel_hozzaadasa() {
 
     var id_tmp = new Date().getTime();
     
-    /* A szla_varh_ert lehet hogy 0-át tartalmaz, akkor ezt is írjuk ki */
-    szla_varh_ert = ezresek(szla_varh_ert, 0, '', ' ');
-    if( !szla_varh_ert ) {
-        szla_varh_ert = '0';
-    }
-    
     /* HUF esetén nem törtet írunk ki, deviza esetén viszont törtet */
     var tizedesek   = 0;
+    var vesszo      = '';
     if( akt_penznem && akt_penznem != 'HUF' ) {
         tizedesek   = 2;
+        vesszo      = ',';
+    }
+    
+    /* A szla_varh_ert lehet hogy 0-át tartalmaz, akkor ezt is írjuk ki */
+    szla_varh_ert = ezresek(szla_varh_ert, 0, vesszo, ' ');
+    if( !szla_varh_ert ) {
+        szla_varh_ert = '0';
     }
 
     var table_sor = '<tr class="pop_kapcsol_'+id_tmp+'">' +

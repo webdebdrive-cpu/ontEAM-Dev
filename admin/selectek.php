@@ -185,6 +185,13 @@ if( basename(self()) == 'erteklista.php' || basename(self()) == 'header.php'/*Sz
     foreach ( $erteklistak as $erteklista ) {
         array_push($select_erteklista, array('name' => $erteklista['nev'], 'value' => (int)$erteklista['csoport'] ));
     }
+    
+    $select_energianem = array();
+    array_push($select_energianem, array('name' => '-Válassz-', 'value' => '' ));
+    $erteklistak = $adatbazis_kapcsolat -> select('recid info', 'erteklista', "`csoport`='".ERTEKLISTA_ENERGIANEM."'", 'info');
+    foreach ( $erteklistak as $erteklista ) {
+        array_push($select_energianem, array('name' => $erteklista['info'], 'value' => $erteklista['recid'] ));
+    }
 }
 
 if( basename(self()) == 'beosztas_unnepnapok.php' || basename(self()) == 'header.php'/*Szűrés miatt*/ ) {

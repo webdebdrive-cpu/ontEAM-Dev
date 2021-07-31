@@ -110,7 +110,7 @@ function tetel_hozzaadasa() {
     
     var targy           = $('#pop_targy').val().trim();
     var szla_varh_erk   = $('#pop_szla_varh_erk').val().trim();
-    var szla_varh_ert   = $('#pop_szla_varh_ert').val().trim();
+    var szla_varh_ert   = $('#pop_szla_varh_ert').val().trim().replace(/,/g, '.');
 
     /* Üres adatok ellenőrzése */
     if(!targy){
@@ -148,16 +148,18 @@ function tetel_hozzaadasa() {
 
     var id_tmp = new Date().getTime();
     
-    /* A szla_varh_ert lehet hogy 0-át tartalmaz, akkor ezt is írjuk ki */
-    szla_varh_ert = ezresek(szla_varh_ert, 0, '', ' ');
-    if( !szla_varh_ert ) {
-        szla_varh_ert = '0';
-    }
-    
     /* HUF esetén nem törtet írunk ki, deviza esetén viszont törtet */
     var tizedesek   = 0;
+    var vesszo      = '';
     if( akt_penznem && akt_penznem != 'HUF' ) {
         tizedesek   = 2;
+        vesszo      = ',';
+    }
+    
+    /* A szla_varh_ert lehet hogy 0-át tartalmaz, akkor ezt is írjuk ki */
+    szla_varh_ert = ezresek(szla_varh_ert, tizedesek, vesszo, ' ');
+    if( !szla_varh_ert ) {
+        szla_varh_ert = '0';
     }
 
     var table_sor = '<tr class="pop_kapcsol_'+id_tmp+'">' +
@@ -249,6 +251,7 @@ function projektszamla_kapcsolas( mehet ) {
             mehet                   : mehet,
             kcs_21                  : kcs_21,
             szamla_tetel_recid      : $('#szamla_tetel_recid').val(),
+            telephely_id            : $('#telephely_id_db').val(),
             fenntartasi_szamla_kapcsolas : Date.now()
         },
         success: function(response) {
@@ -373,6 +376,7 @@ function tetelek_kiszamol( that, elso ) {
     $('.pop_netto_ert').each(function() {
         if( !$(this).prop('disabled') && $(this).val() && $(this).val()!='0' && $(this).val() && $(this).val()!='0,00' ) {
             netto_ertek_db++;
+            console.log($(this));
         }
         if( netto_ertek_db>1 ) {
             alert2('Csak egy szerződés tételhez írhat nettó értéket!<br>Előbb törölje ki a nettó értéket a többi sorból!', '', 'Hiba');

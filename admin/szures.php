@@ -27,6 +27,7 @@ if( isset($_POST['f_szuro_mezo']) ) {
         'select_ho_soran',
         'select_honapjan',
         'select_szemelyzet',
+        'select_szerzodes_tipus',
         'select_pri_tipus',
         'select_pri_besorol',
     );
@@ -344,6 +345,16 @@ if( isset($_POST['f_szuro_mezo_operator']) ) {
                     require_once('selectek.php');
 
                     $input = new Select($select_mobilcsoport, $_POST['felt']);
+                    $input -> cssClass = 'f_felt';
+                    $feltetel = $input -> getHtml();
+
+                // select_pri_tipus
+                }elseif( $ertek['type'] == 'select_szerzodes_tipus' ) {
+
+                    require_once('../class/html/class.Select.php');
+                    require_once('selectek.php');
+
+                    $input = new Select($select_szerzodes_tipus, $_POST['felt']);
                     $input -> cssClass = 'f_felt';
                     $feltetel = $input -> getHtml();
 

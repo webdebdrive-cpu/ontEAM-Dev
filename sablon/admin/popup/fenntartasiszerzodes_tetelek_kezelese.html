@@ -12,9 +12,9 @@
     <br>Számla várh. értéke:
     <br><input type="text" id="pop_szla_varh_ert" class="f_num csillag" data-tort="0"> <span class="f_penznem"></span>
     <br>Teljesítés dátuma:
-    <br><input type="text" id="pop_telj_dt" class="oriasi csillag datepicker">
+    <br><input type="text" id="pop_telj_dt" disabled>
     <br>Nettó érték:
-    <br><input type="text" id="pop_ertek" class="f_num csillag" data-tort="0"> <span class="f_penznem"></span>
+    <br><input type="text" id="pop_ertek" class="f_num" data-tort="0" disabled> <span class="f_penznem"></span>
     <input type="hidden" name="tetel_sor_id" id="tetel_sor_id">
     
     <br><input type="button" id="hozzaad_gomb" class="gomb" value="Új tétel hozzáadása" style="margin-top: 0.3rem" onclick="tetel_hozzaadasa()">
@@ -29,7 +29,7 @@
                 <th style="width: 10rem">Számla várh. értéke (<span class="f_penznem"></span>)</th>
                 <th>Teljesítés</th>
                 <th>Nettó érték (<span class="f_penznem"></span>)</th>
-                <th>Szerkesztés</th>
+                <!--<th>Szerkesztés</th>-->
                 <th>Törlés</th>
             </tr>
             </thead>
@@ -104,13 +104,13 @@ $(document).ready(function () {
 /* Tételt hozzáadó függvény */
 function tetel_hozzaadasa() {
     
-    var telephely       = $('#pop_telephely_id').val();
-    var pop_targy       = $('#pop_targy').val();
-    var pop_varh_erk    = $('#pop_szla_varh_erk').val();
-    var pop_varh_ert    = $('#pop_szla_varh_ert').val();
-    var pop_telj_dt     = $('#pop_telj_dt').val();
-    var ertek           = $('#pop_ertek').val();
-    var sor_id          = $('#tetel_sor_id').val();
+    var telephely       = $('#pop_telephely_id')    .val();
+    var pop_targy       = $('#pop_targy')           .val().trim();
+    var pop_varh_erk    = $('#pop_szla_varh_erk')   .val();
+    var pop_varh_ert    = $('#pop_szla_varh_ert')   .val();
+    var pop_telj_dt     = $('#pop_telj_dt')         .val();
+    var ertek           = $('#pop_ertek')           .val();
+    var sor_id          = $('#tetel_sor_id')        .val();
 
     van_valtozas = true;
 
@@ -120,16 +120,21 @@ function tetel_hozzaadasa() {
         $('#pop_telephely_id_autocomp').addClass('hibas_ide_focus');
         return false;
     }
-
-    if( !pop_telj_dt || pop_telj_dt=='0000.00.00' || pop_telj_dt=='\xa0\xa0\xa0\xa0.\xa0\xa0.\xa0\xa0' ){
-        alert2('Kérem töltse ki a teljesítés dátumát!', '', 'Hiba');
-        $('#pop_telj_dt').addClass('hibas_ide_focus');
+    if( !pop_targy ){
+        alert2('Kérem töltse ki a tárgy mezőt!', '', 'Hiba');
+        $('#pop_targy').addClass('hibas_ide_focus');
         return false;
     }
 
-    if( !ertek /*|| ertek=='0' A nulla megengedett a 0-ás számák miatt */ ){
-        alert2('Kérem töltse ki a nettó értéket!', '', 'Hiba');
-        $('#pop_ertek').addClass('hibas_ide_focus');
+    if( !pop_varh_erk || pop_varh_erk == '\xa0\xa0\xa0\xa0.\xa0\xa0.\xa0\xa0' ) {
+        alert2('Kérem töltse ki a várható érkezést!', '', 'Hiba');
+        $('#pop_szla_varh_erk').addClass('hibas_ide_focus');
+        return false;
+    }
+
+    if( !pop_varh_ert ) {
+        alert2('Kérem töltse ki a várható értéket!', '', 'Hiba');
+        $('#pop_szla_varh_ert').addClass('hibas_ide_focus');
         return false;
     }
 
@@ -154,9 +159,9 @@ function tetel_hozzaadasa() {
                             '<td class="pop_targy l">'+pop_targy + '</td>'+
                             '<td class="pop_varh_erk l">'+pop_varh_erk + '</td>'+
                             '<td class="pop_varh_ert r">'+pop_varh_ert + '</td>'+
-                            '<td class="pop_telj_dt l">'+pop_telj_dt + '</td>'+
-                            '<td class="pop_netto_ert r">'+ertek+'</td>'+
-                            '<td><a class="szerk" onclick="popup_tetel_sor_szerk(\'pop_tetel_'+id_tmp+'\');">🖉</a></td>'+
+                            '<td class="pop_telj_dt l"></td>'+
+                            '<td class="pop_netto_ert r"></td>'+
+                            /*'<td><a class="szerk" onclick="popup_tetel_sor_szerk(\'pop_tetel_'+id_tmp+'\');">🖉</a></td>'+*/
                             '<td><a onclick="popup_tetel_sor_torol(\'pop_tetel_'+id_tmp+'\');"><span class="icon"><i class="material-icons">delete</i></span></a>'+
                                 '<input type="hidden" class="pop_telephely_id" value="'+$('#pop_telephely_id').val()+'">'+
                                 '<input type="hidden" class="pop_valtozott" value="1">'+

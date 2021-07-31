@@ -395,6 +395,8 @@ define('ERTEKLISTA_KOLTSEGVISELO',  42);
 define('ERTEKLISTA_SZERZODESTKOTO', 43);
 define('ERTEKLISTA_BANK',           44);
 define('ERTEKLISTA_JOVAHAGYO',      45);
+define('ERTEKLISTA_ENERGIANEM',     46);
+define('ERTEKLISTA_DIJELEM',        47);
 
 // Dokumentum tipus értéklista fix, nem szerkeszthető bejegyzése
 define('EL_DOK_TIPUS_ATADASI',      1);

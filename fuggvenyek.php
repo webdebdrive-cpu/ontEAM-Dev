@@ -53,6 +53,22 @@ function i_u($type, $tabla, $tomb) {
             exit();
         }
 
+        // Értéklista Áfájánál csak 0-27-es értéket fogadunk el.
+        if( $tabla == 'erteklista' ) {
+            if( $_POST['afa'] < 0 || $_POST['afa'] > 27 ) { 
+                $db_error = true;
+                
+                echo json_encode(array(
+                    'hiba'  => 'Az Áfa értéke csak 0-27-ig terjedhet!',
+                    'gomb'  => '',
+                    'title' => 'Hiba',
+                ));
+                $weblap -> leallit();
+                exit();
+            }
+
+        }
+
         // Fenntartási terv és energia terv is csak akkor szerkeszthető, ha munkaközi
         if( $tabla == 'fenntartasi_terv' && $tabla == 'energia_terv' ) {
             $terv = $adatbazis_kapcsolat->s2('stat_id', 'fenntartasi_terv', "`recid`='{$_GET['id']}'");
@@ -918,6 +934,8 @@ function i_u($type, $tabla, $tomb) {
 		$id = $adatbazis_kapcsolat -> insert($tabla, $oszlopok, $ertekek);
         if( $id === false ) { $db_error = true; }
 
+
+// Debug
 //echo '<pre style="font-size: 1.4rem">';
 //echo $adatbazis_kapcsolat->gp() . '<br>';
 //echo '</pre>';
@@ -1058,7 +1076,6 @@ function i_u($type, $tabla, $tomb) {
                         'ktghely_id',
                         'igazol_usr',
                         'igazol_dt',
-                        'szszam',
                         'verzio',
                         'andocos',
                         'flex',
@@ -1074,7 +1091,7 @@ function i_u($type, $tabla, $tomb) {
 
                     $sql = $adatbazis_kapcsolat->i('fenntartasi_szamla_tetel', $mezok, $ertekek);
                     if( $sql === false ) { $db_error = true; }
-
+ 
                 // Ha nincs átmeneti megfelelője
                 } else {
                     
@@ -1086,6 +1103,7 @@ function i_u($type, $tabla, $tomb) {
                                                 );
                 }
                 if( $sql === false ) { $db_error = true; }
+
                 $i++;
             }
 
@@ -3380,7 +3398,7 @@ function web_ftp($valtozo, $kepnev, $size=409600, $overwrite=false, $csakkep=tru
 			}
 
 		}
-		if($flashfeltoltes){
+		if( $flashfeltoltes ) {
             // Flash alapú fájlfeltöltéskor kell egy kimenet, ha minden rendben volt.
             // Akkor ez már legyen az útvonal, mert JS-el feldolgozva ezt ki is tudjuk íratni.
             echo $utvonal.$kepnev;
@@ -8088,6 +8106,8 @@ function get_akt_tomb($megn){
     global $erteklista_tomb;
     global $felmeresi_terv_tomb;
     global $fenntartasi_terv_tomb;
+    global $fenntartasi_szamla_tomb;
+    global $fenntartasi_szerzodes_tomb;
     global $login_tomb;
     global $munkalap_tomb;
     global $utemezett_feladatok_tomb;
@@ -8114,6 +8134,8 @@ function get_akt_tomb($megn){
         case 'erteklista'               : case 'erteklista_arch'                : $akt_tomb = $erteklista_tomb;             break;
         case 'felmeresi_terv'           : case 'felmeresi_terv_arch'            : $akt_tomb = $felmeresi_terv_tomb;         break;
         case 'fenntartasi_terv'         : case 'fenntartasi_terv_arch'          : $akt_tomb = $fenntartasi_terv_tomb;       break;
+        case 'fenntartasi_szamla'       : case 'fenntartasi_szamla_arch'        : $akt_tomb = $fenntartasi_szamla_tomb;     break;
+        case 'fenntartasi_szerzodes'    : case 'fenntartasi_szerzodes_arch'     : $akt_tomb = $fenntartasi_szerzodes_tomb;  break;
         case 'login'                    : case 'login_arch'                     : $akt_tomb = $login_tomb;                  break;
         case 'munkalap'                 : case 'munkalap_arch'                  : $akt_tomb = $munkalap_tomb;               break;
         case 'utemezett_feladatok'      : case 'utemezett_feladatok_arch'       : $akt_tomb = $utemezett_feladatok_tomb;    break;
@@ -11132,7 +11154,7 @@ function get_projekt_szamla_kezel_jog($recid) {
     if( _jog(JOG_PR_SAJAT_SZAMLA_KEZEL) ) {
         $pr_szam  = $adatbazis_kapcsolat->s2('pr_szam',  'projektszamla',  "`recid`='{$recid}'");
         $pfelelos = $adatbazis_kapcsolat->s2('pfelelos', 'projektkezeles', "`ikt_szam`='{$pr_szam['pr_szam']}'");
-        if( $pfelelos['pfelelos']==$_SESSION[get_db_tabla().'login_recid'] ){
+        if( $pfelelos['pfelelos'] == $_SESSION[get_db_tabla().'login_recid'] ) {
             return true;
         }
     }

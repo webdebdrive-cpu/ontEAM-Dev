@@ -7747,7 +7747,7 @@ function szalloda_modell( that ) {
     }
 }
 
-/* Új anygigénylésnél az anyagigénylés hozzáadás gomb működése */
+// Új anygigénylésnél az anyagigénylés hozzáadás gomb működése
 var anyagigenyles_hozzaad_defer = $.Deferred();
 function anyagigenylesHozzaad(mehet, mentes_gombbol, ajax_nelkul_hozzaad) {
     var form = $('#szerk_form'),
@@ -7767,7 +7767,7 @@ function anyagigenylesHozzaad(mehet, mentes_gombbol, ajax_nelkul_hozzaad) {
                     telephely_id = value;
                     telephely_nev= text;
                     /* Üres maradhat a telephely név, mert a disabled a select, mert mondjuk egy szállodás a user, akkor nem tudja kiolvasni a text-ét.
-                     *  Ilyenkor van egy hidden input, benne a szálloda nevével. */
+                     * Ilyenkor van egy hidden input, benne a szálloda nevével. */
                     if(!telephely_nev){
                         telephely_nev = $('#telephely_txt').val();
                     }
@@ -7798,7 +7798,7 @@ function anyagigenylesHozzaad(mehet, mentes_gombbol, ajax_nelkul_hozzaad) {
                     data[name] = text + ' <input type="hidden" name="' + name + '[]" value="' + checked + '">';
                 break;
                 case 'igleir':
-                    data[name] = value.replace(/\n/g,'<br>') + ' <input type="hidden" name="' + name + '[]" value="' + value + '">';
+                    data[name] = value.replace(/\n/g,'<br>') + ' <input type="hidden" name="' + name + '[]" value="' + value.replace(/"/g, "&quot;") + '">';
                 break;
             }
         }
@@ -7952,7 +7952,7 @@ function anyagigenylesekMentes(mehet) {
 
         /* Tehát rákérdezés után már csak annyit csinálunk, hogy fevesszük a táblázatbam, újraszmáoljuk és mehetünk tovább */
         } else {
-            anyagigenylesHozzaad('', '', 'Ajax lélkül add hozzá');
+            anyagigenylesHozzaad('', '', 'Ajax nélkül add hozzá');
         }
 
         $.when(anyagigenyles_hozzaad_defer).then(function() {
@@ -8008,7 +8008,7 @@ function anyagigenylesekMentes(mehet) {
                 }
 
                 $.when(dfrd1).then(function() {
-                    console.log('Anyagigénylések beszúrva.');
+                    // console.log('Anyagigénylések beszúrva.');
                 });
 
                 alert2('');

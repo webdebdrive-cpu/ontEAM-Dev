@@ -93,6 +93,36 @@ function fennt_hozzaad_gomb_hozzaad_vagy_torol() {
     });
 }
 
+// Számla küldés igazolásra
+function kuldes_igazolasra(mehet) {
+    
+    if( !mehet ) {
+        alert2('Biztosan igazolásra küldi a számlát?', '<input type="button" class="gomb zold" value="Igen" onclick="kuldes_igazolasra(\'mehet\')"><input type="button" class="gomb piros" value="Nem" onclick="alert2()">');
+        return false;
+    }
+    
+    $.ajax({
+        url : 'fenntartasi_szamla.php',
+        type: 'POST',
+        data: {
+            id               : _get('id'),
+            kuldes_igazolasra: Date.now()
+        },
+        success: function (response) {
+            if (response) {
+                response = JSON.parse(response);
+                if (response.hiba) {
+                    alert2(response.hiba, response.gomb, response.title);
+                    return false;
+                }
+                
+                szamlaBetolt(_get('id'), 'fenntartasi_szamla.php');
+                alert2();
+            }
+        }
+    });
+}
+
 // Adatlapon található deviza árfolyam és deviza nettó mezőből számol ki nettó/bruttó értéket
 $(document).on('blur', '#dev_net', function(e) {
     $('#netto' ).val( ezresek($('#dev_net').val().replace(/ /g, '').replace(',', '.')*($('#arfolyam').val().replace(/ /g, '').replace(',', '.')), 0, ',', ' ') );
