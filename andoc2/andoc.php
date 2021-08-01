@@ -807,15 +807,14 @@ class ServerClass {
             Throw new SOAPFault ('Server', 'Hiányzó Andoc azonosító!');
         }
         $szerzodes_andoc_id = $andoc_id = $szerzodes -> data -> register['registernumber'];
-        // Szerződés típust nem vizsgálunk, egyelőre mindent fenntartási szerődésnek veszünk
-        $tabla = 'fenntartasi_szerzodes';
-//        if( !$szerzodes_adatok['Szerződés főtípus'] ) {
-//            Throw new SOAPFault ('Server', 'Hiányzó számlatípus!');
-//        }
-//        switch( $szerzodes -> tipus ) {
-//            case self::SZERZ_TIPUS_FENNTARTASI     : $tabla = 'fenntartasi_szerzodes';    break;
-//            case self::SZERZ_TIPUS_PROJEKT         : $tabla = 'projektszerzodes';         break;
-//        }
+        
+        if( !$szerzodes_adatok['Szerződés iránya'] ) {
+            Throw new SOAPFault ('Server', 'Kérem adja meg a szerződés irányát!');
+        }
+        switch( $szerzodes_adatok['Szerződés iránya'] ) {
+            case self::SZERZ_TIPUS_FENNTARTASI     : $tabla = 'fenntartasi_szerzodes';    break;
+            case self::SZERZ_TIPUS_PROJEKT         : $tabla = 'projektszerzodes';         break;
+        }
         
         $apa_recid_oszlop = $tabla.'_recid';
         
@@ -828,26 +827,6 @@ class ServerClass {
         } else {
             $insert_update = 'insert';
         }
-
-        // Újabban nincs törlés funkció
-//        // Törléshez ismernünk kell az andoc_id-t és a számla típusát
-//        // Delete
-//        if( $szerzodes -> torles == 1 ) {
-//
-//            $sql = $adatbazis_kapcsolat->s2('recid', $tabla, "`andoc_id`='{$andoc_id}'");
-//            if( !$sql ) {
-//                Throw new SOAPFault ('Server', 'Nem ismert Andoc azonosító. A törlés nem sikerült!');
-//            }
-//
-//            $return_uzi = 'törölve';
-//
-//            $sql = $adatbazis_kapcsolat->d($tabla, "`andoc_id`='{$andoc_id}'");
-//            if( $sql === false ) { $db_error = true; }
-//            $sql = $adatbazis_kapcsolat->d($tabla.'_tetel', "`{$apa_recid_oszlop}`='{$andoc_id}'");
-//            if( $sql === false ) { $db_error = true; }
-//
-//        // Insert/update
-//        } else {
 
         // Az alábbiakat csak insert esetén kell vizsgálni
         if( $insert_update == 'insert' ) {
@@ -960,10 +939,16 @@ class ServerClass {
 
         // Ha az alapvető adatokon nem akadtunk fenn, akkor szúrjuk be vagy updateljük a szerződést, attól föggően, hogy az Andok azonsoító ismert-e.
         // Ehhez az első lépés, a mező/érték párokat beállítani.
+        $szszam_mezo = 'szszam';
+        $netto_mezo  = 'netto';
+        if( $tabla == 'projektszerzodes' ) {
+            $szszam_mezo = 'sz_szam';
+            $netto_mezo  = 'szerz_ossz';
+        }
         $mezok = $ertekek = array();
         if( $szerzodes_adatok['Iktatás dátuma']                         ) { array_push($mezok, 'ikt_dt'     ); array_push($ertekek, $szerzodes_adatok['Iktatás dátuma']                         ); }
         if( $szerzodes_adatok['Rögzítő neve']                           ) { array_push($mezok, 'ikt_usr'    ); array_push($ertekek, $szerzodes_adatok['Rögzítő neve']                           ); }
-        if( $szerzodes_adatok['Szerződés iktatószáma']                  ) { array_push($mezok, 'szszam'     ); array_push($ertekek, $szerzodes_adatok['Szerződés iktatószáma']                  ); }
+        if( $szerzodes_adatok['Szerződés iktatószáma']                  ) { array_push($mezok, $szszam_mezo ); array_push($ertekek, $szerzodes_adatok['Szerződés iktatószáma']                  ); }
         if( $szerzodes_adatok['Partnerkód']                             ) { array_push($mezok, 'szallito_id'); array_push($ertekek, $szallito_id                                                ); }
         if( $szerzodes_adatok['Fizetési feltétel']                      ) { array_push($mezok, 'fiz_felt'   ); array_push($ertekek, $szerzodes_adatok['Fizetési feltétel']                      ); }
         if( $szerzodes_adatok['Szerződés Típus']                        ) { array_push($mezok, 'sztipus'    ); array_push($ertekek, $sztipus                                                    ); }
@@ -972,7 +957,7 @@ class ServerClass {
         if( $szerzodes_adatok['Lejárat dátuma']                         ) { array_push($mezok, 'bef_dt'     ); array_push($ertekek, $szerzodes_adatok['Lejárat dátuma']                         ); }
         if( $szerzodes_adatok['Szerződés összege']                      ) { array_push($mezok, 'dev_net'    ); array_push($ertekek, $szerzodes_adatok['Szerződés összege']                      ); }
         if( $szerzodes_adatok['Pénznem']                                ) { array_push($mezok, 'kcs_21'     ); array_push($ertekek, $penznem['id']                                              ); }
-        if( $szerzodes_adatok['Szerződés Ft összege']                   ) { array_push($mezok, 'netto'      ); array_push($ertekek, $szerzodes_adatok['Szerződés Ft összege']                   ); }
+        if( $szerzodes_adatok['Szerződés Ft összege']                   ) { array_push($mezok, $netto_mezo  ); array_push($ertekek, $szerzodes_adatok['Szerződés Ft összege']                   ); }
         if( $szerzodes_adatok['Árfolyam']                               ) { array_push($mezok, 'arfolyam'   ); array_push($ertekek, $szerzodes_adatok['Árfolyam']                               ); }
         if( $szerzodes_adatok['Szerződés szerinti fizetési határidő']   ) { array_push($mezok, 'szlafizhi'  ); array_push($ertekek, $szerzodes_adatok['Szerződés szerinti fizetési határidő']   ); }
         if( $szerzodes_adatok['Szerződés tárgya']                       ) { array_push($mezok, 'targy'      ); array_push($ertekek, $szerzodes_adatok['Szerződés tárgya']                       ); }
@@ -987,7 +972,6 @@ class ServerClass {
         $elesben_van = $adatbazis_kapcsolat->s2('recid', $tabla, "`andoc_id`='{$andoc_id}'");
         $aparecid    = $elesben_van['recid'];
         if( $aparecid === false ) { $db_error = true; }
-
 
         // Insert
         if( !$aparecid ) {
@@ -1004,7 +988,7 @@ class ServerClass {
             array_push($ertekek,    $szerzodes_xml, $andoc_id,  self::IU_USER,  self::IU_USER,  'NOW()'     );
             $aparecid = $adatbazis_kapcsolat->i($tabla.'_atmeneti', $mezok, $ertekek);
             if( $aparecid === false ) { $db_error = true; }
-// return $adatbazis_kapcsolat->gp() . '<br>';
+// Throw new SOAPFault ('Server', $adatbazis_kapcsolat->gp());
 
         // Update
         } else {

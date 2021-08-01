@@ -423,7 +423,7 @@ require_once('selectek.php');
     
     // Tételek SESSION-jének feltöltése (új felvitelben kicsit más a lekérdezés
     if( isset($_GET['uj']) && _jog(JOG_FENNTARTASI_SZERZ_OLVAS) ) {
-        $szerzodes  = $adatbazis_kapcsolat->s2('recid kcs_21', 'fenntartasi_szerzodes_atmeneti', "`andoc_id`='{$_GET['andoc_id']}'");
+        $szerzodes = $adatbazis_kapcsolat->s2('recid kcs_21', 'fenntartasi_szerzodes_atmeneti', "`andoc_id`='{$_GET['andoc_id']}'");
     } else if( _jog(JOG_FENNTARTASI_SZERZ_OLVAS) ) {
         $tetelek = $adatbazis_kapcsolat->s('*', 'fenntartasi_szerzodes_tetel', "`fenntartasi_szerzodes_recid`='{$_GET['id']}'", 'insert_dt');
     }
@@ -623,7 +623,7 @@ require_once('selectek.php');
 	// Új rekord felvitele
 	if( isset($_GET['uj']) ) {
 
-        // Itt úgy fogunk tenni,mintha újként szerkesztenénk, viszont nem a session-ból keresünk ide értékeket
+        // Itt úgy fogunk tenni, mintha újként szerkesztenénk, viszont nem a session-ból keresünk ide értékeket
         // hanem a kapott andocid alapján az átmeneti táblából. Magyarul egy sima lekérdezéssel meg is van a $sor tömb.
         $sor = $adatbazis_kapcsolat->s2('*', 'fenntartasi_szerzodes_atmeneti', "`andoc_id`='{$_GET['andoc_id']}'");
 

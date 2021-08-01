@@ -1,3 +1,8 @@
+// Új szerződés hozzáadása köztes táblából
+function projektszerzodes_feltolt() {
+    csoportMuvelet('projektszerzodes_feltolt');
+}
+
 // Projekt hozzáadása, törlése gomb: melyik legyen? Ezt dönti el ez a függvény.
 function pr_hozzaad_gomb_hozzaad_vagy_torol (){
     
@@ -174,6 +179,8 @@ $(document).on('blur', '#dev_net', function(e) {
 $(document).on('input, blur', '#kcs_21_autocomp', function(e) {
     // Azért van egy settimeoutban, mert a mezőt elhagyva még az autocomplete feltölti adattal. De az elhagyás pillanatában még üres.
     setTimeout(function(){
+        /*
+        Ezt azért vettük ki, mert minden mező disabled, hisz Andocból jön
         if ($('#kcs_21_autocomp').val() && $('#kcs_21_autocomp').val() != 'HUF') {
             $('#arfolyam')      .removeAttr('disabled').removeAttr('readonly').focus();
             $('#atvaltva_dt')   .removeAttr('disabled').removeAttr('readonly');
@@ -182,7 +189,7 @@ $(document).on('input, blur', '#kcs_21_autocomp', function(e) {
             $('#arfolyam')      .val('0,0000')      .attr('disabled', 'disabled').attr('readonly', 'readonly').removeClass('mod');
             $('#atvaltva_dt')   .val('\xa0\xa0\xa0\xa0.\xa0\xa0.\xa0\xa0').attr('disabled', 'disabled').attr('readonly', 'readonly').removeClass('mod');
             $('#dev_net')       .val('0,00')        .attr('disabled', 'disabled').attr('readonly', 'readonly').removeClass('mod').removeClass('csillag');
-        }
+        }*/
         tabindex_beallit();
     }, 200);
 });

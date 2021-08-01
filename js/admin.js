@@ -6496,10 +6496,12 @@ function szamlaBetolt( recid, page, muvelet, szerkeszt, kerdes_nelkul, anyagigen
                         } else {
                             $('#navGombok a.uj').attr('href', 'javascript: pr_szamla_feltolt(); void(0);');
                         }
-                        
-                    } else if( baseName(location.href) == 'projektszerzodes' && _get('megjegyzesek') ) {
-                        $('#navGombok a.uj').attr('href', 'javascript: kapcsolodoSzerkeszt(\'megjegyzes\'); void(0);');
-
+                    } else if( baseName(location.href) == 'projektszerzodes' ) {
+                        if( _get('megjegyzesek') ) {
+                            $('#navGombok a.uj').attr('href', 'javascript: kapcsolodoSzerkeszt(\'megjegyzes\'); void(0);');
+                        } else {
+                            $('#navGombok a.uj').attr('href', 'javascript: projektszerzodes_feltolt(); void(0);');
+                        }
                     } else if( baseName(location.href) == 'szamla' && _get('megjegyzesek') ) {
                         $('#navGombok a.uj').attr('href', 'javascript: kapcsolodoSzerkeszt(\'megjegyzes\'); void(0);');
 

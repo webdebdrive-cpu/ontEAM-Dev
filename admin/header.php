@@ -942,8 +942,16 @@ if( in_array(basename(self()), $_SESSION['ketHasabos']) && $_SESSION[get_db_tabl
                 $uj_link = 'javascript: pr_szamla_feltolt(); void(0);';
             }
         }
-    } elseif( basename(self()) == 'projektszerzodes.php' && isset($_GET['megjegyzesek']) ) {
-        $uj_link = 'javascript: kapcsolodoSzerkeszt(\'megjegyzes\'); void(0);';
+    } elseif( basename(self()) == 'projektszerzodes.php' ) {
+        if( !_jog(JOG_PRKEZEL_SZERZODES_KEZEL) && !_jog(JOG_PR_SAJAT_SZERZ_KEZEL) ) {
+            $uj_link = 'javascript: alert2(\'Önnek nincs joga projektszerződést feltölteni!\', \'\', \'Hiba\'); void(0);';
+        } else {
+            if( isset($_GET['megjegyzesek']) ) {
+                $uj_link = 'javascript: kapcsolodoSzerkeszt(\'megjegyzes\'); void(0);';
+            } else {
+                $uj_link = 'javascript: projektszerzodes_feltolt(); void(0);';
+            }
+        }
         
     } elseif( basename(self()) == 'raktar.php' && isset($_GET['megjegyzesek']) ) {
         $uj_link = 'javascript: kapcsolodoSzerkeszt(\'megjegyzes\'); void(0);';

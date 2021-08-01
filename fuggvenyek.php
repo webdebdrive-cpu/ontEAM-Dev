@@ -1473,6 +1473,20 @@ function i_u($type, $tabla, $tomb) {
                 
                 $i++;
             }
+            
+            // Andoc_id-t és a létrehozással kapcsolatos adatokat még letároljuk az éles fej táblában
+            $szerzodes = $adatbazis_kapcsolat->s2('andoc_id erk_xml insert_dt ikt_usr', 'projektszerzodes_atmeneti', "`recid`='{$_POST['atmeneti_recid']}'");
+            if( $szerzodes === false ) { $db_error = true; }
+            $szerzodes['erk_xml']  = htmlspecialchars_decode($szerzodes['erk_xml']);
+            $sql = $adatbazis_kapcsolat->u('projektszerzodes', 
+                                                                array('andoc_id',              'ont_erk_dt',            'erk_xml',             'ikt_usr'               ),
+                                                                array($szerzodes['andoc_id'],  $szerzodes['insert_dt'], $szerzodes['erk_xml'], $szerzodes['ikt_usr']   ),
+                                                            "`recid`='{$id}'");
+            if( $sql === false ) { $db_error = true; }
+
+            // Töröljük az átmeneti táblát
+            $sql = $adatbazis_kapcsolat->d('projektszerzodes_atmeneti', "`recid`='{$_POST['atmeneti_recid']}'");
+            if( $sql === false ) { $db_error = true; }
 
             // Feldolgozással a SESSION értékeket ki is ürítjük.
             unset($_SESSION['pr_szer_tetel_varh_erk']);

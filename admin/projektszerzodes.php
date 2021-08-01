@@ -32,6 +32,55 @@ if( $tobb_kep ) {
     function get_tobbkep_tabla(){ return str_replace('.php', '', basename(self())).'_dok'; } // A képeket tartalmazó adatbázis tábla neve FONTOS: ha itt átnevezed akkor a tobbkep.php-ban is át kell írni!
 }
 
+// Köztes tábla szerződéseiek kilistázása
+if( isset($_POST['projektszerzodes_get_koztes']) ) {
+    
+    // Köztes szerődésekből készítsünk táblázatot
+    $html = '';
+    $szerzodesek = $adatbazis_kapcsolat->s('recid andoc_id sz_szam szallito_id targy kcs_21 szerz_ossz dev_net', 'projektszerzodes_atmeneti', "");
+    if( $szerzodesek ) {
+        $html .= nl2('
+            <table class="csikos szamla_cont_tabla" id="pop_tetelek">
+                <thead>
+                <tr>
+                    <th class="l">Szerződésszám</th>
+                    <th class="l">Partner</th>
+                    <th class="l">Tárgy</th>
+                    <th class="r">Nettó érték</th>
+                </tr>
+                </thead>
+                <tbody>
+            ');
+        foreach( $szerzodesek as $szerzodes ) {
+            
+            $netto_oszlop = 'szerz_ossz';
+            $tizedes      = 0;
+            if( $szerzodes['kcs_21'] != KCS_21_HUF ) {
+                $netto_oszlop = 'dev_net';
+                $tizedes      = 2;
+            }
+            $html .= nl2('
+                    <tr data-andoc_id="'.$szerzodes['andoc_id'].'">
+                        <td class="l">'.$szerzodes['sz_szam'].'</td>
+                        <td class="l">'.$szerzodes['szallito_id'].' '.getErtek('nev', 'szallito', 'id', $szerzodes['szallito_id']).'</td>
+                        <td class="l">'.resz_string($szerzodes['targy'], 40).'</td>
+                        <td class="r nowrap">'.number_format($szerzodes[$netto_oszlop], $tizedes, ',', ' ').' '.erteklista(ERTEKLISTA_PENZNEM, $szerzodes['kcs_21']).'</td>
+                    </tr>
+                ');
+        }
+        $html .= nl2('
+                <tbody>
+                </table>
+            ');
+    } else {
+        $html .= '<script>popupZar(); alert2(\'Jelenleg nem található feldolgozandó szerződés.\', \'\', \'Hiba\')</script>';
+    }
+    
+    echo json_encode( array('html' => $html) );
+    
+    $weblap -> leallit();
+    exit;
+}
 
 // Projektszerődés dokumentum típusának beállítása 
 // (Projektek dokumentum fül alatt, minősítés gombra kattintva, de mivel szerződés dokumentumról van szó, ezért itt kezeljük)
@@ -1186,7 +1235,12 @@ require_once('selectek.php');
             fajlbol_olvas('../sablon/admin/szamla_fulek.html', true)
         );
     }
-
+    
+    // Tételek SESSION-jének feltöltése (új felvitelben kicsit más a lekérdezés
+    if( isset($_GET['uj']) && (_jog(JOG_PRKEZEL_SZERZODES_KEZEL) || _jog(JOG_PR_SAJAT_SZERZ_KEZEL)) ) {
+        $szerzodes = $adatbazis_kapcsolat->s2('recid kcs_21', 'projektszerzodes_atmeneti', "`andoc_id`='{$_GET['andoc_id']}'");
+    }
+    
     // Gombok kirajzolása minden oldalra
     $gombok = '';
     if( isset($_GET['uj']) ) {
@@ -1197,9 +1251,10 @@ require_once('selectek.php');
         $_SESSION['pr_szer_tetel_varh_ert'] = '';
         $_SESSION['pr_szer_tetel_dev_net']  = '';
 
-        if( _jog(JOG_PRKEZEL_SZERZODES_KEZEL) || _jog(JOG_PR_SAJAT_SZERZ_KEZEL) ){
+        if( _jog(JOG_PRKEZEL_SZERZODES_KEZEL) || _jog(JOG_PR_SAJAT_SZERZ_KEZEL) ) {
             $gombok = nl2('
                 <div class="form_kuldes">
+                    <input type="hidden" name="atmeneti_recid" value="'.$szerzodes['recid'].'">
                     <input type="button" class="gombb mentes_gomb" name="mehet_gomb" id="mehet_gomb" disabled value="Mentés" onclick="mentesGomb();">
                     <input type="button" class="gomb piros" disabled id="megsem_gomb" value="Mégsem" onclick="megsemGomb();">
                 </div>
@@ -1425,12 +1480,9 @@ require_once('selectek.php');
         $navi_mivel   = array( $navi,             '',         $gyk2 );
         $szamla_html .= str_replace($navi_mit, $navi_mivel, $navi_sablon);
 
-	    // FORM
-		if( isset($_GET['ujkent']) ) {
-            foreach ( $akt_tomb as $ertek ) {
-                $sor[$ertek['name']]=$_SESSION[$ertek['name']];
-			}
-		}
+        // Itt úgy fogunk tenni, mintha újként szerkesztenénk, viszont nem a session-ból keresünk ide értékeket
+        // hanem a kapott andocid alapján az átmeneti táblából. Magyarul egy sima lekérdezéssel meg is van a $sor tömb.
+        $sor = $adatbazis_kapcsolat->s2('*', 'projektszerzodes_atmeneti', "`andoc_id`='{$_GET['andoc_id']}'");
         
 	    $js = js_kiir($akt_tomb, 'form_ell_admin()');
 
@@ -1442,9 +1494,9 @@ require_once('selectek.php');
         $rend_mezok = $adatbazis_kapcsolat->s('`column_name`', '`information_schema`.columns', '`table_schema` LIKE  \''.get_db().'\' AND  `table_name` LIKE  \''.get_db_tabla().$tabla.'\'', '', '');
         $rend_mezok = adatbazis2tomb($rend_mezok, 'column_name');
 
-        $sor = array();
-        foreach($rend_mezok as $rend_mezo) {
-            $sor[$rend_mezo] = '';
+        $json_sor = array();
+        foreach ( $sor as $kulcs => $elem ) {
+            $json_sor[$kulcs] = formAdatok_replace($elem);
         }
         
         // Új feltöltéskor a pénzenm HUF
