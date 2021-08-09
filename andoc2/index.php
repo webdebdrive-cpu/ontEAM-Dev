@@ -95,7 +95,6 @@ try {
     $get = 'szerzodes';
     $nev = 'Szerződés';
     if( isset($_GET[$get]) ) {
-
         if( !$_POST['xml'] && !isset($_GET['teszt']) ) {
 
             echo '
@@ -114,6 +113,7 @@ try {
                 $xml = $_POST['xml'];
             }
             $xml = trim( str_replace('<?xml version="1.0" encoding="utf-8" ?>', '', $xml) );
+echo htmlspecialchars($xml);
             $soap -> SzerzodesAdatokImport( $xml );    
             
             // Webservicenek így adjunk át hibát vagy sikeres üzenetet

@@ -82,6 +82,34 @@ if( isset($_POST['projektszerzodes_get_koztes']) ) {
     exit;
 }
 
+// Köztes tábla áthelyezése fenntartási közé
+if( isset($_POST['fenntartasi_szerzodes']) ) {
+    
+    $szerzodes = $adatbazis_kapcsolat->s2('erk_xml', 'projektszerzodes_atmeneti', "`andoc_id`='{$_POST['andoc_id']}'");
+    $adatbazis_kapcsolat->d('projektszerzodes_atmeneti', "`andoc_id`='{$_POST['andoc_id']}'");
+    
+    // Postolás
+    // Milyen adatokkal szeretnénk postolni
+    $mit   = array('<property name="Szerződés iránya"></property>',            '<property name="Szerződés iránya">projekt</property>'      );
+    $mivel = array('<property name="Szerződés iránya">fenntartás</property>',  '<property name="Szerződés iránya">fenntartás</property>'   );
+    $szerzodes['erk_xml'] = str_replace($mit, $mivel, htmlspecialchars_decode( substr($szerzodes['erk_xml'], 19) ) );
+    
+    $ch = curl_init();
+    curl_setopt($ch, CURLOPT_URL, 'https://'.$_SERVER['HTTP_HOST'].'/andoc2/index.php?szerzodes');
+    curl_setopt($ch, CURLOPT_POST, 1);
+    curl_setopt($ch, CURLOPT_POSTFIELDS, "xml=" . $szerzodes['erk_xml']);
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+    curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 0); 
+    curl_setopt($ch, CURLOPT_TIMEOUT, 500);
+    curl_setopt($ch, CURLOPT_VERBOSE, true);
+    $result = curl_exec($ch);
+    curl_close($ch);    
+    var_dump($result);
+    
+    $weblap -> leallit();
+    exit;
+}
+
 // Projektszerődés dokumentum típusának beállítása 
 // (Projektek dokumentum fül alatt, minősítés gombra kattintva, de mivel szerződés dokumentumról van szó, ezért itt kezeljük)
 if( isset($_POST['dok_minosites_beallit']) ) {
@@ -1260,7 +1288,8 @@ require_once('selectek.php');
                 </div>
             ');
             
-            $gombok .= ' <input type="button" class="gomb" onclick="tetelek_kezelese_popup_nyit()" value="Tételek kezelése">';
+            $gombok .= '<input type="button" class="gomb" onclick="tetelek_kezelese_popup_nyit()" value="Tételek kezelése"> ';
+            $gombok .= '<input type="button" class="gomb" value="Fenntartási szerződés" onclick="fenntartasi_szerzodes();"> ';
 
             $muv_style = ' style="width: calc(100% - '.($_SESSION['defaultCsuszka'] + 16).'px);"';
             if( in_array(basename(self()), $_SESSION['ketHasabos']) && $_SESSION[get_db_tabla().'user'] ) {

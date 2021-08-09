@@ -86,6 +86,34 @@ if( isset($_POST['fenntartasi_szerzodes_get_koztes']) ) {
     exit;
 }
 
+// Köztes tábla áthelyezése projektek közé
+if( isset($_POST['projekt_szerzodes']) ) {
+    
+    $szerzodes = $adatbazis_kapcsolat->s2('erk_xml', 'fenntartasi_szerzodes_atmeneti', "`andoc_id`='{$_POST['andoc_id']}'");
+    $adatbazis_kapcsolat->d('fenntartasi_szerzodes_atmeneti', "`andoc_id`='{$_POST['andoc_id']}'");
+    
+    // Postolás
+    // Milyen adatokkal szeretnénk postolni
+    $mit   = array('<property name="Szerződés iránya"></property>',          '<property name="Szerződés iránya">fenntartás</property>'      );
+    $mivel = array('<property name="Szerződés iránya">projekt</property>',   '<property name="Szerződés iránya">projekt</property>'   );
+    $szerzodes['erk_xml'] = str_replace($mit, $mivel, htmlspecialchars_decode( substr($szerzodes['erk_xml'], 19) ) );
+    
+    $ch = curl_init();
+    curl_setopt($ch, CURLOPT_URL, 'https://'.$_SERVER['HTTP_HOST'].'/andoc2/index.php?szerzodes');
+    curl_setopt($ch, CURLOPT_POST, 1);
+    curl_setopt($ch, CURLOPT_POSTFIELDS, "xml=" . $szerzodes['erk_xml']);
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+    curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 0); 
+    curl_setopt($ch, CURLOPT_TIMEOUT, 500);
+    curl_setopt($ch, CURLOPT_VERBOSE, true);
+    $result = curl_exec($ch);
+    curl_close($ch);
+    var_dump($result);
+    
+    $weblap -> leallit();
+    exit;
+}
+
 // Szerződés szám foglat-e vagy sem?
 if( isset($_POST['szszam_letezik']) ) {
     
@@ -520,6 +548,7 @@ require_once('selectek.php');
             </div>
         ');
         $gombok .= '<input type="button" class="gomb" value="Tételek kezelése" onclick="csoportMuvelet(\'fenntartasiszerzodes_tetelek_kezelese\');"> ';
+        $gombok .= '<input type="button" class="gomb" value="Projekt szerződés" onclick="projekt_szerzodes();"> ';
 
         $muv_style = ' style="width: calc(100% - '.($_SESSION['defaultCsuszka'] + 16).'px);"';
         if( in_array(basename(self()), $_SESSION['ketHasabos']) && $_SESSION[get_db_tabla().'user'] ) {

@@ -809,7 +809,9 @@ class ServerClass {
         $szerzodes_andoc_id = $andoc_id = $szerzodes -> data -> register['registernumber'];
         
         if( !$szerzodes_adatok['Szerződés iránya'] ) {
-            Throw new SOAPFault ('Server', 'Kérem adja meg a szerződés irányát!');
+            // Ha nincs megadva a szerződés iránya, akkor fenntartási szerződésnek vesszük
+            // Throw new SOAPFault ('Server', 'Kérem adja meg a szerződés irányát!');
+            $szerzodes_adatok['Szerződés iránya'] = SZERZ_TIPUS_FENNTARTASI;
         }
         switch( $szerzodes_adatok['Szerződés iránya'] ) {
             case self::SZERZ_TIPUS_FENNTARTASI     : $tabla = 'fenntartasi_szerzodes';    break;
@@ -904,13 +906,13 @@ class ServerClass {
         // Foglalt szerződésszám ellenőrzése
         if( $szerzodes_adatok['Szerződés iktatószáma'] ) {
             // Átmeneti táblában
-            $letezo_szszam = $adatbazis_kapcsolat->s2('recid', $tabla.'_atmeneti', "`szszam`='{$szerzodes_adatok['Szerződés iktatószáma']}' AND `andoc_id`!='{$andoc_id}'");
+            $letezo_szszam = $adatbazis_kapcsolat->s2('recid', $tabla.'_atmeneti', "`{$szszam_mezo}`='{$szerzodes_adatok['Szerződés iktatószáma']}' AND `andoc_id`!='{$andoc_id}'");
             if( $letezo_szszam ) {
                 Throw new SOAPFault ('Server', '"'.$szerzodes_adatok['Szerződés iktatószáma'].'" Szerződés iktatószám már létezik a FELDOLGOZANDÓ szerződések között!');
             }
             
             // Éles táblában
-            $letezo_szszam = $adatbazis_kapcsolat->s2('recid', $tabla, "`szszam`='{$szerzodes_adatok['Szerződés iktatószáma']}' AND `andoc_id`!='{$andoc_id}'");
+            $letezo_szszam = $adatbazis_kapcsolat->s2('recid', $tabla, "`{$szszam_mezo}`='{$szerzodes_adatok['Szerződés iktatószáma']}' AND `andoc_id`!='{$andoc_id}'");
             if( $letezo_szszam ) {
                 Throw new SOAPFault ('Server', '"'.$szerzodes_adatok['Szerződés iktatószáma'].'" Szerződés iktatószám szám már létezik a FELDOLGOZOTT szerződések között!');
             }
@@ -977,7 +979,7 @@ class ServerClass {
         if( !$aparecid ) {
 
             // Insert esetén a foglalt szerződés számot ellenőrizni kell
-            if( $adatbazis_kapcsolat->s2('id', $tabla, "`sz_szam`='{$szerzodes_adatok['Szerződés iktatószáma']}'") ) {
+            if( $adatbazis_kapcsolat->s2('id', $tabla, "`{$szszam_mezo}`='{$szerzodes_adatok['Szerződés iktatószáma']}'") ) {
                 Throw new SOAPFault ('Server', 'Ilyen számú szerződés már létezik, így nem hozható létre újra!');
             }                    
 
