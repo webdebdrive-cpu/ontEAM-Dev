@@ -86,14 +86,14 @@ if( isset($_POST['projektszerzodes_get_koztes']) ) {
 if( isset($_POST['fenntartasi_szerzodes']) ) {
     
     $szerzodes = $adatbazis_kapcsolat->s2('erk_xml', 'projektszerzodes_atmeneti', "`andoc_id`='{$_POST['andoc_id']}'");
-    $adatbazis_kapcsolat->d('projektszerzodes_atmeneti', "`andoc_id`='{$_POST['andoc_id']}'");
+//    $adatbazis_kapcsolat->d('projektszerzodes_atmeneti', "`andoc_id`='{$_POST['andoc_id']}'");
     
     // Postolás
     // Milyen adatokkal szeretnénk postolni
-    $mit   = array('<property name="Szerződés iránya"></property>',            '<property name="Szerződés iránya">projekt</property>'      );
-    $mivel = array('<property name="Szerződés iránya">fenntartás</property>',  '<property name="Szerződés iránya">fenntartás</property>'   );
+    $mit   = array('<property name="Szerződés iránya"></property>',            '<property name="Szerződés iránya">projekt</property>',     '<property name="Szerződés iránya">Projekt</property>'      );
+    $mivel = array('<property name="Szerződés iránya">fenntartás</property>',  '<property name="Szerződés iránya">fenntartás</property>',  '<property name="Szerződés iránya">fenntartás</property>'   );
     $szerzodes['erk_xml'] = str_replace($mit, $mivel, htmlspecialchars_decode( substr($szerzodes['erk_xml'], 19) ) );
-    
+
     $ch = curl_init();
     curl_setopt($ch, CURLOPT_URL, 'https://'.$_SERVER['HTTP_HOST'].'/andoc2/index.php?szerzodes');
     curl_setopt($ch, CURLOPT_POST, 1);
@@ -1860,9 +1860,14 @@ require_once('selectek.php');
 	// Dokumentumok
 	}elseif( isset($_GET['dokumentumok']) ) {
 
-        if( $tobb_kep ) {
-            require_once('tobb_kep.php');
-        }
+//        if( $tobb_kep ) {
+//            require_once('tobb_kep.php');
+//        }
+        
+        // Itt a kapott XML-t jelenítjük meg
+        $szamla_html .= nl2('
+            Bejövő xml:
+            <br>').'<textarea class="oriasiTargy" style="height: 30rem;" readonly>'.$sor['erk_xml'].'</textarea>';
 
         if( $_GET['ajax'] ) {
             echo json_encode(array(

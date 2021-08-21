@@ -813,7 +813,7 @@ class ServerClass {
             // Throw new SOAPFault ('Server', 'Kérem adja meg a szerződés irányát!');
             $szerzodes_adatok['Szerződés iránya'] = SZERZ_TIPUS_FENNTARTASI;
         }
-        switch( $szerzodes_adatok['Szerződés iránya'] ) {
+        switch( strtolower( $szerzodes_adatok['Szerződés iránya'] ) ) {
             case self::SZERZ_TIPUS_FENNTARTASI     : $tabla = 'fenntartasi_szerzodes';    break;
             case self::SZERZ_TIPUS_PROJEKT         : $tabla = 'projektszerzodes';         break;
         }
@@ -926,7 +926,12 @@ class ServerClass {
                 case 'egyedi megrendelés'       : $sztipus = 'em'; break;
                 case 'egyéb szerződés'          : $sztipus = 'sz'; break;
                 case 'energia szerződés'        : $sztipus = 'es'; break;
-                default: Throw new SOAPFault ('Server', 'Nem ismert szerződés típus!');
+                default: 
+                    if( $tabla == 'fenntartasi_szerzodes' ) {
+                        Throw new SOAPFault ('Server', 'Nem ismert szerződés típus!');
+                    } else {
+                        // Csak fenntartási szerződés esetén kötelező a "Szerződés Típus"-t megadni
+                    }
             }
         }
         
@@ -948,22 +953,23 @@ class ServerClass {
             $netto_mezo  = 'szerz_ossz';
         }
         $mezok = $ertekek = array();
-        if( $szerzodes_adatok['Iktatás dátuma']                         ) { array_push($mezok, 'ikt_dt'     ); array_push($ertekek, $szerzodes_adatok['Iktatás dátuma']                         ); }
-        if( $szerzodes_adatok['Rögzítő neve']                           ) { array_push($mezok, 'ikt_usr'    ); array_push($ertekek, $szerzodes_adatok['Rögzítő neve']                           ); }
-        if( $szerzodes_adatok['Szerződés iktatószáma']                  ) { array_push($mezok, $szszam_mezo ); array_push($ertekek, $szerzodes_adatok['Szerződés iktatószáma']                  ); }
-        if( $szerzodes_adatok['Partnerkód']                             ) { array_push($mezok, 'szallito_id'); array_push($ertekek, $szallito_id                                                ); }
-        if( $szerzodes_adatok['Fizetési feltétel']                      ) { array_push($mezok, 'fiz_felt'   ); array_push($ertekek, $szerzodes_adatok['Fizetési feltétel']                      ); }
-        if( $szerzodes_adatok['Szerződés Típus']                        ) { array_push($mezok, 'sztipus'    ); array_push($ertekek, $sztipus                                                    ); }
-        if( $szerzodes_adatok['Hatályos']                               ) { array_push($mezok, 'hatalyos'   ); array_push($ertekek, $hatalyos                                                   ); }
-        if( $szerzodes_adatok['Hatálybalépés dátuma']                   ) { array_push($mezok, 'erv_dt'     ); array_push($ertekek, $szerzodes_adatok['Hatálybalépés dátuma']                   ); }
-        if( $szerzodes_adatok['Lejárat dátuma']                         ) { array_push($mezok, 'bef_dt'     ); array_push($ertekek, $szerzodes_adatok['Lejárat dátuma']                         ); }
-        if( $szerzodes_adatok['Szerződés összege']                      ) { array_push($mezok, 'dev_net'    ); array_push($ertekek, $szerzodes_adatok['Szerződés összege']                      ); }
-        if( $szerzodes_adatok['Pénznem']                                ) { array_push($mezok, 'kcs_21'     ); array_push($ertekek, $penznem['id']                                              ); }
-        if( $szerzodes_adatok['Szerződés Ft összege']                   ) { array_push($mezok, $netto_mezo  ); array_push($ertekek, $szerzodes_adatok['Szerződés Ft összege']                   ); }
-        if( $szerzodes_adatok['Árfolyam']                               ) { array_push($mezok, 'arfolyam'   ); array_push($ertekek, $szerzodes_adatok['Árfolyam']                               ); }
-        if( $szerzodes_adatok['Szerződés szerinti fizetési határidő']   ) { array_push($mezok, 'szlafizhi'  ); array_push($ertekek, $szerzodes_adatok['Szerződés szerinti fizetési határidő']   ); }
-        if( $szerzodes_adatok['Szerződés tárgya']                       ) { array_push($mezok, 'targy'      ); array_push($ertekek, $szerzodes_adatok['Szerződés tárgya']                       ); }
-        if( $szerzodes_adatok['Megjegyzés']                             ) { array_push($mezok, 'megjegyz'   ); array_push($ertekek, $szerzodes_adatok['Megjegyzés']                             ); }
+        if( $szerzodes_adatok['Iktatás dátuma']                         ) { array_push($mezok, 'ikt_dt'         ); array_push($ertekek, $szerzodes_adatok['Iktatás dátuma']                         ); }
+        // Szálloda adatot akkor sem rögzítünk, ha kapnánk! if( $szerzodes_adatok['Szálloda - Klaszter']                    ) { array_push($mezok, 'telephely_id'   ); array_push($ertekek, $szerzodes_adatok['Szálloda - Klaszter']                    ); }
+        if( $szerzodes_adatok['Rögzítő neve']                           ) { array_push($mezok, 'ikt_usr'        ); array_push($ertekek, $szerzodes_adatok['Rögzítő neve']                           ); }
+        if( $szerzodes_adatok['Szerződés iktatószáma']                  ) { array_push($mezok, $szszam_mezo     ); array_push($ertekek, $szerzodes_adatok['Szerződés iktatószáma']                  ); }
+        if( $szerzodes_adatok['Partnerkód']                             ) { array_push($mezok, 'szallito_id'    ); array_push($ertekek, $szallito_id                                                ); }
+        if( $szerzodes_adatok['Fizetési feltétel']                      ) { array_push($mezok, 'fiz_felt'       ); array_push($ertekek, $szerzodes_adatok['Fizetési feltétel']                      ); }
+        if( $szerzodes_adatok['Szerződés Típus']                        ) { array_push($mezok, 'sztipus'        ); array_push($ertekek, $sztipus                                                    ); }
+        if( $szerzodes_adatok['Hatályos']                               ) { array_push($mezok, 'hatalyos'       ); array_push($ertekek, $hatalyos                                                   ); }
+        if( $szerzodes_adatok['Hatálybalépés dátuma']                   ) { array_push($mezok, 'erv_dt'         ); array_push($ertekek, $szerzodes_adatok['Hatálybalépés dátuma']                   ); }
+        if( $szerzodes_adatok['Lejárat dátuma']                         ) { array_push($mezok, 'bef_dt'         ); array_push($ertekek, $szerzodes_adatok['Lejárat dátuma']                         ); }
+        if( $szerzodes_adatok['Szerződés összege']                      ) { array_push($mezok, 'dev_net'        ); array_push($ertekek, $szerzodes_adatok['Szerződés összege']                      ); }
+        if( $szerzodes_adatok['Pénznem']                                ) { array_push($mezok, 'kcs_21'         ); array_push($ertekek, $penznem['id']                                              ); }
+        if( $szerzodes_adatok['Szerződés Ft összege']                   ) { array_push($mezok, $netto_mezo      ); array_push($ertekek, $szerzodes_adatok['Szerződés Ft összege']                   ); }
+        if( $szerzodes_adatok['Árfolyam']                               ) { array_push($mezok, 'arfolyam'       ); array_push($ertekek, $szerzodes_adatok['Árfolyam']                               ); }
+        if( $szerzodes_adatok['Szerződés szerinti fizetési határidő']   ) { array_push($mezok, 'szlafizhi'      ); array_push($ertekek, $szerzodes_adatok['Szerződés szerinti fizetési határidő']   ); }
+        if( $szerzodes_adatok['Szerződés tárgya']                       ) { array_push($mezok, 'targy'          ); array_push($ertekek, $szerzodes_adatok['Szerződés tárgya']                       ); }
+        if( $szerzodes_adatok['Megjegyzés']                             ) { array_push($mezok, 'megjegyz'       ); array_push($ertekek, $szerzodes_adatok['Megjegyzés']                             ); }
         
         // Ha az átmeneti táblában volna a szerződés, akkor előbb töröljük
         $atmenetiben_van = $adatbazis_kapcsolat->s2('recid', $tabla.'_atmeneti', "`andoc_id`='{$andoc_id}'");

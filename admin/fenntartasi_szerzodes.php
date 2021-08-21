@@ -94,8 +94,8 @@ if( isset($_POST['projekt_szerzodes']) ) {
     
     // Postolás
     // Milyen adatokkal szeretnénk postolni
-    $mit   = array('<property name="Szerződés iránya"></property>',          '<property name="Szerződés iránya">fenntartás</property>'      );
-    $mivel = array('<property name="Szerződés iránya">projekt</property>',   '<property name="Szerződés iránya">projekt</property>'   );
+    $mit   = array('<property name="Szerződés iránya"></property>',          '<property name="Szerződés iránya">fenntartás</property>', '<property name="Szerződés iránya">Fenntartás</property>');
+    $mivel = array('<property name="Szerződés iránya">projekt</property>',   '<property name="Szerződés iránya">projekt</property>',    '<property name="Szerződés iránya">projekt</property>'   );
     $szerzodes['erk_xml'] = str_replace($mit, $mivel, htmlspecialchars_decode( substr($szerzodes['erk_xml'], 19) ) );
     
     $ch = curl_init();
