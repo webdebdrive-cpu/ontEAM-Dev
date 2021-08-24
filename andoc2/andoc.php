@@ -604,22 +604,20 @@ class ServerClass {
                                     $dev_net,
                                     $dev_br,
                                 );
-                    if( $tetel['Sor megnevezése']       ) { array_push($mezok, 'targy'              ); array_push($ertekek, $tetel['Sor megnevezése']               ); }
-                    if( $tetel['ÁFA Összege']           ) { array_push($mezok, 'afa_ossz', 'afa_kod'); array_push($ertekek, $tetel['ÁFA Összege'], $afa_kod['id']   ); }
-                    if( $tetel['Főkönyvi számlaszám']   ) { array_push($mezok, 'ktgnem_id'          ); array_push($ertekek, $tetel['Főkönyvi számlaszám']           ); }
-                    if( $tetel['Költséghely']           ) { array_push($mezok, 'ktghely_id'         ); array_push($ertekek, $tetel['Költséghely']                   ); }
-                    if( $tetel['Flexmező']              ) { array_push($mezok, 'flex'               ); array_push($ertekek, $tetel['Flexmező']                      ); }
+                    if( $tetel['Sor megnevezése']       ) { array_push($mezok, 'targy'      ); array_push($ertekek, $tetel['Sor megnevezése']   ); }
+                    if( $tetel['ÁFA Összege']           ) { array_push($mezok, 'afa_ossz'   ); array_push($ertekek, $tetel['ÁFA Összege']       ); }
+                    if( $tetel['Flexmező']              ) { array_push($mezok, 'flex'       ); array_push($ertekek, $tetel['Flexmező']          ); }
 
                     // További mezők felvétele, számla típusától függően
                     if( $szamla_tipus == self::SZAMLA_TIPUS_FENNTARTASI ) {
-                        // Nem kell további mezőket felvenni
+                        array_push($mezok,      'jogcim',           'uzemresz',            'megn',                                      'ktgnem_id',                    'ktghely_id',           'afa',              'afa_kod',          'afa_nev'         );
+                        array_push($ertekek,    $tetel['Jogcím'],   $tetel['Üzemrész'],    $tetel['Főkönyvi számlaszám megnevezése'],   $tetel['Főkönyvi számlaszám'],  $tetel['Költséghely'],  $tetel['ÁFA %'],    $tetel['ÁFA kód'],  $tetel['ÁFA neve']);
                     }
                     if( $szamla_tipus == self::SZAMLA_TIPUS_PROJEKT) {
                         // Nem kell további mezőket felvenni
                     }
                     if( $szamla_tipus == self::SZAMLA_TIPUS_ANYAG) {
-                        array_push($mezok,      'ktgnem_id',           'ktghely_id',            'cikk_id',           'rndert',           'modert',           'vnrdert',          'vmodert',             'oracikkid',          'kcs_35',          'szlamen',          'szlamee',          'szlaear'            );
-                        array_push($ertekek,    $tetel -> ktgnem_id,   $tetel -> ktghely_id,    $tetel -> cikk_id,   $tetel -> rndert,   $tetel -> modert,   $tetel -> vnrdert,   $tetel -> vmodert,    $tetel -> oracikkid,  $tetel -> kcs_35,  $tetel -> szlamen,  $tetel -> szlamee,  $tetel -> szlaear    );
+                        //
                     }
 
                     // Tétel létezik-e már?

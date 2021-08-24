@@ -7,7 +7,7 @@
 - admin.js-ben a ketHasabos = new Array rész felsorolását bővítsd ki
 - fuggvenyek.php-ben a szamla_lista() függvényt bővítsd ki a if( $bejegyzesek ) résznél, és annak megfelelően egy új függvényt is hozz létre.
 - meta.php-ban is legyen lekezelve az oldal címe
-- A menüpont tartalmaz dokumentumokat is, akkor a fuggvenyek.php-ban a dokumentumtarLista() függvényben a $menupontok tömböt is tartsd karban
+- Ha a menüpont tartalmaz dokumentumokat is, akkor a fuggvenyek.php-ban a dokumentumtarLista() függvényben a $menupontok tömböt is tartsd karban
 - Majd a jogosultásgoat ne felejtsd el beállítani (törölni, updatelni, látni ki tud)
  
 ÚJ BEJEGYZÉS FELTÖLTÉS IKONRA KATTINTVA MI TRÖTÉNJEN

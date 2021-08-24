@@ -283,9 +283,11 @@ if( isset($_POST['pop_tetelek_feltolt']) ) {
                             <td class="pop_targy l">'.htmlspecialchars($_SESSION['fennt_szla_tetel_targy'][$i]).'</td>
                             <td class="pop_netto_ert r">'.$_SESSION[$session_mezo][$i].'</td>
                             <td class="pop_brutto_ert r">'.$_SESSION[$session_mezo_br][$i].'</td>
-                            <td class="pop_ktgnem_autocomp l">'.getErtek('nev', 'ktgnem',  'id', $_SESSION['fennt_szla_tetel_ktgnem'][$i]).'</td>
+                            <td class="pop_ktgnem_autocomp l">
+                                '.$_SESSION['fennt_szla_tetel_ktgnem'][$i]/*getErtek('nev', 'ktgnem',  'id', $_SESSION['fennt_szla_tetel_ktgnem'][$i])*/.'
+                            </td>
                             <td class="pop_ktghely_autocomp l">
-                                '.getErtek('nev', 'ktghely', 'id', $_SESSION['fennt_szla_tetel_ktghely'][$i]).'
+                                '.$_SESSION['fennt_szla_tetel_ktghely'][$i]/*getErtek('nev', 'ktghely', 'id', $_SESSION['fennt_szla_tetel_ktghely'][$i])*/.'
                             </td>
                             <td>
                                 '.$targy.'
@@ -297,6 +299,8 @@ if( isset($_POST['pop_tetelek_feltolt']) ) {
                             </td>-->
                             <td>
                                 '.$torles.'
+                                <input type="hidden" class="pop_afakod" name="pop_afakod_id" value="'.$_SESSION['fennt_szla_tetel_afakod'][$i].'">
+                                <input type="hidden" class="pop_jogcim" name="pop_jogcim_id" value="'.$_SESSION['fennt_szla_tetel_jogcim'][$i].'">
                                 <input type="hidden" class="pop_ktgnem" name="pop_ktgnem_id" value="'.$_SESSION['fennt_szla_tetel_ktgnem'][$i].'">
                                 <input type="hidden" class="pop_ktghely" name="pop_ktghely_id" value="'.$_SESSION['fennt_szla_tetel_ktghely'][$i].'">
                                 <input type="hidden" class="pop_valtozott" value="'.$_SESSION['fennt_szla_tetel_valtozott'][$i].'">
@@ -334,15 +338,17 @@ if( isset($_POST['tetel_sorok_ment']) ) {
     $targy_adat     = 1;
     $netto_ert_adat = 2;
     $brutto_ert_adat= 3;
-    $ktgnem_adat    = 4;
-    $ktghely_adat   = 5;
-    $valtozott_adat = 6;
+    $afakod_adat    = 4;
+    $jogcim_adat    = 5;
+    $ktgnem_adat    = 6;
+    $ktghely_adat   = 7;
+    $valtozott_adat = 8;
     
     $tetelek_osszege = 0;
     $i = 0;
     foreach ( $_POST['adatok'][$netto_ert_adat][1] as $ertek ) {
         $_POST['adatok'][$netto_ert_adat] [1][$i] = str_replace(array(' ', ','), array('', '.'), $ertek);
-        $tetelek_osszege    += $_POST['adatok'][$netto_ert_adat] [1][$i];
+        $tetelek_osszege += $_POST['adatok'][$netto_ert_adat] [1][$i];
         $i++;
     }
     $tetelek_br_osszege = 0;
@@ -406,11 +412,13 @@ if( isset($_POST['tetel_sorok_ment']) ) {
             $_SESSION['fennt_szla_tetel_netto_ert']  = str_replace(',', '.', $_POST['adatok'][$netto_ert_adat][1]);
             $_SESSION['fennt_szla_tetel_brutto_ert'] = str_replace(',', '.', $_POST['adatok'][$brutto_ert_adat][1]);
         }
+        $_SESSION['fennt_szla_tetel_afakod']    = $_POST['adatok'][$afakod_adat][1];
+        $_SESSION['fennt_szla_tetel_jogcim']    = $_POST['adatok'][$jogcim_adat][1];
         $_SESSION['fennt_szla_tetel_ktgnem']    = $_POST['adatok'][$ktgnem_adat][1];
         $_SESSION['fennt_szla_tetel_ktghely']   = $_POST['adatok'][$ktghely_adat][1];
         $_SESSION['fennt_szla_tetel_valtozott'] = $_POST['adatok'][$valtozott_adat][1];
     }
-    
+
     // Adatbázisba mentést csak akkor csinálnuk, ha már meglevő számlát szerkesztünk
     if( $recid ) {
         $i = 0;
@@ -419,17 +427,25 @@ if( isset($_POST['tetel_sorok_ment']) ) {
             $netto   = $_POST['adatok'][$netto_ert_adat][1][$i];
             $brutto  = $_POST['adatok'][$brutto_ert_adat][1][$i];
             // Bruttót nem árfolyamból számolunk, ez a sor törölhető $brutto  = $netto*str_replace(array(' ', ','), array('', '.'), $_POST['arfolyam']);
+            $afakod  = $_POST['adatok'][$afakod_adat][1][$i];
             $targy   = $_POST['adatok'][$targy_adat][1][$i];
+            $jogcim  = $_POST['adatok'][$jogcim_adat][1][$i];
             $ktgnem  = $_POST['adatok'][$ktgnem_adat][1][$i];
             $ktghely = $_POST['adatok'][$ktghely_adat][1][$i];
             $valtozott = 0;
             if( $_POST['adatok'][$valtozott_adat][1][$i] ) {
                 $valtozott = 1;
             }
+            
+            // Jogcím/Áfakód esetén nem csak egy recid-t tárolunk le, hanem a tába oszlopait, ezért lekérjük a megfelelő sort
+            $jogcim = $adatbazis_kapcsolat->s2('recid jogcim uzemresz megn szla_szam ktghely ', 'jogcim', "`recid`='{$jogcim}'");
+            $afakod = $adatbazis_kapcsolat->s2('recid nev kod afa', 'afakod', "`recid`='{$afakod}'");
+            
             // Ha ismerjük a tétel recid-ját, akkor update
             if( $_POST['adatok'][$recid_adat][1][$i] ) {
-                $mezok   = array('targy', $db_mezo, $db_mezo_br, 'ktgnem_id',    'ktghely_id',  'valtozott' );
-                $ertekek = array($targy,  $netto,   $brutto,     $ktgnem,        $ktghely,      $valtozott  );
+                
+                $mezok   = array('targy', $db_mezo, $db_mezo_br, 'ktgnem_id',           'ktghely_id', 'jogcim_recid',   'jogcim',          'uzemresz',          'megn',          'afakod_recid',   'afa',          'afa_kod',      'afa_nev',      'valtozott', 'update_usr'                             );
+                $ertekek = array($targy,  $netto,   $brutto,     $jogcim['szla_szam'],  $ktghely,     $jogcim['recid'], $jogcim['jogcim'], $jogcim['uzemresz'], $jogcim['megn'], $afakod['recid'], $afakod['afa'], $afakod['kod'], $afakod['nev'], $valtozott,  $_SESSION[get_db_tabla().'teljes_nev']   );
                 // Devizás számla esetén a Ft-os nettó/bruttó értékeket is számoljuk ki és írjuk be
                 if( $_POST['kcs_21'] && $_POST['kcs_21']!=KCS_21_HUF ) {
                     array_push($mezok,   'netto_ert',       'brutto_ert'        );
@@ -440,11 +456,11 @@ if( isset($_POST['tetel_sorok_ment']) ) {
                 
             // Egyébként insert
             } else {
-                
+
                 $rownum = $adatbazis_kapcsolat->s2('MAX(`rownum`)', 'fenntartasi_szamla_tetel', "`fenntartasi_szamla_recid`='{$recid}'");
                 $rownum = $rownum['MAX(`rownum`)']+1;
-                $mezok   = array('fenntartasi_szamla_recid', 'rownum', 'targy', $db_mezo, $db_mezo_br, 'ktgnem_id',    'ktghely_id', 'valtozott');
-                $ertekek = array($recid,                     $rownum,  $targy,  $netto,   $brutto,     $ktgnem,        $ktghely,     '1'        );
+                $mezok   = array('fenntartasi_szamla_recid', 'rownum', 'targy', $db_mezo, $db_mezo_br, 'ktgnem_id',         'ktghely_id', 'jogcim_recid',   'jogcim',          'uzemresz',          'megn',          'afakod_recid',   'afa',          'afa_kod',      'afa_nev',        'valtozott', 'loginnev',                          'insert_dt',    'insert_usr',                             'update_usr'                              );
+                $ertekek = array($recid,                     $rownum,  $targy,  $netto,   $brutto,     $jogcim['szla_szam'],$ktghely,     $jogcim['recid'], $jogcim['jogcim'], $jogcim['uzemresz'], $jogcim['megn'], $afakod['recid'], $afakod['afa'], $afakod['kod'], $afakod['nev'],   '1',          $_SESSION[get_db_tabla().'user'],   'NOW()',        $_SESSION[get_db_tabla().'teljes_nev'],   $_SESSION[get_db_tabla().'teljes_nev']    );
                 // Devizás számla esetén a Ft-os nettó/bruttó értékeket is számoljuk ki és írjuk be
                 if( $_POST['kcs_21'] && $_POST['kcs_21']!=KCS_21_HUF ) {
                     array_push($mezok,   'netto_ert',       'brutto_ert'        );
@@ -1088,6 +1104,38 @@ if( isset($_POST['fenntartasi_szamla_kapcsolas']) ) {
     exit();
 }
 
+// Jogcím autocomplete alapján a költségnem és hely feltöltése
+if( isset($_POST['ktgnem_ktghely_kitolt']) ) {
+    
+    $db_error = false;
+    mysqli_autocommit($db_kapcs, false);
+    
+    $jogcim  = $adatbazis_kapcsolat->s2('szla_szam ktghely megn', 'jogcim', "`recid`='{$_POST['jogcim_recid']}'");
+    if( $jogcim === false ) { $db_error = true; }
+    
+    if( !$db_error ) {
+        mysqli_commit($db_kapcs);
+
+        echo json_encode(array(
+            'ktgnem_id' => $jogcim['szla_szam'],
+            'ktghely_id'=> $jogcim['ktghely'],
+            'ktgnem'    => $jogcim['megn'],
+            'ktghely'   => $jogcim['ktghely'],
+        ));
+    } else {
+        mysqli_rollback($db_kapcs);
+
+        echo json_encode(array(
+            'hiba'  => tranzakcioHiba(),
+            'title' => 'Hiba'
+        ));
+    }
+    
+    $weblap->leallit();
+    exit();
+}
+
+
 
 
 
@@ -1157,7 +1205,7 @@ require_once('selectek.php');
     $i = 0;
     $ossz_netto   = 0;
     $ossz_dev_net = 0;
-    $_SESSION['fennt_szla_tetel_recid'] = $_SESSION['fennt_szla_tetel_targy'] = $_SESSION['fennt_szla_tetel_netto_ert'] = $_SESSION['fennt_szla_tetel_brutto_ert'] = $_SESSION['fennt_szla_tetel_dev_net'] = $_SESSION['fennt_szla_tetel_dev_br'] = $_SESSION['fennt_szla_tetel_ktgnem'] = $_SESSION['fennt_szla_tetel_ktghely'] = array();
+    $_SESSION['fennt_szla_tetel_recid'] = $_SESSION['fennt_szla_tetel_targy'] = $_SESSION['fennt_szla_tetel_netto_ert'] = $_SESSION['fennt_szla_tetel_brutto_ert'] = $_SESSION['fennt_szla_tetel_dev_net'] = $_SESSION['fennt_szla_tetel_dev_br'] = $_SESSION['fennt_szla_tetel_afakod'] = $_SESSION['fennt_szla_tetel_jogcim'] = $_SESSION['fennt_szla_tetel_ktgnem'] = $_SESSION['fennt_szla_tetel_ktghely'] = array();
     foreach ( $tetelek as $tetel ) {
         $ossz_netto   += $tetel['netto_ert'];
         $ossz_dev_net += $tetel['dev_net'];
@@ -1167,7 +1215,9 @@ require_once('selectek.php');
         $_SESSION['fennt_szla_tetel_brutto_ert'][$i]= number_format($tetel['brutto_ert'], 0, '', ' ');
         $_SESSION['fennt_szla_tetel_dev_net'][$i]   = number_format($tetel['dev_net'],    2, ',', ' ');
         $_SESSION['fennt_szla_tetel_dev_br'][$i]    = number_format($tetel['dev_br'],     2, ',', ' ');
-        $_SESSION['fennt_szla_tetel_ktgnem'][$i]    = $tetel['ktgnem_id'];
+        $_SESSION['fennt_szla_tetel_afakod'][$i]    = $tetel['afakod_recid'];
+        $_SESSION['fennt_szla_tetel_jogcim'][$i]    = $tetel['jogcim_recid'];
+        $_SESSION['fennt_szla_tetel_ktgnem'][$i]    = $tetel['megn'];
         $_SESSION['fennt_szla_tetel_ktghely'][$i]   = $tetel['ktghely_id'];
         $_SESSION['fennt_szla_tetel_valtozott'][$i] = $tetel['valtozott'];
         $_SESSION['fennt_szla_tetel_andocos'][$i]   = $tetel['andocos'];
@@ -1458,6 +1508,11 @@ require_once('selectek.php');
 	// Számla tételek
     } elseif( isset($_GET['tetel']) ) {
 
+        $deviza = '';
+        if( $sor['kcs_21'] != KCS_21_HUF ) {
+            $deviza = ' ('.getErtekLista(ERTEKLISTA_PENZNEM, $sor['kcs_21']).')';
+        }
+        
         $szamla_html .= nl2('
             <div class="dt naplo">
                 <div class="dtr nFejlec">
@@ -1465,10 +1520,11 @@ require_once('selectek.php');
                     <div class="dtc">Tárgy</div>
                     <div class="dtc">Költségnem</div>
                     <div class="dtc">Költséghely</div>
-                    <div class="dtc r">Nettó érték</div>
-                    <div class="dtc r">Bruttó érték</div>
-                    <div class="dtc r">Deviza nettó</div>
-                    <div class="dtc r">Deviza bruttó</div>
+                    <div class="dtc r">Nettó érték (HUF)</div>
+                    <div class="dtc r">Bruttó érték (HUF)</div>
+                    <div class="dtc r">Áfa %</div>
+                    <div class="dtc r">Deviza nettó'.$deviza.'</div>
+                    <div class="dtc r">Deviza bruttó'.$deviza.'</div>
                 </div>
         ');
         
@@ -1480,10 +1536,11 @@ require_once('selectek.php');
                 <div class="dtr nSor">
                     <!--<div class="dtc">'.getSzallodaNev($tetel['telephely_id']).'</div>-->
                     <div class="dtc">'.$tetel['targy'].'</div>
-                    <div class="dtc">'.getErtek('nev', 'ktgnem', 'id', $tetel['ktgnem_id']).'</div>
-                    <div class="dtc">'.getErtek('nev', 'ktghely', 'id', $tetel['ktghely_id']).'</div>
+                    <div class="dtc">'.$tetel['megn']/*getErtek('nev', 'ktgnem', 'id', $tetel['ktgnem_id'])*/.'</div>
+                    <div class="dtc">'.$tetel['ktghely_id']/*getErtek('nev', 'ktghely', 'id', $tetel['ktghely_id'])*/.'</div>
                     <div class="dtc r nowrap">'.number_format($tetel['netto_ert'],  0, ',', ' ').'</div>
                     <div class="dtc r nowrap">'.number_format($tetel['brutto_ert'],  0, ',', ' ').'</div>
+                    <div class="dtc r nowrap">'.$tetel['afa'].'</div>
                     <div class="dtc r nowrap">'.number_format($tetel['dev_net'], 2, ',', ' ').'</div>
                     <div class="dtc r nowrap">'.number_format($tetel['dev_br'], 2, ',', ' ').'</div>
                 </div>
@@ -1734,19 +1791,25 @@ function xml_vissza( $szamla_id, $igazolva = '', $oka = '' ) {
 
     $tetelek = $adatbazis_kapcsolat->s('*', 'fenntartasi_szamla_tetel', "`fenntartasi_szamla_recid`='{$szamla_id}' AND `valtozott`='1'");
     if( $tetelek === false ) { $db_error = true; }
-    
+
     $tetel_xml = '';
     $i = 0;
     foreach( $tetelek as $tetel ) {
         
-        $afa        = getErtekLista(ERTEKLISTA_AFA_KOD, $tetel['afa_kod']);
         $szalloda   = getSzallodaNev($szamla['telephely_id']);
         $tetel_xml .= '
             <row rownumberonpage="'.$tetel['rownum'].'">
               <property name="Sor megnevezése">'.$tetel['targy'].'</property>
               <property name="Nettó sorösszeg">'.$tetel[$netto_mezo].'</property>
               <property name="Főkönyvi számlaszám">'.$tetel['ktgnem_id'].'</property>
+              <property name="Jogcím">'.$tetel['jogcim'].'</property>
+              <property name="Üzemrész">'.$tetel['uzemresz'].'</property>
+              <property name="Főkönyvi számlaszám megnevezése">'.$tetel['megn'].'</property>
+              <property name="Főkönyvi számlaszám">'.$tetel['ktgnem_id'].'</property>
               <property name="Költséghely">'.$tetel['ktghely_id'].'</property>
+              <property name="ÁFA kód">'.$tetel['afa_kod'].'</property>
+              <property name="ÁFA neve">'.$tetel['afa_nev'].'</property>
+              <property name="ÁFA %">'.$tetel['afa'].'</property>
             </row>
             ';
         $i++;

@@ -19,6 +19,7 @@ function get_title(){
                 $title = trim($title, ' - ');
             }
         break;
+        case 'afakod.php'             : $title .= 'Áfakódok';                       break;
         case 'anyagigenyles.php':
             if( isset($_GET['anyagrend']) ) {
                 $title .= 'Anyagrendelések';
@@ -47,6 +48,7 @@ function get_title(){
         case 'fenntartasi_szamla.php'       : $title .= 'Fenntartási számla';       break;
         case 'fenntartasi_szerzodes.php'    : $title .= 'Fenntartási szerződések';  break;
         case 'fenntartasi_terv.php'         : $title .= 'Fenntartási tervek';       break;
+        case 'jogcim.php'                   : $title .= 'Jogcím';                   break;
         case 'ktghely.php'                  : $title .= 'Költséghelyek';            break;
         case 'ktgnem.php'                   : $title .= 'Költségnemek';             break;
         case 'login.php'                    : $title .= 'Felhasználók';             break;

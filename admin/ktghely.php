@@ -1,4 +1,8 @@
 <?php
+// Ez a menüpont inaktiválva lett
+exit;
+
+
 require_once('../weblap.php');
 
 if( !_jog(JOG_ERTEKLISTAK_KEZEL) ) {

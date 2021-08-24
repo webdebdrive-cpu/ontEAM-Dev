@@ -37,31 +37,31 @@ if( $_GET['print'] == 'lista' || isset($_GET['pdf']) ) {
         if ($_GET['mezo']=='stat_id') {
             $feltetel .= getStatText($tabla, $_GET['felt']);
             
-        }elseif ( $tabla == 'erteklista' && $_GET['mezo']=='csoport' ) {
-            foreach($select_erteklista as $ertek){
-                if($ertek['value']==$_GET['felt']){
+        } elseif( $tabla == 'erteklista' && $_GET['mezo'] == 'csoport' ) {
+            foreach ( $select_erteklista as $ertek ) {
+                if( $ertek['value'] == $_GET['felt'] ) {
                     $feltetel .= $ertek['name'];
                     break;
                 }
             }
             
-        }elseif ($tabla=='projektigenyles' && $_GET['mezo']=='tipus') {
-            foreach($select_pri_tipus as $tipus){
-                if($tipus['value']==$_GET['felt']){
+        } elseif( $tabla == 'projektigenyles' && $_GET['mezo'] == 'tipus' ) {
+            foreach ( $select_pri_tipus as $tipus ) {
+                if( $tipus['value'] == $_GET['felt'] ) {
                     $feltetel .= $tipus['name'];
                     break;
                 }
             }
-        }elseif ($tabla=='projektigenyles' && $_GET['mezo']=='besorol') {
-            foreach($select_pri_besorol as $tipus){
-                if($tipus['value']==$_GET['felt']){
+        } elseif( $tabla == 'projektigenyles' && $_GET['mezo'] == 'besorol' ) {
+            foreach ( $select_pri_besorol as $tipus ) {
+                if( $tipus['value'] == $_GET['felt'] ) {
                     $feltetel .= $tipus['name'];
                     break;
                 }
             }
-        }elseif ($_GET['mezo']=='szemelyzet_id') {
-            foreach($select_szemelyzet as $tipus){
-                if($tipus['value']==$_GET['felt']){
+        } elseif( $_GET['mezo'] == 'szemelyzet_id' ) {
+            foreach ( $select_szemelyzet as $tipus ) {
+                if( $tipus['value'] == $_GET['felt'] ) {
                     $feltetel .= $tipus['name'];
                     break;
                 }
@@ -137,6 +137,7 @@ if( $_GET['print'] == 'lista' || isset($_GET['pdf']) ) {
     
     // Bal oldali navpanel kiíratása
     switch ( $tabla ) {
+        case 'afakod'               : $sorok_html = afakodLista( $sorok, $tabla );          break;
 //        case 'anyagigenyles'        : $akt_tomb = $anyagigenyles_tomb;          break;
         case 'bejelentes'           : $sorok_html = bejelentesLista( $sorok, $tabla );      break;
         case 'beosztas'             :
@@ -150,6 +151,7 @@ if( $_GET['print'] == 'lista' || isset($_GET['pdf']) ) {
 //        case 'cikktorzs'            : $akt_tomb = $cikktorzs_tomb;              break;
 //        case 'eszkozkezeles'        : $akt_tomb = $eszkozkezeles_tomb;          break;
         case 'login'                : $sorok_html = loginLista( $sorok, $tabla ); $akt_tomb = $login_tomb;  break;
+        case 'jogcim'               : $sorok_html = jogcimLista( $sorok, $tabla );         break;
         case 'ktghely'              : $sorok_html = ktghelyLista( $sorok, $tabla );         break;
         case 'ktgnem'               : $sorok_html = ktgnemLista( $sorok, $tabla );          break;
         case 'eloterj_fb'           : $sorok_html = eloterj_fbLista( $sorok, $tabla );      break;

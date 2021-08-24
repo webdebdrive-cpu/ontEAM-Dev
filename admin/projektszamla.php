@@ -416,8 +416,8 @@ if( isset($_POST['tetel_sorok_ment']) ) {
             // Ha ismerjük a tétel recid-ját, akkor update
             if( $_POST['adatok'][$recid_adat][1][$i] ) {
                 $sql = $adatbazis_kapcsolat->u('projektszamla_tetel',
-                                                array('targy', $db_mezo, 'ktgnem_id',    'ktghely_id',  'valtozott' ),
-                                                array($targy,  $netto,   $ktgnem,        $ktghely,      $valtozott  ), 
+                                                array('targy', $db_mezo, 'ktgnem_id',    'ktghely_id',  'valtozott', 'update_usr'                           ),
+                                                array($targy,  $netto,   $ktgnem,        $ktghely,      $valtozott,  $_SESSION[get_db_tabla().'teljes_nev'] ), 
                                                 "`recid`='{$_POST['adatok'][$recid_adat][1][$i]}'");
                 if( $sql === false ) { $db_error = true; }
             // Egyébként insert
@@ -426,8 +426,8 @@ if( isset($_POST['tetel_sorok_ment']) ) {
                 $rownum = $adatbazis_kapcsolat->s2('MAX(`rownum`)', 'projektszamla_tetel', "`projektszamla_recid`='{$recid}'");
                 $rownum = $rownum['MAX(`rownum`)']+1;
                 $uj_id = $adatbazis_kapcsolat->i('fenntartasi_szamla_tetel', 
-                                                array('fenntartasi_szamla_recid', 'rownum', 'targy', $db_mezo, 'ktgnem_id',    'ktghely_id', 'valtozott'),
-                                                array($recid,                     $rownum,  $targy,  $netto,   $ktgnem,        $ktghely,     '1'        )
+                                                array('fenntartasi_szamla_recid', 'rownum', 'targy', $db_mezo, 'ktgnem_id',    'ktghely_id', 'valtozott', 'loginnev',                          'insert_dt',    'insert_usr',                             'update_usr'                              ),
+                                                array($recid,                     $rownum,  $targy,  $netto,   $ktgnem,        $ktghely,     '1',          $_SESSION[get_db_tabla().'user'],   'NOW()',        $_SESSION[get_db_tabla().'teljes_nev'],   $_SESSION[get_db_tabla().'teljes_nev']    )
                                             );
                 if( $sql === false ) { $db_error = true; }
                 $_SESSION['fennt_szla_tetel_recid'][$i] = $uj_id;

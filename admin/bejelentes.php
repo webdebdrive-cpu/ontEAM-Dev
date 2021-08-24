@@ -1032,7 +1032,7 @@ require_once('selectek.php');
 		if( $_GET['ujkent'] ) {
             $sor = $adatbazis_kapcsolat -> s2('*', $megnevezes, "`recid`='{$_GET['ujkent']}'");
             if( $sor ) {
-                foreach($akt_tomb as $ertek) {
+                foreach ( $akt_tomb as $ertek ) {
                     if( $ertek['name'] != 'ikt_szam' ) {
                         $_SESSION[$ertek['name']] = stripslashes( $sor[$ertek['name']] );
                     } else {
@@ -1041,8 +1041,8 @@ require_once('selectek.php');
     			}
             }
 
-			foreach($akt_tomb as $ertek){
-				$sor[$ertek['name']] = $_SESSION[$ertek['name']];
+			foreach ( $akt_tomb as $ertek ) {
+                $sor[$ertek['name']] = $_SESSION[$ertek['name']];
 			}
 
             // A Bejelentést rögzítő adatai mindenképpen a beloginolt felhasználó lesz

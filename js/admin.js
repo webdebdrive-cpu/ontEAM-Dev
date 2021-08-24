@@ -600,6 +600,7 @@ $(function() {
             }
 
             var ketHasabos = new Array(
+                'afakod',
                 'anyag_szamla',
                 'anyagigenyles',
                 'anyagrendeles',
@@ -624,6 +625,7 @@ $(function() {
                 'fenntartasi_szamla',
                 'fenntartasi_szerzodes',
                 'fenntartasi_terv',
+                'jogcim',
                 'ktghely',
                 'ktgnem',
                 'login',

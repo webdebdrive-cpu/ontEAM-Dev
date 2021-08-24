@@ -9,6 +9,7 @@ if (isset($_GET['modosit'])) {
 }
 
 $_SESSION['ketHasabos'] = array(
+    'afakod.php',
     'anyag_szamla.php',
     'anyagigenyles.php',
     'bejelentes.php',
@@ -32,6 +33,7 @@ $_SESSION['ketHasabos'] = array(
     'fenntartasi_szamla.php',
     'fenntartasi_szerzodes.php',
     'fenntartasi_terv.php',
+    'jogcim.php',
     'ktghely.php',
     'ktgnem.php',
     'login.php',
@@ -63,6 +65,24 @@ $tabla_nophp = str_replace('.php', '', $tabla);
 
 $_OPTS = array();
 switch ( $tabla ) {
+    case 'afakod.php':
+        // Ezeket a tábla oszlopokat kérdezzük le baloldalra
+        $_OPTS['select']    = 'recid kod';
+
+        // Ezek az oszlopok generálódnak ki a rendezés selectbe, lehet szépíteni az oszlopneveket, amit a getOszlopNev() függvényben kell beállítani
+        $_OPTS['rendezes']  = array('kod');
+        $_OPTS['iranyok']   = array('asc');
+
+        // Default rendezés
+        if( !$_GET['rend'] ) {
+            $_GET['rend'] = 'kod';
+        }
+
+        // Default rendezési irány
+        if( !$_GET['irany'] ) {
+            $_GET['irany'] = 'asc';
+        }
+    break;
     case 'anyagigenyles.php':
         // Ezeket a tábla oszlopokat kérdezzük le baloldalra
         $_OPTS['select']    = nl2('
@@ -585,6 +605,24 @@ switch ( $tabla ) {
         }
 
     break;
+    case 'jogcim.php':
+        // Ezeket a tábla oszlopokat kérdezzük le baloldalra
+        $_OPTS['select']    = 'recid jogcim';
+
+        // Ezek az oszlopok generálódnak ki a rendezés selectbe, lehet szépíteni az oszlopneveket, amit a getOszlopNev() függvényben kell beállítani
+        $_OPTS['rendezes']  = array('jogcim');
+        $_OPTS['iranyok']   = array('asc'   );
+
+        // Default rendezés
+        if( !$_GET['rend'] ) {
+            $_GET['rend'] = 'jogcim';
+        }
+
+        // Default rendezési irány
+        if( !$_GET['irany'] ) {
+            $_GET['irany'] = 'asc';
+        }
+    break;
     case 'ktghely.php':
         // Ezeket a tábla oszlopokat kérdezzük le baloldalra
         $_OPTS['select']    = 'recid id nev';
@@ -1031,6 +1069,14 @@ if( isset($_GET['uj']) ) {
 
 
 
+// Áfakód
+$megnevezes = 'afakod';
+$akt_tomb   = $afakod_tomb = array(
+    array('type' => 'text', 'megn' => 'ÁFA kód:',   'name' => 'kod',    'szuro' => 1,   'disabled' => 1,   'maxlength' => 40,   /*'class' => 'oriasi',    'alert' => 'Kérem töltse ki az ÁFA kódot!'*/),
+    array('type' => 'text', 'megn' => 'ÁFA neve:',  'name' => 'nev',    'szuro' => 1,   'disabled' => 1,   'maxlength' => 100,  /*'class' => 'oriasi',    'alert' => 'Kérem töltse ki az ÁFA nevét!'*/),
+    array('type' => 'text', 'megn' => 'ÁFA:',       'name' => 'afa',    'szuro' => 1,   'disabled' => 1,   'maxlength' => 2,    /*'class' => 'oriasi',    'alert' => 'Kérem töltse ki az ÁFA értékét!'*/),
+);
+array_push($postok, array('tomb' => $akt_tomb, 'uj' => 'uj'.$megnevezes, 'lista' => $megnevezes.'lista', 'tabla' => $megnevezes, 'torid' => $megnevezes.'tid' ));
 
 // Anyag számlák
 $megnevezes = 'anyag_szamla';
@@ -1113,22 +1159,33 @@ $bejovo_szamlak_dok_tomb = $akt_tomb = array(
 
 // Kimeno számlák
 $megnevezes = 'kimeno_szamlak';
-$kimeno_szamlak_tomb = $akt_tomb = array(
+$akt_tomb   = $kimeno_szamlak_tomb = array(
 	array('type' => 'text',    'megn' => 'Név:',   'name' => 'nev',   'maxlength' => 250, 'class' => 'oriasi', 'alert' => 'Kérem töltse ki a megnevezést!'),
 );
 array_push($postok, array('tomb' => $akt_tomb, 'uj' => 'uj'.$megnevezes, 'lista' => $megnevezes.'lista', 'tabla' => $megnevezes, 'torid' => $megnevezes.'tid' ));
 
-// Rendszer
+// Jogcím
+$megnevezes = 'jogcim';
+$akt_tomb   = $jogcim_tomb = array(
+    array('type' => 'text', 'megn' => 'Jogcím:',                            'name' => 'jogcim',     'szuro' => 1,   'disabled' => 1,   'maxlength' => 100, 'class' => 'oriasi'/*,    'alert' => 'Kérem töltse ki a jogcímet!'*/),
+    array('type' => 'text', 'megn' => 'Üzemrész:',                          'name' => 'uzemresz',   'szuro' => 1,   'disabled' => 1,   'maxlength' => 100, 'class' => 'oriasi'/*,    'alert' => 'Kérem töltse ki az üzemrészt!'*/),
+    array('type' => 'text', 'megn' => 'Főkönyvi számlaszám megnevezése:',   'name' => 'megn',       'szuro' => 1,   'disabled' => 1,   'maxlength' => 100, 'class' => 'oriasi'/*,    'alert' => 'Kérem töltse ki a főkönyvi számlaszám megnevezését!'*/),
+    array('type' => 'text', 'megn' => 'Főkönyvi számlaszám:',               'name' => 'szla_szam',  'szuro' => 1,   'disabled' => 1,   'maxlength' => 7,                      /*     'alert' => 'Kérem töltse ki a főkönyvi számlaszámot!'*/),
+    array('type' => 'text', 'megn' => 'Költséghely:',                       'name' => 'ktghely',    'szuro' => 1,   'disabled' => 1,   'maxlength' => 4,                      /*     'alert' => 'Kérem töltse ki a költséghelyet!'*/),
+);
+array_push($postok, array('tomb' => $akt_tomb, 'uj' => 'uj'.$megnevezes, 'lista' => $megnevezes.'lista', 'tabla' => $megnevezes, 'torid' => $megnevezes.'tid' ));
+
+// Költséghely
 $megnevezes = 'ktghely';
-$ktghely_tomb = $akt_tomb = array(
+$akt_tomb   = $ktghely_tomb = array(
     array('type' => 'text',         'megn' => 'ID:',             'name' => 'id',      'disabled' => $csakUjkent,    'alert' => 'Kérem töltse ki az ID-t!', 'onblur' => 'id_foglalt_e(\''.$megnevezes.'.php\', $(this))', 'maxlength' => 7, 'style' => 'width: 7rem'),
     array('type' => 'text',         'megn' => 'Érték:',          'name' => 'nev',     'maxlength' => 250, 'class' => 'oriasi', 'alert' => 'Kérem töltse ki a megnevezést!',  'show' => true),
 );
 array_push($postok, array('tomb' => $akt_tomb, 'uj' => 'uj'.$megnevezes, 'lista' => $megnevezes.'lista', 'tabla' => $megnevezes, 'torid' => $megnevezes.'tid' ));
 
-// Rendszer
+// Költségnem
 $megnevezes = 'ktgnem';
-$ktgnem_tomb = $akt_tomb = array(
+$akt_tomb   = $ktgnem_tomb = array(
     array('type' => 'text',         'megn' => 'ID:',             'name' => 'id',      'disabled' => $csakUjkent,    'onblur' => 'id_foglalt_e(\''.$megnevezes.'.php\', $(this))', 'alert' => 'Kérem töltse ki az ID-t!', 'maxlength' => 7, 'style' => 'width: 7rem'),
     array('type' => 'text',         'megn' => 'Érték:',          'name' => 'nev',     'maxlength' => 250, 'class' => 'oriasi', 'alert' => 'Kérem töltse ki a megnevezést!',  'show' => true),
 
@@ -1138,7 +1195,7 @@ array_push($postok, array('tomb' => $akt_tomb, 'uj' => 'uj'.$megnevezes, 'lista'
 
 // Log
 $megnevezes = 'log';
-$log_tomb = $akt_tomb = array(
+$akt_tomb   = $log_tomb = array(
 	array('type' => 'text',            'megn' => 'Felh:',     'name' => 'felh_id',   'maxlength' => 250, 'class' => 'oriasi', 'kulso_tabla' => 'login|nev'),
 	array('type' => 'text',            'megn' => 'Művelet:',  'name' => 'nev',       'maxlength' => 250, 'class' => 'oriasi', 'show' => true),
     array('type' => 'textarea',        'megn' => 'Változás:', 'name' => 'valtozas',  'class' => 'oriasi disableNav'/*,  'limit' => 500/*Limit wysiwyg-el nem kombinálható!*/, 'wysiwyg' => 'Min2'/*Min vagy Full*/, 'feltoltes' => 'Images', 'width' => '100%', 'height' => '200'),
@@ -5690,6 +5747,9 @@ foreach ( $postok as $ertek ) {
         if( $ertek['tabla'] == 'fenntartasi_terv' && !_jog(JOG_FENNTARTASI_TERV_TOROL) ) {
             $weblap -> leallit(); exit;
         }
+        if( $ertek['tabla'] == 'jogcim' /* Egyelőre nem törölhető && !_jog(JOG_ERTEKLISTAK_KEZEL) */ ) {
+            $weblap -> leallit(); exit;
+        }
         // Login egyáltalán nem törölhető
         if( $ertek['tabla'] == 'login' ) {
             $weblap -> leallit(); exit;
@@ -5752,7 +5812,7 @@ foreach ( $postok as $ertek ) {
         // Kérjük le a törlendő sor adatait
         $original_sor = $adatbazis_kapcsolat->s2('*', $ertek['tabla'], "`recid`='{$_GET[$ertek['torid']]}'");
         if( $original_sor === false ) { $db_error = true; }
-        
+
         // Ütmezett feladatoknál és társainál vagy törlés jog kell hozzá, vagy ha az nincs, akkor az kell, hogy magam hoztam létre
         if(
             ( $ertek['tabla']=='utemezett_feladatok'     && !_jog( JOG_UTFEL_TOROL       )  ) ||
@@ -5789,7 +5849,7 @@ foreach ( $postok as $ertek ) {
         if( $sql === false ) { $db_error = true; }
 
         // Státusz tábla törlése, hacsak nem kivételes
-        $kivetelek = array('beosztas', 'beosztas_muszak', 'beosztas_unnepnapok', 'cikktorzs', 'eseti_fenntartas', 'eszkozkezeles', 'erteklista', 'felmeresi_terv', 'ktgnem', 'ktghely', 'obj', 'projektszamla', 'projektszerzodes', 'rendszeres_karbantartas', 'szallito', 'szerepkor', 'utemezett_feladatok');
+        $kivetelek = array('beosztas', 'beosztas_muszak', 'beosztas_unnepnapok', 'cikktorzs', 'eseti_fenntartas', 'eszkozkezeles', 'erteklista', 'felmeresi_terv', 'jogcim', 'ktgnem', 'ktghely', 'obj', 'projektszamla', 'projektszerzodes', 'rendszeres_karbantartas', 'szallito', 'szerepkor', 'utemezett_feladatok');
         if( !in_array($ertek['tabla'], $kivetelek) ) {
             $valtozas_kapcsolodo_tablak .= 'Státusz tábla ('.$ertek['tabla'].'_statusz) törlése: '."\n";
             $sorok = $adatbazis_kapcsolat->s('*', $ertek['tabla'].'_statusz', "`{$ertek['tabla']}_recid`='{$_GET[$ertek['torid']]}'");
