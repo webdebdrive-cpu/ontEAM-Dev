@@ -405,6 +405,13 @@ function i_u($type, $tabla, $tomb) {
     		$i++;
         }
 	}
+    
+    // Értéklistánál a jogcímből még fel kell fenni a költsénemet
+    if( $tabla == 'erteklista' ) {
+        $jogcim = $adatbazis_kapcsolat->s2('szla_szam', 'jogcim', "`recid`='{$_POST['jogcim_recid']}'");
+        array_push($oszlopok,   'ktgnem'            );
+        array_push($ertekek,    $jogcim['szla_szam']);
+    }
 
     // Dátumra ütemezés, ha az ütemezett feladatokat módosítjuk/töltjük fel
     if( $tabla == 'utemezett_feladatok' || $tabla == 'rendszeres_karbantartas' ) {
@@ -2442,6 +2449,7 @@ function i_u($type, $tabla, $tomb) {
 		$id = $adatbazis_kapcsolat -> update($tabla, $oszlopok, $ertekek, "`recid`='{$_GET['id']}'");
         if( $id === false ) { $db_error = true; }
 
+// Debug UPDATE
 // echo $adatbazis_kapcsolat->gp() . '<br>';
 // mysqli_commit($db_kapcs);
 // exit;

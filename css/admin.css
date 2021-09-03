@@ -2882,7 +2882,7 @@ table.csikos tr{
     background: #F7F7F7;
 }
 
-table.csikos tr:nth-of-type(2n){
+table.csikos tr:nth-of-type(2n)::not('kijelolve'){
     background: #fff;
 }
 

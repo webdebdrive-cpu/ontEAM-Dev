@@ -664,13 +664,13 @@ foreach ( $akt_tomb as $ertek ) {
             }
         break;
 
-		case 'select_energianem':
+		case 'select_jogcim':
 
             if( $ertek['alert'] ) {
                 $ertek['class'] .= ' csillag';
             }
 
-            $input = new Select($select_energianem, $sor['energianem']);
+            $input = new Select($select_jogcim, $sor['jogcim_recid']);
             $input -> cssClass = $ertek['class'];
             $input -> disabled = $ertek['disabled'];
             $input -> id       = $ertek['name'];
@@ -679,6 +679,7 @@ foreach ( $akt_tomb as $ertek ) {
             $input -> onblur   = $ertek['onblur'];
             $input -> onclick  = $ertek['onclick'];
             $input -> onfocus  = $ertek['onfocus'];
+            $input -> onchange = $ertek['onchange'];
             $input -> style    = $ertek['style'];
 
             if( $ertek['i'] ) {

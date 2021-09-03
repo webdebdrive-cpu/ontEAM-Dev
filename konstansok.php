@@ -395,7 +395,6 @@ define('ERTEKLISTA_KOLTSEGVISELO',  42);
 define('ERTEKLISTA_SZERZODESTKOTO', 43);
 define('ERTEKLISTA_BANK',           44);
 define('ERTEKLISTA_JOVAHAGYO',      45);
-define('ERTEKLISTA_ENERGIANEM',     46);
 define('ERTEKLISTA_DIJELEM',        47);
 
 // Dokumentum tipus értéklista fix, nem szerkeszthető bejegyzése
@@ -444,6 +443,9 @@ define('DASHBOARD_H_A_ML_CIMKE',  'Hiányzó anyag igénylésére váró munkala
 
 // Cash-flow
 define('CASH_FLOW_MAX_HONAPOK',  60);
+
+// Költséghely értékek
+define('KTGHELY_ENERGIA',  7020);
 
 // Beosztás fix műszak jelei
 define('BEOSZTAS_FIX_SZABADNAP_JEL',  'SZ');

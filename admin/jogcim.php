@@ -1,6 +1,59 @@
 <?php
 require_once('../weblap.php');
 
+// Jogcímek importálása CSV-ből
+if( FALSE && isset($_GET['jogcim_import']) ) {
+
+    // Először is ürítjük a táblát
+    mysqli_query($db_kapcs, 'TRUNCATE `'.get_db_tabla().'jogcim`');
+    
+    $mibol = 'windows-1250';
+    $mibe  = get_web_charset();
+
+    $mehet  = true;
+    $sql    = '';
+    $log    = '';
+
+    $_SESSION['sor_fejlec'] = array();
+    setlocale(LC_ALL,'hu_HU');
+    $k = 0;
+    if( ($csv_fajl = fopen('jogcimek.csv', 'r')) !== FALSE ) {
+        while ( ($sor = fgetcsv($csv_fajl, 0, ';')) !== FALSE ) {
+
+            $akt_tomb = array();
+            // Első oszlop a fejlécek
+            if( $k == 0 ) {
+
+                foreach ( $sor as $key => $value ) {
+                    $_SESSION['sor_fejlec'][] = utf8($value);
+                }
+
+            // Adatok feldolgozása
+            } else {
+
+                foreach ( $sor as $key => $value ) {
+                    $akt_tomb[$_SESSION['sor_fejlec'][$key]] = utf8($value);
+                }
+
+                // Legegyszerűbb feldolgozási mód: (Ennek mondjuk feltétele, hogy a CSV első sorában a tábla oszlop nevei legyenek, és nem beszédes nevek
+                $oszlopok = array('jogcim', 'uzemresz', 'megn', 'szla_szam', 'ktghely', 'ktghely_id');
+                $ertekek  = array();
+                foreach ( $oszlopok as $oszl ) {
+                    array_push($ertekek, $akt_tomb[$oszl]);
+                }
+                $adatbazis_kapcsolat->i('jogcim', $oszlopok, $ertekek);
+                echo $adatbazis_kapcsolat->gp() . '<br>';
+
+            }
+            $k++;
+        }
+        fclose($csv_fajl);
+    }
+    
+    echo 'siker';
+    exit;
+}
+
 if( !_jog(JOG_ERTEKLISTAK_MEGTEKINT) ) {
     if(!$_SESSION[get_db_tabla().'user']){
         $weblap -> leallit();

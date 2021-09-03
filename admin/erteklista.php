@@ -128,6 +128,17 @@ if( isset($_GET['csv']) ) {
     csv_export_lezar($fh, $filename, 'Értéklisták');
 }
 
+// Költségnem lerkédezése jogcímből
+if( isset($_POST['ktgnem_beallit']) ) {
+    
+    $jogcim = $adatbazis_kapcsolat->s2('szla_szam', 'jogcim', "`recid`='{$_POST['jogcim_recid']}'");
+    
+    echo json_encode(array('ktgnem' => $jogcim['szla_szam']));
+    
+    $weblap -> leallit();
+    exit;
+}
+
 // Tartalom
 if( !$_GET['ajax'] ) {
     require_once('header.php');

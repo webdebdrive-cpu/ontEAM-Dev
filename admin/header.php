@@ -1095,7 +1095,7 @@ if( substr($tabla_nev, strlen($tabla_nev) - 9) == '_arch.php' ) {
     $uj = $duplikal = $torles_icon = '';
 }
 // Illetve van pár tábla, ahol szintén nem lehet sem újat felteni, sem törölni
-$disabled_tablak = array('afakod.php', 'energia_szamla.php', 'jogcim.php');
+$disabled_tablak = array('afakod.php', 'jogcim.php');
 if( in_array($tabla_nev, $disabled_tablak) ) {
     $uj = $duplikal = $torles_icon = '';
 }

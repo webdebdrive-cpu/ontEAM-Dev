@@ -1,0 +1,794 @@
+<h2>Számla tételek kezelése</h2>
+
+<div class="kozep" style="min-height: 40rem">
+    <style type="text/css">
+        .popup_harmas {
+            display: grid;
+            grid-template-columns: auto auto auto;
+            grid-gap: .5rem;
+        }
+    </style>
+    <div class="popup_harmas">
+        <div>
+            Jogcím:
+            <div class="jogcim_select" style="margin-top: .3rem"></div>
+        </div>
+        <div>
+            Díjelem:
+            <div class="dijelem_select" style="margin-top: .3rem">
+                <select id="pop_dijelem" class="csillag" disabled>
+                    <option>-Előbb válasszon jogcímet-</option>
+                </select>
+            </div>
+        </div>
+        <div>
+            Fogyasztással arányos:
+            <br>
+            <div class="cb" style="margin-top: .4rem">
+                <input type="checkbox" id="pop_aranyos" checked onclick="aranyos_mezok_beallit()">
+                <label for="pop_aranyos"></label>
+            </div>
+        </div>
+        
+        <div>
+            Vonatkozó időszak:
+            <div>
+                <input type="text" id="pop_tol" class="datepicker csillag" maxlength="10"> -
+                <input type="text" id="pop_ig" class="datepicker csillag" maxlength="10">
+            </div>
+        </div>
+        <div>
+            Mérőóra állás:
+            <div>
+                <input type="text" id="pop_indul" class="f_num csillag" data-tort="4" maxlength="18" value="0,0000" onblur="mert_kiszamol()"> -
+                <input type="text" id="pop_zar" class="f_num csillag" data-tort="4" maxlength="18" value="0,0000" onblur="mert_kiszamol()">
+            </div>
+        </div>
+        <div>
+            
+        </div>
+        
+        <div>
+            Szorzó / Fűtőérték:
+            <div>
+                <input type="text" id="pop_szorzo" class="f_num csillag" data-tort="2" maxlength="16" value="0,00" onblur="mert_kiszamol()">
+            </div>
+        </div>
+        <div>
+            Mért fogyasztás:
+            <div>
+                <input type="text" id="pop_mert" class="f_num csillag" data-tort="5" maxlength="24" value="0,00000" disabled>
+            </div>
+        </div>
+        <div>
+            kWh-szorzó:
+            <div>
+                <input type="text" id="pop_kwh_szorzo" class="f_num csillag" data-tort="4" maxlength="18" value="0,0000" disabled>
+            </div>
+        </div>
+        
+        <div>
+            Mennyiség:
+            <div>
+                <input type="text" id="pop_menny" class="csillag" data-tort="4" maxlength="18" value="0,0000" oninput="$(this).addClass('modositva'); menny_kwh_kiszamol();">
+            </div>
+        </div>
+        <div>
+            Mennyiség-egység:
+            <div id="mee_helye">
+                <!-- Azért van JS változóba kiszervezve, mert később is felhasználjuk még  -->
+                <script>
+                    var mee_html = '<select id="pop_egyseg" class="csillag" disabled>'+
+                                        '<option>-Válasszon-</option>'+
+                                    '</select>';
+                    $('#mee_helye').html(mee_html);
+                </script>
+            </div>
+        </div>
+        <div>
+            Mennyiség (kWh-ban):
+            <div>
+                <input type="text" id="pop_menny_kwh" class="csillag" data-tort="4" maxlength="18" value="0,0000" disabled>
+            </div>
+        </div>
+        
+        <div>
+            Egységár:
+            <div>
+                <input type="text" id="pop_egyseg_ar" class="csillag" data-tort="4" maxlength="18" value="0,0000" oninput="dij_kiszamol()">
+            </div>
+        </div>
+        <div>
+            Díj:
+            <div>
+                <input type="text" id="pop_dij" class="csillag" data-tort="4" maxlength="18" value="0,0000" disabled>
+            </div>
+        </div>
+        <div>
+            Áfa:
+            <div>
+                <input type="text" id="pop_afa" class="csillag" data-tort="0" maxlength="2" value="0" disabled>
+            </div>
+        </div>
+    </div>
+    
+    <input type="hidden" name="tetel_sor_id" id="tetel_sor_id">
+    
+    <br><input type="button" id="hozzaad_gomb" class="gomb" value="Új tétel hozzáadása" style="margin-top: 0.3rem" onclick="tetel_hozzaadasa()">
+    
+    <div style="max-width: 80rem; height: 100%; overflow-x: auto; overflow-y: hidden;">
+    <form action="" enctype="multipart/form-data" method="" id="popup_tetel_sorok">
+        <table class="csikos kijCont dn" id="pop_tetelek" style="cursor: default;">
+            <thead>
+            <tr>
+                <th>Jogcím</th>
+                <th>Díjelem</th>
+                <th>Fogyasztással arányos</th>
+                <th>Vonatkozó időszak</th>
+                <th>Mérőállás</th>
+                <th>Szorzó / Fűtőérték</th>
+                <th>Mért fogyasztás</th>
+                <th>kWh-szorzó</th>
+                <th>Mennyiség (számlázási egységben)</th>
+                <th>Mennyiség-egység</th>
+                <th>Mennyiség (kWh-ban)</th>
+                <th>Egységár</th>
+                <th>Díj</th>
+                <th>Áfa</th>
+                <th>Törlés</th>
+            </tr>
+            </thead>
+
+            <tbody>
+            </tbody>
+        </table>
+    </form>
+    </div>
+    
+</div>
+<div class="kuldes">
+    <input type="button" class="gomb zold dn pop_mentes_megsem" value="Mentés" onclick="tetel_sorok_ment()">
+    <input type="button" class="gomb kek dn pop_mentes_megsem" value="Mégsem" onclick="megsem_gomb();">
+</div>
+<script>
+var akt_penznem = $('#kcs_21_autocomp').val();
+if( !akt_penznem ) {
+    akt_penznem = $('#kcs_21_autocomp_db').val();
+}
+
+var kcs_21 = $('#kcs_21').val();
+if( !kcs_21 ) {
+    kcs_21 = $('#kcs_21_db').val();
+}
+
+/* JS-el figyeljük, hogy volt-e bármi változás. Ha igen, akkor Mégsem/Bezár gombra rákérdezünk, hogy biztos-e? */
+var van_valtozas = false;
+var torolt_sorok = '';
+
+$(document).ready(function () {
+    
+    /* Popup bezár gombjára visszatesszük az eredeti funkciót, mert a kapcsoló popban felülírtuk egy csoportMuvelet-es utasítással */
+    $('#popup .bezar').attr('onclick', '');
+    
+    /* f_penznem class-ú elemek lecserélése a pénznemre */
+    $('.f_penznem').each(function () {
+        $(this).replaceWith(akt_penznem);
+    });
+    
+    /*if( akt_penznem && akt_penznem != 'HUF' ) {
+        $('#pop_ertek').attr('data-tort', '2');
+        $('#pop_brutto').attr('data-tort', '2');
+    }*/
+    
+    pop_tetelek_feltolt();
+
+    /* Dátum tól-ig */
+    $('#pop_tol').datetimepicker({
+        onShow: function( ct ){
+            if( $('#pop_ig').val() ) {
+                datum_elem = $('#pop_ig').val().split(".");
+                datum_limit = new Date(datum_elem[0]+', '+datum_elem[1]+', '+datum_elem[2]);
+                this.setOptions({
+                    maxDate:datum_limit?datum_limit:false
+                })
+            }
+
+        },
+        onChangeDateTime    : function(){ $('#pop_ig').focus(); },
+        closeOnDateSelect   : true,
+        format              :'Y.m.d',
+        mask                : '\xa0\xa0\xa0\xa0.\xa0\xa0.\xa0\xa0',
+        timepicker          : false,
+        validateOnBlur      : false
+    });
+    jQuery('#pop_ig').datetimepicker({
+        onShow:function( ct ){
+            if( $('#pop_tol').val() ) {
+                datum_elem = $('#pop_tol').val().split(".");
+                datum_limit = new Date(datum_elem[0]+', '+datum_elem[1]+', '+datum_elem[2]);
+                this.setOptions({
+                    minDate: datum_limit?datum_limit:false
+                })
+            }
+
+        },
+        closeOnDateSelect   : true,
+        format              :'Y.m.d',
+        mask                : '\xa0\xa0\xa0\xa0.\xa0\xa0.\xa0\xa0',
+        timepicker          : false,
+        validateOnBlur      : false
+    });
+    
+});
+
+/* Tételt hozzáadó függvény */
+function tetel_hozzaadasa() {
+    
+    var sor_id          = $('#tetel_sor_id'     ).val().trim();
+    var jogcim          = $('#pop_jogcim'       ).val().trim();
+    var dijelem         = $('#pop_dijelem'      ).val().trim();
+    var aranyos         = $('#pop_aranyos'      ).prop('checked');
+    var tol             = $('#pop_tol'          ).val().trim();
+    var ig              = $('#pop_ig'           ).val().trim();
+    var indul           = $('#pop_indul'        ).val().trim();
+    var zar             = $('#pop_zar'          ).val().trim();
+    var szorzo          = $('#pop_szorzo'       ).val().trim();
+    var mert            = $('#pop_mert'         ).val().trim();
+    var kwh_szorzo      = $('#pop_kwh_szorzo'   ).val().trim();
+    var menny           = $('#pop_menny'        ).val().trim();
+    var egyseg          = $('#pop_egyseg'       ).val().trim();
+    var menny_kwh       = $('#pop_menny_kwh'    ).val().trim();
+    var egyseg_ar       = $('#pop_egyseg_ar'    ).val().trim();
+    var dij             = $('#pop_dij'          ).val().trim();
+    var afa             = $('#pop_afa'          ).val().trim();
+    van_valtozas = true;
+
+    /* Üres adatok ellenőrzése */
+    if( !jogcim ){
+        alert2('Kérem válasszon jogcímet!', '', 'Hiba');
+        $('#pop_jogcim').addClass('hibas_ide_focus');
+        return false;
+    }
+    if( !dijelem ){
+        alert2('Kérem válasszon díjelemet!', '', 'Hiba');
+        $('#pop_dijelem').addClass('hibas_ide_focus');
+        return false;
+    }
+    
+    if( !$('#pop_tol').val() || $('#pop_tol').val()=='\xa0\xa0\xa0\xa0.\xa0\xa0.\xa0\xa0' || $('#pop_tol').val()=='    .  .  ' || $('#pop_tol').val()=='0000.00.00' ) {
+        alert2('Kérem adja meg az időszak kezdetét!', '', 'Hiba');
+        $('#pop_tol').addClass('hibas_ide_focus');
+        return false;
+    }
+    
+    if( !$('#pop_ig').val() || $('#pop_ig').val()=='\xa0\xa0\xa0\xa0.\xa0\xa0.\xa0\xa0' || $('#pop_ig').val()=='    .  .  ' || $('#pop_ig').val()=='0000.00.00' ) {
+        alert2('Kérem adja meg az időszak végét!', '', 'Hiba');
+        $('#pop_ig').addClass('hibas_ide_focus');
+        return false;
+    }
+    if( $('#pop_ig').val() <= $('#pop_tol').val() ) {
+        alert2('Az időszak vége nem lehet korábbi a kezdéstől!', '', 'Hiba');
+        $('#pop_ig').addClass('hibas_ide_focus');
+        return false;
+    }
+    
+    /* Ha a Fogyasztással arányos pipa be van piálva, csak akkor kötelező pár mező: */
+    var aranyos_kotelezo = $('#pop_aranyos').prop('checked');
+    
+    if( aranyos_kotelezo && (!$('#pop_indul').val() || $('#pop_indul').val()=='0,0000') ) {
+        alert2('Kérem adja meg az induló mérőóraállást!', '', 'Hiba');
+        $('#pop_indul').addClass('hibas_ide_focus');
+        return false;
+    }
+    
+    if( aranyos_kotelezo && (!$('#pop_zar').val() || $('#pop_zar').val()=='0,0000') ) {
+        alert2('Kérem adja meg a záró mérőóraállást!', '', 'Hiba');
+        $('#pop_zar').addClass('hibas_ide_focus');
+        return false;
+    }
+    if( aranyos_kotelezo && $('#pop_zar').val() < $('#pop_indul').val() ) {
+        alert2('A mérőóraállás záró állása nem lehet kisebb az induló állástól!', '', 'Hiba');
+        $('#pop_zar').addClass('hibas_ide_focus');
+        return false;
+    }
+    
+    if( aranyos_kotelezo && (!$('#pop_szorzo').val() || $('#pop_szorzo').val()=='0,00') ) {
+        alert2('Kérem adja meg a szorzót!', '', 'Hiba');
+        $('#pop_szorzo').addClass('hibas_ide_focus');
+        return false;
+    }
+    
+    /*
+    Számított érték
+    /if( !$('#pop_mert').val() || $('#pop_mert').val()=='0,0000' ) {
+        alert2('Kérem adja meg a mért fogyasztás!', '', 'Hiba');
+        $('#pop_mert').addClass('hibas_ide_focus');
+        return false;
+    }*/
+   
+    /*
+    Díjelem kitöltésével kap értéket
+    if( !$('#pop_kwh_szorzo').val() || $('#pop_kwh_szorzo').val()=='0,0000' ) {
+        alert2('Kérem adja meg a kWh-szorzót!', '', 'Hiba');
+        $('#pop_kwh_szorzo').addClass('hibas_ide_focus');
+        return false;
+    }*/
+    
+    if( !$('#pop_menny').val() || $('#pop_menny').val()=='0,0000' ) {
+        alert2('Kérem adja meg a mennyiséget!', '', 'Hiba');
+        $('#pop_menny').addClass('hibas_ide_focus');
+        return false;
+    }
+    
+    /* Díjelem kiválasztásakor kap értéket, de néha szerkeszthető, ezért ellenőrizni kell */
+    if( !$('#pop_egyseg').val() ) {
+        alert2('Kérem adja meg a mennyiség-egységet!', '', 'Hiba');
+        $('#pop_egyseg').addClass('hibas_ide_focus');
+        return false;
+    }
+    
+    /*
+    Számított érték
+    if( !$('#pop_menny_kwh').val() ) {
+        alert2('Kérem adja meg a mennyiséget!', '', 'Hiba');
+        $('#pop_menny_kwh').addClass('hibas_ide_focus');
+        return false;
+    }*/
+    
+    if( !$('#pop_egyseg_ar').val() || $('#pop_egyseg_ar').val()=='0,0000' ) {
+        alert2('Kérem adja meg az egységárat!', '', 'Hiba');
+        $('#pop_egyseg_ar').addClass('hibas_ide_focus');
+        return false;
+    }
+    
+    /*
+    Számított érték
+    if( !$('#pop_dij').val() || $('#pop_dij').val()=='0,0000' ) {
+        alert2('Kérem adja meg a díjat!', '', 'Hiba');
+        $('#pop_dij').addClass('hibas_ide_focus');
+        return false;
+    }*/
+    
+    /*
+    Díjelem kitöltésével kap értéket
+    if( !$('#pop_afa').val() ) {
+        alert2('Kérem adja meg az áfát!', '', 'Hiba');
+        $('#pop_afa').addClass('hibas_ide_focus');
+        return false;
+    }*/
+
+    var id_tmp = new Date().getTime();
+    
+    /* Ha ismert a sor_id, akkor update */
+    if( sor_id ) {
+
+        $('.pop_tetel_'+sor_id+' .pop_jogcim'   ).val( jogcim );
+        $('.pop_tetel_'+sor_id+' .pop_dijelem'  ).val( dijelem );
+        $('.pop_tetel_'+sor_id+' .pop_aranyos'  ).prop('checked', aranyos );
+        $('.pop_tetel_'+sor_id+' .pop_tol'      ).html( tol );
+        $('.pop_tetel_'+sor_id+' .pop_ig'       ).html( ig );
+        $('.pop_tetel_'+sor_id+' .pop_indul'    ).html( indul );
+        $('.pop_tetel_'+sor_id+' .pop_zar'      ).html( zar );
+        $('.pop_tetel_'+sor_id+' .pop_szorzo'   ).html( zar );
+        $('.pop_tetel_'+sor_id+' .pop_mert'     ).html( mert );
+        $('.pop_tetel_'+sor_id+' .pop_kwhszorzo').html( zar );
+        $('.pop_tetel_'+sor_id+' .pop_menny'    ).html( menny );
+        $('.pop_tetel_'+sor_id+' .pop_egyseg'   ).html( egyseg );
+        $('.pop_tetel_'+sor_id+' .pop_menny_kwh').html( menny_kwh );
+        $('.pop_tetel_'+sor_id+' .pop_egyseg_ar').html( egyseg_ar );
+        $('.pop_tetel_'+sor_id+' .pop_dij'      ).html( dij );
+        $('.pop_tetel_'+sor_id+' .pop_afa'      ).html( afa );
+        $('.pop_tetel_'+sor_id+' .pop_valtozott').val( 1 );
+
+    /* Egyébként új sor hozzáadása */
+    } else {
+        
+        var jogcim_txt  = $('#pop_jogcim option:selected').text();
+        var dijelem_txt = $('#pop_dijelem option:selected').text();
+        var aranyos_txt = '';
+        if( aranyos ) {
+            aranyos_txt = '✓';
+        }
+        var table_sor = '<tr class="pop_tetel_'+id_tmp+'">' +
+                            '<td class="pop_jogcim_txt">'   + jogcim_txt    + '</td>' +
+                            '<td class="pop_dijelem_txt">'  + dijelem_txt   + '</td>' +
+                            '<td class="pop_aranyos">'      + aranyos_txt   + '</td>' +
+                            '<td class="l"><span class="pop_tol">'    + tol           + '</span>-<br><span class="pop_ig">' + ig + '</span></td>' +
+                            '<td class="l"><span class="pop_indul">'  + indul         + '</span>-<br><span class="pop_zar">' + zar + '</span></td>' +
+                            '<td class="pop_szorzo">'       + szorzo        + '</td>' +
+                            '<td class="pop_mert">'         + mert          + '</td>' +
+                            '<td class="pop_kwh_szorzo">'   + kwh_szorzo    + '</td>' +
+                            '<td class="pop_menny">'        + menny         + '</td>' +
+                            '<td class="pop_egyseg">'       + egyseg        + '</td>' +
+                            '<td class="pop_menny_kwh">'    + menny_kwh     + '</td>' +
+                            '<td class="pop_egyseg_ar">'    + egyseg_ar     + '</td>' +
+                            '<td class="pop_dij">'          + dij           + '</td>' +
+                            '<td class="pop_afa">'          + afa           + '</td>' +
+                            '<td><a onclick="popup_tetel_sor_torol(\'pop_tetel_'+id_tmp+'\');"><span class="icon"><i class="material-icons">delete</i></span></a>'+
+                                '<input type="hidden" class="pop_jogcim" name="pop_jogcim_id" value="'+jogcim+'">' +
+                                '<input type="hidden" class="pop_dijelem" name="pop_dijelem_id" value="'+dijelem+'">' +
+                                '<input type="hidden" class="pop_valtozott" value="1">' +               
+                                '<input type="hidden" class="pop_recid" name="recid" value="'+sor_id+'">' +        
+                            '</td>' +
+                        '</tr>';
+
+        $('#pop_tetelek tbody').append( table_sor );
+        $('#pop_tetelek').removeClass('dn');
+        
+    }
+
+    $('#tetel_sor_id'   ).val('');
+    $('#pop_jogcim'     ).val('');
+    $('#pop_dijelem'    ).val('');
+    $('#pop_aranyos'    ).prop('checked', true);
+    $('#pop_tol'        ).val('\xa0\xa0\xa0\xa0.\xa0\xa0.\xa0\xa0');
+    $('#pop_ig'         ).val('\xa0\xa0\xa0\xa0.\xa0\xa0.\xa0\xa0');
+    $('#pop_indul'      ).val('0,0000');
+    $('#pop_zar'        ).val('0,0000');
+    $('#pop_szorzo'     ).val('0,00');
+    $('#pop_mert'       ).val('0,00000');
+    $('#pop_kwh_szorzo' ).val('0,0000');
+    $('#pop_menny'      ).val('0,0000');
+    $('#pop_egyseg'     ).replaceWith(mee_html);
+    $('#pop_menny_kwh'  ).val('0,0000');
+    $('#pop_egyseg_ar'  ).val('0,0000');
+    $('#pop_dij'        ).val('0,0000');
+    $('#pop_afa'        ).val('0');
+    
+    $('#hozzaad_gomb').val('Új tétel hozzáadása');
+
+    $('.pop_mentes_megsem').removeClass('dn');
+    
+    /* A tétel sorokat csak Session-ba, kimentjük. DB-be még nem menethetünk csak, ha a Mentés gombra kattintottak. */
+
+}
+
+/* Tétel sor törlése */
+function popup_tetel_sor_torol(sor_id, mehet){
+    
+    van_valtozas = true;
+    
+    $('.'+sor_id).addClass('torles_elott');
+    if(!mehet){
+        alert2( 'Jogcím: '  + $('.'+sor_id+' .pop_jogcim_txt')  .html() +'<br>' +
+                'Díjelem: ' + $('.'+sor_id+' .pop_dijelem_txt') .html() +'<br>' +
+                'Díj: '     + $('.'+sor_id+' .pop_dij')     .html() +' ' + akt_penznem + '<br>' +
+                'Biztosan törli a számla tételt?', '<input type="button" class="gomb zold" value="Igen" onclick="popup_tetel_sor_torol(\''+sor_id+'\', \'mehet\'); alert2();"><input type="button" class="gomb piros escapes_megsem" value="Nem" onclick="alert2(); $(\'.torles_elott\').removeClass(\'torles_elott\');">');
+        return false;
+    }
+    
+    /* Sor törlése, újraszámolás */
+    $('.'+sor_id).fadeOut('slow', function(){
+        $('.'+sor_id).remove();
+    });
+    
+    /* Popup mentésekor ez alapján töröljük ki majd a sort */
+    torolt_sorok += sor_id;
+    
+    $('#pop_targy').focus();
+    
+    $('.pop_mentes_megsem').removeClass('dn');
+    
+    /* A tétel sorokat csak Session-ba, kimentjük. DB-be még nem menethetünk csak, ha a Mentés gombra kattintottak. */
+}
+
+/* Tétel sor táblázat mentése */
+function tetel_sorok_ment(){
+    
+    var recidk = [];
+    $('.pop_recid').each(function() {
+        recidk.push( $(this).val() );
+    });
+    var jogcimek = [];
+    $('.pop_jogcim').each(function() {
+        jogcimek.push( $(this).val() );
+    });
+
+    var dijelemek = [];
+    $('.pop_dijelem').each(function() {
+        dijelemek.push( $(this).val() );
+    });
+
+    var aranyosok = [];
+    $('.pop_aranyos').each(function() {
+        var aranyos = '';
+        if( $(this).html().trim() ) {
+            aranyos = '1';
+        }
+        aranyosok.push( aranyos );
+    });
+    var tolok = [];
+    $('.pop_tol').each(function() {
+        tolok.push( $(this).html() );
+    });
+    var igek = [];
+    $('.pop_ig').each(function() {
+        igek.push( $(this).html() );
+    });
+    var indulok = [];
+    $('.pop_indul').each(function() {
+        indulok.push( $(this).html() );
+    });
+    var zarok = [];
+    $('.pop_zar').each(function() {
+        zarok.push( $(this).html() );
+    });
+    var szorzok = [];
+    $('.pop_szorzo').each(function() {
+        szorzok.push( $(this).html() );
+    });
+    var mertek = [];
+    $('.pop_mert').each(function() {
+        mertek.push( $(this).html() );
+    });
+    var kwh_szorzok = [];
+    $('.pop_kwh_szorzo').each(function() {
+        kwh_szorzok.push( $(this).html() );
+    });
+    var mennyek = [];
+    $('.pop_menny').each(function() {
+        mennyek.push( $(this).html() );
+    });
+    var egysegek = [];
+    $('.pop_egyseg').each(function() {
+        egysegek.push( $(this).html() );
+    });
+    var menny_kwhk = [];
+    $('.pop_menny_kwh').each(function() {
+        menny_kwhk.push( $(this).html() );
+    });
+    var egyseg_arak = [];
+    $('.pop_egyseg_ar').each(function() {
+        egyseg_arak.push( $(this).html() );
+    });
+    var dijak = [];
+    $('.pop_dij').each(function() {
+        dijak.push( $(this).html() );
+    });
+    var afak = [];
+    $('.pop_afa').each(function() {
+        afak.push( $(this).html() );
+    });
+    var valtozott = [];
+    $('.pop_valtozott').each(function() {
+        valtozott.push( $(this).val() );
+    });
+
+    var adatok = [
+                    ['recidk',          recidk],
+                    ['jogcimek',        jogcimek],
+                    ['dijelemek',       dijelemek],
+                    ['aranyosok',       aranyosok],
+                    ['tolok',           tolok],
+                    ['igek',            igek],
+                    ['indulok',         indulok],
+                    ['zarok',           zarok],
+                    ['szorzok',         szorzok],
+                    ['mertek',          mertek],
+                    ['kwh_szorzok',     kwh_szorzok],
+                    ['mennyek',         mennyek],
+                    ['egysegek',        egysegek],
+                    ['menny_kwhk',      menny_kwhk],
+                    ['egyseg_arak',     egyseg_arak],
+                    ['dijak',           dijak],
+                    ['afak',            afak],
+                    ['valtozott',       valtozott]
+                ];
+
+    $.ajax({
+        url : 'energia_szamla.php',
+        type: 'POST',
+        data: {
+            adatok              : JSON.stringify(adatok),
+            recid               : _get('id'),
+            kcs_21              : kcs_21,
+            arfolyam            : $('#arfolyam_db').val(),
+            torolt_sorok        : torolt_sorok,
+            tetel_sorok_ment    : Date.now()
+        },
+        success: function(response) {
+
+            if(response.substring(0, 6)=='SESKIL'){ location.href = 'index.php'; }
+            if( response ) {
+                response = JSON.parse(response);
+                if( response.hiba ) {
+                    alert2(response.hiba, response.gomb, response.title);
+                } else {
+                    
+                    /* Adatlapot csak akkor frissítünk, és popupot csak akkor zárunk ha DB-be is elmentjük */
+                    if( _get('tetel') ){
+                        szamlaBetolt(_get('id'), 'energia_szamla.php');
+                    }
+                    popupZar();
+                    
+                }
+            }
+        },
+        complete: function(xhr) {
+            if( xhr.status != 200 ) {
+                alert2(xhr.responseText, '', 'Hiba');
+            }
+        }
+    });
+
+}
+
+/* Ha van SESSION-ban adatunk, akkor abból töltsük fel a sorokat */
+function pop_tetelek_feltolt(){
+    
+    var andoc_id = '';
+    if( _get('andoc_id') ) {
+        andoc_id = _get('andoc_id');
+    }
+    
+    $.ajax({
+        url : 'energia_szamla.php',
+        type: 'POST',
+        data: {
+            id                  : _get('id'),
+            andoc_id            : andoc_id,
+            pop_tetelek_feltolt : Date.now()
+        },
+        success: function(response) {
+            if(response.substring(0, 6)=='SESKIL'){ location.href = 'index.php'; }
+            if( response ) {
+                response = JSON.parse(response);
+                
+                if(response.hiba){
+                    alert2(response.hiba, response.gomb, response.title);
+                    if( response.focus ){
+                        $('#'+response.focus).addClass('hibas_ide_focus');
+                    }
+                    popupZar();
+                    return false;
+                }
+                
+                if( response.html ) {
+                    $('#pop_tetelek tbody').append(response.html);
+                    $('#pop_tetelek').removeClass('dn');
+                }
+                
+                /* Illeve a jogcím select is most kap értéket */
+                $('.jogcim_select' ).html( response.jogcim_select  );
+            }
+        },
+        complete: function(xhr) {
+            if( xhr.status != 200 ) {
+                alert2(xhr.responseText, '', 'Hiba');
+            }
+        }
+    });
+}
+
+/* Fogyasztással arányos mezők beállítása */
+function aranyos_mezok_beallit() {
+    if( $('#pop_aranyos').prop('checked') ) {
+        $('#pop_indul'      ).val('0,0000'  ).removeAttr('disabled').addClass('csillag');
+        $('#pop_zar'        ).val('0,0000'  ).removeAttr('disabled').addClass('csillag');
+        $('#pop_szorzo'     ).val('0,00'    ).removeAttr('disabled').addClass('csillag');
+        $('#pop_mert'       ).val('0,00000' ).addClass('csillag');
+        $('#pop_kwh_szorzo' ).addClass('csillag');
+        dijelem_ertek_betolt();
+    } else {
+        $('#pop_indul'      ).val('').attr('disabled', 'disabled').removeClass('csillag');
+        $('#pop_zar'        ).val('').attr('disabled', 'disabled').removeClass('csillag');
+        $('#pop_szorzo'     ).val('').attr('disabled', 'disabled').removeClass('csillag');
+        $('#pop_mert'       ).val('').removeClass('csillag');
+        $('#pop_kwh_szorzo' ).val('').removeClass('csillag');
+    }
+}
+
+/* Fogyasztás kiszámítása */
+function mert_kiszamol() {
+    console.log($('#pop_zar').val().replace(/\s/g, '').replace(',', '.'));
+    var fogyasztas = ( $('#pop_zar').val().replace(/\s/g, '').replace(',', '.') - $('#pop_indul').val().replace(/\s/g, '').replace(',', '.') ) * $('#pop_szorzo').val().replace(/\s/g, '').replace(',', '.');
+    fogyasztas = ezresek(fogyasztas, 5, ',', ' ');
+    $('#pop_mert').val( fogyasztas );
+    if( !$('#pop_menny').hasClass('modositva') ) {
+        $('#pop_menny').val( fogyasztas );
+    }
+    menny_kwh_kiszamol();
+}
+
+/* Mennyiség kWh mező kiszámítása */
+function menny_kwh_kiszamol() {
+    var menny_kwh = $('#pop_kwh_szorzo').val().replace(/\s/g, '').replace(',', '.') * $('#pop_menny').val().replace(/\s/g, '').replace(',', '.');
+    menny_kwh = ezresek(menny_kwh, 4, ',', ' ');
+    $('#pop_menny_kwh').val( menny_kwh );
+    
+    dij_kiszamol();
+}
+
+/* Díj mező kiszámítása */
+function dij_kiszamol() {
+    var dij = $('#pop_egyseg_ar').val().replace(/\s/g, '').replace(',', '.') * $('#pop_menny_kwh').val().replace(/\s/g, '').replace(',', '.');
+    dij = ezresek(dij, 4, ',', ' ');
+    $('#pop_dij').val( dij );
+}
+
+/* Díjelem select feltöltése */
+function dijelem_select() {
+    $.ajax({
+        url : 'energia_szamla.php',
+        type: 'POST',
+        data: {
+            jogcim_recid    : $('#pop_jogcim').val(),
+            dijelem_select  : Date.now()
+        },
+        success: function (response) {
+            if (response) {
+                response = JSON.parse(response);
+                if (response.hiba) {
+                    alert2(response.hiba, response.gomb, response.title);
+                    return false;
+                }
+                
+                $('.dijelem_select').html( response.dijelem_select );
+                
+            }
+        }
+    });
+}
+
+/* Díjelemet kiválasztva az értéklista mezőit töltsük be */
+function dijelem_ertek_betolt() {
+    $.ajax({
+        url : 'energia_szamla.php',
+        type: 'POST',
+        data: {
+            dijelem_recid          : $('#pop_dijelem').val(),
+            dijelem_ertek_betolt   : Date.now()
+        },
+        success: function(response){
+            if(response){
+                response = JSON.parse(response);
+                if(response.hiba){
+                    alert2(response.hiba, response.gomb, response.title);
+                    return false;
+                }
+                
+                if( !response.afa ) {
+                    response.afa = 0;
+                }
+                if( !response.kwh_szorzo ) {
+                    response.kwh_szorzo = '0,0000';
+                }
+                
+                $('#pop_egyseg'     ).replaceWith(response.mee  );
+                $('#pop_kwh_szorzo' ).val(response.kwh_szorzo   );
+                $('#pop_afa'        ).val(response.afa          );
+                
+                menny_kwh_kiszamol();
+            }
+        }
+    });
+}
+
+/* Azért van külön függvénye, hogy rá lehessen kérdezni */
+function megsem_gomb( mehet ) {
+    
+    /* Ha volt változtatás, és nem volt még kérdés */
+    if( van_valtozas && !mehet ){
+        alert2('A változások nincsenek mentve. Folytatja?', '<input type="button" class="gomb zold" value="Igen" onclick="megsem_gomb(\'mehet\')"><input type="button" class="gomb piros escapes_megsem" value="Nem" onclick="alert2();">', 'Kérdés');
+    } else {
+        csoportMuvelet('energiaszamla_tetelek_kezelese');
+        alert2();
+    }
+    
+}
+
+/* Azért van külön függvénye, hogy rá lehessen kérdezni */
+function bezar_gomb( mehet ) {
+    
+    /* Ha volt változtatás, és nem volt még kérdés */
+    if( van_valtozas && !mehet ){
+        alert2('A változások nincsenek mentve. Folytatja?', '<input type="button" class="gomb zold" value="Igen" onclick="bezar_gomb(\'mehet\')"><input type="button" class="gomb piros escapes_megsem" value="Nem" onclick="alert2();">', 'Kérdés');
+    } else {
+        alert2();
+        popupZar();
+        /* Ez miért kellett? Csak mert gondot okozott, ha új számlát töltünk fel, bezárjuk a tétel kezelés, és frissíteni az adatlapot, ezért rákérdez, hogy biztosan elhagyjuk-e mentés nélkül... emiatt lett kiszedve.
+         * szamlaBetolt(_get('id'), 'projektszamla.php', 'modosit');*/
+    }
+    
+}
+</script>

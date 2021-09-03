@@ -178,19 +178,19 @@ $munkAnyag_statusz = array(
 );
 
 // Értéklista csoport - ezt elég az erteklista.php/header.php alatt kiszámolni (utóbbi a szűrő miatt)
-if( basename(self()) == 'erteklista.php' || basename(self()) == 'header.php'/*Szűrés miatt*/ ) {
+if( basename(self()) == 'erteklista.php' || basename(self()) == 'energia_szamla.php' || basename(self()) == 'header.php'/*Szűrés miatt*/ ) {
     $select_erteklista = array();
-    array_push($select_erteklista, array('name' => '-Válassz-', 'value' => '' ));
+    array_push($select_erteklista, array('name' => '-Válasszon-', 'value' => '' ));
     $erteklistak = $adatbazis_kapcsolat -> select('csoport nev', 'erteklista_csoport', '', 'nev');
     foreach ( $erteklistak as $erteklista ) {
         array_push($select_erteklista, array('name' => $erteklista['nev'], 'value' => (int)$erteklista['csoport'] ));
     }
     
-    $select_energianem = array();
-    array_push($select_energianem, array('name' => '-Válassz-', 'value' => '' ));
-    $erteklistak = $adatbazis_kapcsolat -> select('recid info', 'erteklista', "`csoport`='".ERTEKLISTA_ENERGIANEM."'", 'info');
-    foreach ( $erteklistak as $erteklista ) {
-        array_push($select_energianem, array('name' => $erteklista['info'], 'value' => $erteklista['recid'] ));
+    $select_jogcim = array();
+    array_push($select_jogcim, array('name' => '-Válasszon-', 'value' => '' ));
+    $jogcimek = $adatbazis_kapcsolat -> select('recid jogcim', 'jogcim', "`ktghely_id`='".KTGHELY_ENERGIA."'", 'jogcim');
+    foreach ( $jogcimek as $jogcim ) {
+        array_push($select_jogcim, array('name' => $jogcim['jogcim'], 'value' => $jogcim['recid'] ));
     }
 }
 
