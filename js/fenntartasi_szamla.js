@@ -124,7 +124,8 @@ function kuldes_igazolasra(mehet) {
 }
 
 // Adatlapon található deviza árfolyam és deviza nettó mezőből számol ki nettó/bruttó értéket
-$(document).on('blur', '#dev_net', function(e) {
-    $('#netto' ).val( ezresek($('#dev_net').val().replace(/ /g, '').replace(',', '.')*($('#arfolyam').val().replace(/ /g, '').replace(',', '.')), 0, ',', ' ') );
-    $('#brutto').val( ezresek($('#dev_br' ).val().replace(/ /g, '').replace(',', '.')*($('#arfolyam').val().replace(/ /g, '').replace(',', '.')), 0, ',', ' ') );
-});
+// Mivel ezek nem szerkeszthető mezők, ezért nem foglalkozunk vele
+//$(document).on('blur', '#dev_net', function(e) {
+//    $('#netto' ).val( ezresek($('#dev_net').val().replace(/ /g, '').replace(',', '.')*($('#arfolyam').val().replace(/ /g, '').replace(',', '.')), 0, ',', ' ') );
+//    $('#brutto').val( ezresek($('#dev_br' ).val().replace(/ /g, '').replace(',', '.')*($('#arfolyam').val().replace(/ /g, '').replace(',', '.')), 0, ',', ' ') );
+//});

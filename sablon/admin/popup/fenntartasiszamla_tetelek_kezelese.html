@@ -55,7 +55,7 @@
             $('#jogcim_id_autocomp').autocomplete({
                 'php_fajl'      : '../autocomplete.php',
                 'tabla'         : 'jogcim',
-                'oszlop_keres'  : 'jogcim',
+                'oszlop_keres'  : 'jogcim, szla_szam, ktghely_id',
                 'oszlop_listaz' : 'jogcim, szla_szam, ktghely_id',
                 'id_kiir'       : 'recid',
                 'complete'      : function() { ktgnem_ktghely_kitolt(); }

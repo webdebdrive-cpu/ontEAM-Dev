@@ -1045,54 +1045,69 @@ function i_u($type, $tabla, $tomb) {
         
         // Fenntartási számla tételeinek felvétele, köztes tábla törlése
         if( $tabla == 'fenntartasi_szamla' ) {
+            
             $i = 0;
             foreach ( $_SESSION['fennt_szla_tetel_targy'] as $targy ) {
                 $netto_ert  = str_replace(' ', '',  $_SESSION['fennt_szla_tetel_netto_ert'][$i]);
+                $brutto_ert = str_replace(' ', '',  $_SESSION['fennt_szla_tetel_brutto_ert'][$i]);
                 $dev_net    = str_replace(array(' ', ','), array('', '.'),  $_SESSION['fennt_szla_tetel_dev_net'][$i]);
                 $dev_br     = str_replace(array(' ', ','), array('', '.'),  $_SESSION['fennt_szla_tetel_dev_br'][$i]);
+                // Devizás számla esetén a HUF nettó-bruttót a devizából kell visszaszámolni
+                if( $_POST['kcs_21'] != KCS_21_HUF ) {
+                    $netto_ert  = round($dev_net * $_POST['arfolyam']);
+                    $brutto_ert = round($dev_br  * $_POST['arfolyam']);
+                }
                 $targy      = $_SESSION['fennt_szla_tetel_targy'][$i];
-                $ktgnem     = $_SESSION['fennt_szla_tetel_ktgnem'][$i];
-                $ktghely    = $_SESSION['fennt_szla_tetel_ktghely'][$i];
+                $jogcim_sor = $adatbazis_kapcsolat->s2('recid jogcim uzemresz megn szla_szam ktghely ktghely_id', 'jogcim', "`recid`='{$_SESSION['fennt_szla_tetel_jogcim'][$i]}'");
+                $afakod_sor = $adatbazis_kapcsolat->s2('recid kod afa nev', 'afakod', "`recid`='{$_SESSION['fennt_szla_tetel_afakod'][$i]}'");
                 $valtozott  = $_SESSION['fennt_szla_tetel_valtozott'][$i];
-                
+
                 // Ha ismert a recid, akkor kérjük le az átmeneti táblából az adatokat és azokban írjuk át a SESSION adatait, és így mentjük le
-                if( $_SESSION['fennt_szla_tetel_recid'][$i] ) {
-                    $tetel = $adatbazis_kapcsolat->s2('*', 'fenntartasi_szamla_tetel_atmeneti', "`recid`='{$_SESSION['fennt_szla_tetel_recid'][$i]}'");
-                    if( $tetel === false ) { $db_error = true; }
- 
-                    // Session adataival felülírjuk az átmeneti tábla adatait
+                // NA ILYET MÁR NEM CSINÁLUNK, MERT ÚJABBAN ANDOCBÓL ÉRKEZŐ tételeket már nem dolgozzuk fel
+                // if( $_SESSION['fennt_szla_tetel_recid'][$i] ) {
+                    // $tetel = $adatbazis_kapcsolat->s2('*', 'fenntartasi_szamla_tetel_atmeneti', "`recid`='{$_SESSION['fennt_szla_tetel_recid'][$i]}'");
+                    // if( $tetel === false ) { $db_error = true; }
+                    
+                    $rownum = $adatbazis_kapcsolat->s2('MAX(`rownum`)', 'fenntartasi_szamla_tetel', "`fenntartasi_szamla_recid`='{$id}'");
+                    $rownum = $rownum['MAX(`rownum`)']+1;
+                    
+                    $tetel['rownum']        = $rownum;
                     $tetel['targy']         = $targy;
                     $tetel['netto_ert']     = $netto_ert;
+                    $tetel['brutto_ert']    = $brutto_ert;
                     $tetel['dev_net']       = $dev_net;
-                    $tetel['ktgnem_id']     = $ktgnem;
-                    $tetel['ktghely_id']    = $ktghely;
+                    $tetel['dev_br']        = $dev_br;
+                    $tetel['jogcim_recid']  = $jogcim_sor['recid'];
+                    $tetel['jogcim']        = $jogcim_sor['jogcim'];
+                    $tetel['uzemresz']      = $jogcim_sor['uzemresz'];
+                    $tetel['megn']          = $jogcim_sor['megn'];
+                    $tetel['ktgnem_id']     = $jogcim_sor['szla_szam'];
+                    $tetel['ktghely']       = $jogcim_sor['ktghely'];
+                    $tetel['ktghely_id']    = $jogcim_sor['ktghely_id'];
+                    $tetel['afakod_recid']  = $afakod_sor['recid'];
+                    $tetel['afa_kod']       = $afakod_sor['kod'];
+                    $tetel['afa_nev']       = $afakod_sor['nev'];
+                    $tetel['afa']           = $afakod_sor['afa'];
                     
                     $ertekek = array();
                     $mezok   = array(
                         'rownum',
-                        'telephely_id',
                         'targy',
-                        'ktgnem_id',
                         'netto_ert',
                         'brutto_ert',
-                        'afa_ossz',
-                        'afa',
+                        'afakod_recid',
                         'afa_kod',
                         'afa_nev',
+                        'afa',
                         'dev_net',
                         'dev_br',
-                        'stat_id',
-                        'ktghely_id',
                         'jogcim_recid',
                         'jogcim',
                         'uzemresz',
                         'megn',
-                        'igazol_usr',
-                        'igazol_dt',
-                        'verzio',
-                        'andocos',
-                        'flex',
-                        'sorid',
+                        'ktgnem_id',
+                        'ktghely',
+                        'ktghely_id',
                         );
 
                     foreach( $mezok as $mezo ) {
@@ -1104,18 +1119,18 @@ function i_u($type, $tabla, $tomb) {
 
                     $sql = $adatbazis_kapcsolat->i('fenntartasi_szamla_tetel', $mezok, $ertekek);
                     if( $sql === false ) { $db_error = true; }
- 
+
                 // Ha nincs átmeneti megfelelője
-                } else {
-                    
-                    $rownum = $adatbazis_kapcsolat->s2('MAX(`rownum`)', 'fenntartasi_szamla_tetel', "`fenntartasi_szamla_recid`='{$id}'");
-                    $rownum = $rownum['MAX(`rownum`)']+1;
-                    $sql = $adatbazis_kapcsolat->i('fenntartasi_szamla_tetel',
-                                                        array('fenntartasi_szamla_recid', 'rownum', 'targy', 'netto_ert', 'dev_net', 'ktgnem_id', 'ktghely_id', 'valtozott', 'loginnev',                          'insert_dt',    'insert_usr',                             'update_usr'                              ),
-                                                        array($id,                        $rownum,  $targy,  $netto_ert,  $dev_net,  $ktgnem,     $ktghely,     '1',         $_SESSION[get_db_tabla().'user'],    'NOW()',        $_SESSION[get_db_tabla().'teljes_nev'],   $_SESSION[get_db_tabla().'teljes_nev']    )
-                                                );
-                }
-                if( $sql === false ) { $db_error = true; }
+//                } else {
+//                    
+//                    $rownum = $adatbazis_kapcsolat->s2('MAX(`rownum`)', 'fenntartasi_szamla_tetel', "`fenntartasi_szamla_recid`='{$id}'");
+//                    $rownum = $rownum['MAX(`rownum`)']+1;
+//                    $sql = $adatbazis_kapcsolat->i('fenntartasi_szamla_tetel',
+//                                                        array('fenntartasi_szamla_recid', 'rownum', 'targy', 'netto_ert', 'dev_net', 'ktgnem_id', 'ktghely_id', 'valtozott', 'loginnev',                          'insert_dt',    'insert_usr',                             'update_usr'                              ),
+//                                                        array($id,                        $rownum,  $targy,  $netto_ert,  $dev_net,  $ktgnem,     $ktghely,     '1',         $_SESSION[get_db_tabla().'user'],    'NOW()',        $_SESSION[get_db_tabla().'teljes_nev'],   $_SESSION[get_db_tabla().'teljes_nev']    )
+//                                                );
+//                }
+//                if( $sql === false ) { $db_error = true; }
 
                 $i++;
             }

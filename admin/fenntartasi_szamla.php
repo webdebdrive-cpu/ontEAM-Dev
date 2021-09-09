@@ -611,9 +611,11 @@ if( isset($_POST['pop_kapcsolas_feltolt']) ) {
     
     // Mindenek előtt ellenőrizzük, hogy a szerződés partnerkódja azonos-e a számla partner kódjával
     $szamla_tetel   = $adatbazis_kapcsolat->s2('fenntartasi_szamla_recid netto_ert dev_net', 'fenntartasi_szamla_tetel', "`recid`='{$_POST['szamla_tetel_recid']}'");
-    $szamla         = $adatbazis_kapcsolat->s2('sz_szam szallito_id', 'fenntartasi_szamla', "`recid`='{$szamla_tetel['fenntartasi_szamla_recid']}'");
+    $szamla         = $adatbazis_kapcsolat->s2('sz_szam szallito_id telephely_id', 'fenntartasi_szamla', "`recid`='{$szamla_tetel['fenntartasi_szamla_recid']}'");
     $szerzodes      = $adatbazis_kapcsolat->s2('szallito_id', 'fenntartasi_szerzodes', "`szszam`='{$szamla['sz_szam']}'");
 
+    $szalloda_neve  = getSzallodaNev($szamla['telephely_id']);
+    
     if( $szamla['szallito_id'] != $szerzodes['szallito_id'] ) {
         echo json_encode( array(
             'hiba'  => 'A számla partnerkódja nem egyezik a szerződés partnerkódjával, kérem ellenőrizze!',
@@ -630,13 +632,11 @@ if( isset($_POST['pop_kapcsolas_feltolt']) ) {
     $mezo       = 'varh_ert';
     $netto_mezo = 'netto_ert';
     $szerz_mezo = 'netto';
-    $ertek_mezo = 'ertek';
     if( $_POST['kcs_21'] && $_POST['kcs_21']!=KCS_21_HUF ) {
         $szl_netto  = 'dev_net';
         $netto_mezo = 'dev_net';
         $mezo       = 'dev_varh_ert';
         $szerz_mezo = 'dev_net';
-        $ertek_mezo = 'dev_net';
         $tizedesek  = 2;
     }
     
@@ -721,7 +721,7 @@ if( isset($_POST['pop_kapcsolas_feltolt']) ) {
         $class      = '';
         $disabled   = '';
         $torol      = '<a onclick="popup_tetel_sor_torol(\'pop_kapcsol_'.$id_tmp.'\');"><span class="icon"><i class="material-icons">delete</i></span></a>';
-        $van_szamlaja = $adatbazis_kapcsolat->s2('recid, fenntartasi_szamla_recid, '.$ertek_mezo, 'fenntartasi_szamla_tetel', "`fenntartasi_szerzodes_tetel_recid`='{$tetel['recid']}'");
+        $van_szamlaja = $adatbazis_kapcsolat->s2('recid, fenntartasi_szamla_recid, '.$netto_mezo, 'fenntartasi_szamla_tetel', "`fenntartasi_szerzodes_tetel_recid`='{$tetel['recid']}'");
         $szamla_tmp   = '';
         if( $van_szamlaja ) {
             $szamla_tmp = $adatbazis_kapcsolat->s2('telj_dt', 'fenntartasi_szamla', "`recid`='{$van_szamlaja['fenntartasi_szamla_recid']}'");
@@ -741,11 +741,12 @@ if( isset($_POST['pop_kapcsolas_feltolt']) ) {
         
         $tabla .= nl2('
                         <tr class="pop_kapcsol_'.$id_tmp.$class.'">
+                            <td class="pop_telephely l">'.$szalloda_neve.'</td>
                             <td class="pop_targy l">'.$tetel['targy'].'</td>
                             <td class="pop_varh_erk">'.datum_kiir($tetel['varh_erk']).'</td>
                             <td><input type="text" id="varh_ert_'.$id_tmp.'" value="'.number_format($tetel[$mezo], $tizedesek, ',', ' ').'" class="r f_num pop_varhato_ert" data-tort="'.$tizedesek.'" maxlength="12"'.$disabled.'></td>
                             <td><input type="text" value="'.datum_kiir($szamla_tmp['telj_dt']).'" class="datepicker_matol pop_teljesites" maxlength="10"'.$disabled.'></td>
-                            <td><input type="text" id="ertek_'.$id_tmp.'" value="'.number_format($van_szamlaja[$ertek_mezo], $tizedesek, ',', ' ').'" class="r f_num pop_netto_ert" data-tort="'.$tizedesek.'" maxlength="12"'.$disabled.'></td>
+                            <td><input type="text" id="ertek_'.$id_tmp.'" value="'.number_format($van_szamlaja[$netto_mezo], $tizedesek, ',', ' ').'" class="r f_num pop_netto_ert" data-tort="'.$tizedesek.'" maxlength="12"'.$disabled.'></td>
                             <td>
                                 '.$torol.'
                                 <span class="dn pop_recid">'.$tetel['recid'].'</span>
@@ -868,7 +869,7 @@ if( isset($_POST['fenntartasi_szamla_kapcsolas']) ) {
         $_POST['adatok'][$varhato_ert_adat][1][$i]  = str_replace(array(' ', ','), array('', '.'), $_POST['adatok'][$varhato_ert_adat][1][$i]);
         $_POST['adatok'][$netto_ert_adat][1][$i]    = str_replace(array(' ', ','), array('', '.'), $_POST['adatok'][$netto_ert_adat][1][$i]);
         
-        // Recid alapján nézzük meg, hogy van-e már kapcsolt számlája. 
+        // Recid alapján nézzük meg, ennek a szerződés tételnek van-e már kapcsolt számlája (van-e olyan fenntartási számla tétel, ami erre a szerződéstételhez van-e kapcsolva). 
         $van_szamlaja = $adatbazis_kapcsolat->s2('recid', 'fenntartasi_szamla_tetel', "`fenntartasi_szerzodes_tetel_recid`='{$_POST['adatok'][0][1][$i]}'");
         if( $van_szamlaja === false ) { $db_error = true; }
 
@@ -1533,7 +1534,7 @@ require_once('selectek.php');
                     <!--<div class="dtc">'.getSzallodaNev($tetel['telephely_id']).'</div>-->
                     <div class="dtc">'.$tetel['targy'].'</div>
                     <div class="dtc">'.$tetel['megn']/*getErtek('nev', 'ktgnem', 'id', $tetel['ktgnem_id'])*/.'</div>
-                    <div class="dtc">'.$tetel['ktghely_id']/*getErtek('nev', 'ktghely', 'id', $tetel['ktghely_id'])*/.'</div>
+                    <div class="dtc">'.$tetel['ktghely']/*getErtek('nev', 'ktghely', 'id', $tetel['ktghely_id'])*/.'</div>
                     <div class="dtc r nowrap">'.number_format($tetel['netto_ert'],  0, ',', ' ').'</div>
                     <div class="dtc r nowrap">'.number_format($tetel['brutto_ert'],  0, ',', ' ').'</div>
                     <div class="dtc r nowrap">'.$tetel['afa'].'</div>

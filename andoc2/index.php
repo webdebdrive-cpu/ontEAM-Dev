@@ -68,7 +68,7 @@ try {
     Ip: '.$_SERVER['REMOTE_ADDR'].'
     URL: '.get_http().$_SERVER['HTTP_HOST'].$_SERVER['REQUEST_URI'].'
     POST:
-    '.$xml.'
+    '.str_replace(">", ">\n", $xml)/*Sortörésekkel mentsük a logba*/.'
 
 
 
