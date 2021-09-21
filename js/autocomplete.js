@@ -35,6 +35,7 @@
                 props           : '',                   /* Pl. ktgnem keresésnél a feltétel kiegészül még egy props oszlopban való kereséssel */
                 recid           : '',                   /* Az aktuális űrlap recid-ja. Néha szükség van rá                  */
                 rkat            : 0,                    /* Rendszer kategóriára szűrünk                                     */
+                jogcim_ktghely  : '',                   /* Jogcímenkén van, hogy csak egy részére keresünk rá               */
                 szel            : 'auto',               /* Lista szélessége                                                 */
                 aktiv           : '',                   /* login táblánál tudjunk szűrni aktívakra is                       */
                 aktiv_szinez    : '',                   /* aktívakat zöld, inaktívakat pirossal listázzunk ki               */
@@ -176,6 +177,7 @@
                                         props           : options.props,
                                         recid           : options.recid,
                                         rkat            : options.rkat,
+                                        jogcim_ktghely  : options.jogcim_ktghely,
                                         aktiv           : options.aktiv,
                                         aktiv_szinez    : options.aktiv_szinez,
                                         beosztas_id     : options.beosztas_id,
@@ -204,11 +206,12 @@
 
                                         /* Ha az input elhagyta a documentum felét */
                                         if( offsetTop > documentHalf ) {
+                            
                                             var maradekHely = documentHeight - (offsetTop + height);
 
                                             autocompleteTop = -Math.abs(autocompHeight);
+        
                                             var posTop = $(that).position().top;
-
                                             if( autocompHeight > posTop ) {
                                                 autocompleteTop = -Math.abs(posTop);
                                                 autocompHeight  = posTop;
@@ -216,8 +219,8 @@
 
                                             if($('#popup').css('display') == 'block') {
                                                 var popupHeight = $('div.popup_kont').outerHeight();
-
-                                                autocompHeight = popupHeight - posTop - 70;
+                                                // Ez miért és hova kellett? Fenntartási számla tételek popupnál a Jogcímbe kattintva emiatt nem nyílt le jó helyen az autocomplete
+                                                // autocompHeight  = popupHeight - posTop - 70;
                                             }
 
                                             $('#autocomplete').css({

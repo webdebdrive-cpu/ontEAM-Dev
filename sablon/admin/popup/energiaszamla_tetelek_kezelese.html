@@ -70,11 +70,11 @@
         <div>
             Mennyiség:
             <div>
-                <input type="text" id="pop_menny" class="csillag" data-tort="4" maxlength="18" value="0,0000" oninput="$(this).addClass('modositva'); menny_kwh_kiszamol();">
+                <input type="text" id="pop_menny" class="csillag" data-tort="4" maxlength="18" value="0,0000" oninput="$(this).addClass('modositva'); menny_kwh_kiszamol();" onkeyup="$('#pop_menny').val( $('#pop_menny').val().replace('.', ',') )" onblur="$('#pop_menny').val( ezresek($('#pop_menny').val().replace(/\s/g, '').replace(',', '.'), 4, ',', ' ') );">
             </div>
         </div>
         <div>
-            Mennyiség-egység:
+            Mee:
             <div id="mee_helye">
                 <!-- Azért van JS változóba kiszervezve, mert később is felhasználjuk még  -->
                 <script>
@@ -95,7 +95,7 @@
         <div>
             Egységár:
             <div>
-                <input type="text" id="pop_egyseg_ar" class="csillag" data-tort="4" maxlength="18" value="0,0000" oninput="dij_kiszamol()">
+                <input type="text" id="pop_egyseg_ar" class="csillag" data-tort="4" maxlength="18" value="0,0000" oninput="dij_kiszamol()" onkeyup="$('#pop_egyseg_ar').val( $('#pop_egyseg_ar').val().replace('.', ',') )" onblur="$('#pop_egyseg_ar').val( ezresek($('#pop_egyseg_ar').val().replace(/\s/g, '').replace(',', '.'), 4, ',', ' ') );">
             </div>
         </div>
         <div>
@@ -185,13 +185,13 @@ $(document).ready(function () {
     /* Dátum tól-ig */
     $('#pop_tol').datetimepicker({
         onShow: function( ct ){
-            if( $('#pop_ig').val() ) {
+            /*if( $('#pop_ig').val() ) {
                 datum_elem = $('#pop_ig').val().split(".");
                 datum_limit = new Date(datum_elem[0]+', '+datum_elem[1]+', '+datum_elem[2]);
                 this.setOptions({
                     maxDate:datum_limit?datum_limit:false
                 })
-            }
+            }*/
 
         },
         onChangeDateTime    : function(){ $('#pop_ig').focus(); },
@@ -217,6 +217,11 @@ $(document).ready(function () {
         mask                : '\xa0\xa0\xa0\xa0.\xa0\xa0.\xa0\xa0',
         timepicker          : false,
         validateOnBlur      : false
+    });
+    
+    /* Naptár mezőt TAB-al elhagyva záródjon be */
+    $(document).on('blur', '#pop_ig', function(e) {
+        $('.xdsoft_datetimepicker').hide();
     });
     
 });
@@ -286,7 +291,7 @@ function tetel_hozzaadasa() {
         $('#pop_zar').addClass('hibas_ide_focus');
         return false;
     }
-    if( aranyos_kotelezo && $('#pop_zar').val() < $('#pop_indul').val() ) {
+    if( aranyos_kotelezo && Number($('#pop_zar').val().replace(/\s/g, '').replace(',', '.')) < Number($('#pop_indul').val().replace(/\s/g, '').replace(',', '.') )) {
         alert2('A mérőóraállás záró állása nem lehet kisebb az induló állástól!', '', 'Hiba');
         $('#pop_zar').addClass('hibas_ide_focus');
         return false;
@@ -389,21 +394,21 @@ function tetel_hozzaadasa() {
         if( aranyos ) {
             aranyos_txt = '✓';
         }
-        var table_sor = '<tr class="pop_tetel_'+id_tmp+'">' +
-                            '<td class="pop_jogcim_txt">'   + jogcim_txt    + '</td>' +
-                            '<td class="pop_dijelem_txt">'  + dijelem_txt   + '</td>' +
-                            '<td class="pop_aranyos">'      + aranyos_txt   + '</td>' +
-                            '<td class="l"><span class="pop_tol">'    + tol           + '</span>-<br><span class="pop_ig">' + ig + '</span></td>' +
-                            '<td class="l"><span class="pop_indul">'  + indul         + '</span>-<br><span class="pop_zar">' + zar + '</span></td>' +
-                            '<td class="pop_szorzo">'       + szorzo        + '</td>' +
-                            '<td class="pop_mert">'         + mert          + '</td>' +
-                            '<td class="pop_kwh_szorzo">'   + kwh_szorzo    + '</td>' +
-                            '<td class="pop_menny">'        + menny         + '</td>' +
-                            '<td class="pop_egyseg">'       + egyseg        + '</td>' +
-                            '<td class="pop_menny_kwh">'    + menny_kwh     + '</td>' +
-                            '<td class="pop_egyseg_ar">'    + egyseg_ar     + '</td>' +
-                            '<td class="pop_dij">'          + dij           + '</td>' +
-                            '<td class="pop_afa">'          + afa           + '</td>' +
+        var table_sor = '<tr class="pop_tetel_'+id_tmp+'">'     +
+                            '<td class="pop_jogcim_txt">'       + jogcim_txt    + '</td>' +
+                            '<td class="pop_dijelem_txt">'      + dijelem_txt   + '</td>' +
+                            '<td class="pop_aranyos">'          + aranyos_txt   + '</td>' +
+                            '<td class="l"><span class="pop_tol">'    + tol           + '</span><br><span class="pop_ig">' + ig + '</span></td>' +
+                            '<td class="l"><span class="pop_indul">'  + indul         + '</span><br><span class="pop_zar">' + zar + '</span></td>' +
+                            '<td class="pop_szorzo nowrap">'    + szorzo        + '</td>' +
+                            '<td class="pop_mert nowrap">'      + mert          + '</td>' +
+                            '<td class="pop_kwh_szorzo nowrap">'+ kwh_szorzo    + '</td>' +
+                            '<td class="pop_menny nowrap">'     + menny         + '</td>' +
+                            '<td class="pop_egyseg nowrap">'    + egyseg        + '</td>' +
+                            '<td class="pop_menny_kwh nowrap">' + menny_kwh     + '</td>' +
+                            '<td class="pop_egyseg_ar nowrap">' + egyseg_ar     + '</td>' +
+                            '<td class="pop_dij nowrap">'       + dij           + '</td>' +
+                            '<td class="pop_afa">'              + afa           + '</td>' +
                             '<td><a onclick="popup_tetel_sor_torol(\'pop_tetel_'+id_tmp+'\');"><span class="icon"><i class="material-icons">delete</i></span></a>'+
                                 '<input type="hidden" class="pop_jogcim" name="pop_jogcim_id" value="'+jogcim+'">' +
                                 '<input type="hidden" class="pop_dijelem" name="pop_dijelem_id" value="'+dijelem+'">' +
@@ -574,7 +579,18 @@ function tetel_sorok_ment(){
                     ['afak',            afak],
                     ['valtozott',       valtozott]
                 ];
-
+    var osszeg_mezo     = 'netto';
+    if( akt_penznem && akt_penznem != 'HUF' ) {
+        osszeg_mezo     = 'dev_net';
+    }
+    
+    var szamla_netto_erteke = '';
+    if( $('#'+osszeg_mezo).length ){
+        szamla_netto_erteke = $('#'+osszeg_mezo).val();
+    } else {
+        szamla_netto_erteke = $('#'+osszeg_mezo+'_db').val();
+    }
+    
     $.ajax({
         url : 'energia_szamla.php',
         type: 'POST',
@@ -584,6 +600,7 @@ function tetel_sorok_ment(){
             kcs_21              : kcs_21,
             arfolyam            : $('#arfolyam_db').val(),
             torolt_sorok        : torolt_sorok,
+            szamla_netto_erteke : szamla_netto_erteke,
             tetel_sorok_ment    : Date.now()
         },
         success: function(response) {
@@ -600,6 +617,7 @@ function tetel_sorok_ment(){
                         szamlaBetolt(_get('id'), 'energia_szamla.php');
                     }
                     popupZar();
+                    $('#ossz_'+osszeg_mezo).val( response.netto );
                     
                 }
             }

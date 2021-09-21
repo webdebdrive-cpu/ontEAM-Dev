@@ -127,11 +127,13 @@ function prsz_hozzaad_gomb_hozzaad_vagy_torol() {
 
 // Adatlapon található nettó mezőből számol ki bruttó értéket
 // FONTOS, hogy ne onclick-es verzió legyen, mert az onclick tulajdonyágot levessük JS-el, ha elszürkített a mező. És ezek a mezők oda-vissza lehetnek aktívak/inaktívak a deviza alapján.
-$(document).on('blur', '#netto', function(e) {
+// EZT NEM TESSZÜK MEG, mert a Bruttó egy fixen kapott érték az Andoctól
+/*$(document).on('blur', '#netto', function(e) {
     if( !$('#brutto').val() || $('#brutto').val()=='0' ){
         $('#brutto').val( ezresek($('#netto').val().replace(/ /g, '')*((Number(AFA)+100)/100), 0, '', ' ') );
     }
 });
+*/
 
 // Ha a bruttósított nettó és a valódi bruttó között 2 Ft-nál nagyobb az eltérés, akkor hibát dobunk. 
 function pr_szamla_netto_br_ell() {
@@ -145,17 +147,20 @@ function pr_szamla_netto_br_ell() {
 
 // Adatlapon található devizat nettó mezőből számol ki deviza bruttó értéket
 // FONTOS, hogy ne onclick-es verzió legyen, mert az onclick tulajdonyágot levessük JS-el, ha elszürkített a mező. És ezek a mezők oda-vissza lehetnek aktívak/inaktívak a deviza alapján.
-$(document).on('blur', '#dev_net', function(e) {
+// EZT NEM TESSZÜK MEG, mert a Bruttó egy fixen kapott érték az Andoctól
+/*
+ * $(document).on('blur', '#dev_net', function(e) {
     if( !$('#dev_br').val() || $('#dev_br').val()=='0,00' ){
         $('#dev_br').val( ezresek($('#dev_net').val().replace(/ /g, '').replace(',', '.')*((Number(AFA)+100)/100), 2, ',', ' ') );
     }
-});
+});*/
 
 // Adatlapon található deviza árfolyam és deviza nettó mezőből számol ki nettó értéket
-$(document).on('blur', '#dev_br', function(e) {
-    if( !$('#netto').val() || $('#netto').val()=='0' ){
+$(document).on('blur', '#dev_net', function(e) {
+    // Mindig újraszámoljuk
+    // if( !$('#netto').val() || $('#netto').val()=='0' ){
         $('#netto').val( ezresek($('#dev_net').val().replace(/ /g, '').replace(',', '.')*($('#arfolyam').val().replace(/ /g, '').replace(',', '.')), 0, ',', ' ') );
-    }
+    // }
 });
 
 // Ha a bruttósított nettó és a valódi bruttó között 2 Ft-nál nagyobb az eltérés, akkor hibát dobunk. 
@@ -170,7 +175,8 @@ function pr_szamla_deviza_netto_br_ell() {
 
 // Pénznem szerkesztésekor a kapcsolódó mezők disabled-ezése
 // Ez sima adatlap betöltésekor is lefut, mert az csinálunk egy blurt a kcs_21_autocomp mezőre.
-$(document).on('input, blur', '#kcs_21_autocomp', function(e) {
+// EZ AZ EGÉSZ KI VAN KAPCSOLVA, mert ezeket importként kapjuk az Andoc-ból, az a mérvadó (tehát hiába devizás egy számla, annak árfolyama, bruttója semmiképp sem szerkeszthető)
+/*$(document).on('input, blur', '#kcs_21_autocomp', function(e) {
     // Azért van egy settimeoutban, mert a mezőt elhagyva még az autocomplete feltölti adattal. De az elhagyás pillanatában még üres.
     setTimeout(function(){
         if ($('#kcs_21_autocomp').val() && $('#kcs_21_autocomp').val() != 'HUF') {
@@ -192,4 +198,4 @@ $(document).on('input, blur', '#kcs_21_autocomp', function(e) {
         }
         tabindex_beallit();
     }, 200);
-});
+});*/

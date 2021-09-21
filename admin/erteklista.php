@@ -313,7 +313,7 @@ require_once('selectek.php');
         foreach($sor as $kulcs => $elem){
             $json_sor[$kulcs] = formAdatok_replace($elem);
         }
-        $szamla_html .= '<script> formAdatok = JSON.parse(\''.json_encode($json_sor).'\'); </script>';
+        $szamla_html .= '<script>formAdatok = JSON.parse(\''.json_encode($json_sor).'\'); </script>';
 
         // Duplákáláskor feltett kérdés
         $szamla_html .= nl2('

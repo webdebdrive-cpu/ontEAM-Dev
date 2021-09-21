@@ -4,11 +4,28 @@
     
     Tárgy:
     <br><input type="text" id="pop_targy" class="oriasi csillag">
-    <br>Nettó érték:
-    <br><input type="text" id="pop_ertek" class="f_num csillag" data-tort="0"> <span class="f_penznem"></span>
-    <br>Bruttó érték:
-    <br><input type="text" id="pop_brutto" class="f_num csillag" data-tort="0"> <span class="f_penznem"></span>
-    <br>Áfa:
+    <style type="text/css">
+        .pop_grid {
+            display: grid;
+            grid-template-columns: 16rem 16rem;
+            grid-gap: 1rem;
+        }
+        .pop_grid.fr {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+        }
+    </style>
+    <div class="pop_grid">
+        <div>
+            Nettó érték:
+            <br><input type="text" id="pop_ertek" class="f_num csillag" data-tort="0"> <span class="f_penznem"></span>
+        </div>
+        <div>
+            Bruttó érték:
+            <br><input type="text" id="pop_brutto" class="f_num csillag" data-tort="0"> <span class="f_penznem"></span>
+        </div>
+    </div>
+    Áfa:
     <br>
     <input type="text" autocomplete="off" class="oriasi disableNav csillag" id="afakod_id_autocomp" name="afakod_id_autocomp" onblur="if(!$(this).val()){ $('#afakod_id').val(''); }">
     <input type="hidden" name="afakod_id" id="afakod_id">
@@ -62,36 +79,43 @@
             });
         });
     </script>
-    <br>Költségnem:
-    <br>
-    <input type="text" autocomplete="off" class="oriasi disableNav" id="ktgnem_id_autocomp" disabled name="ktgnem_id_autocomp" onblur="if(!$(this).val()){ $('#ktgnem_id').val(''); }">
-    <input type="hidden" name="ktgnem_id" id="ktgnem_id">
-    <script>
-        $(document).ready(function() {
-            $('#ktgnem_id_autocomp').autocomplete({
-                'php_fajl'      : '../autocomplete.php',
-                'tabla'         : 'ktgnem',
-                'oszlop_keres'  : 'nev',
-                'oszlop_listaz' : 'nev',
-                'id_kiir'       : 'id'
-            });
-        });
-    </script>
-    <br>Költséghely:
-    <br>
-    <input type="text" autocomplete="off" class="oriasi disableNav" id="ktghely_id_autocomp" disabled name="ktghely_id_autocomp" onblur="if(!$(this).val()){ $('#ktghely_id').val(''); }">
-    <input type="hidden" name="ktghely_id" id="ktghely_id">
-    <script>
-        $(document).ready(function() {
-            $('#ktghely_id_autocomp').autocomplete({
-                'php_fajl'      : '../autocomplete.php',
-                'tabla'         : 'ktghely',
-                'oszlop_keres'  : 'nev',
-                'oszlop_listaz' : 'nev',
-                'id_kiir'       : 'id'
-            });
-        });
-    </script>
+    <div class="pop_grid fr">
+        <div>
+            Költségnem:
+            <br>
+            <input type="text" autocomplete="off" class="oriasi disableNav" id="ktgnem_id_autocomp" disabled name="ktgnem_id_autocomp" onblur="if(!$(this).val()){ $('#ktgnem_id').val(''); }">
+            <input type="hidden" name="ktgnem_id" id="ktgnem_id">
+            <script>
+                $(document).ready(function() {
+                    $('#ktgnem_id_autocomp').autocomplete({
+                        'php_fajl'      : '../autocomplete.php',
+                        'tabla'         : 'ktgnem',
+                        'oszlop_keres'  : 'nev',
+                        'oszlop_listaz' : 'nev',
+                        'id_kiir'       : 'id'
+                    });
+                });
+            </script>
+        </div>
+        <div>
+            Költséghely:
+            <br>
+            <input type="text" autocomplete="off" class="oriasi disableNav" id="ktghely_id_autocomp" disabled name="ktghely_id_autocomp" onblur="if(!$(this).val()){ $('#ktghely_id').val(''); }">
+            <input type="hidden" name="ktghely_id" id="ktghely_id">
+            <script>
+                $(document).ready(function() {
+                    $('#ktghely_id_autocomp').autocomplete({
+                        'php_fajl'      : '../autocomplete.php',
+                        'tabla'         : 'ktghely',
+                        'oszlop_keres'  : 'nev',
+                        'oszlop_listaz' : 'nev',
+                        'id_kiir'       : 'id'
+                    });
+                });
+            </script>
+        </div>
+    </div>
+
     <input type="hidden" name="tetel_sor_id" id="tetel_sor_id">
     
     <br><input type="button" id="hozzaad_gomb" class="gomb" value="Új tétel hozzáadása" style="margin-top: 0.3rem" onclick="tetel_hozzaadasa()">
@@ -103,6 +127,7 @@
                 <th>Tárgy</th>
                 <th>Nettó érték (<span class="f_penznem"></span>)</th>
                 <th>Bruttó érték (<span class="f_penznem"></span>)</th>
+                <th>Jogcím</th>
                 <th>Költségnem</th>
                 <th>Költséghely</th>
                 <th>Szerződés tétel</th>
@@ -219,14 +244,14 @@ function tetel_hozzaadasa() {
                             '<td class="pop_targy l">' + targy + '</td>' +
                             '<td class="pop_netto_ert r">' + ertek + '</td>' +
                             '<td class="pop_brutto_ert r">' + brutto + '</td>' +
-                            '<td class="l pop_ktgnem_autocomp">'+ktgnem_txt+'</td>' +
-                            '<td class="l pop_ktghely_autocomp">'+ktghely_txt+ '</td>' +
+                            '<td class="l pop_jogcim_autocomp">'+jogcim_txt+'A</td>' +
+                            '<td class="l pop_ktgnem_autocomp">'+ktgnem_txt+'A</td>' +
+                            '<td class="l pop_ktghely_autocomp">'+ktghely_txt+ 'B</td>' +
                             '<td></td>' +
                             /*'<td><a class="szerk" onclick="popup_tetel_sor_szerk(\'pop_tetel_'+id_tmp+'\');">🖉</a></td>' +*/
                             '<td><a onclick="popup_tetel_sor_torol(\'pop_tetel_'+id_tmp+'\');"><span class="icon"><i class="material-icons">delete</i></span></a>'+
                                 '<input type="hidden" class="pop_afakod_autocomp" name="pop_afakod_autocomp" value="'+afakod_txt+'">' +
                                 '<input type="hidden" class="pop_afakod" name="pop_afakod_id" value="'+afakod_id+'">' +
-                                '<input type="hidden" class="pop_jogcim_autocomp" name="pop_jogcim_autocomp" value="'+jogcim_txt+'">' +
                                 '<input type="hidden" class="pop_jogcim" name="pop_jogcim_id" value="'+jogcim_id+'">' +
                                 '<input type="hidden" class="pop_valtozott" value="1">' +               
                                 '<input type="hidden" class="pop_recid" name="recid" value="'+sor_id+'">' +        

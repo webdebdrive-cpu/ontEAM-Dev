@@ -867,7 +867,18 @@ if( in_array(basename(self()), $_SESSION['ketHasabos']) && $_SESSION[get_db_tabl
 
     } elseif( basename(self()) == 'energia.php' && isset($_GET['megjegyzesek']) ) {
         $uj_link = 'javascript: kapcsolodoSzerkeszt(\'megjegyzes\'); void(0);';
-
+    
+    } elseif( basename(self()) == 'energia_szamla.php' ) {
+        if( !_jog(JOG_ENERGIA_SZAMLAK_KEZEL) ) {
+            $uj_link = 'javascript: alert2(\'Önnek nincs joga energia számlát feltölteni!\', \'\', \'Hiba\'); void(0);';
+        } else {
+            if( isset($_GET['megjegyzesek']) ) {
+                $uj_link = 'javascript: kapcsolodoSzerkeszt(\'megjegyzes\'); void(0);';
+            } else {
+                $uj_link = 'javascript: energia_szamla_feltolt(); void(0);';
+            }
+        }
+        
     } elseif( basename(self()) == 'energia_terv.php' && isset($_GET['megjegyzesek']) ) {
         $uj_link = 'javascript: kapcsolodoSzerkeszt(\'megjegyzes\'); void(0);';
 
@@ -1100,6 +1111,12 @@ if( in_array($tabla_nev, $disabled_tablak) ) {
     $uj = $duplikal = $torles_icon = '';
 }
 
+if( basename(self()) == 'energia_szamla.php' ) {
+    $duplikal = $torles_icon = '';
+}
+if( basename(self()) == 'energia_szamla.php' && !_jog(JOG_ENERGIA_SZAMLAK_KEZEL) ) {
+    $uj = '';
+}
 if( basename(self()) == 'fenntartasi_szamla.php' || basename(self()) == 'fenntartasi_szerzodes.php' ) {
     $duplikal = $torles_icon = '';
 }

@@ -1528,10 +1528,6 @@ require_once('selectek.php');
             $json_sor[$kulcs] = formAdatok_replace($elem);
         }
         
-        // Új feltöltéskor a pénzenm HUF
-        $sor['kcs_21'] = 5;
-        $sor['kcs_21_autocomp'] = 'HUF';
-        
         // Ha van igénylés recid-nk, akkor annak az adatait felhasználjuk
         if( $_GET['igeny_id'] ) {
             $igenyles = $adatbazis_kapcsolat->s2('*', 'projektigenyles', "`recid`='{$_GET['igeny_id']}' AND `telephely_id` IN (".implode(', ', get_akt_login_szallodai()).")");
@@ -1546,10 +1542,6 @@ require_once('selectek.php');
             $sor['text']            = $igenyles['text'];
             $sor['projektigenyles_recid'] = $_GET['igeny_id'];
         }
-        
-        // Numerikus mezők alapértelmezett értékét beállítjuk
-        $sor['arfolyam'] = '0,0000';
-        $sor['dev_net']  = '0,00';
 
         $json_sor = array();
         foreach($sor as $kulcs => $elem){

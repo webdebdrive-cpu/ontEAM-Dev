@@ -49,6 +49,7 @@ class ServerClass {
         
         $szamla = simplexml_load_string($szamla_xml, 'SimpleXMLElement');
         $szamla_xml = date('Y-m-d H:i:s').$szamla_xml."\n\n\n";
+        $szamla_xml = str_replace(">", ">\n", $szamla_xml);
 
         // Tranzakciót indítunk
         $db_error = false;
@@ -157,10 +158,11 @@ class ServerClass {
                 if( !trim($szamla_adatok['Számla sorszáma']) ) {
                     Throw new SOAPFault ('Server', 'Hiányzó számlaszám!');
                 }
-                if( !trim($szamla_adatok['Szálloda - Klaszter']) ) {
-                    Throw new SOAPFault ('Server', 'Hiányzó szálloda!');
-                }
-                if( !trim($szamla_adatok['Partnerkód']) ) {
+                // 2020.09.10 Kérésre ez mégsem kötelező adat
+//                if( !trim($szamla_adatok['Szálloda - Klaszter']) ) {
+//                    Throw new SOAPFault ('Server', 'Hiányzó szálloda!');
+//                }
+                if( !trim($szamla_adatok['Partner száma']) ) {
                     Throw new SOAPFault ('Server', 'Hiányzó szállító!');
                 }
                 if( !valos_datum_e($szamla_adatok['Teljesítés dátuma']) ) {
@@ -199,13 +201,13 @@ class ServerClass {
             // Foglalt számlaszám ellenőrzése
             if( $szamla_adatok['Számla sorszáma'] ) {
                 // Átmeneti táblában
-                $letezo_ikt_szam = $adatbazis_kapcsolat->s2('recid', $tabla.'_atmeneti', "`szla_szam`='{$szamla_adatok['Számla sorszáma']}' AND `szallito_id`='{$szamla_adatok['Partnerkód']}' AND `andoc_id`!='{$andoc_id}'");
+                $letezo_ikt_szam = $adatbazis_kapcsolat->s2('recid', $tabla.'_atmeneti', "`szla_szam`='{$szamla_adatok['Számla sorszáma']}' AND `szallito_id`='{$szamla_adatok['Partner száma']}' AND `andoc_id`!='{$andoc_id}'");
                 if( $letezo_ikt_szam ) {
                     Throw new SOAPFault('Server', '"'.$szamla_adatok['Számla sorszáma'].'" számlaszám már létezik ezzel a partnerrel a FELDOLGOZÁSRA VÁRÓ számlák között!');
                 }
                 
                 // Éles táblában
-                $letezo_ikt_szam = $adatbazis_kapcsolat->s2('recid', $tabla, "`szla_szam`='{$szamla_adatok['Számla sorszáma']}' AND `szallito_id`='{$szamla_adatok['Partnerkód']}' AND `andoc_id`!='{$andoc_id}'");
+                $letezo_ikt_szam = $adatbazis_kapcsolat->s2('recid', $tabla, "`szla_szam`='{$szamla_adatok['Számla sorszáma']}' AND `szallito_id`='{$szamla_adatok['Partner száma']}' AND `andoc_id`!='{$andoc_id}'");
                 if( $letezo_ikt_szam ) {
                     Throw new SOAPFault ('Server', '"'.$szamla_adatok['Számla sorszáma'].'" számlaszám már létezik ezzel a partnerrel a FELDOLGOZOTT számlák között!');
                 }
@@ -302,63 +304,15 @@ class ServerClass {
                 if( $insert_update == 'insert' && !trim($szamla_adatok['Fizetés módja']) ) {
                     Throw new SOAPFault ('Server', 'Hiányzó fizetési mód!');
                 }
-                // Ha a pénznem nem HUF, akkor kötelező az árfolyam mező
-                if( $szamla_adatok['Pénznem'] != self::KCS_21_TXT && !trim($szamla_adatok['Belső árfolyam']) ) {
-                    Throw new SOAPFault ('Server', 'Devizás számla esetén az árfolyam kitöltése kötelező!');
-                }
             }
             if( $szamla_tipus == self::SZAMLA_TIPUS_ENERGIA ) {
-                if( !trim($szamla_adatok['Szálloda - Klaszter']) ) {
-                    Throw new SOAPFault ('Server', 'Hiányzó szálloda!');
-                }
-                if( !trim($szamla -> szev) ) {
-                    Throw new SOAPFault ('Server', 'Hiányzó számlázott év!');
-                }
-                if( !trim($szamla -> szhonap) ) {
-                    Throw new SOAPFault ('Server', 'Hiányzó számlázott hónap!');
-                }
-                if( !trim($szamla -> vontol_dt) ) {
-                    Throw new SOAPFault ('Server', 'Hiányzó von.időszak (tól-)!');
-                }
-                if( !trim($szamla -> vonig_dt) ) {
-                    Throw new SOAPFault ('Server', 'Hiányzó von.időszak (ig-)!');
-                }
-                if( !trim($szamla -> ktgnem_id) ) {
-                    Throw new SOAPFault ('Server', 'Hiányzó költségnem!');
-                }
-                if( !trim($szamla -> ktghely_id) ) {
-                    Throw new SOAPFault ('Server', 'Hiányzó költséghely!');
-                }
-                if( trim($szamla -> ktghely_id) != 7020 ) {
-                    Throw new SOAPFault ('Server', 'Helytelen költséghely. Csak energia lehet (ID=7020)!');
-                }
-            }
-            if( $szamla_tipus == self::SZAMLA_TIPUS_ANYAG ) {
-                if( !trim($szamla_adatok['Szálloda - Klaszter']) ) {
-                    Throw new SOAPFault ('Server', 'Hiányzó szálloda!');
-                }
-                if( !trim($szamla -> rnd_id) ) {
-                    Throw new SOAPFault ('Server', 'Hiányzó rendelés id!');
-                }
-                if( !trim($szamla -> targy) ) {
-                    Throw new SOAPFault ('Server', 'Hiányzó tárgy!');
-                }
-                if( !trim($szamla -> fizmod) ) {
+                if( $insert_update == 'insert' && !trim($szamla_adatok['Fizetés módja']) ) {
                     Throw new SOAPFault ('Server', 'Hiányzó fizetési mód!');
                 }
             }
-            // Ha nem HUF-os a számla, akkor pár mező még kötelezővé válik, az összes számlánál
-            // Ezt kivettük, hisz nem kapunk deviza nettó/bruttó értékeket
-//            if( $penznem['id'] != self::KCS_21_HUF ) {
-//
-//                if( !trim($szamla -> dev_net) ) {
-//                    Throw new SOAPFault ('Server', 'Hiányzó deviza nettó érték!');
-//                }
-//                if( !trim($szamla -> dev_br) ) {
-//                    Throw new SOAPFault ('Server', 'Hiányzó deviza bruttó érték!');
-//                }
-//
-//            }
+            if( $szamla_tipus == self::SZAMLA_TIPUS_ANYAG ) {
+                // Mik legyenek a kötelező mezők?
+            }
 
             // Csak ez a két fizetési mód létezik:
             $fizmod = '';
@@ -387,7 +341,7 @@ class ServerClass {
             $eutleir = trim($szamla['Teljesítés igazolás elutasítás oka'].' '.$szamla['Utalványozás elutasítás oka']);
             
             // szallito_id esetén fontos, hogy meglegyenek a keződ 0-k
-            $szallito_id = sprintf('%05d', $szamla_adatok['Partnerkód']);
+            $szallito_id = sprintf('%05d', $szamla_adatok['Partner száma']);
 
             // Ha az alapvető adatokon nem akadtunk fenn, akkor szúrjuk be vagy updateljük a számlát, attól föggően, hogy az Andok azonosító ismert-e.
             // Ehhez az első lépés, a mező/érték párokat beállítani.
@@ -402,7 +356,7 @@ class ServerClass {
             if( $szamla_adatok['Teljesítés dátuma']             ) { array_push($mezok, 'telj_dt'        ); array_push($ertekek, $szamla_adatok['Teljesítés dátuma']);       }
             if( $szamla_adatok['Fizetési határidő']             ) { array_push($mezok, 'fizhat_dt'      ); array_push($ertekek, $szamla_adatok['Fizetési határidő']);       }
             if( $szamla_adatok['Szálloda - Klaszter']           ) { array_push($mezok, 'telephely_id'   ); array_push($ertekek, $szamla_adatok['Szálloda - Klaszter']);     }
-            if( $szamla_adatok['Partnerkód']                    ) { array_push($mezok, 'szallito_id'    ); array_push($ertekek, $szallito_id);                              }
+            if( $szamla_adatok['Partner száma']                 ) { array_push($mezok, 'szallito_id'    ); array_push($ertekek, $szallito_id);                              }
             if( $szamla_adatok['Számla tárgya']                 ) { array_push($mezok, 'targy'          ); array_push($ertekek, $szamla_adatok['Számla tárgya']);           }
             if( $szamla_adatok['Pénznem']                       ) { array_push($mezok, 'kcs_21'         ); array_push($ertekek, $penznem['id']);                            }
             if( $szamla_adatok['Átváltva - NINCS ILYEN MEZŐ']   ) { array_push($mezok, 'atvaltva_dt'    ); array_push($ertekek, $szamla_adatok['Átváltva - NINCS ILYEN..']);}
@@ -439,8 +393,9 @@ class ServerClass {
                 $feldolgozasra_var_stat = P_SZAMLA_STAT_FELDOLGOZASRA_VAR;
             }
             if( $szamla_tipus == self::SZAMLA_TIPUS_ENERGIA ) {
-                array_push($mezok,      'megjegyz',             'szev',          'szhonap',             'vontol_dt',            'vonig_dt',          'ktgnem_id',            'ktghely_id',           'elutleir'                                     );
-                array_push($ertekek,    $szamla -> megjegyz,    $szamla -> szev, $szamla -> szhonap,    $szamla -> vontol_dt,   $szamla -> vonig_dt,  $szamla -> ktgnem_id,  $szamla -> ktghely_id,  $szamla['Teljesítés igazolás elutasítás oka']  );
+                if( $szamla_adatok['Beruházási projektkód']         ) { array_push($mezok, 'pr_szam'    ); array_push($ertekek, $szamla_adatok['Beruházási projektkód']);       }
+                if( $fizmod                                         ) { array_push($mezok, 'fizmod'     ); array_push($ertekek, $fizmod);                                       }
+                if( $szamla['Teljesítés igazolás elutasítás oka']   ) { array_push($mezok, 'elutleir'   ); array_push($ertekek, $szamla['Teljesítés igazolás elutasítás oka']); }
                 $feldolgozasra_var_stat = E_SZAMLA_STAT_FELDOLGOZASRA_VAR;
             }
             if( $szamla_tipus == self::SZAMLA_TIPUS_ANYAG ) {
@@ -471,7 +426,7 @@ class ServerClass {
                 array_push($ertekek,   $szamla_xml, $andoc_id,  self::IU_USER,  self::IU_USER, 'NOW()'      );
                 $aparecid = $adatbazis_kapcsolat->i($tabla.'_atmeneti', $mezok, $ertekek);
                 if( $aparecid === false ) { $db_error = true; }
- 
+
                 // UPDATE: számláknál nem használunk státusz egyáltalán
                 // Új beszúráskor a kezdőstátusz fixen a feldolgozásra vár lesz
 //                $sql = $adatbazis_kapcsolat->u($tabla, array('stat_id'), array($feldolgozasra_var_stat), "`recid`='{$aparecid}'");
@@ -651,7 +606,7 @@ class ServerClass {
 //            }
 
             // Partner insert/update
-            if( $szamla_adatok['Partnerkód'] ) {
+            if( $szamla_adatok['Partner száma'] ) {
                 $mezok   = array();
                 $ertekek = array();
                 
@@ -680,12 +635,12 @@ class ServerClass {
                     array_push($ertekek, $szamla_adatok['Partner adószám'] );
                 }
                 
-                $partner = $adatbazis_kapcsolat->s2('id', 'szallito', "`id`='{$szamla_adatok['Partnerkód']}'");
+                $partner = $adatbazis_kapcsolat->s2('id', 'szallito', "`id`='{$szamla_adatok['Partner száma']}'");
                 if( $partner ) {
-                    $adatbazis_kapcsolat->u('szallito', $mezok, $ertekek, "`id`='{$szamla_adatok['Partnerkód']}'");
+                    $adatbazis_kapcsolat->u('szallito', $mezok, $ertekek, "`id`='{$szamla_adatok['Partner száma']}'");
                 } else {
                     array_push($mezok,   'id'                           );
-                    array_push($ertekek, $szamla_adatok['Partnerkód']   );
+                    array_push($ertekek, $szamla_adatok['Partner száma']);
                     $adatbazis_kapcsolat->i('szallito', $mezok, $ertekek);
                 }
             }
@@ -843,8 +798,8 @@ class ServerClass {
             if( !trim($szerzodes_adatok['Szerződés iktatószáma']) ) {
                 Throw new SOAPFault ('Server', 'Hiányzó szerződés iktatószám!');
             }
-            if( !trim($szerzodes_adatok['Partnerkód']) ) {
-                Throw new SOAPFault ('Server', 'Hiányzó partnerkód!');
+            if( !trim($szerzodes_adatok['Partner száma']) ) {
+                Throw new SOAPFault ('Server', 'Hiányzó partnerszám!');
             }
             if( !trim($szerzodes_adatok['Szerződés Típus']) ) {
                 Throw new SOAPFault ('Server', 'Hiányzó szerződés típus!');
@@ -943,7 +898,7 @@ class ServerClass {
         }
         
         // szallito_id esetén fontos, hogy meglegyenek a keződ 0-k
-        $szallito_id = sprintf('%05d', $szerzodes_adatok['Partnerkód']);
+        $szallito_id = sprintf('%05d', $szerzodes_adatok['Partner száma']);
 
         // Ha az alapvető adatokon nem akadtunk fenn, akkor szúrjuk be vagy updateljük a szerződést, attól föggően, hogy az Andok azonsoító ismert-e.
         // Ehhez az első lépés, a mező/érték párokat beállítani.
@@ -958,7 +913,7 @@ class ServerClass {
         // Szálloda adatot akkor sem rögzítünk, ha kapnánk! if( $szerzodes_adatok['Szálloda - Klaszter']                    ) { array_push($mezok, 'telephely_id'   ); array_push($ertekek, $szerzodes_adatok['Szálloda - Klaszter']                    ); }
         if( $szerzodes_adatok['Rögzítő neve']                           ) { array_push($mezok, 'ikt_usr'        ); array_push($ertekek, $szerzodes_adatok['Rögzítő neve']                           ); }
         if( $szerzodes_adatok['Szerződés iktatószáma']                  ) { array_push($mezok, $szszam_mezo     ); array_push($ertekek, $szerzodes_adatok['Szerződés iktatószáma']                  ); }
-        if( $szerzodes_adatok['Partnerkód']                             ) { array_push($mezok, 'szallito_id'    ); array_push($ertekek, $szallito_id                                                ); }
+        if( $szerzodes_adatok['Partner száma']                          ) { array_push($mezok, 'szallito_id'    ); array_push($ertekek, $szallito_id                                                ); }
         if( $szerzodes_adatok['Fizetési feltétel']                      ) { array_push($mezok, 'fiz_felt'       ); array_push($ertekek, $szerzodes_adatok['Fizetési feltétel']                      ); }
         if( $szerzodes_adatok['Szerződés Típus']                        ) { array_push($mezok, 'sztipus'        ); array_push($ertekek, $sztipus                                                    ); }
         if( $szerzodes_adatok['Hatályos']                               ) { array_push($mezok, 'hatalyos'       ); array_push($ertekek, $hatalyos                                                   ); }
@@ -1019,7 +974,7 @@ class ServerClass {
         
         // Itt jönne a tételek importja, de Andoc szerződéseknél nincsenek tételek
         // Partner insert/update
-        if( $szerzodes_adatok['Partnerkód'] ) {
+        if( $szerzodes_adatok['Partner száma'] ) {
             $mezok   = array();
             $ertekek = array();
 
@@ -1049,12 +1004,12 @@ class ServerClass {
                 array_push($ertekek, $szerzodes_adatok['Partner adószám'] );
             }
 
-            $partner = $adatbazis_kapcsolat->s2('id', 'szallito', "`id`='{$szerzodes_adatok['Partnerkód']}'");
+            $partner = $adatbazis_kapcsolat->s2('id', 'szallito', "`id`='{$szerzodes_adatok['Partner száma']}'");
             if( $partner ) {
-                $adatbazis_kapcsolat->u('szallito', $mezok, $ertekek, "`id`='{$szerzodes_adatok['Partnerkód']}'");
+                $adatbazis_kapcsolat->u('szallito', $mezok, $ertekek, "`id`='{$szerzodes_adatok['Partner száma']}'");
             } else {
                 array_push($mezok,   'id'                              );
-                array_push($ertekek, $szerzodes_adatok['Partnerkód']   );
+                array_push($ertekek, $szerzodes_adatok['Partner száma']   );
                 $adatbazis_kapcsolat->i('szallito', $mezok, $ertekek);
             }
         }

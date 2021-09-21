@@ -67,6 +67,14 @@ function fennt_hozzaad_gomb_hozzaad_vagy_torol() {
                         } else {
                             $('#sz_szam').removeClass('mod');
                         }
+                        
+                        $('#kolt_vis_autocomp').val('');
+                        $('#kolt_vis').val('');
+                        if( $('#kolt_vis_autocomp').attr('value') ){
+                            $('#kolt_vis_autocomp').addClass('mod');
+                        } else {
+                            $('#kolt_vis_autocomp').removeClass('mod');
+                        }
 
                         $('#szerzodes_neve').html('');
 
@@ -123,9 +131,7 @@ function kuldes_igazolasra(mehet) {
     });
 }
 
-// Adatlapon található deviza árfolyam és deviza nettó mezőből számol ki nettó/bruttó értéket
-// Mivel ezek nem szerkeszthető mezők, ezért nem foglalkozunk vele
-//$(document).on('blur', '#dev_net', function(e) {
-//    $('#netto' ).val( ezresek($('#dev_net').val().replace(/ /g, '').replace(',', '.')*($('#arfolyam').val().replace(/ /g, '').replace(',', '.')), 0, ',', ' ') );
-//    $('#brutto').val( ezresek($('#dev_br' ).val().replace(/ /g, '').replace(',', '.')*($('#arfolyam').val().replace(/ /g, '').replace(',', '.')), 0, ',', ' ') );
-//});
+// Adatlapon található deviza árfolyam és deviza nettó mezőből számol ki nettó értéket
+$(document).on('blur', '#dev_net', function(e) {
+    $('#netto').val( ezresek($('#dev_net').val().replace(/ /g, '').replace(',', '.')*($('#arfolyam').val().replace(/ /g, '').replace(',', '.')), 0, ',', ' ') );
+});

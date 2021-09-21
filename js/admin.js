@@ -1810,6 +1810,7 @@ $(function() {
 
     // Szám mezők formázása
     $(document).on('keyup', '.f_num', function(e) {
+        $(this).val($(this).val().replace('\.', ','));
         onlyNumbers($(this));
     });
 
@@ -6357,7 +6358,7 @@ function szamlaBetolt( recid, page, muvelet, szerkeszt, kerdes_nelkul, anyagigen
                     }
 
                     // Bal oldali navpanel sorát is frissítjük
-                    if (page != 'anyagigenyles.php' && page.replace('.php', '') != 'erteklista') {
+                    if (page != 'anyagigenyles.php'/* && page.replace('.php', '') != 'erteklista' */) {
                         frissit_tabla = page.replace('.php', '');
                         szamlaSorFrissit(frissit_tabla, recid);
                     }
@@ -6428,6 +6429,13 @@ function szamlaBetolt( recid, page, muvelet, szerkeszt, kerdes_nelkul, anyagigen
 
                     } else if( baseName(location.href) == 'energia' && _get('megjegyzesek') ) {
                         $('#navGombok a.uj').attr('href', 'javascript: kapcsolodoSzerkeszt(\'megjegyzes\'); void(0);');
+                        
+                    } else if( baseName(location.href) == 'energia_szamla' ) {
+                        if( _get('megjegyzesek') ) {
+                            $('#navGombok a.uj').attr('href', 'javascript: kapcsolodoSzerkeszt(\'megjegyzes\'); void(0);');
+                        } else {
+                            $('#navGombok a.uj').attr('href', 'javascript: energia_szamla_feltolt(); void(0);');
+                        }
 
                     } else if( baseName(location.href) == 'eseti_fenntartas' && _get('megjegyzesek') ) {
                         $('#navGombok a.uj').attr('href', 'javascript: kapcsolodoSzerkeszt(\'megjegyzes\'); void(0);');
@@ -8146,31 +8154,35 @@ function projektkezeles_folyamatbanra( pr_recid, ful ) {
 
 // 0-ás számla pipa (Projekt számlta, Fenntartási számla adatlapjaihoz)
 function szamla_nullas() {
+       
     if ( $('#nullas').prop('checked') ) {
         if( $('#kcs_21_autocomp').val() != 'HUF' ) {
             $('#dev_net').val('0,00').attr('disabled', 'disabled').attr('readonly', 'readonly').removeClass('mod').removeClass('csillag');
             // Fenntartási számla alatt a bruttó mezők továbbra is disabled marad
-            if(PHP_SELF != 'fenntartasi_szamla.php') {
+            if (PHP_SELF != 'fenntartasi_szamla.php' && PHP_SELF != 'energia_szamla.php' && PHP_SELF != 'projektszamla.php') {
                 $('#dev_br') .val('0,00').attr('disabled', 'disabled').attr('readonly', 'readonly').removeClass('mod').removeClass('csillag');
             }
         }
         $('#netto')  .val('0').attr('disabled', 'disabled').attr('readonly', 'readonly').removeClass('mod').removeClass('csillag');
         // Fenntartási számla alatt a bruttó mezők továbbra is disabled marad
-        if(PHP_SELF != 'fenntartasi_szamla.php') {
+        if(PHP_SELF != 'fenntartasi_szamla.php' && PHP_SELF != 'energia_szamla.php' && PHP_SELF != 'projektszamla.php') {
             $('#brutto') .val('0').attr('disabled', 'disabled').attr('readonly', 'readonly').removeClass('mod').removeClass('csillag');
         }
     } else {
         if( $('#kcs_21_autocomp').val() != 'HUF' ) {
             $('#dev_net').removeAttr('disabled').removeAttr('readonly').focus().addClass('csillag');
             // Fenntartási számla alatt a bruttó mezők továbbra is disabled marad
-            if(PHP_SELF != 'fenntartasi_szamla.php') {
+            if(PHP_SELF != 'fenntartasi_szamla.php' && PHP_SELF != 'energia_szamla.php' && PHP_SELF != 'projektszamla.php') {
                 $('#dev_br') .removeAttr('disabled').removeAttr('readonly').focus().addClass('csillag');
             }
         }
-        $('#netto')  .removeAttr('disabled').removeAttr('readonly').focus().addClass('csillag');
-        // Fenntartási számla alatt a bruttó mezők továbbra is disabled marad
-        if(PHP_SELF != 'fenntartasi_szamla.php') {
+        // Fenntartási számla alatt a bruttó és nettó mezők továbbra is disabled marad
+        if(PHP_SELF != 'fenntartasi_szamla.php' && PHP_SELF != 'energia_szamla.php' && PHP_SELF != 'projektszamla.php') {
             $('#brutto') .removeAttr('disabled').removeAttr('readonly').focus().addClass('csillag');
+            $('#netto')  .removeAttr('disabled').removeAttr('readonly').focus().addClass('csillag');
+        // A nettót meg csak HUF-os számla esetén engedjük szerkeszteni
+        } else if( $('#kcs_21_autocomp').val() == 'HUF' ) {
+            $('#netto')  .removeAttr('disabled').removeAttr('readonly').focus().addClass('csillag');
         }
     }
 }

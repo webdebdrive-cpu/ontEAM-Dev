@@ -76,6 +76,11 @@ function fenntartasi_szerzodes_kivalaszt(){
     /* Projekt tárgyat is írjuk ki */
     $('#szerzodes_neve').html( $('#fennt_szerzodes_tablazat tr.kijelolve div.targy_txt').html() );
     
+    /* Költségviselő kiválasztása */
+    $('#kolt_vis_autocomp').val( $('#fennt_szerzodes_tablazat tr.kijelolve div.kolt_vis_txt').html() );
+    $('#kolt_vis_autocomp').addClass('mod');
+    $('#kolt_vis').val( $('#fennt_szerzodes_tablazat tr.kijelolve').data('kolt_vis') );
+    
     formModositva = true;
     $('#mehet_gomb, #megsem_gomb').removeAttr ('disabled');
     $('#mehet_gomb').addClass('gombb_alert');

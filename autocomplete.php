@@ -15,7 +15,7 @@ if( isset($_GET['value']) && isset($_GET['tabla']) && isset($_GET['oszlop_keres'
     // Ha legalább egy értéke van
     if( count( $oszlop_keres ) ) {
 
-        $where_sql = '';
+        $where_sql = '(';
         $oszlopok  = '';
 
         // SQL előállítása
@@ -28,7 +28,7 @@ if( isset($_GET['value']) && isset($_GET['tabla']) && isset($_GET['oszlop_keres'
         }
 
         // Utolsó 4 karater levágása
-        $where_sql =  substr($where_sql, 0, strlen($where_sql) - 4);
+        $where_sql =  substr($where_sql, 0, strlen($where_sql) - 4).')';
         $oszlopok  =  substr($oszlopok,  0, strlen($oszlopok)  - 2);
 
         if( $where_sql ) {
@@ -41,6 +41,10 @@ if( isset($_GET['value']) && isset($_GET['tabla']) && isset($_GET['oszlop_keres'
             if( $_GET['csoport'] ) {
                 $where_sql .= " AND `csoport` = '".$_GET['csoport']."'";
             }
+            
+            if( $_GET['jogcim_ktghely'] ) {
+                $where_sql .= " AND `ktghely_id` = '".$_GET['jogcim_ktghely']."'";
+            }
         }
 
         if( $_GET['value'] == '*' ) {
@@ -48,6 +52,8 @@ if( isset($_GET['value']) && isset($_GET['tabla']) && isset($_GET['oszlop_keres'
                 $where_sql = " WHERE `rkat` = '".$_GET['rkat']."'";
             } elseif( $_GET['csoport'] ) {
                 $where_sql = " WHERE `csoport` = '".$_GET['csoport']."'";
+            } elseif( $_GET['jogcim_ktghely'] ) {
+                $where_sql = " WHERE `ktghely_id` = '".$_GET['jogcim_ktghely']."'";
             } else {
                 $where_sql = '';
             }
