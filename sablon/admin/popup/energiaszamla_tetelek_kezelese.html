@@ -33,44 +33,45 @@
         <div>
             Vonatkozó időszak:
             <div>
-                <input type="text" id="pop_tol" class="datepicker csillag" maxlength="10"> -
-                <input type="text" id="pop_ig" class="datepicker csillag" maxlength="10">
+                <input type="text" id="pop_tol" class="datepicker csillag"> -
+                <input type="text" id="pop_ig" class="datepicker csillag">
             </div>
         </div>
         <div>
             Mérőóra állás:
             <div>
-                <input type="text" id="pop_indul" class="f_num csillag" data-tort="4" maxlength="18" value="0,0000" onblur="mert_kiszamol()"> -
-                <input type="text" id="pop_zar" class="f_num csillag" data-tort="4" maxlength="18" value="0,0000" onblur="mert_kiszamol()">
+                <input type="text" id="pop_indul" class="f_num csillag" data-tort="4" maxlength="18" onblur="mert_kiszamol()"> -
+                <input type="text" id="pop_zar" class="f_num csillag" data-tort="4" maxlength="18" onblur="mert_kiszamol()">
             </div>
         </div>
+        
         <div>
-            
+            <!-- Üres mező -->
         </div>
         
         <div>
             Szorzó / Fűtőérték:
             <div>
-                <input type="text" id="pop_szorzo" class="f_num csillag" data-tort="2" maxlength="16" value="0,00" onblur="mert_kiszamol()">
+                <input type="text" id="pop_szorzo" class="f_num csillag" data-tort="2" maxlength="16" onblur="mert_kiszamol()">
             </div>
         </div>
         <div>
             Mért fogyasztás:
             <div>
-                <input type="text" id="pop_mert" class="f_num csillag" data-tort="5" maxlength="24" value="0,00000" disabled>
+                <input type="text" id="pop_mert" class="f_num csillag" data-tort="5" maxlength="24" disabled>
             </div>
         </div>
         <div>
             kWh-szorzó:
             <div>
-                <input type="text" id="pop_kwh_szorzo" class="f_num csillag" data-tort="4" maxlength="18" value="0,0000" disabled>
+                <input type="text" id="pop_kwh_szorzo" class="f_num csillag" data-tort="4" maxlength="18" disabled>
             </div>
         </div>
         
         <div>
             Mennyiség:
             <div>
-                <input type="text" id="pop_menny" class="csillag" data-tort="4" maxlength="18" value="0,0000" oninput="$(this).addClass('modositva'); menny_kwh_kiszamol();" onkeyup="$('#pop_menny').val( $('#pop_menny').val().replace('.', ',') )" onblur="$('#pop_menny').val( ezresek($('#pop_menny').val().replace(/\s/g, '').replace(',', '.'), 4, ',', ' ') );">
+                <input type="text" id="pop_menny" class="csillag" data-tort="4" maxlength="18" oninput="$(this).addClass('modositva'); menny_kwh_kiszamol();" onkeyup="$('#pop_menny').val( $('#pop_menny').val().replace('.', ',') )" onblur="$('#pop_menny').val( ezresek($('#pop_menny').val().replace(/\s/g, '').replace(',', '.'), 4, ',', ' ') );">
             </div>
         </div>
         <div>
@@ -88,26 +89,66 @@
         <div>
             Mennyiség (kWh-ban):
             <div>
-                <input type="text" id="pop_menny_kwh" class="csillag" data-tort="4" maxlength="18" value="0,0000" disabled>
+                <input type="text" id="pop_menny_kwh" class="csillag" data-tort="4" maxlength="18" disabled>
             </div>
         </div>
         
         <div>
             Egységár:
             <div>
-                <input type="text" id="pop_egyseg_ar" class="csillag" data-tort="4" maxlength="18" value="0,0000" oninput="dij_kiszamol()" onkeyup="$('#pop_egyseg_ar').val( $('#pop_egyseg_ar').val().replace('.', ',') )" onblur="$('#pop_egyseg_ar').val( ezresek($('#pop_egyseg_ar').val().replace(/\s/g, '').replace(',', '.'), 4, ',', ' ') );">
+                <input type="text" id="pop_egyseg_ar" class="csillag" data-tort="4" maxlength="18" oninput="netto_kiszamol()" onkeyup="$('#pop_egyseg_ar').val( $('#pop_egyseg_ar').val().replace('.', ',') )" onblur="$('#pop_egyseg_ar').val( ezresek($('#pop_egyseg_ar').val().replace(/\s/g, '').replace(',', '.'), 4, ',', ' ') );">
             </div>
         </div>
         <div>
-            Díj:
+            Nettó (<span class="f_penznem"></span>):<span style="margin-right: 3rem;"></span>
+            Bruttó (<span class="f_penznem"></span>):
             <div>
-                <input type="text" id="pop_dij" class="csillag" data-tort="4" maxlength="18" value="0,0000" disabled>
+                <input type="text" id="pop_netto" class="f_num csillag" data-tort="0" maxlength="16"><span style="margin-right: .8rem;"></span>
+                <input type="text" id="pop_brutto" class="f_num csillag" data-tort="0" maxlength="16">
             </div>
         </div>
         <div>
             Áfa:
             <div>
-                <input type="text" id="pop_afa" class="csillag" data-tort="0" maxlength="2" value="0" disabled>
+                <input type="text" autocomplete="off" class="oriasi disableNav csillag" id="afakod_id_autocomp" name="afakod_id_autocomp" onblur="if(!$(this).val()){ $('#afakod_id').val(''); }">
+                <input type="hidden" name="afakod_id" id="afakod_id">
+                <input type="hidden" id="pop_afa">
+                <script>
+                    $(document).ready(function() {
+                        $('#afakod_id_autocomp').autocomplete({
+                            'php_fajl'      : '../autocomplete.php',
+                            'tabla'         : 'afakod',
+                            'oszlop_keres'  : 'nev',
+                            'oszlop_listaz' : 'nev',
+                            'id_kiir'       : 'recid',
+                            complete: function() {
+                                    get_afa();
+                            }
+                        });
+                    });
+                    function get_afa() {
+                        $.ajax({
+                            url : 'energia_szamla.php',
+                            type: 'POST',
+                            data: {
+                                afakod_recid : $('#afakod_id').val(),
+                                get_afa      : Date.now()
+                            },
+                            success: function(response){
+                                
+                                if(response.substring(0, 6)=='SESKIL'){ location.href = 'index.php'; }
+                                if(response){
+                                    response = JSON.parse(response);
+                                    if(response.hiba){
+                                        alert2(response.hiba, response.gomb, response.title);
+                                        return false;
+                                    }
+                                    $('#pop_afa').val(response.afa);
+                                }
+                            }
+                        });
+                    }
+                </script>
             </div>
         </div>
     </div>
@@ -133,7 +174,8 @@
                 <th>Mennyiség-egység</th>
                 <th>Mennyiség (kWh-ban)</th>
                 <th>Egységár</th>
-                <th>Díj</th>
+                <th>Nettó érték</th>
+                <th>Bruttó érték</th>
                 <th>Áfa</th>
                 <th>Törlés</th>
             </tr>
@@ -175,10 +217,10 @@ $(document).ready(function () {
         $(this).replaceWith(akt_penznem);
     });
     
-    /*if( akt_penznem && akt_penznem != 'HUF' ) {
-        $('#pop_ertek').attr('data-tort', '2');
+    if( akt_penznem && akt_penznem != 'HUF' ) {
+        $('#pop_netto').attr('data-tort', '2');
         $('#pop_brutto').attr('data-tort', '2');
-    }*/
+    }
     
     pop_tetelek_feltolt();
 
@@ -244,7 +286,8 @@ function tetel_hozzaadasa() {
     var egyseg          = $('#pop_egyseg'       ).val().trim();
     var menny_kwh       = $('#pop_menny_kwh'    ).val().trim();
     var egyseg_ar       = $('#pop_egyseg_ar'    ).val().trim();
-    var dij             = $('#pop_dij'          ).val().trim();
+    var netto           = $('#pop_netto'        ).val().trim();
+    var brutto          = $('#pop_brutto'       ).val().trim();
     var afa             = $('#pop_afa'          ).val().trim();
     van_valtozas = true;
 
@@ -346,13 +389,17 @@ function tetel_hozzaadasa() {
         return false;
     }
     
-    /*
-    Számított érték
-    if( !$('#pop_dij').val() || $('#pop_dij').val()=='0,0000' ) {
-        alert2('Kérem adja meg a díjat!', '', 'Hiba');
-        $('#pop_dij').addClass('hibas_ide_focus');
+    if( !$('#pop_netto').val() /*|| $('#pop_netto').val()=='0' || $('#pop_netto').val()=='0,00' A nulla megengedett a 0-ás számák miatt  */ ) {
+        alert2('Kérem adja meg a nettó értéket!', '', 'Hiba');
+        $('#pop_netto').addClass('hibas_ide_focus');
         return false;
-    }*/
+    }
+    
+    if( !$('#pop_brutto').val() /*|| $('#pop_brutto').val()=='0' || $('#pop_brutto').val()=='0,00' A nulla megengedett a 0-ás számák miatt  */ ) {
+        alert2('Kérem adja meg a brutto értéket!', '', 'Hiba');
+        $('#pop_brutto').addClass('hibas_ide_focus');
+        return false;
+    }
     
     /*
     Díjelem kitöltésével kap értéket
@@ -381,7 +428,8 @@ function tetel_hozzaadasa() {
         $('.pop_tetel_'+sor_id+' .pop_egyseg'   ).html( egyseg );
         $('.pop_tetel_'+sor_id+' .pop_menny_kwh').html( menny_kwh );
         $('.pop_tetel_'+sor_id+' .pop_egyseg_ar').html( egyseg_ar );
-        $('.pop_tetel_'+sor_id+' .pop_dij'      ).html( dij );
+        $('.pop_tetel_'+sor_id+' .pop_netto'    ).html( netto );
+        $('.pop_tetel_'+sor_id+' .pop_brutto'   ).html( brutto );
         $('.pop_tetel_'+sor_id+' .pop_afa'      ).html( afa );
         $('.pop_tetel_'+sor_id+' .pop_valtozott').val( 1 );
 
@@ -407,10 +455,12 @@ function tetel_hozzaadasa() {
                             '<td class="pop_egyseg nowrap">'    + egyseg        + '</td>' +
                             '<td class="pop_menny_kwh nowrap">' + menny_kwh     + '</td>' +
                             '<td class="pop_egyseg_ar nowrap">' + egyseg_ar     + '</td>' +
-                            '<td class="pop_dij nowrap">'       + dij           + '</td>' +
-                            '<td class="pop_afa">'              + afa           + '</td>' +
+                            '<td class="pop_netto nowrap">'     + netto         + '</td>' +
+                            '<td class="pop_brutto nowrap">'    + brutto        + '</td>' +
+                            '<td>'                              + afa           + '</td>' +
                             '<td><a onclick="popup_tetel_sor_torol(\'pop_tetel_'+id_tmp+'\');"><span class="icon"><i class="material-icons">delete</i></span></a>'+
                                 '<input type="hidden" class="pop_jogcim" name="pop_jogcim_id" value="'+jogcim+'">' +
+                                '<input type="hidden" class="pop_afa" name="pop_afakod_id" value="'+$('#afakod_id').val()+'">' +
                                 '<input type="hidden" class="pop_dijelem" name="pop_dijelem_id" value="'+dijelem+'">' +
                                 '<input type="hidden" class="pop_valtozott" value="1">' +               
                                 '<input type="hidden" class="pop_recid" name="recid" value="'+sor_id+'">' +        
@@ -422,23 +472,25 @@ function tetel_hozzaadasa() {
         
     }
 
-    $('#tetel_sor_id'   ).val('');
-    $('#pop_jogcim'     ).val('');
-    $('#pop_dijelem'    ).val('');
-    $('#pop_aranyos'    ).prop('checked', true);
-    $('#pop_tol'        ).val('\xa0\xa0\xa0\xa0.\xa0\xa0.\xa0\xa0');
-    $('#pop_ig'         ).val('\xa0\xa0\xa0\xa0.\xa0\xa0.\xa0\xa0');
-    $('#pop_indul'      ).val('0,0000');
-    $('#pop_zar'        ).val('0,0000');
-    $('#pop_szorzo'     ).val('0,00');
-    $('#pop_mert'       ).val('0,00000');
-    $('#pop_kwh_szorzo' ).val('0,0000');
-    $('#pop_menny'      ).val('0,0000');
-    $('#pop_egyseg'     ).replaceWith(mee_html);
-    $('#pop_menny_kwh'  ).val('0,0000');
-    $('#pop_egyseg_ar'  ).val('0,0000');
-    $('#pop_dij'        ).val('0,0000');
-    $('#pop_afa'        ).val('0');
+    $('#tetel_sor_id'       ).val('');
+    $('#pop_jogcim'         ).val('');
+    $('#pop_dijelem'        ).val('');
+    $('#pop_aranyos'        ).prop('checked', true);
+    $('#pop_tol'            ).val('\xa0\xa0\xa0\xa0.\xa0\xa0.\xa0\xa0');
+    $('#pop_ig'             ).val('\xa0\xa0\xa0\xa0.\xa0\xa0.\xa0\xa0');
+    $('#pop_indul'          ).val('');
+    $('#pop_zar'            ).val('');
+    $('#pop_szorzo'         ).val('');
+    $('#pop_mert'           ).val('');
+    $('#pop_kwh_szorzo'     ).val('');
+    $('#pop_menny'          ).val('');
+    $('#pop_egyseg'         ).replaceWith(mee_html);
+    $('#pop_menny_kwh'      ).val('');
+    $('#pop_egyseg_ar'      ).val('');
+    $('#pop_netto'          ).val('');
+    $('#pop_brutto'         ).val('');
+    $('#afakod_id_autocomp' ).val('');
+    $('#afakod_id'          ).val('');
     
     $('#hozzaad_gomb').val('Új tétel hozzáadása');
 
@@ -457,7 +509,7 @@ function popup_tetel_sor_torol(sor_id, mehet){
     if(!mehet){
         alert2( 'Jogcím: '  + $('.'+sor_id+' .pop_jogcim_txt')  .html() +'<br>' +
                 'Díjelem: ' + $('.'+sor_id+' .pop_dijelem_txt') .html() +'<br>' +
-                'Díj: '     + $('.'+sor_id+' .pop_dij')     .html() +' ' + akt_penznem + '<br>' +
+                'Nettó érték: ' + $('.'+sor_id+' .pop_netto')   .html() +' ' + akt_penznem + '<br>' +
                 'Biztosan törli a számla tételt?', '<input type="button" class="gomb zold" value="Igen" onclick="popup_tetel_sor_torol(\''+sor_id+'\', \'mehet\'); alert2();"><input type="button" class="gomb piros escapes_megsem" value="Nem" onclick="alert2(); $(\'.torles_elott\').removeClass(\'torles_elott\');">');
         return false;
     }
@@ -488,12 +540,10 @@ function tetel_sorok_ment(){
     $('.pop_jogcim').each(function() {
         jogcimek.push( $(this).val() );
     });
-
     var dijelemek = [];
     $('.pop_dijelem').each(function() {
         dijelemek.push( $(this).val() );
     });
-
     var aranyosok = [];
     $('.pop_aranyos').each(function() {
         var aranyos = '';
@@ -546,13 +596,17 @@ function tetel_sorok_ment(){
     $('.pop_egyseg_ar').each(function() {
         egyseg_arak.push( $(this).html() );
     });
-    var dijak = [];
-    $('.pop_dij').each(function() {
-        dijak.push( $(this).html() );
-    });
     var afak = [];
     $('.pop_afa').each(function() {
-        afak.push( $(this).html() );
+        afak.push( $(this).val() );
+    });
+    var netto_ert = [];
+    $('.pop_netto').each(function() {
+        netto_ert.push( $(this).html().replace(/,/g, '.') );
+    });
+    var brutto_ert = [];
+    $('.pop_brutto').each(function() {
+        brutto_ert.push( $(this).html().replace(/,/g, '.') );
     });
     var valtozott = [];
     $('.pop_valtozott').each(function() {
@@ -575,8 +629,9 @@ function tetel_sorok_ment(){
                     ['egysegek',        egysegek],
                     ['menny_kwhk',      menny_kwhk],
                     ['egyseg_arak',     egyseg_arak],
-                    ['dijak',           dijak],
                     ['afak',            afak],
+                    ['netto_ert',       netto_ert],
+                    ['brutto_ert',      brutto_ert],
                     ['valtozott',       valtozott]
                 ];
     var osszeg_mezo     = 'netto';
@@ -681,10 +736,10 @@ function pop_tetelek_feltolt(){
 /* Fogyasztással arányos mezők beállítása */
 function aranyos_mezok_beallit() {
     if( $('#pop_aranyos').prop('checked') ) {
-        $('#pop_indul'      ).val('0,0000'  ).removeAttr('disabled').addClass('csillag');
-        $('#pop_zar'        ).val('0,0000'  ).removeAttr('disabled').addClass('csillag');
-        $('#pop_szorzo'     ).val('0,00'    ).removeAttr('disabled').addClass('csillag');
-        $('#pop_mert'       ).val('0,00000' ).addClass('csillag');
+        $('#pop_indul'      ).val('').removeAttr('disabled').addClass('csillag');
+        $('#pop_zar'        ).val('').removeAttr('disabled').addClass('csillag');
+        $('#pop_szorzo'     ).val('').removeAttr('disabled').addClass('csillag');
+        $('#pop_mert'       ).val('').addClass('csillag');
         $('#pop_kwh_szorzo' ).addClass('csillag');
         dijelem_ertek_betolt();
     } else {
@@ -698,7 +753,6 @@ function aranyos_mezok_beallit() {
 
 /* Fogyasztás kiszámítása */
 function mert_kiszamol() {
-    console.log($('#pop_zar').val().replace(/\s/g, '').replace(',', '.'));
     var fogyasztas = ( $('#pop_zar').val().replace(/\s/g, '').replace(',', '.') - $('#pop_indul').val().replace(/\s/g, '').replace(',', '.') ) * $('#pop_szorzo').val().replace(/\s/g, '').replace(',', '.');
     fogyasztas = ezresek(fogyasztas, 5, ',', ' ');
     $('#pop_mert').val( fogyasztas );
@@ -714,14 +768,28 @@ function menny_kwh_kiszamol() {
     menny_kwh = ezresek(menny_kwh, 4, ',', ' ');
     $('#pop_menny_kwh').val( menny_kwh );
     
-    dij_kiszamol();
+    netto_kiszamol();
 }
 
 /* Díj mező kiszámítása */
-function dij_kiszamol() {
-    var dij = $('#pop_egyseg_ar').val().replace(/\s/g, '').replace(',', '.') * $('#pop_menny_kwh').val().replace(/\s/g, '').replace(',', '.');
-    dij = ezresek(dij, 4, ',', ' ');
-    $('#pop_dij').val( dij );
+function netto_kiszamol() {
+    /* csak ha az arányos be van pipálva */
+    if( $('#pop_aranyos').prop('checked') ) {
+        
+        var tizedes = 0;
+        if( akt_penznem && akt_penznem != 'HUF' ) {
+            var tizedes = 2;
+        }
+        
+        var netto  = $('#pop_egyseg_ar').val().replace(/\s/g, '').replace(',', '.') * $('#pop_menny_kwh').val().replace(/\s/g, '').replace(',', '.');
+        var brutto = netto * (( Number($('#pop_afa').val().replace(/\s/g, '').replace(',', '.'))+100) / 100); 
+        
+        netto  = ezresek(netto,  tizedes, ',', ' ');
+        brutto = ezresek(brutto, tizedes, ',', ' ');
+        
+        $('#pop_netto').val( netto );
+        $('#pop_brutto').val( brutto );
+    }
 }
 
 /* Díjelem select feltöltése */
@@ -774,7 +842,9 @@ function dijelem_ertek_betolt() {
                 
                 $('#pop_egyseg'     ).replaceWith(response.mee  );
                 $('#pop_kwh_szorzo' ).val(response.kwh_szorzo   );
+                /* Egyelőre ezt mégsem töltjük fel
                 $('#pop_afa'        ).val(response.afa          );
+                */
                 
                 menny_kwh_kiszamol();
             }

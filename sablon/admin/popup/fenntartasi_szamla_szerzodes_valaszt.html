@@ -41,6 +41,7 @@ function get_fenntartasi_szerzodes_tabla(order){
             telephely_id                    : $('#telephely_id').val(),
             szallito_id                     : $('#szallito_id').val(),
             order                           : order,
+            self                            : location.href.split('/').pop(),
             get_fenntartasi_szerzodes_tabla : new Date().getTime()
         },
         success: function(response) {

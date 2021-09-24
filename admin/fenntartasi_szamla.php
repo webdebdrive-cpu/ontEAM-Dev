@@ -407,7 +407,6 @@ if( isset($_POST['tetel_sorok_ment']) ) {
     } else {
         $_SESSION['fennt_szla_tetel_recid']     = $_POST['adatok'][$recid_adat][1];
         $_SESSION['fennt_szla_tetel_targy']     = str_replace('{IDEZOJEL}', '"', $_POST['adatok'][$targy_adat][1]);
-        
         if( $devizas ) {
             $_SESSION['fennt_szla_tetel_dev_net'] = str_replace(',', '.', $_POST['adatok'][$netto_ert_adat][1]);
             $_SESSION['fennt_szla_tetel_dev_br']  = str_replace(',', '.', $_POST['adatok'][$brutto_ert_adat][1]);
@@ -527,6 +526,8 @@ if( isset($_POST['van_kapcsolt_szerzodes']) ) {
 // Fenntartási táblázat betöltése
 if( isset($_POST['get_fenntartasi_szerzodes_tabla']) ) {
 
+    
+    
     // Jogosultság ellenőrzése
     if( !_jog(JOG_FENNTARTASI_SZAMLAK_KEZEL) ) {
         echo json_encode( array(
@@ -539,6 +540,13 @@ if( isset($_POST['get_fenntartasi_szerzodes_tabla']) ) {
     
     $html = '';
 
+    // Ha Energia számlához kapcsolunk, akkor csak az Energia szerződéseket listázzuk
+    $where_energia = '';
+    $hiba_kieg     = '';
+    if( substr($_POST['self'], 0, 18) == 'energia_szamla.php' ) {
+        $where_energia .= " AND `sztipus`='es'";
+        $hiba_kieg      = 'Szerződés típus: Energia<br>';
+    }
     $fennt_sz_ek = $adatbazis_kapcsolat->s('
                                         `'.get_db_tabla().'fenntartasi_szerzodes`.`recid`,
                                         `'.get_db_tabla().'fenntartasi_szerzodes`.`szszam`,
@@ -547,7 +555,7 @@ if( isset($_POST['get_fenntartasi_szerzodes_tabla']) ) {
                                         `'.get_db_tabla().'fenntartasi_szerzodes`.`targy`
                                             ',
                                         'fenntartasi_szerzodes',
-                                        "`szallito_id`='{$_POST['szallito_id']}'", 'szszam');
+                                        "`szallito_id`='{$_POST['szallito_id']}'{$where_energia}", 'szszam');
 
     $i = 1;
     foreach ( $fennt_sz_ek as $fennt ) {
@@ -604,7 +612,7 @@ if( isset($_POST['get_fenntartasi_szerzodes_tabla']) ) {
             <script>
             ';
     } else {
-        $html = '<script>popupRejt(); setTimeout(function(){ popupZar(); alert2(\'Szállító: '.getErtek('nev', 'szallito', 'id', $_POST['szallito_id']).'<br><br>Nincs ilyen szerződés!\', \'\', \'Hiba\'); }, 10);</script>';
+        $html = '<script>popupRejt(); setTimeout(function(){ popupZar(); alert2(\'Szállító: '.getErtek('nev', 'szallito', 'id', $_POST['szallito_id']).'<br>'.$hiba_kieg.'<br>Nincs ilyen szerződés!\', \'\', \'Hiba\'); }, 10);</script>';
     }
 
     echo json_encode(
@@ -1220,7 +1228,15 @@ require_once('selectek.php');
     $i = 0;
     $ossz_netto   = 0;
     $ossz_dev_net = 0;
-    $_SESSION['fennt_szla_tetel_recid'] = $_SESSION['fennt_szla_tetel_targy'] = $_SESSION['fennt_szla_tetel_netto_ert'] = $_SESSION['fennt_szla_tetel_brutto_ert'] = $_SESSION['fennt_szla_tetel_dev_net'] = $_SESSION['fennt_szla_tetel_dev_br'] = $_SESSION['fennt_szla_tetel_afakod'] = $_SESSION['fennt_szla_tetel_jogcim'] = array();
+    $_SESSION['fennt_szla_tetel_recid']         =
+        $_SESSION['fennt_szla_tetel_targy']     =
+        $_SESSION['fennt_szla_tetel_netto_ert'] =
+        $_SESSION['fennt_szla_tetel_brutto_ert']=
+        $_SESSION['fennt_szla_tetel_dev_net']   =
+        $_SESSION['fennt_szla_tetel_dev_br']    =
+        $_SESSION['fennt_szla_tetel_afakod']    =
+        $_SESSION['fennt_szla_tetel_jogcim']    =
+                                                array();
     foreach ( $tetelek as $tetel ) {
         $ossz_netto   += $tetel['netto_ert'];
         $ossz_dev_net += $tetel['dev_net'];
@@ -1255,7 +1271,13 @@ require_once('selectek.php');
 
         // Új felvitelkor updateljük a Session-ben a tételek adatait, így lesz jó a popupban
         $i = 0;
-        $_SESSION['fennt_szla_tetel_recid'] = $_SESSION['fennt_szla_tetel_targy'] = $_SESSION['fennt_szla_tetel_netto_ert'] = $_SESSION['fennt_szla_szerzodes_recid'] = $_SESSION['fennt_szla_tetel_dev_net'] = $_SESSION['fennt_szla_tetel_jogcim'] = array();
+        $_SESSION['fennt_szla_tetel_recid']     =
+        $_SESSION['fennt_szla_tetel_targy']     =
+        $_SESSION['fennt_szla_tetel_netto_ert'] =
+        $_SESSION['fennt_szla_szerzodes_recid'] =
+        $_SESSION['fennt_szla_tetel_dev_net']   =
+        $_SESSION['fennt_szla_tetel_jogcim']    =
+                                                array();
         $fenntartasi_szamla_atmeneti = $adatbazis_kapcsolat->s2('recid', 'fenntartasi_szamla_atmeneti', "`andoc_id`='{$_GET['andoc_id']}'");
         $tetelek = $adatbazis_kapcsolat->s('*', 'fenntartasi_szamla_tetel_atmeneti', "`fenntartasi_szamla_recid`='{$fenntartasi_szamla_atmeneti['recid']}'", 'recid');
         $van_kapcsolt_tetel = false;
@@ -1537,9 +1559,9 @@ require_once('selectek.php');
                     <div class="dtc">Költséghely</div>
                     <div class="dtc r">Nettó érték (HUF)</div>
                     <div class="dtc r">Bruttó érték (HUF)</div>
-                    <div class="dtc r">Áfa %</div>
                     <div class="dtc r">Deviza nettó'.$deviza.'</div>
                     <div class="dtc r">Deviza bruttó'.$deviza.'</div>
+                    <div class="dtc r">Áfa %</div>
                 </div>
         ');
         
@@ -1551,13 +1573,13 @@ require_once('selectek.php');
                 <div class="dtr nSor">
                     <!--<div class="dtc">'.getSzallodaNev($tetel['telephely_id']).'</div>-->
                     <div class="dtc">'.$tetel['targy'].'</div>
-                    <div class="dtc">'.$tetel['megn']/*getErtek('nev', 'ktgnem', 'id', $tetel['ktgnem_id'])*/.'</div>
-                    <div class="dtc">'.$tetel['ktghely']/*getErtek('nev', 'ktghely', 'id', $tetel['ktghely_id'])*/.'</div>
+                    <div class="dtc">'.$tetel['megn'].'</div>
+                    <div class="dtc">'.$tetel['ktghely'].'</div>
                     <div class="dtc r nowrap">'.number_format($tetel['netto_ert'],  0, ',', ' ').'</div>
-                    <div class="dtc r nowrap">'.number_format($tetel['brutto_ert'],  0, ',', ' ').'</div>
+                    <div class="dtc r nowrap">'.number_format($tetel['brutto_ert'], 0, ',', ' ').'</div>
+                    <div class="dtc r nowrap">'.number_format($tetel['dev_net'],    2, ',', ' ').'</div>
+                    <div class="dtc r nowrap">'.number_format($tetel['dev_br'],     2, ',', ' ').'</div>
                     <div class="dtc r nowrap">'.$tetel['afa'].'</div>
-                    <div class="dtc r nowrap">'.number_format($tetel['dev_net'], 2, ',', ' ').'</div>
-                    <div class="dtc r nowrap">'.number_format($tetel['dev_br'], 2, ',', ' ').'</div>
                 </div>
             ');
         }

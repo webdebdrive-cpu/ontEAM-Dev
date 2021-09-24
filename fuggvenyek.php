@@ -1052,11 +1052,21 @@ function i_u($type, $tabla, $tomb) {
         if( $tabla == 'energia_szamla' ) {
 
             $i = 0;
-            foreach ( $_SESSION['energia_szla_tetel_dij'] as $targy ) {
+            foreach ( $_SESSION['energia_szla_tetel_jogcim'] as $valami ) {
 
                 $jogcim_sor = $adatbazis_kapcsolat->s2('recid jogcim uzemresz megn szla_szam ktghely ktghely_id', 'jogcim', "`recid`='{$_SESSION['energia_szla_tetel_jogcim'][$i]}'");
+                $afakod_sor = $adatbazis_kapcsolat->s2('recid kod afa nev', 'afakod', "`recid`='{$_SESSION['energia_szla_tetel_afakod'][$i]}'");
                 $valtozott  = $_SESSION['energia_szla_tetel_valtozott'][$i];
-
+                $netto_ert  = str_replace(' ', '',  $_SESSION['energia_szla_tetel_netto'][$i]);
+                $brutto_ert = str_replace(' ', '',  $_SESSION['energia_szla_tetel_brutto'][$i]);
+                $dev_net    = str_replace(array(' ', ','), array('', '.'),  $_SESSION['energia_szla_tetel_dev_net'][$i]);
+                $dev_br     = str_replace(array(' ', ','), array('', '.'),  $_SESSION['energia_szla_tetel_dev_br'][$i]);
+                // Devizás számla esetén a HUF nettó-bruttót a devizából kell visszaszámolni
+                if( $_POST['kcs_21'] != KCS_21_HUF ) {
+                    $netto_ert  = round($dev_net * $_POST['arfolyam']);
+                    $brutto_ert = round($dev_br  * $_POST['arfolyam']);
+                }
+                
                 // Ha ismert a recid, akkor kérjük le az átmeneti táblából az adatokat és azokban írjuk át a SESSION adatait, és így mentjük le
                 // NA ILYET MÁR NEM CSINÁLUNK, MERT ÚJABBAN ANDOCBÓL ÉRKEZŐ tételeket már nem dolgozzuk fel
                 // if( $_SESSION['fennt_szla_tetel_recid'][$i] ) {
@@ -1067,7 +1077,6 @@ function i_u($type, $tabla, $tomb) {
                     $rownum = $rownum['MAX(`rownum`)']+1;
                     
                     $tetel['rownum']        = $rownum;
-                    $tetel['dij']           = str_replace(' ', '', $_SESSION['energia_szla_tetel_dij'][$i]);
                     $tetel['jogcim_recid']  = $jogcim_sor['recid'];
                     $tetel['jogcim']        = $jogcim_sor['jogcim'];
                     $tetel['uzemresz']      = $jogcim_sor['uzemresz'];
@@ -1088,13 +1097,19 @@ function i_u($type, $tabla, $tomb) {
                     $tetel['egyseg']        = $_SESSION['energia_szla_tetel_egyseg'][$i];
                     $tetel['menny_kwh']     = $_SESSION['energia_szla_tetel_menny_kwh'][$i];
                     $tetel['egyseg_ar']     = $_SESSION['energia_szla_tetel_egyseg_ar'][$i];
-                    $tetel['afa']           = $_SESSION['energia_szla_tetel_afa'][$i];
+                    $tetel['netto_ert']     = $netto_ert;
+                    $tetel['brutto_ert']    = $brutto_ert;
+                    $tetel['dev_net']       = $dev_net;
+                    $tetel['dev_br']        = $dev_br;
+                    $tetel['afakod_recid']  = $afakod_sor['recid'];
+                    $tetel['afa_kod']       = $afakod_sor['kod'];
+                    $tetel['afa_nev']       = $afakod_sor['nev'];
+                    $tetel['afa']           = $afakod_sor['afa'];
                     
                     $ertekek = array();
                     $mezok   = array(
                         'rownum',
                         'andoc_id',
-                        'dij',
                         'dijelem_recid',
                         'aranyos',
                         'tol',
@@ -1108,13 +1123,22 @@ function i_u($type, $tabla, $tomb) {
                         'egyseg',
                         'menny_kwh',
                         'egyseg_ar',
-                        'afa',
                         'jogcim_recid',
                         'jogcim',
                         'uzemresz',
                         'megn',
                         'ktgnem_id',
+                        'ktghely',
+                        'ktghely_id',
                         'andocos',
+                        'netto_ert',
+                        'brutto_ert',
+                        'dev_net',
+                        'dev_br',
+                        'afakod_recid',
+                        'afa_kod',
+                        'afa_nev',
+                        'afa',
                         );
 
                     foreach( $mezok as $mezo ) {
@@ -2052,26 +2076,28 @@ function i_u($type, $tabla, $tomb) {
         
             // Energia számla mentésekor HA nem nullás a számla, akkor ellenőrizzük, hogy a számla nettó értéke azonos-e a tételek összegével
             $tizedesek  = 0;
-            $mezo       = 'netto';
+            $mezo1      = 'energia_szla_tetel_netto_ert';
+            $mezo2      = 'netto';
             $szoveg     = 'szerződés összegével';
             if( $_POST['kcs_21']!=KCS_21_HUF ) {
                 $tizedesek  = 2;
-                $mezo       = 'dev_net';
+                $mezo1      = 'energia_szla_tetel_dev_net';
+                $mezo2      = 'dev_net';
                 $szoveg     = 'deviza nettóval';
             }
             $tetelek_osszege = '';
-            foreach ( $_SESSION['energia_szla_tetel_dij'] as $ertek ) {
+            foreach ( $_SESSION[$mezo1] as $ertek ) {
                 $ertek = str_replace(array(' ', ','), array('', '.'), $ertek);
                 $tetelek_osszege += $ertek;
             }
             if( !$_POST['nullas'] ) {
 
-                if( number_format($tetelek_osszege, $tizedesek, ',', ' ') != number_format($_POST[$mezo], $tizedesek, ',', ' ') ) {
+                if( number_format($tetelek_osszege, $tizedesek, ',', ' ') != number_format($_POST[$mezo2], $tizedesek, ',', ' ') ) {
                     echo json_encode(array(
-                        'hiba'   => 'A számla tételeinek összege ('. number_format($tetelek_osszege, $tizedesek, ',', ' ').' '. erteklista(ERTEKLISTA_PENZNEM, $_POST['kcs_21']).') nem egyezik meg a számla nettó értékével('. number_format($_POST[$mezo], $tizedesek, ',', ' ').' '. erteklista(ERTEKLISTA_PENZNEM, $_POST['kcs_21']).')!<br>Így nem menthető!',
+                        'hiba'   => 'A számla tételeinek összege ('. number_format($tetelek_osszege, $tizedesek, ',', ' ').' '. erteklista(ERTEKLISTA_PENZNEM, $_POST['kcs_21']).') nem egyezik meg a számla nettó értékével('. number_format($_POST[$mezo2], $tizedesek, ',', ' ').' '. erteklista(ERTEKLISTA_PENZNEM, $_POST['kcs_21']).')!<br>Így nem menthető!',
                         'gomb'   => '<input type="button" class="gomb" value="Ok" onclick="szurkit_zar(\'mégsem mehet mutat\'); alert2();">',
                         'title'  => 'Hiba',
-                        'select' => $mezo,
+                        'select' => $mezo2,
                     ));
                     $weblap -> leallit();
                     exit();
@@ -2081,7 +2107,7 @@ function i_u($type, $tabla, $tomb) {
             } else {
                 
                 // Ellenőrizzük a tételek összegét. Ha ez nem 0, akkor hibaüzi
-                foreach ( $_SESSION['energia_szla_tetel_dij'] as $ertek ) {
+                foreach ( $_SESSION['energia_szla_tetel_netto'] as $ertek ) {
                     $ertek = str_replace(array(' ', ','), array('', '.'), $ertek);
                     $tetelek_osszege += $ertek;
                 }
@@ -2090,7 +2116,7 @@ function i_u($type, $tabla, $tomb) {
                         'hiba'   => 'Nullás számla esetén a tételek értéke is 0 legyen!<br>Így nem menthető!',
                         'gomb'   => '<input type="button" class="gomb" value="Ok" onclick="szurkit_zar(\'mégsem mehet mutat\'); alert2();">',
                         'title'  => 'Hiba',
-                        'select' => $mezo,
+                        'select' => $mezo2,
                     ));
                     $weblap -> leallit();
                     exit();
@@ -2098,8 +2124,8 @@ function i_u($type, $tabla, $tomb) {
             }
             
             // Illetve a pár mezőt még külön fel kell még venni, mert a tiltott mező miatt ez magától nem íródna be
-            array_push($oszlopok, 'netto',          'brutto'            );
-            array_push($ertekek,  $_POST['netto'],  $_POST['brutto']    );
+            array_push($oszlopok, 'sz_szam',          'kolt_vis',          'netto',          'brutto'            );
+            array_push($ertekek,  $_POST['sz_szam'],  $_POST['kolt_vis'],  $_POST['netto'],  $_POST['brutto']    );
             
         }
 
@@ -2157,8 +2183,8 @@ function i_u($type, $tabla, $tomb) {
             }
             
             // Illetve a szerződés számot még külön fel kell még venni, mert a tiltott mező miatt ez magától nem íródna be
-            array_push($oszlopok, 'sz_szam',          'netto',          'brutto',          'kolt_vis'         );
-            array_push($ertekek,  $_POST['sz_szam'],  $_POST['netto'],  $_POST['brutto'],  $_POST['kolt_vis'] );
+            array_push($oszlopok, 'sz_szam',          'kolt_vis',          'netto',          'brutto'         );
+            array_push($ertekek,  $_POST['sz_szam'],  $_POST['kolt_vis'],  $_POST['netto'],  $_POST['brutto'] );
         }
 
         // Loginnál szerepkörök lekezelése + Jelszóval rendelkezik pipa kiszedése esetén e-mail értesítés küldése

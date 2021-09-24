@@ -39,11 +39,12 @@ function szamla_igazol(mehet) {
     });
 }
 
+// FONTOS: NEM TÉVEDÉS, tényleg a fenntartási szerződésekkel kell itt dogozni
 // Fenntartási szerződés hozzáadása, törlése gomb: melyik legyen? Ezt dönti el ez a függvény.
 function fennt_hozzaad_gomb_hozzaad_vagy_torol() {
     
     $.ajax({
-        url : 'energia_szamla.php',
+        url : 'fenntartasi_szamla.php',
         type: 'POST',
         data: {
             recid                   : _get('id'),
@@ -87,7 +88,7 @@ function fennt_hozzaad_gomb_hozzaad_vagy_torol() {
 
                     } else {
 
-                        csoportMuvelet('energia_szamla_szerzodes_valaszt');
+                        csoportMuvelet('fenntartasi_szamla_szerzodes_valaszt');
 
                     }
                 }

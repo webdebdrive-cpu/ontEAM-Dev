@@ -466,7 +466,7 @@ table.table_mod td:nth-of-type(2){
 
 table.fix_fejlec thead {
     position: fixed;
-    margin-top: -7rem;
+    margin-top: -7.8rem;/* korábban csak -7rem volt, de projektszerződés felületén amikor projektet csatolunk, akkor a popupban található táblázat fejléce belógott */
     margin-right: 2.6rem;
 }
 
@@ -1252,6 +1252,10 @@ input.webdeb{
 
 .sugo ul li, .sugo ol li{
     margin: 0.0rem 0.0rem 1rem 0.0rem;
+}
+
+.cb input[type=checkbox] {
+    display: none;
 }
 
 .cb input[type=checkbox]:focus + label {

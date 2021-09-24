@@ -1,6 +1,10 @@
 <?php
 require_once('../weblap.php');
 
+if( isset($_GET['teszt']) ) {
+    xml_vissza(1015);
+}
+
 if( !_jog(JOG_ENERGIA_SZAMLAK_OLVAS) ) {
     if( !$_SESSION[get_db_tabla() . 'user'] ) {
         $weblap -> leallit();
@@ -237,8 +241,8 @@ if( isset($_POST['pop_tetelek_feltolt']) ) {
         $szamla_netto_mezo      = 'netto';
         $penznem                = get_penznem();
         $tizedesek              = 0;
-        $session_mezo           = 'energia_szla_tetel_netto_ert';
-        $session_mezo_br        = 'energia_szla_tetel_brutto_ert';
+        $session_mezo           = 'energia_szla_tetel_netto';
+        $session_mezo_br        = 'energia_szla_tetel_brutto';
     }
     
     // Tételek táblázat sorait kiszámoljuk:
@@ -246,7 +250,6 @@ if( isset($_POST['pop_tetelek_feltolt']) ) {
     $i = 0;
     foreach( $_SESSION['energia_szla_tetel_jogcim'] as $jogcim ) {
         
-        $szla_netto_ert = $_SESSION[$session_mezo][$i];
         $torles = '';
         if( !$_SESSION['energia_szla_tetel_andocos'][$i] ) {
             $torles = '
@@ -266,6 +269,7 @@ if( isset($_POST['pop_tetelek_feltolt']) ) {
         }
 
         $jogcim  = $adatbazis_kapcsolat->s2('jogcim', 'jogcim', "`recid`='{$_SESSION['energia_szla_tetel_jogcim'][$i]}'");
+        $afakod  = $adatbazis_kapcsolat->s2('afa',    'afakod', "`recid`='{$_SESSION['energia_szla_tetel_jogcim'][$i]}'");
         $dijelem = $adatbazis_kapcsolat->s2('info', 'erteklista', "`recid`='{$_SESSION['energia_szla_tetel_dijelem'][$i]}'");
         $aranyos = '';
         if( $_SESSION['energia_szla_tetel_aranyos'][$i] ) {
@@ -291,10 +295,12 @@ if( isset($_POST['pop_tetelek_feltolt']) ) {
                             <td class="pop_egyseg nowrap">'.$_SESSION['energia_szla_tetel_egyseg'][$i].'</td>
                             <td class="pop_menny_kwh nowrap">'.$_SESSION['energia_szla_tetel_menny_kwh'][$i].'</td>
                             <td class="pop_egyseg_ar nowrap">'.$_SESSION['energia_szla_tetel_egyseg_ar'][$i].'</td>
-                            <td class="pop_dij nowrap">'.$_SESSION['energia_szla_tetel_dij'][$i].'</td>
-                            <td class="pop_afa nowrap">'.$_SESSION['energia_szla_tetel_afa'][$i].'</td>
+                            <td class="pop_netto nowrap">'.$_SESSION[$session_mezo][$i].'</td>
+                            <td class="pop_brutto nowrap">'.$_SESSION[$session_mezo_br][$i].'</td>
+                            <td class="nowrap">'.$afakod['afa'].'</td>
                             <td>
                                 '.$torles.'
+                                <input type="hidden" class="pop_afakod" name="pop_afakod_id" value="'.$_SESSION['energia_szla_tetel_afakod'][$i].'">
                                 <input type="hidden" class="pop_jogcim" name="pop_jogcim_id" value="'.$_SESSION['energia_szla_tetel_jogcim'][$i].'">
                                 <input type="hidden" class="pop_dijelem" name="pop_dijelem_id" value="'.$_SESSION['energia_szla_tetel_dijelem'][$i].'">
                                 <input type="hidden" class="pop_valtozott" value="'.$_SESSION['energia_szla_tetel_valtozott'][$i].'">
@@ -376,6 +382,18 @@ if( isset($_POST['dijelem_ertek_betolt']) ) {
     exit();
 }
 
+// Áfakód recid alapján lekérjük az áfát, hogy abból ott a popupon tudjunk bruttót számolni
+if( isset($_POST['get_afa']) ) {
+    
+    $afakod = $adatbazis_kapcsolat->s2('afa', 'afakod', "`recid`='{$_POST['afakod_recid']}'");
+    echo json_encode( array(
+                        'afa' => $afakod['afa'],
+                    ) );
+    
+    $weblap -> leallit();
+    exit();
+}
+
 // Tételek mentése
 if( isset($_POST['tetel_sorok_ment']) ) {
     
@@ -406,23 +424,26 @@ if( isset($_POST['tetel_sorok_ment']) ) {
     $egyseg_adat    = 12;
     $menny_kwh_adat = 13;
     $egyseg_ar_adat = 14;
-    $dij_adat       = 15;
-    $afa_adat       = 16;
-    
+    $afa_adat       = 15;
+    $netto_adat     = 16;
+    $brutto_adat    = 17;
+    $valtozott_adat = 18;
+
     // Tétel összeg ellenőrzése, illetve a számadatok igazítása
     // Ennek van egy 2. fele később az ellenőrzéseknél
     $tetelek_osszege = 0;
     $i = 0;
-    foreach ( $_POST['adatok'][$dij_adat][1] as $ertek ) {
-        $_POST['adatok'][$indul_adat] [1][$i]       = str_replace(array(' ', ','), array('', '.'), $_POST['adatok'][$indul_adat] [1][$i]);
-        $_POST['adatok'][$szorzo_adat] [1][$i]      = str_replace(array(' ', ','), array('', '.'), $_POST['adatok'][$szorzo_adat] [1][$i]);
-        $_POST['adatok'][$mert_adat] [1][$i]        = str_replace(array(' ', ','), array('', '.'), $_POST['adatok'][$mert_adat] [1][$i]);
-        $_POST['adatok'][$kwh_szorzo_adat] [1][$i]  = str_replace(array(' ', ','), array('', '.'), $_POST['adatok'][$kwh_szorzo_adat] [1][$i]);
-        $_POST['adatok'][$menny_adat] [1][$i]       = str_replace(array(' ', ','), array('', '.'), $_POST['adatok'][$menny_adat] [1][$i]);
-        $_POST['adatok'][$menny_kwh_adat] [1][$i]   = str_replace(array(' ', ','), array('', '.'), $_POST['adatok'][$menny_kwh_adat] [1][$i]);
-        $_POST['adatok'][$egyseg_ar_adat] [1][$i]   = str_replace(array(' ', ','), array('', '.'), $_POST['adatok'][$egyseg_ar_adat] [1][$i]);
-        $_POST['adatok'][$dij_adat] [1][$i]         = str_replace(array(' ', ','), array('', '.'), $_POST['adatok'][$dij_adat] [1][$i]);
-        $tetelek_osszege += $_POST['adatok'][$dij_adat] [1][$i];
+    foreach ( $_POST['adatok'][$netto_adat][1] as $ertek ) {
+        $_POST['adatok'][$indul_adat        ] [1][$i] = str_replace(array(' ', ','), array('', '.'), $_POST['adatok'][$indul_adat     ] [1][$i]);
+        $_POST['adatok'][$szorzo_adat       ] [1][$i] = str_replace(array(' ', ','), array('', '.'), $_POST['adatok'][$szorzo_adat    ] [1][$i]);
+        $_POST['adatok'][$mert_adat         ] [1][$i] = str_replace(array(' ', ','), array('', '.'), $_POST['adatok'][$mert_adat      ] [1][$i]);
+        $_POST['adatok'][$kwh_szorzo_adat   ] [1][$i] = str_replace(array(' ', ','), array('', '.'), $_POST['adatok'][$kwh_szorzo_adat] [1][$i]);
+        $_POST['adatok'][$menny_adat        ] [1][$i] = str_replace(array(' ', ','), array('', '.'), $_POST['adatok'][$menny_adat     ] [1][$i]);
+        $_POST['adatok'][$menny_kwh_adat    ] [1][$i] = str_replace(array(' ', ','), array('', '.'), $_POST['adatok'][$menny_kwh_adat ] [1][$i]);
+        $_POST['adatok'][$egyseg_ar_adat    ] [1][$i] = str_replace(array(' ', ','), array('', '.'), $_POST['adatok'][$egyseg_ar_adat ] [1][$i]);
+        $_POST['adatok'][$netto_adat        ] [1][$i] = str_replace(array(' ', ','), array('', '.'), $_POST['adatok'][$netto_adat     ] [1][$i]);
+        $_POST['adatok'][$brutto_adat       ] [1][$i] = str_replace(array(' ', ','), array('', '.'), $_POST['adatok'][$brutto_adat    ] [1][$i]);
+        $tetelek_osszege += $_POST['adatok'][$netto_adat] [1][$i];
         $i++;
     }
 
@@ -450,7 +471,7 @@ if( isset($_POST['tetel_sorok_ment']) ) {
     // Ha a számla nettó értéke nem egyenlő a tételek díj összegével, akkor hibaüzenet
     } elseif( number_format($tetelek_osszege, $tizedesek, ',', ' ') != number_format($szamla_netto_erteke, $tizedesek, ',', ' ') ) {
         echo json_encode( array( 
-                        'hiba'  => 'A számla tételek díj összege ('. number_format($tetelek_osszege, $tizedesek, ',', ' ').' '.$penznem.') nem egyezik meg a számla nettó értékével ('.number_format($szamla_netto_erteke, $tizedesek, ',', ' ').' '.$penznem.')!<br>Így nem menthető!',
+                        'hiba'  => 'A számla tételeinek összege ('. number_format($tetelek_osszege, $tizedesek, ',', ' ').' '.$penznem.') nem egyezik meg a számla nettó értékével ('.number_format($szamla_netto_erteke, $tizedesek, ',', ' ').' '.$penznem.')!<br>Így nem menthető!',
                         'title' => 'Hiba'
                         ) );
                 $weblap->leallit();
@@ -473,8 +494,14 @@ if( isset($_POST['tetel_sorok_ment']) ) {
         $_SESSION['energia_szla_tetel_egyseg']    = $_POST['adatok'][$egyseg_adat][1];
         $_SESSION['energia_szla_tetel_menny_kwh'] = $_POST['adatok'][$menny_kwh_adat][1];
         $_SESSION['energia_szla_tetel_egyseg_ar'] = $_POST['adatok'][$egyseg_ar_adat][1];
-        $_SESSION['energia_szla_tetel_dij']       = $_POST['adatok'][$dij_adat][1];
-        $_SESSION['energia_szla_tetel_afa']       = $_POST['adatok'][$afa_adat][1];
+        if( $devizas ) {
+            $_SESSION['energia_szla_tetel_dev_net'] = str_replace(',', '.', $_POST['adatok'][$netto_adat][1]);
+            $_SESSION['energia_szla_tetel_dev_br']  = str_replace(',', '.', $_POST['adatok'][$brutto_adat][1]);
+        } else {
+            $_SESSION['energia_szla_tetel_netto']     = $_POST['adatok'][$netto_adat][1];
+            $_SESSION['energia_szla_tetel_brutto']    = $_POST['adatok'][$brutto_adat][1];
+        }
+        $_SESSION['energia_szla_tetel_afakod']    = $_POST['adatok'][$afa_adat][1];
         $_SESSION['energia_szla_tetel_valtozott'] = $_POST['adatok'][$valtozott_adat][1];
     }
     
@@ -484,6 +511,7 @@ if( isset($_POST['tetel_sorok_ment']) ) {
         foreach ( $_POST['adatok'][$jogcim_adat][1] as $jogcim ) {
             
             $jogcim    = $_POST['adatok'][$jogcim_adat][1][$i];
+            $afakod    = $_POST['adatok'][$afa_adat][1][$i];
             $dijelem   = $_POST['adatok'][$dijelem_adat][1][$i];
             $aranyos   = $_POST['adatok'][$aranyos_adat][1][$i];
             $tol       = $_POST['adatok'][$tol_adat][1][$i];
@@ -497,21 +525,31 @@ if( isset($_POST['tetel_sorok_ment']) ) {
             $egyseg    = $_POST['adatok'][$egyseg_adat][1][$i];
             $menny_kwh = str_replace(array(' ', ','), array('', '.'), $_POST['adatok'][$menny_kwh_adat][1][$i]);
             $egyseg_ar = str_replace(array(' ', ','), array('', '.'), $_POST['adatok'][$egyseg_ar_adat][1][$i]);
-            $dij       = str_replace(array(' ', ','), array('', '.'), $_POST['adatok'][$dij_adat][1][$i]);
-            $afa       = $_POST['adatok'][$afa_adat][1][$i];
+            if( $devizas ) {
+                $netto     = str_replace(array(' ', ','), array('', '.'), $_POST['adatok'][$netto_adat][1][$i])*$arfolyam;
+                $brutto    = str_replace(array(' ', ','), array('', '.'), $_POST['adatok'][$brutto_adat][1][$i])*$arfolyam;
+                $dev_net   = str_replace(array(' ', ','), array('', '.'), $_POST['adatok'][$netto_adat][1][$i]);
+                $dev_br    = str_replace(array(' ', ','), array('', '.'), $_POST['adatok'][$brutto_adat][1][$i]);
+            } else {
+                $netto     = str_replace(array(' ', ','), array('', '.'), $_POST['adatok'][$netto_adat][1][$i]);
+                $brutto    = str_replace(array(' ', ','), array('', '.'), $_POST['adatok'][$brutto_adat][1][$i]);
+                $dev_net   = 0;
+                $dev_br    = 0;
+            }
             $valtozott = 0;
             if( $_POST['adatok'][$valtozott_adat][1][$i] ) {
                 $valtozott = 1;
             }
 
             // Jogcím esetén még a ktgnem-et is letároljuk
-            $jogcim = $adatbazis_kapcsolat->s2('recid szla_szam', 'jogcim', "`recid`='{$jogcim}'");
+            $jogcim = $adatbazis_kapcsolat->s2('recid jogcim uzemresz megn szla_szam ktghely ktghely_id', 'jogcim', "`recid`='{$jogcim}'");
+            $afakod = $adatbazis_kapcsolat->s2('recid nev kod afa', 'afakod', "`recid`='{$afakod}'");
 
             // Ha ismerjük a tétel recid-ját, akkor update
             if( $_POST['adatok'][$recid_adat][1][$i] ) {
                 
-                $mezok   = array('jogcim_recid',    'ktgnem_id',           'dijelem_recid', 'aranyos', 'tol', 'ig',   'indul', 'zar', 'szorzo',   'mert', 'kwh_szorzo', 'menny', 'egyseg', 'menny_kwh', 'egyseg_ar', 'dij', 'afa', 'valtozott', 'update_usr'                             );
-                $ertekek = array($jogcim['recid'],  $jogcim['szla_szam'],  $dijelem,        $aranyos,  $tol,  $ig,    $indul,  $zar,  $szorzo,    $mert,  $kwh_szorzo,  $menny,  $egyseg,  $menny_kwh,  $egyseg_ar,  $dij,  $afa,  $valtozott,  $_SESSION[get_db_tabla().'teljes_nev']   );
+                $mezok   = array('jogcim_recid',    'ktgnem_id',           'ktghely_id',           'ktghely',          'jogcim_recid',   'jogcim',          'uzemresz',          'megn',          'afakod_recid',   'afa',          'afa_kod',      'afa_nev',      'dijelem_recid', 'aranyos', 'tol', 'ig',   'indul', 'zar', 'szorzo',   'mert', 'kwh_szorzo', 'menny', 'egyseg', 'menny_kwh', 'egyseg_ar', 'netto_ert', 'brutto_ert', 'dev_net',  'dev_br', 'valtozott', 'update_usr'                             );
+                $ertekek = array($jogcim['recid'],  $jogcim['szla_szam'],  $jogcim['ktghely_id'],  $jogcim['ktghely'], $jogcim['recid'], $jogcim['jogcim'], $jogcim['uzemresz'], $jogcim['megn'], $afakod['recid'], $afakod['afa'], $afakod['kod'], $afakod['nev'], $dijelem,        $aranyos,  $tol,  $ig,    $indul,  $zar,  $szorzo,    $mert,  $kwh_szorzo,  $menny,  $egyseg,  $menny_kwh,  $egyseg_ar,  $netto,      $brutto,      $dev_net,   $dev_br,  $valtozott,  $_SESSION[get_db_tabla().'teljes_nev']   );
 
                 $sql = $adatbazis_kapcsolat->u('energia_szamla_tetel', $mezok, $ertekek, "`recid`='{$_POST['adatok'][$recid_adat][1][$i]}'");
                 if( $sql === false ) { $db_error = true; }
@@ -521,10 +559,13 @@ if( isset($_POST['tetel_sorok_ment']) ) {
 
                 $rownum = $adatbazis_kapcsolat->s2('MAX(`rownum`)', 'energia_szamla_tetel', "`energia_szamla_recid`='{$recid}'");
                 $rownum = $rownum['MAX(`rownum`)']+1;
-                $mezok   = array('energia_szamla_recid', 'rownum', 'jogcim_recid',    'ktgnem_id',           'dijelem_recid', 'aranyos', 'tol', 'ig',   'indul', 'zar', 'szorzo',   'mert', 'kwh_szorzo', 'menny', 'egyseg', 'menny_kwh', 'egyseg_ar', 'dij', 'afa', 'valtozott', 'loginnev',                          'insert_dt',    'insert_usr',                             'update_usr'                              );
-                $ertekek = array($recid,                 $rownum,  $jogcim['recid'],  $jogcim['szla_szam'],  $dijelem,        $aranyos,  $tol,  $ig,    $indul,  $zar,  $szorzo,    $mert,  $kwh_szorzo,  $menny,  $egyseg,  $menny_kwh,  $egyseg_ar,  $dij,  $afa,  '1',          $_SESSION[get_db_tabla().'user'],   'NOW()',        $_SESSION[get_db_tabla().'teljes_nev'],   $_SESSION[get_db_tabla().'teljes_nev']    );
+                $mezok   = array('energia_szamla_recid', 'rownum', 'ktgnem_id',           'ktghely_id',           'ktghely',          'jogcim_recid',   'jogcim',          'uzemresz',          'megn',          'afakod_recid',   'afa',          'afa_kod',      'afa_nev',      'dijelem_recid', 'aranyos', 'tol', 'ig',   'indul', 'zar', 'szorzo',   'mert', 'kwh_szorzo', 'menny', 'egyseg', 'menny_kwh', 'egyseg_ar', 'netto_ert', 'brutto_ert', 'dev_net',  'dev_br',  'valtozott', 'loginnev',                          'insert_dt',    'insert_usr',                             'update_usr'                              );
+                $ertekek = array($recid,                 $rownum,  $jogcim['szla_szam'],  $jogcim['ktghely_id'],  $jogcim['ktghely'], $jogcim['recid'], $jogcim['jogcim'], $jogcim['uzemresz'], $jogcim['megn'], $afakod['recid'], $afakod['afa'], $afakod['kod'], $afakod['nev'], $dijelem,        $aranyos,  $tol,  $ig,    $indul,  $zar,  $szorzo,    $mert,  $kwh_szorzo,  $menny,  $egyseg,  $menny_kwh,  $egyseg_ar,  $netto,      $brutto,      $dev_net,   $dev_br,   '1',          $_SESSION[get_db_tabla().'user'],   'NOW()',        $_SESSION[get_db_tabla().'teljes_nev'],   $_SESSION[get_db_tabla().'teljes_nev']    );
 
                 $uj_id = $adatbazis_kapcsolat->i('energia_szamla_tetel', $mezok, $ertekek);
+//echo $adatbazis_kapcsolat->gp() . '<br>';
+//echo 'f';
+//exit;
                 if( $sql === false ) { $db_error = true; }
                 $_SESSION['energia_szla_tetel_recid'][$i] = $uj_id;
 
@@ -612,61 +653,6 @@ require_once('selectek.php');
     $js_submit_elott = 'return form_ell_admin();';
 
     
-    
-    // Tételek SESSION-jének feltöltése (új felvitelben kicsit más a lekérdezés
-    if( isset($_GET['uj']) && _jog(JOG_ENERGIA_SZAMLAK_OLVAS) ) {
-        $szamla  = $adatbazis_kapcsolat->s2('recid kcs_21', 'energia_szamla_atmeneti', "`andoc_id`='{$_GET['andoc_id']}'");
-        $tetelek = $adatbazis_kapcsolat->s('*', 'energia_szamla_tetel_atmeneti', "`energia_szamla_recid`='{$szamla['recid']}'");
-    } else if( _jog(JOG_ENERGIA_SZAMLAK_OLVAS) ) {
-        $tetelek = $adatbazis_kapcsolat->s('*', 'energia_szamla_tetel', "`energia_szamla_recid`='{$_GET['id']}'");
-    }
-    $i = 0;
-    $_SESSION['energia_szla_tetel_recid']       =
-    $_SESSION['energia_szla_tetel_jogcim']      =
-    $_SESSION['energia_szla_tetel_dijelem']     =
-    $_SESSION['energia_szla_tetel_aranyos']     =
-    $_SESSION['energia_szla_tetel_tol']         =
-    $_SESSION['energia_szla_tetel_ig']          =
-    $_SESSION['energia_szla_tetel_indul']       =
-    $_SESSION['energia_szla_tetel_zar']         =
-    $_SESSION['energia_szla_tetel_szorzo']      =
-    $_SESSION['energia_szla_tetel_mert']        =
-    $_SESSION['energia_szla_tetel_kwh_szorzo']  =
-    $_SESSION['energia_szla_tetel_menny']       =
-    $_SESSION['energia_szla_tetel_egyseg']      =
-    $_SESSION['energia_szla_tetel_menny_kwh']   =
-    $_SESSION['energia_szla_tetel_egyseg_ar']   =
-    $_SESSION['energia_szla_tetel_dij']         =
-    $_SESSION['energia_szla_tetel_afa']         =
-    $_SESSION['energia_szla_tetel_valtozott']   =
-    $_SESSION['energia_szla_tetel_andocos']     =
-                                                    array();
-    foreach ( $tetelek as $tetel ) {
-        $ossz_netto   += $tetel['netto'];
-        $ossz_dev_net += $tetel['dev_net'];
-        $_SESSION['energia_szla_tetel_recid'][$i]       = $tetel['recid'];
-        $_SESSION['energia_szla_tetel_dijelem'][$i]     = $tetel['dijelem_recid'];
-        $_SESSION['energia_szla_tetel_jogcim'][$i]      = $tetel['jogcim_recid'];
-        $_SESSION['energia_szla_tetel_aranyos'][$i]     = $tetel['aranyos'];
-        $_SESSION['energia_szla_tetel_tol'][$i]         = $tetel['tol'];
-        $_SESSION['energia_szla_tetel_ig'][$i]          = $tetel['ig'];
-        $_SESSION['energia_szla_tetel_indul'][$i]       = number_format($tetel['indul'], 4, ',', ' ');
-        $_SESSION['energia_szla_tetel_zar'][$i]         = number_format($tetel['zar'], 4, ',', ' ');
-        $_SESSION['energia_szla_tetel_szorzo'][$i]      = number_format($tetel['szorzo'], 4, ',', ' ');
-        $_SESSION['energia_szla_tetel_mert'][$i]        = number_format($tetel['mert'], 5, ',', ' ');
-        $_SESSION['energia_szla_tetel_kwh_szorzo'][$i]  = number_format($tetel['kwh_szorzo'], 4, ',', ' ');
-        $_SESSION['energia_szla_tetel_menny'][$i]       = number_format($tetel['menny'], 4, ',', ' ');
-        $_SESSION['energia_szla_tetel_egyseg'][$i]      = $tetel['egyseg'];
-        $_SESSION['energia_szla_tetel_menny_kwh'][$i]   = number_format($tetel['menny_kwh'], 4, ',', ' ');
-        $_SESSION['energia_szla_tetel_egyseg_ar'][$i]   = number_format($tetel['egyseg_ar'], 4, ',', ' ');
-        $_SESSION['energia_szla_tetel_dij'][$i]         = number_format($tetel['dij'], 4, ',', ' ');
-        $_SESSION['energia_szla_tetel_afa'][$i]         = $tetel['afa'];
-        $_SESSION['energia_szla_tetel_valtozott'][$i]   = $tetel['valtozott'];
-        $_SESSION['energia_szla_tetel_andocos'][$i]     = $tetel['andocos'];
-
-        $i++;
-    }
-    
     // Energia számla mentésekor HA nem nullás a számla, akkor ellenőrizzük, hogy a számla nettó értéke azonos-e a tételek összegével
     // Deviza esetén más session-t járunk be
     $tizedesek  = 0;
@@ -676,6 +662,12 @@ require_once('selectek.php');
         $tizedesek  = 2;
         $mezo1      = 'ossz_dev_net';
         $mezo2      = 'dev_net';
+    }
+    
+    
+    // Tételek SESSION-jének feltöltése (új felvitelben kicsit más a lekérdezés
+    if( isset($_GET['uj']) && _jog(JOG_ENERGIA_SZAMLAK_OLVAS) ) {
+        $szamla  = $adatbazis_kapcsolat->s2('recid kcs_21', 'energia_szamla_atmeneti', "`andoc_id`='{$_GET['andoc_id']}'");
     }
     
     // Gombok kirajzolása minden oldalra
@@ -699,8 +691,11 @@ require_once('selectek.php');
         $_SESSION['energia_szla_tetel_egyseg']      =
         $_SESSION['energia_szla_tetel_menny_kwh']   =
         $_SESSION['energia_szla_tetel_egyseg_ar']   =
-        $_SESSION['energia_szla_tetel_dij']         =
-        $_SESSION['energia_szla_tetel_afa']         =
+        $_SESSION['energia_szla_tetel_netto']       =
+        $_SESSION['energia_szla_tetel_brutto']      =
+        $_SESSION['energia_szla_tetel_dev_net']     =
+        $_SESSION['energia_szla_tetel_dev_br']      =
+        $_SESSION['energia_szla_tetel_afakod']      =
         $_SESSION['energia_szla_tetel_valtozott']   =
         $_SESSION['energia_szla_tetel_andocos']     =
                                                     array();
@@ -714,17 +709,20 @@ require_once('selectek.php');
             $_SESSION['energia_szla_tetel_aranyos'][$i]     = $tetel['aranyos'];
             $_SESSION['energia_szla_tetel_tol'][$i]         = $tetel['tol'];
             $_SESSION['energia_szla_tetel_ig'][$i]          = $tetel['ig'];
-            $_SESSION['energia_szla_tetel_indul'][$i]       = number_format($tetel['indul'], 4, ',', ' ');
-            $_SESSION['energia_szla_tetel_zar'][$i]         = number_format($tetel['zar'], 4, ',', ' ');
-            $_SESSION['energia_szla_tetel_szorzo'][$i]      = number_format($tetel['szorzo'], 4, ',', ' ');
-            $_SESSION['energia_szla_tetel_mert'][$i]        = number_format($tetel['mert'], 5, ',', ' ');
-            $_SESSION['energia_szla_tetel_kwh_szorzo'][$i]  = number_format($tetel['kwh_szorzo'], 4, ',', ' ');
-            $_SESSION['energia_szla_tetel_menny'][$i]       = number_format($tetel['menny'], 4, ',', ' ');
+            $_SESSION['energia_szla_tetel_indul'][$i]       = number_format($tetel['indul'      ], 4, ',', ' ');
+            $_SESSION['energia_szla_tetel_zar'][$i]         = number_format($tetel['zar'        ], 4, ',', ' ');
+            $_SESSION['energia_szla_tetel_szorzo'][$i]      = number_format($tetel['szorzo'     ], 4, ',', ' ');
+            $_SESSION['energia_szla_tetel_mert'][$i]        = number_format($tetel['mert'       ], 5, ',', ' ');
+            $_SESSION['energia_szla_tetel_kwh_szorzo'][$i]  = number_format($tetel['kwh_szorzo' ], 4, ',', ' ');
+            $_SESSION['energia_szla_tetel_menny'][$i]       = number_format($tetel['menny'      ], 4, ',', ' ');
             $_SESSION['energia_szla_tetel_egyseg'][$i]      = $tetel['egyseg'];
-            $_SESSION['energia_szla_tetel_menny_kwh'][$i]   = number_format($tetel['menny_kwh'], 4, ',', ' ');
-            $_SESSION['energia_szla_tetel_egyseg_ar'][$i]   = number_format($tetel['egyseg_ar'], 4, ',', ' ');
-            $_SESSION['energia_szla_tetel_dij'][$i]         = number_format($tetel['dij'], 4, ',', ' ');
-            $_SESSION['energia_szla_tetel_afa'][$i]         = $tetel['afa'];
+            $_SESSION['energia_szla_tetel_menny_kwh'][$i]   = number_format($tetel['menny_kwh'  ], 4, ',', ' ');
+            $_SESSION['energia_szla_tetel_egyseg_ar'][$i]   = number_format($tetel['egyseg_ar'  ], 4, ',', ' ');
+            $_SESSION['energia_szla_tetel_netto'][$i]       = number_format($tetel['netto_ert'  ], 0, ',', ' ');
+            $_SESSION['energia_szla_tetel_brutto'][$i]      = number_format($tetel['brutto_ert' ], 0, ',', ' ');
+            $_SESSION['energia_szla_tetel_dev_net'][$i]     = number_format($tetel['dev_net'    ], 2, ',', ' ');
+            $_SESSION['energia_szla_tetel_dev_br'][$i]      = number_format($tetel['dev_br'     ], 2, ',', ' ');
+            $_SESSION['energia_szla_tetel_afakod'][$i]      = $tetel['afakod_recid'];
             $_SESSION['energia_szla_tetel_valtozott'][$i]   = $tetel['valtozott'];
             $_SESSION['energia_szla_tetel_andocos'][$i]     = $tetel['andocos'];
             if( $tetel['energia_szerzodes_tetel_recid'] ) {
@@ -797,8 +795,11 @@ require_once('selectek.php');
         $_SESSION['energia_szla_tetel_egyseg']      =
         $_SESSION['energia_szla_tetel_menny_kwh']   =
         $_SESSION['energia_szla_tetel_egyseg_ar']   =
-        $_SESSION['energia_szla_tetel_dij']         =
-        $_SESSION['energia_szla_tetel_afa']         =
+        $_SESSION['energia_szla_tetel_netto']       =
+        $_SESSION['energia_szla_tetel_brutto']      =
+        $_SESSION['energia_szla_tetel_dev_net']     =
+        $_SESSION['energia_szla_tetel_dev_br']      =
+        $_SESSION['energia_szla_tetel_afakod']      =
         $_SESSION['energia_szla_tetel_valtozott']   =
         $_SESSION['energia_szla_tetel_andocos']     =
                                                     array();
@@ -811,17 +812,20 @@ require_once('selectek.php');
             $_SESSION['energia_szla_tetel_aranyos'][$i]     = $tetel['aranyos'];
             $_SESSION['energia_szla_tetel_tol'][$i]         = $tetel['tol'];
             $_SESSION['energia_szla_tetel_ig'][$i]          = $tetel['ig'];
-            $_SESSION['energia_szla_tetel_indul'][$i]       = number_format($tetel['indul'], 4, ',', ' ');
-            $_SESSION['energia_szla_tetel_zar'][$i]         = number_format($tetel['zar'], 4, ',', ' ');
-            $_SESSION['energia_szla_tetel_szorzo'][$i]      = number_format($tetel['szorzo'], 4, ',', ' ');
-            $_SESSION['energia_szla_tetel_mert'][$i]        = number_format($tetel['mert'], 5, ',', ' ');
-            $_SESSION['energia_szla_tetel_kwh_szorzo'][$i]  = number_format($tetel['kwh_szorzo'], 4, ',', ' ');
-            $_SESSION['energia_szla_tetel_menny'][$i]       = number_format($tetel['menny'], 4, ',', ' ');
+            $_SESSION['energia_szla_tetel_indul'][$i]       = number_format($tetel['indul'      ], 4, ',', ' ');
+            $_SESSION['energia_szla_tetel_zar'][$i]         = number_format($tetel['zar'        ], 4, ',', ' ');
+            $_SESSION['energia_szla_tetel_szorzo'][$i]      = number_format($tetel['szorzo'     ], 4, ',', ' ');
+            $_SESSION['energia_szla_tetel_mert'][$i]        = number_format($tetel['mert'       ], 5, ',', ' ');
+            $_SESSION['energia_szla_tetel_kwh_szorzo'][$i]  = number_format($tetel['kwh_szorzo' ], 4, ',', ' ');
+            $_SESSION['energia_szla_tetel_menny'][$i]       = number_format($tetel['menny'      ], 4, ',', ' ');
             $_SESSION['energia_szla_tetel_egyseg'][$i]      = $tetel['egyseg'];
-            $_SESSION['energia_szla_tetel_menny_kwh'][$i]   = number_format($tetel['menny_kwh'], 4, ',', ' ');
-            $_SESSION['energia_szla_tetel_egyseg_ar'][$i]   = number_format($tetel['egyseg_ar'], 4, ',', ' ');
-            $_SESSION['energia_szla_tetel_dij'][$i]         = number_format($tetel['dij'], 4, ',', ' ');
-            $_SESSION['energia_szla_tetel_afa'][$i]         = $tetel['afa'];
+            $_SESSION['energia_szla_tetel_menny_kwh'][$i]   = number_format($tetel['menny_kwh'  ], 4, ',', ' ');
+            $_SESSION['energia_szla_tetel_egyseg_ar'][$i]   = number_format($tetel['egyseg_ar'  ], 4, ',', ' ');
+            $_SESSION['energia_szla_tetel_netto'][$i]       = number_format($tetel['netto_ert'  ], 0, ',', ' ');
+            $_SESSION['energia_szla_tetel_brutto'][$i]      = number_format($tetel['brutto_ert' ], 0, ',', ' ');
+            $_SESSION['energia_szla_tetel_dev_net'][$i]     = number_format($tetel['dev_net'    ], 2, ',', ' ');
+            $_SESSION['energia_szla_tetel_dev_br'][$i]      = number_format($tetel['dev_br'     ], 2, ',', ' ');
+            $_SESSION['energia_szla_tetel_afakod'][$i]      = $tetel['afakod_recid'];
             $_SESSION['energia_szla_tetel_valtozott'][$i]   = $tetel['valtozott'];
             $_SESSION['energia_szla_tetel_andocos'][$i]     = $tetel['andocos'];
             if( $tetel['energia_szerzodes_tetel_recid'] ) {
@@ -858,6 +862,7 @@ require_once('selectek.php');
             $gombok .= '<input type="hidden" id="kcs_21_db" value="'.$sor['kcs_21'].'">';
             $gombok .= '<input type="hidden" id="netto_db" value="'.$sor['netto'].'">';
             $gombok .= '<input type="hidden" id="dev_net_db" value="'.$sor['dev_net'].'">';
+            $gombok .= '<input type="hidden" id="arfolyam_db" value="'.$sor['arfolyam'].'">';
             $gombok = nl2('
                 <div class="form_kuldes">
                     <input type="button" class="gombb mentes_gomb" name="mehet_gomb" id="mehet_gomb" disabled value="Mentés" onclick="mentesGomb();">
@@ -1000,6 +1005,11 @@ require_once('selectek.php');
 	// Számla tételek
     } elseif( isset($_GET['tetel']) ) {
 
+        $deviza = '';
+        if( $sor['kcs_21'] != KCS_21_HUF ) {
+            $deviza = ' ('.getErtekLista(ERTEKLISTA_PENZNEM, $sor['kcs_21']).')';
+        }
+        
         $szamla_html .= nl2('
             <div class="dt naplo">
                 <div class="dtr nFejlec">
@@ -1015,7 +1025,10 @@ require_once('selectek.php');
                     <div class="dtc">Mennyiség-egység</div>
                     <div class="dtc">Mennyiség (kWh-ban)</div>
                     <div class="dtc">Egységár</div>
-                    <div class="dtc">Díj</div>
+                    <div class="dtc">Nettó (HUF)</div>
+                    <div class="dtc">Bruttó (HUF)</div>
+                    <div class="dtc">Deviza nettó'.$deviza.'</div>
+                    <div class="dtc">Deviza bruttó'.$deviza.'</div>
                     <div class="dtc">Áfa</div>
                 </div>
         ');
@@ -1025,6 +1038,7 @@ require_once('selectek.php');
         foreach ( $tetelek as $tetel ) {
             
             $jogcim  = $adatbazis_kapcsolat->s2('jogcim', 'jogcim', "`recid`='{$tetel['jogcim_recid']}'");
+            $afakod  = $adatbazis_kapcsolat->s2('afa',    'afakod', "`recid`='{$tetel['afakod_recid']}'");
             $dijelem = $adatbazis_kapcsolat->s2('info', 'erteklista', "`recid`='{$tetel['dijelem_recid']}'");
             $aranyos = '';
             if( $tetel['aranyos'] ) {
@@ -1036,16 +1050,19 @@ require_once('selectek.php');
                     <div class="dtc">'.$dijelem['info'].'</div>
                     <div class="dtc c">'.$aranyos.'</div>
                     <div class="dtc nowrap">'.datum_kiir($tetel['tol']).'-<br>'.datum_kiir($tetel['ig']).'</div>
-                    <div class="dtc nowrap">'.number_format($tetel['indul'], 4, ',', ' ').'-<br>'.number_format($tetel['zar'], 4, ',', ' ').'</div>
-                    <div class="dtc r nowrap">'.number_format($tetel['szorzo'], 4, ',', ' ').'</div>
-                    <div class="dtc r nowrap">'.number_format($tetel['mert'], 5, ',', ' ').'</div>
+                    <div class="dtc nowrap">'.number_format($tetel['indul'],        4, ',', ' ').'-<br>'.number_format($tetel['zar'], 4, ',', ' ').'</div>
+                    <div class="dtc r nowrap">'.number_format($tetel['szorzo'],     4, ',', ' ').'</div>
+                    <div class="dtc r nowrap">'.number_format($tetel['mert'],       5, ',', ' ').'</div>
                     <div class="dtc r nowrap">'.number_format($tetel['kwh_szorzo'], 4, ',', ' ').'</div>
-                    <div class="dtc r nowrap">'.number_format($tetel['menny'], 4, ',', ' ').'</div>
+                    <div class="dtc r nowrap">'.number_format($tetel['menny'],      4, ',', ' ').'</div>
                     <div class="dtc r nowrap">'.$tetel['egyseg'].'</div>
-                    <div class="dtc r nowrap">'.number_format($tetel['menny_kwh'], 4, ',', ' ').'</div>
-                    <div class="dtc r nowrap">'.number_format($tetel['egyseg_ar'], 4, ',', ' ').'</div>
-                    <div class="dtc r nowrap">'.number_format($tetel['dij'], 4, ',', ' ').'</div>
-                    <div class="dtc r nowrap">'.number_format($tetel['afa'], 0, ',', ' ').'</div>
+                    <div class="dtc r nowrap">'.number_format($tetel['menny_kwh'],  4, ',', ' ').'</div>
+                    <div class="dtc r nowrap">'.number_format($tetel['egyseg_ar'],  4, ',', ' ').'</div>
+                    <div class="dtc r nowrap">'.number_format($tetel['netto_ert'],  0, ',', ' ').'</div>
+                    <div class="dtc r nowrap">'.number_format($tetel['brutto_ert'], 0, ',', ' ').'</div>
+                    <div class="dtc r nowrap">'.number_format($tetel['dev_net'],    2, ',', ' ').'</div>
+                    <div class="dtc r nowrap">'.number_format($tetel['dev_br'],     2, ',', ' ').'</div>
+                    <div class="dtc r nowrap">'.number_format($afakod['afa'],       0, ',', ' ').'</div>
                 </div>
             ');
         }
@@ -1298,16 +1315,16 @@ function xml_vissza( $szamla_id, $igazolva = '', $oka = '' ) {
     }
 
     // A tételeket költségnem + költséghely + ÁFAkulcs szerincs csoportosíva küldjük vissza.
-    $tetelek = $adatbazis_kapcsolat->s('*', 'energia_szamla_tetel', "`energia_szamla_recid`='{$szamla_id}' AND `valtozott`='1'", '', '', "`ktgnem_id`, `ktghely_id`, `afa_kod`");
+    $tetelek = $adatbazis_kapcsolat->s('*', 'energia_szamla_tetel', "`energia_szamla_recid`='{$szamla_id}' AND `valtozott`='1'", '', '', "`ktgnem_id`, `ktghely_id`, `afa_kod`, SUBSTRING(`tol`, 1, 7)");
     if( $tetelek === false ) { $db_error = true; }
 
     $tetel_xml = '';
     $i = 0;
     foreach( $tetelek as $tetel ) {
         
-        $netto_ertek  = $adatbazis_kapcsolat->s2("SUM(`{$netto_mezo}`)", 'energia_szamla_tetel', "`energia_szamla_recid`='{$szamla_id}' AND `valtozott`='1' AND `ktgnem_id`='{$tetel['ktgnem_id']}' AND `ktghely_id`='{$tetel['ktghely_id']}' AND `afa_kod`='{$tetel['afa_kod']}'");
+        $netto_ertek  = $adatbazis_kapcsolat->s2("SUM(`{$netto_mezo}`)", 'energia_szamla_tetel', "`energia_szamla_recid`='{$szamla_id}' AND `valtozott`='1' AND `ktgnem_id`='{$tetel['ktgnem_id']}' AND `ktghely_id`='{$tetel['ktghely_id']}' AND `afa_kod`='{$tetel['afa_kod']}' AND `tol` LIKE '".substr($tetel['tol'], 0, 7)."%'");
         $netto_ertek  = $netto_ertek["SUM(`{$netto_mezo}`)"];
-        $brutto_ertek = $adatbazis_kapcsolat->s2("SUM(`{$brutto_mezo}`)", 'energia_szamla_tetel', "`energia_szamla_recid`='{$szamla_id}' AND `valtozott`='1' AND `ktgnem_id`='{$tetel['ktgnem_id']}' AND `ktghely_id`='{$tetel['ktghely_id']}' AND `afa_kod`='{$tetel['afa_kod']}'");
+        $brutto_ertek = $adatbazis_kapcsolat->s2("SUM(`{$brutto_mezo}`)", 'energia_szamla_tetel', "`energia_szamla_recid`='{$szamla_id}' AND `valtozott`='1' AND `ktgnem_id`='{$tetel['ktgnem_id']}' AND `ktghely_id`='{$tetel['ktghely_id']}' AND `afa_kod`='{$tetel['afa_kod']}' AND `tol` LIKE '".substr($tetel['tol'], 0, 7)."%'");
         $brutto_ertek = $brutto_ertek["SUM(`{$brutto_mezo}`)"];
         $afa_osszege  = $brutto_ertek-$netto_ertek;
         
@@ -1354,11 +1371,11 @@ function xml_vissza( $szamla_id, $igazolva = '', $oka = '' ) {
   </data>
 </xml>
 ';
-//if( isset($_GET['teszt']) ) {
-//    echo $valasz_xml;
-//    echo 'f';
-//    exit;
-//}
+if( isset($_GET['teszt']) ) {
+    echo $valasz_xml;
+    echo 'f';
+    exit;
+}
    
     $fejlec = array(
         "Content-type: application/x-www-form-urlencoded",
