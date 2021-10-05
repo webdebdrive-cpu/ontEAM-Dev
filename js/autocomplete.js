@@ -367,8 +367,8 @@
                         rend_ossz_beallit();
                     }
 
-                    /* KP-s anyagbeszerzéshez popuphoz */
-                    if($('#pop_afa').length && $('#pop_afa').val()){
+                    // KP-s anyagbeszerzéshez popuphoz
+                    if ( $('#pop_afa').length && $('#pop_afa').val() && location.href.indexOf('energia_szamla.php')=='-1' ) {
                         osszegek_kiszamol($('#pop_afa'));
                     }
 

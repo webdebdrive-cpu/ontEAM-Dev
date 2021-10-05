@@ -83,6 +83,7 @@ var PHP_SELF = baseName(location.href)+'.php';
 *	insert_text()			BB kódhoz első sorban. Egy textareába operál
 *	insert_text_prompt()	Linkbeszúráshoz:  Olyan mint az insert_text() (sőt ezt hívja), de promtos, tehát kérdez előtte
 *   is_json()               Megállapítja, hogy egy string JSON adat-e
+*   is_valid_date()         Ellenőrzi, hogy a kapott dátum valós-e
 *   is_valid_mail()         Ellenőrzi, hogy az e-mail cím megfelelő formátumú-e
 *   isz2varos()             Irányítószámból várost
 *	kedvencek_koze()		Kedvencek közéteszi
@@ -733,6 +734,20 @@ function is_json(str) {
     try {
         JSON.parse(str);
     } catch (e) {
+        return false;
+    }
+    return true;
+}
+
+/**
+*	@desc Valid e-mail cím-e
+*
+*	@param string $email: E-mail, melyről meg kell állípítani, hogy megfelelő alakú-e
+*	@return boolean
+*/
+function is_valid_date(date) {
+    var d = new Date(date.replace(/\./gi, '-'));
+    if( d.toString() == 'Invalid Date' ) {
         return false;
     }
     return true;

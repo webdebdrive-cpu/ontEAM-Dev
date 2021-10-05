@@ -75,6 +75,28 @@ if( !kcs_21 ) {
     kcs_21 = $('#kcs_21_db').val();
 }
 
+var nullas = $('#nullas').is(':checked');
+if( !$('#nullas').length ) {
+    nullas = $('#nullas_db').val();
+}
+
+/* Ha nem nullás a számla, és nincs kitöltve a nettó, akkor hibaüzenet
+ * Ez csak új feltöltéskor érdekes */
+if( _get('andoc_id') && !$('#nullas').is(':checked') ) {
+    var netto_nincs_kitoltve = false;
+    if( akt_penznem != 'HUF' && $('#dev_net').val() == '0,00' ) {
+        netto_nincs_kitoltve = true;
+    } 
+    if( akt_penznem == 'HUF' && $('#netto').val() == '0' ) {
+        netto_nincs_kitoltve = true;
+    }
+    if( netto_nincs_kitoltve ) {
+        setTimeout(function(){ popupZar(); }, 100);
+
+        alert2('Tételek kezelése előtt kérem töltse ki a nettó értéket vagy pipálja be, hogy 0 értékű a számla!', '', 'Hiba');
+    }
+}
+
 /* JS-el figyeljük, hogy volt-e bármi változás. Ha igen, akkor Mégsem/Bezár gombra rákérdezünk, hogy biztos-e? */
 var van_valtozas = false;
 var torolt_sorok = '';
@@ -116,7 +138,7 @@ function tetel_hozzaadasa() {
         return false;
     }
 
-    if( !ertek /*|| ertek=='0' A nulla megengedett a 0-ás számák miatt */ ){
+    if( !ertek || (!nullas && ( ertek=='0' || ertek=='0,00' ) ) ) {
         alert2('Kérem töltse ki a nettó értéket!', '', 'Hiba');
         $('#pop_ertek').addClass('hibas_ide_focus');
         return false;

@@ -18,6 +18,33 @@ switch ( $_SERVER['HTTP_HOST'] ) {
 
 // Új SOAP kliens inicializálása
 try {
+    
+    if( !$_POST['xml'] ) {
+        
+        $adatok = '';
+        foreach ($_POST as $kulcs => $ertek) {
+            $adatok .= 'Post neve: '.$kulcs."\nÉrtéke:\n".$ertek."\n\n";
+        }
+        $log_utvonal = '../andoc.log';
+        $log = '*****************************
+FOGADOTT XML
+'.date('Y.m.d H:i:s').'
+Ip: '.$_SERVER['REMOTE_ADDR'].'
+URL: '.get_http().$_SERVER['HTTP_HOST'].$_SERVER['REQUEST_URI'].'
+
+'.$adatok/*Sortörésekkel mentsük a logba*/.'
+
+
+
+';
+            file_put_contents($log_utvonal, $log, FILE_APPEND | LOCK_EX);
+            if( filesize($log_utvonal)>(get_logfile_max_meret()) ){
+                $log = fajlbol_olvas($log_utvonal);
+                $log = mb_substr($log, round(mb_strlen($log, 'UTF-8')/2), NULL, 'UTF-8');
+                fajlba_mentes($log_utvonal, $log);
+            }
+    }
+    
     $soap = new SoapClient($url_elotag.$wsdl_fajl, 
                             array(
                                 'uri'       => $url_elotag.'andoc2/andoc.php',
@@ -46,7 +73,7 @@ try {
     if( isset($_GET[$get]) ) {
 
         // Ez ahhoz kell, hogy manuálisan tesztelhető legyen,
-        // de a gyakorlatban majd az ANdoc POST hívással kommunikál
+        // de a gyakorlatban majd az Andoc POST hívással kommunikál
         if( !$_POST['xml'] ) {
 
             echo '
@@ -61,6 +88,9 @@ try {
         } else {
             
             $xml = $_POST['xml'];
+            if( !$xml ) {
+                $xml = '***Üres XML-t kaptunk!***';
+            }
             $log_utvonal = '../andoc.log';
             $log = '*****************************
     FOGADOTT XML
@@ -68,7 +98,7 @@ try {
     Ip: '.$_SERVER['REMOTE_ADDR'].'
     URL: '.get_http().$_SERVER['HTTP_HOST'].$_SERVER['REQUEST_URI'].'
     POST:
-    '.str_replace(">", ">\n", $xml)/*Sortörésekkel mentsük a logba*/.'
+    '.str_replace("><", ">\n<", $xml)/*Sortörésekkel mentsük a logba*/.'
 
 
 

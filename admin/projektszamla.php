@@ -474,10 +474,10 @@ if( isset($_POST['tetel_sorok_ment']) ) {
             // Egyébként insert
             } else {
                 
-                $rownum = $adatbazis_kapcsolat->s2('MAX(`rownum`)', 'projektszamla_tetel', "`projektszamla_recid`='{$recid}'");
-                $rownum = $rownum['MAX(`rownum`)']+1;
-                $mezok   = array('projektszamla_recid', 'rownum', 'targy', $db_mezo, $db_mezo_br, 'ktgnem_id',          'jogcim_recid',   'jogcim',          'uzemresz',          'megn',          'afakod_recid',   'afa',          'afa_kod',      'afa_nev',        'valtozott', 'loginnev',                          'insert_dt',    'insert_usr',                             'update_usr'                              );
-                $ertekek = array($recid,                $rownum,  $targy,  $netto,   $brutto,     $jogcim['szla_szam'], $jogcim['recid'], $jogcim['jogcim'], $jogcim['uzemresz'], $jogcim['megn'], $afakod['recid'], $afakod['afa'], $afakod['kod'], $afakod['nev'],   '1',          $_SESSION[get_db_tabla().'user'],   'NOW()',        $_SESSION[get_db_tabla().'teljes_nev'],   $_SESSION[get_db_tabla().'teljes_nev']    );
+//                $rownum = $adatbazis_kapcsolat->s2('MAX(`rownum`)', 'projektszamla_tetel', "`projektszamla_recid`='{$recid}'");
+//                $rownum = $rownum['MAX(`rownum`)']+1;
+                $mezok   = array('projektszamla_recid', /*'rownum', */'targy', $db_mezo, $db_mezo_br, 'ktgnem_id',          'jogcim_recid',   'jogcim',          'uzemresz',          'megn',          'afakod_recid',   'afa',          'afa_kod',      'afa_nev',        'valtozott', 'loginnev',                          'insert_dt',    'insert_usr',                             'update_usr'                              );
+                $ertekek = array($recid,                /*$rownum,  */$targy,  $netto,   $brutto,     $jogcim['szla_szam'], $jogcim['recid'], $jogcim['jogcim'], $jogcim['uzemresz'], $jogcim['megn'], $afakod['recid'], $afakod['afa'], $afakod['kod'], $afakod['nev'],   '1',          $_SESSION[get_db_tabla().'user'],   'NOW()',        $_SESSION[get_db_tabla().'teljes_nev'],   $_SESSION[get_db_tabla().'teljes_nev']    );
                 // Devizás számla esetén a Ft-os nettó/bruttó értékeket is számoljuk ki és írjuk be
                 if( $_POST['kcs_21'] && $_POST['kcs_21']!=KCS_21_HUF ) {
                     array_push($mezok,   'netto_ert',       'brutto_ert'        );
@@ -2275,6 +2275,7 @@ require_once('selectek.php');
             $gombok .= '<input type="hidden" id="pr_szam_db" value="'.$sor['pr_szam'].'">';
             $gombok .= '<input type="hidden" id="telephely_id_db" value="'.$sor['telephely_id'].'">';
             $gombok .= '<input type="hidden" id="kcs_21_autocomp_db" value="'.getErtekLista(ERTEKLISTA_PENZNEM, $sor['kcs_21']).'">';
+            $gombok .= '<input type="hidden" id="nullas_db" value="'.$sor['nullas'].'">';
         }
         
         if( isset($_GET['modosit']) && !$sor['visszaadva'] && get_projekt_szamla_kezel_jog($_GET['id']) ) {
@@ -3102,7 +3103,7 @@ function xml_vissza( $szamla_id, $igazolva = '', $oka = '' ) {
         // <property name="ÁFA Összege">'.$afa_osszege.'</property>
         // <property name="Szálloda">'.$szamla['telephely_id'].' - '.getSzallodaNev($szamla['telephely_id']).'</property>
         $tetel_xml .= '
-            <row rownumberonpage="'.$tetel['rownum'].'">
+            <row rownumberonpage="'.($i+1).'">
               <property name="Bruttó sorösszeg">'.$brutto_ertek.'</property>
               <property name="Jogcím">'.$tetel['jogcim'].'</property>
               <property name="Üzemrész">'.$tetel['uzemresz'].'</property>
@@ -3139,6 +3140,11 @@ function xml_vissza( $szamla_id, $igazolva = '', $oka = '' ) {
   </data>
 </xml>
 ';
+//if( isset($_GET['teszt']) ) {
+//    echo $valasz_xml;
+//    echo 'f';
+//    exit;
+//}
     
     $fejlec = array(
         "Content-type: application/x-www-form-urlencoded",
@@ -3152,7 +3158,7 @@ function xml_vissza( $szamla_id, $igazolva = '', $oka = '' ) {
     // Logolás
     $log_utvonal = '../andoc.log';
     $log = '*****************************
-    KÜLDÖTT XML
+    KÜLDÖTT XML (Igazolás/elutasításkor)
     '.date('Y.m.d H:i:s').'
     Ip: '.$_SERVER['REMOTE_ADDR'].'
     URL: '.get_http().$_SERVER['HTTP_HOST'].$_SERVER['REQUEST_URI'].'
@@ -3161,13 +3167,13 @@ function xml_vissza( $szamla_id, $igazolva = '', $oka = '' ) {
 
 
 
-    ';
+';
     file_put_contents($log_utvonal, $log, FILE_APPEND | LOCK_EX);
 
     // Logolás
     $log_utvonal = '../andoc.log';
     $log = '*****************************
-    KAPOTT XML
+    KAPOTT XML (Igazolás/elutasításra válaszként)
     '.date('Y.m.d H:i:s').'
     Ip: '.$_SERVER['REMOTE_ADDR'].'
     URL: '.get_http().$_SERVER['HTTP_HOST'].$_SERVER['REQUEST_URI'].'
@@ -3176,7 +3182,7 @@ function xml_vissza( $szamla_id, $igazolva = '', $oka = '' ) {
         
         
         
-    ';
+';
     file_put_contents($log_utvonal, $log, FILE_APPEND | LOCK_EX);
             
     // A kapott választ feldolgozató állapotra kell hozni, hogy értelmezni lehessen, ehhez ki kell törölni belőle a sallangot

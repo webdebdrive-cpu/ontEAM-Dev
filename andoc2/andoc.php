@@ -340,7 +340,7 @@ class ServerClass {
             // Elutasítás leírása + Utalványozás leírása egyben
             $eutleir = trim($szamla['Teljesítés igazolás elutasítás oka'].' '.$szamla['Utalványozás elutasítás oka']);
             
-            // szallito_id esetén fontos, hogy meglegyenek a keződ 0-k
+            // szallito_id esetén fontos, hogy meglegyenek a kezdő 0-k
             $szallito_id = sprintf('%05d', $szamla_adatok['Partner száma']);
 
             // Ha az alapvető adatokon nem akadtunk fenn, akkor szúrjuk be vagy updateljük a számlát, attól föggően, hogy az Andok azonosító ismert-e.
@@ -448,12 +448,16 @@ class ServerClass {
                 $return_uzi = 'módosítva';
                 
                 // Update esetén erk_xml-t meg kell toldani
-                $sor = $adatbazis_kapcsolat->s2('erk_xml', $tabla, "`andoc_id`='{$andoc_id}'");
+                $sor = $adatbazis_kapcsolat->s2('erk_xml utalvanyozva_dt', $tabla, "`andoc_id`='{$andoc_id}'");
                 if( $sor === false ) { $db_error = true; }
                 $sor['erk_xml'] = htmlspecialchars_decode($sor['erk_xml']).$szamla_xml;
     
                 array_push($mezok,     'erk_xml',       'update_usr'    );
                 array_push($ertekek,   $sor['erk_xml'], self::IU_USER   );
+                if( $utalvanyozva == '1' && $sor['utalvanyozva_dt'] == '0000-00-00 00:00:00' ) {
+                    array_push($mezok,     'utalvanyozva_dt');
+                    array_push($ertekek,   'NOW()'          );
+                }
 
                 $sql = $adatbazis_kapcsolat->u($tabla, $mezok, $ertekek, "`andoc_id`='{$andoc_id}'");
                 if( $sql === false ) { $db_error = true; }

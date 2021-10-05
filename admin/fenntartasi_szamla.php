@@ -457,10 +457,10 @@ if( isset($_POST['tetel_sorok_ment']) ) {
             // Egyébként insert
             } else {
 
-                $rownum = $adatbazis_kapcsolat->s2('MAX(`rownum`)', 'fenntartasi_szamla_tetel', "`fenntartasi_szamla_recid`='{$recid}'");
-                $rownum = $rownum['MAX(`rownum`)']+1;
-                $mezok   = array('fenntartasi_szamla_recid', 'rownum', 'targy', $db_mezo, $db_mezo_br, 'ktgnem_id',          'ktghely_id',           'ktghely',            'jogcim_recid',   'jogcim',          'uzemresz',          'megn',          'afakod_recid',   'afa',          'afa_kod',      'afa_nev',        'valtozott', 'loginnev',                          'insert_dt',    'insert_usr',                             'update_usr'                              );
-                $ertekek = array($recid,                     $rownum,  $targy,  $netto,   $brutto,     $jogcim['szla_szam'], $jogcim['ktghely_id'],  $jogcim['ktghely'],   $jogcim['recid'], $jogcim['jogcim'], $jogcim['uzemresz'], $jogcim['megn'], $afakod['recid'], $afakod['afa'], $afakod['kod'], $afakod['nev'],   '1',          $_SESSION[get_db_tabla().'user'],   'NOW()',        $_SESSION[get_db_tabla().'teljes_nev'],   $_SESSION[get_db_tabla().'teljes_nev']    );
+//                $rownum = $adatbazis_kapcsolat->s2('MAX(`rownum`)', 'fenntartasi_szamla_tetel', "`fenntartasi_szamla_recid`='{$recid}'");
+//                $rownum = $rownum['MAX(`rownum`)']+1;
+                $mezok   = array('fenntartasi_szamla_recid', /*'rownum', */'targy', $db_mezo, $db_mezo_br, 'ktgnem_id',          'ktghely_id',           'ktghely',            'jogcim_recid',   'jogcim',          'uzemresz',          'megn',          'afakod_recid',   'afa',          'afa_kod',      'afa_nev',        'valtozott', 'loginnev',                          'insert_dt',    'insert_usr',                             'update_usr'                              );
+                $ertekek = array($recid,                     /*$rownum,  */$targy,  $netto,   $brutto,     $jogcim['szla_szam'], $jogcim['ktghely_id'],  $jogcim['ktghely'],   $jogcim['recid'], $jogcim['jogcim'], $jogcim['uzemresz'], $jogcim['megn'], $afakod['recid'], $afakod['afa'], $afakod['kod'], $afakod['nev'],   '1',          $_SESSION[get_db_tabla().'user'],   'NOW()',        $_SESSION[get_db_tabla().'teljes_nev'],   $_SESSION[get_db_tabla().'teljes_nev']    );
                 // Devizás számla esetén a Ft-os nettó/bruttó értékeket is számoljuk ki és írjuk be
                 if( $_POST['kcs_21'] && $_POST['kcs_21']!=KCS_21_HUF ) {
                     array_push($mezok,   'netto_ert',       'brutto_ert'        );
@@ -1392,6 +1392,7 @@ require_once('selectek.php');
             $gombok .= '<input type="hidden" id="arfolyam_db" value="'.number_format($sor['arfolyam'], $tizedesek, ',', ' ').'">';
             $gombok .= '<input type="hidden" id="sz_szam_db" value="'.$sor['sz_szam'].'">';
             $gombok .= '<input type="hidden" id="telephely_id_db" value="'.$sor['telephely_id'].'">';
+            $gombok .= '<input type="hidden" id="nullas_db" value="'.$sor['nullas'].'">';
             $gombok = nl2('
                 <div class="form_kuldes">
                     <input type="button" class="gombb mentes_gomb" name="mehet_gomb" id="mehet_gomb" disabled value="Mentés" onclick="mentesGomb();">
@@ -1610,7 +1611,7 @@ require_once('selectek.php');
         if( $sor['utalvanyozva'] && $sor['utalvanyozva_dt'] != '0000-00-00 00:00:00' ) {
             $utalvanyozva = '<b class="pipa">✓</b>';
         }
-        // 2021.09.14 Tamás kérte, hogy ne legyen piros X ha még nics feldolgozva, csak pipa, ha már megvan
+        // 2021.09.14 Tamás kérte, hogy ne legyen piros X ha még nincs feldolgozva, csak pipa, ha már megvan
         // $feldolgozva = '<b class="x">✖</b>';
         $feldolgozva = '';
         if( $sor['feldolgozva_dt'] != '0000-00-00 00:00:00' ) {
@@ -1852,7 +1853,7 @@ function xml_vissza( $szamla_id, $igazolva = '', $oka = '' ) {
         // <property name="ÁFA Összege">'.$afa_osszege.'</property>
         // <property name="Szálloda">'.$szamla['telephely_id'].' - '.getSzallodaNev($szamla['telephely_id']).'</property>
         $tetel_xml .= '
-            <row rownumberonpage="'.$tetel['rownum'].'">
+            <row rownumberonpage="'.($i+1).'">
               <property name="Bruttó sorösszeg">'.$brutto_ertek.'</property>
               <property name="Főkönyvi számlaszám">'.$tetel['ktgnem_id'].'</property>
               <property name="Jogcím">'.$tetel['jogcim'].'</property>
@@ -1906,7 +1907,7 @@ function xml_vissza( $szamla_id, $igazolva = '', $oka = '' ) {
     // Logolás
     $log_utvonal = '../andoc.log';
     $log = '*****************************
-    KÜLDÖTT XML
+    KÜLDÖTT XML (Igazolás/elutasításkor)
     '.date('Y.m.d H:i:s').'
     Ip: '.$_SERVER['REMOTE_ADDR'].'
     URL: '.get_http().$_SERVER['HTTP_HOST'].$_SERVER['REQUEST_URI'].'
@@ -1915,13 +1916,13 @@ function xml_vissza( $szamla_id, $igazolva = '', $oka = '' ) {
 
 
 
-    ';
+';
     file_put_contents($log_utvonal, $log, FILE_APPEND | LOCK_EX);
     
     // Logolás
     $log_utvonal = '../andoc.log';
     $log = '*****************************
-    KAPOTT XML
+    KAPOTT XML (Igazolás/elutasításra válaszként)
     '.date('Y.m.d H:i:s').'
     Ip: '.$_SERVER['REMOTE_ADDR'].'
     URL: '.get_http().$_SERVER['HTTP_HOST'].$_SERVER['REQUEST_URI'].'
@@ -1930,7 +1931,7 @@ function xml_vissza( $szamla_id, $igazolva = '', $oka = '' ) {
         
         
         
-    ';
+';
     file_put_contents($log_utvonal, $log, FILE_APPEND | LOCK_EX);
             
     // A kapott választ feldolgozató állapotra kell hozni, hogy értelmezni lehessen, ehhez ki kell törölni belőle a sallangot

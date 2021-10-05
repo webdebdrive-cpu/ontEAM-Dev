@@ -30,8 +30,7 @@ FONTOS: ilyenkor  a fuggvenyek.php-ban az i_u()-nél fel kell venned a 'loginnev
            array_push($oszlopok, 'loginnev'                        );
            array_push($ertekek,   $_SESSION[get_db_tabla().'user'] );
        }
- 
- 
+
 JOGOSOLTSÁGKEZELÉSKOR, HA EGY ŰRLAP NEM SZERKESZTHETŐ:
 - menüből vedd ki
 - php fájl legelejére, és a $_GET['uj'] részhez is tedd be feltételnek, ne lehessen megkerülni a rendszer link ismeretében
@@ -39,7 +38,6 @@ JOGOSOLTSÁGKEZELÉSKOR, HA EGY ŰRLAP NEM SZERKESZTHETŐ:
 - header.php-ben az új felvitel és törlés ikonokat zárd ki (nem elég disabled, meg dispaly none, mert kijátszhatják a rendszert). Erre keress rá: "Törlés és új gombok ne is látsszon, ha nincs hozzá joga".
 - esemenyek.php-ban az if( isset( $_GET[$ertek['torid']] ) ) résznél szintén blokkold a tölést
 - törlés ikonra kattintva hibaüzenet (pl. státusz miatt nem szerkeszthető): addott php fájl: <input type="button" id="recordTorol">-t keresd
- 
  
 TÖRLÉSKOR A KAPCSOLÓDÓ TÁBLÁK LEKEZELÉSE:
 - esemenyek.php-ben a if( isset( $_GET[$ertek['torid']] ) ) részt keres, és ennek a végén találod.
@@ -97,7 +95,7 @@ CSOPORTOSÍTÁS ENGEDLYEZÉSE
 SAJÁT JS FÁJLOK
 - Ha egy menüpont alatt nagyon sok JS függvényt használunk, akkor azt nem az admin.js-ben gyűjtjük vég nékül, hanem egy saját JS fájlt kap. Pl. munkalap.js. Ezt a header.php-ban hívjuk meg.
  
-FÓKOSZÁLÁSOK
+FÓKUSZÁLÁSOK
 - Ha azt szeretnéd, hogy Esc után is a hibát kiváltott mezőre fókuszáljunk, akkor adj neki egy "hibas_ide_focus" class-t.
  
 JOBB OLDALI NAVPANELRE KATTINTVA BETÖLT EGY SOR, LEFUT A HÁTTÉRBEN EGY AJAX

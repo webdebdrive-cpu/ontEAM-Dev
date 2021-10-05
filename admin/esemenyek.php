@@ -433,6 +433,10 @@ switch ( $tabla ) {
         // Ezeket a tábla oszlopokat kérdezzük le baloldalra
         $_OPTS['select']    = nl2('
                                     `'.get_db_tabla().$tabla_nophp.'`.`recid`,
+                                    `'.get_db_tabla().$tabla_nophp.'`.`szla_szam`,
+                                    `'.get_db_tabla().$tabla_nophp.'`.`targy`,
+                                    `'.get_db_tabla().$tabla_nophp.'`.`igazolva`,
+                                    `'.get_db_tabla().$tabla_nophp.'`.`igazolva_dt`,
                                     `'.get_db_tabla().$tabla_nophp.'`.`netto`,
                                     `'.get_db_tabla().$tabla_nophp.'`.`telephely_id`,
                                     `'.get_db_tabla().$tabla_nophp.'`.`szallito_id`

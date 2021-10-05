@@ -1054,6 +1054,8 @@ function i_u($type, $tabla, $tomb) {
             $i = 0;
             foreach ( $_SESSION['energia_szla_tetel_jogcim'] as $valami ) {
 
+                // $rownum = $i + 1;
+                
                 $jogcim_sor = $adatbazis_kapcsolat->s2('recid jogcim uzemresz megn szla_szam ktghely ktghely_id', 'jogcim', "`recid`='{$_SESSION['energia_szla_tetel_jogcim'][$i]}'");
                 $afakod_sor = $adatbazis_kapcsolat->s2('recid kod afa nev', 'afakod', "`recid`='{$_SESSION['energia_szla_tetel_afakod'][$i]}'");
                 $valtozott  = $_SESSION['energia_szla_tetel_valtozott'][$i];
@@ -1072,11 +1074,8 @@ function i_u($type, $tabla, $tomb) {
                 // if( $_SESSION['fennt_szla_tetel_recid'][$i] ) {
                     // $tetel = $adatbazis_kapcsolat->s2('*', 'fenntartasi_szamla_tetel_atmeneti', "`recid`='{$_SESSION['fennt_szla_tetel_recid'][$i]}'");
                     // if( $tetel === false ) { $db_error = true; }
-                    
-                    $rownum = $adatbazis_kapcsolat->s2('MAX(`rownum`)', 'energia_szamla_tetel', "`energia_szamla_recid`='{$id}'");
-                    $rownum = $rownum['MAX(`rownum`)']+1;
-                    
-                    $tetel['rownum']        = $rownum;
+                                       
+                    // $tetel['rownum']        = $rownum;
                     $tetel['jogcim_recid']  = $jogcim_sor['recid'];
                     $tetel['jogcim']        = $jogcim_sor['jogcim'];
                     $tetel['uzemresz']      = $jogcim_sor['uzemresz'];
@@ -1108,7 +1107,7 @@ function i_u($type, $tabla, $tomb) {
                     
                     $ertekek = array();
                     $mezok   = array(
-                        'rownum',
+                        // 'rownum',
                         'andoc_id',
                         'dijelem_recid',
                         'aranyos',
@@ -1220,10 +1219,10 @@ function i_u($type, $tabla, $tomb) {
                     // $tetel = $adatbazis_kapcsolat->s2('*', 'fenntartasi_szamla_tetel_atmeneti', "`recid`='{$_SESSION['fennt_szla_tetel_recid'][$i]}'");
                     // if( $tetel === false ) { $db_error = true; }
                     
-                    $rownum = $adatbazis_kapcsolat->s2('MAX(`rownum`)', 'fenntartasi_szamla_tetel', "`fenntartasi_szamla_recid`='{$id}'");
-                    $rownum = $rownum['MAX(`rownum`)']+1;
+//                    $rownum = $adatbazis_kapcsolat->s2('MAX(`rownum`)', 'fenntartasi_szamla_tetel', "`fenntartasi_szamla_recid`='{$id}'");
+//                    $rownum = $rownum['MAX(`rownum`)']+1;
                     
-                    $tetel['rownum']        = $rownum;
+//                    $tetel['rownum']        = $rownum;
                     $tetel['targy']         = $targy;
                     $tetel['netto_ert']     = $netto_ert;
                     $tetel['brutto_ert']    = $brutto_ert;
@@ -1243,7 +1242,7 @@ function i_u($type, $tabla, $tomb) {
                     
                     $ertekek = array();
                     $mezok   = array(
-                        'rownum',
+//                        'rownum',
                         'andoc_id',
                         'targy',
                         'netto_ert',
@@ -1338,11 +1337,11 @@ function i_u($type, $tabla, $tomb) {
                     $netto_ert = $dev_net      * str_replace(array(' ', ','), array('', '.'), $_POST['arfolyam']);
                 }
                 
-                $rownum = $adatbazis_kapcsolat->s2('MAX(`rownum`)', 'fenntartasi_szerzodes_tetel', "`fenntartasi_szerzodes_recid`='{$id}'");
-                $rownum = $rownum['MAX(`rownum`)']+1;
+//                $rownum = $adatbazis_kapcsolat->s2('MAX(`rownum`)', 'fenntartasi_szerzodes_tetel', "`fenntartasi_szerzodes_recid`='{$id}'");
+//                $rownum = $rownum['MAX(`rownum`)']+1;
                 $sql = $adatbazis_kapcsolat->i('fenntartasi_szerzodes_tetel',
-                                                    array('fenntartasi_szerzodes_recid',    'rownum', 'telephely_id', 'targy', 'varh_erk', 'varh_ert',  'dev_varh_ert', 'telj_dt',  'netto_ert', 'dev_net', 'valtozott', 'loginnev',                          'insert_dt',    'insert_usr',                             'update_usr'                              ),
-                                                    array($id,                              $rownum,  $telephely,     $targy,  $varh_erk,  $varh_ert,   $dev_varh_ert,  $telj_dt,   $netto_ert,  $dev_net,  '1',         $_SESSION[get_db_tabla().'user'],    'NOW()',        $_SESSION[get_db_tabla().'teljes_nev'],   $_SESSION[get_db_tabla().'teljes_nev']    )
+                                                    array('fenntartasi_szerzodes_recid',    /*'rownum', */'telephely_id', 'targy', 'varh_erk', 'varh_ert',  'dev_varh_ert', 'telj_dt',  'netto_ert', 'dev_net', 'valtozott', 'loginnev',                          'insert_dt',    'insert_usr',                             'update_usr'                              ),
+                                                    array($id,                              /*$rownum,  */$telephely,     $targy,  $varh_erk,  $varh_ert,   $dev_varh_ert,  $telj_dt,   $netto_ert,  $dev_net,  '1',         $_SESSION[get_db_tabla().'user'],    'NOW()',        $_SESSION[get_db_tabla().'teljes_nev'],   $_SESSION[get_db_tabla().'teljes_nev']    )
                                             );
 
                 if( $sql === false ) { $db_error = true; }
@@ -1562,10 +1561,10 @@ function i_u($type, $tabla, $tomb) {
 //                if( $_SESSION['pr_szla_tetel_recid'][$i] ) {
 //                    $tetel = $adatbazis_kapcsolat->s2('*', 'projektszamla_tetel_atmeneti', "`recid`='{$_SESSION['pr_szla_tetel_recid'][$i]}'");
 //                    if( $tetel === false ) { $db_error = true; }
-                    $rownum = $adatbazis_kapcsolat->s2('MAX(`rownum`)', 'projektszamla_tetel', "`projektszamla_recid`='{$id}'");
-                    $rownum = $rownum['MAX(`rownum`)']+1;
+//                    $rownum = $adatbazis_kapcsolat->s2('MAX(`rownum`)', 'projektszamla_tetel', "`projektszamla_recid`='{$id}'");
+//                    $rownum = $rownum['MAX(`rownum`)']+1;
                     // Session adataival felülírjuk az átmeneti tábla adatait
-                    $tetel['rownum']        = $rownum;
+//                    $tetel['rownum']        = $rownum;
                     $tetel['targy']         = $targy;
                     $tetel['netto_ert']     = $netto_ert;
                     $tetel['brutto_ert']    = $brutto_ert;
@@ -1585,7 +1584,7 @@ function i_u($type, $tabla, $tomb) {
 
                     $ertekek = array();
                     $mezok   = array(
-                        'rownum',
+//                        'rownum',
                         'telephely_id',
                         'targy',
                         'ktgnem_id',
@@ -6989,7 +6988,7 @@ function energia_szamlaLista( $bejegyzesek, $tabla, $frissit = '', $kijeloltek =
     if( $bejegyzesek ) {
 
         if( !$frissit ) {
-            $html = '<ul id="szamlaList" class="szamla_cont rendszer">';
+            $html = '<ul id="szamlaList" class="szamla_cont rendszer nobehuzas">';
         }
 
         $i = 1;
@@ -6998,16 +6997,29 @@ function energia_szamlaLista( $bejegyzesek, $tabla, $frissit = '', $kijeloltek =
             if( $bsz['recid'] == $_GET['id'] && !isset($_GET['print']) ) {
                 $active = ' kijelolve';
             }
+            
+            $ikon = '';
+            if( !$bsz['igazolva'] ) {
+                $ikon = '<span class="icon sarga">?</span>';
+                if( $bsz['igazolva_dt']!='0000-00-00 00:00:00' ) {
+                    $ikon = '<span class="icon piros">✖</span>';
+                }
+            } else {
+                $ikon = '<span class="icon zold">✓</span>';
+            }
 
             $li_tart = '<a class="szamla" data-recid="'.$bsz['recid'].'" data-fajl="'.$tabla.'.php" data-muvelet="modosit">
                             <table>
                             <tr> 
-                                <td style="width: 12rem">'.getSzallodaNev($bsz['telephely_id']).'</td>
-                                <td style="width: 10rem" class="r">'.number_format($bsz['netto'], 0, '', ' ').' '.get_penznem().'</td>
-                                <td></td>
+                                <td class="ikonok keskeny c" rowspan="3">'.$ikon.'</td>
+                                <td style="width: 8rem">'.$bsz['szla_szam'].'</td>
+                                <td>'.number_format($bsz['netto'], 0, ',', ' ').' '.get_penznem().'</td>
                             </tr>
                             <tr> 
-                                <td colspan="3">'. getErtek('nev', 'szallito', 'id', $bsz['szallito_id']).'</td>
+                                <td colspan="2">'.getErtek('nev', 'szallito', 'id', $bsz['szallito_id']).'</td>
+                            </tr>
+                            <tr> 
+                                <td colspan="2">'.resz_string($bsz['targy'], 60).'</td>
                             </tr>
                             </table>
                         </a>';

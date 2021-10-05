@@ -47,7 +47,7 @@ $weblap -> indit();
 
 // Ha még nincs kért URL, akkor az aktuális cím lesz az (tehát az index.php)
 // Session csak ettől a ponttól van
-if( !$_SESSION['kert_url'] && dirname($_SERVER['REQUEST_URI']) != '/andoc2' ) {
+if( !$_SESSION['kert_url'] && dirname($_SERVER['REQUEST_URI']) != '/andoc2' && substr(basename($_SERVER['REQUEST_URI']), 0, 16)!='autocomplete.php' ) {
     $_SESSION['kert_url'] = get_http().$_SERVER['HTTP_HOST'].$_SERVER['REQUEST_URI'];
 }
 
