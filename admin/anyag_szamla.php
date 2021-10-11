@@ -35,6 +35,186 @@ if( $tobb_kep ) {
 
 }
 
+// Számla küldése igazolásra
+if( isset($_POST['kuldes_igazolasra']) ) {
+    
+    $sor = $adatbazis_kapcsolat->s2('feldolgozva_dt', 'anyag_szamla', "`recid`='{$_POST['id']}'");
+    if( $sor['feldolgozva_dt'] != '0000-00-00 00:00:00' ) {
+        
+        echo json_encode(array(
+                            'hiba'  => 'A számla már feldolgozott, így nem küldhető újra igazolásra!',
+                            'title' => 'Hiba',
+                            ));
+        
+        $weblap -> leallit();
+        exit;
+    }
+    
+    $adatbazis_kapcsolat->u('anyag_szamla',  array('feldolgozva_dt', 'feldolgozva_usr'                       ),
+                                             array('NOW()',          $_SESSION[get_db_tabla().'teljes_nev']  ),
+                                             "`recid`='{$_POST['id']}'");
+    
+    echo json_encode(array(
+                        'siker' => 1,
+                        ));
+    
+    $weblap -> leallit();
+    exit;
+}
+
+// Köztes tábla számláinak kilistázása
+if( isset($_POST['anyag_szamla_get_koztes']) ) {
+    
+    // Köztes számlákból készítsünk táblázatot
+    $html = '';
+    $szamlak = $adatbazis_kapcsolat->s('recid andoc_id telephely_id szallito_id szla_szam telj_dt', 'anyag_szamla_atmeneti', "");
+    if( $szamlak ) {
+        $html .= nl2('
+            <table class="csikos szamla_cont_tabla" id="pop_tetelek">
+                <thead>
+                <tr>
+                    <th class="l">Szálloda</th>
+                    <th class="l">Szállító</th>
+                    <th class="l">Számlaszám</th>
+                    <th class="c">Teljesítés dátuma</th>
+                </tr>
+                </thead>
+                <tbody>
+            ');
+        foreach( $szamlak as $szamla ) {
+            $html .= nl2('
+                    <tr data-andoc_id="'.$szamla['andoc_id'].'">
+                        <td class="l">'.getSzallodaNev($szamla['telephely_id']).'</td>
+                        <td class="l">'.getErtek('nev', 'szallito', 'id', $szamla['szallito_id']).'</td>
+                        <td class="l">'.htmlspecialchars($szamla['szla_szam']).'</td>
+                        <td class="c">'.datum_kiir($szamla['telj_dt']).'</td>
+                    </tr>
+                ');
+        }
+        $html .= nl2('
+                <tbody>
+                </table>
+            ');
+    } else {
+        $html .= '<script>popupZar(); alert2(\'Jelenleg nem található feldolgozandó számla.\', \'\', \'Hiba\')</script>';
+    }
+    
+    echo json_encode( array('html' => $html) );
+    
+    $weblap -> leallit();
+    exit;
+}
+
+// Számla igazolása
+if( isset($_POST['szamla_igazol']) ) {
+    
+    $db_error = false;
+    mysqli_autocommit($db_kapcs, false);
+    
+    // Ha már igazolva volna, akkor hibaüzenet
+    $sor = $adatbazis_kapcsolat->s2('igazolva_dt', 'anyag_szamla', "`recid`='{$_POST['id']}'");
+    if( $sor['igazolva_dt']!='0000-00-00 00:00:00' ) {
+        echo json_encode(array(
+                                'hiba'  => 'A számla már igazolva van, így nem igazolható újból!',
+                                'title' => 'Hiba',
+                        ));
+        $weblap -> leallit();
+        exit;
+    }
+    
+    // Ha nincs joga hozzá, akkor hibaüzenet
+    if( !_jog(SZAMLAK_IGAZOLASA) ) {
+        echo json_encode(array(
+                                'hiba'  => 'Önnek nincs joga számlát igazolni!',
+                                'title' => 'Hiba',
+                        ));
+        $weblap -> leallit();
+        exit;
+    }
+    
+    
+    // Illetve az XML visszát is intézzük
+    if( xml_vissza($_POST['id'], 'Igazolva', '') !== false ) {
+        echo json_encode(array(
+                                'hiba'  => 'Az Andoc felé küldött visszaigazoló XML elküldése során hiba történt!<br>A számlát nem sikerült igazolni.',
+                                'title' => 'Hiba',
+                        ));
+        mysqli_commit($db_kapcs);
+        $weblap -> leallit();
+        exit;
+        
+    // Adatbázisba mentés csak akkor, ha nem volt gond az XML küldéssel
+    } else {
+        $sql = $adatbazis_kapcsolat->u('anyag_szamla', array('igazolva', 'igazolva_dt', 'igazolva_usr'                           ),
+                                                       array(1,          'NOW()',       $_SESSION[get_db_tabla().'teljes_nev']   ),
+                                        "`recid`='{$_POST['id']}'");
+        if( $sql === false ) { $db_error = true; }        
+    }
+    
+    if( !$db_error ) {
+        mysqli_commit($db_kapcs);
+        echo json_encode( array('siker' => 1 ) );
+    } else {
+        mysqli_rollback($db_kapcs);
+        echo json_encode(array(
+            'hiba'  => tranzakcioHiba(),
+            'title' => 'Hiba'
+        ));
+    }
+    
+    $weblap -> leallit();
+    exit;
+}
+
+// Számla elutasít
+if( isset($_POST['anyagSzamlaElutasit']) ) {
+    
+    $db_error = false;
+    mysqli_autocommit($db_kapcs, false);
+    
+    // Ha nincs joga hozzá, akkor hibaüzenet
+    if( !_jog(SZAMLAK_IGAZOLASA) ) {
+        echo json_encode(array(
+                                'hiba'  => 'Önnek nincs joga számlát elutasítani!',
+                                'title' => 'Hiba',
+                        ));
+        $weblap -> leallit();
+        exit;
+    }
+    
+    // Illetve az XML visszát is intézzük
+    if( xml_vissza($_POST['id'], 'Elutasítva', $_POST['memo']) !== false ) {
+        echo json_encode(array(
+                                'hiba'  => 'Az Andoc felé küldött visszaigazoló XML elküldése során hiba történt!<br>A számlát nem sikerült elutasítani.',
+                                'title' => 'Hiba',
+                        ));
+        mysqli_commit($db_kapcs);
+        $weblap -> leallit();
+        exit;
+        
+    // Adatbázisba mentés csak akkor, ha nem volt gond az XML küldéssel
+    } else {
+        $sql = $adatbazis_kapcsolat->u('anyag_szamla',    array('igazolva', 'elutleir',     'igazolva_dt', 'igazolva_usr'                           ),
+                                                          array(0,          $_POST['memo'], 'NOW()',       $_SESSION[get_db_tabla().'teljes_nev']   ),
+                                        "`recid`='{$_POST['id']}'");
+        if( $sql === false ) { $db_error = true; }
+    }
+                                                
+    if( !$db_error ) {
+        mysqli_commit($db_kapcs);
+        echo json_encode( array('siker' => 1 ) );
+    } else {
+        mysqli_rollback($db_kapcs);
+        echo json_encode(array(
+            'hiba'  => tranzakcioHiba(),
+            'title' => 'Hiba'
+        ));
+    }
+    
+    $weblap -> leallit();
+    exit;
+}
+
 // Feldolgozásra váró számlák kilistázása
 if( isset($_POST['get_feld_var_szamlak']) ) {
     
@@ -353,12 +533,13 @@ require_once('selectek.php');
         $megj_db = ' ('.$sor['megj_db'].')';
     }
 
-    if( isset($_GET['modosit']) || isset($_GET['tetel']) || isset($_GET['kifizetesek']) || isset($_GET['dokumentumok']) || isset($_GET['megjegyzesek']) ) {
+    if( isset($_GET['modosit']) || isset($_GET['tetel']) || /*isset($_GET['kifizetesek']) ||*/ isset($_GET['tortenet']) || isset($_GET['dokumentumok']) || isset($_GET['megjegyzesek']) ) {
         // Számla fülek
         $ful_tomb = array(
             'modosit'       => 'Adatlap',
             'tetel'         => 'Tételek',
-            'kifizetesek'   => 'Kifizetések',
+            // 'kifizetesek'   => 'Kifizetések',
+            'tortenet'      => 'Történet',
             'dokumentumok'  => 'Dokumentumok'.$dok_db,
             'megjegyzesek'  => 'Megjegyzések'.$megj_db,
         );
@@ -420,14 +601,14 @@ require_once('selectek.php');
             $gombok .= ' <input type="button" id="recordTorol" class="gombb_alert dn" onclick="alert2(\'Biztosan törli ezt a '.$szoveg.'?\', gomb'.$_GET['id'].')" value="Töröl" title="Töröl">';
         }
 
-//        if( _jog(... anyag számla írás jog ...) ){
-//            $gombok = nl2('
-//                <div class="form_kuldes">
-//                    <input type="button" class="gombb mentes_gomb" name="mehet_gomb" id="mehet_gomb" disabled value="Mentés" onclick="mentesGomb();">
-//                    <input type="button" class="gomb piros" disabled id="megsem_gomb" value="Mégsem" onclick="megsemGomb();">
-//                </div>
-//            ').$gombok;
-//        }
+        if( _jog(JOG_ANYAG_SZAMLAK_KEZEL) ){
+            $gombok = nl2('
+                <div class="form_kuldes">
+                    <input type="button" class="gombb mentes_gomb" name="mehet_gomb" id="mehet_gomb" disabled value="Mentés" onclick="mentesGomb();">
+                    <input type="button" class="gomb piros" disabled id="megsem_gomb" value="Mégsem" onclick="megsemGomb();">
+                </div>
+            ').$gombok;
+        }
 
         $muv_style = ' style="width: calc(100% - '.($_SESSION['defaultCsuszka'] + 16).'px);"';
         if( in_array(basename(self()), $_SESSION['ketHasabos']) && $_SESSION[get_db_tabla().'user'] ) {
@@ -447,12 +628,10 @@ require_once('selectek.php');
 	// Új rekord felvitele
 	if( isset($_GET['uj']) ) {
 
-        // FORM
-		if( isset($_GET['ujkent']) ) {
-            foreach ( $akt_tomb as $ertek ) {
-                $sor[$ertek['name']] = $_SESSION[$ertek['name']];
-            }
-		}
+        // Itt úgy fogunk tenni, mintha újként szerkesztenénk, viszont nem a session-ból keresünk ide értékeket
+        // hanem a kapott andocid alapján az átmeneti táblából. Magyarul egy sima lekérdezéssel meg is van a $sor tömb.
+        $sor = $adatbazis_kapcsolat->s2('*', 'anyag_szamla_atmeneti', "`andoc_id`='{$_GET['andoc_id']}'");
+        $sor['szallito_id_autocomp'] = getErtek('nev', 'szallito', 'id', $sor['szallito_id']);
 	    $js = js_kiir($akt_tomb, 'form_ell_admin()');
 
 	    $form_sablon = fajlbol_olvas('../sablon/admin/form_uj.html', true);
@@ -460,25 +639,25 @@ require_once('selectek.php');
         // Javascript-es ellenőrzéshez
         $tabla = str_replace('.php', '', basename(self()));
 
-        $rend_mezok = $adatbazis_kapcsolat->s('`column_name`', '`information_schema`.columns', '`table_schema` LIKE  \''.get_db().'\' AND  `table_name` LIKE  \''.get_db_tabla().$tabla.'\'', '', '');
-        $rend_mezok = adatbazis2tomb($rend_mezok, 'column_name');
-
-        $sor = array();
-        foreach ( $rend_mezok as $rend_mezo ) {
-            $sor[$rend_mezo] = '';
-        }
-
-        foreach ( $akt_tomb as $tomb ) {
-            if( $tomb['type'] == 'autocomplete' ) {
-                $sor[$tomb['name'].'_autocomp'] = '';
-            }
+// Itt most kifejezetten kell, hogy az autocomplete-s értékek is meglegyenek
+//        foreach ( $akt_tomb as $tomb ) {
+//            if( $tomb['type'] == 'autocomplete' ) {
+//                $sor[$tomb['name'].'_autocomp'] = '';
+//            }
+//        }
+//        
+        // Fizetési módot oda vissza konvertálni kell, mert XML-ből a teljes címkét kapjuk, de mi csak egy karaktert tárolunk
+        switch ( strtolower($sor['fizmod']) ) {
+            case 'u': $sor['fizmod'] = 'Utalás';    break;
+            case 'k': $sor['fizmod'] = 'Készpénz';  break;
         }
 
         $json_sor = array();
         foreach ( $sor as $kulcs => $elem ) {
             $json_sor[$kulcs] = formAdatok_replace($elem);
         }
-        $szamla_html .= '<script> formAdatok = JSON.parse(\''.json_encode($json_sor).'\'); </script>';
+        
+        $szamla_html .= '<script>formAdatok = JSON.parse(\''.json_encode($json_sor).'\'); </script>';
 
 		// Ez elkészíti a $mezok változót
 		require('switch.php');
@@ -609,40 +788,92 @@ require_once('selectek.php');
         } else {
             echo $szamla_html.$gombok;
         }
-
-	// Kifizetések fül
-    } elseif( isset($_GET['kifizetesek']) ) {
-
+        
+	// Történet
+    } elseif( isset($_GET['tortenet']) ) {
+        
+        $igazolva = $igazolva_dt = $utalvanyozva = $igazol_elut = $utalvanyozva_elut = '';
+        if( $sor['igazolva_dt']!='0000-00-00 00:00:00' ) {
+            $igazolva_dt = datum_kiir($sor['igazolva_dt']);
+        }
+        if( $sor['utalvanyozva_dt']!='0000-00-00 00:00:00' ) {
+            $utalvanyozva_dt = datum_kiir($sor['utalvanyozva_dt']);
+        }
+        if( $sor['igazolva'] && $sor['igazolva_dt'] != '0000-00-00 00:00:00' ) {
+            $igazolva = '<b class="pipa">✓</b>';
+        }
+        if( $sor['utalvanyozva'] && $sor['utalvanyozva_dt'] != '0000-00-00 00:00:00' ) {
+            $utalvanyozva = '<b class="pipa">✓</b>';
+        }
+        // 2021.09.14 Tamás kérte, hogy ne legyen piros X ha még nincs feldolgozva, csak pipa, ha már megvan
+        // $feldolgozva = '<b class="x">✖</b>';
+        $feldolgozva = '';
+        if( $sor['feldolgozva_dt'] != '0000-00-00 00:00:00' ) {
+            $feldolgozva     = '<b class="pipa">✓</b>';
+            $feldolgozva_usr = $sor['feldolgozva_usr'];
+            $feldolgozva_dt  = datum_kiir($sor['feldolgozva_dt']);
+        }
+        // Ha nincs igazolva, de az igazolás időpontja már ismert, akkor tujduk, ez el lett utasítva
+        if( !$sor['igazolva'] && $sor['igazolva_dt']!='0000-00-00 00:00:00' ) {
+            $igazolva    = '<b class="x">✖</b>';
+            $igazol_elut = nl2('
+                </div>
+                <div class="indoklas">
+                    Elutasítás indoklása:
+                    <br>'.htmlspecialchars_decode( nl2br2($sor['elutleir']) ).'
+                </div>
+                <div class="dt naplo">
+                ');
+        }
+        if( !$sor['utalvanyozva'] && $sor['utalvanyozva_dt']!='0000-00-00 00:00:00' ) {
+            $utalvanyozva       = '<b class="x">✖</b>';
+            $utalvanyozva_elut  = nl2('
+                </div>
+                <div class="indoklas">
+                    Elutasítás indoklása:
+                    <br>'.htmlspecialchars_decode( nl2br2($sor['elutleir']) ).'
+                </div>
+                <div class="dt naplo">
+                ');
+        }
+        
         $szamla_html .= nl2('
             <div class="dt naplo">
                 <div class="dtr nFejlec">
-                    <div class="dtc">Bank</div>
-                    <div class="dtc">Kifizetve</div>
-                    <div class="dtc r">Bruttó</div>
-                    <div class="dtc r">Deviza bruttó</div>
-                    <div class="dtc">Pénznem</div>
-                    <div class="dtc">Rögzítve</div>
-                    <div class="dtc">Rögzítette</div>
+                    <div class="dtc">Esemény</div>
+                    <div class="dtc"><b class="pipa">✓</b></div>
+                    <div class="dtc">Felhasználó</div>
+                    <div class="dtc">Dátum</div>
                 </div>
-        ');
 
-        // Tételek felsorolása
-        $kifizetesek = $adatbazis_kapcsolat->s('*', 'anyag_szamla_kifizetesek', "`anyag_szamla_recid`='{$_GET['id']}'", 'insert_dt');
-        foreach( $kifizetesek as $kifizetes ) {
-            
-            $szamla_html .= nl2('
                 <div class="dtr nSor">
-                    <div class="dtc">'.erteklista(ERTEKLISTA_BANK, $kifizetes['bank']).'</div>
-                    <div class="dtc">'.datum_kiir($kifizetes['kifizetes_dt']).'</div>
-                    <div class="dtc r">'.number_format($kifizetes['br_ertek'], 0, '', ' ').'</div>
-                    <div class="dtc r">'.number_format($kifizetes['dev_br'], 2, ',', ' ').'</div>
-                    <div class="dtc">'.erteklista(ERTEKLISTA_PENZNEM, $kifizetes['kcs_21']).'</div>
-                    <div class="dtc">'.datum_kiir($kifizetes['rogzitve_dt'], 'csak dátum').'</div>
-                    <div class="dtc">'.$kifizetes['rogzitette'].'</div>
+                    <div class="dtc">ontEAM-be érkezett</div>
+                    <div class="dtc"><b class="pipa">✓</b></div>
+                    <div class="dtc">'.$sor['ikt_usr'].'</div>
+                    <div class="dtc">'.datum_kiir($sor['ont_erk_dt']).'</div>
                 </div>
-                ');
-        }
-        $szamla_html .= '</div>';
+                <div class="dtr nSor">
+                    <div class="dtc">Feldolgozva</div>
+                    <div class="dtc"><b class="pipa">'.$feldolgozva.'</b></div>
+                    <div class="dtc">'.$feldolgozva_usr.'</div>
+                    <div class="dtc">'.$feldolgozva_dt.'</div>
+                </div>
+                <div class="dtr nSor">
+                    <div class="dtc">Igazolva</div>
+                    <div class="dtc">'.$igazolva.'</div>
+                    <div class="dtc">'.$sor['igazolva_usr'].'</div>
+                    <div class="dtc">'.$igazolva_dt.'</div>
+                </div>
+                '.$igazol_elut.'
+                <div class="dtr nSor">
+                    <div class="dtc">Utalványozva</div>
+                    <div class="dtc">'.$utalvanyozva.'</div>
+                    <div class="dtc">'.$sor['utalvanyozva_usr'].'</div>
+                    <div class="dtc">'.$utalvanyozva_dt.'</div>
+                </div>
+                '.$utalvanyozva_elut.'
+            </div>
+        ');
         
         if( $_GET['ajax'] ) {
             echo json_encode(array(
@@ -652,13 +883,66 @@ require_once('selectek.php');
         } else {
             echo $szamla_html.$gombok;
         }
+
+	// Kifizetések fül
+//    } elseif( isset($_GET['kifizetesek']) ) {
+//
+//        $szamla_html .= nl2('
+//            <div class="dt naplo">
+//                <div class="dtr nFejlec">
+//                    <div class="dtc">Bank</div>
+//                    <div class="dtc">Kifizetve</div>
+//                    <div class="dtc r">Bruttó</div>
+//                    <div class="dtc r">Deviza bruttó</div>
+//                    <div class="dtc">Pénznem</div>
+//                    <div class="dtc">Rögzítve</div>
+//                    <div class="dtc">Rögzítette</div>
+//                </div>
+//        ');
+//
+//        // Tételek felsorolása
+//        $kifizetesek = $adatbazis_kapcsolat->s('*', 'anyag_szamla_kifizetesek', "`anyag_szamla_recid`='{$_GET['id']}'", 'insert_dt');
+//        foreach( $kifizetesek as $kifizetes ) {
+//            
+//            $szamla_html .= nl2('
+//                <div class="dtr nSor">
+//                    <div class="dtc">'.erteklista(ERTEKLISTA_BANK, $kifizetes['bank']).'</div>
+//                    <div class="dtc">'.datum_kiir($kifizetes['kifizetes_dt']).'</div>
+//                    <div class="dtc r">'.number_format($kifizetes['br_ertek'], 0, '', ' ').'</div>
+//                    <div class="dtc r">'.number_format($kifizetes['dev_br'], 2, ',', ' ').'</div>
+//                    <div class="dtc">'.erteklista(ERTEKLISTA_PENZNEM, $kifizetes['kcs_21']).'</div>
+//                    <div class="dtc">'.datum_kiir($kifizetes['rogzitve_dt'], 'csak dátum').'</div>
+//                    <div class="dtc">'.$kifizetes['rogzitette'].'</div>
+//                </div>
+//                ');
+//        }
+//        $szamla_html .= '</div>';
+//        
+//        if( $_GET['ajax'] ) {
+//            echo json_encode(array(
+//                'tartalom' => $szamla_html.$gombok,
+//                'link'     => get_get(array('ajax', 'kat', 'epo', 'oldal', 'order'), true)
+//            ));
+//        } else {
+//            echo $szamla_html.$gombok;
+//        }
         
 	// Dokumentumok
     } elseif( isset($_GET['dokumentumok']) ) {
 
-        if( $tobb_kep ) {
-            require_once('tobb_kep.php');
+        // Itt az XML-ből kapott dokumentum linkjét jelenítjük meg
+        if( $sor['dok_link'] ) {
+            $szamla_html .= nl2('
+                Fődokumentum link:
+                <br><input type="text" value="'.$sor['dok_link'].'" readonly style="width: 100%; margin: 1rem 0">
+                <br><input type="button" class="gomb" value="Dokumentum megtekintése" onclick="window.open(\''.$sor['dok_link'].'\')">');
         }
+        $szamla_html .= nl2('
+                <br>Bejövő xml:
+                <br>').'<textarea class="oriasiTargy" style="height: 30rem;" readonly>'.$sor['erk_xml'].'</textarea>'.nl2('
+                <br>            
+                <br>Kimenő xml:
+                <br>').'<textarea class="oriasiTargy" style="height: 30rem;" readonly>'.$sor['kuld_xml'].'</textarea>';
 
         if( $_GET['ajax'] ) {
             echo json_encode(array(

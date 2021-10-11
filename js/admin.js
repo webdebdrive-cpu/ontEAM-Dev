@@ -6389,7 +6389,12 @@ function szamlaBetolt( recid, page, muvelet, szerkeszt, kerdes_nelkul, anyagigen
                         $('#navGombok a.uj').attr('href', 'javascript: alert2(\'Új anyagigénylés csak az anyagigénylés menüpont alatt tölthető fel!\', \'\', \'Hiba\'); void(0);');
 
                     } else if( baseName(location.href) == 'anyag_szamla' ) {
-                        $('#navGombok a.uj').attr('href', 'javascript: csoportMuvelet(\'anyag_szamla_valaszto\'); void(0);');
+                        // $('#navGombok a.uj').attr('href', 'javascript: csoportMuvelet(\'anyag_szamla_valaszto\'); void(0);');
+                        if( _get('megjegyzesek') ) {
+                            $('#navGombok a.uj').attr('href', 'javascript: kapcsolodoSzerkeszt(\'megjegyzes\'); void(0);');
+                        } else {
+                            $('#navGombok a.uj').attr('href', 'javascript: anyag_szamla_feltolt(); void(0);');
+                        }
 
                     } else if( baseName(location.href) == 'beosztas' && _get('naptar') ) {
                         $('#navGombok a.uj').attr('href', 'javascript: $(\'#szerk_form div.dt\').show(); void(0);');

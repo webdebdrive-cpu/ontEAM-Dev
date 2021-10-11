@@ -1,4 +1,4 @@
-// Fenntartási számla feltöltése köztes táblából
+// Energia számla feltöltése köztes táblából
 function energia_szamla_feltolt() {
     csoportMuvelet('energia_szamla_feltolt');
 }

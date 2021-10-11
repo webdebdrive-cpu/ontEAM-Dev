@@ -747,14 +747,20 @@ if( in_array(basename(self()), $_SESSION['ketHasabos']) && $_SESSION[get_db_tabl
 
             $kieg_text = '';
             if( basename(self()) == 'bejelentes.php' || basename(self()) == 'bejelentes_arch.php' ) {
-                $kieg_text = 'Bejelentés';
+                $kieg_text = 'Bejelentés ';
             } else if( basename(self()) == 'munkalap.php' || basename(self()) == 'munkalap_arch.php' ) {
-                $kieg_text = 'Munkalap';
+                $kieg_text = 'Munkalap ';
+            } else if(
+                    basename(self()) == 'anyag_szamla.php'       || basename(self()) == 'anyag_szamla_arch.php'         ||
+                    basename(self()) == 'energia_szamla.php'     || basename(self()) == 'energia_szamla_arch.php'       ||
+                    basename(self()) == 'fenntartasi_szamla.php' || basename(self()) == 'fenntartasi_szamla_arch.php'
+            ) {
+                $kieg_text = 'Iktató';
             } else if( basename(self()) == 'anyagigenyles.php' || basename(self()) == 'anyagigenyles_arch.php' ) {
                 if (isset($_GET['anyagrend'])) {
-                    $kieg_text = 'Anyagrendelés';
+                    $kieg_text = 'Anyagrendelés ';
                 } else {
-                    $kieg_text = 'Anyagigénylés';
+                    $kieg_text = 'Anyagigénylés ';
                 }
             }
 
@@ -817,8 +823,17 @@ if( in_array(basename(self()), $_SESSION['ketHasabos']) && $_SESSION[get_db_tabl
         $uj_link = 'javascript: kapcsolodoSzerkeszt(\'megjegyzes\'); void(0);';
 
     } elseif( basename(self()) == 'anyag_szamla.php' ) {
-        $uj_link = 'javascript: csoportMuvelet(\'anyag_szamla_valaszto\'); void(0);';
-
+        // $uj_link = 'javascript: csoportMuvelet(\'anyag_szamla_valaszto\'); void(0);';
+        if( !_jog(JOG_ANYAG_SZAMLAK_KEZEL) ) {
+            $uj_link = 'javascript: alert2(\'Önnek nincs joga anyag számlát feltölteni!\', \'\', \'Hiba\'); void(0);';
+        } else {
+            if( isset($_GET['megjegyzesek']) ) {
+                $uj_link = 'javascript: kapcsolodoSzerkeszt(\'megjegyzes\'); void(0);';
+            } else {
+                $uj_link = 'javascript: anyag_szamla_feltolt(); void(0);';
+            }
+        }
+        
     } elseif( basename(self()) == 'anyagigenyles.php' && !isset($_GET['megjegyzesek']) && !_jog(JOG_ANYAGIGENYLES_KEZEL) ) {
         $uj_link = 'javascript: alert2(\'Önnek nincs jogosultsága új anyagigénylés feltöltéséhez!\', \'\', \'Hiba\'); void(0);';
 

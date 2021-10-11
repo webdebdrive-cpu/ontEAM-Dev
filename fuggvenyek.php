@@ -1108,7 +1108,6 @@ function i_u($type, $tabla, $tomb) {
                     $ertekek = array();
                     $mezok   = array(
                         // 'rownum',
-                        'andoc_id',
                         'dijelem_recid',
                         'aranyos',
                         'tol',
@@ -1243,7 +1242,6 @@ function i_u($type, $tabla, $tomb) {
                     $ertekek = array();
                     $mezok   = array(
 //                        'rownum',
-                        'andoc_id',
                         'targy',
                         'netto_ert',
                         'brutto_ert',
@@ -4885,7 +4883,7 @@ function anyag_szamlaLista( $bejegyzesek, $tabla, $frissit = '', $kijeloltek = '
     if( $bejegyzesek ) {
 
         if( !$frissit ) {
-            $html = '<ul id="szamlaList" class="szamla_cont rendszer">';
+            $html = '<ul id="szamlaList" class="szamla_cont rendszer nobehuzas">';
         }
 
         $i = 1;
@@ -4894,16 +4892,29 @@ function anyag_szamlaLista( $bejegyzesek, $tabla, $frissit = '', $kijeloltek = '
             if( $bsz['recid'] == $_GET['id'] && !isset($_GET['print']) ) {
                 $active = ' kijelolve';
             }
+            
+            $ikon = '';
+            if( !$bsz['igazolva'] ) {
+                $ikon = '<span class="icon sarga">?</span>';
+                if( $bsz['igazolva_dt']!='0000-00-00 00:00:00' ) {
+                    $ikon = '<span class="icon piros">✖</span>';
+                }
+            } else {
+                $ikon = '<span class="icon zold">✓</span>';
+            }
 
             $li_tart = '<a class="szamla" data-recid="'.$bsz['recid'].'" data-fajl="'.$tabla.'.php" data-muvelet="modosit">
                             <table>
                             <tr> 
-                                <td style="width: 12rem">'.getSzallodaNev($bsz['telephely_id']).'</td>
-                                <td style="width: 10rem" class="r">'.number_format($bsz['netto'], 0, '', ' ').' '.get_penznem().'</td>
-                                <td></td>
+                                <td class="ikonok keskeny c" rowspan="3">'.$ikon.'</td>
+                                <td style="width: 8rem">'.$bsz['szla_szam'].'</td>
+                                <td>'.number_format($bsz['netto'], 0, ',', ' ').' '.get_penznem().'</td>
                             </tr>
                             <tr> 
-                                <td colspan="3">'. getErtek('nev', 'szallito', 'id', $bsz['szallito_id']).'</td>
+                                <td colspan="2">'.getErtek('nev', 'szallito', 'id', $bsz['szallito_id']).'</td>
+                            </tr>
+                            <tr> 
+                                <td colspan="2">'.resz_string($bsz['targy'], 60).'</td>
                             </tr>
                             </table>
                         </a>';
@@ -7987,7 +7998,7 @@ function getOszlopNev( $oszlop, $kieg_nev = '' ) {
         'ev'            => 'Tervező év',
         'fizhat_dt'     => 'Fizetési határidő',
         'id'            => 'Kód',
-        'ikt_szam'      => $kieg_nev.' szám',
+        'ikt_szam'      => $kieg_nev.'szám',
         'jogcim'        => 'Jogcím',
         'kod'           => 'Kód',
         'nev'           => 'Név',
@@ -8493,6 +8504,7 @@ function get_akt_tomb($megn){
 
     global $afakod_tomb;
     global $anyagigenyles_tomb;
+    global $anyag_szamla_tomb;
     global $bejelentes_tomb;
     global $beosztas_tomb;
     global $beosztas_muszak_tomb;
@@ -8500,6 +8512,7 @@ function get_akt_tomb($megn){
     global $cikktorzs_tomb;
     global $eloterj_fb_tomb;
     global $eloterj_bod_tomb;
+    global $energia_szamla_tomb;
     global $energia_terv_tomb;
     global $eseti_fenntartas_tomb;
     global $eszkozkezeles_tomb;
@@ -8523,6 +8536,7 @@ function get_akt_tomb($megn){
     switch($megn){
         case 'afakod'                   : case 'afakod'                         : $akt_tomb = $afakod_tomb;                 break;
         case 'anyagigenyles'            : case 'anyagigenyles_arch'             : $akt_tomb = $anyagigenyles_tomb;          break;
+        case 'anyag_szamla'             : case 'anyag_szamla_arch'              : $akt_tomb = $anyag_szamla_tomb;           break;
         case 'bejelentes'               : case 'bejelentes_arch'                : $akt_tomb = $bejelentes_tomb;             break;
         case 'beosztas'                 : case 'beosztas_arch'                  : $akt_tomb = $beosztas_tomb;               break;
         case 'beosztas_muszak'          : case 'beosztas_muszak_arch'           : $akt_tomb = $beosztas_muszak_tomb;        break;
@@ -8530,6 +8544,7 @@ function get_akt_tomb($megn){
         case 'cikktorzs'                : case 'cikktorzs_arch'                 : $akt_tomb = $cikktorzs_tomb;              break;
         case 'eloterj_fb'               : case 'eloterj_fb_arch'                : $akt_tomb = $eloterj_fb_tomb;             break;
         case 'eloterj_bod'              : case 'eloterj_bod_arch'               : $akt_tomb = $eloterj_bod_tomb;            break;
+        case 'energia_szamla'           : case 'energia_szamla_arch'            : $akt_tomb = $energia_szamla_tomb;         break;
         case 'energia_terv'             : case 'energia_terv_arch'              : $akt_tomb = $energia_terv_tomb;           break;
         case 'eseti_fenntartas'         : case 'eseti_fenntartas_arch'          : $akt_tomb = $eseti_fenntartas_tomb;       break;
         case 'eszkozkezeles'            : case 'eszkozkezeles_arch'             : $akt_tomb = $eszkozkezeles_tomb;          break;

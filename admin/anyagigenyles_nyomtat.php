@@ -11,14 +11,14 @@ if( isset($_GET['nyomtat']) ) {
 // Ha hiányzik egy PDF, akkor kézzel így tudod létrehozni:
 if( isset($_GET['teszt']) ) {
     
-    $anyagrendeles_idja = 10592;        // Ide a az anyagrendelés recid-ját add meg
-    $session_user       = 'vargavik';   // Ide azt a User nevet add meg, amit a PDF alján a dátumnál látni szeretnél
+    $anyagrendeles_idja = 12637;        // Ide a az anyagrendelés recid-ját add meg
+    $session_user       = 'vkriszti';   // Ide azt a User nevet add meg, amit a PDF alján a dátumnál látni szeretnél
     // Futtasd le ezt a PDF előállításához:
     // https://www.onteam.hu/admin/anyagigenyles.php?nyomtat=&szall&html_mutat=1&teszt
     
     $rendeles           = $adatbazis_kapcsolat->s2('rndid', 'anyagigenyles', "`recid`='{$anyagrendeles_idja}'");
-    $sorszam            = str_replace('/', '_', $rendeles['rndid']);   // Ide az anyagrendelés szorszámát add meg (ebből következik a PDF neve, azért kell)
-    $idk                = array($anyagrendeles_idja, $anyagrendeles_idja); // <= Szándékosan van kétszer felvéve, csak így működik!!!
+    $sorszam            = str_replace('/', '_', $rendeles['rndid']);        // Ide az anyagrendelés szorszámát add meg (ebből következik a PDF neve, azért kell)
+    $idk                = array($anyagrendeles_idja, $anyagrendeles_idja);  // <= Szándékosan van kétszer felvéve, csak így működik!!!
     $idk_impl           = $anyagrendeles_idja;
 }
     // Szállító kiszámítása
@@ -33,7 +33,7 @@ if( isset($_GET['teszt']) ) {
 // Szállítói nyomtatási kép
 if( isset($_GET['szall']) ) {
 
-    if($idk_impl){
+    if( $idk_impl ) {
         // Cikkenkénti összesítés
         $tetelek_html = '
                             <table class="border full" style="font-size: 12px ;margin: auto; margin-top: 10px; margin-bottom: 10px;border-collapse: collapse;">
@@ -111,7 +111,6 @@ if( isset($_GET['szall']) ) {
                 <div style="page-break-inside: avoid;">
                     <div class="i" style="font-size: 13px">II. Szállítási címenkénti összesítés:</div>
                     '.szallitasi_cimenkenti_lista($idk_impl).'
-
                     <div style="font-size: 12px; margin: 30px 0 3px 0;">
                         Üdvözlettel,
                         <br>Budapest, '.date_formaz(date('Y-m-d')).'
@@ -123,10 +122,10 @@ if( isset($_GET['szall']) ) {
         ';
 
     $keret = get_keret($sorszam.' Megrendelés a szállítónak');
-    $html = str_replace('{TARTALOM}', $tartalom, $keret);
+    $html  = str_replace('{TARTALOM}', $tartalom, $keret);
 
-if (isset($_GET['html_mutat'])) {
-     echo $html;
+if( isset($_GET['html_mutat']) ) {
+    echo $html;
 }
 
     // Így tudod kikapcsolni a warningokat és hibaüzeneteket:
@@ -167,7 +166,7 @@ if( isset($_GET['teszt']) ) {
     exit;
 }
     // Így tudod megnyitni  a PDF-et (olyan mintha egy PDF kiterjesztésű fájlra hivatkoznál)
-    if (!isset($_GET['html_mutat'])) {
+    if( !isset($_GET['html_mutat']) ) {
         $mpdf -> Output();
     }
 
@@ -425,12 +424,12 @@ function get_fejlec($szallito) {
         ';
 }
 
-function szallitasi_cimenkenti_lista($idk_impl, $szalloda){
+function szallitasi_cimenkenti_lista($idk_impl, $szalloda = ''){
 
     global $adatbazis_kapcsolat;
 
     $sql_kieg = '';
-    if($szalloda){
+    if( $szalloda ) {
         $sql_kieg = ' AND `telephely_id`=\''.$szalloda.'\'';
     }
 
@@ -447,11 +446,11 @@ function szallitasi_cimenkenti_lista($idk_impl, $szalloda){
     $szkcim = get_props($telephely['props'], 'SZKCIM');
     $fix_cim  = $szkcim.' '.$cim;
 
-    if($idk_impl){
-        $anyagok = $adatbazis_kapcsolat->s('distinct telephely_id', 'anyagigenyles', "`recid` IN (".$idk_impl.")$sql_kieg");
+    if( $idk_impl ) {
+        $anyagok = $adatbazis_kapcsolat->s('distinct telephely_id', 'anyagigenyles', "`recid` IN (".$idk_impl."){$sql_kieg}");
         foreach($anyagok as $anyag){
 
-            $igenyles = $adatbazis_kapcsolat->s2('erkcimid', 'anyagigenyles', "`recid` IN (".$idk_impl.")$sql_kieg AND `telephely_id`='{$anyag['telephely_id']}'");
+            $igenyles = $adatbazis_kapcsolat->s2('erkcimid', 'anyagigenyles', "`recid` IN (".$idk_impl."){$sql_kieg} AND `telephely_id`='{$anyag['telephely_id']}'");
 
             $telephely = $adatbazis_kapcsolat->s2('nev props', 'telephely', "`id`='{$anyag['telephely_id']}'");
 
@@ -461,7 +460,7 @@ function szallitasi_cimenkenti_lista($idk_impl, $szalloda){
 
             // erkcimid mező értéke alapján változik a szállítási cím
             $szall_cim = '';
-            switch($igenyles['erkcimid']){
+            switch ( $igenyles['erkcimid'] ) {
                 case 1:
                     // Aktuális szálloda SZN+CÍM+ha szálloda=2032,” Szondi utcai teherporta”
                     $szall_cim .= $szn.' '.$cim;
@@ -478,7 +477,7 @@ function szallitasi_cimenkenti_lista($idk_impl, $szalloda){
             }
             
             $adoszam = NYOMTATAS_ADOSZAM;
-            if($anyag['telephely_id']==5411/*Gundel*/){
+            if( $anyag['telephely_id'] == 5411/* Gundel */ ) {
                 $adoszam = NYOMTATAS_ADOSZAM_GUNDEL;
             }
             
@@ -502,12 +501,12 @@ function szallitasi_cimenkenti_lista($idk_impl, $szalloda){
 
             // Szedjük össze az azonos cikkeket, ami adott telephelyhez tartozik, majd számoljuk ki, hány darab kell belőle
             $anyag_lek = $adatbazis_kapcsolat->s('DISTINCT `cikk_id`, `igleir`', 'anyagigenyles', "`recid` IN (".$idk_impl.") AND `telephely_id`='{$anyag['telephely_id']}'");
-            foreach($anyag_lek as $a_lek){
+            foreach ( $anyag_lek as $a_lek ) {
 
                 $rndmen = 0;
                 $a_lek['igleir'] = addslashes($a_lek['igleir']);
                 $anyag_lek_db = $adatbazis_kapcsolat->s('nev cikkmee rndmen rndear igleir', 'anyagigenyles', "`recid` IN (".$idk_impl.") AND `telephely_id`='{$anyag['telephely_id']}' AND `cikk_id`='{$a_lek['cikk_id']}' AND `igleir`='{$a_lek['igleir']}'");
-                foreach($anyag_lek_db as $a_lek_db){
+                foreach ( $anyag_lek_db as $a_lek_db ) {
                     $rndmen += $a_lek_db['rndmen'];
                 }
 
