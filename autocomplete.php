@@ -67,9 +67,9 @@ if( isset($_GET['value']) && isset($_GET['tabla']) && isset($_GET['oszlop_keres'
         }
         if( is_numeric($_GET['telephely_id']) && ($_GET['tabla'] == 'obj' || $_GET['tabla'] == 'eszkozkezeles') ) {
             if( $where_sql ) {
-                $where_sql .= " AND `telephely_id` = '".$_GET['telephely_id']."'";
+                $where_sql .= " AND `telephely_id`='".$_GET['telephely_id']."'";
             } else {
-                $where_sql .= " WHERE `telephely_id` = '".$_GET['telephely_id']."'";
+                $where_sql .= " WHERE `telephely_id`='".$_GET['telephely_id']."'";
             }
         }
         
@@ -89,27 +89,27 @@ if( isset($_GET['value']) && isset($_GET['tabla']) && isset($_GET['oszlop_keres'
             // Egy éles terv van mindig, ennek díjelemeit listázzuk ki. Az éles státuszúak közül a legnagyobb évszámút.
             $eles_terv = $adatbazis_kapcsolat->s2('recid', 'energia_terv', "`stat_id`='".ENERGIATERV_STAT_ELES."'", 'ev desc', '1');
             if( $where_sql ) {
-                $where_sql .= " AND `energia_terv_id` = '".$eles_terv['recid']."'";
+                $where_sql .= " AND `energia_terv_id`='".$eles_terv['recid']."'";
             } else {
-                $where_sql .= " WHERE `energia_terv_id` = '".$eles_terv['recid']."'";
+                $where_sql .= " WHERE `energia_terv_id`='".$eles_terv['recid']."'";
             }
         }
 
         // Objektm id
         if( $_GET['tabla'] == 'eszkozkezeles' && $_GET['obj_id'] ) {
             if( $where_sql ) {
-                $where_sql .= " AND `obj_id` = '".$_GET['obj_id']."'";
+                $where_sql .= " AND `obj_id`='".$_GET['obj_id']."'";
             } else {
-                $where_sql .= " WHERE `obj_id` = '".$_GET['obj_id']."'";
+                $where_sql .= " WHERE `obj_id`='".$_GET['obj_id']."'";
             }
         }
 
         // Login táblában szűrhetünk személyzetre is
         if( $_GET['tabla'] == 'login' && $_GET['szemelyzet_id'] ) {
             if( $where_sql ) {
-                $where_sql .= " AND `szemelyzet_id` = '".$_GET['szemelyzet_id']."'";
+                $where_sql .= " AND `szemelyzet_id`='".$_GET['szemelyzet_id']."'";
             } else {
-                $where_sql .= " WHERE `szemelyzet_id` = '".$_GET['szemelyzet_id']."'";
+                $where_sql .= " WHERE `szemelyzet_id`='".$_GET['szemelyzet_id']."'";
             }
         }
 
@@ -223,12 +223,13 @@ if( isset($_GET['value']) && isset($_GET['tabla']) && isset($_GET['oszlop_keres'
         // Energia terv egységárnál nem fontos a recid, de nagyon fontos, hogy az értékek DISTINCT-elve legyenek
         if( $_GET['tabla'] == 'energia_terv_ear' ) {
             $lekerdez = mysqli_query($db_kapcs, 'SELECT DISTINCT `'.implode('`, `', $oszlop_listaz).'` FROM `'.get_db_tabla().$_GET['tabla'].'`'.$where_sql.' ORDER BY `'.$oszlop_keres[0].'`') or die(mysqli_error($db_kapcs));
-// echo 'SELECT DISTINCT `'.implode('`, `', $oszlop_listaz).'` FROM `'.get_db_tabla().$_GET['tabla'].'`'.$where_sql.' ORDER BY `'.$oszlop_keres[0].'`' . '<br>';
-        
         // Cikktörzs esetén a rendezés cikknév szerint legyen
         } elseif( $_GET['tabla'] == 'cikktorzs' ) {
             $lekerdez = mysqli_query($db_kapcs, 'SELECT DISTINCT `recid`, `'.implode('`, `', $oszlop_listaz).'`, `cikkmee` FROM `'.get_db_tabla().$_GET['tabla'].'`'.$where_sql.' ORDER BY `nev`') or die(mysqli_error($db_kapcs));
-            
+// echo 'SELECT DISTINCT `'.implode('`, `', $oszlop_listaz).'` FROM `'.get_db_tabla().$_GET['tabla'].'`'.$where_sql.' ORDER BY `'.$oszlop_keres[0].'`' . '<br>';
+// echo 'f';
+// exit;
+//            
         // Projekt team tagoknál szűrni kell projekt recid-ra
         } elseif( $_GET['tabla'] == 'projektkezeles_team' ) {
             $lekerdez = mysqli_query($db_kapcs, 'SELECT `recid`,'.$select_kieg.' `'.implode('`, `', $oszlop_listaz).'` FROM `'.get_db_tabla().$_GET['tabla'].'`'.$where_sql.' AND `projektkezeles_recid`=\''. $_GET['recid'].'\' ORDER BY `'.$oszlop_keres[0].'`') or die(mysqli_error($db_kapcs));

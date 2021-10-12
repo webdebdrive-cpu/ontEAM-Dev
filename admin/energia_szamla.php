@@ -662,10 +662,9 @@ require_once('selectek.php');
         $mezo2      = 'dev_net';
     }
     
-    
     // Tételek SESSION-jének feltöltése (új felvitelben kicsit más a lekérdezés
     if( isset($_GET['uj']) && _jog(JOG_ENERGIA_SZAMLAK_OLVAS) ) {
-        $szamla  = $adatbazis_kapcsolat->s2('recid kcs_21', 'energia_szamla_atmeneti', "`andoc_id`='{$_GET['andoc_id']}'");
+        $szamla = $adatbazis_kapcsolat->s2('recid kcs_21', 'energia_szamla_atmeneti', "`andoc_id`='{$_GET['andoc_id']}'");
     }
     
     // Gombok kirajzolása minden oldalra
@@ -751,8 +750,8 @@ require_once('selectek.php');
         $gombok = nl2('
             <div class="form_kuldes">
                 <input type="hidden" name="atmeneti_recid" value="'.$szamla['recid'].'">
-                <input type="hidden" id="ossz_netto" value="'.$ossz_netto.'">
-                <input type="hidden" id="ossz_dev_net" value="'.$ossz_dev_net.'">
+                <input type="hidden" id="ossz_netto" value="">
+                <input type="hidden" id="ossz_dev_net" value="">
                 <input type="button" class="gombb mentes_gomb" name="mehet_gomb" id="mehet_gomb" disabled value="Mentés" onclick="if( form_ell_admin_elott() ){ $(\'#szerk_form\').submit(); }">
                 <input type="button" class="gomb piros" disabled id="megsem_gomb" value="Mégsem" onclick="megsemGomb();">
             </div>

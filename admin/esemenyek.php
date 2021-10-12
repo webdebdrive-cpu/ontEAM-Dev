@@ -1101,9 +1101,9 @@ if( basename(self()) == 'anyag_szamla.php' && $_GET['id'] ) {
 }
 // Ha új számlát dolgozunk fel
 if( isset($_GET['andoc_id']) ) {
-    $szamla = $adatbazis_kapcsolat->s2('kcs_21 nullas', 'fenntartasi_szamla_atmeneti', "`andoc_id`='{$_GET['andoc_id']}'");
+    $szamla = $adatbazis_kapcsolat->s2('kcs_21 nullas', 'anyag_szamla_atmeneti', "`andoc_id`='{$_GET['andoc_id']}'");
 } else {
-    $szamla = $adatbazis_kapcsolat->s2('kcs_21 nullas', 'fenntartasi_szamla', "`recid`='{$_GET['id']}'");
+    $szamla = $adatbazis_kapcsolat->s2('kcs_21 nullas', 'anyag_szamla', "`recid`='{$_GET['id']}'");
 }
 // Pénznemtől függ, hogy nettó vagy deviza nettóban dolgozunk
 $dis_dev_net = $dis_netto = 1;
