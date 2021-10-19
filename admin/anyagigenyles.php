@@ -1703,7 +1703,7 @@ if (isset($_POST['anyagigenyles_erkeztet'])) {
                                                     "`recid`='$id'"
                                                 );
                 if( $sql === false ) { $db_error = true; }
-
+ 
                 // Ha erkmen>0 INSERT mozgas                    SET telephely_id=,                           szallito_id=,                cikk_id=,                        cikkmen=erkmen, mozgid=MOZGID_RAKTAR_BE, mozgir=1, rendtetid=recid, update_usr=, insert_usr=, insert_dt=NOW()
                 if($erkmen>0){
                     $sql = $adatbazis_kapcsolat->i('mozgas',    array('telephely_id',                 'szallito_id',                 'cikk_id',                  'cikkmen', 'mozgid',          'mozgir', 'rendtetid', 'update_usr',                           'insert_usr',                            'insert_dt' ),

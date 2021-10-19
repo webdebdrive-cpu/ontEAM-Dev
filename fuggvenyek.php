@@ -981,9 +981,13 @@ function i_u($type, $tabla, $tomb) {
                     $netto_ert  = round($dev_net * $_POST['arfolyam']);
                     $brutto_ert = round($dev_br  * $_POST['arfolyam']);
                 }
+                $rndid          = $_SESSION['anyag_szla_tetel_rndid'][$i];
+                $rnd_recid      = $_SESSION['anyag_szla_tetel_rnd_recid'][$i];
                 $cikktorzs      = $_SESSION['anyag_szla_tetel_cikktorzs'][$i];
                 $szall_csz      = $_SESSION['anyag_szla_tetel_szall_csz'][$i];
                 $cikktorzs_id   = $_SESSION['anyag_szla_tetel_cikktorzs_id'][$i];
+                $rndmen         = $_SESSION['anyag_szla_tetel_rndmen'][$i];
+                $rndear         = $_SESSION['anyag_szla_tetel_rndear'][$i];
                 $cikkmee        = $_SESSION['anyag_szla_tetel_cikkmee'][$i];
                 $jogcim_sor     = $adatbazis_kapcsolat->s2('recid jogcim uzemresz megn szla_szam ktghely ktghely_id', 'jogcim', "`recid`='{$_SESSION['anyag_szla_tetel_jogcim'][$i]}'");
                 $afakod_sor     = $adatbazis_kapcsolat->s2('recid kod afa nev', 'afakod', "`recid`='{$_SESSION['anyag_szla_tetel_afakod'][$i]}'");
@@ -999,9 +1003,13 @@ function i_u($type, $tabla, $tomb) {
 //                    $rownum = $rownum['MAX(`rownum`)']+1;
                     
 //                    $tetel['rownum']        = $rownum;
+                    $tetel['rndid']         = $rndid;
+                    $tetel['rnd_recid']     = $rnd_recid;
                     $tetel['cikktorzs']     = $cikktorzs;
                     $tetel['szall_csz']     = $szall_csz;
                     $tetel['cikktorzs_id']  = $cikktorzs_id;
+                    $tetel['rndmen']        = $rndmen;
+                    $tetel['rndear']        = $rndear;
                     $tetel['cikkmee']       = $cikkmee;
                     $tetel['netto_ert']     = $netto_ert;
                     $tetel['brutto_ert']    = $brutto_ert;
@@ -1023,8 +1031,12 @@ function i_u($type, $tabla, $tomb) {
                     $mezok   = array(
 //                        'rownum',
                         'cikktorzs',
+                        'rndid',
+                        'rnd_recid',
                         'szall_csz',
                         'cikktorzs_id',
+                        'rndmen',
+                        'rndear',
                         'cikkmee',
                         'netto_ert',
                         'brutto_ert',
@@ -1082,6 +1094,14 @@ function i_u($type, $tabla, $tomb) {
                                                             "`recid`='{$id}'");
             if( $sql === false ) { $db_error = true; }
 
+            // Ha ismert a rendelés azonosítója, akkor írjuk be a rendelés sorába a számlázott mennyiséget
+            if( $rnd_recid ) {
+                $anyagig = $adatbazis_kapcsolat->s2('szlamen', 'anyagigenyles', "`recid`='{$rnd_recid}'");
+                if( $anyagig === false ) { $db_error = true; }
+                $sql = $adatbazis_kapcsolat->u('anyagigenyles', array('szlamen'), array($anyagig['szlamen']+$rndmen), "`recid`='{$rnd_recid}'");
+                if( $sql === false ) { $db_error = true; }
+            }
+            
             // Töröljük az átmeneti tábla számláját és tételeit is
             $sql = $adatbazis_kapcsolat->d('anyag_szamla_tetel_atmeneti', "`anyag_szamla_recid`='{$_POST['atmeneti_recid']}'");
             if( $sql === false ) { $db_error = true; }
@@ -1089,7 +1109,14 @@ function i_u($type, $tabla, $tomb) {
             if( $sql === false ) { $db_error = true; }
 
             // Feldolgozással a SESSION értékeket ki is ürítjük.
-            unset($_SESSION['anyag_szla_tetel_targy']);
+            unset($_SESSION['anyag_szla_tetel_rndid']);
+            unset($_SESSION['anyag_szla_tetel_rnd_recid']);
+            unset($_SESSION['anyag_szla_tetel_cikktorzs']);
+            unset($_SESSION['anyag_szla_tetel_szall_csz']);
+            unset($_SESSION['anyag_szla_tetel_cikktorzs_id']);
+            unset($_SESSION['anyag_szla_tetel_rndmen']);
+            unset($_SESSION['anyag_szla_tetel_rndear']);
+            unset($_SESSION['anyag_szla_tetel_cikkmee']);
             unset($_SESSION['anyag_szla_tetel_netto_ert']);
             unset($_SESSION['anyag_szla_tetel_brutto_ert']);
             unset($_SESSION['anyag_szla_tetel_dev_net']);

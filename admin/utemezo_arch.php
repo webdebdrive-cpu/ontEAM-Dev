@@ -45,7 +45,7 @@ $log_tmp = $adatbazis_kapcsolat->gp() . '
 ';
 $log .= $log_tmp;
 file_put_contents($log_utvonal, $log_tmp, FILE_APPEND | LOCK_EX);
-foreach($munkalapok as $munkalap){
+foreach ( $munkalapok as $munkalap ) {
     if( count($adatbazis_kapcsolat->s('recid', 'munkalap_kapcs', "`munkalap_id`='{$munkalap['recid']}'"))==0 ) {
         munkalapok_archival($munkalap['recid']);
     }
@@ -124,7 +124,7 @@ function bejelentesek_archival($idk) {
             $db_error = true;
             $log_tmp = 'NEM FUTOTT LE: '.$adatbazis_kapcsolat->gp() . '
 ';
-        }else{
+        } else {
             $log_tmp = $adatbazis_kapcsolat->gp() . '
 ';
         }
@@ -148,7 +148,7 @@ function bejelentesek_archival($idk) {
                 $db_error = true;
                 $log_tmp = 'NEM FUTOTT LE: '.$adatbazis_kapcsolat->gp() . '
 ';
-            }else{
+            } else {
                 $log_tmp = $adatbazis_kapcsolat->gp() . '
 ';
             }
@@ -181,7 +181,7 @@ function bejelentesek_archival($idk) {
                 $db_error = true;
                 $log_tmp = 'NEM FUTOTT LE: '.$adatbazis_kapcsolat->gp() . '
 ';
-            }else{
+            } else {
                 $log_tmp = $adatbazis_kapcsolat->gp() . '
 ';
             }
@@ -208,7 +208,7 @@ function bejelentesek_archival($idk) {
                 $db_error = true;
                 $log_tmp = 'NEM FUTOTT LE: '.$adatbazis_kapcsolat->gp() . '
 ';
-            }else{
+            } else {
                 $log_tmp = $adatbazis_kapcsolat->gp() . '
 ';
             }
@@ -222,7 +222,7 @@ function bejelentesek_archival($idk) {
             $db_error = true;
             $log_tmp = 'NEM FUTOTT LE: '.$adatbazis_kapcsolat->gp() . '
 ';
-        }else{
+        } else {
             $log_tmp = $adatbazis_kapcsolat->gp() . '
 ';
         }
@@ -235,7 +235,7 @@ function bejelentesek_archival($idk) {
             $db_error = true;
             $log_tmp = 'NEM FUTOTT LE: '.$adatbazis_kapcsolat->gp() . '
 ';
-        }else{
+        } else {
             $log_tmp = $adatbazis_kapcsolat->gp() . '
 ';
         }
@@ -248,7 +248,7 @@ function bejelentesek_archival($idk) {
             $db_error = true;
             $log_tmp = 'NEM FUTOTT LE: '.$adatbazis_kapcsolat->gp() . '
 ';
-        }else{
+        } else {
             $log_tmp = $adatbazis_kapcsolat->gp() . '
 ';
         }
@@ -261,7 +261,7 @@ function bejelentesek_archival($idk) {
             $db_error = true;
             $log_tmp = 'NEM FUTOTT LE: '.$adatbazis_kapcsolat->gp() . '
 ';
-        }else{
+        } else {
             $log_tmp = $adatbazis_kapcsolat->gp() . '
 ';
         }
@@ -280,7 +280,7 @@ function bejelentesek_archival($idk) {
             }
         
 //        // Ha a munkalapján nem archiváljuk, akkor viszont a ML kapcsolatot igen.
-//        }else{
+//        } else {
 //            
 //            $kapcsolatok = $adatbazis_kapcsolat->s('*', 'munkalap_kapcs', "`bejelentes_id`='{$recid}'");
 //            if( $kapcsolatok === false ) { $db_error = true; }
@@ -299,7 +299,7 @@ function bejelentesek_archival($idk) {
 //                    $db_error = true;
 //                    $log_tmp = 'NEM FUTOTT LE: '.$adatbazis_kapcsolat->gp() . '
 //    ';
-//                }else{
+//                } else {
 //                    $log_tmp = $adatbazis_kapcsolat->gp() . '
 //    ';
 //                }
@@ -313,7 +313,7 @@ function bejelentesek_archival($idk) {
 //                $db_error = true;
 //                $log_tmp = 'NEM FUTOTT LE: '.$adatbazis_kapcsolat->gp() . '
 //    ';
-//            }else{
+//            } else {
 //                $log_tmp = $adatbazis_kapcsolat->gp() . '
 //    ';
 //            }
@@ -391,7 +391,7 @@ function munkalapok_archival($idk, $tranzakcio_nelkul) {
             $db_error = true;
             $log_tmp = 'NEM FUTOTT LE: '.$adatbazis_kapcsolat->gp() . '
 ';
-        }else{
+        } else {
             $log_tmp = $adatbazis_kapcsolat->gp() . '
 ';
         }
@@ -419,7 +419,7 @@ function munkalapok_archival($idk, $tranzakcio_nelkul) {
                 $db_error = true;
                 $log_tmp = 'NEM FUTOTT LE: '.$adatbazis_kapcsolat->gp() . '
 ';
-            }else{
+            } else {
                 $log_tmp = $adatbazis_kapcsolat->gp() . '
 ';
             }
@@ -444,7 +444,7 @@ function munkalapok_archival($idk, $tranzakcio_nelkul) {
                 $db_error = true;
                 $log_tmp = 'NEM FUTOTT LE: '.$adatbazis_kapcsolat->gp() . '
 ';
-            }else{
+            } else {
                 $log_tmp = $adatbazis_kapcsolat->gp() . '
 ';
             }
@@ -473,7 +473,7 @@ function munkalapok_archival($idk, $tranzakcio_nelkul) {
                 $db_error = true;
                 $log_tmp = 'NEM FUTOTT LE: '.$adatbazis_kapcsolat->gp() . '
 ';
-            }else{
+            } else {
                 $log_tmp = $adatbazis_kapcsolat->gp() . '
 ';
             }
@@ -499,7 +499,7 @@ function munkalapok_archival($idk, $tranzakcio_nelkul) {
                 $db_error = true;
                 $log_tmp = 'NEM FUTOTT LE: '.$adatbazis_kapcsolat->gp() . '
 ';
-            }else{
+            } else {
                 $log_tmp = $adatbazis_kapcsolat->gp() . '
 ';
             }
@@ -528,7 +528,7 @@ function munkalapok_archival($idk, $tranzakcio_nelkul) {
                 $db_error = true;
                 $log_tmp = 'NEM FUTOTT LE: '.$adatbazis_kapcsolat->gp() . '
 ';
-            }else{
+            } else {
                 $log_tmp = $adatbazis_kapcsolat->gp() . '
 ';
             }
@@ -561,7 +561,7 @@ function munkalapok_archival($idk, $tranzakcio_nelkul) {
                 $db_error = true;
                 $log_tmp = 'NEM FUTOTT LE: '.$adatbazis_kapcsolat->gp() . '
 ';
-            }else{
+            } else {
                 $log_tmp = $adatbazis_kapcsolat->gp() . '
 ';
             }
@@ -589,7 +589,7 @@ function munkalapok_archival($idk, $tranzakcio_nelkul) {
                 $db_error = true;
                 $log_tmp = 'NEM FUTOTT LE: '.$adatbazis_kapcsolat->gp() . '
 ';
-            }else{
+            } else {
                 $log_tmp = $adatbazis_kapcsolat->gp() . '
 ';
             }
@@ -617,7 +617,7 @@ function munkalapok_archival($idk, $tranzakcio_nelkul) {
                 $db_error = true;
                 $log_tmp = 'NEM FUTOTT LE: '.$adatbazis_kapcsolat->gp() . '
 ';
-            }else{
+            } else {
                 $log_tmp = $adatbazis_kapcsolat->gp() . '
 ';
             }
@@ -641,7 +641,7 @@ function munkalapok_archival($idk, $tranzakcio_nelkul) {
                 $db_error = true;
                 $log_tmp = 'NEM FUTOTT LE: '.$adatbazis_kapcsolat->gp() . '
 ';
-            }else{
+            } else {
                 $log_tmp = $adatbazis_kapcsolat->gp() . '
 ';
             }
@@ -668,7 +668,7 @@ function munkalapok_archival($idk, $tranzakcio_nelkul) {
                 $db_error = true;
                 $log_tmp = 'NEM FUTOTT LE: '.$adatbazis_kapcsolat->gp() . '
 ';
-            }else{
+            } else {
                 $log_tmp = $adatbazis_kapcsolat->gp() . '
 ';
             }
@@ -685,7 +685,7 @@ function munkalapok_archival($idk, $tranzakcio_nelkul) {
             $db_error = true;
             $log_tmp = 'NEM FUTOTT LE: '.$adatbazis_kapcsolat->gp() . '
 ';
-        }else{
+        } else {
             $log_tmp = $adatbazis_kapcsolat->gp() . '
 ';
         }
@@ -698,7 +698,7 @@ function munkalapok_archival($idk, $tranzakcio_nelkul) {
             $db_error = true;
             $log_tmp = 'NEM FUTOTT LE: '.$adatbazis_kapcsolat->gp() . '
 ';
-        }else{
+        } else {
             $log_tmp = $adatbazis_kapcsolat->gp() . '
 ';
         }
@@ -711,7 +711,7 @@ function munkalapok_archival($idk, $tranzakcio_nelkul) {
             $db_error = true;
             $log_tmp = 'NEM FUTOTT LE: '.$adatbazis_kapcsolat->gp() . '
 ';
-        }else{
+        } else {
             $log_tmp = $adatbazis_kapcsolat->gp() . '
 ';
         }
@@ -724,7 +724,7 @@ function munkalapok_archival($idk, $tranzakcio_nelkul) {
             $db_error = true;
             $log_tmp = 'NEM FUTOTT LE: '.$adatbazis_kapcsolat->gp() . '
 ';
-        }else{
+        } else {
             $log_tmp = $adatbazis_kapcsolat->gp() . '
 ';
         }
@@ -737,7 +737,7 @@ function munkalapok_archival($idk, $tranzakcio_nelkul) {
             $db_error = true;
             $log_tmp = 'NEM FUTOTT LE: '.$adatbazis_kapcsolat->gp() . '
 ';
-        }else{
+        } else {
             $log_tmp = $adatbazis_kapcsolat->gp() . '
 ';
         }
@@ -750,7 +750,7 @@ function munkalapok_archival($idk, $tranzakcio_nelkul) {
             $db_error = true;
             $log_tmp = 'NEM FUTOTT LE: '.$adatbazis_kapcsolat->gp() . '
 ';
-        }else{
+        } else {
             $log_tmp = $adatbazis_kapcsolat->gp() . '
 ';
         }
@@ -763,7 +763,7 @@ function munkalapok_archival($idk, $tranzakcio_nelkul) {
             $db_error = true;
             $log_tmp = 'NEM FUTOTT LE: '.$adatbazis_kapcsolat->gp() . '
 ';
-        }else{
+        } else {
             $log_tmp = $adatbazis_kapcsolat->gp() . '
 ';
         }
@@ -776,7 +776,7 @@ function munkalapok_archival($idk, $tranzakcio_nelkul) {
             $db_error = true;
             $log_tmp = 'NEM FUTOTT LE: '.$adatbazis_kapcsolat->gp() . '
 ';
-        }else{
+        } else {
             $log_tmp = $adatbazis_kapcsolat->gp() . '
 ';
         }
@@ -789,7 +789,7 @@ function munkalapok_archival($idk, $tranzakcio_nelkul) {
             $db_error = true;
             $log_tmp = 'NEM FUTOTT LE: '.$adatbazis_kapcsolat->gp() . '
 ';
-        }else{
+        } else {
             $log_tmp = $adatbazis_kapcsolat->gp() . '
 ';
         }
@@ -802,7 +802,7 @@ function munkalapok_archival($idk, $tranzakcio_nelkul) {
             $db_error = true;
             $log_tmp = 'NEM FUTOTT LE: '.$adatbazis_kapcsolat->gp() . '
 ';
-        }else{
+        } else {
             $log_tmp = $adatbazis_kapcsolat->gp() . '
 ';
         }
@@ -815,7 +815,7 @@ function munkalapok_archival($idk, $tranzakcio_nelkul) {
             $db_error = true;
             $log_tmp = 'NEM FUTOTT LE: '.$adatbazis_kapcsolat->gp() . '
 ';
-        }else{
+        } else {
             $log_tmp = $adatbazis_kapcsolat->gp() . '
 ';
         }

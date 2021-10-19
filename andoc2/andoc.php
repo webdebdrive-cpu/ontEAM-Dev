@@ -166,12 +166,15 @@ class ServerClass {
 //                if( !trim($szamla_adatok['Szálloda - Klaszter']) ) {
 //                    Throw new SOAPFault ('Server', 'Hiányzó szálloda!');
 //                }
+                if( !trim($szamla_adatok['Fizetés módja']) ) {
+                    Throw new SOAPFault ('Server', 'Hiányzó fizetési mód!');
+                }
                 if( !trim($szamla_adatok['Partner száma']) ) {
                     Throw new SOAPFault ('Server', 'Hiányzó szállító!');
                 }
                 // szallito_id esetén fontos, hogy meglegyenek a kezdő 0-k
                 $szallito_id = sprintf('%05d', $szamla_adatok['Partner száma']);
-            
+
                 if( !valos_datum_e($szamla_adatok['Teljesítés dátuma']) ) {
                     Throw new SOAPFault ('Server', 'Helytelen teljesítés dátum!');
                 }
@@ -203,6 +206,19 @@ class ServerClass {
                 }
                 if( $szamla_adatok['Fizetési határidő'] && !valos_datum_e($szamla_adatok['Fizetési határidő']) ) {
                     Throw new SOAPFault ('Server', 'Helytelen fizetési határidő!');
+                }
+                if( !trim($szamla_adatok['Fizetés módja']) ) {
+                    Throw new SOAPFault ('Server', 'Hiányzó fizetési mód!');
+                }
+                if( !trim($szamla_adatok['Partner száma']) ) {
+                    Throw new SOAPFault ('Server', 'Hiányzó szállító!');
+                }
+                // szallito_id esetén fontos, hogy meglegyenek a kezdő 0-k
+                $szallito_id = sprintf('%05d', $szamla_adatok['Partner száma']);
+                
+                // Itt most "HUF", "EUR" stb-t kapunk, tehát az értéket és nem a kódot.
+                if( !trim($szamla_adatok['Pénznem']) ) {
+                    Throw new SOAPFault ('Server', 'Hiányzó pénznem!');
                 }
             }
             // Foglalt számlaszám ellenőrzése
@@ -300,27 +316,18 @@ class ServerClass {
             // Kifizetésekkel sem foglalkozunk már, nem használunk ilyen gyermek táblát
             // $kifizetesek = $szamla -> kifizetes;
 
-            // Van pár kötelező mező, ami már számlatípus specifikus
+            // Ha volna pár kötelező mező, ami már számlatípus specifikus
             if( $szamla_tipus == self::SZAMLA_TIPUS_FENNTARTASI ) {
-                if( $insert_update == 'insert' && !trim($szamla_adatok['Fizetés módja']) ) {
-                    Throw new SOAPFault ('Server', 'Hiányzó fizetési mód!');
-                }
-            }
 
+            }
             if( $szamla_tipus == self::SZAMLA_TIPUS_PROJEKT ) {
-                if( $insert_update == 'insert' && !trim($szamla_adatok['Fizetés módja']) ) {
-                    Throw new SOAPFault ('Server', 'Hiányzó fizetési mód!');
-                }
+
             }
             if( $szamla_tipus == self::SZAMLA_TIPUS_ENERGIA ) {
-                if( $insert_update == 'insert' && !trim($szamla_adatok['Fizetés módja']) ) {
-                    Throw new SOAPFault ('Server', 'Hiányzó fizetési mód!');
-                }
+
             }
             if( $szamla_tipus == self::SZAMLA_TIPUS_ANYAG ) {
-                if( $insert_update == 'insert' && !trim($szamla_adatok['Fizetés módja']) ) {
-                    Throw new SOAPFault ('Server', 'Hiányzó fizetési mód!');
-                }
+
             }
 
             // Csak ez a két fizetési mód létezik:

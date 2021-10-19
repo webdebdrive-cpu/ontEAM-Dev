@@ -1446,9 +1446,10 @@ $(function() {
     });
 
     $('#popup').on('click', function(e) {
+        
         var className = e.target.className;
-
-        if( className == 'bezar' ) {
+        var classNevek = className.split(' ');
+        if( classNevek.includes('bezar') ) {
             popupZar();
         }
     });

@@ -1,6 +1,5 @@
 /* Egységárak táblázat kijelölés klikkre */
 $(document).ready(function () {
-
     $(document).on('click', '.szamla_cont_tabla tbody tr', function(e) {
         $('.szamla_cont_tabla tbody tr').removeClass('kijelolve');
         $(this).addClass('kijelolve');

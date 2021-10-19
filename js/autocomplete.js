@@ -368,7 +368,8 @@
                     }
 
                     // KP-s anyagbeszerzéshez popuphoz
-                    if ( $('#pop_afa').length && $('#pop_afa').val() && location.href.indexOf('energia_szamla.php')=='-1' ) {
+                    // Viszont ne fusson le más Áfa autocompleteknél (pl, anyag vagy energia számla tételek popup)
+                    if ( $('#pop_afa').length && $('#pop_afa').val() && location.href.indexOf('energia_szamla.php')=='-1' && location.href.indexOf('anyag_szamla.php')=='-1' ) {
                         osszegek_kiszamol($('#pop_afa'));
                     }
 
