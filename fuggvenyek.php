@@ -5051,20 +5051,10 @@ function anyag_szamlaLista( $bejegyzesek, $tabla, $frissit = '', $kijeloltek = '
                 $active = ' kijelolve';
             }
             
-            $ikon = '';
-            if( !$bsz['igazolva'] ) {
-                $ikon = '<span class="icon sarga">?</span>';
-                if( $bsz['igazolva_dt']!='0000-00-00 00:00:00' ) {
-                    $ikon = '<span class="icon piros">✖</span>';
-                }
-            } else {
-                $ikon = '<span class="icon zold">✓</span>';
-            }
-
             $li_tart = '<a class="szamla" data-recid="'.$bsz['recid'].'" data-fajl="'.$tabla.'.php" data-muvelet="modosit">
                             <table>
                             <tr> 
-                                <td class="ikonok keskeny c" rowspan="3">'.$ikon.'</td>
+                                <td class="ikonok keskeny c" rowspan="3">'.get_szamlak_ikon($bsz).'</td>
                                 <td style="width: 8rem">'.$bsz['szla_szam'].'</td>
                                 <td>'.number_format($bsz['netto'], 0, ',', ' ').' '.get_penznem().'</td>
                             </tr>
@@ -6010,21 +6000,11 @@ function fenntartasi_szamlaLista( $bejegyzesek, $tabla, $frissit = '', $kijelolt
             if( $bsz['recid'] == $_GET['id'] && !isset($_GET['print']) ) {
                 $active = ' kijelolve';
             }
-            
-            $ikon = '';
-            if( !$bsz['igazolva'] ) {
-                $ikon = '<span class="icon sarga">?</span>';
-                if( $bsz['igazolva_dt']!='0000-00-00 00:00:00' ) {
-                    $ikon = '<span class="icon piros">✖</span>';
-                }
-            } else {
-                $ikon = '<span class="icon zold">✓</span>';
-            }
 
             $li_tart = '<a class="szamla" data-recid="'.$bsz['recid'].'" data-fajl="'.$tabla.'.php" data-muvelet="modosit">
                             <table>
                             <tr> 
-                                <td class="ikonok keskeny c" rowspan="3">'.$ikon.'</td>
+                                <td class="ikonok keskeny c" rowspan="3">'.get_szamlak_ikon($bsz).'</td>
                                 <td style="width: 8rem">'.$bsz['szla_szam'].'</td>
                                 <td>'.number_format($bsz['netto'], 0, ',', ' ').' '.get_penznem().'</td>
                             </tr>
@@ -6908,20 +6888,10 @@ function projektszamlaLista( $bejegyzesek, $tabla, $frissit = '', $kijeloltek = 
         $i = 1;
         foreach($bejegyzesek as $bsz) {
             
-            $ikon = '';
-            if( !$bsz['igazolva'] ) {
-                $ikon = '<span class="icon sarga">?</span>';
-                if( $bsz['igazolva_dt']!='0000-00-00 00:00:00' ) {
-                    $ikon = '<span class="icon piros">✖</span>';
-                }
-            } else {
-                $ikon = '<span class="icon zold">✓</span>';
-            }
-
             $li_tart = '<a class="szamla" data-recid="'.$bsz['recid'].'" data-fajl="'.$tabla.'.php" data-muvelet="modosit">
                             <table style="width: 30rem">
                             <tr>
-                                <td class="ikonok keskeny c" rowspan="3">'.$ikon.'</td>
+                                <td class="ikonok keskeny c" rowspan="3">'.get_szamlak_ikon($bsz).'</td>
                                 <td style="width: 5rem">'.$bsz['szla_szam'].'</td>
                                 <td style="width: 10rem">'.getSzallodaNev($bsz['telephely_id']).'</td>
                                 <td class="r nowrap">'. number_format($bsz['netto'], 0, '', ' ').' '.get_penznem().'</td>
@@ -7167,20 +7137,10 @@ function energia_szamlaLista( $bejegyzesek, $tabla, $frissit = '', $kijeloltek =
                 $active = ' kijelolve';
             }
             
-            $ikon = '';
-            if( !$bsz['igazolva'] ) {
-                $ikon = '<span class="icon sarga">?</span>';
-                if( $bsz['igazolva_dt']!='0000-00-00 00:00:00' ) {
-                    $ikon = '<span class="icon piros">✖</span>';
-                }
-            } else {
-                $ikon = '<span class="icon zold">✓</span>';
-            }
-
             $li_tart = '<a class="szamla" data-recid="'.$bsz['recid'].'" data-fajl="'.$tabla.'.php" data-muvelet="modosit">
                             <table>
                             <tr> 
-                                <td class="ikonok keskeny c" rowspan="3">'.$ikon.'</td>
+                                <td class="ikonok keskeny c" rowspan="3">'.get_szamlak_ikon($bsz).'</td>
                                 <td style="width: 8rem">'.$bsz['szla_szam'].'</td>
                                 <td>'.number_format($bsz['netto'], 0, ',', ' ').' '.get_penznem().'</td>
                             </tr>
@@ -12475,4 +12435,33 @@ function torzsadat_update_es_log( $torzsadat, $inaktival = '' ) {
     } else {
         return true;
     }
+}
+
+// Fenntartás, Energia, Projekt, Anyaszámlák bal navpanelkében szereplő ikon egy sémára számítódik ki
+function get_szamlak_ikon( $bsz ) {
+    $ikon = '';
+    // Ha nincs igazolva, akkor vagy kérdéses még, hogy mi lesz vele (sárga kérdőjel),
+    // vagy ha már ismert az igazolás dátuma, akkor biztosan el van utasítva (piros X)
+    if( !$bsz['igazolva'] ) {
+        $ikon = '<span class="icon sarga">?</span>';
+        if( $bsz['igazolva_dt']!='0000-00-00 00:00:00' ) {
+            $ikon = '<span class="icon piros">✖</span>';
+        }
+    // Ha már az igazoláson túl vagyunk sikerrel...
+    } else {
+        // ... akkor már csak az utalványozást kell figyelni.
+        // Ha nincs utalványozva, akkor vagy nem járunk még itt (zöld pipa, mert igazolva már legalább van)
+        // vagy van már utalványozás dátum is, tehát el lett utasítva (piros X)
+        if( !$bsz['utalvanyozva'] ) {
+            if( $bsz['utalvanyozva_dt']!='0000-00-00 00:00:00' ) {
+                $ikon = '<span class="icon piros">✖</span>';
+            } else {
+                $ikon = '<span class="icon zold">✓</span>';
+            }
+        // ... vagy már Utaláványozva is van (zöld pipa)
+        } else {
+            $ikon = '<span class="icon zold">✓</span>';
+        }
+    }
+    return $ikon;
 }

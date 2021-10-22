@@ -53,9 +53,10 @@
             if( $(this).attr('data-no_original_val')!='1' ){
                 $(this).attr('data-origin-val', $(this).val());
             }
-            $(this).addClass('autocomp'); /* Ettől lesz nyíl ikon az input végén, látszik, hogy egy autocompletes input. */
+            // Ettől lesz nyíl ikon az input végén, látszik, hogy egy autocompletes input.
+            $(this).addClass('autocomp');
 
-            /* Szállítóknál legyen placeholder, illetve itt 3 karakter kell a listázáshoz */
+            // Szállítóknál legyen placeholder, illetve itt 3 karakter kell a listázáshoz
             if( defaults.tabla=='szallito' && defaults.oszlop_keres=='nev' ){
                 $(this).attr('placeholder', '3 betűt üssön le listához');
                 defaults.karaktertol = 3;
@@ -63,7 +64,7 @@
 
             $(this).keyup(function(e) {
                 
-                /* Ha readonly, akkor nem csinálunk semmit */
+                // Ha readonly, akkor nem csinálunk semmit
                 if($(this).attr('readonly')){
                     return false;
                 }
@@ -76,7 +77,7 @@
                 }
 
                 delay(function() {
-                    /* Tabbal érkezve egy autocomplete mezőbe ne jöjjön fel a lista */
+                    // Tabbal érkezve egy autocomplete mezőbe ne jöjjön fel a lista
                     if(e.which != KEY_TAB){
                         var width   = $(that).outerWidth();
                         var height  = $(that).outerHeight();
@@ -127,8 +128,8 @@
                                 }
                             }
 
-                            /*  Ha nem a szűrőben van az autocomplete, akkor csak azokat a helyiségeket listázza ki,
-                             *  ami adott szállodához tartozik, ezért átküldünk egy telephely_id értékete is */
+                            //  Ha nem a szűrőben van az autocomplete, akkor csak azokat a helyiségeket listázza ki,
+                            //  ami adott szállodához tartozik, ezért átküldünk egy telephely_id értékete is
                             telephely_id = '';
                             if( !options.szuros && (
                                 baseName(location.href) == 'bejelentes'                 ||
@@ -140,7 +141,7 @@
                                 )
                             ) {
                                 telephely_id = $('#telephely_id').val();
-                            /* De az autocomplete.php felé ekkor is jelezzük, hogy engedjen listázni */
+                            // De az autocomplete.php felé ekkor is jelezzük, hogy engedjen listázni
                             } else {
                                 telephely_id = 'szuros_szoval_mehet';
                             }
@@ -192,7 +193,7 @@
                                         if(msg.substring(0, 6)=='SESKIL'){ location.href = 'index.php'; }
                                         $('div#autocomplete').html(msg);
 
-                                        /* Ha kilógna a képernyőről */
+                                        // Ha kilógna a képernyőről
                                         var offsetTop       = $(that).offset().top,
                                             documentHeight  = $(document).outerHeight(),
                                             documentHalf    = documentHeight / 2;
@@ -265,8 +266,8 @@
                 $(this).removeClass('aktiv');
             });
 
-            /* Ha nincs érték a rejett mezőben, akkor töröljük az autocopletes mező értékét is.
-             * Viszont ezt ne tegyük meg, ha a mezőnek van olyan data tag-je, hogy "ne üríts" */
+            // Ha nincs érték a rejett mezőben, akkor töröljük az autocopletes mező értékét is.
+            // Viszont ezt ne tegyük meg, ha a mezőnek van olyan data tag-je, hogy "ne üríts"
             $(this).on('blur', function(e) {
                 if( mezo !== undefined && mezo.attr('name').indexOf('_autocomp') !== -1 ) {
                     var mezo_nev = mezo.attr('name').replace('_autocomp', ''),
@@ -278,7 +279,7 @@
                 }
             });
 
-            /* Klikkelve kiválasztva egy sor */
+            // Klikkelve kiválasztva egy sor
             $(document).on('click', '#autocomplete ul li', function(e) {
                 var link   = $('#autocomplete ul li.aktiv').attr('data-href'),
                     recid  = $('#autocomplete ul li.aktiv').attr('data-recid'),
@@ -318,27 +319,27 @@
                         mezo_nev = mezo.attr('name').replace('_autocomp', '');
                         $('input[name="' + mezo_nev + '"]').val(recid);
 
-                        /* Egy érték kiválasztásakor mi fusson le. Lehessen paraméterként átadni egy függvényt vagy bármilyen JS kódot, ami akkor fut le, ha megvan az érték kiválasztása
-                         * Viszont ha az inputunk neve pop_cimzett_loginbol, akkor ezt mégse tegyük meg, mert egy popup-on két autocpmlete is volt, és az elsőnek van oncomplete-je, és a 2-nál is mindig lefutott */
+                        // Egy érték kiválasztásakor mi fusson le. Lehessen paraméterként átadni egy függvényt vagy bármilyen JS kódot, ami akkor fut le, ha megvan az érték kiválasztása
+                        // Viszont ha az inputunk neve pop_cimzett_loginbol, akkor ezt mégse tegyük meg, mert egy popup-on két autocpmlete is volt, és az elsőnek van oncomplete-je, és a 2-nál is mindig lefutott
                         if( mezo.attr('name')!='pop_cimzett_loginbol_autocomp' ){
                             options.complete();
                         }
 
                         var form = $('input[name="' + mezo_nev + '"]').parents('form');
-                        /* Lehet nem egy űrlapon vagyunk, hanem egy alert2-ben, ebben keressünk inputot */
+                        // Lehet nem egy űrlapon vagyunk, hanem egy alert2-ben, ebben keressünk inputot
                         if($('#alert2').length){
                             form = $('#alert2');
                         }
 
                         setTimeout(function() {
-                            /* Autcomplete után a következő inputra fókusz */
+                            // Autcomplete után a következő inputra fókusz
                             stop = false;
                             form.find('input:not([readonly]), select:not([readonly]), textarea:not([readonly])').filter(':not(:disabled)').filter(":not([type='file'])").each(function() {
                                 var name = $(this).attr('name'),
                                     type = $(this).attr('type'),
                                     tag  = $(this).prop('tagName');
 
-                                /* Autocomplete hidden inputjai miatt csak arra fókuszálunk, ami látszik is */
+                                // Autocomplete hidden inputjai miatt csak arra fókuszálunk, ami látszik is
                                 if( name !== undefined && (stop && type == 'checkbox') || (stop && $(this).is(':visible')) ) {
 
                                     if( type == 'checkbox' || tag == 'SELECT' ) {
@@ -362,7 +363,7 @@
                         }, 50);
                     }
 
-                    /* Árazás popuphoz */
+                    // Árazás popuphoz
                     if(options.arazas_beallit){
                         rend_ossz_beallit();
                     }
@@ -392,11 +393,11 @@
                 }
             });
 
-            /* Bárhova kattintva az oldalon, vagy Entert nyomva, az autocomplete záródjon be */
+            // Bárhova kattintva az oldalon, vagy Entert nyomva, az autocomplete záródjon be
             that = $(this);
             $(document).click(function() {
                 $('#autocomplete').css({'display':'none'}).html('');
-                /* Új anyagigénylés feltötésénél, elleőrizzük, hogy valós érték van-e az inputban, mert ha nincs, akkor a mee-t is tüntessük el. */
+                // Új anyagigénylés feltötésénél, elleőrizzük, hogy valós érték van-e az inputban, mert ha nincs, akkor a mee-t is tüntessük el.
                 if( defaults.tabla == 'cikktorzs' && _get('uj') && $('.insertMee').length && !$('#nev').val() ){
                     $('.insertMee').html('');
                 }
@@ -409,7 +410,7 @@
             });
 
 
-            /* Tab esetén záródjon be az autocomplete, és ha nem változott az értéke, írjuk vissza az eredetit */
+            // Tab esetén záródjon be az autocomplete, és ha nem változott az értéke, írjuk vissza az eredetit
             $(this).keydown(function(e) {
                 if (e.keyCode == KEY_TAB) {
                     $('#autocomplete').css({'display':'none'}).html('');
@@ -460,7 +461,7 @@
                     $('#autocomplete').scrollTop($('#autocomplete').scrollTop() + $('#autocomplete ul li.aktiv').position().top - 20);
                 }
 
-                /* Enterrel kiválasztva egy sort */
+                // Enterrel kiválasztva egy sort
                 if(e.keyCode==KEY_ENTER) {
                     if( $('#autocomplete ul li').hasClass('aktiv') ) {
 
@@ -502,7 +503,7 @@
                                 mezo_nev = mezo.attr('name').replace('_autocomp', '');
                                 $('input[name="' + mezo_nev + '"]').val(recid);
                                 
-                                /* Egy érték kiválasztásakor mi fusson le. Lehessen paraméterként átadni egy függvényt vagy bármilyen JS kódot, ami akkor fut le, ha megvan az érték kiválasztása */
+                                // Egy érték kiválasztásakor mi fusson le. Lehessen paraméterként átadni egy függvényt vagy bármilyen JS kódot, ami akkor fut le, ha megvan az érték kiválasztása
                                 options.complete();
 
                                 var form = $('input[name="' + mezo_nev + '"]').parents('form');
@@ -514,7 +515,7 @@
                                             type = $(this).attr('type'),
                                             tag  = $(this).prop('tagName');
 
-                                        /* Autocomplete hidden inputjai miatt csak arra fókuszálunk, ami látszik is */
+                                        // Autocomplete hidden inputjai miatt csak arra fókuszálunk, ami látszik is
                                         if( name !== undefined && (stop && type == 'checkbox') || (stop && $(this).is(':visible')) ) {
 
                                             if( type == 'checkbox' || tag == 'SELECT' ) {
@@ -535,13 +536,13 @@
                                 }, 50);
                             }
 
-                            /* Árazás popuphoz */
+                            // Árazás popuphoz
                             if(options.arazas_beallit){
                                 rend_ossz_beallit();
                             }
 
-                            /* KP-s anyagbeszerzéshez popuphoz */
-                            if($('#pop_afa').length && $('#pop_afa').val()){
+                            // KP-s anyagbeszerzéshez popuphoz
+                            if ( $('#pop_afa').length && $('#pop_afa').val() && location.href.indexOf('energia_szamla.php')=='-1' && location.href.indexOf('anyag_szamla.php')=='-1' ) {
                                 osszegek_kiszamol($('#pop_afa'));
                             }
 

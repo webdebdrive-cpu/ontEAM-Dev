@@ -7,7 +7,7 @@
     
     Cikknév:
     <br>
-    <input type="text" autocomplete="off" class="oriasi disableNav csillag" id="cikktorzs_id_autocomp" name="cikktorzs_id_autocomp" onblur="if(!$(this).val()){ $('#cikktorzs_id').val(''); $('#cikktorzs_onteam_id').val(''); $('#cikkmee_id').val(''); }">
+    <input type="text" autocomplete="off" class="oriasi disableNav csillag" id="cikktorzs_id_autocomp" name="cikktorzs_id_autocomp" onblur="if(!$(this).val()){ $('#cikktorzs_id').val(''); $('#cikktorzs_onteam_id').val(''); $('#cikkmee_id').val(''); } $('#pop_rndid').val(''); $('#pop_rnd_recid').val('');">
     <input type="hidden" id="cikktorzs_id" name="cikktorzs_id">
     <script>
         function onteam_id_mee_kitolt() {
@@ -82,7 +82,7 @@
     <div class="pop_grid ketto">
         <div>
             Mennyiség:
-            <br><input type="text" id="pop_rndmen" class="f_num csillag" data-tort="2"></span>
+            <br><input type="text" id="pop_rndmen" class="f_num csillag" data-tort="2" onblur="netto_kiszamol()"></span>
         </div>
         <div>
             Egységár:
@@ -251,7 +251,7 @@
             <table class="csikos kijCont dn" id="pop_tetelek" style="cursor: default;">
                 <thead>
                 <tr>
-                    <th>Cikknév</th>
+                    <th style="min-width: 22rem">Cikknév</th>
                     <th>Szállító cikkszáma</th>
                     <th>Danubius cikkszám</th>
                     <th>Mennyiség</th>
@@ -259,7 +259,7 @@
                     <th>Mee</th>
                     <th>Nettó érték (<span class="f_penznem"></span>)</th>
                     <th>Bruttó érték (<span class="f_penznem"></span>)</th>
-                    <th>Jogcím</th>
+                    <th style="min-width: 22rem">Jogcím</th>
                     <th>Költségnem</th>
                     <th>Költséghely</th>
                     <th>Anyagrendelés</th>

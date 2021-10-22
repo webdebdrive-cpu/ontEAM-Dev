@@ -108,22 +108,30 @@ if( isset($_POST['rendeles_tetel_hozzaadasa']) ) {
                     </thead>
                     <tbody>
                 ');
-    $rendelesek = $adatbazis_kapcsolat->s('recid rndid cikk_id nev rndmen rndear kcs_21 cikkmee szlamen', 'anyagigenyles', "`telephely_id`='{$_POST['telephely_id']}' AND `szallito_id`='{$_POST['szallito_id']}' AND `keszpenz`='{$fizmod}' AND `rndmen`>`szlamen` AND `stat_id` IN ('".CIKKIGN_STAT_RESZBENBEERK."', '".CIKKIGN_STAT_BEERKEZETT."')");
+    $rendelesek = $adatbazis_kapcsolat->s('recid rndid cikk_id nev rndmen rndear vrndear kcs_21 cikkmee szlamen', 'anyagigenyles', "`telephely_id`='{$_POST['telephely_id']}' AND `szallito_id`='{$_POST['szallito_id']}' AND `keszpenz`='{$fizmod}' AND `rndmen`>`szlamen` AND `stat_id` IN ('".CIKKIGN_STAT_RESZBENBEERK."', '".CIKKIGN_STAT_BEERKEZETT."')");
     foreach ( $rendelesek as $rendeles ) {
         
         // Ha adott anyagrendelés már hozzá van adva egy számla tételhez, akkor szürkén jelenítjük meg
         // Ha egy sort logikailag töröltünk a popup-on, akkor azokkal viszont ne foglalkozzunk.
         $class = '';
-        if( !in_array($rendeles['recid'], $_POST['torolt_rndrecidk']) ) {
-            $mar_kapcsolva = $adatbazis_kapcsolat->s2('recid', 'anyag_szamla_tetel', "`rnd_recid`='{$rendeles['recid']}'");
-            if( $mar_kapcsolva ) {
-                $class = ' class="szurke"';
-            }
-        }
+        // Update: ezt mindig mutatjuk, mert egy rendelést lehet két részletben számláznak.
+        // Csak azért mert már a rendelés szerepel egy másik számla tétellel összekapcsolva,
+        // attól az még kiválasztható lesz egy másiknál
+//        if( !in_array($rendeles['recid'], $_POST['torolt_rndrecidk']) ) {
+//            $mar_kapcsolva = $adatbazis_kapcsolat->s2('recid', 'anyag_szamla_tetel', "`rnd_recid`='{$rendeles['recid']}'");
+//            if( $mar_kapcsolva ) {
+//                $class = ' class="szurke"';
+//            }
+//        }
 
         // A fordítottja is igaz: ha most adtunk volna hozzá a sort (hiába még csak logikailag), akkor viszont legyen szürke
         if( in_array($rendeles['recid'], $_POST['hozzaadott_rndrecidk']) ) {
             $class = ' class="szurke"';
+        }
+        
+        $egysegar_oszlop = 'rndear';
+        if( $rendeles['kcs_21'] != KCS_21_HUF ) {
+            $egysegar_oszlop = 'vrndear';
         }
         
         $html .= nl2('
@@ -132,7 +140,7 @@ if( isset($_POST['rendeles_tetel_hozzaadasa']) ) {
                         <td class="rend_pop_cikk_id">'.$rendeles['cikk_id'].'</td>
                         <td class="rend_pop_cikk_nev">'.$rendeles['nev'].'</td>
                         <td>'.number_format($rendeles['rndmen'], 2, ',', ' ').'</td>
-                        <td>'.number_format($rendeles['rndear'], 2, ',', ' ').'</td>
+                        <td>'.number_format($rendeles[$egysegar_oszlop], 2, ',', ' ').'</td>
                         <td>
                             '.getErtekLista(ERTEKLISTA_PENZNEM, $rendeles['kcs_21']).'
                             <input type="hidden" class="rend_pop_cikkmee" value="'.$rendeles['cikkmee'].'">
@@ -336,6 +344,17 @@ if( isset($_POST['anyagSzamlaElutasit']) ) {
                                                           array(0,          $_POST['memo'], 'NOW()',       $_SESSION[get_db_tabla().'teljes_nev']   ),
                                         "`recid`='{$_POST['id']}'");
         if( $sql === false ) { $db_error = true; }
+        
+        $tetelek = $adatbazis_kapcsolat->s('rnd_recid rndmen', 'anyag_szamla_tetel', "`anyag_szamla_recid`='{$_POST['id']}'");
+        if( $tetelek === false ) { $db_error = true; }
+        foreach ($tetelek as $tetel ) {
+            if( $tetel['rnd_recid'] ) {
+                $rnd = $adatbazis_kapcsolat->s2('szlamen', 'anyagigenyles', "`recid`='{$tetel['rnd_recid']}'");
+                if( $rnd === false ) { $db_error = true; }
+                $sql = $adatbazis_kapcsolat -> u('anyagigenyles', array('szlamen'), array($rnd['szlamen']-$tetel['rndmen']), "`recid`='{$tetel['rnd_recid']}'");
+                if( $sql === false ) { $db_error = true; }
+            }
+        }
     }
                                                 
     if( !$db_error ) {
@@ -492,7 +511,7 @@ if( isset($_POST['menny_ear_ell']) ) {
         // Az egységár nem lehet több mint a rendelés egységára
         if( $_POST['rndear'] > $anyagig['rndear'] ) {
             echo json_encode( array(
-                'hiba'  => nl2('A számla egységára legfeljebb '.number_format($anyagig['rndear'], 4, ',', ' ').' '.getErtekLista(ERTEKLISTA_PENZNEM, $anyagig['kcs_21']).' lehet!'),
+                'hiba'  => nl2('A számlázott tétel egységára nem lehet nagyobb, mint a rendelési egységár ('.number_format($anyagig['rndear'], 4, ',', ' ').' '.getErtekLista(ERTEKLISTA_PENZNEM, $anyagig['kcs_21']).')!'),
                 'title' => 'Hiba',
                 ) );
             $weblap -> leallit();
@@ -687,21 +706,26 @@ if( isset($_POST['tetel_sorok_ment']) ) {
         if( $rnd_recid ) {
             $anyagig = $adatbazis_kapcsolat->s2('recid szlamen', 'anyagigenyles', "`recid`='{$rnd_recid}'");
             if( $anyagig === false ) { $db_error = true; }
-            
+
             // Nézzük át a logiailag törölt számla tétel sorokat. Ha ebben van egyezés az aktuális rendelés recid-val,
             // akkor az annak megfelelő számlázott mennyiségével csökkentsük a rendelés sor számlázott mennyiségét
             // Tehát itt azt kell lekezelni, hogy a popupon már törölt, de adatbázisba még nem beírt tétel
             // számlázott mennyiségét vonjuk ki a már számlázott mennyiségből
             $i = 0;
+
             foreach ( $_POST['torolt_rndrecidk'] as $torolt_recid ) {
                 if( $torolt_recid == $anyagig['recid'] ) {
                     $anyagig['szlamen'] -= str_replace(array(',', ' '), array('.', ''), $_POST['torolt_rnd_szlamen'][$i]);
+                    // Egyúttal ki is nullázzuk, hogy később ezeket már ne dolgozzuk fel
+                    $_POST['torolt_rndrecidk'][$i]   = 0;
+                    $_POST['torolt_rnd_szlamen'][$i] = 0;
                 }
                 $i++;
             }
             
             $sql = $adatbazis_kapcsolat->u('anyagigenyles', array('szlamen'), array($anyagig['szlamen']+$rndmen), "`recid`='{$rnd_recid}'");
             if( $sql === false ) { $db_error = true; }
+
         }
         
         // Ha kell a törölt sorok törlése adatbázisból is
@@ -711,6 +735,20 @@ if( isset($_POST['tetel_sorok_ment']) ) {
             $sql = $adatbazis_kapcsolat->d('anyag_szamla_tetel', "`recid` IN ('". implode('\', \'', $torlendo_idk)."')");
             if( $sql === false ) { $db_error = true; }
         }
+    }
+    
+    // Ha itt járunk még előfordulhat, hogy vannak még fel nem dolgozott törölt sorok:
+    $i = 0;
+    foreach ( $_POST['torolt_rndrecidk'] as $torolt_recid ) {
+        if( $torolt_recid ) {
+            $anyagig = $adatbazis_kapcsolat->s2('recid szlamen', 'anyagigenyles', "`recid`='{$torolt_recid}'");
+            if( $anyagig === false ) { $db_error = true; }
+            
+            $torolt_men = str_replace(array(',', ' '), array('.', ''), $_POST['torolt_rnd_szlamen'][$i]);
+            $sql = $adatbazis_kapcsolat->u('anyagigenyles', array('szlamen'), array($anyagig['szlamen']-$torolt_men), "`recid`='{$torolt_recid}'");
+            if( $sql === false ) { $db_error = true; }
+        }
+        $i++;
     }
 
     if( !$db_error ) {
@@ -1099,9 +1137,39 @@ require_once('selectek.php');
     }
 
     // Gombok kirajzolása minden oldalra
+    // Fenntartási számla mentésekor HA nem nullás a számla, akkor ellenőrizzük, hogy a számla nettó értéke azonos-e a tételek összegével
+    // Deviza esetén más session-t járunk be
+    $tizedesek  = 0;
+    $mezo1      = 'ossz_netto';
+    $mezo2      = 'netto';
+    if( $szamla['kcs_21']!=KCS_21_HUF ) {
+        $tizedesek  = 2;
+        $mezo1      = 'ossz_dev_net';
+        $mezo2      = 'dev_net';
+    }
     $gombok = '';
     if( isset($_GET['uj']) && _jog(JOG_ANYAG_SZAMLAK_OLVAS) ) {
 
+        // Új számla rögzítésekor így ellenőrizzük a nettó és tételek összegének azonosságát
+        $js_submit_elott = nl2('
+
+            var tetelek_ossz = ezresek($(\'#'.$mezo1.'\').val().replace(/ /g, \'\').replace(/,/g, \'.\'), '.$tizedesek.', \',\', \' \');
+            if( $(\'#nullas\').is(\':checked\') == false ) {
+                if( $(\'#'.$mezo2.'\').val() != tetelek_ossz ) {
+                    alert2(\'A számla tételeinek összege (\'+tetelek_ossz+\' \'+$(\'#kcs_21_autocomp\').val()+\') nem egyezik meg a számla nettó értékével (\'+$(\'#'.$mezo2.'\').val()+\' \'+$(\'#kcs_21_autocomp\').val()+\')!<br>Így nem menthető!\', \'\', \'Hiba\');
+                    return false;
+                }
+            } else if( $(\'#nullas\').is(\':checked\') == true ) {
+                if( tetelek_ossz != \'0\' && tetelek_ossz != \'0,00\' && tetelek_ossz != \'\' ) {
+                    alert2(\'Nullás számla esetén a tételek értéke is 0 legyen!<br>Így nem menthető!\', \'\', \'Hiba\');
+                    return false;
+                }
+            }
+
+            return form_ell_admin();
+            
+            ');
+        
         $gombok = nl2('
             <div class="form_kuldes">
                 <input type="hidden" name="atmeneti_recid" value="'.$szamla['recid'].'">
@@ -1630,11 +1698,16 @@ function xml_vissza( $szamla_id, $igazolva = '', $oka = '' ) {
         $i++;
     }
     
+    $wf_name = '[AUTO] Utalványozásra küldés';
+    if( $igazolva == 'Elutasítva' ) {
+        $wf_name = '[AUTO] Számla szétosztás';
+    }
+    
     $valasz_xml = 'psInputXml=<?xml version="1.0" encoding="utf-8"?>
 <xml>
   <data>
     <register registernumber="'.$szamla['andoc_id'].'" operation="update">
-      <workflow_node_name>[AUTO] Utalványozásra küldés</workflow_node_name>
+      <workflow_node_name>'.$wf_name.'</workflow_node_name>
       <properties>
         <container name="NIK1">
           <row rownumberonpage="1">

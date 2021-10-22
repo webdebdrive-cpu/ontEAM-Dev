@@ -181,6 +181,8 @@ switch ( $tabla ) {
                                     `'.get_db_tabla().$tabla_nophp.'`.`targy`,
                                     `'.get_db_tabla().$tabla_nophp.'`.`igazolva`,
                                     `'.get_db_tabla().$tabla_nophp.'`.`igazolva_dt`,
+                                    `'.get_db_tabla().$tabla_nophp.'`.`utalvanyozva`,
+                                    `'.get_db_tabla().$tabla_nophp.'`.`utalvanyozva_dt`,
                                     `'.get_db_tabla().$tabla_nophp.'`.`netto`
                                     ');
 
@@ -441,6 +443,8 @@ switch ( $tabla ) {
                                     `'.get_db_tabla().$tabla_nophp.'`.`targy`,
                                     `'.get_db_tabla().$tabla_nophp.'`.`igazolva`,
                                     `'.get_db_tabla().$tabla_nophp.'`.`igazolva_dt`,
+                                    `'.get_db_tabla().$tabla_nophp.'`.`utalvanyozva`,
+                                    `'.get_db_tabla().$tabla_nophp.'`.`utalvanyozva_dt`,
                                     `'.get_db_tabla().$tabla_nophp.'`.`netto`,
                                     `'.get_db_tabla().$tabla_nophp.'`.`telephely_id`,
                                     `'.get_db_tabla().$tabla_nophp.'`.`szallito_id`
@@ -552,6 +556,8 @@ switch ( $tabla ) {
                                     `'.get_db_tabla().$tabla_nophp.'`.`targy`,
                                     `'.get_db_tabla().$tabla_nophp.'`.`igazolva`,
                                     `'.get_db_tabla().$tabla_nophp.'`.`igazolva_dt`,
+                                    `'.get_db_tabla().$tabla_nophp.'`.`utalvanyozva`,
+                                    `'.get_db_tabla().$tabla_nophp.'`.`utalvanyozva_dt`,
                                     `'.get_db_tabla().$tabla_nophp.'`.`netto`
                                 ');
 
@@ -927,6 +933,8 @@ switch ( $tabla ) {
                                     `'.get_db_tabla().$tabla_nophp.'`.`szallito_id`,
                                     `'.get_db_tabla().$tabla_nophp.'`.`igazolva`,
                                     `'.get_db_tabla().$tabla_nophp.'`.`igazolva_dt`,
+                                    `'.get_db_tabla().$tabla_nophp.'`.`utalvanyozva`,
+                                    `'.get_db_tabla().$tabla_nophp.'`.`utalvanyozva_dt`,
                                     `'.get_db_tabla().$tabla_nophp.'`.`targy`
                                     ');
 

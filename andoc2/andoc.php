@@ -354,7 +354,7 @@ class ServerClass {
             }
 
             // Elutasítás leírása + Utalványozás leírása egyben
-            $eutleir = trim($szamla['Teljesítés igazolás elutasítás oka'].' '.$szamla['Utalványozás elutasítás oka']);
+            $elutleir = trim($szamla_adatok['Teljesítés igazolás elutasítás oka'].' '.$szamla_adatok['Utalványozás elutasítás oka']);
 
             // Ha az alapvető adatokon nem akadtunk fenn, akkor szúrjuk be vagy updateljük a számlát, attól föggően, hogy az Andok azonosító ismert-e.
             // Ehhez az első lépés, a mező/érték párokat beállítani.
@@ -466,11 +466,34 @@ class ServerClass {
                 if( $sor === false ) { $db_error = true; }
                 $sor['erk_xml'] = htmlspecialchars_decode($sor['erk_xml']).$szamla_xml;
     
-                array_push($mezok,     'erk_xml',       'update_usr'    );
-                array_push($ertekek,   $sor['erk_xml'], self::IU_USER   );
+                array_push($mezok,   'elutleir',  'erk_xml',       'update_usr'    );
+                array_push($ertekek, $elutleir,   $sor['erk_xml'], self::IU_USER   );
                 if( $utalvanyozva == '1' && $sor['utalvanyozva_dt'] == '0000-00-00 00:00:00' ) {
                     array_push($mezok,     'utalvanyozva_dt');
                     array_push($ertekek,   'NOW()'          );
+                }
+                // Ha egy utalványozást épp elutasítanának, akkor az utalvanyozva_dt-t állítsuk be, mert onnan fogjuk tudni, hogy el van utasítva, hogy 0 az értéke, de a dátuma ki van töltve
+                if( mb_strtolower($szamla_adatok['Utalványozó döntés'], self::CHAR_CODING) == 'elutasítva' && $sor['utalvanyozva_dt'] == '0000-00-00 00:00:00' ) {
+                    array_push($mezok,     'utalvanyozva_dt');
+                    array_push($ertekek,   'NOW()'          );
+                    
+                    // Anyagszámla esetén a tételeket be kell járni, és a mennyiséget kivonni a
+                    // hozzájuk tartozó anyagrendelések számlázott mennyiségéből
+                    if( $szamla_tipus == self::SZAMLA_TIPUS_ANYAG ) {
+                        $szamla = $adatbazis_kapcsolat->s2('recid', 'anyag_szamla', "`andoc_id`='{$andoc_id}'");
+                        if( $szamla === false ) { $db_error = true; }
+                        $tetelek = $adatbazis_kapcsolat->s('rnd_recid rndmen', 'anyag_szamla_tetel', "`anyag_szamla_recid`='{$szamla['recid']}'");
+                        if( $tetelek === false ) { $db_error = true; }
+                        foreach ($tetelek as $tetel ) {
+                            if( $tetel['rnd_recid'] ) {
+                                $rnd = $adatbazis_kapcsolat->s2('szlamen', 'anyagigenyles', "`recid`='{$tetel['rnd_recid']}'");
+                                if( $rnd === false ) { $db_error = true; }
+                                $sql = $adatbazis_kapcsolat -> u('anyagigenyles', array('szlamen'), array($rnd['szlamen']-$tetel['rndmen']), "`recid`='{$tetel['rnd_recid']}'");
+                                if( $sql === false ) { $db_error = true; }
+                            }
+                        }
+                    }
+                    
                 }
 
                 $sql = $adatbazis_kapcsolat->u($tabla, $mezok, $ertekek, "`andoc_id`='{$andoc_id}'");

@@ -651,6 +651,11 @@ require_once('selectek.php');
     $js_submit_elott = 'return form_ell_admin();';
 
     
+    // Tételek SESSION-jének feltöltése (új felvitelben kicsit más a lekérdezés
+    if( isset($_GET['uj']) && _jog(JOG_ENERGIA_SZAMLAK_OLVAS) ) {
+        $szamla = $adatbazis_kapcsolat->s2('recid kcs_21', 'energia_szamla_atmeneti', "`andoc_id`='{$_GET['andoc_id']}'");
+    }
+    
     // Energia számla mentésekor HA nem nullás a számla, akkor ellenőrizzük, hogy a számla nettó értéke azonos-e a tételek összegével
     // Deviza esetén más session-t járunk be
     $tizedesek  = 0;
@@ -660,11 +665,6 @@ require_once('selectek.php');
         $tizedesek  = 2;
         $mezo1      = 'ossz_dev_net';
         $mezo2      = 'dev_net';
-    }
-    
-    // Tételek SESSION-jének feltöltése (új felvitelben kicsit más a lekérdezés
-    if( isset($_GET['uj']) && _jog(JOG_ENERGIA_SZAMLAK_OLVAS) ) {
-        $szamla = $adatbazis_kapcsolat->s2('recid kcs_21', 'energia_szamla_atmeneti', "`andoc_id`='{$_GET['andoc_id']}'");
     }
     
     // Gombok kirajzolása minden oldalra
@@ -730,7 +730,6 @@ require_once('selectek.php');
         
         // Új számla rögzítésekor így ellenőrizzük a nettó és tételek összegének azonosságát
         $js_submit_elott = nl2('
-
             var tetelek_ossz = ezresek($(\'#'.$mezo1.'\').val().replace(/ /g, \'\').replace(/,/g, \'.\'), '.$tizedesek.', \',\', \' \');
             if( $(\'#nullas\').is(\':checked\') == false ) {
                 if( $(\'#'.$mezo2.'\').val() != tetelek_ossz ) {
@@ -1351,11 +1350,16 @@ function xml_vissza( $szamla_id, $igazolva = '', $oka = '' ) {
         $i++;
     }
     
+    $wf_name = '[AUTO] Utalványozásra küldés';
+    if( $igazolva == 'Elutasítva' ) {
+        $wf_name = '[AUTO] Számla szétosztás';
+    }
+    
     $valasz_xml = 'psInputXml=<?xml version="1.0" encoding="utf-8"?>
 <xml>
   <data>
     <register registernumber="'.$szamla['andoc_id'].'" operation="update">
-      <workflow_node_name>[AUTO] Utalványozásra küldés</workflow_node_name>
+      <workflow_node_name>'.$wf_name.'</workflow_node_name>
       <properties>
         <container name="NIK1">
           <row rownumberonpage="1">

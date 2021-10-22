@@ -1869,11 +1869,16 @@ function xml_vissza( $szamla_id, $igazolva = '', $oka = '' ) {
         $i++;
     }
     
+    $wf_name = '[AUTO] Utalványozásra küldés';
+    if( $igazolva == 'Elutasítva' ) {
+        $wf_name = '[AUTO] Számla szétosztás';
+    }
+    
     $valasz_xml = 'psInputXml=<?xml version="1.0" encoding="utf-8"?>
 <xml>
   <data>
     <register registernumber="'.$szamla['andoc_id'].'" operation="update">
-      <workflow_node_name>[AUTO] Utalványozásra küldés</workflow_node_name>
+      <workflow_node_name>'.$wf_name.'</workflow_node_name>
       <properties>
         <container name="NIK1">
           <row rownumberonpage="1">
