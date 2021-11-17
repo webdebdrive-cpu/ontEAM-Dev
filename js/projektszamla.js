@@ -91,13 +91,15 @@ function prsz_hozzaad_gomb_hozzaad_vagy_torol() {
                         } else {
                             $('#let_fel_autocomp').removeClass('mod');
                         }
+                        /*
+                        A költségviselő értéke importból jön
                         $('#kolt_vis_autocomp').val('');
                         $('#kolt_vis').val('');
                         if( $('#kolt_vis_autocomp').attr('value') ){
                             $('#kolt_vis_autocomp').addClass('mod');
                         } else {
                             $('#kolt_vis_autocomp').removeClass('mod');
-                        }
+                        }*/
 
                         $('#szerzodes_neve').html('');
                         $('#projekt_neve').html('');
@@ -124,6 +126,109 @@ function prsz_hozzaad_gomb_hozzaad_vagy_torol() {
         }
     });
 }
+
+// Számla küldés igazolásra
+function kuldes_igazolasra(mehet) {
+    
+    // Itt első képésként a tételeket csoportosítjuk, tehát előállítjuk a visszaküldött XML tartalmát
+    // Ha ténylegesen van csoporotsított sor, akkor annak tárgyait is bekérjük egy popuppal
+    if( !mehet ) {
+        $.ajax({
+            url : 'projektszamla.php',
+            type: 'POST',
+            data: {
+                id                           : _get('id'),
+                kuldes_igazolasra_csoportosit: Date.now()
+            },
+            success: function (response) {
+                if (response) {
+                    response = JSON.parse(response);
+                    if (response.hiba) {
+                        alert2(response.hiba, response.gomb, response.title);
+                        return false;
+                    }
+                }
+            }
+        });
+        return false;
+    }
+    
+    // Ha túl vagyunk a csoportosításon, akkor elküldük igazolásra a számlát, 
+    // itt készül majd el ténylegesen az XML, amit a fejben eltárolunk, hogy küldéskor meglegyen
+    $.ajax({
+        url : 'projektszamla.php',
+        type: 'POST',
+        data: {
+            id               : _get('id'),
+            kuldes_igazolasra: Date.now()
+        },
+        success: function (response) {
+            if (response) {
+                response = JSON.parse(response);
+                if (response.hiba) {
+                    alert2(response.hiba, response.gomb, response.title);
+                    return false;
+                }
+                
+                szamlaBetolt(_get('id'), 'projektszamla.php');
+                alert2();
+            }
+        }
+    });
+}
+
+// Tételek összevonásakor, amikor mentjük a tételek tárgyait, ellenőrizzük, hogy ki van-e töltve mindenhol
+// ha igen, akkor ezeket tároljuk is le az adatbázisba
+function osszevon_targy_kitoltve_ell() {
+    
+    var mehet = true;
+    var targyak = [];
+    $('.osszevon_targy').each(function () {
+        if( !$(this).val().trim() ) {
+            $('#osszevon_hiba').html('Kérem, adja meg minden tételhez a kívánt tárgyat!');
+            $(this).focus();
+            $(this).addClass('alert');
+            mehet = false;
+            return false;
+        }
+        targyak.push($(this).val());
+    });
+    
+    if( mehet ) {
+        $.ajax({
+            url : 'projektszamla.php',
+            type: 'POST',
+            data: {
+                id                          : _get('id'),
+                targyak                     : JSON.stringify(targyak),
+                osszevon_targy_kitoltve_ell : Date.now()
+            },
+            success: function (response) {
+                if (response) {
+                    response = JSON.parse(response);
+                    if (response.hiba) {
+                        alert2(response.hiba, response.gomb, response.title);
+                        return false;
+                    }
+                }
+                kuldes_igazolasra('mehet');
+            }
+        });
+    }
+
+}
+
+// Ha változna a szálloda, akkor a kapcsolt szerződést is nullázzuk
+function sz_szam_urit() {
+    $('#sz_szam_gomb').val('Szerződés hozzáadása').removeClass('piros');
+    $('#sz_szam').val('').addClass('mod');
+}
+
+// Ha beleírtak egy tárgy mezőbe, akkor egy esetleges alert már ne legyen rajta
+$(document).on('input', '.osszevon_targy', function(e) {
+    $(this).removeClass('alert');
+});
+
 
 // Adatlapon található nettó mezőből számol ki bruttó értéket
 // FONTOS, hogy ne onclick-es verzió legyen, mert az onclick tulajdonyágot levessük JS-el, ha elszürkített a mező. És ezek a mezők oda-vissza lehetnek aktívak/inaktívak a deviza alapján.

@@ -410,7 +410,7 @@ function i_u($type, $tabla, $tomb) {
     		$i++;
         }
 	}
-    
+
     // Értéklistánál a jogcímből még fel kell fenni a költsénemet
     if( $tabla == 'erteklista' ) {
         $jogcim = $adatbazis_kapcsolat->s2('szla_szam', 'jogcim', "`recid`='{$_POST['jogcim_recid']}'");
@@ -967,7 +967,7 @@ function i_u($type, $tabla, $tomb) {
             if( $sql === false ) { $db_error = true; }
         }
         
-        // Fenntartási számla tételeinek felvétele, köztes tábla törlése
+        // Anyag számla tételeinek felvétele, köztes tábla törlése
         if( $tabla == 'anyag_szamla' ) {
             
             $i = 0;
@@ -1089,8 +1089,8 @@ function i_u($type, $tabla, $tomb) {
             $szamla['vonalkod'] = htmlspecialchars_decode($szamla['vonalkod']);
             $szamla['dok_link'] = htmlspecialchars_decode($szamla['dok_link']);
             $sql = $adatbazis_kapcsolat->u('anyag_szamla', 
-                                                                array('andoc_id',           'ont_erk_dt',         'erk_xml',            'vonalkod',           'dok_link',           'ikt_usr'          ),
-                                                                array($szamla['andoc_id'],  $szamla['insert_dt'], $szamla['erk_xml'],   $szamla['vonalkod'],  $szamla['dok_link'],  $szamla['ikt_usr'] ),
+                                                                array('andoc_id',           'sz_szam',          'ont_erk_dt',         'erk_xml',            'vonalkod',           'dok_link',           'ikt_usr'          ),
+                                                                array($szamla['andoc_id'],  $_POST['sz_szam'],  $szamla['insert_dt'], $szamla['erk_xml'],   $szamla['vonalkod'],  $szamla['dok_link'],  $szamla['ikt_usr'] ),
                                                             "`recid`='{$id}'");
             if( $sql === false ) { $db_error = true; }
 
@@ -1505,12 +1505,13 @@ function i_u($type, $tabla, $tomb) {
             }
 
             // Andoc_id-t és a létrehozással kapcsolatos adatokat még letároljuk az éles fej táblában
-            $szerzodes = $adatbazis_kapcsolat->s2('andoc_id erk_xml insert_dt vonalkod ikt_usr', 'fenntartasi_szerzodes_atmeneti', "`recid`='{$_POST['atmeneti_recid']}'");
+            $szerzodes = $adatbazis_kapcsolat->s2('andoc_id erk_xml dok_link insert_dt vonalkod ikt_usr', 'fenntartasi_szerzodes_atmeneti', "`recid`='{$_POST['atmeneti_recid']}'");
             if( $szerzodes === false ) { $db_error = true; }
             $szerzodes['erk_xml']  = htmlspecialchars_decode($szerzodes['erk_xml']);
+            $szerzodes['dok_link'] = htmlspecialchars_decode($szerzodes['dok_link']);
             $sql = $adatbazis_kapcsolat->u('fenntartasi_szerzodes', 
-                                                                array('andoc_id',              'vonalkod',              'ont_erk_dt',            'erk_xml',             'ikt_usr'               ),
-                                                                array($szerzodes['andoc_id'],  $szerzodes['vonalkod'],  $szerzodes['insert_dt'], $szerzodes['erk_xml'], $szerzodes['ikt_usr']   ),
+                                                                array('andoc_id',              'vonalkod',              'ont_erk_dt',            'erk_xml',             'dok_link',             'ikt_usr'               ),
+                                                                array($szerzodes['andoc_id'],  $szerzodes['vonalkod'],  $szerzodes['insert_dt'], $szerzodes['erk_xml'], $szerzodes['dok_link'], $szerzodes['ikt_usr']   ),
                                                             "`recid`='{$id}'");
             if( $sql === false ) { $db_error = true; }
 
@@ -1838,12 +1839,13 @@ function i_u($type, $tabla, $tomb) {
             }
             
             // Andoc_id-t és a létrehozással kapcsolatos adatokat még letároljuk az éles fej táblában
-            $szerzodes = $adatbazis_kapcsolat->s2('andoc_id erk_xml insert_dt ikt_usr', 'projektszerzodes_atmeneti', "`recid`='{$_POST['atmeneti_recid']}'");
+            $szerzodes = $adatbazis_kapcsolat->s2('andoc_id erk_xml dok_link insert_dt ikt_usr', 'projektszerzodes_atmeneti', "`recid`='{$_POST['atmeneti_recid']}'");
             if( $szerzodes === false ) { $db_error = true; }
             $szerzodes['erk_xml']  = htmlspecialchars_decode($szerzodes['erk_xml']);
+            $szerzodes['dok_link'] = htmlspecialchars_decode($szerzodes['dok_link']);
             $sql = $adatbazis_kapcsolat->u('projektszerzodes', 
-                                                                array('andoc_id',              'ont_erk_dt',            'erk_xml',             'ikt_usr'               ),
-                                                                array($szerzodes['andoc_id'],  $szerzodes['insert_dt'], $szerzodes['erk_xml'], $szerzodes['ikt_usr']   ),
+                                                                array('andoc_id',              'ont_erk_dt',            'erk_xml',              'dok_link',             'ikt_usr'               ),
+                                                                array($szerzodes['andoc_id'],  $szerzodes['insert_dt'], $szerzodes['erk_xml'],  $szerzodes['dok_link'], $szerzodes['ikt_usr']   ),
                                                             "`recid`='{$id}'");
             if( $sql === false ) { $db_error = true; }
 
@@ -2224,6 +2226,64 @@ function i_u($type, $tabla, $tomb) {
         if( in_array($tabla.'.php', $_SESSION['ketHasabos']) ) {
             array_push($oszlopok, 'update_usr'                          );
             array_push($ertekek,  $_SESSION[get_db_tabla().'teljes_nev']);
+        }
+
+        // Anyag számla esetén
+        if( $tabla == 'anyag_szamla' ) {
+            
+            // Anyag számla mentésekor HA nem nullás a számla, akkor ellenőrizzük, hogy a számla nettó értéke azonos-e a tételek összegével
+            $tizedesek  = 0;
+            $mezo1      = 'anyag_szla_tetel_netto_ert';
+            $mezo2      = 'netto_ert';
+            $szoveg     = 'szerződés összegével';
+            if( $_POST['kcs_21']!=KCS_21_HUF ) {
+                $tizedesek  = 2;
+                $mezo1      = 'anyag_szla_tetel_dev_net';
+                $mezo2      = 'dev_net';
+                $szoveg     = 'deviza nettóval';
+            }
+            $tetelek_osszege = '';
+            foreach ( $_SESSION[$mezo1] as $ertek ) {
+                $ertek = str_replace(array(' ', ','), array('', '.'), $ertek);
+                $tetelek_osszege += $ertek;
+            }
+            if( !$_POST['nullas'] ) {
+
+                if( number_format($tetelek_osszege, $tizedesek, ',', ' ') != number_format($_POST[$mezo2], $tizedesek, ',', ' ') ) {
+                    echo json_encode(array(
+                        'hiba'   => 'A számla tételeinek összege ('. number_format($tetelek_osszege, $tizedesek, ',', ' ').' '. erteklista(ERTEKLISTA_PENZNEM, $_POST['kcs_21']).') nem egyezik meg a számla nettó értékével('. number_format($_POST[$mezo2], $tizedesek, ',', ' ').' '. erteklista(ERTEKLISTA_PENZNEM, $_POST['kcs_21']).')!<br>Így nem menthető!',
+                        'gomb'   => '<input type="button" class="gomb" value="Ok" onclick="szurkit_zar(\'mégsem mehet mutat\'); alert2();">',
+                        'title'  => 'Hiba',
+                        'select' => $mezo2,
+                    ));
+                    $weblap -> leallit();
+                    exit();
+                }
+                
+            // Ha nullás egy számla, akkor a tételeit törölni kell, létre kell hozni egy nullás sort
+            } else {
+                
+                // Ellenőrizzük a tételek összegét. Ha ez nem 0, akkor hibaüzi
+                foreach ( $_SESSION['anyag_szla_tetel_netto_ert'] as $ertek ) {
+                    $ertek = str_replace(array(' ', ','), array('', '.'), $ertek);
+                    $tetelek_osszege += $ertek;
+                }
+                if( $tetelek_osszege > 0 ) {
+                    echo json_encode(array(
+                        'hiba'   => 'Nullás számla esetén a tételek értéke is 0 legyen!<br>Így nem menthető!',
+                        'gomb'   => '<input type="button" class="gomb" value="Ok" onclick="szurkit_zar(\'mégsem mehet mutat\'); alert2();">',
+                        'title'  => 'Hiba',
+                        'select' => $mezo2,
+                    ));
+                    $weblap -> leallit();
+                    exit();
+                }
+            }
+            
+            // Illetve a pár mezőt még külön fel kell még venni, mert a tiltott mező miatt ez magától nem íródna be
+            array_push($oszlopok, 'sz_szam',          'kolt_vis',          'netto',          'brutto'            );
+            array_push($ertekek,  $_POST['sz_szam'],  $_POST['kolt_vis'],  $_POST['netto'],  $_POST['brutto']    );
+            
         }
 
         // Energia számla esetén
@@ -9267,14 +9327,20 @@ function getSzerepkorNev($szerepkor_id) {
     
 }
 
-// Szállodák nevét ne DB-ből kérjük már le, vagyis csak egyszer, loginnál
-function getSzallodaNev($szalloda_id) {
+// Szállodák nevét ne DB-ből kérjük már le, vagyis csak egyszer, loginnál, vagy ha az Andoc névre van szükség
+function getSzallodaNev($szalloda_id, $andoc_nev = false) {
     
     global $adatbazis_kapcsolat;
     
-    // Ha nem lenne meg a szállodák session-ben (pl. ütemezők, amit cron futtat)
-    if( !$_SESSION['telephelyek'] ) {
-        $szalloda = $adatbazis_kapcsolat->s2('nev', 'telephely', "`id`='{$szalloda_id}'");
+    // Ha nem lenne meg a szállodák session-ben (pl. ütemezők, amit cron futtat), vagy az Andoc névre van szükségünk
+    if( !$_SESSION['telephelyek'] || $andoc_nev ) {
+        $szalloda = $adatbazis_kapcsolat->s2('nev andoc_nev', 'telephely', "`id`='{$szalloda_id}'");
+        if( $andoc_nev ) {
+            if( !$szalloda['andoc_nev'] ) {
+                $szalloda['andoc_nev'] = $szalloda['nev'];
+            }
+            return $szalloda['andoc_nev'];
+        }
         return $szalloda['nev'];
     }
     
@@ -11974,7 +12040,7 @@ function get_projektkezeles_where_jog() {
 }
 
 // Projekteknél a számlázott összeget számoljuk ki a kapcsolódó számlák összegéből.
-// Azért van itt központilag függgvényesítve, mert nem csak a projektkezeles.php-ban van rá szükség, hanem mondjuk az i_u() függvényben is
+// Azért van itt központilag függvényesítve, mert nem csak a projektkezeles.php-ban van rá szükség, hanem mondjuk az i_u() függvényben is
 function projektkezeles_szamlazott_osszeg ( $pr_szam ) {
     
     global $db_kapcs;

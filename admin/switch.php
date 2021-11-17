@@ -777,6 +777,17 @@ foreach ( $akt_tomb as $ertek ) {
                 }
             }
             $where .= " AND `inaktiv`=0";
+            
+            $cegkodos_modulok = array('anyag_szamla', 'energia_szamla', 'fenntartasi_szamla', 'projektszamla');
+            $self = self('-basename-', '-kit.nélkül-');
+            if( isset($_GET['uj']) && isset($_GET['andoc_id']) && in_array($self, $cegkodos_modulok) ) {
+                
+                $atmeneti   = $adatbazis_kapcsolat->s2('kolt_vis', $self.'_atmeneti', "`andoc_id`='{$_GET['andoc_id']}'");
+                $erteklista = $adatbazis_kapcsolat->s2('cegkod', 'erteklista', "`csoport`='".ERTEKLISTA_KOLTSEGVISELO."' AND `id`='{$atmeneti['kolt_vis']}'");
+                if( $kolt_vis ) {
+                    $where .= " AND `cegkod`='{$erteklista['cegkod']}'";
+                }
+            }
 
             $telephelyek = $adatbazis_kapcsolat -> select('id recid nev modell', 'telephely', $where, 'nev');
             foreach ( $telephelyek as $telephely ) {

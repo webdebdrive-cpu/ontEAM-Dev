@@ -85,10 +85,12 @@ function projekt_szerzodes_kivalaszt(){
     $('#let_fel_autocomp').addClass('mod');
     $('#let_fel').val( $('#pr_szerzodes_tablazat tr.kijelolve').data('let_fel') );
     
+    /*
+    A költségviselő értéke importból jön
     $('#kolt_vis_autocomp').val( $('#pr_szerzodes_tablazat tr.kijelolve div.kolt_vis_txt').html() );
     $('#kolt_vis_autocomp').addClass('mod');
     $('#kolt_vis').val( $('#pr_szerzodes_tablazat tr.kijelolve').data('kolt_vis') );
-    
+    */
     formModositva = true;
     $('#mehet_gomb, #megsem_gomb').removeAttr ('disabled');
     $('#mehet_gomb').addClass('gombb_alert');

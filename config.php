@@ -82,7 +82,8 @@ function get_teszt_rendszer() {
 function get_verzio()     { return 'V1.192';                                    } // Fejlécben szereplő verzió szám
 function get_db_charset() { return 'UTF8';                                      } // Karakterkódolás (Figyelem! UTF-8 helyett itt UTF8)
 function get_debug()      { return false;                                       } // Hibás adatbázislekérdezések megjelennek vagy sem
-
+function get_debug_ip()   { return '91.120.142.249';                              } // Erről az IP címről nézve az oldalt íratható ki hibaüzenet
+//
 // Weblap
 function get_admin()         { return 'admin/';                                 } // Admin könyvtár neve
 function get_afa()           { return 27;                                       }
@@ -164,6 +165,14 @@ function get_mszk_mail2(){
 }
 function get_teszt_mail_nev(){ return 'WebDeb Teszt';                           }
 function get_web_charset()   { return 'UTF-8';                                  }
+
+function eles_es_teszt_rendszer_e() {
+    if( $_SERVER['HTTP_HOST'] == 'www.onteam.hu' || $_SERVER['HTTP_HOST'] == 'teszt.onteam.hu' ) {
+        return true;
+    } else {
+        return false;
+    }
+}
 
 function get_title_hossz()  { return 75;                                        } //Title max mekkora legyen - ha 0, akkor korlátlan
 function get_desc_hossz()   { return 190;                                       } //Desc max mekkora legyen - ha 0, akkor korlátlan
@@ -281,7 +290,9 @@ foreach($_POST as $kulcs => $post){
     $_POST[$kulcs] = str_replace('|ES|',    '&', $_POST[$kulcs]); // Erre is szükség van, az admin WYSIWYG szerkesztője miatt
     $_POST[$kulcs] = str_replace('!PLUSZ!', '+', $_POST[$kulcs]);
     $_POST[$kulcs] = str_replace('!SHARP!', '#', $_POST[$kulcs]);
-    $_POST[$kulcs] = stripslashes($_POST[$kulcs]);
+    if( $kulcs != 'targyak' ) {
+        $_POST[$kulcs] = stripslashes($_POST[$kulcs]);
+    }
 }
 foreach($_GET as $kulcs => $get){
     $_GET[$kulcs] = str_replace('!ES!',    '&', $_GET[$kulcs]);

@@ -1,5 +1,4 @@
 <?php
-// Nyitólap
 
 // Munkalap végigléptetése
 if( false && isset($_GET['munkalap_leptet']) ) {
@@ -38,7 +37,7 @@ echo $adatbazis_kapcsolat->gp() . '<br>';
 }
 
 // Felhasználó - törzsadat szinkron
-if( isset($_GET['felh_torzsadat']) ) {
+if( false && isset($_GET['felh_torzsadat']) ) {
     require_once '../weblap.php';
     $loginok = $adatbazis_kapcsolat->s('*', 'login', "");
     foreach ( $loginok as $login ) {

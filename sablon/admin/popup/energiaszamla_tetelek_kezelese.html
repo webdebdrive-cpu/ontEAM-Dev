@@ -360,14 +360,19 @@ function tetel_hozzaadasa() {
     /* Ha a Fogyasztással arányos pipa be van piálva, csak akkor kötelező pár mező: */
     var aranyos_kotelezo = $('#pop_aranyos').prop('checked');
     
-    if( aranyos_kotelezo && (!$('#pop_indul').val() || $('#pop_indul').val()=='0,0000') ) {
+    if( aranyos_kotelezo && (!$('#pop_indul').val() /*|| $('#pop_indul').val()=='0,0000' Az induló érték lehet 0 - új órát szereltek fel */) ) {
         alert2('Kérem adja meg az induló mérőóraállást!', '', 'Hiba');
         $('#pop_indul').addClass('hibas_ide_focus');
         return false;
     }
     
-    if( aranyos_kotelezo && (!$('#pop_zar').val() || $('#pop_zar').val()=='0,0000') ) {
+    if( aranyos_kotelezo && (!$('#pop_zar').val() /*|| $('#pop_zar').val()=='0,0000' A záró érték is lehet 0, mert mi van ha pont úgy fordult? */) ) {
         alert2('Kérem adja meg a záró mérőóraállást!', '', 'Hiba');
+        $('#pop_zar').addClass('hibas_ide_focus');
+        return false;
+    }
+    if( aranyos_kotelezo && $('#pop_indul').val()=='0,0000' && $('#pop_zar').val()=='0,0000' ) {
+        alert2('Nem lehet az induló és záró mérőóraállás is 0,<br>kérem adja meg a kezdő vagy záró mérőóraállást!', '', 'Hiba');
         $('#pop_zar').addClass('hibas_ide_focus');
         return false;
     }

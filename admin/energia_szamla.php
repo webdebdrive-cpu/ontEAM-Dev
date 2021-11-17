@@ -39,6 +39,109 @@ if( $tobb_kep ) {
 
 }
 
+// Számla küldése igazolásra előtt a tételeket csoportosítjuk
+if( isset($_POST['kuldes_igazolasra_csoportosit']) ) {
+    
+    // A tételeket költségnem + költséghely + ÁFAkulcs szerint csoportosíva küldjük vissza.
+    $szamla   = $adatbazis_kapcsolat->s2('kcs_21', 'energia_szamla', "`recid`='{$_POST['id']}'");
+    $tetelek  = $adatbazis_kapcsolat->s('brutto_ert dev_br ktghely ktghely_id ktgnem_id afa_kod tol', 'energia_szamla_tetel', "`energia_szamla_recid`='{$_POST['id']}' AND `valtozott`='1'", '', '', "`ktgnem_id`, `ktghely_id`, `afa_kod`, SUBSTRING(`tol`, 1, 7)");
+    
+    $tizedesek   = 0;
+    $brutto_mezo = 'brutto_ert';
+    if( $szamla['kcs_21'] != KCS_21_HUF ) {
+        $tizedesek   = 2;
+        $brutto_mezo = 'dev_br';
+    }
+
+    $i = 0;
+    $html = nl2('
+                <h1 id="osszevon_hiba" class="piros"></h1>
+                <table class="csikos">
+                <tr>
+                    <th>Tárgy</th>
+                    <th>Bruttó sorösszeg</th>
+                    <th>Főkönyvi számlaszám</th>
+                    <th>Költséghely</th>
+                </tr>
+                ');
+    
+    foreach( $tetelek as $tetel ) {
+        
+        $brutto_ertek = $adatbazis_kapcsolat->s2("SUM(`{$brutto_mezo}`)", 'energia_szamla_tetel', "`energia_szamla_recid`='{$_POST['id']}' AND `valtozott`='1' AND `ktgnem_id`='{$tetel['ktgnem_id']}' AND `ktghely_id`='{$tetel['ktghely_id']}' AND `afa_kod`='{$tetel['afa_kod']}' AND `tol` LIKE '".substr($tetel['tol'], 0, 7)."%'");
+        $brutto_ertek = $brutto_ertek["SUM(`{$brutto_mezo}`)"];
+        $html .= nl2('
+                    <tr>
+                        <td><input type="text" class="flat osszevon_targy" maxlength="250"></td>
+                        <td>'.number_format($brutto_ertek, $tizedesek, ',', ' ').' '.getErtekLista(ERTEKLISTA_PENZNEM, $szamla['kcs_21']).'</td>
+                        <td>'.$tetel['ktgnem_id'].'</td>
+                        <td>'.$tetel['ktghely'].'</td>
+                    </tr>
+                    ');
+    }
+    $html .= '</table>';
+
+
+    echo json_encode(array(
+                        'hiba'  => $html,
+                        'gomb'  => '<input type="button" class="gomb zold" value="Mentés" onclick="osszevon_targy_kitoltve_ell();"><input type="button" class="gomb piros" value="Mégsem" onclick="alert2()">',
+                        'title' => 'Kérem adja meg az összevont tételek tárgyait',
+                        ));
+
+    $weblap -> leallit();
+    exit;
+}
+
+// Ha volt tétel összevonás és a tételeknél kitöltötték a tárgyat,
+// akkor az itt megadott adatokat tároljuk le a fejben
+if( isset($_POST['osszevon_targy_kitoltve_ell']) ) {
+    
+    $targyak = json_decode($_POST['targyak'], '-tömbként-');
+    $szamla  = $adatbazis_kapcsolat->s2('kcs_21 telephely_id', 'energia_szamla', "`recid`='{$_POST['id']}'");
+    $tetelek = $adatbazis_kapcsolat->s('*', 'energia_szamla_tetel', "`energia_szamla_recid`='{$_POST['id']}' AND `valtozott`='1'", '', '', "`ktgnem_id`, `ktghely_id`, `afa_kod`, SUBSTRING(`tol`, 1, 7)");
+
+    // A számla devizája dönti el, hogy a tételbe melyik nettó mező kerüljön
+    if( $szamla['kcs_21'] == KCS_21_HUF ) {
+        $netto_mezo  = 'netto_ert';
+        $brutto_mezo = 'brutto_ert';
+    } else {
+        $netto_mezo  = 'dev_net';
+        $brutto_mezo = 'dev_br';
+    }
+    
+    $tetel_xml = '';
+    $i = 0;
+    foreach ( $tetelek as $tetel ) {
+        $brutto_ertek = $adatbazis_kapcsolat->s2("SUM(`{$brutto_mezo}`)", 'energia_szamla_tetel', "`energia_szamla_recid`='{$_POST['id']}' AND `valtozott`='1' AND `ktgnem_id`='{$tetel['ktgnem_id']}' AND `ktghely_id`='{$tetel['ktghely_id']}' AND `afa_kod`='{$tetel['afa_kod']}' AND `tol` LIKE '".substr($tetel['tol'], 0, 7)."%'");
+        $brutto_ertek = $brutto_ertek["SUM(`{$brutto_mezo}`)"];
+        
+        $tetel_xml .= '
+            <row rownumberonpage="'.($i+1).'">
+                <property name="Sor megnevezése">'.$targyak[$i].'</property>
+                <property name="Bruttó sorösszeg">'.$brutto_ertek.'</property>
+                <property name="Főkönyvi számlaszám">'.$tetel['ktgnem_id'].'</property>
+                <property name="Jogcím">'.$tetel['jogcim'].'</property>
+                <property name="Üzemrész">'.$tetel['uzemresz'].'</property>
+                <property name="Főkönyvi számlaszám megnevezése">'.$tetel['megn'].'</property>
+                <property name="Főkönyvi számlaszám">'.$tetel['ktgnem_id'].'</property>
+                <property name="Költséghely">'.$tetel['ktghely_id'].'</property>
+                <property name="ÁFA kód">'.$tetel['afa_kod'].'</property>
+                <property name="ÁFA neve">'.$tetel['afa_nev'].'</property>
+                <property name="ÁFA %">'.$tetel['afa'].'</property>
+                <property name="Szálloda">'.$szamla['telephely_id'].' - '.getSzallodaNev($szamla['telephely_id'], '-Andoc név-').'</property>
+                <property name="Konszolidációs kód">00</property>
+                <property name="Projektkód">00000</property>
+                <property name="Egyedi azonosító">000000</property>
+            </row>
+            ';
+        $i++;
+    }
+    
+    $adatbazis_kapcsolat->u('energia_szamla', array('kuld_tetel_xml'), array($tetel_xml), "`recid`='{$_POST['id']}'");
+    
+    $weblap -> leallit();
+    exit;
+}
+
 // Számla küldése igazolásra
 if( isset($_POST['kuldes_igazolasra']) ) {
     
@@ -198,8 +301,9 @@ if( isset($_POST['energiaSzamlaElutasit']) ) {
         
     // Adatbázisba mentés csak akkor, ha nem volt gond az XML küldéssel
     } else {
-        $sql = $adatbazis_kapcsolat->u('energia_szamla',    array('igazolva', 'elutleir',     'igazolva_dt', 'igazolva_usr'                           ),
-                                                            array(0,          $_POST['memo'], 'NOW()',       $_SESSION[get_db_tabla().'teljes_nev']   ),
+        // Elutasítással kapcsolatos adatok beállítása, illetve a kapcsolt számlaszám ürítése
+        $sql = $adatbazis_kapcsolat->u('energia_szamla',    array('igazolva', 'sz_szam', 'elutleir',     'igazolva_dt', 'igazolva_usr'                           ),
+                                                            array(0,          '',        $_POST['memo'], 'NOW()',       $_SESSION[get_db_tabla().'teljes_nev']   ),
                                         "`recid`='{$_POST['id']}'");
         if( $sql === false ) { $db_error = true; }
     }
@@ -847,7 +951,7 @@ require_once('selectek.php');
         }
         
         // Szerkesztéshez az kell, hogy legyen jogunk, illetve a számla ne legyen még igazolva/elutasítva
-        if( _jog(JOG_ENERGIA_SZAMLAK_KEZEL) && $sor['igazolva_dt'] == '0000-00-00 00:00:00' ) {
+        if( _jog(JOG_ENERGIA_SZAMLAK_KEZEL) && $sor['feldolgozva_dt'] == '0000-00-00 00:00:00' ) {
             // Ha még nincs feldolgozva
             if( $sor['feldolgozva_dt'] == '0000-00-00 00:00:00' ) {
                 $gombok .= '<input type="button" class="gomb" value="Küldés igazolásra" onclick="kuldes_igazolasra()"> ';
@@ -866,6 +970,10 @@ require_once('selectek.php');
                     <input type="button" class="gomb piros" disabled id="megsem_gomb" value="Mégsem" onclick="megsemGomb();">
                 </div>
             ').$gombok;
+            
+        // Ha nem módosítható már az űrlap, akkor a "Szerződés hozzáadása gombot is vegyük le"
+        } else {
+            $gombok .= '<script>$(document).ready(function () { $(\'#sz_szam_gomb\').hide(); });</script>';
         }
 
 
@@ -959,7 +1067,7 @@ require_once('selectek.php');
                 } else {
                     $kulso_ertek = $adatbazis_kapcsolat->s2('recid nev', $tomb['tabla'], "`{$tomb['oszlop_keres']}`='{$sor[$tomb['name']]}'", '', '1');
                 }
-
+    
                 $sor[$tomb['name'].'_autocomp'] = '';
                 if( $kulso_ertek ) {
                     $sor[$tomb['name'].'_autocomp'] = $kulso_ertek['nev'];
@@ -1298,61 +1406,29 @@ function xml_vissza( $szamla_id, $igazolva = '', $oka = '' ) {
     
     $db_error = false;
     
-    $szamla = $adatbazis_kapcsolat->s2('igazolva andoc_id telephely_id kcs_21 kuld_xml', 'energia_szamla', "`recid`='{$szamla_id}'");
+    $szamla = $adatbazis_kapcsolat->s2('targy igazolva andoc_id telephely_id kcs_21 kuld_tetel_xml kuld_xml megjegyz kolt_vis igazolva_usr', 'energia_szamla', "`recid`='{$szamla_id}'");
     if( $szamla === false ) { $db_error = true; }
     
+    // Cégkód konverzió
+    $erteklista = $adatbazis_kapcsolat->s2('cegkod', 'erteklista', "`csoport`='".ERTEKLISTA_KOLTSEGVISELO."' AND `id`='{$szamla['kolt_vis']}'");
+    
     // XML dekódolása
-    $szamla['kuld_xml'] = htmlspecialchars_decode($szamla['kuld_xml']);
-    
-    // A számla devizája dönti el, hogy a tételbe melyik nettó mező kerüljön
-    if( $szamla['kcs_21'] == KCS_21_HUF ) {
-        $netto_mezo  = 'netto_ert';
-        $brutto_mezo = 'brutto_ert';
-    } else {
-        $netto_mezo  = 'dev_net';
-        $brutto_mezo = 'dev_br';
-    }
+    $szamla['kuld_xml']         = htmlspecialchars_decode($szamla['kuld_xml']);
+    $szamla['kuld_tetel_xml']   = htmlspecialchars_decode($szamla['kuld_tetel_xml']);
+    $szamla['targy']            = htmlspecialchars_decode($szamla['targy']);
+    $szamla['megjegyz']         = htmlspecialchars_decode($szamla['megjegyz']);
 
-    // A tételeket költségnem + költséghely + ÁFAkulcs szerincs csoportosíva küldjük vissza.
-    $tetelek = $adatbazis_kapcsolat->s('*', 'energia_szamla_tetel', "`energia_szamla_recid`='{$szamla_id}' AND `valtozott`='1'", '', '', "`ktgnem_id`, `ktghely_id`, `afa_kod`, SUBSTRING(`tol`, 1, 7)");
-    if( $tetelek === false ) { $db_error = true; }
-
-    $tetel_xml = '';
-    $i = 0;
-    foreach( $tetelek as $tetel ) {
-        
-        $netto_ertek  = $adatbazis_kapcsolat->s2("SUM(`{$netto_mezo}`)", 'energia_szamla_tetel', "`energia_szamla_recid`='{$szamla_id}' AND `valtozott`='1' AND `ktgnem_id`='{$tetel['ktgnem_id']}' AND `ktghely_id`='{$tetel['ktghely_id']}' AND `afa_kod`='{$tetel['afa_kod']}' AND `tol` LIKE '".substr($tetel['tol'], 0, 7)."%'");
-        $netto_ertek  = $netto_ertek["SUM(`{$netto_mezo}`)"];
-        $brutto_ertek = $adatbazis_kapcsolat->s2("SUM(`{$brutto_mezo}`)", 'energia_szamla_tetel', "`energia_szamla_recid`='{$szamla_id}' AND `valtozott`='1' AND `ktgnem_id`='{$tetel['ktgnem_id']}' AND `ktghely_id`='{$tetel['ktghely_id']}' AND `afa_kod`='{$tetel['afa_kod']}' AND `tol` LIKE '".substr($tetel['tol'], 0, 7)."%'");
-        $brutto_ertek = $brutto_ertek["SUM(`{$brutto_mezo}`)"];
-        $afa_osszege  = $brutto_ertek-$netto_ertek;
-        
-        $szalloda   = getSzallodaNev($szamla['telephely_id']);
-        // Nem tudjuk még mi legyen az értéke <property name="Sor megnevezése">'.$tetel['targy'].'</property>
-        // <property name="Nettó sorösszeg">'.$netto_ertek.'</property>
-        // <property name="Pénznem (sor)">'.getErtekLista(ERTEKLISTA_PENZNEM, $szamla['kcs_21']).'</property>
-        // <property name="ÁFA Összege">'.$afa_osszege.'</property>
-        // <property name="Szálloda">'.$szamla['telephely_id'].' - '.getSzallodaNev($szamla['telephely_id']).'</property>
-        $tetel_xml .= '
-            <row rownumberonpage="'.($i+1).'">
-              <property name="Bruttó sorösszeg">'.$brutto_ertek.'</property>
-              <property name="Főkönyvi számlaszám">'.$tetel['ktgnem_id'].'</property>
-              <property name="Jogcím">'.$tetel['jogcim'].'</property>
-              <property name="Üzemrész">'.$tetel['uzemresz'].'</property>
-              <property name="Főkönyvi számlaszám megnevezése">'.$tetel['megn'].'</property>
-              <property name="Főkönyvi számlaszám">'.$tetel['ktgnem_id'].'</property>
-              <property name="Költséghely">'.$tetel['ktghely_id'].'</property>
-              <property name="ÁFA kód">'.$tetel['afa_kod'].'</property>
-              <property name="ÁFA neve">'.$tetel['afa_nev'].'</property>
-              <property name="ÁFA %">'.$tetel['afa'].'</property>
-            </row>
-            ';
-        $i++;
-    }
-    
-    $wf_name = '[AUTO] Utalványozásra küldés';
+    // Igazolás elutasítva/jóváhagyva esetén más-más szöveg kerül az XML-be
     if( $igazolva == 'Elutasítva' ) {
         $wf_name = '[AUTO] Számla szétosztás';
+    } else {
+        $telephely = $adatbazis_kapcsolat->s2('teljigkuldes', 'telephely', "`id`='{$szamla['telephely_id']}'");
+        if( $telephely === false ) { $db_error = true; }
+        if( $telephely['teljigkuldes'] == 'k' ) {
+            $wf_name = $szamla['telephely_id'].'_Könyvelés';
+        } else {
+            $wf_name = '[AUTO] Utalványozásra küldés';
+        }
     }
     
     $valasz_xml = 'psInputXml=<?xml version="1.0" encoding="utf-8"?>
@@ -1365,10 +1441,18 @@ function xml_vissza( $szamla_id, $igazolva = '', $oka = '' ) {
           <row rownumberonpage="1">
             <property name="Igazoló döntés">'.$igazolva.'</property>
             <property name="Teljesítés igazolás elutasítás oka">'.$oka.'</property>
+            <property name="Szálloda - Klaszter">'.$szamla['telephely_id'].'</property>
+            <property name="Számla tárgya">'.$szamla['targy'].'</property>
+            <property name="Megjegyzés">'.$szamla['megjegyz'].'</property>
+            <property name="Számla fizetője">'.$erteklista['cegkod'].'</property>
+            <property name="Teljesítés igazoló személye">'.
+            // Azért nem a $szamla['igazolva_usr'], hisz épp most zajlik az igazolás/elutasítás, ez az adat még nincs az adatbázisban
+            $_SESSION[get_db_tabla().'teljes_nev']
+            .'</property>
           </row>
         </container>
         <container name="IK1">
-          '.$tetel_xml.'
+          '.$szamla['kuld_tetel_xml'].'
         </container>
       </properties>
     </register>
@@ -1387,8 +1471,15 @@ function xml_vissza( $szamla_id, $igazolva = '', $oka = '' ) {
         "Connection: close",
     );
     
-    // Válasz XML postolása
-    $valasz = URL_post(ANDOC_POST_KULD_URL, $valasz_xml, $fejlec);
+    // Válasz XML postolása CSAK éles és Teszt környezetben van
+    if( eles_es_teszt_rendszer_e() ) {
+        $valasz = URL_post(ANDOC_POST_KULD_URL, $valasz_xml, $fejlec);
+    } else {
+        $valasz_xml = '
+***Csak Éles és Teszt rendszerben küldjük el az XML-t valójában!***
+
+        '.$valasz_xml;
+    }
     
     // Logolás
     $log_utvonal = '../andoc.log';
@@ -1402,7 +1493,7 @@ function xml_vissza( $szamla_id, $igazolva = '', $oka = '' ) {
 
 
 
-';
+    ';
     file_put_contents($log_utvonal, $log, FILE_APPEND | LOCK_EX);
     
     // Logolás
@@ -1417,16 +1508,18 @@ function xml_vissza( $szamla_id, $igazolva = '', $oka = '' ) {
         
         
         
-';
+    ';
     file_put_contents($log_utvonal, $log, FILE_APPEND | LOCK_EX);
             
     // A kapott választ feldolgozató állapotra kell hozni, hogy értelmezni lehessen, ehhez ki kell törölni belőle a sallangot
-    $mit   = array('<?xml version="1.0" encoding="utf-8"?>', '<string xmlns="AndocWebServices.WebService_AndocSimple"><?xml version="1.0" encoding="utf-8" standalone="yes"?>', '</xml></string>');
-    $mivel = array('',                                       '',                                                                                                                '</xml>'         );
-    $kapott_xml = new SimpleXMLElement(trim(str_replace($mit, $mivel, htmlspecialchars_decode($valasz))));
+    if( eles_es_teszt_rendszer_e() ) {
+        $mit   = array('<?xml version="1.0" encoding="utf-8"?>', '<string xmlns="AndocWebServices.WebService_AndocSimple"><?xml version="1.0" encoding="utf-8" standalone="yes"?>', '</xml></string>');
+        $mivel = array('',                                       '',                                                                                                                '</xml>'         );
+        $kapott_xml = new SimpleXMLElement(trim(str_replace($mit, $mivel, htmlspecialchars_decode($valasz))));
+    }
 
     // Ha Andoc-ék nem tudják fogadni a választ, akkor hibaüzenet
-    if( $kapott_xml -> result != 'I' ) {
+    if( eles_es_teszt_rendszer_e() && $kapott_xml -> result != 'I' ) {
         addMegj('energia_szamla', $szamla_id, 'Az alábbi válasz XML-t nem sikerült elküldeni:<br>'.htmlspecialchars($valasz_xml));
         $db_error = true;
     // Ezt csak akkor módosítjuk, ha az XML küldése is rendben volt
@@ -1437,7 +1530,7 @@ function xml_vissza( $szamla_id, $igazolva = '', $oka = '' ) {
 
 
 
-    ';
+        ';
 
         $sql = $adatbazis_kapcsolat->u('energia_szamla',    array('kuld_xml'),
                                                             array($xml),

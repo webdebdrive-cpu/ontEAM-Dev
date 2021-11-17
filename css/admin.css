@@ -1674,8 +1674,10 @@ div.header div.dtc.logo a img {
 }
 
 div.header div.dtc.logo div{
-    font-size: 1.1rem;
+    font-size: 1rem;
     padding-right: 1rem;
+    position: relative;
+    top: -.5rem;
     text-align: right;
 }
 

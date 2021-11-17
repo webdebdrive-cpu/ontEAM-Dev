@@ -7695,7 +7695,6 @@ function gombok_valt(mod){
     if( _get('uj') && baseName(location.href) == 'fenntartasi_szerzodes' ) {
         mod = true;
     }
-    
     if( mod ) {
         $('#kilepes_gomb').val('Kilépés mentés nélkül');
         $('#mehet_gomb').attr('disabled', false).addClass('gombb_alert');

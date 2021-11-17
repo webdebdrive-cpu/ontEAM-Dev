@@ -250,6 +250,11 @@ class ServerClass {
                 }
             }
             
+            // Ha a számla pénzneme HUF, akkor a Deviza bruttót ne importáljuk
+            if( $szamla_adatok['Pénznem'] == self::KCS_21_TXT ) {
+                $szamla_adatok['Deviza bruttó összege'] = '';
+            }
+            
             // Ha van pénznem adatunk (update esetén nem feltétlen van)
             $arfolyam = 0;
             if( $szamla_adatok['Pénznem'] ) {
@@ -356,6 +361,11 @@ class ServerClass {
             // Elutasítás leírása + Utalványozás leírása egyben
             $elutleir = trim($szamla_adatok['Teljesítés igazolás elutasítás oka'].' '.$szamla_adatok['Utalványozás elutasítás oka']);
 
+            // Költségviselő felismerése, beállítása
+            $erteklista = $adatbazis_kapcsolat->s2('id', 'erteklista', "`csoport`='".ERTEKLISTA_KOLTSEGVISELO."' AND `cegkod`='{$szamla_adatok['Számla fizetője']}'");
+            if( $erteklista === false ) { $db_error = true; }
+            $kolt_vis = $erteklista['id'];
+            
             // Ha az alapvető adatokon nem akadtunk fenn, akkor szúrjuk be vagy updateljük a számlát, attól föggően, hogy az Andok azonosító ismert-e.
             // Ehhez az első lépés, a mező/érték párokat beállítani.
             $mezok = $ertekek = array();
@@ -390,6 +400,7 @@ class ServerClass {
             if( $szamla_adatok['Megjegyzés']                    ) { array_push($mezok, 'megjegyz'       ); array_push($ertekek, $szamla_adatok['Megjegyzés']);              }
             if( $szamla_adatok['Számla bruttó összege']         ) { array_push($mezok, 'nullas'         ); array_push($ertekek, $nullas);                                   }
             if( $szamla_adatok['Fődokumentum link']             ) { array_push($mezok, 'dok_link'       ); array_push($ertekek, $szamla_adatok['Fődokumentum link']);       }
+            if( $kolt_vis                                       ) { array_push($mezok, 'kolt_vis'       ); array_push($ertekek, $kolt_vis);                                 }
             
             // További mezők felvétele, számla típusától függően
             if( $szamla_tipus == self::SZAMLA_TIPUS_FENNTARTASI ) {
@@ -440,6 +451,7 @@ class ServerClass {
                 array_push($ertekek,   $szamla_xml, $andoc_id,  self::IU_USER,  self::IU_USER, 'NOW()'      );
                 $aparecid = $adatbazis_kapcsolat->i($tabla.'_atmeneti', $mezok, $ertekek);
                 if( $aparecid === false ) { $db_error = true; }
+//Throw new SOAPFault ('Server', $adatbazis_kapcsolat->gp());
  
                 // UPDATE: számláknál nem használunk státusz egyáltalán
                 // Új beszúráskor a kezdőstátusz fixen a feldolgozásra vár lesz
@@ -462,7 +474,7 @@ class ServerClass {
                 $return_uzi = 'módosítva';
                 
                 // Update esetén erk_xml-t meg kell toldani
-                $sor = $adatbazis_kapcsolat->s2('erk_xml utalvanyozva_dt', $tabla, "`andoc_id`='{$andoc_id}'");
+                $sor = $adatbazis_kapcsolat->s2('recid erk_xml utalvanyozva_dt', $tabla, "`andoc_id`='{$andoc_id}'");
                 if( $sor === false ) { $db_error = true; }
                 $sor['erk_xml'] = htmlspecialchars_decode($sor['erk_xml']).$szamla_xml;
     
@@ -476,6 +488,55 @@ class ServerClass {
                 if( mb_strtolower($szamla_adatok['Utalványozó döntés'], self::CHAR_CODING) == 'elutasítva' && $sor['utalvanyozva_dt'] == '0000-00-00 00:00:00' ) {
                     array_push($mezok,     'utalvanyozva_dt');
                     array_push($ertekek,   'NOW()'          );
+                    
+                    // Elutasításkor minden számla fejben töröljük a kapcsolt szerződés számot
+                    $sql = $adatbazis_kapcsolat->u($tabla, array('sz_szam'), array(''), "`andoc_id`='{$andoc_id}'");
+                    if( $sql === false ) { $db_error = true; }
+                    
+                    // Projektszámláknál a pr_szam mezőt is üríteni kell
+                    if( $szamla_tipus == self::SZAMLA_TIPUS_PROJEKT ) {
+                        $szamla = $adatbazis_kapcsolat->s2('pr_szam', $tabla, "`andoc_id`='{$andoc_id}'");
+                        if( $szamla === false ) { $db_error = true; }
+                        $sql = $adatbazis_kapcsolat->u($tabla, array('pr_szam'), array(''), "`andoc_id`='{$andoc_id}'");
+                        if( $sql === false ) { $db_error = true; }
+                    }
+                    
+                    // Fenntartás és projekt számlák esetén a szerződés tételeknél nullázni kell a teljesítést és nettó értékeket
+                    if( $szamla_tipus == self::SZAMLA_TIPUS_FENNTARTASI || $szamla_tipus == self::SZAMLA_TIPUS_PROJEKT ) {
+                        
+                        // Projekt és fenntartási szerződés tételenél más a mezők neve
+                        $netto_mezo     = 'ertek';
+                        $dev_netto_mezo = 'dev_ertek';
+                        $telj_mezo      = 'teljesites';
+                        if( $szamla_tipus == self::SZAMLA_TIPUS_FENNTARTASI ) {
+                            $netto_mezo     = 'netto_ert';
+                            $dev_netto_mezo = 'dev_net';
+                            $telj_mezo      = 'telj_dt';
+                        }
+                        
+                        
+                        $tetelek = $adatbazis_kapcsolat->s($tabla.'_tetel_recid', $tabla.'_tetel', "`{$tabla}_recid`='{$sor['recid']}'");
+                        if( $tetelek === false ) { $db_error = true; }
+                        
+                        foreach ( $tetelek as $tetel ) {
+                            $sql = $adatbazis_kapcsolat->u($tabla.'_tetel', array($netto_mezo, $dev_netto_mezo, $telj_mezo  ),
+                                                                            array('0',         '0.00',          '0000-00-00'),
+                                                                            "`recid`='{$tetel[$tabla.'_tetel_recid']}'");
+                            if( $sql === false ) { $db_error = true; }
+                        }
+                        //... illetve a kapcsolást szintén töröljük a számla tételeknél
+                        $sql = $adatbazis_kapcsolat->u($tabla.'_tetel', array($tabla.'_tetel_recid'   ),
+                                                                        array('0'                     ),
+                                                        "`{$tabla}_recid`='{$_POST['id']}'");
+                        if( $sql === false ) { $db_error = true; }
+                        
+                        // Projektek átszámítása
+                        if( $szamla['pr_szam'] ) {
+                            if( projektkezeles_szamlazott_osszeg ( $szamla['pr_szam'] ) === false ) {
+                                $db_error = true;
+                            }
+                        }
+                    }
                     
                     // Anyagszámla esetén a tételeket be kell járni, és a mennyiséget kivonni a
                     // hozzájuk tartozó anyagrendelések számlázott mennyiségéből
@@ -767,6 +828,7 @@ class ServerClass {
 
         $szerzodes = simplexml_load_string($szerzodes_xml, 'SimpleXMLElement');
         $szerzodes_xml = date('Y-m-d H:i:s').$szerzodes_xml."\n\n\n";
+        $szerzodes_xml = str_replace("><", ">\n<", $szerzodes_xml);
 
         // Tranzakciót indítunk
         $db_error = false;
@@ -787,6 +849,17 @@ class ServerClass {
                 }
             }
             if( $cont['name'] == 'NIK2' ) {
+
+                // Ezen belül van egy csomó "row -> property" értéke is
+                // Ezekből csinálunk egy tömböt, hogy ne kelljen állandóan foreach-el bejárni
+                // hanem tudunk adott jellemzőre hivatkozni
+                foreach ($cont -> row -> property as $prop) {
+                    $kulcs = (string)$prop['name'][0];
+                    $szerzodes_adatok[$kulcs] = (string)$prop[0];
+                }
+
+            }
+            if( $cont['name'] == 'NIK5' ) {
 
                 // Ezen belül van egy csomó "row -> property" értéke is
                 // Ezekből csinálunk egy tömböt, hogy ne kelljen állandóan foreach-el bejárni
@@ -854,12 +927,22 @@ class ServerClass {
             if( !valos_datum_e($szerzodes_adatok['Hatálybalépés dátuma']) ) {
                 Throw new SOAPFault ('Server', 'Hiányzó hatálybalépés dátum!');
             }
-            if( !trim($szerzodes_adatok['Pénznem']) ) {
-                Throw new SOAPFault ('Server', 'Hiányzó pénznem!');
+            
+            $ertek_nelkuli = strtolower(trim($szerzodes_adatok['Érték nélküli szerződés']));
+            if( $ertek_nelkuli == 'true' ) {
+                // Ekkor nullázzuk az összegeket
+                $szerzodes_adatok['Szerződés Ft összege'] = '';
+                $szerzodes_adatok['Szerződés összege']    = '';
+                // minden más esetben az
+            } else {
+                if( !trim($szerzodes_adatok['Pénznem']) ) {
+                    Throw new SOAPFault ('Server', 'Hiányzó pénznem!');
+                }
+                if( !trim($szerzodes_adatok['Szerződés Ft összege'])  ) {
+                    Throw new SOAPFault ('Server', 'Hiányzó szerződés összeg!');
+                }
             }
-            if( !trim($szerzodes_adatok['Szerződés Ft összege'])  ) {
-                Throw new SOAPFault ('Server', 'Hiányzó szerződés összeg!');
-            }
+            
             
         // Módosításkor a dátum mezőket kell figyelni, hogy ha van, akkor helyesek-e
         } else {
@@ -874,6 +957,12 @@ class ServerClass {
         // Nem kötelező, de mivel dátum mező, ezért ha van értéke, akkor ellenőrizni kell
         if( $szerzodes_adatok['Lejárat dátuma'] && !valos_datum_e($szerzodes_adatok['Lejárat dátuma']) ) {
             Throw new SOAPFault ('Server', 'Helytelen lejárat dátuma!');
+        }
+
+        // Ha a pénznem HUF, akkor a 'Szerződés összege' legyen nullázva
+        // (mert ebben a deviza nettója van, és ezt ne írjuk be magunkhoz, ha HUF-os a szerződés)
+        if( $szerzodes_adatok['Pénznem'] == self::KCS_21_TXT ) {
+            $szerzodes_adatok['Szerződés összege'] = '';
         }
         
         // Ha van pénznem adatunk (update esetén nem feltétlen van)
@@ -973,7 +1062,15 @@ class ServerClass {
         if( $szerzodes_adatok['Szerződés szerinti fizetési határidő']   ) { array_push($mezok, 'szlafizhi'      ); array_push($ertekek, $szerzodes_adatok['Szerződés szerinti fizetési határidő']   ); }
         if( $szerzodes_adatok['Szerződés tárgya']                       ) { array_push($mezok, 'targy'          ); array_push($ertekek, $szerzodes_adatok['Szerződés tárgya']                       ); }
         if( $szerzodes_adatok['Megjegyzés']                             ) { array_push($mezok, 'megjegyz'       ); array_push($ertekek, $szerzodes_adatok['Megjegyzés']                             ); }
-        
+        if( $szerzodes_adatok['Fődokumentum link']                      ) { array_push($mezok, 'dok_link'       ); array_push($ertekek, $szerzodes_adatok['Fődokumentum link']                      ); }
+        if( $ertek_nelkuli == 'true' ) {
+            array_push($mezok,   'nullas');
+            array_push($ertekek, 1       );
+        }
+        if( $ertek_nelkuli == 'false' ) {
+            array_push($mezok,   'nullas');
+            array_push($ertekek, 0       );
+        }
         // Ha az átmeneti táblában volna a szerződés, akkor előbb töröljük
         $atmenetiben_van = $adatbazis_kapcsolat->s2('recid', $tabla.'_atmeneti', "`andoc_id`='{$andoc_id}'");
         if( $atmenetiben_van === false ) { $db_error = true; }
@@ -999,7 +1096,6 @@ class ServerClass {
             array_push($ertekek,    $szerzodes_xml, $andoc_id,  self::IU_USER,  self::IU_USER,  'NOW()'     );
             $aparecid = $adatbazis_kapcsolat->i($tabla.'_atmeneti', $mezok, $ertekek);
             if( $aparecid === false ) { $db_error = true; }
-// Throw new SOAPFault ('Server', $adatbazis_kapcsolat->gp());
 
         // Update
         } else {
@@ -1018,7 +1114,7 @@ class ServerClass {
             if( $sql === false ) { $db_error = true; }
 
         }
-        
+// Throw new SOAPFault ('Server', $adatbazis_kapcsolat->gp());
         // Itt jönnek a tételek importja, de Andoc szerződéseknél nincsenek tételek
         // Partner insert/update
         if( $szerzodes_adatok['Partner száma'] ) {

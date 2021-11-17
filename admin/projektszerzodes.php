@@ -1852,14 +1852,16 @@ require_once('selectek.php');
 	// Dokumentumok
 	}elseif( isset($_GET['dokumentumok']) ) {
 
-//        if( $tobb_kep ) {
-//            require_once('tobb_kep.php');
-//        }
-        
-        // Itt a kapott XML-t jelenítjük meg
+        // Itt az XML-ből kapott dokumentum linkjét jelenítjük meg
+        if( $sor['dok_link'] ) {
+            $szamla_html .= nl2('
+                Fődokumentum link:
+                <br><input type="text" value="'.$sor['dok_link'].'" readonly style="width: 100%; margin: 1rem 0">
+                <br><input type="button" class="gomb" value="Dokumentum megtekintése" onclick="window.open(\''.$sor['dok_link'].'\')">');
+        }
         $szamla_html .= nl2('
-            Bejövő xml:
-            <br>').'<textarea class="oriasiTargy" style="height: 30rem;" readonly>'.$sor['erk_xml'].'</textarea>';
+                <br>Bejövő xml:
+                <br>').'<textarea class="oriasiTargy" style="height: 30rem;" readonly>'.$sor['erk_xml'].'</textarea>';
 
         if( $_GET['ajax'] ) {
             echo json_encode(array(

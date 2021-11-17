@@ -269,7 +269,10 @@ if( isset($_POST['tetel_sorok_ment']) ) {
         $tetelek_osszege += $_POST['adatok'][$varh_ert_adat][1][$i];
         $i++;
     }
-
+    
+    $szerzodes = $adatbazis_kapcsolat->s2('nullas', 'fenntartasi_szerzodes', "`recid`='{$recid}'");
+    if( $szerzodes === false ) { $db_error = true; }
+    
     // Deviza esetén tört számokkal is számolunk
     $penznem   = get_penznem();
     $devizas   = false;
@@ -294,7 +297,7 @@ if( isset($_POST['tetel_sorok_ment']) ) {
                 exit();
                 
     // Ha a szerződés nettó értéke nem egyenlő a tételek összegével, akkor hibaüzenet
-    } elseif( number_format($tetelek_osszege, $tizedesek, ',', ' ') != number_format($szerzodes_netto_erteke, $tizedesek, ',', ' ') ) {
+    } elseif( !$szerzodes['nullas'] && number_format($tetelek_osszege, $tizedesek, ',', ' ') != number_format($szerzodes_netto_erteke, $tizedesek, ',', ' ') ) {
         echo json_encode( array( 
                         'hiba'  => 'A szerződés tételeinek összege ('. number_format($tetelek_osszege, $tizedesek, ',', ' ').' '.$penznem.') nem egyezik meg a szerződés nettó értékével ('.number_format($szerzodes_netto_erteke, $tizedesek, ',', ' ').' '.$penznem.')!<br>Így nem menthető!',
                         'title' => 'Hiba'
@@ -816,9 +819,17 @@ require_once('selectek.php');
 	// Dokumentumok
     } elseif( isset($_GET['dokumentumok']) ) {
 
-        if( $tobb_kep ) {
-            require_once('tobb_kep.php');
+        // Itt az XML-ből kapott dokumentum linkjét jelenítjük meg
+        if( $sor['dok_link'] ) {
+            $szamla_html .= nl2('
+                Fődokumentum link:
+                <br><input type="text" value="'.$sor['dok_link'].'" readonly style="width: 100%; margin: 1rem 0">
+                <br><input type="button" class="gomb" value="Dokumentum megtekintése" onclick="window.open(\''.$sor['dok_link'].'\')">');
         }
+        $szamla_html .= nl2('
+                <br>Bejövő xml:
+                <br>').'<textarea class="oriasiTargy" style="height: 60rem;" readonly>'.$sor['erk_xml'].'</textarea>';
+
 
         if( $_GET['ajax'] ) {
             echo json_encode(array(

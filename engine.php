@@ -1305,7 +1305,6 @@ if(!is_file('class/html/class.A.php') && !is_file('../class/html/class.A.php')){
     exit;
 }
 
-
 /**
 * @desc Kép elforgatása megadott százalékkal
 * 

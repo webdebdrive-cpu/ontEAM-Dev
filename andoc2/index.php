@@ -125,7 +125,7 @@ URL: '.get_http().$_SERVER['HTTP_HOST'].$_SERVER['REQUEST_URI'].'
     $get = 'szerzodes';
     $nev = 'Szerződés';
     if( isset($_GET[$get]) ) {
-        if( !$_POST['xml'] && !isset($_GET['teszt']) ) {
+        if( !$_POST['xml'] ) {
 
             echo '
                 <form method="post" action="'.self().'?'.$get.'">
@@ -136,12 +136,31 @@ URL: '.get_http().$_SERVER['HTTP_HOST'].$_SERVER['REQUEST_URI'].'
                 ';
 
         } else {
+            
             // Szerződés import
-            if( isset($_GET['teszt']) ) {
-                $xml = fajlbol_olvas($get.'_minta.xml');
-            } else {
-                $xml = $_POST['xml'];
+            $xml = $_POST['xml'];
+            if( !$xml ) {
+                $xml = '***Üres XML-t kaptunk!***';
             }
+            $log_utvonal = '../andoc.log';
+            $log = '*****************************
+    FOGADOTT XML
+    '.date('Y.m.d H:i:s').'
+    Ip: '.$_SERVER['REMOTE_ADDR'].'
+    URL: '.get_http().$_SERVER['HTTP_HOST'].$_SERVER['REQUEST_URI'].'
+    POST:
+    '.str_replace("><", ">\n<", $xml)/*Sortörésekkel mentsük a logba*/.'
+
+
+
+';
+            file_put_contents($log_utvonal, $log, FILE_APPEND | LOCK_EX);
+            if( filesize($log_utvonal)>(get_logfile_max_meret()) ){
+                $log = fajlbol_olvas($log_utvonal);
+                $log = mb_substr($log, round(mb_strlen($log, 'UTF-8')/2), NULL, 'UTF-8');
+                fajlba_mentes($log_utvonal, $log);
+            }
+            
             $xml = trim( str_replace('<?xml version="1.0" encoding="utf-8" ?>', '', $xml) );
 
             $soap -> SzerzodesAdatokImport( $xml );    
@@ -158,7 +177,7 @@ URL: '.get_http().$_SERVER['HTTP_HOST'].$_SERVER['REQUEST_URI'].'
     $nev = 'Költségnem';
     if( isset($_GET[$get]) ) {
 
-        if( !$_POST['xml'] && !isset($_GET['teszt']) ) {
+        if( !$_POST['xml'] ) {
 
             echo '
                 <form method="post" action="'.self().'?'.$get.'">
@@ -170,11 +189,29 @@ URL: '.get_http().$_SERVER['HTTP_HOST'].$_SERVER['REQUEST_URI'].'
 
         } else {
 
-            if( isset($_GET['teszt']) ) {
-                $xml = fajlbol_olvas($get.'_minta.xml');
-            } else {
-                $xml = $_POST['xml'];
+            $xml = $_POST['xml'];
+            if( !$xml ) {
+                $xml = '***Üres XML-t kaptunk!***';
             }
+            $log_utvonal = '../andoc.log';
+            $log = '*****************************
+    FOGADOTT XML
+    '.date('Y.m.d H:i:s').'
+    Ip: '.$_SERVER['REMOTE_ADDR'].'
+    URL: '.get_http().$_SERVER['HTTP_HOST'].$_SERVER['REQUEST_URI'].'
+    POST:
+    '.str_replace("><", ">\n<", $xml)/*Sortörésekkel mentsük a logba*/.'
+
+
+
+';
+            file_put_contents($log_utvonal, $log, FILE_APPEND | LOCK_EX);
+            if( filesize($log_utvonal)>(get_logfile_max_meret()) ){
+                $log = fajlbol_olvas($log_utvonal);
+                $log = mb_substr($log, round(mb_strlen($log, 'UTF-8')/2), NULL, 'UTF-8');
+                fajlba_mentes($log_utvonal, $log);
+            }
+            
             $xml = trim( str_replace('<?xml version="1.0" encoding="utf-8" ?>', '', $xml) );
             $soap -> KoltsegnemAdatokImport( $xml );    
         }
@@ -186,7 +223,7 @@ URL: '.get_http().$_SERVER['HTTP_HOST'].$_SERVER['REQUEST_URI'].'
     $nev = 'Költséghely';
     if( isset($_GET[$get]) ) {
 
-        if( !$_POST['xml'] && !isset($_GET['teszt']) ) {
+        if( !$_POST['xml'] ) {
 
             echo '
                 <form method="post" action="'.self().'?'.$get.'">
@@ -198,11 +235,29 @@ URL: '.get_http().$_SERVER['HTTP_HOST'].$_SERVER['REQUEST_URI'].'
 
         } else {
 
-            if( isset($_GET['teszt']) ) {
-                $xml = fajlbol_olvas($get.'_minta.xml');
-            } else {
-                $xml = $_POST['xml'];
+            $xml = $_POST['xml'];
+            if( !$xml ) {
+                $xml = '***Üres XML-t kaptunk!***';
             }
+            $log_utvonal = '../andoc.log';
+            $log = '*****************************
+    FOGADOTT XML
+    '.date('Y.m.d H:i:s').'
+    Ip: '.$_SERVER['REMOTE_ADDR'].'
+    URL: '.get_http().$_SERVER['HTTP_HOST'].$_SERVER['REQUEST_URI'].'
+    POST:
+    '.str_replace("><", ">\n<", $xml)/*Sortörésekkel mentsük a logba*/.'
+
+
+
+';
+            file_put_contents($log_utvonal, $log, FILE_APPEND | LOCK_EX);
+            if( filesize($log_utvonal)>(get_logfile_max_meret()) ){
+                $log = fajlbol_olvas($log_utvonal);
+                $log = mb_substr($log, round(mb_strlen($log, 'UTF-8')/2), NULL, 'UTF-8');
+                fajlba_mentes($log_utvonal, $log);
+            }
+            
             $xml = trim( str_replace('<?xml version="1.0" encoding="utf-8" ?>', '', $xml) );
             $soap -> KoltseghelyAdatokImport( $xml );    
         }
@@ -226,11 +281,29 @@ URL: '.get_http().$_SERVER['HTTP_HOST'].$_SERVER['REQUEST_URI'].'
 
         } else {
 
-            if( isset($_GET['teszt']) ) {
-                $xml = fajlbol_olvas($get.'_minta.xml');
-            } else {
-                $xml = $_POST['xml'];
+            $xml = $_POST['xml'];
+            if( !$xml ) {
+                $xml = '***Üres XML-t kaptunk!***';
             }
+            $log_utvonal = '../andoc.log';
+            $log = '*****************************
+    FOGADOTT XML
+    '.date('Y.m.d H:i:s').'
+    Ip: '.$_SERVER['REMOTE_ADDR'].'
+    URL: '.get_http().$_SERVER['HTTP_HOST'].$_SERVER['REQUEST_URI'].'
+    POST:
+    '.str_replace("><", ">\n<", $xml)/*Sortörésekkel mentsük a logba*/.'
+
+
+
+';
+            file_put_contents($log_utvonal, $log, FILE_APPEND | LOCK_EX);
+            if( filesize($log_utvonal)>(get_logfile_max_meret()) ){
+                $log = fajlbol_olvas($log_utvonal);
+                $log = mb_substr($log, round(mb_strlen($log, 'UTF-8')/2), NULL, 'UTF-8');
+                fajlba_mentes($log_utvonal, $log);
+            }
+            
             $xml = trim( str_replace('<?xml version="1.0" encoding="utf-8" ?>', '', $xml) );
             $soap -> SzallitoAdatokImport( $xml );    
         }

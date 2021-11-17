@@ -458,3 +458,8 @@ define('TELEPHELY_SZK',              1106);
 define('BEOSZTAS_UNNEPNAP_MUNKASZUNET', 1);
 define('BEOSZTAS_UNNEPNAP_PIHENO',      2);
 define('BEOSZTAS_UNNEPNAP_HELYETTES',   3);
+
+// Értéklistában szereplő Költségviselők cégkódjai
+define('SZAMLA_KOLT_VIS_DZRT',   13);
+define('SZAMLA_KOLT_VIS_DHZRT',  11);
+define('SZAMLA_KOLT_VIS_GUNDEL', 15);
