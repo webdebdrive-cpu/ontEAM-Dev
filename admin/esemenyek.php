@@ -1108,16 +1108,18 @@ if( basename(self()) == 'anyag_szamla.php' && $_GET['id'] ) {
     }
 }
 $sz_szam_gomb = '';
-if( _jog(JOG_FENNTARTASI_SZAMLAK_KEZEL) || isset($_GET['uj']) ) {
+if( _jog(JOG_ANYAG_SZAMLAK_KEZEL) || isset($_GET['uj']) ) {
     $gomb_felirat = 'Szerződés hozzáadása';
     $gomb_class   = '';
     $gomb_mehet   = true;
     if( basename(self()) == 'anyag_szamla.php' && isset($_GET['modosit']) ) {
         $anyag_szamla = $adatbazis_kapcsolat->s2('sz_szam', 'anyag_szamla', "`recid`='{$_GET['id']}'");
-        if($anyag_szamla['sz_szam']){
+        if( $anyag_szamla['sz_szam'] ) {
             $gomb_felirat = 'Szerződés szám törlése';
             $gomb_class   = ' piros';
         }
+        $fennt_szerzodes    = $adatbazis_kapcsolat->s2('recid targy szszam', 'fenntartasi_szerzodes', "`szszam`='{$anyag_szamla['sz_szam']}'");
+        $szerzodes_neve     = '<a href="fenntartasi_szerzodes.php?id=x&amp;modosit&amp;mezo=szszam&amp;op=equal&amp;felt='.$fennt_szerzodes['szszam'].'" target="_blank">'.resz_string($fennt_szerzodes['targy'], 60).'</a>';
     }
     if( $gomb_mehet ) {
         $sz_szam_gomb = ' <input type="button" class="gomb alacsony'.$gomb_class.'" value="'.$gomb_felirat.'" id="sz_szam_gomb" style="margin-left: 2rem; margin-bottom: 0;" onclick="fennt_hozzaad_gomb_hozzaad_vagy_torol()">';

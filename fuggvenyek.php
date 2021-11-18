@@ -2234,7 +2234,7 @@ function i_u($type, $tabla, $tomb) {
             // Anyag számla mentésekor HA nem nullás a számla, akkor ellenőrizzük, hogy a számla nettó értéke azonos-e a tételek összegével
             $tizedesek  = 0;
             $mezo1      = 'anyag_szla_tetel_netto_ert';
-            $mezo2      = 'netto_ert';
+            $mezo2      = 'netto';
             $szoveg     = 'szerződés összegével';
             if( $_POST['kcs_21']!=KCS_21_HUF ) {
                 $tizedesek  = 2;

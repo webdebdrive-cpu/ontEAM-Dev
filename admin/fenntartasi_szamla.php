@@ -684,7 +684,7 @@ if( isset($_POST['get_fenntartasi_szerzodes_tabla']) ) {
                                         `'.get_db_tabla().'fenntartasi_szerzodes`.`targy`
                                             ',
                                         'fenntartasi_szerzodes',
-                                        "`szallito_id`='{$_POST['szallito_id']}'{$where_energia}", 'szszam');
+                                        "`szallito_id`='{$_POST['szallito_id']}'{$where_energia}", 'insert_dt desc');
 
     $i = 1;
     foreach ( $fennt_sz_ek as $fennt ) {
@@ -1998,7 +1998,7 @@ function xml_vissza( $szamla_id, $igazolva = '', $oka = '' ) {
           </row>
         </container>
         <container name="IK1">
-          '.$szamla['kuld_tetel_xml'].'
+          '.$szamla['kuld_tetel_xml']/*Ennek előállítását ha meg szeretnéd nézni, keres rá erre: "$_POST['osszevon_targy_kitoltve_ell']"*/.'
         </container>
       </properties>
     </register>
