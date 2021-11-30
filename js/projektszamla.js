@@ -19,6 +19,7 @@ function szamla_igazol(mehet) {
             szamla_igazol: Date.now()
         },
         success: function (response) {
+            if(response.substring(0, 6)=='SESKIL'){ location.href = 'index.php'; }
             if (response) {
                 response = JSON.parse(response);
                 if (response.hiba) {
@@ -35,8 +36,49 @@ function szamla_igazol(mehet) {
                     alert2('Számla sikeresen igazolva!', '', 'Üzenet');
                 }, 200);
             }
+        },
+        complete: function(xhr) {
+            if( xhr.status != 200 ) {
+                alert2(xhr.responseText, '', 'Hiba');
+            }
         }
     });
+}
+
+
+// Vissza az ügyintézőnek
+function vissza_ui_nek(mehet) {
+    if( !mehet ) {
+        alert2('Biztos, hogy visszaküldi a számlát a műszaki ügyintézőnek?', '<input type="button" class="gomb zold enter" value="Igen" onclick="vissza_ui_nek(\'-mehet-\');"><input type="button" class="gomb piros" value="Nem" onclick="alert2()">');
+        return false;
+    } else {
+        $.ajax({
+            url : 'projektszamla.php',
+            type: 'POST',
+            data: {
+                recid        : _get('id'),
+                vissza_ui_nek: Date.now()
+            },
+            success: function (response) {
+                if(response.substring(0, 6)=='SESKIL'){ location.href = 'index.php'; }
+                if (response) {
+                    response = JSON.parse(response);
+                    if (response.hiba) {
+                        alert2(response.hiba, response.gomb, response.title);
+                        return false;
+                    }
+                    
+                    szamlaBetolt(_get('id'), 'projektszamla.php');
+                    alert2();
+                }
+            },
+            complete: function (xhr) {
+                if (xhr.status != 200) {
+                    alert2(xhr.responseText, '', 'Hiba');
+                }
+            }
+        });
+    }
 }
 
 // Visszaadva pipa lekezelése
@@ -141,12 +183,18 @@ function kuldes_igazolasra(mehet) {
                 kuldes_igazolasra_csoportosit: Date.now()
             },
             success: function (response) {
+                if(response.substring(0, 6)=='SESKIL'){ location.href = 'index.php'; }
                 if (response) {
                     response = JSON.parse(response);
                     if (response.hiba) {
                         alert2(response.hiba, response.gomb, response.title);
                         return false;
                     }
+                }
+            },
+            complete: function(xhr) {
+                if( xhr.status != 200 ) {
+                    alert2(xhr.responseText, '', 'Hiba');
                 }
             }
         });
@@ -163,6 +211,7 @@ function kuldes_igazolasra(mehet) {
             kuldes_igazolasra: Date.now()
         },
         success: function (response) {
+            if(response.substring(0, 6)=='SESKIL'){ location.href = 'index.php'; }
             if (response) {
                 response = JSON.parse(response);
                 if (response.hiba) {
@@ -172,6 +221,11 @@ function kuldes_igazolasra(mehet) {
                 
                 szamlaBetolt(_get('id'), 'projektszamla.php');
                 alert2();
+            }
+        },
+        complete: function(xhr) {
+            if( xhr.status != 200 ) {
+                alert2(xhr.responseText, '', 'Hiba');
             }
         }
     });
@@ -204,6 +258,7 @@ function osszevon_targy_kitoltve_ell() {
                 osszevon_targy_kitoltve_ell : Date.now()
             },
             success: function (response) {
+                if(response.substring(0, 6)=='SESKIL'){ location.href = 'index.php'; }
                 if (response) {
                     response = JSON.parse(response);
                     if (response.hiba) {
@@ -212,6 +267,11 @@ function osszevon_targy_kitoltve_ell() {
                     }
                 }
                 kuldes_igazolasra('mehet');
+            },
+            complete: function(xhr) {
+                if( xhr.status != 200 ) {
+                    alert2(xhr.responseText, '', 'Hiba');
+                }
             }
         });
     }

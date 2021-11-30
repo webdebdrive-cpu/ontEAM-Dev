@@ -19,6 +19,7 @@ function szamla_igazol(mehet) {
             szamla_igazol: Date.now()
         },
         success: function (response) {
+            if(response.substring(0, 6)=='SESKIL'){ location.href = 'index.php'; }
             if (response) {
                 response = JSON.parse(response);
                 if (response.hiba) {
@@ -108,6 +109,7 @@ function kuldes_igazolasra(mehet) {
                 kuldes_igazolasra_csoportosit: Date.now()
             },
             success: function (response) {
+                if(response.substring(0, 6)=='SESKIL'){ location.href = 'index.php'; }
                 if (response) {
                     response = JSON.parse(response);
                     if (response.hiba) {
@@ -130,6 +132,7 @@ function kuldes_igazolasra(mehet) {
             kuldes_igazolasra: Date.now()
         },
         success: function (response) {
+            if(response.substring(0, 6)=='SESKIL'){ location.href = 'index.php'; }
             if (response) {
                 response = JSON.parse(response);
                 if (response.hiba) {
@@ -142,6 +145,41 @@ function kuldes_igazolasra(mehet) {
             }
         }
     });
+}
+
+// Vissza az ügyintézőnek
+function vissza_ui_nek(mehet) {
+    if( !mehet ) {
+        alert2('Biztos, hogy visszaküldi a számlát a műszaki ügyintézőnek?', '<input type="button" class="gomb zold enter" value="Igen" onclick="vissza_ui_nek(\'-mehet-\');"><input type="button" class="gomb piros" value="Nem" onclick="alert2()">');
+        return false;
+    } else {
+        $.ajax({
+            url : 'anyag_szamla.php',
+            type: 'POST',
+            data: {
+                recid        : _get('id'),
+                vissza_ui_nek: Date.now()
+            },
+            success: function (response) {
+                if(response.substring(0, 6)=='SESKIL'){ location.href = 'index.php'; }
+                if (response) {
+                    response = JSON.parse(response);
+                    if (response.hiba) {
+                        alert2(response.hiba, response.gomb, response.title);
+                        return false;
+                    }
+                    
+                    szamlaBetolt(_get('id'), 'anyag_szamla.php');
+                    alert2();
+                }
+            },
+            complete: function (xhr) {
+                if (xhr.status != 200) {
+                    alert2(xhr.responseText, '', 'Hiba');
+                }
+            }
+        });
+    }
 }
 
 // Tételek összevonásakor, amikor mentjük a tételek tárgyait, ellenőrizzük, hogy ki van-e töltve mindenhol
@@ -171,6 +209,7 @@ function osszevon_targy_kitoltve_ell() {
                 osszevon_targy_kitoltve_ell : Date.now()
             },
             success: function (response) {
+                if(response.substring(0, 6)=='SESKIL'){ location.href = 'index.php'; }
                 if (response) {
                     response = JSON.parse(response);
                     if (response.hiba) {

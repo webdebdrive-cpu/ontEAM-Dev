@@ -1,0 +1,18 @@
+#szamlaBetolt {
+    padding: 0;
+}
+
+.sor.kethasabos div.jobb {
+    margin: 0;
+}
+
+table.szamla_cont_tabla th {
+    text-align: left;
+    padding: 1rem 1rem;
+}
+table.szamla_cont_tabla th.c {
+    text-align: center;
+}
+table.szamla_cont_tabla th.r {
+    text-align: right;
+}

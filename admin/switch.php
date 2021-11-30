@@ -784,12 +784,12 @@ foreach ( $akt_tomb as $ertek ) {
                 
                 $atmeneti   = $adatbazis_kapcsolat->s2('kolt_vis', $self.'_atmeneti', "`andoc_id`='{$_GET['andoc_id']}'");
                 $erteklista = $adatbazis_kapcsolat->s2('cegkod', 'erteklista', "`csoport`='".ERTEKLISTA_KOLTSEGVISELO."' AND `id`='{$atmeneti['kolt_vis']}'");
-                if( $kolt_vis ) {
+                if( $erteklista ) {
                     $where .= " AND `cegkod`='{$erteklista['cegkod']}'";
                 }
             }
-
             $telephelyek = $adatbazis_kapcsolat -> select('id recid nev modell', 'telephely', $where, 'nev');
+
             foreach ( $telephelyek as $telephely ) {
                 // Ha csak egy szálloda van, akkor a seletből csak az az egy érték választható ki, ezt meg is tesszük, selectet így disabled-re téve.
                 // Mindezet csak akkor, ha új feltöltés üzemmódban vagyunk

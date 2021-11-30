@@ -27,7 +27,7 @@ var AFA                 = '27';                                /* Áfa */
 
 var keys = {37: 1, 38: 1, 39: 1, 40: 1};
 
-var navpanel_mentes_oldalak = ['dokumentumtar', 'eszkozkezeles'];
+var navpanel_mentes_oldalak = ['dokumentumtar', 'eszkozkezeles', 'szamla'];
 var navpanel_mentes_oldal   = false;
 $(document).ready(function () {
     navpanel_mentes_oldal = jQuery.inArray( baseName(location.href), navpanel_mentes_oldalak );
@@ -514,7 +514,7 @@ $(function() {
         }
 
         // Anyagigénylésnél nem a bal navpanelre kattintunk, hanem a táblázat első sorára
-        if( PHP_SELF=='anyagigenyles.php' ) {
+        if( PHP_SELF=='anyagigenyles.php' || PHP_SELF=='szamla.php' ) {
             if( !$('table.szamla_cont_tabla tr.kijelolve').length ){
                 $('table.szamla_cont_tabla tbody tr:first-of-type').addClass('kijelolve').click();
             }
@@ -659,7 +659,7 @@ $(function() {
                 elso_utolso = false;
 
                 // Anyagigénylésnél használt táblázat esetén valójában a táblázat következő sorára kell ugrani, ami a helyben rendezetség miatt nem ugyanaz, mint a bal oldali navpanelé
-                if( tabla=='anyagigenyles' || aktiv_oldal == 'szamla_cont_tabla' ) {
+                if( tabla=='anyagigenyles' || aktiv_oldal == 'szamla_cont_tabla' || aktiv_oldal == 'szamla' ) {
                     
                     var active   = $('.szamla_cont_tabla tr.kijelolve').index('.szamla_cont_tabla tbody tr'),
                         szamlaDb = $('.szamla_cont_tabla tbody tr').length - 1;
@@ -1009,12 +1009,11 @@ $(function() {
 
             if( !sorok.hasClass('kijelolve') ) {
                 $(this).addClass('kijelolve');
-
                 kijeloltSzamlal( sorok, 'mellek', tabla, mellek );
             } else {
 
                 var akt_id = parseInt( $(this).prevAll('.kijelolve').attr('data-i') );
-                if(!akt_id){
+                if( !akt_id ) {
                     akt_id = parseInt( $(this).nextAll('.kijelolve').attr('data-i') );
                 }
 
@@ -5326,6 +5325,10 @@ function naviElso() {
     if( baseName(location.href)=='anyagigenyles' ){
         $('table.szamla_cont_tabla tbody tr:nth-of-type(2)').addClass('kijelolve').click();
         $('#tartalomJobb').scrollTop(0);
+    } else if( baseName(location.href)=='szamla' ) {
+        $('table.szamla_cont_tabla tbody tr').removeClass('kijelolve');
+        $('table.szamla_cont_tabla tbody tr:nth-of-type(1)').addClass('kijelolve').click();
+        $('#tartalomJobb').scrollTop(0);
     } else {
         // Bal oldali területen egy táblázat az aktív
         if( aktiv_oldal == 'szamla_cont_tabla' ) {
@@ -5343,6 +5346,10 @@ function naviElso() {
 function naviUtolso() {
     // Anyagigénylésnél másképp járunk el
     if( baseName(location.href)=='anyagigenyles' ){
+        $('table.szamla_cont_tabla tbody tr:last-of-type').addClass('kijelolve').click();
+        $('#tartalomJobb').scrollTop($('#tartalomJobb').prop('scrollHeight'));
+    } else if( baseName(location.href)=='szamla' ) {
+        $('table.szamla_cont_tabla tbody tr').removeClass('kijelolve');
         $('table.szamla_cont_tabla tbody tr:last-of-type').addClass('kijelolve').click();
         $('#tartalomJobb').scrollTop($('#tartalomJobb').prop('scrollHeight'));
     } else {
@@ -6046,7 +6053,7 @@ function csv_general( that, valasztos, link_kieg ) {
 
         // Projektszámláknál lehet választani, hogy Számlák vagy Számlák és tételek
         if (baseName(location.href) == 'projektszamla') {
-            alert2('Válasszon export fajtát:<br><a href="javascript:csv_general($(\'.excel\'))">» Számlák exportálása</a><br><a href="javascript:csv_general($(\'.excel\'), \'\', \'tetelek&id=\'+_get(\'id\'))">» Számlák és tételek exportálása</a><br><a href="javascript:csv_general($(\'.excel\'), \'\', \'kifizetesek&id=\'+_get(\'id\'))">» Számlák és kifizetések exportálása</a>', '<input type="button" class="gomb" value="Mégsem" onclick="alert2()">', 'Válasszon exportot');
+            alert2('Válasszon export fajtát:<br><a href="javascript:csv_general($(\'.excel\'))">» Számlák exportálása</a><br><a href="javascript:csv_general($(\'.excel\'), \'\', \'tetelek&id=\'+_get(\'id\'))">» Számlák és tételek exportálása</a>', '<input type="button" class="gomb" value="Mégsem" onclick="alert2()">', 'Válasszon exportot');
         }
 
         // Projektszerződéseknél lehet választani, hogy Szerződések vagy Szerződések és tételek
@@ -8189,5 +8196,42 @@ function szamla_nullas() {
         } else if( $('#kcs_21_autocomp').val() == 'HUF' ) {
             $('#netto')  .removeAttr('disabled').removeAttr('readonly').focus().addClass('csillag');
         }
+    }
+}
+
+// Számla modulból számla visszaküldése a közös nagy táblába
+// Hogy ne modulonként kelljen létrehozni a függvényt, ezért van itt definiálva általánosan
+function vissza_andoc_szamlakhoz(mehet) {
+    if( !mehet ) {
+        alert2('Biztosan áthelyezi a számlát az Andoc számlákhoz?', '<input type="button" value="Igen" class="gomb zold" onclick="vissza_andoc_szamlakhoz(\'-mehet-\')"> <input type="button" value="Nem" class="gomb piros" onclick="alert2()">');
+        return false;
+    } else {
+        
+        $.ajax({
+            url : 'szamla.php',
+            type: 'POST',
+            data: {
+                andoc_id                : _get('andoc_id'),
+                tipus                   : PHP_SELF,
+                vissza_andoc_szamlakhoz : Date.now()
+            },
+            success: function (response) {
+                if(response.substring(0, 6)=='SESKIL'){ location.href = 'index.php'; }
+                if (response) {
+                    response = JSON.parse(response);
+                    if (response.hiba) {
+                        alert2(response.hiba, response.gomb, response.title);
+                        return false;
+                    } else {
+                        location.href=PHP_SELF;
+                    }
+                }
+            },
+            complete: function (xhr) {
+                if (xhr.status != 200) {
+                    alert2(xhr.responseText, '', 'Hiba');
+                }
+            }
+        });
     }
 }

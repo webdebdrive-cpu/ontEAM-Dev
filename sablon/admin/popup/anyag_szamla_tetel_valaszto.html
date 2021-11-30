@@ -27,6 +27,11 @@ $(document).ready(function(){
                     $('#popup_tablazat').html(response.tablazat);
                 }
             }
+        },
+        complete: function(xhr) {
+            if( xhr.status != 200 ) {
+                alert2(xhr.responseText, '', 'Hiba');
+            }
         }
     });
 });
@@ -62,6 +67,11 @@ function anyag_szamla_tetelek_ment() {
                     szamlaBetolt( _get('id'), 'anyag_szamla.php', 'modosit' );
                     popupZar();
                 }
+            }
+        },
+        complete: function(xhr) {
+            if( xhr.status != 200 ) {
+                alert2(xhr.responseText, '', 'Hiba');
             }
         }
     });

@@ -219,8 +219,14 @@ function fenntartasi_szerzodes(mehet) {
             fenntartasi_szerzodes: Date.now()
         },
         success: function (response) {
+            if(response.substring(0, 6)=='SESKIL'){ location.href = 'index.php'; }
             formModositva = false;
             location.href = 'projektszerzodes.php';
+        },
+        complete: function(xhr) {
+            if( xhr.status != 200 ) {
+                alert2(xhr.responseText, '', 'Hiba');
+            }
         }
     });
     

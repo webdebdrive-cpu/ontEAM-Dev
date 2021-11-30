@@ -105,8 +105,10 @@ if( _jog(JOG_BEJELENTES_MEGTEKINT) || _jog(JOG_BEJELENTES_SAJAT_RESZL) ) {
     $aktmenuk  = '';
     $aktmenuk .= str_replace( $akt_almenu_mit, array( $aloldalak['0'], $menu_nev),                $almenu_sablon );
     $aktmenuk .= str_replace( $akt_almenu_mit, array( $aloldalak['1'], 'Archív '.$menu_nev_kis),  $almenu_sablon );
+
     $style = '';
-    if(substr( basename(self()), 0, strlen(basename($_SERVER['PHP_SELF']))-4 ) == $megn){
+    $menu_hover = array('bejelentes.php', 'bejelentes_arch.php');
+    if( in_array(basename(self()), $menu_hover) ) {
         $style = ' class="hover{STYLE_KIEG}"';
     }
 
@@ -174,7 +176,8 @@ if( _jog(JOG_MUNKALAP_MEGTEKINT) || _jog(JOG_MUNKALAP_MEGTEKINT_SZALL) || _jog(J
     $aktmenuk .= str_replace( $akt_almenu_mit, array( $aloldalak['4'], 'Üzemeltetési napló'         ), $almenu_sablon );
 
     $style = '';
-    if(substr( basename(self()), 0, strlen(basename($_SERVER['PHP_SELF']))-4 ) == $megn){
+    $menu_hover = array('munkalap.php', 'munkalap_arch.php', 'mobil_hozzarendel.php', 'utemezett_feladatok.php', 'rendszeres_karbantartas.php', 'eseti_fenntartas.php', 'uzemeltetesi_naplo.php');
+    if( in_array(basename(self()), $menu_hover) ) {
         $style = ' class="hover{STYLE_KIEG}"';
     }
 
@@ -212,22 +215,23 @@ if( _jog(JOG_ANYAIGENLES_MEGTEKINT) || _jog(JOG_ANYAGREND_MEGTEKINT) || _jog(JOG
                                                     }
     if(basename(self())=='raktar.php')              { $oldalNev = 'Anyagok / <span id="rekord_neve">Raktár</span><span class="dn" id="rekord_neve_egyes">raktár</span><span class="dn" id="rekord_neve_targy">raktárat</span>';           }
 
-$aktmenuk  = '';
-if( _jog(JOG_ANYAIGENLES_MEGTEKINT) ) {
-    $aktmenuk .= str_replace( $akt_almenu_mit, array( $aloldalak['1'], 'Anyagigénylések'), $almenu_sablon );
-}
-if( _jog(JOG_ANYAGREND_MEGTEKINT) ) {
-    $aktmenuk .= str_replace( $akt_almenu_mit, array( $aloldalak['2'], 'Anyagrendelések'), $almenu_sablon );
-}
-if( _jog(JOG_RAKTAR_MEGTEKINT) ) {
-    $aktmenuk .= str_replace( $akt_almenu_mit, array( $aloldalak['3'], 'Raktár'         ), $almenu_sablon );
-}
-if( _jog(JOG_CIKKTORZS_MEGTEKINT) ) {
-    $aktmenuk .= str_replace( $akt_almenu_mit, array( $aloldalak['0'], 'Cikktörzs'      ), $almenu_sablon );
-}
+    $aktmenuk  = '';
+    if( _jog(JOG_ANYAIGENLES_MEGTEKINT) ) {
+        $aktmenuk .= str_replace( $akt_almenu_mit, array( $aloldalak['1'], 'Anyagigénylések'), $almenu_sablon );
+    }
+    if( _jog(JOG_ANYAGREND_MEGTEKINT) ) {
+        $aktmenuk .= str_replace( $akt_almenu_mit, array( $aloldalak['2'], 'Anyagrendelések'), $almenu_sablon );
+    }
+    if( _jog(JOG_RAKTAR_MEGTEKINT) ) {
+        $aktmenuk .= str_replace( $akt_almenu_mit, array( $aloldalak['3'], 'Raktár'         ), $almenu_sablon );
+    }
+    if( _jog(JOG_CIKKTORZS_MEGTEKINT) ) {
+        $aktmenuk .= str_replace( $akt_almenu_mit, array( $aloldalak['0'], 'Cikktörzs'      ), $almenu_sablon );
+    }
 
     $style = '';
-    if( substr(basename(self()), 0, strlen(basename($_SERVER['PHP_SELF'])) - 4) == $megn ) {
+    $menu_hover = array('cikktorzs.php', 'anyagigenyles.php', 'raktar.php');
+    if( in_array(basename(self()), $menu_hover) ) {
         $style = ' class="hover{STYLE_KIEG}"';
     }
 
@@ -267,7 +271,8 @@ if(!$_SESSION['bejelento_menu_rejt'] && ( _jog(JOG_ESZKOZ_MEGTEKINT) || _jog(JOG
     }
 
     $style = '';
-    if(substr( basename(self()), 0, strlen(basename($_SERVER['PHP_SELF']))-4 ) == $megn){
+    $menu_hover = array('eszkozkezeles.php', 'felmeresi_terv.php');
+    if( in_array(basename(self()), $menu_hover) ) {
         $style = ' class="hover{STYLE_KIEG}"';
     }
 
@@ -305,6 +310,7 @@ if( !$_SESSION['bejelento_menu_rejt'] && (
     if(basename(self())==$megn.'.php')                  { $oldalNev = 'Fenntartás / <span id="rekord_neve">Energia egységárak</span><span class="dn" id="rekord_neve_egyes">energia egységár</span><span class="dn" id="rekord_neve_targy">energia egységárat</span>';              }
     if(basename(self())=='fenntartasi_terv.php')        { $oldalNev = 'Fenntartás / <span id="rekord_neve">Fenntartási tervek</span><span class="dn" id="rekord_neve_egyes">fenntartási terv</span><span class="dn" id="rekord_neve_targy">fenntartási tervet</span>';              }
 
+    if(basename(self())=='szamla.php')                  { $oldalNev = 'Fenntartás / <span id="rekord_neve">Andoc számlák</span><span class="dn" id="rekord_neve_egyes">Andoc számla</span><span class="dn" id="rekord_neve_targy">Andoc számlát</span>';                            }
     if(basename(self())=='anyag_szamla.php')            { $oldalNev = 'Fenntartás / <span id="rekord_neve">Anyag számlák</span><span class="dn" id="rekord_neve_egyes">Anyag számla</span><span class="dn" id="rekord_neve_targy">Anyag számlát</span>';                            }
     if(basename(self())=='energia_szamla.php')          { $oldalNev = 'Fenntartás / <span id="rekord_neve">Energia számlák</span><span class="dn" id="rekord_neve_egyes">Energia számla</span><span class="dn" id="rekord_neve_targy">Energia számlát</span>';                      }
     if(basename(self())=='fenntartasi_szamla.php')      { $oldalNev = 'Fenntartás / <span id="rekord_neve">Fenntartási számlák</span><span class="dn" id="rekord_neve_egyes">Fenntartási számla</span><span class="dn" id="rekord_neve_targy">Fenntartási számlát</span>';          }
@@ -312,27 +318,31 @@ if( !$_SESSION['bejelento_menu_rejt'] && (
 
     
     $aktmenuk  = '';
-    if(_jog(JOG_ENERGIA_EGYSEGAR_OLVAS)){
-        $aktmenuk .= str_replace( $akt_almenu_mit, array( $aloldalak['0'], 'Energia egységárak'  ), $almenu_sablon );
+    if( _jog(JOG_FENNTARTASI_SZAMLAK_OLVAS) || _jog(JOG_ENERGIA_SZAMLAK_OLVAS) || _jog(JOG_ANYAG_SZAMLAK_OLVAS) || _jog(JOG_PRSZAMLAK_OLVAS) || _jog(JOG_PR_SAJAT_SZAMLA_MEGTEKINT) ) {
+        $aktmenuk .= str_replace( $akt_almenu_mit, array( 'szamla.php?tablazat', 'Andoc számlák'                ), $almenu_sablon );
     }
-    if(_jog(JOG_FENNTARTASI_SAJAT_SZ_OLVAS)){
-        $aktmenuk .= str_replace( $akt_almenu_mit, array( 'fenntartasi_terv.php', 'Fenntartási tervek'    ), $almenu_sablon );
+    if( _jog(JOG_ENERGIA_EGYSEGAR_OLVAS) ) {
+        $aktmenuk .= str_replace( $akt_almenu_mit, array( $aloldalak['0'], 'Energia egységárak'                 ), $almenu_sablon );
+    }
+    if( _jog(JOG_FENNTARTASI_SAJAT_SZ_OLVAS) ) {
+        $aktmenuk .= str_replace( $akt_almenu_mit, array( 'fenntartasi_terv.php', 'Fenntartási tervek'          ), $almenu_sablon );
     }
     if( _jog(JOG_FENNTARTASI_SZERZ_OLVAS) ) {
-        $aktmenuk .= str_replace( $akt_almenu_mit, array( 'fenntartasi_szerzodes.php','Fenntartási szerződések'), $almenu_sablon );
+        $aktmenuk .= str_replace( $akt_almenu_mit, array( 'fenntartasi_szerzodes.php','Fenntartási szerződések' ), $almenu_sablon );
     }
     if( _jog(JOG_FENNTARTASI_SZAMLAK_OLVAS) ) {
-        $aktmenuk .= str_replace( $akt_almenu_mit, array( 'fenntartasi_szamla.php', 'Fenntartási számlák'    ), $almenu_sablon );
+        $aktmenuk .= str_replace( $akt_almenu_mit, array( 'fenntartasi_szamla.php', 'Fenntartási számlák'       ), $almenu_sablon );
     }
     if( _jog(JOG_ENERGIA_SZAMLAK_OLVAS) ) {
-        $aktmenuk .= str_replace( $akt_almenu_mit, array( 'energia_szamla.php', 'Energia számlák'        ), $almenu_sablon );
+        $aktmenuk .= str_replace( $akt_almenu_mit, array( 'energia_szamla.php', 'Energia számlák'               ), $almenu_sablon );
     }
     if( _jog(JOG_ANYAG_SZAMLAK_OLVAS) ) {
-        $aktmenuk .= str_replace( $akt_almenu_mit, array( 'anyag_szamla.php', 'Anyag számlák'          ), $almenu_sablon );
+        $aktmenuk .= str_replace( $akt_almenu_mit, array( 'anyag_szamla.php', 'Anyag számlák'                   ), $almenu_sablon );
     }
     
     $style = '';
-    if(substr( basename(self()), 0, strlen(basename($_SERVER['PHP_SELF']))-4 ) == $megn){
+    $menu_hover = array('anyag_szamla.php', 'szamla.php', 'energia_terv.php', 'energia_szamla.php', 'fenntartasi_szerzodes.php', 'fenntartasi_terv.php');
+    if( in_array(basename(self()), $menu_hover) ) {
         $style = ' class="hover{STYLE_KIEG}"';
     }
 
@@ -400,7 +410,8 @@ if( projektek_lathat() ) {
     }
     
     $style = '';
-    if(substr( basename(self()), 0, strlen(basename($_SERVER['PHP_SELF']))-4 ) == $megn){
+    $menu_hover = array('projektigenyles.php', 'projektkezeles.php', 'projektszerzodes.php', 'projektszamla.php', 'cash_flow.php', 'eloterj_fb.php', 'eloterj_bod.php');
+    if( in_array(basename(self()), $menu_hover) ) {
         $style = ' class="hover{STYLE_KIEG}"';
     }
 
@@ -425,26 +436,23 @@ if( !$_SESSION['bejelento_menu_rejt'] /* Bejelentő elől rejtve */ && (_jog(JOG
     $menu_nev        = 'Dokumentumok';
     $menu_nev_kis    = 'dokumentumok';
     $menu_nev_tobbes = 'Dokumentumok';
-    $megn            = 'szamla';
-    $aloldalak       = array('szamla.php', 'szallito.php', 'dokumentumtar.php');
+    $megn            = 'szallito';
+    $aloldalak       = array('szallito.php', 'dokumentumtar.php');
     if(basename(self())==$megn.'.php' && isset($_GET['modosit'])){ $navi = $menu_nev.' szerkesztése'; }
-    if(basename(self())=='szamla.php')                  { $oldalNev = 'Dokumentumok / <span id="rekord_neve">Számlák</span><span class="dn" id="rekord_neve_egyes">számla</span><span class="dn" id="rekord_neve_targy">számlákat</span>';                                              }
     if(basename(self())=='szallito.php')                { $oldalNev = 'Dokumentumok / <span id="rekord_neve">Partnertörzs</span><span class="dn" id="rekord_neve_egyes">partnertörzs</span><span class="dn" id="rekord_neve_targy">partnertörzset</span>';                              }
     if(basename(self())=='dokumentumtar.php')           { $oldalNev = 'Dokumentumok / <span id="rekord_neve">Dokumentumtár</span><span class="dn" id="rekord_neve_egyes">dokumentumtár</span><span class="dn" id="rekord_neve_targy">dokumentumtárat</span>';                           }
 
     $aktmenuk  = '';
-    if( _jog(JOG_SZAMLAK_OLVAS) ){
-        $aktmenuk .= str_replace( $akt_almenu_mit, array( $aloldalak['0'], 'Számlák'                ), $almenu_sablon );
+    if( _jog(JOG_PARTNERTORZS_OLVAS) ) {
+        $aktmenuk .= str_replace( $akt_almenu_mit, array( $aloldalak['0'], 'Partnertörzs'           ), $almenu_sablon );
     }
-    if( _jog(JOG_PARTNERTORZS_OLVAS) ){
-        $aktmenuk .= str_replace( $akt_almenu_mit, array( $aloldalak['1'], 'Partnertörzs'           ), $almenu_sablon );
-    }
-    if( _jog(JOG_DOKUMENTUMTAR_OLVAS) ){
-        $aktmenuk .= str_replace( $akt_almenu_mit, array( $aloldalak['2'], 'Dokumentumtár'          ), $almenu_sablon );
+    if( _jog(JOG_DOKUMENTUMTAR_OLVAS) ) {
+        $aktmenuk .= str_replace( $akt_almenu_mit, array( $aloldalak['1'], 'Dokumentumtár'          ), $almenu_sablon );
     }
 
     $style = '';
-    if(substr( basename(self()), 0, strlen(basename($_SERVER['PHP_SELF']))-4 ) == $megn){
+    $menu_hover = array('dokumentumtar.php', 'szallito.php');
+    if( in_array(basename(self()), $menu_hover) ) {
         $style = ' class="hover{STYLE_KIEG}"';
     }
 
@@ -499,7 +507,8 @@ if( _jog(JOG_TORZSADAT_MEGTEKINT) || _jog(JOG_SZABADSAGIG_MEGTEKINT) || _jog(JOG
     }
 
     $style = '';
-    if( substr(basename(self()), 0, strlen(basename($_SERVER['PHP_SELF'])) - 4) == $megn ) {
+    $menu_hover = array('torzsadat.php', 'szabadsagigeny.php', 'beosztas_muszak.php', 'beosztas_unnepnapok.php', 'beosztas.php');
+    if( in_array(basename(self()), $menu_hover) ) {
         $style = ' class="hover{STYLE_KIEG}"';
     }
 
@@ -564,17 +573,11 @@ if( !$_SESSION['bejelento_menu_rejt'] ) {
     if(basename(self())=='szerepkor_jog.php')                   { $oldalNev = 'Rendszer / <span id="rekord_neve">Szerepkörök jogai</span><span class="dn" id="rekord_neve_egyes">szerepkör jog</span><span class="dn" id="rekord_neve_targy">szerepkör jogot</span>';   }
     if(basename(self())=='jogcim.php')                          { $oldalNev = 'Rendszer / <span id="rekord_neve">Jogcímek</span><span class="dn" id="rekord_neve_egyes">jogcím</span><span class="dn" id="rekord_neve_targy">jogcímet</span>';                          }
     if(basename(self())=='afakod.php')                          { $oldalNev = 'Rendszer / <span id="rekord_neve">Áfakódok</span><span class="dn" id="rekord_neve_egyes">áfakód</span><span class="dn" id="rekord_neve_targy">áfakódot</span>';                          }
-//    if(basename(self())=='ktghely.php')                         { $oldalNev = 'Rendszer / <span id="rekord_neve">Költséghelyek</span><span class="dn" id="rekord_neve_egyes">költséghely</span><span class="dn" id="rekord_neve_targy">költséghelyek</span>';           }
-//    if(basename(self())=='ktgnem.php')                          { $oldalNev = 'Rendszer / <span id="rekord_neve">Költségnemek</span><span class="dn" id="rekord_neve_egyes">költségnem</span><span class="dn" id="rekord_neve_targy">költségnemek</span>';              }
 
     $aktmenuk  = '';
-    // $aktmenuk .= str_replace( $akt_almenu_mit, array( $aloldalak['0'], 'Áfa' ), $almenu_sablon );
-    // $aktmenuk .= str_replace( $akt_almenu_mit, array( $aloldalak['1'], 'Beosztás' ), $almenu_sablon );
     if( _jog(JOG_ERTEKLISTAK_MEGTEKINT) ) {
         $aktmenuk .= str_replace( $akt_almenu_mit, array( $aloldalak['10'], 'Jogcímek' ), $almenu_sablon );
         $aktmenuk .= str_replace( $akt_almenu_mit, array( $aloldalak['11'], 'Áfakódok' ), $almenu_sablon );
-//        $aktmenuk .= str_replace( $akt_almenu_mit, array( $aloldalak['3'], 'Költséghelyek' ), $almenu_sablon );
-//        $aktmenuk .= str_replace( $akt_almenu_mit, array( $aloldalak['4'], 'Költségnemek' ), $almenu_sablon );
         $aktmenuk .= str_replace( $akt_almenu_mit, array( $aloldalak['6'], 'Értéklisták' ), $almenu_sablon );
     }
     if( _jog(JOG_FELHASZNALOK_MEGTEKINT) ) {
@@ -584,10 +587,10 @@ if( !$_SESSION['bejelento_menu_rejt'] ) {
         $aktmenuk .= str_replace( $akt_almenu_mit, array( $aloldalak['8'], 'Szerepkörök'        ), $almenu_sablon );
         $aktmenuk .= str_replace( $akt_almenu_mit, array( $aloldalak['9'], 'Szerepkörök jogai'  ), $almenu_sablon );
     }
-    // $aktmenuk .= str_replace( $akt_almenu_mit, array( '../tervek/" target="_blank', 'Design' ), $almenu_sablon );
 
     $style = '';
-    if( substr(basename(self()), 0, strlen(basename($_SERVER['PHP_SELF'])) - 4) == $megn ) {
+    $menu_hover = array('szallito.php', 'rendszer.php', 'bejovo_szamlak.php', 'erteklista.php', 'login.php', 'szerepkor.php', 'szerepkor_jog.php', 'jogcim.php', 'afakod.php');
+    if( in_array(basename(self()), $menu_hover) ) {
         $style = ' class="hover{STYLE_KIEG}"';
     }
 
@@ -604,12 +607,6 @@ if( !$_SESSION['bejelento_menu_rejt'] ) {
     }
 
     $menuk   .= str_replace( $akt_menu_mit, array( $style, '#', $megn, $menu_nev_tobbes, $aktmenuk ), $menu_sablon );
-}
-
-
-// További telepítések figyelése, menedzselése egy külön fájlban
-if( is_file('!telepitesek.php') ) {
-    require_once('!telepitesek.php');
 }
 
 // Tényleges tartalom
@@ -701,7 +698,7 @@ if( in_array(basename(self()), $_SESSION['ketHasabos']) && $_SESSION[get_db_tabl
 }
 
 // Anyagigénylésnél a bal navpanelt elrejtük, itt helyette egy táblázatos fül van Anyagrend mod: 2018.04
-$bal_nav_mentes = array('anyagigenyles.php', 'cash_flow.php');
+$bal_nav_mentes = array('anyagigenyles.php', 'cash_flow.php', 'szamla.php');
 if( in_array(basename(self()), $bal_nav_mentes) ) {
     $tbalw  = ' style="width: 0px;"';
     $tjobbw = ' style="width: 100%"';
@@ -1324,11 +1321,8 @@ if( basename(self()) == 'szallito.php' && !_jog(JOG_PARTNERTORZS_TOROL) ) {
 }
 
 // Számlák
-if( basename(self()) == 'szamla.php' && !_jog(JOG_SZAMLAK_KEZEL) ) {
-    $uj = $duplikal = '';
-}
-if( basename(self()) == 'szamla.php' && !_jog(JOG_SZAMLAK_TOROL) ) {
-    $torles_icon    = '';
+if( basename(self()) == 'szamla.php' ) {
+    $uj = $duplikal = $torles_icon = '';
 }
 
 // Szabadságigény
@@ -1363,24 +1357,25 @@ if( in_array(basename(self()), $valasztos_feluletek) ) {
 $csv_get = 'csv_general( this, \''.$valasztos.'\' );';
 
 // Rendezés rejtése bizonyos oldalak alatt
-$rendez_rejt_oldalak = array('anyagigenyles.php', 'cash_flow.php', 'dokumentumtar.php', 'eszkozkezeles.php', 'felmeresi_terv.php');
+$rendez_rejt_oldalak = array('anyagigenyles.php', 'cash_flow.php', 'dokumentumtar.php', 'eszkozkezeles.php', 'felmeresi_terv.php', 'szamla.php');
 if( in_array(basename(self()), $rendez_rejt_oldalak) ) {
     $rendezes_rejt = ' dn';
 }
 
 // Ha el akarjuk rejteni a szűrést, akkor azt csináljuk, hogy felülírjuk a szűrést a semmivel
-$szures_rejt_oldalak = array('cash_flow.php');
+$szures_rejt_oldalak = array('cash_flow.php', 'szamla.php');
 if( in_array(basename(self()), $szures_rejt_oldalak) ) {
     $szures = '';
 }
-
 
 // Gyorskereső, hacsak nem rejtett oldalon van
 $szures_border = '';
 $gyorskereses_rejt_oldalak = array('cash_flow.php', 'dokumentumtar.php', 'eszkozkezeles.php', 'felmeresi_terv.php');
 if( !in_array(basename(self()), $gyorskereses_rejt_oldalak) ) {
-    // Anyagigénylés tálbázatban másképp keresünk
-    if( basename(self()) == 'anyagigenyles.php' ) {
+    
+    // Anyagigénylés vagy számla tálbázatban másképp keresünk
+    $rejtett_balnavpaneles_aloldalak = array('anyagigenyles.php', 'szamla.php');
+    if( in_array(basename(self()), $rejtett_balnavpaneles_aloldalak) ) {
         $kereso = nl2('
                 <span id="respo_keresGomb"><i class="material-icons search">search</i><i class="material-icons close">close</i></span>
                 <input type="text" name="ksz" id="rendezesKeres" class="disableNav" autocomplete="off" placeholder="Keresés" onkeyup="anyagigenyles_tabla_szur($(\'table.szamla_cont_tabla\'), $(this).val())">
@@ -1464,6 +1459,12 @@ $nyomtatas_ikon = nl2('
             <i class="material-icons">print</i>
         </a>
     ');
+// Export ikon
+$export_ikon = nl2('
+        <a class="excel link" onclick="'.$csv_get.'" title="Excel">
+            <i class="material-icons">grid_on</i>
+        </a>
+    ');
 
 // Bizonyos oldalak alatt nincs léptetés
 $nincs_lepteto_ikon = array('cash_flow.php', 'dokumentumtar.php', 'eszkozkezeles.php', 'felmeresi_terv.php');
@@ -1471,16 +1472,21 @@ if( in_array(basename(self()), $nincs_lepteto_ikon) ){
     $lepteto_ikonok = '';
 }
 // Bizonyos oldalak alatt nincs nyomtatás
-$nincs_nyomtatas_ikon = array('cash_flow.php');
+$nincs_nyomtatas_ikon = array('cash_flow.php', 'szamla.php');
 if( in_array(basename(self()), $nincs_nyomtatas_ikon) ){
     $nyomtatas_ikon = '';
+}
+// Bizonyos oldalak alatt nincs exportálás
+$nincs_export_ikon = array('szamla.php');
+if( in_array(basename(self()), $nincs_export_ikon) ){
+    $export_ikon = '';
 }
 
 $get_get = get_get(array('pdf'));
 $header_sablon = fajlbol_olvas('../sablon/admin/header.html', true);
 $header_html .= str_replace(
-    array('{CACHE}',        '{CSS}', '{VERZIO}',    '{CEGNEV}', '{MENUK}', '{KERESO}', '{SZURES}', '{TBALW}', '{TJOBBW}', '{TARTBAL}', '{TABLA}', '{KERESODN}', '{OLDALNEV}', '{RENDEZES}', '{REND_IRANY}', '{REND_CHANGE}', '{MEGN}', '{SELF}', '{GET_GET}', '{CSV_GET}', '{SZERK_DIS}', '{BELEPVE}', '{LAPOZAS}', '{KSZ}',       '{LEPTETO_IKONOK}', '{UJ}', '{DUPLIKAL}', '{TORLES}',    '{NYOMTATAS}',   '{CSUSZKADN}', '{RENDEZES_REJT}', '{MAIL}', '{FELH_NEV}', '{RESZLEG}', '{SZURES_NOBORDER}'  ),
-    array('?cache='.time(),  $css,   get_verzio(),  get_nev(),  $menuk,    $kereso,    $szures,    $tbalw,    $tjobbw,    $tartBal,    $tabla,    $keresodn,    $oldalNev,    $rendezes,    $rend_irany,    $rend_change,    $megn,    $self,    $get_get,    $csv_get,    $szerk_dis,    $belepve,    $lapozas,    $_GET['ksz'],  $lepteto_ikonok,    $uj,    $duplikal,    $torles_icon,  $nyomtatas_ikon, $csuszkadn,    $rendezes_rejt,    $mail,    $felh_nev,    $reszleg,    $szures_border       ),
+    array('{CACHE}',                                '{CSS}', '{VERZIO}',    '{CEGNEV}', '{MENUK}', '{KERESO}', '{SZURES}', '{TBALW}', '{TJOBBW}', '{TARTBAL}', '{TABLA}', '{KERESODN}', '{OLDALNEV}', '{RENDEZES}', '{REND_IRANY}', '{REND_CHANGE}', '{MEGN}', '{SELF}', '{GET_GET}', '{SZERK_DIS}', '{BELEPVE}', '{LAPOZAS}', '{KSZ}',       '{LEPTETO_IKONOK}', '{UJ}', '{DUPLIKAL}', '{TORLES}',    '{NYOMTATAS}',   '{EXPORT}',   '{CSUSZKADN}', '{RENDEZES_REJT}', '{MAIL}', '{FELH_NEV}', '{RESZLEG}', '{SZURES_NOBORDER}'  ),
+    array('?'.filemtime('../js/wdb_admin_min.js'),  $css,   get_verzio(),  get_nev(),  $menuk,    $kereso,    $szures,    $tbalw,    $tjobbw,    $tartBal,    $tabla,    $keresodn,    $oldalNev,    $rendezes,    $rend_irany,    $rend_change,    $megn,    $self,    $get_get,    $szerk_dis,    $belepve,    $lapozas,    $_GET['ksz'],  $lepteto_ikonok,    $uj,    $duplikal,    $torles_icon,  $nyomtatas_ikon, $export_ikon, $csuszkadn,    $rendezes_rejt,    $mail,    $felh_nev,    $reszleg,    $szures_border       ),
     $header_sablon
 );
 

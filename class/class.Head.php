@@ -164,7 +164,7 @@ class Head{
             }
             fajlba_mentes($css_min_fajl, $css);
         }
-        $head .= '<link href="'.get_alk().$css_min_fajl.'?cache='.time().'" rel="stylesheet" type="text/css">';
+        $head .= '<link href="'.get_alk().$css_min_fajl.'?'.filemtime(get_alk().$css_min_fajl).'" rel="stylesheet" type="text/css">';
 
 
 

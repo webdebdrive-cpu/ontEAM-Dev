@@ -37,7 +37,7 @@ if( isset($_POST['projektszerzodes_get_koztes']) ) {
     
     // Köztes szerődésekből készítsünk táblázatot
     $html = '';
-    $szerzodesek = $adatbazis_kapcsolat->s('recid andoc_id sz_szam szallito_id targy kcs_21 szerz_ossz dev_net', 'projektszerzodes_atmeneti', "");
+    $szerzodesek = $adatbazis_kapcsolat->s('recid andoc_id sz_szam szallito_id targy kcs_21 szerz_ossz dev_net dok_link', 'projektszerzodes_atmeneti', "");
     if( $szerzodesek ) {
         $html .= nl2('
             <table class="csikos szamla_cont_tabla" id="pop_tetelek">
@@ -47,12 +47,20 @@ if( isset($_POST['projektszerzodes_get_koztes']) ) {
                     <th class="l">Partner</th>
                     <th class="l">Tárgy</th>
                     <th class="r">Nettó érték</th>
+                    <th class="c">Szerződés kép</th>
                 </tr>
                 </thead>
                 <tbody>
             ');
         foreach( $szerzodesek as $szerzodes ) {
-            
+            $link = '';
+            if( $szerzodes['dok_link'] ) {
+                $link .= nl2('
+                            <a href="'.$szerzodes['dok_link'].'" target="_blank">
+                                <img src="../elemek/admin/file.svg" title="Fájl megnyitása" alt="Fájl megnyitása" width="24">
+                            </a>
+                            ');
+            }
             $netto_oszlop = 'szerz_ossz';
             $tizedes      = 0;
             if( $szerzodes['kcs_21'] != KCS_21_HUF ) {
@@ -65,6 +73,7 @@ if( isset($_POST['projektszerzodes_get_koztes']) ) {
                         <td class="l">'.$szerzodes['szallito_id'].' '.getErtek('nev', 'szallito', 'id', $szerzodes['szallito_id']).'</td>
                         <td class="l">'.resz_string($szerzodes['targy'], 40).'</td>
                         <td class="r nowrap">'.number_format($szerzodes[$netto_oszlop], $tizedes, ',', ' ').' '.erteklista(ERTEKLISTA_PENZNEM, $szerzodes['kcs_21']).'</td>
+                        <td class="c">'.$link.'</td>
                     </tr>
                 ');
         }
@@ -1861,7 +1870,7 @@ require_once('selectek.php');
         }
         $szamla_html .= nl2('
                 <br>Bejövő xml:
-                <br>').'<textarea class="oriasiTargy" style="height: 30rem;" readonly>'.$sor['erk_xml'].'</textarea>';
+                <br>').'<textarea class="oriasiTargy input_kijelolve" style="height: 60rem;" disabled>'.$sor['erk_xml'].'</textarea>';
 
         if( $_GET['ajax'] ) {
             echo json_encode(array(

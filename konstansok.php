@@ -8,6 +8,14 @@ define('SZALLITOKOD_HOSSZ',         5               );
 define('JELSZO_MIN_HOSSZ',          8               );
 define('DISZPECSER_TELEFONSZAM',    '30/703 0560, 1/889 5988');
 define('MSZK_MAILCIM',              'mszk@danubiushotels.com');
+define('PR_KEZELES_ERT_NEV_1',      'Danubius IT Helpdesk');
+define('PR_KEZELES_ERT_MAIL_1',     'ithelpdesk@danubiushotels.com');
+define('PR_KEZELES_ERT_NEV_2',      'Csete Gábor');
+define('PR_KEZELES_ERT_MAIL_2',     'gabor.csete@danubiushotels.com');
+define('MSZK_MAIL_1',               'diszpecser@danubiushotels.com');
+define('MSZK_MAIL_2',               'gyongyi.szollosi@danubiushotels.com');
+define('SZINVATREND_TESZT_MAIL',    'korcsmaros@szinvatrend.hu');
+define('WEBDEB_TESZT_MAIL',         'teszt@webdeb.hu');
 define('CSV_EXPORT_UTVONAL_1',      'export');
 define('CSV_EXPORT_UTVONAL_2',      '/csv');
 define('CSV_EXPORT_ELAVULAS',       3600); // 60 * 60
@@ -110,19 +118,6 @@ define('ENERGIATERV_STAT_MUNKAKOZI',        '05');
 define('ENERGIATERV_STAT_KESZ',             '10');
 define('ENERGIATERV_STAT_ELES',             '15');
 
-// Anyag számla státuszok
-define('A_SZAMLA_STAT_FELDOLGOZASRA_VAR',   '01');
-define('A_SZAMLA_STAT_IGAZOLASRA_VAR',      '02');
-
-// Energia számla státuszok
-define('E_SZAMLA_STAT_FELDOLGOZASRA_VAR',   '01');
-
-// Fenntatási terv számla státuszok
-define('F_SZAMLA_STAT_FELDOLGOZASRA_VAR',   '01');
-
-// Projektszámla státuszok
-define('P_SZAMLA_STAT_FELDOLGOZASRA_VAR',   '01');
-
 // Menteni, csak ezekben a státuszokban lehet
 function prigeny_mentheto_statuszok(){
     return array(PRIGENY_STAT_NYITOTT, PRIGENY_STAT_LETRE_ALATT, PRIGENY_STAT_VEL_ALATT, PRIGENY_STAT_HIANYPOTLAS, PRIGENY_STAT_HIANYPOTOLT, PRIGENY_STAT_FB_TERJESZT_VAR, PRIGENY_STAT_BOD_TERJESZT_VAR);
@@ -163,6 +158,85 @@ function specialis_karakterek_mivel(){
 // Ha egy felhasználót létrehozunk, módosítunk, akkor az alábbi személyzetek esetén a módosítás automatikusan átkerül a törzsadatokba
 function loginbol_torzsadatot_szemelyzetek(){
     return array(TELEPITETT_SZEMELYZET, MOBILCSOPORT, DISZPECSER, MUSZAKI_VEZETO, MUSZAKI_ADMINISZTRATOR, TERULETI_FELELOS, MSZK_VEZETO, MUSZAKI_IGAZGATO);
+}
+
+// Andoc számlák ide-oda másolásakor ezeket az oszlopokat kell mozgatni
+function szamla_oszlopok() {
+    return array(
+        'andoc_id',
+        'ikt_szam',
+        'tipus',
+        'vonalkod',
+        'kelte_dt',
+        'erk_dt',
+        'feldolgozva_dt',
+        'feldolgozva_usr',
+        'szla_szam',
+        'sz_szam',
+        'pr_szam',
+        'telephely_id',
+        'szallito_id',
+        'telj_dt',
+        'fizhat_dt',
+        'fizmod',
+        'targy',
+        'brutto',
+        'netto',
+        'kif_ossz',
+        'ut_kif_dt',
+        'kifizetve',
+        'nullas',
+        'eszamla',
+        'dev_br',
+        'dev_net',
+        'kcs_21',
+        'stat_id',
+        'elutleir',
+        'kcs_25',
+        'arfolyam',
+        'arfolyam_szall',
+        'atvaltva_dt',
+        'visszaadva',
+        'visszaadva_dt',
+        'ikt_usr',
+        'ikt_dt',
+        'igazolva',
+        'igazolva_dt',
+        'igazolva_usr',
+        'utalvanyozva',
+        'utalvanyozva_dt',
+        'utalvanyozva_usr',
+        'megjegyz',
+        'kolt_vis',
+        'erk_xml',
+        'kuld_tetel_xml',
+        'kuld_xml',
+        'dok_link',
+        'ont_erk_dt',
+        'update_usr',
+        'insert_dt',
+        'insert_usr'
+    );
+}
+
+// Andoc számlák ide-oda másolásakor ezeket az oszlopokat vissza kell konvertálni
+function szamla_oszlopok_decode() {
+    return array(
+        'dok_link',
+        'elutleir',
+        'erk_xml',
+        'feldolgozva_usr',
+        'ikt_usr',
+        'ikt_szam',
+        'kuld_tetel_xml',
+        'kuld_xml',
+        'megjegyz',
+        'pr_szam',
+        'sz_szam',
+        'szla_szam',
+        'targy',
+        'vonalkod',
+    );
 }
 
 // Projekt státuszok

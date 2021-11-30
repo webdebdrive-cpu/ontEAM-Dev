@@ -29,6 +29,11 @@
                             $('#cikkmee'            ).val(response.cikkmee);
                             $('#cikktorzs_onteam_id').val(response.id);
                         }
+                    },
+                    complete: function(xhr) {
+                        if( xhr.status != 200 ) {
+                            alert2(xhr.responseText, '', 'Hiba');
+                        }
                     }
                 });
             }
@@ -129,6 +134,11 @@
                                     $('#pop_afa').val(response.afa);
                                     netto_kiszamol('-csak bruttó-');
                                 }
+                            },
+                            complete: function(xhr) {
+                                if( xhr.status != 200 ) {
+                                    alert2(xhr.responseText, '', 'Hiba');
+                                }
                             }
                         });
                     }
@@ -160,6 +170,11 @@
                                 $('#ktgnem_id').val(response.ktgnem_id);
                                 $('#ktghely_id_autocomp').val(response.ktghely);
                                 $('#ktghely_id').val(response.ktghely_id);
+                            }
+                        },
+                        complete: function(xhr) {
+                            if( xhr.status != 200 ) {
+                                alert2(xhr.responseText, '', 'Hiba');
                             }
                         }
                     });
@@ -527,6 +542,11 @@ function tetel_hozzaadasa() {
                 /* A tétel sorokat csak Session-ba, kimentjük. DB-be még nem menethetünk csak, ha a Mentés gombra kattintottak. */
 
             }
+        },
+        complete: function(xhr) {
+            if( xhr.status != 200 ) {
+                alert2(xhr.responseText, '', 'Hiba');
+            }
         }
     });
 
@@ -822,6 +842,11 @@ function rendeles_tetel_hozzaadasa() {
                 if(response.html){
                     alert2(response.html, '<input type="button" class="gomb" value="Kiválasztás" onclick="rendeles_tetel_kivalasztasa()">', response.title);
                 }
+            }
+        },
+        complete: function(xhr) {
+            if( xhr.status != 200 ) {
+                alert2(xhr.responseText, '', 'Hiba');
             }
         }
     });

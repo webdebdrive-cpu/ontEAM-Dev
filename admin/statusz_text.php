@@ -99,19 +99,6 @@ $_stat_text = array(
         PRKEZEL_STAT_LEZART                 => array('nev' => 'Lezárt',                             'szinkod' => ''),
         PRKEZEL_STAT_FELFUGGESZTETT         => array('nev' => 'Felfüggesztett',                     'szinkod' => ''),
     ),
-    'anyag_szamla' => array(
-        A_SZAMLA_STAT_FELDOLGOZASRA_VAR     => array('nev' => 'Feldolgozásra vár',                  'szinkod' => ''),
-        A_SZAMLA_STAT_IGAZOLASRA_VAR        => array('nev' => 'Igazolásra vár',                     'szinkod' => ''),
-    ),
-    'energia_szamla' => array(
-        E_SZAMLA_STAT_FELDOLGOZASRA_VAR     => array('nev' => 'Feldolgozásra vár',                  'szinkod' => ''),
-    ),
-    'fenntartasi_szamla' => array(
-        F_SZAMLA_STAT_FELDOLGOZASRA_VAR     => array('nev' => 'Feldolgozásra vár',                  'szinkod' => ''),
-    ),
-    'projektszamla' => array(
-        P_SZAMLA_STAT_FELDOLGOZASRA_VAR     => array('nev' => 'Feldolgozásra vár',                  'szinkod' => ''),
-    ),
 );
 
 // Archívumok miatt

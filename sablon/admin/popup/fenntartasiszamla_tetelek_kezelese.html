@@ -65,6 +65,11 @@
                         $('#ktghely_id_autocomp').val(response.ktghely);
                         $('#ktghely_id').val(response.ktghely_id);
                     }
+                },
+                complete: function(xhr) {
+                    if( xhr.status != 200 ) {
+                        alert2(xhr.responseText, '', 'Hiba');
+                    }
                 }
             });
         }

@@ -141,6 +141,11 @@
                                     $('#pop_afa').val(response.afa);
                                     netto_kiszamol('-csak bruttó-');
                                 }
+                            },
+                            complete: function(xhr) {
+                                if( xhr.status != 200 ) {
+                                    alert2(xhr.responseText, '', 'Hiba');
+                                }
                             }
                         });
                     }
@@ -847,6 +852,11 @@ function dijelem_select() {
                 $('.dijelem_select').html( response.dijelem_select );
                 
             }
+        },
+        complete: function(xhr) {
+            if( xhr.status != 200 ) {
+                alert2(xhr.responseText, '', 'Hiba');
+            }
         }
     });
 }
@@ -884,6 +894,11 @@ function dijelem_ertek_betolt() {
                 */
                 
                 menny_kwh_kiszamol();
+            }
+        },
+        complete: function(xhr) {
+            if( xhr.status != 200 ) {
+                alert2(xhr.responseText, '', 'Hiba');
             }
         }
     });

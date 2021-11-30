@@ -10,7 +10,7 @@
 - Ha a menüpont tartalmaz dokumentumokat is, akkor a fuggvenyek.php-ban a dokumentumtarLista() függvényben a $menupontok tömböt is tartsd karban
 - Majd a jogosultásgoat ne felejtsd el beállítani (törölni, updatelni, látni ki tud)
  
-ÚJ BEJEGYZÉS FELTÖLTÉS IKONRA KATTINTVA MI TRÖTÉNJEN
+ÚJ BEJEGYZÉS FELTÖLTÉS IKONRA KATTINTVA MI TÖRTÉNJEN
 - header.php-ben erre keress rá: "Új ikonra kattintva mi történik"
 - admin.js-ben erre keress rá: "Új ikonra kattintva mi történik"
  
@@ -88,7 +88,7 @@ GOMBOK KISZERVEZÉSE ÁLTALÁNOSAN
 - Ha van extra fül, akkor ott a $szamla_html-t meg kell toldani a $gombok-al is
 - $muv_style változó se maradjon feleslegesen a uj/modosit ágban
  
-CSOPORTOSÍTÁS ENGEDLYEZÉSE
+CSOPORTOSÍTÁS ENGEDÉLYEZÉSE
 - A bal oldali navpanel UL-jének ha van "kijelolheto" class-ja, akkor lehet több sort kijelölni
 - Csoport nevére kattintva mi történjen: "csoport_nevre_kattintas"-ra keress rá. Ezt a class nevet kell ráadni.
  

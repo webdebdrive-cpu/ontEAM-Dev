@@ -82,7 +82,7 @@ function get_teszt_rendszer() {
 function get_verzio()     { return 'V1.192';                                    } // Fejlécben szereplő verzió szám
 function get_db_charset() { return 'UTF8';                                      } // Karakterkódolás (Figyelem! UTF-8 helyett itt UTF8)
 function get_debug()      { return false;                                       } // Hibás adatbázislekérdezések megjelennek vagy sem
-function get_debug_ip()   { return '91.120.142.249';                              } // Erről az IP címről nézve az oldalt íratható ki hibaüzenet
+function get_debug_ip()   { return '81.182.38.162';                              } // Erről az IP címről nézve az oldalt íratható ki hibaüzenet
 //
 // Weblap
 function get_admin()         { return 'admin/';                                 } // Admin könyvtár neve
@@ -147,20 +147,20 @@ function get_session_felh()  { return get_db_tabla().'felhId';                  
 function get_teszt_mail()    { return 'teszt@webdeb.hu';                        }
 function get_mszk_mail(){
     if( $_SERVER['HTTP_HOST'] == 'demo.webdeb.hu' ) {
-        return 'bk@webdeb.hu';
+        return WEBDEB_TESZT_MAIL;
     } else if( $_SERVER['HTTP_HOST'] == 'dev.onteam.hu' ) {
-        return 'korcsmaros@szinvatrend.hu';
+        return SZINVATREND_TESZT_MAIL;
     } else {
-        return 'diszpecser@danubiushotels.com';
+        return MSZK_MAIL_1;
     }
 }
 function get_mszk_mail2(){
     if( $_SERVER['HTTP_HOST'] == 'demo.webdeb.hu' ) {
-        return 'bk@webdeb.hu';
+        return WEBDEB_TESZT_MAIL;
     } else if( $_SERVER['HTTP_HOST'] == 'dev.onteam.hu' ) {
-        return 'korcsmaros@szinvatrend.hu';
+        return SZINVATREND_TESZT_MAIL;
     } else {
-        return 'gyongyi.szollosi@danubiushotels.com';
+        return MSZK_MAIL_2;
     }
 }
 function get_teszt_mail_nev(){ return 'WebDeb Teszt';                           }

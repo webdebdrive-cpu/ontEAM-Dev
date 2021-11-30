@@ -38,7 +38,7 @@ URL: '.get_http().$_SERVER['HTTP_HOST'].$_SERVER['REQUEST_URI'].'
 
 ';
             file_put_contents($log_utvonal, $log, FILE_APPEND | LOCK_EX);
-            if( filesize($log_utvonal)>(get_logfile_max_meret()) ){
+            if( filesize($log_utvonal) > (get_logfile_max_meret()) ) {
                 $log = fajlbol_olvas($log_utvonal);
                 $log = mb_substr($log, round(mb_strlen($log, 'UTF-8')/2), NULL, 'UTF-8');
                 fajlba_mentes($log_utvonal, $log);
