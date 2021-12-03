@@ -82,7 +82,7 @@ function get_teszt_rendszer() {
 function get_verzio()     { return 'V1.192';                                    } // Fejlécben szereplő verzió szám
 function get_db_charset() { return 'UTF8';                                      } // Karakterkódolás (Figyelem! UTF-8 helyett itt UTF8)
 function get_debug()      { return false;                                       } // Hibás adatbázislekérdezések megjelennek vagy sem
-function get_debug_ip()   { return '81.182.38.162';                              } // Erről az IP címről nézve az oldalt íratható ki hibaüzenet
+function get_debug_ip()   { return '81.182.54.194';                              } // Erről az IP címről nézve az oldalt íratható ki hibaüzenet
 //
 // Weblap
 function get_admin()         { return 'admin/';                                 } // Admin könyvtár neve

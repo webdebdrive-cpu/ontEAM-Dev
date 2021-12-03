@@ -2003,11 +2003,20 @@ function i_u($type, $tabla, $tomb) {
                                 }
                             }
                         }
+                        // Számláknál a fizetési módot le kell még kezelni, mert csak egy-egy karaktert tárolunk, de szövegt írunk ki
+                        $szamla_modulok = array('fenntartasi_szamla.php', 'anyag_szamla.php', 'energia_szamla.php', 'projektszamla.php');
+                        if( $elem['name'] == 'fizmod' && in_array(basename(self()), $szamla_modulok) ) {
+                            switch ( $value ) {
+                                case 'K': $value = 'Készpénz'; break;
+                                case 'U': $value = 'Utalás';   break;
+                            }
+                        }
                     }
                     
                     // Adatbázisból jövő adatot visszaalakítunk, ne emiatt ne legyen egyenlő a két érték
                     $value = htmlspecialchars_decode($value);
 
+                    
                     // Ha az újonnan kapott adat, és DB-ben tárolt adat nem egyezik
                     // És vagy ez előző vagy az új adatnak van értéke (ne azért íródjon már be, mert üres az új érték, de 0 volt az adatbázisban)
                     if( $post_key != $value && ($post_key || $value) ) {
@@ -2140,7 +2149,6 @@ function i_u($type, $tabla, $tomb) {
                                                     $value = $select['name'];
                                                 }
                                                
-
                                             }
                                         }
                                         
@@ -2602,7 +2610,7 @@ function i_u($type, $tabla, $tomb) {
             // Projekt számla mentésekor ellenőrizzük, hogy a dátumok nem múltbeliek-e. (Van pár, amelyiknél ezt ellenőrizni kell.)
             $csak_mult_datum_lehet = array(
                                             array('name' => 'erk_dt',        'alert' => 'Céghez érkezett dátumhoz csak mai, vagy múltbeli dátum adható meg!'),
-                                            array('name' => 'kelte_dt',      'alert' => 'A számla kelte dátumhoz csak mai, vagy múltbeli dátum adható meg!' ),
+                                            // array('name' => 'kelte_dt',      'alert' => 'A számla kelte dátumhoz csak mai, vagy múltbeli dátum adható meg!' ),
                                             array('name' => 'visszaadva_dt', 'alert' => 'A visszaadva dátumhoz csak mai, vagy múltbeli dátum adható meg!'   ),
                                         );
 
@@ -12601,25 +12609,31 @@ function get_szamlak_ikon( $bsz ) {
     $ikon = '';
     // Ha nincs igazolva, akkor vagy kérdéses még, hogy mi lesz vele (sárga kérdőjel),
     // vagy ha már ismert az igazolás dátuma, akkor biztosan el van utasítva (piros X)
-    if( !$bsz['igazolva'] ) {
-        $ikon = '<span class="icon sarga">?</span>';
-        if( $bsz['igazolva_dt']!='0000-00-00 00:00:00' ) {
-            $ikon = '<span class="icon piros">✖</span>';
-        }
-    // Ha már az igazoláson túl vagyunk sikerrel...
+    
+    // Ha sztronózott, akkor biztosan piros X
+    if( $bsz['sztornozva_dt'] != '0000-00-00 00:00:00' ) {
+        $ikon = '<span class="icon piros">✖</span>';
     } else {
-        // ... akkor már csak az utalványozást kell figyelni.
-        // Ha nincs utalványozva, akkor vagy nem járunk még itt (zöld pipa, mert igazolva már legalább van)
-        // vagy van már utalványozás dátum is, tehát el lett utasítva (piros X)
-        if( !$bsz['utalvanyozva'] ) {
-            if( $bsz['utalvanyozva_dt']!='0000-00-00 00:00:00' ) {
+        if( !$bsz['igazolva'] ) {
+            $ikon = '<span class="icon sarga">?</span>';
+            if( $bsz['igazolva_dt']!='0000-00-00 00:00:00' ) {
                 $ikon = '<span class="icon piros">✖</span>';
+            }
+        // Ha már az igazoláson túl vagyunk sikerrel...
+        } else {
+            // ... akkor már csak az utalványozást kell figyelni.
+            // Ha nincs utalványozva, akkor vagy nem járunk még itt (zöld pipa, mert igazolva már legalább van)
+            // vagy van már utalványozás dátum is, tehát el lett utasítva (piros X)
+            if( !$bsz['utalvanyozva'] ) {
+                if( $bsz['utalvanyozva_dt']!='0000-00-00 00:00:00' ) {
+                    $ikon = '<span class="icon piros">✖</span>';
+                } else {
+                    $ikon = '<span class="icon zold">✓</span>';
+                }
+            // ... vagy már Utaláványozva is van (zöld pipa)
             } else {
                 $ikon = '<span class="icon zold">✓</span>';
             }
-        // ... vagy már Utaláványozva is van (zöld pipa)
-        } else {
-            $ikon = '<span class="icon zold">✓</span>';
         }
     }
     return $ikon;

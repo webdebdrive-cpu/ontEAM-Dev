@@ -183,6 +183,7 @@ switch ( $tabla ) {
                                     `'.get_db_tabla().$tabla_nophp.'`.`igazolva_dt`,
                                     `'.get_db_tabla().$tabla_nophp.'`.`utalvanyozva`,
                                     `'.get_db_tabla().$tabla_nophp.'`.`utalvanyozva_dt`,
+                                    `'.get_db_tabla().$tabla_nophp.'`.`sztornozva_dt`,
                                     `'.get_db_tabla().$tabla_nophp.'`.`netto`
                                     ');
 
@@ -445,6 +446,7 @@ switch ( $tabla ) {
                                     `'.get_db_tabla().$tabla_nophp.'`.`igazolva_dt`,
                                     `'.get_db_tabla().$tabla_nophp.'`.`utalvanyozva`,
                                     `'.get_db_tabla().$tabla_nophp.'`.`utalvanyozva_dt`,
+                                    `'.get_db_tabla().$tabla_nophp.'`.`sztornozva_dt`,
                                     `'.get_db_tabla().$tabla_nophp.'`.`netto`,
                                     `'.get_db_tabla().$tabla_nophp.'`.`telephely_id`,
                                     `'.get_db_tabla().$tabla_nophp.'`.`szallito_id`
@@ -558,6 +560,7 @@ switch ( $tabla ) {
                                     `'.get_db_tabla().$tabla_nophp.'`.`igazolva_dt`,
                                     `'.get_db_tabla().$tabla_nophp.'`.`utalvanyozva`,
                                     `'.get_db_tabla().$tabla_nophp.'`.`utalvanyozva_dt`,
+                                    `'.get_db_tabla().$tabla_nophp.'`.`sztornozva_dt`,
                                     `'.get_db_tabla().$tabla_nophp.'`.`netto`
                                 ');
 
@@ -935,6 +938,7 @@ switch ( $tabla ) {
                                     `'.get_db_tabla().$tabla_nophp.'`.`igazolva_dt`,
                                     `'.get_db_tabla().$tabla_nophp.'`.`utalvanyozva`,
                                     `'.get_db_tabla().$tabla_nophp.'`.`utalvanyozva_dt`,
+                                    `'.get_db_tabla().$tabla_nophp.'`.`sztornozva_dt`,
                                     `'.get_db_tabla().$tabla_nophp.'`.`targy`
                                     ');
 
@@ -1111,17 +1115,20 @@ $sz_szam_gomb = '';
 if( _jog(JOG_ANYAG_SZAMLAK_KEZEL) || isset($_GET['uj']) ) {
     $gomb_felirat = 'Szerződés hozzáadása';
     $gomb_class   = '';
-    $gomb_mehet   = true;
+    $gomb_rejt    = false;
     if( basename(self()) == 'anyag_szamla.php' && isset($_GET['modosit']) ) {
-        $anyag_szamla = $adatbazis_kapcsolat->s2('sz_szam', 'anyag_szamla', "`recid`='{$_GET['id']}'");
+        $anyag_szamla = $adatbazis_kapcsolat->s2('sz_szam sztornozva_dt', 'anyag_szamla', "`recid`='{$_GET['id']}'");
         if( $anyag_szamla['sz_szam'] ) {
             $gomb_felirat = 'Szerződés szám törlése';
             $gomb_class   = ' piros';
         }
+        if( $anyag_szamla['sztornozva_dt'] != '0000-00-00 00:00:00' ) {
+            $gomb_rejt = true;
+        }
         $fennt_szerzodes    = $adatbazis_kapcsolat->s2('recid targy szszam', 'fenntartasi_szerzodes', "`szszam`='{$anyag_szamla['sz_szam']}'");
         $szerzodes_neve     = '<a href="fenntartasi_szerzodes.php?id=x&amp;modosit&amp;mezo=szszam&amp;op=equal&amp;felt='.$fennt_szerzodes['szszam'].'" target="_blank">'.resz_string($fennt_szerzodes['targy'], 60).'</a>';
     }
-    if( $gomb_mehet ) {
+    if( !$gomb_rejt ) {
         $sz_szam_gomb = ' <input type="button" class="gomb alacsony'.$gomb_class.'" value="'.$gomb_felirat.'" id="sz_szam_gomb" style="margin-left: 2rem; margin-bottom: 0;" onclick="fennt_hozzaad_gomb_hozzaad_vagy_torol()">';
     }
 }
@@ -2702,20 +2709,23 @@ $sz_szam_gomb = '';
 if( get_projekt_szamla_kezel_jog($_GET['id']) || isset($_GET['uj']) ) {
     $gomb_felirat = 'Szerződés hozzáadása';
     $gomb_class   = '';
-    $gomb_mehet   = true;
+    $gomb_rejt    = false;
     if( basename(self()) == 'projektszamla.php' && isset($_GET['modosit']) ) {
-        $prsz = $adatbazis_kapcsolat->s2('sz_szam pr_szam kcs_21 visszaadva nullas', 'projektszamla', "`recid`='{$_GET['id']}'");
-        if($prsz['sz_szam']){
+        $prsz = $adatbazis_kapcsolat->s2('sz_szam pr_szam kcs_21 visszaadva nullas sztornozva_dt', 'projektszamla', "`recid`='{$_GET['id']}'");
+        if( $prsz['sz_szam'] ) {
             $gomb_felirat = 'Szerződés szám törlése';
             $gomb_class   = ' piros';
         }
         $visszaadva_dt_alert_class = '';
         if( $prsz['visszaadva'] ) {
-            $gomb_mehet = false;
+            $gomb_rejt = true;
             $visszaadva_dt_alert_class = ' csillag';
         }
+        if( $prsz['sztornozva_dt'] != '0000-00-00 00:00:00' ) {
+            $gomb_rejt = true;
+        }
     }
-    if( $gomb_mehet ) {
+    if( !$gomb_rejt ) {
         $sz_szam_gomb = ' <input type="button" class="gomb alacsony'.$gomb_class.'" value="'.$gomb_felirat.'" id="sz_szam_gomb" style="margin-left: 2rem; margin-bottom: 0;" onclick="prsz_hozzaad_gomb_hozzaad_vagy_torol()">';
     }
 }
@@ -3003,13 +3013,19 @@ if( basename(self()) == 'energia_szamla.php' && $_GET['id'] ) {
     if( _jog(JOG_ENERGIA_SZAMLAK_KEZEL) ) {
         $gomb_felirat = 'Szerződés hozzáadása';
         $gomb_class   = '';
-        $f_szla = $adatbazis_kapcsolat->s2('sz_szam', 'energia_szamla', "`recid`='{$_GET['id']}'");
+        $gomb_rejt    = false;
+        $f_szla = $adatbazis_kapcsolat->s2('sz_szam sztornozva_dt', 'energia_szamla', "`recid`='{$_GET['id']}'");
         if( $f_szla['sz_szam'] ) {
             $gomb_felirat = 'Szerződés szám törlése';
             $gomb_class   = ' piros';
         }
+        if( $f_szla['sztornozva_dt'] != '0000-00-00 00:00:00' ) {
+            $gomb_rejt = true;
+        }
         
-        $sz_szam_gomb = ' <input type="button" class="gomb alacsony'.$gomb_class.'" value="'.$gomb_felirat.'" id="sz_szam_gomb" style="margin-left: 2rem; margin-bottom: 0;" onclick="fennt_hozzaad_gomb_hozzaad_vagy_torol()">';
+        if( !$gomb_rejt ) {
+            $sz_szam_gomb = ' <input type="button" class="gomb alacsony'.$gomb_class.'" value="'.$gomb_felirat.'" id="sz_szam_gomb" style="margin-left: 2rem; margin-bottom: 0;" onclick="fennt_hozzaad_gomb_hozzaad_vagy_torol()">';
+        }
     }
     
 }
@@ -3080,14 +3096,20 @@ $sz_szam_gomb = '';
 if( _jog(JOG_FENNTARTASI_SZAMLAK_KEZEL) || isset($_GET['uj']) ) {
     $gomb_felirat = 'Szerződés hozzáadása';
     $gomb_class   = '';
+    $gomb_rejt    = false;
     if( basename(self()) == 'fenntartasi_szamla.php' && isset($_GET['modosit']) ) {
-        $f_szla = $adatbazis_kapcsolat->s2('sz_szam', 'fenntartasi_szamla', "`recid`='{$_GET['id']}'");
+        $f_szla = $adatbazis_kapcsolat->s2('sz_szam sztornozva_dt', 'fenntartasi_szamla', "`recid`='{$_GET['id']}'");
         if( $f_szla['sz_szam'] ) {
             $gomb_felirat = 'Szerződés szám törlése';
             $gomb_class   = ' piros';
         }
+        if( $f_szla['sztornozva_dt'] != '0000-00-00 00:00:00' ) {
+            $gomb_rejt = true;
+        }
     }
-    $sz_szam_gomb = ' <input type="button" class="gomb alacsony'.$gomb_class.'" value="'.$gomb_felirat.'" id="sz_szam_gomb" style="margin-left: 2rem; margin-bottom: 0;" onclick="fennt_hozzaad_gomb_hozzaad_vagy_torol()">';
+    if( !$gomb_rejt ) {
+        $sz_szam_gomb = ' <input type="button" class="gomb alacsony'.$gomb_class.'" value="'.$gomb_felirat.'" id="sz_szam_gomb" style="margin-left: 2rem; margin-bottom: 0;" onclick="fennt_hozzaad_gomb_hozzaad_vagy_torol()">';
+    }
 }
 if( basename(self()) == 'fenntartasi_szamla.php' && $_GET['id'] ) {
     

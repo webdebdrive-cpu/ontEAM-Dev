@@ -457,8 +457,8 @@ if( isset($_POST['anyagSzamlaElutasit']) ) {
     // Adatbázisba mentés csak akkor, ha nem volt gond az XML küldéssel
     } else {
         // Elutasítással kapcsolatos adatok beállítása, illetve a kapcsolt számlaszám ürítése
-        $sql = $adatbazis_kapcsolat->u('anyag_szamla',    array('igazolva', 'sz_szam', 'elutleir',     'igazolva_dt', 'igazolva_usr'                           ),
-                                                          array(0,          '',        $_POST['memo'], 'NOW()',       $_SESSION[get_db_tabla().'teljes_nev']   ),
+        $sql = $adatbazis_kapcsolat->u('anyag_szamla',    array('igazolva', 'sz_szam', 'elutleir',     'igazolva_dt', 'igazolva_usr',                          'sztornozva_dt', 'sztornozva_usr'                        ),
+                                                          array(0,          '',        $_POST['memo'], 'NOW()',       $_SESSION[get_db_tabla().'teljes_nev'],  'NOW()',         $_SESSION[get_db_tabla().'teljes_nev']  ),
                                         "`recid`='{$_POST['id']}'");
         if( $sql === false ) { $db_error = true; }
         
@@ -1780,7 +1780,7 @@ require_once('selectek.php');
                     <div class="dtc r">Bruttó érték (HUF)</div>
                     <div class="dtc r">Deviza nettó'.$deviza.'</div>
                     <div class="dtc r">Deviza bruttó'.$deviza.'</div>
-                    <div class="dtc r">Áfa %</div>
+                    <div class="dtc r">Áfa (%)</div>
                 </div>
         ');
         
@@ -1793,8 +1793,8 @@ require_once('selectek.php');
                     <div class="dtc">'.$tetel['cikktorzs_id'].'</div>
                     <div class="dtc">'.str_replace('{IDEZOJEL}', '"', $tetel['cikktorzs']).'</div>
                     <div class="dtc">'.$tetel['szall_csz'].'</div>
-                    <div class="dtc">'.number_format($tetel['rndmen'], 2, ',', ' ').'</div>
-                    <div class="dtc">'.number_format($tetel['rndear'], 4, ',', ' ').'</div>
+                    <div class="dtc nowrap">'.number_format($tetel['rndmen'], 2, ',', ' ').'</div>
+                    <div class="dtc nowrap">'.number_format($tetel['rndear'], 4, ',', ' ').'</div>
                     <div class="dtc">'.$tetel['cikkmee'].'</div>
                     <div class="dtc">'.$tetel['megn'].'</div>
                     <div class="dtc">'.$tetel['ktghely'].'</div>

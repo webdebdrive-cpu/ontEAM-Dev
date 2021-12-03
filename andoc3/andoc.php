@@ -116,19 +116,22 @@ class ServerClass {
         $apa_recid_oszlop = $tabla.'_recid';
         
         // Azt, hogy ez insert vagy update lesz, azt már itt el kell dönteni, hisz update esetén nem kötelezőek a mezők!
-        $szamla_db = $adatbazis_kapcsolat->s2('recid erk_xml kif_ossz tetel_db sztornozva_dt utalvanyozva_dt', $tabla, "`andoc_id`='{$andoc_id}'");
+        $szamla_db = $adatbazis_kapcsolat->s2('recid erk_xml tetel_db sztornozva_dt utalvanyozva_dt', $tabla, "`andoc_id`='{$andoc_id}'");
         if( $szamla_db === false ) { $db_error = true; }
         if( $szamla_db['recid'] ) {
             $insert_update = 'update';
         // Insert esetén mindig az Andoc számlák közé kerül be a számla ($tabla = 'szamla'),
         // innen osztják majd szét ontEAM felületen a megfelelő modulba
         } else {
+            
+            // Ha nem ismert az Andoc azonosító, de van 'Kifizetett összeg' adatunk,
+            // akkor ez egy update lett volna, de nem sikerült beazonosítani
+            if( $szamla_adatok['Kifizetett összeg'] ) {
+                Throw new SOAPFault ('Server', 'Nem azonosítható be az Andoc azonosító, így a kifizetés nem lehetséges!');
+            }
             $insert_update = 'insert';
             $tabla         = 'szamla';
         }
-
-        // A kifizetett összeget nem felülírni kell, hanem hozzáadni a már meglevő értékhez
-        $szamla_adatok['Kifizetett összeg'] += $szamla_db['kif_ossz'];
 
         // Újabban nincs törlés funkció
 //        // Törléshez ismernünk kell az andoc_id-t és a számla típusát
@@ -204,6 +207,21 @@ class ServerClass {
                     Throw new SOAPFault ('Server', 'Hiányzó pénznem!');
                 }
                 
+                // Foglalt számlaszám ellenőrzése
+                if( $szamla_adatok['Számla sorszáma'] ) {
+                    // Átmeneti táblában
+                    $letezo_ikt_szam = $adatbazis_kapcsolat->s2('recid', $tabla.'_atmeneti', "`szla_szam`='{$szamla_adatok['Számla sorszáma']}' AND `szallito_id`='{$szallito_id}' AND `andoc_id`!='{$andoc_id}'");
+                    if( $letezo_ikt_szam ) {
+                        Throw new SOAPFault('Server', '"'.$szamla_adatok['Számla sorszáma'].'" számlaszám már létezik ezzel a partnerrel a FELDOLGOZÁSRA VÁRÓ számlák között!');
+                    }
+
+                    // Éles táblában
+                    $letezo_ikt_szam = $adatbazis_kapcsolat->s2('recid', $tabla, "`szla_szam`='{$szamla_adatok['Számla sorszáma']}' AND `szallito_id`='{$szallito_id}' AND `andoc_id`!='{$andoc_id}'");
+                    if( $letezo_ikt_szam ) {
+                        Throw new SOAPFault ('Server', '"'.$szamla_adatok['Számla sorszáma'].'" számlaszám már létezik ezzel a partnerrel a FELDOLGOZOTT számlák között!');
+                    }
+                }
+                
             // Módosításkor a dátum mezőket kell figyelni, hogy ha van, akkor helyesek-e
             } else {
                 
@@ -244,20 +262,6 @@ class ServerClass {
                 // szallito_id esetén fontos, hogy meglegyenek a kezdő 0-k
                 if( $szamla_adatok['Partner száma'] ) {
                     $szallito_id = sprintf('%05d', $szamla_adatok['Partner száma']);
-                }
-            }
-            // Foglalt számlaszám ellenőrzése
-            if( $szamla_adatok['Számla sorszáma'] ) {
-                // Átmeneti táblában
-                $letezo_ikt_szam = $adatbazis_kapcsolat->s2('recid', $tabla.'_atmeneti', "`szla_szam`='{$szamla_adatok['Számla sorszáma']}' AND `szallito_id`='{$szallito_id}' AND `andoc_id`!='{$andoc_id}'");
-                if( $letezo_ikt_szam ) {
-                    Throw new SOAPFault('Server', '"'.$szamla_adatok['Számla sorszáma'].'" számlaszám már létezik ezzel a partnerrel a FELDOLGOZÁSRA VÁRÓ számlák között!');
-                }
-                
-                // Éles táblában
-                $letezo_ikt_szam = $adatbazis_kapcsolat->s2('recid', $tabla, "`szla_szam`='{$szamla_adatok['Számla sorszáma']}' AND `szallito_id`='{$szallito_id}' AND `andoc_id`!='{$andoc_id}'");
-                if( $letezo_ikt_szam ) {
-                    Throw new SOAPFault ('Server', '"'.$szamla_adatok['Számla sorszáma'].'" számlaszám már létezik ezzel a partnerrel a FELDOLGOZOTT számlák között!');
                 }
             }
             // Foglalt iktatószám ellenőrzése
@@ -378,9 +382,11 @@ class ServerClass {
             $elutleir = trim($szamla_adatok['Teljesítés igazolás elutasítás oka'].' '.$szamla_adatok['Utalványozás elutasítás oka']);
 
             // Költségviselő felismerése, beállítása
-            $erteklista = $adatbazis_kapcsolat->s2('id', 'erteklista', "`csoport`='".ERTEKLISTA_KOLTSEGVISELO."' AND `cegkod`='{$szamla_adatok['Számla fizetője']}'");
-            if( $erteklista === false ) { $db_error = true; }
-            $kolt_vis = $erteklista['id'];
+            if( $szamla_adatok['Számla fizetője'] ) {
+                $erteklista = $adatbazis_kapcsolat->s2('id', 'erteklista', "`csoport`='".ERTEKLISTA_KOLTSEGVISELO."' AND `cegkod`='{$szamla_adatok['Számla fizetője']}'");
+                if( $erteklista === false ) { $db_error = true; }
+                $kolt_vis = $erteklista['id'];
+            }
 
             // Ha az alapvető adatokon nem akadtunk fenn, akkor szúrjuk be vagy updateljük a számlát, attól föggően, hogy az Andok azonosító ismert-e.
             // Ehhez az első lépés, a mező/érték párokat beállítani.
@@ -417,8 +423,8 @@ class ServerClass {
             if( $szamla_adatok['Számla bruttó összege']             ) { array_push($mezok, 'nullas'         ); array_push($ertekek, $nullas);                                       }
             if( $szamla_adatok['Fődokumentum link']                 ) { array_push($mezok, 'dok_link'       ); array_push($ertekek, $szamla_adatok['Fődokumentum link']);           }
             if( $szamla_adatok['Beruházási projektkód']             ) { array_push($mezok, 'pr_szam'        ); array_push($ertekek, $szamla_adatok['Beruházási projektkód']);       }
-            if( $szamla_adatok['Teljesítés igazolás elutasítás oka']) { array_push($mezok, 'elutleir'       ); array_push($ertekek, $szamla['Teljesítés igazolás elutasítás oka']); }
-            if( $szamla_adatok['Kapcsolódó szerződés/megrendelés']  ) { array_push($mezok, 'sz_szam'        ); array_push($ertekek, $szamla['Kapcsolódó szerződés/megrendelés']);   }
+            if( $szamla_adatok['Teljesítés igazolás elutasítás oka']) { array_push($mezok, 'elutleir'       ); array_push($ertekek, $szamla_adatok['Teljesítés igazolás elutasítás oka']); }
+            if( $szamla_adatok['Kapcsolódó szerződés/megrendelés']  ) { array_push($mezok, 'sz_szam'        ); array_push($ertekek, $szamla_adatok['Kapcsolódó szerződés/megrendelés']);   }
             if( $kolt_vis                                           ) { array_push($mezok, 'kolt_vis'       ); array_push($ertekek, $kolt_vis);                                     }
             if( $fizmod                                             ) { array_push($mezok, 'fizmod'         ); array_push($ertekek, $fizmod);                                       }
 
@@ -484,7 +490,7 @@ class ServerClass {
                 if( mb_strtolower($szamla_adatok['Utalványozó döntés'], self::CHAR_CODING) == 'elutasítva' && $szamla_db['utalvanyozva_dt'] == '0000-00-00 00:00:00' ) {
                     array_push($mezok,     'utalvanyozva_dt',   'sztornozva_dt', 'sztornozva_usr');
                     array_push($ertekek,   'NOW()',             'NOW()',         'Andoc'         );
-                    
+
                     // Elutasításkor minden számla fejben töröljük a kapcsolt szerződés számot
                     $sql = $adatbazis_kapcsolat->u($tabla, array('sz_szam'), array(''), "`andoc_id`='{$andoc_id}'");
                     if( $sql === false ) { $db_error = true; }

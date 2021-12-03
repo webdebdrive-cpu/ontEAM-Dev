@@ -338,8 +338,8 @@ if( isset($_POST['projektSzamlaElutasit']) ) {
         $szamla = $adatbazis_kapcsolat->s2('pr_szam', 'projektszamla', "`recid`='{$_POST['id']}'");
         
         // Elutasítással kapcsolatos adatok beállítása, illetve a kapcsolt számlaszám ürítése
-        $sql = $adatbazis_kapcsolat->u('projektszamla', array('igazolva', 'sz_szam', 'pr_szam', 'elutleir',     'igazolva_dt', 'igazolva_usr'                           ),
-                                                        array(0,          '',        '',        $_POST['memo'], 'NOW()',       $_SESSION[get_db_tabla().'teljes_nev']   ),
+        $sql = $adatbazis_kapcsolat->u('projektszamla', array('igazolva', 'sz_szam', 'pr_szam', 'let_fel', 'elutleir',     'igazolva_dt', 'igazolva_usr',                          'sztornozva_dt', 'sztornozva_usr'                       ),
+                                                        array(0,          '',        '',        '',        $_POST['memo'], 'NOW()',       $_SESSION[get_db_tabla().'teljes_nev'],  'NOW()',         $_SESSION[get_db_tabla().'teljes_nev'] ),
                                         "`recid`='{$_POST['id']}'");
         if( $sql === false ) { $db_error = true; }
         
@@ -1640,7 +1640,7 @@ if( isset($_POST['van_tetel']) ) {
     // Vannak dátumok, amik csak múltbeliek lehetnek. Ennek ellenőrzését itt végezzük el
     $csak_mult_datum_lehet = array(
                                     array('name' => 'erk_dt',        'alert' => 'Céghez érkezett dátumhoz csak mai, vagy múltbeli dátum adható meg!'),
-                                    array('name' => 'kelte_dt',      'alert' => 'A számla kelte dátumhoz csak mai, vagy múltbeli dátum adható meg!'),
+                                    // array('name' => 'kelte_dt',      'alert' => 'A számla kelte dátumhoz csak mai, vagy múltbeli dátum adható meg!'),
                                     array('name' => 'visszaadva_dt', 'alert' => 'A visszaadva dátumhoz csak mai, vagy múltbeli dátum adható meg!'),
                                 );
     
@@ -3104,7 +3104,7 @@ require_once('selectek.php');
                     <div class="dtc">Főkönyvi számlaszám</div>
                     <div class="dtc r">Nettó érték (HUF)</div>
                     <div class="dtc r">Bruttó érték (HUF)</div>
-                    <div class="dtc r">Áfa %</div>
+                    <div class="dtc r">Áfa (%)</div>
                     <div class="dtc r">Deviza nettó'.$deviza.'</div>
                     <div class="dtc r">Deviza bruttó'.$deviza.'</div>
                     <div class="dtc">Szerződés tétel</div>
@@ -3121,8 +3121,8 @@ require_once('selectek.php');
                 <div class="dtr nSor">
                     <div class="dtc">'.$tetel['targy'].'</div>
                     <div class="dtc">'.$tetel['megn'].'</div>
-                    <div class="dtc r">'.number_format($tetel['netto_ert'], 0, ',', ' ').'</div>
-                    <div class="dtc r">'.number_format($tetel['brutto_ert'], 0, ',', ' ').'</div>
+                    <div class="dtc r nowrap">'.number_format($tetel['netto_ert'], 0, ',', ' ').'</div>
+                    <div class="dtc r nowrap">'.number_format($tetel['brutto_ert'], 0, ',', ' ').'</div>
                     <div class="dtc r nowrap">'.$tetel['afa'].'</div>
                     <div class="dtc r nowrap">'.number_format($tetel['dev_net'], 2, ',', ' ').'</div>
                     <div class="dtc r nowrap">'.number_format($tetel['dev_br'], 2, ',', ' ').'</div>

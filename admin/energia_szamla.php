@@ -264,8 +264,8 @@ if( isset($_POST['szamla_igazol']) ) {
         
     // Adatbázisba mentés csak akkor, ha nem volt gond az XML küldéssel
     } else {
-        $sql = $adatbazis_kapcsolat->u('energia_szamla', array('igazolva', 'igazolva_dt', 'igazolva_usr'                           ),
-                                                             array(1,          'NOW()',       $_SESSION[get_db_tabla().'teljes_nev']   ),
+        $sql = $adatbazis_kapcsolat->u('energia_szamla',    array('igazolva', 'igazolva_dt', 'igazolva_usr'                           ),
+                                                            array(1,          'NOW()',       $_SESSION[get_db_tabla().'teljes_nev']   ),
                                         "`recid`='{$_POST['id']}'");
         if( $sql === false ) { $db_error = true; }        
     }
@@ -313,13 +313,15 @@ if( isset($_POST['energiaSzamlaElutasit']) ) {
         
     // Adatbázisba mentés csak akkor, ha nem volt gond az XML küldéssel
     } else {
+        
         // Elutasítással kapcsolatos adatok beállítása, illetve a kapcsolt számlaszám ürítése
-        $sql = $adatbazis_kapcsolat->u('energia_szamla',    array('igazolva', 'sz_szam', 'elutleir',     'igazolva_dt', 'igazolva_usr'                           ),
-                                                            array(0,          '',        $_POST['memo'], 'NOW()',       $_SESSION[get_db_tabla().'teljes_nev']   ),
+        $sql = $adatbazis_kapcsolat->u('energia_szamla',    array('igazolva', 'sz_szam', 'elutleir',     'igazolva_dt', 'igazolva_usr',                         'sztornozva_dt', 'sztornozva_usr'                       ),
+                                                            array(0,          '',        $_POST['memo'], 'NOW()',       $_SESSION[get_db_tabla().'teljes_nev'], 'NOW()',         $_SESSION[get_db_tabla().'teljes_nev'] ),
                                         "`recid`='{$_POST['id']}'");
         if( $sql === false ) { $db_error = true; }
+ 
     }
-                                                
+
     if( !$db_error ) {
         mysqli_commit($db_kapcs);
         echo json_encode( array('siker' => 1 ) );
@@ -1410,7 +1412,7 @@ require_once('selectek.php');
                     <div class="dtc">Bruttó (HUF)</div>
                     <div class="dtc">Deviza nettó'.$deviza.'</div>
                     <div class="dtc">Deviza bruttó'.$deviza.'</div>
-                    <div class="dtc">Áfa</div>
+                    <div class="dtc">Áfa (%)</div>
                 </div>
         ');
         
@@ -1698,6 +1700,7 @@ if( !$_GET['ajax'] ) {
 // Igazoláskor, elutasításkor, utalványozáskor gyártunk egy XML vissza fájlt, és azt beírjuk az adatbázisba
 function xml_vissza( $szamla_id, $igazolva = '', $oka = '' ) {
     
+    global $db_kapcs;
     global $adatbazis_kapcsolat;
     
     $db_error = false;
@@ -1831,9 +1834,9 @@ function xml_vissza( $szamla_id, $igazolva = '', $oka = '' ) {
         ';
 
         $sql = $adatbazis_kapcsolat->u('energia_szamla',    array('kuld_xml'),
-                                                            array($xml),
+                                                            array($xml      ),
                                         "`recid`='{$szamla_id}'");
-        if( $tetelek === false ) { $db_error = true; }
+        if( $sql === false ) { $db_error = true; }
 
         // Tételeknél nullázzuk a változott pipát
         $sql = $adatbazis_kapcsolat->u('energia_szamla_tetel', array('valtozott'), array(0), "`energia_szamla_recid`='{$szamla_id}' AND `valtozott`='1'");

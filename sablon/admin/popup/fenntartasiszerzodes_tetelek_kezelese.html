@@ -41,7 +41,7 @@
     
 </div>
 <div class="kuldes">
-    <input type="button" class="gomb zold dn pop_mentes_megsem" value="Mentés" onclick="tetel_sorok_ment('bezárás nélkül')">
+    <input type="button" class="gomb zold dn pop_mentes_megsem" value="Mentés" onclick="tetel_sorok_ment()">
     <input type="button" class="gomb kek dn pop_mentes_megsem" value="Mégsem" onclick="megsem_gomb();">
 <!--    <input type="button" class="gomb piros escapes_megsem" value="Bezár" onclick="bezar_gomb();">-->
 </div>
@@ -151,7 +151,7 @@ function tetel_hozzaadasa() {
         $('.pop_tetel_'+sor_id+' .pop_telj_dt').html( pop_telj_dt );
         $('.pop_tetel_'+sor_id+' .pop_netto_ert').html( ertek );
 
-    /* Egybként új sor hozzáadása */
+    /* Egyébként új sor hozzáadása */
     } else {
         
         var table_sor = '<tr class="pop_tetel_'+id_tmp+'">'+
@@ -239,7 +239,7 @@ function popup_tetel_sor_szerk(sor_id){
 }
 
 /* Tétel sor táblázat mentése */
-function tetel_sorok_ment( bezar_nelkul ){
+function tetel_sorok_ment(){
     
     var recidk = [];
     $('.pop_recid').each(function() {
@@ -297,6 +297,10 @@ function tetel_sorok_ment( bezar_nelkul ){
     } else {
         szerzodes_netto_erteke = $('#'+osszeg_mezo+'_db').val();
     }
+    var nullas = '';
+    if( $('#nullas').length ){
+        nullas = $('#nullas').prop('checked');
+    }
     
     $.ajax({
         url : 'fenntartasi_szerzodes.php',
@@ -307,6 +311,7 @@ function tetel_sorok_ment( bezar_nelkul ){
             kcs_21                  : kcs_21,
             torolt_sorok            : torolt_sorok,
             szerzodes_netto_erteke  : szerzodes_netto_erteke,
+            nullas                  : nullas,
             tetel_sorok_ment        : Date.now()
         },
         success: function(response) {

@@ -279,8 +279,17 @@ if( isset($_POST['tetel_sorok_ment']) ) {
         $i++;
     }
     
-    $szerzodes = $adatbazis_kapcsolat->s2('nullas', 'fenntartasi_szerzodes', "`recid`='{$recid}'");
-    if( $szerzodes === false ) { $db_error = true; }
+    // Új feltöltésnél még nincs recid-n
+    if( !$recid ) {
+        $szerzodes = array();
+        $szerzodes['nullas'] = 0;
+        if( $_POST['nullas'] == 'true' ) {
+            $szerzodes['nullas'] = 1;
+        }
+    } else {
+        $szerzodes = $adatbazis_kapcsolat->s2('nullas', 'fenntartasi_szerzodes', "`recid`='{$recid}'");
+        if( $szerzodes === false ) { $db_error = true; }
+    }
     
     // Deviza esetén tört számokkal is számolunk
     $penznem   = get_penznem();

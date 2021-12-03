@@ -322,8 +322,8 @@ if( isset($_POST['fenntartasiSzamlaElutasit']) ) {
     } else {
         
         // Elutasítással kapcsolatos adatok beállítása, illetve a kapcsolt számlaszám ürítése
-        $sql = $adatbazis_kapcsolat->u('fenntartasi_szamla', array('igazolva', 'elutleir',     'sz_szam',   'igazolva_dt', 'igazolva_usr',                          'sztornozva_dt', 'sztornozva_usr'                       ),
-                                                             array(0,          $_POST['memo'], '',          'NOW()',       $_SESSION[get_db_tabla().'teljes_nev'],  'NOW()',         $_SESSION[get_db_tabla().'teljes_nev'] ),
+        $sql = $adatbazis_kapcsolat->u('fenntartasi_szamla', array('igazolva', 'elutleir',     'sz_szam', 'igazolva_dt', 'igazolva_usr',                          'sztornozva_dt', 'sztornozva_usr'                       ),
+                                                             array(0,          $_POST['memo'], '',        'NOW()',       $_SESSION[get_db_tabla().'teljes_nev'],  'NOW()',         $_SESSION[get_db_tabla().'teljes_nev'] ),
                                         "`recid`='{$_POST['id']}'");
         if( $sql === false ) { $db_error = true; }
         
@@ -1985,7 +1985,7 @@ require_once('selectek.php');
                     <div class="dtc r">Bruttó érték (HUF)</div>
                     <div class="dtc r">Deviza nettó'.$deviza.'</div>
                     <div class="dtc r">Deviza bruttó'.$deviza.'</div>
-                    <div class="dtc r">Áfa %</div>
+                    <div class="dtc r">Áfa (%)</div>
                 </div>
         ');
         
