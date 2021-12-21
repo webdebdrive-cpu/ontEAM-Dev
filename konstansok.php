@@ -20,7 +20,8 @@ define('CSV_EXPORT_UTVONAL_1',      'export');
 define('CSV_EXPORT_UTVONAL_2',      '/csv');
 define('CSV_EXPORT_ELAVULAS',       3600); // 60 * 60
 define('HUNGARIA_SZALLODA',         2120);
-define('ANDOC_POST_KULD_URL',       'https://andoc.danubiushotels.com/ws_ontEAM_AndocSimple_teszt/WebService_AndocSimple.asmx/RegisterDocument');
+define('ANDOC_POST_KULD_URL_TESZT', 'https://andoc.danubiushotels.com/ws_ontEAM_AndocSimple_teszt/WebService_AndocSimple.asmx/RegisterDocument');
+define('ANDOC_POST_KULD_URL_ELES',  'https://andoc.danubiushotels.com/ws_ontEAM_AndocSimple/WebService_AndocSimple.asmx/RegisterDocument');
 
 // Státuszok
 // Bejelentés státuszok
@@ -423,6 +424,7 @@ define('JOG_DOKUMENTUMTAR_KEZEL',       97);
 define('JOG_DOKUMENTUMTAR_TOROL',       98);
 define('JOG_PR_TELJES_CASH_FLOW',      132);
 define('SZAMLAK_IGAZOLASA',            139);
+define('ANDOC_SZAMLAK_SZETOSZTASA',    140);
 
 // ÉRTESÍTÉSEK
 define('ERT_KESZRE_JELENTESKOR',         0);

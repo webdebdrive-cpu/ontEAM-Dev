@@ -44,17 +44,17 @@ URL: '.get_http().$_SERVER['HTTP_HOST'].$_SERVER['REQUEST_URI'].'
                 fajlba_mentes($log_utvonal, $log);
             }
     }
-    
+
     $soap = new SoapClient($url_elotag.$wsdl_fajl, 
                             array(
-                                'uri'       => $url_elotag.'andoc2/andoc.php',
-                                //'location'  => $url_elotag.'andoc2/andoc.php',
+                                'uri'       => $url_elotag.'andoc.php',
+                                // 'location'  => $url_elotag.'andoc.php',
                                 'trace'     => true,
                                 'encoding'  => 'utf-8',
                                 'cache_wsdl'=> WSDL_CACHE_NONE,
                                 )
                             );
-
+    
     // Bejelentkezéshez a felhasználói név jelszó így adható át header-en keresztül
     $auth = array(
                 'username' => 'Andoc',
@@ -70,6 +70,7 @@ URL: '.get_http().$_SERVER['HTTP_HOST'].$_SERVER['REQUEST_URI'].'
     // Számla import
     $get = 'szamla';
     $nev = 'Számla';
+
     if( isset($_GET[$get]) ) {
 
         // Ez ahhoz kell, hogy manuálisan tesztelhető legyen,
@@ -269,7 +270,7 @@ URL: '.get_http().$_SERVER['HTTP_HOST'].$_SERVER['REQUEST_URI'].'
     $nev = 'Szállító';
     if( isset($_GET[$get]) ) {
 
-        if( !$_POST['xml'] && !isset($_GET['teszt']) ) {
+        if( !$_POST['xml'] ) {
 
             echo '
                 <form method="post" action="'.self().'?'.$get.'">

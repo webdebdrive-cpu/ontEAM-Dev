@@ -2,6 +2,10 @@
 if( $_GET['mezo']=='legfrissebb' && $_GET['felt']=='-' ) {
     $_GET['mezo'] = $_GET['op'] = $_GET['felt'] = '';
 }
+
+// Ez a tömb kell majd az alábbi működésekhez
+$szamla_modulok = array('anyag_szamla', 'energia_szamla', 'fenntartasi_szamla', 'projektszamla');
+
 // Operátor kiválasztása
 if( isset($_POST['f_szuro_mezo']) ) {
 
@@ -43,6 +47,11 @@ if( isset($_POST['f_szuro_mezo']) ) {
 
                 $operator .= '<option value="equal"'.$selected_equal.'>=</option>';
 
+            // Fizetési mód a számla modulok alatt
+            } elseif( $ertek['name'] == 'fizmod' && in_array($_POST['tabla'], $szamla_modulok) ) {
+                
+                $operator .= '<option value="equal"'.$selected_equal.'>=</option>';
+
             // Dátum mező esetén
             } elseif( strpos($ertek['class'], 'datepicker') !== false || strpos($ertek['class'], 'datetimepicker') !== false || strpos($ertek['class'], 'datepicker_tegnapig') !== false || strpos($ertek['class'], 'datepicker_matol') !== false || strpos($ertek['class'], 'ora_perc') !== false || strpos($ertek['class'], 'datumos_szureshez') !== false ) {
 
@@ -80,6 +89,13 @@ if( isset($_POST['f_szuro_mezo']) ) {
                     $operator .= '<option value="lt"'.$selected_lt.'>&lt;</option>';
                     $operator .= '<option value="not_eq"'.$selected_not_eq.'>&lt;&gt;</option>';
                     $operator .= '<option value="empty"'.$selected_empty.'>Üres</option>';
+                    
+                // Ha az események tömbnél a szűrésnél szöveges operátornak jelöltünk egy mezőt, akkor csak ennek megfelelő operátorokat hozzunk fel
+                } elseif( $ertek['szuro'] == 'szoveges_op' ) {
+                    $operator .= '<option value="equal"'.$selected_equal.'>=</option>';
+                    $operator .= '<option value="like"'.$selected_like.'>Tartalmazza</option>';
+                    $operator .= '<option value="not_eq"'.$selected_not_eq.'>&lt;&gt;</option>';
+                    $operator .= '<option value="empty"'.$selected_empty.'>Üres</option>';
                 } else {
                     $operator .= '<option value="equal"'.$selected_equal.'>=</option>';
                     $operator .= '<option value="like"'.$selected_like.'>Tartalmazza</option>';
@@ -94,6 +110,17 @@ if( isset($_POST['f_szuro_mezo']) ) {
             }
             break;
         }
+    }
+    
+    // Anyag, Energia, Fenntartási vagy Projekt számláknál pár mezőnél csak egyenlőség jel van
+    $equal_tablak = array('anyag_szamla', 'energia_szamla', 'fenntartasi_szamla', 'projektszamla');
+    $equal_mezok  = array('feldolgozva_dt', 'igazolva_dt', 'utalvanyozva_dt', 'sztornozva_dt');
+    if( in_array($_POST['tabla'], $equal_tablak) && in_array($_POST['mezo'], $equal_mezok) ) {
+        $operator = '<option value="equal"'.$selected_equal.'>=</option>';
+    }
+    // Projektszámláknál a "kifizetés van-e" is csak Equal lehet
+    if( $_POST['tabla'] == 'projektszamla' && $_POST['mezo'] == 'kifizetes_van_e' ) {
+        $operator = '<option value="equal"'.$selected_equal.'>=</option>';
     }
 
     // Kapcsolódó szállodák felsorolása
@@ -119,11 +146,6 @@ if( isset($_POST['f_szuro_mezo']) ) {
 
     // Projektszerződésnél a jótállás van-e szűrés
     if( $_POST['tabla'] == 'projektszerzodes' && $_POST['mezo'] == 'jotallas_van_e' ) {
-        $operator = '<option value="equal"'.$selected_equal.'>=</option>';
-    }
-
-    // Projektszámláknál a kifizetés van-e szűrés
-    if( $_POST['tabla'] == 'projektszamla' && $_POST['mezo'] == 'kifizetes_van_e' ) {
         $operator = '<option value="equal"'.$selected_equal.'>=</option>';
     }
 
@@ -194,7 +216,8 @@ if( isset($_POST['f_szuro_mezo_operator']) ) {
     }
 
     // Ha az éppen kiválasztott operátor az üres, akkor az alábbit adjuk vissza és kész
-    if( $_POST['selected'] == 'empty' || $_POST['mezo'] == 'dok_van_e' || $_POST['mezo'] == 'dok_db_min_var' || $_POST['mezo'] == 'kapcsolt_szerzodes_van_e' || $_POST['mezo'] == 'kapcsolt_szamla_van_e' || $_POST['mezo'] == 'kifizetes_van_e' || $_POST['mezo'] == 'jotallas_van_e' || $_POST['mezo'] == 'fix_adat' ) {
+    $igen_nem_mezok = array('dok_van_e', 'dok_db_min_var', 'feldolgozva_dt', 'fix_adat', 'igazolva_dt', 'kapcsolt_szerzodes_van_e', 'kapcsolt_szamla_van_e', 'jotallas_van_e', 'kifizetes_van_e', 'utalvanyozva_dt', 'sztornozva_dt');
+    if( $_POST['selected'] == 'empty'  || in_array($_POST['mezo'], $igen_nem_mezok) ) {
         $feltetel = nl2('
             <select class="f_felt">
                 <option value="1"'.$selected_egy.'>Igen</option>
@@ -317,6 +340,24 @@ if( isset($_POST['f_szuro_mezo_operator']) ) {
                             });
                         </script>
                     ');
+                    
+                // Fizetési mód a számla modulok alatt
+                } elseif( $ertek['name'] == 'fizmod' && in_array($_POST['tabla'], $szamla_modulok) ) {
+                    
+                    $selected_u = $selected_k = '';
+                    if( $_POST['felt'] == 'U' ) {
+                        $selected_u = ' selected';
+                    }
+                    if( $_POST['felt'] == 'k' ) {
+                        $selected_k = ' selected';
+                    }
+                    
+                    $feltetel = nl2('
+                        <select class="f_felt">
+                            <option value="U"'.$selected_u.'>Utalás</option>
+                            <option value="k"'.$selected_k.'>Készpénz</option>
+                        </select>
+                        ');
                     
                 // select_szemelyzet
                 } elseif( $ertek['type'] == 'select_szemelyzet' ) {
@@ -833,15 +874,16 @@ if( in_array($tabla, $dokumentumos_oldal) ) {
 }
 
 // Kapcsolódó táblák szűrő mezői
-if( $tabla == 'anyagigenyles' ) {
+$megjegyzesekre_szuros_mdulok = array('anyagigenyles', 'anyag_szamla', 'energia_szamla', 'fenntartasi_szamla', 'projektszamla', 'fenntartasi_szerzodes', 'projektszerzodes');
+if( in_array($tabla, $megjegyzesekre_szuros_mdulok) ) {
     $selected_megj  = '';
     if( $_GET['mezo'] == 'megjegyzes' ) {
         $selected_megj = ' selected';
     }
-    array_push( $sz_mezo, array('eleje' => '<option value="megjegyzes" data-tabla="megjegyzes"'.$selected_megj.'>', 'vege' => 'Megjegyzés</option>' ) );
+    array_push( $sz_mezo, array('eleje' => '<option value="megjegyzes" data-tabla="megjegyzes"'.$selected_megj.'>', 'vege' => 'Megjegyzések</option>' ) );
 }
 
-// Vannak felületek,a hol a nav panel számát limitáljuk. Ezt egy szűrővel oldjuk meg, tehát itt szükséges, hogy legyen egy Legfrisebb nevű szűrés lehetőség.
+// Vannak felületek, ahol a nav panel számát limitáljuk. Ezt egy szűrővel oldjuk meg, tehát itt szükséges, hogy legyen egy Legfrisebb nevű szűrés lehetőség.
 $legfrisebb_feluletek = array('anyagigenyles', 'bejelentes_arch', 'munkalap_arch', 'projektigenyles', 'projektkezeles', 'projektszamla', 'projektszerzodes');
 if( in_array($tabla, $legfrisebb_feluletek) ) {
     $selected_legfrissebb  = '';
@@ -861,13 +903,13 @@ if( $tabla == 'login' ) {
     $selected_jog   = '';
     $selected_szall = '';
     $selected_megj  = '';
-    if($_GET['mezo']=='jogosultsag'){
+    if( $_GET['mezo'] == 'jogosultsag' ) {
         $selected_jog = ' selected';
     }
-    if($_GET['mezo']=='szalloda'){
+    if( $_GET['mezo'] == 'szalloda' ) {
         $selected_szall = ' selected';
     }
-    if($_GET['mezo']=='megjegyzes'){
+    if( $_GET['mezo'] == 'megjegyzes' ) {
         $selected_megj = ' selected';
     }
     array_push( $sz_mezo, array('eleje' => '<option value="jogosultsag"'.$selected_jog.'>',                         'vege' => 'Jogosultság</option>'    ) );
@@ -877,7 +919,7 @@ if( $tabla == 'login' ) {
 // Értéklisták esetén kell még egy szűrés: fix adat
 if( $tabla == 'erteklista' ) {
     $selected_fix_adat  = '';
-    if($_GET['mezo']=='fix_adat'){
+    if( $_GET['mezo'] == 'fix_adat' ) {
         $selected_fix_adat = ' selected';
     }
     array_push( $sz_mezo, array('eleje' => '<option value="fix_adat" data-tabla="fix_adat"'.$selected_fix_adat.'>', 'vege' => get_nev().' kezeli</option>' ) );
@@ -886,7 +928,7 @@ if( $tabla == 'erteklista' ) {
 // Projektkezelés esetén a Team tag nevére is kell tudni szűrni
 if( $tabla == 'projektkezeles' ) {
     $selected_team_tag  = '';
-    if($_GET['mezo']=='team_tag'){
+    if( $_GET['mezo'] == 'team_tag' ) {
         $selected_team_tag = ' selected';
     }
     array_push( $sz_mezo, array('eleje' => '<option value="team_tag"'.$selected_team_tag.'>', 'vege' => 'Team tag</option>' ) );
@@ -910,10 +952,10 @@ if( $tabla == 'projektszamla' ) {
 if( $tabla == 'szallito' ) {
     $selected_szakter   = '';
     $selected_megj      = '';
-    if($_GET['mezo']=='szakterulet'){
+    if( $_GET['mezo'] == 'szakterulet' ) {
         $selected_szakter = ' selected';
     }
-    if($_GET['mezo']=='megjegyzes'){
+    if( $_GET['mezo'] == 'megjegyzes' ) {
         $selected_megj = ' selected';
     }
     array_push( $sz_mezo, array('eleje' => '<option value="szakterulet"'.$selected_szakter.'>',                     'vege' => 'Szakterület</option>') );

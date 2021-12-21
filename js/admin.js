@@ -6007,6 +6007,11 @@ function csv_general( that, valasztos, link_kieg ) {
     }
 
     if (valasztos) {
+        
+        // Anyag/Energia/Fenntartási/Projekt számláknál lehet választani, hogy Számlák vagy Számlák és tételek
+        if ( baseName(location.href) == 'anyag_szamla' || baseName(location.href) == 'energia_szamla' || baseName(location.href) == 'fenntartasi_szamla' || baseName(location.href) == 'projektszamla' ) {
+            alert2('Válasszon export fajtát:<br><a href="javascript:csv_general($(\'.excel\'))">» Számlák exportálása</a><br><a href="javascript:csv_general($(\'.excel\'), \'\', \'tetelek&id=\'+_get(\'id\'))">» Számlák és tételek exportálása</a>', '<input type="button" class="gomb" value="Mégsem" onclick="alert2()">', 'Válasszon exportot');
+        }
 
         // Cash-flow
         if (baseName(location.href) == 'beosztas') {
@@ -6033,6 +6038,11 @@ function csv_general( that, valasztos, link_kieg ) {
             alert2('Válasszon export fajtát:<br><a href="javascript:csv_general($(\'.excel\'))">» Energia tervek exportálása</a><br><a href="javascript:csv_general($(\'.excel\'), \'\', \'egysegarak&id=\'+_get(\'id\'))">» Egységárak exportálása</a>', '<input type="button" class="gomb" value="Mégsem" onclick="alert2()">', 'Válasszon exportot');
         }
 
+        // Fenntartási + Projektszerződéseknél lehet választani, hogy Szerződések vagy Szerződések és tételek
+        if ( baseName(location.href) == 'fenntartasi_szerzodes' || baseName(location.href) == 'projektszerzodes') {
+            alert2('Válasszon export fajtát:<br><a href="javascript:csv_general($(\'.excel\'))">» Szerződések exportálása</a><br><a href="javascript:csv_general($(\'.excel\'), \'\', \'tetelek&id=\'+_get(\'id\'))">» Szerződések és tételek exportálása</a>', '<input type="button" class="gomb" value="Mégsem" onclick="alert2()">', 'Válasszon exportot');
+        }
+
         // Energia tervnél lehet választani, hogy tervet, vagy Egységárakat szeretne-e exportálni
         if (baseName(location.href) == 'fenntartasi_terv') {
             var bwh_link = '';
@@ -6051,15 +6061,6 @@ function csv_general( that, valasztos, link_kieg ) {
                                             '<input type="button" class="gomb" value="Mégsem" onclick="alert2()">', 'Válasszon exportot');
         }
 
-        // Projektszámláknál lehet választani, hogy Számlák vagy Számlák és tételek
-        if (baseName(location.href) == 'projektszamla') {
-            alert2('Válasszon export fajtát:<br><a href="javascript:csv_general($(\'.excel\'))">» Számlák exportálása</a><br><a href="javascript:csv_general($(\'.excel\'), \'\', \'tetelek&id=\'+_get(\'id\'))">» Számlák és tételek exportálása</a>', '<input type="button" class="gomb" value="Mégsem" onclick="alert2()">', 'Válasszon exportot');
-        }
-
-        // Projektszerződéseknél lehet választani, hogy Szerződések vagy Szerződések és tételek
-        if (baseName(location.href) == 'projektszerzodes') {
-            alert2('Válasszon export fajtát:<br><a href="javascript:csv_general($(\'.excel\'))">» Szerződések exportálása</a><br><a href="javascript:csv_general($(\'.excel\'), \'\', \'tetelek&id=\'+_get(\'id\'))">» Szerződések és tételek exportálása</a>', '<input type="button" class="gomb" value="Mégsem" onclick="alert2()">', 'Válasszon exportot');
-        }
 
     // Ha nincs választás popup előtte
     } else {

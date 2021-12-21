@@ -944,7 +944,7 @@ function i_u($type, $tabla, $tomb) {
             
         }
 
-// Insert lefutása
+        // Insert lefutása
 		$id = $adatbazis_kapcsolat -> insert($tabla, $oszlopok, $ertekek);
         if( $id === false ) { $db_error = true; }
 
@@ -973,6 +973,7 @@ function i_u($type, $tabla, $tomb) {
         if( $tabla == 'anyag_szamla' ) {
             
             $i = 0;
+            $anyag_rend_idk = array();
             foreach ( $_SESSION['anyag_szla_tetel_cikktorzs'] as $cikktorzs ) {
                 $netto_ert  = str_replace(' ', '',  $_SESSION['anyag_szla_tetel_netto_ert'][$i]);
                 $brutto_ert = str_replace(' ', '',  $_SESSION['anyag_szla_tetel_brutto_ert'][$i]);
@@ -1064,7 +1065,7 @@ function i_u($type, $tabla, $tomb) {
 
                     array_push($mezok,   'anyag_szamla_recid', 'valtozott', 'loginnev',                        'insert_dt', 'insert_usr',                           'update_usr'                           );
                     array_push($ertekek, $id,                  $valtozott,  $_SESSION[get_db_tabla().'user'],  'NOW()',     $_SESSION[get_db_tabla().'teljes_nev'], $_SESSION[get_db_tabla().'teljes_nev'] );
-
+                    
                     $sql = $adatbazis_kapcsolat->i('anyag_szamla_tetel', $mezok, $ertekek);
                     if( $sql === false ) { $db_error = true; }
 
@@ -1080,6 +1081,17 @@ function i_u($type, $tabla, $tomb) {
 //                }
 //                if( $sql === false ) { $db_error = true; }
 
+                // Ha ismert a rendelés azonosítója, akkor írjuk be a rendelés sorába a számlázott mennyiséget
+                if( $rnd_recid ) {
+                    $anyagig = $adatbazis_kapcsolat->s2('szlamen rndid', 'anyagigenyles', "`recid`='{$rnd_recid}'");
+                    if( $anyagig === false ) { $db_error = true; }
+                    $sql = $adatbazis_kapcsolat->u('anyagigenyles', array('szlamen'), array($anyagig['szlamen']+$rndmen), "`recid`='{$rnd_recid}'");
+                    if( $sql === false ) { $db_error = true; }
+                    
+                    // Rendelés azonosítókat is szedjük össze
+                    array_push($anyag_rend_idk, $anyagig['rndid']);
+                }
+                    
                 $i++;
             }
 
@@ -1090,20 +1102,16 @@ function i_u($type, $tabla, $tomb) {
             $szamla['erk_xml']  = htmlspecialchars_decode($szamla['erk_xml']);
             $szamla['vonalkod'] = htmlspecialchars_decode($szamla['vonalkod']);
             $szamla['dok_link'] = htmlspecialchars_decode($szamla['dok_link']);
+            
+            $anyag_rend_idk = array_unique($anyag_rend_idk);
+            $anyag_rend_idk = implode(' ', $anyag_rend_idk);
+            sort($anyag_rend_idk);
             $sql = $adatbazis_kapcsolat->u('anyag_szamla', 
-                                                                array('andoc_id',           'sz_szam',          'ont_erk_dt',         'erk_xml',            'vonalkod',           'dok_link',           'ikt_usr'          ),
-                                                                array($szamla['andoc_id'],  $_POST['sz_szam'],  $szamla['insert_dt'], $szamla['erk_xml'],   $szamla['vonalkod'],  $szamla['dok_link'],  $szamla['ikt_usr'] ),
+                                                                array('andoc_id',           'sz_szam',        'ont_erk_dt',         'erk_xml',            'vonalkod',           'dok_link',           'ikt_usr'          ),
+                                                                array($szamla['andoc_id'],  $anyag_rend_idk,  $szamla['insert_dt'], $szamla['erk_xml'],   $szamla['vonalkod'],  $szamla['dok_link'],  $szamla['ikt_usr'] ),
                                                             "`recid`='{$id}'");
             if( $sql === false ) { $db_error = true; }
 
-            // Ha ismert a rendelés azonosítója, akkor írjuk be a rendelés sorába a számlázott mennyiséget
-            if( $rnd_recid ) {
-                $anyagig = $adatbazis_kapcsolat->s2('szlamen', 'anyagigenyles', "`recid`='{$rnd_recid}'");
-                if( $anyagig === false ) { $db_error = true; }
-                $sql = $adatbazis_kapcsolat->u('anyagigenyles', array('szlamen'), array($anyagig['szlamen']+$rndmen), "`recid`='{$rnd_recid}'");
-                if( $sql === false ) { $db_error = true; }
-            }
-            
             // Töröljük az átmeneti tábla számláját és tételeit is
             $sql = $adatbazis_kapcsolat->d('anyag_szamla_tetel_atmeneti', "`anyag_szamla_recid`='{$_POST['atmeneti_recid']}'");
             if( $sql === false ) { $db_error = true; }
@@ -1984,6 +1992,13 @@ function i_u($type, $tabla, $tomb) {
                     // Numerikus illetve dátum mezők esetén le kell kezelni, ha üres adatot kapnánk, újra legyenek formázva
                     foreach ( $tomb as $elem ) {
                         if( $elem['name'] == $key ) {
+                            
+                            // Ha az események tömbben ez egy fiktív sor volna (pl. csak a szűrés miatt vettük fel - anyag/energia/fenntartasi/projektszamla moduloknál),
+                            // akkor ezek változásait se figyeljük, felvesszük a kivételek tömbbe
+                            if( $elem['type'] == 'none' ) {
+                                array_push($kiveteles_mezok, $elem['name']);
+                            }
+                            
                             if( strpos($elem['class'], 'f_num') !== false ) {
                                 if( !$post_key ) {
                                     $post_key = '0';
@@ -2312,7 +2327,7 @@ function i_u($type, $tabla, $tomb) {
         
             // Energia számla mentésekor HA nem nullás a számla, akkor ellenőrizzük, hogy a számla nettó értéke azonos-e a tételek összegével
             $tizedesek  = 0;
-            $mezo1      = 'energia_szla_tetel_netto_ert';
+            $mezo1      = 'energia_szla_tetel_netto';
             $mezo2      = 'netto';
             $szoveg     = 'szerződés összegével';
             if( $_POST['kcs_21']!=KCS_21_HUF ) {
@@ -2939,9 +2954,11 @@ function i_u($type, $tabla, $tomb) {
         if( $id === false ) { $db_error = true; }
 
 // Debug UPDATE
-// echo $adatbazis_kapcsolat->gp() . '<br>';
-// mysqli_commit($db_kapcs);
-// exit;
+//if( $_SERVER['REMOTE_ADDR'] == get_debug_ip() ) {
+//    echo $adatbazis_kapcsolat->gp() . '<br>';
+//    mysqli_commit($db_kapcs);
+//    exit;
+//}
 
         if( $id ) {
             $sor = $adatbazis_kapcsolat->s('*', $tabla, "`recid`='{$_GET['id']}'", '', '1');
@@ -3117,7 +3134,7 @@ function js_kiir($tomb, $fg = 'form_ell_regi()', $ajax = false) {
 
     $param = '';
     foreach ( $tomb as $ertek ) {
-        if( $ertek['type'] != 'statusz' && $ertek['type'] != 'info' ) {
+        if( $ertek['type'] != 'statusz' && $ertek['type'] != 'info' && $ertek['type'] != 'none' ) {
             if( $ertek['name'] ) {
 
                 // Csak akkor figyelünk lenti paramétereket, ha egyáltalán az elem létezik. Ezzel egy csomó JS hibát elekerülhetünk és debuggolós szívásokat
@@ -8919,13 +8936,50 @@ function get_szures_where_kieg($mezo, $op, $felt, $tabla) {
     
     // Numerikus mezőt visszaalakítjuk
     if(
-            ($tabla=='anyagigenyles'    && $mezo=='arfolyam')  ||
-            ($tabla=='projektszamla'    && $mezo=='dev_net')   ||
-            ($tabla=='projektszamla'    && $mezo=='dev_br')    ||
-            ($tabla=='projektszamla'    && $mezo=='arfolyam')  ||
-            ($tabla=='projektszerzodes' && $mezo=='arfolyam')  ||
-            ($tabla=='projektszerzodes' && $mezo=='dev_net')
-        ){
+            ($tabla=='anyagigenyles'        && $mezo=='arfolyam')       ||
+            
+            ($tabla=='anyag_szamla'         && $mezo=='arfolyam')       ||
+            ($tabla=='anyag_szamla'         && $mezo=='arfolyam_szall') ||
+            ($tabla=='anyag_szamla'         && $mezo=='dev_net')        ||
+            ($tabla=='anyag_szamla'         && $mezo=='dev_br')         ||
+            ($tabla=='anyag_szamla'         && $mezo=='netto')          ||
+            ($tabla=='anyag_szamla'         && $mezo=='brutto')         ||
+            ($tabla=='anyag_szamla'         && $mezo=='kif_ossz')       ||
+            
+            ($tabla=='energia_szamla'       && $mezo=='arfolyam')       ||
+            ($tabla=='energia_szamla'       && $mezo=='arfolyam_szall') ||
+            ($tabla=='energia_szamla'       && $mezo=='dev_net')        ||
+            ($tabla=='energia_szamla'       && $mezo=='dev_br')         ||
+            ($tabla=='energia_szamla'       && $mezo=='netto')          ||
+            ($tabla=='energia_szamla'       && $mezo=='brutto')         ||
+            ($tabla=='energia_szamla'       && $mezo=='kif_ossz')       ||
+            
+            ($tabla=='fenntartasi_szamla'   && $mezo=='arfolyam')       ||
+            ($tabla=='fenntartasi_szamla'   && $mezo=='arfolyam_szall') ||
+            ($tabla=='fenntartasi_szamla'   && $mezo=='dev_net')        ||
+            ($tabla=='fenntartasi_szamla'   && $mezo=='dev_br')         ||
+            ($tabla=='fenntartasi_szamla'   && $mezo=='netto')          ||
+            ($tabla=='fenntartasi_szamla'   && $mezo=='brutto')         ||
+            ($tabla=='fenntartasi_szamla'   && $mezo=='kif_ossz')       ||
+            
+            ($tabla=='fenntartasi_szerzodes'&& $mezo=='arfolyam')       ||
+            ($tabla=='fenntartasi_szerzodes'&& $mezo=='dev_net')        ||
+            ($tabla=='fenntartasi_szerzodes'&& $mezo=='szerz_ossz')     ||
+            ($tabla=='fenntartasi_szerzodes'&& $mezo=='epitesi')        ||
+            
+            ($tabla=='projektszamla'        && $mezo=='arfolyam')       ||
+            ($tabla=='projektszamla'        && $mezo=='arfolyam_szall') ||
+            ($tabla=='projektszamla'        && $mezo=='dev_net')        ||
+            ($tabla=='projektszamla'        && $mezo=='dev_br')         ||
+            ($tabla=='projektszamla'        && $mezo=='netto')          ||
+            ($tabla=='projektszamla'        && $mezo=='brutto')         ||
+            ($tabla=='projektszamla'        && $mezo=='kif_ossz')       ||
+            
+            ($tabla=='projektszerzodes'     && $mezo=='arfolyam')       ||
+            ($tabla=='projektszerzodes'     && $mezo=='dev_net')        ||
+            ($tabla=='projektszerzodes'     && $mezo=='szerz_ossz')     ||
+            ($tabla=='projektszerzodes'     && $mezo=='epitesi')
+        ) {
         $felt = str_replace(',', '.', $felt);
     }
 
@@ -8961,9 +9015,13 @@ function get_szures_where_kieg($mezo, $op, $felt, $tabla) {
         break;
     }
 
-//echo $mezo.' - '.$op.' - '.$felt;exit;
+// echo $mezo.' - '.$op.' - '.$felt;exit;
     // Külső táblák kapcsolása
     // A szamla_lista() függvényben is állítsd be a JOIN-okat
+    
+    // Anyag, Energia, Fenntartási vagy Projekt számláknál pár mezőnél csak egyenlőség jel van, és ezek SQL-je is azonos
+    $equal_tablak = array('anyag_szamla', 'energia_szamla', 'fenntartasi_szamla', 'projektszamla');
+    $equal_mezok  = array('feldolgozva_dt', 'igazolva_dt', 'utalvanyozva_dt', 'sztornozva_dt');
     if( $mezo == 'megjegyzes' ) {
         return '`'.get_db_tabla().'megjegyzes`.`tabla`=\''.$tabla.'\' AND `'.get_db_tabla().'megjegyzes`.`megj` LIKE \''.$felt.'\'';
     } elseif( $op_origi != 'empty' && ($tabla == 'anyagigenyles' && $mezo == 'nev') ) {
@@ -8978,26 +9036,34 @@ function get_szures_where_kieg($mezo, $op, $felt, $tabla) {
         return '`'.get_db_tabla().'bejelentes`.`telephely_id`=\''.$felt.'\'';
     
     // Létrehozás dáumára keresve általánosan így járunk el
-    }elseif( $mezo == 'insert_dt' ) {
+    } elseif( $mezo == 'insert_dt' ) {
         $felt = str_replace('.', '-', $felt);
         if( $op_origi == 'empty' ) {
             $felt = '0000-00-00';
         }
         return '`'.get_db_tabla().$tabla.'`.`insert_dt`'.$op.'\''.$felt.'\'';
     // Van-e dokumentuma szűrés
-    }elseif( $mezo == 'dok_van_e' ) {
+    } elseif( $mezo == 'dok_van_e' ) {
         if( $felt > 0 ) {
             return '`dok_db`>0';
         } else {
             return '`dok_db`=0';
         }
     // Minősítésre váró dokumentuma van-e
-    }elseif( $mezo == 'dok_db_min_var' ) {
+    } elseif( $mezo == 'dok_db_min_var' ) {
         if( $felt > 0 ) {
             return '`dok_db_min_var`>0';
         } else {
             return '`dok_db_min_var`=0';
         }
+    // Anyag, Energia, Fenntartási és Projekt számláknál az igazolva/utalványozva/sztornozva van-e feltétele egy dátum összehasonlítás
+    } elseif( in_array($tabla, $equal_tablak) && in_array($mezo, $equal_mezok) ) {
+        if( $felt ) {
+            $return .= "`{$mezo}`!='0000-00-00 00:00:00'";
+        } else {
+            $return .= "`{$mezo}`='0000-00-00 00:00:00'";
+        }
+        return $return;
     } elseif( $tabla == 'login' && $mezo == 'jogosultsag' ) {
         return 'SUBSTRING(`flags`, '.($felt+1).', 1)=1';
     } elseif( $tabla == 'login' && $mezo == 'szalloda' ) {
@@ -9156,14 +9222,14 @@ function get_o_szures_where_kieg ($feltetel, $tabla ) {
 }
 
 // Az adatbázisba letárolt props stringből visszaadja azt a mezőértéket, amire szükségünk van
-function get_props($props, $mezo){
+function get_props($props, $mezo) {
     $props = htmlspecialchars_decode($props);
     $props = explode("\n", $props);
-    foreach($props as $p){
+    foreach ( $props as $p ) {
         $akt_mezo = trim($p, '<');
         $akt_mezo = explode('>', $akt_mezo);
         $akt_mezo = $akt_mezo[0];
-        if(strtolower($akt_mezo) == strtolower($mezo)){
+        if( strtolower($akt_mezo) == strtolower($mezo) ) {
             $p = explode('>', $p);
             $p = $p[1];
             $p = explode('<', $p);
@@ -9174,7 +9240,7 @@ function get_props($props, $mezo){
 }
 
 // Történet fül tartalma
-function get_tortenet($megnevezes){
+function get_tortenet($megnevezes) {
 
     global $adatbazis_kapcsolat;
 

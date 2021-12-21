@@ -472,7 +472,11 @@ if( $apa_tabla == 'projektkezeles' ) {
                                              JOIN `'.get_db_tabla().'szallito` ON `'.get_db_tabla().'projektszerzodes`.`szallito_id`=`'.get_db_tabla().'szallito`.`id` ');
     }
 
-    if( $kepek ) {
+    // Itt az a feltétel, hogy képek vagy fődokumentum linkek vannak-e.
+    // Lehet, hogy még nincs minősített dokumentum, de a szerződés fődokumentum linkjeit 
+    // már ekkor ki kell írni, tehát ha van olyan szerződés, aminek van fődokumentum linkje, akkor a Szerződés fájlok blokkot már mutatjuk
+    $szerzodesek_fodokok = $adatbazis_kapcsolat -> s('recid', 'projektszerzodes', "`recid` IN (".implode(',', $szerzodesek).") AND `dok_link`!=''", '', '1');
+    if( $kepek || $szerzodesek_fodokok ) {
         
         // Nyitva-zárva megjegyzése
         $azon = 'dok_szerzodesek_'.$_GET['id'];
@@ -497,16 +501,114 @@ if( $apa_tabla == 'projektkezeles' ) {
                             </li>
             ');
     }
+    $szerzodes_fodok_link_kiirva = array();
     foreach ( $kepek as $sor_kepek ) {
+        
+        // Andoc fődokumentum link kilistázása, ha adott szerződésnél még nem jártunk volna
+        if( !in_array($sor_kepek['projektszerzodes_id'], $szerzodes_fodok_link_kiirva) ) {
+            
+            array_push($szerzodes_fodok_link_kiirva, $sor_kepek['projektszerzodes_id']);
+            
+            $partner    = '';
+            $szerzodes  = $adatbazis_kapcsolat->s2('sz_szam szallito_id dok_link insert_usr insert_dt', 'projektszerzodes', "`recid`='{$sor_kepek['projektszerzodes_id']}'");
+            $partner    = getErtek('nev', 'szallito', 'id', $szerzodes['szallito_id']);
+
+            // Class
+            $class_kiir = '';
+            if( $dn ) {
+                $class_kiir = ' class="'.$dn.'"';
+            }
+            
+            if( $szerzodes['dok_link'] ) {
+                $tobbkep_html .= nl2('
+                        <li'.$class_kiir.'>
+                            <div class="felirat">'.$partner.'</div>
+                            <div class="felirat">
+                                <a href="projektszerzodes.php?id=x&amp;mezo=sz_szam&amp;op=equal&amp;felt='.$szerzodes['sz_szam'].'&amp;dokumentumok" target="_blank">
+                                    '.$szerzodes['sz_szam'].'
+                                </a>
+                            </div>
+                            <div class="kep">
+                                <div>
+                                    <a href="'.$szerzodes['dok_link'].'" target="_blank">
+                                        <img src="../elemek/ikonok/link.png" alt="Link">
+                                    </a>
+                                </div>
+                            </div>
+                            <div id="megj_'.$azon.'_felirat" class="felirat c">
+                                <a href="'.$szerzodes['dok_link'].'" target="_blank">
+                                    '.wordwrap($szerzodes['dok_link'], 35, '<br>', 1).'
+                                </a>
+                            </div>
+                            <div class="felirat">'.$szerzodes['insert_usr'].'</div>
+                            <div class="felirat">'.datum_kiir($szerzodes['insert_dt']).'</div>
+                            <div class="felirat"></div>
+                            <div class="felirat"></div>
+                            <div class="maradek" style="width: 6rem"></div>
+                        </li>
+                    ');
+            }
+        }
+        
+        // Majd a konkrét csatolt doksik kiíratása
         $tobbkep_html .= get_tobbkep_thumb($sor_kepek, $i, 'projektszerzodes_dok', 'nincs törlés', $sor_kepek['projektszerzodes_id'], $azon.$dn);
         $i++;
+    }
+    
+    // A szerződéseket járjuk be mégegyszer, arra az esetre, ha nem csatolt dokumentuma.
+    // Akkor is meg kell jeleníteni a fődokumentumok linkjeit (fentebb csak akkor lett kiírva, ha adott szerződésnek volt csatolt doksija is)
+    foreach ( $szerzodesek as $szerzodes ) {
+        
+        if( !in_array($szerzodes, $szerzodes_fodok_link_kiirva) ) {
+            
+            array_push($szerzodes_fodok_link_kiirva, $szerzodes);
+            
+            $partner    = '';
+            $szerzodes  = $adatbazis_kapcsolat->s2('sz_szam szallito_id dok_link insert_usr insert_dt', 'projektszerzodes', "`recid`='{$szerzodes}'");
+            $partner    = getErtek('nev', 'szallito', 'id', $szerzodes['szallito_id']);
+
+            $class_kiir = '';
+            if( $dn ) {
+                $class_kiir = ' class="'.$dn.'"';
+            }
+            
+            if( $szerzodes['dok_link'] ) {
+                $tobbkep_html .= nl2('
+                        <li'.$class_kiir.'>
+                            <div class="felirat">'.$partner.'</div>
+                            <div class="felirat">
+                                <a href="projektszerzodes.php?id=x&amp;mezo=sz_szam&amp;op=equal&amp;felt='.$szerzodes['sz_szam'].'&amp;dokumentumok" target="_blank">
+                                    '.$szerzodes['sz_szam'].'
+                                </a>
+                            </div>
+                            <div class="kep">
+                                <div>
+                                    <a href="'.$szerzodes['dok_link'].'" target="_blank">
+                                        <img src="../elemek/ikonok/link.png" alt="Link">
+                                    </a>
+                                </div>
+                            </div>
+                            <div class="felirat c">
+                                <a href="'.$szerzodes['dok_link'].'" target="_blank">
+                                    '.wordwrap($szerzodes['dok_link'], 35, '<br>', 1).'
+                                </a>
+                            </div>
+                            <div class="felirat">'.$szerzodes['insert_usr'].'</div>
+                            <div class="felirat">'.datum_kiir($szerzodes['insert_dt']).'</div>
+                            <div class="felirat"></div>
+                            <div class="felirat"></div>
+                            <div class="maradek" style="width: 6rem"></div>
+                        </li>
+                    ');
+            }
+        }
     }
     
     // Számlák
     $kepek      = array();
     $szamlak    = $adatbazis_kapcsolat->s('recid', 'projektszamla', "`pr_szam`='{$projekt['ikt_szam']}'");
     $szamlak    = adatbazis2tomb($szamlak, 'recid');
-    
+
     // Ha van szerződés, akkor a szerződés dokumentumokat is kirajzoljuk
     if( $szamlak ) {
         $kepek = $adatbazis_kapcsolat -> s('`'.get_db_tabla().'projektszamla_dok`.*, `'.get_db_tabla().'szallito`.`nev`', 'projektszamla_dok', "`projektszamla_id` IN (".implode(',', $szamlak).")",
@@ -516,8 +618,11 @@ if( $apa_tabla == 'projektkezeles' ) {
                                             'JOIN `'.get_db_tabla().'projektszamla` ON `'.get_db_tabla().'projektszamla_dok`.`projektszamla_id`=`'.get_db_tabla().'projektszamla`.`recid`
                                              JOIN `'.get_db_tabla().'szallito` ON `'.get_db_tabla().'projektszamla`.`szallito_id`=`'.get_db_tabla().'szallito`.`id` ');
     }
-    
-    if( $kepek ) {
+    // Itt az a feltétel, hogy képek vagy fődokumentum linkek vannak-e.
+    // Lehet, hogy még nincs minősített dokumentum, de a számla fődokumentum linkjeit 
+    // már ekkor ki kell írni, tehát ha van olyan számla, aminek van fődokumentum linkje, akkor a Számla fájlok blokkot már mutatjuk
+    $szamla_fodokok = $adatbazis_kapcsolat -> s('recid', 'projektszamla', "`recid` IN (".implode(',', $szamlak).") AND `dok_link`!=''", '', '1');
+    if( $kepek || $szamla_fodokok ) {
         
         // Nyitva-zárva megjegyzése
         $azon = 'dok_szamlak_'.$_GET['id'];
@@ -542,13 +647,111 @@ if( $apa_tabla == 'projektkezeles' ) {
                             </li>
             ');
     }
+    $szamla_fodok_link_kiirva = array();
     foreach ( $kepek as $sor_kepek ) {
+        
+        // Andoc fődokumentum link kilistázása, ha adott szerződésnél még nem jártunk volna
+        if( !in_array($sor_kepek['projektszamla_id'], $szamla_fodok_link_kiirva) ) {
+            
+            array_push($szamla_fodok_link_kiirva, $sor_kepek['projektszamla_id']);
+            
+            $partner    = '';
+            $szamla     = $adatbazis_kapcsolat->s2('szla_szam szallito_id dok_link insert_usr insert_dt', 'projektszamla', "`recid`='{$sor_kepek['projektszamla_id']}'");
+            $partner    = getErtek('nev', 'szallito', 'id', $szamla['szallito_id']);
+
+            // Class
+            $class_kiir = '';
+            if( $dn ) {
+                $class_kiir = ' class="'.$dn.'"';
+            }
+            
+            if( $szamla['dok_link'] ) {
+                $tobbkep_html .= nl2('
+                        <li'.$class_kiir.'>
+                            <div class="felirat">'.$partner.'</div>
+                            <div class="felirat">
+                                <a href="projektszamla.php?id=x&amp;mezo=szla_szam&amp;op=equal&amp;felt='.$szamla['szla_szam'].'&amp;dokumentumok" target="_blank">
+                                    '.$szamla['szla_szam'].'
+                                </a>
+                            </div>
+                            <div class="kep">
+                                <div>
+                                    <a href="'.$szamla['dok_link'].'" target="_blank">
+                                        <img src="../elemek/ikonok/link.png" alt="Link">
+                                    </a>
+                                </div>
+                            </div>
+                            <div class="felirat c">
+                                <a href="'.$szamla['dok_link'].'" target="_blank">
+                                    '.wordwrap($szamla['dok_link'], 35, '<br>', 1).'
+                                </a>
+                            </div>
+                            <div class="felirat">'.$szamla['insert_usr'].'</div>
+                            <div class="felirat">'.datum_kiir($szamla['insert_dt']).'</div>
+                            <div class="felirat"></div>
+                            <div class="felirat"></div>
+                            <div class="maradek" style="width: 6rem"></div>
+                        </li>
+                    ');
+            }
+        }
+        
+        // Majd a konkrét csatolt doksik kiíratása
         $tobbkep_html .= get_tobbkep_thumb($sor_kepek, $i, 'projektszamla_dok', 'nincs törlés', $sor_kepek['projektszamla_id'], $azon.$dn);
         $i++;
     }
     
+    // A számlákat járjuk be mégegyszer, arra az esetre, ha a számlának nincs doksija,
+    // akkor is meg kell jeleníteni a fődokumentumok linkjeit (fentebb csak akkor lett kiírva, ha adott számlának volt csatolt doksija is)
+    foreach ( $szamlak as $szamla ) {
+        
+        if( !in_array($szamla, $szamla_fodok_link_kiirva) ) {
+            
+            array_push($szamla_fodok_link_kiirva, $szamla);
+            
+            $partner    = '';
+            $szamla     = $adatbazis_kapcsolat->s2('szla_szam szallito_id dok_link insert_usr insert_dt', 'projektszamla', "`recid`='{$szamla}'");
+            $partner    = getErtek('nev', 'szallito', 'id', $szamla['szallito_id']);
+
+            $class_kiir = '';
+            if( $dn ) {
+                $class_kiir = ' class="'.$dn.'"';
+            }
+            
+            if( $szamla['dok_link'] ) {
+                $tobbkep_html .= nl2('
+                        <li'.$class_kiir.'>
+                            <div class="felirat">'.$partner.'</div>
+                            <div class="felirat">
+                                <a href="projektszamla.php?id=x&amp;mezo=szla_szam&amp;op=equal&amp;felt='.$szamla['szla_szam'].'&amp;dokumentumok" target="_blank">
+                                    '.$szamla['szla_szam'].'
+                                </a>
+                            </div>
+                            <div class="kep">
+                                <div>
+                                    <a href="'.$szamla['dok_link'].'" target="_blank">
+                                        <img src="../elemek/ikonok/link.png" alt="Link">
+                                    </a>
+                                </div>
+                            </div>
+                            <div class="felirat c">
+                                <a href="'.$szamla['dok_link'].'" target="_blank">
+                                    '.wordwrap($szamla['dok_link'], 35, '<br>', 1).'
+                                </a>
+                            </div>
+                            <div class="felirat">'.$szamla['insert_usr'].'</div>
+                            <div class="felirat">'.datum_kiir($szamla['insert_dt']).'</div>
+                            <div class="felirat"></div>
+                            <div class="felirat"></div>
+                            <div class="maradek" style="width: 6rem"></div>
+                        </li>
+                    ');
+            }
+        }
+    }
+    
     // FONTOS: Ez a dokumentum felsorolás még folytatódni fog a Projektek modul alatt, 
-    // de itt most kicsit megszakítjuk a működést, hogy a soron követekző Jótállások
+    // de itt most kicsit megszakítjuk a működést, hogy a soron következő Jótállások
     // kilistázását a Projektszerződések felülete alatt is megjelenjen
     
 }
@@ -739,7 +942,7 @@ function get_tobbkep_thumb($sor_kepek = '', $i = '', $tobbkep_tablanev = '', $ni
     
     $direkt_dokumentum = false;
     $kep_utvonal = '../'.get_utvonal().csonkit($tobbkep_tablanev, $csonkit).'/'.$sor_kepek['utvonal'];
-    // Itt van egy kis csavar: ha projektkezelés alatt vagyunk, és a fájl nem található, akkor lehet az egy direkt csatolt dokumentum, ezrét ez alapján is megpróbáljuk megjeleníteni a fájlt
+    // Itt van egy kis csavar: ha projektkezelés alatt vagyunk, és a fájl nem található, akkor lehet az egy direkt csatolt dokumentum, ezért ez alapján is megpróbáljuk megjeleníteni a fájlt
     if( basename( self() ) == 'projektkezeles.php' && !is_file($kep_utvonal ) ) {
         // Ekkor a $tobbkep_tablanev változót is korrigáljuk, mert a később pl. a Minősítés gomb kirajzolásánál jelentősége van.
         $tobbkep_tablanev  = 'projektkezeles_dok';

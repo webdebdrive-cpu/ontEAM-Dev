@@ -940,8 +940,10 @@ if( isset($_GET['csv']) ) {
                             `'.get_db_tabla().$megnevezes.'`.`telephely_id` as \'Szálloda\',
                             `'.get_db_tabla().$megnevezes.'`.`sz_szam` as \'Szerződés szám\',
                             `'.get_db_tabla().$megnevezes.'`.`kelte_dt` as \'Kelte\',
+                            `'.get_db_tabla().$megnevezes.'`.`nullas` as \'Érték nélküli szerződés\',
                             `'.get_db_tabla().$megnevezes.'`.`szallito_id` as \'Szerződő partner\',
                             `'.get_db_tabla().$megnevezes.'`.`pr_szam` as \'Projekt szám\',
+                            `'.get_db_tabla().$megnevezes.'`.`let_fel` as \'Projekt felelős\',
                             `'.get_db_tabla().$megnevezes.'`.`targy` as \'Tárgy\',
                             `'.get_db_tabla().$megnevezes.'`.`kolt_vis` as \'Költségviselő\',
                             `'.get_db_tabla().$megnevezes.'`.`sz_koto` as \'Szerződést kötő\',
@@ -954,13 +956,11 @@ if( isset($_GET['csv']) ) {
                             `'.get_db_tabla().$megnevezes.'`.`epitesi_eng` as \'Építési eng.\',
                             `'.get_db_tabla().$megnevezes.'`.`kiv_kezd` as \'Kivitelezés kezdete\',
                             `'.get_db_tabla().$megnevezes.'`.`kiv_vege` as \'Kivitelezés vége\',
-                            `'.get_db_tabla().$megnevezes.'`.`let_fel` as \'Létesítmény felelős\',
                             `'.get_db_tabla().$megnevezes.'`.`muszak_atv` as \'Műszaki átvétel\',
                             `'.get_db_tabla().$megnevezes.'`.`muszaki_gar_kezd` as \'Műszaki garancia kezdete\',
                             `'.get_db_tabla().$megnevezes.'`.`muszaki_gar_vege` as \'Műszaki garancia vége\',
                             `'.get_db_tabla().$megnevezes.'`.`bank_gar` as \'Bank garancia\',
                             `'.get_db_tabla().$megnevezes.'`.`bank_gar_vege` as \'Bank garancia vége\',
-                            `'.get_db_tabla().$megnevezes.'`.`szamlazva` as \'Számlázva\',
                             '.
                             
                             // Innentől a tételek
@@ -1022,13 +1022,13 @@ if( isset($_GET['csv']) ) {
                         if( $kulcs == 'Deviza nettó' ) {
                             $sor = number_format($sor, 2, ',', '');
                         }
-                        if( $kulcs == 'Létesítmény felelős' ) {
+                        if( $kulcs == 'Projekt felelős' ) {
                             $sor = getErtek('teljes_nev', 'login', 'recid', $sor);
                         }
                         if( $kulcs == 'Műszaki átvétel' || $kulcs == 'Kelte' || $kulcs == 'Kivitelezés kezdete' || $kulcs == 'Kivitelezés vége' || $kulcs == 'Bank garancia vége' || $kulcs == 'Bank garancia vége' || $kulcs == 'Teljesítés' || $kulcs == 'Átváltva' ) {
                             $sor = datum_kiir($sor);
                         }
-                        if( $kulcs == 'Számlázva' || $kulcs == 'Építési eng.' ) {
+                        if( $kulcs == 'Építési eng.' || $kulcs == 'Érték nélküli szerződés' ) {
                             if( $sor ) {
                                 $sor = 'igen';
                             } else {
@@ -1101,8 +1101,10 @@ if( isset($_GET['csv']) ) {
                             `telephely_id` as \'Szálloda\',
                             `sz_szam` as \'Szerződés szám\',
                             `kelte_dt` as \'Kelte\',
+                            `nullas` as \'Érték nélküli szerződés\',
                             `szallito_id` as \'Szerződő partner\',
                             `pr_szam` as \'Projekt szám\',
+                            `let_fel` as \'Projekt felelős\',
                             `targy` as \'Tárgy\',
                             `kolt_vis` as \'Költségviselő\',
                             `sz_koto` as \'Szerződést kötő\',
@@ -1115,13 +1117,11 @@ if( isset($_GET['csv']) ) {
                             `epitesi_eng` as \'Építési eng.\',
                             `kiv_kezd` as \'Kivitelezés kezdete\',
                             `kiv_vege` as \'Kivitelezés vége\',
-                            `let_fel` as \'Létesítmény felelős\',
                             `muszak_atv` as \'Műszaki átvétel\',
                             `muszaki_gar_kezd` as \'Műszaki garancia kezdete\',
                             `muszaki_gar_vege` as \'Műszaki garancia vége\',
                             `bank_gar` as \'Bank garancia\',
-                            `bank_gar_vege` as \'Bank garancia vége\',
-                            `szamlazva` as \'Számlázva\'
+                            `bank_gar_vege` as \'Bank garancia vége\'
                             '.$lekerdezes_fromtol.$_SESSION['akt_sql_order'];
                 $query = mysqli_query($db_kapcs, $sql);
 
@@ -1171,13 +1171,13 @@ if( isset($_GET['csv']) ) {
                         if( $kulcs == 'Deviza nettó' ) {
                             $sor = number_format($sor, 2, ',', '');
                         }
-                        if( $kulcs == 'Létesítmény felelős' ) {
+                        if( $kulcs == 'Projekt felelős' ) {
                             $sor = getErtek('teljes_nev', 'login', 'recid', $sor);
                         }
-                        if( $kulcs == 'Műszaki átvétel' || $kulcs == 'Kelte' || $kulcs == 'Kivitelezés kezdete' || $kulcs == 'Kivitelezés vége' || $kulcs == 'Műszaki garancia kezdete' || $kulcs == 'Műszaki garancia vége' || $kulcs == 'Bank garancia' || $kulcs == 'Bank garancia vége' || $kulcs == 'Átváltva' ) {
+                        if( $kulcs == 'Műszaki átvétel' || $kulcs == 'Kelte' || $kulcs == 'Kivitelezés kezdete' || $kulcs == 'Kivitelezés vége' || $kulcs == 'Bank garancia vége' || $kulcs == 'Bank garancia vége' || $kulcs == 'Teljesítés' || $kulcs == 'Átváltva' ) {
                             $sor = datum_kiir($sor);
                         }
-                        if( $kulcs == 'Számlázva' || $kulcs == 'Építési eng.' ) {
+                        if( $kulcs == 'Építési eng.' || $kulcs == 'Érték nélküli szerződés' ) {
                             if( $sor ) {
                                 $sor = 'igen';
                             } else {
@@ -1860,10 +1860,15 @@ require_once('selectek.php');
 
 	// Dokumentumok
 	}elseif( isset($_GET['dokumentumok']) ) {
+        
+        if( $tobb_kep ) {
+            require_once('tobb_kep.php');
+        }
 
         // Itt az XML-ből kapott dokumentum linkjét jelenítjük meg
         if( $sor['dok_link'] ) {
             $szamla_html .= nl2('
+                <div style="margin-top: 2rem;"></div>
                 Fődokumentum link:
                 <br><input type="text" value="'.$sor['dok_link'].'" readonly style="width: 100%; margin: 1rem 0">
                 <br><input type="button" class="gomb" value="Dokumentum megtekintése" onclick="window.open(\''.$sor['dok_link'].'\')">');

@@ -166,7 +166,7 @@ if( isset($_GET['value']) && isset($_GET['tabla']) && isset($_GET['oszlop_keres'
         }
         
         // Dokumentum tipus esetén ha még menüpontra is szűrünk
-        // FONTOS: itt van még egy extra dolog: a szerződés tipust is kiszűrjük!
+        // FONTOS: itt van még egy extra dolog: a szerződés típust is kiszűrjük!
         if( $_GET['menupont_szuro'] ) {
             if( $where_sql ) {
                 $where_sql .= " AND `{$_GET['menupont_szuro']}`='1' AND `id`!='".EL_DOK_TIPUS_SZERZODES."'";

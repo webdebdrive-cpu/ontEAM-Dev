@@ -418,6 +418,365 @@ if( isset($_POST['tetel_sorok_ment']) ) {
     exit();
 }
 
+// CSV generálása
+if( isset($_GET['csv']) ) {
+    
+    require_once 'selectek.php';
+
+    $csv_neve = 'Fenntartási-szerződés';
+    if( isset($_GET['tetelek']) ) {
+        $csv_neve .= '-tételek';
+    }
+    
+    // CSV export előkészítése
+    list($mibol, $mibe, $filename, $open) = csv_export_elokeszit($megnevezes);
+    if( $open ) {
+
+        $lekerdezes_fromtol = substr($_SESSION['akt_sql'], strpos($_SESSION['akt_sql'], 'FROM'));
+
+        if( $_SESSION['nyomtatas_ids'] ) {
+
+            // Tételek exportja
+            if( isset($_GET['tetelek']) ) {
+
+                $lekerdezes_fromtol = str_replace('FROM `'.get_db_tabla().$megnevezes.'` ', "FROM `".get_db_tabla().$megnevezes."` JOIN `".get_db_tabla().$megnevezes."_tetel` ON `".get_db_tabla().$megnevezes."`.`recid`=`".get_db_tabla().$megnevezes."_tetel`.`".$megnevezes."_recid`", $lekerdezes_fromtol);
+                
+                // Ha van benne limit, akkor a teljes adatbázist kilistázzuk, de csak akkor, ha a limit az alapértelmezett (Mert ekkor a legfrisebb 1000-es he hasonló feltétel van érvényben)
+                $mindet_listazd = false;
+                if( strpos( $_SESSION['akt_sql'], 'LIMIT' )!==false ) {
+                    $limit = trim( substr( $_SESSION['akt_sql'], strpos($_SESSION['akt_sql'], 'LIMIT') ), 'LIMIT ' );
+                    if( strpos($limit, ' ') ) {
+                        $limit = substr($limit, 0, strpos($limit, ' '));
+                    }
+                    if( $limit == SZURES_DB_LIMIT && !$_SESSION['nyomtatas_ids_ksz'] ) {
+                        $mindet_listazd = true;
+                    }
+                }
+                if( $mindet_listazd ) {
+                    
+                    // A LIMIT-et levágjuk, illetve a balnavpanel szerinti rendezést is nullázzuk
+                    $lekerdezes_fromtol = substr($lekerdezes_fromtol, 0, strpos($lekerdezes_fromtol, 'LIMIT') );
+                    $_SESSION['akt_sql_order'] = '';
+                    
+                } else {
+                    
+                    if( strstr($_SESSION['akt_sql'], 'WHERE') ) {
+                        $lekerdezes_fromtol = str_replace('WHERE', "WHERE `".get_db_tabla().$megnevezes."`.`recid` IN (".$_SESSION['nyomtatas_ids'].") AND ", $lekerdezes_fromtol);
+                    } else {
+                        $lekerdezes_fromtol = str_replace('ORDER', "WHERE `".get_db_tabla().$megnevezes."`.`recid` IN (".$_SESSION['nyomtatas_ids'].") ORDER", $lekerdezes_fromtol);
+                    }
+
+                    // Ha van $_SESSION['akt_sql_order'], akkor eszerint rendezünk, tehát a $lekerdezes_fromtol-t elvágjuk az Order-nél
+                    if( $_SESSION['akt_sql_order'] ){
+                        $hossz = strpos($lekerdezes_fromtol, 'ORDER');
+                        if( $hossz ) {
+                            $lekerdezes_fromtol = substr($lekerdezes_fromtol, 0, $hossz);
+                        } else {
+                            $lekerdezes_fromtol = substr($lekerdezes_fromtol, 0);
+                        }
+                    }
+                    
+                }
+                
+                // Ha nincs FROM rész, akkor azt még beletesszük
+                if( !$lekerdezes_fromtol ) {
+                    $lekerdezes_fromtol = ' FROM `'.get_db_tabla().$megnevezes.'` ';
+                }
+                
+
+                $sql = 'SELECT
+                            `'.get_db_tabla().$megnevezes.'`.`hatalyos` as \'Hatályos\',
+                            `'.get_db_tabla().$megnevezes.'`.`szszam` as \'Szerződés szám\',
+                            `'.get_db_tabla().$megnevezes.'`.`verzio` as \'Szerződés verzió\',
+                            `'.get_db_tabla().$megnevezes.'`.`sztipus` as \'Szerződés típus\',
+                            `'.get_db_tabla().$megnevezes.'`.`kelte_dt` as \'Kelte\',
+                            `'.get_db_tabla().$megnevezes.'`.`szallito_id` as \'Szerződő partner\',
+                            `'.get_db_tabla().$megnevezes.'`.`targy` as \'Tárgy\',
+                            `'.get_db_tabla().$megnevezes.'`.`kolt_vis` as \'Költségviselő\',
+                            `'.get_db_tabla().$megnevezes.'`.`erv_dt` as \'Érvényesség kezdete\',
+                            `'.get_db_tabla().$megnevezes.'`.`bef_dt` as \'Érvényesség vége\',
+                            `'.get_db_tabla().$megnevezes.'`.`kcs_21` as \'Pénznem\',
+                            `'.get_db_tabla().$megnevezes.'`.`szlafizhi` as \'Számla fizetési határidő\',
+                            `'.get_db_tabla().$megnevezes.'`.`dev_net` as \'Deviza nettó\',
+                            `'.get_db_tabla().$megnevezes.'`.`arfolyam` as \'Árfolyam\',
+                            `'.get_db_tabla().$megnevezes.'`.`netto` as \'Nettó érték\',
+                            `'.get_db_tabla().$megnevezes.'`.`alairva_dt` as \'Aláírva\',
+                            `'.get_db_tabla().$megnevezes.'`.`felmondas` as \'Felmondás\',
+                            `'.get_db_tabla().$megnevezes.'`.`nullas` as \'Érték nélküli szerződés\',
+                            `'.get_db_tabla().$megnevezes.'`.`fiz_felt` as \'Fizetési feltétel\',
+                            `'.get_db_tabla().$megnevezes.'`.`p_nev` as \' Szerződő fél kapcsolattartó neve\',
+                            `'.get_db_tabla().$megnevezes.'`.`p_cim` as \' Szerződő fél kapcsolattartó címe\',
+                            `'.get_db_tabla().$megnevezes.'`.`p_tel` as \' Szerződő fél kapcsolattartó telefonszáma\',
+                            `'.get_db_tabla().$megnevezes.'`.`p_beosztas` as \' Szerződő fél kapcsolattartó beosztása\',
+                            `'.get_db_tabla().$megnevezes.'`.`p_email` as \' Szerződő fél kapcsolattartó e-mail címe\',
+                            `'.get_db_tabla().$megnevezes.'`.`p_fax` as \' Szerződő fél kapcsolattartó fax száma\',
+                            `'.get_db_tabla().$megnevezes.'`.`megjegyz` as \'Megjegyzés\',
+                            '.
+                            
+                            // Innentől a tételek
+                            '
+                            `'.get_db_tabla().$megnevezes.'_tetel`.`telephely_id` as `Szálloda`,
+                            `'.get_db_tabla().$megnevezes.'_tetel`.`varh_erk` as `Számla várh. érk.`,
+                            `'.get_db_tabla().$megnevezes.'_tetel`.`varh_ert` as `Számla várh. értéke (Ft)`,
+                            `'.get_db_tabla().$megnevezes.'_tetel`.`dev_varh_ert` as `Számla várh. értéke (devizában)`,
+                            `'.get_db_tabla().$megnevezes.'_tetel`.`telj_dt` as `Teljesítés`,
+                            `'.get_db_tabla().$megnevezes.'_tetel`.`netto_ert` as `Érték`,
+                            `'.get_db_tabla().$megnevezes.'_tetel`.`dev_net` as `Érték (devizában)`
+                            '.$lekerdezes_fromtol.$_SESSION['akt_sql_order'];
+                
+                $query = mysqli_query($db_kapcs, $sql);
+
+                // Nagyobb CSV-kre kérdezzünk rá előzetesen
+                $osszes_sor = mysqli_num_rows($query);
+//  Itt ilyet ne csináljunk, mert a csv_link_cserel_kattint 3 paraméterét nem tudom kimenteni
+//                if( !$_GET['mehet'] && $osszes_sor>CSV_EXPORT_LIMIT ) {
+//                    $gomb = '<input type="button" class="gomb zold" value="Igen" onclick="csv_link_cserel_kattint();"> <input type="button" class="gomb piros" value="Nem" onclick="alert2()">';
+//                    echo json_encode(array('hiba' => 'A CSV export több mint '.number_format(CSV_EXPORT_LIMIT, 0, '', ' ').' sort tartalmaz. Ennek előállítása hosszabb időbe telik majd.<br>Biztosan folytatja?', 'gomb' => $gomb));
+//                    $weblap -> leallit();
+//                    exit;
+//                } else {
+//                    $sql .= $_SESSION['akt_sql_order'];    
+//                }
+
+                $query      = mysqli_query($db_kapcs, $sql);
+
+                $csvhead    = array();
+                while($fejlec_nevek = mysqli_fetch_field($query)){
+                    $csvhead[] = iconv2($mibol, $mibe, $fejlec_nevek -> name );
+                }
+                fputcsv($open, $csvhead, ';');
+                
+                $datum_mezok = array('Kelte', 'Érvényesség kezdete', 'Érvényesség vége', 'Számla fizetési határidő', 'Aláírva', 'Számla várh. érk.', 'Teljesítés');
+                $szam_mezok  = array('Deviza nettó', 'Árfolyam', 'Nettó érték', 'Számla várh. értéke (Ft)', 'Számla várh. értéke (devizában)', 'Érték', 'Érték (devizában)');
+
+                $i = 0;
+                while ( $sorok = mysqli_fetch_assoc($query) ) {
+
+                    $csvcont = array();
+                    foreach( $sorok as $kulcs => $sor ) {
+                        if( $kulcs == 'Szálloda' ) {
+                            $sor = getSzallodaNev($sor);
+                        }
+                        if( $kulcs == 'Szerződő partner' ) {
+                            $sor = getErtek('nev', 'szallito', 'id', $sor);
+                        }
+                        if( $kulcs == 'Költségviselő' ) {
+                            $sor = erteklista(ERTEKLISTA_KOLTSEGVISELO, $sor);
+                        }
+                        if( $kulcs == 'Pénznem' ) {
+                            $sor = erteklista(ERTEKLISTA_PENZNEM, $sor);
+                        }
+                        if( $kulcs == 'Szerződés típus' ) {
+                            foreach ( $select_szerzodes_tipus as $tipus ) {
+                                if ( $sor == $tipus['value'] ) {
+                                    $sor = $tipus['name'];
+                                }
+                            }
+                        }
+
+                        if( $kulcs == 'Hatályos' || $kulcs == 'Érték nélküli szerződés' ) {
+                            if( $sor ) {
+                                $sor = 'igen';
+                            } else {
+                                $sor = 'nem';
+                            }
+                        }
+                        
+                        // Dátumok és számok formázása
+                        if( in_array($kulcs, $datum_mezok) ) {
+                            $sor = datum_kiir($sor);
+                        }
+                        if( in_array($kulcs, $szam_mezok) ) {
+                            $sor = str_replace('.', ',', $sor);
+                        }
+                        
+                        $csvcont[] = iconv($mibol, $mibe.'//TRANSLIT', strip_tags( htmlspecialchars_decode( $sor ) ) );
+                    }
+
+                    fputcsv($open, $csvcont, ';');
+
+                    // 1000 soronként kiíratunk
+                    if( $i % 1000 == 0 && $i > 0 ) {
+                        // Progress
+                        echo json_encode(array('pr' => number_format(($i / $osszes_sor) * 100, 0, '', ''))).PHP_EOL;
+
+                        // Felszabadítás
+                        ob_flush();
+                        flush();
+                    }
+
+                    $i++;
+                }
+
+            // Projektszerződések exportja
+            } else {
+
+                // Ha van benne limit, akkor a teljes adatbázist kilistázzuk, de csak akkor, ha a limit az alapértelmezett (Mert ekkor a legfrisebb 1000-es he hasonló feltétel van érvényben)
+                $mindet_listazd = false;
+                if( strpos( $_SESSION['akt_sql'], 'LIMIT' )!==false ) {
+                    $limit = trim( substr( $_SESSION['akt_sql'], strpos($_SESSION['akt_sql'], 'LIMIT') ), 'LIMIT ' );
+                    if( strpos($limit, ' ') ) {
+                        $limit = substr($limit, 0, strpos($limit, ' '));
+                    }
+                    if( $limit == SZURES_DB_LIMIT && !$_SESSION['nyomtatas_ids_ksz'] ) {
+                        $mindet_listazd = true;
+                    }
+                }
+                if( $mindet_listazd ) {
+                    
+                    // A LIMIT-et levágjuk, illetve a balnavpanel szerinti rendezést is nullázzuk
+                    $lekerdezes_fromtol = substr($lekerdezes_fromtol, 0, strpos($lekerdezes_fromtol, 'LIMIT') );
+                    $_SESSION['akt_sql_order'] = '';
+                    
+                } else {
+                    
+                    if( strstr($_SESSION['akt_sql'], 'WHERE') ) {
+                        $lekerdezes_fromtol = str_replace('WHERE', "WHERE `".get_db_tabla().$megnevezes."`.`recid` IN (".$_SESSION['nyomtatas_ids'].") AND ", $lekerdezes_fromtol);
+                    } else {
+                        $lekerdezes_fromtol = str_replace('ORDER', "WHERE `".get_db_tabla().$megnevezes."`.`recid` IN (".$_SESSION['nyomtatas_ids'].") ORDER", $lekerdezes_fromtol);
+                    }
+                    
+                    // Ha van $_SESSION['akt_sql_order'], akkor eszerint rendezünk, tehát a $lekerdezes_fromtol-t elvágjuk az Order-nél
+                    if( $_SESSION['akt_sql_order'] ){
+                        $hossz = strpos($lekerdezes_fromtol, 'ORDER');
+                        if( $hossz ) {
+                            $lekerdezes_fromtol = substr($lekerdezes_fromtol, 0, $hossz);
+                        } else {
+                            $lekerdezes_fromtol = substr($lekerdezes_fromtol, 0);
+                        }
+                    }
+                    // Ha nincs FROM rész, akkor azt még beletesszük
+                    if( !$lekerdezes_fromtol ) {
+                        $lekerdezes_fromtol = ' FROM `'.get_db_tabla().$megnevezes.'` ';
+                    }
+                    
+                }
+                
+                $sql = 'SELECT
+                            `'.get_db_tabla().$megnevezes.'`.`hatalyos` as \'Hatályos\',
+                            `'.get_db_tabla().$megnevezes.'`.`szszam` as \'Szerződés szám\',
+                            `'.get_db_tabla().$megnevezes.'`.`verzio` as \'Szerződés verzió\',
+                            `'.get_db_tabla().$megnevezes.'`.`sztipus` as \'Szerződés típus\',
+                            `'.get_db_tabla().$megnevezes.'`.`kelte_dt` as \'Kelte\',
+                            `'.get_db_tabla().$megnevezes.'`.`szallito_id` as \'Szerződő partner\',
+                            `'.get_db_tabla().$megnevezes.'`.`targy` as \'Tárgy\',
+                            `'.get_db_tabla().$megnevezes.'`.`kolt_vis` as \'Költségviselő\',
+                            `'.get_db_tabla().$megnevezes.'`.`erv_dt` as \'Érvényesség kezdete\',
+                            `'.get_db_tabla().$megnevezes.'`.`bef_dt` as \'Érvényesség vége\',
+                            `'.get_db_tabla().$megnevezes.'`.`kcs_21` as \'Pénznem\',
+                            `'.get_db_tabla().$megnevezes.'`.`szlafizhi` as \'Számla fizetési határidő\',
+                            `'.get_db_tabla().$megnevezes.'`.`dev_net` as \'Deviza nettó\',
+                            `'.get_db_tabla().$megnevezes.'`.`arfolyam` as \'Árfolyam\',
+                            `'.get_db_tabla().$megnevezes.'`.`netto` as \'Nettó érték\',
+                            `'.get_db_tabla().$megnevezes.'`.`alairva_dt` as \'Aláírva\',
+                            `'.get_db_tabla().$megnevezes.'`.`felmondas` as \'Felmondás\',
+                            `'.get_db_tabla().$megnevezes.'`.`nullas` as \'Érték nélküli szerződés\',
+                            `'.get_db_tabla().$megnevezes.'`.`fiz_felt` as \'Fizetési feltétel\',
+                            `'.get_db_tabla().$megnevezes.'`.`p_nev` as \' Szerződő fél kapcsolattartó neve\',
+                            `'.get_db_tabla().$megnevezes.'`.`p_cim` as \' Szerződő fél kapcsolattartó címe\',
+                            `'.get_db_tabla().$megnevezes.'`.`p_tel` as \' Szerződő fél kapcsolattartó telefonszáma\',
+                            `'.get_db_tabla().$megnevezes.'`.`p_beosztas` as \' Szerződő fél kapcsolattartó beosztása\',
+                            `'.get_db_tabla().$megnevezes.'`.`p_email` as \' Szerződő fél kapcsolattartó e-mail címe\',
+                            `'.get_db_tabla().$megnevezes.'`.`p_fax` as \' Szerződő fél kapcsolattartó fax száma\',
+                            `'.get_db_tabla().$megnevezes.'`.`megjegyz` as \'Megjegyzés\'
+                            '.$lekerdezes_fromtol;
+                $query = mysqli_query($db_kapcs, $sql);
+
+                // Nagyobb CSV-kre kérdezzünk rá előzetesen
+                $osszes_sor = mysqli_num_rows($query);
+                if( !$_GET['mehet'] && $osszes_sor>CSV_EXPORT_LIMIT ) {
+                    $gomb = '<input type="button" class="gomb zold" value="Igen" onclick="$(\'#navGombok .excel\').attr(\'onclick\', \'csv_general( this, \\\'\\\', \\\'&mehet=1\\\');\'); $(\'.navGombok a.excel\').click();"> <input type="button" class="gomb piros" value="Nem" onclick="alert2()">';
+                    echo json_encode(array('hiba' => 'A CSV export több mint '.number_format(CSV_EXPORT_LIMIT, 0, '', ' ').' sort tartalmaz. Ennek előállítása hosszabb időbe telik majd.<br>Biztosan folytatja?', 'gomb' => $gomb));
+                    $weblap -> leallit();
+                    exit;
+                } else {
+                    $sql .= $_SESSION['akt_sql_order'];    
+                }
+
+                $query      = mysqli_query($db_kapcs, $sql);
+
+                $csvhead    = array();
+                while($fejlec_nevek = mysqli_fetch_field($query)){
+                    $csvhead[] = iconv2($mibol, $mibe, $fejlec_nevek -> name );
+                }
+                fputcsv($open, $csvhead, ';');
+
+                
+                $datum_mezok = array('Kelte', 'Érvényesség kezdete', 'Érvényesség vége', 'Számla fizetési határidő', 'Aláírva', 'Számla várh. érk.', 'Teljesítés');
+                $szam_mezok  = array('Deviza nettó', 'Árfolyam', 'Nettó érték');
+
+                $i = 0;
+                while ( $sorok = mysqli_fetch_assoc($query) ) {
+
+                    $csvcont = array();
+                    foreach( $sorok as $kulcs => $sor ) {
+
+                        if( $kulcs == 'Szerződő partner' ) {
+                            $sor = getErtek('nev', 'szallito', 'id', $sor);
+                        }
+                        if( $kulcs == 'Költségviselő' ) {
+                            $sor = erteklista(ERTEKLISTA_KOLTSEGVISELO, $sor);
+                        }
+                        if( $kulcs == 'Pénznem' ) {
+                            $sor = erteklista(ERTEKLISTA_PENZNEM, $sor);
+                        }
+                        if( $kulcs == 'Szerződés típus' ) {
+                            foreach ( $select_szerzodes_tipus as $tipus ) {
+                                if ( $sor == $tipus['value'] ) {
+                                    $sor = $tipus['name'];
+                                }
+                            }
+                        }
+
+                        if( $kulcs == 'Hatályos' || $kulcs == 'Érték nélküli szerződés' ) {
+                            if( $sor ) {
+                                $sor = 'igen';
+                            } else {
+                                $sor = 'nem';
+                            }
+                        }
+                        
+                        // Dátumok és számok formázása
+                        if( in_array($kulcs, $datum_mezok) ) {
+                            $sor = datum_kiir($sor);
+                        }
+                        if( in_array($kulcs, $szam_mezok) ) {
+                            $sor = str_replace('.', ',', $sor);
+                        }
+                        
+                        $csvcont[] = iconv($mibol, $mibe.'//TRANSLIT', strip_tags( htmlspecialchars_decode( $sor ) ) );
+                    }
+
+                    fputcsv($open, $csvcont, ';');
+
+                    // 1000 soronként kiíratunk
+                    if( $i % 1000 == 0 && $i > 0 ) {
+                        // Progress
+                        echo json_encode(array('pr' => number_format(($i / $osszes_sor) * 100, 0, '', ''))).PHP_EOL;
+
+                        // Felszabadítás
+                        ob_flush();
+                        flush();
+                    }
+
+                    $i++;
+                }
+
+            }
+        }
+        
+        // Progress
+        echo json_encode(array('pr' => '100')).PHP_EOL;
+
+        // Felszabadítás
+        ob_flush();
+        flush();
+
+    }
+
+    csv_export_lezar($fh, $filename, $csv_neve);
+}
+
 
 
 

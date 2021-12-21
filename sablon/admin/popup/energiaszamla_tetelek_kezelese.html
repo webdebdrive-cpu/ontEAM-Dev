@@ -409,7 +409,7 @@ function tetel_hozzaadasa() {
         return false;
     }*/
     
-    if( !$('#pop_menny').val() || $('#pop_menny').val()=='0,0000' ) {
+    if( !nullas && ( !$('#pop_menny').val() || $('#pop_menny').val()=='0,0000' ) ) {
         alert2('Kérem adja meg a mennyiséget!', '', 'Hiba');
         $('#pop_menny').addClass('hibas_ide_focus');
         return false;

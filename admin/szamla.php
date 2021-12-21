@@ -41,6 +41,15 @@ if( isset($_POST['szamla_athelyez']) ) {
     $db_error = false;
     mysqli_autocommit($db_kapcs, false);
     
+    if( !_jog(ANDOC_SZAMLAK_SZETOSZTASA) ) {
+        echo json_encode(array(
+            'hiba'  => 'Önnek nincs joga számlákat szétosztani!',
+            'title' => 'Hiba'
+        ));
+        $weblap->leallit();
+        exit();
+    }
+    
     // Melyik táblába kell küldeni
     switch ($_POST['tipus']) {
         case 'fenntartas': $tabla = 'fenntartasi_szamla_atmeneti'; break;
@@ -228,19 +237,19 @@ require_once('selectek.php');
     // Táblázat gombjai
     } else if( isset($_GET['tablazat']) ) {
         
-        if( _jog(JOG_FENNTARTASI_SZAMLAK_KEZEL) ) {
+        if( _jog(ANDOC_SZAMLAK_SZETOSZTASA) ) {
             $gombok .= '<input type="button" class="gomb" value="Fenntartás" onclick="szamla_athelyez(\'fenntartas\')"> ';
         }
-        if( _jog(JOG_ANYAG_SZAMLAK_KEZEL) ) {
+        if( _jog(ANDOC_SZAMLAK_SZETOSZTASA) ) {
             $gombok .= '<input type="button" class="gomb" value="Energia" onclick="szamla_athelyez(\'energia\')"> ';
         }
-        if( _jog(JOG_ENERGIA_SZAMLAK_KEZEL) ) {
+        if( _jog(ANDOC_SZAMLAK_SZETOSZTASA) ) {
             $gombok .= '<input type="button" class="gomb" value="Anyag" onclick="szamla_athelyez(\'anyag\')"> ';
         }
-        if( _jog(JOG_PRSZAMLAK_KEZEL) || _jog(JOG_PR_SAJAT_SZAMLA_KEZEL) ) {
+        if( _jog(ANDOC_SZAMLAK_SZETOSZTASA) ) {
             $gombok .= '<input type="button" class="gomb" value="Projekt" onclick="szamla_athelyez(\'projekt\')"> ';
         }
-        if( (_jog(JOG_FENNTARTASI_SZAMLAK_KEZEL) || _jog(JOG_ANYAG_SZAMLAK_KEZEL) || _jog(JOG_ENERGIA_SZAMLAK_KEZEL) || _jog(JOG_PRSZAMLAK_KEZEL) || _jog(JOG_PR_SAJAT_SZAMLA_KEZEL) ) ) {
+        if( _jog(ANDOC_SZAMLAK_SZETOSZTASA) ) {
             $gombok .= '<input type="button" class="gomb piros" value="Nem műszaki számla" onclick="nem_muszaki_szamla()"> ';
         }
 
@@ -507,7 +516,11 @@ function xml_vissza( $szamla_id ) {
     
     // Válasz XML postolása CSAK éles és Teszt környezetben van
     if( eles_es_teszt_rendszer_e() ) {
-        $valasz = URL_post(ANDOC_POST_KULD_URL, $valasz_xml, $fejlec);
+        if( eles_rendszer_e() ) {
+            $valasz = URL_post(ANDOC_POST_KULD_URL_ELES, $valasz_xml, $fejlec);
+        } else {
+            $valasz = URL_post(ANDOC_POST_KULD_URL_TESZT, $valasz_xml, $fejlec);
+        }
     } else {
         $valasz_xml = '
 ***Csak Éles és Teszt rendszerben küldjük el az XML-t valójában!***

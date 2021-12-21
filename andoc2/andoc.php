@@ -116,21 +116,37 @@ class ServerClass {
         $apa_recid_oszlop = $tabla.'_recid';
         
         // Azt, hogy ez insert vagy update lesz, azt már itt el kell dönteni, hisz update esetén nem kötelezőek a mezők!
-        $szamla_db = $adatbazis_kapcsolat->s2('recid erk_xml tetel_db sztornozva_dt utalvanyozva_dt', $tabla, "`andoc_id`='{$andoc_id}'");
+        $szamla_db = $adatbazis_kapcsolat->s2('recid erk_xml tetel_db sztornozva_dt utalvanyozva_dt igazolva_dt', $tabla, "`andoc_id`='{$andoc_id}'");
         if( $szamla_db === false ) { $db_error = true; }
+
+        // Ha létezik a számla az éles táblában, akkor sima ügy, azt kell updatelni
         if( $szamla_db['recid'] ) {
             $insert_update = 'update';
-        // Insert esetén mindig az Andoc számlák közé kerül be a számla ($tabla = 'szamla'),
-        // innen osztják majd szét ontEAM felületen a megfelelő modulba
+
         } else {
             
-            // Ha nem ismert az Andoc azonosító, de van 'Kifizetett összeg' adatunk,
-            // akkor ez egy update lett volna, de nem sikerült beazonosítani
-            if( $szamla_adatok['Kifizetett összeg'] ) {
-                Throw new SOAPFault ('Server', 'Nem azonosítható be az Andoc azonosító, így a kifizetés nem lehetséges!');
+            // Ha nem ismert az Andoc azonosító, akkor lehet, hogy adott tábla átmenetijében van, nézzük meg így:
+            $atmenetiben_van = $adatbazis_kapcsolat->s2('recid', $tabla.'_atmeneti', "`andoc_id`='{$andoc_id}'");
+            if( $atmenetiben_van === false ) { $db_error = true; }
+
+            // Ha az átmeneti táblában volt, akkor maradunk update üzemmódban, de most már az átmeneti táblába fogunk dolgozni
+            if( $atmenetiben_van['recid'] ) {
+                
+                $insert_update = 'update';
+            
+            // Ha adott modul átmeneti táblájában sincs, akkor Insert.
+            // Insert esetén mindig az Andoc számlák közé kerül be a számla ($tabla = 'szamla'),
+            // innen osztják majd szét ontEAM felületen a megfelelő modulba
+            } else {
+                // Ha nem ismert az Andoc azonosító, de van 'Kifizetett összeg' adatunk,
+                // akkor ez egy update lett volna, de nem sikerült beazonosítani
+                if( $szamla_adatok['Kifizetett összeg'] ) {
+                    Throw new SOAPFault ('Server', 'Nem azonosítható be az Andoc azonosító, így a kifizetés nem lehetséges!');
+                }
+                $insert_update = 'insert';
+                $tabla         = 'szamla';
             }
-            $insert_update = 'insert';
-            $tabla         = 'szamla';
+
         }
 
         // Újabban nincs törlés funkció
@@ -186,8 +202,6 @@ class ServerClass {
                 if( !trim($szamla_adatok['Partner száma']) ) {
                     Throw new SOAPFault ('Server', 'Hiányzó szállító!');
                 }
-                // szallito_id esetén fontos, hogy meglegyenek a kezdő 0-k
-                $szallito_id = sprintf('%05d', $szamla_adatok['Partner száma']);
 
                 if( !valos_datum_e($szamla_adatok['Teljesítés dátuma']) ) {
                     Throw new SOAPFault ('Server', 'Helytelen teljesítés dátum!');
@@ -244,9 +258,16 @@ class ServerClass {
                 if( $szamla_adatok['Fizetési határidő'] && !valos_datum_e($szamla_adatok['Fizetési határidő']) ) {
                     Throw new SOAPFault ('Server', 'Helytelen fizetési határidő!');
                 }
-                // Ha nincs kifizetett összeg adatunk, tehát ha nem kifizetésről van szó,
+                
+                // Ha a számla sztornózott állapotban van, akkor már nem lehet kifizetést csinálni rá
+                if( $szamla_adatok['Kifizetett összeg'] && $szamla_db['sztornozva_dt'] && $szamla_db['sztornozva_dt'] != '0000-00-00 00:00:00' ) {
+                    Throw new SOAPFault ('Server', 'A számla már sztornózva van, így nem lehet kifizetni!');
+                }
+                
+                // Ha NINCS kifizetett összeg adatunk, tehát ha nem kifizetésről van szó,
                 // akkor sima számla update-ről van szó, és ekkor pár mező kötelező
                 if( !$szamla_adatok['Kifizetett összeg'] ) {
+                    
                     if( !trim($szamla_adatok['Fizetés módja']) ) {
                         Throw new SOAPFault ('Server', 'Hiányzó fizetési mód!');
                     }
@@ -258,12 +279,15 @@ class ServerClass {
                     if( !trim($szamla_adatok['Pénznem']) ) {
                         Throw new SOAPFault ('Server', 'Hiányzó pénznem!');
                     }
-                }
-                // szallito_id esetén fontos, hogy meglegyenek a kezdő 0-k
-                if( $szamla_adatok['Partner száma'] ) {
-                    $szallito_id = sprintf('%05d', $szamla_adatok['Partner száma']);
+                    
                 }
             }
+            // Az adatbázisban fontos, hogy a kezdő 0-ák meglegyenek, ezzel fogunk a későbbiekben dolgozni
+            // A $szamla_adatok['Partner száma']-t viszont ne bántsuk, hogy el tudjuk később dönteni, hogy volt-e benne érték vagy sem.
+            if( $szamla_adatok['Partner száma'] ) {
+                $szallito_id = sprintf('%05d', $szamla_adatok['Partner száma']);
+            }
+            
             // Foglalt iktatószám ellenőrzése
             if( $szamla_adatok['Danubius azonosító'] ) {
                 // Átmeneti táblában
@@ -377,6 +401,10 @@ class ServerClass {
             if( mb_strtolower($szamla_adatok['Utalványozó döntés'], self::CHAR_CODING) == 'utalványozva' ) {
                 $utalvanyozva = '1';
             }
+            // Ha a számla sztornózott állapotban van, akkor ne lehessen utalványozni
+            if( $szamla_adatok['Utalványozó döntés'] && $szamla_db['sztornozva_dt'] && $szamla_db['sztornozva_dt'] != '0000-00-00 00:00:00' ) {
+                Throw new SOAPFault ('Server', 'A számla már sztornózva van, így nem lehet utalványozni!');
+            }
 
             // Elutasítás leírása + Utalványozás leírása egyben
             $elutleir = trim($szamla_adatok['Teljesítés igazolás elutasítás oka'].' '.$szamla_adatok['Utalványozás elutasítás oka']);
@@ -428,40 +456,60 @@ class ServerClass {
             if( $kolt_vis                                           ) { array_push($mezok, 'kolt_vis'       ); array_push($ertekek, $kolt_vis);                                     }
             if( $fizmod                                             ) { array_push($mezok, 'fizmod'         ); array_push($ertekek, $fizmod);                                       }
 
-            // Ha az átmeneti táblában volna a számla, akkor előbb töröljük
-            $atmenetiben_van = $adatbazis_kapcsolat->s2('recid', $tabla.'_atmeneti', "`andoc_id`='{$andoc_id}'");
-            if( $atmenetiben_van === false ) { $db_error = true; }
+            // Ha a nagy átmeneti táblában volna a számla, akkor előbb töröljük
+            if( $tabla == 'szamla' ) {
+                $atmenetiben_van = $adatbazis_kapcsolat->s2('recid', $tabla.'_atmeneti', "`andoc_id`='{$andoc_id}'");
+                if( $atmenetiben_van === false ) { $db_error = true; }
 
-            if( $atmenetiben_van ) {
-                $sql = $adatbazis_kapcsolat->d($tabla.'_atmeneti', "`andoc_id`='{$andoc_id}'");
-                if( $sql === false ) { $db_error = true; }
-                // Az új közös nagy átmeneti táblának nincsenek tételei
-//                $sql = $adatbazis_kapcsolat->d($tabla.'_tetel_atmeneti', "`{$tabla}_recid`='{$atmenetiben_van['recid']}'");
-//                if( $sql === false ) { $db_error = true; }
+                if( $atmenetiben_van ) {
+                    $sql = $adatbazis_kapcsolat->d($tabla.'_atmeneti', "`andoc_id`='{$andoc_id}'");
+                    if( $sql === false ) { $db_error = true; }
+                }
             }
             
-            $elesben_van = $adatbazis_kapcsolat->s2('recid igazolva_dt', $tabla, "`andoc_id`='{$andoc_id}'");
-            $aparecid    = $elesben_van['recid'];
-            if( $aparecid === false ) { $db_error = true; }
+            $aparecid = $szamla_db['recid'];
 
-            // Insert
+            // Ha nincs $aparecid, akkor ez azt jelenti, hogy a számla nincs benne az éles táblában.
+            // Ekkor két eset lehet: benne van az adott modul átmeneti táblájában (ekkor update állapotban vagyunk),
+            // vagy még az átmenetiben nincs, ekkor Insert módban vagyunk
             if( !$aparecid ) {
 
-                $return_uzi = 'beszúrva';
-                $szamla_xml = "*** ÚJ SZÁMLA ***\n".$szamla_xml;
+                // Adott modul átmeneti táblájában van a száml, ezt kell updatelni
+                if( $insert_update == 'update' ) {
+                    
+                    $return_uzi = 'beszúrva';
+                    $szamla_xml = "*** SZÁMLA UPDATE (átmeneti) ***\n".$szamla_xml;
+                    // Update esetén erk_xml-t meg kell toldani
+                    $szamla_db['erk_xml'] = $szamla_xml.htmlspecialchars_decode($szamla_db['erk_xml']);
 
-                // Insertnél kell az andoc_id is
-                array_push($mezok,     'erk_xml',   'andoc_id', 'insert_usr',  'update_usr',   'insert_dt'  );
-                array_push($ertekek,   $szamla_xml, $andoc_id,  self::IU_USER,  self::IU_USER, 'NOW()'      );
-                $aparecid = $adatbazis_kapcsolat->i($tabla.'_atmeneti', $mezok, $ertekek);
-                if( $aparecid === false ) { $db_error = true; }
-//Throw new SOAPFault ('Server', $adatbazis_kapcsolat->gp());
+                    array_push($mezok,   'erk_xml',             'update_usr'    );
+                    array_push($ertekek, $szamla_db['erk_xml'], self::IU_USER   );
+                    
+                    $sql = $adatbazis_kapcsolat->u($tabla.'_atmeneti', $mezok, $ertekek, "`andoc_id`='{$andoc_id}'");
+                    if( $sql === false ) { $db_error = true; }
+                    
+                // Andoc nagy átmeneti táblájába szúrjuk be
+                } else {
+                    
+                    $return_uzi = 'módosítva';
+                    $szamla_xml = "*** ÚJ SZÁMLA ***\n".$szamla_xml;
 
-            // Update
-            } else {
+                    // Insertnél kell az andoc_id is
+                    if( $andoc_id ) {
+                        array_push($mezok,     'erk_xml',   'andoc_id', 'insert_usr',  'update_usr',   'insert_dt'  );
+                        array_push($ertekek,   $szamla_xml, $andoc_id,  self::IU_USER,  self::IU_USER, 'NOW()'      );
+                        $aparecid = $adatbazis_kapcsolat->i($tabla.'_atmeneti', $mezok, $ertekek);
+                        if( $aparecid === false ) { $db_error = true; }
+// Throw new SOAPFault ('Server', $adatbazis_kapcsolat->gp());
+                    }
+                    
+                }
                 
+            // Update, éles táblát updatelünk
+            } else {
+
                 // Ha a számla még nincs igazolva, akkor addig nem updatelhető
-                if( $elesben_van['igazolva_dt']=='0000-00-00 00:00:00' ) {
+                if( $szamla_db['igazolva_dt']=='0000-00-00 00:00:00' ) {
                     Throw new SOAPFault ('Server', 'A számla nincs igazolva, így az nem módosítható még!');
                 }
 
@@ -473,7 +521,7 @@ class ServerClass {
                 } else if( $szamla_adatok['Utalványozó döntés'] ) {
                     $szamla_xml = "*** UTALVÁNYOZOTT SZÁMLA ***\n".$szamla_xml;
                 } else {
-                    $szamla_xml = "*** SZÁMLA UPDATE ***\n".$szamla_xml;
+                    $szamla_xml = "*** SZÁMLA UPDATE (éles) ***\n".$szamla_xml;
                 }
                 
                 // Update esetén erk_xml-t meg kell toldani
@@ -516,18 +564,20 @@ class ServerClass {
                             $telj_mezo      = 'telj_dt';
                         }
                         
-                        
-                        $tetelek = $adatbazis_kapcsolat->s($tabla.'_recid', $tabla.'_tetel', "`{$tabla}_recid`='{$szamla_db['recid']}'");
+                        $szerzodes_tabla = str_replace('szamla', 'szerzodes', $tabla);
+                        $tetelek = $adatbazis_kapcsolat->s($szerzodes_tabla.'_tetel_recid', $tabla.'_tetel', "`{$tabla}_recid`='{$szamla_db['recid']}'");
                         if( $tetelek === false ) { $db_error = true; }
+                        
                         foreach ( $tetelek as $tetel ) {
-                            $sql = $adatbazis_kapcsolat->u($tabla.'_tetel', array($netto_mezo, $dev_netto_mezo, $telj_mezo  ),
-                                                                            array('0',         '0.00',          '0000-00-00'),
-                                                                            "`recid`='{$tetel[$tabla.'_recid']}'");
+                            $sql = $adatbazis_kapcsolat->u($szerzodes_tabla.'_tetel',   array($netto_mezo, $dev_netto_mezo, $telj_mezo  ),
+                                                                                        array('0',         '0.00',          '0000-00-00'),
+                                                                                        "`recid`='{$tetel[$szerzodes_tabla.'_tetel_recid']}'");
                             if( $sql === false ) { $db_error = true; }
                         }
+
                         //... illetve a kapcsolást szintén töröljük a számla tételeknél
-                        $sql = $adatbazis_kapcsolat->u($tabla.'_tetel', array($tabla.'_recid'),
-                                                                        array('0'            ),
+                        $sql = $adatbazis_kapcsolat->u($tabla.'_tetel', array($szerzodes_tabla.'_tetel_recid'),
+                                                                        array('0'                            ),
                                                         "`{$tabla}_recid`='{$szamla_db['recid']}'");
                         if( $sql === false ) { $db_error = true; }
                         
@@ -556,20 +606,28 @@ class ServerClass {
                         }
                     }
                     
+                    // Megjegyzésbe is kerüljön be az indoklás
+                    if( addMegj($tabla, $szamla_db['recid'], 'Utalványozás elutasítva.<br>Indoklás: '.nl2br2($szamla_adatok['Utalványozás elutasítás oka'])) === false ) {
+                        $db_error = true;
+                    }
+
                 }
 
                 $sql = $adatbazis_kapcsolat->u($tabla, $mezok, $ertekek, "`andoc_id`='{$andoc_id}'");
                 if( $sql === false ) { $db_error = true; }
                 
-                // Ha NEM kifizetésről van szó, és a számla az ontEAM oldalon sztornó állapotban van, akkor töröljük a történetből a feldolgozás, igazolás, utalványozás, sztornó sorok adatait, illetve a tételeknél minden tétel a változott érték legyen nullázva
+                // Ha NEM kifizetésről van szó, és a számla az ontEAM oldalon sztornó állapotban van, akkor töröljük a történetből a feldolgozás, igazolás, utalványozás, sztornó sorok adatait
                 if( !$szamla_adatok['Kifizetett összeg'] && $szamla_db['sztornozva_dt'] != '0000-00-00 00:00:00' ) {
                     $sql = $adatbazis_kapcsolat->u($tabla,  array('feldolgozva_dt',      'feldolgozva_usr', 'igazolva', 'igazolva_dt',         'igazolva_usr', 'utalvanyozva', 'utalvanyozva_dt',     'utalvanyozva_usr', 'sztornozva_dt',       'sztornozva_usr', 'sztornozva_leir', 'elutleir'),
                                                             array('0000-00-00 00:00:00', '',                '0',        '0000-00-00 00:00:00', '',             '0',            '0000-00-00 00:00:00', '',                 '0000-00-00 00:00:00', '',               '',                ''        ),
                                                         "`andoc_id`='{$andoc_id}'");
                     if( $sql === false ) { $db_error = true; }
                     
-                    // Tételek változtak update: ez azért kell, hogy újraindítás után küldés igazolásra popoupban benne legyen az összes tétel
-                    $sql = $adatbazis_kapcsolat->u($tabla.'_tetel', array('valtozott'), array(1), "`{$tabla}_recid`='{$aparecid}'");
+                    // Illetve ilyenkor minden tételénél a változott értéket 1-re állítjuk, hogy igazolásra küldéskor a popupban benne legyenek a tételek
+                    $sql = $adatbazis_kapcsolat->u($tabla.'_tetel',
+                                                                    array('valtozott'),
+                                                                    array('1'),
+                                                                "`{$tabla}_recid`='{$aparecid}'");
                     if( $sql === false ) { $db_error = true; }
                 }
             }
@@ -720,7 +778,7 @@ class ServerClass {
 //                }
 //            }
 
-            // Partner insert/update
+            // Partner insert/update ha az eredeti 'Partner száma' mezőnek volt értéke
             if( $szamla_adatok['Partner száma'] ) {
                 $mezok   = array();
                 $ertekek = array();
@@ -750,12 +808,14 @@ class ServerClass {
                     array_push($ertekek, $szamla_adatok['Partner adószám'] );
                 }
                 
-                $partner = $adatbazis_kapcsolat->s2('id', 'szallito', "`id`='{$szamla_adatok['Partner száma']}'");
+                // Ha sikerült beazonosítani a parntert a kapott számmal, akkor update
+                $partner = $adatbazis_kapcsolat->s2('id', 'szallito', "`id`='{$szallito_id}'");
                 if( $partner ) {
-                    $adatbazis_kapcsolat->u('szallito', $mezok, $ertekek, "`id`='{$szamla_adatok['Partner száma']}'");
+                    $adatbazis_kapcsolat->u('szallito', $mezok, $ertekek, "`id`='{$szallito_id}'");
+                // Egyébként...
                 } else {
-                    array_push($mezok,   'id'                           );
-                    array_push($ertekek, $szamla_adatok['Partner száma']);
+                    array_push($mezok,   'id'           );
+                    array_push($ertekek, $szallito_id   );
                     $adatbazis_kapcsolat->i('szallito', $mezok, $ertekek);
                 }
             }
@@ -1046,8 +1106,11 @@ class ServerClass {
             $hatalyos = '1';
         }
         
-        // szallito_id esetén fontos, hogy meglegyenek a keződ 0-k
-        $szallito_id = sprintf('%05d', $szerzodes_adatok['Partner száma']);
+        // Az adatbázisban fontos, hogy a kezdő 0-ák meglegyenek, ezzel fogunk a későbbiekben dolgozni
+        // A $szerzodes_adatok['Partner száma']-t viszont ne bátsuk, hogy el tudjuk később dönteni, hogy volt-e benne érték vagy sem.
+        if( $szerzodes_adatok['Partner száma'] ) {
+            $szallito_id = sprintf('%05d', $szerzodes_adatok['Partner száma']);
+        }
 
         // Ha az alapvető adatokon nem akadtunk fenn, akkor szúrjuk be vagy updateljük a szerződést, attól föggően, hogy az Andok azonsoító ismert-e.
         // Ehhez az első lépés, a mező/érték párokat beállítani.
@@ -1118,7 +1181,7 @@ class ServerClass {
             // Update esetén erk_xml-t meg kell toldani
             $sor = $adatbazis_kapcsolat->s2('erk_xml', $tabla, "`andoc_id`='{$andoc_id}'");
             if( $sor === false ) { $db_error = true; }
-            $sor['erk_xml'] = htmlspecialchars_decode($sor['erk_xml']).$szerzodes_xml;
+            $sor['erk_xml'] = $szerzodes_xml.htmlspecialchars_decode($sor['erk_xml']);
 
             array_push($mezok,     'erk_xml',       'update_usr'    );
             array_push($ertekek,   $sor['erk_xml'], self::IU_USER   );
@@ -1129,7 +1192,7 @@ class ServerClass {
         }
 // Throw new SOAPFault ('Server', $adatbazis_kapcsolat->gp());
         // Itt jönnek a tételek importja, de Andoc szerződéseknél nincsenek tételek
-        // Partner insert/update
+        // Partner insert/update, ha az eredeti 'Partner száma' adatban volt értéke
         if( $szerzodes_adatok['Partner száma'] ) {
             $mezok   = array();
             $ertekek = array();
@@ -1160,12 +1223,12 @@ class ServerClass {
                 array_push($ertekek, $szerzodes_adatok['Partner adószám'] );
             }
 
-            $partner = $adatbazis_kapcsolat->s2('id', 'szallito', "`id`='{$szerzodes_adatok['Partner száma']}'");
+            $partner = $adatbazis_kapcsolat->s2('id', 'szallito', "`id`='{$szallito_id}'");
             if( $partner ) {
-                $adatbazis_kapcsolat->u('szallito', $mezok, $ertekek, "`id`='{$szerzodes_adatok['Partner száma']}'");
+                $adatbazis_kapcsolat->u('szallito', $mezok, $ertekek, "`id`='{$szallito_id}'");
             } else {
-                array_push($mezok,   'id'                              );
-                array_push($ertekek, $szerzodes_adatok['Partner száma']   );
+                array_push($mezok,   'id'           );
+                array_push($ertekek, $szallito_id   );
                 $adatbazis_kapcsolat->i('szallito', $mezok, $ertekek);
             }
         }

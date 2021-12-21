@@ -60,7 +60,7 @@ function get_url_elotag() {
     $konyvtar = dirname(self());
     switch ( $_SERVER['HTTP_HOST'] ) {
         case 'localhost'            : return 'localhost/';
-        case 'demo.webdeb.hu'       : return 'http://demo.webdeb.hu/danubiushotel.hu'.$konyvtar.'/';
+        case 'demo.webdeb.hu'       : return 'http://demo.webdeb.hu'.$konyvtar.'/';
         case 'demo.szinvatrend.hu'  : return 'https://demo.szinvatrend.hu'.$konyvtar.'/';
         case 'teszt.onteam.hu'      : return 'https://teszt.onteam.hu'.$konyvtar.'/';
         case 'dev.onteam.hu'        : return 'https://dev.onteam.hu'.$konyvtar.'/';
@@ -167,7 +167,15 @@ function get_teszt_mail_nev(){ return 'WebDeb Teszt';                           
 function get_web_charset()   { return 'UTF-8';                                  }
 
 function eles_es_teszt_rendszer_e() {
-    if( $_SERVER['HTTP_HOST'] == 'www.onteam.hu' || $_SERVER['HTTP_HOST'] == 'teszt.onteam.hu' ) {
+    if( $_SERVER['HTTP_HOST'] == 'onteam.hu' || $_SERVER['HTTP_HOST'] == 'www.onteam.hu' || $_SERVER['HTTP_HOST'] == 'teszt.onteam.hu' ) {
+        return true;
+    } else {
+        return false;
+    }
+}
+
+function eles_rendszer_e() {
+    if( $_SERVER['HTTP_HOST'] == 'onteam.hu' || $_SERVER['HTTP_HOST'] == 'www.onteam.hu' ) {
         return true;
     } else {
         return false;

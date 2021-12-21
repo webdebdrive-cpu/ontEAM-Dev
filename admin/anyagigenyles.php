@@ -1563,13 +1563,13 @@ if( isset($_POST['rendeles_keszit']) ) {
 }
 
 // Anyagigénylés érkeztetése
-if (isset($_POST['anyagigenyles_erkeztet'])) {
+if( isset($_POST['anyagigenyles_erkeztet']) ) {
 
     // Rendelésszám lekérdezése
-    if($_POST['rsz']){
+    if( $_POST['rsz'] ) {
 
         $recid = $adatbazis_kapcsolat->s2('recid', 'cikkrendfej', "`rndid`='{$_POST['rsz']}'");
-        if(!$recid){
+        if( !$recid ) {
             echo json_encode(array(
                 'hiba'  => 'Nincs ilyen rendelésszám az anyagigénylés naplóban!',
                 'title' => 'Hiba',
@@ -1578,7 +1578,7 @@ if (isset($_POST['anyagigenyles_erkeztet'])) {
             $weblap->leallit();
             exit();
         }
-        if($adatbazis_kapcsolat->s('recid', 'cikkrendfej', "`rndid`='{$_POST['rsz']}' AND `stat_id`>'".CIKKIGN_STAT_RESZBENBEERK."'")){
+        if( $adatbazis_kapcsolat->s('recid', 'cikkrendfej', "`rndid`='{$_POST['rsz']}' AND `stat_id`>'" . CIKKIGN_STAT_RESZBENBEERK . "'") ) {
             echo json_encode(array(
                 'hiba'  => 'Ehhez a megrendeléshez már rögzítve vannak a beérkezett mennyiségek!',
                 'title' => 'Hiba',
@@ -1664,34 +1664,34 @@ if (isset($_POST['anyagigenyles_erkeztet'])) {
     }
 
     // Anyagigénylés érkeztetésének feldolgozása
-    if($_POST['idk']){
+    if( $_POST['idk'] ) {
         // Tranzakció indul
         $db_error = false;
         mysqli_autocommit($db_kapcs, false);
 
         $adatok = explode('|', $_POST['idk']);
-        foreach($adatok as $adat){
+        foreach ( $adatok as $adat ) {
             list($id, $erkmen, $nemfogerk) = explode('#', $adat);
-            //Ha nincs ID, nem is csinálunk semmit
-            if($id){
+            // Ha nincs ID, nem is csinálunk semmit
+            if( $id ) {
 
                 $anyagigenyles = $adatbazis_kapcsolat->s2('*', 'anyagigenyles', "`recid`='{$id}'");
-                if($anyagigenyles===false){ $db_error = false; }
+                if( $anyagigenyles===false ){ $db_error = false; }
 
                 $marerkmen = $anyagigenyles['erkmen'];
                 $rndmen    = $anyagigenyles['rndmen'];
                 // Ha marerkmen+erkmen=0 ÉS nemfogerk=1 AKKOR statid=CIKKIGN_STAT_NEM_ERKEZETT
-                if( ($marerkmen+$erkmen==0 || $marerkmen+$erkmen==0.00) && $nemfogerk){
+                if( ($marerkmen + $erkmen == 0 || $marerkmen + $erkmen == 0.00) && $nemfogerk ) {
                     $statusz = addStatusz( 'anyagigenyles_statusz', $id, CIKKIGN_STAT_NEM_ERKEZETT );
                     if( $statusz === false ) { $db_error = true; }
 
                 // Ha marerkmen+erkmen>=rndmen VAGY (marerkmen+erkmen>0 ÉS nemfogerk=1), AKKOR statid=CIKKIGN_STAT_BEERKEZETT
-                }else if( $marerkmen+$erkmen>=$rndmen || ($marerkmen+$erkmen>0 && $nemfogerk) ){
+                }else if( $marerkmen + $erkmen >= $rndmen || ($marerkmen + $erkmen > 0 && $nemfogerk) ) {
                     $statusz = addStatusz( 'anyagigenyles_statusz', $id, CIKKIGN_STAT_BEERKEZETT );
                     if( $statusz === false ) { $db_error = true; }
 
                 // Ha marerkmen+erkmen>0 ÉS marerkmen+erkmen<rndmen ÉS nemfogerk=0 AKKOR statid=CIKKIGN_STAT_RESZBENBEERK
-                }elseif( $marerkmen+$erkmen>0 && $marerkmen+$erkmen<$rndmen && !$nemfogerk){
+                }elseif( $marerkmen + $erkmen > 0 && $marerkmen + $erkmen < $rndmen && !$nemfogerk ) {
                     $statusz = addStatusz( 'anyagigenyles_statusz', $id, CIKKIGN_STAT_RESZBENBEERK  );
                     if( $statusz === false ) { $db_error = true; }
                 }
@@ -1700,12 +1700,12 @@ if (isset($_POST['anyagigenyles_erkeztet'])) {
                 $uj_erkmen = $marerkmen+$erkmen;
                 $sql = $adatbazis_kapcsolat -> u('anyagigenyles',   array('erkmen',     'update_usr'                            ),
                                                                     array($uj_erkmen,   $_SESSION[get_db_tabla().'teljes_nev']  ),
-                                                    "`recid`='$id'"
+                                                    "`recid`='{$id}'"
                                                 );
                 if( $sql === false ) { $db_error = true; }
- 
+
                 // Ha erkmen>0 INSERT mozgas                    SET telephely_id=,                           szallito_id=,                cikk_id=,                        cikkmen=erkmen, mozgid=MOZGID_RAKTAR_BE, mozgir=1, rendtetid=recid, update_usr=, insert_usr=, insert_dt=NOW()
-                if($erkmen>0){
+                if( $erkmen > 0 ) {
                     $sql = $adatbazis_kapcsolat->i('mozgas',    array('telephely_id',                 'szallito_id',                 'cikk_id',                  'cikkmen', 'mozgid',          'mozgir', 'rendtetid', 'update_usr',                           'insert_usr',                            'insert_dt' ),
                                                                 array($anyagigenyles['telephely_id'], $anyagigenyles['szallito_id'], $anyagigenyles['cikk_id'],  $erkmen,    MOZGID_RAKTAR_BE,  1,        $id,         $_SESSION[get_db_tabla().'teljes_nev'], $_SESSION[get_db_tabla().'teljes_nev'], 'NOW()'     )
                                                     );
@@ -1717,10 +1717,11 @@ if (isset($_POST['anyagigenyles_erkeztet'])) {
 
         // Ciklus után minden esetben átírjuk cikkrndfej tábla statidet mysql procedúrával: call setcikkrndfejstatid(aparecid,loginuser.nev);
         // WebDeb adatbázisban nem futott le rendesen, itt kiagyjuk
-        if($_SERVER['HTTP_HOST']!='demo.webdeb.hu'){
-            $sql = mysqli_query($db_kapcs, 'call setcikkrndfejstatid('.$anyagigenyles['aparecid'].', \''.$_SESSION[get_db_tabla().'teljes_nev'].'\')');
+        if( $_SERVER['HTTP_HOST'] != 'demo.webdeb.hu' ) {
+            $sql = mysqli_query($db_kapcs, 'call setcikkrndfejstatid('.$anyagigenyles['aparecid'].', \''.$_SESSION[get_db_tabla().'teljes_nev'].'\')') or die(mysqli_error($db_kapcs) );
             if( $sql === false ) { $db_error = true; }
         }
+
 
 
         //Archiválás egy lépésben törétnik, ha minden anyagigénylés sor státusza > 35

@@ -292,7 +292,7 @@
 </div>
 <div class="kuldes">
     <input type="button" class="gomb zold dn pop_mentes_megsem" value="Mentés" onclick="tetel_sorok_ment('bezárás nélkül')">
-    <input type="button" class="gomb kek dn pop_mentes_megsem" value="Mégsem" onclick="megsem_gomb();">
+    <input type="button" class="gomb piros dn pop_mentes_megsem" value="Mégsem" onclick="megsem_gomb();">
 <!--    <input type="button" class="gomb piros escapes_megsem" value="Bezár" onclick="bezar_gomb();">-->
 </div>
 <script>
@@ -495,7 +495,7 @@ function tetel_hozzaadasa() {
                                         '<td class="l pop_ktghely_autocomp">'+ktghely_txt+ '</td>' +
                                         '<td>'+rndid+'</td>' +
                                         /*'<td><a class="szerk" onclick="popup_tetel_sor_szerk(\'pop_tetel_'+id_tmp+'\');">🖉</a></td>' +*/
-                                        '<td><a onclick="popup_tetel_sor_torol(\'pop_tetel_'+id_tmp+'\');"><span class="icon"><i class="material-icons">delete</i></span></a>'+
+                                        '<td><a onclick="popup_tetel_sor_torol(\'pop_tetel_'+id_tmp+'\', \'\', \'-fiktív sor-\');"><span class="icon"><i class="material-icons">delete</i></span></a>'+
                                             '<input type="hidden" class="pop_rndid" name="pop_rndid" value="'+rndid+'">' +
                                             '<input type="hidden" class="pop_rnd_recid" name="pop_rnd_recid" value="'+rnd_recid+'">' +
                                             '<input type="hidden" class="pop_afakod_autocomp" name="pop_afakod_autocomp" value="'+afakod_txt+'">' +
@@ -554,7 +554,7 @@ function tetel_hozzaadasa() {
 }
 
 /* Tétel sor törlése */
-function popup_tetel_sor_torol(sor_id, mehet){
+function popup_tetel_sor_torol(sor_id, mehet, fiktiv_sor = ''){
     
     van_valtozas = true;
     
@@ -562,7 +562,7 @@ function popup_tetel_sor_torol(sor_id, mehet){
     if( !mehet ) {
         alert2( 'Cikktörzs: '    + $('.'+sor_id+' .pop_cikktorzs').html() +'<br>' +
                 'Nettó érték: '  + $('.'+sor_id+' .pop_netto_ert').html() +' ' + akt_penznem + '<br>' +
-                'Biztosan törli a számla tételt?', '<input type="button" class="gomb zold" value="Igen" onclick="popup_tetel_sor_torol(\''+sor_id+'\', \'mehet\'); alert2();"><input type="button" class="gomb piros escapes_megsem" value="Nem" onclick="alert2(); $(\'.torles_elott\').removeClass(\'torles_elott\');">');
+                'Biztosan törli a számla tételt?', '<input type="button" class="gomb zold" value="Igen" onclick="popup_tetel_sor_torol(\''+sor_id+'\', \'mehet\', \''+fiktiv_sor+'\'); alert2();"><input type="button" class="gomb piros escapes_megsem" value="Nem" onclick="alert2(); $(\'.torles_elott\').removeClass(\'torles_elott\');">');
         return false;
     }
     
@@ -570,8 +570,11 @@ function popup_tetel_sor_torol(sor_id, mehet){
     var rnd_recid = $('.'+sor_id+' .pop_rnd_recid').val();
     var rndmen    = $('.'+sor_id+' .pop_rndmen').html();
     /* A hozzaadott_rndrecidk JS tömbből is vegyük ki, hogy a popupon most már újból kiválasztható legyen */
-    torolt_rndrecidk  .push(rnd_recid);
-    torolt_rnd_szlamen.push(rndmen);
+    /* A rendelt mennyiséget nem adjuk újból hozzá, ha csak egy fiktív sort törlünk, hisz így duplán vonnánk ki az értékét, amikor az anyagrendelések számlázott mennyiségét számítjuk ki */
+    if( !fiktiv_sor ) {
+        torolt_rndrecidk  .push(rnd_recid);
+        torolt_rnd_szlamen.push(rndmen);
+    }
     for( var i = 0; i < hozzaadott_rndrecidk.length; i++) {
         if ( hozzaadott_rndrecidk[i] === rnd_recid) { 
             hozzaadott_rndrecidk.splice(i, 1); 
@@ -618,7 +621,7 @@ function popup_tetel_sor_szerk(sor_id){
 }
 
 /* Tétel sor táblázat mentése */
-function tetel_sorok_ment( bezar_nelkul ){
+function tetel_sorok_ment( bezar_nelkul ) {
     
     var recidk = [];
     $('.pop_recid').each(function() {
@@ -738,10 +741,7 @@ function tetel_sorok_ment( bezar_nelkul ){
                     alert2(response.hiba, response.gomb, response.title);
                 } else {
                     
-                    /* Adatlapot csak akkor frissítünk, és popupot csak akkor zárunk ha DB-be is elmentjük */
-                    if( _get('tetel') ){
-                        szamlaBetolt(_get('id'), 'anyag_szamla.php');
-                    }
+                    szamlaBetolt(_get('id'), 'anyag_szamla.php');
                     popupZar();
                     $('#ossz_'+osszeg_mezo).val( response.netto );
                     
