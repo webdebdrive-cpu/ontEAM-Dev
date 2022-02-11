@@ -326,7 +326,7 @@ if( isset($_POST['get_projekt_tabla']) ) {
                 }
                 table.fix_fejlec thead {
                     position: fixed;
-                    margin-top: -7rem;
+                    margin-top: -7.8rem;
                     width: 90%;
                 }
                 table.fix_fejlec thead tr th:nth-of-type(1), table.fix_fejlec tbody tr td:nth-of-type(1) {

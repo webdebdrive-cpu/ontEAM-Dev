@@ -251,7 +251,7 @@ function tetel_sorok_ment(){
     });
     var targy = [];
     $('.pop_targy').each(function() {
-        targy.push( $(this).html() );
+        targy.push( json_spec_karakterek($(this).html()) );
     });
     var varh_erk = [];
     $('.pop_varh_erk').each(function() {
@@ -301,12 +301,12 @@ function tetel_sorok_ment(){
     if( $('#nullas').length ){
         nullas = $('#nullas').prop('checked');
     }
-    
+
     $.ajax({
         url : 'fenntartasi_szerzodes.php',
         type: 'POST',
         data: {
-            adatok                  : JSON.stringify(adatok),
+            adatok                  : JSON.stringify(adatok).replace(/\\"/g, '"'),
             recid                   : _get('id'),
             kcs_21                  : kcs_21,
             torolt_sorok            : torolt_sorok,

@@ -1244,7 +1244,7 @@ function jelszot_keszit($hossz = 10, $karakterek = '1234567890qwertyuiopasdfghjk
 	}
 	return $jelszo;
 }
-$wdbk = array('dWguYmVkYmV3Lm9tZWQ', 'dWguZG5lcnRhdm5penMub21lZA', 'dWgubWFldG5v', 'dWgubWFldG5vLnR6c2V0');
+$wdbk = array('dWguYmVkYmV3Lm9tZWQ', 'dWguZG5lcnRhdm5penMub21lZA', 'dWgubWFldG5v', 'dWgubWFldG5vLnR6c2V0', 'ZGV2Lm9udGVhbS5odQ');
 require_once('config.php');
 $ell_fajl = 'class/html/class.B.php';
 if( basename( dirname(self()) ).'/' == get_admin()){
@@ -1570,32 +1570,30 @@ function level_kuldes( $felado_nev, $felado_mail, $cimzett_nev, $cimzett_mail, $
         $mail -> AltBody  = strip_tags($uzi);
         $mail -> MsgHTML($uzi);
 
-        if(is_array($fajlok)){
-            foreach($fajlok as $fajl){
-                if($fajl['nev'] && $fajl['fajl']){
+        if( is_array($fajlok) ) {
+            foreach ( $fajlok as $fajl ) {
+                if( $fajl['nev'] && $fajl['fajl'] ) {
                     $mail -> AddAttachment($fajl['fajl'], $fajl['nev']);
                 } else {
                     $mail -> AddAttachment($fajl);
                 }
             }
 
-        }elseif($fajlok){
+        } elseif( $fajlok ) {
             $mail -> AddAttachment($fajlok);
         }
 
         if( is_array($cimzett_mail) ) {
             $i = 0;
-            foreach ( $cimzett_mail as $mail ) {
+            foreach ( $cimzett_mail as $akt_mail ) {
 
                 // A második címzett már rejtve kapja meg
                 if( $i ) {
-                    $mail -> AddBcc($mail, $cimzett_nev[$i]);
+                    $mail -> AddCc($akt_mail, $cimzett_nev[$i]);
                 } else {
-                    $mail -> addAddress($mail, $cimzett_nev[$i]);
+                    $mail -> addAddress($akt_mail, $cimzett_nev[$i]);
                 }
-
                 $i++;
-
             }
         } elseif( $cimzett_mail ) {
             $mail -> AddAddress($cimzett_mail, $cimzett_nev);

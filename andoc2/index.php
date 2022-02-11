@@ -6,14 +6,15 @@ header('Content-Type: text/html; charset='.get_web_charset());
 
 ini_set('soap.wsdl_cache_enabled', '0');
 
-$url_elotag = get_url_elotag();
+$url_elotag  = get_url_elotag();
+$log_utvonal = '../andoc.log';
 
 switch ( $_SERVER['HTTP_HOST'] ) {
-    case 'demo.webdeb.hu'       : $wsdl_fajl = 'onteam_wd_demo.wsdl';    break;
-    case 'www.onteam.hu'        : $wsdl_fajl = 'onteam.wsdl';            break;
-    case 'onteam.hu'            : $wsdl_fajl = 'onteam.wsdl';            break;
-    case 'teszt.onteam.hu'      : $wsdl_fajl = 'teszt.onteam.wsdl';      break;
-    case 'dev.onteam.hu'        : $wsdl_fajl = 'dev.onteam.wsdl';        break;
+    case 'demo.webdeb.hu'       : $wsdl_fajl = 'onteam_wd_demo.wsdl';   break;
+    case 'www.onteam.hu'        : $wsdl_fajl = 'onteam.wsdl';           break;
+    case 'onteam.hu'            : $wsdl_fajl = 'onteam.wsdl';           break;
+    case 'teszt.onteam.hu'      : $wsdl_fajl = 'teszt.onteam.wsdl';     break;
+    case 'dev.onteam.hu'        : $wsdl_fajl = 'dev.onteam.wsdl';       break;
 }
 
 // Új SOAP kliens inicializálása
@@ -25,7 +26,6 @@ try {
         foreach ($_POST as $kulcs => $ertek) {
             $adatok .= 'Post neve: '.$kulcs."\nÉrtéke:\n".$ertek."\n\n";
         }
-        $log_utvonal = '../andoc.log';
         $log = '*****************************
 FOGADOTT XML
 '.date('Y.m.d H:i:s').'
@@ -91,7 +91,7 @@ URL: '.get_http().$_SERVER['HTTP_HOST'].$_SERVER['REQUEST_URI'].'
             if( !$xml ) {
                 $xml = '***Üres XML-t kaptunk!***';
             }
-            $log_utvonal = '../andoc.log';
+            
             $log = '*****************************
     FOGADOTT XML
     '.date('Y.m.d H:i:s').'
@@ -142,7 +142,6 @@ URL: '.get_http().$_SERVER['HTTP_HOST'].$_SERVER['REQUEST_URI'].'
             if( !$xml ) {
                 $xml = '***Üres XML-t kaptunk!***';
             }
-            $log_utvonal = '../andoc.log';
             $log = '*****************************
     FOGADOTT XML
     '.date('Y.m.d H:i:s').'
@@ -193,7 +192,6 @@ URL: '.get_http().$_SERVER['HTTP_HOST'].$_SERVER['REQUEST_URI'].'
             if( !$xml ) {
                 $xml = '***Üres XML-t kaptunk!***';
             }
-            $log_utvonal = '../andoc.log';
             $log = '*****************************
     FOGADOTT XML
     '.date('Y.m.d H:i:s').'
@@ -239,7 +237,6 @@ URL: '.get_http().$_SERVER['HTTP_HOST'].$_SERVER['REQUEST_URI'].'
             if( !$xml ) {
                 $xml = '***Üres XML-t kaptunk!***';
             }
-            $log_utvonal = '../andoc.log';
             $log = '*****************************
     FOGADOTT XML
     '.date('Y.m.d H:i:s').'
@@ -285,7 +282,6 @@ URL: '.get_http().$_SERVER['HTTP_HOST'].$_SERVER['REQUEST_URI'].'
             if( !$xml ) {
                 $xml = '***Üres XML-t kaptunk!***';
             }
-            $log_utvonal = '../andoc.log';
             $log = '*****************************
     FOGADOTT XML
     '.date('Y.m.d H:i:s').'

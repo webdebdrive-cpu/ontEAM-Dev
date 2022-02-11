@@ -188,7 +188,7 @@ if( basename(self()) == 'erteklista.php' || basename(self()) == 'energia_szamla.
     
     $select_jogcim = array();
     array_push($select_jogcim, array('name' => '-Válasszon-', 'value' => '' ));
-    $jogcimek = $adatbazis_kapcsolat -> select('recid jogcim', 'jogcim', "`ktghely_id`='".KTGHELY_ENERGIA."'", 'jogcim');
+    $jogcimek = $adatbazis_kapcsolat -> select('recid jogcim', 'jogcim', "`ktghely_id`='".KTGHELY_ENERGIA."' OR `energia_plusz`=1", 'jogcim');
     foreach ( $jogcimek as $jogcim ) {
         array_push($select_jogcim, array('name' => $jogcim['jogcim'], 'value' => $jogcim['recid'] ));
     }

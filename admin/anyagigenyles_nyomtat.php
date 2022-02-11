@@ -98,7 +98,7 @@ if( isset($_GET['szall']) ) {
                     Tisztelt szállító!
                 </div>
                 <div style="font-size: 12px; margin: 0 0 2px 0;">
-                    <b>A szállító levelet vagy a számla másolatát minden esetben hagyja az árú átvevőjénél és a számlán tüntesse fel megrendelőnk számát, ellenkező esetben a számlát nem áll módunkban befogadni!</b>
+                    <b>A szállító levelet vagy a számla másolatát minden esetben hagyja az áru átvevőjénél és a számlán tüntesse fel megrendelőnk számát, ellenkező esetben a számlát nem áll módunkban befogadni!</b>
                 </div>
                 <div style="font-size: 13px; margin: 0 0 8px 0;">
                     Megrendeljük Önöktől az alábbi anyagokat.

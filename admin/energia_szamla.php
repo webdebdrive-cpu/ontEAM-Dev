@@ -1,10 +1,6 @@
 <?php
 require_once('../weblap.php');
 
-//if( isset($_GET['teszt']) ) {
-//    xml_vissza(1015);
-//}
-
 if( !_jog(JOG_ENERGIA_SZAMLAK_OLVAS) ) {
     if( !$_SESSION[get_db_tabla() . 'user'] ) {
         $weblap -> leallit();
@@ -45,7 +41,14 @@ if( isset($_POST['kuldes_igazolasra_csoportosit']) ) {
     // A tételeket költségnem + költséghely + ÁFAkulcs szerint csoportosíva küldjük vissza.
     $szamla   = $adatbazis_kapcsolat->s2('kcs_21', 'energia_szamla', "`recid`='{$_POST['id']}'");
     $tetelek  = $adatbazis_kapcsolat->s('brutto_ert dev_br ktghely ktghely_id ktgnem_id afa_kod tol', 'energia_szamla_tetel', "`energia_szamla_recid`='{$_POST['id']}' AND `valtozott`='1'", '', '', "`ktgnem_id`, `ktghely_id`, `afa_kod`, SUBSTRING(`tol`, 1, 7)");
+    $tetelek2 = $adatbazis_kapcsolat->s('recid', 'energia_szamla_tetel', "`energia_szamla_recid`='{$_POST['id']}' AND `valtozott`='1'");
     
+    // Ha a csoportosított tételek száma azonos a rendes tételek számával,
+    // akkor a tárgy mezőket előre kitöltjük
+    $targy_kitoltheto = false;
+    if( count($tetelek) == count($tetelek2) ) {
+        $targy_kitoltheto = true;
+    }   
     $tizedesek   = 0;
     $brutto_mezo = 'brutto_ert';
     if( $szamla['kcs_21'] != KCS_21_HUF ) {
@@ -66,12 +69,15 @@ if( isset($_POST['kuldes_igazolasra_csoportosit']) ) {
                 ');
     
     foreach( $tetelek as $tetel ) {
-        
+        $targy_val = '';
+        if( $targy_kitoltheto ) {
+            $targy_val .= ' value="'.htmlspecialchars_decode($tetel['targy']).'"';
+        }
         $brutto_ertek = $adatbazis_kapcsolat->s2("SUM(`{$brutto_mezo}`)", 'energia_szamla_tetel', "`energia_szamla_recid`='{$_POST['id']}' AND `valtozott`='1' AND `ktgnem_id`='{$tetel['ktgnem_id']}' AND `ktghely_id`='{$tetel['ktghely_id']}' AND `afa_kod`='{$tetel['afa_kod']}' AND `tol` LIKE '".substr($tetel['tol'], 0, 7)."%'");
         $brutto_ertek = $brutto_ertek["SUM(`{$brutto_mezo}`)"];
         $html .= nl2('
                     <tr>
-                        <td><input type="text" class="flat osszevon_targy" maxlength="250"></td>
+                        <td><input type="text" class="flat osszevon_targy" maxlength="250"'.$targy_val.'></td>
                         <td>'.number_format($brutto_ertek, $tizedesek, ',', ' ').' '.getErtekLista(ERTEKLISTA_PENZNEM, $szamla['kcs_21']).'</td>
                         <td>'.$tetel['ktgnem_id'].'</td>
                         <td>'.$tetel['ktghely'].'</td>
@@ -116,18 +122,17 @@ if( isset($_POST['osszevon_targy_kitoltve_ell']) ) {
         
         $tetel_xml .= '
             <row rownumberonpage="'.($i+1).'">
-                <property name="Sor megnevezése">'.$targyak[$i].'</property>
-                <property name="Bruttó sorösszeg">'.$brutto_ertek.'</property>
-                <property name="Főkönyvi számlaszám">'.$tetel['ktgnem_id'].'</property>
-                <property name="Jogcím">'.$tetel['jogcim'].'</property>
-                <property name="Üzemrész">'.$tetel['uzemresz'].'</property>
-                <property name="Főkönyvi számlaszám megnevezése">'.$tetel['megn'].'</property>
-                <property name="Főkönyvi számlaszám">'.$tetel['ktgnem_id'].'</property>
-                <property name="Költséghely">'.$tetel['ktghely_id'].'</property>
-                <property name="ÁFA kód">'.$tetel['afa_kod'].'</property>
-                <property name="ÁFA neve">'.$tetel['afa_nev'].'</property>
-                <property name="ÁFA %">'.$tetel['afa'].'</property>
-                <property name="Szálloda">'.getSzallodaNev($szamla['telephely_id'], '-Andoc név-').'</property>
+                <property name="Sor megnevezése"><![CDATA['.urlencode(htmlspecialchars_decode($targyak[$i])).']]></property>
+                <property name="Bruttó sorösszeg">'.urlencode($brutto_ertek).'</property>
+                <property name="Főkönyvi számlaszám">'.urlencode(htmlspecialchars_decode($tetel['ktgnem_id'])).'</property>
+                <property name="Jogcím"><![CDATA['.urlencode(htmlspecialchars_decode($tetel['jogcim'])).']]></property>
+                <property name="Üzemrész"><![CDATA['.urlencode(htmlspecialchars_decode($tetel['uzemresz'])).']]></property>
+                <property name="Főkönyvi számlaszám megnevezése"><![CDATA['.urlencode(htmlspecialchars_decode($tetel['megn'])).']]></property>
+                <property name="Költséghely">'.urlencode(htmlspecialchars_decode($tetel['ktghely_id'])).'</property>
+                <property name="ÁFA kód">'.urlencode(htmlspecialchars_decode($tetel['afa_kod'])).'</property>
+                <property name="ÁFA neve">'.urlencode(htmlspecialchars_decode($tetel['afa_nev'])).'</property>
+                <property name="ÁFA %">'.urlencode(htmlspecialchars_decode($tetel['afa'])).'</property>
+                <property name="Szálloda"><![CDATA['.urlencode(getSzallodaNev($szamla['telephely_id'], '-Andoc név-')).']]></property>
                 <property name="Konszolidációs kód">00</property>
                 <property name="Projektkód">00000</property>
                 <property name="Egyedi azonosító">000000</property>
@@ -136,7 +141,8 @@ if( isset($_POST['osszevon_targy_kitoltve_ell']) ) {
         $i++;
     }
     
-    $adatbazis_kapcsolat->u('energia_szamla',   array('kuld_tetel_xml', 'tetel_db'  ),
+    $adatbazis_kapcsolat->u('energia_szamla', 
+                                                array('kuld_tetel_xml', 'tetel_db'  ),
                                                 array($tetel_xml,       $i          ),
                                                 "`recid`='{$_POST['id']}'");
     
@@ -253,9 +259,15 @@ if( isset($_POST['szamla_igazol']) ) {
     
     
     // Illetve az XML visszát is intézzük
-    if( xml_vissza($_POST['id'], 'Igazolva', '') !== false ) {
+    $xml_vissza = xml_vissza($_POST['id'], 'Igazolva', '');
+    if( $xml_vissza !== false ) {
+        // Ha nem csak egy 1-es kaptunk, akkor abban van egy hibaüzenet még, amit ki kell írni
+        $extra_hibauzenet = '';
+        if( $xml_vissza != '1' ) {
+            $extra_hibauzenet = '<br>'.$xml_vissza;
+        }
         echo json_encode(array(
-                                'hiba'  => 'Az Andoc felé küldött visszaigazoló XML elküldése során hiba történt!<br>A számlát nem sikerült igazolni.',
+                                'hiba'  => 'Az Andoc felé küldött visszaigazoló XML elküldése során hiba történt!<br>A számlát nem sikerült igazolni.'.$extra_hibauzenet,
                                 'title' => 'Hiba',
                         ));
         mysqli_commit($db_kapcs);
@@ -302,9 +314,15 @@ if( isset($_POST['energiaSzamlaElutasit']) ) {
     }
     
     // Illetve az XML visszát is intézzük
-    if( xml_vissza($_POST['id'], 'Elutasítva', $_POST['memo']) !== false ) {
+    $xml_vissza = xml_vissza($_POST['id'], 'Elutasítva', $_POST['memo']);
+    if( $xml_vissza !== false ) {
+        // Ha nem csak egy 1-es kaptunk, akkor abban van egy hibaüzenet még, amit ki kell írni
+        $extra_hibauzenet = '';
+        if( $xml_vissza != '1' ) {
+            $extra_hibauzenet = '<br>'.$xml_vissza;
+        }
         echo json_encode(array(
-                                'hiba'  => 'Az Andoc felé küldött visszaigazoló XML elküldése során hiba történt!<br>A számlát nem sikerült elutasítani.',
+                                'hiba'  => 'Az Andoc felé küldött visszaigazoló XML elküldése során hiba történt!<br>A számlát nem sikerült elutasítani.'.$extra_hibauzenet,
                                 'title' => 'Hiba',
                         ));
         mysqli_commit($db_kapcs);
@@ -510,6 +528,7 @@ if( isset($_POST['pop_tetelek_feltolt']) ) {
                                 <input type="hidden" class="pop_afakod" name="pop_afakod_id" value="'.$_SESSION['energia_szla_tetel_afakod'][$i].'">
                                 <input type="hidden" class="pop_jogcim" name="pop_jogcim_id" value="'.$_SESSION['energia_szla_tetel_jogcim'][$i].'">
                                 <input type="hidden" class="pop_dijelem" name="pop_dijelem_id" value="'.$_SESSION['energia_szla_tetel_dijelem'][$i].'">
+                                <input type="hidden" class="tetel_nullas" value="'.$_SESSION['energia_szla_tetel_nullas'][$i].'">
                                 <input type="hidden" class="pop_valtozott" value="'.$_SESSION['energia_szla_tetel_valtozott'][$i].'">
                                 <input type="hidden" class="pop_recid" name="recid" value="'.$_SESSION['energia_szla_tetel_recid'][$i].'">
                             </td>
@@ -634,7 +653,8 @@ if( isset($_POST['tetel_sorok_ment']) ) {
     $afa_adat       = 15;
     $netto_adat     = 16;
     $brutto_adat    = 17;
-    $valtozott_adat = 18;
+    $nullas_adat    = 18;
+    $valtozott_adat = 19;
 
     // Tétel összeg ellenőrzése, illetve a számadatok igazítása
     // Ennek van egy 2. fele később az ellenőrzéseknél
@@ -709,8 +729,9 @@ if( isset($_POST['tetel_sorok_ment']) ) {
             $_SESSION['energia_szla_tetel_netto']     = $_POST['adatok'][$netto_adat][1];
             $_SESSION['energia_szla_tetel_brutto']    = $_POST['adatok'][$brutto_adat][1];
         }
-        $_SESSION['energia_szla_tetel_afakod']    = $_POST['adatok'][$afa_adat][1];
-        $_SESSION['energia_szla_tetel_valtozott'] = $_POST['adatok'][$valtozott_adat][1];
+        $_SESSION['energia_szla_tetel_afakod']      = $_POST['adatok'][$afa_adat][1];
+        $_SESSION['energia_szla_tetel_nullas']      = $_POST['adatok'][$nullas_adat][1];
+        $_SESSION['energia_szla_tetel_valtozott']   = $_POST['adatok'][$valtozott_adat][1];
     }
     
     // Adatbázisba mentést csak akkor csinálnuk, ha már meglevő számlát szerkesztünk
@@ -746,6 +767,7 @@ if( isset($_POST['tetel_sorok_ment']) ) {
                 $dev_net   = 0;
                 $dev_br    = 0;
             }
+            $nullas = $_POST['adatok'][$nullas_adat][1][$i];
             $valtozott = 0;
             if( $_POST['adatok'][$valtozott_adat][1][$i] ) {
                 $valtozott = 1;
@@ -758,17 +780,17 @@ if( isset($_POST['tetel_sorok_ment']) ) {
             // Ha ismerjük a tétel recid-ját, akkor update
             if( $_POST['adatok'][$recid_adat][1][$i] ) {
                 
-                $mezok   = array(/*'rownum',  */'jogcim_recid',    'ktgnem_id',           'ktghely_id',           'ktghely',          'jogcim_recid',   'jogcim',          'uzemresz',          'megn',          'afakod_recid',   'afa',          'afa_kod',      'afa_nev',      'dijelem_recid', 'aranyos', 'tol', 'ig',   'indul', 'zar', 'szorzo',   'mert', 'kwh_szorzo', 'menny', 'egyseg', 'menny_kwh', 'egyseg_ar', 'netto_ert', 'brutto_ert', 'dev_net',  'dev_br', 'valtozott', 'update_usr'                             );
-                $ertekek = array(/*$rownum,   */$jogcim['recid'],  $jogcim['szla_szam'],  $jogcim['ktghely_id'],  $jogcim['ktghely'], $jogcim['recid'], $jogcim['jogcim'], $jogcim['uzemresz'], $jogcim['megn'], $afakod['recid'], $afakod['afa'], $afakod['kod'], $afakod['nev'], $dijelem,        $aranyos,  $tol,  $ig,    $indul,  $zar,  $szorzo,    $mert,  $kwh_szorzo,  $menny,  $egyseg,  $menny_kwh,  $egyseg_ar,  $netto,      $brutto,      $dev_net,   $dev_br,  $valtozott,  $_SESSION[get_db_tabla().'teljes_nev']   );
+                $mezok   = array(/*'rownum',  */'jogcim_recid',    'ktgnem_id',           'ktghely_id',           'ktghely',          'jogcim_recid',   'jogcim',          'uzemresz',          'megn',          'afakod_recid',   'afa',          'afa_kod',      'afa_nev',      'dijelem_recid', 'aranyos', 'tol', 'ig',   'indul', 'zar', 'szorzo',   'mert', 'kwh_szorzo', 'menny', 'egyseg', 'menny_kwh', 'egyseg_ar', 'netto_ert', 'brutto_ert', 'dev_net',  'dev_br', 'nullas', 'valtozott', 'update_usr'                             );
+                $ertekek = array(/*$rownum,   */$jogcim['recid'],  $jogcim['szla_szam'],  $jogcim['ktghely_id'],  $jogcim['ktghely'], $jogcim['recid'], $jogcim['jogcim'], $jogcim['uzemresz'], $jogcim['megn'], $afakod['recid'], $afakod['afa'], $afakod['kod'], $afakod['nev'], $dijelem,        $aranyos,  $tol,  $ig,    $indul,  $zar,  $szorzo,    $mert,  $kwh_szorzo,  $menny,  $egyseg,  $menny_kwh,  $egyseg_ar,  $netto,      $brutto,      $dev_net,   $dev_br,  $nullas,  $valtozott,  $_SESSION[get_db_tabla().'teljes_nev']   );
 
                 $sql = $adatbazis_kapcsolat->u('energia_szamla_tetel', $mezok, $ertekek, "`recid`='{$_POST['adatok'][$recid_adat][1][$i]}'");
                 if( $sql === false ) { $db_error = true; }
-                
+
             // Egyébként insert
             } else {
 
-                $mezok   = array('energia_szamla_recid', /*'rownum', */'ktgnem_id',           'ktghely_id',           'ktghely',          'jogcim_recid',   'jogcim',          'uzemresz',          'megn',          'afakod_recid',   'afa',          'afa_kod',      'afa_nev',      'dijelem_recid', 'aranyos', 'tol', 'ig',   'indul', 'zar', 'szorzo',   'mert', 'kwh_szorzo', 'menny', 'egyseg', 'menny_kwh', 'egyseg_ar', 'netto_ert', 'brutto_ert', 'dev_net',  'dev_br',  'valtozott', 'loginnev',                          'insert_dt',    'insert_usr',                             'update_usr'                              );
-                $ertekek = array($recid,                 /*$rownum,  */$jogcim['szla_szam'],  $jogcim['ktghely_id'],  $jogcim['ktghely'], $jogcim['recid'], $jogcim['jogcim'], $jogcim['uzemresz'], $jogcim['megn'], $afakod['recid'], $afakod['afa'], $afakod['kod'], $afakod['nev'], $dijelem,        $aranyos,  $tol,  $ig,    $indul,  $zar,  $szorzo,    $mert,  $kwh_szorzo,  $menny,  $egyseg,  $menny_kwh,  $egyseg_ar,  $netto,      $brutto,      $dev_net,   $dev_br,   '1',          $_SESSION[get_db_tabla().'user'],   'NOW()',        $_SESSION[get_db_tabla().'teljes_nev'],   $_SESSION[get_db_tabla().'teljes_nev']    );
+                $mezok   = array('energia_szamla_recid', /*'rownum', */'ktgnem_id',           'ktghely_id',           'ktghely',          'jogcim_recid',   'jogcim',          'uzemresz',          'megn',          'afakod_recid',   'afa',          'afa_kod',      'afa_nev',      'dijelem_recid', 'aranyos', 'tol', 'ig',   'indul', 'zar', 'szorzo',   'mert', 'kwh_szorzo', 'menny', 'egyseg', 'menny_kwh', 'egyseg_ar', 'netto_ert', 'brutto_ert', 'dev_net',  'dev_br',  'nullas', 'valtozott', 'loginnev',                          'insert_dt',    'insert_usr',                             'update_usr'                              );
+                $ertekek = array($recid,                 /*$rownum,  */$jogcim['szla_szam'],  $jogcim['ktghely_id'],  $jogcim['ktghely'], $jogcim['recid'], $jogcim['jogcim'], $jogcim['uzemresz'], $jogcim['megn'], $afakod['recid'], $afakod['afa'], $afakod['kod'], $afakod['nev'], $dijelem,        $aranyos,  $tol,  $ig,    $indul,  $zar,  $szorzo,    $mert,  $kwh_szorzo,  $menny,  $egyseg,  $menny_kwh,  $egyseg_ar,  $netto,      $brutto,      $dev_net,   $dev_br,   $nullas,  '1',          $_SESSION[get_db_tabla().'user'],   'NOW()',        $_SESSION[get_db_tabla().'teljes_nev'],   $_SESSION[get_db_tabla().'teljes_nev']    );
                 $uj_id = $adatbazis_kapcsolat->i('energia_szamla_tetel', $mezok, $ertekek);
                 
                 if( $sql === false ) { $db_error = true; }
@@ -1289,6 +1311,7 @@ require_once('selectek.php');
         $_SESSION['energia_szla_tetel_dev_net']     =
         $_SESSION['energia_szla_tetel_dev_br']      =
         $_SESSION['energia_szla_tetel_afakod']      =
+        $_SESSION['energia_szla_tetel_nullas']      =
         $_SESSION['energia_szla_tetel_valtozott']   =
         $_SESSION['energia_szla_tetel_andocos']     =
                                                     array();
@@ -1316,6 +1339,7 @@ require_once('selectek.php');
             $_SESSION['energia_szla_tetel_dev_net'][$i]     = number_format($tetel['dev_net'    ], 2, ',', ' ');
             $_SESSION['energia_szla_tetel_dev_br'][$i]      = number_format($tetel['dev_br'     ], 2, ',', ' ');
             $_SESSION['energia_szla_tetel_afakod'][$i]      = $tetel['afakod_recid'];
+            $_SESSION['energia_szla_tetel_nullas'][$i]      = $tetel['nullas'];
             $_SESSION['energia_szla_tetel_valtozott'][$i]   = $tetel['valtozott'];
             $_SESSION['energia_szla_tetel_andocos'][$i]     = $tetel['andocos'];
             if( $tetel['energia_szerzodes_tetel_recid'] ) {
@@ -1393,6 +1417,7 @@ require_once('selectek.php');
         $_SESSION['energia_szla_tetel_dev_net']     =
         $_SESSION['energia_szla_tetel_dev_br']      =
         $_SESSION['energia_szla_tetel_afakod']      =
+        $_SESSION['energia_szla_tetel_nullas']      =
         $_SESSION['energia_szla_tetel_valtozott']   =
         $_SESSION['energia_szla_tetel_andocos']     =
                                                     array();
@@ -1419,6 +1444,7 @@ require_once('selectek.php');
             $_SESSION['energia_szla_tetel_dev_net'][$i]     = number_format($tetel['dev_net'    ], 2, ',', ' ');
             $_SESSION['energia_szla_tetel_dev_br'][$i]      = number_format($tetel['dev_br'     ], 2, ',', ' ');
             $_SESSION['energia_szla_tetel_afakod'][$i]      = $tetel['afakod_recid'];
+            $_SESSION['energia_szla_tetel_nullas'][$i]      = $tetel['nullas'];
             $_SESSION['energia_szla_tetel_valtozott'][$i]   = $tetel['valtozott'];
             $_SESSION['energia_szla_tetel_andocos'][$i]     = $tetel['andocos'];
             if( $tetel['energia_szerzodes_tetel_recid'] ) {
@@ -1651,8 +1677,8 @@ require_once('selectek.php');
             }
             $szamla_html .= nl2('
                 <div class="dtr nSor">
-                    <div class="dtc">'.$jogcim['jogcim'].'</div>
-                    <div class="dtc">'.$dijelem['info'].'</div>
+                    <div class="dtc">'.htmlspecialchars_decode($jogcim['jogcim']).'</div>
+                    <div class="dtc">'.htmlspecialchars_decode($dijelem['info']).'</div>
                     <div class="dtc c">'.$aranyos.'</div>
                     <div class="dtc nowrap">'.datum_kiir($tetel['tol']).'<br>'.datum_kiir($tetel['ig']).'</div>
                     <div class="dtc nowrap">'.number_format($tetel['indul'],        4, ',', ' ').'<br>'.number_format($tetel['zar'], 4, ',', ' ').'</div>
@@ -1922,7 +1948,6 @@ if( !$_GET['ajax'] ) {
 // Igazoláskor, elutasításkor, utalványozáskor gyártunk egy XML vissza fájlt, és azt beírjuk az adatbázisba
 function xml_vissza( $szamla_id, $igazolva = '', $oka = '' ) {
     
-    global $db_kapcs;
     global $adatbazis_kapcsolat;
     
     $db_error = false;
@@ -1947,7 +1972,17 @@ function xml_vissza( $szamla_id, $igazolva = '', $oka = '' ) {
         $telephely = $adatbazis_kapcsolat->s2('teljigkuldes', 'telephely', "`id`='{$szamla['telephely_id']}'");
         if( $telephely === false ) { $db_error = true; }
         if( $telephely['teljigkuldes'] == 'k' ) {
-            $wf_name = $szamla['telephely_id'].'_Könyvelés';
+            if( $szamla['telephely_id'] == TELEPHELY_GUNDEL ) {
+                $wf_name = TELEPHELY_GUNDEL_MOD.'_Könyvelés';
+            } else if( $szamla['telephely_id'] == TELEPHELY_LOVER ) {
+                $wf_name = TELEPHELY_LOVER_MOD.'_Könyvelés';
+            } else if( $szamla['telephely_id'] == TELEPHELY_ZAMARDI) {
+                $wf_name = TELEPHELY_ZAMARDI_MOD.'_Könyvelés';
+            } else if( $szamla['telephely_id'] == TELEPHELY_DZRT) {
+                $wf_name = TELEPHELY_DZRT_MOD.'_Könyvelés';
+            } else {
+                $wf_name = $szamla['telephely_id'].'_Könyvelés';
+            }
         } else {
             $wf_name = '[AUTO] Utalványozásra küldés';
         }
@@ -1957,36 +1992,31 @@ function xml_vissza( $szamla_id, $igazolva = '', $oka = '' ) {
 <xml>
   <data>
     <register registernumber="'.$szamla['andoc_id'].'" operation="update">
-      <workflow_node_name>'.$wf_name.'</workflow_node_name>
+      <workflow_node_name>'.urlencode($wf_name).'</workflow_node_name>
       <properties>
         <container name="NIK1">
           <row rownumberonpage="1">
             <property name="Számla főtípus">Energia számla</property>
-            <property name="Igazoló döntés">'.$igazolva.'</property>
-            <property name="Teljesítés igazolás elutasítás oka">'.$oka.'</property>
-            <property name="Szálloda - Klaszter">'.$szamla['telephely_id'].'</property>
-            <property name="Számla tárgya">'.$szamla['targy'].'</property>
-            <property name="Megjegyzés">'.$szamla['megjegyz'].'</property>
-            <property name="Számla fizetője">'.$erteklista['cegkod'].'</property>
-            <property name="Teljesítés igazoló személye">'.
+            <property name="Igazoló döntés">'.urlencode($igazolva).'</property>
+            <property name="Teljesítés igazolás elutasítás oka"><![CDATA['.urlencode($oka).']]></property>
+            <property name="Szálloda - Klaszter">'.urlencode($szamla['telephely_id']).'</property>
+            <property name="Számla tárgya"><![CDATA['.urlencode($szamla['targy']).']]></property>
+            <property name="Megjegyzés"><![CDATA['.urlencode($szamla['megjegyz']).']]></property>
+            <property name="Számla fizetője">'.urlencode($erteklista['cegkod']).'</property>
+            <property name="Teljesítés igazoló személye"><![CDATA['.
             // Azért nem a $szamla['igazolva_usr'], hisz épp most zajlik az igazolás/elutasítás, ez az adat még nincs az adatbázisban
-            $_SESSION[get_db_tabla().'teljes_nev']
-            .'</property>
+            urlencode($_SESSION[get_db_tabla().'teljes_nev'])
+            .']]></property>
           </row>
         </container>
         <container name="IK1">
-          '.$szamla['kuld_tetel_xml'].'
+          '.$szamla['kuld_tetel_xml']/*Ennek előállítását ha meg szeretnéd nézni, keres rá erre: "$_POST['osszevon_targy_kitoltve_ell']"*/.'
         </container>
       </properties>
     </register>
   </data>
 </xml>
 ';
-//if( isset($_GET['teszt']) ) {
-//    echo $valasz_xml;
-//    echo 'f';
-//    exit;
-//}
     
     $fejlec = array(
         "Content-type: application/x-www-form-urlencoded",
@@ -2005,8 +2035,12 @@ function xml_vissza( $szamla_id, $igazolva = '', $oka = '' ) {
         $valasz_xml = '
 ***Csak Éles és Teszt rendszerben küldjük el az XML-t valójában!***
 
-        '.$valasz_xml;
+        '.urldecode($valasz_xml);
     }
+    
+    // Visszaalakítjuk az XML-t, hogy logolni tudjuk (megjegyzésbe és andoc.log-ba is)
+    // Az urldecode() a teljes stringre meghívható, nem gond, ha csak egy része van elkódolva
+    $valasz_xml = urldecode($valasz_xml);
     
     // Logolás
     $log_utvonal = '../andoc.log';
@@ -2031,7 +2065,7 @@ function xml_vissza( $szamla_id, $igazolva = '', $oka = '' ) {
     Ip: '.$_SERVER['REMOTE_ADDR'].'
     URL: '.get_http().$_SERVER['HTTP_HOST'].$_SERVER['REQUEST_URI'].'
     POST:
-    '.htmlspecialchars_decode($valasz).'
+    '.$valasz.'
         
         
         
@@ -2046,8 +2080,10 @@ function xml_vissza( $szamla_id, $igazolva = '', $oka = '' ) {
     }
 
     // Ha Andoc-ék nem tudják fogadni a választ, akkor hibaüzenet
+    $extra_hibauzenet = '';
     if( eles_es_teszt_rendszer_e() && $kapott_xml -> result != 'I' ) {
-        addMegj('energia_szamla', $szamla_id, 'Az alábbi válasz XML-t nem sikerült elküldeni:<br>'.htmlspecialchars($valasz_xml));
+        $extra_hibauzenet = 'Hiba: '.$kapott_xml -> errorcode.' - '.$kapott_xml -> errormessage;
+        addMegj('energia_szamla', $szamla_id, 'Az alábbi válasz XML-t nem sikerült elküldeni:<br>'.htmlspecialchars($valasz_xml).'<br><br>'.$extra_hibauzenet);
         $db_error = true;
     // Ezt csak akkor módosítjuk, ha az XML küldése is rendben volt
     } else {
@@ -2069,7 +2105,10 @@ function xml_vissza( $szamla_id, $igazolva = '', $oka = '' ) {
         if( $sql === false ) { $db_error = true; }
     }
    
-    
-    return $db_error;
+    if( $extra_hibauzenet ) {
+        return $extra_hibauzenet;
+    } else {
+        return $db_error;
+    }
     
 }

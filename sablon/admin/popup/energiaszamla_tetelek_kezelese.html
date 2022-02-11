@@ -49,7 +49,12 @@
         </div>
         
         <div>
-            <!-- Üres mező -->
+            Nullás tétel:
+            <br>
+            <div class="cb" style="margin-top: .4rem">
+                <input type="checkbox" id="pop_nullas">
+                <label for="pop_nullas"></label>
+            </div>
         </div>
         
         <div>
@@ -322,7 +327,11 @@ function tetel_hozzaadasa() {
     var netto           = $('#pop_netto'        ).val().trim();
     var brutto          = $('#pop_brutto'       ).val().trim();
     var afa             = $('#pop_afa'          ).val().trim();
-    van_valtozas = true;
+    var van_valtozas = true;
+    var tetel_nullas = 0;
+    if( $('#pop_nullas').prop('checked') ) {
+        tetel_nullas = 1;
+    }
 
     /* Üres adatok ellenőrzése */
     if( !jogcim ){
@@ -409,7 +418,7 @@ function tetel_hozzaadasa() {
         return false;
     }*/
     
-    if( !nullas && ( !$('#pop_menny').val() || $('#pop_menny').val()=='0,0000' ) ) {
+    if( !nullas && !$('#pop_nullas').prop('checked') && ( !$('#pop_menny').val() || $('#pop_menny').val()=='0,0000' ) ) {
         alert2('Kérem adja meg a mennyiséget!', '', 'Hiba');
         $('#pop_menny').addClass('hibas_ide_focus');
         return false;
@@ -436,13 +445,13 @@ function tetel_hozzaadasa() {
         return false;
     }
     
-    if( !$('#pop_netto').val() || (!nullas && ( $('#pop_netto').val()=='0' || $('#pop_netto').val()=='0,00' ) ) ) {
+    if( !$('#pop_netto').val() || (!nullas && !$('#pop_nullas').prop('checked') && ( $('#pop_netto').val()=='0' || $('#pop_netto').val()=='0,00' ) ) ) {
         alert2('Kérem adja meg a nettó értéket!', '', 'Hiba');
         $('#pop_netto').addClass('hibas_ide_focus');
         return false;
     }
     
-    if( !$('#pop_brutto').val() || (!nullas && ( $('#pop_brutto').val()=='0' || $('#pop_brutto').val()=='0,00' ) ) ) {
+    if( !$('#pop_brutto').val() || (!nullas && !$('#pop_nullas').prop('checked') && ( $('#pop_brutto').val()=='0' || $('#pop_brutto').val()=='0,00' ) ) ) {
         alert2('Kérem adja meg a brutto értéket!', '', 'Hiba');
         $('#pop_brutto').addClass('hibas_ide_focus');
         return false;
@@ -506,6 +515,7 @@ function tetel_hozzaadasa() {
                                 '<input type="hidden" class="pop_jogcim" name="pop_jogcim_id" value="'+jogcim+'">' +
                                 '<input type="hidden" class="pop_afa" name="pop_afakod_id" value="'+$('#afakod_id').val()+'">' +
                                 '<input type="hidden" class="pop_dijelem" name="pop_dijelem_id" value="'+dijelem+'">' +
+                                '<input type="hidden" class="tetel_nullas" value="'+tetel_nullas+'">' +               
                                 '<input type="hidden" class="pop_valtozott" value="1">' +               
                                 '<input type="hidden" class="pop_recid" name="recid" value="'+sor_id+'">' +        
                             '</td>' +
@@ -535,6 +545,7 @@ function tetel_hozzaadasa() {
     $('#afakod_id_autocomp' ).val('');
     $('#afakod_id'          ).val('');
     $('#pop_afa'            ).val('');
+    $('#pop_nullas'         ).prop('checked', false);
     
     $('#hozzaad_gomb').val('Új tétel hozzáadása');
 
@@ -582,11 +593,11 @@ function tetel_sorok_ment(){
     });
     var jogcimek = [];
     $('.pop_jogcim').each(function() {
-        jogcimek.push( $(this).val() );
+        jogcimek.push( json_spec_karakterek($(this).val()) );
     });
     var dijelemek = [];
     $('.pop_dijelem').each(function() {
-        dijelemek.push( $(this).val() );
+        dijelemek.push( json_spec_karakterek($(this).val()) );
     });
     var aranyosok = [];
     $('.pop_aranyos').each(function() {
@@ -630,7 +641,7 @@ function tetel_sorok_ment(){
     });
     var egysegek = [];
     $('.pop_egyseg').each(function() {
-        egysegek.push( $(this).html() );
+        egysegek.push( json_spec_karakterek($(this).html()) );
     });
     var menny_kwhk = [];
     $('.pop_menny_kwh').each(function() {
@@ -651,6 +662,10 @@ function tetel_sorok_ment(){
     var brutto_ert = [];
     $('.pop_brutto').each(function() {
         brutto_ert.push( $(this).html().replace(/,/g, '.') );
+    });
+    var tetel_nullas = [];
+    $('.tetel_nullas').each(function() {
+        tetel_nullas.push( $(this).val() );
     });
     var valtozott = [];
     $('.pop_valtozott').each(function() {
@@ -676,6 +691,7 @@ function tetel_sorok_ment(){
                     ['afak',            afak],
                     ['netto_ert',       netto_ert],
                     ['brutto_ert',      brutto_ert],
+                    ['tetel_nullas',    tetel_nullas],
                     ['valtozott',       valtozott]
                 ];
     var osszeg_mezo     = 'netto';

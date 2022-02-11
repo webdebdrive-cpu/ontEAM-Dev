@@ -1226,6 +1226,7 @@ function i_u($type, $tabla, $tomb) {
                 
                 $jogcim_sor = $adatbazis_kapcsolat->s2('recid jogcim uzemresz megn szla_szam ktghely ktghely_id', 'jogcim', "`recid`='{$_SESSION['energia_szla_tetel_jogcim'][$i]}'");
                 $afakod_sor = $adatbazis_kapcsolat->s2('recid kod afa nev', 'afakod', "`recid`='{$_SESSION['energia_szla_tetel_afakod'][$i]}'");
+                $nullas     = $_SESSION['energia_szla_tetel_nullas'][$i];
                 $valtozott  = $_SESSION['energia_szla_tetel_valtozott'][$i];
                 $netto_ert  = str_replace(' ', '',  $_SESSION['energia_szla_tetel_netto'][$i]);
                 $brutto_ert = str_replace(' ', '',  $_SESSION['energia_szla_tetel_brutto'][$i]);
@@ -1311,8 +1312,8 @@ function i_u($type, $tabla, $tomb) {
                         array_push($ertekek, htmlspecialchars_decode($tetel[$mezo]));
                     }
 
-                    array_push($mezok,   'energia_szamla_recid', 'valtozott', 'loginnev',                        'insert_dt', 'insert_usr',                           'update_usr'                           );
-                    array_push($ertekek, $id,                    $valtozott,  $_SESSION[get_db_tabla().'user'],  'NOW()',     $_SESSION[get_db_tabla().'teljes_nev'], $_SESSION[get_db_tabla().'teljes_nev'] );
+                    array_push($mezok,   'energia_szamla_recid', 'nullas', 'valtozott', 'loginnev',                        'insert_dt', 'insert_usr',                           'update_usr'                           );
+                    array_push($ertekek, $id,                    $nullas,  $valtozott,  $_SESSION[get_db_tabla().'user'],  'NOW()',     $_SESSION[get_db_tabla().'teljes_nev'], $_SESSION[get_db_tabla().'teljes_nev'] );
 
                     $sql = $adatbazis_kapcsolat->i('energia_szamla_tetel', $mezok, $ertekek);
                     if( $sql === false ) { $db_error = true; }
@@ -1363,7 +1364,7 @@ function i_u($type, $tabla, $tomb) {
         
         // Fenntartási számla tételeinek felvétele, köztes tábla törlése
         if( $tabla == 'fenntartasi_szamla' ) {
-            
+
             $i = 0;
             foreach ( $_SESSION['fennt_szla_tetel_targy'] as $targy ) {
                 $netto_ert  = str_replace(' ', '',  $_SESSION['fennt_szla_tetel_netto_ert'][$i]);
@@ -5153,14 +5154,15 @@ function anyag_szamlaLista( $bejegyzesek, $tabla, $frissit = '', $kijeloltek = '
                             <table>
                             <tr> 
                                 <td class="ikonok keskeny c" rowspan="3">'.get_szamlak_ikon($bsz).'</td>
-                                <td style="width: 8rem">'.$bsz['szla_szam'].'</td>
+                                <td style="width: 13rem">'.$bsz['szla_szam'].'</td>
+                                <td style="width: 17.2rem">'.getSzallodaNev($bsz['telephely_id']).'</td>
                                 <td>'.number_format($bsz['netto'], 0, ',', ' ').' '.get_penznem().'</td>
                             </tr>
                             <tr> 
-                                <td colspan="2">'.getErtek('nev', 'szallito', 'id', $bsz['szallito_id']).'</td>
+                                <td colspan="4">'.getErtek('nev', 'szallito', 'id', $bsz['szallito_id']).'</td>
                             </tr>
                             <tr> 
-                                <td colspan="2">'.resz_string($bsz['targy'], 60).'</td>
+                                <td colspan="4">'.resz_string($bsz['targy'], 60).'</td>
                             </tr>
                             </table>
                         </a>';
@@ -6103,14 +6105,15 @@ function fenntartasi_szamlaLista( $bejegyzesek, $tabla, $frissit = '', $kijelolt
                             <table>
                             <tr> 
                                 <td class="ikonok keskeny c" rowspan="3">'.get_szamlak_ikon($bsz).'</td>
-                                <td style="width: 8rem">'.$bsz['szla_szam'].'</td>
+                                <td style="width: 13rem">'.$bsz['szla_szam'].'</td>
+                                <td style="width: 17.2rem">'.getSzallodaNev($bsz['telephely_id']).'</td>
                                 <td>'.number_format($bsz['netto'], 0, ',', ' ').' '.get_penznem().'</td>
                             </tr>
                             <tr> 
-                                <td colspan="2">'.getErtek('nev', 'szallito', 'id', $bsz['szallito_id']).'</td>
+                                <td colspan="4">'.getErtek('nev', 'szallito', 'id', $bsz['szallito_id']).'</td>
                             </tr>
                             <tr> 
-                                <td colspan="2">'.resz_string($bsz['targy'], 60).'</td>
+                                <td colspan="4">'.resz_string($bsz['targy'], 60).'</td>
                             </tr>
                             </table>
                         </a>';
@@ -6984,15 +6987,15 @@ function projektszamlaLista( $bejegyzesek, $tabla, $frissit = '', $kijeloltek = 
         }
 
         $i = 1;
-        foreach($bejegyzesek as $bsz) {
-            
+        foreach ( $bejegyzesek as $bsz ) {
+
             $li_tart = '<a class="szamla" data-recid="'.$bsz['recid'].'" data-fajl="'.$tabla.'.php" data-muvelet="modosit">
-                            <table style="width: 30rem">
+                            <table>
                             <tr>
                                 <td class="ikonok keskeny c" rowspan="3">'.get_szamlak_ikon($bsz).'</td>
-                                <td style="width: 5rem">'.$bsz['szla_szam'].'</td>
-                                <td style="width: 10rem">'.getSzallodaNev($bsz['telephely_id']).'</td>
-                                <td class="r nowrap">'. number_format($bsz['netto'], 0, '', ' ').' '.get_penznem().'</td>
+                                <td style="width: 13rem">'.$bsz['szla_szam'].'</td>
+                                <td style="width: 17.2rem">'.getSzallodaNev($bsz['telephely_id']).'</td>
+                                <td>'. number_format($bsz['netto'], 0, '', ' ').' '.get_penznem().'</td>
                             </tr>
                             <tr>
                                 <td colspan="4">'. getErtek('nev', 'szallito', 'id', $bsz['szallito_id']).'</td>
@@ -7239,14 +7242,15 @@ function energia_szamlaLista( $bejegyzesek, $tabla, $frissit = '', $kijeloltek =
                             <table>
                             <tr> 
                                 <td class="ikonok keskeny c" rowspan="3">'.get_szamlak_ikon($bsz).'</td>
-                                <td style="width: 8rem">'.$bsz['szla_szam'].'</td>
+                                <td style="width: 13rem">'.$bsz['szla_szam'].'</td>
+                                <td style="width: 17.2rem">'.getSzallodaNev($bsz['telephely_id']).'</td>
                                 <td>'.number_format($bsz['netto'], 0, ',', ' ').' '.get_penznem().'</td>
                             </tr>
                             <tr> 
-                                <td colspan="2">'.getErtek('nev', 'szallito', 'id', $bsz['szallito_id']).'</td>
+                                <td colspan="4">'.getErtek('nev', 'szallito', 'id', $bsz['szallito_id']).'</td>
                             </tr>
                             <tr> 
-                                <td colspan="2">'.resz_string($bsz['targy'], 60).'</td>
+                                <td colspan="4">'.resz_string($bsz['targy'], 60).'</td>
                             </tr>
                             </table>
                         </a>';
@@ -9802,29 +9806,33 @@ function level_felkeszit_es_kuld( $tabla = '', $recid = '', $ert_pipa = '', $sab
 
         break;
         
-        // Projekt létrehozáskor két címzett kap még értesítést
+        // Projekt létrehozáskor további címzettek kapnak még értesítést
         case 'projektkezeles_letrejott':
 
             $mit        = array('{IKT_SZAM}',       '{NEV}',       '{SZALLODA}'                             );
             $mivel      = array($_POST['ikt_szam'], $_POST['nev'], getSzallodaNev($_POST['telephely_id'])   );
             $uzi = str_replace( $mit, $mivel, fajlbol_olvas('../sablon/admin/mail/'.$cimzett.'.html') );
             
-            // Itt két fix címzett van
             // Éles rendszerben kapják meg a tényleges címzettek
-            if( $_SERVER['HTTP_HOST'] == 'www.onteam.hu' || $_SERVER['HTTP_HOST'] == 'teszt.onteam.hu' ) {
+            // FONTOS, hogy a nem tömböket adunk át, hanem | karakterrel elválasztva szedjük őket össze.
+            // Így érhető el az, hogy nem külön-külön mail menjen ki, hanem az első lesz a címzett, a többi másolatot kap egy levéként
+            if( $_SERVER['HTTP_HOST'] == 'onteam.hu' || $_SERVER['HTTP_HOST'] == 'www.onteam.hu' || $_SERVER['HTTP_HOST'] == 'teszt.onteam.hu' ) {
                 $cimzettek = array(
-                                    array('teljes_nev' => PR_KEZELES_ERT_NEV_1,    'usermail' => PR_KEZELES_ERT_MAIL_1 ),
-                                    array('teljes_nev' => PR_KEZELES_ERT_NEV_2,    'usermail' => PR_KEZELES_ERT_MAIL_2 ),
+                                    array(  'teljes_nev' => PR_KEZELES_ERT_NEV_1. '|'.PR_KEZELES_ERT_NEV_2. '|'.PR_KEZELES_ERT_NEV_3. '|'.PR_KEZELES_ERT_NEV_4. '|'.PR_KEZELES_ERT_NEV_5,
+                                            'usermail'   => PR_KEZELES_ERT_MAIL_1.'|'.PR_KEZELES_ERT_MAIL_2.'|'.PR_KEZELES_ERT_MAIL_3.'|'.PR_KEZELES_ERT_MAIL_4.'|'.PR_KEZELES_ERT_MAIL_5
+                                        ),
                             );
             } else if( $_SERVER['HTTP_HOST'] == 'dev.onteam.hu' ) {
                 $cimzettek = array(
-                                    array('teljes_nev' => PR_KEZELES_ERT_NEV_1,    'usermail' => SZINVATREND_TESZT_MAIL),
-                                    array('teljes_nev' => PR_KEZELES_ERT_NEV_2,    'usermail' => SZINVATREND_TESZT_MAIL),
+                                    array(  'teljes_nev' => PR_KEZELES_ERT_NEV_1  .'|'.PR_KEZELES_ERT_NEV_2  .'|'.PR_KEZELES_ERT_NEV_3 .'|'.PR_KEZELES_ERT_NEV_4,
+                                            'usermail'   => SZINVATREND_TESZT_MAIL.'|'.SZINVATREND_TESZT_MAIL.'|'.PR_KEZELES_ERT_MAIL_3.'|'.PR_KEZELES_ERT_MAIL_4
+                                        ),
                             );
             } else {
                 $cimzettek = array(
-                                    array('teljes_nev' => PR_KEZELES_ERT_NEV_1,    'usermail' => WEBDEB_TESZT_MAIL),
-                                    array('teljes_nev' => PR_KEZELES_ERT_NEV_2,    'usermail' => WEBDEB_TESZT_MAIL),
+                                    array(  'teljes_nev' => PR_KEZELES_ERT_NEV_1.'|'.PR_KEZELES_ERT_NEV_2,
+                                            'usermail'   => WEBDEB_TESZT_MAIL   .'|'.WEBDEB_TESZT_MAIL2
+                                        ),
                             );
             }
 
@@ -9921,8 +9929,13 @@ function level_felkeszit_es_kuld( $tabla = '', $recid = '', $ert_pipa = '', $sab
                 case 'projektszamla'     : $jog = JOG_PRSZAMLAK_KEZEL;              break;
             }
             
-            // Aktív, nem virtuális és számla kezelés joga van
-            $cimzettek = $adatbazis_kapcsolat->s('nev teljes_nev usermail aktiv virtual szemelyzet_id', 'login', "substr(`flags`, ".($jog+1).", 1)=1 AND `aktiv`=1 AND `virtual`=0");
+            // Csak azokkal a felhasználókkal foglalkozunk, akikhez hozzá van kapcsolva adott számla szállodája
+            $login_nevek = $adatbazis_kapcsolat->s('nev', 'telephely_kapcs', "`telephely_id`='{$szamla['telephely_id']}'");
+            $login_nevek = adatbazis2tomb($login_nevek, 'nev');
+            $login_nevek_sql = " AND `nev` IN ('".implode("', '", $login_nevek)."')";
+            
+            // Továbbá a felhasználó Aktív, nem virtuális és számla kezelés joga van, a szerepköre pedig "műszaki ügyintéző"
+            $cimzettek = $adatbazis_kapcsolat->s('nev teljes_nev usermail aktiv virtual szemelyzet_id', 'login', "substr(`flags`, ".($jog+1).", 1)=1 AND `aktiv`=1 AND `virtual`=0 AND `szemelyzet_id`='".MUSZAKI_ADMINISZTRATOR."'{$login_nevek_sql}");
             if( !$cimzettek ) {
                 return false;
             }
@@ -10257,7 +10270,7 @@ function level_felkeszit_es_kuld( $tabla = '', $recid = '', $ert_pipa = '', $sab
         break;
 
         case 'projektkezelesUj':
-            $esemeny =  'projekt létrehozásakor';
+            $esemeny =  'projekt létrehozásakor a projekt felelősének';
             $targy   =  get_nev().' új projekt létrehozva';
             $uzi     =  'Ön az alábbi projekt felelőse:
                         <br>'.
@@ -10267,7 +10280,7 @@ function level_felkeszit_es_kuld( $tabla = '', $recid = '', $ert_pipa = '', $sab
         break;
 
         case 'projektkezelesUj2':
-            $esemeny =  'projekt létrehozásakor';
+            $esemeny =  'projekt létrehozásakor az új projektszámról';
             $targy   =  get_nev().' új projekt létrehozva';
             $uzi     =  'Az ontEAM rendszerben új projekt került feldolgozásra.
                         <br>'.
@@ -10330,7 +10343,7 @@ function level_felkeszit_es_kuld( $tabla = '', $recid = '', $ert_pipa = '', $sab
 
         case 'szamla_kifizetes':
 
-            $esemeny =  get_nev().' számlatétel adatok megváltozásakor';
+            $esemeny =  get_nev().' számlatétel kifizetéskor történt megváltozása miatt';
             $targy   =  get_nev().' számlatétel adatok megváltoztak';
             $uzi     =  'Az alábbi számla tételei kifizetés előtt megváltoztak:
                         <br>'.
@@ -10353,13 +10366,12 @@ function level_felkeszit_es_kuld( $tabla = '', $recid = '', $ert_pipa = '', $sab
     $kieg = get_mail_teszt_felirat();
     $targy_kieg = $kieg[0];
     $uzi_kieg   = $kieg[1];
-    
 
     foreach ( $cimzettek as $akt_cimzett ) {
 
         // Mely tábláknál ellenőrizzünk szállodát is (saját szállodák). Kivéve, ha nem a Diszpécser köztponti mailcímre megy az értesítés
         $szallodat_ellenorizz = array('bejelentes', 'munkalap', 'anyagigenyles');
-        if( in_array($tabla, $szallodat_ellenorizz) && $cimzett!='diszpecser_kozponti' ){
+        if( in_array($tabla, $szallodat_ellenorizz) && $cimzett != 'diszpecser_kozponti' ) {
             $szalloda = $adatbazis_kapcsolat->s2('telephely_id', $tabla, "`recid`='{$recid}'");
             $sajat_szallodak = get_akt_login_szallodai('', '', $akt_cimzett['nev']);
 
@@ -10371,8 +10383,15 @@ function level_felkeszit_es_kuld( $tabla = '', $recid = '', $ert_pipa = '', $sab
 
         $szerepkor = getSzerepkorNev($akt_cimzett['szemelyzet_id']);
 
+        // Ha több címzett is van (tehát első kapja, többi másolatot), akkor az első legyen csak megszólítva
+        $megszolitas = $akt_cimzett['teljes_nev'];
+        if( strpos($akt_cimzett['teljes_nev'], '|') !== false ) {
+            $megszolitas = explode('|', $akt_cimzett['teljes_nev']);
+            $megszolitas = $megszolitas[0];
+        }
+        
         $mit            = array('{NEV}');
-        $mivel          = array($akt_cimzett['teljes_nev']);
+        $mivel          = array($megszolitas);
         $megszolitas    = str_replace( $mit, $mivel, fajlbol_olvas('../sablon/admin/mail/megszolitas.html'));
 
         // Ha nincs e-mail cím, akkor ezt a megjegyzésbe is írjuk bele
@@ -10385,9 +10404,23 @@ function level_felkeszit_es_kuld( $tabla = '', $recid = '', $ert_pipa = '', $sab
         foreach( $mailcimek as $mailcim ) {
 
             $mailcim = trim($mailcim);
+            
+            // Ha több címre szeretnénk elküldeni (első a címzett a többi másolatot kap)
+            // Akkor az e-mail címeket és neveket is így soroljuk fel, itt készítünk belőlük tömböt
+            $cimzettek_tombben = false;
+            if( strpos($mailcim, '|') !== false ) {
+                $cimzettek_tombben          = true;
+                $mailcim                    = explode('|', $mailcim                  );
+                $akt_cimzett['teljes_nev']  = explode('|', $akt_cimzett['teljes_nev']);
+            }
 
             // Tényleges küldés
             $sikeres_kuldes = level_kuldes(get_nev(), get_mail(), $akt_cimzett['teljes_nev'], $mailcim, $targy_kieg.$targy, $uzi_kieg.$megszolitas.$uzi);
+            // Ha a címzettek egy tömbb volt, akkor ezt most alakítsuk vissza stringgé, hogy a megjegyzésekbe írva a nevek+címek látszódjanak, ne pedig az, hogy array.
+            if( $cimzettek_tombben ) {
+                $mailcim                    = implode(', ', $mailcim                  );
+                $akt_cimzett['teljes_nev']  = implode(', ', $akt_cimzett['teljes_nev']);
+            }
             // Ha van értéke, az egy hibaüzenet, akkor sikerült küldeni, ha nincs visszatérési érték
             if( $sikeres_kuldes ) {
 

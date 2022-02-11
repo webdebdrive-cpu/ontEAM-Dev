@@ -151,7 +151,7 @@ if( isset($_POST['kuldes_igazolasra_csoportosit']) ) {
     foreach( $tetelek as $tetel ) {
         $targy_val = '';
         if( $targy_kitoltheto ) {
-            $targy_val .= ' value="'.htmlspecialchars($tetel['targy']).'"';
+            $targy_val .= ' value="'.htmlspecialchars_decode($tetel['targy']).'"';
         }
         $brutto_ertek = $adatbazis_kapcsolat->s2("SUM(`{$brutto_mezo}`)", 'projektszamla_tetel', "`projektszamla_recid`='{$_POST['id']}' AND `valtozott`='1' AND `ktgnem_id`='{$tetel['ktgnem_id']}' AND `ktghely_id`='{$tetel['ktghely_id']}' AND `afa_kod`='{$tetel['afa_kod']}'");
         $brutto_ertek = $brutto_ertek["SUM(`{$brutto_mezo}`)"];
@@ -207,18 +207,17 @@ if( isset($_POST['osszevon_targy_kitoltve_ell']) ) {
         
         $tetel_xml .= '
             <row rownumberonpage="'.($i+1).'">
-                <property name="Sor megnevezése">'.$targyak[$i].'</property>
-                <property name="Bruttó sorösszeg">'.$brutto_ertek.'</property>
-                <property name="Főkönyvi számlaszám">'.$tetel['ktgnem_id'].'</property>
-                <property name="Jogcím">'.$tetel['jogcim'].'</property>
-                <property name="Üzemrész">'.$tetel['uzemresz'].'</property>
-                <property name="Főkönyvi számlaszám megnevezése">'.$tetel['megn'].'</property>
-                <property name="Főkönyvi számlaszám">'.$tetel['ktgnem_id'].'</property>
-                <property name="Költséghely">'.$tetel['ktghely_id'].'</property>
-                <property name="ÁFA kód">'.$tetel['afa_kod'].'</property>
-                <property name="ÁFA neve">'.$tetel['afa_nev'].'</property>
-                <property name="ÁFA %">'.$tetel['afa'].'</property>
-                <property name="Szálloda">'.getSzallodaNev($szamla['telephely_id'], '-Andoc név-').'</property>
+                <property name="Sor megnevezése"><![CDATA['.urlencode(htmlspecialchars_decode($targyak[$i])).']]></property>
+                <property name="Bruttó sorösszeg">'.urlencode($brutto_ertek).'</property>
+                <property name="Főkönyvi számlaszám">'.urlencode(htmlspecialchars_decode($tetel['ktgnem_id'])).'</property>
+                <property name="Jogcím"><![CDATA['.urlencode(htmlspecialchars_decode($tetel['jogcim'])).']]></property>
+                <property name="Üzemrész"><![CDATA['.urlencode(htmlspecialchars_decode($tetel['uzemresz'])).']]></property>
+                <property name="Főkönyvi számlaszám megnevezése"><![CDATA['.urlencode(htmlspecialchars_decode($tetel['megn'])).']]></property>
+                <property name="Költséghely">'.urlencode(htmlspecialchars_decode($tetel['ktghely_id'])).'</property>
+                <property name="ÁFA kód">'.urlencode(htmlspecialchars_decode($tetel['afa_kod'])).'</property>
+                <property name="ÁFA neve">'.urlencode(htmlspecialchars_decode($tetel['afa_nev'])).'</property>
+                <property name="ÁFA %">'.urlencode(htmlspecialchars_decode($tetel['afa'])).'</property>
+                <property name="Szálloda"><![CDATA['.urlencode(getSzallodaNev($szamla['telephely_id'], '-Andoc név-')).']]></property>
                 <property name="Konszolidációs kód">00</property>
                 <property name="Projektkód">'.$projekt_kod.'</property>
                 <property name="Egyedi azonosító">000000</property>
@@ -274,9 +273,15 @@ if( isset($_POST['szamla_igazol']) ) {
     
     
     // Illetve az XML visszát is intézzük
-    if( xml_vissza($_POST['id'], 'Igazolva', '') !== false ) {
+    $xml_vissza = xml_vissza($_POST['id'], 'Igazolva', '');
+    if( $xml_vissza !== false ) {
+        // Ha nem csak egy 1-es kaptunk, akkor abban van egy hibaüzenet még, amit ki kell írni
+        $extra_hibauzenet = '';
+        if( $xml_vissza != '1' ) {
+            $extra_hibauzenet = '<br>'.$xml_vissza;
+        }
         echo json_encode(array(
-                                'hiba'  => 'Az Andoc felé küldött visszaigazoló XML elküldése során hiba történt!<br>A számlát nem sikerült igazolni.',
+                                'hiba'  => 'Az Andoc felé küldött visszaigazoló XML elküldése során hiba történt!<br>A számlát nem sikerült igazolni.'.$extra_hibauzenet,
                                 'title' => 'Hiba',
                         ));
         mysqli_commit($db_kapcs);
@@ -323,9 +328,15 @@ if( isset($_POST['projektSzamlaElutasit']) ) {
     }
 
     // Illetve az XML visszát is intézzük
-    if( xml_vissza($_POST['id'], 'Elutasítva', $_POST['memo']) !== false ) {
+    $xml_vissza = xml_vissza($_POST['id'], 'Elutasítva', $_POST['memo']);
+    if( $xml_vissza !== false ) {
+        // Ha nem csak egy 1-es kaptunk, akkor abban van egy hibaüzenet még, amit ki kell írni
+        $extra_hibauzenet = '';
+        if( $xml_vissza != '1' ) {
+            $extra_hibauzenet = '<br>'.$xml_vissza;
+        }
         echo json_encode(array(
-                                'hiba'  => 'Az Andoc felé küldött visszaigazoló XML elküldése során hiba történt!<br>A számlát nem sikerült elutasítani.',
+                                'hiba'  => 'Az Andoc felé küldött visszaigazoló XML elküldése során hiba történt!<br>A számlát nem sikerült elutasítani.'.$extra_hibauzenet,
                                 'title' => 'Hiba',
                         ));
         mysqli_commit($db_kapcs);
@@ -468,7 +479,7 @@ if( isset($_POST['projektSzamlaSztornoz']) ) {
     }
     
     // Megjegyzésbe is kerüljön be az indoklás
-    if( addMegj('energia_szamla', $_POST['id'], 'Számla sztornózva.<br>Indoklás: '.nl2br2($_POST['memo'])) === false ) {
+    if( addMegj('projektszamla', $_POST['id'], 'Számla sztornózva.<br>Indoklás: '.nl2br2($_POST['memo'])) === false ) {
         $db_error = true;
     }
 
@@ -711,7 +722,7 @@ if( isset($_POST['tetel_sorok_ment']) ) {
     // Tételek kimentése Session-be
     } else {
         $_SESSION['pr_szla_tetel_recid']     = $_POST['adatok'][$recid_adat][1];
-        $_SESSION['pr_szla_tetel_targy']     = str_replace('{IDEZOJEL}', '"', $_POST['adatok'][$targy_adat][1]);
+        $_SESSION['pr_szla_tetel_targy']     = $_POST['adatok'][$targy_adat][1];
         
         if( $devizas ) {
             $_SESSION['pr_szla_tetel_dev_net'] = $_POST['adatok'][$netto_ert_adat][1];
@@ -745,7 +756,14 @@ if( isset($_POST['tetel_sorok_ment']) ) {
             // Jogcím/Áfakód esetén nem csak egy recid-t tárolunk le, hanem a tábla oszlopait, ezért lekérjük a megfelelő sort
             $jogcim = $adatbazis_kapcsolat->s2('recid jogcim uzemresz megn szla_szam', 'jogcim', "`recid`='{$jogcim}'");
             $afakod = $adatbazis_kapcsolat->s2('recid nev kod afa', 'afakod', "`recid`='{$afakod}'");
-
+            // Adatbázisból olvasunk ki adatot, ezért ezt kódoljuk vissza
+            foreach ( $jogcim as $kulcs => $ertek ) {
+                $jogcim[$kulcs] = htmlspecialchars_decode($jogcim[$kulcs]);
+            }
+            foreach ( $afakod as $kulcs => $ertek ) {
+                $afakod[$kulcs] = htmlspecialchars_decode($afakod[$kulcs]);
+            }
+            
             // Ha ismerjük a tétel recid-ját, akkor update
             if( $_POST['adatok'][$recid_adat][1][$i] ) {
                
@@ -865,7 +883,7 @@ if( isset($_POST['tetel_sorok_ment_modosit']) ) {
     // Tételek kimentése Session-be
     } else {
         $_SESSION['pr_szla_tetel_recid']     = $_POST['adatok'][$recid_adat][1];
-        $_SESSION['pr_szla_tetel_targy']     = str_replace('{IDEZOJEL}', '"', $_POST['adatok'][$targy_adat][1]);
+        $_SESSION['pr_szla_tetel_targy']     = $_POST['adatok'][$targy_adat][1];
         $_SESSION['pr_szla_tetel_pr_tetel']  = $_POST['adatok'][$pr_tetel_adat][1];
         if( $devizas ) {
             $_SESSION['pr_szla_tetel_dev_net'] = str_replace(',', '.', $_POST['adatok'][$netto_ert_adat][1]);
@@ -3225,8 +3243,8 @@ require_once('selectek.php');
             
             $szamla_html .= nl2('
                 <div class="dtr nSor">
-                    <div class="dtc">'.$tetel['targy'].'</div>
-                    <div class="dtc">'.$tetel['megn'].'</div>
+                    <div class="dtc">'.htmlspecialchars_decode($tetel['targy']).'</div>
+                    <div class="dtc">'.htmlspecialchars_decode($tetel['megn']).'</div>
                     <div class="dtc r nowrap">'.number_format($tetel['netto_ert'], 0, ',', ' ').'</div>
                     <div class="dtc r nowrap">'.number_format($tetel['brutto_ert'], 0, ',', ' ').'</div>
                     <div class="dtc r nowrap">'.$tetel['afa'].'</div>
@@ -3515,51 +3533,47 @@ function xml_vissza( $szamla_id, $igazolva = '', $oka = '' ) {
     if( $igazolva == 'Elutasítva' ) {
         $wf_name = '[AUTO] Számla szétosztás';
     } else {
-        $telephely = $adatbazis_kapcsolat->s2('teljigkuldes', 'telephely', "`id`='{$szamla['telephely_id']}'");
-        if( $telephely === false ) { $db_error = true; }
-        if( $telephely['teljigkuldes'] == 'k' ) {
-            $wf_name = $szamla['telephely_id'].'_Könyvelés';
-        } else {
-            $wf_name = '[AUTO] Utalványozásra küldés';
-        }
+        // Projektszámláknál a $wf_name értéke fix értéket kap
+//        $telephely = $adatbazis_kapcsolat->s2('teljigkuldes', 'telephely', "`id`='{$szamla['telephely_id']}'");
+//        if( $telephely === false ) { $db_error = true; }
+//        if( $telephely['teljigkuldes'] == 'k' ) {
+            $wf_name = TELEPHELY_SZK.'_Könyvelés';
+//        } else {
+//            $wf_name = '[AUTO] Utalványozásra küldés';
+//        }
     }
     
     $valasz_xml = 'psInputXml=<?xml version="1.0" encoding="utf-8"?>
 <xml>
   <data>
     <register registernumber="'.$szamla['andoc_id'].'" operation="update">
-      <workflow_node_name>'.$wf_name.'</workflow_node_name>
+      <workflow_node_name>'.urlencode($wf_name).'</workflow_node_name>
       <properties>
         <container name="NIK1">
           <row rownumberonpage="1">
             <property name="Számla főtípus">Beruházási számla</property>
-            <property name="Igazoló döntés">'.$igazolva.'</property>
-            <property name="Teljesítés igazolás elutasítás oka">'.$oka.'</property>
-            <property name="Szerződés iktatószáma">'.$szamla['sz_szam'].'</property>
-            <property name="Beruházási projektkód">'.$szamla['pr_szam'].'</property>
-            <property name="Szálloda - Klaszter">'.$szamla['telephely_id'].'</property>
-            <property name="Számla tárgya">'.$szamla['targy'].'</property>
-            <property name="Számla fizetője">'.$erteklista['cegkod'].'</property>
-            <property name="Kötelezettségi főkönyvi számlaszám">'.$fokonyvi_szla_szam.'</property>
-            <property name="Teljesítés igazoló személye">'.
+            <property name="Igazoló döntés">'.urlencode($igazolva).'</property>
+            <property name="Teljesítés igazolás elutasítás oka"><![CDATA['.urlencode($oka).']]></property>
+            <property name="Szerződés iktatószáma"><![CDATA['.urlencode($szamla['sz_szam']).']]></property>
+            <property name="Beruházási projektkód"><![CDATA['.urlencode($szamla['pr_szam']).']]></property>
+            <property name="Szálloda - Klaszter">'.TELEPHELY_SZK.'</property>
+            <property name="Számla tárgya"><![CDATA['.urlencode($szamla['targy']).']]></property>
+            <property name="Számla fizetője">'.urlencode($erteklista['cegkod']).'</property>
+            <property name="Kötelezettségi főkönyvi számlaszám"><![CDATA['.urlencode($fokonyvi_szla_szam).']]></property>
+            <property name="Teljesítés igazoló személye"><![CDATA['.
             // Azért nem a $szamla['igazolva_usr'], hisz épp most zajlik az igazolás/elutasítás, ez az adat még nincs az adatbázisban
-            $_SESSION[get_db_tabla().'teljes_nev']
-            .'</property>
+            urlencode($_SESSION[get_db_tabla().'teljes_nev'])
+            .']]></property>
           </row>
         </container>
         <container name="IK1">
-          '.$szamla['kuld_tetel_xml'].'
+          '.$szamla['kuld_tetel_xml']/*Ennek előállítását ha meg szeretnéd nézni, keres rá erre: "$_POST['osszevon_targy_kitoltve_ell']"*/.'
         </container>
       </properties>
     </register>
   </data>
 </xml>
 ';
-//if( isset($_GET['teszt']) ) {
-//    echo $valasz_xml;
-//    echo 'f';
-//    exit;
-//}
     
     $fejlec = array(
         "Content-type: application/x-www-form-urlencoded",
@@ -3578,8 +3592,12 @@ function xml_vissza( $szamla_id, $igazolva = '', $oka = '' ) {
         $valasz_xml = '
 ***Csak Éles és Teszt rendszerben küldjük el az XML-t valójában!***
 
-        '.$valasz_xml;
+        '.urldecode($valasz_xml);
     }
+    
+    // Visszaalakítjuk az XML-t, hogy logolni tudjuk (megjegyzésbe és andoc.log-ba is)
+    // Az urldecode() a teljes stringre meghívható, nem gond, ha csak egy része van elkódolva
+    $valasz_xml = urldecode($valasz_xml);
     
     // Logolás
     $log_utvonal = '../andoc.log';
@@ -3619,8 +3637,10 @@ function xml_vissza( $szamla_id, $igazolva = '', $oka = '' ) {
     }
 
     // Ha Andoc-ék nem tudják fogadni a választ, akkor hibaüzenet
+    $extra_hibauzenet = '';
     if( eles_es_teszt_rendszer_e() && $kapott_xml -> result != 'I' ) {
-        addMegj('projektszamla', $szamla_id, 'Az alábbi válasz XML-t nem sikerült elküldeni:<br>'.htmlspecialchars($valasz_xml));
+        $extra_hibauzenet = 'Hiba: '.$kapott_xml -> errorcode.' - '.$kapott_xml -> errormessage;
+        addMegj('projektszamla', $szamla_id, 'Az alábbi válasz XML-t nem sikerült elküldeni:<br>'.htmlspecialchars($valasz_xml).'<br><br>'.$extra_hibauzenet);
         $db_error = true;
     // Ezt csak akkor módosítjuk, ha az XML küldése is rendben volt
     } else {
@@ -3642,6 +3662,10 @@ function xml_vissza( $szamla_id, $igazolva = '', $oka = '' ) {
         if( $sql === false ) { $db_error = true; }
     }
     
-    return $db_error;
+    if( $extra_hibauzenet ) {
+        return $extra_hibauzenet;
+    } else {
+        return $db_error;
+    }
     
 }

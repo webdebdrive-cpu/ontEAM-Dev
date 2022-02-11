@@ -87,6 +87,12 @@ class ServerClass {
             Throw new SOAPFault ('Server', 'Hiányzó Andoc azonosító!');
         }
         $szamla_andoc_id = $andoc_id = $szamla -> data -> register['registernumber'];
+        
+        // Ha létezik a kifizetett összeg tag, de nincs értéke (vagy 0), akkor dobjunk hibát
+        if( isset($szamla_adatok['Kifizetett összeg']) && (!$szamla_adatok['Kifizetett összeg'] || $szamla_adatok['Kifizetett összeg'] == '0' ) ) {
+            Throw new SOAPFault ('Server', 'Hibás kifizetett összeg adat. Ennek az értéke nem lehet 0!');
+        }
+        
         // Ha küldtek "Kifizetett összeg"-et, akkor kötelező megadni a Főtípust is (sima insertnél nem feltétlen kötelező)
         if( !$szamla_adatok['Számla főtípus'] && $szamla_adatok['Kifizetett összeg'] ) {
             Throw new SOAPFault ('Server', 'Hiányzó számlafőtípus!');
@@ -415,6 +421,7 @@ class ServerClass {
                 if( $erteklista === false ) { $db_error = true; }
                 $kolt_vis = $erteklista['id'];
             }
+            $szamla_adatok['Kifizetett összeg'] = str_replace(',', '.', $szamla_adatok['Kifizetett összeg']);
 
             // Ha az alapvető adatokon nem akadtunk fenn, akkor szúrjuk be vagy updateljük a számlát, attól föggően, hogy az Andok azonosító ismert-e.
             // Ehhez az első lépés, a mező/érték párokat beállítani.
@@ -474,7 +481,7 @@ class ServerClass {
             // vagy még az átmenetiben nincs, ekkor Insert módban vagyunk
             if( !$aparecid ) {
 
-                // Adott modul átmeneti táblájában van a száml, ezt kell updatelni
+                // Adott modul átmeneti táblájában van a számla, ezt kell updatelni
                 if( $insert_update == 'update' ) {
                     
                     $return_uzi = 'beszúrva';
@@ -495,11 +502,13 @@ class ServerClass {
                     $szamla_xml = "*** ÚJ SZÁMLA ***\n".$szamla_xml;
 
                     // Insertnél kell az andoc_id is
-                    array_push($mezok,     'erk_xml',   'andoc_id', 'insert_usr',  'update_usr',   'insert_dt'  );
-                    array_push($ertekek,   $szamla_xml, $andoc_id,  self::IU_USER,  self::IU_USER, 'NOW()'      );
-                    $aparecid = $adatbazis_kapcsolat->i($tabla.'_atmeneti', $mezok, $ertekek);
-                    if( $aparecid === false ) { $db_error = true; }
+                    if( $andoc_id ) {
+                        array_push($mezok,     'erk_xml',   'andoc_id', 'insert_usr',  'update_usr',   'insert_dt'  );
+                        array_push($ertekek,   $szamla_xml, $andoc_id,  self::IU_USER,  self::IU_USER, 'NOW()'      );
+                        $aparecid = $adatbazis_kapcsolat->i($tabla.'_atmeneti', $mezok, $ertekek);
+                        if( $aparecid === false ) { $db_error = true; }
 // Throw new SOAPFault ('Server', $adatbazis_kapcsolat->gp());
+                    }
                     
                 }
                 

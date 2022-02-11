@@ -12,10 +12,17 @@ define('PR_KEZELES_ERT_NEV_1',      'Danubius IT Helpdesk');
 define('PR_KEZELES_ERT_MAIL_1',     'ithelpdesk@danubiushotels.com');
 define('PR_KEZELES_ERT_NEV_2',      'Csete Gábor');
 define('PR_KEZELES_ERT_MAIL_2',     'gabor.csete@danubiushotels.com');
+define('PR_KEZELES_ERT_NEV_3',      'Korcsmáros Tibor');
+define('PR_KEZELES_ERT_MAIL_3',     'korcsmaros@szinvatrend.hu');
+define('PR_KEZELES_ERT_NEV_4',      'Handari Tamás');
+define('PR_KEZELES_ERT_MAIL_4',     'handari@szinvatrend.hu');
+define('PR_KEZELES_ERT_NEV_5',      'Weitzinger Krisztina');
+define('PR_KEZELES_ERT_MAIL_5',     'krisztina.weitzinger@danubiushotels.com');
 define('MSZK_MAIL_1',               'diszpecser@danubiushotels.com');
 define('MSZK_MAIL_2',               'gyongyi.szollosi@danubiushotels.com');
 define('SZINVATREND_TESZT_MAIL',    'korcsmaros@szinvatrend.hu');
 define('WEBDEB_TESZT_MAIL',         'teszt@webdeb.hu');
+define('WEBDEB_TESZT_MAIL2',        'bk@webdeb.hu');
 define('CSV_EXPORT_UTVONAL_1',      'export');
 define('CSV_EXPORT_UTVONAL_2',      '/csv');
 define('CSV_EXPORT_ELAVULAS',       3600); // 60 * 60
@@ -424,7 +431,7 @@ define('JOG_DOKUMENTUMTAR_KEZEL',       97);
 define('JOG_DOKUMENTUMTAR_TOROL',       98);
 define('JOG_PR_TELJES_CASH_FLOW',      132);
 define('SZAMLAK_IGAZOLASA',            139);
-define('ANDOC_SZAMLAK_SZETOSZTASA',    140);
+define('ANDOC_SZAMLAK_SZETOSZTASA',    141);
 
 // ÉRTESÍTÉSEK
 define('ERT_KESZRE_JELENTESKOR',         0);
@@ -482,13 +489,14 @@ define('EL_DOK_TIPUS_MUNKATER_ATAD',4);
 define('EL_DOK_TIPUS_TELJESITES',   10);
 
 // Beosztások értéklista fix bejegyzése
-define('EL_BEOSZTAS_PR_FELEOS',     189);
+define('EL_BEOSZTAS_DISZ_KP_VEZ',   16 );
 define('EL_BEOSZTAS_FEJL_VIG_H',    28 );
 define('EL_BEOSZTAS_MUSZAKI_IG',    91 );
-define('EL_BEOSZTAS_MUSZAKI_ASSZ',  131);
-define('EL_BEOSZTAS_BERUH_IG',      190);
 define('EL_BEOSZTAS_TER_FELELOS',   111);
-define('EL_BEOSZTAS_DISZ_KP_VEZ',   16 );
+define('EL_BEOSZTAS_MUSZ_UGY_INT',  113);
+define('EL_BEOSZTAS_MUSZAKI_ASSZ',  131);
+define('EL_BEOSZTAS_PR_FELEOS',     189);
+define('EL_BEOSZTAS_BERUH_IG',      190);
 
 // Munkalap típusok
 define('MLTIPUS_HIBAELHARITAS', 1);
@@ -528,7 +536,6 @@ define('KTGHELY_ENERGIA',  7020);
 define('BEOSZTAS_FIX_SZABADNAP_JEL',  'SZ');
 define('BEOSZTAS_FIX_PIHENONAP_JEL',  'P');
 define('BEOSZTAS_FIX_BETEGSEG_JEL',   'B');
-define('TELEPHELY_SZK',              1106);
 
 // Beosztás ünnepnap típusok
 define('BEOSZTAS_UNNEPNAP_MUNKASZUNET', 1);
@@ -539,3 +546,14 @@ define('BEOSZTAS_UNNEPNAP_HELYETTES',   3);
 define('SZAMLA_KOLT_VIS_DZRT',   13);
 define('SZAMLA_KOLT_VIS_DHZRT',  11);
 define('SZAMLA_KOLT_VIS_GUNDEL', 15);
+
+// Szállodák, telephelyek kódjai
+define('TELEPHELY_SZK',              1106);
+define('TELEPHELY_GUNDEL',           5411);
+define('TELEPHELY_GUNDEL_MOD',       5400);
+define('TELEPHELY_LOVER',            2022);
+define('TELEPHELY_LOVER_MOD',        1106);
+define('TELEPHELY_ZAMARDI',          4308);
+define('TELEPHELY_ZAMARDI_MOD',      1106);
+define('TELEPHELY_DZRT',             4301);
+define('TELEPHELY_DZRT_MOD',         1106);

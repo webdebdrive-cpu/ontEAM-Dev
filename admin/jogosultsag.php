@@ -149,7 +149,6 @@ $jogosultsagok = array(
     128 => array('nev' => 'Projekt leállítása',                     'kat' => 10, 'sor' => 24),
     129 => array('nev' => 'Projekt újranyitás',                     'kat' => 10, 'sor' => 25),
     132 => array('nev' => 'Teljes Cash-flow',                       'kat' => 10, 'sor' => 26),
-    141 => array('nev' => 'Andoc számlák szétosztása',              'kat' => 10, 'sor' => 27),
 
     42 => array('nev' => 'Eszközök olvasása',                       'kat' => 8, 'sor' => 1),
     43 => array('nev' => 'Eszközök kezelése',                       'kat' => 8, 'sor' => 2),
@@ -172,6 +171,7 @@ $jogosultsagok = array(
     87  => array('nev' => 'Anyag számlák megtekintése',             'kat' => 12, 'sor' => 13),
     131 => array('nev' => 'Anyag számlák kezelése',                 'kat' => 12, 'sor' => 14),
     139 => array('nev' => 'Számlák igazolása',                      'kat' => 12, 'sor' => 15),
+    141 => array('nev' => 'Andoc számlák szétosztása',              'kat' => 12, 'sor' => 16),
     
     // Az alábbi 3 nincs is igazából használva, ezt akár át lehet nevezni, másra használni
     90 => array('torolve' => 'TÖRÖLVE', 'nev' => 'Számlák olvasása','kat' => 13, 'sor' => 4),

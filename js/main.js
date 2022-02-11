@@ -86,6 +86,7 @@ var PHP_SELF = baseName(location.href)+'.php';
 *   is_valid_date()         Ellenőrzi, hogy a kapott dátum valós-e
 *   is_valid_mail()         Ellenőrzi, hogy az e-mail cím megfelelő formátumú-e
 *   isz2varos()             Irányítószámból várost
+*   json_spec_karakterek()  Jsonnal ha adatot szeretnénk átküldeni, akkor gondunk lesz az idézőjelle, aposztróffal és backslash-el
 *	kedvencek_koze()		Kedvencek közéteszi
 *	mail_rejtes()			<= class.Head.php-ba kerül => Mailcím elrejtése. Fordított e-mail címet vár, kukac és pont helyett [kukac]/[pont] szöveggel. A PHP mail_rejtes()-el működik együtt
 *	mobilszam()             Mobilszám formázás pl: 304509705 => (30) 4509-705
@@ -817,6 +818,18 @@ function isz2varos(isz_id, varos_id, utvonal) {
             }
         });
     }
+}
+
+/**
+*	@desc Amikor JS alatt egy adatot elkódoluk JSON-é, hogy el tudjuk POST-olni
+*	akkor a " ' és \ karakterekkel gondunk lesz, ezeket át kell alakítani
+*
+*	@param string string: A string amit fel szeretnénk dolgozni
+*	
+*	@return string: A felkészített string, amiből már lehet JSON-t készíteni és POST-olni
+*/
+function json_spec_karakterek(string) {
+    return string.replace(/\\/g, "\\u005C").replace(/"/g, '\\u0022').replace(/'/g, "\\u0027");
 }
 
 /**

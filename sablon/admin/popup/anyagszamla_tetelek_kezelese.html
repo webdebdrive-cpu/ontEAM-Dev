@@ -637,11 +637,11 @@ function tetel_sorok_ment( bezar_nelkul ) {
     });
     var cikktorzsek = [];
     $('.pop_cikktorzs').each(function() {
-        cikktorzsek.push( $(this).html().replace(/"/g, '{IDEZOJEL}') );
+        cikktorzsek.push( json_spec_karakterek($(this).html()) );
     });
     var szall_cszok = [];
     $('.pop_szall_csz').each(function() {
-        szall_cszok.push( $(this).html().replace(/"/g, '{IDEZOJEL}') );
+        szall_cszok.push( json_spec_karakterek($(this).html()) );
     });
     var cikktorzs_idk = [];
     $('.pop_cikktorzs_id').each(function() {
@@ -657,7 +657,7 @@ function tetel_sorok_ment( bezar_nelkul ) {
     });
     var cikkmeek = [];
     $('.pop_cikkmee').each(function() {
-        cikkmeek.push( $(this).html() );
+        cikkmeek.push( json_spec_karakterek($(this).html()) );
     });
     var netto_ert = [];
     $('.pop_netto_ert').each(function() {
@@ -669,11 +669,11 @@ function tetel_sorok_ment( bezar_nelkul ) {
     });
     var afakodok = [];
     $('.pop_afakod').each(function() {
-        afakodok.push( $(this).val() );
+        afakodok.push( json_spec_karakterek($(this).val()) );
     });
     var jogcimek = [];
     $('.pop_jogcim').each(function() {
-        jogcimek.push( $(this).val() );
+        jogcimek.push( json_spec_karakterek($(this).val()) );
     });
     var valtozott = [];
     $('.pop_valtozott').each(function() {

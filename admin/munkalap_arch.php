@@ -24,7 +24,7 @@ $szamla_html = '';
 
 // Dokumentumok fülhöz kell majd
 $tobb_kep = true;
-if($tobb_kep){
+if( $tobb_kep ) {
     function get_tobbkep_darab()    { return 10;         } // Maximum hány kép tallózható be
     function get_tobbkep_csakkep()  { return '';         } // Milyen kiterjesztéseket engedünk meg (ha mindenet, legyen üres)
     function get_tobbkep_kepmeret() { return 10;         } // MB-ban
@@ -33,7 +33,6 @@ if($tobb_kep){
         return $megnevezes_origi.'_id';
     }
     function get_tobbkep_tabla(){ return str_replace('.php', '', basename(self())).'_dok'; } // A képeket tartalmazó adatbázis tábla neve FONTOS: ha itt átnevezed akkor a tobbkep.php-ban is át kell írni!
-
 }
 
 
@@ -218,10 +217,10 @@ require('selectek.php');
     if( $_GET['id'] ){
         $sor = $adatbazis_kapcsolat -> s2('*', $megnevezes, "`recid`='{$_GET['id']}'");
     }
-    if($sor['dok_db']){
+    if( $sor['dok_db'] ) {
         $dok_db  = ' ('.$sor['dok_db'].')';
     }
-    if($sor['megj_db']){
+    if( $sor['megj_db'] ) {
         $megj_db = ' ('.$sor['megj_db'].')';
     }
 
@@ -268,20 +267,32 @@ require('selectek.php');
 
     $js_submit_elott = 'return form_ell_admin();';
 
-	if(isset($_GET['modosit'])) {
+	if( isset($_GET['modosit']) ) {
 
         // Ha Gyorskeresőből érkeznénk ide, akkor az ID-t valójában az id_hidden tartalmazza majd
-        if(isset($_GET['id_hidden'])){
+        if( isset($_GET['id_hidden']) ) {
             $_GET['id'] = $_GET['id_hidden'];
         }
         
         // Jóváhagyott érték legyen formázva, úgy is csak ki van írva
         $sor['jh_ert'] = number_format($sor['jh_ert'], 0, '', ' ');
 
-        foreach($akt_tomb as $tomb) {
+        // Mivel artchiv felületen vagyunk, ezért a mezők típusát és nevét átírjuk ha kell
+        // Erre azért van szükség, hogy pl. egy atucompletes mezőből txt legyen, hogy az értékét ne más táblákból olvassa vissza
+        // hanem az adatbázisban letároltat
+        $i = 0;
+        foreach ( $akt_tomb as $tomb ) {
+            if( $tomb['type_arch'] ) {
+                $akt_tomb[$i]['type'] = $tomb['type_arch'];
+                $akt_tomb[$i]['name'] = $tomb['name_arch'];
+            }
+            $i++;
+        }
+        
+        foreach ( $akt_tomb as $tomb ) {
             if( $tomb['type'] == 'autocomplete' ) {
 
-                if($tomb['csoport']){
+                if( $tomb['csoport'] ) {
                     $kulso_ertek = $adatbazis_kapcsolat->s2('info', $tomb['tabla'], "`{$tomb['oszlop_keres']}`='{$sor[$tomb['name']]}' AND `csoport`='{$tomb['csoport']}'", '', '1');
                     $kulso_ertek['nev'] = $kulso_ertek['info'];
                 } else {
@@ -297,23 +308,20 @@ require('selectek.php');
 
 
         $json_sor = array();
-        foreach($sor as $kulcs => $elem){
+        foreach ( $sor as $kulcs => $elem ) {
             $json_sor[$kulcs] = formAdatok_replace($elem);
         }
 
         $szamla_html .= '<script> formAdatok = JSON.parse(\''.json_encode($json_sor).'\'); </script>';
-
-        $telephely = $adatbazis_kapcsolat->s('nev', 'telephely', 'id='.$sor['telephely_id'], '', '1');
-        $telephely = $telephely[0]['nev'];
 
         $munkalap_kapcs = $adatbazis_kapcsolat->s('recid', 'munkalap_kapcs', "`munkalap_id` = '".$sor['recid']."'");
 
 		// Form actionja
 		$action = self().get_get(array('errnum','kephiba','siker'));
 
-        if(isset($_GET['ujkent'])){
-			foreach($akt_tomb as $ertek){
-				$sor[$ertek['name']] = $_SESSION[$ertek['name']];
+        if( isset($_GET['ujkent']) ) {
+            foreach ( $akt_tomb as $ertek ) {
+                $sor[$ertek['name']] = $_SESSION[$ertek['name']];
 			}
 		}
 
@@ -342,7 +350,7 @@ require('selectek.php');
             ');
             $i = 1;
 
-            foreach($munkalap_kapcsok as $munkalap_kapcs) {
+            foreach ( $munkalap_kapcsok as $munkalap_kapcs ) {
 
                 $sor = $adatbazis_kapcsolat->s2('recid ikt_szam telephely_id obj_id hiba_id insert_dt stat_id hiba_text usr_nev usr_telefon usr_email usr_beosztas_id usr_reszleg_id helyiseg_text', 'bejelentes_arch', "`recid` = '".$munkalap_kapcs['bejelentes_id']."'", '', '1');
                 if( $sor ) {
@@ -415,7 +423,7 @@ require('selectek.php');
 		}
 
     // Tételek fül
-    } elseif(isset($_GET['tetel'])) {
+    } elseif( isset($_GET['tetel']) ) {
 
         // Tétel sorok
         $i = 0;

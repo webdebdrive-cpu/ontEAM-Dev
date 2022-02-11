@@ -327,7 +327,7 @@ if( isset($_POST['tetel_sorok_ment']) ) {
     } else {
         $_SESSION['fennt_szerz_tetel_recid']        = $_POST['adatok'][$recid_adat][1];
         $_SESSION['fennt_szerz_tetel_telephely_id'] = $_POST['adatok'][$telephely_adat][1];
-        $_SESSION['fennt_szerz_tetel_targy']        = str_replace('{IDEZOJEL}', '"', $_POST['adatok'][$targy_adat][1]);
+        $_SESSION['fennt_szerz_tetel_targy']        = $_POST['adatok'][$targy_adat][1];
         $_SESSION['fennt_szerz_tetel_varh_erk']     = $_POST['adatok'][$varh_erk_adat][1];
         if( $devizas ) {
             $_SESSION['fennt_szerz_tetel_dev_varh_ert'] = $_POST['adatok'][$varh_ert_adat][1];

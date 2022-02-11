@@ -35,3 +35,7 @@ div.naplo div.nSor div.dtc:nth-of-type(4) {
 table.szamla_cont_tabla tr td:nth-last-of-type(2), table.szamla_cont_tabla tr td:nth-last-of-type(3) {
     width: 30rem;
 }
+
+.osszevon_targy {
+    min-width: 25rem;
+}

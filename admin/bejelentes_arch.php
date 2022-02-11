@@ -187,8 +187,20 @@ require_once('selectek.php');
     if( isset($_GET['modosit']) ) {
 
         // Ha Gyorskeresőből érkeznénk ide, akkor az ID-t valójában az id_hidden tartalmazza majd
-        if(isset($_GET['id_hidden'])){
+        if( isset($_GET['id_hidden']) ) {
             $_GET['id'] = $_GET['id_hidden'];
+        }
+        
+        // Mivel artchiv felületen vagyunk, ezért a mezők típusát és nevét átírjuk ha kell
+        // Erre azért van szükség, hogy pl. egy atucompletes mezőből txt legyen, hogy az értékét ne más táblákból olvassa vissza
+        // hanem az adatbázisban letároltat
+        $i = 0;
+        foreach ( $akt_tomb as $tomb ) {
+            if( $tomb['type_arch'] ) {
+                $akt_tomb[$i]['type'] = $tomb['type_arch'];
+                $akt_tomb[$i]['name'] = $tomb['name_arch'];
+            }
+            $i++;
         }
 
         foreach ( $akt_tomb as $tomb ) {
