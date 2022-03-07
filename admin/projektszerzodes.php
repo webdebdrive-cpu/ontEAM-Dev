@@ -119,6 +119,28 @@ if( isset($_POST['fenntartasi_szerzodes']) ) {
     exit;
 }
 
+// Szálloda lenyíló lekérése az ismert költségviselő alapján
+if( isset($_POST['telephely_lista_betolt']) ) {
+        
+    // Keressük meg az $akt_tomb-ben a szálloda lenyílót, vezessük ide vissza a működést,
+    // hogy egy helyen kelljen állítgatni a dolgokat
+    $akt_tomb_tmp = array();
+    foreach ( $akt_tomb as $ertek ) {
+        if( $ertek['type'] == 'select_felh_telephely' ) {
+            array_push($akt_tomb_tmp, $ertek);
+            break;
+        }
+    }
+    $akt_tomb = $akt_tomb_tmp;
+    $koltsegviselo_szalloda_lenyilohoz = $_POST['kolt_vis'];
+    require_once 'switch.php';
+    
+    echo json_encode(array('szalloda_lenyilo' => $mezok));
+    
+    $weblap -> leallit();
+    exit;
+}
+
 // Projektszerődés dokumentum típusának beállítása 
 // (Projektek dokumentum fül alatt, minősítés gombra kattintva, de mivel szerződés dokumentumról van szó, ezért itt kezeljük)
 if( isset($_POST['dok_minosites_beallit']) ) {
@@ -259,6 +281,7 @@ if( isset($_POST['get_projekt_tabla']) ) {
         default         : $order = '`'.get_db_tabla().'projektkezeles`.`ikt_szam`';                                                                                  break;
     }
 
+    $telephely = $adatbazis_kapcsolat->s2('unid', 'telephely', "`id`='{$_POST['telephely_id']}'");
     $prek = $adatbazis_kapcsolat->s('
                                         `'.get_db_tabla().'projektkezeles`.`recid`,
                                         `'.get_db_tabla().'projektkezeles`.`ikt_szam`,
@@ -271,8 +294,8 @@ if( isset($_POST['get_projekt_tabla']) ) {
                                         `'.get_db_tabla().'projektkezeles`.`insert_dt`
                                             ',
                                         'projektkezeles',
-                                        "`telephely_id`='{$_POST['telephely_id']}' AND `stat_id`!='".PRKEZEL_STAT_LEZART."'", $order, '', '', '', $join);
-// echo $adatbazis_kapcsolat->gp() . '<br>';
+                                        "`telephely_unid`='{$telephely['unid']}' AND `stat_id`!='".PRKEZEL_STAT_LEZART."'", $order, '', '', '', $join);
+
     $i = 1;
     foreach ( $prek as $pr ) {
 
@@ -330,7 +353,8 @@ if( isset($_POST['get_projekt_tabla']) ) {
                     width: 90%;
                 }
                 table.fix_fejlec thead tr th:nth-of-type(1), table.fix_fejlec tbody tr td:nth-of-type(1) {
-                    width: 8rem;
+                    white-space: nowrap;
+                    width: 16rem;
                 }
                 table.fix_fejlec thead tr th:nth-of-type(2), table.fix_fejlec tbody tr td:nth-of-type(2) {
                     width: 8rem;
@@ -718,8 +742,9 @@ if( isset($_POST['van_tetel']) ) {
     
     // Ellenőrizzük, hogy a kiválasztott szálloda és a projekt szám stimmel-e
     if( $_POST['pr_szam'] ) {
-        $projekt = $adatbazis_kapcsolat->s2('telephely_id', 'projektkezeles', "`ikt_szam`='{$_POST['pr_szam']}'");
-        if( $projekt['telephely_id']!=$_POST['telephely_id'] ){
+        $projekt   = $adatbazis_kapcsolat->s2('telephely_unid', 'projektkezeles', "`ikt_szam`='{$_POST['pr_szam']}'");
+        $telephely = $adatbazis_kapcsolat->s2('unid', 'telephely', "`id`='{$_POST['telephely_id']}'");
+        if( $projekt['telephely_unid'] != $telephely['unid'] ) {
             echo json_encode(array(
                 'hiba'  => 'A projekt szám nem megfelelő szállodához tartozik!',
                 'title' => 'Hiba',
@@ -985,7 +1010,7 @@ if( isset($_GET['csv']) ) {
 //                    $weblap -> leallit();
 //                    exit;
 //                } else {
-//                    $sql .= $_SESSION['akt_sql_order'];    
+//                    $sql .= $_SESSION['akt_sql_order'];
 //                }
 
                 $query      = mysqli_query($db_kapcs, $sql);
@@ -1134,7 +1159,7 @@ if( isset($_GET['csv']) ) {
 //                    $weblap -> leallit();
 //                    exit;
 //                } else {
-//                    $sql .= $_SESSION['akt_sql_order'];    
+//                    $sql .= $_SESSION['akt_sql_order'];
 //                }
 
                 $query      = mysqli_query($db_kapcs, $sql);
@@ -1363,7 +1388,7 @@ require_once('selectek.php');
             $gombok .= ' <input type="button" class="gomb" onclick="tetelek_kezelese_popup_nyit()" value="Tételek kezelése">';
             // Ha nem az Adatlapon volnánk, akkor szükségünk lesz egy rejtett inputra, ami az adatbázisban levő szerződéses összeget tartalmazza, hogy bármelyik fül alatt szerkeszteni lehessen a tételeket, összehasonlítva az aktuális szerződéses összeggel
             $gombok .= ' <input type="hidden" id="szerz_ossz_db" value="'.$sor['szerz_ossz'].'">';
-            $gombok .= ' <input type="hidden" id="kcs_21_autocomp_db" value="'.getErtekLista(ERTEKLISTA_PENZNEM, $sor['kcs_21']).'">';
+            $gombok .= ' <input type="hidden" id="kcs_21_autocomp_db" value="'.erteklista(ERTEKLISTA_PENZNEM, $sor['kcs_21']).'">';
             $gombok .= ' <input type="hidden" id="kcs_21_db" value="'.$sor['kcs_21'].'">';
         }
         
@@ -1657,6 +1682,9 @@ require_once('selectek.php');
 		// Form actionja
 		$action = self().get_get(array('errnum','kephiba','siker'));
 
+        // Ha már ismert a Költség viselő, akkor ezt az információt adjuk át a switch.php-nak is
+        // mert a szálloda lenyíló tartalmán szűkíteni kell
+        $koltsegviselo_szalloda_lenyilohoz = $sor['kolt_vis'];
 		// Ez elkészíti a $mezok változót
 		require('switch.php');
         
@@ -1690,8 +1718,8 @@ require_once('selectek.php');
             echo $szamla_html;
         }
 
-        if($tobb_kep){
-			require_once('tobb_kep.php');
+        if( $tobb_kep ) {
+            require_once('tobb_kep.php');
 		}
 
 	// Tételek fül
@@ -1709,9 +1737,9 @@ require_once('selectek.php');
                 <div class="dtr nFejlec">
                     <div class="dtc">Tárgy</div>
                     <div class="dtc">Számla várh. érk.</div>
-                    <div class="dtc r">Számla várh.<br>értéke ('.getErtekLista(ERTEKLISTA_PENZNEM, $sor['kcs_21']).')</div>
+                    <div class="dtc r">Számla várh.<br>értéke ('.erteklista(ERTEKLISTA_PENZNEM, $sor['kcs_21']).')</div>
                     <div class="dtc">Teljesítés</div>
-                    <div class="dtc r">Érték ('.getErtekLista(ERTEKLISTA_PENZNEM, $sor['kcs_21']).')</div>
+                    <div class="dtc r">Érték ('.erteklista(ERTEKLISTA_PENZNEM, $sor['kcs_21']).')</div>
                     '.$extra_sorok.'
                 </div>
         ');

@@ -156,7 +156,7 @@ if( isset($_POST['pop_tetelek_feltolt']) ) {
     // Illetve ezt az alábbi változókkal két ágra bontuk: Ft-os vagy devizás-e a számla.
     if( $szerzodes['kcs_21'] && $szerzodes['kcs_21']!=KCS_21_HUF ) {
         $szerzodes_netto_mezo   = 'dev_net';
-        $penznem                = getErtekLista(ERTEKLISTA_PENZNEM, $szerzodes['kcs_21']);
+        $penznem                = erteklista(ERTEKLISTA_PENZNEM, $szerzodes['kcs_21']);
         $tizedesek              = 2;
         $session_mezo           = 'fennt_szerz_tetel_dev_net';
         $session_varhato_ert    = 'fennt_szerz_tetel_dev_varh_ert';
@@ -300,7 +300,7 @@ if( isset($_POST['tetel_sorok_ment']) ) {
     if( $_POST['kcs_21'] && $_POST['kcs_21']!=KCS_21_HUF ) {
         $devizas   = true;
         $tizedesek = 2;
-        $penznem   = getErtekLista(ERTEKLISTA_PENZNEM, $_POST['kcs_21']);
+        $penznem   = erteklista(ERTEKLISTA_PENZNEM, $_POST['kcs_21']);
         $db_mezo   = 'dev_net';
         $varh_mezo = 'dev_varh_ert';
     }
@@ -535,7 +535,7 @@ if( isset($_GET['csv']) ) {
 //                    $weblap -> leallit();
 //                    exit;
 //                } else {
-//                    $sql .= $_SESSION['akt_sql_order'];    
+//                    $sql .= $_SESSION['akt_sql_order'];
 //                }
 
                 $query      = mysqli_query($db_kapcs, $sql);
@@ -690,7 +690,7 @@ if( isset($_GET['csv']) ) {
                     $weblap -> leallit();
                     exit;
                 } else {
-                    $sql .= $_SESSION['akt_sql_order'];    
+                    $sql .= $_SESSION['akt_sql_order'];
                 }
 
                 $query      = mysqli_query($db_kapcs, $sql);
@@ -1008,7 +1008,7 @@ require_once('selectek.php');
             ').$gombok;
             $gombok .= '<input type="button" class="gomb" value="Tételek kezelése" onclick="csoportMuvelet(\'fenntartasiszerzodes_tetelek_kezelese\');"> ';
             // Ez a popuphoz kell
-            $gombok .= '<input type="hidden" id="kcs_21_autocomp_db" value="'.getErtekLista(ERTEKLISTA_PENZNEM, $sor['kcs_21']).'">';
+            $gombok .= '<input type="hidden" id="kcs_21_autocomp_db" value="'.erteklista(ERTEKLISTA_PENZNEM, $sor['kcs_21']).'">';
             $gombok .= '<input type="hidden" id="kcs_21_db" value="'.$sor['kcs_21'].'">';
             $gombok .= '<input type="hidden" id="netto_db" value="'.number_format($sor['netto'], $tizedesek, ',', ' ').'">';
             $gombok .= '<input type="hidden" id="dev_net_db" value="'.number_format($sor['dev_net'], $tizedesek, ',', ' ').'">';
@@ -1152,9 +1152,9 @@ require_once('selectek.php');
                     <div class="dtc">Szálloda</div>
                     <div class="dtc">Tárgy</div>
                     <div class="dtc">Számla várh. érk.</div>
-                    <div class="dtc r">Számla várh.<br>értéke ('.getErtekLista(ERTEKLISTA_PENZNEM, $sor['kcs_21']).')</div>
+                    <div class="dtc r">Számla várh.<br>értéke ('.erteklista(ERTEKLISTA_PENZNEM, $sor['kcs_21']).')</div>
                     <div class="dtc">Teljesítés</div>
-                    <div class="dtc r">Érték ('.getErtekLista(ERTEKLISTA_PENZNEM, $sor['kcs_21']).')</div>
+                    <div class="dtc r">Érték ('.erteklista(ERTEKLISTA_PENZNEM, $sor['kcs_21']).')</div>
                 </div>
         ');
         

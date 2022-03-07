@@ -961,7 +961,7 @@ if( isset($_POST['kuldes_jovahagyasra']) ) {
         }
 
         // Ellenőrizzük a státuszokat és hogy mind árazva van-e?
-        foreach($idk as $id) {
+        foreach ( $idk as $id ) {
 
             $statusz = $adatbazis_kapcsolat->s2('recid stat_id insert_dt', $page.'_statusz', "`{$page}_recid`='$id'", 'recid desc', '1');
             if( $statusz === false ) { $db_error = true; }
@@ -980,7 +980,7 @@ if( isset($_POST['kuldes_jovahagyasra']) ) {
 
                 // Valóban árazva van-e? Szállító és egységár megadva
                 $igenyles = $adatbazis_kapcsolat->s2('szallito_id rndear rndmen kcs_21', 'anyagigenyles', "`recid`='$id'");
-                if(!$igenyles['szallito_id'] || $igenyles['rndear']==0.0000 || $igenyles['rndmen']==0.00 || !$igenyles['kcs_21']){
+                if( !$igenyles['szallito_id'] || $igenyles['rndear'] == 0.0000 || $igenyles['rndmen'] == 0.00 || !$igenyles['kcs_21'] ) {
                     echo json_encode(array(
                         'title' => 'Hiba',
                         'hiba'  => 'Csak árazott anyagigényléseket lehet jóváhagyásra küldeni!'
@@ -1002,7 +1002,7 @@ if( isset($_POST['kuldes_jovahagyasra']) ) {
         }
 
         // Előbb csak kérdezünk, viszont az ellenőrzéseket addig is lefuttatjuk, derüljön ki ha baj van még a kérdés előtt!
-        if (isset($_POST['csak_kerdezunk'])) {
+        if( isset($_POST['csak_kerdezunk']) ) {
 
             echo json_encode(array(
                 'hiba'  => 'Biztos jóváhagyásra küldi kijelölt anyagigényléseket?',
@@ -1013,7 +1013,7 @@ if( isset($_POST['kuldes_jovahagyasra']) ) {
             exit();
         }
 
-        foreach($idk as $id) {
+        foreach ( $idk as $id ) {
             $statusz = addStatusz( $page.'_statusz', $id, CIKKIGN_STAT_ARAZVA );
             if( $statusz === false ) { $db_error = true; }
         }
@@ -1023,13 +1023,13 @@ if( isset($_POST['kuldes_jovahagyasra']) ) {
 
             $hiba = '';
 
-            foreach($idk as $id) {
+            foreach ( $idk as $id ) {
                 $valasz = level_felkeszit_es_kuld($page, $id, ERT_ANYAGIG_JOVAHAGYAS, 'anyagigenylesJovahagy', '_jog'.JOG_ANYAGIGENYLES_JOVAHAGY);
-                if( substr($valasz, 0, 4)=='Hiba' ){
+                if( substr($valasz, 0, 4) == 'Hiba' ) {
                     $hiba .= $valasz;
                 }
             }
-            if($hiba){
+            if( $hiba ) {
                 echo json_encode(array(
                     'hiba'  => $hiba,
                     'title' => 'Hiba',
@@ -2058,7 +2058,7 @@ if( isset($_GET['csv']) ) {
                     `'.get_db_tabla().'anyagigenyles`.`arfolyam` as \'Árfolyam\',
                     `'.get_db_tabla().'anyagigenyles`.`atvaltva_d` as \'Árfolyam dátuma\'
                     '.$lekerdezes_fromtol;
-            
+
             $query = mysqli_query($db_kapcs, $sql);
 
             // Nagyobb CSV-kre kérdezzünk rá előzetesen
@@ -2069,10 +2069,10 @@ if( isset($_GET['csv']) ) {
                 $weblap -> leallit();
                 exit;
             } else {
-                $sql .= $_SESSION['akt_sql_order'];    
+                $sql .= $_SESSION['akt_sql_order'];
             }
 
-            $query      = mysqli_query($db_kapcs, $sql);
+            $query = mysqli_query($db_kapcs, $sql);
 
             // Kalkulált - származtatott oszlopok
             $csvhead    = array();
@@ -2195,7 +2195,7 @@ if( isset($_GET['csv']) ) {
                 $weblap -> leallit();
                 exit;
             } else {
-                $sql .= $_SESSION['akt_sql_order'];    
+                $sql .= $_SESSION['akt_sql_order'];
             }
             
             $query      = mysqli_query($db_kapcs, $sql);
@@ -2858,7 +2858,7 @@ require_once('selectek.php');
         }
 
 	// Anyagigénylés módosítása
-    } elseif(isset($_GET['modosit'])) {
+    } elseif( isset($_GET['modosit']) ) {
 
         // Ha Gyorskeresőből érkeznénk ide, akkor az ID-t valójában az id_hidden tartalmazza majd
         if(isset($_GET['id_hidden'])){
@@ -3035,7 +3035,7 @@ require_once('selectek.php');
 
 
 	// Történet
-    }elseif(isset($_GET['tortenet'])) {
+    }elseif( isset($_GET['tortenet']) ) {
 
         $szamla_html .= get_tortenet($megnevezes);
 

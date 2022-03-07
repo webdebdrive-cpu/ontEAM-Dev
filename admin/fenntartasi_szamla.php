@@ -78,7 +78,7 @@ if( isset($_POST['kuldes_igazolasra_csoportosit']) ) {
         $html .= nl2('
                     <tr>
                         <td><input type="text" class="flat osszevon_targy" maxlength="250"'.$targy_val.'></td>
-                        <td>'.number_format($brutto_ertek, $tizedesek, ',', ' ').' '.getErtekLista(ERTEKLISTA_PENZNEM, $szamla['kcs_21']).'</td>
+                        <td>'.number_format($brutto_ertek, $tizedesek, ',', ' ').' '.erteklista(ERTEKLISTA_PENZNEM, $szamla['kcs_21']).'</td>
                         <td>'.$tetel['ktgnem_id'].'</td>
                         <td>'.$tetel['ktghely'].'</td>
                     </tr>
@@ -486,7 +486,7 @@ if( isset($_POST['pop_tetelek_feltolt']) ) {
     // Illetve ezt az alábbi változókkal két ágra bontuk: Ft-os vagy devizás-e a számla.
     if( $szamla['kcs_21'] && $szamla['kcs_21']!=KCS_21_HUF ) {
         $szamla_netto_mezo      = 'dev_net';
-        $penznem                = getErtekLista(ERTEKLISTA_PENZNEM, $szamla['kcs_21']);
+        $penznem                = erteklista(ERTEKLISTA_PENZNEM, $szamla['kcs_21']);
         $tizedesek              = 2;
         $session_mezo           = 'fennt_szla_tetel_dev_net';
         $session_mezo_br        = 'fennt_szla_tetel_dev_br';
@@ -624,7 +624,7 @@ if( isset($_POST['tetel_sorok_ment']) ) {
     if( $_POST['kcs_21'] && $_POST['kcs_21']!=KCS_21_HUF ) {
         $devizas   = true;
         $tizedesek = 2;
-        $penznem   = getErtekLista(ERTEKLISTA_PENZNEM, $_POST['kcs_21']);
+        $penznem   = erteklista(ERTEKLISTA_PENZNEM, $_POST['kcs_21']);
         $db_mezo   = 'dev_net';
         $db_mezo_br= 'dev_br';
     }
@@ -824,7 +824,7 @@ if( isset($_POST['get_fenntartasi_szerzodes_tabla']) ) {
     $i = 1;
     foreach ( $fennt_sz_ek as $fennt ) {
         
-        $kolt_vis_neve = getErtekLista(ERTEKLISTA_KOLTSEGVISELO, $fennt['kolt_vis']);
+        $kolt_vis_neve = erteklista(ERTEKLISTA_KOLTSEGVISELO, $fennt['kolt_vis']);
         $html .= '
             <tr class="kijSor" data-i="'.$i.'" data-recid="'.$fennt['recid'].'" data-szszam="'.$fennt['szszam'].'" data-kolt_vis="'.$fennt['kolt_vis'].'">
                 <td style="width: 11rem">
@@ -905,7 +905,7 @@ if( isset($_POST['pop_kapcsolas_feltolt']) ) {
         exit();
     }
 
-    $penznem    = getErtekLista(ERTEKLISTA_PENZNEM, $_POST['kcs_21']);
+    $penznem    = erteklista(ERTEKLISTA_PENZNEM, $_POST['kcs_21']);
     $tizedesek  = 0;
     $szl_netto  = 'netto';
     $mezo       = 'varh_ert';
@@ -1097,7 +1097,7 @@ if( isset($_POST['fenntartasi_szamla_kapcsolas']) ) {
         $netto_mezo     = 'dev_net';
         $szerz_mezo     = 'dev_net';
         $tizedesek      = 2;
-        $penznem        = getErtekLista(ERTEKLISTA_PENZNEM, $_POST['kcs_21']);
+        $penznem        = erteklista(ERTEKLISTA_PENZNEM, $_POST['kcs_21']);
     }
     
     // Tárgy-ban levő idézőjelek visszakonvertálása
@@ -1434,6 +1434,10 @@ if( isset($_GET['csv']) ) {
     if( isset($_GET['tetelek']) ) {
         $csv_fajl_neve .= '-tételek';
     }
+    $datum_mezok    = array('Céghez érkezett', 'Kelte', 'Teljesítés dátuma', 'Fizetési határidő', 'Átváltva', 'Kifizetve', 'Utolsó kifizetés dátuma');
+    $szam_mezok     = array('Árfolyam', 'Deviza nettó', 'Deviza bruttó', 'Egységár', 'Nettó érték', 'Bruttó érték', 'Kifizetett összeg', 'Tétel nettó érték', 'Tétel bruttó érték', 'Tétel nettó érték (devizában)', 'Tétel bruttó érték (devizában)', 'Áfa (%)');
+    $igen_nem_mezok = array('0 értékű számla', 'E-számla', 'Fogyasztással arányos', 'Kifizetve');
+
     list($mibol, $mibe, $filename, $open) = csv_export_elokeszit($megnevezes);
     if( $open ) {
         
@@ -1489,42 +1493,44 @@ if( isset($_GET['csv']) ) {
                 }
                 
                 $sql = 'SELECT
-                            `'.get_db_tabla().$megnevezes.'`.`erk_dt` as \'Céghez érkezett\',
-                            `'.get_db_tabla().$megnevezes.'`.`kelte_dt` as \'Kelte\',
-                            `'.get_db_tabla().$megnevezes.'`.`eszamla` as \'E-számla\',
-                            `'.get_db_tabla().$megnevezes.'`.`szla_szam` as \'Számlaszám\',
-                            `'.get_db_tabla().$megnevezes.'`.`ikt_szam` as \' Iktatószám\',
-                            `'.get_db_tabla().$megnevezes.'`.`telj_dt` as \'Teljesítés dátuma\',
-                            `'.get_db_tabla().$megnevezes.'`.`fizhat_dt` as \'Fizetési határidő\',
-                            `'.get_db_tabla().$megnevezes.'`.`fizmod` as \'Fizetési mód\',
                             `'.get_db_tabla().$megnevezes.'`.`telephely_id` as \'Szálloda\',
-                            `'.get_db_tabla().$megnevezes.'`.`tipus` as \'Számla típusa\',
                             `'.get_db_tabla().$megnevezes.'`.`szallito_id` as \'Partner\',
                             `'.get_db_tabla().$megnevezes.'`.`targy` as \'Tárgy\',
+                            `'.get_db_tabla().$megnevezes.'`.`megjegyz` as \'Megjegyzés\',
+                            `'.get_db_tabla().$megnevezes.'`.`netto` as \'Nettó érték\',
+                            `'.get_db_tabla().$megnevezes.'`.`brutto` as \'Bruttó érték\',
                             `'.get_db_tabla().$megnevezes.'`.`kcs_21` as \'Pénznem\',
+                            `'.get_db_tabla().$megnevezes.'`.`dev_net` as \'Deviza nettó\',
+                            `'.get_db_tabla().$megnevezes.'`.`dev_br` as \'Deviza bruttó\',
                             `'.get_db_tabla().$megnevezes.'`.`arfolyam` as \'Árfolyam\',
                             `'.get_db_tabla().$megnevezes.'`.`arfolyam_szall` as \'Szállító árfolyam\',
                             `'.get_db_tabla().$megnevezes.'`.`atvaltva_dt` as \'Átváltva\',
-                            `'.get_db_tabla().$megnevezes.'`.`dev_net` as \'Deviza nettó\',
-                            `'.get_db_tabla().$megnevezes.'`.`dev_br` as \'Deviza bruttó\',
-                            `'.get_db_tabla().$megnevezes.'`.`netto` as \'Nettó érték\',
-                            `'.get_db_tabla().$megnevezes.'`.`brutto` as \'Bruttó érték\',
-                            `'.get_db_tabla().$megnevezes.'`.`nullas` as \'0 értékű számla\',
-                            `'.get_db_tabla().$megnevezes.'`.`kifizetve` as \'Kifizetve\',
-                            `'.get_db_tabla().$megnevezes.'`.`megjegyz` as \'Megjegyzés\',
+                            `'.get_db_tabla().$megnevezes.'`.`telj_dt` as \'Teljesítés dátuma\',
+                            `'.get_db_tabla().$megnevezes.'`.`fizhat_dt` as \'Fizetési határidő\',
+                            `'.get_db_tabla().$megnevezes.'`.`erk_dt` as \'Céghez érkezett\',
+                            `'.get_db_tabla().$megnevezes.'`.`kelte_dt` as \'Kelte\',
+                            `'.get_db_tabla().$megnevezes.'`.`szla_szam` as \'Számlaszám\',
+                            `'.get_db_tabla().$megnevezes.'`.`ikt_szam` as \' Iktatószám\',
                             `'.get_db_tabla().$megnevezes.'`.`kif_ossz` as \'Kifizetett összeg\',
                             `'.get_db_tabla().$megnevezes.'`.`ut_kif_dt` as \'Utolsó kifizetés dátuma\',
+                            `'.get_db_tabla().$megnevezes.'`.`kifizetve` as \'Kifizetve\',
+                            `'.get_db_tabla().$megnevezes.'`.`nullas` as \'0 értékű számla\',
                             `'.get_db_tabla().$megnevezes.'`.`sz_szam` as \'Szerződés szám\',
                             `'.get_db_tabla().$megnevezes.'`.`kolt_vis` as \'Költségviselő\',
+                            `'.get_db_tabla().$megnevezes.'`.`fizmod` as \'Fizetési mód\',
+                            `'.get_db_tabla().$megnevezes.'`.`eszamla` as \'E-számla\',
+                            `'.get_db_tabla().$megnevezes.'`.`tipus` as \'Számla típusa\',
                             '.
-                        
                             // Innentől a tételek
                             '
                             `'.get_db_tabla().$megnevezes.'_tetel`.`targy` as \'Tétel tárgy\',
+                            `'.get_db_tabla().$megnevezes.'_tetel`.`megn` as \'Költségnem\',
+                            `'.get_db_tabla().$megnevezes.'_tetel`.`ktghely` as \'Költséghely\',
                             `'.get_db_tabla().$megnevezes.'_tetel`.`netto_ert` as \'Tétel nettó érték\',
                             `'.get_db_tabla().$megnevezes.'_tetel`.`brutto_ert` as \'Tétel bruttó érték\',
                             `'.get_db_tabla().$megnevezes.'_tetel`.`dev_net` as \'Tétel nettó érték (devizában)\',
-                            `'.get_db_tabla().$megnevezes.'_tetel`.`dev_br` as \'Tétel bruttó érték (devizában)\'
+                            `'.get_db_tabla().$megnevezes.'_tetel`.`dev_br` as \'Tétel bruttó érték (devizában)\',
+                            `'.get_db_tabla().$megnevezes.'_tetel`.`afa` as `Áfa (%)`
                             '.$lekerdezes_fromtol.$_SESSION['akt_sql_order'];
                 $query = mysqli_query($db_kapcs, $sql);
 
@@ -1537,7 +1543,7 @@ if( isset($_GET['csv']) ) {
 //                    $weblap -> leallit();
 //                    exit;
 //                } else {
-//                    $sql .= $_SESSION['akt_sql_order'];    
+//                    $sql .= $_SESSION['akt_sql_order'];
 //                }
 
                 $query      = mysqli_query($db_kapcs, $sql);
@@ -1550,22 +1556,12 @@ if( isset($_GET['csv']) ) {
                 }
                 fputcsv($open, $csvhead, ';');
 
-                $datum_mezok = array('Céghez érkezett', 'Kelte', 'Teljesítés dátuma', 'Fizetési határidő', 'Átváltva', 'Kifizetve', 'Utolsó kifizetés dátuma');
-                $szam_mezok  = array('Deviza nettó', 'Deviza bruttó', 'Árfolyam', 'Nettó érték', 'Bruttó érték', 'Kifizetett összeg', 'Tétel nettó érték', 'Tétel bruttó érték', 'Tétel nettó érték (devizában)', 'Tétel bruttó érték (devizában)');
-
                 $i = 0;
                 while( $sorok = mysqli_fetch_assoc($query) ) {
 
                     $csvcont = array();
                     foreach( $sorok as $kulcs => $sor ) {
 
-                        if( $kulcs == 'E-számla' ) {
-                            if( $sor ) {
-                                $sor = 'igen';
-                            } else {
-                                $sor = 'nem';
-                            }
-                        }
                         if( $kulcs == 'Fizetési mód' ) {
                             if( $sor == 'k' ) {
                                 $sor = 'Készpénz';
@@ -1573,35 +1569,33 @@ if( isset($_GET['csv']) ) {
                                 $sor = 'Utalás';
                             }
                         }
-                        if( $kulcs == '0 értékű számla' ) {
-                            if( $sor ) {
-                                $sor = 'igen';
-                            } else {
-                                $sor = 'nem';
-                            }
-                        }
-                        if( $kulcs == 'Kifizetve' ) {
-                            if( $sor ) {
-                                $sor = 'igen';
-                            } else {
-                                $sor = 'nem';
-                            }
+                        if( $kulcs == 'Számlaszám' ) {
+                            $sor = '="'.$sor.'"';
                         }
                         if( $kulcs == 'Szálloda' ) {
                             $sor = getSzallodaNev($sor);
                         }
                         if( $kulcs == 'Pénznem' ) {
-                            $sor = getErtekLista(ERTEKLISTA_PENZNEM, $sor);
+                            $sor = erteklista(ERTEKLISTA_PENZNEM, $sor);
                         }
                         if( $kulcs == 'Költségviselő' ) {
-                            $sor = getErtekLista(ERTEKLISTA_KOLTSEGVISELO, $sor);
+                            $sor = erteklista(ERTEKLISTA_KOLTSEGVISELO, $sor);
                         }
                         // Dátumok és számok formázása
                         if( in_array($kulcs, $datum_mezok) ) {
                             $sor = datum_kiir($sor);
                         }
+                        // Szám mezők
                         if( in_array($kulcs, $szam_mezok) ) {
                             $sor = str_replace('.', ',', $sor);
+                        }
+                        // Igen/nem mezők
+                        if( in_array($kulcs, $igen_nem_mezok) ) {
+                            if( $sor ) {
+                                $sor = 'igen';
+                            } else {
+                                $sor = 'nem';
+                            }
                         }
 
                         $csvcont[] = iconv($mibol, $mibe.'//TRANSLIT', strip_tags( htmlspecialchars_decode( $sor ) ) );
@@ -1625,8 +1619,7 @@ if( isset($_GET['csv']) ) {
                     $i++;
                 }
 
-                
-            // Számlák kiexportálása
+            // Számlák exportja
             } else {
                 
                 $lekerdezes_fromtol = substr($_SESSION['akt_sql'], strpos($_SESSION['akt_sql'], 'FROM'));
@@ -1657,7 +1650,7 @@ if( isset($_GET['csv']) ) {
                     }
 
                     // Ha van $_SESSION['akt_sql_order'], akkor eszerint rendezünk, tehát a $lekerdezes_fromtol-t elvágjuk az Order-nél
-                    if( $_SESSION['akt_sql_order'] ){
+                    if( $_SESSION['akt_sql_order'] ) {
                         $hossz = strpos($lekerdezes_fromtol, 'ORDER');
                         if( $hossz ) {
                             $lekerdezes_fromtol = substr($lekerdezes_fromtol, 0, $hossz);
@@ -1674,33 +1667,33 @@ if( isset($_GET['csv']) ) {
                 }
 
                 $sql = 'SELECT
-                            `'.get_db_tabla().$megnevezes.'`.`erk_dt` as \'Céghez érkezett\',
-                            `'.get_db_tabla().$megnevezes.'`.`kelte_dt` as \'Kelte\',
-                            `'.get_db_tabla().$megnevezes.'`.`eszamla` as \'E-számla\',
-                            `'.get_db_tabla().$megnevezes.'`.`szla_szam` as \'Számlaszám\',
-                            `'.get_db_tabla().$megnevezes.'`.`ikt_szam` as \' Iktatószám\',
-                            `'.get_db_tabla().$megnevezes.'`.`telj_dt` as \'Teljesítés dátuma\',
-                            `'.get_db_tabla().$megnevezes.'`.`fizhat_dt` as \'Fizetési határidő\',
-                            `'.get_db_tabla().$megnevezes.'`.`fizmod` as \'Fizetési mód\',
                             `'.get_db_tabla().$megnevezes.'`.`telephely_id` as \'Szálloda\',
-                            `'.get_db_tabla().$megnevezes.'`.`tipus` as \'Számla típusa\',
                             `'.get_db_tabla().$megnevezes.'`.`szallito_id` as \'Partner\',
                             `'.get_db_tabla().$megnevezes.'`.`targy` as \'Tárgy\',
+                            `'.get_db_tabla().$megnevezes.'`.`megjegyz` as \'Megjegyzés\',
+                            `'.get_db_tabla().$megnevezes.'`.`netto` as \'Nettó érték\',
+                            `'.get_db_tabla().$megnevezes.'`.`brutto` as \'Bruttó érték\',
                             `'.get_db_tabla().$megnevezes.'`.`kcs_21` as \'Pénznem\',
+                            `'.get_db_tabla().$megnevezes.'`.`dev_net` as \'Deviza nettó\',
+                            `'.get_db_tabla().$megnevezes.'`.`dev_br` as \'Deviza bruttó\',
                             `'.get_db_tabla().$megnevezes.'`.`arfolyam` as \'Árfolyam\',
                             `'.get_db_tabla().$megnevezes.'`.`arfolyam_szall` as \'Szállító árfolyam\',
                             `'.get_db_tabla().$megnevezes.'`.`atvaltva_dt` as \'Átváltva\',
-                            `'.get_db_tabla().$megnevezes.'`.`dev_net` as \'Deviza nettó\',
-                            `'.get_db_tabla().$megnevezes.'`.`dev_br` as \'Deviza bruttó\',
-                            `'.get_db_tabla().$megnevezes.'`.`netto` as \'Nettó érték\',
-                            `'.get_db_tabla().$megnevezes.'`.`brutto` as \'Bruttó érték\',
-                            `'.get_db_tabla().$megnevezes.'`.`nullas` as \'0 értékű számla\',
-                            `'.get_db_tabla().$megnevezes.'`.`kifizetve` as \'Kifizetve\',
-                            `'.get_db_tabla().$megnevezes.'`.`megjegyz` as \'Megjegyzés\',
+                            `'.get_db_tabla().$megnevezes.'`.`telj_dt` as \'Teljesítés dátuma\',
+                            `'.get_db_tabla().$megnevezes.'`.`fizhat_dt` as \'Fizetési határidő\',
+                            `'.get_db_tabla().$megnevezes.'`.`erk_dt` as \'Céghez érkezett\',
+                            `'.get_db_tabla().$megnevezes.'`.`kelte_dt` as \'Kelte\',
+                            `'.get_db_tabla().$megnevezes.'`.`szla_szam` as \'Számlaszám\',
+                            `'.get_db_tabla().$megnevezes.'`.`ikt_szam` as \' Iktatószám\',
                             `'.get_db_tabla().$megnevezes.'`.`kif_ossz` as \'Kifizetett összeg\',
                             `'.get_db_tabla().$megnevezes.'`.`ut_kif_dt` as \'Utolsó kifizetés dátuma\',
+                            `'.get_db_tabla().$megnevezes.'`.`kifizetve` as \'Kifizetve\',
+                            `'.get_db_tabla().$megnevezes.'`.`nullas` as \'0 értékű számla\',
                             `'.get_db_tabla().$megnevezes.'`.`sz_szam` as \'Szerződés szám\',
-                            `'.get_db_tabla().$megnevezes.'`.`kolt_vis` as \'Költségviselő\'
+                            `'.get_db_tabla().$megnevezes.'`.`kolt_vis` as \'Költségviselő\',
+                            `'.get_db_tabla().$megnevezes.'`.`fizmod` as \'Fizetési mód\',
+                            `'.get_db_tabla().$megnevezes.'`.`eszamla` as \'E-számla\',
+                            `'.get_db_tabla().$megnevezes.'`.`tipus` as \'Számla típusa\'
                             '.$lekerdezes_fromtol;
                 $query = mysqli_query($db_kapcs, $sql);
 
@@ -1712,7 +1705,7 @@ if( isset($_GET['csv']) ) {
                     $weblap -> leallit();
                     exit;
                 } else {
-                    $sql .= $_SESSION['akt_sql_order'];    
+                    $sql .= $_SESSION['akt_sql_order'];
                 }
 
                 $query      = mysqli_query($db_kapcs, $sql);
@@ -1725,22 +1718,12 @@ if( isset($_GET['csv']) ) {
                 }
                 fputcsv($open, $csvhead, ';');
 
-                $datum_mezok = array('Céghez érkezett', 'Kelte', 'Teljesítés dátuma', 'Fizetési határidő', 'Átváltva', 'Kifizetve', 'Utolsó kifizetés dátuma');
-                $szam_mezok  = array('Deviza nettó', 'Deviza bruttó', 'Árfolyam', 'Nettó érték', 'Bruttó érték', 'Kifizetett összeg');
-
                 $i = 0;
                 while( $sorok = mysqli_fetch_assoc($query) ) {
 
                     $csvcont = array();
                     foreach( $sorok as $kulcs => $sor ) {
 
-                        if( $kulcs == 'E-számla' ) {
-                            if( $sor ) {
-                                $sor = 'igen';
-                            } else {
-                                $sor = 'nem';
-                            }
-                        }
                         if( $kulcs == 'Fizetési mód' ) {
                             if( $sor == 'k' ) {
                                 $sor = 'Készpénz';
@@ -1748,35 +1731,33 @@ if( isset($_GET['csv']) ) {
                                 $sor = 'Utalás';
                             }
                         }
-                        if( $kulcs == '0 értékű számla' ) {
-                            if( $sor ) {
-                                $sor = 'igen';
-                            } else {
-                                $sor = 'nem';
-                            }
-                        }
-                        if( $kulcs == 'Kifizetve' ) {
-                            if( $sor ) {
-                                $sor = 'igen';
-                            } else {
-                                $sor = 'nem';
-                            }
-                        }
                         if( $kulcs == 'Szálloda' ) {
                             $sor = getSzallodaNev($sor);
                         }
                         if( $kulcs == 'Pénznem' ) {
-                            $sor = getErtekLista(ERTEKLISTA_PENZNEM, $sor);
+                            $sor = erteklista(ERTEKLISTA_PENZNEM, $sor);
                         }
                         if( $kulcs == 'Költségviselő' ) {
-                            $sor = getErtekLista(ERTEKLISTA_KOLTSEGVISELO, $sor);
+                            $sor = erteklista(ERTEKLISTA_KOLTSEGVISELO, $sor);
+                        }
+                        if( $kulcs == 'Számlaszám' ) {
+                            $sor = '="'.$sor.'"';
                         }
                         // Dátumok formázása
                         if( in_array($kulcs, $datum_mezok) ) {
                             $sor = datum_kiir($sor);
                         }
+                        // Szám mezők
                         if( in_array($kulcs, $szam_mezok) ) {
                             $sor = str_replace('.', ',', $sor);
+                        }
+                        // Igen/nem mezők
+                        if( in_array($kulcs, $igen_nem_mezok) ) {
+                            if( $sor ) {
+                                $sor = 'igen';
+                            } else {
+                                $sor = 'nem';
+                            }
                         }
 
                         $csvcont[] = iconv($mibol, $mibe.'//TRANSLIT', strip_tags( htmlspecialchars_decode( $sor ) ) );
@@ -1799,10 +1780,8 @@ if( isset($_GET['csv']) ) {
 
                     $i++;
                 }
-                
             }
             
-
             // Progress
             echo json_encode(array('pr' => '100')).PHP_EOL;
 
@@ -1814,9 +1793,6 @@ if( isset($_GET['csv']) ) {
 
     csv_export_lezar($fh, $filename, $csv_fajl_neve);
 }
-
-
-
 
 
 
@@ -1874,7 +1850,6 @@ require_once('selectek.php');
     $js_submit_elott = 'return form_ell_admin();';
 
     
-    
     // Tételek SESSION-jének feltöltése (új felvitelben kicsit más a lekérdezés
     if( isset($_GET['uj']) && _jog(JOG_FENNTARTASI_SZAMLAK_OLVAS) ) {
         $szamla  = $adatbazis_kapcsolat->s2('recid kcs_21', 'fenntartasi_szamla_atmeneti', "`andoc_id`='{$_GET['andoc_id']}'");
@@ -1923,6 +1898,7 @@ require_once('selectek.php');
         $mezo2      = 'dev_net';
     }
     
+    // Gombok kirajzolása minden oldalra
     $gombok = '';
     if( isset($_GET['uj']) && _jog(JOG_FENNTARTASI_SZAMLAK_KEZEL) ) {
 
@@ -1953,7 +1929,6 @@ require_once('selectek.php');
         
         // Új számla rögzítésekor így ellenőrizzük a nettó és tételek összegének azonosságát
         $js_submit_elott = nl2('
-
             var tetelek_ossz = ezresek($(\'#'.$mezo1.'\').val().replace(/ /g, \'\').replace(/,/g, \'.\'), '.$tizedesek.', \',\', \' \');
             if( $(\'#nullas\').is(\':checked\') == false ) {
                 if( $(\'#'.$mezo2.'\').val() != tetelek_ossz ) {
@@ -2042,7 +2017,7 @@ require_once('selectek.php');
             }
             $gombok .= '<input type="button" class="gomb" value="Tételek kezelése" onclick="csoportMuvelet(\'fenntartasiszamla_tetelek_kezelese\');"> ';
             // Ez a popuphoz kell
-            $gombok .= '<input type="hidden" id="kcs_21_autocomp_db" value="'.getErtekLista(ERTEKLISTA_PENZNEM, $sor['kcs_21']).'">';
+            $gombok .= '<input type="hidden" id="kcs_21_autocomp_db" value="'.erteklista(ERTEKLISTA_PENZNEM, $sor['kcs_21']).'">';
             $gombok .= '<input type="hidden" id="kcs_21_db" value="'.$sor['kcs_21'].'">';
             $gombok .= '<input type="hidden" id="netto_db" value="'.number_format($sor['netto'], $tizedesek, ',', ' ').'">';
             $gombok .= '<input type="hidden" id="brutto_db" value="'.number_format($sor['brutto'], $tizedesek, ',', ' ').'">';
@@ -2214,7 +2189,7 @@ require_once('selectek.php');
 
         $deviza = '';
         if( $sor['kcs_21'] != KCS_21_HUF ) {
-            $deviza = ' ('.getErtekLista(ERTEKLISTA_PENZNEM, $sor['kcs_21']).')';
+            $deviza = ' ('.erteklista(ERTEKLISTA_PENZNEM, $sor['kcs_21']).')';
         }
         
         $szamla_html .= nl2('
@@ -2533,6 +2508,8 @@ function xml_vissza( $szamla_id, $igazolva = '', $oka = '' ) {
                 $wf_name = TELEPHELY_ZAMARDI_MOD.'_Könyvelés';
             } else if( $szamla['telephely_id'] == TELEPHELY_DZRT) {
                 $wf_name = TELEPHELY_DZRT_MOD.'_Könyvelés';
+            } else if( $szamla['telephely_id'] == TELEPHELY_KOZP_CUK) {
+                $wf_name = TELEPHELY_KOZP_CUK_MOD.'_Könyvelés';
             } else {
                 $wf_name = $szamla['telephely_id'].'_Könyvelés';
             }

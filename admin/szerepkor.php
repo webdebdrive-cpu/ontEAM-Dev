@@ -132,7 +132,7 @@ if( isset($_GET['csv']) ) {
             $weblap -> leallit();
             exit;
         } else {
-            $sql .= $_SESSION['akt_sql_order'];    
+            $sql .= $_SESSION['akt_sql_order'];
         }
 
         $query      = mysqli_query($db_kapcs, $sql);
@@ -147,25 +147,6 @@ if( isset($_GET['csv']) ) {
 
             $csvcont = array();
             foreach( $sorok as $kulcs => $sor ) {
-                if( $kulcs == 'Szálloda' ) {
-                    $sor = getSzallodaNev($sor);
-                }
-                if( $kulcs == 'Bejelentett hiba' ) {
-                    $sor = getErtekLista('', '', $sor);
-                }
-                if($kulcs=='Helyiség'){
-                    $sor = getErtek('nev', 'obj', 'recid', $sor);
-                }
-                if($kulcs=='Gépnév'){
-                    $sor = getErtek('nev', 'eszkozkezeles', 'recid', $sor);
-                }
-                if($kulcs=='Típus'){
-                    $sor = erteklista(ERTEKLISTA_MUNKALAP_TIP, $sor);
-                }
-                if($kulcs=='Státusz'){
-                    $sor = getStatText('munkalap', $sor);
-                }
-
                 // Lehet nem volna elég 1-szer sőt kétszer sem ráereszteni a htmlspecialchars_decode-ot
                 $sor = htmlspecialchars_decode( $sor );
                 while ( strpos($sor, '&amp;') !== false || strpos($sor, '&quot;') !== false ) {

@@ -409,7 +409,7 @@ require_once('selectek.php');
                         <td>'.getErtek('nev', 'szallito', 'id', $szamla['szallito_id']).'</td>
                         <td>'.htmlspecialchars_decode($szamla['targy']).'</td>
                         <td sorttable_customkey="'.number_format($szamla[$brutto], $tizedesek, '.', '').'" class="r">'.number_format($szamla[$brutto], $tizedesek, ',', ' ').'</td>
-                        <td class="c">'.getErtekLista(ERTEKLISTA_PENZNEM, $szamla['kcs_21']).'</td>
+                        <td class="c">'.erteklista(ERTEKLISTA_PENZNEM, $szamla['kcs_21']).'</td>
                         <td class="c">'.datum_kiir($szamla['telj_dt']).'</td>
                         <td class="c">'.$link.'</td>
                     </tr>

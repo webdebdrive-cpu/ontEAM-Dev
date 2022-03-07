@@ -637,6 +637,27 @@ class ServerClass {
                                                                 "`{$tabla}_recid`='{$aparecid}'");
                     if( $sql === false ) { $db_error = true; }
                 }
+                
+                // Ha kifizetésről van szó, akkor még kezeljük le a Kifizetve pipát az updatelt adatok ismeretében
+                if( $szamla_adatok['Kifizetett összeg'] ) {
+                    $szamla = $adatbazis_kapcsolat->s2('kcs_21, brutto, dev_br, kif_ossz', $tabla, "`andoc_id`='{$andoc_id}'");
+                    if( $szamla === false ) { $db_error = true; }
+                    
+                    if( $szamla['kcs_21'] == KCS_21_HUF ) {
+                        $br_mezo    = 'brutto';
+                    } else {
+                        $br_mezo  = 'dev_br';
+                    }
+
+                    if( number_format($szamla['kif_ossz'], 2, '.', '') >= number_format($szamla[$br_mezo], 2, '.', '') ) {
+                        $sql = $adatbazis_kapcsolat->u($tabla, array('kifizetve'), array(1), "`andoc_id`='{$andoc_id}'");
+                        if( $sql === false ) { $db_error = true; }
+                    } else {
+                        $sql = $adatbazis_kapcsolat->u($tabla, array('kifizetve'), array(0), "`andoc_id`='{$andoc_id}'");
+                        if( $sql === false ) { $db_error = true; }
+                    }
+                    
+                }
             }
 
             // Tételek bejárása

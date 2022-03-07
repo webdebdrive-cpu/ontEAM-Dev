@@ -139,6 +139,14 @@ if( isset($_POST['f_szuro_mezo']) ) {
     }
 
     // Beosztás hónap választásnál cska egyenlőség van
+    if( $_POST['tabla'] == 'anyagigenyles' && $_POST['mezo'] == 'cikkmee' ) {
+        $operator  = '<option value="equal"'.$selected_equal.'>=</option>';
+        $operator .= '<option value="like"'.$selected_like.'>Tartalmazza</option>';
+        $operator .= '<option value="not_eq"'.$selected_not_eq.'>&lt;&gt;</option>';
+        $operator .= '<option value="empty"'.$selected_empty.'>Üres</option>';
+    }
+
+    // Beosztás hónap választásnál cska egyenlőség van
     if( $_POST['tabla'] == 'beosztas' && $_POST['mezo'] == 'ho' ) {
         $operator  = '<option value="equal"'.$selected_equal.'>=</option>';
         $operator .= '<option value="not_eq"'.$selected_not_eq.'>&lt;&gt;</option>';
@@ -531,17 +539,21 @@ if( isset($_POST['f_szuro_mezo_operator']) ) {
         }
 
         // Kapcsolódó szállodák felsorolása
-        if( $_POST['mezo']=='telephely_id' || ($_POST['tabla']=='login' && $_POST['mezo']=='szalloda' ) ){
+        if( $_POST['mezo']=='telephely_id' || $_POST['mezo']=='telephely_unid' || ($_POST['tabla']=='login' && $_POST['mezo']=='szalloda' ) ){
 
-            $feltetel = '<select class="f_felt">';
+            $szalloda_azon = 'id';
+            if( $_POST['mezo']=='telephely_unid' ) {
+                $szalloda_azon = 'unid';
+            }
+            $feltetel  = '<select class="f_felt">';
             $feltetel .= '<option value="">-Válasszon szállodát-</option>';
-            $telephelyek = $adatbazis_kapcsolat->s('id nev', 'telephely', trim(get_akt_login_szallodai('sql', 'id'), ' AND '), 'nev');
-            foreach($telephelyek as $telephely){
+            $telephelyek = $adatbazis_kapcsolat->s($szalloda_azon.' nev', 'telephely', trim(get_akt_login_szallodai('sql', 'id'), ' AND '), 'nev');
+            foreach ( $telephelyek as $telephely ) {
                 $selected = '';
-                if($telephely['id']==$_POST['felt']){
+                if( $telephely[$szalloda_azon] == $_POST['felt'] ) {
                     $selected = ' selected';
                 }
-                $feltetel .= '<option value="'.$telephely['id'].'"'.$selected.'>'.$telephely['nev'].'</option>';
+                $feltetel .= '<option value="'.$telephely[$szalloda_azon].'"'.$selected.'>'.$telephely['nev'].'</option>';
             }
             $feltetel .= '</select>';
 
@@ -961,6 +973,10 @@ if( $tabla == 'szallito' ) {
     array_push( $sz_mezo, array('eleje' => '<option value="szakterulet"'.$selected_szakter.'>',                     'vege' => 'Szakterület</option>') );
     array_push( $sz_mezo, array('eleje' => '<option value="megjegyzes" data-tabla="megjegyzes"'.$selected_megj.'>', 'vege' => 'Megjegyzés</option>' ) );
 }
+
+//echo '<pre style="font-size: 1.4rem">';
+//print_r($_SESSION['o_szuro_feltetel']);
+//echo '</pre>';
 
 // HTML előlállítása
 $prefix         = '';

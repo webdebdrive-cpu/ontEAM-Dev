@@ -391,7 +391,7 @@ function minosites_torol( recid, tabla, mehet ) {
     
 }
 
-/* Amikor kiválasztottak egy projekt felelőst, akkor ellenőrizzük, hogy Területi felelős-e, ha igen, akkor annak megfelelően lesz szerekszthető pár mező */
+// Amikor kiválasztottak egy projekt felelőst, akkor ellenőrizzük, hogy Területi felelős-e, ha igen, akkor annak megfelelően lesz szerekszthető pár mező
 function projekt_felelos_beallitva( login_id ) {
     
     var aktualis_szalloda = $('#telephely_id').val();
@@ -417,7 +417,7 @@ function projekt_felelos_beallitva( login_id ) {
                     }*/
                     $('#telephely_id').replaceWith(response.telephely_select);
 
-                    /* Eredeti szálloda visszaírása, ha lehetséges */
+                    // Eredeti szálloda visszaírása, ha lehetséges
                     $('#telephely_id').val(aktualis_szalloda);
                     if (!$('#telephely_id option[value="' +aktualis_szalloda+ '"]').prop('selected', true).length) {
                         $('#telephely_id').val('');

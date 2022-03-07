@@ -3,6 +3,36 @@ function projektszerzodes_feltolt() {
     csoportMuvelet('projektszerzodes_feltolt');
 }
 
+// Költségviselőt kiválasztva újratöltjük a szálloda lenyílót azokkal a szállodákkal, 
+// amik a költségviselőhöz tartoznak
+function telephely_lista_betolt() {
+        
+    $.ajax({
+        url : 'projektszerzodes.php',
+        type: 'POST',
+        data: {
+            kolt_vis                : $('#kolt_vis').val(),
+            telephely_lista_betolt  : Date.now()
+        },
+        success: function (response) {
+            if(response.substring(0, 6)=='SESKIL'){ location.href = 'index.php'; }
+            if (response) {
+                response = JSON.parse(response);
+                if (response.hiba) {
+                    alert2(response.hiba, response.gomb, response.title);
+                    return false;
+                }
+                $('#telephely_id').parent().parent().replaceWith(response.szalloda_lenyilo);
+            }
+        },
+        complete: function (xhr) {
+            if (xhr.status != 200) {
+                alert2(xhr.responseText, '', 'Hiba');
+            }
+        }
+    });
+}
+
 // Projekt hozzáadása, törlése gomb: melyik legyen? Ezt dönti el ez a függvény.
 function pr_hozzaad_gomb_hozzaad_vagy_torol (){
     

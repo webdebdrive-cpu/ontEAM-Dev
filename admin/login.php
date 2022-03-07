@@ -567,7 +567,7 @@ if( isset($_GET['csv']) ) {
             $weblap -> leallit();
             exit;
         } else {
-            $sql .= $_SESSION['akt_sql_order'];    
+            $sql .= $_SESSION['akt_sql_order'];
         }
  
         $query      = mysqli_query($db_kapcs, $sql);
@@ -589,10 +589,10 @@ if( isset($_GET['csv']) ) {
                     $sor = '{EGYENLOSEG_JELET_ELE}'.$sor.'{EGYENLOSEG_JELET_ELE_VEGE}';
                 }
                 if($kulcs=='Beosztás'){
-                    $sor = getErtekLista(ERTEKLISTA_BEOSZTAS, $sor);
+                    $sor = erteklista(ERTEKLISTA_BEOSZTAS, $sor);
                 }
                 if($kulcs=='Részleg'){
-                    $sor = getErtekLista(ERTEKLISTA_RESZLEG, $sor);
+                    $sor = erteklista(ERTEKLISTA_RESZLEG, $sor);
                 }
                 if($kulcs=='Virtuális' || $kulcs=='Törölve' || $kulcs=='Aktiv'){
                     if( $sor ) {

@@ -280,9 +280,10 @@ function i_u($type, $tabla, $tomb) {
             }
         }
         
-        // Ha insert, ha update: ha a projekt felelős beosztása Területi felelős, a szálloda meg egyszállodás, akkor hibaüzenet. Ez nem megengedett
+        // Ha insert, ha update: ha a projekt felelős beosztása Területi felelős, a szálloda meg egyszállodás, akkor hibaüzenet. Ez nem megengedett.
+        // Ilyen egyébként elős sem fordulhat, mert a Projekt felelőst kiválasztva változik a Szálloda lenyílója is.
         $pr_felelos = $adatbazis_kapcsolat->s2('beosztas_id', 'login', "`recid`='{$_POST['pfelelos']}'");
-        $szalloda   = $adatbazis_kapcsolat->s2('modell', 'telephely', "`id`='{$_POST['telephely_id']}'");
+        $szalloda   = $adatbazis_kapcsolat->s2('id modell', 'telephely', "`unid`='{$_POST['telephely_unid']}'");
 
         if( $pr_felelos['beosztas_id'] == EL_BEOSZTAS_TER_FELELOS && !$szalloda['modell'] ) {
             echo json_encode(array(
@@ -292,6 +293,10 @@ function i_u($type, $tabla, $tomb) {
             $weblap -> leallit();
             exit;
         }
+        
+        // Projekteknél habár szálloda UNID-al dolgozunk, az eredeti ID-t is letároljuk
+        $_POST['telephely_id'] = $szalloda['id'];
+        
     }
     
     // Projektszámláknál a "Pénzügynek átadva" dátum fixen disabled, de mégis mentsük el, azaz itt vegyük fel
@@ -306,24 +311,25 @@ function i_u($type, $tabla, $tomb) {
             $_POST['p_atad_dt'] = $prsz['p_atad_dt'];
         }
         
+        // 2022.02.21 Erre azért nincs már szükség, mert az Andoc import kifizetett összeg értéke alapján döntjük el, hogy egy számla kifizetett-e vagy sem
         // Szerkesztéskor a számla kifizetve pipájának lekezelése (Új feltöltéskor még nincsenek kifizetés sorok)
-        if( $type == 'update' ) {
-
-            if( $_POST['kcs_21'] == KCS_21_HUF ) {
-                $kif_mezo   = 'br_ertek';
-                $br_mezo    = 'brutto';
-            } else {
-                $kif_mezo = 'dev_br';
-                $br_mezo  = 'dev_br';
-            }
-            $kifizetesek = $adatbazis_kapcsolat->s2('SUM(`'.$kif_mezo.'`)', 'projektszamla_kifizetesek', "`projektszamla_recid`='{$_GET['id']}'");
-            if( $kifizetesek['SUM(`'.$kif_mezo.'`)']>=$_POST[$br_mezo] ) {
-                $_POST['kifizetve'] = 1;
-            } else {
-                $_POST['kifizetve'] = 0;
-            }
-
-        }
+//        if( $type == 'update' ) {
+//
+//            if( $_POST['kcs_21'] == KCS_21_HUF ) {
+//                $kif_mezo   = 'br_ertek';
+//                $br_mezo    = 'brutto';
+//            } else {
+//                $kif_mezo = 'dev_br';
+//                $br_mezo  = 'dev_br';
+//            }
+//            $kifizetesek = $adatbazis_kapcsolat->s2('SUM(`'.$kif_mezo.'`)', 'projektszamla_kifizetesek', "`projektszamla_recid`='{$_GET['id']}'");
+//            if( $kifizetesek['SUM(`'.$kif_mezo.'`)']>=$_POST[$br_mezo] ) {
+//                $_POST['kifizetve'] = 1;
+//            } else {
+//                $_POST['kifizetve'] = 0;
+//            }
+//
+//        }
         
     }
     // Projektszerződésnél ha nincs pénznem információnk, akkor a devizás mezőket nullázzuk a biztosnág kedvéért
@@ -337,6 +343,23 @@ function i_u($type, $tabla, $tomb) {
         
         // Illetve ha az építési összege meghaladná a szerződött összeget, azt ne engedjük elmenteni
         if( str_replace(' ', '', $_POST['epitesi']) > str_replace(' ', '', $_POST['szerz_ossz']) ){
+            echo json_encode(array(
+                                    'hiba'  => 'Az építési összeg meghaladja a szerződött összeget!',
+                                    'title' => 'Hiba',
+                                ));
+            $weblap -> leallit();
+            exit;
+            exit;
+        }
+        // Ha a költségviselő és a szálloda cégkódja nem egyezik, akkor azt nem engejük elmenteni
+        $erteklista = $adatbazis_kapcsolat->s2('cegkod', 'erteklista', "`csoport`='".ERTEKLISTA_KOLTSEGVISELO."' AND `id`='{$_POST['kolt_vis']}'");
+        $telephely  = $adatbazis_kapcsolat->s2('cegkod', 'telephely', "`id`='{$_POST['telephely_id']}'");
+        if( $erteklista['cegkod'] != $telephely['cegkod'] ) {
+            echo json_encode(array(
+                                    'hiba'  => 'A költségviselő és a szálloda cégkódja nem egyezik!',
+                                    'title' => 'Hiba',
+                                ));
+            $weblap -> leallit();
             exit;
         }
     }
@@ -1937,11 +1960,11 @@ function i_u($type, $tabla, $tomb) {
             // Ha a bejelentéshez tartozik munkalap, akkor annak adatait is frissítjük
             $munkalapok = $adatbazis_kapcsolat->s('munkalap_id', 'munkalap_kapcs', "`bejelentes_id`='{$_GET['id']}'");
             $munkalapok = adatbazis2tomb($munkalapok, 'munkalap_id');
-            if($munkalapok){
+            if( $munkalapok ) {
 
                 // Van pár mező, ami a munkalapban létezik, de a bejelentésnél nem, ezért ki kell számolni:
                 $_POST['gep_txt']  = getErtek('nev', 'eszkozkezeles', 'recid', $_POST['gep_id']);
-                $_POST['hiba_txt'] = getErtekLista('', '', $_POST['hiba_id']);
+                $_POST['hiba_txt'] = erteklista('', '', $_POST['hiba_id']);
                 $_POST['obj_txt']  = getErtek('nev', 'obj', 'recid', $_POST['obj_id']);
 
                 // Adatok összeszedése
@@ -2073,11 +2096,11 @@ function i_u($type, $tabla, $tomb) {
                                         if( $elem['type'] == 'autocomplete' ) {
                                             if( $elem['tabla'] == 'erteklista' ) {
                                                 if( $elem['oszlop_keres'] == 'id' ) {
-                                                    $uj_ertek = getErtekLista($elem['csoport'], $uj_ertek   );
-                                                    $value    = getErtekLista($elem['csoport'], $value      );
+                                                    $uj_ertek = erteklista($elem['csoport'], $uj_ertek   );
+                                                    $value    = erteklista($elem['csoport'], $value      );
                                                 } elseif( $elem['oszlop_keres'] == 'recid' ) {
-                                                    $uj_ertek = getErtekLista($elem['csoport'], '', $uj_ertek   );
-                                                    $value    = getErtekLista($elem['csoport'], '', $value      );
+                                                    $uj_ertek = erteklista('', '', $uj_ertek   );
+                                                    $value    = erteklista('', '', $value      );
                                                 }
                                             } else {
                                                 $uj_ertek = getErtek($elem['listaz'], $elem['tabla'], $elem['oszlop_keres'], $uj_ertek);
@@ -2875,7 +2898,7 @@ function i_u($type, $tabla, $tomb) {
             }
             if( strval($tetelek_osszege) != strval($_POST[$mezo2]) ) {
                 echo json_encode(array(
-                    'hiba'  => 'A szerződés tételeinek összege ('.number_format($tetelek_osszege, $tizedesek, ',', ' ').' '. getErtekLista(ERTEKLISTA_PENZNEM, $_POST['kcs_21']).') nem egyezik meg a '.$szoveg.' ('.number_format($_POST[$mezo2], $tizedesek, ',', ' ').' '. getErtekLista(ERTEKLISTA_PENZNEM, $_POST['kcs_21']).')!<br>Így nem menthető!',
+                    'hiba'  => 'A szerződés tételeinek összege ('.number_format($tetelek_osszege, $tizedesek, ',', ' ').' '. erteklista(ERTEKLISTA_PENZNEM, $_POST['kcs_21']).') nem egyezik meg a '.$szoveg.' ('.number_format($_POST[$mezo2], $tizedesek, ',', ' ').' '. erteklista(ERTEKLISTA_PENZNEM, $_POST['kcs_21']).')!<br>Így nem menthető!',
                     'gomb'  => '<input type="button" class="gomb" value="Ok" onclick="szurkit_zar(\'mégsem mehet mutat\'); alert2();">',
                     'title' => 'Hiba',
                 ));
@@ -2885,9 +2908,11 @@ function i_u($type, $tabla, $tomb) {
             
             // Ellenőrizzük továbbá, hogy a szálloda és a Projekt szám azonos szállodához tartozik-e
             if( $_POST['pr_szam'] ) {
-                $projekt = $adatbazis_kapcsolat->s2('telephely_id', 'projektkezeles', "`ikt_szam`='{$_POST['pr_szam']}'");
+                $projekt   = $adatbazis_kapcsolat->s2('telephely_unid', 'projektkezeles', "`ikt_szam`='{$_POST['pr_szam']}'");
                 if( $projekt === false ) { $db_error = true; }
-                if( $projekt['telephely_id']!=$_POST['telephely_id'] ){
+                $telephely = $adatbazis_kapcsolat->s2('unid', 'telephely', "`id`='{$_POST['telephely_id']}'");
+                if( $telephely === false ) { $db_error = true; }
+                if( $projekt['telephely_unid'] != $telephely['unid'] ) {    
                     echo json_encode(array(
                         'hiba'  => 'A projekt szám nem megfelelő szállodához tartozik!',
                         'gomb'  => '<input type="button" class="gomb" value="Ok" onclick="alert2(); szurkit_zar(\'mehet_megsem_mutat\');">',
@@ -3994,7 +4019,7 @@ function szamla_lista( $where = '', $tabla = '', $kijeloltek = false, $csak_sql_
     }
 
     $select = $_OPTS['select'];
-    if($_GET['rend']){
+    if( $_GET['rend'] ) {
         $order = $_GET['rend'];
     } else {
         $order = $_OPTS['rend'];
@@ -4172,10 +4197,8 @@ function szamla_lista( $where = '', $tabla = '', $kijeloltek = false, $csak_sql_
 
         // Projektkezelés
         if( $tabla == 'projektkezeles' ) {
-
             // Központosítva van ennek a feltételnek a kiszámítása
             $where = get_projektkezeles_where_jog();
-            
         }
 
         // Projektszamla
@@ -4369,8 +4392,9 @@ function szamla_lista( $where = '', $tabla = '', $kijeloltek = false, $csak_sql_
 
     $lapozas = $lapozo -> kiir();
 
-    $limit = $lapozo ->getLimit();
+    $limit = $lapozo -> getLimit();
 //echo 'sel:'.$select . ' ir:'.$irany.' or:'.$order.' lim:'.$limit.' where:'.$where.'<br>';
+//exit;
 
     // Ha recid alapján rendeznénk, akkor tegyük bele a `'.get_db_tabla().$tabla.'`-t, mert CSV exportnál úgy is lesz olyan JOIN, minek van recid-ja is, és ütni fogják egymást
     if( $_GET['rend'] == 'recid' ) {
@@ -4583,7 +4607,7 @@ function szamla_lista( $where = '', $tabla = '', $kijeloltek = false, $csak_sql_
 
         }
 
-        // Archiv menüpont alatt egy 1000-es limit mindig van (ha nincs más szűrés, akkor a feltétel a lista hossza)
+        // Archiv menüpont alatt egy ARCHIV_NAVPANEL_LIMIT értékű limit mindig van (ha nincs más szűrés, akkor a feltétel a lista hossza)
         if( ($tabla=='bejelentes_arch' || $tabla=='munkalap_arch') && !$_GET['mezo'] ) {
             $_GET['mezo'] = 'legfrissebb';
             $_GET['felt'] = ARCHIV_NAVPANEL_LIMIT;
@@ -4733,7 +4757,7 @@ function szamla_lista( $where = '', $tabla = '', $kijeloltek = false, $csak_sql_
         // $sql = str_replace($mit, $mivel, $sql);
         // Így cseréljük le, azaz csak az első előfordulást, ne az összeset! Ez fontos.
         $sql = preg_replace('/'.$mit.'/', $mivel, $sql, 1);
-// echo $sql . '<br>';
+
         
         // Ha csak egy sort frissítünk, akkor a dashboard varia miatt itt a GROUP BY-t mégegyszer bele kell fogalmazni a feltételbe
         if( $frissit && $_SESSION['dashboard_feladat'] == DASHBOARD_H_A_ML_CIMKE ) {
@@ -4842,7 +4866,7 @@ function szamla_lista( $where = '', $tabla = '', $kijeloltek = false, $csak_sql_
             $lekerdezes = mysqli_query($db_kapcs, $sql);
             while( $sor = mysqli_fetch_assoc($lekerdezes) ) {
                 // Ha túl sok ID-t veszünk fel a $sorrend_idk többe, akkor az SQL ORDER BY FIELD része is túl hosszú lesz, nem fog tudni lefutni, üres excel jön majd le.
-                // Sajnos ez azt is jelenti, hogy az itt megadott limiten felüli számú sort nem lehetn sorrendbe kiexportálni. Maximum az első X lesz sorrendben
+                // Sajnos ez azt is jelenti, hogy az itt megadott limiten felüli számú sort nem lehetne sorrendbe kiexportálni. Maximum az első X lesz sorrendben
                 array_push( $sorrend_idk, $sor['recid'] );
             }
         }
@@ -5343,7 +5367,7 @@ function bejelentesLista( $bejegyzesek, $tabla, $frissit = '', $kijeloltek = '',
                                 <td>'.$szalloda_neve.htmlspecialchars_decode(htmlspecialchars_decode($bsz['obj_txt'])).'</td>
                             </tr>
                             <tr>
-                                <td colspan="4">'.getErtekLista('', '', $bsz['hiba_id']).'</td>
+                                <td colspan="4">'.erteklista('', '', $bsz['hiba_id']).'</td>
                             </tr>
                             </table>
                          </a>';
@@ -5728,7 +5752,7 @@ function munkalapLista( $bejegyzesek, $tabla, $frissit, $kijeloltek, $sorrend_id
                 $ml_tipus = '<span title="'.$bsz['hiba_txt'].'">'.$hiba_rovid.'</span>';
             } else {
                 // Munkalap tipus szövegén rövidítsünk
-                $ml_tipus = getErtekLista(ERTEKLISTA_MUNKALAP_TIP, $bsz['tipus_id']);
+                $ml_tipus = erteklista(ERTEKLISTA_MUNKALAP_TIP, $bsz['tipus_id']);
                 $ml_tipus = str_replace(array('Ütemezett feladat',  'Eseti fenntartás', 'Rendszeres kbt.', 'Üzemeltetési feladat'),
                                         array('Ütemezett',          'Eseti',            'Rendsz.Karb.',    'Üzemeltetés'         ),
                                         $ml_tipus);
@@ -8271,15 +8295,15 @@ function getOszlopNev( $oszlop, $kieg_nev = '' ) {
 }
 
 // Értéklistából infó kinyerése
-function erteklista($csoport, $id) {
+function erteklista($csoport = '', $id = '', $recid = '') {
 
     global $adatbazis_kapcsolat;
 
     // Megpróbáljuk Session-ból visszaadni
-    $ertek = getErtekLista($csoport, $id);
+    $ertek = getErtekLista($csoport, $id, $recid);
 
     // De ha nem sikerült, akkor lekérjük adatbázisból
-    if(!$ertek){
+    if( !$ertek ) {
         $sor   = $adatbazis_kapcsolat->s2('info', 'erteklista', "`csoport` = '{$csoport}' AND `id` = '{$id}'");
         $ertek = $sor['info'];
     }
@@ -9443,7 +9467,7 @@ function getSzallodaNev($szalloda_id, $andoc_nev = false) {
     }
 }
 
-// Szállodák nevét ne DB-ből kérjük már le, vagyis csak egyszer, loginnál
+// Értéklista értékéne lekérdezése
 function getErtekLista($erteklista_csoport = '', $erteklista_id = '', $erteklista_recid = '') {
     if( $erteklista_csoport ) {
         foreach ( $_SESSION['erteklista'] as $erteklista ) {
@@ -12029,15 +12053,15 @@ function csatolmanyok_eltesz($fajlok, $utvonal, $email_recid, $ml_recid, $tabla)
 function logolas_kapcsolodo_tablak_sorai($sorok, $tabla = ''){
     
     $valtozas = '';
-    foreach($sorok as $sor){
+    foreach ( $sorok as $sor ) {
         $i = 1;
-        foreach($sor as $key => $value) {
-            
+        foreach ( $sor as $key => $value ) {
+
             $valtozas .= '[mezo]'.$key.'[/mezo] [ertek]'.$value.'[/ertek]';
             
-            switch($key){
+            switch ( $key ) {
                 case 'hiba_id':
-                    $valtozas .= '[cimke]'.getErtekLista(ERTEKLISTA_BEJ_HIBA, '', $value).'[/cimke]';
+                    $valtozas .= '[cimke]'.erteklista('', '', $value).'[/cimke]';
                 break;
                 case 'gep_id':
                     $valtozas .= '[cimke]'. getErtek('nev', 'eszkozkezeles', 'recid', $value).'[/cimke]';
@@ -12431,11 +12455,10 @@ function csv_export_get_from_tol( $megnevezes ) {
 
     $lekerdezes_fromtol = substr($_SESSION['akt_sql'], strpos($_SESSION['akt_sql'], 'FROM'));
 
-
     // Eredetileg csak a bal navpanelben is megjelenő sorokat listázzuk ki (cél, hogy illetéktelen sorokhoz ne lehessen hozzáférni).
     // Viszont ha érvényben volna az alapértelmezett LIMIT az aktuális SQL-ben, akkor ezt az ID ellenőrzést mégsem tesszük meg,
-    // hisz minden sort ki szeretnénk írtani. De ha a bámrilyen más LIMIT szerepel benne, akkor meg a CSV-ben is a limitált mennyiséget szeretnénk látni.
-    $no_nyomtatas_id = array('anyagigenyles');
+    // hisz minden sort ki szeretnénk írtani. De ha a bármilyen más LIMIT szerepel benne, akkor meg a CSV-ben is a limitált mennyiséget szeretnénk látni.
+    $no_nyomtatas_id = array();
     if( !in_array($megnevezes, $no_nyomtatas_id) && $_SESSION['nyomtatas_ids'] && strpos( $_SESSION['akt_sql'], 'LIMIT '.SZURES_DB_LIMIT )===false ) {
         if( strstr($_SESSION['akt_sql'], 'WHERE') ) {
             $lekerdezes_fromtol = str_replace('WHERE', "WHERE `".get_db_tabla()."{$megnevezes}`.`recid` IN (".$_SESSION['nyomtatas_ids'].") AND ", $lekerdezes_fromtol);
@@ -12449,10 +12472,9 @@ function csv_export_get_from_tol( $megnevezes ) {
         $hossz = strpos($lekerdezes_fromtol, 'ORDER');
         if( $hossz ) {
             $lekerdezes_fromtol = substr($lekerdezes_fromtol, 0, $hossz);
-        } else {
-            $lekerdezes_fromtol = substr($lekerdezes_fromtol, 0);
         }
     }
+
     // Ha nincs FROM rész, akkor azt még beletesszük
     if( !$lekerdezes_fromtol ) {
         $lekerdezes_fromtol = ' FROM `'.get_db_tabla().$megnevezes.'` ';

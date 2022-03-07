@@ -22,8 +22,10 @@ class Select extends Tag{
     * @param string $kivalasztott melyik érték legyen az alapértelmezett
     */
    	public function __construct($opciok = '', $value = ''){
-        $this -> opciok       = $opciok;
-        $this -> value = $value;
+        $this -> opciok = $opciok;
+        if( $value ) {
+            $this -> value = $value;
+        }
     }
 
     /**

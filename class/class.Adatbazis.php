@@ -178,6 +178,10 @@ class Adatbazis {
             $select .= ' WHERE '.$where;
 		}
 
+		if( $group_by != null ) {
+            $select .= ' GROUP BY '.$group_by;
+		}
+        
         if( $order != null ) {
             if($order == '`rand()`' || $order == '`RAND()`' ){
                 $order = 'RAND()';
@@ -186,10 +190,6 @@ class Adatbazis {
                 $order = sql_ertek($order);
             }
 			$select .= ' ORDER BY '.$order;
-		}
-
-		if( $group_by != null ) {
-            $select .= ' GROUP BY '.$group_by;
 		}
 
         if( $limit != null ) {

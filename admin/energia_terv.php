@@ -992,7 +992,7 @@ if( isset($_GET['csv']) ) {
                             $sor = getErtek('nev', 'ktgnem', 'id', $sor);
                         }
                         if( strpos($kulcs, 'Devizanem') !== false ) {
-                            $sor = getErtekLista(ERTEKLISTA_PENZNEM, $sor);
+                            $sor = erteklista(ERTEKLISTA_PENZNEM, $sor);
                         }
                         
                         // Ha már a 4. oszlopnál járunk, akkor csak számok jönnek, azokban cseréljük le a pontot vesszőre
@@ -1068,7 +1068,7 @@ if( isset($_GET['csv']) ) {
 //                    $weblap -> leallit();
 //                    exit;
 //                } else {
-//                    $sql .= $_SESSION['akt_sql_order'];    
+//                    $sql .= $_SESSION['akt_sql_order'];
 //                }
                 
                 $query      = mysqli_query($db_kapcs, $sql);

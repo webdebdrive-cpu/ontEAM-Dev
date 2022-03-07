@@ -48,7 +48,7 @@ if( isset($_GET['csv']) ) {
             $weblap -> leallit();
             exit;
         } else {
-            $sql .= $_SESSION['akt_sql_order'];    
+            $sql .= $_SESSION['akt_sql_order'];
         }
 
         $query      = mysqli_query($db_kapcs, $sql);
@@ -67,7 +67,7 @@ if( isset($_GET['csv']) ) {
                     $sor = getSzallodaNev($sor);
                 }
                 if( $kulcs == 'Bejelentett hiba' ) {
-                    $sor = getErtekLista('', '', $sor);
+                    $sor = erteklista('', '', $sor);
                 }
                 if( $kulcs == 'Gépnév' ) {
                     $sor = $adatbazis_kapcsolat->s2('nev', 'eszkozkezeles', "`recid`='{$sor}'");

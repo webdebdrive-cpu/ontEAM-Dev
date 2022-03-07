@@ -557,3 +557,5 @@ define('TELEPHELY_ZAMARDI',          4308);
 define('TELEPHELY_ZAMARDI_MOD',      1106);
 define('TELEPHELY_DZRT',             4301);
 define('TELEPHELY_DZRT_MOD',         1106);
+define('TELEPHELY_KOZP_CUK',         9998);
+define('TELEPHELY_KOZP_CUK_MOD',     1106);

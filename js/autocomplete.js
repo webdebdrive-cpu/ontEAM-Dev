@@ -9,7 +9,8 @@
             'php_fajl'      : '../autocomplete.php',
             'tabla'         : 'termek',
             'oszlop_keres'  : 'nev, csz',
-            'oszlop_listaz' : 'nev, intro'
+            'oszlop_listaz' : 'nev, intro',
+            'complete'      : function() { tetszoleges_fgv_hivas(); alert2('Vagy akármmilyen JS kód írható, amint megtörtént az érték kiválasztása.'); }
         });
 
  */
@@ -44,6 +45,7 @@
                 szuros          : '',                   /* Ha a szűrőben hívtuk meg, akkor azt ezen keresztül tudjuk jelezni*/
                 tabla           : '',                   /* Adatbázis tábla, amiben keresünk                                 */
                 menupont_szuro  : '',                   /* Dokumentum típus értéklista lenyílónál tovább szűrünk még adott menüpontra (`erteklitsta` tábla itt megadott oszlopára) */
+                that            : $(this),
                 complete        : function() {}         /* Miután kiválasztottunk egy értéket, le tudunk futtatni még JS kódokat. */
             };
 
@@ -65,11 +67,11 @@
             $(this).keyup(function(e) {
                 
                 // Ha readonly, akkor nem csinálunk semmit
-                if($(this).attr('readonly')){
+                if ($(this).attr('readonly')) {
                     return false;
                 }
                 
-                that  = $(this);
+                that = $(this);
 
                 kesleltetes = 500;
                 if( e.which == undefined ) {
@@ -321,8 +323,9 @@
 
                         // Egy érték kiválasztásakor mi fusson le. Lehessen paraméterként átadni egy függvényt vagy bármilyen JS kódot, ami akkor fut le, ha megvan az érték kiválasztása
                         // Viszont ha az inputunk neve pop_cimzett_loginbol, akkor ezt mégse tegyük meg, mert egy popup-on két autocpmlete is volt, és az elsőnek van oncomplete-je, és a 2-nál is mindig lefutott
-                        if( mezo.attr('name')!='pop_cimzett_loginbol_autocomp' ){
-                            options.complete();
+                        // Hasonlóan a projekszerződéseknél sem kéne, hogy lefusson ez a hívás egy  Szerződést kötő kiváalsztásakor
+                        if( mezo.attr('name')!='pop_cimzett_loginbol_autocomp' && mezo.attr('name')!='sz_koto_autocomp' ) {
+                            options.complete(options.tabla);
                         }
 
                         var form = $('input[name="' + mezo_nev + '"]').parents('form');
@@ -504,7 +507,7 @@
                                 $('input[name="' + mezo_nev + '"]').val(recid);
                                 
                                 // Egy érték kiválasztásakor mi fusson le. Lehessen paraméterként átadni egy függvényt vagy bármilyen JS kódot, ami akkor fut le, ha megvan az érték kiválasztása
-                                options.complete();
+                                options.complete(options.that);
 
                                 var form = $('input[name="' + mezo_nev + '"]').parents('form');
 

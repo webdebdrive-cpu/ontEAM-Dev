@@ -133,13 +133,12 @@ if( $_GET['id'] && $_GET['mezo']!='legfrissebb' ) {
     }
 }
 
-
 // Ha jóváhagyás joggal léptünk az anyagigénylésekhez, és nem módosítottunk még a szűrésen, akkor alapból leszűrünk az árazva státuszra.
 // Viszont emiatt kell egy get szűrés töröl is, hogy tudjuk mikor kapcsolták ki szándékosan.
-if (isset($_GET['szures_torol'])) {
+if( isset($_GET['szures_torol']) ) {
     $_SESSION['szures_torol'] = 1;
     $kieg = '';
-    if (isset($_GET['anyagrend'])) {
+    if( isset($_GET['anyagrend']) ) {
         $kieg = '&anyagrend';
     }
     hd(basename(self()).'?tablazat'.$kieg);

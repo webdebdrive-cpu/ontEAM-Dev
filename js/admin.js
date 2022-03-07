@@ -1718,7 +1718,7 @@ $(function() {
         osszetett_szuro_mondat();
     });
 
-    /* Összetett szűrés kiértékelése: az elő 3 karakter egy kód, hogy ne a konkrét értékeket küldjük át, így biztonságosabb lefuttatni az SQL-t is */
+    // Összetett szűrés kiértékelése: az elő 3 karakter egy kód, hogy ne a konkrét értékeket küldjük át, így biztonságosabb lefuttatni az SQL-t is
     $(document).on('click', '.f_o_szures_submit', function() {
         var feltetel = '';
         $('#o_feltetel_halmaz div.dtr').each(function () {
@@ -1941,7 +1941,7 @@ $(function() {
         }
     });
 
-    /* Projektgénylésnél az egy és többszállodás modell kiválasztása */
+    // Projektgénylésnél az egy és többszállodás modell kiválasztása
     $(document).on('click keyup', '.f_pri_egytobb', function(e) {
         
         // Ha ráklikkeltünk, vagy ha space-t nyomtunk rá
@@ -3043,11 +3043,11 @@ function anyagigenyles_rendeles_keszit(csak_kerdezunk) {
 // Árazott anyagigénylés jóváhagyása
 function anyagigenyles_jovahagy(csak_kerdezunk, jhmen) {
 
-    if(!csak_kerdezunk){
+    if( !csak_kerdezunk ) {
         formModositva = false;
         $('.szamla_cont_tabla input').removeClass('mod');
     }
-    if(balnav_kijelol_ell()){
+    if (balnav_kijelol_ell()) {
 
         szamlaSorok = $('.szamla_cont_tabla tbody tr.kijelolve');
         if( szamlaSorok.length ) {

@@ -1,6 +1,17 @@
 <?php
 require_once('../weblap.php');
 
+//if( isset($_GET['teszt']) ) {
+//    $projektek = $adatbazis_kapcsolat->s('recid telephely_id', 'projektkezeles', "`telephely_unid`=''");
+//    foreach ( $projektek as $projekt ) {
+//        $telephely = $adatbazis_kapcsolat->s2('unid', 'telephely', "`id`='{$projekt['telephely_id']}'");
+//        $adatbazis_kapcsolat->u('projektkezeles', array('telephely_unid'), array($telephely['unid']), "`recid`='{$projekt['recid']}'");
+//        echo $adatbazis_kapcsolat->gp() . '<br>';
+//    }
+//    echo 'f';
+//    exit;
+//}
+
 // Ha egyik megtekintés joggal sem rendelkezünk
 if( !_jog(JOG_PRKEZEL_MEGTEKINT) && !_jog(JOG_PRKEZEL_SAJAT_MEGTEKINT) && !_jog(JOG_PRKEZEL_TEAM_TAG) && !_jog(JOG_PR_EGYSZALL_MEGTEKINT) && !_jog(JOG_PR_TOBBSZALL_MEGTEKINT) && !_jog(JOG_PR_B_MEGTEKINT) && !_jog(JOG_PR_F_MEGTEKINT) && !_jog(JOG_PR_T_MEGTEKINT) ) {
     if( !$_SESSION[get_db_tabla() . 'user'] ) {
@@ -70,7 +81,7 @@ if( isset($_POST['dok_minosites_beallit']) ) {
     
     // Logolás
     $pr_id = $adatbazis_kapcsolat->s2('projektkezeles_id fajlnev', 'projektkezeles_dok', "`recid`='{$_POST['recid']}'");
-    addMegj('projektkezeles', $pr_id['projektkezeles_id'], $pr_id['fajlnev'].' dokumentum '. getErtekLista(ERTEKLISTA_DOK_TIPUS, $_POST['tipus']).' típusnak minősítve');
+    addMegj('projektkezeles', $pr_id['projektkezeles_id'], $pr_id['fajlnev'].' dokumentum '. erteklista(ERTEKLISTA_DOK_TIPUS, $_POST['tipus']).' típusnak minősítve');
 
     
     // Updateljük a minősítésre váró dokumentumok számát
@@ -1767,7 +1778,7 @@ if( isset($_POST['get_ml_ok']) ) {
         $tablazat .= '
             <tr class="kijSor" data-i="'.$i.'" data-recid="'.$ml['recid'].'" data-ikt_szam="'.$ml['ikt_szam'].'">
                 <td class="l">'.$ml['ikt_szam'].'</td>
-                <td class="l">'.getErtekLista(ERTEKLISTA_MUNKALAP_TIP, $ml['tipus_id']).'</td>
+                <td class="l">'.erteklista(ERTEKLISTA_MUNKALAP_TIP, $ml['tipus_id']).'</td>
                 <td class="l">'.$szemelyzet.'</td>
                 <td class="l">'. htmlspecialchars_decode( resz_string($ml['text'], 30) ).'</td>
                 <td class="r">'. getStatText('munkalap', $ml['stat_id']).'</td>
@@ -1946,7 +1957,7 @@ if( isset($_GET['csv']) ) {
                 $weblap -> leallit();
                 exit;
             } else {
-                $sql .= $_SESSION['akt_sql_order'];    
+                $sql .= $_SESSION['akt_sql_order'];
             }
 
             $query      = mysqli_query($db_kapcs, $sql);
@@ -2346,7 +2357,7 @@ require_once('selectek.php');
                                         if( !feltoltes_mehet ) {
                                             alert2(
                                                 \'Név: \'+$(\'#nev\').val()+
-                                                \'<br>Szálloda: \'+$(\'#telephely_id option:selected\').text()+
+                                                \'<br>Szálloda: \'+$(\'#telephely_unid option:selected\').text()+
                                                 \'<br>Jóváhagyott keret: \'+$(\'#jkolt\').val()+
                                                 \' '. get_penznem().'
                                                 <br>
@@ -2366,8 +2377,8 @@ require_once('selectek.php');
 
         // FORM
 		if( isset($_GET['ujkent']) ) {
-            foreach($akt_tomb as $ertek){
-				$sor[$ertek['name']]=$_SESSION[$ertek['name']];
+            foreach ( $akt_tomb as $ertek ) {
+                $sor[$ertek['name']] = $_SESSION[$ertek['name']];
 			}
 		}
 	    $js = js_kiir($akt_tomb, 'form_ell_admin()');
@@ -2381,7 +2392,7 @@ require_once('selectek.php');
         $rend_mezok = adatbazis2tomb($rend_mezok, 'column_name');
 
         $sor = array();
-        foreach($rend_mezok as $rend_mezo) {
+        foreach ( $rend_mezok as $rend_mezo ) {
             $sor[$rend_mezo] = '';
         }
         
@@ -2399,11 +2410,14 @@ require_once('selectek.php');
             $sor['megter']                  = $igenyles['megter'];
             $sor['text']                    = $igenyles['text'];
             $sor['projektigenyles_recid']   = $_GET['igeny_id'];
+            
+            $telephely = $adatbazis_kapcsolat->s2('unid', 'telephely', "`id`='{$igenyles['telephely_id']}'");
+            $sor['telephely_unid']          = $telephely['unid'];
         }
 
         $json_sor = array();
-        foreach($sor as $kulcs => $elem){
-           $json_sor[$kulcs] = formAdatok_replace($elem);
+        foreach ( $sor as $kulcs => $elem ) {
+            $json_sor[$kulcs] = formAdatok_replace($elem);
         }
         $szamla_html .= '
                         <script>
@@ -2869,7 +2883,7 @@ require_once('selectek.php');
                 <div class="dtr nSor">
                     <div class="dtc"><a href="munkalap.php?id=x&amp;modosit&amp;mezo=ikt_szam&amp;op=equal&amp;felt='.$munkalap['ikt_szam'].'" target="_blank">'.$munkalap['ikt_szam'].'</a></div>
                     <div class="dtc">
-                        '.getErtekLista(ERTEKLISTA_MUNKALAP_TIP, $munkalap['tipus_id']).'
+                        '.erteklista(ERTEKLISTA_MUNKALAP_TIP, $munkalap['tipus_id']).'
                     </div>
                     <div class="dtc">'.$szemelyzet.'</div>
                     <div class="dtc">'.getStatText('munkalap', $munkalap['stat_id']).'</div>
@@ -2898,7 +2912,7 @@ require_once('selectek.php');
                 <div class="dtr nSor">
                     <div class="dtc"><a href="munkalap.php?id=x&amp;modosit&amp;mezo=ikt_szam&amp;op=equal&amp;felt='.$munkalap['ikt_szam'].'" target="_blank">'.$munkalap['ikt_szam'].'</a></div>
                     <div class="dtc">
-                        '.getErtekLista(ERTEKLISTA_MUNKALAP_TIP, '', $munkalap['tipus_id']).'
+                        '.erteklista(ERTEKLISTA_MUNKALAP_TIP, $munkalap['tipus_id']).'
                     </div>
                     <div class="dtc">'.$szemelyzet.'</div>
                     <div class="dtc">'.getStatText('munkalap', $munkalap['stat_id']).'</div>

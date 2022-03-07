@@ -87,7 +87,7 @@ foreach ( $akt_tomb as $ertek ) {
 
             $csoport_where = '';
             if( $ertek['csoport'] ) {
-                $csoport_where = " and `csoport` = '".$ertek['csoport']."'";
+                $csoport_where = " AND `csoport`='".$ertek['csoport']."'";
             }
 
             // Lekérdezzük a külső tábla értékét
@@ -780,26 +780,43 @@ foreach ( $akt_tomb as $ertek ) {
             
             $cegkodos_modulok = array('anyag_szamla', 'energia_szamla', 'fenntartasi_szamla', 'projektszamla');
             $self = self('-basename-', '-kit.nélkül-');
-            if( isset($_GET['uj']) && isset($_GET['andoc_id']) && in_array($self, $cegkodos_modulok) ) {
+            if( 
+                (isset($_GET['uj']) && isset($_GET['andoc_id']) && in_array($self, $cegkodos_modulok) )
+                || $koltsegviselo_szalloda_lenyilohoz // projektszerzodes.php-ban egy ajaxos szálloda lenyíló betöltése miatt kell + projektszerződés adatlapjára is
+            ) {
                 
-                $atmeneti   = $adatbazis_kapcsolat->s2('kolt_vis', $self.'_atmeneti', "`andoc_id`='{$_GET['andoc_id']}'");
-                $erteklista = $adatbazis_kapcsolat->s2('cegkod', 'erteklista', "`csoport`='".ERTEKLISTA_KOLTSEGVISELO."' AND `id`='{$atmeneti['kolt_vis']}'");
+                if( $koltsegviselo_szalloda_lenyilohoz ) {
+                    $erteklista = $adatbazis_kapcsolat->s2('cegkod', 'erteklista', "`csoport`='".ERTEKLISTA_KOLTSEGVISELO."' AND `id`='{$koltsegviselo_szalloda_lenyilohoz}'");
+                } else {
+                    $atmeneti   = $adatbazis_kapcsolat->s2('kolt_vis', $self.'_atmeneti', "`andoc_id`='{$_GET['andoc_id']}'");
+                    $erteklista = $adatbazis_kapcsolat->s2('cegkod', 'erteklista', "`csoport`='".ERTEKLISTA_KOLTSEGVISELO."' AND `id`='{$atmeneti['kolt_vis']}'");
+                }
+                
                 if( $erteklista ) {
                     $where .= " AND `cegkod`='{$erteklista['cegkod']}'";
                 }
             }
-            $telephelyek = $adatbazis_kapcsolat -> select('id recid nev modell', 'telephely', $where, 'nev');
-
+            // unid esetén kell rá egy group by is
+            $group_by = '';
+            if( $ertek['unid'] ) {
+                $group_by = 'unid';
+            }
+            $telephelyek = $adatbazis_kapcsolat -> select('id recid unid nev modell', 'telephely', $where, 'nev', '', $group_by);
             foreach ( $telephelyek as $telephely ) {
-                // Ha csak egy szálloda van, akkor a seletből csak az az egy érték választható ki, ezt meg is tesszük, selectet így disabled-re téve.
+                // Ha csak egy szálloda van, akkor a selectből csak az az egy érték választható ki, ezt meg is tesszük, selectet így disabled-re téve.
                 // Mindezet csak akkor, ha új feltöltés üzemmódban vagyunk
                 if( count($telephelyek) == 1 && isset($_GET['uj']) ) {
                     $sor['telephely_id'] = $telephely['id'];
                     $ertek['disabled'] = true;
                     $ertek['post'] .= '<input type="hidden" name="telephely_id" id="telephely_id" value="'.$sor['telephely_id'].'"><input type="hidden" name="telephely_txt" id="telephely_txt" value="'.$telephely['nev'].'">';
                 }
-
-                array_push($select_felh_telephely, array('name' => $telephely['nev'], 'value' => $telephely['id'], 'data-modell' => $telephely['modell'] ));
+                
+                // A szálloda ID-ját vagy UNID-ját szeretnénk értékként megkapni?
+                if( $ertek['unid'] ) {
+                    array_push($select_felh_telephely, array('name' => $telephely['nev'], 'value' => $telephely['unid'], 'data-modell' => $telephely['modell'] ));
+                } else {
+                    array_push($select_felh_telephely, array('name' => $telephely['nev'], 'value' => $telephely['id'], 'data-modell' => $telephely['modell'] ));
+                }
             }
 
             if( $ertek['alert'] ) {
@@ -807,6 +824,9 @@ foreach ( $akt_tomb as $ertek ) {
             }
 
             $selected = $sor['telephely_id'];
+            if( $ertek['unid'] ) {
+                $selected = $sor['telephely_unid'];
+            }
             if( isset($_GET['uj']) && $_GET['telephely'] ) {
                 $selected = $_GET['telephely'];
             }

@@ -58,7 +58,7 @@ if( isset($_GET['csv']) ) {
             $weblap -> leallit();
             exit;
         } else {
-            $sql .= $_SESSION['akt_sql_order'];    
+            $sql .= $_SESSION['akt_sql_order'];
         }
 
         $query      = mysqli_query($db_kapcs, $sql);

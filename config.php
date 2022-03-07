@@ -79,11 +79,12 @@ function get_teszt_rendszer() {
 }
 
 
-function get_verzio()     { return 'V1.192';                                    } // Fejlécben szereplő verzió szám
+function get_verzio()     { return 'V1.198';                                    } // Fejlécben szereplő verzió szám
 function get_db_charset() { return 'UTF8';                                      } // Karakterkódolás (Figyelem! UTF-8 helyett itt UTF8)
 function get_debug()      { return false;                                       } // Hibás adatbázislekérdezések megjelennek vagy sem
-function get_debug_ip()   { return '91.120.137.40';                              } // Erről az IP címről nézve az oldalt íratható ki hibaüzenet
-//
+function get_debug_ip()   { return '81.182.32.82';                              } // Erről az IP címről nézve az oldalt íratható ki hibaüzenet
+// A fenti élesen nem működik, de a többi felületen igen
+
 // Weblap
 function get_admin()         { return 'admin/';                                 } // Admin könyvtár neve
 function get_afa()           { return 27;                                       }

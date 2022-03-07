@@ -35,7 +35,7 @@ if( $_POST /*|| isset($_GET['teszt'])*/ ) {
             $xml -> strObjectTagname = 'szlakif';
             foreach ( $xml as $szlakif ) {
 
-                // Ha csak egy sornak nincs ilyen adata, akkor megszakítjuk a működést
+                // Ha csak egy sornak nincs ilyen adata, már akkor megszakítjuk a működést
                 if( !$szlakif['szlakifid'][0] ) {
                     echo '02 - Hiányzó szlakifid adat! Egyetlen most átadott kifizetés sor sem került letárolásra.';
                     mysqli_rollback($db_kapcs);

@@ -58,7 +58,7 @@ if( isset($_POST['dokumentum_tipus_valaszt']) ) {
     
     // Logolás
     $dok = $adatbazis_kapcsolat->s2($_POST['tabla'].'_id fajlnev', $_POST['tabla'].'_dok', "`recid`='{$_POST['recid']}'");
-    addMegj($_POST['tabla'], $dok[$_POST['tabla'].'_id'], $dok['fajlnev'].' dokumentum '. getErtekLista(ERTEKLISTA_DOK_TIPUS, $_POST['tipus']).' típusnak minősítve');
+    addMegj($_POST['tabla'], $dok[$_POST['tabla'].'_id'], $dok['fajlnev'].' dokumentum '. erteklista(ERTEKLISTA_DOK_TIPUS, $_POST['tipus']).' típusnak minősítve');
     
     $weblap -> leallit();
     exit;

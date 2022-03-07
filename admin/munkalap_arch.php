@@ -85,7 +85,7 @@ if( isset($_GET['csv']) ) {
                     $weblap -> leallit();
                     exit;
                 } else {
-                    $sql .= $_SESSION['akt_sql_order'];    
+                    $sql .= $_SESSION['akt_sql_order'];
                 }
 
         $query      = mysqli_query($db_kapcs, $sql);
@@ -363,7 +363,7 @@ require('selectek.php');
                     $helyseg = $helyseg[0]['nev'];
 
                     // Hiba
-                    $hiba = getErtekLista('', '', $sor['hiba_id']);
+                    $hiba = erteklista('', '', $sor['hiba_id']);
 
                     // Bejelentést, csak munkalap törlés joggal lehet törölni.
                     $torles = '';

@@ -7062,7 +7062,7 @@ if( isset($_POST['get_ml_adatok_levelhez']) ) {
     }
     $munkalap['telephely_nev']          = trim(htmlspecialchars_decode( getErtek('nev', 'telephely', 'id', $munkalap['telephely_id']) ));
     $munkalap['hely']                   = trim(htmlspecialchars_decode( getSzallodaNev($munkalap['telephely_id']) )    ."\n".htmlspecialchars_decode( getErtek('nev', 'obj', 'recid', $munkalap['obj_id']) ));
-    $munkalap['bejelentes_hiba_text']   = trim(htmlspecialchars_decode( getErtekLista('', '', $bejelentes['hiba_id']) )."\n".$bejelentes['hiba_text']);
+    $munkalap['bejelentes_hiba_text']   = trim(htmlspecialchars_decode( erteklista('', '', $bejelentes['hiba_id']) )."\n".$bejelentes['hiba_text']);
     $munkalap['bejelentes_hely']        = trim(htmlspecialchars_decode( getSzallodaNev($bejelentes['telephely_id']) )  ."\n".htmlspecialchars_decode( getErtek('nev', 'obj', 'recid', $bejelentes['obj_id']) )."\n".$bejelentes['helyiseg_text']);
     $munkalap['gep']                    = trim(htmlspecialchars_decode( getErtek('nev', 'eszkozkezeles', 'recid', $munkalap['gep_id']) ) );
     $munkalap['bejelento']              = trim($bejelentes['usr_nev']."\n".htmlspecialchars_decode( erteklista(ERTEKLISTA_BEOSZTAS, $bejelentes['usr_beosztas_id']) )."\n".htmlspecialchars_decode( erteklista(ERTEKLISTA_RESZLEG, $bejelentes['usr_reszleg_id']) )."\n".$bejelentes['usr_telefon']."\n".$bejelentes['usr_email']);
@@ -8318,7 +8318,7 @@ require('selectek.php');
                     $helyseg = $helyseg[0]['nev'];
 
                     // Hiba
-                    $hiba = getErtekLista('', '', $sor['hiba_id']);
+                    $hiba = erteklista('', '', $sor['hiba_id']);
 
                     // Bejelentést, csak munkalap törlés joggal lehet törölni.
                     $torles = '';

@@ -69,7 +69,7 @@ if( $_GET['print'] == 'lista' || isset($_GET['pdf']) ) {
         } elseif( $_GET['mezo'] == 'pfelelos' || $_GET['mezo'] == 'let_fel' ) {
             $feltetel .= getErtek('teljes_nev', 'login', 'recid', $_GET['felt']);
         } elseif( $_GET['mezo'] == 'kolt_vis' ) {
-            $feltetel .= getErtekLista(ERTEKLISTA_KOLTSEGVISELO, $_GET['felt']);
+            $feltetel .= erteklista(ERTEKLISTA_KOLTSEGVISELO, $_GET['felt']);
         } elseif( $_GET['mezo'] == 'fix_adat' ) {
             if( $_GET['felt'] ){
                 $feltetel .= 'Igen';
