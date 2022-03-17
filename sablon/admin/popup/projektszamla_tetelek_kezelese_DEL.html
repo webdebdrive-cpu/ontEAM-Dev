@@ -1,3 +1,11 @@
+<!-- VIGYÁZZ, A projektszamla_tetelek_kezelese_modosit.html FÁJLT KERESD INKÁBB
+
+
+
+
+    LEHET EZ A FÁJL MÁR TÖRÖLHETŐ IS?
+
+-->
 <h2>Számla tételek kezelése</h2>
 
 <div class="kozep" style="min-height: 40rem">
@@ -325,7 +333,7 @@ function tetel_sorok_ment( bezar_nelkul ){
                 } else {
                     
                     /* Adatlapot csak akkor frissítünk, és popupot csak akkor zárunk ha DB-be is elmentjük */
-                    if( _get('tetel') ){
+                    if( !_get('modosit') ) {
                         szamlaBetolt(_get('id'), 'projektszamla.php');
                     }
                     popupZar();

@@ -45,21 +45,28 @@ var PHP_SELF = baseName(location.href)+'.php';
         });
     };
 }(jQuery));
-/* Curzor aktuális pozíciója */
+
+// Curzor aktuális pozíciója
 (function ($) {
     $.fn.getCursorPosition = function () {
         var input = this.get(0);
         if (!input) return;
         if ('selectionStart' in input) {
-
+            // Ha a tartalom az alapértelmezett pontozott tartalom volna (tehát az üres mező),
+            // akkor viszont ne a végére ugorjunk, hanem az elejére
+            if( input.value == '\xa0\xa0\xa0\xa0.\xa0\xa0.\xa0\xa0' || input.value == '\xa0\xa0\xa0\xa0.\xa0\xa0.\xa0\xa0\xa0\xa0:\xa0\xa0' ) {
+                return 0;
+            }
             return input.selectionStart;
+            
         } else if (document.selection) {
-
+            
             input.focus();
             var sel = document.selection.createRange();
             var selLen = document.selection.createRange().text.length;
             sel.moveStart('character', -input.value.length);
             return sel.text.length - selLen;
+            
         }
     }
 })(jQuery);
@@ -345,8 +352,8 @@ function ezresek(number, decimals, decPoint, thousandsSep, nullat_is_irja_ki){
     
     return eredmeny;
 }
-function number_format(number, decimals, decPoint, thousandsSep){
-    ezresek(number, decimals, decPoint, thousandsSep);
+function number_format(number, decimals, decPoint, thousandsSep, nullat_is_irja_ki){
+    return ezresek(number, decimals, decPoint, thousandsSep, nullat_is_irja_ki);
 }
 
 function ezresek2(szam){

@@ -130,7 +130,7 @@ for ( $i_ciklus = 0; $i_ciklus < 2; $i_ciklus++ ) {
 
             $esnap_d = str_replace('.', '-', $esnap_d);
             // Ha ez egy múltbeli dátum (ez azt jelenti, hogy az ütmező rosszul számolt, tehát programhiba volt), akkor az esnap_d mezőbe 3000-01-01-et írunk
-            if($esnap_d<date('Y-m-d')){
+            if( $esnap_d < date('Y-m-d') ) {
                 $esnap_d = '3000-01-01';
             }
             array_push($oszlopok, 'esnap_d');

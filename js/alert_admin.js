@@ -1,7 +1,7 @@
 focused = false;
 function alert2(uzi, ok_gomb, cim) {
     
-    /* Ha feljöün egy új hibaüzenet, akkor a szürkítést kapcsoljuk le, ez fontos, mert különben nem lehet majd a figylemeztetést kikapcsolni. */
+    // Ha feljön egy új hibaüzenet, akkor a szürkítést kapcsoljuk le, ez fontos, mert különben nem lehet majd a figylemeztetést kikapcsolni.
     szurkit_zar();
     
     if( !uzi && focused ) {
@@ -16,8 +16,8 @@ function alert2(uzi, ok_gomb, cim) {
         ok_gomb = '<input type="button" class="link gomb escapes_megsem" value="Ok" onclick="alert2()">';
     }
 
-    /* Üres alert eltűntetés */
-    if(!uzi){
+    // Üres alert eltűntetés
+    if (!uzi) {
 
         $('#szurkit').fadeOut(200);
         $('#alert2').fadeOut(200, function(){
@@ -25,14 +25,14 @@ function alert2(uzi, ok_gomb, cim) {
             $('#alert2').remove();
         });
 
-        /* Hibaüzenetkor ha adtunk "hibas_ide_focus" class-t egy inputra, akkor arra fókuszáljunk rá. */
+        // Hibaüzenetkor ha adtunk "hibas_ide_focus" class-t egy inputra, akkor arra fókuszáljunk rá.
         $('input.hibas_ide_focus, textarea.hibas_ide_focus, select.hibas_ide_focus').focus().removeClass('hibas_ide_focus');
 
         return true;
 
-    }else{
+    } else {
 
-        /* kivesszük, mivel újból hozzá lesz adva */
+        // kivesszük, mivel újból hozzá lesz adva
         $('#szurkit').remove();
         $('#alert2').remove();
 
@@ -42,7 +42,7 @@ function alert2(uzi, ok_gomb, cim) {
             alert_kiir(uzi, ok_gomb, cim);
             return true;
 
-        }else if(uzi.substring(0,2)=='f:'){
+        } else if (uzi.substring(0, 2) == 'f:') {
 
             $('body').append('<div id="tmp"></div>');
 
@@ -54,7 +54,7 @@ function alert2(uzi, ok_gomb, cim) {
                 return true;
             });
 
-        }else{
+        } else {
 
             alert_kiir(uzi, ok_gomb, cim);
             return true;
@@ -88,13 +88,6 @@ function alert_kiir(uzi, ok_gomb, cim){
         'top' : top_ertek,
         'left': left_ertek
     });
-
-/*  Ez nem tudom miért volt lényeges, de kivettem, mert emiatt nem lehetett az alert ablak alatt kattintva bezárni 2014.04.07
-    $('#alert2').css({
-        'height': windowHeight
-    });
-*/
-
 
     $('#szurkit, .szurkit').fadeIn(200);
     $('#alert2').fadeIn(200);

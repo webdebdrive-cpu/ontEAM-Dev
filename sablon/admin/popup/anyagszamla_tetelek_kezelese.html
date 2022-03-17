@@ -741,7 +741,13 @@ function tetel_sorok_ment( bezar_nelkul ) {
                     alert2(response.hiba, response.gomb, response.title);
                 } else {
                     
-                    szamlaBetolt(_get('id'), 'anyag_szamla.php');
+                    /* Adatlapot csak akkor frissítünk, és popupot csak akkor zárunk ha DB-be is elmentjük
+                     * Illetve csak akkor, ha nem az adatlapon volnánk... egyébként nem frissítünk, mert lehet
+                     * hogy az adatlapon is volt változás.
+                     *  */
+                    if( !_get('modosit') || tetel_popup_frissit /* PHP-ban a Mentés/Mégsem gomboknál van beállítva */ ){
+                        szamlaBetolt(_get('id'), 'anyag_szamla.php');
+                    }
                     popupZar();
                     $('#ossz_'+osszeg_mezo).val( response.netto );
                     
@@ -778,20 +784,20 @@ function pop_tetelek_feltolt(){
             if( response ) {
                 response = JSON.parse(response);
                 
-                if(response.hiba){
+                if( response.hiba ) {
                     alert2(response.hiba, response.gomb, response.title);
-                    if( response.focus ){
+                    if( response.focus ) {
                         $('#'+response.focus).addClass('hibas_ide_focus');
                     }
                     popupZar();
                     return false;
                 }
                 
-                if(response.html){
+                if( response.html ) {
                     $('#pop_tetelek tbody').append(response.html);
                     $('#pop_tetelek').removeClass('dn');
                 }
-                if(response.pr_tetelek){
+                if( response.pr_tetelek ) {
                     $('#projekt_tetelek').html(response.pr_tetelek);
                 }
             }

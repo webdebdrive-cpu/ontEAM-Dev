@@ -8,11 +8,9 @@ body{
 
 .piros.link{
     color: #000;
-    transition: all ease-in-out 0.2s;
 }
 .piros.link:hover {
     color: #f00;
-    transition: all ease-in-out 0.2s;
 }
 
 tr.s0{ background: #F9FAFE; border-bottom: 0.1rem solid #E3EBF1; }
@@ -564,7 +562,7 @@ input.datepicker, input.datepicker_tegnapig, input.datepicker_matol, #popup div.
     white-space: pre;
 }
 
-input.datetimepicker, #popup div.popup_tart div.dt div.dtc input[type="text"].datetimepicker{
+input.datetimepicker, input.datetimepicker_matol, #popup div.popup_tart div.dt div.dtc input[type="text"].datetimepicker, #popup div.popup_tart div.dt div.dtc input[type="text"].datetimepicker_matol {
     min-width: 0;
     width: 12.2rem;
     white-space: pre;
@@ -585,21 +583,17 @@ input.gomb{
     margin-bottom: 0.5rem;
     padding: 0.6rem;
     position: relative;
-    transition: all ease-in-out 0.2s;
 }
 
 input.gomb:hover, input.gomb:focus, input.gomb:active{
     background: #5192da;
-    transition: all ease-in-out 0.2s;
 }
 
 input.gomb.piros{
     background: #C44B4B;
-    transition: all ease-in-out 0.2s;
 }
 input.gomb.piros:hover, input.gomb.piros:focus, input.gomb.piros:active{
     background: #D35454;
-    transition: all ease-in-out 0.2s;
 }
 
 input.gomb_alert{
@@ -628,7 +622,6 @@ input.gomb.zold, input.gombb{
     font-weight: 700;
     padding: 0.6rem;
     position: relative;
-    transition: all ease-in-out 0.2s;
 }
 
 input.gomb:focus{
@@ -642,7 +635,6 @@ input.gombb.input {
 }
 
 input.gomb.zold:hover, input.gombb:hover {
-    transition: all ease-in-out 0.2s;
     background: #64a739;
 }
 
@@ -863,7 +855,6 @@ div.jsff div.talloz div{
     font-size: 1.4rem;
     padding: 0.6rem 1.2rem;
     position: relative;
-    transition: all ease-in-out 0.2s;
 }
 
 div.jsff div.talloz div.kicsi {
@@ -871,11 +862,8 @@ div.jsff div.talloz div.kicsi {
     padding: 0.2rem 0.4rem;
 }
 
-div.jsff div.talloz div:hover,
-div.jsff div.talloz div:focus,
-div.jsff div.talloz div:active{
+div.jsff div.talloz div:hover, div.jsff div.talloz div:focus, div.jsff div.talloz div:active{
 	background: #5192DA;
-    transition: all ease-in-out 0.2s;
 }
 
 div.jsff div.talloz div input{
@@ -1431,7 +1419,6 @@ a.szerkeszt, span.szerkeszt{
     color: #C4D7EC;
     font-size: 2.2rem;
     text-decoration: none;
-    transition: color 0.2s;
 }
 a.szerkeszt:hover, span.szerkeszt:hover{
     color: #658BB5;
@@ -1442,18 +1429,16 @@ a.torol, span.torol{
     font-size: 2.2rem;
     margin: 0;
     text-decoration: none;
-    transition: color 0.2s;
 }
 a.torol:hover, span.torol:hover{
     color: #CC5858;
 }
 
-a.mappa, span.mappa{
+a.mappa, span.mappa {
     color: #F4E2B6;
     font-size: 2.2rem;
     margin: 0 0.5rem;
     text-decoration: none;
-    transition: color 0.2s;
 }
 a.mappa:hover, span.mappa:hover{
     color: #EBC767;
@@ -1464,7 +1449,6 @@ a.cimlap, span.cimlap{
     font-size: 2.2rem;
     margin: 0 0.5rem;
     text-decoration: none;
-    transition: color 0.2s;
 }
 a.cimlap:hover, span.cimlap:hover, span.cimlap.aktiv{
     color: #4E77A6;
@@ -1475,7 +1459,6 @@ a.nagyit, span.nagyit{
     font-size: 2.2rem;
     margin: 0 0.5rem;
     text-decoration: none;
-    transition: color 0.2s;
 }
 a.nagyit:hover, span.nagyit:hover{
     color: #4E77A6;
@@ -1545,11 +1528,9 @@ table.rend_tetelek td.torol div{
     line-height: 1.2;
     width: 1.8rem;
     text-align: center;
-    transition: all ease-in-out 0.2s;
 }
 table.rend_tetelek td.torol div:hover{
     background: #f00;
-    transition: all ease-in-out 0.2s;
 }
 
 
@@ -2014,11 +1995,9 @@ div.szamlaKereses input[type="button"]:hover {
 }
 div.szamlaKereses input[type="button"].piros{
     background: #C44B4B;
-    transition: all ease-in-out 0.2s;
 }
 div.szamlaKereses input[type="button"].piros:hover, div.szamlaKereses input[type="button"].piros:focus, div.szamlaKereses input[type="button"].piros:active{
     background: #D35454;
-    transition: all ease-in-out 0.2s;
 }
 div.szamlaKereses input.datepicker {
     width: 9.6rem;
@@ -2697,13 +2676,11 @@ span.icon.zold {
 
 span.icon.jotallas {
     margin-right: 1rem;
-    transition: all ease-in-out 0.2s;
     vertical-align: initial;
 }
 
 span.icon.jotallas:hover {
     color: #C44B4B;
-    transition: all ease-in-out 0.2s;
 }
 
 table.csikos span.icon {
@@ -3075,7 +3052,6 @@ table.csikos td:first-of-type{
 
 table.csikos tr.link:hover{
     background: #E6F1F8;
-    transition: all ease-in-out 0.2s;
 }
 
 table.csikos.hoveres tr:hover {
@@ -3216,7 +3192,6 @@ tr.szerzodes_szamla_tetel_szurke {
 
 #o_feltetel_halmaz b.zaro:hover {
     background: #F8FAFC;
-    transition: all ease-in-out 0.2s;
 }
 
 #o_feltetel_halmaz b.torol {
@@ -3228,13 +3203,11 @@ tr.szerzodes_szamla_tetel_szurke {
     margin-right: 0.6rem;
     text-align: center;
     padding: 0.2rem;
-    transition: all ease-in-out 0.2s;
     width: 2.2rem;
 }
 
 #o_feltetel_halmaz b.torol:hover {
     background: #CD5757;
-    transition: all ease-in-out 0.2s;
 }
 
 svg.piros path{
@@ -3318,12 +3291,10 @@ table.csoportok input[type="button"]{
     font-weight: bold;
     margin: 0.5rem 0;
     padding: 0.6rem 2.5rem;
-    transition: all ease-in-out 0.2s;
 }
 table.csoportok input[type="button"]:hover{
     background: #5192DA;
     cursor: pointer;
-    transition: all ease-in-out 0.2s;
 }
 table.csoportok input[type="button"]:focus{
     border: 0.1rem solid #f00;
@@ -3516,10 +3487,6 @@ div.header div.dtc.respo_menu {
     bottom: -0.9rem;
 }
 
-.menu_icon span, .menu_icon span:before, .menu_icon span:after {
-    transition: all 250ms ease-in-out;
-}
-
 .menu_icon.active span {
     background-color: transparent;
 }
@@ -3651,13 +3618,11 @@ div.levelezo_grid {
 b.fajl_torol{
     color: #E72727;
     cursor: pointer;
-    transition: all ease-in-out 0.2s;
     margin-right: 1rem;
 }
 
 b.fajl_torol:hover{
     color: #f00;
-    transition: all ease-in-out 0.2s;
 }
 /* Két hasábos oszlop */
 div.grid2o{

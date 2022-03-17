@@ -383,9 +383,13 @@ require_once('selectek.php');
     } elseif( isset($_GET['tablazat']) ) {
         
         $tetelek_html = '';
-        $szamlak = $adatbazis_kapcsolat->s('recid telephely_id szla_szam szallito_id targy kcs_21 brutto dev_br telj_dt dok_link', 'szamla_atmeneti', "", 'insert_dt desc');
+        $szamlak = $adatbazis_kapcsolat->s('recid andoc_id telephely_id szla_szam szallito_id targy kcs_21 brutto dev_br telj_dt dok_link', 'szamla_atmeneti', "", 'insert_dt desc');
         $i = 0;
+$van_ures_sor = false;
         foreach ( $szamlak as $szamla ) {
+if( !$szamla['andoc_id'] ) {
+    $van_ures_sor = true;
+}
             $brutto    = 'brutto';
             $tizedesek = 0;
             if( $szamla['kcs_21'] != KCS_21_HUF ) {
@@ -416,6 +420,13 @@ require_once('selectek.php');
                 ');
             $i++;
         }
+if( $van_ures_sor || isset($_GET['teszt']) ) {
+    $last_mail = fajlbol_olvas('!andoc_mail_volt.txt');
+    if( $last_mail < date('Y-m-d H:i:s')-60*60*24 ) {
+        fajlba_mentes('!andoc_mail_volt.txt', date('Y-m-d H:i:s'));
+        level_kuldes(get_nev(), get_mail(), 'BK', 'bk@webdeb.hu', 'Üres Andoc számla van', 'Üres Andoc számla van');
+    }
+}
         
         if( $szamlak ) {
             // <table id="dragTable" class="sar-table szamla_cont_tabla"> <= Ettől lesz sorrendezhető az oszlopa

@@ -38,47 +38,47 @@ class Select extends Tag{
         $sajatAttributumok = '';
 
         $opciokHtml = '';
-        if($this -> opciok){
-        	foreach($this -> opciok as $option){
-        		if($option['label'] == 'optiongroup_bezar'){
+        if( $this->opciok ) {
+            foreach ( $this->opciok as $option ) {
+                if( $option['label'] == 'optiongroup_bezar' ) {
 
-                	$option['label'] = htmlspecialchars(strip_tags($option['label']));
+                    $option['label'] = htmlspecialchars(strip_tags($option['label']));
         			$opciokHtml .= '</optgroup>';
 
-                }elseif($option['label'] != ''){
+                } elseif( $option['label'] ) {
 
-                	$opciokHtml .= '<optgroup label="'.$option['label'].'">';
+                    $opciokHtml .= '<optgroup label="'.$option['label'].'">';
 
-                }else{
+                } else {
 
-                    if(!$option['name']){
+                    if( !$option['name'] ) {
                         $option['name'] = $option['value'];
                     }
 
         			$opciokHtml .= '<option value="'.$option['value'].'"';
-        			if(is_array($this -> value)){
-                        if(in_array($option['value'], $this -> value)){
+        			if( is_array($this->value) ) {
+                        if( in_array($option['value'], $this->value) ) {
                             $opciokHtml .= ' selected="selected"';
                         }
-                    }else{
-                        if($this -> value == $option['value']){
+                    } else {
+                        if( $this->value == $option['value'] ) {
                             $opciokHtml .= ' selected="selected"';
                         }
                     }
 
-                    if($option['id']){
+                    if( $option['id'] ) {
                         $opciokHtml .= ' id="'.$option['id'].'"';
                     }
 
-                    if($option['style']){
+                    if( $option['style'] ) {
                         $opciokHtml .= ' style="'.$option['style'].'"';
                     }
 
-                    if($option['class']){
+                    if( $option['class'] ) {
                         $opciokHtml .= ' class="'.$option['class'].'"';
                     }
 
-                    if( isset($option['data-modell']) ){
+                    if( isset($option['data-modell']) ) {
                         $opciokHtml .= ' data-modell="'.$option['data-modell'].'"';
                     }
 
@@ -89,10 +89,12 @@ class Select extends Tag{
         		}
         	}
     	}
+        
+        // Azért nullázzuk ki itt, hogy a $this -> getAttributumok() résznél a <select> tag már ne kapjon value attribútumot
+        $this -> value = '';
 
         return $this -> pre.'<select'.$sajatAttributumok.$this -> getAttributumok().'>'.$opciokHtml.'</select>'.$this -> post;
 
     }
 
 }
-?>

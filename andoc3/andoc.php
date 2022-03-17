@@ -375,6 +375,8 @@ class ServerClass {
             // Kifizetéskor ellenőrizzük a tételek számát. Ha eltérés van, akkor auto mail
             if( $szamla_adatok['Kifizetett összeg'] && $szamla_db['tetel_db'] != count($szamla_tetelek) ) {
                 level_felkeszit_es_kuld($tabla, $szamla_db['recid'], '', 'szamla_kifizetes', 'szamla_kifizetes', '');
+                $sql = $adatbazis_kapcsolat->u($tabla, array('tetel_elter'), array(1), "`andoc_id`='{$andoc_id}'");
+                if( $sql === false ) { $db_error = true; }
             }
 
             // 2021.09.09 Kérésre a tételek már nem kötelezőek

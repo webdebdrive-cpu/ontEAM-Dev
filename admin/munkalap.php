@@ -7145,8 +7145,8 @@ if( isset($_POST['munkalapVarhatoErkMegad']) ) {
         exit();
     }
     
-    // Múltbeli dátum ellenőrzése
-    if( $varh_erk < date('Y-m-d H:i:s') ) {
+    // Múltbeli dátum ellenőrzése (4000.00.00 - URES_DATUM_JSBOL_PHP_ALATT - azt jelenti, hogy üres volt az input
+    if( $varh_erk < date('Y-m-d H:i:s') || $varh_erk > URES_DATUM_JSBOL_PHP_ALATT ) {
         echo json_encode(array(
             'hiba'  => 'A várható érkezés nem lehet a jelenleginél korábbi időpont!',
             'title' => 'Hiba',
@@ -8027,6 +8027,13 @@ require('selectek.php');
         } else {
             
             $js_submit_elott = nl2('
+
+                    if( $(\'#varh_erk\').val()<\''.date('Y.m.d H:i:s').'\' ) {
+                        alert2(\'A várható érkezés nem lehet a jelenleginél korábbi időpont!\', \'\', \'Hiba\');
+                        alert_utan_mehet_megsem_mutat_beallit();
+                        return false;
+                    }
+
                     var dfrd_ml_mehet = false;
                     var hibauzenet    = \'\';
                     dfrd_pr_munkalap = $.Deferred();
@@ -8075,7 +8082,7 @@ require('selectek.php');
                         }
 
                         /* Ez a feltétel nem tévedésből van kétszer, kell ide is, meg egyel lentebb is */
-                        if(!urlap_mehet){
+                        if( !urlap_mehet ) {
                             return false;
                         } else {
                             return form_ell_admin();
@@ -8084,7 +8091,7 @@ require('selectek.php');
 
 
                     /* Ez a feltétel nem tévedésből van kétszer, kell ide is, meg egyel fentebb is */
-                    if(!urlap_mehet){
+                    if( !urlap_mehet ) {
                         return false;
                     } else {
                         return form_ell_admin();

@@ -4,10 +4,19 @@
 var KEY_BACKSP =   8;
 var KEY_TAB    =   9;
 var KEY_ENTER  =  13;
+var KEY_SHIFT  =  16;
+var KEY_CTRL   =  17;
 var KEY_ESCAPE =  27;
 var KEY_SPACE  =  32;
+var KEY_LEFT   =  37;
 var KEY_UP     =  38;
+var KEY_RIGHT  =  39;
 var KEY_DOWN   =  40;
+var KEY_DEL    =  46;
+var KEY_A      =  65;
+var KEY_C      =  67;
+var KEY_V      =  86;
+var KEY_X      =  88;
 var KEY_PLUS   =  107;
 var KEY_MINUS  =  109;
 var KEY_F5     =  116;
@@ -426,8 +435,9 @@ function alert_utan_mehet_megsem_mutat_beallit() {
 
 // Mentés gomb általános működése
 function mentesGomb() {
-    /* Többször van az, hogy egy eldöntenő kérdéses hibaüzeneten az Igen-re kattintva úja a mentés gomb működését hívjuk meg. De az válthat ki újabb hiba üzenetet, ami azért nem jeleik meg, mert még most zárjuk be az előzőt.
-     * Szóval emiatt a Mentés gomb lefutásában van egy késletetés. */
+    // Többször van az, hogy egy eldöntenő kérdéses hibaüzeneten az Igen-re kattintva úja a mentés gomb működését hívjuk meg.
+    // De az válthat ki újabb hiba üzenetet, ami azért nem jeleik meg, mert még most zárjuk be az előzőt.
+    // Szóval emiatt a Mentés gomb lefutásában van egy késletetés.
     setTimeout(function () {
         szurkit('mehet_megsem_rejt');
         $('#szerk_form').submit();
@@ -443,30 +453,29 @@ function megsemGomb() {
     oldal = baseName(location.href)+'.php';
 
     // Adatlap módosítás esete
-    if( _get('id') ){
+    if( _get('id') ) {
         // Van pár oldal, ahol nincs navpanel oldalt, ezért ott másképp kell eljárni
-        if( navpanel_mentes_oldal ){
+        if( navpanel_mentes_oldal ) {
             location.href = get_get(['uj']);
         } else {
             szamlaBetolt(_get('id'), oldal);
         }
     // Új feltöltés esete
-    }else if( $('#szamlaList li').length ){
+    } else if( $('#szamlaList li').length ) {
 
         // Ezt meg lehetett volna oldani így is: $('#szamlaList li.szamla_sor:first-of-type'), de nem működött érték lista menüpont alatt. Sőt elég lett volna így is: $('#szamlaList li:first-of-type'), de szintén az értéklista menüpont miatt így kelett megoldani
         $('#szamlaList li').each(function () {
-            if( $(this).hasClass('szamla_sor') ){
+            if( $(this).hasClass('szamla_sor') ) {
                 $(this).click();
                 return false;
             }
         });
 
-        
     // Új feltöltés esete, ha még egyetlen rekord sincs a bal navpanelen 
     } else {
 
         // Van pár oldal, ahol nincs navpanel oldalt, ezért ott másképp kell eljárni
-        if( navpanel_mentes_oldal ){
+        if( navpanel_mentes_oldal ) {
             location.href = get_get(['uj']);
         } else {
             location.reload();
@@ -474,32 +483,31 @@ function megsemGomb() {
     }
 }
 
-
 $(function() {
     
-    /* 800px alatt mobilnak számít */
+    // 800px alatt mobilnak számít
     isMobile = false;
     if( $(window).width() < 800 ) {
         isMobile = true;
     }
 
-    /* f_penznem class-ú elemek lecserélése a pénznemre (popupokban újra meg kell hírni sajnos) */
+    // f_penznem class-ú elemek lecserélése a pénznemre (popupokban újra meg kell hírni sajnos)
     $('.f_penznem').each(function () {
         $(this).replaceWith(PENZNEM);
     });
 
-    /* Csak számokat elfogadó mező */
+    // Csak számokat elfogadó mező
     $(document).on('keyup blur', '.f_csakszam, .f_plus_minus', function(){
         onlyNumbers($(this));
     });
 
-    /* Plusz/minusz billentyűvel léptető mező */
+    // Plusz/minusz billentyűvel léptető mező
     $(document).on('keydown', '.f_plus_minus', function(event){
-        if(event.keyCode == KEY_PLUS){
+        if (event.keyCode == KEY_PLUS) {
             $(this).val( Number($(this).val())+1 );
             return false;
         }
-        if(event.keyCode == KEY_MINUS){
+        if (event.keyCode == KEY_MINUS) {
             $(this).val( Number($(this).val())-1 );
             return false;
         }
@@ -824,22 +832,46 @@ $(function() {
         return false;
     });
 
-    // Általánosan igaz, hogy inputokon Enter-t ütve tabozzunk. Ehhez be kell állítani a tabndexeket
+    // Általánosan igaz, hogy inputokon Enter-t ütve tabozzunk. Ehhez be kell állítani a tabindexeket
     tabindex_beallit();
 
-    // Dátum mezőket elhagyva újraformázzuk
-    $(document).on('keyup', '.datepicker, .datetimepicker', function(e) {
-        var cursor_poz = $(this).getCursorPosition();
-        if($(this).hasClass('datetimepicker')){
-            $(this).val( datum_formatumra_formaz($(this).val(), 'Perc pontos') );
-        } else {
-            $(this).val( datum_formatumra_formaz($(this).val()) );
+    // Dátum mezőkbe gépelve/elhagyva újraformázzuk
+    $(document).on('keyup', '.datepicker, .datetimepicker, .datepicker_tegnapig, .datepicker_matol, .datepicker_matol, .datetimepicker_matol', function(e) {
+        var akt_pozicio = $(this).getCursorPosition();
+
+        // Törléskor azért ne formázzunk, mert az adat végére fog ugrani a kurzor, nem lehetne így a közepéről törölni
+        hossz_elotte = $(this).val().length;
+        if( e.keyCode != KEY_BACKSP && e.keyCode != KEY_DEL && e.keyCode != KEY_LEFT && e.keyCode != KEY_RIGHT ) {
+            if($(this).hasClass('datetimepicker')){
+                $(this).val( datum_formatumra_formaz($(this).val(), 'Perc pontos') );
+            } else {
+                $(this).val( datum_formatumra_formaz($(this).val()) );
+            }
         }
-        $(this).cursorTo( cursor_poz );
+        hossz_utana = $(this).val().length;
+        if( hossz_elotte != hossz_utana ) {
+            akt_pozicio++;
+        }
+        
+        // A kurzort beállítjuk a helyére, ha csak nincs lenyomva a Shift vagy Ctrl billenytű
+        // vagy nem épp ezeket engedtük el (azért, hogy billentyűvel lehessen kijelölni és másolni, vágni beilleszteni)
+        if( 
+            !e.shiftKey && !e.shiftKey  &&
+            e.keyCode != KEY_SHIFT      &&
+            e.keyCode != KEY_CTRL       &&
+            e.keyCode != KEY_A          &&
+            e.keyCode != KEY_C          &&
+            e.keyCode != KEY_V          &&
+            e.keyCode != KEY_X          &&
+            e.keyCode != KEY_LEFT       &&
+            e.keyCode != KEY_RIGHT
+            
+        ) {
+            $(this).cursorTo( akt_pozicio );
+        }
     });
 
     $(document).on('blur', '.datepicker, .datetimepicker', function(e) {
-        var cursor_poz = $(this).getCursorPosition();
         if($(this).hasClass('datetimepicker')){
             $(this).val( datum_formatumra_formaz($(this).val(), 'Perc pontos') );
         } else {
@@ -848,7 +880,6 @@ $(function() {
     });
 
     $(document).on('blur keyup', '.ora_perc', function(e) {
-        var cursor_poz = $(this).getCursorPosition();
         $(this).val( datum_formatumra_formaz_ora($(this).val()) );
     });
     $(document).on('blur', '.datepicker', function(e) {
@@ -916,7 +947,6 @@ $(function() {
         $(this).blur();
     });
 
-
     $(document).on('keyup', 'input, select', function(e) {
         if (e.which == KEY_ENTER && !$('#alert2').is(':visible') ) {
 
@@ -971,8 +1001,8 @@ $(function() {
         }
     });
 
-    shiftCtrl = false;
-    alt_tab   = false;
+    var shiftCtrl           = false;
+    var alt_tab             = false;
     $(document).on('keydown', function(e) {
         if( e.shiftKey || e.ctrlKey ) {
             if( !shiftCtrl ) {
@@ -1846,12 +1876,18 @@ $(function() {
         $(this).val( $(this).val().replace(/[^a-zA-Z0-9._@éáűőúöüóíÉÁŰŐÚÖÜÓÍ]+/g, '') );
     });
 
-    // ESCAPE gomb lekezelése
+    // Escape és Enter gomb lekezelése
     $(document).on('keyup', function(e) {
+        
         if( e.keyCode == KEY_ESCAPE ) {
             
-            // Ha vasn olyan Mégsem gomb mondjuk egy popup-on, aminek van escapes_megsem class-a, akkor egyszerűen csak nyomjuk meg ezt a gombot
-            if( $('.escapes_megsem').length ){
+            // Mégsem gomb megnyomása, ha nincs popup és látszik a Mégsem gomb
+            if( !$('#alert2').is(':visible') && !$('#popup').is(':visible') && $('#megsem_gomb').is(':visible') ) {
+                
+                $('#megsem_gomb').click();
+                
+            // Ha van olyan Mégsem gomb mondjuk egy popup-on, aminek van escapes_megsem class-a, akkor egyszerűen csak nyomjuk meg ezt a gombot
+            } else if( $('.escapes_megsem').length ){
                 
                 $('.escapes_megsem').last().click(); /* Azért kell bele a last(), mert több 'escapes_megsem' albak egymársra nyitódhat, és ekkor mindig a legutóbbit kell megnyomni, bezárni */
                 
@@ -1884,9 +1920,40 @@ $(function() {
             
 
         }
+        
+        // Popupon található zöld gombot nyomjuk meg
+        // (A Mégsem gomb fentebb van megoldva, lásd a "e.keyCode == KEY_ESCAPE" résznél.)
+        if( e.keyCode == KEY_ENTER ) {
+            
+            // Ha nem épp egy inputban vagyunk
+            var inputban_vagyunk = false;
+            if( (e.target.nodeName == 'INPUT' && e.target.type != 'button' && e.target.type != 'submit') || e.target.nodeName == 'SELECT' || e.target.nodeName == 'TEXTAREA' ) {
+                inputban_vagyunk = true;
+            }
+    
+            // Ha alert van a képernyőn, akkor az egy popup felett lesz, ez van a legmagasabb szinten
+            if( $('#alert2 .gomb.zold').length ) {
+                if( !inputban_vagyunk ) {
+                    $('#alert2 .gomb.zold').click();
+                }
+            // Enterre csak az alert2-t zárhatjuk be, popup-ot ne, mert ott lehetnek beviteli mezők
+            // Tehát csak egy eldöntendő kérdés esetén legyen az, hogy Enterrel is bezárható
+            // Igaz, fentebb az "inputban_vagyunk" változóval az ilyen eseteket kivédtük,
+            // de ennek ellenére is csak alert-et zárhatunk be így
+//            } else if( $('#popup .gomb.zold').length ) {
+//                if( !inputban_vagyunk ) {
+//                    $('#popup .gomb.zold').click();
+//                }
+            // Ha nincs popup meg alert, és látszik az adatlap Mentés gombja, akkor Ctrl+Enterrel ez is megnyomható
+            } else if( $('.mentes_gomb').is(':visible') && e.ctrlKey ) {
+                $('.mentes_gomb').click();
+            }
+            
+        }
+
     });
 
-    /* Autocomplete érték visszaírásához kell */
+    // Autocomplete érték visszaírásához kell
     ev = false;
     $(document).on('click', function(event) {
         if( ev ) {
@@ -7568,11 +7635,11 @@ function ut_kulso_kivitlezo_beallit(){
         $('#szallito_id').val('');
     }
 
-    /* Ütemezett feladatoknál ha külső kivitelezőt választottunk ki, akkor szerkeszthetővé válik az eddig disabled külső kivitelező input, amit újra kell tabindxelni, hogy jó legyen a TAB-ozás */
+    // Ütemezett feladatoknál ha külső kivitelezőt választottunk ki, akkor szerkeszthetővé válik az eddig disabled külső kivitelező input, amit újra kell tabindxelni, hogy jó legyen a TAB-ozás
     tabindex_beallit();
 }
 
-/* Mobilcsoport beosztás véglegesítése */
+// Mobilcsoport beosztás véglegesítése
 function beosztas_veglegesit(mehet){
     a_csop = '';
     $('.mobilcsop_a li').each(function () {

@@ -126,9 +126,8 @@ if( isset($_POST['telephely_lista_betolt']) ) {
     // hogy egy helyen kelljen állítgatni a dolgokat
     $akt_tomb_tmp = array();
     foreach ( $akt_tomb as $ertek ) {
-        if( $ertek['type'] == 'select_felh_telephely' ) {
+        if( $ertek['name'] == 'telephely_id' || $ertek['name'] == 'onteam_szam' ) {
             array_push($akt_tomb_tmp, $ertek);
-            break;
         }
     }
     $akt_tomb = $akt_tomb_tmp;
@@ -658,8 +657,8 @@ if( isset($_POST['van_tetel']) ) {
 
     // Kötelező mezők ellenőrzése
     foreach ( $akt_tomb as $elem ) {
-        // Ha üres             VAGY ha dátum, és az értéke nagyobb mint 4000.00.00 (tehát üres)
-        if( $elem['alert'] && ( !$_POST[$elem['name']] || ( strpos($elem['class'], 'datepicker')!==false ) && $_POST[$elem['name']]>'4000.00.00' ) ){
+        // Ha üres             VAGY ha dátum, és az értéke nagyobb mint 4000.00.00 - URES_DATUM_JSBOL_PHP_ALATT (tehát üres)
+        if( $elem['alert'] && ( !$_POST[$elem['name']] || ( strpos($elem['class'], 'datepicker')!==false ) && $_POST[$elem['name']]>URES_DATUM_JSBOL_PHP_ALATT ) ){
             echo json_encode(array(
                 'hiba'  => $elem['alert'],
                 'title' => 'Hiba',
@@ -1424,7 +1423,7 @@ require_once('selectek.php');
         '); 
     }
 
-	// Új projektkezelés felvitele
+	// Új projektszerződés felvitele
 	if( isset($_GET['uj']) && (_jog(JOG_PRKEZEL_SZERZODES_KEZEL) || _jog(JOG_PR_SAJAT_SZERZ_KEZEL)) ) {
         
         $js_submit_elott = nl2('

@@ -387,8 +387,11 @@ function tetel_sorok_ment( bezar_nelkul ){
                     alert2(response.hiba, response.gomb, response.title);
                 } else {
                     
-                    /* Adatlapot csak akkor frissítünk, és popupot csak akkor zárunk ha DB-be is elmentjük */
-                    if( _get('tetel') ){
+                    /* Adatlapot csak akkor frissítünk, és popupot csak akkor zárunk ha DB-be is elmentjük
+                     * Illetve csak akkor, ha nem az adatlapon volnánk... egyébként nem frissítünk, mert lehet
+                     * hogy az adatlapon is volt változás.
+                     *  */
+                    if( !_get('modosit') || tetel_popup_frissit /* PHP-ban a Mentés/Mégsem gomboknál van beállítva */ ){
                         szamlaBetolt(_get('id'), 'projektszamla.php');
                     }
                     

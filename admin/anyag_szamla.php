@@ -623,9 +623,19 @@ if( isset($_POST['pop_tetelek_feltolt']) ) {
     // Ha van a GET-ben andoc_id, akkor azt itt $_POST-ként kapjuk meg, ami annyit jelent, 
     // hogy egy új számla felvitelénél vagyunk, új feltöltési módban, és az átmeneti táblából kell dolgozni
     if( $_POST['andoc_id'] ) {
-        $szamla = $adatbazis_kapcsolat->s2('recid kcs_21', 'anyag_szamla_atmeneti', "`andoc_id`='{$_POST['andoc_id']}'");
+        $szamla = $adatbazis_kapcsolat->s2('recid kcs_21 feldolgozva_dt tetel_elter', 'anyag_szamla_atmeneti', "`andoc_id`='{$_POST['andoc_id']}'");
     } else {
-        $szamla = $adatbazis_kapcsolat->s2('kcs_21', 'anyag_szamla', "`recid`='{$_POST['id']}'");
+        $szamla = $adatbazis_kapcsolat->s2('kcs_21 feldolgozva_dt tetel_elter', 'anyag_szamla', "`recid`='{$_POST['id']}'");
+    }
+    
+    // Ha már fel van dolgozva egy számla, és a tételek eltérése sem áll fenn, akkor a tételei már nem szerkeszthetőek
+    if( $szamla['feldolgozva_dt'] != '0000-00-00 00:00:00' && !$szamla['tetel_elter'] ) {
+        echo json_encode( array(
+            'hiba'  => 'A számla tételei már nem szerkeszthetőek!',
+            'title' => 'Hiba',
+            ) );
+        $weblap -> leallit();
+        exit;
     }
     
     // Illetve ezt az alábbi változókkal két ágra bontuk: Ft-os vagy devizás-e a számla.
@@ -790,6 +800,18 @@ if( isset($_POST['tetel_sorok_ment']) ) {
     $szamla_brutto_erteke   = str_replace(array(' ', ','), array('', '.'), $_POST['szamla_brutto_erteke']);
     $_POST['adatok']        = json_decode( $_POST['adatok'] );
     $arfolyam               = str_replace(array(' ', ','), array('', '.'), $_POST['arfolyam']);
+    
+    // Ha már fel van dolgozva egy számla, és a tételek eltérése sem áll fenn, akkor a tételei már nem szerkeszthetőek
+    $szamla = $adatbazis_kapcsolat->s2('feldolgozva_dt tetel_elter', 'anyag_szamla', "`recid`='{$recid}'");
+    if( $szamla === false ) { $db_error = true; }
+    if( $szamla['feldolgozva_dt'] != '0000-00-00 00:00:00' && !$szamla['tetel_elter'] ) {
+        echo json_encode( array(
+            'hiba'  => 'A számla tételei már nem szerkeszthetőek!',
+            'title' => 'Hiba',
+            ) );
+        $weblap -> leallit();
+        exit;
+    }
     
     // Kapott tömb indexeit cseréljük beszédesebb változókra
     $recid_adat         = 0;
@@ -1007,6 +1029,10 @@ if( isset($_POST['tetel_sorok_ment']) ) {
         }
         $i++;
     }
+    
+    // Tételek mentésekor a számláról vegyük le a tételek eltérése pipát, mert ha ilyen állapotban is lett volna, ezzel a lépéssel már biztosan nem az
+    $sql = $adatbazis_kapcsolat->u('anyag_szamla', array('tetel_elter'), array('0'), "`recid`='{$recid}'");
+    if( $sql === false ) { $db_error = true; }
 
     if( !$db_error ) {
         mysqli_commit($db_kapcs);
@@ -1841,8 +1867,12 @@ require_once('selectek.php');
             $gombok .= '<input type="button" class="gomb modositaskor_rejt" value="Vissza üi.-nek" onclick="csoportMuvelet(\'anyagSzamlaVisszaUi\');"> ';
         }
         
-        // Szerkesztéshez az kell, hogy legyen jogunk, illetve a számla ne legyen még feldolgzova
-        if( _jog(JOG_ANYAG_SZAMLAK_KEZEL) && $sor['feldolgozva_dt'] == '0000-00-00 00:00:00' ) {
+//if( $_SERVER['REMOTE_ADDR'] == get_debug_ip() ) {
+//    $_SESSION[get_db_tabla().'szemelyzet_id'] = MUSZAKI_ADMINISZTRATOR;
+//}
+        
+        // Szerkesztéshez az kell, hogy legyen jogunk, illetve a számla ne legyen még igazolva/elutasítva, vagy ha igen, akkor legyen bepipálva a téttelek eltérnek pipa és a felhasználó MUSZAKI_ADMINISZTRATOR legyen
+        if( _jog(JOG_ANYAG_SZAMLAK_KEZEL) && ($sor['feldolgozva_dt']=='0000-00-00 00:00:00'|| ($sor['tetel_elter'] && $_SESSION[get_db_tabla().'szemelyzet_id'] == MUSZAKI_ADMINISZTRATOR ) ) ) {
             // Ha még nincs feldolgozva
             if( $sor['feldolgozva_dt'] == '0000-00-00 00:00:00' ) {
                 $gombok .= '<input type="button" class="gomb" value="Küldés igazolásra" onclick="kuldes_igazolasra()"> ';
@@ -1860,12 +1890,21 @@ require_once('selectek.php');
             $gombok .= '<input type="hidden" id="telephely_id_db" value="'.$sor['telephely_id'].'">';
             $gombok .= '<input type="hidden" id="szallito_id_db" value="'.$sor['szallito_id'].'">';
             $gombok .= '<input type="hidden" id="fizmod_db" value="'.$sor['fizmod'].'">';
-            $gombok = nl2('
-                <div class="form_kuldes">
-                    <input type="button" class="gombb mentes_gomb" name="mehet_gomb" id="mehet_gomb" disabled value="Mentés" onclick="mentesGomb();">
-                    <input type="button" class="gomb piros" disabled id="megsem_gomb" value="Mégsem" onclick="megsemGomb();">
-                </div>
-            ').$gombok;
+            
+            // Ha csak azért vagyunk itt, mert a tételek száma eltér, és kell tudni tételeket szerkeszteni, akkor ne legyen elérhető a Mentés/Mégsem gombok
+            // azaz ne lehessen az adatlapon már semmit sem módosítani, ez számtalan új bonyodalommal járna, lásd 2022.03.11-én írt mailt
+            // Ha meg azért vagyunk itt, akkor meg beállítunk egy JS változót, hogy a popup bezárása után tudjuk, hogy frissíteni kell az adatlapot.
+            if( $sor['tetel_elter'] ) {
+                $gombok .= '<script>var tetel_popup_frissit = 1;</script>';
+            } else {
+                $gombok = nl2('
+                    <script>var tetel_popup_frissit = 0;</script>
+                    <div class="form_kuldes">
+                        <input type="button" class="gombb mentes_gomb" name="mehet_gomb" id="mehet_gomb" disabled value="Mentés" onclick="mentesGomb();">
+                        <input type="button" class="gomb piros" disabled id="megsem_gomb" value="Mégsem" onclick="megsemGomb();">
+                    </div>
+                ').$gombok;
+            }
         // Ha nem módosítható már az űrlap, akkor a "Szerződés hozzáadása gombot is vegyük le"
         } else {
             $gombok .= '<script>$(document).ready(function () { $(\'#sz_szam_gomb\').hide(); });</script>';
@@ -2339,6 +2378,8 @@ function xml_vissza( $szamla_id, $igazolva = '', $oka = '' ) {
                 $wf_name = TELEPHELY_DZRT_MOD.'_Könyvelés';
             } else if( $szamla['telephely_id'] == TELEPHELY_KOZP_CUK) {
                 $wf_name = TELEPHELY_KOZP_CUK_MOD.'_Könyvelés';
+            } else if( $szamla['telephely_id'] == TELEPHELY_KOZP_CRO) {
+                $wf_name = TELEPHELY_KOZP_CRO_MOD.'_Könyvelés';
             } else {
                 $wf_name = $szamla['telephely_id'].'_Könyvelés';
             }

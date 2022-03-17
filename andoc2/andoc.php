@@ -154,6 +154,8 @@ class ServerClass {
             }
 
         }
+        
+// Throw new SOAPFault ('Server', $insert_update);
 
         // Újabban nincs törlés funkció
 //        // Törléshez ismernünk kell az andoc_id-t és a számla típusát
@@ -375,6 +377,8 @@ class ServerClass {
             // Kifizetéskor ellenőrizzük a tételek számát. Ha eltérés van, akkor auto mail
             if( $szamla_adatok['Kifizetett összeg'] && $szamla_db['tetel_db'] != count($szamla_tetelek) ) {
                 level_felkeszit_es_kuld($tabla, $szamla_db['recid'], '', 'szamla_kifizetes', 'szamla_kifizetes', '');
+                $sql = $adatbazis_kapcsolat->u($tabla, array('tetel_elter'), array(1), "`andoc_id`='{$andoc_id}'");
+                if( $sql === false ) { $db_error = true; }
             }
 
             // 2021.09.09 Kérésre a tételek már nem kötelezőek
@@ -657,8 +661,110 @@ class ServerClass {
                         if( $sql === false ) { $db_error = true; }
                     }
                     
+                    // Illetve ebben az esetben letároljuk a tételeket is, amik az XML-ben voltak, hogy fel lehessen őket venni a rendes tételek közé
+                    $sql = $adatbazis_kapcsolat->d($tabla.'_tetel_kifizetes', "`{$tabla}_recid`='{$aparecid}'");
+                    if( $sql === false ) { $db_error = true; }
+                    foreach ( $szamla_tetelek as $tetel ) {
+
+                        // ÁFA kód beazonosítása. Ha nincs, akkor hibát dobunk.
+                        $afakod = $adatbazis_kapcsolat->s2('recid', 'afakod', "`kod`='{$tetel['ÁFA kód']}'");
+                        if( $afakod === false ) { $db_error = true; }
+                        if( !$afakod ) {
+                            Throw new SOAPFault ('Server', 'Nem ismert Áfakód ('.$tetel['ÁFA kód'].'), így nem sikerült feldolgozni a kifizetést.');
+                        } else {
+                            $tetel['afakod_recid'] = $afakod['recid'];
+                        }
+                        
+                        // Jogcím kiszámítása a főkönyvi számlaszám és költség hely alapján
+                        $jogcim = $adatbazis_kapcsolat->s2('recid jogcim', 'jogcim', "`szla_szam`='{$tetel['Főkönyvi számlaszám']}' AND `ktghely_id`='{$tetel['Költséghely']}'");
+                        if( $jogcim === false ) { $db_error = true; }
+                        if( !$jogcim ) {
+                            Throw new SOAPFault ('Server', 'Nem ismert Főkönyvi számlaszám ('.$tetel['Főkönyvi számlaszám'].') és Költséghely ('.$tetel['Költséghely'].') páros, így nem sikerült feldolgozni a kifizetést.');
+                        } else {
+                            $tetel['jogcim_recid']  = $jogcim['recid'];
+                            $tetel['jogcim']        = $jogcim['jogcim'];
+                        }
+                        
+                        // HUF/Deviza esetén más mezőket használunk DB-ben, illetve Deviza esetén nincs bruttó eltárolva
+                        $netto_ert  = $tetel['Nettó sorösszeg'];
+                        $brutto_ert = $tetel['Bruttó sorösszeg'];
+                        $dev_net    = '0';
+                        $dev_br     = '0';
+                        if( $szamla_adatok['Pénznem'] != self::KCS_21_TXT ) {
+                            $dev_net    = $tetel['Nettó sorösszeg'];
+                            $dev_br     = $tetel['Bruttó sorösszeg'];
+                            $netto_ert  = $tetel['Nettó sorösszeg'] *$arfolyam;
+                            $brutto_ert = $tetel['Bruttó sorösszeg']*$arfolyam;
+                        }
+
+                        // Tételek beszúrása
+                        $mezok   = array(
+                                        $apa_recid_oszlop,
+                                        'rownum',
+                                        'update_usr',
+                                        'netto_ert',
+                                        'brutto_ert',
+                                        'dev_net',
+                                        'dev_br',
+                                        'jogcim',
+                                        'jogcim_recid',
+                                        'uzemresz',
+                                        'megn',
+                                        'ktgnem_id',
+                                        'ktghely_id',
+                                        'afa',
+                                        'afa_kod',
+                                        'afakod_recid',
+                                        'afa_nev',
+                                        'insert_usr',
+                                        'insert_dt',
+                                    );
+                        $ertekek = array(
+                                        $aparecid,
+                                        $tetel['rownumberonpage'],
+                                        self::IU_USER,
+                                        $netto_ert,
+                                        $brutto_ert,
+                                        $dev_net,
+                                        $dev_br,
+                                        $tetel['jogcim'],
+                                        $tetel['jogcim_recid'],
+                                        $tetel['Üzemrész'],
+                                        $tetel['Főkönyvi számlaszám megnevezése'],
+                                        $tetel['Főkönyvi számlaszám'],
+                                        $tetel['Költséghely'],
+                                        $tetel['ÁFA %'],
+                                        $tetel['ÁFA kód'],
+                                        $tetel['afakod_recid'],
+                                        $tetel['ÁFA neve'],
+                                        self::IU_USER,
+                                        'NOW()',
+                                    );
+
+                        // További mezők felvétele, számla típusától függően
+                        if( $szamla_tipus == self::SZAMLA_TIPUS_ANYAG ) {
+                        //
+                        }
+                        if( $szamla_tipus == self::SZAMLA_TIPUS_ENERGIA ) {
+                        //
+                        }
+                        if( $szamla_tipus == self::SZAMLA_TIPUS_FENNTARTASI ) {
+                            array_push($mezok,      'afa_ossz',             'flex'              );
+                            array_push($ertekek,    $tetel['ÁFA Összege'],  $tetel['Flexmező']  );
+                        }
+                        if( $szamla_tipus == self::SZAMLA_TIPUS_PROJEKT) {
+                            array_push($mezok,      'afa_ossz',             'flex',             'targy'                     );
+                            array_push($ertekek,    $tetel['ÁFA Összege'],  $tetel['Flexmező'], $tetel['Sor megnevezése']   );
+                        }
+
+                        $sql = $adatbazis_kapcsolat->i($tabla.'_tetel_kifizetes', $mezok, $ertekek);
+                        if( $sql === false ) { $db_error = true; }
+                    }
                 }
+                
             }
+            
+            
 
             // Tételek bejárása
             // 2021.06.22. 8:30-i levél alapján: 

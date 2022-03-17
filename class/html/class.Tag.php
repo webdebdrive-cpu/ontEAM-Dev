@@ -148,8 +148,8 @@ class Tag{
     * @return string -  Inputtulajdonságok kódja
     */
    	public function getHtml(){
-        if($this -> tag){
-            if(!$this -> tartalom && $this -> tag != 'textarea'){
+        if( $this->tag ) {
+            if( !$this->tartalom && $this->tag != 'textarea' ) {
                 $this -> tartalom = '{TARTALOM}';
             }
             return $this -> pre.'<'.$this -> tag.$this -> getAttributumok().'>'.$this -> tartalom.'</'.$this -> tag.'>'.$this -> post;

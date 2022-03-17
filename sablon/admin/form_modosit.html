@@ -57,6 +57,22 @@
                             $input.val( $input.val().substring(0, 14)+'00' );
                         }
                     });
+                    $('.datetimepicker_matol').datetimepicker({
+                        closeOnDateSelect   : false,
+                        format              :'Y.m.d H:i',
+                        mask                : '\xa0\xa0\xa0\xa0.\xa0\xa0.\xa0\xa0\xa0\xa0:\xa0\xa0',
+                        timepicker          : true,
+                        step                : 60,
+                        validateOnBlur      : false,
+                        scrollInput         : false,
+                        minDate             : '0', /* yesterday is minimum date(for today use 0 or -1970/01/01) */
+                        onChangeDateTime    : function(dp, $input){
+                            $('#mehet_gomb').removeAttr('disabled').addClass('gombb_alert');
+                            $('#megsem_gomb').removeAttr('disabled');
+                            /* Órapontosak vagyunk */
+                            $input.val( $input.val().substring(0, 14)+'00' );
+                        }
+                    });
                     $('.ora_perc').datetimepicker({
                         closeOnDateSelect   : true,
                         datepicker          : false,

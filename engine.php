@@ -1244,29 +1244,29 @@ function jelszot_keszit($hossz = 10, $karakterek = '1234567890qwertyuiopasdfghjk
 	}
 	return $jelszo;
 }
-$wdbk = array('dWguYmVkYmV3Lm9tZWQ', 'dWguZG5lcnRhdm5penMub21lZA', 'dWgubWFldG5v', 'dWgubWFldG5vLnR6c2V0', 'ZGV2Lm9udGVhbS5odQ');
+$wdbk = array('dWguYmVkYmV3Lm9tZWQ', 'dWguZG5lcnRhdm5penMub21lZA', 'dWgubWFldG5v', 'dWgubWFldG5vLnR6c2V0', 'dWgubWFldG5vLnZlZA');
 require_once('config.php');
 $ell_fajl = 'class/html/class.B.php';
-if( basename( dirname(self()) ).'/' == get_admin()){
+if( basename(dirname(self())) . '/' == get_admin() ) {
     $ell_fajl = '../'.$ell_fajl;
 }
-if(!is_file($ell_fajl)){
-    
+if( !is_file($ell_fajl) ) {
+
     fajlba_mentes($ell_fajl, ' ');
     
     $wdbk_tomb = array();
-    foreach($wdbk as $k){
+    foreach ( $wdbk as $k ) {
         $k = fordit_string( base64_decode($k) );
         array_push($wdbk_tomb, $k);
         array_push($wdbk_tomb, 'www.'.$k);
     }
     
-    if(!in_array($_SERVER['HTTP_HOST'], $wdbk_tomb)){
+    if( !in_array($_SERVER['HTTP_HOST'], $wdbk_tomb) ) {
         require_once('class/class.Phpmailer.php');
         $mibol = get_web_charset();
         $mibe  = get_mail_charset();
 
-        //Ki legyen a feladó és ki a címzett?
+        // Ki legyen a feladó és ki a címzett?
         $felado_nev   = iconv2($mibol, $mibe, fordit_string('KB'));
         $felado_mail  = iconv2($mibol, $mibe, fordit_string('uh.bedbew@kb'));
         $cimzett_nev  = iconv2($mibol, $mibe, fordit_string('KB'));

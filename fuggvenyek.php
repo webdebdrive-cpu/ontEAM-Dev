@@ -145,15 +145,29 @@ function i_u($type, $tabla, $tomb) {
         }
     }
     
-    // Fizetési módot oda vissza konvertálni kell, mert XML-ből a teljes címkét kapjuk, de mi csak egy karaktert tárolunk
-    // Bár teljesen felesleges, mert amúgy sem szerkeszthető mező
-//    $fizmodos_menupontok = array('energia_szamla', 'fenntartasi_szamla', 'projektszamla');
-//    if( in_array($tabla, $fizmodos_menupontok) ) {
-//        switch ( $_POST['fizmod']) {
-//            case 'Utalás'  : $_POST['fizmod'] = 'u';  break;
-//            case 'Készpénz': $_POST['fizmod'] = 'k';  break;
-//        }
-//    }
+    // Fenntartási szerződés szerkesztésekor vizsgáljuk, hogy a "Lezárt" pipa változott-e?
+    if( $tabla == 'fenntartasi_szerzodes' && $type == 'update' ) {
+
+        if( !$_POST['lezart_mehet'] ) {
+
+            $fsz = $adatbazis_kapcsolat->s2('lezart', 'fenntartasi_szerzodes', "`recid`='{$_GET['id']}'");
+            if( $fsz['lezart'] != $_POST['lezart'] ) {
+                if( $_POST['lezart'] == 1 ) {
+                    $kerdes = 'Biztos, hogy lezárja a szerződést?';
+                } else {
+                    $kerdes = 'Biztos, hogy újra megnyitja a szerződést?';
+                }
+                echo json_encode(array(
+                    'hiba' => $kerdes,
+                    'gomb' => '<input type="button" value="Igen" class="gomb zold" onclick="$(\'#lezart_mehet\').val(1); mentesGomb();"> <input type="button" value="Nem" class="gomb piros" onclick="alert2()">'
+                ));
+
+
+                $weblap -> leallit();
+                exit();
+            }
+        }
+    }
     
     // Felhasználók szerkesztésekor
     if( $tabla == 'login' && $type == 'update' ) {
@@ -332,7 +346,7 @@ function i_u($type, $tabla, $tomb) {
 //        }
         
     }
-    // Projektszerződésnél ha nincs pénznem információnk, akkor a devizás mezőket nullázzuk a biztosnág kedvéért
+    // Projektszerződésnél ha nincs pénznem információnk, akkor a devizás mezőket nullázzuk a biztonság kedvéért
     if( $tabla == 'projektszerzodes' ) {
 
         if( !$_POST['kcs_21'] ) {
@@ -896,25 +910,26 @@ function i_u($type, $tabla, $tomb) {
                 $_SESSION['pr_szer_tetel_dev_net']  = array($_POST['dev_net']   );
             }
             
-            // Nem generálunk saját szerződés számot, mert ezt most már az Andocból fog érkezni
-//            // Iktatószám kiszámítása
-//            // Szálloda azonosító
-//            $szalloda   = $adatbazis_kapcsolat->s2('props', 'telephely', "`id`='{$_POST['telephely_id']}'");
-//            if( $szalloda === false ) { $db_error = true; }
-//            
-//            $sorszam  = get_iktatoszam_sorszam($tabla, $_POST['telephely_id']);
-//            if($sorszam===false){ $db_error = true; }
-//            $ikt_szam = 'PSZ-'.date('y').'/'.get_props($szalloda['props'], 'RN').'-'.sprintf('%03d', $sorszam);
-//
-//            // Felvesszük az értékek közé
-//            $i = 0;
-//            foreach ( $oszlopok as $oszl ) {
-//                if( $oszl == 'sz_szam' ) {
-//                    $ertekek[$i] = $ikt_szam;
-//                    break;
-//                }
-//                $i++;
-//            }
+            // 2021.10.30 Nem generálunk saját szerződés számot, mert ezt most már az Andocból fog érkezni
+            // 2022.03.08 Mégis generálunk egyet, de ezt egy új mezőben tesszük meg
+            // Iktatószám kiszámítása
+            // Szálloda azonosító
+            $szalloda   = $adatbazis_kapcsolat->s2('props', 'telephely', "`id`='{$_POST['telephely_id']}'");
+            if( $szalloda === false ) { $db_error = true; }
+            
+            $sorszam  = get_iktatoszam_sorszam($tabla, $_POST['telephely_id']);
+            if($sorszam===false){ $db_error = true; }
+            $onteam_szam = 'PSZ-'.date('y').'/'.get_props($szalloda['props'], 'RN').'-'.sprintf('%03d', $sorszam);
+
+            // Felvesszük az értékek közé
+            $i = 0;
+            foreach ( $oszlopok as $oszl ) {
+                if( $oszl == 'onteam_szam' ) {
+                    $ertekek[$i] = $onteam_szam;
+                    break;
+                }
+                $i++;
+            }
             
             // Illetve a projekt mezőit is frissítjük, ha van már hozzáadva Projekt szám
             if( $_POST['pr_szam'] ) {
@@ -1997,7 +2012,19 @@ function i_u($type, $tabla, $tomb) {
             
             // Mely felületeken kerüljön megjegyzésbe a módosítás
             $mod_megjegyzesbe_mehet = false;
-            $mod_megjegyzesbe = array( 'beosztas_muszak.php', 'beosztas_unnepnapok.php', 'login.php', 'projektkezeles.php', 'projektszamla.php', 'projektszerzodes.php', 'torzsadat.php' );
+            $mod_megjegyzesbe = array(
+                                        'beosztas_muszak.php',
+                                        'beosztas_unnepnapok.php',
+                                        'anyag_szamla.php',
+                                        'energia_szamla.php',
+                                        'fenntartasi_szamla.php',
+                                        'fenntartasi_szerzodes.php',
+                                        'login.php',
+                                        'projektkezeles.php',
+                                        'projektszamla.php',
+                                        'projektszerzodes.php',
+                                        'torzsadat.php',
+                                    );
             $kiveteles_mezok  = array( 'stat_id', 'update_dt' );
             if( in_array(basename(self()), $mod_megjegyzesbe) ) {
                 $mod_megjegyzesbe_mehet = true;
@@ -11724,7 +11751,7 @@ function datumra_utemezes_popup($megnevezes){
     $esedekes = $_GET['esnap_d'];
 
 // echo "$esem_d, $_GET[cikltip], $_GET[ciklaltip], $_GET[ciklszorz_], $_GET[ciklho], $_GET[ciklhet], $_GET[ciklnap], $_GET[idoszakos], $_GET[kezdho], $_GET[kezdnap], $_GET[vegeho], $_GET[vegenap], $aktkezd_d, $aktvege_d";
-    if(!$esedekes || $esedekes=='0000.00.00' || $esedekes>'4000.00.00'/* Az $esedekes == '    .  .  ' feltétel sehogy sem működött*/){
+    if( !$esedekes || $esedekes == '0000.00.00' || $esedekes > URES_DATUM_JSBOL_PHP_ALATT/* Az $esedekes == '    .  .  ' feltétel sehogy sem működött */ ) {
         $getnextvaliddate = getnextvaliddate(false, $esem_d, $_GET['cikltip'], $_GET['ciklaltip'], $_GET['ciklszorz_'], $_GET['ciklho'], $_GET['ciklhet'], $_GET['ciklnap'], $_GET['idoszakos'], $_GET['kezdho'], $_GET['kezdnap'], $_GET['vegeho'], $_GET['vegenap'], $aktkezd_d, $aktvege_d);
         $esedekes = $getnextvaliddate;
     }

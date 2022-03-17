@@ -60,24 +60,24 @@ Aktiválni az alábbi JS hívással tudod. Ezt a HTML kódban az inputok után h
 			}
 		},
 		value: '',
-		lang: 'hu',
+		lang : 'hu',
 
-		format:	'Y-m-d H:i:s',
-		formatTime:	'H:i',
-		formatDate:	'Y-m-d',
+		format      :   'Y-m-d H:i:s',
+		formatTime  :   'H:i',
+		formatDate  :   'Y-m-d',
 
-		startDate:	false, /* new Date(), '1986/12/08', '-1970/01/05','-1970/01/05', */
-		step: 60,
-		monthChangeSpinner: true,
+		startDate           : false, /* new Date(), '1986/12/08', '-1970/01/05','-1970/01/05', */
+		step                : 60,
+		monthChangeSpinner  : true,
 
-		closeOnDateSelect: false,
-		closeOnTimeSelect: true,
-		closeOnWithoutClick: true,
-		closeOnInputClick: true,
+		closeOnDateSelect   : false,
+		closeOnTimeSelect   : true,
+		closeOnWithoutClick : true,
+		closeOnInputClick   : true,
 
-		timepicker: true,
-		datepicker: true,
-		weeks: false,
+		timepicker  : true,
+		datepicker  : true,
+		weeks       : false,
 
 		defaultTime: false,	/* use formatTime format (ex. '10:00' for formatTime:	'H:i') */
 		defaultDate: false, /* use formatDate format (ex new Date() or '1986/12/08' or '-1970/01/05' or '-1970/01/05') */
@@ -87,20 +87,20 @@ Aktiválni az alábbi JS hívással tudod. Ezt a HTML kódban az inputok után h
 		minTime: false,
 		maxTime: false,
 
-		allowTimes: [],
-		opened: false,
-		initTime: true,
-		inline: false,
-		theme: '',
+		allowTimes  : [],
+		opened      : false,
+		initTime    : true,
+		inline      : false,
+		theme       : '',
 
-		onSelectDate: function () {},
-		onSelectTime: function () {},
-		onChangeMonth: function () {},
-		onChangeYear: function () {},
+		onSelectDate    : function () {},
+		onSelectTime    : function () {},
+		onChangeMonth   : function () {},
+		onChangeYear    : function () {},
 		onChangeDateTime: function () {},
-		onShow: function () {},
-		onClose: function () {},
-		onGenerate: function () {},
+		onShow          : function () {},
+		onClose         : function () {},
+		onGenerate      : function () {},
 
 		withoutCopyright: true,
 		inverseButton: false,
@@ -540,7 +540,7 @@ Aktiválni az alábbi JS hívással tudod. Ezt a HTML kódban az inputok után h
 					$.each(_options.highlightedPeriods, function (index, value) {
 						var splitData = $.map(value.split(','), $.trim),
 							dateTest = Date.parseDate(splitData[0], options.formatDate), /* start date */
-							dateEnd = Date.parseDate(splitData[1], options.formatDate),
+							dateEnd  = Date.parseDate(splitData[1], options.formatDate),
 							desc = splitData[2],
 							hDate,
 							keyDate,
@@ -650,7 +650,8 @@ Aktiválni az alábbi JS hívással tudod. Ezt a HTML kódban az inputok után h
 					}
 
 					if ($.type(options.mask) === 'string') {
-						/*Szóközös maszk miatt ezt inaktiváltuk
+						/*
+                        Szóközös maszk miatt ezt inaktiváltuk
                         if (!isValidValue(options.mask, input.val())) {
 							input.val(options.mask.replace(/[0-9]/g, '_'));
 						}
@@ -660,11 +661,10 @@ Aktiválni az alábbi JS hívással tudod. Ezt a HTML kódban az inputok után h
                             input.val(options.mask.replace(/[0-9]/g, '_'));
                         }
 
-                        /* Ha kitöröltük egy input értékét, akkor a fenti kód beírja az alapértelmezett értéket, de utna ugorjunk vissza az első karakterre */
+                        /* Ha kitöröltük egy input értékét, akkor a fenti kód beírja az alapértelmezett értéket, de utána ugorjunk vissza az első karakterre */
 						input.on('keyup.xdsoft', function (event) {
-                            
                             var akt_input = this;
-                            if(this.value == ''){
+                            if (this.value == '') {
                                 setTimeout(function(){ akt_input.setSelectionRange(0,0); }, 1);
                             }
                             
@@ -1491,7 +1491,7 @@ Aktiválni az alábbi JS hívással tudod. Ezt a HTML kódban az inputok után h
 				.on('keydown.xdsoft', function (event) {
 					var val = this.value, elementSelector,
 						key = event.which;
-                        
+
 					if ([ENTER].indexOf(key) !== -1 && options.enterLikeTab) {
 						elementSelector = $("input:visible,textarea:visible");
 						datetimepicker.trigger('close.xdsoft');
@@ -1617,7 +1617,7 @@ Date.parseFunctions={count:0};Date.parseRegexes=[];Date.formatFunctions={count:0
 
 
 function datum_formatumra_formaz(input, perc_pontos) {
-    
+
     var eredeti_hossz = input.length;
     var utolso_kar    = input.substr(eredeti_hossz-1, 1);
 
@@ -1626,7 +1626,7 @@ function datum_formatumra_formaz(input, perc_pontos) {
     uj = '';
 
     for (i = 0; i < n; i++) {
-        if(!isNaN(parseFloat(input.substr(i, 1)))){
+        if (!isNaN(parseFloat(input.substr(i, 1)))) {
             switch (i) {
                 case 4:
                     uj = uj + '.' + input.substr(i, 1);
@@ -1655,30 +1655,31 @@ function datum_formatumra_formaz(input, perc_pontos) {
     if(
         (eredeti_hossz==5 && utolso_kar=='.') ||
         (eredeti_hossz==8 && utolso_kar=='.')
-    ){
+    ) {
         uj += '.';
     }
-    if(eredeti_hossz==11 && utolso_kar==' '){
+    if (eredeti_hossz == 11 && utolso_kar == ' ') {
         uj += ' ';
     }
     if(
         (eredeti_hossz==14 && utolso_kar==':') ||
         (eredeti_hossz==18 && utolso_kar==':')
-    ){
+    ) {
         uj += ':';
     }
 
     /* Ha üres az input értéke, akkor az alapértelmeeztt értéket írjuk bele */
-    if(!uj){
-        if(perc_pontos){
+    if (!uj) {
+        if (perc_pontos) {
             uj = '\xa0\xa0\xa0\xa0.\xa0\xa0.\xa0\xa0\xa0\xa0:\xa0\xa0';
-        }else{
+        } else {
             uj = '\xa0\xa0\xa0\xa0.\xa0\xa0.\xa0\xa0';
         }
     }
-    if(perc_pontos){
+
+    if (perc_pontos) {
         return uj.substring(0, 16);
-    }else{
+    } else {
         return uj.substring(0, 10);
     }
 }

@@ -10,7 +10,7 @@
             <div class="dtr">
                 <div class="dtc form_bal">Várható érkezés:</div>
                 <div class="dtc form_jobb">
-                    <input type="text" maxlength="16" autocomplete="off" class="datetimepicker csillag" name="pop_varh_erk" id="pop_varh_erk" autofocus>
+                    <input type="text" maxlength="16" autocomplete="off" class="datetimepicker_matol csillag" name="pop_varh_erk" id="pop_varh_erk">
                 </div>
             </div>
         </div>
@@ -23,7 +23,7 @@
 <script>
 $(document).ready(function(){
     
-    $('.datetimepicker').datetimepicker({
+    $('.datetimepicker_matol').datetimepicker({
         closeOnDateSelect   : false,
         format              :'Y.m.d H:i',
         mask                : '\xa0\xa0\xa0\xa0.\xa0\xa0.\xa0\xa0\xa0\xa0:\xa0\xa0',
@@ -54,7 +54,9 @@ $(document).ready(function(){
                     return false;
                 }else{
                     $('#pop_szallito_neve').html(response.szallito_neve);
-                    $('#pop_varh_erk')     .val (response.varh_erk);
+                    if( response.varh_erk != '0000.00.00 00:00' ) {
+                        $('#pop_varh_erk').val (response.varh_erk);
+                    }
                 }
             }
         },
@@ -67,7 +69,7 @@ $(document).ready(function(){
 });
 function munkalapVarhatoErkMegad() {
 
-    if(balnav_kijelol_ell()){
+    if( balnav_kijelol_ell() ) {
 
         $.ajax({
             url : 'munkalap.php',

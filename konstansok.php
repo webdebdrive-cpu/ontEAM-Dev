@@ -29,6 +29,7 @@ define('CSV_EXPORT_ELAVULAS',       3600); // 60 * 60
 define('HUNGARIA_SZALLODA',         2120);
 define('ANDOC_POST_KULD_URL_TESZT', 'https://andoc.danubiushotels.com/ws_ontEAM_AndocSimple_teszt/WebService_AndocSimple.asmx/RegisterDocument');
 define('ANDOC_POST_KULD_URL_ELES',  'https://andoc.danubiushotels.com/ws_ontEAM_AndocSimple/WebService_AndocSimple.asmx/RegisterDocument');
+define('URES_DATUM_JSBOL_PHP_ALATT','4000.00.00'); // Mivel a dátum inputok alap értéke valami speciális karakter, ezért ezt elküldve PHP-nak nem tudjuk jól felismerni. Az a módszer, hogy azt vizsgáljuk, hogy a dátum régebbi-e mint 4000.01.01. Ha igen, akkor ezt az üres karaktert kaptuk.
 
 // Státuszok
 // Bejelentés státuszok
@@ -559,3 +560,5 @@ define('TELEPHELY_DZRT',             4301);
 define('TELEPHELY_DZRT_MOD',         1106);
 define('TELEPHELY_KOZP_CUK',         9998);
 define('TELEPHELY_KOZP_CUK_MOD',     1106);
+define('TELEPHELY_KOZP_CRO',         9999);
+define('TELEPHELY_KOZP_CRO_MOD',     1106);
