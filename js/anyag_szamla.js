@@ -36,6 +36,11 @@ function szamla_igazol(mehet) {
                     alert2('Számla sikeresen igazolva!', '', 'Üzenet');
                 }, 200);
             }
+        },
+        complete: function(xhr) {
+            if( xhr.status != 200 ) {
+                alert2(xhr.responseText, '', 'Hiba');
+            }
         }
     });
 }
@@ -117,6 +122,11 @@ function kuldes_igazolasra(mehet) {
                         return false;
                     }
                 }
+            },
+            complete: function(xhr) {
+                if( xhr.status != 200 ) {
+                    alert2(xhr.responseText, '', 'Hiba');
+                }
             }
         });
         return false;
@@ -142,6 +152,11 @@ function kuldes_igazolasra(mehet) {
                 
                 szamlaBetolt(_get('id'), 'anyag_szamla.php');
                 alert2();
+            }
+        },
+        complete: function(xhr) {
+            if( xhr.status != 200 ) {
+                alert2(xhr.responseText, '', 'Hiba');
             }
         }
     });
@@ -183,9 +198,15 @@ function osszevon_targy_kitoltve_ell() {
                     }
                 }
                 kuldes_igazolasra('mehet');
+            },
+            complete: function(xhr) {
+                if( xhr.status != 200 ) {
+                    alert2(xhr.responseText, '', 'Hiba');
+                }
             }
         });
     }
+
 }
 
 // Ha változna a szálloda, akkor a kapcsolt szerződést is nullázzuk

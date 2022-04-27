@@ -34,7 +34,7 @@ function i_u($type, $tabla, $tomb) {
 	global $adatbazis_kapcsolat;
 	global $db_kapcs;
 	global $weblap;
-
+    
     // Archiv táblába biztosan nem írunk
     if( substr($tabla, strlen($tabla) - 5) == '_arch' ) {
         return false;
@@ -914,7 +914,10 @@ function i_u($type, $tabla, $tomb) {
             // 2022.03.08 Mégis generálunk egyet, de ezt egy új mezőben tesszük meg
             // Iktatószám kiszámítása
             // Szálloda azonosító
-            $szalloda   = $adatbazis_kapcsolat->s2('props', 'telephely', "`id`='{$_POST['telephely_id']}'");
+            // 2022.04.04 Nem adott szálloda id props-át kérjük le, hanem előbb nézzük meg a szálloda unid-jét, és az ilyen unid-os első szálloda props-ával számljunk
+            $szalloda   = $adatbazis_kapcsolat->s2('unid', 'telephely', "`id`='{$_POST['telephely_id']}'");
+            if( $szalloda === false ) { $db_error = true; }
+            $szalloda   = $adatbazis_kapcsolat->s2('props', 'telephely', "`unid`='{$szalloda['unid']}'", '', '1');
             if( $szalloda === false ) { $db_error = true; }
             
             $sorszam  = get_iktatoszam_sorszam($tabla, $_POST['telephely_id']);
@@ -2323,11 +2326,13 @@ function i_u($type, $tabla, $tomb) {
             $mezo1      = 'anyag_szla_tetel_netto_ert';
             $mezo2      = 'netto';
             $szoveg     = 'szerződés összegével';
+            $kerekit    = KEREKITESI_HATAR_HUF;
             if( $_POST['kcs_21']!=KCS_21_HUF ) {
                 $tizedesek  = 2;
                 $mezo1      = 'anyag_szla_tetel_dev_net';
                 $mezo2      = 'dev_net';
                 $szoveg     = 'deviza nettóval';
+                $kerekit    = KEREKITESI_HATAR_DEV;
             }
             $tetelek_osszege = '';
             foreach ( $_SESSION[$mezo1] as $ertek ) {
@@ -2336,7 +2341,7 @@ function i_u($type, $tabla, $tomb) {
             }
             if( !$_POST['nullas'] ) {
 
-                if( number_format($tetelek_osszege, $tizedesek, ',', ' ') != number_format($_POST[$mezo2], $tizedesek, ',', ' ') ) {
+                if( abs($tetelek_osszege - $_POST[$mezo2]) > $kerekit ) {
                     echo json_encode(array(
                         'hiba'   => 'A számla tételeinek összege ('. number_format($tetelek_osszege, $tizedesek, ',', ' ').' '. erteklista(ERTEKLISTA_PENZNEM, $_POST['kcs_21']).') nem egyezik meg a számla nettó értékével('. number_format($_POST[$mezo2], $tizedesek, ',', ' ').' '. erteklista(ERTEKLISTA_PENZNEM, $_POST['kcs_21']).')!<br>Így nem menthető!',
                         'gomb'   => '<input type="button" class="gomb" value="Ok" onclick="szurkit_zar(\'mégsem mehet mutat\'); alert2();">',
@@ -2381,11 +2386,13 @@ function i_u($type, $tabla, $tomb) {
             $mezo1      = 'energia_szla_tetel_netto';
             $mezo2      = 'netto';
             $szoveg     = 'szerződés összegével';
+            $kerekit    = KEREKITESI_HATAR_HUF;
             if( $_POST['kcs_21']!=KCS_21_HUF ) {
                 $tizedesek  = 2;
                 $mezo1      = 'energia_szla_tetel_dev_net';
                 $mezo2      = 'dev_net';
                 $szoveg     = 'deviza nettóval';
+                $kerekit    = KEREKITESI_HATAR_DEV;
             }
             $tetelek_osszege = '';
             foreach ( $_SESSION[$mezo1] as $ertek ) {
@@ -2394,9 +2401,9 @@ function i_u($type, $tabla, $tomb) {
             }
             if( !$_POST['nullas'] ) {
 
-                if( number_format($tetelek_osszege, $tizedesek, ',', ' ') != number_format($_POST[$mezo2], $tizedesek, ',', ' ') ) {
+                if( abs($tetelek_osszege - $_POST[$mezo2]) > $kerekit ) {
                     echo json_encode(array(
-                        'hiba'   => 'A számla tételeinek összege ('. number_format($tetelek_osszege, $tizedesek, ',', ' ').' '. erteklista(ERTEKLISTA_PENZNEM, $_POST['kcs_21']).') nem egyezik meg a számla nettó értékével('. number_format($_POST[$mezo2], $tizedesek, ',', ' ').' '. erteklista(ERTEKLISTA_PENZNEM, $_POST['kcs_21']).')!<br>Így nem menthető!',
+                        'hiba'   => 'A számla tételeinek összege. ('. number_format($tetelek_osszege, $tizedesek, ',', ' ').' '. erteklista(ERTEKLISTA_PENZNEM, $_POST['kcs_21']).') nem egyezik meg a számla nettó értékével('. number_format($_POST[$mezo2], $tizedesek, ',', ' ').' '. erteklista(ERTEKLISTA_PENZNEM, $_POST['kcs_21']).')!<br>Így nem menthető!',
                         'gomb'   => '<input type="button" class="gomb" value="Ok" onclick="szurkit_zar(\'mégsem mehet mutat\'); alert2();">',
                         'title'  => 'Hiba',
                         'select' => $mezo2,
@@ -2440,11 +2447,13 @@ function i_u($type, $tabla, $tomb) {
             $mezo1      = 'fennt_szla_tetel_netto_ert';
             $mezo2      = 'netto';
             $szoveg     = 'szerződés összegével';
+            $kerekit    = KEREKITESI_HATAR_HUF;
             if( $_POST['kcs_21']!=KCS_21_HUF ) {
                 $tizedesek  = 2;
                 $mezo1      = 'fennt_szla_tetel_dev_net';
                 $mezo2      = 'dev_net';
                 $szoveg     = 'deviza nettóval';
+                $kerekit    = KEREKITESI_HATAR_DEV;
             }
             $tetelek_osszege = '';
             foreach ( $_SESSION[$mezo1] as $ertek ) {
@@ -2453,7 +2462,7 @@ function i_u($type, $tabla, $tomb) {
             }
             if( !$_POST['nullas'] ) {
 
-                if( number_format($tetelek_osszege, $tizedesek, ',', ' ') != number_format($_POST[$mezo2], $tizedesek, ',', ' ') ) {
+                if( abs($tetelek_osszege - $_POST[$mezo2]) > $kerekit ) {
                     echo json_encode(array(
                         'hiba'   => 'A számla tételeinek összege ('. number_format($tetelek_osszege, $tizedesek, ',', ' ').' '. erteklista(ERTEKLISTA_PENZNEM, $_POST['kcs_21']).') nem egyezik meg a számla nettó értékével('. number_format($_POST[$mezo2], $tizedesek, ',', ' ').' '. erteklista(ERTEKLISTA_PENZNEM, $_POST['kcs_21']).')!<br>Így nem menthető!',
                         'gomb'   => '<input type="button" class="gomb" value="Ok" onclick="szurkit_zar(\'mégsem mehet mutat\'); alert2();">',
@@ -2718,11 +2727,13 @@ function i_u($type, $tabla, $tomb) {
                 $mezo1      = 'pr_szla_tetel_netto_ert';
                 $mezo2      = 'netto';
                 $szoveg     = 'szerződés összegével';
+                $kerekit    = KEREKITESI_HATAR_HUF;
                 if( $_POST['kcs_21']!=KCS_21_HUF ) {
                     $tizedesek  = 2;
                     $mezo1      = 'pr_szla_tetel_dev_net';
                     $mezo2      = 'dev_net';
                     $szoveg     = 'deviza nettóval';
+                    $kerekit    = KEREKITESI_HATAR_DEV;
                 }
                 $tetelek_osszege = '';
                 foreach ( $_SESSION[$mezo1] as $ertek ) {
@@ -2730,7 +2741,7 @@ function i_u($type, $tabla, $tomb) {
                     $tetelek_osszege += $ertek;
                 }
 
-                if( $tetelek_osszege != $_POST[$mezo2] ) {
+                if( abs($tetelek_osszege - $_POST[$mezo2]) > $kerekit ) {
                     echo json_encode(array(
                         'hiba'   => 'A számla tételeinek összege ('. number_format($tetelek_osszege, $tizedesek, ',', ' ').' '. erteklista(ERTEKLISTA_PENZNEM, $_POST['kcs_21']).') nem egyezik meg a számla nettó értékével('. number_format($_POST[$mezo2], $tizedesek, ',', ' ').' '. erteklista(ERTEKLISTA_PENZNEM, $_POST['kcs_21']).')!<br>Így nem menthető!',
                         'gomb'   => '<input type="button" class="gomb" value="Ok" onclick="szurkit_zar(\'mégsem mehet mutat\'); alert2();">',
@@ -4156,9 +4167,6 @@ function szamla_lista( $where = '', $tabla = '', $kijeloltek = false, $csak_sql_
         if( $tabla == 'fenntartasi_szamla' ) {
             $where = "`".get_db_tabla()."fenntartasi_szamla`.`telephely_id` IN (".implode(',', $szallodak).") AND ";
         }
-//        if( $tabla == 'fenntartasi_szerzodes' ) {
-//            $where = "`".get_db_tabla()."fenntartasi_szerzodes`.`telephely_id` IN (".implode(',', $szallodak).") AND ";
-//        }
         if( $tabla == 'fenntartasi_terv' ) {
             $where = "`".get_db_tabla()."fenntartasi_terv`.`telephely_id` IN (".implode(',', $szallodak).") AND ";
         }
@@ -4854,6 +4862,22 @@ function szamla_lista( $where = '', $tabla = '', $kijeloltek = false, $csak_sql_
         if ( $_GET['mezo']=='team_tag' || strpos($_SESSION['o_szuro_feltetel'], 'team_tag')!==false ) {
             $join .= ' JOIN `'.get_db_tabla().'projektkezeles_team` ON `'.get_db_tabla().'projektkezeles_team`.`projektkezeles_recid`=`'.get_db_tabla().'projektkezeles`.`recid`';
         }
+        
+        // Fenntartási szerződésnél a jogosultság miatt kell JOIN (ki-ki csak azokat a szerződéseket látja, amelynek van olyan tétele, aminek szállodája adott felhasználó körébe tartozik)
+        // Fenntartási szerződéseknél a szálloda a tételekben van
+        if( $tabla == 'fenntartasi_szerzodes' ) {
+            $join .= ' JOIN `'.get_db_tabla().'fenntartasi_szerzodes_tetel` ON `'.get_db_tabla().'fenntartasi_szerzodes`.`recid`=`'.get_db_tabla().'fenntartasi_szerzodes_tetel`.`fenntartasi_szerzodes_recid`';
+            $group_by = " GROUP BY  `".get_db_tabla()."fenntartasi_szerzodes`.`recid`";
+            $szallodak_tomb = $szallodak;
+            if( !$szallodak_tomb ) {
+                $szallodak_tomb = array(0);
+            }
+            if( $where ) {
+                $where .= " AND ";
+            }
+            $where .= "`".get_db_tabla()."fenntartasi_szerzodes_tetel`.`telephely_id` IN (".implode(',', $szallodak_tomb).")";
+        }
+        
         
         // Gyorsszűrő limitje
         if( $_GET['mezo'] == 'legfrissebb' ) {
@@ -9089,6 +9113,27 @@ function get_szures_where_kieg($mezo, $op, $felt, $tabla) {
         return '`'.get_db_tabla().'anyagigenyles`.`beerkezett` LIKE \''.str_replace('.', '-', $felt).'%\'';
     } elseif( $tabla == 'bejelentes' && $mezo == 'telephely_id' ) {
         return '`'.get_db_tabla().'bejelentes`.`telephely_id`=\''.$felt.'\'';
+    } elseif( $tabla == 'fenntartasi_szerzodes' ) {
+        
+        $mezo_sql = $mezo;
+        if( $mezo_sql == 'tetel_targy' ) {
+            $mezo_sql = 'targy';
+        }
+        
+        // Ha egy tétel mezőjéről van szó, akkor más táblában is kell azt keresni
+        $tabla_sql = 'fenntartasi_szerzodes';
+        $tetel_mezok = array('telephely_id', 'varh_erk', 'dev_varh_ert', 'varh_ert', 'telj_dt', 'tetel_targy', 'netto_ert', 'dev_net');
+        if( in_array($mezo, $tetel_mezok) ) {
+            $tabla_sql = 'fenntartasi_szerzodes_tetel';
+        }
+        
+        // A tagadás esetén nem elég a != operátor, mert ha egy szerződésnek csak egy olyan tétele volna, ami nem az adott szálloda, akkor az már találat
+        // Update: mégis elég, hisz tagadással azokat szeretnék látni a navpanelben, ahol van olyan tétel, ami nem az adott szálloda, és ezt pont így kapjuk meg
+//        if( $op == '!=' ) {
+//            return '`'.get_db_tabla().'fenntartasi_szerzodes`.`recid` NOT IN (SELECT `'.get_db_tabla().'fenntartasi_szerzodes_tetel`.`fenntartasi_szerzodes_recid` FROM `'.get_db_tabla().'fenntartasi_szerzodes_tetel` WHERE `'.get_db_tabla().$tabla_sql.'`.`'.$mezo_sql.'`=\''.$felt.'\')';
+//        } else {
+            return '`'.get_db_tabla().$tabla_sql.'`.`'.$mezo_sql.'`'.$op.'\''.$felt.'\'';
+//        }
     
     // Létrehozás dáumára keresve általánosan így járunk el
     } elseif( $mezo == 'insert_dt' ) {
@@ -12486,7 +12531,7 @@ function csv_export_get_from_tol( $megnevezes ) {
     // Viszont ha érvényben volna az alapértelmezett LIMIT az aktuális SQL-ben, akkor ezt az ID ellenőrzést mégsem tesszük meg,
     // hisz minden sort ki szeretnénk írtani. De ha a bármilyen más LIMIT szerepel benne, akkor meg a CSV-ben is a limitált mennyiséget szeretnénk látni.
     $no_nyomtatas_id = array();
-    if( !in_array($megnevezes, $no_nyomtatas_id) && $_SESSION['nyomtatas_ids'] && strpos( $_SESSION['akt_sql'], 'LIMIT '.SZURES_DB_LIMIT )===false ) {
+    if( !in_array($megnevezes, $no_nyomtatas_id) && $_SESSION['nyomtatas_ids'] && strpos( $_SESSION['akt_sql'], 'LIMIT '.ARCHIV_NAVPANEL_LIMIT )===false ) {
         if( strstr($_SESSION['akt_sql'], 'WHERE') ) {
             $lekerdezes_fromtol = str_replace('WHERE', "WHERE `".get_db_tabla()."{$megnevezes}`.`recid` IN (".$_SESSION['nyomtatas_ids'].") AND ", $lekerdezes_fromtol);
         } else {

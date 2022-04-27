@@ -15,8 +15,8 @@
 - admin.js-ben erre keress rá: "Új ikonra kattintva mi történik"
  
 ÚJ FÜL KIALAKÍTÁSAKOR
-- adott php fájl elején a $ful_tomb -öt egészítsd ki, illetve közvetelnül előtte a $_GET-ekve is vedd fel az új paramétereket
-- adott php fájlban az if(isset($_GET['modosit']))-hoz hasonlóan vedd fel a fül paraméterénke megfelelő feltételt
+- adott php fájl elején a $ful_tomb -öt egészítsd ki, illetve közvetelnül előtte a $_GET-ekbe is vedd fel az új paramétereket
+- adott php fájlban az if(isset($_GET['modosit']))-hoz hasonlóan vedd fel a fül paraméterének megfelelő feltételt
 - Előbbinél lényeges, hogy legyen kimenetel, ajax számára. Legalább egy mondatot írj ki.
 - admin.js-ben a "param = get_get([" -ra keress rá (többször), és itt is vedd fel az új fülek paraméterét
  
@@ -57,11 +57,12 @@ SZŰRÉS LEKEZELÉSE:
 - fuggvenyek.php adott php fájlt visszadja-e a get_akt_tomb() függvénnyel?
 - Ha kapcsolódó tábla egy adatára szeretnél szűrni, akkor keresd a "// Kapcsolódó táblák szűrő mezői" kommentet a szures.php-ban
 - SQL-t a get_szures_where_kieg() függvény számolja ki. Itt szintén be kell állítani a kapcsolódó táblákat
-- A kapcsolódó táblákat még az esemenyek.php isset($_POST['f_o_szures_submit']) részénél kell lekezelni
+- A kapcsolódó táblákat még az esemenyek.php if( isset($_REQUEST['f_o_szures_submit']) ) részénél kell lekezelni
 - fuggvenyek.php-ben a kapcsolódó táblák miatt még itt állítsd be a működést: // Szűréskor kell pár JOIN-olás a külső táblákhoz
 - Lehet szűrni arra is, hogy van-e csatolt dokumentum vagy sem. Ezt a szures.php $dokumentumos_oldal változónál állítjuk be.
 - Ha a szűrőben megjelenő listában egyedi nevet szeretnél adni, akkor az esemeny tömbben a 'megn_szurobe' paraméterben tudod megadni.
- 
+- Összetett szűrő feltételei ebben a session-ben vannak: $_SESSION['o_szuro_feltetel']
+
 SORREDEZÉS
 - Az A-Z és Z-A-t az admin.js bejegyzesekLista() függvény vége állítja. Illetve a header.php, maikor betölt az oldal.
 - A kilsitázott tételek valódi sorrendjét a fuggvenyek.php -ban szamla_lista() függvény elején kerül beállításra

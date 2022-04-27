@@ -6380,6 +6380,7 @@ function szamlaBetolt( recid, page, muvelet, szerkeszt, kerdes_nelkul, anyagigen
                         'jogosultsag',
                         'jotallas',
                         'kifizetesek',
+                        'konyveles',
                         'megjegyzes',
                         'megjegyzesek',
                         'megterules',

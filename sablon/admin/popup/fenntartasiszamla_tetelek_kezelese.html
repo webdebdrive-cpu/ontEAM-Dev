@@ -463,7 +463,7 @@ function tetel_sorok_ment( bezar_nelkul ){
                      * Illetve csak akkor, ha nem az adatlapon volnánk... egyébként nem frissítünk, mert lehet
                      * hogy az adatlapon is volt változás.
                      *  */
-                    if( !_get('modosit') || tetel_popup_frissit /* PHP-ban a Mentés/Mégsem gomboknál van beállítva */ ){
+                    if( ( !_get('modosit') && !_get('uj') ) || tetelek_szama_elter /* PHP-ban a Mentés/Mégsem gomboknál van beállítva */ ){
                         szamlaBetolt(_get('id'), 'fenntartasi_szamla.php');
                     }
                     popupZar();

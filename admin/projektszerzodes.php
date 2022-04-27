@@ -1,6 +1,17 @@
 <?php
 require_once('../weblap.php');
 
+if( isset($_GET['teszt']) ) {
+    $szalloda   = $adatbazis_kapcsolat->s2('props', 'telephely', "`id`='2070'");
+    if( $szalloda === false ) { $db_error = true; }
+
+    $sorszam  = get_iktatoszam_sorszam($tabla, 2070);
+    if($sorszam===false){ $db_error = true; }
+    $onteam_szam = 'PSZ-'.date('y').'/'.get_props($szalloda['props'], 'RN').'-'.sprintf('%03d', $sorszam);
+    echo $onteam_szam;
+    exit;
+}
+
 if( !_jog(JOG_PRKEZEL_SZERZODES_OLVAS) && !_jog(JOG_PR_SAJAT_SZERZ_MEGTEKINT) ) {
     if(!$_SESSION[get_db_tabla().'user']){
         $weblap -> leallit();
@@ -917,14 +928,14 @@ if( isset($_GET['csv']) ) {
 
                 $lekerdezes_fromtol = str_replace('FROM `'.get_db_tabla().$megnevezes.'` ', "FROM `".get_db_tabla().$megnevezes."` JOIN `".get_db_tabla().$megnevezes."_tetel` ON `".get_db_tabla().$megnevezes."`.`recid`=`".get_db_tabla().$megnevezes."_tetel`.`".$megnevezes."_recid`", $lekerdezes_fromtol);
                 
-                // Ha van benne limit, akkor a teljes adatbázist kilistázzuk, de csak akkor, ha a limit az alapértelmezett (Mert ekkor a legfrisebb 1000-es he hasonló feltétel van érvényben)
+                // Ha van benne limit, akkor a teljes adatbázist kilistázzuk, de csak akkor, ha a limit az alapértelmezett (Ez olyan modulok alatt szükséges, ahol van egy alapértelmezett limit-es szűrés)
                 $mindet_listazd = false;
                 if( strpos( $_SESSION['akt_sql'], 'LIMIT' )!==false ) {
                     $limit = trim( substr( $_SESSION['akt_sql'], strpos($_SESSION['akt_sql'], 'LIMIT') ), 'LIMIT ' );
                     if( strpos($limit, ' ') ) {
                         $limit = substr($limit, 0, strpos($limit, ' '));
                     }
-                    if( $limit == SZURES_DB_LIMIT && !$_SESSION['nyomtatas_ids_ksz'] ) {
+                    if( $limit == ARCHIV_NAVPANEL_LIMIT && !$_SESSION['nyomtatas_ids_ksz'] ) {
                         $mindet_listazd = true;
                     }
                 }
@@ -1080,14 +1091,14 @@ if( isset($_GET['csv']) ) {
             // Projektszerződések exportja
             } else {
 
-                // Ha van benne limit, akkor a teljes adatbázist kilistázzuk, de csak akkor, ha a limit az alapértelmezett (Mert ekkor a legfrisebb 1000-es he hasonló feltétel van érvényben)
+                // Ha van benne limit, akkor a teljes adatbázist kilistázzuk, de csak akkor, ha a limit az alapértelmezett (Ez olyan modulok alatt szükséges, ahol van egy alapértelmezett limit-es szűrés)
                 $mindet_listazd = false;
                 if( strpos( $_SESSION['akt_sql'], 'LIMIT' )!==false ) {
                     $limit = trim( substr( $_SESSION['akt_sql'], strpos($_SESSION['akt_sql'], 'LIMIT') ), 'LIMIT ' );
                     if( strpos($limit, ' ') ) {
                         $limit = substr($limit, 0, strpos($limit, ' '));
                     }
-                    if( $limit == SZURES_DB_LIMIT && !$_SESSION['nyomtatas_ids_ksz'] ) {
+                    if( $limit == ARCHIV_NAVPANEL_LIMIT && !$_SESSION['nyomtatas_ids_ksz'] ) {
                         $mindet_listazd = true;
                     }
                 }

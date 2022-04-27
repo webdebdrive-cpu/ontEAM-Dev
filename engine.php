@@ -564,8 +564,8 @@ function dupla_szokoz_mentesit($string){
 *	@return string: (hibaüzenet) vagy semmi
 */
 function fajlba_mentes($utvonal, $tartalom) {
-    if (!$handle = @fopen($utvonal, 'w+')) {
-	     return 'A(z) '.$utvonal.' fájl létrehozása nem sikerült!';
+    if( !$handle = @fopen($utvonal, 'w+') ) {
+        return 'A(z) '.$utvonal.' fájl létrehozása nem sikerült!';
 	}
 	
 	if (fwrite($handle, $tartalom) === FALSE) {
@@ -650,11 +650,11 @@ function fajlbol_olvas($path, $tomorit = false, $data_uri = false, $komment_szur
         
 	} else {
 	    
-	    if(is_file($path) && filesize($path)){
-        	$handle = @fopen($path, "r");
+	    if( is_file($path) && filesize($path) ) {
+            $handle = @fopen($path, "r");
         	$ret = fread($handle, filesize($path));
             
-            if($data_uri){
+            if( $data_uri ) {
                 $ret = html_img_data($ret);
             }
             
@@ -758,11 +758,11 @@ function fajlnev_keszit($string, $ekezet_marad = false){
 function fajlnev_sorszamoz($string){
 	
 	if(strrpos($string, '.')){
-		$kit    = strtolower( substr($string, strrpos($string, '.'), strlen($string)      ) ); //Elmentjük a kiterjesztést ha van
-		$string = strtolower( substr($string, 0,                     strrpos($string, '.')) ); //Levesszük a kiterjesztést ha van
+		$kit    = strtolower( substr($string, strrpos($string, '.'), strlen($string)      ) ); // Elmentjük a kiterjesztést ha van
+		$string = strtolower( substr($string, 0,                     strrpos($string, '.')) ); // Levesszük a kiterjesztést ha van
 	}
 	
-	//Ha már volt benne '_' karakter
+	// Ha már volt benne '_' karakter
 	$_poz = strrpos($string, '_');
 	if( $_poz > 0 ){
 		$_ig  = substr( $string, 0, $_poz );
@@ -1427,11 +1427,11 @@ function konyvtar_bejar($utvonal, $kivetelek = array()){
     
     global $konyvtar_bejar_utvonalak;
     
-    if(substr($utvonal, strlen($utvonal)-1)!='/'){
+    if( substr($utvonal, strlen($utvonal) - 1) != '/' ) {
         $utvonal .= '/';
     }
     
-    if(is_dir($utvonal)){
+    if( is_dir($utvonal) ) {
         $konyvtar = opendir($utvonal);
         while( false !== ($elem = readdir($konyvtar)) ){
             if( is_file($utvonal.$elem) && !in_array(basename($elem), $kivetelek)){

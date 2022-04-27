@@ -441,14 +441,14 @@ if( isset($_GET['csv']) ) {
 
                 $lekerdezes_fromtol = str_replace('FROM `'.get_db_tabla().$megnevezes.'` ', "FROM `".get_db_tabla().$megnevezes."` JOIN `".get_db_tabla().$megnevezes."_tetel` ON `".get_db_tabla().$megnevezes."`.`recid`=`".get_db_tabla().$megnevezes."_tetel`.`".$megnevezes."_recid`", $lekerdezes_fromtol);
                 
-                // Ha van benne limit, akkor a teljes adatbázist kilistázzuk, de csak akkor, ha a limit az alapértelmezett (Mert ekkor a legfrisebb 1000-es he hasonló feltétel van érvényben)
+                // Ha van benne limit, akkor a teljes adatbázist kilistázzuk, de csak akkor, ha a limit az alapértelmezett (Ez olyan modulok alatt szükséges, ahol van egy alapértelmezett limit-es szűrés)
                 $mindet_listazd = false;
                 if( strpos( $_SESSION['akt_sql'], 'LIMIT' )!==false ) {
                     $limit = trim( substr( $_SESSION['akt_sql'], strpos($_SESSION['akt_sql'], 'LIMIT') ), 'LIMIT ' );
                     if( strpos($limit, ' ') ) {
                         $limit = substr($limit, 0, strpos($limit, ' '));
                     }
-                    if( $limit == SZURES_DB_LIMIT && !$_SESSION['nyomtatas_ids_ksz'] ) {
+                    if( $limit == ARCHIV_NAVPANEL_LIMIT && !$_SESSION['nyomtatas_ids_ksz'] ) {
                         $mindet_listazd = true;
                     }
                 }
@@ -611,14 +611,14 @@ if( isset($_GET['csv']) ) {
             // Projektszerződések exportja
             } else {
 
-                // Ha van benne limit, akkor a teljes adatbázist kilistázzuk, de csak akkor, ha a limit az alapértelmezett (Mert ekkor a legfrisebb 1000-es he hasonló feltétel van érvényben)
+                // Ha van benne limit, akkor a teljes adatbázist kilistázzuk, de csak akkor, ha a limit az alapértelmezett (Ez olyan modulok alatt szükséges, ahol van egy alapértelmezett limit-es szűrés)
                 $mindet_listazd = false;
                 if( strpos( $_SESSION['akt_sql'], 'LIMIT' )!==false ) {
                     $limit = trim( substr( $_SESSION['akt_sql'], strpos($_SESSION['akt_sql'], 'LIMIT') ), 'LIMIT ' );
                     if( strpos($limit, ' ') ) {
                         $limit = substr($limit, 0, strpos($limit, ' '));
                     }
-                    if( $limit == SZURES_DB_LIMIT && !$_SESSION['nyomtatas_ids_ksz'] ) {
+                    if( $limit == ARCHIV_NAVPANEL_LIMIT && !$_SESSION['nyomtatas_ids_ksz'] ) {
                         $mindet_listazd = true;
                     }
                 }
@@ -801,6 +801,13 @@ require_once('selectek.php');
     }
     if( $sor['megj_db'] ) {
         $megj_db = ' ('.$sor['megj_db'].')';
+    }
+    
+    // Ha épp egy szűrésben vagyunk, akkor a szűrés értékeit mentsük ki SESSION-be, hogy a tételek fül alatt, ha ajaxosan töltenénk be tartalmat
+    // akkor is meglegyenek ezek az info-k (ajax-ban nincsenek benne ezek a szűrés GET-ek)
+    if( $_GET['mezo'] && $_GET['felt'] ) {
+        $_SESSION['akt_szuro_mezo'] = $_GET['mezo'];
+        $_SESSION['akt_szuro_felt'] = $_GET['felt'];
     }
 
     if( isset($_GET['modosit']) || isset($_GET['tetel']) || isset($_GET['dokumentumok']) || isset($_GET['megjegyzesek']) ) {
@@ -1168,19 +1175,38 @@ require_once('selectek.php');
         }
         
         // Tételek felsorolása
-        $tetelek = $adatbazis_kapcsolat->s('telephely_id, targy, telj_dt, netto_ert, dev_net, varh_erk, varh_ert, dev_varh_ert', 'fenntartasi_szerzodes_tetel', "`fenntartasi_szerzodes_recid`='{$_GET['id']}'", 'insert_dt');
-        foreach ( $tetelek as $tetel ) {
-            
-            $szamla_html .= nl2('
-                <div class="dtr nSor">
-                    <div class="dtc">'.getSzallodaNev($tetel['telephely_id']).'</div>
-                    <div class="dtc">'.$tetel['targy'].'</div>
-                    <div class="dtc">'.datum_kiir($tetel['varh_erk']).'</div>
-                    <div class="dtc r nowrap">'.number_format($tetel[$osszeg_oszlop],  0, ',', ' ').'</div>
-                    <div class="dtc">'.datum_kiir($tetel['telj_dt']).'</div>
-                    <div class="dtc r nowrap">'.number_format($tetel[$ertek_oszlop], $tizedesek, ',', ' ').'</div>
-                </div>
-            ');
+        // Szűrünk felhasználó szállodáira, de ha szállodára szűrés, akkor azzal is számolunk
+        $sql_kieg = '';
+
+        // Sima szűrés (kimentve SESSION-be, hogy ajaxos betöltéskor (pl. nav panelben vagy füleken lépkedve) is megmaradjon ez az info
+        if( $_SESSION['akt_szuro_mezo'] == 'telephely_id' ) {
+            $sql_kieg .= " AND `telephely_id`='{$_SESSION['akt_szuro_felt']}'";
+        }
+        // Összetett szűrés esetén ki kell számolni
+        $keresek = explode('me|', $_SESSION['o_szuro_feltetel']);
+        foreach ( $keresek as $keres ) {
+            if( substr($keres, 0, 12) == 'telephely_id' ) {
+                $ertek = explode('#fe|', $keres);
+                $ertek = str_replace(array('#', 'es|'), array('', ''), $ertek[1]);
+                $sql_kieg .= " AND `telephely_id`='{$ertek}'";
+            }
+        }
+        $szallodak = get_akt_login_szallodai();
+        if( $szallodak ) {
+            $tetelek = $adatbazis_kapcsolat->s('telephely_id, targy, telj_dt, netto_ert, dev_net, varh_erk, varh_ert, dev_varh_ert', 'fenntartasi_szerzodes_tetel', "`fenntartasi_szerzodes_recid`='{$_GET['id']}' AND `telephely_id` IN (".implode(',', $szallodak)."){$sql_kieg}", 'insert_dt');
+            foreach ( $tetelek as $tetel ) {
+
+                $szamla_html .= nl2('
+                    <div class="dtr nSor">
+                        <div class="dtc">'.getSzallodaNev($tetel['telephely_id']).'</div>
+                        <div class="dtc">'.$tetel['targy'].'</div>
+                        <div class="dtc">'.datum_kiir($tetel['varh_erk']).'</div>
+                        <div class="dtc r nowrap">'.number_format($tetel[$osszeg_oszlop],  0, ',', ' ').'</div>
+                        <div class="dtc">'.datum_kiir($tetel['telj_dt']).'</div>
+                        <div class="dtc r nowrap">'.number_format($tetel[$ertek_oszlop], $tizedesek, ',', ' ').'</div>
+                    </div>
+                ');
+            }
         }
         $szamla_html .= '</div>';
         

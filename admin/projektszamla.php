@@ -653,15 +653,17 @@ if( isset($_POST['tetel_sorok_ment']) ) {
     $arfolyam               = str_replace(array(' ', ','), array('', '.'), $_POST['arfolyam']);
 
     // Ha már fel van dolgozva egy számla, és a tételek eltérése sem áll fenn, akkor a tételei már nem szerkeszthetőek
-    $szamla = $adatbazis_kapcsolat->s2('feldolgozva_dt tetel_elter', 'projektszamla', "`recid`='{$recid}'");
-    if( $szamla === false ) { $db_error = true; }
-    if( $szamla['feldolgozva_dt'] != '0000-00-00 00:00:00' && !$szamla['tetel_elter'] ) {
-        echo json_encode( array(
-            'hiba'  => 'A számla tételei már nem szerkeszthetőek!',
-            'title' => 'Hiba',
-            ) );
-        $weblap -> leallit();
-        exit;
+    if( $recid ) {
+        $szamla = $adatbazis_kapcsolat->s2('feldolgozva_dt tetel_elter', 'projektszamla', "`recid`='{$recid}'");
+        if( $szamla === false ) { $db_error = true; }
+        if( $szamla['feldolgozva_dt'] != '0000-00-00 00:00:00' && !$szamla['tetel_elter'] ) {
+            echo json_encode( array(
+                'hiba'  => 'A számla tételei már nem szerkeszthetőek!',
+                'title' => 'Hiba',
+                ) );
+            $weblap -> leallit();
+            exit;
+        }
     }
     
     // Kapott tömb indexeit cseréljük beszédesebb változókra
@@ -1966,14 +1968,14 @@ if( isset($_GET['csv']) ) {
 
                 $lekerdezes_fromtol = str_replace('FROM `'.get_db_tabla().$megnevezes.'` ', "FROM `".get_db_tabla().$megnevezes."` JOIN `".get_db_tabla().$megnevezes."_tetel` ON `".get_db_tabla().$megnevezes."`.`recid`=`".get_db_tabla().$megnevezes."_tetel`.`".$megnevezes."_recid`", $lekerdezes_fromtol);
                 
-                // Ha van benne limit, akkor a teljes adatbázist kilistázzuk, de csak akkor, ha a limit az alapértelmezett (Mert ekkor a legfrisebb 1000-es he hasonló feltétel van érvényben)
+                // Ha van benne limit, akkor a teljes adatbázist kilistázzuk, de csak akkor, ha a limit az alapértelmezett (Ez olyan modulok alatt szükséges, ahol van egy alapértelmezett limit-es szűrés)
                 $mindet_listazd = false;
                 if( strpos( $_SESSION['akt_sql'], 'LIMIT' )!==false ) {
                     $limit = trim( substr( $_SESSION['akt_sql'], strpos($_SESSION['akt_sql'], 'LIMIT') ), 'LIMIT ' );
                     if( strpos($limit, ' ') ) {
                         $limit = substr($limit, 0, strpos($limit, ' '));
                     }
-                    if( $limit == SZURES_DB_LIMIT && !$_SESSION['nyomtatas_ids_ksz'] ) {
+                    if( $limit == ARCHIV_NAVPANEL_LIMIT && !$_SESSION['nyomtatas_ids_ksz'] ) {
                         $mindet_listazd = true;
                     }
                 }
@@ -2053,7 +2055,7 @@ if( isset($_GET['csv']) ) {
 
                 // Nagyobb CSV-kre kérdezzünk rá előzetesen
                 $osszes_sor = mysqli_num_rows($query);
-//  Itt ilyet ne csináljunk, mert a csv_link_cserel_kattint 3 paraméterét nem tudom kimenteni
+// Itt ilyet ne csináljunk, mert a csv_link_cserel_kattint 3 paraméterét nem tudom kimenteni
 //                if( !$_GET['mehet'] && $osszes_sor>CSV_EXPORT_LIMIT ) {
 //                    $gomb = '<input type="button" class="gomb zold" value="Igen" onclick="$(\'#navGombok .excel\').attr(\'onclick\', \'csv_general( this, \\\'\\\', \\\'&mehet=1\\\');\'); $(\'.navGombok a.excel\').click();"> <input type="button" class="gomb piros" value="Nem" onclick="alert2()">';
 //                    echo json_encode(array('hiba' => 'A CSV export több mint '.number_format(CSV_EXPORT_LIMIT, 0, '', ' ').' sort tartalmaz. Ennek előállítása hosszabb időbe telik majd.<br>Biztosan folytatja?', 'gomb' => $gomb));
@@ -2144,14 +2146,14 @@ if( isset($_GET['csv']) ) {
                 
                 $lekerdezes_fromtol = substr($_SESSION['akt_sql'], strpos($_SESSION['akt_sql'], 'FROM'));
                 
-                // Ha van benne limit, akkor a teljes adatbázist kilistázzuk, de csak akkor, ha a limit az alapértelmezett (Mert ekkor a legfrisebb 1000-es he hasonló feltétel van érvényben) és nincs gyorskeresőbe se írva semmi
+                // Ha van benne limit, akkor a teljes adatbázist kilistázzuk, de csak akkor, ha a limit az alapértelmezett (Ez olyan modulok alatt szükséges, ahol van egy alapértelmezett limit-es szűrés)
                 $mindet_listazd = false;
                 if( strpos( $_SESSION['akt_sql'], 'LIMIT' )!==false ) {
                     $limit = trim( substr( $_SESSION['akt_sql'], strpos($_SESSION['akt_sql'], 'LIMIT') ), 'LIMIT ' );
                     if( strpos($limit, ' ') ) {
                         $limit = substr($limit, 0, strpos($limit, ' '));
                     }
-                    if( $limit == SZURES_DB_LIMIT && !$_SESSION['nyomtatas_ids_ksz'] ) {
+                    if( $limit == ARCHIV_NAVPANEL_LIMIT && !$_SESSION['nyomtatas_ids_ksz'] ) {
                         $mindet_listazd = true;
                     }
                 }
@@ -2226,10 +2228,8 @@ if( isset($_GET['csv']) ) {
                     echo json_encode(array('hiba' => 'A CSV export több mint '.number_format(CSV_EXPORT_LIMIT, 0, '', ' ').' sort tartalmaz. Ennek előállítása hosszabb időbe telik majd.<br>Biztosan folytatja?', 'gomb' => $gomb));
                     $weblap -> leallit();
                     exit;
-                } else {
-                    $sql .= $_SESSION['akt_sql_order'];
                 }
-                
+
                 $query      = mysqli_query($db_kapcs, $sql);
                 $csvhead    = array();
                 while ( $fejlec_nevek = mysqli_fetch_field($query) ) {
@@ -2557,10 +2557,10 @@ require_once('selectek.php');
             // azaz ne lehessen az adatlapon már semmit sem módosítani, ez számtalan új bonyodalommal járna, lásd 2022.03.11-én írt mailt
             // Ha meg azért vagyunk itt, akkor meg beállítunk egy JS változót, hogy a popup bezárása után tudjuk, hogy frissíteni kell az adatlapot.
             if( $sor['tetel_elter'] ) {
-                $gombok .= '<script>var tetel_popup_frissit = 1;</script>';
+                $gombok .= '<script>var tetelek_szama_elter = 1;</script>';
             } else {
                 $gombok = nl2('
-                    <script>var tetel_popup_frissit = 0;</script>
+                    <script>var tetelek_szama_elter = 0;</script>
                     <div class="form_kuldes">
                         <input type="button" class="gombb mentes_gomb" name="mehet_gomb" id="mehet_gomb" disabled value="Mentés" onclick="mentesGomb();">
                         <input type="button" class="gomb piros" disabled id="megsem_gomb" value="Mégsem" onclick="megsemGomb();">

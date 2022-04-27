@@ -82,7 +82,7 @@ function get_teszt_rendszer() {
 function get_verzio()     { return 'V1.198';                                    } // Fejlécben szereplő verzió szám
 function get_db_charset() { return 'UTF8';                                      } // Karakterkódolás (Figyelem! UTF-8 helyett itt UTF8)
 function get_debug()      { return false;                                       } // Hibás adatbázislekérdezések megjelennek vagy sem
-function get_debug_ip()   { return '91.120.139.38';                              } // Erről az IP címről nézve az oldalt íratható ki hibaüzenet
+function get_debug_ip()   { return '188.36.112.126';                              } // Erről az IP címről nézve az oldalt íratható ki hibaüzenet
 // A fenti élesen nem működik, de a többi felületen igen
 
 // Weblap
@@ -111,8 +111,10 @@ function get_http()          {
         return 'http://';
     }
 }
-function get_sorrend_tomb_max_meret()   { return 5000;      } // CSV exportba csak úgy tudjuk a képernyő sorrendjét lehozni, ha egy ORDER BY FIELD rendezéssel a már ismert sorrendben kérjük le a mezőket. De nagyon hosszú lista esetén ez az SQL ki tud akadni, ezért limitáljuk,hogy ezt hány soron át tesszük meg.
-function get_logfile_max_meret()        { return 2097152;   }
+function get_sorrend_tomb_max_meret()   { return 5000;          } // CSV exportba csak úgy tudjuk a képernyő sorrendjét lehozni, ha egy ORDER BY FIELD rendezéssel a már ismert sorrendben kérjük le a mezőket. De nagyon hosszú lista esetén ez az SQL ki tud akadni, ezért limitáljuk,hogy ezt hány soron át tesszük meg.
+function get_logfile_max_meret()        { return 2097152;       } // Általános logfájl maximális mérete
+function get_logfile_max_meret_andoc()  { return 10485760;      } // Ekkora fájlméret után archiváljuk az Andoc logokat
+function get_logfile_max_elet_andoc()   { return 60*60*24*365;  } // Ennyi idő után töröljük az Andoc log archivumokat
 function get_mail($kiir = '')           { return !$kiir ? 'noreply@onteam.hu' :
            mail_rejtes('<a href="mailto:'.get_mail().'">'.get_mail().'</a>');   }
 function get_megsz()         { return 'magaz';                                  }

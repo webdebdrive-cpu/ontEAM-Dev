@@ -99,7 +99,11 @@ if( isset($_POST['kuldes_igazolasra_csoportosit']) ) {
 
 // Ha volt tétel összevonás és a tételeknél kitöltötték a tárgyat,
 // akkor az itt megadott adatokat tároljuk le a fejben
+// Illetve ekkor írjuk be a könyvelés tételeket is
 if( isset($_POST['osszevon_targy_kitoltve_ell']) ) {
+    
+    $db_error = false;
+    mysqli_autocommit($db_kapcs, false);
     
     $targyak = json_decode($_POST['targyak'], '-tömbként-');
     $szamla  = $adatbazis_kapcsolat->s2('kcs_21 telephely_id', 'fenntartasi_szamla', "`recid`='{$_POST['id']}'");
@@ -141,11 +145,18 @@ if( isset($_POST['osszevon_targy_kitoltve_ell']) ) {
         $i++;
     }
     
-    $adatbazis_kapcsolat->u('fenntartasi_szamla', 
+    $sql = $adatbazis_kapcsolat->u('fenntartasi_szamla', 
                                                     array('kuld_tetel_xml', 'tetel_db'  ),
                                                     array($tetel_xml,       $i          ),
                                                 "`recid`='{$_POST['id']}'");
+    if( $sql === false ) { $db_error = true; }
     
+    if( !$db_error ) {
+        mysqli_commit($db_kapcs);
+    } else {
+        mysqli_rollback($db_kapcs);
+    }
+                                                
     $weblap -> leallit();
     exit;
 }
@@ -192,7 +203,7 @@ if( isset($_POST['fenntartasi_szamla_get_koztes']) ) {
                     <th class="l">Szállító</th>
                     <th class="l">Számlaszám</th>
                     <th class="c">Teljesítés dátuma</th>
-                    <th class="c">Számlakép</th>
+                    <th class="c">Számla kép</th>
                 </tr>
                 </thead>
                 <tbody>
@@ -331,6 +342,7 @@ if( isset($_POST['fenntartasiSzamlaElutasit']) ) {
         
     // Adatbázisba mentés csak akkor, ha nem volt gond az XML küldéssel
     } else {
+        
         // Elutasítással kapcsolatos adatok beállítása, illetve a kapcsolt számlaszám ürítése
         $sql = $adatbazis_kapcsolat->u('fenntartasi_szamla', array('igazolva', 'elutleir',     'sz_szam', 'igazolva_dt', 'igazolva_usr',                          'sztornozva_dt', 'sztornozva_usr'                       ),
                                                              array(0,          $_POST['memo'], '',        'NOW()',       $_SESSION[get_db_tabla().'teljes_nev'],  'NOW()',         $_SESSION[get_db_tabla().'teljes_nev'] ),
@@ -602,15 +614,17 @@ if( isset($_POST['tetel_sorok_ment']) ) {
     $arfolyam               = str_replace(array(' ', ','), array('', '.'), $_POST['arfolyam']);
     
     // Ha már fel van dolgozva egy számla, és a tételek eltérése sem áll fenn, akkor a tételei már nem szerkeszthetőek
-    $szamla = $adatbazis_kapcsolat->s2('feldolgozva_dt tetel_elter', 'fenntartasi_szamla', "`recid`='{$recid}'");
-    if( $szamla === false ) { $db_error = true; }
-    if( $szamla['feldolgozva_dt'] != '0000-00-00 00:00:00' && !$szamla['tetel_elter'] ) {
-        echo json_encode( array(
-            'hiba'  => 'A számla tételei már nem szerkeszthetőek!',
-            'title' => 'Hiba',
-            ) );
-        $weblap -> leallit();
-        exit;
+    if( $recid ) {
+        $szamla = $adatbazis_kapcsolat->s2('feldolgozva_dt tetel_elter', 'fenntartasi_szamla', "`recid`='{$recid}'");
+        if( $szamla === false ) { $db_error = true; }
+        if( $szamla['feldolgozva_dt'] != '0000-00-00 00:00:00' && !$szamla['tetel_elter'] ) {
+            echo json_encode( array(
+                'hiba'  => 'A számla tételei már nem szerkeszthetőek!',
+                'title' => 'Hiba',
+                ) );
+            $weblap -> leallit();
+            exit;
+        }
     }
     
     // Kapott tömb indexeit cseréljük beszédesebb változókra
@@ -1476,14 +1490,14 @@ if( isset($_GET['csv']) ) {
                 
                 $lekerdezes_fromtol = str_replace('FROM `'.get_db_tabla().$megnevezes.'` ', "FROM `".get_db_tabla().$megnevezes."` JOIN `".get_db_tabla().$megnevezes."_tetel` ON `".get_db_tabla().$megnevezes."`.`recid`=`".get_db_tabla().$megnevezes."_tetel`.`".$megnevezes."_recid`", $lekerdezes_fromtol);
 
-                // Ha van benne limit, akkor a teljes adatbázist kilistázzuk, de csak akkor, ha a limit az alapértelmezett (Mert ekkor a legfrisebb 1000-es he hasonló feltétel van érvényben)
+                // Ha van benne limit, akkor a teljes adatbázist kilistázzuk, de csak akkor, ha a limit az alapértelmezett (Ez olyan modulok alatt szükséges, ahol van egy alapértelmezett limit-es szűrés)
                 $mindet_listazd = false;
                 if( strpos( $_SESSION['akt_sql'], 'LIMIT' )!==false ) {
                     $limit = trim( substr( $_SESSION['akt_sql'], strpos($_SESSION['akt_sql'], 'LIMIT') ), 'LIMIT ' );
                     if( strpos($limit, ' ') ) {
                         $limit = substr($limit, 0, strpos($limit, ' '));
                     }
-                    if( $limit == SZURES_DB_LIMIT && !$_SESSION['nyomtatas_ids_ksz'] ) {
+                    if( $limit == ARCHIV_NAVPANEL_LIMIT && !$_SESSION['nyomtatas_ids_ksz'] ) {
                         $mindet_listazd = true;
                     }
                 }
@@ -1650,14 +1664,14 @@ if( isset($_GET['csv']) ) {
                 
                 $lekerdezes_fromtol = substr($_SESSION['akt_sql'], strpos($_SESSION['akt_sql'], 'FROM'));
 
-                // Ha van benne limit, akkor a teljes adatbázist kilistázzuk, de csak akkor, ha a limit az alapértelmezett (Mert ekkor a legfrisebb 1000-es he hasonló feltétel van érvényben) és nincs gyorskeresőbe se írva semmi
+                // Ha van benne limit, akkor a teljes adatbázist kilistázzuk, de csak akkor, ha a limit az alapértelmezett (Ez olyan modulok alatt szükséges, ahol van egy alapértelmezett limit-es szűrés)
                 $mindet_listazd = false;
                 if( strpos( $_SESSION['akt_sql'], 'LIMIT' )!==false ) {
                     $limit = trim( substr( $_SESSION['akt_sql'], strpos($_SESSION['akt_sql'], 'LIMIT') ), 'LIMIT ' );
                     if( strpos($limit, ' ') ) {
                         $limit = substr($limit, 0, strpos($limit, ' '));
                     }
-                    if( $limit == SZURES_DB_LIMIT && !$_SESSION['nyomtatas_ids_ksz'] ) {
+                    if( $limit == ARCHIV_NAVPANEL_LIMIT && !$_SESSION['nyomtatas_ids_ksz'] ) {
                         $mindet_listazd = true;
                     }
                 }
@@ -1845,11 +1859,12 @@ require_once('selectek.php');
         $megj_db = ' ('.$sor['megj_db'].')';
     }
 
-    if( isset($_GET['modosit']) || isset($_GET['tetel']) || isset($_GET['tortenet']) /*|| isset($_GET['kifizetesek'])*/ || isset($_GET['dokumentumok']) || isset($_GET['megjegyzesek']) ) {
+    if( isset($_GET['modosit']) || isset($_GET['tetel']) || isset($_GET['tortenet']) /*|| isset($_GET['kifizetesek'])*/ || isset($_GET['konyveles']) || isset($_GET['dokumentumok']) || isset($_GET['megjegyzesek']) ) {
         // Számla fülek
         $ful_tomb = array(
             'modosit'       => 'Adatlap',
             'tetel'         => 'Tételek',
+            'konyveles'     => 'Könyvelés',
             'tortenet'      => 'Történet',
             // 'kifizetesek'   => 'Kifizetések',
             'dokumentumok'  => 'Dokumentumok'.$dok_db,
@@ -1972,6 +1987,7 @@ require_once('selectek.php');
             ');
         
         $gombok = nl2('
+            <script>var tetelek_szama_elter = 0;</script>
             <div class="form_kuldes">
                 <input type="hidden" name="atmeneti_recid" value="'.$szamla['recid'].'">
                 <input type="hidden" id="ossz_netto" value="'.$ossz_netto.'">
@@ -2035,6 +2051,10 @@ require_once('selectek.php');
             $gombok .= '<input type="button" class="gomb modositaskor_rejt" value="Vissza üi.-nek" onclick="csoportMuvelet(\'fenntartasiSzamlaVisszaUi\');"> ';
         }
         
+// Saját IP-ről belépve a személyzeten módosítunk, hogy a Könyvelés tételek kezelése tesztelhető legyen
+if( $_SERVER['REMOTE_ADDR'] == get_debug_ip() ) {
+    $_SESSION[get_db_tabla().'szemelyzet_id'] = MUSZAKI_ADMINISZTRATOR;
+}
         // Szerkesztéshez az kell, hogy legyen jogunk, illetve a számla ne legyen még igazolva/elutasítva, vagy ha igen, akkor legyen bepipálva a téttelek eltérnek pipa és a felhasználó MUSZAKI_ADMINISZTRATOR legyen
         if( _jog(JOG_FENNTARTASI_SZAMLAK_KEZEL) && ($sor['feldolgozva_dt']=='0000-00-00 00:00:00' || ($sor['tetel_elter'] && $_SESSION[get_db_tabla().'szemelyzet_id'] == MUSZAKI_ADMINISZTRATOR ) ) ) {
             // Ha még nincs feldolgozva
@@ -2058,10 +2078,10 @@ require_once('selectek.php');
             // azaz ne lehessen az adatlapon már semmit sem módosítani, ez számtalan új bonyodalommal járna, lásd 2022.03.11-én írt mailt
             // Ha meg azért vagyunk itt, akkor meg beállítunk egy JS változót, hogy a popup bezárása után tudjuk, hogy frissíteni kell az adatlapot.
             if( $sor['tetel_elter'] ) {
-                $gombok .= '<script>var tetel_popup_frissit = 1;</script>';
+                $gombok .= '<script>var tetelek_szama_elter = 1;</script>';
             } else {
                 $gombok = nl2('
-                    <script>var tetel_popup_frissit = 0;</script>
+                    <script>var tetelek_szama_elter = 0;</script>
                     <div class="form_kuldes">
                         <input type="button" class="gombb mentes_gomb" name="mehet_gomb" id="mehet_gomb" disabled value="Mentés" onclick="mentesGomb();">
                         <input type="button" class="gomb piros" disabled id="megsem_gomb" value="Mégsem" onclick="megsemGomb();">
@@ -2135,8 +2155,9 @@ require_once('selectek.php');
         foreach ( $sor as $kulcs => $elem ) {
             $json_sor[$kulcs] = formAdatok_replace($elem);
         }
-        $szamla_html .= '<script> formAdatok = JSON.parse(\''.json_encode($json_sor).'\'); </script>';
 
+        $szamla_html .= '<script>formAdatok = JSON.parse(\''.json_encode($json_sor).'\'); </script>';
+        
 		// Ez elkészíti a $mezok változót
 		require('switch.php');
 
@@ -2258,6 +2279,78 @@ require_once('selectek.php');
                     <div class="dtc r nowrap">'.number_format($tetel['dev_net'],    2, ',', ' ').'</div>
                     <div class="dtc r nowrap">'.number_format($tetel['dev_br'],     2, ',', ' ').'</div>
                     <div class="dtc r nowrap">'.$tetel['afa'].'</div>
+                </div>
+            ');
+        }
+        $szamla_html .= '</div>';
+        
+        if( $_GET['ajax'] ) {
+            echo json_encode(array(
+                'tartalom' => $szamla_html.$gombok,
+                'link'     => get_get(array('ajax', 'kat', 'epo', 'oldal', 'order'), true)
+            ));
+        } else {
+            echo $szamla_html.$gombok;
+        }
+
+	// Könyvelés
+    } elseif( isset($_GET['konyveles']) ) {
+
+        $deviza = $dev_fej = '';
+        if( $sor['kcs_21'] != KCS_21_HUF ) {
+            $deviza      = ' ('.erteklista(ERTEKLISTA_PENZNEM, $sor['kcs_21']).')';
+            $dev_fej = nl2('
+                            <div class="dtc r">Deviza nettó'.$deviza.'</div>
+                            <div class="dtc r">Deviza bruttó'.$deviza.'</div>
+                            ');
+        }
+        
+        $szamla_html .= nl2('
+            <div class="dt naplo">
+                <div class="dtr nFejlec">
+                    <div class="dtc">Jogcím</div>
+                    <div class="dtc r">Főkönyvi számlaszám</div>
+                    <div class="dtc r">Költséghely</div>
+                    <div class="dtc r">Nettó érték</div>
+                    <div class="dtc r">Bruttó érték</div>
+                    '.$dev_fej.'
+                    <div class="dtc">ÁFA kód</div>
+                    <div class="dtc r">ÁFA (%)</div>
+                </div>
+        ');
+        
+        // Tételek felsorolása
+        $tetelek = $adatbazis_kapcsolat->s('*', 'fenntartasi_szamla_konyveles', "`fenntartasi_szamla_recid`='{$_GET['id']}'", 'recid');
+        $szamla  = $adatbazis_kapcsolat->s2('kcs_21', 'fenntartasi_szamla', "`recid`='{$_GET['id']}'");
+        foreach ( $tetelek as $tetel ) {
+            
+            $jogcim  = $adatbazis_kapcsolat->s2('jogcim', 'jogcim', "`recid`='{$tetel['jogcim_recid']}'");
+            $afakod  = $adatbazis_kapcsolat->s2('afa',    'afakod', "`recid`='{$tetel['afakod_recid']}'");
+            $dijelem = $adatbazis_kapcsolat->s2('info', 'erteklista', "`recid`='{$tetel['dijelem_recid']}'");
+            
+            $aranyos = '';
+            if( $tetel['aranyos'] ) {
+                $aranyos .= '✓';
+            }
+            
+            $dev_oszlopok = '';
+            if( $sor['kcs_21'] != KCS_21_HUF ) {
+                $dev_oszlopok = nl2('
+                    <div class="dtc r nowrap">'.number_format($tetel['dev_net'], 2, ',', ' ').'</div>
+                    <div class="dtc r nowrap">'.number_format($tetel['dev_br'], 2, ',', ' ').'</div>
+                    ');
+            }
+            
+            $szamla_html .= nl2('
+                <div class="dtr nSor">
+                    <div class="dtc">'.htmlspecialchars_decode($jogcim['jogcim']).'</div>
+                    <div class="dtc r nowrap">'.$tetel['ktgnem_id'].'</div>
+                    <div class="dtc r nowrap">'.$tetel['ktghely_id'].'</div>
+                    <div class="dtc r nowrap">'.number_format($tetel['netto_ert'], 0, ',', ' ').'</div>
+                    <div class="dtc r nowrap">'.number_format($tetel['brutto_ert'], 0, ',', ' ').'</div>
+                    '.$dev_oszlopok.'
+                    <div class="dtc nowrap">'.$tetel['afa_kod'].'</div>
+                    <div class="dtc r nowrap">'.number_format($afakod['afa'], 0, ',', ' ').'</div>
                 </div>
             ');
         }
@@ -2641,7 +2734,7 @@ function xml_vissza( $szamla_id, $igazolva = '', $oka = '' ) {
     ';
     file_put_contents($log_utvonal, $log, FILE_APPEND | LOCK_EX);
             
-    // A kapott választ feldolgozató állapotra kell hozni, hogy értelmezni lehessen, ehhez ki kell törölni belőle a sallangot
+    // A kapott választ feldolgozható állapotra kell hozni, hogy értelmezni lehessen, ehhez ki kell törölni belőle a sallangot
     if( eles_es_teszt_rendszer_e() ) {
         $mit   = array('<?xml version="1.0" encoding="utf-8"?>', '<string xmlns="AndocWebServices.WebService_AndocSimple"><?xml version="1.0" encoding="utf-8" standalone="yes"?>', '</xml></string>');
         $mivel = array('',                                       '',                                                                                                                '</xml>'         );

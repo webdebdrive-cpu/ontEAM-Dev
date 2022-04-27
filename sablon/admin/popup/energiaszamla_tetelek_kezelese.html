@@ -1,6 +1,7 @@
-<h2>Számla tételek kezelése</h2>
+<h2 id="popup_title">Számla tételek kezelése</h2>
 
 <div class="kozep" style="min-height: 40rem">
+    <div id="ajax_css"></div>
     <style type="text/css">
         .popup_harmas {
             display: grid;
@@ -10,10 +11,34 @@
         input.szeles {
             width: 15rem;
         }
+        
+        #osszesito {
+            display: grid;
+            grid-template-columns: 20rem 14rem;
+        }
+        #osszesito.dn {
+            display: none;
+        }
     </style>
     <div id="osszesito" class="dn">
-        <div>Számla nettó érték: <b><span id="osszesito_netto"></span> <span class="f_penznem"></span></b></div>
-        <div>Tételek nettó érték: <b><span id="osszesito_tetelek"></span> <span class="f_penznem"></span></b></div>
+        <div>
+            Számla nettó érték:
+        </div>
+        <div class="r">
+            <b>
+                <span id="osszesito_netto"></span>
+                <span class="f_penznem"></span>
+            </b>
+        </div>
+        <div>
+            Könyvelés tételek nettó érték:
+        </div>
+        <div class="r">
+            <b>
+                <span id="osszesito_tetelek"></span>
+                <span class="f_penznem"></span>
+            </b>
+        </div>
     </div>
     <div id="popup_inputok" class="dn">
         <div class="popup_harmas">
@@ -182,20 +207,24 @@
             <thead>
             <tr>
                 <th>Jogcím</th>
-                <th>Díjelem</th>
-                <th>Fogyasztással arányos</th>
-                <th>Vonatkozó időszak</th>
-                <th>Mérőállás</th>
-                <th>Szorzó / Fűtőérték</th>
-                <th>Mért fogyasztás</th>
-                <th>kWh-szorzó</th>
-                <th>Mennyiség (számlázási egységben)</th>
-                <th>Mennyiség-egység</th>
-                <th>Mennyiség (kWh-ban)</th>
-                <th>Egységár</th>
-                <th>Nettó érték</th>
-                <th>Bruttó érték</th>
-                <th>Áfa</th>
+                <th class="alapbol_rejt">Főkönyvi számlaszám</th>
+                <th class="l alapbol_rejt">Költséghely</th>
+                <th class="l eltereskor_rejt">Díjelem</th>
+                <th class="eltereskor_rejt">Fogyasztással arányos</th>
+                <th class="eltereskor_rejt">Vonatkozó időszak</th>
+                <th class="eltereskor_rejt">Mérőállás</th>
+                <th class="eltereskor_rejt">Szorzó / Fűtőérték</th>
+                <th class="eltereskor_rejt">Mért fogyasztás</th>
+                <th class="eltereskor_rejt">kWh-szorzó</th>
+                <th class="eltereskor_rejt">Mennyiség (számlázási egységben)</th>
+                <th class="eltereskor_rejt">Mennyiség-egység</th>
+                <th class="eltereskor_rejt">Mennyiség (kWh-ban)</th>
+                <th class="eltereskor_rejt">Egységár</th>
+                <th class="r">Nettó érték</th>
+                <th class="r">Bruttó érték</th>
+                <th class="r alapbol_rejt deviza_rejt">Deviza nettó (<span class="f_penznem"></span>)</th>
+                <th class="r alapbol_rejt deviza_rejt">Deviza bruttó (<span class="f_penznem"></span>)</th>
+                <th>ÁFA</th>
                 <th id="pop_torles_pipa">Törlés</th>
             </tr>
             </thead>
@@ -212,6 +241,12 @@
     <input type="button" class="gomb piros dn pop_mentes_megsem" value="Mégsem" onclick="bezar_gomb();">
 </div>
 <script>
+$(document).ready(function(){
+    if( tetelek_szama_elter ) {
+        $('#popup_title').html('Könyvelés tételek kezelése');
+    }
+});
+    
 var akt_penznem = $('#kcs_21_autocomp').val();
 if( !akt_penznem ) {
     akt_penznem = $('#kcs_21_autocomp_db').val();
@@ -264,6 +299,10 @@ $(document).ready(function () {
     $('.f_penznem').each(function () {
         $(this).replaceWith(akt_penznem);
     });
+    
+    if( akt_penznem && akt_penznem == 'HUF' ) {
+        $('.deviza_rejt').hide();
+    }
     
     if( akt_penznem && akt_penznem != 'HUF' ) {
         $('#pop_netto' ).attr('data-tort', '2');
@@ -599,12 +638,7 @@ function tetel_sorok_ment(mehet){
     
     var recidk = [];
     $('.pop_recid').each(function() {
-        pipalo = $(this).parent().parent().find('.pop_pipalo');
-        if( pipalo.length && pipalo.hasClass('piros') || pipalo.attr('id').indexOf('_kifizetes')>=0 ) {
-            recidk.push( '0' );
-        } else {
-            recidk.push( $(this).val() );
-        }
+        recidk.push( $(this).val() );
     });
     var jogcimek = [];
     $('.pop_jogcim').each(function() {
@@ -670,12 +704,21 @@ function tetel_sorok_ment(mehet){
     $('.pop_afa').each(function() {
         afak.push( $(this).val() );
     });
+    
     var netto_ert = [];
-    $('.pop_netto').each(function() {
+    var netto_mezo  = 'pop_netto';
+    var brutto_mezo = 'pop_brutto';
+    /* Ha az eltérő tételszám miatt vagyunk ezen a popuppn, és egy devizás számláról van szó, akkor a nettó/bruttó mezők a pop_dev_net/pop_dev_br tag-ekben lesz
+     * Normál popup esetén ezzel nem kell foglalkozni, mert ott csak simán egy nettó oszlop van, abban a HUF ha HUF-os a számla és a deviza nettója, ha devizás a számla */
+    if( tetelek_szama_elter && akt_penznem && akt_penznem != 'HUF' ) {
+        netto_mezo  = 'pop_dev_net';
+        brutto_mezo = 'pop_dev_br';
+    }
+    $('.'+netto_mezo).each(function() {
         netto_ert.push( $(this).html().replace(/,/g, '.') );
     });
     var brutto_ert = [];
-    $('.pop_brutto').each(function() {
+    $('.'+brutto_mezo).each(function() {
         brutto_ert.push( $(this).html().replace(/,/g, '.') );
     });
     var tetel_nullas = [];
@@ -757,7 +800,7 @@ function tetel_sorok_ment(mehet){
                      * Illetve csak akkor, ha nem az adatlapon volnánk... egyébként nem frissítünk, mert lehet
                      * hogy az adatlapon is volt változás.
                      *  */
-                    if( !_get('modosit') || tetel_popup_frissit /* PHP-ban a Mentés/Mégsem gomboknál van beállítva */ ){
+                    if( ( !_get('modosit') && !_get('uj') ) || tetelek_szama_elter /* PHP-ban a Mentés/Mégsem gomboknál van beállítva */ ){
                         szamlaBetolt(_get('id'), 'energia_szamla.php');
                     }
                     popupZar();
@@ -818,8 +861,9 @@ function pop_tetelek_feltolt(){
                     $('#pop_torles_pipa').html('Pipa');
                     tetel_netto_osszeszamol();
                 }
+                $('#ajax_css').html(response.css);
                 
-                /* Illeve a jogcím select is most kap értéket */
+                /* Illetve a jogcím select is most kap értéket */
                 $('.jogcim_select').html( response.jogcim_select  );
             }
         },
@@ -834,7 +878,11 @@ function pop_tetelek_feltolt(){
 /* Tételek nettó értékét számoljuk össze */
 function tetel_netto_osszeszamol() {
     var osszesen = 0;
-    $('.pop_netto').each(function() {
+    var css_class = '.pop_netto';
+    if( $('.pop_dev_net').length ) {
+        css_class = '.pop_dev_net';
+    }
+    $(css_class).each(function() {
         pipalo = $(this).parent().find('.pop_pipalo');
         if( pipalo.hasClass('zold') ) {
             osszesen += Number($(this).html().replace(/\s/g, '').replace(',', '.'));

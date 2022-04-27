@@ -3828,6 +3828,9 @@ if( isset($_REQUEST['f_o_szures_submit']) ) {
     if( strpos($_REQUEST['feltetel'], 'megjegyzes')!==false ) {
         $join = ' JOIN `'.get_db_tabla().'megjegyzes` ON `'.get_db_tabla().'megjegyzes`.`tabla`=\''.$_REQUEST['tabla'].'\' AND `'.get_db_tabla().$_REQUEST['tabla'].'`.`recid`=`'.get_db_tabla().'megjegyzes`.`id` ';
     }
+    if( $_REQUEST['tabla']=='fenntartasi_szerzodes' && strpos($_REQUEST['feltetel'], 'telephely_id')!==false ) {
+        $join = ' JOIN `'.get_db_tabla().'fenntartasi_szerzodes_tetel` ON `'.get_db_tabla().'fenntartasi_szerzodes_tetel`.`fenntartasi_szerzodes_recid`=`'.get_db_tabla().'fenntartasi_szerzodes`.`recid` ';
+    }
     if( $_REQUEST['tabla']=='login' && strpos($_REQUEST['feltetel'], 'szalloda')!==false ){
         $join = ' JOIN `'.get_db_tabla().'telephely_kapcs` ON `'.get_db_tabla().$_REQUEST['tabla'].'`.`nev`=`'.get_db_tabla().'telephely_kapcs`.`nev` ';
     }

@@ -30,6 +30,8 @@ define('HUNGARIA_SZALLODA',         2120);
 define('ANDOC_POST_KULD_URL_TESZT', 'https://andoc.danubiushotels.com/ws_ontEAM_AndocSimple_teszt/WebService_AndocSimple.asmx/RegisterDocument');
 define('ANDOC_POST_KULD_URL_ELES',  'https://andoc.danubiushotels.com/ws_ontEAM_AndocSimple/WebService_AndocSimple.asmx/RegisterDocument');
 define('URES_DATUM_JSBOL_PHP_ALATT','4000.00.00'); // Mivel a dátum inputok alap értéke valami speciális karakter, ezért ezt elküldve PHP-nak nem tudjuk jól felismerni. Az a módszer, hogy azt vizsgáljuk, hogy a dátum régebbi-e mint 4000.01.01. Ha igen, akkor ezt az üres karaktert kaptuk.
+define('KEREKITESI_HATAR_HUF',      '10'); // Amikor pl. egy számla nettóját és a tételeinek nettóját vizsgáljuk, hogy azonosak-e, akkor ekkora eltérést megengedünk
+define('KEREKITESI_HATAR_DEV',      '1');
 
 // Státuszok
 // Bejelentés státuszok

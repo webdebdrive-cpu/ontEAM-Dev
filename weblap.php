@@ -103,8 +103,8 @@ if( $_SESSION[get_db_tabla().'user'] ) {
 
 // Archiv bejelentés/munkalap esetén ha nincs szűrés/összetett szűrés, akkor a legfrisseb legyen beállítva (amúgy is van rajta egy limit, ha van más szűrés, de ha nincs beállítva semmi, akkor ez látszik is).
 // FONTOS, hogy ez még itt a szamla_lista() függvény meghívása előtt legyen, mert az már számol ezekkel!
-$archivok = array('bejelentes_arch.php', 'munkalap_arch.php', 'projektigenyles.php', 'projektkezeles.php', 'projektszamla.php', 'projektszerzodes.php');
-if( in_array(basename(self()), $archivok) && !isset($_GET['mezo']) && !$_SESSION['o_szuro_feltetel'] ){
+$archivok = array('anyag_szamla.php', 'bejelentes_arch.php', 'energia_szamla.php', 'fenntartasi_szamla.php', 'fenntartasi_szerzodes.php', 'munkalap_arch.php', 'projektigenyles.php', 'projektkezeles.php', 'projektszamla.php', 'projektszerzodes.php');
+if( in_array(basename(self()), $archivok) && !isset($_GET['mezo']) && !$_SESSION['o_szuro_feltetel'] ) {
     $_GET['mezo']   = 'legfrissebb';
     $_GET['op']     = 'equal';
     $_GET['felt']   = ARCHIV_NAVPANEL_LIMIT;

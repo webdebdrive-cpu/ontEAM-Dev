@@ -6,8 +6,10 @@ header('Content-Type: text/html; charset='.get_web_charset());
 
 ini_set('soap.wsdl_cache_enabled', '0');
 
-$url_elotag  = get_url_elotag();
-$log_utvonal = '../andoc.log';
+$url_elotag     = get_url_elotag();
+$konyvtar       = 'log/';
+$log_utvonal    = $konyvtar.'andoc.log';
+$log_torolve    = $konyvtar.'log_torles_lefutott';
 
 switch ( $_SERVER['HTTP_HOST'] ) {
     case 'demo.webdeb.hu'       : $wsdl_fajl = 'onteam_wd_demo.wsdl';   break;
@@ -26,23 +28,17 @@ try {
         foreach ($_POST as $kulcs => $ertek) {
             $adatok .= 'Post neve: '.$kulcs."\nÉrtéke:\n".$ertek."\n\n";
         }
-        $log = '*****************************
+        $log = '
+
+
+*****************************
 FOGADOTT XML
 '.date('Y.m.d H:i:s').'
 Ip: '.$_SERVER['REMOTE_ADDR'].'
 URL: '.get_http().$_SERVER['HTTP_HOST'].$_SERVER['REQUEST_URI'].'
 
-'.$adatok/*Sortörésekkel mentsük a logba*/.'
-
-
-
-';
-            file_put_contents($log_utvonal, $log, FILE_APPEND | LOCK_EX);
-            if( filesize($log_utvonal) > (get_logfile_max_meret()) ) {
-                $log = fajlbol_olvas($log_utvonal);
-                $log = mb_substr($log, round(mb_strlen($log, 'UTF-8')/2), NULL, 'UTF-8');
-                fajlba_mentes($log_utvonal, $log);
-            }
+'.$adatok/*Sortörésekkel mentsük a logba*/;
+        andoc_logolas($log);
     }
     
     $soap = new SoapClient($url_elotag.$wsdl_fajl,
@@ -92,30 +88,25 @@ URL: '.get_http().$_SERVER['HTTP_HOST'].$_SERVER['REQUEST_URI'].'
                 $xml = '***Üres XML-t kaptunk!***';
             }
             
-            $log = '*****************************
-    FOGADOTT XML
-    '.date('Y.m.d H:i:s').'
-    Ip: '.$_SERVER['REMOTE_ADDR'].'
-    URL: '.get_http().$_SERVER['HTTP_HOST'].$_SERVER['REQUEST_URI'].'
-    POST:
-    '.str_replace("><", ">\n<", $xml)/*Sortörésekkel mentsük a logba*/.'
+            $log = '
 
 
-
-';
-            file_put_contents($log_utvonal, $log, FILE_APPEND | LOCK_EX);
-            if( filesize($log_utvonal)>(get_logfile_max_meret()) ){
-                $log = fajlbol_olvas($log_utvonal);
-                $log = mb_substr($log, round(mb_strlen($log, 'UTF-8')/2), NULL, 'UTF-8');
-                fajlba_mentes($log_utvonal, $log);
-            }
+*****************************
+FOGADOTT XML
+'.date('Y.m.d H:i:s').'
+Ip: '.$_SERVER['REMOTE_ADDR'].'
+URL: '.get_http().$_SERVER['HTTP_HOST'].$_SERVER['REQUEST_URI'].'
+POST:
+'.str_replace("><", ">\n<", $xml)/*Sortörésekkel mentsük a logba*/;
+            // Logolás
+            andoc_logolas($log);
 
             $xml = trim( str_replace('<?xml version="1.0" encoding="utf-8"?>', '', $xml) );
 
             $soap -> SzamlaAdatokImport( $xml );
             
-            // Webservicenek így adjunk át hibát vagy sikeres üzenetet
-            echo '<xml><result>OK</result><error /></xml>';
+            // Ez egy XML-t ír ki arról, hogy minden OK
+            andoc_valasz_siker();
            
         }
 
@@ -142,30 +133,25 @@ URL: '.get_http().$_SERVER['HTTP_HOST'].$_SERVER['REQUEST_URI'].'
             if( !$xml ) {
                 $xml = '***Üres XML-t kaptunk!***';
             }
-            $log = '*****************************
-    FOGADOTT XML
-    '.date('Y.m.d H:i:s').'
-    Ip: '.$_SERVER['REMOTE_ADDR'].'
-    URL: '.get_http().$_SERVER['HTTP_HOST'].$_SERVER['REQUEST_URI'].'
-    POST:
-    '.str_replace("><", ">\n<", $xml)/*Sortörésekkel mentsük a logba*/.'
+            $log = '
 
 
-
-';
-            file_put_contents($log_utvonal, $log, FILE_APPEND | LOCK_EX);
-            if( filesize($log_utvonal)>(get_logfile_max_meret()) ){
-                $log = fajlbol_olvas($log_utvonal);
-                $log = mb_substr($log, round(mb_strlen($log, 'UTF-8')/2), NULL, 'UTF-8');
-                fajlba_mentes($log_utvonal, $log);
-            }
+*****************************
+FOGADOTT XML
+'.date('Y.m.d H:i:s').'
+Ip: '.$_SERVER['REMOTE_ADDR'].'
+URL: '.get_http().$_SERVER['HTTP_HOST'].$_SERVER['REQUEST_URI'].'
+POST:
+'.str_replace("><", ">\n<", $xml)/*Sortörésekkel mentsük a logba*/;
+            // Logolás
+            andoc_logolas($log);
             
             $xml = trim( str_replace('<?xml version="1.0" encoding="utf-8" ?>', '', $xml) );
 
             $soap -> SzerzodesAdatokImport( $xml );    
             
-            // Webservicenek így adjunk át hibát vagy sikeres üzenetet
-            echo '<xml><result>OK</result><error /></xml>';
+            // Ez egy XML-t ír ki arról, hogy minden OK
+            andoc_valasz_siker();
             
         }
 
@@ -192,23 +178,18 @@ URL: '.get_http().$_SERVER['HTTP_HOST'].$_SERVER['REQUEST_URI'].'
             if( !$xml ) {
                 $xml = '***Üres XML-t kaptunk!***';
             }
-            $log = '*****************************
-    FOGADOTT XML
-    '.date('Y.m.d H:i:s').'
-    Ip: '.$_SERVER['REMOTE_ADDR'].'
-    URL: '.get_http().$_SERVER['HTTP_HOST'].$_SERVER['REQUEST_URI'].'
-    POST:
-    '.str_replace("><", ">\n<", $xml)/*Sortörésekkel mentsük a logba*/.'
+            $log = '
 
 
-
-';
-            file_put_contents($log_utvonal, $log, FILE_APPEND | LOCK_EX);
-            if( filesize($log_utvonal)>(get_logfile_max_meret()) ){
-                $log = fajlbol_olvas($log_utvonal);
-                $log = mb_substr($log, round(mb_strlen($log, 'UTF-8')/2), NULL, 'UTF-8');
-                fajlba_mentes($log_utvonal, $log);
-            }
+*****************************
+FOGADOTT XML
+'.date('Y.m.d H:i:s').'
+Ip: '.$_SERVER['REMOTE_ADDR'].'
+URL: '.get_http().$_SERVER['HTTP_HOST'].$_SERVER['REQUEST_URI'].'
+POST:
+'.str_replace("><", ">\n<", $xml)/*Sortörésekkel mentsük a logba*/;
+            // Logolás
+            andoc_logolas($log);
             
             $xml = trim( str_replace('<?xml version="1.0" encoding="utf-8" ?>', '', $xml) );
             $soap -> KoltsegnemAdatokImport( $xml );    
@@ -237,23 +218,18 @@ URL: '.get_http().$_SERVER['HTTP_HOST'].$_SERVER['REQUEST_URI'].'
             if( !$xml ) {
                 $xml = '***Üres XML-t kaptunk!***';
             }
-            $log = '*****************************
-    FOGADOTT XML
-    '.date('Y.m.d H:i:s').'
-    Ip: '.$_SERVER['REMOTE_ADDR'].'
-    URL: '.get_http().$_SERVER['HTTP_HOST'].$_SERVER['REQUEST_URI'].'
-    POST:
-    '.str_replace("><", ">\n<", $xml)/*Sortörésekkel mentsük a logba*/.'
+            $log = '
 
 
-
-';
-            file_put_contents($log_utvonal, $log, FILE_APPEND | LOCK_EX);
-            if( filesize($log_utvonal)>(get_logfile_max_meret()) ){
-                $log = fajlbol_olvas($log_utvonal);
-                $log = mb_substr($log, round(mb_strlen($log, 'UTF-8')/2), NULL, 'UTF-8');
-                fajlba_mentes($log_utvonal, $log);
-            }
+*****************************
+FOGADOTT XML
+'.date('Y.m.d H:i:s').'
+Ip: '.$_SERVER['REMOTE_ADDR'].'
+URL: '.get_http().$_SERVER['HTTP_HOST'].$_SERVER['REQUEST_URI'].'
+POST:
+'.str_replace("><", ">\n<", $xml)/*Sortörésekkel mentsük a logba*/;
+            // Logolás
+            andoc_logolas($log);
             
             $xml = trim( str_replace('<?xml version="1.0" encoding="utf-8" ?>', '', $xml) );
             $soap -> KoltseghelyAdatokImport( $xml );    
@@ -282,23 +258,18 @@ URL: '.get_http().$_SERVER['HTTP_HOST'].$_SERVER['REQUEST_URI'].'
             if( !$xml ) {
                 $xml = '***Üres XML-t kaptunk!***';
             }
-            $log = '*****************************
-    FOGADOTT XML
-    '.date('Y.m.d H:i:s').'
-    Ip: '.$_SERVER['REMOTE_ADDR'].'
-    URL: '.get_http().$_SERVER['HTTP_HOST'].$_SERVER['REQUEST_URI'].'
-    POST:
-    '.str_replace("><", ">\n<", $xml)/*Sortörésekkel mentsük a logba*/.'
+            $log = '
 
 
-
-';
-            file_put_contents($log_utvonal, $log, FILE_APPEND | LOCK_EX);
-            if( filesize($log_utvonal)>(get_logfile_max_meret()) ){
-                $log = fajlbol_olvas($log_utvonal);
-                $log = mb_substr($log, round(mb_strlen($log, 'UTF-8')/2), NULL, 'UTF-8');
-                fajlba_mentes($log_utvonal, $log);
-            }
+*****************************
+FOGADOTT XML
+'.date('Y.m.d H:i:s').'
+Ip: '.$_SERVER['REMOTE_ADDR'].'
+URL: '.get_http().$_SERVER['HTTP_HOST'].$_SERVER['REQUEST_URI'].'
+POST:
+'.str_replace("><", ">\n<", $xml)/*Sortörésekkel mentsük a logba*/;
+            // Logolás
+            andoc_logolas($log);
             
             $xml = trim( str_replace('<?xml version="1.0" encoding="utf-8" ?>', '', $xml) );
             $soap -> SzallitoAdatokImport( $xml );    
@@ -306,5 +277,55 @@ URL: '.get_http().$_SERVER['HTTP_HOST'].$_SERVER['REQUEST_URI'].'
 
     }
 } catch (SoapFault $e) {
-    echo '<xml><result>ERROR</result><error>'.$e->getMessage().'</error></xml>';
+    $log = '<xml><result>ERROR</result><error>'.$e->getMessage().'</error></xml>';
+    echo $log;
+    
+    // Hibaüzenetet is logoljuk el
+    andoc_logolas('
+-----------------------------
+Válaszunk Andoc felé:
+'.$log.'
+');
+}
+
+// Sikeres feldolgozás esetén ez a választ küldjük el + ezt is logoljuk
+function andoc_valasz_siker() {
+    $log = '<xml><result>OK</result><error /></xml>';
+    echo $log;
+    andoc_logolas('
+-----------------------------
+Válaszunk Andoc felé:
+'.$log.'
+');
+}
+
+// Andoc logololás, illetve annak archiválása
+function andoc_logolas($log) {
+    
+    global $konyvtar;
+    global $log_utvonal;
+    global $log_torolve;
+    
+    file_put_contents($log_utvonal, $log, FILE_APPEND | LOCK_EX);
+    if( filesize($log_utvonal) > (get_logfile_max_meret_andoc()) ) {
+        $uj_fajl = $konyvtar.'andoc'.date('Ymd').'.log';
+        while ( is_file($uj_fajl) ) {
+            $uj_fajl = fajlnev_sorszamoz($uj_fajl);
+        }
+        copy($log_utvonal, $uj_fajl);
+        unlink($log_utvonal);
+    }
+    
+    // Egy évnél korábbi fájlok törlése, de csak naponta egyszer
+    $lefutott = fajlbol_olvas($log_torolve);
+    if( $lefutott < date('Y-m-d H:i:s', time()-60*60*24) ) {
+        unlink($log_torolve); // Azért kell előbb törölni, mert csak úgy beleírni újra valami miatt nem lehetett
+        fajlba_mentes($log_torolve, date('Y-m-d H:i:s'));
+        $logok = konyvtar_bejar($konyvtar);
+        foreach ( $logok as $log ) {
+            if( filemtime($log) < time()-get_logfile_max_elet_andoc() ) {
+                unlink($log);
+            }
+        }
+    }
 }
