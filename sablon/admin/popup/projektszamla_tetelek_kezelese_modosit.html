@@ -1,7 +1,8 @@
-<h2>Számla tételek kezelése</h2>
+<h2 id="popup_title">Számla tételek kezelése</h2>
 
-<div class="kozep" style="min-height: 40rem">
-    
+<div class="kozep" style="min-height: 40rem; min-width: 55rem">
+    <div id="ajax_css"></div>
+
     <div class="grid2o" style="width: 28rem">
         <div class="b">Számla összege:</div>
         <div class="b r"><span id="pop_szamla_netto"></span></div>
@@ -10,100 +11,105 @@
         <div class="b">Különbség:</div>
         <div class="b r"><span id="pop_kulonbseg"></span></div>
     </div>
-    
-    <br>Tárgy:
-    <br><input type="text" id="pop_targy" class="oriasi csillag">
-    <br>Nettó érték:
-    <br><input type="text" id="pop_ertek" class="f_num csillag" data-tort="0"> <span class="f_penznem"></span>
-    <br>Bruttó érték:
-    <br><input type="text" id="pop_brutto" class="f_num csillag" data-tort="0"> <span class="f_penznem"></span>
-    <br>Áfa:
-    <br>
-    <input type="text" autocomplete="off" class="oriasi disableNav csillag" id="afakod_id_autocomp" name="afakod_id_autocomp" onblur="if(!$(this).val()){ $('#afakod_id').val(''); }">
-    <input type="hidden" name="afakod_id" id="afakod_id">
-    <script>
-        $(document).ready(function() {
-            $('#afakod_id_autocomp').autocomplete({
-                'php_fajl'      : '../autocomplete.php',
-                'tabla'         : 'afakod',
-                'oszlop_keres'  : 'nev',
-                'oszlop_listaz' : 'nev',
-                'id_kiir'       : 'recid'
+    <div id="popup_inputok" class="dn">
+        <br>Tárgy:
+        <br><input type="text" id="pop_targy" class="oriasi csillag">
+        <br>Nettó érték:
+        <br><input type="text" id="pop_ertek" class="f_num csillag" data-tort="0"> <span class="f_penznem"></span>
+        <br>Bruttó érték:
+        <br><input type="text" id="pop_brutto" class="f_num csillag" data-tort="0"> <span class="f_penznem"></span>
+        <br>Áfa:
+        <br>
+        <input type="text" autocomplete="off" class="oriasi disableNav csillag" id="afakod_id_autocomp" name="afakod_id_autocomp" onblur="if(!$(this).val()){ $('#afakod_id').val(''); }">
+        <input type="hidden" name="afakod_id" id="afakod_id">
+        <script>
+            $(document).ready(function() {
+                $('#afakod_id_autocomp').autocomplete({
+                    'php_fajl'      : '../autocomplete.php',
+                    'tabla'         : 'afakod',
+                    'oszlop_keres'  : 'nev',
+                    'oszlop_listaz' : 'nev',
+                    'id_kiir'       : 'recid'
+                });
             });
-        });
-    </script>
-    <br>Jogcím:
-    <br>
-    <input type="text" autocomplete="off" class="oriasi disableNav csillag" id="jogcim_id_autocomp" name="jogcim_id_autocomp" onblur="if(!$(this).val()){ $('#jogcim_id').val(''); }">
-    <input type="hidden" name="jogcim_id" id="jogcim_id">
-    <script>
-        function ktgnem_ktghely_kitolt() {
-            $.ajax({
-                url : 'projektszamla.php',
-                type: 'POST',
-                data: {
-                    jogcim_recid            : $('#jogcim_id').val(),
-                    ktgnem_ktghely_kitolt   : Date.now()
-                },
-                success: function(response){
-                    if(response){
-                        response = JSON.parse(response);
-                        if(response.hiba){
-                            alert2(response.hiba, response.gomb, response.title);
-                            return false;
+        </script>
+        <br>Jogcím:
+        <br>
+        <input type="text" autocomplete="off" class="oriasi disableNav csillag" id="jogcim_id_autocomp" name="jogcim_id_autocomp" onblur="if(!$(this).val()){ $('#jogcim_id').val(''); }">
+        <input type="hidden" name="jogcim_id" id="jogcim_id">
+        <script>
+            function ktgnem_ktghely_kitolt() {
+                $.ajax({
+                    url : 'projektszamla.php',
+                    type: 'POST',
+                    data: {
+                        jogcim_recid            : $('#jogcim_id').val(),
+                        ktgnem_ktghely_kitolt   : Date.now()
+                    },
+                    success: function(response){
+                        if(response){
+                            response = JSON.parse(response);
+                            if(response.hiba){
+                                alert2(response.hiba, response.gomb, response.title);
+                                return false;
+                            }
+                            $('#ktgnem_id_autocomp').val(response.ktgnem);
+                            $('#ktgnem_id').val(response.ktgnem_id);
                         }
-                        $('#ktgnem_id_autocomp').val(response.ktgnem);
-                        $('#ktgnem_id').val(response.ktgnem_id);
+                    },
+                    complete: function(xhr) {
+                        if( xhr.status != 200 ) {
+                            alert2(xhr.responseText, '', 'Hiba');
+                        }
                     }
-                },
-                complete: function(xhr) {
-                    if( xhr.status != 200 ) {
-                        alert2(xhr.responseText, '', 'Hiba');
-                    }
-                }
+                });
+            }
+            $(document).ready(function() {
+                $('#jogcim_id_autocomp').autocomplete({
+                    'php_fajl'      : '../autocomplete.php',
+                    'tabla'         : 'jogcim',
+                    'oszlop_keres'  : 'jogcim, szla_szam',
+                    'oszlop_listaz' : 'jogcim, szla_szam',
+                    'id_kiir'       : 'recid',
+                    'jogcim_ktghely': '0000',
+                    'complete'      : function() { ktgnem_ktghely_kitolt(); }
+                });
             });
-        }
-        $(document).ready(function() {
-            $('#jogcim_id_autocomp').autocomplete({
-                'php_fajl'      : '../autocomplete.php',
-                'tabla'         : 'jogcim',
-                'oszlop_keres'  : 'jogcim, szla_szam',
-                'oszlop_listaz' : 'jogcim, szla_szam',
-                'id_kiir'       : 'recid',
-                'jogcim_ktghely': '0000',
-                'complete'      : function() { ktgnem_ktghely_kitolt(); }
+        </script>
+        <br>Főkönyvi számlaszám:
+        <br>
+        <input type="text" autocomplete="off" class="oriasi disableNav" id="ktgnem_id_autocomp" disabled name="ktgnem_id_autocomp" onblur="if(!$(this).val()){ $('#ktgnem_id').val(''); }">
+        <input type="hidden" name="ktgnem_id" id="ktgnem_id">
+        <script>
+            $(document).ready(function() {
+                $('#ktgnem_id_autocomp').autocomplete({
+                    'php_fajl'      : '../autocomplete.php',
+                    'tabla'         : 'ktgnem',
+                    'oszlop_keres'  : 'nev',
+                    'oszlop_listaz' : 'nev',
+                    'id_kiir'       : 'id'
+                });
             });
-        });
-    </script>
-    <br>Főkönyvi számlaszám:
-    <br>
-    <input type="text" autocomplete="off" class="oriasi disableNav" id="ktgnem_id_autocomp" disabled name="ktgnem_id_autocomp" onblur="if(!$(this).val()){ $('#ktgnem_id').val(''); }">
-    <input type="hidden" name="ktgnem_id" id="ktgnem_id">
-    <script>
-        $(document).ready(function() {
-            $('#ktgnem_id_autocomp').autocomplete({
-                'php_fajl'      : '../autocomplete.php',
-                'tabla'         : 'ktgnem',
-                'oszlop_keres'  : 'nev',
-                'oszlop_listaz' : 'nev',
-                'id_kiir'       : 'id'
-            });
-        });
-    </script>
-    <input type="hidden" name="tetel_sor_id" id="tetel_sor_id">
-    
-    <br><input type="button" id="hozzaad_gomb" class="gomb" value="Új tétel hozzáadása" style="margin-top: 0.3rem" onclick="tetel_hozzaadasa()">
-    
+        </script>
+        <input type="hidden" name="tetel_sor_id" id="tetel_sor_id">
+
+        <br><input type="button" id="hozzaad_gomb" class="gomb" value="Új tétel hozzáadása" style="margin-top: 0.3rem" onclick="tetel_hozzaadasa()">
+    </div>
     <form action="" enctype="multipart/form-data" method="" id="popup_tetel_sorok">
         <table class="csikos kijCont dn" id="pop_tetelek" style="cursor: default;">
             <thead>
             <tr>
-                <th>Tárgy</th>
-                <th>Nettó érték (<span class="f_penznem"></span>)</th>
-                <th>Bruttó érték (<span class="f_penznem"></span>)</th>
-                <th>Jogcím</th>
-                <th>Főkönyvi számlaszám</th>
-                <th>Szerződés tétel</th>
+                <th class="l alapbol_rejt jogcim_szeles">Jogcím</th>
+                <th class="alapbol_rejt">Főkönyvi számlaszám</th>
+                <th class="alapbol_rejt">Költséghely</th>
+                <th class="eltereskor_rejt">Tárgy</th>
+                <th class="r">Nettó érték</th>
+                <th class="r">Bruttó érték</th>
+                <th class="r alapbol_rejt deviza_rejt">Deviza nettó (<span class="f_penznem"></span>)</th>
+                <th class="r alapbol_rejt deviza_rejt">Deviza bruttó (<span class="f_penznem"></span>)</th>
+                <th class="l eltereskor_rejt">Jogcím</th>
+                <th class="c eltereskor_rejt">Főkönyvi számlaszám</th>
+                <th class="eltereskor_rejt">Szerződés tétel</th>
                 <th>Törlés</th>
             </tr>
             </thead>
@@ -115,14 +121,24 @@
     
 </div>
 <div class="kuldes">
-    <input type="button" class="gomb zold dn pop_mentes_megsem" value="Mentés" onclick="tetel_sorok_ment('bezárás nélkül')">
-    <input type="button" class="gomb kek dn pop_mentes_megsem" value="Mégsem" onclick="megsem_gomb();">
-<!--    <input type="button" class="gomb piros escapes_megsem" value="Bezár" onclick="bezar_gomb();">-->
+    <input type="button" class="gomb zold dn pop_mentes_megsem" value="Mentés" onclick="tetel_sorok_ment()">
+    <input type="button" class="gomb piros dn pop_mentes_megsem" value="Mégsem" onclick="bezar_gomb();">
 </div>
 <script>
+$(document).ready(function(){
+    if( tetelek_szama_elter ) {
+        $('#popup_title').html('Könyvelés tételek kezelése');
+        $('#konyveles_tetel_txt').html('Könyvelés tételek nettó érték:');
+    }
+});
 var akt_penznem = $('#kcs_21_autocomp').val();
 if( !akt_penznem ) {
     akt_penznem = $('#kcs_21_autocomp_db').val();
+}
+
+var tizedes = 0;
+if( akt_penznem && akt_penznem != 'HUF' ) {
+    var tizedes = 2;
 }
 
 var kcs_21 = $('#kcs_21').val();
@@ -166,6 +182,11 @@ $(document).ready(function () {
     $('.f_penznem').each(function () {
         $(this).replaceWith(akt_penznem);
     });
+    
+    if( akt_penznem && akt_penznem == 'HUF' ) {
+        $('.deviza_rejt').hide();
+    }
+    
     if( akt_penznem && akt_penznem != 'HUF' ) {
         $('#pop_ertek').attr('data-tort', '2');
         $('#pop_brutto').attr('data-tort', '2');
@@ -226,15 +247,15 @@ function tetel_hozzaadasa() {
 
     var table_sor = '<tr class="pop_tetel_'+id_tmp+'">' +
                         '<td class="pop_targy l">' + targy + '</td>' +
-                        '<td class="pop_netto_ert r">' + ertek + '</td>' +
-                        '<td class="pop_brutto_ert r">' + brutto + '</td>' +
+                        '<td class="pop_netto r nowrap">' + ertek + '</td>' +
+                        '<td class="pop_brutto r nowrap">' + brutto + '</td>' +
                         '<td class="pop_jogcim_txt l">' + jogcim_txt + '</td>' +
                         '<td class="l pop_ktgnem_autocomp">'+ktgnem_txt+'</td>' +
                         '<td></td>' + 
                         /*'<td><a class="szerk" onclick="popup_tetel_sor_szerk(\'pop_tetel_'+id_tmp+'\');">🖉</a></td>' +*/
                         '<td><a onclick="popup_tetel_sor_torol(\'pop_tetel_'+id_tmp+'\');"><span class="icon"><i class="material-icons">delete</i></span></a>'+
                             '<input type="hidden" class="pop_afakod_autocomp" name="pop_afakod_autocomp" value="'+afakod_txt+'">' +
-                            '<input type="hidden" class="pop_afakod" name="pop_afakod_id" value="'+afakod_id+'">' +
+                            '<input type="hidden" class="pop_afa" name="pop_afakod_id" value="'+afakod_id+'">' +
                             '<input type="hidden" class="pop_jogcim_autocomp" name="pop_jogcim_autocomp" value="'+jogcim_txt+'">' +
                             '<input type="hidden" class="pop_jogcim" name="pop_jogcim_id" value="'+jogcim_id+'">' +
                             '<input type="hidden" class="pop_valtozott" value="1">' +               
@@ -276,7 +297,7 @@ function popup_tetel_sor_torol(sor_id, mehet){
     $('.'+sor_id).addClass('torles_elott');
     if(!mehet){
         alert2( 'Tárgy: '        + $('.'+sor_id+' .pop_targy')   .html() +'<br>' +
-                'Nettó érték: '  + $('.'+sor_id+' .pop_netto_ert').html() +' ' + akt_penznem + '<br>' +
+                'Nettó érték: '  + $('.'+sor_id+' .pop_netto').html() +' ' + akt_penznem + '<br>' +
                 'Biztosan törli a számla tételt?', '<input type="button" class="gomb zold" value="Igen" onclick="popup_tetel_sor_torol(\''+sor_id+'\', \'mehet\'); alert2();"><input type="button" class="gomb piros escapes_megsem" value="Nem" onclick="alert2(); $(\'.torles_elott\').removeClass(\'torles_elott\');">');
         return false;
     }
@@ -299,31 +320,39 @@ function popup_tetel_sor_torol(sor_id, mehet){
 }
 
 /* Tétel sor táblázat mentése */
-function tetel_sorok_ment( bezar_nelkul ){
+function tetel_sorok_ment(mehet){
     
     var recidk = [];
     $('.pop_recid').each(function() {
-        recidk.push( $(this).html() );
+        recidk.push( $(this).val() );
     });
     var targyak = [];
     $('.pop_targy').each(function() {
         targyak.push( $(this).html().replace(/"/g, '{IDEZOJEL}') );
     });
     var netto_ert = [];
-    $('.pop_netto_ert').each(function() {
+    var netto_mezo  = 'pop_netto';
+    var brutto_mezo = 'pop_brutto';
+    /* Ha az eltérő tételszám miatt vagyunk ezen a popuppn, és egy devizás számláról van szó, akkor a nettó/bruttó mezők a pop_dev_net/pop_dev_br tag-ekben lesz
+     * Normál popup esetén ezzel nem kell foglalkozni, mert ott csak simán egy nettó oszlop van, abban a HUF ha HUF-os a számla és a deviza nettója, ha devizás a számla */
+    if( tetelek_szama_elter && akt_penznem && akt_penznem != 'HUF' ) {
+        netto_mezo  = 'pop_dev_net';
+        brutto_mezo = 'pop_dev_br';
+    }
+    $('.'+netto_mezo).each(function() {
         netto_ert.push( $(this).html().replace(/,/g, '.') );
     });
     var brutto_ert = [];
-    $('.pop_brutto_ert').each(function() {
+    $('.'+brutto_mezo).each(function() {
         brutto_ert.push( $(this).html().replace(/,/g, '.') );
     });
-    var afakodok = [];
-    $('.pop_afakod').each(function() {
-        afakodok.push( $(this).val() );
+    var afak = [];
+    $('.pop_afa').each(function() {
+        afak.push( json_spec_karakterek($(this).val()) );
     });
     var jogcimek = [];
     $('.pop_jogcim').each(function() {
-        jogcimek.push( $(this).val() );
+        jogcimek.push( json_spec_karakterek($(this).val()) );
     });
     var valtozott = [];
     $('.pop_valtozott').each(function() {
@@ -333,16 +362,26 @@ function tetel_sorok_ment( bezar_nelkul ){
     $('.pop_szerzodes_recid').each(function() {
         szerzodes_recid.push( $(this).val() );
     });
+    var pipalo = [];
+    $('.pop_pipalo').each(function() {
+        if( $(this).hasClass('zold') ) {
+            pipalo.push( '1' );
+        } else {
+            pipalo.push( '0' );
+            torolt_sorok += 'pop_tetel_'+$(this).attr('id').replace('pipa_', '');
+        }
+    });
     
     var adatok = [
                     ['recidk',          recidk],
                     ['targyak',         targyak],
                     ['netto_ert',       netto_ert],
                     ['brutto_ert',      brutto_ert],
-                    ['afakodok',        afakodok],
+                    ['afak',            afak],
                     ['jogcimek',        jogcimek],
                     ['valtozott',       valtozott],
-                    ['szerzodes_recid', szerzodes_recid]
+                    ['szerzodes_recid', szerzodes_recid],
+                    ['pipalo',          pipalo]
                 ];
     
     /* A számla nettó értéke az Adatlapon található mező értéke 
@@ -353,6 +392,7 @@ function tetel_sorok_ment( bezar_nelkul ){
         osszeg_mezo     = 'dev_net';
         br_osszeg_mezo  = 'dev_br';
     }
+    
     var szamla_netto_erteke = '';
     if( $('#'+osszeg_mezo).length ){
         szamla_netto_erteke = $('#'+osszeg_mezo).val();
@@ -377,9 +417,11 @@ function tetel_sorok_ment( bezar_nelkul ){
             torolt_sorok        : torolt_sorok,
             szamla_netto_erteke : szamla_netto_erteke,
             szamla_brutto_erteke: szamla_brutto_erteke,
+            mehet               : mehet,
             tetel_sorok_ment    : Date.now()
         },
         success: function(response) {
+
             if(response.substring(0, 6)=='SESKIL'){ location.href = 'index.php'; }
             if( response ) {
                 response = JSON.parse(response);
@@ -394,9 +436,9 @@ function tetel_sorok_ment( bezar_nelkul ){
                     if( ( !_get('modosit') && !_get('uj') ) || tetelek_szama_elter /* PHP-ban a Mentés/Mégsem gomboknál van beállítva */ ){
                         szamlaBetolt(_get('id'), 'projektszamla.php');
                     }
-                    
                     popupZar();
-                    $('#ossz_'+osszeg_mezo).val( response.netto );
+                    $('#ossz_'+osszeg_mezo   ).val( response.netto );
+                    $('#ossz_'+br_osszeg_mezo).val( response.brutto );
 
                 }
             }
@@ -412,6 +454,11 @@ function tetel_sorok_ment( bezar_nelkul ){
 
 /* Ha van SESSION-ban adatunk, akkor abból töltsük fel a sorokat */
 function pop_tetelek_feltolt(){
+    
+    var andoc_id = '';
+    if( _get('andoc_id') ) {
+        andoc_id = _get('andoc_id');
+    }
     
     /* Nettó érték mező aktuális tartalma */
     if( $('#netto').length ) {
@@ -446,6 +493,7 @@ function pop_tetelek_feltolt(){
         type: 'POST',
         data: {
             id                          : _get('id'),
+            andoc_id                    : andoc_id,
             sz_szam                     : sz_szam,
             netto                       : netto,
             dev_net                     : dev_net,
@@ -457,23 +505,32 @@ function pop_tetelek_feltolt(){
             if( response ) {
                 response = JSON.parse(response);
                 
-                if(response.hiba){
+                if( response.hiba ) {
                     alert2(response.hiba, response.gomb, response.title);
-                    if( response.focus ){
+                    if( response.focus ) {
                         $('#'+response.focus).addClass('hibas_ide_focus');
                     }
                     popupZar();
                     return false;
                 }
                 
-                if(response.html){
+                if( response.html ) {
                     $('#pop_tetelek tbody').append(response.html);
                     $('#pop_tetelek').removeClass('dn');
                 }
-                if(response.pr_tetelek){
+                if( response.pr_tetelek ) {
                     $('#projekt_tetelek').html(response.pr_tetelek);
                 }
+                
+                if( response.input_mutat ) {
+                    $('#popup_inputok').removeClass('dn');
+                } else {
+                    $('.pop_mentes_megsem').removeClass('dn');
+                    $('#pop_torles_pipa').html('Pipa');
+                }
+                
                 tetelek_kiszamol();
+                $('#ajax_css').html(response.css);
             }
         },
         complete: function(xhr) {
@@ -501,20 +558,23 @@ function tetelek_kiszamol() {
     } else {
         szamla_netto_erte = $('#'+osszeg_mezo+'_db').val().replace(/ /g, '').replace(/,/g, '.');
     }
-    $('#pop_szamla_netto').html( ezresek(szamla_netto_erte, tizedesek, ',', ' ')+' '+akt_penznem );
+    $('#pop_szamla_netto').html( ezresek(szamla_netto_erte, tizedesek, ',', ' ', '-nullát is írd ki-')+' '+akt_penznem );
     
     tetelek_ossz = 0;
-    $('.pop_netto_ert').each(function() {
-        tetelek_ossz += Number( $(this).html().replace(/ /g, '').replace(/,/g, '.') );
+    $('.pop_netto').each(function() {
+        pipalo = $(this).parent().find('.pop_pipalo');
+        if( pipalo.hasClass('zold') || !tetelek_szama_elter ) {
+            tetelek_ossz += Number( $(this).html().replace(/ /g, '').replace(/,/g, '.') );
+        }
     });
     kulonbseg = Number(szamla_netto_erte) - Number(tetelek_ossz);
 
-    kulonbseg = ezresek( kulonbseg, tizedesek, ',', ' ' );
+    kulonbseg = ezresek( kulonbseg, tizedesek, ',', ' ', '-nullát is írd ki-' );
     if( !kulonbseg ) {
         kulonbseg = '0';
     }
     
-    tetelek_ossz = ezresek(tetelek_ossz, tizedesek, ',', ' ');
+    tetelek_ossz = ezresek(tetelek_ossz, tizedesek, ',', ' ', '-nullát is írd ki-');
     if( !tetelek_ossz ) {
         tetelek_ossz = '0';
     }
@@ -553,7 +613,6 @@ function kapcsolas_popup_nyit( recid ) {
         });
     }
     
-    
 }
 
 
@@ -583,5 +642,15 @@ function bezar_gomb( mehet ) {
          * szamlaBetolt(_get('id'), 'projektszamla.php', 'modosit');*/
     }
     
+}
+
+/* Eltérő tételszám esetén a sorok végén található pipa/X cserélése */
+function pipa_x_cserel(id) {
+    if( $('#pipa_'+id).hasClass('piros') ) {
+        $('#pipa_'+id).removeClass('piros').addClass('zold').html('✓');
+    } else {
+        $('#pipa_'+id).removeClass('zold').addClass('piros').html('✖');
+    }
+    tetelek_kiszamol();
 }
 </script>

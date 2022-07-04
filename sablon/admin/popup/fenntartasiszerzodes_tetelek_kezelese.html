@@ -1,8 +1,16 @@
 <h2>Szerződés tételek kezelése</h2>
 
 <div class="kozep" style="min-height: 40rem">
-
-    Szálloda:
+    <div class="grid2o" style="width: 28rem">
+        <div class="b">Szerződés összege:</div>
+        <div class="b r"><span id="pop_szerz_ossz"></span></div>
+        <div class="b">Tételek összege:</div>
+        <div class="b r"><span id="pop_tetelek_ossz"></span></div>
+        <div class="b">Különbség:</div>
+        <div class="b r"><span id="pop_kulonbseg"></span></div>
+    </div>
+    
+    <br>Szálloda:
     <br>
     <select id="pop_telephely_id"></select>
     <br>Tárgy:
@@ -54,6 +62,31 @@ if( !akt_penznem ) {
 var kcs_21 = $('#kcs_21').val();
 if( !kcs_21 ) {
     kcs_21 = $('#kcs_21_db').val();
+}
+
+var netto = $('#netto').val();
+if( !netto && $('#netto_db').length ) {
+    netto = $('#netto_db').val();
+}
+
+var nullas = $('#nullas').prop('checked');
+if( !nullas && $('#nullas_db').length ) {
+    nullas = $('#nullas_db').val(); /* <= IGEN, itt már a val() kell, nem a prop() */
+}
+
+var kolt_vis = $('#kolt_vis').val();
+if( !kolt_vis && $('#kolt_vis_db').length ) {
+    kolt_vis = $('#kolt_vis_db').val();
+}
+
+if( (!netto || netto=='0') && nullas=='0' ) {
+    alert2('Kérem töltse ki a nettó értéket, vagy pipálja be, hogy Érték nélküli szerződés!');
+    setTimeout(function(){ popupZar(); }, 100);
+}
+
+if( !kolt_vis ) {
+    alert2('Kérem előbb töltse ki a költségviselőt!');
+    setTimeout(function(){ popupZar(); }, 100);
 }
 
 /* JS-el figyeljük, hogy volt-e bármi változás. Ha igen, akkor Mégsem/Bezár gombra rákérdezünk, hogy biztos-e? */
@@ -187,6 +220,8 @@ function tetel_hozzaadasa() {
     
     $('.pop_mentes_megsem').removeClass('dn');
     
+    tetelek_kiszamol();
+    
     /* A tétel sorokat csak Session-ba, kimentjük. DB-be még nem menethetünk csak, ha a Mentés gombra kattintottak. */
 
 }
@@ -208,6 +243,7 @@ function popup_tetel_sor_torol(sor_id, mehet){
     /* Sor törlése, újraszámolás */
     $('.'+sor_id).fadeOut('slow', function(){
         $('.'+sor_id).remove();
+        tetelek_kiszamol();
     });
     
     /* Popup mentésekor ez alapján töröljük ki majd a sort */
@@ -358,6 +394,7 @@ function pop_tetelek_feltolt(){
         data: {
             id                  : _get('id'),
             andoc_id            : andoc_id,
+            kolt_vis            : kolt_vis,
             pop_tetelek_feltolt : Date.now()
         },
         success: function(response) {
@@ -385,6 +422,7 @@ function pop_tetelek_feltolt(){
                     $('#pop_telephely_id').replaceWith(response.szalloda_select);
                     $('#pop_telephely_id').focus();
                 }
+                tetelek_kiszamol();
             }
         },
         complete: function(xhr) {
@@ -423,4 +461,43 @@ function bezar_gomb( mehet ) {
     }
     
 }
+
+/*  Tételek kiszámítása, lássuk hol járunk a szerződéses összeghez képest */
+function tetelek_kiszamol() {
+    
+    /* HUF esetén nem törtet írunk ki, deviza esetén viszont törtet + "Számla várh. értéke" mező is törté kell alakítani */
+    var osszeg_mezo = 'netto';
+    var tizedesek   = 0;
+    if( akt_penznem && akt_penznem != 'HUF' ) {
+        osszeg_mezo = 'dev_net';
+        tizedesek   = 2;
+        $('#pop_szla_varh_ert').attr('data-tort', '2');
+    }
+    
+    if( $('#'+osszeg_mezo).length ) {
+        szerzodes_osszege = $('#'+osszeg_mezo).val().replace(/ /g, '').replace(/,/g, '.');
+    }else{
+        szerzodes_osszege = $('#'+osszeg_mezo+'_db').val().replace(/ /g, '').replace(/,/g, '.');
+    }
+    
+    $('#pop_szerz_ossz').html( ezresek(szerzodes_osszege, tizedesek, ',', ' ', '-nullát is írd ki-')+' '+akt_penznem );
+    
+    tetelek_ossz = 0;
+    $('.pop_varh_ert').each(function() {
+        tetelek_ossz += Number( $(this).html().replace(/ /g, '').replace(/,/g, '.') );
+    });
+    $('#pop_tetelek_ossz').html( ezresek(tetelek_ossz, tizedesek, ',', ' ', '-nullát is írd ki-')+' '+akt_penznem );
+
+    kulonbseg = Number(szerzodes_osszege) - Number(tetelek_ossz);
+    if( !kulonbseg ) {
+        kulonbseg = '0';
+    }
+    $('#pop_kulonbseg').html( ezresek(kulonbseg, tizedesek, ',', ' ', '-nullát is írd ki-')+' '+akt_penznem );
+    $('#pop_kulonbseg').removeClass('piros');
+    if( kulonbseg!=0 && kulonbseg!='0,00' ) {
+        $('#pop_kulonbseg').addClass('piros');
+    }
+}
+
+
 </script>

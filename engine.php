@@ -141,6 +141,28 @@ function a_az($szo, $nagybetus = false){
     
 }
 
+/**
+ * Ajaxhoz hibaüzenet generáló
+ * @param  string $hiba     Hibaüzenet szövege
+ * @param  string $gomb     Ok gomb helyett egyedi gomb
+ * @return string $title    Alert2 title-ja
+ */
+function ajax_hiba($hiba, $gomb = '', $title = 'Hiba') {
+    
+    global $weblap;
+    
+    // Szándékosan nem return, mert csak így lehet a végén még Exit-elni is.
+    echo json_encode(
+                        array(
+                            'hiba'    => $hiba,
+                            'gomb'    => $gomb,
+                            'title'   => $title
+                        )
+                    );
+    $weblap -> leallit();
+    exit;
+}
+
 /** 
 * @desc Ha egy adatbázis kapcsolat egy oszlopából szeretnék egy tömbök készíteni, hogy azt be tudjuk járni vagy implode-olni
 * @param $adatb_tomb array: az adatbázis kapcsolattal lekérdezett összetett tömb

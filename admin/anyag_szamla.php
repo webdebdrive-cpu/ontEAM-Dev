@@ -24,10 +24,10 @@ $szamla_html = '';
 // Dokumentumok fülhöz kell majd
 $tobb_kep = true;
 if( $tobb_kep ) {
-    function get_tobbkep_darab()    { return 10;         } // Maximum hány kép tallózható be
-    function get_tobbkep_csakkep()  { return '.jpg,.png';} // Milyen kiterjesztéseket engedünk meg (ha mindenet, legyen üres)
-    function get_tobbkep_kepmeret() { return 10;         } // MB-ban
-    function get_tobbkep_oszlopnev(){                      // Melyik oszloppal kötjük össze a két táblát
+    function get_tobbkep_darab()    { return 10;    } // Maximum hány kép tallózható be
+    function get_tobbkep_csakkep()  { return '';    } // Milyen kiterjesztéseket engedünk meg (ha mindenet, legyen üres)
+    function get_tobbkep_kepmeret() { return 10;    } // MB-ban
+    function get_tobbkep_oszlopnev(){                 // Melyik oszloppal kötjük össze a két táblát
         global $megnevezes;
         return $megnevezes.'_id';
     }
@@ -290,7 +290,7 @@ if( isset($_POST['osszevon_targy_kitoltve_ell']) ) {
                                                                   array($_POST['id'],         $netto_ertek, $brutto_ertek, $dev_net_ertek, $dev_br_ertek, $tetel['ktgnem_id'], $tetel['jogcim'], $tetel['jogcim_recid'],  $tetel['uzemresz'], $tetel['megn'], $tetel['ktghely'], $tetel['ktghely_id'], $tetel['afa_kod'], $tetel['afakod_recid'], $tetel['afa_nev'], $tetel['afa'], $_SESSION[get_db_tabla().'user'],   'NOW()',        $_SESSION[get_db_tabla().'teljes_nev'],   $_SESSION[get_db_tabla().'teljes_nev']    )
                                 );
         if( $sql === false ) { $db_error = true; }
-        
+
         $tetel_xml .= '
             <row rownumberonpage="'.($i+1).'">
                 <property name="Sor megnevezése"><![CDATA['.urlencode(htmlspecialchars_decode($targyak[$i])).']]></property>
@@ -727,7 +727,7 @@ if( isset($_POST['pop_tetelek_feltolt']) ) {
         $tovabbi_oszlopok = $tovabbi_oszlopok2 = '';
         if( $szamla['tetel_elter'] ) {
             $tovabbi_oszlopok .= nl2('
-                                    <td class="l pop_jogcim_txt">'.$jogcim['jogcim'].'</td>                                    
+                                    <td class="l pop_jogcim_txt">'.$jogcim['jogcim'].'</td>
                                     <td>'.$_SESSION['anyag_szla_tetel_fokonyvi'][$i].'</td>
                                     <td>'.$_SESSION['anyag_szla_tetel_ktg_hely'][$i].'</td>
                                 ');
@@ -758,7 +758,7 @@ if( isset($_POST['pop_tetelek_feltolt']) ) {
             $tovabbi_oszlopok2 .= nl2('
                                     <td class="pop_netto r nowrap">'.$_SESSION[$session_mezo][$i].'</td>
                                     <td class="pop_brutto r nowrap">'.$_SESSION[$session_mezo_br][$i].'</td>
-                                    <td class="pop_jogcim_autocomp l">'.htmlspecialchars($jogcim['jogcim']).'</td>
+                                    <td class="pop_jogcim_autocomp l">'.$jogcim['jogcim'].'</td>
                                     <td class="pop_ktgnem_autocomp l">
                                         '.$jogcim['megn'].'
                                     </td>
@@ -802,7 +802,6 @@ if( isset($_POST['pop_tetelek_feltolt']) ) {
         'html'          => $html,
         'css'           => $css_kod,
         'input_mutat'   => $input_mutat,
-        'netto'         => number_format($szamla[$szamla_netto_mezo], $tizedesek, ',', ' '),
         ) );
     
     $weblap -> leallit();
@@ -922,7 +921,7 @@ if( isset($_POST['tetel_sorok_ment']) ) {
         $_POST['adatok'][$netto_ert_adat][1][$i] = str_replace(array(' ', ','), array('', '.'), $ertek);
         // Egy tétellel akkor kalkulálunk, ha nincs eltérés a tételek számában, vagy ha van, akkor a pipálója igaz
         if( !$szamla['tetel_elter'] || $_POST['adatok'][$pipalo_adat][1][$i] ) {
-            $tetelek_osszege += $_POST['adatok'][$netto_ert_adat] [1][$i];
+            $tetelek_osszege += $_POST['adatok'][$netto_ert_adat][1][$i];
         }
         $i++;
     }
@@ -978,13 +977,10 @@ if( isset($_POST['tetel_sorok_ment']) ) {
         exit();
                 
     // Ha a számla bruttó értéke nem egyenlő a tételek bruttó összegével, akkor hibaüzenet
-    } elseif( abs($tetelek_br_osszege - $szamla_brutto_erteke) > $kerekit ) {
-        $felirat = 'számla';
-        if( $szamla['tetel_elter'] ) {
-            $felirat = 'könyvelés';
-        }
+    // Ezt könyvelés tételeknél NEM kell ellenőrizni
+    } elseif( !$szamla['tetel_elter'] && abs($tetelek_br_osszege - $szamla_brutto_erteke) > $kerekit ) {
         echo json_encode( array( 
-                        'hiba'  => 'A '.$felirat.' tételeinek bruttó összege ('. number_format($tetelek_br_osszege, $tizedesek, ',', ' ').' '.$penznem.') nem egyezik meg a számla bruttó értékével ('.number_format($szamla_brutto_erteke, $tizedesek, ',', ' ').' '.$penznem.')!<br>Így nem menthető!',
+                        'hiba'  => 'A számla tételeinek bruttó összege ('. number_format($tetelek_br_osszege, $tizedesek, ',', ' ').' '.$penznem.') nem egyezik meg a számla bruttó értékével ('.number_format($szamla_brutto_erteke, $tizedesek, ',', ' ').' '.$penznem.')!<br>Így nem menthető!',
                         'title' => 'Hiba'
                         ) );
         $weblap->leallit();
@@ -992,25 +988,33 @@ if( isset($_POST['tetel_sorok_ment']) ) {
                 
     // Tételek kimentése Session-be
     } else {
-        $_SESSION['anyag_szla_tetel_recid']         = $_POST['adatok'][$recid_adat][1];
-        $_SESSION['anyag_szla_tetel_rndid']         = $_POST['adatok'][$rndid_adat][1];
-        $_SESSION['anyag_szla_tetel_rnd_recid']     = $_POST['adatok'][$rnd_recid_adat][1];
-        $_SESSION['anyag_szla_tetel_cikktorzs']     = str_replace('{IDEZOJEL}', '"', $_POST['adatok'][$cikktorzs_adat][1]);
-        $_SESSION['anyag_szla_tetel_szall_csz']     = str_replace('{IDEZOJEL}', '"', $_POST['adatok'][$szall_csz_adat][1]);
-        $_SESSION['anyag_szla_tetel_cikktorzs_id']  = $_POST['adatok'][$cikktorzs_id_adat][1];
-        $_SESSION['anyag_szla_tetel_rndmen']        = $_POST['adatok'][$rndmen_adat][1];
-        $_SESSION['anyag_szla_tetel_rndear']        = $_POST['adatok'][$rndear_adat][1];
-        $_SESSION['anyag_szla_tetel_cikkmee']       = $_POST['adatok'][$cikkmee_adat][1];
-        if( $devizas ) {
-            $_SESSION['anyag_szla_tetel_dev_net'] = str_replace(',', '.', $_POST['adatok'][$netto_ert_adat][1]);
-            $_SESSION['anyag_szla_tetel_dev_br']  = str_replace(',', '.', $_POST['adatok'][$brutto_ert_adat][1]);
-        } else {
-            $_SESSION['anyag_szla_tetel_netto_ert']  = str_replace(',', '.', $_POST['adatok'][$netto_ert_adat][1]);
-            $_SESSION['anyag_szla_tetel_brutto_ert'] = str_replace(',', '.', $_POST['adatok'][$brutto_ert_adat][1]);
+        
+        // Ha nem ismert a recid, akkor új feltöltésről van szó, ekkor a session neveknél kicsit más megnevezést használunk
+        // hogy még véletlen se keveredjen pl. másik tabon megnyitott számla tételek szereksztésével voltak gondok, azt mentette be az újhoz
+        $kieg = '';
+        if( !$recid ) {
+            $kieg = '_uj';
         }
-        $_SESSION['anyag_szla_tetel_afakod']    = $_POST['adatok'][$afa_adat][1];
-        $_SESSION['anyag_szla_tetel_jogcim']    = $_POST['adatok'][$jogcim_adat][1];
-        $_SESSION['anyag_szla_tetel_valtozott'] = $_POST['adatok'][$valtozott_adat][1];
+        
+        $_SESSION['anyag_szla_tetel_recid'.$kieg]         = $_POST['adatok'][$recid_adat][1];
+        $_SESSION['anyag_szla_tetel_rndid'.$kieg]         = $_POST['adatok'][$rndid_adat][1];
+        $_SESSION['anyag_szla_tetel_rnd_recid'.$kieg]     = $_POST['adatok'][$rnd_recid_adat][1];
+        $_SESSION['anyag_szla_tetel_cikktorzs'.$kieg]     = str_replace('{IDEZOJEL}', '"', $_POST['adatok'][$cikktorzs_adat][1]);
+        $_SESSION['anyag_szla_tetel_szall_csz'.$kieg]     = str_replace('{IDEZOJEL}', '"', $_POST['adatok'][$szall_csz_adat][1]);
+        $_SESSION['anyag_szla_tetel_cikktorzs_id'.$kieg]  = $_POST['adatok'][$cikktorzs_id_adat][1];
+        $_SESSION['anyag_szla_tetel_rndmen'.$kieg]        = $_POST['adatok'][$rndmen_adat][1];
+        $_SESSION['anyag_szla_tetel_rndear'.$kieg]        = $_POST['adatok'][$rndear_adat][1];
+        $_SESSION['anyag_szla_tetel_cikkmee'.$kieg]       = $_POST['adatok'][$cikkmee_adat][1];
+        if( $devizas ) {
+            $_SESSION['anyag_szla_tetel_dev_net'.$kieg] = str_replace(',', '.', $_POST['adatok'][$netto_ert_adat][1]);
+            $_SESSION['anyag_szla_tetel_dev_br'.$kieg]  = str_replace(',', '.', $_POST['adatok'][$brutto_ert_adat][1]);
+        } else {
+            $_SESSION['anyag_szla_tetel_netto_ert'.$kieg]  = str_replace(',', '.', $_POST['adatok'][$netto_ert_adat][1]);
+            $_SESSION['anyag_szla_tetel_brutto_ert'.$kieg] = str_replace(',', '.', $_POST['adatok'][$brutto_ert_adat][1]);
+        }
+        $_SESSION['anyag_szla_tetel_afakod'.$kieg]    = $_POST['adatok'][$afa_adat][1];
+        $_SESSION['anyag_szla_tetel_jogcim'.$kieg]    = $_POST['adatok'][$jogcim_adat][1];
+        $_SESSION['anyag_szla_tetel_valtozott'.$kieg] = $_POST['adatok'][$valtozott_adat][1];
     }
     
     // Ha tétel szám eltérés miatt járunk itt, és még nincs "mehet" adatunk, akkor előbb rákérdezünk
@@ -1197,7 +1201,12 @@ if( isset($_POST['tetel_sorok_ment']) ) {
 
     if( !$db_error ) {
         mysqli_commit($db_kapcs);
-        echo json_encode( array('siker' => 1, 'netto' => number_format($tetelek_osszege, $tizedesek, ',', ' ')) );
+        echo json_encode(   array(    
+                                    'siker'  => 1,
+                                    'netto'  => number_format($tetelek_osszege,     $tizedesek, ',', ' '),
+                                    'brutto' => number_format($tetelek_br_osszege,  $tizedesek, ',', ' '),
+                            )
+                        );
     } else {
         mysqli_rollback($db_kapcs);
         echo json_encode(array(
@@ -1899,11 +1908,15 @@ require_once('selectek.php');
         $tizedesek  = 0;
         $mezo1      = 'ossz_netto';
         $mezo2      = 'netto';
+        $mezo3      = 'ossz_brutto';
+        $mezo4      = 'brutto';
         $kerekit    = KEREKITESI_HATAR_HUF;
         if( $szamla['kcs_21']!=KCS_21_HUF ) {
             $tizedesek  = 2;
             $mezo1      = 'ossz_dev_net';
             $mezo2      = 'dev_net';
+            $mezo3      = 'ossz_dev_br';
+            $mezo4      = 'dev_br';
             $kerekit    = KEREKITESI_HATAR_DEV;
         }
         
@@ -1928,7 +1941,7 @@ require_once('selectek.php');
         $_SESSION['anyag_szla_tetel_dev_net']       =
         $_SESSION['anyag_szla_tetel_dev_br']        =
         $_SESSION['anyag_szla_tetel_afakod']        =
-        $_SESSION['anyag_szla_tetel_jogcim']        =
+        $_SESSION['anyag_szla_tetel_kifizetes']     =
                                                     array();
         $tetelek = $adatbazis_kapcsolat->s('*', 'anyag_szamla_tetel_atmeneti', "`anyag_szamla_recid`='{$szamla['recid']}'");
         foreach ( $tetelek as $tetel ) {
@@ -1951,7 +1964,6 @@ require_once('selectek.php');
             $_SESSION['anyag_szla_tetel_dev_net'][$i]       = number_format($tetel['dev_net'],    2, ',', ' ');
             $_SESSION['anyag_szla_tetel_dev_br'][$i]        = number_format($tetel['dev_br'],     2, ',', ' ');
             $_SESSION['anyag_szla_tetel_afakod'][$i]        = $tetel['afakod_recid'];
-            $_SESSION['anyag_szla_tetel_jogcim'][$i]        = $tetel['jogcim_recid'];
             $_SESSION['anyag_szla_tetel_valtozott'][$i]     = $tetel['valtozott'];
             $_SESSION['anyag_szla_tetel_andocos'][$i]       = $tetel['andocos'];
 
@@ -1960,11 +1972,17 @@ require_once('selectek.php');
         
         // Új számla rögzítésekor így ellenőrizzük a nettó és tételek összegének azonosságát
         $js_submit_elott = nl2('
-            var tetelek_ossz = $(\'#'.$mezo1.'\').val().replace(/ /g, \'\').replace(/,/g, \'.\');
-            var netto_ossz   = $(\'#'.$mezo2.'\').val().replace(/ /g, \'\').replace(/,/g, \'.\');
+            var tetelek_ossz    = Number($(\'#'.$mezo1.'\').val().replace(/ /g, \'\').replace(/,/g, \'.\'));
+            var netto_ossz      = Number($(\'#'.$mezo2.'\').val().replace(/ /g, \'\').replace(/,/g, \'.\'));
+            var tetelek_ossz_br = Number($(\'#'.$mezo3.'\').val().replace(/ /g, \'\').replace(/,/g, \'.\'));
+            var brutto_ossz     = Number($(\'#'.$mezo4.'\').val().replace(/ /g, \'\').replace(/,/g, \'.\'));
             if( $(\'#nullas\').is(\':checked\') == false ) {
                 if( Math.abs( Number(tetelek_ossz)-Number(netto_ossz) ) > '.$kerekit.' ) {
                     alert2(\'A számla tételeinek összege (\'+tetelek_ossz+\' \'+$(\'#kcs_21_autocomp\').val()+\') nem egyezik meg a számla nettó értékével (\'+$(\'#'.$mezo2.'\').val()+\' \'+$(\'#kcs_21_autocomp\').val()+\')!<br>Így nem menthető!\', \'\', \'Hiba\');
+                    return false;
+                }
+                if( Math.abs( Number(tetelek_ossz_br)-Number(brutto_ossz) ) > '.$kerekit.' ) {
+                    alert2(\'A számla tételeinek összege (\'+tetelek_ossz_br+\' \'+$(\'#kcs_21_autocomp\').val()+\') nem egyezik meg a számla nettó értékével (\'+$(\'#'.$mezo4.'\').val()+\' \'+$(\'#kcs_21_autocomp\').val()+\')!<br>Így nem menthető!\', \'\', \'Hiba\');
                     return false;
                 }
             } else if( $(\'#nullas\').is(\':checked\') == true ) {
@@ -1983,6 +2001,8 @@ require_once('selectek.php');
                 <input type="hidden" name="atmeneti_recid" value="'.$szamla['recid'].'">
                 <input type="hidden" id="ossz_netto" value="">
                 <input type="hidden" id="ossz_dev_net" value="">
+                <input type="hidden" id="ossz_brutto" value="">
+                <input type="hidden" id="ossz_dev_br" value="">
                 <input type="button" class="gombb mentes_gomb" name="mehet_gomb" id="mehet_gomb" disabled value="Mentés" onclick="mentesGomb();">
                 <input type="button" class="gomb piros" disabled id="megsem_gomb" value="Mégsem" onclick="megsemGomb();">
             </div>
@@ -2029,6 +2049,7 @@ require_once('selectek.php');
         $_SESSION['anyag_szla_tetel_dev_br']        =
         $_SESSION['anyag_szla_tetel_afakod']        =
         $_SESSION['anyag_szla_tetel_jogcim']        =
+        $_SESSION['anyag_szla_tetel_kifizetes']     =
                                                     array();
         for( $j = 0; $j < 2; $j++ ) {
             // Alapvetően a számla tételeit írjuk ki
@@ -2051,7 +2072,7 @@ require_once('selectek.php');
             foreach ( $tetelek as $tetel ) {
                 $ossz_netto   += $tetel['netto_ert'];
                 $ossz_dev_net += $tetel['dev_net'];
-                $_SESSION['anyag_szla_tetel_recid'][$i]         = $tetel['recid'];
+                $_SESSION['anyag_szla_tetel_recid'][$i]         = $tetel['recid'].$recid_kieg;
                 $_SESSION['anyag_szla_tetel_jogcim'][$i]        = $tetel['jogcim_recid'];
                 $_SESSION['anyag_szla_tetel_fokonyvi'][$i]      = $tetel['ktgnem_id'];
                 $_SESSION['anyag_szla_tetel_ktg_hely'][$i]      = $tetel['ktghely_id'];
@@ -2088,6 +2109,7 @@ require_once('selectek.php');
             $gombok .= '<input type="button" class="gomb modositaskor_rejt" value="Vissza üi.-nek" onclick="csoportMuvelet(\'anyagSzamlaVisszaUi\');"> ';
         }
         
+// Saját IP-ről belépve a személyzeten módosítunk, hogy a Könyvelés tételek kezelése tesztelhető legyen
 if( $_SERVER['REMOTE_ADDR'] == get_debug_ip() ) {
     $_SESSION[get_db_tabla().'szemelyzet_id'] = MUSZAKI_ADMINISZTRATOR;
 }
@@ -2190,6 +2212,8 @@ if( $_SERVER['REMOTE_ADDR'] == get_debug_ip() ) {
         
         $szamla_html .= '<script>formAdatok = JSON.parse(\''.json_encode($json_sor).'\'); </script>';
 
+        // Számít, hogy ki a költségviselő (befolyásolja, hogy milyen szállodák lesznek a lenyílóban), ezért kell ez az alábbi sor
+        $koltsegviselo_szalloda_lenyilohoz = $sor['kolt_vis'];
 		// Ez elkészíti a $mezok változót
 		require('switch.php');
 
@@ -2251,6 +2275,8 @@ if( $_SERVER['REMOTE_ADDR'] == get_debug_ip() ) {
 		// Form actionja
 		$action = self().get_get(array('errnum','kephiba','siker'));
 
+        // Számít, hogy ki a költségviselő (befolyásolja, hogy milyen szállodák lesznek a lenyílóban), ezért kell ez az alábbi sor
+        $koltsegviselo_szalloda_lenyilohoz = $sor['kolt_vis'];
 		// Ez elkészíti a $mezok változót
 		require('switch.php');
 

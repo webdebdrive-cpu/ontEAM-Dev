@@ -1,0 +1,488 @@
+<h2>Számla tétel kapcsolása megállapodás tételhez</h2>
+
+<div class="kozep">
+    
+    <div style="width: 45rem"><!-- Ez csak azért kell, hogy a cím kiférjen, ne törljön két sorba véletlenül se --></div>
+    
+    <div class="grid2o" style="width: 28rem">
+        <div class="b">Megállapodás összege:</div>
+        <div class="b r"><span id="pop_szerzodes_ossz"></span></div>
+        <div class="b">Ebből kifizetve:</div>
+        <div class="b r"><span id="pop_kifizetve"></span></div>
+        <div class="b">Hátralévő:</div>
+        <div class="b r"><span id="pop_hatralevo"></span></div>
+        <div class="b">Különbözet:</div>
+        <div class="b r"><span id="pop_kulonbozet"></span></div>
+    </div>
+    
+    <form action="" enctype="multipart/form-data" method="" id="popup_tetel_sorok">
+        <table class="csikos kijCont dn" id="pop_tetelek" style="cursor: default;">
+            <thead>
+            <tr>
+                <th>Szálloda</th>
+                <th style="width: 40rem">Tárgy</th>
+                <th>Számla várh. érk.</th>
+                <th>Számla várh. értéke (<span class="f_penznem"></span>)</th>
+                <th>Teljesítés</th>
+                <th>Nettó érték (<span class="f_penznem"></span>)</th>
+                <th>Törlés</th>
+            </tr>
+            </thead>
+            <tbody>
+            </tbody>
+        </table>
+    </form>
+    
+    <input type="button" class="gomb" value="Megállapodás tétel hozzáadása" onclick="$('#popup_tetel_hozzaad').slideToggle('fast'); $('#pop_targy').focus();" style="margin-top: 0.5rem">
+    <div id="popup_tetel_hozzaad" class="dn">
+        <br>Szálloda:
+        <br><span id="szalloda_select"></span>
+        <br>Tárgy:
+        <br><input type="text" id="pop_targy" class="oriasi csillag">
+        <br>Számla várh. érk.:
+        <br><input type="text" id="pop_szla_varh_erk" class="csillag datepicker_matol">
+        <br>Számla várh. értéke:
+        <br><input type="text" id="pop_szla_varh_ert" class="f_num csillag" data-tort="0"> <span class="f_penznem"></span>
+        <br><input type="button" class="gomb" value="Új tétel hozzáadása" style="margin-top: 0.3rem" onclick="tetel_hozzaadasa()">
+    </div>
+    
+    
+</div>
+<div class="kuldes">
+    <input type="button" class="gomb zold" value="Mentés" onclick="megallapodas_szamla_kapcsolas();">
+    <input type="button" class="gomb piros escapes_megsem" value="Mégsem" onclick="megsem_gomb();">
+    <input type="hidden" id="szamla_tetel_recid" value="{SZAMLA_TETEL_RECID}">
+    <input type="hidden" id="szamla_tetel_netto" value="">
+    <input type="hidden" id="szamla_telj_dt" value="">
+</div>
+<script>
+/* JS-el figyeljük, hogy volt-e bármi változás. Ha igen, akkor Mégsem/Bezár gombra rákérdezünk, hogy biztos-e? */
+var akt_penznem = $('#kcs_21_autocomp').val();
+if( !akt_penznem ) {
+    akt_penznem = $('#kcs_21_autocomp_db').val();
+}
+
+var van_valtozas = false;
+var kcs_21 = $('#kcs_21').val();
+if( !kcs_21 ) {
+    kcs_21 = $('#kcs_21_db').val();
+}
+
+$(document).ready(function () {    
+    
+    /* Popup bezár gombjára is a Mégsem gomb funkcióját állítsuk be. */
+    $('#popup .bezar').attr('onclick', 'csoportMuvelet(\'megallapodasszamla_tetelek_kezelese\');');
+    
+    /* f_penznem class-ú elemek lecserélése a pénznemre */
+    $('.f_penznem').each(function () {
+        $(this).replaceWith(akt_penznem);
+    });
+    
+    /* Új tétel hozzáadásánál mi legyen a tizedesek hossza */
+    var tizedesek   = 0;
+    if( akt_penznem && akt_penznem != 'HUF' ) {
+        tizedesek   = 2;
+    }
+    $('#pop_szla_varh_ert').attr('data-tort', tizedesek);
+    
+    pop_kapcsolas_feltolt();
+    datepicker_konfig();
+
+    /* Ezekbe az inputokba írva számoljunk mindent újra */
+    $(document).on('input', '.pop_netto_ert, .pop_varhato_ert', function(event) {
+        tetelek_kiszamol( $(this) );
+    });
+    /* Nettó érték mezőbe kattintva, ha az üres volt, akkor a szamla_tetel_netto értéke kerüljön oda */
+    $(document).on('focus', '.pop_netto_ert', function(event) {
+        if( !$(this).val() || $(this).val()=='0' || $(this).val()=='0,00' ){
+            $(this).val( $('#szamla_tetel_netto').val() );
+            tetelek_kiszamol( $(this) );
+        }
+    });
+    $(document).on('focus', '.pop_teljesites', function(event) {
+        if( !$(this).val() || $(this).val()=='\xa0\xa0\xa0\xa0.\xa0\xa0.\xa0\xa0' || $(this).val()=='    .  .  ' || $(this).val()=='0000.00.00' ){
+            $(this).val( $('#szamla_telj_dt').val() );
+            tetelek_kiszamol( $(this) );
+        }
+    });
+    
+});
+
+/* Tételt hozzáadó függvény */
+function tetel_hozzaadasa() {
+    
+    var targy           = $('#pop_targy').val().trim();
+    var szla_varh_erk   = $('#pop_szla_varh_erk').val().trim();
+    var szla_varh_ert   = $('#pop_szla_varh_ert').val().trim().replace(/,/g, '.');
+
+    /* Üres adatok ellenőrzése */
+    if( !targy ) {
+        alert2('Kérem töltse ki a tárgyat!', '', 'Hiba');
+        $('#pop_targy').addClass('hibas_ide_focus');
+        return false;
+    }
+    if( !szla_varh_erk || szla_varh_erk=='.\xa0\xa0.' ) {
+        alert2('Kérem töltse ki a várható érkezést!', '', 'Hiba');
+        $('#pop_szla_varh_erk').addClass('hibas_ide_focus');
+        return false;
+    }
+
+    /* Valós dátum-e? */
+    if( !valid_date($('#pop_szla_varh_erk'), 'true-val térj vissza') ){
+        alert2('Kérem valós dátumot adjon meg várható érkezésnek!', '', 'Hiba');
+        $('#pop_szla_varh_erk').addClass('hibas_ide_focus');
+        return false;
+    }
+    
+    /* Nem múltbeli dátum-e? */
+    var datum = new Date().toISOString();
+    datum = datum.substring(0, 10).replace(/-/g, '.');
+    if( $('#pop_szla_varh_erk').val() < datum ) {
+        alert2('A várható érkezés nem lehet múltbeli dátum!', '', 'Hiba');
+        $('#pop_szla_varh_erk').addClass('hibas_ide_focus');
+        return false;
+    }
+    
+    if( !szla_varh_ert /*|| szla_varh_ert=='0' A nullát megengedjük */ ){
+        alert2('Kérem töltse ki a várható értéket!', '', 'Hiba');
+        $('#pop_szla_varh_ert').addClass('hibas_ide_focus');
+        return false;
+    }
+
+    var id_tmp = new Date().getTime();
+    
+    /* HUF esetén nem törtet írunk ki, deviza esetén viszont törtet */
+    var tizedesek   = 0;
+    var vesszo      = '';
+    if( akt_penznem && akt_penznem != 'HUF' ) {
+        tizedesek   = 2;
+        vesszo      = ',';
+    }
+    
+    /* A szla_varh_ert lehet hogy 0-át tartalmaz, akkor ezt is írjuk ki */
+    szla_varh_ert = ezresek(szla_varh_ert, tizedesek, vesszo, ' ');
+    if( !szla_varh_ert ) {
+        szla_varh_ert = '0';
+    }
+    
+    var szalloda = $('#szalloda_select option:selected').text();
+    
+    /* Nézzük át a sorokat, ha van olyan ahol azonos a szálloda és a várh.érk. akkor azt ne engedjük meg */
+    var van_azonos = false;
+    $('#pop_tetelek tr').each(function() {
+        var telephely = $(this).find('.pop_telephely').html();
+        var varh_erk  = $(this).find('.pop_varh_erk').html();
+
+        if( telephely == szalloda && varh_erk == szla_varh_erk ) {
+            alert2(telephely+' szállodának már van '+szla_varh_erk+' várható érkezéssel tétele, így újabb ilyen tétel nem rögzíthető!', '', 'Hiba');
+            van_azonos = true;
+        }
+    });
+    
+    if( van_azonos ) {
+        return false;
+    }
+
+    var table_sor = '<tr class="pop_kapcsol_'+id_tmp+'">' +
+                        '<td class="pop_szalloda">' + szalloda + '</td>' +
+                        '<td class="pop_targy l">' + targy + '</td>' +
+                        '<td class="pop_varh_erk">' + szla_varh_erk + '</td>' +
+                        '<td><input type="text" id="varh_ert_'+id_tmp+'" value="'+szla_varh_ert+'" class="r f_num pop_varhato_ert" data-tort="'+tizedesek+'" maxlength="12"></td>' +
+                        '<td><input type="text" value="0000.00.00" class="datepicker_matol pop_teljesites" maxlength="10"></td>' +
+                        '<td><input type="text" id="ertek_'+id_tmp+'" class="r f_num pop_netto_ert" data-tort="'+tizedesek+'" maxlength="12"></td>' +
+                        '<td><a onclick="popup_tetel_sor_torol(\'pop_kapcsol_'+id_tmp+'\');"><span class="icon"><i class="material-icons">delete</i></span></a><span class="dn pop_recid"></span></td>' +
+                    '</tr>';
+
+    $('#pop_tetelek tbody').append( table_sor );
+    $('#pop_tetelek').removeClass('dn');
+
+    $('#pop_targy').val('');
+    $('#pop_szla_varh_erk').val('');
+    $('#pop_szla_varh_ert').val('');
+
+    tetelek_kiszamol();
+    datepicker_konfig();
+
+    $('#popup_tetel_hozzaad').slideUp('fast');
+
+}
+
+/* Tétel sor törlése */
+function popup_tetel_sor_torol(sor_id, mehet) {
+    
+    $('.'+sor_id).addClass('torles_elott');
+    if(!mehet){
+        alert2( 'Tárgy: '       + $('.'+sor_id+' .pop_targy')   .html() +'<br>' +
+                'Várh. érk.: '  + $('.'+sor_id+' .pop_varh_erk').html() +'<br>' +
+                'Várh. ért.: '  + $('.'+sor_id+' .pop_varhato_ert').val() +' ' + PENZNEM + '<br>' +
+                'Biztosan törli a szerződés tételt?', '<input type="button" class="gomb zold" value="Igen" onclick="popup_tetel_sor_torol(\''+sor_id+'\', \'mehet\'); alert2();"><input type="button" class="gomb piros escapes_megsem" value="Nem" onclick="alert2(); $(\'.torles_elott\').removeClass(\'torles_elott\');">');
+        return false;
+    }
+    
+    /* Sor törlése, újraszámolás */
+    $('.'+sor_id).fadeOut('slow', function(){
+        $('.'+sor_id).remove();
+        tetelek_kiszamol();
+    });
+    
+}
+
+/* Tétel sor táblázat mentése */
+function megallapodas_szamla_kapcsolas( mehet ) {
+    
+    var recidk = [];
+    $('.pop_recid').each(function() {
+        recidk.push( $(this).html() );
+    });
+    var targyak = [];
+    $('.pop_targy').each(function() {
+        targyak.push( $(this).html().replace(/"/g, '|IDEZOJEL|') );
+    });
+    var varh_erk = [];
+    $('.pop_varh_erk').each(function() {
+        varh_erk.push( $(this).html() );
+    });
+    var varhato_ert = [];
+    $('.pop_varhato_ert').each(function() {
+        varhato_ert.push( $(this).val() );
+    });
+    var teljesites = [];
+    $('.pop_teljesites').each(function() {
+        teljesites.push( $(this).val() );
+    });
+    var netto_ert = [];
+    $('.pop_netto_ert').each(function() {
+        netto_ert.push( $(this).val() );
+    });
+    
+    var adatok = [
+                    ['recidk',      recidk],
+                    ['targyak',     targyak],
+                    ['varh_erk',    varh_erk],
+                    ['varhato_ert', varhato_ert],
+                    ['teljesites',  teljesites],
+                    ['netto_ert',   netto_ert]
+                ];
+    
+    $.ajax({
+        url     : 'megallapodas_szamla.php',
+        type    : 'POST',
+        data: {
+            adatok                  : JSON.stringify(adatok),
+            recid                   : _get('id'),
+            mehet                   : mehet,
+            kcs_21                  : kcs_21,
+            szamla_tetel_recid      : $('#szamla_tetel_recid').val(),
+            telephely_id            : $('#telephely_id_db').val(),
+            megallapodas_szamla_kapcsolas : Date.now()
+        },
+        success: function(response) {
+            if(response.substring(0, 6)=='SESKIL'){ location.href = 'index.php'; }
+            if( response ) {
+                response = JSON.parse(response);
+                if( response.hiba ) {
+                    alert2(response.hiba, response.gomb, response.title);
+                } else {
+                    csoportMuvelet('megallapodasszamla_tetelek_kezelese');
+                    alert2(); /* Mert lehet rákérdeztünk, hogy biztosan? Ezért bezárjuk az alert2-t. */
+                    
+                    /* Ha a tételek fülön vagyunk, akkor frissítjük a tartalmat */
+                    if( _get('tetel') ) {
+                        szamlaBetolt(_get('id'), 'megallapodas_szamla.php', 'tetel');
+                    }
+                }
+            }
+        },
+        complete: function(xhr) {
+            if( xhr.status != 200 ) {
+                alert2(xhr.responseText, '', 'Hiba');
+            }
+        }
+    });
+
+}
+
+/* Popup megtöltése tartalommal */
+function pop_kapcsolas_feltolt() {
+    
+    /* Szerződés szám mező aktuális tartalma */
+    if( $('#sz_szam').length ){
+        sz_szam = $('#sz_szam').val();
+    }else{
+        sz_szam = $('#sz_szam_db').val();
+    }
+    if( $('#netto').length ){
+        netto = $('#netto').val();
+    }else{
+        netto = $('#netto_db').val();
+    }
+    if( $('#dev_net').length ){
+        dev_net = $('#dev_net').val();
+    }else{
+        dev_net = $('#dev_net_db').val();
+    }
+    if( $('#telephely_id').length ){
+        telephely_id = $('#telephely_id').val();
+    }else{
+        telephely_id = $('#telephely_id_db').val();
+    }
+    
+    $.ajax({
+        url : 'megallapodas_szamla.php',
+        type: 'POST',
+        data: {
+            telephely_id            : telephely_id,
+            sz_szam                 : sz_szam,
+            kcs_21                  : kcs_21,
+            netto                   : netto,
+            dev_net                 : dev_net,
+            id                      : _get('id'),
+            szamla_tetel_recid      : $('#szamla_tetel_recid').val(),
+            pop_kapcsolas_feltolt   : Date.now()
+        },
+        success: function(response) {
+            if(response.substring(0, 6)=='SESKIL'){ location.href = 'index.php'; }
+            if( response ) {
+                response = JSON.parse(response);
+                
+                if( response.hiba ) {
+                    alert2(response.hiba, response.gomb, response.title);
+                    if( response.focus ){
+                        $('#'+response.focus).addClass('hibas_ide_focus');
+                    }
+                    
+                    /* Ha hiba volt, akkor vissza az előző popupra */
+                    csoportMuvelet('megallapodasszamla_tetelek_kezelese');
+                    return false;
+                }
+                
+                /* Adatok tényleges feltöltése */
+                $('#pop_szerzodes_ossz').html(response.szerzodes_ossz);
+                $('#szamla_tetel_netto').val(response.szamla_tetel_netto);
+                $('#szamla_telj_dt').val(response.szamla_telj_dt);
+                $('#szalloda_select').html(response.szalloda_select);
+                if( response.tabla ){
+                    $('#pop_tetelek tbody').append(response.tabla);
+                    $('#pop_tetelek').removeClass('dn');
+                }
+                
+                /* Miután betöltöttük a táblázatot, akkor konfiguráljuk fel a datepicer mezőket, ha ezt korábban tesszük, nem fog működni */
+                datepicker_konfig();
+                
+                tetelek_kiszamol('', 'Ez az első feltöltés, ekkor még ne legyen igaz a "van változás"');
+            }
+        },
+        complete: function(xhr) {
+            if( xhr.status != 200 ) {
+                alert2(xhr.responseText, '', 'Hiba');
+            }
+        }
+    });
+}
+
+/*  Tételek kiszámítása, lássuk hol járunk a számla nettó értékéhez képest */
+function tetelek_kiszamol( that, elso ) {
+    
+    /* HUF esetén nem törtet írunk ki, deviza esetén viszont törtet */
+    var tizedesek   = 0;
+    if( akt_penznem && akt_penznem != 'HUF' ) {
+        tizedesek   = 2;
+    }
+    
+    /* Bármikor, amikor tételeket ki kell számolni, akkor már biztos, hogy volt valami változás az űrlapon. Kivéve az első betöltést. */
+    if( !elso ){
+        van_valtozas = true;
+    }
+    
+    /* Ezt egy ellenőrzéssel kezdjük: csak egy sorban tölthető ki a nettó érték. */
+    var netto_ertek_db = 0;
+    $('.pop_netto_ert').each(function() {
+        if( !$(this).prop('disabled') && $(this).val() && $(this).val()!='0' && $(this).val() && $(this).val()!='0,00' ) {
+            netto_ertek_db++;
+            console.log($(this));
+        }
+        if( netto_ertek_db>1 ) {
+            alert2('Csak egy megállapodás tételhez írhat nettó értéket!<br>Előbb törölje ki a nettó értéket a többi sorból!', '', 'Hiba');
+            that.blur().val('0');
+        }
+    });
+    
+    var teljesites_db = 0;
+    $('.pop_teljesites').each(function() {
+        if( !$(this).prop('disabled') && $(this).val() && $(this).val()!='\xa0\xa0\xa0\xa0.\xa0\xa0.\xa0\xa0' && $(this).val()!='    .  .  ' && $(this).val()!='0000.00.00' ){
+            teljesites_db++;
+        }
+        if( teljesites_db>1 ) {
+            alert2('Csak egy megállapodás tételhez írhat teljesítés dátumot!<br>Előbb törölje ki a teljesítés dátumot a többi sorból!', '', 'Hiba');
+            that.blur().val('0000.00.00');
+        }
+    });
+
+    
+    projekt_osszege = $('#pop_szerzodes_ossz').html().replace(' '+akt_penznem, '').replace(/ /g, '').replace(/,/g, '.');
+
+    kifizetve = 0;
+    $('.pop_netto_ert').each(function() {
+        kifizetve += Number( $(this).val().replace(/ /g, '').replace(/,/g, '.') );
+    });
+    
+    hatralevo = 0;
+    var i = 0;
+    $('.pop_varhato_ert').each(function() {
+        akt_id = $(this).attr('id').replace('varh_ert_', '');
+        if( !$('#ertek_'+akt_id).val() || $('#ertek_'+akt_id).val()=='0' || $('#ertek_'+akt_id).val()=='0,00' ){
+            hatralevo += Number( $(this).val().replace(/ /g, '').replace(/,/g, '.') );
+        }
+        i++;
+    });
+    
+    $('#pop_kifizetve').html( ezresek(kifizetve, tizedesek, ',', ' ', 'nullát is írj ki')+' '+akt_penznem );
+    $('#pop_hatralevo').html( ezresek(hatralevo, tizedesek, ',', ' ', 'nullát is írj ki')+' '+akt_penznem );
+    
+    kulonbseg = (kifizetve + hatralevo) - projekt_osszege;
+    $('#pop_kulonbozet').html( ezresek( kulonbseg, tizedesek, ',', ' ', 'nullát is írj ki')+' '+akt_penznem );
+    $('#pop_kulonbozet').removeClass('piros');
+    if( kulonbseg>0 ) {
+        $('#pop_kulonbozet').addClass('piros');
+    }
+    
+}
+
+/* datepicker classú inputokra beállítjuk a naptárat. Ajaxok miatt erre többször szükség van. */
+function datepicker_konfig() {
+    $('.datepicker').datetimepicker({
+        closeOnDateSelect   : true,
+        format              :'Y.m.d',
+        mask                : '\xa0\xa0\xa0\xa0.\xa0\xa0.\xa0\xa0',
+        timepicker          : false,
+        validateOnBlur      : false,
+        scrollInput         : false
+    });
+    
+    /* Datepicker mától */
+    $('.datepicker_matol').datetimepicker({
+        closeOnDateSelect   : true,
+        format              :'Y.m.d',
+        mask                : '\xa0\xa0\xa0\xa0.\xa0\xa0.\xa0\xa0',
+        timepicker          : false,
+        validateOnBlur      : false,
+        scrollInput         : false,
+        minDate             : '-1970/01/02'
+    });
+    
+}
+
+/* Azért van külön függvénye, hogy rá lehessen kérdezni */
+function megsem_gomb( mehet ) {
+    
+    /* Ha volt változtatás, és nem volt még kérdés */
+    if( van_valtozas && !mehet ){
+        alert2('A változások nincsenek mentve. Folytatja?', '<input type="button" class="gomb zold" value="Igen" onclick="megsem_gomb(\'mehet\')"><input type="button" class="gomb piros escapes_megsem" value="Nem" onclick="alert2();">', 'Kérdés');
+    }else{
+        csoportMuvelet('megallapodasszamla_tetelek_kezelese');
+        alert2();
+    }
+    
+}
+
+</script>

@@ -290,19 +290,19 @@ function tetelek_kiszamol() {
         szerzodes_osszege = $('#szerz_ossz_mindig_latszik').val().replace(/ /g, '').replace(/,/g, '.');
     }
     
-    $('#pop_szerz_ossz').html( ezresek(szerzodes_osszege, tizedesek, ',', ' ')+' '+akt_penznem );
+    $('#pop_szerz_ossz').html( ezresek(szerzodes_osszege, tizedesek, ',', ' ', '-nullát is írd ki-')+' '+akt_penznem );
     
     tetelek_ossz = 0;
     $('.pop_varh_ert').each(function() {
         tetelek_ossz += Number( $(this).html().replace(/ /g, '').replace(/,/g, '.') );
     });
-    $('#pop_tetelek_ossz').html( ezresek(tetelek_ossz, tizedesek, ',', ' ')+' '+akt_penznem );
+    $('#pop_tetelek_ossz').html( ezresek(tetelek_ossz, tizedesek, ',', ' ', '-nullát is írd ki-')+' '+akt_penznem );
 
     kulonbseg = Number(szerzodes_osszege) - Number(tetelek_ossz);
     if( !kulonbseg ) {
         kulonbseg = '0';
     }
-    $('#pop_kulonbseg').html( ezresek(kulonbseg, tizedesek, ',', ' ')+' '+akt_penznem );
+    $('#pop_kulonbseg').html( ezresek(kulonbseg, tizedesek, ',', ' ', '-nullát is írd ki-')+' '+akt_penznem );
     $('#pop_kulonbseg').removeClass('piros');
     if( kulonbseg!=0 && kulonbseg!='0,00' ) {
         $('#pop_kulonbseg').addClass('piros');

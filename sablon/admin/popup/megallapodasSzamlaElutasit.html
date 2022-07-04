@@ -1,0 +1,63 @@
+<h2>Adja meg az elutasítás okát</h2>
+<form id="elutasitasForm" class="popupForm" method="post" onsubmit="return megallapodasSzamlaElutasit();">
+    <div class="kozep">
+        <div class="dt">
+            <div class="dtr">
+                <div class="dtc form_bal">Elutasítás oka:</div>
+                <div class="dtc form_jobb">
+                    <textarea name="elutasitas_memo" id="elutasitas_memo" class="csillag" onkeyup="if( $(this).val().trim()=='' ){ $(this).val(''); }"></textarea>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="kuldes">
+        <input type="submit" name="elkuld" value="Mentés">
+        <input type="button" name="megsem" class="gombb_alert" value="Mégsem" onclick="popupZar();">
+    </div>
+</form>
+<script>
+/* Elutasítás */
+function megallapodasSzamlaElutasit() {
+    
+    /* Megjegyzés kötelező */
+    if(!$('#elutasitas_memo').val()){
+        $('#popup input, #popup textarea, #popup select').removeClass('hibas_ide_focus');
+        $('#elutasitas_memo').addClass('hibas_ide_focus');
+        alert2('Kérem indokolja az elutasítást!', '<input type="button" class="link gomb" value="Ok" onclick="alert2();">', 'Hiba');
+        return false;
+    }
+
+    $.ajax({
+        url : 'megallapodas_szamla.php',
+        type: 'POST',
+        data: {
+            id                          : _get('id'),
+            memo                        : $('#elutasitas_memo').val(),
+            megallapodasSzamlaElutasit  : new Date().getTime()
+        },
+        success: function(response) {
+            if(response.substring(0, 6)=='SESKIL'){ location.href = 'index.php'; }
+            if(response) {
+                response = JSON.parse(response);
+                if( response.hiba ) {
+                    szamlaBetolt(_get('id'), 'megallapodas_szamla.php');
+                    setTimeout(function () {
+                        alert2(response.hiba, response.gomb, response.title);
+                    }, 500);
+                    return false;
+                }
+                popupZar();
+                szamlaBetolt(_get('id'), 'megallapodas_szamla.php');
+                alert2('Számla sikeresen elutasítva!', '', 'Üzenet');
+            }
+        },
+        complete: function(xhr) {
+            if( xhr.status != 200 ) {
+                alert2(xhr.responseText, '', 'Hiba');
+            }
+        }
+    });
+
+    return false;
+}
+</script>

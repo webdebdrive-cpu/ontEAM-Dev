@@ -14,10 +14,11 @@ function szamla_athelyez(tipus, mehet) {
     if( !mehet ) {
         var tipus_kerdes = '';
         switch( tipus ) {
-            case 'fenntartas': tipus_kerdes = 'a fenntartási';  break;
-            case 'energia'   : tipus_kerdes = 'az energia';     break;
-            case 'anyag'     : tipus_kerdes = 'az anyag';       break;
-            case 'projekt'   : tipus_kerdes = 'a projekt';      break;
+            case 'anyag'        : tipus_kerdes = 'az anyag';       break;
+            case 'energia'      : tipus_kerdes = 'az energia';     break;
+            case 'fenntartas'   : tipus_kerdes = 'a fenntartási';  break;
+            case 'megallapodas' : tipus_kerdes = 'a megállapodás'; break;
+            case 'projekt'      : tipus_kerdes = 'a projekt';      break;
         }
         var tobbes_szam = '';
         if( recidk.length>1 ) {

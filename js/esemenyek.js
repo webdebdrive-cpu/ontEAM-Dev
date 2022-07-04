@@ -13,8 +13,7 @@
 
 $(document).ready(function() {
     
-    /* Gyári beállítások */
-    
+    // Gyári beállítások
     $(document).on('keyup', '.f_adoszam', function(){
         $(this).val( adoszam_formaz($(this).val()) );
     });
@@ -42,7 +41,7 @@ $(document).ready(function() {
         $('div.cookie').removeClass('rejt');
     }
     
-    /* Fancybox */
+    // Fancybox
     $.getScript('js/fancybox.js', function() {
         $('a.light').fancybox({
             'prevEffect'            : 'fade',

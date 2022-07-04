@@ -203,7 +203,7 @@ if( basename(self()) == 'beosztas_unnepnapok.php' || basename(self()) == 'header
 }
 
 // Szerződés típusok
-if( basename(self()) == 'fenntartasi_szerzodes.php' || basename(self()) == 'projektszerzodes.php' || basename(self()) == 'header.php'/*Szűrés miatt*/ ) {
+if( basename(self()) == 'fenntartasi_szerzodes.php' || basename(self()) == 'megallapodas.php' || basename(self()) == 'projektszerzodes.php' || basename(self()) == 'header.php'/*Szűrés miatt*/ ) {
     $select_szerzodes_tipus = array();
     array_push($select_szerzodes_tipus, array('name' => '- Válasszon -', 'value' => '' ));
     array_push($select_szerzodes_tipus, array('name' => 'Keretszerződés',           'value' => 'ks' ));

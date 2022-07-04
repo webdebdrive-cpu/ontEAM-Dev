@@ -364,7 +364,7 @@ if( !$_SESSION['bejelento_menu_rejt'] && (
 // Projektek
 if( projektek_lathat() ) {
     $menu_nev        = 'Projektek';
-    $menu_nev_kis    = 'rojektek';
+    $menu_nev_kis    = 'projektek';
     $menu_nev_tobbes = 'Projektek';
     $megn            = 'projektigenyles';
     $aloldalak       = array(
@@ -411,6 +411,46 @@ if( projektek_lathat() ) {
     
     $style = '';
     $menu_hover = array('projektigenyles.php', 'projektkezeles.php', 'projektszerzodes.php', 'projektszamla.php', 'cash_flow.php', 'eloterj_fb.php', 'eloterj_bod.php');
+    if( in_array(basename(self()), $menu_hover) ) {
+        $style = ' class="hover{STYLE_KIEG}"';
+    }
+
+    if( $aktmenuk ) {
+        if( $style ) {
+            $style = str_replace('{STYLE_KIEG}', ' almenus', $style);
+        } else {
+            $style = ' class="almenus"';
+        }
+    } else {
+        if( $style ) {
+            $style = str_replace('{STYLE_KIEG}', '', $style);
+        }
+    }
+
+    $menuk   .= str_replace( $akt_menu_mit, array( $style, '#', $megn, $menu_nev_tobbes, $aktmenuk ), $menu_sablon );
+}
+
+// Megállapodás
+if( _jog(JOG_MEGALLAPODAS_OLVAS) || _jog(JOG_MEGALLAPODAS_KEZEL) || _jog(JOG_MEGALLAPODAS_SZAMLA_OVLAS) || _jog(JOG_MEGALLAPODAS_SZAMLA_KEZEL) ) {
+    $menu_nev        = 'Megállapodás';
+    $menu_nev_kis    = 'megállapodás';
+    $menu_nev_tobbes = 'Megállapodás';
+    $megn            = 'megallapodas';
+    $aloldalak       = array('megallapodas.php',  'megallapodas_szamla.php');
+    if(basename(self())==$megn.'.php' && isset($_GET['modosit'])){ $navi = $menu_nev.' szerkesztése'; }
+    if(basename(self())=='megallapodas.php'         )   { $oldalNev = 'Megállapodás / <span id="rekord_neve">Megállapodás</span><span class="dn" id="rekord_neve_egyes">megállapodás</span><span class="dn" id="rekord_neve_targy">megállapodást</span>';                       }
+    if(basename(self())=='megallapodas_szamla.php'  )   { $oldalNev = 'Megállapodás / <span id="rekord_neve">Megállapodás számlák</span><span class="dn" id="rekord_neve_egyes">megállapodás számla</span><span class="dn" id="rekord_neve_targy">megállapodás számlát</span>'; }
+    
+    $aktmenuk  = '';
+    if( _jog(JOG_MEGALLAPODAS_OLVAS) || _jog(JOG_MEGALLAPODAS_KEZEL) ) {
+        $aktmenuk .= str_replace( $akt_almenu_mit, array( $aloldalak['0'], 'Megállapodás'  ), $almenu_sablon );
+    }
+    if( _jog(JOG_MEGALLAPODAS_SZAMLA_OVLAS) || _jog(JOG_MEGALLAPODAS_SZAMLA_KEZEL) ) {
+        $aktmenuk .= str_replace( $akt_almenu_mit, array( $aloldalak['1'], 'Megállapodás számlák' ), $almenu_sablon );
+    }
+    
+    $style = '';
+    $menu_hover = array('megallapodas.php', 'megallapodas_szamla.php');
     if( in_array(basename(self()), $menu_hover) ) {
         $style = ' class="hover{STYLE_KIEG}"';
     }
@@ -939,7 +979,17 @@ if( in_array(basename(self()), $_SESSION['ketHasabos']) && $_SESSION[get_db_tabl
 
     } elseif( basename(self()) == 'login.php' && isset($_GET['megjegyzesek']) ) {
         $uj_link = 'javascript: kapcsolodoSzerkeszt(\'megjegyzes\'); void(0);';
-
+        
+    } elseif( basename(self()) == 'megallapodas_szamla.php' ) {
+        if( !_jog(JOG_MEGALLAPODAS_SZAMLA_KEZEL) ) {
+            $uj_link = 'javascript: alert2(\'Önnek nincs joga megállapodás számlát feltölteni!\', \'\', \'Hiba\'); void(0);';
+        } else {
+            if( isset($_GET['megjegyzesek']) ) {
+                $uj_link = 'javascript: kapcsolodoSzerkeszt(\'megjegyzes\'); void(0);';
+            } else {
+                $uj_link = 'javascript: megallapodas_szamla_feltolt(); void(0);';
+            }
+        }
     } elseif( basename(self()) == 'tervezes.php' && isset($_GET['megjegyzesek']) ) {
         $uj_link = 'javascript: kapcsolodoSzerkeszt(\'megjegyzes\'); void(0);';
 
@@ -1123,29 +1173,29 @@ if( in_array($tabla_nev, $disabled_tablak) ) {
     $uj = $duplikal = $torles_icon = '';
 }
 
-if( basename(self()) == 'energia_szamla.php' ) {
+if( self('-basename-') == 'energia_szamla.php' ) {
     $duplikal = $torles_icon = '';
 }
-if( basename(self()) == 'energia_szamla.php' && !_jog(JOG_ENERGIA_SZAMLAK_KEZEL) ) {
+if( self('-basename-') == 'energia_szamla.php' && !_jog(JOG_ENERGIA_SZAMLAK_KEZEL) ) {
     $uj = '';
 }
-if( basename(self()) == 'fenntartasi_szamla.php' || basename(self()) == 'fenntartasi_szerzodes.php' ) {
+if( self('-basename-') == 'fenntartasi_szamla.php' || basename(self()) == 'fenntartasi_szerzodes.php' || self('-basename-') == 'megallapodas.php' || basename(self()) == 'megallapodas_szamla.php' ) {
     $duplikal = $torles_icon = '';
 }
-if( basename(self()) == 'fenntartasi_szamla.php' && !_jog(JOG_FENNTARTASI_SZAMLAK_KEZEL) ) {
+if( self('-basename-') == 'fenntartasi_szamla.php' && !_jog(JOG_FENNTARTASI_SZAMLAK_KEZEL) ) {
     $uj = '';
 }
-if( basename(self()) == 'fenntartasi_szerzodes.php' && !_jog(JOG_FENNTARTASI_SZERZ_KEZEL) ) {
+if( self('-basename-') == 'fenntartasi_szerzodes.php' && !_jog(JOG_FENNTARTASI_SZERZ_KEZEL) ) {
     $uj = '';
 }
-if( basename(self()) == 'anyagigenyles.php' && !_jog(JOG_ANYAGIGENYLES_KEZEL) ) {
+if( self('-basename-') == 'anyagigenyles.php' && !_jog(JOG_ANYAGIGENYLES_KEZEL) ) {
     $torles_icon    = '';
 }
 // Anyagrendelés alatt nincs új felvitel
-if( basename(self()) == 'anyagigenyles.php' && isset($_GET['anyagrend']) ) {
+if( self('-basename-') == 'anyagigenyles.php' && isset($_GET['anyagrend']) ) {
     $uj = $duplikal = '';
 }
-if( basename(self()) == 'anyagigenyles.php' && !isset($_GET['megjegyzesek']) && !_jog(JOG_ANYAGIGENYLES_KEZEL) ) {
+if( self('-basename-') == 'anyagigenyles.php' && !isset($_GET['megjegyzesek']) && !_jog(JOG_ANYAGIGENYLES_KEZEL) ) {
     $duplikal = nl2('
         <a class="duplikal" title="Duplikálás" onclick="javascript: alert2(\'Önnek nincs jogosultsága anyagigénylést duplikálni!\', \'\', \'Hiba\'); void(0);">
             <i class="material-icons">queue</i>
@@ -1154,91 +1204,91 @@ if( basename(self()) == 'anyagigenyles.php' && !isset($_GET['megjegyzesek']) && 
 }
 
 // Anyag számlánál az új ikonnak látható, de törlés nincs
-if( basename(self()) == 'anyag_szamla.php' && !_jog(JOG_ANYAG_SZAMLAK_KEZEL) ) {
+if( self('-basename-') == 'anyag_szamla.php' && !_jog(JOG_ANYAG_SZAMLAK_KEZEL) ) {
     $uj = '';
 }
-if( basename(self()) == 'anyag_szamla.php' ) {
+if( self('-basename-') == 'anyag_szamla.php' ) {
     $duplikal = $torles_icon = '';
 }
 
-if(basename(self())=='bejelentes.php' && (!_jog(JOG_BEJELENTES_KEZEL)) && !_jog(JOG_BEJELENTES_MAS_NEVEBEN)){
+if( self('-basename-')=='bejelentes.php' && (!_jog(JOG_BEJELENTES_KEZEL)) && !_jog(JOG_BEJELENTES_MAS_NEVEBEN)){
     $uj = $duplikal = '';
 }
 
-if( basename(self()) == 'bejelentes.php' && !_jog(JOG_BEJELENTES_TORLESE) ) {
+if( self('-basename-') == 'bejelentes.php' && !_jog(JOG_BEJELENTES_TORLESE) ) {
     $torles_icon    = '';
 }
 
-if( basename(self()) == 'beosztas.php' && !_jog(JOG_BEOSZTASOK_KEZEL) && !_jog(JOG_MSZK_BEOSZTAS_KEZEL) ) {
+if( self('-basename-') == 'beosztas.php' && !_jog(JOG_BEOSZTASOK_KEZEL) && !_jog(JOG_MSZK_BEOSZTAS_KEZEL) ) {
     $torles_icon = $uj = $duplikal = '';
 }
 
-if( (basename(self()) == 'beosztas_muszak.php' || basename(self()) == 'beosztas_unnepnapok.php') && !_jog(JOG_BEOSZTASOK_KEZEL) && !_jog(JOG_MSZK_BEOSZTAS_KEZEL) ) {
+if( ( self('-basename-') == 'beosztas_muszak.php' || self('-basename-') == 'beosztas_unnepnapok.php') && !_jog(JOG_BEOSZTASOK_KEZEL) && !_jog(JOG_MSZK_BEOSZTAS_KEZEL) ) {
     $torles_icon = $uj = $duplikal = '';
 }
 
-if( basename(self()) == 'cash_flow.php' ) {
+if( self('-basename-') == 'cash_flow.php' ) {
     $torles_icon = $uj = $duplikal = '';
 }
 
-if( basename(self()) == 'cikktorzs.php' && !_jog(JOG_CIKKTORZS_KEZEL) ) {
+if( self('-basename-') == 'cikktorzs.php' && !_jog(JOG_CIKKTORZS_KEZEL) ) {
     $torles_icon    = '';
     $uj = $duplikal = '';
 }
 
-if( basename(self()) == 'dokumentumtar.php' && !_jog(JOG_DOKUMENTUMTAR_KEZEL) ) {
+if( self('-basename-') == 'dokumentumtar.php' && !_jog(JOG_DOKUMENTUMTAR_KEZEL) ) {
     $torles_icon    = '';
     $uj = $duplikal = '';
 }
 
 // Energia tervezés alatt elrejtjük a duplikálást
-if( basename(self())=='energia_terv.php' ) {
+if( self('-basename-')=='energia_terv.php' ) {
     $duplikal = '';
 }
-if( basename(self())=='energia_terv.php' &&  !_jog(JOG_ENERGIA_EGYSEGAR_KEZEL)) {
+if( self('-basename-')=='energia_terv.php' &&  !_jog(JOG_ENERGIA_EGYSEGAR_KEZEL)) {
     $torles_icon    = '';
     $uj = $duplikal = '';
 }
 
-if( basename(self()) == 'eloterj_bod.php' && !_jog(JOG_ELOTERJ_KEZEL) ) {
+if( self('-basename-') == 'eloterj_bod.php' && !_jog(JOG_ELOTERJ_KEZEL) ) {
     $torles_icon    = '';
     $uj = $duplikal = '';
 }
 
-if( basename(self()) == 'eloterj_fb.php' && !_jog(JOG_ELOTERJ_KEZEL) ) {
+if( self('-basename-') == 'eloterj_fb.php' && !_jog(JOG_ELOTERJ_KEZEL) ) {
     $torles_icon    = '';
     $uj = $duplikal = '';
 }
 
-if( basename(self()) == 'erteklista.php' && !_jog(JOG_ERTEKLISTAK_KEZEL) ) {
+if( self('-basename-') == 'erteklista.php' && !_jog(JOG_ERTEKLISTAK_KEZEL) ) {
     $torles_icon    = '';
     $uj = $duplikal = '';
 }
 
-if( basename(self()) == 'szerepkor.php' && !_jog(JOG_SZEREPKOR_KEZEL) ) {
+if( self('-basename-') == 'szerepkor.php' && !_jog(JOG_SZEREPKOR_KEZEL) ) {
     $torles_icon    = '';
     $uj = $duplikal = '';
 }
 
 // Eseti fenntartás
-if( basename(self()) == 'eseti_fenntartas.php' && !_jog(JOG_ESETI_FENN_KEZEL) ) {
+if( self('-basename-') == 'eseti_fenntartas.php' && !_jog(JOG_ESETI_FENN_KEZEL) ) {
     $uj = $duplikal = '';
 }
-if( basename(self()) == 'eseti_fenntartas.php' && !_jog(JOG_ESETI_FENN_TOROL) ) {
+if( self('-basename-') == 'eseti_fenntartas.php' && !_jog(JOG_ESETI_FENN_TOROL) ) {
     $torles_icon    = '';
 }
 
-if( basename(self()) == 'eszkozkezeles.php' && !_jog(JOG_ESZKOZ_KEZEL) ) {
-    $torles_icon    = '';
-    $uj = $duplikal = '';
-}
-
-if( basename(self()) == 'felmeresi_terv.php' && !_jog(JOG_FT_KEZEL) ) {
+if( self('-basename-') == 'eszkozkezeles.php' && !_jog(JOG_ESZKOZ_KEZEL) ) {
     $torles_icon    = '';
     $uj = $duplikal = '';
 }
 
-if( basename(self()) == 'fenntartasi_terv.php' ) {
+if( self('-basename-') == 'felmeresi_terv.php' && !_jog(JOG_FT_KEZEL) ) {
+    $torles_icon    = '';
+    $uj = $duplikal = '';
+}
+
+if( self('-basename-') == 'fenntartasi_terv.php' ) {
     if( !_jog(JOG_FENNTARTASI_SAJAT_SZ_KEZEL) ) {
         $uj = $duplikal = '';
     }
@@ -1250,14 +1300,14 @@ if( basename(self()) == 'fenntartasi_terv.php' ) {
 }
 
 // Felhasználóknál a törlés gomb sosem látszik.
-if(basename(self())=='login.php'/* Ez valszeg kelleni fog, rákérdeztem && !isset($_GET['szallodak'])*/){
+if( self('-basename-') == 'login.php'/* Ez valszeg kelleni fog, rákérdeztem && !isset($_GET['szallodak'])*/){
     $torles_icon    = '';
 }
-if( basename(self()) == 'login.php' && !_jog(JOG_FELHASZNALOK_KEZEL) ) {
+if( self('-basename-') == 'login.php' && !_jog(JOG_FELHASZNALOK_KEZEL) ) {
     $uj = $duplikal = '';
 }
 
-if( basename(self()) == 'munkalap.php' ) {
+if( self('-basename-') == 'munkalap.php' ) {
     if( !_jog(JOG_MUNKALAP_TOROL) ) {
         $torles_icon    = '';
     }
@@ -1350,7 +1400,7 @@ if( basename(self()) == 'torzsadat.php' ) {
 
 // Excel export
 $valasztos = '';
-$valasztos_feluletek = array('anyag_szamla.php', 'beosztas.php', 'cash_flow.php', 'eloterj_bod.php', 'eloterj_fb.php', 'energia_terv.php', 'energia_szamla.php', 'fenntartasi_terv.php', 'fenntartasi_szamla.php', 'fenntartasi_szerzodes.php', 'projektszamla.php', 'projektszerzodes.php');
+$valasztos_feluletek = array('anyag_szamla.php', 'beosztas.php', 'cash_flow.php', 'eloterj_bod.php', 'eloterj_fb.php', 'energia_terv.php', 'energia_szamla.php', 'fenntartasi_terv.php', 'fenntartasi_szamla.php', 'fenntartasi_szerzodes.php', 'megallapodas.php', 'megallapodas_szamla.php', 'projektszamla.php', 'projektszerzodes.php');
 if( in_array(basename(self()), $valasztos_feluletek) ) {
     $valasztos = 'választós';
 }

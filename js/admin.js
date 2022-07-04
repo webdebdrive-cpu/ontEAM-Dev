@@ -637,6 +637,8 @@ $(function() {
                 'ktghely',
                 'ktgnem',
                 'login',
+                'megallapodas',
+                'megallapodas_szamla',
                 'munkalap',
                 'munkalap_arch',
                 'projektkezeles',
@@ -1149,7 +1151,7 @@ $(function() {
         $(this).addClass('aktiv');
     });
 
-    /* Bal oldali nav panelen kattintunk egy bejegyzésre. Ekkor lekezeljük mi történik a kijelöésekkel */
+    // Bal oldali nav panelen kattintunk egy bejegyzésre. Ekkor lekezeljük mi történik a kijelöésekkel
     $(document).on('click', '#szamlaList li.szamla_sor', function(e) {
         var sorok       = $('#szamlaList li.szamla_sor'),
             csoportok   = $('#szamlaList li.csoport'),
@@ -2128,7 +2130,7 @@ $(function() {
         }
     });
 
-    /* Aktív terület váltása: nav panel (bal oldalt) vagy jobb oldali terület. Le-fel nyillal léptetésnél nem mindegy. */
+    // Aktív terület váltása: nav panel (bal oldalt) vagy jobb oldali terület. Le-fel nyillal léptetésnél nem mindegy.
     aktiv_oldal = 'szamla_cont';
     $(document).on('click', '.szamla_cont .szamla_sor', function() {
         aktiv_oldal = 'szamla_cont';
@@ -2138,7 +2140,7 @@ $(function() {
         aktiv_oldal = 'szamla_cont_tabla';
     });
 
-    /* Csatolmányok törlése */
+    // Csatolmányok törlése
     $(document).on('click', '.f_csatolmany_torol', function() {
         
         $('.f_csatolmany_torol').removeClass('ide_kattints');
@@ -2759,7 +2761,7 @@ function csa_alert() {
                 var text = $(csoportok).find('.icsopnev').text(),
                     id   = $(csoportok).attr('data-id');
 
-                /* Összes csoport elem száma */
+                // Összes csoport elem száma
                 csoport_li = $('ul.szamla_cont li.szamla_sor[data-csoportID="' + id + '"]');
 
                 if( kijelolve_li.length == csoport_li.length ) {
@@ -2896,7 +2898,7 @@ function munkBejelKoze() {
     }
 }
 
-/* Várólistából kivétel */
+// Várólistából kivétel
 function varolistabolKivetel(csak_kerdezunk) {
 
     if(balnav_kijelol_ell()){
@@ -2953,7 +2955,7 @@ function varolistabolKivetel(csak_kerdezunk) {
     }
 }
 
-/* Anyagigénylés küldés jóváhagyásra */
+// Anyagigénylés küldés jóváhagyásra
 function anyagigenyles_kuldes_jovahagyasra(csak_kerdezunk) {
     if(balnav_kijelol_ell()){
 
@@ -3192,7 +3194,7 @@ function anyagigenyles_jovahagy(csak_kerdezunk, jhmen) {
     }
 }
 
-/* Anyagigénylés elutasítás */
+// Anyagigénylés elutasítás
 function anyagigenyles_elutasitas(csak_kerdezunk) {
 
     if(balnav_kijelol_ell()){
@@ -5601,12 +5603,12 @@ function bejegyzesekLista( that, irany, rkat, ksz ) {
             url : 'esemenyek.php',
             type: 'GET',
             data: esamp2es('id=' + recid + '&amp;kijeloltek=' + JSON.stringify(idk) + '&amp;ksz=' + ksz + '&amp;rkat=' + rkat + '&amp;rend=' + rend + '&amp;irany=' + irany + '&amp;tabla=' + tabla + param_kieg + '&amp;szamlaLista=' + new Date().getTime()),
-            success: function(html) {
-                if(html.substring(0, 6)=='SESKIL'){ location.href = 'index.php'; }
-                if(html) {
+            success: function(response) {
+                if(response.substring(0, 6)=='SESKIL'){ location.href = 'index.php'; }
+                if(response) {
                     
                     if( tabla!='anyagigenyles' ){
-                        $('#tartalomBal').html(html).scrollTop(0);
+                        $('#tartalomBal').html(response).scrollTop(0);
                     }
 
                     ksz_kieg = '';
@@ -5631,6 +5633,8 @@ function bejegyzesekLista( that, irany, rkat, ksz ) {
             }
         });
 
+        var ri = 'asc';
+        var rt = '▼ <span>Z-A</span>';
         $.when( lista ).then(function() {
             if( irany == 'asc' ) {
                 ri = 'desc';
@@ -6076,7 +6080,7 @@ function csv_general( that, valasztos, link_kieg ) {
     if (valasztos) {
         
         // Anyag/Energia/Fenntartási/Projekt számláknál lehet választani, hogy Számlák vagy Számlák és tételek
-        if ( baseName(location.href) == 'anyag_szamla' || baseName(location.href) == 'energia_szamla' || baseName(location.href) == 'fenntartasi_szamla' || baseName(location.href) == 'projektszamla' ) {
+        if ( baseName(location.href) == 'anyag_szamla' || baseName(location.href) == 'energia_szamla' || baseName(location.href) == 'fenntartasi_szamla' || baseName(location.href) == 'megallapodas_szamla' || baseName(location.href) == 'projektszamla' ) {
             alert2('Válasszon export fajtát:<br><a href="javascript:csv_general($(\'.excel\'))">» Számlák exportálása</a><br><a href="javascript:csv_general($(\'.excel\'), \'\', \'tetelek&id=\'+_get(\'id\'))">» Számlák és tételek exportálása</a>', '<input type="button" class="gomb" value="Mégsem" onclick="alert2()">', 'Válasszon exportot');
         }
 
@@ -6108,6 +6112,9 @@ function csv_general( that, valasztos, link_kieg ) {
         // Fenntartási + Projektszerződéseknél lehet választani, hogy Szerződések vagy Szerződések és tételek
         if ( baseName(location.href) == 'fenntartasi_szerzodes' || baseName(location.href) == 'projektszerzodes') {
             alert2('Válasszon export fajtát:<br><a href="javascript:csv_general($(\'.excel\'))">» Szerződések exportálása</a><br><a href="javascript:csv_general($(\'.excel\'), \'\', \'tetelek&id=\'+_get(\'id\'))">» Szerződések és tételek exportálása</a>', '<input type="button" class="gomb" value="Mégsem" onclick="alert2()">', 'Válasszon exportot');
+        }
+        if ( baseName(location.href) == 'megallapodas' ) {
+            alert2('Válasszon export fajtát:<br><a href="javascript:csv_general($(\'.excel\'))">» Megállapodások exportálása</a><br><a href="javascript:csv_general($(\'.excel\'), \'\', \'tetelek&id=\'+_get(\'id\'))">» Megállapodások és tételek exportálása</a>', '<input type="button" class="gomb" value="Mégsem" onclick="alert2()">', 'Válasszon exportot');
         }
 
         // Energia tervnél lehet választani, hogy tervet, vagy Egységárakat szeretne-e exportálni
@@ -6551,6 +6558,13 @@ function szamlaBetolt( recid, page, muvelet, szerkeszt, kerdes_nelkul, anyagigen
                     } else if( baseName(location.href) == 'login' && _get('megjegyzesek') ) {
                         $('#navGombok a.uj').attr('href', 'javascript: kapcsolodoSzerkeszt(\'megjegyzes\'); void(0);');
 
+                    } else if( baseName(location.href) == 'megallapodas_szamla' ) {
+                        if( _get('megjegyzesek') ) {
+                            $('#navGombok a.uj').attr('href', 'javascript: kapcsolodoSzerkeszt(\'megjegyzes\'); void(0);');
+                        } else {
+                            $('#navGombok a.uj').attr('href', 'javascript: megallapodas_szamla_feltolt(); void(0);');
+                        }
+                        
                     } else if( baseName(location.href) == 'munkalap' && _get('megjegyzesek') ) {
                         $('#navGombok a.uj').attr('href', 'javascript: kapcsolodoSzerkeszt(\'megjegyzes\'); void(0);');
 
@@ -6661,6 +6675,7 @@ function szamlaBetolt( recid, page, muvelet, szerkeszt, kerdes_nelkul, anyagigen
             gombokRejt();
             scrollLeptet();
             fulGombMeretez();
+            tabindex_beallit();
 
             fixTable();
 
@@ -7763,7 +7778,7 @@ function munkalapok_nyitottak_koze(mehet){
 
 // Az űrlap gombjait váltjuk: Mentés / Mégsem látsszon vagy a kék gombok. Illetve form módosított-e vagy sem.
 function gombok_valt(mod){
-    
+
     // Fenntartási szerződésnél a Mentés / Mégsem gombok akkor is látszódjanak, ha az űrlap nincs módosítva.
     // Ez csak új feltöltésnél érdekes, mert az átmeneti táblából ha menteni szeretnénk adatokat, akkor az űrlapon csak nem kötelező mezők vannak
     // amiket üresen is el kell tudni menteni.
@@ -7777,6 +7792,7 @@ function gombok_valt(mod){
         $('#megsem_gomb').attr('disabled', false);
         $('#visszavonas_gomb').attr('disabled', false);
         $('.modositaskor_rejt').hide();
+        $('.modositaskor_mutat').show();
 
         formModositva = true;
     } else {
@@ -7785,11 +7801,12 @@ function gombok_valt(mod){
         if(!$('#mehet_gomb').hasClass('ne_rejtsd_el')){
             $('#mehet_gomb').attr('disabled', true).removeClass('gombb_alert');
         }
-        if(!$('#megsem_gomb').hasClass('ne_rejtsd_el')){
-            $('#megsem_gomb').attr('disabled', true);
+        if (!$('#megsem_gomb').hasClass('ne_rejtsd_el')) {
+           $('#megsem_gomb').attr('disabled', true);
         }
         $('#visszavonas_gomb').attr('disabled', true);
         $('.modositaskor_rejt').show();
+        $('.modositaskor_mutat').hide();
 
         formModositva = false;
     }
@@ -8240,25 +8257,25 @@ function szamla_nullas() {
         if( $('#kcs_21_autocomp').val() != 'HUF' ) {
             $('#dev_net').val('0,00').attr('disabled', 'disabled').attr('readonly', 'readonly').removeClass('mod').removeClass('csillag');
             // Fenntartási számla alatt a bruttó mezők továbbra is disabled marad
-            if (PHP_SELF != 'fenntartasi_szamla.php' && PHP_SELF != 'energia_szamla.php' && PHP_SELF != 'projektszamla.php') {
+            if (PHP_SELF != 'energia_szamla.php' && PHP_SELF != 'fenntartasi_szamla.php' && PHP_SELF != 'megallapodas_szamla.php' && PHP_SELF != 'projektszamla.php') {
                 $('#dev_br') .val('0,00').attr('disabled', 'disabled').attr('readonly', 'readonly').removeClass('mod').removeClass('csillag');
             }
         }
         $('#netto')  .val('0').attr('disabled', 'disabled').attr('readonly', 'readonly').removeClass('mod').removeClass('csillag');
         // Fenntartási számla alatt a bruttó mezők továbbra is disabled marad
-        if(PHP_SELF != 'anyag_szamla.php' && PHP_SELF != 'energia_szamla.php' && PHP_SELF != 'fenntartasi_szamla.php' && PHP_SELF != 'projektszamla.php') {
+        if(PHP_SELF != 'anyag_szamla.php' && PHP_SELF != 'energia_szamla.php' && PHP_SELF != 'fenntartasi_szamla.php' && PHP_SELF != 'megallapodas_szamla.php' && PHP_SELF != 'projektszamla.php') {
             $('#brutto') .val('0').attr('disabled', 'disabled').attr('readonly', 'readonly').removeClass('mod').removeClass('csillag');
         }
     } else {
         if( $('#kcs_21_autocomp').val() != 'HUF' ) {
             $('#dev_net').removeAttr('disabled').removeAttr('readonly').focus().addClass('csillag');
             // Fenntartási számla alatt a bruttó mezők továbbra is disabled marad
-            if(PHP_SELF != 'anyag_szamla.php' && PHP_SELF != 'energia_szamla.php' && PHP_SELF != 'fenntartasi_szamla.php' && PHP_SELF != 'projektszamla.php') {
+            if(PHP_SELF != 'anyag_szamla.php' && PHP_SELF != 'energia_szamla.php' && PHP_SELF != 'fenntartasi_szamla.php' && PHP_SELF != 'megallapodas_szamla.php' && PHP_SELF != 'projektszamla.php') {
                 $('#dev_br') .removeAttr('disabled').removeAttr('readonly').focus().addClass('csillag');
             }
         }
         // Fenntartási számla alatt a bruttó és nettó mezők továbbra is disabled marad
-        if(PHP_SELF != 'anyag_szamla.php' && PHP_SELF != 'energia_szamla.php' && PHP_SELF != 'fenntartasi_szamla.php' && PHP_SELF != 'projektszamla.php') {
+        if(PHP_SELF != 'anyag_szamla.php' && PHP_SELF != 'energia_szamla.php' && PHP_SELF != 'fenntartasi_szamla.php' && PHP_SELF != 'megallapodas_szamla.php' && PHP_SELF != 'projektszamla.php') {
             $('#brutto') .removeAttr('disabled').removeAttr('readonly').focus().addClass('csillag');
             $('#netto')  .removeAttr('disabled').removeAttr('readonly').focus().addClass('csillag');
         // A nettót meg csak HUF-os számla esetén engedjük szerkeszteni

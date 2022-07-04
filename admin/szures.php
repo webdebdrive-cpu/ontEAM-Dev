@@ -41,6 +41,7 @@ if( isset($_POST['f_szuro_mezo']) ) {
     foreach ( $akt_tomb_szures as $ertek ) {
 
         if( $ertek['name'] == $_POST['mezo'] ) {
+            
 
             // Checkbox esetén Igen/Nem
             if( $ertek['type'] == 'checkbox' ) {
@@ -992,7 +993,7 @@ if( $tabla == 'fenntartasi_szerzodes' ) {
 }
 
 // Vannak felületek, ahol a nav panel számát limitáljuk. Ezt egy szűrővel oldjuk meg, tehát itt szükséges, hogy legyen egy Legfrisebb nevű szűrés lehetőség.
-$legfrisebb_feluletek = array('anyagigenyles', 'anyagszamla', 'bejelentes_arch', 'energia_szamla', 'fenntartasi_szamla', 'fenntartasi_szerzodes', 'munkalap_arch', 'projektigenyles', 'projektkezeles', 'projektszamla', 'projektszerzodes');
+$legfrisebb_feluletek = array('anyagigenyles', 'anyag_szamla', 'bejelentes_arch', 'energia_szamla', 'fenntartasi_szamla', 'fenntartasi_szerzodes', 'megallapodas', 'megallapodas_szamla', 'munkalap_arch', 'projektigenyles', 'projektkezeles', 'projektszamla', 'projektszerzodes');
 if( in_array($tabla, $legfrisebb_feluletek) ) {
     $selected_legfrissebb  = '';
     if( $_GET['mezo'] == 'legfrissebb' && $_GET['felt']/* Tehát nem 0 sorra van szűkítve, ez egy speciális eset anyagrendeléseknél */ ) {

@@ -52,6 +52,8 @@ function get_title(){
         case 'ktghely.php'                  : $title .= 'Költséghelyek';            break;
         case 'ktgnem.php'                   : $title .= 'Költségnemek';             break;
         case 'login.php'                    : $title .= 'Felhasználók';             break;
+        case 'megallapodas.php'             : $title .= 'Megállapodás';             break;
+        case 'megallapodas_szamla.php'      : $title .= 'Megállapodás számla';      break;
         case 'munkalap.php'                 : $title .= 'Munkalapok';               break;
         case 'munkalap_arch.php'            : $title .= 'Archív munkalapok';        break;
         case 'mobil_hozzarendel.php'        : $title .= 'Mobil hozzárendelés';      break;

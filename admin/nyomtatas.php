@@ -159,6 +159,8 @@ if( $_GET['print'] == 'lista' || isset($_GET['pdf']) ) {
         case 'energia_terv'         : $sorok_html = energia_tervLista( $sorok, $tabla );    break;
         case 'erteklista'           : $sorok_html = erteklistaLista( $sorok, $tabla );      break;
         case 'fenntartasi_terv'     : $sorok_html = fenntartasi_tervLista( $sorok, $tabla );break;
+        case 'megallapodas'         : $sorok_html = megallapodasLista( $sorok, $tabla );    break;
+        case 'megallapodas_szamla'  : $sorok_html = megallapodas_szamlaLista( $sorok, $tabla );break;
         case 'munkalap'             : $sorok_html = munkalapLista( $sorok, $tabla );        break;
 //        case 'utemezett_feladatok'  : $akt_tomb = $utemezett_feladatok_tomb;    break;
         case 'torzsadat'            : $sorok_html = torzsadatLista($sorok, $tabla);         break;

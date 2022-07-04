@@ -970,7 +970,7 @@ if( isset($_POST['munkalapKulso']) ) {
                 $cimzettek          = implode(', ', $mailcimek);
                 $masolatot_kapott   = '';
                 $emailkuldes_megj .= 'Megrendelés elküldve.'."\n".'Címzettek: '.$cimzettek.' ';
-                if($masolatok){
+                if( $masolatok ) {
                     $masolatot_kapott   = implode(', ', $masolatok);
                     $emailkuldes_megj .= "\n".'Másolatot kaptak: '.$masolatot_kapott.' ';
                 }
@@ -2704,7 +2704,7 @@ if( isset($_POST['kulsokivHozzarend']) ) {
                 $cimzettek          = implode(', ', $mailcimek);
                 $masolatot_kapott   = '';
                 $emailkuldes_megj .= 'Megrendelés elküldve.'."\n".'Címzettek: '.$cimzettek.' ';
-                if($masolatok){
+                if( $masolatok ) {
                     $masolatot_kapott   = implode(', ', $masolatok);
                     $emailkuldes_megj .= "\n".'Másolatot kaptak: '.$masolatot_kapott.' ';
                 }

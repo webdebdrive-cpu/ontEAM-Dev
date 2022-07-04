@@ -52,10 +52,11 @@ if( isset($_POST['szamla_athelyez']) ) {
     
     // Melyik táblába kell küldeni
     switch ($_POST['tipus']) {
-        case 'fenntartas': $tabla = 'fenntartasi_szamla_atmeneti'; break;
-        case 'energia'   : $tabla = 'energia_szamla_atmeneti';     break;
-        case 'anyag'     : $tabla = 'anyag_szamla_atmeneti';       break;
-        case 'projekt'   : $tabla = 'projektszamla_atmeneti';      break;
+        case 'anyag'        : $tabla = 'anyag_szamla_atmeneti';        break;
+        case 'energia'      : $tabla = 'energia_szamla_atmeneti';      break;
+        case 'fenntartas'   : $tabla = 'fenntartasi_szamla_atmeneti';  break;
+        case 'megallapodas' : $tabla = 'megallapodas_szamla_atmeneti'; break;
+        case 'projekt'      : $tabla = 'projektszamla_atmeneti';       break;
     }
     
     $recidk = json_decode($_POST['recidk'], '-tömb-');
@@ -239,17 +240,10 @@ require_once('selectek.php');
         
         if( _jog(ANDOC_SZAMLAK_SZETOSZTASA) ) {
             $gombok .= '<input type="button" class="gomb" value="Fenntartás" onclick="szamla_athelyez(\'fenntartas\')"> ';
-        }
-        if( _jog(ANDOC_SZAMLAK_SZETOSZTASA) ) {
             $gombok .= '<input type="button" class="gomb" value="Energia" onclick="szamla_athelyez(\'energia\')"> ';
-        }
-        if( _jog(ANDOC_SZAMLAK_SZETOSZTASA) ) {
             $gombok .= '<input type="button" class="gomb" value="Anyag" onclick="szamla_athelyez(\'anyag\')"> ';
-        }
-        if( _jog(ANDOC_SZAMLAK_SZETOSZTASA) ) {
             $gombok .= '<input type="button" class="gomb" value="Projekt" onclick="szamla_athelyez(\'projekt\')"> ';
-        }
-        if( _jog(ANDOC_SZAMLAK_SZETOSZTASA) ) {
+            $gombok .= '<input type="button" class="gomb" value="Megállapodás" onclick="szamla_athelyez(\'megallapodas\')"> ';
             $gombok .= '<input type="button" class="gomb piros" value="Nem műszaki számla" onclick="nem_muszaki_szamla()"> ';
         }
 

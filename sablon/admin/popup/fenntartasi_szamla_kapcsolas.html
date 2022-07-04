@@ -49,7 +49,7 @@
     
 </div>
 <div class="kuldes">
-    <input type="button" class="gomb zold" value="Mentés" onclick="projektszamla_kapcsolas();">
+    <input type="button" class="gomb zold" value="Mentés" onclick="fenntartasi_szamla_kapcsolas();">
     <input type="button" class="gomb piros escapes_megsem" value="Mégsem" onclick="megsem_gomb();">
     <input type="hidden" id="szamla_tetel_recid" value="{SZAMLA_TETEL_RECID}">
     <input type="hidden" id="szamla_tetel_netto" value="">
@@ -228,7 +228,7 @@ function popup_tetel_sor_torol(sor_id, mehet) {
 }
 
 /* Tétel sor táblázat mentése */
-function projektszamla_kapcsolas( mehet ) {
+function fenntartasi_szamla_kapcsolas( mehet ) {
     
     var recidk = [];
     $('.pop_recid').each(function() {

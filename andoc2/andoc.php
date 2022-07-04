@@ -20,6 +20,7 @@ class ServerClass {
     const SZAMLA_TIPUS_PROJEKT      = 'beruházási számla';
     const SZAMLA_TIPUS_ENERGIA      = 'energia számla';
     const SZAMLA_TIPUS_ANYAG        = 'műszaki anyag';
+    const SZAMLA_TIPUS_MEGALL       = 'megállapodás';
     
     const SZERZ_TIPUS_FENNTARTASI   = 'fenntartás';
     const SZERZ_TIPUS_PROJEKT       = 'projekt';
@@ -62,6 +63,7 @@ class ServerClass {
         // A számla adatai a "data -> register -> properties -> container"-ben lesz
         // mégpedig abban, amelyiknek "NIK1" vagy "NIK3" a neve
         $szamla_adatok = array();
+
         foreach( $szamla -> data -> register -> properties -> container as $cont ) {
             if( $cont['name'] == 'NIK1' ) {
 
@@ -91,7 +93,7 @@ class ServerClass {
             Throw new SOAPFault ('Server', 'Hiányzó Andoc azonosító!');
         }
         $szamla_andoc_id = $andoc_id = $szamla -> data -> register['registernumber'];
-        
+
         $kifizetes_import = false;
         // Ha létezik a kifizetett összeg tag, de nincs értéke (vagy 0), akkor dobjunk hibát
         if( $szamla_adatok['Fizetési státusz'] == 'kifizetetlen' || $szamla_adatok['Fizetési státusz'] == 'részben kifizetve' || $szamla_adatok['Fizetési státusz'] == 'kifizetett' ) {
@@ -111,11 +113,12 @@ class ServerClass {
         if( $szamla_adatok['Számla főtípus'] ) {
             $szamla_tipus = mb_strtolower($szamla_adatok['Számla főtípus'], self::CHAR_CODING);
             switch( $szamla_tipus ) {
-                case self::SZAMLA_TIPUS_FENNTARTASI     : $tabla = 'fenntartasi_szamla'; break;
-                case self::SZAMLA_TIPUS_PROJEKT         : $tabla = 'projektszamla';      break;
-                case self::SZAMLA_TIPUS_ENERGIA         : $tabla = 'energia_szamla';     break;
-                case self::SZAMLA_TIPUS_ANYAG           : $tabla = 'anyag_szamla';       break;
-                default                                 : $tabla = '!hiba!';             break;
+                case self::SZAMLA_TIPUS_FENNTARTASI     : $tabla = 'fenntartasi_szamla';    break;
+                case self::SZAMLA_TIPUS_PROJEKT         : $tabla = 'projektszamla';         break;
+                case self::SZAMLA_TIPUS_ENERGIA         : $tabla = 'energia_szamla';        break;
+                case self::SZAMLA_TIPUS_ANYAG           : $tabla = 'anyag_szamla';          break;
+                case self::SZAMLA_TIPUS_MEGALL          : $tabla = 'megallapodas_szamla';   break;
+                default                                 : $tabla = '!hiba!';                break;
             }
         // Ha nem ismert a számla főtípusa, akkor az andoc számla táblával dolgozunk
         } else {
@@ -569,13 +572,13 @@ class ServerClass {
                     }
 
                     // Fenntartás és projekt számlák esetén a szerződés tételeknél nullázni kell a teljesítést és nettó értékeket
-                    if( $szamla_tipus == self::SZAMLA_TIPUS_FENNTARTASI || $szamla_tipus == self::SZAMLA_TIPUS_PROJEKT ) {
+                    if( $szamla_tipus == self::SZAMLA_TIPUS_FENNTARTASI || $szamla_tipus == self::SZAMLA_TIPUS_MEGALL || $szamla_tipus == self::SZAMLA_TIPUS_PROJEKT ) {
                         
                         // Projekt és fenntartási szerződés tételenél más a mezők neve
                         $netto_mezo     = 'ertek';
                         $dev_netto_mezo = 'dev_ertek';
                         $telj_mezo      = 'teljesites';
-                        if( $szamla_tipus == self::SZAMLA_TIPUS_FENNTARTASI ) {
+                        if( $szamla_tipus == self::SZAMLA_TIPUS_FENNTARTASI || $szamla_tipus == self::SZAMLA_TIPUS_MEGALL ) {
                             $netto_mezo     = 'netto_ert';
                             $dev_netto_mezo = 'dev_net';
                             $telj_mezo      = 'telj_dt';
@@ -654,6 +657,7 @@ class ServerClass {
 
                 // Ha kifizetésről van szó, akkor még kezeljük le a Kifizetve pipát az updatelt adatok ismeretében
                 if( $kifizetes_import ) {
+
                     $szamla = $adatbazis_kapcsolat->s2('kcs_21, brutto, dev_br, kif_ossz, arfolyam', $tabla, "`andoc_id`='{$andoc_id}'");
                     if( $szamla === false ) { $db_error = mysqli_error($db_kapcs); }
                     
@@ -785,6 +789,10 @@ class ServerClass {
                                 array_push($mezok,      'afa_ossz'              );
                                 array_push($ertekek,    $tetel['ÁFA Összege']   );
                             }
+                            if( $szamla_tipus == self::SZAMLA_TIPUS_MEGALL ) {
+                                array_push($mezok,      'afa_ossz'              );
+                                array_push($ertekek,    $tetel['ÁFA Összege']   );
+                            }
                             if( $szamla_tipus == self::SZAMLA_TIPUS_PROJEKT) {
                                 if( !$tetel['Sor megnevezése'] ) {
                                     Throw new SOAPFault ('Server', 'A Sor megnevezése mező értéke nem lehet üres!');
@@ -823,6 +831,14 @@ class ServerClass {
 //                    }
 //
 //                    if( $szamla_tipus == self::SZAMLA_TIPUS_FENNTARTASI) {
+//                        if( $insert_update == 'insert' && !trim($tetel['Főkönyvi számlaszám']) ) {
+//                            Throw new SOAPFault ('Server', 'Hiányzó költségnem a tételeknél!');
+//                        }
+//                        if( $insert_update == 'insert' && !trim($tetel['Költséghely']) ) {
+//                            Throw new SOAPFault ('Server', 'Hiányzó költséghely a tételeknél!');
+//                        }
+//                    }
+//                    if( $szamla_tipus == self::SZAMLA_TIPUS_MEGALL) {
 //                        if( $insert_update == 'insert' && !trim($tetel['Főkönyvi számlaszám']) ) {
 //                            Throw new SOAPFault ('Server', 'Hiányzó költségnem a tételeknél!');
 //                        }
@@ -913,6 +929,10 @@ class ServerClass {
 //
 //                    // További mezők felvétele, számla típusától függően
 //                    if( $szamla_tipus == self::SZAMLA_TIPUS_FENNTARTASI ) {
+//                        array_push($mezok,      'jogcim',           'uzemresz',            'megn',                                      'ktgnem_id',                    'ktghely_id',           'afa',              'afa_kod',          'afa_nev'         );
+//                        array_push($ertekek,    $tetel['Jogcím'],   $tetel['Üzemrész'],    $tetel['Főkönyvi számlaszám megnevezése'],   $tetel['Főkönyvi számlaszám'],  $tetel['Költséghely'],  $tetel['ÁFA %'],    $tetel['ÁFA kód'],  $tetel['ÁFA neve']);
+//                    }
+//                    if( $szamla_tipus == self::SZAMLA_TIPUS_MEGALL ) {
 //                        array_push($mezok,      'jogcim',           'uzemresz',            'megn',                                      'ktgnem_id',                    'ktghely_id',           'afa',              'afa_kod',          'afa_nev'         );
 //                        array_push($ertekek,    $tetel['Jogcím'],   $tetel['Üzemrész'],    $tetel['Főkönyvi számlaszám megnevezése'],   $tetel['Főkönyvi számlaszám'],  $tetel['Költséghely'],  $tetel['ÁFA %'],    $tetel['ÁFA kód'],  $tetel['ÁFA neve']);
 //                    }

@@ -74,17 +74,6 @@ function fennt_hozzaad_gomb_hozzaad_vagy_torol() {
                             $('#sz_szam').removeClass('mod');
                         }
                         
-                        /*
-                        A költségviselő értéke importból jön
-                        $('#kolt_vis_autocomp').val('');
-                        $('#kolt_vis').val('');
-                        if( $('#kolt_vis_autocomp').attr('value') ){
-                            $('#kolt_vis_autocomp').addClass('mod');
-                        } else {
-                            $('#kolt_vis_autocomp').removeClass('mod');
-                        }
-                        */
-
                         $('#szerzodes_neve').html('');
 
                         formModositva = true;

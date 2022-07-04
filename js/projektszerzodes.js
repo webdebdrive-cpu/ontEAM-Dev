@@ -200,7 +200,8 @@ function projekt_lezar() {
 
 // Adatlapon található deviza árfolyam és deviza nettó mezőből számol ki nettó értéket
 $(document).on('blur', '#dev_net', function(e) {
-    if( !$('#szerz_ossz').val() || $('#szerz_ossz').val()=='0' ){
+    // Csak akkor tesszük ezt meg, ha a #dev_net írható egyáltalán.
+    if( !$('#dev_net').attr('readonly') ){
         $('#szerz_ossz').val( ezresek($('#dev_net').val().replace(/ /g, '').replace(',', '.')*($('#arfolyam').val().replace(/ /g, '').replace(',', '.')), 2, ',', ' ') );
     }
 });

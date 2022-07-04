@@ -2,6 +2,7 @@
 ÚJ MENÜPONT KIALAKTÍÁSÁNÁL EZEKRE ÜGYELJ
 - esemenyek.php $_SESSION['ketHasabos'] listát bővítsd
 - ugyanitt alatta a switch($tabla) résznél is létre kell hozni egy switch-et
+- meg ugye kell maga az esemenyek tömbje is
 - készíts egy tabla.php fájlt is (a !minta.php-ból)
 - header.php-ban a menüpontot alakítsd ki
 - admin.js-ben a ketHasabos = new Array rész felsorolását bővítsd ki
@@ -67,6 +68,7 @@ SORREDEZÉS
 - Az A-Z és Z-A-t az admin.js bejegyzesekLista() függvény vége állítja. Illetve a header.php, maikor betölt az oldal.
 - A kilsitázott tételek valódi sorrendjét a fuggvenyek.php -ban szamla_lista() függvény elején kerül beállításra
 - Az esemenyek.php -ban a rendezhető mezőknél az alapértelmezett irányt is meg tudod adni egy tömbben, de nem kötelező (ha nincs, akkor marad ami volt). 
+- Az, hogy a Rendezés lenyílóban miként jelenjen meg egy mező, azt a getOszlopNev() függvényben lehet megadni
  
 NYOMTATÁSI NÉZETEK KIGENEÁRLÁSA:
 - header.php hívja meg a nyomtatas.php
@@ -105,3 +107,6 @@ JOBB OLDALI NAVPANELRE KATTINTVA BETÖLT EGY SOR, LEFUT A HÁTTÉRBEN EGY AJAX
 SZÁMLA IMPORT WEBSERVICE ANDOCBÓL
 - andoc.php-kezeli
  
+HA NEM SIKERÜLT LÉTREHOZNI ANYAGIGÉNYLÉSEKNÉL A PDF-ET, AKKOR AZT ITT TUDOD MANUÁLISAN PÓTOLNI:
+anyagigenyles_nyomtat.php -ban le van írva
+ */

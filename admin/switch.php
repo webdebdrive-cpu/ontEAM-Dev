@@ -777,7 +777,6 @@ foreach ( $akt_tomb as $ertek ) {
                 }
             }
             $where .= " AND `inaktiv`=0";
-            
             $cegkodos_modulok = array('anyag_szamla', 'energia_szamla', 'fenntartasi_szamla', 'projektszamla');
             $self = self('-basename-', '-kit.nélkül-');
             if( 

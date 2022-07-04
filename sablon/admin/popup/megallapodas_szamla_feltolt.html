@@ -1,0 +1,57 @@
+<h2>Feldolgozásra váró számlák</h2>
+
+<div class="kozep" style="max-height: 45rem; overflow-y: auto">
+    <div id="feldolgozando_szamlak"></div>
+</div>
+<div class="kuldes">
+    <input type="button" class="gomb zold" value="Ok" onclick="szamla_feldolgoz()">
+    <input type="button" class="gomb piros escapes_megsem" value="Mégsem" onclick="popupZar();">
+</div>
+<script>
+$(document).ready(function () {
+    megallapodas_szamla_get_koztes();
+    
+    $(document).on('click', '#pop_tetelek tbody tr', function(e) {
+        $('#pop_tetelek tbody tr').removeClass('kijelolve');
+        $(this).addClass('kijelolve');
+    });
+});
+
+function szamla_feldolgoz() {
+    
+    if( !$('#pop_tetelek tbody tr.kijelolve').length ) {
+        alert2('Kérjük előbb válasszon ki egy számlát!', '', 'Hiba');
+        return false;
+    } else {
+        var andoc_id = $('#pop_tetelek tbody tr.kijelolve').attr('data-andoc_id');
+    }
+    
+    location.href = 'megallapodas_szamla.php?uj&andoc_id='+andoc_id;
+}
+
+/* Köztes tábla számláinak kilistázása */
+function megallapodas_szamla_get_koztes() {
+    
+    $.ajax({
+        url : 'megallapodas_szamla.php',
+        type: 'POST',
+        data: {
+            megallapodas_szamla_get_koztes : Date.now() 
+        },
+        success: function(response) {
+            if(response.substring(0, 6)=='SESKIL'){ location.href = 'index.php'; }
+            if( response ) {
+                response = JSON.parse(response);
+                if(response.html){
+                    $('#feldolgozando_szamlak').html(response.html);
+                }
+            }
+        },
+        complete: function(xhr) {
+            if( xhr.status != 200 ) {
+                alert2(xhr.responseText, '', 'Hiba');
+            }
+        }
+    });
+}
+</script>
