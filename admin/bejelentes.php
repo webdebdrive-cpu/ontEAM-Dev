@@ -703,7 +703,9 @@ if( isset($_GET['csv']) ) {
                 `helyiseg_text` as \'Hely leírása\',
                 `gep_id` as \'Gépnév\',
                 `stat_id` as \'Státusz\',
-                `'.get_db_tabla().$megnevezes.'`.`insert_dt` as \'Bejelentés dátuma\'
+                `'.get_db_tabla().$megnevezes.'`.`insert_dt` as \'Bejelentés dátuma\',
+                `'.get_db_tabla().$megnevezes.'`.`usr_nev` as \'Bejelentő neve\',
+                `'.get_db_tabla().$megnevezes.'`.`usr_man_nev` as \'Rögzítő neve\'
                 '. csv_export_get_from_tol($megnevezes);
         $query = mysqli_query($db_kapcs, $sql);
 

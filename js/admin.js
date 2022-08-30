@@ -1396,7 +1396,7 @@ $(function() {
                 val = '';
             }
 
-/*console.log(name+' db:'+taroltVal+'|itt:'+val);*/
+// console.log(name+' db:'+taroltVal+'|itt:'+val);
             if( name!='egy_tobb_egy' && name!='egy_tobb_tobb' ){
                 if( taroltVal != val ) {
                     $(this).addClass('mod');
@@ -6473,12 +6473,7 @@ function szamlaBetolt( recid, page, muvelet, szerkeszt, kerdes_nelkul, anyagigen
                         $('#navGombok a.uj').attr('href', 'javascript: alert2(\'Új anyagigénylés csak az anyagigénylés menüpont alatt tölthető fel!\', \'\', \'Hiba\'); void(0);');
 
                     } else if( baseName(location.href) == 'anyag_szamla' ) {
-                        // $('#navGombok a.uj').attr('href', 'javascript: csoportMuvelet(\'anyag_szamla_valaszto\'); void(0);');
-                        if( _get('megjegyzesek') ) {
-                            $('#navGombok a.uj').attr('href', 'javascript: kapcsolodoSzerkeszt(\'megjegyzes\'); void(0);');
-                        } else {
-                            $('#navGombok a.uj').attr('href', 'javascript: anyag_szamla_feltolt(); void(0);');
-                        }
+                        $('#navGombok a.uj').attr('href', 'javascript: anyag_szamla_feltolt(); void(0);');
 
                     } else if( baseName(location.href) == 'beosztas' && _get('naptar') ) {
                         $('#navGombok a.uj').attr('href', 'javascript: $(\'#szerk_form div.dt\').show(); void(0);');
@@ -6520,11 +6515,7 @@ function szamlaBetolt( recid, page, muvelet, szerkeszt, kerdes_nelkul, anyagigen
                         $('#navGombok a.uj').attr('href', 'javascript: kapcsolodoSzerkeszt(\'megjegyzes\'); void(0);');
                         
                     } else if( baseName(location.href) == 'energia_szamla' ) {
-                        if( _get('megjegyzesek') ) {
-                            $('#navGombok a.uj').attr('href', 'javascript: kapcsolodoSzerkeszt(\'megjegyzes\'); void(0);');
-                        } else {
-                            $('#navGombok a.uj').attr('href', 'javascript: energia_szamla_feltolt(); void(0);');
-                        }
+                        $('#navGombok a.uj').attr('href', 'javascript: energia_szamla_feltolt(); void(0);');
 
                     } else if( baseName(location.href) == 'eseti_fenntartas' && _get('megjegyzesek') ) {
                         $('#navGombok a.uj').attr('href', 'javascript: kapcsolodoSzerkeszt(\'megjegyzes\'); void(0);');
@@ -6536,18 +6527,10 @@ function szamlaBetolt( recid, page, muvelet, szerkeszt, kerdes_nelkul, anyagigen
                         $('#navGombok a.uj').attr('href', 'javascript: kapcsolodoSzerkeszt(\'megjegyzes\'); void(0);');
 
                     } else if( baseName(location.href) == 'fenntartasi_szamla' ) {
-                        if( _get('megjegyzesek') ) {
-                            $('#navGombok a.uj').attr('href', 'javascript: kapcsolodoSzerkeszt(\'megjegyzes\'); void(0);');
-                        } else {
-                            $('#navGombok a.uj').attr('href', 'javascript: fenntartasi_szamla_feltolt(); void(0);');
-                        }
+                        $('#navGombok a.uj').attr('href', 'javascript: fenntartasi_szamla_feltolt(); void(0);');
 
                     } else if( baseName(location.href) == 'fenntartasi_szerzodes' ) {
-                        if( _get('megjegyzesek') ) {
-                            $('#navGombok a.uj').attr('href', 'javascript: kapcsolodoSzerkeszt(\'megjegyzes\'); void(0);');
-                        } else {
-                            $('#navGombok a.uj').attr('href', 'javascript: fenntartasi_szerzodes_feltolt(); void(0);');
-                        }
+                        $('#navGombok a.uj').attr('href', 'javascript: fenntartasi_szerzodes_feltolt(); void(0);');
 
                     } else if( baseName(location.href) == 'fenntartasi_terv' && _get('megjegyzesek') ) {
                         $('#navGombok a.uj').attr('href', 'javascript: kapcsolodoSzerkeszt(\'megjegyzes\'); void(0);');
@@ -6559,11 +6542,7 @@ function szamlaBetolt( recid, page, muvelet, szerkeszt, kerdes_nelkul, anyagigen
                         $('#navGombok a.uj').attr('href', 'javascript: kapcsolodoSzerkeszt(\'megjegyzes\'); void(0);');
 
                     } else if( baseName(location.href) == 'megallapodas_szamla' ) {
-                        if( _get('megjegyzesek') ) {
-                            $('#navGombok a.uj').attr('href', 'javascript: kapcsolodoSzerkeszt(\'megjegyzes\'); void(0);');
-                        } else {
-                            $('#navGombok a.uj').attr('href', 'javascript: megallapodas_szamla_feltolt(); void(0);');
-                        }
+                        $('#navGombok a.uj').attr('href', 'javascript: megallapodas_szamla_feltolt(); void(0);');
                         
                     } else if( baseName(location.href) == 'munkalap' && _get('megjegyzesek') ) {
                         $('#navGombok a.uj').attr('href', 'javascript: kapcsolodoSzerkeszt(\'megjegyzes\'); void(0);');
@@ -6597,17 +6576,11 @@ function szamlaBetolt( recid, page, muvelet, szerkeszt, kerdes_nelkul, anyagigen
                         $('#navGombok a.uj').attr('href', 'javascript: csoportMuvelet(\'projektkezel_uj_feltolt\'); void(0);');
                     
                     } else if( baseName(location.href) == 'projektszamla' ) {
-                        if( _get('megjegyzesek') ) {
-                            $('#navGombok a.uj').attr('href', 'javascript: kapcsolodoSzerkeszt(\'megjegyzes\'); void(0);');
-                        } else {
-                            $('#navGombok a.uj').attr('href', 'javascript: pr_szamla_feltolt(); void(0);');
-                        }
+                        $('#navGombok a.uj').attr('href', 'javascript: pr_szamla_feltolt(); void(0);');
+                        
                     } else if( baseName(location.href) == 'projektszerzodes' ) {
-                        if( _get('megjegyzesek') ) {
-                            $('#navGombok a.uj').attr('href', 'javascript: kapcsolodoSzerkeszt(\'megjegyzes\'); void(0);');
-                        } else {
-                            $('#navGombok a.uj').attr('href', 'javascript: projektszerzodes_feltolt(); void(0);');
-                        }
+                        $('#navGombok a.uj').attr('href', 'javascript: projektszerzodes_feltolt(); void(0);');
+                        
                     } else if( baseName(location.href) == 'szamla' && _get('megjegyzesek') ) {
                         $('#navGombok a.uj').attr('href', 'javascript: kapcsolodoSzerkeszt(\'megjegyzes\'); void(0);');
 
@@ -6640,7 +6613,9 @@ function szamlaBetolt( recid, page, muvelet, szerkeszt, kerdes_nelkul, anyagigen
                         $('#navGombok a.uj').attr('href', baseName(location.href) + '.php'+gg+'&uj');
                     }
 
+                    // Mobilon pár dolgot rejtünk, megjelenítünk
                     if( isMobile ) {
+    console.log('itt');
                         $('#tartalomBal') .css('display', 'none');
                         $('#tartalomJobb').css('display', 'block');
                         $('#respo_visszalepes').css('display', 'block');

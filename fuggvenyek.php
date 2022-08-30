@@ -458,8 +458,8 @@ function i_u($type, $tabla, $tomb) {
                 !(
                     $ertek['disabled'] &&
                     $ertek['name']!='szallito_id'   && 
-                    !$ertek['sql_disabledkor_is']   &&  // Tiltott mezőt mégis eltároljuk, ha van "sql_disabledkor_is" tulajdonsága. Ez arra az esetre kell, ha egy mező betöltéskor Disabled, de az adatlap szerkesztések közben JS engedélyez egy tiltott mezőt.  Ilyenkor mentsük is el az értékét.
-                    $type == 'update'                   // Tiltott mezőket beszúrni lehet csak moddolni nem
+                    !$ertek['sql_disabledkor_is']   && // Tiltott mezőt mégis eltároljuk, ha van "sql_disabledkor_is" tulajdonsága. Ez arra az esetre kell, ha egy mező betöltéskor Disabled, de az adatlap szerkesztések közben JS engedélyez egy tiltott mezőt.  Ilyenkor mentsük is el az értékét.
+                    $type == 'update'                  // Tiltott mezőket beszúrni lehet csak moddolni nem
                 )                                   && 
                 $ertek['name']                      && // oszlopnév sem üres és maga a POST egyáltalán létezik is (ne nullázzunk felül el nem küldött POST miatt)
                 isset($_POST[$ertek['name']])
@@ -2146,7 +2146,6 @@ function i_u($type, $tabla, $tomb) {
         foreach ( $_POST as $key => $value ) {
             if( $key != 'mehet_gomb' && $key != 'uj'.$tabla ) {
                 $valtozas .= '[mezo]'.$key.'[/mezo] [ertek]'.$value.'[/ertek]'."\n";
-
                 $i++;
             }
         }
@@ -2259,7 +2258,7 @@ function i_u($type, $tabla, $tomb) {
                             
                             // Ha az események tömbben ez egy fiktív sor volna (pl. csak a szűrés miatt vettük fel - anyag/energia/fenntartasi/projektszamla moduloknál),
                             // akkor ezek változásait se figyeljük, felvesszük a kivételek tömbbe
-                            if( $elem['type'] == 'none' ) {
+                            if( $elem['type'] == 'none' && !$elem['feldolgozando'] ) {
                                 array_push($kiveteles_mezok, $elem['name']);
                             }
                             
@@ -2294,7 +2293,6 @@ function i_u($type, $tabla, $tomb) {
                     
                     // Adatbázisból jövő adatot visszaalakítunk, ne emiatt ne legyen egyenlő a két érték
                     $value = htmlspecialchars_decode($value);
-
                     
                     // Ha az újonnan kapott adat, és DB-ben tárolt adat nem egyezik
                     // És vagy ez előző vagy az új adatnak van értéke (ne azért íródjon már be, mert üres az új érték, de 0 volt az adatbázisban)
@@ -3500,7 +3498,7 @@ function js_kiir($tomb, $fg = 'form_ell_regi()', $ajax = false) {
 
     $param = '';
     foreach ( $tomb as $ertek ) {
-        if( $ertek['type'] != 'statusz' && $ertek['type'] != 'info' && $ertek['type'] != 'none' ) {
+        if( $ertek['type'] != 'statusz' && $ertek['type'] != 'info' && ($ertek['type'] != 'none' || $ertek['feldolgozando']) ) {
             if( $ertek['name'] ) {
 
                 // Csak akkor figyelünk lenti paramétereket, ha egyáltalán az elem létezik. Ezzel egy csomó JS hibát elekerülhetünk és debuggolós szívásokat
@@ -3732,7 +3730,7 @@ function js_kiir($tomb, $fg = 'form_ell_regi()', $ajax = false) {
             }
         ');
     }
-
+    
     // Ütemezett feladatok ellenőrzése
     if( basename(self())=='utemezett_feladatok.php' || basename(self())=='rendszeres_karbantartas.php' ){
 
@@ -4656,8 +4654,10 @@ function szamla_lista( $where = '', $tabla = '', $kijeloltek = false, $csak_sql_
         // Ha van öszetett szűrés feltétel
         if( $_SESSION['o_szuro_feltetel'] ) {
             // Az eddigi Where-t egy nagy zárójelbe tesszük és ehhez vesszük hozzá az új feltételeket
+            // amit szintén egy nagy zárójelbe kell tenni, mert lehet úgy tesznek VAGY feltételt az összetett szűrőbe
+            // hogy nem zárójelezik, és emiatt boríthatja az SQL-t
             if( $where ) {
-                $where = '('.csonkit($where, 5).') AND ';
+                $where = '('.csonkit($where, 5).') AND (';
             }
 
             // Ha van get_o_szures_where_kieg() feltételünk is, akkor még azzal is megtoldjuk a $where-t
@@ -4685,6 +4685,12 @@ function szamla_lista( $where = '', $tabla = '', $kijeloltek = false, $csak_sql_
 
         // Where feltétel lezárása
         $where = trim($where, ' AND ');
+        
+        // Ha volt o_szuro_feltetel, akkor még egy zárójelet be kell zárni, amit ennél a soránál tettünk be:
+        // "Ha van öszetett szűrés feltétel"
+        if( $_SESSION['o_szuro_feltetel'] ) {
+            $where .= ')';
+        }
 
     // Ha van megadva where feltétel, akkor az a recid=x, tehát frissítünk
     } else {
@@ -5178,6 +5184,19 @@ function szamla_lista( $where = '', $tabla = '', $kijeloltek = false, $csak_sql_
                 $where .= " AND ";
             }
             $where .= "`".get_db_tabla()."fenntartasi_szerzodes_tetel`.`telephely_id` IN (".implode(',', $szallodak_tomb).")";
+        }
+        // Hasonlóan a megállapodásoknál is
+        if( $tabla == 'megallapodas' ) {
+            $join .= ' JOIN `'.get_db_tabla().'megallapodas_tetel` ON `'.get_db_tabla().'megallapodas`.`recid`=`'.get_db_tabla().'megallapodas_tetel`.`megallapodas_recid`';
+            $group_by = " GROUP BY  `".get_db_tabla()."megallapodas`.`recid`";
+            $szallodak_tomb = $szallodak;
+            if( !$szallodak_tomb ) {
+                $szallodak_tomb = array(0);
+            }
+            if( $where ) {
+                $where .= " AND ";
+            }
+            $where .= "`".get_db_tabla()."megallapodas_tetel`.`telephely_id` IN (".implode(',', $szallodak_tomb).")";
         }
         
         
@@ -9278,7 +9297,7 @@ function get_akt_tomb($megn){
     return $akt_tomb;
 }
 
-// Az aktuálisan bejelentkezett felhasználóhoz rendelt szállodák ID-ját adja vissza. Ez többször előfroduló igény, azért van kiszervezve függvénybe.
+// Az aktuálisan bejelentkezett felhasználóhoz rendelt szállodák ID-ját adja vissza. Ez többször előforduló igény, azért van kiszervezve függvénybe.
 function get_akt_login_szallodai($sqlt_adj_vissza = '', $telephely_id_oszlop_helyett_masik_oszlop = '', $masik_user = '') {
     global $adatbazis_kapcsolat;
 
@@ -9295,7 +9314,7 @@ function get_akt_login_szallodai($sqlt_adj_vissza = '', $telephely_id_oszlop_hel
     // SQL-t adjunk vissza
     if( $sqlt_adj_vissza ) {
         $oszlop = 'telephely_id';
-        if($telephely_id_oszlop_helyett_masik_oszlop){
+        if( $telephely_id_oszlop_helyett_masik_oszlop ) {
             $oszlop = $telephely_id_oszlop_helyett_masik_oszlop;
         }
         // Ha tartozik hozzá szálloda
@@ -9538,6 +9557,28 @@ function get_szures_where_kieg($mezo, $op, $felt, $tabla) {
         // Update: mégis elég, hisz tagadással azokat szeretnék látni a navpanelben, ahol van olyan tétel, ami nem az adott szálloda, és ezt pont így kapjuk meg
 //        if( $op == '!=' ) {
 //            return '`'.get_db_tabla().'fenntartasi_szerzodes`.`recid` NOT IN (SELECT `'.get_db_tabla().'fenntartasi_szerzodes_tetel`.`fenntartasi_szerzodes_recid` FROM `'.get_db_tabla().'fenntartasi_szerzodes_tetel` WHERE `'.get_db_tabla().$tabla_sql.'`.`'.$mezo_sql.'`=\''.$felt.'\')';
+//        } else {
+            return '`'.get_db_tabla().$tabla_sql.'`.`'.$mezo_sql.'`'.$op.'\''.$felt.'\'';
+//        }
+    
+    } elseif( $tabla == 'megallapodas' ) {
+        
+        $mezo_sql = $mezo;
+        if( $mezo_sql == 'tetel_targy' ) {
+            $mezo_sql = 'targy';
+        }
+        
+        // Ha egy tétel mezőjéről van szó, akkor más táblában is kell azt keresni
+        $tabla_sql = 'megallapodas';
+        $tetel_mezok = array('telephely_id', 'varh_erk', 'dev_varh_ert', 'varh_ert', 'telj_dt', 'tetel_targy', 'netto_ert', 'dev_net');
+        if( in_array($mezo, $tetel_mezok) ) {
+            $tabla_sql = 'megallapodas_tetel';
+        }
+        
+        // A tagadás esetén nem elég a != operátor, mert ha egy szerződésnek csak egy olyan tétele volna, ami nem az adott szálloda, akkor az már találat
+        // Update: mégis elég, hisz tagadással azokat szeretnék látni a navpanelben, ahol van olyan tétel, ami nem az adott szálloda, és ezt pont így kapjuk meg
+//        if( $op == '!=' ) {
+//            return '`'.get_db_tabla().'megallapodas`.`recid` NOT IN (SELECT `'.get_db_tabla().'megallapodas_tetel`.`megallapodas_recid` FROM `'.get_db_tabla().'megallapodas_tetel` WHERE `'.get_db_tabla().$tabla_sql.'`.`'.$mezo_sql.'`=\''.$felt.'\')';
 //        } else {
             return '`'.get_db_tabla().$tabla_sql.'`.`'.$mezo_sql.'`'.$op.'\''.$felt.'\'';
 //        }

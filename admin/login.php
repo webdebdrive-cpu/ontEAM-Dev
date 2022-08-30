@@ -248,7 +248,7 @@ if( isset($_POST['login_letezik']) ) {
 if( isset($_POST['getSzallodak']) ) {
 
     // Szálloda lekérdezése
-    $telephelyek = $adatbazis_kapcsolat->s('id nev recid modell', 'telephely', "`inaktiv`='0'", 'nev');
+    $telephelyek = $adatbazis_kapcsolat->s('id nev recid modell', 'telephely', ""/* 2022.07.26: mindet mutatjuk "`inaktiv`='0'"*/, 'nev');
 
     // Felhasználóhoz kapcsolt szállodák
     $felh = $adatbazis_kapcsolat->s2('nev', 'login', "`recid` = '".$_POST['recid']."'");
@@ -1455,7 +1455,7 @@ require_once('selectek.php');
     // Szállodák fül
     }elseif(isset($_GET['szallodak'])) {
 
-        $felh = $adatbazis_kapcsolat->s2('recid nev', 'login', 'recid='.$_GET['id'], '', '1');
+        $felh = $adatbazis_kapcsolat->s2('recid nev', 'login', "`recid`='{$_GET['id']}'", '', '1');
         if( $felh ) {
 
             $sorok = $adatbazis_kapcsolat->s('recid telephely_id', 'telephely_kapcs', '`nev`=\''.$felh['nev'].'\'');
@@ -1472,8 +1472,8 @@ require_once('selectek.php');
 
                 $i = 1;
                 $telephelyek = adatbazis2tomb($sorok, 'telephely_id');
-                $telephelyek = $adatbazis_kapcsolat->s('id nev', 'telephely', "`id` IN (".implode(',', $telephelyek).") AND `inaktiv`=0", 'nev');
-                foreach($telephelyek as $telephely) {
+                $telephelyek = $adatbazis_kapcsolat->s('id nev', 'telephely', "`id` IN (".implode(',', $telephelyek).")", 'nev');
+                foreach ( $telephelyek as $telephely ) {
 
                     $kapcs_id = $adatbazis_kapcsolat->s2('recid', 'telephely_kapcs', "`telephely_id`='{$telephely['id']}' AND `nev`='{$felh['nev']}'");
 

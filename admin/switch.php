@@ -776,7 +776,9 @@ foreach ( $akt_tomb as $ertek ) {
                     $where = "`id` IN (".implode(',', $telephely_kapcs).")";
                 }
             }
-            $where .= " AND `inaktiv`=0";
+            if( !$ertek['disabled'] ) {
+                $where .= " AND `inaktiv`=0";
+            }
             $cegkodos_modulok = array('anyag_szamla', 'energia_szamla', 'fenntartasi_szamla', 'projektszamla');
             $self = self('-basename-', '-kit.nélkül-');
             if( 

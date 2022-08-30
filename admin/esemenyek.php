@@ -3392,12 +3392,12 @@ $fenntartasi_szerzodes_tomb = $akt_tomb = array(
                                                     </div>
                                                 </div>
                                                 ')),
-    array('type' => 'none',  'megn' => 'Szerződő fél kapcsolattartó név:',       'name' => 'p_nev',          'szuro' => 'szoveges_op'),
-    array('type' => 'none',  'megn' => 'Szerződő fél kapcsolattartó beosztás:',  'name' => 'p_beosztas',     'szuro' => 'szoveges_op'),
-    array('type' => 'none',  'megn' => 'Szerződő fél kapcsolattartó cím:',       'name' => 'p_cim',          'szuro' => 'szoveges_op'),
-    array('type' => 'none',  'megn' => 'Szerződő fél kapcsolattartó email:',     'name' => 'p_email',        'szuro' => 'szoveges_op'),
-    array('type' => 'none',  'megn' => 'Szerződő fél kapcsolattartó telefon:',   'name' => 'p_tel',          'szuro' => 'szoveges_op'),
-    array('type' => 'none',  'megn' => 'Szerződő fél kapcsolattartó fax:',       'name' => 'p_fax',          'szuro' => 'szoveges_op'),
+    array('type' => 'none',  'megn' => 'Szerződő fél kapcsolattartó név:',       'name' => 'p_nev',          'szuro' => 'szoveges_op', 'feldolgozando' => 1),
+    array('type' => 'none',  'megn' => 'Szerződő fél kapcsolattartó beosztás:',  'name' => 'p_beosztas',     'szuro' => 'szoveges_op', 'feldolgozando' => 1),
+    array('type' => 'none',  'megn' => 'Szerződő fél kapcsolattartó cím:',       'name' => 'p_cim',          'szuro' => 'szoveges_op', 'feldolgozando' => 1),
+    array('type' => 'none',  'megn' => 'Szerződő fél kapcsolattartó email:',     'name' => 'p_email',        'szuro' => 'szoveges_op', 'feldolgozando' => 1),
+    array('type' => 'none',  'megn' => 'Szerződő fél kapcsolattartó telefon:',   'name' => 'p_tel',          'szuro' => 'szoveges_op', 'feldolgozando' => 1),
+    array('type' => 'none',  'megn' => 'Szerződő fél kapcsolattartó fax:',       'name' => 'p_fax',          'szuro' => 'szoveges_op', 'feldolgozando' => 1),
     array('type' => 'hidden','megn' => '',                                       'name' => 'lezart_mehet',   'nosql' => 1            ),
 );
 array_push($postok, array('tomb' => $akt_tomb, 'uj' => 'uj'.$megnevezes, 'lista' => $megnevezes.'lista', 'tabla' => $megnevezes, 'torid' => $megnevezes.'tid' ));
@@ -3450,6 +3450,10 @@ if( (basename(self()) == 'megallapodas.php' && $_GET['id']) || basename(self()) 
     $szszam = array('type' => 'text', 'megn' => 'Szerz.szám:',  'name' => 'szszam', 'szuro' => 'szoveges_op',  'disabled' => 1, 'class' => 'normal', 'osszevon' => 1, 'post' => '<span style="margin-left: 4rem"></span>', 'style' => 'width: 9rem');
     $verzio = array('type' => 'text', 'megn' => 'Verzió:',      'name' => 'verzio', 'szuro' => 1,  'disabled' => 1, 'class' => 'normal', 'style' => 'width: 3.5rem');
 }
+$beosztasok = EL_BEOSZTAS_BERUH_IG.','.EL_BEOSZTAS_FEJL_VIG_H.','.EL_BEOSZTAS_MUSZAKI_ASSZ.','.EL_BEOSZTAS_MUSZAKI_IG.','.EL_BEOSZTAS_PR_FELEOS.','.EL_BEOSZTAS_DISZ_KP_VEZ.','.EL_BEOSZTAS_TER_FELELOS;
+if( $_SESSION[get_db_tabla().'szemelyzet_id'] == TERULETI_FELELOS ) {
+    $beosztasok = EL_BEOSZTAS_TER_FELELOS;
+}
 $akt_tomb = $megallapodas_tomb = array(
     array('type' => 'checkbox',     'megn' => 'Hatályos:',                  'name' => 'hatalyos',       'szuro' => 1,  'disabled' => 0, 'class' => 'normal', 'osszevon' => 1, 'post' => '<span style="margin-left: 3.5rem"></span>'),
     array('type' => 'text',         'megn' => 'Kelte:',                     'name' => 'kelte_dt',       'szuro' => 1,  'disabled' => $lezart_disabled,  'class' => 'kicsi datepicker', 'alert' => 'Kérem adja meg a szerződés keltét!', 'osszevon' => $kelte_osszevon, 'post' => '<span style="margin-left: 4rem"></span>'),
@@ -3469,6 +3473,7 @@ $akt_tomb = $megallapodas_tomb = array(
     array('type' => 'text',         'megn' => 'Aláírva:',                   'name' => 'alairva_dt',     'szuro' => 1,  'disabled' => 0, 'class' => 'datepicker', 'osszevon' => 1, 'post' => '<span style="margin-left: 8.2rem"></span>'),
     array('type' => 'text',         'megn' => 'Felmondás:',                 'name' => 'felmondas',      'szuro' => 1,  'disabled' => 0, 'class' => 'normal r', 'post' => ' nap<span style="margin-left: 4rem"></span>', 'style' => 'width: 3.8rem;', 'osszevon' => 1),
     array('type' => 'checkbox',     'megn' => 'Érték nélküli szerződés:',   'name' => 'nullas',         'szuro' => 1,  'disabled' => 0),
+    array('type' => 'autocomplete', 'megn' => 'Saját kapcsolattartó:',      'name' => 'kapcs_tart',     'szuro' => 1,   'class' => 'oriasi disableNav', 'tabla' => 'login', 'oszlop_keres' => 'recid', 'oszlop_keres_autocomp' => 'teljes_nev', 'listaz' => 'teljes_nev', 'beosztas_id' => $beosztasok, 'autocomplete_aktiv' => 1, 'id_kiir' => 'recid', 'style' => 'width: 25rem'),
     $lezart,
     // array('type' => 'text',         'megn' => 'Fizetési feltétel:',         'name' => 'fiz_felt',       'szuro' => 1,  'disabled' => 1, 'class' => 'oriasi', 'maxlength' => 300),
     
@@ -3507,12 +3512,12 @@ $akt_tomb = $megallapodas_tomb = array(
                                                     </div>
                                                 </div>
                                                 ')),
-    array('type' => 'none', 'megn' => 'Szerződő fél kapcsolattartó név:',       'name' => 'p_nev',          'szuro' => 'szoveges_op'),
-    array('type' => 'none', 'megn' => 'Szerződő fél kapcsolattartó beosztás:',  'name' => 'p_beosztas',     'szuro' => 'szoveges_op'),
-    array('type' => 'none', 'megn' => 'Szerződő fél kapcsolattartó cím:',       'name' => 'p_cim',          'szuro' => 'szoveges_op'),
-    array('type' => 'none', 'megn' => 'Szerződő fél kapcsolattartó email:',     'name' => 'p_email',        'szuro' => 'szoveges_op'),
-    array('type' => 'none', 'megn' => 'Szerződő fél kapcsolattartó telefon:',   'name' => 'p_tel',          'szuro' => 'szoveges_op'),
-    array('type' => 'none', 'megn' => 'Szerződő fél kapcsolattartó fax:',       'name' => 'p_fax',          'szuro' => 'szoveges_op'),
+    array('type' => 'none', 'megn' => 'Szerződő fél kapcsolattartó név:',       'name' => 'p_nev',          'szuro' => 'szoveges_op', 'feldolgozando' => 1),
+    array('type' => 'none', 'megn' => 'Szerződő fél kapcsolattartó beosztás:',  'name' => 'p_beosztas',     'szuro' => 'szoveges_op', 'feldolgozando' => 1),
+    array('type' => 'none', 'megn' => 'Szerződő fél kapcsolattartó cím:',       'name' => 'p_cim',          'szuro' => 'szoveges_op', 'feldolgozando' => 1),
+    array('type' => 'none', 'megn' => 'Szerződő fél kapcsolattartó email:',     'name' => 'p_email',        'szuro' => 'szoveges_op', 'feldolgozando' => 1),
+    array('type' => 'none', 'megn' => 'Szerződő fél kapcsolattartó telefon:',   'name' => 'p_tel',          'szuro' => 'szoveges_op', 'feldolgozando' => 1),
+    array('type' => 'none', 'megn' => 'Szerződő fél kapcsolattartó fax:',       'name' => 'p_fax',          'szuro' => 'szoveges_op', 'feldolgozando' => 1),
     array('type' => 'hidden','megn' => '',                                      'name' => 'lezart_mehet',   'nosql' => 1            ),
 );
 array_push($postok, array('tomb' => $akt_tomb, 'uj' => 'uj'.$megnevezes, 'lista' => $megnevezes.'lista', 'tabla' => $megnevezes, 'torid' => $megnevezes.'tid' ));
@@ -3556,12 +3561,14 @@ if( basename(self()) == 'megallapodas_szamla.php' && $_GET['id'] ) {
 }
 
 // Ha új számlát dolgozunk fel
+$szalloda_disabled = 1;
 if( isset($_GET['andoc_id']) ) {
+    $szalloda_disabled  = 0;
+    $nullas_disabled    = 0;
     $szamla = $adatbazis_kapcsolat->s2('kcs_21 nullas', 'megallapodas_szamla_atmeneti', "`andoc_id`='{$_GET['andoc_id']}'");
-    $nullas_disabled = 0;
 } else {
+    $nullas_disabled    = 1;
     $szamla = $adatbazis_kapcsolat->s2('kcs_21 nullas', 'megallapodas_szamla', "`recid`='{$_GET['id']}'");
-    $nullas_disabled = 1;
 }
 // Pénznemtől függ, hogy nettó vagy deviza nettóban dolgozunk
 $dis_dev_net = $dis_netto = 1;
@@ -3590,7 +3597,7 @@ $megallapodas_szamla_tomb = $akt_tomb = array(
     array('type' => 'text',         'megn' => 'Teljesítés dátuma:',         'name' => 'telj_dt',        'szuro' => 1,  'disabled' => 1, 'class' => 'datepicker', 'osszevon' => 1, 'post' => '<span style="margin-left: 2rem"></span>'),
     array('type' => 'text',         'megn' => 'Fizetési határidő:',         'name' => 'fizhat_dt',      'szuro' => 1,  'disabled' => 1, 'class' => 'datepicker', 'osszevon' => 1, 'post' => '<span style="margin-left: 4rem"></span>'),
     array('type' => 'text',         'megn' => 'Fizetési mód:',              'name' => 'fizmod',         'szuro' => 1,  'disabled' => 1, 'class' => 'normal', 'style' => 'width: 18rem;'),
-    array('type' => 'select_felh_telephely','megn' => 'Szálloda:',          'name' => 'telephely_id',   'szuro' => 1,  'disabled' => 0, 'class' => 'disableNav',        'style' => 'width: 31.3rem;', 'onchange' => 'szallodaVane( this );', 'osszevon' => 1, 'post' => '<span style="margin-left: 3.2rem"></span>', 'alert' => 'Kérem válasszon szállodát!'),
+    array('type' => 'select_felh_telephely','megn' => 'Szálloda:',          'name' => 'telephely_id',   'szuro' => 1,  'disabled' => $szalloda_disabled, 'class' => 'disableNav',        'style' => 'width: 31.3rem;', 'onchange' => 'szallodaVane( this );', 'osszevon' => 1, 'post' => '<span style="margin-left: 3.2rem"></span>', 'alert' => 'Kérem válasszon szállodát!'),
     array('type' => 'text',         'megn' => 'Számla típusa:',             'name' => 'tipus',          'szuro' => 1,  'disabled' => 1, 'class' => 'normal', 'style' => 'width: 18rem;'),
     array('type' => 'autocomplete', 'megn' => 'Partner:',                   'name' => 'szallito_id',    'szuro' => 1,  'disabled' => 1, 'class' => 'oriasi disableNav', 'tabla' => 'szallito', 'oszlop_keres' => 'id', 'id_kiir' => 'id', 'oszlop_keres_autocomp' => 'nev', 'listaz' => 'nev', 'id_latszik' => 1, 'style' => 'width: calc(100% - 5.4rem)'),
     array('type' => 'textarea',     'megn' => 'Tárgy:',                     'name' => 'targy',          'szuro' => 'szoveges_op',  'disabled' => 0, 'class' => 'oriasiTargy disableNav', 'style' => 'height: 8rem'),
@@ -5430,7 +5437,7 @@ if( isset($_POST['mellekTorol']) ) {
         } else {
 
             // Projektigénylés nem mindig törölhető (jóváhagyott elutasított státuszokban nem)
-            if($tabla=='projektigenyles_megter'){
+            if( $tabla == 'projektigenyles_megter' ) {
                 // Vegyünk egy sort, mindegy melyiket, mert midegyik ugyanarra a projektigénylésre mutat
                 $megterules = $adatbazis_kapcsolat->s2('projektigenyles_recid', $tabla, "`recid` IN (".implode(',', $idk).")");
                 if( $megterules === false ) { $db_error = true; }
@@ -6345,7 +6352,7 @@ foreach ( $postok as $ertek ) {
         if( $sql === false ) { $db_error = true; }
 
         // Státusz tábla törlése, hacsak nem kivételes
-        $kivetelek = array('beosztas', 'beosztas_muszak', 'beosztas_unnepnapok', 'cikktorzs', 'eseti_fenntartas', 'eszkozkezeles', 'erteklista', 'felmeresi_terv', 'jogcim', 'ktgnem', 'ktghely', 'obj', 'projektszamla', 'projektszerzodes', 'rendszeres_karbantartas', 'szallito', 'szerepkor', 'utemezett_feladatok');
+        $kivetelek = array('beosztas', 'beosztas_muszak', 'beosztas_unnepnapok', 'cikktorzs', 'eseti_fenntartas', 'eszkozkezeles', 'erteklista', 'felmeresi_terv', 'jogcim', 'ktgnem', 'ktghely', 'megallapodas', 'megallapodas_szamla', 'obj', 'projektszamla', 'projektszerzodes', 'rendszeres_karbantartas', 'szallito', 'szerepkor', 'utemezett_feladatok');
         if( !in_array($ertek['tabla'], $kivetelek) ) {
             $valtozas_kapcsolodo_tablak .= 'Státusz tábla ('.$ertek['tabla'].'_statusz) törlése: '."\n";
             $sorok = $adatbazis_kapcsolat->s('*', $ertek['tabla'].'_statusz', "`{$ertek['tabla']}_recid`='{$_GET[$ertek['torid']]}'");
@@ -6357,7 +6364,7 @@ foreach ( $postok as $ertek ) {
 
         // Dokumentumok törlése
         $torolt_fajlok = '';
-        $dokos_oldalak = array('anyagigenyles', 'bejelentes', 'eseti_fenntartas', 'eszkozkezeles', 'eszkozkezeles_eng', 'felmeresi_terv', 'fenntartasi_terv', 'munkalap', 'projektigenyles', 'projektkezeles', 'projektszamla', 'projektszerzodes', 'rendszeres_karbantartas', 'utemezett_feladatok');
+        $dokos_oldalak = array('anyagigenyles', 'bejelentes', 'eseti_fenntartas', 'eszkozkezeles', 'eszkozkezeles_eng', 'felmeresi_terv', 'fenntartasi_terv', 'megallapodas', 'megallapodas_szamla', 'munkalap', 'projektigenyles', 'projektkezeles', 'projektszamla', 'projektszerzodes', 'rendszeres_karbantartas', 'utemezett_feladatok');
         if( in_array($ertek['tabla'], $dokos_oldalak) ) {
             $fajlok = $adatbazis_kapcsolat->s('*', $ertek['tabla'].'_dok', "`{$ertek['tabla']}_id`='{$_GET[$ertek['torid']]}'");
 
@@ -6589,6 +6596,57 @@ Hiba: '.getErtek('info', 'erteklista', 'recid', $bejelentes['hiba_id']).$hiba_tx
             $valtozas_kapcsolodo_tablak .= logolas_kapcsolodo_tablak_sorai($sorok);
             $del = $adatbazis_kapcsolat->d('fenntartasi_terv_bwh', "`fenntartasi_terv_id`='{$_GET[$ertek['torid']]}'");
             if( $del === false ) { $db_error = true; }
+
+        }
+        
+        // Megállapodás törlésekor a tételeket is törölni kell
+        if( $ertek['tabla'] == 'megallapodas' ) {
+
+            // Jog ellenőrzése. Ha nincs, akkor megállunk
+            if( !_jog(JOG_MEGALLAPODAS_KEZEL) ) {
+                exit;
+            }
+            
+            // Ha van olyan tétele, amihez van számla csatolva, akkor nem engedjük meg a törlést, inkább vágjuk itt el a működést. Ide el se juthatunk, mert már popupban kapott figyelmeztetést.
+            // Ez arra jó, hogy URL átírással se lehessen megállapodást törölni
+            $tetelek = $adatbazis_kapcsolat->s('recid', 'megallapodas_tetel', "`megallapodas_recid`='{$_GET[$ertek['torid']]}'");
+            foreach ( $tetelek as $tetel ) {
+                $van_szamlaja = $adatbazis_kapcsolat->s('recid', 'megallapodas_szamla_tetel', "`megallapodas_tetel_recid`='{$tetel['recid']}'");
+                if( $van_szamlaja ) {
+                    exit;
+                }
+            }
+            
+            $valtozas_kapcsolodo_tablak .= 'Megállapodás törlésekor a megallapodas_tetel táblából az alábbi rekordok törlődtek: '."\n";
+            $sorok = $adatbazis_kapcsolat->s('*', 'megallapodas_tetel', "`megallapodas_recid`='{$_GET[$ertek['torid']]}'");
+            if( $sorok === false ) { $db_error = true; }
+            $valtozas_kapcsolodo_tablak .= logolas_kapcsolodo_tablak_sorai($sorok);
+            $sql = $adatbazis_kapcsolat->d('megallapodas_tetel', "`megallapodas_recid`='{$_GET[$ertek['torid']]}'");
+            if( $sql === false ) { $db_error = true; }
+            
+        }
+        
+        // Megállapodás számla törlésekor a tételeket is törölni kell
+        if( $ertek['tabla'] == 'megallapodas_szamla' ) {
+
+            // Jog ellenőrzése. Ha nincs, akkor megállunk
+            if( !_jog(JOG_MEGALLAPODAS_SZAMLA_KEZEL) ) {
+                exit;
+            }
+            
+            // Ha van olyan tétele, amihez van számla csatolva, akkor nem engedjük meg a törlést, inkább vágjuk itt el a működést. Ide el se juthatunk, mert már popupban kapott figyelmeztetést.
+            // Ez arra jó, hogy URL átírással se lehessen megállapodás számlát törölni
+            $van_szerzodese = $adatbazis_kapcsolat->s('recid', 'megallapodas_szamla_tetel', "`megallapodas_szamla_recid`='{$_GET[$ertek['torid']]}' AND `megallapodas_tetel_recid`!='0'");
+            if( $van_szerzodese ){
+                exit;
+            }
+            
+            $valtozas_kapcsolodo_tablak .= 'Megállapodás számla törlésekor a megallapodas_szamla_tetel táblából az alábbi rekordok törlődtek: '."\n";
+            $sorok = $adatbazis_kapcsolat->s('*', 'megallapodas_szamla_tetel', "`megallapodas_szamla_recid`='{$_GET[$ertek['torid']]}'");
+            if( $sorok === false ) { $db_error = true; }
+            $valtozas_kapcsolodo_tablak .= logolas_kapcsolodo_tablak_sorai($sorok);
+            $sql = $adatbazis_kapcsolat->d('megallapodas_szamla_tetel', "`megallapodas_szamla_recid`='{$_GET[$ertek['torid']]}'");
+            if( $sql === false ) { $db_error = true; }
 
         }
 

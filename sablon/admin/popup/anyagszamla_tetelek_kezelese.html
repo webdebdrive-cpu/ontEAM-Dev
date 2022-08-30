@@ -548,6 +548,7 @@ function tetel_hozzaadasa() {
                                             '<input type="hidden" class="pop_afakod" name="pop_afakod_id" value="'+afakod_id+'">' +
                                             '<input type="hidden" class="pop_jogcim" name="pop_jogcim_id" value="'+jogcim_id+'">' +
                                             '<input type="hidden" class="pop_valtozott" value="1">' +               
+                                            '<input type="hidden" class="pop_uj_sor" value="1">' +               
                                             '<input type="hidden" class="pop_recid" name="recid" value="'+sor_id+'">' +        
                                         '</td>' +
                                     '</tr>';
@@ -725,7 +726,7 @@ function tetel_sorok_ment(mehet) {
         brutto_ert.push( $(this).html().replace(/,/g, '.') );
     });
     var afak = [];
-    $('.pop_afa').each(function() {
+    $('.pop_afakod').each(function() {
         afak.push( json_spec_karakterek($(this).val()) );
     });
     var jogcimek = [];
@@ -735,6 +736,10 @@ function tetel_sorok_ment(mehet) {
     var valtozott = [];
     $('.pop_valtozott').each(function() {
         valtozott.push( $(this).val() );
+    });
+    var uj_sor = [];
+    $('.pop_uj_sor').each(function() {
+        uj_sor.push( $(this).val() );
     });
     var pipalo = [];
     $('.pop_pipalo').each(function() {
@@ -761,6 +766,7 @@ function tetel_sorok_ment(mehet) {
                     ['afak',            afak],
                     ['jogcimek',        jogcimek],
                     ['valtozott',       valtozott],
+                    ['uj_sor',          uj_sor],
                     ['pipalo',          pipalo]
                 ];
 

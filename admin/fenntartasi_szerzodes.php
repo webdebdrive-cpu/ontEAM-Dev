@@ -147,6 +147,10 @@ if( isset($_POST['pop_tetelek_feltolt']) ) {
     
     // Ha van a GET-ben andoc_id, akkor azt itt $_POST-ként kapjuk meg, ami annyit jelent, 
     // hogy egy új számla felvitelénél vagyunk, új feltöltési módban, és az átmeneti táblából kell dolgozni
+    if( $_POST['id'] == 'false' ) {
+        $_POST['id'] = '';
+    }
+    
     if( $_POST['andoc_id'] ) {
         $szerzodes = $adatbazis_kapcsolat->s2('recid kcs_21', 'fenntartasi_szerzodes_atmeneti', "`andoc_id`='{$_POST['andoc_id']}'");
     } else {
@@ -154,10 +158,10 @@ if( isset($_POST['pop_tetelek_feltolt']) ) {
     }
     
     // Illetve ezt az alábbi változókkal két ágra bontuk: Ft-os vagy devizás-e a számla.
-    if( $szerzodes['kcs_21'] && $szerzodes['kcs_21']!=KCS_21_HUF ) {
+    if( $_POST['kcs_21'] && $_POST['kcs_21']!=KCS_21_HUF ) {
         $szerzodes_netto_mezo   = 'dev_net';
         $szamla_netto_mezo      = 'dev_net';
-        $penznem                = erteklista(ERTEKLISTA_PENZNEM, $szerzodes['kcs_21']);
+        $penznem                = erteklista(ERTEKLISTA_PENZNEM, $_POST['kcs_21']);
         $tizedesek              = 2;
         $session_mezo           = 'fennt_szerz_tetel_dev_net';
         $session_varhato_ert    = 'fennt_szerz_tetel_dev_varh_ert';
@@ -170,22 +174,30 @@ if( isset($_POST['pop_tetelek_feltolt']) ) {
         $session_varhato_ert    = 'fennt_szerz_tetel_varh_ert';
     }
     
+
+    
     // Tételek táblázat sorait kiszámoljuk:
     $tetelek_html = '';
     $i = 0;
-    foreach( $_SESSION['fennt_szerz_tetel_telephely_id'] as $telephely ) {
+    
+    $kieg = '';
+    if( !$_POST['id'] ) {
+        $kieg = '_uj';
+    }
+    
+    foreach( $_SESSION['fennt_szerz_tetel_telephely_id'.$kieg] as $telephely ) {
         
         $szla_netto_ert = $_SESSION[$session_mezo][$i];
         
         // Minden sornak adunk egy azonosítót. Mivel lehet csak egy ideiglenes sorról van szó, nem mindig van recid-nk, ezért időbélyeges azonosítót hozunk létre, megtoldva egy $i-vel.
-        if( !$_SESSION['fennt_szerz_tetel_recid'][$i] ) {
-            $_SESSION['fennt_szerz_tetel_recid'][$i] = time().rand(0,1000);
+        if( !$_SESSION['fennt_szerz_tetel_recid'.$kieg][$i] ) {
+            $_SESSION['fennt_szerz_tetel_recid'.$kieg][$i] = time().rand(0,1000);
         }
         
         // Van-e már számlával összeköttetés
         $class = $teljesites = $netto_ertek = '';
         $torol = '
-                <a onclick="popup_tetel_sor_torol(\'pop_tetel_'.$_SESSION['fennt_szerz_tetel_recid'][$i].'\');">
+                <a onclick="popup_tetel_sor_torol(\'pop_tetel_'.$_SESSION['fennt_szerz_tetel_recid'.$kieg][$i].'\');">
                     <span class="icon">
                         <i class="material-icons">
                             delete
@@ -193,8 +205,8 @@ if( isset($_POST['pop_tetelek_feltolt']) ) {
                     </span>
                 </a>
                 ';
-        if( $_SESSION['fennt_szerz_tetel_recid'][$i] ) {
-            $szamla_tetel = $adatbazis_kapcsolat->s2('recid fenntartasi_szamla_recid '.$szamla_netto_mezo, 'fenntartasi_szamla_tetel', "`fenntartasi_szerzodes_tetel_recid`='{$_SESSION['fennt_szerz_tetel_recid'][$i]}'");
+        if( $_SESSION['fennt_szerz_tetel_recid'.$kieg][$i] ) {
+            $szamla_tetel = $adatbazis_kapcsolat->s2('recid fenntartasi_szamla_recid '.$szamla_netto_mezo, 'fenntartasi_szamla_tetel', "`fenntartasi_szerzodes_tetel_recid`='{$_SESSION['fennt_szerz_tetel_recid'.$kieg][$i]}'");
             if( $szamla_tetel ) {
                 $szamla         = $adatbazis_kapcsolat->s2('telj_dt', 'fenntartasi_szamla', "`recid`='{$szamla_tetel['fenntartasi_szamla_recid']}'");
                 $class          = ' szerzodes_szamla_tetel_szurke';
@@ -205,11 +217,11 @@ if( isset($_POST['pop_tetelek_feltolt']) ) {
         }
         
         $tetelek_html .= nl2('
-                        <tr class="pop_tetel_'.$_SESSION['fennt_szerz_tetel_recid'][$i].$class.'">
-                            <td class="pop_telephely l">'.getSzallodaNev($_SESSION['fennt_szerz_tetel_telephely_id'][$i]).'</td>
-                            <td class="pop_targy l">'.$_SESSION['fennt_szerz_tetel_targy'][$i].'</td>
-                            <td class="pop_varh_erk l">'.datum_kiir($_SESSION['fennt_szerz_tetel_varh_erk'][$i]).'</td>
-                            <td class="pop_varh_ert r">'.number_format(str_replace(array(',', ' '), array('.', ''), $_SESSION[$session_varhato_ert][$i]), $tizedesek, ',', ' ').'</td>
+                        <tr class="pop_tetel_'.$_SESSION['fennt_szerz_tetel_recid'.$kieg][$i].$class.'">
+                            <td class="pop_telephely l">'.getSzallodaNev($_SESSION['fennt_szerz_tetel_telephely_id'.$kieg][$i]).'</td>
+                            <td class="pop_targy l">'.$_SESSION['fennt_szerz_tetel_targy'.$kieg][$i].'</td>
+                            <td class="pop_varh_erk l">'.datum_kiir($_SESSION['fennt_szerz_tetel_varh_erk'.$kieg][$i]).'</td>
+                            <td class="pop_varh_ert r">'.number_format(str_replace(array(',', ' '), array('.', ''), $_SESSION[$session_varhato_ert.$kieg][$i]), $tizedesek, ',', ' ').'</td>
                             <td class="pop_telj_dt l">'.$teljesites.'</td>
                             <td class="pop_netto_ert r">'.$netto_ertek.'</td>
                             ').
@@ -220,9 +232,9 @@ if( isset($_POST['pop_tetelek_feltolt']) ) {
                             </td>*/
                             nl2('<td>
                                 '.$torol.'
-                                <input type="hidden" class="pop_telephely_id" value="'.$_SESSION['fennt_szerz_tetel_telephely_id'][$i].'">
-                                <input type="hidden" class="pop_valtozott" value="'.$_SESSION['fennt_szerz_tetel_valtozott'][$i].'">
-                                <input type="hidden" class="pop_recid" name="recid" value="'.$_SESSION['fennt_szerz_tetel_recid'][$i].'">
+                                <input type="hidden" class="pop_telephely_id" value="'.$_SESSION['fennt_szerz_tetel_telephely_id'.$kieg][$i].'">
+                                <input type="hidden" class="pop_valtozott" value="'.$_SESSION['fennt_szerz_tetel_valtozott'.$kieg][$i].'">
+                                <input type="hidden" class="pop_recid" name="recid" value="'.$_SESSION['fennt_szerz_tetel_recid'.$kieg][$i].'">
                             </td>
                         </tr>');
         $i++;
@@ -1072,23 +1084,6 @@ require_once('selectek.php');
 
         // Javascript-es ellenőrzéshez
         $tabla = str_replace('.php', '', basename(self()));
-
-        foreach ( $akt_tomb as $tomb ) {
-            if( $tomb['type'] == 'autocomplete' ) {
-
-                if( $tomb['csoport'] ) {
-                    $kulso_ertek = $adatbazis_kapcsolat->s2('info', $tomb['tabla'], "`{$tomb['oszlop_keres']}`='{$sor[$tomb['name']]}' AND `csoport`='{$tomb['csoport']}'", '', '1');
-                    $kulso_ertek['nev'] = $kulso_ertek['info'];
-                } else {
-                    $kulso_ertek = $adatbazis_kapcsolat->s2('recid nev', $tomb['tabla'], "`{$tomb['oszlop_keres']}`='{$sor[$tomb['name']]}'", '', '1');
-                }
-
-                $sor[$tomb['name'].'_autocomp'] = '';
-                if( $kulso_ertek ) {
-                    $sor[$tomb['name'].'_autocomp'] = $kulso_ertek['nev'];
-                }
-            }
-        }
 
         $json_sor = array();
         foreach ( $sor as $kulcs => $elem ) {

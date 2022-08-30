@@ -45,6 +45,48 @@ function szamla_igazol(mehet) {
     });
 }
 
+// Számla utóigazolása
+function szamla_utoigazol(mehet) {
+    
+    if (!mehet) {
+        alert2('Biztosan utóigazolja a számlát?', '<input type="button" class="gomb zold" value="Igen" onclick="szamla_utoigazol(\'-mehet-\')"> <input type="button" class="gomb piros" value="Nem" onclick="alert2()">');
+        return false;
+    }
+    
+    $.ajax({
+        url : 'projektszamla.php',
+        type: 'POST',
+        data: {
+            id              : _get('id'),
+            szamla_utoigazol: Date.now()
+        },
+        success: function (response) {
+            if(response.substring(0, 6)=='SESKIL'){ location.href = 'index.php'; }
+            if (response) {
+                response = JSON.parse(response);
+                if (response.hiba) {
+                    szamlaBetolt(_get('id'), 'projektszamla.php');
+                    setTimeout(function () {
+                        alert2(response.hiba, response.gomb, response.title);
+                    }, 500);
+                    
+                    return false;
+                }
+                szamlaBetolt(_get('id'), 'projektszamla.php');
+                
+                setTimeout(function () {
+                    alert2('Számla sikeresen utóigazolva!', '', 'Üzenet');
+                }, 200);
+            }
+        },
+        complete: function(xhr) {
+            if( xhr.status != 200 ) {
+                alert2(xhr.responseText, '', 'Hiba');
+            }
+        }
+    });
+}
+
 // Visszaadva pipa lekezelése
 function pr_szamla_visszaadva() {
     if (!$('#visszaadva').prop('checked')) {

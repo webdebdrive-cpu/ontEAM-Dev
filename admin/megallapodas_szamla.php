@@ -2852,7 +2852,7 @@ function xml_vissza( $szamla_id, $igazolva = '', $oka = '' ) {
       <properties>
         <container name="NIK1">
           <row rownumberonpage="1">
-            <property name="Számla főtípus">Megállapodás</property>
+            <property name="Számla főtípus">Megállapodás számla</property>
             <property name="Igazoló döntés">'.urlencode($igazolva).'</property>
             <property name="Teljesítés igazolás elutasítás oka"><![CDATA['.urlencode($oka).']]></property>
             <property name="Szerződés iktatószáma"><![CDATA['.urlencode($szamla['sz_szam']).']]></property>

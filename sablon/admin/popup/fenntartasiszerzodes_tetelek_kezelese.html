@@ -233,9 +233,9 @@ function popup_tetel_sor_torol(sor_id, mehet){
     
     $('.'+sor_id).addClass('torles_elott');
     if(!mehet){
-        alert2( 'Szálloda '             + $('.'+sor_id+' .pop_telephely').html() +'<br>' +
-                'Teljesítés dátuma: '   + $('.'+sor_id+' .pop_telj_dt').html() +'<br>' +
-                'Nettó érték: '         + $('.'+sor_id+' .pop_netto_ert').html() +' ' + akt_penznem + '<br>' +
+        alert2( 'Szálloda: '            + $('.'+sor_id+' .pop_telephely').html() +'<br>' +
+                'Számla várh. érk: '    + $('.'+sor_id+' .pop_varh_erk').html() +'<br>' +
+                'Számla várh. értéke: ' + $('.'+sor_id+' .pop_varh_ert').html() +' ' + akt_penznem + '<br>' +
                 'Biztosan törli a szerződés tételt?', '<input type="button" class="gomb zold" value="Igen" onclick="popup_tetel_sor_torol(\''+sor_id+'\', \'mehet\'); alert2();"><input type="button" class="gomb piros escapes_megsem" value="Nem" onclick="alert2(); $(\'.torles_elott\').removeClass(\'torles_elott\');">');
         return false;
     }
@@ -394,6 +394,7 @@ function pop_tetelek_feltolt(){
         data: {
             id                  : _get('id'),
             andoc_id            : andoc_id,
+            kcs_21              : kcs_21,
             kolt_vis            : kolt_vis,
             pop_tetelek_feltolt : Date.now()
         },

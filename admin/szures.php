@@ -115,7 +115,7 @@ if( isset($_POST['f_szuro_mezo']) ) {
     }
     
     // Pár egyedi eset, amikor kapcsolódó tábla mezőjére keresünk
-    if( $_POST['tabla'] == 'fenntartasi_szerzodes' ) {
+    if( $_POST['tabla'] == 'fenntartasi_szerzodes' || $_POST['tabla'] == 'megallapodas' ) {
         if( $_POST['mezo'] == 'tetel_targy' ) {
             $operator .= '<option value="equal"'.$selected_equal.'>=</option>';
             $operator .= '<option value="like"'.$selected_like.'>Tartalmazza</option>';
@@ -150,7 +150,7 @@ if( isset($_POST['f_szuro_mezo']) ) {
         // Ilyenkor felülírva az operátorokat, csak egyenlőségjel van
         $operator  = '<option value="equal"'.$selected_equal.'>=</option>';
         $operator .= '<option value="not_eq"'.$selected_not_eq.'>&lt;&gt;</option>';
-        if( $_POST['tabla'] != 'fenntartasi_szerzodes' ) {
+        if( $_POST['tabla'] != 'fenntartasi_szerzodes' && $_POST['tabla'] != 'megallapodas' ) {
             $operator .= '<option value="empty"'.$selected_empty.'>Üres</option>';
         }
 
@@ -351,6 +351,10 @@ if( isset($_POST['f_szuro_mezo_operator']) ) {
                         $aktiv          = 1;
                         $aktiv_szinez   = 1;
                         $beosztas_id    = EL_BEOSZTAS_BERUH_IG.','.EL_BEOSZTAS_FEJL_VIG_H.','.EL_BEOSZTAS_MUSZAKI_ASSZ.','.EL_BEOSZTAS_MUSZAKI_IG.','.EL_BEOSZTAS_PR_FELEOS.','.EL_BEOSZTAS_DISZ_KP_VEZ;
+                    }
+                    // Partner lenyílóban legyenek színezve az aktívak, inaktívak
+                    if( $ertek['name'] == 'szallito_id' ) {
+                        $aktiv_szinez   = 1;
                     }
 
                     $feltetel .= nl2('
@@ -841,7 +845,7 @@ if( isset($_POST['f_szuro_mezo_operator']) ) {
     }
     
     // Pár egyedi eset, amikor kapcsolódó tábla mezőjére keresünk
-    if( $_POST['tabla'] == 'fenntartasi_szerzodes' && $_POST['selected'] != 'empty' ) {
+    if( ($_POST['tabla'] == 'fenntartasi_szerzodes' || $_POST['tabla'] == 'megallapodas' ) && $_POST['selected'] != 'empty' ) {
         if( $_POST['mezo'] == 'tetel_targy' ) {
             $feltetel = '<input type="text" placeholder="Feltétel..." class="f_felt" value="'.$_POST['felt'].'" onfocus="$(this).select()">';
         }
@@ -941,7 +945,7 @@ if( in_array($tabla, $dokumentumos_oldal) ) {
 }
 
 // Kapcsolódó táblák szűrő mezői
-$megjegyzesekre_szuros_mdulok = array('anyagigenyles', 'anyag_szamla', 'energia_szamla', 'fenntartasi_szamla', 'projektszamla', 'fenntartasi_szerzodes', 'projektszerzodes');
+$megjegyzesekre_szuros_mdulok = array('anyagigenyles', 'anyag_szamla', 'energia_szamla', 'fenntartasi_szamla', 'projektszamla', 'fenntartasi_szerzodes', 'projektszerzodes', 'megallapodas');
 if( in_array($tabla, $megjegyzesekre_szuros_mdulok) ) {
     $selected_megj  = '';
     if( $_GET['mezo'] == 'megjegyzes' ) {
@@ -990,6 +994,48 @@ if( $tabla == 'fenntartasi_szerzodes' ) {
         $selected = ' selected';
     }
     array_push( $sz_mezo, array('eleje' => '<option value="dev_net" data-tabla="fenntartasi_szerzodes_tetel"'.$selected.'>', 'vege' => 'Tétel - Éték (deviza)</option>' ) );
+}
+if( $tabla == 'megallapodas' ) {
+    $selected = '';
+    if( $_GET['mezo'] == 'telephely_id' ) {
+        $selected = ' selected';
+    }
+    array_push( $sz_mezo, array('eleje' => '<option value="telephely_id" data-tabla="megallapodas_tetel"'.$selected.'>', 'vege' => 'Tétel - Szálloda</option>' ) );
+    $selected = '';
+    if( $_GET['mezo'] == 'tetel_targy' ) {
+        $selected = ' selected';
+    }
+    array_push( $sz_mezo, array('eleje' => '<option value="tetel_targy" data-tabla="megallapodas_tetel"'.$selected.'>', 'vege' => 'Tétel - Tárgy</option>' ) );
+    $selected = '';
+    if( $_GET['mezo'] == 'varh_erk' ) {
+        $selected = ' selected';
+    }
+    array_push( $sz_mezo, array('eleje' => '<option value="varh_erk" data-tabla="megallapodas_tetel"'.$selected.'>', 'vege' => 'Tétel - Számla várh. érk.</option>' ) );
+    $selected = '';
+    if( $_GET['mezo'] == 'varh_ert' ) {
+        $selected = ' selected';
+    }
+    array_push( $sz_mezo, array('eleje' => '<option value="varh_ert" data-tabla="megallapodas_tetel"'.$selected.'>', 'vege' => 'Tétel - Számla várh. értéke</option>' ) );
+    $selected = '';
+    if( $_GET['mezo'] == 'dev_varh_ert' ) {
+        $selected = ' selected';
+    }
+    array_push( $sz_mezo, array('eleje' => '<option value="dev_varh_ert" data-tabla="megallapodas_tetel"'.$selected.'>', 'vege' => 'Tétel - Számla várh. értéke (deviza)</option>' ) );
+    $selected = '';
+    if( $_GET['mezo'] == 'telj_dt' ) {
+        $selected = ' selected';
+    }
+    array_push( $sz_mezo, array('eleje' => '<option value="telj_dt" data-tabla="megallapodas_tetel"'.$selected.'>', 'vege' => 'Tétel - Teljesítés</option>' ) );
+    $selected = '';
+    if( $_GET['mezo'] == 'netto_ert' ) {
+        $selected = ' selected';
+    }
+    array_push( $sz_mezo, array('eleje' => '<option value="netto_ert" data-tabla="megallapodas_tetel"'.$selected.'>', 'vege' => 'Tétel - Érték</option>' ) );
+    $selected = '';
+    if( $_GET['mezo'] == 'dev_net' ) {
+        $selected = ' selected';
+    }
+    array_push( $sz_mezo, array('eleje' => '<option value="dev_net" data-tabla="megallapodas_tetel"'.$selected.'>', 'vege' => 'Tétel - Éték (deviza)</option>' ) );
 }
 
 // Vannak felületek, ahol a nav panel számát limitáljuk. Ezt egy szűrővel oldjuk meg, tehát itt szükséges, hogy legyen egy Legfrisebb nevű szűrés lehetőség.

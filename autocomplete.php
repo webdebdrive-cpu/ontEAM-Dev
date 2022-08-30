@@ -138,13 +138,18 @@ if( isset($_GET['value']) && isset($_GET['tabla']) && isset($_GET['oszlop_keres'
             }
         }
 
-        // Szállítók esetén csak az aktívakat soroljuk fel
+        // Szállítók esetén az IS is listázódjon automatikusan
         if( $_GET['tabla'] == 'szallito' ) {
+            array_unshift($oszlop_listaz, 'id');
+        }
+        // Szállítók esetén csak az aktívakat soroljuk fel, kivéve ha az aktívakat színezzük (ekkor nyilván látni is szeretnénk)
+        if( $_GET['tabla'] == 'szallito' && !$_GET['aktiv_szinez'] ) {
             if( $where_sql ) {
                 $where_sql .= " AND `aktiv` = '1'";
             } else {
                 $where_sql .= " WHERE `aktiv` = '1'";
             }
+            
         }
         
         // Objektumonnkál van, hogy csak a szinteket szeretnénk lekérdezni
@@ -183,8 +188,6 @@ if( isset($_GET['value']) && isset($_GET['tabla']) && isset($_GET['oszlop_keres'
             $select_kieg = ' `id`,';
         } else if( $_GET['tabla'] == 'obj' ) {
             $select_kieg = ' `telephely_id`,';
-        } else if( $_GET['tabla'] == 'szallito' ) {
-            $select_kieg = ' `id`,';
         } else if( $_GET['tabla'] == 'ktgnem' ) {
             $select_kieg = ' `id`,';
         } else if( $_GET['tabla'] == 'ktghely' ) {
@@ -260,7 +263,7 @@ if( isset($_GET['value']) && isset($_GET['tabla']) && isset($_GET['oszlop_keres'
                 }
             }
             
-            $return .= '<li data-recid="'.$sor[$_GET['id_kiir']].'"'.$cikkmee_attr.$class.'>';
+            $return .= '<li data-recid="'.$sor[$_GET['id_kiir']].'" data-tabla="'.$_GET['tabla'].'"'.$cikkmee_attr.$class.'>';
 
             if( $_GET['tabla'] == 'obj' ) {
                 $telephely = $adatbazis_kapcsolat->s('nev', 'telephely', 'id='.$sor['telephely_id'], '', '1');

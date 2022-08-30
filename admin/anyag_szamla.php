@@ -258,15 +258,6 @@ if( isset($_POST['osszevon_targy_kitoltve_ell']) ) {
     $targyak = json_decode($_POST['targyak'], '-tömbként-');
     $szamla  = $adatbazis_kapcsolat->s2('kcs_21 telephely_id', 'anyag_szamla', "`recid`='{$_POST['id']}'");
     $tetelek = $adatbazis_kapcsolat->s('*', 'anyag_szamla_tetel', "`anyag_szamla_recid`='{$_POST['id']}' AND `valtozott`='1'", '', '', "`ktgnem_id`, `ktghely_id`, `afa_kod`");
-
-    // A számla devizája dönti el, hogy a tételbe melyik nettó mező kerüljön
-    if( $szamla['kcs_21'] == KCS_21_HUF ) {
-        $netto_mezo  = 'netto_ert';
-        $brutto_mezo = 'brutto_ert';
-    } else {
-        $netto_mezo  = 'dev_net';
-        $brutto_mezo = 'dev_br';
-    }
     
     $tetel_xml = '';
     $i = 0;
@@ -281,6 +272,17 @@ if( isset($_POST['osszevon_targy_kitoltve_ell']) ) {
         $dev_br_ertek   = $adatbazis_kapcsolat->s2("SUM(`dev_br`)",     'anyag_szamla_tetel', "`anyag_szamla_recid`='{$_POST['id']}' AND `valtozott`='1' AND `ktgnem_id`='{$tetel['ktgnem_id']}' AND `ktghely_id`='{$tetel['ktghely_id']}' AND `afa_kod`='{$tetel['afa_kod']}'");
         $dev_br_ertek   = $dev_br_ertek["SUM(`dev_br`)"];
         
+        // A számla devizája dönti el, hogy a tételbe melyik nettó mező kerüljön
+        if( $szamla['kcs_21'] == KCS_21_HUF ) {
+            $netto_mezo     = 'netto_ert';
+            $brutto_mezo    = 'brutto_ert';
+            $osszeg_xml_be  = $brutto_ertek;
+        } else {
+            $netto_mezo     = 'dev_net';
+            $brutto_mezo    = 'dev_br';
+            $osszeg_xml_be  = $dev_br_ertek;
+        }
+        
         foreach ( $tetel as $kulcs => $value ) {
             $tetel[$kulcs] = htmlspecialchars_decode($tetel[$kulcs]);
         }
@@ -294,7 +296,7 @@ if( isset($_POST['osszevon_targy_kitoltve_ell']) ) {
         $tetel_xml .= '
             <row rownumberonpage="'.($i+1).'">
                 <property name="Sor megnevezése"><![CDATA['.urlencode(htmlspecialchars_decode($targyak[$i])).']]></property>
-                <property name="Bruttó sorösszeg">'.urlencode(htmlspecialchars_decode($brutto_ertek)).'</property>
+                <property name="Bruttó sorösszeg">'.urlencode(htmlspecialchars_decode($osszeg_xml_be)).'</property>
                 <property name="Főkönyvi számlaszám">'.urlencode(htmlspecialchars_decode($tetel['ktgnem_id'])).'</property>
                 <property name="Jogcím"><![CDATA['.urlencode(htmlspecialchars_decode($tetel['jogcim'])).']]></property>
                 <property name="Üzemrész"><![CDATA['.urlencode(htmlspecialchars_decode($tetel['uzemresz'])).']]></property>
@@ -778,9 +780,10 @@ if( isset($_POST['pop_tetelek_feltolt']) ) {
                                 '.$torles.'
                                 <input type="hidden" class="pop_rndid" name="pop_rndid" value="'.$_SESSION['anyag_szla_tetel_rndid'][$i].'">
                                 <input type="hidden" class="pop_rnd_recid" name="pop_rnd_recid" value="'.$_SESSION['anyag_szla_tetel_rnd_recid'][$i].'">
-                                <input type="hidden" class="pop_afa" name="pop_afakod_id" value="'.$_SESSION['anyag_szla_tetel_afakod'][$i].'">
+                                <input type="hidden" class="pop_afakod" name="pop_afakod_id" value="'.$_SESSION['anyag_szla_tetel_afakod'][$i].'">
                                 <input type="hidden" class="pop_jogcim" name="pop_jogcim_id" value="'.$_SESSION['anyag_szla_tetel_jogcim'][$i].'">
                                 <input type="hidden" class="pop_valtozott" value="'.$_SESSION['anyag_szla_tetel_valtozott'][$i].'">
+                                <input type="hidden" class="pop_uj_sor" value="0">
                                 <input type="hidden" class="pop_recid" name="recid" value="'.$_SESSION['anyag_szla_tetel_recid'][$i].'">
                             </td>
                         </tr>');
@@ -913,7 +916,8 @@ if( isset($_POST['tetel_sorok_ment']) ) {
     $afa_adat           = 11;
     $jogcim_adat        = 12;
     $valtozott_adat     = 13;
-    $pipalo_adat        = 14;
+    $uj_sor_adat        = 14;
+    $pipalo_adat        = 15;
 
     $tetelek_osszege = 0;
     $i = 0;
@@ -1067,7 +1071,7 @@ if( isset($_POST['tetel_sorok_ment']) ) {
                 // Jogcím/Áfakód esetén nem csak egy recid-t tárolunk le, hanem a tábla oszlopait, ezért lekérjük a megfelelő sort
                 $jogcim = $adatbazis_kapcsolat->s2('recid jogcim uzemresz megn szla_szam ktghely ktghely_id', 'jogcim', "`recid`='{$jogcim}'");
                 $afakod = $adatbazis_kapcsolat->s2('recid nev kod afa', 'afakod', "`recid`='{$afakod}'");
-            
+
                 // Rendelés azonosítókat is szedjük össze
                 array_push($anyag_rend_idk, $rndid);
 
@@ -1101,6 +1105,7 @@ if( isset($_POST['tetel_sorok_ment']) ) {
                         }
                         $sql = $adatbazis_kapcsolat->u('anyag_szamla_tetel', $mezok, $ertekek, "`recid`='{$_POST['adatok'][$recid_adat][1][$i]}'");
                         if( $sql === false ) { $db_error = true; }
+                        
                     }
                     
                 // Egyébként insert
@@ -1137,17 +1142,22 @@ if( isset($_POST['tetel_sorok_ment']) ) {
                     $j = 0;
                     foreach ( $_POST['torolt_rndrecidk'] as $torolt_recid ) {
                         if( $torolt_recid == $anyagig['recid'] ) {
-                            $anyagig['szlamen'] -= str_replace(array(',', ' '), array('.', ''), $_POST['torolt_rnd_szlamen'][$j]);
+                             $anyagig['szlamen'] -= str_replace(array(',', ' '), array('.', ''), $_POST['torolt_rnd_szlamen'][$j]);
                             // Egyúttal ki is nullázzuk, hogy később ezeket már ne dolgozzuk fel
                             $_POST['torolt_rndrecidk'][$j]   = 0;
                             $_POST['torolt_rnd_szlamen'][$j] = 0;
                         }
                         $j++;
                     }
+                    // Ha ez már egy korábban létező sor, akkor előzetesen vonjuk le a rendelt mennyiséget,
+                    // $anyagig['szlamen'] -= str_replace(array(',', ' '), array('.', ''), $rndmen);
 
-                    $sql = $adatbazis_kapcsolat->u('anyagigenyles', array('szlamen'), array($anyagig['szlamen']+$rndmen), "`recid`='{$rnd_recid}'");
-                    if( $sql === false ) { $db_error = true; }
-
+                    // Anyagrendeléseknél is módosul a számlázott mennyiség de csak akkor, ha ez most egy újonnan felvett sor a popupban.
+                    // Korábbi sorokat nem kell piszkálni.
+                    if( $_POST['adatok'][$uj_sor_adat][1][$i] ) {
+                        $sql = $adatbazis_kapcsolat->u('anyagigenyles', array('szlamen'), array($anyagig['szlamen']+$rndmen), "`recid`='{$rnd_recid}'");
+                        if( $sql === false ) { $db_error = true; }
+                    }
                 }
             }
             

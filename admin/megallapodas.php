@@ -183,10 +183,10 @@ if( isset($_POST['pop_tetelek_feltolt']) ) {
     }
     
     // Illetve ezt az alábbi változókkal két ágra bontunk: Ft-os vagy devizás-e a számla.
-    if( $szerzodes['kcs_21'] && $szerzodes['kcs_21']!=KCS_21_HUF ) {
+    if( $_POST['kcs_21'] && $_POST['kcs_21']!=KCS_21_HUF ) {
         $szerzodes_netto_mezo   = 'dev_net';
         $szamla_netto_mezo      = 'dev_net';
-        $penznem                = erteklista(ERTEKLISTA_PENZNEM, $szerzodes['kcs_21']);
+        $penznem                = erteklista(ERTEKLISTA_PENZNEM, $_POST['kcs_21']);
         $tizedesek              = 2;
         $session_mezo           = 'megall_szerz_tetel_dev_net';
         $session_varhato_ert    = 'megall_szerz_tetel_dev_varh_ert';
@@ -207,7 +207,7 @@ if( isset($_POST['pop_tetelek_feltolt']) ) {
     if( !$_POST['id'] ) {
         $kieg = '_uj';
     }
-    
+
     foreach( $_SESSION['megall_szerz_tetel_telephely_id'.$kieg] as $telephely ) {
         
         $szla_netto_ert = $_SESSION[$session_mezo.$kieg][$i];
@@ -368,7 +368,7 @@ if( isset($_POST['tetel_sorok_ment']) ) {
         if( !$recid ) {
             $kieg = '_uj';
         }
-        
+
         $_SESSION['megall_szerz_tetel_recid'.$kieg]        = $_POST['adatok'][$recid_adat][1];
         $_SESSION['megall_szerz_tetel_telephely_id'.$kieg] = $_POST['adatok'][$telephely_adat][1];
         $_SESSION['megall_szerz_tetel_targy'.$kieg]        = $_POST['adatok'][$targy_adat][1];
@@ -1067,10 +1067,26 @@ require_once('selectek.php');
 	    $gombok = '<script>var gomb'.$_GET['id'].'= get_kibont_torol(\''.self().'\', \''.$torles.'\', \''.$_GET['id'].'\');</script>';
 
         // Jogosutságkezelés
-        if( true /* !_jog(... megállapodás szerződés törlés jog ...) */ ){
+        if( !_jog(JOG_MEGALLAPODAS_KEZEL) ){
             $gombok .= ' <input type="button" id="recordTorol" class="gombb_alert dn" onclick="alert2(\'Nincs jogosultsága törölni ezt a '.$szoveg.'!\', \'\', \'Hiba\')" value="Töröl" title="Töröl">';
         } else {
-            $gombok .= ' <input type="button" id="recordTorol" class="gombb_alert dn" onclick="alert2(\'Biztosan törli ezt a '.$szoveg.'?\', gomb'.$_GET['id'].')" value="Töröl" title="Töröl">';
+            
+            // Ha van már olyan tétele, ami össze van kötve számláva, akkor nem engedünk törölni
+            $van_szamla_kapcsolva = false;
+            $tetelek = $adatbazis_kapcsolat->s('recid', 'megallapodas_tetel', "`megallapodas_recid`='{$_GET['id']}'");
+            foreach ( $tetelek as $tetel ) {
+                $van_szamlaja = $adatbazis_kapcsolat->s('recid', 'megallapodas_szamla_tetel', "`megallapodas_tetel_recid`='{$tetel['recid']}'");
+                if( $van_szamlaja ){
+                    $van_szamla_kapcsolva = true;
+                    break;
+                }
+            }
+            if( $van_szamla_kapcsolva ){
+                $gombok .= ' <input type="button" id="recordTorol" class="gombb_alert dn" onclick="alert2(\'A megállapodásnak van olyan tétele, amihez már van számla tétel kapcsolva, így nem törölhető a megállapodás!\', \'\', \'Hiba\')" value="Töröl" title="Töröl">';
+            } else {
+                $gombok .= ' <input type="button" id="recordTorol" class="gombb_alert dn" onclick="alert2(\'Biztosan törli ezt a '.$szoveg.'?\', gomb'.$_GET['id'].')" value="Töröl" title="Töröl">';
+            }
+            
         }
 
         if( _jog(JOG_MEGALLAPODAS_KEZEL) ){
@@ -1119,23 +1135,6 @@ require_once('selectek.php');
         // Javascript-es ellenőrzéshez
         $tabla = str_replace('.php', '', basename(self()));
 
-        foreach ( $akt_tomb as $tomb ) {
-            if( $tomb['type'] == 'autocomplete' ) {
-
-                if( $tomb['csoport'] ) {
-                    $kulso_ertek = $adatbazis_kapcsolat->s2('info', $tomb['tabla'], "`{$tomb['oszlop_keres']}`='{$sor[$tomb['name']]}' AND `csoport`='{$tomb['csoport']}'", '', '1');
-                    $kulso_ertek['nev'] = $kulso_ertek['info'];
-                } else {
-                    $kulso_ertek = $adatbazis_kapcsolat->s2('recid nev', $tomb['tabla'], "`{$tomb['oszlop_keres']}`='{$sor[$tomb['name']]}'", '', '1');
-                }
-
-                $sor[$tomb['name'].'_autocomp'] = '';
-                if( $kulso_ertek ) {
-                    $sor[$tomb['name'].'_autocomp'] = $kulso_ertek['nev'];
-                }
-            }
-        }
-
         $json_sor = array();
         foreach ( $sor as $kulcs => $elem ) {
             $json_sor[$kulcs] = formAdatok_replace($elem);
@@ -1174,6 +1173,10 @@ require_once('selectek.php');
                 if( $tomb['csoport'] ) {
                     $kulso_ertek = $adatbazis_kapcsolat->s2('info', $tomb['tabla'], "`{$tomb['oszlop_keres']}`='{$sor[$tomb['name']]}' AND `csoport`='{$tomb['csoport']}'", '', '1');
                     $kulso_ertek['nev'] = $kulso_ertek['info'];
+                // Kapcsolattartónál a teljes nevet írjuk ki, nem a nev oszlopot
+                }elseif( $tomb['name'] == 'kapcs_tart' ) {
+                    $kulso_ertek = $adatbazis_kapcsolat->s2('recid teljes_nev', $tomb['tabla'], "`{$tomb['oszlop_keres']}`='{$sor[$tomb['name']]}'", '', '1');
+                    $kulso_ertek['nev'] = $kulso_ertek['teljes_nev'];
                 } else {
                     $kulso_ertek = $adatbazis_kapcsolat->s2('recid nev', $tomb['tabla'], "`{$tomb['oszlop_keres']}`='{$sor[$tomb['name']]}'", '', '1');
                 }

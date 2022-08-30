@@ -108,15 +108,6 @@ if( isset($_POST['osszevon_targy_kitoltve_ell']) ) {
     $targyak = json_decode($_POST['targyak'], '-tömbként-');
     $szamla  = $adatbazis_kapcsolat->s2('kcs_21 telephely_id', 'energia_szamla', "`recid`='{$_POST['id']}'");
     $tetelek = $adatbazis_kapcsolat->s('*', 'energia_szamla_tetel', "`energia_szamla_recid`='{$_POST['id']}' AND `valtozott`='1'", '', '', "`ktgnem_id`, `ktghely_id`, `afa_kod`, SUBSTRING(`tol`, 1, 7)");
-
-    // A számla devizája dönti el, hogy a tételbe melyik nettó mező kerüljön
-    if( $szamla['kcs_21'] == KCS_21_HUF ) {
-        $netto_mezo  = 'netto_ert';
-        $brutto_mezo = 'brutto_ert';
-    } else {
-        $netto_mezo  = 'dev_net';
-        $brutto_mezo = 'dev_br';
-    }
     
     $tetel_xml = '';
     $i = 0;
@@ -131,6 +122,17 @@ if( isset($_POST['osszevon_targy_kitoltve_ell']) ) {
         $dev_br_ertek   = $adatbazis_kapcsolat->s2("SUM(`dev_br`)",     'energia_szamla_tetel', "`energia_szamla_recid`='{$_POST['id']}' AND `valtozott`='1' AND `ktgnem_id`='{$tetel['ktgnem_id']}' AND `ktghely_id`='{$tetel['ktghely_id']}' AND `afa_kod`='{$tetel['afa_kod']}' AND `tol` LIKE '".substr($tetel['tol'], 0, 7)."%'");
         $dev_br_ertek   = $dev_br_ertek["SUM(`dev_br`)"];
         
+        // A számla devizája dönti el, hogy a tételbe melyik nettó mező kerüljön
+        if( $szamla['kcs_21'] == KCS_21_HUF ) {
+            $netto_mezo     = 'netto_ert';
+            $brutto_mezo    = 'brutto_ert';
+            $osszeg_xml_be  = $brutto_ertek;
+        } else {
+            $netto_mezo     = 'dev_net';
+            $brutto_mezo    = 'dev_br';
+            $osszeg_xml_be  = $dev_br_ertek;
+        }
+        
         foreach ( $tetel as $kulcs => $value ) {
             $tetel[$kulcs] = htmlspecialchars_decode($tetel[$kulcs]);
         }
@@ -144,7 +146,7 @@ if( isset($_POST['osszevon_targy_kitoltve_ell']) ) {
         $tetel_xml .= '
             <row rownumberonpage="'.($i+1).'">
                 <property name="Sor megnevezése"><![CDATA['.urlencode(htmlspecialchars_decode($targyak[$i])).']]></property>
-                <property name="Bruttó sorösszeg">'.urlencode(htmlspecialchars_decode($brutto_ertek)).'</property>
+                <property name="Bruttó sorösszeg">'.urlencode(htmlspecialchars_decode($osszeg_xml_be)).'</property>
                 <property name="Főkönyvi számlaszám">'.urlencode(htmlspecialchars_decode($tetel['ktgnem_id'])).'</property>
                 <property name="Jogcím"><![CDATA['.urlencode(htmlspecialchars_decode($tetel['jogcim'])).']]></property>
                 <property name="Üzemrész"><![CDATA['.urlencode(htmlspecialchars_decode($tetel['uzemresz'])).']]></property>

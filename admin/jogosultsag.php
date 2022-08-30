@@ -1,7 +1,7 @@
 <?php
 /*                                                  *\
  * FONTOS:
- * 141-es ID-nál járunk
+ * 142-es ID-nál járunk
  * 14-as kategória ID-nál járunk
 \*                                                  */
 
@@ -141,13 +141,14 @@ $jogosultsagok = array(
     120 => array('nev' => 'Saját szerződések kezelése',             'kat' => 10, 'sor' => 17),
     112 => array('nev' => 'Projekt számlák megtekintése',           'kat' => 10, 'sor' => 18),
     113 => array('nev' => 'Projekt számlák kezelése',               'kat' => 10, 'sor' => 19),
-    140 => array('nev' => 'Projekt számlák igazolása',              'kat' => 10, 'sor' => 20),
-    121 => array('nev' => 'Saját számlák megtekintése',             'kat' => 10, 'sor' => 21),
-    122 => array('nev' => 'Saját számlák kezelése',                 'kat' => 10, 'sor' => 22),
-    127 => array('nev' => 'Projekt felfüggesztése',                 'kat' => 10, 'sor' => 23),
-    128 => array('nev' => 'Projekt leállítása',                     'kat' => 10, 'sor' => 24),
-    129 => array('nev' => 'Projekt újranyitás',                     'kat' => 10, 'sor' => 25),
-    132 => array('nev' => 'Teljes Cash-flow',                       'kat' => 10, 'sor' => 26),
+    142 => array('nev' => 'Projekt számlák igazolása',              'kat' => 10, 'sor' => 20),
+    140 => array('nev' => 'Projekt számlák utóigazolása',           'kat' => 10, 'sor' => 21),
+    121 => array('nev' => 'Saját számlák megtekintése',             'kat' => 10, 'sor' => 22),
+    122 => array('nev' => 'Saját számlák kezelése',                 'kat' => 10, 'sor' => 23),
+    127 => array('nev' => 'Projekt felfüggesztése',                 'kat' => 10, 'sor' => 24),
+    128 => array('nev' => 'Projekt leállítása',                     'kat' => 10, 'sor' => 25),
+    129 => array('nev' => 'Projekt újranyitás',                     'kat' => 10, 'sor' => 26),
+    132 => array('nev' => 'Teljes Cash-flow',                       'kat' => 10, 'sor' => 27),
 
     42 => array('nev' => 'Eszközök megtekintése',                   'kat' => 8, 'sor' => 1),
     43 => array('nev' => 'Eszközök kezelése',                       'kat' => 8, 'sor' => 2),

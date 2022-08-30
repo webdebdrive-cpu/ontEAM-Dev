@@ -11,8 +11,8 @@ if( isset($_GET['nyomtat']) ) {
 // Ha hiányzik egy PDF, akkor kézzel így tudod létrehozni:
 if( isset($_GET['teszt']) ) {
     
-    $anyagrendeles_idja = 14760;            // Ide a az anyagrendelés recid-ját add meg
-    $session_user       = 'balazsnagyh';    // Ide azt a User nevet add meg, amit a PDF alján a dátumnál látni szeretnél
+    $anyagrendeles_idja = 15105;        // Ide a az anyagrendelés recid-ját add meg
+    $session_user       = 'gyongyos';   // Ide azt a User nevet add meg, amit a PDF alján a dátumnál látni szeretnél
     // Futtasd le ezt a PDF előállításához:
     // https://www.onteam.hu/admin/anyagigenyles.php?nyomtat=&szall&html_mutat=1&teszt
     

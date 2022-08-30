@@ -308,6 +308,10 @@
                 } else {
                     var li_val = $('#autocomplete ul li.aktiv').html();
 
+                    if( $('#autocomplete ul li.aktiv').attr('data-tabla') == 'szallito' ) {
+                        li_val = szallito_id_levesz(li_val);
+                    }
+
                     if( li_val.indexOf('&') !== -1 ) {
                         li_val = li_val.replace('&amp;', '&');
                     }
@@ -493,7 +497,11 @@
                             location.href = link;
                         } else {
                             var li_val = $('#autocomplete ul li.aktiv').html();
-
+                            
+                            if( $('#autocomplete ul li.aktiv').attr('data-tabla') == 'szallito' ) {
+                                li_val = szallito_id_levesz(li_val);
+                            }
+                            
                             if( li_val.indexOf('&') !== -1 ) {
                                 li_val = li_val.replace('&amp;', '&');
                             }
@@ -565,3 +573,9 @@
         }
     }
 })(jQuery);
+
+
+// Szállítók esetén az első kötőjelig az ID van az LI tartalmában, azt ne tegyük bele az inputba
+function szallito_id_levesz(text) {
+    return text.substring( text.indexOf(' - ') + 3 );
+}

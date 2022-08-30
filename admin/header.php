@@ -860,16 +860,7 @@ if( in_array(basename(self()), $_SESSION['ketHasabos']) && $_SESSION[get_db_tabl
         $uj_link = 'javascript: kapcsolodoSzerkeszt(\'megjegyzes\'); void(0);';
 
     } elseif( basename(self()) == 'anyag_szamla.php' ) {
-        // $uj_link = 'javascript: csoportMuvelet(\'anyag_szamla_valaszto\'); void(0);';
-        if( !_jog(JOG_ANYAG_SZAMLAK_KEZEL) ) {
-            $uj_link = 'javascript: alert2(\'Önnek nincs joga anyag számlát feltölteni!\', \'\', \'Hiba\'); void(0);';
-        } else {
-            if( isset($_GET['megjegyzesek']) ) {
-                $uj_link = 'javascript: kapcsolodoSzerkeszt(\'megjegyzes\'); void(0);';
-            } else {
-                $uj_link = 'javascript: anyag_szamla_feltolt(); void(0);';
-            }
-        }
+        $uj_link = 'javascript: anyag_szamla_feltolt(); void(0);';
         
     } elseif( basename(self()) == 'anyagigenyles.php' && !isset($_GET['megjegyzesek']) && !_jog(JOG_ANYAGIGENYLES_KEZEL) ) {
         $uj_link = 'javascript: alert2(\'Önnek nincs jogosultsága új anyagigénylés feltöltéséhez!\', \'\', \'Hiba\'); void(0);';
@@ -921,15 +912,7 @@ if( in_array(basename(self()), $_SESSION['ketHasabos']) && $_SESSION[get_db_tabl
         $uj_link = 'javascript: kapcsolodoSzerkeszt(\'megjegyzes\'); void(0);';
     
     } elseif( basename(self()) == 'energia_szamla.php' ) {
-        if( !_jog(JOG_ENERGIA_SZAMLAK_KEZEL) ) {
-            $uj_link = 'javascript: alert2(\'Önnek nincs joga energia számlát feltölteni!\', \'\', \'Hiba\'); void(0);';
-        } else {
-            if( isset($_GET['megjegyzesek']) ) {
-                $uj_link = 'javascript: kapcsolodoSzerkeszt(\'megjegyzes\'); void(0);';
-            } else {
-                $uj_link = 'javascript: energia_szamla_feltolt(); void(0);';
-            }
-        }
+        $uj_link = 'javascript: energia_szamla_feltolt(); void(0);';
         
     } elseif( basename(self()) == 'energia_terv.php' && isset($_GET['megjegyzesek']) ) {
         $uj_link = 'javascript: kapcsolodoSzerkeszt(\'megjegyzes\'); void(0);';
@@ -950,26 +933,10 @@ if( in_array(basename(self()), $_SESSION['ketHasabos']) && $_SESSION[get_db_tabl
         $uj_link = 'javascript: kapcsolodoSzerkeszt(\'megjegyzes\'); void(0);';
 
     } elseif( basename(self()) == 'fenntartasi_szamla.php' ) {
-        if( !_jog(JOG_FENNTARTASI_SZAMLAK_KEZEL) ) {
-            $uj_link = 'javascript: alert2(\'Önnek nincs joga fenntartási számlát feltölteni!\', \'\', \'Hiba\'); void(0);';
-        } else {
-            if( isset($_GET['megjegyzesek']) ) {
-                $uj_link = 'javascript: kapcsolodoSzerkeszt(\'megjegyzes\'); void(0);';
-            } else {
-                $uj_link = 'javascript: fenntartasi_szamla_feltolt(); void(0);';
-            }
-        }
+        $uj_link = 'javascript: fenntartasi_szamla_feltolt(); void(0);';
 
     } elseif( basename(self()) == 'fenntartasi_szerzodes.php' ) {
-        if( !_jog(JOG_FENNTARTASI_SZERZ_KEZEL) ) {
-            $uj_link = 'javascript: alert2(\'Önnek nincs joga fenntartási szerződést feltölteni!\', \'\', \'Hiba\'); void(0);';
-        } else {
-            if( isset($_GET['megjegyzesek']) ) {
-                $uj_link = 'javascript: kapcsolodoSzerkeszt(\'megjegyzes\'); void(0);';
-            } else {
-                $uj_link = 'javascript: fenntartasi_szerzodes_feltolt(); void(0);';
-            }
-        }
+        $uj_link = 'javascript: fenntartasi_szerzodes_feltolt(); void(0);';
 
     } elseif( basename(self()) == 'fenntartasi_terv.php' && !_jog(JOG_FENNTARTASI_SAJAT_SZ_KEZEL) ) {
         $uj_link = 'javascript: alert2(\'Önnek nincs joga fenntartási tervet feltölteni!\', \'\', \'Hiba\'); void(0);';
@@ -981,15 +948,8 @@ if( in_array(basename(self()), $_SESSION['ketHasabos']) && $_SESSION[get_db_tabl
         $uj_link = 'javascript: kapcsolodoSzerkeszt(\'megjegyzes\'); void(0);';
         
     } elseif( basename(self()) == 'megallapodas_szamla.php' ) {
-        if( !_jog(JOG_MEGALLAPODAS_SZAMLA_KEZEL) ) {
-            $uj_link = 'javascript: alert2(\'Önnek nincs joga megállapodás számlát feltölteni!\', \'\', \'Hiba\'); void(0);';
-        } else {
-            if( isset($_GET['megjegyzesek']) ) {
-                $uj_link = 'javascript: kapcsolodoSzerkeszt(\'megjegyzes\'); void(0);';
-            } else {
-                $uj_link = 'javascript: megallapodas_szamla_feltolt(); void(0);';
-            }
-        }
+        $uj_link = 'javascript: megallapodas_szamla_feltolt(); void(0);';
+        
     } elseif( basename(self()) == 'tervezes.php' && isset($_GET['megjegyzesek']) ) {
         $uj_link = 'javascript: kapcsolodoSzerkeszt(\'megjegyzes\'); void(0);';
 
@@ -1022,15 +982,7 @@ if( in_array(basename(self()), $_SESSION['ketHasabos']) && $_SESSION[get_db_tabl
             }
         }
     } elseif( basename(self()) == 'projektszerzodes.php' ) {
-        if( !_jog(JOG_PRKEZEL_SZERZODES_KEZEL) && !_jog(JOG_PR_SAJAT_SZERZ_KEZEL) ) {
-            $uj_link = 'javascript: alert2(\'Önnek nincs joga projektszerződést feltölteni!\', \'\', \'Hiba\'); void(0);';
-        } else {
-            if( isset($_GET['megjegyzesek']) ) {
-                $uj_link = 'javascript: kapcsolodoSzerkeszt(\'megjegyzes\'); void(0);';
-            } else {
-                $uj_link = 'javascript: projektszerzodes_feltolt(); void(0);';
-            }
-        }
+        $uj_link = 'javascript: projektszerzodes_feltolt(); void(0);';
         
     } elseif( basename(self()) == 'raktar.php' && isset($_GET['megjegyzesek']) ) {
         $uj_link = 'javascript: kapcsolodoSzerkeszt(\'megjegyzes\'); void(0);';
@@ -1179,7 +1131,7 @@ if( self('-basename-') == 'energia_szamla.php' ) {
 if( self('-basename-') == 'energia_szamla.php' && !_jog(JOG_ENERGIA_SZAMLAK_KEZEL) ) {
     $uj = '';
 }
-if( self('-basename-') == 'fenntartasi_szamla.php' || basename(self()) == 'fenntartasi_szerzodes.php' || self('-basename-') == 'megallapodas.php' || basename(self()) == 'megallapodas_szamla.php' ) {
+if( self('-basename-') == 'fenntartasi_szamla.php' || basename(self()) == 'fenntartasi_szerzodes.php' || basename(self()) == 'megallapodas_szamla.php' ) {
     $duplikal = $torles_icon = '';
 }
 if( self('-basename-') == 'fenntartasi_szamla.php' && !_jog(JOG_FENNTARTASI_SZAMLAK_KEZEL) ) {
@@ -1188,8 +1140,17 @@ if( self('-basename-') == 'fenntartasi_szamla.php' && !_jog(JOG_FENNTARTASI_SZAM
 if( self('-basename-') == 'fenntartasi_szerzodes.php' && !_jog(JOG_FENNTARTASI_SZERZ_KEZEL) ) {
     $uj = '';
 }
+if( self('-basename-') == 'megallapodas_szamla.php' && !_jog(JOG_MEGALLAPODAS_SZAMLA_KEZEL) ) {
+    $uj = '';
+}
+if( self('-basename-') == 'megallapodas.php' && !_jog(JOG_MEGALLAPODAS_KEZEL) ) {
+    $uj = '';
+}
 if( self('-basename-') == 'anyagigenyles.php' && !_jog(JOG_ANYAGIGENYLES_KEZEL) ) {
     $torles_icon    = '';
+}
+if( self('-basename-') == 'megallapodas.php' ) {
+    $duplikal = '';
 }
 // Anyagrendelés alatt nincs új felvitel
 if( self('-basename-') == 'anyagigenyles.php' && isset($_GET['anyagrend']) ) {
@@ -1559,12 +1520,14 @@ if( is_file($css_file) ) {
 
 $header_html .= '<script src="../js/jquery.fixedheadertable.js"></script>';
 
+// iPhone alatt a html, body kapnak pár extra tulajdonságot. Ez egy ismert és bevett dolog ahhoz, hogy rendesen működjenek rajta dolgok.
 if( isIphone() ) {
     $header_html .= nl2('
         <style type="text/css">
             html, body{
                 position: fixed;
                 overflow: hidden;
+                height: 100%;
             }
         </style>
     ');

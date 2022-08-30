@@ -1,13 +1,13 @@
 <h2>Megállapodás tételek kezelése</h2>
 
 <div class="kozep" style="min-height: 40rem">
-    <div class="grid2o" style="width: 28rem">
+    <div class="grid2o" style="width: 30rem">
         <div class="b">Megállapodás összege:</div>
-        <div class="b r"><span id="pop_szerz_ossz"></span></div>
+        <div class="b r"><span id="pop_szerz_ossz" class="nowrap"></span></div>
         <div class="b">Tételek összege:</div>
-        <div class="b r"><span id="pop_tetelek_ossz"></span></div>
+        <div class="b r"><span id="pop_tetelek_ossz" class="nowrap"></span></div>
         <div class="b">Különbség:</div>
-        <div class="b r"><span id="pop_kulonbseg"></span></div>
+        <div class="b r"><span id="pop_kulonbseg" class="nowrap"></span></div>
     </div>
 
     <br>Szálloda:
@@ -233,9 +233,9 @@ function popup_tetel_sor_torol(sor_id, mehet){
     
     $('.'+sor_id).addClass('torles_elott');
     if(!mehet){
-        alert2( 'Szálloda '             + $('.'+sor_id+' .pop_telephely').html() +'<br>' +
-                'Teljesítés dátuma: '   + $('.'+sor_id+' .pop_telj_dt').html() +'<br>' +
-                'Nettó érték: '         + $('.'+sor_id+' .pop_netto_ert').html() +' ' + akt_penznem + '<br>' +
+        alert2( 'Szálloda: '            + $('.'+sor_id+' .pop_telephely').html() +'<br>' +
+                'Számla várh. érk: '    + $('.'+sor_id+' .pop_varh_erk').html() +'<br>' +
+                'Számla várh. értéke: ' + $('.'+sor_id+' .pop_varh_ert').html() +' ' + akt_penznem + '<br>' +
                 'Biztosan törli a megállapodás tételt?', '<input type="button" class="gomb zold" value="Igen" onclick="popup_tetel_sor_torol(\''+sor_id+'\', \'mehet\'); alert2();"><input type="button" class="gomb piros escapes_megsem" value="Nem" onclick="alert2(); $(\'.torles_elott\').removeClass(\'torles_elott\');">');
         return false;
     }
@@ -395,6 +395,7 @@ function pop_tetelek_feltolt(){
             id                  : _get('id'),
             andoc_id            : andoc_id,
             kolt_vis            : kolt_vis,
+            kcs_21              : kcs_21,
             pop_tetelek_feltolt : Date.now()
         },
         success: function(response) {

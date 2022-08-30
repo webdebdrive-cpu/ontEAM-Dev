@@ -440,6 +440,10 @@ if( isset($_POST['tetel_sorok_ment']) ) {
     $db_error = false;
     mysqli_autocommit($db_kapcs, false);
     
+    if( $_POST['recid'] == 'false' ) {
+        $_POST['recid'] = '';
+    }
+    
     // Kapott tömb indexeit cseréljük beszédesebb változókra
     $recid_adat    = 0;
     $targy_adat    = 1;
@@ -489,13 +493,21 @@ if( isset($_POST['tetel_sorok_ment']) ) {
                 
     // Tételek kimentése Session-be
     } else {
-        $_SESSION['pr_szer_tetel_recid']    = $_POST['adatok'][$recid_adat][1];
-        $_SESSION['pr_szer_tetel_targy']    = str_replace('{IDEZOJEL}', '"', $_POST['adatok'][$targy_adat][1]);
-        $_SESSION['pr_szer_tetel_varh_erk'] = $_POST['adatok'][$varh_erk_adat][1];
+        
+        // Ha nem ismert a recid, akkor új feltöltésről van szó, ekkor a session neveknél kicsit más megnevezést használunk
+        // hogy még véletlen se keveredjen pl. másik tabon megnyitott számla tételek szereksztésével voltak gondok, azt mentette be az újhoz
+        $kieg = '';
+        if( !$recid ) {
+            $kieg = '_uj';
+        }
+
+        $_SESSION['pr_szer_tetel_recid'.$kieg]    = $_POST['adatok'][$recid_adat][1];
+        $_SESSION['pr_szer_tetel_targy'.$kieg]    = str_replace('{IDEZOJEL}', '"', $_POST['adatok'][$targy_adat][1]);
+        $_SESSION['pr_szer_tetel_varh_erk'.$kieg] = $_POST['adatok'][$varh_erk_adat][1];
         if( $devizas ) {
-            $_SESSION['pr_szer_tetel_dev_net'] = str_replace(',', '.', $_POST['adatok'][$varh_ert_adat][1]);
+            $_SESSION['pr_szer_tetel_dev_net'.$kieg] = str_replace(',', '.', $_POST['adatok'][$varh_ert_adat][1]);
         } else {
-            $_SESSION['pr_szer_tetel_varh_ert'] = str_replace(',', '.', $_POST['adatok'][$varh_ert_adat][1]);
+            $_SESSION['pr_szer_tetel_varh_ert'.$kieg] = str_replace(',', '.', $_POST['adatok'][$varh_ert_adat][1]);
         }
     }
     
