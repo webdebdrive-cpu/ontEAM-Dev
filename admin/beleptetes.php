@@ -172,11 +172,12 @@ if( isset($_POST['megsem']) ) {
     exit();
 }
 
-// Manuális beléptetés
+// Manuális beléptetés. A nev oszlopot, tehát a loginnevet kell átadni ilyenkor GET-ben
+// Pl: https://www.onteam.hu/admin/beleptetes.php?manualis_belepes=XY
 //if (isset($_GET['manualis_belepes'])) {
 //    
 //    $felhasznalo = $adatbazis_kapcsolat->s2('recid nev szallito_id teljes_nev jelszo helyesseg flags flags_ert jog van_jelszo szemelyzet_id tabla_rendezes', 'login', "`nev` = '". $_GET['manualis_belepes']."'");
-//    
+//    echo $adatbazis_kapcsolat->gp() . '<br>';
 //    $_SESSION[get_db_tabla().'user']            = $felhasznalo['nev'];
 //    $_SESSION[get_db_tabla().'teljes_nev']      = $felhasznalo['teljes_nev'];
 //    $_SESSION[get_db_tabla().'login_recid']     = $felhasznalo['recid'];

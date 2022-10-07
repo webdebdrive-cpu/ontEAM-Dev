@@ -301,8 +301,8 @@ if( isset($_POST['szamla_igazol']) ) {
     
     
 
-    $sql = $adatbazis_kapcsolat->u('projektszamla', array('elo_igazolva'),
-                                                    array(1             ),
+    $sql = $adatbazis_kapcsolat->u('projektszamla', array('elo_igazolva', 'elo_igazolva_dt', 'elo_igazolva_usr'                     ),
+                                                    array(1,              'NOW()',           $_SESSION[get_db_tabla().'teljes_nev'] ),
                                     "`recid`='{$_POST['id']}'");
     if( $sql === false ) { $db_error = true; }
     
@@ -404,8 +404,15 @@ if( isset($_POST['projektSzamlaElutasit']) ) {
     $db_error = false;
     mysqli_autocommit($db_kapcs, false);
     
+    $sor = $adatbazis_kapcsolat->s2('pr_szam let_fel', 'projektszamla', "`recid`='{$_POST['id']}'");
+    
     // Ha nincs joga hozzá, akkor hibaüzenet
-    if( !_jog(JOG_PRSZAMLAK_UTOIGAZOL) ) {
+    if(
+        !(
+            ( _jog(JOG_PRSZAMLAK_IGAZOL) && $sor['let_fel'] == $_SESSION[get_db_tabla().'login_recid'] ) ||
+            _jog(JOG_PRSZAMLAK_UTOIGAZOL)
+        )
+       ) {
         echo json_encode(array(
                                 'hiba'  => 'Önnek nincs joga számlát elutasítani!',
                                 'title' => 'Hiba',
@@ -433,8 +440,6 @@ if( isset($_POST['projektSzamlaElutasit']) ) {
     // Adatbázisba mentés csak akkor, ha nem volt gond az XML küldéssel
     } else {
         
-        $szamla = $adatbazis_kapcsolat->s2('pr_szam', 'projektszamla', "`recid`='{$_POST['id']}'");
-        
         // Elutasítással kapcsolatos adatok beállítása, illetve a kapcsolt számlaszám ürítése
         $sql = $adatbazis_kapcsolat->u('projektszamla', array('igazolva', 'sz_szam', 'pr_szam', 'let_fel', 'elutleir',     'igazolva_dt', 'igazolva_usr',                          'sztornozva_dt', 'sztornozva_usr'                       ),
                                                         array(0,          '',        '',        '',        $_POST['memo'], 'NOW()',       $_SESSION[get_db_tabla().'teljes_nev'],  'NOW()',         $_SESSION[get_db_tabla().'teljes_nev'] ),
@@ -451,12 +456,12 @@ if( isset($_POST['projektSzamlaElutasit']) ) {
             if( $sql === false ) { $db_error = true; }
         }
         //... illetve a kapcsolást szintén töröljük a számla tételeknél
-        $sql = $adatbazis_kapcsolat->u('projektszamla_tetel',   array('projektszerzodes_tetel_recid'   ),
-                                                                array('0'                                   ),
+        $sql = $adatbazis_kapcsolat->u('projektszamla_tetel',   array('projektszerzodes_tetel_recid'),
+                                                                array('0'                           ),
                                         "`projektszamla_recid`='{$_POST['id']}'");
         if( $sql === false ) { $db_error = true; }
         
-        if( projektkezeles_szamlazott_osszeg ( $szamla['pr_szam'] ) === false ) {
+        if( projektkezeles_szamlazott_osszeg ( $sor['pr_szam'] ) === false ) {
             $db_error = true;
         }
         
@@ -488,8 +493,15 @@ if( isset($_POST['projektSzamlaVisszaUi']) ) {
     $db_error = false;
     mysqli_autocommit($db_kapcs, false);
     
+    $sor = $adatbazis_kapcsolat->s2('let_fel', 'projektszamla', "`recid`='{$_POST['recid']}'");
+    
     // Ha nincs joga hozzá, akkor hibaüzenet
-    if( !_jog(SZAMLAK_IGAZOLASA) ) {
+    if(
+        !(
+            ( _jog(JOG_PRSZAMLAK_IGAZOL) && $sor['let_fel'] == $_SESSION[get_db_tabla().'login_recid'] ) ||
+            _jog(JOG_PRSZAMLAK_UTOIGAZOL)
+        )
+       ) {
         echo json_encode(array(
                                 'hiba'  => 'Önnek nincs joga a számlát visszaküldeni!',
                                 'title' => 'Hiba',
@@ -499,8 +511,8 @@ if( isset($_POST['projektSzamlaVisszaUi']) ) {
     }
     
     // Visszaküldés SQL-je
-    $sql = $adatbazis_kapcsolat->u('projektszamla', array('feldolgozva_dt',      'feldolgozva_usr'  ),
-                                                    array('0000-00-00 00:00:00', ''                 ),
+    $sql = $adatbazis_kapcsolat->u('projektszamla', array('feldolgozva_dt',      'feldolgozva_usr', 'elo_igazolva', 'elo_igazolva_dt', 'elo_igazolva_usr'   ),
+                                                    array('0000-00-00 00:00:00', '',                '0',            '',                ''                   ),
                                                     "`recid`='{$_POST['recid']}'");
     if( $sql === false ) { $db_error = true; }
     
@@ -2445,7 +2457,7 @@ if( isset($_GET['csv']) ) {
                 }
 
                 $sql = 'SELECT
-                      `'.get_db_tabla().$megnevezes.'`.`telephely_id` as \'Szálloda\',
+                            `'.get_db_tabla().$megnevezes.'`.`telephely_id` as \'Szálloda\',
                             `'.get_db_tabla().$megnevezes.'`.`szallito_id` as \'Partner\',
                             `'.get_db_tabla().$megnevezes.'`.`targy` as \'Tárgy\',
                             `'.get_db_tabla().$megnevezes.'`.`netto` as \'Nettó érték\',
@@ -2838,6 +2850,8 @@ require_once('selectek.php');
                 // Igazolás joggal lehet csak igazolni: jog + felhasználó = számla projektjének projektfelelőse
                 if( _jog(JOG_PRSZAMLAK_IGAZOL) && $sor['let_fel'] == $_SESSION[get_db_tabla().'login_recid'] ) {
                     $gombok .= '<input type="button" class="gomb modositaskor_rejt zold" value="Igazolás" onclick="szamla_igazol()"> ';
+                    $gombok .= '<input type="button" class="gomb modositaskor_rejt piros" value="Elutasítás" onclick="csoportMuvelet(\'projektSzamlaElutasit\');"> ';
+                    $gombok .= '<input type="button" class="gomb modositaskor_rejt" value="Vissza üi.-nek" onclick="csoportMuvelet(\'projektSzamlaVisszaUi\');"> ';
                 }
             } else {
                 if( _jog(JOG_PRSZAMLAK_UTOIGAZOL) ) {
@@ -3317,7 +3331,7 @@ if( $_SERVER['REMOTE_ADDR'] == get_debug_ip() ) {
             ');
 
 	    // Fentebb már lekértük $sor        = $adatbazis_kapcsolat -> s2('*', $megnevezes, "`recid`='{$_GET['id']}'");
-        $telephely  = $adatbazis_kapcsolat -> s2('nev modell', 'telephely', "`id`='{$sor['telephely_id']}'");
+        $telephely = $adatbazis_kapcsolat -> s2('nev modell', 'telephely', "`id`='{$sor['telephely_id']}'");
         // Fizetési módokat szövegesen írjuk ki (amúgy szem szerkeszthető az adatlap)
         switch ( strtolower($sor['fizmod']) ) {
             case 'u': $sor['fizmod'] = 'Utalás';    break;
@@ -3598,7 +3612,7 @@ if( $_SERVER['REMOTE_ADDR'] == get_debug_ip() ) {
 	// Történet
     } elseif( isset($_GET['tortenet']) ) {
 
-        $igazolva = $utoigazolva = $igazolva_dt = $utalvanyozva = $igazol_elut = $utalvanyozva_elut = $sztornozva = '';
+        $igazolva = $elo_igazolva = $utoigazolva = $elo_igazolva_dt = $igazolva_dt = $utalvanyozva = $igazol_elut = $utalvanyozva_elut = $sztornozva = '';
         if( $sor['igazolva_dt']!='0000-00-00 00:00:00' ) {
             $igazolva_dt = datum_kiir($sor['igazolva_dt']);
         }
@@ -3612,6 +3626,7 @@ if( $_SERVER['REMOTE_ADDR'] == get_debug_ip() ) {
             $utalvanyozva = '<b class="pipa">✓</b>';
         }
         if( $sor['sztornozva_dt'] != '0000-00-00 00:00:00' ) {
+
             $sztornozva = '<b class="x">✖</b>';
             $sztornozva_dt = datum_kiir($sor['sztornozva_dt']);
             $sztornozva_leir = '';
@@ -3636,14 +3651,38 @@ if( $_SERVER['REMOTE_ADDR'] == get_debug_ip() ) {
         }
         
         // Igazolva
-        $igazolva = '';
         if( $sor['elo_igazolva'] ) {
             $igazolva = '<b class="pipa">✓</b>';
+            $eloigazolva_usr = $sor['elo_igazolva_usr'];
+            $eloigazolva_dt  = $sor['elo_igazolva_dt'];
+        }
+        if( $sor['elo_igazolva_dt']!='0000-00-00 00:00:00' ) {
+            $elo_igazolva_dt = datum_kiir($sor['elo_igazolva_dt']);
         }
         
+        $utoigazolva_usr = $sor['igazolva_usr'];
+        $utoigazolva_dt  = '';
+        if( $sor['igazolva_dt']!='0000-00-00 00:00:00' ) {
+            $utoigazolva_dt = $sor['igazolva_dt'];
+        }
         // Ha nincs igazolva, de az igazolás időpontja már ismert, akkor tujduk, ez el lett utasítva
         if( !$sor['igazolva'] && $sor['igazolva_dt']!='0000-00-00 00:00:00' ) {
-            $utoigazolva = '<b class="x">✖</b>';
+            // Ha mindeközben már előizgaolva van, akkor az igazolva maradhat zöld pipa, az utóigazolásra kell a poiros X
+            if( $sor['elo_igazolva'] ) {
+                $igazolva = '<b class="pipa">✓</b>';
+                $eloigazolva_usr = $sor['elo_igazolva_usr'];
+                $eloigazolva_dt  = $sor['elo_igazolva_dt'];
+                $utoigazolva     = '<b class="x">✖</b>';
+                $utoigazolva_usr = $sor['igazolva_usr'];
+                $utoigazolva_dt  = $sor['igazolva_dt'];
+            } else {
+                $igazolva = '<b class="x">✖</b>';
+                $eloigazolva_usr = $sor['igazolva_usr'];
+                $eloigazolva_dt  = $sor['igazolva_dt'];
+                $utoigazolva     = '';
+                $utoigazolva_usr = '';
+                $utoigazolva_dt  = '';
+            }
             $igazol_elut = nl2('
                 </div>
                 <div class="indoklas">
@@ -3689,16 +3728,16 @@ if( $_SERVER['REMOTE_ADDR'] == get_debug_ip() ) {
                 <div class="dtr nSor">
                     <div class="dtc">Igazolva</div>
                     <div class="dtc">'.$igazolva.'</div>
-                    <div class="dtc"></div>
-                    <div class="dtc"></div>
+                    <div class="dtc">'.$eloigazolva_usr.'</div>
+                    <div class="dtc">'.datum_kiir($eloigazolva_dt).'</div>
                 </div>
+                '.$igazol_elut.'
                 <div class="dtr nSor">
                     <div class="dtc">Utóigazolva</div>
                     <div class="dtc">'.$utoigazolva.'</div>
-                    <div class="dtc">'.$sor['igazolva_usr'].'</div>
-                    <div class="dtc">'.$igazolva_dt.'</div>
+                    <div class="dtc">'.$utoigazolva_usr.'</div>
+                    <div class="dtc">'.datum_kiir($utoigazolva_dt).'</div>
                 </div>
-                '.$igazol_elut.'
                 <div class="dtr nSor">
                     <div class="dtc">Utalványozva</div>
                     <div class="dtc">'.$utalvanyozva.'</div>

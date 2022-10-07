@@ -6475,7 +6475,7 @@ if( isset($_POST['munkalapVisszavetelDirektbe']) ) {
     
     // Ha van levélküldés, akkor ellenőrizzük a többi mezőt is
     if( $_POST['email'] ) {
-        if(!trim($_POST['cimzett'])){
+        if( !trim($_POST['cimzett']) ) {
             echo json_encode(array(
                 'hiba'  => 'Kérem adja meg a címzett email címét!',
                 'title' => 'Hiba',
@@ -6489,7 +6489,7 @@ if( isset($_POST['munkalapVisszavetelDirektbe']) ) {
 
         // Címzett mezőben levő adat ellenőrzése
         $cimzett_hibak = is_valid_mail_tobb($_POST['cimzett'], 'Hibaüzenettel');
-        if( $cimzett_hibak ){
+        if( $cimzett_hibak ) {
             echo json_encode(array(
                 'hiba'  => $cimzett_hibak,
                 'title' => 'Hiba',
@@ -6501,7 +6501,7 @@ if( isset($_POST['munkalapVisszavetelDirektbe']) ) {
         }
         // Másolat mezőben levő adat ellenőrzése
         $cimzett_hibak = is_valid_mail_tobb($_POST['masolat'], 'Hibaüzenettel');
-        if( $cimzett_hibak ){
+        if( $cimzett_hibak ) {
             echo json_encode(array(
                 'hiba'  => $cimzett_hibak,
                 'title' => 'Hiba',
@@ -6522,7 +6522,7 @@ if( isset($_POST['munkalapVisszavetelDirektbe']) ) {
         $masolatok = array_values( array_filter($masolatok) );
 
         // Tárgy ellenőrzése
-        if(!trim($_POST['targy'])){
+        if( !trim($_POST['targy']) ) {
             echo json_encode(array(
                 'hiba'  => 'Kérem töltse ki az email tárgyát!',
                 'title' => 'Hiba',
@@ -6535,7 +6535,7 @@ if( isset($_POST['munkalapVisszavetelDirektbe']) ) {
         }
 
         // Üzenet ellenőrzése
-        if(!trim($_POST['uzenet'])){
+        if( !trim($_POST['uzenet']) ) {
             echo json_encode(array(
                 'hiba'  => 'Kérem töltse ki a email üzenetét!',
                 'title' => 'Hiba',
@@ -6561,7 +6561,7 @@ if( isset($_POST['munkalapVisszavetelDirektbe']) ) {
         $fajlok_mailnek = array();
         $fajlok = glob($utvonal);
 
-        $sikeres_kuldes = level_kuldes_osszetettebb(get_nev(), get_mail(), $mailcimek, $mailcimek, $masolatok, $masolatok, $r_masolatok, $r_masolatok, $targy_kieg.$_POST['targy'], $uzi_kieg.nl2br2($_POST['uzenet']), $fajlok, 'levélpapíros');
+        $sikeres_kuldes = level_kuldes_osszetettebb(get_nev(), get_mail(), $mailcimek, $mailcimek, $masolatok, $masolatok, $r_masolatok, $r_masolatok, $targy_kieg.$_POST['targy'], $uzi_kieg.nl2br2($_POST['uzenet']), $fajlok, '-levélpapíros-');
         if( $sikeres_kuldes ) {
             mysqli_rollback($db_kapcs);
             echo json_encode(array(

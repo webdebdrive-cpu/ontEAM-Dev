@@ -109,4 +109,9 @@ SZÁMLA IMPORT WEBSERVICE ANDOCBÓL
  
 HA NEM SIKERÜLT LÉTREHOZNI ANYAGIGÉNYLÉSEKNÉL A PDF-ET, AKKOR AZT ITT TUDOD MANUÁLISAN PÓTOLNI:
 anyagigenyles_nyomtat.php -ban le van írva
+
+
+Legfrisebb 1000 sorra való alapértelmezett szűrés, illetve anyagigényléseknél a 200-as limit a weblap.php közepefelé kerül beállításra.
+Keress rá erre: legfrissebb
+
  */

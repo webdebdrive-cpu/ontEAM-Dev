@@ -787,14 +787,28 @@ foreach ( $akt_tomb as $ertek ) {
             ) {
                 
                 if( $koltsegviselo_szalloda_lenyilohoz ) {
-                    $erteklista = $adatbazis_kapcsolat->s2('cegkod', 'erteklista', "`csoport`='".ERTEKLISTA_KOLTSEGVISELO."' AND `id`='{$koltsegviselo_szalloda_lenyilohoz}'");
+                    // Ideiglenesen a kötségviselőt most csak GUNDEL esetén vizsgáljuk, azaz csak ekkor szűrjük a szálloda lenyílót
+                    if( $koltsegviselo_szalloda_lenyilohoz == 5 ) {
+                        $erteklista = $adatbazis_kapcsolat->s2('cegkod', 'erteklista', "`csoport`='".ERTEKLISTA_KOLTSEGVISELO."' AND `id`='{$koltsegviselo_szalloda_lenyilohoz}'");
+                    }
                 } else {
                     $atmeneti   = $adatbazis_kapcsolat->s2('kolt_vis', $self.'_atmeneti', "`andoc_id`='{$_GET['andoc_id']}'");
-                    $erteklista = $adatbazis_kapcsolat->s2('cegkod', 'erteklista', "`csoport`='".ERTEKLISTA_KOLTSEGVISELO."' AND `id`='{$atmeneti['kolt_vis']}'");
+                    
+                    // Ideiglenesen a kötségviselőt most csak GUNDEL esetén vizsgáljuk, azaz csak ekkor szűrjük a szálloda lenyílót
+                    if( $atmeneti['kolt_vis'] == 5 ) {
+                        $erteklista = $adatbazis_kapcsolat->s2('cegkod', 'erteklista', "`csoport`='".ERTEKLISTA_KOLTSEGVISELO."' AND `id`='{$atmeneti['kolt_vis']}'");
+                    }
                 }
                 
                 if( $erteklista ) {
                     $where .= " AND `cegkod`='{$erteklista['cegkod']}'";
+                // Ha nincs cégkód szűrés..
+                } else {
+                    // ...akkor viszont a megkülönbözetett 3 szállodát vegyük ki a listából, de csak fenntartás felületeken
+                    $kiszurendo_felueltek = array('anyag_szamla', 'energia_szamla', 'fenntartasi_szamla', 'fenntartasi_szerzodes');
+                    if(  in_array($self, $kiszurendo_felueltek) ) {
+                        $where .= " AND `cegkod`!='".SZAMLA_KOLT_VIS_DHZRT."'";
+                    }
                 }
             }
             // unid esetén kell rá egy group by is

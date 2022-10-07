@@ -20,7 +20,7 @@ class ServerClass {
     const SZAMLA_TIPUS_PROJEKT      = 'beruházási számla';
     const SZAMLA_TIPUS_ENERGIA      = 'energia számla';
     const SZAMLA_TIPUS_ANYAG        = 'műszaki anyag';
-    const SZAMLA_TIPUS_MEGALL       = 'megállapodás';
+    const SZAMLA_TIPUS_MEGALL       = 'megállapodás számla';
     
     const SZERZ_TIPUS_FENNTARTASI   = 'fenntartás';
     const SZERZ_TIPUS_PROJEKT       = 'projekt';

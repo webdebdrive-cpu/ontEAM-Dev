@@ -63,14 +63,12 @@ if( $weblap->db_prefix ) {
     foreach ( $_GET as $kulcs => $get ) {
         $_GET[$kulcs] = sql_ertek($_GET[$kulcs]);
     }
-
 }
 
 // Majd a weblap indulhat, ekkor tölthető ki a meta (később már lesz kimenet)
     require_once('esemenyek.php');	// Ezt ne töröld, még ha üres is, kell, mert különben az admin nem működik
     require_once('meta.php');
     require_once('tartalom.php');
-
 /**
 *   Többnyelvű oldal esetére egy plusz függvény, amint ki kell venni a függvények tömbből, mert ott a taratlom.php még nem látszik
 *	Get tartalom érték
@@ -84,7 +82,7 @@ if( $weblap->db_prefix ) {
 */
 // Kiléptetés, ha nem él a SESSION és nem az index.php-n vagyunk és nem is egy ütemezőn, nem is elfelejtett jelszót kérünk le.
 $kiveteles_oldalak = array('index.php', 'import_szamla.php', 'import_szamla_kifizetes.php', 'beleptetes.php');
-if( !$_SESSION[get_db_tabla() . 'user'] && !$_POST['elfelejtett_jelszo'] && substr(basename($_SERVER['PHP_SELF']), 0, 8) != 'utemezo_' && !in_array(basename($_SERVER['PHP_SELF']), $kiveteles_oldalak) && substr(basename($_SERVER['PHP_SELF']), 0, 5)!='andoc' ) {
+if( !$_SESSION[get_db_tabla().'user'] && !$_POST['elfelejtett_jelszo'] && substr(basename($_SERVER['PHP_SELF']), 0, 8) != 'utemezo_' && !in_array(basename($_SERVER['PHP_SELF']), $kiveteles_oldalak) && substr(basename($_SERVER['PHP_SELF']), 0, 5)!='andoc' ) {
     echo 'SESKIL<script>document.body.innerHTML = \'\'; location.href=\'index.php\'</script>';
     exit;
 }
@@ -103,11 +101,24 @@ if( $_SESSION[get_db_tabla().'user'] ) {
 
 // Archiv bejelentés/munkalap esetén ha nincs szűrés/összetett szűrés, akkor a legfrisseb legyen beállítva (amúgy is van rajta egy limit, ha van más szűrés, de ha nincs beállítva semmi, akkor ez látszik is).
 // FONTOS, hogy ez még itt a szamla_lista() függvény meghívása előtt legyen, mert az már számol ezekkel!
-$archivok = array('anyag_szamla.php', 'bejelentes_arch.php', 'energia_szamla.php', 'fenntartasi_szamla.php', 'fenntartasi_szerzodes.php', 'megallapodas.php', 'megallapodas_szamla.php', 'munkalap_arch.php', 'projektigenyles.php', 'projektkezeles.php', 'projektszamla.php', 'projektszerzodes.php');
+$archivok = array('anyag_szamla.php', 'bejelentes_arch.php', 'energia_szamla.php', 'fenntartasi_szamla.php', 'fenntartasi_szerzodes.php', 'megallapodas.php', 'megallapodas_szamla.php', 'munkalap_arch.php', 'projektigenyles.php', 'projektkezeles.php', 'projektszamla.php', 'projektszerzodes.php', 'vendegejszakak.php');
 if( in_array(basename(self()), $archivok) && !isset($_GET['mezo']) && !$_SESSION['o_szuro_feltetel'] ) {
     $_GET['mezo']   = 'legfrissebb';
     $_GET['op']     = 'equal';
     $_GET['felt']   = ARCHIV_NAVPANEL_LIMIT;
+}
+// Anyagrendelések alatt, ha a szerepkör mszk ügyintéző vagy mszk vezető,
+// és nincs szűrve semmire (összetetten sem, ez itt fontos a 0-ás alapértelmezett érték miatt), akkor nem listázunk ki semmit.
+$nullas_szerepkorok = array(MSZK_VEZETO, MUSZAKI_ADMINISZTRATOR);
+if( in_array($_SESSION[get_db_tabla().'szemelyzet_id'], $nullas_szerepkorok) && basename(self())=='anyagigenyles.php' && isset($_GET['anyagrend']) && !$_GET['mezo'] && !$_SESSION['o_szuro_feltetel'] ) {
+    $_GET['mezo'] = 'legfrissebb';
+    // Korábban ez volt, így lehetett elérni azt, hogy üres legyen a találati lista startból
+    $_GET['felt'] = '-'; // Ha csak simán 0-át írnánk ide, akkor a feltételt üresnek tekintené, olyan mintha nem létezne
+}
+// Bármilyen más szereplő esetén (ugyanúgy Anyagrendelések alatt) pedig 200-as legyen a lista, ne az 1000-es
+if( !in_array($_SESSION[get_db_tabla().'szemelyzet_id'], $nullas_szerepkorok) && basename(self())=='anyagigenyles.php' && isset($_GET['anyagrend']) && !$_GET['mezo'] && !$_SESSION['o_szuro_feltetel'] ) {
+    $_GET['mezo'] = 'legfrissebb';
+    $_GET['felt'] = ANYAGREND_NEM_MSZK_LIMIT;
 }
 
 // Ha olyan $_GET['id']-t akarnék megnézni, ami az aktuális SQL-nek nem is eredménye, akkor kinullázzuk: ne lehessen leskelődni

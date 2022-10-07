@@ -49,6 +49,27 @@ if( $tobb_kep ) {
 }
 
 
+// Projektfelelős mailcím ellenőrzése
+if( isset($_GET['pfelelos_mail_ell']) ) {
+    
+    $login = $adatbazis_kapcsolat->s2('usermail', 'login', "`recid`='{$_GET['pfelelos']}'");
+    if( $login['usermail'] ) {
+        echo json_encode(array(
+                                 'siker'  => '1',
+                         ));
+    } else {
+        echo json_encode(array(
+                                 'hiba'  => 'A projektfelelősnek nincs e-mail címe, így az új projektről nem tudunk értesítést küldeni!',
+                                 'gomb'  => '',
+                                 'title' => 'Hiba',
+                         ));
+        
+    }
+
+    $weblap -> leallit();
+    exit;
+}
+
 // Projekt dokumentum típusának beállítása 
 // Projektek dokumentum fül alatt, minősítés gombra kattintva.
 // Ha nem a projektkez direktbe feltöltött dokumentumról van szó, hanem egy szerződés dokumentumról
@@ -2381,7 +2402,8 @@ require_once('selectek.php');
                 $sor[$ertek['name']] = $_SESSION[$ertek['name']];
 			}
 		}
-	    $js = js_kiir($akt_tomb, 'form_ell_admin()');
+	    $js  = js_kiir($akt_tomb, 'form_ell_admin()', '');
+        $js .= '<script>var projektkezeles_mehet = false;</script>';
 
 	    $form_sablon = fajlbol_olvas('../sablon/admin/form_uj.html', true);
 

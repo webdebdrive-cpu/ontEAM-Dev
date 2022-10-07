@@ -73,6 +73,7 @@ function get_title(){
         case 'szallito.php'                 : $title .= 'Partnertörzs';             break;
         case 'tervezes.php'                 : $title .= 'Tervezés';                 break;
         case 'torzsadat.php'                : $title .= 'Törzsadatok';              break;
+        case 'vendegejszakak.php'           : $title .= 'Vendégéjszakák';           break;
 
 	}
 

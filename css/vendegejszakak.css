@@ -1,0 +1,26 @@
+table.sar-table {
+    width: auto;
+    min-width: 0;
+}
+table.sar-table th, table.sar-table td {
+    width: 11.4rem;
+}
+table.sar-table tr th:first-of-type, table.sar-table tr td:first-of-type {
+    width: 20rem;
+}
+.vendeg_szures {
+    background: #fff;
+    height: 5rem;
+    margin-top: -1.6rem;
+    padding-top: 1rem;
+    position: fixed;
+    text-align: center;
+    width: 100rem;
+}
+.vendeg_szures_tav {
+    height: 3.5rem;
+}
+
+#ev {
+    width: 5rem;
+}

@@ -56,6 +56,7 @@ $_SESSION['ketHasabos'] = array(
     'torzsadat.php',
     'utemezett_feladatok.php',
     'uzemeltetesi_naplo.php',
+    'vendegejszakak.php',
 );
 
 $tabla = basename(self());
@@ -1128,12 +1129,39 @@ switch ( $tabla ) {
         }
 
     break;
+    case 'vendegejszakak.php':
+        // Ezeket a tábla oszlopokat kérdezzük le baloldalra
+        $_OPTS['select']    = ' `'.get_db_tabla().$tabla_nophp.'`.`recid`,
+                                `'.get_db_tabla().$tabla_nophp.'`.`telephely_id`,
+                                `'.get_db_tabla().$tabla_nophp.'`.`v_d`,
+                                `'.get_db_tabla().$tabla_nophp.'`.`v_ert`,
+                                `'.get_db_tabla().$tabla_nophp.'`.`ksz_ert`,
+                                `'.get_db_tabla().$tabla_nophp.'`.`khsz_ert`,
+                                `'.get_db_tabla().$tabla_nophp.'`.`rr_ert`,
+                                `'.get_db_tabla().$tabla_nophp.'`.`ugyl_ert`,
+                                `'.get_db_tabla().$tabla_nophp.'`.`ter_ert`,
+                                `'.get_db_tabla().$tabla_nophp.'`.`insert_dt`';
+
+        // Ezek az oszlopok generálódnak ki a rendezés selectbe, lehet szépíteni az oszlopneveket, amit a getOszlopNev() függvényben kell beállítani
+        $_OPTS['rendezes']  = array('v_d'   );
+        $_OPTS['iranyok']   = array('desc'  );
+
+        // Default rendezés
+        if( !$_GET['rend'] ) {
+            $_GET['rend'] = 'v_d';
+        }
+        // Default rendezési irány
+        if( !$_GET['irany'] ) {
+            $_GET['irany'] = 'desc';
+        }
+
+    break;
 }
 
 // Csak új feltöltés esetén kell az aktuális időpont, egyébként a már eltároltat írjuk ki
 $datum = '';
-if(isset($_GET['uj'])){
-	$datum = date('Y.m.d');
+if( isset($_GET['uj']) ) {
+    $datum = date('Y.m.d');
 }
 
 //TÖMBÖK:
@@ -3687,7 +3715,7 @@ array_push($postok, array('tomb' => $akt_tomb, 'uj' => 'uj'.$megnevezes, 'lista'
 
 // Felmérési terv
 $megnevezes = 'felmeresi_terv';
-$felmeresi_terv_tomb = $akt_tomb = array(
+$akt_tomb   = $felmeresi_terv_tomb = array(
 	array('type' => 'text',                     'megn' => 'Név:',                   'name' => 'nev',            'maxlength' => 250, 'class'  => 'oriasi', 'alert' => 'Kérem töltse ki a nevet!'),
 	array('type' => 'text',                     'megn' => 'Azonosító:',             'name' => 'azon',           'maxlength' => 20,  'alert' => 'Kérem töltse ki az azonosítót!'),
     array('type' => 'select_felh_telephely',    'megn' => 'Szálloda:',              'name' => 'telephely_id',   'szuro' => 1,       'class'  => 'disableNav',  'style' => 'width: 100%;', 'alert' => 'Kérem válasszon szállodát!', 'onchange' => 'szallodaVane( this );'),
@@ -3696,6 +3724,22 @@ $felmeresi_terv_tomb = $akt_tomb = array(
 
 );
 array_push($postok, array('tomb' => $akt_tomb, 'uj' => 'uj'.$megnevezes, 'lista' => $megnevezes.'lista', 'tabla' => $megnevezes, 'torid' => $megnevezes.'tid' ));
+
+// Vendégéjszakák
+$megnevezes = 'vendegejszakak_tomb';
+$akt_tomb   = $vendegejszakak_tomb = array(
+    array('type' => 'select_felh_telephely',    'megn' => 'Szálloda:',                              'name' => 'telephely_id',   'szuro' => 1,                       'class'  => 'disableNav',  'disabled' => 1,  'style' => 'width: 31.3rem;', 'alert' => 'Kérem válasszon szállodát!', 'onchange' => 'szallodaVane( this );'),
+    array('type' => 'text',                     'megn' => 'Dátum:',                                 'name' => 'v_d',            'szuro' => 1,   'maxlength' => 10,  'class'  => 'datepicker',  'disabled' => 1),
+    array('type' => 'text',                     'megn' => 'Vendégéjszakák száma:',                  'name' => 'v_ert',          'szuro' => 1,   'maxlength' => 5,   'class'  => 'normal r',    'disabled' => 1),
+    array('type' => 'text',                     'megn' => 'Kiadott szobák száma:',                  'name' => 'ksz_ert',        'szuro' => 1,   'maxlength' => 5,   'class'  => 'normal r',    'disabled' => 1),
+    array('type' => 'text',                     'megn' => 'Kiadható szobák száma:',                 'name' => 'khsz_ert',       'szuro' => 1,   'maxlength' => 5,   'class'  => 'normal r',    'disabled' => 1),
+    array('type' => 'text',                     'megn' => 'Rendezvényen résztvettek száma:',        'name' => 'rr_ert',         'szuro' => 1,   'maxlength' => 5,   'class'  => 'normal r',    'disabled' => 1),
+    array('type' => 'text',                     'megn' => 'Uszodai-gyógyászati látogatók száma:',   'name' => 'ugyl_ert',       'szuro' => 1,   'maxlength' => 5,   'class'  => 'normal r',    'disabled' => 1),
+    array('type' => 'text',                     'megn' => 'Terítékek száma:',                       'name' => 'ter_ert',        'szuro' => 1,   'maxlength' => 5,   'class'  => 'normal r',    'disabled' => 1),
+);
+array_push($postok, array('tomb' => $akt_tomb, 'uj' => 'uj'.$megnevezes, 'lista' => $megnevezes.'lista', 'tabla' => $megnevezes, 'torid' => $megnevezes.'tid' ));
+
+
 
 // CSV export letöltése
 if( isset($_GET['csv_download']) ) {

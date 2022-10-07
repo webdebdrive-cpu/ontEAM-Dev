@@ -1243,7 +1243,7 @@ function get_ml_visszavetelezes_input_tartalmak(elokeszitesre){
                 
                 // Levélküldés mezőinek alapértelmezett értékének beállítsa
                 $('#pop_cimzett').val(munkalap.mailcimek);
-                $('#pop_targy').val( munkalap.ikt_szam+' '+munkalap.telephely_nev+' ' );
+                $('#pop_targy').val( 'Megrendelés visszavonva: '+munkalap.ikt_szam+' '+munkalap.telephely_nev+' ' );
 
                 uzenet =    "Tisztelt Partnerünk,\n\n"                      +
                             "Mégsem kérjük Önöktől az alábbi hiba javítását:\n"  +

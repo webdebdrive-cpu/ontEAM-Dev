@@ -133,8 +133,8 @@ if( isset($_POST['f_szuro_mezo']) ) {
 
     }
     
-    // Anyag, Energia, Fenntartási vagy Projekt számláknál pár mezőnél csak egyenlőség jel van
-    $equal_tablak = array('anyag_szamla', 'energia_szamla', 'fenntartasi_szamla', 'projektszamla');
+    // Anyag, Energia, Fenntartási, Megállapodás vagy Projekt számláknál pár mezőnél csak egyenlőség jel van
+    $equal_tablak = array('anyag_szamla', 'energia_szamla', 'fenntartasi_szamla', 'megallapodas_szamla', 'projektszamla');
     $equal_mezok  = array('feldolgozva_dt', 'igazolva_dt', 'utalvanyozva_dt', 'sztornozva_dt');
     if( in_array($_POST['tabla'], $equal_tablak) && in_array($_POST['mezo'], $equal_mezok) ) {
         $operator = '<option value="equal"'.$selected_equal.'>=</option>';
@@ -1039,7 +1039,7 @@ if( $tabla == 'megallapodas' ) {
 }
 
 // Vannak felületek, ahol a nav panel számát limitáljuk. Ezt egy szűrővel oldjuk meg, tehát itt szükséges, hogy legyen egy Legfrisebb nevű szűrés lehetőség.
-$legfrisebb_feluletek = array('anyagigenyles', 'anyag_szamla', 'bejelentes_arch', 'energia_szamla', 'fenntartasi_szamla', 'fenntartasi_szerzodes', 'megallapodas', 'megallapodas_szamla', 'munkalap_arch', 'projektigenyles', 'projektkezeles', 'projektszamla', 'projektszerzodes');
+$legfrisebb_feluletek = array('anyagigenyles', 'anyag_szamla', 'bejelentes_arch', 'energia_szamla', 'fenntartasi_szamla', 'fenntartasi_szerzodes', 'megallapodas', 'megallapodas_szamla', 'munkalap_arch', 'projektigenyles', 'projektkezeles', 'projektszamla', 'projektszerzodes', 'vendegejszakak');
 if( in_array($tabla, $legfrisebb_feluletek) ) {
     $selected_legfrissebb  = '';
     if( $_GET['mezo'] == 'legfrissebb' && $_GET['felt']/* Tehát nem 0 sorra van szűkítve, ez egy speciális eset anyagrendeléseknél */ ) {
@@ -1145,7 +1145,6 @@ if( $_SESSION['dashboard_feladat'] ) {
 // Tehát a 'vege' alapján rendezzük az option-okat, így lesz a szűrés lista ABC-s rendben.
 $options = '';
 $sz_mezo = tobbdim_tomb_kulcs_rendez($sz_mezo, 'vege', SORT_ASC);
-
 foreach ( $sz_mezo as $mezo ) {
     $options .= $mezo['eleje'].$mezo['vege'];
 }

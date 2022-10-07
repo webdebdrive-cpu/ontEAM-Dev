@@ -82,7 +82,7 @@ function get_teszt_rendszer() {
 function get_verzio()     { return 'V1.198';                                    } // Fejlécben szereplő verzió szám
 function get_db_charset() { return 'UTF8';                                      } // Karakterkódolás (Figyelem! UTF-8 helyett itt UTF8)
 function get_debug()      { return false;                                       } // Hibás adatbázislekérdezések megjelennek vagy sem
-function get_debug_ip()   { return '81.182.34.200';                             } // Erről az IP címről nézve az oldalt íratható ki hibaüzenet
+function get_debug_ip()   { return '81.182.47.131';                             } // Erről az IP címről nézve az oldalt íratható ki hibaüzenet
 // A fenti élesen nem működik, de a többi felületen igen
 
 // Weblap
@@ -163,7 +163,7 @@ function get_mszk_mail2(){
     } else if( $_SERVER['HTTP_HOST'] == 'dev.onteam.hu' ) {
         return SZINVATREND_TESZT_MAIL;
     } else {
-        return MSZK_MAIL_2;
+        // return MSZK_MAIL_2; Neki már nem megy levél
     }
 }
 function get_teszt_mail_nev(){ return 'WebDeb Teszt';                           }

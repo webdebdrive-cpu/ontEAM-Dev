@@ -17,11 +17,11 @@ $megnevezes             = pathinfo(self());
 $megnevezes             = $megnevezes['filename'];
 $akt_tomb               = $anyagigenyles_tomb;
 $torles                 = $megnevezes.'tid';
-$szoveg                 = 'anyagigénylést';        //Hibaüzenetkor: Biztosan törlöd a $szoveg?
+$szoveg                 = 'anyagigénylést';        // Hibaüzenetkor: Biztosan törlöd a $szoveg?
 
 $szamla_html = '';
 
-// Az $id-k tömböt és a $page változót innen kaptjuk
+// Az $id-k tömböt és a $page változót innen kapjuk
 require_once 'anyagigenyles_nyomtat.php';
 
 if( isset($_POST['get_cikkszam']) ) {
@@ -1907,10 +1907,10 @@ if (isset($_POST['anyagigenyles_tablazat_rendez'])) {
     }
 
     // Nem biztos, hogy küldünk oszlop adatot, lehet csak az irány változik
-    if($_POST['oszlop']){
+    if( $_POST['oszlop'] ) {
         $_SESSION['anyagigenyles_tablazat_rendez'] = $_POST['oszlop'];
     }
-    if($_POST['irany']){
+    if( $_POST['irany'] ) {
         $_SESSION['anyagigenyles_tablazat_irany']  = $_POST['irany'];
     }
     
@@ -2833,7 +2833,7 @@ require_once('selectek.php');
 	// Táblázat
     } elseif( isset($_GET['tablazat']) ) {
 
-        // A füle CSS-ét itt felülírjuk, illetve a táblázat rendezőt és egyés ide vonatkozós JS-t is meghívunk
+        // A fülek CSS-ét itt felülírjuk, illetve a táblázat rendezőt és egyés ide vonatkozós JS-t is meghívunk
         $szamla_html .= nl2('
                 <style type="text/css">
                     div.szamlaFulek{
@@ -2876,7 +2876,7 @@ require_once('selectek.php');
             $kepfajl_original   = $sor_rnd['kepfajl'];
             $sor_rnd['kepfajl'] = str_replace('rendeles/', '', $sor_rnd['kepfajl']);
 
-            foreach($sor_rnd as $kulcs => $ertek){
+            foreach ( $sor_rnd as $kulcs => $ertek ) {
                 $sor[$kulcs] = $sor_rnd[$kulcs];
             }
 
@@ -2888,7 +2888,7 @@ require_once('selectek.php');
         $sor['vrndear'] = number_format( $sor['vrndear'], 2, ',', ' ');
         $sor['rndear']  = number_format( $sor['rndear'],  2, ',', ' ');
 
-        foreach($akt_tomb as $tomb) {
+        foreach( $akt_tomb as $tomb) {
 
             // Autocomplete lekezelése
             if( $tomb['type'] == 'autocomplete' ) {
@@ -3018,7 +3018,8 @@ require_once('selectek.php');
         }*/
 
         // A léptetés csak akkor fog működni, ha a bal navpanel kódja benne van a kódban
-        $szamla_html .= '<div class="dn">'.$balNavPanelHTMLje.'</div>';
+        // FONTOS, hogy nem lehet "dn", mert látszania kell, hogy a JavaScript tudjon vele dolgozni. A létetéshez kell.
+        $szamla_html .= '<div class="vh" style="height: 0; overflow: hidden;">'.$balNavPanelHTMLje.'</div>';
 
         if( $_GET['ajax'] ) {
             echo json_encode(array(

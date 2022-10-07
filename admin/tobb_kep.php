@@ -425,7 +425,6 @@ if( $apa_tabla == 'projektkezeles' ) {
                                             // Csatlakozzunk a szerződés sorához a szallito_id miatt, majd tovább csatlakozunk a szállítókhoz, a nev oszlop miatt
                                             'JOIN `'.get_db_tabla().'projektszerzodes` ON `'.get_db_tabla().'projektszerzodes_dok`.`projektszerzodes_id`=`'.get_db_tabla().'projektszerzodes`.`recid`
                                              JOIN `'.get_db_tabla().'szallito` ON `'.get_db_tabla().'projektszerzodes`.`szallito_id`=`'.get_db_tabla().'szallito`.`id` ');
-    
     }
 
     // Direkt és szerződés dokumentumokat kezeljük egybe

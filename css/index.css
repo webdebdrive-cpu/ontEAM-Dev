@@ -13,15 +13,21 @@
 
 .dashboard {
     display: grid;
-    grid-template-columns: 50% 50%;
+    /*
+    4-es elrendezéshez kellett vona
+    grid-template-columns: 50% 50%;*/
+    grid-template-columns: 50%;
     width: 99vw;
 }
 
 .dashboard > div {
+/* 
+    4-es elrendezéshez kellett vona
     border-right: 0.1rem solid #ccc;
     border-bottom: 0.1rem solid #ccc;
     height: 43vh;
-    overflow-y: auto;
+    overflow-y: auto;*/
+    border-right: 0.1rem solid #ccc;
 }
 
 .box {

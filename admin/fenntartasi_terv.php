@@ -649,8 +649,8 @@ if (isset($_POST['energia_tabla_ment'])) {
     if( $sql === false ) { $db_error = true; }
     
     // Ha "FUTOERTEK_MEE2"-os sor, akkor ellenőrizzük, hogy "GAZFOGYASZTAS_DIJELEM" sora van-e, ha nincs, létrehozzuk
-    if($energia['ktgnem_id']==FUTOERTEK_KOD && $energia['mee']==FUTOERTEK_MEE2){
-        
+    if( $energia['ktgnem_id'] == FUTOERTEK_KOD && $energia['mee'] == FUTOERTEK_MEE2 ) {
+
         $futoertek_sor = $adatbazis_kapcsolat->s2('*', 'fenntartasi_terv_energia', "`fenntartasi_terv_id`='{$energia['fenntartasi_terv_id']}' AND `ktgnem_id`='".FUTOERTEK_KOD."' AND `mee`='".FUTOERTEK_MEE."' AND `dijelem`='".FUTOERTEK_DIJELEM."'");
         $ft_mj_sorok   = $adatbazis_kapcsolat->s('*', 'fenntartasi_terv_energia', "`fenntartasi_terv_id`='{$energia['fenntartasi_terv_id']}' AND `ktgnem_id`='".FUTOERTEK_KOD."' AND `mee`='".FUTOERTEK_MEE2."'");
         
@@ -673,7 +673,7 @@ if (isset($_POST['energia_tabla_ment'])) {
         
         $van_gazfogy = $adatbazis_kapcsolat->s('recid', 'fenntartasi_terv_energia', "`fenntartasi_terv_id`='{$energia['fenntartasi_terv_id']}' AND `ktgnem_id`='".FUTOERTEK_KOD."' AND `mee`='".FUTOERTEK_MEE3."' AND `dijelem`='".GAZFOGYASZTAS_DIJELEM."'");
         if( $van_gazfogy === false ) { $db_error = true; }
-        if(!$van_gazfogy){
+        if( !$van_gazfogy ) {
             array_push($oszlopok, 'fenntartasi_terv_id',            'ktgnem_id',    'mee',          'dijelem'               );
             array_push($ertekek,  $energia['fenntartasi_terv_id'],  FUTOERTEK_KOD,  FUTOERTEK_MEE3, GAZFOGYASZTAS_DIJELEM   );
             $sql = $adatbazis_kapcsolat->i('fenntartasi_terv_energia', $oszlopok, $ertekek);

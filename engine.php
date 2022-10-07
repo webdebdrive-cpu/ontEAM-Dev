@@ -1645,7 +1645,7 @@ function level_kuldes( $felado_nev, $felado_mail, $cimzett_nev, $cimzett_mail, $
  * @param $masolat_nev string/array másolatot kap neve
  * @param $masolat_mail string/array másolatot kap e-mail címe
  * @param $r_masolat_nev string/array rejtett másolatot kap neve
- * @param r_masolat_mail string/array rejtett másolatot kap e-mail címe
+ * @param $r_masolat_mail string/array rejtett másolatot kap e-mail címe
  * @param $targy string feladó tárgy
  * @param $uzi string feladó üzenet
  * @param $fajlok string/array csatolandó fájlok elérési útvonala a szerveren (Ez lehet egy sima felsorolása az útvonalakról, de többdimenziós tömbkét megadhatóak a fájlok megnevezései is. Pl. array( array('nev' => 'Ékezetes fájlnév', 'fajl' => 'fajl/utvonala.kit'), ...  );  .)
@@ -1671,6 +1671,10 @@ function level_kuldes_osszetettebb( $felado_nev, $felado_mail, $cimzett_nev, $ci
         }
 
         $uzi = mail_img2cid($uzi, $mail, $cimzett_mail);
+        
+        // Munkalap, külső kivitelezőnél amikor visszavesszük a feladatot direktbe, akkor a "Mégsem kérjük" szót emeljük ki
+        $uzi = str_ireplace('Mégsem kérjük', '<b>Mégsem kérjük</b>', $uzi);
+
         $mail -> CharSet  = get_web_charset();
         $mail -> setFrom($felado_mail, $felado_nev);
         $mail -> addReplyTo($felado_mail, $felado_nev);
@@ -1702,11 +1706,17 @@ function level_kuldes_osszetettebb( $felado_nev, $felado_mail, $cimzett_nev, $ci
         if( is_array($masolat_mail) ) {
             $i = 0;
             foreach ( $masolat_mail as $c_mail ) {
-                $mail -> addCC(trim($c_mail), trim($masolat_nev[$i]));
+                $c_mail = trim($c_mail);
+                if( $c_mail ) {
+                    $mail -> addCC($c_mail, trim($masolat_nev[$i]));
+                }
                 $i++;
             }
         } elseif( $masolat_mail ) {
-            $mail -> addCC(trim($masolat_mail), trim($masolat_nev));
+            $masolat_mail = trim($masolat_mail);
+            if( $masolat_mail ) {
+                $mail -> addCC($masolat_mail, trim($masolat_nev));
+            }
         }
 
         // Másolatot kap

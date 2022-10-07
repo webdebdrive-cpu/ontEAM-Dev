@@ -117,7 +117,7 @@ array_push($select_ho_soran, array('name' => 'szombat',     'value' => '6'));
 array_push($select_ho_soran, array('name' => 'vasárnap',    'value' => '7'));
 
 
-// Select tömb Ütemezés típushoz
+// Select tömb Ütemezés típushoz, vendégéjszakákhoz
 $select_honapok = array();
 array_push($select_honapok, array('name' => '- Válasszon -','value' => '' ));
 array_push($select_honapok, array('name' => 'január',       'value' => '1'));

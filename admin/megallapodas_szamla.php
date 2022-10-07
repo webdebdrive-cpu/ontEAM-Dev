@@ -282,7 +282,7 @@ if( isset($_POST['szamla_igazol']) ) {
     }
     
     // Ha nincs joga hozzá, akkor hibaüzenet
-    if( !_jog(SZAMLAK_IGAZOLASA) ) {
+    if( !_jog(JOG_MEGALLAPODAS_SZAMLA_IGAZOL) ) {
         echo json_encode(array(
                                 'hiba'  => 'Önnek nincs joga számlát igazolni!',
                                 'title' => 'Hiba',
@@ -338,7 +338,7 @@ if( isset($_POST['megallapodasSzamlaElutasit']) ) {
     mysqli_autocommit($db_kapcs, false);
     
     // Ha nincs joga hozzá, akkor hibaüzenet
-    if( !_jog(SZAMLAK_IGAZOLASA) ) {
+    if( !_jog(JOG_MEGALLAPODAS_SZAMLA_IGAZOL) ) {
         echo json_encode(array(
                                 'hiba'  => 'Önnek nincs joga számlát elutasítani!',
                                 'title' => 'Hiba',
@@ -415,7 +415,7 @@ if( isset($_POST['megallapodasSzamlaVisszaUi']) ) {
     mysqli_autocommit($db_kapcs, false);
     
     // Ha nincs joga hozzá, akkor hibaüzenet
-    if( !_jog(SZAMLAK_IGAZOLASA) ) {
+    if( !_jog(JOG_MEGALLAPODAS_SZAMLA_IGAZOL) ) {
         echo json_encode(array(
                                 'hiba'  => 'Önnek nincs joga a számlát visszaküldeni!',
                                 'title' => 'Hiba',
@@ -2229,7 +2229,7 @@ require_once('selectek.php');
         }
         
         // Ha már fel van dolgozva, nincs még igazolva és van hozzá jogunk
-        if( $sor['feldolgozva_dt'] != '0000-00-00 00:00:00' && $sor['igazolva_dt']=='0000-00-00 00:00:00' && _jog(SZAMLAK_IGAZOLASA) ) {
+        if( $sor['feldolgozva_dt'] != '0000-00-00 00:00:00' && $sor['igazolva_dt']=='0000-00-00 00:00:00' && _jog(JOG_MEGALLAPODAS_SZAMLA_IGAZOL) ) {
             $gombok .= '<input type="button" class="gomb modositaskor_rejt zold" value="Igazolás" onclick="szamla_igazol()"> ';
             $gombok .= '<input type="button" class="gomb modositaskor_rejt piros" value="Elutasítás" onclick="csoportMuvelet(\'megallapodasSzamlaElutasit\');"> ';
             $gombok .= '<input type="button" class="gomb modositaskor_rejt" value="Vissza üi.-nek" onclick="csoportMuvelet(\'megallapodasSzamlaVisszaUi\');"> ';

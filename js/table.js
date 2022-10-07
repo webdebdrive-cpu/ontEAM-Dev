@@ -92,8 +92,16 @@ $(function() {
         table.find('tbody tr').not('.fake').find('td').filter(function() {
             return $(this).index() === index;
         }).sortElements(function(a, b) {
+
             var at = $.text([a]),
                 bt = $.text([b]);
+        
+            if( $(a).attr('sorttable_customkey') ) {
+                at = $(a).attr('sorttable_customkey');
+            }
+            if( $(b).attr('sorttable_customkey') ) {
+                bt = $(b).attr('sorttable_customkey');
+            }
 
             if( $(a).attr('data-sort') !== undefined ) {
                 var at = $(a).attr('data-sort'),
@@ -114,7 +122,7 @@ $(function() {
         });
 
         ujra_sorszamoz_uj();
-        
+
         anyagrend = '';
         if( _get('anyagrend') ){
             anyagrend = '?anyagrend=1';
@@ -182,60 +190,36 @@ $(function() {
             }
         });
     });
+        
+    $(document).ready(function () {
+        $('.sar-table').each(function() {
+            var colgroup = $('<colgroup>');
 
-    /*parseInt(window.getComputedStyle(document.getElementById(this.id), null).getPropertyValue("width"))*/
-    $('.sar-table').each(function() {
-        var colgroup = $('<colgroup>');
+                var height = $(this).find('thead').find('th:first-child').outerHeight();
+                $(this).find('tr.fake td').css('height', height);
 
-        var height = $(this).find('thead').find('th:first-child').outerHeight();
-        $(this).find('tr.fake td').css('height', height);
+            $(this).find('thead').find('th').each(function(i) {
+                var width = $(this).outerWidth(),
+                    index = $(this).index();
 
-        $(this).find('thead').find('th').each(function(i) {
-            var width = $(this).outerWidth(),
-                index = $(this).index();
+                class_nev = '';
+                if( $(this).attr('class') ){
+                    class_nev = ' class="' + $(this).attr('class') + '"';
+                }
 
-            class_nev = '';
-            if( $(this).attr('class') ){
-                class_nev = ' class="' + $(this).attr('class') + '"';
-            }
-
-            colgroup.append('<col' + class_nev + '>');
-            colgroup.find('col').eq(index).css({
-                'min-width': width,
-                'max-width': width,
-                'width'    : width
-            });
-
-            /*if( i == 0 ) {
-                width = width - 1;
-            }
-
-            var that = $(this);
-            setTimeout(function() {
-                that.css({
+                colgroup.append('<col' + class_nev + '>');
+                colgroup.find('col').eq(index).css({
                     'min-width': width,
                     'max-width': width,
                     'width'    : width
                 });
-            }, 500);*/
-        });
 
-        $(this).prepend(colgroup);
+            });
 
-        var scrollTop  = $('#tartalomJobb').scrollTop(),
-            scrollLeft = $('#tartalomJobb').scrollLeft();
+            $(this).prepend(colgroup);
 
-        var tableParent  = $(this).parents('#tartalomJobb'),
-            parentOffset = tableParent.offset();
-
-        $(this).find('thead').css({
-            'position'  : 'fixed',
-            'top'       : parentOffset.top,
-            'left'      : -Math.abs(scrollLeft),
-            'z-index'   : '10'
         });
     });
-
     $('#tartalomJobb').scroll(function() {
         var scrollTop  = $(this).scrollTop(),
             scrollLeft = $(this).scrollLeft();
@@ -244,10 +228,16 @@ $(function() {
             var tableParent  = $(this).parents('#tartalomJobb'),
                 parentOffset = tableParent.offset();
 
+            /* Vendégéjszakáknál a tálbázat felett van egy szűrés, ezért ezt kicsit lentebbre igazítjuk */
+            var top = parentOffset.top;
+            if( baseName(location.href) == 'vendegejszakak' ) {
+                top += 50;
+            }
+
             if( scrollTop > 0 ) {
                 $(this).find('thead').css({
                     'position'  : 'fixed',
-                    'top'       : parentOffset.top,
+                    'top'       : top,
                     'left'      : -Math.abs(scrollLeft),
                     'z-index'   : '10'
                 });
@@ -447,20 +437,22 @@ function jovahagyasra_varo_igazit(){
 }
 
 function fejlec_igazit( table ) {
-    table.find('tbody').find('tr:first-child td').each(function(i) {
-        var index = $(this).index(),
-            width = $(this).outerWidth();
+    setTimeout(function () {
+        table.find('tbody').find('tr:first-child td').each(function(i) {
+            var index = $(this).index(),
+                width = $(this).outerWidth();
 
-        if( i == 0 ) {
-            width = width - 1;
-        }
+            if( i == 0 ) {
+                width = width - 1;
+            }
 
-        $(this).parents('.sar-table').find('th').eq(index).css({
-            'min-width': width,
-            'max-width': width,
-            'width'    : width
+            $(this).parents('.sar-table').find('th').eq(index).css({
+                'min-width': width,
+                'max-width': width,
+                'width'    : width
+            });
         });
-    });
+    }, 500);
 }
 
 function fejlecPozicional() {
@@ -471,12 +463,18 @@ function fejlecPozicional() {
         var tableParent  = $(this).parents('#tartalomJobb'),
             parentOffset = tableParent.offset();
 
+        /* Vendégéjszakáknál a tálbázat felett van egy szűrés, ezért ezt kicsit lentebbre igazítjuk */
+        var top = parentOffset.top;
+        if( baseName(location.href) == 'vendegejszakak' ) {
+            top += 50;
+        }
+
         $(this).find('thead').css({
             'position'  : 'fixed',
-            'top'       : parentOffset.top,
+            'top'       : top,
             'left'      : -Math.abs(scrollLeft),
             'z-index'   : '10',
-            /* Ez a kettó azért kell, hogy a fejléc ne takarja ki a scrollt */
+            /* Ez a kettő azért kell, hogy a fejléc ne takarja ki a scrollt */
             'right'     : '1.6rem',
             'overflow-x': 'hidden'
         });
