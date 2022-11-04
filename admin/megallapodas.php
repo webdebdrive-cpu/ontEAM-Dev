@@ -883,7 +883,7 @@ require_once('selectek.php');
     
     // Tételek SESSION-jének feltöltése (új felvitelben kicsit más a lekérdezés
     if( isset($_GET['uj']) && _jog(JOG_MEGALLAPODAS_OLVAS) ) {
-        $szerzodes = $adatbazis_kapcsolat->s2('recid kcs_21', 'megallapodas_atmeneti', "`andoc_id`='{$_GET['andoc_id']}'");
+        $szerzodes = $adatbazis_kapcsolat->s2('recid kcs_21 szszam', 'megallapodas_atmeneti', "`andoc_id`='{$_GET['andoc_id']}'");
     } else if( _jog(JOG_MEGALLAPODAS_OLVAS) ) {
         $tetelek = $adatbazis_kapcsolat->s('*', 'megallapodas_tetel', "`megallapodas_recid`='{$_GET['id']}'", 'insert_dt');
     }
@@ -991,6 +991,16 @@ require_once('selectek.php');
             return form_ell_admin();
             
             ');
+        
+        // Ha foglalt volna az Andoc azonosító vagy az iktatószám, akkor mentéskor küldjünk hibaüzenetet
+        // Éles rendszerben ilyen nem fordulhat elő, de teszelésekkor szükséges, hogy ha gond volna, tudjunk róla
+        $onclick = 'if( form_ell_admin_elott() ){ uj_szerzodes_ellenorzes(); }';
+        if( $adatbazis_kapcsolat -> s2('recid', 'fenntartasi_szerzodes', "`andoc_id`='{$_GET['andoc_id']}'") ) {
+            $onclick = 'alert2(\''.a_az($_GET['andoc_id'], '-nagybetű-').' „'.$_GET['andoc_id'].'” Andoc azonosító már foglalt, így nem menthető a szerződés!\', \'\', \'Hiba\');';
+        }
+        if( $adatbazis_kapcsolat -> s2('recid', 'fenntartasi_szerzodes', "`szszam`='{$szerzodes['szszam']}'") ) {
+            $onclick = 'alert2(\''.a_az($szerzodes['ikt_szam'], '-nagybetű-').' „'.$szerzodes['szszam'].'” szerződés szám már foglalt, így nem menthető a szerződés!\', \'\', \'Hiba\');';
+        }
 
         $gombok = nl2('
             <div class="form_kuldes">
@@ -998,7 +1008,7 @@ require_once('selectek.php');
                 <input type="hidden" id="van_tetel" value="">
                 <input type="hidden" id="ossz_netto" value="'.$ossz_netto.'">
                 <input type="hidden" id="ossz_dev_net" value="'.$ossz_dev_net.'">
-                <input type="button" class="gombb mentes_gomb gombb_alert" name="mehet_gomb" id="mehet_gomb" value="Mentés" disabled onclick="if( form_ell_admin_elott() ){ uj_szerzodes_ellenorzes(); }">
+                <input type="button" class="gombb mentes_gomb gombb_alert" name="mehet_gomb" id="mehet_gomb" value="Mentés" disabled onclick="'.$onclick.'">
                 <input type="button" class="gomb piros" id="megsem_gomb" value="Mégsem" disabled onclick="megsemGomb();">
             </div>
         ');

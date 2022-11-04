@@ -1322,7 +1322,7 @@ require_once('selectek.php');
     
     // Tételek SESSION-jének feltöltése (új felvitelben kicsit más a lekérdezés
     if( isset($_GET['uj']) && (_jog(JOG_PRKEZEL_SZERZODES_KEZEL) || _jog(JOG_PR_SAJAT_SZERZ_KEZEL)) ) {
-        $szerzodes = $adatbazis_kapcsolat->s2('recid kcs_21', 'projektszerzodes_atmeneti', "`andoc_id`='{$_GET['andoc_id']}'");
+        $szerzodes = $adatbazis_kapcsolat->s2('recid kcs_21 sz_szam', 'projektszerzodes_atmeneti', "`andoc_id`='{$_GET['andoc_id']}'");
     }
     
     // Gombok kirajzolása minden oldalra
@@ -1336,10 +1336,21 @@ require_once('selectek.php');
         $_SESSION['pr_szer_tetel_dev_net']  = '';
 
         if( _jog(JOG_PRKEZEL_SZERZODES_KEZEL) || _jog(JOG_PR_SAJAT_SZERZ_KEZEL) ) {
+
+            // Ha foglalt volna az Andoc azonosító vagy az iktatószám, akkor mentéskor küldjünk hibaüzenetet
+            // Éles rendszerben ilyen nem fordulhat elő, de teszelésekkor szükséges, hogy ha gond volna, tudjunk róla
+            $onclick = 'mentesGomb();';
+            if( $adatbazis_kapcsolat -> s2('recid', 'projektszerzodes', "`andoc_id`='{$_GET['andoc_id']}'") ) {
+                $onclick = 'alert2(\''.a_az($_GET['andoc_id'], '-nagybetű-').' „'.$_GET['andoc_id'].'” Andoc azonosító már foglalt, így nem menthető a szerződés!\', \'\', \'Hiba\');';
+            }
+            if( $adatbazis_kapcsolat -> s2('recid', 'projektszerzodes', "`sz_szam`='{$szerzodes['sz_szam']}'") ) {
+                $onclick = 'alert2(\''.a_az($szerzodes['ikt_szam'], '-nagybetű-').' „'.$szerzodes['sz_szam'].'” szerződés szám már foglalt, így nem menthető a szerződés!\', \'\', \'Hiba\');';
+            }
+            
             $gombok = nl2('
                 <div class="form_kuldes">
                     <input type="hidden" name="atmeneti_recid" value="'.$szerzodes['recid'].'">
-                    <input type="button" class="gombb mentes_gomb" name="mehet_gomb" id="mehet_gomb" disabled value="Mentés" onclick="mentesGomb();">
+                    <input type="button" class="gombb mentes_gomb" name="mehet_gomb" id="mehet_gomb" disabled value="Mentés" onclick="'.$onclick.'">
                     <input type="button" class="gomb piros" disabled id="megsem_gomb" value="Mégsem" onclick="megsemGomb();">
                 </div>
             ');

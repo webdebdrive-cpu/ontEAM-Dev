@@ -86,13 +86,13 @@ function fenntartasi_szerzodes_kivalaszt(){
         
     Viszont helyette ellenőrizzük, hogy a szerződés költségviselője azonos-e a számláéval.
     */
-   if( $('#kolt_vis').val() != $('#fennt_szerzodes_tablazat tr.kijelolve').data('kolt_vis') ) {
+   /*if( $('#kolt_vis').val() != $('#fennt_szerzodes_tablazat tr.kijelolve').data('kolt_vis') ) {
        $('#sz_szam').val('').removeClass('mod');
        $('#sz_szam_gomb').val('Szerződés hozzáadása').removeClass('piros');
        $('#szerzodes_neve').html('');
        alert2('A számla költségviselője nem egyezik meg a kapcsolni kívánt szerződés költségviselőjével!<br>A szerződés nem adható hozzá!', '', 'Hiba');
        return false;
-   }
+   }*/
     
     formModositva = true;
     $('#mehet_gomb, #megsem_gomb').removeAttr ('disabled');

@@ -1,7 +1,7 @@
 <?php
 /*                                                  *\
  * FONTOS:
- * 143-es ID-nál járunk
+ * 144-es ID-nál járunk
  * 14-as kategória ID-nál járunk
 \*                                                  */
 
@@ -172,7 +172,7 @@ $jogosultsagok = array(
     131 => array('nev' => 'Anyag számlák kezelése',                 'kat' => 12, 'sor' => 14),
     139 => array('nev' => 'Számlák igazolása',                      'kat' => 12, 'sor' => 15),
     141 => array('nev' => 'Andoc számlák szétosztása',              'kat' => 12, 'sor' => 16),
-    142 => array('nev' => 'Vendégéjszakák megtekintése',            'kat' => 12, 'sor' => 17),
+    143 => array('nev' => 'Vendégéjszakák megtekintése',            'kat' => 12, 'sor' => 17),
     
     93  => array('nev' => 'Partnertörzs megtekintése',              'kat' => 13, 'sor' => 7),
     94  => array('nev' => 'Partnertörzs kezelése',                  'kat' => 13, 'sor' => 8),

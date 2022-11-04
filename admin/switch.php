@@ -786,6 +786,7 @@ foreach ( $akt_tomb as $ertek ) {
                 || $koltsegviselo_szalloda_lenyilohoz // projektszerzodes.php-ban egy ajaxos szálloda lenyíló betöltése miatt kell + projektszerződés adatlapjára is
             ) {
                 
+                $erteklista = '';
                 if( $koltsegviselo_szalloda_lenyilohoz ) {
                     // Ideiglenesen a kötségviselőt most csak GUNDEL esetén vizsgáljuk, azaz csak ekkor szűrjük a szálloda lenyílót
                     if( $koltsegviselo_szalloda_lenyilohoz == 5 ) {
@@ -799,10 +800,10 @@ foreach ( $akt_tomb as $ertek ) {
                         $erteklista = $adatbazis_kapcsolat->s2('cegkod', 'erteklista', "`csoport`='".ERTEKLISTA_KOLTSEGVISELO."' AND `id`='{$atmeneti['kolt_vis']}'");
                     }
                 }
-                
+
                 if( $erteklista ) {
                     $where .= " AND `cegkod`='{$erteklista['cegkod']}'";
-                // Ha nincs cégkód szűrés..
+                // Ha nincs cégkód szűrés...
                 } else {
                     // ...akkor viszont a megkülönbözetett 3 szállodát vegyük ki a listából, de csak fenntartás felületeken
                     $kiszurendo_felueltek = array('anyag_szamla', 'energia_szamla', 'fenntartasi_szamla', 'fenntartasi_szerzodes');

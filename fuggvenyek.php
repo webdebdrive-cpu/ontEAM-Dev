@@ -390,16 +390,16 @@ function i_u($type, $tabla, $tomb) {
             exit;
         }
         // Ha a költségviselő és a szálloda cégkódja nem egyezik, akkor azt nem engejük elmenteni
-        $erteklista = $adatbazis_kapcsolat->s2('cegkod', 'erteklista', "`csoport`='".ERTEKLISTA_KOLTSEGVISELO."' AND `id`='{$_POST['kolt_vis']}'");
-        $telephely  = $adatbazis_kapcsolat->s2('cegkod', 'telephely', "`id`='{$_POST['telephely_id']}'");
-        if( $erteklista['cegkod'] != $telephely['cegkod'] ) {
-            echo json_encode(array(
-                                    'hiba'  => 'A költségviselő és a szálloda cégkódja nem egyezik!',
-                                    'title' => 'Hiba',
-                                ));
-            $weblap -> leallit();
-            exit;
-        }
+//        $erteklista = $adatbazis_kapcsolat->s2('cegkod', 'erteklista', "`csoport`='".ERTEKLISTA_KOLTSEGVISELO."' AND `id`='{$_POST['kolt_vis']}'");
+//        $telephely  = $adatbazis_kapcsolat->s2('cegkod', 'telephely', "`id`='{$_POST['telephely_id']}'");
+//        if( $erteklista['cegkod'] != $telephely['cegkod'] ) {
+//            echo json_encode(array(
+//                                    'hiba'  => 'A költségviselő és a szálloda cégkódja nem egyezik!',
+//                                    'title' => 'Hiba',
+//                                ));
+//            $weblap -> leallit();
+//            exit;
+//        }
     }
     
     // Ütemezett feladatok, rendszeres karbantartás és eseti fenntartásoknál ha nem volna ismert az Elvégzési idő, akkor alapértelmezett értéket kap
@@ -2782,7 +2782,6 @@ function i_u($type, $tabla, $tomb) {
 
         // Megállapodás esetén a tételek nettó összegét ellenőrizzük UPDATE előtt
         if( $tabla == 'megallapodas' ) {
-            
             $tizedesek  = 0;
             $mezo1      = 'megall_szerz_tetel_varh_ert';
             $mezo2      = 'netto';
@@ -2830,6 +2829,12 @@ function i_u($type, $tabla, $tomb) {
                 }
             }
         }
+        
+        // Illetve a szerződés számot még külön fel kell még venni, mert a tiltott mező miatt ez magától nem íródna be
+        if( $tabla == 'megallapodas_szamla' ) {
+            array_push($oszlopok, 'sz_szam'         );
+            array_push($ertekek,  $_POST['sz_szam'] );
+        }
 
         // Projektigényléseknél egy-több szállodás váltás lekezelése UPDATE előtt
         if( $tabla == 'projektigenyles' ) {
@@ -2849,7 +2854,7 @@ function i_u($type, $tabla, $tomb) {
                 if( count($cash_flowk)==1 ){
 
                     $i_tmp = 0;
-                    foreach($oszlopok as $ertek){
+                    foreach ( $oszlopok as $ertek ) {
                         if($ertek=='egy_tobb'){
                             $ertekek[$i_tmp] = 0;
                         }
@@ -13642,13 +13647,13 @@ function vendeg_ejszaka_datum_szuro ($relative = '') {
         $style .= ' style="position: relative; padding-top: 2rem"';
     }
     
+    // <input type="button" value="Szűrés" class="gomb" onclick="vendegejszaka_szur()">
     return nl2('
                     <div class="vendeg_szures"'.$style.'>
                         <input type="text" value="'.$_GET['ev'].'" id="ev" maxlength="4" onkeyup="onlyNumbers( $(this) )" placeholder="Év">
                         <select class="disableNav" name="ho" id="ho">
                             '.$options.'
                         </select>
-                        <input type="button" value="Szűrés" class="gomb" onclick="vendegejszaka_szur()">
                     </div>  
         ');
 }

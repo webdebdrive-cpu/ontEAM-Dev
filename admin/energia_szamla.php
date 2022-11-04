@@ -412,6 +412,10 @@ if( isset($_POST['energiaSzamlaVisszaUi']) ) {
                                                         "`recid`='{$_POST['recid']}'");
     if( $sql === false ) { $db_error = true; }
     
+    // Könyvelés tételeket ekkor töröljük
+    $sql = $adatbazis_kapcsolat -> d('energia_szamla_konyveles', "`energia_szamla_recid`='{$_POST['recid']}'");
+    if( $sql === false ) { $db_error = true; }
+    
     // Megjegyzésben logoljuk
     if( addMegj('energia_szamla', $_POST['recid'], 'Igazoló visszaadta számlát ügyintézőnek.<br>Indoklás: '.nl2br2($_POST['memo'])) === false ) {
         $db_error = true;
@@ -1481,7 +1485,7 @@ require_once('selectek.php');
     $gombok = '';
     if( isset($_GET['uj']) && _jog(JOG_ENERGIA_SZAMLAK_KEZEL) ) {
         
-        $szamla = $adatbazis_kapcsolat->s2('recid kcs_21', 'energia_szamla_atmeneti', "`andoc_id`='{$_GET['andoc_id']}'");
+        $szamla = $adatbazis_kapcsolat->s2('recid kcs_21 ikt_szam', 'energia_szamla_atmeneti', "`andoc_id`='{$_GET['andoc_id']}'");
         
         // Energia számla mentésekor HA nem nullás a számla, akkor ellenőrizzük, hogy a számla nettó értéke azonos-e a tételek összegével
         // Deviza esetén más session-t járunk be
@@ -1578,13 +1582,23 @@ require_once('selectek.php');
             
             ');
         
+        // Ha foglalt volna az Andoc azonosító vagy az iktatószám, akkor mentéskor küldjünk hibaüzenetet
+        // Éles rendszerben ilyen nem fordulhat elő, de teszelésekkor szükséges, hogy ha gond volna, tudjunk róla
+        $onclick = 'mentesGomb();';
+        if( $adatbazis_kapcsolat -> s2('recid', 'energia_szamla', "`andoc_id`='{$_GET['andoc_id']}'") ) {
+            $onclick = 'alert2(\''.a_az($_GET['andoc_id'], '-nagybetű-').' „'.$_GET['andoc_id'].'” Andoc azonosító már foglalt, így nem menthető a számla!\', \'\', \'Hiba\');';
+        }
+        if( $adatbazis_kapcsolat -> s2('recid', 'energia_szamla', "`ikt_szam`='{$szamla['ikt_szam']}'") ) {
+            $onclick = 'alert2(\''.a_az($szamla['ikt_szam'], '-nagybetű-').' „'.$szamla['ikt_szam'].'” iktatószám már foglalt, így nem menthető a számla!\', \'\', \'Hiba\');';
+        }
+        
         $gombok = nl2('
             <script>var tetelek_szama_elter = 0;</script>
             <div class="form_kuldes">
                 <input type="hidden" name="atmeneti_recid" value="'.$szamla['recid'].'">
                 <input type="hidden" id="ossz_netto" value="">
                 <input type="hidden" id="ossz_dev_net" value="">
-                <input type="button" class="gombb mentes_gomb" name="mehet_gomb" id="mehet_gomb" disabled value="Mentés" onclick="mentesGomb();">
+                <input type="button" class="gombb mentes_gomb" name="mehet_gomb" id="mehet_gomb" disabled value="Mentés" onclick="'.$onclick.'">
                 <input type="button" class="gomb piros" disabled id="megsem_gomb" value="Mégsem" onclick="megsemGomb();">
             </div>
         ');     

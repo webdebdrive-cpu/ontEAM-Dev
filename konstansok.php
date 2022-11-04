@@ -1,9 +1,10 @@
 <?php
 // Általános konstansok
-define('NYOMTATAS_ADOSZAM',         '10219522-2-44' );
+define('NYOMTATAS_ADOSZAM',         '10594702-2-41' );
 define('NYOMTATAS_ADOSZAM_GUNDEL',  '10505898-2-42' );
 define('NYOMTATAS_FIX_CIM',         1040            );
 define('NYOMTATAS_KIVETELES_CIM',   2032            );
+define('NYOMTATAS_SZLA_KULD_CIM',   'e-invoice.mszk@danubiushotels.com');
 define('SZALLITOKOD_HOSSZ',         5               );
 define('JELSZO_MIN_HOSSZ',          8               );
 define('DISZPECSER_TELEFONSZAM',    '30/703 0560, 1/889 5988');
@@ -415,7 +416,7 @@ define('JOG_FENNTARTASI_SAJAT_SZ_OLVAS',84);
 define('JOG_FENNTARTASI_SAJAT_SZ_KEZEL',85);
 define('JOG_FENNTARTASI_TERV_TOROL',    101);
 define('JOG_FENNTARTASI_TERV_ELESIT',   102);
-define('JOG_VENDEGEJSZAKAK_OLVAS',      142);
+define('JOG_VENDEGEJSZAKAK_OLVAS',      143);
 define('JOG_ANYAG_SZAMLAK_OLVAS',       87);
 define('JOG_ANYAG_SZAMLAK_KEZEL',       131);
 define('JOG_ENERGIA_SZAMLAK_OLVAS',     88);

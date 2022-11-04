@@ -358,7 +358,7 @@ function get_fejlec_top($sorszam, $lapszammal) {
                             <img src="../elemek/dh_logo.png" alt="Logo" width="50">
                         </td>
                         <td style="font-size: 11px">
-                            Danubius Zrt.
+                            Danubius Hotels Zrt.
                             <br>Műszaki Szolgáltató Központ
                             <br>'.get_nev().'
                         </td>
@@ -415,7 +415,7 @@ function get_fejlec($szallito) {
                         <br>Cím.: '.$szallito['isz'].' '.$szallito['varos'].', '.$szallito['utca'].'
                     </td>
                     <td class="vat" style="font-size: 12px; width: 50%; padding: 5px; border: 1px solid #ddd;">
-                        Név: Danubius Zrt. Műszaki Szolgáltató Központ
+                        Név: Danubius Hotels Zrt. Műszaki Szolgáltató Központ
                         <br>Üi.: '.$_SESSION[get_db_tabla().'teljes_nev'].'
                         '.$tel_kieg.'
                     </td>
@@ -464,7 +464,7 @@ function szallitasi_cimenkenti_lista($idk_impl, $szalloda = ''){
                 case 1:
                     // Aktuális szálloda SZN+CÍM+ha szálloda=2032,” Szondi utcai teherporta”
                     $szall_cim .= $szn.' '.$cim;
-                    if($anyag['telephely_id']==NYOMTATAS_KIVETELES_CIM){
+                    if( $anyag['telephely_id'] == NYOMTATAS_KIVETELES_CIM ) {
                         $szall_cim .= ' Szondi utcai teherporta';
                     }
                 break;
@@ -477,23 +477,41 @@ function szallitasi_cimenkenti_lista($idk_impl, $szalloda = ''){
             }
             
             $adoszam = NYOMTATAS_ADOSZAM;
-            if( $anyag['telephely_id'] == 5411/* Gundel */ ) {
+            if( $anyag['telephely_id'] == TELEPHELY_GUNDEL ) {
                 $adoszam = NYOMTATAS_ADOSZAM_GUNDEL;
             }
             
             $szallcim_html .= '
-                            <tr style="border-collapse: collapse;border: 1px solid #ddd;">
-                                <td class="b" style="border: 1px solid #ddd; padding: 5px;">
+                            <tr style="border-collapse: collapse;border: 1px solid #ddd; border-bottom: 0;">
+                                <td class="b" style="border: 1px solid #ddd; padding: 5px; border-bottom: 0; padding-bottom: 0; marign: 0; vertical-align: top;">
                                     Szállítási cím:
-                                    <br>Számlázási cím:
-                                    <br>Adószám:
-                                    <br>Számlaküldési cím:
                                 </td>
-                                <td style="border: 1px solid #ddd; padding: 5px;" colspan="2">
-                                    '.$szall_cim.'
-                                    <br>'.$szl.' '.$cim.'
-                                    <br>'.$adoszam.'
-                                    <br>'.$fix_cim.'
+                                <td style="border: 1px solid #ddd; padding: 5px; border-bottom: 0; padding-bottom: 0; marign: 0;" colspan="2">
+                                    Danubius Hotels Zrt. '.$szall_cim.'
+                                </td>
+                            </tr>
+                            <tr style="border-collapse: collapse; border: 1px solid #ddd; border-top: 0; border-bottom: 0; marign: 0;">
+                                <td class="b" style="border: 1px solid #ddd; padding: 5px; border-top: 0; border-bottom: 0; padding-top: 0;padding-bottom: 0; marign: 0; vertical-align: top;">
+                                    Számlázási cím:
+                                </td>
+                                <td style="border: 1px solid #ddd; padding: 5px; border-top: 0; border-bottom: 0; padding-top: 0; padding-bottom: 0;" colspan="2">
+                                    '.$szl.' '.$cim.'
+                                </td>
+                            </tr>
+                            <tr style="border-collapse: collapse;border: 1px solid #ddd; border-top: 0; border-bottom: 0;">
+                                <td class="b" style="border: 1px solid #ddd; padding: 5px; border-top: 0; border-bottom: 0; padding-top: 0; padding-bottom: 0;">
+                                    Adószám:
+                                </td>
+                                <td style="border: 1px solid #ddd; padding: 5px;  border-top: 0; border-bottom: 0; padding-top: 0; padding-bottom: 0;" colspan="2">
+                                    '.$adoszam.'
+                                </td>
+                            </tr>
+                            <tr style="border-collapse: collapse; border: 1px solid #ddd; border-top: 0;">
+                                <td class="b" style="border: 1px solid #ddd; padding: 5px; border-top: 0; padding-top: 0;">
+                                    Számlaküldési cím:
+                                </td>
+                                <td style="border: 1px solid #ddd; padding: 5px; border-top: 0; padding-top: 0;" colspan="2">
+                                    '.NYOMTATAS_SZLA_KULD_CIM.'
                                 </td>
                             </tr>
                             ';
@@ -611,4 +629,3 @@ function get_keret($title){
 
 
 }
-?>

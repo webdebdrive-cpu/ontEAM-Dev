@@ -516,6 +516,10 @@ if( isset($_POST['projektSzamlaVisszaUi']) ) {
                                                     "`recid`='{$_POST['recid']}'");
     if( $sql === false ) { $db_error = true; }
     
+    // Könyvelés tételeket ekkor töröljük
+    $sql = $adatbazis_kapcsolat -> d('projektszamla_konyveles', "`projektszamla_recid`='{$_POST['recid']}'");
+    if( $sql === false ) { $db_error = true; }
+    
     // Megjegyzésben logoljuk
     if( addMegj('projektszamla', $_POST['recid'], 'Igazoló visszaadta számlát ügyintézőnek.<br>Indoklás: '.nl2br2($_POST['memo'])) === false ) {
         $db_error = true;
@@ -2847,6 +2851,7 @@ require_once('selectek.php');
         if( $sor['feldolgozva_dt'] != '0000-00-00 00:00:00' && $sor['igazolva_dt']=='0000-00-00 00:00:00' ) {
             // Ha még nincs igazolva, akkor előbb "előigazolunk", és majd csak ez után lehet utóigazolni
             if( !$sor['elo_igazolva'] ) {
+
                 // Igazolás joggal lehet csak igazolni: jog + felhasználó = számla projektjének projektfelelőse
                 if( _jog(JOG_PRSZAMLAK_IGAZOL) && $sor['let_fel'] == $_SESSION[get_db_tabla().'login_recid'] ) {
                     $gombok .= '<input type="button" class="gomb modositaskor_rejt zold" value="Igazolás" onclick="szamla_igazol()"> ';

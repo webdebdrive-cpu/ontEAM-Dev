@@ -7556,10 +7556,10 @@ require('selectek.php');
         foreach ( $select_szemelyzet as $szemelyzet ) {
             if( 
                 // Ha többszállodás a modell, vagy a személyzet nem Műszaki vezető, ÉS saját magam vagyok a személyzete, akkor oda nem adható át a ML
-                ($telephely['modell'] || $_SESSION[get_db_tabla() . 'szemelyzet_id'] != MUSZAKI_VEZETO) 
-                && $_SESSION[get_db_tabla() . 'szemelyzet_id'] == $szemelyzet['value']
+                ($telephely['modell'] || $_SESSION[get_db_tabla().'szemelyzet_id'] != MUSZAKI_VEZETO) 
+                && $_SESSION[get_db_tabla().'szemelyzet_id'] == $szemelyzet['value']
                 ) {
-                $szemelyzet_id_rejt[$szemelyzet['value']] = ' class="dn"';
+                    $szemelyzet_id_rejt[$szemelyzet['value']] = ' class="dn"';
             }
         }
         // Korábban ez volt:
@@ -7572,7 +7572,7 @@ require('selectek.php');
 //        }
 
         // Mobilcsoportnak átadás rejtése, ha egyszállodások vagyunk
-        if(!$telephely['modell']) {
+        if( !$telephely['modell'] ) {
             $szemelyzet_id_rejt[MOBILCSOPORT] = ' class="dn"';
         }
 

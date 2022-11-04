@@ -38,6 +38,16 @@ if( $tobb_kep ) {
 // Számla küldése igazolásra előtt a tételeket csoportosítjuk
 if( isset($_POST['kuldes_igazolasra_csoportosit']) ) {
     
+    // Ha nincs joga hozzá, akkor hibaüzenet
+    if( !_jog(JOG_FENNTARTASI_SZAMLAK_KEZEL) ) {
+        echo json_encode(array(
+                                'hiba'  => 'Önnek nincs joga számlát igazolásra küldeni!',
+                                'title' => 'Hiba',
+                        ));
+        $weblap -> leallit();
+        exit;
+    }
+    
     // A tételeket költségnem + költséghely + ÁFAkulcs szerint csoportosíva küldjük vissza.
     $szamla   = $adatbazis_kapcsolat->s2('kcs_21', 'fenntartasi_szamla', "`recid`='{$_POST['id']}'");
     $tetelek  = $adatbazis_kapcsolat->s('targy brutto_ert dev_br ktghely ktghely_id ktgnem_id afa_kod', 'fenntartasi_szamla_tetel', "`fenntartasi_szamla_recid`='{$_POST['id']}' AND `valtozott`='1'", '', '', "`ktgnem_id`, `ktghely_id`, `afa_kod`");
@@ -424,6 +434,10 @@ if( isset($_POST['fenntartasiSzamlaVisszaUi']) ) {
     $sql = $adatbazis_kapcsolat->u('fenntartasi_szamla', array('feldolgozva_dt',      'feldolgozva_usr'  ),
                                                          array('0000-00-00 00:00:00', ''                 ),
                                                          "`recid`='{$_POST['recid']}'");
+    if( $sql === false ) { $db_error = true; }
+    
+    // Könyvelés tételeket ekkor töröljük
+    $sql = $adatbazis_kapcsolat -> d('fenntartasi_szamla_konyveles', "`fenntartasi_szamla_recid`='{$_POST['recid']}'");
     if( $sql === false ) { $db_error = true; }
     
     // Megjegyzésben logoljuk
@@ -2055,7 +2069,7 @@ require_once('selectek.php');
     $gombok = '';
     if( isset($_GET['uj']) && _jog(JOG_FENNTARTASI_SZAMLAK_KEZEL) ) {
 
-        $szamla  = $adatbazis_kapcsolat->s2('recid kcs_21', 'fenntartasi_szamla_atmeneti', "`andoc_id`='{$_GET['andoc_id']}'");
+        $szamla = $adatbazis_kapcsolat->s2('recid kcs_21 ikt_szam', 'fenntartasi_szamla_atmeneti', "`andoc_id`='{$_GET['andoc_id']}'");
     
         // Fenntartási számla mentésekor HA nem nullás a számla, akkor ellenőrizzük, hogy a számla nettó értéke azonos-e a tételek összegével
         // Deviza esetén más session-t járunk be
@@ -2134,6 +2148,16 @@ require_once('selectek.php');
             
             ');
         
+        // Ha foglalt volna az Andoc azonosító vagy az iktatószám, akkor mentéskor küldjünk hibaüzenetet
+        // Éles rendszerben ilyen nem fordulhat elő, de teszelésekkor szükséges, hogy ha gond volna, tudjunk róla
+        $onclick = 'mentesGomb();';
+        if( $adatbazis_kapcsolat -> s2('recid', 'fenntartasi_szamla', "`andoc_id`='{$_GET['andoc_id']}'") ) {
+            $onclick = 'alert2(\''.a_az($_GET['andoc_id'], '-nagybetű-').' „'.$_GET['andoc_id'].'” Andoc azonosító már foglalt, így nem menthető a számla!\', \'\', \'Hiba\');';
+        }
+        if( $adatbazis_kapcsolat -> s2('recid', 'fenntartasi_szamla', "`ikt_szam`='{$szamla['ikt_szam']}'") ) {
+            $onclick = 'alert2(\''.a_az($szamla['ikt_szam'], '-nagybetű-').' „'.$szamla['ikt_szam'].'” iktatószám már foglalt, így nem menthető a számla!\', \'\', \'Hiba\');';
+        }
+        
         $gombok = nl2('
             <script>var tetelek_szama_elter = 0;</script>
             <div class="form_kuldes">
@@ -2142,7 +2166,7 @@ require_once('selectek.php');
                 <input type="hidden" id="ossz_dev_net" value="">
                 <input type="hidden" id="ossz_brutto" value="">
                 <input type="hidden" id="ossz_dev_br" value="">
-                <input type="button" class="gombb mentes_gomb" name="mehet_gomb" id="mehet_gomb" disabled value="Mentés" onclick="mentesGomb();">
+                <input type="button" class="gombb mentes_gomb" name="mehet_gomb" id="mehet_gomb" disabled value="Mentés" onclick="'.$onclick.'">
                 <input type="button" class="gomb piros" disabled id="megsem_gomb" value="Mégsem" onclick="megsemGomb();">
             </div>
         ');

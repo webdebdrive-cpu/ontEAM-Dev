@@ -1,19 +1,30 @@
 // Vendégéjszakák szűrése
-function vendegejszaka_szur() {
+function vendegejszaka_ell_link_kieg() {
+    var link_kieg = '';
     var ev = $('#ev').val();
     var ho = $('#ho').val();
-    if( ev<2000 || ev>2100 ) {
-        alert2('Helytelen évszám!<br>Kérjük pontosítsa az évszámot!', '', 'Hiba');
+    if( ev ) {
+        if( ev<2000 || ev>2100 ) {
+            alert2('Helytelen évszám!<br>Kérjük pontosítsa az évszámot!', '', 'Hiba');
+            return false;
+        }
+        link_kieg += '&ev='+$('#ev').val();
+    }
+    if( ho ) {
+        if( ho<1 || ho>12 ) {
+            alert2('Kérjük válasszon hónapot!', '', 'Hiba');
+            return false;
+        }
+        link_kieg += '&ho='+$('#ho').val();
+    }
+    if( ev && !ho ) {
+        alert2('Kérjük válasszon az évszámhoz hónapot is!', '', 'Hiba');
         return false;
     }
-    if( ho<1 || ho>12 ) {
-        alert2('Kérjük válasszon hónapot!', '', 'Hiba');
+    if( !ev && ho ) {
+        alert2('Kérjük válasszon évszámot a hónaphoz!', '', 'Hiba');
         return false;
     }
     
-    var link_kieg = '';
-    if( _get('mezo') ) {
-        link_kieg += '&mezo='+_get('mezo')+'&op='+_get('op')+'&felt='+_get('felt');
-    }
-    location.href = 'vendegejszakak.php?id=1&tablazat&ev='+ev+'&ho='+ho+link_kieg;
+    return link_kieg;
 }

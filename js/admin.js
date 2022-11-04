@@ -528,7 +528,12 @@ $(function() {
                 $('table.szamla_cont_tabla tbody tr:nth-of-type(2)').addClass('kijelolve').click();
             // Ha meg már van kijelölt sorunk, akkor gördüljünk oda
             } else {
-                $('#tartalomJobb').scrollTop( $('table.szamla_cont_tabla tr.kijelolve').position().top-100 );
+                if( PHP_SELF=='vendegejszakak.php' ) {
+                    $('#tartalomJobb').scrollTop( $('table.szamla_cont_tabla tr.kijelolve').position().top-125 );
+                } else {
+                    $('#tartalomJobb').scrollTop( $('table.szamla_cont_tabla tr.kijelolve').position().top-100 );
+                }
+                
             }
 
         // Kattintás a nav panel első elemére
@@ -1630,8 +1635,17 @@ $(function() {
             if(get_get(['mezo', 'op', 'felt']).indexOf('?')<0){
                 kerdo_es = '?';
             }
+            
+            // Vendégéjszakák felületen még két mezőt figyelni kell
+            var link_kieg = '';
+            if( baseName(location.href) == 'vendegejszakak' ) {
+                link_kieg = vendegejszaka_ell_link_kieg();
+                if( link_kieg === false ) {
+                    return false;
+                }
+            }
 
-            var szures_link = get_get(['mezo', 'op', 'felt'])+kerdo_es+'mezo='+$('.f_szuro_mezo').val()+'&op='+$('.f_szuro_mezo_operator').val()+'&felt='+felt;
+            var szures_link = get_get(['mezo', 'op', 'felt', 'ev', 'ho'])+kerdo_es+'mezo='+$('.f_szuro_mezo').val()+'&op='+$('.f_szuro_mezo_operator').val()+'&felt='+felt+link_kieg;
             if( !$(this).hasClass('mehet') && !navpanel_mentes_oldal ){
 
                 link = location.href;
@@ -1803,7 +1817,16 @@ $(function() {
                 }
                 if( response.mehet ) {
                     szurkit();
-                    location.href = get_get(['mezo', 'op', 'felt']);
+                    
+                    // Vendégéjszakák felületen még két mezőt figyelni kell
+                    var link_kieg = '';
+                    if( baseName(location.href) == 'vendegejszakak' ) {
+                        link_kieg = vendegejszaka_ell_link_kieg();
+                        if( link_kieg == false ) {
+                            return false;
+                        }
+                    }
+                    location.href = get_get(['mezo', 'op', 'felt', 'ev', 'ho'])+link_kieg;
                 }
             },
             complete: function(xhr) {
@@ -1826,7 +1849,21 @@ $(function() {
             success: function (response) {
                 if(response.substring(0, 6)=='SESKIL'){ location.href = 'index.php'; }
                 szurkit();
-                location.reload();
+
+                // Itt korábban egy sime location.reload() volt, de vendégéjszakák miatt két paramétert mindig ki kell szűrni: az évet és hónapot
+                var url = location.href.split('?');
+                var url_eleje = url[0];
+                var url_vege  = url[1];
+                url_vege = url_vege.split('&');
+                var param = '';
+                for( i=0; i<url_vege.length; i++ ) {
+                    param_ertek = url_vege[i].split('=');
+                    if(param_ertek[0] != 'ev' && param_ertek[0] != 'ho') {
+                        param += url_vege[i]+'&';
+                    }
+                }
+                location.href = url_eleje+'?'+param.substring(0, param.length-1);
+                
             },
             complete: function(xhr) {
                 if( xhr.status != 200 ) {
@@ -3268,7 +3305,7 @@ function anyagigenyles_elutasitas(csak_kerdezunk) {
                                 return false;
                             }
 
-                            /* Anyagigénylés táblázat esetén frissítjük az oldalt, egyébként adatlapra ugrunk */
+                            // Anyagigénylés táblázat esetén frissítjük az oldalt, egyébként adatlapra ugrunk
                             szurkit();
                             location.reload();
 
@@ -3288,7 +3325,7 @@ function anyagigenyles_elutasitas(csak_kerdezunk) {
     }
 }
 
-/* Anyagigénylés mind jóváhagyása gomb */
+// Anyagigénylés mind jóváhagyása gomb
 function anyagigenyles_mind_jovahagy(csak_kerdezunk) {
 
     if(balnav_kijelol_ell()){
@@ -3745,7 +3782,7 @@ function csoportMuvelet( oldal, mobilnal_no_statusz_hiba ) {
 
                 break;
 
-                /* Ellenőrizzük, hogy van-e várólistás vagy sem, ha van hiba */
+                // Ellenőrizzük, hogy van-e várólistás vagy sem, ha van hiba
                 case 'anyagigenylesVarolistahozAdas':
 
 
@@ -6308,14 +6345,20 @@ function szamlaBetolt( recid, page, muvelet, szerkeszt, kerdes_nelkul, anyagigen
 
         // Anyagigénylésnél a szűrés paramétereket is tovább kell még adni
         if( page=='anyagigenyles.php' || page=='vendegejszakak.php' ){
-            if(_get('mezo')){
+            if (_get('mezo')) {
                 anyagrend += 'mezo='+_get('mezo')+'&amp;';
             }
-            if(_get('op')){
+            if (_get('op')) {
                 anyagrend += 'op='+_get('op')+'&amp;';
             }
-            if(_get('felt')){
+            if (_get('felt')) {
                 anyagrend += 'felt='+_get('felt')+'&amp;';
+            }
+            if (_get('ev')) {
+                anyagrend += 'ev='+_get('ev')+'&amp;';
+            }
+            if (_get('ho')) {
+                anyagrend += 'ho='+_get('ho')+'&amp;';
             }
         }
 
@@ -6332,7 +6375,7 @@ function szamlaBetolt( recid, page, muvelet, szerkeszt, kerdes_nelkul, anyagigen
 
         // Ha nem ismert a művelet, akkor találjuk ki. Ez arra az esetre jó, ha nem tudjuk, melyik fül alatt vagyunk, és maradni szeretnénk adott fül alatt.
         // Ekkor ne paraméterezzük fel a szamlaBetolt() függvényt művelettel.
-        if(!muvelet_param){
+        if (!muvelet_param) {
             if(_get('modosit')      ){ muvelet_param = 'modosit';       }
             if(_get('megjegyzesek') ){ muvelet_param = 'megjegyzesek';  }
             if(_get('dokumentumok') ){ muvelet_param = 'dokumentumok';  }
@@ -8309,3 +8352,4 @@ function vissza_andoc_szamlakhoz(mehet) {
         });
     }
 }
+

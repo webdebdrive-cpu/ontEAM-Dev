@@ -6182,7 +6182,7 @@ foreach ( $postok as $ertek ) {
                 header('location:'.self().str_replace('&amp;','&',get_get(array('id', 'hiba', 'errnum', 'kephiba', 'oldal', 'epo', 'kat', 'order'))).'&id='.$tabla_id.'#kepek');
             } else {
                 // Csak akkor van továbbléptetés, ha nem ajaxosan hívtuk meg
-                if(!isset($_POST['ajax_form_modosit'])){
+                if( !isset($_POST['ajax_form_modosit']) ) {
                     // header('location:'.self().'?uj')
                     // Mégis a létrehozott adatlapra érkezzünk:
 
