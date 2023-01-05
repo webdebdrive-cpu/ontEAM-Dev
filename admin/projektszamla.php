@@ -3878,13 +3878,20 @@ function xml_vissza( $szamla_id, $igazolva = '', $oka = '' ) {
         $wf_name = '[AUTO] Számla szétosztás';
     } else {
         // Projektszámláknál a $wf_name értéke fix értéket kap, kivéve két esetet
-        $ikt_szam_eleje = substr($szamla['ikt_szam'], 0, 4);
-        switch ( $ikt_szam_eleje ) {
-            case '4100' : $wf_name = '4100_Könyvelés'; break;
-            case '5400' : $wf_name = '5400_Könyvelés'; break;
-            default     : $wf_name = TELEPHELY_SZK.'_Könyvelés';
+        switch ( $szamla['telephely_id'] ) {
+            // case '4100' : $wf_name = '4100_Könyvelés'; break;
+            case TELEPHELY_GUNDEL   : $wf_name = '5400_Könyvelés'; break;
+            default                 : $wf_name = TELEPHELY_SZK.'_Könyvelés';
         }
         
+    }
+    
+    // A szálloda klaszert Gundel esetén 5400, minden más esetben 1106
+    $szalloda_klaszter = $szamla['telephely_id'];
+    if( $szalloda_klaszter == TELEPHELY_GUNDEL ) {
+        $szalloda_klaszter = TELEPHELY_GUNDEL_MOD;
+    } else {
+        $szalloda_klaszter = TELEPHELY_SZK;
     }
 
     $valasz_xml = 'psInputXml=<?xml version="1.0" encoding="utf-8"?>
@@ -3900,7 +3907,7 @@ function xml_vissza( $szamla_id, $igazolva = '', $oka = '' ) {
             <property name="Teljesítés igazolás elutasítás oka"><![CDATA['.urlencode($oka).']]></property>
             <property name="Szerződés iktatószáma"><![CDATA['.urlencode($szamla['sz_szam']).']]></property>
             <property name="Beruházási projektkód"><![CDATA['.urlencode($szamla['pr_szam']).']]></property>
-            <property name="Szálloda - Klaszter">'.TELEPHELY_SZK.'</property>
+            <property name="Szálloda - Klaszter">'.$szalloda_klaszter.'</property>
             <property name="Számla tárgya"><![CDATA['.urlencode($szamla['targy']).']]></property>
             <property name="Számla fizetője">'.urlencode($erteklista['cegkod']).'</property>
             <property name="Kötelezettségi főkönyvi számlaszám"><![CDATA['.urlencode($fokonyvi_szla_szam).']]></property>

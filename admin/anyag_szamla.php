@@ -2730,12 +2730,23 @@ function xml_vissza( $szamla_id, $igazolva = '', $oka = '' ) {
                 $wf_name = TELEPHELY_KOZP_CUK_MOD.'_Könyvelés';
             } else if( $szamla['telephely_id'] == TELEPHELY_KOZP_CRO) {
                 $wf_name = TELEPHELY_KOZP_CRO_MOD.'_Könyvelés';
+            } else if( $szamla['telephely_id'] == TELEPHELY_DHZ) {
+                $wf_name = TELEPHELY_DHZ_MOD.'_Könyvelés';
             } else {
                 $wf_name = $szamla['telephely_id'].'_Könyvelés';
             }
         } else {
             $wf_name = '[AUTO] Utalványozásra küldés';
         }
+    }
+    
+    // Központi cukrásztermelő esetén a $szalloda_klaszter számát átírjuk
+    $szalloda_klaszter = $szamla['telephely_id'];
+    if( $szalloda_klaszter == TELEPHELY_KOZP_CUK ) {
+        $szalloda_klaszter = TELEPHELY_KOZP_CUK_MOD;
+    }
+    if( $szalloda_klaszter == TELEPHELY_GUNDEL ) {
+        $szalloda_klaszter = TELEPHELY_GUNDEL_MOD;
     }
     
     $valasz_xml = 'psInputXml=<?xml version="1.0" encoding="utf-8"?>
@@ -2749,7 +2760,7 @@ function xml_vissza( $szamla_id, $igazolva = '', $oka = '' ) {
             <property name="Számla főtípus">Műszaki anyag</property>
             <property name="Igazoló döntés">'.urlencode($igazolva).'</property>
             <property name="Teljesítés igazolás elutasítás oka"><![CDATA['.urlencode($oka).']]></property>
-            <property name="Szálloda - Klaszter">'.urlencode($szamla['telephely_id']).'</property>
+            <property name="Szálloda - Klaszter">'.urlencode($szalloda_klaszter).'</property>
             <property name="Számla tárgya"><![CDATA['.urlencode($szamla['targy']).']]></property>
             <property name="Megjegyzés"><![CDATA['.urlencode($szamla['megjegyz']).']]></property>
             <property name="Számla fizetője">'.urlencode($erteklista['cegkod']).'</property>

@@ -2299,7 +2299,7 @@ function xml_vissza( $szamla_id, $igazolva = '', $oka = '' ) {
     
     $db_error = false;
     
-    $szamla = $adatbazis_kapcsolat->s2('targy igazolva andoc_id telephely_id kcs_21 kuld_tetel_xml kuld_xml megjegyz kolt_vis igazolva_usr', 'energia_szamla', "`recid`='{$szamla_id}'");
+    $szamla = $adatbazis_kapcsolat->s2('ikt_szam targy igazolva andoc_id telephely_id kcs_21 kuld_tetel_xml kuld_xml megjegyz kolt_vis igazolva_usr', 'energia_szamla', "`recid`='{$szamla_id}'");
     if( $szamla === false ) { $db_error = true; }
     
     // Cégkód konverzió
@@ -2316,27 +2316,46 @@ function xml_vissza( $szamla_id, $igazolva = '', $oka = '' ) {
     if( $igazolva == 'Elutasítva' ) {
         $wf_name = '[AUTO] Számla szétosztás';
     } else {
-        $telephely = $adatbazis_kapcsolat->s2('teljigkuldes', 'telephely', "`id`='{$szamla['telephely_id']}'");
-        if( $telephely === false ) { $db_error = true; }
-        if( $telephely['teljigkuldes'] == 'k' ) {
-            if( $szamla['telephely_id'] == TELEPHELY_GUNDEL ) {
-                $wf_name = TELEPHELY_GUNDEL_MOD.'_Könyvelés';
-            } else if( $szamla['telephely_id'] == TELEPHELY_LOVER ) {
-                $wf_name = TELEPHELY_LOVER_MOD.'_Könyvelés';
-            } else if( $szamla['telephely_id'] == TELEPHELY_ZAMARDI) {
-                $wf_name = TELEPHELY_ZAMARDI_MOD.'_Könyvelés';
-            } else if( $szamla['telephely_id'] == TELEPHELY_DZRT) {
-                $wf_name = TELEPHELY_DZRT_MOD.'_Könyvelés';
-            } else if( $szamla['telephely_id'] == TELEPHELY_KOZP_CUK) {
-                $wf_name = TELEPHELY_KOZP_CUK_MOD.'_Könyvelés';
-            } else if( $szamla['telephely_id'] == TELEPHELY_KOZP_CRO) {
-                $wf_name = TELEPHELY_KOZP_CRO_MOD.'_Könyvelés';
-            } else {
-                $wf_name = $szamla['telephely_id'].'_Könyvelés';
-            }
-        } else {
-            $wf_name = '[AUTO] Utalványozásra küldés';
+        // 2022.11.09. 8:42 e-mail alapján ideiglenesen egy másik logika szerint működik
+//        $telephely = $adatbazis_kapcsolat->s2('teljigkuldes', 'telephely', "`id`='{$szamla['telephely_id']}'");
+//        if( $telephely === false ) { $db_error = true; }
+//        if( $telephely['teljigkuldes'] == 'k' ) {
+//            if( $szamla['telephely_id'] == TELEPHELY_GUNDEL ) {
+//                $wf_name = TELEPHELY_GUNDEL_MOD.'_Könyvelés';
+//            } else if( $szamla['telephely_id'] == TELEPHELY_LOVER ) {
+//                $wf_name = TELEPHELY_LOVER_MOD.'_Könyvelés';
+//            } else if( $szamla['telephely_id'] == TELEPHELY_ZAMARDI) {
+//                $wf_name = TELEPHELY_ZAMARDI_MOD.'_Könyvelés';
+//            } else if( $szamla['telephely_id'] == TELEPHELY_DZRT) {
+//                $wf_name = TELEPHELY_DZRT_MOD.'_Könyvelés';
+//            } else if( $szamla['telephely_id'] == TELEPHELY_KOZP_CUK) {
+//                $wf_name = TELEPHELY_KOZP_CUK_MOD.'_Könyvelés';
+//            } else if( $szamla['telephely_id'] == TELEPHELY_KOZP_CRO) {
+//                $wf_name = TELEPHELY_KOZP_CRO_MOD.'_Könyvelés';
+//            } else if( $szamla['telephely_id'] == TELEPHELY_DHZ) {
+//                $wf_name = TELEPHELY_DHZ_MOD.'_Könyvelés';
+//            } else {
+//                $wf_name = $szamla['telephely_id'].'_Könyvelés';
+//            }
+//        // Ha "u" szerepel a teljigkuldes-ben
+//        } else {
+//            $wf_name = '[AUTO] Utalványozásra küldés';
+//        }
+        // Projektszámlákhoz hasonlóan a $wf_name értéke fix értéket kap, kivéve két esetet vagyis itt csak egyet
+        switch ( $szamla['telephely_id'] ) {
+            // case '4100' : $wf_name = '4100_Könyvelés'; break;
+            case TELEPHELY_GUNDEL : $wf_name = '5400_Könyvelés'; break;
+            default               : $wf_name = TELEPHELY_SZK.'_Könyvelés';
         }
+    }
+    
+    // Központi cukrásztermelő esetén a $szalloda_klaszter számát átírjuk
+    $szalloda_klaszter = $szamla['telephely_id'];
+    if( $szalloda_klaszter == TELEPHELY_KOZP_CUK ) {
+        $szalloda_klaszter = TELEPHELY_KOZP_CUK_MOD;
+    }
+    if( $szalloda_klaszter == TELEPHELY_GUNDEL ) {
+        $szalloda_klaszter = TELEPHELY_GUNDEL_MOD;
     }
     
     $valasz_xml = 'psInputXml=<?xml version="1.0" encoding="utf-8"?>
@@ -2350,7 +2369,7 @@ function xml_vissza( $szamla_id, $igazolva = '', $oka = '' ) {
             <property name="Számla főtípus">Energia számla</property>
             <property name="Igazoló döntés">'.urlencode($igazolva).'</property>
             <property name="Teljesítés igazolás elutasítás oka"><![CDATA['.urlencode($oka).']]></property>
-            <property name="Szálloda - Klaszter">'.urlencode($szamla['telephely_id']).'</property>
+            <property name="Szálloda - Klaszter">'.urlencode($szalloda_klaszter).'</property>
             <property name="Számla tárgya"><![CDATA['.urlencode($szamla['targy']).']]></property>
             <property name="Megjegyzés"><![CDATA['.urlencode($szamla['megjegyz']).']]></property>
             <property name="Számla fizetője">'.urlencode($erteklista['cegkod']).'</property>

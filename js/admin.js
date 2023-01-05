@@ -1655,7 +1655,7 @@ $(function() {
                 $.ajax({
                     url : link,
                     type: 'GET',
-                    data: get_get(['mezo', 'op', 'felt']).replace(link+'?', '')+kerdo_es+'mezo='+$('.f_szuro_mezo').val()+'&op='+$('.f_szuro_mezo_operator').val()+'&felt='+felt+'&sql_db',
+                    data: get_get(['mezo', 'op', 'felt']).replace(link+'?', '')+kerdo_es+'mezo='+$('.f_szuro_mezo').val()+'&op='+$('.f_szuro_mezo_operator').val()+'&felt='+felt+'&sql_db'+link_kieg,
                     success: function (response) {
                         if(response.substring(0, 6)=='SESKIL'){ location.href = 'index.php'; }
                         if (response > SZURES_DB_LIMIT) {
@@ -1797,6 +1797,16 @@ $(function() {
         if( $(this).hasClass('mehet') ){
             mehet = 1;
         }
+        
+        // Vendégéjszakák felületen még két mezőt figyelni kell
+        if( baseName(location.href) == 'vendegejszakak' ) {
+            link_kieg = vendegejszaka_ell_link_kieg();
+            var ho = $('#ho').val();
+            if( ho < 10 ) {
+                ho = '0'+ho;
+            }
+            feltetel = 'ny|#'+feltetel+'za|#es|#me|v_d#op|like#fe|'+$('#ev').val()+'-'+ho+'#es|#';
+        }
 
         $.ajax({
             url : 'esemenyek.php',
@@ -1817,12 +1827,12 @@ $(function() {
                 }
                 if( response.mehet ) {
                     szurkit();
-                    
+
                     // Vendégéjszakák felületen még két mezőt figyelni kell
                     var link_kieg = '';
                     if( baseName(location.href) == 'vendegejszakak' ) {
                         link_kieg = vendegejszaka_ell_link_kieg();
-                        if( link_kieg == false ) {
+                        if( link_kieg === false ) {
                             return false;
                         }
                     }

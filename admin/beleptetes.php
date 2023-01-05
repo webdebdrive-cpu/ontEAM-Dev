@@ -8,9 +8,9 @@ require_once('../weblap.php');
 // Nem láthat bárki bármilyen tartalmat, viszont az admin bármit
 if( $_SESSION[get_db_tabla() . 'user'] && $_SESSION[get_db_tabla().'user'] != 'admin' ) {
 
-    $user_joga = $adatbazis_kapcsolat -> s2('jog', 'login', 'nev='.$_SESSION[get_db_tabla().'user']);
+    $user_joga = $adatbazis_kapcsolat -> s2('jog', 'login', "`nev`='{$_SESSION[get_db_tabla().'user']}'");
 
-    $jogok = $adatbazis_kapcsolat -> s2('oldalak', 'jog', 'id='.$user_joga['jog']);
+    $jogok = $adatbazis_kapcsolat -> s2('oldalak', 'jog', "`id`='{$user_joga['jog']}'");
 
     // Nem tudjuk, hogy most  \n\r -lesz e, ezért csak \n-re vágok és trimmelek
     $jogok['oldalak'] = nl2br($jogok['oldalak']);

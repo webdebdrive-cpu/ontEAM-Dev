@@ -2,13 +2,30 @@
 // Adatok helyerállítása, karbantartása, étesítések kiküldése stb..
 require_once('../weblap.php');
 
-if( false && isset($_GET['info']) && $_SESSION[get_db_tabla().'user'] ){
+
+if( isset($_GET['tetel_szamol']) ) {
+    $munkalapok = $adatbazis_kapcsolat -> s('recid', 'munkalap', "");
+    foreach ($munkalapok as $munkalap) {
+        ml_tetel_szamol($munkalap['recid']);
+        echo $adatbazis_kapcsolat -> gp().'<br>';
+    }
+}
+if( isset($_GET['tetel_szamol_arch']) ) {
+    $munkalapok = $adatbazis_kapcsolat -> s('recid', 'munkalap_arch', "", '', '300000,100000');
+    foreach ($munkalapok as $munkalap) {
+        $tetel_db = $adatbazis_kapcsolat -> s('recid', 'munkalap_tetel_arch', "`munkalap_id`='{$munkalap['recid']}'", '', '', '', '-num-rows-');
+        $sql = $adatbazis_kapcsolat -> u('munkalap_arch', array('tetel_db'), array($tetel_db), "`recid`='{$munkalap['recid']}'");
+        echo $adatbazis_kapcsolat -> gp().'<br>';
+    }
+}
+
+if( FALSE && isset($_GET['info']) && $_SESSION[get_db_tabla().'user'] ){
     phpinfo();
     exit;
 }
 
 // Loginból törzsadat feltöltése
-if( false && isset($_GET['torzsadat_feltolt']) ) {
+if( FALSE && isset($_GET['torzsadat_feltolt']) ) {
     $loginok = $adatbazis_kapcsolat->s('*', 'login', "`szemelyzet_id` IN (".TELEPITETT_SZEMELYZET.", ".MOBILCSOPORT.", ".DISZPECSER.")");
     foreach( $loginok as $login ) {
         $adatbazis_kapcsolat->i('torzsadat', array('nev',                'felh_loginnev',   'beosztas_id',          'aktiv',         'torolve'         ),
@@ -19,7 +36,7 @@ echo $adatbazis_kapcsolat->gp() . '<br>';
 }
 
 // Levélküldés tesztelése
-if( false && isset($_GET['mail_teszt']) ) {
+if( FALSE && isset($_GET['mail_teszt']) ) {
     require_once('../class/class.Phpmailer.php');
     
     try {
@@ -113,7 +130,7 @@ if( false && isset($_GET['mail_teszt']) ) {
 
 
 // Még nem minősített dokumentumok mind szerződés legyen
-if( false && isset($_GET['dok_minosites']) ) {
+if( FALSE && isset($_GET['dok_minosites']) ) {
     
     $szerzodesek = $adatbazis_kapcsolat->s('recid', 'projektszerzodes');
     foreach( $szerzodesek as $szerzodes ) {
@@ -130,7 +147,7 @@ if( false && isset($_GET['dok_minosites']) ) {
 }
 
 // Projektek alatti dokumetumok újraszámolása
-if( false && isset($_GET['projekt_dok_ujraszamol']) ) {
+if( FALSE && isset($_GET['projekt_dok_ujraszamol']) ) {
     
     $projektek = $adatbazis_kapcsolat->s('recid', 'projektkezeles');
     foreach( $projektek as $projekt ) {
@@ -155,7 +172,7 @@ if( false && isset($_GET['projekt_dok_ujraszamol']) ) {
 
 
 // Tibi importjához kell
-if(false &&  isset($_GET['projekt_szerzodott_felhasznalt_kitolt']) ) {
+if(FALSE &&  isset($_GET['projekt_szerzodott_felhasznalt_kitolt']) ) {
 
     $projektek = $adatbazis_kapcsolat->s('*', 'projektkezeles', "`ikt_szam`!=''");
     foreach ($projektek as $projekt){
@@ -170,7 +187,7 @@ if(false &&  isset($_GET['projekt_szerzodott_felhasznalt_kitolt']) ) {
 }
 
 // Loginról értesítő levelek küldése
-if (false && isset($_GET['login_ertesit'])) {
+if (FALSE && isset($_GET['login_ertesit'])) {
     
     $szalloda_nev   = 'RÁBA'; // SÁRVÁR TH
     $galyasz_bence  = false;
@@ -228,7 +245,7 @@ $uzi .= fajlbol_olvas('../sablon/admin/mail/alairas.html');
 }
 
 // Kötött fejléc nevű CSV feldolgozása (login_import.csv legyen a fájl neve)
-if (false && isset($_GET['loginnev_import']) ) {
+if (FALSE && isset($_GET['loginnev_import']) ) {
     
     header('Content-Type: text/html; charset='. get_web_charset());
     
@@ -519,7 +536,7 @@ echo $adatbazis_kapcsolat->gp() . '<br>';
 }
 
 // Logginnév átnevezése
-if( false && isset($_GET['loginnev_csere']) ) {
+if( FALSE && isset($_GET['loginnev_csere']) ) {
 
     $regi_nev = trim($_GET['regi']);
     $uj_nev   = trim($_GET['uj']);
@@ -633,7 +650,7 @@ if( false && isset($_GET['loginnev_csere']) ) {
 }
 
 // Objektumok importja
-if (false && isset($_GET['objektum_import'])) {
+if (FALSE && isset($_GET['objektum_import'])) {
     
     $telephely_id = 1060;
     
@@ -708,7 +725,7 @@ echo $adatbazis_kapcsolat->gp() . '<br>';
 }
 
 // Objektumok importja PPM-ből
-if (false && isset($_GET['objektum_import_ppm'])) {
+if (FALSE && isset($_GET['objektum_import_ppm'])) {
     
     $telephely_id = 2130;
     
@@ -798,7 +815,7 @@ echo $adatbazis_kapcsolat->gp() . '<br>';
 }
 
 
-if (false && isset($_GET['anyagigenyles_tabla_oszlop_bovit'])) {
+if (FALSE && isset($_GET['anyagigenyles_tabla_oszlop_bovit'])) {
     
     $loginok = $adatbazis_kapcsolat->s('recid tabla_sorrend', 'login');
     foreach( $loginok as $login ){
@@ -810,7 +827,7 @@ if (false && isset($_GET['anyagigenyles_tabla_oszlop_bovit'])) {
 }
 
 // Beszállítók importja
-if (isset($_GET['szallito_import'])) {
+if ( FALSE && isset($_GET['szallito_import'])) {
     
     header('Content-Type: text/html; charset='. get_web_charset());
     
@@ -980,7 +997,7 @@ echo $adatbazis_kapcsolat->gp() . '<br>';
 
 
 // Szerepkör és beállított jögök közti különbség kiszűrése felhasználónként
-if (isset($_GET['szerepkor_jogosultsag_ell'])) {
+if (FALSE && isset($_GET['szerepkor_jogosultsag_ell'])) {
     
     require_once 'jogosultsag.php';
     
@@ -1023,4 +1040,3 @@ if (isset($_GET['szerepkor_jogosultsag_ell'])) {
     //echo str_replace("\r\n", '<br>', $csv);
     exit;
 }
-?>

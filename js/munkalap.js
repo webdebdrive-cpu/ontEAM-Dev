@@ -1,4 +1,4 @@
-/* Átadás műszaki vezetőnek */
+// Átadás műszaki vezetőnek
 function munkalapMuszakiVezeto() {
 
     if(balnav_kijelol_ell()){
@@ -36,7 +36,7 @@ function munkalapMuszakiVezeto() {
     return false;
 }
 
-/* Átadás területi felelősnek */
+// Átadás területi felelősnek
 function munkalapTeruletiVezeto() {
 
     if(balnav_kijelol_ell()){
@@ -74,7 +74,7 @@ function munkalapTeruletiVezeto() {
     return false;
 }
 
-/* Munkalap átadása adminsiztrátornak */
+// Munkalap átadása adminsiztrátornak
 function munkalapAdminisztrator() {
 
     if(balnav_kijelol_ell()){
@@ -112,7 +112,7 @@ function munkalapAdminisztrator() {
     return false;
 }
 
-/* Átadás műszaki vezető helyettesnek */
+// Átadás műszaki vezető helyettesnek
 function munkalapMuszakiVezetoHelyettes() {
 
     if(balnav_kijelol_ell()){
@@ -150,7 +150,7 @@ function munkalapMuszakiVezetoHelyettes() {
     return false;
 }
 
-/* Munkalap átadása műszaki igazgatónak */
+// Munkalap átadása műszaki igazgatónak
 function munkalapMuszakiIgazgato() {
     if(balnav_kijelol_ell()){
         $.ajax({
@@ -185,7 +185,7 @@ function munkalapMuszakiIgazgato() {
     return false;
 }
 
-/* Munkalap átadása mobilnak */
+// Munkalap átadása mobilnak
 function munkalapMobil( that ) {
 
     if(balnav_kijelol_ell()){
@@ -261,7 +261,7 @@ function munkalapMobil( that ) {
     return false;
 }
 
-/* Munkalap átadása mobilnak sima, tehát csak státuszt léptetünk */
+// Munkalap átadása mobilnak sima, tehát csak státuszt léptetünk
 function munkalapMobil_sima() {
     
     $.ajax({
@@ -293,7 +293,7 @@ function munkalapMobil_sima() {
     });
 }
 
-/* Munka átadása Diszpécser központ vezetőnek */
+// Munka átadása Diszpécser központ vezetőnek
 function munkalapDiszpKozp() {
     if(balnav_kijelol_ell()){
         $.ajax({
@@ -328,7 +328,7 @@ function munkalapDiszpKozp() {
     return false;
 }
 
-/* Munkalap készre jelentés */
+// Munkalap készre jelentés
 function munkalapKeszre(csak_kerdezunk) {
 
     if(balnav_kijelol_ell()){
@@ -367,7 +367,7 @@ function munkalapKeszre(csak_kerdezunk) {
     return false;
 }
 
-/* Munkalap Rögzítése */
+// Munkalap Rögzítése
 function munkalapRogzit(csak_kerdezunk) {
 
     if(balnav_kijelol_ell()){
@@ -406,7 +406,7 @@ function munkalapRogzit(csak_kerdezunk) {
     return false;
 }
 
-/* Munkalap külsős jóváhagyása */
+// Munkalap külsős jóváhagyása
 function munkalapKulsosJovahagy(csak_kerdezunk) {
 
     if(balnav_kijelol_ell()){
@@ -459,7 +459,7 @@ function munkalapKulsosJovahagy(csak_kerdezunk) {
     return false;
 }
 
-/* Munkalap Igazolása */
+// Munkalap Igazolása
 function munkalapIgazol(csak_kerdezunk) {
 
     if(balnav_kijelol_ell()){
@@ -498,7 +498,7 @@ function munkalapIgazol(csak_kerdezunk) {
     return false;
 }
 
-/* Munkalap reklamáció elfogadása */
+// Munkalap reklamáció elfogadása
 function munkalapReklamacioElfogad(csak_kerdezunk) {
 
     if(balnav_kijelol_ell()){
@@ -537,7 +537,7 @@ function munkalapReklamacioElfogad(csak_kerdezunk) {
     return false;
 }
 
-/* Munkalap Külsős munka megrendelve */
+// Munkalap Külsős munka megrendelve
 function munkalapArajanlatNyomtatva(csak_kerdezunk) {
 
     if(balnav_kijelol_ell()){
@@ -576,7 +576,7 @@ function munkalapArajanlatNyomtatva(csak_kerdezunk) {
     return false;
 }
 
-/* Munkalap Külsős munka megrendelve */
+// Munkalap Külsős munka megrendelve
 function munkalapKulsosMegrendelve(csak_kerdezunk) {
 
     if(balnav_kijelol_ell()){
@@ -615,7 +615,7 @@ function munkalapKulsosMegrendelve(csak_kerdezunk) {
     return false;
 }
 
-/* Munkalap lezárása */
+// Munkalap lezárása
 function munkalapLezaras(csak_kerdezunk) {
 
     if(balnav_kijelol_ell()){
@@ -654,7 +654,7 @@ function munkalapLezaras(csak_kerdezunk) {
     return false;
 }
 
-/* Munkalap átadása telepített csoportnak */
+// Munkalap átadása telepített csoportnak
 function munkalapTelepitett(csak_kerdezunk) {
 
     if (balnav_kijelol_ell()) {
@@ -695,7 +695,7 @@ function munkalapTelepitett(csak_kerdezunk) {
     return false;
 }
 
-/* Munkalap felvétele */
+// Munkalap felvétele
 function munkalapFelvesz( recid ) {
 
     if(balnav_kijelol_ell()){

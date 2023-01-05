@@ -9,7 +9,6 @@ if( !isset($_GET['regi']) ) {
 
     $feladatok = '';
 
-
     // Bejelenetés igazolása
     if( _jog(JOG_BEJELENTES_KEZEL) ) {
 
@@ -30,7 +29,7 @@ if( !isset($_GET['regi']) ) {
 
         // Vegyük azokat a Bejelentéseket, amik BEJELENTES_STAT_KESZ_IG státuszúak, és a részlegük benne van a $reszlegek-ben
         $tabla  = 'bejelentes';
-        $db     = $adatbazis_kapcsolat->s('recid', $tabla, "`stat_id`='".BEJELENTES_STAT_KESZ_IG."' AND `usr_reszleg_id` IN (".implode(', ', $reszlegek)."){$telephely_sql}", '', '', '', 'num rows');
+        $db     = $adatbazis_kapcsolat->s('recid', $tabla, "`stat_id`='".BEJELENTES_STAT_KESZ_IG."' AND `usr_reszleg_id` IN (".implode(', ', $reszlegek)."){$telephely_sql}", '', '', '', '-num-rows-');
         $link   = $tabla.'.php?tabla='.$tabla.'&amp;feltetel=me|stat_id!HASH!op|equal!HASH!fe|'.BEJELENTES_STAT_KESZ_IG.'!HASH!es|!HASH!ny'.$o_szuro_feltetel.'za|!HASH!es|!HASH!&amp;f_o_szures_submit=1&amp;dashboard=Bejelentés igazolása';
 
         if( $db ) {
@@ -58,7 +57,7 @@ if( !isset($_GET['regi']) ) {
     if( _jog(JOG_BEJELENTES_VIZSGAL) ) {
 
         $tabla  = 'bejelentes';
-        $db     = $adatbazis_kapcsolat->s('recid', $tabla, "`stat_id`='".BEJELENTES_STAT_VIZSG_ALATT."'{$telephely_sql}", '', '', '', 'num rows');
+        $db     = $adatbazis_kapcsolat->s('recid', $tabla, "`stat_id`='".BEJELENTES_STAT_VIZSG_ALATT."'{$telephely_sql}", '', '', '', '-num-rows-');
         $link   = $tabla.'.php?mezo=stat_id&amp;op=equal&amp;felt='.BEJELENTES_STAT_VIZSG_ALATT.'&amp;modosit&amp;dashboard=Reklamáció kezelése';
 
         if( $db ) {
@@ -131,7 +130,7 @@ if( !isset($_GET['regi']) ) {
         $o_szuro_feltetel  = csonkit($o_szuro_feltetel, 9).'!HASH!za|!HASH!es|!HASH!&amp;f_o_szures_submit=1';
 
         $tabla  = 'munkalap';
-        $db     = $adatbazis_kapcsolat->s('recid', $tabla, "{$sql}{$telephely_sql_mlhoz}", '', '', '', 'num rows');
+        $db     = $adatbazis_kapcsolat->s('recid', $tabla, "{$sql}{$telephely_sql_mlhoz}", '', '', '', '-num-rows-');
         $link   = $tabla.'.php?tabla='.$tabla.'&amp;feltetel='.$o_szuro_feltetel.'&amp;dashboard=Munkalap készre jelentése';
 
         if( $db ) {
@@ -185,7 +184,7 @@ if( !isset($_GET['regi']) ) {
         $o_szuro_feltetel  = csonkit($o_szuro_feltetel, 9).'!HASH!za|!HASH!es|!HASH!&amp;f_o_szures_submit=1';
 
         $tabla  = 'munkalap';
-        $db     = $adatbazis_kapcsolat->s('recid', $tabla, "{$sql}{$telephely_sql_mlhoz}", '', '', '', 'num rows');
+        $db     = $adatbazis_kapcsolat->s('recid', $tabla, "{$sql}{$telephely_sql_mlhoz}", '', '', '', '-num-rows-');
         $link   = $tabla.'.php?tabla='.$tabla.'&amp;feltetel='.$o_szuro_feltetel.'&amp;dashboard=Munkalap lezárása';
 
         if( $db ) {
@@ -236,7 +235,7 @@ if( !isset($_GET['regi']) ) {
         $o_szuro_feltetel  = csonkit($o_szuro_feltetel, 9).'!HASH!za|!HASH!es|!HASH!&amp;f_o_szures_submit=1';
 
         $tabla  = 'munkalap';
-        $db     = $adatbazis_kapcsolat->s('recid', $tabla, "{$sql}{$telephely_sql_mlhoz}", '', '', '', 'num rows');
+        $db     = $adatbazis_kapcsolat->s('recid', $tabla, "{$sql}{$telephely_sql_mlhoz}", '', '', '', '-num-rows-');
         $link   = $tabla.'.php?tabla='.$tabla.'&amp;feltetel='.$o_szuro_feltetel.'&amp;dashboard=Munkalap felvétele';
 
         if( $db ) {
@@ -293,7 +292,7 @@ if( !isset($_GET['regi']) ) {
     if( _jog(JOG_MUNKALAP_VIZSGALAT) ) {
 
         $tabla  = 'munkalap';
-        $db     = $adatbazis_kapcsolat->s('recid', $tabla, "`stat_id`='".MUNKALAP_STAT_VIZSGALAT_ALATT."'{$telephely_sql_mlhoz}", '', '', '', 'num rows');
+        $db     = $adatbazis_kapcsolat->s('recid', $tabla, "`stat_id`='".MUNKALAP_STAT_VIZSGALAT_ALATT."'{$telephely_sql_mlhoz}", '', '', '', '-num-rows-');
         $link   = $tabla.'.php?mezo=stat_id&amp;op=equal&amp;felt='.MUNKALAP_STAT_VIZSGALAT_ALATT.'&amp;modosit&amp;dashboard=Munkalap vizsgálata';
 
         if( $db ) {
@@ -321,7 +320,7 @@ if( !isset($_GET['regi']) ) {
     if( _jog(JOG_MUNKALAP_KULSOS_ELOKESZIT) ) {
 
         $tabla  = 'munkalap';
-        $db     = $adatbazis_kapcsolat->s('recid', $tabla, "`stat_id`='".MUNKALAP_STAT_ELOKESZITES_ALATT."' AND `szemelyzet_id`='{$_SESSION[get_db_tabla().'szemelyzet_id']}'{$telephely_sql_mlhoz}", '', '', '', 'num rows');
+        $db     = $adatbazis_kapcsolat->s('recid', $tabla, "`stat_id`='".MUNKALAP_STAT_ELOKESZITES_ALATT."' AND `szemelyzet_id`='{$_SESSION[get_db_tabla().'szemelyzet_id']}'{$telephely_sql_mlhoz}", '', '', '', '-num-rows-');
         $link   = $tabla.'.php?tabla='.$tabla.'&amp;feltetel=me|stat_id!HASH!op|equal!HASH!fe|'.MUNKALAP_STAT_ELOKESZITES_ALATT.'!HASH!es|!HASH!me|szemelyzet_id!HASH!op|equal!HASH!fe|'.$_SESSION[get_db_tabla().'szemelyzet_id'].'!HASH!es|!HASH!&amp;f_o_szures_submit=1&amp;dashboard=Külsős munka előkészítése';
 
         if( $db ) {
@@ -349,7 +348,7 @@ if( !isset($_GET['regi']) ) {
     if( _jog(JOG_MUNKALAP_KULSOS_DONTES) ) {
 
         $tabla              = 'munkalap';
-        $db                 = $adatbazis_kapcsolat->s('recid', $tabla, "`stat_id`='".MUNKALAP_STAT_DONTESRE_VAR."' AND `jh1_szerep`!='{$_SESSION[get_db_tabla().'szemelyzet_id']}' AND `jh2_szerep`!='{$_SESSION[get_db_tabla().'szemelyzet_id']}'{$telephely_sql_mlhoz}", '', '', '', 'num rows');
+        $db                 = $adatbazis_kapcsolat->s('recid', $tabla, "`stat_id`='".MUNKALAP_STAT_DONTESRE_VAR."' AND `jh1_szerep`!='{$_SESSION[get_db_tabla().'szemelyzet_id']}' AND `jh2_szerep`!='{$_SESSION[get_db_tabla().'szemelyzet_id']}'{$telephely_sql_mlhoz}", '', '', '', '-num-rows-');
         $o_szuro_feltetel   = '!HASH!me|stat_id!HASH!op|equal!HASH!fe|'.MUNKALAP_STAT_DONTESRE_VAR.'!HASH!es|!HASH!me|jh1_szerep!HASH!op|not_eq!HASH!fe|'.$_SESSION[get_db_tabla().'szemelyzet_id'].'!HASH!es|!HASH!me|jh2_szerep!HASH!op|not_eq!HASH!fe|'.$_SESSION[get_db_tabla().'szemelyzet_id'].'!HASH!es|!HASH!&amp;f_o_szures_submit=1';
         $link               = $tabla.'.php?tabla='.$tabla.'&amp;feltetel='.$o_szuro_feltetel.'&amp;dashboard=Külsős munka jóváhagyása';
 
@@ -378,7 +377,7 @@ if( !isset($_GET['regi']) ) {
     if( _jog(JOG_MUNKALAP_KULSOS_MEGREND) ) {
 
         $tabla  = 'munkalap';
-        $db     = $adatbazis_kapcsolat->s('recid', $tabla, "`stat_id`='".MUNKALAP_STAT_AJANLAT_NYOMTATVA."'{$telephely_sql_mlhoz}", '', '', '', 'num rows');
+        $db     = $adatbazis_kapcsolat->s('recid', $tabla, "`stat_id`='".MUNKALAP_STAT_AJANLAT_NYOMTATVA."'{$telephely_sql_mlhoz}", '', '', '', '-num-rows-');
         $link   = $tabla.'.php?mezo=stat_id&amp;op=equal&amp;felt='.MUNKALAP_STAT_AJANLAT_NYOMTATVA.'&amp;modosit&amp;dashboard=Külső munka megrendelése';
 
         if( $db ) {
@@ -399,6 +398,32 @@ if( !isset($_GET['regi']) ) {
         }
     }
 
+    
+    // 45 napnál régebbi munkalapok
+    $szemelyzet_idk = array(MSZK_VEZETO, MUSZAKI_VEZETO, MUSZAKI_VEZETO_HELYETTES);
+    if( in_array($_SESSION[get_db_tabla().'szemelyzet_id'], $szemelyzet_idk) ) {
+
+        $korabbi_datum = date('Y-m-d H:i', strtotime('-45 days'));
+        $tabla  = 'munkalap';
+        $db     = $adatbazis_kapcsolat->s('recid', 'munkalap', "`telephely_id` IN (".implode(',', $szallodak).") AND `insert_dt`<='{$korabbi_datum}'", '', '', '', '-num-rows-');
+        $link   = $tabla.'.php?mezo=insert_dt&amp;op=lteq&amp;felt='.$korabbi_datum.'&amp;modosit&amp;dashboard=45 napnál régebbi munkalapok';
+        if( $db ) {
+            $feladatok .= nl2('
+                                <tr>
+                                    <td>
+                                        <a href="'.$link.'">
+                                            45 napnál régebbi munkalapok
+                                        </a>
+                                    </td>
+                                    <td>
+                                        <a href="'.$link.'">
+                                            '.number_format($db, 0, '', '.').' db
+                                        </a>
+                                    </td>
+                                </tr>
+                                ');
+        }
+    }
 
 
 
@@ -406,7 +431,7 @@ if( !isset($_GET['regi']) ) {
     if( _jog(JOG_MUNKALAP_KULSOS_MEGREND) ) {
 
         $tabla  = 'munkalap';
-        $db     = $adatbazis_kapcsolat->s('recid', $tabla, "`stat_id`='".MUNKALAP_STAT_SZTORNO_VAR."'{$telephely_sql_mlhoz}", '', '', '', 'num rows');
+        $db     = $adatbazis_kapcsolat->s('recid', $tabla, "`stat_id`='".MUNKALAP_STAT_SZTORNO_VAR."'{$telephely_sql_mlhoz}", '', '', '', '-num-rows-');
         $link   = $tabla.'.php?mezo=stat_id&amp;op=equal&amp;felt='.MUNKALAP_STAT_SZTORNO_VAR.'&amp;modosit&amp;dashboard=Megr. sztornó email elküldése';
 
         if( $db ) {
@@ -514,7 +539,7 @@ if( !isset($_GET['regi']) ) {
     if( _jog(JOG_ANYAGIGENYLES_JOVAHAGY) ) {
 
         $tabla  = 'anyagigenyles';
-        $db     = $adatbazis_kapcsolat->s('recid', $tabla, "`stat_id`='".CIKKIGN_STAT_ARAZVA."'{$telephely_sql}", '', '', '', 'num rows');
+        $db     = $adatbazis_kapcsolat->s('recid', $tabla, "`stat_id`='".CIKKIGN_STAT_ARAZVA."'{$telephely_sql}", '', '', '', '-num-rows-');
         $link   = $tabla.'.php?mezo=stat_id&amp;op=equal&amp;felt='.CIKKIGN_STAT_ARAZVA.'&amp;tablazat&amp;dashboard=Anyagigénylés jóváhagyása';
 
         if( $db ) {
@@ -542,7 +567,7 @@ if( !isset($_GET['regi']) ) {
     if( _jog(JOG_ANYAGREND_KESZIT) ) {
 
         $tabla  = 'anyagigenyles';
-        $db     = $adatbazis_kapcsolat->s('recid', $tabla, "`stat_id`='".CIKKIGN_STAT_NYITOTT."'{$telephely_sql}", '', '', '', 'num rows');
+        $db     = $adatbazis_kapcsolat->s('recid', $tabla, "`stat_id`='".CIKKIGN_STAT_NYITOTT."'{$telephely_sql}", '', '', '', '-num-rows-');
         $link   = $tabla.'.php?mezo=stat_id&amp;op=equal&amp;felt='.CIKKIGN_STAT_NYITOTT.'&amp;tablazat&amp;dashboard=Anyagigénylés árazása';
 
         if( $db ) {
@@ -774,26 +799,26 @@ if( !isset($_GET['regi']) ) {
 
 
 
-
     if( $feladatok ) {
-        $feladatok = '<table class="csikos full">'.$feladatok.'</table>';
-    }
-
-    $html .= nl2('
-                <div class="dashboard">
-                    <div>
-                        <div class="box">
-                            <h2>Feladatok</h2>
-                            <div class="padd">
-                                '.$feladatok.'
+        $html .= nl2('
+                    <div class="dashboard">
+                        <div>
+                            <div class="box">
+                                <h2>Feladatok</h2>
+                                <div class="padd">
+                                    <table class="csikos full">
+                                        '.$feladatok.'
+                                    </table>
+                                </div>
                             </div>
                         </div>
+                        <div></div>
+                        <div></div>
+                        <div></div>
                     </div>
-                    <div></div>
-                    <div></div>
-                    <div></div>
-                </div>
-                ');
+                    ');
+    }
+
 
 
 } else {

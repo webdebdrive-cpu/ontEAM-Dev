@@ -114,6 +114,7 @@ if( isset($_GET['csv']) ) {
         }
 
         $query      = mysqli_query($db_kapcs, $sql);
+
         $csvhead    = array();
         while ( $fejlec_nevek = mysqli_fetch_field($query) ) {
             $csvhead[] = iconv2($mibol, $mibe, $fejlec_nevek -> name );

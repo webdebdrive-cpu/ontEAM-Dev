@@ -4221,7 +4221,7 @@ if( isset($_REQUEST['f_o_szures_submit']) ) {
         // Ha sikeres a lekérdezés
         if( $lekerdez ) {
             $sorok_szama = mysqli_num_rows($lekerdez);
-            if( !$_POST['mehet'] && $sorok_szama > SZURES_DB_LIMIT ){
+            if( !$_POST['mehet'] && $sorok_szama > SZURES_DB_LIMIT ) {
                 echo json_encode(array(
                     'hiba'  => 'Ezzel a szűrési feltétellel '. number_format($sorok_szama, 0, '', ' ').' sor adatot listázna ki.<br>Biztosan folytatja?',
                     'gomb'  => '<input type="button" class="gomb zold" value="Igen" onclick="$(\'.f_o_szures_submit\').addClass(\'mehet\').click(); alert2();"><input type="button" class="gomb piros" value="Nem" onclick="alert2(); $(\'.f_o_szures_submit\').removeClass(\'mehet\');">',

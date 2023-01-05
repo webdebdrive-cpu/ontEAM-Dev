@@ -572,10 +572,10 @@ function munkalapok_archival($idk, $tranzakcio_nelkul) {
         // Tétel
         $tetelek = $adatbazis_kapcsolat->s('*', 'munkalap_tetel', "`munkalap_id`='{$recid}'");
         if( $tetelek === false ) { $db_error = true; }
-        foreach($tetelek as $tetel){
+        foreach ( $tetelek as $tetel ) {
             $mezok   = array();
             $ertekek = array();
-            foreach($tetel as $kulcs => $ertek){
+            foreach ( $tetel as $kulcs => $ertek ) {
                 array_push($mezok, $kulcs);
                 array_push($ertekek, $tetel[$kulcs]);
             }

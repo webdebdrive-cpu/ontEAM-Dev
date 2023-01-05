@@ -382,7 +382,9 @@ class ServerClass {
             }
             
             // Kifizetéskor ellenőrizzük a tételek számát. Ha eltérés van, akkor auto mail
-            if( $kifizetes_import && $szamla_db['tetel_db'] != count($szamla_tetelek) ) {
+            // 2022.12.07: ha nincs benne tétel egyáltalán, akkor nem kell figyelni az eltérést
+            $tetelek_szama = count($szamla_tetelek);
+            if( $tetelek_szama && $kifizetes_import && $szamla_db['tetel_db'] != $tetelek_szama ) {
                 if( $_SERVER['REMOTE_ADDR'] != get_debug_ip() ) {
                     level_felkeszit_es_kuld($tabla, $szamla_db['recid'], '', 'szamla_kifizetes', 'szamla_kifizetes', '');
                 }
@@ -585,6 +587,10 @@ class ServerClass {
                         }
                         
                         $szerzodes_tabla = str_replace('szamla', 'szerzodes', $tabla);
+                        // Megállapodás szerződés DB tábla neve nem `megallapodas_szerzodes`, hanem csak simán `megallapodas`, ezért kiszűrjük a "_szamla" stringet
+                        if( $szamla_tipus == self::SZAMLA_TIPUS_MEGALL ) {
+                            $szerzodes_tabla = str_replace('_szamla', '', $tabla);
+                        }
                         $tetelek = $adatbazis_kapcsolat->s($szerzodes_tabla.'_tetel_recid', $tabla.'_tetel', "`{$tabla}_recid`='{$szamla_db['recid']}'");
                         if( $tetelek === false ) { $db_error = mysqli_error($db_kapcs); }
                         

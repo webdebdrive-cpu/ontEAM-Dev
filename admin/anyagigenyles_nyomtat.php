@@ -561,7 +561,7 @@ function get_alairasok(){
                         <div class="c" style="padding-right: 60px">
                         <center>
                             Csanádi Péter
-                            <br>Műszaki Igazgató
+                            <br>Központi Műszaki és Beruházási Igazgató
                         </center>
                         </div>
                     </td>
@@ -570,7 +570,7 @@ function get_alairasok(){
                         <div class="c" style="padding-left: 60px">
                         <center>
                             Sánta Zoltán
-                            <br>MSZK vezető
+                            <br>Műszaki Szolgáltatási Vezető
                         </center>
                         </div>
                     </td>

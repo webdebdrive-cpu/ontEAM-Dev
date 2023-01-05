@@ -5320,6 +5320,7 @@ function szamla_lista( $where = '', $tabla = '', $kijeloltek = false, $csak_sql_
                 // Sajnos ez azt is jelenti, hogy az itt megadott limiten felüli számú sort nem lehetne sorrendbe kiexportálni. Maximum az első X lesz sorrendben
                 array_push( $sorrend_idk, $sor['recid'] );
             }
+
         }
         // Ha van $sorrend_idk információnk (azaz a bejelentés és munkalapokat nem SQL-el, hanem JS-el rendezzük), akkor a CSV export miatt az SQL-t csak előállítjuk, hogy meglegyen CSV sorrend beállításakor
         if( !isset($_GET['csv']) ) {
@@ -8942,10 +8943,10 @@ function vendegejszakakLista( $bejegyzesek, $tabla, $frissit = '', $kijeloltek =
 
             $active = '';
             if( $bsz['recid'] == $_GET['id'] && !isset($_GET['print']) ) {
-                $active = ' kijelolve';
+                $active = ' class="kijelolve"';
             }
 
-            $html .= '<tr class="'.$active.'" onclick="$(\'#szamla-'.$bsz['recid'].'\').click(); $(\'.muveletek\').addClass(\'dn\');" data-recid="'.$bsz['recid'].'" data-i="'.$i.'" id="vendegej-sor-'.$bsz['recid'].'">';
+            $html .= '<tr'.$active.' onclick="$(\'#szamla-'.$bsz['recid'].'\').click(); $(\'.muveletek\').addClass(\'dn\');" data-recid="'.$bsz['recid'].'" data-i="'.$i.'" id="vendegej-sor-'.$bsz['recid'].'">';
 
             $szalloda_nev = getSzallodaNev($bsz['telephely_id']);
             $sorok = array(
@@ -13656,4 +13657,16 @@ function vendeg_ejszaka_datum_szuro ($relative = '') {
                         </select>
                     </div>  
         ');
+}
+
+// Tételek számának frissítése
+function ml_tetel_szamol ($recid = '') {
+    global $adatbazis_kapcsolat;
+    
+    $tetel_db = $adatbazis_kapcsolat -> s('recid', 'munkalap_tetel', "`munkalap_id`='{$recid}'", '', '', '', '-num-rows-');
+    $sql = $adatbazis_kapcsolat -> u('munkalap', array('tetel_db'), array($tetel_db), "`recid`='{$recid}'");
+    if( $sql === false ) {
+        return false;
+    }
+    return true;
 }

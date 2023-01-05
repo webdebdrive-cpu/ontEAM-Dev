@@ -487,6 +487,12 @@ function xml_vissza( $szamla_id ) {
     // XML dekódolása
     $szamla['targy']    = htmlspecialchars_decode($szamla['targy']);
     $szamla['megjegyz'] = htmlspecialchars_decode($szamla['megjegyz']);
+    
+    // Központi cukrásztermelő esetén a $szalloda_klaszter számát átírjuk
+    $szalloda_klaszter = $szamla['telephely_id'];
+    if( $szalloda_klaszter == TELEPHELY_KOZP_CUK ) {
+        $szalloda_klaszter = TELEPHELY_KOZP_CUK_MOD;
+    }
 
     $valasz_xml = 'psInputXml=<?xml version="1.0" encoding="utf-8"?>
 <xml>
@@ -498,7 +504,7 @@ function xml_vissza( $szamla_id ) {
           <row rownumberonpage="1">
             <property name="Igazoló döntés">Elutasítva</property>
             <property name="Teljesítés igazolás elutasítás oka">Nem műszaki számla.</property>
-            <property name="Szálloda - Klaszter">'.$szamla['telephely_id'].'</property>
+            <property name="Szálloda - Klaszter">'.$szalloda_klaszter.'</property>
             <property name="Számla tárgya">'.$szamla['targy'].'</property>
             <property name="Megjegyzés">'.$szamla['megjegyz'].'</property>
             <property name="Számla fizetője">'.$erteklista['cegkod'].'</property>

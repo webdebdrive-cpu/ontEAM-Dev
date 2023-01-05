@@ -161,7 +161,7 @@ if( isset($_POST['munkalapKeszit']) ) {
 
         // Ellenőrizzük, hogy van e már belőlük munkalap
         foreach ( $idk as $id ) {
-            $isMlap = $adatbazis_kapcsolat->s2('recid munkalap_id', 'munkalap_kapcs', "`bejelentes_id` = '{$id}'", '', '1');
+            $isMlap = $adatbazis_kapcsolat->s2('recid munkalap_id', 'munkalap_kapcs', "`bejelentes_id`='{$id}'", '', '1');
             if( $isMlap === false ) { $db_error = true; }
 
             if( $isMlap && !$_POST['kerdesek_nelkul'] ) {
@@ -1219,6 +1219,9 @@ if( isset($_POST['munkalapFelvesz']) ) {
                                             array($recid,        $_SESSION[get_db_tabla().'user'],  'NOW()',     $_SESSION[get_db_tabla().'teljes_nev'],    $_SESSION[get_db_tabla().'teljes_nev'] )
                                         );
         if( $sql === false ) { $db_error = true; }
+        
+        // Tételek számának frissítése
+        if( ml_tetel_szamol($recid) === false ) { $db_error = true; }
 
         // Van-e munkalaphoz tartozó bejelentés, és az nyitott-e? Ha igen, akkor folyamatbanra állítjuk.
         $bejelentes = $adatbazis_kapcsolat->s2('bejelentes_id', 'munkalap_kapcs', "`munkalap_id`='{$recid}'");
@@ -5312,6 +5315,9 @@ if( isset($_POST['feladatHozzaadas']) ) {
                                                                     array($recid,        $_SESSION[get_db_tabla().'user'],  'NOW()',     $_SESSION[get_db_tabla().'teljes_nev'], $_SESSION[get_db_tabla().'teljes_nev'])
                                                 );
                 if( $sql === false ) { $db_error = true; }
+                
+                // Tételek számának frissítése
+                if( ml_tetel_szamol($recid) === false ) { $db_error = true; }
 
                 // Az újonnan létrehozott sor ID-ja lesz az $akt_tetel['recid']
                 $akt_tetel['recid'] = $sql;
@@ -6815,7 +6821,7 @@ if (isset($_POST['munkalapVarakoztatVege'])) {
 }
 
 // Munkalap sztornózása
-if (isset($_POST['munkalapSztornoz'])) {
+if( isset($_POST['munkalapSztornoz']) ) {
 
     $recid = $_POST['recid'];
     $memo  = trim($_POST['memo']);
@@ -6823,7 +6829,7 @@ if (isset($_POST['munkalapSztornoz'])) {
     $db_error = false;
     mysqli_autocommit($db_kapcs, false);
 
-    if(!$memo){
+    if( !$memo ) {
         mysqli_rollback($db_kapcs);
         echo json_encode(array(
             'hiba'  => 'Kérem indokolja a sztornózást!',
@@ -6836,7 +6842,7 @@ if (isset($_POST['munkalapSztornoz'])) {
 
     // Anyagfelhasználás ellenőrzése
     $van_felh_anyag = $adatbazis_kapcsolat->s('recid', 'munkalap_anyag', "`munkalap_id`='{$recid}'", '', '1');
-    if($van_felh_anyag){
+    if( $van_felh_anyag ) {
         echo json_encode(array(
             'hiba'  => 'Ehhez a munkalaphoz rögzítettek anyagfelhasználást.<br>Nem lehet sztornózni!',
         ));
@@ -6859,7 +6865,7 @@ if (isset($_POST['munkalapSztornoz'])) {
     }
 
     // Jog ellenőrzése
-    if(!_jog(JOG_MUNKALAP_NYITOTT_KEZEL)){
+    if( !_jog(JOG_MUNKALAP_NYITOTT_KEZEL) ) {
         echo json_encode(array(
             'hiba'  => 'Nincs joga munkalapot sztornózni!',
             'title' => 'Hiba',
@@ -6875,9 +6881,8 @@ if (isset($_POST['munkalapSztornoz'])) {
     $munkalapok = $adatbazis_kapcsolat->s('munkalap_id', 'munkalap_kapcs', "`bejelentes_id`='{$bejelentes_recid}'");
     if( $munkalapok === false ) { $db_error = true; }
 
-
     // Ha a munkalapnak nincs bejelentése, akkor sztornó státuszba kerül
-    if(!$bejelentes){
+    if( !$bejelentes ) {
         if( addStatusz('munkalap_statusz', $recid, MUNKALAP_STAT_SZTORNO, '', $memo) === false ) {
             $db_error = true;
         }
@@ -6890,7 +6895,7 @@ if (isset($_POST['munkalapSztornoz'])) {
     if( count($munkalapok)==1 ){
 
         // Ha már tudjuk, hogy melyik státuszba mehet, akkor abba a státuszba léptetjük
-        if($_POST['mehet']){
+        if( $_POST['mehet'] ) {
 
             // Munkalapot sztornózzuk
             if( addStatusz('munkalap_statusz', $recid, MUNKALAP_STAT_SZTORNO, '', $memo) === false ) {
@@ -6901,12 +6906,12 @@ if (isset($_POST['munkalapSztornoz'])) {
             }
 
             // A hozzá tartozó egyetlen bejegyzés státuszát a kért státuszba léptetjük
-            if($_POST['mehet']=='nyitott'){
+            if( $_POST['mehet'] == 'nyitott' ) {
                 if( addStatusz('bejelentes_statusz', $bejelentes_recid, BEJELENTES_STAT_NYITOTT, '', $munkalap['ikt_szam'].' munkalap sztornózva') === false ) {
                     $db_error = true;
                 }
             }
-            if($_POST['mehet']=='elutasit'){
+            if( $_POST['mehet'] == 'elutasit' ) {
                 if( addStatusz('bejelentes_statusz', $bejelentes_recid, BEJELENTES_STAT_ELUTASITVA, '', $memo) === false ) {
                     $db_error = true;
                 }
@@ -6917,7 +6922,7 @@ if (isset($_POST['munkalapSztornoz'])) {
 
             // Indoklás bekerül a bejelentéshez is
             $munkalap = $adatbazis_kapcsolat->s2('ikt_szam', 'munkalap', "`recid`='{$recid}'");
-            if( addMegj('bejelentes', $bejelentes_recid, $munkalap['ikt_szam'].' munkalap sztornózva') === false ){
+            if( addMegj('bejelentes', $bejelentes_recid, $munkalap['ikt_szam'] . ' munkalap sztornózva') === false ) {
                 $db_error = true;
             }
 
@@ -6934,7 +6939,7 @@ if (isset($_POST['munkalapSztornoz'])) {
     }
 
     // Ha a bejelentésnek több munkalapja is van
-    if( count($munkalapok)>1 ){
+    if( count($munkalapok) > 1 ) {
 
         // Munkalapot sztornózzuk + megjegyzés
         if( addStatusz('munkalap_statusz', $recid, MUNKALAP_STAT_SZTORNO, '', $memo) === false ) {
@@ -7465,13 +7470,16 @@ require('selectek.php');
     if( $sor['megj_db'] ) {
         $megj_db = ' ('.$sor['megj_db'].')';
     }
+    if( $sor['tetel_db'] ) {
+        $tetel_db = ' ('.$sor['tetel_db'].')';
+    }
 
     if( isset($_GET['modosit']) || isset($_GET['tortenet']) || isset($_GET['naptar']) || /*isset($_GET['bejelentesek']) ||*/ isset($_GET['tortenet']) || isset($_GET['anyagigenyles']) || isset($_GET['elszamolas']) || isset($_GET['dokumentumok']) || isset($_GET['megjegyzesek']) || isset($_GET['tetel']) ) {
         // Fülek
         $ful_tomb = array(
             'modosit'       => 'Adatlap',
             'tortenet'      => 'Történet',
-            'tetel'         => 'Tételek',
+            'tetel'         => 'Tételek'.$tetel_db,
             //'bejelentesek'  => 'Bejelentések',
             'elszamolas'    => 'Elszámolás',
             'anyagigenyles' => 'Anyagigénylések',
@@ -8401,7 +8409,7 @@ require('selectek.php');
         }
 
     // Tételek fül
-    } elseif(isset($_GET['tetel'])) {
+    } elseif( isset($_GET['tetel']) ) {
 
         // Tétel sorok
         $i = 0;

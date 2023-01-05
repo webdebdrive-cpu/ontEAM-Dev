@@ -104,7 +104,6 @@ if( isset($_POST['dok_minosites_beallit']) ) {
     $pr_id = $adatbazis_kapcsolat->s2('projektkezeles_id fajlnev', 'projektkezeles_dok', "`recid`='{$_POST['recid']}'");
     addMegj('projektkezeles', $pr_id['projektkezeles_id'], $pr_id['fajlnev'].' dokumentum '. erteklista(ERTEKLISTA_DOK_TIPUS, $_POST['tipus']).' típusnak minősítve');
 
-    
     // Updateljük a minősítésre váró dokumentumok számát
     projekt_minositesre_varo_dok_szamol($pr_id['projektkezeles_id']);
     
@@ -2502,6 +2501,7 @@ require_once('selectek.php');
 
 	    // FORM
 	    $js = js_kiir($akt_tomb, 'form_ell_admin()', 'ajax');
+        $js .= '<script>var projektkezeles_mehet = false;</script>';
 
 		// Form actionja
 		$action = self().get_get(array('errnum','kephiba','siker'));
