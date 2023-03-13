@@ -2316,37 +2316,44 @@ function xml_vissza( $szamla_id, $igazolva = '', $oka = '' ) {
     if( $igazolva == 'Elutasítva' ) {
         $wf_name = '[AUTO] Számla szétosztás';
     } else {
-        // 2022.11.09. 8:42 e-mail alapján ideiglenesen egy másik logika szerint működik
-//        $telephely = $adatbazis_kapcsolat->s2('teljigkuldes', 'telephely', "`id`='{$szamla['telephely_id']}'");
-//        if( $telephely === false ) { $db_error = true; }
-//        if( $telephely['teljigkuldes'] == 'k' ) {
-//            if( $szamla['telephely_id'] == TELEPHELY_GUNDEL ) {
-//                $wf_name = TELEPHELY_GUNDEL_MOD.'_Könyvelés';
-//            } else if( $szamla['telephely_id'] == TELEPHELY_LOVER ) {
-//                $wf_name = TELEPHELY_LOVER_MOD.'_Könyvelés';
-//            } else if( $szamla['telephely_id'] == TELEPHELY_ZAMARDI) {
-//                $wf_name = TELEPHELY_ZAMARDI_MOD.'_Könyvelés';
-//            } else if( $szamla['telephely_id'] == TELEPHELY_DZRT) {
-//                $wf_name = TELEPHELY_DZRT_MOD.'_Könyvelés';
-//            } else if( $szamla['telephely_id'] == TELEPHELY_KOZP_CUK) {
-//                $wf_name = TELEPHELY_KOZP_CUK_MOD.'_Könyvelés';
-//            } else if( $szamla['telephely_id'] == TELEPHELY_KOZP_CRO) {
-//                $wf_name = TELEPHELY_KOZP_CRO_MOD.'_Könyvelés';
-//            } else if( $szamla['telephely_id'] == TELEPHELY_DHZ) {
-//                $wf_name = TELEPHELY_DHZ_MOD.'_Könyvelés';
-//            } else {
-//                $wf_name = $szamla['telephely_id'].'_Könyvelés';
-//            }
-//        // Ha "u" szerepel a teljigkuldes-ben
-//        } else {
-//            $wf_name = '[AUTO] Utalványozásra küldés';
-//        }
-        // Projektszámlákhoz hasonlóan a $wf_name értéke fix értéket kap, kivéve két esetet vagyis itt csak egyet
-        switch ( $szamla['telephely_id'] ) {
-            // case '4100' : $wf_name = '4100_Könyvelés'; break;
-            case TELEPHELY_GUNDEL : $wf_name = '5400_Könyvelés'; break;
-            default               : $wf_name = TELEPHELY_SZK.'_Könyvelés';
+        $telephely = $adatbazis_kapcsolat->s2('teljigkuldes', 'telephely', "`id`='{$szamla['telephely_id']}'");
+        if( $telephely === false ) { $db_error = true; }
+        if( $telephely['teljigkuldes'] == 'k' ) {
+            if( $szamla['telephely_id'] == TELEPHELY_GUNDEL ) {
+                $wf_name = TELEPHELY_GUNDEL_MOD.'_Könyvelés';
+            } else if( $szamla['telephely_id'] == TELEPHELY_LOVER ) {
+                $wf_name = TELEPHELY_LOVER_MOD.'_Könyvelés';
+            } else if( $szamla['telephely_id'] == TELEPHELY_ZAMARDI) {
+                $wf_name = TELEPHELY_ZAMARDI_MOD.'_Könyvelés';
+            } else if( $szamla['telephely_id'] == TELEPHELY_DZRT) {
+                $wf_name = TELEPHELY_DZRT_MOD.'_Könyvelés';
+            } else if( $szamla['telephely_id'] == TELEPHELY_KOZP_CUK) {
+                $wf_name = TELEPHELY_KOZP_CUK_MOD.'_Könyvelés';
+            } else if( $szamla['telephely_id'] == TELEPHELY_KOZP_CRO) {
+                $wf_name = TELEPHELY_KOZP_CRO_MOD.'_Könyvelés';
+            } else if( $szamla['telephely_id'] == TELEPHELY_DHZ) {
+                $wf_name = TELEPHELY_DHZ_MOD.'_Könyvelés';
+            } else if( $szamla['telephely_id'] == TELEPHELY_MSZ_GH) {
+                $wf_name = TELEPHELY_MSZ_GH_MOD.'_Könyvelés';
+            } else if( $szamla['telephely_id'] == TELEPHELY_ANNAB_MSZ) {
+                $wf_name = TELEPHELY_ANNAB_MSZ_MOD.'_Könyvelés';
+            } else if( $szamla['telephely_id'] == TELEPHELY_MARINA_MSZ) {
+                $wf_name = TELEPHELY_MARINA_MSZ_MOD.'_Könyvelés';
+            } else {
+                $wf_name = $szamla['telephely_id'].'_Könyvelés';
+            }
+        // Ha "u" szerepel a teljigkuldes-ben
+        } else {
+            $wf_name = '[AUTO] Utalványozásra küldés';
         }
+        // 2022.11.09. 8:42 e-mail alapján ideiglenesen egy másik logika szerint működött, de
+        // 2023.01.12-én visszaállítottuk a normálra
+//        // Projektszámlákhoz hasonlóan a $wf_name értéke fix értéket kap, kivéve két esetet vagyis itt csak egyet
+//        switch ( $szamla['telephely_id'] ) {
+//            // case '4100' : $wf_name = '4100_Könyvelés'; break;
+//            case TELEPHELY_GUNDEL : $wf_name = '5400_Könyvelés'; break;
+//            default               : $wf_name = TELEPHELY_SZK.'_Könyvelés';
+//        }
     }
     
     // Központi cukrásztermelő esetén a $szalloda_klaszter számát átírjuk
@@ -2356,6 +2363,24 @@ function xml_vissza( $szamla_id, $igazolva = '', $oka = '' ) {
     }
     if( $szalloda_klaszter == TELEPHELY_GUNDEL ) {
         $szalloda_klaszter = TELEPHELY_GUNDEL_MOD;
+    }
+    if( $szalloda_klaszter == TELEPHELY_LOVER ) {
+        $szalloda_klaszter = TELEPHELY_LOVER_MOD;
+    }
+    if( $szalloda_klaszter == TELEPHELY_MSZ_GH ) {
+        $szalloda_klaszter = TELEPHELY_MSZ_GH_MOD;
+    }
+    if( $szalloda_klaszter == TELEPHELY_ANNAB_MSZ ) {
+        $szalloda_klaszter = TELEPHELY_ANNAB_MSZ_MOD;
+    }
+    if( $szalloda_klaszter == TELEPHELY_MARINA_MSZ ) {
+        $szalloda_klaszter = TELEPHELY_MARINA_MSZ_MOD;
+    }
+    if( $szalloda_klaszter == TELEPHELY_DZRT ) {
+        $szalloda_klaszter = TELEPHELY_DZRT_MOD;
+    }
+    if( $szalloda_klaszter == TELEPHELY_ZAMARDI ) {
+        $szalloda_klaszter = TELEPHELY_ZAMARDI_MOD;
     }
     
     $valasz_xml = 'psInputXml=<?xml version="1.0" encoding="utf-8"?>

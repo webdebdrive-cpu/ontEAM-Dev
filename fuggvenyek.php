@@ -1023,7 +1023,6 @@ function i_u($type, $tabla, $tomb) {
 		$id = $adatbazis_kapcsolat -> insert($tabla, $oszlopok, $ertekek);
         if( $id === false ) { $db_error = true; }
 
-
 // Debug
 //echo '<pre style="font-size: 1.4rem">';
 //echo $adatbazis_kapcsolat->gp() . '<br>';
@@ -10185,7 +10184,7 @@ function get_iktatoszam_sorszam($tabla, $telephely_id = ''){
     
     // A rendszeres karbantartás és ütemezett feladatoknál nem nullázunk sorszámot évente, hanem megyünk végig
     // FONTOS: ilyenkor az adatbázisban adott táblának csak egy rekordja lehet az iktszam_seq-ben
-    $evszam_mentes = array('eseti_fenntartas', 'utemezett_feladatok', 'rendszeres_karbantartas');
+    $evszam_mentes = array('eseti_fenntartas', 'utemezett_feladatok', 'rendszeres_karbantartas', 'megallapodas');
     if( in_array($tabla, $evszam_mentes) ){
         $ikt_seq = $adatbazis_kapcsolat->s2('ev sorszam', 'iktszam_seq', "`tabla`='{$tabla}'{$where}");
     } else {

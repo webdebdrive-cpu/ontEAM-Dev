@@ -14,7 +14,7 @@ b.x {
     border-bottom: 0.1rem solid #8e8e8e;
 }
 
-div.naplo div.nSor div.dtc:nth-of-type(2) {
+div.naplo div.nSor div.dtc:nth-of-type(1) {
     width: 10rem;
 }
 div.naplo div.nSor div.dtc:nth-of-type(3) {
@@ -24,6 +24,9 @@ div.naplo div.nSor div.dtc:nth-of-type(4) {
     width: 10rem;
 }
 div.naplo div.nSor div.dtc:nth-of-type(5) {
+    width: 12rem;
+}
+div.naplo div.nSor div.dtc:nth-of-type(6) {
     width: 12rem;
 }
 

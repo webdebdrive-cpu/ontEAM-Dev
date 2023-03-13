@@ -6,7 +6,7 @@ $jogolsultsagos = false;
 require_once('../weblap.php');
 
 // Nem láthat bárki bármilyen tartalmat, viszont az admin bármit
-if( $_SESSION[get_db_tabla() . 'user'] && $_SESSION[get_db_tabla().'user'] != 'admin' ) {
+if( $_SESSION[get_db_tabla().'user'] && $_SESSION[get_db_tabla().'user'] != 'admin' ) {
 
     $user_joga = $adatbazis_kapcsolat -> s2('jog', 'login', "`nev`='{$_SESSION[get_db_tabla().'user']}'");
 
