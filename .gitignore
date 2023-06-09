@@ -35,3 +35,4 @@ telepites*
 /nbproject/private/
 /tervek/
 !/admin/!minta.php
+!/admin/rendszer.php

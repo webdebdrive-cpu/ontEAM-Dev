@@ -336,7 +336,7 @@ function bejelentesek_archival($idk) {
 
 
 // Munkalapok archiválása
-function munkalapok_archival($idk, $tranzakcio_nelkul) {
+function munkalapok_archival($idk, $tranzakcio_nelkul = 0) {
     
     global $adatbazis_kapcsolat;
     global $db_kapcs;
@@ -368,7 +368,7 @@ function munkalapok_archival($idk, $tranzakcio_nelkul) {
         
         $mezok   = array();
         $ertekek = array();
-        foreach($munkalap as $kulcs => $ertek){
+        foreach ( $munkalap as $kulcs => $ertek ) {
             array_push($mezok, $kulcs);
             array_push($ertekek, $munkalap[$kulcs]);
         }

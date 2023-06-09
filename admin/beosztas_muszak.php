@@ -400,7 +400,7 @@ require_once('selectek.php');
         $szamla_html .= nl2('
             <script>
                 duplikalGomb  = "<p class=\"c\"><input class=\"gomb zold\" type=\"button\" value=\"Igen\" onclick=\"szurkit(); location.href = \''.basename(self()).'?uj&amp;ujkent='.$_GET['id'].'\'; \"><input class=\"gomb piros\" type=\"button\" value=\"Nem\" onclick=\"alert2()\"></p>";
-                duplikaKerdes = \'Szálloda: '.getSzallodaNev($sor['telephely_id']).'<br>Név: '.addcslashes($sor['nev']).'<br><br>Biztos, hogy duplikálja?\';
+                duplikaKerdes = \'Szálloda: '.addcslashes(getSzallodaNev($sor['telephely_id'])).'<br>Név: '.addcslashes($sor['nev']).'<br><br>Biztos, hogy duplikálja?\';
             </script>
         ');
         

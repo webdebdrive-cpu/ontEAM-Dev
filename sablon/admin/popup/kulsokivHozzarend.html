@@ -20,7 +20,27 @@
         </script>
 
         <br><strong>Jóváhagyott érték:</strong>
-        <br><input type="text" style="margin: 0.2rem 0 0.8rem 0" autocomplete="off" data-tort="0" class="oriasi disableNav csillag f_num" name="pop_jh_ert" id="pop_jh_ert"> Ft + Áfa
+        <br>
+        <input type="text" style="margin: 0.2rem 0 0.8rem 0" autocomplete="off" data-tort="0" class="oriasi disableNav csillag f_num" name="pop_jh_ert" id="pop_jh_ert">
+        <input type="text" autocomplete="off" class="disableNav csillag" name="kcs_21_autocomp" id="kcs_21_autocomp" style="width: 6rem" value="HUF">
+        <input type="hidden" name="kcs_21" id="kcs_21" value="5">
+        <script>
+            $(document).ready(function() {
+                setTimeout(function(){
+                    $('#kcs_21_autocomp').autocomplete({
+                        'php_fajl'      : '../autocomplete.php',
+                        'tabla'         : 'erteklista',
+                        'oszlop_keres'  : 'info',
+                        'oszlop_listaz' : 'info',
+                        'csoport'       : 21,
+                        'recid'         : '5',
+                        'id_kiir'       : 'id',
+                        'complete'      : function(){
+                        } 
+                    }); 
+                }, 1000);
+            }); </script>
+        + Áfa
 
         <br><strong>Becsült érték:</strong>
         <div class="cb">
@@ -284,6 +304,7 @@ function kulsokivHozzarend( kulso_valtas_mehet ) {
             validate            : 'false',
             szallito_id         : $('#pop_szallito_id').val(),
             jh_ert              : $('#pop_jh_ert').val(),
+            kcs_21              : $('#kcs_21').val(),
             varh_erk            : $('#pop_varh_erk').val(),
             becsult_ertek       : $('#pop_becsult_ertek').prop('checked'),
             javaslattetel       : 1,

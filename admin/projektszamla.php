@@ -404,7 +404,7 @@ if( isset($_POST['projektSzamlaElutasit']) ) {
     $db_error = false;
     mysqli_autocommit($db_kapcs, false);
     
-    $sor = $adatbazis_kapcsolat->s2('pr_szam let_fel', 'projektszamla', "`recid`='{$_POST['id']}'");
+    $sor = $adatbazis_kapcsolat->s2('pr_szam let_fel elo_igazolva_dt', 'projektszamla', "`recid`='{$_POST['id']}'");
     
     // Ha nincs joga hozzá, akkor hibaüzenet
     if(
@@ -440,9 +440,16 @@ if( isset($_POST['projektSzamlaElutasit']) ) {
     // Adatbázisba mentés csak akkor, ha nem volt gond az XML küldéssel
     } else {
         
+        // Ha az előigazolva dátuma még üres, akkor előigazolásnál van az elutasítás, annak az oszloopait töltjük meg adatokkal
+        // Ha már van értéke, akkor utóigazolásnál történt az elutasítás, akkor meg azok oszlopaiba kell írni
+        $db_tabla_kieg = '';
+        if( $sor['elo_igazolva_dt'] == '0000-00-00 00:00:00' ) {
+            $db_tabla_kieg .= 'elo_';
+        }
+        
         // Elutasítással kapcsolatos adatok beállítása, illetve a kapcsolt számlaszám ürítése
-        $sql = $adatbazis_kapcsolat->u('projektszamla', array('igazolva', 'sz_szam', 'pr_szam', 'let_fel', 'elutleir',     'igazolva_dt', 'igazolva_usr',                          'sztornozva_dt', 'sztornozva_usr'                       ),
-                                                        array(0,          '',        '',        '',        $_POST['memo'], 'NOW()',       $_SESSION[get_db_tabla().'teljes_nev'],  'NOW()',         $_SESSION[get_db_tabla().'teljes_nev'] ),
+        $sql = $adatbazis_kapcsolat->u('projektszamla', array($db_tabla_kieg.'igazolva', 'sz_szam', 'pr_szam', 'let_fel', 'elutleir',     $db_tabla_kieg.'igazolva_dt',    $db_tabla_kieg.'igazolva_usr',           'sztornozva_dt', 'sztornozva_usr'                       ),
+                                                        array(0,                         '',        '',        '',        $_POST['memo'], 'NOW()',                         $_SESSION[get_db_tabla().'teljes_nev'],  'NOW()',         $_SESSION[get_db_tabla().'teljes_nev'] ),
                                         "`recid`='{$_POST['id']}'");
         if( $sql === false ) { $db_error = true; }
         
@@ -854,14 +861,14 @@ if( isset($_POST['tetel_sorok_ment']) ) {
     } else {
         
         // Ha nem ismert a recid, akkor új feltöltésről van szó, ekkor a session neveknél kicsit más megnevezést használunk
-        // hogy még véletlen se keveredjen pl. másik tabon megnyitott számla tételek szereksztésével voltak gondok, azt mentette be az újhoz
+        // hogy még véletlen se keveredjen pl. másik tabon megnyitott számla tételek szerkesztésével voltak gondok, azt mentette be az újhoz
         $kieg = '';
         if( !$recid ) {
             $kieg = '_uj';
         }
         
-        $_SESSION['pr_szla_tetel_recid'.$kieg]     = $_POST['adatok'][$recid_adat][1];
-        $_SESSION['pr_szla_tetel_targy'.$kieg]     = $_POST['adatok'][$targy_adat][1];
+        $_SESSION['pr_szla_tetel_recid'.$kieg]  = $_POST['adatok'][$recid_adat][1];
+        $_SESSION['pr_szla_tetel_targy'.$kieg]  = $_POST['adatok'][$targy_adat][1];
 
         if( $devizas ) {
             $_SESSION['pr_szla_tetel_dev_net'.$kieg] = str_replace(',', '.', $_POST['adatok'][$netto_ert_adat][1]);
@@ -1599,9 +1606,11 @@ if( isset($_POST['pop_tetelek_feltolt_modosit']) ) {
 
     // Ha vissza van adva a számla, akkor már nem lehet tételeket feltöléteni
     if( $_POST['andoc_id'] ) {
-        $prsz = $adatbazis_kapcsolat->s2('recid visszaadva dev_net netto kcs_21 feldolgozva_dt tetel_elter', 'projektszamla_atmeneti', "`andoc_id`='{$_POST['andoc_id']}'");
+        $recid = 0;
+        $prsz  = $adatbazis_kapcsolat->s2('recid visszaadva dev_net netto kcs_21 feldolgozva_dt tetel_elter', 'projektszamla_atmeneti', "`andoc_id`='{$_POST['andoc_id']}'");
     } else {
-        $prsz = $adatbazis_kapcsolat->s2('visszaadva dev_net netto kcs_21 feldolgozva_dt tetel_elter', 'projektszamla', "`recid`='{$_POST['id']}'");
+        $recid = $_POST['id'];
+        $prsz  = $adatbazis_kapcsolat->s2('visszaadva dev_net netto kcs_21 feldolgozva_dt tetel_elter', 'projektszamla', "`recid`='{$_POST['id']}'");
     }
 
     if( $prsz['visszaadva'] && !($prsz['tetel_elter'] && $_SESSION[get_db_tabla().'szemelyzet_id'] == MUSZAKI_ADMINISZTRATOR ) ) {
@@ -1668,11 +1677,16 @@ if( isset($_POST['pop_tetelek_feltolt_modosit']) ) {
         }
     }
     
-    $html = '';
+    
 
     // Tételek táblázat sorait kiszámoljuk:
+    $html = '';
+    $kieg = '';
+    if( !$recid ) {
+        // Ez lesz a megoldás: most még hadd teszteljék enékül: $kieg = '_uj';
+    }
     $i = 0;
-    foreach( $_SESSION['pr_szla_tetel_jogcim'] as $jogcim ) {
+    foreach( $_SESSION['pr_szla_tetel_jogcim'.$kieg] as $jogcim ) {
                
         // Minden sornak adunk egy azonosítót. Mivel lehet csak egy ideiglenes sorról van szó, nem mindig van recid-nk, ezért időbélyeges azonosítót hozunk létre, megtoldva egy $i-vel.
         $id_tmp = time();
@@ -1681,15 +1695,15 @@ if( isset($_POST['pop_tetelek_feltolt_modosit']) ) {
         $class = $targy = $torles = '';
         // Ha eltérő tételek volnának, akkor a törlés ikon helyett "zöld pipa/piros x"-eket jelenítünk meg
         if( $prsz['tetel_elter'] ) {
-            if( $_SESSION['pr_szla_tetel_kifizetes'][$i] ) {
-                $torles = '<span class="zold f20 b pop_pipalo" id="pipa_'.$_SESSION['pr_szla_tetel_recid'][$i].'" onclick="pipa_x_cserel(\''.$_SESSION['pr_szla_tetel_recid'][$i].'\')">✓</span>';
+            if( $_SESSION['pr_szla_tetel_kifizetes'.$kieg][$i] ) {
+                $torles = '<span class="zold f20 b pop_pipalo" id="pipa_'.$_SESSION['pr_szla_tetel_recid'.$kieg][$i].'" onclick="pipa_x_cserel(\''.$_SESSION['pr_szla_tetel_recid'.$kieg][$i].'\')">✓</span>';
             } else {
-                $torles = '<span class="piros f20 b pop_pipalo" id="pipa_'.$_SESSION['pr_szla_tetel_recid'][$i].'" onclick="pipa_x_cserel(\''.$_SESSION['pr_szla_tetel_recid'][$i].'\')">✖</span>';
+                $torles = '<span class="piros f20 b pop_pipalo" id="pipa_'.$_SESSION['pr_szla_tetel_recid'.$kieg][$i].'" onclick="pipa_x_cserel(\''.$_SESSION['pr_szla_tetel_recid'.$kieg][$i].'\')">✖</span>';
             }
         // Törlés ikon, ha nem Andoc-os a tétel
-        } else if( !$_SESSION['pr_szla_tetel_andocos'][$i] ) {
+        } else if( !$_SESSION['pr_szla_tetel_andocos'.$kieg][$i] ) {
             $torles = '
-                        <a onclick="popup_tetel_sor_torol(\'pop_tetel_'.$_SESSION['pr_szla_tetel_recid'][$i].'\');">
+                        <a onclick="popup_tetel_sor_torol(\'pop_tetel_'.$_SESSION['pr_szla_tetel_recid'.$kieg][$i].'\');">
                             <span class="icon">
                                 <i class="material-icons">
                                     delete
@@ -1701,25 +1715,25 @@ if( isset($_POST['pop_tetelek_feltolt_modosit']) ) {
         
         
         $pr_tetel = '';
-        if( $_SESSION['pr_szla_tetel_pr_tetel'][$i] ) {
-            $pr_tetel = $adatbazis_kapcsolat->s2('recid targy', 'projektszerzodes_tetel', "`recid`='{$_SESSION['pr_szla_tetel_pr_tetel'][$i]}'");
+        if( $_SESSION['pr_szla_tetel_pr_tetel'.$kieg][$i] ) {
+            $pr_tetel = $adatbazis_kapcsolat->s2('recid targy', 'projektszerzodes_tetel', "`recid`='{$_SESSION['pr_szla_tetel_pr_tetel'.$kieg][$i]}'");
         }
         if( $pr_tetel ) {
             $targy  = htmlspecialchars_decode( $pr_tetel['targy'] );
             $class  = ''; // ' szerzodes_szamla_tetel_szurke'
             $torles = '';
         } else {
-            if( $_SESSION['pr_szla_tetel_recid'][$i] ) {
-                $targy = '<div class="c"><input type="button" class="gomb" value="kapcsolás" onclick="kapcsolas_popup_nyit(\''.$_SESSION['pr_szla_tetel_recid'][$i].'\');"></div>';
+            if( $_SESSION['pr_szla_tetel_recid'.$kieg][$i] ) {
+                $targy = '<div class="c"><input type="button" class="gomb" value="kapcsolás" onclick="kapcsolas_popup_nyit(\''.$_SESSION['pr_szla_tetel_recid'.$kieg][$i].'\');"></div>';
             }
         }
         
-        $jogcim  = $adatbazis_kapcsolat->s2('jogcim ktghely megn',  'jogcim',     "`recid`='{$_SESSION['pr_szla_tetel_jogcim'][$i]}'");
-        $afakod  = $adatbazis_kapcsolat->s2('afa kod',              'afakod',     "`recid`='{$_SESSION['pr_szla_tetel_afakod'][$i]}'");
-        $dijelem = $adatbazis_kapcsolat->s2('info',                 'erteklista', "`recid`='{$_SESSION['pr_szla_tetel_dijelem'][$i]}'");
+        $jogcim  = $adatbazis_kapcsolat->s2('jogcim ktghely megn',  'jogcim',     "`recid`='{$_SESSION['pr_szla_tetel_jogcim'.$kieg][$i]}'");
+        $afakod  = $adatbazis_kapcsolat->s2('afa kod',              'afakod',     "`recid`='{$_SESSION['pr_szla_tetel_afakod'.$kieg][$i]}'");
+        $dijelem = $adatbazis_kapcsolat->s2('info',                 'erteklista', "`recid`='{$_SESSION['pr_szla_tetel_dijelem'.$kieg][$i]}'");
         
         $class = '';
-        if( $_SESSION['pr_szla_tetel_kifizetes'][$i] ) {
+        if( $_SESSION['pr_szla_tetel_kifizetes'.$kieg][$i] ) {
             $class = ' piros';
         }
         
@@ -1728,46 +1742,46 @@ if( isset($_POST['pop_tetelek_feltolt_modosit']) ) {
         if( $prsz['tetel_elter'] ) {
             $tovabbi_oszlopok .= nl2('
                                     <td class="l pop_jogcim_txt">'.$jogcim['jogcim'].'</td>
-                                    <td>'.$_SESSION['pr_szla_tetel_fokonyvi'][$i].'</td>
-                                    <td>'.$_SESSION['pr_szla_tetel_ktg_hely'][$i].'</td>
+                                    <td>'.$_SESSION['pr_szla_tetel_fokonyvi'.$kieg][$i].'</td>
+                                    <td>'.$_SESSION['pr_szla_tetel_ktg_hely'.$kieg][$i].'</td>
                                 ');
             if( $prsz['kcs_21']==KCS_21_HUF ) {
                 $tovabbi_oszlopok2 .= nl2('
-                                        <td class="pop_netto nowrap r">'.$_SESSION['pr_szla_tetel_netto_ert'][$i].'</td>
-                                        <td class="pop_brutto nowrap r">'.$_SESSION['pr_szla_tetel_brutto_ert'][$i].'</td>
+                                        <td class="pop_netto nowrap r">'.$_SESSION['pr_szla_tetel_netto_ert'.$kieg][$i].'</td>
+                                        <td class="pop_brutto nowrap r">'.$_SESSION['pr_szla_tetel_brutto_ert'.$kieg][$i].'</td>
                                     ');
             } else {
                 $tovabbi_oszlopok2 .= nl2('
-                                        <td class="pop_netto nowrap r">'.$_SESSION['pr_szla_tetel_netto_ert'][$i].'</td>
-                                        <td class="pop_brutto nowrap r">'.$_SESSION['pr_szla_tetel_brutto_ert'][$i].'</td>
-                                        <td class="pop_dev_net nowrap r">'.$_SESSION['pr_szla_tetel_dev_net'][$i].'</td>
-                                        <td class="pop_dev_br nowrap r">'.$_SESSION['pr_szla_tetel_dev_br'][$i].'</td>
+                                        <td class="pop_netto nowrap r">'.$_SESSION['pr_szla_tetel_netto_ert'.$kieg][$i].'</td>
+                                        <td class="pop_brutto nowrap r">'.$_SESSION['pr_szla_tetel_brutto_ert'.$kieg][$i].'</td>
+                                        <td class="pop_dev_net nowrap r">'.$_SESSION['pr_szla_tetel_dev_net'.$kieg][$i].'</td>
+                                        <td class="pop_dev_br nowrap r">'.$_SESSION['pr_szla_tetel_dev_br'.$kieg][$i].'</td>
                                     ');
             }
             
         // Popup tételek normál esetben, sima tételek szerkesztésekor
         } else {
             $tovabbi_oszlopok .= nl2('
-                                <td class="pop_targy l">'.$_SESSION['pr_szla_tetel_targy'][$i].'</td>
-                                <td class="pop_netto r nowrap">'.number_format($_SESSION[$session_mezo][$i], $tizedesek, ',', ' ').'</td>
-                                <td class="pop_brutto r nowrap">'.number_format($_SESSION[$session_mezo_br][$i], $tizedesek, ',', ' ').'</td>
+                                <td class="pop_targy l">'.$_SESSION['pr_szla_tetel_targy'.$kieg][$i].'</td>
+                                <td class="pop_netto r nowrap">'.number_format($_SESSION[$session_mezo.$kieg][$i], $tizedesek, ',', ' ').'</td>
+                                <td class="pop_brutto r nowrap">'.number_format($_SESSION[$session_mezo_br.$kieg][$i], $tizedesek, ',', ' ').'</td>
                                 <td class="pop_jogcim nowrap r">'.$jogcim['jogcim'].'</td>
-                                <td class="pop_fokonyvi nowrap r">'.$_SESSION['pr_szla_tetel_fokonyvi'][$i].'</td>
+                                <td class="pop_fokonyvi nowrap r">'.$_SESSION['pr_szla_tetel_fokonyvi'.$kieg][$i].'</td>
                                 <td class="pop_pr_tetel l" data-pr_tetel_recid="'.$pr_tetel['recid'].'">
                                     '.$targy.'
                                 </td>
                                 ');
         }
         $html .= nl2('
-                        <tr class="pop_tetel_'.$_SESSION['pr_szla_tetel_recid'][$i].$class.'">
+                        <tr class="pop_tetel_'.$_SESSION['pr_szla_tetel_recid'.$kieg][$i].$class.'">
                             '.$tovabbi_oszlopok.'
                             '.$tovabbi_oszlopok2.'
                             <td>
                                 '.$torles.'
-                                <input type="hidden" class="pop_recid" name="recid" value="'.$_SESSION['pr_szla_tetel_recid'][$i].'">
-                                <input type="hidden" class="pop_jogcim" name="jogcim" value="'.$_SESSION['pr_szla_tetel_jogcim'][$i].'">
-                                <input type="hidden" class="pop_afa" name="afa" value="'.$_SESSION['pr_szla_tetel_afakod'][$i].'">
-                                <input type="hidden" class="pop_valtozott" value="'.$_SESSION['pr_szla_tetel_valtozott'][$i].'">
+                                <input type="hidden" class="pop_recid" name="recid" value="'.$_SESSION['pr_szla_tetel_recid'.$kieg][$i].'">
+                                <input type="hidden" class="pop_jogcim" name="jogcim" value="'.$_SESSION['pr_szla_tetel_jogcim'.$kieg][$i].'">
+                                <input type="hidden" class="pop_afa" name="afa" value="'.$_SESSION['pr_szla_tetel_afakod'.$kieg][$i].'">
+                                <input type="hidden" class="pop_valtozott" value="'.$_SESSION['pr_szla_tetel_valtozott'.$kieg][$i].'">
                             </td>
                         </tr>');
         $i++;
@@ -2848,9 +2862,9 @@ require_once('selectek.php');
             }
         }
         
-        if( $sor['feldolgozva_dt'] != '0000-00-00 00:00:00' && $sor['igazolva_dt']=='0000-00-00 00:00:00' ) {
+        if( $sor['feldolgozva_dt'] != '0000-00-00 00:00:00' ) {
             // Ha még nincs igazolva, akkor előbb "előigazolunk", és majd csak ez után lehet utóigazolni
-            if( !$sor['elo_igazolva'] ) {
+            if( $sor['elo_igazolva_dt']=='0000-00-00 00:00:00' ) {
 
                 // Igazolás joggal lehet csak igazolni: jog + felhasználó = számla projektjének projektfelelőse
                 if( _jog(JOG_PRSZAMLAK_IGAZOL) && $sor['let_fel'] == $_SESSION[get_db_tabla().'login_recid'] ) {
@@ -2858,7 +2872,11 @@ require_once('selectek.php');
                     $gombok .= '<input type="button" class="gomb modositaskor_rejt piros" value="Elutasítás" onclick="csoportMuvelet(\'projektSzamlaElutasit\');"> ';
                     $gombok .= '<input type="button" class="gomb modositaskor_rejt" value="Vissza üi.-nek" onclick="csoportMuvelet(\'projektSzamlaVisszaUi\');"> ';
                 }
-            } else {
+            
+            } 
+            
+            // Ha már előigazolva van, de nincs még utóigazolva
+            if( $sor['elo_igazolva'] && $sor['igazolva_dt']=='0000-00-00 00:00:00' ) {
                 if( _jog(JOG_PRSZAMLAK_UTOIGAZOL) ) {
                     $gombok .= '<input type="button" class="gomb modositaskor_rejt zold" value="Utóigazolás" onclick="szamla_utoigazol()"> ';
                     $gombok .= '<input type="button" class="gomb modositaskor_rejt piros" value="Elutasítás" onclick="csoportMuvelet(\'projektSzamlaElutasit\');"> ';
@@ -3398,7 +3416,7 @@ if( $_SERVER['REMOTE_ADDR'] == get_debug_ip() ) {
             $szamla_html .= nl2('
                 <script>
                     duplikalGomb  = "<p class=\"c\"><input class=\"gomb zold\" type=\"button\" value=\"Igen\" onclick=\"szurkit(); location.href = \''.basename(self()).'?uj&ujkent='.$_GET['id'].'\'; \"><input class=\"gomb piros\" type=\"button\" value=\"Nem\" onclick=\"alert2()\"></p>";
-                    duplikaKerdes = \'Számlaszám: '.$sor['sz_szam'].'<br>Szálloda: '.$telephely['nev'].'<br><br>Biztos, hogy duplikálja?\';
+                    duplikaKerdes = \'Számlaszám: '.addcslashes($sor['sz_szam']).'<br>Szálloda: '.addcslashes($telephely['nev']).'<br><br>Biztos, hogy duplikálja?\';
                 </script>
             ');
         }
@@ -3617,24 +3635,87 @@ if( $_SERVER['REMOTE_ADDR'] == get_debug_ip() ) {
 	// Történet
     } elseif( isset($_GET['tortenet']) ) {
 
-        $igazolva = $elo_igazolva = $utoigazolva = $elo_igazolva_dt = $igazolva_dt = $utalvanyozva = $igazol_elut = $utalvanyozva_elut = $sztornozva = '';
+        $eloigazolva  = $eloigazolva_dt  = $eloigazolva_usr  = $eloigazol_elut    =
+        $utoigazolva  = $utoigazolva_dt  = $utoigazolva_usr  = $utoigazol_elut    = 
+        $utalvanyozva = $utalvanyozva_dt = $utalvanyozva_usr = $utalvanyozva_elut = 
+        $sztornozva   = $sztornozva_dt   = $sztornozva_usr   = $sztornozva_leir   = '';
+
+        // 2021.09.14 Tamás kérte, hogy ne legyen piros X ha még nincs feldolgozva, csak pipa, ha már megvan
+        // $feldolgozva = '<b class="x">✖</b>';
+        $feldolgozva = '';
+        if( $sor['feldolgozva_dt'] != '0000-00-00 00:00:00' ) {
+            $feldolgozva_usr = $sor['feldolgozva_usr'];
+            $feldolgozva_dt  = $sor['feldolgozva_dt'];
+            $feldolgozva     = '<b class="pipa">✓</b>';
+        }
+        
+        // (Elő)igazolva
+        if( $sor['elo_igazolva_dt']!='0000-00-00 00:00:00' ) {
+            $eloigazolva_usr = $sor['elo_igazolva_usr'];
+            $eloigazolva_dt  = $sor['elo_igazolva_dt'];
+            if( $sor['elo_igazolva'] ) {
+                $eloigazolva = '<b class="pipa">✓</b>';
+            }
+            if( !$sor['elo_igazolva'] ) {
+                $eloigazolva    = '<b class="x">✖</b>';
+                $eloigazol_elut = nl2('
+                    </div>
+                    <div class="indoklas">
+                        Elutasítás indoklása:
+                        <br>'.htmlspecialchars_decode( nl2br2($sor['elutleir']) ).'
+                    </div>
+                    <div class="dt naplo">
+                    ');
+            }
+        }
+        // (Utó)igazolva
         if( $sor['igazolva_dt']!='0000-00-00 00:00:00' ) {
-            $igazolva_dt = datum_kiir($sor['igazolva_dt']);
+            $utoigazolva_usr = $sor['igazolva_usr'];
+            $utoigazolva_dt  = $sor['igazolva_dt'];
+            if( $sor['igazolva'] ) {
+                $utoigazolva = '<b class="pipa">✓</b>';
+            }
+            if( !$sor['igazolva'] ) {
+                $utoigazolva = '<b class="x">✖</b>';
+                $utoigazol_elut = nl2('
+                    </div>
+                    <div class="indoklas">
+                        Elutasítás indoklása:
+                        <br>'.htmlspecialchars_decode( nl2br2($sor['elutleir']) ).'
+                    </div>
+                    <div class="dt naplo">
+                    ');
+            }
         }
+        
+        // Utalványozva
         if( $sor['utalvanyozva_dt']!='0000-00-00 00:00:00' ) {
-            $utalvanyozva_dt = datum_kiir($sor['utalvanyozva_dt']);
+            
+            $utalvanyozva_usr = $sor['utalvanyozva_usr'];
+            $utalvanyozva_dt  = $sor['utalvanyozva_dt'];
+            
+            if( $sor['utalvanyozva'] ) {
+                $utalvanyozva = '<b class="pipa">✓</b>';
+            }
+            if( !$sor['utalvanyozva'] ) {
+                $utalvanyozva       = '<b class="x">✖</b>';
+                $utalvanyozva_elut  = nl2('
+                    </div>
+                    <div class="indoklas">
+                        Elutasítás indoklása:
+                        <br>'.htmlspecialchars_decode( nl2br2($sor['elutleir']) ).'
+                    </div>
+                    <div class="dt naplo">
+                    ');
+            }
         }
-        if( $sor['igazolva'] && $sor['igazolva_dt'] != '0000-00-00 00:00:00' ) {
-            $utoigazolva = '<b class="pipa">✓</b>';
-        }
-        if( $sor['utalvanyozva'] && $sor['utalvanyozva_dt'] != '0000-00-00 00:00:00' ) {
-            $utalvanyozva = '<b class="pipa">✓</b>';
-        }
+        
+        // Sztornózva
         if( $sor['sztornozva_dt'] != '0000-00-00 00:00:00' ) {
 
-            $sztornozva = '<b class="x">✖</b>';
-            $sztornozva_dt = datum_kiir($sor['sztornozva_dt']);
-            $sztornozva_leir = '';
+            $sztornozva_usr = $sor['sztornozva_usr'];
+            $sztornozva_dt  = $sor['sztornozva_dt'];
+            $sztornozva     = '<b class="x">✖</b>';
             if( $sor['sztornozva_leir'] ) {
                 $sztornozva_leir = nl2('
                     </div>
@@ -3646,74 +3727,12 @@ if( $_SERVER['REMOTE_ADDR'] == get_debug_ip() ) {
                     ');
             }
         }
-        // 2021.09.14 Tamás kérte, hogy ne legyen piros X ha még nincs feldolgozva, csak pipa, ha már megvan
-        // $feldolgozva = '<b class="x">✖</b>';
-        $feldolgozva = '';
-        if( $sor['feldolgozva_dt'] != '0000-00-00 00:00:00' ) {
-            $feldolgozva     = '<b class="pipa">✓</b>';
-            $feldolgozva_usr = $sor['feldolgozva_usr'];
-            $feldolgozva_dt  = datum_kiir($sor['feldolgozva_dt']);
-        }
-        
-        // Igazolva
-        if( $sor['elo_igazolva'] ) {
-            $igazolva = '<b class="pipa">✓</b>';
-            $eloigazolva_usr = $sor['elo_igazolva_usr'];
-            $eloigazolva_dt  = $sor['elo_igazolva_dt'];
-        }
-        if( $sor['elo_igazolva_dt']!='0000-00-00 00:00:00' ) {
-            $elo_igazolva_dt = datum_kiir($sor['elo_igazolva_dt']);
-        }
-        
-        $utoigazolva_usr = $sor['igazolva_usr'];
-        $utoigazolva_dt  = '';
-        if( $sor['igazolva_dt']!='0000-00-00 00:00:00' ) {
-            $utoigazolva_dt = $sor['igazolva_dt'];
-        }
-        // Ha nincs igazolva, de az igazolás időpontja már ismert, akkor tujduk, ez el lett utasítva
-        if( !$sor['igazolva'] && $sor['igazolva_dt']!='0000-00-00 00:00:00' ) {
-            // Ha mindeközben már előizgaolva van, akkor az igazolva maradhat zöld pipa, az utóigazolásra kell a poiros X
-            if( $sor['elo_igazolva'] ) {
-                $igazolva = '<b class="pipa">✓</b>';
-                $eloigazolva_usr = $sor['elo_igazolva_usr'];
-                $eloigazolva_dt  = $sor['elo_igazolva_dt'];
-                $utoigazolva     = '<b class="x">✖</b>';
-                $utoigazolva_usr = $sor['igazolva_usr'];
-                $utoigazolva_dt  = $sor['igazolva_dt'];
-            } else {
-                $igazolva = '<b class="x">✖</b>';
-                $eloigazolva_usr = $sor['igazolva_usr'];
-                $eloigazolva_dt  = $sor['igazolva_dt'];
-                $utoigazolva     = '';
-                $utoigazolva_usr = '';
-                $utoigazolva_dt  = '';
-            }
-            $igazol_elut = nl2('
-                </div>
-                <div class="indoklas">
-                    Elutasítás indoklása:
-                    <br>'.htmlspecialchars_decode( nl2br2($sor['elutleir']) ).'
-                </div>
-                <div class="dt naplo">
-                ');
-        }
-        if( !$sor['utalvanyozva'] && $sor['utalvanyozva_dt']!='0000-00-00 00:00:00' ) {
-            $utalvanyozva       = '<b class="x">✖</b>';
-            $utalvanyozva_elut  = nl2('
-                </div>
-                <div class="indoklas">
-                    Elutasítás indoklása:
-                    <br>'.htmlspecialchars_decode( nl2br2($sor['elutleir']) ).'
-                </div>
-                <div class="dt naplo">
-                ');
-        }
         
         $szamla_html .= nl2('
             <div class="dt naplo">
                 <div class="dtr nFejlec">
                     <div class="dtc">Esemény</div>
-                    <div class="dtc"><b class="pipa">✓</b></div>
+                    <div class="dtc pipa"><b class="pipa">✓</b></div>
                     <div class="dtc">Felhasználó</div>
                     <div class="dtc">Dátum</div>
                 </div>
@@ -3728,35 +3747,40 @@ if( $_SERVER['REMOTE_ADDR'] == get_debug_ip() ) {
                     <div class="dtc">Feldolgozva</div>
                     <div class="dtc"><b class="pipa">'.$feldolgozva.'</b></div>
                     <div class="dtc">'.$feldolgozva_usr.'</div>
-                    <div class="dtc">'.$feldolgozva_dt.'</div>
+                    <div class="dtc">'.datum_kiir($feldolgozva_dt).'</div>
                 </div>
                 <div class="dtr nSor">
                     <div class="dtc">Igazolva</div>
-                    <div class="dtc">'.$igazolva.'</div>
+                    <div class="dtc">'.$eloigazolva.'</div>
                     <div class="dtc">'.$eloigazolva_usr.'</div>
                     <div class="dtc">'.datum_kiir($eloigazolva_dt).'</div>
                 </div>
-                '.$igazol_elut.'
+                '.$eloigazol_elut.'
+                    
                 <div class="dtr nSor">
                     <div class="dtc">Utóigazolva</div>
                     <div class="dtc">'.$utoigazolva.'</div>
                     <div class="dtc">'.$utoigazolva_usr.'</div>
                     <div class="dtc">'.datum_kiir($utoigazolva_dt).'</div>
                 </div>
+                '.$utoigazol_elut.'
+                    
                 <div class="dtr nSor">
                     <div class="dtc">Utalványozva</div>
                     <div class="dtc">'.$utalvanyozva.'</div>
-                    <div class="dtc">'.$sor['utalvanyozva_usr'].'</div>
-                    <div class="dtc">'.$utalvanyozva_dt.'</div>
+                    <div class="dtc">'.$utalvanyozva_usr.'</div>
+                    <div class="dtc">'.datum_kiir($utalvanyozva_dt).'</div>
                 </div>
                 '.$utalvanyozva_elut.'
+                    
                 <div class="dtr nSor">
                     <div class="dtc">Sztornózva</div>
                     <div class="dtc">'.$sztornozva.'</div>
-                    <div class="dtc">'.$sor['sztornozva_usr'].'</div>
-                    <div class="dtc">'.$sztornozva_dt.'</div>
+                    <div class="dtc">'.$sztornozva_usr.'</div>
+                    <div class="dtc">'.datum_kiir($sztornozva_dt).'</div>
                 </div>
                 '.$sztornozva_leir.'
+                    
             </div>
         ');
         

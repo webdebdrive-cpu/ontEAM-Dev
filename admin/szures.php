@@ -12,7 +12,7 @@ if( isset($_POST['f_szuro_mezo']) ) {
     $akt_tomb_szures = get_akt_tomb($_POST['tabla']);
 
     $selected_equal = '';
-    $selected_like = '';
+    $selected_like  = '';
     $selected_empty = '';
     if($_POST['selected']=='equal'      ) { $selected_equal      = ' selected'; }
     if($_POST['selected']=='like'       ) { $selected_like       = ' selected'; }
@@ -135,7 +135,7 @@ if( isset($_POST['f_szuro_mezo']) ) {
     
     // Anyag, Energia, Fenntartási, Megállapodás vagy Projekt számláknál pár mezőnél csak egyenlőség jel van
     $equal_tablak = array('anyag_szamla', 'energia_szamla', 'fenntartasi_szamla', 'megallapodas_szamla', 'projektszamla');
-    $equal_mezok  = array('feldolgozva_dt', 'igazolva_dt', 'utalvanyozva_dt', 'sztornozva_dt');
+    $equal_mezok  = array('feldolgozva', 'elo_igazolva', 'igazolva', 'utalvanyozva', 'sztornozva');
     if( in_array($_POST['tabla'], $equal_tablak) && in_array($_POST['mezo'], $equal_mezok) ) {
         $operator = '<option value="equal"'.$selected_equal.'>=</option>';
     }
@@ -161,7 +161,7 @@ if( isset($_POST['f_szuro_mezo']) ) {
         $operator = '<option value="equal"'.$selected_equal.'>=</option>';
     }
 
-    // Beosztás hónap választásnál cska egyenlőség van
+    // Beosztás hónap választásnál csak egyenlőség van
     if( $_POST['tabla'] == 'anyagigenyles' && $_POST['mezo'] == 'cikkmee' ) {
         $operator  = '<option value="equal"'.$selected_equal.'>=</option>';
         $operator .= '<option value="like"'.$selected_like.'>Tartalmazza</option>';
@@ -248,8 +248,8 @@ if( isset($_POST['f_szuro_mezo_operator']) ) {
     }
 
     // Ha az éppen kiválasztott operátor az üres, akkor az alábbit adjuk vissza és kész
-    $igen_nem_mezok = array('dok_van_e', 'dok_db_min_var', 'feldolgozva_dt', 'fix_adat', 'igazolva_dt', 'kapcsolt_szerzodes_van_e', 'kapcsolt_szamla_van_e', 'jotallas_van_e', 'kifizetes_van_e', 'utalvanyozva_dt', 'sztornozva_dt');
-    if( $_POST['selected'] == 'empty'  || in_array($_POST['mezo'], $igen_nem_mezok) ) {
+    $igen_nem_mezok = array('dok_van_e', 'dok_db_min_var', 'feldolgozva', 'fix_adat', 'elo_igazolva', 'igazolva', 'kapcsolt_szerzodes_van_e', 'kapcsolt_szamla_van_e', 'jotallas_van_e', 'kifizetes_van_e', 'utalvanyozva', 'sztornozva');
+    if( $_POST['selected'] == 'empty' || in_array($_POST['mezo'], $igen_nem_mezok) ) {
         $feltetel = nl2('
             <select class="f_felt">
                 <option value="1"'.$selected_egy.'>Igen</option>

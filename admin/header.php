@@ -601,7 +601,7 @@ if( !$_SESSION['bejelento_menu_rejt'] ) {
             $_SESSION['rendszerkat'] = $_GET['rkat'];
         }
 
-        $rendszerKat = $adatbazis_kapcsolat->s('recid nev', 'rendszer_kat', 'recid='.$_SESSION['rendszerkat'], '', '1');
+        $rendszerKat = $adatbazis_kapcsolat->s('recid nev', 'rendszer_kat', "`recid`='{$_SESSION['rendszerkat']}'", '', '1');
         if( $rendszerKat ) {
             $oldalNev = $rendszerKat['nev'];
         }
@@ -633,7 +633,7 @@ if( !$_SESSION['bejelento_menu_rejt'] ) {
     }
 
     $style = '';
-    $menu_hover = array('szallito.php', 'rendszer.php', 'bejovo_szamlak.php', 'erteklista.php', 'login.php', 'szerepkor.php', 'szerepkor_jog.php', 'jogcim.php', 'afakod.php');
+    $menu_hover = array('rendszer.php', 'bejovo_szamlak.php', 'erteklista.php', 'login.php', 'szerepkor.php', 'szerepkor_jog.php', 'jogcim.php', 'afakod.php');
     if( in_array(basename(self()), $menu_hover) ) {
         $style = ' class="hover{STYLE_KIEG}"';
     }

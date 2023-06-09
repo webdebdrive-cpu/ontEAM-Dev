@@ -1314,14 +1314,14 @@ $(function() {
                     taroltVal = formAdatok[name];
                 } else {
                     taroltVal = '\xa0\xa0:\xa0\xa0';
-                    /* Ha az input értéke üres, akkor az alapértelmezett érték legyen az értéke */
+                    // Ha az input értéke üres, akkor az alapértelmezett érték legyen az értéke
                     if(!val){
                         val = taroltVal;
                     }
                 }
             }
 
-            /* Dátumidő mező */
+            // Dátumidő mező
             if( $(this).hasClass('datetimepicker') ) {
                 if( formAdatok[name] != '0000-00-00 00:00:00' && formAdatok[name] != '0000-00-00 00:00' ) {
                     var date = new Date(formAdatok[name]);
@@ -1353,7 +1353,7 @@ $(function() {
                 } else {
 
                     taroltVal = '\xa0\xa0\xa0\xa0.\xa0\xa0.\xa0\xa0\xa0\xa0:\xa0\xa0';
-                    /* Ha az input értéke üres, akkor az alapértelmezett érték legyen az értéke */
+                    // Ha az input értéke üres, akkor az alapértelmezett érték legyen az értéke
                     if(!val){
                         val = taroltVal;
                     }
@@ -1401,7 +1401,7 @@ $(function() {
                 taroltVal = taroltVal.replace('\.', ',');
             }
 
-            /* Checkboxok egy külön problémakör, mert itt a letárolt adat lehet üres, vagy stringes false. Ezt tehát itt külön le kell kezelni. */
+            // Checkboxok egy külön problémakör, mert itt a letárolt adat lehet üres, vagy stringes false. Ezt tehát itt külön le kell kezelni.
             if($(this).attr('type')=='checkbox'){
                 if(val==false || val==''){ val = 'false'; }
                 if(val==true)   {  val       = 'true';  }
@@ -1547,10 +1547,10 @@ $(function() {
         return false;
     });
 
-    /* Ciklus tipus váltásakor megfelelő div megjelenítése */
+    // Ciklus tipus váltásakor megfelelő div megjelenítése
     $(document).on('change', '.f_cikltip', function() {
 
-        /* Váltáskor a ciklnap tárolt értéket nullázzuk, mert az új felületen minden üres */
+        // Váltáskor a ciklnap tárolt értéket nullázzuk, mert az új felületen minden üres
         formAdatok.ciklhet          = '';
         formAdatok.ciklho           = '';
         formAdatok.ciklho2          = '';
@@ -2036,7 +2036,7 @@ $(function() {
         ev = event;
     });
 
-    /* Text inputon TAB-ozva */
+    // Text inputon TAB-ozva
     $(document).on('keydown', 'input[type="text"]', function(event) {
         if( event.keyCode == KEY_TAB ) {
             var elementID = $(this).attr('id');
@@ -6316,9 +6316,9 @@ function szamlaBetolt( recid, page, muvelet, szerkeszt, kerdes_nelkul, anyagigen
     // Mindenképp legyen rajta egy szurkítés
     setTimeout(function(){ szurkit(); }, 100);
 
-    focused = false; /* Ezt azért kell hamisra állítani, mert alert2 bezárásakor az utoljára fókuszált elemre visszatesszük a fókuszt.
-                        Viszont ezt az anyagigénylések táblázatánál gondot okozott: nem lehetett kilépni az árazva sorok inputjaiból.
-                        */
+//    Ezt azért kell hamisra állítani, mert alert2 bezárásakor az utoljára fókuszált elemre visszatesszük a fókuszt.
+//    Viszont ezt az anyagigénylések táblázatánál gondot okozott: nem lehetett kilépni az árazva sorok inputjaiból.
+    focused = false; 
     alert2('');
 
     if( formModositva && !kerdes_nelkul ) {
@@ -6409,10 +6409,11 @@ function szamlaBetolt( recid, page, muvelet, szerkeszt, kerdes_nelkul, anyagigen
          	type: 'GET',
          	data: esamp2es('id=' + recid + no_lista+'&amp;ajax=1&amp;' + szerk + anyagrend + muvelet_param + '=' + new Date().getTime()),
          	success: function(html) {
+
                 if(html.substring(0, 6)=='SESKIL'){ location.href = 'index.php'; }
          		if (html) {
+                    
                     html = JSON.parse(html);
-
                     // #szamlaBetolt tartalmának lecserélése
                     // Ha anyagigénylés táblázat alatt vagyunk akkor ne frissítsük a tartalmat, csak a gombokat.
                     if( (page=='anyagigenyles.php' || page=='vendegejszakak.php') && muvelet=='tablazat' ){

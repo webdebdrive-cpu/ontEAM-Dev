@@ -744,7 +744,7 @@ require_once('selectek.php');
         $szamla_html .= nl2('
             <script>
                 duplikalGomb  = "<p class=\"c\"><input class=\"gomb zold\" type=\"button\" value=\"Igen\" onclick=\"szurkit(); location.href = \''.basename(self()).'?uj&amp;ujkent='.$_GET['id'].'\'; \"><input class=\"gomb piros\" type=\"button\" value=\"Nem\" onclick=\"alert2()\"></p>";
-                duplikaKerdes = \'Szálloda: '.$szalloda_nev.'<br>Dátum: '.date_formaz($sor['ev'].'-'.$sor['ho'], '', 'csak hó').'<br><br>Biztos, hogy duplikálja?\';
+                duplikaKerdes = \'Szálloda: '.addcslashes($szalloda_nev).'<br>Dátum: '.addcslashes(date_formaz($sor['ev'].'-'.$sor['ho'], '', 'csak hó')).'<br><br>Biztos, hogy duplikálja?\';
             </script>
         ');
         

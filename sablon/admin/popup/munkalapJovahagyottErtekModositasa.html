@@ -1,10 +1,27 @@
 <h2>Jóváhagyott érték módosítása</h2>
 
 <div class="kozep">
-
     <strong>Jóváhagyott érték:</strong>
-    <br><input type="text" style="margin: 0.2rem 0 0.8rem 0" autocomplete="off" data-tort="0" class="oriasi disableNav csillag f_num" name="pop_jh_ert" id="pop_jh_ert"> Ft + Áfa
-
+    <br><input type="text" style="margin: 0.2rem 0 0.8rem 0" autocomplete="off" data-tort="0" class="oriasi disableNav csillag f_num" name="pop_jh_ert" id="pop_jh_ert">
+    <input type="text" autocomplete="off" class="disableNav csillag" name="kcs_21_autocomp" id="kcs_21_autocomp" style="width: 6rem">
+    <input type="hidden" name="kcs_21" id="kcs_21">
+    <script>
+        $(document).ready(function() {
+            setTimeout(function(){
+                $('#kcs_21_autocomp').autocomplete({
+                    'php_fajl'      : '../autocomplete.php',
+                    'tabla'         : 'erteklista',
+                    'oszlop_keres'  : 'info',
+                    'oszlop_listaz' : 'info',
+                    'csoport'       : 21,
+                    'recid'         : '5',
+                    'id_kiir'       : 'id',
+                    'complete'      : function(){
+                    } 
+                }); 
+            }, 1000);
+        }); </script>
+    + Áfa
 </div>
 <div class="kuldes">
     <input type="button" name="elkuld" class="gomb zold" value="Mentés" onclick="munkalapJovahagyottErtekModositasa();">
@@ -25,6 +42,8 @@ $(document).ready(function(){
             if( response ) {
                 response = JSON.parse(response);
                 $('#pop_jh_ert').val(response.ertek).select();
+                $('#kcs_21_autocomp').val(response.kcs_21_txt);
+                $('#kcs_21').val(response.kcs_21);
             }
         },
         complete: function(xhr) {
@@ -54,6 +73,7 @@ function munkalapJovahagyottErtekModositasa() {
             data: {
                 pop_jh_ert                          : $('#pop_jh_ert').val(),
                 recid                               : _get('id'),
+                kcs_21                              : $('#kcs_21').val(),
                 munkalapJovahagyottErtekModositasa  : new Date().getTime()
             },
             success: function(response) {

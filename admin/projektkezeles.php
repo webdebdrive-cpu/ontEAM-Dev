@@ -135,7 +135,7 @@ if( isset($_POST['minosites_torol']) ) {
     $dok = $adatbazis_kapcsolat->s2($apa_oszlop.' fajlnev', $_POST['tabla'], "`recid`='{$_POST['recid']}'");
     
     // Logolás
-    addMegj($apa_tabla, $dok[$apa_oszlop], $dok['fajlnev'].' dokumentumról törölve a minősítés');
+    addMegj($apa_tabla, $dok[$apa_oszlop], addslashes($dok['fajlnev']).' dokumentumról törölve a minősítés');
 
     $weblap -> leallit();
     exit;

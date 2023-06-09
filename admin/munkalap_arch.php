@@ -69,7 +69,8 @@ if( isset($_GET['csv']) ) {
                 `gep_id` as \'Gépnév\',
                 `tipus_id` as \'Típus\',
                 `szallito_id` as \'Külső kivitelező\',
-                `jh_ert` as \'Jóváhagyott érték\',
+                `jh_ert_dev` as \'Jóváhagyott érték\',
+                `kcs_21` as \'Deviza\',
                 `szemelyzet_id` as \'Hozzárendelt személyzet\',
                 `ig_el_id` as \'Igényelt elvégzés\',
                 `varh_erk` as \'Várható érkezés\',
@@ -147,6 +148,9 @@ if( isset($_GET['csv']) ) {
                 }
                 if( $kulcs == 'Jóváhagyott érték' ) {
                     $sorok[$szam] = str_replace('.', ',', $sorok[$szam]);
+                }
+                if( $kulcs == 'Deviza' ) {
+                    $sor = erteklista(ERTEKLISTA_PENZNEM, $sor);
                 }
                 if( $kulcs == 'Típus' ) {
                     $sor = erteklista(ERTEKLISTA_MUNKALAP_TIP, $sor);
@@ -275,7 +279,7 @@ require('selectek.php');
         }
         
         // Jóváhagyott érték legyen formázva, úgy is csak ki van írva
-        $sor['jh_ert'] = number_format($sor['jh_ert'], 0, '', ' ');
+        $sor['jh_ert_dev'] = number_format($sor['jh_ert_dev'], 0, '', ' ');
 
         // Mivel artchiv felületen vagyunk, ezért a mezők típusát és nevét átírjuk ha kell
         // Erre azért van szükség, hogy pl. egy atucompletes mezőből txt legyen, hogy az értékét ne más táblákból olvassa vissza

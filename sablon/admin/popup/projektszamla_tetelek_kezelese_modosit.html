@@ -333,7 +333,7 @@ function tetel_sorok_ment(mehet){
     var netto_ert = [];
     var netto_mezo  = 'pop_netto';
     var brutto_mezo = 'pop_brutto';
-    /* Ha az eltérő tételszám miatt vagyunk ezen a popuppn, és egy devizás számláról van szó, akkor a nettó/bruttó mezők a pop_dev_net/pop_dev_br tag-ekben lesz
+    /* Ha az eltérő tételszám miatt vagyunk ezen a popupon, és egy devizás számláról van szó, akkor a nettó/bruttó mezők a pop_dev_net/pop_dev_br tag-ekben lesz
      * Normál popup esetén ezzel nem kell foglalkozni, mert ott csak simán egy nettó oszlop van, abban a HUF ha HUF-os a számla és a deviza nettója, ha devizás a számla */
     if( tetelek_szama_elter && akt_penznem && akt_penznem != 'HUF' ) {
         netto_mezo  = 'pop_dev_net';

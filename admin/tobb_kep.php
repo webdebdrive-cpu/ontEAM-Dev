@@ -14,10 +14,10 @@ require_once('../class/html/class.Img.php');
 
 $php_tablanev     = str_replace('.php', '', basename($_SERVER['PHP_SELF']));
 $tobbkep_tablanev = $php_tablanev.'_dok';
-$archivum = false;
+$archivum = 0;
 if( substr($php_tablanev, strlen($php_tablanev) - 5) == '_arch' ) {
     $tobbkep_tablanev = substr($megnevezes, 0, strlen($megnevezes)-5).'_dok_arch';
-    $archivum = true;
+    $archivum = 1;
 }
 if( $_POST['tabla'] ) {
     $tobbkep_tablanev = $_POST['tabla'].'_dok';
@@ -939,14 +939,14 @@ function get_tobbkep_thumb($sor_kepek = '', $i = '', $tobbkep_tablanev = '', $ni
         $csonkit = 0;
     }
     
-    $direkt_dokumentum = false;
+    $direkt_dokumentum = 0;
     $kep_utvonal = '../'.get_utvonal().csonkit($tobbkep_tablanev, $csonkit).'/'.$sor_kepek['utvonal'];
     // Itt van egy kis csavar: ha projektkezelés alatt vagyunk, és a fájl nem található, akkor lehet az egy direkt csatolt dokumentum, ezért ez alapján is megpróbáljuk megjeleníteni a fájlt
-    if( basename( self() ) == 'projektkezeles.php' && !is_file($kep_utvonal ) ) {
+    if( basename( self() ) == 'projektkezeles.php' && !is_file($kep_utvonal) ) {
         // Ekkor a $tobbkep_tablanev változót is korrigáljuk, mert a később pl. a Minősítés gomb kirajzolásánál jelentősége van.
         $tobbkep_tablanev  = 'projektkezeles_dok';
         // Illetve jelezzük, hogy ez egy direkt dokumentum, szintén a minősítéshez kell
-        $direkt_dokumentum = true;
+        $direkt_dokumentum = 1;
         
         $kep_utvonal = '../'.get_utvonal().csonkit($tobbkep_tablanev, $csonkit).'/'.$sor_kepek['utvonal'];
     }
@@ -993,21 +993,21 @@ function get_tobbkep_thumb($sor_kepek = '', $i = '', $tobbkep_tablanev = '', $ni
         if( isset($_GET['engedelyek']) ) {
             $betolt = 'engedelyek';
         }
-        if( $sor_kepek['loginnev'] == $_SESSION[get_db_tabla() . 'user'] && !$archivum ) {
+        if( $sor_kepek['loginnev'] == $_SESSION[get_db_tabla().'user'] && !$archivum ) {
 
             // Nyelvtani szépség
             $a_az = a_az($sor_kepek['fajlnev']);
             
             // Projekteknél előfordulhat, hogy van típus oszlop. Ha van ilyen oszlopnak értéke, akkor már nem törölhető
             if( $sor_kepek['tipus'] ) {
-                $torles = '<span class="icon link" onclick="$(\'#'.$azon.'\').addClass(\'torles_elott\'); alert2(\''.ucfirst($a_az).' '.$sor_kepek['fajlnev'].' dokumentumo már minősítve van,<br>így nem törölhető!\', \'\', \'Hiba\')"><i class="material-icons" style="font-size: 2rem">delete</i></span>';
+                $torles = '<span class="icon link" onclick="$(\'#'.$azon.'\').addClass(\'torles_elott\'); alert2(\''.ucfirst($a_az).' '.addslashes($sor_kepek['fajlnev']).' dokumentum már minősítve van,<br>így nem törölhető!\', \'\', \'Hiba\')"><i class="material-icons" style="font-size: 2rem">delete</i></span>';
             // Általános eset, törlés ikon
             } else {
                 $torles = '
                             <script>
                                 dok_torol_gomb_'.$sor_kepek['recid'].' = \'<input type="button" class="gomb zold" value="Igen" onclick="mellekTorol(\\\''.$tobbkep_tablanev.'\\\', \\\''.$betolt.'\\\', \\\''.$javaslattetel.'\\\', \\\''.$sor_kepek['recid'].'\\\');"><input type="button" class="gomb piros" value="Nem" onclick="alert2(); $(\\\'.torles_elott\\\').removeClass(\\\'torles_elott\\\').removeClass(\\\'kijelolve\\\');">\';
                             </script>
-                            <span class="icon link" onclick="$(\'#'.$azon.'\').addClass(\'torles_elott\'); alert2(\'Biztos, hogy törli '.$a_az.' '.$sor_kepek['fajlnev'].' dokumentumot?\', dok_torol_gomb_'.$sor_kepek['recid'].');"><i class="material-icons" style="font-size: 2rem">delete</i></span>
+                            <span class="icon link" onclick="$(\'#'.$azon.'\').addClass(\'torles_elott\'); alert2(\'Biztos, hogy törli '.$a_az.' '.addslashes($sor_kepek['fajlnev']).' dokumentumot?\', dok_torol_gomb_'.$sor_kepek['recid'].');"><i class="material-icons" style="font-size: 2rem">delete</i></span>
                     ';
             }
             

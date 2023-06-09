@@ -1,5 +1,5 @@
 <?php
-//WebDeb Engine v2.7 2016.06.10
+// WebDeb Engine v2.7 2016.06.10
 /*
 
 __autoload()                Osztályok automatikus meghívása

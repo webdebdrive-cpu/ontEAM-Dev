@@ -1652,7 +1652,7 @@ if( isset($_POST['munkalapKulsosJovahagy']) ) {
     if( $recid ) {
 
         // Adatok lekérdezése
-        $munkalap = $adatbazis_kapcsolat->s2('stat_id, telephely_id, szallito_id, jh1_login, jh1_szerep, jh2_login, ikt_szam, jh_ert, becs_ertek', 'munkalap', "`recid` = '{$recid}'", '', '1');
+        $munkalap = $adatbazis_kapcsolat->s2('stat_id, telephely_id, szallito_id, jh1_login, jh1_szerep, jh2_login, ikt_szam, jh_ert, jh_ert_dev, kcs_21, becs_ertek', 'munkalap', "`recid` = '{$recid}'", '', '1');
         if( $munkalap === false ) { $db_error = true; }
 
         // Státusz ellenőrzése
@@ -1678,7 +1678,7 @@ if( isset($_POST['munkalapKulsosJovahagy']) ) {
         // Csak bizonyos összegig lehet jóváhagyni
         $login = $adatbazis_kapcsolat->s2('jh_ft_ig', 'login', "`nev`='{$_SESSION[get_db_tabla().'user']}'");
         if( $login === false ) { $db_error = true; }
-        if( $login['jh_ft_ig']<$munkalap['jh_ert'] ) {
+        if( $login['jh_ft_ig'] < $munkalap['jh_ert'] ) {
             echo json_encode(array(
                 'hiba'  => 'Önnek '.number_format($login['jh_ft_ig'], 0, '', ' ').' '.get_penznem().' értékig van jóváhagyási joga!',
                 'title' => 'Hiba',
@@ -1699,15 +1699,15 @@ if( isset($_POST['munkalapKulsosJovahagy']) ) {
         }
 
         // Ha a 2. jóváhagyásnál járunk, akkor azt is ellenőrizni kell, hogy két azonos szerepkörű ne tudja jóváhagyni
-        if( $munkalap['jh1_login'] ){
+        if( $munkalap['jh1_login'] ) {
             // MSZK vezető és Szálloda igazgatónak is jóvá kell hagynia
-            if( $munkalap['jh1_szerep'] == $_SESSION[get_db_tabla().'szemelyzet_id'] ){
+            if( $munkalap['jh1_szerep'] == $_SESSION[get_db_tabla() . 'szemelyzet_id'] ) {
                 echo json_encode(array(
                     'hiba' => nl2('
                                     Munkalap szám: '.$munkalap['ikt_szam'].'
                                     <br>Szálloda: '. getErtek('nev', 'telephely', 'id', $munkalap['telephely_id']).'
                                     <br>Külső kivitelező: '. getErtek('nev', 'szallito', 'id', $munkalap['szallito_id']).'
-                                    <br>Jóváhagyott érték: '. number_format($munkalap['jh_ert'], 0, '', ' ').' '. get_penznem().' + Áfa
+                                    <br>Jóváhagyott érték: '. number_format($munkalap['jh_ert_dev'], 0, '', ' ').' '.erteklista(ERTEKLISTA_PENZNEM, $munkalap['kcs_21']).' + Áfa
                                     <br>Szerepkör: '.getSzerepkorNev($_SESSION[get_db_tabla().'szemelyzet_id']).'
                                     '.$becs_ertek_text.'
                                     <br>
@@ -1722,13 +1722,13 @@ if( isset($_POST['munkalapKulsosJovahagy']) ) {
         }
 
         // Előbb csak kérdezünk, viszont az ellenőrzéseket addig is lefuttatjuk, derüljön ki ha baj van még a kérdés előtt!
-        if (isset($_POST['csak_kerdezunk'])) {
+        if( isset($_POST['csak_kerdezunk']) ) {
 
             echo json_encode(array(
                 'hiba' => nl2(' Munkalap szám: '.$munkalap['ikt_szam'].'
                                 <br>Szálloda: '. getErtek('nev', 'telephely', 'id', $munkalap['telephely_id']).'
                                 <br>Külső kivitelező: '. getErtek('nev', 'szallito', 'id', $munkalap['szallito_id']).'
-                                <br>Jóváhagyott érték: '. number_format($munkalap['jh_ert'], 0, '', ' ').' '. get_penznem().' + Áfa
+                                <br>Jóváhagyott érték: '. number_format($munkalap['jh_ert_dev'], 0, '', ' ').' '.erteklista(ERTEKLISTA_PENZNEM, $munkalap['kcs_21']).' + Áfa
                                 '.$becs_ertek_text.'
                                 <br>
                                 <br>Biztosan jóváhagyja?
@@ -1822,7 +1822,7 @@ if( isset($_POST['munkalapKulsosJovahagy']) ) {
 // Popup tartalmába kiírjuk a ML adatait
 if( isset($_POST['get_ml_adatok']) ) {
 
-    $munkalap = $adatbazis_kapcsolat->s2('ikt_szam telephely_id jh_ert szallito_id becs_ertek jh1_szerep jh2_szerep', 'munkalap', "`recid`='{$_POST['recid']}'");
+    $munkalap = $adatbazis_kapcsolat->s2('ikt_szam telephely_id jh_ert_dev kcs_21 szallito_id becs_ertek jh1_szerep jh2_szerep', 'munkalap', "`recid`='{$_POST['recid']}'");
     
     // Ha adott szerepkörrel már jóváhagyták volna
     if($munkalap['jh1_szerep']==$_SESSION[get_db_tabla().'szemelyzet_id'] || $munkalap['jh2_szerep']==$_SESSION[get_db_tabla().'szemelyzet_id']){
@@ -1852,7 +1852,7 @@ if( isset($_POST['get_ml_adatok']) ) {
                         Munkalap szám: '.$munkalap['ikt_szam'].'
                         <br>Szálloda: '. getErtek('nev', 'telephely', 'id', $munkalap['telephely_id']).'
                         <br>Külső kivitelező: '.getErtek('nev', 'szallito', 'id', $munkalap['szallito_id']).'
-                        <br>Jóváhagyott érték: '.number_format($munkalap['jh_ert'], 0, '', ' ').' '. get_penznem().' + Áfa
+                        <br>Jóváhagyott érték: '.number_format($munkalap['jh_ert_dev'], 0, '', ' ').' '.erteklista(ERTEKLISTA_PENZNEM, $munkalap['kcs_21']).' + Áfa
                         '.$becs_ertek_text.'
                     </b>'
                 )
@@ -1922,8 +1922,8 @@ if( isset($_POST['munkalapKulsosElutasit']) ) {
         }
 
         // Visszaadva pipa bepipálása, személyzetek és jóváhagyók kiszedése
-        $sql = $adatbazis_kapcsolat->u('munkalap',  array('visszaadva', 'szallito_id', 'jh_ert', 'varh_erk',            'becs_ertek',   'mail_ment', 'direktbe',    'szemelyzet_id',  'jh1_login', 'jh1_datum',           'jh1_szerep', 'update_usr'                            ),
-                                                    array(1,            '',            0,        '0000-00-00 00:00:00',  0,             0,           0,             '',               '',          '0000-00-00 00:00:00',  0,            $_SESSION[get_db_tabla().'teljes_nev']  ),
+        $sql = $adatbazis_kapcsolat->u('munkalap',  array('visszaadva', 'szallito_id', 'jh_ert', 'jh_ert_dev', 'kcs_21', 'varh_erk',            'becs_ertek',   'mail_ment', 'direktbe',    'szemelyzet_id',  'jh1_login', 'jh1_datum',             'jh1_szerep', 'update_usr'                          ),
+                                                    array(1,            '',            0,        0,            '',       '0000-00-00 00:00:00', 0,              0,           0,             '',               '',          '0000-00-00 00:00:00',   0,            $_SESSION[get_db_tabla().'teljes_nev']),
                                                     "`recid`='{$recid}'");
         if( $sql === false ) { $db_error = true; }
 
@@ -2553,17 +2553,55 @@ if (isset($_POST['volt_mar_dontesre_var'])) {
 // Munkalap Javaslattétel
 if( isset($_POST['kulsokivHozzarend']) ) {
     
+    $db_error = false;
+    mysqli_autocommit($db_kapcs, false);
+    
     $recid              = $_POST['recid'];
     $szallitoid         = $_POST['szallito_id'];
     $kulso_valtas_mehet = $_POST['kulso_valtas_mehet'];
-    $jh_ert             = (int) str_replace(array(' '), array(''), $_POST['jh_ert']);
     $varh_erk           = str_replace(array('.'), array('-'), $_POST['varh_erk']);
     $becs_ertek         = ($_POST['becsult_ertek'] == 'true' ? 1 : 0 );
-    $emailkuldes_megj   = '';
     
-    $db_error = false;
-    mysqli_autocommit($db_kapcs, false);
+    // Csak javaslattétel esetén kell megadni összeget, ezért az alábbiakat csak akkor kell vizsgálni
+    if( isset($_POST['javaslattetel']) ) {
+        
+        // Deviza ellenőrzése
+        if( !$_POST['kcs_21'] ) {
+            echo json_encode(array(
+                'hiba'  => 'Kérjük válasszon devizát!',
+                'title' => 'Hiba',
+            ));
+            $weblap->leallit();
+            exit();
+        }
+    
+        // Valójában devizát kapjuk a jh_ert-ben, és azt szorozzuk az áfolyammal
+        if( $_POST['kcs_21'] != KCS_21_HUF ) {
+            $deviza = erteklista(ERTEKLISTA_PENZNEM, $_POST['kcs_21']);
+            $mnb = $adatbazis_kapcsolat -> s2('arfolyam', 'mnb', "`deviza`='{$deviza}'");
+            if( $mnb === false ) { $db_error = true; }
 
+            // Ha nem találtuk meg a kívánt devizát
+            if( !$mnb ) {
+                echo json_encode(array(
+                    'hiba'  => 'A '.$deviza.' deviza árfolyama nem ismert, így nem menthető a javaslattétel!',
+                    'title' => 'Hiba',
+                ));
+                $weblap->leallit();
+                exit();
+            }
+
+        // HUF esetén az árfolyam = 1
+        } else {
+            $mnb = array();
+            $mnb['arfolyam'] = 1;
+        }
+
+        $jh_ert_dev         = (int) str_replace(array(' '), array(''), $_POST['jh_ert']);
+        $jh_ert             = round($jh_ert_dev*$mnb['arfolyam']);
+    }
+
+    $emailkuldes_megj   = '';
     if( $recid ) {
 
         // A szállító ne nulla legyen, hanem üres string
@@ -2604,7 +2642,7 @@ if( isset($_POST['kulsokivHozzarend']) ) {
         
         // Ha van levélküldés, akkor ellenőrizzük a többi mezőt is
         if( $_POST['email'] && !isset($_POST['javaslattetel']) ) {
-            if(!trim($_POST['cimzett'])){
+            if( !trim($_POST['cimzett']) ) {
                 echo json_encode(array(
                     'hiba'  => 'Kérem adja meg a címzett email címét!',
                     'title' => 'Hiba',
@@ -2808,8 +2846,8 @@ if( isset($_POST['kulsokivHozzarend']) ) {
             }
             
             // Javaslattétel update mezői. Javaslattétel esetén a direktes mezőt is töröljük mindig
-            $mezok      = array('szallito_id', 'jh_ert', 'varh_erk', 'becs_ertek', 'jh1_login', 'jh1_datum',           'jh1_szerep',    'jh2_login', 'jh2_datum',           'jh2_szerep',   'szemelyzet_id', 'direktbe' );
-            $ertekek    = array($szallitoid,   $jh_ert,  $varh_erk,  $becs_ertek,  '',          '0000-00-00 00:00:00', 0,               '',          '0000-00-00 00:00:00', 0,              0,               0          );
+            $mezok      = array('szallito_id', 'jh_ert', 'jh_ert_dev', 'kcs_21',            'varh_erk', 'becs_ertek', 'jh1_login', 'jh1_datum',           'jh1_szerep',    'jh2_login', 'jh2_datum',           'jh2_szerep',   'szemelyzet_id', 'direktbe' );
+            $ertekek    = array($szallitoid,   $jh_ert,  $jh_ert_dev,  $_POST['kcs_21'],    $varh_erk,  $becs_ertek,  '',          '0000-00-00 00:00:00', 0,               '',          '0000-00-00 00:00:00', 0,              0,               0          );
 
             // Munkalap update, ha javaslattétel volt
             $sql = $adatbazis_kapcsolat -> u('munkalap', $mezok, $ertekek, "`recid` = '{$recid}'");
@@ -2822,7 +2860,7 @@ if( isset($_POST['kulsokivHozzarend']) ) {
             }
             
             // Megjegyzés hozzáadása
-            $megj = $megj_eleje.'<br>Érték: '. number_format($jh_ert, 0, '', ' ').' '.get_penznem().$megj_kieg.'<br>Érkezés: '.str_replace('-', '.', $varh_erk).'<br>'.$emailkuldes_megj;
+            $megj = $megj_eleje.'<br>Érték: '. number_format($jh_ert_dev, 0, '', ' ').' '.erteklista(ERTEKLISTA_PENZNEM, $_POST['kcs_21']).$megj_kieg.'<br>Érkezés: '.str_replace('-', '.', $varh_erk).'<br>'.$emailkuldes_megj;
             if(addMegj('munkalap', $recid, $megj)===false){
                 $db_error = true;
             }
@@ -2890,12 +2928,14 @@ if( isset($_POST['kulsokivHozzarend']) ) {
 }
 
 // Jóváhagyott érték módosítás előtt, kiolvassuk az értékét
-if (isset($_POST['get_jh_ertek'])) {
+if( isset($_POST['get_jh_ertek']) ) {
 
-    $munkalap = $adatbazis_kapcsolat->s2('jh_ert', 'munkalap', "`recid`='{$_POST['recid']}'");
+    $munkalap = $adatbazis_kapcsolat->s2('jh_ert_dev kcs_21', 'munkalap', "`recid`='{$_POST['recid']}'");
 
     echo json_encode(array(
-        'ertek' => number_format($munkalap['jh_ert'], 0, '', ' ')
+        'ertek'      => number_format($munkalap['jh_ert_dev'], 0, '', ' '),
+        'kcs_21_txt' => erteklista(ERTEKLISTA_PENZNEM, $munkalap['kcs_21']),
+        'kcs_21'     => $munkalap['kcs_21'],
     ));
 
     $weblap->leallit();
@@ -2903,18 +2943,26 @@ if (isset($_POST['get_jh_ertek'])) {
 }
 
 // Jóváhagyott érték módosítás előtt, kiolvassuk az értékét
-if (isset($_POST['munkalapJovahagyottErtekModositasa'])) {
-
-    $jh_ert = str_replace(' ', '', $_POST['pop_jh_ert']);
+if( isset($_POST['munkalapJovahagyottErtekModositasa']) ) {
 
     $db_error = false;
     mysqli_autocommit($db_kapcs, false);
+    
+    // Deviza ellenőrzése
+    if( !$_POST['kcs_21'] ) {
+        echo json_encode(array(
+            'hiba'  => 'Kérjük válasszon devizát!',
+            'title' => 'Hiba',
+        ));
+        $weblap->leallit();
+        exit();
+    }
 
     $munkalap = $adatbazis_kapcsolat->s2('stat_id, jh1_login, jh2_login', 'munkalap', "`recid`='{$_POST['recid']}'");
     if( $munkalap === false ) { $db_error = true; }
 
     // Státusz ellenőrzése
-    if( $munkalap['stat_id']!=MUNKALAP_STAT_DONTESRE_VAR ){
+    if( $munkalap['stat_id'] != MUNKALAP_STAT_DONTESRE_VAR ) {
         echo json_encode(array(
             'hiba'  => 'Ebben a státuszban nem módosítható a jóváhagyott érték!',
             'title' => 'Hiba',
@@ -2942,13 +2990,40 @@ if (isset($_POST['munkalapJovahagyottErtekModositasa'])) {
         $weblap->leallit();
         exit();
     }
+    
+    // Valójában devizát kapjuk a jh_ert-ben, és azt szorozzuk az áfolyammal
+    if( $_POST['kcs_21'] != KCS_21_HUF ) {
+        $deviza = erteklista(ERTEKLISTA_PENZNEM, $_POST['kcs_21']);
+        $mnb = $adatbazis_kapcsolat -> s2('arfolyam', 'mnb', "`deviza`='{$deviza}'");
+        if( $mnb === false ) { $db_error = true; }
+
+        // Ha nem találtuk meg a kívánt devizát
+        if( !$mnb ) {
+            echo json_encode(array(
+                'hiba'  => 'A '.$deviza.' deviza árfolyama nem ismert, így nem menthető a javaslattétel!',
+                'title' => 'Hiba',
+            ));
+            $weblap->leallit();
+            exit();
+        }
+        
+    // HUF esetén az árfolyam = 1
+    } else {
+        $mnb = array();
+        $mnb['arfolyam'] = 1;
+    }
+    
+    $jh_ert_dev = (int) str_replace(array(' '), array(''), $_POST['pop_jh_ert']);
+    $jh_ert     = round($jh_ert_dev*$mnb['arfolyam']);
 
     // Jóváhagyott érték felülírása
-    $sql = $adatbazis_kapcsolat->u('munkalap', array('jh_ert'), array($jh_ert), "`recid`='{$_POST['recid']}'");
+    $sql = $adatbazis_kapcsolat->u('munkalap',  array('jh_ert', 'jh_ert_dev', 'kcs_21'          ),
+                                                array($jh_ert,  $jh_ert_dev,  $_POST['kcs_21']  ),
+                                    "`recid`='{$_POST['recid']}'");
     if( $sql === false ) { $db_error = true; }
 
     // Megjegyzés sor is bővül
-    if(addMegj('munkalap', $_POST['recid'], 'Jóváhagyásra váró érték módosítva: '.number_format($jh_ert, 0, '', ' ').' Ft')===false){
+    if( addMegj('munkalap', $_POST['recid'], 'Jóváhagyásra váró érték módosítva: '.number_format($jh_ert_dev, 0, '', ' ') . ' '.erteklista(ERTEKLISTA_PENZNEM, $_POST['kcs_21'])) === false ) {
         $db_error = true;
     }
     
@@ -2970,7 +3045,7 @@ if (isset($_POST['munkalapJovahagyottErtekModositasa'])) {
 }
 
 // Vissza előkészített státuszba
-if (isset($_POST['munkalapVisszaElokeszit'])) {
+if( isset($_POST['munkalapVisszaElokeszit']) ) {
 
     $recid = $_POST['recid'];
     
@@ -3148,7 +3223,7 @@ if (isset($_POST['munkalapVisszaElokeszitDirektbe'])) {
 
 
     // Ha nincs levélküldés, akkor rákérdezünk, hogy biztosan nem szerettek volna levelet küldeni?
-    }elseif(!$_POST['mehet']){
+    } elseif( !$_POST['mehet'] ) {
         echo json_encode(array(
             'hiba'  => 'Nem küldött visszavételező emailt.<br>Folytatja?',
             'gomb'  => '<input type="button" class="gomb zold" value="Igen" onclick="$(\'#mehet_mail_nelkul\').val(\'1\'); $(\'#munkalapKulso\').submit();"><input type="button" class="gomb piros" value="Nem" onclick="alert2()">',
@@ -4975,8 +5050,8 @@ if( isset($_POST['atadasDiszpecsernek']) ) {
         } else {
             // Frissítjuk a munkalap visszaadva sorát, ürítjük a személyzeteket és egyéb adatokat
             $sql = $adatbazis_kapcsolat -> u('munkalap',
-                                                array('visszaadva', 'szemelyzet_id', 'szallito_id', 'jh_ert',    'becs_ertek',  'mail_ment',    'direktbe', 'mobil_loginnev', 'mobil', 'varh_erk',              'update_usr'                           ),
-                                                array( 1,           0,               '',             0,           0,             0,              0,           '',              '',      '0000-00-00 00:00:00',   $_SESSION[get_db_tabla().'teljes_nev'] ),
+                                                array('visszaadva', 'szemelyzet_id', 'szallito_id', 'jh_ert',    'jh_ert_dev', 'kcs_21',    'becs_ertek',  'mail_ment',    'direktbe', 'mobil_loginnev', 'mobil', 'varh_erk',              'update_usr'                           ),
+                                                array( 1,           0,               '',             0,          0,            '',          0,             0,              0,           '',              '',      '0000-00-00 00:00:00',   $_SESSION[get_db_tabla().'teljes_nev'] ),
                                                 "`recid` = '{$recid}'"
                                             );
             if( $sql === false ) { $db_error = true; }
@@ -5225,8 +5300,8 @@ if( isset($_POST['atadasDiszpecsernekDirektbe']) ) {
 
         // Frissítjuk a munkalap visszaadva sorát, ürítjük a személyzeteket és egyéb adatokat
         $sql = $adatbazis_kapcsolat -> u('munkalap',
-                                            array('visszaadva', 'szemelyzet_id', 'mobil_loginnev', 'szallito_id', 'mobil', 'jh_ert', 'varh_erk',            'becs_ertek',   'mail_ment',    'direktbe', 'update_usr'                           ),
-                                            array( 1,            0,              '',               '',            '',      '',       '0000-00-00 00:00:00',  0,             0,              0,          $_SESSION[get_db_tabla().'teljes_nev'] ),
+                                            array('visszaadva', 'szemelyzet_id', 'mobil_loginnev', 'szallito_id', 'mobil', 'jh_ert', 'jh_ert_dev', 'kcs_21',  'varh_erk',            'becs_ertek',   'mail_ment',    'direktbe', 'update_usr'                           ),
+                                            array( 1,            0,              '',               '',            '',      0,        0,            '',        '0000-00-00 00:00:00',  0,             0,              0,          $_SESSION[get_db_tabla().'teljes_nev'] ),
                                             "`recid` = '{$recid}'"
                                         );
         if( $sql === false ) { $db_error = true; }
@@ -5558,15 +5633,13 @@ if( isset($_POST['munkalapTelepitett']) ) {
 
         // Munkalap update
         $sql = $adatbazis_kapcsolat -> u('munkalap',
-                                                    array('szemelyzet_id',       'visszaadva', 'szallito_id', 'becs_ertek', 'mail_ment',  'direktbe',   'jh_ert', 'varh_erk',            'jh1_login', 'jh1_datum',           'jh1_szerep', 'update_usr'                            ),
-                                                    array(TELEPITETT_SZEMELYZET, 0,            '',            0,            0,            0,            0,        '0000-00-00 00:00:00', '',          '0000-00-00 00:00:00', 0,            $_SESSION[get_db_tabla().'teljes_nev']  ),
+                                                    array('szemelyzet_id',       'visszaadva', 'szallito_id', 'becs_ertek', 'mail_ment',  'direktbe',   'jh_ert', 'jh_ert_dev', 'kcs_21', 'varh_erk',            'jh1_login', 'jh1_datum',           'jh1_szerep', 'update_usr'                            ),
+                                                    array(TELEPITETT_SZEMELYZET, 0,            '',            0,            0,            0,            0,        0,            '',       '0000-00-00 00:00:00', '',          '0000-00-00 00:00:00', 0,            $_SESSION[get_db_tabla().'teljes_nev']  ),
                                                     "`recid` = '{$recid}'");
         if( $sql === false ) { $db_error = true; }
 
         // Státusz léptetés
-        if( !addStatusz( 'munkalap_statusz', $recid, MUNKALAP_STAT_HOZZARENDELT ) ) {
-            $db_error = true;
-        }
+        if( !addStatusz( 'munkalap_statusz', $recid, MUNKALAP_STAT_HOZZARENDELT ) ) { $db_error = true; }
         
         // Van-e munkalaphoz tartozó bejelentés, és az nyitott-e? Ha igen, akkor folyamatbanra állítjuk.
         // 2020.08.12-én került be, mert elő tudott fordulni, hogy a ML státusza változik, míg a hozzá tartozó bejelentés végig Nyitott marad. Ez még vagy 4 helyre bekerült.
@@ -7191,9 +7264,9 @@ if( isset($_POST['munkalapVarhatoErkMegad']) ) {
     exit();
 }
 
-// Várható érték megadása
-if (isset($_POST['megr_sztorno_mail_elkuldve'])) {
-    
+// Megrendelés sztornózása
+if( isset($_POST['megr_sztorno_mail_elkuldve']) ) {
+
     $recid = $_POST['recid'];
     
     $db_error = false;
@@ -7238,8 +7311,8 @@ if (isset($_POST['megr_sztorno_mail_elkuldve'])) {
         if( $sql === false ) { $db_error = true; }
         
         // ML adatok ürítése, de visszaadva pipa bepipálásával
-        $sql = $adatbazis_kapcsolat->u('munkalap',  array('visszaadva', 'szemelyzet_id', 'szallito_id', 'jh_ert',  'becs_ertek',  'mail_ment', 'direktbe', 'vissza_mod', 'vissza_erteklista_id',    'mobil_loginnev', 'mobil',  'varh_erk',            'update_usr'                          ),
-                                                    array(1,            0,               '',             0,         0,             0,           0,          0,            0,                         '',               '',       '0000-00-00 00:00:00', $_SESSION[get_db_tabla().'teljes_nev']),
+        $sql = $adatbazis_kapcsolat->u('munkalap',  array('visszaadva', 'szemelyzet_id', 'szallito_id', 'jh_ert',  'jh_ert_dev', 'kcs_21',  'becs_ertek',  'mail_ment', 'direktbe', 'vissza_mod', 'vissza_erteklista_id',    'mobil_loginnev', 'mobil',  'varh_erk',            'update_usr'                          ),
+                                                    array(1,            0,               '',             0,        0,            '',        0,             0,           0,          0,            0,                         '',               '',       '0000-00-00 00:00:00', $_SESSION[get_db_tabla().'teljes_nev']),
                                                     "`recid`='{$recid}'");
         if( $sql === false ) { $db_error = true; }
         
@@ -7288,7 +7361,7 @@ if( isset($_GET['csv']) ) {
     if( $open ) {
 
         $lekerdezes_fromtol = csv_export_get_from_tol($megnevezes);
-        
+
         $sql = 'SELECT
                 `'.get_db_tabla().$megnevezes.'`.`recid` as \'Id\',
                 `'.get_db_tabla().$megnevezes.'`.`telephely_id` as \'Szálloda\',
@@ -7305,7 +7378,8 @@ if( isset($_GET['csv']) ) {
                 `gep_id` as \'Gépnév\',
                 `tipus_id` as \'Típus\',
                 `szallito_id` as \'Külső kivitelező\',
-                `jh_ert` as \'Jóváhagyott érték\',
+                `jh_ert_dev` as \'Jóváhagyott érték\',
+                `kcs_21` as \'Deviza\',
                 `szemelyzet_id` as \'Hozzárendelt személyzet\',
                 `ig_el_id` as \'Igényelt elvégzés\',
                 `varh_erk` as \'Várható érkezés\',
@@ -7380,6 +7454,9 @@ if( isset($_GET['csv']) ) {
                 }
                 if( $kulcs == 'Jóváhagyott érték' ) {
                     $sorok[$szam] = str_replace('.', ',', $sorok[$szam]);
+                }
+                if( $kulcs == 'Deviza' ) {
+                    $sor = erteklista(ERTEKLISTA_PENZNEM, $sor);
                 }
                 if( $kulcs == 'Típus' ) {
                     $sor = erteklista(ERTEKLISTA_MUNKALAP_TIP, $sor);
@@ -7929,7 +8006,7 @@ require('selectek.php');
         }
 
         // "Döntés alatt" státusz + döntés jog + egyik jóváhagyó szerepkörű se legyek
-        if( $sor['stat_id'] == MUNKALAP_STAT_DONTESRE_VAR && _jog(JOG_MUNKALAP_KULSOS_DONTES) && $sor['jh1_szerep'] != $_SESSION[get_db_tabla() . 'szemelyzet_id'] && $sor['jh2_szerep'] != $_SESSION[get_db_tabla() . 'szemelyzet_id'] ) {
+        if( $sor['stat_id'] == MUNKALAP_STAT_DONTESRE_VAR && _jog(JOG_MUNKALAP_KULSOS_DONTES) && $sor['jh1_szerep'] != $_SESSION[get_db_tabla().'szemelyzet_id'] && $sor['jh2_szerep'] != $_SESSION[get_db_tabla() . 'szemelyzet_id'] ) {
             // Illetve a limitünk legyen magasabb mint a ML jóváhagyott értéke
             $login = $adatbazis_kapcsolat->s2('jh_ft_ig', 'login', "`recid`='{$_SESSION[get_db_tabla().'login_recid']}'");
             if( $sor['jh_ert'] < $login['jh_ft_ig'] ) {
@@ -8232,7 +8309,7 @@ require('selectek.php');
         $sor['text']    = str_replace($mit, $mivel, $sor['text']);
 
         // Jóváhagyott érték legyen formázva, úgy is csak ki van írva
-        $sor['jh_ert'] = number_format($sor['jh_ert'], 0, '', ' ');
+        $sor['jh_ert_dev'] = number_format($sor['jh_ert_dev'], 0, '', ' ');
 
         foreach ( $akt_tomb as $tomb ) {
             if( $tomb['type'] == 'autocomplete' ) {
@@ -8276,7 +8353,7 @@ require('selectek.php');
             $szamla_html .= nl2('
                 <script>
                     duplikalGomb  = "<p class=\"c\"><input class=\"gomb zold\" type=\"button\" value=\"Igen\" onclick=\"szurkit(); location.href = \''.basename(self()).'?uj&ujkent='.$_GET['id'].'\'; \"><input class=\"gomb piros\" type=\"button\" value=\"Nem\" onclick=\"alert2()\"></p>";
-                    duplikaKerdes = \'Iktatószám: '.$sor['ikt_szam'].'<br>Szálloda: '.$telephely['nev'].'<br><br>Ez a munkalap '.count($munkalap_kapcs).' db bejelentésből készült. <br>Ezek a bejelentések az új munkalaphoz is hozzá lesznek rendelve. <br>Biztos, hogy duplikálja?\';
+                    duplikaKerdes = \'Iktatószám: '.addcslashes($sor['ikt_szam']).'<br>Szálloda: '.addcslashes($telephely['nev']).'<br><br>Ez a munkalap '.count($munkalap_kapcs).' db bejelentésből készült. <br>Ezek a bejelentések az új munkalaphoz is hozzá lesznek rendelve. <br>Biztos, hogy duplikálja?\';
                 </script>
             ');
         }

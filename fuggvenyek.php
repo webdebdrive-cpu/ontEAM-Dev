@@ -1663,13 +1663,13 @@ function i_u($type, $tabla, $tomb) {
                 }
                 if( $sql === false ) { $db_error = true; }
             }
-            
+
             // Létrehozást logoljuk a megjegyzéseknél
             if( addMegj('login', $id, 'Új felhasználó hozzáadva') === false ) {
                 $db_error = true;
             }
             
-            // Biszonyos személyzettípusok esetén a törzsadat párját is létre kell hozni
+            // Bizonyos személyzettípusok esetén a törzsadat párját is létre kell hozni
             if( in_array($_POST['szemelyzet_id'], loginbol_torzsadatot_szemelyzetek() ) ) {
                 $torzs_id = $adatbazis_kapcsolat->i('torzsadat',
                                                 array('nev',                'felh_loginnev', 'virtual',         'aktiv',            'insert_dt',    'insert_usr'                            ),
@@ -1688,6 +1688,7 @@ function i_u($type, $tabla, $tomb) {
                                                 );
                 if( $sql === false ) { $db_error = true; }
             }
+
         }
         
         // Megállapodás tételek mentése INSERT után
@@ -2047,7 +2048,7 @@ function i_u($type, $tabla, $tomb) {
 
                     $sql = $adatbazis_kapcsolat->i('projektszamla_tetel', $mezok, $ertekek);
                     if( $sql === false ) { $db_error = true; }
-                    
+
                 // Ha nincs átmeneti megfelelője
 //                } else {
 //                    
@@ -7484,7 +7485,7 @@ function projektszamlaLista( $bejegyzesek, $tabla, $frissit = '', $kijeloltek = 
                                 <td>'. number_format($bsz['netto'], 0, '', ' ').' '.get_penznem().'</td>
                             </tr>
                             <tr>
-                                <td colspan="4">'. getErtek('nev', 'szallito', 'id', $bsz['szallito_id']).'</td>
+                                <td colspan="4">'.getErtek('nev', 'szallito', 'id', $bsz['szallito_id']).'</td>
                             </tr>
                             <tr>
                                 <td colspan="4">'.resz_string($bsz['targy'], 60).'</td>
@@ -8115,24 +8116,24 @@ function eszkozkezelesLista( $bejegyzesek, $tabla, $frissit = '', $kijeloltek = 
                         <label'.$link.' for="telephely_'.$szalloda['id'].'">'.$szalloda['nev'].'</label>
                         <input type="checkbox"'.$checked.' id="telephely_'.$szalloda['id'].'">';
 
-                        if($szintek) {
+                        if( $szintek ) {
                             $html .= '<ol>';
                             foreach ( $szintek as $szint ) {
                                 $obj_idk[] = $szint['recid'];
 
                                 $checked = '';
-                                if($akt_szint==$szint['recid'] || (is_array($obj_sor) && count($obj_sor) && $szint['recid'] == $obj_sor['szulo'])){
+                                if( $akt_szint == $szint['recid'] || (is_array($obj_sor) && count($obj_sor) && $szint['recid'] == $obj_sor['szulo']) ) {
                                     $checked = ' checked';
                                 }
                                 
-                                $class   = '';
+                                $class = '';
                                 if( isset($_GET['obj']) && $_GET['id'] == $szint['recid'] ){
-                                    $class   = ' class="aktiv"';
+                                    $class = ' class="aktiv"';
                                 }
 
                                 $link = '';
                                 $objektumok = $adatbazis_kapcsolat->s('recid nev', 'obj', "`szulo`='{$szint['recid']}'", 'sor');
-                                if($objektumok){
+                                if( $objektumok ) {
                                     $link = ' class="link"';
                                 }
                                 $html .= '
@@ -8141,9 +8142,9 @@ function eszkozkezelesLista( $bejegyzesek, $tabla, $frissit = '', $kijeloltek = 
                                             <input type="checkbox"'.$checked.' class="asdas">
                                         ';
 
-                                if($objektumok){
+                                if( $objektumok ) {
                                     $html .= '<ol>';
-                                    foreach($objektumok as $obj) {
+                                    foreach ( $objektumok as $obj ) {
                                         $obj_idk[] = $obj['recid'];
 
                                         $checked = '';
@@ -8158,7 +8159,7 @@ function eszkozkezelesLista( $bejegyzesek, $tabla, $frissit = '', $kijeloltek = 
 
                                         $link = '';
                                         $eszkozok = $adatbazis_kapcsolat->s('recid nev', 'eszkozkezeles', "`telephely_id`='{$szalloda['id']}' AND `obj_id`='{$obj['recid']}'", 'nev');
-                                        if($eszkozok){
+                                        if( $eszkozok ) {
                                             $link = ' class="link"';
                                         }
                                         $html .= '<li>
@@ -8166,9 +8167,9 @@ function eszkozkezelesLista( $bejegyzesek, $tabla, $frissit = '', $kijeloltek = 
                                                     <input type="checkbox"'.$checked.'>';
                                             if($eszkozok){
                                                 $html .= '<ol>';
-                                                foreach($eszkozok as $eszkoz){
+                                                foreach ( $eszkozok as $eszkoz ) {
                                                     $aktiv = '';
-                                                    if($akt_eszkoz['recid']==$eszkoz['recid']){
+                                                    if( $akt_eszkoz['recid'] == $eszkoz['recid'] ) {
                                                         $aktiv = ' aktiv';
                                                     }
                                                     $html .= '<li id="eszkoz_'.$eszkoz['recid'].'" id="eszkozkezeles-'.$eszkoz['recid'].'" class="sor'.$aktiv.'" onclick="szamlaBetolt(\''.$eszkoz['recid'].'\', \'eszkozkezeles.php\', \'modosit\')">'.$eszkoz['nev'].'<li>';
@@ -9091,7 +9092,7 @@ function erteklista($csoport = '', $id = '', $recid = '') {
 
     // De ha nem sikerült, akkor lekérjük adatbázisból
     if( !$ertek ) {
-        $sor   = $adatbazis_kapcsolat->s2('info', 'erteklista', "`csoport` = '{$csoport}' AND `id` = '{$id}'");
+        $sor   = $adatbazis_kapcsolat->s2('info', 'erteklista', "`csoport` = '{$csoport}' AND `id`='{$id}'");
         $ertek = $sor['info'];
     }
     return $ertek;
@@ -9842,7 +9843,8 @@ function get_szures_where_kieg($mezo, $op, $felt, $tabla) {
     
     // Anyag, Energia, Fenntartási vagy Projekt számláknál pár mezőnél csak egyenlőség jel van, és ezek SQL-je is azonos
     $equal_tablak = array('anyag_szamla', 'energia_szamla', 'fenntartasi_szamla', 'megallapodas_szamla', 'projektszamla');
-    $equal_mezok  = array('feldolgozva_dt', 'igazolva_dt', 'utalvanyozva_dt', 'sztornozva_dt');
+    $equal_mezok  = array('feldolgozva', 'sztornozva');
+    $equal_mezok2 = array('elo_igazolva', 'igazolva', 'utalvanyozva');
     if( $mezo == 'megjegyzes' ) {
         return '`'.get_db_tabla().'megjegyzes`.`tabla`=\''.$tabla.'\' AND `'.get_db_tabla().'megjegyzes`.`megj` LIKE \''.$felt.'\'';
     } elseif( $op_origi != 'empty' && ($tabla == 'anyagigenyles' && $mezo == 'nev') ) {
@@ -9921,11 +9923,21 @@ function get_szures_where_kieg($mezo, $op, $felt, $tabla) {
             return '`dok_db_min_var`=0';
         }
     // Anyag, Energia, Fenntartási és Projekt számláknál az igazolva/utalványozva/sztornozva van-e feltétele egy dátum összehasonlítás
-    } elseif( in_array($tabla, $equal_tablak) && in_array($mezo, $equal_mezok) ) {
+    } elseif( in_array($tabla, $equal_tablak) && (in_array($mezo, $equal_mezok) || in_array($mezo, $equal_mezok2) ) ) {
+        // A dátum összehasonlítás miatt a mezőt még ki kell egészíteni egy '_dt'-vel, mert valójában így van az adatbázisban
+        $mezo_dt = $mezo.'_dt';
         if( $felt ) {
-            $return .= "`{$mezo}`!='0000-00-00 00:00:00'";
+            if( in_array($mezo, $equal_mezok2) ) {
+                $return .= "`{$mezo_dt}`!='0000-00-00 00:00:00' AND `{$mezo}`='1'";
+            } else {
+                $return .= "`{$mezo_dt}`!='0000-00-00 00:00:00'";
+            }
         } else {
-            $return .= "`{$mezo}`='0000-00-00 00:00:00'";
+            if( in_array($mezo, $equal_mezok2) ) {
+                $return .= "`{$mezo_dt}`!='0000-00-00 00:00:00' AND `{$mezo}`='0'";
+            } else {
+                $return .= "`{$mezo_dt}`='0000-00-00 00:00:00'";
+            }
         }
         return $return;
     } elseif( $tabla == 'login' && $mezo == 'jogosultsag' ) {
@@ -9942,7 +9954,7 @@ function get_szures_where_kieg($mezo, $op, $felt, $tabla) {
         }
     } elseif( $tabla == 'munkalap' && $mezo == 'insert_dt' ) {
         $felt = str_replace('.', '-', $felt);
-        if($op_origi=='empty'){
+        if( $op_origi == 'empty' ) {
             $felt = '0000-00-00';
         }
         return '`'.get_db_tabla().'munkalap`.`insert_dt`'.$op.'\''.$felt.'\'';
@@ -10408,32 +10420,47 @@ function tobbdim_tomb_kulcs_rendez($array, $on, $order = SORT_ASC) {
                 $sortable_array[$k] = $v;
             }
         }
-
-        $i = 0;
         
+        $i = 0;
         foreach ( $sortable_array as $elemek ) {
             if( mb_substr($elemek, 0, 1, 'UTF-8') == 'Á' ) {
-                $sortable_array[$i] = 'A'.mb_substr($elemek, 1, 0, 'UTF-8');
+                $sortable_array[$i] = 'A'.mb_substr($elemek, 1, 0, 'UTF-8').mb_substr($elemek, 1, mb_strlen($elemek)-1, 'UTF-8');
             }
             if( mb_substr($elemek, 0, 1, 'UTF-8') == 'É' ) {
-                $sortable_array[$i] = 'E'.mb_substr($elemek, 1, 0, 'UTF-8');
+                $sortable_array[$i] = 'E'.mb_substr($elemek, 1, 0, 'UTF-8').mb_substr($elemek, 1, mb_strlen($elemek)-1, 'UTF-8');
             }
             if( mb_substr($elemek, 0, 1, 'UTF-8') == 'Í' ) {
-                $sortable_array[$i] = 'I'.mb_substr($elemek, 1, 0, 'UTF-8');
+                $sortable_array[$i] = 'I'.mb_substr($elemek, 1, 0, 'UTF-8').mb_substr($elemek, 1, mb_strlen($elemek)-1, 'UTF-8');
             }
             if( mb_substr($elemek, 0, 1, 'UTF-8') == 'Ó' || mb_substr($elemek, 0, 1, 'UTF-8') == 'Ő' ) {
-                $sortable_array[$i] = 'O'.mb_substr($elemek, 1, 0, 'UTF-8');
+                $sortable_array[$i] = 'O'.mb_substr($elemek, 1, 0, 'UTF-8').mb_substr($elemek, 1, mb_strlen($elemek)-1, 'UTF-8');
             }
             if( mb_substr($elemek, 0, 1, 'UTF-8') == 'Ú' || mb_substr($elemek, 0, 1, 'UTF-8') == 'Ű' ) {
-                $sortable_array[$i] = 'U'.mb_substr($elemek, 1, 0, 'UTF-8');
+                $sortable_array[$i] = 'U'.mb_substr($elemek, 1, 0, 'UTF-8').mb_substr($elemek, 1, mb_strlen($elemek)-1, 'UTF-8');
+            }
+            
+            if( mb_substr($elemek, 0, 1, 'UTF-8') == 'á' ) {
+                $sortable_array[$i] = 'a'.mb_substr($elemek, 1, 0, 'UTF-8').mb_substr($elemek, 1, mb_strlen($elemek)-1, 'UTF-8');
+            }
+            if( mb_substr($elemek, 0, 1, 'UTF-8') == 'é' ) {
+                $sortable_array[$i] = 'e'.mb_substr($elemek, 1, 0, 'UTF-8').mb_substr($elemek, 1, mb_strlen($elemek)-1, 'UTF-8');
+            }
+            if( mb_substr($elemek, 0, 1, 'UTF-8') == 'í' ) {
+                $sortable_array[$i] = 'i'.mb_substr($elemek, 1, 0, 'UTF-8').mb_substr($elemek, 1, mb_strlen($elemek)-1, 'UTF-8');
+            }
+            if( mb_substr($elemek, 0, 1, 'UTF-8') == 'ó' || mb_substr($elemek, 0, 1, 'UTF-8') == 'ő' ) {
+                $sortable_array[$i] = 'o'.mb_substr($elemek, 1, 0, 'UTF-8').mb_substr($elemek, 1, mb_strlen($elemek)-1, 'UTF-8');
+            }
+            if( mb_substr($elemek, 0, 1, 'UTF-8') == 'ú' || mb_substr($elemek, 0, 1, 'UTF-8') == 'ű' ) {
+                $sortable_array[$i] = 'u'.mb_substr($elemek, 1, 0, 'UTF-8').mb_substr($elemek, 1, mb_strlen($elemek)-1, 'UTF-8');
             }
             
             // Az első karakter legyen kisbetűvé alakítva, mert a kis és nagy betűket külön rendezné
-            $sortable_array[$i] = strtolower( mb_substr($elemek, 0, 1, 'UTF-8')).mb_substr($elemek, 1, 0, 'UTF-8');
+            $sortable_array[$i] = strtolower( mb_substr($elemek, 0, 1, 'UTF-8')).mb_substr($elemek, 1, mb_strlen($elemek)-1, 'UTF-8');
             
             $i++;
         }
-        
+
         switch ( $order ) {
             case SORT_ASC:
                 asort($sortable_array);
@@ -13583,9 +13610,13 @@ function get_szamlak_ikon( $bsz ) {
         $ikon = '<span class="icon piros">✖</span>';
     } else {
         if( !$bsz['igazolva'] ) {
-            $ikon = '<span class="icon sarga">?</span>';
-            if( $bsz['igazolva_dt']!='0000-00-00 00:00:00' ) {
-                $ikon = '<span class="icon piros">✖</span>';
+            if( $bsz['elo_igazolva'] ) {
+                $ikon = '<span class="icon zold">✓</span>';
+            } else {
+                $ikon = '<span class="icon sarga">?</span>';
+                if( $bsz['igazolva_dt']!='0000-00-00 00:00:00' ) {
+                    $ikon = '<span class="icon piros">✖</span>';
+                }
             }
         // Ha már az igazoláson túl vagyunk sikerrel...
         } else {

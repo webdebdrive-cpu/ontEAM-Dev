@@ -2361,6 +2361,9 @@ function xml_vissza( $szamla_id, $igazolva = '', $oka = '' ) {
     if( $szalloda_klaszter == TELEPHELY_KOZP_CUK ) {
         $szalloda_klaszter = TELEPHELY_KOZP_CUK_MOD;
     }
+    if( $szalloda_klaszter == TELEPHELY_KOZP_CRO ) {
+        $szalloda_klaszter = TELEPHELY_KOZP_CRO_MOD;
+    }
     if( $szalloda_klaszter == TELEPHELY_GUNDEL ) {
         $szalloda_klaszter = TELEPHELY_GUNDEL_MOD;
     }
