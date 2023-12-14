@@ -465,6 +465,10 @@ function bezar_gomb( mehet ) {
 
 /*  Tételek kiszámítása, lássuk hol járunk a szerződéses összeghez képest */
 function tetelek_kiszamol() {
+
+    if( akt_penznem == null ) {
+        akt_penznem = '';
+    }
     
     /* HUF esetén nem törtet írunk ki, deviza esetén viszont törtet + "Számla várh. értéke" mező is törté kell alakítani */
     var osszeg_mezo = 'netto';

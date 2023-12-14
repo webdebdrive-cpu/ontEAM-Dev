@@ -381,8 +381,6 @@ function tetel_hozzaadasa() {
 /* Tétel sor törlése */
 function popup_tetel_sor_torol(sor_id, mehet){
     
-    van_valtozas = true;
-    
     $('.'+sor_id).addClass('torles_elott');
     if( !mehet ) {
         alert2( 'Tárgy: '        + $('.'+sor_id+' .pop_targy')   .html() +'<br>' +
@@ -390,6 +388,9 @@ function popup_tetel_sor_torol(sor_id, mehet){
                 'Biztosan törli a számla tételt?', '<input type="button" class="gomb zold" value="Igen" onclick="popup_tetel_sor_torol(\''+sor_id+'\', \'mehet\'); alert2();"><input type="button" class="gomb piros escapes_megsem" value="Nem" onclick="alert2(); $(\'.torles_elott\').removeClass(\'torles_elott\');">');
         return false;
     }
+
+    /* Fontos, hogy ez a megerősítő kérdés után legyen, addig nincs változás */
+    van_valtozas = true;
     
     /* Sor törlése, újraszámolás */
     $('.'+sor_id).fadeOut('slow', function(){

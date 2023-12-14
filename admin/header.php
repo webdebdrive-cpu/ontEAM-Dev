@@ -1147,6 +1147,9 @@ if( self('-basename-') == 'fenntartasi_szamla.php' && !_jog(JOG_FENNTARTASI_SZAM
 if( self('-basename-') == 'fenntartasi_szerzodes.php' && !_jog(JOG_FENNTARTASI_SZERZ_KEZEL) ) {
     $uj = '';
 }
+if( self('-basename-') == 'fenntartasi_terv.php' ) {
+    $duplikal = '';
+}
 if( self('-basename-') == 'megallapodas_szamla.php' && !_jog(JOG_MEGALLAPODAS_SZAMLA_KEZEL) ) {
     $uj = '';
 }

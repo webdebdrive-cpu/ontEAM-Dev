@@ -358,6 +358,10 @@ function pop_kapcsolas_feltolt() {
 
 /*  Tételek kiszámítása, lássuk hol járunk a számla nettó értékéhez képest */
 function tetelek_kiszamol( that, elso ) {
+
+    if( akt_penznem == null ) {
+        akt_penznem = '';
+    }
     
     /* HUF esetén nem törtet írunk ki, deviza esetén viszont törtet */
     var tizedesek   = 0;

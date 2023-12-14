@@ -379,11 +379,13 @@ require_once('selectek.php');
         $tetelek_html = '';
         $szamlak = $adatbazis_kapcsolat->s('recid andoc_id telephely_id szla_szam szallito_id targy kcs_21 brutto dev_br telj_dt dok_link', 'szamla_atmeneti', "", 'insert_dt desc');
         $i = 0;
-$van_ures_sor = false;
+        $van_ures_sor = 0;
         foreach ( $szamlak as $szamla ) {
-if( !$szamla['andoc_id'] ) {
-    $van_ures_sor = true;
-}
+
+            if( !$szamla['andoc_id'] ) {
+                $van_ures_sor = 1;
+            }
+
             $brutto    = 'brutto';
             $tizedesek = 0;
             if( $szamla['kcs_21'] != KCS_21_HUF ) {
@@ -400,6 +402,7 @@ if( !$szamla['andoc_id'] ) {
                             ');
             }
             
+            $kieg = '';
             $tetelek_html .= nl2('
                     <tr class="kijSor" data-recid="'.$szamla['recid'].'" data-i="'.($i+1).'">
                         <td>'.getSzallodaNev($szamla['telephely_id']).'</td>

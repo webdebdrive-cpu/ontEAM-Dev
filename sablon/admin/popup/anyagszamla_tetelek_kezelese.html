@@ -605,8 +605,6 @@ function tetel_hozzaadasa() {
 /* Tétel sor törlése */
 function popup_tetel_sor_torol(sor_id, mehet, fiktiv_sor = ''){
     
-    van_valtozas = true;
-    
     $('.'+sor_id).addClass('torles_elott');
     if( !mehet ) {
         alert2( 'Cikktörzs: '    + $('.'+sor_id+' .pop_cikktorzs').html() +'<br>' +
@@ -614,6 +612,9 @@ function popup_tetel_sor_torol(sor_id, mehet, fiktiv_sor = ''){
                 'Biztosan törli a számla tételt?', '<input type="button" class="gomb zold" value="Igen" onclick="popup_tetel_sor_torol(\''+sor_id+'\', \'mehet\', \''+fiktiv_sor+'\'); alert2();"><input type="button" class="gomb piros escapes_megsem" value="Nem" onclick="alert2(); $(\'.torles_elott\').removeClass(\'torles_elott\');">');
         return false;
     }
+
+    /* Fontos, hogy ez a megerősítő kérdés után legyen, addig nincs változás */
+    van_valtozas = true;
     
     /* Logoljuk, hogy mely sorok lettek törölve, mert ezeket mégis megengedjük kijelölni a "Rendelés tétel hozzáadása" popupon */
     var rnd_recid = $('.'+sor_id+' .pop_rnd_recid').val();

@@ -230,6 +230,9 @@ function tetel_sorok_ment() {
                 if( response.hiba ) {
                     alert2(response.hiba, response.gomb, response.title);
                 } else {
+                    if( _get('tetel') ) {
+                        szamlaBetolt(_get('id'), baseName(location.href) + '.php', 'tetel');
+                    }
                     popupZar();
                 }
             }
@@ -250,6 +253,7 @@ function pop_tetelek_feltolt() {
         url : 'projektszerzodes.php',
         type: 'POST',
         data: {
+            id                  : _get('id'),
             kcs_21              : kcs_21,
             pop_tetelek_feltolt : Date.now() 
         },
@@ -261,7 +265,7 @@ function pop_tetelek_feltolt() {
                     $('#pop_tetelek tbody').append(response.html);
                     $('#pop_tetelek').removeClass('dn');
                 }
-                tetelek_kiszamol();
+                tetelek_kiszamol(); 
             }
         },
         complete: function(xhr) {
@@ -274,6 +278,10 @@ function pop_tetelek_feltolt() {
 
 /*  Tételek kiszámítása, lássuk hol járunk a szerződéses összeghez képest */
 function tetelek_kiszamol() {
+
+    if( akt_penznem == null ) {
+        akt_penznem = '';
+    }
     
     /* HUF esetén nem törtet írunk ki, deviza esetén viszont törtet + "Számla várh. értéke" mező is törté kell alakítani */
     var osszeg_mezo = 'szerz_ossz';

@@ -42,6 +42,11 @@ function fenntartasi_szerzodes_get_koztes() {
             if(response.substring(0, 6)=='SESKIL'){ location.href = 'index.php'; }
             if( response ) {
                 response = JSON.parse(response);
+                if(response.hiba){
+                    alert2(response.hiba, response.gomb, response.title);
+                    popupZar();
+                    return false;
+                }
                 if(response.html){
                     $('#feldolgozando_szerzodesek').html(response.html);
                 }

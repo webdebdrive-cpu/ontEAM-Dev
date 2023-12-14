@@ -13,7 +13,7 @@ if( isset($_GET['teszt']) ) {
 }
 
 if( !_jog(JOG_PRKEZEL_SZERZODES_OLVAS) && !_jog(JOG_PR_SAJAT_SZERZ_MEGTEKINT) ) {
-    if(!$_SESSION[get_db_tabla().'user']){
+    if( !$_SESSION[get_db_tabla() . 'user'] ) {
         $weblap -> leallit();
         header('Location: index.php');
         exit;
@@ -45,6 +45,14 @@ if( $tobb_kep ) {
 
 // Köztes tábla szerződéseiek kilistázása
 if( isset($_POST['projektszerzodes_get_koztes']) ) {
+    
+    if( $_COOKIE['uj_felvitel_'.$megnevezes] ) {
+        
+        echo json_encode( array('hiba' => 'Egy másik tabon már megkezdődött egy Projekt szerződés feltöltése,<br>kérem előbb azt fejezze be, vagy lépjen ki belőle!', 'title' => 'Hiba') );
+
+        $weblap -> leallit();
+        exit;
+    }
     
     // Köztes szerődésekből készítsünk táblázatot
     $html = '';
@@ -494,20 +502,18 @@ if( isset($_POST['tetel_sorok_ment']) ) {
     // Tételek kimentése Session-be
     } else {
         
-        // Ha nem ismert a recid, akkor új feltöltésről van szó, ekkor a session neveknél kicsit más megnevezést használunk
-        // hogy még véletlen se keveredjen pl. másik tabon megnyitott számla tételek szereksztésével voltak gondok, azt mentette be az újhoz
-        $kieg = '';
+        // Ha nem ismert a recid, a $fej_id legyen "uj"
+        $fej_id = $recid;
         if( !$recid ) {
-            $kieg = '_uj';
+            $fej_id = 'uj';
         }
-
-        $_SESSION['pr_szer_tetel_recid'.$kieg]    = $_POST['adatok'][$recid_adat][1];
-        $_SESSION['pr_szer_tetel_targy'.$kieg]    = str_replace('{IDEZOJEL}', '"', $_POST['adatok'][$targy_adat][1]);
-        $_SESSION['pr_szer_tetel_varh_erk'.$kieg] = $_POST['adatok'][$varh_erk_adat][1];
+        $_SESSION['pr_szer_tetel_recid'     ][$fej_id] = $_POST['adatok'][$recid_adat][1];
+        $_SESSION['pr_szer_tetel_targy'     ][$fej_id] = str_replace('{IDEZOJEL}', '"', $_POST['adatok'][$targy_adat][1]);
+        $_SESSION['pr_szer_tetel_varh_erk'  ][$fej_id] = $_POST['adatok'][$varh_erk_adat][1];
         if( $devizas ) {
-            $_SESSION['pr_szer_tetel_dev_net'.$kieg] = str_replace(',', '.', $_POST['adatok'][$varh_ert_adat][1]);
+            $_SESSION['pr_szer_tetel_dev_net'][$fej_id] = str_replace(',', '.', $_POST['adatok'][$varh_ert_adat][1]);
         } else {
-            $_SESSION['pr_szer_tetel_varh_ert'.$kieg] = str_replace(',', '.', $_POST['adatok'][$varh_ert_adat][1]);
+            $_SESSION['pr_szer_tetel_varh_ert'][$fej_id] = str_replace(',', '.', $_POST['adatok'][$varh_ert_adat][1]);
         }
     }
     
@@ -541,21 +547,21 @@ if( isset($_POST['tetel_sorok_ment']) ) {
         $valtozas .= 'Új állapot (a már kapcsolt sorokat nem listázva, hisz az biztosan nem változott): '."\n";
         
         $i = 0;
-        foreach ( $_SESSION['pr_szer_tetel_targy'] as $targy ) {
+        $fej_id = $recid;
+        foreach ( $_SESSION['pr_szer_tetel_targy'][$fej_id] as $targy ) {
 
-            if( $_SESSION['pr_szer_tetel_recid'][$i] ) {
-                $szamla_tetel = $adatbazis_kapcsolat->s2('recid', 'projektszamla_tetel', "`projektszerzodes_tetel_recid`='{$_SESSION['pr_szer_tetel_recid'][$i]}'");
+            if( $_SESSION['pr_szer_tetel_recid'][$fej_id][$i] ) {
+                $szamla_tetel = $adatbazis_kapcsolat->s2('recid', 'projektszamla_tetel', "`projektszerzodes_tetel_recid`='{$_SESSION['pr_szer_tetel_recid'][$fej_id][$i]}'");
             }
             // Ha egy fiktív sor (azaz nincs még recid-ja a sessionben, vagy ha létezik, de nincs hozzá tartozó számla, akkor létrehozzuk
-            if( !$_SESSION['pr_szer_tetel_recid'][$i] || !$szamla_tetel ) {
+            if( !$_SESSION['pr_szer_tetel_recid'][$fej_id][$i] || !$szamla_tetel ) {
                 
-                $varh_erk = str_replace('.', '-', $_SESSION['pr_szer_tetel_varh_erk'][$i]);
-                $varh_ert = str_replace(array(' ', ','), array('', '.'),  $_SESSION[$session_mezo][$i]);
+                $varh_erk = str_replace('.', '-', $_SESSION['pr_szer_tetel_varh_erk'][$fej_id][$i]);
+                $varh_ert = str_replace(array(' ', ','), array('', '.'),  $_SESSION[$session_mezo][$fej_id][$i]);
                 $uj_szerzodes_tetel_recid = $adatbazis_kapcsolat->i('projektszerzodes_tetel',
                                                     array('projektszerzodes_recid', 'targy', 'varh_erk', $db_mezo,   'loginnev',                          'insert_dt',    'insert_usr',                             'update_usr'                              ),
                                                     array($recid,                   $targy,  $varh_erk,  $varh_ert,  $_SESSION[get_db_tabla().'user'],    'NOW()',        $_SESSION[get_db_tabla().'teljes_nev'],   $_SESSION[get_db_tabla().'teljes_nev']    )
                                             );
-
                 if( $uj_szerzodes_tetel_recid === false ) { $db_error = true; }
                 
                 // Devizás számla esetén a Ft-os összeget is be kell állítani, amit az árfolyamból számítunk ki
@@ -569,7 +575,7 @@ if( isset($_POST['tetel_sorok_ment']) ) {
                 }
 
                 // Az újonnan beszúrt sor recid-ját is eltároljuk SESSION-ben.
-                $_SESSION['pr_szer_tetel_recid'][$i] = $uj_szerzodes_tetel_recid;
+                $_SESSION['pr_szer_tetel_recid'][$fej_id][$i] = $uj_szerzodes_tetel_recid;
                 
                 // Logolás
                 $valtozas .= '[mezo]recid[/mezo] [ertek_uj]'                        .$uj_szerzodes_tetel_recid                  .'[/ertek_uj]'."\n";
@@ -611,22 +617,23 @@ if( isset($_POST['tetel_sorok_ment']) ) {
 // Tétel sorok kiíratása
 if( isset($_POST['pop_tetelek_feltolt']) ) {
 
+    $fej_id = 'uj';
+    if( $_POST['id'] ) {
+        $fej_id = $_POST['id'];
+    }
     $html = '';
+    $i    = 0;
+    foreach ( $_SESSION['pr_szer_tetel_targy'][$fej_id] as $targy ) {
 
-    $i = 0;
-    foreach ( $_SESSION['pr_szer_tetel_targy'] as $targy ) {
-
-        $szla_varh_erk  = $_SESSION['pr_szer_tetel_varh_erk'][$i];
-        $ertek          = $_SESSION['pr_szer_tetel_varh_ert'][$i];
+        $szla_varh_erk  = $_SESSION['pr_szer_tetel_varh_erk'][$fej_id][$i];
+        $ertek          = $_SESSION['pr_szer_tetel_varh_ert'][$fej_id][$i];
         $oszlop         = 'netto_ert';
         $tizedes        = 0;
 
         if( $_POST['kcs_21'] && $_POST['kcs_21'] != KCS_21_HUF ) {
-
-            $ertek      = $_SESSION['pr_szer_tetel_dev_net'][$i];
+            $ertek      = $_SESSION['pr_szer_tetel_dev_net'][$fej_id][$i];
             $oszlop     = 'dev_net';
             $tizedes    = 2;
-
         }
 
         // Minden sornak adunk egy azonosítót. Mivel lehet csak egy ideiglenes sorról van szó, nem mindig van recid-nk, ezért időbélyeges azonosítót hozunk létre, megtoldva egy $i-vel.
@@ -636,8 +643,8 @@ if( isset($_POST['pop_tetelek_feltolt']) ) {
         // Van-e már számlával összeköttetés
         $class = $teljesites = $netto_ertek = '';
         $torol = '<a onclick="popup_tetel_sor_torol(\'pop_tetel_'.$id_tmp.'\');"><span class="icon"><i class="material-icons">delete</i></span></a>';
-        if( $_SESSION['pr_szer_tetel_recid'][$i] ) {
-            $szamla_tetel = $adatbazis_kapcsolat->s2('recid projektszamla_recid '.$oszlop, 'projektszamla_tetel', "`projektszerzodes_tetel_recid`='{$_SESSION['pr_szer_tetel_recid'][$i]}'");
+        if( $_SESSION['pr_szer_tetel_recid'][$fej_id][$i] ) {
+            $szamla_tetel = $adatbazis_kapcsolat->s2('recid projektszamla_recid '.$oszlop, 'projektszamla_tetel', "`projektszerzodes_tetel_recid`='{$_SESSION['pr_szer_tetel_recid'][$fej_id][$i]}'");
             if( $szamla_tetel ) {
                 $szamla         = $adatbazis_kapcsolat->s2('telj_dt', 'projektszamla', "`recid`='{$szamla_tetel['projektszamla_recid']}'");
                 $class          = ' szerzodes_szamla_tetel_szurke';
@@ -649,14 +656,14 @@ if( isset($_POST['pop_tetelek_feltolt']) ) {
         
         $html .= nl2('
                         <tr class="pop_tetel_'.$id_tmp.$class.'">
-                            <td class="pop_targy l">' . $targy . '</td>
-                            <td class="pop_varh_erk">' . $szla_varh_erk . '</td>
+                            <td class="pop_targy l">' .$targy . '</td>
+                            <td class="pop_varh_erk">'.$szla_varh_erk . '</td>
                             <td class="pop_varh_ert r nowrap">' . $ertek . '</td>
                             <td>'.$teljesites.'</td>
                             <td class="r nowrap">'.$netto_ertek.'</td>
                             <td>
                                 '.$torol.'
-                                <span class="dn pop_recid">'.$_SESSION['pr_szer_tetel_recid'][$i].'</span>
+                                <span class="dn pop_recid">'.$_SESSION['pr_szer_tetel_recid'][$fej_id][$i].'</span>
                             </td>
                         </tr>
                         ');
@@ -672,6 +679,7 @@ if( isset($_POST['pop_tetelek_feltolt']) ) {
 }
 
 // Eredetileg azt vizsgáltuk, hogy van-e a session-ban tétel, de sok más egyéb, új feltöltéskor ellenőrizednő dolgot is itt vizsgálunk PHP-val
+// Tehát ez új feltöltéskor fut le
 if( isset($_POST['van_tetel']) ) {
 
     $szerzodes_osszege = str_replace(array(' ', ','), array('', '.'), $_POST['szerz_ossz']);
@@ -814,7 +822,8 @@ if( isset($_POST['van_tetel']) ) {
     }
     
     // Ha van feltöltött tétel, akkor az összegüknek meg kell egyezzen a szerződés összegével
-    if( $_SESSION['pr_szer_tetel_targy'] ) {
+    $fej_id = 'uj';
+    if( $_SESSION['pr_szer_tetel_targy'][$fej_id] ) {
 
         $session_valtozo_nev = 'pr_szer_tetel_varh_ert';
         $osszeg  = $szerzodes_osszege;
@@ -826,7 +835,7 @@ if( isset($_POST['van_tetel']) ) {
         }
         
         $tetelek_osszege = 0;
-        foreach ( $_SESSION[$session_valtozo_nev] as $ertek ) {
+        foreach ( $_SESSION[$session_valtozo_nev][$fej_id] as $ertek ) {
             $ertek = str_replace(array(' ', ','), array('', '.'), $ertek);
             $tetelek_osszege += $ertek;
         }
@@ -1329,48 +1338,71 @@ require_once('selectek.php');
     $gombok = '';
     if( isset($_GET['uj']) ) {
         
-        // Új feltöltéskor a tétel sorokat töröljük, ne az legyen, hogy szerkesztésből maradt adatokkal számoljunk
-        $_SESSION['pr_szer_tetel_targy']    = '';
-        $_SESSION['pr_szer_tetel_varh_erk'] = '';
-        $_SESSION['pr_szer_tetel_varh_ert'] = '';
-        $_SESSION['pr_szer_tetel_dev_net']  = '';
+        // Ha már volt regisztrálva új felvitel, akkor be se töltsük az új felvitel felületet
+        if( $_COOKIE['uj_felvitel_'.$megnevezes] ) {
+            $szamla_html .= nl2('
+                                <h1 class="piros">A Projektszerződés feltöltése már megkezdődött,<br>kérem előbb azt fejezze be, vagy lépjen ki belőle!</h1>
+                                <script>
+                                    setTimeout(function(){
+                                        $(\'#szerk_form\').hide();
+                                    }, 200);
+                                </script>
+                                ');
 
-        if( _jog(JOG_PRKEZEL_SZERZODES_KEZEL) || _jog(JOG_PR_SAJAT_SZERZ_KEZEL) ) {
+        // Regisztráljuk, hogy elkezdődött egy új felvitel, hogy ne lehessen két új felvitelt elindítani
+        } else {
+        
+            // Regisztráljuk, hogy elkezdődött egy új felvitel, hogy ne lehessen két új felvitelt elindítani
+            $szamla_html .= nl2('
+                            <script>
+                                createCookie(\'uj_felvitel_\'+baseName(location), \''.$_GET['andoc_id'].'\', 1);
+                            </script>
+                        ');
 
-            // Ha foglalt volna az Andoc azonosító vagy az iktatószám, akkor mentéskor küldjünk hibaüzenetet
-            // Éles rendszerben ilyen nem fordulhat elő, de teszelésekkor szükséges, hogy ha gond volna, tudjunk róla
-            $onclick = 'mentesGomb();';
-            if( $adatbazis_kapcsolat -> s2('recid', 'projektszerzodes', "`andoc_id`='{$_GET['andoc_id']}'") ) {
-                $onclick = 'alert2(\''.a_az($_GET['andoc_id'], '-nagybetű-').' „'.$_GET['andoc_id'].'” Andoc azonosító már foglalt, így nem menthető a szerződés!\', \'\', \'Hiba\');';
-            }
-            if( $adatbazis_kapcsolat -> s2('recid', 'projektszerzodes', "`sz_szam`='{$szerzodes['sz_szam']}'") ) {
-                $onclick = 'alert2(\''.a_az($szerzodes['ikt_szam'], '-nagybetű-').' „'.$szerzodes['sz_szam'].'” szerződés szám már foglalt, így nem menthető a szerződés!\', \'\', \'Hiba\');';
-            }
-            
-            $gombok = nl2('
-                <div class="form_kuldes">
-                    <input type="hidden" name="atmeneti_recid" value="'.$szerzodes['recid'].'">
-                    <input type="button" class="gombb mentes_gomb" name="mehet_gomb" id="mehet_gomb" disabled value="Mentés" onclick="'.$onclick.'">
-                    <input type="button" class="gomb piros" disabled id="megsem_gomb" value="Mégsem" onclick="megsemGomb();">
-                </div>
-            ');
-            
-            $gombok .= '<input type="button" class="gomb" onclick="tetelek_kezelese_popup_nyit()" value="Tételek kezelése"> ';
-            $gombok .= '<input type="button" class="gomb" value="Fenntartási szerződés" onclick="fenntartasi_szerzodes();"> ';
+            // Új feltöltéskor a tétel sorokat töröljük, ne az legyen, hogy szerkesztésből maradt adatokkal számoljunk
+            $fej_id = 'uj';
+            $_SESSION['pr_szer_tetel_targy'     ][$fej_id] = '';
+            $_SESSION['pr_szer_tetel_varh_erk'  ][$fej_id] = '';
+            $_SESSION['pr_szer_tetel_varh_ert'  ][$fej_id] = '';
+            $_SESSION['pr_szer_tetel_dev_net'   ][$fej_id] = '';
 
-            $muv_style = ' style="width: calc(100% - '.($_SESSION['defaultCsuszka'] + 16).'px);"';
-            if( in_array(basename(self()), $_SESSION['ketHasabos']) && $_SESSION[get_db_tabla().'user'] ) {
-                if( $_COOKIE['csuszkaSzelesseg'] ) {
-                    $muv_style = ' style="width: calc(100% - '.(($_COOKIE['csuszkaSzelesseg'] + 16)/10).'rem);"';
+            if( _jog(JOG_PRKEZEL_SZERZODES_KEZEL) || _jog(JOG_PR_SAJAT_SZERZ_KEZEL) ) {
+
+                // Ha foglalt volna az Andoc azonosító vagy az iktatószám, akkor mentéskor küldjünk hibaüzenetet
+                // Éles rendszerben ilyen nem fordulhat elő, de teszelésekkor szükséges, hogy ha gond volna, tudjunk róla
+                $onclick = 'mentesGomb();';
+                if( $adatbazis_kapcsolat -> s2('recid', 'projektszerzodes', "`andoc_id`='{$_GET['andoc_id']}'") ) {
+                    $onclick = 'alert2(\''.a_az($_GET['andoc_id'], '-nagybetű-').' „'.$_GET['andoc_id'].'” Andoc azonosító már foglalt, így nem menthető a szerződés!\', \'\', \'Hiba\');';
                 }
-            }
+                if( $adatbazis_kapcsolat -> s2('recid', 'projektszerzodes', "`sz_szam`='{$szerzodes['sz_szam']}'") ) {
+                    $onclick = 'alert2(\''.a_az($szerzodes['ikt_szam'], '-nagybetű-').' „'.$szerzodes['sz_szam'].'” szerződés szám már foglalt, így nem menthető a szerződés!\', \'\', \'Hiba\');';
+                }
 
-            // Műveletek box
-            $gombok = nl2('
-                <div class="muveletek"'.$muv_style.'>
-                    '.$gombok.'
-                </div>
-            ');
+                $gombok = nl2('
+                    <div class="form_kuldes">
+                        <input type="hidden" name="atmeneti_recid" value="'.$szerzodes['recid'].'">
+                        <input type="button" class="gombb mentes_gomb" name="mehet_gomb" id="mehet_gomb" disabled value="Mentés" onclick="'.$onclick.'">
+                        <input type="button" class="gomb piros" disabled id="megsem_gomb" value="Mégsem" onclick="megsemGomb();">
+                    </div>
+                ');
+
+                $gombok .= '<input type="button" class="gomb" onclick="tetelek_kezelese_popup_nyit()" value="Tételek kezelése"> ';
+                $gombok .= '<input type="button" class="gomb" value="Fenntartási szerződés" onclick="fenntartasi_szerzodes();"> ';
+
+                $muv_style = ' style="width: calc(100% - '.($_SESSION['defaultCsuszka'] + 16).'px);"';
+                if( in_array(basename(self()), $_SESSION['ketHasabos']) && $_SESSION[get_db_tabla().'user'] ) {
+                    if( $_COOKIE['csuszkaSzelesseg'] ) {
+                        $muv_style = ' style="width: calc(100% - '.(($_COOKIE['csuszkaSzelesseg'] + 16)/10).'rem);"';
+                    }
+                }
+
+                // Műveletek box
+                $gombok = nl2('
+                    <div class="muveletek"'.$muv_style.'>
+                        '.$gombok.'
+                    </div>
+                ');
+            }
         }
         
     // Módosítás gombok
@@ -1378,14 +1410,19 @@ require_once('selectek.php');
 
         // Módosításkor beállítjuk a Session-el az adatbázisból ismert tételek adatait, így lesz jó a popupban
         $i = 0;
-        $_SESSION['pr_szer_tetel_recid'] = $_SESSION['pr_szer_tetel_targy'] = $_SESSION['pr_szer_tetel_varh_erk'] = $_SESSION['pr_szer_tetel_varh_ert'] = array();
+        $fej_id = $_GET['id'];
+        $_SESSION['pr_szer_tetel_recid'     ][$fej_id] =
+        $_SESSION['pr_szer_tetel_targy'     ][$fej_id] =
+        $_SESSION['pr_szer_tetel_varh_erk'  ][$fej_id] = 
+        $_SESSION['pr_szer_tetel_varh_ert'  ][$fej_id] = 
+                                                        array();
         $tetelek = $adatbazis_kapcsolat->s('*', 'projektszerzodes_tetel', "`projektszerzodes_recid`='{$_GET['id']}'", 'insert_dt');
         foreach ( $tetelek as $tetel ) {
-            $_SESSION['pr_szer_tetel_recid'][$i]    = $tetel['recid'];
-            $_SESSION['pr_szer_tetel_targy'][$i]    = $tetel['targy'];
-            $_SESSION['pr_szer_tetel_varh_erk'][$i] = str_replace('-', '.', $tetel['varh_erk']);
-            $_SESSION['pr_szer_tetel_varh_ert'][$i] = number_format($tetel['varh_ert'], 0, '', ' ');
-            $_SESSION['pr_szer_tetel_dev_net'][$i]  = number_format($tetel['dev_varh_ert'], 2, ',', ' ');
+            $_SESSION['pr_szer_tetel_recid'     ][$fej_id][$i] = $tetel['recid'];
+            $_SESSION['pr_szer_tetel_targy'     ][$fej_id][$i] = $tetel['targy'];
+            $_SESSION['pr_szer_tetel_varh_erk'  ][$fej_id][$i] = str_replace('-', '.', $tetel['varh_erk']);
+            $_SESSION['pr_szer_tetel_varh_ert'  ][$fej_id][$i] = number_format($tetel['varh_ert'], 0, '', ' ');
+            $_SESSION['pr_szer_tetel_dev_net'   ][$fej_id][$i] = number_format($tetel['dev_varh_ert'], 2, ',', ' ');
             $i++;
         }
 
@@ -1670,6 +1707,15 @@ require_once('selectek.php');
         // Ha Gyorskeresőből érkeznénk ide, akkor az ID-t valójában az id_hidden tartalmazza majd
         if( isset($_GET['id_hidden']) ) {
             $_GET['id'] = $_GET['id_hidden'];
+        }
+        
+        // Ha épp egy sikeres feltöltés után vagyunk, akkor töröljük a Cookie-t
+        if( isset($_GET['siker']) ) {
+            $szamla_html .= nl2('
+                            <script>
+                                eraseCookie(\'uj_felvitel_\'+baseName(location));
+                            </script>
+                        ');
         }
 
 	    $sor = $adatbazis_kapcsolat -> s2('*', $megnevezes, "`recid`='{$_GET['id']}'");

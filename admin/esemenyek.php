@@ -183,6 +183,7 @@ switch ( $tabla ) {
                                     `'.get_db_tabla().$tabla_nophp.'`.`telephely_id`,
                                     `'.get_db_tabla().$tabla_nophp.'`.`szallito_id`,
                                     `'.get_db_tabla().$tabla_nophp.'`.`targy`,
+                                    `'.get_db_tabla().$tabla_nophp.'`.`feldolgozva_dt`,
                                     `'.get_db_tabla().$tabla_nophp.'`.`igazolva`,
                                     `'.get_db_tabla().$tabla_nophp.'`.`igazolva_dt`,
                                     `'.get_db_tabla().$tabla_nophp.'`.`utalvanyozva`,
@@ -447,6 +448,7 @@ switch ( $tabla ) {
                                     `'.get_db_tabla().$tabla_nophp.'`.`szla_szam`,
                                     `'.get_db_tabla().$tabla_nophp.'`.`telephely_id`,
                                     `'.get_db_tabla().$tabla_nophp.'`.`targy`,
+                                    `'.get_db_tabla().$tabla_nophp.'`.`feldolgozva_dt`,
                                     `'.get_db_tabla().$tabla_nophp.'`.`igazolva`,
                                     `'.get_db_tabla().$tabla_nophp.'`.`igazolva_dt`,
                                     `'.get_db_tabla().$tabla_nophp.'`.`utalvanyozva`,
@@ -562,6 +564,7 @@ switch ( $tabla ) {
                                     `'.get_db_tabla().$tabla_nophp.'`.`telephely_id`,
                                     `'.get_db_tabla().$tabla_nophp.'`.`szallito_id`,
                                     `'.get_db_tabla().$tabla_nophp.'`.`targy`,
+                                    `'.get_db_tabla().$tabla_nophp.'`.`feldolgozva_dt`,
                                     `'.get_db_tabla().$tabla_nophp.'`.`igazolva`,
                                     `'.get_db_tabla().$tabla_nophp.'`.`igazolva_dt`,
                                     `'.get_db_tabla().$tabla_nophp.'`.`utalvanyozva`,
@@ -736,6 +739,7 @@ switch ( $tabla ) {
                                     `'.get_db_tabla().$tabla_nophp.'`.`telephely_id`,
                                     `'.get_db_tabla().$tabla_nophp.'`.`szallito_id`,
                                     `'.get_db_tabla().$tabla_nophp.'`.`targy`,
+                                    `'.get_db_tabla().$tabla_nophp.'`.`feldolgozva_dt`,
                                     `'.get_db_tabla().$tabla_nophp.'`.`igazolva`,
                                     `'.get_db_tabla().$tabla_nophp.'`.`igazolva_dt`,
                                     `'.get_db_tabla().$tabla_nophp.'`.`utalvanyozva`,
@@ -992,7 +996,9 @@ switch ( $tabla ) {
                                     `'.get_db_tabla().$tabla_nophp.'`.`netto`,
                                     `'.get_db_tabla().$tabla_nophp.'`.`telephely_id`,
                                     `'.get_db_tabla().$tabla_nophp.'`.`szallito_id`,
+                                    `'.get_db_tabla().$tabla_nophp.'`.`feldolgozva_dt`,
                                     `'.get_db_tabla().$tabla_nophp.'`.`elo_igazolva`,
+                                    `'.get_db_tabla().$tabla_nophp.'`.`elo_igazolva_dt`,
                                     `'.get_db_tabla().$tabla_nophp.'`.`igazolva`,
                                     `'.get_db_tabla().$tabla_nophp.'`.`igazolva_dt`,
                                     `'.get_db_tabla().$tabla_nophp.'`.`utalvanyozva`,
@@ -1273,20 +1279,20 @@ $anyag_szamla_tomb = $akt_tomb = array(
     array('type' => 'text',         'megn' => 'Szerződés szám:',            'name' => 'sz_szam',        'szuro' => 'szoveges_op',  'disabled' => 1, 'class' => 'oriasi', 'post' => ' <span id="szerzodes_neve">'.$szerzodes_neve.'</span>'.$sz_szam_gomb),
     array('type' => 'autocomplete', 'megn' => 'Költségviselő:',             'name' => 'kolt_vis',       'szuro' => 1,  'disabled' => 1,    'class' => 'oriasi disableNav', 'tabla' => 'erteklista', 'oszlop_keres' => 'id', 'oszlop_keres_autocomp' => 'info', 'listaz' => 'info', 'csoport' => ERTEKLISTA_KOLTSEGVISELO, 'id_kiir' => 'id', 'style' => 'width: 15.3rem'),
     
-    array('type' => 'none',                 'megn' => 'Feldolgozva:',                           'name' => 'feldolgozva',                'szuro' => 1),
-    array('type' => 'none',                 'megn' => 'Feldolgozva dátum:',                     'name' => 'feldolgozva_dt',             'szuro' => 1, 'class' => 'datepicker'),
-    array('type' => 'none',                 'megn' => 'Feldolgozó személy:',                    'name' => 'feldolgozva_usr',            'szuro' => 'szoveges_op'),
-    array('type' => 'none',                 'megn' => 'Igazolva:',                              'name' => 'igazolva',                   'szuro' => 1),
-    array('type' => 'none',                 'megn' => 'Igazolva dátum:',                        'name' => 'igazolva_dt',                'szuro' => 1, 'class' => 'datepicker'),
-    array('type' => 'none',                 'megn' => 'Igazoló személy:',                       'name' => 'igazolva_usr',               'szuro' => 'szoveges_op'),
-    array('type' => 'none',                 'megn' => 'Utalványozva:',                          'name' => 'utalvanyozva',               'szuro' => 1),
-    array('type' => 'none',                 'megn' => 'Utalványozva dátum:',                    'name' => 'utalvanyozva_dt',            'szuro' => 1, 'class' => 'datepicker'),
-    array('type' => 'none',                 'megn' => 'Utalványozó személy:',                   'name' => 'utalvanyozva_usr',           'szuro' => 'szoveges_op'),
-    array('type' => 'none',                 'megn' => 'Elutasítás indoklása:',                  'name' => 'elutleir',                   'szuro' => 'szoveges_op'),
-    array('type' => 'none',                 'megn' => 'Sztornózva:',                            'name' => 'sztornozva',                 'szuro' => 1),
-    array('type' => 'none',                 'megn' => 'Sztornózva dátum:',                      'name' => 'sztornozva_dt',              'szuro' => 1, 'class' => 'datepicker'),
-    array('type' => 'none',                 'megn' => 'Sztornózó személy:',                     'name' => 'sztornozva_usr',             'szuro' => 'szoveges_op'),
-    array('type' => 'none',                 'megn' => 'Sztornózás indoklása:',                  'name' => 'sztornozva_leir',            'szuro' => 'szoveges_op'),
+    array('type' => 'nosql',        'megn' => 'Feldolgozva:',                           'name' => 'feldolgozva',                'szuro' => 1),
+    array('type' => 'nosql',        'megn' => 'Feldolgozva dátum:',                     'name' => 'feldolgozva_dt',             'szuro' => 1, 'class' => 'datepicker'),
+    array('type' => 'nosql',        'megn' => 'Feldolgozó személy:',                    'name' => 'feldolgozva_usr',            'szuro' => 'szoveges_op'),
+    array('type' => 'nosql',        'megn' => 'Igazolva:',                              'name' => 'igazolva',                   'szuro' => 1),
+    array('type' => 'nosql',        'megn' => 'Igazolva dátum:',                        'name' => 'igazolva_dt',                'szuro' => 1, 'class' => 'datepicker'),
+    array('type' => 'nosql',        'megn' => 'Igazoló személy:',                       'name' => 'igazolva_usr',               'szuro' => 'szoveges_op'),
+    array('type' => 'nosql',        'megn' => 'Utalványozva:',                          'name' => 'utalvanyozva',               'szuro' => 1),
+    array('type' => 'nosql',        'megn' => 'Utalványozva dátum:',                    'name' => 'utalvanyozva_dt',            'szuro' => 1, 'class' => 'datepicker'),
+    array('type' => 'nosql',        'megn' => 'Utalványozó személy:',                   'name' => 'utalvanyozva_usr',           'szuro' => 'szoveges_op'),
+    array('type' => 'nosql',        'megn' => 'Elutasítás indoklása:',                  'name' => 'elutleir',                   'szuro' => 'szoveges_op'),
+    array('type' => 'nosql',        'megn' => 'Sztornózva:',                            'name' => 'sztornozva',                 'szuro' => 1),
+    array('type' => 'nosql',        'megn' => 'Sztornózva dátum:',                      'name' => 'sztornozva_dt',              'szuro' => 1, 'class' => 'datepicker'),
+    array('type' => 'nosql',        'megn' => 'Sztornózó személy:',                     'name' => 'sztornozva_usr',             'szuro' => 'szoveges_op'),
+    array('type' => 'nosql',        'megn' => 'Sztornózás indoklása:',                  'name' => 'sztornozva_leir',            'szuro' => 'szoveges_op'),
 );
 array_push($postok, array('tomb' => $akt_tomb, 'uj' => 'uj'.$megnevezes, 'lista' => $megnevezes.'lista', 'tabla' => $megnevezes, 'torid' => $megnevezes.'tid' ));
 
@@ -1857,7 +1863,7 @@ $utemezett_feladatok_tomb = $akt_tomb = array(
     array('type' => 'text',                     'megn' => 'Riasztás:',          'name' => 'riaszt',         'szuro' => 1,  'maxlength' => 250, 'style' => 'width: 3.5rem', 'post' => ' nappal az esedékesség előtt'),
     array('type' => 'textarea',                 'megn' => 'Leírás:',            'name' => 'leiras',         'szuro' => 1,  'disabled' => $disabled,    'class' => 'oriasiTargy disableNav'/*,  'limit' => 500/*Limit wysiwyg-el nem kombinálható!*/ /*, 'wysiwyg' => 'Alap'/*Min vagy Full*/, 'feltoltes' => 'Images', 'width' => '100%'),
     array('type' => 'select_szemelyzet',        'megn' => 'Hozzárendelt személyzet:',  'name' => 'szemelyzet_id', 'szuro' => 1, 'class' => 'disableNav', 'post' => ' Utoljára végrehajtva: <b>'.$utolso_vegrehajtas.'</b>', 'alert' => 'Kérem adja meg a hozzárendelt személyzetet!', 'onchange' => 'ut_kulso_kivitlezo_beallit();'),
-    array('type' => 'autocomplete',             'megn' => 'Külső kivitelező:',   'name' => 'szallito_id',   'szuro' => 1,   'class' => 'oriasi disableNav', 'tabla' => 'szallito', 'oszlop_keres' => 'id', 'oszlop_keres_autocomp' => 'nev', 'listaz' => 'nev', 'id_kiir' => 'id'),
+    array('type' => 'autocomplete',             'megn' => 'Külső kivitelező:',  'name' => 'szallito_id',   'szuro' => 1,   'class' => 'oriasi disableNav', 'tabla' => 'szallito', 'oszlop_keres' => 'id', 'oszlop_keres_autocomp' => 'nev', 'listaz' => 'nev', 'id_kiir' => 'id'),
 
     array('type' => 'html',                     'megn' => nl2('
                                                                 <div class="dtr mutat_szinva_tmp">
@@ -2715,7 +2721,7 @@ if( isset($_GET['modosit']) || isset($_GET['igeny_id']) ) {
 }
 
 // Ha nincs "Több szállodás igények kezelése" jogunk, akkor az Egyszállodás/Többszállodás pipák nem szerkeszthetőek.
-$tobb_szall_disabled = '';
+$tobb_szall_disabled = $tobb_szall_cf_miatt_tilt = '';
 if( !_jog(JOG_PR_TOBBSZALL_KEZEL) ) {
     $tobb_szall_disabled = ' disabled';
 }
@@ -2729,16 +2735,28 @@ if ( isset($_GET['uj']) && !isset( $_GET['igeny_id'] ) ) {
 }
 
 // Felhasználható keret ha negatív, akkor legyen piros
+// Illetve az Egyszállodás/Többszállodás pipák sem szerkeszthetőek, ha van már szerződése
 $fel_hato_piros   = '';
 $sz_elteres_piros = '';
 if ( isset($_GET['modosit']) ) {
-    $projekt = $adatbazis_kapcsolat->s2('fel_hato sz_elteres', 'projektkezeles', "`recid`='{$_GET['id']}'");
+    $projekt = $adatbazis_kapcsolat->s2('ikt_szam fel_hato sz_elteres', 'projektkezeles', "`recid`='{$_GET['id']}'");
     if( $projekt['fel_hato'] < 0 ) {
         $fel_hato_piros = ' piros';
     }
     if( $projekt['sz_elteres'] < 0 ) {
         $sz_elteres_piros = ' piros';
     }
+    
+    // Nézzük meg, hogy adott projekt van-e már szerződéshez kötve. Ha van, akkor nem szerkeszthetők az Egyszállodás/Többszállodás pipák
+    if( $adatbazis_kapcsolat -> s2('recid', 'projektszerzodes', "`pr_szam`='{$projekt['ikt_szam']}'", '', '1') ) {
+        $tobb_szall_disabled = ' disabled';
+    }
+    
+    // Ha a projektnek már van manuális cash-flow sora, akkor sem engedünk pipát váltani, de ekkor hibaüzenetet adunk
+    if( $adatbazis_kapcsolat -> s2('recid', 'projektkezeles_cashflow_nev', "`projektkezeles_recid`='{$_GET['id']}'", '', '1') ) {
+        $tobb_szall_cf_miatt_tilt .= ' f_pipa_valt_cf_miatt_tilt';
+    }
+    
 }
 
 $megnevezes = 'projektkezeles';
@@ -2768,14 +2786,14 @@ $projektkezeles_tomb = $akt_tomb = array(
                                                     <div class="dtc form_jobb">
                                                         Egyszállodás
                                                         <div class="cb">
-                                                            <input id="egy_tobb_egy" name="egy_tobb_egy" tabindex="15" type="checkbox" class="f_pri_egytobb" data-egytobb="egy"'.$tobb_szall_disabled.'>
+                                                            <input id="egy_tobb_egy" name="egy_tobb_egy" tabindex="15" type="checkbox" class="f_pri_egytobb'.$tobb_szall_cf_miatt_tilt.'" data-egytobb="egy"'.$tobb_szall_disabled.'>
                                                             <label for="egy_tobb_egy" onclick="$(\'#mehet_gomb\').addClass(\'gombb_alert\');"></label>
                                                         </div>
                                                         <span class="formText" style="margin-left: 4rem"></span>
 
                                                         Többszállodás
                                                         <div class="cb">
-                                                            <input id="egy_tobb_tobb" name="egy_tobb_tobb" tabindex="16" type="checkbox" class="f_pri_egytobb" data-egytobb="tobb"'.$tobb_szall_disabled.'>
+                                                            <input id="egy_tobb_tobb" name="egy_tobb_tobb" tabindex="16" type="checkbox" class="f_pri_egytobb'.$tobb_szall_cf_miatt_tilt.'" data-egytobb="tobb"'.$tobb_szall_disabled.'>
                                                             <label for="egy_tobb_tobb" onclick="$(\'#mehet_gomb\').addClass(\'gombb_alert\');"></label>
                                                         </div>
 
@@ -2928,23 +2946,23 @@ $projektszamla_tomb = $akt_tomb = array(
     array('type' => 'hidden',               'name' => 'orchiid'),
     array('type' => 'hidden',               'name' => 'post_data'),
     
-    array('type' => 'none',                 'megn' => 'Feldolgozva:',                           'name' => 'feldolgozva',                'szuro' => 1),
-    array('type' => 'none',                 'megn' => 'Feldolgozva dátum:',                     'name' => 'feldolgozva_dt',             'szuro' => 1, 'class' => 'datepicker'),
-    array('type' => 'none',                 'megn' => 'Feldolgozó személy:',                    'name' => 'feldolgozva_usr',            'szuro' => 'szoveges_op'),
-    array('type' => 'none',                 'megn' => 'Igazolva:',                              'name' => 'elo_igazolva',               'szuro' => 1),
-    array('type' => 'none',                 'megn' => 'Igazolva dátum:',                        'name' => 'elo_igazolva_dt',            'szuro' => 1, 'class' => 'datepicker'),
-    array('type' => 'none',                 'megn' => 'Igazoló személy:',                       'name' => 'elo_igazolva_usr',           'szuro' => 'szoveges_op'),
-    array('type' => 'none',                 'megn' => 'Utóigazolva:',                           'name' => 'igazolva',                   'szuro' => 1),
-    array('type' => 'none',                 'megn' => 'Utóigazolva dátum:',                     'name' => 'igazolva_dt',                'szuro' => 1, 'class' => 'datepicker'),
-    array('type' => 'none',                 'megn' => 'Utóigazoló személy:',                    'name' => 'igazolva_usr',               'szuro' => 'szoveges_op'),
-    array('type' => 'none',                 'megn' => 'Utalványozva:',                          'name' => 'utalvanyozva',               'szuro' => 1),
-    array('type' => 'none',                 'megn' => 'Utalványozva dátum:',                    'name' => 'utalvanyozva_dt',            'szuro' => 1, 'class' => 'datepicker'),
-    array('type' => 'none',                 'megn' => 'Utalványozó személy:',                   'name' => 'utalvanyozva_usr',           'szuro' => 'szoveges_op'),
-    array('type' => 'none',                 'megn' => 'Elutasítás indoklása:',                  'name' => 'elutleir',                   'szuro' => 'szoveges_op'),
-    array('type' => 'none',                 'megn' => 'Sztornózva:',                            'name' => 'sztornozva',                 'szuro' => 1),
-    array('type' => 'none',                 'megn' => 'Sztornózva dátum:',                      'name' => 'sztornozva_dt',              'szuro' => 1, 'class' => 'datepicker'),
-    array('type' => 'none',                 'megn' => 'Sztornózó személy:',                     'name' => 'sztornozva_usr',             'szuro' => 'szoveges_op'),
-    array('type' => 'none',                 'megn' => 'Sztornózás indoklása:',                  'name' => 'sztornozva_leir',            'szuro' => 'szoveges_op'),
+    array('type' => 'nosql',                'megn' => 'Feldolgozva:',                           'name' => 'feldolgozva',                'szuro' => 1),
+    array('type' => 'nosql',                'megn' => 'Feldolgozva dátum:',                     'name' => 'feldolgozva_dt',             'szuro' => 1, 'class' => 'datepicker'),
+    array('type' => 'nosql',                'megn' => 'Feldolgozó személy:',                    'name' => 'feldolgozva_usr',            'szuro' => 'szoveges_op'),
+    array('type' => 'nosql',                'megn' => 'Igazolva:',                              'name' => 'elo_igazolva',               'szuro' => 1),
+    array('type' => 'nosql',                'megn' => 'Igazolva dátum:',                        'name' => 'elo_igazolva_dt',            'szuro' => 1, 'class' => 'datepicker'),
+    array('type' => 'nosql',                'megn' => 'Igazoló személy:',                       'name' => 'elo_igazolva_usr',           'szuro' => 'szoveges_op'),
+    array('type' => 'nosql',                'megn' => 'Utóigazolva:',                           'name' => 'igazolva',                   'szuro' => 1),
+    array('type' => 'nosql',                'megn' => 'Utóigazolva dátum:',                     'name' => 'igazolva_dt',                'szuro' => 1, 'class' => 'datepicker'),
+    array('type' => 'nosql',                'megn' => 'Utóigazoló személy:',                    'name' => 'igazolva_usr',               'szuro' => 'szoveges_op'),
+    array('type' => 'nosql',                'megn' => 'Utalványozva:',                          'name' => 'utalvanyozva',               'szuro' => 1),
+    array('type' => 'nosql',                'megn' => 'Utalványozva dátum:',                    'name' => 'utalvanyozva_dt',            'szuro' => 1, 'class' => 'datepicker'),
+    array('type' => 'nosql',                'megn' => 'Utalványozó személy:',                   'name' => 'utalvanyozva_usr',           'szuro' => 'szoveges_op'),
+    array('type' => 'nosql',                'megn' => 'Elutasítás indoklása:',                  'name' => 'elutleir',                   'szuro' => 'szoveges_op'),
+    array('type' => 'nosql',                'megn' => 'Sztornózva:',                            'name' => 'sztornozva',                 'szuro' => 1),
+    array('type' => 'nosql',                'megn' => 'Sztornózva dátum:',                      'name' => 'sztornozva_dt',              'szuro' => 1, 'class' => 'datepicker'),
+    array('type' => 'nosql',                'megn' => 'Sztornózó személy:',                     'name' => 'sztornozva_usr',             'szuro' => 'szoveges_op'),
+    array('type' => 'nosql',                'megn' => 'Sztornózás indoklása:',                  'name' => 'sztornozva_leir',            'szuro' => 'szoveges_op'),
 );
 array_push($postok, array('tomb' => $akt_tomb, 'uj' => 'uj'.$megnevezes, 'lista' => $megnevezes.'lista', 'tabla' => $megnevezes, 'torid' => $megnevezes.'tid' ));
 
@@ -3226,20 +3244,20 @@ $energia_szamla_tomb = $akt_tomb = array(
     array('type' => 'text',         'megn' => 'Szerződés szám:',            'name' => 'sz_szam',        'szuro' => 'szoveges_op',  'disabled' => 1, 'post' => ' <span id="szerzodes_neve">'.$szerzodes_neve.'</span>'.$sz_szam_gomb),
     array('type' => 'autocomplete', 'megn' => 'Költségviselő:',             'name' => 'kolt_vis',       'szuro' => 1,  'disabled' => 1,    'class' => 'oriasi disableNav', 'tabla' => 'erteklista', 'oszlop_keres' => 'id', 'oszlop_keres_autocomp' => 'info', 'listaz' => 'info', 'csoport' => ERTEKLISTA_KOLTSEGVISELO, 'id_kiir' => 'id', 'style' => 'width: 15.3rem'),
     
-    array('type' => 'none',         'megn' => 'Feldolgozva:',               'name' => 'feldolgozva',    'szuro' => 1),
-    array('type' => 'none',         'megn' => 'Feldolgozva dátum:',         'name' => 'feldolgozva_dt', 'szuro' => 1, 'class' => 'datepicker'),
-    array('type' => 'none',         'megn' => 'Feldolgozó személy:',        'name' => 'feldolgozva_usr','szuro' => 'szoveges_op'),
-    array('type' => 'none',         'megn' => 'Igazolva:',                  'name' => 'igazolva',       'szuro' => 1),
-    array('type' => 'none',         'megn' => 'Igazolva dátum:',            'name' => 'igazolva_dt',    'szuro' => 1, 'class' => 'datepicker'),
-    array('type' => 'none',         'megn' => 'Igazoló személy:',           'name' => 'igazolva_usr',   'szuro' => 'szoveges_op'),
-    array('type' => 'none',         'megn' => 'Utalványozva:',              'name' => 'utalvanyozva',   'szuro' => 1),
-    array('type' => 'none',         'megn' => 'Utalványozva dátum:',        'name' => 'utalvanyozva_dt','szuro' => 1, 'class' => 'datepicker'),
-    array('type' => 'none',         'megn' => 'Utalványozó személy:',       'name' => 'utalvanyozva_usr','szuro' => 'szoveges_op'),
-    array('type' => 'none',         'megn' => 'Elutasítás indoklása:',      'name' => 'elutleir',       'szuro' => 'szoveges_op'),
-    array('type' => 'none',         'megn' => 'Sztornózva:',                'name' => 'sztornozva',     'szuro' => 1),
-    array('type' => 'none',         'megn' => 'Sztornózva dátum:',          'name' => 'sztornozva_dt',  'szuro' => 1, 'class' => 'datepicker'),
-    array('type' => 'none',         'megn' => 'Sztornózó személy:',         'name' => 'sztornozva_usr', 'szuro' => 'szoveges_op'),
-    array('type' => 'none',         'megn' => 'Sztornózás indoklása:',      'name' => 'sztornozva_leir','szuro' => 'szoveges_op'),
+    array('type' => 'nosql',        'megn' => 'Feldolgozva:',               'name' => 'feldolgozva',    'szuro' => 1),
+    array('type' => 'nosql',        'megn' => 'Feldolgozva dátum:',         'name' => 'feldolgozva_dt', 'szuro' => 1, 'class' => 'datepicker'),
+    array('type' => 'nosql',        'megn' => 'Feldolgozó személy:',        'name' => 'feldolgozva_usr','szuro' => 'szoveges_op'),
+    array('type' => 'nosql',        'megn' => 'Igazolva:',                  'name' => 'igazolva',       'szuro' => 1),
+    array('type' => 'nosql',        'megn' => 'Igazolva dátum:',            'name' => 'igazolva_dt',    'szuro' => 1, 'class' => 'datepicker'),
+    array('type' => 'nosql',        'megn' => 'Igazoló személy:',           'name' => 'igazolva_usr',   'szuro' => 'szoveges_op'),
+    array('type' => 'nosql',        'megn' => 'Utalványozva:',              'name' => 'utalvanyozva',   'szuro' => 1),
+    array('type' => 'nosql',        'megn' => 'Utalványozva dátum:',        'name' => 'utalvanyozva_dt','szuro' => 1, 'class' => 'datepicker'),
+    array('type' => 'nosql',        'megn' => 'Utalványozó személy:',       'name' => 'utalvanyozva_usr','szuro' => 'szoveges_op'),
+    array('type' => 'nosql',        'megn' => 'Elutasítás indoklása:',      'name' => 'elutleir',       'szuro' => 'szoveges_op'),
+    array('type' => 'nosql',        'megn' => 'Sztornózva:',                'name' => 'sztornozva',     'szuro' => 1),
+    array('type' => 'nosql',        'megn' => 'Sztornózva dátum:',          'name' => 'sztornozva_dt',  'szuro' => 1, 'class' => 'datepicker'),
+    array('type' => 'nosql',        'megn' => 'Sztornózó személy:',         'name' => 'sztornozva_usr', 'szuro' => 'szoveges_op'),
+    array('type' => 'nosql',        'megn' => 'Sztornózás indoklása:',      'name' => 'sztornozva_leir','szuro' => 'szoveges_op'),
 );
 array_push($postok, array('tomb' => $akt_tomb, 'uj' => 'uj'.$megnevezes, 'lista' => $megnevezes.'lista', 'tabla' => $megnevezes, 'torid' => $megnevezes.'tid' ));
 
@@ -3349,20 +3367,20 @@ $fenntartasi_szamla_tomb = $akt_tomb = array(
     array('type' => 'text',         'megn' => 'Szerződés szám:',            'name' => 'sz_szam',        'szuro' => 'szoveges_op',  'disabled' => 1, 'post' => ' <span id="szerzodes_neve">'.$szerzodes_neve.'</span>'.$sz_szam_gomb),
     array('type' => 'autocomplete', 'megn' => 'Költségviselő:',             'name' => 'kolt_vis',       'szuro' => 1,  'disabled' => 1,    'class' => 'oriasi disableNav', 'tabla' => 'erteklista', 'oszlop_keres' => 'id', 'oszlop_keres_autocomp' => 'info', 'listaz' => 'info', 'csoport' => ERTEKLISTA_KOLTSEGVISELO, 'id_kiir' => 'id', 'style' => 'width: 15.3rem'),
     
-    array('type' => 'none',         'megn' => 'Feldolgozva:',               'name' => 'feldolgozva',    'szuro' => 1),
-    array('type' => 'none',         'megn' => 'Feldolgozva dátum:',         'name' => 'feldolgozva_dt', 'szuro' => 1, 'class' => 'datepicker'),
-    array('type' => 'none',         'megn' => 'Feldolgozó személy:',        'name' => 'feldolgozva_usr','szuro' => 'szoveges_op'),
-    array('type' => 'none',         'megn' => 'Igazolva:',                  'name' => 'igazolva',       'szuro' => 1),
-    array('type' => 'none',         'megn' => 'Igazolva dátum:',            'name' => 'igazolva_dt',    'szuro' => 1, 'class' => 'datepicker'),
-    array('type' => 'none',         'megn' => 'Igazoló személy:',           'name' => 'igazolva_usr',   'szuro' => 'szoveges_op'),
-    array('type' => 'none',         'megn' => 'Utalványozva:',              'name' => 'utalvanyozva',   'szuro' => 1),
-    array('type' => 'none',         'megn' => 'Utalványozva dátum:',        'name' => 'utalvanyozva_dt','szuro' => 1, 'class' => 'datepicker'),
-    array('type' => 'none',         'megn' => 'Utalványozó személy:',       'name' => 'utalvanyozva_usr','szuro' => 'szoveges_op'),
-    array('type' => 'none',         'megn' => 'Elutasítás indoklása:',      'name' => 'elutleir',       'szuro' => 'szoveges_op'),
-    array('type' => 'none',         'megn' => 'Sztornózva:',                'name' => 'sztornozva',     'szuro' => 1),
-    array('type' => 'none',         'megn' => 'Sztornózva dátum:',          'name' => 'sztornozva_dt',  'szuro' => 1, 'class' => 'datepicker'),
-    array('type' => 'none',         'megn' => 'Sztornózó személy:',         'name' => 'sztornozva_usr', 'szuro' => 'szoveges_op'),
-    array('type' => 'none',         'megn' => 'Sztornózás indoklása:',      'name' => 'sztornozva_leir','szuro' => 'szoveges_op'),
+    array('type' => 'nosql',        'megn' => 'Feldolgozva:',               'name' => 'feldolgozva',    'szuro' => 1),
+    array('type' => 'nosql',        'megn' => 'Feldolgozva dátum:',         'name' => 'feldolgozva_dt', 'szuro' => 1, 'class' => 'datepicker'),
+    array('type' => 'nosql',        'megn' => 'Feldolgozó személy:',        'name' => 'feldolgozva_usr','szuro' => 'szoveges_op'),
+    array('type' => 'nosql',        'megn' => 'Igazolva:',                  'name' => 'igazolva',       'szuro' => 1),
+    array('type' => 'nosql',        'megn' => 'Igazolva dátum:',            'name' => 'igazolva_dt',    'szuro' => 1, 'class' => 'datepicker'),
+    array('type' => 'nosql',        'megn' => 'Igazoló személy:',           'name' => 'igazolva_usr',   'szuro' => 'szoveges_op'),
+    array('type' => 'nosql',        'megn' => 'Utalványozva:',              'name' => 'utalvanyozva',   'szuro' => 1),
+    array('type' => 'nosql',        'megn' => 'Utalványozva dátum:',        'name' => 'utalvanyozva_dt','szuro' => 1, 'class' => 'datepicker'),
+    array('type' => 'nosql',        'megn' => 'Utalványozó személy:',       'name' => 'utalvanyozva_usr','szuro' => 'szoveges_op'),
+    array('type' => 'nosql',        'megn' => 'Elutasítás indoklása:',      'name' => 'elutleir',       'szuro' => 'szoveges_op'),
+    array('type' => 'nosql',        'megn' => 'Sztornózva:',                'name' => 'sztornozva',     'szuro' => 1),
+    array('type' => 'nosql',        'megn' => 'Sztornózva dátum:',          'name' => 'sztornozva_dt',  'szuro' => 1, 'class' => 'datepicker'),
+    array('type' => 'nosql',        'megn' => 'Sztornózó személy:',         'name' => 'sztornozva_usr', 'szuro' => 'szoveges_op'),
+    array('type' => 'nosql',        'megn' => 'Sztornózás indoklása:',      'name' => 'sztornozva_leir','szuro' => 'szoveges_op'),
 );
 array_push($postok, array('tomb' => $akt_tomb, 'uj' => 'uj'.$megnevezes, 'lista' => $megnevezes.'lista', 'tabla' => $megnevezes, 'torid' => $megnevezes.'tid' ));
 
@@ -3667,20 +3685,20 @@ $megallapodas_szamla_tomb = $akt_tomb = array(
     array('type' => 'text',         'megn' => 'Szerződés szám:',            'name' => 'sz_szam',        'szuro' => 'szoveges_op',  'disabled' => 1, 'post' => ' <span id="szerzodes_neve">'.$szerzodes_neve.'</span>'.$sz_szam_gomb),
     array('type' => 'autocomplete', 'megn' => 'Költségviselő:',             'name' => 'kolt_vis',       'szuro' => 1,  'disabled' => 1,    'class' => 'oriasi disableNav', 'tabla' => 'erteklista', 'oszlop_keres' => 'id', 'oszlop_keres_autocomp' => 'info', 'listaz' => 'info', 'csoport' => ERTEKLISTA_KOLTSEGVISELO, 'id_kiir' => 'id', 'style' => 'width: 15.3rem'),
     
-    array('type' => 'none',         'megn' => 'Feldolgozva:',               'name' => 'feldolgozva',    'szuro' => 1),
-    array('type' => 'none',         'megn' => 'Feldolgozva dátum:',         'name' => 'feldolgozva_dt', 'szuro' => 1, 'class' => 'datepicker'),
-    array('type' => 'none',         'megn' => 'Feldolgozó személy:',        'name' => 'feldolgozva_usr','szuro' => 'szoveges_op'),
-    array('type' => 'none',         'megn' => 'Igazolva:',                  'name' => 'igazolva',       'szuro' => 1),
-    array('type' => 'none',         'megn' => 'Igazolva dátum:',            'name' => 'igazolva_dt',    'szuro' => 1, 'class' => 'datepicker'),
-    array('type' => 'none',         'megn' => 'Igazoló személy:',           'name' => 'igazolva_usr',   'szuro' => 'szoveges_op'),
-    array('type' => 'none',         'megn' => 'Utalványozva:',              'name' => 'utalvanyozva',   'szuro' => 1),
-    array('type' => 'none',         'megn' => 'Utalványozva dátum:',        'name' => 'utalvanyozva_dt','szuro' => 1, 'class' => 'datepicker'),
-    array('type' => 'none',         'megn' => 'Utalványozó személy:',       'name' => 'utalvanyozva_usr','szuro' => 'szoveges_op'),
-    array('type' => 'none',         'megn' => 'Elutasítás indoklása:',      'name' => 'elutleir',       'szuro' => 'szoveges_op'),
-    array('type' => 'none',         'megn' => 'Sztornózva:',                'name' => 'sztornozva',     'szuro' => 1),
-    array('type' => 'none',         'megn' => 'Sztornózva dátum:',          'name' => 'sztornozva_dt',  'szuro' => 1, 'class' => 'datepicker'),
-    array('type' => 'none',         'megn' => 'Sztornózó személy:',         'name' => 'sztornozva_usr', 'szuro' => 'szoveges_op'),
-    array('type' => 'none',         'megn' => 'Sztornózás indoklása:',      'name' => 'sztornozva_leir','szuro' => 'szoveges_op'),
+    array('type' => 'nosql',        'megn' => 'Feldolgozva:',               'name' => 'feldolgozva',    'szuro' => 1),
+    array('type' => 'nosql',        'megn' => 'Feldolgozva dátum:',         'name' => 'feldolgozva_dt', 'szuro' => 1, 'class' => 'datepicker'),
+    array('type' => 'nosql',        'megn' => 'Feldolgozó személy:',        'name' => 'feldolgozva_usr','szuro' => 'szoveges_op'),
+    array('type' => 'nosql',        'megn' => 'Igazolva:',                  'name' => 'igazolva',       'szuro' => 1),
+    array('type' => 'nosql',        'megn' => 'Igazolva dátum:',            'name' => 'igazolva_dt',    'szuro' => 1, 'class' => 'datepicker'),
+    array('type' => 'nosql',        'megn' => 'Igazoló személy:',           'name' => 'igazolva_usr',   'szuro' => 'szoveges_op'),
+    array('type' => 'nosql',        'megn' => 'Utalványozva:',              'name' => 'utalvanyozva',   'szuro' => 1),
+    array('type' => 'nosql',        'megn' => 'Utalványozva dátum:',        'name' => 'utalvanyozva_dt','szuro' => 1, 'class' => 'datepicker'),
+    array('type' => 'nosql',        'megn' => 'Utalványozó személy:',       'name' => 'utalvanyozva_usr','szuro' => 'szoveges_op'),
+    array('type' => 'nosql',        'megn' => 'Elutasítás indoklása:',      'name' => 'elutleir',       'szuro' => 'szoveges_op'),
+    array('type' => 'nosql',        'megn' => 'Sztornózva:',                'name' => 'sztornozva',     'szuro' => 1),
+    array('type' => 'nosql',        'megn' => 'Sztornózva dátum:',          'name' => 'sztornozva_dt',  'szuro' => 1, 'class' => 'datepicker'),
+    array('type' => 'nosql',        'megn' => 'Sztornózó személy:',         'name' => 'sztornozva_usr', 'szuro' => 'szoveges_op'),
+    array('type' => 'nosql',        'megn' => 'Sztornózás indoklása:',      'name' => 'sztornozva_leir','szuro' => 'szoveges_op'),
 );
 array_push($postok, array('tomb' => $akt_tomb, 'uj' => 'uj'.$megnevezes, 'lista' => $megnevezes.'lista', 'tabla' => $megnevezes, 'torid' => $megnevezes.'tid' ));
 
@@ -3792,15 +3810,15 @@ if( isset($_GET['csv_download']) ) {
 }
 
 // Egy vagy többszállodás select Projektigényléshez, Projektekhez
-if (isset($_POST['f_pri_egytobb'])) {
+if( isset($_POST['f_pri_egytobb']) ) {
 
     $tobb_szalloda = '';
-    if($_POST['egy_tobb']=='tobb'){
+    if( $_POST['egy_tobb'] == 'tobb' ) {
         $tobb_szalloda = 1;
     }
 
     $akt_tomb = array(
-                    array('type' => 'select_felh_telephely','megn' => 'Szálloda:',      'tobb_szalloda' => $tobb_szalloda,        'name' => 'telephely_id',   'szuro' => 1,       'class' => 'disableNav',        'style' => 'width: 100%;', 'alert' => 'Kérem válasszon szállodát!', 'onchange' => 'szallodaVane( this );'),
+                    array('type' => 'select_felh_telephely','megn' => 'Szálloda:',      'tobb_szalloda' => $tobb_szalloda,        'name' => 'telephely_unid', 'unid' => 1,   'szuro' => 1,       'class' => 'disableNav',        'style' => 'width: 100%;', 'alert' => 'Kérem válasszon szállodát!', 'onchange' => 'szallodaVane( this );'),
                 );
     require 'switch.php';
 
@@ -4081,7 +4099,7 @@ if (isset($_POST['elfelejtett_jelszo'])) {
 
     $login = $adatbazis_kapcsolat->s2('recid', 'login', "`nev`='{$_POST['nev']}'");
     $hiba  = level_felkeszit_es_kuld('login', $login['recid'], ERT_ELFELEJTETT_JELSZO, 'elfelejtettJelszo', 'elfelejtettJelszo');
-    if($hiba){
+    if ($hiba) {
         echo json_encode(array(
             'hiba' => $hiba
         ));
@@ -4725,7 +4743,7 @@ if( isset($_POST['bejegyzesElutasitas']) ) {
             mysqli_commit($db_kapcs);
 
             // Levélküldés
-            if($level_tabla){
+            if ($level_tabla) {
 
                 $hiba = '';
                 foreach($idk as $id){
@@ -7043,7 +7061,7 @@ if(isset($_GET['modosit'])){
             // Dokumentumokat is átmásoljuk, ha egyszállodás a bejelentés vagy ha a 'telefon' pipa be volt kapcsolva
             // Ha volt cache fájl, akkor ez biztosan egy új feltöltés, tehát most kell átmásolni.
             $telehely = $adatbazis_kapcsolat->s2('modell', 'telephely', "`id`='{$bejelentes['telephely_id']}'");
-            if(!$telehely['modell'] || $bejelentes['telefon']){
+            if( !$telehely['modell'] || $bejelentes['telefon'] ) {
 
                 // Ha cache fájl létezik (tehát új feltöltés) és egyszállodás, akkor biztosan egy kapcsolódó munkalapja lesz
                 $munkalapja = $adatbazis_kapcsolat->s2('munkalap_id', 'munkalap_kapcs', "`bejelentes_id`='{$_GET['id']}'");

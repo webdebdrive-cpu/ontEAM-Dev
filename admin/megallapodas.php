@@ -178,8 +178,10 @@ if( isset($_POST['pop_tetelek_feltolt']) ) {
     }
     if( $_POST['andoc_id'] ) {
         $szerzodes = $adatbazis_kapcsolat->s2('recid kcs_21', 'megallapodas_atmeneti', "`andoc_id`='{$_POST['andoc_id']}'");
+        $fej_id    = 'uj';
     } else {
         $szerzodes = $adatbazis_kapcsolat->s2('kcs_21', 'megallapodas', "`recid`='{$_POST['id']}'");
+        $fej_id    = $_POST['id'];
     }
     
     // Illetve ezt az alábbi változókkal két ágra bontunk: Ft-os vagy devizás-e a számla.
@@ -200,27 +202,21 @@ if( isset($_POST['pop_tetelek_feltolt']) ) {
     }
     
     // Tételek táblázat sorait kiszámoljuk:
-    $tetelek_html = '';
-    $i = 0;
-    
-    $kieg = '';
-    if( !$_POST['id'] ) {
-        $kieg = '_uj';
-    }
-
-    foreach( $_SESSION['megall_szerz_tetel_telephely_id'.$kieg] as $telephely ) {
+    $tetelek_html   = '';
+    $i              = 0;
+    foreach( $_SESSION['megall_szerz_tetel_telephely_id'][$fej_id] as $telephely ) {
         
-        $szla_netto_ert = $_SESSION[$session_mezo.$kieg][$i];
+        $szla_netto_ert = $_SESSION[$session_mezo][$fej_id][$i];
         
         // Minden sornak adunk egy azonosítót. Mivel lehet csak egy ideiglenes sorról van szó, nem mindig van recid-nk, ezért időbélyeges azonosítót hozunk létre, megtoldva egy $i-vel.
-        if( !$_SESSION['megall_szerz_tetel_recid'.$kieg][$i] ) {
-            $_SESSION['megall_szerz_tetel_recid'.$kieg][$i] = time().rand(0,1000);
+        if( !$_SESSION['megall_szerz_tetel_recid'][$fej_id][$i] ) {
+            $_SESSION['megall_szerz_tetel_recid'][$fej_id][$i] = time().rand(0,1000);
         }
         
         // Van-e már számlával összeköttetés
         $class = $teljesites = $netto_ertek = '';
         $torol = '
-                <a onclick="popup_tetel_sor_torol(\'pop_tetel_'.$_SESSION['megall_szerz_tetel_recid'.$kieg][$i].'\');">
+                <a onclick="popup_tetel_sor_torol(\'pop_tetel_'.$_SESSION['megall_szerz_tetel_recid'][$fej_id][$i].'\');">
                     <span class="icon">
                         <i class="material-icons">
                             delete
@@ -228,8 +224,8 @@ if( isset($_POST['pop_tetelek_feltolt']) ) {
                     </span>
                 </a>
                 ';
-        if( $_SESSION['megall_szerz_tetel_recid'.$kieg][$i] ) {
-            $szamla_tetel = $adatbazis_kapcsolat->s2('recid megallapodas_szamla_recid '.$szamla_netto_mezo, 'megallapodas_szamla_tetel', "`megallapodas_tetel_recid`='{$_SESSION['megall_szerz_tetel_recid'.$kieg][$i]}'");
+        if( $_SESSION['megall_szerz_tetel_recid'][$fej_id][$i] ) {
+            $szamla_tetel = $adatbazis_kapcsolat->s2('recid megallapodas_szamla_recid '.$szamla_netto_mezo, 'megallapodas_szamla_tetel', "`megallapodas_tetel_recid`='{$_SESSION['megall_szerz_tetel_recid'][$fej_id][$i]}'");
             if( $szamla_tetel ) {
                 $szamla         = $adatbazis_kapcsolat->s2('telj_dt', 'megallapodas_szamla', "`recid`='{$szamla_tetel['megallapodas_szamla_recid']}'");
                 $class          = ' szerzodes_szamla_tetel_szurke';
@@ -240,24 +236,24 @@ if( isset($_POST['pop_tetelek_feltolt']) ) {
         }
         
         $tetelek_html .= nl2('
-                        <tr class="pop_tetel_'.$_SESSION['megall_szerz_tetel_recid'.$kieg][$i].$class.'">
-                            <td class="pop_telephely l">'.getSzallodaNev($_SESSION['megall_szerz_tetel_telephely_id'.$kieg][$i]).'</td>
-                            <td class="pop_targy l">'.$_SESSION['megall_szerz_tetel_targy'.$kieg][$i].'</td>
-                            <td class="pop_varh_erk l">'.datum_kiir($_SESSION['megall_szerz_tetel_varh_erk'.$kieg][$i]).'</td>
-                            <td class="pop_varh_ert r">'.number_format(str_replace(array(',', ' '), array('.', ''), $_SESSION[$session_varhato_ert.$kieg][$i]), $tizedesek, ',', ' ').'</td>
+                        <tr class="pop_tetel_'.$_SESSION['megall_szerz_tetel_recid'][$fej_id][$i].$class.'">
+                            <td class="pop_telephely l">'.getSzallodaNev($_SESSION['megall_szerz_tetel_telephely_id'][$fej_id][$i]).'</td>
+                            <td class="pop_targy l">'.$_SESSION['megall_szerz_tetel_targy'][$fej_id][$i].'</td>
+                            <td class="pop_varh_erk l">'.datum_kiir($_SESSION['megall_szerz_tetel_varh_erk'][$fej_id][$i]).'</td>
+                            <td class="pop_varh_ert r">'.number_format(str_replace(array(',', ' '), array('.', ''), $_SESSION[$session_varhato_ert][$fej_id][$i]), $tizedesek, ',', ' ').'</td>
                             <td class="pop_telj_dt l">'.$teljesites.'</td>
                             <td class="pop_netto_ert r">'.$netto_ertek.'</td>
                             ').
                             /*<td>
-                                <a class="szerk" onclick="popup_tetel_sor_szerk(\'pop_tetel_'.$_SESSION['megall_szerz_tetel_recid'][$i].'\');">
+                                <a class="szerk" onclick="popup_tetel_sor_szerk(\'pop_tetel_'.$_SESSION['megall_szerz_tetel_recid'][$fej_id][$i].'\');">
                                     🖉
                                 </a>
                             </td>*/
                             nl2('<td>
                                 '.$torol.'
-                                <input type="hidden" class="pop_telephely_id" value="'.$_SESSION['megall_szerz_tetel_telephely_id'.$kieg][$i].'">
-                                <input type="hidden" class="pop_valtozott" value="'.$_SESSION['megall_szerz_tetel_valtozott'.$kieg][$i].'">
-                                <input type="hidden" class="pop_recid" name="recid" value="'.$_SESSION['megall_szerz_tetel_recid'.$kieg][$i].'">
+                                <input type="hidden" class="pop_telephely_id" value="'.$_SESSION['megall_szerz_tetel_telephely_id'][$fej_id][$i].'">
+                                <input type="hidden" class="pop_valtozott" value="'.$_SESSION['megall_szerz_tetel_valtozott'][$fej_id][$i].'">
+                                <input type="hidden" class="pop_recid" name="recid" value="'.$_SESSION['megall_szerz_tetel_recid'][$fej_id][$i].'">
                             </td>
                         </tr>');
         $i++;
@@ -362,29 +358,28 @@ if( isset($_POST['tetel_sorok_ment']) ) {
     // Tételek kimentése Session-be
     } else {
         
-        // Ha nem ismert a recid, akkor új feltöltésről van szó, ekkor a session neveknél kicsit más megnevezést használunk
-        // hogy még véletlen se keveredjen pl. másik tabon megnyitott számla tételek szereksztésével voltak gondok, azt mentette be az újhoz
-        $kieg = '';
+        // Ha nem ismert a recid, a $fej_id legyen "uj"
+        $fej_id = $recid;
         if( !$recid ) {
-            $kieg = '_uj';
+            $fej_id = 'uj';
         }
 
-        $_SESSION['megall_szerz_tetel_recid'.$kieg]        = $_POST['adatok'][$recid_adat][1];
-        $_SESSION['megall_szerz_tetel_telephely_id'.$kieg] = $_POST['adatok'][$telephely_adat][1];
-        $_SESSION['megall_szerz_tetel_targy'.$kieg]        = $_POST['adatok'][$targy_adat][1];
-        $_SESSION['megall_szerz_tetel_varh_erk'.$kieg]     = $_POST['adatok'][$varh_erk_adat][1];
+        $_SESSION['megall_szerz_tetel_recid'        ][$fej_id] = $_POST['adatok'][$recid_adat][1];
+        $_SESSION['megall_szerz_tetel_telephely_id' ][$fej_id] = $_POST['adatok'][$telephely_adat][1];
+        $_SESSION['megall_szerz_tetel_targy'        ][$fej_id] = $_POST['adatok'][$targy_adat][1];
+        $_SESSION['megall_szerz_tetel_varh_erk'     ][$fej_id] = $_POST['adatok'][$varh_erk_adat][1];
         if( $devizas ) {
-            $_SESSION['megall_szerz_tetel_dev_varh_ert'.$kieg] = $_POST['adatok'][$varh_ert_adat][1];
+            $_SESSION['megall_szerz_tetel_dev_varh_ert'][$fej_id] = $_POST['adatok'][$varh_ert_adat][1];
         } else {
-            $_SESSION['megall_szerz_tetel_varh_ert'.$kieg]     = $_POST['adatok'][$varh_ert_adat][1];
+            $_SESSION['megall_szerz_tetel_varh_ert'][$fej_id] = $_POST['adatok'][$varh_ert_adat][1];
         }
-        $_SESSION['megall_szerz_tetel_telj_dt'.$kieg]      = $_POST['adatok'][$telj_dt_adat][1];
+        $_SESSION['megall_szerz_tetel_telj_dt'][$fej_id] = $_POST['adatok'][$telj_dt_adat][1];
         if( $devizas ) {
-            $_SESSION['megall_szerz_tetel_dev_net'.$kieg]  = str_replace(',', '.', $_POST['adatok'][$netto_ert_adat][1]);
+            $_SESSION['megall_szerz_tetel_dev_net'][$fej_id] = str_replace(',', '.', $_POST['adatok'][$netto_ert_adat][1]);
         } else {
-            $_SESSION['megall_szerz_tetel_netto_ert'.$kieg] = str_replace(',', '.', $_POST['adatok'][$netto_ert_adat][1]);
+            $_SESSION['megall_szerz_tetel_netto_ert'][$fej_id] = str_replace(',', '.', $_POST['adatok'][$netto_ert_adat][1]);
         }
-        $_SESSION['megall_szerz_tetel_valtozott'.$kieg] = $_POST['adatok'][$valtozott_adat][1];
+        $_SESSION['megall_szerz_tetel_valtozott'][$fej_id] = $_POST['adatok'][$valtozott_adat][1];
     }
 
     // Adatbázisba mentést csak akkor csinálnuk, ha már meglevő szerződést szerkesztünk
@@ -402,6 +397,10 @@ if( isset($_POST['tetel_sorok_ment']) ) {
             $varh_ert   = $_POST['adatok'][$varh_ert_adat][1][$i];
             $telj_dt    = $_POST['adatok'][$telj_dt_adat][1][$i];
             $netto      = $_POST['adatok'][$netto_ert_adat][1][$i];
+
+            $varh_ert   = str_replace(array(' ', ','), array('', '.'), $varh_ert);
+            $netto      = str_replace(array(' ', ','), array('', '.'), $netto   );
+
             $valtozott = 0;
             if( $_POST['adatok'][$valtozott_adat][1][$i] ) {
                 $valtozott = 1;
@@ -428,11 +427,12 @@ if( isset($_POST['tetel_sorok_ment']) ) {
                     array_push($ertekek, $netto*$megallapodas['arfolyam'],  $varh_ert*$megallapodas['arfolyam'] );
                 }
                 
+                $fej_id = $recid;
                 $rownum = $adatbazis_kapcsolat->s2('MAX(`rownum`)', 'megallapodas_tetel', "`megallapodas_recid`='{$recid}'");
                 $rownum = $rownum['MAX(`rownum`)']+1;
                 $uj_id = $adatbazis_kapcsolat->i('megallapodas_tetel', $mezok, $ertekek);
                 if( $sql === false ) { $db_error = true; }
-                $_SESSION['megall_szerz_tetel_recid'][$i] = $uj_id;
+                $_SESSION['megall_szerz_tetel_recid'][$fej_id][$i] = $uj_id;
             }
 
             $i++;
@@ -891,33 +891,34 @@ require_once('selectek.php');
     $i = 0;
     $ossz_netto   = 0;
     $ossz_dev_net = 0;
-    $_SESSION['megall_szerz_tetel_recid']        =
-    $_SESSION['megall_szerz_tetel_telephely_id'] =
-    $_SESSION['megall_szerz_tetel_targy']        =
-    $_SESSION['megall_szerz_tetel_varh_erk']     =
-    $_SESSION['megall_szerz_tetel_varh_ert']     =
-    $_SESSION['megall_szerz_tetel_dev_varh_ert'] =
-    $_SESSION['megall_szerz_tetel_telj_dt']      =
-    $_SESSION['megall_szerz_tetel_netto_ert']    =
-    $_SESSION['megall_szerz_tetel_dev_net']      =
-    $_SESSION['megall_szerz_tetel_valtozott']    =
-    $_SESSION['megall_szerz_tetel_andocos']      =
-                                                array();
+    $fej_id = $_GET['id'];
+    $_SESSION['megall_szerz_tetel_recid'        ][$fej_id] =
+    $_SESSION['megall_szerz_tetel_telephely_id' ][$fej_id] =
+    $_SESSION['megall_szerz_tetel_targy'        ][$fej_id] =
+    $_SESSION['megall_szerz_tetel_varh_erk'     ][$fej_id] =
+    $_SESSION['megall_szerz_tetel_varh_ert'     ][$fej_id] =
+    $_SESSION['megall_szerz_tetel_dev_varh_ert' ][$fej_id] =
+    $_SESSION['megall_szerz_tetel_telj_dt'      ][$fej_id] =
+    $_SESSION['megall_szerz_tetel_netto_ert'    ][$fej_id] =
+    $_SESSION['megall_szerz_tetel_dev_net'      ][$fej_id] =
+    $_SESSION['megall_szerz_tetel_valtozott'    ][$fej_id] =
+    $_SESSION['megall_szerz_tetel_andocos'      ][$fej_id] =
+                                                            array();
 
     foreach ( $tetelek as $tetel ) {
         $ossz_netto   += $tetel['netto_ert'];
         $ossz_dev_net += $tetel['dev_net'];
-        $_SESSION['megall_szerz_tetel_recid'][$i]        = $tetel['recid'];
-        $_SESSION['megall_szerz_tetel_telephely_id'][$i] = $tetel['telephely_id'];
-        $_SESSION['megall_szerz_tetel_targy'][$i]        = $tetel['targy'];
-        $_SESSION['megall_szerz_tetel_varh_erk'][$i]     = str_replace('-', '.', $tetel['varh_erk']);
-        $_SESSION['megall_szerz_tetel_varh_ert'][$i]     = number_format($tetel['varh_ert'], 0, '', ' ');
-        $_SESSION['megall_szerz_tetel_dev_varh_ert'][$i] = number_format($tetel['dev_varh_ert'], 2, ',', ' ');
-        $_SESSION['megall_szerz_tetel_telj_dt'][$i]      = str_replace('-', '.', $tetel['telj_dt']);
-        $_SESSION['megall_szerz_tetel_netto_ert'][$i]    = number_format($tetel['netto_ert'], 0, '', ' ');
-        $_SESSION['megall_szerz_tetel_dev_net'][$i]      = number_format($tetel['dev_net'],   2, ',', ' ');
-        $_SESSION['megall_szerz_tetel_valtozott'][$i]    = $tetel['valtozott'];
-        $_SESSION['megall_szerz_tetel_andocos'][$i]      = $tetel['andocos'];
+        $_SESSION['megall_szerz_tetel_recid'        ][$fej_id][$i] = $tetel['recid'];
+        $_SESSION['megall_szerz_tetel_telephely_id' ][$fej_id][$i] = $tetel['telephely_id'];
+        $_SESSION['megall_szerz_tetel_targy'        ][$fej_id][$i] = $tetel['targy'];
+        $_SESSION['megall_szerz_tetel_varh_erk'     ][$fej_id][$i] = str_replace('-', '.', $tetel['varh_erk']);
+        $_SESSION['megall_szerz_tetel_varh_ert'     ][$fej_id][$i] = number_format($tetel['varh_ert'], 0, '', ' ');
+        $_SESSION['megall_szerz_tetel_dev_varh_ert' ][$fej_id][$i] = number_format($tetel['dev_varh_ert'], 2, ',', ' ');
+        $_SESSION['megall_szerz_tetel_telj_dt'      ][$fej_id][$i] = str_replace('-', '.', $tetel['telj_dt']);
+        $_SESSION['megall_szerz_tetel_netto_ert'    ][$fej_id][$i] = number_format($tetel['netto_ert'], 0, '', ' ');
+        $_SESSION['megall_szerz_tetel_dev_net'      ][$fej_id][$i] = number_format($tetel['dev_net'],   2, ',', ' ');
+        $_SESSION['megall_szerz_tetel_valtozott'    ][$fej_id][$i] = $tetel['valtozott'];
+        $_SESSION['megall_szerz_tetel_andocos'      ][$fej_id][$i] = $tetel['andocos'];
 
         $i++;
     }
@@ -940,17 +941,18 @@ require_once('selectek.php');
     if( isset($_GET['uj']) && _jog(JOG_MEGALLAPODAS_OLVAS) ) {
         
         // Új feltöltéskor a tétel sorokat töröljük, ne az legyen, hogy szerkesztésből maradt adatokkal számoljunk
-        $_SESSION['megall_szerz_tetel_recid']        = '';
-        $_SESSION['megall_szerz_tetel_telephely_id'] = '';
-        $_SESSION['megall_szerz_tetel_targy']        = '';
-        $_SESSION['megall_szerz_tetel_varh_erk']     = '';
-        $_SESSION['megall_szerz_tetel_telj_dt']      = '';
-        $_SESSION['megall_szerz_tetel_varh_ert']     = '';
-        $_SESSION['megall_szerz_tetel_dev_varh_ert'] = '';
-        $_SESSION['megall_szerz_tetel_netto_ert']    = '';
-        $_SESSION['megall_szerz_tetel_dev_net']      = '';
-        $_SESSION['megall_szerz_tetel_valtozott']    = '';
-        $_SESSION['megall_szerz_tetel_andocos']      = '';
+        $fej_id = 'uj';
+        $_SESSION['megall_szerz_tetel_recid'        ][$fej_id] = '';
+        $_SESSION['megall_szerz_tetel_telephely_id' ][$fej_id] = '';
+        $_SESSION['megall_szerz_tetel_targy'        ][$fej_id] = '';
+        $_SESSION['megall_szerz_tetel_varh_erk'     ][$fej_id] = '';
+        $_SESSION['megall_szerz_tetel_telj_dt'      ][$fej_id] = '';
+        $_SESSION['megall_szerz_tetel_varh_ert'     ][$fej_id] = '';
+        $_SESSION['megall_szerz_tetel_dev_varh_ert' ][$fej_id] = '';
+        $_SESSION['megall_szerz_tetel_netto_ert'    ][$fej_id] = '';
+        $_SESSION['megall_szerz_tetel_dev_net'      ][$fej_id] = '';
+        $_SESSION['megall_szerz_tetel_valtozott'    ][$fej_id] = '';
+        $_SESSION['megall_szerz_tetel_andocos'      ][$fej_id] = '';
         
         // Meg az új feltöltéshez használt session-öket is töröljük
         megall_szerzodes_uj_session_urit();
@@ -993,11 +995,8 @@ require_once('selectek.php');
             ');
         
         // Ha foglalt volna az Andoc azonosító vagy az iktatószám, akkor mentéskor küldjünk hibaüzenetet
-        // Éles rendszerben ilyen nem fordulhat elő, de teszelésekkor szükséges, hogy ha gond volna, tudjunk róla
+        // Éles rendszerben ilyen nem fordulhat elő, de teszteléskor szükséges, hogy ha gond volna, tudjunk róla
         $onclick = 'if( form_ell_admin_elott() ){ uj_szerzodes_ellenorzes(); }';
-        if( $adatbazis_kapcsolat -> s2('recid', 'fenntartasi_szerzodes', "`andoc_id`='{$_GET['andoc_id']}'") ) {
-            $onclick = 'alert2(\''.a_az($_GET['andoc_id'], '-nagybetű-').' „'.$_GET['andoc_id'].'” Andoc azonosító már foglalt, így nem menthető a szerződés!\', \'\', \'Hiba\');';
-        }
         if( $adatbazis_kapcsolat -> s2('recid', 'fenntartasi_szerzodes', "`szszam`='{$szerzodes['szszam']}'") ) {
             $onclick = 'alert2(\''.a_az($szerzodes['ikt_szam'], '-nagybetű-').' „'.$szerzodes['szszam'].'” szerződés szám már foglalt, így nem menthető a szerződés!\', \'\', \'Hiba\');';
         }

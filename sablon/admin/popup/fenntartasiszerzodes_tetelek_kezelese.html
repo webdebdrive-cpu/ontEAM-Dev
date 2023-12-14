@@ -466,6 +466,10 @@ function bezar_gomb( mehet ) {
 /*  Tételek kiszámítása, lássuk hol járunk a szerződéses összeghez képest */
 function tetelek_kiszamol() {
     
+    if( akt_penznem == null ) {
+        akt_penznem = '';
+    }
+
     /* HUF esetén nem törtet írunk ki, deviza esetén viszont törtet + "Számla várh. értéke" mező is törté kell alakítani */
     var osszeg_mezo = 'netto';
     var tizedesek   = 0;
@@ -480,7 +484,7 @@ function tetelek_kiszamol() {
     }else{
         szerzodes_osszege = $('#'+osszeg_mezo+'_db').val().replace(/ /g, '').replace(/,/g, '.');
     }
-    
+
     $('#pop_szerz_ossz').html( ezresek(szerzodes_osszege, tizedesek, ',', ' ', '-nullát is írd ki-')+' '+akt_penznem );
     
     tetelek_ossz = 0;
@@ -493,6 +497,7 @@ function tetelek_kiszamol() {
     if( !kulonbseg ) {
         kulonbseg = '0';
     }
+    
     $('#pop_kulonbseg').html( ezresek(kulonbseg, tizedesek, ',', ' ', '-nullát is írd ki-')+' '+akt_penznem );
     $('#pop_kulonbseg').removeClass('piros');
     if( kulonbseg!=0 && kulonbseg!='0,00' ) {

@@ -513,6 +513,11 @@ $(function() {
         }
     });
 
+    // Projekt, fenntartás számla/szerződésnél új felvitelkor van egy GET['andoc_id']-nk. Ha ez létezik, és az oldal frissítve volt, akkor navigáljunk inkább a főoldalra
+    if ( _get('andoc_id') && performance.navigation.type == performance.navigation.TYPE_RELOAD) {
+        location.href = PHP_SELF;
+    }
+
     // Ha nincs kjelölve a bal navpanelben egy sor sem, akkor az első lesz a kijelöltünk
     setTimeout(function() {
         
@@ -580,9 +585,8 @@ $(function() {
         }
     });
 
-    $(document).on('mouseup', function(event) {
+    $(document).on('mouseup', function(e) {
         click = false;
-
         $('body').removeClass('noselect');
     });
 
@@ -1277,6 +1281,13 @@ $(function() {
 
     // Oldal elhagyásakor rákérdezünk, hogy biztosan
     $(window).bind('beforeunload', function(e) {
+        // Fenntartás, projekt számlák és szerződések moduljához kell az alábbi:
+        // Ha adott modulnak létezne új felviteli cookie-ja, és el szeretnénk lépni róla, akkor nézzük meg,
+        // hogy nem épp az új felviteli módban vagyunk-e, ahonnan el szeretnénk lépni
+        // Ha van $_GET['andoc_id'] akkor eleve új felvitelben vagyunk, ha ez azonos a Cookie-ba írt ID-val, akkor törölhetjük.
+        if (_get('andoc_id') == readCookie('uj_felvitel_' + baseName(location))) {
+            eraseCookie('uj_felvitel_'+baseName(location));
+        }
         if( formModositva && !_get('jogosultsag') ) {
             return 'Biztos elhagyja az oldalt mentés nélkül?';
         }
@@ -2068,54 +2079,77 @@ $(function() {
         }
     });
 
-    // Projektgénylésnél az egy és többszállodás modell kiválasztása
+    // Projekigénylésnél az egy és többszállodás modell kiválasztása
     $(document).on('click keyup', '.f_pri_egytobb', function(e) {
         
+        // Ha a projektnek már van manuális cash-flow sora, akkor nem engedünk pipát váltani, hibaüzenetet adunk
+        var tilt = 0;
+        if( $(this).hasClass('f_pipa_valt_cf_miatt_tilt') ) {
+            tilt = 1;
+        }
         // Ha ráklikkeltünk, vagy ha space-t nyomtunk rá
         if( e.type=='click' || (e.type=='keyup' && e.keyCode==KEY_SPACE ) ){
-        
-            egy_tobb = $(this).attr('data-egytobb');
-            if(egy_tobb=='egy'){
-                $('#egy_tobb_tobb').prop('checked', false);
-                $('#egy_tobb_egy') .prop('checked', true );
-                $('#egy_tobb').val(0);
-                if(formAdatok['egy_tobb']=='1'){
-                    $('#egy_tobb_egy') .addClass('mod');
-                    $('#egy_tobb_tobb').addClass('mod');
+            
+            if( !tilt ) {
+                var egy_tobb = $(this).attr('data-egytobb');
+                if (egy_tobb == 'egy') {
+                    $('#egy_tobb_tobb').prop('checked', false);
+                    $('#egy_tobb_egy') .prop('checked', true );
+                    $('#egy_tobb').val(0);
+                    if (formAdatok['egy_tobb'] == '1') {
+                        $('#egy_tobb_egy') .addClass('mod');
+                        $('#egy_tobb_tobb').addClass('mod');
+                    } else {
+                        $('#egy_tobb_egy') .removeClass('mod');
+                        $('#egy_tobb_tobb').removeClass('mod');
+                    }
                 } else {
-                    $('#egy_tobb_egy') .removeClass('mod');
-                    $('#egy_tobb_tobb').removeClass('mod');
-                }
-            } else {
-                $('#egy_tobb_egy') .prop('checked', false);
-                $('#egy_tobb_tobb').prop('checked', true );
-                $('#egy_tobb').val(1);
-                if(formAdatok['egy_tobb']=='0'){
-                    $('#egy_tobb_egy') .addClass('mod');
-                    $('#egy_tobb_tobb').addClass('mod');
-                } else {
-                    $('#egy_tobb_egy') .removeClass('mod');
-                    $('#egy_tobb_tobb').removeClass('mod');
-                }
-            }
-
-            $.ajax({
-                url : 'esemenyek.php',
-                type: 'POST',
-                data: {
-                    egy_tobb     : egy_tobb,
-                    f_pri_egytobb: new Date().getTime()
-                },
-                success: function (response) {
-                    if(response.substring(0, 6)=='SESKIL'){ location.href = 'index.php'; }
-                    $('#telephely_id').parent().parent().replaceWith(response);
-                },
-                complete: function(xhr) {
-                    if( xhr.status != 200 ) {
-                        alert2(xhr.responseText, '', 'Hiba');
+                    $('#egy_tobb_egy') .prop('checked', false);
+                    $('#egy_tobb_tobb').prop('checked', true );
+                    $('#egy_tobb').val(1);
+                    if(formAdatok['egy_tobb']=='0'){
+                        $('#egy_tobb_egy') .addClass('mod');
+                        $('#egy_tobb_tobb').addClass('mod');
+                    } else {
+                        $('#egy_tobb_egy') .removeClass('mod');
+                        $('#egy_tobb_tobb').removeClass('mod');
                     }
                 }
-            });
+                
+            // Ha tiltva van, akkor a bepipálások maradjanak úgy, ahogy voltak
+            } else {
+                if ($('#egy_tobb').val() == '1') {
+                    $('#egy_tobb_egy') .prop('checked', false);
+                    $('#egy_tobb_tobb').prop('checked', true );
+                } else {
+                    $('#egy_tobb_egy') .prop('checked', true );
+                    $('#egy_tobb_tobb').prop('checked', false);
+                }
+            }
+            
+            if( !tilt ) {
+                $.ajax({
+                    url : 'esemenyek.php',
+                    type: 'POST',
+                    data: {
+                        egy_tobb     : egy_tobb,
+                        f_pri_egytobb: new Date().getTime()
+                    },
+                    success: function (response) {
+                        if(response.substring(0, 6)=='SESKIL'){ location.href = 'index.php'; }
+                        $('#telephely_unid').parent().parent().replaceWith(response);
+                    },
+                    complete: function(xhr) {
+                        if( xhr.status != 200 ) {
+                            alert2(xhr.responseText, '', 'Hiba');
+                        }
+                    }
+                });
+                
+            // Ha tiltva volna, akkor hibaüzenet
+            } else {
+                alert2('Ehhez a projekthez egyedileg hozzáadott cash-flow tételek tartoznak.<br>Kérjük törölje az egyedileg hozzáadott cash-flow tételeket, mielőtt megváltoztatná a szálloda típus tulajdonságot!', '', 'Hiba');
+            }
         }
 
     });
@@ -2128,11 +2162,11 @@ $(function() {
         $(this).find('ul.alalmenu').css('display', 'none');
     });
 
-    /* Autocomplete inputra kattintva hozza le a listát */
+    // Autocomplete inputra kattintva hozza le a listát
     $(document).on('click', '.autocomp', function() {
         var that = $(this);
 
-        /* Csak ha nincs nyitva */
+        // Csak ha nincs nyitva
         if( !$('#autocomplete').is(':visible') ) {
             setTimeout(function() {
                 var e = jQuery.Event('keyup');
@@ -2444,15 +2478,15 @@ function bejBejelentok( value ) {
     }
 }
 
-/* Bejelentés saját vagy más nevében? */
+// Bejelentés saját vagy más nevében?
 function bejSajatMasneven() {
     alert2('Saját nevében jelent be hibát?', '<input class="gomb" value="Bejelentés saját néven" onclick="szurkit(); location.href=\'bejelentes.php?uj'+get_szuro_link_kieg()+'\'" type="button"><input class="gomb piros" value="Bejelentés más nevében" onclick="szurkit(); bejSzallodaValaszt()" type="button">');
 }
 
-/* Új bejelentés feltöltés: első lépés, hogy telephelyet választunk */
+// Új bejelentés feltöltés: első lépés, hogy telephelyet választunk
 function bejSzallodaValaszt() {
 
-    /* Bejelentéseknél ha módosítva van egy adatlap, és újat szeretnénk feltölteni, akkor is egyből rákérdezünk, hogy biztosan elhagyja-e */
+    // Bejelentéseknél ha módosítva van egy adatlap, és újat szeretnénk feltölteni, akkor is egyből rákérdezünk, hogy biztosan elhagyja-e
     if( formModositva ) {
         alert2('Biztosan elhagyja ezt a '+$('#rekord_neve_targy').html()+' mentés nélkül?', '<input class="gomb zold" value="Igen" onclick="szurkit(); formModositva = false; bejSzallodaValaszt();" type="button"><input class="gomb piros" value="Nem" onclick="alert2()" type="button">');
         szurkit_zar();
@@ -6321,10 +6355,19 @@ function szamlaBetolt( recid, page, muvelet, szerkeszt, kerdes_nelkul, anyagigen
     focused = false; 
     alert2('');
 
+    // Ha van módosítás az adatlapon, akkor kérdezzünk rá, hogy biztosan elhagyja-e?
     if( formModositva && !kerdes_nelkul ) {
         alert2('Biztosan elhagyja ezt '+a_az($('#rekord_neve_targy').html())+' '+$('#rekord_neve_targy').html()+' mentés nélkül?', '<input class="gomb zold" value="Igen" onclick="formModositva = false; szamlaBetolt( \'' + recid + '\', \'' + page + '\', \'' + muvelet + '\', \'' + szerkeszt + '\' ); $(\'#szamlaList li.szamla_sor\').removeClass(\'kijelolve\');" type="button"><input class="gomb piros" value="Nem" onclick="alert2()" type="button">');
         szurkit_zar();
         return false;
+    }
+    
+    // Fenntartás, projekt számlák és szerződések moduljához kell az alábbi:
+    // Ha adott modulnak létezne új felviteli cookie-ja, és el szeretnénk lépni róla, akkor nézzük meg,
+    // hogy nem épp az új felviteli módban vagyunk-e, ahonnan el szeretnénk lépni
+    // Ha van $_GET['andoc_id'] akkor eleve új felvitelben vagyunk, ha ez azonos a Cookie-ba írt ID-val, akkor törölhetjük.
+    if (_get('andoc_id') == readCookie('uj_felvitel_' + baseName(location))) {
+        eraseCookie('uj_felvitel_'+baseName(location));
     }
 
     if( szerkeszt === undefined ) {
@@ -7272,7 +7315,7 @@ function csoport_tartalom() {
     }
 }
 
-/* Duplikálás gombra kattintva feljövő kérdés */
+// Duplikálás gombra kattintva feljövő kérdés
 function bejegyzesDuplikal() {
     if( _get('uj') ){
         alert2('Új feltöltés alatt nem értelmezett a duplikálás, előbb válasszon ki egy '+$('#rekord_neve_targy').html()+'!', '', 'Hiba');
@@ -7285,9 +7328,9 @@ function bejegyzesDuplikal() {
     }
 }
 
-/* A bal oldali navpanel kijelölésének ellenőrzése */
+// A bal oldali navpanel kijelölésének ellenőrzése
 function balnav_kijelol_ell(egy_csoport_reszben_szabad, kivetel_ell){
-    /* Ha van csoport elem megjelölve, akkor azt vizsgáljuk meg, hogy a csoport összes eleme meg van-e jelölve */
+    // Ha van csoport elem megjelölve, akkor azt vizsgáljuk meg, hogy a csoport összes eleme meg van-e jelölve
     var van_resz_csoport  = false;
     var tobb_resz_csoport = false;
     elozo_csoportid = '';
@@ -7305,7 +7348,7 @@ function balnav_kijelol_ell(egy_csoport_reszben_szabad, kivetel_ell){
             elozo_csoportid = csoportid;
         });
 
-        /* Ha van félig megjelölt csoport és szabadon álló bejegyzés, akkor hibaüzenet */
+        // Ha van félig megjelölt csoport és szabadon álló bejegyzés, akkor hibaüzenet
         if(van_resz_csoport && $('li.szamla_sor.kijelolve:not(\'.behuz\')').length){
             alert2('Szabad és csoportosított '+$('#rekord_neve').html().toLowerCase()+' egyszerre nem jelölhetők!', '', 'Hiba');
             return false;
@@ -7313,7 +7356,7 @@ function balnav_kijelol_ell(egy_csoport_reszben_szabad, kivetel_ell){
 
         if(van_resz_csoport){
 
-            //Ha csak egy csoportból vannak megjelölve rekordok, de nem mind
+            // Ha csak egy csoportból vannak megjelölve rekordok, de nem mind
             if(!tobb_resz_csoport){
 
                 // Ha nincs megengedve, hogy egy csoport részben legyen kijelölve, akkor szólunk
@@ -7330,7 +7373,7 @@ function balnav_kijelol_ell(egy_csoport_reszben_szabad, kivetel_ell){
         }
     }
 
-    /* Ha ki szeretnénk épp venni egy elemet a csoportból, de van olyan kijelölt, ami nincs is csoportban akkor hibaüzenet */
+    // Ha ki szeretnénk épp venni egy elemet a csoportból, de van olyan kijelölt, ami nincs is csoportban akkor hibaüzenet
     if(kivetel_ell && $('li.szamla_sor.kijelolve:not(\'.behuz\')').length){
         alert2('Van olyan kijelölt '+$('#rekord_neve_egyes').html()+', mely nincs csoportosítva. A művelet így nem hajtható létre!', '', 'Hiba');
         return false;
@@ -8351,6 +8394,10 @@ function vissza_andoc_szamlakhoz(mehet) {
                         alert2(response.hiba, response.gomb, response.title);
                         return false;
                     } else {
+                        // Az új felvitel cookie is törölhető ekkor
+                        var cookie_neve = PHP_SELF.replace('.php', '');
+                        eraseCookie('uj_felvitel_' + cookie_neve);
+                        
                         location.href=PHP_SELF;
                     }
                 }

@@ -11,15 +11,18 @@ if( isset($_GET['nyomtat']) ) {
 // Ha hiányzik egy PDF, akkor kézzel így tudod létrehozni:
 if( isset($_GET['teszt']) ) {
     
-    $anyagrendeles_idja = 15105;        // Ide a az anyagrendelés recid-ját add meg
-    $session_user       = 'gyongyos';   // Ide azt a User nevet add meg, amit a PDF alján a dátumnál látni szeretnél
+    $anyagrendeles_idja = 18671;    // Ide a az anyagrendelés recid-ját add meg
+    $session_user       = '';       // Ide azt a User nevet add meg, amit a PDF alján a dátumnál látni szeretnél. Ha üres, akkor az anyagrendelés loginnévben írt user lesz felhasználva
     // Futtasd le ezt a PDF előállításához:
     // https://www.onteam.hu/admin/anyagigenyles.php?nyomtat=&szall&html_mutat=1&teszt
     
-    $rendeles           = $adatbazis_kapcsolat->s2('rndid', 'anyagigenyles', "`recid`='{$anyagrendeles_idja}'");
+    $rendeles           = $adatbazis_kapcsolat->s2('rndid loginnev', 'anyagigenyles', "`recid`='{$anyagrendeles_idja}'");
     $sorszam            = str_replace('/', '_', $rendeles['rndid']);        // Ide az anyagrendelés szorszámát add meg (ebből következik a PDF neve, azért kell)
     $idk                = array($anyagrendeles_idja, $anyagrendeles_idja);  // <= Szándékosan van kétszer felvéve, csak így működik!!!
     $idk_impl           = $anyagrendeles_idja;
+    if( !$session_user ) {
+        $session_user = $rendeles['loginnev'];
+    }
 }
     // Szállító kiszámítása
     $szallito = $adatbazis_kapcsolat->s2('szallito_id kcs_21', 'anyagigenyles', "`recid`='{$idk[1]}'");
@@ -560,8 +563,8 @@ function get_alairasok(){
                         ......................................................................
                         <div class="c" style="padding-right: 60px">
                         <center>
-                            Csanádi Péter
-                            <br>Központi Műszaki és Beruházási Igazgató
+                            Hadfi Tamás
+                            <br>Műszaki Igazgató
                         </center>
                         </div>
                     </td>

@@ -235,9 +235,9 @@ function checkbox_switch(id, mehet_gomb_nemszinez){
     return true;
 }
 
-/* Cookieba írás - olvasás */
+// Cookieba írás - olvasás
 function createCookie(name, value, days){
-    if (days) {
+    if ( days ) {
         var date = new Date();
         date.setTime(date.getTime()+(days*24*60*60*1000));
         var expires = '; expires='+date.toGMTString();

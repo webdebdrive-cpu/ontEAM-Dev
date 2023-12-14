@@ -10,7 +10,15 @@
 - meta.php-ban is legyen lekezelve az oldal címe
 - Ha a menüpont tartalmaz dokumentumokat is, akkor a fuggvenyek.php-ban a dokumentumtarLista() függvényben a $menupontok tömböt is tartsd karban
 - Majd a jogosultásgoat ne felejtsd el beállítani (törölni, updatelni, látni ki tud)
- 
+- esemenyek.php végén az if( isset( $_GET[$ertek['torid']] ) ) résznél a törlés lehetőség szabályozd joghoz kötve. Ugyanitt ha dokumentumos a modul, akkor azt is jelezd ($dokos_modulok-nál)
+
+BAL NAVPANEL NÉLKÜLI TARTALOM
+- header.php-ban a $bal_nav_mentes tömböt egészíts ki
+- Adott modul css-ébe írd be:
+.sor.kethasabos div.bal {
+    display: none;
+}
+
 ÚJ BEJEGYZÉS FELTÖLTÉS IKONRA KATTINTVA MI TÖRTÉNJEN
 - header.php-ben erre keress rá: "Új ikonra kattintva mi történik"
 - admin.js-ben erre keress rá: "Új ikonra kattintva mi történik"
@@ -114,4 +122,11 @@ anyagigenyles_nyomtat.php -ban le van írva
 Legfrisebb 1000 sorra való alapértelmezett szűrés, illetve anyagigényléseknél a 200-as limit a weblap.php közepefelé kerül beállításra.
 Keress rá erre: legfrissebb
 
+Anyagrendeléseknél ha nem ne jött volna létre a PDF, akkor manuálisan így tudod utólag létrehozni.
+anyagigenyles_nyomtat.php elején van rá instrukció.
+
+Fenntartás/Projekt számlák és szerződéseknél az új felvitelre cookiekat használunk, hogy ne lehessen két új felvitel egyszerre.
+Ez itt van felszabadítva:
+- admin.js szamlaBetolt() függvény elején
+- admin.js $(window).bind('beforeunload', function(e) {}  réznél is ugyanez a kód fut le
  */

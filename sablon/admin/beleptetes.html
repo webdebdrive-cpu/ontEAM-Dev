@@ -34,43 +34,52 @@
     <input type="button" class="gomb elf" value="Elfelejtettem a jelszavam" onclick="elf_jelszo()">
 </div>
 <script>
-	function elf_jelszo(mehet){
-        
-        if(!mehet){
-            alert2('Biztosan elfelejtette a jelszavát és újat szeretne igényelni?', '<input type="button" class="gomb zold" value="Igen" onclick="elf_jelszo(\'mehet\')"><input type="button" class="gomb piros" value="Nem" onclick="alert2()">');
-            return false;
-        }
-        
-        if( !$('#nev').val().trim() ){
-            alert2('Kérem adja meg a felhasználói nevét!');
-            $('#nev').addClass('hibas_ide_focus');
-            return false;
-        }
-        
-        alert2('Elfelejtett jelszó küldése...', '', 'Információ');
-        $.ajax({
-            url : 'esemenyek.php',
-            type: 'POST',
-            data: {
-                nev                 : $('#nev').val(),
-                elfelejtett_jelszo  : Date.now()
-            },
-            success: function(response){
-                if(response){
-                    response = JSON.parse(response);
-                }
-                if( response.hiba ) {
-                    alert2(response.hiba, response.gomb, 'Hiba');
-                }else{
-                    alert2('Kérése feldolgozás alatt, értesítést fog kapni új jelszaváról!', '', 'Információ');
-                }
-            },
-            complete: function(xhr) {
-                if( xhr.status != 200 ) {
-                    alert2(xhr.responseText, '', 'Hiba');
-                }
-            }
-        });
+function elf_jelszo(mehet){
 
+    if(!mehet){
+        alert2('Biztosan elfelejtette a jelszavát és újat szeretne igényelni?', '<input type="button" class="gomb zold" value="Igen" onclick="elf_jelszo(\'mehet\')"><input type="button" class="gomb piros" value="Nem" onclick="alert2()">');
+        return false;
     }
+
+    if( !$('#nev').val().trim() ){
+        alert2('Kérem adja meg a felhasználói nevét!');
+        $('#nev').addClass('hibas_ide_focus');
+        return false;
+    }
+
+    alert2('Elfelejtett jelszó küldése...', '', 'Információ');
+    $.ajax({
+        url : 'esemenyek.php',
+        type: 'POST',
+        data: {
+            nev                 : $('#nev').val(),
+            elfelejtett_jelszo  : Date.now()
+        },
+        success: function(response){
+            if(response){
+                response = JSON.parse(response);
+            }
+            if( response.hiba ) {
+                alert2(response.hiba, response.gomb, 'Hiba');
+            }else{
+                alert2('Kérése feldolgozás alatt, értesítést fog kapni új jelszaváról!', '', 'Információ');
+            }
+        },
+        complete: function(xhr) {
+            if( xhr.status != 200 ) {
+                alert2(xhr.responseText, '', 'Hiba');
+            }
+        }
+    });
+
+}
+
+
+eraseCookie('uj_felvitel_fenntartasi_szamla');
+eraseCookie('uj_felvitel_anyag_szamla');
+eraseCookie('uj_felvitel_energia_szamla');
+eraseCookie('uj_felvitel_megallapodas_szamla');
+eraseCookie('uj_felvitel_projektszamla');
+eraseCookie('uj_felvitel_projektszerzodes');
+eraseCookie('uj_felvitel_fenntartasi_szerzodes');
 </script>

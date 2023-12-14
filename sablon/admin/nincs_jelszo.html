@@ -50,16 +50,16 @@
                 return false;
             }
             if( $('#jlsz').val()!=$('#jlsz2').val() ){
-                alert2('A két jelszó nem egyezik!');
+                alert2('A két jelszó nem egyezik!', '', 'Hiba');
                 return false;
             }
             if( $('#jlsz').val().length<8 || $('#jlsz').val().length>20 ){
-                alert2('A jelszó hossza 8 és 20 karakter között legyen!');
+                alert2('A jelszó hossza 8 és 20 karakter között legyen!', '', 'Hiba');
                 return false;
             }
             jelszo = $('#jlsz').val();
             if( jelszo.search(/[a-zA-Z]/) == -1 || jelszo.search(/[0-9]/) == -1 ){
-                alert2('A jelszó betűket és számokat is tartalmazzon!');
+                alert2('A jelszó betűket és számokat is tartalmazzon!', '', 'Hiba');
                 return false;
             }
             

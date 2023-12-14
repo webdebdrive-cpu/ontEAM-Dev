@@ -1,5 +1,5 @@
 $(document).ready(function () {
-    /* Sorok kijelölése kattintásra */
+    // Sorok kijelölése kattintásra
     $(document).on('click', '.szamla_cont_tabla tbody tr', function(e) {
         $('.szamla_cont_tabla tbody tr').removeClass('kijelolve');
         $(this).addClass('kijelolve');
@@ -9,7 +9,7 @@ $(document).ready(function () {
 
 var pr_ml_levesz_id = '';
 
-/* Léptetés Előkészítés alatt státuszba */
+// Léptetés Előkészítés alatt státuszba
 function projekt_elokeszites_ala() {
     $.ajax({
         url : PHP_SELF,
@@ -37,7 +37,7 @@ function projekt_elokeszites_ala() {
     });
 }
 
-/* Léptetés Folyamatban státuszba */
+// Léptetés Folyamatban státuszba
 function projekt_folyamatbanra() {
     $.ajax({
         url : PHP_SELF,
@@ -65,7 +65,7 @@ function projekt_folyamatbanra() {
     });
 }
 
-/* Léptetés Kész státuszba */
+// Léptetés Kész státuszba
 function projekt_keszre() {
     $.ajax({
         url : PHP_SELF,
@@ -93,7 +93,7 @@ function projekt_keszre() {
     });
 }
 
-/* Léptetés Kész státuszba */
+// Léptetés Kész státuszba
 function projekt_lezartra() {
     $.ajax({
         url : PHP_SELF,
@@ -121,7 +121,7 @@ function projekt_lezartra() {
     });
 }
 
-/* Sikeres fájlfeltöltés után rákérdezünk, hogy léptessük-e tovább a Projektet */
+// Sikeres fájlfeltöltés után rákérdezünk, hogy léptessük-e tovább a Projektet
 function projekt_fajfeltoltes_utan_tovabb () {
     $.ajax({
         url : PHP_SELF,
@@ -148,7 +148,7 @@ function projekt_fajfeltoltes_utan_tovabb () {
     });
 }
 
-/* Felfüggesztés vége */
+// Felfüggesztés vége
 function projekt_felfuggesztes_vege(){
     $.ajax({
         url : PHP_SELF,
@@ -176,10 +176,10 @@ function projekt_felfuggesztes_vege(){
     });
 }
 
-/* Cashflow sor törlése */
+// Cashflow sor törlése
 function cf_sor_torol(mehet){
     
-    /* Kijelölt sor */
+    // Kijelölt sor
     var id = $('.szamla_cont_tabla tr.kijelolve').attr('data-recid');
     if( id=='szerzodesek' ){
         alert2('A szerződés cash-flow nem törölhető!', '', 'Hiba');
@@ -232,7 +232,7 @@ function cf_sor_torol(mehet){
     
 }
 
-/* Feltöltött dokumentumok sorainak végén van egy minősítés gomb, az futtatja ezt a függvényt */
+// Feltöltött dokumentumok sorainak végén van egy minősítés gomb, az futtatja ezt a függvényt
 var dok_sorszama = 0;
 function dok_minosites( sorszam, szurt = '' ) {
     dok_sorszama = sorszam;
@@ -243,7 +243,7 @@ function dok_minosites( sorszam, szurt = '' ) {
     }
 }
 
-/* Projekt újranyitása */
+// Projekt újranyitása
 function projektkezeles_ujranyit() {
     $.ajax({
         url: 'projektkezeles.php',
@@ -271,7 +271,7 @@ function projektkezeles_ujranyit() {
     });
 }
 
-/* Projekt folyamatbanra állítása */
+// Projekt folyamatbanra állítása
 function folyamatbanra_allit() {
     $.ajax({
         url : PHP_SELF,
@@ -300,7 +300,7 @@ function folyamatbanra_allit() {
     });
 }
 
-/* Projekt folyamatbanra állítása */
+// Projekt folyamatbanra állítása
 function keszre_allit() {
     $.ajax({
         url : PHP_SELF,
@@ -329,7 +329,7 @@ function keszre_allit() {
     });
 }
 
-/* Küldendő dokuemntumok bepiálásának megjegyése */
+// Küldendő dokuemntumok bepiálásának megjegyése
 function projekt_dok_check( recid, checked ) {
     $.ajax({
         url : PHP_SELF,
@@ -355,7 +355,7 @@ function projekt_dok_check( recid, checked ) {
     });
 }
 
-/* Minősített dokumentumról töröljük a minősítést */
+// Minősített dokumentumról töröljük a minősítést
 function minosites_torol( recid, tabla, mehet ) {
     if( !mehet ) {
         alert2('Biztosan törli a minősítést a következő dokumentumról:<br>'+$('#megj_kep'+recid+'_felirat a').html(), '<input type="button" class="gomb zold" value="Igen" onclick="minosites_torol( \''+recid+'\', \''+tabla+'\', \'mehet\' );"> <input type="button" class="gomb piros" value="Nem" onclick="alert2()">');
@@ -408,13 +408,7 @@ function projekt_felelos_beallitva( login_id ) {
                 response = JSON.parse(response);
                 
                 if( _get('uj') ) {
-                    /*
-                    Erre mégsincs szükség? DEL?
-                    if( response.szemelyzet_id == SZEREPKOR_TER_FELELOS ) {
-                        $('#tipus').val(PROJEKT_TIPUS).prop('disabled', true);
-                    } else {
-                        $('#tipus').val('').prop('disabled', false);
-                    }*/
+                    
                     $('#telephely_id').replaceWith(response.telephely_select);
 
                     // Eredeti szálloda visszaírása, ha lehetséges

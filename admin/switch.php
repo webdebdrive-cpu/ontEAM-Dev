@@ -793,7 +793,7 @@ foreach ( $akt_tomb as $ertek ) {
                         $erteklista = $adatbazis_kapcsolat->s2('cegkod', 'erteklista', "`csoport`='".ERTEKLISTA_KOLTSEGVISELO."' AND `id`='{$koltsegviselo_szalloda_lenyilohoz}'");
                     }
                 } else {
-                    $atmeneti   = $adatbazis_kapcsolat->s2('kolt_vis', $self.'_atmeneti', "`andoc_id`='{$_GET['andoc_id']}'");
+                    $atmeneti = $adatbazis_kapcsolat->s2('kolt_vis', $self.'_atmeneti', "`andoc_id`='{$_GET['andoc_id']}'");
                     
                     // Ideiglenesen a kötségviselőt most csak GUNDEL esetén vizsgáljuk, azaz csak ekkor szűrjük a szálloda lenyílót
                     if( $atmeneti['kolt_vis'] == 5 ) {
@@ -818,6 +818,7 @@ foreach ( $akt_tomb as $ertek ) {
                 $group_by = 'unid';
             }
             $telephelyek = $adatbazis_kapcsolat -> select('id recid unid nev modell', 'telephely', $where, 'nev', '', $group_by);
+// echo $adatbazis_kapcsolat -> gp().'<br>';
             foreach ( $telephelyek as $telephely ) {
                 // Ha csak egy szálloda van, akkor a selectből csak az az egy érték választható ki, ezt meg is tesszük, selectet így disabled-re téve.
                 // Mindezet csak akkor, ha új feltöltés üzemmódban vagyunk

@@ -249,7 +249,7 @@ function tetel_hozzaadasa() {
                         '<td class="pop_targy l">' + targy + '</td>' +
                         '<td class="pop_netto r nowrap">' + ertek + '</td>' +
                         '<td class="pop_brutto r nowrap">' + brutto + '</td>' +
-                        '<td class="pop_jogcim_txt l">' + jogcim_txt + '</td>' +
+                        '<td class="pop_jogcim_txt nowrap l">' + jogcim_txt + '</td>' +
                         '<td class="l pop_ktgnem_autocomp">'+ktgnem_txt+'</td>' +
                         '<td></td>' + 
                         /*'<td><a class="szerk" onclick="popup_tetel_sor_szerk(\'pop_tetel_'+id_tmp+'\');">🖉</a></td>' +*/
@@ -292,8 +292,6 @@ function tetel_hozzaadasa() {
 /* Tétel sor törlése */
 function popup_tetel_sor_torol(sor_id, mehet){
     
-    van_valtozas = true;
-    
     $('.'+sor_id).addClass('torles_elott');
     if(!mehet){
         alert2( 'Tárgy: '        + $('.'+sor_id+' .pop_targy')   .html() +'<br>' +
@@ -301,6 +299,9 @@ function popup_tetel_sor_torol(sor_id, mehet){
                 'Biztosan törli a számla tételt?', '<input type="button" class="gomb zold" value="Igen" onclick="popup_tetel_sor_torol(\''+sor_id+'\', \'mehet\'); alert2();"><input type="button" class="gomb piros escapes_megsem" value="Nem" onclick="alert2(); $(\'.torles_elott\').removeClass(\'torles_elott\');">');
         return false;
     }
+
+    /* Fontos, hogy ez a megerősítő kérdés után legyen, addig nincs változás */
+    van_valtozas = true;
     
     /* Sor törlése, újraszámolás */
     $('.'+sor_id).fadeOut('slow', function(){
@@ -543,6 +544,10 @@ function pop_tetelek_feltolt(){
 
 /*  Tételek kiszámítása, lássuk hol járunk a számla nettó értékéhez képest */
 function tetelek_kiszamol() {
+
+    if( akt_penznem == null ) {
+        akt_penznem = '';
+    }
     
     /* HUF esetén nem törtet írunk ki, deviza esetén viszont törtet + "Számla várh. értéke" mező is törté kell alakítani */
     var osszeg_mezo = 'netto';

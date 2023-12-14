@@ -1246,19 +1246,19 @@ require_once('selectek.php');
         $munkalap_kapcsok = $adatbazis_kapcsolat->s('recid munkalap_id', 'munkalap_kapcs', "`bejelentes_id` = '{$_GET['id']}'");
         if( $munkalap_kapcsok ) {
             $i = 1;
-            foreach($munkalap_kapcsok as $munkalap_kapcs) {
+            foreach ( $munkalap_kapcsok as $munkalap_kapcs ) {
 
                 // Csak akkor látszik a munkalap, ha az nyitott
                 $sor = $adatbazis_kapcsolat->s2('recid ikt_szam telephely_id obj_id insert_dt stat_id', 'munkalap', "`recid` = '".$munkalap_kapcs['munkalap_id']."'", '', '1');
                 if( $sor ) {
 
                     // Telephely
-                    $telephely = $adatbazis_kapcsolat->s('nev', 'telephely', 'id='.$sor['telephely_id'], '', '1');
-                    $telephely = $telephely[0]['nev'];
+                    $telephely = $adatbazis_kapcsolat->s2('nev', 'telephely', "`id`='{$sor['telephely_id']}'");
+                    $telephely = $telephely['nev'];
 
                     // Helység
-                    $helyseg = $adatbazis_kapcsolat->s('nev', 'obj', 'recid='.$sor['obj_id'], '', '1');
-                    $helyseg = $helyseg[0]['nev'];
+                    $helyseg = $adatbazis_kapcsolat->s2('nev', 'obj', "`recid`='{$sor['obj_id']}'");
+                    $helyseg = $helyseg['nev'];
 
                     $ikt_szam = '<a href="munkalap.php?id=x&amp;mezo=ikt_szam&amp;op=equal&amp;felt='.$sor['ikt_szam'].'" target="_blank">'.$sor['ikt_szam'].'</a>';
                     if( !_jog(JOG_MUNKALAP_MEGTEKINT) && !_jog(JOG_MUNKALAP_MEGTEKINT_SZALL) && !_jog(JOG_MUNKALAP_MEGTEKINT_FELADAT) ){

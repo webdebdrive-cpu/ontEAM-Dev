@@ -717,6 +717,7 @@ require_once('selectek.php');
             ').$gombok;
         }
         
+        $login_min_hossz = LOGIN_MIN_HOSSZ;
         $gombok .= nl2('
                     <script>
                     var torzsadatba_mehet = false;
@@ -725,8 +726,8 @@ require_once('selectek.php');
                         szurkit(\'mehet_megsem_rejt\');
 
                         formModositva = false;
-                        if( $(\'#nev\').val().length<8 ){
-                            alert2(\'A Login név hossza nem lehet kevesebb mint 8 karakter!\', \'\', \'Hiba\');
+                        if( $(\'#nev\').val().length<'.$login_min_hossz.' ){
+                            alert2(\'A Login név hossza nem lehet kevesebb mint '.$login_min_hossz.' karakter!\', \'\', \'Hiba\');
                             $(\'#nev\').addClass(\'hibas_ide_focus\');
                             return false;
                         }

@@ -317,6 +317,21 @@ function i_u($type, $tabla, $tomb) {
                 $_POST['tipus'] = PRIGENY_TIPUS_FENNT;
             }
         }
+        if( $type == 'update' ) {
+            // Ellenőrizzük, hogy az egy/több szállodás pipa változott-e. Ha igen, és van manuális cash-flow tétel, akkor ezt nem engedjük meg.
+            // Tulajdonképpen ezt már a JS is figyeli (admin.js-ben keresd az alábbi hibaüzenetet, amit itt dobunk lentebb), de így lesz bomba biztos.
+            $projektkezeles = $adatbazis_kapcsolat -> s2('egy_tobb', 'projektkezeles', "`recid`='{$_GET['id']}'");
+            if( $projektkezeles['egy_tobb'] != $_POST['egy_tobb'] ) {
+                if( $adatbazis_kapcsolat -> s2('recid', 'projektkezeles_cashflow_nev', "`projektkezeles_recid`='{$_GET['id']}'", '', '1') ) {
+                    echo json_encode(array(
+                                            'hiba'  => 'Ehhez a projekthez egyedileg hozzáadott cash-flow tételek tartoznak.<br>Kérjük törölje az egyedileg hozzáadott cash-flow tételeket, mielőtt megváltoztatná a szálloda típus tulajdonságot!',
+                                            'title' => 'Hiba',
+                                        ));
+                    $weblap -> leallit();
+                    exit;
+                }
+            }
+        }
         
         // Ha insert, ha update: ha a projekt felelős beosztása Területi felelős, a szálloda meg egyszállodás, akkor hibaüzenet. Ez nem megengedett.
         // Ilyen egyébként elő sem fordulhat, mert a Projekt felelőst kiválasztva változik a Szálloda lenyílója is.
@@ -767,7 +782,7 @@ function i_u($type, $tabla, $tomb) {
         } elseif( $tabla == 'login' ) {
 
             // Loginnév hossza nem lehet rövidebb mint 8 karakter
-            if( mb_strlen($_POST['nev'], 'UTF-8') < JELSZO_MIN_HOSSZ ) {
+            if( mb_strlen($_POST['nev'], 'UTF-8') < LOGIN_MIN_HOSSZ ) {
                 header('Location:login.php?uj&rovid_nev');
                 $weblap -> leallit();
                 exit;
@@ -937,11 +952,12 @@ function i_u($type, $tabla, $tomb) {
             // Ha nincs egyetlen tétel sem, akkor automatikusan létrehozunk egyet, aminek a tárgya ugyanaz mint szerződés adatlapján a tárgy,
             // a várható érkezés ugyanaz, mint a szerződésen a kivitelezés vége, a nettó összeg pedig ugyanaz, mint a szerződés nettó értéke.
             // Ha dedvizás a szerződés, akkor viszont a tételnél is a dev_net oszlopot töltjük ki
-            if( !$_SESSION['pr_szer_tetel_targy'] ) {
-                $_SESSION['pr_szer_tetel_targy']    = array($_POST['targy']     );
-                $_SESSION['pr_szer_tetel_varh_erk'] = array($_POST['kiv_vege']  );
-                $_SESSION['pr_szer_tetel_varh_ert'] = array($_POST['szerz_ossz']);
-                $_SESSION['pr_szer_tetel_dev_net']  = array($_POST['dev_net']   );
+            $fej_id = 'uj';
+            if( !$_SESSION['pr_szer_tetel_targy'][$fej_id] ) {
+                $_SESSION['pr_szer_tetel_targy'   ][$fej_id] = array($_POST['targy']     );
+                $_SESSION['pr_szer_tetel_varh_erk'][$fej_id] = array($_POST['kiv_vege']  );
+                $_SESSION['pr_szer_tetel_varh_ert'][$fej_id] = array($_POST['szerz_ossz']);
+                $_SESSION['pr_szer_tetel_dev_net' ][$fej_id] = array($_POST['dev_net']   );
             }
             
             // 2021.10.30 Nem generálunk saját szerződés számot, mert ezt most már az Andocból fog érkezni
@@ -1025,7 +1041,7 @@ function i_u($type, $tabla, $tomb) {
 
 // Debug
 //echo '<pre style="font-size: 1.4rem">';
-//echo $adatbazis_kapcsolat->gp() . '<br>';
+// echo $adatbazis_kapcsolat->gp() . '<br>';
 //echo '</pre>';
 //exit;
 
@@ -1048,32 +1064,33 @@ function i_u($type, $tabla, $tomb) {
             
             $i = 0;
             $anyag_rend_idk = array();
-            foreach ( $_SESSION['anyag_szla_tetel_cikktorzs_uj'] as $cikktorzs ) {
-                $netto_ert  = str_replace(' ', '',  $_SESSION['anyag_szla_tetel_netto_ert_uj'][$i]);
-                $brutto_ert = str_replace(' ', '',  $_SESSION['anyag_szla_tetel_brutto_ert_uj'][$i]);
-                $dev_net    = str_replace(array(' ', ','), array('', '.'),  $_SESSION['anyag_szla_tetel_dev_net_uj'][$i]);
-                $dev_br     = str_replace(array(' ', ','), array('', '.'),  $_SESSION['anyag_szla_tetel_dev_br_uj'][$i]);
+            $fej_id = 'uj';
+            foreach ( $_SESSION['anyag_szla_tetel_cikktorzs'][$fej_id] as $cikktorzs ) {
+                $netto_ert  = str_replace(' ', '',  $_SESSION['anyag_szla_tetel_netto_ert' ][$fej_id][$i]);
+                $brutto_ert = str_replace(' ', '',  $_SESSION['anyag_szla_tetel_brutto_ert'][$fej_id][$i]);
+                $dev_net    = str_replace(array(' ', ','), array('', '.'),  $_SESSION['anyag_szla_tetel_dev_net'][$fej_id][$i]);
+                $dev_br     = str_replace(array(' ', ','), array('', '.'),  $_SESSION['anyag_szla_tetel_dev_br' ][$fej_id][$i]);
                 // Devizás számla esetén a HUF nettó-bruttót a devizából kell visszaszámolni
                 if( $_POST['kcs_21'] != KCS_21_HUF ) {
                     $netto_ert  = round($dev_net * $_POST['arfolyam']);
                     $brutto_ert = round($dev_br  * $_POST['arfolyam']);
                 }
-                $rndid          = $_SESSION['anyag_szla_tetel_rndid_uj'][$i];
-                $rnd_recid      = $_SESSION['anyag_szla_tetel_rnd_recid_uj'][$i];
-                $cikktorzs      = $_SESSION['anyag_szla_tetel_cikktorzs_uj'][$i];
-                $szall_csz      = $_SESSION['anyag_szla_tetel_szall_csz_uj'][$i];
-                $cikktorzs_id   = $_SESSION['anyag_szla_tetel_cikktorzs_id_uj'][$i];
-                $rndmen         = $_SESSION['anyag_szla_tetel_rndmen_uj'][$i];
-                $rndear         = $_SESSION['anyag_szla_tetel_rndear_uj'][$i];
-                $cikkmee        = $_SESSION['anyag_szla_tetel_cikkmee_uj'][$i];
-                $jogcim_sor     = $adatbazis_kapcsolat->s2('recid jogcim uzemresz megn szla_szam ktghely ktghely_id', 'jogcim', "`recid`='{$_SESSION['anyag_szla_tetel_jogcim_uj'][$i]}'");
-                $afakod_sor     = $adatbazis_kapcsolat->s2('recid kod afa nev', 'afakod', "`recid`='{$_SESSION['anyag_szla_tetel_afakod_uj'][$i]}'");
-                $valtozott      = $_SESSION['anyag_szla_tetel_valtozott_uj'][$i];
+                $rndid          = $_SESSION['anyag_szla_tetel_rndid'        ][$fej_id][$i];
+                $rnd_recid      = $_SESSION['anyag_szla_tetel_rnd_recid'    ][$fej_id][$i];
+                $cikktorzs      = $_SESSION['anyag_szla_tetel_cikktorzs'    ][$fej_id][$i];
+                $szall_csz      = $_SESSION['anyag_szla_tetel_szall_csz'    ][$fej_id][$i];
+                $cikktorzs_id   = $_SESSION['anyag_szla_tetel_cikktorzs_id' ][$fej_id][$i];
+                $rndmen         = $_SESSION['anyag_szla_tetel_rndmen'       ][$fej_id][$i];
+                $rndear         = $_SESSION['anyag_szla_tetel_rndear'       ][$fej_id][$i];
+                $cikkmee        = $_SESSION['anyag_szla_tetel_cikkmee'      ][$fej_id][$i];
+                $jogcim_sor     = $adatbazis_kapcsolat->s2('recid jogcim uzemresz megn szla_szam ktghely ktghely_id', 'jogcim', "`recid`='{$_SESSION['anyag_szla_tetel_jogcim'][$fej_id][$i]}'");
+                $afakod_sor     = $adatbazis_kapcsolat->s2('recid kod afa nev', 'afakod', "`recid`='{$_SESSION['anyag_szla_tetel_afakod'][$fej_id][$i]}'");
+                $valtozott      = $_SESSION['anyag_szla_tetel_valtozott'][$fej_id][$i];
 
                 // Ha ismert a recid, akkor kérjük le az átmeneti táblából az adatokat és azokban írjuk át a SESSION adatait, és így mentjük le
                 // NA ILYET MÁR NEM CSINÁLUNK, MERT ÚJABBAN ANDOCBÓL ÉRKEZŐ tételeket már nem dolgozzuk fel
-                // if( $_SESSION['fennt_szla_tetel_recid'][$i] ) {
-                    // $tetel = $adatbazis_kapcsolat->s2('*', 'fenntartasi_szamla_tetel_atmeneti', "`recid`='{$_SESSION['fennt_szla_tetel_recid'][$i]}'");
+                // if( $_SESSION['fennt_szla_tetel_recid'][$fej_id][$i] ) {
+                    // $tetel = $adatbazis_kapcsolat->s2('*', 'fenntartasi_szamla_tetel_atmeneti', "`recid`='{$_SESSION['fennt_szla_tetel_recid'][$fej_id][$i]}'");
                     // if( $tetel === false ) { $db_error = true; }
                     
 //                    $rownum = $adatbazis_kapcsolat->s2('MAX(`rownum`)', 'fenntartasi_szamla_tetel', "`fenntartasi_szamla_recid`='{$id}'");
@@ -1193,21 +1210,21 @@ function i_u($type, $tabla, $tomb) {
             if( $sql === false ) { $db_error = true; }
             
             // A feldolgozással ürítsük az ide vonatkozó SESSION-öket.
-            $_SESSION['anyag_szla_tetel_cikktorzs_uj']  =
-            $_SESSION['anyag_szla_tetel_cikktorzs_id_uj']= 
-            $_SESSION['anyag_szla_tetel_targy_uj']      =
-            $_SESSION['anyag_szla_tetel_netto_ert_uj']  = 
-            $_SESSION['anyag_szla_tetel_brutto_ert_uj'] =
-            $_SESSION['anyag_szla_tetel_dev_net_uj']    =
-            $_SESSION['anyag_szla_tetel_dev_br_uj']     =
-            $_SESSION['anyag_szla_tetel_rndid_uj']      = 
-            $_SESSION['anyag_szla_tetel_rnd_recid_uj']  = 
-            $_SESSION['anyag_szla_tetel_szall_csz_uj']  = 
-            $_SESSION['anyag_szla_tetel_rndmen_uj']     = 
-            $_SESSION['anyag_szla_tetel_rndear_uj']     = 
-            $_SESSION['anyag_szla_tetel_cikkmee_uj']    = 
-            $_SESSION['anyag_szla_tetel_valtozott_uj']  = 
-                                                array();
+            $_SESSION['anyag_szla_tetel_cikktorzs'      ][$fej_id] =
+            $_SESSION['anyag_szla_tetel_cikktorzs_id'   ][$fej_id] = 
+            $_SESSION['anyag_szla_tetel_targy'          ][$fej_id] =
+            $_SESSION['anyag_szla_tetel_netto_ert'      ][$fej_id] = 
+            $_SESSION['anyag_szla_tetel_brutto_ert'     ][$fej_id] =
+            $_SESSION['anyag_szla_tetel_dev_net'        ][$fej_id] =
+            $_SESSION['anyag_szla_tetel_dev_br'         ][$fej_id] =
+            $_SESSION['anyag_szla_tetel_rndid'          ][$fej_id] = 
+            $_SESSION['anyag_szla_tetel_rnd_recid'      ][$fej_id] = 
+            $_SESSION['anyag_szla_tetel_szall_csz'      ][$fej_id] = 
+            $_SESSION['anyag_szla_tetel_rndmen'         ][$fej_id] = 
+            $_SESSION['anyag_szla_tetel_rndear'         ][$fej_id] = 
+            $_SESSION['anyag_szla_tetel_cikkmee'        ][$fej_id] = 
+            $_SESSION['anyag_szla_tetel_valtozott'      ][$fej_id] = 
+                                                                    array();
 
         }
 
@@ -1296,18 +1313,19 @@ function i_u($type, $tabla, $tomb) {
         if( $tabla == 'energia_szamla' ) {
 
             $i = 0;
-            foreach ( $_SESSION['energia_szla_tetel_jogcim_uj'] as $valami ) {
+            $fej_id = 'uj';
+            foreach ( $_SESSION['energia_szla_tetel_jogcim'][$fej_id] as $valami ) {
 
                 // $rownum = $i + 1;
                 
-                $jogcim_sor = $adatbazis_kapcsolat->s2('recid jogcim uzemresz megn szla_szam ktghely ktghely_id', 'jogcim', "`recid`='{$_SESSION['energia_szla_tetel_jogcim_uj'][$i]}'");
-                $afakod_sor = $adatbazis_kapcsolat->s2('recid kod afa nev', 'afakod', "`recid`='{$_SESSION['energia_szla_tetel_afakod_uj'][$i]}'");
-                $nullas     = $_SESSION['energia_szla_tetel_nullas_uj'][$i];
-                $valtozott  = $_SESSION['energia_szla_tetel_valtozott_uj'][$i];
-                $netto_ert  = str_replace(' ', '',  $_SESSION['energia_szla_tetel_netto_uj'][$i]);
-                $brutto_ert = str_replace(' ', '',  $_SESSION['energia_szla_tetel_brutto_uj'][$i]);
-                $dev_net    = str_replace(array(' ', ','), array('', '.'),  $_SESSION['energia_szla_tetel_dev_net_uj'][$i]);
-                $dev_br     = str_replace(array(' ', ','), array('', '.'),  $_SESSION['energia_szla_tetel_dev_br_uj'][$i]);
+                $jogcim_sor = $adatbazis_kapcsolat->s2('recid jogcim uzemresz megn szla_szam ktghely ktghely_id', 'jogcim', "`recid`='{$_SESSION['energia_szla_tetel_jogcim'][$fej_id][$i]}'");
+                $afakod_sor = $adatbazis_kapcsolat->s2('recid kod afa nev', 'afakod', "`recid`='{$_SESSION['energia_szla_tetel_afakod'][$fej_id][$i]}'");
+                $nullas     = $_SESSION['energia_szla_tetel_nullas'   ][$fej_id][$i];
+                $valtozott  = $_SESSION['energia_szla_tetel_valtozott'][$fej_id][$i];
+                $netto_ert  = str_replace(' ', '',  $_SESSION['energia_szla_tetel_netto' ][$fej_id][$i]);
+                $brutto_ert = str_replace(' ', '',  $_SESSION['energia_szla_tetel_brutto'][$fej_id][$i]);
+                $dev_net    = str_replace(array(' ', ','), array('', '.'),  $_SESSION['energia_szla_tetel_dev_net'][$fej_id][$i]);
+                $dev_br     = str_replace(array(' ', ','), array('', '.'),  $_SESSION['energia_szla_tetel_dev_br' ][$fej_id][$i]);
                 // Devizás számla esetén a HUF nettó-bruttót a devizából kell visszaszámolni
                 if( $_POST['kcs_21'] != KCS_21_HUF ) {
                     $netto_ert  = round($dev_net * $_POST['arfolyam']);
@@ -1316,8 +1334,8 @@ function i_u($type, $tabla, $tomb) {
                 
                 // Ha ismert a recid, akkor kérjük le az átmeneti táblából az adatokat és azokban írjuk át a SESSION adatait, és így mentjük le
                 // NA ILYET MÁR NEM CSINÁLUNK, MERT ÚJABBAN ANDOCBÓL ÉRKEZŐ tételeket már nem dolgozzuk fel
-                // if( $_SESSION['energia_szla_tetel_recid_uj'][$i] ) {
-                    // $tetel = $adatbazis_kapcsolat->s2('*', 'energia_szamla_tetel_atmeneti', "`recid`='{$_SESSION['energia_szla_tetel_recid_uj'][$i]}'");
+                // if( $_SESSION['energia_szla_tetel_recid'][$fej_id][$i] ) {
+                    // $tetel = $adatbazis_kapcsolat->s2('*', 'energia_szamla_tetel_atmeneti', "`recid`='{$_SESSION['energia_szla_tetel_recid'][$fej_id][$i]}'");
                     // if( $tetel === false ) { $db_error = true; }
                                        
                     // $tetel['rownum']        = $rownum;
@@ -1328,19 +1346,19 @@ function i_u($type, $tabla, $tomb) {
                     $tetel['ktgnem_id']     = $jogcim_sor['szla_szam'];
                     $tetel['ktghely']       = $jogcim_sor['ktghely'];
                     $tetel['ktghely_id']    = $jogcim_sor['ktghely_id'];
-                    $tetel['dijelem_recid'] = $_SESSION['energia_szla_tetel_dijelem_uj'][$i];
-                    $tetel['aranyos']       = $_SESSION['energia_szla_tetel_aranyos_uj'][$i];
-                    $tetel['tol']           = $_SESSION['energia_szla_tetel_tol_uj'][$i];
-                    $tetel['ig']            = $_SESSION['energia_szla_tetel_ig_uj'][$i];
-                    $tetel['indul']         = $_SESSION['energia_szla_tetel_indul_uj'][$i];
-                    $tetel['zar']           = $_SESSION['energia_szla_tetel_zar_uj'][$i];
-                    $tetel['szorzo']        = $_SESSION['energia_szla_tetel_szorzo_uj'][$i];
-                    $tetel['mert']          = $_SESSION['energia_szla_tetel_mert_uj'][$i];
-                    $tetel['kwh_szorzo']    = $_SESSION['energia_szla_tetel_kwh_szorzo_uj'][$i];
-                    $tetel['menny']         = $_SESSION['energia_szla_tetel_menny_uj'][$i];
-                    $tetel['egyseg']        = $_SESSION['energia_szla_tetel_egyseg_uj'][$i];
-                    $tetel['menny_kwh']     = $_SESSION['energia_szla_tetel_menny_kwh_uj'][$i];
-                    $tetel['egyseg_ar']     = $_SESSION['energia_szla_tetel_egyseg_ar_uj'][$i];
+                    $tetel['dijelem_recid'] = $_SESSION['energia_szla_tetel_dijelem'    ][$fej_id][$i];
+                    $tetel['aranyos']       = $_SESSION['energia_szla_tetel_aranyos'    ][$fej_id][$i];
+                    $tetel['tol']           = $_SESSION['energia_szla_tetel_tol'        ][$fej_id][$i];
+                    $tetel['ig']            = $_SESSION['energia_szla_tetel_ig'         ][$fej_id][$i];
+                    $tetel['indul']         = $_SESSION['energia_szla_tetel_indul'      ][$fej_id][$i];
+                    $tetel['zar']           = $_SESSION['energia_szla_tetel_zar'        ][$fej_id][$i];
+                    $tetel['szorzo']        = $_SESSION['energia_szla_tetel_szorzo'     ][$fej_id][$i];
+                    $tetel['mert']          = $_SESSION['energia_szla_tetel_mert'       ][$fej_id][$i];
+                    $tetel['kwh_szorzo']    = $_SESSION['energia_szla_tetel_kwh_szorzo' ][$fej_id][$i];
+                    $tetel['menny']         = $_SESSION['energia_szla_tetel_menny'      ][$fej_id][$i];
+                    $tetel['egyseg']        = $_SESSION['energia_szla_tetel_egyseg'     ][$fej_id][$i];
+                    $tetel['menny_kwh']     = $_SESSION['energia_szla_tetel_menny_kwh'  ][$fej_id][$i];
+                    $tetel['egyseg_ar']     = $_SESSION['energia_szla_tetel_egyseg_ar'  ][$fej_id][$i];
                     $tetel['netto_ert']     = $netto_ert;
                     $tetel['brutto_ert']    = $brutto_ert;
                     $tetel['dev_net']       = $dev_net;
@@ -1429,28 +1447,28 @@ function i_u($type, $tabla, $tomb) {
             if( $sql === false ) { $db_error = true; }
             
             // A feldolgozással ürítsük az ide vonatkozó SESSION-öket.
-            $_SESSION['energia_szla_tetel_jogcim_uj']       =
-            $_SESSION['energia_szla_tetel_afakod_uj']       = 
-            $_SESSION['energia_szla_tetel_nullas_uj']       =
-            $_SESSION['energia_szla_tetel_valtozott_uj']    =
-            $_SESSION['energia_szla_tetel_netto_uj']        =
-            $_SESSION['energia_szla_tetel_brutto_uj']       =
-            $_SESSION['energia_szla_tetel_dev_net_uj']      =
-            $_SESSION['energia_szla_tetel_dev_br_uj']       =
-            $_SESSION['energia_szla_tetel_dijelem_uj']      =
-            $_SESSION['energia_szla_tetel_aranyos_uj']      =
-            $_SESSION['energia_szla_tetel_tol_uj']          =
-            $_SESSION['energia_szla_tetel_ig_uj']           =
-            $_SESSION['energia_szla_tetel_indul_uj']        =
-            $_SESSION['energia_szla_tetel_zar_uj']          =
-            $_SESSION['energia_szla_tetel_szorzo_uj']       =
-            $_SESSION['energia_szla_tetel_mert_uj']         =
-            $_SESSION['energia_szla_tetel_kwh_szorzo_uj']   =
-            $_SESSION['energia_szla_tetel_menny_uj']        =
-            $_SESSION['energia_szla_tetel_egyseg_uj']       =
-            $_SESSION['energia_szla_tetel_menny_kwh_uj']    =
-            $_SESSION['energia_szla_tetel_egyseg_ar_uj']    =
-                                                        array();
+            $_SESSION['energia_szla_tetel_jogcim_uj'    ][$fej_id] =
+            $_SESSION['energia_szla_tetel_afakod_uj'    ][$fej_id] = 
+            $_SESSION['energia_szla_tetel_nullas_uj'    ][$fej_id] =
+            $_SESSION['energia_szla_tetel_valtozott_uj' ][$fej_id] =
+            $_SESSION['energia_szla_tetel_netto_uj'     ][$fej_id] =
+            $_SESSION['energia_szla_tetel_brutto_uj'    ][$fej_id] =
+            $_SESSION['energia_szla_tetel_dev_net_uj'   ][$fej_id] =
+            $_SESSION['energia_szla_tetel_dev_br_uj'    ][$fej_id] =
+            $_SESSION['energia_szla_tetel_dijelem_uj'   ][$fej_id] =
+            $_SESSION['energia_szla_tetel_aranyos_uj'   ][$fej_id] =
+            $_SESSION['energia_szla_tetel_tol_uj'       ][$fej_id] =
+            $_SESSION['energia_szla_tetel_ig_uj'        ][$fej_id] =
+            $_SESSION['energia_szla_tetel_indul_uj'     ][$fej_id] =
+            $_SESSION['energia_szla_tetel_zar_uj'       ][$fej_id] =
+            $_SESSION['energia_szla_tetel_szorzo_uj'    ][$fej_id] =
+            $_SESSION['energia_szla_tetel_mert_uj'      ][$fej_id] =
+            $_SESSION['energia_szla_tetel_kwh_szorzo_uj'][$fej_id] =
+            $_SESSION['energia_szla_tetel_menny_uj'     ][$fej_id] =
+            $_SESSION['energia_szla_tetel_egyseg_uj'    ][$fej_id] =
+            $_SESSION['energia_szla_tetel_menny_kwh_uj' ][$fej_id] =
+            $_SESSION['energia_szla_tetel_egyseg_ar_uj' ][$fej_id] =
+                                                                    array();
 
         }
         
@@ -1458,25 +1476,26 @@ function i_u($type, $tabla, $tomb) {
         if( $tabla == 'fenntartasi_szamla' ) {
 
             $i = 0;
-            foreach ( $_SESSION['fennt_szla_tetel_targy_uj'] as $targy ) {
-                $netto_ert  = str_replace(' ', '',  $_SESSION['fennt_szla_tetel_netto_ert_uj'][$i]);
-                $brutto_ert = str_replace(' ', '',  $_SESSION['fennt_szla_tetel_brutto_ert_uj'][$i]);
-                $dev_net    = str_replace(array(' ', ','), array('', '.'),  $_SESSION['fennt_szla_tetel_dev_net_uj'][$i]);
-                $dev_br     = str_replace(array(' ', ','), array('', '.'),  $_SESSION['fennt_szla_tetel_dev_br_uj'][$i]);
+            $fej_id = 'uj';
+            foreach ( $_SESSION['fennt_szla_tetel_targy'][$fej_id] as $targy ) {
+                $netto_ert  = str_replace(' ', '',  $_SESSION['fennt_szla_tetel_netto_ert' ][$fej_id][$i]);
+                $brutto_ert = str_replace(' ', '',  $_SESSION['fennt_szla_tetel_brutto_ert'][$fej_id][$i]);
+                $dev_net    = str_replace(array(' ', ','), array('', '.'),  $_SESSION['fennt_szla_tetel_dev_net'][$fej_id][$i]);
+                $dev_br     = str_replace(array(' ', ','), array('', '.'),  $_SESSION['fennt_szla_tetel_dev_br' ][$fej_id][$i]);
                 // Devizás számla esetén a HUF nettó-bruttót a devizából kell visszaszámolni
                 if( $_POST['kcs_21'] != KCS_21_HUF ) {
                     $netto_ert  = round($dev_net * $_POST['arfolyam']);
                     $brutto_ert = round($dev_br  * $_POST['arfolyam']);
                 }
-                $targy      = $_SESSION['fennt_szla_tetel_targy_uj'][$i];
-                $jogcim_sor = $adatbazis_kapcsolat->s2('recid jogcim uzemresz megn szla_szam ktghely ktghely_id', 'jogcim', "`recid`='{$_SESSION['fennt_szla_tetel_jogcim_uj'][$i]}'");
-                $afakod_sor = $adatbazis_kapcsolat->s2('recid kod afa nev', 'afakod', "`recid`='{$_SESSION['fennt_szla_tetel_afakod_uj'][$i]}'");
-                $valtozott  = $_SESSION['fennt_szla_tetel_valtozott_uj'][$i];
+                $targy      = $_SESSION['fennt_szla_tetel_targy'][$fej_id][$i];
+                $jogcim_sor = $adatbazis_kapcsolat->s2('recid jogcim uzemresz megn szla_szam ktghely ktghely_id', 'jogcim', "`recid`='{$_SESSION['fennt_szla_tetel_jogcim'][$fej_id][$i]}'");
+                $afakod_sor = $adatbazis_kapcsolat->s2('recid kod afa nev', 'afakod', "`recid`='{$_SESSION['fennt_szla_tetel_afakod'][$fej_id][$i]}'");
+                $valtozott  = $_SESSION['fennt_szla_tetel_valtozott'][$fej_id][$i];
 
                 // Ha ismert a recid, akkor kérjük le az átmeneti táblából az adatokat és azokban írjuk át a SESSION adatait, és így mentjük le
                 // NA ILYET MÁR NEM CSINÁLUNK, MERT ÚJABBAN ANDOCBÓL ÉRKEZŐ tételeket már nem dolgozzuk fel
-                // if( $_SESSION['fennt_szla_tetel_recid_uj'][$i] ) {
-                    // $tetel = $adatbazis_kapcsolat->s2('*', 'fenntartasi_szamla_tetel_atmeneti', "`recid`='{$_SESSION['fennt_szla_tetel_recid_uj'][$i]}'");
+                // if( $_SESSION['fennt_szla_tetel_recid'][$fej_id][$i] ) {
+                    // $tetel = $adatbazis_kapcsolat->s2('*', 'fenntartasi_szamla_tetel_atmeneti', "`recid`='{$_SESSION['fennt_szla_tetel_recid'][$fej_id][$i]}'");
                     // if( $tetel === false ) { $db_error = true; }
                     
 //                    $rownum = $adatbazis_kapcsolat->s2('MAX(`rownum`)', 'fenntartasi_szamla_tetel', "`fenntartasi_szamla_recid`='{$id}'");
@@ -1566,13 +1585,13 @@ function i_u($type, $tabla, $tomb) {
             if( $sql === false ) { $db_error = true; }
             
             // A feldolgozással ürítsük az ide vonatkozó SESSION-öket.
-            $_SESSION['fennt_szla_tetel_targy_uj']      =
-            $_SESSION['fennt_szla_tetel_netto_ert_uj']  = 
-            $_SESSION['fennt_szla_tetel_brutto_ert_uj'] =
-            $_SESSION['fennt_szla_tetel_dev_net_uj']    =
-            $_SESSION['fennt_szla_tetel_dev_br_uj']     =
-            $_SESSION['fennt_szla_tetel_valtozott_uj']  = 
-                                                    array();
+            $_SESSION['fennt_szla_tetel_targy'      ][$fej_id] =
+            $_SESSION['fennt_szla_tetel_netto_ert'  ][$fej_id] = 
+            $_SESSION['fennt_szla_tetel_brutto_ert' ][$fej_id] =
+            $_SESSION['fennt_szla_tetel_dev_net'    ][$fej_id] =
+            $_SESSION['fennt_szla_tetel_dev_br'     ][$fej_id] =
+            $_SESSION['fennt_szla_tetel_valtozott'  ][$fej_id] = 
+                                                                array();
 
         }
         
@@ -1580,16 +1599,17 @@ function i_u($type, $tabla, $tomb) {
         if( $tabla == 'fenntartasi_szerzodes' ) {
 
             $i = 0;
-            foreach ( $_SESSION['fennt_szerz_tetel_telephely_id_uj'] as $telephely ) {
-                $telephely      = $_SESSION['fennt_szerz_tetel_telephely_id_uj'][$i];
-                $targy          = $_SESSION['fennt_szerz_tetel_targy_uj'][$i];
-                $varh_erk       = $_SESSION['fennt_szerz_tetel_varh_erk_uj'][$i];
-                $varh_ert       = str_replace(' ', '', $_SESSION['fennt_szerz_tetel_varh_ert_uj'][$i]);
-                $dev_varh_ert   = str_replace(array(' ', ','), array('', '.'), $_SESSION['fennt_szerz_tetel_dev_varh_ert_uj'][$i]);
-                $telj_dt        = $_SESSION['fennt_szerz_tetel_telj_dt_uj'][$i];
-                $netto_ert      = str_replace(' ', '', $_SESSION['fennt_szerz_tetel_netto_ert_uj'][$i]);
-                $dev_net        = str_replace(array(' ', ','), array('', '.'), $_SESSION['fennt_szerz_tetel_dev_net_uj'][$i]);
-                $valtozott      = $_SESSION['fennt_szerz_tetel_valtozott_uj'][$i];
+            $fej_id = 'uj';
+            foreach ( $_SESSION['fennt_szerz_tetel_telephely_id'][$fej_id] as $telephely ) {
+                $telephely      = $_SESSION['fennt_szerz_tetel_telephely_id'][$fej_id][$i];
+                $targy          = $_SESSION['fennt_szerz_tetel_targy'       ][$fej_id][$i];
+                $varh_erk       = $_SESSION['fennt_szerz_tetel_varh_erk'    ][$fej_id][$i];
+                $varh_ert       = str_replace(' ', '', $_SESSION['fennt_szerz_tetel_varh_ert'][$fej_id][$i]);
+                $dev_varh_ert   = str_replace(array(' ', ','), array('', '.'), $_SESSION['fennt_szerz_tetel_dev_varh_ert'][$fej_id][$i]);
+                $telj_dt        = $_SESSION['fennt_szerz_tetel_telj_dt'][$fej_id][$i];
+                $netto_ert      = str_replace(' ', '', $_SESSION['fennt_szerz_tetel_netto_ert'][$fej_id][$i]);
+                $dev_net        = str_replace(array(' ', ','), array('', '.'), $_SESSION['fennt_szerz_tetel_dev_net'][$fej_id][$i]);
+                $valtozott      = $_SESSION['fennt_szerz_tetel_valtozott'][$fej_id][$i];
                 
                 // Devizás szerződés esetén a Ft-os mezőket az árfolyam alapján töltsük ki
                 if( $_POST['kcs_21'] != KCS_21_HUF ) {
@@ -1623,16 +1643,16 @@ function i_u($type, $tabla, $tomb) {
             $sql = $adatbazis_kapcsolat->d('fenntartasi_szerzodes_atmeneti', "`recid`='{$_POST['atmeneti_recid']}'");
             if( $sql === false ) { $db_error = true; }
             
-            $_SESSION['fennt_szerz_tetel_telephely_id_uj']  =
-            $_SESSION['fennt_szerz_tetel_targy_uj'][$i]     = 
-            $_SESSION['fennt_szerz_tetel_varh_erk_uj']      =
-            $_SESSION['fennt_szerz_tetel_varh_ert_uj']      =
-            $_SESSION['fennt_szerz_tetel_dev_varh_ert_uj']  =
-            $_SESSION['fennt_szerz_tetel_telj_dt_uj']       =
-            $_SESSION['fennt_szerz_tetel_netto_ert_uj']     =
-            $_SESSION['fennt_szerz_tetel_dev_net_uj']       =
-            $_SESSION['fennt_szerz_tetel_valtozott_uj']     = 
-                                                        array();
+            $_SESSION['fennt_szerz_tetel_telephely_id'  ][$fej_id] =
+            $_SESSION['fennt_szerz_tetel_targy'         ][$fej_id] = 
+            $_SESSION['fennt_szerz_tetel_varh_erk'      ][$fej_id] =
+            $_SESSION['fennt_szerz_tetel_varh_ert'      ][$fej_id] =
+            $_SESSION['fennt_szerz_tetel_dev_varh_ert'  ][$fej_id] =
+            $_SESSION['fennt_szerz_tetel_telj_dt'       ][$fej_id] =
+            $_SESSION['fennt_szerz_tetel_netto_ert'     ][$fej_id] =
+            $_SESSION['fennt_szerz_tetel_dev_net'       ][$fej_id] =
+            $_SESSION['fennt_szerz_tetel_valtozott'     ][$fej_id] = 
+                                                                    array();
 
         }
 
@@ -1695,16 +1715,17 @@ function i_u($type, $tabla, $tomb) {
         if( $tabla == 'megallapodas' ) {
 
             $i = 0;
-            foreach ( $_SESSION['megall_szerz_tetel_telephely_id_uj'] as $telephely ) {
-                $telephely      = $_SESSION['megall_szerz_tetel_telephely_id_uj'][$i];
-                $targy          = $_SESSION['megall_szerz_tetel_targy_uj'][$i];
-                $varh_erk       = $_SESSION['megall_szerz_tetel_varh_erk_uj'][$i];
-                $varh_ert       = str_replace(' ', '', $_SESSION['megall_szerz_tetel_varh_ert_uj'][$i]);
-                $dev_varh_ert   = str_replace(array(' ', ','), array('', '.'), $_SESSION['megall_szerz_tetel_dev_varh_ert_uj'][$i]);
-                $telj_dt        = $_SESSION['megall_szerz_tetel_telj_dt_uj'][$i];
-                $netto_ert      = str_replace(' ', '', $_SESSION['megall_szerz_tetel_netto_ert_uj'][$i]);
-                $dev_net        = str_replace(array(' ', ','), array('', '.'), $_SESSION['megall_szerz_tetel_dev_net_uj'][$i]);
-                $valtozott      = $_SESSION['megall_szerz_tetel_valtozott_uj'][$i];
+            $fej_id = 'uj';
+            foreach ( $_SESSION['megall_szerz_tetel_telephely_id'][$fej_id] as $telephely ) {
+                $telephely      = $_SESSION['megall_szerz_tetel_telephely_id'   ][$fej_id][$i];
+                $targy          = $_SESSION['megall_szerz_tetel_targy'          ][$fej_id][$i];
+                $varh_erk       = $_SESSION['megall_szerz_tetel_varh_erk'       ][$fej_id][$i];
+                $varh_ert       = str_replace(' ', '', $_SESSION['megall_szerz_tetel_varh_ert'][$fej_id][$i]);
+                $dev_varh_ert   = str_replace(array(' ', ','), array('', '.'), $_SESSION['megall_szerz_tetel_dev_varh_ert'][$fej_id][$i]);
+                $telj_dt        = $_SESSION['megall_szerz_tetel_telj_dt'][$fej_id][$i];
+                $netto_ert      = str_replace(' ', '', $_SESSION['megall_szerz_tetel_netto_ert'][$fej_id][$i]);
+                $dev_net        = str_replace(array(' ', ','), array('', '.'), $_SESSION['megall_szerz_tetel_dev_net'][$fej_id][$i]);
+                $valtozott      = $_SESSION['megall_szerz_tetel_valtozott'][$fej_id][$i];
                 
                 // Devizás szerződés esetén a Ft-os mezőket az árfolyam alapján töltsük ki
                 if( $_POST['kcs_21'] != KCS_21_HUF ) {
@@ -1747,20 +1768,21 @@ function i_u($type, $tabla, $tomb) {
         if( $tabla == 'megallapodas_szamla' ) {
 
             $i = 0;
-            foreach ( $_SESSION['megall_szla_tetel_targy_uj'] as $targy ) {
-                $netto_ert  = str_replace(' ', '',  $_SESSION['megall_szla_tetel_netto_ert_uj'][$i]);
-                $brutto_ert = str_replace(' ', '',  $_SESSION['megall_szla_tetel_brutto_ert_uj'][$i]);
-                $dev_net    = str_replace(array(' ', ','), array('', '.'),  $_SESSION['megall_szla_tetel_dev_net_uj'][$i]);
-                $dev_br     = str_replace(array(' ', ','), array('', '.'),  $_SESSION['megall_szla_tetel_dev_br_uj'][$i]);
+            $fej_id = 'uj';
+            foreach ( $_SESSION['megall_szla_tetel_targy'][$fej_id] as $targy ) {
+                $netto_ert  = str_replace(' ', '',  $_SESSION['megall_szla_tetel_netto_ert' ][$fej_id][$i]);
+                $brutto_ert = str_replace(' ', '',  $_SESSION['megall_szla_tetel_brutto_ert'][$fej_id][$i]);
+                $dev_net    = str_replace(array(' ', ','), array('', '.'),  $_SESSION['megall_szla_tetel_dev_net'][$fej_id][$i]);
+                $dev_br     = str_replace(array(' ', ','), array('', '.'),  $_SESSION['megall_szla_tetel_dev_br' ][$fej_id][$i]);
                 // Devizás számla esetén a HUF nettó-bruttót a devizából kell visszaszámolni
                 if( $_POST['kcs_21'] != KCS_21_HUF ) {
                     $netto_ert  = round($dev_net * $_POST['arfolyam']);
                     $brutto_ert = round($dev_br  * $_POST['arfolyam']);
                 }
-                $targy      = $_SESSION['megall_szla_tetel_targy_uj'][$i];
-                $jogcim_sor = $adatbazis_kapcsolat->s2('recid jogcim uzemresz megn szla_szam ktghely ktghely_id', 'jogcim', "`recid`='{$_SESSION['megall_szla_tetel_jogcim_uj'][$i]}'");
-                $afakod_sor = $adatbazis_kapcsolat->s2('recid kod afa nev', 'afakod', "`recid`='{$_SESSION['megall_szla_tetel_afakod_uj'][$i]}'");
-                $valtozott  = $_SESSION['megall_szla_tetel_valtozott_uj'][$i];
+                $targy      = $_SESSION['megall_szla_tetel_targy'][$fej_id][$i];
+                $jogcim_sor = $adatbazis_kapcsolat->s2('recid jogcim uzemresz megn szla_szam ktghely ktghely_id', 'jogcim', "`recid`='{$_SESSION['megall_szla_tetel_jogcim'][$fej_id][$i]}'");
+                $afakod_sor = $adatbazis_kapcsolat->s2('recid kod afa nev', 'afakod', "`recid`='{$_SESSION['megall_szla_tetel_afakod'][$fej_id][$i]}'");
+                $valtozott  = $_SESSION['megall_szla_tetel_valtozott'][$fej_id][$i];
 
                     $tetel['targy']         = $targy;
                     $tetel['netto_ert']     = $netto_ert;
@@ -1832,13 +1854,13 @@ function i_u($type, $tabla, $tomb) {
             if( $sql === false ) { $db_error = true; }
             
             // A feldolgozással ürítsük az ide vonatkozó SESSION-öket.
-            $_SESSION['megall_szla_tetel_targy_uj']     =
-            $_SESSION['megall_szla_tetel_netto_ert_uj'] = 
-            $_SESSION['megall_szla_tetel_brutto_ert_uj']=
-            $_SESSION['megall_szla_tetel_dev_net_uj']   =
-            $_SESSION['megall_szla_tetel_dev_br_uj']    =
-            $_SESSION['megall_szla_tetel_valtozott_uj'] = 
-                                                    array();
+            $_SESSION['megall_szla_tetel_targy'     ][$fej_id] =
+            $_SESSION['megall_szla_tetel_netto_ert' ][$fej_id] = 
+            $_SESSION['megall_szla_tetel_brutto_ert'][$fej_id] =
+            $_SESSION['megall_szla_tetel_dev_net'   ][$fej_id] =
+            $_SESSION['megall_szla_tetel_dev_br'    ][$fej_id] =
+            $_SESSION['megall_szla_tetel_valtozott' ][$fej_id] = 
+                                                                array();
 
         }
 
@@ -1970,26 +1992,27 @@ function i_u($type, $tabla, $tomb) {
         // Projekt számla tételeinek felvétele, köztes tábla törlése INSERT után
         if( $tabla == 'projektszamla' ) {
             $i = 0;
-            foreach ( $_SESSION['pr_szla_tetel_targy_uj'] as $targy ) {
-                $netto_ert  = str_replace(' ', '',  $_SESSION['pr_szla_tetel_netto_ert_uj'][$i]);
-                $brutto_ert = str_replace(' ', '',  $_SESSION['pr_szla_tetel_brutto_ert_uj'][$i]);
-                $dev_net    = str_replace(array(' ', ','), array('', '.'),  $_SESSION['pr_szla_tetel_dev_net_uj'][$i]);
-                $dev_br     = str_replace(array(' ', ','), array('', '.'),  $_SESSION['pr_szla_tetel_dev_br_uj'][$i]);
+            $fej_id = 'uj';
+            foreach ( $_SESSION['pr_szla_tetel_targy'][$fej_id] as $targy ) {
+                $netto_ert  = str_replace(' ', '',  $_SESSION['pr_szla_tetel_netto_ert' ][$fej_id][$i]);
+                $brutto_ert = str_replace(' ', '',  $_SESSION['pr_szla_tetel_brutto_ert'][$fej_id][$i]);
+                $dev_net    = str_replace(array(' ', ','), array('', '.'),  $_SESSION['pr_szla_tetel_dev_net'][$fej_id][$i]);
+                $dev_br     = str_replace(array(' ', ','), array('', '.'),  $_SESSION['pr_szla_tetel_dev_br' ][$fej_id][$i]);
 
                 // Devizás számla esetén a HUF nettó-bruttót a devizából kell visszaszámolni
                 if( $_POST['kcs_21'] != KCS_21_HUF ) {
                     $netto_ert  = round($dev_net * $_POST['arfolyam']);
                     $brutto_ert = round($dev_br  * $_POST['arfolyam']);
                 }
-                $targy      = $_SESSION['pr_szla_tetel_targy_uj'][$i];
-                $jogcim_sor = $adatbazis_kapcsolat->s2('recid jogcim uzemresz megn szla_szam ktghely ktghely_id', 'jogcim', "`recid`='{$_SESSION['pr_szla_tetel_jogcim_uj'][$i]}'");
-                $afakod_sor = $adatbazis_kapcsolat->s2('recid kod afa nev', 'afakod', "`recid`='{$_SESSION['pr_szla_tetel_afakod_uj'][$i]}'");
-                $valtozott  = $_SESSION['pr_szla_tetel_valtozott_uj'][$i];
+                $targy      = $_SESSION['pr_szla_tetel_targy'][$fej_id][$i];
+                $jogcim_sor = $adatbazis_kapcsolat->s2('recid jogcim uzemresz megn szla_szam ktghely ktghely_id', 'jogcim', "`recid`='{$_SESSION['pr_szla_tetel_jogcim'][$fej_id][$i]}'");
+                $afakod_sor = $adatbazis_kapcsolat->s2('recid kod afa nev', 'afakod', "`recid`='{$_SESSION['pr_szla_tetel_afakod'][$fej_id][$i]}'");
+                $valtozott  = $_SESSION['pr_szla_tetel_valtozott'][$fej_id][$i];
 
                 // Ha ismert a recid, akkor kérjük le az átmeneti táblából az adatokat és azokban írjuk át a SESSION adatait, és így mentjük le
                 // NA ILYET MÁR NEM CSINÁLUNK, MERT ÚJABBAN ANDOCBÓL ÉRKEZŐ tételeket már nem dolgozzuk fel
-//                if( $_SESSION['pr_szla_tetel_recid'][$i] ) {
-//                    $tetel = $adatbazis_kapcsolat->s2('*', 'projektszamla_tetel_atmeneti', "`recid`='{$_SESSION['pr_szla_tetel_recid'][$i]}'");
+//                if( $_SESSION['pr_szla_tetel_recid'][$fej_id][$i] ) {
+//                    $tetel = $adatbazis_kapcsolat->s2('*', 'projektszamla_tetel_atmeneti', "`recid`='{$_SESSION['pr_szla_tetel_recid'][$fej_id][$i]}'");
 //                    if( $tetel === false ) { $db_error = true; }
 //                    $rownum = $adatbazis_kapcsolat->s2('MAX(`rownum`)', 'projektszamla_tetel', "`projektszamla_recid`='{$id}'");
 //                    $rownum = $rownum['MAX(`rownum`)']+1;
@@ -2082,24 +2105,25 @@ function i_u($type, $tabla, $tomb) {
             if( $sql === false ) { $db_error = true; }
             
             // A feldolgozással ürítsük az ide vonatkozó SESSION-öket.
-            $_SESSION['pr_szla_tetel_targy_uj']     =
-            $_SESSION['pr_szla_tetel_netto_ert_uj'] = 
-            $_SESSION['pr_szla_tetel_brutto_ert_uj']=
-            $_SESSION['pr_szla_tetel_dev_net_uj']   =
-            $_SESSION['pr_szla_tetel_dev_br_uj']    =
-            $_SESSION['pr_szla_tetel_valtozott_uj'] = 
-                                                array();
+            $_SESSION['pr_szla_tetel_targy'     ][$fej_id] =
+            $_SESSION['pr_szla_tetel_netto_ert' ][$fej_id] = 
+            $_SESSION['pr_szla_tetel_brutto_ert'][$fej_id] =
+            $_SESSION['pr_szla_tetel_dev_net'   ][$fej_id] =
+            $_SESSION['pr_szla_tetel_dev_br'    ][$fej_id] =
+            $_SESSION['pr_szla_tetel_valtozott' ][$fej_id] = 
+                                                            array();
 
         }
 
         // Projektszerződés tételek felvétele INSERT után
         if( $tabla == 'projektszerzodes' ) {
             
-            $i = 0;
-            foreach ( $_SESSION['pr_szer_tetel_targy_uj'] as $targy ) {
-                $varh_erk = str_replace('.', '-', $_SESSION['pr_szer_tetel_varh_erk_uj'][$i]);
-                $varh_ert = str_replace(' ', '',  $_SESSION['pr_szer_tetel_varh_ert_uj'][$i]);
-                $dev_net  = str_replace(array(' ', ','), array('', '.'),  $_SESSION['pr_szer_tetel_dev_net_uj'] [$i]);
+            $i      = 0;
+            $fej_id = 'uj';
+            foreach ( $_SESSION['pr_szer_tetel_targy'][$fej_id] as $targy ) {
+                $varh_erk = str_replace('.', '-', $_SESSION['pr_szer_tetel_varh_erk'][$fej_id][$i]);
+                $varh_ert = str_replace(' ', '',  $_SESSION['pr_szer_tetel_varh_ert'][$fej_id][$i]);
+                $dev_net  = str_replace(array(' ', ','), array('', '.'),  $_SESSION['pr_szer_tetel_dev_net'][$fej_id][$i]);
                 $arfolyam = str_replace(array(' ', ','), array('', '.'),  $_POST['arfolyam']);
                 // Devizás számla esetén a Ft-os összeget az árfolyamból számítjuk ki
                 if( $dev_net>0 ) {
@@ -2221,7 +2245,7 @@ function i_u($type, $tabla, $tomb) {
             $valtozas_megj  = '';
             
             // Mely felületeken kerüljön megjegyzésbe a módosítás
-            $mod_megjegyzesbe_mehet = false;
+            $mod_megjegyzesbe_mehet = 0;
             $mod_megjegyzesbe = array(
                                         'beosztas_muszak.php',
                                         'beosztas_unnepnapok.php',
@@ -2237,16 +2261,22 @@ function i_u($type, $tabla, $tomb) {
                                         'projektszerzodes.php',
                                         'torzsadat.php',
                                     );
-            $kiveteles_mezok  = array( 'stat_id', 'update_dt' );
+            $kiveteles_mezok  = array( 'stat_id', 'update_dt', 
+                                        'feldolgozva',  'feldolgozva_dt',   'feldolgozva_usr',
+                                        'elo_igazolva', 'elo_igazolva_dt',  'elo_igazolva_usr',
+                                        'igazolva',     'igazolva_dt',      'igazolva_usr',
+                                        'utalvanyozva', 'utalvanyozva_dt',  'utalvanyozva_usr',
+                                        'sztornozva',   'sztornozva_dt',    'sztornozva_usr',
+                                     );
             if( in_array(basename(self()), $mod_megjegyzesbe) ) {
-                $mod_megjegyzesbe_mehet = true;
+                $mod_megjegyzesbe_mehet = 1;
             }
 
             $i = 1;
             foreach ( $record[0] as $key => $value ) {
                 if( $key && $key != 'recid' ) {
                     
-                    if( preg_match('/^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}$/', $value) ) {
+                    if( preg_match('/^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}$/', $value) && $value != '0000-00-00 00:00:00' ) {
                         $value = date('Y.m.d', strtotime($value));
                     }
                     
@@ -2290,7 +2320,7 @@ function i_u($type, $tabla, $tomb) {
                             }
                         }
                     }
-                    
+
                     // Adatbázisból jövő adatot visszaalakítunk, ne emiatt ne legyen egyenlő a két érték
                     $value = htmlspecialchars_decode($value);
                     
@@ -2460,7 +2490,7 @@ function i_u($type, $tabla, $tomb) {
                                 }
                             }
                         }
-                        
+
                         // Ha a projektkezelésnél változott volna meg a Projektfelelős, akkor ezt át kell vinni a hozzá tartozó szerződésekbe, számlákba is
                         if( basename(self()) == 'projektkezeles.php' && $key == 'pfelelos' ) {
                             
@@ -2543,7 +2573,7 @@ function i_u($type, $tabla, $tomb) {
                 $kerekit    = KEREKITESI_HATAR_DEV;
             }
             $tetelek_osszege = '';
-            foreach ( $_SESSION[$mezo1] as $ertek ) {
+            foreach ( $_SESSION[$mezo1][$_GET['id']] as $ertek ) {
                 $ertek = str_replace(array(' ', ','), array('', '.'), $ertek);
                 $tetelek_osszege += $ertek;
             }
@@ -2602,8 +2632,8 @@ function i_u($type, $tabla, $tomb) {
                 $szoveg     = 'deviza nettóval';
                 $kerekit    = KEREKITESI_HATAR_DEV;
             }
-            $tetelek_osszege = '';
-            foreach ( $_SESSION[$mezo1] as $ertek ) {
+            $tetelek_osszege = 0;
+            foreach ( $_SESSION[$mezo1][$_GET['id']] as $ertek ) {
                 $ertek = str_replace(array(' ', ','), array('', '.'), $ertek);
                 $tetelek_osszege += $ertek;
             }
@@ -2624,7 +2654,7 @@ function i_u($type, $tabla, $tomb) {
             } else {
                 
                 // Ellenőrizzük a tételek összegét. Ha ez nem 0, akkor hibaüzi
-                foreach ( $_SESSION['energia_szla_tetel_netto'] as $ertek ) {
+                foreach ( $_SESSION['energia_szla_tetel_netto'][$_GET['id']] as $ertek ) {
                     $ertek = str_replace(array(' ', ','), array('', '.'), $ertek);
                     $tetelek_osszege += $ertek;
                 }
@@ -2663,11 +2693,13 @@ function i_u($type, $tabla, $tomb) {
                 $szoveg     = 'deviza nettóval';
                 $kerekit    = KEREKITESI_HATAR_DEV;
             }
-            $tetelek_osszege = '';
-            foreach ( $_SESSION[$mezo1] as $ertek ) {
+            $tetelek_osszege = 0;
+
+            foreach ( $_SESSION[$mezo1][$_GET['id']] as $ertek ) {
                 $ertek = str_replace(array(' ', ','), array('', '.'), $ertek);
                 $tetelek_osszege += $ertek;
             }
+            
             if( !$_POST['nullas'] ) {
 
                 if( abs($tetelek_osszege - $_POST[$mezo2]) > $kerekit ) {
@@ -2685,7 +2717,7 @@ function i_u($type, $tabla, $tomb) {
             } else {
                 
                 // Ellenőrizzük a tételek összegét. Ha ez nem 0, akkor hibaüzi
-                foreach ( $_SESSION[$mezo1] as $ertek ) {
+                foreach ( $_SESSION[$mezo1][$_GET['id']] as $ertek ) {
                     $ertek = str_replace(array(' ', ','), array('', '.'), $ertek);
                     $tetelek_osszege += $ertek;
                 }
@@ -2724,7 +2756,7 @@ function i_u($type, $tabla, $tomb) {
                 $kerekit    = KEREKITESI_HATAR_DEV;
             }
             $tetelek_osszege = '';
-            foreach ( $_SESSION[$mezo1] as $ertek ) {
+            foreach ( $_SESSION[$mezo1][$_GET['id']] as $ertek ) {
                 $ertek = str_replace(array(' ', ','), array('', '.'), $ertek);
                 $tetelek_osszege += $ertek;
             }
@@ -2794,8 +2826,9 @@ function i_u($type, $tabla, $tomb) {
                 $szoveg     = 'deviza nettóval';
                 $kerekit    = KEREKITESI_HATAR_DEV;
             }
+            
             $tetelek_osszege = '';
-            foreach ( $_SESSION[$mezo1] as $ertek ) {
+            foreach ( $_SESSION[$mezo1][$_GET['id']] as $ertek ) {
                 $ertek = str_replace(array(' ', ','), array('', '.'), $ertek);
                 $tetelek_osszege += $ertek;
             }
@@ -2844,7 +2877,7 @@ function i_u($type, $tabla, $tomb) {
             if( $prigeny['egy_tobb'] == 1 ) {
 
                 // Változott a telephely, akkor töröljük a Cash-flow adatokat
-                if($prigeny['telephely_id']!=$_POST['telephely_id']){
+                if( $prigeny['telephely_id'] != $_POST['telephely_id'] ) {
                     $sql = $adatbazis_kapcsolat->d('cash_flow', "`apa_recid`='{$_GET['id']}'");
                     if( $sql === false ) { $db_error = true; }
                 }
@@ -2855,7 +2888,7 @@ function i_u($type, $tabla, $tomb) {
 
                     $i_tmp = 0;
                     foreach ( $oszlopok as $ertek ) {
-                        if($ertek=='egy_tobb'){
+                        if( $ertek == 'egy_tobb' ) {
                             $ertekek[$i_tmp] = 0;
                         }
                         if($ertek=='telephely_id'){
@@ -3009,10 +3042,13 @@ function i_u($type, $tabla, $tomb) {
             }
             
             // Ellenőrizzük továbbá, hogy a szálloda és a Projekt szám azonos szállodához tartozik-e
+            // Az `unid` mezőt figyeljük!
             if( $_POST['pr_szam'] ) {
-                $projekt = $adatbazis_kapcsolat->s2('telephely_id', 'projektkezeles', "`ikt_szam`='{$_POST['pr_szam']}'");
+                $projekt = $adatbazis_kapcsolat->s2('telephely_unid', 'projektkezeles', "`ikt_szam`='{$_POST['pr_szam']}'");
                 if( $projekt === false ) { $db_error = true; }
-                if( $projekt['telephely_id'] != $_POST['telephely_id'] ) {
+                $telephely = $adatbazis_kapcsolat->s2('unid', 'telephely', "`id`='{$_POST['telephely_id']}'");
+                if( $telephely === false ) { $db_error = true; }
+                if( $projekt['telephely_unid'] != $telephely['unid'] ) {
                     echo json_encode(array(
                         'hiba'  => 'A projekt szám nem megfelelő szállodához tartozik!',
                         'gomb'  => '<input type="button" class="gomb" value="Ok" onclick="alert2(); szurkit_zar(\'mehet_megsem_mutat\');">',
@@ -3039,7 +3075,7 @@ function i_u($type, $tabla, $tomb) {
                     $kerekit    = KEREKITESI_HATAR_DEV;
                 }
                 $tetelek_osszege = '';
-                foreach ( $_SESSION[$mezo1] as $ertek ) {
+                foreach ( $_SESSION[$mezo1][$_GET['id']] as $ertek ) {
                     $ertek = str_replace(array(' ', ','), array('', '.'), $ertek);
                     $tetelek_osszege += $ertek;
                 }
@@ -3054,7 +3090,7 @@ function i_u($type, $tabla, $tomb) {
                     $weblap -> leallit();
                     exit();
                 }
-                
+
             // Ha nullás egy számla, akkor a tételeit törölni kell, létre kell hozni egy nullás sort
             } else {
                 
@@ -3230,7 +3266,7 @@ function i_u($type, $tabla, $tomb) {
             $tetelek_osszege = '';
             // Korábban $_SESSION-ből dolgoztunk, de ez problémát okozott, ha két projektszerződés adatlap meg volt nyitva egy-egy tabon. Keveredtek a SESSION-ök. 
             // Továbbá úgy láttam, hogy a tételek még az adatlap mentése előtt eltárolódnak az adatbázisban, tehát ezen a ponton tényleg nem $_SESSION-ből kellene már dolgozni.
-            // foreach ( $_SESSION[$mezo1] as $ertek ) {
+            // foreach ( $_SESSION[$mezo1][$_GET['id']] as $ertek ) {
             $tetelek = $adatbazis_kapcsolat->s($mezo3, 'projektszerzodes_tetel', "`projektszerzodes_recid`='{$_GET['id']}'");
             foreach( $tetelek as $tetel ) {
                 $ertek = $tetel[$mezo3];
@@ -3253,7 +3289,7 @@ function i_u($type, $tabla, $tomb) {
                 if( $projekt === false ) { $db_error = true; }
                 $telephely = $adatbazis_kapcsolat->s2('unid', 'telephely', "`id`='{$_POST['telephely_id']}'");
                 if( $telephely === false ) { $db_error = true; }
-                if( $projekt['telephely_unid'] != $telephely['unid'] ) {    
+                if( $projekt['telephely_unid'] != $telephely['unid'] ) {
                     echo json_encode(array(
                         'hiba'  => 'A projekt szám nem megfelelő szállodához tartozik!',
                         'gomb'  => '<input type="button" class="gomb" value="Ok" onclick="alert2(); szurkit_zar(\'mehet_megsem_mutat\');">',
@@ -9522,11 +9558,11 @@ function addMegj( $tabla, $id, $megj ) {
  
         // Adott tábla megj_db oszlop karban tartása
         $megj_db = $adatbazis_kapcsolat->s('recid', 'megjegyzes', "`tabla`='{$tabla}' AND `id`='{$id}'");
-        if($megj_db===flase){ return false; }
+        if($megj_db===false){ return false; }
 
 
         $sql = $adatbazis_kapcsolat->u($tabla, array('megj_db'), array(count($megj_db)), "`recid`='{$id}'");
-        if($sql===flase){ return false; }
+        if($sql===false){ return false; }
 
     }
 }
@@ -9840,7 +9876,7 @@ function get_szures_where_kieg($mezo, $op, $felt, $tabla) {
 // echo $mezo.' - '.$op.' - '.$felt;exit;
     // Külső táblák kapcsolása
     // A szamla_lista() függvényben is állítsd be a JOIN-okat
-    
+
     // Anyag, Energia, Fenntartási vagy Projekt számláknál pár mezőnél csak egyenlőség jel van, és ezek SQL-je is azonos
     $equal_tablak = array('anyag_szamla', 'energia_szamla', 'fenntartasi_szamla', 'megallapodas_szamla', 'projektszamla');
     $equal_mezok  = array('feldolgozva', 'sztornozva');
@@ -9924,19 +9960,53 @@ function get_szures_where_kieg($mezo, $op, $felt, $tabla) {
         }
     // Anyag, Energia, Fenntartási és Projekt számláknál az igazolva/utalványozva/sztornozva van-e feltétele egy dátum összehasonlítás
     } elseif( in_array($tabla, $equal_tablak) && (in_array($mezo, $equal_mezok) || in_array($mezo, $equal_mezok2) ) ) {
+
         // A dátum összehasonlítás miatt a mezőt még ki kell egészíteni egy '_dt'-vel, mert valójában így van az adatbázisban
         $mezo_dt = $mezo.'_dt';
+        
+        // A feltétel igaz
         if( $felt ) {
-            if( in_array($mezo, $equal_mezok2) ) {
-                $return .= "`{$mezo_dt}`!='0000-00-00 00:00:00' AND `{$mezo}`='1'";
+            // Ha úgy jutottunk ide, hogy a Dashboard felületről jöttünk át egy hivatkozással,
+            // akkor kicsit más a feltétel, mert pl. egy "nincs igazolva"-nak nem az lesz a feltétele, hogy van dátuma de nincs igazolva oszlop kitöltve
+            // hanem az, hogy nincs igazolva dátuma, azaz arra a tényre kell szűrni, hogy nem lett még foglalkozva vele, nem pedig arra, hogy 
+            // konkrétan el lett volna-e utasítva (mert sima szűrésnél pedig a "nincs igazolva" azt jelenti, hogy már van igazolás dátuma, azaz fogalalkoztak vele
+            // és azon felül konkrétan el lett utasítva).
+            if( $_SESSION['dashboard_feladat'] ) {
+                // Dashboard esetén ha a mező amit vizsgálunk az az elo_igazolva, akkor ott a lgikai mezőt vizsgáljuk és nem a dátumot
+                if( $mezo == 'elo_igazolva' ) {
+                    $return .= "`{$mezo}`=1";
+                } else {
+                    $return .= "`{$mezo_dt}`!='0000-00-00 00:00:00'";
+                }
+                
+            // Ez tehát a sima szűrés ága, feltétele
             } else {
-                $return .= "`{$mezo_dt}`!='0000-00-00 00:00:00'";
+                if( in_array($mezo, $equal_mezok2) ) {
+                    $return .= "`{$mezo_dt}`!='0000-00-00 00:00:00' AND `{$mezo}`='1'";
+                } else {
+                    $return .= "`{$mezo_dt}`!='0000-00-00 00:00:00'";
+                }
             }
+            
+        // Ha a feltétel hamis
         } else {
-            if( in_array($mezo, $equal_mezok2) ) {
-                $return .= "`{$mezo_dt}`!='0000-00-00 00:00:00' AND `{$mezo}`='0'";
+            
+            // Dashboard feltétele (lásd fentebb egyel, miért van külön ágon)
+            if( $_SESSION['dashboard_feladat'] ) {
+                // Dashboard esetén ha a mező amit vizsgálunk az az elo_igazolva, akkor ott a lgikai mezőt vizsgáljuk és nem a dátumot
+                if( $mezo == 'elo_igazolva' ) {
+                    $return .= "`{$mezo}`=0";
+                } else {
+                    $return .= "`{$mezo_dt}`='0000-00-00 00:00:00'";
+                }
+                
+            // Ez tehát a sima szűrés ága, feltétele
             } else {
-                $return .= "`{$mezo_dt}`='0000-00-00 00:00:00'";
+                if( in_array($mezo, $equal_mezok2) ) {
+                    $return .= "`{$mezo_dt}`!='0000-00-00 00:00:00' AND `{$mezo}`='0'";
+                } else {
+                    $return .= "`{$mezo_dt}`='0000-00-00 00:00:00'";
+                }
             }
         }
         return $return;
@@ -10535,6 +10605,7 @@ function statido_to_sec($string){
 }
 
 // Levélküldés előtt jogot, értesítés pipát vizsgálunk, levél tartalmát és címzetteket kiszámoljuk
+// Ha hiba volna a levélküldéskor, akkor automatikusan rollback-ezünk
 function level_felkeszit_es_kuld( $tabla = '', $recid = '', $ert_pipa = '', $sablon = '', $cimzett = '', $extra_szoveg = '', $cimzett_login_recid = '', $cimzett_mailcimek = '' ) {
 
     global $adatbazis_kapcsolat;
@@ -10641,11 +10712,11 @@ function level_felkeszit_es_kuld( $tabla = '', $recid = '', $ert_pipa = '', $sab
         // Elfelejtett jelszó kérése
         case 'elfelejtettJelszo':
 
-            $login      = $adatbazis_kapcsolat->s2('nev teljes_nev beosztas_id reszleg_id usertel usermail usertel aktiv', 'login', "`recid`='{$recid}'");
-            if(!$login){
+            $login = $adatbazis_kapcsolat->s2('nev teljes_nev beosztas_id reszleg_id usertel usermail usertel aktiv', 'login', "`recid`='{$recid}'");
+            if (!$login) {
                 return 'Nem ismert felhasználói név!<br>Kérését így nem tudjuk továbbítani!';
             }
-            if(!$login['aktiv']){
+            if (!$login['aktiv']) {
                 return 'Inaktív felhasználói név!<br>Kérését így nem tudjuk továbbítani!';
             }
             $beosztas   = erteklista(ERTEKLISTA_BEOSZTAS, $login['beosztas_id']);
@@ -10676,12 +10747,38 @@ function level_felkeszit_es_kuld( $tabla = '', $recid = '', $ert_pipa = '', $sab
             }
 
         break;
+
+        // Megállapodás számla vissza ügyintézőnek értesítés
+        case 'megallapodasszamla_asszisztens':
+
+            // Projekt számla felelős a címzett
+            $projektszamla = $adatbazis_kapcsolat->s2('szla_szam targy telephely_id kcs_21 netto dev_net', 'megallapodas_szamla', "`recid`='{$recid}'");
+
+            $targy = resz_string($projektszamla['targy'], 50);
+            // ide ha Ft-os, akkor a Ft, ha devizás, akkor a deviza nettó + pénznem
+            $netto = number_format($projektszamla['netto'], 0, '', ' ').' '.get_penznem();
+            if( $projektszamla['kcs_21'] != KCS_21_HUF ) {
+                $netto = number_format($projektszamla['dev_net'], 2, ',', ' ').' '.erteklista(ERTEKLISTA_PENZNEM, $projektszamla['kcs_21']);
+            }
+
+            $mit        = array('{SZLA_SZAM}',               '{SZALLODA}',                                   '{TARGY}', '{NETTO}');
+            $mivel      = array($projektszamla['szla_szam'], getSzallodaNev($projektszamla['telephely_id']), $targy,    $netto   );
+            $uzi = str_replace( $mit, $mivel, fajlbol_olvas('../sablon/admin/mail/'.$cimzett.'.html') );
+            
+            // A címzettnél vizsgáljuk az értesítés pipa meglétét is
+            $cimzettek = $adatbazis_kapcsolat->s('nev teljes_nev usermail aktiv virtual szemelyzet_id', 'login', "`aktiv`=1 AND `virtual`=0 {$sql_ertesites_kieg}");
+
+            if( !$cimzettek ) {
+                return false;
+            }
+
+        break;
         
         // Projekt létrehozáskor/módosításkor a felelősét értesítjük
         case 'projektkezeles_felelose':
 
             // Projektfelelős a címzett
-            if( $recid ){
+            if ( $recid ) {
                 $projektkezeles = $adatbazis_kapcsolat->s2('pfelelos', 'projektkezeles', "`recid`='{$recid}'");
             } else {
                 $projektkezeles['pfelelos'] = $_SESSION[get_db_tabla().'login_recid'];
@@ -10707,9 +10804,9 @@ function level_felkeszit_es_kuld( $tabla = '', $recid = '', $ert_pipa = '', $sab
         // Projekt létrehozáskor további címzettek kapnak még értesítést
         case 'projektkezeles_letrejott':
 
-            $mit        = array('{IKT_SZAM}',       '{NEV}',       '{SZALLODA}'                             );
-            $mivel      = array($_POST['ikt_szam'], $_POST['nev'], getSzallodaNev($_POST['telephely_id'])   );
-            $uzi = str_replace( $mit, $mivel, fajlbol_olvas('../sablon/admin/mail/'.$cimzett.'.html') );
+            $mit    = array('{IKT_SZAM}',       '{NEV}',       '{SZALLODA}'                             );
+            $mivel  = array($_POST['ikt_szam'], $_POST['nev'], getSzallodaNev($_POST['telephely_id'])   );
+            $uzi    = str_replace( $mit, $mivel, fajlbol_olvas('../sablon/admin/mail/'.$cimzett.'.html'));
             
             // Éles rendszerben kapják meg a tényleges címzettek
             // FONTOS, hogy a nem tömböket adunk át, hanem | karakterrel elválasztva szedjük őket össze.
@@ -10781,7 +10878,7 @@ function level_felkeszit_es_kuld( $tabla = '', $recid = '', $ert_pipa = '', $sab
 
         break;
         
-        // Projekt módosításkor a felelősét értesítjük
+        // Projektszerződés menüpont alatt a dokumentum feltöltéséről értesítés a felelősnek
         case 'projektszerzodes_ujdok':
 
             // Projektfelelős a címzett, számoljuk ki, ki a felelős
@@ -10802,6 +10899,85 @@ function level_felkeszit_es_kuld( $tabla = '', $recid = '', $ert_pipa = '', $sab
             } else {
                 $cimzettek = $adatbazis_kapcsolat->s('nev teljes_nev usermail aktiv virtual szemelyzet_id', 'login', "`aktiv`=1 AND `virtual`=0 AND `recid`='{$projektkezeles['pfelelos']}'");
             }
+
+            if( !$cimzettek ) {
+                return false;
+            }
+
+        break;
+
+        // Projekt számla Vissza ügyintézőnek értesítés
+        case 'projektszamla_asszisztens':
+
+            // Projekt számla
+            $projektszamla = $adatbazis_kapcsolat->s2('szla_szam targy telephely_id kcs_21 netto dev_net', 'projektszamla', "`recid`='{$recid}'");
+
+            $targy = resz_string($projektszamla['targy'], 50);
+            // ide ha Ft-os, akkor a Ft, ha devizás, akkor a deviza nettó + pénznem
+            $netto = number_format($projektszamla['netto'], 0, '', ' ').' '.get_penznem();
+            if( $projektszamla['kcs_21'] != KCS_21_HUF ) {
+                $netto = number_format($projektszamla['dev_net'], 2, ',', ' ').' '.erteklista(ERTEKLISTA_PENZNEM, $projektszamla['kcs_21']);
+            }
+
+            $mit        = array('{SZLA_SZAM}',               '{SZALLODA}',                                   '{TARGY}', '{NETTO}');
+            $mivel      = array($projektszamla['szla_szam'], getSzallodaNev($projektszamla['telephely_id']), $targy,    $netto   );
+            $uzi = str_replace( $mit, $mivel, fajlbol_olvas('../sablon/admin/mail/'.$cimzett.'.html') );
+            
+            // A címzettnél vizsgáljuk az értesítés pipa meglétét is
+            $cimzettek = $adatbazis_kapcsolat->s('nev teljes_nev usermail aktiv virtual szemelyzet_id', 'login', "`aktiv`=1 AND `virtual`=0 {$sql_ertesites_kieg}");
+
+            if( !$cimzettek ) {
+                return false;
+            }
+
+        break;
+
+        // Projekt számla igazolásra küldésekor
+        case 'projektszamla_felelose':
+
+            // Projekt számla felelős a címzett
+            $projektszamla = $adatbazis_kapcsolat->s2('szla_szam targy telephely_id kcs_21 netto dev_net let_fel', 'projektszamla', "`recid`='{$recid}'");
+
+            $targy = resz_string($projektszamla['targy'], 50);
+            // ide ha Ft-os, akkor a Ft, ha devizás, akkor a deviza nettó + pénznem
+            $netto = number_format($projektszamla['netto'], 0, '', ' ').' '.get_penznem();
+            if( $projektszamla['kcs_21'] != KCS_21_HUF ) {
+                $netto = number_format($projektszamla['dev_net'], 2, ',', ' ').' '.erteklista(ERTEKLISTA_PENZNEM, $projektszamla['kcs_21']);
+            }
+
+            $mit        = array('{SZLA_SZAM}',               '{SZALLODA}',                                   '{TARGY}', '{NETTO}');
+            $mivel      = array($projektszamla['szla_szam'], getSzallodaNev($projektszamla['telephely_id']), $targy,    $netto   );
+            $uzi = str_replace( $mit, $mivel, fajlbol_olvas('../sablon/admin/mail/'.$cimzett.'.html') );
+            
+            // A címzettnél vizsgáljuk az értesítés pipa meglétét is
+            $cimzettek = $adatbazis_kapcsolat->s('nev teljes_nev usermail aktiv virtual szemelyzet_id', 'login', "`aktiv`=1 AND `virtual`=0 AND `recid`='{$projektszamla['let_fel']}'{$sql_ertesites_kieg}");
+
+            if( !$cimzettek ) {
+                return false;
+            }
+
+        break;
+
+        // Projekt számla utóigazolásra küldésekor
+        case 'projektszamla_utoigazolok':
+
+            // Projekt számla felelős a címzett
+            $projektszamla = $adatbazis_kapcsolat->s2('szla_szam targy telephely_id kcs_21 netto dev_net', 'projektszamla', "`recid`='{$recid}'");
+
+            $targy = resz_string($projektszamla['targy'], 50);
+            // ide ha Ft-os, akkor a Ft, ha devizás, akkor a deviza nettó + pénznem
+            $netto = number_format($projektszamla['netto'], 0, '', ' ').' '.get_penznem();
+            if( $projektszamla['kcs_21'] != KCS_21_HUF ) {
+                $netto = number_format($projektszamla['dev_net'], 2, ',', ' ').' '.erteklista(ERTEKLISTA_PENZNEM, $projektszamla['kcs_21']);
+            }
+
+            $mit        = array('{SZLA_SZAM}',               '{SZALLODA}',                                   '{TARGY}', '{NETTO}');
+            $mivel      = array($projektszamla['szla_szam'], getSzallodaNev($projektszamla['telephely_id']), $targy,    $netto   );
+            $uzi = str_replace( $mit, $mivel, fajlbol_olvas('../sablon/admin/mail/'.$cimzett.'.html') );
+            
+            // Utóigazolás joggal rendelkező felhasználók
+            // A címzettnél vizsgáljuk az értesítés pipa meglétét is
+            $cimzettek = $adatbazis_kapcsolat->s('nev teljes_nev usermail aktiv virtual szemelyzet_id', 'login', "substr(`flags`, ".(JOG_PRSZAMLAK_UTOIGAZOL+1).", 1)=1 AND `aktiv`=1 AND `virtual`=0{$sql_ertesites_kieg}");
 
             if( !$cimzettek ) {
                 return false;
@@ -10849,7 +11025,7 @@ function level_felkeszit_es_kuld( $tabla = '', $recid = '', $ert_pipa = '', $sab
             $uzi            = str_replace( $mit, $mivel, fajlbol_olvas('../sablon/admin/mail/bejelento.html') );
 
             // Több címzett is van
-            $cimzettek = $adatbazis_kapcsolat->s('nev teljes_nev usermail usertel aktiv virtual szemelyzet_id', 'login', "substr(`flags`, ".(JOG_BEJELENTES_VIZSGAL+1).", 1)=1 AND `aktiv`=1 AND `virtual`=0 {$sql_ertesites_kieg}");
+            $cimzettek = $adatbazis_kapcsolat->s('nev teljes_nev usermail usertel aktiv virtual szemelyzet_id', 'login', "substr(`flags`, ".(JOG_BEJELENTES_VIZSGAL+1).", 1)=1 AND `aktiv`=1 AND `virtual`=0{$sql_ertesites_kieg}");
             if( !$cimzettek ) {
                 return false;
             }
@@ -10865,7 +11041,7 @@ function level_felkeszit_es_kuld( $tabla = '', $recid = '', $ert_pipa = '', $sab
 
             // Ha nincs bejeletése, akkor más a hiba
             $hiba = getErtek('info', 'erteklista', 'recid', $bejelentes['hiba_id']);
-            if(!$bejelentes){
+            if (!$bejelentes) {
                 $hiba = htmlspecialchars_decode( nl2br2( $munkalap['text'] ) );
             }
 
@@ -10888,7 +11064,7 @@ function level_felkeszit_es_kuld( $tabla = '', $recid = '', $ert_pipa = '', $sab
             $uzi            = str_replace( $mit, $mivel, fajlbol_olvas('../sablon/admin/mail/munkalaposoknak.html') );
 
             // Több címzett is van
-            $cimzettek = $adatbazis_kapcsolat->s('nev teljes_nev usermail usertel aktiv virtual szemelyzet_id', 'login', "substr(`flags`, ".(JOG_MUNKALAP_IGAZOLAS+1).", 1)=1 AND `aktiv`=1 AND `virtual`=0 $sql_ertesites_kieg");
+            $cimzettek = $adatbazis_kapcsolat->s('nev teljes_nev usermail usertel aktiv virtual szemelyzet_id', 'login', "substr(`flags`, ".(JOG_MUNKALAP_IGAZOLAS+1).", 1)=1 AND `aktiv`=1 AND `virtual`=0{$sql_ertesites_kieg}");
             if( !$cimzettek ) {
                 return false;
             }
@@ -10907,7 +11083,7 @@ function level_felkeszit_es_kuld( $tabla = '', $recid = '', $ert_pipa = '', $sab
             $uzi            = str_replace( $mit, $mivel, fajlbol_olvas('../sablon/admin/mail/munkalaposoknak.html') );
 
             // Több címzett is van
-            $cimzettek = $adatbazis_kapcsolat->s('nev teljes_nev usermail usertel aktiv virtual szemelyzet_id', 'login', "substr(`flags`, ".(JOG_MUNKALAP_KULSOS_DONTES+1).", 1)=1 AND `jh_ft_ig`>='{$munkalap['jh_ert']}' AND `aktiv`=1 AND `virtual`=0 $sql_ertesites_kieg");
+            $cimzettek = $adatbazis_kapcsolat->s('nev teljes_nev usermail usertel aktiv virtual szemelyzet_id', 'login', "substr(`flags`, ".(JOG_MUNKALAP_KULSOS_DONTES+1).", 1)=1 AND `jh_ft_ig`>='{$munkalap['jh_ert']}' AND `aktiv`=1 AND `virtual`=0{$sql_ertesites_kieg}");
             if( !$cimzettek ) {
                 return false;
             }
@@ -10932,7 +11108,7 @@ function level_felkeszit_es_kuld( $tabla = '', $recid = '', $ert_pipa = '', $sab
             }
 
             // Több címzett is van
-            $cimzettek = $adatbazis_kapcsolat->s('nev teljes_nev usermail usertel aktiv virtual szemelyzet_id', 'login', "{$sql_kieg} substr(`flags`, ".(JOG_MUNKALAP_KULSOS_ELOKESZIT+1).", 1)=1 AND `aktiv`=1 AND `virtual`=0 $sql_ertesites_kieg");
+            $cimzettek = $adatbazis_kapcsolat->s('nev teljes_nev usermail usertel aktiv virtual szemelyzet_id', 'login', "{$sql_kieg} substr(`flags`, ".(JOG_MUNKALAP_KULSOS_ELOKESZIT+1).", 1)=1 AND `aktiv`=1 AND `virtual`=0{$sql_ertesites_kieg}");
             if( !$cimzettek ) {
                 return false;
             }
@@ -10951,7 +11127,7 @@ function level_felkeszit_es_kuld( $tabla = '', $recid = '', $ert_pipa = '', $sab
             $uzi            = str_replace( $mit, $mivel, fajlbol_olvas('../sablon/admin/mail/munkalaposoknak.html') );
 
             // Több címzett is van
-            $cimzettek = $adatbazis_kapcsolat->s('nev teljes_nev usermail usertel aktiv virtual szemelyzet_id', 'login', "substr(`flags`, ".(JOG_MUNKALAP_KULSOS_MEGREND+1).", 1)=1 AND `aktiv`=1 AND `virtual`=0 $sql_ertesites_kieg");
+            $cimzettek = $adatbazis_kapcsolat->s('nev teljes_nev usermail usertel aktiv virtual szemelyzet_id', 'login', "substr(`flags`, ".(JOG_MUNKALAP_KULSOS_MEGREND+1).", 1)=1 AND `aktiv`=1 AND `virtual`=0{$sql_ertesites_kieg}");
             if( !$cimzettek ) {
                 return false;
             }
@@ -10970,7 +11146,7 @@ function level_felkeszit_es_kuld( $tabla = '', $recid = '', $ert_pipa = '', $sab
             $uzi            = str_replace( $mit, $mivel, fajlbol_olvas('../sablon/admin/mail/munkalaposoknak.html') );
 
             // Több címzett is van
-            $cimzettek = $adatbazis_kapcsolat->s('nev teljes_nev usermail usertel aktiv virtual szemelyzet_id', 'login', "substr(`flags`, ".(JOG_MUNKALAP_VIZSGALAT+1).", 1)=1 AND `aktiv`=1 AND `virtual`=0 $sql_ertesites_kieg");
+            $cimzettek = $adatbazis_kapcsolat->s('nev teljes_nev usermail usertel aktiv virtual szemelyzet_id', 'login', "substr(`flags`, ".(JOG_MUNKALAP_VIZSGALAT+1).", 1)=1 AND `aktiv`=1 AND `virtual`=0{$sql_ertesites_kieg}");
             if( !$cimzettek ) {
                 return false;
             }
@@ -10989,7 +11165,7 @@ function level_felkeszit_es_kuld( $tabla = '', $recid = '', $ert_pipa = '', $sab
             $uzi            = str_replace( $mit, $mivel, fajlbol_olvas('../sablon/admin/mail/munkalaposoknak.html') );
 
             // Több címzett is van
-            $cimzettek = $adatbazis_kapcsolat->s('nev teljes_nev usermail usertel aktiv virtual szemelyzet_id', 'login', "substr(`flags`, ".(JOG_MUNKALAP_MEGTEKINT_FELADAT+1).", 1)=1 AND `aktiv`=1 AND `virtual`=0 $sql_ertesites_kieg");
+            $cimzettek = $adatbazis_kapcsolat->s('nev teljes_nev usermail usertel aktiv virtual szemelyzet_id', 'login', "substr(`flags`, ".(JOG_MUNKALAP_MEGTEKINT_FELADAT+1).", 1)=1 AND `aktiv`=1 AND `virtual`=0{$sql_ertesites_kieg}");
             if( !$cimzettek ) {
                 return false;
             }
@@ -10999,7 +11175,7 @@ function level_felkeszit_es_kuld( $tabla = '', $recid = '', $ert_pipa = '', $sab
         // Anyagigénylés küldés jóváhagyásra
         case '_jog'.JOG_ANYAGIGENYLES_JOVAHAGY:
             
-            $cimzettek = $adatbazis_kapcsolat->s('nev teljes_nev usermail usertel aktiv virtual szemelyzet_id', 'login', "substr(`flags`, ".(JOG_ANYAGIGENYLES_JOVAHAGY+1).", 1)=1 AND `aktiv`=1 AND `virtual`=0 $sql_ertesites_kieg");
+            $cimzettek = $adatbazis_kapcsolat->s('nev teljes_nev usermail usertel aktiv virtual szemelyzet_id', 'login', "substr(`flags`, ".(JOG_ANYAGIGENYLES_JOVAHAGY+1).", 1)=1 AND `aktiv`=1 AND `virtual`=0{$sql_ertesites_kieg}");
             if( !$cimzettek ) {
                 return false;
             }
@@ -11095,6 +11271,16 @@ function level_felkeszit_es_kuld( $tabla = '', $recid = '', $ert_pipa = '', $sab
             $esemeny =  'elfelejtett jelszó kiküldésekor';
             $targy   =  get_nev().' elfelejtett jelszó';
             $uzi     =  $uzi.fajlbol_olvas('../sablon/admin/mail/alairas.html');
+        break;
+
+        case 'megallSzamlaVisszaUi':
+
+            $esemeny =  'megállapodás számla visszaküldésekor ügyintézőnek';
+            $targy   =  get_nev().' megállapodás számla visszaküldve ügyintézőnek';
+            $uzi     =  $uzi.'
+                        <br>'.$extra_szoveg.'
+                        <br>'.fajlbol_olvas('../sablon/admin/mail/alairas.html');
+
         break;
 
         case 'munkalapKeszre':
@@ -11239,6 +11425,40 @@ function level_felkeszit_es_kuld( $tabla = '', $recid = '', $ert_pipa = '', $sab
 
         break;
 
+        case 'projektszamlaVisszaUi':
+
+            $esemeny =  'projekt számla visszaküldésekor ügyintézőnek';
+            $targy   =  get_nev().' projekt számla visszaküldve ügyintézőnek';
+            $uzi     =  $uzi.'
+                        <br>'.$extra_szoveg.'
+                        <br>'.fajlbol_olvas('../sablon/admin/mail/alairas.html');
+
+        break;
+
+        case 'projektszamlaIgazolKuld':
+        case 'projektszamlaVisszaIgnak':
+
+            $esemeny =  'projekt számla igazolásra küldésekor';
+            if( $sablon == 'projektszamlaVisszaIgnak' ) {
+                $esemeny =  'projekt számla visszaküldésekor igazolónak';
+            }
+            $targy   =  get_nev().' projekt számla igazolásra vár';
+            $uzi     =  $uzi.'
+                        <br>'.$extra_szoveg.'
+                        <br>'.fajlbol_olvas('../sablon/admin/mail/alairas.html');
+
+        break;
+
+        case 'projektszamlaUtoIgazolKuld':
+
+            $esemeny =  'projekt számla utóigazolásra küldésekor';
+            $targy   =  get_nev().' projekt számla utóigazolásra vár';
+            $uzi     =  $uzi.'
+                        <br>'.$extra_szoveg.'
+                        <br>'.fajlbol_olvas('../sablon/admin/mail/alairas.html');
+
+        break;
+
         case 'szamla_kifizetes':
 
             $esemeny =  get_nev().' számlatétel kifizetéskor történt megváltozása miatt';
@@ -11294,60 +11514,64 @@ function level_felkeszit_es_kuld( $tabla = '', $recid = '', $ert_pipa = '', $sab
 
         // Ha nincs e-mail cím, akkor ezt a megjegyzésbe is írjuk bele
         if( !$akt_cimzett['usermail'] ) {
-            $megj .= 'A felhasználónak nincs e-mail címe, ezért a következő esemény NEM következett be:'."\n";
-        }
-        
-        // Ha több mailcím is szerepel vesszővel elválasztva, akkor azt is le kell kezelni:
-        $mailcimek = explode(',', $akt_cimzett['usermail']);
-        foreach( $mailcimek as $mailcim ) {
-
-            $mailcim = trim($mailcim);
+            $megj .= 'A felhasználónak nincs e-mail címe, ezért a következő esemény NEM következett be: '.$esemeny."\n";
             
-            // Ha több címre szeretnénk elküldeni (első a címzett a többi másolatot kap)
-            // Akkor az e-mail címeket és neveket is így soroljuk fel, itt készítünk belőlük tömböt
-            $cimzettek_tombben = false;
-            if( strpos($mailcim, '|') !== false ) {
-                $cimzettek_tombben          = true;
-                $mailcim                    = explode('|', $mailcim                  );
-                $akt_cimzett['teljes_nev']  = explode('|', $akt_cimzett['teljes_nev']);
-            }
+        // Ha van mailcímünk, akkor jöhet a levélküldés
+        } else {
+            
+            // Ha több mailcím is szerepel vesszővel elválasztva, akkor azt is le kell kezelni:
+            $mailcimek = explode(',', $akt_cimzett['usermail']);
+            foreach( $mailcimek as $mailcim ) {
 
-            // Tényleges küldés
-            $sikeres_kuldes = level_kuldes(get_nev(), get_mail(), $akt_cimzett['teljes_nev'], $mailcim, $targy_kieg.$targy, $uzi_kieg.$megszolitas.$uzi);
-            // Ha a címzettek egy tömbb volt, akkor ezt most alakítsuk vissza stringgé, hogy a megjegyzésekbe írva a nevek+címek látszódjanak, ne pedig az, hogy array.
-            if( $cimzettek_tombben ) {
-                $mailcim                    = implode(', ', $mailcim                  );
-                $akt_cimzett['teljes_nev']  = implode(', ', $akt_cimzett['teljes_nev']);
-            }
-            // Ha van értéke, az egy hibaüzenet, akkor sikerült küldeni, ha nincs visszatérési érték
-            if( $sikeres_kuldes ) {
+                $mailcim = trim($mailcim);
 
-                $sikeres_kuldes = str_replace('Could not instantiate mail function.', 'Could not instantiate mail function. - Lehet túl nagy fájlokat mellékelt?', $sikeres_kuldes);
+                // Ha több címre szeretnénk elküldeni (első a címzett a többi másolatot kap)
+                // Akkor az e-mail címeket és neveket is így soroljuk fel, itt készítünk belőlük tömböt
+                $cimzettek_tombben = false;
+                if( strpos($mailcim, '|') !== false ) {
+                    $cimzettek_tombben          = true;
+                    $mailcim                    = explode('|', $mailcim                  );
+                    $akt_cimzett['teljes_nev']  = explode('|', $akt_cimzett['teljes_nev']);
+                }
 
-                $megj .= 'E-mail küldése nem sikerült '.$akt_cimzett['teljes_nev'].' '.$szerepkor.' '.$felhasznalonak_szo.' '.$esemeny.'('.$sikeres_kuldes.')'."\n\n";
+                // Tényleges küldés
+                $sikeres_kuldes = level_kuldes(get_nev(), get_mail(), $akt_cimzett['teljes_nev'], $mailcim, $targy_kieg.$targy, $uzi_kieg.$megszolitas.$uzi);
+                // Ha a címzettek egy tömbb volt, akkor ezt most alakítsuk vissza stringgé, hogy a megjegyzésekbe írva a nevek+címek látszódjanak, ne pedig az, hogy array.
+                if( $cimzettek_tombben ) {
+                    $mailcim                    = implode(', ', $mailcim                  );
+                    $akt_cimzett['teljes_nev']  = implode(', ', $akt_cimzett['teljes_nev']);
+                }
+                // Ha van értéke, az egy hibaüzenet, akkor sikerült küldeni, ha nincs visszatérési érték
+                if( $sikeres_kuldes ) {
 
-                // Popupos hibaüzenet csak MSZK vezetőnek és Diszpécsernek megy
-                if( $_SESSION[get_db_tabla().'szemelyzet_id']==MSZK_VEZETO || $_SESSION[get_db_tabla().'szemelyzet_id']==DISZPECSER ) {
+                    $sikeres_kuldes = str_replace('Could not instantiate mail function.', 'Could not instantiate mail function. - Lehet túl nagy fájlokat mellékelt?', $sikeres_kuldes);
 
-                    $tovabbi_info = '';
-                    if( $akt_cimzett['usertel'] || $mailcim ) {
-                        $tovabbi_info = nl2('<br>'.$cimzett_nev.' '.$szerepkor.'
-                                            <br>Tel: '.$akt_cimzett['usertel'].'
-                                            <br>E-mail: '.$mailcim.'
-                                            <br>');
+                    $megj .= 'E-mail küldése nem sikerült '.$akt_cimzett['teljes_nev'].' '.$szerepkor.' '.$felhasznalonak_szo.' '.$esemeny.' ('.$sikeres_kuldes.')'."\n\n";
+
+                    // Popupos hibaüzenet csak MSZK vezetőnek és Diszpécsernek megy
+                    if( $_SESSION[get_db_tabla().'szemelyzet_id']==MSZK_VEZETO || $_SESSION[get_db_tabla().'szemelyzet_id']==DISZPECSER ) {
+
+                        $tovabbi_info = '';
+                        if( $akt_cimzett['usertel'] || $mailcim ) {
+                            $tovabbi_info = nl2('<br>'.$cimzett_nev.' '.$szerepkor.'
+                                                <br>Tel: '.$akt_cimzett['usertel'].'
+                                                <br>E-mail: '.$mailcim.'
+                                                <br>');
+                        }
+                        $hiba .=  nl2('Hiba: E-mail küldése nem sikerült!'.$tovabbi_info);
                     }
-                    $hiba .=  nl2('Hiba: E-mail küldése nem sikerült!'.$tovabbi_info);
+
+                // Sikeres levélküldés
+                } else {
+
+                    // Ha a címzett nem a diszpécser központi mailcím, akkor van csak megjegyzés
+                    if( $cimzett != 'diszpecser_kozponti' ) {
+                        $megj .= 'E-mail elküldve '.$akt_cimzett['teljes_nev'].' (e-mail: '.$mailcim.') '.$szerepkor.' '.$felhasznalonak_szo.' '.$esemeny."\n\n";
+                    }
+
                 }
-
-            // Sikeres levélküldés
-            } else {
-
-                // Ha a címzett nem a diszpécser központi mailcím, akkor van csak megjegyzés
-                if( $cimzett != 'diszpecser_kozponti' ) {
-                    $megj .= 'E-mail elküldve '.$akt_cimzett['teljes_nev'].' (e-mail: '.$mailcim.') '.$szerepkor.' '.$felhasznalonak_szo.' '.$esemeny."\n\n";
-                }
-
             }
+            
         }
 
     }
@@ -11519,16 +11743,15 @@ function fenntartasi_terv_energia($sor/* Fenntartás terv sora */) {
         $eear_soridk    = adatbazis2tomb($akt_eear_sorok, 'sorid');
     }
 
-    $volt_valtozas  = false;
-
+    $volt_valtozas  = 0;
     $energia_soridk = array();
     $energiak = $adatbazis_kapcsolat->s('*', 'fenntartasi_terv_energia', "`fenntartasi_terv_id`='{$sor['recid']}'", 'ktgnem_id');
     foreach ( $energiak as $energia ) {
 
         // Ha a gázfogyasztás sort írjuk ki, akkor azzal másképp számolunk
-        $gazfogyasztas_sor = false;
-        if( $energia['ktgnem_id']==FUTOERTEK_KOD && $energia['mee']==FUTOERTEK_MEE3 && $energia['dijelem']==GAZFOGYASZTAS_DIJELEM ){
-            $gazfogyasztas_sor = true;
+        $gazfogyasztas_sor = 0;
+        if ($energia['ktgnem_id'] == FUTOERTEK_KOD && $energia['mee'] == FUTOERTEK_MEE3 && $energia['dijelem'] == GAZFOGYASZTAS_DIJELEM) {
+            $gazfogyasztas_sor = 1;
         }
         
         // Innen tujduk majd, hogy mik az új sorok
@@ -11548,10 +11771,10 @@ function fenntartasi_terv_energia($sor/* Fenntartás terv sora */) {
             }
 
             if( $sor['stat_id'] == ENERGIATERV_STAT_MUNKAKOZI && !$gazfogyasztas_sor ) {
-                if( $energia_ear['ear' . $i] != $energia['ear' . $i] ) {
+                if( $energia_ear['ear'.$i] != $energia['ear'.$i] ) {
                     $energia['ear'.$i] = $energia_ear['ear'.$i];
                     $energia['ft'.$i]  = $energia['em'.$i]*$energia['ear'.$i];
-                    $volt_valtozas     = true;
+                    $volt_valtozas     = 1;
                 }
             }
 
@@ -11568,7 +11791,7 @@ function fenntartasi_terv_energia($sor/* Fenntartás terv sora */) {
         $class = $class2 = '';
         if( $sor['stat_id']==ENERGIATERV_STAT_MUNKAKOZI && !in_array($energia['sorid'], $eear_soridk) && !$gazfogyasztas_sor ) {
             $class         .= ' piros_hat';
-            $volt_valtozas  = true;
+            $volt_valtozas  = 1;
         }
         if( futoertek_sor($energia) || $gazfogyasztas_sor ) {
             $class  .= ' futoertek';
@@ -11628,7 +11851,7 @@ function fenntartasi_terv_energia($sor/* Fenntartás terv sora */) {
     if( $sor['stat_id'] == ENERGIATERV_STAT_MUNKAKOZI ) {
         foreach ( $eear_soridk as $sorid ) {
             if( !in_array($sorid, $energia_soridk) ) {
-                $volt_valtozas  = true;
+                $volt_valtozas  = 1;
 
                 $energia = $adatbazis_kapcsolat->s2('*', 'energia_terv_ear', "`energia_terv_id`='{$energia_terv['recid']}' AND `sorid`='{$sorid}'");
                 $mennyiseg_osszesen = 0;
@@ -13599,57 +13822,63 @@ function torzsadat_update_es_log( $torzsadat, $inaktival = '' ) {
     }
 }
 
-// Fenntartás, Energia, Projekt, Anyaszámlák bal navpanelkében szereplő ikon egy sémára számítódik ki
+// Fenntartás, Energia, Projekt, Anyagszámlák bal navpanelkében szereplő ikon egy sémára számítódik ki
 function get_szamlak_ikon( $bsz ) {
     $ikon = '';
-    // Ha nincs igazolva, akkor vagy kérdéses még, hogy mi lesz vele (sárga kérdőjel),
-    // vagy ha már ismert az igazolás dátuma, akkor biztosan el van utasítva (piros X)
     
-    // Ha sztronózott, akkor biztosan piros X
-    if( $bsz['sztornozva_dt'] != '0000-00-00 00:00:00' ) {
-        $ikon = '<span class="icon piros">✖</span>';
-    } else {
-        if( !$bsz['igazolva'] ) {
-            if( $bsz['elo_igazolva'] ) {
-                $ikon = '<span class="icon zold">✓</span>';
-            } else {
-                $ikon = '<span class="icon sarga">?</span>';
-                if( $bsz['igazolva_dt']!='0000-00-00 00:00:00' ) {
-                    $ikon = '<span class="icon piros">✖</span>';
-                }
-            }
-        // Ha már az igazoláson túl vagyunk sikerrel...
+    // 2023.06.16 9:33:-kor  Tamás által küldött logika szerinti működés
+    if( $bsz['utalvanyozva_dt'] != '0000-00-00 00:00:00' ) {
+        if( $bsz['sztornozva_dt'] != '0000-00-00 00:00:00' ) {
+            $ikon = '<span class="icon piros">✖</span>';
         } else {
-            // ... akkor már csak az utalványozást kell figyelni.
-            // Ha nincs utalványozva, akkor vagy nem járunk még itt (zöld pipa, mert igazolva már legalább van)
-            // vagy van már utalványozás dátum is, tehát el lett utasítva (piros X)
-            if( !$bsz['utalvanyozva'] ) {
-                if( $bsz['utalvanyozva_dt']!='0000-00-00 00:00:00' ) {
+            $ikon = '<span class="icon zold">✓</span>';
+        }
+        
+    } else {
+        
+        if( $bsz['igazolva_dt'] != '0000-00-00 00:00:00' ) {
+        
+            if( $bsz['sztornozva_dt'] != '0000-00-00 00:00:00' ) {
+                $ikon = '<span class="icon piros">✖</span>';
+            } else {
+                $ikon = '<span class="icon kek">✓</span>';
+            }
+        } else {
+            
+            if( $bsz['elo_igazolva_dt'] && $bsz['elo_igazolva_dt'] != '0000-00-00 00:00:00' ) {
+                if( $bsz['sztornozva_dt'] != '0000-00-00 00:00:00' ) {
                     $ikon = '<span class="icon piros">✖</span>';
                 } else {
-                    $ikon = '<span class="icon zold">✓</span>';
+                    $ikon = '<span class="icon sarga">?</span>';
                 }
-            // ... vagy már Utaláványozva is van (zöld pipa)
             } else {
-                $ikon = '<span class="icon zold">✓</span>';
+                if( $bsz['feldolgozva_dt'] != '0000-00-00 00:00:00' ) {
+                    $ikon = '<span class="icon sarga">?</span>';
+                } else {
+                    $ikon = '<span class="icon sarga ceruza"><img src="../elemek/admin/ceruza.svg" alt="Ceruza"></span>';
+                }
             }
+            
         }
+        
     }
+    
     return $ikon;
 }
 
 // Ürítsük a megállapodás szerződés új felviteléhez szükséges session-öket
 function megall_szerzodes_uj_session_urit() {
-    $_SESSION['megall_szerz_tetel_telephely_id_uj'] =
-    $_SESSION['megall_szerz_tetel_targy_uj'][$i]    = 
-    $_SESSION['megall_szerz_tetel_varh_erk_uj']     =
-    $_SESSION['megall_szerz_tetel_varh_ert_uj']     =
-    $_SESSION['megall_szerz_tetel_dev_varh_ert_uj'] =
-    $_SESSION['megall_szerz_tetel_telj_dt_uj']      =
-    $_SESSION['megall_szerz_tetel_netto_ert_uj']    =
-    $_SESSION['megall_szerz_tetel_dev_net_uj']      =
-    $_SESSION['megall_szerz_tetel_valtozott_uj']    = 
-                                                array();
+    $fej_id = 'uj';
+    $_SESSION['megall_szerz_tetel_telephely_id' ][$fej_id] =
+    $_SESSION['megall_szerz_tetel_targy'        ][$fej_id] = 
+    $_SESSION['megall_szerz_tetel_varh_erk'     ][$fej_id] =
+    $_SESSION['megall_szerz_tetel_varh_ert'     ][$fej_id] =
+    $_SESSION['megall_szerz_tetel_dev_varh_ert' ][$fej_id] =
+    $_SESSION['megall_szerz_tetel_telj_dt'      ][$fej_id] =
+    $_SESSION['megall_szerz_tetel_netto_ert'    ][$fej_id] =
+    $_SESSION['megall_szerz_tetel_dev_net'      ][$fej_id] =
+    $_SESSION['megall_szerz_tetel_valtozott'    ][$fej_id] = 
+                                                            array();
 }
 
 // Vendégéjszakáknál dátum szerinti szűrés

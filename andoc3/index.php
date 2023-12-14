@@ -1,5 +1,6 @@
 <?php
 // Ez a fájl az andoc.php-ban megírt webservice osztályt futtatja
+// Hiába van ez az andoc3 mappában, akkor is az andoc2 mappában levő andoc.php fut!!!
 require_once '../weblap.php';
 
 header('Content-Type: text/html; charset='.get_web_charset());
@@ -82,7 +83,7 @@ URL: '.get_http().$_SERVER['HTTP_HOST'].$_SERVER['REQUEST_URI'].'
 
         // Ha már van POST['xml'] adatunk, akkor logolás és feldolgozás
         } else {
-            
+
             $xml = $_POST['xml'];
             if( !$xml ) {
                 $xml = '***Üres XML-t kaptunk!***';
@@ -102,9 +103,8 @@ POST:
             andoc_logolas($log);
 
             $xml = trim( str_replace('<?xml version="1.0" encoding="utf-8"?>', '', $xml) );
-
             $soap -> SzamlaAdatokImport( $xml );
-            
+
             // Ez egy XML-t ír ki arról, hogy minden OK
             andoc_valasz_siker();
            

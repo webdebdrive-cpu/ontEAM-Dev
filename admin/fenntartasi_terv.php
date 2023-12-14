@@ -1,7 +1,7 @@
 <?php
 require_once('../weblap.php');
 
-// 2019-es évű fenntatásit terveknél ha nincsenek még miniprojekt rekodok, akkor azokat töltsük fel.
+// 2019-es évű fenntartási terveknél ha nincsenek még miniprojekt rekodok, akkor azokat töltsük fel.
 if( isset($_GET['min_feltolt']) ) {
 
     $ftek = $adatbazis_kapcsolat->s('recid', 'fenntartasi_terv', "`ev`='2019'");
@@ -652,7 +652,7 @@ if (isset($_POST['energia_tabla_ment'])) {
     if( $energia['ktgnem_id'] == FUTOERTEK_KOD && $energia['mee'] == FUTOERTEK_MEE2 ) {
 
         $futoertek_sor = $adatbazis_kapcsolat->s2('*', 'fenntartasi_terv_energia', "`fenntartasi_terv_id`='{$energia['fenntartasi_terv_id']}' AND `ktgnem_id`='".FUTOERTEK_KOD."' AND `mee`='".FUTOERTEK_MEE."' AND `dijelem`='".FUTOERTEK_DIJELEM."'");
-        $ft_mj_sorok   = $adatbazis_kapcsolat->s('*', 'fenntartasi_terv_energia', "`fenntartasi_terv_id`='{$energia['fenntartasi_terv_id']}' AND `ktgnem_id`='".FUTOERTEK_KOD."' AND `mee`='".FUTOERTEK_MEE2."'");
+        $ft_mj_sorok   = $adatbazis_kapcsolat->s('*',  'fenntartasi_terv_energia', "`fenntartasi_terv_id`='{$energia['fenntartasi_terv_id']}' AND `ktgnem_id`='".FUTOERTEK_KOD."' AND `mee`='".FUTOERTEK_MEE2."'");
         
         $oszlopok = array();
         $ertekek  = array();
@@ -662,7 +662,7 @@ if (isset($_POST['energia_tabla_ment'])) {
 
             $em = $mennyiseg/$futoertek_sor['ear'.$sorszam];
             $ft_mj_osszeg = 0;
-            foreach ($ft_mj_sorok as $ft_mj_sor){
+            foreach ($ft_mj_sorok as $ft_mj_sor) {
                 $ft_mj_osszeg += str_replace(array(' '), array(''), $ft_mj_sor['ft'.$sorszam]);
             }
 
@@ -683,6 +683,7 @@ if (isset($_POST['energia_tabla_ment'])) {
             if( $sql === false ) { $db_error = true; }
         }
     }
+    
     // Logolás
     $muvelet  = $_SESSION[get_db_tabla().'teljes_nev'].' ('.$_SESSION[get_db_tabla().'user'].') '.$_POST['uj'].' recid-jú fenntartási terv Energia fül alatt a '.$_POST['ktgnem_id'].' költségnemű sort módosította.';
     $valtozas = $adatbazis_kapcsolat->gp();
@@ -1528,13 +1529,13 @@ if (isset($_POST['get_mini_tabla'])) {
         if( $mini || $uj ) {
 
             $felirat = '';
-            if($mini['ktgnem_id']){
+            if ($mini['ktgnem_id']) {
                 $felirat = '<b>'.getErtek('nev', 'ktgnem', 'id', $mini['ktgnem_id']).' kitöltése:</b><br>';
             }
             
             // Új sor beszúrásakor költségnemet kell tudni választani
             $ktgnem_select = '';
-            if($uj){
+            if ($uj) {
                 $ktgnem_option = $adatbazis_kapcsolat->s('id nev', 'ktgnem', "`props` LIKE '%7034%'");
                 $ktgnem_option = tomb2option($ktgnem_option, 'id', 'nev');
                 $ktgnem_select = nl2('
@@ -3077,7 +3078,7 @@ if( isset($_GET['csv']) ) {
                     $kulcs_i = 0;
                     $csvcont = array();
                     foreach( $sorok as $kulcs => $sor ) {
-                        if($kulcs=='Költségnem név'){
+                        if ($kulcs == 'Költségnem név') {
                             $sor = getErtek('nev', 'ktgnem', 'id', $sor);
                         }
                         
@@ -3093,7 +3094,7 @@ if( isset($_GET['csv']) ) {
                         $csvcont[] = iconv($mibol, $mibe.'//TRANSLIT', strip_tags( $sor ) );
 
                         // Részletes leírás oszlop után a kalkulált oszlopot még beszúrjuk
-                        if($kulcs=='Részletes leírás'){
+                        if ($kulcs == 'Részletes leírás') {
                             $csvcont[] = $osszesen;
                         }
                         $kulcs_i++;

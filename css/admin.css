@@ -1729,7 +1729,7 @@ ul.szamla_cont.rendszer li a span {
 }
 
 ul.szamla_cont.rendszer li a span.icon {
-    padding: 0.1rem 0rem 0rem 0rem;
+    padding: 0.1rem 1.2rem 1.6rem 0rem;
 }
 
 ul.szamla_cont li a span.szso {
@@ -2662,16 +2662,36 @@ span.icon {
     vertical-align: bottom;
     width: 0.8rem;
 }
+span.icon.ceruza {
+    width: 2.4rem;
+}
 span.icon.piros {
     font-size: 1.4rem;
 }
-span.icon.sarga, span.icon.zold {
+span.icon.sarga, span.icon.zold, span.icon.kek {
     color: #FFC029;
     font-weight: 600;
-    text-shadow: 0rem 0rem  0.3rem rgba(255, 255, 255, 1);
 }
 span.icon.zold {
     color: #75B54B;
+}
+li.kijelolve span.icon.zold {
+    color: #97df66;
+}
+span.icon.kek {
+    color: #55A2FA;
+}
+li.kijelolve span.icon.kek {
+    color: #c8e1ff;
+}
+ul.szamla_cont.rendszer li a span.icon.ceruza {
+    color: #BE38D6;
+    font-size: 1.4rem;
+    text-shadow: none;
+}
+ul.szamla_cont.rendszer li a span.icon.ceruza img {
+    transform: scale(1.5);
+    margin-left: .2rem;
 }
 
 span.icon.jotallas {

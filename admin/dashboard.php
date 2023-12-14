@@ -651,8 +651,8 @@ if( !isset($_GET['regi']) ) {
 
         // Igazolásra váró fenntartás számlák (ha már fel van dolgozva /dátuma nem üres/, de még nincs igazolva /dátuma még üres/)
         $tabla          = 'fenntartasi_szamla';
-        $fennt_szamlak  = $adatbazis_kapcsolat->s('recid', $tabla, "`feldolgozva_dt`!='0000-00-00 00:00:00' AND `igazolva_dt`='0000-00-00 00:00:00'{$telephely_sql}");
-        $link           = $tabla.'.php?tabla='.$tabla.'&amp;feltetel=me|feldolgozva_dt!HASH!op|equal!HASH!fe|1!HASH!es|!HASH!me|igazolva_dt!HASH!op|equal!HASH!fe|0!HASH!es|!HASH!&amp;f_o_szures_submit=1&amp;dashboard=Fenntartás számlák igazolása';
+        $fennt_szamlak  = $adatbazis_kapcsolat->s('recid', $tabla, "`feldolgozva_dt`!='0000-00-00 00:00:00' AND `igazolva_dt`='0000-00-00 00:00:00' AND `sztornozva_dt`='0000-00-00 00:00:00'{$telephely_sql}");
+        $link           = $tabla.'.php?tabla='.$tabla.'&amp;feltetel=me|feldolgozva!HASH!op|equal!HASH!fe|1!HASH!es|!HASH!me|igazolva!HASH!op|equal!HASH!fe|0!HASH!es|!HASH!me|sztornozva!HASH!op|equal!HASH!fe|0!HASH!es|!HASH!&amp;f_o_szures_submit=1&amp;dashboard=Fenntartás számlák igazolása';
 
         $db = count($fennt_szamlak);
         if( $db ) {
@@ -675,7 +675,7 @@ if( !isset($_GET['regi']) ) {
         // Igazolásra váró anyag számlák (ha már fel van dolgozva /dátuma nem üres/, de még nincs igazolva /dátuma még üres/)
         $tabla          = 'anyag_szamla';
         $anyag_szamlak  = $adatbazis_kapcsolat->s('recid', $tabla, "`feldolgozva_dt`!='0000-00-00 00:00:00' AND `igazolva_dt`='0000-00-00 00:00:00'{$telephely_sql}");
-        $link           = $tabla.'.php?tabla='.$tabla.'&amp;feltetel=me|feldolgozva_dt!HASH!op|equal!HASH!fe|1!HASH!es|!HASH!me|igazolva_dt!HASH!op|equal!HASH!fe|0!HASH!es|!HASH!&amp;f_o_szures_submit=1&amp;dashboard=Anyag számlák igazolása';
+        $link           = $tabla.'.php?tabla='.$tabla.'&amp;feltetel=me|feldolgozva!HASH!op|equal!HASH!fe|1!HASH!es|!HASH!me|igazolva!HASH!op|equal!HASH!fe|0!HASH!es|!HASH!me|sztornozva!HASH!op|equal!HASH!fe|0!HASH!es|!HASH!&amp;f_o_szures_submit=1&amp;dashboard=Anyag számlák igazolása';
 
         $db = count($anyag_szamlak);
         if( $db ) {
@@ -698,7 +698,7 @@ if( !isset($_GET['regi']) ) {
         // Igazolásra váró energia számlák (ha már fel van dolgozva /dátuma nem üres/, de még nincs igazolva /dátuma még üres/)
         $tabla            = 'energia_szamla';
         $energia_szamlak  = $adatbazis_kapcsolat->s('recid', 'energia_szamla', "`feldolgozva_dt`!='0000-00-00 00:00:00' AND `igazolva_dt`='0000-00-00 00:00:00'{$telephely_sql}");
-        $link             = $tabla.'.php?tabla='.$tabla.'&amp;feltetel=me|feldolgozva_dt!HASH!op|equal!HASH!fe|1!HASH!es|!HASH!me|igazolva_dt!HASH!op|equal!HASH!fe|0!HASH!es|!HASH!&amp;f_o_szures_submit=1&amp;dashboard=Energia számlák igazolása';
+        $link             = $tabla.'.php?tabla='.$tabla.'&amp;feltetel=me|feldolgozva!HASH!op|equal!HASH!fe|1!HASH!es|!HASH!me|igazolva!HASH!op|equal!HASH!fe|0!HASH!es|!HASH!me|sztornozva!HASH!op|equal!HASH!fe|0!HASH!es|!HASH!&amp;f_o_szures_submit=1&amp;dashboard=Energia számlák igazolása';
 
         $db = count($energia_szamlak);
         if( $db ) {
@@ -723,8 +723,8 @@ if( !isset($_GET['regi']) ) {
     if( _jog(JOG_PRSZAMLAK_IGAZOL) ) {
 
         $tabla       = 'projektszamla';
-        $pr_szamlak  = $adatbazis_kapcsolat->s('recid', $tabla, "`feldolgozva_dt`!='0000-00-00 00:00:00' AND `igazolva_dt`='0000-00-00 00:00:00' AND `let_fel`='{$_SESSION[get_db_tabla().'login_recid']}' AND `elo_igazolva`=0{$telephely_sql}");
-        $link        = $tabla.'.php?tabla='.$tabla.'&amp;feltetel=me|feldolgozva_dt!HASH!op|equal!HASH!fe|1!HASH!es|!HASH!me|igazolva_dt!HASH!op|equal!HASH!fe|0!HASH!es|!HASH!me|elo_igazolva!HASH!op|equal!HASH!fe|0!HASH!es|!HASH!me|let_fel!HASH!op|equal!HASH!fe|'.$_SESSION[get_db_tabla().'login_recid'].'!HASH!es|!HASH!&amp;f_o_szures_submit=1&amp;dashboard=Projekt számlák igazolása';
+        $pr_szamlak  = $adatbazis_kapcsolat->s('recid', $tabla, "`feldolgozva_dt`!='0000-00-00 00:00:00' AND `igazolva_dt`='0000-00-00 00:00:00' AND `let_fel`='{$_SESSION[get_db_tabla().'login_recid']}' AND `elo_igazolva`=0 AND `sztornozva_dt`='0000-00-00 00:00:00'{$telephely_sql}");
+        $link        = $tabla.'.php?tabla='.$tabla.'&amp;feltetel=me|feldolgozva!HASH!op|equal!HASH!fe|1!HASH!es|!HASH!me|igazolva!HASH!op|equal!HASH!fe|0!HASH!es|!HASH!me|elo_igazolva!HASH!op|equal!HASH!fe|0!HASH!es|!HASH!me|let_fel!HASH!op|equal!HASH!fe|'.$_SESSION[get_db_tabla().'login_recid'].'!HASH!es|!HASH!me|sztornozva!HASH!op|equal!HASH!fe|0!HASH!es|!HASH!&amp;f_o_szures_submit=1&amp;dashboard=Projekt számlák igazolása';
 
         $db = count($pr_szamlak);
         if( $db ) {
@@ -749,8 +749,8 @@ if( !isset($_GET['regi']) ) {
     if( _jog(JOG_PRSZAMLAK_UTOIGAZOL) ) {
 
         $tabla       = 'projektszamla';
-        $pr_szamlak  = $adatbazis_kapcsolat->s('recid', $tabla, "`feldolgozva_dt`!='0000-00-00 00:00:00' AND `igazolva_dt`='0000-00-00 00:00:00' AND `elo_igazolva`=1{$telephely_sql}");
-        $link        = $tabla.'.php?tabla='.$tabla.'&amp;feltetel=me|feldolgozva_dt!HASH!op|equal!HASH!fe|1!HASH!es|!HASH!me|igazolva_dt!HASH!op|equal!HASH!fe|0!HASH!es|!HASH!me|elo_igazolva!HASH!op|equal!HASH!fe|1!HASH!es|!HASH!&amp;f_o_szures_submit=1&amp;dashboard=Projekt számlák igazolása';
+        $pr_szamlak  = $adatbazis_kapcsolat->s('recid', $tabla, "`feldolgozva_dt`!='0000-00-00 00:00:00' AND `igazolva_dt`='0000-00-00 00:00:00' AND `elo_igazolva`=1 AND `sztornozva_dt`='0000-00-00 00:00:00'{$telephely_sql}");
+        $link        = $tabla.'.php?tabla='.$tabla.'&amp;feltetel=me|feldolgozva!HASH!op|equal!HASH!fe|1!HASH!es|!HASH!me|igazolva!HASH!op|equal!HASH!fe|0!HASH!es|!HASH!me|elo_igazolva!HASH!op|equal!HASH!fe|1!HASH!es|!HASH!me|sztornozva!HASH!op|equal!HASH!fe|0!HASH!es|!HASH!&amp;f_o_szures_submit=1&amp;dashboard=Projekt számlák igazolása';
 
         $db = count($pr_szamlak);
         if( $db ) {
@@ -775,8 +775,8 @@ if( !isset($_GET['regi']) ) {
     if( _jog(JOG_MEGALLAPODAS_SZAMLA_IGAZOL) ) {
         // Igazolásra váró megállapodás számlák (ha már fel van dolgozva /dátuma nem üres/, de még nincs igazolva /dátuma még üres/)
         $tabla            = 'megallapodas_szamla';
-        $megall_szamlak   = $adatbazis_kapcsolat->s('recid', $tabla, "`feldolgozva_dt`!='0000-00-00 00:00:00' AND `igazolva_dt`='0000-00-00 00:00:00'{$telephely_sql}");
-        $link             = $tabla.'.php?tabla='.$tabla.'&amp;feltetel=me|feldolgozva_dt!HASH!op|equal!HASH!fe|1!HASH!es|!HASH!me|igazolva_dt!HASH!op|equal!HASH!fe|0!HASH!es|!HASH!&amp;f_o_szures_submit=1&amp;dashboard=Megállapodás számlák igazolása';
+        $megall_szamlak   = $adatbazis_kapcsolat->s('recid', $tabla, "`feldolgozva_dt`!='0000-00-00 00:00:00' AND `igazolva_dt`='0000-00-00 00:00:00' AND `sztornozva_dt`='0000-00-00 00:00:00'{$telephely_sql}");
+        $link             = $tabla.'.php?tabla='.$tabla.'&amp;feltetel=me|feldolgozva!HASH!op|equal!HASH!fe|1!HASH!es|!HASH!me|igazolva!HASH!op|equal!HASH!fe|0!HASH!es|!HASH!me|sztornozva!HASH!op|equal!HASH!fe|0!HASH!es|!HASH!&amp;f_o_szures_submit=1&amp;dashboard=Megállapodás számlák igazolása';
 
         $db = count($megall_szamlak);
         if( $db ) {

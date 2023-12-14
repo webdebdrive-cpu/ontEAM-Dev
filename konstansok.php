@@ -6,7 +6,7 @@ define('NYOMTATAS_FIX_CIM',         1040            );
 define('NYOMTATAS_KIVETELES_CIM',   2032            );
 define('NYOMTATAS_SZLA_KULD_CIM',   'e-invoice.mszk@danubiushotels.com');
 define('SZALLITOKOD_HOSSZ',         5               );
-define('JELSZO_MIN_HOSSZ',          8               );
+define('LOGIN_MIN_HOSSZ',           8               );
 define('DISZPECSER_TELEFONSZAM',    '30/703 0560, 1/889 5988');
 define('MSZK_MAILCIM',              'mszk@danubiushotels.com');
 define('PR_KEZELES_ERT_NEV_1',      'Danubius IT Helpdesk');
@@ -464,6 +464,14 @@ define('ERT_14_NAPJA_VARO_ML',          12);
 define('ERT_BEOSZTAS_ELL',              14);
 
 define('ERT_GAR_BEJARAS',               15);
+
+define('ERT_IGAZOLASRA_KULDESKOR',      16);
+define('ERT_UT_IGAZOLASRA_KULDESKOR',   17);
+define('ERT_IGAZOLONAK_VISSZAADAS',     18);
+define('ERT_ASSZISZT_VISSZAADAS',       19);
+
+define('ERT_ASSZISZT_VISSZAADAS2',      20);
+
 
 define('HIBA_ADJON_FELADAT',            ' kérem adjon hozzá egy elvégzett feladatot!');
 define('DASHB_NINCS_BEJEGYZES',         'Nem található bejegyzés!');

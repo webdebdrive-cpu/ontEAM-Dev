@@ -39,6 +39,14 @@ if( $tobb_kep ) {
 // Köztes tábla szerződéseiek kilistázása
 if( isset($_POST['fenntartasi_szerzodes_get_koztes']) ) {
     
+    if( $_COOKIE['uj_felvitel_'.$megnevezes] ) {
+        
+        echo json_encode( array('hiba' => 'Egy másik tabon már megkezdődött egy Fenntartási szerződés feltöltése,<br>kérem előbb azt fejezze be, vagy lépjen ki belőle!', 'title' => 'Hiba') );
+
+        $weblap -> leallit();
+        exit;
+    }
+    
     // Köztes szerődésekből készítsünk táblázatot
     $html = '';
     $szerzodesek = $adatbazis_kapcsolat->s('recid andoc_id szszam szallito_id targy kcs_21 netto dev_net dok_link', 'fenntartasi_szerzodes_atmeneti', "");
@@ -153,8 +161,10 @@ if( isset($_POST['pop_tetelek_feltolt']) ) {
     
     if( $_POST['andoc_id'] ) {
         $szerzodes = $adatbazis_kapcsolat->s2('recid kcs_21', 'fenntartasi_szerzodes_atmeneti', "`andoc_id`='{$_POST['andoc_id']}'");
+        $fej_id    = 'uj';
     } else {
         $szerzodes = $adatbazis_kapcsolat->s2('kcs_21', 'fenntartasi_szerzodes', "`recid`='{$_POST['id']}'");
+        $fej_id    = $_POST['id'];
     }
     
     // Illetve ezt az alábbi változókkal két ágra bontuk: Ft-os vagy devizás-e a számla.
@@ -174,30 +184,22 @@ if( isset($_POST['pop_tetelek_feltolt']) ) {
         $session_varhato_ert    = 'fennt_szerz_tetel_varh_ert';
     }
     
-
-    
     // Tételek táblázat sorait kiszámoljuk:
     $tetelek_html = '';
-    $i = 0;
-    
-    $kieg = '';
-    if( !$_POST['id'] ) {
-        $kieg = '_uj';
-    }
-    
-    foreach( $_SESSION['fennt_szerz_tetel_telephely_id'.$kieg] as $telephely ) {
+    $i            = 0;
+    foreach( $_SESSION['fennt_szerz_tetel_telephely_id'][$fej_id] as $telephely ) {
         
-        $szla_netto_ert = $_SESSION[$session_mezo][$i];
+        $szla_netto_ert = $_SESSION[$session_mezo][$fej_id][$i];
         
         // Minden sornak adunk egy azonosítót. Mivel lehet csak egy ideiglenes sorról van szó, nem mindig van recid-nk, ezért időbélyeges azonosítót hozunk létre, megtoldva egy $i-vel.
-        if( !$_SESSION['fennt_szerz_tetel_recid'.$kieg][$i] ) {
-            $_SESSION['fennt_szerz_tetel_recid'.$kieg][$i] = time().rand(0,1000);
+        if( !$_SESSION['fennt_szerz_tetel_recid'][$fej_id][$i] ) {
+            $_SESSION['fennt_szerz_tetel_recid' ][$fej_id][$i] = time().rand(0,1000);
         }
         
         // Van-e már számlával összeköttetés
         $class = $teljesites = $netto_ertek = '';
         $torol = '
-                <a onclick="popup_tetel_sor_torol(\'pop_tetel_'.$_SESSION['fennt_szerz_tetel_recid'.$kieg][$i].'\');">
+                <a onclick="popup_tetel_sor_torol(\'pop_tetel_'.$_SESSION['fennt_szerz_tetel_recid'][$fej_id][$i].'\');">
                     <span class="icon">
                         <i class="material-icons">
                             delete
@@ -205,8 +207,8 @@ if( isset($_POST['pop_tetelek_feltolt']) ) {
                     </span>
                 </a>
                 ';
-        if( $_SESSION['fennt_szerz_tetel_recid'.$kieg][$i] ) {
-            $szamla_tetel = $adatbazis_kapcsolat->s2('recid fenntartasi_szamla_recid '.$szamla_netto_mezo, 'fenntartasi_szamla_tetel', "`fenntartasi_szerzodes_tetel_recid`='{$_SESSION['fennt_szerz_tetel_recid'.$kieg][$i]}'");
+        if( $_SESSION['fennt_szerz_tetel_recid'][$fej_id][$i] ) {
+            $szamla_tetel = $adatbazis_kapcsolat->s2('recid fenntartasi_szamla_recid '.$szamla_netto_mezo, 'fenntartasi_szamla_tetel', "`fenntartasi_szerzodes_tetel_recid`='{$_SESSION['fennt_szerz_tetel_recid'][$fej_id][$i]}'");
             if( $szamla_tetel ) {
                 $szamla         = $adatbazis_kapcsolat->s2('telj_dt', 'fenntartasi_szamla', "`recid`='{$szamla_tetel['fenntartasi_szamla_recid']}'");
                 $class          = ' szerzodes_szamla_tetel_szurke';
@@ -217,24 +219,24 @@ if( isset($_POST['pop_tetelek_feltolt']) ) {
         }
         
         $tetelek_html .= nl2('
-                        <tr class="pop_tetel_'.$_SESSION['fennt_szerz_tetel_recid'.$kieg][$i].$class.'">
-                            <td class="pop_telephely l">'.getSzallodaNev($_SESSION['fennt_szerz_tetel_telephely_id'.$kieg][$i]).'</td>
-                            <td class="pop_targy l">'.$_SESSION['fennt_szerz_tetel_targy'.$kieg][$i].'</td>
-                            <td class="pop_varh_erk l">'.datum_kiir($_SESSION['fennt_szerz_tetel_varh_erk'.$kieg][$i]).'</td>
-                            <td class="pop_varh_ert r">'.number_format(str_replace(array(',', ' '), array('.', ''), $_SESSION[$session_varhato_ert.$kieg][$i]), $tizedesek, ',', ' ').'</td>
+                        <tr class="pop_tetel_'.$_SESSION['fennt_szerz_tetel_recid'][$fej_id][$i].$class.'">
+                            <td class="pop_telephely l">'.getSzallodaNev($_SESSION['fennt_szerz_tetel_telephely_id'][$fej_id][$i]).'</td>
+                            <td class="pop_targy l">'.$_SESSION['fennt_szerz_tetel_targy'][$fej_id][$i].'</td>
+                            <td class="pop_varh_erk l">'.datum_kiir($_SESSION['fennt_szerz_tetel_varh_erk'][$fej_id][$i]).'</td>
+                            <td class="pop_varh_ert r">'.number_format(str_replace(array(',', ' '), array('.', ''), $_SESSION[$session_varhato_ert][$fej_id][$i]), $tizedesek, ',', ' ').'</td>
                             <td class="pop_telj_dt l">'.$teljesites.'</td>
                             <td class="pop_netto_ert r">'.$netto_ertek.'</td>
                             ').
                             /*<td>
-                                <a class="szerk" onclick="popup_tetel_sor_szerk(\'pop_tetel_'.$_SESSION['fennt_szerz_tetel_recid'][$i].'\');">
+                                <a class="szerk" onclick="popup_tetel_sor_szerk(\'pop_tetel_'.$_SESSION['fennt_szerz_tetel_recid'][$fej_id][$i].'\');">
                                     🖉
                                 </a>
                             </td>*/
                             nl2('<td>
                                 '.$torol.'
-                                <input type="hidden" class="pop_telephely_id" value="'.$_SESSION['fennt_szerz_tetel_telephely_id'.$kieg][$i].'">
-                                <input type="hidden" class="pop_valtozott" value="'.$_SESSION['fennt_szerz_tetel_valtozott'.$kieg][$i].'">
-                                <input type="hidden" class="pop_recid" name="recid" value="'.$_SESSION['fennt_szerz_tetel_recid'.$kieg][$i].'">
+                                <input type="hidden" class="pop_telephely_id" value="'.$_SESSION['fennt_szerz_tetel_telephely_id'][$fej_id][$i].'">
+                                <input type="hidden" class="pop_valtozott" value="'.$_SESSION['fennt_szerz_tetel_valtozott'][$fej_id][$i].'">
+                                <input type="hidden" class="pop_recid" name="recid" value="'.$_SESSION['fennt_szerz_tetel_recid'][$fej_id][$i].'">
                             </td>
                         </tr>');
         $i++;
@@ -339,29 +341,28 @@ if( isset($_POST['tetel_sorok_ment']) ) {
     // Tételek kimentése Session-be
     } else {
         
-        // Ha nem ismert a recid, akkor új feltöltésről van szó, ekkor a session neveknél kicsit más megnevezést használunk
-        // hogy még véletlen se keveredjen pl. másik tabon megnyitott számla tételek szereksztésével voltak gondok, azt mentette be az újhoz
-        $kieg = '';
+        // Ha nem ismert a recid, a $fej_id legyen "uj"
+        $fej_id = $recid;
         if( !$recid ) {
-            $kieg = '_uj';
+            $fej_id = 'uj';
         }
         
-        $_SESSION['fennt_szerz_tetel_recid'.$kieg]        = $_POST['adatok'][$recid_adat][1];
-        $_SESSION['fennt_szerz_tetel_telephely_id'.$kieg] = $_POST['adatok'][$telephely_adat][1];
-        $_SESSION['fennt_szerz_tetel_targy'.$kieg]        = $_POST['adatok'][$targy_adat][1];
-        $_SESSION['fennt_szerz_tetel_varh_erk'.$kieg]     = $_POST['adatok'][$varh_erk_adat][1];
+        $_SESSION['fennt_szerz_tetel_recid'         ][$fej_id] = $_POST['adatok'][$recid_adat][1];
+        $_SESSION['fennt_szerz_tetel_telephely_id'  ][$fej_id] = $_POST['adatok'][$telephely_adat][1];
+        $_SESSION['fennt_szerz_tetel_targy'         ][$fej_id] = $_POST['adatok'][$targy_adat][1];
+        $_SESSION['fennt_szerz_tetel_varh_erk'      ][$fej_id] = $_POST['adatok'][$varh_erk_adat][1];
         if( $devizas ) {
-            $_SESSION['fennt_szerz_tetel_dev_varh_ert'.$kieg] = $_POST['adatok'][$varh_ert_adat][1];
+            $_SESSION['fennt_szerz_tetel_dev_varh_ert'][$fej_id] = $_POST['adatok'][$varh_ert_adat][1];
         } else {
-            $_SESSION['fennt_szerz_tetel_varh_ert'.$kieg]     = $_POST['adatok'][$varh_ert_adat][1];
+            $_SESSION['fennt_szerz_tetel_varh_ert'][$fej_id] = $_POST['adatok'][$varh_ert_adat][1];
         }
-        $_SESSION['fennt_szerz_tetel_telj_dt'.$kieg]      = $_POST['adatok'][$telj_dt_adat][1];
+        $_SESSION['fennt_szerz_tetel_telj_dt'][$fej_id] = $_POST['adatok'][$telj_dt_adat][1];
         if( $devizas ) {
-            $_SESSION['fennt_szerz_tetel_dev_net'.$kieg]  = str_replace(',', '.', $_POST['adatok'][$netto_ert_adat][1]);
+            $_SESSION['fennt_szerz_tetel_dev_net'][$fej_id] = str_replace(',', '.', $_POST['adatok'][$netto_ert_adat][1]);
         } else {
-            $_SESSION['fennt_szerz_tetel_netto_ert'.$kieg] = str_replace(',', '.', $_POST['adatok'][$netto_ert_adat][1]);
+            $_SESSION['fennt_szerz_tetel_netto_ert'][$fej_id] = str_replace(',', '.', $_POST['adatok'][$netto_ert_adat][1]);
         }
-        $_SESSION['fennt_szerz_tetel_valtozott'.$kieg] = $_POST['adatok'][$valtozott_adat][1];
+        $_SESSION['fennt_szerz_tetel_valtozott'][$fej_id] = $_POST['adatok'][$valtozott_adat][1];
     }
 
     // Adatbázisba mentést csak akkor csinálnuk, ha már meglevő szerződést szerkesztünk
@@ -404,12 +405,12 @@ if( isset($_POST['tetel_sorok_ment']) ) {
                     array_push($mezok,   'netto_ert',                       'varh_ert'                          );
                     array_push($ertekek, $netto*$fennt_szerz['arfolyam'],   $varh_ert*$fennt_szerz['arfolyam']  );
                 }
-                
+                $fej_id = $recid;
                 $rownum = $adatbazis_kapcsolat->s2('MAX(`rownum`)', 'fenntartasi_szerzodes_tetel', "`fenntartasi_szerzodes_recid`='{$recid}'");
                 $rownum = $rownum['MAX(`rownum`)']+1;
                 $uj_id = $adatbazis_kapcsolat->i('fenntartasi_szerzodes_tetel', $mezok, $ertekek);
                 if( $sql === false ) { $db_error = true; }
-                $_SESSION['fennt_szerz_tetel_recid'][$i] = $uj_id;
+                $_SESSION['fennt_szerz_tetel_recid'][$fej_id][$i] = $uj_id;
             }
 
             $i++;
@@ -867,32 +868,33 @@ require_once('selectek.php');
     $i = 0;
     $ossz_netto   = 0;
     $ossz_dev_net = 0;
-    $_SESSION['fennt_szerz_tetel_recid']        =
-    $_SESSION['fennt_szerz_tetel_telephely_id'] =
-    $_SESSION['fennt_szerz_tetel_targy']        =
-    $_SESSION['fennt_szerz_tetel_varh_erk']     =
-    $_SESSION['fennt_szerz_tetel_varh_ert']     =
-    $_SESSION['fennt_szerz_tetel_dev_varh_ert'] =
-    $_SESSION['fennt_szerz_tetel_telj_dt']      =
-    $_SESSION['fennt_szerz_tetel_netto_ert']    =
-    $_SESSION['fennt_szerz_tetel_dev_net']      =
-    $_SESSION['fennt_szerz_tetel_valtozott']    =
-    $_SESSION['fennt_szerz_tetel_andocos']      =
-                                                array();
+    $fej_id       = $_GET['id'];
+    $_SESSION['fennt_szerz_tetel_recid'         ][$fej_id] =
+    $_SESSION['fennt_szerz_tetel_telephely_id'  ][$fej_id] =
+    $_SESSION['fennt_szerz_tetel_targy'         ][$fej_id] =
+    $_SESSION['fennt_szerz_tetel_varh_erk'      ][$fej_id] =
+    $_SESSION['fennt_szerz_tetel_varh_ert'      ][$fej_id] =
+    $_SESSION['fennt_szerz_tetel_dev_varh_ert'  ][$fej_id] =
+    $_SESSION['fennt_szerz_tetel_telj_dt'       ][$fej_id] =
+    $_SESSION['fennt_szerz_tetel_netto_ert'     ][$fej_id] =
+    $_SESSION['fennt_szerz_tetel_dev_net'       ][$fej_id] =
+    $_SESSION['fennt_szerz_tetel_valtozott'     ][$fej_id] =
+    $_SESSION['fennt_szerz_tetel_andocos'       ][$fej_id] =
+                                                            array();
     foreach ( $tetelek as $tetel ) {
         $ossz_netto   += $tetel['netto_ert'];
         $ossz_dev_net += $tetel['dev_net'];
-        $_SESSION['fennt_szerz_tetel_recid'][$i]        = $tetel['recid'];
-        $_SESSION['fennt_szerz_tetel_telephely_id'][$i] = $tetel['telephely_id'];
-        $_SESSION['fennt_szerz_tetel_targy'][$i]        = $tetel['targy'];
-        $_SESSION['fennt_szerz_tetel_varh_erk'][$i]     = str_replace('-', '.', $tetel['varh_erk']);
-        $_SESSION['fennt_szerz_tetel_varh_ert'][$i]     = number_format($tetel['varh_ert'], 0, '', ' ');
-        $_SESSION['fennt_szerz_tetel_dev_varh_ert'][$i] = number_format($tetel['dev_varh_ert'], 2, ',', ' ');
-        $_SESSION['fennt_szerz_tetel_telj_dt'][$i]      = str_replace('-', '.', $tetel['telj_dt']);
-        $_SESSION['fennt_szerz_tetel_netto_ert'][$i]    = number_format($tetel['netto_ert'], 0, '', ' ');
-        $_SESSION['fennt_szerz_tetel_dev_net'][$i]      = number_format($tetel['dev_net'],   2, ',', ' ');
-        $_SESSION['fennt_szerz_tetel_valtozott'][$i]    = $tetel['valtozott'];
-        $_SESSION['fennt_szerz_tetel_andocos'][$i]      = $tetel['andocos'];
+        $_SESSION['fennt_szerz_tetel_recid'         ][$fej_id][$i] = $tetel['recid'];
+        $_SESSION['fennt_szerz_tetel_telephely_id'  ][$fej_id][$i] = $tetel['telephely_id'];
+        $_SESSION['fennt_szerz_tetel_targy'         ][$fej_id][$i] = $tetel['targy'];
+        $_SESSION['fennt_szerz_tetel_varh_erk'      ][$fej_id][$i] = str_replace('-', '.', $tetel['varh_erk']);
+        $_SESSION['fennt_szerz_tetel_varh_ert'      ][$fej_id][$i] = number_format($tetel['varh_ert'], 0, '', ' ');
+        $_SESSION['fennt_szerz_tetel_dev_varh_ert'  ][$fej_id][$i] = number_format($tetel['dev_varh_ert'], 2, ',', ' ');
+        $_SESSION['fennt_szerz_tetel_telj_dt'       ][$fej_id][$i] = str_replace('-', '.', $tetel['telj_dt']);
+        $_SESSION['fennt_szerz_tetel_netto_ert'     ][$fej_id][$i] = number_format($tetel['netto_ert'], 0, '', ' ');
+        $_SESSION['fennt_szerz_tetel_dev_net'       ][$fej_id][$i] = number_format($tetel['dev_net'],   2, ',', ' ');
+        $_SESSION['fennt_szerz_tetel_valtozott'     ][$fej_id][$i] = $tetel['valtozott'];
+        $_SESSION['fennt_szerz_tetel_andocos'       ][$fej_id][$i] = $tetel['andocos'];
 
         $i++;
     }
@@ -914,128 +916,151 @@ require_once('selectek.php');
     $gombok = '';
     if( isset($_GET['uj']) && _jog(JOG_FENNTARTASI_SZERZ_OLVAS) ) {
         
-        // Új feltöltéskor a tétel sorokat töröljük, ne az legyen, hogy szerkesztésből maradt adatokkal számoljunk
-        $_SESSION['fennt_szerz_tetel_recid']        = '';
-        $_SESSION['fennt_szerz_tetel_telephely_id'] = '';
-        $_SESSION['fennt_szerz_tetel_targy']        = '';
-        $_SESSION['fennt_szerz_tetel_varh_erk']     = '';
-        $_SESSION['fennt_szerz_tetel_telj_dt']      = '';
-        $_SESSION['fennt_szerz_tetel_varh_ert']     = '';
-        $_SESSION['fennt_szerz_tetel_dev_varh_ert'] = '';
-        $_SESSION['fennt_szerz_tetel_netto_ert']    = '';
-        $_SESSION['fennt_szerz_tetel_dev_net']      = '';
-        $_SESSION['fennt_szerz_tetel_valtozott']    = '';
-        $_SESSION['fennt_szerz_tetel_andocos']      = '';
+        // Ha már volt regisztrálva új felvitel, akkor be se töltsük az új felvitel felületet
+        if( $_COOKIE['uj_felvitel_'.$megnevezes] ) {
+            $szamla_html .= nl2('
+                                <h1 class="piros">A Fenntartási szerződés feltöltése már megkezdődött,<br>kérem előbb azt fejezze be, vagy lépjen ki belőle!</h1>
+                                <script>
+                                    setTimeout(function(){
+                                        $(\'#szerk_form\').hide();
+                                    }, 200);
+                                </script>
+                            ');
+
+        // Regisztráljuk, hogy elkezdődött egy új felvitel, hogy ne lehessen két új felvitelt elindítani
+        } else {
         
-        // Új szerződés rögzítésekor ellenőrizni kell, hogy van-e már legalább egy tétel
-        // Illetve a tételek összege azonos-e a szerződés nettójával
-        $js_submit_elott = nl2('
+            // Regisztráljuk, hogy elkezdődött egy új felvitel, hogy ne lehessen két új felvitelt elindítani
+            $szamla_html .= nl2('
+                            <script>
+                                createCookie(\'uj_felvitel_\'+baseName(location), \''.$_GET['andoc_id'].'\', 1);
+                            </script>
+                        ');
 
-            if( !$(\'#van_tetel\').val() ) {
-                alert2(\'Szerződés rögzítéséhez legalább egy tételt töltsön fel!\', \'\', \'Hiba\');
-                return false;
-            }
+            // Új feltöltéskor a tétel sorokat töröljük, ne az legyen, hogy szerkesztésből maradt adatokkal számoljunk
+            $fej_id = 'uj';
+            $_SESSION['fennt_szerz_tetel_recid'         ][$fej_id] = '';
+            $_SESSION['fennt_szerz_tetel_telephely_id'  ][$fej_id] = '';
+            $_SESSION['fennt_szerz_tetel_targy'         ][$fej_id] = '';
+            $_SESSION['fennt_szerz_tetel_varh_erk'      ][$fej_id] = '';
+            $_SESSION['fennt_szerz_tetel_telj_dt'       ][$fej_id] = '';
+            $_SESSION['fennt_szerz_tetel_varh_ert'      ][$fej_id] = '';
+            $_SESSION['fennt_szerz_tetel_dev_varh_ert'  ][$fej_id] = '';
+            $_SESSION['fennt_szerz_tetel_netto_ert'     ][$fej_id] = '';
+            $_SESSION['fennt_szerz_tetel_dev_net'       ][$fej_id] = '';
+            $_SESSION['fennt_szerz_tetel_valtozott'     ][$fej_id] = '';
+            $_SESSION['fennt_szerz_tetel_andocos'       ][$fej_id] = '';
 
-            var tizedesek   = 2;
-            var mezo1       = \'ossz_dev_net\';
-            var mezo2       = \'dev_net\';
-            var kerekit     = \''.KEREKITESI_HATAR_DEV.'\';
-            if(  $(\'#kcs_21\').val()==\''.KCS_21_HUF.'\' ) {
-                tizedesek   = 0;
-                mezo1       = \'ossz_netto\';
-                mezo2       = \'netto\';
-                kerekit     = \''.KEREKITESI_HATAR_HUF.'\';
-            }
-            
-            var netto_ossz   = Number($(\'#\'+mezo2).val().replace(/ /g, \'\').replace(/,/g, \'.\'));
-            var tetelek_ossz = Number($(\'#\'+mezo1).val().replace(/ /g, \'\').replace(/,/g, \'.\'));
-            if( $(\'#nullas\').is(\':checked\') == false ) {
-                if( Math.abs( Number(tetelek_ossz)-Number(netto_ossz) ) > kerekit ) {
-                    alert2(\'A szerződés tételeinek összege (\'+ezresek(tetelek_ossz, tizedesek, \',\', \' \', \'-nullát is írja ki-\')+\' \'+$(\'#kcs_21_autocomp\').val()+\') nem egyezik meg a szerződés nettó értékével(\'+ezresek(netto_ossz, tizedesek, \',\', \' \', \'-nullát is írja ki-\')+\' \'+$(\'#kcs_21_autocomp\').val()+\')!<br>Így nem menthető!\', \'\', \'Hiba\');
+            // Új szerződés rögzítésekor ellenőrizni kell, hogy van-e már legalább egy tétel
+            // Illetve a tételek összege azonos-e a szerződés nettójával
+            $js_submit_elott = nl2('
+
+                if( !$(\'#van_tetel\').val() ) {
+                    alert2(\'Szerződés rögzítéséhez legalább egy tételt töltsön fel!\', \'\', \'Hiba\');
                     return false;
                 }
-            }
-            return form_ell_admin();
-            ');
-        
-        // Ha foglalt volna az Andoc azonosító vagy az iktatószám, akkor mentéskor küldjünk hibaüzenetet
-        // Éles rendszerben ilyen nem fordulhat elő, de teszelésekkor szükséges, hogy ha gond volna, tudjunk róla
-        $onclick = 'if( form_ell_admin_elott() ){ uj_szerzodes_ellenorzes(); }';
-        if( $adatbazis_kapcsolat -> s2('recid', 'fenntartasi_szerzodes', "`andoc_id`='{$_GET['andoc_id']}'") ) {
-            $onclick = 'alert2(\''.a_az($_GET['andoc_id'], '-nagybetű-').' „'.$_GET['andoc_id'].'” Andoc azonosító már foglalt, így nem menthető a szerződés!\', \'\', \'Hiba\');';
-        }
-        if( $adatbazis_kapcsolat -> s2('recid', 'fenntartasi_szerzodes', "`szszam`='{$szerzodes['szszam']}'") ) {
-            $onclick = 'alert2(\''.a_az($szerzodes['ikt_szam'], '-nagybetű-').' „'.$szerzodes['szszam'].'” szerződés szám már foglalt, így nem menthető a szerződés!\', \'\', \'Hiba\');';
-        }
 
-        $gombok = nl2('
-            <div class="form_kuldes">
-                <input type="hidden" name="atmeneti_recid" value="'.$szerzodes['recid'].'">
-                <input type="hidden" id="van_tetel" value="">
-                <input type="hidden" id="ossz_netto" value="'.$ossz_netto.'">
-                <input type="hidden" id="ossz_dev_net" value="'.$ossz_dev_net.'">
-                <input type="button" class="gombb mentes_gomb gombb_alert" name="mehet_gomb" id="mehet_gomb" value="Mentés" onclick="'.$onclick.'">
-                <input type="button" class="gomb piros" id="megsem_gomb" value="Mégsem" onclick="megsemGomb();">
-            </div>
-        ');
-        $gombok .= '<input type="button" class="gomb" value="Tételek kezelése" onclick="csoportMuvelet(\'fenntartasiszerzodes_tetelek_kezelese\');"> ';
-        $gombok .= '<input type="button" class="gomb" value="Projekt szerződés" onclick="projekt_szerzodes();"> ';
+                var tizedesek   = 2;
+                var mezo1       = \'ossz_dev_net\';
+                var mezo2       = \'dev_net\';
+                var kerekit     = \''.KEREKITESI_HATAR_DEV.'\';
+                if(  $(\'#kcs_21\').val()==\''.KCS_21_HUF.'\' ) {
+                    tizedesek   = 0;
+                    mezo1       = \'ossz_netto\';
+                    mezo2       = \'netto\';
+                    kerekit     = \''.KEREKITESI_HATAR_HUF.'\';
+                }
 
-        $muv_style = ' style="width: calc(100% - '.($_SESSION['defaultCsuszka'] + 16).'px);"';
-        if( in_array(basename(self()), $_SESSION['ketHasabos']) && $_SESSION[get_db_tabla().'user'] ) {
-            if( $_COOKIE['csuszkaSzelesseg'] ) {
-                $muv_style = ' style="width: calc(100% - '.(($_COOKIE['csuszkaSzelesseg'] + 16)/10).'rem);"';
-            }
-        }
-
-        // Műveletek box
-        $gombok = nl2('
-            <div class="muveletek"'.$muv_style.'>
-                '.$gombok.'
-            </div>
-        ');
-        
-        $gombok .= nl2('
-                    <script>
-                    function uj_szerzodes_ellenorzes() {
-
-                        szurkit(\'mehet_megsem_rejt\');
-
-                        formModositva = false;
-
-                        /* Szerződés szám foglalt-e már */
-                        $.ajax({
-                            url : \'fenntartasi_szerzodes.php\',
-                            type: \'POST\',
-                            data: esamp2es(\'szszam=\' + $(\'#szszam\').val() + \'&amp;szszam_letezik=\' + new Date().getTime()),
-                            success: function(response) {
-                                if(response.substring(0, 6)==\'SESKIL\'){ location.href = \'index.php\'; }
-                                if(response) {
-                                    response = JSON.parse(response);
-
-                                    if( response.hiba ) {
-                                        alert2(response.hiba, response.gomb, response.title);
-                                        alert_utan_mehet_megsem_mutat_beallit();
-                                        if(response.focus){
-                                            $(\'#\'+response.focus).addClass(\'hibas_ide_focus\');
-                                        }
-                                    } else {
-                                        $(\'#szerk_form\').submit();
-                                    }
-
-                                }
-                                return false;
-                            },
-                            complete: function(xhr) {
-                                if( xhr.status != 200 ) {
-                                    alert2(xhr.responseText, \'\', \'Hiba\');
-                                }
-                            }
-                        });
-
+                var netto_ossz   = Number($(\'#\'+mezo2).val().replace(/ /g, \'\').replace(/,/g, \'.\'));
+                var tetelek_ossz = Number($(\'#\'+mezo1).val().replace(/ /g, \'\').replace(/,/g, \'.\'));
+                if( $(\'#nullas\').is(\':checked\') == false ) {
+                    if( Math.abs( Number(tetelek_ossz)-Number(netto_ossz) ) > kerekit ) {
+                        alert2(\'A szerződés tételeinek összege (\'+ezresek(tetelek_ossz, tizedesek, \',\', \' \', \'-nullát is írja ki-\')+\' \'+$(\'#kcs_21_autocomp\').val()+\') nem egyezik meg a szerződés nettó értékével(\'+ezresek(netto_ossz, tizedesek, \',\', \' \', \'-nullát is írja ki-\')+\' \'+$(\'#kcs_21_autocomp\').val()+\')!<br>Így nem menthető!\', \'\', \'Hiba\');
+                        return false;
                     }
-                    </script>
+                }
+                return form_ell_admin();
+                ');
+
+            // Ha foglalt volna az Andoc azonosító vagy az iktatószám, akkor mentéskor küldjünk hibaüzenetet
+            // Éles rendszerben ilyen nem fordulhat elő, de teszelésekkor szükséges, hogy ha gond volna, tudjunk róla
+            $onclick = 'if( form_ell_admin_elott() ){ uj_szerzodes_ellenorzes(); }';
+            if( $adatbazis_kapcsolat -> s2('recid', 'fenntartasi_szerzodes', "`andoc_id`='{$_GET['andoc_id']}'") ) {
+                $onclick = 'alert2(\''.a_az($_GET['andoc_id'], '-nagybetű-').' „'.$_GET['andoc_id'].'” Andoc azonosító már foglalt, így nem menthető a szerződés!\', \'\', \'Hiba\');';
+            }
+            if( $adatbazis_kapcsolat -> s2('recid', 'fenntartasi_szerzodes', "`szszam`='{$szerzodes['szszam']}'") ) {
+                $onclick = 'alert2(\''.a_az($szerzodes['ikt_szam'], '-nagybetű-').' „'.$szerzodes['szszam'].'” szerződés szám már foglalt, így nem menthető a szerződés!\', \'\', \'Hiba\');';
+            }
+
+            $gombok = nl2('
+                <div class="form_kuldes">
+                    <input type="hidden" name="atmeneti_recid" value="'.$szerzodes['recid'].'">
+                    <input type="hidden" id="van_tetel" value="">
+                    <input type="hidden" id="ossz_netto" value="'.$ossz_netto.'">
+                    <input type="hidden" id="ossz_dev_net" value="'.$ossz_dev_net.'">
+                    <input type="button" class="gombb mentes_gomb gombb_alert" name="mehet_gomb" id="mehet_gomb" value="Mentés" onclick="'.$onclick.'">
+                    <input type="button" class="gomb piros" id="megsem_gomb" value="Mégsem" onclick="megsemGomb();">
+                </div>
             ');
+            $gombok .= '<input type="button" class="gomb" value="Tételek kezelése" onclick="csoportMuvelet(\'fenntartasiszerzodes_tetelek_kezelese\');"> ';
+            $gombok .= '<input type="button" class="gomb" value="Projekt szerződés" onclick="projekt_szerzodes();"> ';
+
+            $muv_style = ' style="width: calc(100% - '.($_SESSION['defaultCsuszka'] + 16).'px);"';
+            if( in_array(basename(self()), $_SESSION['ketHasabos']) && $_SESSION[get_db_tabla().'user'] ) {
+                if( $_COOKIE['csuszkaSzelesseg'] ) {
+                    $muv_style = ' style="width: calc(100% - '.(($_COOKIE['csuszkaSzelesseg'] + 16)/10).'rem);"';
+                }
+            }
+
+            // Műveletek box
+            $gombok = nl2('
+                <div class="muveletek"'.$muv_style.'>
+                    '.$gombok.'
+                </div>
+            ');
+
+            $gombok .= nl2('
+                        <script>
+                        function uj_szerzodes_ellenorzes() {
+
+                            szurkit(\'mehet_megsem_rejt\');
+
+                            formModositva = false;
+
+                            /* Szerződés szám foglalt-e már */
+                            $.ajax({
+                                url : \'fenntartasi_szerzodes.php\',
+                                type: \'POST\',
+                                data: esamp2es(\'szszam=\' + $(\'#szszam\').val() + \'&amp;szszam_letezik=\' + new Date().getTime()),
+                                success: function(response) {
+                                    if(response.substring(0, 6)==\'SESKIL\'){ location.href = \'index.php\'; }
+                                    if(response) {
+                                        response = JSON.parse(response);
+
+                                        if( response.hiba ) {
+                                            alert2(response.hiba, response.gomb, response.title);
+                                            alert_utan_mehet_megsem_mutat_beallit();
+                                            if(response.focus){
+                                                $(\'#\'+response.focus).addClass(\'hibas_ide_focus\');
+                                            }
+                                        } else {
+                                            $(\'#szerk_form\').submit();
+                                        }
+
+                                    }
+                                    return false;
+                                },
+                                complete: function(xhr) {
+                                    if( xhr.status != 200 ) {
+                                        alert2(xhr.responseText, \'\', \'Hiba\');
+                                    }
+                                }
+                            });
+
+                        }
+                        </script>
+                ');
+        }
 
     // Módosítás gombok
     } else {
@@ -1123,6 +1148,15 @@ require_once('selectek.php');
         // Ha Gyorskeresőből érkeznénk ide, akkor az ID-t valójában az id_hidden tartalmazza majd
         if( isset($_GET['id_hidden']) ) {
             $_GET['id'] = $_GET['id_hidden'];
+        }
+        
+        // Ha épp egy sikeres feltöltés után vagyunk, akkor töröljük a Cookie-t
+        if( isset($_GET['siker']) ) {
+            $szamla_html .= nl2('
+                            <script>
+                                eraseCookie(\'uj_felvitel_\'+baseName(location));
+                            </script>
+                        ');
         }
 
 	    $sor = $adatbazis_kapcsolat -> s2('*', $megnevezes, "`recid`='{$_GET['id']}'");

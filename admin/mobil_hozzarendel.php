@@ -17,7 +17,7 @@ $megnevezes             = pathinfo(self());
 $megnevezes             = $megnevezes['filename'];
 $akt_tomb               = $_tomb;
 $torles                 = $megnevezes.'tid';
-$szoveg                 = 'törzset';        //Hibaüzenetkor: Biztosan törlöd a $szoveg?
+$szoveg                 = 'mobil hozzárendelést';
 
 $szamla_html = '';
 
@@ -31,21 +31,21 @@ if( isset($_POST['beosztas_kerdez']) ) {
     $uzenet = 'Biztos, hogy véglegesíti a mobil csoporthoz rendelést?';
     $hianyos_csop = array();
     $csoportok = array('a', 'b', 'cn', 'd');
-    foreach($csoportok as $csoport){
-        if($_POST[$csoport.'_csop']){
+    foreach ($csoportok as $csoport) {
+        if ($_POST[$csoport . '_csop']) {
             $idk = explode($csoport, trim($_POST[$csoport.'_csop'], ','));
             // Ha van ebbe a csoportba húzott feladat, nézzük meg, hogy adott csoporthoz van-e személyzet rendelve
-            if($idk){
+            if ($idk) {
                 $van_login = $adatbazis_kapcsolat->s('recid', 'login', "`aktiv`>0 AND `szemelyzet_id`='".MOBILCSOPORT."' AND `mobil`='{$csoport}'", '', '1');
-                if(!$van_login){
+                if (!$van_login) {
                     array_push($hianyos_csop, strtoupper($csoport));
                 }
             }
         }
     }
-    
+
     // Ha van hiányos csoport, akkor meg erre kérdezünk rá
-    if($hianyos_csop){
+    if ($hianyos_csop) {
         $uzenet = '"'.implode('", "', $hianyos_csop).'" mobilcsoportban jelenleg nincs hozzárendelt személyzet.<br>Folytatja?';
     }
 
@@ -380,6 +380,7 @@ require_once('selectek.php');
                                 ');
     }
 
+    $link = 'munkalap.php?feltetel=me|stat_id!HASH!op|equal!HASH!fe|'.MUNKALAP_STAT_FELVEVE.'!HASH!es|!HASH!me|mobil!HASH!op|equal!HASH!fe|{CSOPORT}!HASH!es|!HASH!&amp;tabla=munkalap&amp;f_o_szures_submit=1';
     $html .= nl2('
                         </ul>
                     </div>
@@ -388,16 +389,16 @@ require_once('selectek.php');
                 <table class="csoportok">
                     <tr>
                         <td>
-                            <input type="button" value="\'A\' csoport ('.$folyamatban_db['a'].')" onclick="window.open(\'munkalap.php?felvett_mobilcsop&amp;csop=a\', \'munka_lista\')">
+                            <input type="button" value="\'A\' csoport ('.$folyamatban_db['a'].')" onclick="window.open(\''.str_replace('{CSOPORT}', 'a', $link).'\', \'munka_lista\')">
                         </td>
                         <td>
-                            <input type="button" value="\'B\' csoport ('.$folyamatban_db['b'].')" onclick="window.open(\'munkalap.php?felvett_mobilcsop&amp;csop=b\', \'munka_lista\')">
+                            <input type="button" value="\'B\' csoport ('.$folyamatban_db['b'].')" onclick="window.open(\''.str_replace('{CSOPORT}', 'b', $link).'\', \'munka_lista\')">
                         </td>
                         <td>
-                            <input type="button" value="\'CN\' csoport ('.$folyamatban_db['cn'].')" onclick="window.open(\'munkalap.php?felvett_mobilcsop&amp;csop=cn\', \'munka_lista\')">
+                            <input type="button" value="\'CN\' csoport ('.$folyamatban_db['cn'].')" onclick="window.open(\''.str_replace('{CSOPORT}', 'cn', $link).'\', \'munka_lista\')">
                         </td>
                         <td>
-                            <input type="button" value="\'D\' csoport ('.$folyamatban_db['d'].')" onclick="window.open(\'munkalap.php?felvett_mobilcsop&amp;csop=d\', \'munka_lista\')">
+                            <input type="button" value="\'D\' csoport ('.$folyamatban_db['d'].')" onclick="window.open(\''.str_replace('{CSOPORT}', 'd', $link).'\', \'munka_lista\')">
                         </td>
                     </tr>
                     <tr class="teruletek">

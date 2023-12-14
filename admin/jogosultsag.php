@@ -186,6 +186,6 @@ $jogosultsagok = array(
     91  => array('nev' => 'Megállapodások kezelése',                'kat' => 14, 'sor' => 2),
     92  => array('nev' => 'Megállapodás számlák megtekintése',      'kat' => 14, 'sor' => 3),
     100 => array('nev' => 'Megállapodás számlák kezelése',          'kat' => 14, 'sor' => 4),
-    86  => array('nev' => 'Megállapodás számlák igazolása',         'kat' => 14, 'sor' => 5),
+    JOG_MEGALLAPODAS_SZAMLA_IGAZOL  => array('nev' => 'Megállapodás számlák igazolása',         'kat' => 14, 'sor' => 5),
     
 );

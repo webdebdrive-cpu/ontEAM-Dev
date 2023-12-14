@@ -1,5 +1,5 @@
 <h2>Adja meg a visszaküldés okát</h2>
-<form id="elutasitasForm" class="popupForm" method="post" onsubmit="return projektSzamlaVisszaUi();">
+<form id="elutasitasForm" class="popupForm" method="post" onsubmit="return projektSzamlaVisszaIgazolonak();">
     <div class="kozep">
         <div class="dt">
             <div class="dtr">
@@ -17,7 +17,7 @@
 </form>
 <script>
 /* Vissza Üi-nek */
-function projektSzamlaVisszaUi() {
+function projektSzamlaVisszaIgazolonak() {
     
     /* Megjegyzés kötelező */
     if(!$('#indoklas_memo').val()){
@@ -31,9 +31,9 @@ function projektSzamlaVisszaUi() {
         url : 'projektszamla.php',
         type: 'POST',
         data: {
-            recid                   : _get('id'),
-            memo                    : $('#indoklas_memo').val(),
-            projektSzamlaVisszaUi   : new Date().getTime()
+            recid                           : _get('id'),
+            memo                            : $('#indoklas_memo').val(),
+            projektSzamlaVisszaIgazolonak   : new Date().getTime()
         },
         success: function(response) {
             if(response.substring(0, 6)=='SESKIL'){ location.href = 'index.php'; }
@@ -48,7 +48,7 @@ function projektSzamlaVisszaUi() {
                 }
                 popupZar();
                 szamlaBetolt(_get('id'), 'projektszamla.php');
-                alert2('Számla sikeresen visszaküldve az ügyintézőnek!', '', 'Üzenet');
+                alert2('Számla sikeresen visszaküldve az igazolónak!', '', 'Üzenet');
             }
         },
         complete: function(xhr) {

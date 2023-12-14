@@ -22,7 +22,7 @@ $szoveg                 = 'munkalapot';        // Hibaüzenetkor: Biztosan törl
 $szamla_html = '';
 
 // Dokumentumok fülhöz kell majd
-$tobb_kep = true;
+$tobb_kep = 1;
 if( $tobb_kep ) {
 
     function get_tobbkep_darab()    { return 10;         } // Maximum hány kép tallózható be
@@ -33,17 +33,6 @@ if( $tobb_kep ) {
         return $megnevezes.'_id';
     }
     function get_tobbkep_tabla(){ return str_replace('.php', '', basename(self())).'_dok'; } // A képeket tartalmazó adatbázis tábla neve FONTOS: ha itt átnevezed akkor a tobbkep.php-ban is át kell írni!
-}
-
-
-// Ha mobilcsoportra és státuszra egyszerre akarunk szűrni:
-if( isset($_GET['felvett_mobilcsop']) ) {
-    $_SESSION['o_szuro_feltetel']   = 'me|stat_id#op|equal#fe|08#es|#me|mobil#op|equal#fe|'.$_GET['csop'].'#es|#';
-    $_SESSION['o_szuro_html']       = '<div class="dtr"><div class="dtc"><b class="zaro nyit">(</b></div><div class="dtc"><input class="mezo" value="stat_id" type="hidden"><input class="op" value="equal" type="hidden"><input class="felt" value="08" type="hidden"><span class="m_mezo">Státusz</span> <span class="m_op">=</span> <span class="m_felt">Felvéve</span> </div><div class="dtc"><b class="zaro zar">)</b></div><div class="dtc"><select style="width: 7rem" class="es_vagy" onchange="osszetett_szuro_mondat()"><option value="es|">ÉS</option><option value="va|">VAGY</option></select></div><div class="dtc"><b class="torol">×</b></div></div><div class="dtr"><div class="dtc"><b class="zaro nyit">(</b></div><div class="dtc"><input class="mezo" value="mobil" type="hidden"><input class="op" value="equal" type="hidden"><input class="felt" value="'.$_GET['felvett_mobilcsop'].'" type="hidden"><span class="m_mezo">Mobilcsoport</span> <span class="m_op">=</span> <span class="m_felt">'. strtoupper($_GET['csop']).'</span> </div><div class="dtc"><b class="zaro zar">)</b></div><div class="dtc"><select style="width: 7rem" class="es_vagy" onchange="osszetett_szuro_mondat()"><option value="es|">ÉS</option><option value="va|">VAGY</option></select></div><div class="dtc"><b class="torol">×</b></div></div>';
-}
-if( isset($_GET['szures_vege']) ) {
-    $_SESSION['o_szuro_feltetel']   = '';
-    $_SESSION['o_szuro_html']       = '';
 }
 
 // Munkalap készítése
@@ -123,7 +112,7 @@ if( isset($_POST['munkalapKeszit']) ) {
                     $modell = $adatbazis_kapcsolat->s2('modell', 'telephely', "`id`='{$akt_bejelentes['telephely_id']}'");
                     if( $modell === false ) { $db_error = true; }
 
-                    if(!$modell['modell'] ) {
+                    if( !$modell['modell'] ) {
 
                         $keszithet_ml_ot = true;
                         $van_kapcs = $adatbazis_kapcsolat->s2('munkalap_id', 'munkalap_kapcs', "`bejelentes_id`='{$id}'", '', '1');
@@ -2794,7 +2783,7 @@ if( isset($_POST['kulsokivHozzarend']) ) {
             exit();
         }
 
-        // Jog ellenőrzése (javaslattétel esetén külsős előkészítés jog
+        // Jog ellenőrzése (javaslattétel esetén külsős előkészítés jog)
         if( !isset($_POST['javaslattetel']) && !($_SESSION[get_db_tabla().'szemelyzet_id']==MUSZAKI_VEZETO && $munkalap['szemelyzet_id']==MUSZAKI_VEZETO && !$telephely['modell']) ) {
             echo json_encode(array(
                 'hiba'  => 'Önnek nincs joga külső kivitelezőt hozzárendelni!',

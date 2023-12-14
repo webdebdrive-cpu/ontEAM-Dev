@@ -14,7 +14,7 @@ $soap -> handle();
 
 // A szerverre írunk egy osztályt, ez lesz a motor
 class ServerClass {
-    
+
     // Konstansok
     const SZAMLA_TIPUS_FENNTARTASI  = 'fenntartási számla';
     const SZAMLA_TIPUS_PROJEKT      = 'beruházási számla';
@@ -94,10 +94,10 @@ class ServerClass {
         }
         $szamla_andoc_id = $andoc_id = $szamla -> data -> register['registernumber'];
 
-        $kifizetes_import = false;
-        // Ha létezik a kifizetett összeg tag, de nincs értéke (vagy 0), akkor dobjunk hibát
+        $kifizetes_import = 0;
+        // Kifizetséről van szó, ha a Fizetési státusz tag-ben az alábbiak vannak
         if( $szamla_adatok['Fizetési státusz'] == 'kifizetetlen' || $szamla_adatok['Fizetési státusz'] == 'részben kifizetve' || $szamla_adatok['Fizetési státusz'] == 'kifizetett' ) {
-            $kifizetes_import = true;
+            $kifizetes_import = 1;
         }
         
         // Ha kifizetésről van szó, akkor kötelező megadni a Számla főtípust is (sima insertnél nem feltétlen kötelező)
@@ -128,7 +128,7 @@ class ServerClass {
             Throw new SOAPFault ('Server', 'Nem azonosítható be a számla főtípusa!');
         }
         $apa_recid_oszlop = $tabla.'_recid';
-        
+
         // Azt, hogy ez insert vagy update lesz, azt már itt el kell dönteni, hisz update esetén nem kötelezőek a mezők!
         $szamla_db = $adatbazis_kapcsolat->s2('recid erk_xml tetel_db sztornozva_dt utalvanyozva_dt igazolva_dt', $tabla, "`andoc_id`='{$andoc_id}'");
         if( $szamla_db === false ) { $db_error = mysqli_error($db_kapcs); }
@@ -137,12 +137,22 @@ class ServerClass {
         if( $szamla_db['recid'] ) {
             $insert_update = 'update';
 
+        // Ha a számla nincs benne az éles táblában...
         } else {
             
-            // Ha nem ismert az Andoc azonosító, akkor lehet, hogy adott tábla átmenetijében van, nézzük meg így:
-            $atmenetiben_van = $adatbazis_kapcsolat->s2('recid', $tabla.'_atmeneti', "`andoc_id`='{$andoc_id}'");
-            if( $atmenetiben_van === false ) { $db_error = mysqli_error($db_kapcs); }
+            // Ha nem létezik az éles táblában, akkor megnézzük az összes modul átmeneti tábláját is, lehet hogy ott van valamelyikben
+            $atmeneti_tablak = array('fenntartasi_szamla_atmeneti', 'projektszamla_atmeneti', 'energia_szamla_atmeneti', 'anyag_szamla_atmeneti', 'megallapodas_szamla_atmeneti');
+            foreach ($atmeneti_tablak as $atmeneti_tabla) {
+                $atmenetiben_van = $adatbazis_kapcsolat -> s2('recid', $atmeneti_tabla, "`andoc_id`='{$andoc_id}'");
+                if( $atmenetiben_van === false ) { $db_error = mysqli_error($db_kapcs); }
 
+                // Ha valamelyik átmeneti táblában volna, akkor őt kell updatelni. Azaz a $tabla értékét írjuk át
+                // és úgy megyünk tovább, mintha eleve ez lett volna a táblánk
+                if( $atmenetiben_van['recid'] ) {
+                    $tabla = str_replace('_atmeneti', '', $atmeneti_tabla);
+                    break;
+                }
+            }
             // Ha az átmeneti táblában volt, akkor maradunk update üzemmódban, de most már az átmeneti táblába fogunk dolgozni
             if( $atmenetiben_van['recid'] ) {
                 
@@ -162,8 +172,8 @@ class ServerClass {
             }
 
         }
-        
-// Throw new SOAPFault ('Server', $insert_update);
+
+ // Throw new SOAPFault ('Server', $insert_update.' - '.$tabla);
 
         // Újabban nincs törlés funkció
 //        // Törléshez ismernünk kell az andoc_id-t és a számla típusát
@@ -186,6 +196,13 @@ class ServerClass {
 //
 //        // Insert/update
 //        } else {
+
+            // Az adatbázisban fontos, hogy a kezdő 0-ák meglegyenek, ezzel fogunk a későbbiekben dolgozni
+            // A $szamla_adatok['Partner száma']-t viszont ne bántsuk, hogy el tudjuk később dönteni, hogy volt-e benne érték vagy sem.
+            if( $szamla_adatok['Partner száma'] ) {
+                $szallito_id = sprintf('%05d', $szamla_adatok['Partner száma']);
+            }
+            $szalloda_klaszter_original = $szamla_adatok['Szálloda - Klaszter'];
 
             // Az alábbiakat csak insert esetén kell vizsgálni
             if( $insert_update == 'insert' ) {
@@ -257,6 +274,7 @@ class ServerClass {
                 
                 // Update esetén a szállodát akkor sem módosítjuk ha az XML tartalmazná, ez fixen legyen kinullázva.
                 // Oka: a szálloda ontEAM oldalon módosulhat, ami Andoc oldalra nem kerül visszaadásra, és a legközelebbi update módosítaná a friss beállításainkat
+                // Viszont ha az Andoc számlák között van, akkor később ki lesz törölve és újból létrehozva, erre az esetre mentjük ki a $szalloda_klaszter_original -ba
                 $szamla_adatok['Szálloda - Klaszter'] = '';
                 
                 if( $szamla_adatok['Számla kelte'] && !valos_datum_e($szamla_adatok['Számla kelte']) ) {
@@ -297,11 +315,7 @@ class ServerClass {
                     
                 }
             }
-            // Az adatbázisban fontos, hogy a kezdő 0-ák meglegyenek, ezzel fogunk a későbbiekben dolgozni
-            // A $szamla_adatok['Partner száma']-t viszont ne bántsuk, hogy el tudjuk később dönteni, hogy volt-e benne érték vagy sem.
-            if( $szamla_adatok['Partner száma'] ) {
-                $szallito_id = sprintf('%05d', $szamla_adatok['Partner száma']);
-            }
+
             
             // Foglalt iktatószám ellenőrzése
             if( $szamla_adatok['Danubius azonosító'] ) {
@@ -438,7 +452,7 @@ class ServerClass {
             }
             $szamla_adatok['Kifizetett összeg'] = str_replace(',', '.', $szamla_adatok['Kifizetett összeg']);
 
-            // Ha az alapvető adatokon nem akadtunk fenn, akkor szúrjuk be vagy updateljük a számlát, attól föggően, hogy az Andok azonosító ismert-e.
+            // Ha az alapvető adatokon nem akadtunk fenn, akkor szúrjuk be vagy updateljük a számlát, attól függően, hogy az Andok azonosító ismert-e.
             // Ehhez az első lépés, a mező/érték párokat beállítani.
             $mezok = $ertekek = array();
             if( $szamla_adatok['Számla érkezés dátuma']             ) { array_push($mezok, 'erk_dt'         ); array_push($ertekek, $szamla_adatok['Számla érkezés dátuma']);       }
@@ -478,24 +492,46 @@ class ServerClass {
             if( $kolt_vis                                           ) { array_push($mezok, 'kolt_vis'       ); array_push($ertekek, $kolt_vis);                                     }
             if( $fizmod                                             ) { array_push($mezok, 'fizmod'         ); array_push($ertekek, $fizmod);                                       }
 
-            // Ha a nagy átmeneti táblában volna a számla, akkor előbb töröljük
+            // Ha az Andoc számlák táblában volna a számla, akkor előbb töröljük
             if( $tabla == 'szamla' ) {
+
                 $atmenetiben_van = $adatbazis_kapcsolat->s2('recid', $tabla.'_atmeneti', "`andoc_id`='{$andoc_id}'");
                 if( $atmenetiben_van === false ) { $db_error = mysqli_error($db_kapcs); }
 
                 if( $atmenetiben_van ) {
+
                     $sql = $adatbazis_kapcsolat->d($tabla.'_atmeneti', "`andoc_id`='{$andoc_id}'");
                     if( $sql === false ) { $db_error = mysqli_error($db_kapcs); }
-                }
-            }
-            
-            $aparecid = $szamla_db['recid'];
+                    // Viszont ekkor át kell kapcsolni insert üzemmódra
+                    $insert_update = 'insert';
 
+                    // Plusz ekkor mégis be kell írni a szálloda adatot (vagy átírni, ha benne volna)
+                    $i = 0;
+                    $volt_telephely = 0;
+                    foreach ($mezok as $mezo) {
+                        if( $mezo == 'telephely_id' ) {
+                            $ertekek[$i] = $szalloda_klaszter_original;
+                            $volt_telephely = 1;
+                        }
+                        $i++;
+                    }
+                    if( !$volt_telephely ) {
+                        array_push($mezok,      'telephely_id'              );
+                        array_push($ertekek,    $szalloda_klaszter_original );
+                    }
+                }
+
+            }
+
+
+// Throw new SOAPFault ('Server', $aparecid);
+            $aparecid = $szamla_db['recid'];
+// Throw new SOAPFault ('Server', $aparecid);
             // Ha nincs $aparecid, akkor ez azt jelenti, hogy a számla nincs benne az éles táblában.
             // Ekkor két eset lehet: benne van az adott modul átmeneti táblájában (ekkor update állapotban vagyunk),
             // vagy még az átmenetiben nincs, ekkor Insert módban vagyunk
             if( !$aparecid ) {
-
+// Throw new SOAPFault ('Server', $insert_update);
                 // Adott modul átmeneti táblájában van a számla, ezt kell updatelni
                 if( $insert_update == 'update' ) {
                     
@@ -522,9 +558,8 @@ class ServerClass {
                         array_push($ertekek,   $szamla_xml, $andoc_id,  self::IU_USER,  self::IU_USER, 'NOW()'      );
                         $aparecid = $adatbazis_kapcsolat->i($tabla.'_atmeneti', $mezok, $ertekek);
                         if( $aparecid === false ) { $db_error = mysqli_error($db_kapcs); }
-// Throw new SOAPFault ('Server', $adatbazis_kapcsolat->gp());
                     }
-                    
+// Throw new SOAPFault ('Server', $adatbazis_kapcsolat -> gp() );
                 }
                 
             // Update, éles táblát updatelünk
@@ -556,7 +591,7 @@ class ServerClass {
                     array_push($ertekek,   'NOW()'          );
                 }
 
-                // Ha egy utalványozást épp elutasítanának, akkor az utalvanyozva_dt-t és sztroznozva_dt-t állítsuk be, mert onnan fogjuk tudni, hogy el van utasítva, hogy 0 az értéke, de a dátuma ki van töltve
+                // Ha egy utalványozást épp elutasítanának, akkor az utalvanyozva_dt-t és sztornozva_dt-t állítsuk be, mert onnan fogjuk tudni, hogy el van utasítva, hogy 0 az értéke, de a dátuma ki van töltve
                 if( mb_strtolower($szamla_adatok['Utalványozó döntés'], self::CHAR_CODING) == 'elutasítva' && $szamla_db['utalvanyozva_dt'] == '0000-00-00 00:00:00' ) {
                     array_push($mezok,     'utalvanyozva_dt',   'sztornozva_dt', 'sztornozva_usr');
                     array_push($ertekek,   'NOW()',             'NOW()',         'Andoc'         );
@@ -1012,8 +1047,8 @@ class ServerClass {
                     $adatbazis_kapcsolat->u('szallito', $mezok, $ertekek, "`id`='{$szallito_id}'");
                 // Egyébként...
                 } else {
-                    array_push($mezok,   'id'           );
-                    array_push($ertekek, $szallito_id   );
+                    array_push($mezok,   'id',          'insert_dt' );
+                    array_push($ertekek, $szallito_id,  'NOW()'     );
                     $adatbazis_kapcsolat->i('szallito', $mezok, $ertekek);
                 }
             }
@@ -1152,7 +1187,7 @@ class ServerClass {
             Throw new SOAPFault ('Server', 'A szerződés nem befogadható, mert tartalmazza a kapcsolt file-t!');
         }
         
-        $szerzodes_andoc_id = $andoc_id = $szerzodes -> data -> register['registernumber'];
+        $andoc_id = $szerzodes -> data -> register['registernumber'];
         
         if( !$szerzodes_adatok['Szerződés iránya'] ) {
             // Ha nincs megadva a szerződés iránya, akkor fenntartási szerződésnek vesszük
@@ -1160,8 +1195,13 @@ class ServerClass {
             $szerzodes_adatok['Szerződés iránya'] = SZERZ_TIPUS_FENNTARTASI;
         }
         switch( strtolower( $szerzodes_adatok['Szerződés iránya'] ) ) {
-            case self::SZERZ_TIPUS_FENNTARTASI     : $tabla = 'fenntartasi_szerzodes';    break;
-            case self::SZERZ_TIPUS_PROJEKT         : $tabla = 'projektszerzodes';         break;
+            case self::SZERZ_TIPUS_FENNTARTASI     : $tabla = 'fenntartasi_szerzodes';  break;
+            case self::SZERZ_TIPUS_PROJEKT         : $tabla = 'projektszerzodes';       break;
+            default                                : $tabla = '!hiba!';                 break;
+        }
+
+        if( $tabla == '!hiba!' ) {
+            Throw new SOAPFault ('Server', 'Nem azonosítható be a szerződés iránya!');
         }
         
         $apa_recid_oszlop = $tabla.'_recid';
