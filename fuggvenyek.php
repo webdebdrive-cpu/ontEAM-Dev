@@ -338,7 +338,7 @@ function i_u($type, $tabla, $tomb) {
         $pr_felelos = $adatbazis_kapcsolat->s2('beosztas_id', 'login', "`recid`='{$_POST['pfelelos']}'");
         $szalloda   = $adatbazis_kapcsolat->s2('id modell', 'telephely', "`unid`='{$_POST['telephely_unid']}'");
 
-        if( $pr_felelos['beosztas_id'] == EL_BEOSZTAS_TER_FELELOS && !$szalloda['modell'] ) {
+        if( $pr_felelos[''] == EL_BEOSZTAS_TER_FELELOS && !$szalloda['modell'] ) {
             echo json_encode(array(
                                     'hiba'  => 'A választott projektfelelős területi felelős beosztású,<br>egyszállodás projekt nem rendelhető hozzá!',
                                     'title' => 'Hiba',
@@ -5123,24 +5123,24 @@ function szamla_lista( $where = '', $tabla = '', $kijeloltek = false, $csak_sql_
                 $_SESSION['vendegej_tablazat_rendez'] = $mentett_rendezes['vendegej_tablazat_rendez'];
                 $_SESSION['vendegej_tablazat_irany']  = $mentett_rendezes['vendegej_tablazat_irany'];
             }
-//            // Táblázatos rendezés miatt itt másképp kell a rendezést megoldani
-//            // Alapértelmezett irány beállítása
-//            if( !$_SESSION['vendegej_tablazat_rendez'] ) {
-//                $_SESSION['vendegej_tablazat_rendez'] = 'vendegej_tabla_v_d';
-//                $_SESSION['vendegej_tablazat_irany']  = 'desc';
-//            }
-//            switch ( $_SESSION['vendegej_tablazat_rendez'] ) {
-//                case 'vendegej_tabla_telephely_id'  : $order = '`'.get_db_tabla().'vendegejszakak`.`telephely_id`'; break;
-//                case 'vendegej_tabla_v_d'           : $order = '`'.get_db_tabla().'vendegejszakak`.`v_d`';          break;
-//                case 'vendegej_tabla_v_ert'         : $order = '`'.get_db_tabla().'vendegejszakak`.`v_ert`';        break;
-//                case 'vendegej_tabla_ksz_ert'       : $order = '`'.get_db_tabla().'vendegejszakak`.`ksz_ert`';      break;
-//                case 'vendegej_tabla_khsz_ert'      : $order = '`'.get_db_tabla().'vendegejszakak`.`khsz_ert`';     break;
-//                case 'vendegej_tabla_rr_ert'        : $order = '`'.get_db_tabla().'vendegejszakak`.`rr_ert`';       break;
-//                case 'vendegej_tabla_ugyl_ert'      : $order = '`'.get_db_tabla().'vendegejszakak`.`ugyl_ert`';     break;
-//                case 'vendegej_tabla_ter_ert'       : $order = '`'.get_db_tabla().'vendegejszakak`.`ter_ert`';      break;
-//            }
-//            $order .= ' '.$_SESSION['vendegej_tablazat_irany'];
-            
+
+            // Táblázatos rendezés miatt itt másképp kell a rendezést megoldani
+            // Alapértelmezett irány beállítása
+            if( !$_SESSION['vendegej_tablazat_rendez'] ) {
+                $_SESSION['vendegej_tablazat_rendez'] = 'vendegej_tabla_v_d';
+                $_SESSION['vendegej_tablazat_irany']  = 'desc';
+            }
+            switch ( $_SESSION['vendegej_tablazat_rendez'] ) {
+                case 'vendegej_tabla_telephely_id'  : $order = '`'.get_db_tabla().'vendegejszakak`.`telephely_id`'; break;
+                case 'vendegej_tabla_v_d'           : $order = '`'.get_db_tabla().'vendegejszakak`.`v_d`';          break;
+                case 'vendegej_tabla_v_ert'         : $order = '`'.get_db_tabla().'vendegejszakak`.`v_ert`';        break;
+                case 'vendegej_tabla_ksz_ert'       : $order = '`'.get_db_tabla().'vendegejszakak`.`ksz_ert`';      break;
+                case 'vendegej_tabla_khsz_ert'      : $order = '`'.get_db_tabla().'vendegejszakak`.`khsz_ert`';     break;
+                case 'vendegej_tabla_rr_ert'        : $order = '`'.get_db_tabla().'vendegejszakak`.`rr_ert`';       break;
+                case 'vendegej_tabla_ugyl_ert'      : $order = '`'.get_db_tabla().'vendegejszakak`.`ugyl_ert`';     break;
+                case 'vendegej_tabla_ter_ert'       : $order = '`'.get_db_tabla().'vendegejszakak`.`ter_ert`';      break;
+            }
+            $order .= ' '.$_SESSION['vendegej_tablazat_irany'];
                     
             // Ha már kétszer volna benne a desc, akkor azt egyre cseréljük
             $order = str_replace('desc desc', 'desc', $order);
@@ -5347,12 +5347,11 @@ function szamla_lista( $where = '', $tabla = '', $kijeloltek = false, $csak_sql_
 
     // $sorrend_idk tömböt mindig létrehozzuk, ha még nem létezne, mert a CSV sorrendet mindig a navpaneles sorrend alapján állítjuk elő
     if( !isset($_GET['szamlaSorFrissit']) ) {
-
         if( !$sorrend_idk ) {
             $sorrend_idk = array();
             $lekerdezes = mysqli_query($db_kapcs, $sql);
             while( $sor = mysqli_fetch_assoc($lekerdezes) ) {
-                // Ha túl sok ID-t veszünk fel a $sorrend_idk többe, akkor az SQL ORDER BY FIELD része is túl hosszú lesz, nem fog tudni lefutni, üres excel jön majd le.
+                // Ha túl sok ID-t veszünk fel a $sorrend_idk tömbbe, akkor az SQL ORDER BY FIELD része is túl hosszú lesz, nem fog tudni lefutni, üres excel jön majd le.
                 // Sajnos ez azt is jelenti, hogy az itt megadott limiten felüli számú sort nem lehetne sorrendbe kiexportálni. Maximum az első X lesz sorrendben
                 array_push( $sorrend_idk, $sor['recid'] );
             }
@@ -6802,6 +6801,7 @@ function energia_tervLista( $bejegyzesek, $tabla, $frissit = '', $kijeloltek = '
 function anyagigenylesLista( $bejegyzesek, $tabla, $frissit = '', $kijeloltek = '' ) {
     global $adatbazis_kapcsolat;
 
+    $html = '';
     if( $bejegyzesek ) {
 
         // Anyagrendelés esetén más listát generálunk ki (rndid alapján group by-oztuk) Anyagrend mod: 2018.04
@@ -6961,8 +6961,8 @@ function anyagigenylesLista( $bejegyzesek, $tabla, $frissit = '', $kijeloltek = 
                 foreach ( $oszlopok as $oszl ) {
 
                     $order = '';
-                    if($oszl['id']==$_SESSION['anyagigenyles_tablazat_rendez']){
-                        if($_SESSION['anyagigenyles_tablazat_irany']=='desc'){
+                    if ($oszl['id'] == $_SESSION['anyagigenyles_tablazat_rendez']) {
+                        if ($_SESSION['anyagigenyles_tablazat_irany'] == 'desc') {
                             $order = ' desc';
                         } else {
                             $order = ' asc';
@@ -9737,7 +9737,7 @@ function beosztas_naptar($beosztas_id){
     global $adatbazis_kapcsolat;
 
     // Naptár események
-    $naptar_sorok = $adatbazis_kapcsolat->s('recid tol ig felh_loginnev beosztas szerepkor', 'beosztas_naptar', "`beosztas_id` = '".$beosztas_id."'", 'tol');
+    $naptar_sorok = $adatbazis_kapcsolat->s('recid tol ig felh_loginnev beosztas szerepkor', 'beosztas_naptar', "`beosztas_id`='{$beosztas_id}'", 'tol');
 
     $events = '';
     if( $naptar_sorok ) {
@@ -9773,7 +9773,7 @@ function beosztas_naptar($beosztas_id){
     }
 
     // Start Date
-    $beosztas = $adatbazis_kapcsolat->s2('tol', 'beosztas', "`recid`='$beosztas_id'");
+    $beosztas = $adatbazis_kapcsolat->s2('tol', 'beosztas', "`recid`='{$beosztas_id}'");
     $start_dt = date('c', date2int($beosztas['tol']) );
 
     $html .= str_replace(
@@ -10191,7 +10191,7 @@ function get_tortenet($megnevezes) {
     global $adatbazis_kapcsolat;
 
     $szamla_html = nl2('
-        <div class="dt naplo">
+        <div class="dt naplo tortenet">
             <div class="dtr nFejlec">
                 <div class="dtc">Státusz</div>
                 <div class="dtc">Kelte</div>
@@ -10720,7 +10720,7 @@ function level_felkeszit_es_kuld( $tabla = '', $recid = '', $ert_pipa = '', $sab
                 return 'Inaktív felhasználói név!<br>Kérését így nem tudjuk továbbítani!';
             }
             $beosztas   = erteklista(ERTEKLISTA_BEOSZTAS, $login['beosztas_id']);
-            $reszleg    = erteklista(ERTEKLISTA_RESZLEG, $login['reszleg_id']);
+            $reszleg    = erteklista(ERTEKLISTA_RESZLEG,  $login['reszleg_id'] );
             $mit        = array('{LOGINNEV}',  '{TELJES_NEV}',        '{BEOSZTAS}', '{RESZLEG}',    '{TELEFON}',       '{EMAIL}'          );
             $mivel      = array($login['nev'], $login['teljes_nev'],  $beosztas,    $reszleg,       $login['usertel'], $login['usermail'] );
             $uzi        = str_replace( $mit, $mivel, fajlbol_olvas('../sablon/admin/mail/'.$cimzett.'.html') );
@@ -10925,7 +10925,6 @@ function level_felkeszit_es_kuld( $tabla = '', $recid = '', $ert_pipa = '', $sab
             
             // A címzettnél vizsgáljuk az értesítés pipa meglétét is
             $cimzettek = $adatbazis_kapcsolat->s('nev teljes_nev usermail aktiv virtual szemelyzet_id', 'login', "`aktiv`=1 AND `virtual`=0 {$sql_ertesites_kieg}");
-
             if( !$cimzettek ) {
                 return false;
             }

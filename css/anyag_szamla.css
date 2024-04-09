@@ -30,18 +30,18 @@ b.x {
     border-bottom: 0.1rem solid #8e8e8e;
 }
 
-div.naplo div.nSor div.dtc:nth-of-type(1) {
+div.naplo.tortenet div.nSor div.dtc:nth-of-type(1) {
     width: 35rem;
 }
 
-div.naplo div.nSor div.dtc:nth-of-type(2) {
+div.naplo.tortenet div.nSor div.dtc:nth-of-type(2) {
     width: 15rem;
 }
-div.naplo div.nSor div.dtc:nth-of-type(4) {
+div.naplo.tortenet div.nSor div.dtc:nth-of-type(4) {
     width: 15rem;
 }
 
-div.naplo div.nFejlec div.dtc.pipa {
+div.naplo.tortenet div.nFejlec div.dtc.pipa {
     padding: 0rem 1.5rem;
 }
 
@@ -64,7 +64,7 @@ table.szamla_cont_tabla tr td:nth-last-of-type(2), table.szamla_cont_tabla tr td
     div.naplo div.nFejlec div.dtc.pipa {
         padding: 0rem 0.5rem;
     }
-    div.naplo div.nSor div.dtc:nth-of-type(1) {
+    div.naplo.tortenet div.nSor div.dtc:nth-of-type(1) {
         width: 18rem;
     }
     .indoklas {

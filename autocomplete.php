@@ -115,6 +115,7 @@ if( isset($_GET['value']) && isset($_GET['tabla']) && isset($_GET['oszlop_keres'
 
         // Login táblában szűrhetünk beosztásra is: ha van benne vessző, akkor egy egész felsorolás
         if( $_GET['tabla'] == 'login' && $_GET['beosztas_id'] ) {
+
             if( strpos($_GET['beosztas_id'], ',') !== false ) {
                 if( $where_sql ) {
                     $where_sql .= " AND `beosztas_id` IN (".$_GET['beosztas_id'].")";

@@ -348,13 +348,6 @@ if( !dokumentum_kezeles_jog($tobbkep_tablanev, $_GET['id']) ) {
     $nincs_torles = 'nincs törlés';
 }
 
-// Ha a projekt zárt, akkor már nem lehet dokumetumoat hozzáadni, törölni
-if( $tobbkep_tablanev == 'projektkezeles_dok'  ) {
-    $statusz = $adatbazis_kapcsolat->s2('stat_id', 'projektkezeles', "`recid`='{$_GET['id']}'");
-    if( $statusz['stat_id'] == PRKEZEL_STAT_LEZART ) {
-        $nincs_torles = 'nincs törlés';
-    }
-}
 if( !$nincs_torles ) {
     $sorrend_ujkep       = fajlbol_olvas('../sablon/admin/tobbkep_ujkep.html', true);
     $sorrend_ujkep_mit   = array('{GOMB_NEVE}', '{MEGN}',  '{PHP_FAJL}',                     '{ENG_KIT}', '{PARAMETEREK}', '{MINDEN_KESZ}', '{MULTIPLE}', '{MAX_MERET}'                         );
@@ -1197,7 +1190,7 @@ function dokumentum_kezeles_jog($tabla, $id) {
         if( !_jog(JOG_PRKEZEL_KEZEL) ) {
             return false;
         }
-        // Lezárt státuszban sincs
+        // Ha a projekt zárt, akkor már nem lehet dokumentumokat hozzáadni, törölni
         $prj = $adatbazis_kapcsolat->s2('stat_id', 'projektkezeles', "`recid`='{$id}'");
         if( $prj['stat_id'] == PRKEZEL_STAT_LEZART ) {
             return false;

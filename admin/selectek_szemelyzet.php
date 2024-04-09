@@ -40,3 +40,4 @@ if( basename(self()) == 'login.php' || basename(self()) == 'header.php'/* SzÅ±rÃ
         array_push($select_szemelyzet, array('name' => $szerepkor['nev'],         'value' => $szerepkor['recid'],       'szin' => '', 'kulsos' => 0 ));
     }
 }
+$select_szemelyzet = tobbdim_tomb_kulcs_rendez($select_szemelyzet, 'name');

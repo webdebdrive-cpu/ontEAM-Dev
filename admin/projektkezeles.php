@@ -34,7 +34,7 @@ $szoveg                 = 'projektet';   // Hibaüzenetkor: Biztosan törlöd a 
 $szamla_html = '';
 
 // Dokumentumok fülhöz kell majd
-$tobb_kep = true;
+$tobb_kep = 1;
 if( $tobb_kep ) {
 
     function get_tobbkep_darab()    { return 10;        } // Maximum hány kép tallózható be
@@ -182,11 +182,9 @@ if( isset($_POST['get_szalloda_select']) ) {
     $input -> disabled = $ertek['disabled'];
     $input -> id       = $ertek['name'];
     $input -> name     = $ertek['name'];
-    $input -> naptar   = $ertek['naptar'];
     $input -> onblur   = $ertek['onblur'];
     $input -> onclick  = $ertek['onclick'];
     $input -> onfocus  = $ertek['onfocus'];
-    $input -> onchange = $ertek['onchange'];
     $input -> post     = $ertek['post'];
     $input -> style    = $ertek['style'];
 
@@ -3028,8 +3026,8 @@ require_once('selectek.php');
             echo $szamla_html.$gombok;
         }
 
-	// Megjegyzések
-	}elseif(isset($_GET['megjegyzesek'])){
+    // Megjegyzések
+    } elseif (isset($_GET['megjegyzesek'])) {
 
         // <div class="dt naplo" class nevekből a kijCont kivéve, hogy a megjegyzéseket ne lehessen törölni
         $szamla_html .= nl2('

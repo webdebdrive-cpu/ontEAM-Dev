@@ -14,19 +14,19 @@ b.x {
     border-bottom: 0.1rem solid #8e8e8e;
 }
 
-div.naplo div.nSor div.dtc:nth-of-type(1) {
+div.naplo.tortenet div.nSor div.dtc:nth-of-type(1) {
     width: 10rem;
 }
-div.naplo div.nSor div.dtc:nth-of-type(3) {
+div.naplo.tortenet div.nSor div.dtc:nth-of-type(3) {
     width: 18rem;
 }
-div.naplo div.nSor div.dtc:nth-of-type(4) {
+div.naplo.tortenet div.nSor div.dtc:nth-of-type(4) {
     width: 10rem;
 }
-div.naplo div.nSor div.dtc:nth-of-type(5) {
+div.naplo.tortenet div.nSor div.dtc:nth-of-type(5) {
     width: 12rem;
 }
-div.naplo div.nSor div.dtc:nth-of-type(6) {
+div.naplo.tortenet div.nSor div.dtc:nth-of-type(6) {
     width: 12rem;
 }
 

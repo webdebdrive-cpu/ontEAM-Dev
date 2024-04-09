@@ -50,18 +50,18 @@ if (isset($_POST['anyagigenyles_tablazat_rendez'])) {
         );
 
         if( !$mentett_adat['tabla_rendezes_vendegej'] ) {
-            $adatbazis_kapcsolat -> u('login', array('tabla_rendezes'), array(json_encode($rendezes)), "`recid` = '".$_SESSION[get_db_tabla().'login_recid']."'");
+            $adatbazis_kapcsolat -> u('login', array('tabla_rendezes'), array(json_encode($rendezes)), "`recid`='".$_SESSION[get_db_tabla().'login_recid']."'");
         } else {
             $mentett_rendezes = json_decode(htmlspecialchars_decode($mentett_adat['tabla_rendezes_vendegej']), true);
 
             $mentett_rendezes['vendegej_tablazat_rendez'] = $_POST['oszlop'];
             $mentett_rendezes['vendegej_tablazat_irany']  = $_POST['irany'];
 
-            $adatbazis_kapcsolat -> u('login', array('tabla_rendezes'), array(json_encode($mentett_rendezes)), "`recid` = '".$_SESSION[get_db_tabla().'login_recid']."'");
+            $adatbazis_kapcsolat -> u('login', array('tabla_rendezes'), array(json_encode($mentett_rendezes)), "`recid`='".$_SESSION[get_db_tabla().'login_recid']."'");
         }
     }
 
-    // Nem biztos, hogy küldünk oszlop adatot, lehet csak az irány változik
+    // Nem biztos, hogy küldtünk oszlop adatot, lehet csak az irány változik
     if( $_POST['oszlop'] ) {
         $_SESSION['vendegej_tablazat_rendez'] = $_POST['oszlop'];
     }

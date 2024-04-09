@@ -2682,7 +2682,7 @@ if( $_SERVER['REMOTE_ADDR'] == get_debug_ip() ) {
         }
         
         $szamla_html .= nl2('
-            <div class="dt naplo">
+            <div class="dt naplo tortenet">
                 <div class="dtr nFejlec">
                     <div class="dtc">Esemény</div>
                     <div class="dtc"><b class="pipa">✓</b></div>
@@ -2877,9 +2877,12 @@ function xml_vissza( $szamla_id, $igazolva = '', $oka = '' ) {
     $szamla['targy']            = htmlspecialchars_decode($szamla['targy']);
     $szamla['megjegyz']         = htmlspecialchars_decode($szamla['megjegyz']);
     
+    $urlap_tipus = '<property name="Rögzítendő űrlap típusa">Műszaki számla</property>';
+    $sz_szam = '';
     // Igazolás elutasítva/jóváhagyva esetén más-más szöveg kerül az XML-be
     if( $igazolva == 'Elutasítva' ) {
         $wf_name = '[AUTO] Számla szétosztás';
+        $urlap_tipus = '<property name="Rögzítendő űrlap típusa">Elutasított</property>';
     } else {
         $telephely = $adatbazis_kapcsolat->s2('teljigkuldes', 'telephely', "`id`='{$szamla['telephely_id']}'");
         if( $telephely === false ) { $db_error = true; }
@@ -2910,6 +2913,9 @@ function xml_vissza( $szamla_id, $igazolva = '', $oka = '' ) {
         } else {
             $wf_name = '[AUTO] Utalványozásra küldés';
         }
+
+        // Elutasításkor ezt nem adjuk át, minden más esetben igen
+        $sz_szam = '<property name="Szerződés iktatószáma"><![CDATA['.urlencode($szamla['sz_szam']).']]></property>';
     }
     
     // Központi cukrásztermelő esetén a $szalloda_klaszter számát átírjuk
@@ -2953,7 +2959,7 @@ function xml_vissza( $szamla_id, $igazolva = '', $oka = '' ) {
             <property name="Számla főtípus">Megállapodás számla</property>
             <property name="Igazoló döntés">'.urlencode($igazolva).'</property>
             <property name="Teljesítés igazolás elutasítás oka"><![CDATA['.urlencode($oka).']]></property>
-            <property name="Szerződés iktatószáma"><![CDATA['.urlencode($szamla['sz_szam']).']]></property>
+            '.$sz_szam.'
             <property name="Szálloda - Klaszter">'.urlencode($szalloda_klaszter).'</property>
             <property name="Számla tárgya"><![CDATA['.urlencode($szamla['targy']).']]></property>
             <property name="Megjegyzés"><![CDATA['.urlencode($szamla['megjegyz']).']]></property>
@@ -2964,8 +2970,13 @@ function xml_vissza( $szamla_id, $igazolva = '', $oka = '' ) {
             .']]></property>
           </row>
         </container>
+        <container name="NIK3">
+            <row rownumberonpage="1">
+                '.$urlap_tipus.'
+            </row>
+        </container>
         <container name="IK1">
-          '.$szamla['kuld_tetel_xml']/*Ennek előállítását ha meg szeretnéd nézni, keres rá erre: "$_POST['osszevon_targy_kitoltve_ell']"*/.'
+            '.$szamla['kuld_tetel_xml']/*Ennek előállítását ha meg szeretnéd nézni, keres rá erre: "$_POST['osszevon_targy_kitoltve_ell']"*/.'
         </container>
       </properties>
     </register>

@@ -270,7 +270,7 @@ class Adatbazis {
 			if(in_array($ertekek[$i], $this -> insert_kivetelek)){
 				array_push($insert_reszek,'`'.$oszlop.'`='.trim( htmlspecialchars( $ertekek[$i] ) ) );
 			} else {
-				array_push($insert_reszek,'`'.$oszlop.'`=\''.trim( htmlspecialchars( $ertekek[$i].'\'' ) ) );
+				array_push($insert_reszek,'`'.$oszlop.'`=\''.trim( htmlspecialchars( $ertekek[$i] ) ).'\'' );
 			}
 
 			$i++;

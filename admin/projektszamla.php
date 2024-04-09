@@ -472,7 +472,7 @@ if( isset($_POST['projektSzamlaElutasit']) ) {
     // Adatbázisba mentés csak akkor, ha nem volt gond az XML küldéssel
     } else {
         
-        // Ha az előigazolva dátuma még üres, akkor előigazolásnál van az elutasítás, annak az oszloopait töltjük meg adatokkal
+        // Ha az előigazolva dátuma még üres, akkor előigazolásnál van az elutasítás, annak az oszlopait töltjük meg adatokkal
         // Ha már van értéke, akkor utóigazolásnál történt az elutasítás, akkor meg azok oszlopaiba kell írni
         $db_tabla_kieg = '';
         if( $sor['elo_igazolva_dt'] == '0000-00-00 00:00:00' ) {
@@ -563,7 +563,7 @@ if( isset($_POST['projektSzamlaVisszaUi']) ) {
     if( addMegj('projektszamla', $_POST['recid'], 'Igazoló visszaadta számlát ügyintézőnek.<br>Indoklás: '.nl2br2($_POST['memo'])) === false ) {
         $db_error = true;
     }
-    
+
     if( !$db_error ) {
         mysqli_commit($db_kapcs);
     } else {
@@ -3855,7 +3855,7 @@ if( $_SERVER['REMOTE_ADDR'] == get_debug_ip() ) {
         }
         
         $szamla_html .= nl2('
-            <div class="dt naplo">
+            <div class="dt naplo tortenet">
                 <div class="dtr nFejlec">
                     <div class="dtc">Esemény</div>
                     <div class="dtc pipa"><b class="pipa">✓</b></div>
@@ -4022,10 +4022,13 @@ function xml_vissza( $szamla_id, $igazolva = '', $oka = '' ) {
     $szamla['kuld_xml']         = htmlspecialchars_decode($szamla['kuld_xml']);
     $szamla['kuld_tetel_xml']   = htmlspecialchars_decode($szamla['kuld_tetel_xml']);
     $szamla['targy']            = htmlspecialchars_decode($szamla['targy']);
-        
+    
+    $urlap_tipus = '<property name="Rögzítendő űrlap típusa">Műszaki számla</property>';
+    $sz_szam = $pr_szam = '';
     // Igazolás elutasítva/jóváhagyva esetén más-más szöveg kerül az XML-be
     if( $igazolva == 'Elutasítva' ) {
         $wf_name = '[AUTO] Számla szétosztás';
+        $urlap_tipus = '<property name="Rögzítendő űrlap típusa">Elutasított</property>';
     } else {
         // Projektszámláknál a $wf_name értéke fix értéket kap, kivéve két esetet
         switch ( $szamla['telephely_id'] ) {
@@ -4033,6 +4036,10 @@ function xml_vissza( $szamla_id, $igazolva = '', $oka = '' ) {
             case TELEPHELY_GUNDEL   : $wf_name = '5400_Könyvelés'; break;
             default                 : $wf_name = TELEPHELY_SZK.'_Könyvelés';
         }
+
+        // Elutasításkor ezeket nem adjuk át, minden más esetben igen
+        $sz_szam = '<property name="Szerződés iktatószáma"><![CDATA['.urlencode($szamla['sz_szam']).']]></property>';
+        $pr_szam = '<property name="Beruházási projektkód"><![CDATA['.urlencode($szamla['pr_szam']).']]></property>';
         
     }
     
@@ -4055,8 +4062,8 @@ function xml_vissza( $szamla_id, $igazolva = '', $oka = '' ) {
             <property name="Számla főtípus">Beruházási számla</property>
             <property name="Igazoló döntés">'.urlencode($igazolva).'</property>
             <property name="Teljesítés igazolás elutasítás oka"><![CDATA['.urlencode($oka).']]></property>
-            <property name="Szerződés iktatószáma"><![CDATA['.urlencode($szamla['sz_szam']).']]></property>
-            <property name="Beruházási projektkód"><![CDATA['.urlencode($szamla['pr_szam']).']]></property>
+            '.$sz_szam.'
+            '.$pr_szam.'
             <property name="Szálloda - Klaszter">'.$szalloda_klaszter.'</property>
             <property name="Számla tárgya"><![CDATA['.urlencode($szamla['targy']).']]></property>
             <property name="Számla fizetője">'.urlencode($erteklista['cegkod']).'</property>
@@ -4065,7 +4072,12 @@ function xml_vissza( $szamla_id, $igazolva = '', $oka = '' ) {
             // Azért nem a $szamla['igazolva_usr'], hisz épp most zajlik az igazolás/elutasítás, ez az adat még nincs az adatbázisban
             urlencode($_SESSION[get_db_tabla().'teljes_nev'])
             .']]></property>
-          </row>
+            </row>
+        </container>
+        <container name="NIK3">
+            <row rownumberonpage="1">
+                '.$urlap_tipus.'
+            </row>
         </container>
         <container name="IK1">
           '.$szamla['kuld_tetel_xml']/*Ennek előállítását ha meg szeretnéd nézni, keres rá erre: "$_POST['osszevon_targy_kitoltve_ell']"*/.'

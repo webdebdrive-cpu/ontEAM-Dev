@@ -136,11 +136,11 @@ $jogosultsagok = array(
     108 => array('nev' => 'Új létrehozása',                         'kat' => 10, 'sor' => 12),
     109 => array('nev' => 'Projekt team tag',                       'kat' => 10, 'sor' => 13),
     110 => array('nev' => 'Projekt szerződések megtekintése',       'kat' => 10, 'sor' => 14),
-    111 => array('nev' => 'Projekt szerződések kezelése',           'kat' => 10, 'sor' => 15),
+    JOG_PRKEZEL_SZERZODES_KEZEL => array('nev' => 'Projekt szerződések kezelése',           'kat' => 10, 'sor' => 15),
     119 => array('nev' => 'Saját szerződések megtekintése',         'kat' => 10, 'sor' => 16),
     120 => array('nev' => 'Saját szerződések kezelése',             'kat' => 10, 'sor' => 17),
     112 => array('nev' => 'Projekt számlák megtekintése',           'kat' => 10, 'sor' => 18),
-    113 => array('nev' => 'Projekt számlák kezelése',               'kat' => 10, 'sor' => 19),
+    JOG_PRSZAMLAK_KEZEL => array('nev' => 'Projekt számlák kezelése',               'kat' => 10, 'sor' => 19),
     142 => array('nev' => 'Projekt számlák igazolása',              'kat' => 10, 'sor' => 20),
     140 => array('nev' => 'Projekt számlák utóigazolása',           'kat' => 10, 'sor' => 21),
     121 => array('nev' => 'Saját számlák megtekintése',             'kat' => 10, 'sor' => 22),
@@ -182,10 +182,10 @@ $jogosultsagok = array(
     97  => array('nev' => 'Dokumentumtár kezelése',                 'kat' => 13, 'sor' => 12),
     98  => array('nev' => 'Dokumentumtár törlése',                  'kat' => 13, 'sor' => 13),
     
-    90  => array('nev' => 'Megállapodások megtekintése',            'kat' => 14, 'sor' => 1),
-    91  => array('nev' => 'Megállapodások kezelése',                'kat' => 14, 'sor' => 2),
-    92  => array('nev' => 'Megállapodás számlák megtekintése',      'kat' => 14, 'sor' => 3),
-    100 => array('nev' => 'Megállapodás számlák kezelése',          'kat' => 14, 'sor' => 4),
+    JOG_MEGALLAPODAS_OLVAS          => array('nev' => 'Megállapodások megtekintése',            'kat' => 14, 'sor' => 1),
+    JOG_MEGALLAPODAS_KEZEL          => array('nev' => 'Megállapodások kezelése',                'kat' => 14, 'sor' => 2),
+    JOG_MEGALLAPODAS_SZAMLA_OVLAS   => array('nev' => 'Megállapodás számlák megtekintése',      'kat' => 14, 'sor' => 3),
+    JOG_MEGALLAPODAS_SZAMLA_KEZEL   => array('nev' => 'Megállapodás számlák kezelése',          'kat' => 14, 'sor' => 4),
     JOG_MEGALLAPODAS_SZAMLA_IGAZOL  => array('nev' => 'Megállapodás számlák igazolása',         'kat' => 14, 'sor' => 5),
     
 );

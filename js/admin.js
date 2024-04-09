@@ -544,8 +544,21 @@ $(function() {
         // Kattintás a nav panel első elemére
         } else {
             
-            if( !isMobile && !$('#szamlaList li.szamla_sor').hasClass('kijelolve') && !_get('uj') ) {
+            if( 
+                !isMobile                                               &&  /* Mobil nézetben nem kell ezt megtenni */
+                !$('#szamlaList li.szamla_sor').hasClass('kijelolve')   &&  /* Ha már van kijelölt sor, akkor sem   */
+                !_get('uj')                                             &&  /* Ha új felvitelben vagyunk akkor sem  */
+                !_get('uj_klikk')                                           /* Ha átmeneti táblás modulban vagyunk (projektszámlák/szerződések stb.) és az átmeneti táblákat szeretnénk megmutatni popoppal úgy, hogy az új felvitelre kattintunk */
+            ) {
+                // Kattintás a bal navpanel első elemére
                 $('#szamlaList li.szamla_sor').eq(0).find('a').trigger('click');
+            }
+
+            // Ha van $_GET['uj_klikk']-ünk, akkor kattintsunk az új fevitel gombra
+            // Átmeneti táblás moduloknál használjuk (projektszámlák/szerződések stb.)
+            if( _get('uj_klikk') ) {
+                // Simán ráklikkelve nem működött. Ezért nézzük meg, hogy mi van a href-ben, szűrjük ki belőle a felesleget és hívjuk meg a függvényt (eval)
+                eval($('#navGombok a.uj').attr('href').replace('javascript:', '').trim().replace('void(0);', '')); 
             }
         }
 

@@ -391,14 +391,14 @@ function csv_ellenorzes_letolt($string, $idezojel_szur = '', $nullas_betu_egyenl
 */
 function cron(){
 
-    if(is_file('cron.txt')){
+    if (is_file('cron.txt')) {
         $url_ek = '';
         $uj_fajl = '';
         $tartalom = fajlbol_olvas('cron.txt');
 
         
         $sorok = explode("\n", $tartalom);
-        foreach($sorok as $sor){
+        foreach ($sorok as $sor) {
 
             $sor = trim($sor);
 

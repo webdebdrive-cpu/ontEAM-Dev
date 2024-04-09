@@ -91,6 +91,12 @@ class ServerClass {
         }
 
         // Kötelező mezők ellenőrzése ami Insert, update és delete utasításhoz is kellenek
+        // Ha van 'Rögzítendő űrlap típusa' tag-ünk, akkor az kötelezően 'műszaki számla' értékű legyen
+        if( $szamla_adatok['Rögzítendő űrlap típusa'] && mb_strtolower($szamla_adatok['Rögzítendő űrlap típusa'], self::CHAR_CODING) != 'műszaki számla' ) {
+            Throw new SOAPFault ('Server', 'Nem műszaki számla!');
+        }
+
+        // registernumber megléte mindig kötelező
         if( !trim($szamla -> data -> register['registernumber']) ) {
             Throw new SOAPFault ('Server', 'Hiányzó Andoc azonosító!');
         }
@@ -132,7 +138,12 @@ class ServerClass {
         $apa_recid_oszlop = $tabla.'_recid';
 
         // Azt, hogy ez insert vagy update lesz, azt már itt el kell dönteni, hisz update esetén nem kötelezőek a mezők!
-        $szamla_db = $adatbazis_kapcsolat->s2('recid erk_xml tetel_db sztornozva_dt utalvanyozva_dt igazolva_dt', $tabla, "`andoc_id`='{$andoc_id}'");
+        $extra_mezok = '';
+        // projektszámla esetén további mezőket kell lekérni
+        if( $tabla == 'projektszamla' ) {
+            $extra_mezok .= ' elo_igazolva elo_igazolva_dt';
+        }
+        $szamla_db = $adatbazis_kapcsolat->s2('recid erk_xml tetel_db sztornozva_dt utalvanyozva_dt igazolva_dt'.$extra_mezok, $tabla, "`andoc_id`='{$andoc_id}'");
         if( $szamla_db === false ) { $db_error = mysqli_error($db_kapcs); }
 
         // Ha létezik a számla az éles táblában, akkor sima ügy, azt kell updatelni
@@ -568,9 +579,40 @@ class ServerClass {
             } else {
 
                 // Ha a számla még nincs igazolva, akkor addig nem updatelhető
-                if( $szamla_db['igazolva_dt']=='0000-00-00 00:00:00' ) {
-                    Throw new SOAPFault ('Server', 'A számla nincs igazolva, így az nem módosítható még!');
+                // Projektszámláknál ezt összetettebb ellenőrizni:
+                if( $szamla_tipus == self::SZAMLA_TIPUS_PROJEKT ) {
+
+                    // Ha a számla előigazoláson átesett már (van előigazolás dátuma) és a döntés elutasítás, akkor rendben vagyunk, befogadjuk a számlát, hadd tudjon ránézni az előigazoló
+                    $mehet = 0;
+                    if( $szamla_db['elo_igazolva_dt']!='0000-00-00 00:00:00' && !$szamla_db['elo_igazolva'] ) {
+                        $mehet = 1;
+                    }
+                    // Ha a számla előigazoláson átesett már (van előigazolás dátuma) de a döntés igazolva
+                    if( $szamla_db['elo_igazolva_dt']!='0000-00-00 00:00:00' && $szamla_db['elo_igazolva'] ) {
+                        // akkor viszont azt is vizsgálni kell, hogy a számla utógazolva dátuma ki van-e töltve. Ha igen, akkor mehet.
+                        if( $szamla_db['igazolva_dt']!='0000-00-00 00:00:00' ) {
+                            $mehet = 1;
+                        }
+                    }
+                    if( !$mehet ) {
+                        Throw new SOAPFault ('Server', 'A '.$szamla_tipus.' nincs igazolva, ezért nem lehet küldeni ontEAM rendszernek!');
+                    }
+
+                // Nem projektszámláknál elég az igazolva_dt dátumot figyelni
+                } else {
+
+                    if( $szamla_db['igazolva_dt']=='0000-00-00 00:00:00' ) {
+                        $mondat_eleje = 'A '.$szamla_tipus;
+                        if( self::SZAMLA_TIPUS_PROJEKT == self::SZAMLA_TIPUS_ENERGIA ) {
+                            $mondat_eleje = 'Az '.$szamla_tipus;
+                        }
+                        if( self::SZAMLA_TIPUS_PROJEKT == self::SZAMLA_TIPUS_ANYAG ) {
+                            $mondat_eleje = 'A '.$szamla_tipus.' számla';
+                        }
+                        Throw new SOAPFault ('Server', $mondat_eleje.' nincs igazolva, ezért nem lehet küldeni ontEAM rendszernek!');
+                    }
                 }
+
 
                 $return_uzi = 'módosítva';
                 if( $kifizetes_import ) {
@@ -601,19 +643,35 @@ class ServerClass {
                     // Elutasításkor minden számla fejben töröljük a kapcsolt szerződés számot
                     $sql = $adatbazis_kapcsolat->u($tabla, array('sz_szam'), array(''), "`andoc_id`='{$andoc_id}'");
                     if( $sql === false ) { $db_error = mysqli_error($db_kapcs); }
+                    // a tömbben is
+                    $mezo_i = 0;
+                    foreach ($mezok as $mezo) {
+                        if( $mezo == 'sz_szam' ) {
+                            $ertekek[$mezo_i] = '';
+                        }
+                        $mezo_i++;
+                    }
 
-                    // Projektszámláknál a pr_szam mezőt is üríteni kell
+                    // Projektszámláknál a pr_szam és let_fel mezőket is üríteni kell
                     if( $szamla_tipus == self::SZAMLA_TIPUS_PROJEKT ) {
                         $szamla = $adatbazis_kapcsolat->s2('pr_szam', $tabla, "`andoc_id`='{$andoc_id}'");
                         if( $szamla === false ) { $db_error = mysqli_error($db_kapcs); }
-                        $sql = $adatbazis_kapcsolat->u($tabla, array('pr_szam'), array(''), "`andoc_id`='{$andoc_id}'");
+                        $sql = $adatbazis_kapcsolat->u($tabla, array('pr_szam', 'let_fel'), array('', ''), "`andoc_id`='{$andoc_id}'");
                         if( $sql === false ) { $db_error = mysqli_error($db_kapcs); }
+                        // a tömbben is
+                        $mezo_i = 0;
+                        foreach ($mezok as $mezo) {
+                            if( $mezo == 'pr_szam' ) {
+                                $ertekek[$mezo_i] = '';
+                            }
+                            $mezo_i++;
+                        }
                     }
 
                     // Fenntartás és projekt számlák esetén a szerződés tételeknél nullázni kell a teljesítést és nettó értékeket
                     if( $szamla_tipus == self::SZAMLA_TIPUS_FENNTARTASI || $szamla_tipus == self::SZAMLA_TIPUS_MEGALL || $szamla_tipus == self::SZAMLA_TIPUS_PROJEKT ) {
                         
-                        // Projekt és fenntartási szerződés tételenél más a mezők neve
+                        // Projekt és fenntartási szerződés tételeknél más a mezők neve
                         $netto_mezo     = 'ertek';
                         $dev_netto_mezo = 'dev_ertek';
                         $telj_mezo      = 'teljesites';
@@ -679,11 +737,20 @@ class ServerClass {
                 $sql = $adatbazis_kapcsolat->u($tabla, $mezok, $ertekek, "`andoc_id`='{$andoc_id}'");
                 if( $sql === false ) { $db_error = mysqli_error($db_kapcs); }
 
-                // Ha NEM kifizetésről van szó, és a számla az ontEAM oldalon sztornó állapotban van, akkor töröljük a történetből a feldolgozás, igazolás, utalványozás, sztornó sorok adatait
+                // Ha NEM kifizetésről van szó, és a számla az ontEAM oldalon sztornó állapotban van, akkor töröljük a történetből a feldolgozás, igazolás (+előigazolás), utalványozás, sztornó sorok adatait
                 if( !$kifizetes_import && $szamla_db['sztornozva_dt'] != '0000-00-00 00:00:00' ) {
-                    $sql = $adatbazis_kapcsolat->u($tabla,  array('feldolgozva_dt',      'feldolgozva_usr', 'igazolva', 'igazolva_dt',         'igazolva_usr', 'utalvanyozva', 'utalvanyozva_dt',     'utalvanyozva_usr', 'sztornozva_dt',       'sztornozva_usr', 'sztornozva_leir', 'elutleir'),
-                                                            array('0000-00-00 00:00:00', '',                '0',        '0000-00-00 00:00:00', '',             '0',            '0000-00-00 00:00:00', '',                 '0000-00-00 00:00:00', '',               '',                ''        ),
-                                                        "`andoc_id`='{$andoc_id}'");
+
+                    $mezok   = array('feldolgozva_dt',      'feldolgozva_usr', 'igazolva', 'igazolva_dt',         'igazolva_usr', 'utalvanyozva', 'utalvanyozva_dt',     'utalvanyozva_usr', 'sztornozva_dt',       'sztornozva_usr', 'sztornozva_leir', 'elutleir');
+                    $ertekek = array('0000-00-00 00:00:00', '',                '0',        '0000-00-00 00:00:00', '',             '0',            '0000-00-00 00:00:00', '',                 '0000-00-00 00:00:00', '',               '',                ''        );
+
+                    // Projektszámláknál az előigazolást is üríteni kell, hisz ha előigazolása pl. elutasításban maradna, akkor ne, tudnádnak vele mit kezdeni (nem jellennének meg gombok lent)
+                    // A lényeg, hogy itt még ezt is üríteni kell a fentieken felül
+                    if( $szamla_tipus == self::SZAMLA_TIPUS_PROJEKT ) {
+                        array_push($mezok,   'elo_igazolva',    'elo_igazolva_dt',      'elo_igazolva_usr'  );
+                        array_push($ertekek, '0',               '0000-00-00 00:00:00',  ''                  );
+                    }
+
+                    $sql = $adatbazis_kapcsolat->u($tabla,  $mezok, $ertekek, "`andoc_id`='{$andoc_id}'");
                     if( $sql === false ) { $db_error = mysqli_error($db_kapcs); }
                     
                     // Ürítsük a könyvelés tételeket is, ezek majd újra kiszámolódnak igazoláskor
@@ -693,7 +760,7 @@ class ServerClass {
                     // Illetve ilyenkor minden tételénél a változott értéket 1-re állítjuk, hogy igazolásra küldéskor a popupban benne legyenek a tételek
                     $sql = $adatbazis_kapcsolat->u($tabla.'_tetel',
                                                                     array('valtozott'),
-                                                                    array('1'),
+                                                                    array('1'        ),
                                                                 "`{$tabla}_recid`='{$aparecid}'");
                     if( $sql === false ) { $db_error = mysqli_error($db_kapcs); }
                 }
@@ -1352,7 +1419,7 @@ class ServerClass {
             $szallito_id = sprintf('%05d', $szerzodes_adatok['Partner száma']);
         }
 
-        // Ha az alapvető adatokon nem akadtunk fenn, akkor szúrjuk be vagy updateljük a szerződést, attól föggően, hogy az Andok azonsoító ismert-e.
+        // Ha az alapvető adatokon nem akadtunk fenn, akkor szúrjuk be vagy updateljük a szerződést, attól függően, hogy az Andok azonsoító ismert-e.
         // Ehhez az első lépés, a mező/érték párokat beállítani.
         $szszam_mezo = 'szszam';
         $netto_mezo  = 'netto';
@@ -1392,7 +1459,7 @@ class ServerClass {
         if( $atmenetiben_van === false ) { $db_error = mysqli_error($db_kapcs); }
         $sql = $adatbazis_kapcsolat->d($tabla.'_atmeneti', "`andoc_id`='{$andoc_id}'");
         if( $sql === false ) { $db_error = mysqli_error($db_kapcs); }
-
+// Throw new SOAPFault ('Server', $adatbazis_kapcsolat->gp());
         $elesben_van = $adatbazis_kapcsolat->s2('recid', $tabla, "`andoc_id`='{$andoc_id}'");
         $aparecid    = $elesben_van['recid'];
         if( $aparecid === false ) { $db_error = mysqli_error($db_kapcs); }

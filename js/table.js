@@ -123,12 +123,24 @@ $(function() {
 
         ujra_sorszamoz_uj();
 
-        anyagrend = '';
+        var url_kieg = '';
         if( _get('anyagrend') ){
-            anyagrend = '?anyagrend=1';
+            url_kieg += 'anyagrend=1&';
+        }
+        if( _get('mezo') ) {
+            url_kieg += 'mezo='+_get('mezo')+'&';
+        }
+        if( _get('op') ) {
+            url_kieg += 'op='+_get('op')+'&';
+        }
+        if( _get('felt') ) {
+            url_kieg += 'felt='+_get('felt')+'&';
+        }
+        if( url_kieg ) {
+            url_kieg = '?'+url_kieg.slice(0, -1);
         }
         $.ajax({
-            url : baseName(location.href)+'.php'+anyagrend,
+            url : baseName(location.href)+'.php'+url_kieg,
             type: 'POST',
             data: {
                 oszlop: $(this).attr('id'),
