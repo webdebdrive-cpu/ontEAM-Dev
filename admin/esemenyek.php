@@ -228,6 +228,16 @@ switch ( $tabla ) {
                                 `'.get_db_tabla().$tabla_nophp.'`.`obj_txt`
                                 ');
 
+        // Archív bejelentések esetén kellenek még oszlopok bal oldalra
+        if( $tabla == 'bejelentes_arch.php' ) {
+            $_OPTS['select'] .= nl2('
+                                        ,
+                                `'.get_db_tabla().$tabla_nophp.'`.`telephely_txt`,
+                                `'.get_db_tabla().$tabla_nophp.'`.`stat_txt`,
+                                `'.get_db_tabla().$tabla_nophp.'`.`hiba_txt`
+            ');
+        }
+
         // Ezek az oszlopok generálódnak ki a rendezés selectbe, lehet szépíteni az oszlopneveket, amit a getOszlopNev() függvényben kell beállítani
         $_OPTS['rendezes']  = array('stat_id', 'ikt_szam', 'telephely_id',  'obj_txt',  'recid' );
         $_OPTS['iranyok']   = array('desc',    'desc',     'asc',           'asc',      'asc'   );
@@ -791,6 +801,14 @@ switch ( $tabla ) {
                                 `'.get_db_tabla().$tabla_nophp.'`.`dok_db`,
                                 `'.get_db_tabla().$tabla_nophp.'`.`obj_txt`
                             ');
+        // Archív munkalap esetén kellenek még oszlopok bal oldalra
+        if( $tabla == 'munkalap_arch.php' ) {
+            $_OPTS['select'] .= nl2('
+                                        ,
+                                `'.get_db_tabla().$tabla_nophp.'`.`telephely_txt`,
+                                `'.get_db_tabla().$tabla_nophp.'`.`stat_txt`
+            ');
+        }
 
         // Ezek az oszlopok generálódnak ki a rendezés selectbe, lehet szépíteni az oszlopneveket, amit a getOszlopNev() függvényben kell beállítani
         $_OPTS['rendezes']  = array('ikt_szam', 'telephely_id', 'stat_id', 'obj_txt',  'recid');
@@ -3540,7 +3558,7 @@ $akt_tomb = $megallapodas_tomb = array(
     array('type' => 'text',         'megn' => 'Aláírva:',                   'name' => 'alairva_dt',     'szuro' => 1,  'disabled' => 0, 'class' => 'datepicker', 'osszevon' => 1, 'post' => '<span style="margin-left: 8.2rem"></span>'),
     array('type' => 'text',         'megn' => 'Felmondás:',                 'name' => 'felmondas',      'szuro' => 1,  'disabled' => 0, 'class' => 'normal r', 'post' => ' nap<span style="margin-left: 4rem"></span>', 'style' => 'width: 3.8rem;', 'osszevon' => 1),
     array('type' => 'checkbox',     'megn' => 'Érték nélküli szerződés:',   'name' => 'nullas',         'szuro' => 1,  'disabled' => 0),
-    array('type' => 'autocomplete', 'megn' => 'Saját kapcsolattartó:',      'name' => 'kapcs_tart',     'szuro' => 1,   'class' => 'oriasi disableNav', 'tabla' => 'login', 'oszlop_keres' => 'recid', 'oszlop_keres_autocomp' => 'teljes_nev', 'listaz' => 'teljes_nev', 'beosztas_id' => $beosztasok, 'autocomplete_aktiv' => 1, 'id_kiir' => 'recid', 'style' => 'width: 25rem'),
+    array('type' => 'autocomplete', 'megn' => 'Saját kapcsolattartó:',      'name' => 'kapcs_tart',     'szuro' => 1,   'class' => 'oriasi disableNav', 'tabla' => 'login', 'oszlop_keres' => 'recid', 'oszlop_keres_autocomp' => 'teljes_nev', 'listaz' => 'teljes_nev', 'beosztas_id' => $beosztasok, 'autocomplete_aktiv' => 1, 'id_kiir' => 'recid', 'style' => 'width: 25rem', 'alert' => 'Saját kapcsolattartó megadás kötelező!'),
     $lezart,
     // array('type' => 'text',         'megn' => 'Fizetési feltétel:',         'name' => 'fiz_felt',       'szuro' => 1,  'disabled' => 1, 'class' => 'oriasi', 'maxlength' => 300),
     
@@ -3683,8 +3701,9 @@ $megallapodas_szamla_tomb = $akt_tomb = array(
     array('type' => 'text',         'megn' => 'Kifizetett összeg:',         'name' => 'kif_ossz',       'szuro' => 1,  'disabled' => 1, 'class' => 'oriasi f_num',      'data' => 'data-tort="2"', 'post' => '<span style="margin-left: 2rem"></span>', 'osszevon' => 1,   'nulla_is_ures_adat' => 1),
     array('type' => 'text',         'megn' => 'Utolsó kifizetés dátuma:',   'name' => 'ut_kif_dt',      'szuro' => 1,  'disabled' => 1, 'class' => 'kicsi datepicker',  'sql_disabledkor_is' => 1),
     array('type' => 'text',         'megn' => 'Szerződés szám:',            'name' => 'sz_szam',        'szuro' => 'szoveges_op',  'disabled' => 1, 'post' => ' <span id="szerzodes_neve">'.$szerzodes_neve.'</span>'.$sz_szam_gomb),
-    array('type' => 'autocomplete', 'megn' => 'Költségviselő:',             'name' => 'kolt_vis',       'szuro' => 1,  'disabled' => 1,    'class' => 'oriasi disableNav', 'tabla' => 'erteklista', 'oszlop_keres' => 'id', 'oszlop_keres_autocomp' => 'info', 'listaz' => 'info', 'csoport' => ERTEKLISTA_KOLTSEGVISELO, 'id_kiir' => 'id', 'style' => 'width: 15.3rem'),
-    
+    array('type' => 'autocomplete', 'megn' => 'Saját kapcsolattartó:',      'name' => 'kapcs_tart',     'szuro' => 1,   'class' => 'oriasi disableNav', 'tabla' => 'login', 'oszlop_keres' => 'recid', 'oszlop_keres_autocomp' => 'teljes_nev', 'listaz' => 'teljes_nev', 'beosztas_id' => $beosztasok, 'autocomplete_aktiv' => 1, 'id_kiir' => 'recid', 'style' => 'width: 25rem', 'disabled' => 1, 'osszevon' => 1, 'post' => '<span style="margin-right: 4.6rem"></span>'),
+    array('type' => 'autocomplete', 'megn' => 'Költségviselő:',             'name' => 'kolt_vis',       'szuro' => 1,  'disabled' => 1,    'class' => 'oriasi disableNav', 'tabla' => 'erteklista', 'oszlop_keres' => 'id', 'oszlop_keres_autocomp' => 'info', 'listaz' => 'info', 'csoport' => ERTEKLISTA_KOLTSEGVISELO, 'id_kiir' => 'id', 'style' => 'width: 35rem'),
+
     array('type' => 'nosql',        'megn' => 'Feldolgozva:',               'name' => 'feldolgozva',    'szuro' => 1),
     array('type' => 'nosql',        'megn' => 'Feldolgozva dátum:',         'name' => 'feldolgozva_dt', 'szuro' => 1, 'class' => 'datepicker'),
     array('type' => 'nosql',        'megn' => 'Feldolgozó személy:',        'name' => 'feldolgozva_usr','szuro' => 'szoveges_op'),

@@ -769,7 +769,7 @@ if( !isset($_GET['regi']) ) {
     if( _jog(JOG_MEGALLAPODAS_SZAMLA_IGAZOL) ) {
         // Igazolásra váró megállapodás számlák (ha már fel van dolgozva /dátuma nem üres/, de még nincs igazolva /dátuma még üres/)
         $tabla  = 'megallapodas_szamla';
-        $db     = $adatbazis_kapcsolat->s('recid', $tabla, "`feldolgozva_dt`!='0000-00-00 00:00:00' AND `igazolva_dt`='0000-00-00 00:00:00' AND `sztornozva_dt`='0000-00-00 00:00:00'{$telephely_sql}", '', '', '', '-num-rows-');
+        $db     = $adatbazis_kapcsolat->s('recid', $tabla, "`feldolgozva_dt`!='0000-00-00 00:00:00' AND `igazolva_dt`='0000-00-00 00:00:00' AND `sztornozva_dt`='0000-00-00 00:00:00' AND `kapcs_tart`='{$_SESSION[get_db_tabla().'login_recid']}'{$telephely_sql}", '', '', '', '-num-rows-');
         $link   = $tabla.'.php?tabla='.$tabla.'&amp;feltetel=me|feldolgozva!HASH!op|equal!HASH!fe|1!HASH!es|!HASH!me|igazolva!HASH!op|equal!HASH!fe|0!HASH!es|!HASH!me|sztornozva!HASH!op|equal!HASH!fe|0!HASH!es|!HASH!&amp;f_o_szures_submit=1&amp;dashboard=Megállapodás számlák igazolása';
 
         if( $db ) {

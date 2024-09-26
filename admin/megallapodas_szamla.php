@@ -186,8 +186,12 @@ if( isset($_POST['osszevon_targy_kitoltve_ell']) ) {
 
 // Számla küldése igazolásra
 if( isset($_POST['kuldes_igazolasra']) ) {
+
+    $db_error = false;
+    mysqli_autocommit($db_kapcs, false);
     
     $sor = $adatbazis_kapcsolat->s2('feldolgozva_dt', 'megallapodas_szamla', "`recid`='{$_POST['id']}'");
+    if( $sor === false ) { $db_error = true; }
     if( $sor['feldolgozva_dt'] != '0000-00-00 00:00:00' ) {
         
         echo json_encode(array(
@@ -199,9 +203,19 @@ if( isset($_POST['kuldes_igazolasra']) ) {
         exit;
     }
     
-    $adatbazis_kapcsolat->u('megallapodas_szamla',  array('feldolgozva_dt', 'feldolgozva_usr'                       ),
-                                                    array('NOW()',          $_SESSION[get_db_tabla().'teljes_nev']  ),
-                                                "`recid`='{$_POST['id']}'");
+    $sql = $adatbazis_kapcsolat->u('megallapodas_szamla',   array('feldolgozva_dt', 'feldolgozva_usr'                       ),
+                                                            array('NOW()',          $_SESSION[get_db_tabla().'teljes_nev']  ),
+                                                            "`recid`='{$_POST['id']}'");
+    if( $sql === false ) { $db_error = true; }
+
+    if( !$db_error ) {
+        mysqli_commit($db_kapcs);
+    } else {
+        mysqli_rollback($db_kapcs);
+    }
+
+    // Levélküldés
+    level_felkeszit_es_kuld('megallapodas_szamla', $_POST['id'], ERT_IGAZOLASRA_KULDESKOR_MEG, 'megallapodas_szamlaIgazolKuld', 'megallapodas_szamla_felelose');
     
     echo json_encode(array(
                         'siker' => 1,
@@ -454,11 +468,11 @@ if( isset($_POST['megallapodasSzamlaVisszaUi']) ) {
     }
 
     // Levélküldés
-    level_felkeszit_es_kuld('megallapodas_szamla', $_POST['recid'], ERT_ASSZISZT_VISSZAADAS2, 'megallSzamlaVisszaUi', 'megallapodasszamla_asszisztens');
+    level_felkeszit_es_kuld('megallapodas_szamla', $_POST['recid'], ERT_ASSZISZT_VISSZAADAS_MEG, 'megallSzamlaVisszaUi', 'megallapodasszamla_asszisztens');
 
     echo json_encode(array(
-        'siker' => 1,
-        ));
+                        'siker' => 1,
+                    ));
     
     $weblap -> leallit();
     exit;
@@ -1022,6 +1036,7 @@ if( isset($_POST['get_megallapodas_szerzodes_tabla']) ) {
                                         `'.get_db_tabla().'megallapodas`.`szszam`,
                                         `'.get_db_tabla().'megallapodas`.`dev_net`,
                                         `'.get_db_tabla().'megallapodas`.`netto`,
+                                        `'.get_db_tabla().'megallapodas`.`kapcs_tart`,
                                         `'.get_db_tabla().'megallapodas`.`kolt_vis`,
                                         `'.get_db_tabla().'megallapodas`.`targy`
                                             ',
@@ -1031,7 +1046,8 @@ if( isset($_POST['get_megallapodas_szerzodes_tabla']) ) {
     $i = 1;
     foreach ( $megallapodasok as $megallapodas ) {
         
-        $kolt_vis_neve = erteklista(ERTEKLISTA_KOLTSEGVISELO, $megallapodas['kolt_vis']);
+        $kapcs_tart_neve = getErtek('teljes_nev', 'login', 'recid', $megallapodas['kapcs_tart']);
+        $kolt_vis_neve   = erteklista(ERTEKLISTA_KOLTSEGVISELO, $megallapodas['kolt_vis']);
         
         $dev_nev = '';
         if( $megallapodas['dev_net'] != '0.00' ) {
@@ -1039,10 +1055,11 @@ if( isset($_POST['get_megallapodas_szerzodes_tabla']) ) {
         }
         
         $html .= '
-            <tr class="kijSor" data-i="'.$i.'" data-recid="'.$megallapodas['recid'].'" data-szszam="'.$megallapodas['szszam'].'" data-kolt_vis="'.$megallapodas['kolt_vis'].'">
+            <tr class="kijSor" data-i="'.$i.'" data-recid="'.$megallapodas['recid'].'" data-szszam="'.$megallapodas['szszam'].'" data-kapcs_tart="'.$megallapodas['kapcs_tart'].'" data-kolt_vis="'.$megallapodas['kolt_vis'].'">
                 <td style="width: 11rem">
                     '.$megallapodas['szszam'].'
                     <div class="dn targy_txt"><a href="megallapodas.php?id=x&amp;modosit&amp;mezo=szszam&amp;op=equal&amp;felt='.$megallapodas['szszam'].'" target="_blank">'.resz_string($megallapodas['targy'], 60).'</a></div>
+                    <div class="dn kapcs_tart_txt">'.$kapcs_tart_neve.'</div>
                     <div class="dn kolt_vis_txt">'.$kolt_vis_neve.'</div>
                 </td>
                 <td class="l" style="width: 40rem">'.nl2br2($megallapodas['targy']).'</td>
@@ -1376,7 +1393,7 @@ if( isset($_POST['megallapodas_szamla_kapcsolas']) ) {
         // Számokból a szóközt vegyük ki, vesszőt pontra cseréljük
         $ertek = str_replace(array(' ', ','), array('', '.'), $ertek);
         $_POST['adatok'][$varhato_ert_adat][1][$i]  = str_replace(array(' ', ','), array('', '.'), $_POST['adatok'][$varhato_ert_adat][1][$i]);
-        $_POST['adatok'][$netto_ert_adat][1][$i]    = str_replace(array(' ', ','), array('', '.'), $_POST['adatok'][$netto_ert_adat][1][$i]);
+        $_POST['adatok'][$netto_ert_adat][1][$i]    = str_replace(array(' ', ','), array('', '.'), $_POST['adatok'][$netto_ert_adat  ][1][$i]);
         
         // Recid alapján nézzük meg, ennek a szerződés tételnek van-e már kapcsolt számlája (van-e olyan megállapodás számla tétel, ami erre a szerződéstételhez van-e kapcsolva). 
         $van_szamlaja = $adatbazis_kapcsolat->s2('recid', 'megallapodas_szamla_tetel', "`megallapodas_tetel_recid`='{$_POST['adatok'][0][1][$i]}'");
@@ -2864,7 +2881,7 @@ function xml_vissza( $szamla_id, $igazolva = '', $oka = '' ) {
     
     $db_error = false;
     
-    $szamla = $adatbazis_kapcsolat->s2('targy igazolva andoc_id telephely_id kcs_21 sz_szam kuld_tetel_xml kuld_xml megjegyz kolt_vis', 'megallapodas_szamla', "`recid`='{$szamla_id}'");
+    $szamla = $adatbazis_kapcsolat->s2('targy igazolva andoc_id telephely_id kcs_21 sz_szam erk_xml kuld_tetel_xml kuld_xml megjegyz kolt_vis', 'megallapodas_szamla', "`recid`='{$szamla_id}'");
     if( $szamla === false ) { $db_error = true; }
  
     // Cégkód konverzió
@@ -2947,6 +2964,19 @@ function xml_vissza( $szamla_id, $igazolva = '', $oka = '' ) {
     if( $szalloda_klaszter == TELEPHELY_ZAMARDI ) {
         $szalloda_klaszter = TELEPHELY_ZAMARDI_MOD;
     }
+
+    // A NIK3 rész csak akkor kerül bele az XML-be, ha a <form_template_name> TAG-ben NEM 'Műszaki számla' szerepel
+    $nik3 = '';
+    $szamla['erk_xml'] = htmlspecialchars_decode($szamla['erk_xml']);
+    if( get_string_between($szamla['erk_xml'],'<form_template_name>', '</form_template_name>') != 'Műszaki számla' ) {
+        $nik3 = nl2('
+            <container name="NIK3">
+                <row rownumberonpage="1">
+                    '.$urlap_tipus.'
+                </row>
+            </container>
+        ');
+    }
     
     $valasz_xml = 'psInputXml=<?xml version="1.0" encoding="utf-8"?>
 <xml>
@@ -2970,11 +3000,7 @@ function xml_vissza( $szamla_id, $igazolva = '', $oka = '' ) {
             .']]></property>
           </row>
         </container>
-        <container name="NIK3">
-            <row rownumberonpage="1">
-                '.$urlap_tipus.'
-            </row>
-        </container>
+        '.$nik3.'
         <container name="IK1">
             '.$szamla['kuld_tetel_xml']/*Ennek előállítását ha meg szeretnéd nézni, keres rá erre: "$_POST['osszevon_targy_kitoltve_ell']"*/.'
         </container>

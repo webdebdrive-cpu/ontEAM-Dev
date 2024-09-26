@@ -73,7 +73,7 @@ class Lapozo{
     private $felso;
     private $limit;
     private $return;
-    private $default_epo = 10; //Nem lehet public, mert már létrehozásnál számolunk vele. Csak úgy bírálhatjuk felül, ha a GET[epo]-t beállítjuk. Ezt az esemenyek.php-ban tudod megtenni globálisan.
+    private $default_epo = 10; // Nem lehet public, mert már létrehozásnál számolunk vele. Csak úgy bírálhatjuk felül, ha a GET[epo]-t beállítjuk. Ezt az esemenyek.php-ban tudod megtenni globálisan.
 
     function __construct(){
         $this -> akt_oldal = 1;
@@ -96,7 +96,7 @@ class Lapozo{
 //            $this -> elem_per_oldal = $this -> default_epo;
             $this -> oldalak_szama  = 0;
             $this -> elem_per_oldal = $this -> elem_osszes;
-        }else{
+        } else {
             if(!is_numeric($this -> elem_per_oldal) || $this -> elem_per_oldal <= 0){
 				$this -> elem_per_oldal = $this -> default_epo;
 				$_GET[$this -> epo_var] = $this -> default_epo;
@@ -104,7 +104,7 @@ class Lapozo{
             $this -> oldalak_szama = ceil($this -> elem_osszes / $this -> elem_per_oldal);
         }
 
-    	//ha csak egy oldalnyi elemünk van van, ne csináljunk semmit (felesleges a lapozás)
+    	// Ha csak egy oldalnyi elemünk van van, ne csináljunk semmit (felesleges a lapozás)
     	if($this -> oldalak_szama > 1){
 
 	        $this -> akt_oldal = (int) $_GET[$this -> oldal_var]; //kötelezően numerikus
@@ -122,20 +122,20 @@ class Lapozo{
 			$lapozas_oldalak_mit    = array('{CLASS}', '{TITLE}', '{LINK}', '{OLDALSZAM}');
 
 
-			//Előző oldal
+			// Előző oldal
 			$title = $this -> elozo_title;
 			$link  = $this -> fajl.get_get(array($this -> oldal_var, $this -> epo_var, 'unset', 'szamlaLista', 'tabla')).'&amp;'.$this -> oldal_var.'='.$elozo_oldal.'&amp;'.$this -> epo_var.'='.$this -> elem_per_oldal;
             ;
-            /*Ha nem az első oldalon agyunk ÉS az oldlak száma több mint a maximális fix oldal (ha ez utóbbi igaz, akkor már haználjuk az előző következő feliratot, egyébként nem írjuk ki pl.: 2-3 oldalnál felesleges előző következő, elég ha az oldalak számát látjuk, ha mégis ekl akkor a max fix oladt étékét 0-ra kell állítani) ÉS nem az összes oldal módban vagyunk*/
+            // Ha nem az első oldalon agyunk ÉS az oldlak száma több mint a maximális fix oldal (ha ez utóbbi igaz, akkor már haználjuk az előző következő feliratot, egyébként nem írjuk ki pl.: 2-3 oldalnál felesleges előző következő, elég ha az oldalak számát látjuk, ha mégis ekl akkor a max fix oladt étékét 0-ra kell állítani) ÉS nem az összes oldal módban vagyunk
 			if($this->akt_oldal != 1 && $this -> oldalak_szama >= $this -> max_fix_oldal && $_GET[$this -> oldal_var] != $this -> mind_var){
 				$lapozas_elkov_mivel  = array('lapozas', $title, $link);
-			}else{
+			} else {
 				$lapozas_elkov_mivel  = array('dn', $title, $link);
 			}
 
 			$elozo_oldal_html = str_replace($lapozas_elkov_mit, $lapozas_elkov_mivel, $lapozas_elozo_sablon);
 
-			//Ha az oldalak száma több mint a 'max_fix_oldal', tehát ahányat maximálisanmeg szeretnénk jeleníteni
+			// Ha az oldalak száma több mint a 'max_fix_oldal', tehát ahányat maximálisanmeg szeretnénk jeleníteni
 	        if($this -> oldalak_szama > $this -> max_fix_oldal){
 
 	            $this -> start_range = $this -> akt_oldal - floor($this -> kozep_meret/2);
@@ -151,7 +151,7 @@ class Lapozo{
 	            }
 	            $this -> range = range($this -> start_range, $this -> end_range);
 
-				//Oldalak kiíratása (sorban, vagy fordítva)
+				// Oldalak kiíratása (sorban, vagy fordítva)
 				if(!$this -> forditva){
     	            for($i = 1; $i <= $this->oldalak_szama; $i++){
     	                if($this -> range[0] > 2 && $i == $this -> range[0]) $this->return .= $lapozas_pontok_sablon;
@@ -161,7 +161,7 @@ class Lapozo{
     							$link = $_SERVER['REQUEST_URI'];
     							$lapozas_oldalak_mivel = array('akt_oldal', $this -> akt_oldal_title, $link, $i);
     							$this->return .= str_replace($lapozas_oldalak_mit, $lapozas_oldalak_mivel, $lapozas_oldalak_sablon);
-    						}else{
+    						} else {
     							$link = $this -> fajl.get_get(array($this -> oldal_var, $this -> epo_var, 'unset', 'szamlaLista', 'tabla')).'&amp;'.$this->oldal_var.'='.$i.'&amp;'.$this -> epo_var.'='.$this -> elem_per_oldal;
     							$lapozas_oldalak_mivel = array('lapozas', $i.'. oldalra lapozás', $link, $i);
     							$this->return .= str_replace($lapozas_oldalak_mit, $lapozas_oldalak_mivel, $lapozas_oldalak_sablon);
@@ -169,7 +169,7 @@ class Lapozo{
     	                }
     	                if($this -> range[$this -> kozep_meret-1] < $this -> oldalak_szama-1 && $i == $this -> range[$this -> kozep_meret-1]) $this->return .= $lapozas_pontok_sablon;
     	            }
-                }else{
+                } else {
     	            for($i = $this->oldalak_szama; $i >=1 ; $i--){
     	                if($this -> range[0] > 2 && $i == $this -> range[0]) $this->return .= $lapozas_pontok_sablon;
     	                // Oldalak átfutása. Ha első utolsó vagy a közép intervallum résza akkor kiíratás
@@ -178,7 +178,7 @@ class Lapozo{
     							$link = $_SERVER['REQUEST_URI'];
     							$lapozas_oldalak_mivel = array('akt_oldal', $this -> akt_oldal_title, $link, $i);
     							$this->return .= str_replace($lapozas_oldalak_mit, $lapozas_oldalak_mivel, $lapozas_oldalak_sablon);
-    						}else{
+    						} else {
     							$link = $this -> fajl.get_get(array($this -> oldal_var, $this -> epo_var, 'unset', 'szamlaLista', 'tabla')).'&amp;'.$this->oldal_var.'='.$i.'&amp;'.$this -> epo_var.'='.$this -> elem_per_oldal;
     							$lapozas_oldalak_mivel = array('lapozas', $i.'. oldalra lapozás', $link, $i);
     							$this->return .= str_replace($lapozas_oldalak_mit, $lapozas_oldalak_mivel, $lapozas_oldalak_sablon);
@@ -192,8 +192,8 @@ class Lapozo{
     	            }
                 }
 
-			//Ha az oldalak kiférnek egy sorba, nem kell középintervallumot használni
-			}else{
+			// Ha az oldalak kiférnek egy sorba, nem kell középintervallumot használni
+			} else {
 
 			    if(!$this -> forditva){
     	            for($i=1; $i<=$this -> oldalak_szama; $i++){
@@ -202,21 +202,21 @@ class Lapozo{
     						$link = $_SERVER['REQUEST_URI'];
     						$lapozas_oldalak_mivel = array('akt_oldal', $this -> akt_oldal_title, $link, $i);
     						$this->return .= str_replace($lapozas_oldalak_mit, $lapozas_oldalak_mivel, $lapozas_oldalak_sablon);
-    					}else{
+    					} else {
     						$link = $this -> fajl.get_get(array($this -> oldal_var, $this -> epo_var, 'unset', 'szamlaLista', 'tabla')).'&amp;'.$this -> oldal_var.'='.$i.'&amp;'.$this -> epo_var.'='.$this -> elem_per_oldal;
     						$lapozas_oldalak_mivel = array('lapozas', $i.'. oldalra lapozás', $link, $i);
     						$this->return .= str_replace($lapozas_oldalak_mit, $lapozas_oldalak_mivel, $lapozas_oldalak_sablon);
     					}
 
     	            }
-                }else{
+                } else {
     	            for($i=$this -> oldalak_szama; $i>=1; $i--){
 
     	            	if($i == $this -> akt_oldal && $_GET[$this->oldal_var] != $this -> mind_var){
     						$link = $_SERVER['REQUEST_URI'];
     						$lapozas_oldalak_mivel = array('akt_oldal', $this -> akt_oldal_title, $link, $i);
     						$this->return .= str_replace($lapozas_oldalak_mit, $lapozas_oldalak_mivel, $lapozas_oldalak_sablon);
-    					}else{
+    					} else {
     						$link = $this -> fajl.get_get(array($this -> oldal_var, $this -> epo_var, 'unset', 'szamlaLista', 'tabla')).'&amp;'.$this -> oldal_var.'='.$i.'&amp;'.$this -> epo_var.'='.$this -> elem_per_oldal;
     						$lapozas_oldalak_mivel = array('lapozas', $i.'. oldalra lapozás', $link, $i);
     						$this->return .= str_replace($lapozas_oldalak_mit, $lapozas_oldalak_mivel, $lapozas_oldalak_sablon);
@@ -226,41 +226,41 @@ class Lapozo{
                 }
 	        }
 
-            //Követlező oldal
+            // Követlező oldal
 			$title = $this->kovet_title;
 			$link  = $this -> fajl.get_get(array($this -> oldal_var, $this -> epo_var, 'unset', 'szamlaLista', 'tabla')).'&amp;'.$this -> oldal_var.'='.$kovetkezo_oldal.'&amp;'.$this -> epo_var.'='.$this -> elem_per_oldal;
 
             if( !$_GET[$this -> oldal_var] ){
                 $_GET[$this -> oldal_var] = 1;
             }
-            /*Ha nem az utolsó oldaon vagyunk ÉS az oldalak száma nagyaobb mint a maximális fixoldalak száma ÉS ha nem az össezs módban vagyunk*/
+            // Ha nem az utolsó oldaon vagyunk ÉS az oldalak száma nagyaobb mint a maximális fixoldalak száma ÉS ha nem az össezs módban vagyunk
 			if( $this -> akt_oldal != $this -> oldalak_szama && $this -> oldalak_szama >= $this -> max_fix_oldal && $_GET[$this -> oldal_var] != $this -> mind_var ){
                 $lapozas_elkov_mivel  = array('lapozas', $title, $link);
-			}else{
+			} else {
 				$lapozas_elkov_mivel  = array('dn', $title, $link);
 			}
 
             if(!$this -> forditva){
                 $this->return .= str_replace($lapozas_elkov_mit,$lapozas_elkov_mivel,$lapozas_kovet_sablon);
                 $this->return = $elozo_oldal_html.$this->return;
-            }else{
+            } else {
                 $this->return = str_replace($lapozas_elkov_mit,$lapozas_elkov_mivel,$lapozas_kovet_sablon).$this->return.$elozo_oldal_html;
             }
 
 
-	        //Összes oldal
+	        // Összes oldal
 	        if($this -> mind_var){
 	        	if($_GET[$this -> epo_var] == $this -> mind_var){
 					$link = $_SERVER['REQUEST_URI'];
 					$lapozas_oldalak_mivel = array('akt_oldal', $this -> mind_text, $link, $this -> mind_text);
-				}else{
+				} else {
 					$link = get_get(array($this -> oldal_var, $this -> epo_var, 'unset', 'szamlaLista', 'tabla')).'&amp;'.$this -> oldal_var.'=1&amp;'.$this -> epo_var.'='.$this -> mind_var;
 					$lapozas_oldalak_mivel = array('', $this -> mind_text, $link, $this -> mind_text);
 				}
 				$this->return.=str_replace($lapozas_oldalak_mit, $lapozas_oldalak_mivel, $lapozas_oldalak_sablon);
 			}
 
-	        //SQL LIMIT-jének meghatározása
+	        // SQL LIMIT-jének meghatározása
 	        $this -> also  = ($this -> akt_oldal-1) * $this -> elem_per_oldal;
 	        $this -> felso = ($_GET[$this -> epo_var] == $this -> mind_var) ? $this -> elem_osszes:($this -> akt_oldal * $this -> elem_per_oldal)-1;
 	        $this -> limit = ($this -> mind_var && $_GET[$this -> epo_var] == $this -> mind_var) ? '': $this->also.', '.$this->elem_per_oldal;
@@ -283,7 +283,7 @@ class Lapozo{
         foreach($this -> epo_array as $epo_opt){
         	if($epo_opt == $this -> elem_per_oldal){
 				$selected = ' selected="selected"';
-			}else{
+			} else {
 				$selected = '';
 			}
 			$value = $epo_opt;
@@ -318,7 +318,7 @@ class Lapozo{
 	        for($i=1; $i <= $this -> oldalak_szama; $i++){
 	        	if($i == $this -> akt_oldal){
 					$selected = ' selected="selected"';
-				}else{
+				} else {
 					$selected = '';
 				}
 				$value = $i;

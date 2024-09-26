@@ -251,6 +251,40 @@ function szamla_oszlopok_decode() {
     );
 }
 
+// Dokumentumtár menüpontjai, bal navpanelje
+function get_dokumentumtar_menu() {
+    return array(
+        array('tabla' => 'anyag_szamla',            'nev' => 'Anyag számlák'            ),
+        array('tabla' => 'anyagigenyles',           'nev' => 'Anyagigénylések'          ),
+        array('tabla' => 'bejelentes',              'nev' => 'Bejelentések'             ),
+        array('tabla' => 'beosztas',                'nev' => 'Beosztások'               ),
+        array('tabla' => 'cikktorzs',               'nev' => 'Cikktörzs'                ),
+        array('tabla' => 'megallapodas',            'nev' => 'Megállapodás'             ),
+        array('tabla' => 'megallapodas_szamla',     'nev' => 'Megállapodás számlák'     ),
+        array('tabla' => 'munkalap',                'nev' => 'Munkalapok'               ),
+        array('tabla' => 'energia',                 'nev' => 'Energia'                  ),
+        array('tabla' => 'energia_szamla',          'nev' => 'Energia számlák'          ),
+        array('tabla' => 'eseti_fenntartas',        'nev' => 'Eseti fenntartás'         ),
+        array('tabla' => 'eszkozkezeles',           'nev' => 'Eszközkezelés'            ),
+        array('tabla' => 'fenntartasi_szamla',      'nev' => 'Fenntartási számlák'      ),
+        array('tabla' => 'fenntartasi_szerzodes',   'nev' => 'Fenntartási szerződések'  ),
+        array('tabla' => 'fenntartasi_terv',        'nev' => 'Fenntartási terv'         ),
+        array('tabla' => 'raktar',                  'nev' => 'Raktár'                   ),
+        array('tabla' => 'tervezes',                'nev' => 'Tervezés'                 ),
+        array('tabla' => 'utemezett_feladatok',     'nev' => 'Ütemezett feladatokok'    ),
+        array('tabla' => 'uzemeltetesi_naplo',      'nev' => 'Üzemeltetési napló'       ),
+        array('tabla' => 'szallito',                'nev' => 'Partnertörzs'             ),
+        array('tabla' => 'projektigenyles',         'nev' => 'Projektigénylések'        ),
+        array('tabla' => 'projektigenyles_velemeny','nev' => 'Projektigénylés vélemények'),
+        array('tabla' => 'projektkezeles',          'nev' => 'Projektkezelés'           ),
+        array('tabla' => 'projektszamla',           'nev' => 'Projekt számlák'          ),
+        array('tabla' => 'projektszerzodes',        'nev' => 'Projekt szerződések'      ),
+        array('tabla' => 'rendszeres_karbantartas', 'nev' => 'Rendszeres karbantartás'  ),
+        array('tabla' => 'szamla',                  'nev' => 'Számlák'                  ),
+        array('tabla' => 'torzsadat',               'nev' => 'Törzsadatok'              ),
+    );
+}
+
 // Projekt státuszok
 define('PRKEZEL_STAT_NYITOTT',          '01' );
 define('PRKEZEL_STAT_ELOKESZITES_ALATT','02' );
@@ -272,7 +306,7 @@ define('PRIGENY_BESOROL_REKO',          '3' );
 // Projektigénylés megtérülési terület
 define('PRIGENY_TERULET_DOK',           '1' );
 
-// Személyzettípusok
+// Személyzettípusok, azaz szerepkörök
 define('TELEPITETT_SZEMELYZET',         '1' );
 define('MOBILCSOPORT',                  '2' );
 define('KULSO_KIVITELEZO',              '3' );
@@ -391,6 +425,7 @@ define('JOG_PRKEZEL_SZERZODES_KEZEL',   111);
 define('JOG_PRKEZEL_FELFUGGESZTES',     127);
 define('JOG_PRKEZEL_LEALLITAS',         128);
 define('JOG_PRKEZEL_UJRANYITAS',        129);
+define('JOG_PRKEZEL_KERETOSSZEG_EMEL',  144);
 define('JOG_PRSZAMLAK_OLVAS',           112);
 define('JOG_PRSZAMLAK_KEZEL',           113);
 define('JOG_PRSZAMLAK_IGAZOL',          142);
@@ -470,7 +505,10 @@ define('ERT_UT_IGAZOLASRA_KULDESKOR',   17);
 define('ERT_IGAZOLONAK_VISSZAADAS',     18);
 define('ERT_ASSZISZT_VISSZAADAS',       19);
 
-define('ERT_ASSZISZT_VISSZAADAS2',      20);
+define('ERT_ASSZISZT_VISSZAADAS_MEG',   20);
+define('ERT_IGAZOLASRA_KULDESKOR_MEG',  22);
+
+define('ERT_MUSZUGY_VISSZAADAS',        21);
 
 
 define('HIBA_ADJON_FELADAT',            ' kérem adjon hozzá egy elvégzett feladatot!');
@@ -526,11 +564,12 @@ define('MLTIPUS_ESETI_FENNT',   5);
 define('MLTIPUS_GARANCIALIS',   6);
 
 // Limit értékek
-define('ARCHIV_NAVPANEL_LIMIT',     1000);
-define('SZURES_DB_LIMIT',           1000);
-define('CSV_EXPORT_LIMIT',          30000);
-define('ANYAGREND_NEM_MSZK_LIMIT',  200);
-
+define('ARCHIV_NAVPANEL_LIMIT',        1000    );  // Ez végül nem csak archiv modulokban van használva
+define('ARCHIV_NAVPANEL_LIMIT2',        500    );  // Ez viszont tényleg csak az archiv modulokban van használva
+define('ARCHIV_NAVPANEL_LIMIT2_TESZT',  100    );  // Ez pedig akkor, ha teszt felületen vagyunk
+define('SZURES_DB_LIMIT',              1000    );
+define('CSV_EXPORT_LIMIT',            30000    );
+define('ANYAGREND_NEM_MSZK_LIMIT',      200    );
 
 // Fűtőértékkel kapcsolatos konstansok
 define('FUTOERTEK_KOD',         '5114400'               );

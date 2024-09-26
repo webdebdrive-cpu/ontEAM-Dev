@@ -49,7 +49,7 @@ class ServerClass {
 
         global $adatbazis_kapcsolat;
         global $db_kapcs;
-        
+
         $szamla = simplexml_load_string($szamla_xml, 'SimpleXMLElement');
         if( $szamla === false ) {
             Throw new SOAPFault ('Server', 'XML beolvasása nem sikerült. Lehet, hogy hibás karaktert tartalmaz?
@@ -624,7 +624,7 @@ class ServerClass {
                 } else {
                     $szamla_xml = "*** SZÁMLA UPDATE (éles) ***\n".$szamla_xml;
                 }
-                
+
                 // Update esetén erk_xml-t meg kell toldani
                 $szamla_db['erk_xml'] = $szamla_xml.htmlspecialchars_decode($szamla_db['erk_xml']);
     
@@ -637,6 +637,7 @@ class ServerClass {
 
                 // Ha egy utalványozást épp elutasítanának, akkor az utalvanyozva_dt-t és sztornozva_dt-t állítsuk be, mert onnan fogjuk tudni, hogy el van utasítva, hogy 0 az értéke, de a dátuma ki van töltve
                 if( mb_strtolower($szamla_adatok['Utalványozó döntés'], self::CHAR_CODING) == 'elutasítva' && $szamla_db['utalvanyozva_dt'] == '0000-00-00 00:00:00' ) {
+
                     array_push($mezok,     'utalvanyozva_dt',   'sztornozva_dt', 'sztornozva_usr');
                     array_push($ertekek,   'NOW()',             'NOW()',         'Andoc'         );
 
@@ -713,7 +714,7 @@ class ServerClass {
                     // Anyagszámla esetén a tételeket be kell járni, és a mennyiséget kivonni a
                     // hozzájuk tartozó anyagrendelések számlázott mennyiségéből
                     if( $szamla_tipus == self::SZAMLA_TIPUS_ANYAG ) {
-                        $szamla = $adatbazis_kapcsolat->s2('recid', 'anyag_szamla', "`andoc_id`='{$andoc_id}'");
+                        $szamla = $adatbazis_kapcsolat->s2('recid', $tabla, "`andoc_id`='{$andoc_id}'");
                         if( $szamla === false ) { $db_error = mysqli_error($db_kapcs); }
                         $tetelek = $adatbazis_kapcsolat->s('rnd_recid rndmen', 'anyag_szamla_tetel', "`anyag_szamla_recid`='{$szamla['recid']}'");
                         if( $tetelek === false ) { $db_error = mysqli_error($db_kapcs); }
@@ -737,6 +738,7 @@ class ServerClass {
                 $sql = $adatbazis_kapcsolat->u($tabla, $mezok, $ertekek, "`andoc_id`='{$andoc_id}'");
                 if( $sql === false ) { $db_error = mysqli_error($db_kapcs); }
 
+                // *** ÚJRA FELDOLGOZOTT SZÁMLA *** esete
                 // Ha NEM kifizetésről van szó, és a számla az ontEAM oldalon sztornó állapotban van, akkor töröljük a történetből a feldolgozás, igazolás (+előigazolás), utalványozás, sztornó sorok adatait
                 if( !$kifizetes_import && $szamla_db['sztornozva_dt'] != '0000-00-00 00:00:00' ) {
 
@@ -763,6 +765,57 @@ class ServerClass {
                                                                     array('1'        ),
                                                                 "`{$tabla}_recid`='{$aparecid}'");
                     if( $sql === false ) { $db_error = mysqli_error($db_kapcs); }
+
+                    // Fenntartási számlák esetén Email értesítés küldése
+                    $fenntartas_szamlak = array(self::SZAMLA_TIPUS_ANYAG, self::SZAMLA_TIPUS_ENERGIA, self::SZAMLA_TIPUS_FENNTARTASI);
+                    if( in_array($szamla_tipus, $fenntartas_szamlak) ) {
+                        $szamla = $adatbazis_kapcsolat->s2('szla_szam szallito_id', $tabla, "`andoc_id`='{$andoc_id}'");
+                        $szamla_tipus = '';
+                        switch( $tabla ) {
+                            case 'energia_szamla'       : $szamla_tipus = 'Energia számla';     break;
+                            case 'anyag_szamla'         : $szamla_tipus = 'Anyag számla';       break;
+                            case 'fenntartasi_szamla'   : $szamla_tipus = 'Fenntartási számla'; break;
+                        }
+            
+                        $szallito = getErtek('nev', 'szallito', 'id', $szamla['szallito_id']);
+            
+                        $mit    = array('{SZAMLA_TIPUS}', '{SZLA_SZAM}',        '{SZALLITO}');
+                        $mivel  = array($szamla_tipus,    $szamla['szla_szam'], $szallito   );
+                        $uzi    = str_replace( $mit, $mivel, fajlbol_olvas('../sablon/admin/mail/fenntartasszamla_asszisztens.html') );
+
+                        $kieg = get_mail_teszt_felirat();
+                        $targy_kieg = $kieg[0];
+                        $uzi_kieg   = $kieg[1];
+
+                        // A címzettnél vizsgáljuk az értesítés pipa meglétét is
+                        $cimzettek = $adatbazis_kapcsolat->s('nev teljes_nev usermail aktiv virtual szemelyzet_id', 'login', "substr(`flags_ert`, ".(ERT_MUSZUGY_VISSZAADAS+1).", 1)=1 AND `aktiv`=1 AND `virtual`=0");
+                        foreach ($cimzettek as $akt_cimzett) {
+                            
+                            // Ha több címzett is van (tehát első kapja, többi másolatot), akkor az első legyen csak megszólítva
+                            $megszolitas = $akt_cimzett['teljes_nev'];
+                            if( strpos($akt_cimzett['teljes_nev'], '|') !== false ) {
+                                $megszolitas = explode('|', $akt_cimzett['teljes_nev']);
+                                $megszolitas = $megszolitas[0];
+                            }
+
+                            // Ha több mailcím is szerepel vesszővel elválasztva, akkor azt is le kell kezelni:
+                            $mailcimek = explode(',', $akt_cimzett['usermail']);
+                            foreach( $mailcimek as $mailcim ) {
+                                
+                                $mit            = array('{NEV}'     );
+                                $mivel          = array($megszolitas);
+                                $megszolitas    = str_replace( $mit, $mivel, fajlbol_olvas('../sablon/admin/mail/megszolitas.html'));
+
+                                $targy   =  get_nev().' fenntartási számla visszaküldve ügyintézőnek';
+                                $uzi     =  $uzi.'
+                                            <br>'.fajlbol_olvas('../sablon/admin/mail/alairas.html');
+
+                                // Tényleges küldés
+                                $level = level_kuldes(get_nev(), get_mail(), $akt_cimzett['teljes_nev'], $mailcim, $targy_kieg.$targy, $uzi_kieg.$megszolitas.$uzi);
+
+                            }
+                        }
+                    }
                 }
 
                 // Ha kifizetésről van szó, akkor még kezeljük le a Kifizetve pipát az updatelt adatok ismeretében

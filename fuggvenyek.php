@@ -2865,8 +2865,8 @@ function i_u($type, $tabla, $tomb) {
         
         // Illetve a szerződés számot még külön fel kell még venni, mert a tiltott mező miatt ez magától nem íródna be
         if( $tabla == 'megallapodas_szamla' ) {
-            array_push($oszlopok, 'sz_szam'         );
-            array_push($ertekek,  $_POST['sz_szam'] );
+            array_push($oszlopok, 'sz_szam',            'kapcs_tart'         );
+            array_push($ertekek,  $_POST['sz_szam'],    $_POST['kapcs_tart'] );
         }
 
         // Projektigényléseknél egy-több szállodás váltás lekezelése UPDATE előtt
@@ -3235,9 +3235,10 @@ function i_u($type, $tabla, $tomb) {
                 $fel_hato = $projekt['jkolt']-$sz_ossz;
                 $sql = $adatbazis_kapcsolat->u('projektkezeles', array('sz_ossz', 'fel_hato'), array($sz_ossz, $fel_hato), "`ikt_szam`='{$_POST['pr_szam']}'");
                 if( $sql === false ) { $db_error = true; }
-                
+            }
+
             // De az is lehet, hogy most vettük le, csak DB-ben létezik, ekkor is újra kell számíttatni, kicsit másképp
-            } elseif( $sor['pr_szam'] ) {
+            if( $sor['pr_szam'] ) {
                 $szerzodesek = $adatbazis_kapcsolat->s2('SUM(`szerz_ossz`)', 'projektszerzodes', "`pr_szam`='{$sor['pr_szam']}' AND `recid`!='{$_GET['id']}'");
                 if( $szerzodesek === false ) { $db_error = true; }
                 $projekt = $adatbazis_kapcsolat->s2('jkolt', 'projektkezeles', "`ikt_szam`='{$sor['pr_szam']}'");
@@ -3358,11 +3359,11 @@ function i_u($type, $tabla, $tomb) {
         if( $id === false ) { $db_error = true; }
 
 // Debug UPDATE
-//if( $_SERVER['REMOTE_ADDR'] == get_debug_ip() ) {
+// if( $_SERVER['REMOTE_ADDR'] == get_debug_ip() ) {
 //    echo $adatbazis_kapcsolat->gp() . '<br>';
 //    mysqli_commit($db_kapcs);
 //    exit;
-//}
+// }
 
         if( $id ) {
             $sor = $adatbazis_kapcsolat->s('*', $tabla, "`recid`='{$_GET['id']}'", '', '1');
@@ -4794,47 +4795,49 @@ function szamla_lista( $where = '', $tabla = '', $kijeloltek = false, $csak_sql_
         $frissit = true;
     }
 
+    // NEM KELL LAPOZÁS EGYÁLTALÁN
     // Lapozás előkészítése
-    require_once('../class/class.Lapozo.php');
+    // require_once('../class/class.Lapozo.php');
 
-    if( !$_GET['oldal'] ) {
-        $_GET['oldal'] = 1;
-    }
+    // if( !$_GET['oldal'] ) {
+    //     $_GET['oldal'] = 1;
+    // }
 
-    $_GET['epo'] = 9999999999999;
+    // $_GET['epo'] = 9999999999999;
 
-    $bejegyzesek = $adatbazis_kapcsolat->s('recid', $tabla, $where.$group_by);
-    $lapozo = new Lapozo;
-    $lapozo -> elem_osszes      = count($bejegyzesek);
-    $lapozo -> fajl             = $_SERVER['PHP_SELF'];
-    $lapozo -> mind_var         = ''; //'Összes elem kilistázása' változó neve. Ha üres akkor nincs össsez oldal megjelenítés. Alapértelmezetten 'osszes'
-    //$lapozo -> epo_var         = 'epo';    //Elem per oldal változó neve
-    //$lapozo -> oldal_var       = 'oldal';  //Oldal változó neve
-    $lapozo -> kozep_meret      = 5; //Nagy oldalszám esetén a középső intervallum mérete
-    //$lapozo -> max_fix_oldal   = 10;        //Ha a megadott számtól több oldal van, akkor jelenik meg az előző/követekző felirat
-    //$lapozo -> epo_array       = array(50, 100, 150);  //Elem per oldal mennyiségek ha választhatóak, akkor egy tömbbyi interrel adhatjuk át az opciókat
-    //$lapozo -> mind_text       = 'Összes oldal';  //pldalszámok mellett a "minden elem kilistázásának" felirata (ha $mind_var üres string akkor nem jelenik ez meg)
-    //$lapozo -> elozo_title     = '« Előző oldal';        //'Előző' felirat, link title-jéhez
-    //$lapozo -> kovet_title     = 'Következő oldal »';    //'Következő' felirat, link title-jéhez
-    //$lapozo -> kozep_meret     = 'Aktuális oldal';       //'Aktuális oldal' felirat, link title-jéhez
+    // $bejegyzesek = $adatbazis_kapcsolat->s('recid', $tabla, $where.$group_by, '', '', '', '-num-rows-');
 
-    $utvonal = '../sablon/admin/';
-    $lapozo -> sablon_elozo       = $utvonal.'lapozas_elozo.html';
-    $lapozo -> sablon_kovetkezo   = $utvonal.'lapozas_kovet.html';
-    $lapozo -> sablon_oldalak     = $utvonal.'lapozas_oldalak.html';
-    $lapozo -> sablon_option      = $utvonal.'lapozas_option.html';
-    $lapozo -> sablon_pontok      = $utvonal.'lapozas_pontok.html';
-    $lapozo -> sablon_select      = $utvonal.'lapozas_select.html';
+    // $lapozo = new Lapozo;
+    // $lapozo -> elem_osszes      = $bejegyzesek;
+    // $lapozo -> fajl             = $_SERVER['PHP_SELF'];
+    // $lapozo -> mind_var         = ''; //'Összes elem kilistázása' változó neve. Ha üres akkor nincs össsez oldal megjelenítés. Alapértelmezetten 'osszes'
+    // //$lapozo -> epo_var         = 'epo';    //Elem per oldal változó neve
+    // //$lapozo -> oldal_var       = 'oldal';  //Oldal változó neve
+    // $lapozo -> kozep_meret      = 5; //Nagy oldalszám esetén a középső intervallum mérete
+    // //$lapozo -> max_fix_oldal   = 10;        //Ha a megadott számtól több oldal van, akkor jelenik meg az előző/követekző felirat
+    // //$lapozo -> epo_array       = array(50, 100, 150);  //Elem per oldal mennyiségek ha választhatóak, akkor egy tömbbyi interrel adhatjuk át az opciókat
+    // //$lapozo -> mind_text       = 'Összes oldal';  //pldalszámok mellett a "minden elem kilistázásának" felirata (ha $mind_var üres string akkor nem jelenik ez meg)
+    // //$lapozo -> elozo_title     = '« Előző oldal';        //'Előző' felirat, link title-jéhez
+    // //$lapozo -> kovet_title     = 'Következő oldal »';    //'Következő' felirat, link title-jéhez
+    // //$lapozo -> kozep_meret     = 'Aktuális oldal';       //'Aktuális oldal' felirat, link title-jéhez
+
+    // $utvonal = '../sablon/admin/';
+    // $lapozo -> sablon_elozo       = $utvonal.'lapozas_elozo.html';
+    // $lapozo -> sablon_kovetkezo   = $utvonal.'lapozas_kovet.html';
+    // $lapozo -> sablon_oldalak     = $utvonal.'lapozas_oldalak.html';
+    // $lapozo -> sablon_option      = $utvonal.'lapozas_option.html';
+    // $lapozo -> sablon_pontok      = $utvonal.'lapozas_pontok.html';
+    // $lapozo -> sablon_select      = $utvonal.'lapozas_select.html';
 
 
-    // Számolás
-    $lapozo -> lapozas();
+    // // Számolás
+    // $lapozo -> lapozas();
 
-    $lapozas = $lapozo -> kiir();
+    // $lapozas = $lapozo -> kiir();
 
-    $limit = $lapozo -> getLimit();
-//echo 'sel:'.$select . ' ir:'.$irany.' or:'.$order.' lim:'.$limit.' where:'.$where.'<br>';
-//exit;
+    // $limit = $lapozo -> getLimit();
+// echo 'sel:'.$select . ' ir:'.$irany.' or:'.$order.' lim:'.$limit.' where:'.$where.'<br>';
+// exit;
 
     // Ha recid alapján rendeznénk, akkor tegyük bele a `'.get_db_tabla().$tabla.'`-t, mert CSV exportnál úgy is lesz olyan JOIN, minek van recid-ja is, és ütni fogják egymást
     if( $_GET['rend'] == 'recid' ) {
@@ -4921,9 +4924,6 @@ function szamla_lista( $where = '', $tabla = '', $kijeloltek = false, $csak_sql_
 
             $order = '';
 
-            $irany_ikt_szam  = '';
-            $irany_telephely = '';
-
             if( $_GET['rend'] == 'stat_id' ) {
 
                 if( !$_GET['irany'] ) {
@@ -4983,14 +4983,10 @@ function szamla_lista( $where = '', $tabla = '', $kijeloltek = false, $csak_sql_
             }
         }
         
-        // Rendezés munkalap esetén külön problémakör:
-        if( $tabla == 'munkalap' || $tabla == 'munkalap_arch' ) {
+        // Rendezés munkalap esetén külön problémakör. Ezt viszont nem tesszük meg, ha a $_GET['mezo'] == legfrissebb (ami az archiv munkalapok alap rendezetttsége). Ekkor nem kell státuszokkal bajlódni.
+        if( $tabla == 'munkalap' || ($tabla == 'munkalap_arch' && $_GET['mezo'] != 'legfrissebb') ) {
 
             $order = '';
-
-            $irany_ikt_szam  = '';
-            $irany_telephely = '';
-
             // Ha státusz szerint rendezünk
             if( $_GET['rend'] == 'stat_id' ) {
 
@@ -5054,6 +5050,7 @@ function szamla_lista( $where = '', $tabla = '', $kijeloltek = false, $csak_sql_
             }
             $order .= '`'.get_db_tabla().$tabla.'`.`insert_dt` DESC';
         }
+
 
         // Limit szám kiszámítása az összetett szűrőből
         $osszetett_legfrissebb = strpos($_SESSION['o_szuro_feltetel'], 'me|legfrissebb#op|equal#fe|');
@@ -5339,7 +5336,7 @@ function szamla_lista( $where = '', $tabla = '', $kijeloltek = false, $csak_sql_
         if( isset($_GET['szamlaSorFrissit']) ) {
             $limit = 1;
         }
-        
+
         $bejegyzesek = $adatbazis_kapcsolat->s($select, $tabla, $where.$group_by, $order, $limit, '', '', $join);
         $sql = $adatbazis_kapcsolat->gp();
 
@@ -5724,7 +5721,7 @@ function bejelentesLista( $bejegyzesek, $tabla, $frissit = '', $kijeloltek = '',
 
         // Ha nem adunk meg $tabla-t, akkor nyomtatási nézetben vagyunk
         $nohover = '';
-        if(!$tabla){
+        if (!$tabla) {
             $nohover = ' nohover';
         }
 
@@ -5851,24 +5848,44 @@ function bejelentesLista( $bejegyzesek, $tabla, $frissit = '', $kijeloltek = '',
 
             // Ha a usernek nem csak egy szállodája van, akkor kiírjuk a szálloda nevét
             $szalloda_neve = '';
-            if(!$_SESSION['egyszallodas_user']){
+            if (!$_SESSION['egyszallodas_user']) {
                 $szalloda_neve = getSzallodaNev($bsz['telephely_id']).' - ';
             }
 
-            $li_tart = '<a class="szamla'.$nohover.'" data-recid="'.$bsz['recid'].'" data-fajl="'.$tabla.'.php" data-muvelet="modosit" title="'.$bsz['hiba_text'].'">
-                            <table'.$bold.'>
-                            <tr>
-                                <td class="ikonok" rowspan="2" style="width: 4rem">'.$kesz.$dok_icon.$surgos.'</td>
-                                <td style="width: 9rem">'.$bsz['ikt_szam'].'</td>
-                                <td style="width: 9rem">'.getStatText($tabla, $bsz['stat_id']).'</td>
-                                <td style="width: 7rem">'.str_replace('-', '.', substr($bsz['insert_dt'], 0, 16) ).'</td>
-                                <td>'.$szalloda_neve.htmlspecialchars_decode(htmlspecialchars_decode($bsz['obj_txt'])).'</td>
-                            </tr>
-                            <tr>
-                                <td colspan="4">'.erteklista('', '', $bsz['hiba_id']).'</td>
-                            </tr>
-                            </table>
-                         </a>';
+            // Az $li_tart tartalma eltér sima bejelentés és archívum esetén
+            if( $tabla == 'bejelentes' ) {
+                $li_tart = '<a class="szamla'.$nohover.'" data-recid="'.$bsz['recid'].'" data-fajl="'.$tabla.'.php" data-muvelet="modosit" title="'.$bsz['hiba_text'].'">
+                                <table'.$bold.'>
+                                <tr>
+                                    <td class="ikonok" rowspan="2" style="width: 4rem">'.$kesz.$dok_icon.$surgos.'</td>
+                                    <td style="width: 9rem">'.$bsz['ikt_szam'].'</td>
+                                    <td style="width: 9rem">'.getStatText($tabla, $bsz['stat_id']).'</td>
+                                    <td style="width: 7rem">'.str_replace('-', '.', substr($bsz['insert_dt'], 0, 16) ).'</td>
+                                    <td>'.$szalloda_neve.htmlspecialchars_decode(htmlspecialchars_decode($bsz['obj_txt'])).'</td>
+                                </tr>
+                                <tr>
+                                    <td colspan="4">'.erteklista('', '', $bsz['hiba_id']).'</td>
+                                </tr>
+                                </table>
+                             </a>';
+            }
+            // Archiv bejelentés esetén már a letárolt szövegeket írjuk ki, nem pedig ID-ból számolgatunk vissza
+            if( $tabla == 'bejelentes_arch' ) {
+                $li_tart = '<a class="szamla'.$nohover.'" data-recid="'.$bsz['recid'].'" data-fajl="'.$tabla.'.php" data-muvelet="modosit" title="'.$bsz['hiba_text'].'">
+                                <table'.$bold.'>
+                                <tr>
+                                    <td class="ikonok" rowspan="2" style="width: 4rem">'.$kesz.$dok_icon.$surgos.'</td>
+                                    <td style="width: 9rem">'.$bsz['ikt_szam'].'</td>
+                                    <td style="width: 9rem">'.$bsz['stat_txt'].'</td>
+                                    <td style="width: 7rem">'.str_replace('-', '.', substr($bsz['insert_dt'], 0, 16) ).'</td>
+                                    <td>'.$bsz['telephely_txt'].' - '.htmlspecialchars_decode(htmlspecialchars_decode($bsz['obj_txt'])).'</td>
+                                </tr>
+                                <tr>
+                                    <td colspan="4">'.$bsz['hiba_txt'].'</td>
+                                </tr>
+                                </table>
+                             </a>';
+            }
 // Csoportosítás megszűnt
 //            $csoport_class = '';
 //            $csoport_data  = '';
@@ -5902,13 +5919,13 @@ function bejelentesLista( $bejegyzesek, $tabla, $frissit = '', $kijeloltek = '',
 
             // Ha sürgős, akkor legyen piros a sora
             $surgos_class = '';
-            if($bsz['surgos']){
+            if ($bsz['surgos']) {
                 $surgos_class = ' surgos';
             }
 
             // Ha van kívánt sorrend információnk is, akkor ezt tegyük be egy data-sorrend tag-be
             $sorrend = '';
-            if($js_rendezes){
+            if ($js_rendezes) {
                 $sorrend = ' data-sort="'.array_search($bsz['recid'], $sorrend_idk).'"';
             }
 
@@ -6268,36 +6285,65 @@ function munkalapLista( $bejegyzesek, $tabla, $frissit, $kijeloltek, $sorrend_id
 
             // Ha van gép, csak akkor legyen kötőjel
             $gep_txt = '';
-            if($bsz['gep_txt']){
+            if ($bsz['gep_txt']) {
                 $gep_txt = ' - '.$bsz['gep_txt'];
             }
 
             // Ha a usernek nem csak egy szállodája van, akkor kiírjuk a szálloda nevét
             $szalloda_neve = '';
             $colspan       = '';
-            if(!$_SESSION['egyszallodas_user']){
-                $szalloda_neve = '<td style="width: 7rem;">'.getSzallodaNev($bsz['telephely_id']).'</td>';
+            if (!$_SESSION['egyszallodas_user']) {
+                if( $tabla == 'munkalap' ) {
+                    $szalloda_neve = '<td style="width: 7rem;">'.getSzallodaNev($bsz['telephely_id']).'</td>';
+                }
+                if( $tabla == 'munkalap_arch' ) {
+                    $szalloda_neve = '<td style="width: 7rem;">'.$bsz['telephely_txt'].'</td>';
+                }
                 $colspan       = ' colspan="2"';
             }
 
-            $li_tart = '<a class="szamla'.$nohover.'" data-recid="'.$bsz['recid'].'" data-fajl="'.$tabla.'.php" data-muvelet="modosit" title="'.$title.'">
-                            <table'.$bold.'>
-                            <tr>
-                                <td class="ikonok" rowspan="2" style="width: 4rem; white-space: nowrap;">
-                                    <br>'.$kesz.$dok_icon.$surgos.'&nbsp;
-                                </td>
-                                <td style="width: 11rem;" class="ikt_szam">'.$bsz['ikt_szam'].'</td>
-                                <td style="width: 9rem;">'.getStatText($tabla, $bsz['stat_id'], 'rovid').'</td>
-                                '.$szalloda_neve.'
-                                <td>'.htmlspecialchars_decode(htmlspecialchars_decode($bsz['obj_txt'])).$gep_txt.'</td>
-                            </tr>
-                            <tr>
-                                <td>'.$ml_tipus.'</td>
-                                <td'.$colspan.'>'.datum_kiir($bsz['insert_dt']).'</td>
-                                <td>'.$szemelyzet.'</td>
-                            </tr>
-                            </table>
-                         </a>';
+            // Archiv munkalapoknál más tartalom jelenik meg bal oldalt
+            if( $tabla == 'munkalap' ) {
+                $li_tart = '<a class="szamla'.$nohover.'" data-recid="'.$bsz['recid'].'" data-fajl="'.$tabla.'.php" data-muvelet="modosit" title="'.$title.'">
+                                <table'.$bold.'>
+                                <tr>
+                                    <td class="ikonok" rowspan="2" style="width: 4rem; white-space: nowrap;">
+                                        <br>'.$kesz.$dok_icon.$surgos.'&nbsp;
+                                    </td>
+                                    <td style="width: 11rem;" class="ikt_szam">'.$bsz['ikt_szam'].'</td>
+                                    <td style="width: 9rem;">'.getStatText($tabla, $bsz['stat_id'], 'rovid').'</td>
+                                    '.$szalloda_neve.'
+                                    <td>'.htmlspecialchars_decode(htmlspecialchars_decode($bsz['obj_txt'])).$gep_txt.'</td>
+                                </tr>
+                                <tr>
+                                    <td>'.$ml_tipus.'</td>
+                                    <td'.$colspan.'>'.datum_kiir($bsz['insert_dt']).'</td>
+                                    <td>'.$szemelyzet.'</td>
+                                </tr>
+                                </table>
+                            </a>';
+            }
+            // Archiv munkalapoknál az eltárolt szöveges tartalmat írjuk ki és nem ID-ból számolunk vissza
+            if( $tabla == 'munkalap_arch' ) {
+                $li_tart = '<a class="szamla'.$nohover.'" data-recid="'.$bsz['recid'].'" data-fajl="'.$tabla.'.php" data-muvelet="modosit" title="'.$title.'">
+                                <table'.$bold.'>
+                                <tr>
+                                    <td class="ikonok" rowspan="2" style="width: 4rem; white-space: nowrap;">
+                                        <br>'.$kesz.$dok_icon.$surgos.'&nbsp;
+                                    </td>
+                                    <td style="width: 11rem;" class="ikt_szam">'.$bsz['ikt_szam'].'</td>
+                                    <td style="width: 9rem;">'.$bsz['stat_txt'].'</td>
+                                    '.$szalloda_neve.'
+                                    <td>'.htmlspecialchars_decode(htmlspecialchars_decode($bsz['obj_txt'])).$gep_txt.'</td>
+                                </tr>
+                                <tr>
+                                    <td>'.$ml_tipus.'</td>
+                                    <td'.$colspan.'>'.datum_kiir($bsz['insert_dt']).'</td>
+                                    <td>'.$szemelyzet.'</td>
+                                </tr>
+                                </table>
+                            </a>';
+            }
 
 //            $csoport_class = '';
 //            $csoport_data  = '';
@@ -8002,37 +8048,7 @@ function dokumentumtarLista() {
             ';
 
     // Ezen menüpontok dokumentumait járjuk be
-    $menupontok = array(
-                        array('tabla' => 'anyag_szamla',            'nev' => 'Anyag számlák'            ),
-                        array('tabla' => 'anyagigenyles',           'nev' => 'Anyagigénylések'          ),
-                        array('tabla' => 'bejelentes',              'nev' => 'Bejelentések'             ),
-                        array('tabla' => 'beosztas',                'nev' => 'Beosztások'               ),
-                        array('tabla' => 'cikktorzs',               'nev' => 'Cikktörzs'                ),
-                        array('tabla' => 'megallapodas',            'nev' => 'Megállapodás'             ),
-                        array('tabla' => 'megallapodas_szamla',     'nev' => 'Megállapodás számlák'     ),
-                        array('tabla' => 'munkalap',                'nev' => 'Munkalapok'               ),
-                        array('tabla' => 'energia',                 'nev' => 'Energia'                  ),
-                        array('tabla' => 'energia_szamla',          'nev' => 'Energia számlák'          ),
-                        array('tabla' => 'eseti_fenntartas',        'nev' => 'Eseti fenntartás'         ),
-                        array('tabla' => 'eszkozkezeles',           'nev' => 'Eszközkezelés'            ),
-                        array('tabla' => 'fenntartasi_szamla',      'nev' => 'Fenntartási számlák'      ),
-                        array('tabla' => 'fenntartasi_szerzodes',   'nev' => 'Fenntartási szerződések'  ),
-                        array('tabla' => 'fenntartasi_terv',        'nev' => 'Fenntartási terv'         ),
-                        array('tabla' => 'raktar',                  'nev' => 'Raktár'                   ),
-                        array('tabla' => 'tervezes',                'nev' => 'Tervezés'                 ),
-                        array('tabla' => 'utemezett_feladatok',     'nev' => 'Ütemezett feladatokok'    ),
-                        array('tabla' => 'uzemeltetesi_naplo',      'nev' => 'Üzemeltetési napló'       ),
-                        array('tabla' => 'szallito',                'nev' => 'Partnertörzs'             ),
-                        array('tabla' => 'projektigenyles',         'nev' => 'Projektigénylések'        ),
-                        array('tabla' => 'projektigenyles_velemeny','nev' => 'Projektigénylés vélemények'),
-                        array('tabla' => 'projektkezeles',          'nev' => 'Projektkezelés'           ),
-                        array('tabla' => 'projektszamla',           'nev' => 'Projekt számlák'          ),
-                        array('tabla' => 'projektszerzodes',        'nev' => 'Projekt szerződsek'       ),
-                        array('tabla' => 'rendszeres_karbantartas', 'nev' => 'Rendszeres karbantartás'  ),
-                        array('tabla' => 'szamla',                  'nev' => 'Számlák'                  ),
-                        array('tabla' => 'torzsadat',               'nev' => 'Törzsadatok'              ),
-                    );
-
+    $menupontok = get_dokumentumtar_menu();
     foreach ( $menupontok as $menu ) {
 
         $checked = '';
@@ -10748,6 +10764,31 @@ function level_felkeszit_es_kuld( $tabla = '', $recid = '', $ert_pipa = '', $sab
 
         break;
 
+        // Fenntartási számla vissza ügyintézőnek értesítés
+        case 'fenntartasszamla_asszisztens':
+
+            $szamla = $adatbazis_kapcsolat->s2('szla_szam szallito_id', $tabla, "`recid`='{$recid}'");
+            $szamla_tipus = '';
+            switch( $tabla ) {
+                case 'energia_szamla'       : $szamla_tipus = 'Energia számla';     break;
+                case 'anyag_szamla'         : $szamla_tipus = 'Anyag számla';       break;
+                case 'fenntartasi_szamla'   : $szamla_tipus = 'Fenntartási számla'; break;
+            }
+
+            $szallito = getErtek('nev', 'szallito', 'id', $szamla['szallito_id']);
+
+            $mit        = array('{SZAMLA_TIPUS}', '{SZLA_SZAM}',        '{SZALLITO}');
+            $mivel      = array($szamla_tipus,    $szamla['szla_szam'], $szallito   );
+            $uzi = str_replace( $mit, $mivel, fajlbol_olvas('../sablon/admin/mail/'.$cimzett.'.html') );
+
+            // A címzettnél vizsgáljuk az értesítés pipa meglétét is
+            $cimzettek = $adatbazis_kapcsolat->s('nev teljes_nev usermail aktiv virtual szemelyzet_id', 'login', "`aktiv`=1 AND `virtual`=0{$sql_ertesites_kieg}");
+            if( !$cimzettek ) {
+                return false;
+            }
+
+        break;
+
         // Megállapodás számla vissza ügyintézőnek értesítés
         case 'megallapodasszamla_asszisztens':
 
@@ -10767,6 +10808,32 @@ function level_felkeszit_es_kuld( $tabla = '', $recid = '', $ert_pipa = '', $sab
             
             // A címzettnél vizsgáljuk az értesítés pipa meglétét is
             $cimzettek = $adatbazis_kapcsolat->s('nev teljes_nev usermail aktiv virtual szemelyzet_id', 'login', "`aktiv`=1 AND `virtual`=0 {$sql_ertesites_kieg}");
+
+            if( !$cimzettek ) {
+                return false;
+            }
+
+        break;
+
+
+        // Megállapodás számla igazolásra küldésekor
+        case 'megallapodas_szamla_felelose':
+
+            $megallapodas_szamla = $adatbazis_kapcsolat->s2('szla_szam targy telephely_id kcs_21 netto dev_net kapcs_tart', 'megallapodas_szamla', "`recid`='{$recid}'");
+
+            $targy = resz_string($megallapodas_szamla['targy'], 50);
+            // ide ha Ft-os, akkor a Ft, ha devizás, akkor a deviza nettó + pénznem
+            $netto = number_format($megallapodas_szamla['netto'], 0, '', ' ').' '.get_penznem();
+            if( $megallapodas_szamla['kcs_21'] != KCS_21_HUF ) {
+                $netto = number_format($megallapodas_szamla['dev_net'], 2, ',', ' ').' '.erteklista(ERTEKLISTA_PENZNEM, $megallapodas_szamla['kcs_21']);
+            }
+
+            $mit        = array('{SZLA_SZAM}',                      '{SZALLODA}',                                           '{TARGY}', '{NETTO}');
+            $mivel      = array($megallapodas_szamla['szla_szam'],  getSzallodaNev($megallapodas_szamla['telephely_id']),   $targy,    $netto   );
+            $uzi = str_replace( $mit, $mivel, fajlbol_olvas('../sablon/admin/mail/'.$cimzett.'.html') );
+            
+            // A címzettnél vizsgáljuk az értesítés pipa meglétét is
+            $cimzettek = $adatbazis_kapcsolat->s('nev teljes_nev usermail aktiv virtual szemelyzet_id', 'login', "`aktiv`=1 AND `virtual`=0  AND `recid`='{$megallapodas_szamla['kapcs_tart']}'{$sql_ertesites_kieg}");
 
             if( !$cimzettek ) {
                 return false;
@@ -10950,7 +11017,6 @@ function level_felkeszit_es_kuld( $tabla = '', $recid = '', $ert_pipa = '', $sab
             
             // A címzettnél vizsgáljuk az értesítés pipa meglétét is
             $cimzettek = $adatbazis_kapcsolat->s('nev teljes_nev usermail aktiv virtual szemelyzet_id', 'login', "`aktiv`=1 AND `virtual`=0 AND `recid`='{$projektszamla['let_fel']}'{$sql_ertesites_kieg}");
-
             if( !$cimzettek ) {
                 return false;
             }
@@ -11272,10 +11338,30 @@ function level_felkeszit_es_kuld( $tabla = '', $recid = '', $ert_pipa = '', $sab
             $uzi     =  $uzi.fajlbol_olvas('../sablon/admin/mail/alairas.html');
         break;
 
+        case 'fenntartasSzamlaVisszaUi':
+
+            $esemeny =  'fenntartási számla visszaküldésekor ügyintézőnek';
+            $targy   =  get_nev().' fenntartási számla visszaküldve ügyintézőnek';
+            $uzi     =  $uzi.'
+                        <br>'.$extra_szoveg.'
+                        <br>'.fajlbol_olvas('../sablon/admin/mail/alairas.html');
+
+        break;
+
         case 'megallSzamlaVisszaUi':
 
             $esemeny =  'megállapodás számla visszaküldésekor ügyintézőnek';
             $targy   =  get_nev().' megállapodás számla visszaküldve ügyintézőnek';
+            $uzi     =  $uzi.'
+                        <br>'.$extra_szoveg.'
+                        <br>'.fajlbol_olvas('../sablon/admin/mail/alairas.html');
+
+        break;
+
+        case 'megallapodas_szamlaIgazolKuld':
+
+            $esemeny =  'megállapodás számla igazolásra küldésekor';
+            $targy   =  get_nev().' megállapodás számla igazolásra vár';
             $uzi     =  $uzi.'
                         <br>'.$extra_szoveg.'
                         <br>'.fajlbol_olvas('../sablon/admin/mail/alairas.html');
@@ -11757,7 +11843,7 @@ function fenntartasi_terv_energia($sor/* Fenntartás terv sora */) {
         array_push($energia_soridk, $energia['sorid']);
 
         // Ha változtak volna az egységárak, azt felül kell írni
-        if($sor['stat_id']==ENERGIATERV_STAT_MUNKAKOZI){
+        if ($sor['stat_id'] == ENERGIATERV_STAT_MUNKAKOZI) {
             $energia_ear = $adatbazis_kapcsolat->s2('*', 'energia_terv_ear', "`energia_terv_id`='{$energia_terv['recid']}' AND `sorid`='{$energia['sorid']}'");
         }
 
@@ -13927,4 +14013,17 @@ function ml_tetel_szamol ($recid = '') {
         return false;
     }
     return true;
+}
+
+// Tibi küldte mint megoldást arra, hogy egy XML-ben lehessen vizsgálni, mi van egy adott tag-ben
+// xml_vissza() függvényben használjuk
+function get_string_between($string, $start, $end){
+
+    $string = ' ' . $string;
+    $ini = strpos($string, $start);
+    if ($ini == 0) return '';
+    $ini += strlen($start);
+    $len = strpos($string, $end, $ini) - $ini;
+
+    return substr($string, $ini, $len);
 }

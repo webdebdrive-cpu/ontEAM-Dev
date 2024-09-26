@@ -71,9 +71,10 @@ if( $weblap->db_prefix ) {
 }
 
 // Majd a weblap indulhat, ekkor tölthető ki a meta (később már lesz kimenet)
-    require_once('esemenyek.php');	// Ezt ne töröld, még ha üres is, kell, mert különben az admin nem működik
-    require_once('meta.php');
-    require_once('tartalom.php');
+require_once('esemenyek.php');	// Ezt ne töröld, még ha üres is, kell, mert különben az admin nem működik
+require_once('meta.php');
+require_once('tartalom.php');
+
 /**
 *   Többnyelvű oldal esetére egy plusz függvény, amint ki kell venni a függvények tömbből, mert ott a taratlom.php még nem látszik
 *	Get tartalom érték
@@ -106,12 +107,26 @@ if( $_SESSION[get_db_tabla().'user'] ) {
 
 // Archiv bejelentés/munkalap esetén ha nincs szűrés/összetett szűrés, akkor a legfrisseb legyen beállítva (amúgy is van rajta egy limit, ha van más szűrés, de ha nincs beállítva semmi, akkor ez látszik is).
 // FONTOS, hogy ez még itt a szamla_lista() függvény meghívása előtt legyen, mert az már számol ezekkel!
+// A tényleg kifejezetten Archiv modulokkel  kezdjük, mert ha már lesz értéke a $_GET['mezo']-nek, a másik feltételbe nem kerülünk bele
+$archivok2 = array('bejelentes_arch.php', 'munkalap_arch.php');
+if( in_array(basename(self()), $archivok2) && !isset($_GET['mezo']) && !$_SESSION['o_szuro_feltetel'] ) {
+    $_GET['mezo']   = 'legfrissebb';
+    $_GET['op']     = 'equal';
+    if( $_SERVER['HTTP_HOST'] == 'teszt.onteam.hu' ) {
+        $_GET['felt']   = ARCHIV_NAVPANEL_LIMIT2_TESZT;
+    } else {
+        $_GET['felt']   = ARCHIV_NAVPANEL_LIMIT2;
+    }
+}
+
 $archivok = array('anyag_szamla.php', 'bejelentes_arch.php', 'energia_szamla.php', 'fenntartasi_szamla.php', 'fenntartasi_szerzodes.php', 'megallapodas.php', 'megallapodas_szamla.php', 'munkalap_arch.php', 'projektigenyles.php', 'projektkezeles.php', 'projektszamla.php', 'projektszerzodes.php', 'vendegejszakak.php');
 if( in_array(basename(self()), $archivok) && !isset($_GET['mezo']) && !$_SESSION['o_szuro_feltetel'] ) {
     $_GET['mezo']   = 'legfrissebb';
     $_GET['op']     = 'equal';
     $_GET['felt']   = ARCHIV_NAVPANEL_LIMIT;
 }
+
+
 // Anyagrendelések alatt, ha a szerepkör mszk ügyintéző vagy mszk vezető,
 // és nincs szűrve semmire (összetetten sem, ez itt fontos a 0-ás alapértelmezett érték miatt), akkor nem listázunk ki semmit.
 $nullas_szerepkorok = array(MSZK_VEZETO, MUSZAKI_ADMINISZTRATOR);

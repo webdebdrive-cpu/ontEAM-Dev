@@ -1,3 +1,9 @@
+table.csikos td.pop_targy {
+    min-width: 27rem;
+}
+table.csikos td.pop_jogcim_txt {
+    min-width: 24rem;
+}
 table.csikos tr.kijelolve:nth-of-type(2n) {
     background: #55A2FA;
 }
@@ -57,6 +63,26 @@ table.szamla_cont_tabla tr td:nth-last-of-type(2), table.szamla_cont_tabla tr td
 
 .osszevon_targy {
     min-width: 25rem;
+}
+
+table.csikos td.pop_pr_tetel {
+    position: relative;
+}
+
+table.csikos td.pop_pr_tetel.kapcsolt:hover::after {
+    content: '×';
+    color: #fff;
+    background: rgba(255, 0, 0, 0.5);
+    position: absolute;
+    top: 0;
+    left: 0;
+    font-size: 3.2rem;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    width: 100%;
 }
 
 @media only screen and (max-width: 1280px) {

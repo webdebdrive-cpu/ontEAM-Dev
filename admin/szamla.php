@@ -480,7 +480,7 @@ function xml_vissza( $szamla_id ) {
     
     $db_error = false;
     
-    $szamla = $adatbazis_kapcsolat->s2('targy igazolva andoc_id telephely_id kcs_21 kuld_tetel_xml kuld_xml megjegyz kolt_vis igazolva_usr', 'szamla_atmeneti', "`recid`='{$szamla_id}'");
+    $szamla = $adatbazis_kapcsolat->s2('targy igazolva andoc_id telephely_id kcs_21 erk_xml kuld_tetel_xml kuld_xml megjegyz kolt_vis igazolva_usr', 'szamla_atmeneti', "`recid`='{$szamla_id}'");
     if( $szamla === false ) { $db_error = true; }
  
     // Cégkód konverzió
@@ -495,6 +495,19 @@ function xml_vissza( $szamla_id ) {
     $szalloda_klaszter = $szamla['telephely_id'];
     if( $szalloda_klaszter == TELEPHELY_KOZP_CUK ) {
         $szalloda_klaszter = TELEPHELY_KOZP_CUK_MOD;
+    }
+
+    // A NIK3 rész csak akkor kerül bele az XML-be, ha a <form_template_name> TAG-ben NEM 'Műszaki számla' szerepel
+    $nik3 = '';
+    $szamla['erk_xml'] = htmlspecialchars_decode($szamla['erk_xml']);
+    if( get_string_between($szamla['erk_xml'],'<form_template_name>', '</form_template_name>') != 'Műszaki számla' ) {
+        $nik3 = nl2('
+            <container name="NIK3">
+                <row rownumberonpage="1">
+                    <property name="Rögzítendő űrlap típusa">Elutasított</property>
+                </row>
+            </container>
+        ');
     }
 
     $valasz_xml = 'psInputXml=<?xml version="1.0" encoding="utf-8"?>
@@ -514,6 +527,7 @@ function xml_vissza( $szamla_id ) {
             <property name="Teljesítés igazoló személye">'.$_SESSION[get_db_tabla().'teljes_nev'].'</property>
           </row>
         </container>
+        '.$nik3.'
         <container name="IK1">
         </container>
       </properties>

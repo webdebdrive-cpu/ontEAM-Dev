@@ -146,6 +146,17 @@
 
 require_once('header.php');
 
+// if( isset($_GET['varh_ertek_karbantart']) ) {
+//     $szerz_tetelek = $adatbazis_kapcsolat -> s('recid projektszerzodes_recid dev_ertek dev_varh_ert', 'projektszerzodes_tetel', "`dev_ertek`!='0.00'");
+//     foreach ($szerz_tetelek as $tetel) {
+//         $pr_szerzodes = $adatbazis_kapcsolat -> s2('arfolyam', 'projektszerzodes', "`recid`='{$tetel['projektszerzodes_recid']}'");
+//         $ertek      = round($pr_szerzodes['arfolyam']*$tetel['dev_ertek']   );
+//         $varh_ert   = round($pr_szerzodes['arfolyam']*$tetel['dev_varh_ert']);
+//         $adatbazis_kapcsolat -> u('projektszerzodes_tetel', array('ertek', 'varh_ert'), array($ertek, $varh_ert), "`recid`='{$tetel['recid']}'");
+//         echo $adatbazis_kapcsolat -> gp().'<br>';
+//     }
+// }
+
 require_once('dashboard.php');
 
 require_once('footer.php');

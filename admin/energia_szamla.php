@@ -431,14 +431,16 @@ if( isset($_POST['energiaSzamlaVisszaUi']) ) {
 
     if( !$db_error ) {
         mysqli_commit($db_kapcs);
-        echo json_encode( array('siker' => 1 ) );
     } else {
         mysqli_rollback($db_kapcs);
-        echo json_encode(array(
-            'hiba'  => tranzakcioHiba(),
-            'title' => 'Hiba'
-        ));
     }
+
+    // Levélküldés
+    level_felkeszit_es_kuld('energia_szamla', $_POST['recid'], ERT_MUSZUGY_VISSZAADAS, 'fenntartasSzamlaVisszaUi', 'fenntartasszamla_asszisztens');
+
+    echo json_encode(array(
+        'siker' => 1,
+    ));
     
     $weblap -> leallit();
     exit;
@@ -555,9 +557,9 @@ if( isset($_POST['pop_tetelek_feltolt']) ) {
             $_SESSION['energia_szla_tetel_recid'][$fej_id][$i] = time().rand(0, 1000);
         }
 
-        $jogcim  = $adatbazis_kapcsolat->s2('jogcim', 'jogcim',     "`recid`='{$_SESSION['energia_szla_tetel_jogcim' ][$fej_id][$i]}'");
-        $afakod  = $adatbazis_kapcsolat->s2('afa kod','afakod',     "`recid`='{$_SESSION['energia_szla_tetel_afakod' ][$fej_id][$i]}'");
-        $dijelem = $adatbazis_kapcsolat->s2('info',   'erteklista', "`recid`='{$_SESSION['energia_szla_tetel_dijelem'][$fej_id][$i]}'");
+        $jogcim  = $adatbazis_kapcsolat->s2('jogcim',       'jogcim',     "`recid`='{$_SESSION['energia_szla_tetel_jogcim' ][$fej_id][$i]}'");
+        $afakod  = $adatbazis_kapcsolat->s2('nev afa kod',  'afakod',     "`recid`='{$_SESSION['energia_szla_tetel_afakod' ][$fej_id][$i]}'");
+        $dijelem = $adatbazis_kapcsolat->s2('info',         'erteklista', "`recid`='{$_SESSION['energia_szla_tetel_dijelem'][$fej_id][$i]}'");
         $aranyos = '';
         if( $_SESSION['energia_szla_tetel_aranyos'][$fej_id][$i] ) {
             $aranyos .= '✓';
@@ -622,13 +624,19 @@ if( isset($_POST['pop_tetelek_feltolt']) ) {
                             '.$tovabbi_oszlopok2.'
                             <td class="nowrap">'.$afakod['afa'].'</td>
                             <td>
+                                <a class="szerk" onclick="popup_tetel_sor_szerk(\'pop_tetel_'.$_SESSION['energia_szla_tetel_recid'][$fej_id][$i].'\');">
+                                    🖉
+                                </a>
+                            </td>
+                            <td>
                                 '.$torles.'
-                                <input type="hidden" class="pop_afa" name="pop_afakod_id" value="'.$_SESSION['energia_szla_tetel_afakod'][$fej_id][$i].'">
-                                <input type="hidden" class="pop_jogcim" name="pop_jogcim_id" value="'.$_SESSION['energia_szla_tetel_jogcim'][$fej_id][$i].'">
-                                <input type="hidden" class="pop_dijelem" name="pop_dijelem_id" value="'.$_SESSION['energia_szla_tetel_dijelem'][$fej_id][$i].'">
-                                <input type="hidden" class="tetel_nullas" value="'.$_SESSION['energia_szla_tetel_nullas'][$fej_id][$i].'">
-                                <input type="hidden" class="pop_valtozott" value="'.$_SESSION['energia_szla_tetel_valtozott'][$fej_id][$i].'">
-                                <input type="hidden" class="pop_recid" name="recid" value="'.$_SESSION['energia_szla_tetel_recid'][$fej_id][$i].'">
+                                <input type="hidden" class="pop_afakod_autocomp" name="afakod" value="' .$afakod['nev']                                   .'">
+                                <input type="hidden" class="pop_afa" name="pop_afakod_id" value="'      .$_SESSION['energia_szla_tetel_afakod'      ][$fej_id][$i].'">
+                                <input type="hidden" class="pop_jogcim" name="pop_jogcim_id" value="'   .$_SESSION['energia_szla_tetel_jogcim'      ][$fej_id][$i].'">
+                                <input type="hidden" class="pop_dijelem" name="pop_dijelem_id" value="' .$_SESSION['energia_szla_tetel_dijelem'     ][$fej_id][$i].'">
+                                <input type="hidden" class="tetel_nullas" value="'                      .$_SESSION['energia_szla_tetel_nullas'      ][$fej_id][$i].'">
+                                <input type="hidden" class="pop_valtozott" value="'                     .$_SESSION['energia_szla_tetel_valtozott'   ][$fej_id][$i].'">
+                                <input type="hidden" class="pop_recid" name="recid" value="'            .$_SESSION['energia_szla_tetel_recid'       ][$fej_id][$i].'">
                             </td>
                         </tr>');
         $i++;
@@ -2340,7 +2348,7 @@ function xml_vissza( $szamla_id, $igazolva = '', $oka = '' ) {
     
     $db_error = false;
     
-    $szamla = $adatbazis_kapcsolat->s2('ikt_szam targy igazolva andoc_id telephely_id kcs_21 kuld_tetel_xml kuld_xml megjegyz kolt_vis igazolva_usr', 'energia_szamla', "`recid`='{$szamla_id}'");
+    $szamla = $adatbazis_kapcsolat->s2('ikt_szam targy igazolva andoc_id telephely_id kcs_21 erk_xml kuld_tetel_xml kuld_xml megjegyz kolt_vis igazolva_usr', 'energia_szamla', "`recid`='{$szamla_id}'");
     if( $szamla === false ) { $db_error = true; }
     
     // Cégkód konverzió
@@ -2428,6 +2436,19 @@ function xml_vissza( $szamla_id, $igazolva = '', $oka = '' ) {
     if( $szalloda_klaszter == TELEPHELY_ZAMARDI ) {
         $szalloda_klaszter = TELEPHELY_ZAMARDI_MOD;
     }
+
+    // A NIK3 rész csak akkor kerül bele az XML-be, ha a <form_template_name> TAG-ben NEM 'Műszaki számla' szerepel
+    $nik3 = '';
+    $szamla['erk_xml'] = htmlspecialchars_decode($szamla['erk_xml']);
+    if( get_string_between($szamla['erk_xml'],'<form_template_name>', '</form_template_name>') != 'Műszaki számla' ) {
+        $nik3 = nl2('
+            <container name="NIK3">
+                <row rownumberonpage="1">
+                    '.$urlap_tipus.'
+                </row>
+            </container>
+        ');
+    }
     
     $valasz_xml = 'psInputXml=<?xml version="1.0" encoding="utf-8"?>
 <xml>
@@ -2450,11 +2471,7 @@ function xml_vissza( $szamla_id, $igazolva = '', $oka = '' ) {
             .']]></property>
           </row>
         </container>
-        <container name="NIK3">
-            <row rownumberonpage="1">
-                '.$urlap_tipus.'
-            </row>
-        </container>
+        '.$nik3.'
         <container name="IK1">
           '.$szamla['kuld_tetel_xml']/*Ennek előállítását ha meg szeretnéd nézni, keres rá erre: "$_POST['osszevon_targy_kitoltve_ell']"*/.'
         </container>

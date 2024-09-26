@@ -73,6 +73,14 @@ function megallapodas_hozzaad_gomb_hozzaad_vagy_torol() {
                         } else {
                             $('#sz_szam').removeClass('mod');
                         }
+
+                        $('#kapcs_tart_autocomp').val('');
+                        $('#kapcs_tart').val('');
+                        if( $('#kapcs_tart_autocomp').attr('value') ){
+                            $('#kapcs_tart_autocomp').addClass('mod');
+                        } else {
+                            $('#kapcs_tart_autocomp').removeClass('mod');
+                        }
                         
                         $('#szerzodes_neve').html('');
 

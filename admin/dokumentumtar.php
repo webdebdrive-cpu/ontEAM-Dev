@@ -80,6 +80,19 @@ require_once('selectek.php');
         list($tabla, $konyvtar) = explode('/', $_GET['konyvtar']);
         $post   = '_dok';
         $apa_id = $tabla.'_id';
+
+        $menupontok = get_dokumentumtar_menu();
+        foreach ($menupontok as $menu) {
+            if( $menu['tabla'] == $tabla ) {
+                $fajlok_html .= nl2('
+                    <div id="szamlaFulek" class="szamlaFulek clearFix">
+                        <h2>
+                            '.$menu['nev'].'<br>'.$konyvtar.' dokumentumai
+                        </h2>
+                    </div>
+                ');
+            }
+        }
         
         // Projektigénylés véleményél nincs _dok postfix
         if($tabla=='projektigenyles_velemeny'){
@@ -87,7 +100,7 @@ require_once('selectek.php');
             $apa_id = 'projektigenyles_recid';
         }
         $fajlok = $adatbazis_kapcsolat->s('recid '.$apa_id.' utvonal fajlnev', $tabla.$post, "`utvonal` LIKE '$konyvtar%'", 'fajlnev');
-        foreach($fajlok as $fajl){
+        foreach ($fajlok as $fajl) {
 
             $kep_utvonal = '../'.get_utvonal().$tabla.'/'.$fajl['utvonal'];
             if(is_file($kep_utvonal)){
@@ -120,7 +133,7 @@ require_once('selectek.php');
                             </a>
                         </div>
                         <div class="nagyit">
-                            <a href="'.$link.'" target="_blank" title="Ugrás menüpontra">
+                            <a href="'.$link.'" target="_blank" title="Ugrás a dokumentum forrásához">
                                 <i class="material-icons">list</i>
                             </a>
                         </div>

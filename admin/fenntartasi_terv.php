@@ -2257,8 +2257,9 @@ if (isset($_POST['valtozas_jovahagyas'])) {
                 $i = '0'.$i;
             }
             if($energia_ear['ear'.$i]!=$energia['ear'.$i]){
-                array_push($valtozott_oszlop, 'ear'.$i              );
-                array_push($valtozott_ertek,  $energia_ear['ear'.$i]);
+                $ft_i = $energia_ear['ear'.$i]*$energia['em'.$i];
+                array_push($valtozott_oszlop, 'ear'.$i,               'ft'.$i   );
+                array_push($valtozott_ertek,  $energia_ear['ear'.$i], $ft_i     );
             }
         }
         array_push($valtozott_oszlop, 'dijelem'              );

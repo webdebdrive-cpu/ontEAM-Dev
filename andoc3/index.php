@@ -1,6 +1,5 @@
 <?php
 // Ez a fájl az andoc.php-ban megírt webservice osztályt futtatja
-// Hiába van ez az andoc3 mappában, akkor is az andoc2 mappában levő andoc.php fut!!!
 require_once '../weblap.php';
 
 header('Content-Type: text/html; charset='.get_web_charset());

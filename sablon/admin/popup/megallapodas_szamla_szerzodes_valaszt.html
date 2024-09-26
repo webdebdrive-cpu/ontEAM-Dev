@@ -77,6 +77,10 @@ function megallapodas_szerzodes_kivalaszt(){
     /* Projekt tárgyat is írjuk ki */
     $('#szerzodes_neve').html( $('#megallapodas_szerzodes_tablazat tr.kijelolve div.targy_txt').html() );
     
+    $('#kapcs_tart_autocomp').val( $('#megallapodas_szerzodes_tablazat tr.kijelolve div.kapcs_tart_txt').html() );
+    $('#kapcs_tart_autocomp').addClass('mod');
+    $('#kapcs_tart').val( $('#megallapodas_szerzodes_tablazat tr.kijelolve').data('kapcs_tart') );
+
     /* Költségviselő kiválasztása */
     /*
     Újabban ez importból jön

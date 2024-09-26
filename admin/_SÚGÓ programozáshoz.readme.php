@@ -74,7 +74,7 @@ SZŰRÉS LEKEZELÉSE:
 
 SORREDEZÉS
 - Az A-Z és Z-A-t az admin.js bejegyzesekLista() függvény vége állítja. Illetve a header.php, maikor betölt az oldal.
-- A kilsitázott tételek valódi sorrendjét a fuggvenyek.php -ban szamla_lista() függvény elején kerül beállításra
+- A kilistázott tételek valódi sorrendjét a fuggvenyek.php -ban szamla_lista() függvény elején kerül beállításra
 - Az esemenyek.php -ban a rendezhető mezőknél az alapértelmezett irányt is meg tudod adni egy tömbben, de nem kötelező (ha nincs, akkor marad ami volt). 
 - Az, hogy a Rendezés lenyílóban miként jelenjen meg egy mező, azt a getOszlopNev() függvényben lehet megadni
  

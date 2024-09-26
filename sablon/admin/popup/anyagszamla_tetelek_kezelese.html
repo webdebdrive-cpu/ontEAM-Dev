@@ -5,26 +5,64 @@
     <style type="text/css">        
         #osszesito {
             display: grid;
-            grid-template-columns: 20rem 14rem;
+            grid-template-columns: 20rem 14rem 16rem;
+            margin-bottom: 2rem;
+            font-weight: 600;
         }
     </style>
     <div id="osszesito">
         <div>
-            Számla nettó érték:
+        </div>
+        <div class="r" style="padding-right: 2rem;">
+            <b>
+                Nettó
+            </b>
+        </div>
+        <div class="r" style="padding-right: 2rem;">
+            <b>
+                Bruttó
+            </b>
+        </div>
+
+        <div>
+            Számla összege:
         </div>
         <div class="r">
             <b>
                 <span id="osszesito_netto"></span>
-                <span class="f_penznem"></span>
             </b>
         </div>
+        <div class="r">
+            <b>
+                <span id="osszesito_brutto"></span>
+            </b>
+        </div>
+
         <div id="konyveles_tetel_txt">
-            Tételek nettó érték:
+            Tételek összege:
         </div>
         <div class="r">
             <b>
                 <span id="osszesito_tetelek"></span>
-                <span class="f_penznem"></span>
+            </b>
+        </div>
+        <div class="r">
+            <b>
+                <span id="osszesito_tetelek_br"></span>
+            </b>
+        </div>
+        
+        <div id="konyveles_tetel_txt">
+            Különbség:
+        </div>
+        <div class="r">
+            <b>
+                <span id="osszesito_kulonbseg"></span>
+            </b>
+        </div>
+        <div class="r">
+            <b>
+                <span id="osszesito_kulonbseg_br"></span>
             </b>
         </div>
     </div>
@@ -309,7 +347,7 @@
                     <th class="eltereskor_rejt">Költségnem</th>
                     <th class="eltereskor_rejt">Költséghely</th>
                     <th class="eltereskor_rejt">Anyagrendelés</th>
-                    <!--<th>Szerkesztés</th>-->
+                    <th>Szerkesztés</th>
                     <th id="pop_torles_pipa">Törlés</th>
                 </tr>
                 </thead>
@@ -540,7 +578,7 @@ function tetel_hozzaadasa() {
                                         '<td class="l pop_ktgnem_autocomp">'+ktgnem_txt+'</td>' +
                                         '<td class="l pop_ktghely_autocomp">'+ktghely_txt+ '</td>' +
                                         '<td>'+rndid+'</td>' +
-                                        /*'<td><a class="szerk" onclick="popup_tetel_sor_szerk(\'pop_tetel_'+id_tmp+'\');">🖉</a></td>' +*/
+                                        '<td><a class="szerk" onclick="popup_tetel_sor_szerk(\'pop_tetel_'+id_tmp+'\');">🖉</a></td>' +
                                         '<td><a onclick="popup_tetel_sor_torol(\'pop_tetel_'+id_tmp+'\', \'\', \'-fiktív sor-\');"><span class="icon"><i class="material-icons">delete</i></span></a>'+
                                             '<input type="hidden" class="pop_rndid" name="pop_rndid" value="'+rndid+'">' +
                                             '<input type="hidden" class="pop_rnd_recid" name="pop_rnd_recid" value="'+rnd_recid+'">' +
@@ -651,19 +689,25 @@ function popup_tetel_sor_torol(sor_id, mehet, fiktiv_sor = ''){
 function popup_tetel_sor_szerk(sor_id){
     
     /* Sor törlése, újraszámolás */
-    $('#pop_cikktorzs').val( $('.'+sor_id+' .pop_cikktorzs').html() );
-    $('#pop_szall_csz').val( $('.'+sor_id+' .pop_szall_csz').html() );
-    $('#pop_cikktorzs_id').val( $('.'+sor_id+' .pop_cik ktorzs_id').html() );
-    $('#pop_cikkmee').val( $('.'+sor_id+' .pop_cikkmee').html() );
-    $('#pop_ertek').val( $('.'+sor_id+' .pop_netto').html() );
-    $('#pop_brutto').val( $('.'+sor_id+' .pop_brutto').html() );
-    $('#jogcim_id_autocomp').val( $('.'+sor_id+' .pop_jogcim_autocomp').html() );
-    $('#jogcim_id').val( $('.'+sor_id+' .pop_jogcim').val() );
-    $('#ktgnem_id_autocomp').val( $('.'+sor_id+' .pop_ktgnem_autocomp').html() );
-    $('#ktgnem_id').val( $('.'+sor_id+' .pop_ktgnem').val() );
-    $('#ktghely_id_autocomp').val( $('.'+sor_id+' .pop_ktghely_autocomp').html() );
-    $('#ktghely_id').val( $('.'+sor_id+' .pop_ktghely').val() );
-    $('#tetel_sor_id').val( sor_id.replace('pop_tetel_', '') );
+    $('#cikktorzs_id_autocomp'  ).val( $('.'+sor_id+' .pop_cikktorzs'       ).html() );
+    $('#pop_cikktorzs_id'       ).val( $('.'+sor_id+' .pop_cikktorzs_id'    ).html() );
+    $('#szall_csz'              ).val( $('.'+sor_id+' .pop_szall_csz'       ).html() );
+    $('#cikktorzs_onteam_id'    ).val( $('.'+sor_id+' .pop_cikktorzs_id'    ).html() );
+    $('#cikktorzs_onteam_id'    ).val( $('.'+sor_id+' .pop_cikktorzs_id'    ).html() );
+    $('#cikkmee'                ).val( $('.'+sor_id+' .pop_cikkmee'         ).html() );
+    $('#pop_rndmen'             ).val( $('.'+sor_id+' .pop_rndmen'          ).html() );
+    $('#pop_rndear'             ).val( $('.'+sor_id+' .pop_rndear'          ).html() );
+    $('#afakod_id_autocomp'     ).val( $('.'+sor_id+' .pop_afakod_autocomp' ).val()  );
+    $('#afakod_id'              ).val( $('.'+sor_id+' .pop_afakod'          ).val()  );
+    $('#pop_ertek'              ).val( $('.'+sor_id+' .pop_netto'           ).html() );
+    $('#pop_brutto'             ).val( $('.'+sor_id+' .pop_brutto'          ).html() );
+    $('#jogcim_id_autocomp'     ).val( $('.'+sor_id+' .pop_jogcim_autocomp' ).html() );
+    $('#jogcim_id'              ).val( $('.'+sor_id+' .pop_jogcim'          ).val()  );
+    $('#ktgnem_id_autocomp'     ).val( $('.'+sor_id+' .pop_ktgnem_autocomp' ).html() );
+    $('#ktgnem_id'              ).val( $('.'+sor_id+' .pop_ktgnem'          ).val()  );
+    $('#ktghely_id_autocomp'    ).val( $('.'+sor_id+' .pop_ktghely_autocomp').html() );
+    $('#ktghely_id'             ).val( $('.'+sor_id+' .pop_ktghely'         ).val()  );
+    $('#tetel_sor_id'           ).val( sor_id.replace('pop_tetel_', '')              );
     
     $('#hozzaad_gomb').val('Tétel szerkesztése');
     
@@ -886,8 +930,8 @@ function pop_tetelek_feltolt(){
                     $('#pop_torles_pipa').html('Pipa');
                 }
                 
-                $('#ajax_css').html(response.css);
                 tetel_netto_osszeszamol();
+                $('#ajax_css').html(response.css);
             }
         },
         complete: function(xhr) {
@@ -901,12 +945,14 @@ function pop_tetelek_feltolt(){
 /* Tételek nettó értékét számoljuk össze */
 function tetel_netto_osszeszamol() {
     
-    /* Számla nettójának kiszámítsa */
-    var osszeg_mezo = 'netto';
-    var tizedesek   = 0;
+    /* Számla nettójának/bruttójának kiszámítsa */
+    var osszeg_mezo     = 'netto';
+    var osszeg_mezo_br  = 'brutto';
+    var tizedesek       = 0;
     if( akt_penznem && akt_penznem != 'HUF' ) {
-        osszeg_mezo = 'dev_net';
-        tizedesek   = 2;
+        osszeg_mezo     = 'dev_net';
+        osszeg_mezo_br  = 'dev_br';
+        tizedesek       = 2;
     }
 
     if( $('#'+osszeg_mezo).length ){
@@ -914,12 +960,22 @@ function tetel_netto_osszeszamol() {
     } else {
         szamla_netto_erte = $('#'+osszeg_mezo+'_db').val().replace(/ /g, '').replace(/,/g, '.');
     }
-    $('#osszesito_netto').html( ezresek(szamla_netto_erte, tizedesek, ',', ' ', '-nullát is-') );
+    $('#osszesito_netto').html( ezresek(szamla_netto_erte, tizedesek, ',', ' ', '-nullát is-')+' '+akt_penznem );
     
-    var osszesen = 0;
-    var css_class = '.pop_netto';
+    if( $('#'+osszeg_mezo_br).length ){
+        szamla_brutto_erte = $('#'+osszeg_mezo_br).val().replace(/ /g, '').replace(/,/g, '.');
+    } else {
+        szamla_brutto_erte = $('#'+osszeg_mezo_br+'_db').val().replace(/ /g, '').replace(/,/g, '.');
+    }
+    $('#osszesito_brutto').html( ezresek(szamla_brutto_erte, tizedesek, ',', ' ', '-nullát is-')+' '+akt_penznem );
+    
+    /* Számla tételeinek a nettó/bruttó kiszámítsa */
+    var osszesen = osszesen_br = 0;
+    var css_class    = '.pop_netto';
+    var css_class_br = '.pop_brutto';
     if( $('.pop_dev_net').length ) {
-        css_class = '.pop_dev_net';
+        css_class    = '.pop_dev_net';
+        css_class_br = '.pop_dev_br';
     }
 
     $(css_class).each(function() {
@@ -928,7 +984,30 @@ function tetel_netto_osszeszamol() {
             osszesen += Number($(this).html().replace(/\s/g, '').replace(',', '.'));
         }
     });
-    $('#osszesito_tetelek').html(number_format(osszesen, tizedes, ',', ' ', '-nullát is írd ki-'));
+    $('#osszesito_tetelek').html(number_format(osszesen, tizedes, ',', ' ', '-nullát is írd ki-')+' '+akt_penznem);
+
+    $(css_class_br).each(function() {
+        pipalo = $(this).parent().find('.pop_pipalo');
+        if( pipalo.hasClass('zold') || !tetelek_szama_elter ) {
+            osszesen_br += Number($(this).html().replace(/\s/g, '').replace(',', '.'));
+        }
+    });
+    $('#osszesito_tetelek_br').html(number_format(osszesen_br, tizedes, ',', ' ', '-nullát is írd ki-')+' '+akt_penznem);
+    
+    /* Különbség kiszámítása */
+    var kulonbseg = Number(szamla_netto_erte) - Number(osszesen);
+    $('#osszesito_kulonbseg').html(number_format(kulonbseg, tizedes, ',', ' ', '-nullát is írd ki-')+' '+akt_penznem);
+    $('#osszesito_kulonbseg').removeClass('piros');
+    if( kulonbseg!=0 && kulonbseg!='0,00' ) {
+        $('#osszesito_kulonbseg').addClass('piros');
+    }
+
+    var kulonbseg_br = Number(szamla_brutto_erte) - Number(osszesen_br);
+    $('#osszesito_kulonbseg_br').html(number_format(kulonbseg_br, tizedes, ',', ' ', '-nullát is írd ki-')+' '+akt_penznem);
+    $('#osszesito_kulonbseg_br').removeClass('piros');
+    if( kulonbseg_br!=0 && kulonbseg_br!='0,00' ) {
+        $('#osszesito_kulonbseg_br').addClass('piros');
+    }
 }
 
 /* Rendelés tételek kiválasztása */

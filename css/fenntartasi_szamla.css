@@ -59,6 +59,15 @@ table.szamla_cont_tabla tr td:nth-last-of-type(2), table.szamla_cont_tabla tr td
     min-width: 25rem;
 }
 
+#popup div.popup_tart table.csikos button.piros {
+    background: #C44B4B;
+    font-size: 1.1rem;
+}
+#popup div.popup_tart table.csikos button.piros:hover {
+    background: #D35454;
+}
+
+
 @media only screen and (max-width: 1280px) {
     div.naplo div.nFejlec div.dtc.pipa {
         padding: 0rem 0.5rem;

@@ -35,6 +35,29 @@ if( $tobb_kep ) {
 
 }
 
+// Számla tétel kapcsolás törlés
+if (isset($_POST['kapcsolas_torol'])) {
+
+    // Szerződés tételnél is törlünk adatokat
+    $tetel = $adatbazis_kapcsolat->s2('fenntartasi_szerzodes_tetel_recid', 'fenntartasi_szamla_tetel', "`recid`='{$_POST['id']}'");
+    if( $tetel === false ) { $db_error = true; }
+    $sql = $adatbazis_kapcsolat->u('fenntartasi_szerzodes_tetel',   array('netto_ert', 'dev_net', 'telj_dt'    ),
+                                                                    array('0',         '0.00',    '0000-00-00' ),
+                                                        "`recid`='{$tetel['fenntartasi_szerzodes_tetel_recid']}'");
+    if( $sql === false ) { $db_error = true; }
+    
+    // Majd töröljük magát a kapcsolatot is
+    $adatbazis_kapcsolat -> u('fenntartasi_szamla_tetel', array('fenntartasi_szerzodes_tetel_recid'), array('0'), "`recid`='{$_POST['id']}'");
+    $_SESSION['fennt_szla_szerzodes_recid'][$_POST['fej_id']][$_POST['i']] = '';
+    
+    echo json_encode(array(
+                             'ok'  => '1',
+                     ));
+
+    $weblap -> leallit();
+    exit;
+}
+
 // Számla küldése igazolásra előtt a tételeket csoportosítjuk
 if( isset($_POST['kuldes_igazolasra_csoportosit']) ) {
     
@@ -439,11 +462,32 @@ if( isset($_POST['fenntartasiSzamlaVisszaUi']) ) {
     }
     
     // Visszaküldés SQL-je
-    $sql = $adatbazis_kapcsolat->u('fenntartasi_szamla', array('feldolgozva_dt',      'feldolgozva_usr'  ),
-                                                         array('0000-00-00 00:00:00', ''                 ),
-                                                         "`recid`='{$_POST['recid']}'");
+    $mezo   = array('feldolgozva_dt',      'feldolgozva_usr');
+    $ertek  = array('0000-00-00 00:00:00', ''               );
+    // Műszaki vezető szerepkör esetén a számlaszámot is ürítjük
+    // if( $_SESSION[get_db_tabla().'szemelyzet_id'] == MUSZAKI_VEZETO ) {
+    //     array_push($mezo,  'sz_szam');
+    //     array_push($ertek, ''       );
+    // }
+    $sql = $adatbazis_kapcsolat->u('fenntartasi_szamla', $mezo, $ertek, "`recid`='{$_POST['recid']}'");
     if( $sql === false ) { $db_error = true; }
     
+    // A számlatételek és szerződés tételek közötti kapcsolatot is töröljük
+    $szamla_tetelek = $adatbazis_kapcsolat -> s('fenntartasi_szerzodes_tetel_recid', 'fenntartasi_szamla_tetel', "`fenntartasi_szamla_recid`='{$_POST['recid']}'");
+    if( $szamla_tetelek === false ) { $db_error = true; }
+    // Először is a szerződés tételeknél is törtéik egy adat nullázás
+    foreach ($szamla_tetelek as $szamla_tetel) {
+        if( $szamla_tetel['fenntartasi_szerzodes_tetel_recid'] ) {
+            $sql = $adatbazis_kapcsolat -> u('fenntartasi_szerzodes_tetel', array('telj_dt',    'netto_ert', 'dev_net'),
+                                                                            array('0000-00-00', '0',         '0.00'   ),
+                                            "`recid`='{$szamla_tetel['fenntartasi_szerzodes_tetel_recid']}'");
+            if( $sql === false ) { $db_error = true; }
+        }
+    }
+    // Majd a tényleges kapcsolat bontás
+    $sql = $adatbazis_kapcsolat -> u('fenntartasi_szamla_tetel', array('fenntartasi_szerzodes_tetel_recid'), array(0), "`fenntartasi_szamla_recid`='{$_POST['recid']}'");
+    if( $sql === false ) { $db_error = true; }
+
     // Könyvelés tételeket ekkor töröljük
     $sql = $adatbazis_kapcsolat -> d('fenntartasi_szamla_konyveles', "`fenntartasi_szamla_recid`='{$_POST['recid']}'");
     if( $sql === false ) { $db_error = true; }
@@ -455,14 +499,16 @@ if( isset($_POST['fenntartasiSzamlaVisszaUi']) ) {
                                                 
     if( !$db_error ) {
         mysqli_commit($db_kapcs);
-        echo json_encode( array('siker' => 1 ) );
     } else {
         mysqli_rollback($db_kapcs);
-        echo json_encode(array(
-            'hiba'  => tranzakcioHiba(),
-            'title' => 'Hiba'
-        ));
     }
+
+    // Levélküldés
+    level_felkeszit_es_kuld('fenntartasi_szamla', $_POST['recid'], ERT_MUSZUGY_VISSZAADAS, 'fenntartasSzamlaVisszaUi', 'fenntartasszamla_asszisztens');
+
+    echo json_encode(array(
+        'siker' => 1,
+    ));
     
     $weblap -> leallit();
     exit;
@@ -569,7 +615,7 @@ if( isset($_POST['pop_tetelek_feltolt']) ) {
     foreach( $_SESSION['fennt_szla_tetel_targy'][$fej_id] as $targy ) {
         
         $szla_netto_ert = $_SESSION[$session_mezo][$fej_id][$i];
-        $torles = '';
+        $torles = $szerkeszt = '';
         // Ha eltérő tételek volnának, akkor a törlés ikon helyett "zöld pipa/piros x"-eket jelenítünk meg
         if( $szamla['tetel_elter'] ) {
             if( $_SESSION['fennt_szla_tetel_kifizetes'][$fej_id][$i] ) {
@@ -579,6 +625,9 @@ if( isset($_POST['pop_tetelek_feltolt']) ) {
             }
         // Törlés ikon, ha nem Andoc-os a tétel
         } else if( !$_SESSION['fennt_szla_tetel_andocos'][$fej_id][$i] ) {
+            $szerkeszt = nl2('
+                <a class="szerk" onclick="popup_tetel_sor_szerk(\'pop_tetel_'.$_SESSION['fennt_szla_tetel_recid'][$fej_id][$i].'\');">🖉</a>
+            ');
             $torles = '
                         <a onclick="popup_tetel_sor_torol(\'pop_tetel_'.$_SESSION['fennt_szla_tetel_recid'][$fej_id][$i].'\');">
                             <span class="icon">
@@ -595,11 +644,11 @@ if( isset($_POST['pop_tetelek_feltolt']) ) {
             $_SESSION['fennt_szla_tetel_recid'][$fej_id][$i] = time().rand(0, 1000);
         }
         
-        $jogcim  = $adatbazis_kapcsolat->s2('jogcim ktghely megn',  'jogcim',     "`recid`='{$_SESSION['fennt_szla_tetel_jogcim' ][$fej_id][$i]}'");
-        $afakod  = $adatbazis_kapcsolat->s2('afa kod',              'afakod',     "`recid`='{$_SESSION['fennt_szla_tetel_afakod' ][$fej_id][$i]}'");
-        $dijelem = $adatbazis_kapcsolat->s2('info',                 'erteklista', "`recid`='{$_SESSION['fennt_szla_tetel_dijelem'][$fej_id][$i]}'");
+        $jogcim  = $adatbazis_kapcsolat->s2('jogcim ktghely megn szla_szam',    'jogcim',     "`recid`='{$_SESSION['fennt_szla_tetel_jogcim' ][$fej_id][$i]}'");
+        $afakod  = $adatbazis_kapcsolat->s2('nev afa kod',                      'afakod',     "`recid`='{$_SESSION['fennt_szla_tetel_afakod' ][$fej_id][$i]}'");
+        $dijelem = $adatbazis_kapcsolat->s2('info',                             'erteklista', "`recid`='{$_SESSION['fennt_szla_tetel_dijelem'][$fej_id][$i]}'");
         
-        $class = $targy = $pr_tetel = '';
+        $class = $targy = $pr_tetel = $kapcsolat_bontas = '';
         if( $_SESSION['fennt_szla_tetel_kifizetes'][$fej_id][$i] ) {
             $class = ' piros';
         }
@@ -609,8 +658,9 @@ if( isset($_POST['pop_tetelek_feltolt']) ) {
 
         if( $pr_tetel ) {
             $targy = htmlspecialchars_decode( $pr_tetel['targy'] );
-            $class  = ''; // ' szerzodes_szamla_tetel_szurke'
-            $torles = '';
+            $class              = ''; // ' szerzodes_szamla_tetel_szurke'
+            $torles             = '';
+            $kapcsolat_bontas   = '<button type="button" class="piros" onclick="kapcsolas_torol(\''.$_SESSION['fennt_szla_tetel_recid'][$fej_id][$i].'\', \''.$fej_id.'\', \''.$i.'\')">Kapcsolat bontása</button>';
         } else {
             if( $_SESSION['fennt_szla_tetel_recid'][$fej_id][$i] ) {
                 $targy = '<input type="button" class="gomb" value="kapcsolás" onclick="kapcsolas_popup_nyit(\''.$_SESSION['fennt_szla_tetel_recid'][$fej_id][$i].'\');">';
@@ -648,9 +698,10 @@ if( isset($_POST['pop_tetelek_feltolt']) ) {
                                         <td class="pop_jogcim_autocomp l">' .$jogcim['jogcim'].'</td>
                                         <td class="pop_ktgnem_autocomp l">' .$jogcim['megn'].'</td>
                                         <td class="pop_ktghely_autocomp l">'.$jogcim['ktghely'].'</td>
-                                        <td>
+                                        <td class="pop_sz_tetel'.$kapcsolt_class.'">
                                             '.$targy.'
                                         </td>
+                                        <td class="kapcs_bont">'.$kapcsolat_bontas.'</td>
                                 ');
         }
         
@@ -659,11 +710,15 @@ if( isset($_POST['pop_tetelek_feltolt']) ) {
                             '.$tovabbi_oszlopok.'
                             '.$tovabbi_oszlopok2.'
                             <td>
+                                '.$szerkeszt.'
+                            </td>
+                            <td>
                                 '.$torles.'
-                                <input type="hidden" class="pop_afa" name="pop_afakod_id" value="'.$_SESSION['fennt_szla_tetel_afakod'][$fej_id][$i].'">
-                                <input type="hidden" class="pop_jogcim" name="pop_jogcim_id" value="'.$_SESSION['fennt_szla_tetel_jogcim'][$fej_id][$i].'">
-                                <input type="hidden" class="pop_valtozott" value="'.$_SESSION['fennt_szla_tetel_valtozott'][$fej_id][$i].'">
-                                <input type="hidden" class="pop_recid" name="recid" value="'.$_SESSION['fennt_szla_tetel_recid'][$fej_id][$i].'">
+                                <input type="hidden" class="pop_jogcim" name="pop_jogcim_id" value="'       .$_SESSION['fennt_szla_tetel_jogcim'][$fej_id][$i]   .'">
+                                <input type="hidden" class="pop_afakod_autocomp" name="afakod" value="'     .$afakod['nev']                                      .'">
+                                <input type="hidden" class="pop_afa" name="pop_afakod_id" value="'          .$_SESSION['fennt_szla_tetel_afakod'][$fej_id][$i]   .'">
+                                <input type="hidden" class="pop_valtozott" value="'                         .$_SESSION['fennt_szla_tetel_valtozott'][$fej_id][$i].'">
+                                <input type="hidden" class="pop_recid" name="recid" value="'                .$_SESSION['fennt_szla_tetel_recid'][$fej_id][$i]    .'">
                             </td>
                         </tr>');
         $i++;
@@ -853,8 +908,6 @@ if( isset($_POST['tetel_sorok_ment']) ) {
                 $afakod  = $_POST['adatok'][$afa_adat][1][$i];
                 $targy   = $_POST['adatok'][$targy_adat][1][$i];
                 $jogcim  = $_POST['adatok'][$jogcim_adat][1][$i];
-                $ktgnem  = $_POST['adatok'][$ktgnem_adat][1][$i];
-                $ktghely = $_POST['adatok'][$ktghely_adat][1][$i];
                 $valtozott = 0;
                 if( $_POST['adatok'][$valtozott_adat][1][$i] ) {
                     $valtozott = 1;
@@ -2875,7 +2928,7 @@ function xml_vissza( $szamla_id, $igazolva = '', $oka = '' ) {
     
     $db_error = false;
     
-    $szamla = $adatbazis_kapcsolat->s2('targy igazolva andoc_id telephely_id kcs_21 sz_szam kuld_tetel_xml kuld_xml megjegyz kolt_vis', 'fenntartasi_szamla', "`recid`='{$szamla_id}'");
+    $szamla = $adatbazis_kapcsolat->s2('targy igazolva andoc_id telephely_id kcs_21 sz_szam erk_xml kuld_tetel_xml kuld_xml megjegyz kolt_vis', 'fenntartasi_szamla', "`recid`='{$szamla_id}'");
     if( $szamla === false ) { $db_error = true; }
  
     // Cégkód konverzió
@@ -2958,6 +3011,19 @@ function xml_vissza( $szamla_id, $igazolva = '', $oka = '' ) {
     if( $szalloda_klaszter == TELEPHELY_ZAMARDI ) {
         $szalloda_klaszter = TELEPHELY_ZAMARDI_MOD;
     }
+
+    // A NIK3 rész csak akkor kerül bele az XML-be, ha a <form_template_name> TAG-ben NEM 'Műszaki számla' szerepel
+    $nik3 = '';
+    $szamla['erk_xml'] = htmlspecialchars_decode($szamla['erk_xml']);
+    if( get_string_between($szamla['erk_xml'],'<form_template_name>', '</form_template_name>') != 'Műszaki számla' ) {
+        $nik3 = nl2('
+            <container name="NIK3">
+                <row rownumberonpage="1">
+                    '.$urlap_tipus.'
+                </row>
+            </container>
+        ');
+    }
     
     $valasz_xml = 'psInputXml=<?xml version="1.0" encoding="utf-8"?>
 <xml>
@@ -2981,11 +3047,7 @@ function xml_vissza( $szamla_id, $igazolva = '', $oka = '' ) {
             .']]></property>
           </row>
         </container>
-        <container name="NIK3">
-            <row rownumberonpage="1">
-                '.$urlap_tipus.'
-            </row>
-        </container>
+        '.$nik3.'
         <container name="IK1">
           '.$szamla['kuld_tetel_xml']/*Ennek előállítását ha meg szeretnéd nézni, keres rá erre: "$_POST['osszevon_targy_kitoltve_ell']"*/.'
         </container>

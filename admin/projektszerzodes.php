@@ -1805,21 +1805,22 @@ require_once('selectek.php');
     } elseif( isset($_GET['tetel']) ) {
 
         // Ha devizás a számla
-        $extra_sorok = '';
+        $extra_sor1 = $extra_sor3 = '';
         if( $sor['kcs_21'] != KCS_21_HUF ) {
-            $extra_sorok .= '<div class="dtc r">Számla várh.<br>értéke (HUF)</div>';
-            $extra_sorok .= '<div class="dtc r">Érték (HUF)</div>';
+            $extra_sor1 .= '<div class="dtc c">Számla várh.<br>értéke (HUF)</div>';
+            $extra_sor2 .= '<div class="dtc c">Érték (HUF)</div>';
         }
         
         $szamla_html .= nl2('
             <div class="dt naplo">
                 <div class="dtr nFejlec">
                     <div class="dtc">Tárgy</div>
-                    <div class="dtc">Számla várh. érk.</div>
-                    <div class="dtc r">Számla várh.<br>értéke ('.erteklista(ERTEKLISTA_PENZNEM, $sor['kcs_21']).')</div>
-                    <div class="dtc">Teljesítés</div>
-                    <div class="dtc r">Érték ('.erteklista(ERTEKLISTA_PENZNEM, $sor['kcs_21']).')</div>
-                    '.$extra_sorok.'
+                    <div class="dtc c">Számla várh. érk.</div>
+                    <div class="dtc c">Számla várh.<br>értéke ('.erteklista(ERTEKLISTA_PENZNEM, $sor['kcs_21']).')</div>
+                    '.$extra_sor1.'
+                    <div class="dtc c">Teljesítés</div>
+                    <div class="dtc c">Érték ('.erteklista(ERTEKLISTA_PENZNEM, $sor['kcs_21']).')</div>
+                    '.$extra_sor2.'
                 </div>
         ');
 
@@ -1836,10 +1837,10 @@ require_once('selectek.php');
         $tetelek = $adatbazis_kapcsolat->s('*', 'projektszerzodes_tetel', "`projektszerzodes_recid`='{$_GET['id']}'", 'insert_dt');
         foreach ( $tetelek as $tetel ) {
             
-            $extra_sorok = '';
+            $extra_sor1 = $extra_sor2 = '';
             if( $sor['kcs_21'] != KCS_21_HUF ) {
-                $extra_sorok .= '<div class="dtc r nowrap">'.number_format($tetel['varh_ert'], 0, ',', ' ').'</div>';
-                $extra_sorok .= '<div class="dtc r nowrap">'.number_format($tetel['ertek'], 0, ',', ' ').'</div>';
+                $extra_sor1 .= '<div class="dtc r nowrap">'.number_format($tetel['varh_ert'], 0, ',', ' ').'</div>';
+                $extra_sor2 .= '<div class="dtc r nowrap">'.number_format($tetel['ertek'], 0, ',', ' ').'</div>';
             }
             
             $szamla_html .= nl2('
@@ -1847,9 +1848,10 @@ require_once('selectek.php');
                     <div class="dtc">'.$tetel['targy'].'</div>
                     <div class="dtc">'.datum_kiir($tetel['varh_erk']).'</div>
                     <div class="dtc r nowrap">'.number_format($tetel[$osszeg_oszlop], $tizedesek, ',', ' ').'</div>
+                    '.$extra_sor1.'
                     <div class="dtc">'.datum_kiir($tetel['teljesites']).'</div>
                     <div class="dtc r nowrap">'.number_format($tetel[$ertek_oszlop], $tizedesek, ',', ' ').'</div>
-                    '.$extra_sorok.'
+                    '.$extra_sor2.'
                 </div>
             ');
         }
