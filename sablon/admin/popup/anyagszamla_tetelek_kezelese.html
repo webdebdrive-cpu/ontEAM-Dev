@@ -132,11 +132,13 @@
             }
         </style>
         <div class="pop_grid">
+            <!--
+            2024.09.26 Kérték levenni
             <div>
                 Szállító cikkszáma:
                 <br>
                 <input type="text" class="oriasi csillag" id="szall_csz" name="szall_csz">
-            </div>
+            </div> -->
             <div>
                 Danubius cikkszám:
                 <br>
@@ -334,7 +336,7 @@
                     <th class="alapbol_rejt">Főkönyvi számlaszám</th>
                     <th class="alapbol_rejt">Költséghely</th>
                     <th class="eltereskor_rejt" style="min-width: 22rem">Cikknév</th>
-                    <th class="eltereskor_rejt">Szállító cikkszáma</th>
+                    <!-- <th class="eltereskor_rejt">Szállító cikkszáma</th> -->
                     <th class="eltereskor_rejt">Danubius cikkszám</th>
                     <th class="eltereskor_rejt">Mennyiség</th>
                     <th class="eltereskor_rejt">Egységár (<span class="f_penznem"></span>)</th>
@@ -453,7 +455,7 @@ function tetel_hozzaadasa() {
     var rndid           = $('#pop_rndid').val().trim();
     var rnd_recid       = $('#pop_rnd_recid').val().trim();
     var cikktorzs       = $('#cikktorzs_id_autocomp').val().trim();
-    var szall_csz       = $('#szall_csz').val().trim();
+    /*var szall_csz       = $('#szall_csz').val().trim();*/
     var rndmen          = $('#pop_rndmen').val().trim();
     var rndear          = $('#pop_rndear').val().trim();
     var cikkmee         = $('#cikkmee').val().trim();
@@ -479,11 +481,11 @@ function tetel_hozzaadasa() {
         return false;
     }
     
-    if( !szall_csz ){
+    /*if( !szall_csz ){
         alert2('Kérem töltse ki a szállítói cikkszám mezőt!', '', 'Hiba');
         $('#szall_csz').addClass('hibas_ide_focus');
         return false;
-    }
+    }*/
     
     if( !rndmen || rndmen=='0' || rndmen=='0,00' ) {
         alert2('Kérem töltse ki a mennyiséget!', '', 'Hiba');
@@ -549,7 +551,7 @@ function tetel_hozzaadasa() {
                     $('.pop_tetel_'+sor_id+' .pop_rndid'            ).html( rndid       );
                     $('.pop_tetel_'+sor_id+' .pop_rnd_recid'        ).html( rnd_recid   );
                     $('.pop_tetel_'+sor_id+' .pop_cikktorzs'        ).html( cikktorzs   );
-                    $('.pop_tetel_'+sor_id+' .pop_szall_csz'        ).html( szall_csz   );
+                    /*$('.pop_tetel_'+sor_id+' .pop_szall_csz'        ).html( szall_csz   );*/
                     $('.pop_tetel_'+sor_id+' .pop_cikktorzs_id'     ).html( cikktorzs_id);
                     $('.pop_tetel_'+sor_id+' .pop_rndmen'           ).html( rndmen      );
                     $('.pop_tetel_'+sor_id+' .pop_rndear'           ).html( rndear      );
@@ -567,7 +569,7 @@ function tetel_hozzaadasa() {
 
                     var table_sor = '<tr class="pop_tetel_'+id_tmp+'">'+
                                         '<td class="pop_cikktorzs l">'+cikktorzs+'</td>' +
-                                        '<td class="pop_szall_csz l">'+szall_csz+'</td>' +
+                                        /*'<td class="pop_szall_csz l">'+szall_csz+'</td>' +*/
                                         '<td class="pop_cikktorzs_id c">'+cikktorzs_id+'</td>' +
                                         '<td class="pop_rndmen r nowrap">'+rndmen+'</td>' +
                                         '<td class="pop_rndear r nowrap">'+rndear+'</td>' +
@@ -602,7 +604,7 @@ function tetel_hozzaadasa() {
                 $('#pop_rndid').val('');
                 $('#pop_rnd_recid').val('');
                 $('#cikktorzs_id_autocomp').val('');
-                $('#szall_csz').val('');
+                /*$('#szall_csz').val('');*/
                 $('#cikktorzs_onteam_id').val('');
                 $('#pop_rndmen').val('');
                 $('#pop_rndear').val('');
@@ -691,7 +693,7 @@ function popup_tetel_sor_szerk(sor_id){
     /* Sor törlése, újraszámolás */
     $('#cikktorzs_id_autocomp'  ).val( $('.'+sor_id+' .pop_cikktorzs'       ).html() );
     $('#pop_cikktorzs_id'       ).val( $('.'+sor_id+' .pop_cikktorzs_id'    ).html() );
-    $('#szall_csz'              ).val( $('.'+sor_id+' .pop_szall_csz'       ).html() );
+    /*$('#szall_csz'              ).val( $('.'+sor_id+' .pop_szall_csz'       ).html() );*/
     $('#cikktorzs_onteam_id'    ).val( $('.'+sor_id+' .pop_cikktorzs_id'    ).html() );
     $('#cikktorzs_onteam_id'    ).val( $('.'+sor_id+' .pop_cikktorzs_id'    ).html() );
     $('#cikkmee'                ).val( $('.'+sor_id+' .pop_cikkmee'         ).html() );
@@ -734,10 +736,11 @@ function tetel_sorok_ment(mehet) {
     $('.pop_cikktorzs').each(function() {
         cikktorzsek.push( json_spec_karakterek($(this).html()) );
     });
+    /* habár a szall_cszok-at már nem hasznájuk, itt mégis hozzuk létre mert a PHP feldolgozásánál fontos a kapott adatok sorrendje */
     var szall_cszok = [];
-    $('.pop_szall_csz').each(function() {
+    /*$('.pop_szall_csz').each(function() {
         szall_cszok.push( json_spec_karakterek($(this).html()) );
-    });
+    });*/
     var cikktorzs_idk = [];
     $('.pop_cikktorzs_id').each(function() {
         cikktorzs_idk.push( $(this).html() );

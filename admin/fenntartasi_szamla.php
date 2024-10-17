@@ -38,8 +38,11 @@ if( $tobb_kep ) {
 // Számla tétel kapcsolás törlés
 if (isset($_POST['kapcsolas_torol'])) {
 
+    $db_error = false;
+    mysqli_autocommit($db_kapcs, false);
+
     // Szerződés tételnél is törlünk adatokat
-    $tetel = $adatbazis_kapcsolat->s2('fenntartasi_szerzodes_tetel_recid', 'fenntartasi_szamla_tetel', "`recid`='{$_POST['id']}'");
+    $tetel = $adatbazis_kapcsolat->s2('fenntartasi_szamla_recid fenntartasi_szerzodes_tetel_recid', 'fenntartasi_szamla_tetel', "`recid`='{$_POST['id']}'");
     if( $tetel === false ) { $db_error = true; }
     $sql = $adatbazis_kapcsolat->u('fenntartasi_szerzodes_tetel',   array('netto_ert', 'dev_net', 'telj_dt'    ),
                                                                     array('0',         '0.00',    '0000-00-00' ),
@@ -47,12 +50,26 @@ if (isset($_POST['kapcsolas_torol'])) {
     if( $sql === false ) { $db_error = true; }
     
     // Majd töröljük magát a kapcsolatot is
-    $adatbazis_kapcsolat -> u('fenntartasi_szamla_tetel', array('fenntartasi_szerzodes_tetel_recid'), array('0'), "`recid`='{$_POST['id']}'");
+    $sql = $adatbazis_kapcsolat -> u('fenntartasi_szamla_tetel', array('fenntartasi_szerzodes_tetel_recid'), array('0'), "`recid`='{$_POST['id']}'");
+    if( $sql === false ) { $db_error = true; }
     $_SESSION['fennt_szla_szerzodes_recid'][$_POST['fej_id']][$_POST['i']] = '';
+
+    // Számoljuk át a számlához kapcsolódó szerződés számokat és ezt írjuk be a számla Szerződés szám mezőjébe
+    if( szerzodes_szamok_szamol($tetel['fenntartasi_szamla_recid']) === false ) {
+        $db_error = true;
+    }
     
-    echo json_encode(array(
-                             'ok'  => '1',
-                     ));
+    if( !$db_error ) {
+        mysqli_commit($db_kapcs);
+        echo json_encode(array(
+                'ok'  => '1',
+        ));
+    } else {
+        mysqli_rollback($db_kapcs);
+        echo json_encode(array(
+            'hiba'  => '1',
+        ));
+    }
 
     $weblap -> leallit();
     exit;
@@ -653,17 +670,19 @@ if( isset($_POST['pop_tetelek_feltolt']) ) {
             $class = ' piros';
         }
         if( $_SESSION['fennt_szla_szerzodes_recid'][$fej_id][$i] ) {
-            $pr_tetel = $adatbazis_kapcsolat->s2('recid targy', 'fenntartasi_szerzodes_tetel', "`recid`='{$_SESSION['fennt_szla_szerzodes_recid'][$fej_id][$i]}'");
+            $pr_tetel = $adatbazis_kapcsolat->s2('recid targy fenntartasi_szerzodes_recid', 'fenntartasi_szerzodes_tetel', "`recid`='{$_SESSION['fennt_szla_szerzodes_recid'][$fej_id][$i]}'");
+            $szerzodes = $adatbazis_kapcsolat -> s2('szszam', 'fenntartasi_szerzodes', "`recid`='{$pr_tetel['fenntartasi_szerzodes_recid']}'");
         }
 
         if( $pr_tetel ) {
-            $targy = htmlspecialchars_decode( $pr_tetel['targy'] );
+            $targy = $szerzodes['szszam'].'<br>'.htmlspecialchars_decode( $pr_tetel['targy'] );
             $class              = ''; // ' szerzodes_szamla_tetel_szurke'
             $torles             = '';
             $kapcsolat_bontas   = '<button type="button" class="piros" onclick="kapcsolas_torol(\''.$_SESSION['fennt_szla_tetel_recid'][$fej_id][$i].'\', \''.$fej_id.'\', \''.$i.'\')">Kapcsolat bontása</button>';
         } else {
             if( $_SESSION['fennt_szla_tetel_recid'][$fej_id][$i] ) {
-                $targy = '<input type="button" class="gomb" value="kapcsolás" onclick="kapcsolas_popup_nyit(\''.$_SESSION['fennt_szla_tetel_recid'][$fej_id][$i].'\');">';
+                // kapcsolas_popup_nyit(\''.$_SESSION['fennt_szla_tetel_recid'][$fej_id][$i].'\');
+                $targy = '<input type="button" class="gomb" value="kapcsolás" onclick="fennt_hozzaad_gomb_hozzaad_vagy_torol(\''.$_SESSION['fennt_szla_tetel_recid'][$fej_id][$i].'\')">';
             }
         }
         
@@ -1026,31 +1045,32 @@ if( isset($_POST['tetel_sorok_ment']) ) {
     exit();
 }
 
+// 2024.09.26: Az alábbi működés azért nem kell, mert ez a popup nem az adatlapról kerül megnyitásra, hanem a popup tételeknél a kapcsolás gombra kattintva
 // Lekérdezzük, hogy van-e a fenntartási számla tételei között olyan, amihez van kapcsolva szerződés tétel
-if( isset($_POST['van_kapcsolt_szerzodes']) ) {
+// if( isset($_POST['van_kapcsolt_szerzodes']) ) {
 
-    // Új feltöltéskor ezt nem kell ellenőrizni
-    if( !$_POST['uj'] || $_POST['uj'] == 'false' ) {
+//     // Új feltöltéskor ezt nem kell ellenőrizni
+//     if( !$_POST['uj'] || $_POST['uj'] == 'false' ) {
 
-        $szerzodes_tetelek = $adatbazis_kapcsolat->s('recid', 'fenntartasi_szamla_tetel', "`fenntartasi_szamla_recid`='{$_POST['recid']}' AND `fenntartasi_szerzodes_tetel_recid`!=0");
-        if ( $szerzodes_tetelek ){
+//         $szerzodes_tetelek = $adatbazis_kapcsolat->s('recid', 'fenntartasi_szamla_tetel', "`fenntartasi_szamla_recid`='{$_POST['recid']}' AND `fenntartasi_szerzodes_tetel_recid`!=0");
+//         if ( $szerzodes_tetelek ){
 
-            echo json_encode( array(
-                                'hiba'  => 'A számlának van olyan tétele, amihez van szerződés tétel kapcsolva, így a szerződés szám nem törölhető!',
-                                'title' => 'Hiba',
-                            ) );
-            $weblap -> leallit();
-            exit;
-        }
+//             echo json_encode( array(
+//                                 'hiba'  => 'A számlának van olyan tétele, amihez van szerződés tétel kapcsolva, így a szerződés szám nem törölhető!',
+//                                 'title' => 'Hiba',
+//                             ) );
+//             $weblap -> leallit();
+//             exit;
+//         }
         
-    }
+//     }
     
-    echo json_encode( array(
-                        'nincs'  => 'nincs csatolt szerződés',
-                    ) );
-    $weblap -> leallit();
-    exit;
-}
+//     echo json_encode( array(
+//                         'nincs'  => 'nincs csatolt szerződés',
+//                     ) );
+//     $weblap -> leallit();
+//     exit;
+// }
 
 // Fenntartási táblázat betöltése
 if( isset($_POST['get_fenntartasi_szerzodes_tabla']) ) {
@@ -1079,6 +1099,17 @@ if( isset($_POST['get_fenntartasi_szerzodes_tabla']) ) {
         $where_anyag   .= " AND `sztipus`='em'";
         $hiba_kieg      = 'Szerződés típus: Anyag<br>';
     }
+    // Ha meg van adva, akkor szűrjünk szállodára is
+    $sql_telephely = $telephely_nev = '';
+    if( $_POST['telephely_id'] ) {
+        $sql_telephely .= nl2("
+                            AND `recid` IN (
+                                SELECT `fenntartasi_szerzodes_recid` FROM `".get_db_tabla()."fenntartasi_szerzodes_tetel` WHERE `telephely_id`='{$_POST['telephely_id']}'
+                            )
+                        ");
+        $telephely = $adatbazis_kapcsolat -> s2('nev', 'telephely', "`id`='{$_POST['telephely_id']}'");
+        $telephely_nev = $telephely['nev'];
+    }
     $fennt_sz_ek = $adatbazis_kapcsolat->s('
                                         `'.get_db_tabla().'fenntartasi_szerzodes`.`recid`,
                                         `'.get_db_tabla().'fenntartasi_szerzodes`.`szszam`,
@@ -1088,7 +1119,7 @@ if( isset($_POST['get_fenntartasi_szerzodes_tabla']) ) {
                                         `'.get_db_tabla().'fenntartasi_szerzodes`.`targy`
                                             ',
                                         'fenntartasi_szerzodes',
-                                        "`szallito_id`='{$_POST['szallito_id']}'{$where_energia}", 'insert_dt desc');
+                                        "`hatalyos`=1 AND `szallito_id`='{$_POST['szallito_id']}'{$where_energia}{$sql_telephely}", 'insert_dt desc');
 
     $i = 1;
     foreach ( $fennt_sz_ek as $fennt ) {
@@ -1126,7 +1157,7 @@ if( isset($_POST['get_fenntartasi_szerzodes_tabla']) ) {
 //            </select>
         $html = '
             <div style="max-height: 40rem; overflow-y: auto; overflow-x: none;">
-                '.getErtek('nev', 'szallito', 'id', $_POST['szallito_id']).' szerződései:
+                '.getErtek('nev', 'szallito', 'id', $_POST['szallito_id']).' szerződései: '.$telephely_nev.'
                 <table class="csikos v2 kijCont csak_egy_kijelolheto" id="fennt_szerzodesek" style="cursor: default;">
                 <thead>
                 <tr>
@@ -1172,18 +1203,18 @@ if( isset($_POST['pop_kapcsolas_feltolt']) ) {
     
     // Mindenek előtt ellenőrizzük, hogy a szerződés partnerkódja azonos-e a számla partner kódjával
     $szamla_tetel   = $adatbazis_kapcsolat->s2('fenntartasi_szamla_recid netto_ert dev_net', 'fenntartasi_szamla_tetel', "`recid`='{$_POST['szamla_tetel_recid']}'");
-    $szamla         = $adatbazis_kapcsolat->s2('sz_szam szallito_id telephely_id', 'fenntartasi_szamla', "`recid`='{$szamla_tetel['fenntartasi_szamla_recid']}'");
-    $szerzodes      = $adatbazis_kapcsolat->s2('szallito_id', 'fenntartasi_szerzodes', "`szszam`='{$szamla['sz_szam']}'");
-    
-    if( $szamla['szallito_id'] != $szerzodes['szallito_id'] ) {
-        echo json_encode( array(
-            'hiba'  => 'A számla partnerkódja nem egyezik a szerződés partnerkódjával, kérem ellenőrizze!',
-            'title' => 'Hiba'
-            ) );
+    $szamla         = $adatbazis_kapcsolat->s2('szallito_id telephely_id telj_dt', 'fenntartasi_szamla', "`recid`='{$szamla_tetel['fenntartasi_szamla_recid']}'");
+    // $szerzodes      = $adatbazis_kapcsolat->s2('szallito_id', 'fenntartasi_szerzodes', "`szszam`='{$szamla['sz_szam']}'");
 
-        $weblap -> leallit();
-        exit();
-    }
+    // if( $szamla['szallito_id'] != $szerzodes['szallito_id'] ) {
+    //     echo json_encode( array(
+    //         'hiba'  => 'A számla partnerkódja nem egyezik a szerződés partnerkódjával, kérem ellenőrizze!',
+    //         'title' => 'Hiba'
+    //         ) );
+
+    //     $weblap -> leallit();
+    //     exit();
+    // }
 
     $penznem    = erteklista(ERTEKLISTA_PENZNEM, $_POST['kcs_21']);
     $tizedesek  = 0;
@@ -1203,28 +1234,28 @@ if( isset($_POST['pop_kapcsolas_feltolt']) ) {
     $_POST[$szl_netto] = str_replace(array(' ', ','), array('', '.'), $_POST[$szl_netto]);
     
     // Szerződés összegének kiszámítása
-    if( $szamla_tetel['fenntartasi_szamla_recid'] ) {
-        $szamla = $adatbazis_kapcsolat->s2('sz_szam telj_dt', 'fenntartasi_szamla', "`recid`='{$szamla_tetel['fenntartasi_szamla_recid']}'");
-    }
+    // if( $szamla_tetel['fenntartasi_szamla_recid'] ) {
+    //     $szamla = $adatbazis_kapcsolat->s2('sz_szam telj_dt', 'fenntartasi_szamla', "`recid`='{$szamla_tetel['fenntartasi_szamla_recid']}'");
+    // }
 
     // Szerződés számot post-ként is megkapjuk. Ha mégsem akkor hibát dobunk.
     if( $_POST['sz_szam'] ) {
 
         // Hiába kaptuk meg post-ként, minket az érdekel hogy DB szintén meg van-e. Ha nem akkor figyelmeztetés, hogy előbb mentsen adatlapot
-        if( !$szamla['sz_szam'] ) {
+        // if( !$szamla['sz_szam'] ) {
 
-            echo json_encode( array(
-                'hiba'  => 'Kapcsolás előtt mentse szerződésszámot a számla adatlapján!',
-                'title' => 'Hiba'
-                ) );
+        //     echo json_encode( array(
+        //         'hiba'  => 'Kapcsolás előtt mentse szerződésszámot a számla adatlapján!',
+        //         'title' => 'Hiba'
+        //         ) );
 
-            $weblap -> leallit();
-            exit();
+        //     $weblap -> leallit();
+        //     exit();
             
-        }
+        // }
         
         // Szerződés lekérdezése
-        $szerzodes = $adatbazis_kapcsolat->s2('recid nullas kcs_21 '.$szerz_mezo, 'fenntartasi_szerzodes', "`szszam`='{$szamla['sz_szam']}'");
+        $szerzodes = $adatbazis_kapcsolat->s2('recid nullas kcs_21 '.$szerz_mezo, 'fenntartasi_szerzodes', "`szszam`='{$_POST['sz_szam']}'");
         $szerzodes_ossz = number_format($szerzodes[$szerz_mezo], $tizedesek, ',', ' ').' '.$penznem;
 
         // Ha a szerződés és a számla pénzneme nem azonos, akkor hibaüzenet
@@ -1270,7 +1301,7 @@ if( isset($_POST['pop_kapcsolas_feltolt']) ) {
     // Tételek táblázat sorait kiszámoljuk:
     $tabla  = '';
     $i      = 0;
-    $van_szalloda_egyezes = false;
+    $van_szalloda_egyezes = 0;
     $szerzodes_tetelek = $adatbazis_kapcsolat->s('*', 'fenntartasi_szerzodes_tetel', "`fenntartasi_szerzodes_recid`='{$szerzodes['recid']}'");
     foreach( $szerzodes_tetelek as $tetel ) {
         
@@ -1296,7 +1327,7 @@ if( isset($_POST['pop_kapcsolas_feltolt']) ) {
             $class      = ' szerzodes_szamla_tetel_szurke';
             $torol      = '';
         } else {
-            $van_szalloda_egyezes = true;
+            $van_szalloda_egyezes = 1;
         }
         
         $tabla .= nl2('
@@ -1398,10 +1429,11 @@ if( isset($_POST['fenntartasi_szamla_kapcsolas']) ) {
                 
     }
     
-    $szamla = $adatbazis_kapcsolat->s2('sz_szam telj_dt arfolyam', 'fenntartasi_szamla', "`recid`='{$recid}'");
+    $szamla = $adatbazis_kapcsolat->s2('szla_szam telj_dt arfolyam', 'fenntartasi_szamla', "`recid`='{$recid}'");
     if( $szamla === false ) { $db_error = true; }
-    $szerzodes = $adatbazis_kapcsolat->s2('recid nullas '.$szerz_mezo, 'fenntartasi_szerzodes', "`szszam`='{$szamla['sz_szam']}'");
+    $szerzodes = $adatbazis_kapcsolat->s2('recid nullas '.$szerz_mezo, 'fenntartasi_szerzodes', "`szszam`='{$_COOKIE['fenntartas_szerzodes_szam']}'");
     if( $szerzodes === false ) { $db_error = true; }
+    
     // Az a számlatétel, amit épp kapcsolunk
     $szamla_tetel = $adatbazis_kapcsolat->s2($netto_mezo, 'fenntartasi_szamla_tetel', "`recid`='{$_POST['szamla_tetel_recid']}'");
     if( $szamla_tetel === false ) { $db_error = true; }
@@ -1432,7 +1464,6 @@ if( isset($_POST['fenntartasi_szamla_kapcsolas']) ) {
     $volt_teljesites    = 0;
     $beirt_netto_ertek  = 0;
     $beirt_teljesites   = 0;
-
     foreach ( $_POST['adatok'][$netto_ert_adat][1] as $ertek ) {
         
         // Számokból a szóközt vegyük ki, vesszőt pontra cseréljük
@@ -1533,7 +1564,7 @@ if( isset($_POST['fenntartasi_szamla_kapcsolas']) ) {
     } else {
         $szerzodes_tetel_recid = 'most hozza majd létre';
     }
-    $muvelet  = 'Fenntartási számla tételhez szerződés tételt csatolt. Számla recid: '.$recid.', Számla száma: '.$szamla['sz_szam'].', Számla tétel recid: '.$_POST['szamla_tetel_recid'].', Szerződés tétel recid: '.$szerzodes_tetel_recid;
+    $muvelet  = 'Fenntartási számla tételhez szerződés tételt csatolt. Számla recid: '.$recid.', Számla száma: '.$szamla['szla_szam'].', Számla tétel recid: '.$_POST['szamla_tetel_recid'].', Szerződés tétel recid: '.$szerzodes_tetel_recid;
     $valtozas = '';
     $i = 0;
     $kapott_recidk = array();
@@ -1647,6 +1678,11 @@ if( isset($_POST['fenntartasi_szamla_kapcsolas']) ) {
     $sql = $adatbazis_kapcsolat->d('fenntartasi_szerzodes_tetel', "`fenntartasi_szerzodes_recid`='{$szerzodes['recid']}' AND `recid` NOT IN (".implode(', ', $_POST['adatok'][$recid_adat][1]).")");
     if( $sql === false ) { $db_error = true; }
     
+    // Számoljuk át a számlához kapcsolódó szerződés számokat és ezt írjuk be a számla Szerződés szám mezőjébe
+    if( szerzodes_szamok_szamol($recid) === false ) {
+        $db_error = true;
+    }
+
     // Legvégül logolunk
     $sql = $adatbazis_kapcsolat -> i(
         'log',
@@ -3152,4 +3188,32 @@ function xml_vissza( $szamla_id, $igazolva = '', $oka = '' ) {
         return $db_error;
     }
     
+}
+
+// Számoljuk át a számlához kapcsolódó szerződés számokat és ezt írjuk be a számla Szerződés szám mezőjébe
+function szerzodes_szamok_szamol($szamla_recid = '') {
+    global $adatbazis_kapcsolat;
+    global $db_kapcs;
+
+    $szszamok = mysqli_query($db_kapcs, "
+                                            SELECT `szszam` FROM `".get_db_tabla()."fenntartasi_szerzodes` WHERE `recid` IN (
+                                                SELECT `fenntartasi_szerzodes_recid` FROM `".get_db_tabla()."fenntartasi_szerzodes_tetel` WHERE `recid` IN (
+                                                    SELECT `fenntartasi_szerzodes_tetel_recid` FROM `".get_db_tabla()."fenntartasi_szamla_tetel` WHERE `fenntartasi_szamla_recid`='{$szamla_recid}'
+                                                )
+                                            )
+                                            
+                                            ");
+    if( $szszamok === false ) {
+        return false;
+    }
+    $szszamok_db = '';
+    while ( $szszam = mysqli_fetch_assoc($szszamok) ) {
+        $szszamok_db .= $szszam['szszam'].' ';
+    }
+    $szszamok_db = trim($szszamok_db);
+
+    $sql = $adatbazis_kapcsolat -> u('fenntartasi_szamla', array('sz_szam'), array($szszamok_db), "`recid`='{$szamla_recid}'");
+    if( $sql === false ) { return false; }
+    
+    return true;
 }

@@ -191,6 +191,17 @@ function i_u($type, $tabla, $tomb) {
                 exit();
             }
         }
+
+    }
+
+    // Új, manuálisan felvitt Fenntartási szerződésnél a szerződés számot nekünk kell generálni
+    if( $tabla == 'fenntartasi_szerzodes' && $type == 'insert' ) {
+        // Manuálisan felvitt szerződéseknél (úgy ismerjük fel, hogy nincs kitöltve a szerződés szájm) a szerződés szám üres lesz, ezt itt kell automatikusan generálni
+        if( !$_POST['szszam'] ) {
+            $sorszam  = get_iktatoszam_sorszam($tabla);
+            if($sorszam===false){ $db_error = true; }
+            $_POST['szszam'] = 'M/'.date('Y').'/'.$sorszam;
+        }
     }
     
     // Felhasználók szerkesztésekor
@@ -9404,7 +9415,7 @@ function addStatusz( $tabla = false, $recid = false, $stat_id = false, $erteklis
 
         // Lekérjük az az éppen aktuális státuszt
         $akt_statusz = $adatbazis_kapcsolat->s2('recid stat_id insert_dt', $tabla, "`{$kulso_kulcs}_recid`='{$recid}'", 'recid desc', '1');
-        if( $sql === false ) { $db_error = true; }
+        if( $akt_statusz === false ) { $db_error = true; }
  
         // Ha új státusz, vagy munkalap előkészítés alatt státusz (tehát ez jöhet többször egymás után is)
         if( $akt_statusz && ( $akt_statusz['stat_id']!=$stat_id || $akt_statusz['stat_id']==MUNKALAP_STAT_ELOKESZITES_ALATT ) ) {
@@ -9463,7 +9474,7 @@ function addStatusz( $tabla = false, $recid = false, $stat_id = false, $erteklis
             if( $sql === false ) { $db_error = true; }
 
             // Projektigénylés elutasításakor archiválunk
-            if($alap_tabla=='projektigenyles' && $stat_id==PRIGENY_STAT_ELUTASITVA){
+            if ($alap_tabla == 'projektigenyles' && $stat_id == PRIGENY_STAT_ELUTASITVA) {
                 $pri = $adatbazis_kapcsolat->s2('*', 'projektigenyles', "`recid`='$recid'");
                 if( $pri === false ) { $db_error = true; }
 
@@ -14026,4 +14037,174 @@ function get_string_between($string, $start, $end){
     $len = strpos($string, $end, $ini) - $ini;
 
     return substr($string, $ini, $len);
+}
+
+// Nyomtatási képhez fejléc legteteje HTML-je
+function get_nyomtatas_fejlec_top($sorszam, $lapszammal = '') {
+
+    if( $lapszammal ) {
+        $lapszammal = '<span class="">{PAGENO} {nbpg}</span>';
+    } else {
+        $lapszammal = '1. lap';
+    }
+
+    return '
+        <div class="fejlec">
+            <table class="full">
+            <tr>
+                <td style="width: 33%; padding-left: 10px">
+                    <table class="full">
+                    <tr>
+                        <td style="padding: 4px 4px 0 0">
+                            <img src="../elemek/dh_logo.png" alt="Logo" width="50">
+                        </td>
+                        <td style="font-size: 11px">
+                            Danubius Hotels Zrt.
+                            <br>Műszaki Szolgáltató Központ
+                            <br>'.get_nev().'
+                        </td>
+                    </tr>
+                    </table>
+                </td>
+                <td class="b c" style="width: 34%; font-size: 14px">
+                    Megrendelés sz.: '.$sorszam.'
+                </td>
+                <td class="r" style="font-size: 11px; width: 33%; padding-right: 10px">
+                    '.$lapszammal.'
+                </td>
+            </tr>
+            </table>
+        </div>
+        ';
+}
+
+// Nyomtatási képhez fejléc HTML-je
+function get_nyomtatas_fejlec($szallito, $megrendelo_recid = '') {
+
+    global $adatbazis_kapcsolat;
+
+    $tel_kieg = '';
+    if( !$megrendelo_recid ) {
+        $megrendelo_recid = $_SESSION[get_db_tabla().'login_recid'];
+    }
+    $login = $adatbazis_kapcsolat->s2('usertel teljes_nev', 'login', "`recid`='{$megrendelo_recid}'");
+    if( $login['usertel'] ) {
+        $tel_kieg = '<br>Tel.: '.$login['usertel'];
+    }
+
+    $fax = '';
+    if( $szallito['tel2'] ) {
+        $fax = '<br>Fax.: '.$szallito['tel2'];
+    }
+    return '
+            <div style="padding: 0 15px 0 15px">
+                <table style="margin: auto; margin-top: 20px; width: 100%">
+                <tr>
+                    <td class="b" style="font-size: 13px; width: 50%; padding: 0 5px">
+                        Szállító:
+                    </td>
+                    <td class="b" style="font-size: 13px; width: 50%; padding: 0 5px">
+                        Megrendelő:
+                    </td>
+                </tr>
+                </table>
+
+                <table class="border full" style="margin: auto; margin-top: 0;border-collapse: collapse;border: 1px solid #ddd;">
+                <tr>
+                    <td class="vat" style="font-size: 12px; width: 50%; padding: 5px; border: 1px solid #ddd;">
+                        Név: '.$szallito['nev'].'
+                        <br>Kapcs.: '.$szallito['knev'].'
+                        <br>Tel.: '.$szallito['tel'].'
+                        '.$fax.'
+                        <br>E-mail: '.$szallito['email'].'
+                        <br>Cím.: '.$szallito['isz'].' '.$szallito['varos'].', '.$szallito['utca'].'
+                    </td>
+                    <td class="vat" style="font-size: 12px; width: 50%; padding: 5px; border: 1px solid #ddd;">
+                        Név: Danubius Hotels Zrt. Műszaki Szolgáltató Központ
+                        <br>Üi.: '.$login['teljes_nev'].'
+                        '.$tel_kieg.'
+                    </td>
+                </tr>
+                </table>
+        ';
+}
+
+// Nyomtatási képhez aláírás
+function get_nyomtatas_alairasok() {
+    return '
+                <table class="full" style="font-size: 12px; margin-top: 80px">
+                <tr>
+                    <td class="l">
+                        ......................................................................
+                        <div class="c" style="padding-right: 60px">
+                        <center>
+                            Hadfi Tamás
+                            <br>Műszaki Igazgató
+                        </center>
+                        </div>
+                    </td>
+                    <td class="r">
+                        ......................................................................
+                        <div class="c" style="padding-left: 60px">
+                        <center>
+                            Sánta Zoltán
+                            <br>Műszaki Szolgáltatási Vezető
+                        </center>
+                        </div>
+                    </td>
+                </tr>
+                </table>
+        ';
+}
+
+// Nyomtatási képhez a keret
+function get_nyomtatas_keret($title){
+    if (isset($_GET['szall'])) {
+        return '
+                <head>
+                    <title>'.$title.'</title>
+                    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+                    <link href="../css/nullaz.css" rel="stylesheet" type="text/css">
+                    <link href="../css/admin.css" rel="stylesheet" type="text/css">
+                    <link href="../css/nyomtatas.css" rel="stylesheet" type="text/css">
+                    <script src="../js/jquery.js"></script>
+                    <img src="../elemek/admin/nyomtat.gif" alt="Nyomtat" class="nyomtat_ikon nyomtat_dn link" onclick="window.print();">
+                </head>
+                <body>
+                    <div class="a4_allo">
+                        {TARTALOM}
+                        <div class="footer">
+                            <div class="dtc"></div>
+                        </div>
+                    </div>
+                <body>
+                    ';
+    } else {
+        return '
+                <head>
+                    <title>'.$title.'</title>
+                    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+                    <link href="../css/nullaz.css" rel="stylesheet" type="text/css">
+                    <link href="../css/admin.css" rel="stylesheet" type="text/css">
+                    <link href="../css/nyomtatas.css" rel="stylesheet" type="text/css">
+                    <script src="../js/jquery.js"></script>
+                    <img src="../elemek/admin/nyomtat.gif" alt="Nyomtat" class="nyomtat_ikon nyomtat_dn link" onclick="window.print();">
+                </head>
+                <body>
+                    <div class="a4_allo">
+                        {TARTALOM}
+                        <div class="footer">
+                            <div class="dtc padd">
+                            </div>
+                            <div class="dtc r padd" style="font-size: 7px">
+                                '.$_SESSION[get_db_tabla().'user'].'
+                                '.date('Y.m.d H:i:s').'
+                            </div>
+                        </div>
+                    </div>
+                <body>
+            ';
+    }
+
+
 }

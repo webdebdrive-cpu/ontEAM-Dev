@@ -267,14 +267,14 @@ function fenntartasi_szamla_kapcsolas( mehet ) {
     $.ajax({
         url     : 'fenntartasi_szamla.php',
         type    : 'POST',
-        data: {
-            adatok                  : JSON.stringify(adatok),
-            recid                   : _get('id'),
-            mehet                   : mehet,
-            kcs_21                  : kcs_21,
-            szamla_tetel_recid      : $('#szamla_tetel_recid').val(),
-            telephely_id            : $('#telephely_id_db').val(),
-            fenntartasi_szamla_kapcsolas : Date.now()
+        data    : {
+            adatok                      : JSON.stringify(adatok),
+            recid                       : _get('id'),
+            mehet                       : mehet,
+            kcs_21                      : kcs_21,
+            szamla_tetel_recid          : $('#szamla_tetel_recid').val(),
+            telephely_id                : $('#telephely_id_db').val(),
+            fenntartasi_szamla_kapcsolas: Date.now()
         },
         success: function(response) {
             if(response.substring(0, 6)=='SESKIL'){ location.href = 'index.php'; }
@@ -289,6 +289,10 @@ function fenntartasi_szamla_kapcsolas( mehet ) {
                     /* Ha a tételek fülön vagyunk, akkor frissítjük a tartalmat */
                     if( _get('tetel') ) {
                         szamlaBetolt(_get('id'), 'fenntartasi_szamla.php', 'tetel');
+                    }
+                    /* Ha az adatlapon vagyunk, akkor meg azt frissítsük a szerződés szám mező miatt */
+                    if( _get('modosit') ) {
+                        szamlaBetolt(_get('id'), 'fenntartasi_szamla.php', 'modosit');
                     }
                 }
             }
@@ -306,11 +310,11 @@ function fenntartasi_szamla_kapcsolas( mehet ) {
 function pop_kapcsolas_feltolt() {
     
     /* Szerződés szám mező aktuális tartalma */
-    if( $('#sz_szam').length ){
+    /*if( $('#sz_szam').length ){
         sz_szam = $('#sz_szam').val();
     }else{
         sz_szam = $('#sz_szam_db').val();
-    }
+    }*/
     if( $('#netto').length ){
         netto = $('#netto').val();
     }else{
@@ -332,7 +336,7 @@ function pop_kapcsolas_feltolt() {
         type: 'POST',
         data: {
             telephely_id            : telephely_id,
-            sz_szam                 : sz_szam,
+            sz_szam                 : readCookie('fenntartas_szerzodes_szam'),
             kcs_21                  : kcs_21,
             netto                   : netto,
             dev_net                 : dev_net,

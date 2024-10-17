@@ -95,7 +95,7 @@ if( isset($_GET['szall']) ) {
     $tartalom = '
         <div class="padd" style="padding-bottom: 0">
 
-                '.get_fejlec($szallito).'
+                '.get_nyomtatas_fejlec($szallito).'
 
                 <div style="font-size: 14px; margin: 20px 0 3px 0;">
                     Tisztelt szállító!
@@ -118,13 +118,13 @@ if( isset($_GET['szall']) ) {
                         Üdvözlettel,
                         <br>Budapest, '.date_formaz(date('Y-m-d')).'
                     </div>
-                    '.get_alairasok().'
+                    '.get_nyomtatas_alairasok().'
                 </div>
             </div>
         </div>
         ';
 
-    $keret = get_keret($sorszam.' Megrendelés a szállítónak');
+    $keret = get_nyomtatas_keret($sorszam.' Megrendelés a szállítónak');
     $html  = str_replace('{TARTALOM}', $tartalom, $keret);
 
 if( isset($_GET['html_mutat']) ) {
@@ -142,7 +142,7 @@ if( isset($_GET['html_mutat']) ) {
 
     $mpdf -> AddPage('P',     '',   '', '', '', '10', '10', '28', '20', '5', '5');
     $mpdf -> nbpgPrefix = '/ ';
-    $header = get_fejlec_top($sorszam, 'lapszámmal');
+    $header = get_nyomtatas_fejlec_top($sorszam, '-lapszámmal-');
     $footer = '<div class="dtc r" style="font-size: 7px">
         '.$session_user.'
         '.date('Y.m.d H:i:s').'
@@ -180,7 +180,7 @@ if( isset($_GET['teszt']) ) {
 // Címenkénti nyomtatási kép
 if (isset($_GET['cim'])) {
 
-    $keret = get_keret($sorszam.' Szállítási címenkénti összesítés');
+    $keret = get_nyomtatas_keret($sorszam.' Szállítási címenkénti összesítés');
     $telephelyek = $adatbazis_kapcsolat->s('distinct telephely_id', 'anyagigenyles', "`recid` IN (".$idk_impl.")");
     foreach($telephelyek as $telephely){
 
@@ -241,13 +241,13 @@ if (isset($_GET['cim'])) {
 
             // Lényegi tartalom
             $tartalom = '
-                '.get_fejlec_top($sorszam).'
+                '.get_nyomtatas_fejlec_top($sorszam).'
                 <div class="padd minh">
 
                         <div class="f16 c" style="margin: 20px 0 3px 0;">
                             '.$telephely['nev'].' részére
                         </div>
-                        '.get_fejlec($szallito).'
+                        '.get_nyomtatas_fejlec($szallito).'
 
                         '.$tetelek_html.'
 
@@ -268,7 +268,7 @@ if (isset($_GET['cim'])) {
 // Oracle cikkszám nyomtatási kép
 if( isset($_GET['oracle']) ) {
 
-    $keret = get_keret($sorszam.' Oracle cikkszámonkénti összesítés');
+    $keret = get_nyomtatas_keret($sorszam.' Oracle cikkszámonkénti összesítés');
     $telephelyek = $adatbazis_kapcsolat->s('distinct telephely_id', 'anyagigenyles', "`recid` IN (".$idk_impl.")");
     foreach($telephelyek as $telephely){
 
@@ -315,14 +315,14 @@ if( isset($_GET['oracle']) ) {
 
             // Lényegi tartalom
             $tartalom = '
-                '.get_fejlec_top($sorszam).'
+                '.get_nyomtatas_fejlec_top($sorszam).'
                 <div class="padd minh">
 
                         <div class="f16 c" style="margin: 20px 0 3px 0;">
                             '.$telephely['nev'].' részére
                             <br>Oracle cikkszámonként összesítve
                         </div>
-                        '.get_fejlec($szallito).'
+                        '.get_nyomtatas_fejlec($szallito).'
 
                         '.$tetelek_html.'
 
@@ -338,93 +338,6 @@ if( isset($_GET['oracle']) ) {
 
     $weblap -> leallit();
     exit;
-}
-
-
-
-function get_fejlec_top($sorszam, $lapszammal) {
-
-    if( $lapszammal ) {
-        $lapszammal = '<span class="">{PAGENO} {nbpg}</span>';
-    } else {
-        $lapszammal = '1. lap';
-    }
-
-    return '
-        <div class="fejlec">
-            <table class="full">
-            <tr>
-                <td style="width: 33%; padding-left: 10px">
-                    <table class="full">
-                    <tr>
-                        <td style="padding: 4px 4px 0 0">
-                            <img src="../elemek/dh_logo.png" alt="Logo" width="50">
-                        </td>
-                        <td style="font-size: 11px">
-                            Danubius Hotels Zrt.
-                            <br>Műszaki Szolgáltató Központ
-                            <br>'.get_nev().'
-                        </td>
-                    </tr>
-                    </table>
-                </td>
-                <td class="b c" style="width: 34%; font-size: 14px">
-                    Megrendelés sz.: '.$sorszam.'
-                </td>
-                <td class="r" style="font-size: 11px; width: 33%; padding-right: 10px">
-                    '.$lapszammal.'
-                </td>
-            </tr>
-            </table>
-        </div>
-        ';
-}
-
-function get_fejlec($szallito) {
-
-    global $adatbazis_kapcsolat;
-
-    $tel_kieg = '';
-    $login = $adatbazis_kapcsolat->s2('usertel', 'login', "`recid`='{$_SESSION[get_db_tabla().'login_recid']}'");
-    if( $login['usertel'] ) {
-        $tel_kieg = '<br>Tel.: '.$login['usertel'];
-    }
-
-    $fax = '';
-    if( $szallito['tel2'] ) {
-        $fax = '<br>Fax.: '.$szallito['tel2'];
-    }
-    return '
-            <div style="padding: 0 15px 0 15px">
-                <table style="margin: auto; margin-top: 20px; width: 100%">
-                <tr>
-                    <td class="b" style="font-size: 13px; width: 50%; padding: 0 5px">
-                        Szállító:
-                    </td>
-                    <td class="b" style="font-size: 13px; width: 50%; padding: 0 5px">
-                        Megrendelő:
-                    </td>
-                </tr>
-                </table>
-
-                <table class="border full" style="margin: auto; margin-top: 0;border-collapse: collapse;border: 1px solid #ddd;">
-                <tr>
-                    <td class="vat" style="font-size: 12px; width: 50%; padding: 5px; border: 1px solid #ddd;">
-                        Név: '.$szallito['nev'].'
-                        <br>Kapcs.: '.$szallito['knev'].'
-                        <br>Tel.: '.$szallito['tel'].'
-                        '.$fax.'
-                        <br>E-mail: '.$szallito['email'].'
-                        <br>Cím.: '.$szallito['isz'].' '.$szallito['varos'].', '.$szallito['utca'].'
-                    </td>
-                    <td class="vat" style="font-size: 12px; width: 50%; padding: 5px; border: 1px solid #ddd;">
-                        Név: Danubius Hotels Zrt. Műszaki Szolgáltató Központ
-                        <br>Üi.: '.$_SESSION[get_db_tabla().'teljes_nev'].'
-                        '.$tel_kieg.'
-                    </td>
-                </tr>
-                </table>
-        ';
 }
 
 function szallitasi_cimenkenti_lista($idk_impl, $szalloda = ''){
@@ -553,82 +466,4 @@ function szallitasi_cimenkenti_lista($idk_impl, $szalloda = ''){
                     ';
 
     return $szallcim_html;
-}
-
-function get_alairasok(){
-    return '
-                <table class="full" style="font-size: 12px; margin-top: 80px">
-                <tr>
-                    <td class="l">
-                        ......................................................................
-                        <div class="c" style="padding-right: 60px">
-                        <center>
-                            Hadfi Tamás
-                            <br>Műszaki Igazgató
-                        </center>
-                        </div>
-                    </td>
-                    <td class="r">
-                        ......................................................................
-                        <div class="c" style="padding-left: 60px">
-                        <center>
-                            Sánta Zoltán
-                            <br>Műszaki Szolgáltatási Vezető
-                        </center>
-                        </div>
-                    </td>
-                </tr>
-                </table>
-        ';
-}
-
-function get_keret($title){
-    if (isset($_GET['szall'])) {
-        return '
-                <head>
-                    <title>'.$title.'</title>
-                    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-                    <link href="../css/nullaz.css" rel="stylesheet" type="text/css">
-                    <link href="../css/admin.css" rel="stylesheet" type="text/css">
-                    <link href="../css/nyomtatas.css" rel="stylesheet" type="text/css">
-                    <script src="../js/jquery.js"></script>
-                    <img src="../elemek/admin/nyomtat.gif" alt="Nyomtat" class="nyomtat_ikon nyomtat_dn link" onclick="window.print();">
-                </head>
-                <body>
-                    <div class="a4_allo">
-                        {TARTALOM}
-                        <div class="footer">
-                            <div class="dtc"></div>
-                        </div>
-                    </div>
-                <body>
-                    ';
-    }else {
-        return '
-                <head>
-                    <title>'.$title.'</title>
-                    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-                    <link href="../css/nullaz.css" rel="stylesheet" type="text/css">
-                    <link href="../css/admin.css" rel="stylesheet" type="text/css">
-                    <link href="../css/nyomtatas.css" rel="stylesheet" type="text/css">
-                    <script src="../js/jquery.js"></script>
-                    <img src="../elemek/admin/nyomtat.gif" alt="Nyomtat" class="nyomtat_ikon nyomtat_dn link" onclick="window.print();">
-                </head>
-                <body>
-                    <div class="a4_allo">
-                        {TARTALOM}
-                        <div class="footer">
-                            <div class="dtc padd">
-                            </div>
-                            <div class="dtc r padd" style="font-size: 7px">
-                                '.$_SESSION[get_db_tabla().'user'].'
-                                '.date('Y.m.d H:i:s').'
-                            </div>
-                        </div>
-                    </div>
-                <body>
-            ';
-    }
-
-
 }

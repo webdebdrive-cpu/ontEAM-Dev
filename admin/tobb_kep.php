@@ -103,8 +103,8 @@ if( isset($_POST['megnevezes']) && !$archivum ) {
             mkdir($utvonal, 0777);
         }
         
-        // Az útvonal, projektek esetén évszámmal is meg van még toldva, amit a rekord insert_dt-jéből veszünk, kivéve számáknál, ott a teljesítés éve számít
-        $projekt_feluletek = array('projektkezeles', 'projektszamla', 'projektszerzodes');
+        // Az útvonal, projektek esetén évszámmal is meg van még toldva, amit a rekord insert_dt-jéből veszünk, kivéve számláknál, ott a teljesítés éve számít
+        $projekt_feluletek = array('projektkezeles', 'projektszamla', 'projektszerzodes', 'fenntartasi_szerzodes');
         if( in_array($konyvtar_db_nev, $projekt_feluletek) ) {
 
             // Projekt számla esetén a teljesítés évét kell mappának beállítani
@@ -137,6 +137,9 @@ if( isset($_POST['megnevezes']) && !$archivum ) {
             $ikt_szam_oszlop = 'ikt_szam';
             if( $konyvtar_db_nev == 'projektszerzodes' ) {
                 $ikt_szam_oszlop = 'sz_szam';
+            }
+            if( $konyvtar_db_nev == 'fenntartasi_szerzodes' ) {
+                $ikt_szam_oszlop = 'szszam';
             }
             // Partnertörzsnél (szállítóknál) az id más az oszlopneve
             if( $konyvtar_db_nev == 'szallito' ) {
@@ -238,7 +241,7 @@ if( isset($_POST['megnevezes']) && !$archivum ) {
                         addMegj( $apa_tabla, $_POST['sorid'], 'Dokumentum hozzáadva: '.$fajlnev.'.'.$kit);
                         level_felkeszit_es_kuld('projektszerzodes', $_POST['sorid'], '', 'projektszerzodesUjDok', 'projektszerzodes_ujdok');
                     }
-                    
+
                     // Projektkezelés menüpont alatt kiírjuk, hogy sikeres feltöltés, és hogy léptessük-e tovább? Ezt a popup hívást jelezzük itt.
                     if( $_POST['tabla']=='projektkezeles_dok' ){
                         // Lezárt státuszhoz már nem engedünk doksit felölteni
@@ -292,6 +295,7 @@ if( isset($_POST['megnevezes']) && !$archivum ) {
                         $projekt   = $adatbazis_kapcsolat->s2('recid', 'projektkezeles', "`ikt_szam`='{$szerzodes['pr_szam']}'");
                         projekt_minositesre_varo_dok_szamol($projekt['recid']);
                     }
+
                 }
             }
         break;
@@ -1173,9 +1177,18 @@ function dokumentum_kezeles_jog($tabla, $id) {
     global $adatbazis_kapcsolat;
     
     // Bizonyos felületeken fixen nincs szerkesztés jog
-    $fixen_nincs = array('anyag_szamla_dok', 'energia_szamla_dok', 'fenntartasi_szamla_dok', 'fenntartasi_szerzodes_dok');
+    $fixen_nincs = array('anyag_szamla_dok', 'energia_szamla_dok', 'fenntartasi_szamla_dok');
     if( in_array($tabla, $fixen_nincs) ) {
         return false;
+    }
+    
+    // Fenntartási szerződéseknél csak akkor nincs, ha van andoc azonosítónk (hisz akkor csak az XML-ből kapott adatokat jelenítjük meg)
+    // Viszont a manuálisan felvitt szerződések miatt néha meg kell a kezelés jog
+    if( $tabla == 'fenntartasi_szerzodes_dok' ) {
+        $szerzodes = $adatbazis_kapcsolat -> s2('andoc_id', 'fenntartasi_szerzodes', "`recid`='{$id}'");
+        if( $szerzodes['andoc_id'] ) {
+            return false;
+        }
     }
     
     // Projektigénylések elutasítva és jóváhagyva státuszainál

@@ -16,48 +16,48 @@
     </div>
 </form>
 <script>
-	function munkalapSztornoz(mehet){
-        
-        szurkit();
-        
-        $.ajax({
-            url : 'munkalap.php',
-            type: 'POST',
-            data: {
-                recid               : _get('id'),
-                memo                : $('#sztorno_memo').val(),
-                mehet               : mehet,
-                munkalapSztornoz    : new Date().getTime()
-            },
-            success: function(response) {
-                if(response.substring(0, 6)=='SESKIL'){ location.href = 'index.php'; }
-                if( response ) {
-                    
-                    
-                    response = JSON.parse(response);
+function munkalapSztornoz(mehet){
+    
+    szurkit();
+    
+    $.ajax({
+        url : 'munkalap.php',
+        type: 'POST',
+        data: {
+            recid               : _get('id'),
+            memo                : $('#sztorno_memo').val(),
+            mehet               : mehet,
+            munkalapSztornoz    : new Date().getTime()
+        },
+        success: function(response) {
+            if(response.substring(0, 6)=='SESKIL'){ location.href = 'index.php'; }
+            if( response ) {
+                
+                
+                response = JSON.parse(response);
 
-                    if( response.hiba ) {
-                        alert2(response.hiba, response.gomb, response.title);
-                        if(response.focus){
-                            $('#'+response.focus).addClass('hibas_ide_focus');
-                        }
-                        return false;
+                if( response.hiba ) {
+                    alert2(response.hiba, response.gomb, response.title);
+                    if(response.focus){
+                        $('#'+response.focus).addClass('hibas_ide_focus');
                     }
+                    return false;
+                }
 
-                    /* Ajax lefutott, de a szürkítés vissza kell tenni a reload miatt */
-                    setTimeout(function(){ szurkit(); }, 100);
-                    szamlaBetolt(_get('id'), 'munkalap.php', 'modosit').done(function() {
-                        popupZar();
-                    });
-                }
-            },
-            complete: function(xhr) {
-                if( xhr.status != 200 ) {
-                    alert2(xhr.responseText, '', 'Hiba');
-                }
+                /* Ajax lefutott, de a szürkítés vissza kell tenni a reload miatt */
+                setTimeout(function(){ szurkit(); }, 100);
+                szamlaBetolt(_get('id'), 'munkalap.php', 'modosit').done(function() {
+                    popupZar();
+                });
             }
-        });
+        },
+        complete: function(xhr) {
+            if( xhr.status != 200 ) {
+                alert2(xhr.responseText, '', 'Hiba');
+            }
+        }
+    });
 
-        return false;
-    }
+    return false;
+}
 </script>

@@ -436,6 +436,7 @@ function kapcsolas_torol(sz_tetel_id, fej_id, i, mehet = '') {
                     alert2(response.hiba, response.gomb, response.title);
                     return false;
                 }
+                szamlaBetolt(fej_id, 'fenntartasi_szamla.php');
                 $('#tetel_'+sz_tetel_id).html('');
                 csoportMuvelet('fenntartasiszamla_tetelek_kezelese');
                 alert2();
@@ -768,24 +769,28 @@ function tetel_netto_osszeszamol() {
 }
 
 /* Ez lényegében ugyanaz mint a csoportMuvelet() JS függvény, csak itt átadunk még egy számla tétel recid-t */
-function kapcsolas_popup_nyit( recid ) {
+function kapcsolas_popup_nyit( recid, sz_szam ) {
     
     /* Szerződés szám mező aktuális tartalma */
-    if( $('#sz_szam').length ){
+    /*if( $('#sz_szam').length ){
         sz_szam = $('#sz_szam').val();
-        /* Ha az adatlapon vagyunk, és a szerződés szám még nincs mentve, akkor hibát dobunk */
         if( $('#sz_szam').hasClass('mod') ){
             alert2('Kapcsolás előtt mentsen szerződésszámot a számla adatlapján!', '', 'Hiba');
             return false;
         }
     } else {
         sz_szam = $('#sz_szam_db').val();
+    }*/
+    if( !sz_szam ) {
+        alert2('Kérjük előbb válasszon fenntartási szerződést!', '', 'Hiba');
+        return false;
     }
+    createCookie('fenntartas_szerzodes_szam', sz_szam, 1);
     
     if( van_valtozas ){
         alert2('Szerződés tételhez kapcsolás előtt mentse a változásokat!', '', 'Hiba');
-    }else if(!sz_szam){
-        alert2('Tételek kapcsolásához kérem előbb adjon egy szerződést a fenntartási számlához!', '', 'Hiba');
+    /*}else if(!sz_szam){
+        alert2('Tételek kapcsolásához kérem előbb adjon egy szerződést a fenntartási számlához!', '', 'Hiba');*/
     } else {
         $.get('../sablon/admin/popup/fenntartasi_szamla_kapcsolas.html?cache=' + new Date().getTime(), function( data ) {
             $('#popupTart').html( data.replace('{SZAMLA_TETEL_RECID}', recid) );

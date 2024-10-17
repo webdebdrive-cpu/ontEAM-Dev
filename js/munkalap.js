@@ -888,7 +888,7 @@ function munkAnyagTorol( recid, elem_id, mehet ) {
     }
 }
 
-/* Munkaidő törlése */
+// Munkaidő törlése
 function munkMunkaidoTorol( recid, elem_id, mehet ) {
     
     $('.munkaido_sor_'+recid).addClass('torles_elott');
@@ -927,7 +927,7 @@ function munkMunkaidoTorol( recid, elem_id, mehet ) {
     }
 }
 
-/* Munkalap vissza nyitottnak */
+// Munkalap vissza nyitottnak
 function munkalapVisszaNyitott(recid, mehet){
     if(!mehet){
         alert2( 'Munkalapszám: '+$('#ikt_szam_hibauzibe').html()+'<br>Szálloda: '+$('#telephely_hibauzibe').html()+'<br>Biztosan visszateszi a nyitottak közé?', '<input type="button" class="gomb zold" onclick="munkalapVisszaNyitott(\''+recid+'\', \'mehet\')" value="Igen"><input type="button" class="gomb piros" onclick="alert2()" value="Nem">');
@@ -959,7 +959,7 @@ function munkalapVisszaNyitott(recid, mehet){
     });
 }
 
-/* Munkalap visszavétel */
+// Munkalap visszavétel
 function munkalapVisszavetel(recid, mehet){
     if(!mehet){
         alert2( 'Munkalapszám: '+$('#ikt_szam_hibauzibe').html()+'<br>Szálloda: '+$('#telephely_hibauzibe').html()+'<br>Biztos, hogy visszaveszi a munkalapot?', '<input type="button" class="gomb zold" onclick="munkalapVisszavetel(\''+recid+'\', \'mehet\')" value="Igen"><input type="button" class="gomb piros" onclick="alert2()" value="Nem">');
@@ -992,7 +992,7 @@ function munkalapVisszavetel(recid, mehet){
     });
 }
 
-/* Munkalap várakoztatás vége */
+// Munkalap várakoztatás vége
 function munkalapVarakoztatVege(){
     $.ajax({
         url : 'munkalap.php',
@@ -1020,7 +1020,7 @@ function munkalapVarakoztatVege(){
     });
 }
 
-/* Munkalap személyzet előkészítése  */
+// Munkalap személyzet előkészítése
 function munkalapElokeszit(szemelyzet_id, mehet) {
 
     if (!mehet) {
@@ -1066,7 +1066,7 @@ function munkalapElokeszit(szemelyzet_id, mehet) {
     return false;
 }
 
-/* Munkalap vissza előkészítésre */
+// Munkalap vissza előkészítésre
 function munkalapVisszaElokeszit() {
 
     if(balnav_kijelol_ell()){
@@ -1104,7 +1104,7 @@ function munkalapVisszaElokeszit() {
     return false;
 }
 
-/* Külső kivitelező kiválasztásakor a mailcímét másoljuk a mailküldés címzett mezőjébe */
+// Külső kivitelező kiválasztásakor a mailcímét másoljuk a mailküldés címzett mezőjébe
 function get_szallito_mailcim(that){
     if( that[0].tabla = 'szallito' ){
         $.ajax({

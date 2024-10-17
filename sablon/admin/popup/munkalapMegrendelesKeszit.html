@@ -1,0 +1,125 @@
+<h2>Megrendelés készítése</h2>
+<form class="popupForm" method="post">
+    <div class="kozep">
+        <div class="dt">
+
+            <div class="dtr">
+                <div class="dtc form_bal">Megrendelés tárgya:</div>
+                <div class="dtc form_jobb">
+                    <textarea id="pop_megr_targya" class="csillag" onkeyup="if( $(this).val().trim()=='' ){ $(this).val(''); }" style="min-width: 50rem; min-height: 15rem;">Tisztelt Partnerünk!
+
+A Danubius Hotels Zrt. képviseletében megrendeljük Önöktől az alábbiakban részletezett munka elvégzését:
+
+</textarea>
+                </div>
+            </div>
+
+            <div class="dtr">
+                <div class="dtc form_bal">Kivitelezési határidő:</div>
+                <div class="dtc form_jobb">
+                    <input type="text" id="pop_hatarido" autocomplete="off" class="datepicker_matol csillag">
+                </div>
+            </div>
+
+            <div class="dtr">
+                <div class="dtc form_bal">Ajánlat kelte:</div>
+                <div class="dtc form_jobb">
+                    <input type="text" id="pop_ajanlat_kelt" autocomplete="off" class="datepicker_tegnapig csillag">
+                </div>
+            </div>
+
+            <div class="dtr">
+                <div class="dtc form_bal">Vállalási ár:</div>
+                <div class="dtc form_jobb">
+                    <input type="text" id="pop_vallal_ar" class="f_num csillag" readonly> <span id="pop_penznem_afa"></span>
+                </div>
+            </div>
+
+        </div>
+    </div>
+    <div class="kuldes">
+        <input type="button" name="elkuld" class="gomb zold" value="Megrendelése elkészítése" onclick="munkalapMegrendelesKeszit();">
+        <input type="button" name="megsem" class="gomb piros" value="Mégsem" onclick="popupZar();">
+    </div>
+</form>
+<script>
+$(document).ready(function(){
+    var text = $('#text').val();
+    if( !$('#text').length ) {
+        var text = $('#text_db').val();
+    }
+    $('#pop_megr_targya').val( $('#pop_megr_targya').val() + text);
+    $('#pop_vallal_ar').val( $('#jh_ert_dev_db').val() );
+    $('#pop_penznem_afa').html($('#penznem_db').val()+' + Áfa');
+});
+function munkalapMegrendelesKeszit() {
+    
+    $.ajax({
+        url : 'munkalap.php',
+        type: 'POST',
+        data: {
+            targy                       : $('#pop_megr_targya'  ).val(),
+            hatarido                    : $('#pop_hatarido'     ).val(),
+            kelt                        : $('#pop_ajanlat_kelt' ).val(),
+            ar                          : $('#pop_vallal_ar'    ).val(),
+            recid                       : _get('id'),
+            munkalapMegrendelesKeszit   : new Date().getTime()
+        },
+        success: function(response) {
+            if(response.substring(0, 6)=='SESKIL'){ location.href = 'index.php'; }
+            if( response ) {
+                response = JSON.parse(response);
+
+                if( response.hiba ) {
+                    alert2(response.hiba, response.gomb, response.title);
+                    return false;
+                }
+
+                // PDF-et mutassuk meg
+                // Mégsem felirgó ablakkal, mert azt a bögnésző van hogy blokkolja
+                // window.open(response.url);
+                location.href=response.url;
+
+                szamlaBetolt(_get('id'), PHP_SELF, 'modosit');
+                popupZar();
+            }
+        },
+        complete: function(xhr) {
+            if( xhr.status != 200 ) {
+                alert2(xhr.responseText, '', 'Hiba');
+            }
+        }
+    });
+
+
+    return false;
+}
+
+$('.datepicker').datetimepicker({
+    closeOnDateSelect   : true,
+    format              :'Y.m.d',
+    mask                : '\xa0\xa0\xa0\xa0.\xa0\xa0.\xa0\xa0',
+    timepicker          : false,
+    validateOnBlur      : false,
+    onChangeDateTime    : function(){ $('#mehet_gomb').removeAttr('disabled'); }
+});
+$('.datepicker_matol').datetimepicker({
+    closeOnDateSelect   : true,
+    format              :'Y.m.d',
+    mask                : '\xa0\xa0\xa0\xa0.\xa0\xa0.\xa0\xa0',
+    timepicker          : false,
+    validateOnBlur      : false,
+    minDate             : '-1970/01/02', // Csak mai vagy későbbi dátum adható meg
+    onChangeDateTime    : function(){ $('#mehet_gomb').removeAttr('disabled'); }
+});
+$('.datepicker_tegnapig').datetimepicker({
+    closeOnDateSelect   : true,
+    format              :'Y.m.d',
+    mask                : '\xa0\xa0\xa0\xa0.\xa0\xa0.\xa0\xa0',
+    timepicker          : false,
+    validateOnBlur      : false,
+    scrollInput         : false,
+    maxDate             : '+1970/01/02',
+    onChangeDateTime    : function(){ $('#mehet_gomb').removeAttr('disabled'); }
+});
+</script>

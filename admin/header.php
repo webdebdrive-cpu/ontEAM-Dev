@@ -662,11 +662,9 @@ $head -> setTitle   ( get_title() );
 $head -> setDesc    ( '' );
 $head -> setKeywords( '' );
 $head -> charset       = get_web_charset();
-$head -> noskype       = true;
 $head -> favicon       = '../'.get_favicon();
 $head -> country       = 'hu';
 $head -> language      = 'hu';
-$head -> js_css        = get_jsfajlok_admin();
 $head -> extrak        = '<link href="https://fonts.googleapis.com/css?family=Open+Sans:300,400,600,700" rel="stylesheet">';
 $head -> extrak       .= '<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">';
 
@@ -1138,7 +1136,7 @@ if( self('-basename-') == 'energia_szamla.php' ) {
 if( self('-basename-') == 'energia_szamla.php' && !_jog(JOG_ENERGIA_SZAMLAK_KEZEL) ) {
     $uj = '';
 }
-if( self('-basename-') == 'fenntartasi_szamla.php' || basename(self()) == 'fenntartasi_szerzodes.php' || basename(self()) == 'megallapodas_szamla.php' ) {
+if( self('-basename-') == 'fenntartasi_szamla.php' || basename(self()) == 'megallapodas_szamla.php' ) {
     $duplikal = $torles_icon = '';
 }
 if( self('-basename-') == 'fenntartasi_szamla.php' && !_jog(JOG_FENNTARTASI_SZAMLAK_KEZEL) ) {

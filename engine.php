@@ -2899,11 +2899,10 @@ function URL_letolt($url){
     // timeout in seconds
     curl_setopt($ch, CURLOPT_TIMEOUT, 10);
     
-    // curl_setopt($ch, CURLOPT_VERBOSE, true);
-    
+    curl_setopt($ch, CURLOPT_VERBOSE, true);
+
     // download the given URL, and return output
     $output = curl_exec($ch);
-    
     // close the curl resource, and free system resources
     curl_close($ch);
     

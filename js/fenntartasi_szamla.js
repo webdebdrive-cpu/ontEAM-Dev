@@ -46,8 +46,14 @@ function szamla_igazol(mehet) {
 }
 
 // Fenntartási szerződés hozzáadása, törlése gomb: melyik legyen? Ezt dönti el ez a függvény.
-function fennt_hozzaad_gomb_hozzaad_vagy_torol() {
-    
+function fennt_hozzaad_gomb_hozzaad_vagy_torol(tetel_recid) {
+
+    createCookie('fenntartas_szerzodes_tetel_recid', tetel_recid, 1);
+    csoportMuvelet('fenntartasi_szamla_szerzodes_valaszt');
+
+    return false;
+    // 2024.09.26: A hátralevő működés azért nem kell, mert ez a popup nem az adatlapról kerül megnyitásra, hanem a popup tételeknél a kapcsolás gombra kattintva
+
     $.ajax({
         url : 'fenntartasi_szamla.php',
         type: 'POST',
@@ -84,7 +90,6 @@ function fennt_hozzaad_gomb_hozzaad_vagy_torol() {
                         popupRejt();
 
                     } else {
-
                         csoportMuvelet('fenntartasi_szamla_szerzodes_valaszt');
 
                     }

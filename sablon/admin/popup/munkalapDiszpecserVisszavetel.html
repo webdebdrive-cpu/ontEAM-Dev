@@ -1,0 +1,59 @@
+<h2>Visszavétel Diszpécser által</h2>
+<form id="elutasitasForm" class="popupForm" method="post">
+    <div class="kozep">
+        <div class="dt">
+            <div class="dtr">
+                <div class="dtc form_bal">Indoklás:</div>
+                <div class="dtc form_jobb">
+                    <textarea name="visszavetel_indok" id="visszavetel_indok" class="csillag" onkeyup="if( $(this).val().trim()=='' ){ $(this).val(''); }"></textarea>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="kuldes">
+        <input type="button" name="elkuld" class="gomb zold" value="Mentés" onclick="munkalapDiszpecserVisszavetel();">
+        <input type="button" name="megsem" class="gomb piros" value="Mégsem" onclick="popupZar();">
+    </div>
+</form>
+<script>
+function munkalapDiszpecserVisszavetel() {
+
+    if( balnav_kijelol_ell() ) {
+
+        $.ajax({
+            url : 'munkalap.php',
+            type: 'POST',
+            data: {
+                indoklas                        : $('#visszavetel_indok').val(),
+                recid                           : _get('id'),
+                munkalapDiszpecserVisszavetel   : new Date().getTime()
+            },
+            success: function(response) {
+                if(response.substring(0, 6)=='SESKIL'){ location.href = 'index.php'; }
+                if( response ) {
+                    response = JSON.parse(response);
+
+                    if( response.hiba ) {
+                        if(response.focus){
+                            $('#'+response.focus).addClass('hibas_ide_focus');
+                        }
+                        alert2(response.hiba, response.gomb, response.title);
+                        return false;
+                    }
+
+                    szamlaBetolt(_get('id'), PHP_SELF, 'modosit');
+                    popupZar();
+                }
+            },
+            complete: function(xhr) {
+                if( xhr.status != 200 ) {
+                    alert2(xhr.responseText, '', 'Hiba');
+                }
+            }
+        });
+
+    }
+
+    return false;
+}
+</script>

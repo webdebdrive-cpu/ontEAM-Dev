@@ -4,7 +4,8 @@
         <div id="fennt_szerzodes_tablazat"></div>
     </div>
     <div class="kuldes">
-        <input type="button" class="gomb zold"  value="Kiválaszt" onclick="fenntartasi_szerzodes_kivalaszt()">
+        <!-- 2024.09.26 régi működéskor ez a gomb kellett <input type="button" class="gomb zold"  value="Kiválaszt" onclick="fenntartasi_szerzodes_kivalaszt()"> -->
+        <input type="button" class="gomb zold"  value="Kiválaszt" onclick="kapcsolas_popup_nyit(readCookie('fenntartas_szerzodes_tetel_recid'), $('#fennt_szerzodes_tablazat tr.kijelolve').data('szszam'))">
         <input type="button" class="gomb piros" value="Mégsem" onclick="popupZar();">
     </div>
 </form>
@@ -69,6 +70,10 @@ function get_fenntartasi_szerzodes_tabla(order){
 
 /* Fenntartási szerződés kiválasztása */
 function fenntartasi_szerzodes_kivalaszt(){
+
+    /* 2024.09.26 Ez már nincs használatban, mert már nem az adatlapról történik a szerződés kiválasztása, hanem a popup tételek soraiban a Kapcsolás gombra kattintva. */
+    return;
+
     /* Szerződés szám kitöltése */
     $('#sz_szam').val( $('#fennt_szerzodes_tablazat tr.kijelolve').data('szszam') );
     $('#sz_szam_gomb').val('Szerződés szám törlése').addClass('piros');

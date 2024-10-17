@@ -770,7 +770,7 @@ if( isset($_POST['pop_tetelek_feltolt']) ) {
         } else {
             $tovabbi_oszlopok .= nl2('
                                     <td class="pop_cikktorzs l">'.      htmlspecialchars($_SESSION['anyag_szla_tetel_cikktorzs'     ][$fej_id][$i]).'</td>
-                                    <td class="pop_szall_csz l">'.      htmlspecialchars($_SESSION['anyag_szla_tetel_szall_csz'     ][$fej_id][$i]).'</td>
+                                    <!--<td class="pop_szall_csz l">'.      htmlspecialchars($_SESSION['anyag_szla_tetel_szall_csz'     ][$fej_id][$i]).'</td>-->
                                     <td class="pop_cikktorzs_id c">'.   htmlspecialchars($_SESSION['anyag_szla_tetel_cikktorzs_id'  ][$fej_id][$i]).'</td>
                                     <td class="pop_rndmen r nowrap">'.  htmlspecialchars($_SESSION['anyag_szla_tetel_rndmen'        ][$fej_id][$i]).'</td>
                                     <td class="pop_rndear r nowrap">'.  htmlspecialchars($_SESSION['anyag_szla_tetel_rndear'        ][$fej_id][$i]).'</td>
@@ -1598,7 +1598,6 @@ if( isset($_GET['csv']) ) {
                             '
                             `'.get_db_tabla().$megnevezes.'_tetel`.`cikktorzs_id` as `Danubius cikkszám`,
                             `'.get_db_tabla().$megnevezes.'_tetel`.`cikktorzs` as `Cikknév`,
-                            `'.get_db_tabla().$megnevezes.'_tetel`.`szall_csz` as `Szállító cikkszáma`,
                             `'.get_db_tabla().$megnevezes.'_tetel`.`rndmen` as `Mennyiség`,
                             `'.get_db_tabla().$megnevezes.'_tetel`.`rndear` as `Egységár`,
                             `'.get_db_tabla().$megnevezes.'_tetel`.`cikkmee` as `Mee`,
@@ -2388,7 +2387,7 @@ if( $_SERVER['REMOTE_ADDR'] == get_debug_ip() ) {
                 <div class="dtr nFejlec">
                     <div class="dtc">Danubius<br>cikkszám</div>
                     <div class="dtc">Cikknév</div>
-                    <div class="dtc">Szállító<br>cikkszáma</div>
+                    <!--<div class="dtc">Szállító<br>cikkszáma</div>-->
                     <div class="dtc">Mennyiség</div>
                     <div class="dtc">Egységár</div>
                     <div class="dtc">Mee</div>
@@ -2412,7 +2411,7 @@ if( $_SERVER['REMOTE_ADDR'] == get_debug_ip() ) {
                 <div class="dtr nSor">
                     <div class="dtc">'.$tetel['cikktorzs_id'].'</div>
                     <div class="dtc">'.htmlspecialchars_decode(str_replace('{IDEZOJEL}', '"', $tetel['cikktorzs'])).'</div>
-                    <div class="dtc">'.htmlspecialchars_decode($tetel['szall_csz']).'</div>
+                    <!--<div class="dtc">'.htmlspecialchars_decode($tetel['szall_csz']).'</div>-->
                     <div class="dtc nowrap">'.number_format($tetel['rndmen'], 2, ',', ' ').'</div>
                     <div class="dtc nowrap">'.number_format($tetel['rndear'], 4, ',', ' ').'</div>
                     <div class="dtc">'.htmlspecialchars_decode($tetel['cikkmee']).'</div>

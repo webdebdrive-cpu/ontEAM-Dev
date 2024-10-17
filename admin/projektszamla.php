@@ -1843,7 +1843,7 @@ if( isset($_POST['pop_tetelek_feltolt_modosit']) ) {
             $targy                   = htmlspecialchars_decode( $pr_tetel['targy'] );
             $class                   = ''; // ' szerzodes_szamla_tetel_szurke'
             $torles                  = '';
-            $kapcsolat_bontas   = '<button type="button" class="piros" onclick="kapcsolas_torol(\''.$_SESSION['fennt_szla_tetel_recid'][$fej_id][$i].'\', \''.$fej_id.'\', \''.$i.'\')">Kapcsolat bontása</button>';
+            $kapcsolat_bontas   = '<button type="button" class="piros" onclick="kapcsolas_torol(\''.$_SESSION['pr_szla_tetel_recid'][$fej_id][$i].'\', \''.$fej_id.'\', \''.$i.'\')">Kapcsolat bontása</button>';
         } else {
             if( $_SESSION['pr_szla_tetel_recid'][$fej_id][$i] ) {
                 $targy = '<div class="c"><input type="button" class="gomb" value="kapcsolás" onclick="kapcsolas_popup_nyit(\''.$_SESSION['pr_szla_tetel_recid'][$fej_id][$i].'\');"></div>';

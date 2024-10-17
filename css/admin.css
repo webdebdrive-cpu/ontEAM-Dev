@@ -2552,7 +2552,7 @@ input.autocomp, input.autocomp.mod, input.autocomp:focus{
     padding-right: 0rem;
 }
 
-#popup div.popup_tart div.dt div.dtc input[type="text"] {
+#popup div.popup_tart div.dt div.dtc input[type="text"]:not(.datepicker):not(.datepicker_tegnapig):not(.datepicker_matol):not(.f_num) {
     min-width: 40rem;
     width: 100%;
 }

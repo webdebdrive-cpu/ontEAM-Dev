@@ -703,11 +703,102 @@ if( isset($_POST['projekt_fajfeltoltes_utan_tovabb']) ) {
 // Projekt adatának lekérdezése popup felirathoz
 if( isset($_POST['get_projektkezeles']) ) {
 
-    $sor = $adatbazis_kapcsolat->s2('ikt_szam telephely_id nev', 'projektkezeles', "`recid`='{$_POST['recid']}'");
-    echo 'Azonosító: '.$sor['ikt_szam'].'<br>Szálloda: '.getSzallodaNev($sor['telephely_id']).'<br>Név: '.$sor['nev'].'<br><br>';
+    $sor = $adatbazis_kapcsolat->s2('ikt_szam telephely_id nev jkolt', 'projektkezeles', "`recid`='{$_POST['recid']}'");
+    $jkolt = '';
+    if( $_POST['jkotl_is'] ) {
+        $jkolt .= '<br>Jóváhagyott keret: '.number_format($sor['jkolt'], 0, '', ' ').' '.get_penznem();
+    }
+    echo nl2('
+            Azonosító: '.$sor['ikt_szam'].'
+            <br>Szálloda: '.getSzallodaNev($sor['telephely_id']).'
+            <br>Név: '.$sor['nev'].'
+            '.$jkolt.'
+            <br>
+            <br>
+            ');
     
     $weblap->leallit();
     exit();
+}
+
+// Keret módosítása
+if (isset($_POST['projektkezeles_keret_modosit'])) {
+
+    $db_error = false;
+    mysqli_autocommit($db_kapcs, false);
+
+    // Szóközöket vegyük ki
+    $_POST['popup_jkolt'] = str_replace(' ', '', $_POST['popup_jkolt']);
+
+    if( !_jog( JOG_PRKEZEL_KERETOSSZEG_EMEL ) ) {
+        echo json_encode(array(
+            'hiba'  => 'Önnek nincs joga keretet módosítani!',
+            'title' => 'Hiba',
+            // 'gomb'  => '<input type="button" class="gomb" value="Ok" onclick="popupZar(); szamlaBetolt( _get(\'id\'), \'projektkezeles.php\', \'modosit\' );">',
+        ));
+        $weblap->leallit();
+        exit();
+    }
+
+    if( !$_POST['popup_jkolt'] ) {
+        echo json_encode(array(
+            'hiba'  => 'Kérem adja meg a jóváhagyott keretet!',
+            'title' => 'Hiba',
+            'focus' => 'popup_jkolt',
+            // 'gomb'  => '<input type="button" class="gomb" value="Ok" onclick="popupZar(); szamlaBetolt( _get(\'id\'), \'projektkezeles.php\', \'modosit\' );">',
+        ));
+        $weblap->leallit();
+        exit();
+    }
+
+    $sor = $adatbazis_kapcsolat -> s2('ikt_szam stat_id', 'projektkezeles', "`recid`='{$_POST['recid']}'");
+    if( $sor === false ) { $db_error = true; }
+
+    $statuszok = array(PRKEZEL_STAT_NYITOTT, PRKEZEL_STAT_ELOKESZITES_ALATT, PRKEZEL_STAT_FOLYAMATBAN);
+    if( !in_array($sor['stat_id'], $statuszok) ) {
+        echo json_encode(array(
+            'hiba'  => 'Ebben a státuszban már nem lehet keretet módostani!',
+            'title' => 'Hiba',
+            // 'gomb'  => '<input type="button" class="gomb" value="Ok" onclick="popupZar(); szamlaBetolt( _get(\'id\'), \'projektkezeles.php\', \'modosit\' );">',
+        ));
+        $weblap->leallit();
+        exit();
+    }
+
+    // Számoljuk át újra a szerződött összeget és a felhasználható keretet az új keret fényében
+    $szerzodesek = $adatbazis_kapcsolat->s2('SUM(`szerz_ossz`)', 'projektszerzodes', "`pr_szam`='{$sor['ikt_szam']}'");
+    if( $szerzodesek === false ) { $db_error = true; }
+
+    // Új adatok + új keret letárolása
+    $sz_ossz = $szerzodesek['SUM(`szerz_ossz`)'];
+    $fel_hato = $_POST['popup_jkolt']-$sz_ossz;
+    $sql = $adatbazis_kapcsolat->u('projektkezeles', array('jkolt',               'sz_ossz', 'fel_hato'),
+                                                     array($_POST['popup_jkolt'], $sz_ossz,  $fel_hato ), "`recid`='{$_POST['recid']}'");
+    if( $sql === false ) { $db_error = true; }
+    
+
+    // Az indoklást a megjegyzésbe is beírjuk, nem csak a státuszsorba
+    $megj = 'Jóváhagyott keret módosítva: '.number_format($_POST['popup_jkolt'], 0, '', '.').' '.get_penznem();
+    if(addMegj('projektkezeles', $_POST['recid'], $megj)===false){
+        $db_error = true;
+    }
+
+    if( !$db_error ) {
+        mysqli_commit($db_kapcs);
+        echo json_encode(array(
+            'statusz' => 'siker',
+            'recid'   => $recid
+        ));
+    } else {
+        mysqli_rollback($db_kapcs);
+        echo json_encode(array(
+            'hiba'  => tranzakcioHiba(),
+            'title' => 'Hiba',
+        ));
+    }
+
+    $weblap -> leallit();
+    exit;
 }
 
 // Projekt felfüggesztése
@@ -2222,8 +2313,12 @@ require_once('selectek.php');
             }
         }
         
-        // Felfüggesztés
+        // Keretösszeg elemlés
         $statuszok = array(PRKEZEL_STAT_NYITOTT, PRKEZEL_STAT_ELOKESZITES_ALATT, PRKEZEL_STAT_FOLYAMATBAN);
+        if( in_array($sor['stat_id'], $statuszok) && _jog( JOG_PRKEZEL_KERETOSSZEG_EMEL ) ) {
+            $gombok .= '<input type="button" class="gomb modositaskor_rejt" value="Keret módosítása" onclick="csoportMuvelet(\'projektkezeles_keret_modosit\')"> ';
+        }
+        // Felfüggesztés
         if( in_array($sor['stat_id'], $statuszok) && _jog( JOG_PRKEZEL_FELFUGGESZTES ) ) {
             $gombok .= '<input type="button" class="gomb modositaskor_rejt" value="Felfüggesztés" onclick="csoportMuvelet(\'projektkezeles_felfuggeszt\')"> ';
         }

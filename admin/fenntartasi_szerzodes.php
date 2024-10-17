@@ -162,9 +162,11 @@ if( isset($_POST['pop_tetelek_feltolt']) ) {
     if( $_POST['andoc_id'] ) {
         $szerzodes = $adatbazis_kapcsolat->s2('recid kcs_21', 'fenntartasi_szerzodes_atmeneti', "`andoc_id`='{$_POST['andoc_id']}'");
         $fej_id    = 'uj';
-    } else {
+    } else if( $_POST['id'] != 'false' ) {
         $szerzodes = $adatbazis_kapcsolat->s2('kcs_21', 'fenntartasi_szerzodes', "`recid`='{$_POST['id']}'");
         $fej_id    = $_POST['id'];
+    } else {
+        $fej_id    = 'uj';
     }
     
     // Illetve ezt az alábbi változókkal két ágra bontuk: Ft-os vagy devizás-e a számla.
@@ -985,6 +987,11 @@ require_once('selectek.php');
             // Ha foglalt volna az Andoc azonosító vagy az iktatószám, akkor mentéskor küldjünk hibaüzenetet
             // Éles rendszerben ilyen nem fordulhat elő, de teszelésekkor szükséges, hogy ha gond volna, tudjunk róla
             $onclick = 'if( form_ell_admin_elott() ){ uj_szerzodes_ellenorzes(); }';
+// 2024.10.06 Volt róla szó, hogy létre kell tudni hozni új üres szerződést is, nem csak Andocból. Sőt, ez lényegében meg is lett csinálva, volt is róla levelezve.
+// Viszont mégsem kérték, ezér itt is megállítjuk ezt a folyamatot, a bizti kedvéért.
+if( !$_GET['andoc_id'] ) {
+    echo '<script>location.href=\'fenntartasi_szerzodes.php\'</script>';
+}
             if( $adatbazis_kapcsolat -> s2('recid', 'fenntartasi_szerzodes', "`andoc_id`='{$_GET['andoc_id']}'") ) {
                 $onclick = 'alert2(\''.a_az($_GET['andoc_id'], '-nagybetű-').' „'.$_GET['andoc_id'].'” Andoc azonosító már foglalt, így nem menthető a szerződés!\', \'\', \'Hiba\');';
             }
@@ -1069,8 +1076,10 @@ require_once('selectek.php');
 	    $gombok = '<script>var gomb'.$_GET['id'].'= get_kibont_torol(\''.self().'\', \''.$torles.'\', \''.$_GET['id'].'\');</script>';
 
         // Jogosutságkezelés
-        if( true /* !_jog(... fenntartási szerződés törlés jog ...) */ ){
+        if( !_jog(JOG_FENNTARTASI_SZERZ_KEZEL) ){
             $gombok .= ' <input type="button" id="recordTorol" class="gombb_alert dn" onclick="alert2(\'Nincs jogosultsága törölni ezt a '.$szoveg.'!\', \'\', \'Hiba\')" value="Töröl" title="Töröl">';
+        } elseif( $sor['andoc_id'] ) {
+            $gombok .= ' <input type="button" id="recordTorol" class="gombb_alert dn" onclick="alert2(\'Ez a szerződés Andocból származik, ezért itt nem törölhető!\', \'\', \'Hiba\')" value="Töröl" title="Töröl">';
         } else {
             $gombok .= ' <input type="button" id="recordTorol" class="gombb_alert dn" onclick="alert2(\'Biztosan törli ezt a '.$szoveg.'?\', gomb'.$_GET['id'].')" value="Töröl" title="Töröl">';
         }
@@ -1284,17 +1293,26 @@ require_once('selectek.php');
 	// Dokumentumok
     } elseif( isset($_GET['dokumentumok']) ) {
 
-        // Itt az XML-ből kapott dokumentum linkjét jelenítjük meg
-        if( $sor['dok_link'] ) {
-            $szamla_html .= nl2('
-                Fődokumentum link:
-                <br><input type="text" value="'.$sor['dok_link'].'" readonly style="width: 100%; margin: 1rem 0">
-                <br><input type="button" class="gomb" value="Dokumentum megtekintése" onclick="window.open(\''.$sor['dok_link'].'\')">');
-        }
-        $szamla_html .= nl2('
-                <br>Bejövő xml:
-                <br>').'<textarea class="oriasiTargy input_kijelolve" style="height: 60rem;" disabled>'.$sor['erk_xml'].'</textarea>';
+        // Ha nincs andoc_id, akkor ez egy manuálisan létrehozott szerződés, ekkor a dokumentumok fül a hagyományos működésű legyen.
+        if( !$sor['andoc_id'] ) {
+            
+            require_once('tobb_kep.php');
 
+        // Egyébként a speciálisabb dokumentumok fül tartalmát töltsük be
+        } else {
+
+            // Itt az XML-ből kapott dokumentum linkjét jelenítjük meg
+            if( $sor['dok_link'] ) {
+                $szamla_html .= nl2('
+                    Fődokumentum link:
+                    <br><input type="text" value="'.$sor['dok_link'].'" readonly style="width: 100%; margin: 1rem 0">
+                    <br><input type="button" class="gomb" value="Dokumentum megtekintése" onclick="window.open(\''.$sor['dok_link'].'\')">');
+            }
+            $szamla_html .= nl2('
+                    <br>Bejövő xml:
+                    <br>').'<textarea class="oriasiTargy input_kijelolve" style="height: 60rem;" disabled>'.$sor['erk_xml'].'</textarea>';
+
+        }
 
         if( $_GET['ajax'] ) {
             echo json_encode(array(

@@ -606,6 +606,8 @@ define('SZAMLA_KOLT_VIS_DZRT',   13);
 define('SZAMLA_KOLT_VIS_DHZRT',  11);
 define('SZAMLA_KOLT_VIS_GUNDEL', 15);
 
+define('SZAMLA_KOLT_VIS_DANUB_ZRT_RECID',   3);
+
 // Szállodák, telephelyek kódjai
 define('TELEPHELY_SZK',             1106);
 define('TELEPHELY_GUNDEL',          5411);
