@@ -335,7 +335,17 @@ if( !$_SESSION['bejelento_menu_rejt'] && (
         $aktmenuk .= str_replace( $akt_almenu_mit, array( 'fenntartasi_szamla.php', 'Fenntartási számlák'       ), $almenu_sablon );
     }
     if( _jog(JOG_ENERGIA_SZAMLAK_OLVAS) ) {
-        $aktmenuk .= str_replace( $akt_almenu_mit, array( 'energia_szamla.php', 'Energia számlák'               ), $almenu_sablon );
+        $aktmenuk .= nl2('
+            <ul class="alalmenu_cont">
+                <a class="nolink">Energia számlák</a>
+                <ul class="alalmenu">
+                    <li><a href="energia_szamla.php?f='.ENERGIA_SZAMLA_VILLANY  .'">Villanyszámlák</a></li>
+                    <li><a href="energia_szamla.php?f='.ENERGIA_SZAMLA_GAZ      .'">Gázszámlák</a></li>
+                    <li><a href="energia_szamla.php?f='.ENERGIA_SZAMLA_VIZ      .'">Víz- és csatornaszámlák</a></li>
+                    <li><a href="energia_szamla.php?f='.ENERGIA_SZAMLA_TERMAL   .'">Termál- és gyógyvízszámlák</a></li>
+                </ul>
+            </ul>
+        ');
     }
     if( _jog(JOG_ANYAG_SZAMLAK_OLVAS) ) {
         $aktmenuk .= str_replace( $akt_almenu_mit, array( 'anyag_szamla.php', 'Anyag számlák'                   ), $almenu_sablon );

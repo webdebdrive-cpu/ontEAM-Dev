@@ -3410,7 +3410,7 @@ $letrehozta_mikor = '';
 $lezart           = array();
 $modositaskor_disabled = 0;
 if( basename(self()) == 'fenntartasi_szerzodes.php' && $_GET['id'] ) {
-    $fsz = $adatbazis_kapcsolat->s2('p_nev p_beosztas p_cim p_email p_tel p_fax lezart insert_usr insert_dt', $megnevezes, "`recid`='{$_GET['id']}'");
+    $fsz = $adatbazis_kapcsolat->s2('kcs_21 mlszam p_nev p_beosztas p_cim p_email p_tel p_fax lezart insert_usr insert_dt', $megnevezes, "`recid`='{$_GET['id']}'");
     $letrehozta_mikor .= 'ontEAM-ben létrehozta: <b>'.$fsz['insert_usr'].' '.datum_kiir($fsz['insert_dt']).'</b>-kor<br>';
     $modositaskor_disabled = 1;
     
@@ -3422,27 +3422,42 @@ if( basename(self()) == 'fenntartasi_szerzodes.php' && $_GET['id'] ) {
     $lezart = array('type' => 'checkbox',     'megn' => 'Lezárt szerződés:',          'name' => 'lezart',         'szuro' => 1);
 }
 
-// Ha kézzel visznek fel új szerződést, akkor már nem disabled pár mező
+// 2024.10.06 Volt róla szó, hogy létre kell tudni hozni új üres szerződést is, nem csak Andocból. Sőt, ez lényegében meg is lett csinálva, volt is róla levelezve.
+// Végül mégsem kérte a megbízó. Emiatt itt mégsem figyeljük azt, hogy Andoc nélküli új felvitelben vagyunk-e vagy sem.
+// (Erre a "2024.10.06 Volt róla szó, hogy"-ra ha rákeresel találsz még ide vonatkozó kódokat.)
+// $andoc_disabled = 1;
+// if( basename(self()) == 'fenntartasi_szerzodes.php' && !$_GET['andoc_id'] && isset($_GET['uj']) ) {
+//     $andoc_disabled = 0;
+// }
+
+// Viszont ha egy szerződés ML-ból jött létre automatikusan (azaz ki van töltve a mlszam mező), akkor engedünk mezőket szerkeszteni
 $andoc_disabled = 1;
-if( basename(self()) == 'fenntartasi_szerzodes.php' && !$_GET['andoc_id'] && isset($_GET['uj']) ) {
+if( basename(self()) == 'fenntartasi_szerzodes.php' && $fsz['mlszam'] ) {
     $andoc_disabled = 0;
+}
+// HUF esetén a devizás mezőket még disabled-re állítjuk
+$dev_disabled = '1';
+$huf_disabled = '';
+if( $fsz['kcs_21'] != KCS_21_HUF ) {
+    $dev_disabled = '';
+    $huf_disabled = '1';
 }
 $fenntartasi_szerzodes_tomb = $akt_tomb = array(
     array('type' => 'checkbox',     'megn' => 'Hatályos:',                  'name' => 'hatalyos',       'szuro' => 1,  'disabled' => $andoc_disabled, 'class' => 'normal', 'osszevon' => 1, 'post' => '<span style="margin-left: 5.9rem"></span>'),
     array('type' => 'text',         'megn' => 'Szerződés szám:',            'name' => 'szszam',         'szuro' => 'szoveges_op',  'disabled' => 1, 'class' => 'normal', 'osszevon' => 1, 'post' => '<span style="margin-left: 4rem"></span>', 'style' => 'width: 15.3rem'),
     array('type' => 'text',         'megn' => 'Szerződés verzió:',          'name' => 'verzio',         'szuro' => 1,  'disabled' => $andoc_disabled, 'class' => 'normal', 'style' => 'width: 5rem'),
-    array('type' => 'select_szerzodes_tipus', 'megn' => 'Szerződés típus:', 'name' => 'sztipus',        'szuro' => 1,  'disabled' => $andoc_disabled, 'class' => 'normal', 'osszevon' => 1, 'post' => '<span style="margin-left: 5.5rem"></span>', 'alert' => 'Kérem válassza ki a szerződés típust!'),
+    array('type' => 'select_szerzodes_tipus', 'megn' => 'Szerződés típus:', 'name' => 'sztipus',        'szuro' => 1,  'disabled' => 1, 'class' => 'normal', 'osszevon' => 1, 'post' => '<span style="margin-left: 5.5rem"></span>', 'alert' => 'Kérem válassza ki a szerződés típust!'),
     array('type' => 'text',         'megn' => 'Kelte:',                     'name' => 'kelte_dt',       'szuro' => 1,  'disabled' => $lezart_disabled,  'class' => 'kicsi datepicker', 'alert' => 'Kérem adja meg a szerződés keltét!'),
-    array('type' => 'autocomplete', 'megn' => 'Szerződő partner:',          'name' => 'szallito_id',    'szuro' => 1,  'disabled' => $andoc_disabled, 'class' => 'oriasi disableNav', 'tabla' => 'szallito', 'oszlop_keres' => 'id', 'id_kiir' => 'id', 'id_latszik' => 1, 'style' => 'width: calc(100% - 5.4rem)', 'oszlop_keres_autocomp' => 'nev', 'listaz' => 'nev', 'alert' => 'Kérem adja meg a partnert!'),
+    array('type' => 'autocomplete', 'megn' => 'Szerződő partner:',          'name' => 'szallito_id',    'szuro' => 1,  'disabled' => 1, 'class' => 'oriasi disableNav', 'tabla' => 'szallito', 'oszlop_keres' => 'id', 'id_kiir' => 'id', 'id_latszik' => 1, 'style' => 'width: calc(100% - 5.4rem)', 'oszlop_keres_autocomp' => 'nev', 'listaz' => 'nev', 'alert' => 'Kérem adja meg a partnert!'),
     array('type' => 'textarea',     'megn' => 'Tárgy:',                     'name' => 'targy',          'szuro' => 'szoveges_op',  'disabled' => $lezart_disabled, 'class' => 'oriasiTargy disableNav'),
     array('type' => 'autocomplete', 'megn' => 'Költségviselő:',             'name' => 'kolt_vis',       'szuro' => 1,  'disabled' => $modositaskor_disabled, 'class' => 'oriasi disableNav', 'tabla' => 'erteklista', 'oszlop_keres' => 'id', 'oszlop_keres_autocomp' => 'info', 'listaz' => 'info', 'csoport' => ERTEKLISTA_KOLTSEGVISELO, 'id_kiir' => 'id',  'alert' => 'Kérem válasszon költségviselőt!', 'style' => 'width: 25rem', 'alert' => 'Kérem adja meg a költségviselőt!'),
     array('type' => 'text',         'megn' => 'Érvényesség kezdete:',       'name' => 'erv_dt',         'szuro' => 1,  'disabled' => $andoc_disabled, 'class' => 'datepicker', 'osszevon' => 1, 'post' => '<span style="margin-left: 5rem"></span>'),
     array('type' => 'text',         'megn' => 'Érvényesség vége:',          'name' => 'bef_dt',         'szuro' => 1,  'disabled' => $andoc_disabled, 'class' => 'datepicker'),
     array('type' => 'autocomplete', 'megn' => 'Pénznem:',                   'name' => 'kcs_21',         'szuro' => 1,  'disabled' => $andoc_disabled, 'class' => 'disableNav', 'tabla' => 'erteklista', 'oszlop_keres' => 'id', 'oszlop_keres_autocomp' => 'info', 'listaz' => 'info', 'csoport' => ERTEKLISTA_PENZNEM, 'id_kiir' => 'id', 'style' => 'width: 5.6rem', 'osszevon' => 1, 'post' => '<span style="margin-left: 4rem"></span>', 'complete' => 'huf_vagy_deviza()', 'alert' => 'Kérem adja meg a pénznemet!'),
     array('type' => 'text',         'megn' => 'Számla fizetési határidő:',  'name' => 'szlafizhi',      'szuro' => 1,  'disabled' => $andoc_disabled, 'class' => 'normal r', 'post' => ' nap', 'style' => 'width: 3.8rem'),
-    array('type' => 'text',         'megn' => 'Deviza nettó:',              'name' => 'dev_net',        'szuro' => 1,  'disabled' => $andoc_disabled, 'class' => 'f_num',    'data' => 'data-tort="2"', 'style' => 'width: 8.7rem', 'osszevon' => 1, 'post' => '<span style="margin-left: 10.5rem"></span>'),
-    array('type' => 'text',         'megn' => 'Árfolyam:',                  'name' => 'arfolyam',       'szuro' => 1,  'disabled' => $andoc_disabled, 'class' => 'f_num f_select',    'data' => 'data-tort="4"', 'sql_disabledkor_is' => 1),
-    array('type' => 'text',         'megn' => 'Nettó érték:',               'name' => 'netto',          'szuro' => 1,  'disabled' => $andoc_disabled, 'class' => 'f_num',    'data' => 'data-tort="0"'),
+    array('type' => 'text',         'megn' => 'Deviza nettó:',              'name' => 'dev_net',        'szuro' => 1,  'disabled' => $andoc_disabled.$dev_disabled, 'class' => 'f_num',    'data' => 'data-tort="2"', 'style' => 'width: 8.7rem', 'osszevon' => 1, 'post' => '<span style="margin-left: 10.5rem"></span>', 'alert' => 'Kérem adja meg a deviza nettót!'),
+    array('type' => 'text',         'megn' => 'Árfolyam:',                  'name' => 'arfolyam',       'szuro' => 1,  'disabled' => $andoc_disabled.$dev_disabled, 'class' => 'f_num f_select',    'data' => 'data-tort="4"', 'sql_disabledkor_is' => 1, 'alert' => 'Kérem adja meg az árfolyamot!'),
+    array('type' => 'text',         'megn' => 'Nettó érték:',               'name' => 'netto',          'szuro' => 1,  'disabled' => $andoc_disabled.$huf_disabled, 'class' => 'f_num',    'data' => 'data-tort="0"'),
     array('type' => 'text',         'megn' => 'Aláírva:',                   'name' => 'alairva_dt',     'szuro' => 1,  'disabled' => $andoc_disabled, 'class' => 'datepicker', 'osszevon' => 1, 'post' => '<span style="margin-left: 9.3rem"></span>'),
     array('type' => 'text',         'megn' => 'Felmondás:',                 'name' => 'felmondas',      'szuro' => 1,  'disabled' => $andoc_disabled, 'class' => 'normal r', 'post' => ' nap<span style="margin-left: 4rem"></span>', 'style' => 'width: 3.8rem;', 'osszevon' => 1),
     array('type' => 'checkbox',     'megn' => 'Érték nélküli szerződés:',   'name' => 'nullas',         'szuro' => 1,  'disabled' => $andoc_disabled),
@@ -6276,6 +6291,11 @@ foreach ( $postok as $ertek ) {
                         if( $_SESSION[basename(self())]['szures_mezo'] && $_SESSION[basename(self())]['szures_op'] && $_SESSION[basename(self())]['szures_felt'] ){
                             $header_kieg = '&mezo='.$_SESSION[basename(self())]['szures_mezo'].'&op='.$_SESSION[basename(self())]['szures_op'].'&felt='.$_SESSION[basename(self())]['szures_felt'];
                         }
+
+                        // Energia számlák esetén egy 'f' paramétert is át kell még adni
+                        if( $ertek['tabla'] == 'energia_szamla' ) {
+                            $header_kieg = '&f='.$_POST['f'];
+                        }
                         header('location:'.self().str_replace('&amp;','&',get_get(array('id', 'hiba', 'errnum', 'kephiba', 'oldal', 'epo', 'kat', 'rend', 'irany', 'order'))).'&id='.$tabla_id.$header_kieg.'&siker');
                     }
                 }
@@ -6289,11 +6309,11 @@ foreach ( $postok as $ertek ) {
 
 			$kivetelek = array('siker', 'hiba', 'errnum', 'kephiba', 'modosit', 'oldal', 'epo', 'kat', 'order');
 
-			if(isset($_POST[$ertek['uj']])){
+            if (isset($_POST[$ertek['uj']])) {
 				array_push($kivetelek,'modosit');
 			}
 
-			$url=self().get_get($kivetelek, true).'&hiba&modosit'.$url;
+			$url = self().get_get($kivetelek, true).'&hiba&modosit'.$url;
 
 			$adatbazis_kapcsolat -> bezar();
 			header('location:'.$url);

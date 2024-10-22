@@ -143,6 +143,20 @@
 //    exit;
 //    
 //}
+// if( isset($_GET['teszt']) ) {
+//    require_once '../weblap.php';
+   
+//     $szamlak = $adatbazis_kapcsolat -> s('distinct szallito_id', 'energia_szamla', "
+//             recid IN ( SELECT DISTINCT energia_szamla_recid FROM `onteam_energia_szamla_tetel` WHERE `jogcim` in ( 'Szolgáltatásra adott előleg', 'Bírságok, költségek', 'Egyéb költségek - Műszak, karbantartó részleg', 'Késedelmi kamat', 'Egyéb energia - Energia' ) )
+//     ");
+
+//     foreach ($szamlak as $szamla) {
+//         $szallito = $adatbazis_kapcsolat -> s2('nev', 'szallito', "`id`='{$szamla['szallito_id']}'");
+//         echo $szamla['szallito_id'].';'.$szallito['nev'].'<br>';
+//     }
+//    exit;
+   
+// }
 
 require_once('header.php');
 

@@ -1,5 +1,5 @@
 // Számla áthelyezése
-function szamla_athelyez(tipus, mehet) {
+function szamla_athelyez(tipus, fajta = '', mehet = '') {
     
     var recidk = [];
     $('table.szamla_cont_tabla tr.kijelolve').each(function () {
@@ -24,17 +24,17 @@ function szamla_athelyez(tipus, mehet) {
         if( recidk.length>1 ) {
             tobbes_szam = 'ka';
         }
-        alert2('Biztosan áthelyezi a kijelölt számlá'+tobbes_szam+'t '+tipus_kerdes+' számlákhoz?', '<input type="button" value="Igen" class="gomb zold" onclick="szamla_athelyez(\''+tipus+'\', \'-mehet-\')"> <input type="button" value="Nem" class="gomb piros" onclick="alert2()">');
+        alert2('Biztosan áthelyezi a kijelölt számlá'+tobbes_szam+'t '+tipus_kerdes+' számlákhoz?', '<input type="button" value="Igen" class="gomb zold" onclick="szamla_athelyez(\''+tipus+'\', \''+fajta+'\', \'-mehet-\')"> <input type="button" value="Nem" class="gomb piros" onclick="alert2()">');
         return false;
     } else {
         
-        var recid = $('table.szamla_cont_tabla tr.kijelolve').attr('data-recid');
         $.ajax({
             url : PHP_SELF,
             type: 'POST',
             data: {
                 recidk          : JSON.stringify(recidk),
                 tipus           : tipus,
+                fajta           : fajta,
                 szamla_athelyez : Date.now()
             },
             success: function (response) {

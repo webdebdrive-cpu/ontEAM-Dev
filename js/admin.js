@@ -7170,6 +7170,14 @@ function szuro_ertek_mezo_gen(that, felt) {
                                 kieg += '&anyagrend';
                             }
                         }
+                        // Energia számla esetén még egy 'f' paraméter is kell
+                        if( baseName(location.href)=='energia_szamla' ) {
+                            if ( kieg ) {
+                                kieg += '&f='+_get('f');
+                            } else {
+                                kieg += '?f='+_get('f');
+                            }
+                        }
                         if( response.link_kieg ) {
                             if( kieg ) {
                                 kieg += '&'+response.link_kieg;

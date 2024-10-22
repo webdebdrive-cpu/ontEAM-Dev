@@ -12,6 +12,39 @@ if( !_jog(JOG_ENERGIA_SZAMLAK_OLVAS) ) {
     exit('Nincs megfelelő jogosultság az oldal eléréséhez!');
 }
 
+// Számla fajta beállítása utólag
+if( isset($_GET['fajta_beallit']) ) {
+    $szamlak = $adatbazis_kapcsolat -> s('recid', 'energia_szamla', "`fajta`='0'");
+    foreach ($szamlak as $szamla) {
+        $fajta = 0;
+        $tetel = $adatbazis_kapcsolat -> s2('jogcim', 'energia_szamla_tetel', "`energia_szamla_recid`='{$szamla['recid']}'", 'insert_dt');
+        if( $tetel ) {
+            if( strpos($tetel['jogcim'], 'Gáz') !== false ) {
+                $fajta = ENERGIA_SZAMLA_GAZ;
+            }
+            if( strpos($tetel['jogcim'], 'Villamosenergia') !== false ) {
+                $fajta = ENERGIA_SZAMLA_VILLANY;
+            }
+            if( strpos($tetel['jogcim'], 'Ivóvíz') !== false ) {
+                $fajta = ENERGIA_SZAMLA_VIZ;
+            }
+            if( strpos($tetel['jogcim'], 'Távfűtés') !== false ) {
+                $fajta = ENERGIA_SZAMLA_GAZ;
+            }
+            if( strpos($tetel['jogcim'], 'Csatornázási') !== false ) {
+                $fajta = ENERGIA_SZAMLA_VIZ;
+            }
+            if( strpos($tetel['jogcim'], 'Termál') !== false ) {
+                $fajta = ENERGIA_SZAMLA_TERMAL;
+            }
+            $adatbazis_kapcsolat -> u('energia_szamla', array('fajta'), array($fajta), "`recid`='{$szamla['recid']}'");
+            echo $adatbazis_kapcsolat -> gp().'<br>';
+        }
+        
+    }
+    exit;
+}
+
 // Config
 $megnevezes             = pathinfo(self());
 $megnevezes             = $megnevezes['filename'];
@@ -220,7 +253,7 @@ if( isset($_POST['energia_szamla_get_koztes']) ) {
     
     // Köztes számlákból készítsünk táblázatot
     $html = '';
-    $szamlak = $adatbazis_kapcsolat->s('recid andoc_id telephely_id szallito_id szla_szam telj_dt dok_link', 'energia_szamla_atmeneti');
+    $szamlak = $adatbazis_kapcsolat->s('recid andoc_id telephely_id szallito_id szla_szam telj_dt dok_link', 'energia_szamla_atmeneti', "`fajta`='{$_POST['fajta']}'");
     if( $szamlak ) {
         $html .= nl2('
             <table class="csikos szamla_cont_tabla" id="pop_tetelek">
@@ -1621,6 +1654,7 @@ require_once('selectek.php');
                 <input type="hidden" name="atmeneti_recid" value="'.$szamla['recid'].'">
                 <input type="hidden" id="ossz_netto" value="">
                 <input type="hidden" id="ossz_dev_net" value="">
+                <input type="hidden" name="f" value="'.$_GET['f'].'">
                 <input type="button" class="gombb mentes_gomb" name="mehet_gomb" id="mehet_gomb" disabled value="Mentés" onclick="'.$onclick.'">
                 <input type="button" class="gomb piros" disabled id="megsem_gomb" value="Mégsem" onclick="megsemGomb();">
             </div>

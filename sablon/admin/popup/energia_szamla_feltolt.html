@@ -26,7 +26,7 @@ function szamla_feldolgoz() {
         var andoc_id = $('#pop_tetelek tbody tr.kijelolve').attr('data-andoc_id');
     }
     
-    location.href = 'energia_szamla.php?uj&andoc_id='+andoc_id;
+    location.href = 'energia_szamla.php?f='+_get('f')+'&uj&andoc_id='+andoc_id;
 }
 
 /* Köztes tábla számláinak kilistázása */
@@ -36,6 +36,7 @@ function energia_szamla_get_koztes() {
         url : 'energia_szamla.php',
         type: 'POST',
         data: {
+            fajta                     : _get('f'),
             energia_szamla_get_koztes : Date.now() 
         },
         success: function(response) {

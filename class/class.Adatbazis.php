@@ -7,19 +7,19 @@
 
 * PÉLDÁK:
 
-//Konstruktor cím, felh, jelsz, prefix
+// Konstruktor cím, felh, jelsz, prefix
 $adatbazis = new Adatbazis("tabla_");
 
 //Csatlakozás az adatbázishoz (ez meg kell előzzön minden mást)
 $adatbazis -> csatlakozas("localhost", "krixx", "e8zfZWdYO1ew");
 
-//Adatbázis kiválasztása (kötelező)
+// Adatbázis kiválasztása (kötelező)
 $adatbazis -> adatb_kivalaszt("krixx");
 
-//Karakterkódolás beállítása (kötelező)
+// Karakterkódolás beállítása (kötelező)
 $adatbazis -> setCharset("UTF8");
 
-//Ha igaz, akkor sikertelen műveletkor kiírja a hibaüzenetet, és a parancsot is
+// Ha igaz, akkor sikertelen műveletkor kiírja a hibaüzenetet, és a parancsot is
 $adatbazis -> debug = true;
 
 //Kikapcsolható, a gyanús HTML-el szűrése, de csak ésszel. Inkább htmlspecialchars() függvényt használjuk, js-ek nélkül
@@ -27,39 +27,36 @@ $adatbazis -> biztonsagosHtml = true;
 
 //Select: a lekérdezett sorokat egy tömbbként adja vissza. Ezt többször bejárható lesz újabb lekérdezés nélkül
 foreach($adatbazis -> select("id, nev", "tabla", "id = 1", "id", "0,2", false) as $sor){
-	echo $sor["id"]." ".$sor["nev"]."<br>";
+    echo $sor["id"]." ".$sor["nev"]."<br>";
 }
 //Minden Select után a getSorokSzama-val bármikor megtudhatjuk a lekrédezett sorok számát.
 echo $adatbazis -> getSorokSzama()."<br>";	//Lekérdezett sorok száma
 
-
-
-//Nem kérezi le a sorokat feleslegesen egy tömbbe, csak a sorok számát.
+// Nem kérezi le a sorokat feleslegesen egy tömbbe, csak a sorok számát.
 echo $adatbazis -> select("id, nev", "tabla", "id = 1", "id", "0,2", true);
 
-//Insertálás megoldható tömbökkel is. Ha mindig ugyanazokba az oszlopokba szeretnén beszúrni (vagy módosítani - később)
+// Insertálás megoldható tömbökkel is. Ha mindig ugyanazokba az oszlopokba szeretnén beszúrni (vagy módosítani - később)
 $oszlopok = array("id",  "nev");
 $ertekek  = array(
-				array("1", "id1 neve"),
-				array("2", "id2 neve"),
-				array("3", "id3 neve"),
-				array("4", "id4 neve"),
-			);
+                array("1", "id1 neve"),
+                array("2", "id2 neve"),
+                array("3", "id3 neve"),
+                array("4", "id4 neve"),
+            );
 
 $i=0;
 foreach($ertekek as $ertek){
-	$adatbazis -> insert("tabla", $oszlopok, $ertek);
-	$i++;
+    $adatbazis -> insert("tabla", $oszlopok, $ertek);
+    $i++;
 }
 
-//Az insert az utolsó beszúrt sor id-jét adja vissza
+// Az insert az utolsó beszúrt sor id-jét adja vissza
 $legutolso_beszuras_idje = $adatbazis -> insert("tabla", $oszlopok, array("5", "id5 neve"));
 
-//Update
+// Update
 $adatbazis -> update("tabla", $oszlopok, array("2",  "érték"), "id=1");
 
-
-//Legutoljára végrehajtott parancs kiíratása
+// Legutoljára végrehajtott parancs kiíratása
 echo $adatbazis -> getParancs()."<br>";
 
 $adatbazis -> bezar();
@@ -68,7 +65,7 @@ $adatbazis -> bezar();
 class Adatbazis {
 
     /** @var Adatbázis kapcsolat*/
-	public $adatbazis_kapcsolat;
+    public $adatbazis_kapcsolat;
 
     /** @var boolean Csak biztonságos HTML-t enged beszúrni. Ha HTML tartalmat szeretnénk felvinni ezt kapcsoljuk ki, de jól átgondolni, mert rés lehet*/
     public $biztonsagosHtml   = true;
@@ -77,15 +74,15 @@ class Adatbazis {
     public $db_prefix         = '';
 
     /** @var boolean Ha igaz, akkor kiírjuk a parancsot hiba esetén*/
-	public $debug             = false;
+    public $debug             = false;
 
-	/** @var array Insertnél nem tesszük idézőjel közé a kivételeket*/
-	public $insert_kivetelek  = array('NOW()', 'NULL');
+    /** @var array Insertnél nem tesszük idézőjel közé a kivételeket*/
+    public $insert_kivetelek  = array('NOW()', 'NULL');
 
 
 
     /** @var array Lekérdezett sorok*/
-	private $eredmeny         = array();
+    private $eredmeny         = array();
 
     /** @var string Legutóbbi parancs (debuggoláshoz jöhet jól kiírtatni, vagy feldogozni újra)*/
     private $legutobbiParancs = '';
@@ -99,36 +96,36 @@ class Adatbazis {
     *
     * @param string Prefix (pl. 'tabla_' vagy csak simán 'tabla')
     */
-   	public function __construct($prefix){
-		if( $prefix ){
-			if( substr($prefix, strlen($prefix)-1, strlen($prefix)) != '_' ){
-				$prefix .= '_';
-			}
-			$this -> db_prefix = $prefix;
-		}
-	}
+    public function __construct($prefix){
+        if( $prefix ){
+            if( substr($prefix, strlen($prefix)-1, strlen($prefix)) != '_' ){
+                $prefix .= '_';
+            }
+            $this -> db_prefix = $prefix;
+        }
+    }
 
     /**
     * @desc Csatlakozás az adatbázishoz
     *
-	* @param string host neve pl. 'localhost'
+    * @param string host neve pl. 'localhost'
     * @param string felhasználói név
     * @param string jelszó
     */
-	public function csatlakozas($host, $felh, $jelsz, $db_adatb){
-		$this -> adatbazis_kapcsolat = mysqli_connect($host, $felh, $jelsz, $db_adatb) or die('Adatbázishoz csatlakozás sikertelen: '.mysqli_connect_error());
-	}
+    public function csatlakozas($host, $felh, $jelsz, $db_adatb){
+        $this -> adatbazis_kapcsolat = mysqli_connect($host, $felh, $jelsz, $db_adatb) or die('Adatbázishoz csatlakozás sikertelen: '.mysqli_connect_error());
+    }
 
-	/**
+    /**
     * @desc Adatbázis kiválasztása. Előtte csatlakozni kell!
     *
     * @param  string adatbázis neve, amihez csatlakozni szeretnénk
     */
     public function adatb_kivalaszt($db_adatb){
-		//Ez feleslegessé vált az SQLi miatt. mysqli_select_db($db_adatb) or die('Adatbázis kiválasztása sikertelen: '.mysqli_error());
-	}
+        //Ez feleslegessé vált az SQLi miatt. mysqli_select_db($db_adatb) or die('Adatbázis kiválasztása sikertelen: '.mysqli_error());
+    }
 
-	/**
+    /**
     * @desc A karakterkódolás beállítása
     *
     * @param  string a karakterkódolás neve (pl. UTF8 kötöjel nélkül!)
@@ -136,14 +133,14 @@ class Adatbazis {
     */
     public function setCharset($db_charset){
         mysqli_set_charset($this -> adatbazis_kapcsolat, $db_charset);
-	}
+    }
 
     /**
     * @desc Információ lekérdezése az adatbázisból
-	*  foreach($adatbazis -> select("id, nev", "tabla", "id = 1", "id", "0,2", false) as $sor){
-	*      echo $sor["id"]." ".$sor["nev"]."<br>";
-	*  }
-	* Ha csak egy sor ad vissza akkor is egy tömbb, aminek a 0. elemére kell hivatkozni
+    *  foreach($adatbazis -> select("id, nev", "tabla", "id = 1", "id", "0,2", false) as $sor){
+    *      echo $sor["id"]." ".$sor["nev"]."<br>";
+    *  }
+    * Ha csak egy sor ad vissza akkor is egy tömbb, aminek a 0. elemére kell hivatkozni
     *
     * @param  string  Lekérdezni kívánt oszlopok, alapértelmezetten *
     * @param  string  Tábla neve prefix nélkül
@@ -159,10 +156,10 @@ class Adatbazis {
 
         $this -> eredmeny = array();
 
-		if($oszlopok) $oszlopok = $this -> sqlStringBeallit($oszlopok);
-		if($order)    $order    = $this -> sqlStringBeallit($order);
-		if($where)    $where    = $this -> sqlStringBeallit($where);
-		if($group_by) $group_by = $this -> sqlStringBeallit($group_by);
+        if($oszlopok) $oszlopok = $this -> sqlStringBeallit($oszlopok);
+        if($order)    $order    = $this -> sqlStringBeallit($order);
+        if($where)    $where    = $this -> sqlStringBeallit($where);
+        if($group_by) $group_by = $this -> sqlStringBeallit($group_by);
 
         if( !strstr($tabla, '`') ) {
             $tabla = '`'.$this -> db_prefix.$tabla.'`';
@@ -174,13 +171,13 @@ class Adatbazis {
             $select .= ' '.$join;
         }
 
-		if( $where != null ) {
+        if( $where != null ) {
             $select .= ' WHERE '.$where;
-		}
+        }
 
-		if( $group_by != null ) {
+        if( $group_by != null ) {
             $select .= ' GROUP BY '.$group_by;
-		}
+        }
         
         if( $order != null ) {
             if($order == '`rand()`' || $order == '`RAND()`' ){
@@ -189,15 +186,15 @@ class Adatbazis {
             if( !strstr($order, '`') ) {
                 $order = sql_ertek($order);
             }
-			$select .= ' ORDER BY '.$order;
-		}
+            $select .= ' ORDER BY '.$order;
+        }
 
         if( $limit != null ) {
             $select .= ' LIMIT '.$limit;
-		}
+        }
 
-		$select = str_replace('--', '', $select);
-		$this -> legutobbiParancs = $select;
+        $select = str_replace('--', '', $select);
+        $this -> legutobbiParancs = $select;
 
         if( $csak_stringet_allitson_elo ) {
             return true;
@@ -207,21 +204,21 @@ class Adatbazis {
 
             if( $this->debug ) {
                 echo $select.'<br>';
-				echo 'Adatbázis hiba lekérdezéskor: '. mysqli_error($this -> adatbazis_kapcsolat);
-			}
-			return false;
-		}
+                echo 'Adatbázis hiba lekérdezéskor: '. mysqli_error($this -> adatbazis_kapcsolat);
+            }
+            return false;
+        }
 
         $this -> sorok_szama = mysqli_num_rows($lekerdezes);
         if( !$num_rows ) {
             for ( $i = 0; $i < $this->sorok_szama; $i++ ) {
                 array_push($this -> eredmeny, mysqli_fetch_assoc($lekerdezes));
-	        }
-	        return $this -> eredmeny;
+            }
+            return $this -> eredmeny;
         } else {
-			return $this -> sorok_szama;
-		}
-	}
+            return $this -> sorok_szama;
+        }
+    }
 
     /**
     * @desc  Select röviden (az eredeti függvényt hívja meg)
@@ -245,7 +242,7 @@ class Adatbazis {
     */
     public function insert($tabla, $oszlopok, $ertekek) {
 
-		$insert = 'INSERT INTO `'.$this -> db_prefix.$tabla.'` SET ';
+        $insert = 'INSERT INTO `'.$this -> db_prefix.$tabla.'` SET ';
 
         if(!is_array($oszlopok)){
             $oszlopok = array($oszlopok);
@@ -259,37 +256,37 @@ class Adatbazis {
         $insert_reszek = array();
         $oszlopok = array_values($oszlopok);
         $ertekek  = array_values($ertekek);
-		foreach($oszlopok as $oszlop){
-			$oszlop      = sql_ertek($oszlop);
-			$ertekek[$i] = sql_ertek($ertekek[$i], true); // Tehát HTML teg-ek engedélyezve
-			// De jobb kiszűrni ami gyanús
-			if( $this -> biztonsagosHtml ){
-				$ertekek[$i] = biztonsagos_html($ertekek[$i]);
-			}
+        foreach($oszlopok as $oszlop){
+            $oszlop      = sql_ertek($oszlop);
+            $ertekek[$i] = sql_ertek($ertekek[$i], true); // Tehát HTML teg-ek engedélyezve
+            // De jobb kiszűrni ami gyanús
+            if( $this -> biztonsagosHtml ){
+                $ertekek[$i] = biztonsagos_html($ertekek[$i]);
+            }
 
-			if(in_array($ertekek[$i], $this -> insert_kivetelek)){
-				array_push($insert_reszek,'`'.$oszlop.'`='.trim( htmlspecialchars( $ertekek[$i] ) ) );
-			} else {
-				array_push($insert_reszek,'`'.$oszlop.'`=\''.trim( htmlspecialchars( $ertekek[$i] ) ).'\'' );
-			}
+            if(in_array($ertekek[$i], $this -> insert_kivetelek)){
+                array_push($insert_reszek,'`'.$oszlop.'`='.trim( htmlspecialchars( $ertekek[$i] ) ) );
+            } else {
+                array_push($insert_reszek,'`'.$oszlop.'`=\''.trim( htmlspecialchars( $ertekek[$i] ) ).'\'' );
+            }
 
-			$i++;
-		}
+            $i++;
+        }
 
-		$insert .= implode(', ', $insert_reszek);
+        $insert .= implode(', ', $insert_reszek);
 
-		$insert = str_replace('--', '', $insert);
-		$this -> legutobbiParancs = $insert;
+        $insert = str_replace('--', '', $insert);
+        $this -> legutobbiParancs = $insert;
 
         if(!mysqli_query($this -> adatbazis_kapcsolat, $insert)){
-			if($this -> debug){
-				echo $insert.'<br>';
-				echo 'Adatbázis hiba sor beszúrásakor: '.mysqli_error($this -> adatbazis_kapcsolat);
-			}
-			return false;
-		} else {
-			return mysqli_insert_id($this -> adatbazis_kapcsolat);
-		}
+            if($this -> debug){
+                echo $insert.'<br>';
+                echo 'Adatbázis hiba sor beszúrásakor: '.mysqli_error($this -> adatbazis_kapcsolat);
+            }
+            return false;
+        } else {
+            return mysqli_insert_id($this -> adatbazis_kapcsolat);
+        }
 
     }
 
@@ -314,7 +311,7 @@ class Adatbazis {
         if( $where == null ) {
             $delete = 'DELETE '.$this -> db_prefix.$table;
         } else {
-        	$where  = $this -> sqlStringBeallit($where);
+            $where  = $this -> sqlStringBeallit($where);
             $delete = 'DELETE FROM '.$this -> db_prefix.$table.' WHERE '.$where;
         }
         
@@ -329,15 +326,15 @@ class Adatbazis {
         $delete = str_replace('--', '', $delete);
         $this -> legutobbiParancs = $delete;
 
-		if( !mysqli_query($this->adatbazis_kapcsolat, $delete) ) {
+        if( !mysqli_query($this->adatbazis_kapcsolat, $delete) ) {
             if( $this->debug ) {
                 echo $delete.'<br>';
-				echo 'Adatbázis hiba sor törléskor: '.mysqli_error();
-			}
-			return false;
-		} else {
-			return true;
-		}
+                echo 'Adatbázis hiba sor törléskor: '.mysqli_error();
+            }
+            return false;
+        } else {
+            return true;
+        }
 
     }
 
@@ -388,41 +385,41 @@ class Adatbazis {
         // Tömb újraindexelése (arra az esetre, ha pl. egy unset miatt a tömb foghíjas lenne)
         $oszlopok = array_values($oszlopok);
         $ertekek  = array_values($ertekek);
-		foreach ( $oszlopok as $oszlop ) {
+        foreach ( $oszlopok as $oszlop ) {
             //$oszlop      = sql_ertek($oszlop);
-			$ertekek[$i] = sql_ertek($ertekek[$i], true);
+            $ertekek[$i] = sql_ertek($ertekek[$i], true);
 
-			if( in_array($ertekek[$i], $this->insert_kivetelek) ) {
+            if( in_array($ertekek[$i], $this->insert_kivetelek) ) {
                 array_push($update_reszek,'`'.$oszlop.'`='. htmlspecialchars( $ertekek[$i] ) );
-			} else {
-				array_push($update_reszek,'`'.$oszlop.'`=\''. htmlspecialchars( $ertekek[$i] ) .'\'');
-			}
+            } else {
+                array_push($update_reszek,'`'.$oszlop.'`=\''. htmlspecialchars( $ertekek[$i] ) .'\'');
+            }
 
-			$i++;
-		}
+            $i++;
+        }
 
-		$update .= implode(', ', $update_reszek);
+        $update .= implode(', ', $update_reszek);
 
-		if( $where != null ) {
+        if( $where != null ) {
             $update .= ' WHERE '.$where;
-		}
+        }
 
         if( $limit ) {
             $update .= ' LIMIT '.$limit;
         }
 
-		$update = str_replace('--', '', $update);
-		$this -> legutobbiParancs = $update;
+        $update = str_replace('--', '', $update);
+        $this -> legutobbiParancs = $update;
 
         if( !$lekerdezes = mysqli_query($this->adatbazis_kapcsolat, $update) ) {
             if( $this->debug ) {
                 echo $update.'<br>';
-				echo 'Adatbázis hiba módosításkor: '.mysqli_error();
-			}
-			return false;
-		} else {
-			return true;
-		}
+                echo 'Adatbázis hiba módosításkor: '.mysqli_error();
+            }
+            return false;
+        } else {
+            return true;
+        }
 
     }
 
@@ -440,93 +437,93 @@ class Adatbazis {
     */
     public function bezar(){
         if($this -> adatbazis_kapcsolat && mysqli_close($this -> adatbazis_kapcsolat)){
-			return true;
-		} else {
-			return false;
-		}
+            return true;
+        } else {
+            return false;
+        }
 
     }
 
     /**
     * @desc Oszlopok, order esetén megformázza a parancsot
-	* pl.: id nev vagy id, nev => `id`, `nev`
-	*
-	* @param  string Formázandó parancsrész
-	* @return string Formázott parancsrész
+    * pl.: id nev vagy id, nev => `id`, `nev`
+    *
+    * @param  string Formázandó parancsrész
+    * @return string Formázott parancsrész
     */
     private function sqlStringBeallit($string){
 
-		//Ha a where feltételben in vagy like van, akkor nem formázzuk meg
-		if(preg_match('/in |IN |like |LIKE |now() |NOW() |distinct |DISTINCT |`/',$string)){
-			return $string;
-		//Ha van benne =, > vagy < jel, akkor ez a WHERE rész (pl. nev=10 vagy `nev`='10' vagy nev=10 or nev=11)
-		}elseif(strstr($string, '=') || strstr($string, '>') || strstr($string, '<')){
+        //Ha a where feltételben in vagy like van, akkor nem formázzuk meg
+        if(preg_match('/in |IN |like |LIKE |now() |NOW() |distinct |DISTINCT |`/',$string)){
+            return $string;
+        //Ha van benne =, > vagy < jel, akkor ez a WHERE rész (pl. nev=10 vagy `nev`='10' vagy nev=10 or nev=11)
+        }elseif(strstr($string, '=') || strstr($string, '>') || strstr($string, '<')){
 
-			$kivetelek = array('OR', 'AND', 'or', 'and', '&&', '||');
+            $kivetelek = array('OR', 'AND', 'or', 'and', '&&', '||');
 
-			//Eltávolítjuk a felesleges szóközöket a műveleti jel elől. PL.: teszt  !=  1  => teszt!=1
-			$ujstring = preg_replace('/(\w+)( *)(!=|<=|>=)( *)(\w+)/', '$1$3$5', $string);
-			if($ujstring == $string){
-				$ujstring = preg_replace('/(\w+)( *)(=|<|>)( *)(\w+)/', '$1$3$5', $string);
-			}
+            //Eltávolítjuk a felesleges szóközöket a műveleti jel elől. PL.: teszt  !=  1  => teszt!=1
+            $ujstring = preg_replace('/(\w+)( *)(!=|<=|>=)( *)(\w+)/', '$1$3$5', $string);
+            if($ujstring == $string){
+                $ujstring = preg_replace('/(\w+)( *)(=|<|>)( *)(\w+)/', '$1$3$5', $string);
+            }
 
-			$reszek   = explode(' ', $ujstring);
+            $reszek   = explode(' ', $ujstring);
 
-			$string = '';
-			$meret = count($reszek);
-			for($i=0; $i<$meret; $i++){
-				if($reszek[$i]){
-					if( !in_array($reszek[$i], $kivetelek) ){
-						$muveleti_jel = preg_replace('/(.*)(!=|<=|>=)(.*)/', '$2', $reszek[$i]);
-						//Ha a fentiekre nem volt illeszkedés (tehát a művleti jel megegyzeik a részek[i]-vel), akkor az
-						//egykarakterű operátorokra illesztünk
-						if( $muveleti_jel == $reszek[$i]){
-							$muveleti_jel = preg_replace('/(.*)(=|<|>)(.*)/', '$2', $reszek[$i]);
-						}
+            $string = '';
+            $meret = count($reszek);
+            for($i=0; $i<$meret; $i++){
+                if($reszek[$i]){
+                    if( !in_array($reszek[$i], $kivetelek) ){
+                        $muveleti_jel = preg_replace('/(.*)(!=|<=|>=)(.*)/', '$2', $reszek[$i]);
+                        //Ha a fentiekre nem volt illeszkedés (tehát a művleti jel megegyzeik a részek[i]-vel), akkor az
+                        //egykarakterű operátorokra illesztünk
+                        if( $muveleti_jel == $reszek[$i]){
+                            $muveleti_jel = preg_replace('/(.*)(=|<|>)(.*)/', '$2', $reszek[$i]);
+                        }
 
-						list($balo, $jobbo) = preg_split('(!=|<=|>=|=|>|<)', $reszek[$i]);
-						$balo  = preg_replace('/^(`|\'?)(.*)(`|\'$)/', '$2', $balo); //Esetleges idézőjelek eltávolítása `teszt` => teszt 'teszt' => teszt
-						$jobbo = preg_replace('/^(`|\'?)(.*)(`|\'$)/', '$2', $jobbo);
-						$string .= "`".$balo."`".$muveleti_jel."'".$jobbo."'";
-					} else {
-						$string .= ' '.$reszek[$i].' ';	//or, and..
-					}
-				}
-			}
+                        list($balo, $jobbo) = preg_split('(!=|<=|>=|=|>|<)', $reszek[$i]);
+                        $balo  = preg_replace('/^(`|\'?)(.*)(`|\'$)/', '$2', $balo); //Esetleges idézőjelek eltávolítása `teszt` => teszt 'teszt' => teszt
+                        $jobbo = preg_replace('/^(`|\'?)(.*)(`|\'$)/', '$2', $jobbo);
+                        $string .= "`".$balo."`".$muveleti_jel."'".$jobbo."'";
+                    } else {
+                        $string .= ' '.$reszek[$i].' ';	//or, and..
+                    }
+                }
+            }
 
-		} else {
+        } else {
 
-			$mit   = array(', `asc`', ', `desc`');
-			$mivel = array(' ASC', ' DESC');
+            $mit   = array(', `asc`', ', `desc`');
+            $mivel = array(' ASC', ' DESC');
 
-			//Ha nem üres és nem kérünk le minden sort
-			if($string && $string!='*'){
-				$reszek = explode(' ', $string);
+            //Ha nem üres és nem kérünk le minden sort
+            if($string && $string!='*'){
+                $reszek = explode(' ', $string);
 
-				$meret = count($reszek);
-				for($i = 0; $i < $meret; $i++){
-					$reszek[$i] = preg_replace('/^(`|\'|,?)(.*)(`|\'|,$)/', '$2', $reszek[$i]);
-					if($reszek[$i]){	//Üres szting nem kap idézőjelet
-						$reszek[$i]='`'.$reszek[$i].'`';
-					}
-				}
-				//Üres elemeket töröljük (pl. ha az oszlopok vagy order ilyen: nev , id)
-				$i=0;
-				foreach($reszek as $resz){
-					if(!$resz){
-						unset($reszek[$i]);
-					}
-					$i++;
-				}
-				$string = implode(', ', $reszek);
-			}
+                $meret = count($reszek);
+                for($i = 0; $i < $meret; $i++){
+                    $reszek[$i] = preg_replace('/^(`|\'|,?)(.*)(`|\'|,$)/', '$2', $reszek[$i]);
+                    if($reszek[$i]){	//Üres szting nem kap idézőjelet
+                        $reszek[$i]='`'.$reszek[$i].'`';
+                    }
+                }
+                //Üres elemeket töröljük (pl. ha az oszlopok vagy order ilyen: nev , id)
+                $i=0;
+                foreach($reszek as $resz){
+                    if(!$resz){
+                        unset($reszek[$i]);
+                    }
+                    $i++;
+                }
+                $string = implode(', ', $reszek);
+            }
 
-			$string = str_replace($mit, $mivel, $string);
+            $string = str_replace($mit, $mivel, $string);
 
-		}
+        }
 
-		return $string;
-	}
+        return $string;
+    }
 
 
     /**
@@ -535,7 +532,7 @@ class Adatbazis {
     * @return int
     */
     public function getSorokSzama(){
-		return $this->sorok_szama;
+        return $this->sorok_szama;
     }
 
     /**
@@ -544,7 +541,7 @@ class Adatbazis {
     * @return string
     */
     public function getParancs(){
-		return $this->legutobbiParancs;
+        return $this->legutobbiParancs;
     }
 
     /**
@@ -553,7 +550,7 @@ class Adatbazis {
     * @return string
     */
     public function gp(){
-		return $this->getParancs();
+        return $this->getParancs();
     }
 
 }

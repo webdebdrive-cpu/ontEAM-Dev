@@ -1438,16 +1438,16 @@ function i_u($type, $tabla, $tomb) {
                 $i++;
             }
 
-            // Andoc_id-t és a létrehozással kapcsolatos adatokat még letároljuk az éles fej táblában INSERT után
-            $szamla = $adatbazis_kapcsolat->s2('andoc_id vonalkod erk_xml dok_link ikt_usr insert_dt', 'energia_szamla_atmeneti', "`recid`='{$_POST['atmeneti_recid']}'");
+            // Andoc_id-t, fajtát és a létrehozással kapcsolatos adatokat még letároljuk az éles fej táblában INSERT után
+            $szamla = $adatbazis_kapcsolat->s2('andoc_id fajta vonalkod erk_xml dok_link ikt_usr insert_dt', 'energia_szamla_atmeneti', "`recid`='{$_POST['atmeneti_recid']}'");
             if( $szamla === false ) { $db_error = true; }
             $szamla['erk_xml']  = htmlspecialchars_decode($szamla['erk_xml']);
             $szamla['vonalkod'] = htmlspecialchars_decode($szamla['vonalkod']);
             $szamla['dok_link'] = htmlspecialchars_decode($szamla['dok_link']);
 
             $sql = $adatbazis_kapcsolat->u('energia_szamla', 
-                                                                array('andoc_id',           'ont_erk_dt',         'erk_xml',            'vonalkod',           'dok_link',           'ikt_usr'          ),
-                                                                array($szamla['andoc_id'],  $szamla['insert_dt'], $szamla['erk_xml'],   $szamla['vonalkod'],  $szamla['dok_link'],  $szamla['ikt_usr'] ),
+                                                                array('andoc_id',           'fajta',           'ont_erk_dt',         'erk_xml',            'vonalkod',           'dok_link',           'ikt_usr'          ),
+                                                                array($szamla['andoc_id'],  $szamla['fajta'],  $szamla['insert_dt'], $szamla['erk_xml'],   $szamla['vonalkod'],  $szamla['dok_link'],  $szamla['ikt_usr'] ),
                                                             "`recid`='{$id}'");
             if( $sql === false ) { $db_error = true; }
             
@@ -4547,7 +4547,7 @@ function szamla_lista( $where = '', $tabla = '', $kijeloltek = false, $csak_sql_
             }
         }
         if( $tabla == 'energia_szamla' ) {
-            $where = "`".get_db_tabla()."energia_szamla`.`telephely_id` IN (".implode(',', $szallodak).") AND ";
+            $where = "`".get_db_tabla()."energia_szamla`.`telephely_id` IN (".implode(',', $szallodak).") AND `fajta`='{$_GET['f']}' AND ";
         }
         if( $tabla == 'eseti_fenntartas' ) {
             $where = "`".get_db_tabla()."eseti_fenntartas`.`telephely_id` IN (".implode(',', $szallodak).") AND ";
@@ -14159,7 +14159,7 @@ function get_nyomtatas_alairasok() {
 
 // Nyomtatási képhez a keret
 function get_nyomtatas_keret($title){
-    if (isset($_GET['szall'])) {
+    if (isset($_GET['szall']) || self('-bn-') == 'munkalap.php') {
         return '
                 <head>
                     <title>'.$title.'</title>

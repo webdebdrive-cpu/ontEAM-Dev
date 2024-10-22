@@ -227,7 +227,7 @@ function szamla_oszlopok() {
         'ont_erk_dt',
         'update_usr',
         'insert_dt',
-        'insert_usr'
+        'insert_usr',
     );
 }
 
@@ -630,3 +630,9 @@ define('TELEPHELY_ANNAB_MSZ',       2057);
 define('TELEPHELY_ANNAB_MSZ_MOD',   2050);
 define('TELEPHELY_MARINA_MSZ',      2058);
 define('TELEPHELY_MARINA_MSZ_MOD',  2060);
+
+// Energia számla fajták
+define('ENERGIA_SZAMLA_VILLANY',    1);
+define('ENERGIA_SZAMLA_GAZ',        2);
+define('ENERGIA_SZAMLA_VIZ',        3);
+define('ENERGIA_SZAMLA_TERMAL',     4);

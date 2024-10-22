@@ -74,6 +74,13 @@ if( isset($_POST['szamla_athelyez']) ) {
                 }
                 $ertekek[$oszlop] = $szamla[$oszlop];
             }
+
+            // Energia számláknál még egy fajta oszlopot is ki kell töltenünk
+            if( $tabla == 'energia_szamla_atmeneti' ) {
+                array_push($oszlopok, 'fajta'        );
+                array_push($ertekek,  $_POST['fajta']);
+            }
+
             // Tényleges mozgatás
             $sql = $adatbazis_kapcsolat->i($tabla, $oszlopok, $ertekek);
             if( $sql === false ) { $db_error = true; }
@@ -89,7 +96,7 @@ if( isset($_POST['szamla_athelyez']) ) {
             'title' => 'Hiba'
         ));
     }
-    
+
     if( !$db_error ) {
         mysqli_commit($db_kapcs);
         echo json_encode(array('siker' => '1'));
@@ -240,7 +247,19 @@ require_once('selectek.php');
         
         if( _jog(ANDOC_SZAMLAK_SZETOSZTASA) ) {
             $gombok .= '<input type="button" class="gomb" value="Fenntartás" onclick="szamla_athelyez(\'fenntartas\')"> ';
-            $gombok .= '<input type="button" class="gomb" value="Energia" onclick="szamla_athelyez(\'energia\')"> ';
+            $gombok .= nl2('
+                        <div class="kijeloltek_muv">
+                            <input type="button" class="gomb foGomb modositaskor_rejt" value="Energia">
+                            <div class="muv">
+                                <ul>
+                                    <li><a onclick="szamla_athelyez(\'energia\', \''.ENERGIA_SZAMLA_VILLANY .'\')">Villany</a></li>
+                                    <li><a onclick="szamla_athelyez(\'energia\', \''.ENERGIA_SZAMLA_GAZ     .'\')">Gáz</a></li>
+                                    <li><a onclick="szamla_athelyez(\'energia\', \''.ENERGIA_SZAMLA_VIZ     .'\')">Víz és csatorna</a></li>
+                                    <li><a onclick="szamla_athelyez(\'energia\', \''.ENERGIA_SZAMLA_TERMAL  .'\')">Termál- és gyógyvíz</a></li>
+                                </ul>
+                            </div>
+                        </div>
+                        ');
             $gombok .= '<input type="button" class="gomb" value="Anyag" onclick="szamla_athelyez(\'anyag\')"> ';
             $gombok .= '<input type="button" class="gomb" value="Projekt" onclick="szamla_athelyez(\'projekt\')"> ';
             $gombok .= '<input type="button" class="gomb" value="Megállapodás" onclick="szamla_athelyez(\'megallapodas\')"> ';

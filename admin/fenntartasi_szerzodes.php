@@ -989,6 +989,7 @@ require_once('selectek.php');
             $onclick = 'if( form_ell_admin_elott() ){ uj_szerzodes_ellenorzes(); }';
 // 2024.10.06 Volt róla szó, hogy létre kell tudni hozni új üres szerződést is, nem csak Andocból. Sőt, ez lényegében meg is lett csinálva, volt is róla levelezve.
 // Viszont mégsem kérték, ezér itt is megállítjuk ezt a folyamatot, a bizti kedvéért.
+// (Erre a "2024.10.06 Volt róla szó, hogy"-ra ha rákeresel találsz még ide vonatkozó kódokat.)
 if( !$_GET['andoc_id'] ) {
     echo '<script>location.href=\'fenntartasi_szerzodes.php\'</script>';
 }
