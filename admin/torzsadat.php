@@ -468,31 +468,33 @@ require_once('selectek.php');
 	// Napi munkaidő
     } elseif( isset($_GET['napi_munkaido']) ) {
 
-        $sor = $adatbazis_kapcsolat -> s2('nev', $megnevezes, "`recid`='{$_GET['id']}'");
-        // Táblázat kirajzolása
-        $szamla_html .= nl2('
-            <input type="hidden" id="nev" value="'.$sor['nev'].'">
-            <table class="csikos" id="napi_munkaido">
-            <tr>
-                <th>Dátum</th>
-                <th>Óra</th>
-            </tr>
-            ');
-        $munkaidok = $adatbazis_kapcsolat->s('*', 'torzsadat_napi_munkaido', "`torzsadat_recid`='{$_GET['id']}'", 'datum');
-        foreach( $munkaidok as $munkaido ) {
+        if( $_GET['id'] ) {
+            $sor = $adatbazis_kapcsolat -> s2('nev', $megnevezes, "`recid`='{$_GET['id']}'");
+            // Táblázat kirajzolása
             $szamla_html .= nl2('
+                <input type="hidden" id="nev" value="'.$sor['nev'].'">
+                <table class="csikos" id="napi_munkaido">
                 <tr>
-                    <td>
-                        '.datum_kiir($munkaido['datum']).'
-                        <input type="hidden" value="'. date_formaz( substr($munkaido['datum'], 0, 7), '', 'csak hónap').'">
-                    </td>
-                    <td>'.$munkaido['ora'].'</td>
+                    <th>Dátum</th>
+                    <th>Óra</th>
                 </tr>
                 ');
+            $munkaidok = $adatbazis_kapcsolat->s('*', 'torzsadat_napi_munkaido', "`torzsadat_recid`='{$_GET['id']}'", 'datum');
+            foreach( $munkaidok as $munkaido ) {
+                $szamla_html .= nl2('
+                    <tr>
+                        <td>
+                            '.datum_kiir($munkaido['datum']).'
+                            <input type="hidden" value="'. date_formaz( substr($munkaido['datum'], 0, 7), '', 'csak hónap').'">
+                        </td>
+                        <td>'.$munkaido['ora'].'</td>
+                    </tr>
+                    ');
+            }
+            $szamla_html .= nl2('
+                </table>
+                ');
         }
-        $szamla_html .= nl2('
-            </table>
-            ');
         
         if( $_GET['ajax'] ) {
             echo json_encode(array(

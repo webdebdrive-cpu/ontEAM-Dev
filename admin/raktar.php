@@ -236,8 +236,8 @@ require_once('selectek.php');
 			require_once('tobb_kep.php');
 		}
 
-	//Történet
-	}elseif(isset($_GET['tortenet'])){
+    // Történet
+    } elseif (isset($_GET['tortenet'])) {
 
         $szamla_html .= get_tortenet($megnevezes);
 
@@ -263,8 +263,8 @@ require_once('selectek.php');
             echo $szamla_html;
         }
 
-	// Megjegyzések
-	}elseif(isset($_GET['megjegyzesek'])){
+    // Megjegyzések
+    } elseif (isset($_GET['megjegyzesek'])) {
 
         // <div class="dt naplo" class nevekből a kijCont kivéve, hogy a megjegyzéseket ne lehessen törölni
         $szamla_html .= nl2('
@@ -276,20 +276,21 @@ require_once('selectek.php');
                 </div>
         ');
 
-        $sorok = $adatbazis_kapcsolat->s('recid megj insert_usr insert_dt', 'megjegyzes', "`id` = '".$_GET['id']."' AND `tabla` = '".str_replace('.php', '', basename(self()))."'", 'recid desc');
+        if( $_GET['id'] ) {
+            $sorok = $adatbazis_kapcsolat->s('recid megj insert_usr insert_dt', 'megjegyzes', "`id`='{$_GET['id']}' AND `tabla`='".str_replace('.php', '', basename(self()))."'", 'recid desc');
+            if( $sorok ) {
+                $i = 1;
+                foreach($sorok as $sor) {
+                    $szamla_html .= nl2('
+                        <div id="naploSor-'.$sor['recid'].'" data-id="'.$sor['recid'].'" data-i="'.$i.'" class="dtr nSor kijSor">
+                            <div class="dtc">'.htmlspecialchars_decode( nl2br2($sor['megj']) ).'</div>
+                            <div class="dtc">'.$sor['insert_usr'].'</div>
+                            <div class="dtc">'.datum_kiir($sor['insert_dt']).'</div>
+                        </div>
+                    ');
 
-        if( $sorok ) {
-            $i = 1;
-            foreach($sorok as $sor) {
-                $szamla_html .= nl2('
-                    <div id="naploSor-'.$sor['recid'].'" data-id="'.$sor['recid'].'" data-i="'.$i.'" class="dtr nSor kijSor">
-                        <div class="dtc">'.htmlspecialchars_decode( nl2br2($sor['megj']) ).'</div>
-                        <div class="dtc">'.$sor['insert_usr'].'</div>
-                        <div class="dtc">'.datum_kiir($sor['insert_dt']).'</div>
-                    </div>
-                ');
-
-                $i++;
+                    $i++;
+                }
             }
         }
 

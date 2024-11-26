@@ -3652,23 +3652,25 @@ if( $_SERVER['REMOTE_ADDR'] == get_debug_ip() ) {
         ');
         
         // Tételek felsorolása
-        $tetelek = $adatbazis_kapcsolat->s('*', 'projektszamla_tetel', "`projektszamla_recid`='{$_GET['id']}'", 'recid');
-        foreach ( $tetelek as $tetel ) {
+        if( $_GET['id'] ) {
+            $tetelek = $adatbazis_kapcsolat->s('*', 'projektszamla_tetel', "`projektszamla_recid`='{$_GET['id']}'", 'recid');
+            foreach ( $tetelek as $tetel ) {
 
-            $pr_tetel = $adatbazis_kapcsolat->s2('targy', 'projektszerzodes_tetel', "`recid`='{$tetel['projektszerzodes_tetel_recid']}'");
-            
-            $szamla_html .= nl2('
-                <div class="dtr nSor">
-                    <div class="dtc">'.htmlspecialchars_decode($tetel['targy']).'</div>
-                    <div class="dtc">'.htmlspecialchars_decode($tetel['megn']).'</div>
-                    <div class="dtc r nowrap">'.number_format($tetel['netto_ert'], 0, ',', ' ').'</div>
-                    <div class="dtc r nowrap">'.number_format($tetel['brutto_ert'], 0, ',', ' ').'</div>
-                    <div class="dtc r nowrap">'.$tetel['afa'].'</div>
-                    <div class="dtc r nowrap">'.number_format($tetel['dev_net'], 2, ',', ' ').'</div>
-                    <div class="dtc r nowrap">'.number_format($tetel['dev_br'], 2, ',', ' ').'</div>
-                    <div class="dtc">'.htmlspecialchars_decode($pr_tetel['targy']).'</div>
-                </div>
-            ');
+                $pr_tetel = $adatbazis_kapcsolat->s2('targy', 'projektszerzodes_tetel', "`recid`='{$tetel['projektszerzodes_tetel_recid']}'");
+                
+                $szamla_html .= nl2('
+                    <div class="dtr nSor">
+                        <div class="dtc">'.htmlspecialchars_decode($tetel['targy']).'</div>
+                        <div class="dtc">'.htmlspecialchars_decode($tetel['megn']).'</div>
+                        <div class="dtc r nowrap">'.number_format($tetel['netto_ert'], 0, ',', ' ').'</div>
+                        <div class="dtc r nowrap">'.number_format($tetel['brutto_ert'], 0, ',', ' ').'</div>
+                        <div class="dtc r nowrap">'.$tetel['afa'].'</div>
+                        <div class="dtc r nowrap">'.number_format($tetel['dev_net'], 2, ',', ' ').'</div>
+                        <div class="dtc r nowrap">'.number_format($tetel['dev_br'], 2, ',', ' ').'</div>
+                        <div class="dtc">'.htmlspecialchars_decode($pr_tetel['targy']).'</div>
+                    </div>
+                ');
+            }
         }
         $szamla_html .= '</div>';
         
@@ -3708,39 +3710,41 @@ if( $_SERVER['REMOTE_ADDR'] == get_debug_ip() ) {
         ');
         
         // Tételek felsorolása
-        $tetelek = $adatbazis_kapcsolat->s('*', 'projektszamla_konyveles', "`projektszamla_recid`='{$_GET['id']}'", 'recid');
-        $szamla  = $adatbazis_kapcsolat->s2('kcs_21', 'projektszamla', "`recid`='{$_GET['id']}'");
-        foreach ( $tetelek as $tetel ) {
-            
-            $jogcim  = $adatbazis_kapcsolat->s2('jogcim', 'jogcim',   "`recid`='{$tetel['jogcim_recid']}'");
-            $afakod  = $adatbazis_kapcsolat->s2('afa',    'afakod',   "`recid`='{$tetel['afakod_recid']}'");
-            $dijelem = $adatbazis_kapcsolat->s2('info', 'erteklista', "`recid`='{$tetel['dijelem_recid']}'");
-            
-            $aranyos = '';
-            if( $tetel['aranyos'] ) {
-                $aranyos .= '✓';
+        if( $_GET['id'] ) {
+            $tetelek = $adatbazis_kapcsolat->s('*', 'projektszamla_konyveles', "`projektszamla_recid`='{$_GET['id']}'", 'recid');
+            $szamla  = $adatbazis_kapcsolat->s2('kcs_21', 'projektszamla', "`recid`='{$_GET['id']}'");
+            foreach ( $tetelek as $tetel ) {
+                
+                $jogcim  = $adatbazis_kapcsolat->s2('jogcim', 'jogcim',   "`recid`='{$tetel['jogcim_recid']}'");
+                $afakod  = $adatbazis_kapcsolat->s2('afa',    'afakod',   "`recid`='{$tetel['afakod_recid']}'");
+                $dijelem = $adatbazis_kapcsolat->s2('info', 'erteklista', "`recid`='{$tetel['dijelem_recid']}'");
+                
+                $aranyos = '';
+                if( $tetel['aranyos'] ) {
+                    $aranyos .= '✓';
+                }
+                
+                $dev_oszlopok = '';
+                if( $sor['kcs_21'] != KCS_21_HUF ) {
+                    $dev_oszlopok = nl2('
+                        <div class="dtc r nowrap">'.number_format($tetel['dev_net'], 2, ',', ' ').'</div>
+                        <div class="dtc r nowrap">'.number_format($tetel['dev_br'], 2, ',', ' ').'</div>
+                        ');
+                }
+                
+                $szamla_html .= nl2('
+                    <div class="dtr nSor">
+                        <div class="dtc">'.htmlspecialchars_decode($jogcim['jogcim']).'</div>
+                        <div class="dtc r nowrap">'.$tetel['ktgnem_id'].'</div>
+                        <div class="dtc r nowrap">'.$tetel['ktghely_id'].'</div>
+                        <div class="dtc r nowrap">'.number_format($tetel['netto_ert'], 0, ',', ' ').'</div>
+                        <div class="dtc r nowrap">'.number_format($tetel['brutto_ert'], 0, ',', ' ').'</div>
+                        '.$dev_oszlopok.'
+                        <div class="dtc nowrap">'.$tetel['afa_kod'].'</div>
+                        <div class="dtc r nowrap">'.number_format($afakod['afa'], 0, ',', ' ').'</div>
+                    </div>
+                ');
             }
-            
-            $dev_oszlopok = '';
-            if( $sor['kcs_21'] != KCS_21_HUF ) {
-                $dev_oszlopok = nl2('
-                    <div class="dtc r nowrap">'.number_format($tetel['dev_net'], 2, ',', ' ').'</div>
-                    <div class="dtc r nowrap">'.number_format($tetel['dev_br'], 2, ',', ' ').'</div>
-                    ');
-            }
-            
-            $szamla_html .= nl2('
-                <div class="dtr nSor">
-                    <div class="dtc">'.htmlspecialchars_decode($jogcim['jogcim']).'</div>
-                    <div class="dtc r nowrap">'.$tetel['ktgnem_id'].'</div>
-                    <div class="dtc r nowrap">'.$tetel['ktghely_id'].'</div>
-                    <div class="dtc r nowrap">'.number_format($tetel['netto_ert'], 0, ',', ' ').'</div>
-                    <div class="dtc r nowrap">'.number_format($tetel['brutto_ert'], 0, ',', ' ').'</div>
-                    '.$dev_oszlopok.'
-                    <div class="dtc nowrap">'.$tetel['afa_kod'].'</div>
-                    <div class="dtc r nowrap">'.number_format($afakod['afa'], 0, ',', ' ').'</div>
-                </div>
-            ');
         }
         $szamla_html .= '</div>';
         
@@ -4000,20 +4004,21 @@ if( $_SERVER['REMOTE_ADDR'] == get_debug_ip() ) {
                 </div>
         ');
 
-        $sorok = $adatbazis_kapcsolat->s('recid megj insert_usr insert_dt', 'megjegyzes', "`id` = '".$_GET['id']."' AND `tabla` = '".str_replace('.php', '', basename(self()))."'", 'recid desc');
+        if( $_GET['id'] ) {
+            $sorok = $adatbazis_kapcsolat->s('recid megj insert_usr insert_dt', 'megjegyzes', "`id`='{$_GET['id']}' AND `tabla`='".str_replace('.php', '', basename(self()))."'", 'recid desc');
+            if( $sorok ) {
+                $i = 1;
+                foreach ( $sorok as $sor ) {
+                    $szamla_html .= nl2('
+                        <div id="naploSor-'.$sor['recid'].'" data-id="'.$sor['recid'].'" data-i="'.$i.'" class="dtr nSor kijSor">
+                            <div class="dtc">'.htmlspecialchars_decode( nl2br2($sor['megj']) ).'</div>
+                            <div class="dtc">'.$sor['insert_usr'].'</div>
+                            <div class="dtc">'.datum_kiir($sor['insert_dt']).'</div>
+                        </div>
+                    ');
 
-        if( $sorok ) {
-            $i = 1;
-            foreach ( $sorok as $sor ) {
-                $szamla_html .= nl2('
-                    <div id="naploSor-'.$sor['recid'].'" data-id="'.$sor['recid'].'" data-i="'.$i.'" class="dtr nSor kijSor">
-                        <div class="dtc">'.htmlspecialchars_decode( nl2br2($sor['megj']) ).'</div>
-                        <div class="dtc">'.$sor['insert_usr'].'</div>
-                        <div class="dtc">'.datum_kiir($sor['insert_dt']).'</div>
-                    </div>
-                ');
-
-                $i++;
+                    $i++;
+                }
             }
         }
 

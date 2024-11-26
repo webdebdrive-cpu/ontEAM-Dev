@@ -4,13 +4,30 @@
         <div class="dt">
 
             <div class="dtr">
+                <div class="dtc form_bal">Szállító adatai:</div>
+                <div class="dtc form_jobb">
+                    <textarea id="pop_szallito_adatai" class="csillag" onkeyup="if( $(this).val().trim()=='' ){ $(this).val(''); }" style="min-width: 50rem; min-height: 10rem;"></textarea>
+                </div>
+            </div>
+
+            <div class="dtr">
+                <div class="dtc form_bal">Megrendelő adatai:</div>
+                <div class="dtc form_jobb">
+                    <textarea id="pop_megrendelo_adatai" class="csillag" onkeyup="if( $(this).val().trim()=='' ){ $(this).val(''); }" style="min-width: 50rem; min-height: 10rem;"></textarea>
+                </div>
+            </div>
+
+            <div class="dtr">
                 <div class="dtc form_bal">Megrendelés tárgya:</div>
                 <div class="dtc form_jobb">
-                    <textarea id="pop_megr_targya" class="csillag" onkeyup="if( $(this).val().trim()=='' ){ $(this).val(''); }" style="min-width: 50rem; min-height: 15rem;">Tisztelt Partnerünk!
+                    <textarea id="pop_megr_targya" class="csillag" onkeyup="if( $(this).val().trim()=='' ){ $(this).val(''); }" style="min-width: 50rem; min-height: 10rem;"></textarea>
+                </div>
+            </div>
 
-A Danubius Hotels Zrt. képviseletében megrendeljük Önöktől az alábbiakban részletezett munka elvégzését:
-
-</textarea>
+            <div class="dtr">
+                <div class="dtc form_bal">Jótállállás:</div>
+                <div class="dtc form_jobb">
+                    <input type="text" id="pop_jotallas" class="f_num" maxlength="2" data-tort="0" style="width: 4rem;"> hónap
                 </div>
             </div>
 
@@ -38,7 +55,7 @@ A Danubius Hotels Zrt. képviseletében megrendeljük Önöktől az alábbiakban
         </div>
     </div>
     <div class="kuldes">
-        <input type="button" name="elkuld" class="gomb zold" value="Megrendelése elkészítése" onclick="munkalapMegrendelesKeszit();">
+        <input type="button" name="elkuld" class="gomb zold" value="Megrendelése elkészítése" onclick="munkalapMegrendelesKeszit(); const pdf_interval = setInterval(() => { if (pdf_megnyithato === 1) { window.open('munkalap.php?nyomtat&amp;PDF_hez=1&amp;id='+_get('id')); clearInterval(pdf_interval); } }, 500);">
         <input type="button" name="megsem" class="gomb piros" value="Mégsem" onclick="popupZar();">
     </div>
 </form>
@@ -48,20 +65,74 @@ $(document).ready(function(){
     if( !$('#text').length ) {
         var text = $('#text_db').val();
     }
-    $('#pop_megr_targya').val( $('#pop_megr_targya').val() + text);
-    $('#pop_vallal_ar').val( $('#jh_ert_dev_db').val() );
-    $('#pop_penznem_afa').html($('#penznem_db').val()+' + Áfa');
+    $('#pop_szallito_adatai'    ).val( $('#szallito_adatai'     ).val());
+    $('#pop_megrendelo_adatai'  ).val( $('#megrendelo_adatai'   ).val());
+    $('#pop_megr_targya'        ).val( text                            );
+    $('#pop_vallal_ar'          ).val( $('#jh_ert_dev_db'       ).val());
+    $('#pop_penznem_afa'        ).html($('#penznem_db'          ).val()+' + Áfa');
 });
-function munkalapMegrendelesKeszit() {
+var pdf_megnyithato = 0;
+function munkalapMegrendelesKeszit(mehet = '') {
+
+    pdf_megnyithato = 0;
+    alert2('PDF készítése...', '', 'Üzenet');
+
+    // Előbb még csak rákérdezünk, viszont már ekkor is lefut egy Ajax, mert az adatok helyességét már vizsgáljuk illetve SESSION-be kimentjük.
+    if( !mehet ) {
+
+        $.ajax({
+            url : 'munkalap.php',
+            type: 'POST',
+            data: {
+                szallito_txt                : $('#pop_szallito_adatai'  ).val(),
+                megrendelo_txt              : $('#pop_megrendelo_adatai').val(),
+                targy                       : $('#pop_megr_targya'      ).val(),
+                jotallas                    : $('#pop_jotallas'         ).val(),
+                hatarido                    : $('#pop_hatarido'         ).val(),
+                kelt                        : $('#pop_ajanlat_kelt'     ).val(),
+                ar                          : $('#pop_vallal_ar'        ).val(),
+                recid                       : _get('id'),
+                munkalapMegrendelesKeszit   : new Date().getTime(),
+                PDF_hez                     : 1,
+            },
+            success: function(response){
+                if(response.substring(0, 6)=='SESKIL'){ location.href = 'index.php'; }
+                if( response ) {
+                    response = JSON.parse(response);
+
+                    if( response.hiba ) {
+                        alert2(response.hiba, response.gomb, response.title);
+                        if( response.focus ) {
+                            $('#'+response.focus).addClass('hibas_ide_focus');
+                        }
+                        return false;
+                    }
+
+                    pdf_megnyithato = 1;
+                    alert2('Véglegesíti a megrendelést?', '<input type="button" class="gomb zold enter" value="Igen" onclick="munkalapMegrendelesKeszit(\'-mehet-\'); const pdf_interval_2 = setInterval(() => { if (pdf_megnyithato === 2) { window.open(\'munkalap.php?nyomtat&amp;id='+_get('id')+'\'); clearInterval(pdf_interval_2); } }, 500);"><input type="button" class="gomb piros" value="Vissza a megrendelés elkészítéséhez" onclick="alert2()">');
+                }
+            },
+            complete: function(xhr) {
+                if( xhr.status != 200 ) {
+                    alert2(xhr.responseText, '', 'Hiba');
+                }
+            }
+        });
+
+        return false;
+    }
     
     $.ajax({
         url : 'munkalap.php',
         type: 'POST',
         data: {
-            targy                       : $('#pop_megr_targya'  ).val(),
-            hatarido                    : $('#pop_hatarido'     ).val(),
-            kelt                        : $('#pop_ajanlat_kelt' ).val(),
-            ar                          : $('#pop_vallal_ar'    ).val(),
+            szallito_txt                : $('#pop_szallito_adatai'  ).val(),
+            megrendelo_txt              : $('#pop_megrendelo_adatai').val(),
+            targy                       : $('#pop_megr_targya'      ).val(),
+            jotallas                    : $('#pop_jotallas'         ).val(),
+            hatarido                    : $('#pop_hatarido'         ).val(),
+            kelt                        : $('#pop_ajanlat_kelt'     ).val(),
+            ar                          : $('#pop_vallal_ar'        ).val(),
             recid                       : _get('id'),
             munkalapMegrendelesKeszit   : new Date().getTime()
         },
@@ -72,14 +143,13 @@ function munkalapMegrendelesKeszit() {
 
                 if( response.hiba ) {
                     alert2(response.hiba, response.gomb, response.title);
+                    if( response.focus ) {
+                        $('#'+response.focus).addClass('hibas_ide_focus');
+                    }
                     return false;
                 }
 
-                // PDF-et mutassuk meg
-                // Mégsem felirgó ablakkal, mert azt a bögnésző van hogy blokkolja
-                // window.open(response.url);
-                location.href=response.url;
-
+                pdf_megnyithato = 2;
                 szamlaBetolt(_get('id'), PHP_SELF, 'modosit');
                 popupZar();
             }

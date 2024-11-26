@@ -86,10 +86,10 @@ ol.konyvtar_szerk li.sor:hover{
 
 ol.konyvtar_szerk li.sor.aktiv{
     color: #fff;
-    background: #55A2FA;
+    background: var(--color-kek);
 }
 
 ol.konyvtar_szerk li a.aktiv{
     color: #fff;
-    background: #55A2FA;
+    background: var(--color-kek);
 }

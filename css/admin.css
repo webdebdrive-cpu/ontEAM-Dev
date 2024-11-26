@@ -1,4 +1,10 @@
-body{
+*{
+    --color-kek: #55a2fa;
+    --color-kek-hover: #5192da;
+    --color-kek-kijelolt: #3C88DE;
+    --color-sotet-kek: #1565C0;
+}
+body {
     background: #fff;
     color: #242424;
     font-family: 'Open Sans', sans-serif;
@@ -52,18 +58,18 @@ a:hover{
 }
 
 div.telepit a{
-    color: #0077BC;
+    color: var(--color-kek);
     text-decoration: none;
 }
 
 div.telepit a:hover{
-    color: #0077BC;
+    color: var(--color-kek-hover);
     text-decoration: underline;
 }
 
 div.pb{
     background: #90B7D8 url('../elemek/admin/pb_hat.gif') no-repeat top right;
-    border: 0.1rem solid #3979B5;
+    border: 0.1rem solid var(--color-kek);
     color: #fff;
     font-weight: bold;
     font-size: 1.5rem;
@@ -152,7 +158,7 @@ div.err_info{
 
 div.sav{
     background: #CDDFED;
-    border: 0.1rem solid #74A5CA;
+    border: 0.1rem solid #7ABADE;
     border-radius: 0.2rem;
     font-size: 1.1rem;
     margin: auto;
@@ -180,8 +186,7 @@ td.fejlec a:hover{
     text-decoration: underline;
 }
 
-.form_bal,
-.form_bal .link{
+.form_bal, .form_bal .link{
     color: #1A1A1A;
     font-size: 1.4rem;
     padding: 0rem 0.2rem 0rem 0rem;
@@ -195,7 +200,7 @@ td.fejlec a:hover{
 }
 
 .form_bal.jogKat span {
-    border-bottom: 0.1rem solid #1565C0;
+    border-bottom: 0.1rem solid var(--color-sotet-kek);
     display: inline-block;
     font-size: 1.6rem;
 }
@@ -214,10 +219,6 @@ td.fejlec a:hover{
 }
 
 .form_kozep p, legend{
-    /*border-bottom: 0.2rem solid #b8cde4;
-    font-size: 1.6rem;
-    font-weight: 600;
-    padding: 6rem 0rem 0.5rem;*/
     text-align: left;
     text-transform: uppercase;
 }
@@ -227,7 +228,7 @@ legend{
 }
 
 input.gomb.border{
-    border: 0.1rem solid #2F5B7D;
+    border: 0.1rem solid var(--color-sotet-kek);
 }
 
 /* Módosít mehet gombja */
@@ -374,7 +375,7 @@ div.kijeloltek_muv div.muv li a.tovabbi_menu:after {
 }
 
 .form_jobb a.obj_gen {
-    background: #1565C0;
+    background: var(--color-sotet-kek);
     border-radius: 0.2rem;
     display: inline-block;
     height: 2.2rem;
@@ -488,7 +489,7 @@ input[disabled], select[disabled], textarea[disabled], input[readonly], select[r
     cursor: default;
 }
 input[disabled].csillag, select[disabled].csillag, textarea[disabled].csillag, input[readonly].csillag, select[readonly].csillag, textarea[readonly].csillag, input[readonly].csillag:focus, select[readonly].csillag:focus, textarea[readonly].csillag:focus, input[readonly].csillag:active, select[readonly].csillag:active, textarea[readonly].csillag:active {
-    border-left: 0.4rem solid #52a3f5!important;
+    border-left: 0.4rem solid var(--color-kek)!important;
 }
 
 
@@ -513,7 +514,7 @@ select.alert{
 }
 
 input[type="text"]:focus{
-    border: 0.1rem solid #52a3f5;
+    border: 0.1rem solid var(--color-kek);
 }
 
 input[type="text"].flat{
@@ -573,7 +574,7 @@ input:focus{
 }
 
 input.gomb{
-    background: #54a2f9;
+    background: var(--color-kek);
     border: 0.1rem solid rgba(0, 0, 0, 0);
     border-radius: 0.3rem;
     color: #fff;
@@ -586,7 +587,7 @@ input.gomb{
 }
 
 input.gomb:hover, input.gomb:focus, input.gomb:active{
-    background: #5192da;
+    background: var(--color-kek-hover);
 }
 
 input.gomb.piros{
@@ -694,7 +695,7 @@ select{
 }
 
 select:focus{
-    border: 0.1rem solid #52a3f5;
+    border: 0.1rem solid var(--color-kek);
     color: #000;
 }
 
@@ -770,7 +771,7 @@ textarea.oriasiTargy.alacsony, textarea.oriasi.alacsony {
 }
 
 textarea:focus{
-    border: 0.1rem solid #55a2fa;
+    border: 0.1rem solid var(--color-kek);
 }
 
 p.form_felirat{
@@ -846,7 +847,7 @@ div.jsff div.talloz{
 }
 
 div.jsff div.talloz div{
-    background: #54A2F9;
+    background: var(--color-kek);
     border: 0;
     border-radius: 0.2rem;
     color: #fff;
@@ -863,7 +864,7 @@ div.jsff div.talloz div.kicsi {
 }
 
 div.jsff div.talloz div:hover, div.jsff div.talloz div:focus, div.jsff div.talloz div:active{
-	background: #5192DA;
+	background: var(--color-kek-hover);
 }
 
 div.jsff div.talloz div input{
@@ -1331,7 +1332,7 @@ input.webdeb{
 /* Input végébe csillag, ha kötelező */
 .csillag, .csillag:focus {
     background: #fff;
-    border-left: 0.4rem solid #52a3f5!important;
+    border-left: 0.4rem solid var(--color-kek)!important;
 }
 .csillag.mod, .csillag.mod:focus {
     background: #ffdcdd;
@@ -1712,7 +1713,7 @@ ul.szamla_cont li:last-child a {
 }
 
 ul.szamla_cont li.active:last-child a {
-    border-bottom: 0.1rem solid #55a2fa;
+    border-bottom: 0.1rem solid var(--color-kek);
 }
 
 ul.szamla_cont li a.szamla {
@@ -1772,7 +1773,7 @@ ul.szamla_cont li a.nohover:hover {
 }
 
 ul.szamla_cont li.szamla_datum {
-    border-bottom: 0.2rem solid #024c95;
+    border-bottom: 0.2rem solid var(--color-sotet-kek);
     padding: 0.3rem 1rem 0.3rem 1rem;
 }
 
@@ -1789,11 +1790,10 @@ ul.szamla_cont li.szamla_datum.csoport {
 }
 
 ul.szamla_cont li.szamla_datum.csoport.kijelolve {
-    background: #55A2FA;
+    background: var(--color-kek);
 }
 
-ul.szamla_cont li.szamla_datum.csoport.kijelolve strong,
-ul.szamla_cont li.szamla_datum.csoport.kijelolve .material-icons {
+ul.szamla_cont li.szamla_datum.csoport.kijelolve strong, ul.szamla_cont li.szamla_datum.csoport.kijelolve .material-icons {
     color: #fff;
 }
 
@@ -1812,8 +1812,7 @@ ul.szamla_cont li.szamla_datum.csoport > span.icon {
     z-index: 2;
 }
 
-ul.szamla_cont li.szamla_datum.csoport > span.icon:before,
-ul.szamla_cont li.szamla_datum.csoport > span.icon:after {
+ul.szamla_cont li.szamla_datum.csoport > span.icon::before, ul.szamla_cont li.szamla_datum.csoport > span.icon::after {
     background: #333;
     content: '';
     height: 0.1rem;
@@ -1823,11 +1822,11 @@ ul.szamla_cont li.szamla_datum.csoport > span.icon:after {
     width: 0.7rem;
 }
 
-ul.szamla_cont li.szamla_datum.csoport span.icon:after {
+ul.szamla_cont li.szamla_datum.csoport span.icon::after {
     transform: rotate(90deg);
 }
 
-ul.szamla_cont li.szamla_datum.csoport.nyitva span.icon:after {
+ul.szamla_cont li.szamla_datum.csoport.nyitva span.icon::after {
     transform: rotate(0deg);
 }
 
@@ -1846,8 +1845,8 @@ ul.szamla_cont li.szamla_datum.csoport span.icon.bej .material-icons {
 }
 
 ul.szamla_cont li.active a {
-    background: #55a2fa;
-    border-top: 0.1rem solid #55a2fa;
+    background: var(--color-kek);
+    border-top: 0.1rem solid var(--color-kek);
     color: #fff;
 }
 
@@ -1860,11 +1859,11 @@ ul.szamla_cont li a td {
 }
 
 ul.szamla_cont li:not(.csoport).active + li a {
-    border-top: 0.1rem solid #55a2fa;
+    border-top: 0.1rem solid var(--color-kek);
 }
 
 ul.szamla_cont li.kijelolve a:not(.nohover) {
-    background: #55A2FA;
+    background: var(--color-kek);
     color: #fff;
 }
 
@@ -1906,9 +1905,7 @@ table.szamla_cont_tabla tr{
     cursor: pointer;
 }
 
-table.szamla_cont_tabla tr.futoertek td.dnem,
-table.szamla_cont_tabla tr.futoertek td.arf,
-table.szamla_cont_tabla tr.futoertek td.szurke {
+table.szamla_cont_tabla tr.futoertek td.dnem, table.szamla_cont_tabla tr.futoertek td.arf, table.szamla_cont_tabla tr.futoertek td.szurke {
     background: #ccc;
 }
 table.szamla_cont_tabla tr.futoertek.piros_hat td.szurke{
@@ -1956,7 +1953,7 @@ table.szamla_cont_tabla tfoot tr td{
     padding: 1rem 0.2rem;
 }
 table.szamla_cont_tabla tr.kijelolve, table.szamla_cont_tabla tr.kijelolve:hover{
-    background: #55A2FA;
+    background: var(--color-kek);
     color: #fff;
 }
 
@@ -1985,13 +1982,13 @@ div.szamlaKereses input {
 }
 
 div.szamlaKereses input[type="button"] {
-    background: #4E77A6;
+    background: var(--color-kek);
     border: none;
     margin-bottom: 0rem;
 }
 
 div.szamlaKereses input[type="button"]:hover {
-    background: #6F98C7;
+    background: var(--color-kek-hover);
 }
 div.szamlaKereses input[type="button"].piros{
     background: #C44B4B;
@@ -2098,7 +2095,7 @@ div.szamlaFulek a {
 }
 
 div.szamlaFulek a.active {
-    background: #55a2fa;
+    background: var(--color-kek);
     color: #fff;
     font-weight: 700;
 }
@@ -2226,7 +2223,7 @@ div.naplo div.nSor div.dtc.vat {
 
 #ajaxfedo div.icon span {
     border-radius: 100%;
-    background: #004990;
+    background: var(--color-sotet-kek);
     display: inline-block;
     height: 1.6rem;
     margin: 0.4rem 0.5rem 0rem 0.3rem;
@@ -2432,7 +2429,7 @@ input.autocomp, input.autocomp.mod, input.autocomp:focus{
 }
 
 #popup div.popup_kont div.bezar, #alert2 div.bezar {
-    background: #5192da;
+    background: var(--color-kek);
     border-radius: 0rem 0.6rem 0rem 0rem;
     cursor: pointer;
     height: 6rem;
@@ -2443,8 +2440,7 @@ input.autocomp, input.autocomp.mod, input.autocomp:focus{
     z-index: 1;
 }
 
-#popup div.popup_kont div.bezar:before, #alert2 div.bezar:before,
-#popup div.popup_kont div.bezar:after, #alert2 div.bezar:after {
+#popup div.popup_kont div.bezar::before, #alert2 div.bezar::before, #popup div.popup_kont div.bezar::after, #alert2 div.bezar::after {
     background: #fff;
     content: '';
     height: 0.2rem;
@@ -2475,7 +2471,7 @@ input.autocomp, input.autocomp.mod, input.autocomp:focus{
 }
 
 #popup div.popup_tart h2 {
-    background: #54a2f9;
+    background: var(--color-kek);
     border-top-left-radius: 0.6rem;
     color: #fff;
     font-size: 2rem;
@@ -2638,9 +2634,8 @@ input.autocomp, input.autocomp.mod, input.autocomp:focus{
     width: 40%;
 }
 
-#alert2 div.tart div.mobilkeret,
-#popup div.popup_tart div.mobilkeret {
-    border: 0.1rem solid #55A2FA;
+#alert2 div.tart div.mobilkeret, #popup div.popup_tart div.mobilkeret {
+    border: 0.1rem solid var(--color-kek);
     max-height: 20rem;
     overflow-y: auto;
     padding: 0.2rem 0.2rem 0.2rem 0.2rem;
@@ -2679,7 +2674,7 @@ li.kijelolve span.icon.zold {
     color: #97df66;
 }
 span.icon.kek {
-    color: #55A2FA;
+    color: var(--color-kek);
 }
 li.kijelolve span.icon.kek {
     color: #c8e1ff;
@@ -2818,8 +2813,7 @@ ul.telephelyek li.alkatos a span.icon {
     z-index: 2;
 }
 
-ul.telephelyek li.alkatos a span.icon:before,
-ul.telephelyek li.alkatos a span.icon:after {
+ul.telephelyek li.alkatos a span.icon::before, ul.telephelyek li.alkatos a span.icon::after {
     background: #333;
     content: '';
     height: 0.1rem;
@@ -2829,23 +2823,23 @@ ul.telephelyek li.alkatos a span.icon:after {
     width: 0.7rem;
 }
 
-ul.telephelyek li.alkatos a span.icon:after {
+ul.telephelyek li.alkatos a span.icon::after {
     transform: rotate(90deg);
 }
 
-ul.telephelyek li.alkatos a span.icon.active:after {
+ul.telephelyek li.alkatos a span.icon.active::after {
     transform: rotate(0deg);
 }
 
-ul.telephelyek li.fokat:last-child:after {
+ul.telephelyek li.fokat:last-child::after {
     display: none;
 }
 
-ul.telephelyek li.alkat:last-child:after {
+ul.telephelyek li.alkat:last-child::after {
     display: none;
 }
 
-ul.telephelyek li.alkat:first-child:after {
+ul.telephelyek li.alkat:first-child::after {
     background: #333;
     content: '';
     height: calc(100% + 1rem);
@@ -2855,7 +2849,7 @@ ul.telephelyek li.alkat:first-child:after {
     width: 0.1rem;
 }
 
-ul.telephelyek li.alkat:only-child:after {
+ul.telephelyek li.alkat:only-child::after {
     background: #333;
     content: '';
     display: block;
@@ -2890,7 +2884,7 @@ table.csikos tr:nth-of-type(2n)::not(.kijelolve){
 }
 table.csikos tr.kijelolve, table.csikos tr:nth-of-type(2n).kijelolve {
     color: #fff;
-    background: #55A2FA !important;
+    background: var(--color-kek) !important;
 }
 
 table.csikos tr.kiemelt{
@@ -2906,8 +2900,8 @@ table.csikos tr.kiemelt:nth-of-type(2n){
 }
 
 table.csikos th{
-    background: #55a2fa;
-    border-right: 0.1rem solid #55a2fa;
+    background: var(--color-sotet-kek);
+    border-right: 0.1rem solid var(--color-sotet-kek);
     color: #fff;
     font-weight: 600;
     font-size: 1.4rem;
@@ -3144,7 +3138,7 @@ div.szamlaLapozas div.lapoz.pontok {
 }
 
 .kijSor.kijelolve {
-    background: #3C88DE!important;
+    background: var(--color-kek-kijelolt)!important;
     color: #fff;
 }
 
@@ -3166,8 +3160,7 @@ div.szamlaLapozas div.lapoz.pontok {
     width: 0.3rem;
 }
 
-#csuszkaallit span:after,
-#csuszkaallit span:before {
+#csuszkaallit span::after, #csuszkaallit span::before {
     background: #b4b8b7;
     content: '';
     height: 0.3rem;
@@ -3206,8 +3199,8 @@ tr.szerzodes_szamla_tetel_szurke {
 
 #o_feltetel_halmaz b.zaro.aktiv {
     background: #F1F7FD;
-    border: 0.1rem solid #004990;
-    color: #004990;
+    border: 0.1rem solid var(--color-sotet-kek);
+    color: var(--color-sotet-kek);
 }
 
 #o_feltetel_halmaz b.zaro:hover {
@@ -3244,7 +3237,7 @@ div.jog_dt div.dtc.jog_dtc {
 }
 
 div.tetel_div{
-    border: 0.1rem solid #55A2FA;
+    border: 0.1rem solid var(--color-kek);
     margin-bottom: 1rem;
 }
 
@@ -3259,12 +3252,12 @@ div.tetel_div{
 }
 
 div.mobil_hozzarendel{
-    border: 0.1rem solid #55A2FA;
+    border: 0.1rem solid var(--color-kek);
     max-width: 100rem;
 }
 
 div.mobilkeret div.dtr div.dtc {
-    background: #55A2FA;
+    background: var(--color-kek);
     color: #fff;
     font-size: 1.4rem;
     font-weight: bold;
@@ -3274,12 +3267,12 @@ div.mobilkeret div.dtr div.dtc {
 }
 
 div.mobilkeret li.kijelolt{
-    background: #3C88DE;
+    background: var(--color-kek-kijelolt);
     color: #fff;
 }
 
 div.csop_nelkul{
-    border: 0.1rem solid #55A2FA;
+    border: 0.1rem solid var(--color-kek);
     margin: 0 0.4rem;
     max-height: 40rem;
     overflow-y: auto;
@@ -3305,7 +3298,7 @@ table.csoportok tr td .dropItem {
 }
 
 table.csoportok input[type="button"]{
-    background: #54A2F9;
+    background: var(--color-kek);
     border-radius: 0.4rem;
     color: #fff;
     font-weight: bold;
@@ -3313,7 +3306,7 @@ table.csoportok input[type="button"]{
     padding: 0.6rem 2.5rem;
 }
 table.csoportok input[type="button"]:hover{
-    background: #5192DA;
+    background: var(--color-kek-hover);
     cursor: pointer;
 }
 table.csoportok input[type="button"]:focus{
@@ -3384,7 +3377,7 @@ ul.dropItem li {
 
 ul.dropItem .highlight {
     background: #B8D9FE;
-    border: 0.2rem dotted #55A2FA;
+    border: 0.2rem dotted var(--color-kek);
     background-color: lightblue;
     height: 2.6rem;
 }
@@ -3489,7 +3482,7 @@ div.header div.dtc.respo_menu {
     top: calc(50% - 0.2rem);
 }
 
-.menu_icon span, .menu_icon span:before, .menu_icon span:after {
+.menu_icon span, .menu_icon span::before, .menu_icon span::after {
     background: #34474b;
     cursor: pointer;
     content: '';
@@ -3499,11 +3492,11 @@ div.header div.dtc.respo_menu {
     width: 2.9rem;
 }
 
-.menu_icon span:before {
+.menu_icon span::before {
     top: -0.9rem;
 }
 
-.menu_icon span:after {
+.menu_icon span::after {
     bottom: -0.9rem;
 }
 
@@ -3511,15 +3504,15 @@ div.header div.dtc.respo_menu {
     background-color: transparent;
 }
 
-.menu_icon.active span:before, .menu_icon.active span:after {
+.menu_icon.active span::before, .menu_icon.active span::after {
     top: 0;
 }
 
-.menu_icon.active span:before {
+.menu_icon.active span::before {
     transform: rotate(45deg);
 }
 
-.menu_icon.active span:after {
+.menu_icon.active span::after {
     transform: rotate(-45deg);
 }
 
@@ -3535,8 +3528,7 @@ div.respo_felh div.dtc {
     vertical-align: middle;
 }
 
-div.respo_felh div.dtc.nev a,
-div.respo_felh div.dtc.nev {
+div.respo_felh div.dtc.nev a, div.respo_felh div.dtc.nev {
     color: #fff;
 }
 
@@ -3554,7 +3546,7 @@ div.respo_felh div.dtc.nev a {
     font-size: 1.8rem;
 }
 
-div.respo_felh .menu_icon span:before, div.respo_felh .menu_icon span:after {
+div.respo_felh .menu_icon span::before, div.respo_felh .menu_icon span::after {
     background: #fff;
 }
 
@@ -3666,7 +3658,7 @@ div.grid2o{
 }
 
 .progress-bar span {
-    background: #54a2f9;
+    background: var(--color-kek);
     border-radius: .7rem;
     height: 100%;
     position: absolute;

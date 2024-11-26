@@ -21,13 +21,13 @@ $szoveg                 = 'törzset';        //Hibaüzenetkor: Biztosan törlöd
 
 $szamla_html = '';
 
-//Több kép menedzseléséhez
-$tobb_kep = false;
+// Több kép menedzseléséhez
+$tobb_kep = 0;
 if($tobb_kep){
-    function get_tobbkep_darab()    { return 10;        } // Maximum hány kép tallózható be
+    function get_tobbkep_darab()    { return 10;         } // Maximum hány kép tallózható be
     function get_tobbkep_csakkep()  { return '.jpg,.png';} // Milyen kiterjesztéseket engedünk meg (ha mindenet, legyen üres)
-    function get_tobbkep_kepmeret() { return 10;        } // MB-ban
-    function get_tobbkep_oszlopnev(){                     // Melyik oszloppal kötjük össze a két táblát
+    function get_tobbkep_kepmeret() { return 10;         } // MB-ban
+    function get_tobbkep_oszlopnev(){                      // Melyik oszloppal kötjük össze a két táblát
         global $megnevezes;
         return $megnevezes.'_id';
     }
@@ -304,29 +304,32 @@ require_once('selectek.php');
 	// Termék módosítása
 	}elseif(isset($_GET['modosit'])) {
 
-        //Ha Gyorskeresőből érkeznénk ide, akkor az ID-t valójában az id_hidden tartalmazza majd
-        if(isset($_GET['id_hidden'])){
+        // Ha Gyorskeresőből érkeznénk ide, akkor az ID-t valójában az id_hidden tartalmazza majd
+        if (isset($_GET['id_hidden'])) {
             $_GET['id'] = $_GET['id_hidden'];
         }
 
-	    $sor = $adatbazis_kapcsolat -> s2('*', $megnevezes, 'recid='.$_GET['id']);
-        
-        $sor['nev'] = str_replace('	', ' ', $sor['nev']);
-        foreach($akt_tomb as $tomb) {
-            if( $tomb['type'] == 'autocomplete' ) {
+        if( $_GET['id'] ) {
 
-                if($tomb['csoport']){
-                    $kulso_ertek = $adatbazis_kapcsolat->s2('info', $tomb['tabla'], "`{$tomb['oszlop_keres']}`='{$sor[$tomb['name']]}' AND `csoport`='{$tomb['csoport']}'", '', '1');
-                    $kulso_ertek['nev'] = $kulso_ertek['info'];
-                }else{
-                    $kulso_ertek = $adatbazis_kapcsolat->s2('recid nev', $tomb['tabla'], "`{$tomb['oszlop_keres']}`='{$sor[$tomb['name']]}'", '', '1');
-                }
-
-                $sor[$tomb['name'].'_autocomp'] = '';
-                if( $kulso_ertek ) {
-                    $sor[$tomb['name'].'_autocomp'] = $kulso_ertek['nev'];
+            $sor = $adatbazis_kapcsolat -> s2('*', $megnevezes, "`recid`='{$_GET['id']}'");
+            $sor['nev'] = str_replace('	', ' ', $sor['nev']);
+            foreach($akt_tomb as $tomb) {
+                if( $tomb['type'] == 'autocomplete' ) {
+    
+                    if($tomb['csoport']){
+                        $kulso_ertek = $adatbazis_kapcsolat->s2('info', $tomb['tabla'], "`{$tomb['oszlop_keres']}`='{$sor[$tomb['name']]}' AND `csoport`='{$tomb['csoport']}'", '', '1');
+                        $kulso_ertek['nev'] = $kulso_ertek['info'];
+                    }else{
+                        $kulso_ertek = $adatbazis_kapcsolat->s2('recid nev', $tomb['tabla'], "`{$tomb['oszlop_keres']}`='{$sor[$tomb['name']]}'", '', '1');
+                    }
+    
+                    $sor[$tomb['name'].'_autocomp'] = '';
+                    if( $kulso_ertek ) {
+                        $sor[$tomb['name'].'_autocomp'] = $kulso_ertek['nev'];
+                    }
                 }
             }
+
         }
 
         $json_sor = array();
@@ -379,8 +382,8 @@ require_once('selectek.php');
 			require_once('tobb_kep.php');
 		}
 
-	//Történet
-	}elseif(isset($_GET['tortenet'])){
+    // Történet
+    } elseif (isset($_GET['tortenet'])) {
 
         $szamla_html .= get_tortenet($megnevezes);
 
@@ -419,21 +422,24 @@ require_once('selectek.php');
                 </div>
         ');
 
-        $sorok = $adatbazis_kapcsolat->s('recid megj insert_usr insert_dt', 'megjegyzes', "`id` = '".$_GET['id']."' AND `tabla` = '".str_replace('.php', '', basename(self()))."'", 'recid desc');
+        if( $_GET['id'] ) {
 
-        if( $sorok ) {
-            $i = 1;
-            foreach($sorok as $sor) {
-                $szamla_html .= nl2('
-                    <div id="naploSor-'.$sor['recid'].'" class="dtr nSor kijSor" data-id="'.$sor['recid'].'" data-i="'.$i.'">
-                        <div class="dtc">'.htmlspecialchars_decode( nl2br2($sor['megj']) ).'</div>
-                        <div class="dtc">'.$sor['insert_usr'].'</div>
-                        <div class="dtc">'.datum_kiir($sor['insert_dt']).'</div>
-                    </div>
-                ');
-
-                $i++;
+            $sorok = $adatbazis_kapcsolat->s('recid megj insert_usr insert_dt', 'megjegyzes', "`id`='{$_GET['id']}' AND `tabla`='".str_replace('.php', '', basename(self()))."'", 'recid desc');
+            if( $sorok ) {
+                $i = 1;
+                foreach($sorok as $sor) {
+                    $szamla_html .= nl2('
+                        <div id="naploSor-'.$sor['recid'].'" class="dtr nSor kijSor" data-id="'.$sor['recid'].'" data-i="'.$i.'">
+                            <div class="dtc">'.htmlspecialchars_decode( nl2br2($sor['megj']) ).'</div>
+                            <div class="dtc">'.$sor['insert_usr'].'</div>
+                            <div class="dtc">'.datum_kiir($sor['insert_dt']).'</div>
+                        </div>
+                    ');
+    
+                    $i++;
+                }
             }
+            
         }
 
         if( $_GET['ajax'] ) {

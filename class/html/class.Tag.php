@@ -11,85 +11,94 @@
 
 class Tag{
 
+    /** @var string - data-alert-hez kell*/
+    public $alert           = '';
+
+    /** @var string - autocomplete attribútum */
+    public $autocomplete    = '';
+
     /** @var string - az input css-osztálya*/
-    public $cssClass     = '';
+    public $cssClass        = '';
 
     /** @var string - disabled*/
-    public $disabled     = '';
+    public $disabled        = '';
 
     /** @var string - data*/
-    public $data     = '';
+    public $data            = '';
 
     /** @var string - a tag id-je*/
-    public $id           = '';
+    public $id              = '';
 
     /** @var int - maxlength érték */
-    public $maxlength    = '';
+    public $maxlength       = '';
 
     /** @var string - a tag css-osztálya*/
-    public $name         = '';
+    public $name            = '';
 
     /** @var string - onfocus érték*/
-    public $onfocus      = '';
+    public $onfocus         = '';
 
     /** @var string - onblur érték*/
-    public $onblur       = '';
+    public $onblur          = '';
+
+    /** @var string - onchange érték*/
+    public $onchange        = '';
 
     /** @var string - onclick érték*/
-    public $onclick      = '';
+    public $onclick         = '';
 
     /** @var string - ondblclick érték*/
-    public $ondblclick   = '';
+    public $ondblclick      = '';
 
     /** @var string - oninput érték*/
-    public $oninput      = '';
+    public $oninput         = '';
 
     /** @var string - onkeydown érték*/
-    public $onkeydown    = '';
+    public $onkeydown       = '';
 
     /** @var string - onkeypress érték*/
-    public $onkeypress   = '';
+    public $onkeypress      = '';
 
     /** @var string - onkeyup érték*/
-    public $onkeyup      = '';
+    public $onkeyup         = '';
 
     /** @var string - onmousedown érték*/
-    public $onmousedown  = '';
+    public $onmousedown     = '';
 
     /** @var string - onmousemove érték*/
-    public $onmousemove  = '';
+    public $onmousemove     = '';
 
     /** @var string - onmouseout érték*/
-    public $onmouseout   = '';
+    public $onmouseout      = '';
 
     /** @var string - onmouseover érték*/
-    public $onmouseover  = '';
+    public $onmouseover     = '';
 
     /** @var string - placeholder értéke */
-    public $placeholder  = '';
+    public $placeholder     = '';
 
     /** @var string - input utáni tartalom pl.: Ft, vagy ikon kép stb..*/
-    public $post         = '';
+    public $post            = '';
 
     /** @var string - input előtti tartalom pl.: http://*/
-    public $pre          = '';
+    public $pre             = '';
 
     /** @var string - style érték*/
-    public $style        = '';
+    public $style           = '';
 
     /** @var string - tartalom, ami a teg közé megy*/
-    public $tartalom    = '';
+    public $tartalom        = '';
 
     /** @var string - az input title-ja*/
-    public $title        = '';
+    public $title           = '';
 
     /** @var string - az input value-ja*/
-    public $value        = '';
+    public $value           = '';
 
 
 
     /** @var string - ha általános teg, akkor ezt itt tároljuk le és a getHtml innen olvasa kiíráshoz*/
-    private $tag         = '';
+    private $tag            = '';
 
     /**
     * @desc Konstruktor

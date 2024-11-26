@@ -418,6 +418,7 @@ define('JOG_PRKEZEL_MEGTEKINT',         52);
 define('JOG_PRKEZEL_KEZEL',             53);
 define('JOG_PRKEZEL_SAJAT_MEGTEKINT',   118);
 define('JOG_PRKEZEL_SAJAT_KEZEL',       107);
+define('JOG_PRKEZEL_CAPEX_MEGTEKINT',   145);
 define('JOG_PRKEZEL_UJ_LETREHOZ',       108);
 define('JOG_PRKEZEL_TEAM_TAG',          109);
 define('JOG_PRKEZEL_SZERZODES_OLVAS',   110);
@@ -539,14 +540,14 @@ define('ERTEKLISTA_JOVAHAGYO',      45);
 define('ERTEKLISTA_DIJELEM',        47);
 define('ERTEKLISTA_SZERZODES_TIPUS',48);
 
-// Dokumentum tipus értéklista fix, nem szerkeszthető bejegyzése
+// Értéklista fix, nem szerkeszthető bejegyzése: Dokumentum tipus
 define('EL_DOK_TIPUS_ATADASI',      1);
 define('EL_DOK_TIPUS_GAR_BEJAR',    2);
 define('EL_DOK_TIPUS_SZERZODES',    3);
 define('EL_DOK_TIPUS_MUNKATER_ATAD',4);
 define('EL_DOK_TIPUS_TELJESITES',   10);
 
-// Beosztások értéklista fix bejegyzése
+// Értéklista fix, nem szerkeszthető bejegyzése: Beosztások 
 define('EL_BEOSZTAS_DISZ_KP_VEZ',   16 );
 define('EL_BEOSZTAS_FEJL_VIG_H',    28 );
 define('EL_BEOSZTAS_MUSZAKI_IG',    91 );
@@ -555,6 +556,9 @@ define('EL_BEOSZTAS_MUSZ_UGY_INT',  113);
 define('EL_BEOSZTAS_MUSZAKI_ASSZ',  131);
 define('EL_BEOSZTAS_PR_FELEOS',     189);
 define('EL_BEOSZTAS_BERUH_IG',      190);
+
+// Értéklista fix, nem szerkeszthető bejegyzése: Visszaadás oka
+define('EL_VISSZAAD_M_IDO_LEJART',  16 );
 
 // Munkalap típusok
 define('MLTIPUS_HIBAELHARITAS', 1);

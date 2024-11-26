@@ -509,8 +509,7 @@ if(isset($_GET['modosit_ules'])){
             $_GET['id'] = $_GET['id_hidden'];
         }
 
-	    $sor = $adatbazis_kapcsolat -> s2('*', $megnevezes, 'recid='.$_GET['id']);
-
+	    $sor = $adatbazis_kapcsolat -> s2('*', $megnevezes, "`recid`='{$_GET['id']}'");
         foreach($akt_tomb as $tomb) {
             if( $tomb['type'] == 'autocomplete' ) {
 
@@ -593,78 +592,82 @@ if(isset($_GET['modosit_ules'])){
             $class = ' kijCont';
         }
 
-        $ules = $adatbazis_kapcsolat->s2('ules_datum', $megnevezes, "`recid`='{$_GET['id']}'");
-        $szamla_html .= nl2('
-            <input type="hidden" id="ules_datum" value="'.$ules['ules_datum'].'">
-            <div class="dt naplo'.$class.'" data-tabla="eloterj_fb_kapcs" data-mellek="projektigeny">
-                <div class="dtr nFejlec">
-                    <div class="dtc" style="width: 15rem">Státusz</div>
-                    <div class="dtc" style="width: 15rem">Szálloda</div>
-                    <div class="dtc">Név</div>
-                    <div class="dtc" style="width: 10rem">Típus</div>
-                    <div class="dtc r">Becsült költség</div>
-                    <div class="dtc r">Jóváhagyott költség</div>
-                </div>
-        ');
+        if( $_GET['id'] ) {
 
-        $i = 1;
-        $prigenyek = $adatbazis_kapcsolat->s('recid nev stat_id stat_id_eloterj telephely_id tipus bkolt jkolt', 'projektigenyles_eloterj', "`eloterj_fb_recid`='{$_GET['id']}'", 'insert_dt desc');
-        foreach($prigenyek as $prigeny){
-
-            // Tipus
-            require_once 'selectek.php';
-            foreach($select_pri_tipus as $tip){
-                if($tip['value']==$prigeny['tipus']){
-                    $tipus = $tip['name'];
-                }
-            }
-            if(!$prigeny['tipus']){
-                $tipus = '-';
-            }
-
-            $statusz_tomb = array(
-                                array('value' => PRIGENY_STAT_HIANYPOTLAS,      'name' => 'Visszaadás hiánypótlásra ('.getStatText('projektigenyles', PRIGENY_STAT_HIANYPOTLAS).')'),
-                                array('value' => PRIGENY_STAT_BOD_TERJESZT_VAR, 'name' => 'BoD elé terjesztés ('.getStatText('projektigenyles', PRIGENY_STAT_BOD_TERJESZT_VAR).')'),
-                                array('value' => PRIGENY_STAT_ELUTASITVA,       'name' => 'Elutasítás ('.getStatText('projektigenyles', PRIGENY_STAT_ELUTASITVA).')'),
-                                array('value' => PRIGENY_STAT_JOVAHAGYVA,       'name' => 'Jóváhagyás ('.getStatText('projektigenyles', PRIGENY_STAT_JOVAHAGYVA).')'),
-                                array('value' => PRIGENY_STAT_NYITOTT,          'name' => 'Műsz.Ig.-nak visszaadás döntésre ('.getStatText('projektigenyles', PRIGENY_STAT_NYITOTT).')'),
-                            );
-
-            $options = '';
-            foreach($statusz_tomb as $stat){
-                $selected = '';
-                if($prigeny['stat_id_eloterj']==$stat['value']){
-                    $selected = ' selected';
-                }
-                $options .= '<option'.$selected.' value="'.$stat['value'].'">'.$stat['name'].'</option>';
-            }
-
-            if($prigeny['stat_id_eloterj']){
-                $prigeny['stat_id'] = $prigeny['stat_id_eloterj'];
-            }
-
+            $ules = $adatbazis_kapcsolat->s2('ules_datum', $megnevezes, "`recid`='{$_GET['id']}'");
             $szamla_html .= nl2('
-                <div data-id="'.$prigeny['recid'].'" data-i="'.$i.'" class="dtr nSor kijSor">
-                    <div class="dtc">
-                        <div class="prig_statusz_txt">'.getStatText('projektigenyles', $prigeny['stat_id']).'</div>
-                        <div class="dn prig_statusz_select">
-                            <select data-pri_eloterj_recid="'.$prigeny['recid'].'" onchange="$(\'#statusz_ment_gomb\').removeClass(\'dn\')">
-                                <option value="">-Válasszon-</option>
-                                '.$options.'
-                            </select>
+                <input type="hidden" id="ules_datum" value="'.$ules['ules_datum'].'">
+                <div class="dt naplo'.$class.'" data-tabla="eloterj_fb_kapcs" data-mellek="projektigeny">
+                    <div class="dtr nFejlec">
+                        <div class="dtc" style="width: 15rem">Státusz</div>
+                        <div class="dtc" style="width: 15rem">Szálloda</div>
+                        <div class="dtc">Név</div>
+                        <div class="dtc" style="width: 10rem">Típus</div>
+                        <div class="dtc r">Becsült költség</div>
+                        <div class="dtc r">Jóváhagyott költség</div>
+                    </div>
+            ');
+        
+
+            $i = 1;
+            $prigenyek = $adatbazis_kapcsolat->s('recid nev stat_id stat_id_eloterj telephely_id tipus bkolt jkolt', 'projektigenyles_eloterj', "`eloterj_fb_recid`='{$_GET['id']}'", 'insert_dt desc');
+            foreach($prigenyek as $prigeny){
+
+                // Tipus
+                require_once 'selectek.php';
+                foreach($select_pri_tipus as $tip){
+                    if($tip['value']==$prigeny['tipus']){
+                        $tipus = $tip['name'];
+                    }
+                }
+                if(!$prigeny['tipus']){
+                    $tipus = '-';
+                }
+
+                $statusz_tomb = array(
+                                    array('value' => PRIGENY_STAT_HIANYPOTLAS,      'name' => 'Visszaadás hiánypótlásra ('.getStatText('projektigenyles', PRIGENY_STAT_HIANYPOTLAS).')'),
+                                    array('value' => PRIGENY_STAT_BOD_TERJESZT_VAR, 'name' => 'BoD elé terjesztés ('.getStatText('projektigenyles', PRIGENY_STAT_BOD_TERJESZT_VAR).')'),
+                                    array('value' => PRIGENY_STAT_ELUTASITVA,       'name' => 'Elutasítás ('.getStatText('projektigenyles', PRIGENY_STAT_ELUTASITVA).')'),
+                                    array('value' => PRIGENY_STAT_JOVAHAGYVA,       'name' => 'Jóváhagyás ('.getStatText('projektigenyles', PRIGENY_STAT_JOVAHAGYVA).')'),
+                                    array('value' => PRIGENY_STAT_NYITOTT,          'name' => 'Műsz.Ig.-nak visszaadás döntésre ('.getStatText('projektigenyles', PRIGENY_STAT_NYITOTT).')'),
+                                );
+
+                $options = '';
+                foreach($statusz_tomb as $stat){
+                    $selected = '';
+                    if($prigeny['stat_id_eloterj']==$stat['value']){
+                        $selected = ' selected';
+                    }
+                    $options .= '<option'.$selected.' value="'.$stat['value'].'">'.$stat['name'].'</option>';
+                }
+
+                if($prigeny['stat_id_eloterj']){
+                    $prigeny['stat_id'] = $prigeny['stat_id_eloterj'];
+                }
+
+                $szamla_html .= nl2('
+                    <div data-id="'.$prigeny['recid'].'" data-i="'.$i.'" class="dtr nSor kijSor">
+                        <div class="dtc">
+                            <div class="prig_statusz_txt">'.getStatText('projektigenyles', $prigeny['stat_id']).'</div>
+                            <div class="dn prig_statusz_select">
+                                <select data-pri_eloterj_recid="'.$prigeny['recid'].'" onchange="$(\'#statusz_ment_gomb\').removeClass(\'dn\')">
+                                    <option value="">-Válasszon-</option>
+                                    '.$options.'
+                                </select>
+                            </div>
+                        </div>
+                        <div class="dtc">'.getSzallodaNev($prigeny['telephely_id']).'</div>
+                        <div class="dtc">'.htmlspecialchars_decode($prigeny['nev']).'</div>
+                        <div class="dtc">'.$tipus.'</div>
+                        <div class="dtc r"><span class="bkolt">'.number_format($prigeny['bkolt'], 0, '', ' ').'</span> '.get_penznem().'</div>
+                        <div class="dtc r">
+                            <div class="jkolt_txt">'.number_format($prigeny['jkolt'], 0, '', ' ').' '.get_penznem().'</div>
+                            <div class="dn jkolt_input"><input type="text" class="f_num" data-tort="0" value="'.number_format($prigeny['jkolt'], 0, '', ' ').'"> '.get_penznem().'</div>
                         </div>
                     </div>
-                    <div class="dtc">'.getSzallodaNev($prigeny['telephely_id']).'</div>
-                    <div class="dtc">'.htmlspecialchars_decode($prigeny['nev']).'</div>
-                    <div class="dtc">'.$tipus.'</div>
-                    <div class="dtc r"><span class="bkolt">'.number_format($prigeny['bkolt'], 0, '', ' ').'</span> '.get_penznem().'</div>
-                    <div class="dtc r">
-                        <div class="jkolt_txt">'.number_format($prigeny['jkolt'], 0, '', ' ').' '.get_penznem().'</div>
-                        <div class="dn jkolt_input"><input type="text" class="f_num" data-tort="0" value="'.number_format($prigeny['jkolt'], 0, '', ' ').'"> '.get_penznem().'</div>
-                    </div>
-                </div>
-            ');
-            $i++;
+                ');
+                $i++;
+            }
         }
 
         if( $_GET['ajax'] ) {
@@ -689,21 +692,24 @@ if(isset($_GET['modosit_ules'])){
                 </div>
         ');
 
-        $sorok = $adatbazis_kapcsolat->s('recid megj insert_usr insert_dt', 'megjegyzes', "`id` = '".$_GET['id']."' AND `tabla` = '".str_replace('.php', '', basename(self()))."'", 'recid desc');
+        if( $_GET['id'] ) {
 
-        if( $sorok ) {
-            $i = 1;
-            foreach($sorok as $sor) {
-                $szamla_html .= nl2('
-                    <div id="naploSor-'.$sor['recid'].'" data-id="'.$sor['recid'].'" data-i="'.$i.'" class="dtr nSor kijSor">
-                        <div class="dtc">'.htmlspecialchars_decode( nl2br2($sor['megj']) ).'</div>
-                        <div class="dtc">'.$sor['insert_usr'].'</div>
-                        <div class="dtc">'.datum_kiir($sor['insert_dt']).'</div>
-                    </div>
-                ');
-
-                $i++;
+            $sorok = $adatbazis_kapcsolat->s('recid megj insert_usr insert_dt', 'megjegyzes', "`id`='{$_GET['id']}' AND `tabla`='".str_replace('.php', '', basename(self()))."'", 'recid desc');
+            if( $sorok ) {
+                $i = 1;
+                foreach($sorok as $sor) {
+                    $szamla_html .= nl2('
+                        <div id="naploSor-'.$sor['recid'].'" data-id="'.$sor['recid'].'" data-i="'.$i.'" class="dtr nSor kijSor">
+                            <div class="dtc">'.htmlspecialchars_decode( nl2br2($sor['megj']) ).'</div>
+                            <div class="dtc">'.$sor['insert_usr'].'</div>
+                            <div class="dtc">'.datum_kiir($sor['insert_dt']).'</div>
+                        </div>
+                    ');
+    
+                    $i++;
+                }
             }
+            
         }
 
         if( $_GET['ajax'] ) {

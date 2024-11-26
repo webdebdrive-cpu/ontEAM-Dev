@@ -31,13 +31,13 @@
 }
 
 .box {
-    border: 0.1rem solid #55A2FA;
+    border: 0.1rem solid var(--color-kek);
     border-radius: 0.5rem;
     margin: 0 1rem 1rem 1rem;
 }
 
 .box h2 {
-    background: #55A2FA;
+    background: var(--color-kek);
     color: #fff;
     font-size: 1.6rem;
     padding: 0.5rem 2rem;
@@ -70,4 +70,14 @@
 .box table.csikos tr td:nth-of-type(2) {
     text-align: right;
     white-space: nowrap;
+}
+
+@media only screen and (max-width:600px)  {
+    .dashboard {
+        grid-template-columns: 100%;
+        width: 100%;
+    }
+    .dashboard > div {
+        border: 0;
+    }
 }

@@ -2635,140 +2635,142 @@ require_once('selectek.php');
 	// Cash flow 
     } elseif( isset($_GET['cash_flow']) ) {
 
-        $sor = $adatbazis_kapcsolat -> s2('*', $megnevezes, "`recid`='{$_GET['id']}'");
-        
-        // Előző hónap kiszámítása
-        $elozo_ev    = date('Y');
-        $elozo_honap = date('n');
-        $elozo_honap--;
-        if( $elozo_honap == 0 ) {
-            $elozo_honap = 12;
-            $elozo_ev--;
-        }
-        $elozo_ev_honap = $elozo_ev.'.'.sprintf("%02d", $elozo_honap);
-        
-        // Előző előtti hónap kiszámíása
-        $elozo_honap--;
-        if( $elozo_honap == 0 ) {
-            $elozo_honap = 12;
-            $elozo_ev--;
-        }
-        $elozo_elotti_ev_honap = $elozo_ev.'.'.sprintf("%02d", $elozo_honap);
-        
-        // X tengely előállítása
-        $idtotengely = array(str_replace('.', '-', $elozo_elotti_ev_honap), str_replace('.', '-', $elozo_ev_honap));
-        $akt_ev    = date('Y');
-        $akt_honap = date('n');
-        for ( $i = 0; $i < 11; $i++ ) {
-            array_push( $idtotengely,  $akt_ev.'-'.sprintf("%02d", $akt_honap));
-            $akt_honap++;
-            if( $akt_honap == 13 ) {
-                $akt_honap = 1;
-                $akt_ev++;
-            }
-        }
-        
-        // Táblázat kirajzolása
-        $idotengely_html = '';
-        $i = 0;
-        foreach ( $idtotengely as $honapok ) {
-            $ig = '';
-            if( !$i ) {
-                $ig = '-ig';
-            }
-            $idotengely_html .= '<th class="nowrap">'.datum_kiir($honapok).$ig.'</th>';
-            $i++;
-        }
-        $cash_flow_html = nl2('
-            <table class="szamla_cont_tabla szep_csikos kisbetu">
-            <thead>
-                <tr>
-                    <th>Név</th>
-                    <th>Szálloda</th>
-                    '.$idotengely_html.'
-                </tr>
-            </thead>
-            <tbody>
-        ');
-        $cash_flow_nevek = $adatbazis_kapcsolat->s('recid nev telephely_id', 'projektkezeles_cashflow_nev', "`projektkezeles_recid`='{$_GET['id']}'", 'nev');
-        foreach ( $cash_flow_nevek as $nev ) {
+        if( $_GET['id'] ) {
+            $sor = $adatbazis_kapcsolat -> s2('*', $megnevezes, "`recid`='{$_GET['id']}'");
             
+            // Előző hónap kiszámítása
+            $elozo_ev    = date('Y');
+            $elozo_honap = date('n');
+            $elozo_honap--;
+            if( $elozo_honap == 0 ) {
+                $elozo_honap = 12;
+                $elozo_ev--;
+            }
+            $elozo_ev_honap = $elozo_ev.'.'.sprintf("%02d", $elozo_honap);
+            
+            // Előző előtti hónap kiszámíása
+            $elozo_honap--;
+            if( $elozo_honap == 0 ) {
+                $elozo_honap = 12;
+                $elozo_ev--;
+            }
+            $elozo_elotti_ev_honap = $elozo_ev.'.'.sprintf("%02d", $elozo_honap);
+            
+            // X tengely előállítása
+            $idtotengely = array(str_replace('.', '-', $elozo_elotti_ev_honap), str_replace('.', '-', $elozo_ev_honap));
+            $akt_ev    = date('Y');
+            $akt_honap = date('n');
+            for ( $i = 0; $i < 11; $i++ ) {
+                array_push( $idtotengely,  $akt_ev.'-'.sprintf("%02d", $akt_honap));
+                $akt_honap++;
+                if( $akt_honap == 13 ) {
+                    $akt_honap = 1;
+                    $akt_ev++;
+                }
+            }
+            
+            // Táblázat kirajzolása
+            $idotengely_html = '';
+            $i = 0;
+            foreach ( $idtotengely as $honapok ) {
+                $ig = '';
+                if( !$i ) {
+                    $ig = '-ig';
+                }
+                $idotengely_html .= '<th class="nowrap">'.datum_kiir($honapok).$ig.'</th>';
+                $i++;
+            }
+            $cash_flow_html = nl2('
+                <table class="szamla_cont_tabla szep_csikos kisbetu">
+                <thead>
+                    <tr>
+                        <th>Név</th>
+                        <th>Szálloda</th>
+                        '.$idotengely_html.'
+                    </tr>
+                </thead>
+                <tbody>
+            ');
+            $cash_flow_nevek = $adatbazis_kapcsolat->s('recid nev telephely_id', 'projektkezeles_cashflow_nev', "`projektkezeles_recid`='{$_GET['id']}'", 'nev');
+            foreach ( $cash_flow_nevek as $nev ) {
+                
+                $cash_flow_html .= nl2('
+                                        <tr data-recid="'.$nev['recid'].'">
+                                            <td>'.htmlspecialchars_decode($nev['nev']).'</td>
+                                            <td>'.getSzallodaNev($nev['telephely_id']).'</td>
+                                                ');
+                
+                $i = 0;
+                foreach ( $idtotengely as $honap ) {
+
+                    // Az első hónap egy összesítés, az összes múltbeli adatból
+                    if( !$i ) {
+                        $cash_flow = $adatbazis_kapcsolat->s2('SUM(`terv`)', 'projektkezeles_cashflow', "`projektkezeles_recid`='{$_GET['id']}' AND `cashflow_nev_recid`='{$nev['recid']}' AND `datum`<='{$honap}'");
+                    } else {
+                        $cash_flow = $adatbazis_kapcsolat->s2('SUM(`terv`)', 'projektkezeles_cashflow', "`projektkezeles_recid`='{$_GET['id']}' AND `cashflow_nev_recid`='{$nev['recid']}' AND `datum` LIKE '{$honap}%'");
+                    }
+                    
+                    $cash_flow_html .= '<td class="nowrap r">'.number_format($cash_flow['SUM(`terv`)'], 0, '', ' ').'</td>';
+                    $i++;
+                }
+                
+                $cash_flow_html .= '</tr>';
+            }
+            
+            // Szerződések
+            $szerzodes_recidk = $adatbazis_kapcsolat->s('recid', 'projektszerzodes', "`pr_szam`='{$sor['ikt_szam']}'");
+            $szerzodes_recidk = adatbazis2tomb($szerzodes_recidk, 'recid');
             $cash_flow_html .= nl2('
-                                    <tr data-recid="'.$nev['recid'].'">
-                                        <td>'.htmlspecialchars_decode($nev['nev']).'</td>
-                                        <td>'.getSzallodaNev($nev['telephely_id']).'</td>
-                                            ');
-            
+                                    <tr data-recid="szerzodesek">
+                                        <td>Szerződések</td>
+                                        <td></td>
+                                        ');
             $i = 0;
             foreach ( $idtotengely as $honap ) {
 
                 // Az első hónap egy összesítés, az összes múltbeli adatból
-                if( !$i ) {
-                    $cash_flow = $adatbazis_kapcsolat->s2('SUM(`terv`)', 'projektkezeles_cashflow', "`projektkezeles_recid`='{$_GET['id']}' AND `cashflow_nev_recid`='{$nev['recid']}' AND `datum`<='{$honap}'");
-                } else {
-                    $cash_flow = $adatbazis_kapcsolat->s2('SUM(`terv`)', 'projektkezeles_cashflow', "`projektkezeles_recid`='{$_GET['id']}' AND `cashflow_nev_recid`='{$nev['recid']}' AND `datum` LIKE '{$honap}%'");
+                if( $szerzodes_recidk ) {
+                    if( !$i ) {
+                        $cash_flow = $adatbazis_kapcsolat->s2('SUM(`varh_ert`)', 'projektszerzodes_tetel', "`projektszerzodes_recid` IN (".implode(', ', $szerzodes_recidk).") AND `varh_erk`<='{$honap}-31' AND `teljesites`='0000-00-00'");   
+                    } else {
+                        $cash_flow = $adatbazis_kapcsolat->s2('SUM(`varh_ert`)', 'projektszerzodes_tetel', "`projektszerzodes_recid` IN (".implode(', ', $szerzodes_recidk).") AND `varh_erk` LIKE '{$honap}%' AND `teljesites`='0000-00-00'");
+                    }
                 }
-                
-                $cash_flow_html .= '<td class="nowrap r">'.number_format($cash_flow['SUM(`terv`)'], 0, '', ' ').'</td>';
+
+                $cash_flow_html .= '<td class="nowrap r">'.number_format($cash_flow['SUM(`varh_ert`)'], 0, '', ' ').'</td>';
                 $i++;
             }
-            
             $cash_flow_html .= '</tr>';
-        }
-        
-        // Szerződések
-        $szerzodes_recidk = $adatbazis_kapcsolat->s('recid', 'projektszerzodes', "`pr_szam`='{$sor['ikt_szam']}'");
-        $szerzodes_recidk = adatbazis2tomb($szerzodes_recidk, 'recid');
-        $cash_flow_html .= nl2('
-                                <tr data-recid="szerzodesek">
-                                    <td>Szerződések</td>
-                                    <td></td>
-                                    ');
-        $i = 0;
-        foreach ( $idtotengely as $honap ) {
+            
+            // Számlák
+            $cash_flow_html .= nl2('
+                                    <tr data-recid="szamlak">
+                                        <td>Számlák</td>
+                                        <td></td>
+                                        ');
+            $i = 0;
+            foreach ( $idtotengely as $honap ) {
 
-            // Az első hónap egy összesítés, az összes múltbeli adatból
-            if( $szerzodes_recidk ) {
-                if( !$i ) {
-                    $cash_flow = $adatbazis_kapcsolat->s2('SUM(`varh_ert`)', 'projektszerzodes_tetel', "`projektszerzodes_recid` IN (".implode(', ', $szerzodes_recidk).") AND `varh_erk`<='{$honap}-31' AND `teljesites`='0000-00-00'");   
-                } else {
-                    $cash_flow = $adatbazis_kapcsolat->s2('SUM(`varh_ert`)', 'projektszerzodes_tetel', "`projektszerzodes_recid` IN (".implode(', ', $szerzodes_recidk).") AND `varh_erk` LIKE '{$honap}%' AND `teljesites`='0000-00-00'");
+                // Az első hónap egy összesítés, az összes múltbeli adatból
+                if( $szerzodes_recidk ) {
+                    if( !$i ) {
+                        $cash_flow = $adatbazis_kapcsolat->s2('SUM(`ertek`)', 'projektszerzodes_tetel', "`projektszerzodes_recid` IN (".implode(', ', $szerzodes_recidk).") AND `teljesites`<='{$honap}-31' AND `teljesites`!='0000-00-00'");
+                    } else {
+                        $cash_flow = $adatbazis_kapcsolat->s2('SUM(`ertek`)', 'projektszerzodes_tetel', "`projektszerzodes_recid` IN (".implode(', ', $szerzodes_recidk).") AND `teljesites` LIKE '{$honap}%'");
+                    }
                 }
+
+                $cash_flow_html .= '<td class="nowrap r">'.number_format($cash_flow['SUM(`ertek`)'], 0, '', ' ').'</td>';
+                $i++;
             }
-
-            $cash_flow_html .= '<td class="nowrap r">'.number_format($cash_flow['SUM(`varh_ert`)'], 0, '', ' ').'</td>';
-            $i++;
+            $cash_flow_html .= '</tr>';
+            
+            $cash_flow_html .= nl2('
+                </tbody>
+                </table>
+                <script>$(\'.szamla_cont_tabla tbody tr:first-of-type\').addClass(\'kijelolve\');</script>
+            ');
         }
-        $cash_flow_html .= '</tr>';
-        
-        // Számlák
-        $cash_flow_html .= nl2('
-                                <tr data-recid="szamlak">
-                                    <td>Számlák</td>
-                                    <td></td>
-                                    ');
-        $i = 0;
-        foreach ( $idtotengely as $honap ) {
-
-            // Az első hónap egy összesítés, az összes múltbeli adatból
-            if( $szerzodes_recidk ) {
-                if( !$i ) {
-                    $cash_flow = $adatbazis_kapcsolat->s2('SUM(`ertek`)', 'projektszerzodes_tetel', "`projektszerzodes_recid` IN (".implode(', ', $szerzodes_recidk).") AND `teljesites`<='{$honap}-31' AND `teljesites`!='0000-00-00'");
-                } else {
-                    $cash_flow = $adatbazis_kapcsolat->s2('SUM(`ertek`)', 'projektszerzodes_tetel', "`projektszerzodes_recid` IN (".implode(', ', $szerzodes_recidk).") AND `teljesites` LIKE '{$honap}%'");
-                }
-            }
-
-            $cash_flow_html .= '<td class="nowrap r">'.number_format($cash_flow['SUM(`ertek`)'], 0, '', ' ').'</td>';
-            $i++;
-        }
-        $cash_flow_html .= '</tr>';
-        
-        $cash_flow_html .= nl2('
-            </tbody>
-            </table>
-            <script>$(\'.szamla_cont_tabla tbody tr:first-of-type\').addClass(\'kijelolve\');</script>
-        ');
         
         $szamla_html .= $cash_flow_html;
 
@@ -2784,61 +2786,63 @@ require_once('selectek.php');
 	// Projekt team
     } elseif( isset($_GET['projekt_team']) ) {
 
-        $team_ek = $adatbazis_kapcsolat->s('*', 'projektkezeles_team', "`projektkezeles_recid`='{$_GET['id']}'", 'recid');
-        $szamla_html .= '<div id="tablazatBeszur">';
-        if( $team_ek ) {
+        if( $_GET['id'] ) {
+            $team_ek = $adatbazis_kapcsolat->s('*', 'projektkezeles_team', "`projektkezeles_recid`='{$_GET['id']}'", 'recid');
+            $szamla_html .= '<div id="tablazatBeszur">';
+            if( $team_ek ) {
 
-            // Fejlécek
-            $szamla_html .= nl2('
-                <div class="dt naplo szakter" data-tabla="projektkezeles_login" data-mellek="projekt_team">
-                    <div class="dtr nFejlec">
-                        <div class="dtc">Név</div>
-                        <div class="dtc">Cég</div>
-                        <div class="dtc">Beosztás</div>
-                        <div class="dtc">Telefon</div>
-                        <div class="dtc">E-mail</div>
-                        <div class="dtc">Projekt szerepkör</div>
-                        <div class="dtc"></div>
-                    </div>
-            ');
-
-            $i = 1;
-
-            $van_kezeles = false;
-            if( get_projekt_kezeles_jog($_GET['id']) && $sor['stat_id'] != PRKEZEL_STAT_LEZART ) {
-                $van_kezeles = true;
-            }
-            
-            foreach ( $team_ek as $team ) {
-                $torles = '';
-                if( $van_kezeles ) {
-                    $torles = nl2('
-                        <script> 
-                            dok_torol_gomb_'.$team['recid'].' = \'
-                                                    <input type="button" class="gomb zold" value="Igen" onclick="mellekTorol(\\\'projektkezeles_team\\\', \\\'projekt_team\\\', \\\'projekt_team\\\', \\\''.$team['recid'].'\\\');">
-                                                    <input type="button" class="gomb piros" value="Nem" onclick="alert2(); $(\\\'.torles_elott\\\').removeClass(\\\'torles_elott\\\').removeClass(\\\'kijelolve\\\');">
-                                                \';
-                        </script>
-                        <span class="icon link" onclick="$(\'#naploSor-'.$team['recid'].'\').addClass(\'torles_elott\'); alert2(\'Biztos, hogy törli a kijelölt projekt team-et?\', dok_torol_gomb_'.$team['recid'].');">
-                        <i class="material-icons" style="font-size: 2rem">delete</i></span>
-                        ');
-                }
+                // Fejlécek
                 $szamla_html .= nl2('
-                    <div id="naploSor-'.$team['recid'].'" class="dtr nSor kijSor" data-id="'.$team['recid'].'" data-i="'.$i.'">
-                        <div class="dtc">'.$team['nev'].'</div>
-                        <div class="dtc">'.$team['ceg'].'</div>
-                        <div class="dtc">'.$team['beosztas'].'</div>
-                        <div class="dtc">'.$team['usertel'].'</div>
-                        <div class="dtc">'.$team['usermail'].'</div>
-                        <div class="dtc">'.erteklista(ERTEKLISTA_PROJEKT_SZEREP, $team['szerepkor']).'</div>
-                        <div class="dtc">'.$torles.'</div>
-                    </div>
+                    <div class="dt naplo szakter" data-tabla="projektkezeles_login" data-mellek="projekt_team">
+                        <div class="dtr nFejlec">
+                            <div class="dtc">Név</div>
+                            <div class="dtc">Cég</div>
+                            <div class="dtc">Beosztás</div>
+                            <div class="dtc">Telefon</div>
+                            <div class="dtc">E-mail</div>
+                            <div class="dtc">Projekt szerepkör</div>
+                            <div class="dtc"></div>
+                        </div>
                 ');
 
-                $i++;
-            }
+                $i = 1;
 
-            $szamla_html .= '</div>';
+                $van_kezeles = false;
+                if( get_projekt_kezeles_jog($_GET['id']) && $sor['stat_id'] != PRKEZEL_STAT_LEZART ) {
+                    $van_kezeles = true;
+                }
+                
+                foreach ( $team_ek as $team ) {
+                    $torles = '';
+                    if( $van_kezeles ) {
+                        $torles = nl2('
+                            <script> 
+                                dok_torol_gomb_'.$team['recid'].' = \'
+                                                        <input type="button" class="gomb zold" value="Igen" onclick="mellekTorol(\\\'projektkezeles_team\\\', \\\'projekt_team\\\', \\\'projekt_team\\\', \\\''.$team['recid'].'\\\');">
+                                                        <input type="button" class="gomb piros" value="Nem" onclick="alert2(); $(\\\'.torles_elott\\\').removeClass(\\\'torles_elott\\\').removeClass(\\\'kijelolve\\\');">
+                                                    \';
+                            </script>
+                            <span class="icon link" onclick="$(\'#naploSor-'.$team['recid'].'\').addClass(\'torles_elott\'); alert2(\'Biztos, hogy törli a kijelölt projekt team-et?\', dok_torol_gomb_'.$team['recid'].');">
+                            <i class="material-icons" style="font-size: 2rem">delete</i></span>
+                            ');
+                    }
+                    $szamla_html .= nl2('
+                        <div id="naploSor-'.$team['recid'].'" class="dtr nSor kijSor" data-id="'.$team['recid'].'" data-i="'.$i.'">
+                            <div class="dtc">'.$team['nev'].'</div>
+                            <div class="dtc">'.$team['ceg'].'</div>
+                            <div class="dtc">'.$team['beosztas'].'</div>
+                            <div class="dtc">'.$team['usertel'].'</div>
+                            <div class="dtc">'.$team['usermail'].'</div>
+                            <div class="dtc">'.erteklista(ERTEKLISTA_PROJEKT_SZEREP, $team['szerepkor']).'</div>
+                            <div class="dtc">'.$torles.'</div>
+                        </div>
+                    ');
+
+                    $i++;
+                }
+
+                $szamla_html .= '</div>';
+            }
         }
 
         $szamla_html .= '</div>';
@@ -2866,34 +2870,36 @@ require_once('selectek.php');
                 </div>
         ');
         
-        $projekt            = $adatbazis_kapcsolat->s2('ikt_szam', 'projektkezeles', "`recid`='{$_GET['id']}'");
-        $pr_szerzodes_idk   = $adatbazis_kapcsolat-> s('recid', 'projektszerzodes', "`pr_szam`='{$projekt['ikt_szam']}'");
-        $pr_szerzodes_idk   = adatbazis2tomb($pr_szerzodes_idk, 'recid');
-        if( $pr_szerzodes_idk ) {
-            $jotallasok = $adatbazis_kapcsolat->s('*', 'projektszerzodes_jotallas', "`projektszerzodes_recid` IN (".implode(', ', $pr_szerzodes_idk).")", 'bejaras');
-        }
-        foreach ( $jotallasok as $jotallas ) {
-            
-            $pr_szerzodes = $adatbazis_kapcsolat->s2('sz_szam szallito_id targy', 'projektszerzodes', "`recid`='{$jotallas['projektszerzodes_recid']}'");
-            
-            // Ha van már fájl, akkor azt megmutatjuk
-            $fajl = '';
-            if( $jotallas['utvonal'] ) {
-                
-                $utvonal = '../'. get_utvonal().'projektszerzodes_jotallas/'.$jotallas['utvonal'];
-                $fajl = '<a href="'.$utvonal.'" target="_blank">'.kep_kiir( $utvonal, ' ', 30, 30, '', '', '' ).' '.$jotallas['fajlnev'].'</a>';
-                
+        if( $_GET['id'] ) {
+            $projekt            = $adatbazis_kapcsolat->s2('ikt_szam', 'projektkezeles', "`recid`='{$_GET['id']}'");
+            $pr_szerzodes_idk   = $adatbazis_kapcsolat-> s('recid', 'projektszerzodes', "`pr_szam`='{$projekt['ikt_szam']}'");
+            $pr_szerzodes_idk   = adatbazis2tomb($pr_szerzodes_idk, 'recid');
+            if( $pr_szerzodes_idk ) {
+                $jotallasok = $adatbazis_kapcsolat->s('*', 'projektszerzodes_jotallas', "`projektszerzodes_recid` IN (".implode(', ', $pr_szerzodes_idk).")", 'bejaras');
             }
-            
-            $szamla_html .= nl2('
-                <div class="dtr nSor">
-                    <div class="dtc"><a href="projektszerzodes.php?id=x&amp;jotallas&amp;mezo=sz_szam&amp;op=equal&amp;felt='.$pr_szerzodes['sz_szam'].'" target="_blank">'.$pr_szerzodes['sz_szam'].'</a></div>
-                    <div class="dtc">'.getErtek('nev', 'szallito', 'id', $pr_szerzodes['szallito_id']).'</div>
-                    <div class="dtc">'. nl2br2($pr_szerzodes['targy']).'</div>
-                    <div class="dtc">'.datum_kiir($jotallas['bejaras']).'</div>
-                    <div class="dtc">'.$fajl.'</div>
-                </div>
-            ');
+            foreach ( $jotallasok as $jotallas ) {
+                
+                $pr_szerzodes = $adatbazis_kapcsolat->s2('sz_szam szallito_id targy', 'projektszerzodes', "`recid`='{$jotallas['projektszerzodes_recid']}'");
+                
+                // Ha van már fájl, akkor azt megmutatjuk
+                $fajl = '';
+                if( $jotallas['utvonal'] ) {
+                    
+                    $utvonal = '../'. get_utvonal().'projektszerzodes_jotallas/'.$jotallas['utvonal'];
+                    $fajl = '<a href="'.$utvonal.'" target="_blank">'.kep_kiir( $utvonal, ' ', 30, 30, '', '', '' ).' '.$jotallas['fajlnev'].'</a>';
+                    
+                }
+                
+                $szamla_html .= nl2('
+                    <div class="dtr nSor">
+                        <div class="dtc"><a href="projektszerzodes.php?id=x&amp;jotallas&amp;mezo=sz_szam&amp;op=equal&amp;felt='.$pr_szerzodes['sz_szam'].'" target="_blank">'.$pr_szerzodes['sz_szam'].'</a></div>
+                        <div class="dtc">'.getErtek('nev', 'szallito', 'id', $pr_szerzodes['szallito_id']).'</div>
+                        <div class="dtc">'. nl2br2($pr_szerzodes['targy']).'</div>
+                        <div class="dtc">'.datum_kiir($jotallas['bejaras']).'</div>
+                        <div class="dtc">'.$fajl.'</div>
+                    </div>
+                ');
+            }
         }
         $szamla_html .= '</div>';
 
@@ -2909,30 +2915,32 @@ require_once('selectek.php');
 	// Projektigény
     } elseif( isset($_GET['projektigeny']) ) {
 
-        $kezeles  = $adatbazis_kapcsolat->s2('projektigenyles_recid', 'projektkezeles', "`recid`='{$_GET['id']}'");
-        if($kezeles['projektigenyles_recid']){
-            $igenyles = $adatbazis_kapcsolat->s2('*', 'projektigenyles', "`recid`='{$kezeles['projektigenyles_recid']}'");
-            $szamla_html .= nl2('
-                                <div class="dt naplo kijCont" data-tabla="munkalap_kapcs" data-mellek="munkalapok">
-                                    <div class="dtr nFejlec">
-                                    <div class="dtc">Azonosító</div>
-                                    <div class="dtc">Szálloda</div>
-                                    <div class="dtc">Név</div>
-                                    <div class="dtc">Leírás</div>
-                                    <div class="dtc">Létrehozva</div>
-                                    <div class="dtc">Státusz</div>
-                                </div>
-                                <div id="naploSor-'.$igenyles['recid'].'" class="dtr nSor" data-id="'.$igenyles['recid'].'" data-i="1">
-                                    <div class="dtc"><a href="projektigenyles.php?id='.$igenyles['recid'].'&amp;modosit" target="_blank">'.$igenyles['ikt_szam'].'</a></div>
-                                    <div class="dtc">'.getErtek('nev', 'telephely', 'id', $igenyles['telephely_id']).'</div>
-                                    <div class="dtc">'.$igenyles['nev'].'</div>
-                                    <div class="dtc">'.nl2br2($igenyles['text']).'</div>
-                                    <div class="dtc">'.str_replace('-', '.', $igenyles['insert_dt']).'</div>
-                                    <div class="dtc">'.getStatText('projektigenyles', $igenyles['stat_id']).'</div>
-                                </div>
-                            ');
-        } else {
-            $szamla_html .= 'Ehhez a projektkezelésehez nem tartozik igénylés.';
+        if( $_GET['id'] ) {
+            $kezeles  = $adatbazis_kapcsolat->s2('projektigenyles_recid', 'projektkezeles', "`recid`='{$_GET['id']}'");
+            if($kezeles['projektigenyles_recid']){
+                $igenyles = $adatbazis_kapcsolat->s2('*', 'projektigenyles', "`recid`='{$kezeles['projektigenyles_recid']}'");
+                $szamla_html .= nl2('
+                                    <div class="dt naplo kijCont" data-tabla="munkalap_kapcs" data-mellek="munkalapok">
+                                        <div class="dtr nFejlec">
+                                        <div class="dtc">Azonosító</div>
+                                        <div class="dtc">Szálloda</div>
+                                        <div class="dtc">Név</div>
+                                        <div class="dtc">Leírás</div>
+                                        <div class="dtc">Létrehozva</div>
+                                        <div class="dtc">Státusz</div>
+                                    </div>
+                                    <div id="naploSor-'.$igenyles['recid'].'" class="dtr nSor" data-id="'.$igenyles['recid'].'" data-i="1">
+                                        <div class="dtc"><a href="projektigenyles.php?id='.$igenyles['recid'].'&amp;modosit" target="_blank">'.$igenyles['ikt_szam'].'</a></div>
+                                        <div class="dtc">'.getErtek('nev', 'telephely', 'id', $igenyles['telephely_id']).'</div>
+                                        <div class="dtc">'.$igenyles['nev'].'</div>
+                                        <div class="dtc">'.nl2br2($igenyles['text']).'</div>
+                                        <div class="dtc">'.str_replace('-', '.', $igenyles['insert_dt']).'</div>
+                                        <div class="dtc">'.getStatText('projektigenyles', $igenyles['stat_id']).'</div>
+                                    </div>
+                                ');
+            } else {
+                $szamla_html .= 'Ehhez a projektkezelésehez nem tartozik igénylés.';
+            }
         }
         
 
@@ -2977,63 +2985,65 @@ require_once('selectek.php');
                 </div>
         ');
         
-        $projekt    = $adatbazis_kapcsolat->s2('ikt_szam', 'projektkezeles', "`recid`='{$_GET['id']}'");
-        $munkalapok = $adatbazis_kapcsolat->s('recid ikt_szam stat_id tipus_id szemelyzet_id szallito_id', 'munkalap', "`pr_szam`='{$projekt['ikt_szam']}' AND `pr_ml_ful`=1 AND `stat_id`!='".MUNKALAP_STAT_TOROLT."' AND `stat_id`!='".MUNKALAP_STAT_SZTORNO."'");
-        foreach ( $munkalapok as $munkalap ) {
-            
-            // Személyzet kiíratása
-            $szemelyzet = '';
-            foreach ( $select_szemelyzet as $szem ) {
-                if( $munkalap['szemelyzet_id'] && $szem['value'] == $munkalap['szemelyzet_id'] ) {
-                    $szemelyzet = $szem['name'];
-                    break;
+        if( $_GET['id'] ) {
+            $projekt    = $adatbazis_kapcsolat->s2('ikt_szam', 'projektkezeles', "`recid`='{$_GET['id']}'");
+            $munkalapok = $adatbazis_kapcsolat->s('recid ikt_szam stat_id tipus_id szemelyzet_id szallito_id', 'munkalap', "`pr_szam`='{$projekt['ikt_szam']}' AND `pr_ml_ful`=1 AND `stat_id`!='".MUNKALAP_STAT_TOROLT."' AND `stat_id`!='".MUNKALAP_STAT_SZTORNO."'");
+            foreach ( $munkalapok as $munkalap ) {
+                
+                // Személyzet kiíratása
+                $szemelyzet = '';
+                foreach ( $select_szemelyzet as $szem ) {
+                    if( $munkalap['szemelyzet_id'] && $szem['value'] == $munkalap['szemelyzet_id'] ) {
+                        $szemelyzet = $szem['name'];
+                        break;
+                    }
                 }
-            }
-            // Ha külső kivitelező, akkor a partner nevét is odaírjuk
-            if( $munkalap['szemelyzet_id'] == KULSO_KIVITELEZO ) {
-                $szemelyzet .= ': '.getErtek('nev', 'szallito', 'id', $munkalap['szallito_id']);
-            }
-            
-            $szamla_html .= nl2('
-                <div class="dtr nSor">
-                    <div class="dtc"><a href="munkalap.php?id=x&amp;modosit&amp;mezo=ikt_szam&amp;op=equal&amp;felt='.$munkalap['ikt_szam'].'" target="_blank">'.$munkalap['ikt_szam'].'</a></div>
-                    <div class="dtc">
-                        '.erteklista(ERTEKLISTA_MUNKALAP_TIP, $munkalap['tipus_id']).'
-                    </div>
-                    <div class="dtc">'.$szemelyzet.'</div>
-                    <div class="dtc">'.getStatText('munkalap', $munkalap['stat_id']).'</div>
-                    <div class="dtc"><span class="icon link" onclick="pr_ml_levesz_id = \''.$munkalap['recid'].'\'; csoportMuvelet(\'projektkezeles_ml_levetel\');"> <i class="material-icons" style="font-size: 2rem">delete</i></span></div>
-                </div>
-            ');
-        }
-        // Archiv munkalapokat is járjuk be
-        $munkalapok_arch = $adatbazis_kapcsolat->s('ikt_szam stat_id tipus_id szemelyzet_id szallito_id', 'munkalap_arch', "`pr_szam`='{$projekt['ikt_szam']}' AND `stat_id`!='".MUNKALAP_STAT_TOROLT."' AND `stat_id`!='".MUNKALAP_STAT_SZTORNO."'");
-        foreach ( $munkalapok_arch as $munkalap ) {
-            
-            // Személyzet kiíratása
-            $szemelyzet = '';
-            foreach ( $select_szemelyzet as $szemelyzet ) {
-                if( $munkalap['szemelyzet_id'] && $szemelyzet['value'] == $munkalap['szemelyzet_id'] ) {
-                    $szemelyzet = $szemelyzet['name'];
-                    break;
+                // Ha külső kivitelező, akkor a partner nevét is odaírjuk
+                if( $munkalap['szemelyzet_id'] == KULSO_KIVITELEZO ) {
+                    $szemelyzet .= ': '.getErtek('nev', 'szallito', 'id', $munkalap['szallito_id']);
                 }
-            }
-            // Ha külső kivitelező, akkor a partner nevét is odaírjuk
-            if( $munkalap['szemelyzet_id'] == KULSO_KIVITELEZO ) {
-                $szemelyzet .= ': '.getErtek('nev', 'szallito', 'id', $munkalap['szallito_id']);
-            }
-            
-            $szamla_html .= nl2('
-                <div class="dtr nSor">
-                    <div class="dtc"><a href="munkalap.php?id=x&amp;modosit&amp;mezo=ikt_szam&amp;op=equal&amp;felt='.$munkalap['ikt_szam'].'" target="_blank">'.$munkalap['ikt_szam'].'</a></div>
-                    <div class="dtc">
-                        '.erteklista(ERTEKLISTA_MUNKALAP_TIP, $munkalap['tipus_id']).'
+                
+                $szamla_html .= nl2('
+                    <div class="dtr nSor">
+                        <div class="dtc"><a href="munkalap.php?id=x&amp;modosit&amp;mezo=ikt_szam&amp;op=equal&amp;felt='.$munkalap['ikt_szam'].'" target="_blank">'.$munkalap['ikt_szam'].'</a></div>
+                        <div class="dtc">
+                            '.erteklista(ERTEKLISTA_MUNKALAP_TIP, $munkalap['tipus_id']).'
+                        </div>
+                        <div class="dtc">'.$szemelyzet.'</div>
+                        <div class="dtc">'.getStatText('munkalap', $munkalap['stat_id']).'</div>
+                        <div class="dtc"><span class="icon link" onclick="pr_ml_levesz_id = \''.$munkalap['recid'].'\'; csoportMuvelet(\'projektkezeles_ml_levetel\');"> <i class="material-icons" style="font-size: 2rem">delete</i></span></div>
                     </div>
-                    <div class="dtc">'.$szemelyzet.'</div>
-                    <div class="dtc">'.getStatText('munkalap', $munkalap['stat_id']).'</div>
-                    <div class="dtc"><span class="icon link" onclick=""> <i class="material-icons" style="font-size: 2rem">delete</i></span></div>
-                </div>
-            ');
+                ');
+            }
+            // Archiv munkalapokat is járjuk be
+            $munkalapok_arch = $adatbazis_kapcsolat->s('ikt_szam stat_id tipus_id szemelyzet_id szallito_id', 'munkalap_arch', "`pr_szam`='{$projekt['ikt_szam']}' AND `stat_id`!='".MUNKALAP_STAT_TOROLT."' AND `stat_id`!='".MUNKALAP_STAT_SZTORNO."'");
+            foreach ( $munkalapok_arch as $munkalap ) {
+                
+                // Személyzet kiíratása
+                $szemelyzet = '';
+                foreach ( $select_szemelyzet as $szemelyzet ) {
+                    if( $munkalap['szemelyzet_id'] && $szemelyzet['value'] == $munkalap['szemelyzet_id'] ) {
+                        $szemelyzet = $szemelyzet['name'];
+                        break;
+                    }
+                }
+                // Ha külső kivitelező, akkor a partner nevét is odaírjuk
+                if( $munkalap['szemelyzet_id'] == KULSO_KIVITELEZO ) {
+                    $szemelyzet .= ': '.getErtek('nev', 'szallito', 'id', $munkalap['szallito_id']);
+                }
+                
+                $szamla_html .= nl2('
+                    <div class="dtr nSor">
+                        <div class="dtc"><a href="munkalap.php?id=x&amp;modosit&amp;mezo=ikt_szam&amp;op=equal&amp;felt='.$munkalap['ikt_szam'].'" target="_blank">'.$munkalap['ikt_szam'].'</a></div>
+                        <div class="dtc">
+                            '.erteklista(ERTEKLISTA_MUNKALAP_TIP, $munkalap['tipus_id']).'
+                        </div>
+                        <div class="dtc">'.$szemelyzet.'</div>
+                        <div class="dtc">'.getStatText('munkalap', $munkalap['stat_id']).'</div>
+                        <div class="dtc"><span class="icon link" onclick=""> <i class="material-icons" style="font-size: 2rem">delete</i></span></div>
+                    </div>
+                ');
+            }
         }
         $szamla_html .= '</div>';
         
@@ -3060,38 +3070,40 @@ require_once('selectek.php');
                 </div>
         ');
         
-        $projekt            = $adatbazis_kapcsolat->s2('ikt_szam', 'projektkezeles', "`recid`='{$_GET['id']}'");
-        $munkalapok         = $adatbazis_kapcsolat->s('ikt_szam obj_id gep_id szallito_id text', 'munkalap', "`pr_szam`='{$projekt['ikt_szam']}' AND `stat_id`!='".MUNKALAP_STAT_TOROLT."' AND `stat_id`!='".MUNKALAP_STAT_SZTORNO."'");
-        foreach ( $munkalapok as $munkalap ) {
-            
-            $szamla_html .= nl2('
-                <div class="dtr nSor">
-                    <div class="dtc"><a href="munkalap.php?id=x&amp;modosit&amp;mezo=ikt_szam&amp;op=equal&amp;felt='.$munkalap['ikt_szam'].'" target="_blank">'.$munkalap['ikt_szam'].'</a></div>
-                    <div class="dtc">
-                        '.getErtek('nev', 'obj', 'recid', $munkalap['obj_id']).'
-                        <br>'.getErtek('nev', 'eszkozkezeles', 'recid', $munkalap['gep_id']).'
+        if( $_GET['id'] ) {
+            $projekt            = $adatbazis_kapcsolat->s2('ikt_szam', 'projektkezeles', "`recid`='{$_GET['id']}'");
+            $munkalapok         = $adatbazis_kapcsolat->s('ikt_szam obj_id gep_id szallito_id text', 'munkalap', "`pr_szam`='{$projekt['ikt_szam']}' AND `stat_id`!='".MUNKALAP_STAT_TOROLT."' AND `stat_id`!='".MUNKALAP_STAT_SZTORNO."'");
+            foreach ( $munkalapok as $munkalap ) {
+                
+                $szamla_html .= nl2('
+                    <div class="dtr nSor">
+                        <div class="dtc"><a href="munkalap.php?id=x&amp;modosit&amp;mezo=ikt_szam&amp;op=equal&amp;felt='.$munkalap['ikt_szam'].'" target="_blank">'.$munkalap['ikt_szam'].'</a></div>
+                        <div class="dtc">
+                            '.getErtek('nev', 'obj', 'recid', $munkalap['obj_id']).'
+                            <br>'.getErtek('nev', 'eszkozkezeles', 'recid', $munkalap['gep_id']).'
+                        </div>
+                        <div class="dtc">'.getErtek('nev', 'szallito', 'id', $munkalap['szallito_id']).'</div>
+                        <div class="dtc">'.nl2br($munkalap['text']).'</div>
                     </div>
-                    <div class="dtc">'.getErtek('nev', 'szallito', 'id', $munkalap['szallito_id']).'</div>
-                    <div class="dtc">'.nl2br($munkalap['text']).'</div>
-                </div>
-            ');
-        }
-        
-        // Archiv munkalapokat is járjuk be
-        $munkalapok_arch = $adatbazis_kapcsolat->s('ikt_szam obj_id gep_id szallito_id text', 'munkalap_arch', "`pr_szam`='{$projekt['ikt_szam']}' AND `stat_id`!='".MUNKALAP_STAT_TOROLT."' AND `stat_id`!='".MUNKALAP_STAT_SZTORNO."'");
-        foreach ( $munkalapok_arch as $munkalap ) {
+                ');
+            }
             
-            $szamla_html .= nl2('
-                <div class="dtr nSor">
-                    <div class="dtc"><a href="munkalap_arch.php?id=x&amp;modosit&amp;mezo=ikt_szam&amp;op=equal&amp;felt='.$munkalap['ikt_szam'].'" target="_blank">'.$munkalap['ikt_szam'].'</a></div>
-                    <div class="dtc">
-                        '.getErtek('nev', 'obj', 'recid', $munkalap['obj_id']).'
-                        <br>'.getErtek('nev', 'eszkozkezeles', 'recid', $munkalap['gep_id']).'
+            // Archiv munkalapokat is járjuk be
+            $munkalapok_arch = $adatbazis_kapcsolat->s('ikt_szam obj_id gep_id szallito_id text', 'munkalap_arch', "`pr_szam`='{$projekt['ikt_szam']}' AND `stat_id`!='".MUNKALAP_STAT_TOROLT."' AND `stat_id`!='".MUNKALAP_STAT_SZTORNO."'");
+            foreach ( $munkalapok_arch as $munkalap ) {
+                
+                $szamla_html .= nl2('
+                    <div class="dtr nSor">
+                        <div class="dtc"><a href="munkalap_arch.php?id=x&amp;modosit&amp;mezo=ikt_szam&amp;op=equal&amp;felt='.$munkalap['ikt_szam'].'" target="_blank">'.$munkalap['ikt_szam'].'</a></div>
+                        <div class="dtc">
+                            '.getErtek('nev', 'obj', 'recid', $munkalap['obj_id']).'
+                            <br>'.getErtek('nev', 'eszkozkezeles', 'recid', $munkalap['gep_id']).'
+                        </div>
+                        <div class="dtc">'.getErtek('nev', 'szallito', 'id', $munkalap['szallito_id']).'</div>
+                        <div class="dtc">'.nl2br($munkalap['text']).'</div>
                     </div>
-                    <div class="dtc">'.getErtek('nev', 'szallito', 'id', $munkalap['szallito_id']).'</div>
-                    <div class="dtc">'.nl2br($munkalap['text']).'</div>
-                </div>
-            ');
+                ');
+            }
         }
         $szamla_html .= '</div>';
 
@@ -3134,20 +3146,21 @@ require_once('selectek.php');
                 </div>
         ');
 
-        $sorok = $adatbazis_kapcsolat->s('recid megj insert_usr insert_dt', 'megjegyzes', "`id` = '".$_GET['id']."' AND `tabla` = '".str_replace('.php', '', basename(self()))."'", 'recid desc');
+        if( $_GET['id'] ) {
+            $sorok = $adatbazis_kapcsolat->s('recid megj insert_usr insert_dt', 'megjegyzes', "`id`='{$_GET['id']}' AND `tabla`='".str_replace('.php', '', basename(self()))."'", 'recid desc');
+            if( $sorok ) {
+                $i = 1;
+                foreach($sorok as $sor) {
+                    $szamla_html .= nl2('
+                        <div id="naploSor-'.$sor['recid'].'" data-id="'.$sor['recid'].'" data-i="'.$i.'" class="dtr nSor kijSor">
+                            <div class="dtc">'.htmlspecialchars_decode( nl2br2($sor['megj']) ).'</div>
+                            <div class="dtc">'.$sor['insert_usr'].'</div>
+                            <div class="dtc">'.datum_kiir($sor['insert_dt']).'</div>
+                        </div>
+                    ');
 
-        if( $sorok ) {
-            $i = 1;
-            foreach($sorok as $sor) {
-                $szamla_html .= nl2('
-                    <div id="naploSor-'.$sor['recid'].'" data-id="'.$sor['recid'].'" data-i="'.$i.'" class="dtr nSor kijSor">
-                        <div class="dtc">'.htmlspecialchars_decode( nl2br2($sor['megj']) ).'</div>
-                        <div class="dtc">'.$sor['insert_usr'].'</div>
-                        <div class="dtc">'.datum_kiir($sor['insert_dt']).'</div>
-                    </div>
-                ');
-
-                $i++;
+                    $i++;
+                }
             }
         }
 

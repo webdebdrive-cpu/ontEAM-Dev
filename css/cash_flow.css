@@ -74,7 +74,7 @@ table.szamla_cont_tabla.kisbetu tfoot td.fix {
     background: #F1EFF0;
 }
 table.szamla_cont_tabla.kisbetu tr.kijelolve td.fix, #szetosztasra_varo_szla_tetelek.kijelolve, table.szamla_cont_tabla.kisbetu #szetosztasra_varo_szla_tetelek.kijelolve td.fix {
-    background: #55A2FA;
+    background: var(--color-kek);
 }
 table.szamla_cont_tabla.kisbetu #osszesen_lablec.kijelolve td, table.szamla_cont_tabla.kisbetu #osszesen_lablec.kijelolve td.fix, table.szamla_cont_tabla.kisbetu #szetosztasra_varo_szla_tetelek.kijelolve td.fix a {
     color: #fff;

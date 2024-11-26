@@ -33,7 +33,7 @@ $szoveg                 = 'bejelentést';        //Hibaüzenetkor: Biztosan tör
 $szamla_html = '';
 
 // Dokumentumok fülhöz kell majd
-$tobb_kep = true;
+$tobb_kep = 1;
 if( $tobb_kep ) {
     function get_tobbkep_darab()    { return 10;        } // Maximum hány kép tallózható be
     function get_tobbkep_csakkep()  { return '';        } // Milyen kiterjesztéseket engedünk meg (ha mindenet, legyen üres)
@@ -1144,11 +1144,11 @@ require_once('selectek.php');
     } elseif( isset($_GET['modosit']) ) {
 
         // Ha Gyorskeresőből érkeznénk ide, akkor az ID-t valójában az id_hidden tartalmazza majd
-        if(isset($_GET['id_hidden'])){
+        if (isset($_GET['id_hidden'])) {
             $_GET['id'] = $_GET['id_hidden'];
         }
 
-	    $sor = $adatbazis_kapcsolat -> s2('*', $megnevezes, 'recid='.$_GET['id']);
+	    $sor = $adatbazis_kapcsolat -> s2('*', $megnevezes, "`recid`='{$_GET['id']}'");
         $sor['hiba_text'] = str_replace(array('	'), array(' '), $sor['hiba_text']);
         $sor['hiba_text'] = preg_replace("/[[:blank:]]+/", ' ', $sor['hiba_text']);
 
@@ -1203,7 +1203,7 @@ require_once('selectek.php');
         $jobb_oldal = '';
 
 	    $szamla_html .= str_replace(
-            array('{JS}', '{JS_SUBMIT_ELOTT}', '{ACTION}', '{MEZOK}', '{MEGNEVEZES}', '{KEP}',     '{CK_EDITOR}', '{GOMBOK}', '{UPDATE_DT}'     ),
+            array('{JS}', '{JS_SUBMIT_ELOTT}', '{ACTION}', '{MEZOK}', '{MEGNEVEZES}', '{KEP}',     '{CK_EDITOR}', '{GOMBOK}', '{UPDATE_DT}'      ),
             array( $js,   $js_submit_elott,    $action,    $mezok,    $megnevezes,    $jobb_oldal, $ckeditor,     $gombok,    $sor['update_dt']  ),
             fajlbol_olvas('../sablon/admin/form_modosit.html', true)
         );
@@ -1243,41 +1243,46 @@ require_once('selectek.php');
                 </div>
         ');
 
-        $munkalap_kapcsok = $adatbazis_kapcsolat->s('recid munkalap_id', 'munkalap_kapcs', "`bejelentes_id` = '{$_GET['id']}'");
-        if( $munkalap_kapcsok ) {
-            $i = 1;
-            foreach ( $munkalap_kapcsok as $munkalap_kapcs ) {
+        if( $_GET['id'] ) {
 
-                // Csak akkor látszik a munkalap, ha az nyitott
-                $sor = $adatbazis_kapcsolat->s2('recid ikt_szam telephely_id obj_id insert_dt stat_id', 'munkalap', "`recid` = '".$munkalap_kapcs['munkalap_id']."'", '', '1');
-                if( $sor ) {
-
-                    // Telephely
-                    $telephely = $adatbazis_kapcsolat->s2('nev', 'telephely', "`id`='{$sor['telephely_id']}'");
-                    $telephely = $telephely['nev'];
-
-                    // Helység
-                    $helyseg = $adatbazis_kapcsolat->s2('nev', 'obj', "`recid`='{$sor['obj_id']}'");
-                    $helyseg = $helyseg['nev'];
-
-                    $ikt_szam = '<a href="munkalap.php?id=x&amp;mezo=ikt_szam&amp;op=equal&amp;felt='.$sor['ikt_szam'].'" target="_blank">'.$sor['ikt_szam'].'</a>';
-                    if( !_jog(JOG_MUNKALAP_MEGTEKINT) && !_jog(JOG_MUNKALAP_MEGTEKINT_SZALL) && !_jog(JOG_MUNKALAP_MEGTEKINT_FELADAT) ){
-                        $ikt_szam = $sor['ikt_szam'];
+            $munkalap_kapcsok = $adatbazis_kapcsolat->s('recid munkalap_id', 'munkalap_kapcs', "`bejelentes_id`='{$_GET['id']}'");
+            if( $munkalap_kapcsok ) {
+                $i = 1;
+                foreach ( $munkalap_kapcsok as $munkalap_kapcs ) {
+    
+                    // Csak akkor látszik a munkalap, ha az nyitott
+                    $sor = $adatbazis_kapcsolat->s2('recid ikt_szam telephely_id obj_id insert_dt stat_id', 'munkalap', "`recid` = '".$munkalap_kapcs['munkalap_id']."'", '', '1');
+                    if( $sor ) {
+    
+                        // Telephely
+                        $telephely = $adatbazis_kapcsolat->s2('nev', 'telephely', "`id`='{$sor['telephely_id']}'");
+                        $telephely = $telephely['nev'];
+    
+                        // Helység
+                        $helyseg = $adatbazis_kapcsolat->s2('nev', 'obj', "`recid`='{$sor['obj_id']}'");
+                        $helyseg = $helyseg['nev'];
+    
+                        $ikt_szam = '<a href="munkalap.php?id=x&amp;mezo=ikt_szam&amp;op=equal&amp;felt='.$sor['ikt_szam'].'" target="_blank">'.$sor['ikt_szam'].'</a>';
+                        if( !_jog(JOG_MUNKALAP_MEGTEKINT) && !_jog(JOG_MUNKALAP_MEGTEKINT_SZALL) && !_jog(JOG_MUNKALAP_MEGTEKINT_FELADAT) ){
+                            $ikt_szam = $sor['ikt_szam'];
+                        }
+    
+                        $szamla_html .= nl2('
+                            <div id="naploSor-'.$sor['recid'].'" class="dtr nSor kijSor" data-id="'.$sor['recid'].'" data-i="'.$i.'">
+                                <div class="dtc">'.$ikt_szam.'</div>
+                                <div class="dtc">'.$telephely.' - '.$helyseg.'</div>
+                                <div class="dtc">'.datum_kiir($sor['insert_dt']).'</div>
+                                <div class="dtc">'.getStatText('munkalap', $sor['stat_id']).'</div>
+                            </div>
+                        ');
                     }
-
-                    $szamla_html .= nl2('
-                        <div id="naploSor-'.$sor['recid'].'" class="dtr nSor kijSor" data-id="'.$sor['recid'].'" data-i="'.$i.'">
-                            <div class="dtc">'.$ikt_szam.'</div>
-                            <div class="dtc">'.$telephely.' - '.$helyseg.'</div>
-                            <div class="dtc">'.datum_kiir($sor['insert_dt']).'</div>
-                            <div class="dtc">'.getStatText('munkalap', $sor['stat_id']).'</div>
-                        </div>
-                    ');
+    
+                    $i++;
                 }
-
-                $i++;
             }
+
         }
+        $szamla_html .= '</div>';
 
         if( $_GET['ajax'] ) {
             echo json_encode(array(
@@ -1317,20 +1322,24 @@ require_once('selectek.php');
                 </div>
         ');
 
-        $sorok = $adatbazis_kapcsolat->s('recid megj szerepkor insert_usr insert_dt', 'megjegyzes', "`id` = '".$_GET['id']."' AND `tabla` = '".str_replace('.php', '', basename(self()))."'", 'recid desc');
-        if( $sorok ) {
-            $i = 1;
-            foreach($sorok as $sor) {
-                $szamla_html .= nl2('
-                    <div id="naploSor-'.$sor['recid'].'" class="dtr nSor kijSor" data-id="'.$sor['recid'].'" data-i="'.$i.'">
-                        <div class="dtc">'.htmlspecialchars_decode( nl2br2($sor['megj']) ).'</div>
-                        <div class="dtc">'.$sor['insert_usr'].' '.getSzerepkorNev($sor['szerepkor']).'</div>
-                        <div class="dtc">'.datum_kiir($sor['insert_dt']).'</div>
-                    </div>
-                ');
+        if( $_GET['id'] ) {
 
-                $i++;
+            $sorok = $adatbazis_kapcsolat->s('recid megj szerepkor insert_usr insert_dt', 'megjegyzes', "`id`='{$_GET['id']}' AND `tabla`='".str_replace('.php', '', basename(self()))."'", 'recid desc');
+            if( $sorok ) {
+                $i = 1;
+                foreach($sorok as $sor) {
+                    $szamla_html .= nl2('
+                        <div id="naploSor-'.$sor['recid'].'" class="dtr nSor kijSor" data-id="'.$sor['recid'].'" data-i="'.$i.'">
+                            <div class="dtc">'.htmlspecialchars_decode( nl2br2($sor['megj']) ).'</div>
+                            <div class="dtc">'.$sor['insert_usr'].' '.getSzerepkorNev($sor['szerepkor']).'</div>
+                            <div class="dtc">'.datum_kiir($sor['insert_dt']).'</div>
+                        </div>
+                    ');
+    
+                    $i++;
+                }
             }
+            
         }
 
         if( $_GET['ajax'] ) {

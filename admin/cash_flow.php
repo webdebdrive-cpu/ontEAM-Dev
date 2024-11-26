@@ -26,7 +26,7 @@ $csv_mibe    = 'windows-1250';
 $szamla_html = '';
 
 // Dokumentumok fülhöz kell majd
-$tobb_kep = false;
+$tobb_kep = 0;
 if( $tobb_kep ) {
 
     function get_tobbkep_darab()    { return 10;        } // Maximum hány kép tallózható be

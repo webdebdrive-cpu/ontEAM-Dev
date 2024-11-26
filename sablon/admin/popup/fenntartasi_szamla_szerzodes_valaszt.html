@@ -13,19 +13,23 @@
 $(document).ready(function(){
     
     /* Szálloda ellenőrzése */
-    if( !$('#telephely_id').val() ){
-        setTimeout(function(){ popupZar(); }, 10);
-        alert2('Kérem, előbb válasszon szállodát!', '', 'Hiba');
-        $('#telephely_id').addClass('hibas_ide_focus');
-        return false;
+    if( $('#telephely_id').length ) {
+        if( !$('#telephely_id').val() ){
+            setTimeout(function(){ popupZar(); }, 10);
+            alert2('Kérem, előbb válasszon szállodát!', '', 'Hiba');
+            $('#telephely_id').addClass('hibas_ide_focus');
+            return false;
+        }
     }
     
     /* Partner ellenőrzése */
-    if( !$('#szallito_id').val() ){
-        setTimeout(function(){ popupZar(); }, 10);
-        alert2('Kérem, előbb válasszon partnert!', '', 'Hiba');
-        $('#szallito_id_autocomp').addClass('hibas_ide_focus');
-        return false;
+    if( $('#szallito_id').length ) {
+        if( !$('#szallito_id').val() ){
+            setTimeout(function(){ popupZar(); }, 10);
+            alert2('Kérem, előbb válasszon partnert!', '', 'Hiba');
+            $('#szallito_id_autocomp').addClass('hibas_ide_focus');
+            return false;
+        }
     }
     
     get_fenntartasi_szerzodes_tabla('');
@@ -34,13 +38,22 @@ $(document).ready(function(){
 /* Fenntartási szerződések betöltése */
 function get_fenntartasi_szerzodes_tabla(order){
 
+    let telephely_id = $('#telephely_id').val();
+    let szallito_id  = $('#szallito_id' ).val();
+    if( !$('#telephely_id').length ) {
+        telephely_id = $('#telephely_id_db').val();
+    }
+    if( !$('#szallito_id').length ) {
+        szallito_id = $('#szallito_id_db').val();
+    }
+
     $.ajax({
         url : 'fenntartasi_szamla.php',
         type: 'POST',
         data: {
             recid                           : _get('id'),
-            telephely_id                    : $('#telephely_id').val(),
-            szallito_id                     : $('#szallito_id').val(),
+            telephely_id                    : telephely_id,
+            szallito_id                     : szallito_id,
             order                           : order,
             self                            : location.href.split('/').pop(),
             get_fenntartasi_szerzodes_tabla : new Date().getTime()

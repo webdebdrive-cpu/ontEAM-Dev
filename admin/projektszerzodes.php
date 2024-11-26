@@ -1834,26 +1834,28 @@ require_once('selectek.php');
         }
         
         // Tételek felsorolása
-        $tetelek = $adatbazis_kapcsolat->s('*', 'projektszerzodes_tetel', "`projektszerzodes_recid`='{$_GET['id']}'", 'insert_dt');
-        foreach ( $tetelek as $tetel ) {
-            
-            $extra_sor1 = $extra_sor2 = '';
-            if( $sor['kcs_21'] != KCS_21_HUF ) {
-                $extra_sor1 .= '<div class="dtc r nowrap">'.number_format($tetel['varh_ert'], 0, ',', ' ').'</div>';
-                $extra_sor2 .= '<div class="dtc r nowrap">'.number_format($tetel['ertek'], 0, ',', ' ').'</div>';
+        if( $_GET['id'] ) {
+            $tetelek = $adatbazis_kapcsolat->s('*', 'projektszerzodes_tetel', "`projektszerzodes_recid`='{$_GET['id']}'", 'insert_dt');
+            foreach ( $tetelek as $tetel ) {
+                
+                $extra_sor1 = $extra_sor2 = '';
+                if( $sor['kcs_21'] != KCS_21_HUF ) {
+                    $extra_sor1 .= '<div class="dtc r nowrap">'.number_format($tetel['varh_ert'], 0, ',', ' ').'</div>';
+                    $extra_sor2 .= '<div class="dtc r nowrap">'.number_format($tetel['ertek'], 0, ',', ' ').'</div>';
+                }
+                
+                $szamla_html .= nl2('
+                    <div class="dtr nSor">
+                        <div class="dtc">'.$tetel['targy'].'</div>
+                        <div class="dtc">'.datum_kiir($tetel['varh_erk']).'</div>
+                        <div class="dtc r nowrap">'.number_format($tetel[$osszeg_oszlop], $tizedesek, ',', ' ').'</div>
+                        '.$extra_sor1.'
+                        <div class="dtc">'.datum_kiir($tetel['teljesites']).'</div>
+                        <div class="dtc r nowrap">'.number_format($tetel[$ertek_oszlop], $tizedesek, ',', ' ').'</div>
+                        '.$extra_sor2.'
+                    </div>
+                ');
             }
-            
-            $szamla_html .= nl2('
-                <div class="dtr nSor">
-                    <div class="dtc">'.$tetel['targy'].'</div>
-                    <div class="dtc">'.datum_kiir($tetel['varh_erk']).'</div>
-                    <div class="dtc r nowrap">'.number_format($tetel[$osszeg_oszlop], $tizedesek, ',', ' ').'</div>
-                    '.$extra_sor1.'
-                    <div class="dtc">'.datum_kiir($tetel['teljesites']).'</div>
-                    <div class="dtc r nowrap">'.number_format($tetel[$ertek_oszlop], $tizedesek, ',', ' ').'</div>
-                    '.$extra_sor2.'
-                </div>
-            ');
         }
         $szamla_html .= '</div>';
         
@@ -1880,68 +1882,72 @@ require_once('selectek.php');
 
         // Tételek felsorolása
         $tallozas_gomb = fajlbol_olvas('../sablon/admin/jsfile_pr_szerzodes_jotallas.html', 1);
-        $jotallasok = $adatbazis_kapcsolat->s('*', 'projektszerzodes_jotallas', "`projektszerzodes_recid`='{$_GET['id']}'", 'bejaras');
-        foreach ( $jotallasok as $jotallas ) {
-            
-            // Ha van projektszerződés kezelés jog
-            $fajl = '';
-            
-            // Ha van már fájl, akkor azt megmutatjuk
-            if( $jotallas['utvonal'] ) {
+        if( $_GET['id'] ) {
 
-                $utvonal     = '../'. get_utvonal().'projektszerzodes_jotallas/'.$jotallas['utvonal'];
-                $kep_reszek  = pathinfo($utvonal);
-                $ikon_utvonal = '../elemek/ikonok/'.strtolower($kep_reszek['extension']).'.png';
-
-                $torles = '';
-                if( _jog( JOG_PRKEZEL_SZERZODES_KEZEL ) ) {
-                    $torles = nl2('
-                                <div class="dn" id="dok_nevelos_nev_'.$jotallas['recid'].'">'.a_az($jotallas['fajlnev']).' '.$jotallas['fajlnev'].'</div>
-                                <span class="icon link jotallas" title="Dokumentum törlése" onclick="jotallas_dok_torol(\''.$jotallas['recid'].'\')">
-                                    <i class="material-icons" style="font-size: 2rem">
-                                        delete
-                                    </i>
-                                </span>
-                        ');
+            $jotallasok = $adatbazis_kapcsolat->s('*', 'projektszerzodes_jotallas', "`projektszerzodes_recid`='{$_GET['id']}'", 'bejaras');
+            foreach ( $jotallasok as $jotallas ) {
+                
+                // Ha van projektszerződés kezelés jog
+                $fajl = '';
+                
+                // Ha van már fájl, akkor azt megmutatjuk
+                if( $jotallas['utvonal'] ) {
+    
+                    $utvonal     = '../'. get_utvonal().'projektszerzodes_jotallas/'.$jotallas['utvonal'];
+                    $kep_reszek  = pathinfo($utvonal);
+                    $ikon_utvonal = '../elemek/ikonok/'.strtolower($kep_reszek['extension']).'.png';
+    
+                    $torles = '';
+                    if( _jog( JOG_PRKEZEL_SZERZODES_KEZEL ) ) {
+                        $torles = nl2('
+                                    <div class="dn" id="dok_nevelos_nev_'.$jotallas['recid'].'">'.a_az($jotallas['fajlnev']).' '.$jotallas['fajlnev'].'</div>
+                                    <span class="icon link jotallas" title="Dokumentum törlése" onclick="jotallas_dok_torol(\''.$jotallas['recid'].'\')">
+                                        <i class="material-icons" style="font-size: 2rem">
+                                            delete
+                                        </i>
+                                    </span>
+                            ');
+                    }
+                    
+                    $fajl = '<a href="'.$utvonal.'" target="_blank">'.kep_kiir( $ikon_utvonal, utf8($jotallas['fajlnev']), 30, 30, '', '', '', 'no thumb').' '.$jotallas['fajlnev'].'</a>'.$torles;
+    
+                // Egyébként a feltöltés
+                } else {
+    
+                    if( _jog( JOG_PRKEZEL_SZERZODES_KEZEL ) ) {
+                    
+                        $megn = $jotallas['recid'];
+                        $parameterek = nl2("
+                                            'megnevezes'    : '".$megn."',
+                                            'konyvtar'      : 'projektszerzodes',
+                                            'tabla'         : 'projektszerzodes_jotallas',
+                                            'oszlop'        : 'projektszerzodes_recid',
+                                            'recid'         : '".$jotallas['recid']."'
+                                            ");
+                        // Ha minden kész, akkor először is betöljük az adatlap jótállás fülét, frissítünk
+                        $minden_kesz  = 'szamlaBetolt(_get(\'id\'), baseName(location.href) + \'.php\', \'jotallas\');';
+                        // Illetve ellenőrizzük, hogy ez volt-e az utolsó, mert ha igen, akkor a projekt Lezárható.
+                        $minden_kesz .= 'projekt_zarhato_e();';
+                        $fajl = str_replace(    array('{PHP_FAJL}',     '{PARAMETEREK}', '{MEGN}', '{MINDEN_KESZ}'),
+                                                array('../feltolt.php', $parameterek,    $megn,    $minden_kesz   ),
+                                                $tallozas_gomb
+                                            );
+                    }
                 }
-                
-                $fajl = '<a href="'.$utvonal.'" target="_blank">'.kep_kiir( $ikon_utvonal, utf8($jotallas['fajlnev']), 30, 30, '', '', '', 'no thumb').' '.$jotallas['fajlnev'].'</a>'.$torles;
-
-            // Egyébként a feltöltés
-            } else {
-
-                if( _jog( JOG_PRKEZEL_SZERZODES_KEZEL ) ) {
-                
-                    $megn = $jotallas['recid'];
-                    $parameterek = nl2("
-                                        'megnevezes'    : '".$megn."',
-                                        'konyvtar'      : 'projektszerzodes',
-                                        'tabla'         : 'projektszerzodes_jotallas',
-                                        'oszlop'        : 'projektszerzodes_recid',
-                                        'recid'         : '".$jotallas['recid']."'
-                                        ");
-                    // Ha minden kész, akkor először is betöljük az adatlap jótállás fülét, frissítünk
-                    $minden_kesz  = 'szamlaBetolt(_get(\'id\'), baseName(location.href) + \'.php\', \'jotallas\');';
-                    // Illetve ellenőrizzük, hogy ez volt-e az utolsó, mert ha igen, akkor a projekt Lezárható.
-                    $minden_kesz .= 'projekt_zarhato_e();';
-                    $fajl = str_replace(    array('{PHP_FAJL}',     '{PARAMETEREK}', '{MEGN}', '{MINDEN_KESZ}'),
-                                            array('../feltolt.php', $parameterek,    $megn,    $minden_kesz   ),
-                                            $tallozas_gomb
-                                        );
+                    
+                $mail_kuldve = '';
+                if( $jotallas['mail_ment']!='0000-00-00 00:00:00' ) {
+                    $mail_kuldve = '<i class="material-icons">done</i>';
                 }
+                $szamla_html .= nl2('
+                    <div class="dtr nSor">
+                        <div class="dtc">'.datum_kiir($jotallas['bejaras']).'</div>
+                        <div class="dtc">'.$fajl.'</div>
+                        <div class="dtc">'.$mail_kuldve.'</div>
+                    </div>
+                ');
             }
-                
-            $mail_kuldve = '';
-            if( $jotallas['mail_ment']!='0000-00-00 00:00:00' ) {
-                $mail_kuldve = '<i class="material-icons">done</i>';
-            }
-            $szamla_html .= nl2('
-                <div class="dtr nSor">
-                    <div class="dtc">'.datum_kiir($jotallas['bejaras']).'</div>
-                    <div class="dtc">'.$fajl.'</div>
-                    <div class="dtc">'.$mail_kuldve.'</div>
-                </div>
-            ');
+
         }
         $szamla_html .= '</div>';
         
@@ -2008,20 +2014,21 @@ require_once('selectek.php');
                 </div>
         ');
 
-        $sorok = $adatbazis_kapcsolat->s('recid megj insert_usr insert_dt', 'megjegyzes', "`id` = '".$_GET['id']."' AND `tabla` = '".str_replace('.php', '', basename(self()))."'", 'recid desc');
-
-        if( $sorok ) {
-            $i = 1;
-            foreach($sorok as $sor) {
-                $szamla_html .= nl2('
-                    <div id="naploSor-'.$sor['recid'].'" data-id="'.$sor['recid'].'" data-i="'.$i.'" class="dtr nSor kijSor">
-                        <div class="dtc">'.htmlspecialchars_decode( nl2br2($sor['megj']) ).'</div>
-                        <div class="dtc">'.$sor['insert_usr'].'</div>
-                        <div class="dtc">'.datum_kiir($sor['insert_dt']).'</div>
-                    </div>
-                ');
-
-                $i++;
+        if( $_GET['id'] ) {
+            $sorok = $adatbazis_kapcsolat->s('recid megj insert_usr insert_dt', 'megjegyzes', "`id`='{$_GET['id']}' AND `tabla` = '".str_replace('.php', '', basename(self()))."'", 'recid desc');
+            if( $sorok ) {
+                $i = 1;
+                foreach($sorok as $sor) {
+                    $szamla_html .= nl2('
+                        <div id="naploSor-'.$sor['recid'].'" data-id="'.$sor['recid'].'" data-i="'.$i.'" class="dtr nSor kijSor">
+                            <div class="dtc">'.htmlspecialchars_decode( nl2br2($sor['megj']) ).'</div>
+                            <div class="dtc">'.$sor['insert_usr'].'</div>
+                            <div class="dtc">'.datum_kiir($sor['insert_dt']).'</div>
+                        </div>
+                    ');
+    
+                    $i++;
+                }
             }
         }
 

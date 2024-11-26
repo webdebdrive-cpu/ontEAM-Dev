@@ -35,7 +35,6 @@ if( $tobb_kep ) {
 
 }
 
-
 // Köztes tábla szerződéseiek kilistázása
 if( isset($_POST['megallapodas_szamla_get_koztes']) ) {
     
@@ -1272,21 +1271,23 @@ require_once('selectek.php');
                 $sql_kieg .= " AND `telephely_id`='{$ertek}'";
             }
         }
-        $szallodak = get_akt_login_szallodai();
-        if( $szallodak ) {
-            $tetelek = $adatbazis_kapcsolat->s('telephely_id, targy, telj_dt, netto_ert, dev_net, varh_erk, varh_ert, dev_varh_ert', 'megallapodas_tetel', "`megallapodas_recid`='{$_GET['id']}' AND `telephely_id` IN (".implode(',', $szallodak)."){$sql_kieg}", 'insert_dt');
-            foreach ( $tetelek as $tetel ) {
+        if( $_GET['id'] ) {
+            $szallodak = get_akt_login_szallodai();
+            if( $szallodak ) {
+                $tetelek = $adatbazis_kapcsolat->s('telephely_id, targy, telj_dt, netto_ert, dev_net, varh_erk, varh_ert, dev_varh_ert', 'megallapodas_tetel', "`megallapodas_recid`='{$_GET['id']}' AND `telephely_id` IN (".implode(',', $szallodak)."){$sql_kieg}", 'insert_dt');
+                foreach ( $tetelek as $tetel ) {
 
-                $szamla_html .= nl2('
-                    <div class="dtr nSor">
-                        <div class="dtc">'.getSzallodaNev($tetel['telephely_id']).'</div>
-                        <div class="dtc">'.$tetel['targy'].'</div>
-                        <div class="dtc">'.datum_kiir($tetel['varh_erk']).'</div>
-                        <div class="dtc r nowrap">'.number_format($tetel[$osszeg_oszlop],  0, ',', ' ').'</div>
-                        <div class="dtc">'.datum_kiir($tetel['telj_dt']).'</div>
-                        <div class="dtc r nowrap">'.number_format($tetel[$ertek_oszlop], $tizedesek, ',', ' ').'</div>
-                    </div>
-                ');
+                    $szamla_html .= nl2('
+                        <div class="dtr nSor">
+                            <div class="dtc">'.getSzallodaNev($tetel['telephely_id']).'</div>
+                            <div class="dtc">'.$tetel['targy'].'</div>
+                            <div class="dtc">'.datum_kiir($tetel['varh_erk']).'</div>
+                            <div class="dtc r nowrap">'.number_format($tetel[$osszeg_oszlop],  0, ',', ' ').'</div>
+                            <div class="dtc">'.datum_kiir($tetel['telj_dt']).'</div>
+                            <div class="dtc r nowrap">'.number_format($tetel[$ertek_oszlop], $tizedesek, ',', ' ').'</div>
+                        </div>
+                    ');
+                }
             }
         }
         $szamla_html .= '</div>';
@@ -1341,20 +1342,21 @@ require_once('selectek.php');
                 </div>
         ');
 
-        $sorok = $adatbazis_kapcsolat->s('recid megj insert_usr insert_dt', 'megjegyzes', "`id` = '".$_GET['id']."' AND `tabla` = '".str_replace('.php', '', basename(self()))."'", 'recid desc');
+        if( $_GET['id'] ) {
+            $sorok = $adatbazis_kapcsolat->s('recid megj insert_usr insert_dt', 'megjegyzes', "`id`='{$_GET['id']}' AND `tabla`='".str_replace('.php', '', basename(self()))."'", 'recid desc');
+            if( $sorok ) {
+                $i = 1;
+                foreach ( $sorok as $sor ) {
+                    $szamla_html .= nl2('
+                        <div id="naploSor-'.$sor['recid'].'" data-id="'.$sor['recid'].'" data-i="'.$i.'" class="dtr nSor kijSor">
+                            <div class="dtc">'.htmlspecialchars_decode( nl2br2($sor['megj']) ).'</div>
+                            <div class="dtc">'.$sor['insert_usr'].'</div>
+                            <div class="dtc">'.datum_kiir($sor['insert_dt']).'</div>
+                        </div>
+                    ');
 
-        if( $sorok ) {
-            $i = 1;
-            foreach ( $sorok as $sor ) {
-                $szamla_html .= nl2('
-                    <div id="naploSor-'.$sor['recid'].'" data-id="'.$sor['recid'].'" data-i="'.$i.'" class="dtr nSor kijSor">
-                        <div class="dtc">'.htmlspecialchars_decode( nl2br2($sor['megj']) ).'</div>
-                        <div class="dtc">'.$sor['insert_usr'].'</div>
-                        <div class="dtc">'.datum_kiir($sor['insert_dt']).'</div>
-                    </div>
-                ');
-
-                $i++;
+                    $i++;
+                }
             }
         }
 

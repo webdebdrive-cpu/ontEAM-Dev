@@ -91,11 +91,11 @@
 }
 
 #alert2 .gombb.kek, #alert2 .gomb.kek{
-    background: #54A2F9;
+    background: var(--color-kek);
 }
 
 #alert2 .gombb.kek:hover, #alert2 .gomb.kek:hover{
-    background: #5192DA;
+    background: var(--color-kek-hover);
 }
 
 #alert2 .gomb:focus, #alert2 .gombb:focus{
@@ -131,7 +131,7 @@ div.figy {
 }
 
 div.figy div.header{
-    background: #54a2f9;
+    background: var(--color-kek);
     border-top-left-radius: 0.6rem;
     border-top-right-radius: 0.6rem;
     color: #fff;

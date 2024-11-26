@@ -180,14 +180,14 @@ div.no_right_click{
 .f49, .f49:hover { font-size: 4.9rem;   }
 .f50, .f50:hover { font-size: 5.0rem;   }
 
-.feher  { color: #fff;                  }
-.fekete { color: #000;                  }
+.feher  { color: #fff;                }
+.fekete { color: #000;                }
 .fll    { float: left;                  }
 .flr    { float: right;                 }
 .full   { width: 100%;                  }
 .i      { font-style: italic;           }
 .j      { text-align: justify;          }
-.kek    { color: #55A2FA;               }
+.kek    { color: var(--color-kek);      }
 .l      { text-align: left;             }
 .link   { cursor: pointer;              }
 .normal { font-weight: normal;          }
@@ -199,7 +199,7 @@ div.no_right_click{
 .p2     { padding: 0.2rem 0.5rem;       }
 .padd   { padding: 1rem;                }
 .padd2  { padding: 0.2rem 1rem;         }
-.piros  { color: #f00;                  }
+.piros  { color: #f00;                }
 .r      { text-align: right;            }
 .u      { text-decoration: underline;   }
 .up     { text-transform: uppercase;    }
@@ -207,6 +207,6 @@ div.no_right_click{
 .vam    { vertical-align: middle;       }
 .vab    { vertical-align: bottom;       }
 .vh     { visibility: hidden;           }
-.zold   { color: #1AC61A;               }
+.zold   { color: #1AC61A;             }
 
 .kijelol_tilt{ user-select: none;       }

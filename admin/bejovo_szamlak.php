@@ -136,15 +136,14 @@ require_once('selectek.php');
             $_GET['id'] = $_GET['id_hidden'];
         }
 
-	    $sor = $adatbazis_kapcsolat -> s2('*', $megnevezes, 'recid='.$_GET['id']);
-
+	    $sor = $adatbazis_kapcsolat -> s2('*', $megnevezes, "`recid`='{$_GET['id']}'");
         foreach($akt_tomb as $tomb) {
             if( $tomb['type'] == 'autocomplete' ) {
-                
-                if($tomb['csoport']){
+
+                if ($tomb['csoport']) {
                     $kulso_ertek = $adatbazis_kapcsolat->s2('info', $tomb['tabla'], "`{$tomb['oszlop_keres']}`='{$sor[$tomb['name']]}' AND `csoport`='{$tomb['csoport']}'", '', '1');
                     $kulso_ertek['nev'] = $kulso_ertek['info'];
-                }else{
+                } else {
                     $kulso_ertek = $adatbazis_kapcsolat->s2('recid nev', $tomb['tabla'], "`{$tomb['oszlop_keres']}`='{$sor[$tomb['name']]}'", '', '1');
                 }
 
@@ -156,7 +155,7 @@ require_once('selectek.php');
         }
 
         $json_sor = array();
-        foreach($sor as $kulcs => $elem){
+        foreach ($sor as $kulcs => $elem) {
             $json_sor[$kulcs] = formAdatok_replace($elem);
         }
         $szamla_html .= '<script> formAdatok = JSON.parse(\''.json_encode($json_sor).'\'); </script>';
@@ -170,7 +169,7 @@ require_once('selectek.php');
             //Jogosutságkezelés: csak az törölheti, aki létrehozta
             if($sor['loginnev']!=$_SESSION[get_db_tabla().'user']){
                 $gombok .= ' <input type="button" id="recordTorol" class="gombb_alert dn" onclick="alert2(\'Csak saját bejegyzés törölhető!\', \'\', \'Hiba\')" value="Töröl" title="Töröl">';
-            }else{
+            } else {
                 $gombok .= ' <input type="button" id="recordTorol" class="gombb_alert dn" onclick="alert2(\'Biztosan törli ezt a '.$szoveg.'?\', gomb'.$_GET['id'].')" value="Töröl" title="Töröl">';
             }
         }
@@ -233,13 +232,16 @@ require_once('selectek.php');
             $_GET['id'] = $_GET['id_hidden'];
         }
 
-	    $sor = $adatbazis_kapcsolat -> s2('*', $megnevezes, 'recid='.$_GET['id']);
+        if( $_GET['id'] ) {
 
-        $json_sor = array();
-        foreach($sor as $kulcs => $elem){
-            $json_sor[$kulcs] = formAdatok_replace($elem);
+            $sor = $adatbazis_kapcsolat -> s2('*', $megnevezes, "`recid`='{$_GET['id']}'");
+            $json_sor = array();
+            foreach($sor as $kulcs => $elem){
+                $json_sor[$kulcs] = formAdatok_replace($elem);
+            }
+            $szamla_html .= '<script> formAdatok = JSON.parse(\''.json_encode($json_sor).'\'); </script>';
+
         }
-        $szamla_html .= '<script> formAdatok = JSON.parse(\''.json_encode($json_sor).'\'); </script>';
 
 	    $gombok = '';
 
@@ -304,8 +306,7 @@ require_once('selectek.php');
                     $sor['szallito'] = $szallito['nev'];
                 }
 
-                $statusz = $adatbazis_kapcsolat->s('nev szinkod', 'bsz_statusz', 'recid='.$sor['statusz'], '', '1');
-
+                $statusz = $adatbazis_kapcsolat->s('nev szinkod', 'bsz_statusz', "`recid`='{$sor['statusz']}'", '', '1');
                 $szinkod = '';
                 if( $statusz ) {
                     $statusz = $statusz[0];

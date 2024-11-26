@@ -711,7 +711,7 @@ function popup_tetel_sor_szerk(sor_id){
 
     dijelem_select();
     
-    // Díjelem kitöltése, ha még nem volna. Max 10-szer próbáljuk meg (várva közben, hogy betöltsön az ajax)
+    /* Díjelem kitöltése, ha még nem volna. Max 10-szer próbáljuk meg (várva közben, hogy betöltsön az ajax) */
     for( i=0; i<10; i++ ) {
         (function(i) {    
             setTimeout(function() {
@@ -720,8 +720,11 @@ function popup_tetel_sor_szerk(sor_id){
                     dijelem_ertek_betolt();
 
                     setTimeout(function(){
-                        $('#pop_netto'  ).val( $('.'+sor_id+' .pop_netto'   ).html() );
-                        $('#pop_brutto' ).val( $('.'+sor_id+' .pop_brutto'  ).html() );
+                        /* Ha még létezne az input, lehet már idő közben bezárták a popup-to */
+                        if( $('#pop_netto').length ) {
+                            $('#pop_netto'  ).val( $('.'+sor_id+' .pop_netto'   ).html() );
+                            $('#pop_brutto' ).val( $('.'+sor_id+' .pop_brutto'  ).html() );
+                        }
                     }, 1000);
                 }
             }, i*500);
@@ -729,7 +732,7 @@ function popup_tetel_sor_szerk(sor_id){
     }
 
 
-    $('#hozzaad_gomb').val('Tétel szerkesztése');
+    $('#hozzaad_gomb').val('Tétel mentése');
 
     $('#pop_jogcim').focus();
     
@@ -1084,11 +1087,13 @@ function mert_kiszamol() {
 
 /* Mennyiség kWh mező kiszámítása */
 function menny_kwh_kiszamol() {
-    var menny_kwh = $('#pop_kwh_szorzo').val().replace(/\s/g, '').replace(',', '.') * $('#pop_menny').val().replace(/\s/g, '').replace(',', '.');
-    menny_kwh = ezresek(menny_kwh, 4, ',', ' ');
-    $('#pop_menny_kwh').val( menny_kwh );
-    
-    netto_kiszamol();
+    if( $('#pop_kwh_szorzo').length ) {
+        var menny_kwh = $('#pop_kwh_szorzo').val().replace(/\s/g, '').replace(',', '.') * $('#pop_menny').val().replace(/\s/g, '').replace(',', '.');
+        menny_kwh = ezresek(menny_kwh, 4, ',', ' ');
+        $('#pop_menny_kwh').val( menny_kwh );
+        
+        netto_kiszamol();
+    }
 }
 
 /* Díj mező kiszámítása */

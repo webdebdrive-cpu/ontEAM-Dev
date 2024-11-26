@@ -492,8 +492,8 @@ require_once('selectek.php');
 			require_once('tobb_kep.php');
 		}
 
-	// Megjegyzések
-	}elseif(isset($_GET['megjegyzesek'])){
+    // Megjegyzések
+    } elseif (isset($_GET['megjegyzesek'])) {
 
         // <div class="dt naplo" class nevekből a kijCont kivéve, hogy a megjegyzéseket ne lehessen törölni
         $szamla_html .= nl2('
@@ -505,11 +505,10 @@ require_once('selectek.php');
                 </div>
         ');
 
-        $sorok = $adatbazis_kapcsolat->s('recid megj insert_usr insert_dt', 'megjegyzes', "`id` = '".$_GET['id']."' AND `tabla` = '".str_replace('.php', '', basename(self()))."'", 'recid desc');
-
+        $sorok = $adatbazis_kapcsolat->s('recid megj insert_usr insert_dt', 'megjegyzes', "`id`='{$_GET['id']}' AND `tabla` = '".str_replace('.php', '', basename(self()))."'", 'recid desc');
         if( $sorok ) {
             $i = 1;
-            foreach($sorok as $sor) {
+            foreach ($sorok as $sor) {
                 $szamla_html .= nl2('
                     <div id="naploSor-'.$sor['recid'].'" data-id="'.$sor['recid'].'" data-i="'.$i.'" class="dtr nSor kijSor">
                         <div class="dtc">'.htmlspecialchars_decode( nl2br2($sor['megj']) ).'</div>
@@ -531,8 +530,8 @@ require_once('selectek.php');
             echo $szamla_html.$gombok;
         }
 
-	// Dokumentumok
-	}elseif( isset($_GET['dokumentumok']) ) {
+    // Dokumentumok
+    } elseif (isset($_GET['dokumentumok'])) {
         /* Egyelőre nem kell ilyen
         if( $tobb_kep ) {
             require_once('tobb_kep.php');

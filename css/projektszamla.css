@@ -5,7 +5,7 @@ table.csikos td.pop_jogcim_txt {
     min-width: 24rem;
 }
 table.csikos tr.kijelolve:nth-of-type(2n) {
-    background: #55A2FA;
+    background: var(--color-kek);
 }
 table.szamla_cont_tabla tr td:nth-last-of-type(2), table.szamla_cont_tabla tr td:nth-last-of-type(3) {
     width: auto !important;

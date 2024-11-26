@@ -70,89 +70,83 @@ CREATE TABLE IF NOT EXISTS `TABLA_kepek`(
 Vízjelezéshez vissza kell kommentezni a +tobb_kep.php-ban a Képfeltöltésnél egy részt!
 */
 
-/** Események */
-if(isset($_GET['siker']) && isset($_GET['modosit'])){
-
-}
 
 
-/** Tartalom */
+// Tartalom
 require_once('header.php');
 require_once('selectek.php');
 
-    $js_submit_elott = 'return form_ell_admin();';
+$js_submit_elott = 'return form_ell_admin();';
 
-	//Új termék felvitele
-	if(isset($_GET['uj']) && !$csak_szerkesztheto){
+// Új termék felvitele
+if (isset($_GET['uj']) && !$csak_szerkesztheto) {
 
-        //NAVIGÁCIÓ
+    // Navigáció
+    $gombok = '<input type="button" class="gombb" onclick="szurkit(); location.href=\''.self().'?lista\'" value="Lista" title="Lista megtekintése">';
+    if ($sorrendezes) {
+        $gombok .= ' <input type="button" class="gombb" onclick="szurkit(); location.href=\''.self().'?sorrend\'" value="Sorrend" title="Sorrendezés">';
+    }
 
-	    $gombok = '<input type="button" class="gombb" onclick="szurkit(); location.href=\''.self().'?lista\'" value="Lista" title="Lista megtekintése">';
-        if($sorrendezes){
-            $gombok .= ' <input type="button" class="gombb" onclick="szurkit(); location.href=\''.self().'?sorrend\'" value="Sorrend" title="Sorrendezés">';
+    // FORM
+    if(isset($_GET['ujkent'])){
+        foreach($akt_tomb as $ertek){
+            $sor[$ertek['name']]=$_SESSION[$ertek['name']];
         }
+    }
+    $js = js_kiir($akt_tomb, 'form_ell_admin()');
 
-	    //FORM
-		if(isset($_GET['ujkent'])){
-			foreach($akt_tomb as $ertek){
-				$sor[$ertek['name']]=$_SESSION[$ertek['name']];
-			}
-		}
-	    $js = js_kiir($akt_tomb, 'form_ell_admin()');
+    $form_sablon = fajlbol_olvas('../sablon/admin/form_uj.html', true);
 
-	    $form_sablon = fajlbol_olvas('../sablon/admin/form_uj.html', true);
+    // Ez elkészíti a $mezok változót
+    require('switch.php');
 
-		// Ez elkészíti a $mezok változót
-		require('switch.php');
+    $gombok = nl2('<div class="form_kuldes">
+                        <input type="button" class="gombb mentes_gomb" name="mehet_gomb" id="mehet_gomb" disabled value="Mentés" onclick="mentesGomb();">
+                    </div>').$gombok;
 
+    $form_mit    = array('{JS}', '{JS_SUBMIT_ELOTT}', '{ACTION}', '{MEZOK}', '{MEGNEVEZES}', '{CK_EDITOR}', '{GOMBOK}');
+    $form_mivel  = array($js,    $js_submit_elott,    self(),     $mezok,    $megnevezes,    $ckeditor,     $gombok   );
+    echo str_replace($form_mit, $form_mivel, $form_sablon);
+
+// Termék módosítása
+} elseif (isset($_GET['modosit'])) {
+
+    //Ha Gyorskeresőből érkeznénk ide, akkor az ID-t valójában az id_hidden tartalmazza majd
+    if(isset($_GET['id_hidden'])){
+        $_GET['id'] = $_GET['id_hidden'];
+    }
+
+    $sor = $adatbazis_kapcsolat -> s2('*', $megnevezes, "`recid`='{$_GET['id']}'");
+
+    // FORM
+    $js = js_kiir($akt_tomb, 'form_ell_admin()', 'ajax');
+
+    // Form actionja
+    $action = self().get_get(array('errnum','kephiba','siker'));
+
+    // Ez elkészíti a $mezok változót
+    require('switch.php');
+
+    $jobb_oldal = '';
+
+    if( isset($_GET['szerkeszt']) ) {
         $gombok = nl2('<div class="form_kuldes">
-                          <input type="button" class="gombb mentes_gomb" name="mehet_gomb" id="mehet_gomb" disabled value="Mentés" onclick="mentesGomb();">
-                      </div>').$gombok;
+                            <input type="button" class="gombb mentes_gomb" name="mehet_gomb" id="mehet_gomb" disabled value="Mentés" onclick="mentesGomb();">
+                        </div>').$gombok;
+    } else {
+        $gombok = '<input type="button" class="gombb" onclick="szurkit(); location.href=\''.self().get_get('szerkeszt').'&szerkeszt\'" value="Szerkeszés" title="Record szerkesztése">';
+    }
 
-	    $form_mit    = array('{JS}', '{JS_SUBMIT_ELOTT}', '{ACTION}', '{MEZOK}', '{MEGNEVEZES}', '{CK_EDITOR}', '{GOMBOK}');
-	    $form_mivel  = array($js,    $js_submit_elott,    self(),     $mezok,    $megnevezes,    $ckeditor,     $gombok   );
-	    echo str_replace($form_mit, $form_mivel, $form_sablon);
+    echo str_replace(
+        array('{JS}', '{JS_SUBMIT_ELOTT}', '{ACTION}', '{MEZOK}', '{MEGNEVEZES}', '{KEP}',     '{CK_EDITOR}', '{GOMBOK}', '{UPDATE_DT}'     ),
+        array( $js,   $js_submit_elott,    $action,    $mezok,    $megnevezes,    $jobb_oldal, $ckeditor,     $gombok,    $sor['update_dt'] ),
+        fajlbol_olvas('../sablon/admin/form_modosit.html', true)
+    );
 
-	//Termék módosítása
-	}elseif(isset($_GET['modosit'])){
+    if($tobb_kep){
+        require_once('tobb_kep.php');
+    }
 
-        //Ha Gyorskeresőből érkeznénk ide, akkor az ID-t valójában az id_hidden tartalmazza majd
-        if(isset($_GET['id_hidden'])){
-            $_GET['id'] = $_GET['id_hidden'];
-        }
-
-	    $sor = $adatbazis_kapcsolat -> s2('*', $megnevezes, 'recid='.$_GET['id']);
-
-	    //FORM
-	    $js = js_kiir($akt_tomb, 'form_ell_admin()', 'ajax');
-
-		//Form actionja
-		$action = self().get_get(array('errnum','kephiba','siker'));
-
-		// Ez elkészíti a $mezok változót
-		require('switch.php');
-
-        $jobb_oldal = '';
-
-        if( isset($_GET['szerkeszt']) ) {
-            $gombok = nl2('<div class="form_kuldes">
-                              <input type="button" class="gombb mentes_gomb" name="mehet_gomb" id="mehet_gomb" disabled value="Mentés" onclick="mentesGomb();">
-                          </div>').$gombok;
-        } else {
-            $gombok = '<input type="button" class="gombb" onclick="szurkit(); location.href=\''.self().get_get('szerkeszt').'&szerkeszt\'" value="Szerkeszés" title="Record szerkesztése">';
-        }
-
-	    echo str_replace(
-            array('{JS}', '{JS_SUBMIT_ELOTT}', '{ACTION}', '{MEZOK}', '{MEGNEVEZES}', '{KEP}',     '{CK_EDITOR}', '{GOMBOK}', '{UPDATE_DT}'     ),
-            array( $js,   $js_submit_elott,    $action,    $mezok,    $megnevezes,    $jobb_oldal, $ckeditor,     $gombok,    $sor['update_dt'] ),
-            fajlbol_olvas('../sablon/admin/form_modosit.html', true)
-        );
-
-        if($tobb_kep){
-			require_once('tobb_kep.php');
-		}
-
-	}
+}
     
 require_once('footer.php');
-?>

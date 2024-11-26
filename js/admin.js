@@ -34,6 +34,9 @@ var EGYSEGAR_VALASZT    = 'Kérem válasszon egységár sort!';    /* Hibaüzene
 var PENZNEM             = 'Ft';                                /* Ha Ft feliratot bármikor módosítani kellne, akkor JS alatt elég itt átírni. */
 var AFA                 = '27';                                /* Áfa */
 
+// Értéklista fix, nem szerkeszthető bejegyzése: Visszaadás oka
+var EL_VISSZAAD_M_IDO_LEJART = '16';                           /* Munkaidő lejárt */
+
 var keys = {37: 1, 38: 1, 39: 1, 40: 1};
 
 var navpanel_mentes_oldalak = ['dokumentumtar', 'eszkozkezeles', 'szamla'];
@@ -1598,7 +1601,7 @@ $(function() {
             $('#tipus_'+$(this).val()).show();
         }
 
-        /* Váltáskor mindent nullázunk */
+        // Váltáskor mindent nullázunk
         $('#ciklnap').val('');
         $('#hetkoz_kent').prop('checked', false);
 
@@ -1656,7 +1659,7 @@ $(function() {
             }
 
             kerdo_es = '&';
-            if(get_get(['mezo', 'op', 'felt']).indexOf('?')<0){
+            if( get_get(['mezo', 'op', 'felt']).indexOf('?')<0 ) {
                 kerdo_es = '?';
             }
             
@@ -1668,9 +1671,10 @@ $(function() {
                     return false;
                 }
             }
-
-            var szures_link = get_get(['mezo', 'op', 'felt', 'ev', 'ho'])+kerdo_es+'mezo='+$('.f_szuro_mezo').val()+'&op='+$('.f_szuro_mezo_operator').val()+'&felt='+felt+link_kieg;
-            if( !$(this).hasClass('mehet') && !navpanel_mentes_oldal ){
+            // 2024.11.13 - Ide az ID utólag került be, ugye nem okozott gondot, hogy ez kiszűrésre került amikor szűrőt állítanak be? Ha mégis, akkor tudd, hogy van egy párja az összetett szűrésnél is: f_o_szures_submit ágban
+            // A fenti megjegyzés törölhető, ha eltelt már egy kis idő
+            var szures_link = get_get(['mezo', 'op', 'felt', 'ev', 'ho', 'id'])+kerdo_es+'mezo='+$('.f_szuro_mezo').val()+'&op='+$('.f_szuro_mezo_operator').val()+'&felt='+felt+link_kieg;
+            if( !$(this).hasClass('mehet') && !navpanel_mentes_oldal ) {
 
                 link = location.href;
                 link = link.split('?');
@@ -1706,14 +1710,14 @@ $(function() {
         }
     });
 
-    /* Összetett szűrő feltétel összeállítása */
+    // Összetett szűrő feltétel összeállítása
     $(document).on('click', '.f_o_szuro_hozzaad', function() {
 
         var feltetel_ertek = $('#o_feltetel select').val();
         var feltetel_nev   = $('#o_feltetel option:selected').text();
         if(!feltetel_ertek){
             feltetel_ertek = feltetel_nev = $('#o_feltetel input').val();
-            /* Ha autocompletes mező, akkor a rejtett input értékétvel kell dolgozni */
+            // Ha autocompletes mező, akkor a rejtett input értékétvel kell dolgozni
             if($('#o_feltetel input').attr('data-auto')){
                 id = $('#o_feltetel input').attr('id');
                 id = id.replace('autocomp_', '');
@@ -1727,12 +1731,12 @@ $(function() {
             feltetel_ertek = feltetel_ertek.replace(/ /g, '');
         }
 
-        /* Hibaellenőrzés, majd mehet */
+        // Hibaellenőrzés, majd mehet
         if (!feltetel_ertek) {
             alert2('Kérem állítsa be a szűrési feltételt!', '', 'Hiba');
         } else {
 
-            /* Feltételek törlése gomb megjelenítése */
+            // Feltételek törlése gomb megjelenítése
             $('#o_sures_ft input').show();
             if(!$('#o_sures_ft').html()){
                 $('#o_sures_ft').html('<input type="button" class="gomb kis_gomb piros f_o_szures_ftorol" value="Feltételek törlése">');
@@ -1764,33 +1768,33 @@ $(function() {
                                     '</div>'
                                     );
 
-            /* Szűrés gomb mehet a végére */
+            // Szűrés gomb mehet a végére
             o_szures_gomb_mutat();
 
-            /* Szűrő inputok nullázása */
-            $('#o_szuro_mezo').val('');
+            // Szűrő inputok nullázása
+            $('#o_szuro_mezo'     ).val('');
             $('#o_operator select').val('');
             $('#o_feltetel select').val('');
-            $('#o_feltetel input').val('');
+            $('#o_feltetel input' ).val('');
 
             $('#o_operator select').hide();
             $('#o_feltetel select').hide();
-            $('#o_feltetel input').hide();
-            $('#o_szures_submit').hide();
+            $('#o_feltetel input' ).hide();
+            $('#o_szures_submit'  ).hide();
 
             osszetett_szuro_mondat();
         }
     });
-    /* Zárójelek aktiválása */
+    // Zárójelek aktiválása
     $(document).on('click', '#o_feltetel_halmaz b.zaro', function() {
         $(this).toggleClass('aktiv');
         osszetett_szuro_mondat();
     });
-    /* Feltétel sor törlése */
+    // Feltétel sor törlése
     $(document).on('click', '#o_feltetel_halmaz b.torol', function() {
         $(this).closest('.dtr').remove();
 
-        /* Szűrés gomb kell-e még */
+        // Szűrés gomb kell-e még
         if( $('#o_feltetel_halmaz div.dtc').length>0 ){
             o_szures_gomb_mutat();
         } else {
@@ -1860,7 +1864,10 @@ $(function() {
                             return false;
                         }
                     }
-                    location.href = get_get(['mezo', 'op', 'felt', 'ev', 'ho'])+link_kieg;
+
+                    // 2024.11.13 - Ide az ID utólag került be, ugye nem okozott gondot, hogy ez kiszűrésre került amikor szűrőt állítanak be? Ha mégis, akkor tudd, hogy van egy párja az összetett szűrésnél is: f_szures_submit ágban
+                    // A fenti megjegyzés törölhető, ha eltelt már egy kis idő
+                    location.href = get_get(['mezo', 'op', 'felt', 'ev', 'ho', 'id'])+link_kieg;
                 }
             },
             complete: function(xhr) {
@@ -1888,7 +1895,9 @@ $(function() {
                 var url = location.href.split('?');
                 var url_eleje = url[0];
                 var url_vege  = url[1];
-                url_vege = url_vege.split('&');
+                if( url_vege ) {
+                    url_vege = url_vege.split('&');
+                }
                 var param = '';
                 for( i=0; i<url_vege.length; i++ ) {
                     param_ertek = url_vege[i].split('=');
@@ -4760,7 +4769,7 @@ function arazas_ment(){
 function anyagigenyles_erkeztet( ures_men_ek_pipa0_kesz, ures_men_ek_pipa1_kesz, tulrendeles_megkerdezve ) {
 
     // Ha van már táblázat, akkor azt dolgozzuk fel
-    if($('#rendeles_tetelek').html().trim()){
+    if ($('#rendeles_tetelek').html().trim()) {
 
         ures_men_ek_pipa0   = '';
         ures_men_ek_pipa1   = '';
@@ -4780,14 +4789,14 @@ function anyagigenyles_erkeztet( ures_men_ek_pipa0_kesz, ures_men_ek_pipa1_kesz,
             mee         = $('#mee_'+id).html();
             szurkit_    = $('#erkeztet_sor_'+id).hasClass('erkeztet_szurkit');
 
-            if(nem_tobb){
+            if (nem_tobb) {
                 nem_tobb = '1';
             } else {
                 nem_tobb = '0';
             }
 
-            /* Beérkezett mennyiség nem lehet negatív */
-            if(erkmen<0){
+            // Beérkezett mennyiség nem lehet negatív
+            if (erkmen < 0) {
                 hibauzi = 'Beérkezett mennyiség nem lehet kevesebb, mint 0!';
                 $(this).addClass('alert');
                 return false;
@@ -4799,7 +4808,7 @@ function anyagigenyles_erkeztet( ures_men_ek_pipa0_kesz, ures_men_ek_pipa1_kesz,
                 $(this).addClass('alert');
                 return false;
             }*/
-            if(erkmen>rndmen-marerkmen && !tulrendeles_megkerdezve && !$('#erkmen_'+id).hasClass('ellenorizve') ){
+            if (erkmen > rndmen - marerkmen && !tulrendeles_megkerdezve && !$('#erkmen_' + id).hasClass('ellenorizve')) {
                 gombok = '<input class="gomb zold" value="Igen" onclick="$(\'#erkmen_'+id+'\').addClass(\'ellenorizve\'); anyagigenyles_erkeztet();" type="button"> <input class="gomb piros" value="Nem" onclick="alert2(); $(\'#erkmen_'+id+'\').focus();" type="button">';
                 hibauzi = 'Cikk: '+cikknev+'<br>Rendelt mennyiség: '+rndmen+' '+mee+'<br>Összes beérkezett mennyiség: '+ezresek(marerkmen+rndmen, 2, ',', ' ')+' '+mee+'<br>Ha folytatja,&nbsp;a beérkezett mennyiség több lesz, mint a rendelt mennyiség!<br>Folytatja?';
                 $(this).addClass('alert');
@@ -4807,13 +4816,13 @@ function anyagigenyles_erkeztet( ures_men_ek_pipa0_kesz, ures_men_ek_pipa1_kesz,
                 return false;
             }
 
-            /* NEM Pipált sorokra, ha üres marerkmen és erkmen is */
-            if(!szurkit_ && nem_tobb==0 && (!erkmen || erkmen==0.00) && (!marerkmen || marerkmen==0.00)){
+            // NEM Pipált sorokra, ha üres marerkmen és erkmen is
+            if (!szurkit_ && nem_tobb == 0 && (!erkmen || erkmen == 0.00) && (!marerkmen || marerkmen == 0.00)) {
                 ures_men_ek_pipa0 += szalloda+' '+cikkid+' '+cikknev+'<br>';
             }
 
-            /* Pipált sorokra, ha üres marerkmen és erkmen is */
-            if(nem_tobb==1  && (!erkmen || erkmen==0.00) && (!marerkmen || marerkmen==0.00)){
+            // Pipált sorokra, ha üres marerkmen és erkmen is
+            if (nem_tobb == 1 && (!erkmen || erkmen == 0.00) && (!marerkmen || marerkmen == 0.00)) {
                 ures_men_ek_pipa1 += szalloda+' '+cikkid+' '+cikknev+'<br>';
             }
 
@@ -4821,25 +4830,25 @@ function anyagigenyles_erkeztet( ures_men_ek_pipa0_kesz, ures_men_ek_pipa1_kesz,
 
         });
 
-        /* ha túl lesz rendelve, rákérdezünk */
-        if(tulrendeles_hibauzi){
+        // ha túl lesz rendelve, rákérdezünk
+        if (tulrendeles_hibauzi) {
             alert2(hibauzi, gombok);
             return false;
         }
 
-        /* A hibaüzenetet itt írjuk ki, és nem az each ciklusban, mert akkor tovább futna a JS kód, ott nem űködik a return false mert az egy külön függvény */
-        if(hibauzi){
+        // A hibaüzenetet itt írjuk ki, és nem az each ciklusban, mert akkor tovább futna a JS kód, ott nem űködik a return false mert az egy külön függvény
+        if (hibauzi) {
             alert2(hibauzi, '<input class="link gomb" value="Ok" onclick="alert2(); $(\'#erkmen_'+id+'\').select();" type="button">');
             return false;
         }
 
-        /* ha volt üres pipa mellett üres mennyiség sor, akkor rákrédezünk */
-        if(ures_men_ek_pipa0 && !ures_men_ek_pipa0_kesz){
+        // ha volt üres pipa mellett üres mennyiség sor, akkor rákrédezünk
+        if (ures_men_ek_pipa0 && !ures_men_ek_pipa0_kesz) {
             gombok = '<input class="gomb zold" value="Igen" onclick="anyagigenyles_erkeztet(\'ures_men_ek_pipa0_kesz nem kérdezzük meg megint\', \'\', \'túlrendelés kérdésen már túl vagyunk\')" type="button"> <input class="gomb piros" value="Nem" onclick="alert2()" type="button">';
             alert2(ures_men_ek_pipa0+'<div class="l">Ezekhez az anyagokhoz nem adott meg beérkezett mennyiséget.<br>Ha folytatja, továbbra is megrendelve státuszban maradnak!<br>Folytatja?</div>', gombok);
             return false;
         }
-        if(ures_men_ek_pipa1 && !ures_men_ek_pipa1_kesz){
+        if (ures_men_ek_pipa1 && !ures_men_ek_pipa1_kesz) {
             gombok = '<input class="gomb zold" value="Igen" onclick="anyagigenyles_erkeztet(\'ures_men_ek_pipa0_kesz nem kérdezzük meg megint\', \'ures_men_ek_pipa1_kesz nem kérdezzük meg megint\', \'túlrendelés kérdésen már túl vagyunk\')" type="button"> <input class="gomb piros" value="Nem" onclick="alert2()" type="button">';
             alert2(ures_men_ek_pipa1+'<div class="l">Ezekhez az anyagokhoz nem adott meg beérkezett mennyiséget.<br>Biztos, hogy már nem fognak beérkezni?<br>Folytatja?</div>', gombok);
             return false;
@@ -4854,11 +4863,11 @@ function anyagigenyles_erkeztet( ures_men_ek_pipa0_kesz, ures_men_ek_pipa1_kesz,
             },
             success: function (response) {
                 if(response.substring(0, 6)=='SESKIL'){ location.href = 'index.php'; }
-                if(response){
+                if (response) {
                     response = JSON.parse(response);
                     if( response.hiba ) {
                         alert2(response.hiba, response.gomb, response.title);
-                        if(response.focus){
+                        if (response.focus) {
                             $('#'+response.focus).addClass('hibas_ide_focus');
                         }
                         return false;
@@ -4875,7 +4884,7 @@ function anyagigenyles_erkeztet( ures_men_ek_pipa0_kesz, ures_men_ek_pipa1_kesz,
             }
         });
 
-    /* Rendelés szám alapján a táblázat előállítása */
+    // Rendelés szám alapján a táblázat előállítása
     } else {
 
         if(!$('#rsz').val().trim()){
@@ -4910,7 +4919,7 @@ function anyagigenyles_erkeztet( ures_men_ek_pipa0_kesz, ures_men_ek_pipa1_kesz,
                         $('#pop_szallito').attr('readonly', true);
                         $('#rendeles_tetelek').html(response.html);
 
-                        /* Ráfókuszálás, kijelölés az első sor inputjára*/
+                        // Ráfókuszálás, kijelölés az első sor inputjára
                         $('#rendeles_tetelek input:text').first().select();
                     }
 
@@ -4927,7 +4936,7 @@ function anyagigenyles_erkeztet( ures_men_ek_pipa0_kesz, ures_men_ek_pipa1_kesz,
     return false;
 }
 
-/* Bal oldali navpanelben ellenőrizzük, hogy van-e olyan bejegyzés, ami ki van jelölve. */
+// Bal oldali navpanelben ellenőrizzük, hogy van-e olyan bejegyzés, ami ki van jelölve.
 function kijeloltSzamlal( sorok, reszleg, tabla, mellek ) {
     if( tabla === undefined ) {
         tabla = '';

@@ -589,20 +589,21 @@ if( isset($_GET['uj']) && _jog(JOG_ESZKOZ_KEZEL) ) {
             </div>
     ');
 
-    $sorok = $adatbazis_kapcsolat->s('recid megj insert_usr insert_dt', 'megjegyzes', "`id` = '".$_GET['id']."' AND `tabla` = '".str_replace('.php', '', basename(self()))."'", 'recid desc');
+    if( $_GET['id'] ) {
+        $sorok = $adatbazis_kapcsolat->s('recid megj insert_usr insert_dt', 'megjegyzes', "`id`='{$_GET['id']}' AND `tabla`='".str_replace('.php', '', basename(self()))."'", 'recid desc');
+        if( $sorok ) {
+            $i = 1;
+            foreach($sorok as $sor) {
+                $szamla_html .= nl2('
+                    <div id="naploSor-'.$sor['recid'].'" data-id="'.$sor['recid'].'" data-i="'.$i.'" class="dtr nSor kijSor">
+                        <div class="dtc">'.htmlspecialchars_decode( nl2br2($sor['megj']) ).'</div>
+                        <div class="dtc">'.$sor['insert_usr'].'</div>
+                        <div class="dtc">'.datum_kiir($sor['insert_dt']).'</div>
+                    </div>
+                ');
 
-    if( $sorok ) {
-        $i = 1;
-        foreach($sorok as $sor) {
-            $szamla_html .= nl2('
-                <div id="naploSor-'.$sor['recid'].'" data-id="'.$sor['recid'].'" data-i="'.$i.'" class="dtr nSor kijSor">
-                    <div class="dtc">'.htmlspecialchars_decode( nl2br2($sor['megj']) ).'</div>
-                    <div class="dtc">'.$sor['insert_usr'].'</div>
-                    <div class="dtc">'.datum_kiir($sor['insert_dt']).'</div>
-                </div>
-            ');
-
-            $i++;
+                $i++;
+            }
         }
     }
 
@@ -636,78 +637,81 @@ if( isset($_GET['uj']) && _jog(JOG_ESZKOZ_KEZEL) ) {
 
     // Adott géphez tartozó bejelentések
     $bejelentes_html = '';
-    $bejelentesek = $adatbazis_kapcsolat->s('recid ikt_szam hiba_id', 'bejelentes', "`gep_id`='{$_GET['id']}'", 'ikt_szam');
-    foreach ($bejelentesek as $bejelentes){
+    if( $_GET['id'] ) {
+        $bejelentesek = $adatbazis_kapcsolat->s('recid ikt_szam hiba_id', 'bejelentes', "`gep_id`='{$_GET['id']}'", 'ikt_szam');
+        foreach ($bejelentesek as $bejelentes){
 
-        $hiba = $adatbazis_kapcsolat->s2('info', 'erteklista', "`recid`='{$bejelentes['hiba_id']}'");
-        $bejelentes_html .= '
-            <tr>
-                <td class="l"><a href="bejelentes.php?id='.$bejelentes['recid'].'&amp;modosit" target="_blank">'.$bejelentes['ikt_szam'].'</a></td>
-                <td class="l">'.$hiba['info'].'</td>
-            </tr>
-            ';
-    }
-    if($bejelentes_html){
-        $bejelentes_html = '
-            <h3>Bejelentések</h3>
-            <table class="csikos" style="margin: 0.3rem 0 3rem 0">
-            <tr>
-                <th>Bejelentés szám</th>
-                <th>Bejelentett hiba</th>
-            </tr>
-            '.$bejelentes_html.'
-            </table>
-            ';
-    }
+            $hiba = $adatbazis_kapcsolat->s2('info', 'erteklista', "`recid`='{$bejelentes['hiba_id']}'");
+            $bejelentes_html .= '
+                <tr>
+                    <td class="l"><a href="bejelentes.php?id='.$bejelentes['recid'].'&amp;modosit" target="_blank">'.$bejelentes['ikt_szam'].'</a></td>
+                    <td class="l">'.$hiba['info'].'</td>
+                </tr>
+                ';
+        }
+    
+        if($bejelentes_html){
+            $bejelentes_html = '
+                <h3>Bejelentések</h3>
+                <table class="csikos" style="margin: 0.3rem 0 3rem 0">
+                <tr>
+                    <th>Bejelentés szám</th>
+                    <th>Bejelentett hiba</th>
+                </tr>
+                '.$bejelentes_html.'
+                </table>
+                ';
+        }
 
-    // Adott géphez tartozó munkalapok
-    $munkalap_html = '';
-    $munkalapok = $adatbazis_kapcsolat->s('recid ikt_szam text', 'munkalap', "`gep_id`='{$_GET['id']}'", 'ikt_szam');
-    foreach ($munkalapok as $munkalap){
+        // Adott géphez tartozó munkalapok
+        $munkalap_html = '';
+        $munkalapok = $adatbazis_kapcsolat->s('recid ikt_szam text', 'munkalap', "`gep_id`='{$_GET['id']}'", 'ikt_szam');
+        foreach ($munkalapok as $munkalap){
 
-        $munkalap_html .= '
-            <tr>
-                <td class="l"><a href="munkalap.php?id='.$munkalap['recid'].'&amp;modosit" target="_blank">'.$munkalap['ikt_szam'].'</a></td>
-                <td class="l">'.nl2br2($munkalap['text']).'</td>
-            </tr>
-            ';
-    }
-    if($munkalap_html){
-        $munkalap_html = '
-            <h3>Munkalapok</h3>
-            <table class="csikos" style="margin: 0.3rem 0 3rem 0">
-            <tr>
-                <th>Munkalap szám</th>
-                <th>Leírás</th>
-            </tr>
-            '.$munkalap_html.'
-            </table>
-            ';
-    }
+            $munkalap_html .= '
+                <tr>
+                    <td class="l"><a href="munkalap.php?id='.$munkalap['recid'].'&amp;modosit" target="_blank">'.$munkalap['ikt_szam'].'</a></td>
+                    <td class="l">'.nl2br2($munkalap['text']).'</td>
+                </tr>
+                ';
+        }
+        if ($munkalap_html) {
+            $munkalap_html = '
+                <h3>Munkalapok</h3>
+                <table class="csikos" style="margin: 0.3rem 0 3rem 0">
+                <tr>
+                    <th>Munkalap szám</th>
+                    <th>Leírás</th>
+                </tr>
+                '.$munkalap_html.'
+                </table>
+                ';
+        }
 
-    // Adott géphez tartozó ütemezett feladatok
-    $uf_html = '';
-    $ufk = $adatbazis_kapcsolat->s('recid id nev', 'utemezett_feladatok', "`gep_id`='{$_GET['id']}'", 'id');
-    foreach ($ufk as $uf){
+        // Adott géphez tartozó ütemezett feladatok
+        $uf_html = '';
+        $ufk = $adatbazis_kapcsolat->s('recid id nev', 'utemezett_feladatok', "`gep_id`='{$_GET['id']}'", 'id');
+        foreach ($ufk as $uf) {
 
-        $uf_html .= '
-            <tr>
-                <td class="l"><a href="utemezett_feladatok.php?id='.$uf['recid'].'&amp;modosit" target="_blank">'.$uf['id'].'</a></td>
-                <td class="l">'.$uf['nev'].'</td>
-            </tr>
-            ';
-    }
-    if($uf_html){
-        $uf_html = '
-            <h3>Ütemezett feladatok</h3>
-            <table class="csikos" style="margin: 0.3rem 0 3rem 0">
-            <tr>
-                <th>Feladatszám</th>
-                <th>Feladat</th>
-            </tr>
-            '.$uf_html.'
-            </table>
-            ';
+            $uf_html .= '
+                <tr>
+                    <td class="l"><a href="utemezett_feladatok.php?id='.$uf['recid'].'&amp;modosit" target="_blank">'.$uf['id'].'</a></td>
+                    <td class="l">'.$uf['nev'].'</td>
+                </tr>
+                ';
+        }
+        if ($uf_html) {
+            $uf_html = '
+                <h3>Ütemezett feladatok</h3>
+                <table class="csikos" style="margin: 0.3rem 0 3rem 0">
+                <tr>
+                    <th>Feladatszám</th>
+                    <th>Feladat</th>
+                </tr>
+                '.$uf_html.'
+                </table>
+                ';
+        }
     }
 
     $szamla_html .= $bejelentes_html.$munkalap_html.$uf_html;

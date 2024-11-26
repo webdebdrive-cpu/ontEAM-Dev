@@ -223,7 +223,7 @@ require_once('selectek.php');
         }
 
         $json_sor = array();
-        foreach($sor as $kulcs => $elem){
+        foreach ($sor as $kulcs => $elem) {
             $json_sor[$kulcs] = formAdatok_replace($elem);
         }
         $szamla_html .= '<script> formAdatok = JSON.parse(\''.json_encode($json_sor).'\'); </script>';
@@ -277,41 +277,46 @@ require_once('selectek.php');
                 </div>
         ');
 
-        $munkalap_kapcsok = $adatbazis_kapcsolat->s('recid munkalap_id', 'munkalap_kapcs_arch', "`bejelentes_id` = '{$_GET['id']}'");
-        if( $munkalap_kapcsok ) {
-            $i = 1;
-            foreach($munkalap_kapcsok as $munkalap_kapcs) {
+        if( $_GET['id'] ) {
 
-                // Csak akkor látszik a munkalap, ha az nyitott
-                $sor = $adatbazis_kapcsolat->s2('recid ikt_szam telephely_id obj_id insert_dt stat_id', 'munkalap_arch', "`recid` = '".$munkalap_kapcs['munkalap_id']."'", '', '1');
-                if( $sor ) {
-
-                    // Telephely
-                    $telephely = $adatbazis_kapcsolat->s('nev', 'telephely', 'id='.$sor['telephely_id'], '', '1');
-                    $telephely = $telephely[0]['nev'];
-
-                    // Helység
-                    $helyseg = $adatbazis_kapcsolat->s('nev', 'obj', 'recid='.$sor['obj_id'], '', '1');
-                    $helyseg = $helyseg[0]['nev'];
-
-                    $ikt_szam = '<a href="munkalap_arch.php?mezo=ikt_szam&amp;op=equal&amp;felt='.$sor['ikt_szam'].'&amp;modosit" target="_blank">'.$sor['ikt_szam'].'</a>';
-                    if( !_jog(JOG_MUNKALAP_MEGTEKINT) && !_jog(JOG_MUNKALAP_MEGTEKINT_SZALL) && !_jog(JOG_MUNKALAP_MEGTEKINT_FELADAT) ){
-                        $ikt_szam = $sor['ikt_szam'];
+            $munkalap_kapcsok = $adatbazis_kapcsolat->s('recid munkalap_id', 'munkalap_kapcs_arch', "`bejelentes_id`='{$_GET['id']}'");
+            if( $munkalap_kapcsok ) {
+                $i = 1;
+                foreach($munkalap_kapcsok as $munkalap_kapcs) {
+    
+                    // Csak akkor látszik a munkalap, ha az nyitott
+                    $sor = $adatbazis_kapcsolat->s2('recid ikt_szam telephely_id obj_id insert_dt stat_id', 'munkalap_arch', "`recid`='{$munkalap_kapcs['munkalap_id']}'", '', '1');
+                    if( $sor ) {
+    
+                        // Telephely
+                        $telephely = $adatbazis_kapcsolat->s('nev', 'telephely', 'id='.$sor['telephely_id'], '', '1');
+                        $telephely = $telephely[0]['nev'];
+    
+                        // Helység
+                        $helyseg = $adatbazis_kapcsolat->s('nev', 'obj', 'recid='.$sor['obj_id'], '', '1');
+                        $helyseg = $helyseg[0]['nev'];
+    
+                        $ikt_szam = '<a href="munkalap_arch.php?mezo=ikt_szam&amp;op=equal&amp;felt='.$sor['ikt_szam'].'&amp;modosit" target="_blank">'.$sor['ikt_szam'].'</a>';
+                        if( !_jog(JOG_MUNKALAP_MEGTEKINT) && !_jog(JOG_MUNKALAP_MEGTEKINT_SZALL) && !_jog(JOG_MUNKALAP_MEGTEKINT_FELADAT) ){
+                            $ikt_szam = $sor['ikt_szam'];
+                        }
+    
+                        $szamla_html .= nl2('
+                            <div id="naploSor-'.$sor['recid'].'" class="dtr nSor kijSor" data-id="'.$sor['recid'].'" data-i="'.$i.'">
+                                <div class="dtc">'.$ikt_szam.'</div>
+                                <div class="dtc">'.$telephely.' - '.$helyseg.'</div>
+                                <div class="dtc">'.datum_kiir($sor['insert_dt']).'</div>
+                                <div class="dtc">'.getStatText('munkalap', $sor['stat_id']).'</div>
+                            </div>
+                        ');
                     }
-
-                    $szamla_html .= nl2('
-                        <div id="naploSor-'.$sor['recid'].'" class="dtr nSor kijSor" data-id="'.$sor['recid'].'" data-i="'.$i.'">
-                            <div class="dtc">'.$ikt_szam.'</div>
-                            <div class="dtc">'.$telephely.' - '.$helyseg.'</div>
-                            <div class="dtc">'.datum_kiir($sor['insert_dt']).'</div>
-                            <div class="dtc">'.getStatText('munkalap', $sor['stat_id']).'</div>
-                        </div>
-                    ');
+    
+                    $i++;
                 }
-
-                $i++;
             }
+
         }
+        $szamla_html .= '</div>';
 
         if( $_GET['ajax'] ) {
             echo json_encode(array(
@@ -351,20 +356,24 @@ require_once('selectek.php');
                 </div>
         ');
 
-        $sorok = $adatbazis_kapcsolat->s('recid megj szerepkor insert_usr insert_dt', 'megjegyzes_arch', "`id` = '".$_GET['id']."' AND `tabla` = '".$megnevezes_origi."'", 'recid desc');
-        if( $sorok ) {
-            $i = 1;
-            foreach($sorok as $sor) {
-                $szamla_html .= nl2('
-                    <div id="naploSor-'.$sor['recid'].'" class="dtr nSor kijSor" data-id="'.$sor['recid'].'" data-i="'.$i.'">
-                        <div class="dtc">'.htmlspecialchars_decode( nl2br($sor['megj']) ).'</div>
-                        <div class="dtc">'.$sor['insert_usr'].' '.getSzerepkorNev($sor['szerepkor']).'</div>
-                        <div class="dtc">'.str_replace('-', '.', substr($sor['insert_dt'], 0, 16)).'</div>
-                    </div>
-                ');
+        if( $_GET['id'] ) {
 
-                $i++;
+            $sorok = $adatbazis_kapcsolat->s('recid megj szerepkor insert_usr insert_dt', 'megjegyzes_arch', "`id`='{$_GET['id']}' AND `tabla`='{$megnevezes_origi}'", 'recid desc');
+            if( $sorok ) {
+                $i = 1;
+                foreach ($sorok as $sor) {
+                    $szamla_html .= nl2('
+                        <div id="naploSor-'.$sor['recid'].'" class="dtr nSor kijSor" data-id="'.$sor['recid'].'" data-i="'.$i.'">
+                            <div class="dtc">'.htmlspecialchars_decode( nl2br($sor['megj']) ).'</div>
+                            <div class="dtc">'.$sor['insert_usr'].' '.getSzerepkorNev($sor['szerepkor']).'</div>
+                            <div class="dtc">'.str_replace('-', '.', substr($sor['insert_dt'], 0, 16)).'</div>
+                        </div>
+                    ');
+    
+                    $i++;
+                }
             }
+
         }
 
         if( $_GET['ajax'] ) {

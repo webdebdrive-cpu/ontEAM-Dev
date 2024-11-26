@@ -3796,8 +3796,8 @@ require_once('selectek.php');
             echo $szamla_html.$gombok;
         }
 
-	// Műszaki anyag
-	}elseif(isset($_GET['muszaki_anyag'])){
+    // Műszaki anyag
+    } elseif (isset($_GET['muszaki_anyag'])) {
 
         $szamla_html .= fenntartasi_terv_muszaki_anyag($sor);
 
@@ -3830,8 +3830,8 @@ require_once('selectek.php');
             echo $szamla_html.$gombok;
         }
 
-	// Rendszeres karbantartás
-	}elseif(isset($_GET['rendsz_karban'])){
+    // Rendszeres karbantartás
+    } elseif (isset($_GET['rendsz_karban'])) {
 
         $szamla_html .= fenntartasi_terv_rendsz_karban($sor);
 
@@ -3864,8 +3864,8 @@ require_once('selectek.php');
             echo $szamla_html.$gombok;
         }
 
-	// Eseti karbantartás
-	}elseif(isset($_GET['eseti_karban'])){
+    // Eseti karbantartás
+    } elseif (isset($_GET['eseti_karban'])) {
 
         $szamla_html .= fenntartasi_terv_eseti_karban($sor);
 
@@ -3898,8 +3898,8 @@ require_once('selectek.php');
             echo $szamla_html.$gombok;
         }
 
-	// Hibaelhárítás
-	}elseif(isset($_GET['hibaelharitas'])){
+    // Hibaelhárítás
+    } elseif (isset($_GET['hibaelharitas'])) {
 
         $szamla_html .= fenntartasi_terv_hibaelharitas($sor);
 
@@ -4076,19 +4076,21 @@ require_once('selectek.php');
                 </div>
         ');
 
-        $sorok = $adatbazis_kapcsolat->s('recid megj szerepkor insert_usr insert_dt', 'megjegyzes', "`id` = '".$_GET['id']."' AND `tabla` = '".str_replace('.php', '', basename(self()))."'", 'recid desc');
-        if( $sorok ) {
-            $i = 1;
-            foreach($sorok as $sor) {
-                $szamla_html .= nl2('
-                    <div id="naploSor-'.$sor['recid'].'" class="dtr nSor kijSor" data-id="'.$sor['recid'].'" data-i="'.$i.'">
-                        <div class="dtc">'.htmlspecialchars_decode( nl2br2($sor['megj']) ).'</div>
-                        <div class="dtc">'.$sor['insert_usr'].' '.getSzerepkorNev($sor['szerepkor']).'</div>
-                        <div class="dtc">'.datum_kiir($sor['insert_dt']).'</div>
-                    </div>
-                ');
+        if( $_GET['id'] ) {
+            $sorok = $adatbazis_kapcsolat->s('recid megj szerepkor insert_usr insert_dt', 'megjegyzes', "`id`='{$_GET['id']}' AND `tabla`='".str_replace('.php', '', basename(self()))."'", 'recid desc');
+            if( $sorok ) {
+                $i = 1;
+                foreach($sorok as $sor) {
+                    $szamla_html .= nl2('
+                        <div id="naploSor-'.$sor['recid'].'" class="dtr nSor kijSor" data-id="'.$sor['recid'].'" data-i="'.$i.'">
+                            <div class="dtc">'.htmlspecialchars_decode( nl2br2($sor['megj']) ).'</div>
+                            <div class="dtc">'.$sor['insert_usr'].' '.getSzerepkorNev($sor['szerepkor']).'</div>
+                            <div class="dtc">'.datum_kiir($sor['insert_dt']).'</div>
+                        </div>
+                    ');
 
-                $i++;
+                    $i++;
+                }
             }
         }
 

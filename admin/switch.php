@@ -670,7 +670,7 @@ foreach ( $akt_tomb as $ertek ) {
                 $ertek['class'] .= ' csillag';
             }
 
-            $input = new Select($select_jogcim, $sor['jogcim_recid']);
+            $input = new Select($select_jogcim, $sor[$ertek['name']]);
             $input -> cssClass = $ertek['class'];
             $input -> disabled = $ertek['disabled'];
             $input -> id       = $ertek['name'];
@@ -718,12 +718,11 @@ foreach ( $akt_tomb as $ertek ) {
                 $ertek['class'] .= ' csillag';
             }
 
-            $input = new Select($select_erteklista, $sor['csoport']);
+            $input = new Select($select_erteklista, $sor[$ertek['name']]);
             $input -> cssClass = $ertek['class'];
             $input -> disabled = $ertek['disabled'];
             $input -> id       = $ertek['name'];
             $input -> name     = $ertek['name'];
-            $input -> naptar   = $ertek['naptar'];
             $input -> onblur   = $ertek['onblur'];
             $input -> onclick  = $ertek['onclick'];
             $input -> onfocus  = $ertek['onfocus'];
@@ -859,11 +858,9 @@ foreach ( $akt_tomb as $ertek ) {
             $input -> disabled = $ertek['disabled'];
             $input -> id       = $ertek['name'];
             $input -> name     = $ertek['name'];
-            $input -> naptar   = $ertek['naptar'];
             $input -> onblur   = $ertek['onblur'];
             $input -> onclick  = $ertek['onclick'];
             $input -> onfocus  = $ertek['onfocus'];
-            $input -> onchange = $ertek['onchange'];
             $input -> post     = $ertek['post'];
             $input -> style    = $ertek['style'];
 
@@ -903,12 +900,11 @@ foreach ( $akt_tomb as $ertek ) {
                 $ertek['class'] .= ' csillag';
             }
 
-            $input = new Select($select_rkat, $sor['rkat']);
+            $input = new Select($select_rkat, $sor[$ertek['name']]);
             $input -> cssClass = $ertek['class'];
             $input -> disabled = $ertek['disabled'];
             $input -> id       = $ertek['name'];
             $input -> name     = $ertek['name'];
-            $input -> naptar   = $ertek['naptar'];
             $input -> onblur   = $ertek['onblur'];
             $input -> onclick  = $ertek['onclick'];
             $input -> onfocus  = $ertek['onfocus'];
@@ -950,12 +946,11 @@ foreach ( $akt_tomb as $ertek ) {
                 $ertek['class'] .= ' csillag';
             }
 
-            $input = new Select($select_fiz_mod, $sor['fiz_mod']);
+            $input = new Select($select_fiz_mod, $sor[$ertek['name']]);
             $input -> cssClass = $ertek['class'];
             $input -> disabled = $ertek['disabled'];
             $input -> id       = $ertek['name'];
             $input -> name     = $ertek['name'];
-            $input -> naptar   = $ertek['naptar'];
             $input -> onblur   = $ertek['onblur'];
             $input -> onclick  = $ertek['onclick'];
             $input -> onfocus  = $ertek['onfocus'];
@@ -997,12 +992,11 @@ foreach ( $akt_tomb as $ertek ) {
                 $ertek['class'] .= ' csillag';
             }
 
-            $input = new Select($select_afa_tipus, $sor['afa_tipus']);
+            $input = new Select($select_afa_tipus, $sor[$ertek['name']]);
             $input -> cssClass = $ertek['class'];
             $input -> disabled = $ertek['disabled'];
             $input -> id       = $ertek['name'];
             $input -> name     = $ertek['name'];
-            $input -> naptar   = $ertek['naptar'];
             $input -> onblur   = $ertek['onblur'];
             $input -> onclick  = $ertek['onclick'];
             $input -> onfocus  = $ertek['onfocus'];
@@ -1044,12 +1038,11 @@ foreach ( $akt_tomb as $ertek ) {
                 $ertek['class'] .= ' csillag';
             }
 
-            $input = new Select($select_eszk_csop, $sor['eszkoz_csop']);
+            $input = new Select($select_eszk_csop, $sor[$ertek['name']]);
             $input -> cssClass = $ertek['class'];
             $input -> disabled = $ertek['disabled'];
             $input -> id       = $ertek['name'];
             $input -> name     = $ertek['name'];
-            $input -> naptar   = $ertek['naptar'];
             $input -> onblur   = $ertek['onblur'];
             $input -> onclick  = $ertek['onclick'];
             $input -> onfocus  = $ertek['onfocus'];
@@ -1091,12 +1084,11 @@ foreach ( $akt_tomb as $ertek ) {
                 $ertek['class'] .= ' csillag';
             }
 
-            $input = new Select($select_cimzett, $sor['cimzett']);
+            $input = new Select($select_cimzett, $sor[$ertek['name']]);
             $input -> cssClass = $ertek['class'];
             $input -> disabled = $ertek['disabled'];
             $input -> id       = $ertek['name'];
             $input -> name     = $ertek['name'];
-            $input -> naptar   = $ertek['naptar'];
             $input -> onblur   = $ertek['onblur'];
             $input -> onclick  = $ertek['onclick'];
             $input -> onfocus  = $ertek['onfocus'];
@@ -1138,12 +1130,11 @@ foreach ( $akt_tomb as $ertek ) {
                 $ertek['class'] .= ' csillag';
             }
 
-            $input = new Select($select_ill_reszleg, $sor['ill_reszleg']);
+            $input = new Select($select_ill_reszleg, $sor[$ertek['name']]);
             $input -> cssClass = $ertek['class'];
             $input -> disabled = $ertek['disabled'];
             $input -> id       = $ertek['name'];
             $input -> name     = $ertek['name'];
-            $input -> naptar   = $ertek['naptar'];
             $input -> onblur   = $ertek['onblur'];
             $input -> onclick  = $ertek['onclick'];
             $input -> onfocus  = $ertek['onfocus'];
@@ -1185,12 +1176,11 @@ foreach ( $akt_tomb as $ertek ) {
                 $ertek['class'] .= ' csillag';
             }
 
-            $input = new Select($select_cikltip, $sor['cikltip']);
+            $input = new Select($select_cikltip, $sor[$ertek['name']]);
             $input -> cssClass = $ertek['class'];
             $input -> disabled = $ertek['disabled'];
             $input -> id       = $ertek['name'];
             $input -> name     = $ertek['name'];
-            $input -> naptar   = $ertek['naptar'];
             $input -> onblur   = $ertek['onblur'];
             $input -> onclick  = $ertek['onclick'];
             $input -> onfocus  = $ertek['onfocus'];
@@ -1232,12 +1222,11 @@ foreach ( $akt_tomb as $ertek ) {
                 $ertek['class'] .= ' csillag';
             }
 
-            $input = new Select($select_honapjan, $sor['honapjan']);
+            $input = new Select($select_honapjan, $sor[$ertek['name']]);
             $input -> cssClass = $ertek['class'];
             $input -> disabled = $ertek['disabled'];
             $input -> id       = $ertek['name'];
             $input -> name     = $ertek['name'];
-            $input -> naptar   = $ertek['naptar'];
             $input -> onblur   = $ertek['onblur'];
             $input -> onclick  = $ertek['onclick'];
             $input -> onfocus  = $ertek['onfocus'];
@@ -1281,12 +1270,11 @@ foreach ( $akt_tomb as $ertek ) {
                 $ertek['class'] .= ' csillag';
             }
 
-            $input = new Select($select_ho_ism, $sor['ciklhet']);
+            $input = new Select($select_ho_ism, $sor[$ertek['name']]);
             $input -> cssClass = $ertek['class'];
             $input -> disabled = $ertek['disabled'];
             $input -> id       = $ertek['name'];
             $input -> name     = $ertek['name'];
-            $input -> naptar   = $ertek['naptar'];
             $input -> onblur   = $ertek['onblur'];
             $input -> onclick  = $ertek['onclick'];
             $input -> onfocus  = $ertek['onfocus'];
@@ -1330,12 +1318,11 @@ foreach ( $akt_tomb as $ertek ) {
                 $ertek['class'] .= ' csillag';
             }
 
-            $input = new Select($select_ho_soran, $sor['ho_rendsz_het']);
+            $input = new Select($select_ho_soran, $sor[$ertek['name']]);
             $input -> cssClass = $ertek['class'];
             $input -> disabled = $ertek['disabled'];
             $input -> id       = $ertek['name'];
             $input -> name     = $ertek['name'];
-            $input -> naptar   = $ertek['naptar'];
             $input -> onblur   = $ertek['onblur'];
             $input -> onclick  = $ertek['onclick'];
             $input -> onfocus  = $ertek['onfocus'];
@@ -1379,12 +1366,11 @@ foreach ( $akt_tomb as $ertek ) {
                 $ertek['class'] .= ' csillag';
             }
 
-            $input = new Select($select_honapok, $sor['ho']);
+            $input = new Select($select_honapok, $sor[$ertek['name']]);
             $input -> cssClass = $ertek['class'];
             $input -> disabled = $ertek['disabled'];
             $input -> id       = $ertek['name'];
             $input -> name     = $ertek['name'];
-            $input -> naptar   = $ertek['naptar'];
             $input -> onblur   = $ertek['onblur'];
             $input -> onclick  = $ertek['onclick'];
             $input -> onfocus  = $ertek['onfocus'];
@@ -1429,12 +1415,11 @@ foreach ( $akt_tomb as $ertek ) {
             if (isset($_GET['uj']) && !isset($_GET['ujkent'])) {
                 $sor['szemelyzet_id'] = 0;
             }
-            $input = new Select($select_szemelyzet, $sor['szemelyzet_id']);
+            $input = new Select($select_szemelyzet, $sor[$ertek['name']]);
             $input -> cssClass = $ertek['class'];
             $input -> disabled = $ertek['disabled'];
             $input -> id       = $ertek['name'];
             $input -> name     = $ertek['name'];
-            $input -> naptar   = $ertek['naptar'];
             $input -> onblur   = $ertek['onblur'];
             $input -> onchange = $ertek['onchange'];
             $input -> onclick  = $ertek['onclick'];
@@ -1479,12 +1464,11 @@ foreach ( $akt_tomb as $ertek ) {
                 $ertek['class'] .= ' csillag';
             }
 
-            $input = new Select($select_szerzodes_tipus, $sor['sztipus']);
+            $input = new Select($select_szerzodes_tipus, $sor[$ertek['name']]);
             $input -> cssClass = $ertek['class'];
             $input -> disabled = $ertek['disabled'];
             $input -> id       = $ertek['name'];
             $input -> name     = $ertek['name'];
-            $input -> naptar   = $ertek['naptar'];
             $input -> onblur   = $ertek['onblur'];
             $input -> onchange = $ertek['onchange'];
             $input -> onclick  = $ertek['onclick'];
@@ -1530,12 +1514,11 @@ foreach ( $akt_tomb as $ertek ) {
                 $ertek['class'] .= ' csillag';
             }
 
-            $input = new Select($select_beosztas, $sor['beosztas']);
+            $input = new Select($select_beosztas, $sor[$ertek['name']]);
             $input -> cssClass = $ertek['class'];
             $input -> disabled = $ertek['disabled'];
             $input -> id       = $ertek['name'];
             $input -> name     = $ertek['name'];
-            $input -> naptar   = $ertek['naptar'];
             $input -> onblur   = $ertek['onblur'];
             $input -> onchange = $ertek['onchange'];
             $input -> onclick  = $ertek['onclick'];
@@ -1581,12 +1564,11 @@ foreach ( $akt_tomb as $ertek ) {
                 $ertek['class'] .= ' csillag';
             }
 
-            $input = new Select($select_unnepnap_tipus, $sor['tipus']);
+            $input = new Select($select_unnepnap_tipus, $sor[$ertek['name']]);
             $input -> cssClass = $ertek['class'];
             $input -> disabled = $ertek['disabled'];
             $input -> id       = $ertek['name'];
             $input -> name     = $ertek['name'];
-            $input -> naptar   = $ertek['naptar'];
             $input -> onblur   = $ertek['onblur'];
             $input -> onchange = $ertek['onchange'];
             $input -> onclick  = $ertek['onclick'];
@@ -1641,7 +1623,6 @@ foreach ( $akt_tomb as $ertek ) {
             $input -> disabled = $ertek['disabled'];
             $input -> id       = $ertek['name'];
             $input -> name     = $ertek['name'];
-            $input -> naptar   = $ertek['naptar'];
             $input -> onblur   = $ertek['onblur'];
             $input -> onchange = $ertek['onchange'];
             $input -> onclick  = $ertek['onclick'];
@@ -1686,12 +1667,11 @@ foreach ( $akt_tomb as $ertek ) {
                 $ertek['class'] .= ' csillag';
             }
 
-            $input = new Select($select_pri_besorol, $sor['besorol']);
+            $input = new Select($select_pri_besorol, $sor[$ertek['name']]);
             $input -> cssClass = $ertek['class'];
             $input -> disabled = $ertek['disabled'];
             $input -> id       = $ertek['name'];
             $input -> name     = $ertek['name'];
-            $input -> naptar   = $ertek['naptar'];
             $input -> onblur   = $ertek['onblur'];
             $input -> onchange = $ertek['onchange'];
             $input -> onclick  = $ertek['onclick'];
@@ -1736,12 +1716,11 @@ foreach ( $akt_tomb as $ertek ) {
                 $ertek['class'] .= ' csillag';
             }
 
-            $input = new Select($select_pri_cel, $sor['megter_cel']);
+            $input = new Select($select_pri_cel, $sor[$ertek['name']]);
             $input -> cssClass = $ertek['class'];
             $input -> disabled = $ertek['disabled'];
             $input -> id       = $ertek['name'];
             $input -> name     = $ertek['name'];
-            $input -> naptar   = $ertek['naptar'];
             $input -> onblur   = $ertek['onblur'];
             $input -> onchange = $ertek['onchange'];
             $input -> onclick  = $ertek['onclick'];
@@ -1786,12 +1765,11 @@ foreach ( $akt_tomb as $ertek ) {
                 $ertek['class'] .= ' csillag';
             }
 
-            $input = new Select($select_oracikkid, $sor['oracikkid']);
+            $input = new Select($select_oracikkid, $sor[$ertek['name']]);
             $input -> cssClass = $ertek['class'];
             $input -> disabled = $ertek['disabled'];
             $input -> id       = $ertek['name'];
             $input -> name     = $ertek['name'];
-            $input -> naptar   = $ertek['naptar'];
             $input -> onblur   = $ertek['onblur'];
             $input -> onchange = $ertek['onchange'];
             $input -> onclick  = $ertek['onclick'];
@@ -1833,12 +1811,11 @@ foreach ( $akt_tomb as $ertek ) {
                 $ertek['class'] .= ' csillag';
             }
 
-            $input = new Select($select_mobilcsoport, $sor['mobil']);
+            $input = new Select($select_mobilcsoport, $sor[$ertek['name']]);
             $input -> cssClass = $ertek['class'];
             $input -> disabled = $ertek['disabled'];
             $input -> id       = $ertek['name'];
             $input -> name     = $ertek['name'];
-            $input -> naptar   = $ertek['naptar'];
             $input -> onblur   = $ertek['onblur'];
             $input -> onchange = $ertek['onchange'];
             $input -> onclick  = $ertek['onclick'];
@@ -1909,7 +1886,7 @@ foreach ( $akt_tomb as $ertek ) {
         case 'text':
             $input = new Input($ertek['type']);
 
-            //Ha ezresít, automatikusan meghívunk rá két JS-t
+            // Ha ezresít, automatikusan meghívunk rá két JS-t
             if( $ertek['ezresit'] ){
                 $ertek['onkeyup'] .= '; onlyNumbers($(this)); this.value=ezresek(this.value,\'.\')';
                 $sor[$ertek['name']] = number_format($sor[$ertek['name']], 0, '', '.');
@@ -1956,17 +1933,17 @@ foreach ( $akt_tomb as $ertek ) {
                     $input -> value   = number_format($sor[ $ertek['name'] ], '', '', '.');
                 } else {
 
-                    //Date
+                    // Date
                     if( strstr($ertek['class'], 'datepicker') ) {
                         if( $sor[ $ertek['name'] ] != '0000-00-00' ) {
                             $input -> value   = date('Y.m.d', strtotime($sor[ $ertek['name'] ]));
                         }
-                    //Datetime
+                    // Datetime
                     } elseif( strstr($ertek['class'], 'datetimepicker') ) {
                         if( $sor[ $ertek['name'] ] != '0000-00-00 00:00:00' ) {
                             $input -> value   = date('Y.m.d H:i', strtotime($sor[ $ertek['name'] ]));
                         }
-                    //Ha numerikus adat, akkor formázzunk
+                    // Ha numerikus adat, akkor formázzunk
                     } elseif( strpos($ertek['class'], 'f_num')!==false ) {
                         $tort = 2;
                         if( strpos($ertek['data'], 'data-tort')!==false ){
@@ -2029,7 +2006,6 @@ foreach ( $akt_tomb as $ertek ) {
             $tag -> id          = $ertek['name'];
             $tag -> maxlength   = $ertek['maxlength'];
             $tag -> name        = $ertek['name'];
-            $tag -> naptar      = $ertek['naptar'];
             $tag -> onblur      = $ertek['onblur'];
             $tag -> onclick     = $ertek['onclick'];
             $tag -> onfocus     = $ertek['onfocus'];

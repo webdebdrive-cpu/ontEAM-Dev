@@ -142,7 +142,7 @@ require_once('selectek.php');
 	// Ütemezési napló módosítása
 	}elseif(isset($_GET['modosit'])) {
 
-        //Ha Gyorskeresőből érkeznénk ide, akkor az ID-t valójában az id_hidden tartalmazza majd
+        // Ha Gyorskeresőből érkeznénk ide, akkor az ID-t valójában az id_hidden tartalmazza majd
         if(isset($_GET['id_hidden'])){
             $_GET['id'] = $_GET['id_hidden'];
         }

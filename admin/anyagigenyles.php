@@ -1,6 +1,82 @@
 <?php
 require_once('../weblap.php');
 
+// // Anyagigénylés érkeztetésének feldolgozása kézzel
+// if( FALSE && isset($_GET['anyagigenyles_feldolgozas']) ) {
+
+//     // Tranzakció indul
+//     $db_error = false;
+//     mysqli_autocommit($db_kapcs, false);
+
+//     $anyagigenylesek = $adatbazis_kapcsolat -> s('*', 'anyagigenyles', "`stat_id`='30' AND `insert_dt`<'2020-01-01 00:00:00'");
+//     foreach ($anyagigenylesek as $anyagigenyles) {
+
+//         $id         = $anyagigenyles['recid'];
+//         $erkmen     = $anyagigenyles['rndmen'];
+//         $nemfogerk  = 0;
+
+//         $marerkmen = $anyagigenyles['erkmen'];
+//         $rndmen    = $anyagigenyles['rndmen'];
+//         // Ha marerkmen+erkmen=0 ÉS nemfogerk=1 AKKOR statid=CIKKIGN_STAT_NEM_ERKEZETT
+//         if( ($marerkmen + $erkmen == 0 || $marerkmen + $erkmen == 0.00) && $nemfogerk ) {
+//             $statusz = addStatusz( 'anyagigenyles_statusz', $id, CIKKIGN_STAT_NEM_ERKEZETT, '', '', '-rendszer-a-user-' );
+//             if( $statusz === false ) { $db_error = true; }
+
+//         // Ha marerkmen+erkmen>=rndmen VAGY (marerkmen+erkmen>0 ÉS nemfogerk=1), AKKOR statid=CIKKIGN_STAT_BEERKEZETT
+//         }else if( $marerkmen + $erkmen >= $rndmen || ($marerkmen + $erkmen > 0 && $nemfogerk) ) {
+//             $statusz = addStatusz( 'anyagigenyles_statusz', $id, CIKKIGN_STAT_BEERKEZETT, '', '', '-rendszer-a-user-' );
+//             if( $statusz === false ) { $db_error = true; }
+
+//         // Ha marerkmen+erkmen>0 ÉS marerkmen+erkmen<rndmen ÉS nemfogerk=0 AKKOR statid=CIKKIGN_STAT_RESZBENBEERK
+//         }elseif( $marerkmen + $erkmen > 0 && $marerkmen + $erkmen < $rndmen && !$nemfogerk ) {
+//             $statusz = addStatusz( 'anyagigenyles_statusz', $id, CIKKIGN_STAT_RESZBENBEERK, '', '', '-rendszer-a-user-'  );
+//             if( $statusz === false ) { $db_error = true; }
+//         }
+
+//         // Végül UPDATE cikkign SET erkmen=marerkmen+erkmen, update_usr= WHERE recid=
+//         $uj_erkmen = $marerkmen+$erkmen;
+//         $sql = $adatbazis_kapcsolat -> u('anyagigenyles',   array('erkmen',     'update_usr'),
+//                                                             array($uj_erkmen,   'ontEAM'    ),
+//                                             "`recid`='{$id}'"
+//                                         );
+//         if( $sql === false ) { $db_error = true; }
+// echo $adatbazis_kapcsolat -> gp().'<br>';
+
+//         // Ha erkmen>0 INSERT mozgas                    SET telephely_id=,                           szallito_id=,                cikk_id=,                        cikkmen=erkmen, mozgid=MOZGID_RAKTAR_BE, mozgir=1, rendtetid=recid, update_usr=, insert_usr=, insert_dt=NOW()
+//         if( $erkmen > 0 ) {
+//             $sql = $adatbazis_kapcsolat->i('mozgas',    array('telephely_id',                 'szallito_id',                 'cikk_id',                  'cikkmen', 'mozgid',          'mozgir', 'rendtetid', 'update_usr', 'insert_usr',   'insert_dt' ),
+//                                                         array($anyagigenyles['telephely_id'], $anyagigenyles['szallito_id'], $anyagigenyles['cikk_id'],  $erkmen,    MOZGID_RAKTAR_BE,  1,        $id,        'ontEAM',     'ontEAM',       'NOW()'     )
+//                                             );
+//             if( $sql === false ) { $db_error = true; }
+// echo $adatbazis_kapcsolat -> gp().'<br>';
+//         }
+
+//     }
+
+//     // Ciklus után minden esetben átírjuk cikkrndfej tábla statidet mysql procedúrával: call setcikkrndfejstatid(aparecid,loginuser.nev);
+//     // WebDeb adatbázisban nem futott le rendesen, itt kiagyjuk
+//     if( $_SERVER['HTTP_HOST'] != 'demo.webdeb.hu' ) {
+//         $sql = mysqli_query($db_kapcs, 'call setcikkrndfejstatid('.$anyagigenyles['aparecid'].', \'ontEAM\')') or die(mysqli_error($db_kapcs) );
+//         if( $sql === false ) { $db_error = true; }
+//     }
+
+//     if( !$db_error ) {
+//         mysqli_commit($db_kapcs);
+//         echo json_encode(array(
+//             'statusz' => 'siker'
+//         ));
+//     } else {
+//         mysqli_rollback($db_kapcs);
+//         echo json_encode(array(
+//             'hiba'  => tranzakcioHiba(),
+//             'title' => 'Hiba'
+//         ));
+//     }
+
+//     echo 'KÉSZ';
+//     exit;
+// }
+
 if( !_jog(JOG_ANYAIGENLES_MEGTEKINT) ) {
     if(!$_SESSION[get_db_tabla().'user']){
         $weblap -> leallit();
@@ -1578,7 +1654,7 @@ if( isset($_POST['anyagigenyles_erkeztet']) ) {
             $weblap->leallit();
             exit();
         }
-        if( $adatbazis_kapcsolat->s('recid', 'cikkrendfej', "`rndid`='{$_POST['rsz']}' AND `stat_id`>'" . CIKKIGN_STAT_RESZBENBEERK . "'") ) {
+        if( $adatbazis_kapcsolat->s('recid', 'cikkrendfej', "`rndid`='{$_POST['rsz']}' AND `stat_id`>'".CIKKIGN_STAT_RESZBENBEERK."'") ) {
             echo json_encode(array(
                 'hiba'  => 'Ehhez a megrendeléshez már rögzítve vannak a beérkezett mennyiségek!',
                 'title' => 'Hiba',
@@ -1620,7 +1696,7 @@ if( isset($_POST['anyagigenyles_erkeztet']) ) {
                     $gomb = '<input type="button" value="Mutat" class="gomb" onclick="window.open(\'munkalap.php?recidk='.$hianyzo_anyagok.'\')">';
                 }
 
-                // Ha a státusz nagyobb mit a beérkezett, akkor azokat már csak szürkén jelenítjük meg disabledezve
+                // Ha a státusz nagyobb mint a beérkezett, akkor azokat már csak szürkén jelenítjük meg disabledezve
                 $szurkit  = '';
                 $readonly = '';
                 $disabled = '';
@@ -3041,7 +3117,8 @@ require_once('selectek.php');
         $szamla_html .= get_tortenet($megnevezes);
 
         // A léptetés csak akkor fog működni, ha a bal navpanel kódja benne van a kódban
-        $szamla_html .= '<div class="dn">'.$balNavPanelHTMLje.'</div>';
+        // FONTOS, hogy nem lehet "dn", mert látszania kell, hogy a JavaScript tudjon vele dolgozni. A létetéshez kell.
+        $szamla_html .= '<div class="vh" style="height: 0; overflow: hidden;">'.$balNavPanelHTMLje.'</div>';
 
         if( $_GET['ajax'] ) {
             echo json_encode(array(
@@ -3059,7 +3136,8 @@ require_once('selectek.php');
         }
 
         // A léptetés csak akkor fog működni, ha a bal navpanel kódja benne van a kódban
-        $szamla_html .= '<div class="dn">'.$balNavPanelHTMLje.'</div>';
+        // FONTOS, hogy nem lehet "dn", mert látszania kell, hogy a JavaScript tudjon vele dolgozni. A létetéshez kell.
+        $szamla_html .= '<div class="vh" style="height: 0; overflow: hidden;">'.$balNavPanelHTMLje.'</div>';
 
         if( $_GET['ajax'] ) {
             echo json_encode(array(
@@ -3083,25 +3161,29 @@ require_once('selectek.php');
                 </div>
         ');
 
-        $sorok = $adatbazis_kapcsolat->s('recid megj insert_usr insert_dt', 'megjegyzes', "`id` = '".$_GET['id']."' AND `tabla` = '".str_replace('.php', '', basename(self()))."'", 'recid desc');
+        if( $_GET['id'] ) {
 
-        if( $sorok ) {
-            $i = 1;
-            foreach($sorok as $sor) {
-                $szamla_html .= nl2('
-                    <div id="naploSor-'.$sor['recid'].'" class="dtr nSor kijSor" data-id="'.$sor['recid'].'" data-i="'.$i.'">
-                        <div class="dtc">'.htmlspecialchars_decode( nl2br($sor['megj']) ).'</div>
-                        <div class="dtc">'.$sor['insert_usr'].'</div>
-                        <div class="dtc">'.datum_kiir($sor['insert_dt']).'</div>
-                    </div>
-                ');
-
-                $i++;
+            $sorok = $adatbazis_kapcsolat->s('recid megj insert_usr insert_dt', 'megjegyzes', "`id`='{$_GET['id']}' AND `tabla`='".str_replace('.php', '', basename(self()))."'", 'recid desc');
+            if( $sorok ) {
+                $i = 1;
+                foreach($sorok as $sor) {
+                    $szamla_html .= nl2('
+                        <div id="naploSor-'.$sor['recid'].'" class="dtr nSor kijSor" data-id="'.$sor['recid'].'" data-i="'.$i.'">
+                            <div class="dtc">'.htmlspecialchars_decode( nl2br($sor['megj']) ).'</div>
+                            <div class="dtc">'.$sor['insert_usr'].'</div>
+                            <div class="dtc">'.datum_kiir($sor['insert_dt']).'</div>
+                        </div>
+                    ');
+    
+                    $i++;
+                }
             }
+            
         }
 
         // A léptetés csak akkor fog működni, ha a bal navpanel kódja benne van a kódban
-        $szamla_html .= '<div class="dn">'.$balNavPanelHTMLje.'</div>';
+        // FONTOS, hogy nem lehet "dn", mert látszania kell, hogy a JavaScript tudjon vele dolgozni. A létetéshez kell.
+        $szamla_html .= '<div class="vh" style="height: 0; overflow: hidden;">'.$balNavPanelHTMLje.'</div>';
 
         if( $_GET['ajax'] ) {
             echo json_encode(array(

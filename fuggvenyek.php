@@ -732,8 +732,8 @@ function i_u($type, $tabla, $tomb) {
 
         // Értéklista INSERT előtt
         } else if( $tabla == 'erteklista' ) {
-            $ertek = $adatbazis_kapcsolat->s2('id', 'erteklista', "`csoport`='".$_POST['csoport']."'", 'id desc');
-
+            
+            $ertek = $adatbazis_kapcsolat->s2('id', 'erteklista', "`csoport`='{$_POST['csoport']}'", 'id desc');
             if( $ertek ) {
                 $ertek_id = $ertek['id'] + 1;
             } else {
@@ -2785,6 +2785,12 @@ function i_u($type, $tabla, $tomb) {
                 }
                 
             }
+
+            // Illetve a nettó mezőt még külön felesszük ha devizás volna a szerződés, mert ha tiltott mező volt, nem lesz benne
+            if( $_POST['kcs_21']!=KCS_21_HUF ) {
+                array_push($oszlopok, 'netto'           );
+                array_push($ertekek,  $_POST['netto']   );
+            }
             
         }
 
@@ -4640,10 +4646,10 @@ function szamla_lista( $where = '', $tabla = '', $kijeloltek = false, $csak_sql_
                 // Ezt egy SQL-ként is megcsinálhattuk volna, de azért kellett külön lekérni így az ikt. számokat, mert az SQL feltételben kétszer szerpeelt volna a WHERE szó, ami elé a legvégén 
                 // egy JOIN-t még beszúrunk. Hiába írtam volnta úgy, hogy {W H E R E}, amit lecserélek, akkor sem működött.
                 $pfelelos_prek = $adatbazis_kapcsolat->s('ikt_szam', 'projektkezeles', "`pfelelos`='{$_SESSION[get_db_tabla().'login_recid']}'");
-                if( $pfelelos_prek ) {
+                // if( $pfelelos_prek ) {
                     $pfelelos_prek = adatbazis2tomb($pfelelos_prek, 'ikt_szam');
                     $where .= "`".get_db_tabla()."projektszamla`.`pr_szam` IN ('". implode('\', \'', $pfelelos_prek)."') AND ";
-                }
+                // }
             }
         }
         
@@ -4654,13 +4660,14 @@ function szamla_lista( $where = '', $tabla = '', $kijeloltek = false, $csak_sql_
             // Saját szerződés megtekintése esetén azokat a szerződéseket listázzuk csak ki, amelyekhez tartozó Projekteknél én vagyok a projekt felelős
             // Csak akkor szűkítünk tovább, ha nincs bekapcsolva a "Projekt szerződések megtekintése" globálisabb jog
             if( _jog(JOG_PR_SAJAT_SZERZ_MEGTEKINT) && !_jog(JOG_PRKEZEL_SZERZODES_OLVAS) ) {
-                // Ezt egy SQL-ként is megcsinálhattuk volna, de azért kellett külön lekérni így az ikt. számokat, mert az SQL feltételben kétszer szerpeelt volna a WHERE szó, ami elé a legvégén 
+
+                // Ezt egy SQL-ként is megcsinálhattuk volna, de azért kellett külön lekérni így az ikt. számokat, mert az SQL feltételben kétszer szerepelt volna a WHERE szó, ami elég a legvégén 
                 // egy JOIN-t még beszúrunk. Hiába írtam volnta úgy, hogy {W H E R E}, amit lecserélek, akkor sem működött.
                 $pfelelos_prek = $adatbazis_kapcsolat->s('ikt_szam', 'projektkezeles', "`pfelelos`='{$_SESSION[get_db_tabla().'login_recid']}'");
-                if( $pfelelos_prek ) {
+                // if( $pfelelos_prek ) {
                     $pfelelos_prek = adatbazis2tomb($pfelelos_prek, 'ikt_szam');
                     $where .= "`".get_db_tabla()."projektszerzodes`.`pr_szam` IN ('". implode('\', \'', $pfelelos_prek)."') AND ";
-                }
+                // }
             }
         }
 
@@ -5823,8 +5830,9 @@ function bejelentesLista( $bejegyzesek, $tabla, $frissit = '', $kijeloltek = '',
                 $active .= ' nyitott_statuszu'; // Innen fogjuk tudni, hogy a csoporosítás gombokat mutassuk-e meg vagy sem
             }
 
-            // Egyszálloda esetén, ha nyitott a státusz, van munkalap készíthet jog, és ponstosan egy ML-ja van, és a ML-nak két státusza van (ez csak Nyitott és hozzárendelt lehet), akkor legyen szürke a háttér
-            $rejtsuk = false;
+            // Egyszálloda esetén, ha nyitott a státusz, van munkalap készíthet jog, és pontosan egy ML-ja van, és a ML-nak két státusza van (ez csak Nyitott és hozzárendelt lehet), 
+            // akkor legyen szürke a háttér. Update: már meg se jelenítjük.
+            $rejtsuk = 0;
             if( _jog(JOG_MUNKALAP_KESZITHET) && $bsz['stat_id'] == BEJELENTES_STAT_NYITOTT ) {
                 $szalloda  = $adatbazis_kapcsolat->s2('modell', 'telephely', "`id`='{$bsz['telephely_id']}'");
                 if( !$szalloda['modell'] ) {
@@ -5835,7 +5843,7 @@ function bejelentesLista( $bejegyzesek, $tabla, $frissit = '', $kijeloltek = '',
                             $statuszok = $adatbazis_kapcsolat->s('recid', 'munkalap_statusz', "`munkalap_recid`='{$letezik_munkalap['recid']}'");
                             if( count($statuszok) == 2 ) {
                                 $active .= ' szurke_hat';
-                                $rejtsuk = true;
+                                $rejtsuk = 1;
                             }
                         }
                     }
@@ -10231,38 +10239,39 @@ function get_tortenet($megnevezes) {
 
     // Archivum táblák esetére
     $tabla = $megnevezes.'_statusz';
-    if( substr($megnevezes, strlen($megnevezes)-5) == '_arch' ){
+    if( substr($megnevezes, strlen($megnevezes)-5) == '_arch' ) {
         $megnevezes = substr($megnevezes, 0, strlen($megnevezes)-5);
         $tabla      = $megnevezes.'_statusz_arch';
     }
-    $sorok = $adatbazis_kapcsolat->s('stat_id insert_dt insert_usr statido gongyolt_statido ossz_statido text', $tabla, "`{$megnevezes}_recid` = '".$_GET['id']."'", 'recid desc');
-// echo $adatbazis_kapcsolat->gp() . '<br>';
-    if( $sorok ) {
-        foreach($sorok as $sor) {
-
-            $statusz['nev']     = getStatText($megnevezes, $sor['stat_id']);
-            $statusz['szinkod'] = getStatText($megnevezes, $sor['stat_id'], 'szinkod');
-
-            $szinkod = '';
-            $sor['statusz'] = $statusz['nev'];
-            if( $statusz['szinkod'] ) {
-                $szinkod = ' style="background: '.$statusz['szinkod'].';"';
+    if( $_GET['id'] ) {
+        $sorok = $adatbazis_kapcsolat->s('stat_id insert_dt insert_usr statido gongyolt_statido ossz_statido text', $tabla, "`{$megnevezes}_recid`='{$_GET['id']}'", 'recid desc');
+        if( $sorok ) {
+            foreach($sorok as $sor) {
+    
+                $statusz['nev']     = getStatText($megnevezes, $sor['stat_id']);
+                $statusz['szinkod'] = getStatText($megnevezes, $sor['stat_id'], 'szinkod');
+    
+                $szinkod = '';
+                $sor['statusz'] = $statusz['nev'];
+                if( $statusz['szinkod'] ) {
+                    $szinkod = ' style="background: '.$statusz['szinkod'].';"';
+                }
+    
+                // Adatbázisba eleinte szóköz nélkül került be a nap, ezért biztonság kedvéért egy szóközt még beszúrunk, illetve a 0nap-ot is kiszűrjük (bár ez egy adatbázis frissítés után már felesleges)
+                $sor['statido']          = str_replace(array('0nap', 'nap'), array('', ' nap'), $sor['statido']);
+                $sor['gongyolt_statido'] = str_replace(array('0nap', 'nap'), array('', ' nap'), $sor['gongyolt_statido']);
+                $sor['ossz_statido']     = str_replace(array('0nap', 'nap'), array('', ' nap'), $sor['ossz_statido']);
+                $szamla_html .= nl2('
+                    <div class="dtr nSor"'.$szinkod.'>
+                        <div class="dtc">'.$sor['statusz'].'</div>
+                        <div class="dtc">'.date('Y.m.d H:i', strtotime($sor['insert_dt'])).'</div>
+                        <div class="dtc">'.$sor['insert_usr'].'</div>
+                        <div class="dtc">'.$sor['statido'].'</div>
+                        <div class="dtc">'.$sor['gongyolt_statido'].'</div>
+                        <div class="dtc">'.nl2br2( htmlspecialchars_decode($sor['text']) ).'</div>
+                    </div>
+                ');
             }
-
-            // Adatbázisba eleinte szóköz nélkül került be a nap, ezért biztonság kedvéért egy szóközt még beszúrunk, illetve a 0nap-ot is kiszűrjük (bár ez egy adatbázis frissítés után már felesleges)
-            $sor['statido']          = str_replace(array('0nap', 'nap'), array('', ' nap'), $sor['statido']);
-            $sor['gongyolt_statido'] = str_replace(array('0nap', 'nap'), array('', ' nap'), $sor['gongyolt_statido']);
-            $sor['ossz_statido']     = str_replace(array('0nap', 'nap'), array('', ' nap'), $sor['ossz_statido']);
-            $szamla_html .= nl2('
-                <div class="dtr nSor"'.$szinkod.'>
-                    <div class="dtc">'.$sor['statusz'].'</div>
-                    <div class="dtc">'.date('Y.m.d H:i', strtotime($sor['insert_dt'])).'</div>
-                    <div class="dtc">'.$sor['insert_usr'].'</div>
-                    <div class="dtc">'.$sor['statido'].'</div>
-                    <div class="dtc">'.$sor['gongyolt_statido'].'</div>
-                    <div class="dtc">'.nl2br2( htmlspecialchars_decode($sor['text']) ).'</div>
-                </div>
-            ');
         }
     }
 
@@ -10421,12 +10430,16 @@ function getSzallodaNev($szalloda_id, $andoc_nev = false) {
 
 // Értéklista értékéne lekérdezése
 function getErtekLista($erteklista_csoport = '', $erteklista_id = '', $erteklista_recid = '') {
+    global $adatbazis_kapcsolat;
     if( $erteklista_csoport ) {
         foreach ( $_SESSION['erteklista'] as $erteklista ) {
             if( $erteklista['csoport'] == $erteklista_csoport && $erteklista['id'] == $erteklista_id ) {
                 return $erteklista['info'];
             }
         }
+        // Ha idáig eljutnánk, akkor nem volt benne a $_SESSION['erteklista']-ban, ekkor mégis adatbázisból töltsük be
+        $erteklista = $adatbazis_kapcsolat -> s2('info', 'erteklista', "`csoport`='{$erteklista_csoport}' AND `id`='{$erteklista_id}'");
+        return $erteklista['info'];
     }
     if( $erteklista_recid ) {
         foreach ( $_SESSION['erteklista'] as $erteklista ) {
@@ -10434,6 +10447,9 @@ function getErtekLista($erteklista_csoport = '', $erteklista_id = '', $erteklist
                 return $erteklista['info'];
             }
         }
+        // Ha idáig eljutnánk, akkor nem volt benne a $_SESSION['erteklista']-ban, ekkor mégis adatbázisból töltsük be
+        $erteklista = $adatbazis_kapcsolat -> s2('info', 'erteklista', "`recid`='{$erteklista_recid}'");
+        return $erteklista['info'];
     }
 
 }
@@ -11754,7 +11770,7 @@ function munkalap_letrehoz($stat_id, $telephely_id, $tipus_id, $obj_id, $gep_id,
 
 // ML kezelés jogot visszaadó függvény (felvéve státusz alatt)
 function get_kezeles_jog($szemelyzet_id) {
-    $kezeles_jog = false;
+    $kezeles_jog = 0;
     if(
             ( _jog(JOG_MUNKALAP_SAJAT_KEZEL)        && $szemelyzet_id == $_SESSION[get_db_tabla().'szemelyzet_id'] ) ||
             ( _jog(JOG_MUNKALAP_KEZEL_TELEPITETT)   && $szemelyzet_id == TELEPITETT_SZEMELYZET )                     ||
@@ -11762,7 +11778,7 @@ function get_kezeles_jog($szemelyzet_id) {
             // Ez utóbbi feltétek vizsgálat sokszor felesleges, mert a feltétel (ahol ez a függvény meghívódik) eleve kizárja a külső kivitelezőket. De nem baj, így általánosan meghívható ez a függvény.
             ( _jog(JOG_MUNKALAP_KEZEL_KULSO)        && $szemelyzet_id == KULSO_KIVITELEZO      )
         ) {
-        $kezeles_jog = true;
+        $kezeles_jog = 1;
     }
     return $kezeles_jog;
 }
@@ -13393,7 +13409,7 @@ function get_projektkezeles_where_jog() {
         $team_vagyok = ' OR `'.get_db_tabla().'projektkezeles`.`recid` IN (SELECT `projektkezeles_recid` FROM `'.get_db_tabla().'projektkezeles_team` WHERE `login_recid`=\''.$_SESSION[get_db_tabla().'login_recid'].'\')';
     }
 
-    // Projektek megtekintése: saját szállodák láthatósági körébe tartozó projektek lisstázása
+    // Projektek megtekintése: saját szállodák láthatósági körébe tartozó projektek listázása
     $sajtat_szaloda_latokor = "`".get_db_tabla()."projektkezeles`.`telephely_id` IN (".implode(',', get_akt_login_szallodai()).")";
 
     // Projekt típus jog alapján tovább szűkítünk
@@ -13437,7 +13453,7 @@ function get_projektkezeles_where_jog() {
             }
 
             // Többszállodás projekt láthatósága
-            if( _jog(JOG_PR_TOBBSZALL_MEGTEKINT) ){
+            if( _jog(JOG_PR_TOBBSZALL_MEGTEKINT) ) {
                 $lathatosag_feltetel .= "`".get_db_tabla()."projektkezeles`.`egy_tobb`=1 OR ";
             }
             $where = "( ({$sajtat_szaloda_latokor} AND (".csonkit($lathatosag_feltetel, 4).")) {$team_vagyok} OR  {$tipusra_szures}) AND";
@@ -13451,6 +13467,11 @@ function get_projektkezeles_where_jog() {
             $where = "(".substr($team_vagyok, 4)." $or {$tipusra_szures})";
         }
 
+    }
+
+    // Ha be van pipálva a "Minor CAPEX megtekintése" jog, akkor a fenti feltételeken felül feltétel még, hogy csak a Minor CAPEX-es projekteket láthatom
+    if( _jog(JOG_PRKEZEL_CAPEX_MEGTEKINT) ) {
+        $where = "`".get_db_tabla()."projektkezeles`.`capex`=1 AND ";
     }
     
     return $where;
@@ -14067,7 +14088,8 @@ function get_nyomtatas_fejlec_top($sorszam, $lapszammal = '') {
                     </table>
                 </td>
                 <td class="b c" style="width: 34%; font-size: 14px">
-                    Megrendelés sz.: '.$sorszam.'
+                    Megrendelés száma:
+                    <br>'.$sorszam.'
                 </td>
                 <td class="r" style="font-size: 11px; width: 33%; padding-right: 10px">
                     '.$lapszammal.'
@@ -14079,23 +14101,48 @@ function get_nyomtatas_fejlec_top($sorszam, $lapszammal = '') {
 }
 
 // Nyomtatási képhez fejléc HTML-je
-function get_nyomtatas_fejlec($szallito, $megrendelo_recid = '') {
+function get_nyomtatas_fejlec($szallito, $megrendelo_recid = '', $szallito_txt = '', $megrendelo_txt = '') {
 
     global $adatbazis_kapcsolat;
 
-    $tel_kieg = '';
+    $tel_kieg = $mail_kieg = '';
     if( !$megrendelo_recid ) {
         $megrendelo_recid = $_SESSION[get_db_tabla().'login_recid'];
     }
-    $login = $adatbazis_kapcsolat->s2('usertel teljes_nev', 'login', "`recid`='{$megrendelo_recid}'");
+    $login = $adatbazis_kapcsolat->s2('usertel usermail teljes_nev', 'login', "`recid`='{$megrendelo_recid}'");
     if( $login['usertel'] ) {
         $tel_kieg = '<br>Tel.: '.$login['usertel'];
+    }
+    if( $login['usermail'] ) {
+        $mail_kieg = '<br>E-mail: '.$login['usermail'];
     }
 
     $fax = '';
     if( $szallito['tel2'] ) {
         $fax = '<br>Fax.: '.$szallito['tel2'];
     }
+
+    // A szállítót lehet megkapjuk TXT-ként. Ha nem, akkor meg számoljuk ki
+    if( !$szallito_txt ) {
+        $szallito_txt = nl2('
+                        Név: '.$szallito['nev'].'
+                        <br>Kapcs.: '.$szallito['knev'].'
+                        <br>Tel.: '.$szallito['tel'].'
+                        '.$fax.'
+                        <br>E-mail: '.$szallito['email'].'
+                        <br>Cím.: '.$szallito['isz'].' '.$szallito['varos'].', '.$szallito['utca'].'
+        ');
+    }
+    // A megrendelőt lehet megkapjuk TXT-ként. Ha nem, akkor meg számoljuk ki
+    if( !$megrendelo_txt ) {
+        $megrendelo_txt = nl2('
+                        Név: Danubius Hotels Zrt. Műszaki Szolgáltató Központ
+                        <br>Kapcs.: '.$login['teljes_nev'].'
+                        '.$tel_kieg.'
+                        '.$mail_kieg.'
+        ');
+    }
+
     return '
             <div style="padding: 0 15px 0 15px">
                 <table style="margin: auto; margin-top: 20px; width: 100%">
@@ -14112,17 +14159,10 @@ function get_nyomtatas_fejlec($szallito, $megrendelo_recid = '') {
                 <table class="border full" style="margin: auto; margin-top: 0;border-collapse: collapse;border: 1px solid #ddd;">
                 <tr>
                     <td class="vat" style="font-size: 12px; width: 50%; padding: 5px; border: 1px solid #ddd;">
-                        Név: '.$szallito['nev'].'
-                        <br>Kapcs.: '.$szallito['knev'].'
-                        <br>Tel.: '.$szallito['tel'].'
-                        '.$fax.'
-                        <br>E-mail: '.$szallito['email'].'
-                        <br>Cím.: '.$szallito['isz'].' '.$szallito['varos'].', '.$szallito['utca'].'
+                        '.$szallito_txt.'
                     </td>
                     <td class="vat" style="font-size: 12px; width: 50%; padding: 5px; border: 1px solid #ddd;">
-                        Név: Danubius Hotels Zrt. Műszaki Szolgáltató Központ
-                        <br>Üi.: '.$login['teljes_nev'].'
-                        '.$tel_kieg.'
+                        '.$megrendelo_txt.'
                     </td>
                 </tr>
                 </table>
@@ -14162,7 +14202,7 @@ function get_nyomtatas_keret($title){
     if (isset($_GET['szall']) || self('-bn-') == 'munkalap.php') {
         return '
                 <head>
-                    <title>'.$title.'</title>
+                    <title>'.strip_tags($title).'</title>
                     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
                     <link href="../css/nullaz.css" rel="stylesheet" type="text/css">
                     <link href="../css/admin.css" rel="stylesheet" type="text/css">
@@ -14182,7 +14222,7 @@ function get_nyomtatas_keret($title){
     } else {
         return '
                 <head>
-                    <title>'.$title.'</title>
+                    <title>'.strip_tags($title).'</title>
                     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
                     <link href="../css/nullaz.css" rel="stylesheet" type="text/css">
                     <link href="../css/admin.css" rel="stylesheet" type="text/css">

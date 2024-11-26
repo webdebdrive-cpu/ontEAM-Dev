@@ -17,7 +17,7 @@ table.szamla_cont_tabla.kisbetu tfoot td.fix {
     background: #F1EFF0;
 }
 table.szamla_cont_tabla.kisbetu tr.kijelolve td.fix {
-    background: #55A2FA;
+    background: var(--color-kek);
 }
 
 /* Energia fül alatt az első oszlopok sorban */

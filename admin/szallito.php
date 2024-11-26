@@ -407,15 +407,15 @@ require_once('selectek.php');
             echo $szamla_html;
         }
 
-	// Szállító módosítása
-	}elseif(isset($_GET['modosit'])) {
+    // Szállító módosítása
+    } elseif (isset($_GET['modosit'])) {
         
         // Ha Gyorskeresőből érkeznénk ide, akkor az ID-t valójában az id_hidden tartalmazza majd
         if(isset($_GET['id_hidden'])){
             $_GET['id'] = $_GET['id_hidden'];
         }
 
-	    $sor = $adatbazis_kapcsolat -> s2('*', $megnevezes, 'recid='.$_GET['id']);
+	    $sor = $adatbazis_kapcsolat -> s2('*', $megnevezes, "`recid`='{$_GET['id']}'");
 
         foreach($akt_tomb as $tomb) {
             if( $tomb['type'] == 'autocomplete' ) {
@@ -483,38 +483,40 @@ require_once('selectek.php');
 	// Napló
     }elseif( isset($_GET['szakterulet']) ) {
 
-        $sorok = $adatbazis_kapcsolat->s('recid szakter_id', 'szakter_kapcs', 'szallito_id='.$_GET['id'], '', '');
+        if( $_GET['id'] ) {
+            $sorok = $adatbazis_kapcsolat->s('recid szakter_id', 'szakter_kapcs', "`szallito_id`='{$_GET['id']}'");
 
-        $szamla_html .= '<div id="tablazatBeszur">';
-        if( $sorok ) {
-            // Fejlécek
-            $szamla_html .= nl2('
-                <div class="dt naplo szakter">
-                    <div class="dtr nFejlec">
-                        <div class="dtc">Név</div>
-                        <div class="dtc"></div>
-                    </div>
-            ');
-
-            foreach($sorok as $sor) {
-                $szak_sorok = $adatbazis_kapcsolat->s('recid info', 'erteklista', "`recid` = '".$sor['szakter_id']."'");
-
-                foreach($szak_sorok as $szak_sor) {
-                    $szamla_html .= nl2('
-                        <div id="naploSor-'.$sor['recid'].'" class="dtr nSor">
-                            <div class="dtc full">'.$szak_sor['info'].'</div>
-                            <div class="dtc">
-                                <script>
-                                    gomb_szakter_'.$szak_sor['recid'].' = \'<input type="button" value="Igen" class="gomb zold" onclick="naploTorol(\\\'szakter_kapcs\\\', \\\''.$sor['recid'].'\\\'); alert2();"><input type="button"value="Nem" class="gomb piros" onclick="alert2();">\';
-                                </script>
-                                <a href="javascript: alert2(\'Biztossan törli a szakterületet?\', gomb_szakter_'.$szak_sor['recid'].'); void(0);" class="torles">Törlés</a>
-                            </div>
+            $szamla_html .= '<div id="tablazatBeszur">';
+            if( $sorok ) {
+                // Fejlécek
+                $szamla_html .= nl2('
+                    <div class="dt naplo szakter">
+                        <div class="dtr nFejlec">
+                            <div class="dtc">Név</div>
+                            <div class="dtc"></div>
                         </div>
-                    ');
-                }
-            }
+                ');
 
-            $szamla_html .= '</div>';
+                foreach($sorok as $sor) {
+                    $szak_sorok = $adatbazis_kapcsolat->s('recid info', 'erteklista', "`recid`='".$sor['szakter_id']."'");
+
+                    foreach($szak_sorok as $szak_sor) {
+                        $szamla_html .= nl2('
+                            <div id="naploSor-'.$sor['recid'].'" class="dtr nSor">
+                                <div class="dtc full">'.$szak_sor['info'].'</div>
+                                <div class="dtc">
+                                    <script>
+                                        gomb_szakter_'.$szak_sor['recid'].' = \'<input type="button" value="Igen" class="gomb zold" onclick="naploTorol(\\\'szakter_kapcs\\\', \\\''.$sor['recid'].'\\\'); alert2();"><input type="button"value="Nem" class="gomb piros" onclick="alert2();">\';
+                                    </script>
+                                    <a href="javascript: alert2(\'Biztossan törli a szakterületet?\', gomb_szakter_'.$szak_sor['recid'].'); void(0);" class="torles">Törlés</a>
+                                </div>
+                            </div>
+                        ');
+                    }
+                }
+
+                $szamla_html .= '</div>';
+            }
         }
 
         $szamla_html .= '</div>';
@@ -557,20 +559,21 @@ require_once('selectek.php');
                 </div>
         ');
 
-        $sorok = $adatbazis_kapcsolat->s('recid megj insert_usr insert_dt', 'megjegyzes', "`id` = '".$_GET['id']."' AND `tabla` = '".str_replace('.php', '', basename(self()))."'", 'recid desc');
+        if( $_GET['id'] ) {
+            $sorok = $adatbazis_kapcsolat->s('recid megj insert_usr insert_dt', 'megjegyzes', "`id`='{$_GET['id']}' AND `tabla`='".str_replace('.php', '', basename(self()))."'", 'recid desc');
+            if( $sorok ) {
+                $i = 1;
+                foreach($sorok as $sor) {
+                    $szamla_html .= nl2('
+                        <div id="naploSor-'.$sor['recid'].'" data-id="'.$sor['recid'].'" data-i="'.$i.'" class="dtr nSor kijSor">
+                            <div class="dtc">'.htmlspecialchars_decode( nl2br2($sor['megj']) ).'</div>
+                            <div class="dtc">'.$sor['insert_usr'].'</div>
+                            <div class="dtc">'.datum_kiir($sor['insert_dt']).'</div>
+                        </div>
+                    ');
 
-        if( $sorok ) {
-            $i = 1;
-            foreach($sorok as $sor) {
-                $szamla_html .= nl2('
-                    <div id="naploSor-'.$sor['recid'].'" data-id="'.$sor['recid'].'" data-i="'.$i.'" class="dtr nSor kijSor">
-                        <div class="dtc">'.htmlspecialchars_decode( nl2br2($sor['megj']) ).'</div>
-                        <div class="dtc">'.$sor['insert_usr'].'</div>
-                        <div class="dtc">'.datum_kiir($sor['insert_dt']).'</div>
-                    </div>
-                ');
-
-                $i++;
+                    $i++;
+                }
             }
         }
 

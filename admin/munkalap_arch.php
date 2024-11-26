@@ -420,165 +420,167 @@ require('selectek.php');
 
         // Tétel sorok
         $i = 0;
-        $sorok = $adatbazis_kapcsolat->s('recid atadta_dt visszaadva erteklista_id loginnev insert_dt insert_usr', 'munkalap_tetel_arch', "`munkalap_id` = '".$_GET['id']."'", 'recid desc');
-        foreach($sorok as $sor) {
+        if( $_GET['id'] ) {
+            $sorok = $adatbazis_kapcsolat->s('recid atadta_dt visszaadva erteklista_id loginnev insert_dt insert_usr', 'munkalap_tetel_arch', "`munkalap_id`='{$_GET['id']}'", 'recid desc');
+            foreach($sorok as $sor) {
 
-            $munkalap = $adatbazis_kapcsolat->s2('stat_id szemelyzet_id', $megnevezes, "`recid`='{$_GET['id']}'");
-            $kezeles_jog = false;
-            if( _jog(JOG_MUNKALAP_SAJAT_SZALL_KEZEL) || (_jog(JOG_MUNKALAP_SAJAT_KEZEL) && $munkalap['szemelyzet_id']==$_SESSION[get_db_tabla().'szemelyzet_id']) ) {
-                $kezeles_jog = true;
-            }
-
-            $szamla_html .= nl2('
-                <div class="tetel_div">
-                    <table class="csikos tetel_csikos full">
-                        <tr>
-                            <th class="tetel_th1">Személyzet</th>
-                            <th class="tetel_th2">Felvette</th>
-                            <th class="tetel_th3">Átadta</th>
-                            <th class="l">Visszaadva</th>
-                        </tr>
-            ');
-
-            $visszaadva = '';
-            if( $sor['visszaadva'] ) {
-                $visszaadva = '<span class="icon piros"><i class="material-icons">done</i></span>';
-            }
-
-            $atadta = '';
-            if( $sor['atadta_dt'] != '0000-00-00 00:00:00' ) {
-                $atadta = date('Y.m.d H:i', strtotime($sor['atadta_dt']));
-            }
-
-            $atadas_oka = erteklista(ERTEKLISTA_ATADAS_OKA, $sor['erteklista_id']);
-            if( $atadas_oka ) {
-                $atadas_oka = '<br>'.$atadas_oka;
-            }
-
-            // Szerepkör
-            $tetel_felh = $adatbazis_kapcsolat->s2('szemelyzet_id', 'login', "`nev` = '".$sor['loginnev']."'");
-            $szerepkor = '';
-            if( $tetel_felh ) {
-
-                $szerepkor_sor = getSzerepkorNev($tetel_felh['szemelyzet_id']);
-                if( $szerepkor_sor ) {
-                    $szerepkor = '<br>('.$szerepkor_sor.')';
+                $munkalap = $adatbazis_kapcsolat->s2('stat_id szemelyzet_id', $megnevezes, "`recid`='{$_GET['id']}'");
+                $kezeles_jog = false;
+                if( _jog(JOG_MUNKALAP_SAJAT_SZALL_KEZEL) || (_jog(JOG_MUNKALAP_SAJAT_KEZEL) && $munkalap['szemelyzet_id']==$_SESSION[get_db_tabla().'szemelyzet_id']) ) {
+                    $kezeles_jog = true;
                 }
-            }
 
-            $szamla_html .= nl2('
-                <tr>
-                    <td>'.$sor['insert_usr'].$szerepkor.'</td>
-                    <td>'.date('Y.m.d H:i', strtotime($sor['insert_dt'])).'</td>
-                    <td>'.$atadta.'</td>
-                    <td class="l" style="padding-left: 3.7rem">'.$visszaadva.$atadas_oka.'</td>
-                </tr>
-            ');
-
-            $szamla_html .= '</table>';
-
-            // Elvégzett feladatok lekérdezése
-            $feladatok = $adatbazis_kapcsolat->s('recid erteklista_id tetel_id memo', 'munkalap_feladat_arch', "`tetel_id` = '{$sor['recid']}'", 'insert_dt desc');
-            if( $feladatok ) {
                 $szamla_html .= nl2('
-                    <div style="padding: 0 0.5rem">
-                    <table class="csikos full al">
-                        <tr>
-                            <th class="feladat_th1">Elvégzett feladat</th>
-                            <th class="feladat_th2">Leírás</th>
-                            <th></th>
-                        </tr>
+                    <div class="tetel_div">
+                        <table class="csikos tetel_csikos full">
+                            <tr>
+                                <th class="tetel_th1">Személyzet</th>
+                                <th class="tetel_th2">Felvette</th>
+                                <th class="tetel_th3">Átadta</th>
+                                <th class="l">Visszaadva</th>
+                            </tr>
                 ');
 
-                $kezeles_jog = get_kezeles_jog($munkalap['szemelyzet_id']);
-                foreach($feladatok as $feladat) {
-
-                    $szamla_html .= nl2('
-                        <tr class="feladat_sor_'.$feladat['recid'].'">
-                            <td id="elv_feladat_nev_'.$feladat['recid'].'">'.erteklista(ERTEKLISTA_ELV_FELAD, $feladat['erteklista_id']).'</td>
-                            <td id="elv_feladat_memo_'.$feladat['recid'].'">'.nl2br($feladat['memo']).'</td>
-                            <td class="r"></td>
-                        </tr>
-                    ');
+                $visszaadva = '';
+                if( $sor['visszaadva'] ) {
+                    $visszaadva = '<span class="icon piros"><i class="material-icons">done</i></span>';
                 }
 
-                $szamla_html .= '</table></div>';
-            }
+                $atadta = '';
+                if( $sor['atadta_dt'] != '0000-00-00 00:00:00' ) {
+                    $atadta = date('Y.m.d H:i', strtotime($sor['atadta_dt']));
+                }
 
-            // Anyagigénylések lekérdezése
-            $anyagok = $adatbazis_kapcsolat->s('recid cikk_id cikk_nev cikk_men szuk_men cikk_mee stat_id', 'munkalap_anyag_arch', "`tetel_id` = '{$sor['recid']}'", 'insert_dt desc', '');
-            if( $anyagok ) {
+                $atadas_oka = erteklista(ERTEKLISTA_ATADAS_OKA, $sor['erteklista_id']);
+                if( $atadas_oka ) {
+                    $atadas_oka = '<br>'.$atadas_oka;
+                }
+
+                // Szerepkör
+                $tetel_felh = $adatbazis_kapcsolat->s2('szemelyzet_id', 'login', "`nev` = '".$sor['loginnev']."'");
+                $szerepkor = '';
+                if( $tetel_felh ) {
+
+                    $szerepkor_sor = getSzerepkorNev($tetel_felh['szemelyzet_id']);
+                    if( $szerepkor_sor ) {
+                        $szerepkor = '<br>('.$szerepkor_sor.')';
+                    }
+                }
+
                 $szamla_html .= nl2('
-                    <table class="csikos full al behuz">
-                        <tr>
-                            <th class="anyag_th1">Cikkszám</th>
-                            <th class="anyag_th2">Anyag felhasználás</th>
-                            <th class="anyag_th3">Felhasznált mennyiség</th>
-                            <th class="anyag_th4">Szükséges mennyiség</th>
-                            <th class="anyag_th5">Anyag státusz</th>
-                            <th class="anyag_th6"></th>
-                        </tr>
+                    <tr>
+                        <td>'.$sor['insert_usr'].$szerepkor.'</td>
+                        <td>'.date('Y.m.d H:i', strtotime($sor['insert_dt'])).'</td>
+                        <td>'.$atadta.'</td>
+                        <td class="l" style="padding-left: 3.7rem">'.$visszaadva.$atadas_oka.'</td>
+                    </tr>
                 ');
-
-                foreach($anyagok as $anyag) {
-
-                    $cikk_men = '';
-                    if( $anyag['cikk_men'] > 0 ) {
-                        $cikk_men = $anyag['cikk_men'].' '.$anyag['cikk_mee'];
-                    }
-
-                    $szuk_men = '';
-                    if( $anyag['szuk_men'] > 0 ) {
-                        $szuk_men    = $anyag['szuk_men'].' '.$anyag['cikk_mee'];
-                    }
-
-                    $szamla_html .= nl2('
-                        <tr class="anyag_sor_'.$anyag['recid'].'">
-                            <td id="anyag_cikkid_'.$anyag['recid'].'">'.$anyag['cikk_id'].'</td>
-                            <td id="anyag_nev_'.$anyag['recid'].'">'.$anyag['cikk_nev'].'</td>
-                            <td class="r">'.$cikk_men.'</td>
-                            <td class="r">'.$szuk_men.'</td>
-                            <td>'.$munkAnyag_statusz[$anyag['stat_id']].'</td>
-                            <td class="r"></td>
-                        </tr>
-                    ');
-                }
 
                 $szamla_html .= '</table>';
-            }
 
-            // Munkaidő ráfordítás lekérdezése
-            $munkaidok = $adatbazis_kapcsolat->s('recid login_id ora perc', 'munkalap_munkaido_arch', "`tetel_id` = '{$sor['recid']}'", 'insert_dt desc', '');
-            if( $munkaidok ) {
-                $szamla_html .= nl2('
-                    <table class="csikos full al behuz">
-                        <tr>
-                            <th class="mido_th1">Név</th>
-                            <th class="mido_th2 r">Munkaidő ráfordítás</th>
-                            <th class="mido_th3"></th>
-                        </tr>
-                ');
+                // Elvégzett feladatok lekérdezése
+                $feladatok = $adatbazis_kapcsolat->s('recid erteklista_id tetel_id memo', 'munkalap_feladat_arch', "`tetel_id` = '{$sor['recid']}'", 'insert_dt desc');
+                if( $feladatok ) {
+                    $szamla_html .= nl2('
+                        <div style="padding: 0 0.5rem">
+                        <table class="csikos full al">
+                            <tr>
+                                <th class="feladat_th1">Elvégzett feladat</th>
+                                <th class="feladat_th2">Leírás</th>
+                                <th></th>
+                            </tr>
+                    ');
 
-                foreach($munkaidok as $munkaido) {
-                    if($munkaido['perc']<10){
-                        $munkaido['perc'] = '0'.$munkaido['perc'];
+                    $kezeles_jog = get_kezeles_jog($munkalap['szemelyzet_id']);
+                    foreach($feladatok as $feladat) {
+
+                        $szamla_html .= nl2('
+                            <tr class="feladat_sor_'.$feladat['recid'].'">
+                                <td id="elv_feladat_nev_'.$feladat['recid'].'">'.erteklista(ERTEKLISTA_ELV_FELAD, $feladat['erteklista_id']).'</td>
+                                <td id="elv_feladat_memo_'.$feladat['recid'].'">'.nl2br($feladat['memo']).'</td>
+                                <td class="r"></td>
+                            </tr>
+                        ');
                     }
 
-                    $szamla_html .= nl2('
-                        <tr class="munkaido_sor_'.$munkaido['recid'].'">
-                            <td id="munkaido_nev_'.$munkaido['recid'].'">'.getErtek('teljes_nev', 'login', 'recid', $munkaido['login_id']).'</td>
-                            <td id="munkaido_ido_'.$munkaido['recid'].'" class="r">'.$munkaido['ora'].':'.$munkaido['perc'].'</td>
-                            <td class="r"></td>
-                        </tr>
-                    ');
+                    $szamla_html .= '</table></div>';
                 }
 
-                $szamla_html .= '</table>';
+                // Anyagigénylések lekérdezése
+                $anyagok = $adatbazis_kapcsolat->s('recid cikk_id cikk_nev cikk_men szuk_men cikk_mee stat_id', 'munkalap_anyag_arch', "`tetel_id` = '{$sor['recid']}'", 'insert_dt desc', '');
+                if( $anyagok ) {
+                    $szamla_html .= nl2('
+                        <table class="csikos full al behuz">
+                            <tr>
+                                <th class="anyag_th1">Cikkszám</th>
+                                <th class="anyag_th2">Anyag felhasználás</th>
+                                <th class="anyag_th3">Felhasznált mennyiség</th>
+                                <th class="anyag_th4">Szükséges mennyiség</th>
+                                <th class="anyag_th5">Anyag státusz</th>
+                                <th class="anyag_th6"></th>
+                            </tr>
+                    ');
+
+                    foreach($anyagok as $anyag) {
+
+                        $cikk_men = '';
+                        if( $anyag['cikk_men'] > 0 ) {
+                            $cikk_men = $anyag['cikk_men'].' '.$anyag['cikk_mee'];
+                        }
+
+                        $szuk_men = '';
+                        if( $anyag['szuk_men'] > 0 ) {
+                            $szuk_men    = $anyag['szuk_men'].' '.$anyag['cikk_mee'];
+                        }
+
+                        $szamla_html .= nl2('
+                            <tr class="anyag_sor_'.$anyag['recid'].'">
+                                <td id="anyag_cikkid_'.$anyag['recid'].'">'.$anyag['cikk_id'].'</td>
+                                <td id="anyag_nev_'.$anyag['recid'].'">'.$anyag['cikk_nev'].'</td>
+                                <td class="r">'.$cikk_men.'</td>
+                                <td class="r">'.$szuk_men.'</td>
+                                <td>'.$munkAnyag_statusz[$anyag['stat_id']].'</td>
+                                <td class="r"></td>
+                            </tr>
+                        ');
+                    }
+
+                    $szamla_html .= '</table>';
+                }
+
+                // Munkaidő ráfordítás lekérdezése
+                $munkaidok = $adatbazis_kapcsolat->s('recid login_id ora perc', 'munkalap_munkaido_arch', "`tetel_id` = '{$sor['recid']}'", 'insert_dt desc', '');
+                if( $munkaidok ) {
+                    $szamla_html .= nl2('
+                        <table class="csikos full al behuz">
+                            <tr>
+                                <th class="mido_th1">Név</th>
+                                <th class="mido_th2 r">Munkaidő ráfordítás</th>
+                                <th class="mido_th3"></th>
+                            </tr>
+                    ');
+
+                    foreach($munkaidok as $munkaido) {
+                        if($munkaido['perc']<10){
+                            $munkaido['perc'] = '0'.$munkaido['perc'];
+                        }
+
+                        $szamla_html .= nl2('
+                            <tr class="munkaido_sor_'.$munkaido['recid'].'">
+                                <td id="munkaido_nev_'.$munkaido['recid'].'">'.getErtek('teljes_nev', 'login', 'recid', $munkaido['login_id']).'</td>
+                                <td id="munkaido_ido_'.$munkaido['recid'].'" class="r">'.$munkaido['ora'].':'.$munkaido['perc'].'</td>
+                                <td class="r"></td>
+                            </tr>
+                        ');
+                    }
+
+                    $szamla_html .= '</table>';
+                }
+
+                $szamla_html .= '</div>';
+
+                $i++;
             }
-
-            $szamla_html .= '</div>';
-
-            $i++;
         }
 
         if( $_GET['ajax'] ) {
@@ -611,42 +613,43 @@ require('selectek.php');
 	// Anyagigénylés fül
 	}elseif(isset($_GET['anyagigenyles'])){
 
-        $sorok = $adatbazis_kapcsolat->s('recid cikk_id szuk_men', 'munkalap_anyag_arch', "`munkalap_id` = '".$_GET['id']."' AND `stat_id` IN (".DISZPNAG_STAT_ANYAGRA_VAR.", ".DISZPNAG_STAT_ANYAG_IGENYELVE.")", 'insert_dt desc');
-
-        if( $sorok ) {
-            $szamla_html .= nl2('
-                <table class="csikos full">
-                    <tr>
-                        <th>Ikt szám</th>
-                        <th>Cikkszám</th>
-                        <th>Név</th>
-                        <th>Igényelt men.</th>
-                        <th>Rendelt men.</th>
-                        <th>Státusz</th>
-                    </tr>
-            ');
-
-            $i = 1;
-            foreach($sorok as $sor) {
-                $anyag_sor = $adatbazis_kapcsolat->s2('ikt_szam cikk_id nev igmen rndmen cikkmee stat_id', 'anyagigenyles', "`cikk_id` = '".$sor['cikk_id']."'", '', '1');
-
-                if( $anyag_sor ) {
-
-                    $szamla_html .= nl2('
+        if( $_GET['id'] ) {
+            $sorok = $adatbazis_kapcsolat->s('recid cikk_id szuk_men', 'munkalap_anyag_arch', "`munkalap_id`='{$_GET['id']}' AND `stat_id` IN (".DISZPNAG_STAT_ANYAGRA_VAR.", ".DISZPNAG_STAT_ANYAG_IGENYELVE.")", 'insert_dt desc');
+            if( $sorok ) {
+                $szamla_html .= nl2('
+                    <table class="csikos full">
                         <tr>
-                            <td>'.$anyag_sor['ikt_szam'].'</td>
-                            <td>'.$anyag_sor['cikk_id'].'</td>
-                            <td>'.$anyag_sor['nev'].'</td>
-                            <td>'.$anyag_sor['igmen'].' '.$anyag_sor['cikkmee'].'</td>
-                            <td>'.$anyag_sor['rndmen'].' '.$anyag_sor['cikkmee'].'</td>
-                            <td>'.getStatText('anyagigenyles', $anyag_sor['stat_id']).'</td>
+                            <th>Ikt szám</th>
+                            <th>Cikkszám</th>
+                            <th>Név</th>
+                            <th>Igényelt men.</th>
+                            <th>Rendelt men.</th>
+                            <th>Státusz</th>
                         </tr>
-                    ');
-                }
-                $i++;
-            }
+                ');
 
-            $szamla_html .= '</table>';
+                $i = 1;
+                foreach($sorok as $sor) {
+                    $anyag_sor = $adatbazis_kapcsolat->s2('ikt_szam cikk_id nev igmen rndmen cikkmee stat_id', 'anyagigenyles', "`cikk_id` = '".$sor['cikk_id']."'", '', '1');
+
+                    if( $anyag_sor ) {
+
+                        $szamla_html .= nl2('
+                            <tr>
+                                <td>'.$anyag_sor['ikt_szam'].'</td>
+                                <td>'.$anyag_sor['cikk_id'].'</td>
+                                <td>'.$anyag_sor['nev'].'</td>
+                                <td>'.$anyag_sor['igmen'].' '.$anyag_sor['cikkmee'].'</td>
+                                <td>'.$anyag_sor['rndmen'].' '.$anyag_sor['cikkmee'].'</td>
+                                <td>'.getStatText('anyagigenyles', $anyag_sor['stat_id']).'</td>
+                            </tr>
+                        ');
+                    }
+                    $i++;
+                }
+
+                $szamla_html .= '</table>';
+            }
         }
 
         if( $_GET['ajax'] ) {
@@ -702,19 +705,21 @@ require('selectek.php');
                 </div>
         ');
 
-        $sorok = $adatbazis_kapcsolat->s('recid szerepkor megj insert_usr insert_dt', 'megjegyzes_arch', "`id` = '".$_GET['id']."' AND `tabla` = 'munkalap'", 'recid desc', '');
-        if( $sorok ) {
-            $i = 1;
-            foreach($sorok as $sor) {
-                $szamla_html .= nl2('
-                    <div id="naploSor-'.$sor['recid'].'" class="dtr nSor kijSor" data-id="'.$sor['recid'].'" data-i="'.$i.'">
-                        <div class="dtc">'.htmlspecialchars_decode( nl2br($sor['megj']) ).'</div>
-                        <div class="dtc">'.$sor['insert_usr'].' '.getSzerepkorNev($sor['szerepkor']).'</div>
-                        <div class="dtc">'.str_replace('-', '.', substr($sor['insert_dt'], 0, 16)).'</div>
-                    </div>
-                ');
+        if( $_GET['id'] ) {
+            $sorok = $adatbazis_kapcsolat->s('recid szerepkor megj insert_usr insert_dt', 'megjegyzes_arch', "`id`='{$_GET['id']}' AND `tabla`='munkalap'", 'recid desc', '');
+            if( $sorok ) {
+                $i = 1;
+                foreach($sorok as $sor) {
+                    $szamla_html .= nl2('
+                        <div id="naploSor-'.$sor['recid'].'" class="dtr nSor kijSor" data-id="'.$sor['recid'].'" data-i="'.$i.'">
+                            <div class="dtc">'.htmlspecialchars_decode( nl2br($sor['megj']) ).'</div>
+                            <div class="dtc">'.$sor['insert_usr'].' '.getSzerepkorNev($sor['szerepkor']).'</div>
+                            <div class="dtc">'.str_replace('-', '.', substr($sor['insert_dt'], 0, 16)).'</div>
+                        </div>
+                    ');
 
-                $i++;
+                    $i++;
+                }
             }
         }
 

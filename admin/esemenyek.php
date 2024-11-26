@@ -1695,7 +1695,7 @@ $projekt_neve           = '';
 $projekt_hozzaad_torol  = '';
 if( isset($_GET['modosit']) ) {
 
-    $munkalap = $adatbazis_kapcsolat->s2('szemelyzet_id mobil_loginnev stat_id tipus_id mobil loginnev pr_szam kcs_21', $megnevezes, "`recid`='{$_GET['id']}'");
+    $munkalap = $adatbazis_kapcsolat->s2('szla_szam szemelyzet_id mobil_loginnev stat_id tipus_id mobil loginnev pr_szam kcs_21', $megnevezes, "`recid`='{$_GET['id']}'");
     $hozrend_mobilnev = '';
     if( $munkalap['szemelyzet_id'] == MOBILCSOPORT && $munkalap['mobil_loginnev'] ) {
         $torzsadat = $adatbazis_kapcsolat->s2('nev', 'torzsadat', "`felh_loginnev`='{$munkalap['mobil_loginnev']}'");
@@ -1762,19 +1762,25 @@ if( isset($_GET['modosit']) ) {
     
 }
 // Bejelentésből 2. munkalap készítésekor a szálloda disabled
-$ub_disabled = false;
+$ub_disabled = 0;
 $obj_post    = '<a href="javascript: obj_gen(); void(0);" class="obj_gen"><i class="material-icons">reorder</i></a>';
 if( isset($_GET['ujkent_bejelentes']) ) {
-    $ub_disabled = true;
+    $ub_disabled = 1;
     $obj_post    = '';
 }
+$szamla_post = '';
+if( $munkalap['szla_szam'] && _jog(JOG_FENNTARTASI_SZAMLAK_OLVAS) ) {
+    $szamla_post = ' <a href="fenntartasi_szamla.php?id=x&amp;modosit&mezo=szla_szam&op=equal&felt='.$munkalap['szla_szam'].'" target="_blank" style="margin-left: 1rem;">Számlaszám: '.$munkalap['szla_szam'].'</a>';
+}
+
 // $projekt_neve
 $munkalap_tomb = $munkalap_arch_tomb = $akt_tomb = array(
     array('type' => 'statusz',                  'megn' => 'Státusz:',                   'name' => 'stat_id',            'szuro' => 1,           'oldal' => $megnevezes),
-    array('type' => 'text',                     'megn' => 'Munkalap szám:',             'name' => 'ikt_szam',           'szuro' => 1, 'disabled' => 1,        'maxlength' => 250,  'class' => 'kicsi', 'osszevon' => 1, 'post' => '<span style="margin-right: 4rem"></span>'),
-    array('type' => 'checkbox',                 'megn' => 'Sürgős:',                    'name' => 'surgos',             'szuro' => 1, 'disabled' => $surgos_disabled,   'class' => 'check', 'osszevon' => 1, 'post' => '<span style="margin-right: 4rem"></span>', 'onclick' => $surgos_onclick),
-    array('type' => 'checkbox',                 'megn' => 'Visszaadva:',                'name' => 'visszaadva',         'szuro' => 1, 'disabled' => 1,                  'class' => 'check'),
-    array('type' => 'textarea',                 'megn' => 'Leírása:',                   'name' => 'text',               'szuro' => 1, 'disabled' => 0,                  'class' => 'oriasiTargy disableNav'/*,  'limit' => 500/*Limit wysiwyg-el nem kombinálható!*/ /*, 'wysiwyg' => 'Alap'/*Min vagy Full*/, 'feltoltes' => 'Images', 'width' => '100%', 'post' => $ml_leiras_ala),
+    array('type' => 'text',                     'megn' => 'Munkalap szám:',             'name' => 'ikt_szam',           'szuro' => 1, 'disabled' => 1,        'maxlength' => 250,   'class' => 'kicsi', 'osszevon' => 1, 'post' => '<span style="margin-right: 2rem"></span>'),
+    array('type' => 'checkbox',                 'megn' => 'Sürgős:',                    'name' => 'surgos',             'szuro' => 1, 'disabled' => $surgos_disabled,               'class' => 'check', 'osszevon' => 1, 'post' => '<span style="margin-right: 2rem"></span>', 'onclick' => $surgos_onclick),
+    array('type' => 'checkbox',                 'megn' => 'Visszaadva:',                'name' => 'visszaadva',         'szuro' => 1, 'disabled' => 1,                              'class' => 'check', 'osszevon' => 1, 'post' => '<span style="margin-right: 2rem"></span>'),
+    array('type' => 'checkbox',                 'megn' => 'Károkozás:',                 'name' => 'karokoz',            'szuro' => 1, 'disabled' => 0,                              'class' => 'check', 'post' => $szamla_post),
+    array('type' => 'textarea',                 'megn' => 'Leírása:',                   'name' => 'text',               'szuro' => 1, 'disabled' => 0,                              'class' => 'oriasiTargy disableNav'/*,  'limit' => 500/*Limit wysiwyg-el nem kombinálható!*/ /*, 'wysiwyg' => 'Alap'/*Min vagy Full*/, 'feltoltes' => 'Images', 'width' => '100%', 'post' => $ml_leiras_ala),
     array('type' => 'select_felh_telephely',    'megn' => 'Szálloda:',                  'name' => 'telephely_id',       'szuro' => 1, 'disabled' => $csakUjkent.$ub_disabled,       'class' => 'disableNav',        'style' => 'width: 100%;', 'alert' => 'Kérem válasszon szállodát!', 'onchange' => 'szallodaVane( this ); $(\'#pr_szam\').val(\'\'); $(\'#projekt_neve\').html(\'\');', 'type_arch' => 'text', 'name_arch' => 'telephely_txt'),
     array('type' => 'autocomplete',             'megn' => 'Helyiség:',                  'name' => 'obj_id',             'szuro' => 1, 'disabled' => $csakUjkent.$ub_disabled,       'class' => 'oriasi disableNav', 'style' => 'width: calc(100% - 3rem);', 'tabla' => 'obj',           'oszlop_keres' => 'recid', 'oszlop_keres_autocomp' => 'nev', 'listaz' => 'nev', 'id_kiir' => 'recid', 'js_t_meg_ne_tedd_ra' => 1, 'onclick' => 'szallodaVane( this );', 'post' => $obj_post, 'type_arch' => 'text', 'name_arch' => 'obj_txt'),
     array('type' => 'autocomplete',             'megn' => 'Gépnév:',                    'name' => 'gep_id',             'szuro' => 1, 'disabled' => $csakUjkent,                    'class' => 'oriasi disableNav',                                         'tabla' => 'eszkozkezeles', 'oszlop_keres' => 'recid', 'oszlop_keres_autocomp' => 'nev', 'listaz' => 'nev', 'onclick' => 'helyisegVane( this );', 'type_arch' => 'text', 'name_arch' => 'gep_txt'),
@@ -1783,7 +1789,8 @@ $munkalap_tomb = $munkalap_arch_tomb = $akt_tomb = array(
     array('type' => 'autocomplete',             'megn' => 'Külső kivitelező:',          'name' => 'szallito_id',        'szuro' => 1, 'disabled' => 1,                  'class' => 'oriasi disableNav', 'tabla' => 'szallito', 'oszlop_keres' => 'id', 'oszlop_keres_autocomp' => 'nev', 'listaz' => 'nev', 'id_kiir' => 'id', 'style' => 'width: 30rem', 'post' => '<span style="margin-right: 3rem"></span>', 'osszevon' => true, 'type_arch' => 'text', 'name_arch' => 'szallito_txt'),
     array('type' => 'text',                     'megn' => 'Jóváhagyott érték:',         'name' => 'jh_ert_dev',         'szuro' => 1, 'disabled' => 1, 'style' => 'width: 8rem; text-align: right;', 'post' => ' <span style="margin-right: 3rem">'.erteklista(ERTEKLISTA_PENZNEM, $munkalap['kcs_21']).' + Áfa</span>', 'osszevon' => true),
     array('type' => 'checkbox',                 'megn' => 'Becsült érték:',             'name' => 'becs_ertek',         'szuro' => 0, 'disabled' => 1, 'felirat_class' => ' piros dn f_becsult_ertek'), // Alapból elrejtjük, és csak akkor jelenítjük meg, ha be van pipálva (munkalap forráskódjában van erre külön kód)
-    array('type' => 'checkbox',                 'megn' => 'Megrendelő email elküldve:', 'name' => 'mail_ment',          'szuro' => 1, 'disabled' => 1),
+    array('type' => 'checkbox',                 'megn' => 'Megrendelő email elküldve:', 'name' => 'mail_ment',          'szuro' => 1, 'disabled' => 1, 'osszevon' => 1, 'post' => '<span style="margin-right: 2rem"></span>'),
+    array('type' => 'checkbox',                 'megn' => 'Utólagos megrendelés:',      'name' => 'utolagos',           'szuro' => 1, 'disabled' => 0),
     array('type' => 'select_szemelyzet',        'megn' => 'Hozzárendelt személyzet:',   'name' => 'szemelyzet_id',      'szuro' => 1, 'disabled' => 1,                  'class' => 'disableNav',        'post'  => ' '.$hozrend_mobilnev, 'type_arch' => 'text', 'name_arch' => 'szemelyzet_txt'),
     array('type' => 'text',                     'megn' => 'Igényelt elvégzés:',         'name' => 'ig_el_id',           'szuro' => 1, 'disabled' => $csakUjkent,        'class' => 'datetimepicker', 'maxlength' => 16, 'osszevon' => 1, 'post' => '<span style="margin-right: 4rem"></span>'),
     array('type' => 'text',                     'megn' => 'Esedékes:',                  'name' => 'esnap_d',            'szuro' => 1, 'disabled' => 1,                  'class' => 'datepicker'),
@@ -2063,7 +2070,7 @@ if( basename(self()) == 'rendszeres_karbantartas.php' ) {
     $vege_ho = new Select($select_honapok, $uf['vegeho']);
     $vege_ho -> id      = 'vegeho';
     $vege_ho -> name    = 'vegeho';
-    $kezd_ho -> onchange = '$(\'#mehet_gomb\').attr(\'disabled\', false); egyszeri_nullaz();';
+    $vege_ho -> onchange = '$(\'#mehet_gomb\').attr(\'disabled\', false); egyszeri_nullaz();';
     $vege_ho = $vege_ho -> getHtml();
 
     $idoszakos_dn = ' class="dn"';
@@ -2719,7 +2726,7 @@ array_push($postok, array('tomb' => $akt_tomb, 'uj' => 'uj'.$megnevezes, 'lista'
 $letrehozta_mikor = '';
 $letrehozta_feluletek = array('projektkezeles.php', 'projektszamla.php', 'projektszerzodes.php');
 $tabla = csonkit( basename(self()), 4 );
-if( in_array(basename(self()), $letrehozta_feluletek) && isset($_GET['modosit']) ) {
+if( in_array(basename(self()), $letrehozta_feluletek) && isset($_GET['modosit']) && $_GET['id'] ) {
     $prk = $adatbazis_kapcsolat->s2('insert_dt insert_usr', $tabla, "`recid`='{$_GET['id']}'");
     $letrehozta_mikor .= 'Létrehozta: <b>'.$prk['insert_usr'].' '.datum_kiir($prk['insert_dt']).'</b>-kor<br>';
 }
@@ -2827,7 +2834,8 @@ $projektkezeles_tomb = $akt_tomb = array(
     array('type' => 'checkbox',             'megn' => 'Megtérülő:',                         'name' => 'megter',         'szuro' => 1,   'class' => 'check', 'onclick' => 'if($(this).prop(\'checked\')){ $(\'#megter_cel_div\').show(); } else { $(\'#megter_cel_div\').hide(); }', 'osszevon' => 1, 'post' => '<span style="margin-left: 2rem"></span>'),
     array('type' => 'checkbox',             'megn' => 'Rendkívüli:',                        'name' => 'rendk',          'szuro' => 1,   'class' => 'check'),
     array('type' => 'textarea',             'megn' => 'Leírása:',                           'name' => 'text',           'szuro' => 1,   'class' => 'oriasiTargy disableNav'),
-    array('type' => 'text',                 'megn' => 'Jóváhagyott keret:',                 'name' => 'jkolt',          'szuro' => 1,   'class' => 'oriasi f_num', 'data' => 'data-tort="0"', 'disabled' => $disabled_jkolt,    'post' => ' '.get_penznem(), 'alert' => $alert_jkolt),
+    array('type' => 'text',                 'megn' => 'Jóváhagyott keret:',                 'name' => 'jkolt',          'szuro' => 1,   'class' => 'oriasi f_num', 'data' => 'data-tort="0"', 'disabled' => $disabled_jkolt, 'osszevon' => 1,  'post' => ' '.get_penznem().'<span style="margin-right: 2rem"></span>', 'alert' => $alert_jkolt),
+    array('type' => 'checkbox',             'megn' => 'Minor CAPEX:',                       'name' => 'capex',          'szuro' => 1,   'class' => 'check'),
     array('type' => 'text',                 'megn' => 'Szerződött összeg:',                 'name' => 'sz_ossz',        'szuro' => 1,   'class' => 'oriasi f_num', 'data' => 'data-tort="0"', 'disabled' => 1,                  'post' => ' '.get_penznem()),
     array('type' => 'text',                 'megn' => 'Számlázott összeg:',                 'name' => 'szla_ossz',      'szuro' => 1,   'class' => 'oriasi f_num', 'data' => 'data-tort="0"', 'disabled' => 1,                  'post' => ' '.get_penznem()),
     array('type' => 'text',                 'megn' => 'Szerződött / Számlázott eltérés:',   'name' => 'sz_elteres',     'szuro' => 1,   'class' => 'oriasi f_num'.$sz_elteres_piros, 'data' => 'data-tort="0"', 'disabled' => 1,                  'post' => ' '.get_penznem()),
@@ -3001,10 +3009,10 @@ if( get_projekt_szerzodes_kezel_jog($_GET['id']) || isset($_GET['uj']) ){
 }
 
 $projekt_neve       = '';
-$epitesi_disabled   = true;
-$dev_net_disabled   = true;
-$telephely_disabled = false;
-$kolt_vis_disabled  = false;
+$epitesi_disabled   = 1;
+$dev_net_disabled   = 1;
+$telephely_disabled = 0;
+$kolt_vis_disabled  = 0;
 $epitesi_kotelezo   = '';
 if( isset($_GET['modosit']) ) {
     
@@ -3013,26 +3021,26 @@ if( isset($_GET['modosit']) ) {
     $projekt_neve = '<a href="projektkezeles.php?id=x&amp;modosit&amp;mezo=ikt_szam&amp;op=equal&amp;felt='.$proj_szerz['pr_szam'].'" target="_blank">'.resz_string($proj['nev'], 60).'</a>';
     
     // A szálloda és költségviselő megváltoztatását szerkesztő módban tiltani kell, mert az ontEAM szám insertkor jön létre, ez után a szálloda már ne változzon
-    $telephely_disabled  = true;
-    $kolt_vis_disabled   = true;
-    $szerz_ossz_disabled = false;
+    $telephely_disabled  = 1;
+    $kolt_vis_disabled   = 1;
+    $szerz_ossz_disabled = 0;
     // Devizás szerződéskor a deviza nettó mező szerkestzhető
     if( $proj_szerz['kcs_21'] != KCS_21_HUF ) {
-        $dev_net_disabled    = false;
-        $szerz_ossz_disabled = true;
+        $dev_net_disabled    = 0;
+        $szerz_ossz_disabled = 1;
     }
     
     // Ha ba van pipálva az építési engedély, akkor szerkeszthető az "Ebből építési" mező
     if( $proj_szerz['epitesi_eng'] ) {
-        $epitesi_disabled  = false;
+        $epitesi_disabled  = 0;
         $epitesi_kotelezo  = ' csillag';
     }
     
     // Garancia nem szerkeszthető, ha már van olyan jótállás, amihez dokumentum is lett csatolva.
-    $garancia_disabled = false;
+    $garancia_disabled = 0;
     $jotallasok = $adatbazis_kapcsolat->s('recid', 'projektszerzodes_jotallas', "`projektszerzodes_recid`='{$_GET['id']}' AND `utvonal`!=''");
     if( $jotallasok ) {
-        $garancia_disabled = true;
+        $garancia_disabled = 1;
     }
     
 }

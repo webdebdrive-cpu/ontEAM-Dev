@@ -365,7 +365,7 @@ if( isset($_POST['szamla_igazol']) ) {
     // Adatbázisba mentés csak akkor, ha nem volt gond az XML küldéssel
     } else {
         $sql = $adatbazis_kapcsolat->u('fenntartasi_szamla', array('igazolva', 'igazolva_dt', 'igazolva_usr'                           ),
-                                                             array(1,          'NOW()',       $_SESSION[get_db_tabla().'teljes_nev']   ),
+                                                            array(1,          'NOW()',       $_SESSION[get_db_tabla().'teljes_nev']   ),
                                         "`recid`='{$_POST['id']}'");
         if( $sql === false ) { $db_error = true; }        
     }
@@ -422,7 +422,7 @@ if( isset($_POST['fenntartasiSzamlaElutasit']) ) {
         
         // Elutasítással kapcsolatos adatok beállítása, illetve a kapcsolt számlaszám ürítése
         $sql = $adatbazis_kapcsolat->u('fenntartasi_szamla', array('igazolva', 'elutleir',     'sz_szam', 'igazolva_dt', 'igazolva_usr',                          'sztornozva_dt', 'sztornozva_usr'                       ),
-                                                             array(0,          $_POST['memo'], '',        'NOW()',       $_SESSION[get_db_tabla().'teljes_nev'],  'NOW()',         $_SESSION[get_db_tabla().'teljes_nev'] ),
+                                                            array(0,          $_POST['memo'], '',        'NOW()',       $_SESSION[get_db_tabla().'teljes_nev'],  'NOW()',         $_SESSION[get_db_tabla().'teljes_nev'] ),
                                         "`recid`='{$_POST['id']}'");
         if( $sql === false ) { $db_error = true; }
         
@@ -549,7 +549,7 @@ if( isset($_POST['fenntartasiSzamlaSztornoz']) ) {
         
     // Sztornózással kapcsolatos adatok beállítása, illetve a kapcsolt számlaszám ürítése
     $sql = $adatbazis_kapcsolat->u('fenntartasi_szamla', array('sz_szam', 'sztornozva_leir',   'sztornozva_dt', 'sztornozva_usr'                       ),
-                                                         array('',        $_POST['memo'],      'NOW()',         $_SESSION[get_db_tabla().'teljes_nev'] ),
+                                                        array('',        $_POST['memo'],      'NOW()',         $_SESSION[get_db_tabla().'teljes_nev'] ),
                                     "`recid`='{$_POST['id']}'");
     if( $sql === false ) { $db_error = true; }
 
@@ -753,7 +753,7 @@ if( isset($_POST['pop_tetelek_feltolt']) ) {
     } else {
         $css_kod .= '<style type="text/css">.alapbol_rejt { display: none; }</style>';
     }
-   
+
     echo json_encode( array(
         'html'          => $html,
         'css'           => $css_kod,
@@ -1297,7 +1297,7 @@ if( isset($_POST['pop_kapcsolas_feltolt']) ) {
         $weblap -> leallit();
         exit();
     }
-   
+
     // Tételek táblázat sorait kiszámoljuk:
     $tabla  = '';
     $i      = 0;
@@ -1366,7 +1366,7 @@ if( isset($_POST['pop_kapcsolas_feltolt']) ) {
     $select = new Select($select_szallodak, $_POST['telephely_id']);
     $select -> disabled = 1;
     $szalloda_select = $select ->getHtml();
-   
+
     echo json_encode( array(
         'tabla'                 => $tabla,
         'szerzodes_ossz'        => $szerzodes_ossz,
@@ -1690,7 +1690,7 @@ if( isset($_POST['fenntartasi_szamla_kapcsolas']) ) {
         array( $_SESSION[get_db_tabla().'login_recid'], $muvelet,    $valtozas,     $_SERVER['REMOTE_ADDR'])
     );
     if( $sql === false ) { $db_error = true; }
- 
+
     if( !$db_error ) {
         mysqli_commit($db_kapcs);
         echo json_encode(array(
@@ -2134,13 +2134,14 @@ require_once('selectek.php');
         $megj_db = ' ('.$sor['megj_db'].')';
     }
 
-    if( isset($_GET['modosit']) || isset($_GET['tetel']) || isset($_GET['tortenet']) /*|| isset($_GET['kifizetesek'])*/ || isset($_GET['konyveles']) || isset($_GET['dokumentumok']) || isset($_GET['megjegyzesek']) ) {
+    if( isset($_GET['modosit']) || isset($_GET['tetel']) || isset($_GET['tortenet']) /*|| isset($_GET['kifizetesek'])*/ || isset($_GET['konyveles']) || isset($_GET['munkalapok']) || isset($_GET['dokumentumok']) || isset($_GET['megjegyzesek']) ) {
         // Számla fülek
         $ful_tomb = array(
             'modosit'       => 'Adatlap',
             'tetel'         => 'Tételek',
             'konyveles'     => 'Könyvelés',
             'tortenet'      => 'Történet',
+            'munkalapok'     => 'Munkalapok',
             // 'kifizetesek'   => 'Kifizetések',
             'dokumentumok'  => 'Dokumentumok'.$dok_db,
             'megjegyzesek'  => 'Megjegyzések'.$megj_db,
@@ -2203,7 +2204,6 @@ require_once('selectek.php');
             $mezo4      = 'dev_br';
             $kerekit    = KEREKITESI_HATAR_DEV;
         }
-    
 
         // Új felvitelkor updateljük a Session-ben a tételek adatait, így lesz jó a popupban
         $i = 0;
@@ -2363,7 +2363,7 @@ require_once('selectek.php');
         }
 
         // Js, a törlés gombhoz
-	    $gombok = '<script>var gomb'.$_GET['id'].'= get_kibont_torol(\''.self().'\', \''.$torles.'\', \''.$_GET['id'].'\');</script>';
+        $gombok = '<script>var gomb'.$_GET['id'].'= get_kibont_torol(\''.self().'\', \''.$torles.'\', \''.$_GET['id'].'\');</script>';
 
         // Jogosutságkezelés
         if( !_jog(JOG_FENNTARTASI_SZAMLAK_KEZEL) ) {
@@ -2377,6 +2377,10 @@ require_once('selectek.php');
             $gombok .= '<input type="button" class="gomb modositaskor_rejt zold" value="Igazolás" onclick="szamla_igazol()"> ';
             $gombok .= '<input type="button" class="gomb modositaskor_rejt piros" value="Elutasítás" onclick="csoportMuvelet(\'fenntartasiSzamlaElutasit\');"> ';
             $gombok .= '<input type="button" class="gomb modositaskor_rejt" value="Vissza üi.-nek" onclick="csoportMuvelet(\'fenntartasiSzamlaVisszaUi\');"> ';
+        }
+
+        if( _jog(JOG_FENNTARTASI_SZAMLAK_KEZEL) ) {
+            $gombok .= '<input type="button" class="gomb" value="Munkalap kapcsolása" onclick="csoportMuvelet(\'munkalapCsatolasSzlhoz\');"> ';
         }
         
 // Saját IP-ről belépve a személyzeten módosítunk, hogy a Könyvelés tételek kezelése tesztelhető legyen
@@ -2405,6 +2409,7 @@ if( $_SERVER['REMOTE_ADDR'] == get_debug_ip() ) {
             $gombok .= '<input type="hidden" id="arfolyam_db" value="'.number_format($sor['arfolyam'], $tizedesek, ',', ' ').'">';
             $gombok .= '<input type="hidden" id="nullas_db" value="'.$sor['nullas'].'">';
             $gombok .= '<input type="hidden" id="telephely_id_db" value="'.$sor['telephely_id'].'">';
+            $gombok .= '<input type="hidden" id="szallito_id_db" value="'.$sor['szallito_id'].'">';
             $gombok .= '<input type="hidden" id="sz_szam_db" value="'.$sor['sz_szam'].'">';
             
             // Ha csak azért vagyunk itt, mert a tételek száma eltér, és kell tudni tételeket szerkeszteni, akkor ne legyen elérhető a Mentés/Mégsem gombok
@@ -2447,8 +2452,8 @@ if( $_SERVER['REMOTE_ADDR'] == get_debug_ip() ) {
         ');
     }
 
-	// Új rekord felvitele
-	if( isset($_GET['uj']) ) {
+    // Új rekord felvitele
+    if( isset($_GET['uj']) ) {
         
         // Ha már volt regisztrálva új felvitel, akkor be se töltsük az új felvitel felületet
         if( $_COOKIE['uj_felvitel_'.$megnevezes] ) {
@@ -2522,7 +2527,7 @@ if( $_SERVER['REMOTE_ADDR'] == get_debug_ip() ) {
             }
         }
 
-	// Rekord módosítása
+    // Rekord módosítása
     } elseif( isset($_GET['modosit']) ) {
 
         // Ha Gyorskeresőből érkeznénk ide, akkor az ID-t valójában az id_hidden tartalmazza majd
@@ -2539,7 +2544,7 @@ if( $_SERVER['REMOTE_ADDR'] == get_debug_ip() ) {
                         ');
         }
 
-	    // Fentebb már lekértük $sor = $adatbazis_kapcsolat -> s2('*', $megnevezes, "`recid`='{$_GET['id']}'");
+        // Fentebb már lekértük $sor = $adatbazis_kapcsolat -> s2('*', $megnevezes, "`recid`='{$_GET['id']}'");
         
         // Fizetési módokat szövegesen írjuk ki (amúgy szem szerkeszthető az adatlap)
         switch ( strtolower($sor['fizmod']) ) {
@@ -2570,17 +2575,17 @@ if( $_SERVER['REMOTE_ADDR'] == get_debug_ip() ) {
         }
         $szamla_html .= '<script> formAdatok = JSON.parse(\''.json_encode($json_sor).'\'); </script>';
 
-	    // FORM
-	    $js = js_kiir($akt_tomb, 'form_ell_admin()', 'ajax');
+        // FORM
+        $js = js_kiir($akt_tomb, 'form_ell_admin()', 'ajax');
 
-		// Form actionja
-		$action = self().get_get(array('errnum','kephiba','siker'));
+        // Form actionja
+        $action = self().get_get(array('errnum','kephiba','siker'));
 
         $koltsegviselo_szalloda_lenyilohoz = $sor['kolt_vis'];
-		// Ez elkészíti a $mezok változót
-		require('switch.php');
+        // Ez elkészíti a $mezok változót
+        require('switch.php');
 
-	    $szamla_html .= str_replace(
+        $szamla_html .= str_replace(
             array('{JS}', '{JS_SUBMIT_ELOTT}', '{ACTION}', '{MEZOK}', '{MEGNEVEZES}', '{KEP}',     '{CK_EDITOR}', '{GOMBOK}', '{UPDATE_DT}'     ),
             array( $js,   $js_submit_elott,    $action,    $mezok,    $megnevezes,    $jobb_oldal, $ckeditor,     $gombok,    $sor['update_dt'] ),
             fajlbol_olvas('../sablon/admin/form_modosit.html', true)
@@ -2597,9 +2602,9 @@ if( $_SERVER['REMOTE_ADDR'] == get_debug_ip() ) {
 
         if( $tobb_kep ) {
             require_once('tobb_kep.php');
-		}
+        }
 
-	// Számla tételek
+    // Számla tételek
     } elseif( isset($_GET['tetel']) ) {
 
         $deviza = '';
@@ -2611,6 +2616,7 @@ if( $_SERVER['REMOTE_ADDR'] == get_debug_ip() ) {
             <div class="dt naplo">
                 <div class="dtr nFejlec">
                     <!--<div class="dtc">Szálloda</div>-->
+                    <div class="dtc">Szerződés szám</div>
                     <div class="dtc">Tárgy</div>
                     <div class="dtc">Költségnem</div>
                     <div class="dtc">Költséghely</div>
@@ -2623,22 +2629,32 @@ if( $_SERVER['REMOTE_ADDR'] == get_debug_ip() ) {
         ');
         
         // Tételek felsorolása
-        $tetelek = $adatbazis_kapcsolat->s('*', 'fenntartasi_szamla_tetel', "`fenntartasi_szamla_recid`='{$_GET['id']}'", 'igazol_dt');
-        foreach ( $tetelek as $tetel ) {
-            
-            $szamla_html .= nl2('
-                <div class="dtr nSor">
-                    <!--<div class="dtc">'.getSzallodaNev($tetel['telephely_id']).'</div>-->
-                    <div class="dtc">'.htmlspecialchars_decode($tetel['targy']).'</div>
-                    <div class="dtc">'.htmlspecialchars_decode($tetel['megn']).'</div>
-                    <div class="dtc">'.$tetel['ktghely_id'].'</div>
-                    <div class="dtc r nowrap">'.number_format($tetel['netto_ert'],  0, ',', ' ').'</div>
-                    <div class="dtc r nowrap">'.number_format($tetel['brutto_ert'], 0, ',', ' ').'</div>
-                    <div class="dtc r nowrap">'.number_format($tetel['dev_net'],    2, ',', ' ').'</div>
-                    <div class="dtc r nowrap">'.number_format($tetel['dev_br'],     2, ',', ' ').'</div>
-                    <div class="dtc r nowrap">'.$tetel['afa'].'</div>
-                </div>
-            ');
+        if( $_GET['id'] ) {
+            $tetelek = $adatbazis_kapcsolat->s('*', 'fenntartasi_szamla_tetel', "`fenntartasi_szamla_recid`='{$_GET['id']}'", 'igazol_dt');
+            foreach ( $tetelek as $tetel ) {
+
+                $szszam = '';
+                if( $tetel['fenntartasi_szerzodes_tetel_recid'] ) {
+                    $szerzodes_tetel = $adatbazis_kapcsolat -> s2('fenntartasi_szerzodes_recid', 'fenntartasi_szerzodes_tetel', "`recid`='{$tetel['fenntartasi_szerzodes_tetel_recid']}'");
+                    $szerzodes       = $adatbazis_kapcsolat -> s2('szszam', 'fenntartasi_szerzodes', "`recid`='{$szerzodes_tetel['fenntartasi_szerzodes_recid']}'");
+                    $szszam = '<a href="fenntartasi_szerzodes.php?mezo=szszam&amp;op=equal&amp;felt='.$szerzodes['szszam'].'" target="_blank">'.$szerzodes['szszam'].'</a>';
+                }
+                
+                $szamla_html .= nl2('
+                    <div class="dtr nSor">
+                        <!--<div class="dtc">'.getSzallodaNev($tetel['telephely_id']).'</div>-->
+                        <div class="dtc">'.$szszam.'</div>
+                        <div class="dtc">'.htmlspecialchars_decode($tetel['targy']).'</div>
+                        <div class="dtc">'.htmlspecialchars_decode($tetel['megn']).'</div>
+                        <div class="dtc">'.$tetel['ktghely_id'].'</div>
+                        <div class="dtc r nowrap">'.number_format($tetel['netto_ert'],  0, ',', ' ').'</div>
+                        <div class="dtc r nowrap">'.number_format($tetel['brutto_ert'], 0, ',', ' ').'</div>
+                        <div class="dtc r nowrap">'.number_format($tetel['dev_net'],    2, ',', ' ').'</div>
+                        <div class="dtc r nowrap">'.number_format($tetel['dev_br'],     2, ',', ' ').'</div>
+                        <div class="dtc r nowrap">'.$tetel['afa'].'</div>
+                    </div>
+                ');
+            }
         }
         $szamla_html .= '</div>';
         
@@ -2651,7 +2667,7 @@ if( $_SERVER['REMOTE_ADDR'] == get_debug_ip() ) {
             echo $szamla_html.$gombok;
         }
 
-	// Könyvelés
+    // Könyvelés
     } elseif( isset($_GET['konyveles']) ) {
 
         $deviza = $dev_fej = '';
@@ -2678,39 +2694,41 @@ if( $_SERVER['REMOTE_ADDR'] == get_debug_ip() ) {
         ');
         
         // Tételek felsorolása
-        $tetelek = $adatbazis_kapcsolat->s('*', 'fenntartasi_szamla_konyveles', "`fenntartasi_szamla_recid`='{$_GET['id']}'", 'recid');
-        $szamla  = $adatbazis_kapcsolat->s2('kcs_21', 'fenntartasi_szamla', "`recid`='{$_GET['id']}'");
-        foreach ( $tetelek as $tetel ) {
-            
-            $jogcim  = $adatbazis_kapcsolat->s2('jogcim', 'jogcim', "`recid`='{$tetel['jogcim_recid']}'");
-            $afakod  = $adatbazis_kapcsolat->s2('afa',    'afakod', "`recid`='{$tetel['afakod_recid']}'");
-            $dijelem = $adatbazis_kapcsolat->s2('info', 'erteklista', "`recid`='{$tetel['dijelem_recid']}'");
-            
-            $aranyos = '';
-            if( $tetel['aranyos'] ) {
-                $aranyos .= '✓';
+        if( $_GET['id'] ) {
+            $tetelek = $adatbazis_kapcsolat->s('*', 'fenntartasi_szamla_konyveles', "`fenntartasi_szamla_recid`='{$_GET['id']}'", 'recid');
+            $szamla  = $adatbazis_kapcsolat->s2('kcs_21', 'fenntartasi_szamla', "`recid`='{$_GET['id']}'");
+            foreach ( $tetelek as $tetel ) {
+                
+                $jogcim  = $adatbazis_kapcsolat->s2('jogcim', 'jogcim', "`recid`='{$tetel['jogcim_recid']}'");
+                $afakod  = $adatbazis_kapcsolat->s2('afa',    'afakod', "`recid`='{$tetel['afakod_recid']}'");
+                $dijelem = $adatbazis_kapcsolat->s2('info', 'erteklista', "`recid`='{$tetel['dijelem_recid']}'");
+                
+                $aranyos = '';
+                if( $tetel['aranyos'] ) {
+                    $aranyos .= '✓';
+                }
+                
+                $dev_oszlopok = '';
+                if( $sor['kcs_21'] != KCS_21_HUF ) {
+                    $dev_oszlopok = nl2('
+                        <div class="dtc r nowrap">'.number_format($tetel['dev_net'], 2, ',', ' ').'</div>
+                        <div class="dtc r nowrap">'.number_format($tetel['dev_br'], 2, ',', ' ').'</div>
+                        ');
+                }
+                
+                $szamla_html .= nl2('
+                    <div class="dtr nSor">
+                        <div class="dtc">'.htmlspecialchars_decode($jogcim['jogcim']).'</div>
+                        <div class="dtc r nowrap">'.$tetel['ktgnem_id'].'</div>
+                        <div class="dtc r nowrap">'.$tetel['ktghely_id'].'</div>
+                        <div class="dtc r nowrap">'.number_format($tetel['netto_ert'], 0, ',', ' ').'</div>
+                        <div class="dtc r nowrap">'.number_format($tetel['brutto_ert'], 0, ',', ' ').'</div>
+                        '.$dev_oszlopok.'
+                        <div class="dtc nowrap">'.$tetel['afa_kod'].'</div>
+                        <div class="dtc r nowrap">'.number_format($afakod['afa'], 0, ',', ' ').'</div>
+                    </div>
+                ');
             }
-            
-            $dev_oszlopok = '';
-            if( $sor['kcs_21'] != KCS_21_HUF ) {
-                $dev_oszlopok = nl2('
-                    <div class="dtc r nowrap">'.number_format($tetel['dev_net'], 2, ',', ' ').'</div>
-                    <div class="dtc r nowrap">'.number_format($tetel['dev_br'], 2, ',', ' ').'</div>
-                    ');
-            }
-            
-            $szamla_html .= nl2('
-                <div class="dtr nSor">
-                    <div class="dtc">'.htmlspecialchars_decode($jogcim['jogcim']).'</div>
-                    <div class="dtc r nowrap">'.$tetel['ktgnem_id'].'</div>
-                    <div class="dtc r nowrap">'.$tetel['ktghely_id'].'</div>
-                    <div class="dtc r nowrap">'.number_format($tetel['netto_ert'], 0, ',', ' ').'</div>
-                    <div class="dtc r nowrap">'.number_format($tetel['brutto_ert'], 0, ',', ' ').'</div>
-                    '.$dev_oszlopok.'
-                    <div class="dtc nowrap">'.$tetel['afa_kod'].'</div>
-                    <div class="dtc r nowrap">'.number_format($afakod['afa'], 0, ',', ' ').'</div>
-                </div>
-            ');
         }
         $szamla_html .= '</div>';
         
@@ -2723,7 +2741,64 @@ if( $_SERVER['REMOTE_ADDR'] == get_debug_ip() ) {
             echo $szamla_html.$gombok;
         }
 
-	// Történet
+    // Munkalapok
+    } elseif( isset($_GET['munkalapok']) ) {
+
+        $szamla_html .= nl2('
+            <div class="dt naplo kijCont" data-tabla="munkalap_kapcs" data-mellek="munkalapok">
+                <div class="dtr nFejlec">
+                    <div class="dtc">Munkalap szám</div>
+                    <div class="dtc">Szálloda</div>
+                    <div class="dtc">Létrehozva</div>
+                    <div class="dtc">Státusz</div>
+                </div>
+        ');
+        
+        // Csak akkor látszik a munkalap, ha az nyitott
+        for( $i=0; $i<2; $i++ ) {
+
+            // Kétszer járjuk be: 2. körben az archiv ML-okat listázzuk
+            $tabla_kieg = '';
+            if( $i ) {
+                $tabla_kieg = '_arch';
+            }
+            $munkalapok = $adatbazis_kapcsolat->s('recid ikt_szam telephely_id obj_id insert_dt stat_id', 'munkalap'.$tabla_kieg, "`szla_szam`='{$sor['szla_szam']}'");
+            foreach ($munkalapok as $munkalap) {
+    
+                // Telephely
+                $telephely = $adatbazis_kapcsolat->s2('nev', 'telephely', "`id`='{$munkalap['telephely_id']}'");
+                $telephely = $telephely['nev'];
+    
+                // Helység
+                $helyseg = $adatbazis_kapcsolat->s2('nev', 'obj', "`recid`='{$munkalap['obj_id']}'");
+                $helyseg = $helyseg['nev'];
+    
+                $ikt_szam = '<a href="munkalap'.$tabla_kieg.'.php?id=x&amp;mezo=ikt_szam&amp;op=equal&amp;felt='.$munkalap['ikt_szam'].'" target="_blank">'.$munkalap['ikt_szam'].'</a>';
+                if( !_jog(JOG_MUNKALAP_MEGTEKINT) && !_jog(JOG_MUNKALAP_MEGTEKINT_SZALL) && !_jog(JOG_MUNKALAP_MEGTEKINT_FELADAT) ){
+                    $ikt_szam = $munkalap['ikt_szam'];
+                }
+    
+                $szamla_html .= nl2('
+                    <div id="naploSor-'.$munkalap['recid'].'" class="dtr nSor kijSor" data-id="'.$munkalap['recid'].'" data-i="'.$i.'">
+                        <div class="dtc">'.$ikt_szam.'</div>
+                        <div class="dtc">'.$telephely.' - '.$helyseg.'</div>
+                        <div class="dtc">'.datum_kiir($munkalap['insert_dt']).'</div>
+                        <div class="dtc">'.getStatText('munkalap', $munkalap['stat_id']).'</div>
+                    </div>
+                ');
+            }
+        }
+
+        if( $_GET['ajax'] ) {
+            echo json_encode(array(
+                'tartalom' => $szamla_html.$gombok,
+                'link'     => get_get(array('ajax', 'kat', 'epo', 'oldal', 'order'), true)
+            ));
+        } else {
+            echo $szamla_html.$gombok;
+        }
+
+    // Történet
     } elseif( isset($_GET['tortenet']) ) {
         
         $igazolva = $igazolva_dt = $utalvanyozva = $igazol_elut = $utalvanyozva_elut = $sztornozva = '';
@@ -2840,7 +2915,7 @@ if( $_SERVER['REMOTE_ADDR'] == get_debug_ip() ) {
             echo $szamla_html.$gombok;
         }
         
-	// Kifizetések fül
+    // Kifizetések fül
 //    } elseif( isset($_GET['kifizetesek']) ) {
 //
 //        $szamla_html .= nl2('
@@ -2883,7 +2958,7 @@ if( $_SERVER['REMOTE_ADDR'] == get_debug_ip() ) {
 //            echo $szamla_html.$gombok;
 //        }
 
-	// Dokumentumok
+    // Dokumentumok
     } elseif( isset($_GET['dokumentumok']) ) {
 
         // Itt az XML-ből kapott dokumentum linkjét jelenítjük meg
@@ -2908,7 +2983,7 @@ if( $_SERVER['REMOTE_ADDR'] == get_debug_ip() ) {
             echo $szamla_html.$gombok;
         }
 
-	// Megjegyzések
+    // Megjegyzések
     } elseif( isset($_GET['megjegyzesek']) ) {
 
         // <div class="dt naplo" class nevekből a kijCont kivéve, hogy a megjegyzéseket ne lehessen törölni
@@ -2921,20 +2996,21 @@ if( $_SERVER['REMOTE_ADDR'] == get_debug_ip() ) {
                 </div>
         ');
 
-        $sorok = $adatbazis_kapcsolat->s('recid megj insert_usr insert_dt', 'megjegyzes', "`id` = '".$_GET['id']."' AND `tabla` = '".str_replace('.php', '', basename(self()))."'", 'recid desc');
+        if( $_GET['id'] ) {
+            $sorok = $adatbazis_kapcsolat->s('recid megj insert_usr insert_dt', 'megjegyzes', "`id`='{$_GET['id']}' AND `tabla` = '".str_replace('.php', '', basename(self()))."'", 'recid desc');
+            if( $sorok ) {
+                $i = 1;
+                foreach ( $sorok as $sor ) {
+                    $szamla_html .= nl2('
+                        <div id="naploSor-'.$sor['recid'].'" data-id="'.$sor['recid'].'" data-i="'.$i.'" class="dtr nSor kijSor">
+                            <div class="dtc">'.htmlspecialchars_decode( nl2br2($sor['megj']) ).'</div>
+                            <div class="dtc">'.$sor['insert_usr'].'</div>
+                            <div class="dtc">'.datum_kiir($sor['insert_dt']).'</div>
+                        </div>
+                    ');
 
-        if( $sorok ) {
-            $i = 1;
-            foreach ( $sorok as $sor ) {
-                $szamla_html .= nl2('
-                    <div id="naploSor-'.$sor['recid'].'" data-id="'.$sor['recid'].'" data-i="'.$i.'" class="dtr nSor kijSor">
-                        <div class="dtc">'.htmlspecialchars_decode( nl2br2($sor['megj']) ).'</div>
-                        <div class="dtc">'.$sor['insert_usr'].'</div>
-                        <div class="dtc">'.datum_kiir($sor['insert_dt']).'</div>
-                    </div>
-                ');
-
-                $i++;
+                    $i++;
+                }
             }
         }
 
@@ -2947,7 +3023,7 @@ if( $_SERVER['REMOTE_ADDR'] == get_debug_ip() ) {
             echo $szamla_html;
         }
 
-	}
+    }
 
     if( !$_GET['ajax'] ) {
         echo '</div>';
@@ -2966,7 +3042,7 @@ function xml_vissza( $szamla_id, $igazolva = '', $oka = '' ) {
     
     $szamla = $adatbazis_kapcsolat->s2('targy igazolva andoc_id telephely_id kcs_21 sz_szam erk_xml kuld_tetel_xml kuld_xml megjegyz kolt_vis', 'fenntartasi_szamla', "`recid`='{$szamla_id}'");
     if( $szamla === false ) { $db_error = true; }
- 
+
     // Cégkód konverzió
     $erteklista = $adatbazis_kapcsolat->s2('cegkod', 'erteklista', "`csoport`='".ERTEKLISTA_KOLTSEGVISELO."' AND `id`='{$szamla['kolt_vis']}'");
     if( $erteklista === false ) { $db_error = true; }
@@ -3063,12 +3139,12 @@ function xml_vissza( $szamla_id, $igazolva = '', $oka = '' ) {
     
     $valasz_xml = 'psInputXml=<?xml version="1.0" encoding="utf-8"?>
 <xml>
-  <data>
+<data>
     <register registernumber="'.$szamla['andoc_id'].'" operation="update">
-      <workflow_node_name>'.urlencode($wf_name).'</workflow_node_name>
-      <properties>
+    <workflow_node_name>'.urlencode($wf_name).'</workflow_node_name>
+    <properties>
         <container name="NIK1">
-          <row rownumberonpage="1">
+        <row rownumberonpage="1">
             <property name="Számla főtípus">Fenntartási számla</property>
             <property name="Igazoló döntés">'.urlencode($igazolva).'</property>
             <property name="Teljesítés igazolás elutasítás oka"><![CDATA['.urlencode($oka).']]></property>
@@ -3081,18 +3157,18 @@ function xml_vissza( $szamla_id, $igazolva = '', $oka = '' ) {
             // Azért nem a $szamla['igazolva_usr'], hisz épp most zajlik az igazolás/elutasítás, ez az adat még nincs az adatbázisban
             urlencode($_SESSION[get_db_tabla().'teljes_nev'])
             .']]></property>
-          </row>
+        </row>
         </container>
         '.$nik3.'
         <container name="IK1">
-          '.$szamla['kuld_tetel_xml']/*Ennek előállítását ha meg szeretnéd nézni, keres rá erre: "$_POST['osszevon_targy_kitoltve_ell']"*/.'
+        '.$szamla['kuld_tetel_xml']/*Ennek előállítását ha meg szeretnéd nézni, keres rá erre: "$_POST['osszevon_targy_kitoltve_ell']"*/.'
         </container>
-      </properties>
+    </properties>
     </register>
-  </data>
+</data>
 </xml>
 ';
-   
+
     $fejlec = array(
         "Content-type: application/x-www-form-urlencoded",
         "Content-length: ".strlen($valasz_xml),
@@ -3165,8 +3241,8 @@ function xml_vissza( $szamla_id, $igazolva = '', $oka = '' ) {
     // Ezt csak akkor módosítjuk, ha az XML küldése is rendben volt
     } else {
         $xml = $szamla['kuld_xml'].
-               date('Y-m-d H:i:s').'
-               '.$valasz_xml.'
+            date('Y-m-d H:i:s').'
+            '.$valasz_xml.'
 
 
 
@@ -3181,7 +3257,7 @@ function xml_vissza( $szamla_id, $igazolva = '', $oka = '' ) {
         $sql = $adatbazis_kapcsolat->u('fenntartasi_szamla_tetel', array('valtozott'), array(0), "`fenntartasi_szamla_recid`='{$szamla_id}' AND `valtozott`='1'");
         if( $sql === false ) { $db_error = true; }
     }
-   
+
     if( $extra_hibauzenet ) {
         return $extra_hibauzenet;
     } else {

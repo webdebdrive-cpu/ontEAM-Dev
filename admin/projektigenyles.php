@@ -1782,61 +1782,63 @@ require('selectek.php');
         ');
 
         $i = 1;
-        $velemenyezok = $adatbazis_kapcsolat->s('login_recid', 'projektigenyles_kapcs', "`projektigenyles_recid`='{$_GET['id']}'");
-        $velemenyezok = adatbazis2tomb($velemenyezok, 'login_recid');
-        if( $velemenyezok ) {
-            $velemenyezok = $adatbazis_kapcsolat->s('recid teljes_nev', 'login', "`recid` IN (".implode(',', $velemenyezok).")", 'teljes_nev');
-            foreach($velemenyezok as $velemenyezo) {
+        if( $_GET['id'] ) {
+            $velemenyezok = $adatbazis_kapcsolat->s('login_recid', 'projektigenyles_kapcs', "`projektigenyles_recid`='{$_GET['id']}'");
+            $velemenyezok = adatbazis2tomb($velemenyezok, 'login_recid');
+            if( $velemenyezok ) {
+                $velemenyezok = $adatbazis_kapcsolat->s('recid teljes_nev', 'login', "`recid` IN (".implode(',', $velemenyezok).")", 'teljes_nev');
+                foreach($velemenyezok as $velemenyezo) {
 
-                $kapcs_id = $adatbazis_kapcsolat->s2('recid', 'projektigenyles_kapcs', "`login_recid`='{$velemenyezo['recid']}' AND `projektigenyles_recid`='{$_GET['id']}'");
+                    $kapcs_id = $adatbazis_kapcsolat->s2('recid', 'projektigenyles_kapcs', "`login_recid`='{$velemenyezo['recid']}' AND `projektigenyles_recid`='{$_GET['id']}'");
 
-                //Vélemény fájl kiíratása
-                $velemeny_html = '';
-                $letoltes_html = '';
-                $torles_html   = '';
-                $velemeny = $adatbazis_kapcsolat->s2('recid utvonal fajlnev megj insert_dt', 'projektigenyles_velemeny', "`projektigenyles_recid`='{$_GET['id']}' AND `login_recid`='{$velemenyezo['recid']}'");
-//echo $adatbazis_kapcsolat->gp() . '<br>';
-                if($velemeny ) {
-                    $fajl = '../'.get_utvonal().'projektigenyles_velemeny/'.$velemeny['utvonal'];
-                    $felirat = $velemeny['fajlnev'];
-                    $kep     = new Img($fajl, $felirat, 150, 150);
-                    $kep     = $kep -> getHtml();
+                    //Vélemény fájl kiíratása
+                    $velemeny_html = '';
+                    $letoltes_html = '';
+                    $torles_html   = '';
+                    $velemeny = $adatbazis_kapcsolat->s2('recid utvonal fajlnev megj insert_dt', 'projektigenyles_velemeny', "`projektigenyles_recid`='{$_GET['id']}' AND `login_recid`='{$velemenyezo['recid']}'");
+    //echo $adatbazis_kapcsolat->gp() . '<br>';
+                    if($velemeny ) {
+                        $fajl = '../'.get_utvonal().'projektigenyles_velemeny/'.$velemeny['utvonal'];
+                        $felirat = $velemeny['fajlnev'];
+                        $kep     = new Img($fajl, $felirat, 150, 150);
+                        $kep     = $kep -> getHtml();
 
-                    $velemeny_html .= nl2('
-                                        <div class="dtc" style="border-bottom: 0; padding: 0 1rem 0 0">
-                                            <a href="'.$fajl.'" target="_blank">
-                                                '.$kep.'
+                        $velemeny_html .= nl2('
+                                            <div class="dtc" style="border-bottom: 0; padding: 0 1rem 0 0">
+                                                <a href="'.$fajl.'" target="_blank">
+                                                    '.$kep.'
+                                                </a>
+                                            </div>
+                                            <div class="dtc" style="border-bottom: 0; padding: 0">
+                                                <a href="'.$fajl.'" target="_blank">
+                                                '.$felirat.'
+                                                </a>
+                                            </div>
+                                                ');
+
+                        // Törölni csak saját fájlt lehet
+                        if( $velemenyezo['recid'] == $_SESSION[get_db_tabla() . 'login_recid'] ) {
+                            $torles_html = nl2('
+                                            <a href="javascript:velemeny_torol(\''.$velemeny['recid'].'\')" title="Törlés">
+                                                <i class="material-icons piros">delete</i>
                                             </a>
-                                        </div>
-                                        <div class="dtc" style="border-bottom: 0; padding: 0">
-                                            <a href="'.$fajl.'" target="_blank">
-                                            '.$felirat.'
-                                            </a>
-                                        </div>
                                             ');
-
-                    // Törölni csak saját fájlt lehet
-                    if( $velemenyezo['recid'] == $_SESSION[get_db_tabla() . 'login_recid'] ) {
-                        $torles_html = nl2('
-                                        <a href="javascript:velemeny_torol(\''.$velemeny['recid'].'\')" title="Törlés">
-                                            <i class="material-icons piros">delete</i>
-                                        </a>
-                                        ');
+                        }
                     }
+
+                    $szamla_html .= nl2('
+                        <div id="naploSor-'.$kapcs_id['recid'].'" class="dtr nSor kijSor" data-id="'.$kapcs_id['recid'].'" data-i="'.$i.'">
+                            <div class="dtc">'.$velemenyezo['teljes_nev'].'</div>
+                            <div class="dtc">'.$velemeny_html.'</div>
+                            <div class="dtc">'.nl2br2($velemeny['megj']).'</div>
+                            <div class="dtc">'.substr( str_replace('-', '.', $velemeny['insert_dt']), 0, 16 ).'</div>
+                            <div class="dtc">'.$letoltes_html.'</div>
+                            <div class="dtc r">'.$torles_html.'</div>
+                        </div>
+                    ');
+
+                    $i++;
                 }
-
-                $szamla_html .= nl2('
-                    <div id="naploSor-'.$kapcs_id['recid'].'" class="dtr nSor kijSor" data-id="'.$kapcs_id['recid'].'" data-i="'.$i.'">
-                        <div class="dtc">'.$velemenyezo['teljes_nev'].'</div>
-                        <div class="dtc">'.$velemeny_html.'</div>
-                        <div class="dtc">'.nl2br2($velemeny['megj']).'</div>
-                        <div class="dtc">'.substr( str_replace('-', '.', $velemeny['insert_dt']), 0, 16 ).'</div>
-                        <div class="dtc">'.$letoltes_html.'</div>
-                        <div class="dtc r">'.$torles_html.'</div>
-                    </div>
-                ');
-
-                $i++;
             }
         }
 
@@ -1892,20 +1894,21 @@ require('selectek.php');
                 </div>
         ');
 
-        $sorok = $adatbazis_kapcsolat->s('recid megj insert_usr insert_dt', 'megjegyzes', "`id` = '".$_GET['id']."' AND `tabla` = '".str_replace('.php', '', basename(self()))."'", 'recid desc');
+        if( $_GET['id'] ) {
+            $sorok = $adatbazis_kapcsolat->s('recid megj insert_usr insert_dt', 'megjegyzes', "`id`='{$_GET['id']}' AND `tabla`='".str_replace('.php', '', basename(self()))."'", 'recid desc');
+            if( $sorok ) {
+                $i = 1;
+                foreach($sorok as $sor) {
+                    $szamla_html .= nl2('
+                        <div id="naploSor-'.$sor['recid'].'" data-id="'.$sor['recid'].'" data-i="'.$i.'" class="dtr nSor kijSor">
+                            <div class="dtc">'.htmlspecialchars_decode( nl2br2($sor['megj']) ).'</div>
+                            <div class="dtc">'.$sor['insert_usr'].'</div>
+                            <div class="dtc">'.datum_kiir($sor['insert_dt']).'</div>
+                        </div>
+                    ');
 
-        if( $sorok ) {
-            $i = 1;
-            foreach($sorok as $sor) {
-                $szamla_html .= nl2('
-                    <div id="naploSor-'.$sor['recid'].'" data-id="'.$sor['recid'].'" data-i="'.$i.'" class="dtr nSor kijSor">
-                        <div class="dtc">'.htmlspecialchars_decode( nl2br2($sor['megj']) ).'</div>
-                        <div class="dtc">'.$sor['insert_usr'].'</div>
-                        <div class="dtc">'.datum_kiir($sor['insert_dt']).'</div>
-                    </div>
-                ');
-
-                $i++;
+                    $i++;
+                }
             }
         }
 
@@ -1929,7 +1932,7 @@ require('selectek.php');
                 </div>
         ');
 
-        $sorok = $adatbazis_kapcsolat->s('recid terulet osszeg insert_usr insert_dt', 'projektigenyles_megter', "`projektigenyles_recid` = '".$_GET['id']."'", 'insert_dt desc');
+        $sorok = $adatbazis_kapcsolat->s('recid terulet osszeg insert_usr insert_dt', 'projektigenyles_megter', "`projektigenyles_recid`='{$_GET['id']}'", 'insert_dt desc');
         $i = 1;
 
         foreach ( $sorok as $sor ) {

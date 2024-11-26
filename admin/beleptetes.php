@@ -69,8 +69,8 @@ if( isset($_POST['jelszo_csere']) ) {
                                                 );
 
                         // Nincs jelszó változók törlése
-                        $_SESSION['nincs_jelsz_felhid'] = false;
-                        $_SESSION['nincs_jelsz']        = false;
+                        $_SESSION['nincs_jelsz_felhid'] = 0;
+                        $_SESSION['nincs_jelsz']        = 0;
 
                         if( !$_SESSION['kert_url'] ) {
                             $_SESSION['kert_url'] = get_http().get_domain().'/'.get_admin();
@@ -78,10 +78,10 @@ if( isset($_POST['jelszo_csere']) ) {
 
                         // Vizsgáljuk, hogy csak bejelentés joga van-e. Ha igen, akkor bejelentések menüpontra visszük egyből
                         $i = 0;
-                        $bejelento = true;
+                        $bejelento = 1;
                         foreach ( $_SESSION[get_db_tabla() . 'rights'] as $flag ) {
                             if( $flag && $i != JOG_BEJELENTES_SAJAT_RESZL && $i != JOG_BEJELENTES_KEZEL && $i != JOG_BEJELENTES_MEGTEKINT ) {
-                                $bejelento = false;
+                                $bejelento = 0;
                                 break;
                             }
                             $i++;
@@ -174,18 +174,18 @@ if( isset($_POST['megsem']) ) {
 
 // Manuális beléptetés. A nev oszlopot, tehát a loginnevet kell átadni ilyenkor GET-ben
 // Pl: https://www.onteam.hu/admin/beleptetes.php?manualis_belepes=XY
-if (isset($_GET['manualis_belepes'])) {
+// if (isset($_GET['manualis_belepes'])) {
     
-    $felhasznalo = $adatbazis_kapcsolat->s2('recid nev szallito_id teljes_nev jelszo helyesseg flags flags_ert jog van_jelszo szemelyzet_id tabla_rendezes', 'login', "`nev` = '". $_GET['manualis_belepes']."'");
-    echo $adatbazis_kapcsolat->gp() . '<br>';
-    $_SESSION[get_db_tabla().'user']            = $felhasznalo['nev'];
-    $_SESSION[get_db_tabla().'teljes_nev']      = $felhasznalo['teljes_nev'];
-    $_SESSION[get_db_tabla().'login_recid']     = $felhasznalo['recid'];
-    $_SESSION[get_db_tabla().'szallito_id']     = $felhasznalo['szallito_id'];
-    $_SESSION[get_db_tabla().'rights']          = str_split($felhasznalo['flags']);
-    $_SESSION[get_db_tabla().'ertesites']       = str_split($felhasznalo['flags_ert']);
-    $_SESSION[get_db_tabla().'szemelyzet_id']   = $felhasznalo['szemelyzet_id'];
-}
+//     $felhasznalo = $adatbazis_kapcsolat->s2('recid nev szallito_id teljes_nev jelszo helyesseg flags flags_ert jog van_jelszo szemelyzet_id tabla_rendezes', 'login', "`nev`='". $_GET['manualis_belepes']."'");
+//     // echo $adatbazis_kapcsolat->gp() . '<br>';
+//     $_SESSION[get_db_tabla().'user']            = $felhasznalo['nev'];
+//     $_SESSION[get_db_tabla().'teljes_nev']      = $felhasznalo['teljes_nev'];
+//     $_SESSION[get_db_tabla().'login_recid']     = $felhasznalo['recid'];
+//     $_SESSION[get_db_tabla().'szallito_id']     = $felhasznalo['szallito_id'];
+//     $_SESSION[get_db_tabla().'rights']          = str_split($felhasznalo['flags']);
+//     $_SESSION[get_db_tabla().'ertesites']       = str_split($felhasznalo['flags_ert']);
+//     $_SESSION[get_db_tabla().'szemelyzet_id']   = $felhasznalo['szemelyzet_id'];
+// }
 
 // Beléptetés
 if( isset($_POST['login']) ) {

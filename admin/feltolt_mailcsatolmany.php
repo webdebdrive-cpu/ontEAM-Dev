@@ -19,7 +19,7 @@ if( isset($_POST['megnevezes']) ){
     $mit   = array('"', '\'', '&', '#');
     $mivel = array();
     $_FILES[$_POST['megnevezes']]['name'] = nl2(str_replace($mit, $mivel, $_FILES[$_POST['megnevezes']]['name']));
-    if(kit($_FILES[$_POST['megnevezes']]['name'])=='php'){
+    if (kit($_FILES[$_POST['megnevezes']]['name']) == 'php') {
         echo 'nice try :)';
         $weblap -> leallit();
         exit;

@@ -116,31 +116,33 @@
 
         <br><input type="button" id="hozzaad_gomb" class="gomb" value="Új tétel hozzáadása" style="margin-top: 0.3rem" onclick="tetel_hozzaadasa()">
     </div>
-    <form action="" enctype="multipart/form-data" method="" id="popup_tetel_sorok">
-        <table class="csikos kijCont dn" id="pop_tetelek" style="cursor: default;">
-            <thead>
-            <tr>
-                <th class="l alapbol_rejt jogcim_szeles">Jogcím</th>
-                <th class="alapbol_rejt">Főkönyvi számlaszám</th>
-                <th class="alapbol_rejt">Költséghely</th>
-                <th class="eltereskor_rejt">Tárgy</th>
-                <th class="r">Nettó érték</th>
-                <th class="r">Bruttó érték</th>
-                <th class="r alapbol_rejt deviza_rejt">Deviza nettó (<span class="f_penznem"></span>)</th>
-                <th class="r alapbol_rejt deviza_rejt">Deviza bruttó (<span class="f_penznem"></span>)</th>
-                <th class="l eltereskor_rejt">Jogcím</th>
-                <th class="c eltereskor_rejt">Főkönyvi számlaszám</th>
-                <th class="eltereskor_rejt">Szerződés tétel</th>
-                <th>Kapcsolat bontása</th>
-                <th>Szer- kesztés</th>
-                <th>Törlés</th>
-            </tr>
-            </thead>
+    <div style="max-width: 110rem; height: 100%; overflow-x: auto; overflow-y: hidden;">
+        <form action="" enctype="multipart/form-data" method="" id="popup_tetel_sorok">
+            <table class="csikos kijCont dn" id="pop_tetelek" style="cursor: default;">
+                <thead>
+                <tr>
+                    <th class="l alapbol_rejt jogcim_szeles">Jogcím</th>
+                    <th class="alapbol_rejt">Főkönyvi számlaszám</th>
+                    <th class="alapbol_rejt">Költséghely</th>
+                    <th class="eltereskor_rejt">Tárgy</th>
+                    <th class="r">Nettó érték</th>
+                    <th class="r">Bruttó érték</th>
+                    <th class="r alapbol_rejt deviza_rejt">Deviza nettó (<span class="f_penznem"></span>)</th>
+                    <th class="r alapbol_rejt deviza_rejt">Deviza bruttó (<span class="f_penznem"></span>)</th>
+                    <th class="l eltereskor_rejt">Jogcím</th>
+                    <th class="c eltereskor_rejt">Főkönyvi számlaszám</th>
+                    <th class="eltereskor_rejt">Szerződés tétel</th>
+                    <th>Kapcsolat bontása</th>
+                    <th>Szer- kesztés</th>
+                    <th>Törlés</th>
+                </tr>
+                </thead>
 
-            <tbody>
-            </tbody>
-        </table>
-    </form>
+                <tbody>
+                </tbody>
+            </table>
+        </form>
+    </div>
     
 </div>
 <div class="kuldes">
@@ -271,14 +273,15 @@ function tetel_hozzaadasa() {
     /* Ha ismert a sor_id, akkor update */
     if( sor_id ) {
 
-        $('.pop_tetel_'+sor_id+' .pop_targy'            ).html( targy );
-        $('.pop_tetel_'+sor_id+' .pop_netto'            ).html( ertek );
-        $('.pop_tetel_'+sor_id+' .pop_brutto'           ).html( brutto );
-        $('.pop_tetel_'+sor_id+' .pop_afakod_autocomp'  ).val( afakod_txt );
-        $('.pop_tetel_'+sor_id+' .pop_afakod'           ).val( afakod_id );
-        $('.pop_tetel_'+sor_id+' .pop_jogcim_autocomp'  ).val( jogcim_txt );
-        $('.pop_tetel_'+sor_id+' .pop_jogcim'           ).val( jogcim_id );
-        $('.pop_tetel_'+sor_id+' .pop_valtozott'        ).val( 1 );
+        $('.pop_tetel_'+sor_id+' .pop_targy'            ).html( targy       );
+        $('.pop_tetel_'+sor_id+' .pop_netto'            ).html( ertek       );
+        $('.pop_tetel_'+sor_id+' .pop_brutto'           ).html( brutto      );
+        $('.pop_tetel_'+sor_id+' .pop_jogcim_txt'       ).html( jogcim_txt  );
+        $('.pop_tetel_'+sor_id+' .pop_afakod_autocomp'  ).val ( afakod_txt  );
+        $('.pop_tetel_'+sor_id+' .pop_afakod'           ).val ( afakod_id   );
+        $('.pop_tetel_'+sor_id+' .pop_jogcim_autocomp'  ).val ( jogcim_txt  );
+        $('.pop_tetel_'+sor_id+' .pop_jogcim'           ).val ( jogcim_id   );
+        $('.pop_tetel_'+sor_id+' .pop_valtozott'        ).val ( 1           );
 
     /* Egyébként új sor hozzáadása */
     } else {
@@ -289,6 +292,7 @@ function tetel_hozzaadasa() {
                             '<td class="pop_brutto r nowrap">' + brutto + '</td>' +
                             '<td class="pop_jogcim_txt nowrap l">' + jogcim_txt + '</td>' +
                             '<td class="l pop_ktgnem_autocomp">'+ktgnem_txt+'</td>' +
+                            '<td></td>' + 
                             '<td></td>' + 
                             '<td><a class="szerk" onclick="popup_tetel_sor_szerk(\'pop_tetel_'+id_tmp+'\');">🖉</a></td>' +
                             '<td><a onclick="popup_tetel_sor_torol(\'pop_tetel_'+id_tmp+'\');"><span class="icon"><i class="material-icons">delete</i></span></a>'+
@@ -332,6 +336,12 @@ function tetel_hozzaadasa() {
 // Tétel kapcsolás törlése
 function kapcsolas_torol(sz_tetel_id, fej_id, i, mehet = '') {
     
+    // Ha látszik a popup-on a Mentés Mégsem gombok, akkor nem lehet kapcsolást törölni
+    if( $('.pop_mentes_megsem').is(':visible') ) {
+        alert2('Kérjük előbb mentse el a popup tartalmát!', '', 'Hiba');
+        return false;
+    }
+
     if( !mehet ) {
         alert2('Biztosan törli a tétel kapcsolást?', '<input type="button" class="zold gomb" value="Igen" onclick="kapcsolas_torol(\''+sz_tetel_id+'\', \''+fej_id+'\', \''+i+'\', \'-mehet-\')"> <input type="button" class="piros gomb" value="Nem" onclick="alert2()">');
         return false;
@@ -413,7 +423,7 @@ function popup_tetel_sor_szerk(sor_id){
     $('#ktghely_id'         ).val( $('.'+sor_id+' .pop_ktghely'         ).val()  );
     $('#tetel_sor_id'       ).val( sor_id.replace('pop_tetel_', '')              );
     
-    $('#hozzaad_gomb').val('Tétel szerkesztése');
+    $('#hozzaad_gomb').val('Tétel mentése');
     
     ktgnem_ktghely_kitolt();
     

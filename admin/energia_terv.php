@@ -1319,11 +1319,11 @@ require_once('selectek.php');
 	}elseif(isset($_GET['modosit'])) {
 
         // Ha Gyorskeresőből érkeznénk ide, akkor az ID-t valójában az id_hidden tartalmazza majd
-        if(isset($_GET['id_hidden'])){
+        if (isset($_GET['id_hidden'])) {
             $_GET['id'] = $_GET['id_hidden'];
         }
 
-	    $sor = $adatbazis_kapcsolat -> s2('*', $megnevezes, 'recid='.$_GET['id']);
+	    $sor = $adatbazis_kapcsolat -> s2('*', $megnevezes, "`recid`='{$_GET['id']}'");
 
         foreach($akt_tomb as $tomb) {
             if( $tomb['type'] == 'autocomplete' ) {
@@ -1430,89 +1430,91 @@ require_once('selectek.php');
             <tbody>
             ';
 
-        $egysegarak = $adatbazis_kapcsolat->s('*', 'energia_terv_ear', "`energia_terv_id`='{$_GET['id']}'");
-        foreach($egysegarak as $egysegar){
+        if( $_GET['id'] ) {
+            $egysegarak = $adatbazis_kapcsolat->s('*', 'energia_terv_ear', "`energia_terv_id`='{$_GET['id']}'");
+            foreach($egysegarak as $egysegar){
 
-            // Szálloda nevek
-            $szalloda_html = '';
-            $szallodak = explode(',', $egysegar['telephely_idk']);
-            $szallodak = $adatbazis_kapcsolat->s('nev', 'telephely', "`id` IN ('".implode('\', \'', $szallodak)."')");
-            $szallodak = adatbazis2tomb($szallodak, 'nev');
+                // Szálloda nevek
+                $szalloda_html = '';
+                $szallodak = explode(',', $egysegar['telephely_idk']);
+                $szallodak = $adatbazis_kapcsolat->s('nev', 'telephely', "`id` IN ('".implode('\', \'', $szallodak)."')");
+                $szallodak = adatbazis2tomb($szallodak, 'nev');
 
-            // ABC sorrend
-            sort($szallodak);
+                // ABC sorrend
+                sort($szallodak);
 
-            // Szálloda html
-            $szalloda_html = implode(', ', $szallodak);
+                // Szálloda html
+                $szalloda_html = implode(', ', $szallodak);
 
-            // Ktgnem
-            $ktgnem = $adatbazis_kapcsolat->s2('id nev', 'ktgnem', "`id`='{$egysegar['ktgnem_id']}'");
-            
-            $class = '';
-            $futoertekes_sor = false;
-            if(futoertek_sor($egysegar)){
-                $class .= ' futoertek';
-                $futoertekes_sor = true;
-            }
-
-            for($i = 1; $i < 13; $i++) {
-                $sorszam = sprintf('%02d', $i);
-                if($futoertekes_sor){
-                    $egysegar['arf'.$sorszam]  = '';
-                    $egysegar['dnem'.$sorszam] = '';
-                } else {
-                    $egysegar['arf'.$sorszam] = number_format($egysegar['arf'.$sorszam], 5, ',', ' ');
-                    $egysegar['ear'.$sorszam] = number_format($egysegar['ear'.$sorszam], 3, ',', ' ');
+                // Ktgnem
+                $ktgnem = $adatbazis_kapcsolat->s2('id nev', 'ktgnem', "`id`='{$egysegar['ktgnem_id']}'");
+                
+                $class = '';
+                $futoertekes_sor = false;
+                if(futoertek_sor($egysegar)){
+                    $class .= ' futoertek';
+                    $futoertekes_sor = true;
                 }
-            }
-            
 
-            $szamla_html .= '
-                <tr id="tr_ear_'.$egysegar['recid'].'" data-recid="'.$egysegar['recid'].'" class="ftt_menny'.$class.'">
-                    <td class="wrap">'.$szalloda_html.'</td>
-                    <td class="wrap">'.$egysegar['dijelem'].'</td>
-                    <td>'.$ktgnem['id'].'</td>
-                    <td class="wrap">'.$ktgnem['nev'].'</td>
-                    <td>'.$egysegar['mee'].'</td>
-                    <td class="r">'.$egysegar['ear01'].'</td>
-                    <td class="dnem">'.erteklista(ERTEKLISTA_PENZNEM, $egysegar['dnem01']).'</td>
-                    <td class="r arf">'.$egysegar['arf01'].'</td>
-                    <td class="r">'.$egysegar['ear02'].'</td>
-                    <td class="dnem">'.erteklista(ERTEKLISTA_PENZNEM, $egysegar['dnem02']).'</td>
-                    <td class="r arf">'.$egysegar['arf02'].'</td>
-                    <td class="r">'.$egysegar['ear03'].'</td>
-                    <td class="dnem">'.erteklista(ERTEKLISTA_PENZNEM, $egysegar['dnem03']).'</td>
-                    <td class="r arf">'.$egysegar['arf03'].'</td>
-                    <td class="r">'.$egysegar['ear04'].'</td>
-                    <td class="dnem">'.erteklista(ERTEKLISTA_PENZNEM, $egysegar['dnem04']).'</td>
-                    <td class="r arf">'.$egysegar['arf04'].'</td>
-                    <td class="r">'.$egysegar['ear05'].'</td>
-                    <td class="dnem">'.erteklista(ERTEKLISTA_PENZNEM, $egysegar['dnem05']).'</td>
-                    <td class="r arf">'.$egysegar['arf05'].'</td>
-                    <td class="r">'.$egysegar['ear06'].'</td>
-                    <td class="dnem">'.erteklista(ERTEKLISTA_PENZNEM, $egysegar['dnem06']).'</td>
-                    <td class="r arf">'.$egysegar['arf06'].'</td>
-                    <td class="r">'.$egysegar['ear07'].'</td>
-                    <td class="dnem">'.erteklista(ERTEKLISTA_PENZNEM, $egysegar['dnem07']).'</td>
-                    <td class="r arf">'.$egysegar['arf07'].'</td>
-                    <td class="r">'.$egysegar['ear08'].'</td>
-                    <td class="dnem">'.erteklista(ERTEKLISTA_PENZNEM, $egysegar['dnem08']).'</td>
-                    <td class="r arf">'.$egysegar['arf08'].'</td>
-                    <td class="r">'.$egysegar['ear09'].'</td>
-                    <td class="dnem">'.erteklista(ERTEKLISTA_PENZNEM, $egysegar['dnem09']).'</td>
-                    <td class="r arf">'.$egysegar['arf09'].'</td>
-                    <td class="r">'.$egysegar['ear10'].'</td>
-                    <td class="dnem">'.erteklista(ERTEKLISTA_PENZNEM, $egysegar['dnem10']).'</td>
-                    <td class="r arf">'.$egysegar['arf10'].'</td>
-                    <td class="r">'.$egysegar['ear11'].'</td>
-                    <td class="dnem">'.erteklista(ERTEKLISTA_PENZNEM, $egysegar['dnem11']).'</td>
-                    <td class="r arf">'.$egysegar['arf11'].'</td>
-                    <td class="r">'.$egysegar['ear12'].'</td>
-                    <td class="dnem">'.erteklista(ERTEKLISTA_PENZNEM, $egysegar['dnem12']).'</td>
-                    <td class="r arf">'.$egysegar['arf12'].'</td>
-                </tr>
-            ';
-            
+                for($i = 1; $i < 13; $i++) {
+                    $sorszam = sprintf('%02d', $i);
+                    if($futoertekes_sor){
+                        $egysegar['arf'.$sorszam]  = '';
+                        $egysegar['dnem'.$sorszam] = '';
+                    } else {
+                        $egysegar['arf'.$sorszam] = number_format($egysegar['arf'.$sorszam], 5, ',', ' ');
+                        $egysegar['ear'.$sorszam] = number_format($egysegar['ear'.$sorszam], 3, ',', ' ');
+                    }
+                }
+                
+
+                $szamla_html .= '
+                    <tr id="tr_ear_'.$egysegar['recid'].'" data-recid="'.$egysegar['recid'].'" class="ftt_menny'.$class.'">
+                        <td class="wrap">'.$szalloda_html.'</td>
+                        <td class="wrap">'.$egysegar['dijelem'].'</td>
+                        <td>'.$ktgnem['id'].'</td>
+                        <td class="wrap">'.$ktgnem['nev'].'</td>
+                        <td>'.$egysegar['mee'].'</td>
+                        <td class="r">'.$egysegar['ear01'].'</td>
+                        <td class="dnem">'.erteklista(ERTEKLISTA_PENZNEM, $egysegar['dnem01']).'</td>
+                        <td class="r arf">'.$egysegar['arf01'].'</td>
+                        <td class="r">'.$egysegar['ear02'].'</td>
+                        <td class="dnem">'.erteklista(ERTEKLISTA_PENZNEM, $egysegar['dnem02']).'</td>
+                        <td class="r arf">'.$egysegar['arf02'].'</td>
+                        <td class="r">'.$egysegar['ear03'].'</td>
+                        <td class="dnem">'.erteklista(ERTEKLISTA_PENZNEM, $egysegar['dnem03']).'</td>
+                        <td class="r arf">'.$egysegar['arf03'].'</td>
+                        <td class="r">'.$egysegar['ear04'].'</td>
+                        <td class="dnem">'.erteklista(ERTEKLISTA_PENZNEM, $egysegar['dnem04']).'</td>
+                        <td class="r arf">'.$egysegar['arf04'].'</td>
+                        <td class="r">'.$egysegar['ear05'].'</td>
+                        <td class="dnem">'.erteklista(ERTEKLISTA_PENZNEM, $egysegar['dnem05']).'</td>
+                        <td class="r arf">'.$egysegar['arf05'].'</td>
+                        <td class="r">'.$egysegar['ear06'].'</td>
+                        <td class="dnem">'.erteklista(ERTEKLISTA_PENZNEM, $egysegar['dnem06']).'</td>
+                        <td class="r arf">'.$egysegar['arf06'].'</td>
+                        <td class="r">'.$egysegar['ear07'].'</td>
+                        <td class="dnem">'.erteklista(ERTEKLISTA_PENZNEM, $egysegar['dnem07']).'</td>
+                        <td class="r arf">'.$egysegar['arf07'].'</td>
+                        <td class="r">'.$egysegar['ear08'].'</td>
+                        <td class="dnem">'.erteklista(ERTEKLISTA_PENZNEM, $egysegar['dnem08']).'</td>
+                        <td class="r arf">'.$egysegar['arf08'].'</td>
+                        <td class="r">'.$egysegar['ear09'].'</td>
+                        <td class="dnem">'.erteklista(ERTEKLISTA_PENZNEM, $egysegar['dnem09']).'</td>
+                        <td class="r arf">'.$egysegar['arf09'].'</td>
+                        <td class="r">'.$egysegar['ear10'].'</td>
+                        <td class="dnem">'.erteklista(ERTEKLISTA_PENZNEM, $egysegar['dnem10']).'</td>
+                        <td class="r arf">'.$egysegar['arf10'].'</td>
+                        <td class="r">'.$egysegar['ear11'].'</td>
+                        <td class="dnem">'.erteklista(ERTEKLISTA_PENZNEM, $egysegar['dnem11']).'</td>
+                        <td class="r arf">'.$egysegar['arf11'].'</td>
+                        <td class="r">'.$egysegar['ear12'].'</td>
+                        <td class="dnem">'.erteklista(ERTEKLISTA_PENZNEM, $egysegar['dnem12']).'</td>
+                        <td class="r arf">'.$egysegar['arf12'].'</td>
+                    </tr>
+                ';
+                
+            }
         }
 
         $szamla_html .= nl2('
@@ -1522,7 +1524,7 @@ require_once('selectek.php');
                         ');
 
         // Ha van a get-ben ear id, akkor azt a sort jelöljük meg
-        if( isset($_GET['ear'])){
+        if (isset($_GET['ear'])) {
             $szamla_html .= nl2('
                             <script>
                                 $(\'#tr_ear_'.$_GET['ear'].'\').addClass(\'kijelolve\');
@@ -1591,19 +1593,21 @@ require_once('selectek.php');
                 </div>
         ');
 
-        $sorok = $adatbazis_kapcsolat->s('recid megj szerepkor insert_usr insert_dt', 'megjegyzes', "`id` = '".$_GET['id']."' AND `tabla` = '".str_replace('.php', '', basename(self()))."'", 'recid desc');
-        if( $sorok ) {
-            $i = 1;
-            foreach($sorok as $sor) {
-                $szamla_html .= nl2('
-                    <div id="naploSor-'.$sor['recid'].'" class="dtr nSor kijSor" data-id="'.$sor['recid'].'" data-i="'.$i.'">
-                        <div class="dtc">'.htmlspecialchars_decode( nl2br2($sor['megj']) ).'</div>
-                        <div class="dtc">'.$sor['insert_usr'].' '.getSzerepkorNev($sor['szerepkor']).'</div>
-                        <div class="dtc">'.datum_kiir($sor['insert_dt']).'</div>
-                    </div>
-                ');
+        if( $_GET['id'] ) {
+            $sorok = $adatbazis_kapcsolat->s('recid megj szerepkor insert_usr insert_dt', 'megjegyzes', "`id`='{$_GET['id']}' AND `tabla`='".str_replace('.php', '', basename(self()))."'", 'recid desc');
+            if( $sorok ) {
+                $i = 1;
+                foreach($sorok as $sor) {
+                    $szamla_html .= nl2('
+                        <div id="naploSor-'.$sor['recid'].'" class="dtr nSor kijSor" data-id="'.$sor['recid'].'" data-i="'.$i.'">
+                            <div class="dtc">'.htmlspecialchars_decode( nl2br2($sor['megj']) ).'</div>
+                            <div class="dtc">'.$sor['insert_usr'].' '.getSzerepkorNev($sor['szerepkor']).'</div>
+                            <div class="dtc">'.datum_kiir($sor['insert_dt']).'</div>
+                        </div>
+                    ');
 
-                $i++;
+                    $i++;
+                }
             }
         }
 
@@ -1634,7 +1638,7 @@ function szalloda_koltsnem_dijelem_azonos($terv_id, $telephely_idk, $ktgnem_id, 
     $ktgnem_id      = trim($ktgnem_id);
     $dijelem        = trim($dijelem);
 
-    if($ear_id){
+    if ($ear_id) {
         $van_egyezes = $adatbazis_kapcsolat->s('recid', 'energia_terv_ear', "`recid`!='{$ear_id}' AND `energia_terv_id`='{$terv_id}' AND `telephely_idk` LIKE '%{$telephely_idk}%' AND `ktgnem_id`='{$ktgnem_id}' AND `dijelem`='{$dijelem}'");
         if($van_egyezes===false){ return false; }
     } else {

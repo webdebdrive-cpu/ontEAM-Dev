@@ -91,19 +91,16 @@ body .fc { /* extra precedence to overcome jqui */
 */
 
 .fc-state-default {
-	background: #54a2f9;
+	background: var(--color-kek);
     border-color: #ececec #ececec #d6d5d5;
 	border-color: rgba(0, 0, 0, 0.1) rgba(0, 0, 0, 0.1) rgba(0, 0, 0, 0.25);
 	color: #fff;
     font-weight: 700;
 }
 
-.fc-state-hover,
-.fc-state-down,
-.fc-state-active,
-.fc-state-disabled {
+.fc-state-hover, .fc-state-down, .fc-state-active, .fc-state-disabled {
 	color: #fff;
-	background-color: #5192da;
+	background-color: var(--color-kek-hover);
 }
 
 .fc-state-hover {

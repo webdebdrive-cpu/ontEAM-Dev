@@ -14,40 +14,6 @@ if( filesize($log_utvonal) > get_logfile_max_meret() ) {
     fajlba_mentes($log_utvonal, $log_tmp);
 }
 
-// // Igazolásra váró számlákról menjen egy értesítő levél
-// $szamla = $adatbazis_kapcsolat->sql("SELECT `telephely_id` FROM `".get_db_tabla()."fenntartasi_szamla` UNION 
-//                                      SELECT `telephely_id` FROM `".get_db_tabla()."energia_szamla`     UNION
-//                                      SELECT `telephely_id` FROM `".get_db_tabla()."anyag_szamla`
-//                                      WHERE `telephely_id`!=0 AND `feldolgozva_dt`!='0000-00-00 00:00:00' AND `igazolva_dt`='0000-00-00 00:00:00'
-//                                     ");
-// $log_tmp = $adatbazis_kapcsolat->gp() . '
-// ';
-// $log .= $log_tmp;
-// file_put_contents($log_utvonal, $log_tmp, FILE_APPEND | LOCK_EX);
-
-// $telephelyek = adatbazis2tomb($szamla, 'telephely_id');
-
-// $mail_mehet_loginok = array();
-
-// // Vegyük azokat a telephelyeket, amik érintve voltak olyan számlával, amik még nincsenek igazolva.
-// if( $telephelyek ) {
-//     // Majd vegyük a műszaki vezetőket, nézzük meg, kik kapcsolódnak ezekhez a telephelyekhez. Nekik kell küldeni a levelet.
-//     $muszaki_vezetok = $adatbazis_kapcsolat -> s('nev', 'login', "`aktiv`=1 AND `virtual`=0 AND `usermail`!='' AND `szemelyzet_id`='".MUSZAKI_VEZETO."'");
-//     foreach ($muszaki_vezetok as $muszaki_vezeto) {
-//         $szallodak = $adatbazis_kapcsolat->s2('telephely_id', 'telephely_kapcs', "`nev`='{$muszaki_vezeto['nev']}' AND `telephely_id` IN (".implode(', ', $telephelyek).")");
-//         // És adott szálloda a műszaki vezetőhöz tartozik
-//         if( $szallodak ) {
-//             array_push($mail_mehet_loginok, $muszaki_vezeto['nev']);
-
-//             $log_tmp = $adatbazis_kapcsolat->gp() . '
-//             ';
-//             $log .= $log_tmp;
-//             file_put_contents($log_utvonal, $log_tmp, FILE_APPEND | LOCK_EX);    
-//         }
-//     }
-// }
-// $mail_mehet_loginok = array_unique($mail_mehet_loginok);
-
 $kieg = get_mail_teszt_felirat();
 $targy_kieg = $kieg[0];
 $uzi_kieg   = $kieg[1];
@@ -110,6 +76,9 @@ foreach ($muszaki_vezetok as $muszaki_vezeto) {
     
         // Ha több mailcím is szerepel vesszővel elválasztva, akkor azt is le kell kezelni:
         $mailcimek = explode(',', $muszaki_vezeto['usermail']);
+if( isset($_GET['tibi_teszt']) ) {
+    $mailcimek = array('korcsmaros@szinvatrend.hu');
+}
         foreach( $mailcimek as $mailcim ) {
             $level = level_kuldes(get_nev(), get_mail(), $muszaki_vezeto['teljes_nev'], $mailcim, $targy_kieg.$targy, $uzi_kieg.$megszolitas.$uzi);
             $log_tmp = 'Levél kiküldve a '.$mailcim.' címre:

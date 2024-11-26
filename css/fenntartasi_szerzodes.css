@@ -1,5 +1,5 @@
 table.csikos tr.kijelolve:nth-of-type(2n) {
-    background: #55A2FA;
+    background: var(--color-kek);
 }
 b.pipa {
     color: #75B54B;

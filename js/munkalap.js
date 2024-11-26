@@ -1342,7 +1342,7 @@ function garancialis_tipus_projekt_popup() {
     return false;
 }
 
-/* Munkalapon a projekt törlése gomb */
+// Munkalapon a projekt törlése gomb
 function projekt_torelese( mehet ) {
     
     if( !mehet ) {
@@ -1368,4 +1368,45 @@ function projekt_torelese( mehet ) {
             }
         }
     });
+}
+
+// Munkalap személyzet előkészítése
+function munkaidoLejart(mehet) {
+
+    if (!mehet) {
+        alert2('Ha folytatja, a munkalap visszakerül a diszpécserhez. Folytatja?', '<input type="button" class="gomb zold" value="Igen" onclick="munkaidoLejart(\'mehet\')"><input type="button" class="gomb piros" value="Nem" onclick="alert2()">');
+        return false;
+    }
+
+    $.ajax({
+        url : 'munkalap.php',
+        type: 'POST',
+        data: {
+            recid               : _get('id'),
+            erteklista_id       : EL_VISSZAAD_M_IDO_LEJART,
+            memo                : 'Munkaidő lejárt',
+            atadasDiszpecsernek : new Date().getTime()
+        },
+        success: function(response) {
+            if(response.substring(0, 6)=='SESKIL'){ location.href = 'index.php'; }
+            if(response) {
+                response = JSON.parse(response);
+
+                if( response.hiba ) {
+                    alert2(response.hiba, response.gomb, response.title);
+                    return false;
+                }
+
+                popupZar();
+                szamlaBetolt(_get('id'), baseName(location.href) + '.php', 'modosit');
+            }
+        },
+        complete: function(xhr) {
+            if( xhr.status != 200 ) {
+                alert2(xhr.responseText, '', 'Hiba');
+            }
+        }
+    });
+
+    return false;
 }

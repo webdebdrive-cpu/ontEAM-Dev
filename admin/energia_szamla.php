@@ -14,28 +14,34 @@ if( !_jog(JOG_ENERGIA_SZAMLAK_OLVAS) ) {
 
 // Számla fajta beállítása utólag
 if( isset($_GET['fajta_beallit']) ) {
-    $szamlak = $adatbazis_kapcsolat -> s('recid', 'energia_szamla', "`fajta`='0'");
+    $szamlak = $adatbazis_kapcsolat -> s('recid szallito_id', 'energia_szamla', "`fajta`='0'");
     foreach ($szamlak as $szamla) {
         $fajta = 0;
         $tetel = $adatbazis_kapcsolat -> s2('jogcim', 'energia_szamla_tetel', "`energia_szamla_recid`='{$szamla['recid']}'", 'insert_dt');
         if( $tetel ) {
             if( strpos($tetel['jogcim'], 'Gáz') !== false ) {
                 $fajta = ENERGIA_SZAMLA_GAZ;
-            }
-            if( strpos($tetel['jogcim'], 'Villamosenergia') !== false ) {
+            } elseif( strpos($tetel['jogcim'], 'Villamosenergia') !== false ) {
                 $fajta = ENERGIA_SZAMLA_VILLANY;
-            }
-            if( strpos($tetel['jogcim'], 'Ivóvíz') !== false ) {
+            } elseif( strpos($tetel['jogcim'], 'Ivóvíz') !== false ) {
                 $fajta = ENERGIA_SZAMLA_VIZ;
-            }
-            if( strpos($tetel['jogcim'], 'Távfűtés') !== false ) {
+            } elseif( strpos($tetel['jogcim'], 'Távfűtés') !== false ) {
                 $fajta = ENERGIA_SZAMLA_GAZ;
-            }
-            if( strpos($tetel['jogcim'], 'Csatornázási') !== false ) {
+            } elseif( strpos($tetel['jogcim'], 'Csatornázási') !== false ) {
                 $fajta = ENERGIA_SZAMLA_VIZ;
-            }
-            if( strpos($tetel['jogcim'], 'Termál') !== false ) {
+            } elseif( strpos($tetel['jogcim'], 'Termál') !== false ) {
                 $fajta = ENERGIA_SZAMLA_TERMAL;
+            // Ha a tétel jogcíme egyik sem a fentiek közül, akkor a szállító ID alapján döntjük el a számla fajtáját
+            } else {
+                switch ($szamla['szallito_id']) {
+                    case 2937   : $fajta = ENERGIA_SZAMLA_VILLANY;  break;
+                    case 24960  : $fajta = ENERGIA_SZAMLA_GAZ;      break;
+                    case 1387   : $fajta = ENERGIA_SZAMLA_VIZ;      break;
+                    case 991    : $fajta = ENERGIA_SZAMLA_VIZ;      break;
+                    case 15938  : $fajta = ENERGIA_SZAMLA_VILLANY;  break;
+                    case 11536  : $fajta = ENERGIA_SZAMLA_VIZ;      break;
+                    case 20448  : $fajta = ENERGIA_SZAMLA_VIZ;      break;
+                }
             }
             $adatbazis_kapcsolat -> u('energia_szamla', array('fajta'), array($fajta), "`recid`='{$szamla['recid']}'");
             echo $adatbazis_kapcsolat -> gp().'<br>';
@@ -1800,8 +1806,10 @@ if( $_SERVER['REMOTE_ADDR'] == get_debug_ip() ) {
             // Ez a popuphoz kell
             $gombok .= '<input type="hidden" id="kcs_21_autocomp_db" value="'.erteklista(ERTEKLISTA_PENZNEM, $sor['kcs_21']).'">';
             $gombok .= '<input type="hidden" id="kcs_21_db" value="'.$sor['kcs_21'].'">';
-            $gombok .= '<input type="hidden" id="netto_db" value="'.$sor['netto'].'">';
-            $gombok .= '<input type="hidden" id="dev_net_db" value="'.$sor['dev_net'].'">';
+            $gombok .= '<input type="hidden" id="netto_db" value="'.number_format($sor['netto'], $tizedesek, ',', ' ').'">';
+            $gombok .= '<input type="hidden" id="brutto_db" value="'.number_format($sor['brutto'], $tizedesek, ',', ' ').'">';
+            $gombok .= '<input type="hidden" id="dev_net_db" value="'.number_format($sor['dev_net'], $tizedesek, ',', ' ').'">';
+            $gombok .= '<input type="hidden" id="dev_br_db" value="'.number_format($sor['dev_br'], $tizedesek, ',', ' ').'">';
             $gombok .= '<input type="hidden" id="arfolyam_db" value="'.$sor['arfolyam'].'">';
             $gombok .= '<input type="hidden" id="nullas_db" value="'.$sor['nullas'].'">';
             
@@ -2093,39 +2101,41 @@ if( $_SERVER['REMOTE_ADDR'] == get_debug_ip() ) {
         ');
         
         // Tételek felsorolása
-        $tetelek = $adatbazis_kapcsolat->s('*', 'energia_szamla_konyveles', "`energia_szamla_recid`='{$_GET['id']}'", 'recid');
-        $szamla  = $adatbazis_kapcsolat->s2('kcs_21', 'energia_szamla', "`recid`='{$_GET['id']}'");
-        foreach ( $tetelek as $tetel ) {
-            
-            $jogcim  = $adatbazis_kapcsolat->s2('jogcim', 'jogcim', "`recid`='{$tetel['jogcim_recid']}'");
-            $afakod  = $adatbazis_kapcsolat->s2('afa',    'afakod', "`recid`='{$tetel['afakod_recid']}'");
-            $dijelem = $adatbazis_kapcsolat->s2('info', 'erteklista', "`recid`='{$tetel['dijelem_recid']}'");
-            
-            $aranyos = '';
-            if( $tetel['aranyos'] ) {
-                $aranyos .= '✓';
+        if( $_GET['id'] ) {
+            $tetelek = $adatbazis_kapcsolat->s('*', 'energia_szamla_konyveles', "`energia_szamla_recid`='{$_GET['id']}'", 'recid');
+            $szamla  = $adatbazis_kapcsolat->s2('kcs_21', 'energia_szamla', "`recid`='{$_GET['id']}'");
+            foreach ( $tetelek as $tetel ) {
+                
+                $jogcim  = $adatbazis_kapcsolat->s2('jogcim', 'jogcim', "`recid`='{$tetel['jogcim_recid']}'");
+                $afakod  = $adatbazis_kapcsolat->s2('afa',    'afakod', "`recid`='{$tetel['afakod_recid']}'");
+                $dijelem = $adatbazis_kapcsolat->s2('info', 'erteklista', "`recid`='{$tetel['dijelem_recid']}'");
+                
+                $aranyos = '';
+                if( $tetel['aranyos'] ) {
+                    $aranyos .= '✓';
+                }
+                
+                $dev_oszlopok = '';
+                if( $sor['kcs_21'] != KCS_21_HUF ) {
+                    $dev_oszlopok = nl2('
+                        <div class="dtc r nowrap">'.number_format($tetel['dev_net'], 2, ',', ' ').'</div>
+                        <div class="dtc r nowrap">'.number_format($tetel['dev_br'], 2, ',', ' ').'</div>
+                        ');
+                }
+                
+                $szamla_html .= nl2('
+                    <div class="dtr nSor">
+                        <div class="dtc">'.htmlspecialchars_decode($jogcim['jogcim']).'</div>
+                        <div class="dtc r nowrap">'.$tetel['ktgnem_id'].'</div>
+                        <div class="dtc r nowrap">'.$tetel['ktghely_id'].'</div>
+                        <div class="dtc r nowrap">'.number_format($tetel['netto_ert'], 0, ',', ' ').'</div>
+                        <div class="dtc r nowrap">'.number_format($tetel['brutto_ert'], 0, ',', ' ').'</div>
+                        '.$dev_oszlopok.'
+                        <div class="dtc nowrap">'.$tetel['afa_kod'].'</div>
+                        <div class="dtc r nowrap">'.number_format($afakod['afa'], 0, ',', ' ').'</div>
+                    </div>
+                ');
             }
-            
-            $dev_oszlopok = '';
-            if( $sor['kcs_21'] != KCS_21_HUF ) {
-                $dev_oszlopok = nl2('
-                    <div class="dtc r nowrap">'.number_format($tetel['dev_net'], 2, ',', ' ').'</div>
-                    <div class="dtc r nowrap">'.number_format($tetel['dev_br'], 2, ',', ' ').'</div>
-                    ');
-            }
-            
-            $szamla_html .= nl2('
-                <div class="dtr nSor">
-                    <div class="dtc">'.htmlspecialchars_decode($jogcim['jogcim']).'</div>
-                    <div class="dtc r nowrap">'.$tetel['ktgnem_id'].'</div>
-                    <div class="dtc r nowrap">'.$tetel['ktghely_id'].'</div>
-                    <div class="dtc r nowrap">'.number_format($tetel['netto_ert'], 0, ',', ' ').'</div>
-                    <div class="dtc r nowrap">'.number_format($tetel['brutto_ert'], 0, ',', ' ').'</div>
-                    '.$dev_oszlopok.'
-                    <div class="dtc nowrap">'.$tetel['afa_kod'].'</div>
-                    <div class="dtc r nowrap">'.number_format($afakod['afa'], 0, ',', ' ').'</div>
-                </div>
-            ');
         }
         $szamla_html .= '</div>';
         
@@ -2339,20 +2349,21 @@ if( $_SERVER['REMOTE_ADDR'] == get_debug_ip() ) {
                 </div>
         ');
 
-        $sorok = $adatbazis_kapcsolat->s('recid megj insert_usr insert_dt', 'megjegyzes', "`id` = '".$_GET['id']."' AND `tabla` = '".str_replace('.php', '', basename(self()))."'", 'recid desc');
+        if( $_GET['id'] ) {
+            $sorok = $adatbazis_kapcsolat->s('recid megj insert_usr insert_dt', 'megjegyzes', "`id`='{$_GET['id']}' AND `tabla`='".str_replace('.php', '', basename(self()))."'", 'recid desc');
+            if( $sorok ) {
+                $i = 1;
+                foreach ( $sorok as $sor ) {
+                    $szamla_html .= nl2('
+                        <div id="naploSor-'.$sor['recid'].'" data-id="'.$sor['recid'].'" data-i="'.$i.'" class="dtr nSor kijSor">
+                            <div class="dtc">'.htmlspecialchars_decode( nl2br2($sor['megj']) ).'</div>
+                            <div class="dtc">'.$sor['insert_usr'].'</div>
+                            <div class="dtc">'.datum_kiir($sor['insert_dt']).'</div>
+                        </div>
+                    ');
 
-        if( $sorok ) {
-            $i = 1;
-            foreach ( $sorok as $sor ) {
-                $szamla_html .= nl2('
-                    <div id="naploSor-'.$sor['recid'].'" data-id="'.$sor['recid'].'" data-i="'.$i.'" class="dtr nSor kijSor">
-                        <div class="dtc">'.htmlspecialchars_decode( nl2br2($sor['megj']) ).'</div>
-                        <div class="dtc">'.$sor['insert_usr'].'</div>
-                        <div class="dtc">'.datum_kiir($sor['insert_dt']).'</div>
-                    </div>
-                ');
-
-                $i++;
+                    $i++;
+                }
             }
         }
 

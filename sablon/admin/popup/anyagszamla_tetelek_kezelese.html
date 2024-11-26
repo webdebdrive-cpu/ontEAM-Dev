@@ -452,25 +452,25 @@ $(document).ready(function () {
 /* Tételt hozzáadó függvény */
 function tetel_hozzaadasa() {
     
-    var rndid           = $('#pop_rndid').val().trim();
-    var rnd_recid       = $('#pop_rnd_recid').val().trim();
+    var rndid           = $('#pop_rndid'            ).val().trim();
+    var rnd_recid       = $('#pop_rnd_recid'        ).val().trim();
     var cikktorzs       = $('#cikktorzs_id_autocomp').val().trim();
-    /*var szall_csz       = $('#szall_csz').val().trim();*/
-    var rndmen          = $('#pop_rndmen').val().trim();
-    var rndear          = $('#pop_rndear').val().trim();
-    var cikkmee         = $('#cikkmee').val().trim();
-    var ertek           = $('#pop_ertek').val().trim();
-    var brutto          = $('#pop_brutto').val().trim();
-    var afakod_txt      = $('#afakod_id_autocomp').val().trim();
-    var jogcim_txt      = $('#jogcim_id_autocomp').val().trim();
-    var ktgnem_txt      = $('#ktgnem_id_autocomp').val().trim();
-    var ktghely_txt     = $('#ktghely_id_autocomp').val().trim();
-    var cikktorzs_id    = $('#cikktorzs_onteam_id').val().trim();
-    var afakod_id       = $('#afakod_id').val().trim();
-    var jogcim_id       = $('#jogcim_id').val().trim();
-    var ktgnem_id       = $('#ktgnem_id').val().trim();
-    var ktghely_id      = $('#ktghely_id').val().trim();
-    var sor_id          = $('#tetel_sor_id').val().trim();
+    /*var szall_csz       = $('#szall_csz'          ).val().trim();*/
+    var rndmen          = $('#pop_rndmen'           ).val().trim();
+    var rndear          = $('#pop_rndear'           ).val().trim();
+    var cikkmee         = $('#cikkmee'              ).val().trim();
+    var ertek           = $('#pop_ertek'            ).val().trim();
+    var brutto          = $('#pop_brutto'           ).val().trim();
+    var afakod_txt      = $('#afakod_id_autocomp'   ).val().trim();
+    var jogcim_txt      = $('#jogcim_id_autocomp'   ).val().trim();
+    var ktgnem_txt      = $('#ktgnem_id_autocomp'   ).val().trim();
+    var ktghely_txt     = $('#ktghely_id_autocomp'  ).val().trim();
+    var cikktorzs_id    = $('#cikktorzs_onteam_id'  ).val().trim();
+    var afakod_id       = $('#afakod_id'            ).val().trim();
+    var jogcim_id       = $('#jogcim_id'            ).val().trim();
+    var ktgnem_id       = $('#ktgnem_id'            ).val().trim();
+    var ktghely_id      = $('#ktghely_id'           ).val().trim();
+    var sor_id          = $('#tetel_sor_id'         ).val().trim();
 
     van_valtozas = true;
 
@@ -558,11 +558,11 @@ function tetel_hozzaadasa() {
                     $('.pop_tetel_'+sor_id+' .pop_cikkmee'          ).html( cikkmee     );
                     $('.pop_tetel_'+sor_id+' .pop_netto'            ).html( ertek       );
                     $('.pop_tetel_'+sor_id+' .pop_brutto'           ).html( brutto      );
-                    $('.pop_tetel_'+sor_id+' .pop_afakod_autocomp'  ).val( afakod_txt   );
-                    $('.pop_tetel_'+sor_id+' .pop_afakod'           ).val( afakod_id    );
-                    $('.pop_tetel_'+sor_id+' .pop_jogcim_autocomp'  ).val( jogcim_txt   );
-                    $('.pop_tetel_'+sor_id+' .pop_jogcim'           ).val( jogcim_id    );
-                    $('.pop_tetel_'+sor_id+' .pop_valtozott'        ).val( 1            );
+                    $('.pop_tetel_'+sor_id+' .pop_afakod_autocomp'  ).val ( afakod_txt  );
+                    $('.pop_tetel_'+sor_id+' .pop_afakod'           ).val ( afakod_id   );
+                    $('.pop_tetel_'+sor_id+' .pop_jogcim'           ).val ( jogcim_id   );
+                    $('.pop_tetel_'+sor_id+' .pop_jogcim_autocomp'  ).html( jogcim_txt  );
+                    $('.pop_tetel_'+sor_id+' .pop_valtozott'        ).val ( 1           );
 
                 /* Egyébként új sor hozzáadása */
                 } else {
@@ -699,19 +699,19 @@ function popup_tetel_sor_szerk(sor_id){
     $('#cikkmee'                ).val( $('.'+sor_id+' .pop_cikkmee'         ).html() );
     $('#pop_rndmen'             ).val( $('.'+sor_id+' .pop_rndmen'          ).html() );
     $('#pop_rndear'             ).val( $('.'+sor_id+' .pop_rndear'          ).html() );
-    $('#afakod_id_autocomp'     ).val( $('.'+sor_id+' .pop_afakod_autocomp' ).val()  );
-    $('#afakod_id'              ).val( $('.'+sor_id+' .pop_afakod'          ).val()  );
+    $('#afakod_id_autocomp'     ).val( $('.'+sor_id+' .pop_afakod_autocomp' ).val ().replace(/&amp;/g, '&')  );
+    $('#afakod_id'              ).val( $('.'+sor_id+' .pop_afakod'          ).val () );
     $('#pop_ertek'              ).val( $('.'+sor_id+' .pop_netto'           ).html() );
     $('#pop_brutto'             ).val( $('.'+sor_id+' .pop_brutto'          ).html() );
-    $('#jogcim_id_autocomp'     ).val( $('.'+sor_id+' .pop_jogcim_autocomp' ).html() );
-    $('#jogcim_id'              ).val( $('.'+sor_id+' .pop_jogcim'          ).val()  );
-    $('#ktgnem_id_autocomp'     ).val( $('.'+sor_id+' .pop_ktgnem_autocomp' ).html() );
-    $('#ktgnem_id'              ).val( $('.'+sor_id+' .pop_ktgnem'          ).val()  );
-    $('#ktghely_id_autocomp'    ).val( $('.'+sor_id+' .pop_ktghely_autocomp').html() );
-    $('#ktghely_id'             ).val( $('.'+sor_id+' .pop_ktghely'         ).val()  );
+    $('#jogcim_id_autocomp'     ).val( $('.'+sor_id+' .pop_jogcim_autocomp' ).html().replace(/&amp;/g, '&') );
+    $('#jogcim_id'              ).val( $('.'+sor_id+' .pop_jogcim'          ).val () );
+    $('#ktgnem_id_autocomp'     ).val( $('.'+sor_id+' .pop_ktgnem_autocomp' ).html().replace(/&amp;/g, '&') );
+    $('#ktgnem_id'              ).val( $('.'+sor_id+' .pop_ktgnem'          ).val () );
+    $('#ktghely_id_autocomp'    ).val( $('.'+sor_id+' .pop_ktghely_autocomp').html().replace(/&amp;/g, '&') );
+    $('#ktghely_id'             ).val( $('.'+sor_id+' .pop_ktghely'         ).val () );
     $('#tetel_sor_id'           ).val( sor_id.replace('pop_tetel_', '')              );
     
-    $('#hozzaad_gomb').val('Tétel szerkesztése');
+    $('#hozzaad_gomb').val('Tétel mentése');
     
     $('#pop_targy').focus();
     

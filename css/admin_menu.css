@@ -1,5 +1,5 @@
 div.menu{
-    background: #55a2fa;
+    background: var(--color-kek);
     font-size: 1.5rem;
     height: 4.5rem;
     padding: 0.5rem 1rem 0.5rem 1rem;
@@ -10,7 +10,6 @@ div.menu{
 #sddm{
     display: table;
     font-size: 1.5rem;
-	/*margin: auto;*/
 	padding: 0;
 }
 

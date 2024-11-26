@@ -10,7 +10,7 @@ if( FALSE && isset($_GET['afakod_import']) ) {
     $mibol = 'windows-1250';
     $mibe  = get_web_charset();
 
-    $mehet  = true;
+    $mehet  = 1;
     $sql    = '';
     $log    = '';
 
@@ -316,7 +316,6 @@ require_once('selectek.php');
         }
 
 	    $sor = $adatbazis_kapcsolat -> s2('*', $megnevezes, "`recid`='{$_GET['id']}'");
-
         foreach ( $akt_tomb as $tomb ) {
             if( $tomb['type'] == 'autocomplete' ) {
 

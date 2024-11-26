@@ -106,11 +106,11 @@ require_once('selectek.php');
 	}elseif(isset($_GET['modosit'])) {
 
         // Ha Gyorskeresőből érkeznénk ide, akkor az ID-t valójában az id_hidden tartalmazza majd
-        if(isset($_GET['id_hidden'])){
+        if (isset($_GET['id_hidden'])) {
             $_GET['id'] = $_GET['id_hidden'];
         }
 
-	    $sor = $adatbazis_kapcsolat -> s2('*', $megnevezes, 'recid='.$_GET['id']);
+	    $sor = $adatbazis_kapcsolat -> s2('*', $megnevezes, "`recid`='{$_GET['id']}'");
 
         foreach($akt_tomb as $tomb) {
             if( $tomb['type'] == 'autocomplete' ) {
@@ -190,7 +190,7 @@ require_once('selectek.php');
 			require_once('tobb_kep.php');
 		}
 
-	//Dokumentumok
+	// Dokumentumok
 	}elseif(isset($_GET['dokumentumok'])){
 
         $szamla_html .= 'Dokumentumok felülete';
@@ -204,8 +204,8 @@ require_once('selectek.php');
             echo $szamla_html;
         }
 
-	//Megjegyzések
-	}elseif(isset($_GET['megjegyzesek'])){
+    // Megjegyzések
+    } elseif (isset($_GET['megjegyzesek'])) {
 
         $szamla_html .= 'Megjegyzések felülete';
 

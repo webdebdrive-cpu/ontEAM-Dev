@@ -24,7 +24,7 @@ table.beosztas tr td:first-of-type {
     white-space: nowrap;
 }
 table.beosztas tr td.szerk:hover {
-    box-shadow: inset 0rem 0rem 0.3rem 0.1rem #55A2FA;
+    box-shadow: inset 0rem 0rem 0.3rem 0.1rem var(--color-kek);
 }
 
 table.beosztas th.sarga, table.beosztas td.sarga {
@@ -48,15 +48,15 @@ ul.dropItem li {
 }
 
 @keyframes ujak{
-  0%   { background: #55A2FA; }
-  100% { background: #fff;    }
+  0%   { background: var(--color-kek); }
+  100% { background: #fff;           }
 }
 tr.uj {
     animation: ujak 2s 1;
 }
 @keyframes ujak_sarga{
-  0%   { background: #55A2FA; }
-  100% { background: #FFFFD5;    }
+  0%   { background: var(--color-kek); }
+  100% { background: #FFFFD5;        }
 }
 tr.uj td.sarga {
     animation: ujak_sarga 2s 1;
