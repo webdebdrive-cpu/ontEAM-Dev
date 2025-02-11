@@ -163,14 +163,15 @@ if( isset($_GET['html_mutat']) ) {
         mkdir('../'.get_utvonal().'rendeles/'.date('y').'/'.$szallito['id']);
     }
 
-    $mpdf -> Output(iconv('UTF-8', 'Windows-1250', '../'.get_utvonal().'rendeles/'.date('y').'/'.$szallito['id'].'/'.str_replace('/', '_', $sorszam).'.pdf'), 'F');
+    $pdf_neve = str_replace('/', '_', $sorszam).'.pdf';
+    $mpdf -> Output(iconv('UTF-8', 'Windows-1250', '../'.get_utvonal().'rendeles/'.date('y').'/'.$szallito['id'].'/'.$pdf_neve), 'F');
 if( isset($_GET['teszt']) ) {        
-    echo 'Fájl ide létrehozva: '.get_utvonal().'rendeles/'. date('y').'/'.$szallito['id'].'/'.str_replace('/', '_', $sorszam).'.pdf';
+    echo 'Fájl ide létrehozva: '.get_utvonal().'rendeles/'. date('y').'/'.$szallito['id'].'/'.$pdf_neve;
     exit;
 }
     // Így tudod megnyitni  a PDF-et (olyan mintha egy PDF kiterjesztésű fájlra hivatkoznál)
     if( !isset($_GET['html_mutat']) ) {
-        $mpdf -> Output();
+        $mpdf -> Output($pdf_neve, 'I');
     }
 
     $weblap -> leallit();

@@ -192,7 +192,7 @@ if( isset($_POST['osszevon_targy_kitoltve_ell']) ) {
                                                                         array($_POST['id'],                 $netto_ertek, $brutto_ertek, $dev_net_ertek, $dev_br_ertek, $tetel['ktgnem_id'], $tetel['jogcim'], $tetel['jogcim_recid'],  $tetel['uzemresz'], $tetel['megn'], $tetel['ktghely'], $tetel['ktghely_id'], $tetel['afa_kod'], $tetel['afakod_recid'], $tetel['afa_nev'], $tetel['afa'], $_SESSION[get_db_tabla().'user'],   'NOW()',        $_SESSION[get_db_tabla().'teljes_nev'],   $_SESSION[get_db_tabla().'teljes_nev']    )
                                 );
         if( $sql === false ) { $db_error = true; }
-        
+
         $tetel_xml .= '
             <row rownumberonpage="'.($i+1).'">
                 <property name="Sor megnevezése"><![CDATA['.urlencode(htmlspecialchars_decode($targyak[$i])).']]></property>
@@ -710,8 +710,9 @@ if( isset($_POST['pop_tetelek_feltolt']) ) {
             
         // Popup tételek normál esetben, sima tételek szerkesztésekor
         } else {
+            $tetel_targy = str_replace('{IDEZOJEL}', '"', $_SESSION['fennt_szla_tetel_targy'][$fej_id][$i]);
             $tovabbi_oszlopok .= nl2('
-                                        <td class="pop_targy l">'.htmlspecialchars($_SESSION['fennt_szla_tetel_targy'][$fej_id][$i]).'</td>
+                                        <td class="pop_targy l">'.htmlspecialchars($tetel_targy).'</td>
                                         <td class="pop_netto r nowrap">' .$_SESSION[$session_mezo   ][$fej_id][$i].'</td>
                                         <td class="pop_brutto r nowrap">'.$_SESSION[$session_mezo_br][$fej_id][$i].'</td>
                                         <td class="pop_jogcim_autocomp l">' .$jogcim['jogcim'].'</td>
@@ -3139,33 +3140,33 @@ function xml_vissza( $szamla_id, $igazolva = '', $oka = '' ) {
     
     $valasz_xml = 'psInputXml=<?xml version="1.0" encoding="utf-8"?>
 <xml>
-<data>
-    <register registernumber="'.$szamla['andoc_id'].'" operation="update">
-    <workflow_node_name>'.urlencode($wf_name).'</workflow_node_name>
-    <properties>
-        <container name="NIK1">
-        <row rownumberonpage="1">
-            <property name="Számla főtípus">Fenntartási számla</property>
-            <property name="Igazoló döntés">'.urlencode($igazolva).'</property>
-            <property name="Teljesítés igazolás elutasítás oka"><![CDATA['.urlencode($oka).']]></property>
-            '.$sz_szam.'
-            <property name="Szálloda - Klaszter">'.urlencode($szalloda_klaszter).'</property>
-            <property name="Számla tárgya"><![CDATA['.urlencode($szamla['targy']).']]></property>
-            <property name="Megjegyzés"><![CDATA['.urlencode($szamla['megjegyz']).']]></property>
-            <property name="Számla fizetője">'.urlencode($erteklista['cegkod']).'</property>
-            <property name="Teljesítés igazoló személye"><![CDATA['.
-            // Azért nem a $szamla['igazolva_usr'], hisz épp most zajlik az igazolás/elutasítás, ez az adat még nincs az adatbázisban
-            urlencode($_SESSION[get_db_tabla().'teljes_nev'])
-            .']]></property>
-        </row>
-        </container>
-        '.$nik3.'
-        <container name="IK1">
-        '.$szamla['kuld_tetel_xml']/*Ennek előállítását ha meg szeretnéd nézni, keres rá erre: "$_POST['osszevon_targy_kitoltve_ell']"*/.'
-        </container>
-    </properties>
-    </register>
-</data>
+    <data>
+        <register registernumber="'.$szamla['andoc_id'].'" operation="update">
+        <workflow_node_name>'.urlencode($wf_name).'</workflow_node_name>
+        <properties>
+            <container name="NIK1">
+                <row rownumberonpage="1">
+                    <property name="Számla főtípus">Fenntartási számla</property>
+                    <property name="Igazoló döntés">'.urlencode($igazolva).'</property>
+                    <property name="Teljesítés igazolás elutasítás oka"><![CDATA['.urlencode($oka).']]></property>
+                    '.$sz_szam.'
+                    <property name="Szálloda - Klaszter">'.urlencode($szalloda_klaszter).'</property>
+                    <property name="Számla tárgya"><![CDATA['.urlencode($szamla['targy']).']]></property>
+                    <property name="Megjegyzés"><![CDATA['.urlencode($szamla['megjegyz']).']]></property>
+                    <property name="Számla fizetője">'.urlencode($erteklista['cegkod']).'</property>
+                    <property name="Teljesítés igazoló személye"><![CDATA['.
+                    // Azért nem a $szamla['igazolva_usr'], hisz épp most zajlik az igazolás/elutasítás, ez az adat még nincs az adatbázisban
+                    urlencode($_SESSION[get_db_tabla().'teljes_nev'])
+                    .']]></property>
+                </row>
+            </container>
+            '.$nik3.'
+            <container name="IK1">
+            '.$szamla['kuld_tetel_xml']/*Ennek előállítását ha meg szeretnéd nézni, keres rá erre: "$_POST['osszevon_targy_kitoltve_ell']"*/.'
+            </container>
+        </properties>
+        </register>
+    </data>
 </xml>
 ';
 
@@ -3180,9 +3181,7 @@ function xml_vissza( $szamla_id, $igazolva = '', $oka = '' ) {
         if( eles_rendszer_e() ) {
             $valasz = URL_post(ANDOC_POST_KULD_URL_ELES, $valasz_xml, $fejlec);
         } else {
-            if( $_SERVER['REMOTE_ADDR'] != get_debug_ip() ) {
-                $valasz = URL_post(ANDOC_POST_KULD_URL_TESZT, $valasz_xml, $fejlec);
-            }
+            $valasz = URL_post(ANDOC_POST_KULD_URL_TESZT, $valasz_xml, $fejlec);
         }
     } else {
         $valasz_xml = '

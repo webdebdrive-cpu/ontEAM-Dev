@@ -54,8 +54,11 @@
 
         </div>
     </div>
+    <script>
+        var pdf_interval = null;
+    </script>
     <div class="kuldes">
-        <input type="button" name="elkuld" class="gomb zold" value="Megrendelése elkészítése" onclick="munkalapMegrendelesKeszit(); const pdf_interval = setInterval(() => { if (pdf_megnyithato === 1) { window.open('munkalap.php?nyomtat&amp;PDF_hez=1&amp;id='+_get('id')); clearInterval(pdf_interval); } }, 500);">
+        <input type="button" name="elkuld" class="gomb zold" value="Megrendelése elkészítése" onclick="munkalapMegrendelesKeszit(); pdf_interval = setInterval(() => { if (pdf_megnyithato === 1) { window.open('munkalap.php?nyomtat&amp;PDF_hez=1&amp;id='+_get('id')); clearInterval(pdf_interval); } }, 500);">
         <input type="button" name="megsem" class="gomb piros" value="Mégsem" onclick="popupZar();">
     </div>
 </form>
@@ -105,11 +108,13 @@ function munkalapMegrendelesKeszit(mehet = '') {
                         if( response.focus ) {
                             $('#'+response.focus).addClass('hibas_ide_focus');
                         }
+                        
+                        clearInterval(pdf_interval);
                         return false;
                     }
 
                     pdf_megnyithato = 1;
-                    alert2('Véglegesíti a megrendelést?', '<input type="button" class="gomb zold enter" value="Igen" onclick="munkalapMegrendelesKeszit(\'-mehet-\'); const pdf_interval_2 = setInterval(() => { if (pdf_megnyithato === 2) { window.open(\'munkalap.php?nyomtat&amp;id='+_get('id')+'\'); clearInterval(pdf_interval_2); } }, 500);"><input type="button" class="gomb piros" value="Vissza a megrendelés elkészítéséhez" onclick="alert2()">');
+                    alert2('<div class="c">Véglegesíti a megrendelést?</div>', '<input type="button" class="gomb zold enter" value="Igen" onclick="munkalapMegrendelesKeszit(\'-mehet-\'); const pdf_interval_2 = setInterval(() => { if (pdf_megnyithato === 2) { window.open(\'munkalap.php?nyomtat&amp;id='+_get('id')+'\'); clearInterval(pdf_interval_2); } }, 500);" style="top: -0.8rem;position: relative;height: 5rem;width: 6rem;"><input type="button" class="gomb piros" value="Vissza a megrendelés elkészítéséhez" onclick="alert2()" style="width: 17rem;white-space: normal;">');
                 }
             },
             complete: function(xhr) {
@@ -122,7 +127,9 @@ function munkalapMegrendelesKeszit(mehet = '') {
         return false;
     }
     
-    $.ajax({
+    let responseURL = null;
+    
+    const ajaxRequest = $.ajax({
         url : 'munkalap.php',
         type: 'POST',
         data: {
@@ -149,7 +156,12 @@ function munkalapMegrendelesKeszit(mehet = '') {
                     return false;
                 }
 
-                pdf_megnyithato = 2;
+                // PDF-et mutassuk meg
+                // Mégsem felurgó ablakkal, mert azt a bögnésző van hogy blokkolja
+                // Ezért később fogjuk megnyitni, lásd a lentebbi kódot
+                // window.open(response.url);
+                responseURL=response.url;
+
                 szamlaBetolt(_get('id'), PHP_SELF, 'modosit');
                 popupZar();
             }
@@ -161,6 +173,12 @@ function munkalapMegrendelesKeszit(mehet = '') {
         }
     });
 
+    // Ha lefutott az ajax, akkor nyissuk meg új tabon a PDF-et. Így nem az ajaxból van meghívva és a böngésző nem szól érte.
+    $.when(ajaxRequest).done(function() {
+        if( responseURL ) {
+            window.open(responseURL, "_blank");
+        }
+    });
 
     return false;
 }

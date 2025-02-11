@@ -2736,7 +2736,7 @@ if( isset($_POST['munkalapMegrendelesKeszit']) ) {
         $_SESSION['ml_megr_szallito_txt'    ] = nl2br2($_POST['szallito_txt'    ]);
         $_SESSION['ml_megr_megrendelo_txt'  ] = nl2br2($_POST['megrendelo_txt'  ]);
 
-        // Ez így nem működött, ezért az oldalt tényleges megnyitjuk, átadjuk egy url paraméterben
+        // Ez így nem működött, ezért az oldalt ténylegesen megnyitjuk, átadjuk egy url paraméterben
         // $html = URL_letolt(self().'?nyomtat='.$recid);
         
         // Hozzárendelt személyzet: külső kivitelező
@@ -2756,7 +2756,7 @@ if( isset($_POST['munkalapMegrendelesKeszit']) ) {
             mysqli_commit($db_kapcs);
             echo json_encode(array(
                 'statusz' => 'siker',
-                // 'url'     => self().'?nyomtat='.$recid,
+                'url'     => self().'?nyomtat&id='.$recid,
             ));
         } else {
             mysqli_rollback($db_kapcs);
@@ -9119,7 +9119,9 @@ if( isset($_GET['uj']) ) {
                             <br>'.nl2br2($sor['helyiseg_text']).'
                         </div>
                         <div class="dtc vat">
-                            <a href="bejelentes.php?id=x&amp;mezo=ikt_szam&amp;op=equal&amp;felt='.$sor['ikt_szam'].'" target="_blank">'.$sor['ikt_szam'].'</a>
+                            <a href="bejelentes.php?id=x&amp;mezo=ikt_szam&amp;op=equal&amp;felt='.$sor['ikt_szam'].'" target="_blank">
+                                '.$sor['ikt_szam'].'
+                            </a>
                             <br>'.datum_kiir($sor['insert_dt']).'
                             <br>'.getStatText('bejelentes', $sor['stat_id']).'
                         </div>
@@ -9177,7 +9179,7 @@ if( isset($_GET['uj']) ) {
     // Tétel sorok
     $i = 0;
     if( $_GET['id'] ) {
-        $sorok = $adatbazis_kapcsolat->s('recid atadta_dt visszaadva erteklista_id loginnev insert_dt insert_usr', 'munkalap_tetel', "`munkalap_id`=`id`='{$_GET['id']}'", 'recid desc');
+        $sorok = $adatbazis_kapcsolat->s('recid atadta_dt visszaadva erteklista_id loginnev insert_dt insert_usr', 'munkalap_tetel', "`munkalap_id`='{$_GET['id']}'", 'recid desc');
         foreach($sorok as $sor) {
 
             $munkalap = $adatbazis_kapcsolat->s2('stat_id szemelyzet_id', 'munkalap', "`recid`='{$_GET['id']}'");

@@ -632,23 +632,23 @@ if( isset($_POST['pop_tetelek_feltolt']) ) {
         // Popup tételek normál esetben, sima tételek szerkesztésekor
         } else {
             $tovabbi_oszlopok .= nl2('
-                            <td class="pop_dijelem_txt">'.$dijelem['info'].'</td>
-                            <td class="pop_aranyos">'.$aranyos.'</td>
+                            <td class="pop_dijelem_txt">'.      $dijelem['info'].'</td>
+                            <td class="pop_aranyos">'.          $aranyos.'</td>
                             <td class="l">
                                 <span class="pop_tol nowrap">'.datum_kiir($_SESSION['energia_szla_tetel_tol'][$fej_id][$i]).'</span>
                                 <span class="pop_ig nowrap">' .datum_kiir($_SESSION['energia_szla_tetel_ig' ][$fej_id][$i]).'</span>
                             </td>
                             <td class="l">
                                 <span class="pop_indul nowrap">'.$_SESSION['energia_szla_tetel_indul'][$fej_id][$i].'</span>
-                                <span class="pop_zar nowrap">'.$_SESSION['energia_szla_tetel_zar'    ][$fej_id][$i].'</span>
+                                <span class="pop_zar nowrap">'.  $_SESSION['energia_szla_tetel_zar'    ][$fej_id][$i].'</span>
                             </td>
-                            <td class="pop_szorzo nowrap">'.$_SESSION['energia_szla_tetel_szorzo'        ][$fej_id][$i].'</td>
-                            <td class="pop_mert nowrap">'.$_SESSION['energia_szla_tetel_mert'            ][$fej_id][$i].'</td>
+                            <td class="pop_szorzo nowrap">'.    $_SESSION['energia_szla_tetel_szorzo'        ][$fej_id][$i].'</td>
+                            <td class="pop_mert nowrap">'.      $_SESSION['energia_szla_tetel_mert'            ][$fej_id][$i].'</td>
                             <td class="pop_kwh_szorzo nowrap">'.$_SESSION['energia_szla_tetel_kwh_szorzo'][$fej_id][$i].'</td>
-                            <td class="pop_menny nowrap">'.$_SESSION['energia_szla_tetel_menny'          ][$fej_id][$i].'</td>
-                            <td class="pop_egyseg nowrap">'.$_SESSION['energia_szla_tetel_egyseg'        ][$fej_id][$i].'</td>
-                            <td class="pop_menny_kwh nowrap">'.$_SESSION['energia_szla_tetel_menny_kwh'  ][$fej_id][$i].'</td>
-                            <td class="pop_egyseg_ar nowrap">'.$_SESSION['energia_szla_tetel_egyseg_ar'  ][$fej_id][$i].'</td>
+                            <td class="pop_menny nowrap">'.     $_SESSION['energia_szla_tetel_menny'          ][$fej_id][$i].'</td>
+                            <td class="pop_egyseg nowrap">'.    $_SESSION['energia_szla_tetel_egyseg'        ][$fej_id][$i].'</td>
+                            <td class="pop_menny_kwh nowrap">'. $_SESSION['energia_szla_tetel_menny_kwh'  ][$fej_id][$i].'</td>
+                            <td class="pop_egyseg_ar nowrap">'. $_SESSION['energia_szla_tetel_egyseg_ar'  ][$fej_id][$i].'</td>
                 ');
             
             $tovabbi_oszlopok2 .= nl2('

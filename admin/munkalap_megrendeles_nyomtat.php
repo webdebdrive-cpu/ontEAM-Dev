@@ -1,4 +1,5 @@
 <?php
+
 // Ha nyomtatunk, akkor pár adatot rögtön ki is számolunk
 if( isset($_GET['nyomtat']) ) {
 
@@ -6,9 +7,8 @@ if( isset($_GET['nyomtat']) ) {
     $session_user   = $_SESSION[get_db_tabla().'user'];
 
     // Szállító kiszámítása
-    $munkalap = $adatbazis_kapcsolat->s2('szallito_id kcs_21 telephely_id dok_db', 'munkalap', "`recid`='{$ml_recid}'");
+    $munkalap = $adatbazis_kapcsolat->s2('ikt_szam szallito_id kcs_21 telephely_id dok_db', 'munkalap', "`recid`='{$ml_recid}'");
     $ft_szerzodes = $adatbazis_kapcsolat -> s2('szszam insert_dt', 'fenntartasi_szerzodes', "`recid`='{$_SESSION['ml_megr_ft_recid']}'");
-
     $kcs_21   = $munkalap['kcs_21'];
     $penznem  = $adatbazis_kapcsolat->s2('info', 'erteklista', "`csoport`='".ERTEKLISTA_PENZNEM."' AND `id`='{$kcs_21}'");
     // $szallito = $adatbazis_kapcsolat->s2('id nev knev tel tel2 email isz varos utca', 'szallito', "`id`='{$munkalap['szallito_id']}'");
@@ -216,14 +216,14 @@ if( isset($_GET['html_mutat']) ) {
         // Munkalapok dokumentumához is adjuk hozzá
         $adatbazis_kapcsolat -> i('munkalap_dok',   array('munkalap_id',    'utvonal',                                  'fajlnev',     'update_usr',                           'insert_dt',    'insert_usr'                            ),
                                                     array($ml_recid,        '../fenntartasi_szerzodes/'.$utvonal_db_be, $fajlnev,      $_SESSION[get_db_tabla().'teljes_nev'], 'NOW()',        $_SESSION[get_db_tabla().'teljes_nev']  )
-                                                            );
+                                );
         $adatbazis_kapcsolat -> u('munkalap', array('dok_db'), array($munkalap['dok_db']+1), "`recid`='{$ml_recid}'");
-
     }
 
     // Így tudod megnyitni a PDF-et (olyan mintha egy PDF kiterjesztésű fájlra hivatkoznál)
     if( !isset($_GET['html_mutat']) ) {
-        $mpdf -> Output();
+        $pdf_neve = str_replace('/', '_', $munkalap['ikt_szam']).'.pdf';
+        $mpdf->Output($pdf_neve, 'I'); 
     }
 
     $weblap -> leallit();

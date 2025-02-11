@@ -651,8 +651,9 @@ if( isset($_POST['pop_tetelek_feltolt']) ) {
             
         // Popup tételek normál esetben, sima tételek szerkesztésekor
         } else {
+            $tetel_targy = str_replace('{IDEZOJEL}', '"', $_SESSION['megall_szla_tetel_targy'][$fej_id][$i]);
             $tovabbi_oszlopok .= nl2('
-                                        <td class="pop_targy l">'.htmlspecialchars($_SESSION['megall_szla_tetel_targy'][$fej_id][$i]).'</td>
+                                        <td class="pop_targy l">'.htmlspecialchars($tetel_targy).'</td>
                                         <td class="pop_netto r nowrap">'.$_SESSION[$session_mezo    ][$fej_id][$i].'</td>
                                         <td class="pop_brutto r nowrap">'.$_SESSION[$session_mezo_br][$fej_id][$i].'</td>
                                         <td class="pop_jogcim_autocomp l">'.$jogcim['jogcim'].'</td>
@@ -2985,42 +2986,42 @@ function xml_vissza( $szamla_id, $igazolva = '', $oka = '' ) {
     
     $valasz_xml = 'psInputXml=<?xml version="1.0" encoding="utf-8"?>
 <xml>
-  <data>
-    <register registernumber="'.$szamla['andoc_id'].'" operation="update">
-      <workflow_node_name>'.urlencode($wf_name).'</workflow_node_name>
-      <properties>
-        <container name="NIK1">
-          <row rownumberonpage="1">
-            <property name="Számla főtípus">Megállapodás számla</property>
-            <property name="Igazoló döntés">'.urlencode($igazolva).'</property>
-            <property name="Teljesítés igazolás elutasítás oka"><![CDATA['.urlencode($oka).']]></property>
-            '.$sz_szam.'
-            <property name="Szálloda - Klaszter">'.urlencode($szalloda_klaszter).'</property>
-            <property name="Számla tárgya"><![CDATA['.urlencode($szamla['targy']).']]></property>
-            <property name="Megjegyzés"><![CDATA['.urlencode($szamla['megjegyz']).']]></property>
-            <property name="Számla fizetője">'.urlencode($erteklista['cegkod']).'</property>
-            <property name="Teljesítés igazoló személye"><![CDATA['.
-            // Azért nem a $szamla['igazolva_usr'], hisz épp most zajlik az igazolás/elutasítás, ez az adat még nincs az adatbázisban
-            urlencode($_SESSION[get_db_tabla().'teljes_nev'])
-            .']]></property>
-          </row>
-        </container>
-        '.$nik3.'
-        <container name="IK1">
+    <data>
+        <register registernumber="'.$szamla['andoc_id'].'" operation="update">
+        <workflow_node_name>'.urlencode($wf_name).'</workflow_node_name>
+        <properties>
+            <container name="NIK1">
+                <row rownumberonpage="1">
+                    <property name="Számla főtípus">Megállapodás számla</property>
+                    <property name="Igazoló döntés">'.urlencode($igazolva).'</property>
+                    <property name="Teljesítés igazolás elutasítás oka"><![CDATA['.urlencode($oka).']]></property>
+                    '.$sz_szam.'
+                    <property name="Szálloda - Klaszter">'.urlencode($szalloda_klaszter).'</property>
+                    <property name="Számla tárgya"><![CDATA['.urlencode($szamla['targy']).']]></property>
+                    <property name="Megjegyzés"><![CDATA['.urlencode($szamla['megjegyz']).']]></property>
+                    <property name="Számla fizetője">'.urlencode($erteklista['cegkod']).'</property>
+                    <property name="Teljesítés igazoló személye"><![CDATA['.
+                    // Azért nem a $szamla['igazolva_usr'], hisz épp most zajlik az igazolás/elutasítás, ez az adat még nincs az adatbázisban
+                    urlencode($_SESSION[get_db_tabla().'teljes_nev'])
+                    .']]></property>
+                </row>
+            </container>
+            '.$nik3.'
+            <container name="IK1">
             '.$szamla['kuld_tetel_xml']/*Ennek előállítását ha meg szeretnéd nézni, keres rá erre: "$_POST['osszevon_targy_kitoltve_ell']"*/.'
-        </container>
-      </properties>
-    </register>
-  </data>
+            </container>
+        </properties>
+        </register>
+    </data>
 </xml>
 ';
-   
+
     $fejlec = array(
         "Content-type: application/x-www-form-urlencoded",
         "Content-length: ".strlen($valasz_xml),
         "Connection: close",
     );
-    
+
     // Válasz XML postolása CSAK éles és Teszt környezetben van
     if( eles_es_teszt_rendszer_e() ) {
         if( eles_rendszer_e() ) {

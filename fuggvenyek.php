@@ -14178,8 +14178,8 @@ function get_nyomtatas_alairasok() {
                         ......................................................................
                         <div class="c" style="padding-right: 60px">
                         <center>
-                            Hadfi Tamás
-                            <br>Műszaki Igazgató
+                            Csanádi Péter
+                            <br>Központi Műszaki és Beruházási Igazgató
                         </center>
                         </div>
                     </td>

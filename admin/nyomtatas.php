@@ -471,4 +471,3 @@ if( $_GET['print'] == 'lista' || isset($_GET['pdf']) ) {
         header('Location: '.$_SESSION['fajl']['konyvtar'].'.php');
     }
 }
-?>
