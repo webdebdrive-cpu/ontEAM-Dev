@@ -49,7 +49,7 @@ class ServerClass {
 
         global $adatbazis_kapcsolat;
         global $db_kapcs;
-
+        
         $szamla = simplexml_load_string($szamla_xml, 'SimpleXMLElement');
         if( $szamla === false ) {
             Throw new SOAPFault ('Server', 'XML beolvasása nem sikerült. Lehet, hogy hibás karaktert tartalmaz?
@@ -102,12 +102,18 @@ class ServerClass {
         }
         $szamla_andoc_id = $andoc_id = $szamla -> data -> register['registernumber'];
 
+        // Ha a Technikailag sztornózott tag értéke Igen, akkor a számlát sztornózni kell. 
+        $tech_sztorno = 0;
+        if( $szamla_adatok['Technikailag sztornózott'] == 'Igen' ) {
+            $tech_sztorno = 1;
+        }
+
         $kifizetes_import = 0;
-        // Kifizetséről van szó, ha a Fizetési státusz tag-ben az alábbiak vannak
+        // Kifizetésről van szó, ha a Fizetési státusz tag-ben az alábbiak vannak
         if( $szamla_adatok['Fizetési státusz'] == 'kifizetetlen' || $szamla_adatok['Fizetési státusz'] == 'részben kifizetve' || $szamla_adatok['Fizetési státusz'] == 'kifizetett' ) {
             $kifizetes_import = 1;
         }
-        
+
         // Ha kifizetésről van szó, akkor kötelező megadni a Számla főtípust is (sima insertnél nem feltétlen kötelező)
         if( $kifizetes_import && !$szamla_adatok['Számla főtípus'] ) {
             Throw new SOAPFault ('Server', 'Hiányzó számlafőtípus!');
@@ -135,6 +141,7 @@ class ServerClass {
         if( $tabla == '!hiba!' ) {
             Throw new SOAPFault ('Server', 'Nem azonosítható be a számla főtípusa!');
         }
+
         $apa_recid_oszlop = $tabla.'_recid';
 
         // Azt, hogy ez insert vagy update lesz, azt már itt el kell dönteni, hisz update esetén nem kötelezőek a mezők!
@@ -143,7 +150,7 @@ class ServerClass {
         if( $tabla == 'projektszamla' ) {
             $extra_mezok .= ' elo_igazolva elo_igazolva_dt';
         }
-        $szamla_db = $adatbazis_kapcsolat->s2('recid erk_xml tetel_db sztornozva_dt utalvanyozva_dt igazolva_dt'.$extra_mezok, $tabla, "`andoc_id`='{$andoc_id}'");
+        $szamla_db = $adatbazis_kapcsolat->s2('recid szla_szam erk_xml tetel_db sztornozva_dt utalvanyozva_dt igazolva_dt'.$extra_mezok, $tabla, "`andoc_id`='{$andoc_id}'");
         if( $szamla_db === false ) { $db_error = mysqli_error($db_kapcs); }
 
         // Ha létezik a számla az éles táblában, akkor sima ügy, azt kell updatelni
@@ -311,8 +318,8 @@ class ServerClass {
                     Throw new SOAPFault ('Server', 'A számla már sztornózva van, így nem lehet kifizetni!');
                 }
                 
-                // Ha NEM kifizetésről van szó, akkor sima számla update, és ekkor pár mező kötelező
-                if( !$kifizetes_import ) {
+                // Ha NEM kifizetésről van szó sem Technikai sztornózásról, akkor sima számla update, és ekkor pár mező kötelező
+                if( !$kifizetes_import && !$tech_sztorno ) {
                     
                     if( !trim($szamla_adatok['Fizetés módja']) ) {
                         Throw new SOAPFault ('Server', 'Hiányzó fizetési mód!');
@@ -635,8 +642,11 @@ class ServerClass {
                     array_push($ertekek,   'NOW()'          );
                 }
 
-                // Ha egy utalványozást épp elutasítanának, akkor az utalvanyozva_dt-t és sztornozva_dt-t állítsuk be, mert onnan fogjuk tudni, hogy el van utasítva, hogy 0 az értéke, de a dátuma ki van töltve
-                if( mb_strtolower($szamla_adatok['Utalványozó döntés'], self::CHAR_CODING) == 'elutasítva' && $szamla_db['utalvanyozva_dt'] == '0000-00-00 00:00:00' ) {
+                // Ha egy utalványozást épp elutasítanának, vagy technikai sztornózásról van szó, akkor az utalvanyozva_dt-t és sztornozva_dt-t állítsuk be, mert onnan fogjuk tudni, hogy el van utasítva, hogy 0 az értéke, de a dátuma ki van töltve
+                if( 
+                    (mb_strtolower($szamla_adatok['Utalványozó döntés'], self::CHAR_CODING) == 'elutasítva' && $szamla_db['utalvanyozva_dt'] == '0000-00-00 00:00:00') ||
+                    $tech_sztorno
+                 ) {
 
                     array_push($mezok,     'utalvanyozva_dt',   'sztornozva_dt', 'sztornozva_usr');
                     array_push($ertekek,   'NOW()',             'NOW()',         'Andoc'         );
@@ -659,6 +669,7 @@ class ServerClass {
                         if( $szamla === false ) { $db_error = mysqli_error($db_kapcs); }
                         $sql = $adatbazis_kapcsolat->u($tabla, array('pr_szam', 'let_fel'), array('', ''), "`andoc_id`='{$andoc_id}'");
                         if( $sql === false ) { $db_error = mysqli_error($db_kapcs); }
+
                         // a tömbben is
                         $mezo_i = 0;
                         foreach ($mezok as $mezo) {
@@ -726,11 +737,23 @@ class ServerClass {
                                 if( $sql === false ) { $db_error = mysqli_error($db_kapcs); }
                             }
                         }
+
+                        // Fenntartási számlák esetén a munkalap kapcsolatot is bontani kell
+                        if( $szamla_tipus == self::SZAMLA_TIPUS_FENNTARTASI ) {
+                            $sql = $adatbazis_kapcsolat -> u('munkalap', array('szla_szam'), array(''), "`szla_szam`='{$szamla_db['szla_szam']}'");
+                            if( $sql === false ) { $db_error = mysqli_error($db_kapcs); }
+                        }
                     }
                     
                     // Megjegyzésbe is kerüljön be az indoklás
-                    if( addMegj($tabla, $szamla_db['recid'], 'Utalványozás elutasítva.<br>Indoklás: '.nl2br2($szamla_adatok['Utalványozás elutasítás oka'])) === false ) {
-                        $db_error = 'Megjegyzésben írás nem sikerült';
+                    if( $tech_sztorno ) {
+                        if( addMegj($tabla, $szamla_db['recid'], 'A számla technikailag sztornózásra került.', 'Andoc') === false ) {
+                            $db_error = 'Megjegyzésbe írás nem sikerült';
+                        }
+                    } else {
+                        if( addMegj($tabla, $szamla_db['recid'], 'Utalványozás elutasítva.<br>Indoklás: '.nl2br2($szamla_adatok['Utalványozás elutasítás oka']), 'Andoc') === false ) {
+                            $db_error = 'Megjegyzésbe írás nem sikerült';
+                        }
                     }
 
                 }
@@ -739,8 +762,8 @@ class ServerClass {
                 if( $sql === false ) { $db_error = mysqli_error($db_kapcs); }
 
                 // *** ÚJRA FELDOLGOZOTT SZÁMLA *** esete
-                // Ha NEM kifizetésről van szó, és a számla az ontEAM oldalon sztornó állapotban van, akkor töröljük a történetből a feldolgozás, igazolás (+előigazolás), utalványozás, sztornó sorok adatait
-                if( !$kifizetes_import && $szamla_db['sztornozva_dt'] != '0000-00-00 00:00:00' ) {
+                // Ha NEM kifizetésről van szó és nem is Technikailag sztornózott számláról, és a számla az ontEAM oldalon sztornó állapotban van, akkor töröljük a történetből a feldolgozás, igazolás (+előigazolás), utalványozás, sztornó sorok adatait
+                if( !$kifizetes_import && !$tech_sztorno && $szamla_db['sztornozva_dt'] != '0000-00-00 00:00:00' ) {
 
                     $mezok   = array('feldolgozva_dt',      'feldolgozva_usr', 'igazolva', 'igazolva_dt',         'igazolva_usr', 'utalvanyozva', 'utalvanyozva_dt',     'utalvanyozva_usr', 'sztornozva_dt',       'sztornozva_usr', 'sztornozva_leir', 'elutleir');
                     $ertekek = array('0000-00-00 00:00:00', '',                '0',        '0000-00-00 00:00:00', '',             '0',            '0000-00-00 00:00:00', '',                 '0000-00-00 00:00:00', '',               '',                ''        );

@@ -294,6 +294,10 @@ function fenntartasi_szamla_kapcsolas( mehet ) {
                     if( _get('modosit') ) {
                         szamlaBetolt(_get('id'), 'fenntartasi_szamla.php', 'modosit');
                     }
+                    /* Munkalap fül alatt is frissítsünk, mert előfordulhat automatikus munkalap kapcsolás */
+                    if( _get('munkalapok') ) {
+                        szamlaBetolt(_get('id'), 'fenntartasi_szamla.php', 'munkalapok');
+                    }
                 }
             }
         },

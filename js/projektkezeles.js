@@ -234,7 +234,8 @@ function cf_sor_torol(mehet){
 
 // Feltöltött dokumentumok sorainak végén van egy minősítés gomb, az futtatja ezt a függvényt
 var dok_sorszama = 0;
-function dok_minosites( sorszam, szurt = '' ) {
+function dok_minosites( tabla, sorszam, szurt = '' ) {
+    dok_tabla    = tabla;
     dok_sorszama = sorszam;
     if( szurt ) {
         csoportMuvelet('projektszerzodes_dok_minosites_szurt');

@@ -103,7 +103,7 @@ if( isset($_POST['megnevezes']) && !$archivum ) {
             mkdir($utvonal, 0777);
         }
         
-        // Az útvonal, projektek esetén évszámmal is meg van még toldva, amit a rekord insert_dt-jéből veszünk, kivéve számláknál, ott a teljesítés éve számít
+        // Az útvonal, projektek esetén évszámmal is meg van még toldva, amit a rekord insert_dt-jéből veszünk, kivéve némely számláknál/szerződéseknél, ott a teljesítés éve számít
         $projekt_feluletek = array('projektkezeles', 'projektszamla', 'projektszerzodes', 'fenntartasi_szerzodes');
         if( in_array($konyvtar_db_nev, $projekt_feluletek) ) {
 
@@ -252,9 +252,10 @@ if( isset($_POST['megnevezes']) && !$archivum ) {
                         echo 'leptessuk_e_tovabb';
                         
                     }
-                    
+
                     $kep_tort = str_replace('../'.get_utvonal().$konyvtar_db_nev.'/', '', $kepnev);
                     if( $_POST['ellenorzes_kihagy'] == 'false' ) {
+
                         // Letárolás adatbázisba is. A kép neve nem tartalmazza a get_utvonal részt! Ha sikeres akkor adunk egy outputot a flashfile-nak
                         $id = $adatbazis_kapcsolat -> i( $_POST['tabla'],
                                                         array($_POST['oszlop'], 'utvonal',  'fajlnev',         'loginnev',                        'insert_dt',   'insert_usr',                            'update_usr'                           ),
@@ -268,9 +269,8 @@ if( isset($_POST['megnevezes']) && !$archivum ) {
                         echo get_tobbkep_thumb($sor_kepek, count($osszes_sor));
                         
                     } else {
-                        
-                        $sor_kep = $adatbazis_kapcsolat->s($_POST['oszlop'], $_POST['tabla'], "`".$_POST['oszlop']."` = '".$_POST['sorid']."' AND `utvonal` = '{$kep_tort}'", '', '0,1');
 
+                        $sor_kep = $adatbazis_kapcsolat->s($_POST['oszlop'], $_POST['tabla'], "`".$_POST['oszlop']."`='".$_POST['sorid']."' AND `utvonal` = '{$kep_tort}'", '', '0,1');
                         if( !$sor_kep ) {
                             $id = $adatbazis_kapcsolat -> i( $_POST['tabla'],
                                                                 array($_POST['oszlop'], 'utvonal',  'fajlnev',            'loginnev',                        'insert_dt',   'insert_usr',                            'update_usr'                            ),
@@ -377,7 +377,7 @@ $tobbkep_html .= nl2('
         <ul id="sorrendezes_tobbkep" data-tabla="'.$tobbkep_tablanev.'" data-mellek="'.$mellek.'">
     ');
 
-// Projektkezelésnél a direktbe feltölött dokumentumokat másképp listázzuk, hogy lehessen ezejet is minősíteni, illetve levélben elküldeni
+// Projektkezelésnél a direktbe feltölött dokumentumokat másképp listázzuk, hogy lehessen ezeket is minősíteni, illetve levélben elküldeni
 if( $kepek && $apa_tabla != 'projektkezeles' ) {
     
     $tobbkep_html .= nl2('
@@ -400,7 +400,7 @@ if( $kepek && $apa_tabla != 'projektkezeles' ) {
     
 }
 
-// Projektek adatlapján felsoroljuk a kapcsolódó szerződések és számák dokumetumait is
+// Projektek adatlapján felsoroljuk a kapcsolódó szerződések és számlák dokumentumait is
 if( $apa_tabla == 'projektkezeles' ) {
     
     // Projekt lekérdezése
@@ -409,24 +409,35 @@ if( $apa_tabla == 'projektkezeles' ) {
     // Direktbe ide feltöltött dokumentumok, aminknek a tipusa üres => minősítésre váróak
     $kepek_direkt = $adatbazis_kapcsolat->s('*', 'projektkezeles_dok', "`projektkezeles_id`='{$_GET['id']}' AND `tipus`='0'");
     
-    // A szerződéseket kétszer járjuk be: a minősítésre váróakat (tehát ahol a tipus oszlop üres), majd a szerződéseket.
+    // A szerződéseket/számlákat kétszer járjuk be: a minősítésre váróakat (tehát ahol a tipus oszlop üres), majd ahol a típus szerződés/számla.
     $kepek          = array();
     $szerzodesek    = $adatbazis_kapcsolat->s('recid', 'projektszerzodes', "`pr_szam`='{$projekt['ikt_szam']}'");
     $szerzodesek    = adatbazis2tomb($szerzodesek, 'recid');
+    $szamlak        = $adatbazis_kapcsolat->s('recid', 'projektszamla', "`pr_szam`='{$projekt['ikt_szam']}'");
+    $szamlak        = adatbazis2tomb($szamlak, 'recid');
+    
 
-    // Ha van szerződés, akkor a szerződés dokumentumokat is kirajzoljuk
+    // Ha van szerződés/számla, akkor a minősítésre váró szerződés dokumentumokat is kirajzoljuk
     if( $szerzodesek ) {
-        $kepek = $adatbazis_kapcsolat -> s('`'.get_db_tabla().'projektszerzodes_dok`.*, `'.get_db_tabla().'szallito`.`nev`', 'projektszerzodes_dok', "`projektszerzodes_id` IN (".implode(',', $szerzodesek).") AND `tipus`='0'", 
+        $kepek_szerzodes = $adatbazis_kapcsolat -> s('`'.get_db_tabla().'projektszerzodes_dok`.*, `'.get_db_tabla().'szallito`.`nev`', 'projektszerzodes_dok', "`projektszerzodes_id` IN (".implode(',', $szerzodesek).") AND `".get_db_tabla()."projektszerzodes_dok`.`tipus`='0'", 
                                             // Order
                                             '`'.get_db_tabla().'szallito`.`nev`, `'.get_db_tabla().'projektszerzodes`.`sz_szam`', '', '', '', 
                                             // Csatlakozzunk a szerződés sorához a szallito_id miatt, majd tovább csatlakozunk a szállítókhoz, a nev oszlop miatt
                                             'JOIN `'.get_db_tabla().'projektszerzodes` ON `'.get_db_tabla().'projektszerzodes_dok`.`projektszerzodes_id`=`'.get_db_tabla().'projektszerzodes`.`recid`
                                              JOIN `'.get_db_tabla().'szallito` ON `'.get_db_tabla().'projektszerzodes`.`szallito_id`=`'.get_db_tabla().'szallito`.`id` ');
     }
+    if( $szamlak ) {
+        $kepek_szamla = $adatbazis_kapcsolat -> s('`'.get_db_tabla().'projektszamla_dok`.*, `'.get_db_tabla().'szallito`.`nev`', 'projektszamla_dok', "`projektszamla_id` IN (".implode(',', $szamlak).") AND `".get_db_tabla()."projektszamla_dok`.`tipus`='0'", 
+                                            // Order
+                                            '`'.get_db_tabla().'szallito`.`nev`, `'.get_db_tabla().'projektszamla`.`szla_szam`', '', '', '', 
+                                            // Csatlakozzunk a számla sorához a szallito_id miatt, majd tovább csatlakozunk a szállítókhoz, a nev oszlop miatt
+                                            'JOIN `'.get_db_tabla().'projektszamla` ON `'.get_db_tabla().'projektszamla_dok`.`projektszamla_id`=`'.get_db_tabla().'projektszamla`.`recid`
+                                             JOIN `'.get_db_tabla().'szallito` ON `'.get_db_tabla().'projektszamla`.`szallito_id`=`'.get_db_tabla().'szallito`.`id` ');
+    }
 
-    // Direkt és szerződés dokumentumokat kezeljük egybe
-    $kepek = array_merge($kepek_direkt, $kepek);
-    if( $kepek ) {
+    // Direktbe feltöltött, a szerződés illetve a számla dokumentumokat kezeljük egybe
+    $kepek_mind = array_merge($kepek_direkt, $kepek_szerzodes, $kepek_szamla);
+    if( $kepek_mind ) {
         
         // Nyitva-zárva állapot $_SESSION-ben tárolva
         $azon = 'dok_minositesre_var_'.$_GET['id'];
@@ -441,7 +452,7 @@ if( $apa_tabla == 'projektkezeles' ) {
                             </li>
                             <li class="fejlec nohover '.$azon.$dn.'">
                                 <div class="felirat">Partner</div>
-                                <div class="felirat">Szerződés</div>
+                                <div class="felirat">Szerződés/Számla</div>
                                 <div class="kep">Fájlnév</div>
                                 <div class="felirat c"></div>
                                 <div class="felirat feltoltotte_fejlec">Feltöltötte</div>
@@ -452,15 +463,23 @@ if( $apa_tabla == 'projektkezeles' ) {
                             </li>
             ');
     }
-    foreach ( $kepek as $sor_kepek ) {
+    foreach ( $kepek_direkt as $sor_kepek ) {
+        $tobbkep_html .= get_tobbkep_thumb($sor_kepek, $i, '', '', '', $azon.$dn);
+        $i++;
+    }
+    foreach ( $kepek_szerzodes as $sor_kepek ) {
         $tobbkep_html .= get_tobbkep_thumb($sor_kepek, $i, 'projektszerzodes_dok', '', $sor_kepek['projektszerzodes_id'], $azon.$dn);
+        $i++;
+    }
+    foreach ( $kepek_szamla as $sor_kepek ) {
+        $tobbkep_html .= get_tobbkep_thumb($sor_kepek, $i, 'projektszamla_dok', '', $sor_kepek['projektszamla_id'], $azon.$dn);
         $i++;
     }
     
     // Szerződések bejárása másodjára: minősített dokumentumok kiíratása, tehát ahol a tipus=szerződés
     $kepek = array();
     if( $szerzodesek ) {
-        $kepek = $adatbazis_kapcsolat -> s('`'.get_db_tabla().'projektszerzodes_dok`.*, `'.get_db_tabla().'szallito`.`nev`', 'projektszerzodes_dok', "`projektszerzodes_id` IN (".implode(',', $szerzodesek).") AND `tipus`='".EL_DOK_TIPUS_SZERZODES."'",
+        $kepek = $adatbazis_kapcsolat -> s('`'.get_db_tabla().'projektszerzodes_dok`.*, `'.get_db_tabla().'szallito`.`nev`', 'projektszerzodes_dok', "`projektszerzodes_id` IN (".implode(',', $szerzodesek).") AND `".get_db_tabla()."projektszerzodes_dok`.`tipus`='".EL_DOK_TIPUS_SZERZODES."'",
                                             // Order
                                             '`'.get_db_tabla().'szallito`.`nev`, `'.get_db_tabla().'projektszerzodes`.`sz_szam`', '', '', '', 
                                             // Csatlakozzunk a szerződés sorához a szallito_id miatt, majd tovább csatlakozunk a szállítókhoz, a nev oszlop miatt
@@ -601,13 +620,11 @@ if( $apa_tabla == 'projektkezeles' ) {
     }
     
     // Számlák
-    $kepek      = array();
-    $szamlak    = $adatbazis_kapcsolat->s('recid', 'projektszamla', "`pr_szam`='{$projekt['ikt_szam']}'");
-    $szamlak    = adatbazis2tomb($szamlak, 'recid');
+    $kepek = array();
 
-    // Ha van szerződés, akkor a szerződés dokumentumokat is kirajzoljuk
+    // Ha van számla, akkor a számla dokumentumokat is kirajzoljuk
     if( $szamlak ) {
-        $kepek = $adatbazis_kapcsolat -> s('`'.get_db_tabla().'projektszamla_dok`.*, `'.get_db_tabla().'szallito`.`nev`', 'projektszamla_dok', "`projektszamla_id` IN (".implode(',', $szamlak).")",
+        $kepek = $adatbazis_kapcsolat -> s('`'.get_db_tabla().'projektszamla_dok`.*, `'.get_db_tabla().'szallito`.`nev`', 'projektszamla_dok', "`projektszamla_id` IN (".implode(',', $szamlak).") AND `".get_db_tabla()."projektszamla_dok`.`tipus`='".EL_DOK_TIPUS_SZAMLA."'",
                                             // Order
                                             '`'.get_db_tabla().'szallito`.`nev`, `'.get_db_tabla().'projektszamla`.`szla_szam`', '', '', '', 
                                             // Csatlakozzunk a számla sorához a szallito_id miatt, majd tovább csatlakozunk a szállítókhoz, a nev oszlop miatt
@@ -646,7 +663,7 @@ if( $apa_tabla == 'projektkezeles' ) {
     $szamla_fodok_link_kiirva = array();
     foreach ( $kepek as $sor_kepek ) {
         
-        // Andoc fődokumentum link kilistázása, ha adott szerződésnél még nem jártunk volna
+        // Andoc fődokumentum link kilistázása, ha adott számlánál még nem jártunk volna
         if( !in_array($sor_kepek['projektszamla_id'], $szamla_fodok_link_kiirva) ) {
             
             array_push($szamla_fodok_link_kiirva, $sor_kepek['projektszamla_id']);
@@ -752,76 +769,47 @@ if( $apa_tabla == 'projektkezeles' ) {
     
 }
 
-// Projketszerződésnél pedig felsoroljuk a jótállás fül alatti dokumentumokat is
-if( /*$apa_tabla == 'projektszerzodes' ||*/ $apa_tabla == 'projektkezeles' ) {
+// Projketkezelésnél pedig felsoroljuk a jótállás fül alatti dokumentumokat is
+if( $apa_tabla == 'projektkezeles' ) {
 
     $kepek = array();
-    /*if( $apa_tabla == 'projektszerzodes' ) {
-        
-        $kepek = $adatbazis_kapcsolat->s('*', 'projektszerzodes_jotallas', "`projektszerzodes_recid`='{$_GET['id']}'");
+
+    $projekt             = $adatbazis_kapcsolat->s2('ikt_szam', 'projektkezeles', "`recid`='{$_GET['id']}'");
+    $pr_szerzodes_recidk = $adatbazis_kapcsolat->s('recid', 'projektszerzodes', "`pr_szam`='{$projekt['ikt_szam']}'");
+    $pr_szerzodes_recidk = adatbazis2tomb($pr_szerzodes_recidk, 'recid');
+    // Csak azokat a jótállásokat listázzuk ki, amihez már van fájl csatolva
+    $kepek = $adatbazis_kapcsolat -> s('`'.get_db_tabla().'projektszerzodes_jotallas`.*, `'.get_db_tabla().'szallito`.`nev`', 'projektszerzodes_jotallas', "`projektszerzodes_recid` IN (".implode(',', $pr_szerzodes_recidk).") AND `utvonal`!=''",
+                                        // Order
+                                        '`'.get_db_tabla().'szallito`.`nev`, `'.get_db_tabla().'projektszerzodes`.`sz_szam`', '', '', '', 
+                                        // Csatlakozzunk a szerződés sorához a szallito_id miatt, majd tovább csatlakozunk a szállítókhoz, a nev oszlop miatt
+                                        'JOIN `'.get_db_tabla().'projektszerzodes` ON `'.get_db_tabla().'projektszerzodes_jotallas`.`projektszerzodes_recid`=`'.get_db_tabla().'projektszerzodes`.`recid`
+                                            JOIN `'.get_db_tabla().'szallito` ON `'.get_db_tabla().'projektszerzodes`.`szallito_id`=`'.get_db_tabla().'szallito`.`id` ');
     
-        if( $kepek ) {
-            
-            // Nyitva-zárva megjegyzése
-            $azon = 'dok_jotallas_'.$_GET['id'];
-            $dn = ' dn';
-            if( $_SESSION['projekt_dok'][$azon] ) {
-                $dn = '';
-            }
+    if( $kepek ) {
 
-            $tobbkep_html .= nl2('
-                                <li class="nohover link" style="margin: 2rem 0rem 0.3rem 0" onclick="dokumentumok_kibont(\''.$azon.'\', \''.$apa_tabla.'\');">
-                                    <h3>Jótállások</h3>
-                                </li>
-                                <li class="fejlec nohover '.$azon.$dn.'">
-                                    <div class="kep">Fájlnév</div>
-                                    <div class="felirat c" style="width: 28.2rem"></div>
-                                    <div class="felirat" style="width: 15rem;">Feltöltötte</div>
-                                    <div class="felirat">Feltöltve</div>
-                                    <div class="maradek torles"></div>
-                                </li>
-                ');
+        // Nyitva-zárva megjegyzése
+        $azon = 'dok_jotallas_'.$_GET['id'];
+        $dn = ' dn';
+        if( $_SESSION['projekt_dok'][$azon] ) {
+            $dn = '';
         }
-        
-    } elseif( $apa_tabla == 'projektkezeles' ) {
-        */
-        $projekt             = $adatbazis_kapcsolat->s2('ikt_szam', 'projektkezeles', "`recid`='{$_GET['id']}'");
-        $pr_szerzodes_recidk = $adatbazis_kapcsolat->s('recid', 'projektszerzodes', "`pr_szam`='{$projekt['ikt_szam']}'");
-        $pr_szerzodes_recidk = adatbazis2tomb($pr_szerzodes_recidk, 'recid');
-        // Csak azokat a jótállásokat listázzuk ki, amihez már van fájl csatolva
-        $kepek = $adatbazis_kapcsolat -> s('`'.get_db_tabla().'projektszerzodes_jotallas`.*, `'.get_db_tabla().'szallito`.`nev`', 'projektszerzodes_jotallas', "`projektszerzodes_recid` IN (".implode(',', $pr_szerzodes_recidk).") AND `utvonal`!=''",
-                                            // Order
-                                            '`'.get_db_tabla().'szallito`.`nev`, `'.get_db_tabla().'projektszerzodes`.`sz_szam`', '', '', '', 
-                                            // Csatlakozzunk a szerződés sorához a szallito_id miatt, majd tovább csatlakozunk a szállítókhoz, a nev oszlop miatt
-                                            'JOIN `'.get_db_tabla().'projektszerzodes` ON `'.get_db_tabla().'projektszerzodes_jotallas`.`projektszerzodes_recid`=`'.get_db_tabla().'projektszerzodes`.`recid`
-                                             JOIN `'.get_db_tabla().'szallito` ON `'.get_db_tabla().'projektszerzodes`.`szallito_id`=`'.get_db_tabla().'szallito`.`id` ');
-        
-        if( $kepek ) {
-
-            // Nyitva-zárva megjegyzése
-            $azon = 'dok_jotallas_'.$_GET['id'];
-            $dn = ' dn';
-            if( $_SESSION['projekt_dok'][$azon] ) {
-                $dn = '';
-            }
-            $tobbkep_html .= nl2('
-                                <li class="nohover link" style="margin: 2rem 0rem 0.3rem 0" onclick="dokumentumok_kibont(\''.$azon.'\', \''.$apa_tabla.'\');">
-                                    <h3>Jótállások</h3>
-                                </li>
-                                <li class="fejlec nohover '.$azon.$dn.'">
-                                    <div class="felirat">Partner</div>
-                                    <div class="felirat">Szerződés</div>
-                                    <div class="kep">Fájlnév</div>
-                                    <div class="felirat c"></div>
-                                    <div class="felirat">Feltöltötte</div>
-                                    <div class="felirat">Feltöltve</div>
-                                    <div class="felirat">Minősítés törlése</div>
-                                    <div class="felirat"></div>
-                                    <div class="maradek torles">Jelölés</div>
-                                </li>
-                ');
-        }
-    /*}*/
+        $tobbkep_html .= nl2('
+                            <li class="nohover link" style="margin: 2rem 0rem 0.3rem 0" onclick="dokumentumok_kibont(\''.$azon.'\', \''.$apa_tabla.'\');">
+                                <h3>Jótállások</h3>
+                            </li>
+                            <li class="fejlec nohover '.$azon.$dn.'">
+                                <div class="felirat">Partner</div>
+                                <div class="felirat">Szerződés</div>
+                                <div class="kep">Fájlnév</div>
+                                <div class="felirat c"></div>
+                                <div class="felirat">Feltöltötte</div>
+                                <div class="felirat">Feltöltve</div>
+                                <div class="felirat">Minősítés törlése</div>
+                                <div class="felirat"></div>
+                                <div class="maradek torles">Jelölés</div>
+                            </li>
+            ');
+    }
     
     foreach ( $kepek as $sor_kepek ) {
         $tobbkep_html .= get_tobbkep_thumb($sor_kepek, $i, 'projektszerzodes_jotallas', 'nincs törlés', $sor_kepek['projektszerzodes_recid'], $azon.$dn);
@@ -831,10 +819,10 @@ if( /*$apa_tabla == 'projektszerzodes' ||*/ $apa_tabla == 'projektkezeles' ) {
 }
 
 // Végül egy általános ciklus a Projektek modul alá:
-// felsoroljuk az értéklistában levő minősítés fajtákat, és felsoroljuk azokhoz tartozó dokumentumokat is. 
-// (Kivéve a szerződéseket, mert azokat fentebb már kiírtuk.)
+// felsoroljuk az értéklistában levő minősítés fajtákat, és felsoroljuk az azokhoz tartozó dokumentumokat is. 
+// (Kivéve a szerződéseket/számlákat, mert azokat fentebb már kiírtuk.)
 if( $apa_tabla == 'projektkezeles' ) {
-    $dok_tipusok = $adatbazis_kapcsolat->s('id info', 'erteklista', "`csoport`='".ERTEKLISTA_DOK_TIPUS."' AND `id`!='".EL_DOK_TIPUS_SZERZODES."'", 'info');
+    $dok_tipusok = $adatbazis_kapcsolat->s('id info', 'erteklista', "`csoport`='".ERTEKLISTA_DOK_TIPUS."' AND `id` NOT IN ('".EL_DOK_TIPUS_SZERZODES."', '".EL_DOK_TIPUS_SZAMLA."')", 'info');
     foreach( $dok_tipusok as $tipus ) {
 
         // Tehát itt egy ciklusban ugyanazt csináljuk mint fentebb, csak adott típusra szűrve
@@ -845,17 +833,25 @@ if( $apa_tabla == 'projektkezeles' ) {
         
         // Ha van szerződés, akkor a szerződés dokumentumokat is kirajzoljuk
         if( $szerzodesek ) {
-            $kepek = $adatbazis_kapcsolat -> s('`'.get_db_tabla().'projektszerzodes_dok`.*, `'.get_db_tabla().'szallito`.`nev`', 'projektszerzodes_dok', "`projektszerzodes_id` IN (".implode(',', $szerzodesek).") AND `tipus`='{$tipus['id']}'",
+            $kepek_szerzodes = $adatbazis_kapcsolat -> s('`'.get_db_tabla().'projektszerzodes_dok`.*, `'.get_db_tabla().'szallito`.`nev`', 'projektszerzodes_dok', "`projektszerzodes_id` IN (".implode(',', $szerzodesek).") AND `".get_db_tabla()."projektszerzodes_dok`.`tipus`='{$tipus['id']}'",
                                                 // Order
                                                 '`'.get_db_tabla().'szallito`.`nev`, `'.get_db_tabla().'projektszerzodes`.`sz_szam`', '', '', '',
                                                 // Csatlakozzunk a szerződés sorához a szallito_id miatt, majd tovább csatlakozunk a szállítókhoz, a nev oszlop miatt
                                                 'JOIN `'.get_db_tabla().'projektszerzodes` ON `'.get_db_tabla().'projektszerzodes_dok`.`projektszerzodes_id`=`'.get_db_tabla().'projektszerzodes`.`recid`
                                                  JOIN `'.get_db_tabla().'szallito` ON `'.get_db_tabla().'projektszerzodes`.`szallito_id`=`'.get_db_tabla().'szallito`.`id` ');
         }
+        if( $szamlak ) {
+            $kepek_szamla = $adatbazis_kapcsolat -> s('`'.get_db_tabla().'projektszamla_dok`.*, `'.get_db_tabla().'szallito`.`nev`', 'projektszamla_dok', "`projektszamla_id` IN (".implode(',', $szamlak).") AND `".get_db_tabla()."projektszamla_dok`.`tipus`='{$tipus['id']}'",
+                                                // Order
+                                                '`'.get_db_tabla().'szallito`.`nev`, `'.get_db_tabla().'projektszamla`.`szla_szam`', '', '', '',
+                                                // Csatlakozzunk a szerződés sorához a szallito_id miatt, majd tovább csatlakozunk a szállítókhoz, a nev oszlop miatt
+                                                'JOIN `'.get_db_tabla().'projektszamla` ON `'.get_db_tabla().'projektszamla_dok`.`projektszamla_id`=`'.get_db_tabla().'projektszamla`.`recid`
+                                                 JOIN `'.get_db_tabla().'szallito` ON `'.get_db_tabla().'projektszamla`.`szallito_id`=`'.get_db_tabla().'szallito`.`id` ');
+        }
         
         // Direkt és szerződés dokumentumokat kezeljük egybe
-        $kepek = array_merge($kepek_direkt, $kepek);
-        if( $kepek ) {
+        $kepek_mind = array_merge($kepek_direkt, $kepek_szerzodes, $kepek_szamla);
+        if( $kepek_mind ) {
             
             // Nyitva-zárva megjegyzése
             $azon = 'dok_tipus_'.$tipus['id'].'_'.$_GET['id'];
@@ -869,7 +865,7 @@ if( $apa_tabla == 'projektkezeles' ) {
                                 </li>
                                 <li class="fejlec nohover '.$azon.$dn.'">
                                     <div class="felirat">Partner</div>
-                                    <div class="felirat">Szerződés</div>
+                                    <div class="felirat">Szerződés/Számla</div>
                                     <div class="kep">Fájlnév</div>
                                     <div class="felirat c"></div>
                                     <div class="felirat">Feltöltötte</div>
@@ -880,8 +876,16 @@ if( $apa_tabla == 'projektkezeles' ) {
                                 </li>
                 ');
         }
-        foreach ( $kepek as $sor_kepek ) {
+        foreach ( $kepek_direkt as $sor_kepek ) {
+            $tobbkep_html .= get_tobbkep_thumb($sor_kepek, $i, '', 'nincs törlés', '', $azon.$dn );
+            $i++;
+        }
+        foreach ( $kepek_szerzodes as $sor_kepek ) {
             $tobbkep_html .= get_tobbkep_thumb($sor_kepek, $i, 'projektszerzodes_dok', 'nincs törlés', $sor_kepek['projektszerzodes_id'], $azon.$dn );
+            $i++;
+        }
+        foreach ( $kepek_szamla as $sor_kepek ) {
+            $tobbkep_html .= get_tobbkep_thumb($sor_kepek, $i, 'projektszamla_dok', 'nincs törlés', $sor_kepek['projektszamla_id'], $azon.$dn );
             $i++;
         }
         
@@ -905,7 +909,7 @@ $szamla_html .= $tobbkep_html;
 
 
 
-// A több képe thumbnailját hozza létre, egy adatbázis sorból
+// A több kép thumbnailját hozza létre, egy adatbázis sorból
 function get_tobbkep_thumb($sor_kepek = '', $i = '', $tobbkep_tablanev = '', $nincs_torles = '', $kulso_recid = '', $class = '') {
 
     global $archivum;
@@ -925,7 +929,6 @@ function get_tobbkep_thumb($sor_kepek = '', $i = '', $tobbkep_tablanev = '', $ni
     $tobbkep_html = '';
     
     $apa_tabla = csonkit($tobbkep_tablanev, 4);
-
     $sor_kepek['utvonal'] = stripslashes(htmlspecialchars_decode($sor_kepek['utvonal']));
     $csonkit = 4;
     if( $archivum ) {
@@ -984,13 +987,24 @@ function get_tobbkep_thumb($sor_kepek = '', $i = '', $tobbkep_tablanev = '', $ni
         }
         $azon = 'kep'.$id_kieg.$sor_kepek['recid'];
 
+        // Fenntartási szerződésnél ha az útvonal ../munkalap/ kezdetű, akkor nem törölhető
+        $nem_torolheto = 0;
+        if( basename(self()) == 'fenntartasi_szerzodes.php' && substr($sor_kepek['utvonal'], 0, 12) == '../munkalap/' ) {
+            $nem_torolheto = 1;
+            // Ha nem létezne már a fájl a ML-ok alatt, akkor ne jelenítsük meg, sőt töröljük is a bejegyzést
+            if( !is_file('../'.get_utvonal().utvonal_egyszerusit($sor_kepek['utvonal'])) ) {
+                $adatbazis_kapcsolat -> d('fenntartasi_szerzodes_dok', "`recid`='{$sor_kepek['recid']}'");
+                return false;
+            }
+        }
+
         // Csak az törölheti, aki feltöltötte (ha archivum, akkor meg már senki)
         $torles = '';
         $betolt = 'dokumentumok';
         if( isset($_GET['engedelyek']) ) {
             $betolt = 'engedelyek';
         }
-        if( $sor_kepek['loginnev'] == $_SESSION[get_db_tabla().'user'] && !$archivum ) {
+        if( $sor_kepek['loginnev'] == $_SESSION[get_db_tabla().'user'] && !$archivum && !$nem_torolheto ) {
 
             // Nyelvtani szépség
             $a_az = a_az($sor_kepek['fajlnev']);
@@ -1044,7 +1058,7 @@ function get_tobbkep_thumb($sor_kepek = '', $i = '', $tobbkep_tablanev = '', $ni
             $class_kiir = ' class="'.$class.'"';
         }
         
-        // Projektszerződéses dokumentumok végén van minősítésre lehetőség (projektek felület alatt), ha még nem volna beállítva a típusa
+        // Projektszerződés/projektszámla dokumentumok végén van minősítésre lehetőség (projektek felület alatt), ha még nem volna beállítva a típusa
         // Ilyenkor más class nevet kell adni a törlés oszlopnak, hogy ne essen szét a táblázat
         $minosites    = '';
         $torles_class = 'maradek';
@@ -1053,23 +1067,23 @@ function get_tobbkep_thumb($sor_kepek = '', $i = '', $tobbkep_tablanev = '', $ni
             
             // Jótállások alatt nincs minősítés gomb
             $minosites = '<div class="felirat"></div>';
-            $nem_minositeses = array('projektszerzodes_jotallas', 'projektszamla_dok');
+            $nem_minositeses = array('projektszerzodes_jotallas');
             if( !in_array($tobbkep_tablanev, $nem_minositeses) ) {
-                // Ha szerződésről van szó, és nincs még minősítve, csak akkor jelenítjük meg a minősítést gombot
+                // Ha szerződésről/számláról van szó, és nincs még minősítve, csak akkor jelenítjük meg a minősítés gombot
                 $torles_class = 'felirat';
                 // Direktbe feltöltött dokumentumok minősítés gombja más (számla típus ki van szűrve)
                 if( $direkt_dokumentum && !$sor_kepek['tipus'] ) {
 
                     $minosites = nl2('
                         <div class="felirat l">
-                            <input type="button" class="gomb alacsony" value="Minősítés" onclick="dok_minosites(\''.$sor_kepek['recid'].'\', \'szűrt\')">
+                            <input type="button" class="gomb alacsony" value="Minősítés" onclick="dok_minosites(\''.$apa_tabla.'\', \''.$sor_kepek['recid'].'\', \'szűrt\')">
                         </div>
                         ');
                 // Nem direkt dokumentum minősítés (itt megengedett a számla típus)
                 } else if( !$direkt_dokumentum && !$sor_kepek['tipus'] ) {
                     $minosites = nl2('
                         <div class="felirat l">
-                            <input type="button" class="gomb alacsony" value="Minősítés" onclick="dok_minosites(\''.$sor_kepek['recid'].'\')">
+                            <input type="button" class="gomb alacsony" value="Minősítés" onclick="dok_minosites(\''.$apa_tabla.'\', \''.$sor_kepek['recid'].'\')">
                         </div>
                         ');
                 // Ha nem minősíthető egy dokumentum (mert már minősítve van), akkor meg a minősítés törölhető róla
@@ -1228,4 +1242,21 @@ function mb_wordwrap($str, $width = 75, $break = "\n", $cut = false, $charset = 
       $result[] = $current;
     }
     return implode($break, $result);
+}
+
+// '../munkalap/../fenntartasi_szerzodes/25/M_2025_116/valami.pdf' -ből ezt csinája: '../fenntartasi_szerzodes/25/M_2025_116/valami.pdf'
+function utvonal_egyszerusit($path) {
+    $parts = array();
+    $path  = str_replace('\\', '/', $path);
+
+    foreach (explode('/', $path) as $part) {
+        if ($part === '' || $part === '.') continue;
+        if ($part === '..') {
+            array_pop($parts);
+        } else {
+            $parts[] = $part;
+        }
+    }
+
+    return implode('/', $parts);
 }

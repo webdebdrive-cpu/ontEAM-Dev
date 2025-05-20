@@ -314,7 +314,7 @@ function tetel_hozzaadasa() {
 
     van_valtozas = true;
 
-    /* Üres adatok ellenőrzése */
+    // Üres adatok ellenőrzése
     if( !targy ){
         alert2('Kérem töltse ki a tárgyat!', '', 'Hiba');
         $('#pop_targy').addClass('hibas_ide_focus');
@@ -347,7 +347,7 @@ function tetel_hozzaadasa() {
 
     var id_tmp = new Date().getTime();
     
-    /* Ha ismert a sor_id, akkor update */
+    // Ha ismert a sor_id, akkor update
     if( sor_id ) {
 
         $('.pop_tetel_'+sor_id+' .pop_targy'            ).html( targy       );
@@ -361,7 +361,7 @@ function tetel_hozzaadasa() {
         $('.pop_tetel_'+sor_id+' .pop_ktghely_autocomp' ).html( ktghely_txt );
         $('.pop_tetel_'+sor_id+' .pop_valtozott'        ).val ( 1           );
 
-    /* Egyébként új sor hozzáadása */
+    // Egyébként új sor hozzáadása
     } else {
         
         var table_sor = '<tr class="pop_tetel_'+id_tmp+'">' +
@@ -408,7 +408,7 @@ function tetel_hozzaadasa() {
     
     tetel_netto_osszeszamol();
     
-    /* A tétel sorokat csak Session-ba, kimentjük. DB-be még nem menethetünk csak, ha a Mentés gombra kattintottak. */
+    // A tétel sorokat csak Session-ba, kimentjük. DB-be még nem menethetünk csak, ha a Mentés gombra kattintottak.
 
 }
 
@@ -442,9 +442,13 @@ function kapcsolas_torol(sz_tetel_id, fej_id, i, mehet = '') {
                     alert2(response.hiba, response.gomb, response.title);
                     return false;
                 }
-                /* Ha az adatlapon vagyunk, akkor meg azt frissítsük a szerződés szám mező miatt */
+                // Ha az adatlapon vagyunk, akkor meg azt frissítsük a szerződés szám mező miatt
                 if( _get('modosit') ) {
                     szamlaBetolt(fej_id, 'fenntartasi_szamla.php', 'modosit');
+                }
+                // Munkalap fül alatt is frissítsünk, mert előfordulhat automatikus munkalap kapcsolás
+                if( _get('munkalapok') ) {
+                    szamlaBetolt(_get('id'), 'fenntartasi_szamla.php', 'munkalapok');
                 }
                 $('#tetel_'+sz_tetel_id).html('');
                 csoportMuvelet('fenntartasiszamla_tetelek_kezelese');
@@ -459,7 +463,7 @@ function kapcsolas_torol(sz_tetel_id, fej_id, i, mehet = '') {
     });
 }
 
-/* Tétel sor törlése */
+// Tétel sor törlése
 function popup_tetel_sor_torol(sor_id, mehet){
     
     $('.'+sor_id).addClass('torles_elott');

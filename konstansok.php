@@ -107,6 +107,8 @@ define('MUNKALAP_STAT_SZTORNO',             '19');
 define('MUNKALAP_STAT_VARAKOZO',            '20');
 define('MUNKALAP_STAT_AJANLAT_NYOMTATVA',   '21');
 define('MUNKALAP_STAT_SZTORNO_VAR',         '22');
+define('MUNKALAP_STAT_MEGR_ALAIR_VAR',      '23');
+define('MUNKALAP_STAT_MEGR_ELKULD_VAR',     '24');
 
 // Munkalap anyag státuszok
 define('MUNKALAP_ANYAG_STAT_AI_SZUKS',      '01');
@@ -376,6 +378,8 @@ define('JOG_MUNKALAP_KULSOS_ELOKESZIT', 37);
 define('JOG_MUNKALAP_KULSOS_MEGREND',   67);
 define('JOG_MUNKALAP_TOROL',            68);
 define('JOG_MUNKALAP_ANYAG_ERKEZTET',   70);
+define('JOG_MUNKALAP_ELSODL_ALAIR',    146);
+define('JOG_MUNKALAP_MASODL_ALAIR',    147);
 define('JOG_TORZSADAT_MEGTEKINT',       25);
 define('JOG_TORZSADAT_KEZEL',           26);
 define('JOG_TORZSADAT_SAJAT_MEGTEKINT',135);
@@ -480,6 +484,7 @@ define('JOG_MEGALLAPODAS_SZAMLA_IGAZOL',86);
 
 define('SZAMLAK_IGAZOLASA',            139);
 define('ANDOC_SZAMLAK_SZETOSZTASA',    141);
+define('ANDOC_LOG_UTVONAL',             '../andoc2/log/andoc.log');
 
 // ÉRTESÍTÉSEK
 define('ERT_KESZRE_JELENTESKOR',         0);
@@ -546,6 +551,7 @@ define('EL_DOK_TIPUS_GAR_BEJAR',    2);
 define('EL_DOK_TIPUS_SZERZODES',    3);
 define('EL_DOK_TIPUS_MUNKATER_ATAD',4);
 define('EL_DOK_TIPUS_TELJESITES',   10);
+define('EL_DOK_TIPUS_SZAMLA',       15);
 
 // Értéklista fix, nem szerkeszthető bejegyzése: Beosztások 
 define('EL_BEOSZTAS_DISZ_KP_VEZ',   16 );

@@ -327,6 +327,9 @@ function i_u($type, $tabla, $tomb) {
             if( $_SESSION[get_db_tabla().'szemelyzet_id'] == TERULETI_FELELOS ) {
                 $_POST['tipus'] = PRIGENY_TIPUS_FENNT;
             }
+
+            // A Felhasználható keret új projekt esetén annyi mint a jóváhagyott keret.
+            $_POST['fel_hato'] = $_POST['jkolt'];
         }
         if( $type == 'update' ) {
             // Ellenőrizzük, hogy az egy/több szállodás pipa változott-e. Ha igen, és van manuális cash-flow tétel, akkor ezt nem engedjük meg.
@@ -3247,26 +3250,26 @@ function i_u($type, $tabla, $tomb) {
                 if( $szerzodesek === false ) { $db_error = true; }
                 $projekt = $adatbazis_kapcsolat->s2('jkolt', 'projektkezeles', "`ikt_szam`='{$_POST['pr_szam']}'");
                 if( $projekt === false ) { $db_error = true; }
-                
-                $sz_ossz = $szerzodesek['SUM(`szerz_ossz`)']+ $_POST['szerz_ossz'];
+
+                $sz_ossz = $szerzodesek['SUM(`szerz_ossz`)']+$_POST['szerz_ossz'];
                 $fel_hato = $projekt['jkolt']-$sz_ossz;
                 $sql = $adatbazis_kapcsolat->u('projektkezeles', array('sz_ossz', 'fel_hato'), array($sz_ossz, $fel_hato), "`ikt_szam`='{$_POST['pr_szam']}'");
                 if( $sql === false ) { $db_error = true; }
             }
 
             // De az is lehet, hogy most vettük le, csak DB-ben létezik, ekkor is újra kell számíttatni, kicsit másképp
-            if( $sor['pr_szam'] ) {
+            if( !$_POST['pr_szam'] && $sor['pr_szam'] ) {
                 $szerzodesek = $adatbazis_kapcsolat->s2('SUM(`szerz_ossz`)', 'projektszerzodes', "`pr_szam`='{$sor['pr_szam']}' AND `recid`!='{$_GET['id']}'");
                 if( $szerzodesek === false ) { $db_error = true; }
                 $projekt = $adatbazis_kapcsolat->s2('jkolt', 'projektkezeles', "`ikt_szam`='{$sor['pr_szam']}'");
                 if( $projekt === false ) { $db_error = true; }
-                
+
                 $sz_ossz = $szerzodesek['SUM(`szerz_ossz`)'];
                 $fel_hato = $projekt['jkolt']-$sz_ossz;
                 $sql = $adatbazis_kapcsolat->u('projektkezeles', array('sz_ossz', 'fel_hato'), array($sz_ossz, $fel_hato), "`ikt_szam`='{$sor['pr_szam']}'");
                 if( $sql === false ) { $db_error = true; }
             }
-            
+
             // Ellenőrizzük, hogy a szerződés összege azonos-e a tételek összegével
             // Deviza esetén más session-t járunk be
             $tizedesek  = 0;
@@ -4699,6 +4702,20 @@ function szamla_lista( $where = '', $tabla = '', $kijeloltek = false, $csak_sql_
 
         if( $tabla == 'munkalap' || $tabla == 'munkalap_arch' ) {
             $where = get_munkalap_lathatosag_feltetel($tabla, $szallodak);
+        }
+        // Ha Dashboard-ról érkezünk ide úgy, hogy a "45 napnál régebbi munkalapok"-ra szűrtünk, akkor még pár státuszt kiszűrünk. (Ezt GET-es feltétellel nem lehetne megoldani, azért van itt külön felvéve)
+        if( $tabla == 'munkalap' && $_GET['dashboard'] == '45 napnál régebbi munkalapok' ) {
+            $where .= "`stat_id` NOT IN ('".MUNKALAP_STAT_ELUTASITVA."', '".MUNKALAP_STAT_LEZART."', '".MUNKALAP_STAT_TOROLT."', '".MUNKALAP_STAT_SZTORNO."') AND ";
+        }
+        // Ha Dashboard-ról érkezünk ide úgy, hogy a "Megr. aláírásra vár"-ra szűrtünk, akkor a feltételbe kell még az is, hogy adott aláíró alírta-e már
+        if( $tabla == 'munkalap' && $_GET['dashboard'] == 'Megr. aláírásra vár' ) {
+            if( _jog(JOG_MUNKALAP_ELSODL_ALAIR) ) {
+                $oszlop = 'alair1';
+            }
+            if( _jog(JOG_MUNKALAP_MASODL_ALAIR) ) {
+                $oszlop = 'alair2';
+            }
+            $where .= "`{$oszlop}`=0 AND ";
         }
 
         // Keresés
@@ -9581,13 +9598,17 @@ function addStatusz( $tabla = false, $recid = false, $stat_id = false, $erteklis
 }
 
 // Megjegyzés beszúrása
-function addMegj( $tabla, $id, $megj ) {
+function addMegj( $tabla, $id, $megj, $user = '' ) {
     // Ha van egyáltalán megjegyzés
     if( trim($megj) ) {
         global $adatbazis_kapcsolat;
+        $db_be_usr = $_SESSION[get_db_tabla().'teljes_nev'];
+        if( $user ) {
+            $db_be_usr = $user;
+        }
         $szerepkor = getSzerepkorNev($_SESSION[get_db_tabla().'szemelyzet_id']);
-        $ins   = $adatbazis_kapcsolat->i('megjegyzes',  array('tabla', 'id', 'megj', 'loginnev',                       'szerepkor',                                 'szerepkor_txt',    'update_usr',                           'insert_dt', 'insert_usr'                           ),
-                                                        array($tabla,  $id, $megj,   $_SESSION[get_db_tabla().'user'], $_SESSION[get_db_tabla().'szemelyzet_id'],   $szerepkor,         $_SESSION[get_db_tabla().'teljes_nev'], 'NOW()',      $_SESSION[get_db_tabla().'teljes_nev'])
+        $ins = $adatbazis_kapcsolat->i('megjegyzes',  array('tabla', 'id', 'megj', 'loginnev',                       'szerepkor',                                 'szerepkor_txt',    'update_usr',   'insert_dt', 'insert_usr'   ),
+                                                      array($tabla,  $id, $megj,   $_SESSION[get_db_tabla().'user'], $_SESSION[get_db_tabla().'szemelyzet_id'],   $szerepkor,         $db_be_usr,     'NOW()',      $db_be_usr    )
                                         );
         if($ins===false){ return false; }
  
@@ -11019,7 +11040,7 @@ function level_felkeszit_es_kuld( $tabla = '', $recid = '', $ert_pipa = '', $sab
             
             // A címzettnél vizsgáljuk az értesítés pipa meglétét is
             $cimzettek = $adatbazis_kapcsolat->s('nev teljes_nev usermail aktiv virtual szemelyzet_id', 'login', "`aktiv`=1 AND `virtual`=0 {$sql_ertesites_kieg}");
-            if( !$cimzettek ) {
+                if( !$cimzettek ) {
                 return false;
             }
 
@@ -11653,7 +11674,7 @@ function level_felkeszit_es_kuld( $tabla = '', $recid = '', $ert_pipa = '', $sab
                     $mailcim                    = implode(', ', $mailcim                  );
                     $akt_cimzett['teljes_nev']  = implode(', ', $akt_cimzett['teljes_nev']);
                 }
-                // Ha van értéke, az egy hibaüzenet, akkor sikerült küldeni, ha nincs visszatérési érték
+                // Ha van értéke, az egy hibaüzenet. Akkor sikerült küldeni, ha NINCS visszatérési érték!
                 if( $sikeres_kuldes ) {
 
                     $sikeres_kuldes = str_replace('Could not instantiate mail function.', 'Could not instantiate mail function. - Lehet túl nagy fájlokat mellékelt?', $sikeres_kuldes);
@@ -13524,18 +13545,28 @@ function projekt_minositesre_varo_dok_szamol( $pr_id ) {
     $projekt = $adatbazis_kapcsolat->s2('ikt_szam', 'projektkezeles', "`recid`='{$pr_id}'");
     if( $projekt === false ) { $db_error = true; }
     
+    // Ha van szerződés, akkor a szerződés dokumentumokat is kirajzoljuk
     $szerzodesek = $adatbazis_kapcsolat->s('recid', 'projektszerzodes', "`pr_szam`='{$projekt['ikt_szam']}'");
     if( $szerzodesek === false ) { $db_error = true; }
     $szerzodesek = adatbazis2tomb($szerzodesek, 'recid');
     
-    // Ha van szerződés, akkor a szerződés dokumentumokat is kirajzoljuk
     if( $szerzodesek ) {
-        $kepek = $adatbazis_kapcsolat -> s('recid', 'projektszerzodes_dok', "`projektszerzodes_id` IN (".implode(',', $szerzodesek).") AND `tipus`='0'", '', '', '', 'num_rows');
-        if( $kepek === false ) { $db_error = true; }
+        $kepek_szerzodes = $adatbazis_kapcsolat -> s('recid', 'projektszerzodes_dok', "`projektszerzodes_id` IN (".implode(',', $szerzodesek).") AND `tipus`='0'", '', '', '', 'num_rows');
+        if( $kepek_szerzodes === false ) { $db_error = true; }
+    }
+    
+    // Ha van számla, akkor a számla dokumentumokat is kirajzoljuk
+    $szamlak = $adatbazis_kapcsolat->s('recid', 'projektszamla', "`pr_szam`='{$projekt['ikt_szam']}'");
+    if( $szamlak === false ) { $db_error = true; }
+    $szamlak = adatbazis2tomb($szamlak, 'recid');
+    
+    if( $szamlak ) {
+        $kepek_szamlak = $adatbazis_kapcsolat -> s('recid', 'projektszamla_dok', "`projektszamla_id` IN (".implode(',', $szamlak).") AND `tipus`='0'", '', '', '', 'num_rows');
+        if( $kepek_szamlak === false ) { $db_error = true; }
     }
     
     // Végül update
-    $sql = $adatbazis_kapcsolat->u('projektkezeles', array('dok_db_min_var'), array($kepek_direkt+$kepek), "`recid`='{$pr_id}'");
+    $sql = $adatbazis_kapcsolat->u('projektkezeles', array('dok_db_min_var'), array($kepek_direkt+$kepek_szerzodes+$kepek_szamlak), "`recid`='{$pr_id}'");
     if( $sql === false ) { $db_error = true; }
     
     // Visszatéréskor jeleheztjük a DB hibát
@@ -13600,9 +13631,11 @@ function get_munkalap_lathatosag_feltetel($tabla, $szallodak) {
             array_push($statuszra_szures, MUNKALAP_STAT_DONTESRE_VAR);
         }
         if( _jog(JOG_MUNKALAP_KULSOS_MEGREND) ) {
-            array_push($statuszra_szures, MUNKALAP_STAT_HOZREND_MEGREND_VAR);
-            array_push($statuszra_szures, MUNKALAP_STAT_AJANLAT_NYOMTATVA);
-            array_push($statuszra_szures, MUNKALAP_STAT_SZTORNO_VAR);
+            array_push($statuszra_szures, MUNKALAP_STAT_HOZREND_MEGREND_VAR );
+            array_push($statuszra_szures, MUNKALAP_STAT_AJANLAT_NYOMTATVA   );
+            array_push($statuszra_szures, MUNKALAP_STAT_MEGR_ALAIR_VAR      );
+            array_push($statuszra_szures, MUNKALAP_STAT_MEGR_ELKULD_VAR     );
+            array_push($statuszra_szures, MUNKALAP_STAT_SZTORNO_VAR         );
         }
 
         // Szűrés azokra a státuszokra, amiket láthat
@@ -14088,7 +14121,7 @@ function get_nyomtatas_fejlec_top($sorszam, $lapszammal = '') {
                     </table>
                 </td>
                 <td class="b c" style="width: 34%; font-size: 14px">
-                    Megrendelés száma:
+                    Megrendelés száma
                     <br>'.$sorszam.'
                 </td>
                 <td class="r" style="font-size: 11px; width: 33%; padding-right: 10px">
@@ -14170,31 +14203,86 @@ function get_nyomtatas_fejlec($szallito, $megrendelo_recid = '', $szallito_txt =
 }
 
 // Nyomtatási képhez aláírás
-function get_nyomtatas_alairasok() {
-    return '
-                <table class="full" style="font-size: 12px; margin-top: 80px">
-                <tr>
-                    <td class="l">
-                        ......................................................................
-                        <div class="c" style="padding-right: 60px">
-                        <center>
-                            Csanádi Péter
-                            <br>Központi Műszaki és Beruházási Igazgató
-                        </center>
-                        </div>
-                    </td>
-                    <td class="r">
-                        ......................................................................
-                        <div class="c" style="padding-left: 60px">
-                        <center>
-                            Sánta Zoltán
-                            <br>Műszaki Szolgáltatási Vezető
-                        </center>
-                        </div>
-                    </td>
-                </tr>
-                </table>
-        ';
+function get_nyomtatas_alairasok($elsodleges_recid = 0, $masodlagos_recid = 0, $ml_megr = '') {
+
+    global $adatbazis_kapcsolat;
+    $alairas1 = $alairas2 = $nev1 = $nev2 = $beosztas1 = $beosztas2 = '';
+
+    // Munkalap megrendeléskor kérünk aláírás képeket is
+    if( $ml_megr ) {
+
+        $elsodleges = $adatbazis_kapcsolat -> s2('alairas alairas_eltol teljes_nev beosztas_id', 'login', "`recid`='{$elsodleges_recid}'");
+        $masodlagos = $adatbazis_kapcsolat -> s2('alairas alairas_eltol teljes_nev beosztas_id', 'login', "`recid`='{$masodlagos_recid}'");
+
+        // Ezt Munkalap megrendeléseknél használjuk. Ekkor le kell kérni, hogy ki az elsődleges és másodlagos aláíró. Azok nevét és aláírását odatenni.
+        $nev1 = $beosztas1 = $nev2 = $beosztas2 = '&nbsp;';
+        if( $elsodleges ) {
+            $alairas1   = '<img src="'.$elsodleges['alairas'].'" height="80" style="margin-bottom: '.$elsodleges['alairas_eltol'].'px"><br>';
+            $nev1       = $elsodleges['teljes_nev'];
+            $beosztas1  = erteklista(ERTEKLISTA_BEOSZTAS, $elsodleges['beosztas_id']);
+        }
+        if( $masodlagos ) {
+            $alairas2   = '<img src="'.$masodlagos['alairas'].'" height="80" style="margin-bottom: '.$masodlagos['alairas_eltol'].'px"><br>';
+            $nev2       = $masodlagos['teljes_nev'];
+            $beosztas2  = erteklista(ERTEKLISTA_BEOSZTAS, $masodlagos['beosztas_id']);
+        }
+        return '
+                    <table class="full" style="font-size: 12px; margin-top: 80px; margin-bottom: 0;">
+                    <tr>
+                        <td class="l" style="vertical-align: bottom">
+                            '.$alairas1.'
+                            ......................................................................
+                            <div class="c" style="padding-right: 60px">
+                            <center>
+                                '.$nev1.'
+                                <br>'.$beosztas1.'
+                            </center>
+                            </div>
+                        </td>
+                        <td class="r" style="vertical-align: bottom">
+                            '.$alairas2.'
+                            ......................................................................
+                            <div class="c" style="padding-left: 60px">
+                            <center>
+                                '.$nev2.'
+                                <br>'.$beosztas2.'
+                            </center>
+                            </div>
+                        </td>
+                    </tr>
+                    </table>
+            ';
+
+    // Általános megoldás (pl. anyagigénylés PDF nyomtatáshoz): fix nevek, aláírás képek nélkül
+    } else {
+
+        return '
+                    <table class="full" style="font-size: 12px; margin-top: 80px; margin-bottom: 0;">
+                    <tr>
+                        <td class="l">
+                            ......................................................................
+                            <div class="c" style="padding-right: 60px">
+                            <center>
+                                Csanádi Péter
+                                <br>Központi Műszaki és Beruházási Igazgató
+                            </center>
+                            </div>
+                        </td>
+                        <td class="r">
+                            ......................................................................
+                            <div class="c" style="padding-left: 60px">
+                            <center>
+                                Sánta Zoltán
+                                <br>Műszaki Szolgáltatási Vezető
+                            </center>
+                            </div>
+                        </td>
+                    </tr>
+                    </table>
+            ';
+
+    }
+
 }
 
 // Nyomtatási képhez a keret
@@ -14213,9 +14301,6 @@ function get_nyomtatas_keret($title){
                 <body>
                     <div class="a4_allo">
                         {TARTALOM}
-                        <div class="footer">
-                            <div class="dtc"></div>
-                        </div>
                     </div>
                 <body>
                     ';

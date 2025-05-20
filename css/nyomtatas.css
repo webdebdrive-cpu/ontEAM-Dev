@@ -4,14 +4,23 @@
 
 @media print {
 
+    @page {
+        margin: 11mm;
+    }
+
+    body{
+        background: #fff;
+        padding: 0;
+        margin: 0;
+    }
     .nyomtat_dn{
         display: none !important;
     }
 
     table, tr, td {
         border: 1px solid #ddd;
-        font-size: 11px;
-        padding: 3px 0.5rem;
+        font-size: 21px;
+        padding: 0 0.5rem;
         vertical-align: top;
     }
 
@@ -20,6 +29,8 @@
 
 body{
     background: #fff;
+    padding: 0;
+    margin: 0;
 }
 
 .nyomtatasi_elonezetben_sem_taszik {

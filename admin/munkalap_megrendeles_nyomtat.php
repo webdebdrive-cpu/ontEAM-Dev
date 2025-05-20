@@ -3,11 +3,15 @@
 // Ha nyomtatunk, akkor pár adatot rögtön ki is számolunk
 if( isset($_GET['nyomtat']) ) {
 
-    $ml_recid       = $_GET['id'];
+    // Végleges fájlbanyomtatáskor $_GET['id_nyomtatashoz']-t kapunk, előnézetkor $_GET['id']-t
+    $ml_recid = $_GET['id_nyomtatashoz'];
+    if( !$ml_recid ) {
+        $ml_recid = $_GET['id'];
+    }
     $session_user   = $_SESSION[get_db_tabla().'user'];
 
     // Szállító kiszámítása
-    $munkalap = $adatbazis_kapcsolat->s2('ikt_szam szallito_id kcs_21 telephely_id dok_db', 'munkalap', "`recid`='{$ml_recid}'");
+    $munkalap = $adatbazis_kapcsolat->s2('ikt_szam szallito_id kcs_21 telephely_id alair1 alair2 dok_db', 'munkalap', "`recid`='{$ml_recid}'");
     $ft_szerzodes = $adatbazis_kapcsolat -> s2('szszam insert_dt', 'fenntartasi_szerzodes', "`recid`='{$_SESSION['ml_megr_ft_recid']}'");
     $kcs_21   = $munkalap['kcs_21'];
     $penznem  = $adatbazis_kapcsolat->s2('info', 'erteklista', "`csoport`='".ERTEKLISTA_PENZNEM."' AND `id`='{$kcs_21}'");
@@ -41,7 +45,7 @@ if( isset($_GET['nyomtat']) ) {
 
     // Lényegi tartalom
     $tartalom = '
-        <div class="padd" style="padding-bottom: 0">
+        <div class="padd" style="padding-bottom: 0; margin-bottom: 0">
 
                 '.get_nyomtatas_fejlec('', $login['recid'], $_SESSION['ml_megr_szallito_txt'], $_SESSION['ml_megr_megrendelo_txt']).'
 
@@ -50,7 +54,7 @@ if( isset($_GET['nyomtat']) ) {
                     <br>
                     <br>A Danubius Hotels Zrt. (1051 Budapest, Szent István tér 11.) képviseletében megrendeljük Önöktől az alábbiakban részletezett munka elvégzését.
                     <br>
-                    <b>'.nl2br2($_SESSION['ml_megr_text']).'</b>
+                    <br><b>'.nl2br2($_SESSION['ml_megr_text']).'</b>
                 </div>
 
                 <table class="border full" style="font-size: 12px ;margin: auto; margin-top: 10px; margin-bottom: 10px;border-collapse: collapse;">
@@ -75,31 +79,41 @@ if( isset($_GET['nyomtat']) ) {
                             Kapcs. ajánlat száma:
                         </td>
                         <td style="border: 1px solid #ddd; padding: 5px;  border-top: 0; border-bottom: 0; padding-top: 0; padding-bottom: 0;" colspan="2">
+                            '.$_SESSION['ml_kapcs_ajanlat'].'
+                        </td>
+                    </tr>
+                    <tr style="border-collapse: collapse;border: 1px solid #ddd; border-top: 0; border-bottom: 0;">
+                        <td class="b" style="border: 1px solid #ddd; padding: 5px; border-top: 0; border-bottom: 0; padding-top: 0; padding-bottom: 0;">
+                            ontEAM munkalap száma:
+                        </td>
+                        <td style="border: 1px solid #ddd; padding: 5px;  border-top: 0; border-bottom: 0; padding-top: 0; padding-bottom: 0;" colspan="2">
                             '.$_SESSION['ml_megr_ikt_szam'].'
                         </td>
                     </tr>
+
                     <tr style="border-collapse: collapse; border: 1px solid #ddd; border-top: 0;  border-bottom: 0;">
-                        <td class="b" style="border: 1px solid #ddd; padding: 5px; border-top: 0; border-bottom: 0; padding-top: 0;">
+                        <td class="b" style="border: 1px solid #ddd; padding: 5px; padding-top: 10px; border-top: 0; border-bottom: 0;">
                             Vállalási ár:
                         </td>
-                        <td style="border: 1px solid #ddd; padding: 5px; border-top: 0; border-bottom: 0; padding-top: 0;  padding-bottom: 0;" colspan="2">
-                            '.$_SESSION['ml_megr_ar'].'
+                        <td style="border: 1px solid #ddd; padding: 5px; padding-top: 10px; border-top: 0; border-bottom: 0; padding-bottom: 0;" colspan="2">
+                            <b>'.$_SESSION['ml_megr_ar'].'</b>
                         </td>
                     </tr>
                     <tr style="border-collapse: collapse; border: 1px solid #ddd; border-top: 0; border-bottom: 0; marign: 0;">
-                        <td class="b" style="border: 1px solid #ddd; padding: 5px; border-top: 0; border-bottom: 0; padding-top: 0;padding-bottom: 0; marign: 0; vertical-align: top;">
-                            Teljesítési határidő:
+                        <td class="b" style="border: 1px solid #ddd; padding: 5px; border-top: 0; border-bottom: 0; padding-top: 0; padding-bottom: 0; marign: 0; vertical-align: top;">
+                            Kivitelezési határidő:
                         </td>
                         <td style="border: 1px solid #ddd; padding: 5px; border-top: 0; border-bottom: 0; padding-top: 0; padding-bottom: 0;" colspan="2">
-                            '.$_SESSION['ml_megr_hatarido'].'
+                            '.$_SESSION['ml_megr_kiv_hat'].'
                         </td>
                     </tr>
                     <tr style="border-collapse: collapse; border: 1px solid #ddd; border-top: 0;">
-                        <td class="b" style="border: 1px solid #ddd; padding: 5px; border-top: 0; padding-top: 0;">
+                        <td class="b" style="border: 1px solid #ddd; padding: 5px; border-top: 0; padding-top: 10px; vertical-align: top;">
                             Fizetési feltétel:
                         </td>
-                        <td style="border: 1px solid #ddd; padding: 5px; border-top: 0; padding-top: 0;" colspan="2">
+                        <td style="border: 1px solid #ddd; padding: 5px; border-top: 0; padding-top: 10px;" colspan="2">
                             A teljesítést követően a Vállalkozó által kiállított számla ellenében, banki átutalással a számla kézhezvételétől számított 30 naptári napos fizetési határidővel. A számla mellékletét képezi a Megrendelő által aláírt teljesítésigazolás.
+                            <br>Kérjük a számlán tüntessék fel a munkavégzés helyét és a megrendelés számát.
                         </td>
                     </tr>
                     <tr style="border-collapse: collapse;">
@@ -108,7 +122,6 @@ if( isset($_GET['nyomtat']) ) {
                     <tr style="border-collapse: collapse;border: 1px solid #ddd; border-bottom: 0;">
                         <td class="b" style="border: 1px solid #ddd; padding: 5px; border-bottom: 0; padding-bottom: 0; marign: 0; vertical-align: top;">
                             Számlázási cím:
-                            <br>
                         </td>
                         <td style="border: 1px solid #ddd; padding: 5px; border-bottom: 0; padding-bottom: 0; marign: 0;" colspan="2">
                             Danubius Hotels Zrt.
@@ -121,16 +134,15 @@ if( isset($_GET['nyomtat']) ) {
                         </td>
                         <td style="border: 1px solid #ddd; padding: 5px;  border-top: 0; border-bottom: 0; padding-top: 0; padding-bottom: 0;" colspan="2">
                             '.$adoszam.'
-                            <br>Megrendelő az ÁFA törvény 175. § (3) bekezdés b) pontjában előírtaknak megfelelően ezen beleegyezik, hogy részére elektronikus számla kerüljön kiállítása, melyet a Vállalkozó a Megrendelő alábbi e-mail címére köteles megküldeni:
                         </td>
                     </tr>
                     <tr style="border-collapse: collapse; border: 1px solid #ddd; border-top: 0;">
-                        <td class="b" style="border: 1px solid #ddd; padding: 5px; border-top: 0; padding-top: 0;">
+                        <td class="b" style="border: 1px solid #ddd; padding: 5px; border-top: 0; vertical-align: top; padding-top: 10px;"> 
                             Számlaküldési cím:
                         </td>
-                        <td style="border: 1px solid #ddd; padding: 5px; border-top: 0; padding-top: 0;" colspan="2">
-                            '.NYOMTATAS_SZLA_KULD_CIM.'
-                            <br>Kérjük a számlán tüntessék fel a munkavégzés helyét és a megrendelés számát.
+                        <td style="border: 1px solid #ddd; padding: 5px; border-top: 0; padding-top: 10px;" colspan="2">
+                            Megrendelő az ÁFA törvény 175. § (3) bekezdés b) pontjában előírtaknak megfelelően ezen beleegyezik, hogy részére elektronikus számla kerüljön kiállítása, melyet a Vállalkozó a Megrendelő alábbi e-mail címére köteles megküldeni:
+                            <br><b>'.NYOMTATAS_SZLA_KULD_CIM.'</b>
                         </td>
                     </tr>
                 </table>
@@ -149,7 +161,7 @@ if( isset($_GET['nyomtat']) ) {
                         Üdvözlettel,
                         <br>Budapest, '.date_formaz(date('Y-m-d')).'
                     </div>
-                    '.get_nyomtatas_alairasok().'
+                    '.get_nyomtatas_alairasok($munkalap['alair1'], $munkalap['alair2'], '-ml_megr-').'
                 </div>
             </div>
         </div>
@@ -171,9 +183,10 @@ if( isset($_GET['html_mutat']) ) {
 
     $mpdf = new mPDF('utf-8');
 
-    $mpdf -> AddPage('P',     '',   '', '', '', '10', '10', '28', '20', '5', '5');
+    $mpdf -> AddPage('P',     '',   '', '', '', '10', '10', '20', '10', '5', '5');
     $mpdf -> nbpgPrefix = '/ ';
     $header = get_nyomtatas_fejlec_top($_SESSION['ml_megr_ft_szerz'], '-lapszámmal-');
+    $_SESSION['ml_megr_ft_szerz'] = '';
     $footer = '<div class="dtc r" style="font-size: 7px">
         '.$session_user.'
         '.date('Y.m.d H:i:s').'
@@ -186,8 +199,8 @@ if( isset($_GET['html_mutat']) ) {
     // Adatbázis műveleteket csak akkor csinálunk, ha már nem csak simán PDF megmutatása miatt vagyunk itt
     // Így tudod egy PDF fájlba elmenteni a generált tartalmat
     // Könyvtárak kialakítása
-    if( !$_GET['PDF_hez'] ) {
-        
+    if( !$_GET['PDF_elonezet'] ) {
+
         $ev           = date('y', strtotime($ft_szerzodes['insert_dt']));
         $szszam_mappa = str_replace('/', '_', $ft_szerzodes['szszam']);
         $fajlnev      = 'Munkamegrendeles_'.$szszam_mappa.'.pdf';
@@ -209,23 +222,42 @@ if( isset($_GET['html_mutat']) ) {
         $adatbazis_kapcsolat -> i('fenntartasi_szerzodes_dok', array('fenntartasi_szerzodes_id',    'utvonal',      'fajlnev',     'update_usr',                           'insert_dt',    'insert_usr'                            ),
                                                                array($_SESSION['ml_megr_ft_recid'], $utvonal_db_be, $fajlnev,      $_SESSION[get_db_tabla().'teljes_nev'], 'NOW()',        $_SESSION[get_db_tabla().'teljes_nev']  )
                                                             );
-    
-        $adatbazis_kapcsolat -> u('fenntartasi_szerzodes', array('dok_db'), array(1), "`recid`='{$_SESSION['ml_megr_ft_recid']}'");
+
+        $dok_db = 1;
+        // Ekkor a munkalap aktuális dokumentumait is másoljuk át a fenntartási szerződéshez (kivéve amit most vettünk fel, hisz az már benne van)
+        $munkalap_dokok = $adatbazis_kapcsolat -> s('utvonal fajlnev sor loginnev update_dt update_usr insert_dt insert_usr', 'munkalap_dok', "`munkalap_id`='{$ml_recid}'");
+        foreach ($munkalap_dokok as $munkalap_dok) {
+            $munkalap_dok['utvonal'] = '../munkalap/'.$munkalap_dok['utvonal'];
+            $adatbazis_kapcsolat -> i('fenntartasi_szerzodes_dok',  array('fenntartasi_szerzodes_id',    'utvonal',                'fajlnev',                'sor',                'loginnev',                'update_dt',                'update_usr',                'insert_dt',                'insert_usr'               ),
+                                                                    array($_SESSION['ml_megr_ft_recid'], $munkalap_dok['utvonal'], $munkalap_dok['fajlnev'], $munkalap_dok['sor'], $munkalap_dok['loginnev'], $munkalap_dok['update_dt'], $munkalap_dok['update_usr'], $munkalap_dok['insert_dt'], $munkalap_dok['insert_usr'])
+                                                                );
+            $dok_db++;
+        }
+
+        $adatbazis_kapcsolat -> u('fenntartasi_szerzodes', array('dok_db'), array($dok_db), "`recid`='{$_SESSION['ml_megr_ft_recid']}'");
     
         
         // Munkalapok dokumentumához is adjuk hozzá
-        $adatbazis_kapcsolat -> i('munkalap_dok',   array('munkalap_id',    'utvonal',                                  'fajlnev',     'update_usr',                           'insert_dt',    'insert_usr'                            ),
-                                                    array($ml_recid,        '../fenntartasi_szerzodes/'.$utvonal_db_be, $fajlnev,      $_SESSION[get_db_tabla().'teljes_nev'], 'NOW()',        $_SESSION[get_db_tabla().'teljes_nev']  )
+        $ml_doc_recid = $adatbazis_kapcsolat -> i('munkalap_dok',   array('munkalap_id',    'utvonal',                                  'fajlnev',     'update_usr',                           'insert_dt',    'insert_usr'                            ),
+                                                                    array($ml_recid,        '../fenntartasi_szerzodes/'.$utvonal_db_be, $fajlnev,      $_SESSION[get_db_tabla().'teljes_nev'], 'NOW()',        $_SESSION[get_db_tabla().'teljes_nev']  )
                                 );
         $adatbazis_kapcsolat -> u('munkalap', array('dok_db'), array($munkalap['dok_db']+1), "`recid`='{$ml_recid}'");
-    }
 
-    // Így tudod megnyitni a PDF-et (olyan mintha egy PDF kiterjesztésű fájlra hivatkoznál)
-    if( !isset($_GET['html_mutat']) ) {
-        $pdf_neve = str_replace('/', '_', $munkalap['ikt_szam']).'.pdf';
-        $mpdf->Output($pdf_neve, 'I'); 
-    }
+        // Töltsük be a munkalapot
+        // header('location:munkalap.php?modosit&id='.$ml_recid);
+        $_GET['id'] = $ml_recid;
+        header('location:'.self().get_get('nyomtat', '-&-'));
 
-    $weblap -> leallit();
-    exit;
+    // Egyébként a képernyőn mutatjuk meg
+    } else {
+
+        // Így tudod megnyitni a PDF-et (olyan mintha egy PDF kiterjesztésű fájlra hivatkoznál)
+        if( !isset($_GET['html_mutat']) ) {
+            $pdf_neve = str_replace('/', '_', $munkalap['ikt_szam']).'.pdf';
+            $mpdf->Output($pdf_neve, 'I'); 
+        }
+        
+        $weblap -> leallit();
+        exit;
+    }
 }

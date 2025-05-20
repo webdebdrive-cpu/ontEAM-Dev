@@ -452,6 +452,15 @@ if( isset($_POST['energiaSzamlaVisszaUi']) ) {
         $weblap -> leallit();
         exit;
     }
+
+    if( !$_POST['memo'] ) {
+        echo json_encode(array(
+            'hiba'  => 'Az indoklás megadása kötelező!',
+            'title' => 'Hiba',
+        ));
+        $weblap -> leallit();
+        exit;
+    }
     
     // Visszaküldés SQL-je
     $sql = $adatbazis_kapcsolat->u('energia_szamla',    array('feldolgozva_dt',      'feldolgozva_usr'  ),
@@ -2175,7 +2184,7 @@ if( $_SERVER['REMOTE_ADDR'] == get_debug_ip() ) {
                         Sztornózás indoklása:
                         <br>'.htmlspecialchars_decode( nl2br2($sor['sztornozva_leir']) ).'
                     </div>
-                    <div class="dt naplo">
+                    <div class="dt naplo tortenet">
                     ');
             }
         }
@@ -2196,7 +2205,7 @@ if( $_SERVER['REMOTE_ADDR'] == get_debug_ip() ) {
                     Elutasítás indoklása:
                     <br>'.htmlspecialchars_decode( nl2br2($sor['elutleir']) ).'
                 </div>
-                <div class="dt naplo">
+                <div class="dt naplo tortenet">
                 ');
         }
         if( !$sor['utalvanyozva'] && $sor['utalvanyozva_dt']!='0000-00-00 00:00:00' ) {
@@ -2207,7 +2216,7 @@ if( $_SERVER['REMOTE_ADDR'] == get_debug_ip() ) {
                     Elutasítás indoklása:
                     <br>'.htmlspecialchars_decode( nl2br2($sor['elutleir']) ).'
                 </div>
-                <div class="dt naplo">
+                <div class="dt naplo tortenet">
                 ');
         }
         
@@ -2551,7 +2560,6 @@ function xml_vissza( $szamla_id, $igazolva = '', $oka = '' ) {
     $valasz_xml = urldecode($valasz_xml);
     
     // Logolás
-    $log_utvonal = '../andoc.log';
     $log = '*****************************
     KÜLDÖTT XML (Igazolás/elutasításkor)
     '.date('Y.m.d H:i:s').'
@@ -2563,10 +2571,9 @@ function xml_vissza( $szamla_id, $igazolva = '', $oka = '' ) {
 
 
     ';
-    file_put_contents($log_utvonal, $log, FILE_APPEND | LOCK_EX);
+    file_put_contents(ANDOC_LOG_UTVONAL, $log, FILE_APPEND | LOCK_EX);
     
     // Logolás
-    $log_utvonal = '../andoc.log';
     $log = '*****************************
     KAPOTT XML (Igazolás/elutasításra válaszként)
     '.date('Y.m.d H:i:s').'
@@ -2578,7 +2585,7 @@ function xml_vissza( $szamla_id, $igazolva = '', $oka = '' ) {
         
         
     ';
-    file_put_contents($log_utvonal, $log, FILE_APPEND | LOCK_EX);
+    file_put_contents(ANDOC_LOG_UTVONAL, $log, FILE_APPEND | LOCK_EX);
             
     // A kapott választ feldolgozható állapotra kell hozni, hogy értelmezni lehessen, ehhez ki kell törölni belőle a sallangot
     if( eles_es_teszt_rendszer_e() ) {

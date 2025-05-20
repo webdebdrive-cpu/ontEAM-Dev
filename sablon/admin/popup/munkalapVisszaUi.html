@@ -1,0 +1,64 @@
+<h2>Adja meg a visszaküldés okát</h2>
+<form id="elutasitasForm" class="popupForm" method="post" onsubmit="return munkalapVisszaUi();">
+    <div class="kozep">
+        <div class="dt">
+            <div class="dtr">
+                <div class="dtc form_bal">Indoklás:</div>
+                <div class="dtc form_jobb">
+                    <textarea name="indoklas_memo" id="indoklas_memo" class="csillag" onkeyup="if( $(this).val().trim()=='' ){ $(this).val(''); }"></textarea>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="kuldes">
+        <input type="submit" name="elkuld" value="Mentés">
+        <input type="button" name="megsem" class="gombb_alert" value="Mégsem" onclick="popupZar();">
+    </div>
+</form>
+<script>
+/* Vissza Üi-nek */
+function munkalapVisszaUi(recid) {
+
+    /* Megjegyzés kötelező */
+    if(!$('#indoklas_memo').val()){
+        $('#popup input, #popup textarea, #popup select').removeClass('hibas_ide_focus');
+        $('#indoklas_memo').addClass('hibas_ide_focus');
+        alert2('Kérem indokolja a visszaküldést!', '<input type="button" class="link gomb" value="Ok" onclick="alert2();">', 'Hiba');
+        return false;
+    }
+    
+    $.ajax({
+        url : 'munkalap.php',
+        type: 'POST',
+        data: {
+            recid               : _get('id'),
+            memo                : $('#indoklas_memo').val(),
+            munkalapVisszaUi    : Date.now()
+        },
+        success: function (response) {
+            if (response) {
+                response = JSON.parse(response);
+                if (response.hiba) {
+                    alert2(response.hiba, response.gomb, response.title);
+                    return false;
+                }
+
+                popupZar();
+                szamlaBetolt(_get('id'), PHP_SELF, 'modosit');
+
+                alert2('Munkalap sikeresen visszaküldve az ügyintézőnek!', '', 'Üzenet');
+
+            }
+        },
+        complete: function (xhr) {
+            if (xhr.status != 200) {
+                alert2(xhr.responseText, '', 'Hiba');
+            }
+        }
+    });
+
+    return false;
+}
+
+
+</script>

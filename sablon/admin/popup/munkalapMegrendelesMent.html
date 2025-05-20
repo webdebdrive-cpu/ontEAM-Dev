@@ -1,0 +1,278 @@
+<h2>Megrendelés adatok megadása</h2>
+<form class="popupForm" method="post">
+    <div class="kozep">
+        <div class="dt">
+
+            <div class="dtr">
+                <div class="dtc form_bal">Szállító adatai:</div>
+                <div class="dtc form_jobb">
+                    <textarea id="pop_szallito_adatai" class="csillag" onkeyup="if( $(this).val().trim()=='' ){ $(this).val(''); }" style="min-width: 50rem; min-height: 10rem;"></textarea>
+                </div>
+            </div>
+
+            <div class="dtr">
+                <div class="dtc form_bal">Megrendelő adatai:</div>
+                <div class="dtc form_jobb">
+                    <textarea id="pop_megrendelo_adatai" class="csillag" onkeyup="if( $(this).val().trim()=='' ){ $(this).val(''); }" style="min-width: 50rem; min-height: 10rem;"></textarea>
+                </div>
+            </div>
+
+            <div class="dtr">
+                <div class="dtc form_bal">Megrendelés tárgya:</div>
+                <div class="dtc form_jobb">
+                    <textarea id="pop_megr_targya" class="csillag" onkeyup="if( $(this).val().trim()=='' ){ $(this).val(''); }" style="min-width: 50rem; min-height: 10rem;"></textarea>
+                </div>
+            </div>
+
+            <div class="dtr">
+                <div class="dtc form_bal">Jótállás:</div>
+                <div class="dtc form_jobb">
+                    <input type="text" id="pop_jotallas" class="f_num" maxlength="2" data-tort="0" style="width: 4rem;"> hónap
+                </div>
+            </div>
+
+            <div class="dtr">
+                <div class="dtc form_bal">Kapcs. ajánlat száma:</div>
+                <div class="dtc form_jobb">
+                    <input type="text" id="pop_kapcs_ajanlat" maxlength="30">
+                </div>
+            </div>
+
+            <div class="dtr">
+                <div class="dtc form_bal">Ajánlat kelte:</div>
+                <div class="dtc form_jobb">
+                    <input type="text" id="pop_ajanlat_kelt" autocomplete="off" class="datepicker_tegnapig csillag">
+                </div>
+            </div>
+
+            <div class="dtr">
+                <div class="dtc form_bal">Vállalási ár:</div>
+                <div class="dtc form_jobb">
+                    <input type="text" id="pop_vallal_ar" class="f_num csillag" readonly> <span id="pop_penznem_afa"></span>
+                </div>
+            </div>
+
+        </div>
+    </div>
+    <script>
+        var pdf_interval = null;
+    </script>
+    <div class="kuldes">
+        <input type="button" name="elkuld" class="gomb zold" value="Mentés" onclick="munkalapMegrendelesMent();">
+        <input type="button" name="megsem" class="gomb piros" value="Mégsem" onclick="bezar_ell()">
+    </div>
+</form>
+<script>
+var taroltVal_popup = [];
+$(document).ready(function(){
+
+    $.ajax({
+        url : PHP_SELF,
+        type: 'POST',
+        data: {
+            munkalap_recid       : _get('id'),
+            megr_adatok_betolt   : Date.now()
+        },
+        success: function(response){
+            if(response){
+                response = JSON.parse(response);
+                if(response.hiba){
+                    alert2(response.hiba, response.gomb, response.title);
+                    return false;
+                }
+
+                // Ha nincs eltárolt adatunk, akkor az adatlapról töltjük fel
+                if( response.nincs ) {
+                    var text = $('#text').val();
+                    if( !$('#text').length ) {
+                        var text = $('#text_db').val();
+                    }
+                    $('#pop_szallito_adatai'    ).val( $('#szallito_adatai'     ).val());
+                    $('#pop_megrendelo_adatai'  ).val( $('#megrendelo_adatai'   ).val());
+                    $('#pop_megr_targya'        ).val( text                            );
+
+                // Ha van eltárolt adatunk, akkor azt töltjük be
+                } else {
+                    $('#pop_szallito_adatai'    ).val( response.szallito        );
+                    $('#pop_megrendelo_adatai'  ).val( response.megrendelo      );
+                    $('#pop_megr_targya'        ).val( response.targy           );
+                    $('#pop_jotallas'           ).val( response.jotallas        );
+                    $('#pop_kapcs_ajanlat'      ).val( response.kapcs_ajanlat   );
+                    $('#pop_ajanlat_kelt'       ).val( response.kelt            );
+                }
+
+                // A vállalási ár mindenképp az adatlapról jön
+                $('#pop_vallal_ar'          ).val( $('#jh_ert_dev_db'       ).val());
+                $('#pop_penznem_afa'        ).html($('#penznem_db'          ).val()+' + Áfa');
+
+                // Inputok adatait mensük ki, hogy lássuk, van-e változás    
+                $('.popupForm input, .popupForm textarea').each(function() {
+
+                    var val         = $(this).val();
+                    var input_id    = $(this).attr('id');
+                    taroltVal_popup[input_id] = val;
+
+                    if( $(this).hasClass('datepicker') || $(this).hasClass('datepicker_tegnapig') || $(this).hasClass('datepicker_matol') ) {
+                        if( val && val != '0000-00-00' && val != '\xa0\xa0\xa0\xa0.\xa0\xa0.\xa0\xa0' ) {
+
+                            var date = new Date(val);
+
+                            var ev    = date.getFullYear(),
+                                honap = date.getMonth() + 1,
+                                nap   = date.getDate();
+
+                            if( honap >= 0 && honap < 10 ) {
+                                honap = '0' + honap;
+                            }
+
+                            if( nap >= 0 && nap < 10 ) {
+                                nap = '0' + nap;
+                            }
+
+                            taroltVal_popup[input_id] = ev + '.' + honap + '.' + nap;
+        
+                        } else {
+                            taroltVal = '\xa0\xa0\xa0\xa0.\xa0\xa0.\xa0\xa0';
+                            // Ha az input értéke üres, akkor az alapértelmezett érték legyen az értéke
+                            if( !val ){
+                                val = taroltVal_popup[input_id];
+                            }
+                        }
+                    }
+
+                    // Numerikus mezőből kiszűrjük a szóközöket
+                    if( $(this).hasClass('f_num') ) {
+                        val = val.replace(/ /g, '');
+                        taroltVal_popup[input_id] = val;
+                    }
+                });
+
+            }
+        },
+        complete: function(xhr) {
+            if( xhr.status != 200 ) {
+                alert2(xhr.responseText, '', 'Hiba');
+            }
+        }
+    });
+
+});
+
+// Adatok módosításakor mod class hozzáadása, törlése
+$(document).on('keyup change blur', '.popupForm input, .popupForm textarea', function(){
+    var input_id = $(this).attr('id');
+    // console.log($(this).val()+' vs '+taroltVal_popup[input_id] );
+    if( $(this).val() != taroltVal_popup[input_id] ) {
+        $(this).addClass('mod');
+    } else {
+        $(this).removeClass('mod');
+    }
+});
+
+// Popup mentése
+function munkalapMegrendelesMent() {
+
+    $.ajax({
+        url : 'munkalap.php',
+        type: 'POST',
+        data: {
+            munkalap_recid          : _get('id'),
+            szallito                : $('#pop_szallito_adatai'  ).val(),
+            megrendelo              : $('#pop_megrendelo_adatai').val(),
+            targy                   : $('#pop_megr_targya'      ).val(),
+            jotallas                : $('#pop_jotallas'         ).val(),
+            kapcs_ajanlat           : $('#pop_kapcs_ajanlat'    ).val(),
+            kelt                    : $('#pop_ajanlat_kelt'     ).val(),
+            munkalapMegrendelesMent : new Date().getTime(),
+        },
+        success: function(response){
+            if(response.substring(0, 6)=='SESKIL'){ location.href = 'index.php'; }
+            if( response ) {
+                response = JSON.parse(response);
+
+                if( response.hiba ) {
+                    alert2(response.hiba, response.gomb, response.title);
+                    if( response.focus ) {
+                        $('#'+response.focus).addClass('hibas_ide_focus');
+                    }
+                    
+                    return false;
+                }
+
+                popupZar();
+                szamlaBetolt(_get('id'), PHP_SELF, 'modosit');
+
+            }
+        },
+        complete: function(xhr) {
+            if( xhr.status != 200 ) {
+                alert2(xhr.responseText, '', 'Hiba');
+            }
+        }
+    });
+
+    return false;
+}
+
+// Popup bezárás ellenőrzés
+// F5 figyelése. Fontos, hogy on('keydown'), tehát már lenyomásra
+$(document).on('keydown', function(e) {
+    if( e.keyCode == KEY_F5 ) {
+        e.preventDefault();
+        bezar_ell();
+        $('#ajaxfedo').hide();
+    }
+});
+// ESC-re is fusson le a bezar_ell(); Szerencsére a sima ESC-es bezárás (admin.js-ben "Escape és Enter gomb lekezelése" rész)
+// pont azt figyeli, hogy van-e nyitva alert vagy sem. Ha van nyitva, akkor nem zárja be a popup-ot
+// Fontos, hogy csak on('keyup'), azaz csak felengedéskor fusson le
+$(document).on('keyup', function(e) {
+    if( e.keyCode == KEY_ESCAPE ) {
+        bezar_ell();
+    }
+});
+// A sima bezárás ikont is cseréljük egy másikra, hogy ne záródjon be egyből
+$('#popup div.popup_kont div.bezar').removeClass('bezar').addClass('bezar_ell');
+$(document).on('click', '#popup div.popup_kont div.bezar_ell', function(e){
+    bezar_ell();
+});
+function bezar_ell() {
+    
+    if( $('.popupForm input.mod, .popupForm textarea.mod').length ) {
+        alert2('A popupon vannak még el nem mentett mezők. Biztosan bezárja?', '<input type="button" class="gomb zold" value="Igen" onclick="$(\'.popupForm input, .popupForm textarea\').removeClass(\'mod\'); bezar_ell()"> <input type="button" class="gomb piros" value="Nem" onclick="alert2()">');
+        return false;
+    }
+    
+    alert2();
+    popupZar();
+}
+
+$('.datepicker').datetimepicker({
+    closeOnDateSelect   : true,
+    format              :'Y.m.d',
+    mask                : '\xa0\xa0\xa0\xa0.\xa0\xa0.\xa0\xa0',
+    timepicker          : false,
+    validateOnBlur      : false,
+    onChangeDateTime    : function(){ $('#mehet_gomb').removeAttr('disabled'); }
+});
+$('.datepicker_matol').datetimepicker({
+    closeOnDateSelect   : true,
+    format              :'Y.m.d',
+    mask                : '\xa0\xa0\xa0\xa0.\xa0\xa0.\xa0\xa0',
+    timepicker          : false,
+    validateOnBlur      : false,
+    // Csak mai vagy későbbi dátum adható meg
+    minDate             : '-1970/01/02',
+    onChangeDateTime    : function(){ $('#mehet_gomb').removeAttr('disabled'); }
+});
+$('.datepicker_tegnapig').datetimepicker({
+    closeOnDateSelect   : true,
+    format              :'Y.m.d',
+    mask                : '\xa0\xa0\xa0\xa0.\xa0\xa0.\xa0\xa0',
+    timepicker          : false,
+    validateOnBlur      : false,
+    scrollInput         : false,
+    maxDate             : '+1970/01/02',
+    onChangeDateTime    : function(){ $('#mehet_gomb').removeAttr('disabled'); }
+});
+</script>

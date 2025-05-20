@@ -80,7 +80,11 @@ SORREDEZÉS
  
 NYOMTATÁSI NÉZETEK KIGENEÁRLÁSA:
 - header.php hívja meg a nyomtatas.php
- 
+
+ÚJ STÁTUSZ BEÁLLÍTÁSA
+- konstansok.php-ban vegyél fel új konstansokat, sorszámot léptesd a soron következőre
+- statusz_text.php-ban is vedd fel az új státuszok. Itt állítható be annak sorrendje is (pl. státuszra szűréskor mi legyen a listában a sorrendje)
+
 STÁTUSZOK KARBANTARTÁSA
 - addStatusz() függvénnyel írj be értéket és akkor rendben lesz. Ennek előfeltétele, hogy már egy státusza legyen (pl. egy alap NYITOTT).
 - statusz_text.php-ben taláhatóak a megnevezések

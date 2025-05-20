@@ -1410,3 +1410,231 @@ function munkaidoLejart(mehet) {
 
     return false;
 }
+
+// Munkalap megrendelés PDF készítése
+var pdf_megnyithato = 0;
+function munkalapMegrendelesKeszit(PDF_elonezet = '') {
+
+    pdf_megnyithato = 0;
+    // alert2('PDF készítése...', '', 'Üzenet');
+
+    // PDF előnézethez
+    if( PDF_elonezet ) {
+
+        $.ajax({
+            url : 'munkalap.php',
+            type: 'POST',
+            data: {
+                recid                       : _get('id'),
+                PDF_elonezet                : 1,
+                munkalapMegrendelesKeszit   : new Date().getTime(),
+            },
+            success: function(response){
+                if(response.substring(0, 6)=='SESKIL'){ location.href = 'index.php'; }
+                if( response ) {
+                    response = JSON.parse(response);
+    
+                    if( response.hiba ) {
+                        alert2(response.hiba, response.gomb, response.title);
+                        if( response.focus ) {
+                            $('#'+response.focus).addClass('hibas_ide_focus');
+                        }
+                        
+                        clearInterval(pdf_interval);
+                        return false;
+                    }
+    
+                    // A pdf_megnyithato-t 1-re állítjuk, hogy a gombra nyomáskor elindított figyelés hatására új lapon meg tudjon nyílni a PDF előnézet
+                    pdf_megnyithato = 1;
+    
+                }
+            },
+            complete: function(xhr) {
+                if( xhr.status != 200 ) {
+                    alert2(xhr.responseText, '', 'Hiba');
+                }
+            }
+        });
+
+    // Nem PDF előnézethez, hanem a végleges PDF létrehozásához
+    // A lényeg, hogy itt nincs átadva a PDF_elonezet változó, így a munkalap_megrendeles_nyomtat.php-ban másik ágra jutunk: léterjön a fenntartási szerződés + a végleges PDF eltárolásra kerül
+    } else {
+
+        $.ajax({
+            url : 'munkalap.php',
+            type: 'POST',
+            data: {
+                recid                       : _get('id'),
+                munkalapMegrendelesKeszit   : new Date().getTime()
+            },
+            success: function(response) {
+                if(response.substring(0, 6)=='SESKIL'){ location.href = 'index.php'; }
+                if( response ) {
+                    response = JSON.parse(response);
+    
+                    if( response.hiba ) {
+                        alert2(response.hiba, response.gomb, response.title);
+                        if( response.focus ) {
+                            $('#'+response.focus).addClass('hibas_ide_focus');
+                        }
+                        return false;
+                    }
+    
+                    // Lépjünk a megfelelő munkalapra, figyelembe véve az esetleges szűrőket is
+                    var mezo = op = felt = '';
+                    if( _get('mezo') ) {
+                        mezo = 'mezo='+_get('mezo')+'&';
+                    }
+                    if( _get('op') ) {
+                        op = 'op='+_get('op')+'&';
+                    }
+                    if( _get('felt') ) {
+                        felt = 'felt='+_get('felt')+'&';
+                    }
+                    location.href = 'munkalap.php?'+mezo+op+felt+'id='+_get('id')+'&modosit=1&nyomtat'; 
+
+                }
+            },
+            complete: function(xhr) {
+                if( xhr.status != 200 ) {
+                    alert2(xhr.responseText, '', 'Hiba');
+                }
+            }
+        });
+    }
+
+
+    return false;
+}
+
+// ML küldése aláírásra
+function ML_kuldes_alairasra(recid, mehet) {
+    
+    if( !mehet ) {
+        alert2('Munkalap szám: '+$('#ikt_szam_hibauzibe').html()+'<br>Szálloda: '+$('#telephely_hibauzibe').html()+'<br><br>Biztosan elküldi a munkalapot aláírásra?', '<input type="button" class="gomb zold" value="Igen" onclick="ML_kuldes_alairasra('+recid+', \'-mehet-\')"> <input type="button" class="gomb piros" value="Nem" onclick="alert2()">');
+        return false;
+    }
+    
+    $.ajax({
+        url : PHP_SELF,
+        type: 'POST',
+        data: {
+            recid               : recid,
+            ML_kuldes_alairasra : Date.now()
+        },
+        success: function (response) {
+            if (response) {
+                response = JSON.parse(response);
+                if (response.hiba) {
+                    alert2(response.hiba, response.gomb, response.title);
+                    return false;
+                }
+
+                szamlaBetolt(_get('id'), PHP_SELF, 'modosit');
+            }
+        },
+        complete: function (xhr) {
+            if (xhr.status != 200) {
+                alert2(xhr.responseText, '', 'Hiba');
+            }
+        }
+    });
+}
+
+// Megrendelés aláírása
+function megrendeles_alair(recid, mehet) {
+    
+    if( !mehet ) {
+
+        $.ajax({
+            url : PHP_SELF,
+            type: 'POST',
+            data: {
+                van_alairas : Date.now()
+            },
+            success: function(response){
+                if(response){
+                    response = JSON.parse(response);
+                    if(response.hiba){
+                        alert2(response.hiba, response.gomb, response.title);
+                        return false;
+                    }
+                    alert2('Munkalap szám: '+$('#ikt_szam_hibauzibe').html()+'<br>Szálloda: '+$('#telephely_hibauzibe').html()+'<br><br>Biztosan aláírja a megrendelést?', '<input type="button" class="gomb zold" value="Igen" onclick="megrendeles_alair('+recid+', \'-mehet-\');"> <input type="button" class="gomb piros" value="Nem" onclick="alert2()">');
+                                        
+                }
+            },
+            complete: function(xhr) {
+                if( xhr.status != 200 ) {
+                    alert2(xhr.responseText, '', 'Hiba');
+                }
+            }
+        });
+        return false;
+
+    }
+    
+    $.ajax({
+        url : PHP_SELF,
+        type: 'POST',
+        data: {
+            recid               : recid,
+            megrendeles_alair   : Date.now()
+        },
+        success: function (response) {
+            if (response) {
+                response = JSON.parse(response);
+                if (response.hiba) {
+                    alert2(response.hiba, response.gomb, response.title);
+                    return false;
+                }
+
+                szamlaBetolt(_get('id'), PHP_SELF, 'modosit');
+
+                // Ha mindkét aláírás megvan, akkor PDF nyomtatás, szerződés létrehozása
+                if( response.alairva ) {
+                    munkalapMegrendelesKeszit();
+                } 
+
+            }
+        },
+        complete: function (xhr) {
+            if (xhr.status != 200) {
+                alert2(xhr.responseText, '', 'Hiba');
+            }
+        }
+    });
+}
+
+// Megrednelés elüldve
+function megrendeles_elkuldve(recid, mehet) {
+    
+    if( !mehet ) {
+        alert2('Munkalap szám: '+$('#ikt_szam_hibauzibe').html()+'<br>Szálloda: '+$('#telephely_hibauzibe').html()+'<br><br>Biztosan el van küldve a megrendelés?', '<input type="button" class="gomb zold" value="Igen" onclick="megrendeles_elkuldve('+recid+', \'-mehet-\')"> <input type="button" class="gomb piros" value="Nem" onclick="alert2()">');
+        return false;
+    }
+    
+    $.ajax({
+        url : PHP_SELF,
+        type: 'POST',
+        data: {
+            recid               : recid,
+            megrendeles_elkuldve: Date.now()
+        },
+        success: function (response) {
+            if (response) {
+                response = JSON.parse(response);
+                if (response.hiba) {
+                    alert2(response.hiba, response.gomb, response.title);
+                    return false;
+                }
+
+                szamlaBetolt(_get('id'), PHP_SELF, 'modosit');
+            }
+        },
+        complete: function (xhr) {
+            if (xhr.status != 200) {
+                alert2(xhr.responseText, '', 'Hiba');
+            }
+        }
+    });
+}

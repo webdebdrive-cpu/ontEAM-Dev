@@ -48,6 +48,15 @@ if (isset($_POST['kapcsolas_torol'])) {
                                                                     array('0',         '0.00',    '0000-00-00' ),
                                                         "`recid`='{$tetel['fenntartasi_szerzodes_tetel_recid']}'");
     if( $sql === false ) { $db_error = true; }
+
+    // Ekkor meg kell szüntetni az automatikusan létrejött munkalap kapcsolatot is.
+    // Ehhez keressük meg a fenntartási szerződésnél a mlszam oszlopot. Ha az ki van töltve, akkor az egy automatikusan létrejött szerződés, és ekkor szükséges a ML-nál is a törlés
+    $szerzodes = $adatbazis_kapcsolat -> s2('mlszam', 'fenntartasi_szerzodes', "`recid` = (SELECT `fenntartasi_szerzodes_recid` FROM `".get_db_tabla()."fenntartasi_szerzodes_tetel` WHERE `recid`='{$tetel['fenntartasi_szerzodes_tetel_recid']}')");
+    if( $szerzodes === false ) { $db_error = true; }
+    if( $szerzodes['mlszam'] ) {
+        $sql = $adatbazis_kapcsolat->u('munkalap', array('szla_szam'), array(''), "`ikt_szam`='{$szerzodes['mlszam']}'");
+        if( $sql === false ) { $db_error = true; }
+    }
     
     // Majd töröljük magát a kapcsolatot is
     $sql = $adatbazis_kapcsolat -> u('fenntartasi_szamla_tetel', array('fenntartasi_szerzodes_tetel_recid'), array('0'), "`recid`='{$_POST['id']}'");
@@ -419,10 +428,18 @@ if( isset($_POST['fenntartasiSzamlaElutasit']) ) {
         
     // Adatbázisba mentés csak akkor, ha nem volt gond az XML küldéssel
     } else {
+
+        // Mi a számla száma?
+        $szamla = $adatbazis_kapcsolat->s2('szla_szam', 'fenntartasi_szamla', "`recid`='{$_POST['id']}'");
+        if( $szamla === false ) { $db_error = true; }
+
+        // Bontsuk a munkalap kapcsolatot ott, ahol ez a számlaszám van megadva (elvileg csak egy helyen)
+        $sql = $adatbazis_kapcsolat -> u('munkalap', array('szla_szam'), array(''), "`szla_szam`='{$szamla['szla_szam']}'");
+        if( $sql === false ) { $db_error = true; }
         
         // Elutasítással kapcsolatos adatok beállítása, illetve a kapcsolt számlaszám ürítése
         $sql = $adatbazis_kapcsolat->u('fenntartasi_szamla', array('igazolva', 'elutleir',     'sz_szam', 'igazolva_dt', 'igazolva_usr',                          'sztornozva_dt', 'sztornozva_usr'                       ),
-                                                            array(0,          $_POST['memo'], '',        'NOW()',       $_SESSION[get_db_tabla().'teljes_nev'],  'NOW()',         $_SESSION[get_db_tabla().'teljes_nev'] ),
+                                                             array(0,          $_POST['memo'], '',        'NOW()',       $_SESSION[get_db_tabla().'teljes_nev'],  'NOW()',         $_SESSION[get_db_tabla().'teljes_nev'] ),
                                         "`recid`='{$_POST['id']}'");
         if( $sql === false ) { $db_error = true; }
         
@@ -477,6 +494,14 @@ if( isset($_POST['fenntartasiSzamlaVisszaUi']) ) {
         $weblap -> leallit();
         exit;
     }
+
+    // Mi a számla száma?
+    $szamla = $adatbazis_kapcsolat->s2('szla_szam', 'fenntartasi_szamla', "`recid`='{$_POST['recid']}'");
+    if( $szamla === false ) { $db_error = true; }
+
+    // Bontsuk a munkalap kapcsolatot ott, ahol ez a számlaszám van megadva (elvileg csak egy helyen)
+    $sql = $adatbazis_kapcsolat -> u('munkalap', array('szla_szam'), array(''), "`szla_szam`='{$szamla['szla_szam']}'");
+    if( $sql === false ) { $db_error = true; }
     
     // Visszaküldés SQL-je
     $mezo   = array('feldolgozva_dt',      'feldolgozva_usr');
@@ -486,6 +511,7 @@ if( isset($_POST['fenntartasiSzamlaVisszaUi']) ) {
     //     array_push($mezo,  'sz_szam');
     //     array_push($ertek, ''       );
     // }
+
     $sql = $adatbazis_kapcsolat->u('fenntartasi_szamla', $mezo, $ertek, "`recid`='{$_POST['recid']}'");
     if( $sql === false ) { $db_error = true; }
     
@@ -546,7 +572,15 @@ if( isset($_POST['fenntartasiSzamlaSztornoz']) ) {
         $weblap -> leallit();
         exit;
     }
-        
+
+    // Mi a számla száma?
+    $szamla = $adatbazis_kapcsolat->s2('szla_szam', 'fenntartasi_szamla', "`recid`='{$_POST['id']}'");
+    if( $szamla === false ) { $db_error = true; }
+
+    // Bontsuk a munkalap kapcsolatot ott, ahol ez a számlaszám van megadva (elvileg csak egy helyen)
+    $sql = $adatbazis_kapcsolat -> u('munkalap', array('szla_szam'), array(''), "`szla_szam`='{$szamla['szla_szam']}'");
+    if( $sql === false ) { $db_error = true; }
+
     // Sztornózással kapcsolatos adatok beállítása, illetve a kapcsolt számlaszám ürítése
     $sql = $adatbazis_kapcsolat->u('fenntartasi_szamla', array('sz_szam', 'sztornozva_leir',   'sztornozva_dt', 'sztornozva_usr'                       ),
                                                         array('',        $_POST['memo'],      'NOW()',         $_SESSION[get_db_tabla().'teljes_nev'] ),
@@ -1380,7 +1414,7 @@ if( isset($_POST['pop_kapcsolas_feltolt']) ) {
     exit();
 }
 
-// Fenntartási számla kapcsoló popup mentése
+// Fenntartási számla tétel kapcsolása fenntartási szerződés tételhez popup mentésekor
 if( isset($_POST['fenntartasi_szamla_kapcsolas']) ) {
 
     $db_error = false;
@@ -1432,7 +1466,7 @@ if( isset($_POST['fenntartasi_szamla_kapcsolas']) ) {
     
     $szamla = $adatbazis_kapcsolat->s2('szla_szam telj_dt arfolyam', 'fenntartasi_szamla', "`recid`='{$recid}'");
     if( $szamla === false ) { $db_error = true; }
-    $szerzodes = $adatbazis_kapcsolat->s2('recid nullas '.$szerz_mezo, 'fenntartasi_szerzodes', "`szszam`='{$_COOKIE['fenntartas_szerzodes_szam']}'");
+    $szerzodes = $adatbazis_kapcsolat->s2('recid nullas mlszam '.$szerz_mezo, 'fenntartasi_szerzodes', "`szszam`='{$_COOKIE['fenntartas_szerzodes_szam']}'");
     if( $szerzodes === false ) { $db_error = true; }
     
     // Az a számlatétel, amit épp kapcsolunk
@@ -1550,7 +1584,7 @@ if( isset($_POST['fenntartasi_szamla_kapcsolas']) ) {
     // Ha a szerződés nullás, akkor nem figyeljük
     if( !$szerzodes['nullas'] && number_format($kifizetett_ossz, $tizedesek, '.', '') > number_format($szerzodes[$szerz_mezo], $tizedesek, '.', '') ) {
         echo json_encode( array( 
-                        'hiba'  => 'A már kifizetett ('.number_format($kifizetett_ossz, $tizedesek, ',', ' ').' '.$penznem.') számlák összege több,<br>mint a szerződés összege ('.number_format($szerzodes[$szerz_mezo], $tizedesek, ',', ' ').' '.$penznem.')! Így nem menthető!',
+                        'hiba'  => 'A már kifizetett ('.number_format($kifizetett_ossz, $tizedesek, ',', ' ').' '.$penznem.') számlák összege több,<br>mint a szerződés összege ('.number_format($szerzodes[$szerz_mezo], $tizedesek, ',', ' ').' '.$penznem.' '.$szerzodes['recid'].')! Így nem menthető!',
                         'title' => 'Hiba',
                         ) );
                 $weblap->leallit();
@@ -1682,6 +1716,13 @@ if( isset($_POST['fenntartasi_szamla_kapcsolas']) ) {
     // Számoljuk át a számlához kapcsolódó szerződés számokat és ezt írjuk be a számla Szerződés szám mezőjébe
     if( szerzodes_szamok_szamol($recid) === false ) {
         $db_error = true;
+    }
+
+    // Ha a szerződésnek van mlszam oszlopa, akkor az egy automatikusan generált szerződés (munkalap aláírás után jött létre ontEAM-ben, mert külsős megrendelés és van hozzá csatolva munkalap)
+    // Ekkor a fenntartási számlához kapcsoljuk a munkalapot is (ehhez a szla_szam oszlopot kell kitölteni)
+    if( $szerzodes['mlszam'] ) {
+        $sql = $adatbazis_kapcsolat->u('munkalap', array('szla_szam'), array($szamla['szla_szam']), "`ikt_szam`='{$szerzodes['mlszam']}'");
+        if( $sql === false ) { $db_error = true; }
     }
 
     // Legvégül logolunk
@@ -2381,7 +2422,7 @@ require_once('selectek.php');
         }
 
         if( _jog(JOG_FENNTARTASI_SZAMLAK_KEZEL) ) {
-            $gombok .= '<input type="button" class="gomb" value="Munkalap kapcsolása" onclick="csoportMuvelet(\'munkalapCsatolasSzlhoz\');"> ';
+            $gombok .= '<input type="button" class="gomb" value="Kapcsolt munkalapok kezelése" onclick="csoportMuvelet(\'munkalapCsatolasSzlhoz\');"> ';
         }
         
 // Saját IP-ről belépve a személyzeten módosítunk, hogy a Könyvelés tételek kezelése tesztelhető legyen
@@ -2652,7 +2693,7 @@ if( $_SERVER['REMOTE_ADDR'] == get_debug_ip() ) {
                         <div class="dtc r nowrap">'.number_format($tetel['brutto_ert'], 0, ',', ' ').'</div>
                         <div class="dtc r nowrap">'.number_format($tetel['dev_net'],    2, ',', ' ').'</div>
                         <div class="dtc r nowrap">'.number_format($tetel['dev_br'],     2, ',', ' ').'</div>
-                        <div class="dtc r nowrap">'.$tetel['afa'].'</div>
+                        <div class="dtc r nowrap">'.$tetel['afa_kod'].'</div>
                     </div>
                 ');
             }
@@ -2826,7 +2867,7 @@ if( $_SERVER['REMOTE_ADDR'] == get_debug_ip() ) {
                         Sztornózás indoklása:
                         <br>'.htmlspecialchars_decode( nl2br2($sor['sztornozva_leir']) ).'
                     </div>
-                    <div class="dt naplo">
+                    <div class="dt naplo tortenet">
                     ');
             }
         }
@@ -2847,7 +2888,7 @@ if( $_SERVER['REMOTE_ADDR'] == get_debug_ip() ) {
                     Elutasítás indoklása:
                     <br>'.htmlspecialchars_decode( nl2br2($sor['elutleir']) ).'
                 </div>
-                <div class="dt naplo">
+                <div class="dt naplo tortenet">
                 ');
         }
         if( !$sor['utalvanyozva'] && $sor['utalvanyozva_dt']!='0000-00-00 00:00:00' ) {
@@ -2858,7 +2899,7 @@ if( $_SERVER['REMOTE_ADDR'] == get_debug_ip() ) {
                     Elutasítás indoklása:
                     <br>'.htmlspecialchars_decode( nl2br2($sor['elutleir']) ).'
                 </div>
-                <div class="dt naplo">
+                <div class="dt naplo tortenet">
                 ');
         }
         
@@ -3195,7 +3236,6 @@ function xml_vissza( $szamla_id, $igazolva = '', $oka = '' ) {
     $valasz_xml = urldecode($valasz_xml);
     
     // Logolás
-    $log_utvonal = '../andoc.log';
     $log = '*****************************
     KÜLDÖTT XML (Igazolás/elutasításkor)
     '.date('Y.m.d H:i:s').'
@@ -3207,10 +3247,9 @@ function xml_vissza( $szamla_id, $igazolva = '', $oka = '' ) {
 
 
     ';
-    file_put_contents($log_utvonal, $log, FILE_APPEND | LOCK_EX);
+    file_put_contents(ANDOC_LOG_UTVONAL, $log, FILE_APPEND | LOCK_EX);
     
     // Logolás
-    $log_utvonal = '../andoc.log';
     $log = '*****************************
     KAPOTT XML (Igazolás/elutasításra válaszként)
     '.date('Y.m.d H:i:s').'
@@ -3222,7 +3261,7 @@ function xml_vissza( $szamla_id, $igazolva = '', $oka = '' ) {
         
         
     ';
-    file_put_contents($log_utvonal, $log, FILE_APPEND | LOCK_EX);
+    file_put_contents(ANDOC_LOG_UTVONAL, $log, FILE_APPEND | LOCK_EX);
             
     // A kapott választ feldolgozható állapotra kell hozni, hogy értelmezni lehessen, ehhez ki kell törölni belőle a sallangot
     if( eles_es_teszt_rendszer_e() ) {

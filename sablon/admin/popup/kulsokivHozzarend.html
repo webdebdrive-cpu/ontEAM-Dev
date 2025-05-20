@@ -3,21 +3,25 @@
     <div class="kozep" style="min-height: 30rem">
 
         <strong>Válasszon külső kivitelezőt:</strong>
-        <br><input type="text" style="margin: 0.2rem 0 0.8rem 0" autocomplete="off" class="oriasi disableNav csillag" name="pop_szallito_id_autocomp" id="pop_szallito_id_autocomp" onblur="if(!$(this).val()){ $('#szallito_id').val(''); }" value="">
+        <br><input type="text" style="margin: 0.2rem 0 0.8rem 0" autocomplete="off" class="oriasi disableNav csillag" name="pop_szallito_id_autocomp" id="pop_szallito_id_autocomp" onblur="if(!$(this).val()){ $('#szallito_id').val(''); }" value="" autofocus>
         <input type="hidden" name="pop_szallito_id" id="pop_szallito_id" value="">
         <script>
              $(document).ready(function() {
-                 $('#pop_szallito_id_autocomp').autocomplete({
-                     'php_fajl'         : '../autocomplete.php',
-                     'tabla'            : 'szallito',
-                     'oszlop_keres'     : 'nev',
-                     'oszlop_listaz'    : 'nev',
-                     'rkat'             : 0,
-                     'csoport'          : 0,
-                     'id_kiir'          : 'id'
-                 });
+                $('#pop_szallito_id_autocomp').autocomplete({
+                    'php_fajl'         : '../autocomplete.php',
+                    'tabla'            : 'szallito',
+                    'oszlop_keres'     : 'nev',
+                    'oszlop_listaz'    : 'nev',
+                    'rkat'             : 0,
+                    'csoport'          : 0,
+                    'id_kiir'          : 'id'
+                });
             });
         </script>
+
+        <br><strong>Megrendelés tárgya:</strong>
+        <br>
+        <textarea style="margin: 0.2rem 0 0.8rem 0; height: 3.6rem;" class="oriasi disableNav csillag" name="pop_targy" id="pop_targy"></textarea>
 
         <br><strong>Jóváhagyott érték:</strong>
         <br>
@@ -44,12 +48,21 @@
 
         <br><strong>Becsült érték:</strong>
         <div class="cb">
-        	<input type="checkbox" class="check" name="pop_becsult_ertek" id="pop_becsult_ertek">
-        	<label for="pop_becsult_ertek"></label>
+            <input type="checkbox" class="check" name="pop_becsult_ertek" id="pop_becsult_ertek">
+            <label for="pop_becsult_ertek"></label>
+        </div><br>
+
+        <br><strong>Utólagos megrendelés:</strong>
+        <div class="cb">
+            <input type="checkbox" class="check" name="pop_utolagos" id="pop_utolagos">
+            <label for="pop_utolagos"></label>
         </div><br>
 
         <br><strong>Várható érkezés:</strong>
         <br><input type="text" style="margin: 0.2rem 0 0.8rem 0" autocomplete="off" class="datetimepicker pop_datetimepicker" name="pop_varh_erk" id="pop_varh_erk">
+
+        <br><strong>Kivitelezési határidő:</strong>
+        <br><input type="text" style="margin: 0.2rem 0 0.8rem 0" autocomplete="off" class="datepicker_matol pop_datetimepicker_matol csillag" name="pop_kiv_hat" id="pop_kiv_hat">
 
         <script>
         $(document).ready(function(){
@@ -64,9 +77,19 @@
                 defaultTime         : '08:00',
                 minDate             : 0,
                 onChangeDateTime    : function(dp, $input){
-                    /* Órapontosak vagyunk */
+                    // Órapontosak vagyunk
                     $input.val( $input.val().substring(0, 14)+'00' );
                 }
+            });
+            $('.pop_datetimepicker_matol').datetimepicker({
+                closeOnDateSelect   : true,
+                format              :'Y.m.d',
+                mask                : '\xa0\xa0\xa0\xa0.\xa0\xa0.\xa0\xa0',
+                timepicker          : false,
+                validateOnBlur      : false,
+                scrollInput         : false,
+                minDate             : '-1970/01/02',
+                onChangeDateTime    : function(){  }
             });
         });
         </script>
@@ -101,10 +124,10 @@
                 'image/gif' : true
             };
 
-        /* Előnézet */
+        // Előnézet
         function elonezet_javaslattetel_popup(file){
 
-            /* Ha van filereader, és képelemről van szó, akkor készítünk egy thumbnailt */
+            // Ha van filereader, és képelemről van szó, akkor készítünk egy thumbnailt
             if (tests_javaslattetel_popup.filereader === true && kepformatumok_javaslattetel_popup[file.type] === true) {
                 var reader = new FileReader();
                 reader.onload = function (event) {
@@ -114,14 +137,14 @@
                 };
                 reader.readAsDataURL(file);
 
-            /* Egyébként csak egy sort írunk */
+            // Egyébként csak egy sort írunk
             }else{
                 jsff_javaslattetel_popup.innerHTML += 'Feltöltve ' + file.name + ' ' + (file.size ? (file.size/1024|0) + 'K' : '') + '<br>';
             }
 
         }
 
-        /* Beolvasás */
+        // Beolvasás
         function beolvasas_javaslattetel_popup(fajlok, ellenorzes_kihagy) {
 
             var voltmar = [];
@@ -132,7 +155,7 @@
             for (var i = 0; i < fajlok.length; i++){
 
                 fajl = fajlok[i];
-                /* Túl nagy méretű fálj problémájának lekezelése. A méret limitet a PHP iniből kapjuk. */
+                // Túl nagy méretű fálj problémájának lekezelése. A méret limitet a PHP iniből kapjuk.
                 if( fajl.size > UPLOAD_FILE_LIMIT ) {
                     alert2(fajl.name+': túl nagy meretű fájl ('+Math.round(fajl.size/1024/1024)+'MB)!<br>Maximálisan megengedett méret: '+FILE_LIMIT_KIIRVA, '', 'Hiba');
                     return false;
@@ -222,14 +245,14 @@
             felulirando_fajlok = false;
         }
 
-        /* Ha minden fájl feltöltése kész, akkor itt adhat meg további utasítás */
+        // Ha minden fájl feltöltése kész, akkor itt adhat meg további utasítás
         function minden_fajl_kesz_javaslattetel_popup(){
 
             $('#jsff_javaslattetel_popup').find('progress').fadeOut(2000, function(){ $('#' + progress_id).next('br').remove(); });
 
         }
 
-        /* Ha működik a drag&drop, akkor a CSS class-t megváltoztatjuk draghoverre */
+        // Ha működik a drag&drop, akkor a CSS class-t megváltoztatjuk draghoverre
         if(tests_javaslattetel_popup.dnd){
 
             jsff_javaslattetel_popup.ondragover = function(){
@@ -262,7 +285,7 @@
 
 </div>
 <script>
-/* A popup tartalma nem biztos, hogy megjelenik, mert lehet, hogy adott munkalap volt már korábban Döntésre vár státuszban, és ekkor előbb kérdezünk. */
+// A popup tartalma nem biztos, hogy megjelenik, mert lehet, hogy adott munkalap volt már korábban Döntésre vár státuszban, és ekkor előbb kérdezünk.
 $(document).ready(function(){
     $.ajax({
         url : 'munkalap.php',
@@ -279,17 +302,26 @@ $(document).ready(function(){
                 if(response.mehet){
                     $('#munkalapKulso').show();
                 }
+                $('#pop_varh_erk').val($('#varh_erk_db').val());
+                var text = $('#text').val();
+                if( !$('#text').length ) {
+                    var text = $('#text_db').val();
+                }
+                $('#pop_targy').val(text);
+
+                $('#pop_szallito_id_autocomp').focus();
+                
                 if(response.kerdes){
                     $('#mar_volt_kerdes').html(response.kerdes);
                     $('#mar_volt_kerdes').show();
                 }
             }
         },
-            complete: function(xhr) {
-                if( xhr.status != 200 ) {
-                    alert2(xhr.responseText, '', 'Hiba');
-                }
+        complete: function(xhr) {
+            if( xhr.status != 200 ) {
+                alert2(xhr.responseText, '', 'Hiba');
             }
+        }
     });
 });
 
@@ -303,10 +335,13 @@ function kulsokivHozzarend( kulso_valtas_mehet ) {
             recid               : _get('id'),
             validate            : 'false',
             szallito_id         : $('#pop_szallito_id').val(),
+            targy               : $('#pop_targy').val(),
             jh_ert              : $('#pop_jh_ert').val(),
             kcs_21              : $('#kcs_21').val(),
             varh_erk            : $('#pop_varh_erk').val(),
+            kiv_hat             : $('#pop_kiv_hat').val(),
             becsult_ertek       : $('#pop_becsult_ertek').prop('checked'),
+            utolagos            : $('#pop_utolagos').prop('checked'),
             javaslattetel       : 1,
             kulso_valtas_mehet  : kulso_valtas_mehet,
             kulsokivHozzarend   : new Date().getTime()
@@ -321,6 +356,9 @@ function kulsokivHozzarend( kulso_valtas_mehet ) {
                     szamlaBetolt(_get('id'), PHP_SELF, 'modosit');
                     /*popupZar(); Még nem tudjuk, hogy be kell-e majd zárni vagy sem */
                     alert2(response.hiba, response.gomb, response.title);
+                    if( response.focus ) {
+                        $('#'+response.focus).addClass('hibas_ide_focus');
+                    }
                     return false;
                 }
 

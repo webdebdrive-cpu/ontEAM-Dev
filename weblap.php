@@ -151,6 +151,11 @@ if( empty($_POST) && !in_array( basename(self()), $kiveteles_oldalak ) && !isset
     $_SESSION[csonkit(basename(self()), 4).'_idk'] = $balNavPanelRECIDk;    // Egy Session-ben is eltároljuk az ID-kat, hogy ajax-al egy sort meghívva, ne töltse be, ha adott ID nem tartozik a felhasználó látokörébe
 }
 
+// Munkalap megrendelés nyomtatásához fontos, hogy mindenképp megmaradjon az ID
+if( isset($_GET['nyomtat']) ) {
+    $_GET['id_nyomtatashoz'] = $_GET['id'];
+}
+
 if( $_GET['id'] && !isset($_GET['no_lista']) ) {
     if( !in_array($_GET['id'], $balNavPanelRECIDk) ) {
         $_GET['id'] = '';

@@ -1407,7 +1407,7 @@ $(function() {
                     taroltVal = ev + '.' + honap + '.' + nap;
                 } else {
                     taroltVal = '\xa0\xa0\xa0\xa0.\xa0\xa0.\xa0\xa0';
-                    /* Ha az input értéke üres, akkor az alapértelmezett érték legyen az értéke */
+                    // Ha az input értéke üres, akkor az alapértelmezett érték legyen az értéke
                     if(!val){
                         val = taroltVal;
                     }
@@ -1982,7 +1982,8 @@ $(function() {
             // Ha van olyan Mégsem gomb mondjuk egy popup-on, aminek van escapes_megsem class-a, akkor egyszerűen csak nyomjuk meg ezt a gombot
             } else if( $('.escapes_megsem').length ){
                 
-                $('.escapes_megsem').last().click(); /* Azért kell bele a last(), mert több 'escapes_megsem' albak egymársra nyitódhat, és ekkor mindig a legutóbbit kell megnyomni, bezárni */
+                // Azért kell bele a last(), mert több 'escapes_megsem' albak egymársra nyitódhat, és ekkor mindig a legutóbbit kell megnyomni, bezárni
+                $('.escapes_megsem').last().click();
                 
             // Egyébként meg kezeljük le az Escape gomb lehetőségeit
             } else {
@@ -2000,7 +2001,7 @@ $(function() {
 
                 // A popup bezáródik, de csak akkor, ha az alert nincs nyitva
                 if( !$('#alert2').is(':visible') ){
-                    popupZar();
+                   popupZar();
                 // Ha viszont nyitva volt az alert, akkor nézzük meg, hogy a bezárt X-nek van-e 'mehet_megsem_mutat' class-ja? Ha van, akkor escape-ra is mutassuk meg a Mehet-Mégsem gombokat. 
                 // JS kiír függvényben külön gondoskodni kell róla, hogy az ilyen alert megkapja ezt a 'mehet_megsem_mutat' class-t
                 } else {
@@ -2545,47 +2546,48 @@ function bejSzallodaValaszt() {
      });
 }
 
-function munkalapMegrendelve( recid, csak_kerdezunk ) {
-    if( recid ) {
-        if( csak_kerdezunk === undefined ) {
-            csak_kerdezunk = '';
-        }
+// Már nincs használatban
+// function munkalapMegrendelve( recid, csak_kerdezunk ) {
+//     if( recid ) {
+//         if( csak_kerdezunk === undefined ) {
+//             csak_kerdezunk = '';
+//         }
 
-        $.ajax({
-         	url : 'munkalap.php',
-         	type: 'POST',
-         	data: {
-                recid: recid,
-                csak_kerdezunk: csak_kerdezunk,
-                munkalapMegrendelve: new Date().getTime()
-            },
-         	success: function(response) {
-                if(response.substring(0, 6)=='SESKIL'){ location.href = 'index.php'; }
-         		if(response) {
-                    response = JSON.parse(response);
+//         $.ajax({
+//          	url : 'munkalap.php',
+//          	type: 'POST',
+//          	data: {
+//                 recid: recid,
+//                 csak_kerdezunk: csak_kerdezunk,
+//                 munkalapMegrendelve: new Date().getTime()
+//             },
+//          	success: function(response) {
+//                 if(response.substring(0, 6)=='SESKIL'){ location.href = 'index.php'; }
+//          		if(response) {
+//                     response = JSON.parse(response);
 
-                    if( response.hiba ) {
-                        if( response.gomb ) {
-                            alert2(response.hiba, response.gomb);
-                        } else {
-                            alert2(response.hiba, '', 'Hiba');
-                        }
+//                     if( response.hiba ) {
+//                         if( response.gomb ) {
+//                             alert2(response.hiba, response.gomb);
+//                         } else {
+//                             alert2(response.hiba, '', 'Hiba');
+//                         }
 
-                        return false;
-                    }
+//                         return false;
+//                     }
 
-                    szurkit();
-                    location.href = baseName(location.href) + '.php';
-         		}
-         	},
-            complete: function(xhr) {
-                if( xhr.status != 200 ) {
-                    alert2(xhr.responseText, '', 'Hiba');
-                }
-            }
-        });
-    }
-}
+//                     szurkit();
+//                     location.href = baseName(location.href) + '.php';
+//          		}
+//          	},
+//             complete: function(xhr) {
+//                 if( xhr.status != 200 ) {
+//                     alert2(xhr.responseText, '', 'Hiba');
+//                 }
+//             }
+//         });
+//     }
+// }
 
 function kuldesJovahagyasra( recid, csak_kerdezunk ) {
     if( recid ) {

@@ -400,13 +400,13 @@ if( !isset($_GET['regi']) ) {
     }
 
     
-    // 45 napnál régebbi munkalapok
+    // 45 napnál régebbi munkalapok, amik NEM elutasított, lezárt, törölt és sztornó státuszú
     $szemelyzet_idk = array(MSZK_VEZETO, MUSZAKI_VEZETO, MUSZAKI_VEZETO_HELYETTES);
     if( in_array($_SESSION[get_db_tabla().'szemelyzet_id'], $szemelyzet_idk) ) {
 
         $korabbi_datum = date('Y-m-d H:i', strtotime('-45 days'));
         $tabla  = 'munkalap';
-        $db     = $adatbazis_kapcsolat->s('recid', 'munkalap', "`telephely_id` IN (".implode(',', $szallodak).") AND `insert_dt`<='{$korabbi_datum}'", '', '', '', '-num-rows-');
+        $db     = $adatbazis_kapcsolat->s('recid', 'munkalap', "`telephely_id` IN (".implode(',', $szallodak).") AND `insert_dt`<='{$korabbi_datum}' AND `stat_id` NOT IN ('".MUNKALAP_STAT_ELUTASITVA."', '".MUNKALAP_STAT_LEZART."', '".MUNKALAP_STAT_TOROLT."', '".MUNKALAP_STAT_SZTORNO."')", '', '', '', '-num-rows-');
         $link   = $tabla.'.php?mezo=insert_dt&amp;op=lteq&amp;felt='.$korabbi_datum.'&amp;modosit&amp;dashboard=45 napnál régebbi munkalapok';
         if( $db ) {
             $feladatok .= nl2('
@@ -441,6 +441,87 @@ if( !isset($_GET['regi']) ) {
                                     <td>
                                         <a href="'.$link.'">
                                             Megr. sztornó email elküldése
+                                        </a>
+                                    </td>
+                                    <td>
+                                        <a href="'.$link.'">
+                                            '.number_format($db, 0, '', '.').' db
+                                        </a>
+                                    </td>
+                                </tr>
+                                ');
+        }
+    }
+
+    // Aláírásra vár státuszú ML-ok
+    if( _jog(JOG_MUNKALAP_ELSODL_ALAIR) || _jog(JOG_MUNKALAP_MASODL_ALAIR) ) {
+
+        $tabla  = 'munkalap';
+        if( _jog(JOG_MUNKALAP_ELSODL_ALAIR) ) {
+            $oszlop = 'alair1';
+        }
+        if( _jog(JOG_MUNKALAP_MASODL_ALAIR) ) {
+            $oszlop = 'alair2';
+        }
+        $db     = $adatbazis_kapcsolat->s('recid', $tabla, "`stat_id`='".MUNKALAP_STAT_MEGR_ALAIR_VAR."' AND `{$oszlop}`=0{$telephely_sql_mlhoz}", '', '', '', '-num-rows-');
+        $link   = $tabla.'.php?mezo=stat_id&amp;op=equal&amp;felt='.MUNKALAP_STAT_MEGR_ALAIR_VAR.'&amp;modosit&amp;dashboard=Megr. aláírásra vár';
+
+        if( $db ) {
+            $feladatok .= nl2('
+                                <tr>
+                                    <td>
+                                        <a href="'.$link.'">
+                                            Megr. aláírásra vár
+                                        </a>
+                                    </td>
+                                    <td>
+                                        <a href="'.$link.'">
+                                            '.number_format($db, 0, '', '.').' db
+                                        </a>
+                                    </td>
+                                </tr>
+                                ');
+        }
+    }
+
+    // "Megr. elküldésre vár" státuszú ML-ok (ez nem ugyanaz, mint a "Megrendelésre vár")
+    if( _jog(JOG_MUNKALAP_KULSOS_MEGREND) ) {
+
+        $tabla  = 'munkalap';
+        $db     = $adatbazis_kapcsolat->s('recid', $tabla, "`stat_id`='".MUNKALAP_STAT_MEGR_ELKULD_VAR."'{$telephely_sql_mlhoz}", '', '', '', '-num-rows-');
+        $link   = $tabla.'.php?mezo=stat_id&amp;op=equal&amp;felt='.MUNKALAP_STAT_MEGR_ELKULD_VAR.'&amp;modosit&amp;dashboard=Megr. elküldésre vár';
+
+        if( $db ) {
+            $feladatok .= nl2('
+                                <tr>
+                                    <td>
+                                        <a href="'.$link.'">
+                                            Megr. elküldésre vár
+                                        </a>
+                                    </td>
+                                    <td>
+                                        <a href="'.$link.'">
+                                            '.number_format($db, 0, '', '.').' db
+                                        </a>
+                                    </td>
+                                </tr>
+                                ');
+        }
+    }
+
+    // "Megrendelésre vár" státuszú ML-ok (ez nem ugyanaz, mint a "Megr. elküldésre vár")
+    if( _jog(JOG_MUNKALAP_KULSOS_MEGREND) ) {
+
+        $tabla  = 'munkalap';
+        $db     = $adatbazis_kapcsolat->s('recid', $tabla, "`stat_id`='".MUNKALAP_STAT_HOZREND_MEGREND_VAR."'{$telephely_sql_mlhoz}", '', '', '', '-num-rows-');
+        $link   = $tabla.'.php?mezo=stat_id&amp;op=equal&amp;felt='.MUNKALAP_STAT_HOZREND_MEGREND_VAR.'&amp;modosit&amp;dashboard=Megrendelésre vár';
+
+        if( $db ) {
+            $feladatok .= nl2('
+                                <tr>
+                                    <td>
+                                        <a href="'.$link.'">
+                                            Megrendelésre vár
                                         </a>
                                     </td>
                                     <td>
@@ -1062,20 +1143,20 @@ if( !isset($_GET['regi']) ) {
 
         // Státuszok bejárása, sorok képzése belőle
         $statuszok = array(
-                        array('nev' => 'Nyitott',                   'stat_id' => MUNKALAP_STAT_NYITOTT),
-                        array('nev' => 'Hozzárendelt',              'stat_id' => MUNKALAP_STAT_HOZZARENDELT),
-                        array('nev' => 'Felvéve',                   'stat_id' => MUNKALAP_STAT_FELVEVE),
-                        array('nev' => 'Előkészítés alatt',         'stat_id' => MUNKALAP_STAT_ELOKESZITES_ALATT),
-                        array('nev' => 'Anyagra vár',               'stat_id' => MUNKALAP_STAT_ANYAGRAVAR),
-                        array('nev' => 'Várakozó',                  'stat_id' => MUNKALAP_STAT_VARAKOZO),
-                        array('nev' => 'Lezárásra vár',             'stat_id' => MUNKALAP_STAT_LEZARASRA_VAR),
-                        array('nev' => 'Határidős',                 'stat_id' => MUNKALAP_STAT_HATIDO_UTEMEZETT),
-                        array('nev' => 'Igazolásra vár',            'stat_id' => MUNKALAP_STAT_IGAZOLASRA_VAR),
-                        array('nev' => 'Döntésre vár (száll.ig)',   'stat_id' => MUNKALAP_STAT_DONTESRE_VAR),
-                        array('nev' => 'Döntésre vár (MSZK vez.)',  'stat_id' => MUNKALAP_STAT_DONTESRE_VAR),
-                        array('nev' => 'Ajánlat nyomtatva',         'stat_id' => MUNKALAP_STAT_AJANLAT_NYOMTATVA),
-                        array('nev' => 'Megrendelésre vár',         'stat_id' => MUNKALAP_STAT_HOZREND_MEGREND_VAR),
-                        array('nev' => 'Megr. Sztornóra vár',       'stat_id' => MUNKALAP_STAT_SZTORNO_VAR),
+                        array('nev' => 'Nyitott',                   'stat_id' => MUNKALAP_STAT_NYITOTT              ),
+                        array('nev' => 'Hozzárendelt',              'stat_id' => MUNKALAP_STAT_HOZZARENDELT         ),
+                        array('nev' => 'Felvéve',                   'stat_id' => MUNKALAP_STAT_FELVEVE              ),
+                        array('nev' => 'Előkészítés alatt',         'stat_id' => MUNKALAP_STAT_ELOKESZITES_ALATT    ),
+                        array('nev' => 'Anyagra vár',               'stat_id' => MUNKALAP_STAT_ANYAGRAVAR           ),
+                        array('nev' => 'Várakozó',                  'stat_id' => MUNKALAP_STAT_VARAKOZO             ),
+                        array('nev' => 'Lezárásra vár',             'stat_id' => MUNKALAP_STAT_LEZARASRA_VAR        ),
+                        array('nev' => 'Határidős',                 'stat_id' => MUNKALAP_STAT_HATIDO_UTEMEZETT     ),
+                        array('nev' => 'Igazolásra vár',            'stat_id' => MUNKALAP_STAT_IGAZOLASRA_VAR       ),
+                        array('nev' => 'Döntésre vár (száll.ig)',   'stat_id' => MUNKALAP_STAT_DONTESRE_VAR         ),
+                        array('nev' => 'Döntésre vár (MSZK vez.)',  'stat_id' => MUNKALAP_STAT_DONTESRE_VAR         ),
+                        array('nev' => 'Ajánlat nyomtatva',         'stat_id' => MUNKALAP_STAT_AJANLAT_NYOMTATVA    ),
+                        array('nev' => 'Megrendelésre vár',         'stat_id' => MUNKALAP_STAT_HOZREND_MEGREND_VAR  ),
+                        array('nev' => 'Megr. Sztornóra vár',       'stat_id' => MUNKALAP_STAT_SZTORNO_VAR          ),
                     );
 
         $tabla = 'munkalap';

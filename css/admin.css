@@ -2428,7 +2428,7 @@ input.autocomp, input.autocomp.mod, input.autocomp:focus{
     transform: translateX(-50%) translateY(-50%);
 }
 
-#popup div.popup_kont div.bezar, #alert2 div.bezar {
+#popup div.popup_kont div.bezar, #popup div.popup_kont div.bezar_ell, #alert2 div.bezar {
     background: var(--color-kek);
     border-radius: 0rem 0.6rem 0rem 0rem;
     cursor: pointer;
@@ -2440,7 +2440,7 @@ input.autocomp, input.autocomp.mod, input.autocomp:focus{
     z-index: 1;
 }
 
-#popup div.popup_kont div.bezar::before, #alert2 div.bezar::before, #popup div.popup_kont div.bezar::after, #alert2 div.bezar::after {
+#popup div.popup_kont div.bezar::before, #popup div.popup_kont div.bezar_ell::before, #alert2 div.bezar::before, #popup div.popup_kont div.bezar::after, #popup div.popup_kont div.bezar_ell::after, #alert2 div.bezar::after {
     background: #fff;
     content: '';
     height: 0.2rem;
@@ -2451,7 +2451,7 @@ input.autocomp, input.autocomp.mod, input.autocomp:focus{
     width: 1.5rem;
 }
 
-#popup div.popup_kont div.bezar:after, #alert2 div.bezar:after {
+#popup div.popup_kont div.bezar::after, #popup div.popup_kont div.bezar_ell::after, #alert2 div.bezar::after {
     transform: translateX(-50%) translateY(-50%) rotate(45deg);
 }
 
@@ -2548,7 +2548,7 @@ input.autocomp, input.autocomp.mod, input.autocomp:focus{
     padding-right: 0rem;
 }
 
-#popup div.popup_tart div.dt div.dtc input[type="text"]:not(.datepicker):not(.datepicker_tegnapig):not(.datepicker_matol):not(.f_num) {
+#popup div.popup_tart div.dt div.dtc input[type="text"]:not(.datepicker):not(.datepicker_tegnapig):not(.datepicker_matol):not(.datetimepicker_matol):not(.f_num) {
     min-width: 40rem;
     width: 100%;
 }

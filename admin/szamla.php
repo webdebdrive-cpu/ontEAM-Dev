@@ -576,7 +576,6 @@ function xml_vissza( $szamla_id ) {
     }
 
     // Logolás
-    $log_utvonal = '../andoc.log';
     $log = '*****************************
     KÜLDÖTT XML (Nem műszaki számla elutasításakor)
     '.date('Y.m.d H:i:s').'
@@ -588,10 +587,9 @@ function xml_vissza( $szamla_id ) {
 
 
     ';
-    file_put_contents($log_utvonal, $log, FILE_APPEND | LOCK_EX);
+    file_put_contents(ANDOC_LOG_UTVONAL, $log, FILE_APPEND | LOCK_EX);
     
     // Logolás
-    $log_utvonal = '../andoc.log';
     $log = '*****************************
     KAPOTT XML (Nem műszaki számla elutasításakor válaszként)
     '.date('Y.m.d H:i:s').'
@@ -603,7 +601,7 @@ function xml_vissza( $szamla_id ) {
         
         
     ';
-    file_put_contents($log_utvonal, $log, FILE_APPEND | LOCK_EX);
+    file_put_contents(ANDOC_LOG_UTVONAL, $log, FILE_APPEND | LOCK_EX);
             
         // A kapott választ feldolgozató állapotra kell hozni, hogy értelmezni lehessen, ehhez ki kell törölni belőle a sallangot
         if( eles_es_teszt_rendszer_e() ) {
@@ -616,7 +614,6 @@ function xml_vissza( $szamla_id ) {
         if( eles_es_teszt_rendszer_e() && $kapott_xml -> result != 'I' ) {
 
             // Logolás
-            $log_utvonal = '../andoc.log';
             $log = '*****************************
             Az alábbi válasz XML-t nem sikerült elküldeni:
             '.date('Y.m.d H:i:s').'
@@ -628,10 +625,11 @@ function xml_vissza( $szamla_id ) {
 
 
         ';
-        file_put_contents($log_utvonal, $log, FILE_APPEND | LOCK_EX);
+        file_put_contents(ANDOC_LOG_UTVONAL, $log, FILE_APPEND | LOCK_EX);
         
         htmlspecialchars($valasz_xml);
         $db_error = true;
+        
     // Ezt csak akkor módosítjuk, ha az XML küldése is rendben volt
     } else {
         // Számla törlése

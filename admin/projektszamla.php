@@ -57,6 +57,43 @@ if (isset($_POST['kapcsolas_torol'])) {
     exit;
 }
 
+// Projektszámla dokumentum típusának beállítása 
+// (Projektek dokumentum fül alatt, minősítés gombra kattintva, de mivel számla dokumentumról van szó, ezért itt kezeljük)
+if( isset($_POST['dok_minosites_beallit']) ) {
+    
+    $adatbazis_kapcsolat->u('projektszamla_dok', array('tipus'), array($_POST['tipus']), "`recid`='{$_POST['recid']}'");
+    
+    // Meg kell nézni, hogy mi a projekt státusza. Ha előkészítés alatt vagy folyamatban, akkor rákérdezünk, hogy tovább léptet-e státuszt
+    if( $_POST['tipus'] == EL_DOK_TIPUS_SZAMLA || $_POST['tipus'] == EL_DOK_TIPUS_ATADASI ) {
+        $pr_szamla_doc   = $adatbazis_kapcsolat->s2('projektszamla_id', 'projektszamla_dok', "`recid`='{$_POST['recid']}'");
+        $pr_szamla       = $adatbazis_kapcsolat->s2('pr_szam', 'projektszamla', "`recid`='{$pr_szamla_doc['projektszamla_id']}'");
+        $projekt         = $adatbazis_kapcsolat->s2('recid stat_id', 'projektkezeles', "`ikt_szam`='{$pr_szamla['pr_szam']}'");
+        
+        if( $_POST['tipus'] == EL_DOK_TIPUS_SZAMLA && $projekt['stat_id'] == PRKEZEL_STAT_ELOKESZITES_ALATT ) {
+            echo json_encode( array(
+                                    'alert' => 'A csatolt fájlt számla típusú dokumentummá minősítette.<br>Folyamatba helyezi a projektet?',
+                                    'title' => 'Kérdés',
+                                    'gomb'  => '<input type="button" class="gomb zold" value="Igen" onclick="folyamatbanra_allit()"><input type="button" class="gomb piros" value="Nem" onclick="popupZar(); szamlaBetolt( \''.$projekt['recid'].'\', \'projektkezeles.php\', \'dokumentumok\' );">',
+                                ) );
+        }
+        if( $_POST['tipus'] == EL_DOK_TIPUS_ATADASI && $projekt['stat_id'] == PRKEZEL_STAT_FOLYAMATBAN ) {
+            echo json_encode( array(
+                                    'alert' => 'A csatolt fájlt Átadási jk. típusú dokumentummá minősítette.<br>Készre helyezi a projektet?',
+                                    'title' => 'Kérdés',
+                                    'gomb'  => '<input type="button" class="gomb zold" value="Igen" onclick="keszre_allit()"><input type="button" class="gomb piros" value="Nem" onclick="popupZar(); szamlaBetolt( \''.$projekt['recid'].'\', \'projektkezeles.php\', \'dokumentumok\' );">',
+                                ) );
+        }
+    }
+    
+    // Updateljük a minősítésre váró dokumentumok számát
+    $dok        = $adatbazis_kapcsolat->s2('projektszamla_id', 'projektszamla_dok', "`recid`='{$_POST['recid']}'");
+    $szamla     = $adatbazis_kapcsolat->s2('pr_szam', 'projektszamla', "`recid`='{$dok['projektszamla_id']}'");
+    $projekt    = $adatbazis_kapcsolat->s2('recid', 'projektkezeles', "`ikt_szam`='{$szamla['pr_szam']}'");
+    projekt_minositesre_varo_dok_szamol($projekt['recid']);
+    
+    $weblap -> leallit();
+    exit;
+}
 
 // Számla küldése igazolásra
 if( isset($_POST['kuldes_igazolasra']) ) {
@@ -3834,7 +3871,7 @@ if( $_SERVER['REMOTE_ADDR'] == get_debug_ip() ) {
                         Elutasítás indoklása:
                         <br>'.htmlspecialchars_decode( nl2br2($sor['elutleir']) ).'
                     </div>
-                    <div class="dt naplo">
+                    <div class="dt naplo tortenet">
                     ');
             }
         }
@@ -3853,7 +3890,7 @@ if( $_SERVER['REMOTE_ADDR'] == get_debug_ip() ) {
                         Elutasítás indoklása:
                         <br>'.htmlspecialchars_decode( nl2br2($sor['elutleir']) ).'
                     </div>
-                    <div class="dt naplo">
+                    <div class="dt naplo tortenet">
                     ');
             }
         }
@@ -3875,7 +3912,7 @@ if( $_SERVER['REMOTE_ADDR'] == get_debug_ip() ) {
                         Elutasítás indoklása:
                         <br>'.htmlspecialchars_decode( nl2br2($sor['elutleir']) ).'
                     </div>
-                    <div class="dt naplo">
+                    <div class="dt naplo tortenet">
                     ');
             }
         }
@@ -3893,7 +3930,7 @@ if( $_SERVER['REMOTE_ADDR'] == get_debug_ip() ) {
                         Sztornózás indoklása:
                         <br>'.htmlspecialchars_decode( nl2br2($sor['sztornozva_leir']) ).'
                     </div>
-                    <div class="dt naplo">
+                    <div class="dt naplo tortenet">
                     ');
             }
         }
@@ -4173,7 +4210,6 @@ function xml_vissza( $szamla_id, $igazolva = '', $oka = '' ) {
     $valasz_xml = urldecode($valasz_xml);
     
     // Logolás
-    $log_utvonal = '../andoc.log';
     $log = '*****************************
     KÜLDÖTT XML (Igazolás/elutasításkor)
     '.date('Y.m.d H:i:s').'
@@ -4185,10 +4221,9 @@ function xml_vissza( $szamla_id, $igazolva = '', $oka = '' ) {
 
 
     ';
-    file_put_contents($log_utvonal, $log, FILE_APPEND | LOCK_EX);
+    file_put_contents(ANDOC_LOG_UTVONAL, $log, FILE_APPEND | LOCK_EX);
 
     // Logolás
-    $log_utvonal = '../andoc.log';
     $log = '*****************************
     KAPOTT XML (Igazolás/elutasításra válaszként)
     '.date('Y.m.d H:i:s').'
@@ -4200,7 +4235,7 @@ function xml_vissza( $szamla_id, $igazolva = '', $oka = '' ) {
         
         
     ';
-    file_put_contents($log_utvonal, $log, FILE_APPEND | LOCK_EX);
+    file_put_contents(ANDOC_LOG_UTVONAL, $log, FILE_APPEND | LOCK_EX);
             
     // A kapott választ feldolgozató állapotra kell hozni, hogy értelmezni lehessen, ehhez ki kell törölni belőle a sallangot
     if( eles_es_teszt_rendszer_e() ) {
