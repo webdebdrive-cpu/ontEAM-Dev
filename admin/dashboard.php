@@ -775,24 +775,32 @@ if( !isset($_GET['regi']) ) {
 
         // Igazolásra váró energia számlák (ha már fel van dolgozva /dátuma nem üres/, de még nincs igazolva /dátuma még üres/)
         $tabla  = 'energia_szamla';
-        $db     = $adatbazis_kapcsolat->s('recid', 'energia_szamla', "`feldolgozva_dt`!='0000-00-00 00:00:00' AND `igazolva_dt`='0000-00-00 00:00:00'{$telephely_sql}", '', '', '', '-num-rows-');
-        $link   = $tabla.'.php?tabla='.$tabla.'&amp;feltetel=me|feldolgozva!HASH!op|equal!HASH!fe|1!HASH!es|!HASH!me|igazolva!HASH!op|equal!HASH!fe|0!HASH!es|!HASH!me|sztornozva!HASH!op|equal!HASH!fe|0!HASH!es|!HASH!&amp;f_o_szures_submit=1&amp;dashboard=Energia számlák igazolása';
-
-        if( $db ) {
-            $feladatok .= nl2('
-                                <tr>
-                                    <td>
-                                        <a href="'.$link.'">
-                                            Igazolásra váró energia számlák
-                                        </a>
-                                    </td>
-                                    <td>
-                                        <a href="'.$link.'">
-                                            '.number_format($db, 0, '', '.').' db
-                                        </a>
-                                    </td>
-                                </tr>
-                                ');
+        $energia_fajtak = array(
+            array('fajta' => ENERGIA_SZAMLA_VIZ,        'nev' => 'vízszámlák'       ),
+            array('fajta' => ENERGIA_SZAMLA_GAZ,        'nev' => 'gázszámlák'       ),
+            array('fajta' => ENERGIA_SZAMLA_TERMAL,     'nev' => 'termálszámlák'    ),
+            array('fajta' => ENERGIA_SZAMLA_VILLANY,    'nev' => 'villanyszámlák'   ),
+        );
+        foreach ($energia_fajtak as $energia_fajta) {
+            $db     = $adatbazis_kapcsolat->s('recid', 'energia_szamla', "`fajta`='{$energia_fajta['fajta']}' AND `feldolgozva_dt`!='0000-00-00 00:00:00' AND `igazolva_dt`='0000-00-00 00:00:00'{$telephely_sql}", '', '', '', '-num-rows-');
+            $link   = $tabla.'.php?tabla='.$tabla.'&amp;feltetel=me|feldolgozva!HASH!op|equal!HASH!fe|1!HASH!es|!HASH!me|igazolva!HASH!op|equal!HASH!fe|0!HASH!es|!HASH!me|sztornozva!HASH!op|equal!HASH!fe|0!HASH!es|!HASH!&amp;f='.$energia_fajta['fajta'].'&amp;f_o_szures_submit=1&amp;dashboard=Energia számlák igazolása';
+    
+            if( $db ) {
+                $feladatok .= nl2('
+                                    <tr>
+                                        <td>
+                                            <a href="'.$link.'">
+                                                Igazolásra váró '.$energia_fajta['nev'].'
+                                            </a>
+                                        </td>
+                                        <td>
+                                            <a href="'.$link.'">
+                                                '.number_format($db, 0, '', '.').' db
+                                            </a>
+                                        </td>
+                                    </tr>
+                                    ');
+            }
         }
     }
 

@@ -3107,7 +3107,7 @@ if (isset($_POST['volt_mar_dontesre_var'])) {
         ));
     } else {
         echo json_encode(array(
-            'mehet'     => 1,
+            'mehet' => 1,
         ));
     }
 
@@ -8885,7 +8885,6 @@ if( isset($_GET['uj']) ) {
 
     // Visszaadás Diszpécsernek
     $felvehetik = array(TELEPITETT_SZEMELYZET, MOBILCSOPORT);
-
     if (
         ( $telephely['modell'] && $sor['stat_id']==MUNKALAP_STAT_FELVEVE            && in_array($sor['szemelyzet_id'], $felvehetik) && $kezeles_jog ) ||
         ( /* Modell nem számít */ $sor['stat_id']==MUNKALAP_STAT_HOZZARENDELT       && $sor['szemelyzet_id']==KULSO_KIVITELEZO && ( _jog(JOG_MUNKALAP_KEZEL_KULSO) || ( _jog(JOG_MUNKALAP_SAJAT_KEZEL) && $_SESSION[get_db_tabla().'szemelyzet_id']==KULSO_KIVITELEZO ) ) ) ||

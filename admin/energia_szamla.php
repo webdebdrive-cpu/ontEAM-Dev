@@ -13,7 +13,7 @@ if( !_jog(JOG_ENERGIA_SZAMLAK_OLVAS) ) {
 }
 
 // Számla fajta beállítása utólag
-if( isset($_GET['fajta_beallit']) ) {
+if( FALSE && isset($_GET['fajta_beallit']) ) {
     $szamlak = $adatbazis_kapcsolat -> s('recid szallito_id', 'energia_szamla', "`fajta`='0'");
     foreach ($szamlak as $szamla) {
         $fajta = 0;

@@ -751,7 +751,7 @@ if (isset($_POST['projektkezeles_keret_modosit'])) {
         exit();
     }
 
-    $sor = $adatbazis_kapcsolat -> s2('ikt_szam stat_id', 'projektkezeles', "`recid`='{$_POST['recid']}'");
+    $sor = $adatbazis_kapcsolat -> s2('ikt_szam stat_id jkolt', 'projektkezeles', "`recid`='{$_POST['recid']}'");
     if( $sor === false ) { $db_error = true; }
 
     $statuszok = array(PRKEZEL_STAT_NYITOTT, PRKEZEL_STAT_ELOKESZITES_ALATT, PRKEZEL_STAT_FOLYAMATBAN);
@@ -778,7 +778,7 @@ if (isset($_POST['projektkezeles_keret_modosit'])) {
     
 
     // Az indoklást a megjegyzésbe is beírjuk, nem csak a státuszsorba
-    $megj = 'Jóváhagyott keret módosítva: '.number_format($_POST['popup_jkolt'], 0, '', '.').' '.get_penznem();
+    $megj = 'Jóváhagyott keret módosítva: '.number_format($_POST['popup_jkolt'], 0, '', '.').' '.get_penznem().'. Előző értéke: '.number_format($sor['jkolt'], 0, '', '.').' '.get_penznem().'.';
     if(addMegj('projektkezeles', $_POST['recid'], $megj)===false){
         $db_error = true;
     }

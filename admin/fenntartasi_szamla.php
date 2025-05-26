@@ -374,7 +374,7 @@ if( isset($_POST['szamla_igazol']) ) {
     // Adatbázisba mentés csak akkor, ha nem volt gond az XML küldéssel
     } else {
         $sql = $adatbazis_kapcsolat->u('fenntartasi_szamla', array('igazolva', 'igazolva_dt', 'igazolva_usr'                           ),
-                                                            array(1,          'NOW()',       $_SESSION[get_db_tabla().'teljes_nev']   ),
+                                                             array(1,          'NOW()',       $_SESSION[get_db_tabla().'teljes_nev']   ),
                                         "`recid`='{$_POST['id']}'");
         if( $sql === false ) { $db_error = true; }        
     }
@@ -583,7 +583,7 @@ if( isset($_POST['fenntartasiSzamlaSztornoz']) ) {
 
     // Sztornózással kapcsolatos adatok beállítása, illetve a kapcsolt számlaszám ürítése
     $sql = $adatbazis_kapcsolat->u('fenntartasi_szamla', array('sz_szam', 'sztornozva_leir',   'sztornozva_dt', 'sztornozva_usr'                       ),
-                                                        array('',        $_POST['memo'],      'NOW()',         $_SESSION[get_db_tabla().'teljes_nev'] ),
+                                                         array('',        $_POST['memo'],      'NOW()',         $_SESSION[get_db_tabla().'teljes_nev'] ),
                                     "`recid`='{$_POST['id']}'");
     if( $sql === false ) { $db_error = true; }
 
@@ -1082,30 +1082,30 @@ if( isset($_POST['tetel_sorok_ment']) ) {
 
 // 2024.09.26: Az alábbi működés azért nem kell, mert ez a popup nem az adatlapról kerül megnyitásra, hanem a popup tételeknél a kapcsolás gombra kattintva
 // Lekérdezzük, hogy van-e a fenntartási számla tételei között olyan, amihez van kapcsolva szerződés tétel
-// if( isset($_POST['van_kapcsolt_szerzodes']) ) {
+if( isset($_POST['van_kapcsolt_szerzodes']) ) {
 
-//     // Új feltöltéskor ezt nem kell ellenőrizni
-//     if( !$_POST['uj'] || $_POST['uj'] == 'false' ) {
+    // Új feltöltéskor ezt nem kell ellenőrizni
+    if( !$_POST['uj'] || $_POST['uj'] == 'false' ) {
 
-//         $szerzodes_tetelek = $adatbazis_kapcsolat->s('recid', 'fenntartasi_szamla_tetel', "`fenntartasi_szamla_recid`='{$_POST['recid']}' AND `fenntartasi_szerzodes_tetel_recid`!=0");
-//         if ( $szerzodes_tetelek ){
+        $szerzodes_tetelek = $adatbazis_kapcsolat->s('recid', 'fenntartasi_szamla_tetel', "`fenntartasi_szamla_recid`='{$_POST['recid']}' AND `fenntartasi_szerzodes_tetel_recid`!=0");
+        if ( $szerzodes_tetelek ){
 
-//             echo json_encode( array(
-//                                 'hiba'  => 'A számlának van olyan tétele, amihez van szerződés tétel kapcsolva, így a szerződés szám nem törölhető!',
-//                                 'title' => 'Hiba',
-//                             ) );
-//             $weblap -> leallit();
-//             exit;
-//         }
+            echo json_encode( array(
+                                'hiba'  => 'A számlának van olyan tétele, amihez van szerződés tétel kapcsolva, így a szerződés szám nem törölhető!',
+                                'title' => 'Hiba',
+                            ) );
+            $weblap -> leallit();
+            exit;
+        }
         
-//     }
+    }
     
-//     echo json_encode( array(
-//                         'nincs'  => 'nincs csatolt szerződés',
-//                     ) );
-//     $weblap -> leallit();
-//     exit;
-// }
+    echo json_encode( array(
+                        'nincs'  => 'nincs csatolt szerződés',
+                    ) );
+    $weblap -> leallit();
+    exit;
+}
 
 // Fenntartási táblázat betöltése
 if( isset($_POST['get_fenntartasi_szerzodes_tabla']) ) {
@@ -1401,7 +1401,7 @@ if( isset($_POST['pop_kapcsolas_feltolt']) ) {
     $select = new Select($select_szallodak, $_POST['telephely_id']);
     $select -> disabled = 1;
     $szalloda_select = $select ->getHtml();
-
+    
     echo json_encode( array(
         'tabla'                 => $tabla,
         'szerzodes_ossz'        => $szerzodes_ossz,

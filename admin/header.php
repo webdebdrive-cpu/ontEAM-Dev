@@ -312,7 +312,23 @@ if( !$_SESSION['bejelento_menu_rejt'] && (
 
     if(basename(self())=='szamla.php')                  { $oldalNev = 'Fenntartás / <span id="rekord_neve">Andoc számlák</span><span class="dn" id="rekord_neve_egyes">Andoc számla</span><span class="dn" id="rekord_neve_targy">Andoc számlát</span>';                            }
     if(basename(self())=='anyag_szamla.php')            { $oldalNev = 'Fenntartás / <span id="rekord_neve">Anyag számlák</span><span class="dn" id="rekord_neve_egyes">Anyag számla</span><span class="dn" id="rekord_neve_targy">Anyag számlát</span>';                            }
-    if(basename(self())=='energia_szamla.php')          { $oldalNev = 'Fenntartás / <span id="rekord_neve">Energia számlák</span><span class="dn" id="rekord_neve_egyes">Energia számla</span><span class="dn" id="rekord_neve_targy">Energia számlát</span>';                      }
+    if(basename(self())=='energia_szamla.php')          {
+        switch ($_GET['f']) {
+            case ENERGIA_SZAMLA_VILLANY:
+                $kieg = ' / Villanyszámlák';
+            break;
+            case ENERGIA_SZAMLA_GAZ:
+                $kieg = ' / Gázszámlák';
+            break;
+            case ENERGIA_SZAMLA_TERMAL:
+                $kieg = ' / Termál- és gyógyvízszámlák';
+            break;
+            case ENERGIA_SZAMLA_VIZ:
+                $kieg = ' / Víz- és csatornaszámlák';
+            break;
+        }
+        $oldalNev = 'Fenntartás / <span id="rekord_neve">Energia számlák'.$kieg.'</span><span class="dn" id="rekord_neve_egyes">Energia számla</span><span class="dn" id="rekord_neve_targy">Energia számlát</span>';
+    }
     if(basename(self())=='fenntartasi_szamla.php')      { $oldalNev = 'Fenntartás / <span id="rekord_neve">Fenntartási számlák</span><span class="dn" id="rekord_neve_egyes">Fenntartási számla</span><span class="dn" id="rekord_neve_targy">Fenntartási számlát</span>';          }
     if(basename(self())=='fenntartasi_szerzodes.php')   { $oldalNev = 'Fenntartás / <span id="rekord_neve">Fenntartási szerződések</span><span class="dn" id="rekord_neve_egyes">Fenntartási szerződés</span><span class="dn" id="rekord_neve_targy">Fenntartási szerződést</span>';}
     if(basename(self())=='vendegejszakak.php')          { $oldalNev = 'Fenntartás / <span id="rekord_neve">Vendégéjszakák</span><span class="dn" id="rekord_neve_egyes">Vendégéjszaka</span><span class="dn" id="rekord_neve_targy">Vendégéjszakát</span>';                         }

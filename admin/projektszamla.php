@@ -62,7 +62,7 @@ if (isset($_POST['kapcsolas_torol'])) {
 if( isset($_POST['dok_minosites_beallit']) ) {
     
     $adatbazis_kapcsolat->u('projektszamla_dok', array('tipus'), array($_POST['tipus']), "`recid`='{$_POST['recid']}'");
-    
+
     // Meg kell nézni, hogy mi a projekt státusza. Ha előkészítés alatt vagy folyamatban, akkor rákérdezünk, hogy tovább léptet-e státuszt
     if( $_POST['tipus'] == EL_DOK_TIPUS_SZAMLA || $_POST['tipus'] == EL_DOK_TIPUS_ATADASI ) {
         $pr_szamla_doc   = $adatbazis_kapcsolat->s2('projektszamla_id', 'projektszamla_dok', "`recid`='{$_POST['recid']}'");

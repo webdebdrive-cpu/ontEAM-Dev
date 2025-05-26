@@ -1370,7 +1370,7 @@ function projekt_torelese( mehet ) {
     });
 }
 
-// Munkalap személyzet előkészítése
+// Munkaidő lejárt gomb
 function munkaidoLejart(mehet) {
 
     if (!mehet) {

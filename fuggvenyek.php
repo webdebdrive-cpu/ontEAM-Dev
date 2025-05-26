@@ -11040,7 +11040,7 @@ function level_felkeszit_es_kuld( $tabla = '', $recid = '', $ert_pipa = '', $sab
             
             // A címzettnél vizsgáljuk az értesítés pipa meglétét is
             $cimzettek = $adatbazis_kapcsolat->s('nev teljes_nev usermail aktiv virtual szemelyzet_id', 'login', "`aktiv`=1 AND `virtual`=0 {$sql_ertesites_kieg}");
-                if( !$cimzettek ) {
+            if( !$cimzettek ) {
                 return false;
             }
 

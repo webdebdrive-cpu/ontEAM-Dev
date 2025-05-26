@@ -533,7 +533,13 @@ $(function() {
         if( PHP_SELF=='anyagigenyles.php' || PHP_SELF=='szamla.php' || PHP_SELF=='vendegejszakak.php' ) {
             
             if( !$('table.szamla_cont_tabla tr.kijelolve').length ){
-                $('table.szamla_cont_tabla tbody tr:nth-of-type(2)').addClass('kijelolve').click();
+                var sorra_kattint = 2;
+                // Számlánál mégis az első sorra kattintunk, ott nincs fake sor
+                if( PHP_SELF=='szamla.php' ) {
+                    var sorra_kattint = 1;
+                }
+                $('table.szamla_cont_tabla tbody tr:nth-of-type('+sorra_kattint+')').addClass('kijelolve').click();
+                
             // Ha meg már van kijelölt sorunk, akkor gördüljünk oda
             } else {
                 if( PHP_SELF=='vendegejszakak.php' ) {
@@ -689,8 +695,10 @@ $(function() {
                 'vendegejszakak'
             );
 
-            // Eltávolítjuk a bal oldali kijelöléseket
-            kijelolesEltavolit();
+            // Eltávolítjuk a bal oldali kijelöléseket - kivéve Andoc számlák felületénél, ott kell a léptetéshez
+            if( aktiv_oldal != 'szamla_cont_tabla') {
+                kijelolesEltavolit();
+            }
 
             if( inArray(baseName(location.href), ketHasabos) ) {
                 disableScroll();
@@ -700,11 +708,11 @@ $(function() {
 
                 // Anyagigénylésnél használt táblázat esetén valójában a táblázat következő sorára kell ugrani, ami a helyben rendezetség miatt nem ugyanaz, mint a bal oldali navpanelé
                 if( tabla=='anyagigenyles' || tabla == 'vendegejszakak' || aktiv_oldal == 'szamla_cont_tabla' || aktiv_oldal == 'szamla' ) {
-                    
-                    var active   = $('.szamla_cont_tabla tr.kijelolve').index('.szamla_cont_tabla tbody tr'),
-                        szamlaDb = $('.szamla_cont_tabla tbody tr').length - 1;
-                        $('.szamla_cont_tabla tr').removeClass('kijelolve');
 
+                    var active   = $('.szamla_cont_tabla tr.kijelolve').index('.szamla_cont_tabla tbody tr');
+                    var szamlaDb = $('.szamla_cont_tabla tbody tr').length - 1;
+
+                    $('.szamla_cont_tabla tr').removeClass('kijelolve');
                     ugras = 0;
                     if( $('.szamla_cont_tabla tbody tr.fake').length ) {
                         ugras = 1;
@@ -1133,7 +1141,7 @@ $(function() {
             kijelolheto = $('#szamlaList').hasClass('csoport_nevre_kattintas');
 
         if( kijelolheto ) {
-            /* Ha CTRL gombot használunk, másképp kell eljárni: ha meg volt jelölve, le kell venni a megjelöléseket */
+            // Ha CTRL gombot használunk, másképp kell eljárni: ha meg volt jelölve, le kell venni a megjelöléseket
             if(e.ctrlKey){
 
                 if($(this).hasClass('kijelolve')){
@@ -1144,10 +1152,10 @@ $(function() {
                     $('ul.szamla_cont li[data-csoportid="' + id + '"]').addClass('kijelolve');
                 }
 
-            /* Sima kattintás esetén pedig a nem ehhez a csoporthoz tartozó sorokról kell levenni a kijelölést */
+            // Sima kattintás esetén pedig a nem ehhez a csoporthoz tartozó sorokról kell levenni a kijelölést
             } else {
 
-                /* Minden olyan sor, ami NEM a csoport része, arról levesszük a kijelölést */
+                // Minden olyan sor, ami NEM a csoport része, arról levesszük a kijelölést
                 sorok.each(function () {
                     if($(this).attr('data-csoportid')!=id){
                         $(this).removeClass('kijelolve');
@@ -1160,7 +1168,7 @@ $(function() {
                 $(this).addClass('kijelolve');
                 $('ul.szamla_cont li[data-csoportid="' + id + '"]').addClass('kijelolve');
 
-                /* Ha csoportra kattintottunk, akkor a jobb oldali tartlom is megválétozik */
+                // Ha csoportra kattintottunk, akkor a jobb oldali tartlom is megválétozik
                 csoport_tartalom();
             }
 
@@ -1671,8 +1679,7 @@ $(function() {
                     return false;
                 }
             }
-            // 2024.11.13 - Ide az ID utólag került be, ugye nem okozott gondot, hogy ez kiszűrésre került amikor szűrőt állítanak be? Ha mégis, akkor tudd, hogy van egy párja az összetett szűrésnél is: f_o_szures_submit ágban
-            // A fenti megjegyzés törölhető, ha eltelt már egy kis idő
+
             var szures_link = get_get(['mezo', 'op', 'felt', 'ev', 'ho', 'id'])+kerdo_es+'mezo='+$('.f_szuro_mezo').val()+'&op='+$('.f_szuro_mezo_operator').val()+'&felt='+felt+link_kieg;
             if( !$(this).hasClass('mehet') && !navpanel_mentes_oldal ) {
 
@@ -1865,8 +1872,6 @@ $(function() {
                         }
                     }
 
-                    // 2024.11.13 - Ide az ID utólag került be, ugye nem okozott gondot, hogy ez kiszűrésre került amikor szűrőt állítanak be? Ha mégis, akkor tudd, hogy van egy párja az összetett szűrésnél is: f_szures_submit ágban
-                    // A fenti megjegyzés törölhető, ha eltelt már egy kis idő
                     location.href = get_get(['mezo', 'op', 'felt', 'ev', 'ho', 'id'])+link_kieg;
                 }
             },
@@ -3189,7 +3194,7 @@ function anyagigenyles_rendeles_keszit(csak_kerdezunk) {
                                 $('#szamla-'+navpanel_recid).remove();
                                 $('.szamla_cont_tabla tbody tr:nth-of-type(2)').addClass('kijelolve');
                                 
-                                /* Bizti kedvéért a kijelölt sorokat átmásolásoljuk az eredeti navpanelbe */
+                                // Bizti kedvéért a kijelölt sorokat átmásolásoljuk az eredeti navpanelbe
                                 setTimeout(function(){
                                     $('#szamlaList li').removeClass('kijelolve');
                                     $('.szamla_cont_tabla tbody tr.kijelolve').each(function () {
@@ -5512,6 +5517,7 @@ function naviElso() {
         $('#tartalomJobb').scrollTop(0);
     } else if( baseName(location.href)=='szamla' ) {
         $('table.szamla_cont_tabla tbody tr').removeClass('kijelolve');
+
         $('table.szamla_cont_tabla tbody tr:nth-of-type(1)').addClass('kijelolve').click();
         $('#tartalomJobb').scrollTop(0);
     } else {

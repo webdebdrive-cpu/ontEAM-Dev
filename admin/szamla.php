@@ -195,107 +195,107 @@ if( !$_GET['ajax'] ) {
 }
 require_once('selectek.php');
 
-    if( !$_GET['ajax'] ) {
-        echo '<div id="szamlaBetolt">';
-    }
+if( !$_GET['ajax'] ) {
+    echo '<div id="szamlaBetolt">';
+}
 
-    if( isset($_GET['modosit']) ) {
-        // Számla fülek
-        $ful_tomb = array(
-            // 'modosit'       => 'Adatlap',
-            'tablazat'      => 'Andoc számlák',
-        );
-        $fulek = '';
-        foreach($ful_tomb as $key => $value) {
-            
-            $active = 'active';
-            if( isset($_GET[$key]) ) {
-                $active = ' class="active"';
-            }
-
-            $fulek .= '<a href="javascript: szamlaBetolt(\''.$_GET['id'].'\', \''.basename(self()).'\', \''.$key.'\'); void(0);"'.$active.' data-oldal="'.$key.'">'.$value.'</a>';
-        }
-
-        $szamla_html .= str_replace(
-            array('{FULEK}'),
-            array( $fulek  ),
-            fajlbol_olvas('../sablon/admin/szamla_fulek.html', true)
-        );
-    }
-    
-    $js_submit_elott = 'return form_ell_admin();';
-    
-    $gombok = '';
-    if( isset($_GET['uj']) && (_jog(JOG_FENNTARTASI_SZAMLAK_KEZEL) || _jog(JOG_ANYAG_SZAMLAK_KEZEL) || _jog(JOG_ENERGIA_SZAMLAK_KEZEL) || _jog(JOG_PRSZAMLAK_KEZEL) || _jog(JOG_PR_SAJAT_SZAMLA_KEZEL) ) ) {
-
-        $muv_style = ' style="width: calc(100% - '.($_SESSION['defaultCsuszka'] + 16).'px);"';
-        if( in_array(basename(self()), $_SESSION['ketHasabos']) && $_SESSION[get_db_tabla().'user'] ) {
-            if( $_COOKIE['csuszkaSzelesseg'] ) {
-                $muv_style = ' style="width: calc(100% - '.(($_COOKIE['csuszkaSzelesseg'] + 16)/10).'rem);"';
-            }
-        }
-
-        // Műveletek box
-        $gombok = nl2('
-            <div class="muveletek"'.$muv_style.'>
-                '.$gombok.'
-            </div>
-        ');
-
-    // Táblázat gombjai
-    } else if( isset($_GET['tablazat']) ) {
+if( isset($_GET['modosit']) ) {
+    // Számla fülek
+    $ful_tomb = array(
+        // 'modosit'       => 'Adatlap',
+        'tablazat'      => 'Andoc számlák',
+    );
+    $fulek = '';
+    foreach($ful_tomb as $key => $value) {
         
-        if( _jog(ANDOC_SZAMLAK_SZETOSZTASA) ) {
-            $gombok .= '<input type="button" class="gomb" value="Fenntartás" onclick="szamla_athelyez(\'fenntartas\')"> ';
-            $gombok .= nl2('
-                        <div class="kijeloltek_muv">
-                            <input type="button" class="gomb foGomb modositaskor_rejt" value="Energia">
-                            <div class="muv">
-                                <ul>
-                                    <li><a onclick="szamla_athelyez(\'energia\', \''.ENERGIA_SZAMLA_VILLANY .'\')">Villany</a></li>
-                                    <li><a onclick="szamla_athelyez(\'energia\', \''.ENERGIA_SZAMLA_GAZ     .'\')">Gáz</a></li>
-                                    <li><a onclick="szamla_athelyez(\'energia\', \''.ENERGIA_SZAMLA_VIZ     .'\')">Víz és csatorna</a></li>
-                                    <li><a onclick="szamla_athelyez(\'energia\', \''.ENERGIA_SZAMLA_TERMAL  .'\')">Termál- és gyógyvíz</a></li>
-                                </ul>
-                            </div>
+        $active = 'active';
+        if( isset($_GET[$key]) ) {
+            $active = ' class="active"';
+        }
+
+        $fulek .= '<a href="javascript: szamlaBetolt(\''.$_GET['id'].'\', \''.basename(self()).'\', \''.$key.'\'); void(0);"'.$active.' data-oldal="'.$key.'">'.$value.'</a>';
+    }
+
+    $szamla_html .= str_replace(
+        array('{FULEK}'),
+        array( $fulek  ),
+        fajlbol_olvas('../sablon/admin/szamla_fulek.html', true)
+    );
+}
+
+$js_submit_elott = 'return form_ell_admin();';
+
+$gombok = '';
+if( isset($_GET['uj']) && (_jog(JOG_FENNTARTASI_SZAMLAK_KEZEL) || _jog(JOG_ANYAG_SZAMLAK_KEZEL) || _jog(JOG_ENERGIA_SZAMLAK_KEZEL) || _jog(JOG_PRSZAMLAK_KEZEL) || _jog(JOG_PR_SAJAT_SZAMLA_KEZEL) ) ) {
+
+    $muv_style = ' style="width: calc(100% - '.($_SESSION['defaultCsuszka'] + 16).'px);"';
+    if( in_array(basename(self()), $_SESSION['ketHasabos']) && $_SESSION[get_db_tabla().'user'] ) {
+        if( $_COOKIE['csuszkaSzelesseg'] ) {
+            $muv_style = ' style="width: calc(100% - '.(($_COOKIE['csuszkaSzelesseg'] + 16)/10).'rem);"';
+        }
+    }
+
+    // Műveletek box
+    $gombok = nl2('
+        <div class="muveletek"'.$muv_style.'>
+            '.$gombok.'
+        </div>
+    ');
+
+// Táblázat gombjai
+} else if( isset($_GET['tablazat']) ) {
+    
+    if( _jog(ANDOC_SZAMLAK_SZETOSZTASA) ) {
+        $gombok .= '<input type="button" class="gomb" value="Fenntartás" onclick="szamla_athelyez(\'fenntartas\')"> ';
+        $gombok .= nl2('
+                    <div class="kijeloltek_muv">
+                        <input type="button" class="gomb foGomb modositaskor_rejt" value="Energia">
+                        <div class="muv">
+                            <ul>
+                                <li><a onclick="szamla_athelyez(\'energia\', \''.ENERGIA_SZAMLA_VILLANY .'\')">Villany</a></li>
+                                <li><a onclick="szamla_athelyez(\'energia\', \''.ENERGIA_SZAMLA_GAZ     .'\')">Gáz</a></li>
+                                <li><a onclick="szamla_athelyez(\'energia\', \''.ENERGIA_SZAMLA_VIZ     .'\')">Víz és csatorna</a></li>
+                                <li><a onclick="szamla_athelyez(\'energia\', \''.ENERGIA_SZAMLA_TERMAL  .'\')">Termál- és gyógyvíz</a></li>
+                            </ul>
                         </div>
-                        ');
-            $gombok .= '<input type="button" class="gomb" value="Anyag" onclick="szamla_athelyez(\'anyag\')"> ';
-            $gombok .= '<input type="button" class="gomb" value="Projekt" onclick="szamla_athelyez(\'projekt\')"> ';
-            $gombok .= '<input type="button" class="gomb" value="Megállapodás" onclick="szamla_athelyez(\'megallapodas\')"> ';
-            $gombok .= '<input type="button" class="gomb piros" value="Nem műszaki számla" onclick="nem_muszaki_szamla()"> ';
-        }
-
-        // Műveletek box
-        $gombok = nl2('
-            <div class="muveletek"'.$muv_style.'>
-                '.$gombok.'
-            </div>
-        ');
-        
-    // Módosítás gombok
-    } else {
-
-        // Js, a törlés gombhoz
-	    $gombok = '<script>var gomb'.$_GET['id'].'= get_kibont_torol(\''.self().'\', \''.$torles.'\', \''.$_GET['id'].'\');</script>';
-
-        $muv_style = ' style="width: calc(100% - '.($_SESSION['defaultCsuszka'] + 16).'px);"';
-        if( in_array(basename(self()), $_SESSION['ketHasabos']) && $_SESSION[get_db_tabla().'user'] ) {
-            if( $_COOKIE['csuszkaSzelesseg'] ) {
-                $muv_style = ' style="width: calc(100% - '.(($_COOKIE['csuszkaSzelesseg'] + 16)/10).'rem);"';
-            }
-        }
-
-        // Műveletek box
-        $gombok = nl2('
-            <div class="muveletek"'.$muv_style.'>
-                '.$gombok.'
-            </div>
-        ');
+                    </div>
+                    ');
+        $gombok .= '<input type="button" class="gomb" value="Anyag" onclick="szamla_athelyez(\'anyag\')"> ';
+        $gombok .= '<input type="button" class="gomb" value="Projekt" onclick="szamla_athelyez(\'projekt\')"> ';
+        $gombok .= '<input type="button" class="gomb" value="Megállapodás" onclick="szamla_athelyez(\'megallapodas\')"> ';
+        $gombok .= '<input type="button" class="gomb piros" value="Nem műszaki számla" onclick="nem_muszaki_szamla()"> ';
     }
+
+    // Műveletek box
+    $gombok = nl2('
+        <div class="muveletek"'.$muv_style.'>
+            '.$gombok.'
+        </div>
+    ');
     
-	// Új rekord felvitele
-	if( isset($_GET['uj']) ) {
+// Módosítás gombok
+} else {
+
+    // Js, a törlés gombhoz
+    $gombok = '<script>var gomb'.$_GET['id'].'= get_kibont_torol(\''.self().'\', \''.$torles.'\', \''.$_GET['id'].'\');</script>';
+
+    $muv_style = ' style="width: calc(100% - '.($_SESSION['defaultCsuszka'] + 16).'px);"';
+    if( in_array(basename(self()), $_SESSION['ketHasabos']) && $_SESSION[get_db_tabla().'user'] ) {
+        if( $_COOKIE['csuszkaSzelesseg'] ) {
+            $muv_style = ' style="width: calc(100% - '.(($_COOKIE['csuszkaSzelesseg'] + 16)/10).'rem);"';
+        }
+    }
+
+    // Műveletek box
+    $gombok = nl2('
+        <div class="muveletek"'.$muv_style.'>
+            '.$gombok.'
+        </div>
+    ');
+}
+
+// Új rekord felvitele
+if( isset($_GET['uj']) ) {
 
 //        // Itt úgy fogunk tenni, mintha újként szerkesztenénk, viszont nem a session-ból keresünk ide értékeket
 //        // hanem a kapott andocid alapján az átmeneti táblából. Magyarul egy sima lekérdezéssel meg is van a $sor tömb.
@@ -331,8 +331,8 @@ require_once('selectek.php');
 //            echo $szamla_html;
 //        }
 
-	// Rekord módosítása
-    } elseif( isset($_GET['modosit']) ) {
+// Rekord módosítása
+} elseif( isset($_GET['modosit']) ) {
 
 //        // Ha Gyorskeresőből érkeznénk ide, akkor az ID-t valójában az id_hidden tartalmazza majd
 //        if( isset($_GET['id_hidden']) ) {
@@ -392,50 +392,50 @@ require_once('selectek.php');
 //            require_once('tobb_kep.php');
 //		}
 
-	// Táblázat
-    } elseif( isset($_GET['tablazat']) ) {
-        
-        $tetelek_html = '';
-        $szamlak = $adatbazis_kapcsolat->s('recid andoc_id telephely_id szla_szam szallito_id targy kcs_21 brutto dev_br telj_dt dok_link', 'szamla_atmeneti', "", 'insert_dt desc');
-        $i = 0;
-        $van_ures_sor = 0;
-        foreach ( $szamlak as $szamla ) {
+// Táblázat
+} elseif( isset($_GET['tablazat']) ) {
+    
+    $tetelek_html = '';
+    $szamlak = $adatbazis_kapcsolat->s('recid andoc_id telephely_id szla_szam szallito_id targy kcs_21 brutto dev_br telj_dt dok_link', 'szamla_atmeneti', "", 'insert_dt desc');
+    $i = 0;
+    $van_ures_sor = 0;
+    foreach ( $szamlak as $szamla ) {
 
-            if( !$szamla['andoc_id'] ) {
-                $van_ures_sor = 1;
-            }
-
-            $brutto    = 'brutto';
-            $tizedesek = 0;
-            if( $szamla['kcs_21'] != KCS_21_HUF ) {
-                $brutto    = 'dev_br';
-                $tizedesek = 2;
-            }
-            
-            $link = '';
-            if( $szamla['dok_link'] ) {
-                $link .= nl2('
-                            <a href="'.$szamla['dok_link'].'" target="_blank">
-                                <img src="../elemek/admin/file.svg" title="Fájl megnyitása" alt="Fájl megnyitása" width="24">
-                            </a>
-                            ');
-            }
-            
-            $kieg = '';
-            $tetelek_html .= nl2('
-                    <tr class="kijSor" data-recid="'.$szamla['recid'].'" data-i="'.($i+1).'">
-                        <td>'.getSzallodaNev($szamla['telephely_id']).'</td>
-                        <td>'.$szamla['szla_szam'].'</td>
-                        <td>'.getErtek('nev', 'szallito', 'id', $szamla['szallito_id']).'</td>
-                        <td>'.htmlspecialchars_decode($szamla['targy']).'</td>
-                        <td sorttable_customkey="'.number_format($szamla[$brutto], $tizedesek, '.', '').'" class="r">'.number_format($szamla[$brutto], $tizedesek, ',', ' ').'</td>
-                        <td class="c">'.erteklista(ERTEKLISTA_PENZNEM, $szamla['kcs_21']).'</td>
-                        <td class="c">'.datum_kiir($szamla['telj_dt']).'</td>
-                        <td class="c">'.$link.'</td>
-                    </tr>
-                ');
-            $i++;
+        if( !$szamla['andoc_id'] ) {
+            $van_ures_sor = 1;
         }
+
+        $brutto    = 'brutto';
+        $tizedesek = 0;
+        if( $szamla['kcs_21'] != KCS_21_HUF ) {
+            $brutto    = 'dev_br';
+            $tizedesek = 2;
+        }
+        
+        $link = '';
+        if( $szamla['dok_link'] ) {
+            $link .= nl2('
+                        <a href="'.$szamla['dok_link'].'" target="_blank">
+                            <img src="../elemek/admin/file.svg" title="Fájl megnyitása" alt="Fájl megnyitása" width="24">
+                        </a>
+                        ');
+        }
+        
+        $kieg = '';
+        $tetelek_html .= nl2('
+                <tr class="kijSor" data-recid="'.$szamla['recid'].'" data-i="'.($i+1).'">
+                    <td>'.getSzallodaNev($szamla['telephely_id']).'</td>
+                    <td>'.$szamla['szla_szam'].'</td>
+                    <td>'.getErtek('nev', 'szallito', 'id', $szamla['szallito_id']).'</td>
+                    <td>'.htmlspecialchars_decode($szamla['targy']).'</td>
+                    <td sorttable_customkey="'.number_format($szamla[$brutto], $tizedesek, '.', '').'" class="r">'.number_format($szamla[$brutto], $tizedesek, ',', ' ').'</td>
+                    <td class="c">'.erteklista(ERTEKLISTA_PENZNEM, $szamla['kcs_21']).'</td>
+                    <td class="c">'.datum_kiir($szamla['telj_dt']).'</td>
+                    <td class="c">'.$link.'</td>
+                </tr>
+            ');
+        $i++;
+    }
 if( $van_ures_sor || isset($_GET['teszt']) ) {
     $last_mail = fajlbol_olvas('!andoc_mail_volt.txt');
     if( $last_mail < date('Y-m-d H:i:s')-60*60*24 ) {
@@ -443,49 +443,49 @@ if( $van_ures_sor || isset($_GET['teszt']) ) {
         level_kuldes(get_nev(), get_mail(), 'BK', 'bk@webdeb.hu', 'Üres Andoc számla van', 'Üres Andoc számla van');
     }
 }
-        
-        if( $szamlak ) {
-            // <table id="dragTable" class="sar-table szamla_cont_tabla"> <= Ettől lesz sorrendezhető az oszlopa
-            $szamla_html .= nl2('
-                    <script src="../js/sorttable.js"></script>
-                    <div class="kijCont">
-                        <table class="szamla_cont_tabla sortable">
-                        <thead>
-                            <tr>
-                                <th style="width: 10rem">Szálloda</th>
-                                <th style="width: 15rem" class="nowrap">Számlaszám</th>
-                                <th>Szállító</th>
-                                <th>Tárgy</th>
-                                <th style="width: 10rem" class="nowrap r">Bruttó</th>
-                                <th style="width: 5rem" class="c">Pénznem</th>
-                                <th style="width: 10rem" class="c">Teljesítés dátuma</th>
-                                <th style="width: 10rem" class="c">Számla kép</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            '.$tetelek_html.'
-                        </tbody>
-                        </table>
-                    </div>
-                            ');
-        // Ha nincs Andoc számla
-        } else {
-            $szamla_html .= '<h1 style="margin-top: 4rem">Jelenleg nem található egyetlen Andoc-ból küldött számla sem!</h1>';
-        }
-
-        if( $_GET['ajax'] ) {
-            echo json_encode(array(
-                'tartalom' => $szamla_html.$gombok,
-                'link'     => get_get(array('ajax', 'kat', 'epo', 'oldal', 'order'), true)
-            ));
-        } else {
-            echo $szamla_html.$gombok;
-        }        
-	}
-
-    if( !$_GET['ajax'] ) {
-        echo '</div>';
+    
+    if( $szamlak ) {
+        // <table id="dragTable" class="sar-table szamla_cont_tabla"> <= Ettől lesz sorrendezhető az oszlopa
+        $szamla_html .= nl2('
+                <script src="../js/sorttable.js"></script>
+                <div class="kijCont">
+                    <table class="szamla_cont_tabla sortable">
+                    <thead>
+                        <tr>
+                            <th style="width: 10rem">Szálloda</th>
+                            <th style="width: 15rem" class="nowrap">Számlaszám</th>
+                            <th>Szállító</th>
+                            <th>Tárgy</th>
+                            <th style="width: 10rem" class="nowrap r">Bruttó</th>
+                            <th style="width: 5rem" class="c">Pénznem</th>
+                            <th style="width: 10rem" class="c">Teljesítés dátuma</th>
+                            <th style="width: 10rem" class="c">Számla kép</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        '.$tetelek_html.'
+                    </tbody>
+                    </table>
+                </div>
+                        ');
+    // Ha nincs Andoc számla
+    } else {
+        $szamla_html .= '<h1 style="margin-top: 4rem">Jelenleg nem található egyetlen Andoc-ból küldött számla sem!</h1>';
     }
+
+    if( $_GET['ajax'] ) {
+        echo json_encode(array(
+            'tartalom' => $szamla_html.$gombok,
+            'link'     => get_get(array('ajax', 'kat', 'epo', 'oldal', 'order'), true)
+        ));
+    } else {
+        echo $szamla_html.$gombok;
+    }        
+}
+
+if( !$_GET['ajax'] ) {
+    echo '</div>';
+}
 
 if( !$_GET['ajax'] ) {
     require_once('footer.php');

@@ -4307,7 +4307,11 @@ if( isset($_REQUEST['f_o_szures_submit']) ) {
         $_SESSION['o_szuro_feltetel'] = $_REQUEST['feltetel'];
         $_SESSION['o_szuro_html']     = $_REQUEST['html']; // Ütemezett feladatok naptár füle alatt használunk GET-es hívást. Itt HTML-t nem adunk át, ennyi hiányossága van a dolognak. Ezt amúgy is post-al kellene megoldani, ha muszáj volna mégis átadni.
         session_write_close();
-        header('Location: '.$_REQUEST['tabla'].'.php?modosit');
+        $link_kieg = '';
+        if( isset($_GET['f']) ) {
+            $link_kieg .= '&f='.$_GET['f'];
+        }
+        header('Location: '.$_REQUEST['tabla'].'.php?modosit'.$link_kieg);
     }
     
     if( !$_GET['f_o_szures_submit'] ) {
