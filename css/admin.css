@@ -625,6 +625,10 @@ input.gomb.zold, input.gombb{
     position: relative;
 }
 
+#o_sures input.gomb.zold {
+    padding: 1.2rem 1.7rem;
+}
+
 input.gomb:focus{
     border: 0.1rem solid #f00;
 }

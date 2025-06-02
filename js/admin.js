@@ -5057,9 +5057,9 @@ function jobbOldalEltuntet( sorok ) {
     }
 }
 
-/* Kapcsoló táblák - fülek alatti rekordok - törlése általános függvénye */
+// Kapcsoló táblák - fülek alatti rekordok - törlése általános függvénye
 function mellekTorol( tabla, mellek, mellekre_valt, konkret_id ) {
-    /* Ha van konkrét ID? akkor azt a sort töröljuk (pl. munkalapok adatlapján a bejelentések sorai) */
+    // Ha van konkrét ID? akkor azt a sort töröljuk (pl. munkalapok adatlapján a bejelentések sorai)
     if (konkret_id) {
         var idk = {konkret_id};
     } else {
@@ -5088,7 +5088,7 @@ function mellekTorol( tabla, mellek, mellekre_valt, konkret_id ) {
     
 
     // Ha vannak olyan ideiglenes soraink (aminek az Id-ja UJ), azokat elég csak eltűnteni
-    //  Pl.: Projektigénylésnél a cash-flow fül
+    // Pl.: Projektigénylésnél a cash-flow fül
     $('.kijCont .kijSor.kijelolve[data-id="UJ"], .kijCont .kijSor.kijelolve[data-id="UJ-FELDOLGOZVA"]').fadeOut('', function(){
         $(this).remove();
         // Cash-flow-ban ha változás van, akkor újra kell számolni. Azért kell ide is, mert ajaxig nem biztos, hogy eljutunk.
@@ -7203,7 +7203,7 @@ function szuro_ertek_mezo_gen(that, felt) {
                             }
                         }
                         $('#'+prefix+'szures_submit').html( response.szures_gomb +
-                                                                                                                                                              // szurkit(); <= itt még ne volt hívva egy ilyen szürkítés is. De ezt azért vettük ki,
+                                                                                                                                                              // szurkit(); <= itt még meg volt hívva egy ilyen szürkítés is. De ezt azért vettük ki,
                                                                                                                                                               // mert felhasználóknál szűkítve valamire, majd módosítva az adatlapot, majd szükítés törlésére kattintva
                                                                                                                                                               // az oldal amikor megkérdezi, hogy biztosan elhagyjuk mentés nélkül, és arra kattintunk, hogy maradunk,
                                                                                                                                                               // akkor a szürkítés megmaradt
@@ -7227,12 +7227,26 @@ function szuro_ertek_mezo_gen(that, felt) {
        });
 
        $.when(ajax).then(function() {
-           fejlecPozicional();
-           fulGombMeretez();
-           // A feltétel mezőre fókuszálunk, de csak akkor, ha az nem dátum (mert zavaró, ha egy szűrés utáni lapletöltéskor a dátumválasztó ott feljön)
-           if( !$('#feltetel input').hasClass('datepicker') && !$('#feltetel input').hasClass('datetimepicker') ) {
-               $('#feltetel input').focus();
-           }
+            fejlecPozicional();
+            fulGombMeretez();
+
+            // Ha összetett szűrő popup nyitva van, akkor másképp működik a fókuszálás. Ekkor az #o_operator-ban található inputra vagy selectre fókuszáljunk
+            if( $('#o_operator').length ) {
+
+                if( $('#o_feltetel input').length ) {
+                    $('#o_feltetel input').focus();
+                }
+                if( $('#o_feltetel select').length ) {
+                    $('#o_feltetel select').focus();
+                }
+
+            // Sima szűrés esetén a feltétel mezőre fókuszálunk, de csak akkor, ha az nem dátum (mert zavaró, ha egy szűrés utáni lapletöltéskor a dátumválasztó ott feljön)
+            } else {
+                if( !$('#feltetel input').hasClass('datepicker') && !$('#feltetel input').hasClass('datetimepicker') ) {
+                    $('#feltetel input').focus();
+                }
+            }
+
        });
     }
 }

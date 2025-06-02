@@ -1373,6 +1373,27 @@ function projekt_torelese( mehet ) {
 // Munkaidő lejárt gomb
 function munkaidoLejart(mehet) {
 
+    $.ajax({
+        url : 'munkalap.php',
+        type: 'POST',
+        data: {
+            recid               : _get('id'),
+            csak_ellenoriz      : 1,
+            atadasDiszpecsernek : new Date().getTime()
+        },
+        success: function(response) {
+            if(response.substring(0, 6)=='SESKIL'){ location.href = 'index.php'; }
+            if(response) {
+                response = JSON.parse(response);
+
+                if( response.hiba ) {
+                    alert2(response.hiba, response.gomb, response.title);
+                    return false;
+                }
+            }
+        },
+    });
+
     if (!mehet) {
         alert2('Ha folytatja, a munkalap visszakerül a diszpécserhez. Folytatja?', '<input type="button" class="gomb zold" value="Igen" onclick="munkaidoLejart(\'mehet\')"><input type="button" class="gomb piros" value="Nem" onclick="alert2()">');
         return false;

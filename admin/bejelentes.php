@@ -248,7 +248,7 @@ if( isset($_POST['bejelentesElutasit']) ) {
                 $db_error = true;
             }
 
-            if($memo){
+            if ($memo) {
                 if( addMegj('bejelentes', $recid, $memo) === false ) {
                     $db_error = true;
                 }
@@ -263,7 +263,7 @@ if( isset($_POST['bejelentesElutasit']) ) {
                 if( substr($valasz, 0, 4)=='Hiba' ){
                     $hiba .= $valasz;
                 }
-                if($hiba){
+                if ($hiba) {
                     echo json_encode(array(
                         'hiba'  => $hiba,
                         'title' => 'Hiba',

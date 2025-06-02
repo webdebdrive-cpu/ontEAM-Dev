@@ -7539,8 +7539,8 @@ function projektkezelesLista( $bejegyzesek, $tabla, $frissit = '', $kijeloltek =
             
             // Van-e csatolt dokumentuma
             $dok_icon = '';
-            // Ha van saját dokumentuma, akkor van... ez a legegyszerűbb eset, nem kell tovább számolni
-            if( $adatbazis_kapcsolat->s('recid', 'projektkezeles_dok', "`projektkezeles_id`='{$bsz['recid']}'") ) {
+            // Itt az össz dokumentumok számát figyeljük. Lehet nem saját dokumentuma, hanem kapcsolódó szerződésé, számláé.
+            if( $bsz['dok_db_ossz'] ) {
                 $dok_icon = nl2('
                     <span class="icon">
                         <i class="material-icons">attach_file</i>
@@ -9795,7 +9795,7 @@ function beosztas_naptar($beosztas_id){
     // Naptár események
     $naptar_sorok = $adatbazis_kapcsolat->s('recid tol ig felh_loginnev beosztas szerepkor', 'beosztas_naptar', "`beosztas_id`='{$beosztas_id}'", 'tol');
 
-    $events = '';
+    $events = $html = '';
     if( $naptar_sorok ) {
         foreach ( $naptar_sorok as $ns ) {
 
@@ -10000,13 +10000,19 @@ function get_szures_where_kieg($mezo, $op, $felt, $tabla) {
             $felt = '0000-00-00';
         }
         return '`'.get_db_tabla().$tabla.'`.`insert_dt`'.$op.'\''.$felt.'\'';
+
     // Van-e dokumentuma szűrés
     } elseif( $mezo == 'dok_van_e' ) {
-        if( $felt > 0 ) {
-            return '`dok_db`>0';
-        } else {
-            return '`dok_db`=0';
+        $akt_mezo = '`dok_db`';
+        if( $tabla == 'projektkezeles' ) {
+            $akt_mezo = 'dok_db_ossz';
         }
+        if( $felt > 0 ) {
+            return '`'.$akt_mezo.'`>0';
+        } else {
+            return '`'.$akt_mezo.'`=0';
+        }
+
     // Minősítésre váró dokumentuma van-e
     } elseif( $mezo == 'dok_db_min_var' ) {
         if( $felt > 0 ) {
@@ -10014,6 +10020,7 @@ function get_szures_where_kieg($mezo, $op, $felt, $tabla) {
         } else {
             return '`dok_db_min_var`=0';
         }
+
     // Anyag, Energia, Fenntartási és Projekt számláknál az igazolva/utalványozva/sztornozva van-e feltétele egy dátum összehasonlítás
     } elseif( in_array($tabla, $equal_tablak) && (in_array($mezo, $equal_mezok) || in_array($mezo, $equal_mezok2) ) ) {
 
@@ -11132,10 +11139,18 @@ function level_felkeszit_es_kuld( $tabla = '', $recid = '', $ert_pipa = '', $sab
         // Bejelentés vizsgál joggal rendelkezőknek
         case '_jog'.JOG_BEJELENTES_VIZSGAL:
 
-            $bejelentes     = $adatbazis_kapcsolat->s2('ikt_szam usr_nev usr_email usr_telefon stat_id telephely_id obj_id loginnev insert_dt hiba_id', $tabla, "`recid`='{$recid}'");
-            $mit            = array('{IKT_SZAM}',            '{SZALLODA}',                                                    '{INS_DT}',                '{HIBA}',                                                        '{OBJ}'                                                 );
-            $mivel          = array($bejelentes['ikt_szam'], getErtek('nev', 'telephely', 'id', $bejelentes['telephely_id']),  $bejelentes['insert_dt'], getErtek('info', 'erteklista', 'recid', $bejelentes['hiba_id']), getErtek('nev', 'obj', 'recid', $bejelentes['obj_id'])  );
-            $uzi            = str_replace( $mit, $mivel, fajlbol_olvas('../sablon/admin/mail/bejelento.html') );
+            $bejelentes = $adatbazis_kapcsolat->s2('ikt_szam usr_nev usr_email usr_telefon stat_id telephely_id obj_id loginnev insert_dt hiba_id hiba_text', $tabla, "`recid`='{$recid}'");
+            $megj       = $adatbazis_kapcsolat->s2('megj', 'megjegyzes', "`tabla`='bejelentes' AND `id`='{$recid}'", 'insert_dt desc');
+            $ikt_szam   = $bejelentes['ikt_szam'];
+            $szalloda   = getErtek('nev', 'telephely', 'id', $bejelentes['telephely_id']);
+            $ins_dt     = $bejelentes['insert_dt'];
+            $hiba       = getErtek('info', 'erteklista', 'recid', $bejelentes['hiba_id']);
+            $hiba_text  = nl2br2($bejelentes['hiba_text']);
+            $obj        = getErtek('nev', 'obj', 'recid', $bejelentes['obj_id']);
+            $indok      = nl2br2($megj['megj']);
+            $mit        = array('{IKT_SZAM}',   '{SZALLODA}',   '{INS_DT}', '{HIBA}', '{HIBA_TEXT}', '{INDOK}', '{OBJ}' );
+            $mivel      = array($ikt_szam,      $szalloda,      $ins_dt,    $hiba,    $hiba_text,    $indok,    $obj    );
+            $uzi        = str_replace( $mit, $mivel, fajlbol_olvas('../sablon/admin/mail/bejelentes_vizsgal.html') );
 
             // Több címzett is van
             $cimzettek = $adatbazis_kapcsolat->s('nev teljes_nev usermail usertel aktiv virtual szemelyzet_id', 'login', "substr(`flags`, ".(JOG_BEJELENTES_VIZSGAL+1).", 1)=1 AND `aktiv`=1 AND `virtual`=0{$sql_ertesites_kieg}");
@@ -11647,7 +11662,7 @@ function level_felkeszit_es_kuld( $tabla = '', $recid = '', $ert_pipa = '', $sab
 
         // Ha nincs e-mail cím, akkor ezt a megjegyzésbe is írjuk bele
         if( !$akt_cimzett['usermail'] ) {
-            $megj .= 'A felhasználónak nincs e-mail címe, ezért a következő esemény NEM következett be: '.$esemeny."\n";
+            $megj .= 'A felhasználónak ('.$akt_cimzett['teljes_nev'].') nincs e-mail címe, ezért a következő esemény NEM következett be: '.$esemeny."\n";
             
         // Ha van mailcímünk, akkor jöhet a levélküldés
         } else {
@@ -13182,7 +13197,7 @@ function get_projekt_kezeles_jog($recid) {
     if( _jog(JOG_PR_EGYSZALL_KEZEL) && $prk['egy_tobb'] == 0 && in_array($prk['telephely_id'], get_akt_login_szallodai()) ) {
         return true;
     }
-    // Egyszállodás projekt kezelésével az egyszállodás Projekteket kezelhetjük
+    // Többszállodás projekt kezelésével a többszállodás Projekteket kezelhetjük
     if( _jog(JOG_PR_TOBBSZALL_KEZEL) && $prk['egy_tobb'] == 1 && in_array($prk['telephely_id'], get_akt_login_szallodai()) ) {
         return true;
     }
@@ -13335,6 +13350,7 @@ function eloterjesztes_osszes_koltseg( $recid, $fb_bod ){
     if(!$prik){
         $ossz_kolts = 'Még nincsenek csatolt projektigénylések.';
     } else {
+        $ossz_kolts = 0;
         foreach($prik as $pri){
             $pri = $adatbazis_kapcsolat->s2('bkolt', 'projektigenyles_eloterj', "`recid`='{$pri['projektigenyles_recid']}'");
             $ossz_kolts += $pri['bkolt'];
@@ -13532,48 +13548,98 @@ function projektkezeles_szamlazott_osszeg ( $pr_szam ) {
 
 // Mivel szűrni kell tudni arra, hogy adott projektnek van-e minősítésre váró dokumentuma,
 // ezért dokumenutmok mozgásakor ezt mindig nyilván kell tartani
+// Illetve itt számoljuk ki azt is, hogy egy projektknek hány dokumentuma van, beleszámolva a számák és szerződések dokumentumait is
 function projekt_minositesre_varo_dok_szamol( $pr_id ) {
     
     global $adatbazis_kapcsolat;
     
     $db_error = false;
     
-    // Akkor számoljuk össze
-    $kepek_direkt = $adatbazis_kapcsolat->s('recid', 'projektkezeles_dok', "`projektkezeles_id`='{$pr_id}' AND `tipus`='0'", '', '', '', 'num_rows');
-    if( $kepek_direkt === false ) { $db_error = true; }
+    // Minősítésre váró, direktbe feltöltött dokumentumok
+    $dok_direkt = $adatbazis_kapcsolat->s('recid', 'projektkezeles_dok', "`projektkezeles_id`='{$pr_id}' AND `tipus`='0'", '', '', '', 'num_rows');
+    if( $dok_direkt === false ) { $db_error = true; }
     
     $projekt = $adatbazis_kapcsolat->s2('ikt_szam', 'projektkezeles', "`recid`='{$pr_id}'");
     if( $projekt === false ) { $db_error = true; }
     
-    // Ha van szerződés, akkor a szerződés dokumentumokat is kirajzoljuk
+    // Minősítésre váró szerződések száma
     $szerzodesek = $adatbazis_kapcsolat->s('recid', 'projektszerzodes', "`pr_szam`='{$projekt['ikt_szam']}'");
     if( $szerzodesek === false ) { $db_error = true; }
     $szerzodesek = adatbazis2tomb($szerzodesek, 'recid');
     
     if( $szerzodesek ) {
-        $kepek_szerzodes = $adatbazis_kapcsolat -> s('recid', 'projektszerzodes_dok', "`projektszerzodes_id` IN (".implode(',', $szerzodesek).") AND `tipus`='0'", '', '', '', 'num_rows');
-        if( $kepek_szerzodes === false ) { $db_error = true; }
+        $dok_szerzodes = $adatbazis_kapcsolat -> s('recid', 'projektszerzodes_dok', "`projektszerzodes_id` IN (".implode(',', $szerzodesek).") AND `tipus`='0'", '', '', '', 'num_rows');
+        if( $dok_szerzodes === false ) { $db_error = true; }
     }
     
-    // Ha van számla, akkor a számla dokumentumokat is kirajzoljuk
+    // Minősítésre váró számlák száma
     $szamlak = $adatbazis_kapcsolat->s('recid', 'projektszamla', "`pr_szam`='{$projekt['ikt_szam']}'");
     if( $szamlak === false ) { $db_error = true; }
     $szamlak = adatbazis2tomb($szamlak, 'recid');
     
     if( $szamlak ) {
-        $kepek_szamlak = $adatbazis_kapcsolat -> s('recid', 'projektszamla_dok', "`projektszamla_id` IN (".implode(',', $szamlak).") AND `tipus`='0'", '', '', '', 'num_rows');
-        if( $kepek_szamlak === false ) { $db_error = true; }
+        $dok_szamlak = $adatbazis_kapcsolat -> s('recid', 'projektszamla_dok', "`projektszamla_id` IN (".implode(',', $szamlak).") AND `tipus`='0'", '', '', '', 'num_rows');
+        if( $dok_szamlak === false ) { $db_error = true; }
     }
     
     // Végül update
-    $sql = $adatbazis_kapcsolat->u('projektkezeles', array('dok_db_min_var'), array($kepek_direkt+$kepek_szerzodes+$kepek_szamlak), "`recid`='{$pr_id}'");
+    $sql = $adatbazis_kapcsolat->u('projektkezeles', array('dok_db_min_var'), array($dok_direkt+$dok_szerzodes+$dok_szamlak), "`recid`='{$pr_id}'");
+    if( $sql === false ) { $db_error = true; }
+
+    //--------
+
+    // Dokumentumok összeszámolása projektek felület alá
+
+    // Összes, direktbe feltöltött dokumentumok
+    $dok_direkt = $adatbazis_kapcsolat->s('recid', 'projektkezeles_dok', "`projektkezeles_id`='{$pr_id}'", '', '', '', 'num_rows');
+    if( $dok_direkt === false ) { $db_error = true; }
+    
+    $projekt = $adatbazis_kapcsolat->s2('ikt_szam', 'projektkezeles', "`recid`='{$pr_id}'");
+    if( $projekt === false ) { $db_error = true; }
+    
+    // Összes szerződés száma
+    $szerzodesek = $adatbazis_kapcsolat->s('recid dok_link', 'projektszerzodes', "`pr_szam`='{$projekt['ikt_szam']}'");
+    if( $szerzodesek === false ) { $db_error = true; }
+    $szerzodesek_tomb = adatbazis2tomb($szerzodesek, 'recid');
+    
+    $dok_szerzodes = 0;
+    if( $szerzodesek_tomb ) {
+        $dok_szerzodes = $adatbazis_kapcsolat -> s('recid', 'projektszerzodes_dok', "`projektszerzodes_id` IN (".implode(',', $szerzodesek_tomb).")", '', '', '', 'num_rows');
+        if( $dok_szerzodes === false ) { $db_error = true; }
+    }
+    // Fődokumentum linkek összeszámolása
+    foreach ($szerzodesek as $szerzodes) {
+        if( $szerzodes['dok_link'] ) {
+            $dok_szerzodes++;
+        }
+    }
+    
+    // Összes számla száma
+    $szamlak = $adatbazis_kapcsolat->s('recid dok_link', 'projektszamla', "`pr_szam`='{$projekt['ikt_szam']}'");
+    if( $szamlak === false ) { $db_error = true; }
+    $szamlak_tomb = adatbazis2tomb($szamlak, 'recid');
+    
+    $dok_szamlak = 0;
+    if( $szamlak_tomb ) {
+        $dok_szamlak = $adatbazis_kapcsolat -> s('recid', 'projektszamla_dok', "`projektszamla_id` IN (".implode(',', $szamlak_tomb).")", '', '', '', 'num_rows');
+        if( $dok_szamlak === false ) { $db_error = true; }
+    }
+    // Fődokumentum linkek összeszámolása
+    foreach ($szamlak as $szamla) {
+        if( $szamla['dok_link'] ) {
+            $dok_szamlak++;
+        }
+    }
+    
+    // Végül update
+    $sql = $adatbazis_kapcsolat->u('projektkezeles', array('dok_db_ossz'), array($dok_direkt+$dok_szerzodes+$dok_szamlak), "`recid`='{$pr_id}'");
     if( $sql === false ) { $db_error = true; }
     
-    // Visszatéréskor jeleheztjük a DB hibát
+    // Visszatéréskor jelezhetjük a DB hibát
     if( $db_error ) {
-        return false;
+        return 0;
     } else {
-        return true;
+        return 1;
     }
     
 }

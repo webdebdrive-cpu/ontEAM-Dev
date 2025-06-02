@@ -989,7 +989,8 @@ switch ( $tabla ) {
                                     `'.get_db_tabla().$tabla_nophp.'`.`stat_id`,
                                     `'.get_db_tabla().$tabla_nophp.'`.`telephely_id`,
                                     `'.get_db_tabla().$tabla_nophp.'`.`ikt_szam`,
-                                    `'.get_db_tabla().$tabla_nophp.'`.`nev`
+                                    `'.get_db_tabla().$tabla_nophp.'`.`nev`,
+                                    `'.get_db_tabla().$tabla_nophp.'`.`dok_db_ossz`
                                     ');
 
         // Ezek az oszlopok generálódnak ki a rendezés selectbe, lehet szépíteni az oszlopneveket, amit a getOszlopNev() függvényben kell beállítani
@@ -5421,6 +5422,13 @@ if( isset($_POST['mellekTorol']) ) {
                 // Illetve projektkezelésnél adott projekt minősítésre váró dokumentumait újra összeszámoljuk
                 if( $szulo_tabla == 'projektkezeles' ) {
                     if( projekt_minositesre_varo_dok_szamol($fajlok[0][$szulo_oszlop]) === false ) { $db_error = true; }
+                }
+                if( $szulo_tabla == 'projektszamla' ) {
+                    $szamla = $adatbazis_kapcsolat->s2('pr_szam', 'projektszamla', "`recid`='{$fajl[$szulo_oszlop]}'");
+                    if( $szamla === false ) { $db_error = true; }
+                    $projekt = $adatbazis_kapcsolat->s2('recid', 'projektkezeles', "`ikt_szam`='{$szamla['pr_szam']}'");
+                    if( $projekt === false ) { $db_error = true; }
+                    if( projekt_minositesre_varo_dok_szamol($projekt['recid']) === false ) { $db_error = true; }
                 }
                 if( $szulo_tabla == 'projektszerzodes' ) {
                     $szerzodes = $adatbazis_kapcsolat->s2('pr_szam', 'projektszerzodes', "`recid`='{$fajl[$szulo_oszlop]}'");

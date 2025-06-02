@@ -146,7 +146,7 @@ if( isset($_POST['megnevezes']) && !$archivum ) {
                 $ikt_szam_oszlop = 'id';
             }
             // Iktatószám alapján könyvtár felépítése
-            $ikt_szam = $adatbazis_kapcsolat->s2('recid '.$ikt_szam_oszlop, $_POST['konyvtar'], "`recid` = '".$_POST['sorid']."'", '', '1');
+            $ikt_szam = $adatbazis_kapcsolat->s2('recid '.$ikt_szam_oszlop, $_POST['konyvtar'], "`recid`='{$_POST['sorid']}'", '', '1');
             if( $ikt_szam ) {
                 $utvonal = $utvonal.'/'.str_replace('/', '_', $ikt_szam[$ikt_szam_oszlop]);
             }
@@ -285,14 +285,18 @@ if( isset($_POST['megnevezes']) && !$archivum ) {
                     $dokumentumok_szama = count( $adatbazis_kapcsolat->s('recid', $_POST['tabla'], "`{$_POST['oszlop']}`='{$_POST['sorid']}'") );
                     $adatbazis_kapcsolat->u($konyvtar_db_nev, array('dok_db'), array($dokumentumok_szama), "`recid`='{$_POST['sorid']}'");
 
-                    
                     // Illetve projektkezelésnél/projektszerződésnél adott projekt minősítésre váró dokumentumait újra összeszámoljuk
                     if( $_POST['tabla']=='projektkezeles_dok' ) {
                         projekt_minositesre_varo_dok_szamol($_POST['sorid']);
                     }
+                    if( $_POST['tabla']=='projektszamla_dok' ) {
+                        $szamla     = $adatbazis_kapcsolat->s2('pr_szam', 'projektszamla', "`recid`='{$_POST['sorid']}'");
+                        $projekt    = $adatbazis_kapcsolat->s2('recid', 'projektkezeles', "`ikt_szam`='{$szamla['pr_szam']}'");
+                        projekt_minositesre_varo_dok_szamol($projekt['recid']);
+                    }
                     if( $_POST['tabla']=='projektszerzodes_dok' ) {
-                        $szerzodes = $adatbazis_kapcsolat->s2('pr_szam', 'projektszerzodes', "`recid`='{$_POST['sorid']}'");
-                        $projekt   = $adatbazis_kapcsolat->s2('recid', 'projektkezeles', "`ikt_szam`='{$szerzodes['pr_szam']}'");
+                        $szerzodes  = $adatbazis_kapcsolat->s2('pr_szam', 'projektszerzodes', "`recid`='{$_POST['sorid']}'");
+                        $projekt    = $adatbazis_kapcsolat->s2('recid', 'projektkezeles', "`ikt_szam`='{$szerzodes['pr_szam']}'");
                         projekt_minositesre_varo_dok_szamol($projekt['recid']);
                     }
 
@@ -418,6 +422,7 @@ if( $apa_tabla == 'projektkezeles' ) {
     
 
     // Ha van szerződés/számla, akkor a minősítésre váró szerződés dokumentumokat is kirajzoljuk
+    $kepek_szerzodes = array();
     if( $szerzodesek ) {
         $kepek_szerzodes = $adatbazis_kapcsolat -> s('`'.get_db_tabla().'projektszerzodes_dok`.*, `'.get_db_tabla().'szallito`.`nev`', 'projektszerzodes_dok', "`projektszerzodes_id` IN (".implode(',', $szerzodesek).") AND `".get_db_tabla()."projektszerzodes_dok`.`tipus`='0'", 
                                             // Order
@@ -426,6 +431,7 @@ if( $apa_tabla == 'projektkezeles' ) {
                                             'JOIN `'.get_db_tabla().'projektszerzodes` ON `'.get_db_tabla().'projektszerzodes_dok`.`projektszerzodes_id`=`'.get_db_tabla().'projektszerzodes`.`recid`
                                              JOIN `'.get_db_tabla().'szallito` ON `'.get_db_tabla().'projektszerzodes`.`szallito_id`=`'.get_db_tabla().'szallito`.`id` ');
     }
+    $kepek_szamla = array();
     if( $szamlak ) {
         $kepek_szamla = $adatbazis_kapcsolat -> s('`'.get_db_tabla().'projektszamla_dok`.*, `'.get_db_tabla().'szallito`.`nev`', 'projektszamla_dok', "`projektszamla_id` IN (".implode(',', $szamlak).") AND `".get_db_tabla()."projektszamla_dok`.`tipus`='0'", 
                                             // Order
@@ -904,7 +910,6 @@ if( $apa_tabla == 'projektkezeles' ) {
 }
 
 $szamla_html .= $tobbkep_html;
-
 
 
 

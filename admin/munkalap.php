@@ -1423,7 +1423,7 @@ if( isset($_POST['munkalapKeszre']) ) {
         if( !$db_error ) {
 
             // Levélküldés
-            foreach($mail_megy as $bejelentes_id){
+            foreach ($mail_megy as $bejelentes_id) {
                 $valasz = level_felkeszit_es_kuld('bejelentes', $bejelentes_id, ERT_KESZRE_JELENTESKOR, 'munkalapKeszre', 'bejelento');
                 if( substr($valasz, 0, 4)=='Hiba' ){
                     echo json_encode(array(
@@ -1971,7 +1971,7 @@ if( isset($_POST['munkalapKulsosElutasit']) ) {
         }
 
         // Megjegyzés hozzáadása
-        if(addMegj( 'munkalap', $recid, getErtek('nev', 'szallito', 'id', $munkalap['szallito_id']).' elutasítva'."\r\n".$memo )===false){
+        if (addMegj('munkalap', $recid, getErtek('nev', 'szallito', 'id', $munkalap['szallito_id']) . ' elutasítva' . "\r\n" . $memo) === false) {
             $db_error = true;
         }
 
@@ -5565,7 +5565,7 @@ if( isset($_POST['atadasDiszpecsernek']) ) {
     $db_error = false;
     mysqli_autocommit($db_kapcs, false);
 
-    if( $erteklista_id ) {
+    if( $erteklista_id || $_POST['csak_ellenoriz'] ) {
 
         // Státusz és jog ellenőrzése
         $munkalap = $sor = $adatbazis_kapcsolat->s2('stat_id szemelyzet_id telephely_id', 'munkalap', "`recid`='{$recid}'");
@@ -5621,6 +5621,7 @@ if( isset($_POST['atadasDiszpecsernek']) ) {
                 $weblap->leallit();
                 exit();
             }
+
             $feladat = $adatbazis_kapcsolat->s2('recid', 'munkalap_feladat', "`tetel_id`='{$utolso_tetel['recid']}'", '', '1');
             if( !$feladat ) {
                 echo json_encode(array(
@@ -5631,6 +5632,11 @@ if( isset($_POST['atadasDiszpecsernek']) ) {
                 exit();
             }
 
+        }
+        // Ha kaptunk egy $_POST['csak_ellenoriz']-t, akkor itt álljunk is meg, mert csak ellenőrizni szeretnénk, hogy minden rendben van-e.
+        if(isset($_POST['csak_ellenoriz'])) {
+            $weblap -> leallit();
+            exit;
         }
 
         // Anyagra vár státusz esetén az anyagokat is törölni kell (ha van benne felhasznált anyag, akkor csak nullázni a szükséges mennyiséget)
@@ -8898,8 +8904,12 @@ if( isset($_GET['uj']) ) {
                 $onclick = 'csoportMuvelet(\'atadasDiszpecsernekDirektbe\');';
             }
             $gombok .= '<input type="button" class="gomb piros modositaskor_rejt" value="Visszaadás" onclick="'.$onclick.'"> ';
-            $gombok .= '<input type="button" class="gomb piros modositaskor_rejt" value="Munkaidő lejárt" onclick="munkaidoLejart();"> ';
-        }
+    }
+    // A "Munkaidő lejárt" ugynazt csinálja mint a "Visszaadás" gomb, de csak a Felvéve státuszban látszik (plisz egyéb feltételek is ugynaz)
+    // A lényeg, hogy erre a gombra kattintva indoklás nélkül visszakerül a munkalap a Diszpécserhez. (Indoklást automatikusan kap az értéklistából: EL_VISSZAAD_M_IDO_LEJART)
+    if ( $telephely['modell'] && $sor['stat_id']==MUNKALAP_STAT_FELVEVE && in_array($sor['szemelyzet_id'], $felvehetik) && $kezeles_jog ) {
+        $gombok .= '<input type="button" class="gomb piros modositaskor_rejt" value="Munkaidő lejárt" onclick="munkaidoLejart();"> ';
+    }
 
     // "Döntés alatt" státuszkor, ha még egy jóváhagyás sem történt és van jogunk, akkor a jóváhagyott értéket szerkeszteni lehet
     if( $sor['stat_id'] == MUNKALAP_STAT_DONTESRE_VAR && _jog(JOG_MUNKALAP_KULSOS_ELOKESZIT) && $sor['jh1_login'] == '' && $sor['jh2_login'] == '' ) {

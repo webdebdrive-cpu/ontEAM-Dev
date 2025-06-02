@@ -1,4 +1,5 @@
 <?php
+// Reggelente egy e-mailt kapnak azok a műszaki vezetők, akiknek igazolandó számlájuk van az ontEAM-ben
 require_once('../weblap.php');
 
 $log_utvonal = str_replace('.php', '', basename(self())).'.err';

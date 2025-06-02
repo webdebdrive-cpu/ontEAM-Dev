@@ -12,6 +12,15 @@ require_once('../weblap.php');
 //    exit;
 //}
 
+if( isset($_GET['dok_atszamol']) ) {
+   $projektek = $adatbazis_kapcsolat->s('recid', 'projektkezeles', "");
+   foreach ( $projektek as $projekt ) {
+       projekt_minositesre_varo_dok_szamol($projekt['recid']);
+   }
+   echo 'f';
+   exit;
+}
+
 // Ha egyik megtekintés joggal sem rendelkezünk
 if( !_jog(JOG_PRKEZEL_MEGTEKINT) && !_jog(JOG_PRKEZEL_SAJAT_MEGTEKINT) && !_jog(JOG_PRKEZEL_TEAM_TAG) && !_jog(JOG_PR_EGYSZALL_MEGTEKINT) && !_jog(JOG_PR_TOBBSZALL_MEGTEKINT) && !_jog(JOG_PR_B_MEGTEKINT) && !_jog(JOG_PR_F_MEGTEKINT) && !_jog(JOG_PR_T_MEGTEKINT) ) {
     if( !$_SESSION[get_db_tabla() . 'user'] ) {
@@ -509,7 +518,7 @@ if( isset($_POST['projekt_lezartra']) ) {
         exit();
     }
     
-    // Adott Projekthez kapcsolódó szerződések jótállásainak mindegyikének van-e már feltölött dokumentuma?
+    // Adott Projekthez kapcsolódó szerződések jótállásainak mindegyikének van-e már feltöltött dokumentuma?
     // Ha csak egy olyan jótállás is létezik, aminek még nincs dokumentuma (`utvonal`=''), akkor nem engedjük lezárni.
     $szerzodesek = $adatbazis_kapcsolat->s('recid', 'projektszerzodes', "`pr_szam`='{$sor['ikt_szam']}'");
     if( $szerzodesek === false ) { $db_error = true; }
@@ -2180,8 +2189,8 @@ require_once('selectek.php');
     if( $_GET['id'] ) {
         $sor = $adatbazis_kapcsolat -> s2('*', $megnevezes, "`recid`='{$_GET['id']}'");
     }
-    if( $sor['dok_db'] ) {
-        $dok_db  = ' ('.$sor['dok_db'].')';
+    if( $sor['dok_db_ossz'] ) {
+        $dok_db  = ' ('.$sor['dok_db_ossz'].')';
     }
     if( $sor['megj_db'] ) {
         $megj_db = ' ('.$sor['megj_db'].')';
@@ -2379,7 +2388,7 @@ require_once('selectek.php');
         $statuszok = array(PRKEZEL_STAT_KESZ);
         if( in_array($sor['stat_id'], $statuszok) && get_projekt_kezeles_jog($_GET['id']) ) {
             
-            // Adott Projekthez kapcsolódó szerződések jótállásainak mindegyikének van-e már feltölött dokumentuma?
+            // Adott Projekthez kapcsolódó szerződések jótállásainak mindegyikének van-e már feltöltött dokumentuma?
             // Ha csak egy olyan jótállás is létezik, aminek még nincs dokumentuma (`utvonal`=''), akkor nem engedjük lezárni.
             $szerzodesek = $adatbazis_kapcsolat->s('recid', 'projektszerzodes', "`pr_szam`='{$sor['ikt_szam']}'");
             $szerzodesek = adatbazis2tomb($szerzodesek, 'recid');
