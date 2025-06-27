@@ -197,6 +197,8 @@ if( isset($_POST['pop_tetelek_feltolt']) ) {
         if( !$_SESSION['fennt_szerz_tetel_recid'][$fej_id][$i] ) {
             $_SESSION['fennt_szerz_tetel_recid' ][$fej_id][$i] = time().rand(0,1000);
         }
+
+        $jogcim = $adatbazis_kapcsolat->s2('jogcim ktghely megn szla_szam', 'jogcim', "`recid`='{$_SESSION['fennt_szerz_tetel_jogcim'][$fej_id][$i]}'");
         
         // Van-e már számlával összeköttetés
         $class = $teljesites = $netto_ertek = '';
@@ -226,6 +228,9 @@ if( isset($_POST['pop_tetelek_feltolt']) ) {
                             <td class="pop_targy l">'.$_SESSION['fennt_szerz_tetel_targy'][$fej_id][$i].'</td>
                             <td class="pop_varh_erk l">'.datum_kiir($_SESSION['fennt_szerz_tetel_varh_erk'][$fej_id][$i]).'</td>
                             <td class="pop_varh_ert r">'.number_format(str_replace(array(',', ' '), array('.', ''), $_SESSION[$session_varhato_ert][$fej_id][$i]), $tizedesek, ',', ' ').'</td>
+                            <td class="pop_jogcim_autocomp l">' .$jogcim['jogcim'   ].'</td>
+                            <td class="pop_ktgnem_autocomp l">' .$jogcim['megn'     ].'</td>
+                            <td class="pop_ktghely_autocomp l">'.$jogcim['ktghely'  ].'</td>
                             <td class="pop_telj_dt l">'.$teljesites.'</td>
                             <td class="pop_netto_ert r">'.$netto_ertek.'</td>
                             ').
@@ -236,6 +241,7 @@ if( isset($_POST['pop_tetelek_feltolt']) ) {
                             </td>*/
                             nl2('<td>
                                 '.$torol.'
+                                <input type="hidden" class="pop_jogcim" name="jogcim" value="'.$_SESSION['fennt_szerz_tetel_jogcim'][$fej_id][$i].'">
                                 <input type="hidden" class="pop_telephely_id" value="'.$_SESSION['fennt_szerz_tetel_telephely_id'][$fej_id][$i].'">
                                 <input type="hidden" class="pop_valtozott" value="'.$_SESSION['fennt_szerz_tetel_valtozott'][$fej_id][$i].'">
                                 <input type="hidden" class="pop_recid" name="recid" value="'.$_SESSION['fennt_szerz_tetel_recid'][$fej_id][$i].'">
@@ -282,9 +288,10 @@ if( isset($_POST['tetel_sorok_ment']) ) {
     $targy_adat     = 2;
     $varh_erk_adat  = 3;
     $varh_ert_adat  = 4;
-    $telj_dt_adat   = 5;
-    $netto_ert_adat = 6;
-    $valtozott_adat = 7;
+    $jogcim_adat    = 5;
+    $telj_dt_adat   = 6;
+    $netto_ert_adat = 7;
+    $valtozott_adat = 8;
     
     $tetelek_osszege = '';
     $i = 0;
@@ -358,7 +365,8 @@ if( isset($_POST['tetel_sorok_ment']) ) {
         } else {
             $_SESSION['fennt_szerz_tetel_varh_ert'][$fej_id] = $_POST['adatok'][$varh_ert_adat][1];
         }
-        $_SESSION['fennt_szerz_tetel_telj_dt'][$fej_id] = $_POST['adatok'][$telj_dt_adat][1];
+        $_SESSION['fennt_szerz_tetel_jogcim'    ][$fej_id] = $_POST['adatok'][$jogcim_adat][1];
+        $_SESSION['fennt_szerz_tetel_telj_dt'   ][$fej_id] = $_POST['adatok'][$telj_dt_adat][1];
         if( $devizas ) {
             $_SESSION['fennt_szerz_tetel_dev_net'][$fej_id] = str_replace(',', '.', $_POST['adatok'][$netto_ert_adat][1]);
         } else {
@@ -376,21 +384,25 @@ if( isset($_POST['tetel_sorok_ment']) ) {
         $i = 0;
         foreach ($_POST['adatok'][$telephely_adat][1] as $telephely) {
 
-            $telephely  = $_POST['adatok'][$telephely_adat][1][$i];
-            $targy      = $_POST['adatok'][$targy_adat][1][$i];
-            $varh_erk   = $_POST['adatok'][$varh_erk_adat][1][$i];
-            $varh_ert   = $_POST['adatok'][$varh_ert_adat][1][$i];
-            $telj_dt    = $_POST['adatok'][$telj_dt_adat][1][$i];
-            $netto      = $_POST['adatok'][$netto_ert_adat][1][$i];
+            $telephely  = $_POST['adatok'][$telephely_adat  ][1][$i];
+            $targy      = $_POST['adatok'][$targy_adat      ][1][$i];
+            $varh_erk   = $_POST['adatok'][$varh_erk_adat   ][1][$i];
+            $varh_ert   = $_POST['adatok'][$varh_ert_adat   ][1][$i];
+            $jogcim     = $_POST['adatok'][$jogcim_adat     ][1][$i];
+            $telj_dt    = $_POST['adatok'][$telj_dt_adat    ][1][$i];
+            $netto      = $_POST['adatok'][$netto_ert_adat  ][1][$i];
             $valtozott = 0;
             if( $_POST['adatok'][$valtozott_adat][1][$i] ) {
                 $valtozott = 1;
             }
+
+            $jogcim = $adatbazis_kapcsolat->s2('recid jogcim uzemresz megn szla_szam ktghely ktghely_id', 'jogcim', "`recid`='{$jogcim}'");
+
             // Ha ismerjük a tétel recid-ját, akkor update
             if( $_POST['adatok'][$recid_adat][1][$i] ) {
                 
-                $mezok      = array('telephely_id', 'targy',  'varh_erk', $varh_mezo, 'telj_dt', $db_mezo,    'valtozott' );
-                $ertekek    = array($telephely,     $targy,   $varh_erk,  $varh_ert,  $telj_dt,  $netto,      $valtozott  );
+                $mezok      = array('telephely_id', 'targy',  'varh_erk', $varh_mezo, 'jogcim_recid',   'jogcim',            'ktgnem_id',           'ktgnem',        'ktghely_id',           'ktghely',           'telj_dt', $db_mezo,    'valtozott' );
+                $ertekek    = array($telephely,     $targy,   $varh_erk,  $varh_ert,  $jogcim['recid'],  $jogcim['jogcim'],  $jogcim['szla_szam'],  $jogcim['megn'], $jogcim['ktghely_id'],  $jogcim['ktghely'],  $telj_dt,  $netto,      $valtozott  );
                 if( $devizas ) {
                     array_push($mezok,   'netto_ert',                       'varh_ert'                          );
                     array_push($ertekek, $netto*$fennt_szerz['arfolyam'],   $varh_ert*$fennt_szerz['arfolyam']  );
@@ -401,8 +413,8 @@ if( isset($_POST['tetel_sorok_ment']) ) {
                 
             // Egyébként insert
             } else {
-                $mezok      = array('fenntartasi_szerzodes_recid', 'rownum', 'telephely_id', 'targy',  'varh_erk', $varh_mezo, 'telj_dt', $db_mezo, 'valtozott', 'loginnev',                         'insert_dt',    'insert_usr',                             'update_usr'                          );
-                $ertekek    = array($recid,                        $rownum,  $telephely,     $targy,   $varh_erk,  $varh_ert,  $telj_dt,  $netto,   '1',         $_SESSION[get_db_tabla().'user'],   'NOW()',        $_SESSION[get_db_tabla().'teljes_nev'],   $_SESSION[get_db_tabla().'teljes_nev']);
+                $mezok      = array('fenntartasi_szerzodes_recid', 'rownum', 'telephely_id', 'targy',  'varh_erk', $varh_mezo, 'jogcim_recid',    'jogcim',           'ktgnem_id',           'ktgnem',        'ktghely_id',           'ktghely',            'telj_dt', $db_mezo, 'valtozott', 'loginnev',                         'insert_dt',    'insert_usr',                             'update_usr'                          );
+                $ertekek    = array($recid,                        $rownum,  $telephely,     $targy,   $varh_erk,  $varh_ert,  $jogcim['recid'],  $jogcim['jogcim'],  $jogcim['szla_szam'],  $jogcim['megn'], $jogcim['ktghely_id'],  $jogcim['ktghely'],   $telj_dt,  $netto,   '1',         $_SESSION[get_db_tabla().'user'],   'NOW()',        $_SESSION[get_db_tabla().'teljes_nev'],   $_SESSION[get_db_tabla().'teljes_nev']);
                 if( $devizas ) {
                     array_push($mezok,   'netto_ert',                       'varh_ert'                          );
                     array_push($ertekek, $netto*$fennt_szerz['arfolyam'],   $varh_ert*$fennt_szerz['arfolyam']  );
@@ -877,6 +889,9 @@ require_once('selectek.php');
     $_SESSION['fennt_szerz_tetel_varh_erk'      ][$fej_id] =
     $_SESSION['fennt_szerz_tetel_varh_ert'      ][$fej_id] =
     $_SESSION['fennt_szerz_tetel_dev_varh_ert'  ][$fej_id] =
+    $_SESSION['fennt_szerz_tetel_jogcim'        ][$fej_id] =
+    $_SESSION['fennt_szerz_tetel_kgtnem'        ][$fej_id] =
+    $_SESSION['fennt_szerz_tetel_kgthely'       ][$fej_id] =
     $_SESSION['fennt_szerz_tetel_telj_dt'       ][$fej_id] =
     $_SESSION['fennt_szerz_tetel_netto_ert'     ][$fej_id] =
     $_SESSION['fennt_szerz_tetel_dev_net'       ][$fej_id] =
@@ -892,6 +907,9 @@ require_once('selectek.php');
         $_SESSION['fennt_szerz_tetel_varh_erk'      ][$fej_id][$i] = str_replace('-', '.', $tetel['varh_erk']);
         $_SESSION['fennt_szerz_tetel_varh_ert'      ][$fej_id][$i] = number_format($tetel['varh_ert'], 0, '', ' ');
         $_SESSION['fennt_szerz_tetel_dev_varh_ert'  ][$fej_id][$i] = number_format($tetel['dev_varh_ert'], 2, ',', ' ');
+        $_SESSION['fennt_szerz_tetel_jogcim'        ][$fej_id][$i] = $tetel['jogcim_recid'];
+        $_SESSION['fennt_szerz_tetel_kgtnem'        ][$fej_id][$i] = $tetel['kgtnem_id'];
+        $_SESSION['fennt_szerz_tetel_kgthely'       ][$fej_id][$i] = $tetel['kgthely_id'];
         $_SESSION['fennt_szerz_tetel_telj_dt'       ][$fej_id][$i] = str_replace('-', '.', $tetel['telj_dt']);
         $_SESSION['fennt_szerz_tetel_netto_ert'     ][$fej_id][$i] = number_format($tetel['netto_ert'], 0, '', ' ');
         $_SESSION['fennt_szerz_tetel_dev_net'       ][$fej_id][$i] = number_format($tetel['dev_net'],   2, ',', ' ');
@@ -1273,7 +1291,7 @@ if( !$_GET['andoc_id'] ) {
                         <div class="dtc">'.getSzallodaNev($tetel['telephely_id']).'</div>
                         <div class="dtc">'.$tetel['targy'].'</div>
                         <div class="dtc">'.datum_kiir($tetel['varh_erk']).'</div>
-                        <div class="dtc r nowrap">'.number_format($tetel[$osszeg_oszlop],  0, ',', ' ').'</div>
+                        <div class="dtc r nowrap">'.number_format($tetel[$osszeg_oszlop],  $tizedesek, ',', ' ').'</div>
                         <div class="dtc">'.datum_kiir($tetel['telj_dt']).'</div>
                         <div class="dtc r nowrap">'.number_format($tetel[$ertek_oszlop], $tizedesek, ',', ' ').'</div>
                     </div>

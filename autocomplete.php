@@ -118,16 +118,21 @@ if( isset($_GET['value']) && isset($_GET['tabla']) && isset($_GET['oszlop_keres'
 
             if( strpos($_GET['beosztas_id'], ',') !== false ) {
                 if( $where_sql ) {
-                    $where_sql .= " AND `beosztas_id` IN (".$_GET['beosztas_id'].")";
+                    $where_sql = "{$where_sql} AND `beosztas_id` IN (".$_GET['beosztas_id'].")";
                 } else {
                     $where_sql .= " WHERE `beosztas_id` IN (".$_GET['beosztas_id'].")";
                 }
             } else {
                 if( $where_sql ) {
-                    $where_sql .= " AND `beosztas_id`='".$_GET['beosztas_id']."'";
+                    $where_sql = "{$where_sql} AND `beosztas_id`='".$_GET['beosztas_id']."'";
                 } else {
                     $where_sql .= " WHERE `beosztas_id`='".$_GET['beosztas_id']."'";
                 }
+            }
+            if( $_GET['mszk_vez_is'] ) {
+                // Bezárójelezzük az eddigi feltételt + a most hozzátett OR résszel együtt is zárójelbe tesszük az egészet
+                $where_sql = str_replace('WHERE', 'WHERE ( (', $where_sql).')';
+                $where_sql .= " OR (`szemelyzet_id`='".MUSZAKI_VEZETO."' AND `aktiv`=1 AND `virtual`=0) )";
             }
         }
         // Illetve aktívakra is (ha viszont a szűrőben jelenik meg az autocomplete, akkor az inaktivakat is látni szeretnénk)
@@ -136,6 +141,15 @@ if( isset($_GET['value']) && isset($_GET['tabla']) && isset($_GET['oszlop_keres'
                 $where_sql .= " AND `aktiv` = '1'";
             } else {
                 $where_sql .= " WHERE `aktiv` = '1'";
+            }
+        }
+        // Ha projektkezelés alatt keresünk a létrehozta oszlopra
+        if( $_GET['tabla'] == 'login' && $_GET['akt_mezo'] == 'insert_usr' ) {
+            // akkor projekt megtekintés jogra szűrünk még
+            if( $where_sql ) {
+                $where_sql .= " AND substr(`flags`, ".(JOG_PRKEZEL_MEGTEKINT+1).", 1)=1";
+            } else {
+                $where_sql .= " WHERE substr(`flags`, ".(JOG_PRKEZEL_MEGTEKINT+1).", 1)=1";
             }
         }
 

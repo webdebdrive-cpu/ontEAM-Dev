@@ -2432,7 +2432,7 @@ require_once('selectek.php');
                 if( $key == 'tablazat' ) {
                     $fulek .= '<a href="'.self().get_get($kivetelek).'&amp;tablazat"'.$active.' data-oldal="'.$key.'">'.$value.'</a>';
                 } else {
-                    $fulek .= '<a href="javascript: szamlaBetolt(\''.$id_betolteshez.'\', \''.basename(self()).'\', \''.$key.'\', \'\', \'\', \'Mindenképp tölsön be\'); void(0);"'.$active.' data-oldal="'.$key.'">'.$value.'</a>';
+                    $fulek .= '<a href="javascript: szamlaBetolt(\''.$id_betolteshez.'\', \''.basename(self()).'\', \''.$key.'\', \'\', \'\', \'-anyagig-\'); void(0);"'.$active.' data-oldal="'.$key.'">'.$value.'</a>';
                 }
 
             // }
@@ -2922,6 +2922,64 @@ require_once('selectek.php');
         ');
 
         $szamla_html .= $balNavPanelHTMLje;
+
+        if( isset($_GET['excel']) ) {
+            $szamla_html .= nl2('
+                            <script>
+                                $(document).ready(function () {
+                                    const $table = $(\'table.excel\');
+                                    const $rows = $table.find(\'tbody tr\').not(\'.fake\');
+
+                                    let $active = $rows.filter(\'.kijelolve\').find(\'td:first\').addClass(\'aktiv\');
+
+                                    $(document).keydown(function (e) {
+                                        let row = $rows.index($active.parent());
+                                        let col = $active.index();
+
+                                        switch (e.which) {
+                                            case KEY_LEFT:
+                                                col = Math.max(0, col - 1);
+                                            break;
+                                            case KEY_UP:
+                                                row = Math.max(0, row - 1);
+                                            break;
+                                            case KEY_RIGHT:
+                                                col = Math.min($rows.eq(row).children().length - 1, col + 1);
+                                            break;
+                                            case KEY_DOWN:
+                                                row = Math.min($rows.length - 1, row + 1);
+                                            break;
+                                            default:
+                                                return;
+                                        }
+
+                                        $active.removeClass(\'aktiv\');
+                                        $active = $rows.eq(row).children().eq(col).addClass(\'aktiv\');
+                                        e.preventDefault();
+
+                                        /* Scrollozzuk be az aktív cellát, ha kilóg vízszintesen */
+                                        let $scrollContainer = $(\'#tartalomJobb\');
+                                        let cellRect = $active[0].getBoundingClientRect();
+                                        let containerRect = $scrollContainer[0].getBoundingClientRect();
+
+                                        let currentScroll = $scrollContainer.scrollLeft();
+    
+                                        if (cellRect.right > containerRect.right) {
+                                            let delta = cellRect.right - containerRect.right + 10;
+                                            $scrollContainer.animate({ scrollLeft: currentScroll + delta }, 200);
+                                        } else if (cellRect.left < containerRect.left) {
+                                            let delta = containerRect.left - cellRect.left + 10;
+                                            $scrollContainer.animate({ scrollLeft: currentScroll - delta }, 200);
+                                        }
+                                    });
+
+
+                                    
+                                });
+                                
+                            </script>
+            ');
+        }
 
         if( $_GET['ajax'] ) {
             echo json_encode(array(

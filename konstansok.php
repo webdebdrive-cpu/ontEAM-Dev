@@ -109,6 +109,7 @@ define('MUNKALAP_STAT_AJANLAT_NYOMTATVA',   '21');
 define('MUNKALAP_STAT_SZTORNO_VAR',         '22');
 define('MUNKALAP_STAT_MEGR_ALAIR_VAR',      '23');
 define('MUNKALAP_STAT_MEGR_ELKULD_VAR',     '24');
+define('MUNKALAP_STAT_KONTIROZASRA_VAR',    '25');
 
 // Munkalap anyag státuszok
 define('MUNKALAP_ANYAG_STAT_AI_SZUKS',      '01');
@@ -324,6 +325,7 @@ define('HIBABEJELENTO',                 '12');
 define('FEJLESZTESI_VIG_H',             '13');
 define('BERUHAZASI_IGAZGATO',           '14');
 define('LETESITMENY_FELELOS',           '15');
+define('PROJEKT_ASSZISZTESN',           '17');
 
 // MozgásID-k
 define('MOZGID_RAKTAR_BE',              '01' );
@@ -380,6 +382,7 @@ define('JOG_MUNKALAP_TOROL',            68);
 define('JOG_MUNKALAP_ANYAG_ERKEZTET',   70);
 define('JOG_MUNKALAP_ELSODL_ALAIR',    146);
 define('JOG_MUNKALAP_MASODL_ALAIR',    147);
+define('JOG_MUNKALAP_MEGR_KONTIROZ',   148);
 define('JOG_TORZSADAT_MEGTEKINT',       25);
 define('JOG_TORZSADAT_KEZEL',           26);
 define('JOG_TORZSADAT_SAJAT_MEGTEKINT',135);
@@ -579,6 +582,7 @@ define('ARCHIV_NAVPANEL_LIMIT2',        500    );  // Ez viszont tényleg csak a
 define('ARCHIV_NAVPANEL_LIMIT2_TESZT',  100    );  // Ez pedig akkor, ha teszt felületen vagyunk
 define('SZURES_DB_LIMIT',              1000    );
 define('CSV_EXPORT_LIMIT',            30000    );
+define('ANYAGREND_LIMIT',                50    );
 define('ANYAGREND_NEM_MSZK_LIMIT',      200    );
 
 // Fűtőértékkel kapcsolatos konstansok

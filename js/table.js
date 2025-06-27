@@ -1,5 +1,8 @@
+/* Ez a képernyő bal szélétől való távolság. anyagigenyles.css -ben a --kepernyo_left-fele értékével legyen összhangban. */
+var kepernyo_left = 15;
+
 $(function() {
-    var saveSticky;
+    /* var saveSticky; Ez ugye már nem kell? 2025.06.25 */
     $('#dragTable').dragtable({
         maxMovingRows   : 1,
         dragHandle      : '.some-handle',
@@ -250,12 +253,12 @@ $(function() {
                 $(this).find('thead').css({
                     'position'  : 'fixed',
                     'top'       : top,
-                    'left'      : -Math.abs(scrollLeft),
+                    'left'      : -Math.abs(scrollLeft) + kepernyo_left,
                     'z-index'   : '10'
                 });
             } else {
                 $(this).find('thead').css({
-                    'left'      : -Math.abs(scrollLeft)
+                    'left'      : -Math.abs(scrollLeft) + kepernyo_left
                 });
             }
         });
@@ -484,7 +487,7 @@ function fejlecPozicional() {
         $(this).find('thead').css({
             'position'  : 'fixed',
             'top'       : top,
-            'left'      : -Math.abs(scrollLeft),
+            'left'      : -Math.abs(scrollLeft) + kepernyo_left,
             'z-index'   : '10',
             /* Ez a kettő azért kell, hogy a fejléc ne takarja ki a scrollt */
             'right'     : '1.6rem',

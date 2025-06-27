@@ -107,7 +107,7 @@ class ServerClass {
         }
 
         $kifizetes_import = 0;
-        // Kifizetséről van szó, ha a Fizetési státusz tag-ben az alábbiak vannak
+        // Kifizetésről van szó, ha a Fizetési státusz tag-ben az alábbiak vannak
         if( $szamla_adatok['Fizetési státusz'] == 'kifizetetlen' || $szamla_adatok['Fizetési státusz'] == 'részben kifizetve' || $szamla_adatok['Fizetési státusz'] == 'kifizetett' ) {
             $kifizetes_import = 1;
         }
@@ -148,7 +148,7 @@ class ServerClass {
         if( $tabla == 'projektszamla' ) {
             $extra_mezok .= ' elo_igazolva elo_igazolva_dt';
         }
-        $szamla_db = $adatbazis_kapcsolat->s2('recid szla_szam erk_xml tetel_db sztornozva_dt utalvanyozva_dt igazolva_dt'.$extra_mezok, $tabla, "`andoc_id`='{$andoc_id}'");
+        $szamla_db = $adatbazis_kapcsolat->s2('recid szla_szam szallito_id netto erk_xml tetel_db sztornozva_dt utalvanyozva_dt igazolva_dt targy telj_dt'.$extra_mezok, $tabla, "`andoc_id`='{$andoc_id}'");
         if( $szamla_db === false ) { $db_error = mysqli_error($db_kapcs); }
 
         // Ha létezik a számla az éles táblában, akkor sima ügy, azt kell updatelni
@@ -748,6 +748,63 @@ class ServerClass {
                         if( addMegj($tabla, $szamla_db['recid'], 'A számla technikailag sztornózásra került.', 'Andoc') === false ) {
                             $db_error = 'Megjegyzésbe írás nem sikerült';
                         }
+
+                        // Ha technikai sztornózásról van szó, akkor email értesítést is küldünk
+                        //  - Ha fenntartási, anyag, energiaszámla, akkor az aktív, nem virtuális, műszaki ügyintéző szerepkörű embernek.
+                        //  - Ha megállapodás vagy projektszámla,   akkor az aktív, nem virtuális, projekt asszisztens szerepkörű embernek.
+                        $szamla_neve = '';
+                        switch ($tabla) {
+                            case 'fenntartasi_szamla':
+                                $szamla_neve = 'fenntartási';
+                                $szerepkor = MUSZAKI_ADMINISZTRATOR;
+                            break;
+                            case 'anyag_szamla':
+                                $szamla_neve = 'anyag';
+                                $szerepkor = MUSZAKI_ADMINISZTRATOR;
+                            break;
+                            case 'energia_szamla':
+                                $szamla_neve = 'energia';
+                                $szerepkor = MUSZAKI_ADMINISZTRATOR;
+                            break;
+                                
+                            case 'megallapodas_szamla':
+                                $szamla_neve = 'megállapodás';
+                                $szerepkor = PROJEKT_ASSZISZTESN;
+                            break;
+                            case 'projektszamla':
+                                $szamla_neve = 'projekt';
+                                $szerepkor = PROJEKT_ASSZISZTESN;
+                            break;
+                        }
+                        if( $szamla_neve ) {
+                            $loginok = $adatbazis_kapcsolat -> s('teljes_nev usermail', 'login', "`szemelyzet_id`='{$szerepkor}' AND `aktiv`='1' AND `virtual`='0'");
+                            $targy = 'Számla technikai sztornózás';
+                            $uzi = 'Tisztelt {NEV}!
+    <br>
+    <br>Értesítjük, hogy '.a_az($szamla_neve).' '.$szamla_neve.' számla technikailag sztornózásra került.
+    <br>
+    <br>A számla adatai:
+    <br>Számlaszám: '.$szamla_db['szla_szam'].'
+    <br>Szállító: '.getErtek('nev', 'szallito', 'id', $szamla_db['szallito_id']).'
+    <br>Nettó érték: '.number_format($szamla_db['netto'], 0, '', ' ').' Ft
+    <br>Teljesítés dátuma: '.datum_kiir($szamla_db['telj_dt'], '-csak dátum-').'
+    <br>Tárgy: '.nl2br2($szamla_db['targy']).'
+    <br>'.fajlbol_olvas('../sablon/admin/mail/alairas.html');
+    
+                            foreach ($loginok as $login) {
+                                $mailcimek = explode(',', $login['usermail']);
+                                foreach ($mailcimek as $mailcim) {
+                                    $mailcim = trim($mailcim);
+                                    if( $mailcim ) {
+    
+                                        $akt_uzi = str_replace('{NEV}', $login['teljes_nev'], $uzi);
+    
+                                        level_kuldes(get_nev(), get_mail(), $login['teljes_nev'], $mailcim, $targy, $akt_uzi);
+                                    }
+                                }
+                            }
+                        }
+
                     } else {
                         if( addMegj($tabla, $szamla_db['recid'], 'Utalványozás elutasítva.<br>Indoklás: '.nl2br2($szamla_adatok['Utalványozás elutasítás oka']), 'Andoc') === false ) {
                             $db_error = 'Megjegyzésbe írás nem sikerült';

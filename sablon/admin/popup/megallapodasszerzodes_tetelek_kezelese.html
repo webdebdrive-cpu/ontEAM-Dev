@@ -147,7 +147,7 @@ function tetel_hozzaadasa() {
 
     van_valtozas = true;
 
-    /* Üres adatok ellenőrzése */
+    // Üres adatok ellenőrzése
     if( !telephely ){
         alert2('Kérem válasszon szállodát!', '', 'Hiba');
         $('#pop_telephely_id_autocomp').addClass('hibas_ide_focus');
@@ -159,7 +159,7 @@ function tetel_hozzaadasa() {
         return false;
     }
 
-    if( !pop_varh_erk || pop_varh_erk == '\xa0\xa0\xa0\xa0.\xa0\xa0.\xa0\xa0' ) {
+    if( !valid_date($('#pop_szla_varh_erk'), 'true-val térj vissza') ) {
         alert2('Kérem töltse ki a várható érkezést!', '', 'Hiba');
         $('#pop_szla_varh_erk').addClass('hibas_ide_focus');
         return false;
@@ -173,7 +173,7 @@ function tetel_hozzaadasa() {
 
     var id_tmp = new Date().getTime();
     
-    /* Ha ismert a sor_id, akkor update */
+    // Ha ismert a sor_id, akkor update
     if( sor_id ) {
 
         $('.pop_tetel_'+sor_id+' .pop_telephely').html( $('#pop_telephely_id option:selected').text() );

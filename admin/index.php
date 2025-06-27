@@ -117,7 +117,7 @@
 
 
 // Minősítésre váró dokumentumok utólagos karbantartása
-//if( isset($_GET['ez_kell_meg_elesre2']) ) {
+// if( isset($_GET['ez_kell_meg_elesre2']) ) {
 //    require_once('../weblap.php');
 //    $projektek = $adatbazis_kapcsolat->s('recid', 'projektkezeles');
 //    foreach( $projektek as $projekt ) {
@@ -125,7 +125,7 @@
 //        projekt_minositesre_varo_dok_szamol($projekt['recid']);
 //    }
 //    exit;
-//}
+// }
 //if( isset($_GET['teszt']) ) {
 //    require_once '../weblap.php';
 //    
@@ -159,6 +159,44 @@
 // }
 
 require_once('header.php');
+
+// if( isset($_GET['teszt']) ) {
+
+//     $szerepkor = MUSZAKI_ADMINISZTRATOR;
+//     $andoc_id  = '_5SR0HUEYV';
+//     $szamla_db = $adatbazis_kapcsolat->s2('recid szla_szam szallito_id netto erk_xml tetel_db sztornozva_dt utalvanyozva_dt igazolva_dt', 'fenntartasi_szamla', "`andoc_id`='{$andoc_id}'");
+
+//     $loginok = $adatbazis_kapcsolat -> s('teljes_nev usermail', 'login', "`szemelyzet_id`='{$szerepkor}' AND `aktiv`='1' AND `virtual`='0'");
+//     echo $adatbazis_kapcsolat -> gp().'<br>';
+//     $targy = 'Számla technikai sztornózás';
+//     $uzi = 'Tisztelt {NEV}!
+// <br>
+// <br>Értesítjük, hogy '.a_az($szamla_neve).' '.$szamla_neve.' számla technikailag sztornózásra került.
+// <br>
+// <br>A számla adatai:
+// <br>Számlaszám: '.$szamla_db['szla_szam'].'
+// <br>Szállító: '.getErtek('nev', 'szallito', 'id', $szamla_db['szallito_id']).'
+// <br>Nettó érték: '.number_format($szamla_db['netto'], 0, '', ' ').' Ft
+// <br>'.fajlbol_olvas('../sablon/admin/mail/alairas.html');
+
+//     foreach ($loginok as $login) {
+//         $mailcimek = explode(',', $login['usermail']);
+//         foreach ($mailcimek as $mailcim) {
+//             $mailcim = trim($mailcim);
+//             if( $mailcim ) {
+
+//                 $akt_uzi = str_replace('{NEV}', $login['teljes_nev'], $uzi);
+
+//                 level_kuldes(get_nev(), get_mail(), $login['teljes_nev'], 'bk@webdeb.hu', $targy, $akt_uzi);
+
+//                 echo $mailcim . ' - ' . $login['teljes_nev'] . '<br>';
+//                 echo $akt_uzi . '<br><hr>';
+
+//             }
+//         }
+//     }
+//     exit;
+// }
 
 // if( isset($_GET['varh_ertek_karbantart']) ) {
 //     $szerz_tetelek = $adatbazis_kapcsolat -> s('recid projektszerzodes_recid dev_ertek dev_varh_ert', 'projektszerzodes_tetel', "`dev_ertek`!='0.00'");

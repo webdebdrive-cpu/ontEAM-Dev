@@ -12,15 +12,6 @@ require_once('../weblap.php');
 //    exit;
 //}
 
-if( isset($_GET['dok_atszamol']) ) {
-   $projektek = $adatbazis_kapcsolat->s('recid', 'projektkezeles', "");
-   foreach ( $projektek as $projekt ) {
-       projekt_minositesre_varo_dok_szamol($projekt['recid']);
-   }
-   echo 'f';
-   exit;
-}
-
 // Ha egyik megtekintés joggal sem rendelkezünk
 if( !_jog(JOG_PRKEZEL_MEGTEKINT) && !_jog(JOG_PRKEZEL_SAJAT_MEGTEKINT) && !_jog(JOG_PRKEZEL_TEAM_TAG) && !_jog(JOG_PR_EGYSZALL_MEGTEKINT) && !_jog(JOG_PR_TOBBSZALL_MEGTEKINT) && !_jog(JOG_PR_B_MEGTEKINT) && !_jog(JOG_PR_F_MEGTEKINT) && !_jog(JOG_PR_T_MEGTEKINT) ) {
     if( !$_SESSION[get_db_tabla() . 'user'] ) {
@@ -2637,7 +2628,7 @@ require_once('selectek.php');
             echo $szamla_html;
         }
 
-        if($tobb_kep){
+        if ($tobb_kep) {
 			require_once('tobb_kep.php');
 		}
 

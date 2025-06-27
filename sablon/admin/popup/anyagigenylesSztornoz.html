@@ -74,9 +74,13 @@
                         return false;
                     }
 
-                    /* Ajax lefutott, de a szürkítés vissza kell tenni a reload miatt */
+                    // Ajax lefutott, de a szürkítés vissza kell tenni a reload miatt
                     setTimeout(function(){ szurkit(); }, 100);
-                    location.href='anyagigenyles.php?id='+_get('id')+'&modosit&anyagrend';
+                    // location.href='anyagigenyles.php?id='+_get('id')+'&modosit&anyagrend';
+
+                    // Ne a sztornózott adatlapjra menjünk, mert az úgy sem fog betölteni (alapértelmezetten a legfrissebb anyagrendelések jelennek meg, problémás adott adatlapot betölteni)
+                    location.href='anyagigenyles.php?mezo=stat_id&op=equal&felt=05&tablazat';
+
                 }
             },
             complete: function(xhr) {

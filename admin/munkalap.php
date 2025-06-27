@@ -1634,7 +1634,7 @@ if( isset($_POST['munkalapIgazol']) ) {
 }
 
 
-// Munkalap külsős jóváhagy
+// "Döntés alatt" sátuszban a jóváhagyás gomb
 if( isset($_POST['munkalapKulsosJovahagy']) ) {
     $recid = $_POST['recid'];
 
@@ -1647,6 +1647,11 @@ if( isset($_POST['munkalapKulsosJovahagy']) ) {
         $munkalap = $adatbazis_kapcsolat->s2('stat_id, telephely_id, szallito_id, jh1_login, jh1_szerep, jh2_login, ikt_szam, jh_ert, jh_ert_dev, kcs_21, becs_ertek', 'munkalap', "`recid` = '{$recid}'", '', '1');
         if( $munkalap === false ) { $db_error = true; }
 
+        $tizedesek = 0;
+        if( $munkalap['kcs_21'] != KCS_21_HUF ) {
+            $tizedesek = 2;
+        }
+
         // Státusz ellenőrzése
         if( $munkalap['stat_id'] != MUNKALAP_STAT_DONTESRE_VAR ) {
             echo json_encode(array(
@@ -1658,7 +1663,7 @@ if( isset($_POST['munkalapKulsosJovahagy']) ) {
         }
 
         // Jog ellenőrzése
-        if( !( _jog(JOG_MUNKALAP_KULSOS_DONTES) && $munkalap['jh1_login']!=$_SESSION[get_db_tabla().'user'] && $munkalap['jh2_login']!=$_SESSION[get_db_tabla().'user'] ) ) {
+        if( !( _jog(JOG_MUNKALAP_KULSOS_DONTES) /* 2025.06.02 Már nem kell kettős aláírás. && $munkalap['jh1_login']!=$_SESSION[get_db_tabla().'user'] && $munkalap['jh2_login']!=$_SESSION[get_db_tabla().'user']*/ ) ) {
             echo json_encode(array(
                 'hiba'  => 'Önnek nincs joga a jóváhagyáshoz!',
                 'title' => 'Hiba',
@@ -1690,51 +1695,52 @@ if( isset($_POST['munkalapKulsosJovahagy']) ) {
                                 ');
         }
 
+        // 2025.06.02 Már nincs kettős aláírás, így ezt sem kell figyelni
         // Ha a 2. jóváhagyásnál járunk, akkor azt is ellenőrizni kell, hogy két azonos szerepkörű ne tudja jóváhagyni
         // Sőt, az egyik muszáj, hogy MSZK vezető legyen
-        if( $munkalap['jh1_login'] ) {
-            // MSZK vezető és Szálloda igazgatónak is jóvá kell hagynia
-            if( $munkalap['jh1_szerep'] == $_SESSION[get_db_tabla().'szemelyzet_id'] ) {
-                echo json_encode(array(
-                    'hiba' => nl2('
-                                    Munkalap szám: '.$munkalap['ikt_szam'].'
-                                    <br>Szálloda: '. getErtek('nev', 'telephely', 'id', $munkalap['telephely_id']).'
-                                    <br>Külső kivitelező: '. getErtek('nev', 'szallito', 'id', $munkalap['szallito_id']).'
-                                    <br>Jóváhagyott érték: '. number_format($munkalap['jh_ert_dev'], 0, '', ' ').' '.erteklista(ERTEKLISTA_PENZNEM, $munkalap['kcs_21']).' + Áfa
-                                    <br>Szerepkör: '.getSzerepkorNev($_SESSION[get_db_tabla().'szemelyzet_id']).'
-                                    '.$becs_ertek_text.'
-                                    <br>
-                                    <br>Ezzel a szerepkörrel már jóvá lett hagyva a munkalap!
-                                    '),
-                    'title' => 'Hiba',
-               ));
+        // if( $munkalap['jh1_login'] ) {
+        //     // MSZK vezető és Szálloda igazgatónak is jóvá kell hagynia
+        //     if( $munkalap['jh1_szerep'] == $_SESSION[get_db_tabla().'szemelyzet_id'] ) {
+        //         echo json_encode(array(
+        //             'hiba' => nl2('
+        //                             Munkalap szám: '.$munkalap['ikt_szam'].'
+        //                             <br>Szálloda: '. getErtek('nev', 'telephely', 'id', $munkalap['telephely_id']).'
+        //                             <br>Külső kivitelező: '. getErtek('nev', 'szallito', 'id', $munkalap['szallito_id']).'
+        //                             <br>Jóváhagyott érték: '. number_format($munkalap['jh_ert_dev'], $tizedesek, ',', ' ').' '.erteklista(ERTEKLISTA_PENZNEM, $munkalap['kcs_21']).' + Áfa
+        //                             <br>Szerepkör: '.getSzerepkorNev($_SESSION[get_db_tabla().'szemelyzet_id']).'
+        //                             '.$becs_ertek_text.'
+        //                             <br>
+        //                             <br>Ezzel a szerepkörrel már jóvá lett hagyva a munkalap!
+        //                             '),
+        //             'title' => 'Hiba',
+        //        ));
 
-                $weblap->leallit();
-                exit();
-            }
+        //         $weblap->leallit();
+        //         exit();
+        //     }
 
-            // Fontos, hogy ha már egy jóváhagyás volt, akkor az MSZK vezető legyen, vagy én legyek az.
-            // Tehát ha sem a jóváhagyó sem pedig én nem vagyok MSZ_VEZETO, akkor hiba.
-            if( $munkalap['jh1_szerep'] != MSZK_VEZETO && $_SESSION[get_db_tabla().'szemelyzet_id'] != MSZK_VEZETO ) {
-                echo json_encode(array(
-                    'hiba' => nl2('
-                                    Munkalap szám: '.$munkalap['ikt_szam'].'
-                                    <br>Szálloda: '. getErtek('nev', 'telephely', 'id', $munkalap['telephely_id']).'
-                                    <br>Külső kivitelező: '. getErtek('nev', 'szallito', 'id', $munkalap['szallito_id']).'
-                                    <br>Jóváhagyott érték: '. number_format($munkalap['jh_ert_dev'], 0, '', ' ').' '.erteklista(ERTEKLISTA_PENZNEM, $munkalap['kcs_21']).' + Áfa
-                                    <br>Szerepkör: '.getSzerepkorNev($_SESSION[get_db_tabla().'szemelyzet_id']).'
-                                    <br>
-                                    <br>Az egyik jóváhagyó MSZK vezető kell hogy legyen!
-                                    <br>Mivel Ön nem MSZK vezető, és az első jóváhagyó sem, 
-                                    így nem hagyható jóvá a Munkalap.
-                                    '),
-                    'title' => 'Hiba',
-               ));
+        //     // Fontos, hogy ha már egy jóváhagyás volt, akkor az MSZK vezető legyen, vagy én legyek az.
+        //     // Tehát ha sem a jóváhagyó sem pedig én nem vagyok MSZ_VEZETO, akkor hiba.
+        //     if( $munkalap['jh1_szerep'] != MSZK_VEZETO && $_SESSION[get_db_tabla().'szemelyzet_id'] != MSZK_VEZETO ) {
+        //         echo json_encode(array(
+        //             'hiba' => nl2('
+        //                             Munkalap szám: '.$munkalap['ikt_szam'].'
+        //                             <br>Szálloda: '. getErtek('nev', 'telephely', 'id', $munkalap['telephely_id']).'
+        //                             <br>Külső kivitelező: '. getErtek('nev', 'szallito', 'id', $munkalap['szallito_id']).'
+        //                             <br>Jóváhagyott érték: '. number_format($munkalap['jh_ert_dev'], $tizedesek, ',', ' ').' '.erteklista(ERTEKLISTA_PENZNEM, $munkalap['kcs_21']).' + Áfa
+        //                             <br>Szerepkör: '.getSzerepkorNev($_SESSION[get_db_tabla().'szemelyzet_id']).'
+        //                             <br>
+        //                             <br>Az egyik jóváhagyó MSZK vezető kell hogy legyen!
+        //                             <br>Mivel Ön nem MSZK vezető, és az első jóváhagyó sem, 
+        //                             így nem hagyható jóvá a Munkalap.
+        //                             '),
+        //             'title' => 'Hiba',
+        //        ));
 
-                $weblap->leallit();
-                exit();
-            }
-        }
+        //         $weblap->leallit();
+        //         exit();
+        //     }
+        // }
 
 
         // Előbb csak kérdezünk, viszont az ellenőrzéseket addig is lefuttatjuk, derüljön ki ha baj van még a kérdés előtt!
@@ -1744,7 +1750,7 @@ if( isset($_POST['munkalapKulsosJovahagy']) ) {
                 'hiba' => nl2(' Munkalap szám: '.$munkalap['ikt_szam'].'
                                 <br>Szálloda: '. getErtek('nev', 'telephely', 'id', $munkalap['telephely_id']).'
                                 <br>Külső kivitelező: '. getErtek('nev', 'szallito', 'id', $munkalap['szallito_id']).'
-                                <br>Jóváhagyott érték: '. number_format($munkalap['jh_ert_dev'], 0, '', ' ').' '.erteklista(ERTEKLISTA_PENZNEM, $munkalap['kcs_21']).' + Áfa
+                                <br>Jóváhagyott érték: '. number_format($munkalap['jh_ert_dev'], $tizedesek, ',', ' ').' '.erteklista(ERTEKLISTA_PENZNEM, $munkalap['kcs_21']).' + Áfa
                                 '.$becs_ertek_text.'
                                 <br>
                                 <br>Biztosan jóváhagyja?
@@ -1756,67 +1762,73 @@ if( isset($_POST['munkalapKulsosJovahagy']) ) {
             exit();
         }
 
+        // 2025.06.02 Már nincs kettős jóváhagyás
         // Ha még nincs meg az első jóváhagyó, akkor csak annyit teszünk, hogy rögzítjük az elsőt.
-        $masodik_jovahagyo = '';
-        if( !$munkalap['jh1_login'] ){
+        // $masodik_jovahagyo = '';
+        // if( !$munkalap['jh1_login'] ){
 
-            // JH1 kitöltése
-            $sql = $adatbazis_kapcsolat->u('munkalap',
-                                                    array('jh1_login',                      'jh1_datum', 'jh1_szerep'                               ),
-                                                    array($_SESSION[get_db_tabla().'user'], 'NOW()',     $_SESSION[get_db_tabla().'szemelyzet_id']  ),
-                                                    "`recid`='{$recid}'");
-            if( $sql === false ) { $db_error = true; }
+        //     // JH1 kitöltése
+        //     $sql = $adatbazis_kapcsolat->u('munkalap',
+        //                                             array('jh1_login',                      'jh1_datum', 'jh1_szerep'                               ),
+        //                                             array($_SESSION[get_db_tabla().'user'], 'NOW()',     $_SESSION[get_db_tabla().'szemelyzet_id']  ),
+        //                                             "`recid`='{$recid}'");
+        //     if( $sql === false ) { $db_error = true; }
 
-            // Megjegyzésbe írás
-            if( addMegj('munkalap', $recid, getErtek('nev', 'szallito', 'id', $munkalap['szallito_id']).' jóváhagyva') === false ) {
-                $db_error = true;
-            }
+        //     // Megjegyzésbe írás
+        //     if( addMegj('munkalap', $recid, getErtek('nev', 'szallito', 'id', $munkalap['szallito_id']).' jóváhagyva') === false ) {
+        //         $db_error = true;
+        //     }
 
-        // Ha már a 2. jóváhagyásról van szó, akkor státuszt is léptetünk
-        } else {
+        // // Ha már a 2. jóváhagyásról van szó, akkor státuszt is léptetünk
+        // } else {
 
-            $masodik_jovahagyo = '1';
+        //     $masodik_jovahagyo = '1';
 
-            // JH2 kitöltése
-            $sql = $adatbazis_kapcsolat->u('munkalap',
-                                                    array('jh2_login',                      'jh2_datum', 'jh2_szerep'                               ),
-                                                    array($_SESSION[get_db_tabla().'user'], 'NOW()',     $_SESSION[get_db_tabla().'szemelyzet_id']  ),
-                                                    "`recid`='{$recid}'");
-            if( $sql === false ) { $db_error = true; }
+        //     // JH2 kitöltése
+        //     $sql = $adatbazis_kapcsolat->u('munkalap',
+        //                                             array('jh2_login',                      'jh2_datum', 'jh2_szerep'                               ),
+        //                                             array($_SESSION[get_db_tabla().'user'], 'NOW()',     $_SESSION[get_db_tabla().'szemelyzet_id']  ),
+        //                                             "`recid`='{$recid}'");
+        //     if( $sql === false ) { $db_error = true; }
 
-            // Megjegyzésbe írás
-            if( addMegj('munkalap', $recid, getErtek('nev', 'szallito', 'id', $munkalap['szallito_id']).' jóváhagyva') === false ) {
-                $db_error = true;
-            }
+        //     // Megjegyzésbe írás
+        //     if( addMegj('munkalap', $recid, getErtek('nev', 'szallito', 'id', $munkalap['szallito_id']).' jóváhagyva') === false ) {
+        //         $db_error = true;
+        //     }
 
-            // Státusz léptetés
-            if( !addStatusz( 'munkalap_statusz', $recid, MUNKALAP_STAT_HOZREND_MEGREND_VAR ) ) {
-                $db_error = true;
-            }
+        //     // Státusz léptetés
+        //     if( !addStatusz( 'munkalap_statusz', $recid, MUNKALAP_STAT_HOZREND_MEGREND_VAR ) ) {
+        //         $db_error = true;
+        //     }
 
+        // }
+
+        // Sima státusz léptetés
+        if( !addStatusz( 'munkalap_statusz', $recid, MUNKALAP_STAT_KONTIROZASRA_VAR) ) {
+            $db_error = true;
         }
-
 
         if( !$db_error ) {
             mysqli_commit($db_kapcs);
-            
+          
+            // 2025.06.02 Már nincs kettős jóváhagyás
             // Ha már a 2. jóváhagyóról van szó, akkor levelet is küldünk
-            if( $munkalap['jh1_login'] ){
+            // if( $munkalap['jh1_login'] ){
 
-                $hiba = '';
-                $valasz = level_felkeszit_es_kuld('munkalap', $recid, ERT_MUNK_KK_JH_UTAN, 'munkalapKkJhUtan', '_jog'.JOG_MUNKALAP_KULSOS_MEGREND);
-                if( substr($valasz, 0, 4)=='Hiba' ){
-                    $hiba .= $valasz;
-                }
-                if($hiba){
-                    echo json_encode(array(
-                        'hiba'              => $hiba,
-                        'title'             => 'Hiba',
-                    ));
-                    $weblap->leallit();
-                    exit();
-                }
-            }
+            //     $hiba = '';
+            //     $valasz = level_felkeszit_es_kuld('munkalap', $recid, ERT_MUNK_KK_JH_UTAN, 'munkalapKkJhUtan', '_jog'.JOG_MUNKALAP_KULSOS_MEGREND);
+            //     if( substr($valasz, 0, 4)=='Hiba' ){
+            //         $hiba .= $valasz;
+            //     }
+            //     if($hiba){
+            //         echo json_encode(array(
+            //             'hiba'              => $hiba,
+            //             'title'             => 'Hiba',
+            //         ));
+            //         $weblap->leallit();
+            //         exit();
+            //     }
+            // }
 
             echo json_encode(array(
                 'statusz'           => 'siker',
@@ -1835,13 +1847,108 @@ if( isset($_POST['munkalapKulsosJovahagy']) ) {
     exit();
 }
 
+// "Kontírozásra vár" sátuszban a jóváhagyás gomb
+if( isset($_POST['munkalapKontirJovahagy']) ) {
+    $recid = $_POST['recid'];
+
+    $db_error = false;
+    mysqli_autocommit($db_kapcs, false);
+
+    if( $recid ) {
+
+        // Adatok lekérdezése
+        $munkalap = $adatbazis_kapcsolat->s2('stat_id ikt_szam szallito_id telephely_id jh_ert_dev kcs_21', 'munkalap', "`recid` = '{$recid}'", '', '1');
+        if( $munkalap === false ) { $db_error = true; }
+
+        $tizedesek = 0;
+        if( $munkalap['kcs_21'] != KCS_21_HUF ) {
+            $tizedesek = 2;
+        }
+
+        // Státusz ellenőrzése
+        if( $munkalap['stat_id'] != MUNKALAP_STAT_KONTIROZASRA_VAR ) {
+            echo json_encode(array(
+                'hiba'  => 'Csak kontírozásra váró munkalapot lehet jóváhagyni!',
+                'title' => 'Hiba',
+            ));
+            $weblap->leallit();
+            exit();
+        }
+
+        // Jog ellenőrzése
+        if( !( _jog(JOG_MUNKALAP_MEGR_KONTIROZ) ) ) {
+            echo json_encode(array(
+                'hiba'  => 'Önnek nincs joga a jóváhagyáshoz!',
+                'title' => 'Hiba',
+            ));
+            $weblap->leallit();
+            exit();
+        }
+        
+        // Van-e a ML-nak tétele, azok összege megegyezik-e a ML-éval?
+        $tetelek = $adatbazis_kapcsolat -> s2('SUM(`varh_ert`) AS `ossz`', 'munkalap_megr_tetel', "`munkalap_recid`='{$recid}'");
+        if( $tetelek['ossz'] != $munkalap['jh_ert_dev'] ) {
+            echo json_encode(array(
+                'hiba'  => 'A munkalap megrendelés tételeinek összege nem egyezik meg a jóváhagyott értékkel, így nem hagyjató jóvá!',
+                'title' => 'Hiba',
+            ));
+            $weblap->leallit();
+            exit();
+        }
+
+        // Előbb csak kérdezünk, viszont az ellenőrzéseket addig is lefuttatjuk, derüljön ki ha baj van még a kérdés előtt!
+        if( isset($_POST['csak_kerdezunk']) ) {
+
+            echo json_encode(array(
+                'hiba' => nl2(' Munkalap szám: '.$munkalap['ikt_szam'].'
+                                <br>Szálloda: '. getErtek('nev', 'telephely', 'id', $munkalap['telephely_id']).'
+                                <br>Külső kivitelező: '. getErtek('nev', 'szallito', 'id', $munkalap['szallito_id']).'
+                                <br>Jóváhagyott érték: '. number_format($munkalap['jh_ert_dev'], $tizedesek, ',', ' ').' '.erteklista(ERTEKLISTA_PENZNEM, $munkalap['kcs_21']).' + Áfa
+                                <br>
+                                <br>Biztosan jóváhagyja?
+                               '),
+                'gomb' => '<input class="gomb zold" value="Igen" onclick="szurkit(); munkalapKontirJovahagy();" type="button"><input class="gomb piros" value="Nem" onclick="alert2()" type="button">'
+            ));
+
+            $weblap->leallit();
+            exit();
+        }
+
+        // Sima státusz léptetés
+        if( !addStatusz( 'munkalap_statusz', $recid, MUNKALAP_STAT_HOZREND_MEGREND_VAR) ) {
+            $db_error = true;
+        }
+
+        if( !$db_error ) {
+            mysqli_commit($db_kapcs);
+            echo json_encode(array(
+                'statusz'           => 'siker',
+            ));
+        } else {
+            mysqli_rollback($db_kapcs);
+            echo json_encode(array(
+                'hiba'  => tranzakcioHiba(),
+                'title' => 'Hiba',
+            ));
+        }
+    }
+
+    $weblap->leallit();
+    exit();
+}
+
 // Popup tartalmába kiírjuk a ML adatait
 if( isset($_POST['get_ml_adatok']) ) {
 
     $munkalap = $adatbazis_kapcsolat->s2('ikt_szam telephely_id jh_ert_dev kcs_21 szallito_id becs_ertek jh1_szerep jh2_szerep', 'munkalap', "`recid`='{$_POST['recid']}'");
-    
+
+    $tizedesek = 0;
+    if( $munkalap['kcs_21'] != KCS_21_HUF ) {
+        $tizedesek = 2;
+    }
+
     // Ha adott szerepkörrel már jóváhagyták volna
-    if($munkalap['jh1_szerep']==$_SESSION[get_db_tabla().'szemelyzet_id'] || $munkalap['jh2_szerep']==$_SESSION[get_db_tabla().'szemelyzet_id']){
+    if ($munkalap['jh1_szerep'] == $_SESSION[get_db_tabla().'szemelyzet_id'] || $munkalap['jh2_szerep'] == $_SESSION[get_db_tabla().'szemelyzet_id']) {
         echo json_encode(array(
             'hiba'  => 'Az Ön szerepkörével ezt a munkalapot már elfogadták, így nem utasítható el a külső kivitelező!',
             'title' => 'Hiba',
@@ -1868,7 +1975,7 @@ if( isset($_POST['get_ml_adatok']) ) {
                         Munkalap szám: '.$munkalap['ikt_szam'].'
                         <br>Szálloda: '. getErtek('nev', 'telephely', 'id', $munkalap['telephely_id']).'
                         <br>Külső kivitelező: '.getErtek('nev', 'szallito', 'id', $munkalap['szallito_id']).'
-                        <br>Jóváhagyott érték: '.number_format($munkalap['jh_ert_dev'], 0, '', ' ').' '.erteklista(ERTEKLISTA_PENZNEM, $munkalap['kcs_21']).' + Áfa
+                        <br>Jóváhagyott érték: '.number_format($munkalap['jh_ert_dev'], $tizedesek, ',', ' ').' '.erteklista(ERTEKLISTA_PENZNEM, $munkalap['kcs_21']).' + Áfa
                         '.$becs_ertek_text.'
                     </b>'
                 )
@@ -1893,18 +2000,12 @@ if( isset($_POST['munkalapKulsosElutasit']) ) {
         // Státusz ellenőrzése
         $munkalap = $adatbazis_kapcsolat->s2('stat_id szallito_id jh1_szerep jh2_szerep telephely_id jh_ert_dev kcs_21', 'munkalap', "`recid` = '{$recid}'", '', '1');
         if( $munkalap === false ) { $db_error = true; }
-        if( $munkalap['stat_id'] != MUNKALAP_STAT_DONTESRE_VAR ) {
-            echo json_encode(array(
-                'hiba'  => 'Csak döntés alatti munkalapot lehet elutasítani!',
-                'title' => 'Hiba',
-            ));
-
-            $weblap->leallit();
-            exit();
-        }
-
-        // Jog ellenőrzése
-        if( !_jog(JOG_MUNKALAP_KULSOS_DONTES) ) {
+        // Státusz + jog ellenőrzése
+        if(
+            !($munkalap['stat_id'] == MUNKALAP_STAT_DONTESRE_VAR     && _jog(JOG_MUNKALAP_KULSOS_DONTES)) &&
+            !($munkalap['stat_id'] == MUNKALAP_STAT_KONTIROZASRA_VAR && _jog(JOG_MUNKALAP_MEGR_KONTIROZ)) &&
+            !($munkalap['stat_id'] == MUNKALAP_STAT_MEGR_ALAIR_VAR   && _jog(JOG_MUNKALAP_ELSODL_ALAIR ))
+        ) {
             echo json_encode(array(
                 'hiba'  => 'Önnek nincs joga az elutasításhoz!',
                 'title' => 'Hiba',
@@ -1927,37 +2028,37 @@ if( isset($_POST['munkalapKulsosElutasit']) ) {
         }
         
         // Szerepkör ellenőrzése. Ha azonos a szerepköröm bármelyik jóváhagyóval, akkor hiba
-        if($munkalap['jh1_szerep']==$_SESSION[get_db_tabla().'szemelyzet_id'] || $munkalap['jh1_szerep']==$_SESSION[get_db_tabla().'szemelyzet_id']){
-            echo json_encode(array(
-                'hiba'  => 'Az Ön szerepkörével már jóváhagyták a munkalapot, így elutasítani már nem lehet!',
-                'title' => 'Hiba',
-            ));
+        // if($munkalap['jh1_szerep']==$_SESSION[get_db_tabla().'szemelyzet_id'] || $munkalap['jh2_szerep']==$_SESSION[get_db_tabla().'szemelyzet_id']){
+        //     echo json_encode(array(
+        //         'hiba'  => 'Az Ön szerepkörével már jóváhagyták a munkalapot, így elutasítani már nem lehet!',
+        //         'title' => 'Hiba',
+        //     ));
 
-            $weblap->leallit();
-            exit();
-        }
+        //     $weblap->leallit();
+        //     exit();
+        // }
 
         // Fontos, hogy ha már egy jóváhagyás volt, akkor az MSZK vezető legyen, vagy én legyek az.
         // Tehát ha sem a jóváhagyó sem pedig én nem vagyok MSZ_VEZETO, akkor hiba.
-        if( $munkalap['jh1_szerep'] != MSZK_VEZETO && $_SESSION[get_db_tabla().'szemelyzet_id'] != MSZK_VEZETO ) {
-            echo json_encode(array(
-                'hiba' => nl2('
-                                Munkalap szám: '.$munkalap['ikt_szam'].'
-                                <br>Szálloda: '. getErtek('nev', 'telephely', 'id', $munkalap['telephely_id']).'
-                                <br>Külső kivitelező: '. getErtek('nev', 'szallito', 'id', $munkalap['szallito_id']).'
-                                <br>Jóváhagyott érték: '. number_format($munkalap['jh_ert_dev'], 0, '', ' ').' '.erteklista(ERTEKLISTA_PENZNEM, $munkalap['kcs_21']).' + Áfa
-                                <br>Szerepkör: '.getSzerepkorNev($_SESSION[get_db_tabla().'szemelyzet_id']).'
-                                <br>
-                                <br>Az egyik jóváhagyó MSZK vezető kell hogy legyen!
-                                <br>Mivel Ön nem MSZK vezető, és az első jóváhagyó sem, 
-                                így nem hagyható jóvá a Munkalap.
-                                '),
-                'title' => 'Hiba',
-            ));
+        // if( $munkalap['jh1_szerep'] != MSZK_VEZETO && $_SESSION[get_db_tabla().'szemelyzet_id'] != MSZK_VEZETO ) {
+        //     echo json_encode(array(
+        //         'hiba' => nl2('
+        //                         Munkalap szám: '.$munkalap['ikt_szam'].'
+        //                         <br>Szálloda: '. getErtek('nev', 'telephely', 'id', $munkalap['telephely_id']).'
+        //                         <br>Külső kivitelező: '. getErtek('nev', 'szallito', 'id', $munkalap['szallito_id']).'
+        //                         <br>Jóváhagyott érték: '. number_format($munkalap['jh_ert_dev'], $tizedesek, ',', ' ').' '.erteklista(ERTEKLISTA_PENZNEM, $munkalap['kcs_21']).' + Áfa
+        //                         <br>Szerepkör: '.getSzerepkorNev($_SESSION[get_db_tabla().'szemelyzet_id']).'
+        //                         <br>
+        //                         <br>Az egyik jóváhagyó MSZK vezető kell hogy legyen!
+        //                         <br>Mivel Ön nem MSZK vezető, és az első jóváhagyó sem, 
+        //                         így nem hagyható jóvá a Munkalap.
+        //                         '),
+        //         'title' => 'Hiba',
+        //     ));
 
-            $weblap->leallit();
-            exit();
-        }
+        //     $weblap->leallit();
+        //     exit();
+        // }
 
         // Visszaadva pipa bepipálása, személyzetek és jóváhagyók kiszedése
         $sql = $adatbazis_kapcsolat->u('munkalap',  array('visszaadva', 'szallito_id', 'jh_ert', 'jh_ert_dev', 'kcs_21', 'varh_erk',            'becs_ertek',   'mail_ment', 'direktbe',    'szemelyzet_id',  'jh1_login', 'jh1_datum',             'jh1_szerep', 'update_usr'                          ),
@@ -1971,7 +2072,7 @@ if( isset($_POST['munkalapKulsosElutasit']) ) {
         }
 
         // Megjegyzés hozzáadása
-        if (addMegj('munkalap', $recid, getErtek('nev', 'szallito', 'id', $munkalap['szallito_id']) . ' elutasítva' . "\r\n" . $memo) === false) {
+        if (addMegj('munkalap', $recid, getErtek('nev', 'szallito', 'id', $munkalap['szallito_id']).' elutasítva' . "\r\n" . $memo) === false) {
             $db_error = true;
         }
 
@@ -2557,7 +2658,7 @@ if (isset($_POST['van_alairas'])) {
     exit;
 }
 
-// Munkalap megrendelés készítése. Ez akkor fut le, amikor a 2. aláíró is aláírja
+// Munkalap megrendelés készítése. Ez akkor fut le, amikor a 2. aláíró is aláírja, ekkor készül PDF, meg fenntartási szerződés
 if( isset($_POST['munkalapMegrendelesKeszit']) ) {
     $recid = $_POST['recid'];
 
@@ -2591,7 +2692,7 @@ if( isset($_POST['munkalapMegrendelesKeszit']) ) {
             exit();
         }
 
-        $munkalap = $adatbazis_kapcsolat->s2('stat_id szallito_id ikt_szam text kcs_21 telephely_id kiv_hat jh_ert jh_ert_dev', 'munkalap', "`recid` = '{$recid}'", '', '1');
+        $munkalap = $adatbazis_kapcsolat->s2('stat_id szallito_id ikt_szam text kcs_21 telephely_id kiv_hat jh_ert jh_ert_dev', 'munkalap', "`recid`='{$recid}'", '', '1');
         if( $munkalap === false ) { $db_error = true; }
 
         $mm = $adatbazis_kapcsolat -> s2('szallito megrendelo targy jotallas kapcs_ajanlat kelt', 'munkalap_megrendeles', "`munkalap_recid`='{$recid}'");
@@ -2608,7 +2709,7 @@ if( isset($_POST['munkalapMegrendelesKeszit']) ) {
         }
 
         // Jog ellenőrzés
-        if( !$_POST['PDF_elonezet'] && !_jog(JOG_MUNKALAP_ELSODL_ALAIR) && !_jog(JOG_MUNKALAP_MASODL_ALAIR) ) {
+        if( !$_POST['PDF_elonezet'] && !_jog(JOG_MUNKALAP_ELSODL_ALAIR)/* && !_jog(JOG_MUNKALAP_MASODL_ALAIR)*/ ) {
             echo json_encode(array(
                 'hiba'  => 'Önnek nincs joga megrendelést készíteni!',
                 'title' => 'Hiba',
@@ -2620,24 +2721,45 @@ if( isset($_POST['munkalapMegrendelesKeszit']) ) {
         // A kapott ár a nettó vagy deviza nettó?
         $dev_netto = 0;
         $ar = $netto = str_replace(' ', '', $munkalap['jh_ert']);
+        $tizedesek = 0;
+        $arfolyam  = 0;
         if( $munkalap['kcs_21'] != KCS_21_HUF ) {
-            $netto = 0;
-            $ar = $dev_netto = str_replace(' ', '', $munkalap['jh_ert_dev']);
+            $mnb = $adatbazis_kapcsolat -> s2('arfolyam', 'mnb', "`recid`='{$munkalap['kcs_21']}'");
+            if( $mnb === false ) { $db_error = true; }
+            
+            $tizedesek = 2;
+            $arfolyam  = $mnb['arfolyam'];
+            $ar = $dev_netto = str_replace(array(' ', ','), array('', '.'), $munkalap['jh_ert_dev']);
+            $netto = round($dev_netto * $arfolyam);
         }
 
-        // Ha nem, csak PDF előnézetről van szó, akkor létrehozunk egy új fenntartás szerződést, státusz léptetünk
+        // Ha nem csak PDF előnézetről van szó, akkor létrehozunk egy új fenntartás szerződést, státusz léptetünk
         $szszam = $ft_szerz_id = '';
         if( !$_POST['PDF_elonezet'] ) {
             $sorszam = get_iktatoszam_sorszam('fenntartasi_szerzodes');
             if($sorszam===false){ $db_error = true; }
             $szszam = 'M/'.date('Y').'/'.$sorszam;
-            $ft_szerz_id = $adatbazis_kapcsolat -> i('fenntartasi_szerzodes',   array('szszam', 'mlszam',               'sztipus', 'kelte_dt',      'szallito_id',            'targy',            'kolt_vis',                       'kcs_21',            'netto', 'dev_net',  'hatalyos', 'erv_dt',   'update_usr',                            'insert_dt',    'insert_usr'                           ),
-                                                                                array($szszam,  $munkalap['ikt_szam'],  'em',      date('Y-m-d'),   $munkalap['szallito_id'], $munkalap['text'],  SZAMLA_KOLT_VIS_DANUB_ZRT_RECID,  $munkalap['kcs_21'], $netto,  $dev_netto, '1',        'NOW()',    $_SESSION[get_db_tabla().'teljes_nev'],  'NOW()',         $_SESSION[get_db_tabla().'teljes_nev'])
+            $ft_szerz_id = $adatbazis_kapcsolat -> i('fenntartasi_szerzodes',   array('szszam', 'mlszam',               'sztipus', 'kelte_dt',      'szallito_id',            'targy',            'kolt_vis',                       'kcs_21',            'arfolyam', 'netto', 'dev_net',  'hatalyos', 'erv_dt',   'update_usr',                            'insert_dt',    'insert_usr'                           ),
+                                                                                array($szszam,  $munkalap['ikt_szam'],  'em',      date('Y-m-d'),   $munkalap['szallito_id'], $munkalap['text'],  SZAMLA_KOLT_VIS_DANUB_ZRT_RECID,  $munkalap['kcs_21'], $arfolyam,  $netto,  $dev_netto, '1',        'NOW()',    $_SESSION[get_db_tabla().'teljes_nev'],  'NOW()',         $_SESSION[get_db_tabla().'teljes_nev'])
                                                                             );
             if( $ft_szerz_id === false ) { $db_error = true; }
-            $sql = $adatbazis_kapcsolat -> i('fenntartasi_szerzodes_tetel', array('fenntartasi_szerzodes_recid', 'telephely_id',             'targy',            'varh_erk',            'varh_ert', 'dev_varh_ert', 'update_usr',                            'insert_dt',    'insert_usr'                            ),
-                                                                            array($ft_szerz_id,                   $munkalap['telephely_id'], $munkalap['text'],  $munkalap['kiv_hat'],  $netto,     $dev_netto,      $_SESSION[get_db_tabla().'teljes_nev'],  'NOW()',       $_SESSION[get_db_tabla().'teljes_nev'])
-                                                                        );
+
+            // Tételek átmásolása a fenntartási szerződésekhez
+            $megr_tetelek = $adatbazis_kapcsolat -> s('targy varh_erk varh_ert jogcim_recid jogcim ktghely_id ktghely ktgnem_id ktgnem', 'munkalap_megr_tetel', "`munkalap_recid`='{$recid}'");
+            foreach ($megr_tetelek as $megr_tetel) {
+                $megr_tetel['dev_varh_ert'] = 0;
+                if( $munkalap['kcs_21'] != KCS_21_HUF ) {
+                    $megr_tetel['dev_varh_ert'] = $megr_tetel['varh_ert'];
+                    $megr_tetel['varh_ert'] = round($megr_tetel['varh_ert'] * $arfolyam);
+                }
+                $sql = $adatbazis_kapcsolat -> i('fenntartasi_szerzodes_tetel', array('fenntartasi_szerzodes_recid', 'telephely_id',             'targy',               'varh_erk',               'varh_ert',               'dev_varh_ert',               'jogcim_recid',               'jogcim',              'ktghely_id',              'ktghely',              'ktgnem_id',              'ktgnem',               'update_usr',                            'insert_dt',   'insert_usr'                            ),
+                                                                                array($ft_szerz_id,                   $munkalap['telephely_id'], $megr_tetel['targy'],  $megr_tetel['varh_erk'],  $megr_tetel['varh_ert'],  $megr_tetel['dev_varh_ert'],  $megr_tetel['jogcim_recid'],  $megr_tetel['jogcim'], $megr_tetel['ktghely_id'], $megr_tetel['ktghely'], $megr_tetel['ktgnem_id'], $megr_tetel['ktgnem'],  $_SESSION[get_db_tabla().'teljes_nev'],  'NOW()',       $_SESSION[get_db_tabla().'teljes_nev']  )
+                                                                            );
+            }
+            if( $sql === false ) { $db_error = true; }
+
+            // Majd tételek törlése az átmeneti táblából
+            $sql = $adatbazis_kapcsolat -> d('munkalap_megr_tetel', "`munkalap_recid`='{$recid}'");
             if( $sql === false ) { $db_error = true; }
 
             // Hozzárendelt személyzet: külső kivitelező
@@ -2665,7 +2787,7 @@ if( isset($_POST['munkalapMegrendelesKeszit']) ) {
         $_SESSION['ml_kapcs_ajanlat'        ] = $mm['kapcs_ajanlat'          ];
         $_SESSION['ml_megr_kelt'            ] = $mm['kelt'                   ];
         $_SESSION['ml_megr_kiv_hat'         ] = $munkalap['kiv_hat'          ];
-        $_SESSION['ml_megr_ar'              ] = number_format($ar, 0, '', ' ').' '.erteklista(ERTEKLISTA_PENZNEM, $munkalap['kcs_21']).' + Áfa';
+        $_SESSION['ml_megr_ar'              ] = number_format($ar, $tizedesek, ',', ' ').' '.erteklista(ERTEKLISTA_PENZNEM, $munkalap['kcs_21']).' + Áfa';
         $_SESSION['ml_megr_szallito_txt'    ] = nl2br2($mm['szallito'    ]);
         $_SESSION['ml_megr_megrendelo_txt'  ] = nl2br2($mm['megrendelo'  ]);
 
@@ -2852,7 +2974,8 @@ if (isset($_POST['megrendeles_alair'])) {
             exit();
         }
 
-        if( !_jog(JOG_MUNKALAP_ELSODL_ALAIR) && !_jog(JOG_MUNKALAP_MASODL_ALAIR) ) {
+        // Csak elsődleges aláírás joggal lehet aláírni
+        if( !_jog(JOG_MUNKALAP_ELSODL_ALAIR)/* && !_jog(JOG_MUNKALAP_MASODL_ALAIR)*/ ) {
             echo json_encode(array(
                 'hiba'  => 'Önnek nincs joga munkalapot aláírni!',
                 'title' => 'Hiba',
@@ -2862,34 +2985,43 @@ if (isset($_POST['megrendeles_alair'])) {
             exit();
         }
 
-        // Ha az elsődleges joggal már alá lett írva, akkor hibaüzenet
-        if( _jog(JOG_MUNKALAP_ELSODL_ALAIR) && $munkalap['alair1'] ) {
-            echo json_encode(array(
-                'hiba'  => 'Elsődleges aláíróként már aláírásra került a megrendelés!',
-                'title' => 'Hiba',
-            ));
+        // Ezeket újabban már nem kell firtatni (csak egy tényleges aláíró van)
+        // // Ha az elsődleges joggal már alá lett írva, akkor hibaüzenet
+        // if( _jog(JOG_MUNKALAP_ELSODL_ALAIR) && $munkalap['alair1'] ) {
+        //     echo json_encode(array(
+        //         'hiba'  => 'Elsődleges aláíróként már aláírásra került a megrendelés!',
+        //         'title' => 'Hiba',
+        //     ));
 
-            $weblap->leallit();
-            exit();
-        }
-        if( _jog(JOG_MUNKALAP_MASODL_ALAIR) && $munkalap['alair2'] ) {
-            echo json_encode(array(
-                'hiba'  => 'Másodlagos aláíróként már aláírásra került a megrendelés!',
-                'title' => 'Hiba',
-            ));
+        //     $weblap->leallit();
+        //     exit();
+        // }
+        // if( _jog(JOG_MUNKALAP_MASODL_ALAIR) && $munkalap['alair2'] ) {
+        //     echo json_encode(array(
+        //         'hiba'  => 'Másodlagos aláíróként már aláírásra került a megrendelés!',
+        //         'title' => 'Hiba',
+        //     ));
 
-            $weblap->leallit();
-            exit();
-        }
+        //     $weblap->leallit();
+        //     exit();
+        // }
 
         // Ha minden rendben ment, akkor adott jogosultságtól függően aláírjuk
+        // Újabban csak elősdleges aláírás van már csak
         if( _jog(JOG_MUNKALAP_ELSODL_ALAIR) ) {
-            $sql = $adatbazis_kapcsolat -> u('munkalap', array('alair1'), array($_SESSION[get_db_tabla().'login_recid']), "`recid`='{$recid}'");
+            
+            // Az lesz a másodlagos aláíró, akinél ez a jog be van pipálva. Automatikusan rákerül.
+            $masodlagos = $adatbazis_kapcsolat -> s2('recid', 'login', "substr(`flags`, ".(JOG_MUNKALAP_MASODL_ALAIR+1).", 1)=1 AND `aktiv`=1 AND `virtual`=0");
+            if( $masodlagos === false ) { $db_error = true; }
+            $sql = $adatbazis_kapcsolat -> u('munkalap',    array('alair1',                                 'alair2'            ),
+                                                            array($_SESSION[get_db_tabla().'login_recid'],  $masodlagos['recid']),
+                                                        "`recid`='{$recid}'");
             if( $sql === false ) { $db_error = true; }
-        } else if( _jog(JOG_MUNKALAP_MASODL_ALAIR) ) {
-            $sql = $adatbazis_kapcsolat -> u('munkalap', array('alair2'), array($_SESSION[get_db_tabla().'login_recid']), "`recid`='{$recid}'");
-            if( $sql === false ) { $db_error = true; }
-        }
+        } 
+        // else if( _jog(JOG_MUNKALAP_MASODL_ALAIR) ) {
+        //     $sql = $adatbazis_kapcsolat -> u('munkalap', array('alair2'), array($_SESSION[get_db_tabla().'login_recid']), "`recid`='{$recid}'");
+        //     if( $sql === false ) { $db_error = true; }
+        // }
 
         // Megjegyzésben logoljuk
         $memo = 'A megrendelés "'.$_SESSION[get_db_tabla().'teljes_nev'].'" felhasználó által aláírva.';
@@ -2898,12 +3030,14 @@ if (isset($_POST['megrendeles_alair'])) {
         }
 
         // Ha már mindketten aláírták volna, akkor ezt jelezzük a válaszban
-        $alairva = 0;
-        $munkalap = $adatbazis_kapcsolat->s2('alair1 alair2', 'munkalap', "`recid`='{$recid}'");
-        if( $munkalap === false ) { $db_error = true; }
-        if( $munkalap['alair1'] && $munkalap['alair2'] ) {
-            $alairva = 1;
-        }
+        // $alairva = 0;
+        // $munkalap = $adatbazis_kapcsolat->s2('alair1 alair2', 'munkalap', "`recid`='{$recid}'");
+        // if( $munkalap === false ) { $db_error = true; }
+        // if( $munkalap['alair1'] && $munkalap['alair2'] ) {
+        //     $alairva = 1;
+        // }
+        // Már egy aláírással is aláírtnak fog számítani
+        $alairva = 1;
         
         if( !$db_error ) {
             mysqli_commit($db_kapcs);
@@ -2938,9 +3072,9 @@ if (isset($_POST['munkalapVisszaUi'])) {
 
     if( $munkalap ) {
 
-        if( $munkalap['stat_id'] != MUNKALAP_STAT_MEGR_ALAIR_VAR) {
+        if( $munkalap['stat_id'] != MUNKALAP_STAT_MEGR_ALAIR_VAR ||  $munkalap['stat_id'] != MUNKALAP_STAT_MEGR_ALAIR_VAR) {
             echo json_encode(array(
-                'hiba'  => 'Csak "Megr. aláírásra vár" státuszban lehet csak visszaküldeni a munkalapot!',
+                'hiba'  => 'Ebben a státuszban nem lehet visszaküldeni a munkalapot!',
                 'title' => 'Hiba',
             ));
 
@@ -2948,7 +3082,10 @@ if (isset($_POST['munkalapVisszaUi'])) {
             exit();
         }
 
-        if( !_jog(JOG_MUNKALAP_ELSODL_ALAIR) && !_jog(JOG_MUNKALAP_MASODL_ALAIR) ) {
+        if(
+            !($munkalap['stat_id'] == JOG_MUNKALAP_ELSODL_ALAIR     && _jog(JOG_MUNKALAP_MASODL_ALAIR)) &&
+            !($munkalap['stat_id'] == MUNKALAP_STAT_MEGR_ALAIR_VAR   && _jog(JOG_MUNKALAP_ELSODL_ALAIR ))
+        ) {
             echo json_encode(array(
                 'hiba'  => 'Önnek nincs joga munkalapot visszaküldeni!',
                 'title' => 'Hiba',
@@ -2961,22 +3098,22 @@ if (isset($_POST['munkalapVisszaUi'])) {
         // Ha az elsődleges joggal már alá lett írva, akkor hibaüzenet
         if( _jog(JOG_MUNKALAP_ELSODL_ALAIR) && $munkalap['alair1'] ) {
             echo json_encode(array(
-                'hiba'  => 'Elsődleges aláíróként már aláírásra került a megrendelés, így nem küldhető vissza ügyintézőnek!',
+                'hiba'  => 'Már aláírásra került a megrendelés, így nem küldhető vissza ügyintézőnek!',
                 'title' => 'Hiba',
             ));
 
             $weblap->leallit();
             exit();
         }
-        if( _jog(JOG_MUNKALAP_MASODL_ALAIR) && $munkalap['alair2'] ) {
-            echo json_encode(array(
-                'hiba'  => 'Másodlagos aláíróként már aláírásra került a megrendelés, így nem küldhető vissza ügyintézőnek!',
-                'title' => 'Hiba',
-            ));
+        // if( _jog(JOG_MUNKALAP_MASODL_ALAIR) && $munkalap['alair2'] ) {
+        //     echo json_encode(array(
+        //         'hiba'  => 'Másodlagos aláíróként már aláírásra került a megrendelés, így nem küldhető vissza ügyintézőnek!',
+        //         'title' => 'Hiba',
+        //     ));
 
-            $weblap->leallit();
-            exit();
-        }
+        //     $weblap->leallit();
+        //     exit();
+        // }
 
         if( !$_POST['memo'] ) {
             echo json_encode(array(
@@ -3177,8 +3314,8 @@ if( isset($_POST['kulsokivHozzarend']) ) {
             $mnb['arfolyam'] = 1;
         }
 
-        $jh_ert_dev         = (int) str_replace(array(' '), array(''), $_POST['jh_ert']);
-        $jh_ert             = round($jh_ert_dev*$mnb['arfolyam']);
+        $jh_ert_dev = str_replace(array(' ', ','), array('', '.'), $_POST['jh_ert']);
+        $jh_ert     = round($jh_ert_dev*$mnb['arfolyam']);
 
         // Kiv. határidő kötelező mező
         if( !$_POST['kiv_hat'] || $_POST['kiv_hat'] > URES_DATUM_JSBOL_PHP_ALATT ) {
@@ -3210,11 +3347,16 @@ if( isset($_POST['kulsokivHozzarend']) ) {
             $szallitoid = '';
         }
         
-        $munkalap = $sor = $adatbazis_kapcsolat->s2('stat_id szemelyzet_id telephely_id szallito_id text', 'munkalap', "`recid` = '{$recid}'", '', '1');
+        $munkalap = $sor = $adatbazis_kapcsolat->s2('stat_id szemelyzet_id telephely_id szallito_id text kcs_21', 'munkalap', "`recid`='{$recid}'", '', '1');
         if( $munkalap === false ) { $db_error = true; }
 
         $telephely = $adatbazis_kapcsolat->s2('modell', 'telephely', "`id`='{$munkalap['telephely_id']}'");
         if( $telephely === false ) { $db_error = true; }
+
+        $tizedesek = 0;
+        if( $munkalap['kcs_21'] != KCS_21_HUF ) {
+            $tizedesek = 2;
+        }
 
         // Státusz ellenőrzése
         if( $munkalap['stat_id'] != MUNKALAP_STAT_ELOKESZITES_ALATT && $munkalap['stat_id'] != MUNKALAP_STAT_HOZZARENDELT ) {
@@ -3468,7 +3610,7 @@ if( isset($_POST['kulsokivHozzarend']) ) {
             }
             
             // Megjegyzés hozzáadása
-            $megj = $megj_eleje.'<br>Érték: '. number_format($jh_ert_dev, 0, '', ' ').' '.erteklista(ERTEKLISTA_PENZNEM, $_POST['kcs_21']).$megj_kieg.'<br>Érkezés: '.str_replace('-', '.', $varh_erk).'<br>'.$emailkuldes_megj;
+            $megj = $megj_eleje.'<br>Érték: '. number_format($jh_ert_dev, $tizedesek, ',', ' ').' '.erteklista(ERTEKLISTA_PENZNEM, $_POST['kcs_21']).$megj_kieg.'<br>Érkezés: '.str_replace('-', '.', $varh_erk).'<br>'.$emailkuldes_megj;
             if(addMegj('munkalap', $recid, $megj)===false){
                 $db_error = true;
             }
@@ -3540,8 +3682,13 @@ if( isset($_POST['get_jh_ertek']) ) {
 
     $munkalap = $adatbazis_kapcsolat->s2('jh_ert_dev kcs_21', 'munkalap', "`recid`='{$_POST['recid']}'");
 
+    $tizedesek = 0;
+    if( $munkalap['kcs_21'] != KCS_21_HUF ) {
+        $tizedesek = 2;
+    }
+
     echo json_encode(array(
-        'ertek'      => number_format($munkalap['jh_ert_dev'], 0, '', ' '),
+        'ertek'      => number_format($munkalap['jh_ert_dev'], $tizedesek, ',', ' '),
         'kcs_21_txt' => erteklista(ERTEKLISTA_PENZNEM, $munkalap['kcs_21']),
         'kcs_21'     => $munkalap['kcs_21'],
     ));
@@ -3600,7 +3747,11 @@ if( isset($_POST['munkalapJovahagyottErtekModositasa']) ) {
     }
     
     // Valójában devizát kapjuk a jh_ert-ben, és azt szorozzuk az áfolyammal
+    $tizedesek = 0;
     if( $_POST['kcs_21'] != KCS_21_HUF ) {
+
+        $tizedesek = 2;
+
         $deviza = erteklista(ERTEKLISTA_PENZNEM, $_POST['kcs_21']);
         $mnb = $adatbazis_kapcsolat -> s2('arfolyam', 'mnb', "`deviza`='{$deviza}'");
         if( $mnb === false ) { $db_error = true; }
@@ -3631,7 +3782,7 @@ if( isset($_POST['munkalapJovahagyottErtekModositasa']) ) {
     if( $sql === false ) { $db_error = true; }
 
     // Megjegyzés sor is bővül
-    if( addMegj('munkalap', $_POST['recid'], 'Jóváhagyásra váró érték módosítva: '.number_format($jh_ert_dev, 0, '', ' ') . ' '.erteklista(ERTEKLISTA_PENZNEM, $_POST['kcs_21'])) === false ) {
+    if( addMegj('munkalap', $_POST['recid'], 'Jóváhagyásra váró érték módosítva: '.number_format($jh_ert_dev, $tizedesek, ',', ' ') . ' '.erteklista(ERTEKLISTA_PENZNEM, $_POST['kcs_21'])) === false ) {
         $db_error = true;
     }
     
@@ -8086,6 +8237,243 @@ if( isset($_POST['megr_sztorno_mail_elkuldve']) ) {
     exit();
 }
 
+// Tétel sorok kiíratása
+if( isset($_POST['pop_tetelek_feltolt']) ) {
+    
+    $fej_id = $_POST['id'];
+
+    $munkalap = $adatbazis_kapcsolat->s2('kcs_21', 'munkalap', "`recid`='{$fej_id}'");
+    $tizedesek = 0;
+    if( $munkalap['kcs_21'] != KCS_21_HUF ) {
+        $tizedesek = 2;
+    }
+    
+    // Tételek táblázat sorait kiszámoljuk:
+    $tetelek_html = '';
+    $i            = 0;
+    foreach( $_SESSION['munkalap_megr_tetel_varh_ert'][$fej_id] as $jh_ert ) {
+        
+        $szla_netto_ert = $_SESSION['munkalap_megr_tetel_varh_ert'][$fej_id][$i];
+        
+        // Minden sornak adunk egy azonosítót. Mivel lehet csak egy ideiglenes sorról van szó, nem mindig van recid-nk, ezért időbélyeges azonosítót hozunk létre, megtoldva egy $i-vel.
+        if( !$_SESSION['munkalap_megr_tetel_recid'][$fej_id][$i] ) {
+            $_SESSION['munkalap_megr_tetel_recid' ][$fej_id][$i] = time().rand(0, 1000);
+        }
+
+        $jogcim = $adatbazis_kapcsolat->s2('jogcim ktghely megn szla_szam', 'jogcim', "`recid`='{$_SESSION['munkalap_megr_tetel_jogcim'][$fej_id][$i]}'");
+        
+        // Van-e már számlával összeköttetés
+        $torol = '
+                <a onclick="popup_tetel_sor_torol(\'pop_tetel_'.$_SESSION['munkalap_megr_tetel_recid'][$fej_id][$i].'\');">
+                    <span class="icon">
+                        <i class="material-icons">
+                            delete
+                        </i>
+                    </span>
+                </a>
+                ';
+        if( $_POST['nincs_torles'] ) {
+            $torol = '';
+        }
+        
+        $tetelek_html .= nl2('
+                        <tr class="pop_tetel_'.$_SESSION['munkalap_megr_tetel_recid'][$fej_id][$i].'">
+                            <td class="pop_targy l">'.$_SESSION['munkalap_megr_tetel_targy'][$fej_id][$i].'</td>
+                            <td class="pop_varh_erk l">'.datum_kiir($_SESSION['munkalap_megr_tetel_varh_erk'][$fej_id][$i]).'</td>
+                            <td class="pop_varh_ert r">'.number_format(str_replace(array(',', ' '), array('.', ''), $_SESSION['munkalap_megr_tetel_varh_ert'][$fej_id][$i]), $tizedesek, ',', ' ').'</td>
+                            <td class="pop_jogcim_autocomp l">' .$jogcim['jogcim'   ].'</td>
+                            <td class="pop_ktgnem_autocomp l">' .$jogcim['megn'     ].'</td>
+                            <td class="pop_ktghely_autocomp l">'.$jogcim['ktghely'  ].'</td>
+                            ').
+                            /*<td>
+                                <a class="szerk" onclick="popup_tetel_sor_szerk(\'pop_tetel_'.$_SESSION['munkalap_megr_tetel_recid'][$fej_id][$i].'\');">
+                                    🖉
+                                </a>
+                            </td>*/
+                            nl2('<td>
+                                '.$torol.'
+                                <input type="hidden" class="pop_jogcim" name="jogcim" value="'.$_SESSION['munkalap_megr_tetel_jogcim'][$fej_id][$i].'">
+                                <input type="hidden" class="pop_recid" name="recid" value="'.$_SESSION['munkalap_megr_tetel_recid'][$fej_id][$i].'">
+                            </td>
+                        </tr>');
+        $i++;
+    }
+
+
+   
+    echo json_encode( array(
+        'html' => $tetelek_html,
+    ) );
+    
+    $weblap -> leallit();
+    exit();
+}
+
+// Tételek mentése
+if( isset($_POST['tetel_sorok_ment']) ) {
+    
+    $db_error = false;
+    mysqli_autocommit($db_kapcs, false);
+    
+    if( $_POST['recid'] == 'false' ) {
+        $_POST['recid'] = '';
+    }
+    $recid              = $_POST['recid'];
+    $jh_ert_dev         = str_replace(array(' ', ','), array('', '.'), $_POST['jh_ert_dev']);
+    $_POST['adatok']    = json_decode( $_POST['adatok'] );
+
+    $munkalap = $adatbazis_kapcsolat->s2('kcs_21', 'munkalap', "`recid`='{$recid}'");
+
+    // Kapott tömb indexeit cseréljük beszédesebb változókra
+    $recid_adat     = 0;
+    $targy_adat     = 1;
+    $varh_erk_adat  = 2;
+    $varh_ert_adat  = 3;
+    $jogcim_adat    = 4;
+    
+    $tetelek_osszege = '';
+    $i = 0;
+    foreach ( $_POST['adatok'][$varh_ert_adat][1] as $ertek ) {
+        $_POST['adatok'][$varh_ert_adat][1][$i] = str_replace(array(' ', ','), array('', '.'), $ertek);
+        $tetelek_osszege += $_POST['adatok'][$varh_ert_adat][1][$i];
+        $i++;
+    }
+    
+    // Deviza esetén tört számokkal is számolunk
+    $penznem   = get_penznem();
+    $tizedesek = 0;
+    if( $munkalap['kcs_21']!=KCS_21_HUF ) {
+        $tizedesek  = 2;
+    }
+    $kerekit = KEREKITESI_HATAR_HUF;
+    
+    // Ha nincs egy sornyi tételünk sem, akkor hibaüzenet
+    if( !$_POST['adatok'][$varh_erk_adat][1] ) {
+        echo json_encode( array( 
+                        'hiba'  => 'Legalább egy tételnek szerepelnie kell a táblázatban, üresen nem menthető!',
+                        'title' => 'Hiba'
+                        ) );
+                $weblap->leallit();
+                exit();
+                
+    // Ha a szerződés nettó értéke nem egyenlő a tételek összegével, akkor hibaüzenet
+    } elseif( !$szerzodes['nullas'] && abs($tetelek_osszege - $jh_ert_dev) > 0/* $kerekit nem engedünk meg 1 Ft eltérést sem  */ ) {
+        echo json_encode( array( 
+                        'hiba'  => 'A tételek összege ('. number_format($tetelek_osszege, $tizedesek, ',', ' ').' '.$penznem.') nem egyezik meg a munkalap jóváhagyott értékével ('.number_format($jh_ert_dev, $tizedesek, ',', ' ').' '.$penznem.')!<br>Így nem menthető!',
+                        'title' => 'Hiba'
+                        ) );
+                $weblap->leallit();
+                exit();
+                
+    // Tételek kimentése Session-be
+    } else {
+        
+        // Ha nem ismert a recid, a $fej_id legyen "uj"
+        $fej_id = $recid;
+        if( !$recid ) {
+            $fej_id = 'uj';
+        }
+        
+        $_SESSION['munkalap_megr_tetel_recid'    ][$fej_id] = $_POST['adatok'][$recid_adat    ][1];
+        $_SESSION['munkalap_megr_tetel_targy'    ][$fej_id] = $_POST['adatok'][$targy_adat    ][1];
+        $_SESSION['munkalap_megr_tetel_varh_erk' ][$fej_id] = $_POST['adatok'][$varh_erk_adat ][1];
+        $_SESSION['munkalap_megr_tetel_varh_ert' ][$fej_id] = $_POST['adatok'][$varh_ert_adat ][1];
+        $_SESSION['munkalap_megr_tetel_jogcim'   ][$fej_id] = $_POST['adatok'][$jogcim_adat   ][1];
+    }
+
+    // Adatbázisba mentést csak akkor csinálnuk, ha már meglevő munkalapot szerkesztünk
+    if( $recid ) {
+        
+        $i = 0;
+        foreach ($_POST['adatok'][$varh_ert_adat][1] as $varh_ert) {
+
+            $targy      = $_POST['adatok'][$targy_adat      ][1][$i];
+            $varh_erk   = $_POST['adatok'][$varh_erk_adat   ][1][$i];
+            $varh_ert   = $_POST['adatok'][$varh_ert_adat   ][1][$i];
+            $jogcim     = $_POST['adatok'][$jogcim_adat     ][1][$i];
+
+            $jogcim = $adatbazis_kapcsolat->s2('recid jogcim uzemresz megn szla_szam ktghely ktghely_id', 'jogcim', "`recid`='{$jogcim}'");
+
+            // Ha ismerjük a tétel recid-ját, akkor update
+            if( $_POST['adatok'][$recid_adat][1][$i] ) {
+                
+                $mezok      = array('targy',  'varh_erk', 'varh_ert', 'jogcim_recid',   'jogcim',            'ktgnem_id',           'ktgnem',        'ktghely_id',           'ktghely'          );
+                $ertekek    = array($targy,   $varh_erk,  $varh_ert,  $jogcim['recid'],  $jogcim['jogcim'],  $jogcim['szla_szam'],  $jogcim['megn'], $jogcim['ktghely_id'],  $jogcim['ktghely'] );
+                
+                $sql = $adatbazis_kapcsolat->u('munkalap_megr_tetel', $mezok, $ertekek, "`recid`='{$_POST['adatok'][$recid_adat][1][$i]}'");
+                if( $sql === false ) { $db_error = true; }
+                
+            // Egyébként insert
+            } else {
+                $mezok      = array('munkalap_recid', 'rownum', 'targy',  'varh_erk', 'varh_ert', 'jogcim_recid',    'jogcim',           'ktgnem_id',           'ktgnem',        'ktghely_id',           'ktghely',           'loginnev',                         'insert_dt',    'insert_usr',                             'update_usr'                          );
+                $ertekek    = array($recid,           $rownum,  $targy,   $varh_erk,  $varh_ert,  $jogcim['recid'],  $jogcim['jogcim'],  $jogcim['szla_szam'],  $jogcim['megn'], $jogcim['ktghely_id'],  $jogcim['ktghely'],  $_SESSION[get_db_tabla().'user'],   'NOW()',        $_SESSION[get_db_tabla().'teljes_nev'],   $_SESSION[get_db_tabla().'teljes_nev']);
+
+                $fej_id = $recid;
+                $rownum = $adatbazis_kapcsolat->s2('MAX(`rownum`)', 'munkalap_megr_tetel', "`munkalap_recid`='{$recid}'");
+                $rownum = $rownum['MAX(`rownum`)']+1;
+                $uj_id = $adatbazis_kapcsolat->i('munkalap_megr_tetel', $mezok, $ertekek);
+                if( $sql === false ) { $db_error = true; }
+                $_SESSION['munkalap_megr_tetel_recid'][$fej_id][$i] = $uj_id;
+            }
+
+            $i++;
+        }
+        
+        // Ha kell a törölt sorok törlése adatbázisból is
+        $_POST['torolt_sorok'] = trim($_POST['torolt_sorok'], 'pop_tetel_');
+        $torlendo_idk = explode('pop_tetel_', $_POST['torolt_sorok']);
+        if( count($torlendo_idk) ) {
+            $sql = $adatbazis_kapcsolat->d('munkalap_megr_tetel', "`recid` IN ('". implode('\', \'', $torlendo_idk)."')");
+            if( $sql === false ) { $db_error = true; }
+        }
+    }
+
+    if( !$db_error ) {
+        mysqli_commit($db_kapcs);
+        echo json_encode( array('siker' => 1, 'tetelek_osszege' => number_format($tetelek_osszege, $tizedesek, ',', ' ')) );
+    } else {
+        mysqli_rollback($db_kapcs);
+        echo json_encode(array(
+            'hiba'  => tranzakcioHiba(),
+            'title' => 'Hiba'
+        ));
+    }
+    
+    $weblap -> leallit();
+    exit();
+}
+
+// Jogcím autocomplete alapján a költségnem és hely feltöltése
+if( isset($_POST['ktgnem_ktghely_kitolt']) ) {
+    
+    $db_error = false;
+    mysqli_autocommit($db_kapcs, false);
+    
+    $jogcim  = $adatbazis_kapcsolat->s2('szla_szam ktghely ktghely_id megn', 'jogcim', "`recid`='{$_POST['jogcim_recid']}'");
+    if( $jogcim === false ) { $db_error = true; }
+    
+    if( !$db_error ) {
+        mysqli_commit($db_kapcs);
+
+        echo json_encode(array(
+            'ktgnem_id' => $jogcim['szla_szam'],
+            'ktghely_id'=> $jogcim['ktghely_id'],
+            'ktgnem'    => $jogcim['megn'],
+            'ktghely'   => $jogcim['ktghely'],
+        ));
+    } else {
+        mysqli_rollback($db_kapcs);
+
+        echo json_encode(array(
+            'hiba'  => tranzakcioHiba(),
+            'title' => 'Hiba'
+        ));
+    }
+    
+    $weblap->leallit();
+    exit();
+}
+
 // CSV generálása
 if( isset($_GET['csv']) ) {
 
@@ -8500,6 +8888,43 @@ if( isset($_GET['modosit']) || isset($_GET['tortenet']) || isset($_GET['naptar']
     );
 }
 
+$tetelek = $adatbazis_kapcsolat->s('*', 'munkalap_megr_tetel', "`munkalap_recid`='{$_GET['id']}'", 'insert_dt');
+
+// Műveletek box
+$tizedesek = 0;
+$vesszo    = '';
+if( $sor['kcs_21'] != KCS_21_HUF ) {
+    $tizedesek = 2;
+    $vesszo    = '.';
+}
+
+$i = 0;
+$ossz_netto   = 0;
+$ossz_dev_net = 0;
+$fej_id       = $_GET['id'];
+$_SESSION['munkalap_megr_tetel_recid'         ][$fej_id] =
+$_SESSION['munkalap_megr_tetel_targy'         ][$fej_id] =
+$_SESSION['munkalap_megr_tetel_varh_erk'      ][$fej_id] =
+$_SESSION['munkalap_megr_tetel_varh_ert'      ][$fej_id] =
+$_SESSION['munkalap_megr_tetel_jogcim'        ][$fej_id] =
+$_SESSION['munkalap_megr_tetel_kgtnem'        ][$fej_id] =
+$_SESSION['munkalap_megr_tetel_kgthely'       ][$fej_id] =
+                                                        array();
+foreach ( $tetelek as $tetel ) {
+    $ossz_netto   += $tetel['netto_ert'];
+    $ossz_dev_net += $tetel['dev_net'];
+    $_SESSION['munkalap_megr_tetel_recid'         ][$fej_id][$i] = $tetel['recid'];
+    $_SESSION['munkalap_megr_tetel_targy'         ][$fej_id][$i] = $tetel['targy'];
+    $_SESSION['munkalap_megr_tetel_varh_erk'      ][$fej_id][$i] = str_replace('-', '.', $tetel['varh_erk']);
+    $_SESSION['munkalap_megr_tetel_varh_ert'      ][$fej_id][$i] = number_format($tetel['varh_ert'], $tizedesek, ',', ' ');
+    $_SESSION['munkalap_megr_tetel_dev_net'       ][$fej_id][$i] = number_format($tetel['dev_net'],  2, ',', ' ');
+    $_SESSION['munkalap_megr_tetel_jogcim'        ][$fej_id][$i] = $tetel['jogcim_recid'];
+    $_SESSION['munkalap_megr_tetel_kgtnem'        ][$fej_id][$i] = $tetel['kgtnem_id'];
+    $_SESSION['munkalap_megr_tetel_kgthely'       ][$fej_id][$i] = $tetel['kgthely_id'];
+
+    $i++;
+}
+
 // Hibaüzeneteknek készítünk két hidden inputot, ami midnig elérhető lesz
 $szamla_html .= '<div class="dn" id="ikt_szam_hibauzibe">'.$sor['ikt_szam'].'</div>';
 $szamla_html .= '<div class="dn" id="telephely_hibauzibe">'. getErtek('nev', 'telephely', 'id', $sor['telephely_id']).'</div>';
@@ -8544,7 +8969,7 @@ if( isset($_GET['uj']) ) {
 // Módosítás
 } else {
 
-    $telephely  = $adatbazis_kapcsolat -> s2('nev modell', 'telephely', "`id`='{$sor['telephely_id']}'");
+    $telephely = $adatbazis_kapcsolat -> s2('nev modell', 'telephely', "`id`='{$sor['telephely_id']}'");
 
     // Kezelés jog
     $kezeles_jog = get_kezeles_jog($sor['szemelyzet_id']);
@@ -8741,10 +9166,11 @@ if( isset($_GET['uj']) ) {
             ( $sor['stat_id']==MUNKALAP_STAT_HOZZARENDELT && $sor['szemelyzet_id']==KULSO_KIVITELEZO && ( _jog(JOG_MUNKALAP_KEZEL_KULSO) || ( _jog(JOG_MUNKALAP_SAJAT_KEZEL) && $_SESSION[get_db_tabla().'szemelyzet_id']==KULSO_KIVITELEZO ) )  )
         ){
         $gombok .= '<input type="button" class="gomb modositaskor_rejt" value="Javaslattétel" onclick="csoportMuvelet(\'kulsokivHozzarend\');"> ';
+
     }
 
     // Külső kivitelező hozzáadása
-    if( $sor['stat_id'] == MUNKALAP_STAT_ELOKESZITES_ALATT && $_SESSION[get_db_tabla() . 'szemelyzet_id'] == MUSZAKI_VEZETO && $sor['szemelyzet_id'] == MUSZAKI_VEZETO && !$telephely['modell'] /* Egyszállodás */ ) {
+    if( $sor['stat_id'] == MUNKALAP_STAT_ELOKESZITES_ALATT && $_SESSION[get_db_tabla().'szemelyzet_id'] == MUSZAKI_VEZETO && $sor['szemelyzet_id'] == MUSZAKI_VEZETO && !$telephely['modell'] /* Egyszállodás */ ) {
         $gombok .= '<input type="button" class="gomb modositaskor_rejt" value="Külső kivitelező hozzárendelése" onclick="csoportMuvelet(\'kulsokivHozzarend2\');"> ';
     }
 
@@ -8936,8 +9362,8 @@ if( isset($_GET['uj']) ) {
     if( isset($_GET['teszt']) ) {
         $_SESSION[get_db_tabla().'szemelyzet_id'] = 1;
     }
-    // "Döntés alatt" státusz +                          döntés jog +                        nem lehetek olyan szerepkörű, akinek már van jóváhagyása
-    if( $sor['stat_id'] == MUNKALAP_STAT_DONTESRE_VAR && _jog(JOG_MUNKALAP_KULSOS_DONTES) && $sor['jh1_szerep'] != $_SESSION[get_db_tabla().'szemelyzet_id'] && $sor['jh2_szerep'] != $_SESSION[get_db_tabla().'szemelyzet_id'] ) {
+    // "Döntés alatt" státusz +                          döntés jog +                      2025.06.02 Ez újabban már nem feltétel: nem lehetek olyan szerepkörű, akinek már van jóváhagyása
+    if( $sor['stat_id'] == MUNKALAP_STAT_DONTESRE_VAR && _jog(JOG_MUNKALAP_KULSOS_DONTES) /*&& $sor['jh1_szerep'] != $_SESSION[get_db_tabla().'szemelyzet_id'] && $sor['jh2_szerep'] != $_SESSION[get_db_tabla().'szemelyzet_id'] */) {
         // Illetve a limitünk legyen magasabb mint a ML jóváhagyott értéke
         $login = $adatbazis_kapcsolat->s2('jh_ft_ig', 'login', "`recid`='{$_SESSION[get_db_tabla().'login_recid']}'");
         if( $sor['jh_ert'] < $login['jh_ft_ig'] ) {
@@ -8945,11 +9371,19 @@ if( isset($_GET['uj']) ) {
             // Ha az első szerepkör még nincs kitöltve (azaz még nincs félig sem jóváhagyva)
             // Vagy ha igen, akkor azt egy MSZK vezető szerepkörű hagyta jóvá
             // Vagy ha nem, akkor én MSZ vezető vagyok... na ekkor jelenhet csak meg a gomb
-            if( !$sor['jh1_szerep'] || $sor['jh1_szerep'] == MSZK_VEZETO || $_SESSION[get_db_tabla().'szemelyzet_id'] == MSZK_VEZETO ) {
+            // 2025.06.02 Ez újabban már nem feltétel, csak a státusz + jog + a jh_ert számít.
+            // if( !$sor['jh1_szerep'] || $sor['jh1_szerep'] == MSZK_VEZETO || $_SESSION[get_db_tabla().'szemelyzet_id'] == MSZK_VEZETO ) {
                 $gombok .= '<input type="button" class="gomb modositaskor_rejt" value="Külsős jóváhagyása" onclick="munkalapKulsosJovahagy(\'csak kérdezünk még\');"> ';
                 $gombok .= '<input type="button" class="gomb modositaskor_rejt" value="Külsős elutasítása" onclick="csoportMuvelet(\'munkalapKulsosElutasit\')"> ';
-            }
+            // }
         }
+    }
+
+    // Kontírozásra vár státusz alatt
+    if( $sor['stat_id'] == MUNKALAP_STAT_KONTIROZASRA_VAR && _jog(JOG_MUNKALAP_MEGR_KONTIROZ) ) {
+        $gombok .= '<input type="button" class="gomb modositaskor_rejt" value="Kontírozás" onclick="csoportMuvelet(\'megrendeles_kontirozasa\');"> ';
+        $gombok .= '<input type="button" class="gomb modositaskor_rejt" value="Jóváhagyás" onclick="munkalapKontirJovahagy(\'csak kérdezünk még\');"> ';
+        $gombok .= '<input type="button" class="gomb modositaskor_rejt" value="Elutasítás" onclick="csoportMuvelet(\'munkalapKulsosElutasit\')"> ';
     }
     
 
@@ -9026,7 +9460,7 @@ if( isset($_GET['uj']) ) {
     // VAGY ha megrendelés aláírásra vár státuszban van és vagy az elsődleges vagy a másodlagos aláírás jogú van belépve
     if(
         ( $sor['stat_id'] == MUNKALAP_STAT_AJANLAT_NYOMTATVA && _jog(JOG_MUNKALAP_KULSOS_MEGREND) ) ||
-        ( $sor['stat_id'] == MUNKALAP_STAT_MEGR_ALAIR_VAR    && ( _jog(JOG_MUNKALAP_ELSODL_ALAIR) || _jog(JOG_MUNKALAP_MASODL_ALAIR) || _jog(JOG_MUNKALAP_KULSOS_MEGREND) ) )/* ||
+        ( $sor['stat_id'] == MUNKALAP_STAT_MEGR_ALAIR_VAR    && ( _jog(JOG_MUNKALAP_ELSODL_ALAIR) /*|| _jog(JOG_MUNKALAP_MASODL_ALAIR)*/ || _jog(JOG_MUNKALAP_KULSOS_MEGREND) ) )/* ||
         ( $sor['stat_id'] == MUNKALAP_STAT_MEGR_ELKULD_VAR   && ( _jog(JOG_MUNKALAP_ELSODL_ALAIR) || _jog(JOG_MUNKALAP_MASODL_ALAIR) || _jog(JOG_MUNKALAP_KULSOS_MEGREND) ) ) */
      ) {
         $gombok .= '<input type="button" class="gomb modositaskor_rejt" value="Megrendelés megtekintése" onclick="munkalapMegrendelesKeszit(\'PDF_előnézet\'); pdf_interval = setInterval(() => { if (pdf_megnyithato === 1) { window.open(\'munkalap.php?nyomtat&amp;PDF_elonezet=1&amp;id=\'+_get(\'id\')); clearInterval(pdf_interval); } }, 500);"> ';
@@ -9043,23 +9477,35 @@ if( isset($_GET['uj']) ) {
     }
 
     // Aláírásra vár státusz alatt lehet aláírni, ha van elsődleges vagy másodlagos aláírás jogunk
-    if( $sor['stat_id'] == MUNKALAP_STAT_MEGR_ALAIR_VAR && (_jog(JOG_MUNKALAP_ELSODL_ALAIR) || _jog(JOG_MUNKALAP_MASODL_ALAIR)) ) {
+    // Már csak elsődleges aláíró van
+    if( $sor['stat_id'] == MUNKALAP_STAT_MEGR_ALAIR_VAR && (_jog(JOG_MUNKALAP_ELSODL_ALAIR)/* || _jog(JOG_MUNKALAP_MASODL_ALAIR)*/) ) {
         // Csak akkor mutassuk az Aláír gombot, ha adott joggal még nem volna aláírva
         if(
-            (_jog(JOG_MUNKALAP_ELSODL_ALAIR) && !$sor['alair1']) ||
-            (_jog(JOG_MUNKALAP_MASODL_ALAIR) && !$sor['alair2'])
+            (_jog(JOG_MUNKALAP_ELSODL_ALAIR) && !$sor['alair1']) /*||
+            (_jog(JOG_MUNKALAP_MASODL_ALAIR) && !$sor['alair2'])*/
         ) {
             $gombok .= '<input type="button" class="gomb modositaskor_rejt" value="Aláírás" onclick="megrendeles_alair(\''.$_GET['id'].'\');"> ';
         }
+        $gombok .= '<input type="button" class="gomb modositaskor_rejt" value="Elutasítás" onclick="csoportMuvelet(\'munkalapKulsosElutasit\');"> ';
+        $gombok .= '<input type="button" class="gomb modositaskor_rejt" value="Vissza ügyintézőnek" onclick="csoportMuvelet(\'munkalapVisszaUi\');"> ';
+        $gombok .= '<input type="button" class="gomb modositaskor_rejt" value="Tételek megtekintése" onclick="csoportMuvelet(\'megrendeles_tetelek_megtekintese\');"> ';
     }
 
     // Elküldésre vár státusz
     if( $sor['stat_id'] == MUNKALAP_STAT_MEGR_ELKULD_VAR && _jog(JOG_MUNKALAP_KULSOS_MEGREND) ) {
         $gombok .= '<input type="button" class="gomb modositaskor_rejt" value="Megrendelés elküldve" onclick="megrendeles_elkuldve(\''.$_GET['id'].'\');"> ';
+
+        $ft_szerzodes = $adatbazis_kapcsolat -> s2('insert_dt szszam', 'fenntartasi_szerzodes', "`mlszam`='{$sor['ikt_szam']}'");
+        $ev           = date('y', strtotime($ft_szerzodes['insert_dt']));
+        $szszam_mappa = str_replace('/', '_', $ft_szerzodes['szszam']);
+        $fajlnev      = 'Munkamegrendeles_'.$szszam_mappa.'.pdf';
+
+        $megrendeles_pdf = '../'.get_utvonal().'fenntartasi_szerzodes/'.$ev.'/'.$szszam_mappa.'/'.$fajlnev;
+        $gombok .= '<input type="button" class="gomb modositaskor_rejt" value="Megrendelés megtekintése" onclick="window.open(\''.$megrendeles_pdf.'\');"> ';
     }
 
     // Várható érk. megadása
-    $tiltott_stat = array(MUNKALAP_STAT_IGAZOLASRA_VAR, MUNKALAP_STAT_LEZARASRA_VAR, MUNKALAP_STAT_LEZART, MUNKALAP_STAT_SZTORNO_VAR, MUNKALAP_STAT_MEGR_ALAIR_VAR, MUNKALAP_STAT_MEGR_ELKULD_VAR);
+    $tiltott_stat = array(MUNKALAP_STAT_IGAZOLASRA_VAR, MUNKALAP_STAT_LEZARASRA_VAR, MUNKALAP_STAT_LEZART, MUNKALAP_STAT_SZTORNO_VAR, MUNKALAP_STAT_KONTIROZASRA_VAR, MUNKALAP_STAT_MEGR_ALAIR_VAR, MUNKALAP_STAT_MEGR_ELKULD_VAR);
     if( $sor['szallito_id'] && !in_array($sor['stat_id'], $tiltott_stat) && (_jog(JOG_MUNKALAP_NYITOTT_KEZEL) || _jog(JOG_MUNKALAP_KEZEL_KULSO) ) ) {
         $gombok .= '<input type="button" class="gomb modositaskor_rejt" value="Várható érk. megadása" onclick="csoportMuvelet(\'munkalapVarhatoErkMegad\');"> ';
     }
@@ -9080,12 +9526,6 @@ if( isset($_GET['uj']) ) {
     }
 
     // Műveletek box
-    $tizedesek = 0;
-    $vesszo    = '';
-    if( $sor['kcs_21'] != KCS_21_HUF ) {
-        $tizedesek = 2;
-        $vesszo    = '.';
-    }
     $szallito = $adatbazis_kapcsolat->s2('nev knev tel tel2 email isz varos utca', 'szallito', "`id`='{$sor['szallito_id']}'");
     $fax = '';
     if( $szallito['tel2'] ) {
@@ -9121,6 +9561,8 @@ Cím.: '.$szallito['isz'].' '.$szallito['varos'].', '.$szallito['utca'].nl2('</t
             <input type="hidden" id="jh_ert_dev_db" value="'.number_format($sor['jh_ert_dev'], $tizedesek, $vesszo, ' ').'">
             <input type="hidden" id="penznem_db" value="'.erteklista(ERTEKLISTA_PENZNEM, $sor['kcs_21']).'">
             <input type="hidden" id="varh_erk_db" value="'.substr(str_replace(array('-'), array('.'), $sor['varh_erk']), 0, 16).'">
+            <input type="hidden" id="kiv_hat_db" value="'.$sor['kiv_hat'].'">
+            <input type="hidden" id="szallito_id_db" value="'.$sor['szallito_id'].'">
         </div>
     ');
 }
@@ -9334,7 +9776,7 @@ if( isset($_GET['uj']) ) {
     $sor['text']    = str_replace($mit, $mivel, $sor['text']);
 
     // Jóváhagyott érték legyen formázva, úgy is csak ki van írva
-    $sor['jh_ert_dev'] = number_format($sor['jh_ert_dev'], 0, '', ' ');
+    $sor['jh_ert_dev'] = number_format($sor['jh_ert_dev'], $tizedesek, ',', ' ');
 
     foreach ( $akt_tomb as $tomb ) {
         if( $tomb['type'] == 'autocomplete' ) {

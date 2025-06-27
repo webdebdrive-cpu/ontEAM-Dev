@@ -70,15 +70,15 @@ if( !kcs_21 ) {
 
 $(document).ready(function () {    
     
-    /* Popup bezár gombjára is a Mégsem gomb funkcióját állítsuk be. */
+    // Popup bezár gombjára is a Mégsem gomb funkcióját állítsuk be.
     $('#popup .bezar').attr('onclick', 'csoportMuvelet(\'megallapodasszamla_tetelek_kezelese\');');
     
-    /* f_penznem class-ú elemek lecserélése a pénznemre */
+    // f_penznem class-ú elemek lecserélése a pénznemre
     $('.f_penznem').each(function () {
         $(this).replaceWith(akt_penznem);
     });
     
-    /* Új tétel hozzáadásánál mi legyen a tizedesek hossza */
+    // Új tétel hozzáadásánál mi legyen a tizedesek hossza
     var tizedesek   = 0;
     if( akt_penznem && akt_penznem != 'HUF' ) {
         tizedesek   = 2;
@@ -88,11 +88,11 @@ $(document).ready(function () {
     pop_kapcsolas_feltolt();
     datepicker_konfig();
 
-    /* Ezekbe az inputokba írva számoljunk mindent újra */
+    // Ezekbe az inputokba írva számoljunk mindent újra
     $(document).on('input', '.pop_netto_ert, .pop_varhato_ert', function(event) {
         tetelek_kiszamol( $(this) );
     });
-    /* Nettó érték mezőbe kattintva, ha az üres volt, akkor a szamla_tetel_netto értéke kerüljön oda */
+    // Nettó érték mezőbe kattintva, ha az üres volt, akkor a szamla_tetel_netto értéke kerüljön oda
     $(document).on('focus', '.pop_netto_ert', function(event) {
         if( !$(this).val() || $(this).val()=='0' || $(this).val()=='0,00' ){
             $(this).val( $('#szamla_tetel_netto').val() );
@@ -108,14 +108,14 @@ $(document).ready(function () {
     
 });
 
-/* Tételt hozzáadó függvény */
+// Tételt hozzáadó függvény
 function tetel_hozzaadasa() {
     
     var targy           = $('#pop_targy').val().trim();
     var szla_varh_erk   = $('#pop_szla_varh_erk').val().trim();
     var szla_varh_ert   = $('#pop_szla_varh_ert').val().trim().replace(/,/g, '.');
 
-    /* Üres adatok ellenőrzése */
+    // Üres adatok ellenőrzése
     if( !targy ) {
         alert2('Kérem töltse ki a tárgyat!', '', 'Hiba');
         $('#pop_targy').addClass('hibas_ide_focus');
@@ -127,14 +127,14 @@ function tetel_hozzaadasa() {
         return false;
     }
 
-    /* Valós dátum-e? */
+    // Valós dátum-e?
     if( !valid_date($('#pop_szla_varh_erk'), 'true-val térj vissza') ){
         alert2('Kérem valós dátumot adjon meg várható érkezésnek!', '', 'Hiba');
         $('#pop_szla_varh_erk').addClass('hibas_ide_focus');
         return false;
     }
     
-    /* Nem múltbeli dátum-e? */
+    // Nem múltbeli dátum-e?
     var datum = new Date().toISOString();
     datum = datum.substring(0, 10).replace(/-/g, '.');
     if( $('#pop_szla_varh_erk').val() < datum ) {
@@ -151,7 +151,7 @@ function tetel_hozzaadasa() {
 
     var id_tmp = new Date().getTime();
     
-    /* HUF esetén nem törtet írunk ki, deviza esetén viszont törtet */
+    // HUF esetén nem törtet írunk ki, deviza esetén viszont törtet
     var tizedesek   = 0;
     var vesszo      = '';
     if( akt_penznem && akt_penznem != 'HUF' ) {
@@ -159,7 +159,7 @@ function tetel_hozzaadasa() {
         vesszo      = ',';
     }
     
-    /* A szla_varh_ert lehet hogy 0-át tartalmaz, akkor ezt is írjuk ki */
+    // A szla_varh_ert lehet hogy 0-át tartalmaz, akkor ezt is írjuk ki
     szla_varh_ert = ezresek(szla_varh_ert, tizedesek, vesszo, ' ');
     if( !szla_varh_ert ) {
         szla_varh_ert = '0';
@@ -167,7 +167,7 @@ function tetel_hozzaadasa() {
     
     var szalloda = $('#szalloda_select option:selected').text();
     
-    /* Nézzük át a sorokat, ha van olyan ahol azonos a szálloda és a várh.érk. akkor azt ne engedjük meg */
+    // Nézzük át a sorokat, ha van olyan ahol azonos a szálloda és a várh.érk. akkor azt ne engedjük meg
     var van_azonos = false;
     $('#pop_tetelek tr').each(function() {
         var telephely = $(this).find('.pop_telephely').html();

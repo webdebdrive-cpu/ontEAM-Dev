@@ -28,6 +28,7 @@
                 karaktertol     : 0,                    /* Hány karaktertől induljon a keresés                              */
                 limit           : 10,                   /* Hány tételt listázzon ki                                         */
                 mezo            : '',                   /* Szűréssel kapcsolatos GET-ek                                     */
+                akt_mezo        : '',                   
                 op              : '',
                 oszlop_keres    : '',                   /* Adatbázis tábla oszlopa, amiben keresünk                         */
                 oszlop_listaz   : '',                   /* Adatbázis tábla oszlopa, amiket listázunk                        */
@@ -41,6 +42,7 @@
                 aktiv           : '',                   /* login táblánál tudjunk szűrni aktívakra is                       */
                 aktiv_szinez    : '',                   /* aktívakat zöld, inaktívakat pirossal listázzunk ki               */
                 beosztas_id     : '',                   /* login táblánál tudjunk szűrni beosztásra is                      */
+                mszk_vez_is     : '',                   /* Projektek, projektfelelős selectjénél használjuk                 */
                 szemelyzet_id   : '',                   /* Munkaidő ráfodítás név hozzáadásánál kell                        */
                 szuros          : '',                   /* Ha a szűrőben hívtuk meg, akkor azt ezen keresztül tudjuk jelezni*/
                 tabla           : '',                   /* Adatbázis tábla, amiben keresünk                                 */
@@ -173,6 +175,7 @@
                                         id_kiir         : options.id_kiir,
                                         limit           : options.limit,
                                         mezo            : options.mezo,
+                                        akt_mezo        : options.akt_mezo,
                                         obj_id          : obj_id,
                                         op              : options.op,
                                         oszlop_keres    : options.oszlop_keres,
@@ -184,11 +187,13 @@
                                         aktiv           : options.aktiv,
                                         aktiv_szinez    : options.aktiv_szinez,
                                         beosztas_id     : options.beosztas_id,
+                                        mszk_vez_is     : options.mszk_vez_is,
                                         szemelyzet_id   : options.szemelyzet_id,
                                         tabla           : options.tabla,
                                         menupont_szuro  : options.menupont_szuro,
                                         szuros          : options.szuros,
                                         telephely_id    : telephely_id,
+                                        modul           : baseName(location.href),
                                         value           : val
                                     },
                                     success: function(msg) {

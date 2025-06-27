@@ -1083,7 +1083,7 @@ require_once('selectek.php');
                         }
 
                         $jogSor['nev'] .= ':';
-                        if($jogSor['i']){
+                        if ($jogSor['i']) {
                             $jogSor['nev'] .= '<br><i class="f12">('.$jogSor['i'].')</i><div style="margin-bottom: 0.8rem"></div>';
                         }
 
@@ -1146,7 +1146,8 @@ require_once('selectek.php');
                         
                         // WebDeb szerverén mutatjuk a jog sorszámát is
                         $sorszam = '';
-                        if( $_SERVER['HTTP_HOST'] == 'demo.webdeb.hu' ){
+                        
+                        if( $_SERVER['REMOTE_ADDR'] == get_debug_ip() ) {
                             $sorszam = '['.$jogSor['id'].'] ';
                         }
                         

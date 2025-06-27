@@ -141,7 +141,7 @@ if( $_POST['tabla'] == 'projektszerzodes_jotallas' ) {
     }
 
     $pr_szerzodes_jotallas  = $adatbazis_kapcsolat->s2('projektszerzodes_recid bejaras', 'projektszerzodes_jotallas', "`recid`='{$_POST['recid']}'");
-    $pr_szerzodes           = $adatbazis_kapcsolat->s2('sz_szam insert_dt', 'projektszerzodes', "`recid`='{$pr_szerzodes_jotallas['projektszerzodes_recid']}'");
+    $pr_szerzodes           = $adatbazis_kapcsolat->s2('pr_szam sz_szam insert_dt', 'projektszerzodes', "`recid`='{$pr_szerzodes_jotallas['projektszerzodes_recid']}'");
     
     $utvonal = $utvonal.'/'. substr($pr_szerzodes['insert_dt'], 0, 4);
     if( !is_dir($utvonal) ) {
@@ -197,9 +197,13 @@ if( $_POST['tabla'] == 'projektszerzodes_jotallas' ) {
                 $nev      = 'Fájlt töltött fel a '.$pr_szerzodes['sz_szam'].' szerződés, '.datum_kiir($pr_szerzodes_jotallas['bejaras']).' dátumú bejárás jótállásához.';
                 $valtozas = 'Fájl neve: '.$_FILES[$_POST['megnevezes']]['name'];
                 $adatbazis_kapcsolat -> i('log',
-                    array('felh_id',                                'nev', 'valtozas', 'ip'                     ),
-                    array($_SESSION[get_db_tabla().'login_recid'],  $nev,  $valtozas,  $_SERVER['REMOTE_ADDR']  )
-                );
+                                                array('felh_id',                                'nev', 'valtozas', 'ip'                     ),
+                                                array($_SESSION[get_db_tabla().'login_recid'],  $nev,  $valtozas,  $_SERVER['REMOTE_ADDR']  )
+                                            );
+
+                // Projekt dokumentumainak átszámolása
+                $projekt = $adatbazis_kapcsolat -> s2('recid', 'projektkezeles', "`ikt_szam`='{$pr_szerzodes['pr_szam']}'");
+                projekt_minositesre_varo_dok_szamol($projekt['recid']);
 
             }
         break;

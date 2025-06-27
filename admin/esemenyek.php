@@ -775,7 +775,7 @@ switch ( $tabla ) {
     case 'munkalap_arch.php':
 
         $arch = '';
-        if($tabla=='munkalap_arch.php'){
+        if ($tabla == 'munkalap_arch.php') {
             $arch = '_arch';
         }
 
@@ -806,7 +806,9 @@ switch ( $tabla ) {
             $_OPTS['select'] .= nl2('
                                         ,
                                 `'.get_db_tabla().$tabla_nophp.'`.`telephely_txt`,
-                                `'.get_db_tabla().$tabla_nophp.'`.`stat_txt`
+                                `'.get_db_tabla().$tabla_nophp.'`.`stat_txt`,
+                                `'.get_db_tabla().$tabla_nophp.'`.`tipus_txt`,
+                                `'.get_db_tabla().$tabla_nophp.'`.`szemelyzet_txt`
             ');
         }
 
@@ -817,6 +819,9 @@ switch ( $tabla ) {
         // Default rendezés
         if( !$_GET['rend'] ) {
             $_GET['rend'] = 'stat_id';
+        }
+        if ($tabla == 'munkalap_arch.php') {
+            $_GET['rend'] = 'insert_dt';
         }
 
         // Default rendezési irány
@@ -2802,7 +2807,7 @@ if( $_SESSION[get_db_tabla().'szemelyzet_id'] == TERULETI_FELELOS ) {
 $projektkezeles_tomb = $akt_tomb = array(
     array('type' => 'statusz',              'megn' => 'Státusz:',               'name' => 'stat_id',        'szuro' => 1,   'oldal' => $megnevezes),
     array('type' => 'text',                 'megn' => 'Projekt szám:',          'name' => 'ikt_szam',       'szuro' => 1,   'disabled' => 1,   'class' => 'normal', 'style' => 'width: 10rem', 'osszevon' => 1, 'post' => '<span style="margin-left: 2rem"></span>'),
-    array('type' => 'autocomplete',         'megn' => 'Projekt felelős:',       'name' => 'pfelelos',       'szuro' => 1,   'class' => 'oriasi disableNav', 'tabla' => 'login', 'oszlop_keres' => 'recid', 'oszlop_keres_autocomp' => 'teljes_nev', 'listaz' => 'teljes_nev', 'beosztas_id' => $beosztasok, 'autocomplete_aktiv' => 1, 'id_kiir' => 'recid', 'style' => 'width: 25rem', 'complete' => 'projekt_felelos_beallitva($(\'#pfelelos\').val())', 'alert' => 'Kérem adja meg a projekt felelőst!'),
+    array('type' => 'autocomplete',         'megn' => 'Projekt felelős:',       'name' => 'pfelelos',       'szuro' => 1,   'class' => 'oriasi disableNav', 'tabla' => 'login', 'oszlop_keres' => 'recid', 'oszlop_keres_autocomp' => 'teljes_nev', 'listaz' => 'teljes_nev', 'beosztas_id' => $beosztasok, 'mszk_vez_is' => 1, 'autocomplete_aktiv' => 1, 'id_kiir' => 'recid', 'style' => 'width: 25rem', 'complete' => 'projekt_felelos_beallitva($(\'#pfelelos\').val())', 'alert' => 'Kérem adja meg a projekt felelőst!'),
     array('type' => 'text',                 'megn' => 'Név:',                   'name' => 'nev',            'szuro' => 1,   'maxlength' => 250, 'class' => 'oriasi', 'alert' => 'Kérem adja meg a projekt nevét!'),
     array('type' => 'hidden',               'megn' => '',                       'name' => 'egy_tobb'),
     array('type' => 'html',                 'megn' => nl2('
@@ -4238,7 +4243,18 @@ if( isset($_GET['dashboard_feladat_torol']) ) {
     unset($_SESSION['dashboard_feladat']);
     unset($_SESSION['o_szuro_feltetel']);
     unset($_SESSION['o_szuro_html']);
-    hd();
+
+    // Anyagigénylékor kell a linkbe egy tablazat paraméter
+    if( basename(self()) == 'anyagigenyles.php' ) {
+        $kieg = '';
+        if( isset($_GET['anyagrend']) ) {
+            $kieg = '&anyagrend';
+        }
+        hd(basename(self()).'?tablazat'.$kieg);
+    } else {
+        hd();
+    }
+
 }
 
 // Összetett szűrés SQL-é alakítása
@@ -4277,10 +4293,10 @@ if( isset($_REQUEST['f_o_szures_submit']) ) {
         $sql = csonkit($sql, 5);
     }
     
-//echo '<pre style="font-size: 1.4rem">';
-//var_dump($sql);
-//echo '</pre>';
-//exit;
+// echo '<pre style="font-size: 1.4rem">';
+// var_dump($sql);
+// echo '</pre>';
+// exit;
     // Ha volt 'legfrissebb' mező kitöltve, akkor még a limitet ki kell számolni
     if( strpos( $_REQUEST['feltetel'], 'me|legfrissebb' ) !== false ) {
         $legfrissebb_flag = 0;
@@ -4698,7 +4714,7 @@ if( isset($_POST['bejegyzesElutasitas']) ) {
     $csak_memo      = $_POST['csak_memo'];
     $idk            = json_decode($_POST['idk'], true);
 
-    switch($tabla){
+    switch ($tabla) {
         case 'bejelentes':
 
             // Jogosultság és hiba kezelés
@@ -4740,7 +4756,13 @@ if( isset($_POST['bejegyzesElutasitas']) ) {
             $statusz        = BEJELENTES_STAT_ELUTASITVA;
             $level_tabla    = 'bejelentes';
             $level_jog      = ERT_BEJ_ELUTASITKOR;
-            $extra_szoveg   = '<br>Elutasítás oka: '.$erteklista['info'].'<br>';
+            $extra_szoveg   = '';
+            if( $erteklista['info'] ) {
+                $extra_szoveg .= '<br>Elutasítás oka: '.$erteklista['info'];
+            }
+            if( $_POST['memo'] ) {
+                $extra_szoveg .= '<br>Elutasítás leírása: '.$_POST['memo'];
+            }
         break;
         case 'projektigenyles':
             $statusz = PRIGENY_STAT_ELUTASITVA;
@@ -4802,7 +4824,7 @@ if( isset($_POST['bejegyzesElutasitas']) ) {
             if ($level_tabla) {
 
                 $hiba = '';
-                foreach($idk as $id){
+                foreach ($idk as $id) {
                     $valasz = level_felkeszit_es_kuld($level_tabla, $id, $level_jog, 'bejelentesElutasit', 'bejelento', $extra_szoveg);
                     if( substr($valasz, 0, 4)=='Hiba' ){
                         $hiba .= $valasz;

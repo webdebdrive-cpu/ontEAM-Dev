@@ -277,7 +277,7 @@ if( isset($_POST['f_szuro_mezo_operator']) ) {
                 // Autocomplete esetén a switch.php alapján gyártunk egy inputot
                 } elseif( $ertek['type'] == 'autocomplete' || $ertek['type_szurohoz'] == 'autocomplete' ) {
 
-                    // Összetett szűrés esetén az autocomplet mezőnek más ID-t adunk
+                    // Összetett szűrés esetén az autocomplete mezőnek más ID-t adunk
                     $osszetett = '';
                     if( $_POST['osszetett'] ) {
                         $osszetett = '_osszetett';
@@ -352,6 +352,7 @@ if( isset($_POST['f_szuro_mezo_operator']) ) {
                         $aktiv_szinez   = 1;
                         $beosztas_id    = EL_BEOSZTAS_BERUH_IG.','.EL_BEOSZTAS_FEJL_VIG_H.','.EL_BEOSZTAS_MUSZAKI_ASSZ.','.EL_BEOSZTAS_MUSZAKI_IG.','.EL_BEOSZTAS_PR_FELEOS.','.EL_BEOSZTAS_DISZ_KP_VEZ;
                     }
+    
                     // Partner lenyílóban legyenek színezve az aktívak, inaktívak
                     if( $ertek['name'] == 'szallito_id' ) {
                         $aktiv_szinez   = 1;
@@ -601,7 +602,9 @@ if( isset($_POST['f_szuro_mezo_operator']) ) {
                                 \'oszlop_keres\'    : \'teljes_nev\',
                                 \'oszlop_listaz\'   : \'teljes_nev\',
                                 \'id_kiir\'         : \'teljes_nev\',
-                                \'szuros\'          : \'Szűrőben hívtuk meg\'
+                                \'aktiv_szinez\'    : 1,
+                                \'akt_mezo\'        : \''.$ertek['name'].'\',
+                                \'szuros\'          : \'Szűrőben hívtuk meg\',
                             });
                         });
                     </script>
@@ -819,14 +822,27 @@ if( isset($_POST['f_szuro_mezo_operator']) ) {
         // Státusz esetén
         if( $_POST['mezo'] == 'stat_id' ) {
 
+            // Anyagigénylések/anyagrendelések alatt a státuszok listáját limitáljuk csak azokra, ami adott felületnél értelmezett
+            $csak_ezeket_listazd = [];
+            if( $_POST['tabla'] == 'anyagigenyles' ) {
+                $csak_ezeket_listazd = [CIKKIGN_STAT_NYITOTT, CIKKIGN_STAT_ARAZVA, CIKKIGN_STAT_JOVAHAGYVA, CIKKIGN_STAT_VARAKOZO];
+                if( isset($_GET['anyagrend']) ) {
+                    $csak_ezeket_listazd = [CIKKIGN_STAT_BEERKEZETT, CIKKIGN_STAT_RESZBENBEERK, CIKKIGN_STAT_TOROLT, CIKKIGN_STAT_ELUTASITVA];
+                
+                }
+            }
+
             $feltetel = '<select class="f_felt">';
             $feltetel .= '<option value="">-Válasszon státuszt-</option>';
             foreach ( $_stat_text[$_POST['tabla']] as $kulcs => $statusz ) {
-                $selected = '';
-                if( $_POST['felt'] == $kulcs ) {
-                    $selected = ' selected';
+
+                if( !$csak_ezeket_listazd || in_array($kulcs, $csak_ezeket_listazd) ) {
+                    $selected = '';
+                    if( $_POST['felt'] == $kulcs ) {
+                        $selected = ' selected';
+                    }
+                    $feltetel .= '<option value="'.$kulcs.'"'.$selected.'>'.$statusz['nev'].'</option>';
                 }
-                $feltetel .= '<option value="'.$kulcs.'"'.$selected.'>'.$statusz['nev'].'</option>';
             }
             $feltetel .= '</select>';
 

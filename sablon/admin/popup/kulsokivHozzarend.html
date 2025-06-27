@@ -40,6 +40,11 @@
                         'recid'         : '5',
                         'id_kiir'       : 'id',
                         'complete'      : function(){
+                            if( $('#kcs_21_autocomp').val() != 'HUF' ) {
+                                $('#pop_jh_ert').attr('data-tort', '2');
+                            } else {
+                                $('#pop_jh_ert').attr('data-tort', '0');
+                            }
                         } 
                     }); 
                 }, 1000);

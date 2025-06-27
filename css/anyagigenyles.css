@@ -1,0 +1,32 @@
+*{
+    --kepernyo_left: 3rem;
+    --kepernyo_left-fele: 1.5rem;
+}
+
+.sor.kethasabos {
+    max-width: calc(100% - var(--kepernyo_left));
+    min-width: calc(100% - var(--kepernyo_left));
+}
+
+/* .sor.kethasabos div.jobb, .szamla_cont_tabla thead {
+    left: var(--kepernyo_left);
+} */
+
+/* Ezzel takarjuk ki a fejlécet bal szélen */
+.szamla_cont_tabla thead::before {
+    content: '';
+    background: #fff;
+    position: fixed;
+    left: 0;
+    height: 10rem;
+    width: var(--kepernyo_left-fele);
+    z-index: 1;
+}
+
+#csuszkaallit {
+    display: none;
+}
+
+table.excel td.aktiv {
+    box-shadow: inset  0 0 0 .2rem var(--color-sotet-kek);
+}

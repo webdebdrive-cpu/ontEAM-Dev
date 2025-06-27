@@ -254,12 +254,20 @@ if( isset($_POST['bejelentesElutasit']) ) {
                 }
             }
 
+            $extra_szoveg = '';
+            if( $erteklista['info'] ) {
+                $extra_szoveg .= '<br>Elutasítás oka: '.$erteklista['info'];
+            }
+            if( $_POST['memo'] ) {
+                $extra_szoveg .= '<br>Elutasítás leírása: '.$_POST['memo'];
+            }
+
             if( !$db_error ) {
 
                 mysqli_commit($db_kapcs);
 
                 $hiba = '';
-                $valasz = level_felkeszit_es_kuld('bejelentes', $recid, ERT_BEJ_IGAZOL_ELUTASITKOR, 'bejelentesIgazolElutasit', '_jog'.JOG_BEJELENTES_VIZSGAL);
+                $valasz = level_felkeszit_es_kuld('bejelentes', $recid, ERT_BEJ_IGAZOL_ELUTASITKOR, 'bejelentesIgazolElutasit', '_jog'.JOG_BEJELENTES_VIZSGAL, $extra_szoveg);
                 if( substr($valasz, 0, 4)=='Hiba' ){
                     $hiba .= $valasz;
                 }

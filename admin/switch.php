@@ -75,7 +75,7 @@ foreach ( $akt_tomb as $ertek ) {
                 }
             }
             if( $ertek['value_felulir'] ) {
-                $input -> value   = $ertek['value_felulir'];
+                $input -> value = $ertek['value_felulir'];
             }
 
             $value = $input -> value;
@@ -145,6 +145,7 @@ foreach ( $akt_tomb as $ertek ) {
                                     \'op\'              : \''.$_GET['op'].'\',
                                     \'felt\'            : \''.$_GET['felt'].'\',
                                     \'beosztas_id\'     : \''.$ertek['beosztas_id'].'\',
+                                    \'mszk_vez_is\'     : \''.$ertek['mszk_vez_is'].'\',
                                     \'szemelyzet_id\'   : \''.$ertek['szemelyzet_id'].'\',
                                     \'id_kiir\'         : \''.$id_kiir.'\',
                                     \'complete\'        : function(){ '.$ertek['complete'].' }

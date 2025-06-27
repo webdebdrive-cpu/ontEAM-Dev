@@ -86,7 +86,7 @@ function tetel_hozzaadasa() {
     var szla_varh_erk   = $('#pop_szla_varh_erk').val().trim();
     var szla_varh_ert   = $('#pop_szla_varh_ert').val().trim();
 
-    /* Üres adatok ellenőrzése */
+    // Üres adatok ellenőrzése
     if( !targy ) {
         alert2('Kérem töltse ki a tárgyat!', '', 'Hiba');
         $('#pop_targy').addClass('hibas_ide_focus');
@@ -98,14 +98,14 @@ function tetel_hozzaadasa() {
         return false;
     }
 
-    /* Valós dátum-e? */
+    // Valós dátum-e?
     if( !valid_date($('#pop_szla_varh_erk'), 'true-val térj vissza') ){
         alert2('Kérem valós dátumot adjon meg várható érkezésnek!', '<input type="button" value="Ok" class="gomb escapes_megsem" onclick="alert2()">', 'Hiba');
         $('#pop_szla_varh_erk').addClass('hibas_ide_focus');
         return false;
     }
     
-    /* Nem múltbeli dátum-e? */
+    // Nem múltbeli dátum-e?
     var datum = new Date().toISOString();
     datum = datum.substring(0, 10).replace(/-/g, '.');
     if( $('#pop_szla_varh_erk').val() < datum ) {
@@ -114,7 +114,7 @@ function tetel_hozzaadasa() {
         return false;
     }
     
-    /* Várható érték ha üres - 0 lehet! */
+    // Várható érték ha üres - 0 lehet!
     if( !szla_varh_ert /*|| szla_varh_ert=='0' || szla_varh_ert=='0,00'*/ ){
         alert2('Kérem töltse ki a várható értéket!', '', 'Hiba');
         $('#pop_szla_varh_ert').addClass('hibas_ide_focus');

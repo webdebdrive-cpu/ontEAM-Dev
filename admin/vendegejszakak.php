@@ -229,7 +229,7 @@ require_once('selectek.php');
             if( $key == 'tablazat' ) {
                 $fulek .= '<a href="'.self().get_get($kivetelek).'&amp;tablazat"'.$active.' data-oldal="'.$key.'">'.$value.'</a>';
             } else {
-                $fulek .= '<a href="javascript: szamlaBetolt(\''.$id_betolteshez.'\', \''.basename(self()).'\', \''.$key.'\', \'\', \'\', \'Mindenképp tölsön be\'); void(0);"'.$active.' data-oldal="'.$key.'">'.$value.'</a>';
+                $fulek .= '<a href="javascript: szamlaBetolt(\''.$id_betolteshez.'\', \''.basename(self()).'\', \''.$key.'\', \'\', \'\', \'-vendeg-\'); void(0);"'.$active.' data-oldal="'.$key.'">'.$value.'</a>';
             }
 
         }

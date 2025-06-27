@@ -406,10 +406,10 @@ function munkalapRogzit(csak_kerdezunk) {
     return false;
 }
 
-// Munkalap külsős jóváhagyása
+// "Döntés alatt" sátuszban a jóváhagyás gomb
 function munkalapKulsosJovahagy(csak_kerdezunk) {
 
-    if(balnav_kijelol_ell()){
+    if (balnav_kijelol_ell()) {
 
         alert2();
         szurkit();
@@ -434,15 +434,50 @@ function munkalapKulsosJovahagy(csak_kerdezunk) {
                         return false;
                     }
 
-                    /*
-                    Eredetileg a 2. jóváhagyásakor a lista első elemére kattintottunk. De miért?
-                    Kivettük, mert Tibi jelezte, hogy zavaró, hogy elugrunk az adatlapról, helyette mindig szamlaBetolt(...). 2018.11.16
+                    szamlaBetolt( _get('id'), 'munkalap.php', 'modosit' );
                     
-                    if(response.masodik_jovahagyo=='1'){
-                        $('#szamlaList li:first-of-type').click();
-                    }else{
+                    
+                }
+            },
+            complete: function(xhr) {
+                if( xhr.status != 200 ) {
+                    alert2(xhr.responseText, '', 'Hiba');
+                }
+            }
+        });
+
+    }
+    return false;
+}
+
+// "Kontírozásra vár" sátuszban a jóváhagyás gomb
+function munkalapKontirJovahagy(csak_kerdezunk) {
+
+    if (balnav_kijelol_ell()) {
+
+        alert2();
+        szurkit();
+        $.ajax({
+            url : 'munkalap.php',
+            type: 'POST',
+            data: {
+                recid                   : _get('id'),
+                csak_kerdezunk          : csak_kerdezunk,
+                munkalapKontirJovahagy  : new Date().getTime()
+            },
+            success: function(response) {
+                if(response.substring(0, 6)=='SESKIL'){ location.href = 'index.php'; }
+                if(response) {
+                    response = JSON.parse(response);
+
+                    szurkit_zar();
+                    
+                    if( response.hiba ) {
                         szamlaBetolt( _get('id'), 'munkalap.php', 'modosit' );
-                    }*/
+                        setTimeout(function(){ alert2(response.hiba, response.gomb, response.title); }, 1000);
+                        return false;
+                    }
+
                     szamlaBetolt( _get('id'), 'munkalap.php', 'modosit' );
                     
                     
@@ -1609,12 +1644,14 @@ function megrendeles_alair(recid, mehet) {
                     return false;
                 }
 
-                szamlaBetolt(_get('id'), PHP_SELF, 'modosit');
+                // Mivel mindkét aláírás meg lesz egyből az új működés szerint, ezért itt még ne töltsük be feleslegesen az adatlapot
+                // szamlaBetolt(_get('id'), PHP_SELF, 'modosit');
 
                 // Ha mindkét aláírás megvan, akkor PDF nyomtatás, szerződés létrehozása
-                if( response.alairva ) {
+                // ÚJ működés szerint egyből mehet a munkalapMegrendelesKeszit(); (Ettől függetlenül a response.alairva is igaz értékkel tér vissza)
+                // if( response.alairva ) {
                     munkalapMegrendelesKeszit();
-                } 
+                // } 
 
             }
         },

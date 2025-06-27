@@ -133,7 +133,8 @@ $nullas_szerepkorok = array(MSZK_VEZETO, MUSZAKI_ADMINISZTRATOR);
 if( in_array($_SESSION[get_db_tabla().'szemelyzet_id'], $nullas_szerepkorok) && basename(self())=='anyagigenyles.php' && isset($_GET['anyagrend']) && !$_GET['mezo'] && !$_SESSION['o_szuro_feltetel'] ) {
     $_GET['mezo'] = 'legfrissebb';
     // Korábban ez volt, így lehetett elérni azt, hogy üres legyen a találati lista startból
-    $_GET['felt'] = '-'; // Ha csak simán 0-át írnánk ide, akkor a feltételt üresnek tekintené, olyan mintha nem létezne
+    // $_GET['felt'] = '-'; // Ha csak simán 0-át írnánk ide, akkor a feltételt üresnek tekintené, olyan mintha nem létezne
+    $_GET['felt'] = ANYAGREND_LIMIT; // Ha csak simán 0-át írnánk ide, akkor a feltételt üresnek tekintené, olyan mintha nem létezne
 }
 // Bármilyen más szereplő esetén (ugyanúgy Anyagrendelések alatt) pedig 200-as legyen a lista, ne az 1000-es
 if( !in_array($_SESSION[get_db_tabla().'szemelyzet_id'], $nullas_szerepkorok) && basename(self())=='anyagigenyles.php' && isset($_GET['anyagrend']) && !$_GET['mezo'] && !$_SESSION['o_szuro_feltetel'] ) {
@@ -172,11 +173,13 @@ if( $_GET['id'] && $_GET['mezo']!='legfrissebb' ) {
 // Ha jóváhagyás joggal léptünk az anyagigénylésekhez, és nem módosítottunk még a szűrésen, akkor alapból leszűrünk az árazva státuszra.
 // Viszont emiatt kell egy get szűrés töröl is, hogy tudjuk mikor kapcsolták ki szándékosan.
 if( isset($_GET['szures_torol']) ) {
+
     $_SESSION['szures_torol'] = 1;
     $kieg = '';
     if( isset($_GET['anyagrend']) ) {
         $kieg = '&anyagrend';
     }
+
     hd(basename(self()).'?tablazat'.$kieg);
 }
 if( empty($_POST) && basename(self()) == 'anyagigenyles.php' && !$_GET['anyagrend'] && _jog(JOG_ANYAGIGENYLES_JOVAHAGY) && !$_GET['mezo'] && !$_SESSION['szures_torol'] ) {

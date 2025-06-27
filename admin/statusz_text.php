@@ -59,6 +59,7 @@ $_stat_text = array(
         MUNKALAP_STAT_AJANLAT_NYOMTATVA     => array('nev' => 'Ajánlat nyomtatva',                              'szinkod' => ''),
         MUNKALAP_STAT_ANYAGRAVAR            => array('nev' => 'Anyagra vár',                                    'szinkod' => '#677b70'),
         MUNKALAP_STAT_DONTESRE_VAR          => array('nev' => 'Döntésre vár',                                   'szinkod' => '#f5a56c'),
+        MUNKALAP_STAT_KONTIROZASRA_VAR      => array('nev' => 'Kontírozásra vár',                               'szinkod' => ''),
         MUNKALAP_STAT_ELOKESZITES_ALATT     => array('nev' => 'Előkészítés alatt',                              'szinkod' => '#f5a56c'),
         MUNKALAP_STAT_ELUTASITVA            => array('nev' => 'Elutasítva',                                     'szinkod' => '#C44B4B'),
         MUNKALAP_STAT_FELVEVE               => array('nev' => 'Felvéve',                                        'szinkod' => '#82aa90'),

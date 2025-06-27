@@ -296,7 +296,7 @@ $(document).ready(function () {
     
 });
 
-/* Tételt hozzáadó függvény */
+// Tételt hozzáadó függvény
 function tetel_hozzaadasa() {
     
     var targy           = $('#pop_targy'            ).val().trim();
@@ -368,9 +368,9 @@ function tetel_hozzaadasa() {
                             '<td class="pop_targy l">' + targy + '</td>' +
                             '<td class="pop_netto r nowrap">' + ertek + '</td>' +
                             '<td class="pop_brutto r nowrap">' + brutto + '</td>' +
-                            '<td class="l pop_jogcim_autocomp">'+jogcim_txt+'</td>' +
-                            '<td class="l pop_ktgnem_autocomp">'+ktgnem_txt+'</td>' +
-                            '<td class="l pop_ktghely_autocomp">'+ktghely_txt+ '</td>' +
+                            '<td class="pop_jogcim_autocomp l">'+jogcim_txt+'</td>' +
+                            '<td class="pop_ktgnem_autocomp l">'+ktgnem_txt+'</td>' +
+                            '<td class="pop_ktghely_autocomp l">'+ktghely_txt+ '</td>' +
                             '<td></td>' +
                             '<td></td>' +
                             '<td><a class="szerk" onclick="popup_tetel_sor_szerk(\'pop_tetel_'+id_tmp+'\');">🖉</a></td>' +

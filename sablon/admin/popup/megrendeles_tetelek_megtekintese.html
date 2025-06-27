@@ -1,0 +1,158 @@
+<!-- Ez a fájl a megrendeles_kontirozasa.html másolata, ahol már nem szerkeszthetőek a tételek -->
+<h2>Megrendelés tételek</h2>
+
+<div class="kozep" style="min-height: 40rem">
+    <div class="grid2o" style="width: 28rem">
+        <div class="b">Jóváhagyott érték:</div>
+        <div class="b r"><span id="pop_ml_jh_ert"></span></div>
+        <div class="b">Tételek összege:</div>
+        <div class="b r"><span id="pop_tetelek_ossz"></span></div>
+        <div class="b">Különbség:</div>
+        <div class="b r"><span id="pop_kulonbseg"></span></div>
+    </div>
+    
+    <form action="" enctype="multipart/form-data" method="" id="popup_tetel_sorok">
+        <table class="csikos kijCont dn" id="pop_tetelek" style="cursor: default;">
+            <thead>
+            <tr>
+                <th>Tárgy</th>
+                <th>Számla várh. érk.</th>
+                <th style="width: 10rem">Számla várh. értéke (<span class="f_penznem"></span>)</th>
+                <th class="l eltereskor_rejt jogcim_szeles" style="min-width: 15rem">Jogcím</th>
+                <th class="l eltereskor_rejt" style="min-width: 15rem">Költségnem</th>
+                <th class="eltereskor_rejt">Költséghely</th>
+                <th>Törlés</th>
+            </tr>
+            </thead>
+
+            <tbody>
+            </tbody>
+        </table>
+    </form>
+    
+</div>
+<div class="kuldes">
+    <input type="button" class="gomb piros escapes_megsem" value="Bezár" onclick="megsem_gomb();">
+</div>
+<script>
+
+var akt_penznem = 'HUF';
+
+var kolt_vis = $('#szallito_id').val();
+if( !kolt_vis && $('#szallito_id_db').length ) {
+    kolt_vis = $('#szallito_id_db').val();
+}
+
+// JS-el figyeljük, hogy volt-e bármi változás. Ha igen, akkor Mégsem/Bezár gombra rákérdezünk, hogy biztos-e?
+var van_valtozas = false;
+var torolt_sorok = '';
+
+$(document).ready(function () {
+    
+    // Popup bezár gombjára visszatesszük az eredeti funkciót, mert a kapcsoló popban felülírtuk egy csoportMuvelet-es utasítással
+    $('#popup .bezar').attr('onclick', '');
+    
+    // f_penznem class-ú elemek lecserélése a pénznemre
+    $('.f_penznem').each(function () {
+        $(this).replaceWith(akt_penznem);
+    });
+
+    
+    
+    pop_tetelek_feltolt();
+    
+});
+
+// Ha van SESSION-ban adatunk, akkor abból töltsük fel a sorokat
+function pop_tetelek_feltolt(){
+    
+    $.ajax({
+        url : 'munkalap.php',
+        type: 'POST',
+        data: {
+            id                  : _get('id'),
+            kolt_vis            : kolt_vis,
+            nincs_torles        : 1,
+            pop_tetelek_feltolt : Date.now()
+        },
+        success: function(response) {
+            if(response.substring(0, 6)=='SESKIL'){ location.href = 'index.php'; }
+            if( response ) {
+                response = JSON.parse(response);
+                
+                if(response.hiba){
+                    alert2(response.hiba, response.gomb, response.title);
+                    if( response.focus ){
+                        $('#'+response.focus).addClass('hibas_ide_focus');
+                    }
+                    popupZar();
+                    return false;
+                }
+                
+                if(response.html){
+                    $('#pop_tetelek tbody').append(response.html);
+                    $('#pop_tetelek').removeClass('dn');
+                }
+                if(response.pr_tetelek){
+                    $('#projekt_tetelek').html(response.pr_tetelek);
+                }
+                tetelek_kiszamol();
+            }
+        },
+        complete: function(xhr) {
+            if( xhr.status != 200 ) {
+                alert2(xhr.responseText, '', 'Hiba');
+            }
+        }
+    });
+}
+
+// Azért van külön függvénye, hogy rá lehessen kérdezni
+function megsem_gomb( mehet ) {
+    alert2();
+    popupZar();
+}
+
+// Azért van külön függvénye, hogy rá lehessen kérdezni
+function bezar_gomb( mehet ) {
+    alert2();
+    popupZar();
+}
+
+// Tételek kiszámítása, lássuk hol járunk a szerződéses összeghez képest
+function tetelek_kiszamol() {
+    
+    if( akt_penznem == null ) {
+        akt_penznem = '';
+    }
+
+    // HUF esetén nem törtet írunk ki, deviza esetén viszont törtet + "Számla várh. értéke" mező is törté kell alakítani
+    var osszeg_mezo = 'jh_ert_dev';
+    var tizedesek   = 0;
+    
+    if( $('#'+osszeg_mezo).length ) {
+        szerzodes_osszege = $('#'+osszeg_mezo).val().replace(/ /g, '').replace(/,/g, '.');
+    }else{
+        szerzodes_osszege = $('#'+osszeg_mezo+'_db').val().replace(/ /g, '').replace(/,/g, '.');
+    }
+
+    $('#pop_ml_jh_ert').html( ezresek(szerzodes_osszege, tizedesek, ',', ' ', '-nullát is írd ki-')+' '+akt_penznem );
+    
+    tetelek_ossz = 0;
+    $('.pop_varh_ert').each(function() {
+        tetelek_ossz += Number( $(this).html().replace(/ /g, '').replace(/,/g, '.') );
+    });
+    $('#pop_tetelek_ossz').html( ezresek(tetelek_ossz, tizedesek, ',', ' ', '-nullát is írd ki-')+' '+akt_penznem );
+
+    kulonbseg = Number(szerzodes_osszege) - Number(tetelek_ossz);
+    if( !kulonbseg ) {
+        kulonbseg = '0';
+    }
+    
+    $('#pop_kulonbseg').html( ezresek(kulonbseg, tizedesek, ',', ' ', '-nullát is írd ki-')+' '+akt_penznem );
+    $('#pop_kulonbseg').removeClass('piros');
+    if( kulonbseg!=0 && kulonbseg!='0,00' ) {
+        $('#pop_kulonbseg').addClass('piros');
+    }
+}
+</script>

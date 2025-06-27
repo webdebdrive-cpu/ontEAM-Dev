@@ -108,14 +108,14 @@ $(document).ready(function () {
     
 });
 
-/* Tételt hozzáadó függvény */
+// Tételt hozzáadó függvény
 function tetel_hozzaadasa() {
     
     var targy           = $('#pop_targy').val().trim();
     var szla_varh_erk   = $('#pop_szla_varh_erk').val().trim();
     var szla_varh_ert   = $('#pop_szla_varh_ert').val().trim().replace(/,/g, '.');
 
-    /* Üres adatok ellenőrzése */
+    // Üres adatok ellenőrzése
     if( !targy ) {
         alert2('Kérem töltse ki a tárgyat!', '', 'Hiba');
         $('#pop_targy').addClass('hibas_ide_focus');
@@ -127,14 +127,14 @@ function tetel_hozzaadasa() {
         return false;
     }
 
-    /* Valós dátum-e? */
+    // Valós dátum-e?
     if( !valid_date($('#pop_szla_varh_erk'), 'true-val térj vissza') ){
         alert2('Kérem valós dátumot adjon meg várható érkezésnek!', '', 'Hiba');
         $('#pop_szla_varh_erk').addClass('hibas_ide_focus');
         return false;
     }
     
-    /* Nem múltbeli dátum-e? */
+    // Nem múltbeli dátum-e?
     var datum = new Date().toISOString();
     datum = datum.substring(0, 10).replace(/-/g, '.');
     if( $('#pop_szla_varh_erk').val() < datum ) {

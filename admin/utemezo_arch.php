@@ -379,7 +379,7 @@ function munkalapok_archival($idk, $tranzakcio_nelkul = 0) {
         $szallito_txt           = getErtek('nev', 'szallito', 'id', $munkalap['szallito_id']);
         $telephely_txt          = getErtek('nev', 'telephely', 'id', $munkalap['telephely_id']);
         $stat_txt               = getStatText('munkalap', $munkalap['stat_id']);
-        $tipus_txt              = getErtek('info', 'erteklista', 'recid', $munkalap['tipus_id']  );
+        $tipus_txt              = erteklista(ERTEKLISTA_MUNKALAP_TIP, $munkalap['tipus_id']);
         $jh1_szerep_txt         = getSzerepkorNev($munkalap['jh1_szerep']);
         $jh2_szerep_txt         = getSzerepkorNev($munkalap['jh2_szerep']);
         

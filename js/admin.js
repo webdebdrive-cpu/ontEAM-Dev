@@ -3239,6 +3239,12 @@ function anyagigenyles_jovahagy(csak_kerdezunk, jhmen) {
     }
     if (balnav_kijelol_ell()) {
 
+        // Ha a linkben volt dashboard paraméter, akkor ezt majd adjuk is tovább átirányításkor
+        var dashboard = '';
+        if( _get('dashboard') ) {
+            dashboard = '&dashboard=Anyagigénylés jóváhagyása';
+        }
+
         szamlaSorok = $('.szamla_cont_tabla tbody tr.kijelolve');
         if( szamlaSorok.length ) {
             idk = {};
@@ -3299,7 +3305,7 @@ function anyagigenyles_jovahagy(csak_kerdezunk, jhmen) {
                             }
 
                            szurkit();
-                           location.href='anyagigenyles.php?tablazat';
+                           location.href='anyagigenyles.php?tablazat'+dashboard;
                         }
                     },
                     complete: function(xhr) {
@@ -3318,7 +3324,7 @@ function anyagigenyles_jovahagy(csak_kerdezunk, jhmen) {
 // Anyagigénylés elutasítás
 function anyagigenyles_elutasitas(csak_kerdezunk) {
 
-    if(balnav_kijelol_ell()){
+    if (balnav_kijelol_ell()) {
 
         szamlaSorok = $('#szamlaList li.szamla_sor.kijelolve');
         if( szamlaSorok.length ) {
@@ -3511,7 +3517,7 @@ function csoportAtnevezes( csoportID ) {
     }
 }
 
-/* Elutasítás popup mentése */
+// Elutasítás popup mentése
 function bejegyzesElutasitas( that, csak_memo ) {
     var elutasitas_id = $(that).find('input[name="elutasitas_id"]'),
                  memo = $(that).find('textarea[name="elutasitas_memo"]');
@@ -3568,7 +3574,7 @@ function bejegyzesElutasitas( that, csak_memo ) {
                         }
 
                         szurkit();
-                        /* Projektigényléskor megszűnne bal oldali bejegyzés, ezért frissítjük az egész oldalt */
+                        // Projektigényléskor megszűnne bal oldali bejegyzés, ezért frissítjük az egész oldalt
                         if(baseName(location.href)=='projektigenyles'){
                             szurkit();
                             location.reload();
@@ -3593,7 +3599,7 @@ function bejegyzesElutasitas( that, csak_memo ) {
     return false;
 }
 
-/* Törlés csoportból */
+// Törlés csoportból
 function csoportbolTorol( oszlop ) {
     if( oszlop ) {
 
@@ -7606,9 +7612,9 @@ function munkalapKeszit(csak_kerdezunk, kerdesek_nelkul) {
     return false;
 }
 
-/* Egy átadott elem értéke valid dátumú-e? */
+// Egy átadott elem értéke valid dátumú-e?
 function valid_date(that, true_val_terj_vissza){
-    /* Üres dátummezőt töltsük fel */
+    // Üres dátummezőt töltsük fel
     if(!that.val()){
         if(that.hasClass('datepicker')){
             that.val('\xa0\xa0\xa0\xa0.\xa0\xa0.\xa0\xa0');
@@ -7641,7 +7647,7 @@ function valid_date(that, true_val_terj_vissza){
         }
     }
 }
-/* Egy átadott elem értéke valid időpont-e? */
+// Egy átadott elem értéke valid időpont-e?
 function valid_ido(hibas_input){
     ora_perc = hibas_input.val().split(':');
     if(ora_perc[0]>24 || ora_perc[0]<0 || ora_perc[1]>60 || ora_perc[0]<0){

@@ -910,7 +910,7 @@ if( isset($_POST['jotallas_dok_torol']) ) {
     }
     
     $pr_szerzodes_jotallas  = $adatbazis_kapcsolat->s2('projektszerzodes_recid utvonal fajlnev bejaras', 'projektszerzodes_jotallas', "`recid`='{$_POST['recid']}'");
-    $pr_szerzodes           = $adatbazis_kapcsolat->s2('sz_szam', 'projektszerzodes', "`recid`='{$pr_szerzodes_jotallas['projektszerzodes_recid']}'");
+    $pr_szerzodes           = $adatbazis_kapcsolat->s2('pr_szam sz_szam', 'projektszerzodes', "`recid`='{$pr_szerzodes_jotallas['projektszerzodes_recid']}'");
     kep_torol( '../'. get_utvonal().'projektszerzodes_jotallas/'.$pr_szerzodes_jotallas['utvonal'] );
     $adatbazis_kapcsolat->u('projektszerzodes_jotallas', array('utvonal', 'fajlnev'), array('', ''), "`recid`='{$_POST['recid']}'");
     
@@ -920,6 +920,10 @@ if( isset($_POST['jotallas_dok_torol']) ) {
         array('felh_id',                                'nev', 'valtozas', 'ip'                     ),
         array($_SESSION[get_db_tabla().'login_recid'],  $nev,  $valtozas,  $_SERVER['REMOTE_ADDR']  )
     );
+
+    // Projekt dokumentumainak átszámolása
+    $projekt = $adatbazis_kapcsolat -> s2('recid', 'projektkezeles', "`ikt_szam`='{$pr_szerzodes['pr_szam']}'");
+    projekt_minositesre_varo_dok_szamol($projekt['recid']);
     
     echo json_encode( array(
                         'siker' => '1'

@@ -1,7 +1,7 @@
 <?php
 /*                                                  *\
  * FONTOS:
- * 148-os ID következik
+ * 149-os ID következik
  * 15-ös kategória ID következik
 \*                                                  */
 
@@ -57,10 +57,11 @@ $jogosultsagok = array(
     83 => array('nev' => 'Várakoztatás',                                    'kat' => 1, 'sor' => 16  ),
     24 => array('nev' => 'Vizsgálat',                                       'kat' => 1, 'sor' => 17 ),
     37 => array('nev' => 'Külsős: előkészítés',                             'kat' => 1, 'sor' => 18 ),
-    34 => array('nev' => 'Külsős jóváhagyás',                               'kat' => 1, 'sor' => 19, 'i' => 'MSZK vezető, szálloda igazgató' ),
-    67 => array('nev' => 'Külsős: megrendelés készítése',                   'kat' => 1, 'sor' => 20 ),
-    146=> array('nev' => 'Elsődleges aláíró',                               'kat' => 1, 'sor' => 21 ),
-    147=> array('nev' => 'Másodlagos aláíró',                               'kat' => 1, 'sor' => 22 ),
+    34 => array('nev' => 'Külsős jóváhagyás',                               'kat' => 1, 'sor' => 19, 'i' => 'szálloda igazgató' ),
+    148=> array('nev' => 'Megrendelés kontírozása',                         'kat' => 1, 'sor' => 20 ),
+    67 => array('nev' => 'Külsős: megrendelés készítése',                   'kat' => 1, 'sor' => 21 ),
+    146=> array('nev' => 'Elsődleges aláíró',                               'kat' => 1, 'sor' => 22 ),
+    147=> array('nev' => 'Másodlagos aláíró',                               'kat' => 1, 'sor' => 23, 'i' => 'Virtuális, elsődlegessel együtt ír alá' ),
     
     6  => array('nev' => 'Felhasználók megtekintése',               'kat' => 2, 'sor' => 6),
     7  => array('nev' => 'Felhasználók kezelése',                   'kat' => 2, 'sor' => 7),
