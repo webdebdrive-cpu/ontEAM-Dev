@@ -17,6 +17,7 @@ $(document).ready(function(){
             rekl_elfogad_ml_ok  : Date.now()
         },
         success: function(response){
+            if(response.substring(0, 6)=='SESKIL'){ location.href = 'index.php'; }
             $('#rekl_elfogad_ml_ok').html(response);
         },
         complete: function(xhr) {

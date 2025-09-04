@@ -101,6 +101,9 @@ if( isset($_POST['jelszo_csere']) ) {
                         }
                         // Ajax hívást azt vegyük ki belőle
                         $_SESSION['kert_url'] = str_replace('ajax=1', '', $_SESSION['kert_url']);
+                        if( $_SESSION['kert_url'] == 'esemenyek.php' ) {
+                            $_SESSION['kert_url'] = 'index.php';
+                        }
                         header('Location: '.$_SESSION['kert_url']);
                         
                         $adatbazis_kapcsolat -> bezar();
@@ -224,15 +227,6 @@ if( isset($_POST['login']) ) {
                         unset($_SESSION['egyszallodas_user']);
                     }
                     
-                    // Rendezés
-                    if( $felhasznalo['tabla_rendezes'] ) {
-                        $rendezes = json_decode(htmlspecialchars_decode($felhasznalo['tabla_rendezes']), true);
-
-                        foreach ( $rendezes as $key => $value ) {
-                            $_SESSION[$key] = $value;
-                        }
-                    }
-
                     if( !$_SESSION['kert_url'] ) {
                         $_SESSION['kert_url'] = get_http().get_domain().'/'.get_admin();
                     }

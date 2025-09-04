@@ -9466,16 +9466,6 @@ if( isset($_GET['uj']) ) {
         $gombok .= '<input type="button" class="gomb modositaskor_rejt" value="Megrendelés megtekintése" onclick="munkalapMegrendelesKeszit(\'PDF_előnézet\'); pdf_interval = setInterval(() => { if (pdf_megnyithato === 1) { window.open(\'munkalap.php?nyomtat&amp;PDF_elonezet=1&amp;id=\'+_get(\'id\')); clearInterval(pdf_interval); } }, 500);"> ';
     }
 
-    if( $sor['stat_id'] == MUNKALAP_STAT_MEGR_ALAIR_VAR && ( _jog(JOG_MUNKALAP_ELSODL_ALAIR) || _jog(JOG_MUNKALAP_MASODL_ALAIR) ) ) {
-        // Csak akkor mutassuk a Vissza ügyintézőnek gombot, ha adott joggal még nem volna aláírva
-        if(
-            (_jog(JOG_MUNKALAP_ELSODL_ALAIR) && !$sor['alair1']) ||
-            (_jog(JOG_MUNKALAP_MASODL_ALAIR) && !$sor['alair2'])
-        ) {
-            $gombok .= '<input type="button" class="gomb modositaskor_rejt" value="Vissza ügyintézőnek" onclick="csoportMuvelet(\'munkalapVisszaUi\');"> ';
-        }
-    }
-
     // Aláírásra vár státusz alatt lehet aláírni, ha van elsődleges vagy másodlagos aláírás jogunk
     // Már csak elsődleges aláíró van
     if( $sor['stat_id'] == MUNKALAP_STAT_MEGR_ALAIR_VAR && (_jog(JOG_MUNKALAP_ELSODL_ALAIR)/* || _jog(JOG_MUNKALAP_MASODL_ALAIR)*/) ) {

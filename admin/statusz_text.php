@@ -101,6 +101,22 @@ $_stat_text = array(
         PRKEZEL_STAT_LEZART                 => array('nev' => 'Lezárt',                             'szinkod' => ''),
         PRKEZEL_STAT_FELFUGGESZTETT         => array('nev' => 'Felfüggesztett',                     'szinkod' => ''),
     ),
+    'eszkozigenyles' => array(
+        ESZKOZIGENYL_STAT_UJ_FELVITEL       => array('nev' => 'Új felvitel',                        'szinkod' => ''),
+        ESZKOZIGENYL_STAT_MUSZAK_JH_VAR     => array('nev' => 'Műszaki jóváhagyásra vár',           'szinkod' => ''),
+        ESZKOZIGENYL_STAT_SZALL_ENG_VAR     => array('nev' => 'Szállodai engedélyre vár',           'szinkod' => ''),
+        ESZKOZIGENYL_STAT_BI_VALID_VAR      => array('nev' => 'BI validálásra vár',                 'szinkod' => ''),
+        ESZKOZIGENYL_STAT_SZAKM_VEL_VAR     => array('nev' => 'Szakmai véleményezésre vár',         'szinkod' => ''),
+        ESZKOZIGENYL_STAT_FELSO_JH_VAR      => array('nev' => 'Felsővezető jóváhagyásra vár',       'szinkod' => ''),
+        ESZKOZIGENYL_STAT_BI_VEGL_VAR       => array('nev' => 'BI véglegesítésre vár',              'szinkod' => ''),
+        ESZKOZIGENYL_STAT_KIKULD_VAR        => array('nev' => 'Kiküldésre vár',                     'szinkod' => ''),
+        ESZKOZIGENYL_STAT_MEGRENDELVE       => array('nev' => 'Megrendelve',                        'szinkod' => ''),
+        ESZKOZIGENYL_STAT_ELUTASITOTT       => array('nev' => 'Elutasított',                        'szinkod' => ''),
+    ),
+    'eszkozigenyles_megr' => array(
+        ESZKOZIGENYL_MEGR_STAT_KIKULD_VAR   => array('nev' => 'Kiküldésre vár',                     'szinkod' => ''),
+        ESZKOZIGENYL_MEGR_STAT_MEGRENDELVE  => array('nev' => 'Megrendelve',                        'szinkod' => ''),
+    ),
 );
 
 // Archívumok miatt

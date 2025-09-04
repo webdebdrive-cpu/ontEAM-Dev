@@ -120,6 +120,7 @@
                 get_hiba_tabla  : new Date().getTime()
             },
             success: function(response) {
+                if(response.substring(0, 6)=='SESKIL'){ location.href = 'index.php'; }
                 if( response ) {
                     response = JSON.parse(response);
 
@@ -183,6 +184,7 @@ function hiba_tabla_ment( that ) {
          	type: 'POST',
          	data: $(that).serialize() + esamp2es('&amp;id='+_get('id')+'&amp;hiba_tabla_ment=') + new Date().getTime(),
          	success: function(response) {
+                if(response.substring(0, 6)=='SESKIL'){ location.href = 'index.php'; }
          		if( response ) {
          			response = JSON.parse(response);
 

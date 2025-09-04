@@ -1,0 +1,131 @@
+<h2>Táblázat beállításai</h2>
+<form id="addCsoportForm" class="popupForm" method="post" onsubmit="return tablazatBeallit();">
+    
+    <div class="kozep"></div>
+
+    <div class="kuldes">
+        <input type="button" class="gomb" value="Felviteli sorrend visszaállítása" onclick="felvitel_visszaallit();">
+        <input type="submit" name="elkuld" value="Mentés">
+        <input type="button" name="megsem" class="gombb_alert" value="Mégsem" onclick="popupZar();">
+    </div>
+</form>
+<style>
+#popup div.popup_tart div.dt {
+    width: auto;
+}
+#popup div.popup_tart div.dt div.dtc.form_jobb {
+    width: auto;
+}
+.oszlopok_max_h {
+    max-height: 40rem;
+    overflow-y: auto;
+    overflow-x: hidden;
+    padding-right: 1rem;
+}
+.oszlopok_max_h .form_bal {
+    max-width: 12rem;
+    white-space: normal;
+}
+.oszlopok_max_h .form_jobb {
+    width: 8rem !important;
+}
+</style>
+<script>
+$(document).ready(function(){
+    
+    $.ajax({
+        url : PHP_SELF,
+        type: 'POST',
+        data: {
+            get_tabla_oszlopok : Date.now()
+        },
+        success: function(response){
+            if(response.substring(0, 6)=='SESKIL'){ location.href = 'index.php'; }
+            if(response){
+                response = JSON.parse(response);
+                if(response.hiba){
+                    alert2(response.hiba, response.gomb, response.title);
+                    return false;
+                }
+                $('.kozep').html(response.html);
+            }
+        },
+        complete: function(xhr) {
+            if( xhr.status != 200 ) {
+                alert2(xhr.responseText, '', 'Hiba');
+            }
+        }
+    });
+});
+
+// Táblázat beállítása
+function tablazatBeallit() {
+
+    // Járjuk be a megjelenik pipákat. Ha nincs bepipálva, akkor rejtsük el, kap egy dn-t
+    var volt_valtozas_ezert_reload = 0;
+    $('.check_megjelenik').each(function() {
+        var id = $(this).attr('id');
+        id = id.replace('megjelenik_', '');
+        if( !$(this).prop('checked') ) {
+            if( !$('#'+id).hasClass('dn') ) {
+                volt_valtozas_ezert_reload = 1;
+            }
+            $('#'+id).addClass('dn');
+        } else {
+            if( $('#'+id).hasClass('dn') ) {
+                volt_valtozas_ezert_reload = 1;
+            }
+            $('#'+id).removeClass('dn');
+        }
+    });
+
+    // Járjuk be az egysoros pipákat, ezt is tegyük rá a fejlécekre
+    $('.check_egysoros').each(function() {
+        var id = $(this).attr('id');
+        id = id.replace('egysoros_', '');
+        if( $(this).prop('checked') ) {
+            $('#'+id).addClass('egysoros');
+        } else {
+            $('#'+id).removeClass('egysoros');
+        }
+    });
+
+    eszkozigenyles_oszlopok_beallit( volt_valtozas_ezert_reload );
+
+    popupZar();
+
+    return false;
+}
+
+// Felviteli sorrend visszaállítása
+// Elküldjük a rendezés adatokat üres adatokkal, ez beíródik adatbázisba, de SESSION-be is, majd reload
+function felvitel_visszaallit(id, mehet) {
+    
+    $.ajax({
+        url : PHP_SELF,
+        type: 'POST',
+        data: {
+            oszlop          : '',
+            irany           : '',
+            tablazat_rendez : Date.now()
+        },
+        success: function (response) {
+            if(response.substring(0, 6)=='SESKIL'){ location.href = 'index.php'; }
+            if (response) {
+                response = JSON.parse(response);
+                if (response.hiba) {
+                    alert2(response.hiba, response.gomb, response.title);
+                    return false;
+                }
+                location.reload();
+            }
+        },
+        complete: function (xhr) {
+            if (xhr.status != 200) {
+                alert2(xhr.responseText, '', 'Hiba');
+            }
+        }
+    });
+
+}
+</script>

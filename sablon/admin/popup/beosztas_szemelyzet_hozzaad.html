@@ -20,6 +20,7 @@ $(document).ready(function(){
             get_szemelyzet_hozzaad  : Date.now()
         },
         success: function(response){
+            if(response.substring(0, 6)=='SESKIL'){ location.href = 'index.php'; }
             if( response ) {
                 response = JSON.parse(response);
                 
@@ -60,6 +61,7 @@ function szemelyzet_hozzaad () {
             szemelyzet_hozzaad  : Date.now()
         },
         success: function(response){
+            if(response.substring(0, 6)=='SESKIL'){ location.href = 'index.php'; }
             szamlaBetolt(_get('id'), PHP_SELF, 'modosit');
             popupZar();
         }

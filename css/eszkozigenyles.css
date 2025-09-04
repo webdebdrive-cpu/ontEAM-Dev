@@ -1,0 +1,95 @@
+*{
+    --kepernyo_left: 3rem;
+    --kepernyo_left-fele: 1.5rem;
+}
+
+/* A táblázatot eleinte nem jelenítjük meg, majd csak akkor ha már minden sikeresen be van töltve (hogy ne legyen zavaró a táblázat átrendeződése, "villogása" */
+#dragTable.opa {
+    opacity: .04;
+}
+/* A táblázat margin-top pontos magasságát megjelenítés után tudjuk csak beállítani, mert ekkorra derül ki, hogy mekkora a 
+fejléc magassága. De addig is legyen egy alap magassága, hogy ne legyen nagy elmozdulás */
+#dragTable {
+    margin-top: 7rem;
+}
+
+.sor.kethasabos {
+    max-width: calc(100% - var(--kepernyo_left));
+    min-width: calc(100% - var(--kepernyo_left));
+}
+
+/* Ezzel takarjuk ki a fejlécet bal szélen */
+.szamla_cont_tabla thead::before {
+    content: '';
+    background: #fff;
+    position: fixed;
+    left: 0;
+    height: 10rem;
+    width: var(--kepernyo_left-fele);
+    z-index: 1;
+}
+
+#csuszkaallit {
+    display: none;
+}
+
+table.excel td.aktiv {
+    box-shadow: inset  0 0 0 .2rem var(--color-sotet-kek);
+}
+table.szamla_cont_tabla.excel tr.kijelolve, table.szamla_cont_tabla.excel tr.kijelolve:hover {
+    background: #bdd3ea;
+    color: #242424;
+}
+
+table.excel td.akt_oszl {
+    background: #bdd3ea;
+}
+table.excel td.akt_oszl.aktiv {
+    background: var(--color-kek);
+}
+
+table.excel td.egysoros {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+table.excel td.egysoros br {
+    display: none;
+}
+
+table.excel td.spec_pipa {
+    text-align: center;
+    font-size: 2rem;
+}
+table.excel td.spec_pipa .sarga {
+    color: #FFC029;
+}
+
+div.naplo div.nSor div.dtc:nth-of-type(2), div.naplo div.nSor div.dtc:nth-of-type(3) {
+    white-space: nowrap;
+}
+
+
+/*
+Első oszlopok fixálása
+Fejléc magassággal volt gond.
+
+.excel th:nth-child(1),
+.excel td:nth-child(1) {
+  position: sticky;
+  left: 0;
+  background: #fff;
+  z-index: 2;
+  box-shadow: 2px 0 5px -2px rgba(0,0,0,0.15);
+}
+
+
+.excel th:nth-child(2),
+.excel td:nth-child(2) {
+  position: sticky;
+  left: 120px;
+  background: #fff;
+  z-index: 2;
+  box-shadow: 2px 0 5px -2px rgba(0,0,0,0.15);
+} */

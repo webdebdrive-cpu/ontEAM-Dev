@@ -966,12 +966,12 @@ require_once('selectek.php');
             if( $login ) {
 
                 // Jogosultságok feldarabolás
-                $flags  = str_split($login['flags']     );
+                $flags = str_split($login['flags']);
 
                 // Ellenőrzéshez
                 $jogEll = array();
                 $i = 0;
-                foreach($jogosultsagok as $jog) {
+                foreach ($jogosultsagok as $jog) {
                     if( $flags[$i] ) {
                         $jogEll['jog-'.$i] = 1;
                     } else {
@@ -1042,8 +1042,10 @@ require_once('selectek.php');
                                         <div class="dt">
                     ');
 
-                $jogdb      = count($jogKatok);
-                $jogdb_fel  = ceil($jogdb / 2);
+                $jogdb = count($jogKatok);
+                // Hol felezzük el a kategóriákat? A fele + 2-nél, mert nem egyforma számú lista van az egyes kategóriáknál, ezért egy +2-val igazítva van a fele,
+                // hogy vizuálisan valóban szép legyen.
+                $jogdb_fel = ceil($jogdb / 2) + 2;
 
                 // Kiíratjuk az egészet
                 $i = 1;
@@ -1144,9 +1146,8 @@ require_once('selectek.php');
                             $jh_ft_ig = '<input type="text" id="jh_ft_ig" name="jh_ft_ig" value="'.number_format($login['jh_ft_ig'], 0, '', ' ').'" class="f_num f_select" data-tort="0" data- style="margin-left: 5rem; width: 10rem;"> '. get_penznem().'-ig';
                         }
                         
-                        // WebDeb szerverén mutatjuk a jog sorszámát is
+                        // Debug IP-vel mutatjuk a jog sorszámát is
                         $sorszam = '';
-                        
                         if( $_SERVER['REMOTE_ADDR'] == get_debug_ip() ) {
                             $sorszam = '['.$jogSor['id'].'] ';
                         }

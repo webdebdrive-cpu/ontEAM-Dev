@@ -45,13 +45,14 @@
                 mszk_vez_is     : '',                   /* Projektek, projektfelelős selectjénél használjuk                 */
                 szemelyzet_id   : '',                   /* Munkaidő ráfodítás név hozzáadásánál kell                        */
                 szuros          : '',                   /* Ha a szűrőben hívtuk meg, akkor azt ezen keresztül tudjuk jelezni*/
+                szulo           : '',                   /* Szülő ID, ta_reszleg táblánál van használva                      */
                 tabla           : '',                   /* Adatbázis tábla, amiben keresünk                                 */
                 menupont_szuro  : '',                   /* Dokumentum típus értéklista lenyílónál tovább szűrünk még adott menüpontra (`erteklitsta` tábla itt megadott oszlopára) */
                 that            : $(this),
                 complete        : function() {}         /* Miután kiválasztottunk egy értéket, le tudunk futtatni még JS kódokat. */
             };
 
-            var van_uj_erteke = false;
+            // var van_uj_erteke = false;
             var options = $.extend(defaults, options);
 
             if( $(this).attr('data-no_original_val')!='1' ){
@@ -94,6 +95,7 @@
                         setting     = options;
                         
                         if(length >= options.karaktertol) {
+    
                             var cont_id = $(that).attr('id') + '_cont',
                                 current_cont_id = $('#autocomplete').attr('data-cont');
 
@@ -192,6 +194,7 @@
                                         tabla           : options.tabla,
                                         menupont_szuro  : options.menupont_szuro,
                                         szuros          : options.szuros,
+                                        szulo           : options.szulo,
                                         telephely_id    : telephely_id,
                                         modul           : baseName(location.href),
                                         value           : val
@@ -200,7 +203,7 @@
                                         if(msg.substring(0, 6)=='SESKIL'){ location.href = 'index.php'; }
                                         $('div#autocomplete').html(msg);
 
-                                        // Ha kilógna a képernyőről
+                                        // Ha kilógna a képernyőből
                                         var offsetTop       = $(that).offset().top,
                                             documentHeight  = $(document).outerHeight(),
                                             documentHalf    = documentHeight / 2;
@@ -212,11 +215,9 @@
                                             autocompHeight = 300;
                                         }
 
-                                        /* Ha az input elhagyta a documentum felét */
+                                        // Ha az input elhagyta a documentum felét
                                         if( offsetTop > documentHalf ) {
                             
-                                            var maradekHely = documentHeight - (offsetTop + height);
-
                                             autocompleteTop = -Math.abs(autocompHeight);
         
                                             var posTop = $(that).position().top;
@@ -276,7 +277,7 @@
             // Ha nincs érték a rejett mezőben, akkor töröljük az autocopletes mező értékét is.
             // Viszont ezt ne tegyük meg, ha a mezőnek van olyan data tag-je, hogy "ne üríts"
             $(this).on('blur', function(e) {
-                if( mezo !== undefined && mezo.attr('name').indexOf('_autocomp') !== -1 ) {
+                if( typeof mezo !== 'undefined' && mezo.attr('name').indexOf('_autocomp') !== -1 ) {
                     var mezo_nev = mezo.attr('name').replace('_autocomp', ''),
                         value    = $('input[name="' + mezo_nev + '"]').val();
 
@@ -288,108 +289,115 @@
 
             // Klikkelve kiválasztva egy sor
             $(document).on('click', '#autocomplete ul li', function(e) {
-                var link   = $('#autocomplete ul li.aktiv').attr('data-href'),
-                    recid  = $('#autocomplete ul li.aktiv').attr('data-recid'),
-                    cikkid = $('#autocomplete ul li.aktiv').attr('data-cikkid');
 
-                if( baseName(location.href) == 'login' && recid == 12 ) {
-                    $('#szallitoid_autocomp').attr('readonly', false);
-                } else {
-                    $('#szallitoid_autocomp').attr('readonly', true).val('');
-                    $('#szallitoid').val('');
-                }
+                // Ha az autocomplete-ben levő data-cont azonos az input ID-jával csak akkor foglalkozzunk vele
+                // Ez azért kellett, mert a complete() utólagos függvényhívás lefutott minden inputra vonatkozóan, amire rá volt téve az autocomplete.
+                // Ebből gond volt. Így viszont csak az a complete() fut le, ami adott inputhoz van definiálva
+                if( $('#autocomplete').attr('data-cont').replace('_cont', '') == options.that[0]['id'] ) {
 
-                var mee = $('#autocomplete ul li.aktiv').attr('data-mee');
-                if( mee !== undefined ) {
-                    $('.insertMee').text(mee);
-                }
-                if( cikkid !== undefined ) {
-                    $('#cikkid_origi').val(cikkid);
-                }
+                    var link   = $('#autocomplete ul li.aktiv').attr('data-href'),
+                        recid  = $('#autocomplete ul li.aktiv').attr('data-recid'),
+                        cikkid = $('#autocomplete ul li.aktiv').attr('data-cikkid');
 
-                if( link ){
-                    szurkit();
-                    location.href = link;
-                } else {
-                    var li_val = $('#autocomplete ul li.aktiv').html();
-
-                    if( $('#autocomplete ul li.aktiv').attr('data-tabla') == 'szallito' ) {
-                        li_val = szallito_id_levesz(li_val);
+                    if( baseName(location.href) == 'login' && recid == 12 ) {
+                        $('#szallitoid_autocomp').attr('readonly', false);
+                    } else {
+                        $('#szallitoid_autocomp').attr('readonly', true).val('');
+                        $('#szallitoid').val('');
                     }
 
-                    if( li_val.indexOf('&') !== -1 ) {
-                        li_val = li_val.replace('&amp;', '&');
+                    var mee = $('#autocomplete ul li.aktiv').attr('data-mee');
+                    if( mee !== undefined ) {
+                        $('.insertMee').text(mee);
                     }
-                    
-                    mezo.val( li_val ).change();
-                    van_uj_erteke = true;
+                    if( cikkid !== undefined ) {
+                        $('#cikkid_origi').val(cikkid);
+                    }
 
-                    mezo.attr('data-origin-val', mezo.val());
+                    if( link ){
+                        szurkit();
+                        location.href = link;
+                    } else {
+                        var li_val = $('#autocomplete ul li.aktiv').html();
 
-                    if( mezo.attr('name').indexOf('_autocomp') !== -1 ) {
-                        mezo_nev = mezo.attr('name').replace('_autocomp', '');
-                        $('input[name="' + mezo_nev + '"]').val(recid);
-
-                        // Egy érték kiválasztásakor mi fusson le. Lehessen paraméterként átadni egy függvényt vagy bármilyen JS kódot, ami akkor fut le, ha megvan az érték kiválasztása
-                        // Viszont ha az inputunk neve pop_cimzett_loginbol, akkor ezt mégse tegyük meg, mert egy popup-on két autocpmlete is volt, és az elsőnek van oncomplete-je, és a 2-nál is mindig lefutott
-                        // Hasonlóan a projekszerződéseknél sem kéne, hogy lefusson ez a hívás egy  Szerződést kötő kiváalsztásakor
-                        if( mezo.attr('name')!='pop_cimzett_loginbol_autocomp' && mezo.attr('name')!='sz_koto_autocomp' ) {
-                            options.complete(options.tabla);
+                        if( $('#autocomplete ul li.aktiv').attr('data-tabla') == 'szallito' ) {
+                            li_val = szallito_id_levesz(li_val);
                         }
 
-                        var form = $('input[name="' + mezo_nev + '"]').parents('form');
-                        // Lehet nem egy űrlapon vagyunk, hanem egy alert2-ben, ebben keressünk inputot
-                        if($('#alert2').length){
-                            form = $('#alert2');
+                        if( li_val.indexOf('&') !== -1 ) {
+                            li_val = li_val.replace('&amp;', '&');
                         }
+                        
+                        mezo.val( li_val ).change();
+                        // van_uj_erteke = true;
 
-                        setTimeout(function() {
-                            // Autcomplete után a következő inputra fókusz
-                            stop = false;
-                            form.find('input:not([readonly]), select:not([readonly]), textarea:not([readonly])').filter(':not(:disabled)').filter(":not([type='file'])").each(function() {
-                                var name = $(this).attr('name'),
-                                    type = $(this).attr('type'),
-                                    tag  = $(this).prop('tagName');
+                        mezo.attr('data-origin-val', mezo.val());
 
-                                // Autocomplete hidden inputjai miatt csak arra fókuszálunk, ami látszik is
-                                if( name !== undefined && (stop && type == 'checkbox') || (stop && $(this).is(':visible')) ) {
+                        if( mezo.attr('name').indexOf('_autocomp') !== -1 ) {
+                            mezo_nev = mezo.attr('name').replace('_autocomp', '');
+                            $('input[name="' + mezo_nev + '"]').val(recid);
 
-                                    if( type == 'checkbox' || tag == 'SELECT' ) {
-                                        document.getElementById(name).focus();
-                                    } else {
-                                        if ($('#' + name).length) {
-                                            setTimeout(function(){ 
-                                                document.getElementById(name).select() },
-                                            150);
-                                            
+                            // Egy érték kiválasztásakor mi fusson le. Lehessen paraméterként átadni egy függvényt vagy bármilyen JS kódot, ami akkor fut le, ha megvan az érték kiválasztása
+                            // Viszont ha az inputunk neve pop_cimzett_loginbol, akkor ezt mégse tegyük meg, mert egy popup-on két autocpmlete is volt, és az elsőnek van oncomplete-je, és a 2-nál is mindig lefutott
+                            // Hasonlóan a projekszerződéseknél sem kéne, hogy lefusson ez a hívás egy  Szerződést kötő kiváalsztásakor
+                            if( mezo.attr('name')!='pop_cimzett_loginbol_autocomp' && mezo.attr('name')!='sz_koto_autocomp' ) {
+                                options.complete(options.tabla);
+                            }
+
+                            var form = $('input[name="' + mezo_nev + '"]').parents('form');
+                            // Lehet nem egy űrlapon vagyunk, hanem egy alert2-ben, ebben keressünk inputot
+                            if($('#alert2').length){
+                                form = $('#alert2');
+                            }
+
+                            setTimeout(function() {
+                                // Autcomplete után a következő inputra fókusz
+                                stop = false;
+                                form.find('input:not([readonly]), select:not([readonly]), textarea:not([readonly])').filter(':not(:disabled)').filter(":not([type='file'])").each(function() {
+                                    var name = $(this).attr('name'),
+                                        type = $(this).attr('type'),
+                                        tag  = $(this).prop('tagName');
+
+                                    // Autocomplete hidden inputjai miatt csak arra fókuszálunk, ami látszik is
+                                    if( name !== undefined && (stop && type == 'checkbox') || (stop && $(this).is(':visible')) ) {
+
+                                        if( type == 'checkbox' || tag == 'SELECT' ) {
+                                            document.getElementById(name).focus();
+                                        } else {
+                                            if ($('#' + name).length) {
+                                                setTimeout(function(){ 
+                                                    document.getElementById(name).select() },
+                                                150);
+                                                
+                                            }
                                         }
+
+                                        return false;
                                     }
 
-                                    return false;
-                                }
+                                    if( name == mezo_nev ) {
+                                        stop = true;
+                                    }
+                                });
+                            }, 50);
+                        }
 
-                                if( name == mezo_nev ) {
-                                    stop = true;
-                                }
-                            });
-                        }, 50);
+                        // Árazás popuphoz
+                        if(options.arazas_beallit){
+                            rend_ossz_beallit();
+                        }
+
+                        // KP-s anyagbeszerzéshez popuphoz
+                        // Viszont ne fusson le más Áfa autocompleteknél (pl, anyag vagy energia számla tételek popup)
+                        if ( $('#pop_afa').length && $('#pop_afa').val() && location.href.indexOf('energia_szamla.php')=='-1' && location.href.indexOf('anyag_szamla.php')=='-1' ) {
+                            osszegek_kiszamol($('#pop_afa'));
+                        }
+
+                        if( setting.tabla == 'obj' ) {
+                            gepVane();
+                        }
+
                     }
-
-                    // Árazás popuphoz
-                    if(options.arazas_beallit){
-                        rend_ossz_beallit();
-                    }
-
-                    // KP-s anyagbeszerzéshez popuphoz
-                    // Viszont ne fusson le más Áfa autocompleteknél (pl, anyag vagy energia számla tételek popup)
-                    if ( $('#pop_afa').length && $('#pop_afa').val() && location.href.indexOf('energia_szamla.php')=='-1' && location.href.indexOf('anyag_szamla.php')=='-1' ) {
-                        osszegek_kiszamol($('#pop_afa'));
-                    }
-
-                    if( setting.tabla == 'obj' ) {
-                        gepVane();
-                    }
-
                 }
             });
 
@@ -429,10 +437,15 @@
                 }
             });
 
-            $(this).keydown(function(e) {
+            // Vegyük le a keydown eseményfigyelést, mert többször meghívva egy inputra, duplán figyelné
+            $(this).off('keydown.autocomplete');
+            $(this).on('keydown.autocomplete', function(e) {
                 var aktiv   = $('#autocomplete ul li.aktiv');
                 var first   = $('#autocomplete ul li:first-child');
-                if( e.keyCode==KEY_DOWN ) {
+                var last    = $('#autocomplete ul li:last-child');
+                
+                if( e.keyCode==KEY_DOWN && !$('#autocomplete').hasClass('up_down_figyelve') ) {
+                    
                     if (!$('#autocomplete ul li').hasClass('aktiv')) {
                         first.addClass('aktiv');
 
@@ -441,21 +454,18 @@
                         if (!aktiv.is(':last-child')) {
                             aktiv.removeClass('aktiv');
                             aktiv.next().addClass('aktiv');
+
                         } else {
                             aktiv.removeClass('aktiv');
                             first.addClass('aktiv');
                         }
                     }
 
-                    var scrollHeight = $('#autocomplete').prop('scrollHeight');
-                    $('#autocomplete').scrollTop($('#autocomplete').scrollTop() + $('#autocomplete ul li.aktiv').position().top - 20);
+                    // Ez kell egyáltalán? var scrollHeight = $('#autocomplete').prop('scrollHeight');
+                    if( $('#autocomplete ul li.aktiv').length ) {
+                        $('#autocomplete').scrollTop($('#autocomplete').scrollTop() + $('#autocomplete ul li.aktiv').position().top - 20);
+                    }
                 }
-            });
-            $(this).keyup(function(e) {
-                var aktiv   = $('#autocomplete ul li.aktiv');
-                var first   = $('#autocomplete ul li:first-child');
-                var last    = $('#autocomplete ul li:last-child');
-
                 if(e.keyCode==KEY_UP) {
                     if(!$('#autocomplete ul li').hasClass('aktiv')) {
                         last.addClass('aktiv');
@@ -469,109 +479,119 @@
                         }
                     }
 
-                    var scrollHeight = $('#autocomplete').prop('scrollHeight');
-                    $('#autocomplete').scrollTop($('#autocomplete').scrollTop() + $('#autocomplete ul li.aktiv').position().top - 20);
+                    // Ez kell egyáltalán? var scrollHeight = $('#autocomplete').prop('scrollHeight');
+                    if( $('#autocomplete ul li.aktiv').length ) {
+                        $('#autocomplete').scrollTop($('#autocomplete').scrollTop() + $('#autocomplete ul li.aktiv').position().top - 20);
+                    }
                 }
+            });
+            $(this).keyup(function(e) {
 
                 // Enterrel kiválasztva egy sort
                 if(e.keyCode==KEY_ENTER) {
                     if( $('#autocomplete ul li').hasClass('aktiv') ) {
 
-                        var link   = $('#autocomplete ul li.aktiv').attr('data-href'),
-                            recid  = $('#autocomplete ul li.aktiv').attr('data-recid'),
-                            cikkid = $('#autocomplete ul li.aktiv').attr('data-cikkid');
+                        // Ha az autocomplete-ben levő data-cont azonos az input ID-jával csak akkor foglalkozzunk vele
+                        // Ez azért kellett, mert a complete() utólagos függvényhívás lefutott minden inputra vonatkozóan, amire rá volt téve az autocomplete.
+                        // Ebből gond volt. Így viszont csak az a complete() fut le, ami adott inputhoz van definiálva
+                        if( $('#autocomplete').attr('data-cont').replace('_cont', '') == options.that[0]['id'] ) {
 
-                        if( baseName(location.href) == 'login' && recid == 12 ) {
-                            $('#szallitoid_autocomp').attr('readonly', false);
-                        } else {
-                            $('#szallitoid_autocomp').attr('readonly', true).val('');
-                            $('#szallitoid').val('');
-                        }
+                            var link   = $('#autocomplete ul li.aktiv').attr('data-href'),
+                                recid  = $('#autocomplete ul li.aktiv').attr('data-recid'),
+                                cikkid = $('#autocomplete ul li.aktiv').attr('data-cikkid');
 
-                        var mee = $('#autocomplete ul li.aktiv').attr('data-mee');
-                        if( mee !== undefined ) {
-                            $('.insertMee').text(mee);
-                        }
-
-                        if( cikkid !== undefined ) {
-                            $('#cikkid_origi').val(cikkid);
-                        }
-
-                        if(link){
-                            szurkit();
-                            location.href = link;
-                        } else {
-                            var li_val = $('#autocomplete ul li.aktiv').html();
-                            
-                            if( $('#autocomplete ul li.aktiv').attr('data-tabla') == 'szallito' ) {
-                                li_val = szallito_id_levesz(li_val);
-                            }
-                            
-                            if( li_val.indexOf('&') !== -1 ) {
-                                li_val = li_val.replace('&amp;', '&');
+                            if( baseName(location.href) == 'login' && recid == 12 ) {
+                                $('#szallitoid_autocomp').attr('readonly', false);
+                            } else {
+                                $('#szallitoid_autocomp').attr('readonly', true).val('');
+                                $('#szallitoid').val('');
                             }
 
-                            mezo.val( li_val ).change();
-                            van_uj_erteke = true;
+                            var mee = $('#autocomplete ul li.aktiv').attr('data-mee');
+                            if( mee !== undefined ) {
+                                $('.insertMee').text(mee);
+                            }
 
-                            mezo.attr('data-origin-val', mezo.val());
-                            if( mezo.attr('name').indexOf('_autocomp') !== -1 ) {
-                                mezo_nev = mezo.attr('name').replace('_autocomp', '');
-                                $('input[name="' + mezo_nev + '"]').val(recid);
+                            if( cikkid !== undefined ) {
+                                $('#cikkid_origi').val(cikkid);
+                            }
+
+                            if(link){
+                                szurkit();
+                                location.href = link;
+                            } else {
+                                var li_val = $('#autocomplete ul li.aktiv').html();
                                 
-                                // Egy érték kiválasztásakor mi fusson le. Lehessen paraméterként átadni egy függvényt vagy bármilyen JS kódot, ami akkor fut le, ha megvan az érték kiválasztása
-                                options.complete(options.that);
+                                if( $('#autocomplete ul li.aktiv').attr('data-tabla') == 'szallito' ) {
+                                    li_val = szallito_id_levesz(li_val);
+                                }
+                                
+                                if( li_val.indexOf('&') !== -1 ) {
+                                    li_val = li_val.replace('&amp;', '&');
+                                }
 
-                                var form = $('input[name="' + mezo_nev + '"]').parents('form');
+                                mezo.val( li_val ).change();
+                                // van_uj_erteke = true;
 
-                                setTimeout(function() {
-                                    stop = false;
-                                    form.find('input, select, textarea').filter(':not(:disabled)').filter(":not([readonly='readonly'])").filter(":not([type='file'])").each(function() {
-                                        var name = $(this).attr('name'),
-                                            type = $(this).attr('type'),
-                                            tag  = $(this).prop('tagName');
+                                mezo.attr('data-origin-val', mezo.val());
+                                if( mezo.attr('name').indexOf('_autocomp') !== -1 ) {
+                                    mezo_nev = mezo.attr('name').replace('_autocomp', '');
+                                    $('input[name="' + mezo_nev + '"]').val(recid);
+                                    
+                                    // Egy érték kiválasztásakor mi fusson le. Lehessen paraméterként átadni egy függvényt vagy bármilyen JS kódot, ami akkor fut le, ha megvan az érték kiválasztása
+                                    options.complete(options.that);
 
-                                        // Autocomplete hidden inputjai miatt csak arra fókuszálunk, ami látszik is
-                                        if( name !== undefined && (stop && type == 'checkbox') || (stop && $(this).is(':visible')) ) {
+                                    var form = $('input[name="' + mezo_nev + '"]').parents('form');
 
-                                            if( type == 'checkbox' || tag == 'SELECT' ) {
-                                                document.getElementById(name).focus();
-                                            } else {
-                                                if($('#' + name).length){
-                                                    document.getElementById(name).select();
+                                    setTimeout(function() {
+                                        stop = false;
+                                        form.find('input, select, textarea').filter(':not(:disabled)').filter(":not([readonly='readonly'])").filter(":not([type='file'])").each(function() {
+                                            var name = $(this).attr('name'),
+                                                type = $(this).attr('type'),
+                                                tag  = $(this).prop('tagName');
+
+                                            // Autocomplete hidden inputjai miatt csak arra fókuszálunk, ami látszik is
+                                            if( name !== undefined && (stop && type == 'checkbox') || (stop && $(this).is(':visible')) ) {
+
+                                                if( type == 'checkbox' || tag == 'SELECT' ) {
+                                                    document.getElementById(name).focus();
+                                                } else {
+                                                    if($('#' + name).length){
+                                                        document.getElementById(name).select();
+                                                    }
                                                 }
+
+                                                return false;
                                             }
 
-                                            return false;
-                                        }
+                                            if( name == mezo_nev ) {
+                                                stop = true;
+                                            }
+                                        });
+                                    }, 50);
+                                }
 
-                                        if( name == mezo_nev ) {
-                                            stop = true;
-                                        }
-                                    });
-                                }, 50);
+                                // Árazás popuphoz
+                                if(options.arazas_beallit){
+                                    rend_ossz_beallit();
+                                }
+
+                                // KP-s anyagbeszerzéshez popuphoz
+                                if ( $('#pop_afa').length && $('#pop_afa').val() && location.href.indexOf('energia_szamla.php')=='-1' && location.href.indexOf('anyag_szamla.php')=='-1' ) {
+                                    osszegek_kiszamol($('#pop_afa'));
+                                }
+
+                                e.stopPropagation();
                             }
 
-                            // Árazás popuphoz
-                            if(options.arazas_beallit){
-                                rend_ossz_beallit();
+                            if( options.tabla == 'obj' ) {
+                                gepVane();
                             }
 
-                            // KP-s anyagbeszerzéshez popuphoz
-                            if ( $('#pop_afa').length && $('#pop_afa').val() && location.href.indexOf('energia_szamla.php')=='-1' && location.href.indexOf('anyag_szamla.php')=='-1' ) {
-                                osszegek_kiszamol($('#pop_afa'));
-                            }
-
-                            e.stopPropagation();
+                            $('#autocomplete').css({'display':'none'}).html('');
+                        } else {
+                            $('.kereso_gomb').click();
                         }
-
-                        if( options.tabla == 'obj' ) {
-                            gepVane();
-                        }
-
-                        $('#autocomplete').css({'display':'none'}).html('');
-                    } else {
-                        $('.kereso_gomb').click();
                     }
                 }
             });

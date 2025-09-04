@@ -8,7 +8,6 @@ if( isset($_GET['nyomtat']) ) {
     if( !$ml_recid ) {
         $ml_recid = $_GET['id'];
     }
-    $session_user   = $_SESSION[get_db_tabla().'user'];
 
     // Szállító kiszámítása
     $munkalap = $adatbazis_kapcsolat->s2('ikt_szam szallito_id kcs_21 telephely_id alair1 alair2 dok_db', 'munkalap', "`recid`='{$ml_recid}'");
@@ -188,7 +187,7 @@ if( isset($_GET['html_mutat']) ) {
     $header = get_nyomtatas_fejlec_top($_SESSION['ml_megr_ft_szerz'], '-lapszámmal-');
     $_SESSION['ml_megr_ft_szerz'] = '';
     $footer = '<div class="dtc r" style="font-size: 7px">
-        '.$session_user.'
+        '.$_SESSION[get_db_tabla().'user'].'
         '.date('Y.m.d H:i:s').'
     </div>';
     $mpdf ->SetHTMLHeader( $header, '', true);

@@ -82,6 +82,7 @@ function nem_muszaki_szamla(mehet) {
                 nem_muszaki_szamla  : Date.now()
             },
             success: function (response) {
+                if(response.substring(0, 6)=='SESKIL'){ location.href = 'index.php'; }
                 if (response) {
                     response = JSON.parse(response);
                     if (response.hiba) {

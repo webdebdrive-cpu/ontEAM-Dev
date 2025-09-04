@@ -45,6 +45,7 @@ function cash_flow_elkeszitese() {
             cash_flow_elkeszitese   : Date.now()
         },
         success: function (response) {
+            if(response.substring(0, 6)=='SESKIL'){ location.href = 'index.php'; }
             if (response) {
                 response = JSON.parse(response);
                 if (response.hiba) {

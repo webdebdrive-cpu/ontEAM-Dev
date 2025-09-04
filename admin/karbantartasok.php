@@ -2,7 +2,6 @@
 // Adatok helyerállítása, karbantartása, étesítések kiküldése stb..
 require_once('../weblap.php');
 
-
 if( isset($_GET['tetel_szamol']) ) {
     $munkalapok = $adatbazis_kapcsolat -> s('recid', 'munkalap', "");
     foreach ($munkalapok as $munkalap) {
@@ -815,16 +814,16 @@ echo $adatbazis_kapcsolat->gp() . '<br>';
 }
 
 
-if (FALSE && isset($_GET['anyagigenyles_tabla_oszlop_bovit'])) {
+// if (FALSE && isset($_GET['anyagigenyles_tabla_oszlop_bovit'])) {
     
-    $loginok = $adatbazis_kapcsolat->s('recid tabla_sorrend', 'login');
-    foreach( $loginok as $login ){
-        $login['tabla_sorrend'] = str_replace('{&quot;id&quot;:&quot;anyag_tabla_jovah_menny', '{&quot;id&quot;:&quot;anyag_tabla_jovah_ertek&quot;,&quot;width&quot;:118},{&quot;id&quot;:&quot;anyag_tabla_jovah_menny', $login['tabla_sorrend']);
-        $adatbazis_kapcsolat->u('login', array('tabla_sorrend'), array($login['tabla_sorrend']), "`recid`='{$login['recid']}'");
-    }
+//     $loginok = $adatbazis_kapcsolat->s('recid tabla_sorrend', 'login');
+//     foreach( $loginok as $login ){
+//         $login['tabla_sorrend'] = str_replace('{&quot;id&quot;:&quot;anyag_tabla_jovah_menny', '{&quot;id&quot;:&quot;anyag_tabla_jovah_ertek&quot;,&quot;width&quot;:118},{&quot;id&quot;:&quot;anyag_tabla_jovah_menny', $login['tabla_sorrend']);
+//         $adatbazis_kapcsolat->u('login', array('tabla_sorrend'), array($login['tabla_sorrend']), "`recid`='{$login['recid']}'");
+//     }
     
-    exit;
-}
+//     exit;
+// }
 
 // Beszállítók importja
 if ( FALSE && isset($_GET['szallito_import'])) {

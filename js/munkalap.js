@@ -1579,6 +1579,7 @@ function ML_kuldes_alairasra(recid, mehet) {
             ML_kuldes_alairasra : Date.now()
         },
         success: function (response) {
+            if(response.substring(0, 6)=='SESKIL'){ location.href = 'index.php'; }
             if (response) {
                 response = JSON.parse(response);
                 if (response.hiba) {
@@ -1609,6 +1610,7 @@ function megrendeles_alair(recid, mehet) {
                 van_alairas : Date.now()
             },
             success: function(response){
+                if(response.substring(0, 6)=='SESKIL'){ location.href = 'index.php'; }
                 if(response){
                     response = JSON.parse(response);
                     if(response.hiba){
@@ -1637,6 +1639,7 @@ function megrendeles_alair(recid, mehet) {
             megrendeles_alair   : Date.now()
         },
         success: function (response) {
+            if(response.substring(0, 6)=='SESKIL'){ location.href = 'index.php'; }
             if (response) {
                 response = JSON.parse(response);
                 if (response.hiba) {
@@ -1679,6 +1682,7 @@ function megrendeles_elkuldve(recid, mehet) {
             megrendeles_elkuldve: Date.now()
         },
         success: function (response) {
+            if(response.substring(0, 6)=='SESKIL'){ location.href = 'index.php'; }
             if (response) {
                 response = JSON.parse(response);
                 if (response.hiba) {

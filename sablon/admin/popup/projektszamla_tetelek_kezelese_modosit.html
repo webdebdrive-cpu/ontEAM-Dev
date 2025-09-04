@@ -68,6 +68,7 @@
                         ktgnem_ktghely_kitolt   : Date.now()
                     },
                     success: function(response){
+                        if(response.substring(0, 6)=='SESKIL'){ location.href = 'index.php'; }
                         if(response){
                             response = JSON.parse(response);
                             if(response.hiba){
@@ -357,6 +358,7 @@ function kapcsolas_torol(sz_tetel_id, fej_id, i, mehet = '') {
             kapcsolas_torol : Date.now()
         },
         success: function (response) {
+            if(response.substring(0, 6)=='SESKIL'){ location.href = 'index.php'; }
             if (response) {
                 response = JSON.parse(response);
                 if (response.hiba) {
@@ -534,7 +536,6 @@ function tetel_sorok_ment(mehet){
             tetel_sorok_ment    : Date.now()
         },
         success: function(response) {
-
             if(response.substring(0, 6)=='SESKIL'){ location.href = 'index.php'; }
             if( response ) {
                 response = JSON.parse(response);

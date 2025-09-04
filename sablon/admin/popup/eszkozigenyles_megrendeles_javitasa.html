@@ -1,0 +1,67 @@
+<h2>Megrendelés javítása</h2>
+<form id="addCsoportForm" class="popupForm" method="post" onsubmit="return tablazatBeallit();">
+    <div class="kozep"></div>
+    <div class="kuldes"></div>
+</form>
+<script>
+$(document).ready(function(){
+    
+    $.ajax({
+        url : PHP_SELF,
+        type: 'POST',
+        data: {
+            id              : _get('id'),
+            get_megr_javit  : Date.now()
+        },
+        success: function(response){
+            if(response.substring(0, 6)=='SESKIL'){ location.href = 'index.php'; }
+            if(response){
+                response = JSON.parse(response);
+                if(response.hiba){
+                    alert2(response.hiba, response.gomb, response.title);
+                    return false;
+                }
+                $('.kozep' ).html(response.html  );
+                $('.kuldes').html(response.gombok);
+            }
+        },
+        complete: function(xhr) {
+            if( xhr.status != 200 ) {
+                alert2(xhr.responseText, '', 'Hiba');
+            }
+        }
+    });
+});
+
+// Megrendelés javítása
+function megrendeles_javitasa(statusz) {
+    
+    $.ajax({
+        url : PHP_SELF,
+        type: 'POST',
+        data: {
+            id                  : _get('id'),
+            statusz             : statusz,
+            megrendeles_javitasa: Date.now()
+        },
+        success: function (response) {
+            if(response.substring(0, 6)=='SESKIL'){ location.href = 'index.php'; }
+            if (response) {
+                response = JSON.parse(response);
+                if (response.hiba) {
+                    alert2(response.hiba, response.gomb, response.title);
+                    return false;
+                }
+                popupZar();
+                location.reload();
+            }
+        },
+        complete: function (xhr) {
+            if (xhr.status != 200) {
+                alert2(xhr.responseText, '', 'Hiba');
+            }
+        }
+    });
+
+}
+</script>

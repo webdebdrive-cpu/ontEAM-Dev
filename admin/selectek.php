@@ -212,3 +212,30 @@ if( basename(self()) == 'fenntartasi_szerzodes.php' || basename(self()) == 'mega
     array_push($select_szerzodes_tipus, array('name' => 'Egyéb szerződés',          'value' => 'sz' ));
     array_push($select_szerzodes_tipus, array('name' => 'Energia szerződés',        'value' => 'es' ));
 }
+
+// Beszerzés típusok
+
+if( basename(self()) == 'eszkozigenyles.php' || basename(self()) == 'eszkozigenyles_megr.php' || basename(self()) == 'eszkozigenyles_nyomtat.php' || basename(self()) == 'header.php'/*Szűrés miatt*/ ) {
+    
+    $select_besz_tipus = array();
+    array_push($select_besz_tipus, array('name' => '- Válasszon -', 'value' => '' ));
+    // Tervezett típusú igénylés egyelőre csak dev-en lehet
+    if( $_SERVER['HTTP_HOST']=='dev.onteam.hu' ) {
+        array_push($select_besz_tipus, array('name' => 'Tervezett',     'value' => BESZ_TIP_TERVEZETT   ));
+    }
+    array_push($select_besz_tipus, array('name' => 'Soronkívüli',   'value' => BESZ_TIP_SORONKIVULI ));
+    array_push($select_besz_tipus, array('name' => 'GM keret',      'value' => BESZ_TIP_GM_KERET    ));
+
+    $select_eszkoz_prior = array();
+    array_push($select_eszkoz_prior, array('name' => '- Válasszon -', 'value' => '' ));
+    array_push($select_eszkoz_prior, array('name' => 'p1',  'value' => '1' ));
+    array_push($select_eszkoz_prior, array('name' => 'p2',  'value' => '2' ));
+    array_push($select_eszkoz_prior, array('name' => 'p3',  'value' => '3' ));
+    array_push($select_eszkoz_prior, array('name' => 'p4',  'value' => '4' ));
+
+    $select_fiz_mod = array();
+    array_push($select_fiz_mod, array('name' => '- Válasszon -', 'value' => '' ));
+    array_push($select_fiz_mod, array('name' => 'Utalás',       'value' => '1' ));
+    array_push($select_fiz_mod, array('name' => 'Készpénz',     'value' => '2' ));
+    array_push($select_fiz_mod, array('name' => 'Bankkártya',   'value' => '3' ));
+}

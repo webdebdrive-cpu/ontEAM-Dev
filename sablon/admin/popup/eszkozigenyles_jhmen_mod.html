@@ -1,0 +1,147 @@
+<h2>Jóváhagyott mennyiség</h2>
+<form id="elutasitasForm" class="popupForm" method="post" onsubmit="return jhmen_mod();">
+    <div class="kozep">
+        <div class="dt">
+            <div class="dtr">
+                <div class="dtc form_bal">Szálloda:</div>
+                <div class="dtc form_jobb">
+                    <div id="popup_telephely"></div>
+                </div>
+            </div>
+            <div class="dtr">
+                <div class="dtc form_bal">Termék megnevezés:</div>
+                <div class="dtc form_jobb">
+                    <div id="popup_nev"></div>
+                </div>
+            </div>
+            <div class="dtr">
+                <div class="dtc form_bal">Igényelt mennyiség:</div>
+                <div class="dtc form_jobb">
+                    <div id="popup_igmen"></div>
+                </div>
+            </div>
+            <div class="dtr">
+                <div class="dtc form_bal">Jóváhagyott mennyiség:</div>
+                <div class="dtc form_jobb">
+                    <input type="text" class="f_num f_csak_pozitiv csillag" id="popup_jhmen" style="width: 10rem; min-width: 10rem;" data-tort="0"> db
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="kuldes">
+        <input type="submit" name="elkuld" value="Mentés">
+        <input type="button" name="megsem" class="gombb_alert" value="Mégsem" onclick="popupZar();">
+    </div>
+</form>
+<script>
+$(document).ready(function(){
+
+    var akt_id = _get('id');
+
+    if( $('#telephely_id').length ) {
+        $('#popup_telephely').html( $('#telephely_id option:selected').text() );
+    } else {
+        $('#popup_telephely').html( $('#telephely_nev_db_'+akt_id).val() );
+    }
+    if( $('#nev').length ) {
+        $('#popup_nev').html( $('#nev').val() );
+    } else {
+        $('#popup_nev').html( $('#nev_db_'+akt_id).val() );
+    }
+    if( $('#igmen').length ) {
+        $('#popup_igmen').html( $('#igmen').val() );
+    } else {
+        $('#popup_igmen').html( $('#igmen_db_'+akt_id).val() );
+    }
+    if( $('#jhmen').length ) {
+        $('#popup_jhmen').val( $('#jhmen').val() );
+    } else {
+        $('#popup_jhmen').val( $('#jhmen_db_'+akt_id).val() );
+    }
+    
+    $('#popup_jhmen').select();
+
+});
+function jhmen_mod() {
+
+    /* globális változók frissítése az adott adatlap alapján */
+    eszkoz_valtozok_update();
+    
+    /* Indoklás kötelező */
+    if( !$('#popup_jhmen').val() || $('#popup_jhmen').val()<=0 ) {
+        $('#popup input, #popup textarea, #popup select').removeClass('hibas_ide_focus');
+        $('#popup_jhmen').addClass('hibas_ide_focus');
+        alert2('Kérem töltse ki a jóváhagyott mennyiséget!', '<input type="button" class="link gomb" value="Ok" onclick="alert2();">', 'Hiba');
+        return false;
+    }
+
+    var eszkoz_tablazat = isset_get('tablazat');
+    eszkoz_url_kieg = '';
+    if( eszkoz_tablazat ) {
+        eszkoz_url_kieg = '?tablazat';
+    }
+
+    $.ajax({
+        url : 'eszkozigenyles.php'+eszkoz_url_kieg,
+        type: 'POST',
+        data: {
+            id          : eszkoz_id,
+            jhmen       : $('#popup_jhmen').val(),
+            jhmen_mod   : new Date().getTime()
+        },
+        success: function(response) {
+            if(response.substring(0, 6)=='SESKIL'){ location.href = 'index.php'; }
+            if(response) {
+                response = JSON.parse(response);
+                if( response.hiba ) {
+                    setTimeout(function () {
+                        alert2(response.hiba, response.gomb, response.title);
+                    }, 500);
+                    return false;
+                }
+
+                popupZar();
+
+                // Táblázat alatt a sort frissítjük
+                if( isset_get('tablazat') ) {
+
+                    $('.jhmen_'     +eszkoz_id  ).html (response.jhmen      );
+                    $('.ossz_netto_'+eszkoz_id  ).html (response.ossz_netto );
+                    $('.ossz_dev_'  +eszkoz_id  ).html (response.ossz_dev   );
+                    $('#jhmen_db_'  +eszkoz_id  ).val  (response.jhmen_db   );
+                    $('.gombok_'    +eszkoz_id  ).html (response.gombok     );
+
+                    // Ha '-tervezett-' igénylés, akkor lépünk a következő sorra. 
+                    if( $('#tipus_db_'+_get('id')).val() == 1 ) {
+                        // Ez hívódik meg a lap tetején léptető gombnyomásra is.
+                        naviKov();
+
+                    // Egyébként a tényleges gombokat is cserélni kell
+                    } else {
+                        $('.muveletek').html(response.gombok   );
+                    }
+                
+                // Egyébként az adatlapot töltsük be
+                } else {
+
+                    let ful   = '';
+                    eszkoz_fulek.forEach(function(akt_ful) {
+                        if( isset_get(akt_ful) ) {
+                            ful = akt_ful;
+                            return;
+                        }
+                    });
+                    szamlaBetolt(_get('id'), baseName(location.href) + '.php', ful);
+                }
+            }
+        },
+        complete: function(xhr) {
+            if( xhr.status != 200 ) {
+                alert2(xhr.responseText, '', 'Hiba');
+            }
+        }
+    });
+
+    return false;
+}
+</script>

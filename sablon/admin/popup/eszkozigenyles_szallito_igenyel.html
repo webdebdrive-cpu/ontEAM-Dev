@@ -1,0 +1,85 @@
+<h2>Szállító mező kitöltése</h2>
+<form id="addCsoportForm" class="popupForm" method="post" onsubmit="return false;">
+    
+<div class="kozep">
+    Szállító mezőt nem töltötte ki!
+    <div class="l" style="margin-top: .3rem;">
+        <input type="button" class="gomb" value="Szállító mező kitöltése" onclick="szall_kitolt()">
+    </div>
+    <br><b>Új szállító kérése beszerzési igazgatóságtól:</b>
+    <div class="dt">
+        <div class="dtr">
+            <div class="dtc form_bal">Új szállító adatai:</div>
+            <div class="dtc form_jobb">
+                <textarea id="popup_szall_adatok" class="csillag" onkeyup="if( $(this).val().trim()=='' ){ $(this).val(''); }"></textarea>
+            </div>
+        </div>
+    </div>
+    <div class="c">
+        <input type="button" class="gomb" value="Szállító kérése" onclick="szallito_kerese()">
+    </div>
+
+</form>
+<script>
+/* X-re kattintva, ESC-et nyomva is szall_kitolt(); */
+$(document).ready(function(){
+    $(document).on('click', '.popup_kont .bezar', function(){
+        szall_kitolt();
+    });
+    $(document).on('keyup', function(e) {
+        if( e.keyCode == KEY_ESCAPE ) {
+            szall_kitolt();
+        }
+    });
+});
+function szall_kitolt() {
+    popupZar();
+    $('#mehet_gomb').removeAttr('disabled').addClass('gombb_alert');
+    $('#megsem_gomb').removeAttr('disabled');
+    $('#szallito_id_autocomp').focus();
+}
+
+function szallito_kerese() {
+
+    if( !$('#szallito_igenyelve').val() && !$('#popup_szall_adatok').val().trim() ) {
+        alert2('Kérem adja meg az új szállító adatait.', '', 'Hiba');
+        $('#popup_szall_adatok').addClass('hibas_ide_focus');
+        szallito_volt_kerve = 1;
+        return false;
+    }
+    var szall_adatok = $('#popup_szall_adatok').val();
+    popupZar();
+
+    $.ajax({
+        url : PHP_SELF,
+        type: 'POST',
+        data: {
+            szall_adatok    : szall_adatok,
+            nev             : $('#nev'               ).val(),
+            szalloda        : $('#telephely_id'      ).val(),
+            tipus           : $('#tipus'             ).val(),
+            reszleg         : $('#reszleg'           ).val(),
+            szallito_kerese : Date.now()
+        },
+        success: function(response){
+            if(response.substring(0, 6)=='SESKIL'){ location.href = 'index.php'; }
+            if(response){
+                response = JSON.parse(response);
+                if(response.hiba){
+                    alert2(response.hiba, response.gomb, response.title);
+                    return false;
+                }
+                
+                $('#szallito_igenyelve').val('1');
+                mentesGomb();
+            }
+        },
+        complete: function(xhr) {
+            if( xhr.status != 200 ) {
+                alert2(xhr.responseText, '', 'Hiba');
+            }
+        }
+    });
+
+}
+</script>

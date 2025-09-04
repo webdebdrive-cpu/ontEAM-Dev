@@ -42,9 +42,28 @@ if( isset($_GET['csv']) ) {
     list($mibol, $mibe, $filename, $open) = csv_export_elokeszit($megnevezes);
     if( $open ) {
 
+        // Nem a $_SESSION['akt_sql'] szerint szeretnénk lekérni a sorokat, mert a bal navpanelben lehet kevesebb sor jelenik meg mint amennyit lekérdeztünk
+        // Viszont tudni kellene, mi volt a rendezés és a limit:
+
+        // Rendezés kiszedése $_SESSION['akt_sql']-ből
+        $order = '';
+        preg_match('/ORDER BY .*?(?=LIMIT|$)/is', $_SESSION['akt_sql'], $matches);
+        if (!empty($matches)) {
+            $order = trim($matches[0]);
+        }        
+
+        // Ha van LIMIT a $_SESSION['akt_sql']-ben, akkor azt itt is figyelembe kell venni
+        if( strpos( $_SESSION['akt_sql'], 'LIMIT' )!==false ) {
+            $limit = trim( substr( $_SESSION['akt_sql'], strpos($_SESSION['akt_sql'], 'LIMIT') ), 'LIMIT ' );
+            if( strpos($limit, ' ') ) {
+                $limit = substr($limit, 0, strpos($limit, ' '));
+            }
+            $limit = " LIMIT {$limit}";
+        }
+
         $sql = 'SELECT
                 `'.get_db_tabla().$megnevezes.'`.`recid` as \'Id\',
-                `'.get_db_tabla().$megnevezes.'`.`telephely_id` as \'Szálloda\',
+                `'.get_db_tabla().$megnevezes.'`.`telephely_txt` as \'Szálloda\',
                 `obj_txt` as \'Helyiség\',
                 1 as \'Helyiség leírása\',
                 `ikt_szam` as \'Munkalap szám\',
@@ -52,21 +71,21 @@ if( isset($_GET['csv']) ) {
                 `'.get_db_tabla().$megnevezes.'`.`insert_dt` as \'Bejelentés dátuma\',
                 2 as \'Hiba leírása\',
                 `surgos` as \'Sürgős\',
-                `stat_id` as \'Státusz\',
+                `stat_txt` as \'Státusz\',
                 `visszaadva` as \'Visszaadva\',
                 `text` as \'Leírás\',
-                `gep_id` as \'Gépnév\',
-                `tipus_id` as \'Típus\',
-                `szallito_id` as \'Külső kivitelező\',
+                `gep_txt` as \'Gépnév\',
+                `tipus_txt` as \'Típus\',
+                `szallito_txt` as \'Külső kivitelező\',
                 `jh_ert_dev` as \'Jóváhagyott érték\',
                 `kcs_21` as \'Deviza\',
-                `szemelyzet_id` as \'Hozzárendelt személyzet\',
+                `szemelyzet_txt` as \'Hozzárendelt személyzet\',
                 `ig_el_id` as \'Igényelt elvégzés\',
                 `varh_erk` as \'Várható érkezés\',
                 `'.get_db_tabla().$megnevezes.'`.`insert_dt` as \'Munkalap létrehozás dátuma\'
-                '. csv_export_get_from_tol($megnevezes);
+                '. csv_export_get_from_tol($megnevezes).$order.$limit;
                 $query = mysqli_query($db_kapcs, $sql);
-                
+
                 // Nagyobb CSV-kre kérdezzünk rá előzetesen
                 $osszes_sor = mysqli_num_rows($query);
                 if( !$_GET['mehet'] && $osszes_sor>CSV_EXPORT_LIMIT ) {
@@ -74,8 +93,6 @@ if( isset($_GET['csv']) ) {
                     echo json_encode(array('hiba' => 'A CSV export több mint '.number_format(CSV_EXPORT_LIMIT, 0, '', ' ').' sort tartalmaz. Ennek előállítása hosszabb időbe telik majd.<br>Biztosan folytatja?', 'gomb' => $gomb));
                     $weblap -> leallit();
                     exit;
-                } else {
-                    $sql .= $_SESSION['akt_sql_order'];
                 }
 
         $query      = mysqli_query($db_kapcs, $sql);
@@ -94,17 +111,14 @@ if( isset($_GET['csv']) ) {
             $csvcont = array();
 
             $bejelentes = $adatbazis_kapcsolat->s2('bejelentes_id', 'munkalap_kapcs_arch', "`munkalap_id`='{$sorok['Id']}'");
-            $bejelentes = $adatbazis_kapcsolat->s2('hiba_id hiba_text helyiseg_text insert_dt', 'bejelentes_arch', "`recid`='{$bejelentes['bejelentes_id']}'");
+            $bejelentes = $adatbazis_kapcsolat->s2('hiba_txt hiba_text helyiseg_text insert_dt', 'bejelentes_arch', "`recid`='{$bejelentes['bejelentes_id']}'");
             foreach( $sorok as $kulcs => $sor ) {
 
                 if( $kulcs == 'Id' ) {
                     continue;
                 }
-                if( $kulcs == 'Szálloda' ) {
-                    $sor = getSzallodaNev($sor);
-                }
                 if( $kulcs == 'Bejelentett hiba' ) {
-                    $sor = getErtek('info', 'erteklista', 'recid', $bejelentes['hiba_id']);
+                    $sor = $bejelentes['hiba_txt'];
                 }
                 if( $kulcs == 'Hiba leírása' ) {
                     $sor = $bejelentes['hiba_text'];
@@ -115,37 +129,16 @@ if( isset($_GET['csv']) ) {
                 if( $kulcs == 'Bejelentés dátuma' ) {
                     $sor = $bejelentes['insert_dt'];
                 }
-                if( $kulcs == 'Gépnév' ) {
-                    $sor = getErtek('nev', 'eszkozkezeles', 'recid', $sor);
-                }
-                if( $kulcs == 'Hozzárendelt személyzet' ) {
-                    $sor = getSzerepkorNev($sor);
-                }
                 if( $kulcs == 'Igényelt elvégzés' || $kulcs == 'Várható érkezés' ) {
                     if( $sor == '0000-00-00 00:00:00' ) {
                         $sor = '';
                     }
-                }
-                if( $kulcs == 'Külső kivitelező' ) {
-                    $sor = getErtek('nev', 'szallito', 'id', $sor);
-// Ideiglenes megoldás: a kivitelező nevét a megjegyzésből számítjuk vissza
-// De maradjon itt a kód, mert erre még lehet szükség lesz
-//$megj = $adatbazis_kapcsolat->s2('megj', 'megjegyzes_arch', "`tabla`='munkalap' AND `id`='{$sorok['Id']}' AND `megj` LIKE 'Kivitelező%'");
-//$megj['megj'] = str_replace('Kivitelező: ', '', $megj['megj']);
-//$ujsor = strpos($megj['megj'], "\n");
-//$sor  = substr($megj['megj'], 0, $ujsor) ;
                 }
                 if( $kulcs == 'Jóváhagyott érték' ) {
                     $sorok[$szam] = str_replace('.', ',', $sorok[$szam]);
                 }
                 if( $kulcs == 'Deviza' ) {
                     $sor = erteklista(ERTEKLISTA_PENZNEM, $sor);
-                }
-                if( $kulcs == 'Típus' ) {
-                    $sor = erteklista(ERTEKLISTA_MUNKALAP_TIP, $sor);
-                }
-                if( $kulcs == 'Státusz' ) {
-                    $sor = getStatText('munkalap', $sor);
                 }
                 if( $kulcs == 'Sürgős' ) {
                     if( $sor ) {

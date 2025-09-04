@@ -1,8 +1,8 @@
 <?php
 /*                                                  *\
  * FONTOS:
- * 149-os ID következik
- * 15-ös kategória ID következik
+ * 168. ID következik
+ * 16. kategória ID következik
 \*                                                  */
 
 $jogosultsagKatok = array(
@@ -13,14 +13,15 @@ $jogosultsagKatok = array(
     5 => array('nev' => 'Ütemezett feladatok',      'sor' => 4),
     6 => array('nev' => 'Rendszeres karbantartás',  'sor' => 5),
     9 => array('nev' => 'Eseti fenntartás',         'sor' => 6),
-    4 => array('nev' => 'Személyzet',               'sor' => 7),
-    7 => array('nev' => 'Projekt igények',          'sor' => 8),
-   10 => array('nev' => 'Projektek',                'sor' => 9),
-   11 => array('nev' => 'Felmérési tervek',         'sor' => 10),
-    8 => array('nev' => 'Eszközök',                 'sor' => 11),
-   12 => array('nev' => 'Fenntartás',               'sor' => 12),
-   14 => array('nev' => 'Megállapodás',             'sor' => 13),
-   13 => array('nev' => 'Dokumentumok',             'sor' => 14),
+   15 => array('nev' => 'Beszerzés',                'sor' => 7),
+    4 => array('nev' => 'Személyzet',               'sor' => 8),
+    7 => array('nev' => 'Projekt igények',          'sor' => 9),
+   10 => array('nev' => 'Projektek',                'sor' => 10),
+   11 => array('nev' => 'Felmérési tervek',         'sor' => 11),
+    8 => array('nev' => 'Eszközök',                 'sor' => 12),
+   12 => array('nev' => 'Fenntartás',               'sor' => 13),
+   14 => array('nev' => 'Megállapodás',             'sor' => 14),
+   13 => array('nev' => 'Dokumentumok',             'sor' => 15),
 );
 
 $jogosultsagok = array(
@@ -179,13 +180,13 @@ $jogosultsagok = array(
     141 => array('nev' => 'Andoc számlák szétosztása',              'kat' => 12, 'sor' => 16),
     143 => array('nev' => 'Vendégéjszakák megtekintése',            'kat' => 12, 'sor' => 17),
     
-    93  => array('nev' => 'Partnertörzs megtekintése',              'kat' => 13, 'sor' => 7),
-    94  => array('nev' => 'Partnertörzs kezelése',                  'kat' => 13, 'sor' => 8),
-    99  => array('nev' => 'Partnertörzs név szerkesztése',          'kat' => 13, 'sor' => 9),
-    95  => array('nev' => 'Partnertörzs törlése',                   'kat' => 13, 'sor' => 10),
-    96  => array('nev' => 'Dokumentumtár megtekintése',             'kat' => 13, 'sor' => 11),
-    97  => array('nev' => 'Dokumentumtár kezelése',                 'kat' => 13, 'sor' => 12),
-    98  => array('nev' => 'Dokumentumtár törlése',                  'kat' => 13, 'sor' => 13),
+    93  => array('nev' => 'Partnertörzs megtekintése',              'kat' => 13, 'sor' => 1),
+    94  => array('nev' => 'Partnertörzs kezelése',                  'kat' => 13, 'sor' => 2),
+    99  => array('nev' => 'Partnertörzs név szerkesztése',          'kat' => 13, 'sor' => 3),
+    95  => array('nev' => 'Partnertörzs törlése',                   'kat' => 13, 'sor' => 4),
+    96  => array('nev' => 'Dokumentumtár megtekintése',             'kat' => 13, 'sor' => 5),
+    97  => array('nev' => 'Dokumentumtár kezelése',                 'kat' => 13, 'sor' => 6),
+    98  => array('nev' => 'Dokumentumtár törlése',                  'kat' => 13, 'sor' => 7),
     
     90  => array('nev' => 'Megállapodások megtekintése',            'kat' => 14, 'sor' => 1),
     91  => array('nev' => 'Megállapodások kezelése',                'kat' => 14, 'sor' => 2),
@@ -193,4 +194,23 @@ $jogosultsagok = array(
     100 => array('nev' => 'Megállapodás számlák kezelése',          'kat' => 14, 'sor' => 4),
     86  => array('nev' => 'Megállapodás számlák igazolása',         'kat' => 14, 'sor' => 5),
     
+    149  => array('nev' => 'Igénylések megtekintése',               'kat' => 15, 'sor' => 1),
+    150  => array('nev' => 'Új igény felvitele',                    'kat' => 15, 'sor' => 2),
+    167  => array('nev' => 'Szállodai beszerző',                    'kat' => 15, 'sor' => 3, 'i' => 'kapcsolattartó a megrendelő dokumentumon'),
+    159  => array('nev' => 'Igénylések kezelése',                   'kat' => 15, 'sor' => 4, 'i' => 'igénylés adatok szerkesztése, megrendelés javítása'),
+    151  => array('nev' => 'Igény törlése',                         'kat' => 15, 'sor' => 5),
+    153  => array('nev' => 'Elsődleges aláíró',                     'kat' => 15, 'sor' => 6),
+    154  => array('nev' => 'Másodlagos aláíró',                     'kat' => 15, 'sor' => 7),
+    155  => array('nev' => 'Műszak jóváhagyás',                     'kat' => 15, 'sor' => 8),
+    156  => array('nev' => 'Szállodai engedélyezés',                'kat' => 15, 'sor' => 9),
+    157  => array('nev' => 'BI validálás',                          'kat' => 15, 'sor' => 10),
+    152  => array('nev' => 'Szakmai véleményezés',                  'kat' => 15, 'sor' => 11),
+    160  => array('nev' => 'Felsővez. Jóváhagyás',                  'kat' => 15, 'sor' => 12),
+    161  => array('nev' => 'BI véglegesítés',                       'kat' => 15, 'sor' => 13),
+    166  => array('nev' => 'Megrendelés megtekintése',              'kat' => 15, 'sor' => 14),
+    158  => array('nev' => 'Megrendelés kiküldése',                 'kat' => 15, 'sor' => 15),
+    162  => array('torolve' => 'TÖRÖLVE', 'nev' => 'Megrendelés javítása',                  'kat' => 15, 'sor' => 16),
+    163  => array('nev' => 'Beszerzés szállító megtekintése',       'kat' => 15, 'sor' => 17),
+    164  => array('nev' => 'Beszerzés szállító kezelése',           'kat' => 15, 'sor' => 18),
+    165  => array('nev' => 'Beszerzés szállító törlése',            'kat' => 15, 'sor' => 19),
 );

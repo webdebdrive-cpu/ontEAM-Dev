@@ -17,8 +17,8 @@ $(document).on('input', '#dev_net, #arfolyam', function(){
     var arfolyam = Number($('#arfolyam').val().replace(/ /g, '').replace(/,/g, '.'));
     $('#netto').val( ezresek(Math.round(dev_net*arfolyam), 0, ',', ' ', '-nullát is kiír-') );
 });
-
-// Nettó érték kiszámítása
+/*
+// Költségviselő kiválasztása
 $(document).on('focus', '#kolt_vis_autocomp', function(){
     $.ajax({
         url : PHP_SELF,
@@ -42,7 +42,7 @@ $(document).on('focus', '#kolt_vis_autocomp', function(){
             }
         }
     });
-});
+});*/
 
 function fenntartasi_szerzodes_feltolt() {
     csoportMuvelet('fenntartasi_szerzodes_feltolt');

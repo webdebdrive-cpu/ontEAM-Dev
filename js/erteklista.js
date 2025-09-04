@@ -7,6 +7,7 @@ function ktgnem_beallit() {
             ktgnem_beallit  : Date.now()
         },
         success: function (response) {
+            if(response.substring(0, 6)=='SESKIL'){ location.href = 'index.php'; }
             if (response) {
                 response = JSON.parse(response);
                 if (response.hiba) {

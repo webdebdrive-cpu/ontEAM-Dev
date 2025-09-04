@@ -77,7 +77,7 @@ $errorlevel=error_reporting($errorlevel & ~E_NOTICE);
 //error_reporting(E_ALL);
 
 if(function_exists("date_default_timezone_set")) {
-	if (ini_get("date.timezone")=="") { date_default_timezone_set("Europe/London"); }
+	if (ini_get("date.timezone")=="") { date_default_timezone_set("Europe/Budapest"); }
 }
 if (!function_exists("mb_strlen")) { die("Error - mPDF requires mb_string functions. Ensure that PHP is compiled with php_mbstring.dll enabled."); }
 

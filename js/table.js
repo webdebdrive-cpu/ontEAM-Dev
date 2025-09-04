@@ -1,8 +1,8 @@
-/* Ez a képernyő bal szélétől való távolság. anyagigenyles.css -ben a --kepernyo_left-fele értékével legyen összhangban. */
-var kepernyo_left = 15;
+// Ez a képernyő bal szélétől való távolság. anyagigenyles.css -ben a --kepernyo_left-fele értékével legyen összhangban.
+var kepernyo_left  = 15;
+var minimum_o_szel = 40;
 
 $(function() {
-    /* var saveSticky; Ez ugye már nem kell? 2025.06.25 */
     $('#dragTable').dragtable({
         maxMovingRows   : 1,
         dragHandle      : '.some-handle',
@@ -19,7 +19,7 @@ $(function() {
             $('#tartalomJobb').removeClass('scrollFix');
         },
         persistState: function(table) {
-            $(table.el).find('thead').not('.sticky').find('th').each(function(i) {
+            $(table.el).find('thead').not('.sticky').find('th').not('.dn').each(function(i) {
                 var width  = col_width = sorrend[$(this).attr('id')],
                     index  = $(this).index(),
                     parent = $(this).parents('table');
@@ -42,6 +42,7 @@ $(function() {
             });
 
             tablaSorrend( table.el );
+            fejlec_igazit($('.sar-table'));
 
             /*$(table.el).each(function() {
                 var that = $(this);
@@ -92,7 +93,7 @@ $(function() {
 
         var index = th.index();
 
-        table.find('tbody tr').not('.fake').find('td').filter(function() {
+        table.find('tbody tr')/*.not('.fake') törölhető, már nincs fake sor */.find('td').filter(function() {
             return $(this).index() === index;
         }).sortElements(function(a, b) {
 
@@ -146,9 +147,9 @@ $(function() {
             url : baseName(location.href)+'.php'+url_kieg,
             type: 'POST',
             data: {
-                oszlop: $(this).attr('id'),
-                irany : irany,
-                anyagigenyles_tablazat_rendez: Date.now()
+                oszlop          : $(this).attr('id'),
+                irany           : irany,
+                tablazat_rendez : Date.now()
             },
             success: function (response) {
                 if(response.substring(0, 6)=='SESKIL'){ location.href = 'index.php'; }
@@ -210,8 +211,9 @@ $(function() {
         $('.sar-table').each(function() {
             var colgroup = $('<colgroup>');
 
-                var height = $(this).find('thead').find('th:first-child').outerHeight();
-                $(this).find('tr.fake td').css('height', height);
+                var height = $(this).find('thead').find('th:not(.dn)').first().outerHeight();
+                // Törölhető, már nincs fake sor $(this).find('tr.fake td').css('height', height);
+                $(this).css('margin-top', height);
 
             $(this).find('thead').find('th').each(function(i) {
                 var width = $(this).outerWidth(),
@@ -306,7 +308,7 @@ $(function() {
 
             _rew = _resizeElement.width + offsetCursor.x;
 
-            if( _rew > 40 ) {
+            if( _rew > minimum_o_szel ) {
                 _resizeElement.th.css({
                     'min-width': _rew,
                     'max-width': _rew,
@@ -317,7 +319,9 @@ $(function() {
                     return $(this).height();
                 }).get());
 
-                _resizeElement.tbody.find('tr.fake td').css('height', maxHeight);
+                // Törölhető, már nincs fake sor
+                // _resizeElement.tbody.find('tr.fake td').css('height', maxHeight);
+                _resizeElement.th.closest('table').css('margin-top', maxHeight);
 
                 _resizeElement.tbody.find('tr:first-child td').each(function() {
                     var index = $(this).index(),
@@ -369,31 +373,46 @@ $(function() {
     fejlec_igazit($('.sar-table'));
     $(window).resize(function() {
         fejlec_igazit($('.sar-table'));
-        tablaSorrend($('.sar-table'));
+        tablaSorrend ($('.sar-table'));
         fejlecPozicional();
     });
 });
 
 function tablaSorrend( table ) {
-    var tabla   = $(table).attr('data-tabla'),
-        sorrend = {};
+    var tabla       = $(table).attr('data-tabla'),
+        sorrend     = {};
+        beallitasok = {};
 
-    if(tabla){
+    if (tabla) {
         jovahagyasra_varo_igazit();
+
+        if( table.attr('data-beall_cellak') ) {
+            beallitasok['cellak'] = table.attr('data-beall_cellak');
+        }
 
         table.find('thead').not('.sticky').find('th').each(function(i) {
             if( this.id != '') {
-                var width = '';
-                /* Rejtett oszlop esetén nem a látható szélessége, hanem a style attribútumba írt szélességére van szükségünk */
+                var width       = '';
+                var megjelenik  = '';
+                var egysoros    = '';
+                
+                // Rejtett oszlop esetén nem a látható szélessége, hanem a default width értékét adjuk át
+                // igen ám, de az meg üres.
                 if( $(this).hasClass('dn') ){
+                    // width = $(this).data('def_width');
                     width = $(this)[0].style.width;
-                }else{
+                } else {
                     width = $(this).outerWidth();
+                    megjelenik = 1;
                 }
-                if(width<40){
-                    width = 40;
+                if( $(this).hasClass('egysoros') ){
+                    egysoros = 1;
                 }
-                sorrend[i] = {id: this.id, width: width };
+
+                if( width<minimum_o_szel ) {
+                    width = minimum_o_szel;
+                }
+                sorrend[i] = {id: this.id, width: width, megjelenik: megjelenik, egysoros: egysoros };
             }
         });
 
@@ -403,12 +422,13 @@ function tablaSorrend( table ) {
             data: {
                 tabla        : tabla,
                 sorrend      : JSON.stringify(sorrend),
+                beallitasok  : JSON.stringify(beallitasok),
                 tablaSorrend : new Date().getTime()
             },
             success: function(response) {
+                if(response.substring(0, 6)=='SESKIL'){ location.href = 'index.php'; }
                 if(response) {
                     response = JSON.parse(response);
-
                     if( response.hiba ) {
                         alert2(response.hiba);
                         return false;
@@ -453,7 +473,8 @@ function jovahagyasra_varo_igazit(){
 
 function fejlec_igazit( table ) {
     setTimeout(function () {
-        table.find('tbody').find('tr:first-child td').each(function(i) {
+        table.find('tbody').find('tr:first-child td:not(.dn)').each(function(i) {
+            
             var index = $(this).index(),
                 width = $(this).outerWidth();
 
@@ -466,6 +487,7 @@ function fejlec_igazit( table ) {
                 'max-width': width,
                 'width'    : width
             });
+
         });
     }, 500);
 }

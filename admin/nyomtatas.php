@@ -66,6 +66,13 @@ if( $_GET['print'] == 'lista' || isset($_GET['pdf']) ) {
                     break;
                 }
             }
+        } elseif( $_GET['mezo'] == 'szallito_id' ) {
+            if( $tabla == 'eszkozigenyles' || $tabla == 'eszkozigenyles_megr' ) {
+                $feltetel .= getErtek('nev', 'szallito_beszerzes', 'recid', $_GET['felt']);
+            } else {
+                $feltetel .= getErtek('nev', 'szallito', 'id', $_GET['felt']);
+            }
+
         } elseif( $_GET['mezo'] == 'pfelelos' || $_GET['mezo'] == 'let_fel' ) {
             $feltetel .= getErtek('teljes_nev', 'login', 'recid', $_GET['felt']);
         } elseif( $_GET['mezo'] == 'kolt_vis' ) {
@@ -113,7 +120,7 @@ if( $_GET['print'] == 'lista' || isset($_GET['pdf']) ) {
     // Eredetileg csak a bal navpanelben is megjelenő sorokat listázzuk ki (cél, hogy illetéktelen sorokhoz ne lehessen hozzáférni).
     // Viszont ha érvényben volna az alapértelmezett LIMIT az aktuális SQL-ben, akkor ezt az ID ellenőrzést mégsem tesszük meg,
     // hisz minden sort ki szeretnénk írtani. De ha a bármilyen más LIMIT szerepel benne, akkor meg a CSV-ben is a limitált mennyiséget szeretnénk látni.
-    if( $_SESSION['nyomtatas_ids'] && strpos( $_SESSION['akt_sql'], 'LIMIT '.ARCHIV_NAVPANEL_LIMIT )===false ) {
+    if( $_SESSION['nyomtatas_ids'] && strpos( $_SESSION['akt_sql'], 'LIMIT '.SZURES_DB_LIMIT )===false ) {
         if( strstr($_SESSION['akt_sql'], 'WHERE') ) {
             $_SESSION['akt_sql'] = str_replace('WHERE', "WHERE `". get_db_tabla()."$tabla`.`recid` IN (".$_SESSION['nyomtatas_ids'].") AND ", $_SESSION['akt_sql']);
         } else {
@@ -146,30 +153,33 @@ if( $_GET['print'] == 'lista' || isset($_GET['pdf']) ) {
                 $sorok_html = beosztasLista($sorok, $tabla);
             }
         break;
-        case 'beosztas_muszak'      : $sorok_html = beosztas_muszakLista($sorok, $tabla);   break;
-        case 'beosztas_unnepnapok'  : $sorok_html = beosztas_unnepnapokLista($sorok, $tabla); break;
+        case 'beosztas_muszak'      : $sorok_html = beosztas_muszakLista($sorok, $tabla);       break;
+        case 'beosztas_unnepnapok'  : $sorok_html = beosztas_unnepnapokLista($sorok, $tabla);   break;
 //        case 'cikktorzs'            : $akt_tomb = $cikktorzs_tomb;              break;
 //        case 'eszkozkezeles'        : $akt_tomb = $eszkozkezeles_tomb;          break;
         case 'login'                : $sorok_html = loginLista( $sorok, $tabla ); $akt_tomb = $login_tomb;  break;
-        case 'jogcim'               : $sorok_html = jogcimLista( $sorok, $tabla );         break;
-        case 'ktghely'              : $sorok_html = ktghelyLista( $sorok, $tabla );         break;
-        case 'ktgnem'               : $sorok_html = ktgnemLista( $sorok, $tabla );          break;
-        case 'eloterj_fb'           : $sorok_html = eloterj_fbLista( $sorok, $tabla );      break;
-        case 'eloterj_bod'          : $sorok_html = eloterj_bodLista( $sorok, $tabla );     break;
-        case 'energia_terv'         : $sorok_html = energia_tervLista( $sorok, $tabla );    break;
-        case 'erteklista'           : $sorok_html = erteklistaLista( $sorok, $tabla );      break;
-        case 'fenntartasi_terv'     : $sorok_html = fenntartasi_tervLista( $sorok, $tabla );break;
-        case 'megallapodas'         : $sorok_html = megallapodasLista( $sorok, $tabla );    break;
-        case 'megallapodas_szamla'  : $sorok_html = megallapodas_szamlaLista( $sorok, $tabla );break;
-        case 'munkalap'             : $sorok_html = munkalapLista( $sorok, $tabla );        break;
+        case 'jogcim'               : $sorok_html = jogcimLista( $sorok, $tabla );              break;
+        case 'ktghely'              : $sorok_html = ktghelyLista( $sorok, $tabla );             break;
+        case 'ktgnem'               : $sorok_html = ktgnemLista( $sorok, $tabla );              break;
+        case 'eloterj_fb'           : $sorok_html = eloterj_fbLista( $sorok, $tabla );          break;
+        case 'eloterj_bod'          : $sorok_html = eloterj_bodLista( $sorok, $tabla );         break;
+        case 'energia_terv'         : $sorok_html = energia_tervLista( $sorok, $tabla );        break;
+        case 'erteklista'           : $sorok_html = erteklistaLista( $sorok, $tabla );          break;
+        case 'eszkozigenyles'       : $sorok_html = eszkozigenylesLista( $sorok, $tabla );      break;
+        case 'eszkozigenyles_megr'  : $sorok_html = eszkozigenyles_megrLista( $sorok, $tabla ); break;
+        case 'fenntartasi_terv'     : $sorok_html = fenntartasi_tervLista( $sorok, $tabla );    break;
+        case 'megallapodas'         : $sorok_html = megallapodasLista( $sorok, $tabla );        break;
+        case 'megallapodas_szamla'  : $sorok_html = megallapodas_szamlaLista( $sorok, $tabla ); break;
+        case 'munkalap'             : $sorok_html = munkalapLista( $sorok, $tabla );            break;
 //        case 'utemezett_feladatok'  : $akt_tomb = $utemezett_feladatok_tomb;    break;
-        case 'torzsadat'            : $sorok_html = torzsadatLista($sorok, $tabla);         break;
-        case 'projektkezeles'       : $sorok_html = projektkezelesLista( $sorok, $tabla );  break;
-        case 'projektigenyles'      : $sorok_html = projektigenylesLista( $sorok, $tabla ); break;
-        case 'projektszerzodes'     : $sorok_html = projektszerzodesLista( $sorok, $tabla );break;
-        case 'projektszamla'        : $sorok_html = projektszamlaLista( $sorok, $tabla );   break;
-        case 'szallito'             : $sorok_html = szallitoLista( $sorok, $tabla );        break;
-        case 'szerepkor'            : $sorok_html = szerepkorLista( $sorok, $tabla );       break;
+        case 'torzsadat'            : $sorok_html = torzsadatLista($sorok, $tabla);             break;
+        case 'projektkezeles'       : $sorok_html = projektkezelesLista( $sorok, $tabla );      break;
+        case 'projektigenyles'      : $sorok_html = projektigenylesLista( $sorok, $tabla );     break;
+        case 'projektszerzodes'     : $sorok_html = projektszerzodesLista( $sorok, $tabla );    break;
+        case 'projektszamla'        : $sorok_html = projektszamlaLista( $sorok, $tabla );       break;
+        case 'szallito'             : $sorok_html = szallitoLista( $sorok, $tabla );            break;
+        case 'szallito_beszerzes'   : $sorok_html = szallito_beszerzesLista( $sorok, $tabla );  break;
+        case 'szerepkor'            : $sorok_html = szerepkorLista( $sorok, $tabla );           break;
     }
     
     $title = 'Listanézet '.date('Y.m.d H:i:s');

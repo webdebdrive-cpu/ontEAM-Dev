@@ -940,6 +940,8 @@ $dokumentumos_oldal = array(
     'eloterj_fb',
     'energia_terv',
     'eseti_fenntartas',
+    'eszkozigenyles',
+    'eszkozigenyles_megr',
     'fenntartasi_terv',
     'munkalap',
     'munkalap_arch',
@@ -949,6 +951,7 @@ $dokumentumos_oldal = array(
     'projektszamla',
     'projektszerzodes',
     'szallito',
+    'szallito_beszerzes',
     'rendszeres_karbantartas',
     'utemezett_feladatok',
     );
@@ -961,7 +964,7 @@ if( in_array($tabla, $dokumentumos_oldal) ) {
 }
 
 // Kapcsolódó táblák szűrő mezői
-$megjegyzesekre_szuros_mdulok = array('anyagigenyles', 'anyag_szamla', 'energia_szamla', 'fenntartasi_szamla', 'projektszamla', 'fenntartasi_szerzodes', 'projektszerzodes', 'megallapodas');
+$megjegyzesekre_szuros_mdulok = array('anyagigenyles', 'anyag_szamla', 'energia_szamla', 'fenntartasi_szamla', 'projektszamla', 'fenntartasi_szerzodes', 'projektszerzodes', 'megallapodas', 'szallito', 'szallito_beszerzes');
 if( in_array($tabla, $megjegyzesekre_szuros_mdulok) ) {
     $selected_megj  = '';
     if( $_GET['mezo'] == 'megjegyzes' ) {
@@ -1122,15 +1125,15 @@ if( $tabla == 'projektszamla' ) {
 }
 if( $tabla == 'szallito' ) {
     $selected_szakter   = '';
-    $selected_megj      = '';
+    // $selected_megj      = '';
     if( $_GET['mezo'] == 'szakterulet' ) {
         $selected_szakter = ' selected';
     }
-    if( $_GET['mezo'] == 'megjegyzes' ) {
-        $selected_megj = ' selected';
-    }
+    // if( $_GET['mezo'] == 'megjegyzes' ) {
+    //     $selected_megj = ' selected';
+    // }
     array_push( $sz_mezo, array('eleje' => '<option value="szakterulet"'.$selected_szakter.'>',                     'vege' => 'Szakterület</option>') );
-    array_push( $sz_mezo, array('eleje' => '<option value="megjegyzes" data-tabla="megjegyzes"'.$selected_megj.'>', 'vege' => 'Megjegyzés</option>' ) );
+    // array_push( $sz_mezo, array('eleje' => '<option value="megjegyzes" data-tabla="megjegyzes"'.$selected_megj.'>', 'vege' => 'Megjegyzés</option>' ) );
 }
 
 //echo '<pre style="font-size: 1.4rem">';

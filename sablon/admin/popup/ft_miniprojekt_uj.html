@@ -121,6 +121,7 @@
                 get_mini_tabla : new Date().getTime()
             },
             success: function(response) {
+                if(response.substring(0, 6)=='SESKIL'){ location.href = 'index.php'; }
                 if( response ) {
                     response = JSON.parse(response);
 
@@ -189,6 +190,7 @@ function mini_tabla_ment( that ) {
          	type: 'POST',
          	data: $(that).serialize() + esamp2es('&amp;uj='+_get('id')+'&amp;id='+_get('id')+'&amp;mini_tabla_ment=') + new Date().getTime(),
          	success: function(response) {
+                if(response.substring(0, 6)=='SESKIL'){ location.href = 'index.php'; }
          		if( response ) {
          			response = JSON.parse(response);
 

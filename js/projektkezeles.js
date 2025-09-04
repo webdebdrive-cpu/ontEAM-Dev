@@ -341,6 +341,7 @@ function projekt_dok_check( recid, checked ) {
             projekt_dok_check   : Date.now()
         },
         success: function (response) {
+            if(response.substring(0, 6)=='SESKIL'){ location.href = 'index.php'; }
             if (response) {
                 response = JSON.parse(response);
                 if (response.hiba) {
@@ -405,6 +406,7 @@ function projekt_felelos_beallitva( login_id ) {
             get_szerepkor   : Date.now()
         },
         success: function (response) {
+            if(response.substring(0, 6)=='SESKIL'){ location.href = 'index.php'; }
             if (response) {
                 response = JSON.parse(response);
                 

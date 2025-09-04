@@ -39,14 +39,14 @@ if( $tobb_kep ) {
 }
 
 // Anyagigénylés táblázat rendezésének letárolása SESSION-be
-if (isset($_POST['anyagigenyles_tablazat_rendez'])) {
+if (isset($_POST['tablazat_rendez'])) {
 
     $mentett_adat = $adatbazis_kapcsolat->s2('recid tabla_rendezes', 'login', "`recid` = '".$_SESSION[get_db_tabla().'login_recid']."'", '', '1');
 
     if( $mentett_adat ) {
         $rendezes = array(
-            'vendegej_tablazat_rendez' => $_POST['oszlop'],
-            'vendegej_tablazat_irany'  => $_POST['irany']
+            'tablazat_rendez' => $_POST['oszlop'],
+            'tablazat_irany'  => $_POST['irany']
         );
 
         if( !$mentett_adat['tabla_rendezes_vendegej'] ) {
@@ -63,10 +63,10 @@ if (isset($_POST['anyagigenyles_tablazat_rendez'])) {
 
     // Nem biztos, hogy küldtünk oszlop adatot, lehet csak az irány változik
     if( $_POST['oszlop'] ) {
-        $_SESSION['vendegej_tablazat_rendez'] = $_POST['oszlop'];
+        $_SESSION['tablazat_rendez'] = $_POST['oszlop'];
     }
     if( $_POST['irany'] ) {
-        $_SESSION['vendegej_tablazat_irany']  = $_POST['irany'];
+        $_SESSION['tablazat_irany']  = $_POST['irany'];
     }
     
     // CSV exportban is jó legyen a sorrend ($_SESSION['akt_sql']), ezért hívjuk meg:

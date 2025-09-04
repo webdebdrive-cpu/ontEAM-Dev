@@ -373,6 +373,9 @@ div.kijeloltek_muv div.muv li a.tovabbi_menu:after {
     width: 100%;
     white-space: nowrap;
 }
+.form_jobb.r{
+    text-align: right;
+}
 
 .form_jobb a.obj_gen {
     background: var(--color-sotet-kek);
@@ -595,6 +598,20 @@ input.gomb.piros{
 }
 input.gomb.piros:hover, input.gomb.piros:focus, input.gomb.piros:active{
     background: #D35454;
+}
+
+input.gomb.sarga{
+    background: #d3ab55;
+}
+input.gomb.sarga:hover, input.gomb.sarga:focus, input.gomb.sarga:active{
+    background: #e3b655;
+}
+
+input.gomb.szurke{
+    background: #a0a2ab;
+}
+input.gomb.szurke:hover, input.gomb.szurke:focus, input.gomb.szurke:active{
+    background: #b3b6c0;
 }
 
 input.gomb_alert{
@@ -1538,6 +1555,100 @@ table.rend_tetelek td.torol div:hover{
     background: #f00;
 }
 
+.spec_pipalo {
+    cursor: pointer;
+    border: 0.1rem solid #cecfd1;
+    display: inline-flex;
+    position: relative;
+    line-height: .8;
+}
+.spec_pipalo:not(.disabled):focus {
+    border: 0.1rem solid var(--color-kek);
+}
+.spec_pipalo.disabled {
+    cursor: default;
+    background: #F3F3F3;
+}
+
+.spec_pipalo .ertekek {
+    background: #fff;
+    display: none;
+    position: absolute;
+    top: 2.2rem;
+    left: 0;
+    z-index: 1;
+}
+
+.spec_pipalo .ertekek ul {
+    border: 0.1rem solid #004990;
+    box-shadow: 0.1rem 0.1rem 0.4rem -0.1rem #aba398;
+    gap: 1rem;
+    font-weight: 400;
+    font-size: 1.3rem;
+}
+
+.spec_pipalo .ertekek li {
+    border-bottom: 0.1rem solid #004990;
+    display: grid;
+    grid-template-columns: 3rem auto;
+    align-items: center;
+    padding: .5rem;
+}
+
+.spec_pipalo .ertekek li:hover, .spec_pipalo .ertekek li.aktiv {
+    background-color: #CDDFED;
+}
+
+.spec_pipalo .erteke {
+    display: inline-grid;
+    align-items: center;
+    text-align: center;
+    height: 2rem;
+    width: 3rem;
+    overflow: hidden;
+    position: relative;
+    top: -.2rem;
+}
+
+.spec_pipalo .erteke span {
+    display: inline-grid;
+    height: 2rem;
+    width: 3rem;
+    overflow: hidden;    
+    align-items: center;
+    text-align: center;
+}
+
+.spec_pipalo .erteke, .spec_pipalo .ikon {
+    font-weight: 600;
+    font-size: 2rem;
+    line-height: .8;
+}
+
+.spec_pipalo .erteke .zold, .spec_pipalo .ikon .zold {
+    color: #69A64E;
+    font-size: 1.6rem;
+}
+.spec_pipalo .erteke .zold {
+    line-height: 1.4;
+}
+
+.spec_pipalo .erteke .piros, .spec_pipalo .ikon .piros {
+    color: #C44B4B;
+}
+.spec_pipalo .erteke .piros {
+    font-size: 2rem;
+    line-height: .6;
+    bottom: -.2rem;
+    position: relative;
+}
+
+.spec_pipalo .erteke .sarga, .spec_pipalo .ikon .sarga {
+    color: #FFC029;
+    bottom: -.2rem;
+    position: relative;
+}
+
 
 
 /* Mobil nézetek */
@@ -1959,10 +2070,6 @@ table.szamla_cont_tabla tfoot tr td{
 table.szamla_cont_tabla tr.kijelolve, table.szamla_cont_tabla tr.kijelolve:hover{
     background: var(--color-kek);
     color: #fff;
-}
-
-table.szamla_cont_tabla tr.fake.kijelolve, table.szamla_cont_tabla tr.fake.kijelolve:hover{
-    background: #F1EFF0;
 }
 
 table.szamla_cont_tabla tr.piros_hat, table.szamla_cont_tabla tr.piros_hat:hover{
@@ -2936,7 +3043,7 @@ table.csikos.v2 td.p{
 
 table.csikos th.szerepkor_jog{
     font-size: 1.2rem;
-    height: 4rem;
+    height: 5rem;
     padding: 0.3rem 0.4rem;
     vertical-align: top;
 }
@@ -3089,6 +3196,11 @@ div.fix_elso_oszl td:first-of-type, div.fix_elso_oszl th:first-of-type{
     left: 0;
     position: absolute;
     width: 40rem;
+}
+div.fix_elso_oszl th:first-of-type{
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 div.fix_elso_oszl td:first-of-type{
     height: 2.7rem;

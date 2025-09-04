@@ -89,6 +89,7 @@ function mlok_csatolasa(archivum = '') {
             mlok_csatolasa  : Date.now()
         },
         success: function (response) {
+            if(response.substring(0, 6)=='SESKIL'){ location.href = 'index.php'; }
             if (response) {
                 response = JSON.parse(response);
                 if (response.hiba) {
@@ -128,6 +129,7 @@ function ml_bontasa(id, mehet = '') {
             ml_bontasa  : Date.now()
         },
         success: function (response) {
+            if(response.substring(0, 6)=='SESKIL'){ location.href = 'index.php'; }
             if (response) {
                 response = JSON.parse(response);
                 if (response.hiba) {

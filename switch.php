@@ -607,7 +607,6 @@ foreach($akt_tomb as $ertek){
             $tag -> id          = $ertek['name'];
             $tag -> maxlength   = $ertek['maxlength'];
             $tag -> name        = $ertek['name'];
-            $tag -> naptar      = $ertek['naptar'];
             $tag -> onblur      = $ertek['onblur'];
             $tag -> onclick     = $ertek['onclick'];
             $tag -> onfocus     = $ertek['onfocus'];

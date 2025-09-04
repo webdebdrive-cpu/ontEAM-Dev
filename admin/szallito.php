@@ -17,7 +17,7 @@ $megnevezes             = pathinfo(self());
 $megnevezes             = $megnevezes['filename'];
 $akt_tomb               = $szallito_tomb;
 $torles                 = $megnevezes.'tid';
-$szoveg                 = 'szállítót';        //Hibaüzenetkor: Biztosan törlöd a $szoveg?
+$szoveg                 = 'szállítót';                      // Hibaüzenetkor: Biztosan törlöd a $szoveg?
 
 $szamla_html = '';
 
@@ -282,6 +282,7 @@ require_once('selectek.php');
                         szallitokod_ell : Date.now()
                     },
                     success: function (response) {
+                        if(response.substring(0, 6)==\'SESKIL\'){ location.href = \'index.php\'; }
                         if (response) {
                             response = JSON.parse(response);
                             if (response.hiba) {
@@ -441,12 +442,12 @@ require_once('selectek.php');
         $szamla_html .= '<script> formAdatok = JSON.parse(\''.json_encode($json_sor).'\'); </script>';
         
         // Duplákáláskor feltett kérdés
-        $telephely = $adatbazis_kapcsolat->s('nev', 'telephely', 'id='.$sor['telephely_id'], '', '1');
+        $telephely = $adatbazis_kapcsolat->s('nev', 'telephely', "`id`='{$sor['telephely_id']}'", '', '1');
         $telephely = $telephely[0]['nev'];
         $szamla_html .= nl2('
             <script>
                 duplikalGomb  = "<p class=\"c\"><input class=\"gomb zold\" type=\"button\" value=\"Igen\" onclick=\"szurkit(); location.href = \''.basename(self()).'?uj&amp;ujkent='.$_GET['id'].'\'; \"><input class=\"gomb piros\" type=\"button\" value=\"Nem\" onclick=\"alert2()\"></p>";
-                duplikaKerdes = \'Név: '.addcslashes($sor['nev']).'<br><br>Biztos, hogy duplikálja?\';
+                duplikaKerdes = \'Név: '.addslashes($sor['nev']).'<br><br>Biztos, hogy duplikálja?\';
             </script>
         ');
 
@@ -480,7 +481,7 @@ require_once('selectek.php');
             require_once('tobb_kep.php');
 		}
 
-	// Napló
+	// Szakterületek
     }elseif( isset($_GET['szakterulet']) ) {
 
         if( $_GET['id'] ) {

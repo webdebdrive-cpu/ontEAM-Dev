@@ -22,11 +22,9 @@ $head -> setKeywords( get_keywords() );
 $head -> setOg      ( get_og() );
 
 $head -> charset            = get_web_charset();
-$head -> noskype            = get_noskype();
 $head -> favicon            = get_favicon();
 $head -> country            = get_country();
 $head -> language           = get_language();
-$head -> js_css             = get_jsfajlok();
 
 // Alapértelmezetten '' (azaz üresstring). Ide tehető be további JS vagy CSS script, vagy bármi, ami a header-be kell
 //FONTOS Google font beágyazásakor a a HTML kódban az aposztrófokat cseréld idézőjelre! (Alapértelmezetten src='URL' alakban kapod a beágyazó kódot, ezt erre módosítsd src="URL").

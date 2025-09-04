@@ -20,6 +20,7 @@ $.ajax({
         get_szemelyzet_torol: Date.now()
     },
     success: function(response){
+        if(response.substring(0, 6)=='SESKIL'){ location.href = 'index.php'; }
         if( response ) {
             response = JSON.parse(response);
 
@@ -63,6 +64,7 @@ function szemelyzet_torles (mehet) {
             szemelyzet_torles   : Date.now()
         },
         success: function(response){
+            if(response.substring(0, 6)=='SESKIL'){ location.href = 'index.php'; }
             szamlaBetolt(_get('id'), PHP_SELF, 'modosit');
             popupZar();
         }

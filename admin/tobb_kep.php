@@ -35,7 +35,7 @@ if( isset($_POST['get_feltoltott_fajl']) ) {
     $dokumentum = $adatbazis_kapcsolat->s2('recid fajlnev', $_POST['tabla'].'_dok', "`{$_POST['tabla']}_id`='{$_POST['id']}'", 'recid desc', '1');
 
     echo nl2('
-        Legutóbb feltöltöt fájl: '.$dokumentum['fajlnev'].'
+        Legutóbb feltöltött fájl: '.$dokumentum['fajlnev'].'
         <br>Válassza ki a dokumentum tipusát:
         <br><input type="hidden" name="pop_recid" id="pop_recid" value="'.$dokumentum['recid'].'">
         ');
@@ -104,7 +104,7 @@ if( isset($_POST['megnevezes']) && !$archivum ) {
         }
         
         // Az útvonal, projektek esetén évszámmal is meg van még toldva, amit a rekord insert_dt-jéből veszünk, kivéve némely számláknál/szerződéseknél, ott a teljesítés éve számít
-        $projekt_feluletek = array('projektkezeles', 'projektszamla', 'projektszerzodes', 'fenntartasi_szerzodes');
+        $projekt_feluletek = array('eszkozigenyles', 'fenntartasi_szerzodes', 'projektkezeles', 'projektszamla', 'projektszerzodes');
         if( in_array($konyvtar_db_nev, $projekt_feluletek) ) {
 
             // Projekt számla esetén a teljesítés évét kell mappának beállítani
@@ -118,6 +118,15 @@ if( isset($_POST['megnevezes']) && !$archivum ) {
             
             $utvonal .= '/'.$ev_mappa;
 
+            // Mappa esetleges létrehozása
+            if( !is_dir($utvonal) ) {
+                mkdir($utvonal, 0777);
+            }
+        }
+
+        // Eszközigénylésnél az évszámon felül még egy RECID könyvtárat is hozzunk létre
+        if( $konyvtar_db_nev == 'eszkozigenyles' ) {
+            $utvonal .= '/'.$_POST['sorid'];
             // Mappa esetleges létrehozása
             if( !is_dir($utvonal) ) {
                 mkdir($utvonal, 0777);
@@ -281,6 +290,11 @@ if( isset($_POST['megnevezes']) && !$archivum ) {
                         echo 'frissit';
                     }
 
+                    // Dokumentum típus letárolása eszközigényléseknél
+                    if( isset($_POST['eszkozigenyles_dok_tipus']) ) {
+                        $sql = $adatbazis_kapcsolat->u($_POST['tabla'], array('tipus'), array($_POST['eszkozigenyles_dok_tipus']), "`recid`='{$id}'");
+                    }
+
                     // Végül a szülő táblában a dok_db karbantartása
                     $dokumentumok_szama = count( $adatbazis_kapcsolat->s('recid', $_POST['tabla'], "`{$_POST['oszlop']}`='{$_POST['sorid']}'") );
                     $adatbazis_kapcsolat->u($konyvtar_db_nev, array('dok_db'), array($dokumentumok_szama), "`recid`='{$_POST['sorid']}'");
@@ -330,6 +344,13 @@ $parameterek = nl2("
                     'oszlop'        : '".get_tobbkep_oszlopnev()."',
                     'sorid'         : '".$_GET['id']."'
                     ");
+
+// Eszközigénylések alatt még egy típust is átadunk paraméterként.
+if( self('-bn-') == 'eszkozigenyles.php' ) {
+    $parameterek .= nl2(",
+                    'eszkozigenyles_dok_tipus' : $('#dok_tipus_feltolt').val()
+                    ");
+}
 
 // Ha minden fájl feltöltése kész, mi történjen (ide kéne egy jó ajax hívás)
 $gomb_neve   = 'Tallózás';
@@ -383,7 +404,12 @@ $tobbkep_html .= nl2('
 
 // Projektkezelésnél a direktbe feltölött dokumentumokat másképp listázzuk, hogy lehessen ezeket is minősíteni, illetve levélben elküldeni
 if( $kepek && $apa_tabla != 'projektkezeles' ) {
-    
+
+    // Eszközigényléseknél is van egy Típus oszlop, de ezt nem a tipusos_dokumentumok()-al döntjük el, mert eltér a működés a szokásos típusos dokumentumok fültől
+    if( $apa_tabla == 'eszkozigenyles' ) {
+        $tipus_fejlec = '<div class="felirat">Típus</div>';
+    }
+
     $tobbkep_html .= nl2('
                                 <li class="fejlec">
                                     <div class="kep">Fájlnév</div>
@@ -1058,6 +1084,14 @@ function get_tobbkep_thumb($sor_kepek = '', $i = '', $tobbkep_tablanev = '', $ni
         $kep_utvonal = '../'.get_utvonal().csonkit($tobbkep_tablanev, $csonkit).'/'.$sor_kepek['utvonal'];
     }
 
+    // Eszkozigényléshez bemásolunk megrendelés PDF-eket. Ezek útvonalán igazítani kell.
+    // Adatbázisba nem lehet a normális útvonalat eltárolni, mert eleve a "tartalom/modul-neve" könyvtárban keresi az útvonalat, onnan lépünk vissza egy könyvtárat és lépünk át a megrendelések mappájába.
+    // Ez van itt lerövidítve, normális útvonalra cserélve.
+    if( basename( self() ) == 'eszkozigenyles.php' ) {
+        $kep_utvonal = str_replace('../tartalom/eszkozigenyles/../eszkozigenyles_megr/', '../tartalom/eszkozigenyles_megr/', $kep_utvonal);
+    }
+
+
 // A fájl sora akkor is jelenjen meg, ha már nem létezik, hogy a dev-be átmásolt adatok esetén ha nincs ott a fájl maga, attól még jelenjen meg.
 //    if(is_file($kep_utvonal)){
         $felirat = utf8(stripslashes($sor_kepek['fajlnev']));
@@ -1117,9 +1151,11 @@ function get_tobbkep_thumb($sor_kepek = '', $i = '', $tobbkep_tablanev = '', $ni
             // Nyelvtani szépség
             $a_az = a_az($sor_kepek['fajlnev']);
             
-            // Projekteknél előfordulhat, hogy van típus oszlop. Ha van ilyen oszlopnak értéke, akkor már nem törölhető
-            if( $sor_kepek['tipus'] ) {
+            // Ha a típus oszlopnak van értéke, akkor már nem törölhető.
+            // Eszközigényléseknél viszont lehet típusos dokumentumot törölni (ott minden dokumentum típusos)
+            if( $sor_kepek['tipus'] && basename(self()) != 'eszkozigenyles.php' ) {
                 $torles = '<span class="icon link" onclick="$(\'#'.$azon.'\').addClass(\'torles_elott\'); alert2(\''.ucfirst($a_az).' '.addslashes($sor_kepek['fajlnev']).' dokumentum már minősítve van,<br>így nem törölhető!\', \'\', \'Hiba\')"><i class="material-icons" style="font-size: 2rem">delete</i></span>';
+
             // Általános eset, törlés ikon
             } else {
                 $torles = '
@@ -1262,6 +1298,15 @@ function get_tobbkep_thumb($sor_kepek = '', $i = '', $tobbkep_tablanev = '', $ni
             
         // Általános dokumentum felsorolás
         } else {
+
+            // Eszközigénylés alatt a dokumentumok minősítve vannak, kicsit másképpen mint a tipusos_dokumentumok(), azért van itt így megcsinálva
+            if( self('-bn-') == 'eszkozigenyles.php' ) {
+                $tipus_oszlop = nl2('
+                                <div class="felirat l">
+                                    '.erteklista(ERTEKLISTA_DOK_TIPUS, $sor_kepek['tipus']).'
+                                </div>
+                                ');
+            }
             
             $tobbkep_html .= nl2('
                 <li id="'.$azon.'" title="'.$sor_kepek['megj'].'" data-id="'.$sor_kepek['recid'].'" data-i="'.$i.'"'.$class_kiir.'>

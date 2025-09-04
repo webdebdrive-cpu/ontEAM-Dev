@@ -85,6 +85,7 @@
                             onteam_id_mee_kitolt: Date.now()
                         },
                         success: function(response){
+                            if(response.substring(0, 6)=='SESKIL'){ location.href = 'index.php'; }
                             if(response){
                                 response = JSON.parse(response);
                                 if(response.hiba){
@@ -227,6 +228,7 @@
                                 ktgnem_ktghely_kitolt   : Date.now()
                             },
                             success: function(response){
+                                if(response.substring(0, 6)=='SESKIL'){ location.href = 'index.php'; }
                                 if(response){
                                     response = JSON.parse(response);
                                     if(response.hiba){
@@ -536,6 +538,7 @@ function tetel_hozzaadasa() {
             menny_ear_ell       : Date.now()
         },
         success: function(response){
+            if(response.substring(0, 6)=='SESKIL'){ location.href = 'index.php'; }
             if(response){
                 response = JSON.parse(response);
                 if(response.hiba){

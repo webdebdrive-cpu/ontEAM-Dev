@@ -68,6 +68,10 @@ if( $weblap->db_prefix ) {
     foreach ( $_GET as $kulcs => $get ) {
         $_GET[$kulcs] = sql_ertek($_GET[$kulcs]);
     }
+    // Valami miatt a POST-nál ez nem jó. "valami'idézőjeles" adatot elküldve rosszul kerül eltárolsára. Nem tudtam egyelőre megoldani.
+    // foreach ( $_POST as $kulcs => $post ) {
+    //     $_POST[$kulcs] = sql_ertek($_POST[$kulcs]);
+    // }
 }
 
 // Majd a weblap indulhat, ekkor tölthető ki a meta (később már lesz kimenet)
@@ -87,12 +91,11 @@ require_once('tartalom.php');
 *	@return string: A tartalom tömb megfelelő bejegyzése
 */
 // Kiléptetés, ha nem él a SESSION és nem az index.php-n vagyunk és nem is egy ütemezőn, nem is elfelejtett jelszót kérünk le.
-$kiveteles_oldalak = array('index.php', 'import_szamla.php', 'import_szamla_kifizetes.php', 'beleptetes.php');
+$kiveteles_oldalak = array('index.php', 'import_szamla.php', 'import_szamla_kifizetes.php', 'megr_ig.php', 'beleptetes.php');
 if( !$_SESSION[get_db_tabla().'user'] && !$_POST['elfelejtett_jelszo'] && substr(basename($_SERVER['PHP_SELF']), 0, 8) != 'utemezo_' && !in_array(basename($_SERVER['PHP_SELF']), $kiveteles_oldalak) && substr(basename($_SERVER['PHP_SELF']), 0, 5)!='andoc' ) {
     echo 'SESKIL<script>document.body.innerHTML = \'\'; location.href=\'index.php\'</script>';
     exit;
 }
-
     
 // Jogosultságok karbantartása
 if( $_SESSION[get_db_tabla().'user'] ) {
@@ -107,23 +110,19 @@ if( $_SESSION[get_db_tabla().'user'] ) {
 
 // Archiv bejelentés/munkalap esetén ha nincs szűrés/összetett szűrés, akkor a legfrisseb legyen beállítva (amúgy is van rajta egy limit, ha van más szűrés, de ha nincs beállítva semmi, akkor ez látszik is).
 // FONTOS, hogy ez még itt a szamla_lista() függvény meghívása előtt legyen, mert az már számol ezekkel!
-// A tényleg kifejezetten Archiv modulokkel  kezdjük, mert ha már lesz értéke a $_GET['mezo']-nek, a másik feltételbe nem kerülünk bele
+// A tényleg kifejezetten Archiv modulokkal kezdjük, mert ha már lesz értéke a $_GET['mezo']-nek, a másik feltételbe nem kerülünk bele
 $archivok2 = array('bejelentes_arch.php', 'munkalap_arch.php');
 if( in_array(basename(self()), $archivok2) && !isset($_GET['mezo']) && !$_SESSION['o_szuro_feltetel'] ) {
     $_GET['mezo']   = 'legfrissebb';
     $_GET['op']     = 'equal';
-    if( $_SERVER['HTTP_HOST'] == 'teszt.onteam.hu' ) {
-        $_GET['felt']   = ARCHIV_NAVPANEL_LIMIT2_TESZT;
-    } else {
-        $_GET['felt']   = ARCHIV_NAVPANEL_LIMIT2;
-    }
+    $_GET['felt'] = SZURES_DB_LIMIT;
 }
 
 $archivok = array('anyag_szamla.php', 'bejelentes_arch.php', 'energia_szamla.php', 'fenntartasi_szamla.php', 'fenntartasi_szerzodes.php', 'megallapodas.php', 'megallapodas_szamla.php', 'munkalap_arch.php', 'projektigenyles.php', 'projektkezeles.php', 'projektszamla.php', 'projektszerzodes.php', 'vendegejszakak.php');
 if( in_array(basename(self()), $archivok) && !isset($_GET['mezo']) && !$_SESSION['o_szuro_feltetel'] ) {
     $_GET['mezo']   = 'legfrissebb';
     $_GET['op']     = 'equal';
-    $_GET['felt']   = ARCHIV_NAVPANEL_LIMIT;
+    $_GET['felt']   = SZURES_DB_LIMIT;
 }
 
 
@@ -163,7 +162,7 @@ if( $_GET['id'] && !isset($_GET['no_lista']) ) {
     }
 }
 
-// Ha van id, akkor ellenőrizzük, hogy én azt láthatom-e. A legfrissebbnél ezt nem tudjuk ljétszani, mert ott nincs minden id a session-ban (túl sok is volna). Itt ha rendezést állítunk (pl. Z-A), akkor nem lehetne megnyitni adott rekordot. 
+// Ha van id, akkor ellenőrizzük, hogy én azt láthatom-e. A legfrissebbnél ezt nem tudjuk eljátszani, mert ott nincs minden id a session-ban (túl sok is volna). Itt ha rendezést állítunk (pl. Z-A), akkor nem lehetne megnyitni adott rekordot. 
 if( $_GET['id'] && $_GET['mezo']!='legfrissebb' ) {
     if( !in_array($_GET['id'], $_SESSION[csonkit(basename(self()), 4).'_idk']) ){
         exit;

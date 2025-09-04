@@ -2429,7 +2429,7 @@ if( isset($_GET['csv']) ) {
                     if( strpos($limit, ' ') ) {
                         $limit = substr($limit, 0, strpos($limit, ' '));
                     }
-                    if( $limit == ARCHIV_NAVPANEL_LIMIT && !$_SESSION['nyomtatas_ids_ksz'] ) {
+                    if( $limit == SZURES_DB_LIMIT && !$_SESSION['nyomtatas_ids_ksz'] ) {
                         $mindet_listazd = true;
                     }
                 }
@@ -2607,7 +2607,7 @@ if( isset($_GET['csv']) ) {
                     if( strpos($limit, ' ') ) {
                         $limit = substr($limit, 0, strpos($limit, ' '));
                     }
-                    if( $limit == ARCHIV_NAVPANEL_LIMIT && !$_SESSION['nyomtatas_ids_ksz'] ) {
+                    if( $limit == SZURES_DB_LIMIT && !$_SESSION['nyomtatas_ids_ksz'] ) {
                         $mindet_listazd = true;
                     }
                 }
@@ -3273,6 +3273,7 @@ if( $_SERVER['REMOTE_ADDR'] == get_debug_ip() ) {
                         van_tetel       : Date.now()
                     },
                     success: function(response){
+                        if(response.substring(0, 6)==\'SESKIL\'){ location.href = \'index.php\'; }
                         if(response){
                             response = JSON.parse(response);
                             if(response.van_tetel==\'van\'){

@@ -461,7 +461,9 @@ if(isset($_GET['uj']) && _jog(JOG_SZEREPKOR_KEZEL)){
             ');
 
         $jogdb = count($jogKatok);
-        $jogdb_fel = ceil($jogdb / 2);
+        // Hol felezzük el a kategóriákat? A fele + 2-nél, mert nem egyforma számú lista van az egyes kategóriáknál, ezért egy +2-val igazítva van a fele,
+        // hogy vizuálisan valóban szép legyen.
+        $jogdb_fel = ceil($jogdb / 2) + 2;
 
         // Kiíratjuk az egészet
         $i = 1;

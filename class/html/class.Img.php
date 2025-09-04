@@ -69,7 +69,7 @@ class Img extends Tag{
     * @return string -  Html kód
     */
    	public function getHtml() {
-        
+
         if( is_file($this->src) ) {
 
             $kep_reszek = pathinfo($this -> src);
@@ -109,13 +109,13 @@ class Img extends Tag{
             }
 
             // Ha nem kép, akkor a kiterjesztésének megfelelő ikont rajzolunk ki
-            $icon = false;
+            $icon = 0;
             $kep_formatumok = array(/* ontEAM-en a képeket is ikonnal jelenítjük meg 'jpg', 'png', 'gif', 'jpeg'*/);
             if( !in_array(strtolower($kep_reszek['extension']), $kep_formatumok) ) {
                 $this -> src = 'elemek/ikonok/'.$kep_reszek['extension'].'.png';
                 if( basename(dirname(self())) . '/' == get_admin() ) {
                     $this -> src = '../'.$this -> src;
-                    $icon = true;
+                    $icon = 1;
                 }
             }
 

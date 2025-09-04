@@ -4,6 +4,8 @@ include('weblap.php');
 
 if( isset($_GET['value']) && isset($_GET['tabla']) && isset($_GET['oszlop_keres']) ) {
 
+    $_GET['tabla'] = str_replace(array('te_reszleg_1', 'te_reszleg_2'), array('te_reszleg', 'te_reszleg'), $_GET['tabla']);
+
     // Több oszlop is szerepelhet a $_GET['oszlop']-ban (minden oszlop értékét sortöréssel tesszük a találati listába)
     $oszlop_keres  = explode(',', str_replace(' ', '', $_GET['oszlop_keres']));
     $oszlop_listaz = explode(',', str_replace(' ', '', $_GET['oszlop_listaz']));
@@ -158,11 +160,21 @@ if( isset($_GET['value']) && isset($_GET['tabla']) && isset($_GET['oszlop_keres'
             array_unshift($oszlop_listaz, 'id');
         }
         // Szállítók esetén csak az aktívakat soroljuk fel, kivéve ha az aktívakat színezzük (ekkor nyilván látni is szeretnénk)
-        if( $_GET['tabla'] == 'szallito' && !$_GET['aktiv_szinez'] ) {
+        if( ($_GET['tabla'] == 'szallito' || $_GET['tabla'] == 'szallito_beszerzes') && !$_GET['aktiv_szinez'] ) {
             if( $where_sql ) {
-                $where_sql .= " AND `aktiv` = '1'";
+                $where_sql .= " AND `aktiv`='1'";
             } else {
-                $where_sql .= " WHERE `aktiv` = '1'";
+                $where_sql .= " WHERE `aktiv`='1'";
+            }
+            
+        }
+
+        // Szállítók esetén csak az aktívakat soroljuk fel, kivéve ha az aktívakat színezzük (ekkor nyilván látni is szeretnénk)
+        if( $_GET['tabla'] == 'te_reszleg' && isset($_GET['szulo']) ) {
+            if( $where_sql ) {
+                $where_sql .= " AND `szulo`='{$_GET['szulo']}'";
+            } else {
+                $where_sql .= " WHERE `szulo`='{$_GET['szulo']}'";
             }
             
         }
@@ -243,11 +255,7 @@ if( isset($_GET['value']) && isset($_GET['tabla']) && isset($_GET['oszlop_keres'
             $lekerdez = mysqli_query($db_kapcs, 'SELECT DISTINCT `'.implode('`, `', $oszlop_listaz).'` FROM `'.get_db_tabla().$_GET['tabla'].'`'.$where_sql.' ORDER BY `'.$oszlop_keres[0].'`') or die(mysqli_error($db_kapcs));
         // Cikktörzs esetén a rendezés cikknév szerint legyen
         } elseif( $_GET['tabla'] == 'cikktorzs' ) {
-            $lekerdez = mysqli_query($db_kapcs, 'SELECT DISTINCT `recid`, `'.implode('`, `', $oszlop_listaz).'`, `cikkmee` FROM `'.get_db_tabla().$_GET['tabla'].'`'.$where_sql.' ORDER BY `nev`') or die(mysqli_error($db_kapcs));
-// echo 'SELECT DISTINCT `'.implode('`, `', $oszlop_listaz).'` FROM `'.get_db_tabla().$_GET['tabla'].'`'.$where_sql.' ORDER BY `'.$oszlop_keres[0].'`' . '<br>';
-// echo 'f';
-// exit;
-//            
+            $lekerdez = mysqli_query($db_kapcs, 'SELECT DISTINCT `recid`, `'.implode('`, `', $oszlop_listaz).'`, `cikkmee` FROM `'.get_db_tabla().$_GET['tabla'].'`'.$where_sql.' ORDER BY `nev`') or die(mysqli_error($db_kapcs));      
         // Projekt team tagoknál szűrni kell projekt recid-ra
         } elseif( $_GET['tabla'] == 'projektkezeles_team' ) {
             $lekerdez = mysqli_query($db_kapcs, 'SELECT `recid`,'.$select_kieg.' `'.implode('`, `', $oszlop_listaz).'` FROM `'.get_db_tabla().$_GET['tabla'].'`'.$where_sql.' AND `projektkezeles_recid`=\''. $_GET['recid'].'\' ORDER BY `'.$oszlop_keres[0].'`') or die(mysqli_error($db_kapcs));

@@ -22,6 +22,7 @@ define('PR_KEZELES_ERT_MAIL_5',     'krisztina.weitzinger@danubiushotels.com');
 define('MSZK_MAIL_1',               'diszpecser@danubiushotels.com');
 define('MSZK_MAIL_2',               'gyongyi.szollosi@danubiushotels.com');
 define('SZINVATREND_TESZT_MAIL',    'korcsmaros@szinvatrend.hu');
+define('SZINVATREND_TESZT_MAIL2',   'handari@szinvatrend.hu');
 define('WEBDEB_TESZT_MAIL',         'teszt@webdeb.hu');
 define('WEBDEB_TESZT_MAIL2',        'bk@webdeb.hu');
 define('CSV_EXPORT_UTVONAL_1',      'export');
@@ -132,6 +133,22 @@ define('PRIGENY_STAT_JOVAHAGYVA',           '12' );
 define('ENERGIATERV_STAT_MUNKAKOZI',        '05');
 define('ENERGIATERV_STAT_KESZ',             '10');
 define('ENERGIATERV_STAT_ELES',             '15');
+
+// Eszközigénylés státuszok
+define('ESZKOZIGENYL_STAT_UJ_FELVITEL',      '01');
+define('ESZKOZIGENYL_STAT_MUSZAK_JH_VAR',    '02');
+define('ESZKOZIGENYL_STAT_SZALL_ENG_VAR',    '03');
+define('ESZKOZIGENYL_STAT_BI_VALID_VAR',     '04');
+define('ESZKOZIGENYL_STAT_SZAKM_VEL_VAR',    '05');
+define('ESZKOZIGENYL_STAT_FELSO_JH_VAR',     '06');
+define('ESZKOZIGENYL_STAT_BI_VEGL_VAR',      '07');
+define('ESZKOZIGENYL_STAT_KIKULD_VAR',       '08');
+define('ESZKOZIGENYL_STAT_MEGRENDELVE',      '09');
+define('ESZKOZIGENYL_STAT_ELUTASITOTT',      '10');
+
+// Eszközigénylés megrendelés státuszok
+define('ESZKOZIGENYL_MEGR_STAT_KIKULD_VAR',  '01');
+define('ESZKOZIGENYL_MEGR_STAT_MEGRENDELVE', '02');
 
 // Menteni, csak ezekben a státuszokban lehet
 function prigeny_mentheto_statuszok(){
@@ -268,6 +285,8 @@ function get_dokumentumtar_menu() {
         array('tabla' => 'energia',                 'nev' => 'Energia'                  ),
         array('tabla' => 'energia_szamla',          'nev' => 'Energia számlák'          ),
         array('tabla' => 'eseti_fenntartas',        'nev' => 'Eseti fenntartás'         ),
+        array('tabla' => 'eszkozigenyles',          'nev' => 'Eszközigénylések'         ),
+        array('tabla' => 'eszkozigenyles_megr',     'nev' => 'Megrendelés'              ),
         array('tabla' => 'eszkozkezeles',           'nev' => 'Eszközkezelés'            ),
         array('tabla' => 'fenntartasi_szamla',      'nev' => 'Fenntartási számlák'      ),
         array('tabla' => 'fenntartasi_szerzodes',   'nev' => 'Fenntartási szerződések'  ),
@@ -277,6 +296,7 @@ function get_dokumentumtar_menu() {
         array('tabla' => 'utemezett_feladatok',     'nev' => 'Ütemezett feladatokok'    ),
         array('tabla' => 'uzemeltetesi_naplo',      'nev' => 'Üzemeltetési napló'       ),
         array('tabla' => 'szallito',                'nev' => 'Partnertörzs'             ),
+        array('tabla' => 'szallito_beszerzes',      'nev' => 'Beszerzés szállítók'      ),
         array('tabla' => 'projektigenyles',         'nev' => 'Projektigénylések'        ),
         array('tabla' => 'projektigenyles_velemeny','nev' => 'Projektigénylés vélemények'),
         array('tabla' => 'projektkezeles',          'nev' => 'Projektkezelés'           ),
@@ -475,6 +495,10 @@ define('JOG_PARTNERTORZS_OLVAS',        93);
 define('JOG_PARTNERTORZS_KEZEL',        94);
 define('JOG_PARTNERTORZS_NEV_SZERK',    99);
 define('JOG_PARTNERTORZS_TOROL',        95);
+define('JOG_BESZ_SZALL_OLVAS',          163);
+define('JOG_BESZ_SZALL_KEZEL',          164);
+define('JOG_BESZ_SZALL_TOROL',          165);
+
 define('JOG_DOKUMENTUMTAR_OLVAS',       96);
 define('JOG_DOKUMENTUMTAR_KEZEL',       97);
 define('JOG_DOKUMENTUMTAR_TOROL',       98);
@@ -484,6 +508,22 @@ define('JOG_MEGALLAPODAS_KEZEL',        91);
 define('JOG_MEGALLAPODAS_SZAMLA_OVLAS', 92);
 define('JOG_MEGALLAPODAS_SZAMLA_KEZEL',100);
 define('JOG_MEGALLAPODAS_SZAMLA_IGAZOL',86);
+
+define('JOG_BESZERZ_IGENYLESEK_OLVAS',          149);
+define('JOG_BESZERZ_IGENYLESEK_LETREH',         150);
+define('JOG_BESZERZ_IGENYLESEK_BESZERZO',       167);
+define('JOG_BESZERZ_IGENYLESEK_KEZEL',          159);
+define('JOG_BESZERZ_IGENYLESEK_TOROL',          151);
+define('JOG_BESZERZ_IGENYLESEK_MUSZAK_JOVA',    155);
+define('JOG_BESZERZ_IGENYLESEK_SZALLODAI_ENG',  156);
+define('JOG_BESZERZ_IGENYLESEK_BI_VALIDALAS',   157);
+define('JOG_BESZERZ_IGENYLESEK_SZAKMAI_VEL',    152);
+define('JOG_BESZERZ_IGENYLESEK_FELSOVEZ_JH',    160);
+define('JOG_BESZERZ_IGENYLESEK_BI_VEGLEGESIT',  161);
+define('JOG_BESZERZ_IGENYLESEK_ELSODLEGES',     153);
+define('JOG_BESZERZ_IGENYLESEK_MASODLAGOS',     154);
+define('JOG_BESZERZ_IGENYLESEK_MEGR_OLVAS',     166);
+define('JOG_BESZERZ_IGENYLESEK_MEGR_KIKULD',    158);
 
 define('SZAMLAK_IGAZOLASA',            139);
 define('ANDOC_SZAMLAK_SZETOSZTASA',    141);
@@ -519,6 +559,14 @@ define('ERT_IGAZOLASRA_KULDESKOR_MEG',  22);
 
 define('ERT_MUSZUGY_VISSZAADAS',        21);
 
+define('ERT_BESZERZ_FELAD_ZAR',         23);
+define('ERT_BESZERZ_MUSZAK_JOVA_ELO',   24);
+define('ERT_BESZERZ_SZALLODAI_ENG_ELO', 25);
+define('ERT_BESZERZ_BI_VALIDALAS_ELO',  26);
+define('ERT_BESZERZ_SZAKMAI_VEL_ELO',   27);
+define('ERT_BESZERZ_FELSOVEZ_JH_ELO',   28);
+define('ERT_BESZERZ_BI_VEGLEGESIT_ELO', 29);
+define('ERT_BESZERZ_MEGR_KIKULD_ELO',   30);
 
 define('HIBA_ADJON_FELADAT',            ' kérem adjon hozzá egy elvégzett feladatot!');
 define('DASHB_NINCS_BEJEGYZES',         'Nem található bejegyzés!');
@@ -577,13 +625,12 @@ define('MLTIPUS_ESETI_FENNT',   5);
 define('MLTIPUS_GARANCIALIS',   6);
 
 // Limit értékek
-define('ARCHIV_NAVPANEL_LIMIT',        1000    );  // Ez végül nem csak archiv modulokban van használva
-define('ARCHIV_NAVPANEL_LIMIT2',        500    );  // Ez viszont tényleg csak az archiv modulokban van használva
-define('ARCHIV_NAVPANEL_LIMIT2_TESZT',  100    );  // Ez pedig akkor, ha teszt felületen vagyunk
-define('SZURES_DB_LIMIT',              1000    );
-define('CSV_EXPORT_LIMIT',            30000    );
+define('SZURES_DB_LIMIT',              1000    );  // Szűrési feltételkor megnézzük, hogy ennél több sort kapunk-e? Ha igen, akkor rákérdezünk, hogy biztosan szeretnénk-e ennyi sort kilistázni?
+define('CSV_EXPORT_LIMIT',            30000    );  // Exportkor ha úgy érzékeljük, hogy ettől nagyobb számú sort kell letölteni, akkor megerősítő kérdést írunk ki.
 define('ANYAGREND_LIMIT',                50    );
 define('ANYAGREND_NEM_MSZK_LIMIT',      200    );
+define('GM_TERHES_EGYSEGAR',          50000    );
+define('GM_TERHES_OSSZNETTO',        500000    );
 
 // Fűtőértékkel kapcsolatos konstansok
 define('FUTOERTEK_KOD',         '5114400'               );
@@ -650,3 +697,53 @@ define('ENERGIA_SZAMLA_VILLANY',    1);
 define('ENERGIA_SZAMLA_GAZ',        2);
 define('ENERGIA_SZAMLA_VIZ',        3);
 define('ENERGIA_SZAMLA_TERMAL',     4);
+
+// Beszerzés típusok
+define('BESZ_TIP_TERVEZETT',        1);
+define('BESZ_TIP_SORONKIVULI',      2);
+define('BESZ_TIP_GM_KERET',         3);
+
+// Speciális pipálók tömbjei
+function musz_el_ig_ertekek() {
+    return [ 
+            ['value' => 0, 'text' => '',                                'ikon' => ''    ],
+            ['value' => 1, 'text' => 'műszak nem érintett',             'ikon' => '-'   ],
+            ['value' => 2, 'text' => 'műszaki előkészítést igényel ',   'ikon' => '<span class="piros">!</span>'],
+    ];
+}
+function szall_ig_vel_ertekek() {
+    return [
+            ['value' => 0, 'text' => '',                            'ikon' => ''],
+            ['value' => 1, 'text' => 'mehet BI validálásra',        'ikon' => '<span class="zold">✓</span>' ],
+            ['value' => 2, 'text' => 'elutasítás',                  'ikon' => '<span class="piros">×</span>'],
+        ];
+}
+function bi_vel_ertekek() {
+    return [
+            ['value' => 0, 'text' => '',                            'ikon' => ''],
+            ['value' => 2, 'text' => 'elutasítás',                  'ikon' => '<span class="piros">×</span>'],
+            ['value' => 1, 'text' => 'mehet szakmai véleményezésre','ikon' => '<span class="zold">✓</span>' ],
+        ];
+}
+function szak_vel_ertekek() {
+    return [
+            ['value' => 0, 'text' => '',                            'ikon' => ''],
+            ['value' => 1, 'text' => 'beleegyezés',                 'ikon' => '<span class="zold">✓</span>' ],
+            ['value' => 3, 'text' => 'feltételekkel beleegyezés',   'ikon' => '<span class="sarga">?</span>'],
+            ['value' => 2, 'text' => 'elutasítás',                  'ikon' => '<span class="piros">×</span>'],
+        ];
+}
+function felso_vel_ertekek() {
+    return [
+            ['value' => 0, 'text' => '',                            'ikon' => ''],
+            ['value' => 1, 'text' => 'beleegyezés',                 'ikon' => '<span class="zold">✓</span>' ],
+            ['value' => 2, 'text' => 'elutasítás',                  'ikon' => '<span class="piros">×</span>'],
+        ];
+}
+function bi_vegl_ertekek() {
+    return [
+            ['value' => 0, 'text' => '',                            'ikon' => ''],
+            ['value' => 1, 'text' => 'beleegyezés',                 'ikon' => '<span class="zold">✓</span>' ],
+            ['value' => 2, 'text' => 'elutasítás',                  'ikon' => '<span class="piros">×</span>'],
+        ];
+}

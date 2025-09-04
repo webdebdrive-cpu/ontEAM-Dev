@@ -1,4 +1,4 @@
-/* Anyagigénylés táblázatos nézethet tarrtozó js */
+/* Anyagigénylés táblázatos nézethez tartozó js */
 
 /* Ez azért kell, hogy lépkedés után is működjön a rendezés */
 /*forEach(document.getElementsByTagName('table'), function(table) {
@@ -7,15 +7,6 @@
   }
 });*/
 
-/* Anyagigénylés táblázatban a jóváhagyott mennyiség értéke ha változik. A anyagig_eredeti_jhmen tömb a fuggvenyek.php-ban az anyagigenyleslista() résznél jön létre, ahol a táblázat HTML-je kigenerálódik */
-/*$(document).on('blur keyup', '.szamla_cont_tabla tbody input', function(e) {
-    if( anyagig_eredeti_jhmen[$(this).attr('recid')] != $(this).val() ){
-        $(this).addClass('mod');
-        formModositva = true;
-    }else{
-        $(this).removeClass('mod');
-    }
-});*/
 
 /* Form modosítva változó beállítása: minden egyes billentyű leütésre mod classt keresünk. Ha találunk, akkor módosítva van a form */
 $(document).on('keyup', '.szamla_cont_tabla input', function(e) {
