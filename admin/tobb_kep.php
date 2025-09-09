@@ -58,7 +58,7 @@ if( isset($_POST['dokumentum_tipus_valaszt']) ) {
     
     // Logolás
     $dok = $adatbazis_kapcsolat->s2($_POST['tabla'].'_id fajlnev', $_POST['tabla'].'_dok', "`recid`='{$_POST['recid']}'");
-    addMegj($_POST['tabla'], $dok[$_POST['tabla'].'_id'], $dok['fajlnev'].' dokumentum '. erteklista(ERTEKLISTA_DOK_TIPUS, $_POST['tipus']).' típusnak minősítve');
+    addMegj($_POST['tabla'], $dok[$_POST['tabla'].'_id'], $dok['fajlnev'].' dokumentum '.erteklista(ERTEKLISTA_DOK_TIPUS, $_POST['tipus']).' típusnak minősítve');
     
     $weblap -> leallit();
     exit;
@@ -265,28 +265,32 @@ if( isset($_POST['megnevezes']) && !$archivum ) {
                     $kep_tort = str_replace('../'.get_utvonal().$konyvtar_db_nev.'/', '', $kepnev);
                     if( $_POST['ellenorzes_kihagy'] == 'false' ) {
 
-                        // Letárolás adatbázisba is. A kép neve nem tartalmazza a get_utvonal részt! Ha sikeres akkor adunk egy outputot a flashfile-nak
+                        // Letárolás adatbázisba is. A kép neve nem tartalmazza a get_utvonal részt! Ha sikeres akkor adunk egy outputot.
                         $id = $adatbazis_kapcsolat -> i( $_POST['tabla'],
                                                         array($_POST['oszlop'], 'utvonal',  'fajlnev',         'loginnev',                        'insert_dt',   'insert_usr',                            'update_usr'                           ),
                                                         array($_POST['sorid'],  $kep_tort,  $fajlnev.'.'.$kit, $_SESSION[get_db_tabla().'user'],  'NOW()',       $_SESSION[get_db_tabla().'teljes_nev'],  $_SESSION[get_db_tabla().'teljes_nev'] )
                                                     );
 
                         $sor_kepek = $adatbazis_kapcsolat->s2('*', $_POST['tabla'], "`recid`='{$id}'");
-
+                        if( isset($_POST['eszkozigenyles_dok_tipus']) ) {
+                            $sor_kepek['tipus'] = $_POST['eszkozigenyles_dok_tipus'];
+                        }
                         $osszes_sor = $adatbazis_kapcsolat->s('recid', $_POST['tabla'], '');
 
                         echo get_tobbkep_thumb($sor_kepek, count($osszes_sor));
                         
                     } else {
 
-                        $sor_kep = $adatbazis_kapcsolat->s($_POST['oszlop'], $_POST['tabla'], "`".$_POST['oszlop']."`='".$_POST['sorid']."' AND `utvonal` = '{$kep_tort}'", '', '0,1');
+                        $sor_kep = $adatbazis_kapcsolat->s2('recid, '.$_POST['oszlop'], $_POST['tabla'], "`".$_POST['oszlop']."`='".$_POST['sorid']."' AND `utvonal`='{$kep_tort}'", '', '0,1');
                         if( !$sor_kep ) {
                             $id = $adatbazis_kapcsolat -> i( $_POST['tabla'],
                                                                 array($_POST['oszlop'], 'utvonal',  'fajlnev',            'loginnev',                        'insert_dt',   'insert_usr',                            'update_usr'                            ),
                                                                 array($_POST['sorid'],  $kep_tort,  $fajlnev.'.'.$kit,    $_SESSION[get_db_tabla().'user'],  'NOW()',       $_SESSION[get_db_tabla().'teljes_nev'],  $_SESSION[get_db_tabla().'teljes_nev']  )
                                                             );
+                        // Ha létezne már az adatbázis bejegyzés, akkor is gondoskodni kell arról, hogy az $id-ban a megfelelő recid kerüljön
+                        } else {
+                            $id = $sor_kep['recid'];
                         }
-
                         echo 'frissit';
                     }
 
@@ -329,6 +333,9 @@ require_once '../class/html/class.Img.php';
 
 // Sessionok beállítása a feltöltéshez:
 $megn = 'tobbkep'.$_GET['id'];
+if( $tobbkep_tablanev == 'eszkozigenyles_dok' ) {
+    $megn = 'tobbkep';
+}
 
 // Korlátozás csak képre
 $eng_kit = '';
@@ -348,16 +355,19 @@ $parameterek = nl2("
 // Eszközigénylések alatt még egy típust is átadunk paraméterként.
 if( self('-bn-') == 'eszkozigenyles.php' ) {
     $parameterek .= nl2(",
-                    'eszkozigenyles_dok_tipus' : $('#dok_tipus_feltolt').val()
+                    'eszkozigenyles_dok_tipus' : $('#pop_tipus').val()
                     ");
 }
 
 // Ha minden fájl feltöltése kész, mi történjen (ide kéne egy jó ajax hívás)
 $gomb_neve   = 'Tallózás';
 $minden_kesz = '';
+
 if( $tobbkep_tablanev == 'eszkozkezeles_eng_dok' ) {
     $minden_kesz = 'kapcsolodoSzerkeszt(\'eszkozkezel_engedely\');';
     $gomb_neve   = 'Új engedély feltöltése';
+} else if( $tobbkep_tablanev == 'eszkozigenyles_dok' ){
+    $minden_kesz = 'popupZar();';
 } else {
     $minden_kesz = 'szamlaBetolt(_get(\'id\'), baseName(location.href) + \'.php\', \'dokumentumok\');';
 }
@@ -381,6 +391,20 @@ if( !$nincs_torles ) {
     $sorrend_ujkep       = fajlbol_olvas('../sablon/admin/tobbkep_ujkep.html', true);
     $sorrend_ujkep_mit   = array('{GOMB_NEVE}', '{MEGN}',  '{PHP_FAJL}',                     '{ENG_KIT}', '{PARAMETEREK}', '{MINDEN_KESZ}', '{MULTIPLE}', '{MAX_MERET}'                         );
     $sorrend_ujkep_mivel = array($gomb_neve,    $megn,     'tobb_kep.php'/*self() nem jó!*/, $eng_kit,     $parameterek,    $minden_kesz,   $multiple,    ini_get('upload_max_filesize')*1024   );
+}
+// Eszközigénylés alatt nem a fenti feltöltés tallózás jelenik meg hanem egy Feltöltés gomb ami megnyit egy popup-ot, előzetes típusválasztás miatt
+// Viszont a fenti kód is kell, mert az intézi a feltöltést.
+if( self('-bn-') == 'eszkozigenyles.php' ) {
+    $sorrend_ujkep .= nl2('
+                        <style>
+                            #jsff_tobbkep {
+                                display: none;
+                            }
+                        </style>
+                        <div class="jsff">
+                            <input type="button" class="gomb" value="Feltöltés" onclick="csoportMuvelet(\'eszkozigenyles_dokumentum_tipus_valaszt\');">
+                        </div>
+                        ');
 }
 
 $tobbkep_html  = '';
@@ -1087,10 +1111,9 @@ function get_tobbkep_thumb($sor_kepek = '', $i = '', $tobbkep_tablanev = '', $ni
     // Eszkozigényléshez bemásolunk megrendelés PDF-eket. Ezek útvonalán igazítani kell.
     // Adatbázisba nem lehet a normális útvonalat eltárolni, mert eleve a "tartalom/modul-neve" könyvtárban keresi az útvonalat, onnan lépünk vissza egy könyvtárat és lépünk át a megrendelések mappájába.
     // Ez van itt lerövidítve, normális útvonalra cserélve.
-    if( basename( self() ) == 'eszkozigenyles.php' ) {
+    if( $tobbkep_tablanev == 'eszkozigenyles_dok' ) {
         $kep_utvonal = str_replace('../tartalom/eszkozigenyles/../eszkozigenyles_megr/', '../tartalom/eszkozigenyles_megr/', $kep_utvonal);
     }
-
 
 // A fájl sora akkor is jelenjen meg, ha már nem létezik, hogy a dev-be átmásolt adatok esetén ha nincs ott a fájl maga, attól még jelenjen meg.
 //    if(is_file($kep_utvonal)){
@@ -1153,7 +1176,7 @@ function get_tobbkep_thumb($sor_kepek = '', $i = '', $tobbkep_tablanev = '', $ni
             
             // Ha a típus oszlopnak van értéke, akkor már nem törölhető.
             // Eszközigényléseknél viszont lehet típusos dokumentumot törölni (ott minden dokumentum típusos)
-            if( $sor_kepek['tipus'] && basename(self()) != 'eszkozigenyles.php' ) {
+            if( $sor_kepek['tipus'] && $tobbkep_tablanev != 'eszkozigenyles_dok' ) {
                 $torles = '<span class="icon link" onclick="$(\'#'.$azon.'\').addClass(\'torles_elott\'); alert2(\''.ucfirst($a_az).' '.addslashes($sor_kepek['fajlnev']).' dokumentum már minősítve van,<br>így nem törölhető!\', \'\', \'Hiba\')"><i class="material-icons" style="font-size: 2rem">delete</i></span>';
 
             // Általános eset, törlés ikon
@@ -1300,7 +1323,7 @@ function get_tobbkep_thumb($sor_kepek = '', $i = '', $tobbkep_tablanev = '', $ni
         } else {
 
             // Eszközigénylés alatt a dokumentumok minősítve vannak, kicsit másképpen mint a tipusos_dokumentumok(), azért van itt így megcsinálva
-            if( self('-bn-') == 'eszkozigenyles.php' ) {
+            if( $tobbkep_tablanev == 'eszkozigenyles_dok' ) {
                 $tipus_oszlop = nl2('
                                 <div class="felirat l">
                                     '.erteklista(ERTEKLISTA_DOK_TIPUS, $sor_kepek['tipus']).'

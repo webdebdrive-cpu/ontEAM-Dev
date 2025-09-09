@@ -772,6 +772,24 @@ function i_u($type, $tabla, $tomb) {
             array_push($oszlopok, 'loginnev'                        );
             array_push($ertekek,   $_SESSION[get_db_tabla().'user'] );
             
+        // Eszkozigénylés INSERT előtt
+        } else if( $tabla == 'eszkozigenyles' ) {
+            // Ha van szállító adatunk, de nincsenek meg az árral kapcsolatos mezők, akkor álljunk meg. Már JS-el ezek ellenőrizve vannak, de
+            // PHP szinten semmiképp ne engedjük meg így beírni
+            if( $_POST['szallito_id'] ) {
+                if( $_POST['kcs_21'] == KCS_21_HUF ) {
+                    if( !$_POST['netto'] ) {
+                        $weblap -> leallit();
+                        exit;
+                    }
+                } else {
+                    if( !$_POST['arfolyam'] || $_POST['arfolyam'] == '0.00000' || !$_POST['dev_net'] || $_POST['dev_net'] == '0.00' ) {
+                        $weblap -> leallit();
+                        exit;
+                    }
+                }
+            }
+            
         // Fenntartási terv INSERT előtt
         } else if( $tabla == 'fenntartasi_terv' ) {
             array_push($oszlopok,  'stat_id'                    );
@@ -7732,15 +7750,17 @@ function eszkozigenylesLista( $bejegyzesek, $tabla, $frissit = '', $kijeloltek =
         // Meghívjuk még az oszlopok rejt JS függvényt
         if( isset($_GET['tablazat']) ) {
             $elso_betoltes = '';
+            $tablazat_ne_ments = '-ne-ments-';
             $sorrend = getErtek('tabla_sorrend', 'login', 'recid', $_SESSION[get_db_tabla().'login_recid']);
             $sorrend = json_decode(htmlspecialchars_decode($sorrend), true);
             if( !$sorrend['eszkozigenyles'] ) {
-                $elso_betoltes = ' elso_betoltes';
+                $elso_betoltes      = ' elso_betoltes';
+                $tablazat_ne_ments  = '';
             }
             $html .= nl2('
                 <script>
                     $(document).ready(function(){
-                        eszkozigenyles_oszlopok_beallit(\'\', \''.$elso_betoltes.'\');
+                        eszkozigenyles_oszlopok_beallit(\'\', \''.$elso_betoltes.'\', \''.$tablazat_ne_ments.'\');
                     });
                 </script>
             ');
@@ -7887,8 +7907,8 @@ function get_eszkozigenyles_gombok($recid = 0) {
         }
         $gombok .= nl2('
             <input type="button" class="gomb modositaskor_rejt" onclick="csoportMuvelet(\'eszkozigenyles_jhmen_mod\')" value="Jóváhagyott mennyiség">
-            <input type="button" class="gomb modositaskor_rejt zold" onclick="felso_beleegyezes(\''.$megerosites.'\')" value="✓ Beleegyezés">
-            <input type="button" class="gomb modositaskor_rejt sarga" onclick="csoportMuvelet(\'eszkozigenyles_felso_feltetelekkel\')" value="? Feltételekkel beleegyezés">
+            <input type="button" class="gomb modositaskor_rejt zold" onclick="felso_beleegyezes(\''.$megerosites.'\')" value="✓ Jóváhagyás">
+            <input type="button" class="gomb modositaskor_rejt sarga" onclick="csoportMuvelet(\'eszkozigenyles_felso_feltetelekkel\')" value="? Feltételekkel jóváhagyás">
             <input type="button" class="gomb modositaskor_rejt piros" onclick="csoportMuvelet(\'eszkozigenyles_felso_elutasit\')" value="× Elutasítás">
             '.$visszavonas
         );
@@ -7950,7 +7970,7 @@ function eszkozigenyles_megrLista( $bejegyzesek, $tabla, $frissit = '', $kijelol
             }
 
             $li_tart = '<a class="szamla" data-recid="'.$bsz['recid'].'" data-fajl="'.$tabla.'.php" data-muvelet="modosit">
-                            <span>'.$bsz['rend_szam'].'</span>
+                            <span>'.$bsz['rend_szam'].', '.getSzallodaNev($bsz['telephely_id']).', '.getErtek('nev', 'szallito_beszerzes', 'recid', $bsz['szallito_id']).'</span>
                         </a>';
 
             // Bal oldali navpanel frissítésekor kijelöljük az aktuális sort
@@ -11611,6 +11631,12 @@ function level_felkeszit_es_kuld( $tabla = '', $recid = '', $ert_pipa = '', $sab
         case 'eszkozigenyles_bi_veglegesit_elo':
         case 'eszkozigenyles_megr_kikuld_elo':
 
+        case 'eszkozigenyles_szall_ig_elutasit':
+        case 'eszkozigenyles_bi_elutasit':
+        // case 'eszkozigenyles_szak_elutasit': Nem kell mert tovább megy felsővezetés elé
+        case 'eszkozigenyles_felso_elutasit':
+        case 'eszkozigenyles_bi_vegl_elutasit':
+
             $eszkozigenyles = $adatbazis_kapcsolat -> s2('nev tipus szallito_id telephely_id insert_usr', 'eszkozigenyles', "`recid`='{$recid}'");
             $statusz        = $adatbazis_kapcsolat -> s2('login', 'eszkozigenyles_statusz', "`eszkozigenyles_recid`='{$recid}' AND `stat_id`='".ESZKOZIGENYL_STAT_UJ_FELVITEL."'", 'recid', '1');
             $login          = $adatbazis_kapcsolat -> s2('teljes_nev usertel', 'login', "`nev`='{$statusz['login']}'");
@@ -11659,6 +11685,33 @@ function level_felkeszit_es_kuld( $tabla = '', $recid = '', $ert_pipa = '', $sab
                 $esemeny = 'kiküldésre vár státuszba léptetéskor';
                 $targy   = 'Eszközigénylés kiküldésre vár';
                 $uzi     = 'Az ontEAM rendszerben az alábbi eszközigénylés kiküldésre vár státuszba lépett:';
+            }
+
+            if( $cimzett == 'eszkozigenyles_szall_ig_elutasit' ) {
+                $esemeny = 'eszközigénylés elutasításakor (Szálloda igazgató által)';
+                $targy   = 'Eszközigénylés elutasítva (Szálloda igazgató által)';
+                $uzi     = 'Az ontEAM rendszerben az alábbi eszközigénylés elutasításra került szálloda igazgató által:';
+            }
+            if( $cimzett == 'eszkozigenyles_bi_elutasit' ) {
+                $esemeny = 'eszközigénylés elutasításakor (BI által validáláskor)';
+                $targy   = 'Eszközigénylés elutasítva (BI által validáláskor)';
+                $uzi     = 'Az ontEAM rendszerben az alábbi eszközigénylés elutasításra került BI által validáláskor:';
+            }
+            // Nem kell mert tovább megy felsővezetés elé
+            // if( $cimzett == 'eszkozigenyles_szak_elutasit' ) {
+            //     $esemeny = 'eszközigénylés elutasításakor (Szakmai vezetés által)';
+            //     $targy   = 'Eszközigénylés elutasítva (Szakmai vezetés által)';
+            //     $uzi     = 'Az ontEAM rendszerben az alábbi eszközigénylés elutasításra került a szakmai vezetés által:';
+            // }
+            if( $cimzett == 'eszkozigenyles_felso_elutasit' ) {
+                $esemeny = 'eszközigénylés elutasításakor (Felsővezetés által)';
+                $targy   = 'Eszközigénylés elutasítva (Felsővezetés által)';
+                $uzi     = 'Az ontEAM rendszerben az alábbi eszközigénylés elutasításra került felsővezetés által:';
+            }
+            if( $cimzett == 'eszkozigenyles_bi_vegl_elutasit' ) {
+                $esemeny = 'eszközigénylés elutasításakor (BI által véglegesítéskor)';
+                $targy   = 'Eszközigénylés elutasítva (BI által véglegesítéskor)';
+                $uzi     = 'Az ontEAM rendszerben az alábbi eszközigénylés elutasításra került BI által véglegesítéskor:';
             }
 
             $mit        = array('{IGENYLES_TIPUS}',         '{SZALLITO}',   '{SZALLODA}',                                   '{T_NEV}',               '{IGENYLO_NEV}',      '{IGENYLO_TEL}'  );

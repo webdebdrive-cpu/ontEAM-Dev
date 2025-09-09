@@ -37,7 +37,7 @@ function elonezet_{MEGN}(file){
         reader.readAsDataURL(file);
         
     /* Egyébként csak egy sort írunk */
-    }else{
+    } else {
         jsff_{MEGN}.innerHTML += 'Feltöltve ' + file.name + ' ' + (file.size ? (file.size/1024|0) + 'K' : '') + '<br>';
     }
     
@@ -90,7 +90,7 @@ function beolvasas_{MEGN}(fajlok){
 
                 if(this.responseText.substring(0,5)=='Hiba!'){
                     alert2(this.responseText.substring(5), '', 'Hiba');
-                }else{
+                } else {
                     if (fajlok_kesz == fajlok.length){
                         minden_fajl_kesz_{MEGN}();
                     }

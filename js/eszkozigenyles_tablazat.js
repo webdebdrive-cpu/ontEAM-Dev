@@ -4,12 +4,16 @@ $(document).ready(function () {
     // Csak táblázat nézetben:
     if( isset_get('tablazat') ) {
 
-        const $table = $('table.excel');
-        const $rows = $table.find('tbody tr');
+        let $table = $('table.excel');
+        let $rows = $table.find('tbody tr');
     
         let $tr     = null;
         let $active = null;
-        function initNavigacio() {
+        // Azért így hozzuk létre a függvényt, hogy kívülről is el lehessen érni (table.js-ben rendezés módosítása után van meghívva)
+        window.initNavigacio = function() {
+
+            $table = $('table.excel');
+            $rows = $table.find('tbody tr');
 
             $tr = $rows.filter('.kijelolve');
 
@@ -255,7 +259,7 @@ function ugras_aktiv_cellahoz($active) {
 }
 
 // Oszlopszélességek beállátása, oszlop rejtése, egysorosítása
-function eszkozigenyles_oszlopok_beallit( reload, elso_betoltes = '') {
+function eszkozigenyles_oszlopok_beallit( reload, elso_betoltes = '', tabalzat_ne_ments = '') {
 
     // Oszlopok rejtése
     $('table.excel tr td').removeClass('dn');
@@ -287,7 +291,9 @@ function eszkozigenyles_oszlopok_beallit( reload, elso_betoltes = '') {
     $('#dragTable').attr('data-beall_cellak', $('#beall_cellak').val());
 
     // Mentés adatbázisba
-    tablaSorrend($('#dragTable'));
+    if( !tabalzat_ne_ments ) {
+        tablaSorrend($('#dragTable'));
+    }
 
     // Ez így sehogysem ment popup mentés után, ezért akkor reload-ozzuk
     // Tehát ha volt egy nagyon széles oszlop, amit elrejtettünk, akkor a rákövetkező oszlop kapta meg azt a szélességet. A HTML kódban hiába volt alacsonyabb

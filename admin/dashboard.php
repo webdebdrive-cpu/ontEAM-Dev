@@ -1034,6 +1034,182 @@ if( !isset($_GET['regi']) ) {
         }
     }
 
+    // Műszaki jóváhagyásra váró eszközigénylések
+    if( _jog(JOG_BESZERZ_IGENYLESEK_MUSZAK_JOVA) ) {
+
+        $szures_neve = 'Műszaki jóváhagyásra váró eszközigénylések';
+        $tabla  = 'eszkozigenyles';
+        $db     = $adatbazis_kapcsolat->s('recid', $tabla, "`stat_id`='".ESZKOZIGENYL_STAT_MUSZAK_JH_VAR."'{$telephely_sql}", '', '', '', '-num-rows-');
+        $link   = $tabla.'.php?mezo=stat_id&amp;op=equal&amp;felt='.ESZKOZIGENYL_STAT_MUSZAK_JH_VAR.'&amp;tablazat&amp;dashboard='.$szures_neve;
+
+        if( $db ) {
+            $feladatok .= nl2('
+                                <tr>
+                                    <td>
+                                        <a href="'.$link.'">
+                                            '.$szures_neve.'
+                                        </a>
+                                    </td>
+                                    <td>
+                                        <a href="'.$link.'">
+                                            '.number_format($db, 0, '', '.').' db
+                                        </a>
+                                    </td>
+                                </tr>
+                                ');
+        }
+    }
+    // Szállodai engedélyre váró eszközigénylések
+    if( _jog(JOG_BESZERZ_IGENYLESEK_SZALLODAI_ENG) ) {
+
+        $szures_neve = 'Szállodai engedélyre váró eszközigénylések';
+        $tabla  = 'eszkozigenyles';
+        $db     = $adatbazis_kapcsolat->s('recid', $tabla, "`stat_id`='".ESZKOZIGENYL_STAT_SZALL_ENG_VAR."'{$telephely_sql}", '', '', '', '-num-rows-');
+        $link   = $tabla.'.php?mezo=stat_id&amp;op=equal&amp;felt='.ESZKOZIGENYL_STAT_SZALL_ENG_VAR.'&amp;tablazat&amp;dashboard='.$szures_neve;
+
+        if( $db ) {
+            $feladatok .= nl2('
+                                <tr>
+                                    <td>
+                                        <a href="'.$link.'">
+                                            '.$szures_neve.'
+                                        </a>
+                                    </td>
+                                    <td>
+                                        <a href="'.$link.'">
+                                            '.number_format($db, 0, '', '.').' db
+                                        </a>
+                                    </td>
+                                </tr>
+                                ');
+        }
+    }
+    // BI validálásra váró eszközigénylések
+    if( _jog(JOG_BESZERZ_IGENYLESEK_BI_VALIDALAS) ) {
+
+        $szures_neve = 'BI validálásra váró eszközigénylések';
+        $tabla  = 'eszkozigenyles';
+        $db     = $adatbazis_kapcsolat->s('recid', $tabla, "`stat_id`='".ESZKOZIGENYL_STAT_BI_VALID_VAR."'{$telephely_sql}", '', '', '', '-num-rows-');
+        $link   = $tabla.'.php?mezo=stat_id&amp;op=equal&amp;felt='.ESZKOZIGENYL_STAT_BI_VALID_VAR.'&amp;tablazat&amp;dashboard='.$szures_neve;
+
+        if( $db ) {
+            $feladatok .= nl2('
+                                <tr>
+                                    <td>
+                                        <a href="'.$link.'">
+                                            '.$szures_neve.'
+                                        </a>
+                                    </td>
+                                    <td>
+                                        <a href="'.$link.'">
+                                            '.number_format($db, 0, '', '.').' db
+                                        </a>
+                                    </td>
+                                </tr>
+                                ');
+        }
+    }
+    // Szakmai véleményezésre váró eszközigénylések
+    if( _jog(JOG_BESZERZ_IGENYLESEK_SZAKMAI_VEL) ) {
+
+        $szures_neve = 'Szakmai véleményezésre váró eszközigénylések';
+        $tabla  = 'eszkozigenyles';
+        $db     = $adatbazis_kapcsolat->s('recid', $tabla, "`stat_id`='".ESZKOZIGENYL_STAT_SZAKM_VEL_VAR."'{$telephely_sql}", '', '', '', '-num-rows-');
+        $link   = $tabla.'.php?mezo=stat_id&amp;op=equal&amp;felt='.ESZKOZIGENYL_STAT_SZAKM_VEL_VAR.'&amp;tablazat&amp;dashboard='.$szures_neve;
+
+        if( $db ) {
+            $feladatok .= nl2('
+                                <tr>
+                                    <td>
+                                        <a href="'.$link.'">
+                                            '.$szures_neve.'
+                                        </a>
+                                    </td>
+                                    <td>
+                                        <a href="'.$link.'">
+                                            '.number_format($db, 0, '', '.').' db
+                                        </a>
+                                    </td>
+                                </tr>
+                                ');
+        }
+    }
+    // Felsővezető jóváhagyásra váró eszközigénylések
+    if( _jog(JOG_BESZERZ_IGENYLESEK_FELSOVEZ_JH) ) {
+
+        $szures_neve = 'Felsővezető jóváhagyásra váró eszközigénylések';
+        $tabla  = 'eszkozigenyles';
+        $db     = $adatbazis_kapcsolat->s('recid', $tabla, "`stat_id`='".ESZKOZIGENYL_STAT_FELSO_JH_VAR."'{$telephely_sql}", '', '', '', '-num-rows-');
+        $link   = $tabla.'.php?mezo=stat_id&amp;op=equal&amp;felt='.ESZKOZIGENYL_STAT_FELSO_JH_VAR.'&amp;tablazat&amp;dashboard='.$szures_neve;
+
+        if( $db ) {
+            $feladatok .= nl2('
+                                <tr>
+                                    <td>
+                                        <a href="'.$link.'">
+                                            '.$szures_neve.'
+                                        </a>
+                                    </td>
+                                    <td>
+                                        <a href="'.$link.'">
+                                            '.number_format($db, 0, '', '.').' db
+                                        </a>
+                                    </td>
+                                </tr>
+                                ');
+        }
+    }
+    // BI véglegesítésre váró eszközigénylések
+    if( _jog(JOG_BESZERZ_IGENYLESEK_BI_VEGLEGESIT) ) {
+
+        $szures_neve = 'BI véglegesítésre váró eszközigénylések';
+        $tabla  = 'eszkozigenyles';
+        $db     = $adatbazis_kapcsolat->s('recid', $tabla, "`stat_id`='".ESZKOZIGENYL_STAT_BI_VEGL_VAR."'{$telephely_sql}", '', '', '', '-num-rows-');
+        $link   = $tabla.'.php?mezo=stat_id&amp;op=equal&amp;felt='.ESZKOZIGENYL_STAT_BI_VEGL_VAR.'&amp;tablazat&amp;dashboard='.$szures_neve;
+
+        if( $db ) {
+            $feladatok .= nl2('
+                                <tr>
+                                    <td>
+                                        <a href="'.$link.'">
+                                            '.$szures_neve.'
+                                        </a>
+                                    </td>
+                                    <td>
+                                        <a href="'.$link.'">
+                                            '.number_format($db, 0, '', '.').' db
+                                        </a>
+                                    </td>
+                                </tr>
+                                ');
+        }
+    }
+    // Kiküldésre váró megrendelések
+    if( _jog(JOG_BESZERZ_IGENYLESEK_MEGR_KIKULD) ) {
+
+        $szures_neve = 'Kiküldésre váró megrendelések';
+        $tabla  = 'eszkozigenyles_megr';
+        $db     = $adatbazis_kapcsolat->s('recid', $tabla, "`stat_id`='".ESZKOZIGENYL_MEGR_STAT_KIKULD_VAR."'{$telephely_sql}", '', '', '', '-num-rows-');
+        $link   = $tabla.'.php?mezo=stat_id&amp;op=equal&amp;felt='.ESZKOZIGENYL_MEGR_STAT_KIKULD_VAR.'&amp;tablazat&amp;dashboard='.$szures_neve;
+
+        if( $db ) {
+            $feladatok .= nl2('
+                                <tr>
+                                    <td>
+                                        <a href="'.$link.'">
+                                            '.$szures_neve.'
+                                        </a>
+                                    </td>
+                                    <td>
+                                        <a href="'.$link.'">
+                                            '.number_format($db, 0, '', '.').' db
+                                        </a>
+                                    </td>
+                                </tr>
+                                ');
+        }
+    }
+
 
     if( $feladatok ) {
         $html .= nl2('

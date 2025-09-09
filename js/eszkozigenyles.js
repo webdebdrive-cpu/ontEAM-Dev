@@ -7,16 +7,24 @@ $(document).ready(function(){
 });
 // Pénznemet kiválasztva fut le: cél, hogy a devizára kerüljön rá egy readonly, ha HUF-os, más különben az űrlapo postolásakor szólni fog, hogy nincs kitöltve
 function huf_vagy_deviza() {
-    if( $('#kcs_21_autocomp').val()=='HUF' ) {
-        $('#dev_net' ).val('0,00').attr('readonly', 'readonly').removeClass('csillag').removeClass('mod');
-        $('#arfolyam').val('0,00').attr('readonly', 'readonly').removeClass('csillag').removeClass('mod');
-        $('#netto'   ).removeAttr('readonly');
-    } else {
-        $('#dev_net' ).removeAttr('readonly').addClass('csillag');
-        $('#arfolyam').removeAttr('readonly').addClass('csillag');
-        $('#netto'   ).attr('readonly', 'readonly').removeClass('mod');
+    // Adatlapon státusz felirat mögött van egy hidden input adatlap_disabled ID-val.
+    // Ez 1-es értéket kap akkor, ha az adatlap egyáltalán nem szerkeszthető, mert olyan státuszban van vagy jogok hiányoznak
+    // Ekkor a huf_vagy_deviza() függvény se csináljon semmit, még véletlen se váljon írhatóvá egyik mező sem
+    if( !$('#adatlap_disabled').val() ) {
+        if( $('#kcs_21_autocomp').val()=='HUF' ) {
+            $('#dev_net' ).val('0,00').attr('readonly', 'readonly').removeClass('csillag').removeClass('mod');
+            $('#arfolyam').val('0,00').attr('readonly', 'readonly').removeClass('csillag').removeClass('mod');
+            $('#netto'   ).removeAttr('readonly');
+            if( $('#szallito_id').val() ) {
+                $('#netto'   ).addClass('csillag');
+            }
+        } else if( $('#kcs_21_autocomp').val() ) {
+            $('#dev_net' ).removeAttr('readonly').addClass('csillag');
+            $('#arfolyam').removeAttr('readonly').addClass('csillag');
+            $('#netto'   ).attr('readonly', 'readonly').removeClass('csillag').removeClass('mod');
+        }
+        tabindex_beallit();
     }
-    tabindex_beallit();
 }
 
 // Nettó mezőket, árfolyamot, devizákat átszámol
@@ -841,3 +849,29 @@ function bi_vegl_visszavon() {
         }
     });
 }
+
+// Ha a szállító ki van töltve, pár mező váljon kötelezővé
+var szallito_mezok = ['kcs_21_autocomp', 'igmen'];
+function szallito_kotelezo_mezok() {
+
+    if( $('#szallito_id').val() ) {
+        for( i=0; i<szallito_mezok.length; i++ ) {
+            $('#'+szallito_mezok[i]).addClass('csillag');
+        }
+
+    }
+
+    // Ez a függvény is fusson le, mert ebben jelezzük, hogy melyik nettós mező aktív és kötlező
+    huf_vagy_deviza();
+    
+}
+$(document).on('blur', '#szallito_id_autocomp', function(){
+    setTimeout(function(){
+        if( !$('#szallito_id').val() ) {
+            for( i=0; i<szallito_mezok.length; i++ ) {
+                $('#'+szallito_mezok[i]).removeClass('csillag');
+            }
+            $('#netto').removeClass('csillag');
+        }
+    }, 100);
+});

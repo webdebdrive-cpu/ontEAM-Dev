@@ -897,6 +897,10 @@ div.jsff div.talloz div input{
     top: 0;
 }
 
+div.jsff .gomb {
+    margin-bottom: 0rem;
+}
+
 div.jsff progress{
     background-color: #fff;
     display: block;

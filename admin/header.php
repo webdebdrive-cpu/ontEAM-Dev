@@ -643,7 +643,13 @@ if( _jog(JOG_BESZERZ_IGENYLESEK_OLVAS) || _jog(JOG_BESZERZ_IGENYLESEK_MEGR_OLVAS
 
 
 // Csak bejelentő elől rejtve
-if( !$_SESSION['bejelento_menu_rejt'] ) {
+if( !$_SESSION['bejelento_menu_rejt'] &&
+    (
+        _jog(JOG_ERTEKLISTAK_MEGTEKINT)     ||
+        _jog(JOG_FELHASZNALOK_MEGTEKINT)    ||
+        _jog(JOG_SZEREPKOR_MEGTEKINT)
+    )
+ ) {
     // Rendszer beállítások
     $menu_nev        = 'Rendszer';
     $menu_nev_kis    = 'rendszer';
@@ -720,7 +726,7 @@ if( !$_SESSION['bejelento_menu_rejt'] ) {
         }
     }
 
-    $menuk   .= str_replace( $akt_menu_mit, array( $style, '#', $megn, $menu_nev_tobbes, $aktmenuk ), $menu_sablon );
+    $menuk .= str_replace( $akt_menu_mit, array( $style, '#', $megn, $menu_nev_tobbes, $aktmenuk ), $menu_sablon );
 }
 
 // Tényleges tartalom

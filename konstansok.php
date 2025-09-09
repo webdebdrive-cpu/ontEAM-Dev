@@ -567,6 +567,7 @@ define('ERT_BESZERZ_SZAKMAI_VEL_ELO',   27);
 define('ERT_BESZERZ_FELSOVEZ_JH_ELO',   28);
 define('ERT_BESZERZ_BI_VEGLEGESIT_ELO', 29);
 define('ERT_BESZERZ_MEGR_KIKULD_ELO',   30);
+define('ERT_BESZERZ_ELUTASIT',          31);
 
 define('HIBA_ADJON_FELADAT',            ' kérem adjon hozzá egy elvégzett feladatot!');
 define('DASHB_NINCS_BEJEGYZES',         'Nem található bejegyzés!');

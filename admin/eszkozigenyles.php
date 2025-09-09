@@ -61,10 +61,10 @@ if (isset($_POST['szallito_kerese'])) {
     // Igénylő adatai (tehát a belépett felhasználó)
     $login = $adatbazis_kapcsolat -> s2('teljes_nev usertel', 'login', "`nev`='{$_SESSION[get_db_tabla().'user']}'");
 
-    $cimzettek = $adatbazis_kapcsolat->s('teljes_nev usermail', 'login', "substr(`flags`, ".(JOG_BESZ_SZALL_KEZEL+1).", 1)=1 AND `aktiv`=1 AND `virtual`=0");
+    $cimzettek = $adatbazis_kapcsolat->s('teljes_nev usermail', 'login', "substr(`flags`, ".(JOG_BESZ_SZALL_KEZEL+1).", 1)=1 AND `usermail`!='' AND `aktiv`=1 AND `virtual`=0");
 
     $targy = $targy_kieg.'Új szállító kérése';
-    $uzi   = $uzi_kieg.'Tisztelt '.$cimzettek[0]['teljes_nev'].'!
+    $uzi   = $uzi_kieg.'Tisztelt Beszerzési Igazgatóság!
 <br>
 <br>Önnek egy új szállító regisztráció kérése érkezett:
 <br>
@@ -165,7 +165,7 @@ if (isset($_POST['get_tabla_oszlopok'])) {
         ['nev' => 'Igénylés indoka/koncepció',   'id' => 'eszkoz_tabla_igeny_indok' ],
         ['nev' => 'Megjegyzés',                  'id' => 'eszkoz_tabla_megj'        ],
         ['nev' => 'Szállító',                    'id' => 'eszkoz_tabla_szallito'    ],
-        ['nev' => 'Szállítási határidő',         'id' => 'eszkoz_tabla_szall_hat'   ],
+        ['nev' => 'Szállítási határidő',         'id' => 'eszkoz_tabla_'   ],
         ['nev' => 'Fizetési mód',                'id' => 'eszkoz_tabla_fiz_mod'     ],
         ['nev' => 'Fizetési határidő',           'id' => 'eszkoz_tabla_hat_ido'     ],
         ['nev' => 'Igényelt mennyiség',          'id' => 'eszkoz_tabla_igmen'       ],
@@ -761,6 +761,9 @@ if (isset($_POST['szall_ig_elutasit'])) {
         
         $statusz = getStatText('eszkozigenyles', ESZKOZIGENYL_STAT_ELUTASITOTT);
 
+        // E-mail értesítés küldése
+        $mail_hibauzenet = level_felkeszit_es_kuld('eszkozigenyles', $_POST['id'], ERT_BESZERZ_ELUTASIT, 'eszkozigenyles', 'eszkozigenyles_szall_ig_elutasit');
+
     // Tervezett esetén marad a státusz, csak a pipa változik
     } else {
         $statusz = getStatText('eszkozigenyles', ESZKOZIGENYL_STAT_SZALL_ENG_VAR);
@@ -958,7 +961,7 @@ if (isset($_POST['bi_jovahagy'])) {
     exit;
 }
 
-// BI elutasít
+// BI elutasít (BI validálásra vár)
 if (isset($_POST['bi_elutasit'])) {
 
     $db_error = false;
@@ -1023,6 +1026,9 @@ if (isset($_POST['bi_elutasit'])) {
         }
         
         $statusz = getStatText('eszkozigenyles', ESZKOZIGENYL_STAT_ELUTASITOTT);
+
+        // E-mail értesítés küldése
+        $mail_hibauzenet = level_felkeszit_es_kuld('eszkozigenyles', $_POST['id'], ERT_BESZERZ_ELUTASIT, 'eszkozigenyles', 'eszkozigenyles_bi_elutasit');
 
     // Tervezett esetén marad a státusz, csak a pipa változik
     } else {
@@ -1366,7 +1372,8 @@ if (isset($_POST['szak_elutasit'])) {
         $statusz = getStatText('eszkozigenyles', ESZKOZIGENYL_STAT_FELSO_JH_VAR);
 
         // E-mail értesítés küldése
-        $mail_hibauzenet = level_felkeszit_es_kuld('eszkozigenyles', $_POST['id'], ERT_BESZERZ_FELSOVEZ_JH_ELO, 'eszkozigenyles', 'eszkozigenyles_felsovez_jh_elo');
+        // Itt mégsem kell, mert innen tovább megy felsővezetés elé
+        // $mail_hibauzenet = level_felkeszit_es_kuld('eszkozigenyles', $_POST['id'], ERT_BESZERZ_ELUTASIT, 'eszkozigenyles', 'eszkozigenyles_szak_elutasit');
 
     // Tervezett esetén marad a státusz, csak a pipa változik
     } else {
@@ -1722,6 +1729,9 @@ if (isset($_POST['felso_elutasit'])) {
         
         $statusz = getStatText('eszkozigenyles', ESZKOZIGENYL_STAT_ELUTASITOTT);
 
+        // E-mail értesítés küldése
+        $mail_hibauzenet = level_felkeszit_es_kuld('eszkozigenyles', $_POST['id'], ERT_BESZERZ_ELUTASIT, 'eszkozigenyles', 'eszkozigenyles_felso_elutasit');
+
     // Tervezett esetén marad a státusz, csak a pipa változik
     } else {
         $statusz = getStatText('eszkozigenyles', ESZKOZIGENYL_STAT_FELSO_JH_VAR);
@@ -1973,6 +1983,9 @@ if (isset($_POST['bi_vegl_elutasit'])) {
         }
         
         $statusz = getStatText('eszkozigenyles', ESZKOZIGENYL_STAT_ELUTASITOTT);
+
+        // E-mail értesítés küldése
+        $mail_hibauzenet = level_felkeszit_es_kuld('eszkozigenyles', $_POST['id'], ERT_BESZERZ_ELUTASIT, 'eszkozigenyles', 'eszkozigenyles_bi_vegl_elutasit');
 
     // Tervezett esetén marad a státusz, csak a pipa változik
     } else {
@@ -2327,6 +2340,39 @@ $js_submit_elott = nl2('
                             }
                         }
 
+                        if( $(\'#szallito_id\').val() ) {
+                            if( !$(\'#kcs_21\').val().trim() ) {
+                                alert2(\'Kérem adja meg a pénznemet!\');
+                                $(\'#kcs_21\').addClass(\'hibas_ide_focus\');
+                                return false;
+                            }
+                            if( !$(\'#igmen\').val().trim() || $(\'#igmen\').val()==\'0\' ) {
+                                alert2(\'Kérem adja meg az igényelt mennyiséget!\');
+                                $(\'#igmen\').addClass(\'hibas_ide_focus\');
+                                return false;
+                            }
+                        }
+
+                        if( $(\'#kcs_21\').val() == '.KCS_21_HUF.' ) {
+                            if( !$(\'#netto\').val().trim() || $(\'#netto\').val()==\'0\' ) {
+                                alert2(\'Kérem adja meg a nettó egységárat!\');
+                                $(\'#netto\').addClass(\'hibas_ide_focus\');
+                                return false;
+                            }
+                        
+                        } else if( $(\'#kcs_21\').val() ) {
+                            if( !$(\'#arfolyam\').val().trim() || $(\'#arfolyam\').val()==\'0,00000\' ) {
+                                alert2(\'Kérem adja meg az árfolyamot!\');
+                                $(\'#arfolyam\').addClass(\'hibas_ide_focus\');
+                                return false;
+                            }
+                            if( !$(\'#dev_net\').val().trim() || $(\'#dev_net\').val()==\'0,00\' ) {
+                                alert2(\'Kérem adja meg a deviza egységárat!\');
+                                $(\'#dev_net\').addClass(\'hibas_ide_focus\');
+                                return false;
+                            }
+                        }
+
                         if( !$(\'#szallito_id\').val() && !$(\'#szallito_igenyelve\').val() ) {
                             if( _get(\'uj\') ) {
                                 if( !form_ell_admin() ) {
@@ -2343,6 +2389,7 @@ $js_submit_elott = nl2('
                         } else {
                             return form_ell_admin();
                         }
+
                         ');
 
 // Gombok kirajzolása minden oldalra
@@ -2518,6 +2565,11 @@ if( isset($_GET['uj']) ) {
             $(\'#tartalomJobb\').scrollTop(0);
             duplikalGomb  = "<p class=\"c\"><input class=\"gomb zold\" type=\"button\" value=\"Igen\" onclick=\"szurkit(); location.href = \''.basename(self()).'?uj&amp;ujkent='.$_GET['id'].'\'; \"><input class=\"gomb piros\" type=\"button\" value=\"Nem\" onclick=\"alert2()\"></p>";
             duplikaKerdes = \'Szálloda: '.str_replace('\'', '', getSzallodaNev($sor['telephely_id'])).'<br>Szállító: '.str_replace('\'', '', getErtek('nev', 'szallito_beszerzes', 'recid', $sor['szallito_id'])).'<br><br>Biztos, hogy duplikálja?\';
+
+            /* Ha ismert a szállító, pár mező kötelezővé válik */
+            $(document).ready(function(){
+                szallito_kotelezo_mezok();
+            });
         </script>
     ');
     
@@ -2603,7 +2655,7 @@ if( isset($_GET['uj']) ) {
 
     // A léptetés csak akkor fog működni, ha a bal navpanel kódja benne van a kódban
     // FONTOS, hogy nem lehet "dn", mert látszania kell, hogy a JavaScript tudjon vele dolgozni. A létetéshez kell.
-    $szamla_html .= '<div class="vh" style="height: 0; overflow: hidden;">'.$balNavPanelHTMLje.'</div>';
+    $szamla_html .= '<div class="vh" style="height: 0; width: 0; overflow: hidden;">'.$balNavPanelHTMLje.'</div>';
 
     if( $_GET['ajax'] ) {
         echo json_encode(array(
@@ -2625,7 +2677,7 @@ if( isset($_GET['uj']) ) {
 
     // A léptetés csak akkor fog működni, ha a bal navpanel kódja benne van a kódban
     // FONTOS, hogy nem lehet "dn", mert látszania kell, hogy a JavaScript tudjon vele dolgozni. A létetéshez kell.
-    $szamla_html .= '<div class="vh" style="height: 0; overflow: hidden;">'.$balNavPanelHTMLje.'</div>';
+    $szamla_html .= '<div class="vh" style="height: 0; width: 0; overflow: hidden;">'.$balNavPanelHTMLje.'</div>';
 
     if( $_GET['ajax'] ) {
         echo json_encode(array(
@@ -2644,7 +2696,7 @@ if( isset($_GET['uj']) ) {
 
     // A léptetés csak akkor fog működni, ha a bal navpanel kódja benne van a kódban
     // FONTOS, hogy nem lehet "dn", mert látszania kell, hogy a JavaScript tudjon vele dolgozni. A létetéshez kell.
-    $szamla_html .= '<div class="vh" style="height: 0; overflow: hidden;">'.$balNavPanelHTMLje.'</div>';
+    $szamla_html .= '<div class="vh" style="height: 0; width: 0; overflow: hidden;">'.$balNavPanelHTMLje.'</div>';
 
     if( $_GET['ajax'] ) {
         echo json_encode(array(
@@ -2690,7 +2742,7 @@ if( isset($_GET['uj']) ) {
 
     // A léptetés csak akkor fog működni, ha a bal navpanel kódja benne van a kódban
     // FONTOS, hogy nem lehet "dn", mert látszania kell, hogy a JavaScript tudjon vele dolgozni. A létetéshez kell.
-    $szamla_html .= '<div class="vh" style="height: 0; overflow: hidden;">'.$balNavPanelHTMLje.'</div>';
+    $szamla_html .= '<div class="vh" style="height: 0; width: 0; overflow: hidden;">'.$balNavPanelHTMLje.'</div>';
 
     if( $_GET['ajax'] ) {
         echo json_encode(array(
@@ -2817,6 +2869,11 @@ function megrendeles_keszit($eszkozigenyles_id = '') {
         $szallito = $adatbazis_kapcsolat->s2('nev knev tel email', 'szallito_beszerzes', "`recid`='{$eszkozigenyles['szallito_id']}'");
         if( $szallito === false ) { $db_error = true; }
 
+        // Ha nincs kapcsolattartó név, akkor "Partnerünk" a megszólítás
+        if( !$szallito['knev'] ) {
+            $szallito['knev'] = 'Partnerünk';
+        }
+
         $telephely = $adatbazis_kapcsolat->s2('nev props', 'telephely', "`id`='{$eszkozigenyles['telephely_id']}'");
         if( $telephely === false ) { $db_error = true; }
         $props_szn = get_props($telephely['props'], 'SZN');
@@ -2834,6 +2891,22 @@ function megrendeles_keszit($eszkozigenyles_id = '') {
         } else {
             $eszkozigenyles['hat_ido'] = '';
         }
+    
+        // A Fizetési mód és határidő sor csak akkor jelenik meg, ha van legalábbi egyik adat
+        $fiz_mod_hatarido = '';
+        if( $fizmod_kiir || $eszkozigenyles['hat_ido'] ) {
+            $fiz_mod_hatarido .= nl2('
+                <tr>
+                    <td class="b" style="padding: 20px 20px 0 0">
+                        Fizetési mód és határidő:
+                    </td>
+                    <td style="vertical-align: top; padding: 20px 0 0 0">
+                        '.$fizmod_kiir.'
+                        '.$eszkozigenyles['hat_ido'].'
+                    </td>
+                </tr>
+            ');
+        }
 
         // Lényegi tartalom
         $fejlec = get_nyomtatas_fejlec_megr($eszkozigenyles, $szallito, $kontakt);
@@ -2846,7 +2919,7 @@ function megrendeles_keszit($eszkozigenyles_id = '') {
                 <div style="font-size: 12px; margin: 0 0 2px 0; padding-top: 10px">
                     Tisztelt '.$szallito['knev'].'!
                     <br>
-                    <br>Megrendeljük Önöktől a <b>Danubius Hotel Astoria</b> részére az alábbi tételeket:
+                    <br>Megrendeljük Önöktől a <b>Danubius Hotel '.getSzallodaNev($eszkozigenyles['telephely_id']).'</b> részére az alábbi tételeket:
                     <br>
                 </div>
 
@@ -2866,15 +2939,7 @@ function megrendeles_keszit($eszkozigenyles_id = '') {
                 </table>
 
                 <table style="font-size: 12px; border-collapse: collapse; margin-bottom: 20px">
-                <tr>
-                    <td class="b" style="padding: 20px 20px 0 0">
-                        Fizetési mód és határidő:
-                    </td>
-                    <td style="vertical-align: top; padding: 20px 0 0 0">
-                        '.$fizmod_kiir.'
-                        '.$eszkozigenyles['hat_ido'].'
-                    </td>
-                </tr>
+                '.$fiz_mod_hatarido.'
                 <tr>
                     <td class="b" style="padding: 20px 20px 0 0; vertical-align: top;">
                         Számlázási és szállítási cím:

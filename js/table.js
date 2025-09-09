@@ -40,6 +40,12 @@ $(function() {
                     'width'    : col_width
                 });
             });
+            
+            // Eszközigényléseknél az oszlopok mozgatása után az aktív cella oszlopindexét frissíteni kell a cookie-ban
+            if( baseName(location.href) == 'eszkozigenyles' ) {
+                console.log($('td.aktiv').index());
+                createCookie('eszkozigeny_aktiv_oszl', $('td.aktiv').index());
+            }
 
             tablaSorrend( table.el );
             fejlec_igazit($('.sar-table'));
@@ -126,6 +132,11 @@ $(function() {
         });
 
         ujra_sorszamoz_uj();
+        // Eszközigénylés alatt a táblázat kicsit másképp működés (le-fel nyilak léptetése), ezért ezt itt újra kell kalibrálni
+        // az initNavigacio() függvényyel, ami az eszkozigenyles_tablazat.js-ben van megírva
+        if( baseName(location.href) == 'eszkozigenyles' ) {
+            initNavigacio();
+        }
 
         var url_kieg = '';
         if( _get('anyagrend') ){
@@ -266,7 +277,7 @@ $(function() {
         });
     });
 
-    /* Resize */
+    // Resize
     $('.sar-table').each(function() {
         /*var thead = $(this).find('thead').not('.sticky');*/
         var thead = $(this).find('thead');
@@ -364,11 +375,12 @@ $(function() {
             });
 
             tablaSorrend($(_resizeElement.that).parents('table'));
-
             _resizeElement = null;
             $(document).enableSelection();
+
         }
     });
+
 
     fejlec_igazit($('.sar-table'));
     $(window).resize(function() {

@@ -10,41 +10,6 @@
 </div>
 
 <script>
-$(document).ready(function(){
-
-    /* Eszközigénylésnél tallózás gombra kattintva előbb dokumentum típust kell választani. */
-    if( baseName(location.href) == 'eszkozigenyles' ) {
-        
-        var volt_rendes_tallozas = 0;
-        $(document).on('click', '#jsff_{MEGN} input[type="file"]', function(e){
-
-            if( volt_rendes_tallozas ) {
-                $('#dok_tipus_feltolt').val('');
-                volt_rendes_tallozas = 0;
-            }
-
-            /* Ha még nem létezik a #dok_tipus_feltolt, vagy az értéke üres */
-            if( !$('#dok_tipus_feltolt').length || !$('#dok_tipus_feltolt').val() ) {
-
-                /* A tallózás gomb eredeti funkcióját állítsuk meg */
-                e.preventDefault();
-
-                /* Dokumentum mionősítő popup megjelenítése */
-                csoportMuvelet('eszkozigenyles_dokumentum_tipus_valaszt');
-                
-                if (! $('#dok_tipus_feltolt').length ) {
-                    $('#jsff_{MEGN}').append('<input type="hidden" id="dok_tipus_feltolt">');
-                }
-
-            /* Ha nem a fenti ágra futottunk, akkor volt rendes tallózás. Ez jegyezzük meg, hogy következő ilyen esetben újból kelljen minősíteni. */
-            } else {
-                volt_rendes_tallozas = 1;
-            }
-        });
-        return;
-    }
-});
-
 var jsff_{MEGN} = document.getElementById('jsff_{MEGN}'),
     tests_{MEGN} = {
         filereader  : typeof FileReader != 'undefined',
@@ -101,6 +66,10 @@ function beolvasas_{MEGN}(fajlok, ellenorzes_kihagy) {
         progress_id = 'jsff_{MEGN}_' + i;
         var pg = $('<progress id="'+progress_id+'" min="0" max="100" value="0">0</progress>');
         $('#jsff_{MEGN}').append(pg);
+        /* Eszközigénylések alatt egy másik helyre kell a progressbar */
+        if( $('#jsff_tobbkep_eszkoz').length ) {
+            $('#jsff_tobbkep_eszkoz').append(pg);
+        }
 
         var xhr = new XMLHttpRequest();
         xhr.open('POST', '{PHP_FAJL}');
@@ -122,6 +91,7 @@ function beolvasas_{MEGN}(fajlok, ellenorzes_kihagy) {
                 if( this.responseText.substring(0,7)== 'frissit' ) {
                     if( fajlok_kesz == fajlok.length ) {
                         szamlaBetolt(_get('id'), PHP_SELF, 'dokumentumok');
+                        popupZar();
                     }
                 } else {
                     /* Hibakezelés */

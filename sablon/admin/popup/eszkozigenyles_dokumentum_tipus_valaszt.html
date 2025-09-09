@@ -5,7 +5,7 @@
         <div id="fajl_adatok">
             Fájl fetöltése előtt kérem válassza ki a dokumentum tipusát: 
         </div>
-        <input type="text" autocomplete="off" class="oriasi disableNav focus" name="pop_tipus_autocomp" id="pop_tipus_autocomp" onblur="if(!$(this).val()){ $('#pop_tipus').val(''); }" value="" style="margin-top: 0.3rem;">
+        <input type="text" autocomplete="off" class="oriasi disableNav focus csillag" name="pop_tipus_autocomp" id="pop_tipus_autocomp" onblur="if(!$(this).val()){ $('#pop_tipus').val(''); }" value="" style="margin-top: 0.3rem;">
         <input type="hidden" name="pop_tipus" id="pop_tipus" value="">
         <script>
             $(document).ready(function() {
@@ -20,10 +20,24 @@
                 });
             });
         </script>
+
+        <div style="margin: 1rem 0 .5rem 0">
+            Tallózza be a feltölteni kívánt dokumentumot:
+        </div>
+        <div id="jsff_tobbkep_eszkoz" class="jsff">
+            <div class="talloz">
+                <div>
+                    <span>Tallózás</span>
+                    <input type="file" id="popup_file">
+                </div>
+            </div>
+            <div id="betallozott_fajlok"></div>
+        </div>
+        
     </div>
     
     <div class="kuldes">
-        <input type="button" name="elkuld" class="gomb zold" value="Mentés" onclick="dok_tipus_ment();">
+        <input type="button" name="elkuld" class="gomb zold" value="Mentés" onclick="dok_tipus_ment(_get('id'));">
         <input type="button" name="megsem" class="gomb piros" value="Mégsem" onclick="popupZar();">
     </div>
 </form>
@@ -33,12 +47,41 @@
         margin: 1rem 0;
         line-height: 1.2;
     }
+    #betallozott_fajlok {
+        text-align: left;
+    }
 </style>
 
 <script>
-function dok_tipus_ment() {
-    $('#dok_tipus_feltolt').val( $('#pop_tipus').val() );
-    $('.jsff input[type="file"]').click();
-    popupZar();
+function dok_tipus_ment(id) {
+
+    if( !$('#pop_tipus').val() ) {
+        alert2('Kérem válaszon dokumentum típust!', '', 'Hiba');
+        $('#pop_tipus_autocomp').addClass('hibas_ide_focus');
+        return false;
+    }
+    if( !$('#popup_file').val() ) {
+        alert2('Kérem tallózza be a feltölteni kívánt dokumentumot!', '', 'Hiba');
+        return false;
+    }
+
+    beolvasas_tobbkep(document.getElementById('popup_file').files, false);
 }
+
+// Fájlnevek felsorolása
+$('#popup_file').on('change', function() {
+    var $fajlok = $('#betallozott_fajlok');
+    $fajlok.empty();
+
+    if (this.files.length > 0) {
+        $('<div>').text('Betallózott fájl:').css({
+            'font-weight': 'bold',
+            'margin-bottom': '5px'
+        }).appendTo($fajlok);
+
+        $.each(this.files, function(i, file) {
+            $('<div>').text(file.name).appendTo($fajlok);
+        });
+    }
+});
 </script>

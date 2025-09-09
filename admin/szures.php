@@ -895,8 +895,13 @@ if( isset($_POST['f_szuro_mezo_operator']) ) {
     $link_kieg   = '';
     $szures_gomb = '<input type="button" class="gomb f_szures_submit" value="Szűrés">';
     if( $_SESSION['dashboard_feladat'] ) {
-        $link_kieg   = '&amp;dashboard_feladat_torol';
+        $link_kieg   .= 'dashboard_feladat_torol';
         $szures_gomb = '';
+    }
+    
+    // Eszkozigénylésnél a táblázatos nézet töltsön be
+    if( $_POST['tabla'] == 'eszkozigenyles' ) {
+        $link_kieg   .= '&amp;tablazat';
     }
     
     echo json_encode( array(

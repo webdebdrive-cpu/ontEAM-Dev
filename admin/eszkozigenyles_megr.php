@@ -1,15 +1,6 @@
 <?php
 require_once('../weblap.php');
 
-if( isset($_GET['teszt']) ) {
-    $megr = $adatbazis_kapcsolat -> s('recid', 'eszkozigenyles_megr');
-    foreach ($megr as $m) {
-        $adatbazis_kapcsolat -> u('eszkozigenyles_megr', array('hash'), array(jelszot_keszit()), "`recid`='{$m['recid']}'");
-    }
-    echo 'f';
-    exit;
-}
-
 if( !_jog(JOG_BESZERZ_IGENYLESEK_MEGR_OLVAS) ) {
     if(!$_SESSION[get_db_tabla().'user']){
         $weblap -> leallit();
@@ -127,8 +118,6 @@ if (isset($_POST['megrendelo_kikuldese'])) {
 // Debug módban csak WebDeb
 if( $_SERVER['REMOTE_ADDR'] == get_debug_ip() ) {
     $cimzettek = [WEBDEB_TESZT_MAIL2];
-    echo 'f';
-    exit;
 }
 
     foreach ($cimzettek as $cimzett) {
@@ -136,6 +125,11 @@ if( $_SERVER['REMOTE_ADDR'] == get_debug_ip() ) {
         if( $cimzett ) {
             level_kuldes(get_nev(), get_mail(), $szallito['knev'], $cimzett, $targy, $uzi, $dok);
         }
+    }
+    // Email küldésről megjegyzés
+    $megj = 'E-mail elküldve '.$szallito['knev'].' (e-mail: '.$sor['szall_mail'].') szállítónak megrendeléskor';
+    if( addMegj('eszkozigenyles_megr', $_POST['id'], $megj) === false ) {
+        $db_error = true;
     }
 
     // Megrendelés dátum kitöltése

@@ -333,7 +333,7 @@ foreach ( $akt_tomb as $ertek ) {
         break;
 
         case 'statusz':
-            if($ertek['value']){
+            if ($ertek['value']) {
                 $ertek['megn'] = $ertek['value'];
             }
 
@@ -385,6 +385,7 @@ foreach ( $akt_tomb as $ertek ) {
                     <div class="dtc form_bal"><span>'.$ertek['megn'].'</span></div>
                     <div class="dtc form_jobb statusz">
                         <div class="text"'.$text_color.'>'.$statusz.' <span>'.$statusz_text.'</span></div>
+                        '.$ertek['post'].'
                     </div>
                 </div>
             ');
