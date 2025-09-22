@@ -2348,10 +2348,15 @@ $(function() {
         $('#vissza_nyitottak_koze').removeClass('dn');
     }*/
 
+    let resizeTimeout;
     fulGombMeretez();
     $(window).resize(function() {
-        fulGombMeretez();
-        fixTable();
+        // Csak akkor fussanak le a dolgok, ha már az átméretezésnek vége
+        clearTimeout(resizeTimeout);
+        resizeTimeout = setTimeout(function() {
+            fulGombMeretez();
+            fixTable();
+        }, 300);
     });
 
     $('.menu_icon').on('click', function() {
@@ -6094,7 +6099,7 @@ function addSzakterulet( szallitoID, that ) {
 }
 
 
-/* Megjegyzés hozzáadása */
+// Megjegyzés hozzáadása
 function addMegjegyzes( pageID, that ) {
     var megj = $(that).find('textarea[name="megjegyzes"]').val();
 
@@ -6140,7 +6145,35 @@ function addMegjegyzes( pageID, that ) {
     return false;
 }
 
-/* Login hozzárendelése projektkezeléshez */
+// Megjegyzések kiíratása
+function megj_kiir(rendszer) {
+    
+    $.ajax({
+        url : PHP_SELF,
+        type: 'POST',
+        data: {
+            id          : _get('id'),
+            rendszer    : rendszer,
+            megj_kiir   : Date.now()
+        },
+        success: function (response) {
+            if(response.substring(0, 6)=='SESKIL'){ location.href = 'index.php'; }
+            if (response) {
+                response = JSON.parse(response);
+                if (response.html) {
+                    $('#megj_tartalma').replaceWith(response.html);
+                }
+            }
+        },
+        complete: function (xhr) {
+            if (xhr.status != 200) {
+                alert2(xhr.responseText, '', 'Hiba');
+            }
+        }
+    });
+}
+
+// Login hozzárendelése projektkezeléshez
 function addProjektTeam( prkezel_recid, that ) {
 
     var loginok = $(that).find('input[name="loginok[]"]:checked');
@@ -6183,16 +6216,16 @@ function addProjektTeam( prkezel_recid, that ) {
     return false;
 }
 
-/* Vélemény hozzáadása */
+// Vélemény hozzáadása
 function velemeny_hozzaad(mehet){
 
-    /* Ha mehet, akkor nem vizsgáunk semmit, mehet a vélemény feltöltés */
+    // Ha mehet, akkor nem vizsgáunk semmit, mehet a vélemény feltöltés
     if(mehet){
         alert2();
         kapcsolodoSzerkeszt('velemeny_feltolt');
     } else {
 
-        /* Lássuk, van-e már vélemény feltöltve, ha igen, akkor rákérdezünk, hogy biztosan? */
+        // Lássuk, van-e már vélemény feltöltve, ha igen, akkor rákérdezünk, hogy biztosan?
         $.ajax({
             url : 'projektigenyles.php',
             type: 'POST',
@@ -6222,7 +6255,7 @@ function velemeny_hozzaad(mehet){
 
 }
 
-/* Vélemény törlése */
+// Vélemény törlése
 function velemeny_torol( velemeny_recid, mehet ) {
     if(!mehet){
         alert2('Biztosan törli a véleményét?', '<input type="button" class="gomb zold" value="Igen" onclick="velemeny_torol(\''+velemeny_recid+'\', \'mehet\')"> <input type="button" class="gomb piros" value="Nem" onclick="alert2()">');
@@ -6868,6 +6901,12 @@ function szamlaBetolt( recid, page, muvelet, szerkeszt, kerdes_nelkul, anyagigen
                         $('#navGombok a.uj').attr('href', 'javascript: kapcsolodoSzerkeszt(\'megjegyzes\'); void(0);');
 
                     } else if( baseName(location.href) == 'eszkozigenyles' && _get('megjegyzesek') ) {
+                        $('#navGombok a.uj').attr('href', 'javascript: kapcsolodoSzerkeszt(\'megjegyzes\'); void(0);');
+
+                    } else if( baseName(location.href) == 'eszkozigenyles' && !_get('megjegyzesek') && _jogok[150] == 0 ) {
+                        $('#navGombok a.uj').attr('href', 'javascript: javascript: alert2(\'Önnek nincs joga új igénylést létrehozni!\', \'\', \'Hiba\'); void(0);');
+
+                    } else if( baseName(location.href) == 'eszkozigenyles_megr' ) {
                         $('#navGombok a.uj').attr('href', 'javascript: kapcsolodoSzerkeszt(\'megjegyzes\'); void(0);');
 
                     } else if( baseName(location.href) == 'eszkozkezeles' && _get('megjegyzesek') ) {

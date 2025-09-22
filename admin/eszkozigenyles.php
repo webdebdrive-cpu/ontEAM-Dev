@@ -1,8 +1,60 @@
 <?php
 require_once('../weblap.php');
 
-if( isset($_GET['pdf_mutat']) ) {
-    megrendeles_keszit(172);
+if( isset($_GET['megj_karbantart']) ) {
+    // Ha a szöveg
+    // email elküldve vagy
+    // email küldése vagy
+    // mező előző értéke: vagy
+    // módosítva:
+    // akkor az rendszerüzenet volt
+
+    $megjegyzesek = $adatbazis_kapcsolat -> s('recid megj', 'megjegyzes', "`tabla` IN ('eszkozigenyles', 'eszkozigenyles_megr', 'szallito_beszerzes')");
+    foreach ($megjegyzesek as $megjegyzes) {
+        
+        $user = 0;
+        if(
+            strpos($megjegyzes['megj'], 'E-mail elküldve'            ) === false &&
+            strpos($megjegyzes['megj'], 'E-mail küldése'             ) === false &&
+            strpos($megjegyzes['megj'], 'esemény NEM következett be' ) === false &&
+            strpos($megjegyzes['megj'], 'mező előző értéke'          ) === false &&
+            strpos($megjegyzes['megj'], 'módosítva'                  ) === false
+        ) {
+            $adatbazis_kapcsolat -> u('megjegyzes', array('user'), array(1), "`recid`='{$megjegyzes['recid']}'");
+            echo $megjegyzes['megj'] .'<br>';
+            echo $adatbazis_kapcsolat -> gp().'<br>';
+        }
+
+    } 
+
+    echo 'f';
+    exit;
+}
+
+if( isset($_GET['azon_karbantart']) ) {
+    $eszkozigenylesek = $adatbazis_kapcsolat -> s('recid tipus', 'eszkozigenyles');
+    foreach ($eszkozigenylesek as $eszkozigenyles) {
+        $tipus = $adatbazis_kapcsolat -> s2('nev', 'eszkozigenyles_tipus', "`recid`='{$eszkozigenyles['tipus']}'");
+        $tipus = mb_substr($tipus['nev'], 0, 1);
+
+        $azon = $tipus.$eszkozigenyles['recid'];
+        $sql = $adatbazis_kapcsolat -> u($tabla, array('azon'), array($azon), "`recid`='{$eszkozigenyles['recid']}'");
+        if( $sql === false ) { $db_error = true; }
+    } 
+    echo 'f';
+    exit;
+}
+
+if( isset($_GET['pdf_mutat']) || isset($_GET['html_mutat']) ) {
+    $igeny_id = $_GET['pdf_mutat'].$_GET['html_mutat'];
+    if( !$igeny_id ) {
+        if( $_SERVER['HTTP_HOST'] == 'dev.onteam.hu' ) {
+            $igeny_id = 240;
+        } else {
+            $igeny_id = 10;
+        }
+    }
+    megrendeles_keszit($igeny_id);
     exit;
 }
 
@@ -80,11 +132,14 @@ if (isset($_POST['szallito_kerese'])) {
 
     
     // Dev rendszerben annak megy ki a levél, aki a gombot megnyomta
-    // FONTOS, hogy Teszt-nél már éles működés kell
     if( $_SERVER['HTTP_HOST'] == 'dev.onteam.hu' ) {
         $cimzettek = $adatbazis_kapcsolat -> s('teljes_nev usermail', 'login', "`nev`='{$_SESSION[get_db_tabla().'user']}'");
     }
-
+    // Teszt felületen azt kérték, hogy Tamás és Tibi kapjanak másolatot
+    if( $_SERVER['HTTP_HOST'] == 'teszt.onteam.hu' ) {
+        array_push($cimzettek, array('teljes_nev' => 'Korcsmáros Tibor', 'usermail' => SZINVATREND_TESZT_MAIL ));
+        array_push($cimzettek, array('teljes_nev' => 'Handari Tamás',    'usermail' => SZINVATREND_TESZT_MAIL2));
+    }
     $nevek          = [];
     $mailcimek_ossz = [];
     foreach ($cimzettek as $cimzett) {
@@ -155,35 +210,40 @@ if (isset($_POST['tablazat_rendez'])) {
 if (isset($_POST['get_tabla_oszlopok'])) {
 
     $oszlopok = [
-        ['nev' => 'Státusz',                     'id' => 'eszkoz_tabla_statusz'     ],
-        ['nev' => 'Típus',                       'id' => 'eszkoz_tabla_tipus'       ],
-        ['nev' => 'Prioritás',                   'id' => 'eszkoz_tabla_prior'       ],
-        ['nev' => 'Szálloda',                    'id' => 'eszkoz_tabla_szalloda'    ],
-        ['nev' => 'Termék név',                  'id' => 'eszkoz_tabla_nev'         ],
-        ['nev' => 'Cikkszám',                    'id' => 'eszkoz_tabla_csz'         ],
-        ['nev' => 'Specifikáció',                'id' => 'eszkoz_tabla_spec'        ],
-        ['nev' => 'Igénylés indoka/koncepció',   'id' => 'eszkoz_tabla_igeny_indok' ],
-        ['nev' => 'Megjegyzés',                  'id' => 'eszkoz_tabla_megj'        ],
-        ['nev' => 'Szállító',                    'id' => 'eszkoz_tabla_szallito'    ],
-        ['nev' => 'Szállítási határidő',         'id' => 'eszkoz_tabla_'   ],
-        ['nev' => 'Fizetési mód',                'id' => 'eszkoz_tabla_fiz_mod'     ],
-        ['nev' => 'Fizetési határidő',           'id' => 'eszkoz_tabla_hat_ido'     ],
-        ['nev' => 'Igényelt mennyiség',          'id' => 'eszkoz_tabla_igmen'       ],
-        ['nev' => 'Nettó egységár',              'id' => 'eszkoz_tabla_netto'       ],
-        ['nev' => 'Pénznem',                     'id' => 'eszkoz_tabla_kcs_21'      ],
-        ['nev' => 'Árfolyam',                    'id' => 'eszkoz_tabla_arfolyam'    ],
-        ['nev' => 'Deviza egységár',             'id' => 'eszkoz_tabla_dev_net'     ],
-        ['nev' => 'Nettó összesen',              'id' => 'eszkoz_tabla_ossz_netto'  ],
-        ['nev' => 'Jóváhagyott mennyiség',       'id' => 'eszkoz_tabla_jhmen'       ],
-        ['nev' => 'Jóváhagyott nettó egységár',  'id' => 'eszkoz_tabla_jhar'        ],
-        ['nev' => 'Jóváhagyott nettó összesen',  'id' => 'eszkoz_tabla_jhossz'      ],
-        ['nev' => 'Rendelés szám',               'id' => 'eszkoz_tabla_rend_szam'   ],
-        ['nev' => 'Műszaki előkészítést igényel','id' => 'eszkoz_tabla_musz_el_ig'  ],
-        ['nev' => 'Kivitelezési költség',        'id' => 'eszkoz_tabla_kiv_kolts'   ],
-        ['nev' => 'Szálloda igazgató véleménye', 'id' => 'eszkoz_tabla_szall_ig_vel'],
-        ['nev' => 'BI véleménye',                'id' => 'eszkoz_tabla_bi_vel'      ],
-        ['nev' => 'Szakmai vezetés vélemény',    'id' => 'eszkoz_tabla_szak_vel'    ],
-        ['nev' => 'Felsővezetés vélemény',       'id' => 'eszkoz_tabla_felso_vel'   ],
+        ['nev' => 'Azonosító',                   'id' => 'eszkoz_tabla_azon'            ],
+        ['nev' => 'Státusz',                     'id' => 'eszkoz_tabla_statusz'         ],
+        ['nev' => 'Típus',                       'id' => 'eszkoz_tabla_tipus'           ],
+        ['nev' => 'Prioritás',                   'id' => 'eszkoz_tabla_prior'           ],
+        ['nev' => 'Szálloda',                    'id' => 'eszkoz_tabla_szalloda'        ],
+        ['nev' => 'Termék név',                  'id' => 'eszkoz_tabla_nev'             ],
+        ['nev' => 'Cikkszám',                    'id' => 'eszkoz_tabla_csz'             ],
+        ['nev' => 'Specifikáció',                'id' => 'eszkoz_tabla_spec'            ],
+        ['nev' => 'Igénylés indoka/koncepció',   'id' => 'eszkoz_tabla_igeny_indok'     ],
+        ['nev' => 'Kiegészítés megrendelőre',    'id' => 'eszkoz_tabla_megj'            ],
+        ['nev' => 'Szállító',                    'id' => 'eszkoz_tabla_szallito'        ],
+        ['nev' => 'Szállítási határidő',         'id' => 'eszkoz_tabla_'                ],
+        ['nev' => 'Fizetési mód',                'id' => 'eszkoz_tabla_fiz_mod'         ],
+        ['nev' => 'Fizetési határidő',           'id' => 'eszkoz_tabla_hat_ido'         ],
+        ['nev' => 'Igényelt mennyiség',          'id' => 'eszkoz_tabla_igmen'           ],
+        ['nev' => 'Nettó egységár',              'id' => 'eszkoz_tabla_netto'           ],
+        ['nev' => 'Pénznem',                     'id' => 'eszkoz_tabla_kcs_21'          ],
+        ['nev' => 'Árfolyam',                    'id' => 'eszkoz_tabla_arfolyam'        ],
+        ['nev' => 'Deviza egységár',             'id' => 'eszkoz_tabla_dev_net'         ],
+        ['nev' => 'Nettó összesen',              'id' => 'eszkoz_tabla_ossz_netto'      ],
+        ['nev' => 'Jóváhagyott mennyiség',       'id' => 'eszkoz_tabla_jhmen'           ],
+        ['nev' => 'Jóváhagyott nettó egységár',  'id' => 'eszkoz_tabla_jhar'            ],
+        ['nev' => 'Jóváhagyott nettó összesen',  'id' => 'eszkoz_tabla_jhossz'          ],
+        ['nev' => 'Kiszállítási költség',        'id' => 'eszkoz_tabla_kiszall'         ],
+        ['nev' => 'Beüzemelési költség',         'id' => 'eszkoz_tabla_beuzemel'        ],
+        ['nev' => 'Munkadíj',                    'id' => 'eszkoz_tabla_munkadij'        ],
+        ['nev' => 'Egyéb költség',               'id' => 'eszkoz_tabla_egyeb_koltseg'   ],
+        ['nev' => 'Rendelés szám',               'id' => 'eszkoz_tabla_rend_szam'       ],
+        ['nev' => 'Műszaki előkészítést igényel','id' => 'eszkoz_tabla_musz_el_ig'      ],
+        ['nev' => 'Kivitelezési költség',        'id' => 'eszkoz_tabla_kiv_kolts'       ],
+        ['nev' => 'Szálloda igazgató véleménye', 'id' => 'eszkoz_tabla_szall_ig_vel'    ],
+        ['nev' => 'BI véleménye',                'id' => 'eszkoz_tabla_bi_vel'          ],
+        ['nev' => 'Szakmai vezetés vélemény',    'id' => 'eszkoz_tabla_szak_vel'        ],
+        ['nev' => 'Felsővezetés vélemény',       'id' => 'eszkoz_tabla_felso_vel'       ],
     ];
 
     $sorrend = getErtek('tabla_sorrend', 'login', 'recid', $_SESSION[get_db_tabla().'login_recid']);
@@ -217,7 +277,20 @@ if (isset($_POST['get_tabla_oszlopok'])) {
             }
         }
     }
-
+    
+    // Ha volna olyan oszlop az $oszlopok tömbben, ami nincs benne az $oszlopok_sorrend-ben (mert mondjuk egy új oszlop hozzá lett adva), akkor vegyük fel
+    foreach ( $oszlopok as $key => $val ) {
+        $benne_van = 0;
+        foreach ($oszlopok_sorrend as $key2 => $val2) {
+            if( $val2['id'] == $val['id'] ) {
+                $benne_van = 1;
+                break;
+            }
+        }
+        if( !$benne_van ) {
+            $oszlopok_sorrend[] = $val;
+        }
+    }
 
     $html = nl2('
         
@@ -2078,6 +2151,15 @@ if (isset($_POST['bi_vegl_visszavon'])) {
     exit;
 }
 
+// Megjegyzések kiíratása
+if (isset($_POST['megj_kiir'])) {
+
+    echo json_encode( array('html' => megj_kiir($megnevezes, $_POST['id'], $_POST['rendszer'])) );
+
+    $weblap -> leallit();
+    exit;
+}
+
 // CSV generálása
 if( isset($_GET['csv']) ) {
 
@@ -2110,6 +2192,10 @@ if( isset($_GET['csv']) ) {
 				`jhmen` as \'Jóváhagyott mennyiség\',
 				`jhar` as \'Jóváhagyott nettó egységár\',
 				`jhossz` as \'Jóváhagyott nettó összesen\',
+				`kiszall` as \'Kiszállítási költség\',
+				`beuzemel` as \'Beüzemelési költség\',
+				`munkadij` as \'Munkadíj\',
+				`egyeb_koltseg` as \'Egyéb költség\',
 				`rend_szam` as \'Rendelés szám\',
 				`musz_el_ig` as \'Műszaki előkészítést igényel\',
 				`kiv_kolts` as \'Kivitelezési költség\',
@@ -2537,6 +2623,16 @@ if( isset($_GET['uj']) ) {
 
     $sor = $adatbazis_kapcsolat -> s2('*', $megnevezes, "`recid`='{$_GET['id']}'");
 
+    // Az időszak ID formátumát majd itt állítjuk elő, ilyesmi alaka lesz 26/1
+    $sor['beszerzes_idoszak_recid'] = '';
+
+    if( $sor['kcs_21'] == KCS_21_HUF ) {
+        $sor['kiszall']         = (int)$sor['kiszall' ];
+        $sor['beuzemel']        = (int)$sor['beuzemel'];
+        $sor['munkadij']        = (int)$sor['munkadij'];
+        $sor['egyeb_koltseg']   = (int)$sor['egyeb_koltseg'];
+    }
+
     foreach ( $akt_tomb as $tomb ) {
         if( $tomb['type'] == 'autocomplete' ) {
             
@@ -2547,12 +2643,28 @@ if( isset($_GET['uj']) ) {
                 $kulso_ertek = $adatbazis_kapcsolat->s2('recid nev', $tomb['tabla'], "`{$tomb['oszlop_keres']}`='{$sor[$tomb['name']]}'", '', '1');
             }
 
-            $sor[$tomb['name'].'_autocomp'] = '';
-            if( $kulso_ertek ) {
-                $sor[$tomb['name'].'_autocomp'] = $kulso_ertek['nev'];
+            // Részlegnél kell a teljes útvonal
+            if( $tomb['name'] == 'te_alcsop' ) {
+                $reszleg = $adatbazis_kapcsolat -> s2('szulo nev', 'te_reszleg', "`recid`='{$sor['te_alcsop']}'");
+                $sor['te_alcsop_autocomp'] = $reszleg['nev'];
+
+                $szulo = $adatbazis_kapcsolat -> s2('szulo nev', 'te_reszleg', "`recid`='{$reszleg['szulo']}'");
+                $sor['te_alcsop_autocomp'] .= ' / '.$szulo['nev'];
+
+                $szulo = $adatbazis_kapcsolat -> s2('szulo nev', 'te_reszleg', "`recid`='{$szulo['szulo']}'");
+                $sor['te_alcsop_autocomp'] .= ' / '.$szulo['nev'];
+
+            // Ha nem te_alcsop, akkor jöhet az általános autocomplete
+            } else {
+                $sor[$tomb['name'].'_autocomp'] = '';
+                if( $kulso_ertek ) {
+                    $sor[$tomb['name'].'_autocomp'] = $kulso_ertek['nev'];
+                }
             }
+
         }
     }
+
 
     $json_sor = array();
     foreach ( $sor as $kulcs => $elem ) {
@@ -2569,6 +2681,7 @@ if( isset($_GET['uj']) ) {
             /* Ha ismert a szállító, pár mező kötelezővé válik */
             $(document).ready(function(){
                 szallito_kotelezo_mezok();
+                nettokat_atszamol();
             });
         </script>
     ');
@@ -2710,26 +2823,76 @@ if( isset($_GET['uj']) ) {
 // Megjegyzések
 } elseif( isset($_GET['megjegyzesek']) ) {
 
+    // Megjegyzések kiíratása
+    $szamla_html .= megj_kiir($megnevezes, $_GET['id']);
+
+    // A léptetés csak akkor fog működni, ha a bal navpanel kódja benne van a kódban
+    // FONTOS, hogy nem lehet "dn", mert látszania kell, hogy a JavaScript tudjon vele dolgozni. A létezéshez kell.
+    $szamla_html .= '<div class="vh" style="height: 0; width: 0; overflow: hidden;">'.$balNavPanelHTMLje.'</div>';
+
+    if( $_GET['ajax'] ) {
+        echo json_encode(array(
+            'tartalom'  => $szamla_html.$gombok,
+            'link'      => get_get(array('ajax', 'kat', 'epo', 'oldal', 'order'), true)
+        ));
+    } else {
+        echo $szamla_html.$gombok;
+    }
+
+}
+
+// Ajaxnál de megjegyzéseknél se írjuk ki a </div>-et. Itt a $balNavPanelHTMLje dolog kavar be, amit egy korábbi </div> után kellene kiírni
+if( !$_GET['ajax'] && !isset($_GET['megjegyzesek']) ) {
+    echo '</div>';
+}
+
+if( !$_GET['ajax'] ) {
+    require_once('footer.php');
+}
+
+// Megjegyzések kiíratása
+function megj_kiir($tabla, $id, $rendszer_is = 0) {
+    global $adatbazis_kapcsolat;
+
+        $sql_kieg = " AND `user`='1'";
+        $rendszer_checked = '';
+        $rendszer_param   = 'rendszer';
+        if( $rendszer_is ) {
+            $rendszer_checked = ' checked';
+            $rendszer_param   = '';
+            $sql_kieg = '';
+        }
+
     // <div class="dt naplo" class nevekből a kijCont kivéve, hogy a megjegyzéseket ne lehessen törölni
-    $szamla_html .= nl2('
-        <div class="dt naplo" data-tabla="megjegyzes" data-mellek="megjegyzesek">
+    $html = nl2('
+        <div class="dt naplo" data-tabla="megjegyzes" data-mellek="megjegyzesek" id="megj_tartalma">
             <div class="dtr nFejlec">
-                <div class="dtc">Megjegyzés</div>
+                <div class="dtc">
+                    Megjegyzés
+                    <label style="margin-left: 2rem">
+                        <input type="checkbox"'.$rendszer_checked.' onclick="megj_kiir(\''.$rendszer_param.'\')">
+                        Rendszerüzenetek megjelenítése
+                    <label>
+                </div>
                 <div class="dtc">Hozzáadta</div>
                 <div class="dtc">Hozzáadva</div>
             </div>
     ');
 
-    if( $_GET['id'] ) {
+    if( $id ) {
 
-        $sorok = $adatbazis_kapcsolat->s('recid megj insert_usr insert_dt', 'megjegyzes', "`id`='{$_GET['id']}' AND `tabla`='".str_replace('.php', '', basename(self()))."'", 'recid desc');
+        $sorok = $adatbazis_kapcsolat->s('recid megj user insert_usr insert_dt', 'megjegyzes', "`id`='{$id}' AND `tabla`='{$tabla}'{$sql_kieg}", 'recid desc');
         if( $sorok ) {
             $i = 1;
             foreach ( $sorok as $sor ) {
-                $szamla_html .= nl2('
+                $user_kieg = '';
+                if( !$sor['user'] ) {
+                    $user_kieg .= 'ontEAM<br>';
+                }
+                $html .= nl2('
                     <div id="naploSor-'.$sor['recid'].'" data-id="'.$sor['recid'].'" data-i="'.$i.'" class="dtr nSor kijSor">
                         <div class="dtc">'.htmlspecialchars_decode( nl2br2($sor['megj']) ).'</div>
-                        <div class="dtc">'.$sor['insert_usr'].'</div>
+                        <div class="dtc">'.$user_kieg.$sor['insert_usr'].'</div>
                         <div class="dtc">'.datum_kiir($sor['insert_dt']).'</div>
                     </div>
                 ');
@@ -2740,27 +2903,9 @@ if( isset($_GET['uj']) ) {
 
     }
 
-    // A léptetés csak akkor fog működni, ha a bal navpanel kódja benne van a kódban
-    // FONTOS, hogy nem lehet "dn", mert látszania kell, hogy a JavaScript tudjon vele dolgozni. A létetéshez kell.
-    $szamla_html .= '<div class="vh" style="height: 0; width: 0; overflow: hidden;">'.$balNavPanelHTMLje.'</div>';
-
-    if( $_GET['ajax'] ) {
-        echo json_encode(array(
-            'tartalom'  => $szamla_html.$gombok,
-            'link'      => get_get(array('ajax', 'kat', 'epo', 'oldal', 'order'), true)
-        ));
-    } else {
-        echo $szamla_html;
-    }
-
-}
-
-if( !$_GET['ajax'] ) {
-    echo '</div>';
-}
-
-if( !$_GET['ajax'] ) {
-    require_once('footer.php');
+    $html .= '</div>';
+    
+    return $html;
 }
 
 // Megrendelés készítése
@@ -2773,7 +2918,7 @@ function megrendeles_keszit($eszkozigenyles_id = '') {
     require('selectek.php');
 
     // Megrendelés létrehozása
-    $eszkozigenyles = $adatbazis_kapcsolat -> s2('recid tipus stat_id nev igmen jhmen arfolyam netto jhar jhossz telephely_id szallito_id szall_hat fiz_mod hat_ido ossz_netto ossz_dev kcs_21 insert_dt', 'eszkozigenyles', "`recid`='{$eszkozigenyles_id}'");
+    $eszkozigenyles = $adatbazis_kapcsolat -> s2('recid tipus stat_id nev igmen jhmen arfolyam netto jhar jhossz telephely_id szallito_id szall_hat fiz_mod hat_ido ossz_netto ossz_dev kcs_21 kiszall beuzemel munkadij egyeb_koltseg eloleg megj insert_dt', 'eszkozigenyles', "`recid`='{$eszkozigenyles_id}'");
     if( $eszkozigenyles === false ) { $db_error = true; }
 
     // Státusz és jogok ellenőrzése (nehogy sima link beírással hozzanak létre megrendelést)
@@ -2783,10 +2928,11 @@ function megrendeles_keszit($eszkozigenyles_id = '') {
         // Felsővezetői jóváhagyás + felsővezetői jh vár státuszkor készül megrendelés, ha nem tervezett típus
         (_jog(JOG_BESZERZ_IGENYLESEK_FELSOVEZ_JH) && $eszkozigenyles['stat_id'] == ESZKOZIGENYL_STAT_FELSO_JH_VAR && $eszkozigenyles['tipus'] != BESZ_TIP_TERVEZETT ) ||
         // BI véglegesít + véglegesítésre vár státuszkor készül megrendelés, ha nem tervezett típus
-        (_jog(JOG_BESZERZ_IGENYLESEK_BI_VEGLEGESIT) && $eszkozigenyles['stat_id'] == ESZKOZIGENYL_STAT_BI_VEGL_VAR && $eszkozigenyles['tipus'] != BESZ_TIP_TERVEZETT )
+        (_jog(JOG_BESZERZ_IGENYLESEK_BI_VEGLEGESIT) && $eszkozigenyles['stat_id'] == ESZKOZIGENYL_STAT_BI_VEGL_VAR && $eszkozigenyles['tipus'] != BESZ_TIP_TERVEZETT ) ||
+        isset($_GET['pdf_mutat']) || isset($_GET['html_mutat'])
     ) {
 
-        // Ha csak a HTML szereksztése miatt tesztelünk, akkor ne hozzunk létre megrendelést
+        // Ha csak a HTML szerkesztése miatt tesztelünk, akkor ne hozzunk létre megrendelést
         if( !isset($_GET['html_mutat']) && !isset($_GET['pdf_mutat']) ) {
 
             $mezok   = array();
@@ -2811,7 +2957,7 @@ function megrendeles_keszit($eszkozigenyles_id = '') {
             $rend_szam = get_iktatoszam_sorszam('eszkozigenyles_megr');
             if($rend_szam===false){ $db_error = true; }
             $rend_szam = 'M/'.date('Y').'/'.$rend_szam;
-            $rend_szam_fajlba = str_replace('/', '_', $rend_szam);
+            $rend_szam_fajlba = str_replace('/', '', $rend_szam);
 
             $hash = jelszot_keszit();
             $foglalt = $adatbazis_kapcsolat -> s2('recid', 'eszkozigenyles_megr', "`hash`='{$hash}'");
@@ -2894,6 +3040,10 @@ function megrendeles_keszit($eszkozigenyles_id = '') {
     
         // A Fizetési mód és határidő sor csak akkor jelenik meg, ha van legalábbi egyik adat
         $fiz_mod_hatarido = '';
+        $eloleg = '';
+        if( $eszkozigenyles['eloleg'] ) {
+            $eloleg .= '&nbsp;&nbsp;&nbsp;Előleg: '.$eszkozigenyles['eloleg'].'%';
+        }
         if( $fizmod_kiir || $eszkozigenyles['hat_ido'] ) {
             $fiz_mod_hatarido .= nl2('
                 <tr>
@@ -2903,6 +3053,7 @@ function megrendeles_keszit($eszkozigenyles_id = '') {
                     <td style="vertical-align: top; padding: 20px 0 0 0">
                         '.$fizmod_kiir.'
                         '.$eszkozigenyles['hat_ido'].'
+                        '.$eloleg.'
                     </td>
                 </tr>
             ');
@@ -2913,6 +3064,29 @@ function megrendeles_keszit($eszkozigenyles_id = '') {
         if( $fejlec === false ) {
             $db_error = true;
         }
+
+        $tetel_neve  = $eszkozigenyles['nev'];
+        $jhossz_kiir = number_format($jhossz, $tizedesek, ',', ' ');
+        if( $eszkozigenyles['kiszall'] > 0 ) {
+            $tetel_neve  .= '<br>Kiszállítási költség';
+            $jhossz_kiir .= '<br>'.number_format($eszkozigenyles['kiszall'], $tizedesek, ',', ' ');
+        }
+        if( $eszkozigenyles['beuzemel'] > 0 ) {
+            $tetel_neve  .= '<br>Beüzemelési költség';
+            $jhossz_kiir .= '<br>'.number_format($eszkozigenyles['beuzemel'], $tizedesek, ',', ' ');
+        }
+        if( $eszkozigenyles['munkadij'] > 0 ) {
+            $tetel_neve  .= '<br>Munkadíj';
+            $jhossz_kiir .= '<br>'.number_format($eszkozigenyles['munkadij'], $tizedesek, ',', ' ');
+        }
+        if( $eszkozigenyles['egyeb_koltseg'] > 0 ) {
+            $tetel_neve  .= '<br>Egyéb költség';
+            $jhossz_kiir .= '<br>'.number_format($eszkozigenyles['egyeb_koltseg'], $tizedesek, ',', ' ');
+        }
+        if( $eszkozigenyles['megj'] ) {
+            $tetel_neve .= '<br>'.nl2br2($eszkozigenyles['megj']);
+        }
+
         $tartalom = '
         <div class="padd" style="padding-bottom: 0; margin-bottom: 0">
                 '.$fejlec.'
@@ -2923,18 +3097,18 @@ function megrendeles_keszit($eszkozigenyles_id = '') {
                     <br>
                 </div>
 
-                <table class="border full" style="font-size: 12px;border-collapse: collapse;border: 1px solid #ddd;">
+                <table class="border full" style="font-size: 12px;border-collapse: collapse;border: 1px solid #000;">
                 <tr>
                     <th style="border: 1px solid #ddd; padding: 2px; text-align: left;">Megnevezés</th>
                     <th style="border: 1px solid #ddd; padding: 2px; text-align: right;">Mennyiség<br>(db)</th>
                     <th style="border: 1px solid #ddd; padding: 2px; text-align: right;">Nettó egységár<br>('.$penznem.')</th>
                     <th style="border: 1px solid #ddd; padding: 2px; text-align: right;">Nettó összesen<br>('.$penznem.')</th>
                 </tr>
-                <tr style="border: 1px solid #ddd;">
-                    <td class="c" style="border: 1px solid #ddd; padding: 2px; text-align: left;">'.$eszkozigenyles['nev'].'</td>
-                    <td class="c" style="border: 1px solid #ddd; padding: 2px; text-align: right;">'.number_format($eszkozigenyles['jhmen' ], 0, '', ' ').'</td>
-                    <td class="c" style="border: 1px solid #ddd; padding: 2px; text-align: right;">'.number_format($jhar,   $tizedesek, ',', ' ').'</td>
-                    <td class="c" style="border: 1px solid #ddd; padding: 2px; text-align: right;">'.number_format($jhossz, $tizedesek, ',', ' ').'</td>
+                <tr style="border-top: 1px solid #ddd;">
+                    <td class="c" style="border: 1px solid #ddd; padding: 2px; text-align: left; vertical-align: top;">'.$tetel_neve.'</td>
+                    <td class="c" style="border: 1px solid #ddd; padding: 2px; text-align: right; vertical-align: top;">'.number_format($eszkozigenyles['jhmen' ], 0, '', ' ').'</td>
+                    <td class="c" style="border: 1px solid #ddd; padding: 2px; text-align: right; vertical-align: top;">'.number_format($jhar,   $tizedesek, ',', ' ').'</td>
+                    <td class="c" style="border: 1px solid #ddd; padding: 2px; text-align: right; vertical-align: top;">'.$jhossz_kiir.'</td>
                 </tr>
                 </table>
 
@@ -2964,7 +3138,7 @@ function megrendeles_keszit($eszkozigenyles_id = '') {
 
                 <div style="font-size: 12px; margin: 0 0 2px 0; padding-top: 10px">
                     Kérjük megrendelésünket a szállítási határidő feltüntetésével szíveskedjen visszaigazolni.
-                    <br>A számlán a fenti tárgy mezőben található megrendelésszámot legyenek kedvesek szerepeltetni!
+                    <br>A számlán a megrendelés számát legyenek kedvesek szerepeltetni!
                 </div>
 
                 <div style="page-break-inside: avoid;">
@@ -2981,6 +3155,7 @@ function megrendeles_keszit($eszkozigenyles_id = '') {
         $keret = get_nyomtatas_keret('Megrendelés száma: '.$rend_szam);
         $html  = str_replace('{TARTALOM}', $tartalom, $keret);
 
+$html = nl2($html);
 if( isset($_GET['html_mutat']) ) {
     echo $html;
     exit;
@@ -3015,7 +3190,7 @@ if( isset($_GET['pdf_mutat']) ) {
         
         // Fájlba mentés
         $ev         = date('y', strtotime($eszkozigenyles['insert_dt']));
-        $fajlnev    = 'Eszkozigenyles_Megrendelo_'.$rend_szam_fajlba.'.pdf';
+        $fajlnev    = 'DH_te_megrendeles_'.$rend_szam_fajlba.'.pdf';
         if( !is_dir('../'.get_utvonal().'eszkozigenyles_megr') ) {
             mkdir('../'.get_utvonal().'eszkozigenyles_megr');
         }

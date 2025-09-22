@@ -1,0 +1,195 @@
+<h2>Teszt eredmény hozzáadása</h2>
+<form id="elutasitasForm" class="popupForm" method="post" onsubmit="teszteles_rogzit(); return false;">
+    <div class="kozep">
+        <div class="dt">
+            <div class="dtr">
+                <div class="dtc form_bal">Név:</div>
+                <div class="dtc form_jobb">
+                    <div id="popup_nev"></div>
+                </div>
+            </div>
+            <div class="dtr">
+                <div class="dtc form_bal">Szerepkör:</div>
+                <div class="dtc form_jobb">
+                    <div id="popup_szerepkor"></div>
+                </div>
+            </div>
+            <div class="dtr">
+                <div class="dtc form_bal">Modul:</div>
+                <div class="dtc form_jobb">
+                    <div id="popup_modul"></div>
+                </div>
+            </div>
+            <div class="dtr">
+                <div class="dtc form_bal">Rekord:</div>
+                <div class="dtc form_jobb">
+                    <div id="popup_recid"></div>
+                </div>
+            </div>
+            <div class="dtr popup_statusz">
+                <div class="dtc form_bal">Státusz:</div>
+                <div class="dtc form_jobb">
+                    <div id="popup_statusz"></div>
+                </div>
+            </div>
+            <div class="dtr popup_telephely">
+                <div class="dtc form_bal">Szálloda:</div>
+                <div class="dtc form_jobb">
+                    <div id="popup_telephely"></div>
+                </div>
+            </div>
+            <div class="dtr">
+                <div class="dtc form_bal">Dátum:</div>
+                <div class="dtc form_jobb">
+                    <div id="popup_datum"></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="dtc form_bal">Teszt eredmény:</div>
+        <textarea id="popup_teszt" class="csillag" onkeyup="if( $(this).val().trim()=='' ){ $(this).val(''); }"></textarea>
+        <div id="jsff_tobbkep_eszkoz" class="jsff">
+            <div class="talloz">
+                <div>
+                    <span>Tallózás</span>
+                    <input type="file" id="popup_file" multiple accept=".jpg,.jpeg,.png,.webp">
+                </div>
+            </div>
+            <div id="betallozott_fajlok"></div>
+        </div>
+    </div>
+    <div class="kuldes">
+        <input type="submit" name="elkuld" value="Mentés">
+        <input type="button" name="megsem" class="gombb_alert" value="Mégsem" onclick="popupZar();">
+    </div>
+</form>
+<style>
+#popup_teszt {
+    width: 40rem;
+    height: 10rem;
+    margin-top: .2rem;
+    margin-bottom: 1rem;
+}
+#fajl_adatok {
+    margin: 1rem 0;
+    line-height: 1.2;
+}
+#betallozott_fajlok {
+    text-align: left;
+}
+</style>
+<script>
+var modul_neve = $('#rekord_neve')[0].previousSibling.nodeValue.trim()+' '+$('#rekord_neve').html();
+$(document).ready(function(){
+    $.ajax({
+        url : '../weblap.php',
+        type: 'POST',
+        data: {
+            id              : _get('id'),
+            modul           : baseName(location.href),
+            teszteles_adatok: Date.now()
+        },
+        success: function(response){
+            if(response){
+                response = JSON.parse(response);
+                if(response.hiba){
+                    alert2(response.hiba, response.gomb, response.title);
+                    return false;
+                }
+                
+                $('#popup_nev'      ).html(response.nev         );
+                $('#popup_szerepkor').html(response.szerepkor   );
+                $('#popup_modul'    ).html(modul_neve           );
+                $('#popup_recid'    ).html(_get('id')           );
+                $('#popup_datum'    ).html(response.datum       );
+                if( response.statusz ) {
+                    $('#popup_statusz').html(response.statusz);
+                } else {
+                    $('.popup_statusz').addClass('dn');
+                }
+                if( response.telephely ) {
+                    $('#popup_telephely').html(response.telephely);
+                } else {
+                    $('.popup_telephely').addClass('dn');
+                }
+            }
+        },
+        complete: function(xhr) {
+            if( xhr.status != 200 ) {
+                alert2(xhr.responseText, '', 'Hiba');
+            }
+        }
+    });
+});
+
+// Fájlnevek felsorolása
+$('#popup_file').on('change', function() {
+    var $fajlok = $('#betallozott_fajlok');
+    $fajlok.empty();
+
+    if (this.files.length > 0) {
+        var szoveg = 'Betallózott fájl:';
+        if( this.files.length > 1 ) {
+            szoveg = 'Betallózott fájlok:';
+        }
+        $('<div>').text(szoveg).css({
+            'font-weight': 'bold',
+            'margin-bottom': '5px'
+        }).appendTo($fajlok);
+
+        $.each(this.files, function(i, file) {
+            $('<div>').text(file.name).appendTo($fajlok);
+        });
+    }
+});
+
+
+function teszteles_rogzit() {
+    
+    if( !$('#popup_teszt').val() ) {
+        alert2('Kérjük írja le a teszt eredményét!', '', 'Hiba');
+        $('#popup_teszt').addClass('hibas_ide_focus');
+        return false;
+    }
+
+    // Form adatainka összeszedése
+    var formData = new FormData();
+
+    // szöveges mezők hozzáadása
+    formData.append('id',               _get('id'));
+    formData.append('modul',            baseName(location.href));
+    formData.append('modul_nev',        modul_neve);
+    formData.append('text',             $('#popup_teszt').val());
+    formData.append('teszteles_rogzit', Date.now());
+
+    // fájlok hozzáadása
+    var files = $('#popup_file')[0].files;
+    for (var i = 0; i < files.length; i++) {
+        formData.append('files[]', files[i]);
+    }
+    
+    $.ajax({
+        url         : '../weblap.php',
+        type        : 'POST',
+        data        : formData,
+        processData : false,
+        contentType : false,
+        success: function (response) {
+            if (response) {
+                response = JSON.parse(response);
+                if (response.hiba) {
+                    alert2(response.hiba, response.gomb, response.title);
+                    return false;
+                }
+                alert2('A tesztelés eredményét sikeresen rögzítettük!', '', 'Üzenet');
+                popupZar();
+            }
+        },
+        complete: function (xhr) {
+            if (xhr.status != 200) {
+                alert2(xhr.responseText, '', 'Hiba');
+            }
+        }
+    });
+}
+</script>

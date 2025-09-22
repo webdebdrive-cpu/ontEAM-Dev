@@ -10,18 +10,27 @@ function huf_vagy_deviza() {
     // Adatlapon státusz felirat mögött van egy hidden input adatlap_disabled ID-val.
     // Ez 1-es értéket kap akkor, ha az adatlap egyáltalán nem szerkeszthető, mert olyan státuszban van vagy jogok hiányoznak
     // Ekkor a huf_vagy_deviza() függvény se csináljon semmit, még véletlen se váljon írhatóvá egyik mező sem
+
     if( !$('#adatlap_disabled').val() ) {
         if( $('#kcs_21_autocomp').val()=='HUF' ) {
-            $('#dev_net' ).val('0,00').attr('readonly', 'readonly').removeClass('csillag').removeClass('mod');
-            $('#arfolyam').val('0,00').attr('readonly', 'readonly').removeClass('csillag').removeClass('mod');
-            $('#netto'   ).removeAttr('readonly');
+            $('#dev_net'        ).val('0,00').attr('readonly', 'readonly').removeClass('csillag').removeClass('mod');
+            $('#arfolyam'       ).val('0,00').attr('readonly', 'readonly').removeClass('csillag').removeClass('mod');
+            $('#kiszall'        ).attr('data-tort', '0').removeClass('nincs_tobb_blurozas').blur();
+            $('#beuzemel'       ).attr('data-tort', '0').removeClass('nincs_tobb_blurozas').blur();
+            $('#munkadij'       ).attr('data-tort', '0').removeClass('nincs_tobb_blurozas').blur();
+            $('#egyeb_koltseg'  ).attr('data-tort', '0').removeClass('nincs_tobb_blurozas').blur();
+            $('#netto'          ).removeAttr('readonly');
             if( $('#szallito_id').val() ) {
                 $('#netto'   ).addClass('csillag');
             }
         } else if( $('#kcs_21_autocomp').val() ) {
-            $('#dev_net' ).removeAttr('readonly').addClass('csillag');
-            $('#arfolyam').removeAttr('readonly').addClass('csillag');
-            $('#netto'   ).attr('readonly', 'readonly').removeClass('csillag').removeClass('mod');
+            $('#dev_net'        ).removeAttr('readonly').addClass('csillag');
+            $('#arfolyam'       ).removeAttr('readonly').addClass('csillag');
+            $('#kiszall'        ).attr('data-tort', '2').removeClass('nincs_tobb_blurozas').blur();
+            $('#beuzemel'       ).attr('data-tort', '2').removeClass('nincs_tobb_blurozas').blur();
+            $('#munkadij'       ).attr('data-tort', '2').removeClass('nincs_tobb_blurozas').blur();
+            $('#egyeb_koltseg'  ).attr('data-tort', '2').removeClass('nincs_tobb_blurozas').blur();
+            $('#netto'          ).attr('readonly', 'readonly').removeClass('csillag').removeClass('mod');
         }
         tabindex_beallit();
     }
@@ -29,14 +38,14 @@ function huf_vagy_deviza() {
 
 // Nettó mezőket, árfolyamot, devizákat átszámol
 function nettokat_atszamol() {
-    var igmen    = Number($('#igmen'   ).val().replace(/ /g, '').replace(/,/g, '.'));
+    var igmen = Number($('#igmen').val().replace(/ /g, '').replace(/,/g, '.'));
     if( $('#kcs_21_autocomp').val()!='HUF' ) {
         var dev_net  = Number($('#dev_net' ).val().replace(/ /g, '').replace(/,/g, '.'));
         var arfolyam = Number($('#arfolyam').val().replace(/ /g, '').replace(/,/g, '.'));
         $('#netto'   ).val( ezresek(Math.round(dev_net*arfolyam), 0, ',', ' ', '-nullát is kiír-') );
         $('#ossz_dev').val( ezresek(igmen*dev_net,                2, ',', ' ', '-nullát is kiír-') );
     }
-    
+
     var netto = Number($('#netto').val().replace(/ /g, '').replace(/,/g, '.'));
     $('#ossz_netto').val( ezresek(Math.round(igmen*netto), 0, ',', ' ', '-nullát is kiír-') );
 }
@@ -105,7 +114,11 @@ function muszakilag_nem_erintett(mehet) {
                     // Megjegyzések számát is, mert ha volt értesítés küldés, akkor bővülthetett
                     $('.gombok_'        +eszkoz_id  ).data('megj_db', response.megj_db    );
                     // Fülön is
-                    $('#szamlaFulek a[data-oldal="megjegyzesek"]').html('Megjegyzések ('+response.megj_db+')');
+                    let megj_ful_txt = 'Megjegyzések';
+                    if( response.megj_db>0 ) {
+                        megj_ful_txt = 'Megjegyzések ('+response.megj_db+')';
+                    }
+                    $('#szamlaFulek a[data-oldal="megjegyzesek"]').html(megj_ful_txt);
 
                     // Ha a mehet a '-tervezett-' igénylés miatt volt kitöltve, akkor lépünk a következő sorra. 
                     if( mehet == '-tervezett-' ) {
@@ -234,7 +247,11 @@ function szall_igazgato_jovahagy(mehet) {
                     // Megjegyzések számát is, mert ha volt értesítés küldés, akkor bővülthetett
                     $('.gombok_'        +eszkoz_id  ).data('megj_db', response.megj_db    );
                     // Fülön is
-                    $('#szamlaFulek a[data-oldal="megjegyzesek"]').html('Megjegyzések ('+response.megj_db+')');
+                    let megj_ful_txt = 'Megjegyzések';
+                    if( response.megj_db>0 ) {
+                        megj_ful_txt = 'Megjegyzések ('+response.megj_db+')';
+                    }
+                    $('#szamlaFulek a[data-oldal="megjegyzesek"]').html(megj_ful_txt);
 
                     // Ha a mehet a '-tervezett-' igénylés miatt volt kitöltve, akkor lépünk a következő sorra. 
                     if( mehet == '-tervezett-' ) {
@@ -366,12 +383,20 @@ function bi_jovahagy(mehet, kikuld = '') {
                     // Dokumentumok számát is, mert ha nem tervezett volt, akkor új dokumentummal is bővülthetett
                     $('.gombok_'        +eszkoz_id  ).data('dok_db', response.dok_db    );
                     // Fülön is
-                    $('#szamlaFulek a[data-oldal="dokumentumok"]').html('Dokumentumok ('+response.dok_db+')');
+                    let dok_ful_txt = 'Dokumentumok';
+                    if( response.megj_db>0 ) {
+                        dok_ful_txt = 'Dokumentumok ('+response.dok_db+')';
+                    }
+                    $('#szamlaFulek a[data-oldal="dokumentumok"]').html(dok_ful_txt);
 
                     // Megjegyzések számát is, mert ha volt értesítés küldés, akkor bővülthetett
                     $('.gombok_'        +eszkoz_id  ).data('megj_db', response.megj_db    );
                     // Fülön is
-                    $('#szamlaFulek a[data-oldal="megjegyzesek"]').html('Megjegyzések ('+response.megj_db+')');
+                    let megj_ful_txt = 'Megjegyzések';
+                    if( response.megj_db>0 ) {
+                        megj_ful_txt = 'Megjegyzések ('+response.megj_db+')';
+                    }
+                    $('#szamlaFulek a[data-oldal="megjegyzesek"]').html(megj_ful_txt);
 
                     // Ha a mehet a '-tervezett-' igénylés miatt volt kitöltve, akkor lépünk a következő sorra. 
                     if( mehet == '-tervezett-' ) {
@@ -497,7 +522,11 @@ function szak_beleegyezes(mehet) {
                     // Megjegyzések számát is, mert ha volt értesítés küldés, akkor bővülthetett
                     $('.gombok_'        +eszkoz_id  ).data('megj_db', response.megj_db    );
                     // Fülön is
-                    $('#szamlaFulek a[data-oldal="megjegyzesek"]').html('Megjegyzések ('+response.megj_db+')');
+                    let megj_ful_txt = 'Megjegyzések';
+                    if( response.megj_db>0 ) {
+                        megj_ful_txt = 'Megjegyzések ('+response.megj_db+')';
+                    }
+                    $('#szamlaFulek a[data-oldal="megjegyzesek"]').html(megj_ful_txt);
 
                     // Ha a mehet a '-tervezett-' igénylés miatt volt kitöltve, akkor lépünk a következő sorra. 
                     if( mehet == '-tervezett-' ) {
@@ -624,12 +653,20 @@ function felso_beleegyezes(mehet) {
                     // Dokumentumok számát is, mert ha nem tervezett volt, akkor új dokumentummal is bővülthetett
                     $('.gombok_'        +eszkoz_id  ).data('dok_db', response.dok_db    );
                     // Fülön is
-                    $('#szamlaFulek a[data-oldal="dokumentumok"]').html('Dokumentumok ('+response.dok_db+')');
+                    let dok_ful_txt = 'Dokumentumok';
+                    if( response.megj_db>0 ) {
+                        dok_ful_txt = 'Dokumentumok ('+response.dok_db+')';
+                    }
+                    $('#szamlaFulek a[data-oldal="dokumentumok"]').html(dok_ful_txt);
 
                     // Megjegyzések számát is, mert ha volt értesítés küldés, akkor bővülthetett
                     $('.gombok_'        +eszkoz_id  ).data('megj_db', response.megj_db    );
                     // Fülön is
-                    $('#szamlaFulek a[data-oldal="megjegyzesek"]').html('Megjegyzések ('+response.megj_db+')');
+                    let megj_ful_txt = 'Megjegyzések';
+                    if( response.megj_db>0 ) {
+                        megj_ful_txt = 'Megjegyzések ('+response.megj_db+')';
+                    }
+                    $('#szamlaFulek a[data-oldal="megjegyzesek"]').html(megj_ful_txt);
 
                     // Ha a mehet a '-tervezett-' igénylés miatt volt kitöltve, akkor lépünk a következő sorra. 
                     if( mehet == '-tervezett-' ) {
@@ -761,7 +798,11 @@ function bi_vegl_jovahagy(mehet) {
                     // Megjegyzések számát is, mert ha volt értesítés küldés, akkor bővülthetett
                     $('.gombok_'        +eszkoz_id  ).data('megj_db', response.megj_db    );
                     // Fülön is
-                    $('#szamlaFulek a[data-oldal="megjegyzesek"]').html('Megjegyzések ('+response.megj_db+')');
+                    let megj_ful_txt = 'Megjegyzések';
+                    if( response.megj_db>0 ) {
+                        megj_ful_txt = 'Megjegyzések ('+response.megj_db+')';
+                    }
+                    $('#szamlaFulek a[data-oldal="megjegyzesek"]').html(megj_ful_txt);
 
                     // Ha a mehet a '-tervezett-' igénylés miatt volt kitöltve, akkor lépünk a következő sorra. 
                     if( mehet == '-tervezett-' ) {

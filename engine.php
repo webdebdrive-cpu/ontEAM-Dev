@@ -2463,7 +2463,8 @@ function sql_ertek($ertek, $script = false) {
     if( strpos($ertek, '<script') !== false || strpos($ertek, '<form') !== false ) {
         $ertek = '';
     }
-    $ertek = strip_tags($ertek);
+    // Ezt meg azért kellett mégis kivenni, mert van hogy kell HTML kódot eltárolni (pl. adatmódosításnál mező előző értéke új érték)
+    // $ertek = strip_tags($ertek);
 
     if( get_magic_quotes_gpc() ) {
         $ertek = stripslashes($ertek);

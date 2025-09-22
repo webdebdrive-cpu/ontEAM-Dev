@@ -50,6 +50,8 @@ $weblap -> indit();
 if(     !$_SESSION['kert_url']                                                  &&
         dirname($_SERVER['REQUEST_URI']) != '/andoc2'                           &&
         substr(basename($_SERVER['REQUEST_URI']), 0, 16)!='autocomplete.php'    &&
+        substr(basename($_SERVER['REQUEST_URI']), 0, 13)!='esemenyek.php'       &&
+        substr(basename($_SERVER['REQUEST_URI']), 0, 14)!='beleptetes.php'      &&
         strpos($_SERVER['REQUEST_URI'], '&no_lista=1') === false                &&
         strpos($_SERVER['REQUEST_URI'], '&sql_db') === false
     ) {
@@ -192,4 +194,77 @@ if( ($_GET['id'] && isset($_GET['modosit']) && !isset($_GET['no_lista'])) || (in
     $_SESSION[basename(self())]['szures_mezo'] = $_GET['mezo'];
     $_SESSION[basename(self())]['szures_op']   = $_GET['op'];
     $_SESSION[basename(self())]['szures_felt'] = $_GET['felt'];
+}
+
+$statusz_nelkul     = ['szallito_beszerzes'];
+$telephely_nelkul   = ['szallito_beszerzes'];
+// Tesztelés adatok lekérdezése
+if (isset($_POST['teszteles_adatok'])) {
+
+    $felhasznalo = $adatbazis_kapcsolat->s2('szemelyzet_id', 'login', "`nev`='{$_SESSION[get_db_tabla().'user']}'", '', '1');
+    $statusz = '';
+    if( !in_array($_POST['modul'], $statusz_nelkul) ) {
+        // weblap.php-t meghívva az admin mappával kell behívni a statusz_text.php-t
+        require_once(get_admin().'statusz_text.php');
+        $stat_id = $adatbazis_kapcsolat -> s2('stat_id', $_POST['modul'], "`recid`='{$_POST['id']}'");
+        $statusz = getStatText($_POST['modul'], $stat_id['stat_id']);
+    }
+    if( !in_array($_POST['modul'], $telephely_nelkul) ) {
+        $modul = $adatbazis_kapcsolat -> s2('telephely_id', $_POST['modul'], "`recid`='{$_POST['id']}'");
+    }
+
+    echo json_encode(array(
+                            'nev'       => $_SESSION[get_db_tabla().'teljes_nev'],
+                            'szerepkor' => getSzerepkorNev($felhasznalo['szemelyzet_id']),
+                            'statusz'   => $statusz,
+                            'telephely' => getSzallodaNev($modul['telephely_id']),
+                            'datum'     => date('Y.m.d H:i'),
+                     ));
+
+    $weblap -> leallit();
+    exit;
+}
+//  Tesztelés adatok mentése
+if (isset($_POST['teszteles_rogzit'])) {
+
+    $teszt_id = $teszteles_recid = $adatbazis_kapcsolat -> i('teszteles',   array('modul',          'modul_nev',          'modul_recid',    'text',           'insert_dt',    'insert_usr',                             'update_usr'                          ),
+                                                                            array($_POST['modul'],  $_POST['modul_nev'],  $_POST['id'],     $_POST['text'],   'NOW()',        $_SESSION[get_db_tabla().'teljes_nev'],   $_SESSION[get_db_tabla().'teljes_nev'])
+                                                );
+    if( !in_array($_POST['modul'], $statusz_nelkul) ) {
+        $modul = $adatbazis_kapcsolat -> s2('stat_id', $_POST['modul'], "`recid`='{$_POST['id']}'");
+        $adatbazis_kapcsolat -> u('teszteles', array('stat_id'), array($modul['stat_id']), "`recid`='{$teszt_id}'");
+    }
+    if( !in_array($_POST['modul'], $telephely_nelkul) ) {
+        $modul = $adatbazis_kapcsolat -> s2('telephely_id', $_POST['modul'], "`recid`='{$_POST['id']}'");
+        $adatbazis_kapcsolat -> u('teszteles', array('telephely_id'), array($modul['telephely_id']), "`recid`='{$teszt_id}'");
+    }
+    $engedelyezett_kit = ['jpg', 'png', 'jpeg', 'webp'];
+    if( !is_dir(get_utvonal().'teszteles/') ) {
+        mkdir(get_utvonal().'teszteles/');
+    }
+    if( !is_dir(get_utvonal().'teszteles/'.date('Y').'/') ) {
+        mkdir(get_utvonal().'teszteles/'.date('Y').'/');
+    }
+    if( !is_dir(get_utvonal().'teszteles/'.date('Y').'/'.date('m').'/') ) {
+        mkdir(get_utvonal().'teszteles/'.date('Y').'/'.date('m').'/');
+    }
+
+    for ( $i = 0; $i < count($_FILES['files']['name']); $i++ ) {
+        $pathinfo = pathinfo($_FILES['files']['name'][$i]);
+        $pathinfo['extension'] = strtolower($pathinfo['extension']);
+        if( in_array($pathinfo['extension'], $engedelyezett_kit) ) {
+            $utvonal = 'teszteles/'.date('Y').'/'.date('m').'/'.time().'_'.($i+1).'.'.$pathinfo['extension'];
+
+            if ( move_uploaded_file($_FILES['files']['tmp_name'][$i], get_utvonal().$utvonal) ) {
+                $adatbazis_kapcsolat -> i('teszteles_dok',  array('teszteles_recid', 'utvonal', 'fajlnev',                      'insert_dt',    'insert_usr',                             'update_usr'                          ),
+                                                            array($teszteles_recid,  $utvonal,  $_FILES['files']['name'][$i],   'NOW()',        $_SESSION[get_db_tabla().'teljes_nev'],   $_SESSION[get_db_tabla().'teljes_nev'])
+                                            );
+            }
+        }
+    }
+
+    echo json_encode( array('ok' => 1) );
+
+    $weblap -> leallit();
+    exit;
 }

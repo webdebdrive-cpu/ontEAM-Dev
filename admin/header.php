@@ -603,11 +603,12 @@ if( _jog(JOG_BESZERZ_IGENYLESEK_OLVAS) || _jog(JOG_BESZERZ_IGENYLESEK_MEGR_OLVAS
     $menu_nev_kis    = 'beszerzés';
     $menu_nev_tobbes = 'Beszerzés';
     $megn            = 'beszerzesi_idoszak';
-    $aloldalak       = array($megn.'.php', 'eszkozigenyles.php?tablazat', 'eszkozigenyles_megr.php', 'szallito_beszerzes.php');
+    $aloldalak       = array($megn.'.php', 'eszkozigenyles.php?tablazat', 'eszkozigenyles_megr.php', 'szallito_beszerzes.php', 'teszteles.php');
     if(basename(self())==$megn.'.php' && isset($_GET['modosit'])){ $navi = $menu_nev.' szerkesztése'; }
     if(basename(self())=='eszkozigenyles.php'     )  { $oldalNev = 'Beszerzés / <span id="rekord_neve">Eszközigénylések</span><span class="dn" id="rekord_neve_egyes">eszközigénylés</span><span class="dn" id="rekord_neve_targy">eszközigénylést</span>'; }
     if(basename(self())=='eszkozigenyles_megr.php')  { $oldalNev = 'Beszerzés / <span id="rekord_neve">Megrendelések</span><span class="dn" id="rekord_neve_egyes">megrendelék</span><span class="dn" id="rekord_neve_targy">megrendelést</span>'; }
     if(basename(self())=='szallito_beszerzes.php')   { $oldalNev = 'Beszerzés / <span id="rekord_neve">Beszerzés szállítók</span><span class="dn" id="rekord_neve_egyes">beszerzés szállítók</span><span class="dn" id="rekord_neve_targy">beszerzés szállítót</span>';           }
+    if(basename(self())=='teszteles.php')            { $oldalNev = 'Beszerzés / <span id="rekord_neve">Tesztelés</span><span class="dn" id="rekord_neve_egyes">tesztelés</span><span class="dn" id="rekord_neve_targy">tesztelést</span>';           }
                                                     
     $aktmenuk  = '';
     if( _jog(JOG_BESZERZ_IGENYLESEK_OLVAS) ) {
@@ -619,9 +620,12 @@ if( _jog(JOG_BESZERZ_IGENYLESEK_OLVAS) || _jog(JOG_BESZERZ_IGENYLESEK_MEGR_OLVAS
     if( _jog(JOG_BESZ_SZALL_OLVAS) ) {
         $aktmenuk .= str_replace( $akt_almenu_mit, array( $aloldalak['3'], 'Beszerzés szállítók'), $almenu_sablon );
     }
+    if( _jog(JOG_BESZERZ_IGENYLESEK_OLVAS) || _jog(JOG_BESZERZ_IGENYLESEK_MEGR_OLVAS) || _jog(JOG_BESZ_SZALL_OLVAS) ) {
+        $aktmenuk .= str_replace( $akt_almenu_mit, array( $aloldalak['4'], 'Tesztelés'), $almenu_sablon );
+    }
 
     $style = '';
-    $menu_hover = array('eszkozigenyles.php', 'eszkozigenyles_megr.php', 'szallito_beszerzes.php');
+    $menu_hover = array('eszkozigenyles.php', 'eszkozigenyles_megr.php', 'szallito_beszerzes.php', 'teszteles.php');
     if( in_array(basename(self()), $menu_hover) ) {
         $style = ' class="hover{STYLE_KIEG}"';
     }
@@ -638,7 +642,7 @@ if( _jog(JOG_BESZERZ_IGENYLESEK_OLVAS) || _jog(JOG_BESZERZ_IGENYLESEK_MEGR_OLVAS
         }
     }
 
-    $menuk   .= str_replace( $akt_menu_mit, array( $style, '#', $megn, $menu_nev_tobbes, $aktmenuk ), $menu_sablon );
+    $menuk .= str_replace( $akt_menu_mit, array( $style, '#', $megn, $menu_nev_tobbes, $aktmenuk ), $menu_sablon );
 }
 
 
@@ -816,7 +820,7 @@ if( in_array(basename(self()), $_SESSION['ketHasabos']) && $_SESSION[get_db_tabl
 }
 
 // Anyagigénylésnél a bal navpanelt elrejtük, itt helyette egy táblázatos fül van Anyagrend mod: 2018.04
-$bal_nav_mentes = array('anyagigenyles.php', 'cash_flow.php', 'eszkozigenyles.php', 'szamla.php', 'vendegejszakak.php');
+$bal_nav_mentes = array('anyagigenyles.php', 'cash_flow.php', 'eszkozigenyles.php', 'szamla.php', 'teszteles.php', 'vendegejszakak.php');
 if( in_array(basename(self()), $bal_nav_mentes) ) {
     $tbalw  = ' style="width: 0px;"';
     $tjobbw = ' style="width: 100%"';
@@ -1011,6 +1015,9 @@ if( in_array(basename(self()), $_SESSION['ketHasabos']) && $_SESSION[get_db_tabl
 
     } elseif( basename(self()) == 'eszkozigenyles.php' && !isset($_GET['megjegyzesek']) && !_jog(JOG_BESZERZ_IGENYLESEK_LETREH) ) {
         $uj_link = 'javascript: alert2(\'Önnek nincs joga új igénylést létrehozni!\', \'\', \'Hiba\'); void(0);';
+        
+    } elseif( basename(self()) == 'eszkozigenyles_megr.php' ) {
+        $uj_link = 'javascript: kapcsolodoSzerkeszt(\'megjegyzes\'); void(0);';
 
     } elseif( basename(self()) == 'eszkozkezeles.php' && isset($_GET['megjegyzesek']) ) {
         $uj_link = 'javascript: kapcsolodoSzerkeszt(\'megjegyzes\'); void(0);';
@@ -1217,41 +1224,41 @@ if( in_array($tabla_nev, $disabled_tablak) ) {
     $uj = $duplikal = $torles_icon = '';
 }
 
-if( self('-basename-') == 'energia_szamla.php' ) {
+if( self('-bn-') == 'energia_szamla.php' ) {
     $duplikal = $torles_icon = '';
 }
-if( self('-basename-') == 'energia_szamla.php' && !_jog(JOG_ENERGIA_SZAMLAK_KEZEL) ) {
+if( self('-bn-') == 'energia_szamla.php' && !_jog(JOG_ENERGIA_SZAMLAK_KEZEL) ) {
     $uj = '';
 }
-if( self('-basename-') == 'fenntartasi_szamla.php' || basename(self()) == 'megallapodas_szamla.php' ) {
+if( self('-bn-') == 'fenntartasi_szamla.php' || basename(self()) == 'megallapodas_szamla.php' ) {
     $duplikal = $torles_icon = '';
 }
-if( self('-basename-') == 'fenntartasi_szamla.php' && !_jog(JOG_FENNTARTASI_SZAMLAK_KEZEL) ) {
+if( self('-bn-') == 'fenntartasi_szamla.php' && !_jog(JOG_FENNTARTASI_SZAMLAK_KEZEL) ) {
     $uj = '';
 }
-if( self('-basename-') == 'fenntartasi_szerzodes.php' && !_jog(JOG_FENNTARTASI_SZERZ_KEZEL) ) {
+if( self('-bn-') == 'fenntartasi_szerzodes.php' && !_jog(JOG_FENNTARTASI_SZERZ_KEZEL) ) {
     $uj = '';
 }
-if( self('-basename-') == 'fenntartasi_terv.php' ) {
+if( self('-bn-') == 'fenntartasi_terv.php' ) {
     $duplikal = '';
 }
-if( self('-basename-') == 'megallapodas_szamla.php' && !_jog(JOG_MEGALLAPODAS_SZAMLA_KEZEL) ) {
+if( self('-bn-') == 'megallapodas_szamla.php' && !_jog(JOG_MEGALLAPODAS_SZAMLA_KEZEL) ) {
     $uj = '';
 }
-if( self('-basename-') == 'megallapodas.php' && !_jog(JOG_MEGALLAPODAS_KEZEL) ) {
+if( self('-bn-') == 'megallapodas.php' && !_jog(JOG_MEGALLAPODAS_KEZEL) ) {
     $uj = '';
 }
-if( self('-basename-') == 'anyagigenyles.php' && !_jog(JOG_ANYAGIGENYLES_KEZEL) ) {
+if( self('-bn-') == 'anyagigenyles.php' && !_jog(JOG_ANYAGIGENYLES_KEZEL) ) {
     $torles_icon    = '';
 }
-if( self('-basename-') == 'megallapodas.php' ) {
+if( self('-bn-') == 'megallapodas.php' ) {
     $duplikal = '';
 }
 // Anyagrendelés alatt nincs új felvitel
-if( self('-basename-') == 'anyagigenyles.php' && isset($_GET['anyagrend']) ) {
+if( self('-bn-') == 'anyagigenyles.php' && isset($_GET['anyagrend']) ) {
     $uj = $duplikal = '';
 }
-if( self('-basename-') == 'anyagigenyles.php' && !isset($_GET['megjegyzesek']) && !_jog(JOG_ANYAGIGENYLES_KEZEL) ) {
+if( self('-bn-') == 'anyagigenyles.php' && !isset($_GET['megjegyzesek']) && !_jog(JOG_ANYAGIGENYLES_KEZEL) ) {
     $duplikal = nl2('
         <a class="duplikal" title="Duplikálás" onclick="javascript: alert2(\'Önnek nincs jogosultsága anyagigénylést duplikálni!\', \'\', \'Hiba\'); void(0);">
             <i class="material-icons">queue</i>
@@ -1260,102 +1267,133 @@ if( self('-basename-') == 'anyagigenyles.php' && !isset($_GET['megjegyzesek']) &
 }
 
 // Anyag számlánál az új ikonnak látható, de törlés nincs
-if( self('-basename-') == 'anyag_szamla.php' && !_jog(JOG_ANYAG_SZAMLAK_KEZEL) ) {
+if( self('-bn-') == 'anyag_szamla.php' && !_jog(JOG_ANYAG_SZAMLAK_KEZEL) ) {
     $uj = '';
 }
-if( self('-basename-') == 'anyag_szamla.php' ) {
+if( self('-bn-') == 'anyag_szamla.php' ) {
     $duplikal = $torles_icon = '';
 }
 
-if( self('-basename-')=='bejelentes.php' && (!_jog(JOG_BEJELENTES_KEZEL)) && !_jog(JOG_BEJELENTES_MAS_NEVEBEN)){
+if( self('-bn-')=='bejelentes.php' && (!_jog(JOG_BEJELENTES_KEZEL)) && !_jog(JOG_BEJELENTES_MAS_NEVEBEN)){
     $uj = $duplikal = '';
 }
 
-if( self('-basename-') == 'bejelentes.php' && !_jog(JOG_BEJELENTES_TORLESE) ) {
+if( self('-bn-') == 'bejelentes.php' && !_jog(JOG_BEJELENTES_TORLESE) ) {
     $torles_icon    = '';
 }
 
-if( self('-basename-') == 'beosztas.php' && !_jog(JOG_BEOSZTASOK_KEZEL) && !_jog(JOG_MSZK_BEOSZTAS_KEZEL) ) {
+if( self('-bn-') == 'beosztas.php' && !_jog(JOG_BEOSZTASOK_KEZEL) && !_jog(JOG_MSZK_BEOSZTAS_KEZEL) ) {
     $torles_icon = $uj = $duplikal = '';
 }
 
-if( ( self('-basename-') == 'beosztas_muszak.php' || self('-basename-') == 'beosztas_unnepnapok.php') && !_jog(JOG_BEOSZTASOK_KEZEL) && !_jog(JOG_MSZK_BEOSZTAS_KEZEL) ) {
+if( ( self('-bn-') == 'beosztas_muszak.php' || self('-bn-') == 'beosztas_unnepnapok.php') && !_jog(JOG_BEOSZTASOK_KEZEL) && !_jog(JOG_MSZK_BEOSZTAS_KEZEL) ) {
     $torles_icon = $uj = $duplikal = '';
 }
 
-if( self('-basename-') == 'cash_flow.php' ) {
+if( self('-bn-') == 'cash_flow.php' ) {
     $torles_icon = $uj = $duplikal = '';
 }
 
-if( self('-basename-') == 'cikktorzs.php' && !_jog(JOG_CIKKTORZS_KEZEL) ) {
+if( self('-bn-') == 'cikktorzs.php' && !_jog(JOG_CIKKTORZS_KEZEL) ) {
     $torles_icon    = '';
     $uj = $duplikal = '';
 }
 
-if( self('-basename-') == 'dokumentumtar.php' && !_jog(JOG_DOKUMENTUMTAR_KEZEL) ) {
+if( self('-bn-') == 'dokumentumtar.php' && !_jog(JOG_DOKUMENTUMTAR_KEZEL) ) {
     $torles_icon    = '';
     $uj = $duplikal = '';
 }
 
 // Energia tervezés alatt elrejtjük a duplikálást
-if( self('-basename-')=='energia_terv.php' ) {
+if( self('-bn-')=='energia_terv.php' ) {
     $duplikal = '';
 }
-if( self('-basename-')=='energia_terv.php' &&  !_jog(JOG_ENERGIA_EGYSEGAR_KEZEL)) {
+if( self('-bn-')=='energia_terv.php' &&  !_jog(JOG_ENERGIA_EGYSEGAR_KEZEL)) {
     $torles_icon    = '';
     $uj = $duplikal = '';
 }
 
-if( self('-basename-') == 'eloterj_bod.php' && !_jog(JOG_ELOTERJ_KEZEL) ) {
+if( self('-bn-') == 'eloterj_bod.php' && !_jog(JOG_ELOTERJ_KEZEL) ) {
     $torles_icon    = '';
     $uj = $duplikal = '';
 }
 
-if( self('-basename-') == 'eloterj_fb.php' && !_jog(JOG_ELOTERJ_KEZEL) ) {
+if( self('-bn-') == 'eloterj_fb.php' && !_jog(JOG_ELOTERJ_KEZEL) ) {
     $torles_icon    = '';
     $uj = $duplikal = '';
 }
 
-if( self('-basename-') == 'erteklista.php' && !_jog(JOG_ERTEKLISTAK_KEZEL) ) {
+if( self('-bn-') == 'erteklista.php' && !_jog(JOG_ERTEKLISTAK_KEZEL) ) {
     $torles_icon    = '';
     $uj = $duplikal = '';
 }
 
-if( self('-basename-') == 'szerepkor.php' && !_jog(JOG_SZEREPKOR_KEZEL) ) {
+if( self('-bn-') == 'szerepkor.php' && !_jog(JOG_SZEREPKOR_KEZEL) ) {
     $torles_icon    = '';
     $uj = $duplikal = '';
 }
 
 // Eseti fenntartás
-if( self('-basename-') == 'eseti_fenntartas.php' && !_jog(JOG_ESETI_FENN_KEZEL) ) {
+if( self('-bn-') == 'eseti_fenntartas.php' && !_jog(JOG_ESETI_FENN_KEZEL) ) {
     $uj = $duplikal = '';
 }
-if( self('-basename-') == 'eseti_fenntartas.php' && !_jog(JOG_ESETI_FENN_TOROL) ) {
+if( self('-bn-') == 'eseti_fenntartas.php' && !_jog(JOG_ESETI_FENN_TOROL) ) {
     $torles_icon    = '';
 }
 
-if( self('-basename-') == 'eszkozkezeles.php' && !_jog(JOG_ESZKOZ_KEZEL) ) {
+if( self('-bn-') == 'eszkozkezeles.php' && !_jog(JOG_ESZKOZ_KEZEL) ) {
     $torles_icon    = '';
     $uj = $duplikal = '';
 }
 
-if( self('-basename-') == 'eszkozigenyles.php' && !_jog(JOG_BESZERZ_IGENYLESEK_LETREH) ) {
-    $uj = $duplikal = '';
+if( self('-bn-') == 'eszkozigenyles.php' ) {
+    // Ha nincs új létrehozás jog, akkor nincs duplikálás gomb
+    if( !_jog(JOG_BESZERZ_IGENYLESEK_LETREH) ) {
+        $duplikal = '';
+        // Viszont új ikon lehet, mert lehet megjegyzés alatt vagyunk és megjegyzést írhat, szóval ezt máshol kell lekezelni
+        // $uj = '';
+    }
 }
-if( self('-basename-') == 'eszkozigenyles.php' && !_jog(JOG_BESZERZ_IGENYLESEK_TOROL) ) {
+if( self('-bn-') == 'eszkozigenyles.php' && !_jog(JOG_BESZERZ_IGENYLESEK_TOROL) ) {
     $torles_icon = '';
 }
 // Megrendelés nem törölhető
-if( self('-basename-') == 'eszkozigenyles_megr.php' ) {
-    $uj = $duplikal = $torles_icon = '';
+if( self('-bn-') == 'eszkozigenyles_megr.php' ) {
+    $duplikal = $torles_icon = '';
+}
+// Tesztelés funkció
+if( 
+    (self('-bn-') == 'eszkozigenyles.php'      && _jog(JOG_BESZERZ_IGENYLESEK_OLVAS     ) ) ||
+    (self('-bn-') == 'eszkozigenyles_megr.php' && _jog(JOG_BESZERZ_IGENYLESEK_MEGR_OLVAS) ) ||
+    (self('-bn-') == 'szallito_beszerzes.php'  && _jog(JOG_BESZ_SZALL_OLVAS             ) )
+) {
+    // Azért dn, mert megvárjuk, míg biztosan van $_GET['id'] adatunk, és csak ez után jelenítjük meg. 
+    $uj = nl2('
+            <a class="teszteles dn" href="javascript:csoportMuvelet(\'teszteles\')">
+                Tesztelek
+            </a>
+            <script>
+            var ellenorzes_i = 0;
+            var ellenorzo = setInterval(function () {
+                if (_get(\'id\') ) {
+                    $(\'.teszteles\').removeClass(\'dn\');
+                    clearInterval(ellenorzo);
+                }
+                /* Biztonság kedvéért... egy idő után abbahagyjuk */
+                if( ellenorzes_i>100 ) {
+                    clearInterval(ellenorzo);
+                }
+            }, 300);
+            </script>
+    ').$uj;
 }
 
-if( self('-basename-') == 'felmeresi_terv.php' && !_jog(JOG_FT_KEZEL) ) {
+if( self('-bn-') == 'felmeresi_terv.php' && !_jog(JOG_FT_KEZEL) ) {
     $torles_icon    = '';
     $uj = $duplikal = '';
 }
 
-if( self('-basename-') == 'fenntartasi_terv.php' ) {
+if( self('-bn-') == 'fenntartasi_terv.php' ) {
     if( !_jog(JOG_FENNTARTASI_SAJAT_SZ_KEZEL) ) {
         $uj = $duplikal = '';
     }
@@ -1367,14 +1405,14 @@ if( self('-basename-') == 'fenntartasi_terv.php' ) {
 }
 
 // Felhasználóknál a törlés gomb sosem látszik.
-if( self('-basename-') == 'login.php'/* Ez valszeg kelleni fog, rákérdeztem && !isset($_GET['szallodak'])*/){
+if( self('-bn-') == 'login.php'/* Ez valszeg kelleni fog, rákérdeztem && !isset($_GET['szallodak'])*/){
     $torles_icon    = '';
 }
-if( self('-basename-') == 'login.php' && !_jog(JOG_FELHASZNALOK_KEZEL) ) {
+if( self('-bn-') == 'login.php' && !_jog(JOG_FELHASZNALOK_KEZEL) ) {
     $uj = $duplikal = '';
 }
 
-if( self('-basename-') == 'munkalap.php' ) {
+if( self('-bn-') == 'munkalap.php' ) {
     if( !_jog(JOG_MUNKALAP_TOROL) ) {
         $torles_icon    = '';
     }
@@ -1465,7 +1503,7 @@ if( basename(self()) == 'torzsadat.php' ) {
     $torles_icon = $uj = $duplikal = '';
 }
 
-if( self('-basename-') == 'vendegejszakak.php' ) {
+if( self('-bn-') == 'vendegejszakak.php' ) {
     $torles_icon = $uj = $duplikal = '';
 }
 
@@ -1598,6 +1636,11 @@ if( in_array(basename(self()), $nincs_nyomtatas_ikon) ){
 $nincs_export_ikon = array('szamla.php');
 if( in_array(basename(self()), $nincs_export_ikon) ){
     $export_ikon = '';
+}
+
+if( basename(self()) == 'teszteles.php' ) {
+    $kereso = $rendezes = $rend_irany = $szures = $uj = $duplikal = $torles_icon = $nyomtatas_ikon = $export_ikon = $mail = $lepteto_ikonok = '';
+    $rendezes_rejt = ' dn';
 }
 
 $get_get = get_get(array('pdf'));

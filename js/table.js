@@ -43,7 +43,6 @@ $(function() {
             
             // Eszközigényléseknél az oszlopok mozgatása után az aktív cella oszlopindexét frissíteni kell a cookie-ban
             if( baseName(location.href) == 'eszkozigenyles' ) {
-                console.log($('td.aktiv').index());
                 createCookie('eszkozigeny_aktiv_oszl', $('td.aktiv').index());
             }
 
@@ -381,13 +380,21 @@ $(function() {
         }
     });
 
-
-    fejlec_igazit($('.sar-table'));
-    $(window).resize(function() {
+    // CSAK akkor, ha táblázat nézetben vagyunk. Ha nem akkor az alábbiakkal egyáltalán nem kell foglalkozni. 
+    // Sőt, még gond is volt belőle, hisz a nem látható táblázat szélességei íródtak be adatbázisba, felülírva a korábban beállított fix értékeket.
+    if( isset_get('tablazat') ) {
         fejlec_igazit($('.sar-table'));
-        tablaSorrend ($('.sar-table'));
-        fejlecPozicional();
-    });
+        let resizeTimer;
+        $(window).resize(function() {
+            // Csak akkor fussanak le a dolgok, ha már az átméretezésnek vége
+            clearTimeout(resizeTimer);
+            resizeTimer = setTimeout(function() {
+                fejlec_igazit($('.sar-table'));
+                tablaSorrend($('.sar-table'));
+                fejlecPozicional();
+            }, 300);
+        });
+    }
 });
 
 function tablaSorrend( table ) {
@@ -435,9 +442,11 @@ function tablaSorrend( table ) {
                 tabla        : tabla,
                 sorrend      : JSON.stringify(sorrend),
                 beallitasok  : JSON.stringify(beallitasok),
+                url          : get_get(),
                 tablaSorrend : new Date().getTime()
             },
             success: function(response) {
+// console.log('mentve');
                 if(response.substring(0, 6)=='SESKIL'){ location.href = 'index.php'; }
                 if(response) {
                     response = JSON.parse(response);

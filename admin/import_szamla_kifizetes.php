@@ -115,26 +115,3 @@ if( $_POST /*|| isset($_GET['teszt'])*/ ) {
 } else {
     echo '01 - Nem érkezett postolt adat!';
 }
-
-//if( isset($_GET['teszt']) ) {
-//    echo '
-//        <script src="../js/jquery.js"></script>
-//        <script>
-//            $.ajax({
-//                url: \'import_szamla_kifizetes.php\',
-//                type: \'POST\',
-//                data: {
-//                    valami: \'valami\',
-//                    fuggveny_neve: Date.now()
-//                },
-//                success: function (response) {
-//                    console.log(response);
-//                },
-//                complete: function(xhr) {
-//                    if( xhr.status != 200 ) {
-//                        alert2(xhr.responseText, \'\', \'Hiba\');
-//                    }
-//                }
-//            });
-//        </script>';
-//}

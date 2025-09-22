@@ -106,6 +106,15 @@ if( isset($_GET['value']) && isset($_GET['tabla']) && isset($_GET['oszlop_keres'
             }
         }
 
+        // Eszközigénylés adatlapon ha részlegre szűrünk, akkor csak a 3. szintű elemeket jelenítsük meg
+        if( $_GET['tabla'] == 'te_reszleg' ) {
+            if( $where_sql ) {
+                $where_sql .= " AND `szint`='3'";
+            } else {
+                $where_sql .= " WHERE `szint`='3'";
+            }
+        }
+
         // Login táblában szűrhetünk személyzetre is
         if( $_GET['tabla'] == 'login' && $_GET['szemelyzet_id'] ) {
             if( $where_sql ) {
@@ -165,16 +174,6 @@ if( isset($_GET['value']) && isset($_GET['tabla']) && isset($_GET['oszlop_keres'
                 $where_sql .= " AND `aktiv`='1'";
             } else {
                 $where_sql .= " WHERE `aktiv`='1'";
-            }
-            
-        }
-
-        // Szállítók esetén csak az aktívakat soroljuk fel, kivéve ha az aktívakat színezzük (ekkor nyilván látni is szeretnénk)
-        if( $_GET['tabla'] == 'te_reszleg' && isset($_GET['szulo']) ) {
-            if( $where_sql ) {
-                $where_sql .= " AND `szulo`='{$_GET['szulo']}'";
-            } else {
-                $where_sql .= " WHERE `szulo`='{$_GET['szulo']}'";
             }
             
         }
@@ -249,7 +248,6 @@ if( isset($_GET['value']) && isset($_GET['tabla']) && isset($_GET['oszlop_keres'
 
         }
         
-
         // Energia terv egységárnál nem fontos a recid, de nagyon fontos, hogy az értékek DISTINCT-elve legyenek
         if( $_GET['tabla'] == 'energia_terv_ear' ) {
             $lekerdez = mysqli_query($db_kapcs, 'SELECT DISTINCT `'.implode('`, `', $oszlop_listaz).'` FROM `'.get_db_tabla().$_GET['tabla'].'`'.$where_sql.' ORDER BY `'.$oszlop_keres[0].'`') or die(mysqli_error($db_kapcs));

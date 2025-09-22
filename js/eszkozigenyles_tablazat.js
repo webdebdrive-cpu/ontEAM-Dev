@@ -215,6 +215,11 @@ function akt_oszlop_megjelol_gombok_mutat() {
 
 // Az éppen aktiv cella ha nincs a képernyőben, akkor scrollozzunk oda
 function ugras_aktiv_cellahoz($active) {
+
+    // Ha nem táblázat nézetben vagyunk, akkor nincs is teendő
+    if( !isset_get('tablazat') ) {
+        return false;
+    }
     
     // Scrollozás, ha az aktív cella kikerülne a konténer látható részéből
     let $scrollContainer = $('#tartalomJobb');

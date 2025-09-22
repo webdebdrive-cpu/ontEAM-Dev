@@ -42,6 +42,9 @@ if( isset($_POST['jogokhozzaad']) ) {
     if( !_jog(JOG_FELHASZNALOK_KEZEL) ) {
         exit;
     }
+
+    // A formAdatok JS változoiót frissíteni kell
+    require_once('jogosultsag.php');
     
     $id = $_POST['id'];
     $_POST['jh_ft_ig'] = str_replace(' ', '', $_POST['jh_ft_ig']);
@@ -68,27 +71,65 @@ if( isset($_POST['jogokhozzaad']) ) {
     }
 
     ksort($jogok);
+    $jogok_egyben = implode('', $jogok);
 
     // Log tartalmának beállítása
     $flags = $adatbazis_kapcsolat->s2('flags', 'login', "`recid`='{$id}'");
     if( $flags === false ) { $db_error = true; }
-    $log = 'Előző jogok: '.$flags['flags'].'. Új jogok: '.implode('', $jogok).' Külsős jóváhagyás: '.number_format($_POST['jh_ft_ig'], 0, '', ' ').' '. get_penznem().'-ig';
+    $log = 'Előző jogok: '.$flags['flags'].'. Új jogok: '.$jogok_egyben.' Külsős jóváhagyás: '.number_format($_POST['jh_ft_ig'], 0, '', ' ').' '. get_penznem().'-ig';
+
+    // Eltéréseket számoljuk ki, hogy a megjegyzésekbe bele lehessen írni
+    $a = $flags['flags'];
+    $b = $jogok_egyben;
+    $kulonbsegek = array();
+
+    $hossz = min(strlen($a), strlen($b));
+    for ($i = 0; $i < $hossz; $i++) {
+        if ($a[$i] !== $b[$i]) {
+            $kulonbsegek[] = $i;
+        }
+    }
+
+    $megj_text = '';
+    if( $kulonbsegek ) {
+        $megj_text .= 'Jogosultságok módosításra kerültek:<br>';
+        foreach ($jogosultsagok as $kulcs => $akt_jog) {
+            if( in_array($kulcs, $kulonbsegek) ) {
+
+                $kat_nev = '';
+                foreach ($jogosultsagKatok as $kat_kulcs => $kat) {
+                    if( $kat_kulcs == $akt_jog['kat'] ) {
+                        $kat_nev = $kat['nev'].' / ';
+                        break;
+                    }
+                }
+                $megj_text .= $kat_nev.$akt_jog['nev'].': ';
+                if( substr($flags['flags'], $kulcs, 1) == 0 ) {
+                    $megj_text .= '<b>NEM => IGEN</b>' .'<br>';
+                } else {
+                    $megj_text .= '<b>IGEN => NEM</b>' .'<br>';
+                }
+            }
+        }
+    }
+    // Változások kerüljenek be a megjegyzésekbe is
+    if( addMegj('login', $id, $megj_text) === false ) {
+        $db_error = true;
+    }
 
     // Új jogok letárolása
-    $sql = $adatbazis_kapcsolat -> u('login',   array('flags',              'jh_ft_ig',         'update_usr'                            ),
-                                                array(implode('', $jogok),  $_POST['jh_ft_ig'], $_SESSION[get_db_tabla().'teljes_nev']  ),
+    $sql = $adatbazis_kapcsolat -> u('login',   array('flags',          'jh_ft_ig',         'update_usr'                            ),
+                                                array($jogok_egyben,    $_POST['jh_ft_ig'], $_SESSION[get_db_tabla().'teljes_nev']  ),
                                                 "`recid`='{$id}'");
     if( $sql === false ) { $db_error = true; }
 
     // Logba is eltároljuk
     $sql = $adatbazis_kapcsolat -> i('log',
-                                array( 'felh_id',                               'nev',                                                                                    'valtozas',    'ip'                    ),
-                                array( $_SESSION[get_db_tabla().'login_recid'], $_SESSION[get_db_tabla().'teljes_nev'].' módosította '.$id.' felhasználó jogosultságait', $log,          $_SERVER['REMOTE_ADDR'] )
-                            );
+                                        array( 'felh_id',                               'nev',                                                                                    'valtozas',    'ip'                    ),
+                                        array( $_SESSION[get_db_tabla().'login_recid'], $_SESSION[get_db_tabla().'teljes_nev'].' módosította '.$id.' felhasználó jogosultságait', $log,          $_SERVER['REMOTE_ADDR'] )
+                                    );
     if( $sql === false ) { $db_error = true; }
 
-    // A formAdatok JS változoiót frissíteni kell
-    require_once('jogosultsag.php');
     $i      = 0;
     $jogEll = array();
     foreach ( $jogosultsagok as $jog ) {
@@ -102,10 +143,16 @@ if( isset($_POST['jogokhozzaad']) ) {
     }
     $jogEll['jh_ft_ig'] = $_POST['jh_ft_ig'];
 
+    // Megjegyzések számának lekérdezése, valószínűleg nőtt is  a logolás miatt
+    $login = $adatbazis_kapcsolat -> s2('megj_db', 'login', "`recid`='{$id}'");
+    if( $login === false ) { $db_error = true; }
+
 
     if( !$db_error ) {
         mysqli_commit($db_kapcs);
-        echo json_encode($jogEll);
+        echo json_encode( array('megj_db' => $login['megj_db'],
+                                'jog_ell' => $jogEll,
+                                ) );
     } else {
         mysqli_rollback($db_kapcs);
     }
@@ -1027,7 +1074,9 @@ require_once('selectek.php');
                                                     $(\'#megsem_gomb\').attr(\'disabled\', true);
                                                     
                                                     szurkit_zar();
-                                                    formAdatok = JSON.parse(response);
+                                                    response = JSON.parse(response);
+                                                    formAdatok = response.jog_ell;
+                                                    $(\'a[data-oldal="megjegyzesek"]\').html(\'Megjegyzések (\'+response.megj_db+\')\');
                                                 },
                                                 complete: function(xhr) {
                                                     if( xhr.status != 200 ) {

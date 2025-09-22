@@ -221,10 +221,13 @@ if( basename(self()) == 'eszkozigenyles.php' || basename(self()) == 'eszkozigeny
     array_push($select_besz_tipus, array('name' => '- Válasszon -', 'value' => '' ));
     // Tervezett típusú igénylés egyelőre csak dev-en lehet
     if( $_SERVER['HTTP_HOST']=='dev.onteam.hu' ) {
-        array_push($select_besz_tipus, array('name' => 'Tervezett',     'value' => BESZ_TIP_TERVEZETT   ));
+        $eszkozigenyles_tipus = $adatbazis_kapcsolat -> s('recid nev', 'eszkozigenyles_tipus', "", 'recid');
+    } else {
+        $eszkozigenyles_tipus = $adatbazis_kapcsolat -> s('recid nev', 'eszkozigenyles_tipus', "`recid`!='".BESZ_TIP_TERVEZETT."'", 'recid');
     }
-    array_push($select_besz_tipus, array('name' => 'Soronkívüli',   'value' => BESZ_TIP_SORONKIVULI ));
-    array_push($select_besz_tipus, array('name' => 'GM keret',      'value' => BESZ_TIP_GM_KERET    ));
+    foreach ($eszkozigenyles_tipus as $tipus) {
+        array_push($select_besz_tipus, array('name' => $tipus['nev'],   'value' => $tipus['recid'] ));
+    }
 
     $select_eszkoz_prior = array();
     array_push($select_eszkoz_prior, array('name' => '- Válasszon -', 'value' => '' ));
@@ -235,7 +238,16 @@ if( basename(self()) == 'eszkozigenyles.php' || basename(self()) == 'eszkozigeny
 
     $select_fiz_mod = array();
     array_push($select_fiz_mod, array('name' => '- Válasszon -', 'value' => '' ));
-    array_push($select_fiz_mod, array('name' => 'Utalás',       'value' => '1' ));
-    array_push($select_fiz_mod, array('name' => 'Készpénz',     'value' => '2' ));
-    array_push($select_fiz_mod, array('name' => 'Bankkártya',   'value' => '3' ));
+    $eszkozigenyles_fiz_mod = $adatbazis_kapcsolat -> s('recid nev', 'eszkozigenyles_fiz_mod', "", 'recid');
+    foreach ($eszkozigenyles_fiz_mod as $fiz_mod) {
+        array_push($select_fiz_mod, array('name' => $fiz_mod['nev'],   'value' => $fiz_mod['recid'] ));
+    }
+
+    $select_hat_ido = array();
+    array_push($select_hat_ido, array('name' => '- Válasszon -', 'value' => ''  ));
+    array_push($select_hat_ido, array('name' => '8 nap',        'value' => '8'  ));
+    array_push($select_hat_ido, array('name' => '15 nap',       'value' => '15' ));
+    array_push($select_hat_ido, array('name' => '30 nap',       'value' => '30' ));
+    array_push($select_hat_ido, array('name' => '45 nap',       'value' => '45' ));
+    array_push($select_hat_ido, array('name' => '60 nap',       'value' => '60' ));
 }

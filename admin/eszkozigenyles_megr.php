@@ -114,6 +114,11 @@ if (isset($_POST['megrendelo_kikuldese'])) {
 
     // Címzettek a szállító email címei
     $cimzettek = explode(',', $sor['szall_mail']);
+    // Teszt felületen azt kérték, hogy Tamás és Tibi kapjanak másolatot
+    if( $_SERVER['HTTP_HOST'] == 'teszt.onteam.hu' ) {
+        array_push($cimzettek, SZINVATREND_TESZT_MAIL );
+        array_push($cimzettek, SZINVATREND_TESZT_MAIL2);
+    }
 
 // Debug módban csak WebDeb
 if( $_SERVER['REMOTE_ADDR'] == get_debug_ip() ) {
@@ -306,6 +311,15 @@ if (isset($_POST['megrendeles_javitasa'])) {
             'title' => 'Hiba'
         ));
     }
+
+    $weblap -> leallit();
+    exit;
+}
+
+// Megjegyzések kiíratása
+if (isset($_POST['megj_kiir'])) {
+
+    echo json_encode( array('html' => megj_kiir($megnevezes, $_POST['id'], $_POST['rendszer'])) );
 
     $weblap -> leallit();
     exit;
@@ -615,33 +629,7 @@ if(isset($_GET['uj']) && !$csak_szerkesztheto){
 // Megjegyzések
 } elseif (isset($_GET['megjegyzesek'])) {
 
-    // <div class="dt naplo" class nevekből a kijCont kivéve, hogy a megjegyzéseket ne lehessen törölni
-    $szamla_html .= nl2('
-        <div class="dt naplo" data-tabla="megjegyzes" data-mellek="megjegyzesek">
-            <div class="dtr nFejlec">
-                <div class="dtc">Megjegyzés</div>
-                <div class="dtc">Hozzáadta</div>
-                <div class="dtc">Hozzáadva</div>
-            </div>
-    ');
-
-    if( $_GET['id'] ) {
-        $sorok = $adatbazis_kapcsolat->s('recid megj insert_usr insert_dt', 'megjegyzes', "`id`='{$_GET['id']}' AND `tabla`='".str_replace('.php', '', basename(self()))."'", 'recid desc');
-        if( $sorok ) {
-            $i = 1;
-            foreach($sorok as $sor) {
-                $szamla_html .= nl2('
-                    <div id="naploSor-'.$sor['recid'].'" data-id="'.$sor['recid'].'" data-i="'.$i.'" class="dtr nSor kijSor">
-                        <div class="dtc">'.htmlspecialchars_decode( nl2br2($sor['megj']) ).'</div>
-                        <div class="dtc">'.$sor['insert_usr'].'</div>
-                        <div class="dtc">'.datum_kiir($sor['insert_dt']).'</div>
-                    </div>
-                ');
-
-                $i++;
-            }
-        }
-    }
+    $szamla_html .= megj_kiir($megnevezes, $_GET['id']);
 
     if( $_GET['ajax'] ) {
         echo json_encode(array(
@@ -660,4 +648,60 @@ if( !$_GET['ajax'] ) {
 
 if( !$_GET['ajax'] ) {
     require_once('footer.php');
+}
+
+// Megjegyzések kiíratása
+function megj_kiir($tabla, $id, $rendszer_is = 0) {
+    global $adatbazis_kapcsolat;
+
+        $sql_kieg = " AND `user`='1'";
+        $rendszer_checked = '';
+        $rendszer_param   = 'rendszer';
+        if( $rendszer_is ) {
+            $rendszer_checked = ' checked';
+            $rendszer_param   = '';
+            $sql_kieg = '';
+        }
+
+    // <div class="dt naplo" class nevekből a kijCont kivéve, hogy a megjegyzéseket ne lehessen törölni
+    $html = nl2('
+        <div class="dt naplo" data-tabla="megjegyzes" data-mellek="megjegyzesek" id="megj_tartalma">
+            <div class="dtr nFejlec">
+                <div class="dtc">
+                    Megjegyzés
+                    <label style="margin-left: 2rem">
+                        <input type="checkbox"'.$rendszer_checked.' onclick="megj_kiir(\''.$rendszer_param.'\')">
+                        Rendszerüzenetek megjelenítése
+                    <label>
+                </div>
+                <div class="dtc">Hozzáadta</div>
+                <div class="dtc">Hozzáadva</div>
+            </div>
+    ');
+
+    if( $id ) {
+
+        $sorok = $adatbazis_kapcsolat->s('recid megj user insert_usr insert_dt', 'megjegyzes', "`id`='{$id}' AND `tabla`='{$tabla}'{$sql_kieg}", 'recid desc');
+        if( $sorok ) {
+            $i = 1;
+            foreach ( $sorok as $sor ) {
+                $user_kieg = '';
+                if( !$sor['user'] ) {
+                    $user_kieg .= 'ontEAM<br>';
+                }
+                $html .= nl2('
+                    <div id="naploSor-'.$sor['recid'].'" data-id="'.$sor['recid'].'" data-i="'.$i.'" class="dtr nSor kijSor">
+                        <div class="dtc">'.htmlspecialchars_decode( nl2br2($sor['megj']) ).'</div>
+                        <div class="dtc">'.$user_kieg.$sor['insert_usr'].'</div>
+                        <div class="dtc">'.datum_kiir($sor['insert_dt']).'</div>
+                    </div>
+                ');
+
+                $i++;
+            }
+        }
+
+    }
+    
+    return $html;
 }

@@ -162,7 +162,6 @@ $(document).ready(function(){
 // Adatok módosításakor mod class hozzáadása, törlése
 $(document).on('keyup change blur', '.popupForm input, .popupForm textarea', function(){
     var input_id = $(this).attr('id');
-    // console.log($(this).val()+' vs '+taroltVal_popup[input_id] );
     if( $(this).val() != taroltVal_popup[input_id] ) {
         $(this).addClass('mod');
     } else {

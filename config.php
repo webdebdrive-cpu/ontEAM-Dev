@@ -82,7 +82,7 @@ function get_teszt_rendszer() {
 function get_verzio()     { return 'V1.218';                                    } // Fejlécben szereplő verzió szám
 function get_db_charset() { return 'UTF8';                                      } // Karakterkódolás (Figyelem! UTF-8 helyett itt UTF8)
 function get_debug()      { return false;                                       } // Hibás adatbázislekérdezések megjelennek vagy sem
-function get_debug_ip()   { return '81.182.63.210';                             } // Erről az IP címről nézve az oldalt íratható ki hibaüzenet
+function get_debug_ip()   { return '81.182.41.62';                             } // Erről az IP címről nézve az oldalt íratható ki hibaüzenet
 // A fenti élesen nem működik, de a többi felületen igen
 
 // Weblap
@@ -262,7 +262,6 @@ function get_jsfajlok_admin(){
                 $utvonal.'js/moment.min.js',
                 $utvonal.'js/fullcalendar.min.js',
                 $utvonal.'js/hu.js',
-                //{KOVETKEZO_ADMIN_JS}
 		);
 
 	$css = array(
@@ -279,7 +278,6 @@ function get_jsfajlok_admin(){
                 $utvonal.'css/tooltip.css',
                 $utvonal.'css/dragtable.css',
                 $utvonal.'css/responsive.css', // responsive.css - tartalma még folytatódik egy responsive_mobil.css-ben, de azt nem húzzuk be minden menüpon alatt.
-                //{KOVETKEZO_ADMIN_CSS}
 		);
 
 	return array( 'js' => $js, 'css' => $css );

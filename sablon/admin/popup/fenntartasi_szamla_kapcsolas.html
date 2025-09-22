@@ -411,7 +411,6 @@ function tetelek_kiszamol( that, elso ) {
     $('.pop_netto_ert').each(function() {
         if( !$(this).prop('disabled') && $(this).val() && $(this).val()!='0' && $(this).val() && $(this).val()!='0,00' ) {
             netto_ertek_db++;
-            console.log($(this));
         }
         if( netto_ertek_db>1 ) {
             alert2('Csak egy szerződés tételhez írhat nettó értéket!<br>Előbb törölje ki a nettó értéket a többi sorból!', '', 'Hiba');

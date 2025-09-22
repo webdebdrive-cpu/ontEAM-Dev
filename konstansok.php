@@ -738,6 +738,7 @@ function felso_vel_ertekek() {
     return [
             ['value' => 0, 'text' => '',                            'ikon' => ''],
             ['value' => 1, 'text' => 'beleegyezés',                 'ikon' => '<span class="zold">✓</span>' ],
+            ['value' => 3, 'text' => 'feltételekkel jóváhagyás',    'ikon' => '<span class="sarga">?</span>'],
             ['value' => 2, 'text' => 'elutasítás',                  'ikon' => '<span class="piros">×</span>'],
         ];
 }

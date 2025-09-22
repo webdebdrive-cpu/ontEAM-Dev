@@ -75,6 +75,7 @@ function get_title(){
         case 'szamla.php'                   : $title .= 'Számlák';                      break;
         case 'szallito.php'                 : $title .= 'Partnertörzs';                 break;
         case 'szallito_beszerzes.php'       : $title .= 'Beszerzés szállító';           break;
+        case 'teszteles.php'                : $title .= 'Tesztelés';                    break;
         case 'tervezes.php'                 : $title .= 'Tervezés';                     break;
         case 'torzsadat.php'                : $title .= 'Törzsadatok';                  break;
         case 'vendegejszakak.php'           : $title .= 'Vendégéjszakák';               break;

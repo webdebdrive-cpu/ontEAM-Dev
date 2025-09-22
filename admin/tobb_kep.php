@@ -438,8 +438,8 @@ if( $kepek && $apa_tabla != 'projektkezeles' ) {
                                 <li class="fejlec">
                                     <div class="kep">Fájlnév</div>
                                     <div class="felirat c" style="width: 28.3rem"></div>
-                                    <div class="felirat">Feltöltötte</div>
                                     '.$tipus_fejlec.'
+                                    <div class="felirat">Feltöltötte</div>
                                     <div class="felirat">Feltöltve</div>
                                     <div class="maradek torles"></div>
                                 </li>
@@ -1123,7 +1123,10 @@ function get_tobbkep_thumb($sor_kepek = '', $i = '', $tobbkep_tablanev = '', $ni
         // A fájl linkjében a szóközöket %20-ra cseréljük, hogy dupla szóközös fájllal is működjön.
         $kep_utvonal = str_replace(' ', '%20', htmlspecialchars($kep_utvonal));
 
-        $felirat = mb_wordwrap($felirat, 20, '<br>', true, 'UTF-8');
+        // Eszközigénylések alatt ne legyen fájlnév megtörés
+        if( $tobbkep_tablanev != 'eszkozigenyles_dok' ) {
+            $felirat = mb_wordwrap($felirat, 20, '<br>', true, 'UTF-8');
+        }
         if( !$felirat ) {
             $felirat = '<span class="i link">- Nincs leírás -</span>';
         }
@@ -1289,7 +1292,7 @@ function get_tobbkep_thumb($sor_kepek = '', $i = '', $tobbkep_tablanev = '', $ni
                         </div>
                     ');
             }
-            
+
             // Projektek alatt a származtatott dokumentumok oszlopsorrendje eltér az általános esettől
             $tobbkep_html .= nl2('
                 <li id="'.$azon.'" title="'.$sor_kepek['megj'].'" data-id="'.$sor_kepek['recid'].'" data-i="'.$i.'"'.$class_kiir.'>
@@ -1308,8 +1311,8 @@ function get_tobbkep_thumb($sor_kepek = '', $i = '', $tobbkep_tablanev = '', $ni
                             '.$felirat.'
                         </a>
                     </div>
-                    <div class="felirat">'.$sor_kepek['insert_usr'].'</div>
                     '.$tipus_oszlop.'
+                    <div class="felirat">'.$sor_kepek['insert_usr'].'</div>
                     <div class="felirat">'.$datum.'</div>
                     '.$minosites.'
                     <div class="felirat">'.$torles.'</div>
@@ -1331,6 +1334,11 @@ function get_tobbkep_thumb($sor_kepek = '', $i = '', $tobbkep_tablanev = '', $ni
                                 ');
             }
             
+            // Eszközigénylések alatt ne legyen fájlnév megtörés
+            if( $tobbkep_tablanev != 'eszkozigenyles_dok' ) {
+                $felirat = mb_wordwrap($felirat, 20, '<br>', true, 'UTF-8');
+            }
+
             $tobbkep_html .= nl2('
                 <li id="'.$azon.'" title="'.$sor_kepek['megj'].'" data-id="'.$sor_kepek['recid'].'" data-i="'.$i.'"'.$class_kiir.'>
                     <script>gomb'.$azon.' = get_tobbkep_megj_szerk_gomb(\''.basename(__FILE__).'\', \''.$azon.'\', \''.$sor_kepek['recid'].'\');</script>
@@ -1343,11 +1351,11 @@ function get_tobbkep_thumb($sor_kepek = '', $i = '', $tobbkep_tablanev = '', $ni
                     </div>
                     <div id="megj_'.$azon.'_felirat" class="felirat c" style="width: 30rem">
                         <a href="'.$kep_utvonal.'" target="_blank" title="Letöltés" class="fajlnev">
-                            '.mb_wordwrap($felirat, 20, '<br>', true, 'UTF-8').'
+                            '.$felirat.'
                         </a>
                     </div>
-                    <div class="felirat">'.$sor_kepek['insert_usr'].'</div>
                     '.$tipus_oszlop.'
+                    <div class="felirat">'.$sor_kepek['insert_usr'].'</div>
                     <div class="felirat">'.$datum.'</div>
                     <div class="'.$torles_class.' torles">'.$torles.'</div>
                     '.$minosites.'

@@ -34,6 +34,8 @@
     border: 0.1rem solid var(--color-kek);
     border-radius: 0.5rem;
     margin: 0 1rem 1rem 1rem;
+    max-height: calc(100vh - 15rem); /* 15rem kb a felső menü */
+    overflow-y: auto;
 }
 
 .box h2 {

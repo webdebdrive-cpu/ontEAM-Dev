@@ -40,6 +40,12 @@ function i_u($type, $tabla, $tomb) {
         return false;
     }
 
+    // Ha nincs teljes neve a loginnak, akkor ne tudjon semmit csinálni. Ilyen csak akkor fordulhat elő, ha kiléptette a rendszer.
+    // Neve kell ugye az insert_usr és update_usr-be
+    if( !$_SESSION[get_db_tabla().'teljes_nev'] ) {
+        return false;
+    }
+
     // Ha már valaki rámentett az adatlapomra, akkor hibaüzenet
     if( $type == 'update' ) {
         $update_dt = $adatbazis_kapcsolat->s2('update_dt', $tabla, "`recid`='{$_GET['id']}'");
@@ -506,6 +512,20 @@ function i_u($type, $tabla, $tomb) {
         $jogcim = $adatbazis_kapcsolat->s2('szla_szam', 'jogcim', "`recid`='{$_POST['jogcim_recid']}'");
         array_push($oszlopok,   'ktgnem'            );
         array_push($ertekek,    $jogcim['szla_szam']);
+    }
+
+    // Eszközigényléseknél a te_alcsop alapján a te_focsop és te_reszleg is töltődjön ki
+    if( $tabla == 'eszkozigenyles' ) {
+        $reszleg = $adatbazis_kapcsolat->s2('szulo', 'te_reszleg', "`recid`='{$_POST['te_alcsop']}'");
+        if( $reszleg === false ) { $db_error = true; }
+        $te_focsop = $reszleg['szulo'];
+
+        $reszleg = $adatbazis_kapcsolat->s2('szulo', 'te_reszleg', "`recid`='{$te_focsop}'");
+        if( $reszleg === false ) { $db_error = true; }
+        $te_reszleg = $reszleg['szulo'];
+
+        array_push($oszlopok,   'te_focsop', 'te_reszleg'   );
+        array_push($ertekek,    $te_focsop,  $te_reszleg    );
     }
 
     // Dátumra ütemezés, ha az ütemezett feladatokat módosítjuk/töltjük fel
@@ -1508,6 +1528,14 @@ function i_u($type, $tabla, $tomb) {
 
         // Eszközigénylés státusz beszúrása INSERT után
         if( $tabla == 'eszkozigenyles' ) {
+
+            $tipus = $adatbazis_kapcsolat -> s2('nev', 'eszkozigenyles_tipus', "`recid`='{$_POST['tipus']}'");
+            $tipus = mb_substr($tipus['nev'], 0, 1);
+
+            $azon = $tipus.$id;
+            $sql = $adatbazis_kapcsolat -> u($tabla, array('azon'), array($azon), "`recid`='{$id}'");
+            if( $sql === false ) { $db_error = true; }
+
             $sql = $adatbazis_kapcsolat -> i($tabla.'_statusz',
                                                 array($tabla.'_recid', 'stat_id',                       'login',                            'insert_dt',    'insert_usr',                             'update_usr'                           ),
                                                 array($id,             ESZKOZIGENYL_STAT_UJ_FELVITEL,   $_SESSION[get_db_tabla().'user'],   'NOW()',        $_SESSION[get_db_tabla().'teljes_nev'],   $_SESSION[get_db_tabla().'teljes_nev'] )
@@ -2327,6 +2355,7 @@ function i_u($type, $tabla, $tomb) {
                                         'beosztas_unnepnapok.php',
                                         'anyag_szamla.php',
                                         'energia_szamla.php',
+                                        'eszkozigenyles.php',
                                         'fenntartasi_szamla.php',
                                         'fenntartasi_szerzodes.php',
                                         'megallapodas.php',
@@ -2337,7 +2366,7 @@ function i_u($type, $tabla, $tomb) {
                                         'projektszerzodes.php',
                                         'torzsadat.php',
                                     );
-            $kiveteles_mezok  = array( 'stat_id', 'update_dt', 
+            $kiveteles_mezok  = array(  'stat_id', 'update_dt', 
                                         'feldolgozva',  'feldolgozva_dt',   'feldolgozva_usr',
                                         'elo_igazolva', 'elo_igazolva_dt',  'elo_igazolva_usr',
                                         'igazolva',     'igazolva_dt',      'igazolva_usr',
@@ -2364,7 +2393,7 @@ function i_u($type, $tabla, $tomb) {
                             
                             // Ha az események tömbben ez egy fiktív sor volna (pl. csak a szűrés miatt vettük fel - anyag/energia/fenntartasi/projektszamla moduloknál),
                             // akkor ezek változásait se figyeljük, felvesszük a kivételek tömbbe
-                            if( $elem['type'] == 'none' && !$elem['feldolgozando'] ) {
+                            if( ($elem['type'] == 'none' || $elem['type'] == 'nosql') && !$elem['feldolgozando'] ) {
                                 array_push($kiveteles_mezok, $elem['name']);
                             }
                             
@@ -2518,6 +2547,39 @@ function i_u($type, $tabla, $tomb) {
                                             $value    = getSzerepkorNev($value   );
                                         }
                                         
+                                        // Prioritás mező lekezelése eszközigényléseknél
+                                        if( $elem['name'] == 'prior' && in_array($tabla, array('eszkozigenyles')) ) {
+                                            foreach( $select_eszkoz_prior as $select ) {
+                                               
+                                                if( $select['name'] == '- Válasszon -' ) {
+                                                    $select['name'] = '';
+                                                }
+                                                if( $select['value']==$uj_ertek ) {
+                                                    $uj_ertek = $select['name'];
+                                                }
+                                                if( $select['value']==$value ) {
+                                                    $value = $select['name'];
+                                                }
+                                               
+                                            }
+                                        }
+                                        // Fizetési mód mező lekezelése eszközigényléseknél
+                                        if( $elem['name'] == 'fiz_mod' && in_array($tabla, array('eszkozigenyles')) ) {
+                                            foreach( $select_fiz_mod as $select ) {
+                                               
+                                                if( $select['name'] == '- Válasszon -' ) {
+                                                    $select['name'] = '';
+                                                }
+                                                if( $select['value']==$uj_ertek ) {
+                                                    $uj_ertek = $select['name'];
+                                                }
+                                                if( $select['value']==$value ) {
+                                                    $value = $select['name'];
+                                                }
+                                               
+                                            }
+                                        }
+                                        
                                         // Tipus mező lekezelése projekteknél
                                         if( $elem['name'] == 'tipus' && in_array($tabla, array('projektigenyles', 'projektkezeles')) ) {
                                             foreach( $select_pri_tipus as $select ) {
@@ -2550,6 +2612,23 @@ function i_u($type, $tabla, $tomb) {
                                                 }
                                                
 
+                                            }
+                                        }
+
+                                        // Tipus mező lekezelése eszközigényléseknél
+                                        if( $elem['name'] == 'tipus' && in_array($tabla, array('eszkozigenyles')) ) {
+                                            foreach( $select_besz_tipus as $select ) {
+                                               
+                                                if( $select['name'] == '- Válasszon -' ) {
+                                                    $select['name'] = '';
+                                                }
+                                                if( $select['value']==$uj_ertek ) {
+                                                    $uj_ertek = $select['name'];
+                                                }
+                                                if( $select['value']==$value ) {
+                                                    $value = $select['name'];
+                                                }
+                                               
                                             }
                                         }
                                     }
@@ -3483,6 +3562,14 @@ function i_u($type, $tabla, $tomb) {
 
         // Eszközigénylés státusz léptetése UPDATE után
         if( $tabla == 'eszkozigenyles' ) {
+
+            // Azonosító karbantartása
+            $tipus = $adatbazis_kapcsolat -> s2('nev', 'eszkozigenyles_tipus', "`recid`='{$_POST['tipus']}'");
+            $tipus = mb_substr($tipus['nev'], 0, 1);
+
+            $azon = $tipus.$id;
+            $sql = $adatbazis_kapcsolat -> u($tabla, array('azon'), array($azon), "`recid`='{$id}'");
+            if( $sql === false ) { $db_error = true; }
 
             // Soronkívüli és GM keret esetben azonnal tovább léptetjük igénylés Műszaki jóváhagyásra vár státuszba.
             // De csak ha korábban még nem volt ismert a szallito_id és most megadták.
@@ -5142,8 +5229,10 @@ function szamla_lista( $where = '', $tabla = '', $kijeloltek = false, $csak_sql_
                 }
             }
 
+            $eszkozigenyles_recid = ', `'.get_db_tabla().'eszkozigenyles`.`recid`';
             switch ( $_SESSION['eszkozigenyles_tablazat_rendez'] ) {
                 case 'eszkoz_tabla_recid'       : $order = '`'.get_db_tabla().'eszkozigenyles`.`recid`';        break;
+                case 'eszkoz_tabla_azon'        : $order = '`'.get_db_tabla().'eszkozigenyles`.`recid`';        break;
                 case 'eszkoz_tabla_statusz'     : $order = '`'.get_db_tabla().'eszkozigenyles`.`stat_id`';      break;
                 case 'eszkoz_tabla_kiv_kolts'   : $order = '`'.get_db_tabla().'eszkozigenyles`.`kiv_kolts`';    break;
                 case 'eszkoz_tabla_musz_el_ig'  : $order = '`'.get_db_tabla().'eszkozigenyles`.`musz_el_ig`';   break;
@@ -5151,15 +5240,17 @@ function szamla_lista( $where = '', $tabla = '', $kijeloltek = false, $csak_sql_
                 case 'eszkoz_tabla_bi_vel'      : $order = '`'.get_db_tabla().'eszkozigenyles`.`bi_vel`';       break;
                 case 'eszkoz_tabla_szak_vel'    : $order = '`'.get_db_tabla().'eszkozigenyles`.`szak_vel`';     break;
                 case 'eszkoz_tabla_felso_vel'   : $order = '`'.get_db_tabla().'eszkozigenyles`.`felso_vel`';    break;
-                case 'eszkoz_tabla_tipus'       : $order = '`'.get_db_tabla().'eszkozigenyles`.`tipus`';        break;
-                case 'eszkoz_tabla_prior'       : $order = '`'.get_db_tabla().'eszkozigenyles`.`prior`';        break;
-                case 'eszkoz_tabla_szalloda'    : $order = '`'.get_db_tabla().'telephely`.`nev`';               break;
+                case 'eszkoz_tabla_tipus'       : $order = '`'.get_db_tabla().'eszkozigenyles_tipus`.`nev`' .$eszkozigenyles_recid; break;
+                case 'eszkoz_tabla_prior'       : $order = '`'.get_db_tabla().'eszkozigenyles`.`prior`'     .$eszkozigenyles_recid; break;
+                case 'eszkoz_tabla_szalloda'    : $order = '`'.get_db_tabla().'telephely`.`nev`'            .$eszkozigenyles_recid; break;
                 case 'eszkoz_tabla_nev'         : $order = '`'.get_db_tabla().'eszkozigenyles`.`nev`';          break;
                 case 'eszkoz_tabla_csz'         : $order = '`'.get_db_tabla().'eszkozigenyles`.`csz`';          break;
                 case 'eszkoz_tabla_spec'        : $order = '`'.get_db_tabla().'eszkozigenyles`.`spec`';         break;
                 case 'eszkoz_tabla_igeny_indok' : $order = '`'.get_db_tabla().'eszkozigenyles`.`igeny_indok`';  break;
                 case 'eszkoz_tabla_megj'        : $order = '`'.get_db_tabla().'eszkozigenyles`.`megj`';         break;
-                case 'eszkoz_tabla_szallito'    : $order = '`'.get_db_tabla().'szallito`.`nev`';                break;
+                case 'eszkoz_tabla_szallito'    : $order = '`'.get_db_tabla().'szallito_beszerzes`.`nev`'.  $eszkozigenyles_recid; break;
+                case 'eszkoz_tabla_szall_hat'   : $order = '`'.get_db_tabla().'eszkozigenyles`.`szall_hat`';    break;
+                case 'eszkoz_tabla_fiz_mod'     : $order = '`'.get_db_tabla().'eszkozigenyles_fiz_mod`.`nev`';  break;
                 case 'eszkoz_tabla_igmen'       : $order = '`'.get_db_tabla().'eszkozigenyles`.`igmen`';        break;
                 case 'eszkoz_tabla_netto'       : $order = '`'.get_db_tabla().'eszkozigenyles`.`netto`';        break;
                 case 'eszkoz_tabla_kcs_21'      : $order = '`'.get_db_tabla().'eszkozigenyles`.`kcs_21`';       break;
@@ -5386,6 +5477,8 @@ function szamla_lista( $where = '', $tabla = '', $kijeloltek = false, $csak_sql_
             $sql_kieg .= nl2('
                                 LEFT JOIN `'.get_db_tabla().'szallito_beszerzes` ON (`'.get_db_tabla().'eszkozigenyles`.`szallito_id`=`'.get_db_tabla().'szallito_beszerzes`.`recid`)
                                 LEFT JOIN `'.get_db_tabla().'erteklista` ON (`'.get_db_tabla().'eszkozigenyles`.`kcs_21`=`'.get_db_tabla().'erteklista`.`id` AND `'.get_db_tabla().'erteklista`.`csoport`=\''.ERTEKLISTA_PENZNEM.'\')
+                                LEFT JOIN `'.get_db_tabla().'eszkozigenyles_tipus` ON (`'.get_db_tabla().'eszkozigenyles`.`tipus`=`'.get_db_tabla().'eszkozigenyles_tipus`.`recid`)
+                                LEFT JOIN `'.get_db_tabla().'eszkozigenyles_fiz_mod` ON (`'.get_db_tabla().'eszkozigenyles`.`fiz_mod`=`'.get_db_tabla().'eszkozigenyles_fiz_mod`.`recid`)
                             ');
         }
 
@@ -7480,6 +7573,7 @@ function eszkozigenylesLista( $bejegyzesek, $tabla, $frissit = '', $kijeloltek =
     if( $bejegyzesek ) {
 
         $oszlopok = array(
+            array('id' => 'eszkoz_tabla_azon',          'nev' => 'Azonosító',                       'width' => 80   ),
             array('id' => 'eszkoz_tabla_statusz',       'nev' => 'Státusz',                         'width' => 80   ),
             array('id' => 'eszkoz_tabla_tipus',         'nev' => 'Típus',                           'width' => 80   ),
             array('id' => 'eszkoz_tabla_prior',         'nev' => 'Prioritás',                       'width' => 50   ),
@@ -7488,7 +7582,7 @@ function eszkozigenylesLista( $bejegyzesek, $tabla, $frissit = '', $kijeloltek =
             array('id' => 'eszkoz_tabla_csz',           'nev' => 'Cikkszám',                        'width' => 100  ),
             array('id' => 'eszkoz_tabla_spec' ,         'nev' => 'Specifikáció',                    'width' => 200  ),
             array('id' => 'eszkoz_tabla_igeny_indok' ,  'nev' => 'Igénylés indoka/koncepció',       'width' => 150  ),
-            array('id' => 'eszkoz_tabla_megj' ,         'nev' => 'Megjegyzés',                      'width' => 150  ),
+            array('id' => 'eszkoz_tabla_megj' ,         'nev' => 'Kiegészítés megrendelőre',        'width' => 150  ),
             array('id' => 'eszkoz_tabla_szallito',      'nev' => 'Szállító',                        'width' => 250  ),
             array('id' => 'eszkoz_tabla_szall_hat',     'nev' => 'Szállítási határidő',             'width' => 100  ),
             array('id' => 'eszkoz_tabla_fiz_mod',       'nev' => 'Fizetési mód',                    'width' => 120  ),
@@ -7502,6 +7596,10 @@ function eszkozigenylesLista( $bejegyzesek, $tabla, $frissit = '', $kijeloltek =
             array('id' => 'eszkoz_tabla_jhmen',         'nev' => 'Jóváhagyott mennyiség',           'width' => 80   ),
             array('id' => 'eszkoz_tabla_jhar',          'nev' => 'Jóváhagyott nettó egységár',      'width' => 80   ),
             array('id' => 'eszkoz_tabla_jhossz',        'nev' => 'Jóváhagyott nettó összesen',      'width' => 80   ),
+            array('id' => 'eszkoz_tabla_kiszall',       'nev' => 'Kiszállítási költség',            'width' => 80   ),
+            array('id' => 'eszkoz_tabla_beuzemel',      'nev' => 'Beüzemelési költség',             'width' => 80   ),
+            array('id' => 'eszkoz_tabla_munkadij',      'nev' => 'Munkadíj',                        'width' => 80   ),
+            array('id' => 'eszkoz_tabla_egyeb_koltseg', 'nev' => 'Egyéb költség',                   'width' => 80   ),
             array('id' => 'eszkoz_tabla_rend_szam',     'nev' => 'Rendelés szám',                   'width' => 80   ),
             array('id' => 'eszkoz_tabla_musz_el_ig' ,   'nev' => 'Műszaki előkészítést igényel',    'width' => 80   ),
             array('id' => 'eszkoz_tabla_kiv_kolts' ,    'nev' => 'Kivitelezési költség',            'width' => 80   ),
@@ -7687,24 +7785,31 @@ function eszkozigenylesLista( $bejegyzesek, $tabla, $frissit = '', $kijeloltek =
                 }
             }
 
+            $tizedesek = 0;
+            if( $bsz['kcs_21'] != KCS_21_HUF ) {
+                $tizedesek = 2;
+            }
+
             $html .= '<tr class="'.$active.'" data-i="'.$i.'" id="eszkozig-sor-'.$bsz['recid'].'">';
 
+            $recid_rendezeshez = sprintf('%010u', $bsz['recid']);
             $sorok = array(
+                'eszkoz_tabla_azon'             => '<td data-sort="'.$bsz['recid'].'">'.$bsz['azon'].'</td>',
                 'eszkoz_tabla_statusz'          => '<td sorttable_customkey="'.$bsz['stat_id'].'">
                                                         <span class="stat_'.$bsz['recid'].'">'.getStatText('eszkozigenyles', $bsz['stat_id']).'</span>
                                                         <div class="dn akt_sor_gombok gombok_'.$bsz['recid'].'" data-dok_db="'.$bsz['dok_db'].'" data-megj_db="'.$bsz['megj_db'].'">
                                                             '.get_eszkozigenyles_gombok($bsz['recid']).'
                                                         </div>
                                                     </td>',
-                'eszkoz_tabla_tipus'            => '<td>'.$besz_tipus.'</td>',
-                'eszkoz_tabla_prior'            => '<td>'.$prioritas.'</td>',
-                'eszkoz_tabla_szalloda'         => '<td>'.$telephely['nev'].'</td>',
+                'eszkoz_tabla_tipus'            => '<td data-sort="'.$besz_tipus.'_'.$recid_rendezeshez.'">'.$besz_tipus.'</td>',
+                'eszkoz_tabla_prior'            => '<td data-sort="'.$prioritas.'_'.$recid_rendezeshez.'">'.$prioritas.'</td>',
+                'eszkoz_tabla_szalloda'         => '<td data-sort="'.$telephely['nev'].'_'.$recid_rendezeshez.'">'.$telephely['nev'].'</td>',
                 'eszkoz_tabla_nev'              => '<td>'.htmlspecialchars_decode($bsz['nev']).'</td>',
                 'eszkoz_tabla_csz'              => '<td>'.htmlspecialchars_decode($bsz['csz']).'</td>',
                 'eszkoz_tabla_spec'             => '<td>'.htmlspecialchars_decode(nl2br2($bsz['spec'])).'</td>',
                 'eszkoz_tabla_igeny_indok'      => '<td>'.htmlspecialchars_decode(nl2br2($bsz['igeny_indok'])).'</td>',
                 'eszkoz_tabla_megj'             => '<td>'.htmlspecialchars_decode(nl2br2($bsz['megj'])).'</td>',
-                'eszkoz_tabla_szallito'         => '<td>'.$bsz['szall_nev'].'</td>',
+                'eszkoz_tabla_szallito'         => '<td data-sort="'.$bsz['szall_nev'].'_'.$recid_rendezeshez.'">'.$bsz['szall_nev'].'</td>',
                 'eszkoz_tabla_szall_hat'        => '<td>'.datum_kiir($bsz['szall_hat']).'</td>',
                 'eszkoz_tabla_fiz_mod'          => '<td>'.$fiz_mod.'</td>',
                 'eszkoz_tabla_hat_ido'          => '<td class="r nowrap">'.$bsz['hat_ido'].' nap</td>',
@@ -7717,6 +7822,10 @@ function eszkozigenylesLista( $bejegyzesek, $tabla, $frissit = '', $kijeloltek =
                 'eszkoz_tabla_jhmen'            => '<td class="r nowrap jhmen_'.$bsz['recid'].'" data-sort="'.$bsz['jhmen'].'">'.number_format($bsz['jhmen'], 0, ',', ' ').' db</td>',
                 'eszkoz_tabla_jhar'             => '<td class="r nowrap" data-sort="'.$bsz['jhar'].'">'.number_format($bsz['jhar'], 0, ',', ' ').'</td>',
                 'eszkoz_tabla_jhossz'           => '<td class="r nowrap" data-sort="'.$bsz['jhossz'].'">'.number_format($bsz['jhossz'], 0, ',', ' ').'</td>',
+                'eszkoz_tabla_kiszall'          => '<td class="r nowrap" data-sort="'.$bsz['kiszall'].'">'.number_format($bsz['kiszall'], $tizedesek, ',', ' ').'</td>',
+                'eszkoz_tabla_beuzemel'         => '<td class="r nowrap" data-sort="'.$bsz['beuzemel'].'">'.number_format($bsz['beuzemel'], $tizedesek, ',', ' ').'</td>',
+                'eszkoz_tabla_munkadij'         => '<td class="r nowrap" data-sort="'.$bsz['munkadij'].'">'.number_format($bsz['munkadij'], $tizedesek, ',', ' ').'</td>',
+                'eszkoz_tabla_egyeb_koltseg'    => '<td class="r nowrap" data-sort="'.$bsz['egyeb_koltseg'].'">'.number_format($bsz['egyeb_koltseg'], $tizedesek, ',', ' ').'</td>',
                 'eszkoz_tabla_rend_szam'        => '<td>'.$bsz['rend_szam'].'</td>',
                 'eszkoz_tabla_musz_el_ig'       => '<td class="spec_pipa musz_el_ig_'.$bsz['recid'].'">'.getSpecialisPipaloErtek($musz_el_ig_ertekek, $bsz['musz_el_ig']).'</td>',
                 'eszkoz_tabla_kiv_kolts'        => '<td class="kiv_kolts_'.$bsz['recid'].'">'.number_format($bsz['kiv_kolts'], 0, ',', ' ').'</td>',
@@ -10374,24 +10483,34 @@ function addStatusz( $tabla = false, $recid = false, $stat_id = false, $erteklis
 }
 
 // Megjegyzés beszúrása
-function addMegj( $tabla, $id, $megj, $user = '' ) {
+function addMegj( $tabla, $id, $megj, $user_nev = '', $user_irta = '' ) {
     // Ha van egyáltalán megjegyzés
     if( trim($megj) ) {
         global $adatbazis_kapcsolat;
         $db_be_usr = $_SESSION[get_db_tabla().'teljes_nev'];
-        if( $user ) {
-            $db_be_usr = $user;
+        if( $user_nev ) {
+            $db_be_usr = $user_nev;
         }
+
         $szerepkor = getSzerepkorNev($_SESSION[get_db_tabla().'szemelyzet_id']);
-        $ins = $adatbazis_kapcsolat->i('megjegyzes',  array('tabla', 'id', 'megj', 'loginnev',                       'szerepkor',                                 'szerepkor_txt',    'update_usr',   'insert_dt', 'insert_usr'   ),
-                                                      array($tabla,  $id, $megj,   $_SESSION[get_db_tabla().'user'], $_SESSION[get_db_tabla().'szemelyzet_id'],   $szerepkor,         $db_be_usr,     'NOW()',      $db_be_usr    )
-                                        );
+        $mezok   = array('tabla', 'id', 'megj', 'loginnev',                       'szerepkor',                                 'szerepkor_txt',    'update_usr',   'insert_dt', 'insert_usr'   );
+        $ertekek = array($tabla,  $id, $megj,   $_SESSION[get_db_tabla().'user'], $_SESSION[get_db_tabla().'szemelyzet_id'],   $szerepkor,         $db_be_usr,     'NOW()',      $db_be_usr    );
+        if( $user_irta ) {
+            array_push($mezok,   'user' );
+            array_push($ertekek, 1      );
+        }
+        
+        $ins = $adatbazis_kapcsolat->i('megjegyzes', $mezok, $ertekek);
         if($ins===false){ return false; }
  
         // Adott tábla megj_db oszlop karban tartása
-        $megj_db = $adatbazis_kapcsolat->s('recid', 'megjegyzes', "`tabla`='{$tabla}' AND `id`='{$id}'");
+        $sql_kieg = '';
+        $csak_usert_szamol = ['eszkozigenyles', 'eszkozigenyles_megr', 'szallito_beszerzes'];
+        if( in_array($tabla, $csak_usert_szamol) ) {
+            $sql_kieg .= " AND `user`=1";
+        }
+        $megj_db = $adatbazis_kapcsolat->s('recid', 'megjegyzes', "`tabla`='{$tabla}' AND `id`='{$id}'{$sql_kieg}");
         if($megj_db===false){ return false; }
-
 
         $sql = $adatbazis_kapcsolat->u($tabla, array('megj_db'), array(count($megj_db)), "`recid`='{$id}'");
         if($sql===false){ return false; }
@@ -11637,7 +11756,7 @@ function level_felkeszit_es_kuld( $tabla = '', $recid = '', $ert_pipa = '', $sab
         case 'eszkozigenyles_felso_elutasit':
         case 'eszkozigenyles_bi_vegl_elutasit':
 
-            $eszkozigenyles = $adatbazis_kapcsolat -> s2('nev tipus szallito_id telephely_id insert_usr', 'eszkozigenyles', "`recid`='{$recid}'");
+            $eszkozigenyles = $adatbazis_kapcsolat -> s2('nev tipus szallito_id telephely_id szall_ig_indok bi_indok felso_indok bi_vegl_indok insert_usr', 'eszkozigenyles', "`recid`='{$recid}'");
             $statusz        = $adatbazis_kapcsolat -> s2('login', 'eszkozigenyles_statusz', "`eszkozigenyles_recid`='{$recid}' AND `stat_id`='".ESZKOZIGENYL_STAT_UJ_FELVITEL."'", 'recid', '1');
             $login          = $adatbazis_kapcsolat -> s2('teljes_nev usertel', 'login', "`nev`='{$statusz['login']}'");
 
@@ -11687,39 +11806,48 @@ function level_felkeszit_es_kuld( $tabla = '', $recid = '', $ert_pipa = '', $sab
                 $uzi     = 'Az ontEAM rendszerben az alábbi eszközigénylés kiküldésre vár státuszba lépett:';
             }
 
+            $indoklas = '';
             if( $cimzett == 'eszkozigenyles_szall_ig_elutasit' ) {
                 $esemeny = 'eszközigénylés elutasításakor (Szálloda igazgató által)';
                 $targy   = 'Eszközigénylés elutasítva (Szálloda igazgató által)';
-                $uzi     = 'Az ontEAM rendszerben az alábbi eszközigénylés elutasításra került szálloda igazgató által:';
+                $uzi     = 'Az ontEAM rendszerben az alábbi eszközigénylést elutasította a szállodai engedélyező:';
+                $indoklas = '<br>Indoklás:<br>'.nl2br2($eszkozigenyles['szall_ig_indok']);
             }
             if( $cimzett == 'eszkozigenyles_bi_elutasit' ) {
-                $esemeny = 'eszközigénylés elutasításakor (BI által validáláskor)';
-                $targy   = 'Eszközigénylés elutasítva (BI által validáláskor)';
-                $uzi     = 'Az ontEAM rendszerben az alábbi eszközigénylés elutasításra került BI által validáláskor:';
+                $esemeny = 'eszközigénylés elutasításakor (BI validáláskor)';
+                $targy   = 'Eszközigénylés elutasítva (BI validáláskor)';
+                $uzi     = 'Az ontEAM rendszerben az alábbi eszközigénylést elutasította a BI validáló:';
+                $indoklas = '<br>Indoklás:<br>'.nl2br2($eszkozigenyles['bi_indok']);
             }
             // Nem kell mert tovább megy felsővezetés elé
             // if( $cimzett == 'eszkozigenyles_szak_elutasit' ) {
-            //     $esemeny = 'eszközigénylés elutasításakor (Szakmai vezetés által)';
-            //     $targy   = 'Eszközigénylés elutasítva (Szakmai vezetés által)';
-            //     $uzi     = 'Az ontEAM rendszerben az alábbi eszközigénylés elutasításra került a szakmai vezetés által:';
+            //     $esemeny = 'eszközigénylés elutasításakor (Szakmai vezetés)';
+            //     $targy   = 'Eszközigénylés elutasítva (Szakmai vezetés)';
+            //     $uzi     = 'Az ontEAM rendszerben az alábbi eszközigénylést elutasította a szakmai vezető:';
             // }
             if( $cimzett == 'eszkozigenyles_felso_elutasit' ) {
                 $esemeny = 'eszközigénylés elutasításakor (Felsővezetés által)';
                 $targy   = 'Eszközigénylés elutasítva (Felsővezetés által)';
-                $uzi     = 'Az ontEAM rendszerben az alábbi eszközigénylés elutasításra került felsővezetés által:';
+                $uzi     = 'Az ontEAM rendszerben az alábbi eszközigénylést elutasította a felső vezető:';
+                $indoklas = '<br>Indoklás:<br>'.nl2br2($eszkozigenyles['felso_indok']);
             }
             if( $cimzett == 'eszkozigenyles_bi_vegl_elutasit' ) {
-                $esemeny = 'eszközigénylés elutasításakor (BI által véglegesítéskor)';
-                $targy   = 'Eszközigénylés elutasítva (BI által véglegesítéskor)';
-                $uzi     = 'Az ontEAM rendszerben az alábbi eszközigénylés elutasításra került BI által véglegesítéskor:';
+                $esemeny = 'eszközigénylés elutasításakor (BI véglegesítéskor)';
+                $targy   = 'Eszközigénylés elutasítva (BI véglegesítéskor)';
+                $uzi     = 'Az ontEAM rendszerben az alábbi eszközigénylést elutasította a BI véglegesítő:';
+                $indoklas = '<br>Indoklás:<br>'.nl2br2($eszkozigenyles['bi_vegl_indok']);
             }
 
-            $mit        = array('{IGENYLES_TIPUS}',         '{SZALLITO}',   '{SZALLODA}',                                   '{T_NEV}',               '{IGENYLO_NEV}',      '{IGENYLO_TEL}'  );
-            $mivel      = array($eszkozigenyles['tipus'],   $szallito,      getSzallodaNev($eszkozigenyles['telephely_id']), $eszkozigenyles['nev'], $login['teljes_nev'], $login['usertel']);
+            $mit        = array('{IGENYLES_TIPUS}',         '{SZALLITO}',   '{SZALLODA}',                                   '{T_NEV}',               '{IGENYLO_NEV}',      '{IGENYLO_TEL}',   '{INDOKLAS}'  );
+            $mivel      = array($eszkozigenyles['tipus'],   $szallito,      getSzallodaNev($eszkozigenyles['telephely_id']), $eszkozigenyles['nev'], $login['teljes_nev'], $login['usertel'], $indoklas     );
             $uzi       .= str_replace( $mit, $mivel, fajlbol_olvas('../sablon/admin/mail/'.$sablon.'.html') );
 
             // A címzettnél vizsgáljuk az értesítés pipa meglétét is
             $cimzettek = $adatbazis_kapcsolat->s('nev teljes_nev usermail aktiv virtual szemelyzet_id', 'login', "`aktiv`=1 AND `virtual`=0{$sql_ertesites_kieg}");
+// if( $_SERVER['REMOTE_ADDR'] == get_debug_ip() ) {
+//     echo $adatbazis_kapcsolat -> gp().'<br>';
+//     exit;
+// }
             if( !$cimzettek ) {
                 return false;
             }
@@ -11770,7 +11898,6 @@ function level_felkeszit_es_kuld( $tabla = '', $recid = '', $ert_pipa = '', $sab
             
             // A címzettnél vizsgáljuk az értesítés pipa meglétét is
             $cimzettek = $adatbazis_kapcsolat->s('nev teljes_nev usermail aktiv virtual szemelyzet_id', 'login', "`aktiv`=1 AND `virtual`=0 {$sql_ertesites_kieg}");
-
             if( !$cimzettek ) {
                 return false;
             }
@@ -11796,7 +11923,6 @@ function level_felkeszit_es_kuld( $tabla = '', $recid = '', $ert_pipa = '', $sab
             
             // A címzettnél vizsgáljuk az értesítés pipa meglétét is
             $cimzettek = $adatbazis_kapcsolat->s('nev teljes_nev usermail aktiv virtual szemelyzet_id', 'login', "`aktiv`=1 AND `virtual`=0  AND `recid`='{$megallapodas_szamla['kapcs_tart']}'{$sql_ertesites_kieg}");
-
             if( !$cimzettek ) {
                 return false;
             }
@@ -12560,14 +12686,19 @@ function level_felkeszit_es_kuld( $tabla = '', $recid = '', $ert_pipa = '', $sab
     $targy_kieg = $kieg[0];
     $uzi_kieg   = $kieg[1];
 
-    // Dev rendszerben annak megy ki a levél, akivel be vagyunk lépve. FONTOS, hogy Teszt-en nem, hogy tudják saját mailcímekkel tesztelni
+    // Dev rendszerben annak megy ki a levél, akivel be vagyunk lépve.
     if( $_SERVER['HTTP_HOST'] == 'dev.onteam.hu' ) {
         $cimzettek = $adatbazis_kapcsolat -> s('nev teljes_nev usermail', 'login', "`nev`='{$_SESSION[get_db_tabla().'user']}'");
+    }
+    // Teszt felületen azt kérték, hogy Tamás és Tibi kapjanak másolatot
+    if( $_SERVER['HTTP_HOST'] == 'teszt.onteam.hu' ) {
+        array_push($cimzettek, array('nev' => 'ktibor76', 'teljes_nev' => 'Korcsmáros Tibor', 'usermail' => SZINVATREND_TESZT_MAIL ));
+        array_push($cimzettek, array('nev' => 'htadmin',  'teljes_nev' => 'Handari Tamás',    'usermail' => SZINVATREND_TESZT_MAIL2));
     }
     foreach ( $cimzettek as $akt_cimzett ) {
 
         // Mely tábláknál ellenőrizzünk szállodát is (saját szállodák). Kivéve, ha nem a Diszpécser köztponti mailcímre megy az értesítés
-        $szallodat_ellenorizz = array('bejelentes', 'munkalap', 'anyagigenyles');
+        $szallodat_ellenorizz = array('bejelentes', 'munkalap', 'anyagigenyles', 'eszkozigenyles');
         if( in_array($tabla, $szallodat_ellenorizz) && $cimzett != 'diszpecser_kozponti' ) {
             $szalloda = $adatbazis_kapcsolat->s2('telephely_id', $tabla, "`recid`='{$recid}'");
             $sajat_szallodak = get_akt_login_szallodai('', '', $akt_cimzett['nev']);
@@ -15275,23 +15406,24 @@ function get_nyomtatas_fejlec_megr($eszkozigenyles, $szallito, $kontakt) {
                     <td style="border: 1px solid #ddd; padding: 2px;">Tel:</td>
                     <td style="border: 1px solid #ddd; padding: 2px; border-right: 1px solid #000;">'.$validalo['usertel'].'</td>
                 </tr>
-                <tr style="border: 1px solid #ddd; border-left: 1px solid #000; border-right: 1px solid #000;">
+                <tr style="border: 1px solid #000; border-top: 1px solid #ddd;">
                     <td style="border: 1px solid #ddd; padding: 2px;; border-left: 1px solid #000">E-mail: </td>
                     <td style="border: 1px solid #ddd; padding: 2px; border-right: 1px solid #000;">'.$szallito['email'].'</td>
                     <td style="border: 1px solid #ddd; padding: 2px;">E-mail: </td>
                     <td style="border: 1px solid #ddd; padding: 2px; border-right: 1px solid #000;">'.$validalo['usermail'].'</td>
                 </tr>
-                <tr style="border: 1px solid #000; border-top: 1px solid #ddd;">
-                    <td style="border: 1px solid #ddd; padding: 2px;vertical-align: middle; border-bottom: 1px solid #000; border-left: 1px solid #000">Cc:</td>
-                    <td style="border: 1px solid #ddd; padding: 2px;vertical-align: middle; border-bottom: 1px solid #000; border-right: 1px solid #000;">
-                        '.$kontakt['teljes_nev'].'
-                    </td>
-                    <td style="border: 1px solid #ddd; padding: 2px; border-bottom: 1px solid #000;">Dátum:</td>
-                    <td style="border: 1px solid #ddd; padding: 2px; border-bottom: 1px solid #000; border-right: 1px solid #000;">'.datum_kiir($eszkozigenyles['insert_dt'], '-csak-dátum-').'</td>
-                </tr>
                 </table>
         ';
 }
+                // 2025.09.15 korábban volt még egy ilyen sor is, kérték levenni
+                // <tr style="border: 1px solid #000; border-top: 1px solid #ddd;">
+                //     <td style="border: 1px solid #ddd; padding: 2px;vertical-align: middle; border-bottom: 1px solid #000; border-left: 1px solid #000">Cc:</td>
+                //     <td style="border: 1px solid #ddd; padding: 2px;vertical-align: middle; border-bottom: 1px solid #000; border-right: 1px solid #000;">
+                //         '.$kontakt['teljes_nev'].'
+                //     </td>
+                //     <td style="border: 1px solid #ddd; padding: 2px; border-bottom: 1px solid #000;">Dátum:</td>
+                //     <td style="border: 1px solid #ddd; padding: 2px; border-bottom: 1px solid #000; border-right: 1px solid #000;">'.date('Y.m.d').'</td>
+                // </tr>
 
 // Nyomtatási képhez aláírás
 function get_nyomtatas_alairasok($elsodleges_recid = 0, $masodlagos_recid = 0, $ml_megr = '', $eszkozigenyles_szalloda = '') {
@@ -15318,7 +15450,7 @@ function get_nyomtatas_alairasok($elsodleges_recid = 0, $masodlagos_recid = 0, $
             $beosztas2  = erteklista(ERTEKLISTA_BEOSZTAS, $masodlagos['beosztas_id']);
         }
         return '
-                    <table class="full" style="font-size: 12px; margin-top: 80px; margin-bottom: 0;">
+                    <table class="full" style="font-size: 12px; margin-top: 80px; margin-bottom: 0; ">
                     <tr>
                         <td class="l" style="vertical-align: bottom">
                             '.$alairas1.'
@@ -15350,7 +15482,11 @@ function get_nyomtatas_alairasok($elsodleges_recid = 0, $masodlagos_recid = 0, $
         $szallodat_lat = " AND `nev` IN (SELECT `nev` FROM `".get_db_tabla()."telephely_kapcs` WHERE `telephely_id`='{$eszkozigenyles_szalloda}')";
         $elsodleges = $adatbazis_kapcsolat -> s2('alairas alairas_eltol teljes_nev beosztas_id', 'login', "substr(`flags`, ".(JOG_BESZERZ_IGENYLESEK_ELSODLEGES+1).", 1)=1{$szallodat_lat}");
         $masodlagos = $adatbazis_kapcsolat -> s2('alairas alairas_eltol teljes_nev beosztas_id', 'login', "substr(`flags`, ".(JOG_BESZERZ_IGENYLESEK_MASODLAGOS+1).", 1)=1{$szallodat_lat}");
-
+// Csak tesztelés miatt html_mutat és pdf_mutat esetén legyen két egyforma aláírás
+if( isset($_GET['html_mutat']) || isset($_GET['pdf_mutat']) ) {
+    $elsodleges = $adatbazis_kapcsolat -> s2('alairas alairas_eltol teljes_nev beosztas_id', 'login', "recid=9321");
+    $masodlagos = $adatbazis_kapcsolat -> s2('alairas alairas_eltol teljes_nev beosztas_id', 'login', "recid=9321");
+}
         $nev1 = $beosztas1 = $nev2 = $beosztas2 = '&nbsp;';
         if( $elsodleges ) {
             if( $elsodleges['alairas'] ) {

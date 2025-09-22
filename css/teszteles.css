@@ -1,0 +1,23 @@
+.sor.kethasabos div.bal {
+    display: none;
+}
+
+.sor.kethasabos {
+    padding-top: 0;
+}
+
+div.szamlaKereses {
+    padding: 0;
+}
+
+.sor.kethasabos div.jobb {
+    margin-top: 0;
+}
+
+#szamlaBetolt table.csikos td {
+    text-align: left;
+}
+
+#szamlaBetolt table.csikos tr:nth-of-type(2n) {
+    background: #E8E8E8;
+}
