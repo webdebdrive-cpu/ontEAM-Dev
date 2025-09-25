@@ -106,6 +106,7 @@ $_stat_text = array(
         ESZKOZIGENYL_STAT_MUSZAK_JH_VAR     => array('nev' => 'Műszaki jóváhagyásra vár',           'szinkod' => ''),
         ESZKOZIGENYL_STAT_SZALL_ENG_VAR     => array('nev' => 'Szállodai engedélyre vár',           'szinkod' => ''),
         ESZKOZIGENYL_STAT_BI_VALID_VAR      => array('nev' => 'BI validálásra vár',                 'szinkod' => ''),
+        ESZKOZIGENYL_STAT_BI_JH_VAR         => array('nev' => 'BI jóváhagyásra vár',                'szinkod' => ''),
         ESZKOZIGENYL_STAT_SZAKM_VEL_VAR     => array('nev' => 'Szakmai véleményezésre vár',         'szinkod' => ''),
         ESZKOZIGENYL_STAT_FELSO_JH_VAR      => array('nev' => 'Felsővezető jóváhagyásra vár',       'szinkod' => ''),
         ESZKOZIGENYL_STAT_BI_VEGL_VAR       => array('nev' => 'BI véglegesítésre vár',              'szinkod' => ''),

@@ -1565,6 +1565,14 @@ $(function() {
                 val = '';
             }
 
+            // Nullasok
+            let nullasok = ['kiszall', 'beuzemel', 'munkadij', 'egyeb_koltseg'];
+            if (!taroltVal && nullasok.includes(name)) {
+                if( val == '0' || val == '0,00' ) {
+                    val = '';
+                }
+            }
+
 // console.log(name+' db:'+taroltVal+'|itt:'+val);
             if( name!='egy_tobb_egy' && name!='egy_tobb_tobb' ){
                 if( taroltVal != val ) {

@@ -52,6 +52,7 @@ if(     !$_SESSION['kert_url']                                                  
         substr(basename($_SERVER['REQUEST_URI']), 0, 16)!='autocomplete.php'    &&
         substr(basename($_SERVER['REQUEST_URI']), 0, 13)!='esemenyek.php'       &&
         substr(basename($_SERVER['REQUEST_URI']), 0, 14)!='beleptetes.php'      &&
+        substr(basename($_SERVER['REQUEST_URI']), 0, 11)!='megr_ig.php'         &&
         strpos($_SERVER['REQUEST_URI'], '&no_lista=1') === false                &&
         strpos($_SERVER['REQUEST_URI'], '&sql_db') === false
     ) {

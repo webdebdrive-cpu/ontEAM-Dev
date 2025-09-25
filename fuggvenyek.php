@@ -5233,6 +5233,7 @@ function szamla_lista( $where = '', $tabla = '', $kijeloltek = false, $csak_sql_
             switch ( $_SESSION['eszkozigenyles_tablazat_rendez'] ) {
                 case 'eszkoz_tabla_recid'       : $order = '`'.get_db_tabla().'eszkozigenyles`.`recid`';        break;
                 case 'eszkoz_tabla_azon'        : $order = '`'.get_db_tabla().'eszkozigenyles`.`recid`';        break;
+                case 'eszkoz_tabla_idoszak_azon': $order = '`'.get_db_tabla().'eszkozigenyles`.`idoszak_azon`'; break;
                 case 'eszkoz_tabla_statusz'     : $order = '`'.get_db_tabla().'eszkozigenyles`.`stat_id`';      break;
                 case 'eszkoz_tabla_kiv_kolts'   : $order = '`'.get_db_tabla().'eszkozigenyles`.`kiv_kolts`';    break;
                 case 'eszkoz_tabla_musz_el_ig'  : $order = '`'.get_db_tabla().'eszkozigenyles`.`musz_el_ig`';   break;
@@ -7573,7 +7574,8 @@ function eszkozigenylesLista( $bejegyzesek, $tabla, $frissit = '', $kijeloltek =
     if( $bejegyzesek ) {
 
         $oszlopok = array(
-            array('id' => 'eszkoz_tabla_azon',          'nev' => 'Azonosító',                       'width' => 80   ),
+            array('id' => 'eszkoz_tabla_azon',          'nev' => 'Igény ID',                        'width' => 80   ),
+            array('id' => 'eszkoz_tabla_idoszak_azon',  'nev' => 'Időszak ID',                      'width' => 80   ),
             array('id' => 'eszkoz_tabla_statusz',       'nev' => 'Státusz',                         'width' => 80   ),
             array('id' => 'eszkoz_tabla_tipus',         'nev' => 'Típus',                           'width' => 80   ),
             array('id' => 'eszkoz_tabla_prior',         'nev' => 'Prioritás',                       'width' => 50   ),
@@ -7795,6 +7797,7 @@ function eszkozigenylesLista( $bejegyzesek, $tabla, $frissit = '', $kijeloltek =
             $recid_rendezeshez = sprintf('%010u', $bsz['recid']);
             $sorok = array(
                 'eszkoz_tabla_azon'             => '<td data-sort="'.$bsz['recid'].'">'.$bsz['azon'].'</td>',
+                'eszkoz_tabla_idoszak_azon'     => '<td>'.$bsz['idoszak_azon'].'</td>',
                 'eszkoz_tabla_statusz'          => '<td sorttable_customkey="'.$bsz['stat_id'].'">
                                                         <span class="stat_'.$bsz['recid'].'">'.getStatText('eszkozigenyles', $bsz['stat_id']).'</span>
                                                         <div class="dn akt_sor_gombok gombok_'.$bsz['recid'].'" data-dok_db="'.$bsz['dok_db'].'" data-megj_db="'.$bsz['megj_db'].'">
@@ -7917,7 +7920,7 @@ function eszkozigenylesLista( $bejegyzesek, $tabla, $frissit = '', $kijeloltek =
 function get_eszkozigenyles_gombok($recid = 0) {
     global $adatbazis_kapcsolat;
 
-    $eszkozigenyles = $adatbazis_kapcsolat -> s2('stat_id tipus telephely_id nev kiv_kolts ossz_netto igmen jhmen musz_el_ig musz_indok szall_ig_vel szall_ig_indok bi_vel bi_indok szak_vel szak_indok felso_vel felso_indok bi_vegl bi_vegl_indok', 'eszkozigenyles', "`recid`='{$recid}'");
+    $eszkozigenyles = $adatbazis_kapcsolat -> s2('stat_id tipus telephely_id nev kiv_kolts becsult ossz_netto igmen jhmen musz_el_ig musz_indok szall_ig_vel szall_ig_indok bi_vel bi_indok szak_vel szak_indok felso_vel felso_indok bi_vegl bi_vegl_indok', 'eszkozigenyles', "`recid`='{$recid}'");
 
     $gombok = '';
     if( isset($_GET['tablazat']) ) {
@@ -8049,6 +8052,7 @@ function get_eszkozigenyles_gombok($recid = 0) {
                 <input type="hidden" id="tipus_db_'.$recid.'" value="'.$eszkozigenyles['tipus'].'">
                 <input type="hidden" id="igmen_db_'.$recid.'" value="'.$eszkozigenyles['igmen'].'">
                 <input type="hidden" id="jhmen_db_'.$recid.'" value="'.$eszkozigenyles['jhmen'].'">
+                <input type="hidden" id="becsult_db_'.$recid.'" value="'.$eszkozigenyles['becsult'].'">
                 <div class="dn">
                     <textarea id="musz_indok_db_'.$recid.'">'.nl2br2($eszkozigenyles['musz_indok']).'</textarea>
                     <textarea id="szall_ig_indok_db_'.$recid.'">'.nl2br2($eszkozigenyles['szall_ig_indok']).'</textarea>
@@ -11756,7 +11760,7 @@ function level_felkeszit_es_kuld( $tabla = '', $recid = '', $ert_pipa = '', $sab
         case 'eszkozigenyles_felso_elutasit':
         case 'eszkozigenyles_bi_vegl_elutasit':
 
-            $eszkozigenyles = $adatbazis_kapcsolat -> s2('nev tipus szallito_id telephely_id szall_ig_indok bi_indok felso_indok bi_vegl_indok insert_usr', 'eszkozigenyles', "`recid`='{$recid}'");
+            $eszkozigenyles = $adatbazis_kapcsolat -> s2('azon nev tipus szallito_id telephely_id szall_ig_indok bi_indok felso_indok bi_vegl_indok insert_usr', 'eszkozigenyles', "`recid`='{$recid}'");
             $statusz        = $adatbazis_kapcsolat -> s2('login', 'eszkozigenyles_statusz', "`eszkozigenyles_recid`='{$recid}' AND `stat_id`='".ESZKOZIGENYL_STAT_UJ_FELVITEL."'", 'recid', '1');
             $login          = $adatbazis_kapcsolat -> s2('teljes_nev usertel', 'login', "`nev`='{$statusz['login']}'");
 
@@ -11767,79 +11771,79 @@ function level_felkeszit_es_kuld( $tabla = '', $recid = '', $ert_pipa = '', $sab
                 }
             }
             $szallito = getErtek('nev', 'szallito_beszerzes', 'recid', $eszkozigenyles['szallito_id']);
-            $esemeny =  'eszközigénylés létrehozásakor';
+            $esemeny =  'email értesítés küldése eszközigénylés létrehozásakor';
             $targy   =  'Új eszközigénylés rögzült';
             $uzi     = 'Az ontEAM rendszerben az alábbi eszközigénylés került rögzítésre:';
             if( $cimzett == 'eszkozigenyles_muszak_jova_elott' ) {
-                $esemeny = 'műszaki jóváhagyásra vár státuszba léptetéskor';
+                $esemeny = 'email értesítés küldése műszaki jóváhagyásra vár státuszba léptetéskor';
                 $targy   = 'Eszközigénylés műszaki jóváhagyásra vár';
                 $uzi     = 'Az ontEAM rendszerben az alábbi eszközigénylés műszaki jóváhagyásra vár státuszba lépett:';
             }
             if( $cimzett == 'eszkozigenyles_szallodai_eng_elo' ) {
-                $esemeny = 'szállodai engedélyre vár státuszba léptetéskor';
+                $esemeny = 'email értesítés küldése szállodai engedélyre vár státuszba léptetéskor';
                 $targy   = 'Eszközigénylés szállodai engedélyre vár';
                 $uzi     = 'Az ontEAM rendszerben az alábbi eszközigénylés szállodai engedélyre vár státuszba lépett:';
             }
             if( $cimzett == 'eszkozigenyles_bi_validalas_elo' ) {
-                $esemeny = 'BI validálásra vár státuszba léptetéskor';
+                $esemeny = 'email értesítés küldése BI validálásra vár státuszba léptetéskor';
                 $targy   = 'Eszközigénylés BI validálásra vár';
                 $uzi     = 'Az ontEAM rendszerben az alábbi eszközigénylés BI validálásra vár státuszba lépett:';
             }
             if( $cimzett == 'eszkozigenyles_szakmai_vel_elo' ) {
-                $esemeny = 'szakmai véleményezésre vár státuszba léptetéskor';
+                $esemeny = 'email értesítés küldése szakmai véleményezésre vár státuszba léptetéskor';
                 $targy   = 'Eszközigénylés szakmai véleményezésre vár';
                 $uzi     = 'Az ontEAM rendszerben az alábbi eszközigénylés szakmai véleményezésre vár státuszba lépett:';
             }
             if( $cimzett == 'eszkozigenyles_felsovez_jh_elo' ) {
-                $esemeny = 'felsővezető jóváhagyásra vár státuszba léptetéskor';
+                $esemeny = 'email értesítés küldése felsővezető jóváhagyásra vár státuszba léptetéskor';
                 $targy   = 'Eszközigénylés felsővezető jóváhagyásra vár';
                 $uzi     = 'Az ontEAM rendszerben az alábbi eszközigénylés felsővezető jóváhagyásra vár státuszba lépett:';
             }
             if( $cimzett == 'eszkozigenyles_bi_veglegesit_elo' ) {
-                $esemeny = 'BI véglegesítésre vár státuszba léptetéskor';
+                $esemeny = 'email értesítés küldése BI véglegesítésre vár státuszba léptetéskor';
                 $targy   = 'Eszközigénylés BI véglegesítésre vár';
                 $uzi     = 'Az ontEAM rendszerben az alábbi eszközigénylés BI véglegesítésre vár státuszba lépett:';
             }
             if( $cimzett == 'eszkozigenyles_megr_kikuld_elo' ) {
-                $esemeny = 'kiküldésre vár státuszba léptetéskor';
+                $esemeny = 'email értesítés küldése kiküldésre vár státuszba léptetéskor';
                 $targy   = 'Eszközigénylés kiküldésre vár';
                 $uzi     = 'Az ontEAM rendszerben az alábbi eszközigénylés kiküldésre vár státuszba lépett:';
             }
 
             $indoklas = '';
             if( $cimzett == 'eszkozigenyles_szall_ig_elutasit' ) {
-                $esemeny = 'eszközigénylés elutasításakor (Szálloda igazgató által)';
+                $esemeny = 'email értesítés küldése eszközigénylés elutasításakor (Szálloda igazgató által)';
                 $targy   = 'Eszközigénylés elutasítva (Szálloda igazgató által)';
                 $uzi     = 'Az ontEAM rendszerben az alábbi eszközigénylést elutasította a szállodai engedélyező:';
                 $indoklas = '<br>Indoklás:<br>'.nl2br2($eszkozigenyles['szall_ig_indok']);
             }
             if( $cimzett == 'eszkozigenyles_bi_elutasit' ) {
-                $esemeny = 'eszközigénylés elutasításakor (BI validáláskor)';
+                $esemeny = 'email értesítés küldése eszközigénylés elutasításakor (BI validáláskor)';
                 $targy   = 'Eszközigénylés elutasítva (BI validáláskor)';
                 $uzi     = 'Az ontEAM rendszerben az alábbi eszközigénylést elutasította a BI validáló:';
                 $indoklas = '<br>Indoklás:<br>'.nl2br2($eszkozigenyles['bi_indok']);
             }
             // Nem kell mert tovább megy felsővezetés elé
             // if( $cimzett == 'eszkozigenyles_szak_elutasit' ) {
-            //     $esemeny = 'eszközigénylés elutasításakor (Szakmai vezetés)';
+            //     $esemeny = 'email értesítés küldése eszközigénylés elutasításakor (Szakmai vezetés)';
             //     $targy   = 'Eszközigénylés elutasítva (Szakmai vezetés)';
             //     $uzi     = 'Az ontEAM rendszerben az alábbi eszközigénylést elutasította a szakmai vezető:';
             // }
             if( $cimzett == 'eszkozigenyles_felso_elutasit' ) {
-                $esemeny = 'eszközigénylés elutasításakor (Felsővezetés által)';
+                $esemeny = 'email értesítés küldése eszközigénylés elutasításakor (Felsővezetés által)';
                 $targy   = 'Eszközigénylés elutasítva (Felsővezetés által)';
                 $uzi     = 'Az ontEAM rendszerben az alábbi eszközigénylést elutasította a felső vezető:';
                 $indoklas = '<br>Indoklás:<br>'.nl2br2($eszkozigenyles['felso_indok']);
             }
             if( $cimzett == 'eszkozigenyles_bi_vegl_elutasit' ) {
-                $esemeny = 'eszközigénylés elutasításakor (BI véglegesítéskor)';
+                $esemeny = 'email értesítés küldése eszközigénylés elutasításakor (BI véglegesítéskor)';
                 $targy   = 'Eszközigénylés elutasítva (BI véglegesítéskor)';
                 $uzi     = 'Az ontEAM rendszerben az alábbi eszközigénylést elutasította a BI véglegesítő:';
                 $indoklas = '<br>Indoklás:<br>'.nl2br2($eszkozigenyles['bi_vegl_indok']);
             }
 
-            $mit        = array('{IGENYLES_TIPUS}',         '{SZALLITO}',   '{SZALLODA}',                                   '{T_NEV}',               '{IGENYLO_NEV}',      '{IGENYLO_TEL}',   '{INDOKLAS}'  );
-            $mivel      = array($eszkozigenyles['tipus'],   $szallito,      getSzallodaNev($eszkozigenyles['telephely_id']), $eszkozigenyles['nev'], $login['teljes_nev'], $login['usertel'], $indoklas     );
+            $mit        = array('{AZON}',                '{IGENYLES_TIPUS}',         '{SZALLITO}',   '{SZALLODA}',                                   '{T_NEV}',               '{IGENYLO_NEV}',      '{IGENYLO_TEL}',   '{INDOKLAS}'  );
+            $mivel      = array($eszkozigenyles['azon'], $eszkozigenyles['tipus'],   $szallito,      getSzallodaNev($eszkozigenyles['telephely_id']), $eszkozigenyles['nev'], $login['teljes_nev'], $login['usertel'], $indoklas     );
             $uzi       .= str_replace( $mit, $mivel, fajlbol_olvas('../sablon/admin/mail/'.$sablon.'.html') );
 
             // A címzettnél vizsgáljuk az értesítés pipa meglétét is
@@ -15390,24 +15394,24 @@ function get_nyomtatas_fejlec_megr($eszkozigenyles, $szallito, $kontakt) {
                 <table class="border full" style="font-size: 12px; margin: auto; margin-top: 0; border: 1px solid #000;">
                 <tr style="border: 1px solid #000; border-bottom: 1px solid #ddd;">
                     <td style="border: 1px solid #ddd; padding: 2px; width: 40px; border-top: 1px solid #000; border-left: 1px solid #000;">Név:</td>
-                    <td style="border: 1px solid #ddd; padding: 2px;; border-top: 1px solid #000; border-right: 1px solid #000;">'.$szallito['knev'].'</td>
+                    <td style="border: 1px solid #ddd; padding: 2px; border-top: 1px solid #000; border-right: 1px solid #000;">'.$szallito['knev'].'</td>
                     <td style="border: 1px solid #ddd; padding: 2px; width: 40px;; border-top: 1px solid #000;">Küldi:</td>
-                    <td style="border: 1px solid #ddd; padding: 2px;; border-top: 1px solid #000; border-right: 1px solid #000;">'.$validalo['teljes_nev'].'</td>
+                    <td style="border: 1px solid #ddd; padding: 2px; border-top: 1px solid #000; border-right: 1px solid #000;">'.$validalo['teljes_nev'].'</td>
                 </tr>
                 <tr style="border: 1px solid #ddd; border-left: 1px solid #000; border-right: 1px solid #000;">
-                    <td style="border: 1px solid #ddd; padding: 2px;; border-left: 1px solid #000">Cég:</td>
+                    <td style="border: 1px solid #ddd; padding: 2px; border-left: 1px solid #000">Cég:</td>
                     <td style="border: 1px solid #ddd; padding: 2px; border-right: 1px solid #000;">'.$szallito['nev'].'</td>
                     <td style="border: 1px solid #ddd; padding: 2px;">Részleg:</td>
                     <td style="border: 1px solid #ddd; padding: 2px; border-right: 1px solid #000;">Logisztikai Szolgáltató Központ</td>
                 </tr>
                 <tr style="border: 1px solid #ddd; border-left: 1px solid #000; border-right: 1px solid #000;">
-                    <td style="border: 1px solid #ddd; padding: 2px;; border-left: 1px solid #000">Tel:</td>
+                    <td style="border: 1px solid #ddd; padding: 2px; border-left: 1px solid #000">Tel:</td>
                     <td style="border: 1px solid #ddd; padding: 2px; border-right: 1px solid #000;">'.$szallito['tel'].'</td>
                     <td style="border: 1px solid #ddd; padding: 2px;">Tel:</td>
                     <td style="border: 1px solid #ddd; padding: 2px; border-right: 1px solid #000;">'.$validalo['usertel'].'</td>
                 </tr>
                 <tr style="border: 1px solid #000; border-top: 1px solid #ddd;">
-                    <td style="border: 1px solid #ddd; padding: 2px;; border-left: 1px solid #000">E-mail: </td>
+                    <td style="border: 1px solid #ddd; padding: 2px; border-left: 1px solid #000">E-mail: </td>
                     <td style="border: 1px solid #ddd; padding: 2px; border-right: 1px solid #000;">'.$szallito['email'].'</td>
                     <td style="border: 1px solid #ddd; padding: 2px;">E-mail: </td>
                     <td style="border: 1px solid #ddd; padding: 2px; border-right: 1px solid #000;">'.$validalo['usermail'].'</td>
@@ -15417,8 +15421,8 @@ function get_nyomtatas_fejlec_megr($eszkozigenyles, $szallito, $kontakt) {
 }
                 // 2025.09.15 korábban volt még egy ilyen sor is, kérték levenni
                 // <tr style="border: 1px solid #000; border-top: 1px solid #ddd;">
-                //     <td style="border: 1px solid #ddd; padding: 2px;vertical-align: middle; border-bottom: 1px solid #000; border-left: 1px solid #000">Cc:</td>
-                //     <td style="border: 1px solid #ddd; padding: 2px;vertical-align: middle; border-bottom: 1px solid #000; border-right: 1px solid #000;">
+                //     <td style="border: 1px solid #ddd; padding: 2px; vertical-align: middle; border-bottom: 1px solid #000; border-left: 1px solid #000">Cc:</td>
+                //     <td style="border: 1px solid #ddd; padding: 2px; vertical-align: middle; border-bottom: 1px solid #000; border-right: 1px solid #000;">
                 //         '.$kontakt['teljes_nev'].'
                 //     </td>
                 //     <td style="border: 1px solid #ddd; padding: 2px; border-bottom: 1px solid #000;">Dátum:</td>

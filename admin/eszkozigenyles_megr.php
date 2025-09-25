@@ -228,7 +228,7 @@ if (isset($_POST['megrendeles_javitasa'])) {
     }
 
     // Nem megfelelő státuszkor hibaüzenet
-    if( $megrendeles['stat_id'] != ESZKOZIGENYL_MEGR_STAT_MEGRENDELVE) {
+    if( $megrendeles['stat_id'] != ESZKOZIGENYL_MEGR_STAT_MEGRENDELVE && $megrendeles['stat_id'] != ESZKOZIGENYL_MEGR_STAT_KIKULD_VAR) {
         echo json_encode(array(
                                 'hiba'  => 'Ebben a státuszban nem lehet megrendelést javítani!',
                                 'title' => 'Hiba',
@@ -320,6 +320,77 @@ if (isset($_POST['megrendeles_javitasa'])) {
 if (isset($_POST['megj_kiir'])) {
 
     echo json_encode( array('html' => megj_kiir($megnevezes, $_POST['id'], $_POST['rendszer'])) );
+
+    $weblap -> leallit();
+    exit;
+}
+
+// Határidő lekérése
+if (isset($_POST['get_hatarido'])) {
+
+    $megr = $adatbazis_kapcsolat -> s2('szall_hat', 'eszkozigenyles_megr', "`recid`='{$_POST['id']}'");
+
+    echo json_encode(array(
+                             'hatarido'  => datum_kiir($megr['szall_hat']),
+                     ));
+
+    $weblap -> leallit();
+    exit;
+}
+
+// Új határidő mentése
+if (isset($_POST['hatraido_ment'])) {
+
+    $db_error = false;
+    mysqli_autocommit($db_kapcs, false);
+
+    if( !valos_datum_e($_POST['hatarido']) ) {
+        ajax_hiba('Érvénytelen dátumot adott meg!');
+    }
+
+    $megrendeles = $adatbazis_kapcsolat -> s2('recid stat_id', 'eszkozigenyles_megr', "`recid`='{$_POST['id']}'");
+    if( $megrendeles === false ) { $db_error = true; }
+
+    // Ha nincs joga hozzá, akkor hibaüzenet
+    if( !_jog(JOG_BESZERZ_IGENYLESEK_MEGR_KIKULD) ) {
+        echo json_encode(array(
+                                'hiba'  => 'Önnek nincs joga határidőt megadni!',
+                                'title' => 'Hiba',
+                        ));
+        $weblap -> leallit();
+        exit;
+    }
+
+    // Határidőt bármikor lehet megadni
+    // Nem megfelelő státuszkor hibaüzenet
+    // if( $megrendeles['stat_id'] != ESZKOZIGENYL_MEGR_STAT_KIKULD_VAR ) {
+    //     echo json_encode(array(
+    //                             'hiba'  => 'Ebben a státuszban nem lehet határidőt megadni!',
+    //                             'title' => 'Hiba',
+    //                     ));
+    //     $weblap -> leallit();
+    //     exit;
+    // }
+
+    $sql = $adatbazis_kapcsolat -> u('eszkozigenyles_megr', array('szall_hat'), array($_POST['hatarido']), "`recid`='{$_POST['id']}'");
+    if( $sql === false ) { $db_error = true; }
+
+    if( addMegj('eszkozigenyles_megr', $_POST['id'], 'Új szállítási határidő: '.datum_kiir($_POST['hatarido'])) === false ) {
+        $db_error = true;
+    }
+
+    if( !$db_error ) {
+        mysqli_commit($db_kapcs);
+        echo json_encode( array(
+                                'siker' => 1,
+                                ) );
+    } else {
+        mysqli_rollback($db_kapcs);
+        echo json_encode(array(
+            'hiba'  => tranzakcioHiba(),
+            'title' => 'Hiba'
+        ));
+    }
 
     $weblap -> leallit();
     exit;
@@ -479,10 +550,14 @@ if( isset($_GET['uj']) && _jog(JOG_BESZERZ_IGENYLESEK_MEGR_OLVAS) ) {
 
     // Jogosutságkezelés
     if ( $sor['stat_id'] == ESZKOZIGENYL_MEGR_STAT_KIKULD_VAR && _jog(JOG_BESZERZ_IGENYLESEK_MEGR_KIKULD)) {
-        $gombok .= '<input type="button" class="gomb modositaskor_rejt" onclick="megrendelo_kikuldese()" value="Megrendelő kiküldése">';
+        $gombok .= '<input type="button" class="gomb modositaskor_rejt" onclick="megrendelo_kikuldese()" value="Megrendelő kiküldése"> ';
     }
+    if( _jog(JOG_BESZERZ_IGENYLESEK_MEGR_KIKULD) ) {
+        $gombok .= '<input type="button" class="gomb modositaskor_rejt" onclick="csoportMuvelet(\'eszkozigenyles_megrendeles_hatarido\');" value="Szállítási határidő hozzáadása"> ';
+    }
+
     // Megrendelés javítása
-    if( $sor['stat_id'] == ESZKOZIGENYL_MEGR_STAT_MEGRENDELVE && _jog(JOG_BESZERZ_IGENYLESEK_KEZEL) ) {
+    if( ($sor['stat_id'] == ESZKOZIGENYL_MEGR_STAT_MEGRENDELVE || $sor['stat_id'] == ESZKOZIGENYL_MEGR_STAT_KIKULD_VAR ) && _jog(JOG_BESZERZ_IGENYLESEK_KEZEL) ) {
         $gombok .= nl2('
             <input type="button" class="gomb modositaskor_rejt" onclick="csoportMuvelet(\'eszkozigenyles_megrendeles_javitasa\');" value="Megrendelés javítása">
             '

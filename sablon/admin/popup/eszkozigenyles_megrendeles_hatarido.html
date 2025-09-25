@@ -1,0 +1,91 @@
+<h2>Szállítási határidő hozzáadása</h2>
+<form id="ujHatarido" class="popupForm" method="post" onsubmit="return hatraido_ment();">
+    <div class="kozep">
+        <div class="dt">
+            <div class="dtr">
+                <div class="dtc form_bal">Új szállítási határidő:</div>
+                <div class="dtc form_jobb">
+                    <input type="text" id="pop_hatarido" class="datepicker csillag">
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="kuldes">
+        <input type="submit" name="elkuld" value="Mentés">
+        <input type="button" name="megsem" class="gombb_alert" value="Mégsem" onclick="popupZar();">
+    </div>
+</form>
+<script>
+$(document).ready(function(){
+
+    $('.datepicker').datetimepicker({
+        closeOnDateSelect   : true,
+        format              :'Y.m.d',
+        mask                : /*'____.__.__'*/'\xa0\xa0\xa0\xa0.\xa0\xa0.\xa0\xa0',
+        timepicker          : false,
+        validateOnBlur      : false,
+        minDate             : '-1970/01/02', // Csak mai vagy későbbi dátum adható meg
+        onChangeDateTime    : function(){  }
+    });
+    
+    $.ajax({
+        url : PHP_SELF,
+        type: 'POST',
+        data: {
+            id              : _get('id'),
+            get_hatarido    : Date.now()
+        },
+        success: function(response){
+            if(response.substring(0, 6)=='SESKIL'){ location.href = 'index.php'; }
+            if(response){
+                response = JSON.parse(response);
+                if(response.hiba){
+                    alert2(response.hiba, response.gomb, response.title);
+                    return false;
+                }
+                $('#pop_hatarido').val(response.hatarido);
+            }
+        },
+        complete: function(xhr) {
+            if( xhr.status != 200 ) {
+                alert2(xhr.responseText, '', 'Hiba');
+            }
+        }
+    });
+});
+
+// Új határidő mentése
+function hatraido_ment() {
+    
+    $.ajax({
+        url : PHP_SELF,
+        type: 'POST',
+        data: {
+            id              : _get('id'),
+            hatarido        : $('#pop_hatarido').val(),
+            hatraido_ment   : Date.now()
+        },
+        success: function (response) {
+            if(response.substring(0, 6)=='SESKIL'){ location.href = 'index.php'; }
+            if (response) {
+                response = JSON.parse(response);
+                if (response.hiba) {
+                    alert2(response.hiba, response.gomb, response.title);
+                    $('#pop_hatarido').addClass('hibas_ide_focus');
+                    return false;
+                }
+                popupZar();
+                location.reload();
+            }
+        },
+        complete: function (xhr) {
+            if (xhr.status != 200) {
+                alert2(xhr.responseText, '', 'Hiba');
+            }
+        }
+    });
+
+    return false;
+
+}
+</script>

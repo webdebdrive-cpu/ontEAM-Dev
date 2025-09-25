@@ -542,6 +542,7 @@ switch ( $tabla ) {
         // Ezeket a tábla oszlopokat kérdezzük le baloldalra
         $_OPTS['select']    = nl2('
                                     `'.get_db_tabla().$tabla_nophp.'`.`recid`,
+                                    `'.get_db_tabla().$tabla_nophp.'`.`idoszak_azon`,
                                     `'.get_db_tabla().$tabla_nophp.'`.`azon`,
                                     `'.get_db_tabla().$tabla_nophp.'`.`stat_id`,
                                     `'.get_db_tabla().$tabla_nophp.'`.`tipus`,
@@ -3524,7 +3525,7 @@ $megnevezes = 'eszkozigenyles';
 $akt_tomb   = $eszkozigenyles_tomb = array(
     array('type' => 'statusz',                  'megn' => 'Státusz:',                                   'name' => 'stat_id',        'szuro' => 1,   'oldal' => $megnevezes, 'post' => '<input type="hidden" id="adatlap_disabled" value="'.$mezok_disabled.'">'),
     array('type' => 'text',                     'megn' => '',                                           'name' => 'azon',           'szuro' => 1,   'disabled' => 1, 'pre' => '<span style="margin-left: 46.7rem"></span>Igény ID: ', 'style' => 'width: 9.7rem'),
-    array('type' => 'text',                     'megn' => 'Időszak ID:',                                'name' => 'beszerzes_idoszak_recid'/* ide nem a recid jön majd... még pontosítjuk*/,            'szuro' => 1,   'disabled' => 1, 'style' => 'width: 11rem', 'osszevon' => 1, 'post' => '<span style="margin-left: 1.8rem"></span>'),
+    array('type' => 'text',                     'megn' => 'Időszak ID:',                                'name' => 'idoszak_azon',   'szuro' => 1,   'disabled' => 1, 'style' => 'width: 11rem', 'osszevon' => 1, 'post' => '<span style="margin-left: 1.8rem"></span>'),
     array('type' => 'select_besz_tipus',        'megn' => 'Beszerzés típus:',                           'name' => 'tipus',          'szuro' => 1,                            'disabled' => $mezok_disabled,   'osszevon' => 1,    'style' => 'width: 15.7rem;', 'post' => '<span style="margin-left: 5.9rem"></span>', 'alert' => 'Kérem adja meg a beszerzés típusát!'),
     array('type' => 'select_eszkoz_prior',      'megn' => 'Prioritás:',                                 'name' => 'prior',          'szuro' => 1,                            'disabled' => $mezok_disabled),
     array('type' => 'select_felh_telephely',    'megn' => 'Szálloda:',                                  'name' => 'telephely_id',   'szuro' => 1,   'class' => 'disableNav', 'disabled' => $mezok_disabled,    'unid_group' => 1,    'style' => 'width: 40rem;', 'alert' => 'Kérem válasszon szállodát!', 'onchange' => 'szallodaVane( this );', 'osszevon' => 1, 'post' => '<span style="margin-left: 1.7rem"></span>'),
@@ -3557,7 +3558,8 @@ $akt_tomb   = $eszkozigenyles_tomb = array(
     array('type' => 'text',                     'megn' => 'Munkadíj:',                                  'name' => 'munkadij',       'szuro' => 1,   'class' => 'f_num f_csak_pozitiv',   'data' => 'data-tort="'.$tizedesek.'"',  'disabled' => $mezok_disabled, 'maxlength' => 10),
     array('type' => 'text',                     'megn' => 'Rendelés szám:',                             'name' => 'rend_szam',      'szuro' => 1,  'maxlength' => 50, 'disabled' => 1,   'osszevon' => 1, 'style' => 'width: 15rem', 'post' => ' <span style="margin-left: 7.8rem"></span>'),
     array('type' => 'text',                     'megn' => 'Egyéb költség:',                             'name' => 'egyeb_koltseg',  'szuro' => 1,   'class' => 'f_num f_csak_pozitiv',   'data' => 'data-tort="'.$tizedesek.'"',  'disabled' => $mezok_disabled,   'osszevon' => 1, 'maxlength' => 10, 'post' => ' <span style="margin-left: 3.3rem"></span>'),
-    array('type' => 'text',                     'megn' => 'Műszaki előkészítés költség:',               'name' => 'kiv_kolts',      'szuro' => 1,   'class' => 'f_num',   'data' => 'data-tort="0"', 'post' => ' '.get_penznem(), 'disabled' => 1),
+    array('type' => 'text',                     'megn' => 'Műszaki előkészítés költség:',               'name' => 'kiv_kolts',      'szuro' => 1,   'class' => 'f_num',   'data' => 'data-tort="0"', 'post' => ' '.get_penznem().'<span style="margin-left: 1rem"></span>', 'disabled' => 1, 'osszevon' => 1),
+    array('type' => 'checkbox',                 'megn' => 'Becsült érték:',                             'name' => 'becsult',        'szuro' => 1,   'disabled' => 1),
     
 );
 array_push($postok, array('tomb' => $akt_tomb, 'uj' => 'uj'.$megnevezes, 'lista' => $megnevezes.'lista', 'tabla' => $megnevezes, 'torid' => $megnevezes.'tid' ));

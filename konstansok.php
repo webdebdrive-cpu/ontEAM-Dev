@@ -145,6 +145,7 @@ define('ESZKOZIGENYL_STAT_BI_VEGL_VAR',      '07');
 define('ESZKOZIGENYL_STAT_KIKULD_VAR',       '08');
 define('ESZKOZIGENYL_STAT_MEGRENDELVE',      '09');
 define('ESZKOZIGENYL_STAT_ELUTASITOTT',      '10');
+define('ESZKOZIGENYL_STAT_BI_JH_VAR',        '11');
 
 // Eszközigénylés megrendelés státuszok
 define('ESZKOZIGENYL_MEGR_STAT_KIKULD_VAR',  '01');

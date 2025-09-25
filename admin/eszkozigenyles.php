@@ -1,35 +1,35 @@
 <?php
 require_once('../weblap.php');
 
-if( isset($_GET['megj_karbantart']) ) {
-    // Ha a szöveg
-    // email elküldve vagy
-    // email küldése vagy
-    // mező előző értéke: vagy
-    // módosítva:
-    // akkor az rendszerüzenet volt
+// if( FALSE && isset($_GET['megj_karbantart']) ) {
+//     // Ha a szöveg
+//     // email elküldve vagy
+//     // email küldése vagy
+//     // mező előző értéke: vagy
+//     // módosítva:
+//     // akkor az rendszerüzenet volt
 
-    $megjegyzesek = $adatbazis_kapcsolat -> s('recid megj', 'megjegyzes', "`tabla` IN ('eszkozigenyles', 'eszkozigenyles_megr', 'szallito_beszerzes')");
-    foreach ($megjegyzesek as $megjegyzes) {
+//     $megjegyzesek = $adatbazis_kapcsolat -> s('recid megj', 'megjegyzes', "`tabla` IN ('eszkozigenyles', 'eszkozigenyles_megr', 'szallito_beszerzes')");
+//     foreach ($megjegyzesek as $megjegyzes) {
         
-        $user = 0;
-        if(
-            strpos($megjegyzes['megj'], 'E-mail elküldve'            ) === false &&
-            strpos($megjegyzes['megj'], 'E-mail küldése'             ) === false &&
-            strpos($megjegyzes['megj'], 'esemény NEM következett be' ) === false &&
-            strpos($megjegyzes['megj'], 'mező előző értéke'          ) === false &&
-            strpos($megjegyzes['megj'], 'módosítva'                  ) === false
-        ) {
-            $adatbazis_kapcsolat -> u('megjegyzes', array('user'), array(1), "`recid`='{$megjegyzes['recid']}'");
-            echo $megjegyzes['megj'] .'<br>';
-            echo $adatbazis_kapcsolat -> gp().'<br>';
-        }
+//         $user = 0;
+//         if(
+//             strpos($megjegyzes['megj'], 'E-mail elküldve'            ) === false &&
+//             strpos($megjegyzes['megj'], 'E-mail küldése'             ) === false &&
+//             strpos($megjegyzes['megj'], 'esemény NEM következett be' ) === false &&
+//             strpos($megjegyzes['megj'], 'mező előző értéke'          ) === false &&
+//             strpos($megjegyzes['megj'], 'módosítva'                  ) === false
+//         ) {
+//             $adatbazis_kapcsolat -> u('megjegyzes', array('user'), array(1), "`recid`='{$megjegyzes['recid']}'");
+//             echo $megjegyzes['megj'] .'<br>';
+//             echo $adatbazis_kapcsolat -> gp().'<br>';
+//         }
 
-    } 
+//     } 
 
-    echo 'f';
-    exit;
-}
+//     echo 'f';
+//     exit;
+// }
 
 if( isset($_GET['azon_karbantart']) ) {
     $eszkozigenylesek = $adatbazis_kapcsolat -> s('recid tipus', 'eszkozigenyles');
@@ -77,6 +77,11 @@ $torles                 = $megnevezes.'tid';
 $szoveg                 = 'eszközigénylést';               // Hibaüzenetkor: Biztosan törlöd a $szoveg?
 
 $szamla_html = '';
+
+// Ha státuszléptetéskor nem stimmelnek a státuszok, akkor legnagyobb valószínűséggel arról van szó, hogy ugyanazt az igénylést párhuzamosan más már tovább léptette.
+// Ezért inkább ezt a hibaüzenetet írjuk ki:
+$statusz_hiba       = 'Az igénylés adatai időközben megváltoztak.<br>A frissítéshez kattintson az Ok gombra.';
+$statusz_hiba_gomb  = '<input type="button" class="link gomb escapes_megsem" value="Ok" onclick="location.reload()">';
 
 // Dokumentumok fülhöz kell majd
 $tobb_kep = 1;
@@ -210,7 +215,8 @@ if (isset($_POST['tablazat_rendez'])) {
 if (isset($_POST['get_tabla_oszlopok'])) {
 
     $oszlopok = [
-        ['nev' => 'Azonosító',                   'id' => 'eszkoz_tabla_azon'            ],
+        ['nev' => 'Igény ID',                    'id' => 'eszkoz_tabla_azon'            ],
+        ['nev' => 'Időszak ID',                  'id' => 'eszkoz_tabla_idoszak_azon'    ],
         ['nev' => 'Státusz',                     'id' => 'eszkoz_tabla_statusz'         ],
         ['nev' => 'Típus',                       'id' => 'eszkoz_tabla_tipus'           ],
         ['nev' => 'Prioritás',                   'id' => 'eszkoz_tabla_prior'           ],
@@ -438,7 +444,8 @@ if (isset($_POST['muszakilag_nem_erintett'])) {
     // Nem megfelelő státuszkor hibaüzenet
     if( $sor['stat_id'] != ESZKOZIGENYL_STAT_MUSZAK_JH_VAR ) {
         echo json_encode(array(
-                                'hiba'  => 'Ebben a státuszban nem lehet műszakilag véleményezni!',
+                                'hiba'  => $statusz_hiba, //'Ebben a státuszban nem lehet műszakilag véleményezni!',
+                                'gomb'  => $statusz_hiba_gomb,
                                 'title' => 'Hiba',
                         ));
         $weblap -> leallit();
@@ -513,6 +520,12 @@ if (isset($_POST['musz_elokeszitest_igenyel'])) {
     $_POST['indok']     = trim($_POST['indok']);
     $_POST['kiv_kolts'] = str_replace(' ', '', $_POST['kiv_kolts']);
 
+    if( $_POST['becsult'] == 'true' ) {
+        $_POST['becsult'] = 1;
+    } else {
+        $_POST['becsult'] = 0;
+    }
+
     $sor = $adatbazis_kapcsolat -> s2('stat_id tipus', 'eszkozigenyles', "`recid`='{$_POST['id']}'");
     if( $sor === false ) { $db_error = true; }
 
@@ -529,7 +542,8 @@ if (isset($_POST['musz_elokeszitest_igenyel'])) {
     // Nem megfelelő státuszkor hibaüzenet
     if( $sor['stat_id'] != ESZKOZIGENYL_STAT_MUSZAK_JH_VAR ) {
         echo json_encode(array(
-                                'hiba'  => 'Ebben a státuszban nem lehet műszakilag véleményezni!',
+                                'hiba'  => $statusz_hiba, //'Ebben a státuszban nem lehet műszakilag véleményezni!',
+                                'gomb'  => $statusz_hiba_gomb,
                                 'title' => 'Hiba',
                         ));
         $weblap -> leallit();
@@ -558,8 +572,8 @@ if (isset($_POST['musz_elokeszitest_igenyel'])) {
 
     // Nyomógomb eltárolása
     $velemeny = 2;
-    $sql = $adatbazis_kapcsolat -> u('eszkozigenyles',  array('musz_el_ig', 'kiv_kolts',         'musz_indok'    ),
-                                                        array($velemeny,    $_POST['kiv_kolts'], $_POST['indok'] ),
+    $sql = $adatbazis_kapcsolat -> u('eszkozigenyles',  array('musz_el_ig', 'kiv_kolts',         'becsult',         'musz_indok'    ),
+                                                        array($velemeny,    $_POST['kiv_kolts'], $_POST['becsult'], $_POST['indok'] ),
                                                     "`recid`='{$_POST['id']}'");
     if( $sql === false ) { $db_error = true; }
 
@@ -600,6 +614,7 @@ if (isset($_POST['musz_elokeszitest_igenyel'])) {
                                 'statusz'   => $statusz,
                                 'pipa'      => $pipa,
                                 'kiv_kolts' => number_format($_POST['kiv_kolts'], 0, '', ' '),
+                                'becsult'   => $_POST['becsult'],
                                 'megj_db'   => $megj['megj_db'],
                                 'gombok'    => get_eszkozigenyles_gombok($_POST['id']),
                                 'indok'     => $_POST['indok'],
@@ -638,7 +653,8 @@ if (isset($_POST['muszaki_visszavon'])) {
     // Nem megfelelő státuszkor hibaüzenet
     if( $sor['stat_id'] != ESZKOZIGENYL_STAT_MUSZAK_JH_VAR ) {
         echo json_encode(array(
-                                'hiba'  => 'Ebben a státuszban nem lehet műszakilag véleményezni, sem visszavonni!',
+                                'hiba'  => $statusz_hiba, //'Ebben a státuszban nem lehet műszakilag véleményezni, sem visszavonni!',
+                                'gomb'  => $statusz_hiba_gomb,
                                 'title' => 'Hiba',
                         ));
         $weblap -> leallit();
@@ -703,7 +719,8 @@ if (isset($_POST['szall_igazgato_jovahagy'])) {
     // Nem megfelelő státuszkor hibaüzenet
     if( $sor['stat_id'] != ESZKOZIGENYL_STAT_SZALL_ENG_VAR ) {
         echo json_encode(array(
-                                'hiba'  => 'Ebben a státuszban nem lehet igénylést igazgatóként jóváhagyni!',
+                                'hiba'  => $statusz_hiba, //'Ebben a státuszban nem lehet igénylést igazgatóként jóváhagyni!',
+                                'gomb'  => $statusz_hiba_gomb,
                                 'title' => 'Hiba',
                         ));
         $weblap -> leallit();
@@ -792,7 +809,8 @@ if (isset($_POST['szall_ig_elutasit'])) {
     // Nem megfelelő státuszkor hibaüzenet
     if( $sor['stat_id'] != ESZKOZIGENYL_STAT_SZALL_ENG_VAR ) {
         echo json_encode(array(
-                                'hiba'  => 'Ebben a státuszban nem lehet igénylést elutasítani!',
+                                'hiba'  => $statusz_hiba, //'Ebben a státuszban nem lehet igénylést elutasítani!',
+                                'gomb'  => $statusz_hiba_gomb,
                                 'title' => 'Hiba',
                         ));
         $weblap -> leallit();
@@ -885,7 +903,8 @@ if (isset($_POST['szall_igazgato_visszavon'])) {
     // Nem megfelelő státuszkor hibaüzenet
     if( $sor['stat_id'] != ESZKOZIGENYL_STAT_SZALL_ENG_VAR ) {
         echo json_encode(array(
-                                'hiba'  => 'Ebben a státuszban nem lehet igénylést igazgatóként visszavonni!',
+                                'hiba'  => $statusz_hiba, //'Ebben a státuszban nem lehet igénylést igazgatóként visszavonni!',
+                                'gomb'  => $statusz_hiba_gomb,
                                 'title' => 'Hiba',
                         ));
         $weblap -> leallit();
@@ -950,7 +969,8 @@ if (isset($_POST['bi_jovahagy'])) {
     // Nem megfelelő státuszkor hibaüzenet
     if( $sor['stat_id'] != ESZKOZIGENYL_STAT_BI_VALID_VAR ) {
         echo json_encode(array(
-                                'hiba'  => 'Ebben a státuszban nem lehet igénylést BI-ként jóváhagyni!',
+                                'hiba'  => $statusz_hiba, //'Ebben a státuszban nem lehet igénylést BI-ként jóváhagyni!',
+                                'gomb'  => $statusz_hiba_gomb,
                                 'title' => 'Hiba',
                         ));
         $weblap -> leallit();
@@ -1058,7 +1078,8 @@ if (isset($_POST['bi_elutasit'])) {
     // Nem megfelelő státuszkor hibaüzenet
     if( $sor['stat_id'] != ESZKOZIGENYL_STAT_BI_VALID_VAR ) {
         echo json_encode(array(
-                                'hiba'  => 'Ebben a státuszban nem lehet BI-ként elutasítani!',
+                                'hiba'  => $statusz_hiba, //'Ebben a státuszban nem lehet BI-ként elutasítani!',
+                                'gomb'  => $statusz_hiba_gomb,
                                 'title' => 'Hiba',
                         ));
         $weblap -> leallit();
@@ -1151,7 +1172,8 @@ if (isset($_POST['bi_visszavon'])) {
     // Nem megfelelő státuszkor hibaüzenet
     if( $sor['stat_id'] != ESZKOZIGENYL_STAT_BI_VALID_VAR ) {
         echo json_encode(array(
-                                'hiba'  => 'Ebben a státuszban nem lehet igénylést BI-ként visszavonni!',
+                                'hiba'  => $statusz_hiba, //'Ebben a státuszban nem lehet igénylést BI-ként visszavonni!',
+                                'gomb'  => $statusz_hiba_gomb,
                                 'title' => 'Hiba',
                         ));
         $weblap -> leallit();
@@ -1216,7 +1238,8 @@ if (isset($_POST['szak_beleegyezes'])) {
     // Nem megfelelő státuszkor hibaüzenet
     if( $sor['stat_id'] != ESZKOZIGENYL_STAT_SZAKM_VEL_VAR ) {
         echo json_encode(array(
-                                'hiba'  => 'Ebben a státuszban nem lehet igénylést szakmai vezetésként jóváhagyni!',
+                                'hiba'  => $statusz_hiba, //'Ebben a státuszban nem lehet igénylést szakmai vezetésként jóváhagyni!',
+                                'gomb'  => $statusz_hiba_gomb,
                                 'title' => 'Hiba',
                         ));
         $weblap -> leallit();
@@ -1303,7 +1326,8 @@ if (isset($_POST['szak_felt_beleegyezes'])) {
     // Nem megfelelő státuszkor hibaüzenet
     if( $sor['stat_id'] != ESZKOZIGENYL_STAT_SZAKM_VEL_VAR ) {
         echo json_encode(array(
-                                'hiba'  => 'Ebben a státuszban nem lehet igénylést szakmai vezetésként jóváhagyni!',
+                                'hiba'  => $statusz_hiba, //'Ebben a státuszban nem lehet igénylést szakmai vezetésként jóváhagyni!',
+                                'gomb'  => $statusz_hiba_gomb,
                                 'title' => 'Hiba',
                         ));
         $weblap -> leallit();
@@ -1402,7 +1426,8 @@ if (isset($_POST['szak_elutasit'])) {
     // Nem megfelelő státuszkor hibaüzenet
     if( $sor['stat_id'] != ESZKOZIGENYL_STAT_SZAKM_VEL_VAR ) {
         echo json_encode(array(
-                                'hiba'  => 'Ebben a státuszban nem lehet szakmai vezetésként elutasítani!',
+                                'hiba'  => $statusz_hiba, //'Ebben a státuszban nem lehet szakmai vezetésként elutasítani!',
+                                'gomb'  => $statusz_hiba_gomb,
                                 'title' => 'Hiba',
                         ));
         $weblap -> leallit();
@@ -1501,7 +1526,8 @@ if (isset($_POST['szak_visszavon'])) {
     // Nem megfelelő státuszkor hibaüzenet
     if( $sor['stat_id'] != ESZKOZIGENYL_STAT_SZAKM_VEL_VAR ) {
         echo json_encode(array(
-                                'hiba'  => 'Ebben a státuszban nem lehet igénylést szakmai vezetésként visszavonni!',
+                                'hiba'  => $statusz_hiba, //'Ebben a státuszban nem lehet igénylést szakmai vezetésként visszavonni!',
+                                'gomb'  => $statusz_hiba_gomb,
                                 'title' => 'Hiba',
                         ));
         $weblap -> leallit();
@@ -1566,7 +1592,8 @@ if (isset($_POST['felso_beleegyezes'])) {
     // Nem megfelelő státuszkor hibaüzenet
     if( $sor['stat_id'] != ESZKOZIGENYL_STAT_FELSO_JH_VAR ) {
         echo json_encode(array(
-                                'hiba'  => 'Ebben a státuszban nem lehet felsővezetőként jóváhagyni!',
+                                'hiba'  => $statusz_hiba, //'Ebben a státuszban nem lehet felsővezetőként jóváhagyni!',
+                                'gomb'  => $statusz_hiba_gomb,
                                 'title' => 'Hiba',
                         ));
         $weblap -> leallit();
@@ -1661,7 +1688,8 @@ if (isset($_POST['felso_felt_beleegyezes'])) {
     // Nem megfelelő státuszkor hibaüzenet
     if( $sor['stat_id'] != ESZKOZIGENYL_STAT_FELSO_JH_VAR ) {
         echo json_encode(array(
-                                'hiba'  => 'Ebben a státuszban nem lehet igénylést felsővezetőként jóváhagyni!',
+                                'hiba'  => $statusz_hiba, //'Ebben a státuszban nem lehet igénylést felsővezetőként jóváhagyni!',
+                                'gomb'  => $statusz_hiba_gomb,
                                 'title' => 'Hiba',
                         ));
         $weblap -> leallit();
@@ -1760,7 +1788,8 @@ if (isset($_POST['felso_elutasit'])) {
     // Nem megfelelő státuszkor hibaüzenet
     if( $sor['stat_id'] != ESZKOZIGENYL_STAT_FELSO_JH_VAR ) {
         echo json_encode(array(
-                                'hiba'  => 'Ebben a státuszban nem lehet felsővezetőként elutasítani!',
+                                'hiba'  => $statusz_hiba, //'Ebben a státuszban nem lehet felsővezetőként elutasítani!',
+                                'gomb'  => $statusz_hiba_gomb,
                                 'title' => 'Hiba',
                         ));
         $weblap -> leallit();
@@ -1853,7 +1882,8 @@ if (isset($_POST['felso_visszavon'])) {
     // Nem megfelelő státuszkor hibaüzenet
     if( $sor['stat_id'] != ESZKOZIGENYL_STAT_FELSO_JH_VAR) {
         echo json_encode(array(
-                                'hiba'  => 'Ebben a státuszban nem lehet felsővezetőként visszavonni!',
+                                'hiba'  => $statusz_hiba, //'Ebben a státuszban nem lehet felsővezetőként visszavonni!',
+                                'gomb'  => $statusz_hiba_gomb,
                                 'title' => 'Hiba',
                         ));
         $weblap -> leallit();
@@ -1918,7 +1948,8 @@ if (isset($_POST['bi_vegl_jovahagy'])) {
     // Nem megfelelő státuszkor hibaüzenet
     if( $sor['stat_id'] != ESZKOZIGENYL_STAT_BI_VEGL_VAR ) {
         echo json_encode(array(
-                                'hiba'  => 'Ebben a státuszban nem lehet BI véglegesítőként jóváhagyni!',
+                                'hiba'  => $statusz_hiba, //'Ebben a státuszban nem lehet BI véglegesítőként jóváhagyni!',
+                                'gomb'  => $statusz_hiba_gomb,
                                 'title' => 'Hiba',
                         ));
         $weblap -> leallit();
@@ -2015,7 +2046,8 @@ if (isset($_POST['bi_vegl_elutasit'])) {
     // Nem megfelelő státuszkor hibaüzenet
     if( $sor['stat_id'] != ESZKOZIGENYL_STAT_BI_VEGL_VAR ) {
         echo json_encode(array(
-                                'hiba'  => 'Ebben a státuszban nem lehet BI véglegesítőként elutasítani!',
+                                'hiba'  => $statusz_hiba, //'Ebben a státuszban nem lehet BI véglegesítőként elutasítani!',
+                                'gomb'  => $statusz_hiba_gomb,
                                 'title' => 'Hiba',
                         ));
         $weblap -> leallit();
@@ -2108,7 +2140,8 @@ if (isset($_POST['bi_vegl_visszavon'])) {
     // Nem megfelelő státuszkor hibaüzenet
     if( $sor['stat_id'] != ESZKOZIGENYL_STAT_BI_VEGL_VAR) {
         echo json_encode(array(
-                                'hiba'  => 'Ebben a státuszban nem lehet BI véglegesítőként visszavonni!',
+                                'hiba'  => $statusz_hiba, //'Ebben a státuszban nem lehet BI véglegesítőként visszavonni!',
+                                'gomb'  => $statusz_hiba_gomb,
                                 'title' => 'Hiba',
                         ));
         $weblap -> leallit();
@@ -2171,6 +2204,8 @@ if( isset($_GET['csv']) ) {
         
         $sql = 'SELECT
 				`stat_id` as \'Státusz\',
+				`azon` as \'Azonosító\',
+				`idoszak_azon` as \'Időszak ID\',
 				`tipus` as \'Típus\',
 				`prior` as \'Prioritás\',
 				`telephely_id` as \'Szálloda\',
@@ -3022,8 +3057,9 @@ function megrendeles_keszit($eszkozigenyles_id = '') {
 
         $telephely = $adatbazis_kapcsolat->s2('nev props', 'telephely', "`id`='{$eszkozigenyles['telephely_id']}'");
         if( $telephely === false ) { $db_error = true; }
-        $props_szn = get_props($telephely['props'], 'SZN');
-        $props_cim = get_props($telephely['props'], 'cim');
+        $props_szn      = get_props($telephely['props'], 'szn'      );
+        $props_cim      = get_props($telephely['props'], 'cim'      );
+        $props_szallcim = nl2br2(get_props($telephely['props'], 'szallcim' ));
 
         $fizmod_kiir = '';
         foreach ($select_fiz_mod as $fizmod) {
@@ -3065,27 +3101,33 @@ function megrendeles_keszit($eszkozigenyles_id = '') {
             $db_error = true;
         }
 
+        $mindossz = $eszkozigenyles['ossz_netto'];
         $tetel_neve  = $eszkozigenyles['nev'];
         $jhossz_kiir = number_format($jhossz, $tizedesek, ',', ' ');
         if( $eszkozigenyles['kiszall'] > 0 ) {
             $tetel_neve  .= '<br>Kiszállítási költség';
             $jhossz_kiir .= '<br>'.number_format($eszkozigenyles['kiszall'], $tizedesek, ',', ' ');
+            $mindossz += $eszkozigenyles['kiszall'];
         }
         if( $eszkozigenyles['beuzemel'] > 0 ) {
             $tetel_neve  .= '<br>Beüzemelési költség';
             $jhossz_kiir .= '<br>'.number_format($eszkozigenyles['beuzemel'], $tizedesek, ',', ' ');
+            $mindossz += $eszkozigenyles['beuzemel'];
         }
         if( $eszkozigenyles['munkadij'] > 0 ) {
             $tetel_neve  .= '<br>Munkadíj';
             $jhossz_kiir .= '<br>'.number_format($eszkozigenyles['munkadij'], $tizedesek, ',', ' ');
+            $mindossz += $eszkozigenyles['munkadij'];
         }
         if( $eszkozigenyles['egyeb_koltseg'] > 0 ) {
             $tetel_neve  .= '<br>Egyéb költség';
             $jhossz_kiir .= '<br>'.number_format($eszkozigenyles['egyeb_koltseg'], $tizedesek, ',', ' ');
+            $mindossz += $eszkozigenyles['egyeb_koltseg'];
         }
         if( $eszkozigenyles['megj'] ) {
             $tetel_neve .= '<br>'.nl2br2($eszkozigenyles['megj']);
         }
+
 
         $tartalom = '
         <div class="padd" style="padding-bottom: 0; margin-bottom: 0">
@@ -3097,7 +3139,7 @@ function megrendeles_keszit($eszkozigenyles_id = '') {
                     <br>
                 </div>
 
-                <table class="border full" style="font-size: 12px;border-collapse: collapse;border: 1px solid #000;">
+                <table class="border full" style="font-size: 12px;border-collapse: collapse; border: 1px solid #000;">
                 <tr>
                     <th style="border: 1px solid #ddd; padding: 2px; text-align: left;">Megnevezés</th>
                     <th style="border: 1px solid #ddd; padding: 2px; text-align: right;">Mennyiség<br>(db)</th>
@@ -3110,28 +3152,47 @@ function megrendeles_keszit($eszkozigenyles_id = '') {
                     <td class="c" style="border: 1px solid #ddd; padding: 2px; text-align: right; vertical-align: top;">'.number_format($jhar,   $tizedesek, ',', ' ').'</td>
                     <td class="c" style="border: 1px solid #ddd; padding: 2px; text-align: right; vertical-align: top;">'.$jhossz_kiir.'</td>
                 </tr>
+                <tr style="border-top: 1px solid #ddd;">
+                    <td class="c" style="border: 1px solid #ddd; padding: 2px; text-align: left; vertical-align: top;"><b>Mindösszesen:</b></td>
+                    <td class="c" style="border: 1px solid #ddd; padding: 2px; text-align: right; vertical-align: top;"></td>
+                    <td class="c" style="border: 1px solid #ddd; padding: 2px; text-align: right; vertical-align: top;"></td>
+                    <td class="c" style="border: 1px solid #ddd; padding: 2px; text-align: right; vertical-align: top;"><b>'.number_format($mindossz, $tizedesek, ',', ' ').'</b></td>
+                </tr>
                 </table>
 
                 <table style="font-size: 12px; border-collapse: collapse; margin-bottom: 20px">
                 '.$fiz_mod_hatarido.'
                 <tr>
-                    <td class="b" style="padding: 20px 20px 0 0; vertical-align: top;">
-                        Számlázási és szállítási cím:
+                    <td class="b" style="padding: 10px 20px 0 0">
+                        Kontaktszemély:
                     </td>
-                    <td style="padding: 20px 0 0 0">
+                    <td style="vertical-align: top; padding: 10px 0 0 0">
+                        '.$kontakt['teljes_nev'].$usertel.'
+                    </td>
+                </tr>
+                </table>
+
+                <table style="font-size: 12px; border-collapse: collapse; width: 100%;">
+                <tr>
+                    <td style="padding: 2px; width: 50%;">
+                        Számlázási cím
+                    </td>
+                    <td style="padding: 2px; width: 50%;">
+                        Szállítási cím
+                    </td>
+                </tr>
+                </table>
+                <table style="font-size: 12px; border-collapse: collapse; margin-bottom: 20px; width: 100%; border: 1px solid #000">
+                <tr>
+                    <td style="padding: 2px; vertical-align: top; width: 50%; border-right: 1px solid #000">
                         <b>Danubius Hotels Zrt.</b>
                         <br><b>'.$props_szn.'
                         <br>'.$props_cim.'</b>
                         <br><b>Adószáma:</b> 10594702-2-44
                         <br><b>Cégjegyzékszám:</b> 01-10-041669
                     </td>
-                </tr>
-                <tr>
-                    <td class="b" style="padding: 20px 20px 0 0">
-                        Kontaktszemély:
-                    </td>
-                    <td style="vertical-align: top; padding: 20px 0 0 0">
-                        '.$kontakt['teljes_nev'].$usertel.'
+                    <td style="padding: 2px; width: 50%; vertical-align: top; border: 1px solid #000">
+                        <b>'.$props_szallcim.'</b>
                     </td>
                 </tr>
                 </table>

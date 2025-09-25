@@ -24,6 +24,12 @@
                 <div class="dtc form_bal">Kivitelezési költség:</div>
                 <div class="dtc form_jobb">
                     <input type="text" class="csillag f_num" data-tort="0" id="popup_kiv_kolts" value=""> Ft
+                    <span style="margin-left: 2rem;"></span>
+                    Becsült érték:
+                    <div class="cb">
+                        <input type="checkbox" class="check" id="popup_becsult">
+                        <label for="popup_becsult"></label>
+                    </div>
                 </div>
             </div>
             <div class="dtr">
@@ -65,6 +71,15 @@ $(document).ready(function(){
     } else {
         $('#popup_kiv_kolts').val( $('#kiv_kolts_db_'+akt_id).val() );
     }
+    if( $('#becsult').length ) {
+        if( $('#becsult').val() == 1 ) {
+            $('#popup_becsult').prop( 'checked', true );
+        }
+    } else {
+        if( $('#becsult_db_'+akt_id ).val() == 1 ) {
+            $('#popup_becsult').prop( 'checked', true );
+        }
+    }
     $('#igenyel_indok').val( $('#musz_indok_db_'+akt_id).val().replace(/<br\s*\/?>/g, '\n') );
 
     $('#popup_kiv_kolts').select();
@@ -95,6 +110,7 @@ function musz_elokeszitest_igenyel() {
             id                          : eszkoz_id,
             indok                       : $('#igenyel_indok'  ).val(),
             kiv_kolts                   : $('#popup_kiv_kolts').val(),
+            becsult                     : $('#popup_becsult').prop('checked') ,
             musz_elokeszitest_igenyel   : new Date().getTime()
         },
         success: function(response) {

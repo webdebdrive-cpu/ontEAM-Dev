@@ -23,7 +23,7 @@
             <div class="dtr">
                 <div class="dtc form_bal">Indoklás:</div>
                 <div class="dtc form_jobb">
-                    <textarea id="popup_szak_indok" class="csillag" onkeyup="if( $(this).val().trim()=='' ){ $(this).val(''); }"></textarea>
+                    <textarea id="popup_felso_indok" class="csillag" onkeyup="if( $(this).val().trim()=='' ){ $(this).val(''); }"></textarea>
                 </div>
             </div>
         </div>
@@ -54,8 +54,8 @@ $(document).ready(function(){
         $('#popup_ossz_netto').html( $('#ossz_netto_db_'+akt_id).val() + ' Ft' );
     }
     
-    $('#popup_szak_indok').val( $('#szak_indok_db_'+akt_id).val().replace(/<br\s*\/?>/g, '\n') );
-    $('#popup_szak_indok').select();
+    $('#popup_felso_indok').val( $('#felso_indok_db_'+akt_id).val().replace(/<br\s*\/?>/g, '\n') );
+    $('#popup_felso_indok').select();
 
 });
 function felso_felt_beleegyezes() {
@@ -64,9 +64,9 @@ function felso_felt_beleegyezes() {
     eszkoz_valtozok_update();
     
     /* Indoklás kötelező */
-    if( !$('#popup_szak_indok').val() ) {
+    if( !$('#popup_felso_indok').val() ) {
         $('#popup input, #popup textarea, #popup select').removeClass('hibas_ide_focus');
-        $('#popup_szak_indok').addClass('hibas_ide_focus');
+        $('#popup_felso_indok').addClass('hibas_ide_focus');
         alert2('Kérem töltse ki az indoklást!', '<input type="button" class="link gomb" value="Ok" onclick="alert2();">', 'Hiba');
         return false;
     }
@@ -76,7 +76,7 @@ function felso_felt_beleegyezes() {
         type: 'POST',
         data: {
             id                      : eszkoz_id,
-            indok                   : $('#popup_szak_indok').val(),
+            indok                   : $('#popup_felso_indok').val(),
             felso_felt_beleegyezes  : new Date().getTime()
         },
         success: function(response) {
