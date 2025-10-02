@@ -696,7 +696,7 @@ input.gombb_alert:hover, input.gombb_alert:focus, input.gombb_alert:active{
 input.check{
     border: 0.0rem;
     margin-top: 0.8rem;
-    display: none;
+    /* display: none; Azért, hogy lehessen rá tabozni */
 }
 
 input.f_num{
@@ -1268,11 +1268,11 @@ input.webdeb{
     margin: 0.0rem 0.0rem 1rem 0.0rem;
 }
 
-.cb input[type=checkbox] {
-    display: none;
+.cb input[type="checkbox"] {
+    /* display: none; Hogy lehessen rá tabozni */
 }
 
-.cb input[type=checkbox]:focus + label {
+.cb input[type="checkbox"]:focus + label {
     border: 0.1rem solid #226294;
 }
 

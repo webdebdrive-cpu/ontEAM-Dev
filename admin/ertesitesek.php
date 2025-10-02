@@ -1,7 +1,7 @@
 <?php
 /*                                                  *\
  * FONTOS:
- * 32. ID következik
+ * 33. ID következik
  * 10. kategória következik
 \*                                                  */
 
@@ -59,10 +59,11 @@ $ertesitesek = array(
     24  => array('nev' => 'Műszaki jóváhagyás előtt',                                                   'kat' => 9, 'sor' => 2),
     25  => array('nev' => 'Szállodai engedélyezés előtt',                                               'kat' => 9, 'sor' => 3),
     26  => array('nev' => 'BI validálás előtt',                                                         'kat' => 9, 'sor' => 4),
-    27  => array('nev' => 'Szakmai véleményezés előtt',                                                 'kat' => 9, 'sor' => 5),
-    28  => array('nev' => 'Felsővez. jóváhagyás előtt',                                                 'kat' => 9, 'sor' => 6),
-    29  => array('nev' => 'BI véglegesítés előtt',                                                      'kat' => 9, 'sor' => 7),
-    30  => array('nev' => 'Megrendelő kiküldése előtt',                                                 'kat' => 9, 'sor' => 8),
-    31  => array('nev' => 'Igénylés elutasításakor',                                                    'kat' => 9, 'sor' => 9),
+    32  => array('nev' => 'BI jóváhagyás előtt',                                                        'kat' => 9, 'sor' => 5),
+    27  => array('nev' => 'Szakmai véleményezés előtt',                                                 'kat' => 9, 'sor' => 6),
+    28  => array('nev' => 'Felsővez. jóváhagyás előtt',                                                 'kat' => 9, 'sor' => 7),
+    29  => array('nev' => 'BI véglegesítés előtt',                                                      'kat' => 9, 'sor' => 8),
+    30  => array('nev' => 'Megrendelő kiküldése előtt',                                                 'kat' => 9, 'sor' => 9),
+    31  => array('nev' => 'Igénylés elutasításakor',                                                    'kat' => 9, 'sor' => 10),
     
 );

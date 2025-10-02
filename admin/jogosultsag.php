@@ -1,7 +1,7 @@
 <?php
 /*                                                  *\
  * FONTOS:
- * 168. ID következik
+ * 169. ID következik
  * 16. kategória ID következik
 \*                                                  */
 
@@ -204,13 +204,15 @@ $jogosultsagok = array(
     155  => array('nev' => 'Műszak jóváhagyás',                     'kat' => 15, 'sor' => 8),
     156  => array('nev' => 'Szállodai engedélyezés',                'kat' => 15, 'sor' => 9),
     157  => array('nev' => 'BI validálás',                          'kat' => 15, 'sor' => 10),
-    152  => array('nev' => 'Szakmai véleményezés',                  'kat' => 15, 'sor' => 11),
-    160  => array('nev' => 'Felsővez. Jóváhagyás',                  'kat' => 15, 'sor' => 12),
-    161  => array('nev' => 'BI véglegesítés',                       'kat' => 15, 'sor' => 13),
-    166  => array('nev' => 'Megrendelés megtekintése',              'kat' => 15, 'sor' => 14),
-    158  => array('nev' => 'Megrendelés kiküldése',                 'kat' => 15, 'sor' => 15),
-    162  => array('torolve' => 'TÖRÖLVE', 'nev' => 'Megrendelés javítása',                  'kat' => 15, 'sor' => 16),
-    163  => array('nev' => 'Beszerzés szállító megtekintése',       'kat' => 15, 'sor' => 17),
-    164  => array('nev' => 'Beszerzés szállító kezelése',           'kat' => 15, 'sor' => 18),
-    165  => array('nev' => 'Beszerzés szállító törlése',            'kat' => 15, 'sor' => 19),
+    168  => array('nev' => 'BI jóváhagyás',                         'kat' => 15, 'sor' => 11),
+    // Az alábbi csak átmenetileg van törölve, váhatóan később szükség lesz rá, akkor majd kivehető a 'torolve' => 'TÖRÖLVE' rész
+    152  => array('torolve' => 'TÖRÖLVE', 'nev' => 'Szakmai véleményezés',                  'kat' => 15, 'sor' => 12),
+    160  => array('nev' => 'Felsővez. Jóváhagyás',                  'kat' => 15, 'sor' => 13),
+    161  => array('nev' => 'BI véglegesítés',                       'kat' => 15, 'sor' => 14),
+    166  => array('nev' => 'Megrendelés megtekintése',              'kat' => 15, 'sor' => 15),
+    158  => array('nev' => 'Megrendelés kiküldése',                 'kat' => 15, 'sor' => 16),
+    162  => array('torolve' => 'TÖRÖLVE', 'nev' => 'Megrendelés javítása',                  'kat' => 15, 'sor' => 17),
+    163  => array('nev' => 'Beszerzés szállító megtekintése',       'kat' => 15, 'sor' => 19),
+    164  => array('nev' => 'Beszerzés szállító kezelése',           'kat' => 15, 'sor' => 19),
+    165  => array('nev' => 'Beszerzés szállító törlése',            'kat' => 15, 'sor' => 20),
 );

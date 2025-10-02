@@ -409,6 +409,7 @@ function tablaSorrend( table ) {
             beallitasok['cellak'] = table.attr('data-beall_cellak');
         }
 
+        var width_40 = width_80 = 0;
         table.find('thead').not('.sticky').find('th').each(function(i) {
             if( this.id != '') {
                 var width       = '';
@@ -431,9 +432,20 @@ function tablaSorrend( table ) {
                 if( width<minimum_o_szel ) {
                     width = minimum_o_szel;
                 }
+                if( width == 40 ) {
+                    width_40++;
+                }
+                if( width == 80 ) {
+                    width_80++;
+                }
                 sorrend[i] = {id: this.id, width: width, megjelenik: megjelenik, egysoros: egysoros };
             }
         });
+        // Ha több mint 10 oszlopnak a szélessége 40, az gyanús, ekkor inkább ne mentsük el
+        if( SUBDOMAIN != 'www' && (width_40 > 20 /*|| width_80 > 20*/) ) {
+            alert2('Táblázat megváltozott'+width_40+' '+width_80, '<input type="button" class="gomb" onclick="alert2()" value="Ok">', 'Hiba');
+            return false;
+        }
 
         $.ajax({
             url : 'esemenyek.php',

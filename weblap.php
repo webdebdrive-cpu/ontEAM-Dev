@@ -149,9 +149,9 @@ if( !in_array($_SESSION[get_db_tabla().'szemelyzet_id'], $nullas_szerepkorok) &&
 // Ezt viszont nem tesszük meg, ha van $_POST-olt adat, mert azok ajax hívások, ott meg feleslegesen szintén ne számolgassuk ki a bonyolult SQL-t.
 // Ugyanígy az autocomplete.php esetén sem hívjuk meg, meg még van pár kivételes oldal.
 $kiveteles_oldalak = array('index.php', 'autocomplete.php', 'szakter_autocomplete.php', 'velemeny_autocomplete.php');
-if( empty($_POST) && !in_array( basename(self()), $kiveteles_oldalak ) && !isset($_GET['no_lista']) && substr(basename($_SERVER['PHP_SELF']), 0, 5)!='andoc' ) {
+if( empty($_POST) && !in_array( self('-bn-'), $kiveteles_oldalak ) && !isset($_GET['no_lista']) && substr(basename($_SERVER['PHP_SELF']), 0, 5)!='andoc' ) {
     list($balNavPanelHTMLje, $balNavPanelRECIDk) = szamla_lista();          // Ezt azért futtatjuk le, hogy az aktuális oldalnak megfelelő $_SESSION['akt_sql'] jöjjön létre, hogy tudjunk ID-t ellenőrizni.
-    $_SESSION[csonkit(basename(self()), 4).'_idk'] = $balNavPanelRECIDk;    // Egy Session-ben is eltároljuk az ID-kat, hogy ajax-al egy sort meghívva, ne töltse be, ha adott ID nem tartozik a felhasználó látokörébe
+    $_SESSION[self('-bn-', '-kit-nelkul-').'_idk'] = $balNavPanelRECIDk;    // Egy Session-ben is eltároljuk az ID-kat, hogy ajax-al egy sort meghívva, ne töltse be, ha adott ID nem tartozik a felhasználó látokörébe
 }
 
 // Munkalap megrendelés nyomtatásához fontos, hogy mindenképp megmaradjon az ID
@@ -159,14 +159,18 @@ if( isset($_GET['nyomtat']) ) {
     $_GET['id_nyomtatashoz'] = $_GET['id'];
 }
 
-if( $_GET['id'] && !isset($_GET['no_lista']) ) {
+// 2025.09.26 'eszkozigenyles.php' azért kell kivételbe tenni, mert ha egy Dashboradról lépek egy eszkozigénylés adatlapjára és ott léptetek státuszt
+// akkor az adatlap nem frissült be. Ugyanis a Dashboard feltétele miatt adott rekord új státuszba kerül és már nem volna része a feltételnek.
+if( $_GET['id'] && !isset($_GET['no_lista']) && self('-bn-') != 'eszkozigenyles.php' ) {
     if( !in_array($_GET['id'], $balNavPanelRECIDk) ) {
         $_GET['id'] = '';
     }
 }
 
 // Ha van id, akkor ellenőrizzük, hogy én azt láthatom-e. A legfrissebbnél ezt nem tudjuk eljátszani, mert ott nincs minden id a session-ban (túl sok is volna). Itt ha rendezést állítunk (pl. Z-A), akkor nem lehetne megnyitni adott rekordot. 
-if( $_GET['id'] && $_GET['mezo']!='legfrissebb' ) {
+// Illetve ha dashboard-ról jövök és eszkozigenyles.php alatt vagyunk, akkor se ellenőrizzük ezt, mert státusz léptetés után az adatlapon állítva az előző/következő nyilak léptetéséne nem működne
+// hisz a frissen léptetett rekord már nincs benne a $_SESSION[csonkit(basename(self()), 4).'_idk'] tömbben
+if( $_GET['id'] && $_GET['mezo']!='legfrissebb' && !($_SESSION['dashboard_feladat'] && self('-bn-') == 'eszkozigenyles.php') ) {
     if( !in_array($_GET['id'], $_SESSION[csonkit(basename(self()), 4).'_idk']) ){
         exit;
     }

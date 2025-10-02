@@ -248,6 +248,7 @@ if (isset($_POST['get_tabla_oszlopok'])) {
         ['nev' => 'Kivitelezési költség',        'id' => 'eszkoz_tabla_kiv_kolts'       ],
         ['nev' => 'Szálloda igazgató véleménye', 'id' => 'eszkoz_tabla_szall_ig_vel'    ],
         ['nev' => 'BI véleménye',                'id' => 'eszkoz_tabla_bi_vel'          ],
+        ['nev' => 'BI jóváhagyás',               'id' => 'eszkoz_tabla_bi_jh'          ],
         ['nev' => 'Szakmai vezetés vélemény',    'id' => 'eszkoz_tabla_szak_vel'        ],
         ['nev' => 'Felsővezetés vélemény',       'id' => 'eszkoz_tabla_felso_vel'       ],
     ];
@@ -947,8 +948,8 @@ if (isset($_POST['szall_igazgato_visszavon'])) {
     exit;
 }
 
-// BI jóváhagy
-if (isset($_POST['bi_jovahagy'])) {
+// BI validál
+if (isset($_POST['bi_validal'])) {
 
     $db_error = false;
     mysqli_autocommit($db_kapcs, false);
@@ -959,7 +960,7 @@ if (isset($_POST['bi_jovahagy'])) {
     // Ha nincs joga hozzá, akkor hibaüzenet
     if( !_jog(JOG_BESZERZ_IGENYLESEK_BI_VALIDALAS) ) {
         echo json_encode(array(
-                                'hiba'  => 'Önnek nincs joga igénylést BI-ként jóváhagyni!',
+                                'hiba'  => 'Önnek nincs joga igénylést BI-ként validálni!',
                                 'title' => 'Hiba',
                         ));
         $weblap -> leallit();
@@ -969,7 +970,7 @@ if (isset($_POST['bi_jovahagy'])) {
     // Nem megfelelő státuszkor hibaüzenet
     if( $sor['stat_id'] != ESZKOZIGENYL_STAT_BI_VALID_VAR ) {
         echo json_encode(array(
-                                'hiba'  => $statusz_hiba, //'Ebben a státuszban nem lehet igénylést BI-ként jóváhagyni!',
+                                'hiba'  => $statusz_hiba, //'Ebben a státuszban nem lehet igénylést BI-ként validálni!',
                                 'gomb'  => $statusz_hiba_gomb,
                                 'title' => 'Hiba',
                         ));
@@ -995,33 +996,34 @@ if (isset($_POST['bi_jovahagy'])) {
     }
 
     // Státusz léptetés, ha soron kívüli
-    if( $sor['tipus'] == BESZ_TIP_SORONKIVULI ) {
-        if( addStatusz('eszkozigenyles_statusz', $_POST['id'], ESZKOZIGENYL_STAT_SZAKM_VEL_VAR) === false ) {
+    if( $sor['tipus'] == BESZ_TIP_SORONKIVULI || $sor['tipus'] == BESZ_TIP_GM_KERET ) {
+        if( addStatusz('eszkozigenyles_statusz', $_POST['id'], ESZKOZIGENYL_STAT_BI_JH_VAR) === false ) {
             $db_error = true;
         }
         
-        $statusz = getStatText('eszkozigenyles', ESZKOZIGENYL_STAT_SZAKM_VEL_VAR);
+        $statusz = getStatText('eszkozigenyles', ESZKOZIGENYL_STAT_BI_JH_VAR);
 
         // E-mail értesítés küldése
-        $mail_hibauzenet = level_felkeszit_es_kuld('eszkozigenyles', $_POST['id'], ERT_BESZERZ_SZAKMAI_VEL_ELO, 'eszkozigenyles', 'eszkozigenyles_szakmai_vel_elo');
+        $mail_hibauzenet = level_felkeszit_es_kuld('eszkozigenyles', $_POST['id'], ERT_BESZERZ_BI_JH_ELO, 'eszkozigenyles', 'eszkozigenyles_bi_jh_elo');
 
-    // GM keret esetén Kiküldésre vár státuszba lépünk, azaz kimaradt egy adag státuszozás
-    } else if( $sor['tipus'] == BESZ_TIP_GM_KERET) {
+    // 2025.09.25 Már nem, mindkét esetben BI jóváhagyásra vár státuszba lépünk
+    // // GM keret esetén Kiküldésre vár státuszba lépünk, azaz kimaradt egy adag státuszozás
+    // } else if( $sor['tipus'] == BESZ_TIP_GM_KERET) {
 
-        // Megrendelés készítése (fontos, hogy még státuszléptetés előtt, mert a megrendelésnél van státusz ellenőrzés)
-        if( megrendeles_keszit($_POST['id']) === false ) {
-            $db_error = true;
-        }
+    //     // Megrendelés készítése (fontos, hogy még státuszléptetés előtt, mert a megrendelésnél van státusz ellenőrzés)
+    //     if( megrendeles_keszit($_POST['id']) === false ) {
+    //         $db_error = true;
+    //     }
 
-        // Státusz léptetés
-        if( addStatusz('eszkozigenyles_statusz', $_POST['id'], ESZKOZIGENYL_STAT_KIKULD_VAR) === false ) {
-            $db_error = true;
-        }
+    //     // Státusz léptetés
+    //     if( addStatusz('eszkozigenyles_statusz', $_POST['id'], ESZKOZIGENYL_STAT_KIKULD_VAR) === false ) {
+    //         $db_error = true;
+    //     }
         
-        $statusz = getStatText('eszkozigenyles', ESZKOZIGENYL_STAT_KIKULD_VAR);
+    //     $statusz = getStatText('eszkozigenyles', ESZKOZIGENYL_STAT_KIKULD_VAR);
 
-        // E-mail értesítés küldése
-        $mail_hibauzenet = level_felkeszit_es_kuld('eszkozigenyles', $_POST['id'], ERT_BESZERZ_MEGR_KIKULD_ELO, 'eszkozigenyles', 'eszkozigenyles_megr_kikuld_elo');
+    //     // E-mail értesítés küldése
+    //     $mail_hibauzenet = level_felkeszit_es_kuld('eszkozigenyles', $_POST['id'], ERT_BESZERZ_MEGR_KIKULD_ELO, 'eszkozigenyles', 'eszkozigenyles_megr_kikuld_elo');
 
     // Tervezett esetén marad a státusz, csak a pipa változik
     } else {
@@ -1053,6 +1055,7 @@ if (isset($_POST['bi_jovahagy'])) {
     $weblap -> leallit();
     exit;
 }
+
 
 // BI elutasít (BI validálásra vár)
 if (isset($_POST['bi_elutasit'])) {
@@ -1203,6 +1206,320 @@ if (isset($_POST['bi_visszavon'])) {
                                 'siker'     => 1,
                                 'pipa'      => $pipa,
                                 'gombok'    => get_eszkozigenyles_gombok($_POST['id']),
+                                ) );
+    } else {
+        mysqli_rollback($db_kapcs);
+        echo json_encode(array(
+            'hiba'  => tranzakcioHiba(),
+            'title' => 'Hiba'
+        ));
+    }
+
+    $weblap -> leallit();
+    exit;
+}
+
+// BI jóváhagy
+if (isset($_POST['bi_jovahagy'])) {
+
+    $db_error = false;
+    mysqli_autocommit($db_kapcs, false);
+
+    $sor = $adatbazis_kapcsolat -> s2('stat_id tipus dok_db', 'eszkozigenyles', "`recid`='{$_POST['id']}'");
+    if( $sor === false ) { $db_error = true; }
+
+    // Ha nincs joga hozzá, akkor hibaüzenet
+    if( !_jog(JOG_BESZERZ_IGENYLESEK_BI_JOVA) ) {
+        echo json_encode(array(
+                                'hiba'  => 'Önnek nincs joga igénylést BI-ként jóváhagyni!',
+                                'title' => 'Hiba',
+                        ));
+        $weblap -> leallit();
+        exit;
+    }
+
+    // Nem megfelelő státuszkor hibaüzenet
+    if( $sor['stat_id'] != ESZKOZIGENYL_STAT_BI_JH_VAR) {
+        echo json_encode(array(
+                                'hiba'  => $statusz_hiba, //'Ebben a státuszban nem lehet igénylést BI-ként jóváhagyni!',
+                                'gomb'  => $statusz_hiba_gomb,
+                                'title' => 'Hiba',
+                        ));
+        $weblap -> leallit();
+        exit;
+    }
+
+    // Nyomógomb eltárolása
+    $velemeny = 1;
+    $sql = $adatbazis_kapcsolat -> u('eszkozigenyles',  array('bi_jh'   ),
+                                                        array($velemeny ),
+                                                    "`recid`='{$_POST['id']}'");
+    if( $sql === false ) { $db_error = true; }
+
+    // Pipa kiíratása
+    $pipa = '';
+    $bi_vel_pipak = bi_jh_ertekek();
+    foreach ($bi_vel_pipak as $bi_vel_pipa) {
+        if( $bi_vel_pipa['value'] == $velemeny ) {
+            $pipa = $bi_vel_pipa['ikon'];
+            break;
+        }
+    }
+
+    // Státusz léptetés, ha soron kívüli
+    if( $sor['tipus'] == BESZ_TIP_SORONKIVULI ) {
+        if( addStatusz('eszkozigenyles_statusz', $_POST['id'], ESZKOZIGENYL_STAT_FELSO_JH_VAR) === false ) {
+            $db_error = true;
+        }
+
+        $statusz = getStatText('eszkozigenyles', ESZKOZIGENYL_STAT_FELSO_JH_VAR);
+
+        // E-mail értesítés küldése
+        $mail_hibauzenet = level_felkeszit_es_kuld('eszkozigenyles', $_POST['id'], ERT_BESZERZ_BI_JH_ELO, 'eszkozigenyles', 'eszkozigenyles_felsovez_jh_elo');
+
+    // GM keret esetén Kiküldésre vár státuszba lépünk, azaz kimaradt egy adag státuszozás
+    } else if( $sor['tipus'] == BESZ_TIP_GM_KERET) {
+
+        // Megrendelés készítése (fontos, hogy még státuszléptetés előtt, mert a megrendelésnél van státusz ellenőrzés)
+        if( megrendeles_keszit($_POST['id']) === false ) {
+            $db_error = true;
+        }
+
+        // Státusz léptetés
+        if( addStatusz('eszkozigenyles_statusz', $_POST['id'], ESZKOZIGENYL_STAT_KIKULD_VAR) === false ) {
+            $db_error = true;
+        }
+        
+        $statusz = getStatText('eszkozigenyles', ESZKOZIGENYL_STAT_KIKULD_VAR);
+
+        // E-mail értesítés küldése
+        $mail_hibauzenet = level_felkeszit_es_kuld('eszkozigenyles', $_POST['id'], ERT_BESZERZ_MEGR_KIKULD_ELO, 'eszkozigenyles', 'eszkozigenyles_megr_kikuld_elo');
+
+    // Tervezett esetén marad a státusz, csak a pipa változik
+    } else {
+        $statusz = getStatText('eszkozigenyles', ESZKOZIGENYL_STAT_BI_VEGL_VAR);
+    }
+
+    // Megjegyzések számát frissen kérjük le, ha volt értesítés, akkor nőhetett a száma
+    $megj = $adatbazis_kapcsolat -> s2('megj_db', 'eszkozigenyles', "`recid`='{$_POST['id']}'");
+    if( $megj === false ) { $db_error = true; }
+
+    if( !$db_error ) {
+        mysqli_commit($db_kapcs);
+        echo json_encode( array(
+                                'siker'     => 1,
+                                'statusz'   => $statusz,
+                                'pipa'      => $pipa,
+                                'megj_db'   => $megj['megj_db'],
+                                'gombok'    => get_eszkozigenyles_gombok($_POST['id']),
+                                'dok_db'    => $sor['dok_db'],
+                                ) );
+    } else {
+        mysqli_rollback($db_kapcs);
+        echo json_encode(array(
+            'hiba'  => tranzakcioHiba(),
+            'title' => 'Hiba'
+        ));
+    }
+
+    $weblap -> leallit();
+    exit;
+}
+
+// BI részben beleegyezik
+if (isset($_POST['bi_jh_felt_beleegyezes'])) {
+
+    $db_error = false;
+    mysqli_autocommit($db_kapcs, false);
+
+    $sor = $adatbazis_kapcsolat -> s2('stat_id tipus', 'eszkozigenyles', "`recid`='{$_POST['id']}'");
+    if( $sor === false ) { $db_error = true; }
+
+    // Ha nincs joga hozzá, akkor hibaüzenet
+    if( !_jog(JOG_BESZERZ_IGENYLESEK_BI_JOVA) ) {
+        echo json_encode(array(
+                                'hiba'  => 'Önnek nincs joga igénylést BI-ként jóváhagyni!',
+                                'title' => 'Hiba',
+                        ));
+        $weblap -> leallit();
+        exit;
+    }
+
+    // Nem megfelelő státuszkor hibaüzenet
+    if( $sor['stat_id'] != ESZKOZIGENYL_STAT_BI_JH_VAR ) {
+        echo json_encode(array(
+                                'hiba'  => $statusz_hiba, //'Ebben a státuszban nem lehet igénylést szakmai vezetésként jóváhagyni!',
+                                'gomb'  => $statusz_hiba_gomb,
+                                'title' => 'Hiba',
+                        ));
+        $weblap -> leallit();
+        exit;
+    }
+
+    // Ha nem volna megadva az indoklás, akkor hibaüzenet
+    if( !$_POST['indok'] ) {
+        echo json_encode(array(
+                                'hiba'  => 'Kérem adja meg az indoklást!',
+                                'title' => 'Hiba',
+                        ));
+        $weblap -> leallit();
+        exit;
+    }
+
+    // Nyomógomb eltárolása
+    $velemeny = 3;
+    $sql = $adatbazis_kapcsolat -> u('eszkozigenyles',  array('bi_jh',      'bi_jh_indok'   ),
+                                                        array($velemeny,    $_POST['indok'] ),
+                                                    "`recid`='{$_POST['id']}'");
+    if( $sql === false ) { $db_error = true; }
+
+    // Pipa kiíratása
+    $pipa = '';
+    $bi_jh_pipak = bi_jh_ertekek();
+    foreach ($bi_jh_pipak as $bi_jh_pipa) {
+        if( $bi_jh_pipa['value'] == $velemeny ) {
+            $pipa = $bi_jh_pipa['ikon'];
+            break;
+        }
+    }
+
+    // Státusz léptetés, ha soron kívüli
+    if( $sor['tipus'] == BESZ_TIP_SORONKIVULI ) {
+        if( addStatusz('eszkozigenyles_statusz', $_POST['id'], ESZKOZIGENYL_STAT_FELSO_JH_VAR) === false ) {
+            $db_error = true;
+        }
+        
+        $statusz = getStatText('eszkozigenyles', ESZKOZIGENYL_STAT_FELSO_JH_VAR);
+
+        // E-mail értesítés küldése
+        $mail_hibauzenet = level_felkeszit_es_kuld('eszkozigenyles', $_POST['id'], ERT_BESZERZ_FELSOVEZ_JH_ELO, 'eszkozigenyles', 'eszkozigenyles_felsovez_jh_elo');
+
+    // GM keret esetén Kiküldésre vár státuszba lépünk, azaz kimaradt egy adag státuszozás
+    } else if( $sor['tipus'] == BESZ_TIP_GM_KERET) {
+
+        // Státusz léptetés
+        if( addStatusz('eszkozigenyles_statusz', $_POST['id'], ESZKOZIGENYL_STAT_BI_VEGL_VAR) === false ) {
+            $db_error = true;
+        }
+        
+        $statusz = getStatText('eszkozigenyles', ESZKOZIGENYL_STAT_BI_VEGL_VAR);
+
+        // E-mail értesítés küldése
+        $mail_hibauzenet = level_felkeszit_es_kuld('eszkozigenyles', $_POST['id'], ERT_BESZERZ_BI_VEGLEGESIT_ELO, 'eszkozigenyles', 'eszkozigenyles_bi_veglegesit_elo');
+
+        // Tervezett esetén marad a státusz, csak a pipa változik
+    } else {
+        $statusz = getStatText('eszkozigenyles', ESZKOZIGENYL_STAT_SZAKM_VEL_VAR);
+    }
+
+    // Megjegyzések számát frissen kérjük le, ha volt értesítés, akkor nőhetett a száma
+    $megj = $adatbazis_kapcsolat -> s2('megj_db', 'eszkozigenyles', "`recid`='{$_POST['id']}'");
+    if( $megj === false ) { $db_error = true; }
+
+    if( !$db_error ) {
+        mysqli_commit($db_kapcs);
+        echo json_encode( array(
+                                'siker'     => 1,
+                                'statusz'   => $statusz,
+                                'pipa'      => $pipa,
+                                'megj_db'   => $megj['megj_db'],
+                                'gombok'    => get_eszkozigenyles_gombok($_POST['id']),
+                                ) );
+    } else {
+        mysqli_rollback($db_kapcs);
+        echo json_encode(array(
+            'hiba'  => tranzakcioHiba(),
+            'title' => 'Hiba'
+        ));
+    }
+
+    $weblap -> leallit();
+    exit;
+}
+
+// BI elutasít (BI jóváhagyásra vár)
+if (isset($_POST['bi_jh_elutasit'])) {
+
+    $db_error = false;
+    mysqli_autocommit($db_kapcs, false);
+
+    $_POST['indok'] = trim($_POST['indok']);
+
+    $sor = $adatbazis_kapcsolat -> s2('stat_id tipus', 'eszkozigenyles', "`recid`='{$_POST['id']}'");
+    if( $sor === false ) { $db_error = true; }
+
+    // Ha nincs joga hozzá, akkor hibaüzenet
+    if( !_jog(JOG_BESZERZ_IGENYLESEK_BI_JOVA) ) {
+        echo json_encode(array(
+                                'hiba'  => 'Önnek nincs joga BI-ként elutasítani!',
+                                'title' => 'Hiba',
+                        ));
+        $weblap -> leallit();
+        exit;
+    }
+
+    // Nem megfelelő státuszkor hibaüzenet
+    if( $sor['stat_id'] != ESZKOZIGENYL_STAT_BI_JH_VAR) {
+        echo json_encode(array(
+                                'hiba'  => $statusz_hiba, //'Ebben a státuszban nem lehet BI-ként elutasítani!',
+                                'gomb'  => $statusz_hiba_gomb,
+                                'title' => 'Hiba',
+                        ));
+        $weblap -> leallit();
+        exit;
+    }
+
+    // Ha nem volna megadva az indoklás, akkor hibaüzenet
+    if( !$_POST['indok'] ) {
+        echo json_encode(array(
+                                'hiba'  => 'Kérem adja meg az indoklást!',
+                                'title' => 'Hiba',
+                        ));
+        $weblap -> leallit();
+        exit;
+    }
+
+    // Nyomógomb eltárolása
+    $velemeny = 2;
+    $sql = $adatbazis_kapcsolat -> u('eszkozigenyles',  array('bi_jh',      'bi_jh_indok'   ),
+                                                        array($velemeny,    $_POST['indok'] ),
+                                                    "`recid`='{$_POST['id']}'");
+    if( $sql === false ) { $db_error = true; }
+
+    // Pipa kiíratása
+    $pipa = '';
+    $bi_pipak = bi_jh_ertekek();
+    foreach ($bi_pipak as $bi_pipa) {
+        if( $bi_pipa['value'] == $velemeny ) {
+            $pipa = $bi_pipa['ikon'];
+            break;
+        }
+    }
+
+    // Státusz léptetés, ha soron kívüli (azaz nem tervezett)
+    if( $sor['tipus'] != BESZ_TIP_TERVEZETT ) {
+        if( addStatusz('eszkozigenyles_statusz', $_POST['id'], ESZKOZIGENYL_STAT_ELUTASITOTT ) === false ) {
+            $db_error = true;
+        }
+        
+        $statusz = getStatText('eszkozigenyles', ESZKOZIGENYL_STAT_ELUTASITOTT);
+
+        // E-mail értesítés küldése
+        $mail_hibauzenet = level_felkeszit_es_kuld('eszkozigenyles', $_POST['id'], ERT_BESZERZ_ELUTASIT, 'eszkozigenyles', 'eszkozigenyles_bi_jh_elutasit');
+
+    // Tervezett esetén marad a státusz, csak a pipa változik
+    } else {
+        $statusz = getStatText('eszkozigenyles', ESZKOZIGENYL_STAT_BI_VEGL_VAR);
+    }
+
+    if( !$db_error ) {
+        mysqli_commit($db_kapcs);
+        echo json_encode( array(
+                                'siker'     => 1,
+                                'statusz'   => $statusz,
+                                'pipa'      => $pipa,
+                                'gombok'    => get_eszkozigenyles_gombok($_POST['id']),
+                                'indok'     => $_POST['indok'],
                                 ) );
     } else {
         mysqli_rollback($db_kapcs);
@@ -2007,8 +2324,8 @@ if (isset($_POST['bi_vegl_jovahagy'])) {
                                 'statusz'   => $statusz,
                                 'pipa'      => $pipa,
                                 'megj_db'   => $megj['megj_db'],
-                                'gombok'    => get_eszkozigenyles_gombok($_POST['id']),
                                 'dok_db'    => $sor['dok_db'],
+                                'gombok'    => get_eszkozigenyles_gombok($_POST['id']),
                                 ) );
     } else {
         mysqli_rollback($db_kapcs);
@@ -2184,6 +2501,88 @@ if (isset($_POST['bi_vegl_visszavon'])) {
     exit;
 }
 
+// Vissza BI validálásra
+if (isset($_POST['vissza_validalasra'])) {
+
+    $db_error = false;
+    mysqli_autocommit($db_kapcs, false);
+
+    $sor = $adatbazis_kapcsolat -> s2('stat_id tipus dok_db bi_vegl', 'eszkozigenyles', "`recid`='{$_POST['id']}'");
+    if( $sor === false ) { $db_error = true; }
+
+    // Ha nincs joga hozzá, akkor hibaüzenet
+    if( !_jog(JOG_BESZERZ_IGENYLESEK_BI_VEGLEGESIT) ) {
+        echo json_encode(array(
+                                'hiba'  => 'Önnek nincs joga az igénylést visszaküldeni BI validálásra!',
+                                'title' => 'Hiba',
+                        ));
+        $weblap -> leallit();
+        exit;
+    }
+
+    // Nem megfelelő státuszkor hibaüzenet
+    if( $sor['stat_id'] != ESZKOZIGENYL_STAT_BI_VEGL_VAR) {
+        echo json_encode(array(
+                                'hiba'  => $statusz_hiba, //'Ebben a státuszban nem lehet BI véglegesítőként visszavonni!',
+                                'gomb'  => $statusz_hiba_gomb,
+                                'title' => 'Hiba',
+                        ));
+        $weblap -> leallit();
+        exit;
+    }
+
+    // Pipa kiíratása
+    $pipa = '';
+    $bi_vegl_pipak = bi_vegl_ertekek();
+    foreach ($bi_vegl_pipak as $bi_vegl_pipa) {
+        if( $bi_vegl_pipa['value'] == $sor['bi_vegl'] ) {
+            $pipa = $bi_vegl_pipa['ikon'];
+            break;
+        }
+    }
+
+    // Státusz léptetés, ha soron kívüli (azaz nem tervezett)
+    if( $sor['tipus'] != BESZ_TIP_TERVEZETT ) {
+        if( addStatusz('eszkozigenyles_statusz', $_POST['id'], ESZKOZIGENYL_STAT_BI_VALID_VAR) === false ) {
+            $db_error = true;
+        }
+        
+        $statusz = getStatText('eszkozigenyles', ESZKOZIGENYL_STAT_BI_VALID_VAR);
+
+        // E-mail értesítés küldése
+        $mail_hibauzenet = level_felkeszit_es_kuld('eszkozigenyles', $_POST['id'], ERT_BESZERZ_BI_VALIDALAS_ELO, 'eszkozigenyles', 'eszkozigenyles_bi_validalas_elo');
+
+    // Tervezett esetén marad a státusz, csak a pipa változik
+    } else {
+        $statusz = getStatText('eszkozigenyles', ESZKOZIGENYL_STAT_BI_VEGL_VAR);
+    }
+
+    // Megjegyzések számát frissen kérjük le, ha volt értesítés, akkor nőhetett a száma
+    $megj = $adatbazis_kapcsolat -> s2('megj_db', 'eszkozigenyles', "`recid`='{$_POST['id']}'");
+    if( $megj === false ) { $db_error = true; }
+
+    if( !$db_error ) {
+        mysqli_commit($db_kapcs);
+        echo json_encode( array(
+                                'siker'     => 1,
+                                'statusz'   => $statusz,
+                                'pipa'      => $pipa,
+                                'megj_db'   => $megj['megj_db'],
+                                'dok_db'    => $sor['dok_db'],
+                                'gombok'    => get_eszkozigenyles_gombok($_POST['id']),
+                                ) );
+    } else {
+        mysqli_rollback($db_kapcs);
+        echo json_encode(array(
+            'hiba'  => tranzakcioHiba(),
+            'title' => 'Hiba'
+        ));
+    }
+
+    $weblap -> leallit();
+    exit;
+}
+
 // Megjegyzések kiíratása
 if (isset($_POST['megj_kiir'])) {
 
@@ -2204,7 +2603,7 @@ if( isset($_GET['csv']) ) {
         
         $sql = 'SELECT
 				`stat_id` as \'Státusz\',
-				`azon` as \'Azonosító\',
+				`'.get_db_tabla().'eszkozigenyles`.`azon` as \'Azonosító\',
 				`idoszak_azon` as \'Időszak ID\',
 				`tipus` as \'Típus\',
 				`prior` as \'Prioritás\',
@@ -2398,7 +2797,7 @@ if( !isset($_GET['uj']) && ( isset($_GET['tablazat']) || isset($_GET['modosit'])
         'megjegyzesek'  => 'Megjegyzések'.$megj_db,
     );
 
-    $kivetelek = array('ajax', 'uj');
+    $kivetelek = array('ajax', 'uj', 'no_lista');
     foreach ( $ful_tomb as $key => $value ) {
         array_push($kivetelek, $key);
     }
@@ -2959,11 +3358,13 @@ function megrendeles_keszit($eszkozigenyles_id = '') {
     // Státusz és jogok ellenőrzése (nehogy sima link beírással hozzanak létre megrendelést)
     if(
         // BI validálás + validálásra vár státusz + GM terhes típus esetén készül megrendelés
-        (_jog(JOG_BESZERZ_IGENYLESEK_BI_VALIDALAS ) && $eszkozigenyles['stat_id'] == ESZKOZIGENYL_STAT_BI_VALID_VAR && $eszkozigenyles['tipus'] == BESZ_TIP_GM_KERET ) ||
+        (_jog(JOG_BESZERZ_IGENYLESEK_BI_VALIDALAS ) && $eszkozigenyles['stat_id'] == ESZKOZIGENYL_STAT_BI_VALID_VAR && $eszkozigenyles['tipus'] == BESZ_TIP_GM_KERET    ) ||
+        // BI validálás + validálásra vár státusz + GM terhes típus esetén készül megrendelés
+        (_jog(JOG_BESZERZ_IGENYLESEK_BI_VALIDALAS ) && $eszkozigenyles['stat_id'] == ESZKOZIGENYL_STAT_BI_JH_VAR && $eszkozigenyles['tipus'] == BESZ_TIP_GM_KERET       ) ||
         // Felsővezetői jóváhagyás + felsővezetői jh vár státuszkor készül megrendelés, ha nem tervezett típus
-        (_jog(JOG_BESZERZ_IGENYLESEK_FELSOVEZ_JH) && $eszkozigenyles['stat_id'] == ESZKOZIGENYL_STAT_FELSO_JH_VAR && $eszkozigenyles['tipus'] != BESZ_TIP_TERVEZETT ) ||
+        (_jog(JOG_BESZERZ_IGENYLESEK_FELSOVEZ_JH) && $eszkozigenyles['stat_id'] == ESZKOZIGENYL_STAT_FELSO_JH_VAR && $eszkozigenyles['tipus'] != BESZ_TIP_TERVEZETT     ) ||
         // BI véglegesít + véglegesítésre vár státuszkor készül megrendelés, ha nem tervezett típus
-        (_jog(JOG_BESZERZ_IGENYLESEK_BI_VEGLEGESIT) && $eszkozigenyles['stat_id'] == ESZKOZIGENYL_STAT_BI_VEGL_VAR && $eszkozigenyles['tipus'] != BESZ_TIP_TERVEZETT ) ||
+        (_jog(JOG_BESZERZ_IGENYLESEK_BI_VEGLEGESIT) && $eszkozigenyles['stat_id'] == ESZKOZIGENYL_STAT_BI_VEGL_VAR && $eszkozigenyles['tipus'] != BESZ_TIP_TERVEZETT    ) ||
         isset($_GET['pdf_mutat']) || isset($_GET['html_mutat'])
     ) {
 
@@ -3101,7 +3502,7 @@ function megrendeles_keszit($eszkozigenyles_id = '') {
             $db_error = true;
         }
 
-        $mindossz = $eszkozigenyles['ossz_netto'];
+        $mindossz = $eszkozigenyles['jhossz'];
         $tetel_neve  = $eszkozigenyles['nev'];
         $jhossz_kiir = number_format($jhossz, $tizedesek, ',', ' ');
         if( $eszkozigenyles['kiszall'] > 0 ) {

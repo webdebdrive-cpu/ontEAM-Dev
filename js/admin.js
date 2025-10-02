@@ -50,6 +50,11 @@ $(document).ready(function () {
     }
 });
 
+// Felület megállapítása
+var host = window.location.hostname;
+var parts = host.split('.');
+var SUBDOMAIN = (parts.length > 2) ? parts[0] : null;
+
 /**
 *	@desc Get $_GET
 *
@@ -652,7 +657,6 @@ $(function() {
         // (Eszközigénylés táblázata egyébként még speciálisabb, ott sincs ilyen le-fel léptetés, pontosabban van, egy egészen másfajta.)
         if( (e.keyCode == KEY_UP || e.keyCode == KEY_DOWN) ) {
 
-        
             var className = e.target.className;
             popup_display = $('#popup').css('display');
 
@@ -846,6 +850,7 @@ $(function() {
                     if( !formModositva ) {
                         $('#szamlaList li.szamla_sor:visible').eq(kovSzamlaSor).addClass('kijelolve');
                     }
+
                     var szamlaID = $('#szamlaList li.szamla_sor:visible').eq(kovSzamlaSor).attr('data-recid');
 
                 }

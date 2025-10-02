@@ -26,7 +26,11 @@ if( isset($_POST['f_szuro_mezo']) ) {
     // A tömbben előforduló selectek tömbje. Innen tudjuk hogy csak két operátor tartozhat hozzá
     $selectek = array(
         'select_cikltip',
+        'select_besz_tipus',
+        'select_eszkoz_prior',
         'select_felh_telephely',
+        'select_fiz_mod',
+        'select_hat_ido',
         'select_ho_ism',
         'select_ho_soran',
         'select_honapjan',
@@ -413,6 +417,46 @@ if( isset($_POST['f_szuro_mezo_operator']) ) {
                     require_once('selectek.php');
 
                     $input = new Select($select_cikltip, $_POST['felt']);
+                    $input -> cssClass = 'f_felt';
+                    $feltetel = $input -> getHtml();
+
+                // select_besz_tipus
+                } elseif( $ertek['type'] == 'select_besz_tipus' ) {
+
+                    require_once('../class/html/class.Select.php');
+                    require_once('selectek.php');
+
+                    $input = new Select($select_besz_tipus, $_POST['felt']);
+                    $input -> cssClass = 'f_felt';
+                    $feltetel = $input -> getHtml();
+
+                // select_eszkoz_prior
+                } elseif( $ertek['type'] == 'select_eszkoz_prior' ) {
+
+                    require_once('../class/html/class.Select.php');
+                    require_once('selectek.php');
+
+                    $input = new Select($select_eszkoz_prior, $_POST['felt']);
+                    $input -> cssClass = 'f_felt';
+                    $feltetel = $input -> getHtml();
+
+                // select_fiz_mod
+                } elseif( $ertek['type'] == 'select_fiz_mod' ) {
+
+                    require_once('../class/html/class.Select.php');
+                    require_once('selectek.php');
+
+                    $input = new Select($select_fiz_mod, $_POST['felt']);
+                    $input -> cssClass = 'f_felt';
+                    $feltetel = $input -> getHtml();
+
+                // select_hat_ido
+                } elseif( $ertek['type'] == 'select_hat_ido' ) {
+
+                    require_once('../class/html/class.Select.php');
+                    require_once('selectek.php');
+
+                    $input = new Select($select_hat_ido, $_POST['felt']);
                     $input -> cssClass = 'f_felt';
                     $feltetel = $input -> getHtml();
 
@@ -931,7 +975,7 @@ foreach ( $akt_tomb_szures as $ertek ) {
         if( $ertek['name'] == $_GET['mezo'] ) {
             $selected = ' selected';
         }
-        $ertek['megn'] = strip_tags($ertek['megn']);
+        $ertek['megn'] = strip_tags( str_replace('<br>', ' ', $ertek['megn']));
         array_push( $sz_mezo, array('eleje' => '<option value="'.$ertek['name'].'"'.$selected.'>', 'vege' => trim($ertek['megn'], ':').'</option>' ) );
     }
 }

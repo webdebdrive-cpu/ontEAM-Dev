@@ -1095,6 +1095,9 @@ function get_tobbkep_thumb($sor_kepek = '', $i = '', $tobbkep_tablanev = '', $ni
     if( $apa_tabla == 'projektszerzodes_jota' ) {
         $csonkit = 0;
     }
+
+    // Ezen modulok alatt ne törjük meg a fájlneveket
+    $ne_tord = ['eszkozigenyles_dok', 'eszkozigenyles_megr_dok'];
     
     $direkt_dokumentum = 0;
     $kep_utvonal = '../'.get_utvonal().csonkit($tobbkep_tablanev, $csonkit).'/'.$sor_kepek['utvonal'];
@@ -1124,7 +1127,7 @@ function get_tobbkep_thumb($sor_kepek = '', $i = '', $tobbkep_tablanev = '', $ni
         $kep_utvonal = str_replace(' ', '%20', htmlspecialchars($kep_utvonal));
 
         // Eszközigénylések alatt ne legyen fájlnév megtörés
-        if( $tobbkep_tablanev != 'eszkozigenyles_dok' ) {
+        if( !in_array($tobbkep_tablanev, $ne_tord) ) {
             $felirat = mb_wordwrap($felirat, 20, '<br>', true, 'UTF-8');
         }
         if( !$felirat ) {
@@ -1335,7 +1338,7 @@ function get_tobbkep_thumb($sor_kepek = '', $i = '', $tobbkep_tablanev = '', $ni
             }
             
             // Eszközigénylések alatt ne legyen fájlnév megtörés
-            if( $tobbkep_tablanev != 'eszkozigenyles_dok' ) {
+            if( !in_array($tobbkep_tablanev, $ne_tord) ) {
                 $felirat = mb_wordwrap($felirat, 20, '<br>', true, 'UTF-8');
             }
 

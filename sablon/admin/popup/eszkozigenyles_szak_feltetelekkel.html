@@ -1,5 +1,5 @@
 <h2>Feltételekkel beleegyezés</h2>
-<form id="elutasitasForm" class="popupForm" method="post" onsubmit="return szak_felt_beleegyezes();">
+<form class="popupForm" method="post" onsubmit="return szak_felt_beleegyezes();">
     <div class="kozep">
         <div class="dt">
             <div class="dtr">
@@ -60,10 +60,10 @@ $(document).ready(function(){
 });
 function szak_felt_beleegyezes() {
 
-    /* globális változók frissítése az adott adatlap alapján */
+    // globális változók frissítése az adott adatlap alapján
     eszkoz_valtozok_update();
     
-    /* Indoklás kötelező */
+    // Indoklás kötelező
     if( !$('#popup_szak_indok').val() ) {
         $('#popup input, #popup textarea, #popup select').removeClass('hibas_ide_focus');
         $('#popup_szak_indok').addClass('hibas_ide_focus');

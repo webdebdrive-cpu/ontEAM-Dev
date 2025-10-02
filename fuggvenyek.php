@@ -7589,13 +7589,13 @@ function eszkozigenylesLista( $bejegyzesek, $tabla, $frissit = '', $kijeloltek =
             array('id' => 'eszkoz_tabla_szall_hat',     'nev' => 'Szállítási határidő',             'width' => 100  ),
             array('id' => 'eszkoz_tabla_fiz_mod',       'nev' => 'Fizetési mód',                    'width' => 120  ),
             array('id' => 'eszkoz_tabla_hat_ido',       'nev' => 'Fizetési határidő',               'width' => 80   ),
-            array('id' => 'eszkoz_tabla_igmen',         'nev' => 'Igényelt mennyiség',              'width' => 80   ),
+            array('id' => 'eszkoz_tabla_igmen',         'nev' => 'Igényelt mennyiség<br>(db)',      'width' => 80   ),
             array('id' => 'eszkoz_tabla_netto',         'nev' => 'Nettó egységár',                  'width' => 80   ),
             array('id' => 'eszkoz_tabla_kcs_21',        'nev' => 'Pénznem',                         'width' => 80   ),
             array('id' => 'eszkoz_tabla_arfolyam',      'nev' => 'Árfolyam',                        'width' => 80   ),
             array('id' => 'eszkoz_tabla_dev_net',       'nev' => 'Deviza egységár',                 'width' => 80   ),
             array('id' => 'eszkoz_tabla_ossz_netto',    'nev' => 'Nettó összesen',                  'width' => 80   ),
-            array('id' => 'eszkoz_tabla_jhmen',         'nev' => 'Jóváhagyott mennyiség',           'width' => 80   ),
+            array('id' => 'eszkoz_tabla_jhmen',         'nev' => 'Jóváhagyott mennyiség<br>(db)',   'width' => 80   ),
             array('id' => 'eszkoz_tabla_jhar',          'nev' => 'Jóváhagyott nettó egységár',      'width' => 80   ),
             array('id' => 'eszkoz_tabla_jhossz',        'nev' => 'Jóváhagyott nettó összesen',      'width' => 80   ),
             array('id' => 'eszkoz_tabla_kiszall',       'nev' => 'Kiszállítási költség',            'width' => 80   ),
@@ -7607,7 +7607,8 @@ function eszkozigenylesLista( $bejegyzesek, $tabla, $frissit = '', $kijeloltek =
             array('id' => 'eszkoz_tabla_kiv_kolts' ,    'nev' => 'Kivitelezési költség',            'width' => 80   ),
             array('id' => 'eszkoz_tabla_szall_ig_vel',  'nev' => 'Szálloda igazgató véleménye',     'width' => 80   ),
             array('id' => 'eszkoz_tabla_bi_vel',        'nev' => 'BI véleménye',                    'width' => 80   ),
-            array('id' => 'eszkoz_tabla_szak_vel',      'nev' => 'Szakmai vezetés vélemény',        'width' => 80   ),
+            array('id' => 'eszkoz_tabla_bi_jh',         'nev' => 'BI jóváhagyás',                   'width' => 80   ),
+            // array('id' => 'eszkoz_tabla_szak_vel',      'nev' => 'Szakmai vezetés vélemény',        'width' => 80   ),
             array('id' => 'eszkoz_tabla_felso_vel',     'nev' => 'Felsővezetés vélemény',           'width' => 80   ),
         );
 
@@ -7816,13 +7817,13 @@ function eszkozigenylesLista( $bejegyzesek, $tabla, $frissit = '', $kijeloltek =
                 'eszkoz_tabla_szall_hat'        => '<td>'.datum_kiir($bsz['szall_hat']).'</td>',
                 'eszkoz_tabla_fiz_mod'          => '<td>'.$fiz_mod.'</td>',
                 'eszkoz_tabla_hat_ido'          => '<td class="r nowrap">'.$bsz['hat_ido'].' nap</td>',
-                'eszkoz_tabla_igmen'            => '<td class="r nowrap" data-sort="'.$bsz['igmen'].'">'.number_format($bsz['igmen'], 2, ',', ' ').' db</td>',
+                'eszkoz_tabla_igmen'            => '<td class="r nowrap" data-sort="'.$bsz['igmen'].'">'.number_format($bsz['igmen'], 0, ',', ' ').'</td>',
                 'eszkoz_tabla_netto'            => '<td class="r nowrap" data-sort="'.$bsz['netto'].'">'.number_format($bsz['netto'], 0, ',', ' ').'</td>',
                 'eszkoz_tabla_kcs_21'           => '<td class="c">'.erteklista(ERTEKLISTA_PENZNEM, $bsz['kcs_21']).'</td>',
                 'eszkoz_tabla_arfolyam'         => '<td class="r">'.$bsz['arfolyam'].'</td>',
                 'eszkoz_tabla_dev_net'          => '<td class="r nowrap">'.number_format($bsz['dev_net'], 2, ',', ' ').'</td>',
                 'eszkoz_tabla_ossz_netto'       => '<td class="r nowrap ossz_netto_'.$bsz['recid'].'">'.number_format($bsz['ossz_netto'], 0, ',', ' ').'</td>',
-                'eszkoz_tabla_jhmen'            => '<td class="r nowrap jhmen_'.$bsz['recid'].'" data-sort="'.$bsz['jhmen'].'">'.number_format($bsz['jhmen'], 0, ',', ' ').' db</td>',
+                'eszkoz_tabla_jhmen'            => '<td class="r nowrap jhmen_'.$bsz['recid'].'" data-sort="'.$bsz['jhmen'].'">'.number_format($bsz['jhmen'], 0, ',', ' ').'</td>',
                 'eszkoz_tabla_jhar'             => '<td class="r nowrap" data-sort="'.$bsz['jhar'].'">'.number_format($bsz['jhar'], 0, ',', ' ').'</td>',
                 'eszkoz_tabla_jhossz'           => '<td class="r nowrap" data-sort="'.$bsz['jhossz'].'">'.number_format($bsz['jhossz'], 0, ',', ' ').'</td>',
                 'eszkoz_tabla_kiszall'          => '<td class="r nowrap" data-sort="'.$bsz['kiszall'].'">'.number_format($bsz['kiszall'], $tizedesek, ',', ' ').'</td>',
@@ -7841,6 +7842,7 @@ function eszkozigenylesLista( $bejegyzesek, $tabla, $frissit = '', $kijeloltek =
                 'eszkoz_tabla_szall_ig_indok'   => '<td>'.$bsz['szall_ig_indok'].'</td>',
                 'eszkoz_tabla_bi_vel'           => '<td class="spec_pipa bi_vel_'.$bsz['recid'].'">'.getSpecialisPipaloErtek($bi_vel_ertekek, $bsz['bi_vel']).'</td>',
                 'eszkoz_tabla_bi_indok'         => '<td>'.$bsz['bi_indok'].'</td>',
+                'eszkoz_tabla_bi_jh'            => '<td class="spec_pipa bi_jh_'.$bsz['recid'].'">'.getSpecialisPipaloErtek($bi_vel_ertekek, $bsz['bi_jh']).'</td>',
             );
 
             foreach ( $oszlopok as $oszl ) {
@@ -7920,7 +7922,7 @@ function eszkozigenylesLista( $bejegyzesek, $tabla, $frissit = '', $kijeloltek =
 function get_eszkozigenyles_gombok($recid = 0) {
     global $adatbazis_kapcsolat;
 
-    $eszkozigenyles = $adatbazis_kapcsolat -> s2('stat_id tipus telephely_id nev kiv_kolts becsult ossz_netto igmen jhmen musz_el_ig musz_indok szall_ig_vel szall_ig_indok bi_vel bi_indok szak_vel szak_indok felso_vel felso_indok bi_vegl bi_vegl_indok', 'eszkozigenyles', "`recid`='{$recid}'");
+    $eszkozigenyles = $adatbazis_kapcsolat -> s2('stat_id tipus telephely_id nev kiv_kolts becsult ossz_netto igmen jhmen musz_el_ig musz_indok szall_ig_vel szall_ig_indok bi_vel bi_indok bi_jh bi_jh_indok szak_vel szak_indok felso_vel felso_indok bi_vegl bi_vegl_indok', 'eszkozigenyles', "`recid`='{$recid}'");
 
     $gombok = '';
     if( isset($_GET['tablazat']) ) {
@@ -7967,13 +7969,39 @@ function get_eszkozigenyles_gombok($recid = 0) {
         $megerosites = '';
         if( $eszkozigenyles['tipus'] == BESZ_TIP_TERVEZETT ) {
             $megerosites = '-tervezett-';
+            // Visszavonás gomb csak akkor van, ha már volt véleményezve
+            if( $eszkozigenyles['bi_vel'] ) {
+                $visszavonas = '<input type="button" class="gomb modositaskor_rejt" onclick="bi_visszavon()" value="Visszavonás">';
+            }
+        }
+        $kikuld_statuszba = '';
+        // 2025.09.25 Új működés szerint BI jóváhagyásra léptetejük, még a GM-eset is
+        // $gomb_felirat = 'Mehet szakmai véleményezésre';
+        $gomb_felirat = 'Mehet BI jóváhagyásra';
+        // if( $eszkozigenyles['tipus'] == BESZ_TIP_GM_KERET ) {
+        //     $gomb_felirat = 'Mehet kiküldésre vár státuszba';
+        //     $kikuld_statuszba = '-kikuld-statuszba-';
+        // }
+        $gombok .= nl2('
+            <input type="button" class="gomb modositaskor_rejt" onclick="csoportMuvelet(\'eszkozigenyles_jhmen_mod\')" value="Jóváhagyott mennyiség">
+            <input type="button" class="gomb modositaskor_rejt zold" onclick="bi_validal(\''.$megerosites.'\', \''.$kikuld_statuszba.'\')" value="✓ '.$gomb_felirat.'">
+            <input type="button" class="gomb modositaskor_rejt piros" onclick="csoportMuvelet(\'eszkozigenyles_bi_elutasit\')" value="× Elutasítás">
+            '.$visszavonas
+        );
+    }
+    // BI jóváhagyásra vár:
+    if( $eszkozigenyles['stat_id'] == ESZKOZIGENYL_STAT_BI_JH_VAR && _jog(JOG_BESZERZ_IGENYLESEK_BI_JOVA) ) {
+        $visszavonas = '';
+        $megerosites = '';
+        if( $eszkozigenyles['tipus'] == BESZ_TIP_TERVEZETT ) {
+            $megerosites = '-tervezett-';
             // Visszavonás gomb csak akkor van, ha ha már volt véleményezve
             if( $eszkozigenyles['bi_vel'] ) {
                 $visszavonas = '<input type="button" class="gomb modositaskor_rejt" onclick="bi_visszavon()" value="Visszavonás">';
             }
         }
         $kikuld_statuszba = '';
-        $gomb_felirat = 'Mehet szakmai véleményezésre';
+        $gomb_felirat = 'Mehet felsővezető 1. szint jóváhagyásra';
         if( $eszkozigenyles['tipus'] == BESZ_TIP_GM_KERET ) {
             $gomb_felirat = 'Mehet kiküldésre vár státuszba';
             $kikuld_statuszba = '-kikuld-statuszba-';
@@ -7981,7 +8009,8 @@ function get_eszkozigenyles_gombok($recid = 0) {
         $gombok .= nl2('
             <input type="button" class="gomb modositaskor_rejt" onclick="csoportMuvelet(\'eszkozigenyles_jhmen_mod\')" value="Jóváhagyott mennyiség">
             <input type="button" class="gomb modositaskor_rejt zold" onclick="bi_jovahagy(\''.$megerosites.'\', \''.$kikuld_statuszba.'\')" value="✓ '.$gomb_felirat.'">
-            <input type="button" class="gomb modositaskor_rejt piros" onclick="csoportMuvelet(\'eszkozigenyles_bi_elutasit\')" value="× Elutasítás">
+            <input type="button" class="gomb modositaskor_rejt sarga" onclick="csoportMuvelet(\'eszkozigenyles_bi_jh_feltetelekkel\')" value="? Feltételekkel beleegyezés">
+            <input type="button" class="gomb modositaskor_rejt piros" onclick="csoportMuvelet(\'eszkozigenyles_bi_jh_elutasit\')" value="× Elutasítás">
             '.$visszavonas
         );
     }
@@ -8038,6 +8067,7 @@ function get_eszkozigenyles_gombok($recid = 0) {
         }
         $gombok .= nl2('
             <input type="button" class="gomb modositaskor_rejt" onclick="csoportMuvelet(\'eszkozigenyles_jhmen_mod\')" value="Jóváhagyott mennyiség">
+            <input type="button" class="gomb modositaskor_rejt" onclick="vissza_validalasra(\''.$megerosites.'\')" value="Vissza validálásra">
             <input type="button" class="gomb modositaskor_rejt zold" onclick="bi_vegl_jovahagy(\''.$megerosites.'\')" value="✓ Mehet kiküldésre vár státuszba">
             <input type="button" class="gomb modositaskor_rejt piros" onclick="csoportMuvelet(\'eszkozigenyles_bi_vegl_elutasit\')" value="× Elutasítás">
             '.$visszavonas
@@ -8057,6 +8087,7 @@ function get_eszkozigenyles_gombok($recid = 0) {
                     <textarea id="musz_indok_db_'.$recid.'">'.nl2br2($eszkozigenyles['musz_indok']).'</textarea>
                     <textarea id="szall_ig_indok_db_'.$recid.'">'.nl2br2($eszkozigenyles['szall_ig_indok']).'</textarea>
                     <textarea id="bi_indok_db_'.$recid.'">'.nl2br2($eszkozigenyles['bi_indok']).'</textarea>
+                    <textarea id="bi_jh_indok_db_'.$recid.'">'.nl2br2($eszkozigenyles['bi_jh_indok']).'</textarea>
                     <textarea id="szak_indok_db_'.$recid.'">'.nl2br2($eszkozigenyles['szak_indok']).'</textarea>
                     <textarea id="felso_indok_db_'.$recid.'">'.nl2br2($eszkozigenyles['felso_indok']).'</textarea>
                     <textarea id="bi_vegl_indok_db_'.$recid.'">'.nl2br2($eszkozigenyles['bi_vegl_indok']).'</textarea>
@@ -11749,6 +11780,7 @@ function level_felkeszit_es_kuld( $tabla = '', $recid = '', $ert_pipa = '', $sab
         case 'eszkozigenyles_muszak_jova_elott':
         case 'eszkozigenyles_szallodai_eng_elo':
         case 'eszkozigenyles_bi_validalas_elo':
+        case 'eszkozigenyles_bi_jh_elo':
         case 'eszkozigenyles_szakmai_vel_elo':
         case 'eszkozigenyles_felsovez_jh_elo':
         case 'eszkozigenyles_bi_veglegesit_elo':
@@ -11756,11 +11788,12 @@ function level_felkeszit_es_kuld( $tabla = '', $recid = '', $ert_pipa = '', $sab
 
         case 'eszkozigenyles_szall_ig_elutasit':
         case 'eszkozigenyles_bi_elutasit':
+        case 'eszkozigenyles_bi_jh_elutasit':
         // case 'eszkozigenyles_szak_elutasit': Nem kell mert tovább megy felsővezetés elé
         case 'eszkozigenyles_felso_elutasit':
         case 'eszkozigenyles_bi_vegl_elutasit':
 
-            $eszkozigenyles = $adatbazis_kapcsolat -> s2('azon nev tipus szallito_id telephely_id szall_ig_indok bi_indok felso_indok bi_vegl_indok insert_usr', 'eszkozigenyles', "`recid`='{$recid}'");
+            $eszkozigenyles = $adatbazis_kapcsolat -> s2('azon nev tipus szallito_id telephely_id szall_ig_indok bi_indok bi_jh_indok felso_indok bi_vegl_indok insert_usr', 'eszkozigenyles', "`recid`='{$recid}'");
             $statusz        = $adatbazis_kapcsolat -> s2('login', 'eszkozigenyles_statusz', "`eszkozigenyles_recid`='{$recid}' AND `stat_id`='".ESZKOZIGENYL_STAT_UJ_FELVITEL."'", 'recid', '1');
             $login          = $adatbazis_kapcsolat -> s2('teljes_nev usertel', 'login', "`nev`='{$statusz['login']}'");
 
@@ -11788,6 +11821,11 @@ function level_felkeszit_es_kuld( $tabla = '', $recid = '', $ert_pipa = '', $sab
                 $esemeny = 'email értesítés küldése BI validálásra vár státuszba léptetéskor';
                 $targy   = 'Eszközigénylés BI validálásra vár';
                 $uzi     = 'Az ontEAM rendszerben az alábbi eszközigénylés BI validálásra vár státuszba lépett:';
+            }
+            if( $cimzett == 'eszkozigenyles_bi_jh_elo' ) {
+                $esemeny = 'email értesítés küldése BI jóváhagyásra vár státuszba léptetéskor';
+                $targy   = 'Eszközigénylés BI jóváhagyásra vár';
+                $uzi     = 'Az ontEAM rendszerben az alábbi eszközigénylés BI jóváhagyásra vár státuszba lépett:';
             }
             if( $cimzett == 'eszkozigenyles_szakmai_vel_elo' ) {
                 $esemeny = 'email értesítés küldése szakmai véleményezésre vár státuszba léptetéskor';
@@ -11822,6 +11860,12 @@ function level_felkeszit_es_kuld( $tabla = '', $recid = '', $ert_pipa = '', $sab
                 $targy   = 'Eszközigénylés elutasítva (BI validáláskor)';
                 $uzi     = 'Az ontEAM rendszerben az alábbi eszközigénylést elutasította a BI validáló:';
                 $indoklas = '<br>Indoklás:<br>'.nl2br2($eszkozigenyles['bi_indok']);
+            }
+            if( $cimzett == 'eszkozigenyles_bi_jh_elutasit' ) {
+                $esemeny = 'email értesítés küldése eszközigénylés elutasításakor (BI jóváhagyáskor)';
+                $targy   = 'Eszközigénylés elutasítva (BI jóváhagyáskor)';
+                $uzi     = 'Az ontEAM rendszerben az alábbi eszközigénylést elutasította a BI jóváhagyó:';
+                $indoklas = '<br>Indoklás:<br>'.nl2br2($eszkozigenyles['bi_jh_indok']);
             }
             // Nem kell mert tovább megy felsővezetés elé
             // if( $cimzett == 'eszkozigenyles_szak_elutasit' ) {

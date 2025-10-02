@@ -135,17 +135,17 @@ define('ENERGIATERV_STAT_KESZ',             '10');
 define('ENERGIATERV_STAT_ELES',             '15');
 
 // Eszközigénylés státuszok
-define('ESZKOZIGENYL_STAT_UJ_FELVITEL',      '01');
-define('ESZKOZIGENYL_STAT_MUSZAK_JH_VAR',    '02');
-define('ESZKOZIGENYL_STAT_SZALL_ENG_VAR',    '03');
-define('ESZKOZIGENYL_STAT_BI_VALID_VAR',     '04');
-define('ESZKOZIGENYL_STAT_SZAKM_VEL_VAR',    '05');
-define('ESZKOZIGENYL_STAT_FELSO_JH_VAR',     '06');
-define('ESZKOZIGENYL_STAT_BI_VEGL_VAR',      '07');
-define('ESZKOZIGENYL_STAT_KIKULD_VAR',       '08');
-define('ESZKOZIGENYL_STAT_MEGRENDELVE',      '09');
-define('ESZKOZIGENYL_STAT_ELUTASITOTT',      '10');
-define('ESZKOZIGENYL_STAT_BI_JH_VAR',        '11');
+define('ESZKOZIGENYL_STAT_UJ_FELVITEL',      '10');
+define('ESZKOZIGENYL_STAT_MUSZAK_JH_VAR',    '20');
+define('ESZKOZIGENYL_STAT_SZALL_ENG_VAR',    '30');
+define('ESZKOZIGENYL_STAT_BI_VALID_VAR',     '40');
+define('ESZKOZIGENYL_STAT_BI_JH_VAR',        '50');
+define('ESZKOZIGENYL_STAT_SZAKM_VEL_VAR',    '60');
+define('ESZKOZIGENYL_STAT_FELSO_JH_VAR',     '70');
+define('ESZKOZIGENYL_STAT_BI_VEGL_VAR',      '80');
+define('ESZKOZIGENYL_STAT_KIKULD_VAR',       '90');
+define('ESZKOZIGENYL_STAT_MEGRENDELVE',      '100');
+define('ESZKOZIGENYL_STAT_ELUTASITOTT',      '110');
 
 // Eszközigénylés megrendelés státuszok
 define('ESZKOZIGENYL_MEGR_STAT_KIKULD_VAR',  '01');
@@ -518,6 +518,7 @@ define('JOG_BESZERZ_IGENYLESEK_TOROL',          151);
 define('JOG_BESZERZ_IGENYLESEK_MUSZAK_JOVA',    155);
 define('JOG_BESZERZ_IGENYLESEK_SZALLODAI_ENG',  156);
 define('JOG_BESZERZ_IGENYLESEK_BI_VALIDALAS',   157);
+define('JOG_BESZERZ_IGENYLESEK_BI_JOVA',        168);
 define('JOG_BESZERZ_IGENYLESEK_SZAKMAI_VEL',    152);
 define('JOG_BESZERZ_IGENYLESEK_FELSOVEZ_JH',    160);
 define('JOG_BESZERZ_IGENYLESEK_BI_VEGLEGESIT',  161);
@@ -569,6 +570,7 @@ define('ERT_BESZERZ_FELSOVEZ_JH_ELO',   28);
 define('ERT_BESZERZ_BI_VEGLEGESIT_ELO', 29);
 define('ERT_BESZERZ_MEGR_KIKULD_ELO',   30);
 define('ERT_BESZERZ_ELUTASIT',          31);
+define('ERT_BESZERZ_BI_JH_ELO',         32);
 
 define('HIBA_ADJON_FELADAT',            ' kérem adjon hozzá egy elvégzett feladatot!');
 define('DASHB_NINCS_BEJEGYZES',         'Nem található bejegyzés!');
@@ -725,6 +727,14 @@ function bi_vel_ertekek() {
             ['value' => 0, 'text' => '',                            'ikon' => ''],
             ['value' => 2, 'text' => 'elutasítás',                  'ikon' => '<span class="piros">×</span>'],
             ['value' => 1, 'text' => 'mehet szakmai véleményezésre','ikon' => '<span class="zold">✓</span>' ],
+        ];
+}
+function bi_jh_ertekek() {
+    return [
+            ['value' => 0, 'text' => '',                                       'ikon' => ''],
+            ['value' => 2, 'text' => 'elutasítás',                             'ikon' => '<span class="piros">×</span>'],
+            ['value' => 3, 'text' => 'feltételekkel beleegyezés',              'ikon' => '<span class="sarga">?</span>'],
+            ['value' => 1, 'text' => 'mehet felsővezető 1. szint jóváhagyásra','ikon' => '<span class="zold">✓</span>' ],
         ];
 }
 function szak_vel_ertekek() {

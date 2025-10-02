@@ -1109,6 +1109,31 @@ if( !isset($_GET['regi']) ) {
                                 ');
         }
     }
+    // BI jóváhagyásra váró eszközigénylések
+    if( _jog(JOG_BESZERZ_IGENYLESEK_BI_JOVA) ) {
+
+        $szures_neve = 'BI jóváhagyásra váró eszközigénylések';
+        $tabla  = 'eszkozigenyles';
+        $db     = $adatbazis_kapcsolat->s('recid', $tabla, "`stat_id`='".ESZKOZIGENYL_STAT_BI_JH_VAR."'{$telephely_sql}", '', '', '', '-num-rows-');
+        $link   = $tabla.'.php?mezo=stat_id&amp;op=equal&amp;felt='.ESZKOZIGENYL_STAT_BI_JH_VAR.'&amp;tablazat&amp;dashboard='.$szures_neve;
+
+        if( $db ) {
+            $feladatok .= nl2('
+                                <tr>
+                                    <td>
+                                        <a href="'.$link.'">
+                                            '.$szures_neve.'
+                                        </a>
+                                    </td>
+                                    <td>
+                                        <a href="'.$link.'">
+                                            '.number_format($db, 0, '', '.').' db
+                                        </a>
+                                    </td>
+                                </tr>
+                                ');
+        }
+    }
     // Szakmai véleményezésre váró eszközigénylések
     if( _jog(JOG_BESZERZ_IGENYLESEK_SZAKMAI_VEL) ) {
 
