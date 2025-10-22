@@ -1537,7 +1537,7 @@ function munkalapMegrendelesKeszit(PDF_elonezet = '') {
                     }
     
                     // Lépjünk a megfelelő munkalapra, figyelembe véve az esetleges szűrőket is
-                    var mezo = op = felt = '';
+                    var mezo = op = felt = dashboard = '';
                     if( _get('mezo') ) {
                         mezo = 'mezo='+_get('mezo')+'&';
                     }
@@ -1547,7 +1547,11 @@ function munkalapMegrendelesKeszit(PDF_elonezet = '') {
                     if( _get('felt') ) {
                         felt = 'felt='+_get('felt')+'&';
                     }
-                    location.href = 'munkalap.php?'+mezo+op+felt+'id='+_get('id')+'&modosit=1&nyomtat'; 
+                    if( _get('dashboard') ) {
+                        dashboard = 'dashboard='+_get('dashboard')+'&';
+                    }
+                    location.href = 'munkalap.php?'+mezo+op+felt+dashboard+'id='+_get('id')+'&modosit=1&nyomtat'; 
+                    // szamlaBetolt(_get('id'), baseName(location.href) + '.php', 'modosit');
 
                 }
             },

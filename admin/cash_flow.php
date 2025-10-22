@@ -617,21 +617,21 @@ require_once('selectek.php');
     $szamla_html .= nl2('
         <script>
             $(window).resize(function() {
-                if( getKepernyoSzel()<=1280 ) {
+                if( getKepernyoSzel()<=1170 ) {
                     $(\'#szamlaFulek\').css({\'margin-top\':\'-28px\', \'margin-left\':\'5px\'});
                 } else {
                     $(\'#szamlaFulek\').css({\'margin-top\':\'-43px\', \'margin-left\':\'5px\'});
                 }
             });
             setTimeout(function () {
-                if( getKepernyoSzel()<=1280 ) {
+                if( getKepernyoSzel()<=1170 ) {
                     $(\'#szamlaFulek\').css({\'margin-top\':\'-28px\', \'margin-left\':\'5px\'});
                 } else {
                     $(\'#szamlaFulek\').css({\'margin-top\':\'-43px\', \'margin-left\':\'5px\'});
                 }
             }, 50);
             setTimeout(function () {
-                if( getKepernyoSzel()<=1280 ) {
+                if( getKepernyoSzel()<=1170 ) {
                     $(\'#szamlaFulek\').css({\'margin-top\':\'-28px\', \'margin-left\':\'5px\'});
                 } else {
                     $(\'#szamlaFulek\').css({\'margin-top\':\'-43px\', \'margin-left\':\'5px\'});

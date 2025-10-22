@@ -23,6 +23,7 @@ $(document).ready(function(){
         type: 'POST',
         data: {
             recid           : _get('id'),
+            no_mondat       : 1,
             get_ml_adatok   : Date.now()
         },
         success: function(response) {

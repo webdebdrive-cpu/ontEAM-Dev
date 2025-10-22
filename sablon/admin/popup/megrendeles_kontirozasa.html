@@ -154,7 +154,7 @@ $(document).ready(function () {
     $('#pop_szla_varh_ert').attr('data-tort', tizedesek);
 
     var kiv_hat = $('#kiv_hat').val();
-    if( kiv_hat == '\xa0\xa0\xa0\xa0.\xa0\xa0.\xa0\xa0' ) {
+    if( kiv_hat == '\xa0\xa0\xa0\xa0.\xa0\xa0.\xa0\xa0' || !kiv_hat ) {
         kiv_hat = $('#kiv_hat_db').val();
     }
     $('#pop_szla_varh_erk').val( kiv_hat.replace(/-/g, '.') );

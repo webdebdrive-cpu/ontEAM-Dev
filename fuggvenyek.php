@@ -1244,7 +1244,7 @@ function i_u($type, $tabla, $tomb) {
             $szamla = $adatbazis_kapcsolat->s2('andoc_id vonalkod erk_xml dok_link ikt_usr insert_dt', 'anyag_szamla_atmeneti', "`recid`='{$_POST['atmeneti_recid']}'");
             if( $szamla === false ) { $db_error = true; }
 
-            $szamla['erk_xml']  = htmlspecialchars_decode($szamla['erk_xml']);
+            $szamla['erk_xml']  = htmlspecialchars_decode($szamla['erk_xml' ]);
             $szamla['vonalkod'] = htmlspecialchars_decode($szamla['vonalkod']);
             $szamla['dok_link'] = htmlspecialchars_decode($szamla['dok_link']);
             
@@ -2385,7 +2385,7 @@ function i_u($type, $tabla, $tomb) {
                         $value = date('Y.m.d', strtotime($value));
                     }
                     
-                    $post_key = $_POST[$key];
+                    $post_key = trim($_POST[$key]);
                     
                     // Numerikus illetve dátum mezők esetén le kell kezelni, ha üres adatot kapnánk, újra legyenek formázva
                     foreach ( $tomb as $elem ) {
@@ -2956,7 +2956,8 @@ function i_u($type, $tabla, $tomb) {
 
             // Ha változott a szerepkör, akkor a jogokat frissítjük
             $login = $adatbazis_kapcsolat->s2('szemelyzet_id van_jelszo', 'login', "`recid`='{$_GET['id']}'");
-            $van_jelszo = $login['van_jelszo']; // Ez később a commit után kell
+            // Ez később a commit után kell
+            $van_jelszo = $login['van_jelszo'];
             if( $login['szemelyzet_id'] != $_POST['szemelyzet_id'] ) {
                 $szerepkor = $adatbazis_kapcsolat->s2('flags', 'szerepkor', "`recid`='{$_POST['szemelyzet_id']}'", '', '1');
                 if( $szerepkor === false ) { $db_error = true; }
@@ -3660,7 +3661,7 @@ function i_u($type, $tabla, $tomb) {
     // Ha kell, akkor beállítjuk még a nevid-s oszlopot UPDATE után
 	if( $nevid != '' && $type == 'insert' ) {
 
-        $nevid = fajlnev_keszit($_POST[$nevid[name]]);
+        $nevid = fajlnev_keszit($_POST[$nevid['name']]);
 		if( !$nevid ) {
             $nevid = 'noname';
         }
@@ -3685,9 +3686,14 @@ function i_u($type, $tabla, $tomb) {
 
         // Login jelszó küldést commit után küldünk
         if( $tabla == 'login' ) {
-            // Ha most vették ki a Jelszóval rendelkezik pipát, akkor e-mail értesítés küldése
+            // Ha új felhasználó létrehozásáról van szó
+            // Most még csak DEV-en
+            if( $_SERVER['HTTP_HOST']=='dev.onteam.hu' && $type == 'insert' ){
+                level_felkeszit_es_kuld('login', $id, '', 'ujFelhJelszoKuld', 'ujFelhJelszoKuld');
+            }
+            // Vagy ha most vették ki a Jelszóval rendelkezik pipát, akkor e-mail értesítés küldése
             if( $van_jelszo && !$_POST['van_jelszo'] ){
-                level_felkeszit_es_kuld('login', $_GET['id'], '', 'elfelejtettJelszoKuld', 'elfelejtettJelszoKuld');
+                level_felkeszit_es_kuld('login', $id, '', 'elfelejtettJelszoKuld', 'elfelejtettJelszoKuld');
             }
         }
 
@@ -5301,7 +5307,30 @@ function szamla_lista( $where = '', $tabla = '', $kijeloltek = false, $csak_sql_
                 $i = 0;
                 // Nem nyitott státuszú, azon belül sürgősek majd iktatószám
                 // A státuszoknak is van egy sorrendje
-                $statuszok = array_reverse( array( MUNKALAP_STAT_BEOSZTAS_NELKUL, MUNKALAP_STAT_HOZZARENDELT, MUNKALAP_STAT_FELVEVE, MUNKALAP_STAT_ANYAGRAVAR, MUNKALAP_STAT_IGAZOLASRA_VAR, MUNKALAP_STAT_IGAZOLT, MUNKALAP_STAT_VIZSGALAT_ALATT, MUNKALAP_STAT_ELOKESZITES_ALATT, MUNKALAP_STAT_DONTESRE_VAR, MUNKALAP_STAT_KONTIROZASRA_VAR, MUNKALAP_STAT_AJANLAT_NYOMTATVA, MUNKALAP_STAT_HOZREND_MEGREND_VAR, MUNKALAP_STAT_HATIDO_UTEMEZETT, MUNKALAP_STAT_VARAKOZO, MUNKALAP_STAT_LEZARASRA_VAR, MUNKALAP_STAT_LEZART, MUNKALAP_STAT_ELUTASITVA, MUNKALAP_STAT_TOROLT, MUNKALAP_STAT_SZTORNO_VAR, MUNKALAP_STAT_SZTORNO ) );
+                $statuszok = array_reverse( array( 
+                                                MUNKALAP_STAT_BEOSZTAS_NELKUL,
+                                                MUNKALAP_STAT_HOZZARENDELT,
+                                                MUNKALAP_STAT_FELVEVE,
+                                                MUNKALAP_STAT_ANYAGRAVAR,
+                                                MUNKALAP_STAT_IGAZOLASRA_VAR,
+                                                MUNKALAP_STAT_IGAZOLT,
+                                                MUNKALAP_STAT_VIZSGALAT_ALATT,
+                                                MUNKALAP_STAT_ELOKESZITES_ALATT,
+                                                MUNKALAP_STAT_DONTESRE_VAR,
+                                                MUNKALAP_STAT_KONTIROZASRA_VAR,
+                                                MUNKALAP_STAT_AJANLAT_NYOMTATVA,
+                                                MUNKALAP_STAT_HOZREND_MEGREND_VAR,
+                                                MUNKALAP_STAT_MEGR_ALAIR_VAR,
+                                                MUNKALAP_STAT_MEGR_ELKULD_VAR,
+                                                MUNKALAP_STAT_HATIDO_UTEMEZETT,
+                                                MUNKALAP_STAT_VARAKOZO,
+                                                MUNKALAP_STAT_LEZARASRA_VAR,
+                                                MUNKALAP_STAT_LEZART,
+                                                MUNKALAP_STAT_ELUTASITVA,
+                                                MUNKALAP_STAT_TOROLT,
+                                                MUNKALAP_STAT_SZTORNO_VAR,
+                                                MUNKALAP_STAT_SZTORNO,
+                                            ) );
                 foreach ( $statuszok as $stat ) {
                     $munkalapok = $adatbazis_kapcsolat->s('recid', $tabla, "`stat_id`='{$stat}'", '`surgos`, `ikt_szam`');
                     foreach ( $munkalapok as $munkalap ) {
@@ -6417,13 +6446,13 @@ function beosztas_unnepnapokLista( $bejegyzesek, $tabla, $frissit = '', $kijelol
     return false;
 }
 
-function munkalapLista( $bejegyzesek, $tabla, $frissit, $kijeloltek, $sorrend_idk) {
+function munkalapLista( $bejegyzesek, $tabla, $frissit = '', $kijeloltek = '', $sorrend_idk = '') {
     global $adatbazis_kapcsolat;
 
     // Legyen-e JS rendezés, vagy sem?
-    $js_rendezes = false;
+    $js_rendezes = 0;
     if( $sorrend_idk && (!$_GET['rend'] || $_GET['rend']=='stat_id') && !$_GET['szamlaSorFrissit'] && !$_GET['ajax'] ){
-        $js_rendezes = true;
+        $js_rendezes = 1;
     }
 
     if( $bejegyzesek ) {
@@ -6464,7 +6493,17 @@ function munkalapLista( $bejegyzesek, $tabla, $frissit, $kijeloltek, $sorrend_id
                 $stat_select .= '<option'.$selected.' value="'.$stat['id'].'">'.$stat['nev'].'</option>';
             }
             if( $stat_select ) {
-                $stat_select = '<div id="stat_gyors_szuro_div"><select id="stat_gyors_szuro" style="margin: 0.2rem 0 0 0.2rem;" onchange="if(this.value){ param = \'&amp;mezo=stat_id&amp;op=equal&amp;felt=\'+this.value; } else { param = \'\'; } szurkit(); location.href=\''.self().get_get(array('mezo', 'op', 'felt')).'\'+param"><option value="">-Összes státusz-</option>'.$stat_select.'</select></div>';
+                // Ezek nagy részét azért kell kiszűrni, mert ha a ML felületen rendezünk (A-Z vagy Z-A), akkor az esemenyek.php van meghívva, ami kigenerálja a bal nav panelt is-
+                // Ez az esemenyek.php hívás tele van olyan get-ekkel, ami nem kell a gyors státuszszűrőhöz, sőt kifejezetten tönkre is teszi.
+                $get_get_kiszur = array('mezo', 'op', 'felt', 'kijeloltek', 'ksz', 'rkat', 'tabla', 'szamlaLista', 'ellen_irany');
+                $stat_select = nl2('
+                                <div id="stat_gyors_szuro_div">
+                                    <select id="stat_gyors_szuro" style="margin: 0.2rem 0 0 0.2rem;" onchange="if(this.value){ param = \'&amp;mezo=stat_id&amp;op=equal&amp;felt=\'+this.value; } else { param = \'\'; } szurkit(); location.href=\''.'munkalap.php'.get_get($get_get_kiszur).'\'+param">
+                                        <option value="">-Összes státusz-</option>'.
+                                        $stat_select.
+                                    '</select>
+                                </div>
+                                ');
             }
             $html = $stat_select.'<ul id="szamlaList" class="szamla_cont nobehuzas rendszer'.$jClass.'" style="margin-top: 3.2rem; backgorund: #F4F6F5">';
         }
@@ -7605,11 +7644,11 @@ function eszkozigenylesLista( $bejegyzesek, $tabla, $frissit = '', $kijeloltek =
             array('id' => 'eszkoz_tabla_rend_szam',     'nev' => 'Rendelés szám',                   'width' => 80   ),
             array('id' => 'eszkoz_tabla_musz_el_ig' ,   'nev' => 'Műszaki előkészítést igényel',    'width' => 80   ),
             array('id' => 'eszkoz_tabla_kiv_kolts' ,    'nev' => 'Kivitelezési költség',            'width' => 80   ),
-            array('id' => 'eszkoz_tabla_szall_ig_vel',  'nev' => 'Szálloda igazgató véleménye',     'width' => 80   ),
-            array('id' => 'eszkoz_tabla_bi_vel',        'nev' => 'BI véleménye',                    'width' => 80   ),
-            array('id' => 'eszkoz_tabla_bi_jh',         'nev' => 'BI jóváhagyás',                   'width' => 80   ),
+            array('id' => 'eszkoz_tabla_szall_ig_vel',  'nev' => 'Szálloda igazgató',               'width' => 80   ),
+            array('id' => 'eszkoz_tabla_bi_vel',        'nev' => 'Validáló',                        'width' => 80   ),
+            array('id' => 'eszkoz_tabla_bi_jh',         'nev' => 'BI vezető',                       'width' => 80   ),
             // array('id' => 'eszkoz_tabla_szak_vel',      'nev' => 'Szakmai vezetés vélemény',        'width' => 80   ),
-            array('id' => 'eszkoz_tabla_felso_vel',     'nev' => 'Felsővezetés vélemény',           'width' => 80   ),
+            array('id' => 'eszkoz_tabla_felso_vel',     'nev' => 'Felsővezető',                     'width' => 80   ),
         );
 
         // Többszörös kijelöléshez ezt kellene visszakommentezni
@@ -7795,6 +7834,11 @@ function eszkozigenylesLista( $bejegyzesek, $tabla, $frissit = '', $kijeloltek =
 
             $html .= '<tr class="'.$active.'" data-i="'.$i.'" id="eszkozig-sor-'.$bsz['recid'].'">';
 
+            $szall_hat = datum_kiir($bsz['szall_hat']);
+            if( $szall_hat == '0000.00.00' ) {
+                $szall_hat = '';
+            }
+
             $recid_rendezeshez = sprintf('%010u', $bsz['recid']);
             $sorok = array(
                 'eszkoz_tabla_azon'             => '<td data-sort="'.$bsz['recid'].'">'.$bsz['azon'].'</td>',
@@ -7814,9 +7858,9 @@ function eszkozigenylesLista( $bejegyzesek, $tabla, $frissit = '', $kijeloltek =
                 'eszkoz_tabla_igeny_indok'      => '<td>'.htmlspecialchars_decode(nl2br2($bsz['igeny_indok'])).'</td>',
                 'eszkoz_tabla_megj'             => '<td>'.htmlspecialchars_decode(nl2br2($bsz['megj'])).'</td>',
                 'eszkoz_tabla_szallito'         => '<td data-sort="'.$bsz['szall_nev'].'_'.$recid_rendezeshez.'">'.$bsz['szall_nev'].'</td>',
-                'eszkoz_tabla_szall_hat'        => '<td>'.datum_kiir($bsz['szall_hat']).'</td>',
+                'eszkoz_tabla_szall_hat'        => '<td>'.$szall_hat.'</td>',
                 'eszkoz_tabla_fiz_mod'          => '<td>'.$fiz_mod.'</td>',
-                'eszkoz_tabla_hat_ido'          => '<td class="r nowrap">'.$bsz['hat_ido'].' nap</td>',
+                'eszkoz_tabla_hat_ido'          => '<td class="r nowrap">'.$bsz['hat_ido'].'</td>',
                 'eszkoz_tabla_igmen'            => '<td class="r nowrap" data-sort="'.$bsz['igmen'].'">'.number_format($bsz['igmen'], 0, ',', ' ').'</td>',
                 'eszkoz_tabla_netto'            => '<td class="r nowrap" data-sort="'.$bsz['netto'].'">'.number_format($bsz['netto'], 0, ',', ' ').'</td>',
                 'eszkoz_tabla_kcs_21'           => '<td class="c">'.erteklista(ERTEKLISTA_PENZNEM, $bsz['kcs_21']).'</td>',
@@ -11194,7 +11238,7 @@ function get_tortenet($megnevezes) {
             <div class="dtr nFejlec">
                 <div class="dtc">Státusz</div>
                 <div class="dtc">Kelte</div>
-                <div class="dtc">Felhasználó</div>
+                <div class="dtc">Státuszba léptette</div>
                 <div class="dtc">Státuszidő</div>
                 <div class="dtc">Göngyölt státuszidő</div>
                 <div class="dtc">Megjegyzés</div>
@@ -11759,18 +11803,46 @@ function level_felkeszit_es_kuld( $tabla = '', $recid = '', $ert_pipa = '', $sab
 
         break;
 
+        // ÚJ felhasználó létrehozáskor jelszó küldése
+        case 'ujFelhJelszoKuld':
         // Elfelejtett jelszó küldése
         case 'elfelejtettJelszoKuld':
 
-            $domain     = get_http().$_SERVER['HTTP_HOST'];
-            $domain     = '<a href="'.$domain.'" target="_blank">'.$domain.'</a>';
-            $mit        = array('{DOMAIN}'  );
-            $mivel      = array($domain     );
-            $uzi        = str_replace( $mit, $mivel, fajlbol_olvas('../sablon/admin/mail/'.$cimzett.'.html') );
+            // Dev-en már új fajta beléptetés van
+            if( $_SERVER['HTTP_HOST'] == 'dev.onteam.hu' ) {
 
-            $cimzettek = $adatbazis_kapcsolat->s('nev teljes_nev usermail usertel aktiv virtual szemelyzet_id', 'login', "`recid`='{$recid}'");
-            if( !$cimzettek ) {
-                return false;
+                $azon = jelszot_keszit(10);
+                $adatbazis_kapcsolat -> u('login',  array('azon_kod', 'azon_dt'),
+                                                    array($azon,      'NOW()'  ),
+                                        "`recid`='{$recid}'");
+
+                $domain     = get_http().$_SERVER['HTTP_HOST'].'/'.get_admin().'?a='.$azon;
+                $domain     = '<a href="'.$domain.'" target="_blank" style="display: inline-block; padding: 8px 10px; border-radius: 3px; background: #5192da; color: #fff; text-decoration: none; font-weight: bold;">
+                                    Jelszó megadása
+                                </a>';
+                $mit        = array('{DOMAIN}', '{IDOPONT}'                                          );
+                $mivel      = array($domain,    datum_kiir(date('Y-m-d H:i', time()+LOGIN_AZON_ERV)) );
+                $uzi        = str_replace( $mit, $mivel, fajlbol_olvas('../sablon/admin/mail/'.$cimzett.'_uj.html') );
+
+                $cimzettek = $adatbazis_kapcsolat->s('nev teljes_nev usermail usertel aktiv virtual szemelyzet_id', 'login', "`recid`='{$recid}'");
+                if( !$cimzettek ) {
+                    return false;
+                }
+
+            // Más felületeken maradt a régi beléptetés
+            } else {
+
+                $domain     = get_http().$_SERVER['HTTP_HOST'];
+                $domain     = '<a href="'.$domain.'" target="_blank">'.$domain.'</a>';
+                $mit        = array('{DOMAIN}'  );
+                $mivel      = array($domain     );
+                $uzi        = str_replace( $mit, $mivel, fajlbol_olvas('../sablon/admin/mail/'.$cimzett.'.html') );
+
+                $cimzettek = $adatbazis_kapcsolat->s('nev teljes_nev usermail usertel aktiv virtual szemelyzet_id', 'login', "`recid`='{$recid}'");
+                if( !$cimzettek ) {
+                    return false;
+                }
+
             }
 
         break;
@@ -12492,6 +12564,12 @@ function level_felkeszit_es_kuld( $tabla = '', $recid = '', $ert_pipa = '', $sab
             $uzi     =  $uzi.fajlbol_olvas('../sablon/admin/mail/alairas.html');
         break;
 
+        case 'ujFelhJelszoKuld':
+            $esemeny =  'új felhasználó létrehozásakor';
+            $targy   =  get_nev().' új felhasználói jelszó beállítása';
+            $uzi     =  $uzi.fajlbol_olvas('../sablon/admin/mail/alairas.html');
+        break;
+
         case 'elfelejtettJelszoKuld':
             $esemeny =  'elfelejtett jelszó kiküldésekor';
             $targy   =  get_nev().' elfelejtett jelszó';
@@ -12734,8 +12812,10 @@ function level_felkeszit_es_kuld( $tabla = '', $recid = '', $ert_pipa = '', $sab
     $targy_kieg = $kieg[0];
     $uzi_kieg   = $kieg[1];
 
+    $uj_felh_elf_jelszo = ['ujFelhJelszoKuld', 'elfelejtettJelszoKuld'];
+
     // Dev rendszerben annak megy ki a levél, akivel be vagyunk lépve.
-    if( $_SERVER['HTTP_HOST'] == 'dev.onteam.hu' ) {
+    if( $_SERVER['HTTP_HOST'] == 'dev.onteam.hu' && !in_array($cimzett, $uj_felh_elf_jelszo) ) {
         $cimzettek = $adatbazis_kapcsolat -> s('nev teljes_nev usermail', 'login', "`nev`='{$_SESSION[get_db_tabla().'user']}'");
     }
     // Teszt felületen azt kérték, hogy Tamás és Tibi kapjanak másolatot
@@ -12779,6 +12859,12 @@ function level_felkeszit_es_kuld( $tabla = '', $recid = '', $ert_pipa = '', $sab
             
             // Ha több mailcím is szerepel vesszővel elválasztva, akkor azt is le kell kezelni:
             $mailcimek = explode(',', $akt_cimzett['usermail']);
+
+            // Új felhasználó / elfelejtett jelszó esetén csak az első email cím kap értesítést
+            if( in_array($cimzett, $uj_felh_elf_jelszo) ) {
+                $mailcimek = array($mailcimek[0]);
+            }
+
             foreach( $mailcimek as $mailcim ) {
 
                 $mailcim = trim($mailcim);
@@ -12791,7 +12877,7 @@ function level_felkeszit_es_kuld( $tabla = '', $recid = '', $ert_pipa = '', $sab
                     $mailcim                    = explode('|', $mailcim                  );
                     $akt_cimzett['teljes_nev']  = explode('|', $akt_cimzett['teljes_nev']);
                 }
-
+                
 // WebDeb tesztelés
 if( $_SERVER['REMOTE_ADDR'] == get_debug_ip() ) {
     $mailcim = WEBDEB_TESZT_MAIL2;
@@ -15304,9 +15390,9 @@ function get_nyomtatas_fejlec_top($sorszam, $lapszammal = '', $musz_szolg_nelkul
             <table class="full">
             <tr>
                 <td style="width: 33%; padding-left: 10px">
-                    <table class="full">
+                    <table>
                     <tr>
-                        <td style="padding: 4px 4px 0 0">
+                        <td style="padding: 4px 8px 0 0">
                             <img src="../elemek/dh_logo.png" alt="Logo" width="50">
                         </td>
                         <td style="font-size: 11px">
@@ -15408,14 +15494,15 @@ function get_nyomtatas_fejlec_megr($eszkozigenyles, $szallito, $kontakt) {
     // KONTAKT : új igény felvitele joggal rendelkező felhasználó, aki látja az igénylés szállodáját.
     // VALIDÁLÓ:
     // GM terhes igénylés esetén az, akivel be vagyok lépve (hisz az igénylés jelenleg is "BI validálásra vár" státuszban van, nincs utána következő státusz, amit le tudnánk kérni)
-    if( $eszkozigenyles['tipus'] == BESZ_TIP_GM_KERET ) {
-        $validalo = $adatbazis_kapcsolat -> s2('usertel usermail teljes_nev', 'login', "`nev`='{$_SESSION[get_db_tabla().'user']}'");
-        if( $validalo === false  ) {
-            return false;
-        }
+    // 2025.10.14 Mág nem! Mivel van új, BI jóváhagyás státusz is még utána, ezért mindig a "BI validálásra vár" utáni státuszba léptető a validáló
+    // if( $eszkozigenyles['tipus'] == BESZ_TIP_GM_KERET ) {
+    //     $validalo = $adatbazis_kapcsolat -> s2('usertel usermail teljes_nev', 'login', "`nev`='{$_SESSION[get_db_tabla().'user']}'");
+    //     if( $validalo === false  ) {
+    //         return false;
+    //     }
 
-    // Ha nem GM terhes, akkor...
-    } else {
+    // // Ha nem GM terhes, akkor...
+    // } else {
         // ... a legutóbbi "BI validálásra vár" státusz...
         $statusz = $adatbazis_kapcsolat -> s2('recid', 'eszkozigenyles_statusz', "`eszkozigenyles_recid`='{$eszkozigenyles['recid']}' AND `stat_id`='".ESZKOZIGENYL_STAT_BI_VALID_VAR."'", 'recid desc');
         if( $statusz === false  ) {
@@ -15430,7 +15517,7 @@ function get_nyomtatas_fejlec_megr($eszkozigenyles, $szallito, $kontakt) {
         if( $validalo === false  ) {
             return false;
         }
-    }
+    // }
     
     return '
             <div style="padding: 0 15px 0 15px">
@@ -15439,8 +15526,8 @@ function get_nyomtatas_fejlec_megr($eszkozigenyles, $szallito, $kontakt) {
                 <tr style="border: 1px solid #000; border-bottom: 1px solid #ddd;">
                     <td style="border: 1px solid #ddd; padding: 2px; width: 40px; border-top: 1px solid #000; border-left: 1px solid #000;">Név:</td>
                     <td style="border: 1px solid #ddd; padding: 2px; border-top: 1px solid #000; border-right: 1px solid #000;">'.$szallito['knev'].'</td>
-                    <td style="border: 1px solid #ddd; padding: 2px; width: 40px;; border-top: 1px solid #000;">Küldi:</td>
-                    <td style="border: 1px solid #ddd; padding: 2px; border-top: 1px solid #000; border-right: 1px solid #000;">'.$validalo['teljes_nev'].'</td>
+                    <td style="border: 1px solid #ddd; padding: 2px; width: 57px; border-top: 1px solid #000;">Küldi:</td>
+                    <td style="border: 1px solid #ddd; padding: 2px; width: 267px; border-top: 1px solid #000; border-right: 1px solid #000;">'.$validalo['teljes_nev'].'</td>
                 </tr>
                 <tr style="border: 1px solid #ddd; border-left: 1px solid #000; border-right: 1px solid #000;">
                     <td style="border: 1px solid #ddd; padding: 2px; border-left: 1px solid #000">Cég:</td>
@@ -15600,7 +15687,7 @@ if( isset($_GET['html_mutat']) || isset($_GET['pdf_mutat']) ) {
                             <div class="c" style="padding-right: 60px">
                             <center>
                                 Csanádi Péter
-                                <br>Központi Műszaki és Beruházási Igazgató
+                                <br>'.erteklista(ERTEKLISTA_BEOSZTAS, EL_BEOSZTAS_KP_MUSZ_BERUH_IG).'
                             </center>
                             </div>
                         </td>
@@ -15609,7 +15696,7 @@ if( isset($_GET['html_mutat']) || isset($_GET['pdf_mutat']) ) {
                             <div class="c" style="padding-left: 60px">
                             <center>
                                 Sánta Zoltán
-                                <br>Műszaki Szolgáltatási Vezető
+                                <br>'.erteklista(ERTEKLISTA_BEOSZTAS, EL_BEOSZTAS_MUSZAKI_SZ_VEZETO).'
                             </center>
                             </div>
                         </td>

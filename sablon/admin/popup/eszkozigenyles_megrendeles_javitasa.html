@@ -23,6 +23,7 @@ $(document).ready(function(){
                 }
                 $('.kozep' ).html(response.html  );
                 $('.kuldes').html(response.gombok);
+                $('#indoklas').focus();
             }
         },
         complete: function(xhr) {
@@ -35,6 +36,12 @@ $(document).ready(function(){
 
 // Megrendelés javítása
 function megrendeles_javitasa(statusz) {
+
+    if( !$('#indoklas').val().trim() ) {
+        $('#indoklas').addClass('hibas_ide_focus');
+        alert2('Kérem indokolja a javítást!', '', 'Hiba');
+        return false;
+    }
     
     $.ajax({
         url : PHP_SELF,
@@ -42,6 +49,7 @@ function megrendeles_javitasa(statusz) {
         data: {
             id                  : _get('id'),
             statusz             : statusz,
+            megj                : $('#indoklas').val(),
             megrendeles_javitasa: Date.now()
         },
         success: function (response) {

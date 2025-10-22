@@ -571,7 +571,7 @@ class ServerClass {
                     
                     $return_uzi = 'módosítva';
                     $szamla_xml = "*** ÚJ SZÁMLA ***\n".$szamla_xml;
-
+// Throw new SOAPFault ('Server', $andoc_id );
                     // Insertnél kell az andoc_id is
                     if( $andoc_id ) {
                         array_push($mezok,     'erk_xml',   'andoc_id', 'insert_usr',  'update_usr',   'insert_dt'  );
@@ -579,7 +579,7 @@ class ServerClass {
                         $aparecid = $adatbazis_kapcsolat->i($tabla.'_atmeneti', $mezok, $ertekek);
                         if( $aparecid === false ) { $db_error = mysqli_error($db_kapcs); }
                     }
-// Throw new SOAPFault ('Server', $adatbazis_kapcsolat -> gp() );
+Throw new SOAPFault ('Server', $adatbazis_kapcsolat -> gp() );
                 }
                 
             // Update, éles táblát updatelünk

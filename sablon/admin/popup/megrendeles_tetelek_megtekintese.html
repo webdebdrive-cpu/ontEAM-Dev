@@ -36,7 +36,8 @@
 </div>
 <script>
 
-var akt_penznem = 'HUF';
+
+akt_penznem = $('#penznem_db').val();
 
 var kolt_vis = $('#szallito_id').val();
 if( !kolt_vis && $('#szallito_id_db').length ) {
@@ -57,8 +58,6 @@ $(document).ready(function () {
         $(this).replaceWith(akt_penznem);
     });
 
-    
-    
     pop_tetelek_feltolt();
     
 });
@@ -129,6 +128,9 @@ function tetelek_kiszamol() {
     // HUF esetén nem törtet írunk ki, deviza esetén viszont törtet + "Számla várh. értéke" mező is törté kell alakítani
     var osszeg_mezo = 'jh_ert_dev';
     var tizedesek   = 0;
+    if( akt_penznem != 'HUF' ) {
+        tizedesek = 2;
+    }
     
     if( $('#'+osszeg_mezo).length ) {
         szerzodes_osszege = $('#'+osszeg_mezo).val().replace(/ /g, '').replace(/,/g, '.');

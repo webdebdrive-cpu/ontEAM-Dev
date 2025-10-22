@@ -494,6 +494,7 @@ if( !isset($_GET['regi']) ) {
         //     $oszlop = 'alair2';
         // }
         $db     = $adatbazis_kapcsolat->s('recid', $tabla, "`stat_id`='".MUNKALAP_STAT_MEGR_ALAIR_VAR."' AND `{$oszlop}`=0{$telephely_sql_mlhoz}", '', '', '', '-num-rows-');
+
         $link   = $tabla.'.php?mezo=stat_id&amp;op=equal&amp;felt='.MUNKALAP_STAT_MEGR_ALAIR_VAR.'&amp;modosit&amp;dashboard=Megr. aláírásra vár';
 
         if( $db ) {

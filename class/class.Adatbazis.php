@@ -241,7 +241,6 @@ class Adatbazis {
     * @return int    Legutóbb beszúrt sor id-je
     */
     public function insert($tabla, $oszlopok, $ertekek) {
-
         $insert = 'INSERT INTO `'.$this -> db_prefix.$tabla.'` SET ';
 
         if(!is_array($oszlopok)){

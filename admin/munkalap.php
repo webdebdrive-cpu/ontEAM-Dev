@@ -1803,6 +1803,11 @@ if( isset($_POST['munkalapKulsosJovahagy']) ) {
 
         // }
 
+        // Megjegyzésbe írás
+        if( addMegj('munkalap', $recid, getErtek('nev', 'szallito', 'id', $munkalap['szallito_id']).' jóváhagyva') === false ) {
+            $db_error = true;
+        }
+
         // Sima státusz léptetés
         if( !addStatusz( 'munkalap_statusz', $recid, MUNKALAP_STAT_KONTIROZASRA_VAR) ) {
             $db_error = true;
@@ -1947,24 +1952,28 @@ if( isset($_POST['get_ml_adatok']) ) {
         $tizedesek = 2;
     }
 
-    // Ha adott szerepkörrel már jóváhagyták volna
-    if ($munkalap['jh1_szerep'] == $_SESSION[get_db_tabla().'szemelyzet_id'] || $munkalap['jh2_szerep'] == $_SESSION[get_db_tabla().'szemelyzet_id']) {
-        echo json_encode(array(
-            'hiba'  => 'Az Ön szerepkörével ezt a munkalapot már elfogadták, így nem utasítható el a külső kivitelező!',
-            'title' => 'Hiba',
-        ));
+    // // Ha adott szerepkörrel már jóváhagyták volna
+    // if ($munkalap['jh1_szerep'] == $_SESSION[get_db_tabla().'szemelyzet_id'] || $munkalap['jh2_szerep'] == $_SESSION[get_db_tabla().'szemelyzet_id']) {
+    //     echo json_encode(array(
+    //         'hiba'  => 'Az Ön szerepkörével ezt a munkalapot már elfogadták, így nem utasítható el a külső kivitelező!',
+    //         'title' => 'Hiba',
+    //     ));
 
-        $weblap->leallit();
-        exit();
-    }
+    //     $weblap->leallit();
+    //     exit();
+    // }
 
     $becs_ertek_text = '';
     if( $munkalap['becs_ertek'] ) {
+        $mondat = '';
+        if( !$_POST['no_mondat'] ) {
+            $mondat = '<br>A végleges költség utólagos kalkulációval lesz számítva!';
+        }
         $becs_ertek_text = nl2('
                                 <br>
                                 <span class="piros">
                                     Becsült érték.
-                                    <br>A végleges költség utólagos kalkulációval lesz számítva!
+                                    '.$mondat.'
                                 </span>
                             ');
     }
@@ -2787,6 +2796,10 @@ if( isset($_POST['munkalapMegrendelesKeszit']) ) {
         $_SESSION['ml_kapcs_ajanlat'        ] = $mm['kapcs_ajanlat'          ];
         $_SESSION['ml_megr_kelt'            ] = $mm['kelt'                   ];
         $_SESSION['ml_megr_kiv_hat'         ] = $munkalap['kiv_hat'          ];
+        // Üres dátum ne jelenjen meg
+        if( $_SESSION['ml_megr_kiv_hat'] == '0000-00-00' ) {
+            $_SESSION['ml_megr_kiv_hat'] = '';
+        }
         $_SESSION['ml_megr_ar'              ] = number_format($ar, $tizedesek, ',', ' ').' '.erteklista(ERTEKLISTA_PENZNEM, $munkalap['kcs_21']).' + Áfa';
         $_SESSION['ml_megr_szallito_txt'    ] = nl2br2($mm['szallito'    ]);
         $_SESSION['ml_megr_megrendelo_txt'  ] = nl2br2($mm['megrendelo'  ]);
@@ -3096,15 +3109,15 @@ if (isset($_POST['munkalapVisszaUi'])) {
         }
 
         // Ha az elsődleges joggal már alá lett írva, akkor hibaüzenet
-        if( _jog(JOG_MUNKALAP_ELSODL_ALAIR) && $munkalap['alair1'] ) {
-            echo json_encode(array(
-                'hiba'  => 'Már aláírásra került a megrendelés, így nem küldhető vissza ügyintézőnek!',
-                'title' => 'Hiba',
-            ));
+        // if( _jog(JOG_MUNKALAP_ELSODL_ALAIR) && $munkalap['alair1'] ) {
+        //     echo json_encode(array(
+        //         'hiba'  => 'Már aláírásra került a megrendelés, így nem küldhető vissza ügyintézőnek!',
+        //         'title' => 'Hiba',
+        //     ));
 
-            $weblap->leallit();
-            exit();
-        }
+        //     $weblap->leallit();
+        //     exit();
+        // }
         // if( _jog(JOG_MUNKALAP_MASODL_ALAIR) && $munkalap['alair2'] ) {
         //     echo json_encode(array(
         //         'hiba'  => 'Másodlagos aláíróként már aláírásra került a megrendelés, így nem küldhető vissza ügyintézőnek!',
@@ -3134,7 +3147,7 @@ if (isset($_POST['munkalapVisszaUi'])) {
         }
 
         // Visszaléptetjük Ajánlat nyomtatva státuszba
-        if( !addStatusz('munkalap_statusz', $recid, MUNKALAP_STAT_AJANLAT_NYOMTATVA, 0, 'Munkalap visszaküldve ügyintézőnek.') ) {
+        if( !addStatusz('munkalap_statusz', $recid, MUNKALAP_STAT_KONTIROZASRA_VAR, 0, 'Munkalap visszaküldve ügyintézőnek.') ) {
             $db_error = true;
         }
         
@@ -3859,9 +3872,9 @@ if (isset($_POST['munkalapVisszaElokeszitDirektbe'])) {
 
     $recid      = $_POST['recid'];
     $munkalap   = $adatbazis_kapcsolat->s2('szallito_id', 'munkalap', "`recid`='{$recid}'");
-    
+
     // Ha van levélküldés, akkor ellenőrizzük a többi mezőt is
-    if($_POST['email']){
+    if ($_POST['email']) {
         if(!trim($_POST['cimzett'])){
             echo json_encode(array(
                 'hiba'  => 'Kérem adja meg a címzett email címét!',
@@ -8242,64 +8255,75 @@ if( isset($_POST['pop_tetelek_feltolt']) ) {
     
     $fej_id = $_POST['id'];
 
-    $munkalap = $adatbazis_kapcsolat->s2('kcs_21', 'munkalap', "`recid`='{$fej_id}'");
+    $sor = $adatbazis_kapcsolat->s2('kcs_21 stat_id', 'munkalap', "`recid`='{$fej_id}'");
     $tizedesek = 0;
-    if( $munkalap['kcs_21'] != KCS_21_HUF ) {
+    if( $sor['kcs_21'] != KCS_21_HUF ) {
         $tizedesek = 2;
     }
-    
-    // Tételek táblázat sorait kiszámoljuk:
-    $tetelek_html = '';
-    $i            = 0;
-    foreach( $_SESSION['munkalap_megr_tetel_varh_ert'][$fej_id] as $jh_ert ) {
-        
-        $szla_netto_ert = $_SESSION['munkalap_megr_tetel_varh_ert'][$fej_id][$i];
-        
-        // Minden sornak adunk egy azonosítót. Mivel lehet csak egy ideiglenes sorról van szó, nem mindig van recid-nk, ezért időbélyeges azonosítót hozunk létre, megtoldva egy $i-vel.
-        if( !$_SESSION['munkalap_megr_tetel_recid'][$fej_id][$i] ) {
-            $_SESSION['munkalap_megr_tetel_recid' ][$fej_id][$i] = time().rand(0, 1000);
+
+    // Csak ha megfelelő státuszban és joggal vagyunk
+    if( 
+        // Akinek van kontírotás jog (hisz amikor felviszi, akkor újból a kontírozás gombra kattintva látnia kellene):
+        ( $sor['stat_id'] == MUNKALAP_STAT_KONTIROZASRA_VAR && _jog(JOG_MUNKALAP_MEGR_KONTIROZ) ) ||
+        // Illetve akiknél megjelenik a Kontírotás megtekntése gomb:
+        ( $sor['stat_id'] == MUNKALAP_STAT_MEGR_ALAIR_VAR   && _jog(JOG_MUNKALAP_ELSODL_ALAIR ) ) ||
+        (
+            ( $sor['stat_id'] == MUNKALAP_STAT_AJANLAT_NYOMTATVA || $sor['stat_id'] == MUNKALAP_STAT_MEGR_ALAIR_VAR || $sor['stat_id'] == MUNKALAP_STAT_HOZREND_MEGREND_VAR || $sor['stat_id'] == MUNKALAP_STAT_MEGR_ELKULD_VAR ) && _jog(JOG_MUNKALAP_KULSOS_MEGREND)
+        )
+    ) {
+
+        // Tételek táblázat sorait kiszámoljuk:
+        $tetelek_html = '';
+        $i            = 0;
+        foreach( $_SESSION['munkalap_megr_tetel_varh_ert'][$fej_id] as $jh_ert ) {
+            
+            $szla_netto_ert = $_SESSION['munkalap_megr_tetel_varh_ert'][$fej_id][$i];
+            
+            // Minden sornak adunk egy azonosítót. Mivel lehet csak egy ideiglenes sorról van szó, nem mindig van recid-nk, ezért időbélyeges azonosítót hozunk létre, megtoldva egy $i-vel.
+            if( !$_SESSION['munkalap_megr_tetel_recid'][$fej_id][$i] ) {
+                $_SESSION['munkalap_megr_tetel_recid' ][$fej_id][$i] = time().rand(0, 1000);
+            }
+
+            $jogcim = $adatbazis_kapcsolat->s2('jogcim ktghely megn szla_szam', 'jogcim', "`recid`='{$_SESSION['munkalap_megr_tetel_jogcim'][$fej_id][$i]}'");
+            
+            // Van-e már számlával összeköttetés
+            $torol = '
+                    <a onclick="popup_tetel_sor_torol(\'pop_tetel_'.$_SESSION['munkalap_megr_tetel_recid'][$fej_id][$i].'\');">
+                        <span class="icon">
+                            <i class="material-icons">
+                                delete
+                            </i>
+                        </span>
+                    </a>
+                    ';
+            if( $_POST['nincs_torles'] ) {
+                $torol = '';
+            }
+            
+            $tetelek_html .= nl2('
+                            <tr class="pop_tetel_'.$_SESSION['munkalap_megr_tetel_recid'][$fej_id][$i].'">
+                                <td class="pop_targy l">'.$_SESSION['munkalap_megr_tetel_targy'][$fej_id][$i].'</td>
+                                <td class="pop_varh_erk l">'.datum_kiir($_SESSION['munkalap_megr_tetel_varh_erk'][$fej_id][$i]).'</td>
+                                <td class="pop_varh_ert r">'.number_format(str_replace(array(',', ' '), array('.', ''), $_SESSION['munkalap_megr_tetel_varh_ert'][$fej_id][$i]), $tizedesek, ',', ' ').'</td>
+                                <td class="pop_jogcim_autocomp l">' .$jogcim['jogcim'   ].'</td>
+                                <td class="pop_ktgnem_autocomp l">' .$jogcim['megn'     ].'</td>
+                                <td class="pop_ktghely_autocomp l">'.$jogcim['ktghely'  ].'</td>
+                                ').
+                                /*<td>
+                                    <a class="szerk" onclick="popup_tetel_sor_szerk(\'pop_tetel_'.$_SESSION['munkalap_megr_tetel_recid'][$fej_id][$i].'\');">
+                                        🖉
+                                    </a>
+                                </td>*/
+                                nl2('<td>
+                                    '.$torol.'
+                                    <input type="hidden" class="pop_jogcim" name="jogcim" value="'.$_SESSION['munkalap_megr_tetel_jogcim'][$fej_id][$i].'">
+                                    <input type="hidden" class="pop_recid" name="recid" value="'.$_SESSION['munkalap_megr_tetel_recid'][$fej_id][$i].'">
+                                </td>
+                            </tr>');
+            $i++;
         }
 
-        $jogcim = $adatbazis_kapcsolat->s2('jogcim ktghely megn szla_szam', 'jogcim', "`recid`='{$_SESSION['munkalap_megr_tetel_jogcim'][$fej_id][$i]}'");
-        
-        // Van-e már számlával összeköttetés
-        $torol = '
-                <a onclick="popup_tetel_sor_torol(\'pop_tetel_'.$_SESSION['munkalap_megr_tetel_recid'][$fej_id][$i].'\');">
-                    <span class="icon">
-                        <i class="material-icons">
-                            delete
-                        </i>
-                    </span>
-                </a>
-                ';
-        if( $_POST['nincs_torles'] ) {
-            $torol = '';
-        }
-        
-        $tetelek_html .= nl2('
-                        <tr class="pop_tetel_'.$_SESSION['munkalap_megr_tetel_recid'][$fej_id][$i].'">
-                            <td class="pop_targy l">'.$_SESSION['munkalap_megr_tetel_targy'][$fej_id][$i].'</td>
-                            <td class="pop_varh_erk l">'.datum_kiir($_SESSION['munkalap_megr_tetel_varh_erk'][$fej_id][$i]).'</td>
-                            <td class="pop_varh_ert r">'.number_format(str_replace(array(',', ' '), array('.', ''), $_SESSION['munkalap_megr_tetel_varh_ert'][$fej_id][$i]), $tizedesek, ',', ' ').'</td>
-                            <td class="pop_jogcim_autocomp l">' .$jogcim['jogcim'   ].'</td>
-                            <td class="pop_ktgnem_autocomp l">' .$jogcim['megn'     ].'</td>
-                            <td class="pop_ktghely_autocomp l">'.$jogcim['ktghely'  ].'</td>
-                            ').
-                            /*<td>
-                                <a class="szerk" onclick="popup_tetel_sor_szerk(\'pop_tetel_'.$_SESSION['munkalap_megr_tetel_recid'][$fej_id][$i].'\');">
-                                    🖉
-                                </a>
-                            </td>*/
-                            nl2('<td>
-                                '.$torol.'
-                                <input type="hidden" class="pop_jogcim" name="jogcim" value="'.$_SESSION['munkalap_megr_tetel_jogcim'][$fej_id][$i].'">
-                                <input type="hidden" class="pop_recid" name="recid" value="'.$_SESSION['munkalap_megr_tetel_recid'][$fej_id][$i].'">
-                            </td>
-                        </tr>');
-        $i++;
     }
-
-
    
     echo json_encode( array(
         'html' => $tetelek_html,
@@ -9478,7 +9502,14 @@ if( isset($_GET['uj']) ) {
         }
         $gombok .= '<input type="button" class="gomb modositaskor_rejt" value="Elutasítás" onclick="csoportMuvelet(\'munkalapKulsosElutasit\');"> ';
         $gombok .= '<input type="button" class="gomb modositaskor_rejt" value="Vissza ügyintézőnek" onclick="csoportMuvelet(\'munkalapVisszaUi\');"> ';
-        $gombok .= '<input type="button" class="gomb modositaskor_rejt" value="Tételek megtekintése" onclick="csoportMuvelet(\'megrendeles_tetelek_megtekintese\');"> ';
+    }
+    if( 
+        ( $sor['stat_id'] == MUNKALAP_STAT_MEGR_ALAIR_VAR && _jog(JOG_MUNKALAP_ELSODL_ALAIR) ) ||
+        (
+            ( $sor['stat_id'] == MUNKALAP_STAT_AJANLAT_NYOMTATVA || $sor['stat_id'] == MUNKALAP_STAT_MEGR_ALAIR_VAR || $sor['stat_id'] == MUNKALAP_STAT_HOZREND_MEGREND_VAR || $sor['stat_id'] == MUNKALAP_STAT_MEGR_ELKULD_VAR ) && _jog(JOG_MUNKALAP_KULSOS_MEGREND)
+        )
+    ) {
+        $gombok .= '<input type="button" class="gomb modositaskor_rejt" value="Kontírozás megtekintése" onclick="csoportMuvelet(\'megrendeles_tetelek_megtekintese\');"> ';
     }
 
     // Elküldésre vár státusz

@@ -1,9 +1,22 @@
 <?php
 // Beállítások
-$sha1           = true;
-$jogolsultsagos = false;
+$sha1           = 1;
+$jogolsultsagos = 0;
 
 require_once('../weblap.php');
+
+// Elfelejtett jelszós linkkel érkeztek ide
+if( isset($_GET['a']) ) {
+    $login = $adatbazis_kapcsolat -> s2('recid', 'login', "`azon_kod`='{$_GET['a']}' AND `azon_dt`>'".date('Y-m-d H:i:s', time()-LOGIN_AZON_ERV)."'");
+    unset($_SESSION[get_db_tabla().'user']);
+    unset($_SESSION[get_db_tabla().'teljes_nev']);
+    unset($_SESSION[get_db_tabla().'login_recid']);
+    unset($_SESSION[get_db_tabla().'rights']);
+    unset($_SESSION[get_db_tabla().'ertesites']);
+    unset($_SESSION[get_db_tabla().'szemelyzet_id']);
+    $_SESSION['nincs_jelsz_felhid'] = $login['recid'];
+    $_SESSION['nincs_jelsz']        = 1;
+}
 
 // Nem láthat bárki bármilyen tartalmat, viszont az admin bármit
 if( $_SESSION[get_db_tabla().'user'] && $_SESSION[get_db_tabla().'user'] != 'admin' ) {
@@ -45,7 +58,7 @@ if( isset($_POST['jelszo_csere']) ) {
                 // Azonosak-e
                 if( $_POST['jlsz'] == $_POST['jlsz2'] ) {
 
-                    $felhasznalo = $adatbazis_kapcsolat->s2('recid nev teljes_nev jelszo helyesseg flags flags_ert jog van_jelszo szemelyzet_id', 'login', "`recid` = '".$_SESSION['nincs_jelsz_felhid']."'");
+                    $felhasznalo = $adatbazis_kapcsolat->s2('recid nev teljes_nev jelszo helyesseg flags flags_ert jog van_jelszo szemelyzet_id', 'login', "`recid`='{$_SESSION['nincs_jelsz_felhid']}'");
                     if( $felhasznalo ) {
 
                         // Helyesség és jelszó
@@ -168,8 +181,8 @@ if( isset($_POST['megsem']) ) {
                                 array( $_SESSION[get_db_tabla().'login_recid'], $muvelet,   $_SERVER['REMOTE_ADDR'] )
                             );
 
-    $_SESSION['nincs_jelsz_felhid'] = false;
-    $_SESSION['nincs_jelsz']        = false;
+    $_SESSION['nincs_jelsz_felhid'] = 0;
+    $_SESSION['nincs_jelsz']        = 0;
 
     header('Location: index.php');
     exit();
@@ -177,18 +190,18 @@ if( isset($_POST['megsem']) ) {
 
 // Manuális beléptetés. A nev oszlopot, tehát a loginnevet kell átadni ilyenkor GET-ben
 // Pl: https://www.onteam.hu/admin/beleptetes.php?manualis_belepes=XY
-// if (isset($_GET['manualis_belepes'])) {
+if (isset($_GET['manualis_belepes'])) {
     
-//     $felhasznalo = $adatbazis_kapcsolat->s2('recid nev szallito_id teljes_nev jelszo helyesseg flags flags_ert jog van_jelszo szemelyzet_id tabla_rendezes', 'login', "`nev`='". $_GET['manualis_belepes']."'");
-//     // echo $adatbazis_kapcsolat->gp() . '<br>';
-//     $_SESSION[get_db_tabla().'user']            = $felhasznalo['nev'];
-//     $_SESSION[get_db_tabla().'teljes_nev']      = $felhasznalo['teljes_nev'];
-//     $_SESSION[get_db_tabla().'login_recid']     = $felhasznalo['recid'];
-//     $_SESSION[get_db_tabla().'szallito_id']     = $felhasznalo['szallito_id'];
-//     $_SESSION[get_db_tabla().'rights']          = str_split($felhasznalo['flags']);
-//     $_SESSION[get_db_tabla().'ertesites']       = str_split($felhasznalo['flags_ert']);
-//     $_SESSION[get_db_tabla().'szemelyzet_id']   = $felhasznalo['szemelyzet_id'];
-// }
+    $felhasznalo = $adatbazis_kapcsolat->s2('recid nev szallito_id teljes_nev jelszo helyesseg flags flags_ert jog van_jelszo szemelyzet_id tabla_rendezes', 'login', "`nev`='". $_GET['manualis_belepes']."'");
+    // echo $adatbazis_kapcsolat->gp() . '<br>';
+    $_SESSION[get_db_tabla().'user']            = $felhasznalo['nev'];
+    $_SESSION[get_db_tabla().'teljes_nev']      = $felhasznalo['teljes_nev'];
+    $_SESSION[get_db_tabla().'login_recid']     = $felhasznalo['recid'];
+    $_SESSION[get_db_tabla().'szallito_id']     = $felhasznalo['szallito_id'];
+    $_SESSION[get_db_tabla().'rights']          = str_split($felhasznalo['flags']);
+    $_SESSION[get_db_tabla().'ertesites']       = str_split($felhasznalo['flags_ert']);
+    $_SESSION[get_db_tabla().'szemelyzet_id']   = $felhasznalo['szemelyzet_id'];
+}
 
 // Beléptetés
 if( isset($_POST['login']) ) {
@@ -201,9 +214,10 @@ if( isset($_POST['login']) ) {
             $_POST['jelszo'] = sha1($_POST['jelszo']);
         }
 
-        $felhasznalo = $adatbazis_kapcsolat->s2('recid nev szallito_id teljes_nev jelszo helyesseg flags flags_ert jog van_jelszo szemelyzet_id tabla_rendezes', 'login', "`nev`='".$_POST['nev']."' AND `aktiv`='1'");
+        $felhasznalo = $adatbazis_kapcsolat->s2('recid nev szallito_id teljes_nev jelszo helyesseg flags flags_ert jog van_jelszo szemelyzet_id tabla_rendezes', 'login', "`nev`='{$_POST['nev']}' AND `aktiv`='1'");
         if( $felhasznalo ) {
 
+            // Ha van jelszó, vagy ha nem stimmel a kód vagy már lejárt az ideje, akkor is erre az árgra jussunk (sikertelen belépés lesz belőle).
             if( $felhasznalo['van_jelszo'] ) {
                 if( $felhasznalo['jelszo'] == $_POST['jelszo'] && $felhasznalo['helyesseg'] == $helyesseg ) {
 
@@ -293,10 +307,11 @@ if( isset($_POST['login']) ) {
                     }
                 }
 
+            // Ide csak akkor lehessen eljutni, ha nincs jelszava a felhasználónak, ekkor tud magának újat választani
             } else {
 
                 $_SESSION['nincs_jelsz_felhid'] = $felhasznalo['recid'];
-                $_SESSION['nincs_jelsz']        = true;
+                $_SESSION['nincs_jelsz']        = 1;
 
                 if( $_POST['ajax'] ) {
                     echo json_encode(array(

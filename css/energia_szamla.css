@@ -59,7 +59,7 @@ table.szamla_cont_tabla tr td:nth-last-of-type(2), table.szamla_cont_tabla tr td
     min-width: 25rem;
 }
 
-@media only screen and (max-width: 1280px) {
+@media only screen and (max-width: 1170px) {
     div.naplo div.nFejlec div.dtc.pipa {
         padding: 0rem 0.5rem;
     }

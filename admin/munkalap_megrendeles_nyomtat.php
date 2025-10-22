@@ -53,93 +53,99 @@ if( isset($_GET['nyomtat']) ) {
                     <br>
                     <br>A Danubius Hotels Zrt. (1051 Budapest, Szent István tér 11.) képviseletében megrendeljük Önöktől az alábbiakban részletezett munka elvégzését.
                     <br>
-                    <br><b>'.nl2br2($_SESSION['ml_megr_text']).'</b>
                 </div>
 
                 <table class="border full" style="font-size: 12px ;margin: auto; margin-top: 10px; margin-bottom: 10px;border-collapse: collapse;">
-                    <tr style="border-collapse: collapse;border: 1px solid #ddd; border-bottom: 0;">
-                        <td class="b" style="border: 1px solid #ddd; padding: 5px; border-bottom: 0; padding-bottom: 0; marign: 0; vertical-align: top;">
-                            Munkavégzés helye:
+                    <tr style="border-collapse: collapse;">
+                        <td class="b" style="padding: 5px; padding-bottom: 0; marign: 0; vertical-align: top;">
+                            Megrendelés tárgya:
                         </td>
-                        <td style="border: 1px solid #ddd; padding: 5px; border-bottom: 0; padding-bottom: 0; marign: 0;" colspan="2">
-                            '.$szall_cim.'
-                        </td>
-                    </tr>
-                    <tr style="border-collapse: collapse;border: 1px solid #ddd; border-top: 0; border-bottom: 0;">
-                        <td class="b" style="border: 1px solid #ddd; padding: 5px; border-top: 0; border-bottom: 0; padding-top: 0; padding-bottom: 0;">
-                            Kapcs. ajánlat kelte:
-                        </td>
-                        <td style="border: 1px solid #ddd; padding: 5px;  border-top: 0; border-bottom: 0; padding-top: 0; padding-bottom: 0;" colspan="2">
-                            '.$_SESSION['ml_megr_kelt'].'
+                        <td style="padding: 5px; padding-bottom: 0; marign: 0;" colspan="2">
+                            <b>'.$_SESSION['ml_megr_text'].'</b>
                         </td>
                     </tr>
-                    <tr style="border-collapse: collapse;border: 1px solid #ddd; border-top: 0; border-bottom: 0;">
-                        <td class="b" style="border: 1px solid #ddd; padding: 5px; border-top: 0; border-bottom: 0; padding-top: 0; padding-bottom: 0;">
+                    <tr style="border-collapse: collapse;">
+                        <td class="b" style="padding: 5px; padding-top: 0; padding-bottom: 0;">
                             Kapcs. ajánlat száma:
                         </td>
-                        <td style="border: 1px solid #ddd; padding: 5px;  border-top: 0; border-bottom: 0; padding-top: 0; padding-bottom: 0;" colspan="2">
+                        <td style="padding: 5px; padding-top: 0; padding-bottom: 0;" colspan="2">
                             '.$_SESSION['ml_kapcs_ajanlat'].'
                         </td>
                     </tr>
-                    <tr style="border-collapse: collapse;border: 1px solid #ddd; border-top: 0; border-bottom: 0;">
-                        <td class="b" style="border: 1px solid #ddd; padding: 5px; border-top: 0; border-bottom: 0; padding-top: 0; padding-bottom: 0;">
+                    <tr style="border-collapse: collapse;">
+                        <td class="b" style="padding: 5px; padding-top: 0; padding-bottom: 0;">
+                            Kapcs. ajánlat kelte:
+                        </td>
+                        <td style="padding: 5px; padding-top: 0; padding-bottom: 0;" colspan="2">
+                            '.$_SESSION['ml_megr_kelt'].'
+                        </td>
+                    </tr>
+                    <tr style="border-collapse: collapse;">
+                        <td class="b" style="padding: 5px; padding-top: 0; padding-bottom: 0;">
                             ontEAM munkalap száma:
                         </td>
-                        <td style="border: 1px solid #ddd; padding: 5px;  border-top: 0; border-bottom: 0; padding-top: 0; padding-bottom: 0;" colspan="2">
+                        <td style="padding: 5px; padding-top: 0; padding-bottom: 0;" colspan="2">
                             '.$_SESSION['ml_megr_ikt_szam'].'
                         </td>
                     </tr>
-
-                    <tr style="border-collapse: collapse; border: 1px solid #ddd; border-top: 0;  border-bottom: 0;">
-                        <td class="b" style="border: 1px solid #ddd; padding: 5px; padding-top: 10px; border-top: 0; border-bottom: 0;">
+                    <tr style="border-collapse: collapse;">
+                        <td class="b" style="padding: 5px; padding-bottom: 0; marign: 0; vertical-align: top;">
+                            Munkavégzés helye:
+                        </td>
+                        <td style="padding: 5px; padding-bottom: 0; marign: 0;" colspan="2">
+                            '.$szall_cim.'
+                        </td>
+                    </tr>
+                    <tr style="border-collapse: collapse;">
+                        <td class="b" style="padding: 5px; padding-top: 10px;">
                             Vállalási ár:
                         </td>
-                        <td style="border: 1px solid #ddd; padding: 5px; padding-top: 10px; border-top: 0; border-bottom: 0; padding-bottom: 0;" colspan="2">
+                        <td style="padding: 5px; padding-top: 10px; padding-bottom: 0;" colspan="2">
                             <b>'.$_SESSION['ml_megr_ar'].'</b>
                         </td>
                     </tr>
-                    <tr style="border-collapse: collapse; border: 1px solid #ddd; border-top: 0; border-bottom: 0; marign: 0;">
-                        <td class="b" style="border: 1px solid #ddd; padding: 5px; border-top: 0; border-bottom: 0; padding-top: 0; padding-bottom: 0; marign: 0; vertical-align: top;">
+                    <tr style="border-collapse: collapse; marign: 0;">
+                        <td class="b" style="padding: 5px; padding-top: 0; padding-bottom: 0; marign: 0; vertical-align: top;">
                             Kivitelezési határidő:
                         </td>
-                        <td style="border: 1px solid #ddd; padding: 5px; border-top: 0; border-bottom: 0; padding-top: 0; padding-bottom: 0;" colspan="2">
+                        <td style="padding: 5px; padding-top: 0; padding-bottom: 0;" colspan="2">
                             '.$_SESSION['ml_megr_kiv_hat'].'
                         </td>
                     </tr>
-                    <tr style="border-collapse: collapse; border: 1px solid #ddd; border-top: 0;">
-                        <td class="b" style="border: 1px solid #ddd; padding: 5px; border-top: 0; padding-top: 10px; vertical-align: top;">
-                            Fizetési feltétel:
+                    <tr style="border-collapse: collapse;">
+                        <td class="b" style="padding: 5px; padding-top: 10px; vertical-align: top;">
+                            Fizetési feltételek:
                         </td>
-                        <td style="border: 1px solid #ddd; padding: 5px; border-top: 0; padding-top: 10px;" colspan="2">
+                        <td style="padding: 5px; padding-top: 10px;" colspan="2">
                             A teljesítést követően a Vállalkozó által kiállított számla ellenében, banki átutalással a számla kézhezvételétől számított 30 naptári napos fizetési határidővel. A számla mellékletét képezi a Megrendelő által aláírt teljesítésigazolás.
                             <br>Kérjük a számlán tüntessék fel a munkavégzés helyét és a megrendelés számát.
                         </td>
                     </tr>
                     <tr style="border-collapse: collapse;">
-                        <td colspan="2" style="padding-top: 10px; border-left: 0; border-right: 0"></td>
+                        <td colspan="2" style="padding-top: 10px;"></td>
                     </tr>
-                    <tr style="border-collapse: collapse;border: 1px solid #ddd; border-bottom: 0;">
-                        <td class="b" style="border: 1px solid #ddd; padding: 5px; border-bottom: 0; padding-bottom: 0; marign: 0; vertical-align: top;">
+                    <tr style="border-collapse: collapse;">
+                        <td class="b" style="padding: 5px; padding-bottom: 0; marign: 0; vertical-align: top;">
                             Számlázási cím:
                         </td>
-                        <td style="border: 1px solid #ddd; padding: 5px; border-bottom: 0; padding-bottom: 0; marign: 0;" colspan="2">
+                        <td style="padding: 5px; padding-bottom: 0; marign: 0;" colspan="2">
                             Danubius Hotels Zrt.
                             <br> '.$szall_cim/*B verzió: $szl.' '.$cim*/.'
                         </td>
                     </tr>
-                    <tr style="border-collapse: collapse; border: 1px solid #ddd; border-top: 0; border-bottom: 0; marign: 0;">
-                        <td class="b" style="border: 1px solid #ddd; padding: 5px; border-top: 0; border-bottom: 0; padding-top: 0;padding-bottom: 0; marign: 0; vertical-align: top;">
+                    <tr style="border-collapse: collapse; marign: 0;">
+                        <td class="b" style="padding: 5px; padding-top: 0;padding-bottom: 0; marign: 0; vertical-align: top;">
                             Adószám:
                         </td>
-                        <td style="border: 1px solid #ddd; padding: 5px;  border-top: 0; border-bottom: 0; padding-top: 0; padding-bottom: 0;" colspan="2">
+                        <td style="padding: 5px; padding-top: 0; padding-bottom: 0;" colspan="2">
                             '.$adoszam.'
                         </td>
                     </tr>
-                    <tr style="border-collapse: collapse; border: 1px solid #ddd; border-top: 0;">
-                        <td class="b" style="border: 1px solid #ddd; padding: 5px; border-top: 0; vertical-align: top; padding-top: 10px;"> 
+                    <tr style="border-collapse: collapse;">
+                        <td class="b" style="padding: 5px; vertical-align: top; padding-top: 10px;"> 
                             Számlaküldési cím:
                         </td>
-                        <td style="border: 1px solid #ddd; padding: 5px; border-top: 0; padding-top: 10px;" colspan="2">
+                        <td style="padding: 5px; padding-top: 10px;" colspan="2">
                             Megrendelő az ÁFA törvény 175. § (3) bekezdés b) pontjában előírtaknak megfelelően ezen beleegyezik, hogy részére elektronikus számla kerüljön kiállítása, melyet a Vállalkozó a Megrendelő alábbi e-mail címére köteles megküldeni:
                             <br><b>'.NYOMTATAS_SZLA_KULD_CIM.'</b>
                         </td>

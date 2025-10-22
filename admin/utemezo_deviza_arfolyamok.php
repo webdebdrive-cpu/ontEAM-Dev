@@ -30,8 +30,8 @@ foreach ($arfolyamok -> Day -> Rate as $xml) {
                                             "`deviza`='{$xml['curr']}'");
         if( $sql === false ) { $db_error = 1; }
     } else {
-        $sql = $adatbazis_kapcsolat -> i('mnb', array('deviza',     'arfolyam',                  'update_dt' ),
-                                                array($xml['curr'], str_replace(',', '.', $xml), 'NOW()'    )
+        $sql = $adatbazis_kapcsolat -> i('mnb', array('deviza',     'arfolyam',                  'insert_dt' ),
+                                                array($xml['curr'], str_replace(',', '.', $xml), 'NOW()'     )
                                 );
         if( $sql === false ) { $db_error = 1; }
     }

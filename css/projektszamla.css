@@ -85,7 +85,7 @@ table.csikos td.pop_pr_tetel.kapcsolt:hover::after {
     width: 100%;
 }
 
-@media only screen and (max-width: 1280px) {
+@media only screen and (max-width: 1170px) {
     div.naplo div.nFejlec div.dtc.pipa {
         padding: 0rem 0.5rem;
     }

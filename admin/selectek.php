@@ -244,10 +244,10 @@ if( basename(self()) == 'eszkozigenyles.php' || basename(self()) == 'eszkozigeny
     }
 
     $select_hat_ido = array();
-    array_push($select_hat_ido, array('name' => '- Válasszon -', 'value' => ''  ));
-    array_push($select_hat_ido, array('name' => '8 nap',        'value' => '8'  ));
-    array_push($select_hat_ido, array('name' => '15 nap',       'value' => '15' ));
-    array_push($select_hat_ido, array('name' => '30 nap',       'value' => '30' ));
-    array_push($select_hat_ido, array('name' => '45 nap',       'value' => '45' ));
-    array_push($select_hat_ido, array('name' => '60 nap',       'value' => '60' ));
+    array_push($select_hat_ido, array('name' => '- Válasszon -', 'value' => ''      ));
+    array_push($select_hat_ido, array('name' => '8 nap',        'value' => '8 nap'  ));
+    array_push($select_hat_ido, array('name' => '15 nap',       'value' => '15 nap' ));
+    array_push($select_hat_ido, array('name' => '30 nap',       'value' => '30 nap' ));
+    array_push($select_hat_ido, array('name' => '45 nap',       'value' => '45 nap' ));
+    array_push($select_hat_ido, array('name' => '60 nap',       'value' => '60 nap' ));
 }

@@ -620,7 +620,12 @@ if( _jog(JOG_BESZERZ_IGENYLESEK_OLVAS) || _jog(JOG_BESZERZ_IGENYLESEK_MEGR_OLVAS
     if( _jog(JOG_BESZ_SZALL_OLVAS) ) {
         $aktmenuk .= str_replace( $akt_almenu_mit, array( $aloldalak['3'], 'Beszerzés szállítók'), $almenu_sablon );
     }
-    if( _jog(JOG_BESZERZ_IGENYLESEK_OLVAS) || _jog(JOG_BESZERZ_IGENYLESEK_MEGR_OLVAS) || _jog(JOG_BESZ_SZALL_OLVAS) ) {
+    if(
+        $_SERVER['HTTP_HOST'] == 'teszt.onteam.hu' &&
+        (
+            _jog(JOG_BESZERZ_IGENYLESEK_OLVAS) || _jog(JOG_BESZERZ_IGENYLESEK_MEGR_OLVAS) || _jog(JOG_BESZ_SZALL_OLVAS)
+        )
+    ) {
         $aktmenuk .= str_replace( $akt_almenu_mit, array( $aloldalak['4'], 'Tesztelés'), $almenu_sablon );
     }
 
@@ -673,19 +678,6 @@ if( !$_SESSION['bejelento_menu_rejt'] &&
         'jogcim.php',
         'afakod.php',
     );
-
-    // Rendszer kategória lekérdezése
-    $rkat = '';
-    if( $_GET['rkat'] || $_SESSION['rendszerkat'] ) {
-        if( $_GET['rkat'] ) {
-            $_SESSION['rendszerkat'] = $_GET['rkat'];
-        }
-
-        $rendszerKat = $adatbazis_kapcsolat->s('recid nev', 'rendszer_kat', "`recid`='{$_SESSION['rendszerkat']}'", '', '1');
-        if( $rendszerKat ) {
-            $oldalNev = $rendszerKat['nev'];
-        }
-    }
 
     if(basename(self())==$megn.'.php'   && isset($_GET['modosit'])){ $navi = $menu_nev.' szerkesztése';         }
     if(basename(self())=='szallito.php' && isset($_GET['modosit'])){ $navi = 'Szállító szerkesztése';           }
@@ -1363,9 +1355,12 @@ if( self('-bn-') == 'eszkozigenyles_megr.php' ) {
 }
 // Tesztelés funkció
 if( 
-    (self('-bn-') == 'eszkozigenyles.php'      && _jog(JOG_BESZERZ_IGENYLESEK_OLVAS     ) ) ||
-    (self('-bn-') == 'eszkozigenyles_megr.php' && _jog(JOG_BESZERZ_IGENYLESEK_MEGR_OLVAS) ) ||
-    (self('-bn-') == 'szallito_beszerzes.php'  && _jog(JOG_BESZ_SZALL_OLVAS             ) )
+    $_SERVER['HTTP_HOST'] == 'teszt.onteam.hu' &&
+    (
+        (self('-bn-') == 'eszkozigenyles.php'      && _jog(JOG_BESZERZ_IGENYLESEK_OLVAS     ) ) ||
+        (self('-bn-') == 'eszkozigenyles_megr.php' && _jog(JOG_BESZERZ_IGENYLESEK_MEGR_OLVAS) ) ||
+        (self('-bn-') == 'szallito_beszerzes.php'  && _jog(JOG_BESZ_SZALL_OLVAS             ) )
+    )
 ) {
     // Azért dn, mert megvárjuk, míg biztosan van $_GET['id'] adatunk, és csak ez után jelenítjük meg. 
     $uj = nl2('

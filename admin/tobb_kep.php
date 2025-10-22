@@ -413,7 +413,9 @@ if( !$archivum ) {
 }
 
 $i     = 0;
-$kepek = $adatbazis_kapcsolat -> s('*', $tobbkep_tablanev, "`".get_tobbkep_oszlopnev()."`='{$_GET['id']}'", 'insert_dt');
+if( $_GET['id'] ) {
+    $kepek = $adatbazis_kapcsolat -> s('*', $tobbkep_tablanev, "`".get_tobbkep_oszlopnev()."`='{$_GET['id']}'", 'insert_dt');
+}
 
 // Eszközkezelés engedélyeknél dátumot is kiírunk
 $mellek = 'dokumentumok';
@@ -455,7 +457,7 @@ if( $kepek && $apa_tabla != 'projektkezeles' ) {
 }
 
 // Projektek adatlapján felsoroljuk a kapcsolódó szerződések és számlák dokumentumait is
-if( $apa_tabla == 'projektkezeles' ) {
+if( $apa_tabla == 'projektkezeles' && $_GET['id'] ) {
     
     // Projekt lekérdezése
     $projekt = $adatbazis_kapcsolat->s2('ikt_szam', 'projektkezeles', "`recid`='{$_GET['id']}'");
@@ -928,7 +930,7 @@ if( $apa_tabla == 'projektkezeles' ) {
 }
 
 // Projketkezelésnél pedig felsoroljuk a jótállás fül alatti dokumentumokat is
-if( $apa_tabla == 'projektkezeles' ) {
+if( $apa_tabla == 'projektkezeles' && $_GET['id'] ) {
 
     $kepek = array();
 
@@ -979,7 +981,7 @@ if( $apa_tabla == 'projektkezeles' ) {
 // Végül egy általános ciklus a Projektek modul alá:
 // felsoroljuk az értéklistában levő minősítés fajtákat, és felsoroljuk az azokhoz tartozó dokumentumokat is. 
 // (Kivéve a szerződéseket/számlákat, mert azokat fentebb már kiírtuk.)
-if( $apa_tabla == 'projektkezeles' ) {
+if( $apa_tabla == 'projektkezeles' && $_GET['id'] ) {
     $dok_tipusok = $adatbazis_kapcsolat->s('id info', 'erteklista', "`csoport`='".ERTEKLISTA_DOK_TIPUS."' AND `id` NOT IN ('".EL_DOK_TIPUS_SZERZODES."', '".EL_DOK_TIPUS_SZAMLA."')", 'info');
     foreach( $dok_tipusok as $tipus ) {
 
@@ -1336,6 +1338,13 @@ function get_tobbkep_thumb($sor_kepek = '', $i = '', $tobbkep_tablanev = '', $ni
                                 </div>
                                 ');
             }
+
+            $user_kieg = '';
+            if( $tobbkep_tablanev == 'eszkozigenyles_megr_dok' ) {
+                if( !$sor_kepek['loginnev'] ) {
+                    $user_kieg .= 'ontEAM<br>';
+                }
+            }
             
             // Eszközigénylések alatt ne legyen fájlnév megtörés
             if( !in_array($tobbkep_tablanev, $ne_tord) ) {
@@ -1358,7 +1367,7 @@ function get_tobbkep_thumb($sor_kepek = '', $i = '', $tobbkep_tablanev = '', $ni
                         </a>
                     </div>
                     '.$tipus_oszlop.'
-                    <div class="felirat">'.$sor_kepek['insert_usr'].'</div>
+                    <div class="felirat">'.$user_kieg.$sor_kepek['insert_usr'].'</div>
                     <div class="felirat">'.$datum.'</div>
                     <div class="'.$torles_class.' torles">'.$torles.'</div>
                     '.$minosites.'

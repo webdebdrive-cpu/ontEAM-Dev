@@ -2708,7 +2708,7 @@ if( $_SERVER['REMOTE_ADDR'] == get_debug_ip() ) {
                 <div class="dtr nFejlec">
                     <div class="dtc">Esemény</div>
                     <div class="dtc"><b class="pipa">✓</b></div>
-                    <div class="dtc">Felhasználó</div>
+                    <div class="dtc">Státuszba léptette</div>
                     <div class="dtc">Dátum</div>
                 </div>
 

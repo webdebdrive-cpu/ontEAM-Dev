@@ -86,14 +86,16 @@ if (isset($_POST['megrendelo_kikuldese'])) {
 
     // Címzett nevének lekérése
     $szallito = $adatbazis_kapcsolat -> s2('knev', 'szallito_beszerzes', "`recid`='{$sor['szallito_id']}'");
-    if( !$szallito['knev']) {
-        $szallito['knev'] = 'Címzett';
-    }
+    // if( !$szallito['knev']) {
+    //     $szallito['knev'] = 'Partnerünk';
+    // }
+    // 2025.10.04: kifejezetten fixen ezt szeretnék látni és nem a kapcsolattartó nevét
+    $szallito['knev'] = 'Partnerünk';
 
     $targy = $targy_kieg.$sor['rend_szam'].' megrendelés';
     $uzi   = $uzi_kieg.'Tisztelt '.$szallito['knev'].'!
     <br>
-    <br>Ezúton küldjük a megrendelést csatolva.
+    <br>Ezúton küldjük csatolva megrendelésünket.
     <br>Kérjük, hogy alábbi gombra kattintással igazolják vissza a megrendelő email beérkezését:
     <br><a href="https://'.get_domain().'/megr_ig.php?h='.$sor['hash'].'" style="display: inline-block; padding: 5px 10px; border-radius: 5px; background: #438fe5ff; color: #fff; text-decoration: none; margin-top: 5px;" target="_blank">
         Megrendelő emailt megkaptuk
@@ -173,26 +175,39 @@ if( $_SERVER['REMOTE_ADDR'] == get_debug_ip() ) {
 // Megrendelés javításához adatok lekérdezése
 if (isset($_POST['get_megr_javit'])) {
 
-    $megrendeles    = $adatbazis_kapcsolat -> s2('rend_szam telephely_id szallito_id megr_dt', 'eszkozigenyles_megr', "`recid`='{$_POST['id']}'");
+    $megrendeles    = $adatbazis_kapcsolat -> s2('stat_id rend_szam telephely_id szallito_id megr_dt', 'eszkozigenyles_megr', "`recid`='{$_POST['id']}'");
     $eszkozigenyles = $adatbazis_kapcsolat -> s2('tipus', 'eszkozigenyles', "`rend_szam`='{$megrendeles['rend_szam']}'");
+
+    $gomb_valid = $megr_dt = '';
+    $uzenet     = 'BI véglegesítésre vár';
+    
+    // Ha nem GM terhes, csak akkor jelenik meg a "BI véglegesítésre vár" státusz gomb
+    if( $megrendeles['stat_id'] == ESZKOZIGENYL_MEGR_STAT_MEGRENDELVE ) {
+        $gomb_valid = '<input type="button" class="gomb" value="BI validálásra vár" onclick="megrendeles_javitasa(\'bi_valid\');">';
+        $uzenet     = 'az Ön által választott';
+        $megr_dt    = '<br><b>Megrendelés dátuma:</b> '.datum_kiir($megrendeles['megr_dt']);
+    }
 
     $html = nl2('
         <b>Rendelés száma:</b> '.$megrendeles['rend_szam'].'
         <br><b>Szálloda:</b> '.getSzallodaNev($megrendeles['telephely_id']).'
         <br><b>Szállító:</b> '.getErtek('nev', 'szallito_beszerzes', 'recid', $megrendeles['szallito_id']).'
-        <br><b>Megrendelés dátuma:</b> '.datum_kiir($megrendeles['megr_dt']).'
+        '.$megr_dt.'
+        <div class="dt">
+            <div class="dtr">
+                <div class="dtc form_bal b">Indoklás:</div>
+                <div class="dtc form_jobb">
+                    <textarea id="indoklas" class="csillag" onkeyup="if( $(this).val().trim()==\'\' ){ $(this).val(\'\'); }" style="width: 30rem"></textarea>
+                </div>
+            </div>
+        </div>
         <br>
-        <br>Biztosan javítja ezt a megrendelést?
+        <br>Ha folytatja, a megrendelés törlődik és az igénylés<br> visszakerül '.$uzenet.' státuszba.
     ');
 
-    $gomb_vegl = '';
-    // Ha nem GM terhes, csak akkor jelenik meg a "BI véglegesítésre vár" státusz gomb
-    if( $eszkozigenyles['tipus'] != BESZ_TIP_GM_KERET ) {
-        $gomb_vegl = '<input type="button" class="gomb zold" value="BI véglegesítésre vár" onclick="megrendeles_javitasa(\'bi_vegl\');">';
-    }
     $gombok = nl2('
-        <input type="button" class="gomb" value="BI validálásra vár" onclick="megrendeles_javitasa(\'bi_valid\');">
-        '.$gomb_vegl.'
+        <input type="button" class="gomb zold" value="BI véglegesítésre vár" onclick="megrendeles_javitasa(\'bi_vegl\');">
+        '.$gomb_valid.'
         <input type="button" name="megsem" class="gombb_alert" value="Mégsem" onclick="popupZar();">
     ');
 
@@ -217,8 +232,18 @@ if (isset($_POST['megrendeles_javitasa'])) {
     $eszkozigenyles = $adatbazis_kapcsolat -> s2('recid tipus stat_id rend_szam', 'eszkozigenyles', "`rend_szam`='{$megrendeles['rend_szam']}'");
     if( $eszkozigenyles === false ) { $db_error = true; }
 
-    // Ha nincs joga hozzá, akkor hibaüzenet
-    if( !_jog(JOG_BESZERZ_IGENYLESEK_KEZEL) ) {
+    // Státusz ellenőrzés
+    if( $megrendeles['stat_id'] != ESZKOZIGENYL_MEGR_STAT_MEGRENDELVE && $megrendeles['stat_id'] != ESZKOZIGENYL_MEGR_STAT_KIKULD_VAR ) {
+        echo json_encode(array(
+                                'hiba'  => 'Ebben a státuszban nem lehet megrendelést javítani!',
+                                'title' => 'Hiba',
+                        ));
+        $weblap -> leallit();
+        exit;
+    }
+
+    // Jog ellenőrzés
+    if( !_jog(JOG_BESZERZ_IGENYLESEK_KEZEL) && !_jog(JOG_BESZERZ_IGENYLESEK_MEGR_KIKULD) ) {
         echo json_encode(array(
                                 'hiba'  => 'Önnek nincs joga megrendelést javítani!',
                                 'title' => 'Hiba',
@@ -227,10 +252,30 @@ if (isset($_POST['megrendeles_javitasa'])) {
         exit;
     }
 
-    // Nem megfelelő státuszkor hibaüzenet
-    if( $megrendeles['stat_id'] != ESZKOZIGENYL_MEGR_STAT_MEGRENDELVE && $megrendeles['stat_id'] != ESZKOZIGENYL_MEGR_STAT_KIKULD_VAR) {
+    // Megrendelve státusz alatt igénylés kezelse jog kell
+    if( $megrendeles['stat_id'] == ESZKOZIGENYL_MEGR_STAT_MEGRENDELVE && !_jog(JOG_BESZERZ_IGENYLESEK_KEZEL) ) {
         echo json_encode(array(
-                                'hiba'  => 'Ebben a státuszban nem lehet megrendelést javítani!',
+                                'hiba'  => 'Önnek nincs joga Megrendelve státusz alatt megrendelést javítani!',
+                                'title' => 'Hiba',
+                        ));
+        $weblap -> leallit();
+        exit;
+    }
+
+    // Kiküldésre vár státusz alatt megrendelés kiküldés jog kell
+    if( $megrendeles['stat_id'] == ESZKOZIGENYL_MEGR_STAT_KIKULD_VAR && !_jog(JOG_BESZERZ_IGENYLESEK_MEGR_KIKULD) ) {
+        echo json_encode(array(
+                                'hiba'  => 'Önnek nincs joga Kiküldésre vár státusz alatt megrendelést javítani!',
+                                'title' => 'Hiba',
+                        ));
+        $weblap -> leallit();
+        exit;
+    }
+
+    // Nem megfelelő státuszkor hibaüzenet
+    if( !trim($_POST['megj']) ) {
+        echo json_encode(array(
+                                'hiba'  => 'Kérem indokolja a javítást!',
                                 'title' => 'Hiba',
                         ));
         $weblap -> leallit();
@@ -280,14 +325,14 @@ if (isset($_POST['megrendeles_javitasa'])) {
     switch ($_POST['statusz']) {
         case 'bi_valid':
             $statusz_lep = ESZKOZIGENYL_STAT_BI_VALID_VAR;
-            // E-mail értesítés küldése, ha soron kívüli
+            // E-mail értesítés küldése, ha nem tervezett
             if( $eszkozigenyles['tipus'] != BESZ_TIP_TERVEZETT ) {
                 $mail_hibauzenet = level_felkeszit_es_kuld('eszkozigenyles', $eszkozigenyles['recid'], ERT_BESZERZ_BI_VALIDALAS_ELO, 'eszkozigenyles', 'eszkozigenyles_bi_validalas_elo');
             }
         break;
         case 'bi_vegl':
             $statusz_lep = ESZKOZIGENYL_STAT_BI_VEGL_VAR;
-            // E-mail értesítés küldése, ha soron kívüli
+            // E-mail értesítés küldése, ha nem tervezett
             if( $eszkozigenyles['tipus'] != BESZ_TIP_TERVEZETT ) {
                 $mail_hibauzenet = level_felkeszit_es_kuld('eszkozigenyles', $eszkozigenyles['recid'], ERT_BESZERZ_BI_VEGLEGESIT_ELO, 'eszkozigenyles', 'eszkozigenyles_bi_veglegesit_elo');
             }
@@ -297,6 +342,11 @@ if (isset($_POST['megrendeles_javitasa'])) {
         if( addStatusz('eszkozigenyles_statusz', $eszkozigenyles['recid'], $statusz_lep) === false ) {
             $db_error = true;
         }
+    }
+
+    // Megjegyzés hozzáfűzése
+    if( addMegj('eszkozigenyles', $eszkozigenyles['recid'], $_POST['megj'], '', '-user írta-') === false ) {
+        $db_error = true;
     }
 
     if( !$db_error ) {
@@ -557,7 +607,10 @@ if( isset($_GET['uj']) && _jog(JOG_BESZERZ_IGENYLESEK_MEGR_OLVAS) ) {
     }
 
     // Megrendelés javítása
-    if( ($sor['stat_id'] == ESZKOZIGENYL_MEGR_STAT_MEGRENDELVE || $sor['stat_id'] == ESZKOZIGENYL_MEGR_STAT_KIKULD_VAR ) && _jog(JOG_BESZERZ_IGENYLESEK_KEZEL) ) {
+    if(
+        ( $sor['stat_id'] == ESZKOZIGENYL_MEGR_STAT_MEGRENDELVE && _jog(JOG_BESZERZ_IGENYLESEK_KEZEL      ) ) ||
+        ( $sor['stat_id'] == ESZKOZIGENYL_MEGR_STAT_KIKULD_VAR  && _jog(JOG_BESZERZ_IGENYLESEK_MEGR_KIKULD) )
+    ) {
         $gombok .= nl2('
             <input type="button" class="gomb modositaskor_rejt" onclick="csoportMuvelet(\'eszkozigenyles_megrendeles_javitasa\');" value="Megrendelés javítása">
             '
