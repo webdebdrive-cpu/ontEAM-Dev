@@ -985,6 +985,7 @@ $dokumentumos_oldal = array(
     'anyagigenyles',
     'bejelentes',
     'bejelentes_arch',
+    'besz_idoszak',
     'eloterj_bod',
     'eloterj_fb',
     'energia_terv',

@@ -65,9 +65,9 @@ if (isset($_POST['megrendelo_kikuldese'])) {
     }
 
     // Levélküldés
-    // Kontakt személy lekérdezése: akinek van igénylés létrehozás joga és adott igénylés szállodája a látókörében van
-    // Viszon ez egy megrendelés, amihez több igénylés is tartozhat, ezért vesszük az elsőt
-    $kontakt = $adatbazis_kapcsolat -> s2('teljes_nev usertel usermail beosztas_id', 'login', "substr(`flags`, ".(JOG_BESZERZ_IGENYLESEK_LETREH+1).", 1)=1 AND `aktiv`=1 AND `virtual`=0 AND `nev` IN (SELECT `nev` FROM `".get_db_tabla()."telephely_kapcs` WHERE `telephely_id` IN (SELECT `telephely_id` FROM `".get_db_tabla()."eszkozigenyles` WHERE `rend_szam`='{$sor['rend_szam']}'))");
+    // Kontakt személy lekérdezése: akinek van "Szállodai beszerző" joga és adott igénylés szállodája a látókörében van
+    // Viszont ez egy megrendelés, amihez több igénylés is tartozhat, ezért vesszük az elsőt
+    $kontakt = $adatbazis_kapcsolat -> s2('teljes_nev usertel usermail beosztas_id', 'login', "substr(`flags`, ".(JOG_BESZERZ_IGENYLESEK_BESZERZO+1).", 1)=1 AND `aktiv`=1 AND `virtual`=0 AND `nev` IN (SELECT `nev` FROM `".get_db_tabla()."telephely_kapcs` WHERE `telephely_id` IN (SELECT `telephely_id` FROM `".get_db_tabla()."eszkozigenyles` WHERE `rend_szam`='{$sor['rend_szam']}'))");
     $kontakt_alairas  = '<br>'.$kontakt['teljes_nev'];
     if( $kontakt['beosztas_id'] ) {
         $kontakt_alairas .= '<br>'.getErtekLista(ERTEKLISTA_BEOSZTAS, $kontakt['beosztas_id']);
@@ -86,11 +86,13 @@ if (isset($_POST['megrendelo_kikuldese'])) {
 
     // Címzett nevének lekérése
     $szallito = $adatbazis_kapcsolat -> s2('knev', 'szallito_beszerzes', "`recid`='{$sor['szallito_id']}'");
-    // if( !$szallito['knev']) {
-    //     $szallito['knev'] = 'Partnerünk';
-    // }
+    if( !$szallito['knev']) {
+        $szallito['knev'] = 'Partnerünk';
+    }
     // 2025.10.04: kifejezetten fixen ezt szeretnék látni és nem a kapcsolattartó nevét
-    $szallito['knev'] = 'Partnerünk';
+    // 2025.11.04: Tibi kérte, hogy mégis a kapcsolattartó neve kerülön oda, ha ki van töltve, sőt ott is csak az első vesszőig.
+    // $szallito['knev'] = 'Partnerünk';
+    $szallito['knev'] = explode(',', $szallito['knev'])[0];
 
     $targy = $targy_kieg.$sor['rend_szam'].' megrendelés';
     $uzi   = $uzi_kieg.'Tisztelt '.$szallito['knev'].'!
@@ -100,6 +102,7 @@ if (isset($_POST['megrendelo_kikuldese'])) {
     <br><a href="https://'.get_domain().'/megr_ig.php?h='.$sor['hash'].'" style="display: inline-block; padding: 5px 10px; border-radius: 5px; background: #438fe5ff; color: #fff; text-decoration: none; margin-top: 5px;" target="_blank">
         Megrendelő emailt megkaptuk
     </a>
+    <br>Kérjük kattintson a következő linkre, ha a fenti gomb nem működne: <a href="https://'.get_domain().'/megr_ig.php?h='.$sor['hash'].'" target="_blank">https://'.get_domain().'/megr_ig.php?h='.$sor['hash'].'</a>
     <br>
     <br>Üdvözlettel:
     '.$kontakt_alairas.'
@@ -181,6 +184,7 @@ if (isset($_POST['get_megr_javit'])) {
     $gomb_valid = $megr_dt = '';
     $uzenet     = 'BI véglegesítésre vár';
     
+    $gomb_vegl = '<input type="button" class="gomb zold" value="BI véglegesítésre vár" onclick="megrendeles_javitasa(\'bi_vegl\');">';
     // Ha nem GM terhes, csak akkor jelenik meg a "BI véglegesítésre vár" státusz gomb
     if( $megrendeles['stat_id'] == ESZKOZIGENYL_MEGR_STAT_MEGRENDELVE ) {
         $gomb_valid = '<input type="button" class="gomb" value="BI validálásra vár" onclick="megrendeles_javitasa(\'bi_valid\');">';
@@ -206,7 +210,7 @@ if (isset($_POST['get_megr_javit'])) {
     ');
 
     $gombok = nl2('
-        <input type="button" class="gomb zold" value="BI véglegesítésre vár" onclick="megrendeles_javitasa(\'bi_vegl\');">
+        '.$gomb_vegl.'
         '.$gomb_valid.'
         <input type="button" name="megsem" class="gombb_alert" value="Mégsem" onclick="popupZar();">
     ');
@@ -231,6 +235,12 @@ if (isset($_POST['megrendeles_javitasa'])) {
 
     $eszkozigenyles = $adatbazis_kapcsolat -> s2('recid tipus stat_id rend_szam', 'eszkozigenyles', "`rend_szam`='{$megrendeles['rend_szam']}'");
     if( $eszkozigenyles === false ) { $db_error = true; }
+
+    // Tervezett esetben nem csak egy sort kérünk le, hanem az összeset, ami adott Időszak ID-hoz tartozik
+    if( $eszkozigenyles['tipus'] == BESZ_TIP_TERVEZETT ) {
+        $eszkozigenylesek = $adatbazis_kapcsolat -> s('recid tipus stat_id rend_szam', 'eszkozigenyles', "`rend_szam`='{$megrendeles['rend_szam']}'");
+        if( $eszkozigenylesek === false ) { $db_error = true; }
+    }
 
     // Státusz ellenőrzés
     if( $megrendeles['stat_id'] != ESZKOZIGENYL_MEGR_STAT_MEGRENDELVE && $megrendeles['stat_id'] != ESZKOZIGENYL_MEGR_STAT_KIKULD_VAR ) {
@@ -292,15 +302,34 @@ if (isset($_POST['megrendeles_javitasa'])) {
         // A fájl be volt csatolva eszközigénylésekhez is, onnan is törölni kell, dokumentum újraszámolással
         $eszkozigenyles_dokok = $adatbazis_kapcsolat -> s('recid eszkozigenyles_id', 'eszkozigenyles_dok', "`utvonal` LIKE '%{$dokumentum['utvonal']}'");
         if( $eszkozigenyles_dokok === false ) { $db_error = true; }
+
         foreach ($eszkozigenyles_dokok as $eszkozigenyles_dok) {
-            $sql = $adatbazis_kapcsolat -> d('eszkozigenyles_dok', "`recid`='{$eszkozigenyles_dok['recid']}'");
-            if( $sql === false ) { $db_error = true; }
 
-            $eszkozigenyles_dok_db = $adatbazis_kapcsolat -> s('recid', 'eszkozigenyles_dok', "`eszkozigenyles_id`='{$eszkozigenyles_dok['eszkozigenyles_id']}'", '', '', '', '-num-rows-');
-            if( $eszkozigenyles_dok_db === false ) { $db_error = true; }
+            // Ha több igénylés sor is értinett (tervezettt típusú)
+            if( $eszkozigenylesek ) {
 
-            $sql = $adatbazis_kapcsolat -> u('eszkozigenyles', array('dok_db'), array($eszkozigenyles_dok_db), "`recid`='{$eszkozigenyles_dok['eszkozigenyles_id']}'");
-            if( $sql === false ) { $db_error = true; }
+                foreach ($eszkozigenylesek as $akt_eszkozigenyles) {
+                    $sql = $adatbazis_kapcsolat -> d('eszkozigenyles_dok', "`eszkozigenyles_id`='{$akt_eszkozigenyles['recid']}' AND `utvonal` LIKE '%{$dokumentum['utvonal']}'");
+                    if( $sql === false ) { $db_error = true; }
+
+                    $eszkozigenyles_dok_db = $adatbazis_kapcsolat -> s('recid', 'eszkozigenyles_dok', "`eszkozigenyles_id`='{$akt_eszkozigenyles['recid']}'", '', '', '', '-num-rows-');
+                    if( $eszkozigenyles_dok_db === false ) { $db_error = true; }
+        
+                    $sql = $adatbazis_kapcsolat -> u('eszkozigenyles', array('dok_db'), array($eszkozigenyles_dok_db), "`recid`='{$akt_eszkozigenyles['recid']}'");
+                    if( $sql === false ) { $db_error = true; }
+                }
+
+            // Soronkívül csak egy igénylés sorral kell foglalkozni
+            } else {
+                $sql = $adatbazis_kapcsolat -> d('eszkozigenyles_dok', "`recid`='{$eszkozigenyles_dok['recid']}'");
+                if( $sql === false ) { $db_error = true; }
+    
+                $eszkozigenyles_dok_db = $adatbazis_kapcsolat -> s('recid', 'eszkozigenyles_dok', "`eszkozigenyles_id`='{$eszkozigenyles_dok['eszkozigenyles_id']}'", '', '', '', '-num-rows-');
+                if( $eszkozigenyles_dok_db === false ) { $db_error = true; }
+    
+                $sql = $adatbazis_kapcsolat -> u('eszkozigenyles', array('dok_db'), array($eszkozigenyles_dok_db), "`recid`='{$eszkozigenyles_dok['eszkozigenyles_id']}'");
+                if( $sql === false ) { $db_error = true; }
+            }
         }
     }
 
@@ -316,9 +345,11 @@ if (isset($_POST['megrendeles_javitasa'])) {
     $sql = $adatbazis_kapcsolat -> d('eszkozigenyles_megr_statusz', "`eszkozigenyles_megr_recid`='{$_POST['id']}'");
     if( $sql === false ) { $db_error = true; }
 
-    // Rendelés szám ürítése igényéseknél
-    $sql = $adatbazis_kapcsolat -> u('eszkozigenyles', array('rend_szam'), array(''), "`rend_szam`='{$megrendeles['rend_szam']}'");
-    if( $sql === false ) { $db_error = true; }
+    // Rendelés szám ürítése igényéseknél, de csak akkor ha nem tervezett
+    if( $eszkozigenyles['tipus'] != BESZ_TIP_TERVEZETT ) {
+        $sql = $adatbazis_kapcsolat -> u('eszkozigenyles', array('rend_szam'), array(''), "`rend_szam`='{$megrendeles['rend_szam']}'");
+        if( $sql === false ) { $db_error = true; }
+    }
 
     // Státuszléptetés - JS-től kapott státusz szöveg azonosítása
     $statusz_lep = '';
@@ -339,14 +370,32 @@ if (isset($_POST['megrendeles_javitasa'])) {
         break;
     }
     if( $statusz_lep ) {
-        if( addStatusz('eszkozigenyles_statusz', $eszkozigenyles['recid'], $statusz_lep) === false ) {
-            $db_error = true;
+        // Ha több igénylés sor is értinett (tervezett típusú)
+        if( $eszkozigenylesek ) {
+            foreach ($eszkozigenylesek as $akt_eszkozigenyles) {
+                if( addStatusz('eszkozigenyles_statusz', $akt_eszkozigenyles['recid'], $statusz_lep) === false ) {
+                    $db_error = true;
+                }
+            }
+        } else {
+            if( addStatusz('eszkozigenyles_statusz', $eszkozigenyles['recid'], $statusz_lep) === false ) {
+                $db_error = true;
+            }
         }
     }
 
     // Megjegyzés hozzáfűzése
-    if( addMegj('eszkozigenyles', $eszkozigenyles['recid'], $_POST['megj'], '', '-user írta-') === false ) {
-        $db_error = true;
+    // Ha több igénylés sor is értinett (tervezettt típusú)
+    if( $eszkozigenylesek ) {
+        foreach ($eszkozigenylesek as $akt_eszkozigenyles) {
+            if( addMegj('eszkozigenyles', $akt_eszkozigenyles['recid'], $_POST['megj'], '', '-user írta-') === false ) {
+                $db_error = true;
+            }
+        }
+    } else {
+        if( addMegj('eszkozigenyles', $eszkozigenyles['recid'], $_POST['megj'], '', '-user írta-') === false ) {
+            $db_error = true;
+        }
     }
 
     if( !$db_error ) {
@@ -533,7 +582,7 @@ if( isset($_GET['csv']) ) {
         flush();
     }
 
-    csv_export_lezar($fh, $filename, 'Beszerzés szállító');
+    csv_export_lezar($fh, $filename, 'Beszerzés megrendelés');
 }
 
 // Tartalom
@@ -550,10 +599,10 @@ if( !$_GET['ajax'] ) {
 if( $_GET['id'] ){
     $sor = $adatbazis_kapcsolat -> s2('*', $megnevezes, "`recid`='{$_GET['id']}'");
 }
-if ($sor['dok_db']) {
+if( $sor['dok_db'] ) {
     $dok_db  = ' ('.$sor['dok_db'].')';
 }
-if ($sor['megj_db']) {
+if( $sor['megj_db'] ) {
     $megj_db = ' ('.$sor['megj_db'].')';
 }
 
@@ -652,19 +701,19 @@ if(isset($_GET['uj']) && !$csak_szerkesztheto){
 } elseif (isset($_GET['modosit'])) {
     
     // Ha Gyorskeresőből érkeznénk ide, akkor az ID-t valójában az id_hidden tartalmazza majd
-    if(isset($_GET['id_hidden'])){
+    if( isset($_GET['id_hidden']) ) {
         $_GET['id'] = $_GET['id_hidden'];
     }
 
     $sor = $adatbazis_kapcsolat -> s2('*', $megnevezes, "`recid`='{$_GET['id']}'");
 
-    foreach($akt_tomb as $tomb) {
+    foreach ( $akt_tomb as $tomb ) {
         if( $tomb['type'] == 'autocomplete' ) {
 
-            if($tomb['csoport']){
+            if( $tomb['csoport'] ) {
                 $kulso_ertek = $adatbazis_kapcsolat->s2('info', $tomb['tabla'], "`{$tomb['oszlop_keres']}`='{$sor[$tomb['name']]}' AND `csoport`='{$tomb['csoport']}'", '', '1');
                 $kulso_ertek['nev'] = $kulso_ertek['info'];
-            }else{
+            } else {
                 $kulso_ertek = $adatbazis_kapcsolat->s2('recid nev', $tomb['tabla'], "`{$tomb['oszlop_keres']}`='{$sor[$tomb['name']]}'", '', '1');
             }
 
@@ -676,7 +725,7 @@ if(isset($_GET['uj']) && !$csak_szerkesztheto){
     }
 
     $json_sor = array();
-    foreach($sor as $kulcs => $elem){
+    foreach ( $sor as $kulcs => $elem ) {
         $json_sor[$kulcs] = formAdatok_replace($elem);
     }
     $szamla_html .= '<script>formAdatok = JSON.parse(\''.json_encode($json_sor).'\');</script>';
@@ -691,7 +740,7 @@ if(isset($_GET['uj']) && !$csak_szerkesztheto){
         </script>
     ');
 
-    // FORM
+    // Form
     $js = js_kiir($akt_tomb, 'form_ell_admin()', 'ajax');
 
     // Form actionja

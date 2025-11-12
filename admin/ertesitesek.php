@@ -1,7 +1,7 @@
 <?php
 /*                                                  *\
  * FONTOS:
- * 33. ID következik
+ * 36. ID következik
  * 10. kategória következik
 \*                                                  */
 
@@ -55,15 +55,18 @@ $ertesitesek = array(
 
     21  => array('nev' => 'Műszaki ügyintézőnek visszaadáskor',                                         'kat' => 8, 'sor' => 1),
 
-    23  => array('nev' => 'Igényfeladás megnyitásakor és igényfeladás zárásakor',                       'kat' => 9, 'sor' => 1),
-    24  => array('nev' => 'Műszaki jóváhagyás előtt',                                                   'kat' => 9, 'sor' => 2),
-    25  => array('nev' => 'Szállodai engedélyezés előtt',                                               'kat' => 9, 'sor' => 3),
-    26  => array('nev' => 'BI validálás előtt',                                                         'kat' => 9, 'sor' => 4),
-    32  => array('nev' => 'BI jóváhagyás előtt',                                                        'kat' => 9, 'sor' => 5),
-    27  => array('torolve' => 'TÖRÖLVE', 'nev' => 'Szakmai véleményezés előtt',                                                 'kat' => 9, 'sor' => 6),
-    28  => array('nev' => 'Felsővez. jóváhagyás előtt',                                                 'kat' => 9, 'sor' => 7),
-    29  => array('nev' => 'BI véglegesítés előtt',                                                      'kat' => 9, 'sor' => 8),
-    30  => array('nev' => 'Megrendelő kiküldése előtt',                                                 'kat' => 9, 'sor' => 9),
-    31  => array('nev' => 'Igénylés elutasításakor',                                                    'kat' => 9, 'sor' => 10),
+    23  => array('nev' => 'Igénylési időszak megnyitásakor',                                            'kat' => 9, 'sor' => 1),
+    35  => array('nev' => 'Füredi igénylési időszak megnyitásakor',                                     'kat' => 9, 'sor' => 2),
+    27  => array('nev' => 'Igénylési időszak zárásakor',                                                'kat' => 9, 'sor' => 3),
+    33  => array('nev' => 'Füredi igénylési időszak zárásakor',                                         'kat' => 9, 'sor' => 4),
+    34  => array('nev' => 'Amikor igénylési időszak lezárásra vár',                                     'kat' => 9, 'sor' => 5),
+    24  => array('nev' => 'Műszaki jóváhagyás előtt',                                                   'kat' => 9, 'sor' => 6),
+    25  => array('nev' => 'Szállodai engedélyezés előtt',                                               'kat' => 9, 'sor' => 7),
+    26  => array('nev' => 'BI validálás előtt',                                                         'kat' => 9, 'sor' => 8),
+    32  => array('nev' => 'BI jóváhagyás előtt',                                                        'kat' => 9, 'sor' => 9),
+    28  => array('nev' => 'Felsővez. jóváhagyás előtt',                                                 'kat' => 9, 'sor' => 10),
+    29  => array('nev' => 'BI véglegesítés előtt',                                                      'kat' => 9, 'sor' => 11),
+    30  => array('nev' => 'Megrendelő kiküldése előtt',                                                 'kat' => 9, 'sor' => 12),
+    31  => array('nev' => 'Igénylés elutasításakor',                                                    'kat' => 9, 'sor' => 13),
     
 );

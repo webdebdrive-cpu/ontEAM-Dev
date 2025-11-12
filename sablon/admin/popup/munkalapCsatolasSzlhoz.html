@@ -113,11 +113,11 @@ function mlok_csatolasa(archivum = '') {
 }
 
 // Munkalap csatolás bontása
-function ml_bontasa(id, mehet = '') {
+function ml_bontasa(id, archivum = '', mehet = '') {
     
     if( !mehet ) {
         // $('#ml_sor_'+id).addClass('torles_elott'); // Ez itt felesleges
-        alert2('Biztosan törölhető a munkalap csatolás?', '<input type="button" class="gomb zold" value="Igen" onclick="ml_bontasa(\''+id+'\', \'-mehet-\')"><input type="button" class="gomb piros" value="Nem" onclick="alert2()">');
+        alert2('Biztosan törölhető a munkalap csatolás?', '<input type="button" class="gomb zold" value="Igen" onclick="ml_bontasa(\''+id+'\', \''+archivum+'\', \'-mehet-\')"><input type="button" class="gomb piros" value="Nem" onclick="alert2()">');
         return false;
     }
     
@@ -126,6 +126,7 @@ function ml_bontasa(id, mehet = '') {
         type: 'POST',
         data: {
             id          : id,
+            archivum    : archivum,
             ml_bontasa  : Date.now()
         },
         success: function (response) {

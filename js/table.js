@@ -409,7 +409,7 @@ function tablaSorrend( table ) {
             beallitasok['cellak'] = table.attr('data-beall_cellak');
         }
 
-        var width_40 = width_80 = 0;
+        var /*width_40 = width_80 = */elozo_width = elozovel_azonos = 0;
         table.find('thead').not('.sticky').find('th').each(function(i) {
             if( this.id != '') {
                 var width       = '';
@@ -420,11 +420,12 @@ function tablaSorrend( table ) {
                 // igen ám, de az meg üres.
                 if( $(this).hasClass('dn') ){
                     // width = $(this).data('def_width');
-                    width = $(this)[0].style.width;
+                    width = Number($(this)[0].style.width.replace('px', ''));
                 } else {
                     width = $(this).outerWidth();
                     megjelenik = 1;
                 }
+
                 if( $(this).hasClass('egysoros') ){
                     egysoros = 1;
                 }
@@ -432,18 +433,27 @@ function tablaSorrend( table ) {
                 if( width<minimum_o_szel ) {
                     width = minimum_o_szel;
                 }
-                if( width == 40 ) {
-                    width_40++;
+                // if( width == 40 ) {
+                //     width_40++;
+                // }
+                // if( width == 80 ) {
+                //     width_80++;
+                // }
+
+                if( elozo_width && elozo_width == width ) {
+                    elozovel_azonos++;
                 }
-                if( width == 80 ) {
-                    width_80++;
-                }
+                elozo_width = width;
                 sorrend[i] = {id: this.id, width: width, megjelenik: megjelenik, egysoros: egysoros };
             }
         });
-        // Ha több mint 10 oszlopnak a szélessége 40, az gyanús, ekkor inkább ne mentsük el
-        if( SUBDOMAIN != 'www' && (width_40 > 20 /*|| width_80 > 20*/) ) {
-            alert2('Táblázat megváltozott'+width_40+' '+width_80, '<input type="button" class="gomb" onclick="alert2()" value="Ok">', 'Hiba');
+
+        // Ha több mint 20 oszlopnak azonos a szélessége, akkor az gyanús, ekkor inkább ne mentsük el
+        if( /*width_40 > 20 || width_80 > 20 ||*/ elozovel_azonos > 25 ) {
+            // Éles alatt még alert-et sem küldünk
+            if( SUBDOMAIN != 'www' ) {
+                alert2('Táblázat megváltozott '+width_40+' '+width_80, '<input type="button" class="gomb" onclick="alert2()" value="Ok">', 'Hiba');
+            }
             return false;
         }
 

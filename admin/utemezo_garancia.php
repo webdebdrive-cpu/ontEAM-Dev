@@ -31,6 +31,7 @@ foreach ( $jotallasok as $jotallas ) {
     $pr_szerzodes = $adatbazis_kapcsolat->s2('pr_szam sz_szam targy telephely_id', 'projektszerzodes', "`recid`='{$jotallas['projektszerzodes_recid']}'");
     $projekt      = $adatbazis_kapcsolat->s2('pfelelos', 'projektkezeles', "`ikt_szam`='{$pr_szerzodes['pr_szam']}'");
     $login        = $adatbazis_kapcsolat->s2('teljes_nev usermail', 'login', "`recid`='{$projekt['pfelelos']}'");
+    $cimzettek    = explode(',', $login['usermail']);
 
     $uzi = 
 'Tisztelt {NEV}!
@@ -50,14 +51,14 @@ foreach ( $jotallasok as $jotallas ) {
     $idobelyeg  = date('Y-m-d H:i:s');
     
     // Egy levél megy a projektfelelősnek.
-    $sikeres_kuldes = level_kuldes(get_nev(), get_mail(), $login['teljes_nev'], $login['usermail'], $targy_kieg.'Értesítés garanciális bejárásáról', $uzi_kieg.str_replace('{NEV}', $login['teljes_nev'], $uzi));
+    $sikeres_kuldes = level_kuldes(get_nev(), get_mail(), $login['teljes_nev'], $cimzettek, $targy_kieg.'Értesítés garanciális bejárásáról', $uzi_kieg.str_replace('{NEV}', $login['teljes_nev'], $uzi));
     $megj = 'Garanciális bejárásáról értesítő email elküldve: '.$login['teljes_nev'].' ('.$login['usermail'].') '.datum_kiir($idobelyeg).' időpontban.';
     $log_tmp = 'Értesítő levél elküldve garanciális bejárásáról: '.$login['teljes_nev'].' - '.$login['usermail'].'
 ';
     // Illetve még azoknak, akiknél ez az értesítés be van kacsolva
     $loginok = $adatbazis_kapcsolat->s('teljes_nev usermail', 'login', "SUBSTR( `flags_ert`, ".(ERT_GAR_BEJARAS+1).", 1 )=1");
     foreach( $loginok as $login ) {
-        $sikeres_kuldes = level_kuldes(get_nev(), get_mail(), $login['teljes_nev'], $login['usermail'], $targy_kieg.'Értesítés garanciális bejárásáról', $uzi_kieg.str_replace('{NEV}', $login['teljes_nev'], $uzi));
+        $sikeres_kuldes = level_kuldes(get_nev(), get_mail(), $login['teljes_nev'], $cimzettek, $targy_kieg.'Értesítés garanciális bejárásáról', $uzi_kieg.str_replace('{NEV}', $login['teljes_nev'], $uzi));
         $megj    .= 'Garanciális bejárásáról értesítő email elküldve: '.$login['teljes_nev'].' ('.$login['usermail'].') '.datum_kiir($idobelyeg).' időpontban.<br>';
         $log_tmp .= 'Értesítő levél elküldve garanciális bejárásáról: '.$login['teljes_nev'].' - '.$login['usermail'].'
 ';

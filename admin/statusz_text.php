@@ -24,6 +24,11 @@ $_stat_text = array(
         BEJELENTES_STAT_VARAKOZO    => array('nev' => 'Várakozó',               'szinkod' => '#c4e63b'),
         BEJELENTES_STAT_VIZSG_ALATT => array('nev' => 'Vizsgálat alatt',        'szinkod' => '#b3e5ab'),
     ),
+    'besz_idoszak' => array(
+        BESZERZES_IDOSZAK_AKTIV     => array('nev' => 'Aktív',                      'szinkod' => ''),
+        BESZERZES_IDOSZAK_INAKTIV   => array('nev' => 'Inaktív',                    'szinkod' => ''),
+        BESZERZES_IDOSZAK_LEZART    => array('nev' => 'Lezárt',                     'szinkod' => ''),
+    ),
     'cikkrendfej' => array(
         CIKKRNDFEJ_STAT_ANYAG_NEM       => array('nev' => 'Anyag nem érkezett be',  'szinkod' => ''),
         CIKKRNDFEJ_STAT_BEERKEZETT      => array('nev' => 'Beérkezett',             'szinkod' => ''),

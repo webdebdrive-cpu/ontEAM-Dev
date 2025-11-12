@@ -45,13 +45,13 @@ array_push($select_oracikkid, array('name'  => 'MÜSEG0001',     'value' => 'MÜ
 
 // Select tömb Ütemezés típushoz
 $select_cikltip = array();
-if( basename(self())!='eseti_fenntartas.php' ){
+if( self('-bn-')!='eseti_fenntartas.php' ){
     array_push($select_cikltip, array('name' => '- Válasszon -', 'value' => '' ));
 }
-if( basename(self())!='utemezett_feladatok.php' && basename(self())!='rendszeres_karbantartas.php' ){
+if( self('-bn-')!='utemezett_feladatok.php' && self('-bn-')!='rendszeres_karbantartas.php' ){
     array_push($select_cikltip, array('name'  => 'Határidős',  'value' => 'l'));
 }
-if( basename(self())!='eseti_fenntartas.php' ){
+if( self('-bn-')!='eseti_fenntartas.php' ){
     array_push($select_cikltip, array('name'  => 'Naponta',    'value' => 'd'));
     array_push($select_cikltip, array('name'  => 'Hetente',    'value' => 'w'));
     array_push($select_cikltip, array('name'  => 'Havonta',    'value' => 'm'));
@@ -139,13 +139,13 @@ require 'selectek_szemelyzet.php';
 $select_pri_tipus = array();
 array_push($select_pri_tipus, array('name' => '- Válasszon -',  'value' => '' ));
 // Ha mindent vagy saját prigényt kezelhetek, akkor látszik ez a kettő. Ha csak Tárgyi bejelentést tudok kezelni, akkor csak a Tárgyi eszköz marad. Projektigénylés és Projektekhez is van ehhez egy-egy láthatósági pipa.
-if( !isset($_GET['uj']) || ( basename(self())=='projektigenyles.php' && _jog(JOG_PRIGENY_B_MEGTEKINT) ) || ( basename(self())=='projektkezeles.php' && _jog(JOG_PR_B_MEGTEKINT) ) ) {
+if( !isset($_GET['uj']) || ( self('-bn-')=='projektigenyles.php' && _jog(JOG_PRIGENY_B_MEGTEKINT) ) || ( self('-bn-')=='projektkezeles.php' && _jog(JOG_PR_B_MEGTEKINT) ) ) {
     array_push($select_pri_tipus, array('name' => 'Beruházás',      'value' => PRIGENY_TIPUS_BERUH  ));
 }
-if( !isset($_GET['uj']) || ( basename(self())=='projektigenyles.php' && _jog(JOG_PRIGENY_F_MEGTEKINT) ) || ( basename(self())=='projektkezeles.php' && _jog(JOG_PR_F_MEGTEKINT) ) ) {
+if( !isset($_GET['uj']) || ( self('-bn-')=='projektigenyles.php' && _jog(JOG_PRIGENY_F_MEGTEKINT) ) || ( self('-bn-')=='projektkezeles.php' && _jog(JOG_PR_F_MEGTEKINT) ) ) {
     array_push($select_pri_tipus, array('name' => 'Fenntartás',     'value' => PRIGENY_TIPUS_FENNT  ));
 }
-if( !isset($_GET['uj']) || ( basename(self())=='projektigenyles.php' && _jog(JOG_PRIGENY_T_MEGTEKINT) ) || ( basename(self())=='projektkezeles.php' && _jog(JOG_PR_T_MEGTEKINT) ) ) {
+if( !isset($_GET['uj']) || ( self('-bn-')=='projektigenyles.php' && _jog(JOG_PRIGENY_T_MEGTEKINT) ) || ( self('-bn-')=='projektkezeles.php' && _jog(JOG_PR_T_MEGTEKINT) ) ) {
     array_push($select_pri_tipus, array('name' => 'Tárgyi eszköz',  'value' => PRIGENY_TIPUS_TARGY  ));
 }
 
@@ -178,7 +178,7 @@ $munkAnyag_statusz = array(
 );
 
 // Értéklista csoport - ezt elég az erteklista.php/header.php alatt kiszámolni (utóbbi a szűrő miatt)
-if( basename(self()) == 'erteklista.php' || basename(self()) == 'energia_szamla.php' || basename(self()) == 'header.php'/*Szűrés miatt*/ ) {
+if( self('-bn-') == 'erteklista.php' || self('-bn-') == 'energia_szamla.php' || self('-bn-') == 'header.php'/*Szűrés miatt*/ ) {
     $select_erteklista = array();
     array_push($select_erteklista, array('name' => '-Válasszon-', 'value' => '' ));
     $erteklistak = $adatbazis_kapcsolat -> select('csoport nev', 'erteklista_csoport', '', 'nev');
@@ -194,7 +194,7 @@ if( basename(self()) == 'erteklista.php' || basename(self()) == 'energia_szamla.
     }
 }
 
-if( basename(self()) == 'beosztas_unnepnapok.php' || basename(self()) == 'header.php'/*Szűrés miatt*/ ) {
+if( self('-bn-') == 'beosztas_unnepnapok.php' || self('-bn-') == 'header.php'/*Szűrés miatt*/ ) {
     $select_unnepnap_tipus = array();
     array_push($select_unnepnap_tipus, array('name' => '- Válasszon -',         'value' => '' ));
     array_push($select_unnepnap_tipus, array('name' => 'Munkaszüneti nap',      'value' => BEOSZTAS_UNNEPNAP_MUNKASZUNET    ));
@@ -203,7 +203,7 @@ if( basename(self()) == 'beosztas_unnepnapok.php' || basename(self()) == 'header
 }
 
 // Szerződés típusok
-if( basename(self()) == 'fenntartasi_szerzodes.php' || basename(self()) == 'megallapodas.php' || basename(self()) == 'projektszerzodes.php' || basename(self()) == 'header.php'/*Szűrés miatt*/ ) {
+if( self('-bn-') == 'fenntartasi_szerzodes.php' || self('-bn-') == 'megallapodas.php' || self('-bn-') == 'projektszerzodes.php' || self('-bn-') == 'header.php'/*Szűrés miatt*/ ) {
     $select_szerzodes_tipus = array();
     array_push($select_szerzodes_tipus, array('name' => '- Válasszon -', 'value' => '' ));
     array_push($select_szerzodes_tipus, array('name' => 'Keretszerződés',           'value' => 'ks' ));
@@ -215,13 +215,25 @@ if( basename(self()) == 'fenntartasi_szerzodes.php' || basename(self()) == 'mega
 
 // Beszerzés típusok
 
-if( basename(self()) == 'eszkozigenyles.php' || basename(self()) == 'eszkozigenyles_megr.php' || basename(self()) == 'eszkozigenyles_nyomtat.php' || basename(self()) == 'header.php'/*Szűrés miatt*/ ) {
+if( self('-bn-') == 'eszkozigenyles.php' || self('-bn-') == 'eszkozigenyles_megr.php' || self('-bn-') == 'eszkozigenyles_nyomtat.php' || self('-bn-') == 'header.php'/*Szűrés miatt*/ ) {
     
     $select_besz_tipus = array();
     array_push($select_besz_tipus, array('name' => '- Válasszon -', 'value' => '' ));
     // Tervezett típusú igénylés egyelőre csak dev-en lehet
     if( $_SERVER['HTTP_HOST']=='dev.onteam.hu' ) {
-        $eszkozigenyles_tipus = $adatbazis_kapcsolat -> s('recid nev', 'eszkozigenyles_tipus', "", 'recid');
+
+        $where = '';
+        if( self('-bn-') == 'eszkozigenyles.php' && isset($_GET['uj']) ) {
+            // Új felvitelben nem választható ki a tervezett időszak...
+            $where = "`recid`!='".BESZ_TIP_TERVEZETT."'";
+            $ma = date('Y-m-d');
+            $besz_idoszak = $adatbazis_kapcsolat -> s2('azon', 'besz_idoszak', "`stat_id`='".BESZERZES_IDOSZAK_AKTIV."' AND `kezd`<='{$ma}' AND `vege`>='{$ma}'");
+            if( $besz_idoszak ) {
+                // ... kivéve ha van aktív időszak és benne vagyunk az időszakban
+                $where = '';
+            }
+        }
+        $eszkozigenyles_tipus = $adatbazis_kapcsolat -> s('recid nev', 'eszkozigenyles_tipus', $where, 'recid');
     } else {
         $eszkozigenyles_tipus = $adatbazis_kapcsolat -> s('recid nev', 'eszkozigenyles_tipus', "`recid`!='".BESZ_TIP_TERVEZETT."'", 'recid');
     }
@@ -245,9 +257,16 @@ if( basename(self()) == 'eszkozigenyles.php' || basename(self()) == 'eszkozigeny
 
     $select_hat_ido = array();
     array_push($select_hat_ido, array('name' => '- Válasszon -', 'value' => ''      ));
-    array_push($select_hat_ido, array('name' => '8 nap',        'value' => '8 nap'  ));
-    array_push($select_hat_ido, array('name' => '15 nap',       'value' => '15 nap' ));
-    array_push($select_hat_ido, array('name' => '30 nap',       'value' => '30 nap' ));
-    array_push($select_hat_ido, array('name' => '45 nap',       'value' => '45 nap' ));
-    array_push($select_hat_ido, array('name' => '60 nap',       'value' => '60 nap' ));
+    array_push($select_hat_ido, array('name' => 'Számla keltétől 60 nap',           'value' => 'kelttol 60 nap' ));
+    array_push($select_hat_ido, array('name' => 'Számla keltétől 45 nap',           'value' => 'kelttol 45 nap' ));
+    array_push($select_hat_ido, array('name' => 'Számla keltétől 30 nap',           'value' => 'kelttol 30 nap' ));
+    array_push($select_hat_ido, array('name' => 'Számla keltétől 15 nap',           'value' => 'kelttol 15 nap' ));
+    array_push($select_hat_ido, array('name' => 'Számla keltétől 8 nap',            'value' => 'kelttol 8 nap'  ));
+
+    array_push($select_hat_ido, array('name' => 'Számla kézhezvételétől 60 nap',    'value' => '60 nap' ));
+    array_push($select_hat_ido, array('name' => 'Számla kézhezvételétől 45 nap',    'value' => '45 nap' ));
+    array_push($select_hat_ido, array('name' => 'Számla kézhezvételétől 30 nap',    'value' => '30 nap' ));
+    array_push($select_hat_ido, array('name' => 'Számla kézhezvételétől 15 nap',    'value' => '15 nap' ));
+    array_push($select_hat_ido, array('name' => 'Számla kézhezvételétől 8 nap',     'value' => '8 nap'  ));
+
 }

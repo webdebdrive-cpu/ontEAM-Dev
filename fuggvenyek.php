@@ -151,6 +151,168 @@ function i_u($type, $tabla, $tomb) {
         }
     }
     
+    // Ezt a feltételt már JS alatt ellenőriztük, ez már csak azért van itt, hogy tuti biztosan ne lehesen beírni téves adatot adatbázisba
+    if( $tabla == 'besz_idoszak' ) {
+        
+        if( $type == 'insert' ) {
+            // Ha nem simert az új év, akkor inkább álljunk meg, mintsem téves adatot mentsünk
+            if( !$_SESSION['uj_idoszak_ev'] ) {
+                echo 'Hiba! Nem ismert az új beszerzési időszak évszáma!';
+                $weblap -> leallit();
+                exit;
+            }
+            $_POST['azon'] = substr($_SESSION['uj_idoszak_ev'], 2, 2).'/'.get_iktatoszam_sorszam('besz_idoszak');
+        }
+
+        $sql_kieg = '';
+        if( $type == 'update' ) {
+            $sql_kieg .= "`recid`<'{$_GET['id']}'";
+        }
+        $elozo_idoszak = $adatbazis_kapcsolat -> s2('azon vege hatar hatar_fured', 'besz_idoszak', $sql_kieg, 'recid desc', '1');
+        // Ha már van időszak... ha nincs akkor ez az első feltöltés, ekkor bármi lehet a kezdete
+        if( $elozo_idoszak ) {
+            // Az időszak kezdete nem lehet korábbi az előző időszaknál
+            $elozo_vege         = str_replace('-', '.', $elozo_idoszak['vege'       ]);
+            $elozo_hatar        = str_replace('-', '.', $elozo_idoszak['hatar'      ]);
+            $elozo_hatar_fured  = str_replace('-', '.', $elozo_idoszak['hatar_fured']);
+            if( $_POST['kezd']<=$elozo_vege ) {
+                echo json_encode(array(
+                                        'hiba'  => 'Az időszak kezdete nem lehet korábbi mint az előző időszak ('.$elozo_idoszak['azon'].') vége ('.$elozo_vege.')!',
+                                        'title' => 'Hiba',
+                                    ));
+                $weblap -> leallit();
+                exit;
+            }
+
+            // Határidő az időszak határidejétől későbbi kell legyen
+            // Igazából ezt feleslegesen figyeljük, mert az is egy szabály, hogy a határidő az időszak dátumai közé kell hogy essen, ami már eleve lehatárolja.
+            if( $_POST['hatar'] <= $elozo_hatar ) {
+                echo json_encode(array(
+                                        'hiba'  => 'Igénylés határideje az előző időszak ('.$elozo_idoszak['azon'].') határidejétől ('.$elozo_hatar.') későbbi kell legyen!',
+                                        'title' => 'Hiba',
+                                    ));
+                $weblap -> leallit();
+                exit;
+            }
+            if( $_POST['hatar_fured'] <= $elozo_hatar_fured ) {
+                echo json_encode(array(
+                                        'hiba'  => 'Igénylés füredi határideje az előző időszak ('.$elozo_idoszak['azon'].') füredi határidejétől ('.$elozo_hatar_fured.') későbbi kell legyen!',
+                                        'title' => 'Hiba',
+                                    ));
+                $weblap -> leallit();
+                exit;
+            }
+
+        }
+
+        // Ha nem új felvitel, hanem meglevő mentése, csak akkor kell a követekző időszakot figyelni
+        if( $type == 'update' ) {
+            $kov_idoszak = $adatbazis_kapcsolat -> s2('azon kezd hatar hatar_fured', 'besz_idoszak', "`recid`>'{$_GET['id']}'", 'recid asc', '1');
+            if( $kov_idoszak ) {
+                $kov_kezd           = str_replace('-', '.', $kov_idoszak['kezd']);
+                $kov_hatar          = str_replace('-', '.', $kov_idoszak['hatar'      ]);
+                $kov_hatar_fured    = str_replace('-', '.', $kov_idoszak['hatar_fured']);
+                if( $_POST['vege']>=$kov_kezd ) {
+                    echo json_encode(array(
+                                            'hiba'  => 'Az időszak vége nem lehet későbbi mint a következő időszak ('.$kov_idoszak['azon'].') kezdete ('.$kov_kezd.')!',
+                                            'title' => 'Hiba',
+                                        ));
+                    $weblap -> leallit();
+                    exit;
+                }
+    
+                // Határidő az időszak határidejétől későbbi kell legyen
+                // Igazából ezt feleslegesen figyeljük, mert az is egy szabály, hogy a határidő az időszak dátumai közé kell hogy essen, ami már eleve lehatárolja.
+                if( $_POST['hatar'] >= $kov_hatar ) {
+                    echo json_encode(array(
+                                            'hiba'  => 'Igénylés határideje a következő időszak ('.$kov_idoszak['azon'].') határidejétől ('.$kov_hatar.') korábbi kell legyen!',
+                                            'title' => 'Hiba',
+                                        ));
+                    $weblap -> leallit();
+                    exit;
+                }
+                if( $_POST['hatar_fured'] >= $kov_hatar_fured ) {
+                    echo json_encode(array(
+                                            'hiba'  => 'Igénylés füredi határideje a következő időszak ('.$kov_idoszak['azon'].') füredi határidejétől ('.$kov_hatar_fured.') korábbi kell legyen!',
+                                            'title' => 'Hiba',
+                                        ));
+                    $weblap -> leallit();
+                    exit;
+                }
+            }
+        }
+
+        // Határidő az időszak kezdete és vége között kell hogy legyen
+        $holnaputan = date('Y.m.d', strtotime('+2 Days'));
+        if( $_POST['hatar'] < $_POST['kezd'] || $_POST['hatar'] > $_POST['vege'] ) {
+            echo json_encode(array(
+                                    'hiba'  => 'Az igénylés határideje az időszak kezdete és vége közé kell hogy essen!',
+                                    'title' => 'Hiba',
+                                ));
+            $weblap -> leallit();
+            exit;
+        }
+        // IDEIGLENESEN KISZEDVE
+        // if( $_POST['hatar'] < $holnaputan ) {
+        //     echo json_encode(array(
+        //                             'hiba'  => 'Az igénylés határideje legkorábban '.$holnaputan.' dátumra adható meg!',
+        //                             'title' => 'Hiba',
+        //                         ));
+        //     $weblap -> leallit();
+        //     exit;
+        // }
+        if( $_POST['hatar_fured'] < $_POST['kezd'] || $_POST['hatar_fured'] > $_POST['vege'] ) {
+            echo json_encode(array(
+                                    'hiba'  => 'A füredi igénylés határideje az időszak kezdete és vége közé kell hogy essen!',
+                                    'title' => 'Hiba',
+                                ));
+            $weblap -> leallit();
+            exit;
+        }
+        // IDEIGLENESEN KISZEDVE
+        // if( $_POST['hatar_fured'] < $holnaputan ) {
+        //     echo json_encode(array(
+        //                             'hiba'  => 'A füredi igénylés határideje legkorábban '.$holnaputan.' dátumra adható meg!',
+        //                             'title' => 'Hiba',
+        //                         ));
+        //     $weblap -> leallit();
+        //     exit;
+        // }
+        
+    }
+
+    // Ezt a feltételt már JS alatt ellenőriztük, ez már csak azért van itt, hogy tuti biztosan ne lehesen beírni téves adatot adatbázisba
+    if( $tabla == 'eszkozigenyles' ) {
+        if( $_POST['tipus'] == BESZ_TIP_GM_KERET ) {
+            if( $_POST['netto']>GM_TERHES_EGYSEGAR ) {
+                echo json_encode(array(
+                                        'hiba'  => 'A Nettó egységár mező értéke nem lehet több mint '.number_format(GM_TERHES_EGYSEGAR, 0, '', ' ').' '.get_penznem().'!',
+                                        'title' => 'Hiba',
+                                    ));
+                $weblap -> leallit();
+                exit;
+            }
+    
+            if( $_POST['ossz_netto']>GM_TERHES_OSSZNETTO ) {
+                echo json_encode(array(
+                                        'hiba'  => 'A Nettó összesen mező értéke nem lehet több mint '.number_format(GM_TERHES_OSSZNETTO, 0, '', ' ').' '.get_penznem().'!',
+                                        'title' => 'Hiba',
+                                    ));
+                $weblap -> leallit();
+                exit;
+            }
+        }
+
+        // Új feltöltésnél ha az igénylés típusa tervezett és van aktív időszak, akkor annak az azonosítóját írjuk be az igényléshez is (tehát ekkor kapcsolódnak össze)
+        if( $type == 'insert' && $_POST['tipus'] == BESZ_TIP_TERVEZETT ) {
+            $ma = date('Y-m-d');
+            $besz_idoszak = $adatbazis_kapcsolat -> s2('azon', 'besz_idoszak', "`stat_id`='".BESZERZES_IDOSZAK_AKTIV."' AND `kezd`<='{$ma}' AND `vege`>='{$ma}'");
+            if( $besz_idoszak === false ) { $db_error = true; }
+            $_POST['idoszak_azon'] = $besz_idoszak['azon'];
+        }
+
+    }
+    
     // Megállapodás szerkesztésekor vizsgáljuk, hogy a "Lezárt" pipa változott-e?
     if( $tabla == 'megallapodas' && $type == 'update' ) {
 
@@ -1328,6 +1490,23 @@ function i_u($type, $tabla, $tomb) {
                 }
             }
 
+        }
+
+        // Beszerzési időszak INSERT után
+        if( $tabla == 'besz_idoszak' ) {
+            // Kezdő státusz létrehozása
+            $sql = $adatbazis_kapcsolat -> u('besz_idoszak', array('stat_id'                 ),
+                                                             array(BESZERZES_IDOSZAK_INAKTIV ),
+                                                             "`recid`='{$id}'"
+                                            );
+            if( $sql === false ) { $db_error = true; }
+        
+            
+            $sql = $adatbazis_kapcsolat -> i('besz_idoszak_statusz',
+                                                array('besz_idoszak_recid', 'stat_id',                  'login',                            'insert_usr',                             'update_usr'                           ),
+                                                array($id,                  BESZERZES_IDOSZAK_INAKTIV,   $_SESSION[get_db_tabla().'user'],   $_SESSION[get_db_tabla().'teljes_nev'],   $_SESSION[get_db_tabla().'teljes_nev'] )
+                                            );
+            if( $sql === false ) { $db_error = true; }
         }
     
         // Energia terv státusz beszúrása INSERT után
@@ -2768,6 +2947,22 @@ function i_u($type, $tabla, $tomb) {
             // Illetve a pár mezőt még külön fel kell még venni, mert a tiltott mező miatt ez magától nem íródna be
             array_push($oszlopok, 'sz_szam',          'kolt_vis',          'netto',          'brutto'            );
             array_push($ertekek,  $_POST['sz_szam'],  $_POST['kolt_vis'],  $_POST['netto'],  $_POST['brutto']    );
+            
+        }
+
+        // Beszerzési időszak UPDATE előtt
+        if( $tabla == 'besz_idoszak' ) {
+            
+            // Időszak kezdete, nem lehet korábbi, mint a vége
+            if( $_POST['kezd'] > $_POST['vege'] ) {
+                echo json_encode(array(
+                    'hiba'  => 'Időszak vége nem lehet korábbi, mint a kezdete!',
+                    'title' => 'Hiba',
+                    'focus' => 'vege',
+                ));
+                $weblap -> leallit();
+                exit();
+            }
             
         }
 
@@ -5507,6 +5702,7 @@ function szamla_lista( $where = '', $tabla = '', $kijeloltek = false, $csak_sql_
             $sql_kieg .= nl2('
                                 LEFT JOIN `'.get_db_tabla().'szallito_beszerzes` ON (`'.get_db_tabla().'eszkozigenyles`.`szallito_id`=`'.get_db_tabla().'szallito_beszerzes`.`recid`)
                                 LEFT JOIN `'.get_db_tabla().'erteklista` ON (`'.get_db_tabla().'eszkozigenyles`.`kcs_21`=`'.get_db_tabla().'erteklista`.`id` AND `'.get_db_tabla().'erteklista`.`csoport`=\''.ERTEKLISTA_PENZNEM.'\')
+                                LEFT JOIN `'.get_db_tabla().'erteklista` AS `'.get_db_tabla().'reszleg_nev` ON (`'.get_db_tabla().'eszkozigenyles`.`reszleg`=`'.get_db_tabla().'reszleg_nev`.`id` AND `'.get_db_tabla().'reszleg_nev`.`csoport`=\''.ERTEKLISTA_RESZLEG.'\')
                                 LEFT JOIN `'.get_db_tabla().'eszkozigenyles_tipus` ON (`'.get_db_tabla().'eszkozigenyles`.`tipus`=`'.get_db_tabla().'eszkozigenyles_tipus`.`recid`)
                                 LEFT JOIN `'.get_db_tabla().'eszkozigenyles_fiz_mod` ON (`'.get_db_tabla().'eszkozigenyles`.`fiz_mod`=`'.get_db_tabla().'eszkozigenyles_fiz_mod`.`recid`)
                             ');
@@ -5832,6 +6028,9 @@ if( isset($_GET['debug']) /*&& $_SERVER['HTTP_HOST']!='teszt.onteam.hu' /*&& $_S
             break;
             case 'beosztas_unnepnapok':
                 $html = beosztas_unnepnapokLista( $bejegyzesek, $tabla, $frissit, $kijeloltek, $sorrend_idk);
+            break;
+            case 'besz_idoszak':
+                $html = besz_idoszakLista( $bejegyzesek, $tabla, $frissit, $kijeloltek );
             break;
             case 'cash_flow':
                 $html = cash_flowLista( $bejegyzesek, $tabla, $frissit, $kijeloltek );
@@ -6446,6 +6645,49 @@ function beosztas_unnepnapokLista( $bejegyzesek, $tabla, $frissit = '', $kijelol
     return false;
 }
 
+function besz_idoszakLista( $bejegyzesek, $tabla, $frissit = '', $kijeloltek = '') {
+    global $adatbazis_kapcsolat;
+
+    if( $bejegyzesek ) {
+
+        if( !$frissit ) {
+            $html = '<ul id="szamlaList" class="szamla_cont rendszer">';
+        }
+
+
+        $i = 1;
+        foreach ( $bejegyzesek as $bsz ) {
+            $active = '';
+            if( $bsz['recid'] == $_GET['id'] && !isset($_GET['print']) ) {
+                $active = ' kijelolve';
+            }
+
+            $li_tart = '<a class="szamla" data-recid="'.$bsz['recid'].'" data-fajl="'.$tabla.'.php" data-muvelet="modosit">
+                            <span>
+                                <b style="margin-right: .7rem">'.$bsz['azon'].'</b>
+                                '.datum_kiir($bsz['kezd']).'-'.datum_kiir($bsz['vege']).'
+                                &nbsp;&nbsp;
+                                '.getStatText($tabla, $bsz['stat_id'], 'rovid').'
+                            </span>
+                        </a>';
+
+            $html .= '<li id="szamla-'.$bsz['recid'].'" class="szamla_sor'.$active.'" data-recid="'.$bsz['recid'].'" data-i="'.$i.'">'.$li_tart.'</li>';
+
+            $i++;
+        }
+
+        if( !$frissit ) {
+            $html .= nl2('
+                </ul>
+            ');
+        }
+
+        return nl2($html);
+    }
+
+    return false;
+}
+
 function munkalapLista( $bejegyzesek, $tabla, $frissit = '', $kijeloltek = '', $sorrend_idk = '') {
     global $adatbazis_kapcsolat;
 
@@ -6498,7 +6740,7 @@ function munkalapLista( $bejegyzesek, $tabla, $frissit = '', $kijeloltek = '', $
                 $get_get_kiszur = array('mezo', 'op', 'felt', 'kijeloltek', 'ksz', 'rkat', 'tabla', 'szamlaLista', 'ellen_irany');
                 $stat_select = nl2('
                                 <div id="stat_gyors_szuro_div">
-                                    <select id="stat_gyors_szuro" style="margin: 0.2rem 0 0 0.2rem;" onchange="if(this.value){ param = \'&amp;mezo=stat_id&amp;op=equal&amp;felt=\'+this.value; } else { param = \'\'; } szurkit(); location.href=\''.'munkalap.php'.get_get($get_get_kiszur).'\'+param">
+                                    <select id="stat_gyors_szuro" style="margin: 0.2rem 0 0 0.2rem;" onchange="if(this.value){ param = \'&amp;mezo=stat_id&amp;op=equal&amp;ml_statusz_szuro_torol&amp;felt=\'+this.value; } else { param = \'\'; } szurkit(); location.href=\''.'munkalap.php'.get_get($get_get_kiszur).'\'+param">
                                         <option value="">-Összes státusz-</option>'.
                                         $stat_select.
                                     '</select>
@@ -7628,27 +7870,28 @@ function eszkozigenylesLista( $bejegyzesek, $tabla, $frissit = '', $kijeloltek =
             array('id' => 'eszkoz_tabla_szall_hat',     'nev' => 'Szállítási határidő',             'width' => 100  ),
             array('id' => 'eszkoz_tabla_fiz_mod',       'nev' => 'Fizetési mód',                    'width' => 120  ),
             array('id' => 'eszkoz_tabla_hat_ido',       'nev' => 'Fizetési határidő',               'width' => 80   ),
-            array('id' => 'eszkoz_tabla_igmen',         'nev' => 'Igényelt mennyiség<br>(db)',      'width' => 80   ),
-            array('id' => 'eszkoz_tabla_netto',         'nev' => 'Nettó egységár',                  'width' => 80   ),
+            array('id' => 'eszkoz_tabla_igmen',         'nev' => 'Igényelt mennyiség<br>(db)',      'width' => 90   ),
+            array('id' => 'eszkoz_tabla_netto',         'nev' => 'Nettó egységár',                  'width' => 90   ),
             array('id' => 'eszkoz_tabla_kcs_21',        'nev' => 'Pénznem',                         'width' => 80   ),
-            array('id' => 'eszkoz_tabla_arfolyam',      'nev' => 'Árfolyam',                        'width' => 80   ),
-            array('id' => 'eszkoz_tabla_dev_net',       'nev' => 'Deviza egységár',                 'width' => 80   ),
-            array('id' => 'eszkoz_tabla_ossz_netto',    'nev' => 'Nettó összesen',                  'width' => 80   ),
-            array('id' => 'eszkoz_tabla_jhmen',         'nev' => 'Jóváhagyott mennyiség<br>(db)',   'width' => 80   ),
-            array('id' => 'eszkoz_tabla_jhar',          'nev' => 'Jóváhagyott nettó egységár',      'width' => 80   ),
-            array('id' => 'eszkoz_tabla_jhossz',        'nev' => 'Jóváhagyott nettó összesen',      'width' => 80   ),
-            array('id' => 'eszkoz_tabla_kiszall',       'nev' => 'Kiszállítási költség',            'width' => 80   ),
-            array('id' => 'eszkoz_tabla_beuzemel',      'nev' => 'Beüzemelési költség',             'width' => 80   ),
-            array('id' => 'eszkoz_tabla_munkadij',      'nev' => 'Munkadíj',                        'width' => 80   ),
-            array('id' => 'eszkoz_tabla_egyeb_koltseg', 'nev' => 'Egyéb költség',                   'width' => 80   ),
+            array('id' => 'eszkoz_tabla_arfolyam',      'nev' => 'Árfolyam',                        'width' => 90   ),
+            array('id' => 'eszkoz_tabla_dev_net',       'nev' => 'Deviza egységár',                 'width' => 90   ),
+            array('id' => 'eszkoz_tabla_ossz_netto',    'nev' => 'Nettó összesen',                  'width' => 90   ),
+            array('id' => 'eszkoz_tabla_jhmen',         'nev' => 'Jóváhagyott mennyiség<br>(db)',   'width' => 90   ),
+            array('id' => 'eszkoz_tabla_jhar',          'nev' => 'Jóváhagyott nettó egységár',      'width' => 90   ),
+            array('id' => 'eszkoz_tabla_jhossz',        'nev' => 'Jóváhagyott nettó összesen',      'width' => 90   ),
+            array('id' => 'eszkoz_tabla_kiszall',       'nev' => 'Kiszállítási költség',            'width' => 90   ),
+            array('id' => 'eszkoz_tabla_beuzemel',      'nev' => 'Beüzemelési költség',             'width' => 90   ),
+            array('id' => 'eszkoz_tabla_munkadij',      'nev' => 'Munkadíj',                        'width' => 90   ),
+            array('id' => 'eszkoz_tabla_egyeb_koltseg', 'nev' => 'Egyéb költség',                   'width' => 90   ),
             array('id' => 'eszkoz_tabla_rend_szam',     'nev' => 'Rendelés szám',                   'width' => 80   ),
             array('id' => 'eszkoz_tabla_musz_el_ig' ,   'nev' => 'Műszaki előkészítést igényel',    'width' => 80   ),
             array('id' => 'eszkoz_tabla_kiv_kolts' ,    'nev' => 'Kivitelezési költség',            'width' => 80   ),
             array('id' => 'eszkoz_tabla_szall_ig_vel',  'nev' => 'Szálloda igazgató',               'width' => 80   ),
             array('id' => 'eszkoz_tabla_bi_vel',        'nev' => 'Validáló',                        'width' => 80   ),
             array('id' => 'eszkoz_tabla_bi_jh',         'nev' => 'BI vezető',                       'width' => 80   ),
-            // array('id' => 'eszkoz_tabla_szak_vel',      'nev' => 'Szakmai vezetés vélemény',        'width' => 80   ),
+            array('id' => 'eszkoz_tabla_szak_vel',      'nev' => 'Szakmai vezetés vélemény',        'width' => 80   ),
             array('id' => 'eszkoz_tabla_felso_vel',     'nev' => 'Felsővezető',                     'width' => 80   ),
+            array('id' => 'eszkoz_tabla_bi_vegl',       'nev' => 'Véglegesítő',                     'width' => 80   ),
         );
 
         // Többszörös kijelöléshez ezt kellene visszakommentezni
@@ -7787,10 +8030,12 @@ function eszkozigenylesLista( $bejegyzesek, $tabla, $frissit = '', $kijeloltek =
 
         // Speciális pipálók tömbjeit szedjük ki változókba, még a ciklust előtt
         $musz_el_ig_ertekek     = musz_el_ig_ertekek();
-        $szak_vel_ertekek       = szak_vel_ertekek();
         $szall_ig_vel_ertekek   = szall_ig_vel_ertekek();
         $bi_vel_ertekek         = bi_vel_ertekek();
+        $bi_jh_ertekek          = bi_jh_ertekek();
+        $szak_vel_ertekek       = szak_vel_ertekek();
         $felso_vel_ertekek      = felso_vel_ertekek();
+        $bi_vegl_ertekek        = bi_vegl_ertekek();
 
         $i = 1;
         foreach ( $bejegyzesek as $bsz ) {
@@ -7878,15 +8123,16 @@ function eszkozigenylesLista( $bejegyzesek, $tabla, $frissit = '', $kijeloltek =
                 'eszkoz_tabla_musz_el_ig'       => '<td class="spec_pipa musz_el_ig_'.$bsz['recid'].'">'.getSpecialisPipaloErtek($musz_el_ig_ertekek, $bsz['musz_el_ig']).'</td>',
                 'eszkoz_tabla_kiv_kolts'        => '<td class="kiv_kolts_'.$bsz['recid'].'">'.number_format($bsz['kiv_kolts'], 0, ',', ' ').'</td>',
                 'eszkoz_tabla_musz_indok'       => '<td>'.htmlspecialchars_decode(nl2br2($bsz['musz_indok'])).'</td>',
-                'eszkoz_tabla_szak_vel'         => '<td class="spec_pipa szak_vel_'.$bsz['recid'].'">'.getSpecialisPipaloErtek($szak_vel_ertekek, $bsz['szak_vel']).'</td>',
-                'eszkoz_tabla_szak_indok'       => '<td>'.htmlspecialchars_decode($bsz['szak_indok']).'</td>',
-                'eszkoz_tabla_felso_vel'        => '<td class="spec_pipa felso_vel_'.$bsz['recid'].'">'.getSpecialisPipaloErtek($felso_vel_ertekek, $bsz['felso_vel']).'</td>',
-                'eszkoz_tabla_felso_indok'      => '<td>'.htmlspecialchars_decode($bsz['felso_indok']).'</td>',
                 'eszkoz_tabla_szall_ig_vel'     => '<td class="spec_pipa szall_ig_vel_'.$bsz['recid'].'">'.getSpecialisPipaloErtek($szall_ig_vel_ertekek, $bsz['szall_ig_vel']).'</td>',
                 'eszkoz_tabla_szall_ig_indok'   => '<td>'.$bsz['szall_ig_indok'].'</td>',
                 'eszkoz_tabla_bi_vel'           => '<td class="spec_pipa bi_vel_'.$bsz['recid'].'">'.getSpecialisPipaloErtek($bi_vel_ertekek, $bsz['bi_vel']).'</td>',
                 'eszkoz_tabla_bi_indok'         => '<td>'.$bsz['bi_indok'].'</td>',
-                'eszkoz_tabla_bi_jh'            => '<td class="spec_pipa bi_jh_'.$bsz['recid'].'">'.getSpecialisPipaloErtek($bi_vel_ertekek, $bsz['bi_jh']).'</td>',
+                'eszkoz_tabla_bi_jh'            => '<td class="spec_pipa bi_jh_'.$bsz['recid'].'">'.getSpecialisPipaloErtek($bi_jh_ertekek, $bsz['bi_jh']).'</td>',
+                'eszkoz_tabla_szak_vel'         => '<td class="spec_pipa szak_vel_'.$bsz['recid'].'">'.getSpecialisPipaloErtek($szak_vel_ertekek, $bsz['szak_vel']).'</td>',
+                'eszkoz_tabla_szak_indok'       => '<td>'.htmlspecialchars_decode($bsz['szak_indok']).'</td>',
+                'eszkoz_tabla_felso_vel'        => '<td class="spec_pipa felso_vel_'.$bsz['recid'].'">'.getSpecialisPipaloErtek($felso_vel_ertekek, $bsz['felso_vel']).'</td>',
+                'eszkoz_tabla_felso_indok'      => '<td>'.htmlspecialchars_decode($bsz['felso_indok']).'</td>',
+                'eszkoz_tabla_bi_vegl'          => '<td class="spec_pipa bi_vegl_'.$bsz['recid'].'">'.getSpecialisPipaloErtek($bi_vegl_ertekek, $bsz['bi_vegl']).'</td>',
             );
 
             foreach ( $oszlopok as $oszl ) {
@@ -7972,13 +8218,30 @@ function get_eszkozigenyles_gombok($recid = 0) {
     if( isset($_GET['tablazat']) ) {
         $gombok .= '<input type="button" class="gomb modositaskor_rejt" onclick="csoportMuvelet(\'eszkozigenyles_tablazat_beallitasai\')" value="Táblázat beállítása">';
     }
+    // Új felvitel:
+    if( $eszkozigenyles['tipus'] == BESZ_TIP_TERVEZETT && $eszkozigenyles['stat_id'] == ESZKOZIGENYL_STAT_UJ_FELVITEL && _jog(JOG_BESZERZ_IGENYLESEK_LETREH) ) {
+        $visszavonas = '';
+        $megerosites = '';
+        // 2025.10.28 Ez egyelőre mégsem kell
+        // if( $eszkozigenyles['tipus'] == BESZ_TIP_TERVEZETT ) {
+        //     $megerosites = '-tervezett-';
+        //     // Visszavonás gomb csak akkor van, ha már volt véleményezve
+        //     if( $eszkozigenyles['musz_el_ig'] ) {
+        //         $visszavonas = '<input type="button" class="gomb modositaskor_rejt" onclick="muszaki_visszavon()" value="Visszavonás">';
+        //     }
+        // }
+        $gombok .= nl2('
+            <input type="button" class="gomb modositaskor_rejt" onclick="mehet_validalasra(\''.$megerosites.'\')" value="Mehet validálásra">
+            '.$visszavonas
+        );
+    }
     // Műszaki jóváhagyásra vár:
     if( $eszkozigenyles['stat_id'] == ESZKOZIGENYL_STAT_MUSZAK_JH_VAR && _jog(JOG_BESZERZ_IGENYLESEK_MUSZAK_JOVA) ) {
         $visszavonas = '';
         $megerosites = '';
         if( $eszkozigenyles['tipus'] == BESZ_TIP_TERVEZETT ) {
             $megerosites = '-tervezett-';
-            // Visszavonás gomb csak akkor van, ha ha már volt véleményezve
+            // Visszavonás gomb csak akkor van, ha már volt véleményezve
             if( $eszkozigenyles['musz_el_ig'] ) {
                 $visszavonas = '<input type="button" class="gomb modositaskor_rejt" onclick="muszaki_visszavon()" value="Visszavonás">';
             }
@@ -7995,7 +8258,7 @@ function get_eszkozigenyles_gombok($recid = 0) {
         $megerosites = '';
         if( $eszkozigenyles['tipus'] == BESZ_TIP_TERVEZETT ) {
             $megerosites = '-tervezett-';
-            // Visszavonás gomb csak akkor van, ha ha már volt véleményezve
+            // Visszavonás gomb csak akkor van, ha már volt véleményezve
             if( $eszkozigenyles['szall_ig_vel'] ) {
                 $visszavonas = '<input type="button" class="gomb modositaskor_rejt" onclick="szalloda_ig_visszavon()" value="Visszavonás">';
             }
@@ -8014,21 +8277,21 @@ function get_eszkozigenyles_gombok($recid = 0) {
         if( $eszkozigenyles['tipus'] == BESZ_TIP_TERVEZETT ) {
             $megerosites = '-tervezett-';
             // Visszavonás gomb csak akkor van, ha már volt véleményezve
-            if( $eszkozigenyles['bi_vel'] ) {
-                $visszavonas = '<input type="button" class="gomb modositaskor_rejt" onclick="bi_visszavon()" value="Visszavonás">';
-            }
+            // if( $eszkozigenyles['bi_vel'] ) {
+            //     $visszavonas = '<input type="button" class="gomb modositaskor_rejt" onclick="bi_visszavon()" value="Visszavonás">';
+            // }
         }
-        $kikuld_statuszba = '';
+        $szakmai_vel_statuszba = '';
         // 2025.09.25 Új működés szerint BI jóváhagyásra léptetejük, még a GM-eset is
         // $gomb_felirat = 'Mehet szakmai véleményezésre';
         $gomb_felirat = 'Mehet BI jóváhagyásra';
-        // if( $eszkozigenyles['tipus'] == BESZ_TIP_GM_KERET ) {
-        //     $gomb_felirat = 'Mehet kiküldésre vár státuszba';
-        //     $kikuld_statuszba = '-kikuld-statuszba-';
-        // }
+        if( $eszkozigenyles['tipus'] == BESZ_TIP_TERVEZETT ) {
+            $gomb_felirat = 'Mehet szakmai véleményezésre';
+            $szakmai_vel_statuszba = '-szakmai-vel-statuszba-';
+        }
         $gombok .= nl2('
             <input type="button" class="gomb modositaskor_rejt" onclick="csoportMuvelet(\'eszkozigenyles_jhmen_mod\')" value="Jóváhagyott mennyiség">
-            <input type="button" class="gomb modositaskor_rejt zold" onclick="bi_validal(\''.$megerosites.'\', \''.$kikuld_statuszba.'\')" value="✓ '.$gomb_felirat.'">
+            <input type="button" class="gomb modositaskor_rejt zold" onclick="bi_validal(\''./*$megerosites.*/'\', \''.$szakmai_vel_statuszba.'\')" value="✓ '.$gomb_felirat.'">
             <input type="button" class="gomb modositaskor_rejt piros" onclick="csoportMuvelet(\'eszkozigenyles_bi_elutasit\')" value="× Elutasítás">
             '.$visszavonas
         );
@@ -8039,7 +8302,7 @@ function get_eszkozigenyles_gombok($recid = 0) {
         $megerosites = '';
         if( $eszkozigenyles['tipus'] == BESZ_TIP_TERVEZETT ) {
             $megerosites = '-tervezett-';
-            // Visszavonás gomb csak akkor van, ha ha már volt véleményezve
+            // Visszavonás gomb csak akkor van, ha már volt véleményezve
             if( $eszkozigenyles['bi_vel'] ) {
                 $visszavonas = '<input type="button" class="gomb modositaskor_rejt" onclick="bi_visszavon()" value="Visszavonás">';
             }
@@ -8064,14 +8327,14 @@ function get_eszkozigenyles_gombok($recid = 0) {
         $megerosites = '';
         if( $eszkozigenyles['tipus'] == BESZ_TIP_TERVEZETT ) {
             $megerosites = '-tervezett-';
-            // Visszavonás gomb csak akkor van, ha ha már volt véleményezve
+            // Visszavonás gomb csak akkor van, ha már volt véleményezve
             if( $eszkozigenyles['szak_vel'] ) {
                 $visszavonas = '<input type="button" class="gomb modositaskor_rejt" onclick="szak_visszavon()" value="Visszavonás">';
             }
         }
         $gombok .= nl2('
             <input type="button" class="gomb modositaskor_rejt" onclick="csoportMuvelet(\'eszkozigenyles_jhmen_mod\')" value="Jóváhagyott mennyiség">
-            <input type="button" class="gomb modositaskor_rejt zold" onclick="szak_beleegyezes(\''.$megerosites.'\')" value="✓ Beleegyezés">
+            <input type="button" class="gomb modositaskor_rejt zold" onclick="szak_beleegyezes(\''./*$megerosites.*/'\')" value="✓ Beleegyezés">
             <input type="button" class="gomb modositaskor_rejt sarga" onclick="csoportMuvelet(\'eszkozigenyles_szak_feltetelekkel\')" value="? Feltételekkel beleegyezés">
             <input type="button" class="gomb modositaskor_rejt piros" onclick="csoportMuvelet(\'eszkozigenyles_szak_elutasit\')" value="× Elutasítás">
             '.$visszavonas
@@ -8085,10 +8348,15 @@ function get_eszkozigenyles_gombok($recid = 0) {
         if( $eszkozigenyles['tipus'] == BESZ_TIP_TERVEZETT ) {
             // Ha tervezett, akkor a felso_beleegyezes() függvényt egyből megerősítéssel hívjuk meg. Ennek egy fontos másik következménye, hogy nincs státusz léptetés sem Megrendelés + PDF készítés
             $megerosites        = '-tervezett-';
-            // Visszavonás gomb csak akkor van, ha ha már volt véleményezve
+            // Visszavonás gomb csak akkor van, ha már volt véleményezve
             if( $eszkozigenyles['felso_vel'] ) {
                 $visszavonas = '<input type="button" class="gomb modositaskor_rejt" onclick="felso_visszavon()" value="Visszavonás">';
             }
+
+            // Tervezett igényléseknél plusz nyomógomb: Megrendelők elkészítése
+            $gombok .= nl2('
+                <input type="button" class="gomb modositaskor_rejt" onclick="megrendelok_elkeszit()" value="Megrendelők elkészítése">
+            ');
         }
         $gombok .= nl2('
             <input type="button" class="gomb modositaskor_rejt" onclick="csoportMuvelet(\'eszkozigenyles_jhmen_mod\')" value="Jóváhagyott mennyiség">
@@ -8104,15 +8372,20 @@ function get_eszkozigenyles_gombok($recid = 0) {
         $megerosites = '';
         if( $eszkozigenyles['tipus'] == BESZ_TIP_TERVEZETT ) {
             $megerosites = '-tervezett-';
-            // Visszavonás gomb csak akkor van, ha ha már volt véleményezve
+            // Visszavonás gomb csak akkor van, ha már volt véleményezve
             if( $eszkozigenyles['bi_vegl'] ) {
                 $visszavonas = '<input type="button" class="gomb modositaskor_rejt" onclick="bi_vegl_visszavon()" value="Visszavonás">';
             }
+
+            // Tervezett igényléseknél plusz nyomógomb: Megrendelők elkészítése
+            $gombok .= nl2('
+                <input type="button" class="gomb modositaskor_rejt" onclick="megrendelok_elkeszit()" value="Megrendelők elkészítése">
+            ');
         }
         $gombok .= nl2('
             <input type="button" class="gomb modositaskor_rejt" onclick="csoportMuvelet(\'eszkozigenyles_jhmen_mod\')" value="Jóváhagyott mennyiség">
             <input type="button" class="gomb modositaskor_rejt" onclick="vissza_validalasra(\''.$megerosites.'\')" value="Vissza validálásra">
-            <input type="button" class="gomb modositaskor_rejt zold" onclick="bi_vegl_jovahagy(\''.$megerosites.'\')" value="✓ Mehet kiküldésre vár státuszba">
+            <input type="button" class="gomb modositaskor_rejt zold" onclick="bi_vegl_jovahagy(\''.$megerosites.'\')" value="✓ Mehet kiküldésre">
             <input type="button" class="gomb modositaskor_rejt piros" onclick="csoportMuvelet(\'eszkozigenyles_bi_vegl_elutasit\')" value="× Elutasítás">
             '.$visszavonas
         );
@@ -10069,6 +10342,7 @@ function getOszlopNev( $oszlop, $kieg_nev = '' ) {
     $oszlopNevek = array(
         'sor'           => 'Státusz',
         'aktiv'         => 'Aktív',
+        'azon'          => 'Azonosító',
         'csoport'       => 'Név',
         'cim'           => 'Cím',
         'cikk_id'       => 'Cikkszám',
@@ -10110,6 +10384,9 @@ function getOszlopNev( $oszlop, $kieg_nev = '' ) {
     }
     if( basename(self()) == 'beosztas.php' ) {
         $oszlopNevek['ev'] = 'Időszak';
+    }
+    if( basename(self()) == 'besz_idoszak.php' ) {
+        $oszlopNevek['azon'] = 'Időszak ID';
     }
     if( basename(self()) == 'login.php' ) {
         $oszlopNevek['nev'] = 'Login név';
@@ -10581,7 +10858,6 @@ function addMegj( $tabla, $id, $megj, $user_nev = '', $user_irta = '' ) {
         
         $ins = $adatbazis_kapcsolat->i('megjegyzes', $mezok, $ertekek);
         if($ins===false){ return false; }
- 
         // Adott tábla megj_db oszlop karban tartása
         $sql_kieg = '';
         $csak_usert_szamol = ['eszkozigenyles', 'eszkozigenyles_megr', 'szallito_beszerzes'];
@@ -10607,6 +10883,7 @@ function get_akt_tomb($megn){
     global $beosztas_tomb;
     global $beosztas_muszak_tomb;
     global $beosztas_unnepnapok_tomb;
+    global $besz_idoszak_tomb;
     global $cikktorzs_tomb;
     global $eloterj_fb_tomb;
     global $eloterj_bod_tomb;
@@ -10644,7 +10921,7 @@ function get_akt_tomb($megn){
         case 'bejelentes'               : case 'bejelentes_arch'                : $akt_tomb = $bejelentes_tomb;             break;
         case 'beosztas'                 : case 'beosztas_arch'                  : $akt_tomb = $beosztas_tomb;               break;
         case 'beosztas_muszak'          : case 'beosztas_muszak_arch'           : $akt_tomb = $beosztas_muszak_tomb;        break;
-        case 'beosztas_unnepnapok'      : case 'beosztas_unnepnapok_arch'       : $akt_tomb = $beosztas_unnepnapok_tomb;    break;
+        case 'besz_idoszak'             : case 'besz_idoszak_arch'              : $akt_tomb = $besz_idoszak_tomb;           break;
         case 'cikktorzs'                : case 'cikktorzs_arch'                 : $akt_tomb = $cikktorzs_tomb;              break;
         case 'eloterj_fb'               : case 'eloterj_fb_arch'                : $akt_tomb = $eloterj_fb_tomb;             break;
         case 'eloterj_bod'              : case 'eloterj_bod_arch'               : $akt_tomb = $eloterj_bod_tomb;            break;
@@ -11437,10 +11714,14 @@ function getSzallodaNev($szalloda_id, $andoc_nev = false) {
 }
 
 // Speciális pipák kiírtaása központilag
-function getSpecialisPipaloErtek($tomb, $ertek) {
+function getSpecialisPipaloErtek($tomb, $ertek, $text = 0) {
     foreach ($tomb as $ertekek) {
         if( $ertek == $ertekek['value'] ) {
-            return $ertekek['ikon'];
+            if( $text ) {
+                return $ertekek['text'];
+            } else {
+                return $ertekek['ikon'];
+            }
         }
     }
 }
@@ -11758,6 +12039,66 @@ function level_felkeszit_es_kuld( $tabla = '', $recid = '', $ert_pipa = '', $sab
 
         break;
 
+        // Beszerzési időszaknál igénylés megnyitásakor HA NORMÁL sorban vagyunk
+        case 'besz_idoszak_igenyl_nyit':
+
+            $besz_idoszak = $adatbazis_kapcsolat -> s2('azon hatar', 'besz_idoszak', "`recid`='{$recid}'");
+            $mit        = array('{AZON}',               '{HATAR}'                           );
+            $mivel      = array($besz_idoszak['azon'], datum_kiir($besz_idoszak['hatar'])   );
+            $uzi        = str_replace( $mit, $mivel, fajlbol_olvas('../sablon/admin/mail/'.$sablon.'.html') );
+
+            $cimzettek = $adatbazis_kapcsolat->s('nev teljes_nev usermail aktiv virtual szemelyzet_id', 'login', "`aktiv`=1 AND `virtual`=0 {$sql_ertesites_kieg}");
+            if( !$cimzettek ) {
+                return false;
+            }
+
+        break;
+
+        // Beszerzési időszaknál igénylés megnyitásakor HA FÜRED-es sorban vagyunk
+        case 'besz_idoszak_igenyl_nyit_f':
+
+            $besz_idoszak = $adatbazis_kapcsolat -> s2('azon hatar_fured', 'besz_idoszak', "`recid`='{$recid}'");
+            $mit        = array('{AZON}',               '{HATAR_FURED}'                           );
+            $mivel      = array($besz_idoszak['azon'], datum_kiir($besz_idoszak['hatar_fured'])   );
+            $uzi        = str_replace( $mit, $mivel, fajlbol_olvas('../sablon/admin/mail/'.$sablon.'.html') );
+
+            $cimzettek = $adatbazis_kapcsolat->s('nev teljes_nev usermail aktiv virtual szemelyzet_id', 'login', "`aktiv`=1 AND `virtual`=0 {$sql_ertesites_kieg}");
+            if( !$cimzettek ) {
+                return false;
+            }
+
+        break;
+
+        // Beszerzési időszaknál igénylés bezárásakor HA NORMÁL sorban vagyunk
+        case 'besz_idoszak_igenyl_zar':
+
+            $besz_idoszak = $adatbazis_kapcsolat -> s2('azon', 'besz_idoszak', "`recid`='{$recid}'");
+            $mit        = array('{AZON}'                );
+            $mivel      = array($besz_idoszak['azon']   );
+            $uzi        = str_replace( $mit, $mivel, fajlbol_olvas('../sablon/admin/mail/'.$sablon.'.html') );
+
+            $cimzettek = $adatbazis_kapcsolat->s('nev teljes_nev usermail aktiv virtual szemelyzet_id', 'login', "`aktiv`=1 AND `virtual`=0 {$sql_ertesites_kieg}");
+            if( !$cimzettek ) {
+                return false;
+            }
+
+        break;
+
+        // Beszerzési időszaknál igénylés bezárásakor HA FÜRED-es sorban vagyunk
+        case 'besz_idoszak_igenyl_zar_f':
+
+            $besz_idoszak = $adatbazis_kapcsolat -> s2('azon', 'besz_idoszak', "`recid`='{$recid}'");
+            $mit        = array('{AZON}'                );
+            $mivel      = array($besz_idoszak['azon']   );
+            $uzi        = str_replace( $mit, $mivel, fajlbol_olvas('../sablon/admin/mail/'.$sablon.'.html') );
+
+            $cimzettek = $adatbazis_kapcsolat->s('nev teljes_nev usermail aktiv virtual szemelyzet_id', 'login', "`aktiv`=1 AND `virtual`=0 {$sql_ertesites_kieg}");
+            if( !$cimzettek ) {
+                return false;
+            }
+
+        break;
+
         // Diszpécserek központi címe
         case 'diszpecser_kozponti':
 
@@ -11843,6 +12184,38 @@ function level_felkeszit_es_kuld( $tabla = '', $recid = '', $ert_pipa = '', $sab
                     return false;
                 }
 
+            }
+
+        break;
+
+        // Eszközigénylés kezelés jogúnak
+        case 'eszkozigenyles_kezeles_jogunak':
+
+            $eszkozigenyles = $adatbazis_kapcsolat -> s2('idoszak_azon', 'eszkozigenyles', "`recid`='{$recid}'");
+            $besz_idoszak   = $adatbazis_kapcsolat -> s2('azon', 'besz_idoszak', "`azon`='{$eszkozigenyles['idoszak_azon']}'");
+            $esemeny =  $besz_idoszak['azon'].' beszerzési időszak utolsó igénylés validálásra vár státuszba lépésekor';
+            $targy   =  $besz_idoszak['azon'].' beszerzési időszak utolsó igénylése validálásra vár státuszba lépett';
+            $uzi = 'A '.$besz_idoszak['azon'].' azonosítójú beszerzési időszak utolsó igénylése validálásra vár státuszba lépett!';
+
+            $cimzettek = $adatbazis_kapcsolat->s('nev teljes_nev usermail aktiv virtual szemelyzet_id', 'login', "`aktiv`=1 AND `virtual`=0 AND substr(`flags`, ".(JOG_BESZERZ_IGENYLESEK_KEZEL+1).", 1)=1 {$sql_ertesites_kieg}");
+            if( !$cimzettek ) {
+                return false;
+            }
+
+        break;
+
+        // Eszközigénylés Szakmai véleményezésre váró jogú felhasználóknak
+        case 'eszkozigenyles_szak_vel_var_jogunak':
+
+            $eszkozigenyles = $adatbazis_kapcsolat -> s2('idoszak_azon', 'eszkozigenyles', "`recid`='{$recid}'");
+            $besz_idoszak   = $adatbazis_kapcsolat -> s2('azon', 'besz_idoszak', "`azon`='{$eszkozigenyles['idoszak_azon']}'");
+            $esemeny =  $besz_idoszak['azon'].' beszerzési időszak utolsó igénylés Szakmai véleményezésre vár státuszba lépésekor';
+            $targy   =  $besz_idoszak['azon'].' beszerzési időszak utolsó igénylése Szakmai véleményezésre vár státuszba lépett';
+            $uzi = 'A '.$besz_idoszak['azon'].' azonosítójú beszerzési időszak utolsó igénylése Szakmai véleményezésre vár státuszba lépett!';
+
+            $cimzettek = $adatbazis_kapcsolat->s('nev teljes_nev usermail aktiv virtual szemelyzet_id', 'login', "`aktiv`=1 AND `virtual`=0 AND substr(`flags`, ".(JOG_BESZERZ_IGENYLESEK_SZAKMAI_VEL+1).", 1)=1 {$sql_ertesites_kieg}");
+            if( !$cimzettek ) {
+                return false;
             }
 
         break;
@@ -12557,6 +12930,54 @@ function level_felkeszit_es_kuld( $tabla = '', $recid = '', $ert_pipa = '', $sab
 
         break;
 
+        case 'besz_idoszak_igenyl_nyit':
+
+            $besz_idoszak = $adatbazis_kapcsolat->s2('azon', 'besz_idoszak', "`recid`='{$recid}'");
+
+            $esemeny =  'beszerzési időszak igényfeladás megnyításakor';
+            $targy   =  'A '.$besz_idoszak['azon'].'. beszerzési időszak megnyitásra került';
+            $uzi     =  $uzi.
+                        $extra_szoveg.
+                        fajlbol_olvas('../sablon/admin/mail/alairas.html');
+
+        break;
+
+        case 'besz_idoszak_igenyl_nyit_f':
+
+            $besz_idoszak = $adatbazis_kapcsolat->s2('azon', 'besz_idoszak', "`recid`='{$recid}'");
+
+            $esemeny =  'füredi beszerzési időszak igényfeladás megnyításakor';
+            $targy   =  'A füredi '.$besz_idoszak['azon'].'. beszerzési időszak megnyitásra került';
+            $uzi     =  $uzi.
+                        $extra_szoveg.
+                        fajlbol_olvas('../sablon/admin/mail/alairas.html');
+
+        break;
+
+        case 'besz_idoszak_igenyl_zar':
+
+            $besz_idoszak = $adatbazis_kapcsolat->s2('azon', 'besz_idoszak', "`recid`='{$recid}'");
+
+            $esemeny =  'beszerzési időszak igényfeladás bezárásakor';
+            $targy   =  'A '.$besz_idoszak['azon'].'. sz. tárgyi eszköz igényfeladási időszak lezárult.';
+            $uzi     =  $uzi.
+                        $extra_szoveg.
+                        fajlbol_olvas('../sablon/admin/mail/alairas.html');
+
+        break;
+
+        case 'besz_idoszak_igenyl_zar_f':
+
+            $besz_idoszak = $adatbazis_kapcsolat->s2('azon', 'besz_idoszak', "`recid`='{$recid}'");
+
+            $esemeny =  'füredi beszerzési időszak igényfeladás bezárásakor';
+            $targy   =  'A füredi '.$besz_idoszak['azon'].'. sz. tárgyi eszköz igényfeladási időszak lezárult.';
+            $uzi     =  $uzi.
+                        $extra_szoveg.
+                        fajlbol_olvas('../sablon/admin/mail/alairas.html');
+
+        break;
+
         case 'elfelejtettJelszo':
             $login   = $adatbazis_kapcsolat->s2('teljes_nev', 'login', "`recid`='{$recid}'");
             $esemeny =  'elfelejtett jelszó igénylésekor';
@@ -12576,7 +12997,10 @@ function level_felkeszit_es_kuld( $tabla = '', $recid = '', $ert_pipa = '', $sab
             $uzi     =  $uzi.fajlbol_olvas('../sablon/admin/mail/alairas.html');
         break;
 
+        // Ezeknél szándékosan nincs $targy és $esemeny, mert már fentebb létrejöttek a switch ( $cimzett ) {-nél
         case 'eszkozigenyles':
+        case 'eszkozigenyles_utolso_igeny_valid':
+        case 'eszkozigenyles_utolso_igeny_szakmai':
             $uzi     =  $uzi.fajlbol_olvas('../sablon/admin/mail/alairas.html');
         break;
 

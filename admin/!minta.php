@@ -15,9 +15,9 @@ if( !_jog(JOG_XYZ_OLVAS) ) {
 // Config
 $megnevezes             = pathinfo(self());
 $megnevezes             = $megnevezes['filename'];
-$akt_tomb               = $fenntartasi_szerzodes_tomb;
+$akt_tomb               = $MINTA_tomb;
 $torles                 = $megnevezes.'tid';
-$szoveg                 = 'szerződést';                     // Hibaüzenetkor: Biztosan törlöd a $szoveg?
+$szoveg                 = 'valamit';                      // Hibaüzenetkor: Biztosan törlöd a $szoveg?
 
 $szamla_html = '';
 

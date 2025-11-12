@@ -72,8 +72,83 @@ function eszkoz_valtozok_update() {
     }    
 }
 
-// Műszakilag nem érintett gomb
+// Mehet validálásras
 var eszkoz_fulek = ['modosit', 'jovahagyasok', 'tortenet', 'dokumentumok', 'megjegyzesek'];
+function mehet_validalasra(mehet) {
+
+    // globális változók frissítése az adott adatlap alapján
+    eszkoz_valtozok_update();
+
+    if( !mehet ) {
+        alert2('Biztosan mehet az igénylés validálásra?', '<input type="button" class="gomb zold enter" value="Igen" onclick="mehet_validalasra(\'-tervezett-\')"> <input type="button" class="gomb piros" value="Nem" onclick="alert2()">', 'Kérdés');
+        return false;
+    }
+
+    $.ajax({
+        url : PHP_SELF+eszkoz_url_kieg,
+        type: 'POST',
+        data: {
+            id                  : eszkoz_id,
+            mehet_validalasra   : Date.now()
+        },
+        success: function (response) {
+            if(response.substring(0, 6)=='SESKIL'){ location.href = 'index.php'; }
+            if (response) {
+                response = JSON.parse(response);
+                if (response.hiba) {
+                    alert2(response.hiba, response.gomb, response.title);
+                    return false;
+                }
+
+                alert2();
+
+                // Táblázat alatt a sort frissítjük
+                if( isset_get('tablazat') ) {
+                    $('.musz_el_ig_'    +eszkoz_id  ).html(response.pipa     );
+                    $('.stat_'          +eszkoz_id  ).html(response.statusz  );
+                    $('.kiv_kolts_'     +eszkoz_id  ).html('0');
+                    $('#kiv_kolts_db_'  +eszkoz_id  ).val ('0');
+                    $('#musz_indok_db_' +eszkoz_id  ).val ('');
+                    $('.gombok_'        +eszkoz_id  ).html(response.gombok   );
+
+                    // Megjegyzések számát is, mert ha volt értesítés küldés, akkor bővülthetett
+                    $('.gombok_'        +eszkoz_id  ).data('megj_db', response.megj_db    );
+                    // Fülön is
+                    let megj_ful_txt = 'Megjegyzések';
+                    if( response.megj_db>0 ) {
+                        megj_ful_txt = 'Megjegyzések ('+response.megj_db+')';
+                    }
+                    $('#szamlaFulek a[data-oldal="megjegyzesek"]').html(megj_ful_txt);
+
+                    // Ez hívódik meg a lap tetején léptető gombnyomásra is.
+                    naviKov();
+
+                    // Gombok tényleges cseréje
+                    $('.muveletek').html(response.gombok   );
+                
+                // Egyébként az adatlapot töltsük be
+                } else {
+
+                    let ful   = '';
+                    eszkoz_fulek.forEach(function(akt_ful) {
+                        if( isset_get(akt_ful) ) {
+                            ful = akt_ful;
+                            return;
+                        }
+                    });
+                    szamlaBetolt(_get('id'), baseName(location.href) + '.php', ful);
+                }
+            }
+        },
+        complete: function (xhr) {
+            if (xhr.status != 200) {
+                alert2(xhr.responseText, '', 'Hiba');
+            }
+        }
+    });
+}
+
+// Műszakilag nem érintett gomb
 function muszakilag_nem_erintett(mehet) {
 
     // globális változók frissítése az adott adatlap alapján
@@ -339,7 +414,7 @@ function szalloda_ig_visszavon() {
 }
 
 // BI validál
-function bi_validal(mehet, kikuld = '') {
+function bi_validal(mehet, szakmai_vel = '') {
 
     // globális változók frissítése az adott adatlap alapján
     eszkoz_valtozok_update();
@@ -348,10 +423,10 @@ function bi_validal(mehet, kikuld = '') {
         // 2025.09.25 Új működés szerint BI jóváhagyásra léptetejük, még a GM-eset is, nincs tehát továbbadva a kikuld paraméter sem
         // let kerdes = 'Biztosan mehet szakmai véleményezésre az igénylés?';
         let kerdes = 'Biztosan mehet BI jóváhagyásra az igénylés?';
-        // if( kikuld ) {
-        //     kerdes = 'Ha folytatja, elkészül a megrendelés rekord és a megrendelő dokumentum.<br>Biztosan mehet kiküldésre vár státuszba az igénylés?';
-        // }
-        alert2(kerdes, '<input type="button" class="gomb zold enter" value="Igen" onclick="bi_validal(\'-mehet-\', \''+kikuld+'\')"> <input type="button" class="gomb piros" value="Nem" onclick="alert2()">', 'Kérdés');
+        if( szakmai_vel ) {
+            kerdes = 'Biztosan mehet szakmai véleményezésre az igénylés?';
+        }
+        alert2(kerdes, '<input type="button" class="gomb zold enter" value="Igen" onclick="bi_validal(\'-mehet-\', \''+szakmai_vel+'\')"> <input type="button" class="gomb piros" value="Nem" onclick="alert2()">', 'Kérdés');
         return false;
     }
 
@@ -361,7 +436,7 @@ function bi_validal(mehet, kikuld = '') {
         type: 'POST',
         data: {
             id          : eszkoz_id,
-            // kikuld      : kikuld,
+            szakmai_vel : szakmai_vel,
             bi_validal  : Date.now()
         },
         success: function (response) {
@@ -401,14 +476,13 @@ function bi_validal(mehet, kikuld = '') {
                     $('#szamlaFulek a[data-oldal="megjegyzesek"]').html(megj_ful_txt);
 
                     // Ha a mehet a '-tervezett-' igénylés miatt volt kitöltve, akkor lépünk a következő sorra. 
-                    if( mehet == '-tervezett-' ) {
+                    if( response.naviKov ) {
                         // Ez hívódik meg a lap tetején léptető gombnyomásra is.
                         naviKov();
-
-                    // Egyébként a tényleges gombokat is cserélni kell
-                    } else {
-                        $('.muveletek').html(response.gombok   );
-                    }
+                    } 
+                    
+                    // A tényleges gombokat is cserélni kell
+                    $('.muveletek').html(response.gombok   );
                 
                 // Egyébként az adatlapot töltsük be
                 } else {
@@ -623,14 +697,13 @@ function szak_beleegyezes(mehet) {
                     $('#szamlaFulek a[data-oldal="megjegyzesek"]').html(megj_ful_txt);
 
                     // Ha a mehet a '-tervezett-' igénylés miatt volt kitöltve, akkor lépünk a következő sorra. 
-                    if( mehet == '-tervezett-' ) {
+                    if( response.naviKov ) {
                         // Ez hívódik meg a lap tetején léptető gombnyomásra is.
                         naviKov();
-
-                    // Egyébként a tényleges gombokat is cserélni kell
-                    } else {
-                        $('.muveletek').html(response.gombok   );
                     }
+
+                    // Tényleges gombokat is cserélni kell
+                    $('.muveletek').html(response.gombok   );
                 
                 // Egyébként az adatlapot töltsük be
                 } else {
@@ -879,7 +952,7 @@ function bi_vegl_jovahagy(mehet) {
 
                 // Táblázat alatt a sort frissítjük
                 if( isset_get('tablazat') ) {
-                    // Erre még nincs oszlop beállítva $('.bi_vegl_'       +eszkoz_id  ).html(response.pipa     );
+                    $('.bi_vegl_'       +eszkoz_id  ).html(response.pipa     );
                     $('.stat_'          +eszkoz_id  ).html(response.statusz  );
                     // Erre még nincs oszlop beállítva $('#bi_vegl_indok_db_'   +eszkoz_id  ).val ('');
                     $('.gombok_'        +eszkoz_id  ).html(response.gombok   );
@@ -1095,3 +1168,37 @@ $(document).on('blur', '#szallito_id_autocomp', function(){
         }
     }, 100);
 });
+
+// Megrendelők elkészítése
+function megrendelok_elkeszit(mehet) {
+    
+    if( !mehet ) {
+        alert2('Biztosan elkészíthetőek a megrendelők?', '<input type="button" class="zold enter gomb" value="Igen" onclick="megrendelok_elkeszit(\'-mehet-\')"> <input type="button" class="piros gomb" value="Nem" onclick="alert2()">', 'Kérdés');
+        return false;
+    }
+    
+    $.ajax({
+        url : PHP_SELF,
+        type: 'POST',
+        data: {
+            id                  : eszkoz_id,
+            megrendelok_elkeszit: Date.now()
+        },
+        success: function (response) {
+            if(response.substring(0, 6)=='SESKIL'){ location.href = 'index.php'; }
+            if (response) {
+                response = JSON.parse(response);
+                if (response.hiba) {
+                    alert2(response.hiba, response.gomb, response.title);
+                    return false;
+                }
+                location.reload(); 
+            }
+        },
+        complete: function (xhr) {
+            if (xhr.status != 200) {
+                alert2(xhr.responseText, '', 'Hiba');
+            }
+        }
+    });
+}

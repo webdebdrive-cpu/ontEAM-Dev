@@ -33,6 +33,7 @@ function get_title(){
         case 'beosztas.php'                 : $title .= 'Beosztások';                   break;
         case 'beosztas_muszak.php'          : $title .= 'Műszak';                       break;
         case 'beosztas_unnepnapok.php'      : $title .= 'Ünnepnapok';                   break;
+        case 'besz_idoszak.php'             : $title .= 'Beszerzési időszakok';         break;
         case 'cash_flow.php'                : $title .= 'Cash Flow';                    break;
         case 'cikktorzs.php'                : $title .= 'Cikktörzs';                    break;
         case 'dokumentumtar.php'            : $title .= 'Dokumentumtár';                break;

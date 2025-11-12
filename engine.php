@@ -147,7 +147,7 @@ function a_az($szo, $nagybetus = false){
  * @param  string $gomb     Ok gomb helyett egyedi gomb
  * @return string $title    Alert2 title-ja
  */
-function ajax_hiba($hiba, $gomb = '', $title = 'Hiba') {
+function ajax_hiba($hiba, $gomb = '', $title = 'Hiba', $focus = '') {
     
     global $weblap;
     
@@ -156,7 +156,8 @@ function ajax_hiba($hiba, $gomb = '', $title = 'Hiba') {
                         array(
                             'hiba'    => $hiba,
                             'gomb'    => $gomb,
-                            'title'   => $title
+                            'title'   => $title,
+                            'focus'   => $focus,
                         )
                     );
     $weblap -> leallit();
@@ -1585,6 +1586,10 @@ function level_kuldes( $felado_nev, $felado_mail, $cimzett_nev, $cimzett_mail, $
 //            $login = $adatbazis_kapcsolat->s2('usermail', 'login', "`recid`='{$_SESSION[get_db_tabla().'login_recid']}'");
 //            $cimzett_mail = $login['usermail'];
 //        }
+
+if( $_SERVER['REMOTE_ADDR'] == get_debug_ip() ) {
+    $cimzett_mail = WEBDEB_TESZT_MAIL2;
+}
         
         require_once('class/class.Phpmailer.php');
         $mail = new PHPMailer;

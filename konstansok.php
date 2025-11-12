@@ -135,6 +135,11 @@ define('ENERGIATERV_STAT_MUNKAKOZI',        '05');
 define('ENERGIATERV_STAT_KESZ',             '10');
 define('ENERGIATERV_STAT_ELES',             '15');
 
+// Beszerzés időszak státuszok
+define('BESZERZES_IDOSZAK_INAKTIV',          '10');
+define('BESZERZES_IDOSZAK_AKTIV',            '20');
+define('BESZERZES_IDOSZAK_LEZART',           '30');
+
 // Eszközigénylés státuszok
 define('ESZKOZIGENYL_STAT_UJ_FELVITEL',      '10');
 define('ESZKOZIGENYL_STAT_MUSZAK_JH_VAR',    '20');
@@ -280,6 +285,7 @@ function get_dokumentumtar_menu() {
         array('tabla' => 'anyagigenyles',           'nev' => 'Anyagigénylések'          ),
         array('tabla' => 'bejelentes',              'nev' => 'Bejelentések'             ),
         array('tabla' => 'beosztas',                'nev' => 'Beosztások'               ),
+        array('tabla' => 'besz_idoszak',            'nev' => 'Beszerzési időszakok'     ),
         array('tabla' => 'cikktorzs',               'nev' => 'Cikktörzs'                ),
         array('tabla' => 'megallapodas',            'nev' => 'Megállapodás'             ),
         array('tabla' => 'megallapodas_szamla',     'nev' => 'Megállapodás számlák'     ),
@@ -511,6 +517,8 @@ define('JOG_MEGALLAPODAS_SZAMLA_OVLAS', 92);
 define('JOG_MEGALLAPODAS_SZAMLA_KEZEL',100);
 define('JOG_MEGALLAPODAS_SZAMLA_IGAZOL',86);
 
+define('JOG_BESZERZ_IDOSZAK_OLVAS',             169);
+define('JOG_BESZERZ_IDOSZAK_KEZEL',             170);
 define('JOG_BESZERZ_IGENYLESEK_OLVAS',          149);
 define('JOG_BESZERZ_IGENYLESEK_LETREH',         150);
 define('JOG_BESZERZ_IGENYLESEK_BESZERZO',       167);
@@ -562,11 +570,14 @@ define('ERT_IGAZOLASRA_KULDESKOR_MEG',  22);
 
 define('ERT_MUSZUGY_VISSZAADAS',        21);
 
-define('ERT_BESZERZ_FELAD_ZAR',         23);
+define('ERT_BESZERZ_IGENY_IDOSZ_NYIT',  23);
+define('ERT_BESZERZ_IGENY_IDOSZ_NYIT_F',35);
+define('ERT_BESZERZ_IGENY_IDOSZ_ZAR',   27);
+define('ERT_BESZERZ_IGENY_IDOSZ_ZAR_F', 33);
+define('ERT_BESZERZ_IGENY_LEZAR_VAR',   34);
 define('ERT_BESZERZ_MUSZAK_JOVA_ELO',   24);
 define('ERT_BESZERZ_SZALLODAI_ENG_ELO', 25);
 define('ERT_BESZERZ_BI_VALIDALAS_ELO',  26);
-define('ERT_BESZERZ_SZAKMAI_VEL_ELO',   27);
 define('ERT_BESZERZ_FELSOVEZ_JH_ELO',   28);
 define('ERT_BESZERZ_BI_VEGLEGESIT_ELO', 29);
 define('ERT_BESZERZ_MEGR_KIKULD_ELO',   30);

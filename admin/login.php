@@ -1442,9 +1442,15 @@ require_once('selectek.php');
                             $dn_pipac = ' class="dn"';
                         }
 
+                        // Debug IP-vel mutatjuk a jog sorszámát is
+                        $sorszam = '';
+                        if( $_SERVER['REMOTE_ADDR'] == get_debug_ip() ) {
+                            $sorszam = '['.$ertSor['id'].'] ';
+                        }
+
                         $szamla_html .= nl2('
                             <div class="dtr'.$dn.'">
-                                <div class="dtc form_bal"><span>'.$ertSor['nev'].'</span></div>
+                                <div class="dtc form_bal"><span>'.$sorszam.$ertSor['nev'].'</span></div>
                                 <div class="dtc form_jobb">
                                     <div class="cb">
                                         <input type="hidden" name="ert-'.$ertSor['id'].'" value="0">

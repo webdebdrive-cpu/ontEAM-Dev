@@ -18,6 +18,7 @@ $_SESSION['ketHasabos'] = array(
     'beosztas.php',
     'beosztas_muszak.php',
     'beosztas_unnepnapok.php',
+    'besz_idoszak.php',
     'cash_flow.php',
     'cikktorzs.php',
     'dokumentumtar.php',
@@ -352,6 +353,31 @@ switch ( $tabla ) {
             $_GET['irany'] = 'asc';
         }
     break;
+    case 'besz_idoszak.php':
+
+        // Ezeket a tábla oszlopokat kérdezzük le baloldalra
+        $_OPTS['select']    = nl2('
+                                `'.get_db_tabla().$tabla_nophp.'`.`recid`,
+                                `'.get_db_tabla().$tabla_nophp.'`.`azon`,
+                                `'.get_db_tabla().$tabla_nophp.'`.`kezd`,
+                                `'.get_db_tabla().$tabla_nophp.'`.`vege`,
+                                `'.get_db_tabla().$tabla_nophp.'`.`stat_id`
+                            ');
+
+        // Ezek az oszlopok generálódnak ki a rendezés selectbe, lehet szépíteni az oszlopneveket, amit a getOszlopNev() függvényben kell beállítani
+        $_OPTS['rendezes']  = array('azon'  );
+        $_OPTS['iranyok']   = array('desc'  );
+
+        // Default rendezés
+        if( !$_GET['rend'] ) {
+            $_GET['rend'] = 'azon';
+        }
+
+        // Default rendezési irány
+        if( !$_GET['irany'] ) {
+            $_GET['irany'] = 'desc';
+        }
+    break;
     case 'cash_flow.php':
         // Ezeket a tábla oszlopokat kérdezzük le baloldalra
         $_OPTS['select']    = 'recid';
@@ -580,6 +606,7 @@ switch ( $tabla ) {
                                     `'.get_db_tabla().$tabla_nophp.'`.`szall_ig_vel`,
                                     `'.get_db_tabla().$tabla_nophp.'`.`bi_vel`,
                                     `'.get_db_tabla().$tabla_nophp.'`.`bi_jh`,
+                                    `'.get_db_tabla().$tabla_nophp.'`.`bi_vegl`,
                                     `'.get_db_tabla().$tabla_nophp.'`.`rend_szam`,
                                     `'.get_db_tabla().$tabla_nophp.'`.`dok_db`,
                                     `'.get_db_tabla().$tabla_nophp.'`.`megj_db`,
@@ -2738,7 +2765,7 @@ if( _jog(JOG_MSZK_BEOSZTAS_KEZEL) ) {
     $telephely_disabled = 1;
 }
 $megnevezes = 'beosztas_muszak';
-$beosztas_muszak_tomb = $akt_tomb = array(
+$akt_tomb   = $beosztas_muszak_tomb = array(
     array('type' => 'checkbox',                 'megn' => 'Aktív:',         'name' => 'aktiv',          'szuro' => 1,   'class' => 'check'),
 	array('type' => 'select_felh_telephely',    'megn' => 'Szálloda:',      'name' => 'telephely_id',   'class' => 'csillag disableNav',        'szuro' => 1, 'alert' => 'Kérem válasszon szállodát!', 'style' => 'width: 100%', 'disabled' => $telephely_disabled),
     array('type' => 'text',                     'megn' => 'Név:',           'name' => 'nev',            'class' => 'csillag',                   'szuro' => 1, 'maxlength' => 30,    'alert' => 'Kérem adja meg a műszak nevét!'),
@@ -2753,10 +2780,53 @@ array_push($postok, array('tomb' => $akt_tomb, 'uj' => 'uj'.$megnevezes, 'lista'
 
 // Beosztás ünnepnapok
 $megnevezes = 'beosztas_unnepnapok';
-$beosztas_unnepnapok_tomb = $akt_tomb = array(
-	array('type' => 'select_unnepnap_tipus',    'megn' => 'Típus:',     'name' => 'tipus',  'class' => 'csillag',    'szuro' => 1, 'alert' => 'Kérem válasszon típust!'),
+$akt_tomb   = $beosztas_unnepnapok_tomb = array(
+    array('type' => 'select_unnepnap_tipus',    'megn' => 'Típus:',     'name' => 'tipus',  'class' => 'csillag',    'szuro' => 1, 'alert' => 'Kérem válasszon típust!'),
     array('type' => 'text',                     'megn' => 'Dátum:',     'name' => 'datum',  'class' => 'csillag datepicker',    'szuro' => 1, 'maxlength' => 10,    'alert' => 'Kérem adja meg a dátumot!'),
     array('type' => 'textarea',                 'megn' => 'Leírás:',    'name' => 'leiras', 'class' => 'csillag oriasi',        'szuro' => 1, 'maxlength' => 100,   'alert' => 'Kérem adja meg a leírást!'),
+);
+array_push($postok, array('tomb' => $akt_tomb, 'uj' => 'uj'.$megnevezes, 'lista' => $megnevezes.'lista', 'tabla' => $megnevezes, 'torid' => $megnevezes.'tid' ));
+
+// Beszerzési időszak
+$nyitva = $nyitva_fured = 'Igényfeladás ZÁRVA';
+$nyitva_gomb = $nyitva_gomb_fured = $datum_disabled = '';
+$megnevezes = 'besz_idoszak';
+if( self('-bn-') == 'besz_idoszak.php' && isset($_GET['modosit']) ) {
+    $besz_idoszak = $adatbazis_kapcsolat -> s2('stat_id nyitva nyitva_fured', 'besz_idoszak', "`recid`='{$_GET['id']}'");
+    if( $besz_idoszak['nyitva'] ) {
+        $nyitva = 'Igényfeladás NYITVA';
+    }
+    if( $besz_idoszak['nyitva_fured'] ) {
+        $nyitva_fured = 'Igényfeladás NYITVA';
+    }
+    
+    if( $besz_idoszak['stat_id'] == BESZERZES_IDOSZAK_AKTIV ) {
+        $nyitva_gomb = '<button type="button" class="alacsony" onclick="igenyfeladas_nyit_zar()">Igényfeladás megnyitása</button>';
+        if( $besz_idoszak['nyitva'] ) {
+            $nyitva_gomb = '<button type="button" class="alacsony" onclick="igenyfeladas_nyit_zar(\'\', \'zar\')">Igényfeladás zárása</button>';
+        }
+
+        $nyitva_gomb_fured  = '<button type="button" class="alacsony" onclick="igenyfeladas_nyit_zar(\'fured\')">Igényfeladás megnyitása</button>';
+        if( $besz_idoszak['nyitva_fured'] ) {
+            $nyitva_gomb_fured  = '<button type="button" class="alacsony" onclick="igenyfeladas_nyit_zar(\'fured\', \'zar\')">Igényfeladás zárása</button>';
+        }
+    }
+
+    // Ha már nem inaktív az időszak, akkor a dátumát ne lehessen módosítani
+    if( $besz_idoszak['stat_id'] != BESZERZES_IDOSZAK_INAKTIV ) {
+        $datum_disabled = 1;
+    }
+}
+$nyitva       = '<span style="margin-left: 1rem;"></span>'.$nyitva      .$nyitva_gomb;
+$nyitva_fured = '<span style="margin-left: 1rem;"></span>'.$nyitva_fured.$nyitva_gomb_fured;
+$akt_tomb     = $besz_idoszak_tomb = array(
+    array('type' => 'statusz',      'megn' => 'Státusz:',                   'name' => 'stat_id',    'szuro' => 1, 'oldal' => $megnevezes),
+    array('type' => 'text',         'megn' => 'Időszak ID:',                'name' => 'azon',       'szuro' => 1,   'disabled' => 1, 'style' => 'width: 5rem', 'osszevon' => 1, 'post' => '<span style="margin-left: 2rem"></span>'),
+    array('type' => 'text',         'megn' => 'Alkalmazott árfolyam:',      'name' => 'arfolyam',   'szuro' => 1,   'class' => 'f_num', 'data' => 'data-tort="5"', 'alert' => 'Kérem adja meg az alkalmazott árfolyamot!'),
+    array('type' => 'text',         'megn' => 'Időszak kezdete:',           'name' => 'kezd',       'szuro' => 1,   'class' => 'kicsi datepicker', 'disabled' => $datum_disabled,  'alert' => 'Kérem adja meg az időszak kezdetét!', 'osszevon' => 1, 'post' => '<span style="margin-left: 3.9rem"></span>'),
+    array('type' => 'text',         'megn' => 'Időszak vége:',              'name' => 'vege',       'szuro' => 1,   'class' => 'kicsi datepicker', 'disabled' => $datum_disabled,  'alert' => 'Kérem adja meg az időszak végét!'),
+    array('type' => 'text',         'megn' => 'Igénylés határidő:',         'name' => 'hatar',      'szuro' => 1,   'class' => 'kicsi datepicker',  'alert' => 'Kérem adja meg az igénylés határidejét!',       'post' => $nyitva),
+    array('type' => 'text',         'megn' => 'Igénylés határidő Füred:',   'name' => 'hatar_fured','szuro' => 1,   'class' => 'kicsi datepicker',  'alert' => 'Kérem adja meg a füredi igénylés határidejét!', 'post' => $nyitva_fured),
 );
 array_push($postok, array('tomb' => $akt_tomb, 'uj' => 'uj'.$megnevezes, 'lista' => $megnevezes.'lista', 'tabla' => $megnevezes, 'torid' => $megnevezes.'tid' ));
 
@@ -3533,9 +3603,9 @@ $akt_tomb   = $eszkozigenyles_tomb = array(
     array('type' => 'textarea',                 'megn' => 'Igénylés indoka /<br>koncepció:',            'name' => 'igeny_indok',    'szuro' => 1,   'class' => 'disableNav',     'disabled' => $mezok_disabled, 'style' => 'height: 7.6rem; width: 23.5rem;', 'alert' => 'Kérem töltse ki az Igénylés indoka/koncepció mezőt!'),
     array('type' => 'textarea',                 'megn' => 'Kiegészítés<br>megrendelőre:',               'name' => 'megj',           'szuro' => 1,   'class' => 'oriasi disableNav',     'disabled' => $mezok_disabled, 'style' => 'height: 3.4rem'),
     array('type' => 'autocomplete',             'megn' => 'Szállító:',                                  'name' => 'szallito_id',    'szuro' => 1,   'class' => 'oriasi disableNav',     'disabled' => $mezok_disabled, 'tabla' => 'szallito_beszerzes', 'oszlop_keres' => 'recid', 'id_kiir' => 'recid', 'oszlop_keres_autocomp' => 'nev', 'listaz' => 'nev', 'complete' => 'szallito_kotelezo_mezok()'),
-    array('type' => 'text',                     'megn' => 'Ajánlatban megadott <br>szállítási határidő:','name' => 'szall_hat',      'szuro' => 1,   'class' => 'normal datepicker',     'disabled' => $mezok_disabled/*, 'alert' => 'Kérem adja meg a szállítási határidőt!'*/, 'osszevon' => 1, 'post' => ' <span style="margin-left: 4rem"></span>'),
-    array('type' => 'select_fiz_mod',           'megn' => 'Fizetési mód:',                              'name' => 'fiz_mod',        'szuro' => 1,                                       'disabled' => $mezok_disabled, 'osszevon' => 1, 'post' => ' <span style="margin-left: 5.9rem"></span>', 'style' => 'width: 9.7rem'),
-    array('type' => 'select_hat_ido',           'megn' => 'Fizetési határidő:',                         'name' => 'hat_ido',        'szuro' => 1,   'disabled' => $mezok_disabled, 'osszevon' => 1, 'post' => '<span style="margin-left: 6.7rem"></span>', 'style' => 'width: 9.7rem'),
+    array('type' => 'text',                     'megn' => 'Ajánlatban megadott <br>szállítási határidő:','name' => 'szall_hat',     'szuro' => 1,   'class' => 'normal datepicker',     'disabled' => $mezok_disabled/*, 'alert' => 'Kérem adja meg a szállítási határidőt!'*/, 'osszevon' => 1, 'post' => ' <span style="margin-left: 2rem"></span>'),
+    array('type' => 'select_fiz_mod',           'megn' => 'Fizetési mód:',                              'name' => 'fiz_mod',        'szuro' => 1,                                       'disabled' => $mezok_disabled, 'osszevon' => 1, 'post' => ' <span style="margin-left: 2rem"></span>', 'style' => 'width: 9.7rem'),
+    array('type' => 'select_hat_ido',           'megn' => 'Fizetési határidő:',                         'name' => 'hat_ido',        'szuro' => 1,   'disabled' => $mezok_disabled, 'osszevon' => 1, 'post' => '<span style="margin-left: 4rem"></span>', 'style' => 'width: 18.3rem'),
     array('type' => 'text',                     'megn' => 'Előleg:',                                    'name' => 'eloleg',         'szuro' => 1,   'class' => 'f_num f_csak_pozitiv',   'data' => 'data-tort="0"',               'disabled' => $mezok_disabled,                   'maxlength' => 2,  'post' => ' %', 'style' => 'width: 4rem'),
     array('type' => 'autocomplete',             'megn' => 'Pénznem:',                                   'name' => 'kcs_21',         'szuro' => 1,   'class' => 'disableNav', 'tabla' => 'erteklista', 'disabled' => $mezok_disabled, 'oszlop_keres' => 'id', 'oszlop_keres_autocomp' => 'info', 'listaz' => 'info', 'csoport' => ERTEKLISTA_PENZNEM, 'complete' => 'huf_vagy_deviza()', 'id_kiir' => 'id', 'style' => 'width: 6rem', 'osszevon' => 1, 'post' => '<span style="margin-left: 2rem"></span>'/*, 'alert' => 'Kérem adja meg a pénznemet!'*/),
     array('type' => 'text',                     'megn' => 'Árfolyam:',                                  'name' => 'arfolyam',       'szuro' => 1,   'class' => 'f_num f_csak_pozitiv',   'data' => 'data-tort="5"',  'disabled' => $dev_disabled,   'sql_disabledkor_is' => 1, 'osszevon' => 1, 'post' => ' <span style="margin-left: 1rem"></span>'/*, 'alert' => 'Kérem adja meg az árfolyamot!'*/),
@@ -3569,8 +3639,8 @@ $akt_tomb = $eszkozigenyles_jovahagyasok_tomb = array(
     array('type' => 'textarea',                 'megn_szurobe'  => 'Validáló indoklás:',            'name' => 'bi_indok',       'szuro' => 1, 'disabled' => 1,  'class' => 'oriasi disableNav',     'style' => 'height: 4.8rem; width: calc(100% - 4.6rem);'),
     array('type' => 'spec_pipalo',              'megn'          => 'BI vezető:',                    'name' => 'bi_jh',          'szuro' => 1, 'disabled' => 1,  'ertekek' => bi_jh_ertekek(),       'osszevon' => 1, 'style' => 'top: -1.4rem;'),
     array('type' => 'textarea',                 'megn_szurobe'  => 'BI vezető indoklás:',           'name' => 'bi_jh_indok',    'szuro' => 1, 'disabled' => 1,  'class' => 'oriasi disableNav',     'style' => 'height: 4.8rem; width: calc(100% - 4.6rem);'),
-    // array('type' => 'spec_pipalo',              'megn'          => 'Szakmai vezetés:',              'name' => 'szak_vel',       'szuro' => 1, 'disabled' => 1,  'ertekek' => szak_vel_ertekek(),    'osszevon' => 1, 'style' => 'top: -1.4rem;'),
-    // array('type' => 'textarea',                 'megn_szurobe'  => 'Szakmai indoklás:',             'name' => 'szak_indok',     'szuro' => 1, 'disabled' => 1,  'class' => 'oriasi disableNav',     'style' => 'height: 4.8rem; width: calc(100% - 4.6rem);'),
+    array('type' => 'spec_pipalo',              'megn'          => 'Szakmai vélemény:',             'name' => 'szak_vel',       'szuro' => 1, 'disabled' => 1,  'ertekek' => szak_vel_ertekek(),    'osszevon' => 1, 'style' => 'top: -1.4rem;'),
+    array('type' => 'textarea',                 'megn_szurobe'  => 'Szakmai indoklás:',             'name' => 'szak_indok',     'szuro' => 1, 'disabled' => 1,  'class' => 'oriasi disableNav',     'style' => 'height: 4.8rem; width: calc(100% - 4.6rem);'),
     array('type' => 'spec_pipalo',              'megn'          => 'Felsővezető:',                  'name' => 'felso_vel',      'szuro' => 1, 'disabled' => 1,  'ertekek' => felso_vel_ertekek(),   'osszevon' => 1, 'style' => 'top: -1.4rem;'),
     array('type' => 'textarea',                 'megn_szurobe'  => 'Felsővezető indoklás:',         'name' => 'felso_indok',    'szuro' => 1, 'disabled' => 1,  'class' => 'oriasi disableNav',     'style' => 'height: 4.8rem; width: calc(100% - 4.6rem);'),
 );
@@ -3635,10 +3705,15 @@ if( isset($_GET['andoc_id']) ) {
     $szamla = $adatbazis_kapcsolat->s2('kcs_21 nullas', 'fenntartasi_szamla_atmeneti', "`andoc_id`='{$_GET['andoc_id']}'");
     $nullas_disabled    = 0;
     $szalloda_disabled  = 0;
-} else {
+} else if( $_GET['id'] ) {
     $szamla = $adatbazis_kapcsolat->s2('kcs_21 nullas', 'fenntartasi_szamla', "`recid`='{$_GET['id']}'");
     $nullas_disabled    = 1;
-    $szalloda_disabled  = 1;
+    $szalloda_disabled  = 0;
+    // A szálloda addig szerkeszthető, amíg nincs kapcsolt számla tétel
+    $van_kapcsolt_tetel = $adatbazis_kapcsolat -> s('recid', 'fenntartasi_szamla_tetel', "`fenntartasi_szamla_recid`='{$_GET['id']}' AND `fenntartasi_szerzodes_tetel_recid`!='0'", '', '1');
+    if( $van_kapcsolt_tetel ) {
+        $szalloda_disabled = 1;
+    }
 }
 // Pénznemtől függ, hogy nettó vagy deviza nettóban dolgozunk
 $dis_dev_net = $dis_netto = 1;
@@ -4556,9 +4631,9 @@ if( $_SESSION['dashboard_feladat'] == DASHBOARD_H_A_ML_CIMKE ) {
 }
 
 if( isset($_GET['dashboard_feladat_torol']) ) {
-    unset($_SESSION['dashboard_feladat']);
-    unset($_SESSION['o_szuro_feltetel']);
-    unset($_SESSION['o_szuro_html']);
+    unset($_SESSION['dashboard_feladat' ]);
+    unset($_SESSION['o_szuro_feltetel'  ]);
+    unset($_SESSION['o_szuro_html'      ]);
 
     // Anyagigénylékor kell a linkbe egy tablazat paraméter
     if( basename(self()) == 'anyagigenyles.php' || basename(self()) == 'eszkozigenyles.php' ) {
@@ -4570,7 +4645,13 @@ if( isset($_GET['dashboard_feladat_torol']) ) {
     } else {
         hd();
     }
+}
 
+// ML-oknál a bal nav panel felett lévő státusz szűrőkor ha státuszt váltunk, törlődjenek az esetleges szűrések
+if( isset($_GET['ml_statusz_szuro_torol']) ) {
+    unset($_SESSION['dashboard_feladat' ]);
+    unset($_SESSION['o_szuro_feltetel'  ]);
+    unset($_SESSION['o_szuro_html'      ]);
 }
 
 // Összetett szűrés SQL-é alakítása
@@ -4653,7 +4734,11 @@ if( isset($_REQUEST['f_o_szures_submit']) ) {
         if( isset($_GET['f']) ) {
             $link_kieg .= '&f='.$_GET['f'];
         }
-        header('Location: '.$_REQUEST['tabla'].'.php?modosit'.$link_kieg);
+        $modosit = 'modosit';
+        if( isset($_REQUEST['tablazat']) ) {
+            $modosit = 'tablazat';
+        }
+        header('Location: '.$_REQUEST['tabla'].'.php?'.$modosit.$link_kieg);
     }
     
     if( !$_GET['f_o_szures_submit'] ) {
@@ -6734,6 +6819,9 @@ foreach ( $postok as $ertek ) {
             $weblap -> leallit(); exit;
         }
         if( $ertek['tabla'] == 'beosztas_unnepnapok' && !_jog(JOG_BEOSZTASOK_KEZEL) && !_jog(JOG_MSZK_BEOSZTAS_KEZEL) ) {
+            $weblap -> leallit(); exit;
+        }
+        if( $ertek['tabla'] == 'besz_idoszak' && !_jog(JOG_BESZERZ_IDOSZAK_KEZEL) ) {
             $weblap -> leallit(); exit;
         }
         if( $ertek['tabla'] == 'cikktorzs' && !_jog(JOG_CIKKTORZS_KEZEL) ) {

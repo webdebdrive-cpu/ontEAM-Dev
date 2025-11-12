@@ -461,8 +461,7 @@ table.table_mod td{
     padding: 0.5rem;
     vertical-align: middle;
 }
-table.table_mod td:nth-of-type(1),
-table.table_mod td:nth-of-type(2){
+table.table_mod td:nth-of-type(1), table.table_mod td:nth-of-type(2){
     padding: 0;
 }
 
@@ -506,9 +505,7 @@ input:focus{
     color: #000;
 }
 
-input[type="text"].mod,
-select.mod,
-textarea.mod {
+input[type="text"].mod, select.mod, textarea.mod {
     background: #ffdcdd;
 }
 
@@ -576,7 +573,7 @@ input:focus{
     background: #fff;
 }
 
-input.gomb{
+input.gomb, button {
     background: var(--color-kek);
     border: 0.1rem solid rgba(0, 0, 0, 0);
     border-radius: 0.3rem;
@@ -589,28 +586,28 @@ input.gomb{
     position: relative;
 }
 
-input.gomb:hover, input.gomb:focus, input.gomb:active{
+input.gomb:hover, input.gomb:focus, input.gomb:active, button:hover, button:focus, button:active {
     background: var(--color-kek-hover);
 }
 
-input.gomb.piros{
+input.gomb.piros, button.piros {
     background: #C44B4B;
 }
-input.gomb.piros:hover, input.gomb.piros:focus, input.gomb.piros:active{
+input.gomb.piros:hover, input.gomb.piros:focus, input.gomb.piros:active, button.piros:hover, button.piros:focus, button.piros:active {
     background: #D35454;
 }
 
-input.gomb.sarga{
+input.gomb.sarga, button.sarga {
     background: #d3ab55;
 }
-input.gomb.sarga:hover, input.gomb.sarga:focus, input.gomb.sarga:active{
+input.gomb.sarga:hover, input.gomb.sarga:focus, input.gomb.sarga:active, button.sarga:hover, button.sarga:focus, button.sarga:active {
     background: #e3b655;
 }
 
-input.gomb.szurke{
+input.gomb.szurke, button.szurke {
     background: #a0a2ab;
 }
-input.gomb.szurke:hover, input.gomb.szurke:focus, input.gomb.szurke:active{
+input.gomb.szurke:hover, input.gomb.szurke:focus, input.gomb.szurke:active, button.szurke:hover, button.szurke:focus, button.szurke:active {
     background: #b3b6c0;
 }
 
@@ -656,22 +653,21 @@ input.gombb.input {
     vertical-align: top;
 }
 
-input.gomb.zold:hover, input.gombb:hover {
+input.gomb.zold:hover, input.gombb:hover, button.zold:hover {
     background: #64a739;
 }
 
-input.kis_gomb{
+input.kis_gomb, button.kis_gomb {
     font-size: 1.4rem;
     padding: 1.2rem 1.7rem;
     margin-right: 1rem;
 }
 
-input.gomb.alacsony{
+input.gomb.alacsony, button.alacsony {
     padding: 0.2rem 0.5rem;
 }
 
-input.gombb[disabled],
-input.gombb[disabled].gombb_alert {
+input.gombb[disabled], input.gombb[disabled].gombb_alert {
     background: #cecdcd;
     color: #a4a4a4;
     cursor: default;

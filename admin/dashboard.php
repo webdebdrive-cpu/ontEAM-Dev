@@ -1038,176 +1038,267 @@ if( !isset($_GET['regi']) ) {
     // Műszaki jóváhagyásra váró eszközigénylések
     if( _jog(JOG_BESZERZ_IGENYLESEK_MUSZAK_JOVA) ) {
 
-        $szures_neve = 'Műszaki jóváhagyásra váró eszközigénylések';
-        $tabla  = 'eszkozigenyles';
-        $db     = $adatbazis_kapcsolat->s('recid', $tabla, "`stat_id`='".ESZKOZIGENYL_STAT_MUSZAK_JH_VAR."'{$telephely_sql}", '', '', '', '-num-rows-');
-        $link   = $tabla.'.php?mezo=stat_id&amp;op=equal&amp;felt='.ESZKOZIGENYL_STAT_MUSZAK_JH_VAR.'&amp;tablazat&amp;dashboard='.$szures_neve;
+        for( $i = 0; $i<2; $i++ ) {
 
-        if( $db ) {
-            $feladatok .= nl2('
-                                <tr>
-                                    <td>
-                                        <a href="'.$link.'">
-                                            '.$szures_neve.'
-                                        </a>
-                                    </td>
-                                    <td>
-                                        <a href="'.$link.'">
-                                            '.number_format($db, 0, '', '.').' db
-                                        </a>
-                                    </td>
-                                </tr>
-                                ');
+            $felirat_kieg = '';
+            $where_kieg   = " AND `tipus`!='".BESZ_TIP_TERVEZETT."'";
+            $felt_kieg    = '!HASH!es|!HASH!me|tipus!HASH!op|not_eq!HASH!fe|'.BESZ_TIP_TERVEZETT.'';
+            if( $i ) {
+                $felirat_kieg = ' (Tervezett)';
+                $where_kieg   = " AND `tipus`='".BESZ_TIP_TERVEZETT."'";
+                $felt_kieg    = '!HASH!es|!HASH!me|tipus!HASH!op|equal!HASH!fe|'.BESZ_TIP_TERVEZETT.'';
+            }
+
+            $szures_neve = 'Műszaki jóváhagyásra váró eszközigénylések'.$felirat_kieg;
+            $tabla  = 'eszkozigenyles';
+            $db     = $adatbazis_kapcsolat->s('recid', $tabla, "`stat_id`='".ESZKOZIGENYL_STAT_MUSZAK_JH_VAR."'{$where_kieg}{$telephely_sql}", '', '', '', '-num-rows-');
+            $link   = $tabla.'.php?tabla='.$tabla.'&amp;feltetel=me|stat_id!HASH!op|equal!HASH!fe|'.ESZKOZIGENYL_STAT_MUSZAK_JH_VAR.$felt_kieg.'!HASH!es|!HASH!&amp;f_o_szures_submit=1&amp;tablazat&amp;dashboard='.$szures_neve;
+    
+            if( $db ) {
+                $feladatok .= nl2('
+                                    <tr>
+                                        <td>
+                                            <a href="'.$link.'">
+                                                '.$szures_neve.'
+                                            </a>
+                                        </td>
+                                        <td>
+                                            <a href="'.$link.'">
+                                                '.number_format($db, 0, '', '.').' db
+                                            </a>
+                                        </td>
+                                    </tr>
+                                    ');
+            }
+
         }
+
     }
     // Szállodai engedélyre váró eszközigénylések
     if( _jog(JOG_BESZERZ_IGENYLESEK_SZALLODAI_ENG) ) {
 
-        $szures_neve = 'Szállodai engedélyre váró eszközigénylések';
-        $tabla  = 'eszkozigenyles';
-        $db     = $adatbazis_kapcsolat->s('recid', $tabla, "`stat_id`='".ESZKOZIGENYL_STAT_SZALL_ENG_VAR."'{$telephely_sql}", '', '', '', '-num-rows-');
-        $link   = $tabla.'.php?mezo=stat_id&amp;op=equal&amp;felt='.ESZKOZIGENYL_STAT_SZALL_ENG_VAR.'&amp;tablazat&amp;dashboard='.$szures_neve;
+        for( $i = 0; $i<2; $i++ ) {
 
-        if( $db ) {
-            $feladatok .= nl2('
-                                <tr>
-                                    <td>
-                                        <a href="'.$link.'">
-                                            '.$szures_neve.'
-                                        </a>
-                                    </td>
-                                    <td>
-                                        <a href="'.$link.'">
-                                            '.number_format($db, 0, '', '.').' db
-                                        </a>
-                                    </td>
-                                </tr>
-                                ');
+            $felirat_kieg = '';
+            $where_kieg   = " AND `tipus`!='".BESZ_TIP_TERVEZETT."'";
+            $felt_kieg    = '!HASH!es|!HASH!me|tipus!HASH!op|not_eq!HASH!fe|'.BESZ_TIP_TERVEZETT.'';
+            if( $i ) {
+                $felirat_kieg = ' (Tervezett)';
+                $where_kieg   = " AND `tipus`='".BESZ_TIP_TERVEZETT."'";
+                $felt_kieg    = '!HASH!es|!HASH!me|tipus!HASH!op|equal!HASH!fe|'.BESZ_TIP_TERVEZETT.'';
+            }
+
+            $szures_neve = 'Szállodai engedélyre váró eszközigénylések'.$felirat_kieg;
+            $tabla  = 'eszkozigenyles';
+            $db     = $adatbazis_kapcsolat->s('recid', $tabla, "`stat_id`='".ESZKOZIGENYL_STAT_SZALL_ENG_VAR."'{$where_kieg}{$telephely_sql}", '', '', '', '-num-rows-');
+            $link   = $tabla.'.php?tabla='.$tabla.'&amp;feltetel=me|stat_id!HASH!op|equal!HASH!fe|'.ESZKOZIGENYL_STAT_SZALL_ENG_VAR.$felt_kieg.'!HASH!es|!HASH!&amp;f_o_szures_submit=1&amp;tablazat&amp;dashboard='.$szures_neve;
+
+            if( $db ) {
+                $feladatok .= nl2('
+                                    <tr>
+                                        <td>
+                                            <a href="'.$link.'">
+                                                '.$szures_neve.'
+                                            </a>
+                                        </td>
+                                        <td>
+                                            <a href="'.$link.'">
+                                                '.number_format($db, 0, '', '.').' db
+                                            </a>
+                                        </td>
+                                    </tr>
+                                    ');
+            }
+
         }
     }
     // BI validálásra váró eszközigénylések
     if( _jog(JOG_BESZERZ_IGENYLESEK_BI_VALIDALAS) ) {
 
-        $szures_neve = 'BI validálásra váró eszközigénylések';
-        $tabla  = 'eszkozigenyles';
-        $db     = $adatbazis_kapcsolat->s('recid', $tabla, "`stat_id`='".ESZKOZIGENYL_STAT_BI_VALID_VAR."'{$telephely_sql}", '', '', '', '-num-rows-');
-        $link   = $tabla.'.php?mezo=stat_id&amp;op=equal&amp;felt='.ESZKOZIGENYL_STAT_BI_VALID_VAR.'&amp;tablazat&amp;dashboard='.$szures_neve;
+        for( $i = 0; $i<2; $i++ ) {
 
-        if( $db ) {
-            $feladatok .= nl2('
-                                <tr>
-                                    <td>
-                                        <a href="'.$link.'">
-                                            '.$szures_neve.'
-                                        </a>
-                                    </td>
-                                    <td>
-                                        <a href="'.$link.'">
-                                            '.number_format($db, 0, '', '.').' db
-                                        </a>
-                                    </td>
-                                </tr>
-                                ');
+            $felirat_kieg = '';
+            $where_kieg   = " AND `tipus`!='".BESZ_TIP_TERVEZETT."'";
+            $felt_kieg    = '!HASH!es|!HASH!me|tipus!HASH!op|not_eq!HASH!fe|'.BESZ_TIP_TERVEZETT.'';
+            if( $i ) {
+                $felirat_kieg = ' (Tervezett)';
+                $where_kieg   = " AND `tipus`='".BESZ_TIP_TERVEZETT."'";
+                $felt_kieg    = '!HASH!es|!HASH!me|tipus!HASH!op|equal!HASH!fe|'.BESZ_TIP_TERVEZETT.'';
+            }
+
+            $szures_neve = 'BI validálásra váró eszközigénylések'.$felirat_kieg;
+            $tabla  = 'eszkozigenyles';
+            $db     = $adatbazis_kapcsolat->s('recid', $tabla, "`stat_id`='".ESZKOZIGENYL_STAT_BI_VALID_VAR."'{$where_kieg}{$telephely_sql}", '', '', '', '-num-rows-');
+            $link   = $tabla.'.php?tabla='.$tabla.'&amp;feltetel=me|stat_id!HASH!op|equal!HASH!fe|'.ESZKOZIGENYL_STAT_BI_VALID_VAR.$felt_kieg.'!HASH!es|!HASH!&amp;f_o_szures_submit=1&amp;tablazat&amp;dashboard='.$szures_neve;
+
+            if( $db ) {
+                $feladatok .= nl2('
+                                    <tr>
+                                        <td>
+                                            <a href="'.$link.'">
+                                                '.$szures_neve.'
+                                            </a>
+                                        </td>
+                                        <td>
+                                            <a href="'.$link.'">
+                                                '.number_format($db, 0, '', '.').' db
+                                            </a>
+                                        </td>
+                                    </tr>
+                                    ');
+            }
+
         }
     }
     // BI jóváhagyásra váró eszközigénylések
     if( _jog(JOG_BESZERZ_IGENYLESEK_BI_JOVA) ) {
 
-        $szures_neve = 'BI jóváhagyásra váró eszközigénylések';
-        $tabla  = 'eszkozigenyles';
-        $db     = $adatbazis_kapcsolat->s('recid', $tabla, "`stat_id`='".ESZKOZIGENYL_STAT_BI_JH_VAR."'{$telephely_sql}", '', '', '', '-num-rows-');
-        $link   = $tabla.'.php?mezo=stat_id&amp;op=equal&amp;felt='.ESZKOZIGENYL_STAT_BI_JH_VAR.'&amp;tablazat&amp;dashboard='.$szures_neve;
+        for( $i = 0; $i<2; $i++ ) {
 
-        if( $db ) {
-            $feladatok .= nl2('
-                                <tr>
-                                    <td>
-                                        <a href="'.$link.'">
-                                            '.$szures_neve.'
-                                        </a>
-                                    </td>
-                                    <td>
-                                        <a href="'.$link.'">
-                                            '.number_format($db, 0, '', '.').' db
-                                        </a>
-                                    </td>
-                                </tr>
-                                ');
+            $felirat_kieg = '';
+            $where_kieg   = " AND `tipus`!='".BESZ_TIP_TERVEZETT."'";
+            $felt_kieg    = '!HASH!es|!HASH!me|tipus!HASH!op|not_eq!HASH!fe|'.BESZ_TIP_TERVEZETT.'';
+            if( $i ) {
+                $felirat_kieg = ' (Tervezett)';
+                $where_kieg   = " AND `tipus`='".BESZ_TIP_TERVEZETT."'";
+                $felt_kieg    = '!HASH!es|!HASH!me|tipus!HASH!op|equal!HASH!fe|'.BESZ_TIP_TERVEZETT.'';
+            }
+
+            $szures_neve = 'BI jóváhagyásra váró eszközigénylések'.$felirat_kieg;
+            $tabla  = 'eszkozigenyles';
+            $db     = $adatbazis_kapcsolat->s('recid', $tabla, "`stat_id`='".ESZKOZIGENYL_STAT_BI_JH_VAR."'{$where_kieg}{$telephely_sql}", '', '', '', '-num-rows-');
+            $link   = $tabla.'.php?tabla='.$tabla.'&amp;feltetel=me|stat_id!HASH!op|equal!HASH!fe|'.ESZKOZIGENYL_STAT_BI_JH_VAR.$felt_kieg.'!HASH!es|!HASH!&amp;f_o_szures_submit=1&amp;tablazat&amp;dashboard='.$szures_neve;
+
+            if( $db ) {
+                $feladatok .= nl2('
+                                    <tr>
+                                        <td>
+                                            <a href="'.$link.'">
+                                                '.$szures_neve.'
+                                            </a>
+                                        </td>
+                                        <td>
+                                            <a href="'.$link.'">
+                                                '.number_format($db, 0, '', '.').' db
+                                            </a>
+                                        </td>
+                                    </tr>
+                                    ');
+            }
+
         }
     }
     // Szakmai véleményezésre váró eszközigénylések
     if( _jog(JOG_BESZERZ_IGENYLESEK_SZAKMAI_VEL) ) {
 
-        $szures_neve = 'Szakmai véleményezésre váró eszközigénylések';
-        $tabla  = 'eszkozigenyles';
-        $db     = $adatbazis_kapcsolat->s('recid', $tabla, "`stat_id`='".ESZKOZIGENYL_STAT_SZAKM_VEL_VAR."'{$telephely_sql}", '', '', '', '-num-rows-');
-        $link   = $tabla.'.php?mezo=stat_id&amp;op=equal&amp;felt='.ESZKOZIGENYL_STAT_SZAKM_VEL_VAR.'&amp;tablazat&amp;dashboard='.$szures_neve;
+        for( $i = 0; $i<2; $i++ ) {
 
-        if( $db ) {
-            $feladatok .= nl2('
-                                <tr>
-                                    <td>
-                                        <a href="'.$link.'">
-                                            '.$szures_neve.'
-                                        </a>
-                                    </td>
-                                    <td>
-                                        <a href="'.$link.'">
-                                            '.number_format($db, 0, '', '.').' db
-                                        </a>
-                                    </td>
-                                </tr>
-                                ');
+            $felirat_kieg = '';
+            $where_kieg   = " AND `tipus`!='".BESZ_TIP_TERVEZETT."'";
+            $felt_kieg    = '!HASH!es|!HASH!me|tipus!HASH!op|not_eq!HASH!fe|'.BESZ_TIP_TERVEZETT.'';
+            if( $i ) {
+                $felirat_kieg = ' (Tervezett)';
+                $where_kieg   = " AND `tipus`='".BESZ_TIP_TERVEZETT."'";
+                $felt_kieg    = '!HASH!es|!HASH!me|tipus!HASH!op|equal!HASH!fe|'.BESZ_TIP_TERVEZETT.'';
+            }
+
+            $szures_neve = 'Szakmai véleményezésre váró eszközigénylések'.$felirat_kieg;
+            $tabla  = 'eszkozigenyles';
+            $db     = $adatbazis_kapcsolat->s('recid', $tabla, "`stat_id`='".ESZKOZIGENYL_STAT_SZAKM_VEL_VAR."'{$where_kieg}{$telephely_sql}", '', '', '', '-num-rows-');
+            $link   = $tabla.'.php?tabla='.$tabla.'&amp;feltetel=me|stat_id!HASH!op|equal!HASH!fe|'.ESZKOZIGENYL_STAT_SZAKM_VEL_VAR.$felt_kieg.'!HASH!es|!HASH!&amp;f_o_szures_submit=1&amp;tablazat&amp;dashboard='.$szures_neve;
+
+            if( $db ) {
+                $feladatok .= nl2('
+                                    <tr>
+                                        <td>
+                                            <a href="'.$link.'">
+                                                '.$szures_neve.'
+                                            </a>
+                                        </td>
+                                        <td>
+                                            <a href="'.$link.'">
+                                                '.number_format($db, 0, '', '.').' db
+                                            </a>
+                                        </td>
+                                    </tr>
+                                    ');
+            }
         }
     }
     // Felsővezető jóváhagyásra váró eszközigénylések
     if( _jog(JOG_BESZERZ_IGENYLESEK_FELSOVEZ_JH) ) {
 
-        $szures_neve = 'Felsővezető jóváhagyásra váró eszközigénylések';
-        $tabla  = 'eszkozigenyles';
-        $db     = $adatbazis_kapcsolat->s('recid', $tabla, "`stat_id`='".ESZKOZIGENYL_STAT_FELSO_JH_VAR."'{$telephely_sql}", '', '', '', '-num-rows-');
-        $link   = $tabla.'.php?mezo=stat_id&amp;op=equal&amp;felt='.ESZKOZIGENYL_STAT_FELSO_JH_VAR.'&amp;tablazat&amp;dashboard='.$szures_neve;
+        for( $i = 0; $i<2; $i++ ) {
 
-        if( $db ) {
-            $feladatok .= nl2('
-                                <tr>
-                                    <td>
-                                        <a href="'.$link.'">
-                                            '.$szures_neve.'
-                                        </a>
-                                    </td>
-                                    <td>
-                                        <a href="'.$link.'">
-                                            '.number_format($db, 0, '', '.').' db
-                                        </a>
-                                    </td>
-                                </tr>
-                                ');
+            $felirat_kieg = '';
+            $where_kieg   = " AND `tipus`!='".BESZ_TIP_TERVEZETT."'";
+            $felt_kieg    = '!HASH!es|!HASH!me|tipus!HASH!op|not_eq!HASH!fe|'.BESZ_TIP_TERVEZETT.'';
+            if( $i ) {
+                $felirat_kieg = ' (Tervezett)';
+                $where_kieg   = " AND `tipus`='".BESZ_TIP_TERVEZETT."'";
+                $felt_kieg    = '!HASH!es|!HASH!me|tipus!HASH!op|equal!HASH!fe|'.BESZ_TIP_TERVEZETT.'';
+            }
+
+            $szures_neve = 'Felsővezető jóváhagyásra váró eszközigénylések'.$felirat_kieg;
+            $tabla  = 'eszkozigenyles';
+            $db     = $adatbazis_kapcsolat->s('recid', $tabla, "`stat_id`='".ESZKOZIGENYL_STAT_FELSO_JH_VAR."'{$where_kieg}{$telephely_sql}", '', '', '', '-num-rows-');
+            $link   = $tabla.'.php?tabla='.$tabla.'&amp;feltetel=me|stat_id!HASH!op|equal!HASH!fe|'.ESZKOZIGENYL_STAT_FELSO_JH_VAR.$felt_kieg.'!HASH!es|!HASH!&amp;f_o_szures_submit=1&amp;tablazat&amp;dashboard='.$szures_neve;
+
+            if( $db ) {
+                $feladatok .= nl2('
+                                    <tr>
+                                        <td>
+                                            <a href="'.$link.'">
+                                                '.$szures_neve.'
+                                            </a>
+                                        </td>
+                                        <td>
+                                            <a href="'.$link.'">
+                                                '.number_format($db, 0, '', '.').' db
+                                            </a>
+                                        </td>
+                                    </tr>
+                                    ');
+            }
+
         }
     }
     // BI véglegesítésre váró eszközigénylések
     if( _jog(JOG_BESZERZ_IGENYLESEK_BI_VEGLEGESIT) ) {
 
-        $szures_neve = 'BI véglegesítésre váró eszközigénylések';
-        $tabla  = 'eszkozigenyles';
-        $db     = $adatbazis_kapcsolat->s('recid', $tabla, "`stat_id`='".ESZKOZIGENYL_STAT_BI_VEGL_VAR."'{$telephely_sql}", '', '', '', '-num-rows-');
-        $link   = $tabla.'.php?mezo=stat_id&amp;op=equal&amp;felt='.ESZKOZIGENYL_STAT_BI_VEGL_VAR.'&amp;tablazat&amp;dashboard='.$szures_neve;
+        for( $i = 0; $i<2; $i++ ) {
 
-        if( $db ) {
-            $feladatok .= nl2('
-                                <tr>
-                                    <td>
-                                        <a href="'.$link.'">
-                                            '.$szures_neve.'
-                                        </a>
-                                    </td>
-                                    <td>
-                                        <a href="'.$link.'">
-                                            '.number_format($db, 0, '', '.').' db
-                                        </a>
-                                    </td>
-                                </tr>
-                                ');
+            $felirat_kieg = '';
+            $where_kieg   = " AND `tipus`!='".BESZ_TIP_TERVEZETT."'";
+            $felt_kieg    = '!HASH!es|!HASH!me|tipus!HASH!op|not_eq!HASH!fe|'.BESZ_TIP_TERVEZETT.'';
+            if( $i ) {
+                $felirat_kieg = ' (Tervezett)';
+                $where_kieg   = " AND `tipus`='".BESZ_TIP_TERVEZETT."'";
+                $felt_kieg    = '!HASH!es|!HASH!me|tipus!HASH!op|equal!HASH!fe|'.BESZ_TIP_TERVEZETT.'';
+            }
+
+            $szures_neve = 'BI véglegesítésre váró eszközigénylések'.$felirat_kieg;
+            $tabla  = 'eszkozigenyles';
+            $db     = $adatbazis_kapcsolat->s('recid', $tabla, "`stat_id`='".ESZKOZIGENYL_STAT_BI_VEGL_VAR."'{$where_kieg}{$telephely_sql}", '', '', '', '-num-rows-');
+            $link   = $tabla.'.php?tabla='.$tabla.'&amp;feltetel=me|stat_id!HASH!op|equal!HASH!fe|'.ESZKOZIGENYL_STAT_BI_VEGL_VAR.$felt_kieg.'!HASH!es|!HASH!&amp;f_o_szures_submit=1&amp;tablazat&amp;dashboard='.$szures_neve;
+
+            if( $db ) {
+                $feladatok .= nl2('
+                                    <tr>
+                                        <td>
+                                            <a href="'.$link.'">
+                                                '.$szures_neve.'
+                                            </a>
+                                        </td>
+                                        <td>
+                                            <a href="'.$link.'">
+                                                '.number_format($db, 0, '', '.').' db
+                                            </a>
+                                        </td>
+                                    </tr>
+                                    ');
+            }
+
         }
     }
     // Kiküldésre váró megrendelések

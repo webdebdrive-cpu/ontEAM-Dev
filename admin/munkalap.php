@@ -8672,9 +8672,10 @@ if( isset($_POST['get_ml_lista']) ) {
     // Munkalapok felsorolása
     $tabla_kieg = $uzenet_kieg = $limit = '';
     if( $_POST['archivum'] ) {
-        $tabla_kieg .= '_arch';
+        $tabla_kieg  = '_arch';
         $uzenet_kieg = 'ARCHÍV ';
-        $limit       = 10;
+        // 2025.11.03 kor kérték 10-ről 100-ra módosítani a limitet
+        $limit       = 100;
     }
     $html = '';
     $szamla     = $adatbazis_kapcsolat->s2('telephely_id szallito_id sz_szam', 'fenntartasi_szamla', "`recid`='{$_POST['szamla_id']}'");
@@ -8707,6 +8708,9 @@ if( isset($_POST['get_ml_lista']) ) {
             if( $munkalap['szla_szam'] ) {
                 $kapcsolt = '<i class="material-icons">done</i>';
                 $onclick  = ' onclick="ml_bontasa(\''.$munkalap['recid'].'\');"';
+                if( $_POST['archivum'] ) {
+                    $onclick  = ' onclick="ml_bontasa(\''.$munkalap['recid'].'\', \'-archiv-\');"';
+                }
                 $torles   = '<i class="material-icons">delete</i>';
                 // Ha a szerződésnek van munkalapszáma, akkor az egy automatikusan létrejött szerződés, azaz nem törölhető
                 if( $szerzodes['mlszam'] == $munkalap['ikt_szam'] ) {
@@ -8745,7 +8749,10 @@ if( isset($_POST['get_ml_lista']) ) {
                 </style>
             ');
     } else {
-        $html .= '<script>popupZar(); alert2(\'Jelenleg nem található '.getSzallodaNev($szamla['telephely_id']).' szállodához és '.getErtek('nev', 'szallito', 'id', $szamla['szallito_id']).' szállítóhoz '.$uzenet_kieg.'munkalap.\', \'\', \'Hiba\')</script>';
+        $html .= 'Jelenleg nem található '.getSzallodaNev($szamla['telephely_id']).' szállodához és '.getErtek('nev', 'szallito', 'id', $szamla['szallito_id']).' szállítóhoz '.$uzenet_kieg.'munkalap.';
+        if( !$_POST['archivum'] ) {
+            $html .= '<br>Kérjük próbáljon meg keresni az archívban.';
+        }
     }
     
     echo json_encode( array('html' => $html) );
@@ -8823,7 +8830,11 @@ if (isset($_POST['ml_bontasa'])) {
         exit();
     }
 
-    $sql = $adatbazis_kapcsolat -> u('munkalap', array('szla_szam'), array(''), "`recid`='{$_POST['id']}'");
+    $tabla_kieg = '';
+    if( $_POST['archivum'] ) {
+        $tabla_kieg .= '_arch';
+    }
+    $sql = $adatbazis_kapcsolat -> u('munkalap'.$tabla_kieg, array('szla_szam'), array(''), "`recid`='{$_POST['id']}'");
     if( $sql === false ) { $db_error = true; }
 
     if( !$db_error ) {

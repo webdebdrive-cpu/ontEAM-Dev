@@ -680,6 +680,7 @@ $(function() {
                 'beosztas',
                 'beosztas_muszak',
                 'beosztas_unnepnapok',
+                'besz_idoszak',
                 'cash_flow',
                 'cikktorzs',
                 'dokumentumtar',
@@ -6448,7 +6449,7 @@ function csv_general( that, valasztos, link_kieg ) {
             alert2('Válasszon export fajtát:<br><a href="javascript:csv_general($(\'.excel\'))">» Számlák exportálása</a><br><a href="javascript:csv_general($(\'.excel\'), \'\', \'tetelek&id=\'+_get(\'id\'))">» Számlák és tételek exportálása</a>', '<input type="button" class="gomb" value="Mégsem" onclick="alert2()">', 'Válasszon exportot');
         }
 
-        // Cash-flow
+        // Beosztás
         if (baseName(location.href) == 'beosztas') {
             alert2('Válasszon export fajtát:<br><a href="javascript:csv_general($(\'.excel\'), \'\')">» Beosztás lista</a><br><a href="'+PHP_SELF+'?csv&amp;tablazat" target="_blank">» Beosztás táblázat</a>', '<input type="button" class="gomb" value="Mégsem" onclick="alert2()">', 'Válasszon exportot');
         }
@@ -6471,6 +6472,18 @@ function csv_general( that, valasztos, link_kieg ) {
         // Energia tervnél lehet választani, hogy tervet, vagy Egységárakat szeretne-e exportálni
         if (baseName(location.href) == 'energia_terv') {
             alert2('Válasszon export fajtát:<br><a href="javascript:csv_general($(\'.excel\'))">» Energia tervek exportálása</a><br><a href="javascript:csv_general($(\'.excel\'), \'\', \'egysegarak&id=\'+_get(\'id\'))">» Egységárak exportálása</a>', '<input type="button" class="gomb" value="Mégsem" onclick="alert2()">', 'Válasszon exportot');
+        }
+
+        // Eszközigénylés
+        if (baseName(location.href) == 'eszkozigenyles') {
+            // Csak akkor jön fel a választó, ha van eszközigénylés joga.
+            if( _jogok[159]==1 ) {
+                alert2('Válasszon export fajtát:<br><a href="javascript:csv_general($(\'.excel\'))">» Eszközigénylések exportálása</a><br><a href="javascript:alert2(); csoportMuvelet(\'eszkozigenyles_felsovezetoi_prezentacio\')">» Felsővezetői prezentáció</a>', '<input type="button" class="gomb" value="Mégsem" onclick="alert2()">', 'Válasszon exportot');
+
+            // Ha nincs, akkor indulhat is a sima exceles export
+            } else {
+                csv_general($('.excel'));
+            }
         }
 
         // Fenntartási + Projektszerződéseknél lehet választani, hogy Szerződések vagy Szerződések és tételek
@@ -6608,6 +6621,7 @@ function csv_general( that, valasztos, link_kieg ) {
                         if( response.filename ) {
                             $('#alert2 .progress-bar span').css('width', '100%');
                             location.href = baseName(location.href)+'.php?csv_download='+response.filename+'&nev='+response.nev;
+                            popupZar();
                             alert2();
                         }
                     }
@@ -6882,6 +6896,13 @@ function szamlaBetolt( recid, page, muvelet, szerkeszt, kerdes_nelkul, anyagigen
 
                     } else if( baseName(location.href) == 'bejelentes' && _jogok[56] == 1 ) {
                         $('#navGombok a.uj').attr('href', 'javascript: bejSzallodaValaszt(); void(0);');
+
+                    } else if( baseName(location.href) == 'besz_idoszak' && _jogok[170] == 1 ) {
+                        if( _get('megjegyzesek') ) {
+                            $('#navGombok a.uj').attr('href', 'javascript: kapcsolodoSzerkeszt(\'megjegyzes\'); void(0);');
+                        } else {
+                            $('#navGombok a.uj').attr('href', 'javascript:csoportMuvelet(\'besz_idoszak_uj_felvitel\'); void(0);');
+                        }
 
                     } else if( baseName(location.href) == 'cikktorzs' && _get('megjegyzesek') ) {
                         $('#navGombok a.uj').attr('href', 'javascript: kapcsolodoSzerkeszt(\'megjegyzes\'); void(0);');

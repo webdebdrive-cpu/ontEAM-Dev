@@ -1,7 +1,7 @@
 <?php
 /*                                                  *\
  * FONTOS:
- * 169. ID következik
+ * 171. ID következik
  * 16. kategória ID következik
 \*                                                  */
 
@@ -194,25 +194,28 @@ $jogosultsagok = array(
     100 => array('nev' => 'Megállapodás számlák kezelése',          'kat' => 14, 'sor' => 4),
     86  => array('nev' => 'Megállapodás számlák igazolása',         'kat' => 14, 'sor' => 5),
     
-    149  => array('nev' => 'Igénylések megtekintése',               'kat' => 15, 'sor' => 1),
-    150  => array('nev' => 'Új igény felvitele',                    'kat' => 15, 'sor' => 2),
-    167  => array('nev' => 'Szállodai beszerző',                    'kat' => 15, 'sor' => 3, 'i' => 'kapcsolattartó a megrendelő dokumentumon'),
-    159  => array('nev' => 'Igénylések kezelése',                   'kat' => 15, 'sor' => 4, 'i' => 'igénylés adatok szerkesztése Beszerzési Igazgatóságon,<br>megrendelés javítása kiküldés után'),
-    151  => array('nev' => 'Igény törlése',                         'kat' => 15, 'sor' => 5),
-    153  => array('nev' => 'Elsődleges aláíró',                     'kat' => 15, 'sor' => 6),
-    154  => array('nev' => 'Másodlagos aláíró',                     'kat' => 15, 'sor' => 7),
-    155  => array('nev' => 'Műszak jóváhagyás',                     'kat' => 15, 'sor' => 8),
-    156  => array('nev' => 'Szállodai engedélyezés',                'kat' => 15, 'sor' => 9),
-    157  => array('nev' => 'BI validálás',                          'kat' => 15, 'sor' => 10),
-    168  => array('nev' => 'BI jóváhagyás',                         'kat' => 15, 'sor' => 11),
-    // Az alábbi csak átmenetileg van törölve, váhatóan később szükség lesz rá, akkor majd kivehető a 'torolve' => 'TÖRÖLVE' rész
-    152  => array('torolve' => 'TÖRÖLVE', 'nev' => 'Szakmai véleményezés',                  'kat' => 15, 'sor' => 12),
-    160  => array('nev' => 'Felsővez. Jóváhagyás',                  'kat' => 15, 'sor' => 13),
-    161  => array('nev' => 'BI véglegesítés',                       'kat' => 15, 'sor' => 14),
-    166  => array('nev' => 'Megrendelés megtekintése',              'kat' => 15, 'sor' => 15),
-    158  => array('nev' => 'Megrendelés kiküldése',                 'kat' => 15, 'sor' => 16),
-    162  => array('torolve' => 'TÖRÖLVE', 'nev' => 'Megrendelés javítása',                  'kat' => 15, 'sor' => 17),
-    163  => array('nev' => 'Beszerzés szállító megtekintése',       'kat' => 15, 'sor' => 19),
-    164  => array('nev' => 'Beszerzés szállító kezelése',           'kat' => 15, 'sor' => 19),
-    165  => array('nev' => 'Beszerzés szállító törlése',            'kat' => 15, 'sor' => 20),
+    169  => array('nev' => 'Időszakok megtekintése',                'kat' => 15, 'sor' => 1),
+    170  => array('nev' => 'Időszakok kezelése',                    'kat' => 15, 'sor' => 2),
+    149  => array('nev' => 'Igénylések megtekintése',               'kat' => 15, 'sor' => 3),
+    150  => array('nev' => 'Új igény felvitele',                    'kat' => 15, 'sor' => 4),
+    167  => array('nev' => 'Szállodai beszerző',                    'kat' => 15, 'sor' => 5, 'i' => 'kapcsolattartó a megrendelő dokumentumon'),
+    159  => array('nev' => 'Igénylések kezelése',                   'kat' => 15, 'sor' => 6, 'i' => 'igénylés adatok szerkesztése Beszerzési Igazgatóságon,<br>megrendelés javítása kiküldés után'),
+    151  => array('nev' => 'Igény törlése',                         'kat' => 15, 'sor' => 7),
+    153  => array('nev' => 'Elsődleges aláíró',                     'kat' => 15, 'sor' => 8),
+    154  => array('nev' => 'Másodlagos aláíró',                     'kat' => 15, 'sor' => 9),
+    155  => array('nev' => 'Műszak jóváhagyás',                     'kat' => 15, 'sor' => 10),
+    156  => array('nev' => 'Szállodai engedélyezés',                'kat' => 15, 'sor' => 11),
+    157  => array('nev' => 'BI validálás',                          'kat' => 15, 'sor' => 12),
+    168  => array('nev' => 'BI jóváhagyás',                         'kat' => 15, 'sor' => 13),
+    // Az alábbi csak átmenetileg van törölve, várhatóan később szükség lesz rá, akkor majd kivehető a 'torolve' => 'TÖRÖLVE' rész
+    152  => array('torolve' => 'TÖRÖLVE', 'nev' => 'Szakmai véleményezés',                  'kat' => 15, 'sor' => 14),
+    160  => array('nev' => 'Felsővez. Jóváhagyás',                  'kat' => 15, 'sor' => 15),
+    161  => array('nev' => 'BI véglegesítés',                       'kat' => 15, 'sor' => 16),
+    166  => array('nev' => 'Megrendelés megtekintése',              'kat' => 15, 'sor' => 17),
+    158  => array('nev' => 'Megrendelés kiküldése',                 'kat' => 15, 'sor' => 18),
+    162  => array('torolve' => 'TÖRÖLVE', 'nev' => 'Megrendelés javítása',  'kat' => 15, 'sor' => 19),
+    163  => array('nev' => 'Beszerzés szállító megtekintése',       'kat' => 15, 'sor' => 20),
+    164  => array('nev' => 'Beszerzés szállító kezelése',           'kat' => 15, 'sor' => 21),
+    165  => array('nev' => 'Beszerzés szállító törlése',            'kat' => 15, 'sor' => 22),
+
 );

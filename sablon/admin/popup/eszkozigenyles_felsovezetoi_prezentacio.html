@@ -1,0 +1,28 @@
+<h2>Felsővezetői prezentáció</h2>
+<form id="elutasitasForm" class="popupForm" method="post" onsubmit="return exportalas();">
+    <div class="kozep">
+        Dátum: <input type="text" autocomplete="off" class="kicsi datepicker csillag" id="tol" value="" tabindex="1"> -tól
+        <input type="text" autocomplete="off" class="kicsi datepicker csillag" id="ig" value="" tabindex="2">-ig
+    </div>
+    <div class="kuldes">
+        <input type="submit" name="elkuld" value="Exportálás">
+        <input type="button" name="megsem" class="gombb_alert" value="Mégsem" onclick="popupZar();">
+    </div>
+</form>
+<script>
+$(document).ready(function () {
+    $('.datepicker').datetimepicker({
+        closeOnDateSelect   : true,
+        format              :'Y.m.d',
+        mask                : '\xa0\xa0\xa0\xa0.\xa0\xa0.\xa0\xa0',
+        timepicker          : false,
+        validateOnBlur      : false,
+        onChangeDateTime    : function(){  }
+    });
+});
+function exportalas() {
+    csv_general($('.excel'), '', 'tol='+$('#tol').val()+'&ig='+$('#ig').val());
+    return false;
+}
+
+</script>

@@ -598,19 +598,26 @@ if( _jog(JOG_TORZSADAT_MEGTEKINT) || _jog(JOG_SZABADSAGIG_MEGTEKINT) || _jog(JOG
 }
 
 // Beszerzés
-if( _jog(JOG_BESZERZ_IGENYLESEK_OLVAS) || _jog(JOG_BESZERZ_IGENYLESEK_MEGR_OLVAS) || _jog(JOG_BESZ_SZALL_OLVAS) ) {
+// if( $_SERVER['REMOTE_ADDR'] == get_debug_ip() ) {
+//     var_dump(_jog(57));
+// }
+if( _jog(JOG_BESZERZ_IDOSZAK_OLVAS) || _jog(JOG_BESZERZ_IGENYLESEK_OLVAS) || _jog(JOG_BESZERZ_IGENYLESEK_MEGR_OLVAS) || _jog(JOG_BESZ_SZALL_OLVAS) ) {
     $menu_nev        = 'Beszerzés';
     $menu_nev_kis    = 'beszerzés';
     $menu_nev_tobbes = 'Beszerzés';
-    $megn            = 'beszerzesi_idoszak';
+    $megn            = 'besz_idoszak';
     $aloldalak       = array($megn.'.php', 'eszkozigenyles.php?tablazat', 'eszkozigenyles_megr.php', 'szallito_beszerzes.php', 'teszteles.php');
     if(basename(self())==$megn.'.php' && isset($_GET['modosit'])){ $navi = $menu_nev.' szerkesztése'; }
-    if(basename(self())=='eszkozigenyles.php'     )  { $oldalNev = 'Beszerzés / <span id="rekord_neve">Eszközigénylések</span><span class="dn" id="rekord_neve_egyes">eszközigénylés</span><span class="dn" id="rekord_neve_targy">eszközigénylést</span>'; }
-    if(basename(self())=='eszkozigenyles_megr.php')  { $oldalNev = 'Beszerzés / <span id="rekord_neve">Megrendelések</span><span class="dn" id="rekord_neve_egyes">megrendelék</span><span class="dn" id="rekord_neve_targy">megrendelést</span>'; }
-    if(basename(self())=='szallito_beszerzes.php')   { $oldalNev = 'Beszerzés / <span id="rekord_neve">Beszerzés szállítók</span><span class="dn" id="rekord_neve_egyes">beszerzés szállítók</span><span class="dn" id="rekord_neve_targy">beszerzés szállítót</span>';           }
-    if(basename(self())=='teszteles.php')            { $oldalNev = 'Beszerzés / <span id="rekord_neve">Tesztelés</span><span class="dn" id="rekord_neve_egyes">tesztelés</span><span class="dn" id="rekord_neve_targy">tesztelést</span>';           }
+    if(basename(self())=='besz_idoszak.php'         ) { $oldalNev = 'Beszerzés / <span id="rekord_neve">Beszerzési időszakok</span><span class="dn" id="rekord_neve_egyes">beszerzési időszak</span><span class="dn" id="rekord_neve_targy">időszakot</span>'; }
+    if(basename(self())=='eszkozigenyles.php'       ) { $oldalNev = 'Beszerzés / <span id="rekord_neve">Eszközigénylések</span><span class="dn" id="rekord_neve_egyes">eszközigénylés</span><span class="dn" id="rekord_neve_targy">eszközigénylést</span>'; }
+    if(basename(self())=='eszkozigenyles_megr.php'  ) { $oldalNev = 'Beszerzés / <span id="rekord_neve">Megrendelések</span><span class="dn" id="rekord_neve_egyes">megrendelék</span><span class="dn" id="rekord_neve_targy">megrendelést</span>'; }
+    if(basename(self())=='szallito_beszerzes.php'   ) { $oldalNev = 'Beszerzés / <span id="rekord_neve">Beszerzés szállítók</span><span class="dn" id="rekord_neve_egyes">beszerzés szállítók</span><span class="dn" id="rekord_neve_targy">beszerzés szállítót</span>';           }
+    if(basename(self())=='teszteles.php'            ) { $oldalNev = 'Beszerzés / <span id="rekord_neve">Tesztelés</span><span class="dn" id="rekord_neve_egyes">tesztelés</span><span class="dn" id="rekord_neve_targy">tesztelést</span>';           }
                                                     
     $aktmenuk  = '';
+    if( _jog(JOG_BESZERZ_IDOSZAK_OLVAS) ) {
+        $aktmenuk .= str_replace( $akt_almenu_mit, array( $aloldalak['0'], 'Beszerzési időszakok'), $almenu_sablon );
+    }
     if( _jog(JOG_BESZERZ_IGENYLESEK_OLVAS) ) {
         $aktmenuk .= str_replace( $akt_almenu_mit, array( $aloldalak['1'], 'Eszközigénylések'), $almenu_sablon );
     }
@@ -955,6 +962,13 @@ if( in_array(basename(self()), $_SESSION['ketHasabos']) && $_SESSION[get_db_tabl
     } elseif( basename(self()) == 'bejelentes.php' && _jog(JOG_BEJELENTES_MAS_NEVEBEN) ) {
         $uj_link = 'javascript: bejSzallodaValaszt(); void(0);';
         
+    } elseif( basename(self()) == 'besz_idoszak.php' && _jog(JOG_BESZERZ_IDOSZAK_KEZEL) ) {
+        if( isset($_GET['megjegyzesek']) ) {
+            $uj_link = 'javascript: kapcsolodoSzerkeszt(\'megjegyzes\'); void(0);';
+        } else {
+            $uj_link = 'javascript: csoportMuvelet(\'besz_idoszak_uj_felvitel\'); void(0);';
+        }
+        
     } elseif( basename(self()) == 'cikktorzs.php' && isset($_GET['megjegyzesek']) ) {
         $uj_link = 'javascript: kapcsolodoSzerkeszt(\'megjegyzes\'); void(0);';
 
@@ -1214,6 +1228,15 @@ if( substr($tabla_nev, strlen($tabla_nev) - 9) == '_arch.php' ) {
 $disabled_tablak = array('afakod.php', 'jogcim.php');
 if( in_array($tabla_nev, $disabled_tablak) ) {
     $uj = $duplikal = $torles_icon = '';
+}
+
+// Beszerzési időszak alatt nincs duplikálás és törlés
+if( self('-bn-') == 'besz_idoszak.php' ) {
+    $duplikal = $torles_icon = '';
+    // ÚJ felvitel pedig csak akkor, ha van joga hozzá
+    if( !_jog(JOG_BESZERZ_IDOSZAK_KEZEL) ) {
+        $uj = '';
+    }
 }
 
 if( self('-bn-') == 'energia_szamla.php' ) {
@@ -1504,7 +1527,7 @@ if( self('-bn-') == 'vendegejszakak.php' ) {
 
 // Excel export
 $valasztos = '';
-$valasztos_feluletek = array('anyag_szamla.php', 'beosztas.php', 'cash_flow.php', 'eloterj_bod.php', 'eloterj_fb.php', 'energia_terv.php', 'energia_szamla.php', 'fenntartasi_terv.php', 'fenntartasi_szamla.php', 'fenntartasi_szerzodes.php', 'megallapodas.php', 'megallapodas_szamla.php', 'projektszamla.php', 'projektszerzodes.php');
+$valasztos_feluletek = array('anyag_szamla.php', 'beosztas.php', 'cash_flow.php', 'eloterj_bod.php', 'eloterj_fb.php', 'energia_terv.php', 'energia_szamla.php', 'eszkozigenyles.php', 'fenntartasi_terv.php', 'fenntartasi_szamla.php', 'fenntartasi_szerzodes.php', 'megallapodas.php', 'megallapodas_szamla.php', 'projektszamla.php', 'projektszerzodes.php');
 if( in_array(basename(self()), $valasztos_feluletek) ) {
     $valasztos = 'választós';
 }
