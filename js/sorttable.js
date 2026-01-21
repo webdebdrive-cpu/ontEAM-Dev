@@ -30,16 +30,17 @@ sorttable = {
     if (!document.createElement || !document.getElementsByTagName) return;
     
     sorttable.DATE_RE = /^(\d\d?)[\/\.-](\d\d?)[\/\.-]((\d\d)?\d\d)$/;
-    
+
     forEach(document.getElementsByTagName('table'), function(table) {
-      if (table.className.search(/\bsortable\b/) != -1) {
-        sorttable.makeSortable(table);
-      }
+        if (table.className.search(/\bsortable\b/) != -1) {
+            sorttable.makeSortable(table);
+        }
     });
     
   },
   
   makeSortable: function(table) {
+
     if (table.getElementsByTagName('thead').length == 0) {
       /* table doesn't have a tHead. Since it should have, create one and
          put the first table row in it. */

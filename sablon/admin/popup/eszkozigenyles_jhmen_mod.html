@@ -108,23 +108,18 @@ function jhmen_mod() {
                     $('.jhmen_'     +eszkoz_id  ).html (response.jhmen      );
                     $('.ossz_netto_'+eszkoz_id  ).html (response.ossz_netto );
                     $('.ossz_dev_'  +eszkoz_id  ).html (response.ossz_dev   );
+                    $('.jhar_'      +eszkoz_id  ).html (response.jhar       );
+                    $('.jhossz_'    +eszkoz_id  ).html (response.jhossz     );
                     $('#jhmen_db_'  +eszkoz_id  ).val  (response.jhmen_db   );
                     $('.gombok_'    +eszkoz_id  ).html (response.gombok     );
 
-                    // Ha '-tervezett-' igénylés, akkor lépünk a következő sorra. 
-                    if( $('#tipus_db_'+_get('id')).val() == 1 ) {
-                        // Ez hívódik meg a lap tetején léptető gombnyomásra is.
-                        naviKov();
-
-                    // Egyébként a tényleges gombokat is cserélni kell
-                    } else {
-                        $('.muveletek').html(response.gombok   );
-                    }
+                    // A tényleges gombokat is cserélni kell
+                    $('.muveletek').html(response.gombok   );
                 
                 // Egyébként az adatlapot töltsük be
                 } else {
 
-                    let ful   = '';
+                    let ful = '';
                     eszkoz_fulek.forEach(function(akt_ful) {
                         if( isset_get(akt_ful) ) {
                             ful = akt_ful;

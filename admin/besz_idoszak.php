@@ -660,6 +660,9 @@ if( isset($_GET['uj']) ) {
         $sor[$rend_mezo] = '';
     }
 
+    $beallitas = $adatbazis_kapcsolat -> s2('arfolyam', 'beallitas', "`recid`='1'");
+    $sor['arfolyam'] = $beallitas['arfolyam'];
+
     foreach ( $akt_tomb as $tomb ) {
         if( $tomb['type'] == 'autocomplete' ) {
             $sor[$tomb['name'].'_autocomp'] = '';

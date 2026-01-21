@@ -54,7 +54,8 @@ $(document).ready(function(){
         $('#popup_ossz_netto').html( $('#ossz_netto_db_'+akt_id).val() + ' Ft' );
     }
     
-    $('#popup_bi_jh_indok').val( $('#bi_jh_indok_db_'+akt_id).val().replace(/<br\s*\/?>/g, '\n') );
+    // Mégse kerüljön be az indoklás mezőbe az adatbázis értéke, logolós működés kell ide
+    // $('#popup_bi_jh_indok').val( $('#bi_jh_indok_db_'+akt_id).val().replace(/<br\s*\/?>/g, '\n') );
     $('#popup_bi_jh_indok').select();
 
 });
@@ -99,7 +100,7 @@ function bi_jh_felt_beleegyezes() {
                     $('#bi_jh_indok_db_'+eszkoz_id  ).val (response.indok    );
                     $('.gombok_'        +eszkoz_id  ).html(response.gombok   );
 
-                    // Megjegyzések számát is, mert ha volt értesítés küldés, akkor bővülthetett
+                    // Megjegyzések számát is, mert ha volt értesítés küldés, akkor bővülhetett
                     $('.gombok_'        +eszkoz_id  ).data('megj_db', response.megj_db    );
                     // Fülön is
                     $('#szamlaFulek a[data-oldal="megjegyzesek"]').html('Megjegyzések ('+response.megj_db+')');
@@ -107,7 +108,9 @@ function bi_jh_felt_beleegyezes() {
                     // Ha '-tervezett-' igénylés, akkor lépünk a következő sorra. 
                     if( $('#tipus_db_'+_get('id')).val() == 1 ) {
                         // Ez hívódik meg a lap tetején léptető gombnyomásra is.
-                        naviKov();
+                        // Ilyet mégsem kérnek
+                        // naviKov();
+                        
                     // Egyébként a tényleges gombokat is cserélni kell
                     } else {
                         $('.muveletek').html(response.gombok   );

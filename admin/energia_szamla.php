@@ -670,7 +670,7 @@ if( isset($_POST['pop_tetelek_feltolt']) ) {
                             <td class="l pop_jogcim_txt">'.$jogcim['jogcim'].'</td>
                             '.$tovabbi_oszlopok.'
                             '.$tovabbi_oszlopok2.'
-                            <td class="nowrap">'.$afakod['afa'].'</td>
+                            <td class="nowrap pop_afa">'.$afakod['afa'].'</td>
                             <td>
                                 <a class="szerk" onclick="popup_tetel_sor_szerk(\'pop_tetel_'.$_SESSION['energia_szla_tetel_recid'][$fej_id][$i].'\');">
                                     🖉
@@ -679,7 +679,7 @@ if( isset($_POST['pop_tetelek_feltolt']) ) {
                             <td>
                                 '.$torles.'
                                 <input type="hidden" class="pop_afakod_autocomp" name="afakod" value="' .$afakod['nev']                                   .'">
-                                <input type="hidden" class="pop_afa" name="pop_afakod_id" value="'      .$_SESSION['energia_szla_tetel_afakod'      ][$fej_id][$i].'">
+                                <input type="hidden" class="pop_afakod" name="pop_afakod_id" value="'   .$_SESSION['energia_szla_tetel_afakod'      ][$fej_id][$i].'">
                                 <input type="hidden" class="pop_jogcim" name="pop_jogcim_id" value="'   .$_SESSION['energia_szla_tetel_jogcim'      ][$fej_id][$i].'">
                                 <input type="hidden" class="pop_dijelem" name="pop_dijelem_id" value="' .$_SESSION['energia_szla_tetel_dijelem'     ][$fej_id][$i].'">
                                 <input type="hidden" class="tetel_nullas" value="'                      .$_SESSION['energia_szla_tetel_nullas'      ][$fej_id][$i].'">

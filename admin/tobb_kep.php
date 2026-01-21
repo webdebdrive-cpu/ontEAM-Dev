@@ -104,13 +104,17 @@ if( isset($_POST['megnevezes']) && !$archivum ) {
         }
         
         // Az útvonal, projektek esetén évszámmal is meg van még toldva, amit a rekord insert_dt-jéből veszünk, kivéve némely számláknál/szerződéseknél, ott a teljesítés éve számít
-        $projekt_feluletek = array('eszkozigenyles', 'fenntartasi_szerzodes', 'projektkezeles', 'projektszamla', 'projektszerzodes');
+        $projekt_feluletek = array('eszkozigenyles', 'eszkozigenyles_megr', 'fenntartasi_szerzodes', 'projektkezeles', 'projektszamla', 'projektszerzodes');
         if( in_array($konyvtar_db_nev, $projekt_feluletek) ) {
 
             // Projekt számla esetén a teljesítés évét kell mappának beállítani
             if( $konyvtar_db_nev == 'projektszamla' ) {
                 $pr_szamla = $adatbazis_kapcsolat->s2('telj_dt szallito_id', 'projektszamla', "`recid`='".$_POST['sorid']."'");
                 $ev_mappa   = substr($pr_szamla['telj_dt'], 0, 4);
+            // Eszkozigénylés megrendelénél az evszám utoló két karaktere kell csak
+            } else if( $konyvtar_db_nev == 'eszkozigenyles_megr' ) {
+                $sor        = $adatbazis_kapcsolat->s2('insert_dt', $konyvtar_db_nev, "`recid`='".$_POST['sorid']."'");
+                $ev_mappa   = substr($sor['insert_dt'], 2, 2);
             } else {
                 $sor        = $adatbazis_kapcsolat->s2('insert_dt', $konyvtar_db_nev, "`recid`='".$_POST['sorid']."'");
                 $ev_mappa   = substr($sor['insert_dt'], 0, 4);
@@ -124,8 +128,8 @@ if( isset($_POST['megnevezes']) && !$archivum ) {
             }
         }
 
-        // Eszközigénylésnél az évszámon felül még egy RECID könyvtárat is hozzunk létre
-        if( $konyvtar_db_nev == 'eszkozigenyles' ) {
+        // Eszközigénylésnél és szközigénylés megrendelésnél az évszámon felül még egy RECID könyvtárat is hozzunk létre
+        if( $konyvtar_db_nev == 'eszkozigenyles' || $konyvtar_db_nev == 'eszkozigenyles_megr' ) {
             $utvonal .= '/'.$_POST['sorid'];
             // Mappa esetleges létrehozása
             if( !is_dir($utvonal) ) {
@@ -222,11 +226,36 @@ if( isset($_POST['megnevezes']) && !$archivum ) {
 
         case 0:
             // Végleges képnév a teljes elérési útvonallal, kiterjesztéssel (hozzáadjuk az eredeti fájl kiterjesztését)
-            $kit   = kit($_FILES[ $_POST['megnevezes'] ]['name']);
-            $kepnev = $utvonal.'/'.$fajlnev.'.'.$kit;
+            $kit       = kit($_FILES[ $_POST['megnevezes'] ]['name']);
+            $kepnev    = $utvonal.'/'.$fajlnev.'.'.$kit;
+            $apa_tabla = csonkit($_POST['tabla'], 4);
+
+            // Megrendelő csere esetén az ismert megrendelő PDF-et kell felülírni. Útvonal beállítása:
+            if( $_POST['tabla'] == 'eszkozigenyles_megr_dok' && $_POST['megr_csere'] ) {
+                $megr_dok = $adatbazis_kapcsolat -> s2('utvonal', 'eszkozigenyles_megr_dok', "`eszkozigenyles_megr_id`='{$_POST['sorid']}' AND `megr`=1");
+                $kepnev = '../'.get_utvonal().'eszkozigenyles_megr/'.$megr_dok['utvonal'];
+                $_POST['ellenorzes_kihagy'] = 'true'; // egész biztosan nem kell ellenőrizni, kifejezetetn felül kell írni
+
+                // Indoklás eltárolása
+                addMegj($apa_tabla, $_POST['sorid'], 'Megrendelő dokumentum cserélve: '.$_POST['indoklas'], '', '-user-írta-');
+            }
 
             if( is_file($kepnev) && $_POST['ellenorzes_kihagy'] == 'false' ) {
-                echo 'Hiba!A fájl létezik!';
+
+                // Eszközigénylés megredeléseknél ellenőrizzük, hogy adott fájl nem a megrendelő fájl-e? Mert ha igen, akkor azt nem szabad felülírni.
+                if( $_POST['tabla'] == 'eszkozigenyles_megr_dok' ) {
+                    
+                    $kep_tort = str_replace('../'.get_utvonal().$konyvtar_db_nev.'/', '', $kepnev);
+                    $dok_db = $adatbazis_kapcsolat -> s2('megr', $_POST['tabla'], "`utvonal`='{$kep_tort}'");
+                    if( $dok_db['megr'] ) {
+                        echo 'Hiba!A csatolni kívánt fájl neve megegyezik egy megrendelés dokumentum fájlnevével.<br>Feltöltéshez kérjük előbb nevezze át a csatolni kívánt fájlt!';
+                    } else {
+                        echo 'Hiba!A fájl létezik!';
+                    }
+
+                } else {
+                    echo 'Hiba!A fájl létezik!';
+                }
             } else {
                 if( is_file($kepnev) && $_POST['ellenorzes_kihagy'] == 'true' ) {
                     kep_torol($kepnev);
@@ -234,8 +263,6 @@ if( isset($_POST['megnevezes']) && !$archivum ) {
 
                 // Fájlfeltöltés
                 if( move_uploaded_file($_FILES[$_POST['megnevezes']]['tmp_name'], $kepnev) ) {
-
-                    $apa_tabla = csonkit($_POST['tabla'], 4);
                     
                     // Tipus választó popup-ot így hívjuk meg, hogy egy tipus_beallit sztringgel kezdjük a visszaküldött adatokat
                     if( tipusos_dokumentumok( $apa_tabla ) ){
@@ -520,6 +547,7 @@ if( $apa_tabla == 'projektkezeles' && $_GET['id'] ) {
                             </li>
             ');
     }
+
     foreach ( $kepek_direkt as $sor_kepek ) {
         $tobbkep_html .= get_tobbkep_thumb($sor_kepek, $i, 'projektkezeles_dok', '', '', $azon.$dn);
         $i++;
@@ -938,12 +966,14 @@ if( $apa_tabla == 'projektkezeles' && $_GET['id'] ) {
     $pr_szerzodes_recidk = $adatbazis_kapcsolat->s('recid', 'projektszerzodes', "`pr_szam`='{$projekt['ikt_szam']}'");
     $pr_szerzodes_recidk = adatbazis2tomb($pr_szerzodes_recidk, 'recid');
     // Csak azokat a jótállásokat listázzuk ki, amihez már van fájl csatolva
-    $kepek = $adatbazis_kapcsolat -> s('`'.get_db_tabla().'projektszerzodes_jotallas`.*, `'.get_db_tabla().'szallito`.`nev`', 'projektszerzodes_jotallas', "`projektszerzodes_recid` IN (".implode(',', $pr_szerzodes_recidk).")",
-                                        // Order
-                                        '`'.get_db_tabla().'szallito`.`nev`, `'.get_db_tabla().'projektszerzodes`.`sz_szam`', '', '', '', 
-                                        // Csatlakozzunk a szerződés sorához a szallito_id miatt, majd tovább csatlakozunk a szállítókhoz, a nev oszlop miatt
-                                        'JOIN `'.get_db_tabla().'projektszerzodes` ON `'.get_db_tabla().'projektszerzodes_jotallas`.`projektszerzodes_recid`=`'.get_db_tabla().'projektszerzodes`.`recid`
-                                        LEFT JOIN `'.get_db_tabla().'szallito` ON `'.get_db_tabla().'projektszerzodes`.`szallito_id`=`'.get_db_tabla().'szallito`.`id` ');
+    if( $pr_szerzodes_recidk ) {
+        $kepek = $adatbazis_kapcsolat -> s('`'.get_db_tabla().'projektszerzodes_jotallas`.*, `'.get_db_tabla().'szallito`.`nev`', 'projektszerzodes_jotallas', "`projektszerzodes_recid` IN (".implode(',', $pr_szerzodes_recidk).")",
+                                            // Order
+                                            '`'.get_db_tabla().'szallito`.`nev`, `'.get_db_tabla().'projektszerzodes`.`sz_szam`', '', '', '', 
+                                            // Csatlakozzunk a szerződés sorához a szallito_id miatt, majd tovább csatlakozunk a szállítókhoz, a nev oszlop miatt
+                                            'JOIN `'.get_db_tabla().'projektszerzodes` ON `'.get_db_tabla().'projektszerzodes_jotallas`.`projektszerzodes_recid`=`'.get_db_tabla().'projektszerzodes`.`recid`
+                                            LEFT JOIN `'.get_db_tabla().'szallito` ON `'.get_db_tabla().'projektszerzodes`.`szallito_id`=`'.get_db_tabla().'szallito`.`id` ');
+    }
 
     if( $kepek ) {
 
@@ -990,7 +1020,6 @@ if( $apa_tabla == 'projektkezeles' && $_GET['id'] ) {
         
         // Direkt dokumentumok
         $kepek_direkt = $adatbazis_kapcsolat->s('*', 'projektkezeles_dok', "`projektkezeles_id`='{$_GET['id']}' AND `tipus`='{$tipus['id']}'");
-        
         // Ha van szerződés, akkor a szerződés dokumentumokat is kirajzoljuk
         if( $szerzodesek ) {
             $kepek_szerzodes = $adatbazis_kapcsolat -> s('`'.get_db_tabla().'projektszerzodes_dok`.*, `'.get_db_tabla().'szallito`.`nev`', 'projektszerzodes_dok', "`projektszerzodes_id` IN (".implode(',', $szerzodesek).") AND `".get_db_tabla()."projektszerzodes_dok`.`tipus`='{$tipus['id']}'",
@@ -1237,6 +1266,7 @@ function get_tobbkep_thumb($sor_kepek = '', $i = '', $tobbkep_tablanev = '', $ni
         // Ilyenkor más class nevet kell adni a törlés oszlopnak, hogy ne essen szét a táblázat
         $minosites    = '';
         $torles_class = 'maradek';
+        $cache_param  = '?v='.filemtime($kep_utvonal);
         $tobbkep_tabla_kivetelek = array('projektkezeles_dok', 'projektszerzodes_dok', 'projektszamla_dok', 'projektszerzodes_jotallas');
         if( basename(self())=='projektkezeles.php' && in_array($tobbkep_tablanev, $tobbkep_tabla_kivetelek) ) {
             
@@ -1306,13 +1336,13 @@ function get_tobbkep_thumb($sor_kepek = '', $i = '', $tobbkep_tablanev = '', $ni
                     <div class="felirat">'.$kulso_link.'</div>
                     <div class="kep">
                         <div>
-                            <a href="'.$kep_utvonal.'" target="_blank" title="Letöltés">
+                            <a href="'.$kep_utvonal.$cache_param.'" target="_blank" title="Letöltés">
                                 '.$kep -> getHtml().'
                             </a>
                         </div>
                     </div>
                     <div id="megj_'.$azon.'_felirat" class="felirat c">
-                        <a href="'.$kep_utvonal.'" target="_blank" title="Letöltés" class="fajlnev">
+                        <a href="'.$kep_utvonal.$cache_param.'" target="_blank" title="Letöltés" class="fajlnev">
                             '.$felirat.'
                         </a>
                     </div>
@@ -1356,13 +1386,13 @@ function get_tobbkep_thumb($sor_kepek = '', $i = '', $tobbkep_tablanev = '', $ni
                     <script>gomb'.$azon.' = get_tobbkep_megj_szerk_gomb(\''.basename(__FILE__).'\', \''.$azon.'\', \''.$sor_kepek['recid'].'\');</script>
                     <div class="kep">
                         <div>
-                            <a href="'.$kep_utvonal.'" target="_blank" title="Letöltés">
+                            <a href="'.$kep_utvonal.$cache_param.'" target="_blank" title="Letöltés">
                                 '.$kep -> getHtml().'
                             </a>
                         </div>
                     </div>
                     <div id="megj_'.$azon.'_felirat" class="felirat c" style="width: 30rem">
-                        <a href="'.$kep_utvonal.'" target="_blank" title="Letöltés" class="fajlnev">
+                        <a href="'.$kep_utvonal.$cache_param.'" target="_blank" title="Letöltés" class="fajlnev">
                             '.$felirat.'
                         </a>
                     </div>
@@ -1407,6 +1437,14 @@ function dokumentum_kezeles_jog($tabla, $id) {
     if( $tabla == 'projektigenyles_dok' ) {
         $pri = $adatbazis_kapcsolat->s2('stat_id', 'projektigenyles', "`recid`='{$id}'");
         if( $pri['stat_id'] == PRIGENY_STAT_ELUTASITVA || $pri['stat_id'] == PRIGENY_STAT_JOVAHAGYVA ) {
+            return false;
+        }
+    }
+    
+    // Eszközigénylés megrendelőnél cseréjekor kell kezelés jog és megfelelő státusz
+    if( $tabla == 'eszkozigenyles_megr' && $_POST['megr_csere'] ) {
+        $megr = $adatbazis_kapcsolat->s2('stat_id', 'eszkozigenyles_megr', "`recid`='{$id}'");
+        if( $megr['stat_id'] == ESZKOZIGENYL_MEGR_STAT_KIKULD_VAR || !_jog(JOG_BESZERZ_IGENYLESEK_KEZEL) ) {
             return false;
         }
     }

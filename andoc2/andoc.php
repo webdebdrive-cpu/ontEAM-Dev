@@ -579,7 +579,7 @@ class ServerClass {
                         $aparecid = $adatbazis_kapcsolat->i($tabla.'_atmeneti', $mezok, $ertekek);
                         if( $aparecid === false ) { $db_error = mysqli_error($db_kapcs); }
                     }
-Throw new SOAPFault ('Server', $adatbazis_kapcsolat -> gp() );
+// Throw new SOAPFault ('Server', $adatbazis_kapcsolat -> gp() );
                 }
                 
             // Update, éles táblát updatelünk
@@ -1243,15 +1243,40 @@ Throw new SOAPFault ('Server', $adatbazis_kapcsolat -> gp() );
                     array_push($ertekek, $szamla_adatok['Partner adószám'] );
                 }
                 
-                // Ha sikerült beazonosítani a parntert a kapott számmal, akkor update
+                // Ha sikerült beazonosítani a partnert a kapott számmal, akkor update
                 $partner = $adatbazis_kapcsolat->s2('id', 'szallito', "`id`='{$szallito_id}'");
+                if( $partner === false ) { $db_error = mysqli_error($db_kapcs); }
                 if( $partner ) {
-                    $adatbazis_kapcsolat->u('szallito', $mezok, $ertekek, "`id`='{$szallito_id}'");
-                // Egyébként...
+                    $sql = $adatbazis_kapcsolat->u('szallito', $mezok, $ertekek, "`id`='{$szallito_id}'");
+                    if( $sql === false ) { $db_error = mysqli_error($db_kapcs); }
+
+                // Egyébként próbáljuk meg adószám alapján azonosítani
                 } else {
-                    array_push($mezok,   'id',          'insert_dt' );
-                    array_push($ertekek, $szallito_id,  'NOW()'     );
-                    $adatbazis_kapcsolat->i('szallito', $mezok, $ertekek);
+
+                    $partner = $adatbazis_kapcsolat->s2('id elozo_id', 'szallito', "`adoszam`='{$szamla_adatok['Partner adószám']}'");
+                    if( $partner === false ) { $db_error = mysqli_error($db_kapcs); }
+
+                    // Ha adószám alapján megtaláltuk, akkor frissítsük a szállító_id-t mindenhol
+                    if( $partner ) {
+
+                        $db_error = update_szallito_id($partner['elozo_id'], $szallito_id);
+                        // Illetve magában a szállító táblában is átírjuk
+                        $sql = $adatbazis_kapcsolat -> u('szallito', array('id'), array($szallito_id), "`adoszam`='{$szamla_adatok['Partner adószám']}'");
+                        if( $sql === false ) { $db_error = mysqli_error($db_kapcs); }
+                        // Throw new SOAPFault ('Server', $adatbazis_kapcsolat -> gp());
+
+                        // Illetve az eredeti update is fusson le, amivel az adatait aktualizáljuk
+                        $sql = $adatbazis_kapcsolat->u('szallito', $mezok, $ertekek, "`id`='{$szallito_id}'");
+                        if( $sql === false ) { $db_error = mysqli_error($db_kapcs); }
+
+                    // Ha adószám alapján sem találjunk, akkor létrehozzuk mint új partnert
+                    } else {
+                        array_push($mezok,   'id',          'insert_dt' );
+                        array_push($ertekek, $szallito_id,  'NOW()'     );
+                        $sql = $adatbazis_kapcsolat->i('szallito', $mezok, $ertekek);
+                        if( $sql === false ) { $db_error = mysqli_error($db_kapcs); }
+                    }
+
                 }
             }
 
@@ -2015,4 +2040,63 @@ Throw new SOAPFault ('Server', $adatbazis_kapcsolat -> gp() );
         }
         
     }
+}
+
+// Szállító ID-t updatelő függvény (Korcsmáros Tibi kódja alapján)
+function update_szallito_id($elozo_id, $uj_id) {
+
+    global $db_kapcs;
+  
+    switch ($_SERVER['SERVER_NAME']) {
+        case 'www.onteam.hu':
+            $tableschema = "onteam_live";
+        break;
+        case 'dev.onteam.hu':
+            $tableschema = "onteam_dev";
+        break;
+        case 'teszt.onteam.hu':
+            $tableschema = "onteam_teszt";
+        break;
+        default:    
+        die("Hiba adatbázis megadásában!");    
+    }
+
+    // lekérjük onteam adatbázisból azon táblákat, ahol van szallito_id (itt van +2 oszlop kivehetitek)
+    $sql = "SELECT TABLE_SCHEMA, TABLE_NAME, COLUMN_NAME, DATA_TYPE, CHARACTER_MAXIMUM_LENGTH 
+            FROM INFORMATION_SCHEMA.COLUMNS 
+            WHERE TABLE_SCHEMA = '{$tableschema}'
+            AND LEFT(TABLE_NAME, 7) = 'onteam_'
+            AND COLUMN_NAME = 'szallito_id'";
+    $result = mysqli_query($db_kapcs, $sql);
+    if (!$result) {
+        return "Hiba information_schema táblából való lekérés közben (táblák, ahol van szallito_id oszlop)" . $db_kapcs->connect_error;
+    }
+    $information_schema_tables = $result->fetch_All(MYSQLI_ASSOC);  // kb. 40 tábla
+   
+    // Az alábbi táblákban kivételesen mégsem kell a szallito_id-tkat cserélni, mert ekeben recid-ket tárolunk
+    $kiveteles_tablak = array('onteam_eszkozigenyles', 'onteam_eszkozigenyles_megr', 'onteam_szakter_kapcs', 'onteam_szallito_dok');
+    // ezen a kb. 40 táblán végigmegyünk
+    $teljes_sql = '';
+    for ($i = 0; $i < count($information_schema_tables); $i++) {
+        // tábla neve
+        $tableName =  $information_schema_tables[$i]['TABLE_NAME'];
+        if( !in_array($tableName, $kiveteles_tablak) ) {
+            // tranzakció indítása (táblánként érdemes)
+            mysqli_query($db_kapcs, 'START TRANSACTION');
+            // update parancs
+            $sqlupdate = "UPDATE `{$tableName}` SET `szallito_id`='{$uj_id}' WHERE `elozo_id`='{$elozo_id}'";  // $elozo_id már egy mínuszos érték, hisz ha csak adószámmal találtuk meg, akkor ott az ID mezőben a régi mínuszos ID lesz.
+            $teljes_sql .= $sqlupdate;
+            $resultupdate = mysqli_query($db_kapcs, $sqlupdate);
+            if (!$resultupdate) {
+                mysqli_query($db_kapcs, 'ROLLBACK');
+                return "Hiba {$tableName} tábla szallito_id oszlop update-kor: jelenlegi id: {$elozo_id}, új id: {$uj_id}" . $db_kapcs->connect_error;
+            } else {
+                // printf("Frissített sorok száma (UPDATE): %d\n", mysqli_affected_rows($db_kapcs));
+                mysqli_query($db_kapcs, 'COMMIT');
+            }
+        }
+        
+    }
+    // Throw new SOAPFault ('Server', $teljes_sql);
+    return false;
 }

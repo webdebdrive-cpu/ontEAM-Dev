@@ -1,8 +1,8 @@
 <?php
 /*                                                  *\
  * FONTOS:
- * 171. ID következik
- * 16. kategória ID következik
+ * 173. ID következik
+ * 17. kategória ID következik
 \*                                                  */
 
 $jogosultsagKatok = array(
@@ -64,13 +64,15 @@ $jogosultsagok = array(
     146=> array('nev' => 'Elsődleges aláíró',                               'kat' => 1, 'sor' => 22 ),
     147=> array('nev' => 'Másodlagos aláíró',                               'kat' => 1, 'sor' => 23, 'i' => 'Virtuális, elsődlegessel együtt ír alá' ),
     
-    6  => array('nev' => 'Felhasználók megtekintése',               'kat' => 2, 'sor' => 6),
-    7  => array('nev' => 'Felhasználók kezelése',                   'kat' => 2, 'sor' => 7),
-    105=> array('nev' => 'Jelszó kezelése',                         'kat' => 2, 'sor' => 8),
-    8  => array('nev' => 'Értéklisták megtekintése',                'kat' => 2, 'sor' => 9),
-    9  => array('nev' => 'Értéklisták kezelése',                    'kat' => 2, 'sor' => 10),
-    10 => array('nev' => 'Szerepkörök megtekintése',                'kat' => 2, 'sor' => 11),
-    11 => array('nev' => 'Szerepkörök kezelése',                    'kat' => 2, 'sor' => 12),
+    6   => array('nev' => 'Felhasználók megtekintése',              'kat' => 2, 'sor' => 1),
+    7   => array('nev' => 'Felhasználók kezelése',                  'kat' => 2, 'sor' => 2),
+    105 => array('nev' => 'Jelszó kezelése',                        'kat' => 2, 'sor' => 3),
+    8   => array('nev' => 'Értéklisták megtekintése',               'kat' => 2, 'sor' => 4),
+    9   => array('nev' => 'Értéklisták kezelése',                   'kat' => 2, 'sor' => 5),
+    10  => array('nev' => 'Szerepkörök megtekintése',               'kat' => 2, 'sor' => 6),
+    11  => array('nev' => 'Szerepkörök kezelése',                   'kat' => 2, 'sor' => 7),
+    171 => array('nev' => 'Beállítások megtekintése',               'kat' => 2, 'sor' => 8),
+    172 => array('nev' => 'Beállítások kezelése',                   'kat' => 2, 'sor' => 9),
 
     12 => array('nev' => 'Anyagigénylés megtekintése',              'kat' => 3, 'sor' => 1),
     13 => array('nev' => 'Új igénylés létrehozása',                 'kat' => 3, 'sor' => 2, 'i' => 'Műszaki vezető'),
@@ -207,8 +209,7 @@ $jogosultsagok = array(
     156  => array('nev' => 'Szállodai engedélyezés',                'kat' => 15, 'sor' => 11),
     157  => array('nev' => 'BI validálás',                          'kat' => 15, 'sor' => 12),
     168  => array('nev' => 'BI jóváhagyás',                         'kat' => 15, 'sor' => 13),
-    // Az alábbi csak átmenetileg van törölve, várhatóan később szükség lesz rá, akkor majd kivehető a 'torolve' => 'TÖRÖLVE' rész
-    152  => array('torolve' => 'TÖRÖLVE', 'nev' => 'Szakmai véleményezés',                  'kat' => 15, 'sor' => 14),
+    152  => array('nev' => 'Szakmai véleményezés',                  'kat' => 15, 'sor' => 14),
     160  => array('nev' => 'Felsővez. Jóváhagyás',                  'kat' => 15, 'sor' => 15),
     161  => array('nev' => 'BI véglegesítés',                       'kat' => 15, 'sor' => 16),
     166  => array('nev' => 'Megrendelés megtekintése',              'kat' => 15, 'sor' => 17),

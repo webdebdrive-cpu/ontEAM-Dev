@@ -55,7 +55,8 @@ $(document).ready(function(){
         $('#popup_ossz_netto').html( $('#ossz_netto_db_'+akt_id).val() + ' Ft' );
     }
     
-    $('#popup_bi_indok').val( $('#bi_indok_db_'+akt_id).val().replace(/<br\s*\/?>/g, '\n') );
+    // Mégse kerüljön be az indoklás mezőbe az adatbázis értéke, logolós működés kell ide
+    // $('#popup_bi_indok').val( $('#bi_indok_db_'+akt_id).val().replace(/<br\s*\/?>/g, '\n') );
     $('#popup_bi_indok').select();
 
 });
@@ -64,7 +65,7 @@ function bi_elutasit() {
     // globális változók frissítése az adott adatlap alapján
     eszkoz_valtozok_update();
     
-    /* Indoklás kötelező */
+    // Indoklás kötelező
     if( !$('#popup_bi_indok').val() ) {
         $('#popup input, #popup textarea, #popup select').removeClass('hibas_ide_focus');
         $('#popup_bi_indok').addClass('hibas_ide_focus');
@@ -103,7 +104,8 @@ function bi_elutasit() {
                     // Ha a mehet a '-tervezett-' igénylés miatt volt kitöltve, akkor lépünk a következő sorra. 
                     if( response.naviKov ) {
                         // Ez hívódik meg a lap tetején léptető gombnyomásra is.
-                        naviKov();
+                        // Ilyet mégsem kérnek
+                        // naviKov();
                     } 
 
                     // A tényleges gombokat is cserélni kell

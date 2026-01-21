@@ -1,0 +1,190 @@
+<h2>Megrendelő cseréje</h2>
+<form id="dokumentum_tipus_valaszt" class="popupForm" method="post" onsubmit="return false;">
+
+    <div class="padd">
+
+        <div class="kozep">
+            <div class="dt">
+                <div class="dtr">
+                    <div class="dtc form_bal">Indoklás:</div>
+                    <div class="dtc form_jobb">
+                        <textarea id="popup_dok_indok" class="csillag" onkeyup="if( $(this).val().trim()=='' ){ $(this).val(''); }"></textarea>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div style="padding: 0 2.5rem;">
+            <div style="margin: 1rem 0 .5rem 0">
+                Tallózza be a feltölteni kívánt dokumentumot:
+            </div>
+            <div id="jsff_tobbkep_eszkoz" class="jsff">
+                <div class="talloz">
+                    <div>
+                        <span>Tallózás</span>
+                        <input type="file" id="popup_file" accept=".pdf">
+                    </div>
+                </div>
+                <div id="betallozott_fajlok"></div>
+            </div>
+            <div id="tallozas_div" class="dn"></div>
+            <br>Ha folytatja, a jelenlegi megrendelő törlődik és a kiválasztott dokumentum kerül a helyére.
+            <br>Folytatja?
+        </div>
+    </div>
+    
+    <div class="kuldes">
+        <input type="button" name="elkuld" class="gomb zold" value="Igen" onclick="megrendelo_csere(_get('id'));">
+        <input type="button" name="megsem" class="gomb piros" value="Nem" onclick="popupZar();">
+    </div>
+</form>
+
+<style>
+    #fajl_adatok {
+        margin: 1rem 0;
+        line-height: 1.2;
+    }
+    #betallozott_fajlok {
+        text-align: left;
+    }
+</style>
+
+<script>
+function megrendelo_csere(id) {
+
+    if( !$('#popup_dok_indok').val().trim() ) {
+        $('#popup_dok_indok').addClass('hibas_ide_focus');
+        alert2('Kérem indokolja a cserét!', '', 'Hiba');
+        return false;
+    }
+    if( !$('#popup_file').val() ) {
+        alert2('Kérem tallózza be a feltölteni kívánt dokumentumot!', '', 'Hiba');
+        return false;
+    }
+
+    beolvasas_megr_csere(document.getElementById('popup_file').files, true);
+}
+
+// Fájlnevek felsorolása
+$('#popup_file').on('change', function() {
+    var $fajlok = $('#betallozott_fajlok');
+    $fajlok.empty();
+
+    if (this.files.length > 0) {
+        $('<div>').text('Betallózott fájl:').css({
+            'font-weight': 'bold',
+            'margin-bottom': '5px'
+        }).appendTo($fajlok);
+
+        $.each(this.files, function(i, file) {
+            $('<div>').text(file.name).appendTo($fajlok);
+        });
+    }
+});
+
+
+// tobbkep_ujkep.html -ből a beolvasás függvénye itt fixen 
+function beolvasas_megr_csere(fajlok, ellenorzes_kihagy) {
+
+    var voltmar = [];
+    var MAX_MERET = 32768;
+
+    var formData        = new FormData();
+    var fajlok_kesz     = 0;
+
+    for ( var i = 0; i < fajlok.length; i++ ) {
+
+        fajl = fajlok[i];
+        
+        // Túl nagy méretű fálj problémájának lekezelése. A méret limitet a PHP iniből kapjuk.
+        if( fajl.size/1024 > MAX_MERET ) {
+            alert2(fajl.name+': túl nagy meretű fájl ('+(Math.round(fajl.size/1024/1024*100) / 100)+'MB)!<br>Maximálisan megengedett méret: '+(Math.round(MAX_MERET/1024*100) / 100)+'MB', '', 'Hiba');
+            return false;
+        }
+        
+        formData.append('file', fajl);
+
+        progress_id = 'jsff_megr_csere_' + i;
+        var pg = $('<progress id="'+progress_id+'" min="0" max="100" value="0">0</progress>');
+        $('#jsff_megr_csere').append(pg);
+
+        var xhr = new XMLHttpRequest();
+        xhr.open('POST', 'tobb_kep.php');
+
+        (function(progress_id, fajl, i){
+            xhr.upload.onprogress = function(e){
+                var percent = parseInt(e.loaded / e.total * 100);
+                $('#' + progress_id).val(percent);
+            };
+            
+            xhr.onload = function() {
+                
+                fajlok_kesz++;
+                $('#' + progress_id).val(100);
+                $('#' + progress_id).fadeOut(2000, function(){ $('#' + progress_id).next('br').remove(); });
+
+                var nem_irhato_felul = false;
+                // Ha a 'frissit' szót kaptunk válaszul, akkor újra betöltjük a dokumentumok felület tartalmát (pl. lehet megváltoztak a nyomógombok a feltöltés hatására)
+                if( this.responseText.substring(0,7)== 'frissit' ) {
+                    if( fajlok_kesz == fajlok.length ) {
+                        szamlaBetolt(_get('id'), PHP_SELF, 'dokumentumok');
+                        popupZar();
+                    }
+                } else {
+                    // Hibakezelés
+                    if( this.responseText.substring(0,5)=='Hiba!' ) {
+                        
+                        if( this.responseText.substring(5) == 'A fájl létezik!' ) {
+                            voltmar[i] = fajl;
+                        } else {
+                            alert2(this.responseText.substring(5), '', 'Hiba');
+                        }
+                        
+                    // Simán fájl kiíratása
+                    } else {
+                        
+                        $('#sorrendezes_tobbkep').append(this.responseText);
+                        if ( fajlok_kesz == fajlok.length ) {
+                            minden_fajl_kesz_megr_csere();
+                        }
+                        
+                    }
+
+                }
+                
+                if( xhr.status==500 ) {
+                    alert2('A fájl feltöltése sikertelen. Valószínűleg túl nagy méretű a fájl. Maximális mérete', '', 'Hiba');
+                }
+                
+            };
+        }(progress_id, fajl, i));
+
+        var parameterek = { 
+                            'megnevezes'    : 'tobbkep',
+                            'konyvtar'      : 'eszkozigenyles_megr',
+                            'tabla'         : 'eszkozigenyles_megr_dok',
+                            'oszlop'        : 'eszkozigenyles_megr_id',
+                            'sorid'         : _get('id'),
+                            'indoklas'      : $('#popup_dok_indok').val().trim(),
+                            'megr_csere'    : 1,
+                        };
+        $.each(parameterek, function(kulcs, ertek){
+            formData.append(kulcs, ertek);
+        });
+
+        formData.append('ellenorzes_kihagy', ellenorzes_kihagy);
+
+        xhr.send(formData);
+
+    }
+
+    if( ellenorzes_kihagy ) {
+        alert2('');
+    }
+}
+// Sikeres feltöltés
+function minden_fajl_kesz_megr_csere() {
+    popupZar();
+    alert2('A megrendelés PDF sikeresen cserélve lett!', '', 'Üzenet');
+}
+</script>

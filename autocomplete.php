@@ -264,7 +264,9 @@ if( isset($_GET['value']) && isset($_GET['tabla']) && isset($_GET['oszlop_keres'
             $where_sql .= ' AND `id` NOT IN ('.MLTIPUS_RENDSZERES_K.', '.MLTIPUS_UTEMEZETT_F.')';
             $lekerdez = mysqli_query($db_kapcs, 'SELECT `recid`,'.$select_kieg.' `'.implode('`, `', $oszlop_listaz).'` FROM `'.get_db_tabla().$_GET['tabla'].'`'.$where_sql.' ORDER BY `'.$oszlop_keres[0].'`') or die(mysqli_error($db_kapcs));
         } else {
-// echo 'SELECT `recid`,'.$select_kieg.' `'.implode('`, `', $oszlop_listaz).'` FROM `'.get_db_tabla().$_GET['tabla'].'`'.$where_sql.' ORDER BY `'.$oszlop_keres[0].'`'; exit;
+// if( $_SERVER['REMOTE_ADDR'] == get_debug_ip() ) {
+//     echo 'SELECT `recid`,'.$select_kieg.' `'.implode('`, `', $oszlop_listaz).'` FROM `'.get_db_tabla().$_GET['tabla'].'`'.$where_sql.' ORDER BY `'.$oszlop_keres[0].'`'; exit;
+// }
             $lekerdez = mysqli_query($db_kapcs, 'SELECT `recid`,'.$select_kieg.' `'.implode('`, `', $oszlop_listaz).'` FROM `'.get_db_tabla().$_GET['tabla'].'`'.$where_sql.' ORDER BY `'.$oszlop_keres[0].'`') or die(mysqli_error($db_kapcs));
         }
         while( $sor = mysqli_fetch_array($lekerdez) ) {

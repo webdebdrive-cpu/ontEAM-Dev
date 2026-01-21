@@ -102,33 +102,69 @@ $(function() {
             return $(this).index() === index;
         }).sortElements(function(a, b) {
 
-            var at = $.text([a]),
-                bt = $.text([b]);
-        
-            if( $(a).attr('sorttable_customkey') ) {
-                at = $(a).attr('sorttable_customkey');
-            }
-            if( $(b).attr('sorttable_customkey') ) {
-                bt = $(b).attr('sorttable_customkey');
+            // --- 1. Elsődleges rendezési érték ---
+            var at = $(a).attr('data-sort') ?? $(a).attr('sorttable_customkey') ?? $.text([a]);
+            var bt = $(b).attr('data-sort') ?? $(b).attr('sorttable_customkey') ?? $.text([b]);
+
+            // Ha ez a SZÁLLODA oszlop → többkulcsos rendezés
+            var clickedColId = th.attr('id');
+
+            if (clickedColId === 'eszkoz_tabla_szalloda') {
+
+                // --- 2. Másodlagos rendezési kulcs: Részleg ---
+                var rowA = $(a).parent();
+                var rowB = $(b).parent();
+
+                var colIndexSzalloda = th.index();
+                var colIndexReszleg  = table.find('th#eszkoz_tabla_reszleg').index();
+                var colIndexNetto    = table.find('th#eszkoz_tabla_ossz_netto').index();
+
+                // elsődleges kulcs már megvan: at / bt
+
+                // másodlagos kulcs
+                var a2 = rowA.children().eq(colIndexReszleg).attr('data-sort') ??
+                         rowA.children().eq(colIndexReszleg).text();
+
+                var b2 = rowB.children().eq(colIndexReszleg).attr('data-sort') ??
+                         rowB.children().eq(colIndexReszleg).text();
+
+                // harmadlagos kulcs
+                var a3 = rowA.children().eq(colIndexNetto).attr('data-sort') ??
+                         rowA.children().eq(colIndexNetto).text();
+
+                var b3 = rowB.children().eq(colIndexNetto).attr('data-sort') ??
+                         rowB.children().eq(colIndexNetto).text();
+
+                // --- Rendezés elsődleges kulcs szerint ---
+                var cmp1 = at.localeCompare(bt);
+                if (cmp1 !== 0) return inverse ? -cmp1 : cmp1;
+
+                // --- Másodlagos rendezés: részleg ---
+                var cmp2 = a2.localeCompare(b2);
+                if (cmp2 !== 0) return inverse ? -cmp2 : cmp2;
+
+                // --- Harmadlagos rendezés: össz nettó ---
+                // mindig az elsődleges fordítottja!
+                // Szóközök eltávolítása, hogy helyesen legyen numerikus
+                var numA3 = parseFloat(String(a3).replace(/\s+/g, ''));
+                var numB3 = parseFloat(String(b3).replace(/\s+/g, ''));
+
+                var cmp3 = numA3 - numB3;
+
+                // mindig az elsődleges rendezés fordított iránya
+                return inverse ? cmp3 : -cmp3;
+
             }
 
-            if( $(a).attr('data-sort') !== undefined ) {
-                var at = $(a).attr('data-sort'),
-                    bt = $(b).attr('data-sort');
-            }
-
-            if( isNumeric(at) && isNumeric(bt) ) {
-                at = parseInt(at);
-                bt = parseInt(bt);
-
-                return at > bt ? inverse ? -1 : 1 : inverse ? 1 : -1;
+            // --- Ha NEM szálloda oszlop → marad az eredeti rendezés ---
+            if (isNumeric(at) && isNumeric(bt)) {
+                at = parseInt(at); bt = parseInt(bt);
+                return at > bt ? (inverse ? -1 : 1) : (inverse ? 1 : -1);
             } else {
                 return inverse ? bt.localeCompare(at) : at.localeCompare(bt);
             }
 
-        }, function(){
-            return this.parentNode;
-        });
+        }, function(){ return this.parentNode; });
 
         ujra_sorszamoz_uj();
         // Eszközigénylés alatt a táblázat kicsit másképp működés (le-fel nyilak léptetése), ezért ezt itt újra kell kalibrálni

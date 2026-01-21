@@ -303,6 +303,27 @@ function i_u($type, $tabla, $tomb) {
             }
         }
 
+        // Új tervezett igénylés feltötlésekor van még ez a feltétel is. Ez is ellenőrizve van már JS alatt, de így biztonságos, ha itt is ellenőrizzük.
+        if( $type == 'insert' && $_POST['tipus'] == BESZ_TIP_TERVEZETT ) {
+            $idoszak = $adatbazis_kapcsolat -> s2('hatar nyitva hatar_fured nyitva_fured', 'besz_idoszak', "`stat_id`='".BESZERZES_IDOSZAK_AKTIV."'");
+            if( !in_array($_POST['telephely_id'], furedi_szallodak()) && !$idoszak['nyitva'] ) {
+                echo json_encode(array(
+                                        'hiba'  => 'Az igénylés időszak zárva van erre a szállodára!',
+                                        'title' => 'Hiba',
+                                    ));
+                $weblap -> leallit();
+                exit;
+            }
+            if( in_array($_POST['telephely_id'], furedi_szallodak()) && !$idoszak['nyitva_fured'] ) {
+                echo json_encode(array(
+                                        'hiba'  => 'Az igénylés időszak zárva van a füredi szállodákra!',
+                                        'title' => 'Hiba',
+                                    ));
+                $weblap -> leallit();
+                exit;
+            }
+        }
+
         // Új feltöltésnél ha az igénylés típusa tervezett és van aktív időszak, akkor annak az azonosítóját írjuk be az igényléshez is (tehát ekkor kapcsolódnak össze)
         if( $type == 'insert' && $_POST['tipus'] == BESZ_TIP_TERVEZETT ) {
             $ma = date('Y-m-d');
@@ -5430,12 +5451,15 @@ function szamla_lista( $where = '', $tabla = '', $kijeloltek = false, $csak_sql_
                 }
             }
 
+            $van_irany = 0;
             $eszkozigenyles_recid = ', `'.get_db_tabla().'eszkozigenyles`.`recid`';
             switch ( $_SESSION['eszkozigenyles_tablazat_rendez'] ) {
                 case 'eszkoz_tabla_recid'       : $order = '`'.get_db_tabla().'eszkozigenyles`.`recid`';        break;
                 case 'eszkoz_tabla_azon'        : $order = '`'.get_db_tabla().'eszkozigenyles`.`recid`';        break;
                 case 'eszkoz_tabla_idoszak_azon': $order = '`'.get_db_tabla().'eszkozigenyles`.`idoszak_azon`'; break;
-                case 'eszkoz_tabla_statusz'     : $order = '`'.get_db_tabla().'eszkozigenyles`.`stat_id`';      break;
+                case 'eszkoz_tabla_statusz'     : 
+                    $order = '`'.get_db_tabla().'eszkozigenyles`.`stat_id`*1 '.$_SESSION['eszkozigenyles_tablazat_irany'].', `'.get_db_tabla().'eszkozigenyles`.`recid`';
+                break; // *1, hogy számnak tekintse + azon belül recid
                 case 'eszkoz_tabla_kiv_kolts'   : $order = '`'.get_db_tabla().'eszkozigenyles`.`kiv_kolts`';    break;
                 case 'eszkoz_tabla_musz_el_ig'  : $order = '`'.get_db_tabla().'eszkozigenyles`.`musz_el_ig`';   break;
                 case 'eszkoz_tabla_szall_ig_vel': $order = '`'.get_db_tabla().'eszkozigenyles`.`szall_ig_vel`'; break;
@@ -5444,7 +5468,16 @@ function szamla_lista( $where = '', $tabla = '', $kijeloltek = false, $csak_sql_
                 case 'eszkoz_tabla_felso_vel'   : $order = '`'.get_db_tabla().'eszkozigenyles`.`felso_vel`';    break;
                 case 'eszkoz_tabla_tipus'       : $order = '`'.get_db_tabla().'eszkozigenyles_tipus`.`nev`' .$eszkozigenyles_recid; break;
                 case 'eszkoz_tabla_prior'       : $order = '`'.get_db_tabla().'eszkozigenyles`.`prior`'     .$eszkozigenyles_recid; break;
-                case 'eszkoz_tabla_szalloda'    : $order = '`'.get_db_tabla().'telephely`.`nev`'            .$eszkozigenyles_recid; break;
+                // case 'eszkoz_tabla_szalloda'    : $order = '`'.get_db_tabla().'telephely`.`nev`, `'.get_db_tabla().'reszleg_nev`.`info`, `'.get_db_tabla().'szallito_beszerzes`.`nev`'; break;
+                case 'eszkoz_tabla_szalloda'    :
+                    $netto_irany = 'asc';
+                    if( $_SESSION['eszkozigenyles_tablazat_irany'] == 'asc' ) {
+                        $netto_irany = 'desc';
+                    }
+                    $order = '`'.get_db_tabla().'telephely`.`nev` '.$_SESSION['eszkozigenyles_tablazat_irany'].', `'.get_db_tabla().'reszleg_nev`.`info` '.$_SESSION['eszkozigenyles_tablazat_irany'].', `ossz_netto` '.$netto_irany.'';
+                    $van_irany = 1;
+                break;
+                case 'eszkoz_tabla_reszleg'     : $order = '`'.get_db_tabla().'reszleg_nev`.`info`';            break;
                 case 'eszkoz_tabla_nev'         : $order = '`'.get_db_tabla().'eszkozigenyles`.`nev`';          break;
                 case 'eszkoz_tabla_csz'         : $order = '`'.get_db_tabla().'eszkozigenyles`.`csz`';          break;
                 case 'eszkoz_tabla_spec'        : $order = '`'.get_db_tabla().'eszkozigenyles`.`spec`';         break;
@@ -5465,7 +5498,9 @@ function szamla_lista( $where = '', $tabla = '', $kijeloltek = false, $csak_sql_
                 case 'eszkoz_tabla_jhossz'      : $order = '`'.get_db_tabla().'eszkozigenyles`.`jhossz`';       break;
                 case 'eszkoz_tabla_rend_szam'   : $order = '`'.get_db_tabla().'eszkozigenyles`.`rend_szam`';    break;
             }
-            $order .= ' '.$_SESSION['eszkozigenyles_tablazat_irany'];
+            if( !$van_irany ) {
+                $order .= ' '.$_SESSION['eszkozigenyles_tablazat_irany'];
+            }
             // Ha már kétszer volna benne a desc, akkor azt egyre cseréljük
             $order = str_replace('desc desc', 'desc', $order);
             $order = str_replace('desc asc',  'asc',  $order);
@@ -7861,6 +7896,7 @@ function eszkozigenylesLista( $bejegyzesek, $tabla, $frissit = '', $kijeloltek =
             array('id' => 'eszkoz_tabla_tipus',         'nev' => 'Típus',                           'width' => 80   ),
             array('id' => 'eszkoz_tabla_prior',         'nev' => 'Prioritás',                       'width' => 50   ),
             array('id' => 'eszkoz_tabla_szalloda',      'nev' => 'Szálloda',                        'width' => 90   ),
+            array('id' => 'eszkoz_tabla_reszleg' ,      'nev' => 'Igénylő részleg',                 'width' => 100  ),
             array('id' => 'eszkoz_tabla_nev' ,          'nev' => 'Termék név',                      'width' => 250  ),
             array('id' => 'eszkoz_tabla_csz',           'nev' => 'Cikkszám',                        'width' => 100  ),
             array('id' => 'eszkoz_tabla_spec' ,         'nev' => 'Specifikáció',                    'width' => 200  ),
@@ -8084,11 +8120,13 @@ function eszkozigenylesLista( $bejegyzesek, $tabla, $frissit = '', $kijeloltek =
                 $szall_hat = '';
             }
 
+            $reszleg_kiir = htmlspecialchars_decode(getErtekLista(ERTEKLISTA_RESZLEG, $bsz['reszleg']));
+
             $recid_rendezeshez = sprintf('%010u', $bsz['recid']);
             $sorok = array(
                 'eszkoz_tabla_azon'             => '<td data-sort="'.$bsz['recid'].'">'.$bsz['azon'].'</td>',
                 'eszkoz_tabla_idoszak_azon'     => '<td>'.$bsz['idoszak_azon'].'</td>',
-                'eszkoz_tabla_statusz'          => '<td sorttable_customkey="'.$bsz['stat_id'].'">
+                'eszkoz_tabla_statusz'          => '<td data-sort="'.sprintf('%04u', $bsz['stat_id']).'_'.$bsz['recid'].'">
                                                         <span class="stat_'.$bsz['recid'].'">'.getStatText('eszkozigenyles', $bsz['stat_id']).'</span>
                                                         <div class="dn akt_sor_gombok gombok_'.$bsz['recid'].'" data-dok_db="'.$bsz['dok_db'].'" data-megj_db="'.$bsz['megj_db'].'">
                                                             '.get_eszkozigenyles_gombok($bsz['recid']).'
@@ -8096,8 +8134,9 @@ function eszkozigenylesLista( $bejegyzesek, $tabla, $frissit = '', $kijeloltek =
                                                     </td>',
                 'eszkoz_tabla_tipus'            => '<td data-sort="'.$besz_tipus.'_'.$recid_rendezeshez.'">'.$besz_tipus.'</td>',
                 'eszkoz_tabla_prior'            => '<td data-sort="'.$prioritas.'_'.$recid_rendezeshez.'">'.$prioritas.'</td>',
-                'eszkoz_tabla_szalloda'         => '<td data-sort="'.$telephely['nev'].'_'.$recid_rendezeshez.'">'.$telephely['nev'].'</td>',
+                'eszkoz_tabla_szalloda'         => '<td>'.$telephely['nev'].'</td>',
                 'eszkoz_tabla_nev'              => '<td>'.htmlspecialchars_decode($bsz['nev']).'</td>',
+                'eszkoz_tabla_reszleg'          => '<td>'.$reszleg_kiir.'</td>',
                 'eszkoz_tabla_csz'              => '<td>'.htmlspecialchars_decode($bsz['csz']).'</td>',
                 'eszkoz_tabla_spec'             => '<td>'.htmlspecialchars_decode(nl2br2($bsz['spec'])).'</td>',
                 'eszkoz_tabla_igeny_indok'      => '<td>'.htmlspecialchars_decode(nl2br2($bsz['igeny_indok'])).'</td>',
@@ -8111,10 +8150,10 @@ function eszkozigenylesLista( $bejegyzesek, $tabla, $frissit = '', $kijeloltek =
                 'eszkoz_tabla_kcs_21'           => '<td class="c">'.erteklista(ERTEKLISTA_PENZNEM, $bsz['kcs_21']).'</td>',
                 'eszkoz_tabla_arfolyam'         => '<td class="r">'.$bsz['arfolyam'].'</td>',
                 'eszkoz_tabla_dev_net'          => '<td class="r nowrap">'.number_format($bsz['dev_net'], 2, ',', ' ').'</td>',
-                'eszkoz_tabla_ossz_netto'       => '<td class="r nowrap ossz_netto_'.$bsz['recid'].'">'.number_format($bsz['ossz_netto'], 0, ',', ' ').'</td>',
+                'eszkoz_tabla_ossz_netto'       => '<td class="r nowrap ossz_netto_'.$bsz['recid'].'" data-sort="'.$bsz['ossz_netto'].'">'.number_format($bsz['ossz_netto'], 0, ',', ' ').'</td>',
                 'eszkoz_tabla_jhmen'            => '<td class="r nowrap jhmen_'.$bsz['recid'].'" data-sort="'.$bsz['jhmen'].'">'.number_format($bsz['jhmen'], 0, ',', ' ').'</td>',
-                'eszkoz_tabla_jhar'             => '<td class="r nowrap" data-sort="'.$bsz['jhar'].'">'.number_format($bsz['jhar'], 0, ',', ' ').'</td>',
-                'eszkoz_tabla_jhossz'           => '<td class="r nowrap" data-sort="'.$bsz['jhossz'].'">'.number_format($bsz['jhossz'], 0, ',', ' ').'</td>',
+                'eszkoz_tabla_jhar'             => '<td class="r nowrap jhar_'.$bsz['recid'].'" data-sort="'.$bsz['jhar'].'">'.number_format($bsz['jhar'], 0, ',', ' ').'</td>',
+                'eszkoz_tabla_jhossz'           => '<td class="r nowrap jhossz_'.$bsz['recid'].'" data-sort="'.$bsz['jhossz'].'">'.number_format($bsz['jhossz'], 0, ',', ' ').'</td>',
                 'eszkoz_tabla_kiszall'          => '<td class="r nowrap" data-sort="'.$bsz['kiszall'].'">'.number_format($bsz['kiszall'], $tizedesek, ',', ' ').'</td>',
                 'eszkoz_tabla_beuzemel'         => '<td class="r nowrap" data-sort="'.$bsz['beuzemel'].'">'.number_format($bsz['beuzemel'], $tizedesek, ',', ' ').'</td>',
                 'eszkoz_tabla_munkadij'         => '<td class="r nowrap" data-sort="'.$bsz['munkadij'].'">'.number_format($bsz['munkadij'], $tizedesek, ',', ' ').'</td>',
@@ -8231,23 +8270,24 @@ function get_eszkozigenyles_gombok($recid = 0) {
         //     }
         // }
         $gombok .= nl2('
-            <input type="button" class="gomb modositaskor_rejt" onclick="mehet_validalasra(\''.$megerosites.'\')" value="Mehet validálásra">
+            <input type="button" class="gomb modositaskor_rejt" onclick="mehet_validalasra(\''.$megerosites.'\')" value="Mehet BI validálásra">
+            <input type="button" class="gomb modositaskor_rejt piros" onclick="csoportMuvelet(\'eszkozigenyles_muszaki_elok_igenyel\')" value="! Műszaki előkészítést igényel">
             '.$visszavonas
         );
     }
     // Műszaki jóváhagyásra vár:
     if( $eszkozigenyles['stat_id'] == ESZKOZIGENYL_STAT_MUSZAK_JH_VAR && _jog(JOG_BESZERZ_IGENYLESEK_MUSZAK_JOVA) ) {
         $visszavonas = '';
-        $megerosites = '';
+        // $megerosites = '';
         if( $eszkozigenyles['tipus'] == BESZ_TIP_TERVEZETT ) {
-            $megerosites = '-tervezett-';
+            // $megerosites = '-tervezett-';
             // Visszavonás gomb csak akkor van, ha már volt véleményezve
-            if( $eszkozigenyles['musz_el_ig'] ) {
-                $visszavonas = '<input type="button" class="gomb modositaskor_rejt" onclick="muszaki_visszavon()" value="Visszavonás">';
-            }
+            // if( $eszkozigenyles['musz_el_ig'] ) {
+            //     $visszavonas = '<input type="button" class="gomb modositaskor_rejt" onclick="muszaki_visszavon()" value="Visszavonás">';
+            // }
         }
         $gombok .= nl2('
-            <input type="button" class="gomb modositaskor_rejt zold" onclick="muszakilag_nem_erintett(\''.$megerosites.'\')" value="- Műszakilag nem érintett">
+            <input type="button" class="gomb modositaskor_rejt zold" onclick="csoportMuvelet(\'eszkozigenyles_muszaki_elok_nem_igenyel\')" value="- Műszakilag nem érintett">
             <input type="button" class="gomb modositaskor_rejt piros" onclick="csoportMuvelet(\'eszkozigenyles_muszaki_elok_igenyel\')" value="! Műszaki előkészítést igényel">
             '.$visszavonas
         );
@@ -8255,17 +8295,17 @@ function get_eszkozigenyles_gombok($recid = 0) {
     // Szálloda igazgató engedélyre vár:
     if( $eszkozigenyles['stat_id'] == ESZKOZIGENYL_STAT_SZALL_ENG_VAR && _jog(JOG_BESZERZ_IGENYLESEK_SZALLODAI_ENG) ) {
         $visszavonas = '';
-        $megerosites = '';
+        // $megerosites = '';
         if( $eszkozigenyles['tipus'] == BESZ_TIP_TERVEZETT ) {
-            $megerosites = '-tervezett-';
+            // $megerosites = '-tervezett-';
             // Visszavonás gomb csak akkor van, ha már volt véleményezve
-            if( $eszkozigenyles['szall_ig_vel'] ) {
-                $visszavonas = '<input type="button" class="gomb modositaskor_rejt" onclick="szalloda_ig_visszavon()" value="Visszavonás">';
-            }
+            // if( $eszkozigenyles['szall_ig_vel'] ) {
+            //     $visszavonas = '<input type="button" class="gomb modositaskor_rejt" onclick="szalloda_ig_visszavon()" value="Visszavonás">';
+            // }
         }
         $gombok .= nl2('
             <input type="button" class="gomb modositaskor_rejt" onclick="csoportMuvelet(\'eszkozigenyles_jhmen_mod\')" value="Jóváhagyott mennyiség">
-            <input type="button" class="gomb modositaskor_rejt zold" onclick="szall_igazgato_jovahagy(\''.$megerosites.'\')" value="✓ Mehet BI validálásra">
+            <input type="button" class="gomb modositaskor_rejt zold" onclick="csoportMuvelet(\'eszkozigenyles_szall_ig_jovahagy\')" value="✓ Mehet BI validálásra">
             <input type="button" class="gomb modositaskor_rejt piros" onclick="csoportMuvelet(\'eszkozigenyles_szall_ig_elutasit\')" value="× Elutasítás">
             '.$visszavonas
         );
@@ -8273,25 +8313,25 @@ function get_eszkozigenyles_gombok($recid = 0) {
     // BI validálásra vár:
     if( $eszkozigenyles['stat_id'] == ESZKOZIGENYL_STAT_BI_VALID_VAR && _jog(JOG_BESZERZ_IGENYLESEK_BI_VALIDALAS) ) {
         $visszavonas = '';
-        $megerosites = '';
+        // $megerosites = '';
         if( $eszkozigenyles['tipus'] == BESZ_TIP_TERVEZETT ) {
-            $megerosites = '-tervezett-';
+            // $megerosites = '-tervezett-';
             // Visszavonás gomb csak akkor van, ha már volt véleményezve
             // if( $eszkozigenyles['bi_vel'] ) {
             //     $visszavonas = '<input type="button" class="gomb modositaskor_rejt" onclick="bi_visszavon()" value="Visszavonás">';
             // }
         }
-        $szakmai_vel_statuszba = '';
+        // $szakmai_vel_statuszba = '';
         // 2025.09.25 Új működés szerint BI jóváhagyásra léptetejük, még a GM-eset is
         // $gomb_felirat = 'Mehet szakmai véleményezésre';
         $gomb_felirat = 'Mehet BI jóváhagyásra';
         if( $eszkozigenyles['tipus'] == BESZ_TIP_TERVEZETT ) {
             $gomb_felirat = 'Mehet szakmai véleményezésre';
-            $szakmai_vel_statuszba = '-szakmai-vel-statuszba-';
+            // $szakmai_vel_statuszba = '-szak-vel-statuszba-';
         }
         $gombok .= nl2('
             <input type="button" class="gomb modositaskor_rejt" onclick="csoportMuvelet(\'eszkozigenyles_jhmen_mod\')" value="Jóváhagyott mennyiség">
-            <input type="button" class="gomb modositaskor_rejt zold" onclick="bi_validal(\''./*$megerosites.*/'\', \''.$szakmai_vel_statuszba.'\')" value="✓ '.$gomb_felirat.'">
+            <input type="button" class="gomb modositaskor_rejt zold" onclick="csoportMuvelet(\'eszkozigenyles_bi_validal\')" value="✓ '.$gomb_felirat.'">
             <input type="button" class="gomb modositaskor_rejt piros" onclick="csoportMuvelet(\'eszkozigenyles_bi_elutasit\')" value="× Elutasítás">
             '.$visszavonas
         );
@@ -8303,19 +8343,19 @@ function get_eszkozigenyles_gombok($recid = 0) {
         if( $eszkozigenyles['tipus'] == BESZ_TIP_TERVEZETT ) {
             $megerosites = '-tervezett-';
             // Visszavonás gomb csak akkor van, ha már volt véleményezve
-            if( $eszkozigenyles['bi_vel'] ) {
-                $visszavonas = '<input type="button" class="gomb modositaskor_rejt" onclick="bi_visszavon()" value="Visszavonás">';
-            }
+            // if( $eszkozigenyles['bi_vel'] ) {
+            //     $visszavonas = '<input type="button" class="gomb modositaskor_rejt" onclick="bi_visszavon()" value="Visszavonás">';
+            // }
         }
-        $kikuld_statuszba = '';
+        // $kikuld_statuszba = '';
         $gomb_felirat = 'Mehet felsővezető 1. szint jóváhagyásra';
         if( $eszkozigenyles['tipus'] == BESZ_TIP_GM_KERET ) {
             $gomb_felirat = 'Mehet kiküldésre vár státuszba';
-            $kikuld_statuszba = '-kikuld-statuszba-';
+            // $kikuld_statuszba = '-kikuld-statuszba-';
         }
         $gombok .= nl2('
             <input type="button" class="gomb modositaskor_rejt" onclick="csoportMuvelet(\'eszkozigenyles_jhmen_mod\')" value="Jóváhagyott mennyiség">
-            <input type="button" class="gomb modositaskor_rejt zold" onclick="bi_jovahagy(\''.$megerosites.'\', \''.$kikuld_statuszba.'\')" value="✓ '.$gomb_felirat.'">
+            <input type="button" class="gomb modositaskor_rejt zold" onclick="csoportMuvelet(\'eszkozigenyles_bi_jovahagy\')" value="✓ '.$gomb_felirat.'">
             <input type="button" class="gomb modositaskor_rejt sarga" onclick="csoportMuvelet(\'eszkozigenyles_bi_jh_feltetelekkel\')" value="? Feltételekkel beleegyezés">
             <input type="button" class="gomb modositaskor_rejt piros" onclick="csoportMuvelet(\'eszkozigenyles_bi_jh_elutasit\')" value="× Elutasítás">
             '.$visszavonas
@@ -8324,17 +8364,17 @@ function get_eszkozigenyles_gombok($recid = 0) {
     // Szakmai véleményezésre vár:
     if( $eszkozigenyles['stat_id'] == ESZKOZIGENYL_STAT_SZAKM_VEL_VAR && _jog(JOG_BESZERZ_IGENYLESEK_SZAKMAI_VEL) ) {
         $visszavonas = '';
-        $megerosites = '';
+        // $megerosites = '';
         if( $eszkozigenyles['tipus'] == BESZ_TIP_TERVEZETT ) {
-            $megerosites = '-tervezett-';
+            // $megerosites = '-tervezett-';
             // Visszavonás gomb csak akkor van, ha már volt véleményezve
-            if( $eszkozigenyles['szak_vel'] ) {
-                $visszavonas = '<input type="button" class="gomb modositaskor_rejt" onclick="szak_visszavon()" value="Visszavonás">';
-            }
+            // if( $eszkozigenyles['szak_vel'] ) {
+            //     $visszavonas = '<input type="button" class="gomb modositaskor_rejt" onclick="szak_visszavon()" value="Visszavonás">';
+            // }
         }
         $gombok .= nl2('
             <input type="button" class="gomb modositaskor_rejt" onclick="csoportMuvelet(\'eszkozigenyles_jhmen_mod\')" value="Jóváhagyott mennyiség">
-            <input type="button" class="gomb modositaskor_rejt zold" onclick="szak_beleegyezes(\''./*$megerosites.*/'\')" value="✓ Beleegyezés">
+            <input type="button" class="gomb modositaskor_rejt zold" onclick="csoportMuvelet(\'eszkozigenyles_szak_jovahagy\')" value="✓ Beleegyezés">
             <input type="button" class="gomb modositaskor_rejt sarga" onclick="csoportMuvelet(\'eszkozigenyles_szak_feltetelekkel\')" value="? Feltételekkel beleegyezés">
             <input type="button" class="gomb modositaskor_rejt piros" onclick="csoportMuvelet(\'eszkozigenyles_szak_elutasit\')" value="× Elutasítás">
             '.$visszavonas
@@ -8342,16 +8382,15 @@ function get_eszkozigenyles_gombok($recid = 0) {
     }
     // Felsővezető véleményezésre vár:
     if( $eszkozigenyles['stat_id'] == ESZKOZIGENYL_STAT_FELSO_JH_VAR && _jog(JOG_BESZERZ_IGENYLESEK_FELSOVEZ_JH) ) {
-        $visszavonas        = '';
-        $megerosites        = '';
-        $megerosites        = '';
+        $visszavonas = '';
+        // $megerosites = '';
         if( $eszkozigenyles['tipus'] == BESZ_TIP_TERVEZETT ) {
             // Ha tervezett, akkor a felso_beleegyezes() függvényt egyből megerősítéssel hívjuk meg. Ennek egy fontos másik következménye, hogy nincs státusz léptetés sem Megrendelés + PDF készítés
-            $megerosites        = '-tervezett-';
+            // $megerosites = '-megerősítve-';
             // Visszavonás gomb csak akkor van, ha már volt véleményezve
-            if( $eszkozigenyles['felso_vel'] ) {
-                $visszavonas = '<input type="button" class="gomb modositaskor_rejt" onclick="felso_visszavon()" value="Visszavonás">';
-            }
+            // if( $eszkozigenyles['felso_vel'] ) {
+            //     $visszavonas = '<input type="button" class="gomb modositaskor_rejt" onclick="felso_visszavon()" value="Visszavonás">';
+            // }
 
             // Tervezett igényléseknél plusz nyomógomb: Megrendelők elkészítése
             $gombok .= nl2('
@@ -8360,7 +8399,7 @@ function get_eszkozigenyles_gombok($recid = 0) {
         }
         $gombok .= nl2('
             <input type="button" class="gomb modositaskor_rejt" onclick="csoportMuvelet(\'eszkozigenyles_jhmen_mod\')" value="Jóváhagyott mennyiség">
-            <input type="button" class="gomb modositaskor_rejt zold" onclick="felso_beleegyezes(\''.$megerosites.'\')" value="✓ Jóváhagyás">
+            <input type="button" class="gomb modositaskor_rejt zold" onclick="csoportMuvelet(\'eszkozigenyles_felso_jovahagy\')" value="✓ Jóváhagyás">
             <input type="button" class="gomb modositaskor_rejt sarga" onclick="csoportMuvelet(\'eszkozigenyles_felso_feltetelekkel\')" value="? Feltételekkel jóváhagyás">
             <input type="button" class="gomb modositaskor_rejt piros" onclick="csoportMuvelet(\'eszkozigenyles_felso_elutasit\')" value="× Elutasítás">
             '.$visszavonas
@@ -8370,22 +8409,24 @@ function get_eszkozigenyles_gombok($recid = 0) {
     if( $eszkozigenyles['stat_id'] == ESZKOZIGENYL_STAT_BI_VEGL_VAR && _jog(JOG_BESZERZ_IGENYLESEK_BI_VEGLEGESIT) ) {
         $visszavonas = '';
         $megerosites = '';
+        $feldolgozva_onclick = 'csoportMuvelet(\'eszkozigenyles_bi_vegl_feldolgozva\')';
         if( $eszkozigenyles['tipus'] == BESZ_TIP_TERVEZETT ) {
             $megerosites = '-tervezett-';
             // Visszavonás gomb csak akkor van, ha már volt véleményezve
-            if( $eszkozigenyles['bi_vegl'] ) {
-                $visszavonas = '<input type="button" class="gomb modositaskor_rejt" onclick="bi_vegl_visszavon()" value="Visszavonás">';
-            }
+            // if( $eszkozigenyles['bi_vegl'] ) {
+            //     $visszavonas = '<input type="button" class="gomb modositaskor_rejt" onclick="bi_vegl_visszavon()" value="Visszavonás">';
+            // }
 
             // Tervezett igényléseknél plusz nyomógomb: Megrendelők elkészítése
             $gombok .= nl2('
                 <input type="button" class="gomb modositaskor_rejt" onclick="megrendelok_elkeszit()" value="Megrendelők elkészítése">
             ');
+            $feldolgozva_onclick = 'igenyles_feldolgozva()';
         }
         $gombok .= nl2('
             <input type="button" class="gomb modositaskor_rejt" onclick="csoportMuvelet(\'eszkozigenyles_jhmen_mod\')" value="Jóváhagyott mennyiség">
             <input type="button" class="gomb modositaskor_rejt" onclick="vissza_validalasra(\''.$megerosites.'\')" value="Vissza validálásra">
-            <input type="button" class="gomb modositaskor_rejt zold" onclick="bi_vegl_jovahagy(\''.$megerosites.'\')" value="✓ Mehet kiküldésre">
+            <input type="button" class="gomb modositaskor_rejt zold" onclick="'.$feldolgozva_onclick.'" value="✓ Feldolgozva">
             <input type="button" class="gomb modositaskor_rejt piros" onclick="csoportMuvelet(\'eszkozigenyles_bi_vegl_elutasit\')" value="× Elutasítás">
             '.$visszavonas
         );
@@ -11182,7 +11223,16 @@ function get_szures_where_kieg($mezo, $op, $felt, $tabla) {
             } else {
                 $op = '!=';
             }
-            $felt = '';
+            // Dátum mezőknél az üres nem az üres stringet jelentik (''), hanem a csupa nullát, ezért ezt itt le kell kezelni
+            $datum_mezok    = array('szall_hat', 'megr_dt');
+            $datumido_mezok = array('insert_dt', 'update_dt', 'igazolva_dt');
+            if( in_array($mezo, $datumido_mezok) ) {
+                $felt = '0000-00-00 00:00:00';
+            } else if( in_array($mezo, $datum_mezok) ) {
+                $felt = '0000-00-00';
+            } else {
+                $felt = '';
+            }
         break;
     }
 
@@ -12337,6 +12387,18 @@ function level_felkeszit_es_kuld( $tabla = '', $recid = '', $ert_pipa = '', $sab
 
             // A címzettnél vizsgáljuk az értesítés pipa meglétét is
             $cimzettek = $adatbazis_kapcsolat->s('nev teljes_nev usermail aktiv virtual szemelyzet_id', 'login', "`aktiv`=1 AND `virtual`=0{$sql_ertesites_kieg}");
+
+            // Tévedés, ez törölhető
+            // // Ha a címzett eszkozigenyles_megr_kikuld_elo, akkor másolatot is küldünk:
+            // // Az tényleges címzett, akinél be van pipálva, hogy ERT_BESZERZ_MEGR_KIKULD_ELO (ez van benne az általános működésben, az $sql_ertesites_kieg-ben)
+            // // Ezt bővítsük ki még a ERT_BESZERZ_MASOLAT_MEGR_ROL pipásokkal
+            // if( $cimzett == 'eszkozigenyles_megr_kikuld_elo' ) {
+            //     $masolat = $adatbazis_kapcsolat->s('nev teljes_nev usermail aktiv virtual szemelyzet_id', 'login', "`aktiv`=1 AND `virtual`=0 AND substr(`flags_ert`, ".(ERT_BESZERZ_MASOLAT_MEGR_ROL+1).", 1)=1");
+            //     if( $masolat ) {
+            //         $cimzett = array_merge($cimzett, $masolat);
+            //     }
+            // }
+
 // if( $_SERVER['REMOTE_ADDR'] == get_debug_ip() ) {
 //     echo $adatbazis_kapcsolat -> gp().'<br>';
 //     exit;
@@ -16038,14 +16100,10 @@ function get_nyomtatas_alairasok($elsodleges_recid = 0, $masodlagos_recid = 0, $
     // Eszközigénylésnél egy szálloda id-t kapunk. Annak a loginnak kerül rá az aláírása, akinek van elsődleges/másodlagos aláírása és látja adott szállodát
     } else if( $eszkozigenyles_szalloda ) {
 
-        $szallodat_lat = " AND `nev` IN (SELECT `nev` FROM `".get_db_tabla()."telephely_kapcs` WHERE `telephely_id`='{$eszkozigenyles_szalloda}')";
+        $szallodat_lat = " AND `aktiv`=1 AND `virtual`=0 AND `nev` IN (SELECT `nev` FROM `".get_db_tabla()."telephely_kapcs` WHERE `telephely_id`='{$eszkozigenyles_szalloda}')";
         $elsodleges = $adatbazis_kapcsolat -> s2('alairas alairas_eltol teljes_nev beosztas_id', 'login', "substr(`flags`, ".(JOG_BESZERZ_IGENYLESEK_ELSODLEGES+1).", 1)=1{$szallodat_lat}");
         $masodlagos = $adatbazis_kapcsolat -> s2('alairas alairas_eltol teljes_nev beosztas_id', 'login', "substr(`flags`, ".(JOG_BESZERZ_IGENYLESEK_MASODLAGOS+1).", 1)=1{$szallodat_lat}");
-// Csak tesztelés miatt html_mutat és pdf_mutat esetén legyen két egyforma aláírás
-if( isset($_GET['html_mutat']) || isset($_GET['pdf_mutat']) ) {
-    $elsodleges = $adatbazis_kapcsolat -> s2('alairas alairas_eltol teljes_nev beosztas_id', 'login', "recid=9321");
-    $masodlagos = $adatbazis_kapcsolat -> s2('alairas alairas_eltol teljes_nev beosztas_id', 'login', "recid=9321");
-}
+
         $nev1 = $beosztas1 = $nev2 = $beosztas2 = '&nbsp;';
         if( $elsodleges ) {
             if( $elsodleges['alairas'] ) {

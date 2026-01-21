@@ -3755,9 +3755,10 @@ if( $_SERVER['REMOTE_ADDR'] == get_debug_ip() ) {
             $szamla  = $adatbazis_kapcsolat->s2('kcs_21', 'projektszamla', "`recid`='{$_GET['id']}'");
             foreach ( $tetelek as $tetel ) {
                 
-                $jogcim  = $adatbazis_kapcsolat->s2('jogcim', 'jogcim',   "`recid`='{$tetel['jogcim_recid']}'");
-                $afakod  = $adatbazis_kapcsolat->s2('afa',    'afakod',   "`recid`='{$tetel['afakod_recid']}'");
-                $dijelem = $adatbazis_kapcsolat->s2('info', 'erteklista', "`recid`='{$tetel['dijelem_recid']}'");
+                // Adott tétel sorban eltárolt adatokat íjruk ki, ne az apa táblában levő adatokat
+                // $jogcim  = $adatbazis_kapcsolat->s2('jogcim', 'jogcim',   "`recid`='{$tetel['jogcim_recid']}'");
+                // $afakod  = $adatbazis_kapcsolat->s2('afa',    'afakod',   "`recid`='{$tetel['afakod_recid']}'");
+                // $dijelem = $adatbazis_kapcsolat->s2('info', 'erteklista', "`recid`='{$tetel['dijelem_recid']}'");
                 
                 $aranyos = '';
                 if( $tetel['aranyos'] ) {
@@ -3774,14 +3775,14 @@ if( $_SERVER['REMOTE_ADDR'] == get_debug_ip() ) {
                 
                 $szamla_html .= nl2('
                     <div class="dtr nSor">
-                        <div class="dtc">'.htmlspecialchars_decode($jogcim['jogcim']).'</div>
+                        <div class="dtc">'.htmlspecialchars_decode($tetel['jogcim']).'</div>
                         <div class="dtc r nowrap">'.$tetel['ktgnem_id'].'</div>
                         <div class="dtc r nowrap">'.$tetel['ktghely_id'].'</div>
                         <div class="dtc r nowrap">'.number_format($tetel['netto_ert'], 0, ',', ' ').'</div>
                         <div class="dtc r nowrap">'.number_format($tetel['brutto_ert'], 0, ',', ' ').'</div>
                         '.$dev_oszlopok.'
                         <div class="dtc nowrap">'.$tetel['afa_kod'].'</div>
-                        <div class="dtc r nowrap">'.number_format($afakod['afa'], 0, ',', ' ').'</div>
+                        <div class="dtc r nowrap">'.number_format($tetel['afa'], 0, ',', ' ').'</div>
                     </div>
                 ');
             }

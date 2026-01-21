@@ -373,6 +373,10 @@ define('JOG_BEJELENTES_TORLESE',        72);
 define('JOG_FELHASZNALOK_MEGTEKINT',    6 );
 define('JOG_FELHASZNALOK_KEZEL',        7 );
 define('JOG_FELHASZNALOK_JELSZO',       105);
+
+define('JOG_BEALLITASOK_MEGTEKINT',     171);
+define('JOG_BEALLITASOK_KEZEL',         172);
+
 define('JOG_ERTEKLISTAK_MEGTEKINT',     8 );
 define('JOG_ERTEKLISTAK_KEZEL',         9 );
 define('JOG_SZEREPKOR_MEGTEKINT',       10);
@@ -578,9 +582,11 @@ define('ERT_BESZERZ_IGENY_LEZAR_VAR',   34);
 define('ERT_BESZERZ_MUSZAK_JOVA_ELO',   24);
 define('ERT_BESZERZ_SZALLODAI_ENG_ELO', 25);
 define('ERT_BESZERZ_BI_VALIDALAS_ELO',  26);
+define('ERT_BESZERZ_SZAKMAI_VEL_ELO',   36);
 define('ERT_BESZERZ_FELSOVEZ_JH_ELO',   28);
 define('ERT_BESZERZ_BI_VEGLEGESIT_ELO', 29);
 define('ERT_BESZERZ_MEGR_KIKULD_ELO',   30);
+define('ERT_BESZERZ_MASOLAT_MEGR_ROL',  37);
 define('ERT_BESZERZ_ELUTASIT',          31);
 define('ERT_BESZERZ_BI_JH_ELO',         32);
 
@@ -720,6 +726,11 @@ define('ENERGIA_SZAMLA_TERMAL',     4);
 define('BESZ_TIP_TERVEZETT',        1);
 define('BESZ_TIP_SORONKIVULI',      2);
 define('BESZ_TIP_GM_KERET',         3);
+
+function furedi_szallodak() {
+    // Annabella/munkásszálló + Marina/munkásszálló
+    return [2050, 2057,         2060, 2058];
+}
 
 // Speciális pipálók tömbjei
 function musz_el_ig_ertekek() {

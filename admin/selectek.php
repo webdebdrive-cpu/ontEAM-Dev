@@ -214,29 +214,35 @@ if( self('-bn-') == 'fenntartasi_szerzodes.php' || self('-bn-') == 'megallapodas
 }
 
 // Beszerzés típusok
-
 if( self('-bn-') == 'eszkozigenyles.php' || self('-bn-') == 'eszkozigenyles_megr.php' || self('-bn-') == 'eszkozigenyles_nyomtat.php' || self('-bn-') == 'header.php'/*Szűrés miatt*/ ) {
     
     $select_besz_tipus = array();
     array_push($select_besz_tipus, array('name' => '- Válasszon -', 'value' => '' ));
-    // Tervezett típusú igénylés egyelőre csak dev-en lehet
-    if( $_SERVER['HTTP_HOST']=='dev.onteam.hu' ) {
-
-        $where = '';
-        if( self('-bn-') == 'eszkozigenyles.php' && isset($_GET['uj']) ) {
-            // Új felvitelben nem választható ki a tervezett időszak...
-            $where = "`recid`!='".BESZ_TIP_TERVEZETT."'";
-            $ma = date('Y-m-d');
-            $besz_idoszak = $adatbazis_kapcsolat -> s2('azon', 'besz_idoszak', "`stat_id`='".BESZERZES_IDOSZAK_AKTIV."' AND `kezd`<='{$ma}' AND `vege`>='{$ma}'");
-            if( $besz_idoszak ) {
-                // ... kivéve ha van aktív időszak és benne vagyunk az időszakban
+    
+    $where = '';
+    if( self('-bn-') == 'eszkozigenyles.php' && isset($_GET['uj']) ) {
+        // Új felvitelben nem választható ki a tervezett időszak...
+        $where = "`recid`!='".BESZ_TIP_TERVEZETT."'";
+        $ma = date('Y-m-d');
+        $besz_idoszak = $adatbazis_kapcsolat -> s2('azon hatar nyitva hatar_fured nyitva_fured', 'besz_idoszak', "`stat_id`='".BESZERZES_IDOSZAK_AKTIV."' AND `kezd`<='{$ma}' AND `vege`>='{$ma}'");
+        if( $besz_idoszak ) {
+            // ... kivéve ha van aktív időszak és benne vagyunk az időszakban, sőt azon belül a távolabbik határidőben
+            // Lássuk a határidőket
+            $hataridok = [];
+            if( $besz_idoszak['nyitva'] ) {
+                array_push($hataridok, $besz_idoszak['hatar']);
+            }
+            if( $besz_idoszak['nyitva_fured'] ) {
+                array_push($hataridok, $besz_idoszak['hatar_fured']);
+            }
+            $max_hatarido = max($hataridok);
+            if( $max_hatarido>=$ma ) {
                 $where = '';
             }
         }
-        $eszkozigenyles_tipus = $adatbazis_kapcsolat -> s('recid nev', 'eszkozigenyles_tipus', $where, 'recid');
-    } else {
-        $eszkozigenyles_tipus = $adatbazis_kapcsolat -> s('recid nev', 'eszkozigenyles_tipus', "`recid`!='".BESZ_TIP_TERVEZETT."'", 'recid');
     }
+    $eszkozigenyles_tipus = $adatbazis_kapcsolat -> s('recid nev', 'eszkozigenyles_tipus', $where, 'recid');
+
     foreach ($eszkozigenyles_tipus as $tipus) {
         array_push($select_besz_tipus, array('name' => $tipus['nev'],   'value' => $tipus['recid'] ));
     }

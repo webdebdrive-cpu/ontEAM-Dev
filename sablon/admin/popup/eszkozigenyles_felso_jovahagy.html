@@ -1,0 +1,192 @@
+<h2>Igénylés jóváhagyása</h2>
+<script>
+    var MEGEROSITVE = 0;
+</script>
+<form id="elutasitasForm" class="popupForm" method="post" onsubmit="felso_beleegyezes(MEGEROSITVE); return false;">
+    <div class="kozep">
+        <div class="dt">
+            <div class="dtr">
+                <div class="dtc form_bal">Szálloda:</div>
+                <div class="dtc form_jobb">
+                    <div id="popup_telephely"></div>
+                </div>
+            </div>
+            <div class="dtr">
+                <div class="dtc form_bal">Termék megnevezés:</div>
+                <div class="dtc form_jobb">
+                    <div id="popup_nev"></div>
+                </div>
+            </div>
+            <div class="dtr">
+                <div class="dtc form_bal">Igényelt nettó érték:</div>
+                <div class="dtc form_jobb">
+                    <div id="popup_ossz_netto"></div>
+                </div>
+            </div>
+            <div class="dtr">
+                <div class="dtc form_bal">Indoklás:</div>
+                <div class="dtc form_jobb">
+                    <textarea id="popup_felso_indok" onkeyup="if( $(this).val().trim()=='' ){ $(this).val(''); }"></textarea>
+                </div>
+            </div>
+        </div>
+        <div id="extra_kerdes"></div>
+    </div>
+    <div class="kuldes">
+        <input type="submit" name="elkuld" value="Mentés">
+        <input type="button" name="megsem" class="gombb_alert" value="Mégsem" onclick="popupZar();">
+    </div>
+</form>
+<script>
+$(document).ready(function(){
+
+    var akt_id = _get('id');
+
+    if( $('#telephely_id').length ) {
+        $('#popup_telephely').html( $('#telephely_id option:selected').text() );
+    } else {
+        $('#popup_telephely').html( $('#telephely_nev_db_'+akt_id).val() );
+    }
+    if( $('#nev').length ) {
+        $('#popup_nev').html( $('#nev').val() );
+    } else {
+        $('#popup_nev').html( $('#nev_db_'+akt_id).val() );
+    }
+    if( $('#ossz_netto').length ) {
+        $('#popup_ossz_netto').html( $('#ossz_netto').val() + ' Ft' );
+    } else {
+        $('#popup_ossz_netto').html( $('#ossz_netto_db_'+akt_id).val() + ' Ft' );
+    }
+    
+    // Mégse kerüljön be az indoklás mezőbe az adatbázis értéke, logolós működés kell ide
+    // $('#popup_felso_indok').val( $('#felso_indok_db_'+akt_id).val().replace(/<br\s*\/?>/g, '\n') );
+    $('#popup_felso_indok').select();
+
+    // Kérjük le a típust, mert azon múlik majd a függvényhívás paraméterezése
+    $.ajax({
+        url : PHP_SELF,
+        type: 'POST',
+        data: {
+            id          : akt_id,
+            get_igeny   : Date.now()
+        },
+        success: function(response){
+            if(response.substring(0, 6)=='SESKIL'){ location.href = 'index.php'; }
+            if(response){
+                response = JSON.parse(response);
+                if(response.hiba){
+                    alert2(response.hiba, response.gomb, response.title);
+                    return false;
+                }
+                if(response.tipus == 1){
+                    MEGEROSITVE = '-tervezett-';
+                } else {
+                    $('#extra_kerdes').html('Ha folytatja, elkészül a megrendelés rekord és a megrendelő dokumentum.<br>Biztosan jóváhagyja az igénylést?');
+                }
+            }
+        },
+        complete: function(xhr) {
+            if( xhr.status != 200 ) {
+                alert2(xhr.responseText, '', 'Hiba');
+            }
+        }
+    });
+
+});
+
+// Felsővezető jóváhagy
+function felso_beleegyezes(mehet) {
+
+    // globális változók frissítése az adott adatlap alapján
+    eszkoz_valtozok_update();
+
+    // if( !mehet ) {
+    //     alert2('Ha folytatja, elkészül a megrendelés rekord és a megrendelő dokumentum.<br>Biztosan jóváhagyja az igénylést?', '<input type="button" class="gomb zold enter" value="Igen" onclick="felso_beleegyezes(\'-mehet-\')"> <input type="button" class="gomb piros" value="Nem" onclick="alert2()">', 'Kérdés');
+    //     return false;
+    // }
+
+    // Jóváhagyás
+    $.ajax({
+        url : PHP_SELF+eszkoz_url_kieg,
+        type: 'POST',
+        data: {
+            id                  : eszkoz_id,
+            indok               : $('#popup_felso_indok').val(),
+            felso_beleegyezes   : Date.now()
+        },
+        success: function (response) {
+            if(response.substring(0, 6)=='SESKIL'){ location.href = 'index.php'; }
+            if (response) {
+                response = JSON.parse(response);
+                if (response.hiba) {
+                    alert2(response.hiba, response.gomb, response.title);
+                    return false;
+                }
+
+                popupZar();
+
+                // Táblázat alatt a sort frissítjük
+                if( isset_get('tablazat') ) {
+                    $('.felso_vel_'     +eszkoz_id  ).html(response.pipa     );
+                    $('.stat_'          +eszkoz_id  ).html(response.statusz  );
+                    $('#felso_indok_db_'+eszkoz_id  ).val ('');
+                    $('.gombok_'        +eszkoz_id  ).html(response.gombok   );
+                    
+                    // Dokumentumok számát is, mert ha nem tervezett volt, akkor új dokumentummal is bővülhetett
+                    $('.gombok_'        +eszkoz_id  ).data('dok_db', response.dok_db    );
+                    // Fülön is
+                    let dok_ful_txt = 'Dokumentumok';
+                    if( response.megj_db>0 ) {
+                        dok_ful_txt = 'Dokumentumok ('+response.dok_db+')';
+                    }
+                    $('#szamlaFulek a[data-oldal="dokumentumok"]').html(dok_ful_txt);
+
+                    // Megjegyzések számát is, mert ha volt értesítés küldés, akkor bővülhetett
+                    $('.gombok_'        +eszkoz_id  ).data('megj_db', response.megj_db    );
+                    // Fülön is
+                    let megj_ful_txt = 'Megjegyzések';
+                    if( response.megj_db>0 ) {
+                        megj_ful_txt = 'Megjegyzések ('+response.megj_db+')';
+                    }
+                    $('#szamlaFulek a[data-oldal="megjegyzesek"]').html(megj_ful_txt);
+
+                    // Ha a mehet a '-tervezett-' igénylés miatt volt kitöltve, akkor lépünk a következő sorra. 
+                    if( mehet == '-tervezett-' ) {
+                        // Ilyet mégsem kérnek
+                        // naviKov();
+
+                    // Egyébként a tényleges gombokat is cserélni kell
+                    } else {
+                        $('.muveletek').html(response.gombok   );
+                    }
+                
+                // Egyébként az adatlapot töltsük be
+                } else {
+
+                    let ful   = '';
+                    eszkoz_fulek.forEach(function(akt_ful) {
+                        if( isset_get(akt_ful) ) {
+                            ful = akt_ful;
+                            return;
+                        }
+                    });
+                    szamlaBetolt(_get('id'), baseName(location.href) + '.php', ful);
+
+                    // Ha a mehet a '-tervezett-' igénylés miatt volt kitöltve, akkor lépünk a következő sorra. 
+                    if( mehet == '-tervezett-' ) {
+                        setTimeout(function(){
+                            // Ilyet mégsem kérnek
+                            // naviKov();
+                        }, 1000);
+                    }
+                }
+            }
+        },
+        complete: function (xhr) {
+            if (xhr.status != 200) {
+                alert2(xhr.responseText, '', 'Hiba');
+            }
+        }
+    });
+}
+</script>

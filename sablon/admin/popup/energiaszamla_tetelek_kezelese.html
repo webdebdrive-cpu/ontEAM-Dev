@@ -412,6 +412,8 @@ function tetel_hozzaadasa() {
     var egyseg_ar       = $('#pop_egyseg_ar'    ).val().trim();
     var netto           = $('#pop_netto'        ).val().trim();
     var brutto          = $('#pop_brutto'       ).val().trim();
+    var afakod          = $('#afakod_id'        ).val().trim();
+    var afakod_auto     = $('#afakod_id_autocomp').val().trim();
     var afa             = $('#pop_afa'          ).val().trim();
     var van_valtozas = true;
     var tetel_nullas = 0;
@@ -457,7 +459,7 @@ function tetel_hozzaadasa() {
         return false;
     }
     
-    /* Ha a Fogyasztással arányos pipa be van piálva, csak akkor kötelező pár mező: */
+    /* Ha a Fogyasztással arányos pipa be van pipálva, csak akkor kötelező pár mező: */
     var aranyos_kotelezo = $('#pop_aranyos').prop('checked');
     
     if( aranyos_kotelezo && (!$('#pop_indul').val() /*|| $('#pop_indul').val()=='0,0000' Az induló érték lehet 0 - új órát szereltek fel */) ) {
@@ -570,6 +572,8 @@ function tetel_hozzaadasa() {
         $('.pop_tetel_'+sor_id+' .pop_netto'    ).html( netto   );
         $('.pop_tetel_'+sor_id+' .pop_brutto'   ).html( brutto  );
         $('.pop_tetel_'+sor_id+' .pop_afa'      ).html( afa     );
+        $('.pop_tetel_'+sor_id+' .pop_afakod'   ).val ( afakod  );
+        $('.pop_tetel_'+sor_id+' .pop_afakod_autocomp').val ( afakod_auto  );
         $('.pop_tetel_'+sor_id+' .pop_valtozott').val ( 1       );
 
     /* Egyébként új sor hozzáadása */
@@ -601,7 +605,7 @@ function tetel_hozzaadasa() {
                             '<td><a onclick="popup_tetel_sor_torol(\'pop_tetel_'+id_tmp+'\');"><span class="icon"><i class="material-icons">delete</i></span></a>'+
                                 '<input type="hidden" class="pop_jogcim" name="pop_jogcim_id" value="'+jogcim+'">' +
                                 '<input type="hidden" class="pop_afakod_autocomp" name="pop_afakod_autocomp" value="'+$('#afakod_id_autocomp').val()+'">' +
-                                '<input type="hidden" class="pop_afa" name="pop_afakod_id" value="'+$('#afakod_id').val()+'">' +
+                                '<input type="hidden" class="pop_afakod" name="pop_afakod" value="'+$('#afakod_id').val()+'">' +
                                 '<input type="hidden" class="pop_dijelem" name="pop_dijelem_id" value="'+dijelem+'">' +
                                 '<input type="hidden" class="tetel_nullas" value="'+tetel_nullas+'">' +               
                                 '<input type="hidden" class="pop_valtozott" value="1">' +               
@@ -706,13 +710,15 @@ function popup_tetel_sor_szerk(sor_id){
     $('#pop_menny_kwh'      ).val( $('.'+sor_id+' .pop_menny_kwh'           ).html() );
     $('#pop_egyseg_ar'      ).val( $('.'+sor_id+' .pop_egyseg_ar'           ).html() );
     $('#afakod_id_autocomp' ).val( $('.'+sor_id+' .pop_afakod_autocomp'     ).val()  );
-    $('#afakod_id'          ).val( $('.'+sor_id+' .pop_afa'                 ).val()  );
+    $('#afakod_id'          ).val( $('.'+sor_id+' .pop_afakod'              ).val()  );
+    $('#pop_afa'            ).val( $('.'+sor_id+' .pop_afa'                 ).html() );
     $('#tetel_sor_id'       ).val( sor_id.replace('pop_tetel_', '')                  );
 
     dijelem_select();
     
     /* Díjelem kitöltése, ha még nem volna. Max 10-szer próbáljuk meg (várva közben, hogy betöltsön az ajax) */
     for( i=0; i<10; i++ ) {
+
         (function(i) {    
             setTimeout(function() {
                 if( !$('#pop_dijelem').val() ) {
@@ -720,7 +726,7 @@ function popup_tetel_sor_szerk(sor_id){
                     dijelem_ertek_betolt();
 
                     setTimeout(function(){
-                        /* Ha még létezne az input, lehet már idő közben bezárták a popup-to */
+                        /* Ha még létezne az input, lehet már idő közben bezárták a popup-ot */
                         if( $('#pop_netto').length ) {
                             $('#pop_netto'  ).val( $('.'+sor_id+' .pop_netto'   ).html() );
                             $('#pop_brutto' ).val( $('.'+sor_id+' .pop_brutto'  ).html() );
@@ -730,7 +736,6 @@ function popup_tetel_sor_szerk(sor_id){
             }, i*500);
         })(i);
     }
-
 
     $('#hozzaad_gomb').val('Tétel mentése');
 
@@ -806,7 +811,7 @@ function tetel_sorok_ment(mehet){
         egyseg_arak.push( $(this).html() );
     });
     var afak = [];
-    $('.pop_afa').each(function() {
+    $('.pop_afakod').each(function() {
         afak.push( $(this).val() );
     });
     

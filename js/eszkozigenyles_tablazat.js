@@ -54,6 +54,14 @@ $(document).ready(function () {
         
                         case KEY_UP:
                             row = Math.max(0, row - 1);
+                            // Nem látható sorok figyemen kívül hagyása (pl. mert gyorskeresővel el vannak rejtve)
+                            while (row > 0 && !$rows.eq(row).is(':visible')) {
+                                row = Math.max(0, row - 1);
+                            }
+                            // Ha már nem is látszik az a sor, amire legutóbb léptünk, akkor ne is csinájunk semmit
+                            if( !$rows.eq(row).is(':visible') ) {
+                                return;
+                            }
                         break;
         
                         case KEY_RIGHT:
@@ -71,6 +79,14 @@ $(document).ready(function () {
         
                         case KEY_DOWN:
                             row = Math.min($rows.length - 1, row + 1);
+                            // Nem látható sorok figyemen kívül hagyása (pl. mert gyorskeresővel el vannak rejtve)
+                            while ( row < $rows.length - 1 && !$rows.eq(row).is(':visible') ) {
+                                row = Math.min($rows.length - 1, row + 1);
+                            }
+                            // Ha már nem is látszik az a sor, amire legutóbb léptünk, akkor ne is csinájunk semmit
+                            if( !$rows.eq(row).is(':visible') ) {
+                                return;
+                            }
                         break;
         
                         default:

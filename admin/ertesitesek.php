@@ -1,7 +1,7 @@
 <?php
 /*                                                  *\
  * FONTOS:
- * 36. ID következik
+ * 38. ID következik
  * 10. kategória következik
 \*                                                  */
 
@@ -41,7 +41,7 @@ $ertesitesek = array(
 
     11  => array('nev' => 'Amikor egy felhasználó elfelejti a jelszavát',                               'kat' => 3, 'sor' => 1),
     
-    14  => array('nev' => 'Munkaidőbeosztás szerinti szálloda nincs hozzárendelve felhasználóhoz',      'kat' => 4, 'sor' => 1),
+    14  => array('nev' => 'Munkaidőbeosztás szerinti szálloda<br>nincs hozzárendelve felhasználóhoz',   'kat' => 4, 'sor' => 1),
     
     15  => array('nev' => 'Garanciális bejárás előtt',                                                  'kat' => 5, 'sor' => 1),
     
@@ -64,9 +64,11 @@ $ertesitesek = array(
     25  => array('nev' => 'Szállodai engedélyezés előtt',                                               'kat' => 9, 'sor' => 7),
     26  => array('nev' => 'BI validálás előtt',                                                         'kat' => 9, 'sor' => 8),
     32  => array('nev' => 'BI jóváhagyás előtt',                                                        'kat' => 9, 'sor' => 9),
-    28  => array('nev' => 'Felsővez. jóváhagyás előtt',                                                 'kat' => 9, 'sor' => 10),
-    29  => array('nev' => 'BI véglegesítés előtt',                                                      'kat' => 9, 'sor' => 11),
-    30  => array('nev' => 'Megrendelő kiküldése előtt',                                                 'kat' => 9, 'sor' => 12),
-    31  => array('nev' => 'Igénylés elutasításakor',                                                    'kat' => 9, 'sor' => 13),
+    36  => array('nev' => 'Szakmai véleményezés előtt',                                                 'kat' => 9, 'sor' => 10),
+    28  => array('nev' => 'Felsővez. jóváhagyás előtt',                                                 'kat' => 9, 'sor' => 11),
+    29  => array('nev' => 'BI véglegesítés előtt',                                                      'kat' => 9, 'sor' => 12),
+    30  => array('nev' => 'Megrendelő kiküldése előtt',                                                 'kat' => 9, 'sor' => 13),
+    37  => array('nev' => 'Másolat a megrendelő emailről',                                              'kat' => 9, 'sor' => 14),
+    31  => array('nev' => 'Igénylés elutasításakor',                                                    'kat' => 9, 'sor' => 15),
     
 );

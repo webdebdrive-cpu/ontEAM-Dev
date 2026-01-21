@@ -5961,6 +5961,11 @@ function bejegyzesekLista( that, irany, rkat, ksz ) {
                     }
 
                     window.history.pushState('', '', getHost() + param );
+
+                    // Eszközigénylés táblázatos nézetnél teljes újratöltés kell
+                    if( tabla+'.php' == 'eszkozigenyles.php' && isset_get('tablazat') ) {
+                        location.reload();
+                    }
                 }
             },
             complete: function(xhr) {
@@ -5999,6 +6004,7 @@ function bejegyzesekLista( that, irany, rkat, ksz ) {
                 scrollLeptet();
             }, 100);
         });
+
     }
 }
 
@@ -6478,7 +6484,7 @@ function csv_general( that, valasztos, link_kieg ) {
         if (baseName(location.href) == 'eszkozigenyles') {
             // Csak akkor jön fel a választó, ha van eszközigénylés joga.
             if( _jogok[159]==1 ) {
-                alert2('Válasszon export fajtát:<br><a href="javascript:csv_general($(\'.excel\'))">» Eszközigénylések exportálása</a><br><a href="javascript:alert2(); csoportMuvelet(\'eszkozigenyles_felsovezetoi_prezentacio\')">» Felsővezetői prezentáció</a>', '<input type="button" class="gomb" value="Mégsem" onclick="alert2()">', 'Válasszon exportot');
+                alert2('Válasszon export fajtát:<br><a href="javascript:csv_general($(\'.excel\'))">» Eszközigénylések listája</a><br><a href="javascript:alert2(); csoportMuvelet(\'eszkozigenyles_felsovezetoi_prezentacio\')">» Felsővezetői prezentáció</a>', '<input type="button" class="gomb" value="Mégsem" onclick="alert2()">', 'Válasszon exportot');
 
             // Ha nincs, akkor indulhat is a sima exceles export
             } else {

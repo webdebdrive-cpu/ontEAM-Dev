@@ -41,7 +41,7 @@ if (isset($_POST['megrendelo_kikuldese'])) {
     $db_error = false;
     mysqli_autocommit($db_kapcs, false);
 
-    $sor = $adatbazis_kapcsolat -> s2('stat_id hash rend_szam szall_mail szallito_id', 'eszkozigenyles_megr', "`recid`='{$_POST['id']}'");
+    $sor = $adatbazis_kapcsolat -> s2('stat_id hash rend_szam szall_mail szallito_id telephely_id', 'eszkozigenyles_megr', "`recid`='{$_POST['id']}'");
     if( $sor === false ) { $db_error = true; }
 
     // Ha nincs joga hozzá, akkor hibaüzenet
@@ -76,7 +76,7 @@ if (isset($_POST['megrendelo_kikuldese'])) {
         $kontakt_alairas .= '<br>Tel.: '.$kontakt['usertel'];
     }
     if( $kontakt['usermail'] ) {
-        $kontakt_alairas .= '<br>E-mail: '.$kontakt['usermail'];
+        $kontakt_alairas .= '<br><b>E-mail: '.$kontakt['usermail'].'</b>';
     }
 
     // Attól függően, hogy melyik rendszerben vagyunk, kap a tárgy/üzenet egy [Teszt] előtagot.
@@ -98,17 +98,18 @@ if (isset($_POST['megrendelo_kikuldese'])) {
     $uzi   = $uzi_kieg.'Tisztelt '.$szallito['knev'].'!
     <br>
     <br>Ezúton küldjük csatolva megrendelésünket.
-    <br>Kérjük, hogy alábbi gombra kattintással igazolják vissza a megrendelő email beérkezését:
+    <br>Kérjük, hogy alábbi gombra kattintással igazolja vissza a megrendelő dokumentum beérkezését:
     <br><a href="https://'.get_domain().'/megr_ig.php?h='.$sor['hash'].'" style="display: inline-block; padding: 5px 10px; border-radius: 5px; background: #438fe5ff; color: #fff; text-decoration: none; margin-top: 5px;" target="_blank">
         Megrendelő emailt megkaptuk
     </a>
-    <br>Kérjük kattintson a következő linkre, ha a fenti gomb nem működne: <a href="https://'.get_domain().'/megr_ig.php?h='.$sor['hash'].'" target="_blank">https://'.get_domain().'/megr_ig.php?h='.$sor['hash'].'</a>
+    vagy kattintson a következő linkre: <a href="https://'.get_domain().'/megr_ig.php?h='.$sor['hash'].'" target="_blank">https://'.get_domain().'/megr_ig.php?h='.$sor['hash'].'</a>
     <br>
+    <br><b>A megrendelésünket visszaigazoló e-mailjüket az alábbi címre legyen kedves megküldeni!</b>
     <br>Üdvözlettel:
     '.$kontakt_alairas.'
     '.str_replace('Üdvözlettel:', '', fajlbol_olvas('../sablon/admin/mail/alairas.html'));
 
-    $dok = $adatbazis_kapcsolat -> s2('utvonal', 'eszkozigenyles_megr_dok', "`eszkozigenyles_megr_id`='{$_POST['id']}'", 'recid asc', '1');
+    $dok = $adatbazis_kapcsolat -> s2('utvonal', 'eszkozigenyles_megr_dok', "`eszkozigenyles_megr_id`='{$_POST['id']}' AND `megr`=1");
     $dok = '../'.get_utvonal().'eszkozigenyles_megr/'.$dok['utvonal'];
 
     // Dev és Teszt rendszerben annak megy ki a levél, aki a gombot megnyomta. FONTOS, hogy Teszt-en is, mert nem mehet ki élesbe szállítóknak
@@ -125,9 +126,22 @@ if (isset($_POST['megrendelo_kikuldese'])) {
         array_push($cimzettek, SZINVATREND_TESZT_MAIL2);
     }
 
+    // Még azokat is vegyük fel a címzettek közé, akinél van olyan értesítés pipa, hogy ERT_BESZERZ_MASOLAT_MEGR_ROL + adott megrendelés szállodája benne van a láthatóságukban
+    $masolatok = $adatbazis_kapcsolat->s('nev teljes_nev usermail', 'login', "`aktiv`=1 AND `virtual`=0 AND substr(`flags_ert`, ".(ERT_BESZERZ_MASOLAT_MEGR_ROL+1).", 1)=1 AND `nev` IN (SELECT `nev` FROM `".get_db_tabla()."telephely_kapcs` WHERE `telephely_id`='{$sor['telephely_id']}')");
+    foreach ($masolatok as $masolat) {
+        $masolat_cimek = explode(',', $masolat['usermail']);
+        foreach ($masolat_cimek as $masolat_cim) {
+            $masolat_cim = trim($masolat_cim);
+            if( $masolat_cim ) {
+                array_push($cimzettek, $masolat_cim);
+            }
+        }
+    }
+
 // Debug módban csak WebDeb
 if( $_SERVER['REMOTE_ADDR'] == get_debug_ip() ) {
-    $cimzettek = [WEBDEB_TESZT_MAIL2];
+    // $cimzettek = [WEBDEB_TESZT_MAIL2];
+    // $cimzettek = ['bk@wdb.hu'];
 }
 
     foreach ($cimzettek as $cimzett) {
@@ -136,6 +150,7 @@ if( $_SERVER['REMOTE_ADDR'] == get_debug_ip() ) {
             level_kuldes(get_nev(), get_mail(), $szallito['knev'], $cimzett, $targy, $uzi, $dok);
         }
     }
+
     // Email küldésről megjegyzés
     $megj = 'E-mail elküldve '.$szallito['knev'].' (e-mail: '.$sor['szall_mail'].') szállítónak megrendeléskor';
     if( addMegj('eszkozigenyles_megr', $_POST['id'], $megj) === false ) {
@@ -305,7 +320,7 @@ if (isset($_POST['megrendeles_javitasa'])) {
 
         foreach ($eszkozigenyles_dokok as $eszkozigenyles_dok) {
 
-            // Ha több igénylés sor is értinett (tervezettt típusú)
+            // Ha több igénylés sor is érintett (tervezettt típusú)
             if( $eszkozigenylesek ) {
 
                 foreach ($eszkozigenylesek as $akt_eszkozigenyles) {
@@ -346,10 +361,11 @@ if (isset($_POST['megrendeles_javitasa'])) {
     if( $sql === false ) { $db_error = true; }
 
     // Rendelés szám ürítése igényéseknél, de csak akkor ha nem tervezett
-    if( $eszkozigenyles['tipus'] != BESZ_TIP_TERVEZETT ) {
+    // 2025.12.10 De, tervezettnél is ürítjük a rendelés számot, már nem kell, hogy később ugyanazzal a rendelés számmal tudjon létrejönni
+    // if( $eszkozigenyles['tipus'] != BESZ_TIP_TERVEZETT ) {
         $sql = $adatbazis_kapcsolat -> u('eszkozigenyles', array('rend_szam'), array(''), "`rend_szam`='{$megrendeles['rend_szam']}'");
         if( $sql === false ) { $db_error = true; }
-    }
+    // }
 
     // Státuszléptetés - JS-től kapott státusz szöveg azonosítása
     $statusz_lep = '';
@@ -388,12 +404,12 @@ if (isset($_POST['megrendeles_javitasa'])) {
     // Ha több igénylés sor is értinett (tervezettt típusú)
     if( $eszkozigenylesek ) {
         foreach ($eszkozigenylesek as $akt_eszkozigenyles) {
-            if( addMegj('eszkozigenyles', $akt_eszkozigenyles['recid'], $_POST['megj'], '', '-user írta-') === false ) {
+            if( addMegj('eszkozigenyles', $akt_eszkozigenyles['recid'], 'Megrendelő javítás indoklása: '.$_POST['megj'], '', '-user írta-') === false ) {
                 $db_error = true;
             }
         }
     } else {
-        if( addMegj('eszkozigenyles', $eszkozigenyles['recid'], $_POST['megj'], '', '-user írta-') === false ) {
+        if( addMegj('eszkozigenyles', $eszkozigenyles['recid'], 'Megrendelő javítás indoklása: '.$_POST['megj'], '', '-user írta-') === false ) {
             $db_error = true;
         }
     }
@@ -509,7 +525,8 @@ if( isset($_GET['csv']) ) {
                 `ossz_dev` as \'Deviza összesen\',
                 `ossz_netto` as \'Nettó összesen\',
                 `szall_hat` as \'Szállítási határidő\',
-                `'.get_db_tabla().$megnevezes.'`.`insert_dt` as \'Megrendelés dátuma\',
+                `'.get_db_tabla().$megnevezes.'`.`megr_dt` as \'Megrendelés dátuma\',
+                `'.get_db_tabla().$megnevezes.'`.`igazolva_dt` as \'Emailt szállító megkapta\',
                 `szall_mail` as \'Szállító email címe\'
                 '. csv_export_get_from_tol($megnevezes);
         $query = mysqli_query($db_kapcs, $sql);
@@ -662,6 +679,13 @@ if( isset($_GET['uj']) && _jog(JOG_BESZERZ_IGENYLESEK_MEGR_OLVAS) ) {
     ) {
         $gombok .= nl2('
             <input type="button" class="gomb modositaskor_rejt" onclick="csoportMuvelet(\'eszkozigenyles_megrendeles_javitasa\');" value="Megrendelés javítása">
+            '
+        );
+    }
+    // Megrendelő cseréje
+    if( $sor['stat_id'] == ESZKOZIGENYL_MEGR_STAT_KIKULD_VAR && _jog(JOG_BESZERZ_IGENYLESEK_KEZEL) ) {
+        $gombok .= nl2('
+            <input type="button" class="gomb modositaskor_rejt" onclick="csoportMuvelet(\'eszkozigenyles_megr_csere\');" value="Megrendelő cseréje">
             '
         );
     }

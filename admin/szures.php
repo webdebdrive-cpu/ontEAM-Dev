@@ -354,7 +354,7 @@ if( isset($_POST['f_szuro_mezo_operator']) ) {
                     if( $ertek['name'] == 'pfelelos' || $ertek['name'] == 'let_fel' ) {
                         $aktiv          = 1;
                         $aktiv_szinez   = 1;
-                        $beosztas_id    = EL_BEOSZTAS_BERUH_IG.','.EL_BEOSZTAS_FEJL_VIG_H.','.EL_BEOSZTAS_MUSZAKI_ASSZ.','.EL_BEOSZTAS_MUSZAKI_IG.','.EL_BEOSZTAS_PR_FELEOS.','.EL_BEOSZTAS_DISZ_KP_VEZ;
+                        $beosztas_id    = EL_BEOSZTAS_BERUH_IG.','.EL_BEOSZTAS_FEJL_VIG_H.','.EL_BEOSZTAS_MUSZAKI_ASSZ.','.EL_BEOSZTAS_MUSZAKI_IG.','.EL_BEOSZTAS_PR_FELEOS.','.EL_BEOSZTAS_DISZ_KP_VEZ.','.EL_BEOSZTAS_TER_FELELOS.','.EL_BEOSZTAS_KP_MUSZ_BERUH_IG;
                     }
     
                     // Partner lenyílóban legyenek színezve az aktívak, inaktívak

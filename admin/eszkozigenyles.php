@@ -34,7 +34,8 @@ $szoveg                 = 'eszközigénylést';               // Hibaüzenetkor:
 
 $igenyles_mezok_pdfhez = 'recid tipus stat_id nev igmen jhmen arfolyam netto jhar jhossz telephely_id szallito_id szall_hat fiz_mod hat_ido ossz_netto ossz_dev kcs_21 kiszall beuzemel munkadij egyeb_koltseg eloleg megj insert_dt'; // Ezeket az oszlopokat kérjük le PDF készítéséhez
 
-$szamla_html = '';
+// Cikkszám ha nincs megadva, egyszer kérdezzünk rá.
+$szamla_html = '<script>var CSZ_KERDES_VOLT = 0;</script>';
 
 // Ha státuszléptetéskor nem stimmelnek a státuszok, akkor legnagyobb valószínűséggel arról van szó, hogy ugyanazt az igénylést párhuzamosan más már tovább léptette.
 // Ezért inkább ezt a hibaüzenetet írjuk ki:
@@ -53,6 +54,32 @@ if( $tobb_kep ) {
     }
     function get_tobbkep_tabla(){ return str_replace('.php', '', basename(self())).'_dok'; } // A képeket tartalmazó adatbázis tábla neve FONTOS: ha itt átnevezed akkor a tobbkep.php-ban is át kell írni!
 
+}
+
+// Árfolyam lekérése, ha nem HUF-os az igénylés
+if (isset($_POST['get_arfolyam'])) {
+
+    if( $_POST['tervezett'] ) {
+        // Ha ismert az igénylés ID, akkor onnan kérjük le az időszak azonosítót
+        if( $_POST['id'] && $_POST['id'] != 'false' ) {
+            $igenyles = $adatbazis_kapcsolat -> s2('idoszak_azon', 'eszkozigenyles', "`recid`='{$_POST['id']}'");
+            $arfolyam = $adatbazis_kapcsolat -> s2('arfolyam', 'besz_idoszak', "`azon`='{$igenyles['idoszak_azon']}'");
+
+        // Új felvitelben pedig az éppen aktív időszak
+        } else {
+            $arfolyam = $adatbazis_kapcsolat -> s2('arfolyam', 'besz_idoszak', "`stat_id`='".BESZERZES_IDOSZAK_AKTIV."'");
+        }
+
+    } else {
+        $arfolyam = $adatbazis_kapcsolat -> s2('arfolyam', 'beallitas', "`recid`='1'");
+    }
+
+    echo json_encode(array(
+                             'arfolyam' => number_format($arfolyam['arfolyam'], 5, ',', ''),
+                     ));
+
+    $weblap -> leallit();
+    exit;
 }
 
 // Szállító igénylése
@@ -129,6 +156,19 @@ if( $_SERVER['REMOTE_ADDR'] == get_debug_ip() ) {
     exit;
 }
 
+// Igénylés adatainak lekérése
+if (isset($_POST['get_igeny'])) {
+
+    $igenyles = $adatbazis_kapcsolat -> s2('tipus', 'eszkozigenyles', "`recid`='{$_POST['id']}'");
+    
+    echo json_encode(array(
+                             'tipus'  => $igenyles['tipus'],
+                     ));
+
+    $weblap -> leallit();
+    exit;
+}
+
 // Eszközigénylés táblázat rendezésének letárolása SESSION-be
 if (isset($_POST['tablazat_rendez'])) {
 
@@ -179,6 +219,7 @@ if (isset($_POST['get_tabla_oszlopok'])) {
         ['nev' => 'Típus',                       'id' => 'eszkoz_tabla_tipus'           ],
         ['nev' => 'Prioritás',                   'id' => 'eszkoz_tabla_prior'           ],
         ['nev' => 'Szálloda',                    'id' => 'eszkoz_tabla_szalloda'        ],
+        ['nev' => 'Részleg',                     'id' => 'eszkoz_tabla_reszleg'         ],
         ['nev' => 'Termék név',                  'id' => 'eszkoz_tabla_nev'             ],
         ['nev' => 'Cikkszám',                    'id' => 'eszkoz_tabla_csz'             ],
         ['nev' => 'Specifikáció',                'id' => 'eszkoz_tabla_spec'            ],
@@ -207,8 +248,9 @@ if (isset($_POST['get_tabla_oszlopok'])) {
         ['nev' => 'Szálloda igazgató',           'id' => 'eszkoz_tabla_szall_ig_vel'    ],
         ['nev' => 'Validáló',                    'id' => 'eszkoz_tabla_bi_vel'          ],
         ['nev' => 'BI vezető',                   'id' => 'eszkoz_tabla_bi_jh'           ],
-        // ['nev' => 'Szakmai vezetés vélemény',    'id' => 'eszkoz_tabla_szak_vel'        ],
+        ['nev' => 'Szakmai vezetés vélemény',    'id' => 'eszkoz_tabla_szak_vel'        ],
         ['nev' => 'Felsővezető',                 'id' => 'eszkoz_tabla_felso_vel'       ],
+        ['nev' => 'Véglegesítő',                 'id' => 'eszkoz_tabla_bi_vegl'         ],
     ];
 
     $sorrend = getErtek('tabla_sorrend', 'login', 'recid', $_SESSION[get_db_tabla().'login_recid']);
@@ -368,6 +410,15 @@ if (isset($_POST['megrendelok_elkeszit'])) {
     // Azokból az igénylésekből készül PDF, akik tervezettek, adott státuszúak, a jóváhagyás oszlopa 1 (tehát zöld). Tehát pl. BI véglgesítésre vár státuszú, és ekkor bi_vegl legyen 1-es, azaz zöld pipa.
     $igenylesek = $adatbazis_kapcsolat -> s('recid', 'eszkozigenyles', "`tipus`='".BESZ_TIP_TERVEZETT."' AND `idoszak_azon`='{$sor['idoszak_azon']}' AND `stat_id`='{$sor['stat_id']}' AND `{$jovahagy_oszlop}`='1'");
     if( $igenylesek === false ) { $db_error = true; }
+
+    // Ha még csak kérdezünk, akkor elég egy darabszámot visszaadni
+    if( $_POST['csak_kerdez'] ) {
+        echo json_encode( array(
+                                'db' => count($igenylesek),
+                                ) );
+        $weblap -> leallit();
+        exit;
+    }
     $igenylesek = adatbazis2tomb($igenylesek, 'recid');
 
     // Ezzel még várjunk!
@@ -403,14 +454,13 @@ if (isset($_POST['megrendelok_elkeszit'])) {
     exit;
 }
 
-
 // Jóváhagyott mennyiség módosítása
 if (isset($_POST['jhmen_mod'])) {
 
     $db_error = false;
     mysqli_autocommit($db_kapcs, false);
 
-    $eszkozig = $adatbazis_kapcsolat -> s2('stat_id jhar', 'eszkozigenyles', "`recid`='{$_POST['id']}'");
+    $eszkozig = $adatbazis_kapcsolat -> s2('stat_id netto ossz_netto', 'eszkozigenyles', "`recid`='{$_POST['id']}'");
     if( $eszkozig === false ) { $db_error = true; }
 
     // Ha nincs joga hozzá, akkor hibaüzenet
@@ -434,9 +484,11 @@ if (isset($_POST['jhmen_mod'])) {
 
     // Jóváhagyott mennyiség eltárolása
     // A deviza összesen mezőt (ha devizás az igény) és a jóváhagyott nettó összesen mezőt frissíteni kell
-    $jhossz     = $_POST['jhmen']*$eszkozig['jhar'];
-    $mezok      = array('jhmen',            'jhossz');
-    $ertekek    = array($_POST['jhmen'],    $jhossz );
+    $jhar       = $eszkozig['netto'];
+    $jhossz     = $_POST['jhmen']*$jhar;
+
+    $mezok      = array('jhmen',         'jhar', 'jhossz');
+    $ertekek    = array($_POST['jhmen'], $jhar,  $jhossz );
     $sql = $adatbazis_kapcsolat -> u('eszkozigenyles', $mezok, $ertekek, "`recid`='{$_POST['id']}'");
     if( $sql === false ) { $db_error = true; }
 
@@ -448,7 +500,9 @@ if (isset($_POST['jhmen_mod'])) {
         mysqli_commit($db_kapcs);
         echo json_encode( array(
                                 'siker'     => 1,
-                                'jhmen'     => number_format($_POST['jhmen'], 0, ',', ' ').' db',
+                                'jhmen'     => number_format($_POST['jhmen'],   0, ',', ' '),
+                                'jhar'      => number_format($jhar,             0, ',', ' '),
+                                'jhossz'    => number_format($jhossz,           0, ',', ' '),
                                 'jhmen_db'  => $_POST['jhmen'],
                                 'jhossz'    => number_format($jhossz,   0, ',', ' '),
                                 'gombok'    => get_eszkozigenyles_gombok($_POST['id']),
@@ -465,7 +519,7 @@ if (isset($_POST['jhmen_mod'])) {
     exit;
 }
 
-// Mehet validálásra
+// Mehet BI validálásra
 if (isset($_POST['mehet_validalasra'])) {
 
     $db_error = false;
@@ -552,7 +606,7 @@ if (isset($_POST['muszakilag_nem_erintett'])) {
     $db_error = false;
     mysqli_autocommit($db_kapcs, false);
 
-    $sor = $adatbazis_kapcsolat -> s2('stat_id tipus', 'eszkozigenyles', "`recid`='{$_POST['id']}'");
+    $sor = $adatbazis_kapcsolat -> s2('stat_id tipus musz_indok', 'eszkozigenyles', "`recid`='{$_POST['id']}'");
     if( $sor === false ) { $db_error = true; }
 
     // Ha nincs joga hozzá, akkor hibaüzenet
@@ -578,8 +632,13 @@ if (isset($_POST['muszakilag_nem_erintett'])) {
 
     // Nyomógomb eltárolása
     $velemeny = 1;
+    $indok = '';
+    if( $_POST['indok'] ) {
+        $indok .= datum_kiir(date('Y-m-d H:i:s')).' '.$_SESSION[get_db_tabla().'teljes_nev']."\n".$_POST['indok']."\n\n";
+    }
+    $indok .= $sor['musz_indok'];
     $sql = $adatbazis_kapcsolat -> u('eszkozigenyles',  array('musz_el_ig', 'kiv_kolts', 'musz_indok'),
-                                                        array($velemeny,    0,           ''          ),
+                                                        array($velemeny,    0,           $indok      ),
                                                     "`recid`='{$_POST['id']}'");
     if( $sql === false ) { $db_error = true; }
 
@@ -651,7 +710,7 @@ if (isset($_POST['musz_elokeszitest_igenyel'])) {
         $_POST['becsult'] = 0;
     }
 
-    $sor = $adatbazis_kapcsolat -> s2('stat_id tipus', 'eszkozigenyles', "`recid`='{$_POST['id']}'");
+    $sor = $adatbazis_kapcsolat -> s2('stat_id tipus musz_indok', 'eszkozigenyles', "`recid`='{$_POST['id']}'");
     if( $sor === false ) { $db_error = true; }
 
     // Ha nincs joga hozzá, akkor hibaüzenet
@@ -665,7 +724,13 @@ if (isset($_POST['musz_elokeszitest_igenyel'])) {
     }
 
     // Nem megfelelő státuszkor hibaüzenet
-    if( $sor['stat_id'] != ESZKOZIGENYL_STAT_MUSZAK_JH_VAR ) {
+    if( 
+        // Tagadjuk az alábbi két felállás, amikor is a megfelelő sáttusban vagyunk. Igénylés típusától függ, hogy melyiket fogadjuk el
+        !(
+            ($sor['tipus'] == BESZ_TIP_SORONKIVULI && $sor['stat_id'] = ESZKOZIGENYL_STAT_MUSZAK_JH_VAR ) ||
+            ($sor['tipus'] == BESZ_TIP_TERVEZETT   && $sor['stat_id'] = ESZKOZIGENYL_STAT_UJ_FELVITEL   )
+        )
+    ) {
         echo json_encode(array(
                                 'hiba'  => $statusz_hiba, //'Ebben a státuszban nem lehet műszakilag véleményezni!',
                                 'gomb'  => $statusz_hiba_gomb,
@@ -697,8 +762,13 @@ if (isset($_POST['musz_elokeszitest_igenyel'])) {
 
     // Nyomógomb eltárolása
     $velemeny = 2;
-    $sql = $adatbazis_kapcsolat -> u('eszkozigenyles',  array('musz_el_ig', 'kiv_kolts',         'becsult',         'musz_indok'    ),
-                                                        array($velemeny,    $_POST['kiv_kolts'], $_POST['becsult'], $_POST['indok'] ),
+    $indok = '';
+    if( $_POST['indok'] ) {
+        $indok .= datum_kiir(date('Y-m-d H:i:s')).' '.$_SESSION[get_db_tabla().'teljes_nev']."\n".$_POST['indok']."\n\n";
+    }
+    $indok .= $sor['musz_indok'];
+    $sql = $adatbazis_kapcsolat -> u('eszkozigenyles',  array('musz_el_ig', 'kiv_kolts',         'becsult',         'musz_indok'),
+                                                        array($velemeny,    $_POST['kiv_kolts'], $_POST['becsult'], $indok      ),
                                                     "`recid`='{$_POST['id']}'");
     if( $sql === false ) { $db_error = true; }
 
@@ -713,11 +783,10 @@ if (isset($_POST['musz_elokeszitest_igenyel'])) {
         // E-mail értesítés küldése
         $mail_hibauzenet = level_felkeszit_es_kuld('eszkozigenyles', $_POST['id'], ERT_BESZERZ_SZALLODAI_ENG_ELO, 'eszkozigenyles', 'eszkozigenyles_szallodai_eng_elo');
 
-    // Tervezett esetén marad a státusz, csak a pipa változik
-    // Ilyen ág nincs is már, mert az új igénylés egyből BI validálásra vár státuszba lép tervezett igénylénél
-    }/* else {
-        $statusz = getStatText('eszkozigenyles', ESZKOZIGENYL_STAT_MUSZAK_JH_VAR);
-    }*/
+    // Tervezett esetén marad a státusz
+    } else {
+        $statusz = getStatText('eszkozigenyles', ESZKOZIGENYL_STAT_UJ_FELVITEL);
+    }
 
     // Pipa kiszámítása
     $pipa = '';
@@ -829,7 +898,7 @@ if (isset($_POST['szall_igazgato_jovahagy'])) {
     $db_error = false;
     mysqli_autocommit($db_kapcs, false);
 
-    $sor = $adatbazis_kapcsolat -> s2('stat_id tipus', 'eszkozigenyles', "`recid`='{$_POST['id']}'");
+    $sor = $adatbazis_kapcsolat -> s2('stat_id tipus szall_ig_indok', 'eszkozigenyles', "`recid`='{$_POST['id']}'");
     if( $sor === false ) { $db_error = true; }
 
     // Ha nincs joga hozzá, akkor hibaüzenet
@@ -855,8 +924,13 @@ if (isset($_POST['szall_igazgato_jovahagy'])) {
 
     // Nyomógomb eltárolása
     $velemeny = 1;
-    $sql = $adatbazis_kapcsolat -> u('eszkozigenyles',  array('szall_ig_vel'),
-                                                        array($velemeny     ),
+    $indok = '';
+    if( $_POST['indok'] ) {
+        $indok .= datum_kiir(date('Y-m-d H:i:s')).' '.$_SESSION[get_db_tabla().'teljes_nev']."\n".$_POST['indok']."\n\n";
+    }
+    $indok .= $sor['szall_ig_indok'];
+    $sql = $adatbazis_kapcsolat -> u('eszkozigenyles',  array('szall_ig_vel',   'szall_ig_indok'),
+                                                        array($velemeny,        $indok          ),
                                                     "`recid`='{$_POST['id']}'");
     if( $sql === false ) { $db_error = true; }
 
@@ -920,7 +994,7 @@ if (isset($_POST['szall_ig_elutasit'])) {
 
     $_POST['indok'] = trim($_POST['indok']);
 
-    $sor = $adatbazis_kapcsolat -> s2('stat_id tipus', 'eszkozigenyles', "`recid`='{$_POST['id']}'");
+    $sor = $adatbazis_kapcsolat -> s2('stat_id tipus szall_ig_indok', 'eszkozigenyles', "`recid`='{$_POST['id']}'");
     if( $sor === false ) { $db_error = true; }
 
     // Ha nincs joga hozzá, akkor hibaüzenet
@@ -956,8 +1030,13 @@ if (isset($_POST['szall_ig_elutasit'])) {
 
     // Nyomógomb eltárolása
     $velemeny = 2;
-    $sql = $adatbazis_kapcsolat -> u('eszkozigenyles',  array('szall_ig_vel',   'szall_ig_indok'    ),
-                                                        array($velemeny,        $_POST['indok']     ),
+    $indok = '';
+    if( $_POST['indok'] ) {
+        $indok .= datum_kiir(date('Y-m-d H:i:s')).' '.$_SESSION[get_db_tabla().'teljes_nev']."\n".$_POST['indok']."\n\n";
+    }
+    $indok .= $sor['szall_ig_indok'];
+    $sql = $adatbazis_kapcsolat -> u('eszkozigenyles',  array('szall_ig_vel',   'szall_ig_indok'),
+                                                        array($velemeny,        $indok          ),
                                                     "`recid`='{$_POST['id']}'");
     if( $sql === false ) { $db_error = true; }
 
@@ -1081,7 +1160,7 @@ if (isset($_POST['bi_validal'])) {
     $db_error = false;
     mysqli_autocommit($db_kapcs, false);
 
-    $sor = $adatbazis_kapcsolat -> s2('idoszak_azon stat_id tipus dok_db', 'eszkozigenyles', "`recid`='{$_POST['id']}'");
+    $sor = $adatbazis_kapcsolat -> s2('idoszak_azon stat_id tipus dok_db bi_indok', 'eszkozigenyles', "`recid`='{$_POST['id']}'");
     if( $sor === false ) { $db_error = true; }
 
     // Ha nincs joga hozzá, akkor hibaüzenet
@@ -1107,8 +1186,13 @@ if (isset($_POST['bi_validal'])) {
 
     // Nyomógomb eltárolása
     $velemeny = 1;
-    $sql = $adatbazis_kapcsolat -> u('eszkozigenyles',  array('bi_vel'  ),
-                                                        array($velemeny ),
+    $indok = '';
+    if( $_POST['indok'] ) {
+        $indok .= datum_kiir(date('Y-m-d H:i:s')).' '.$_SESSION[get_db_tabla().'teljes_nev']."\n".$_POST['indok']."\n\n";
+    }
+    $indok .= $sor['bi_indok'];
+    $sql = $adatbazis_kapcsolat -> u('eszkozigenyles',  array('bi_vel',     'bi_indok'),
+                                                        array($velemeny,    $indok      ),
                                                     "`recid`='{$_POST['id']}'");
     if( $sql === false ) { $db_error = true; }
 
@@ -1166,7 +1250,7 @@ if (isset($_POST['bi_validal'])) {
             $van_meg_ilyen_igenyles = $adatbazis_kapcsolat -> s('recid', 'eszkozigenyles', "`idoszak_azon`='{$sor['idoszak_azon']}' AND `stat_id`<='".ESZKOZIGENYL_STAT_BI_VALID_VAR."'");
             if( $van_meg_ilyen_igenyles === false ) { $db_error = true; }
             if( !$van_meg_ilyen_igenyles ) {
-                $mail_hibauzenet = level_felkeszit_es_kuld('eszkozigenyles', $_POST['id'], '-1', 'eszkozigenyles_utolso_igeny_szakmai', 'eszkozigenyles_szak_vel_var_jogunak');
+                $mail_hibauzenet = level_felkeszit_es_kuld('eszkozigenyles', $_POST['id'], ERT_BESZERZ_SZAKMAI_VEL_ELO, 'eszkozigenyles_utolso_igeny_szakmai', 'eszkozigenyles_szak_vel_var_jogunak');
             }
         }
 
@@ -1208,7 +1292,7 @@ if (isset($_POST['bi_elutasit'])) {
 
     $_POST['indok'] = trim($_POST['indok']);
 
-    $sor = $adatbazis_kapcsolat -> s2('idoszak_azon stat_id tipus', 'eszkozigenyles', "`recid`='{$_POST['id']}'");
+    $sor = $adatbazis_kapcsolat -> s2('idoszak_azon stat_id tipus bi_indok', 'eszkozigenyles', "`recid`='{$_POST['id']}'");
     if( $sor === false ) { $db_error = true; }
 
     // Ha nincs joga hozzá, akkor hibaüzenet
@@ -1244,8 +1328,13 @@ if (isset($_POST['bi_elutasit'])) {
 
     // Nyomógomb eltárolása
     $velemeny = 2;
-    $sql = $adatbazis_kapcsolat -> u('eszkozigenyles',  array('bi_vel',  'bi_indok'      ),
-                                                        array($velemeny, $_POST['indok'] ),
+    $indok = '';
+    if( $_POST['indok'] ) {
+        $indok .= datum_kiir(date('Y-m-d H:i:s')).' '.$_SESSION[get_db_tabla().'teljes_nev']."\n".$_POST['indok']."\n\n";
+    }
+    $indok .= $sor['bi_indok'];
+    $sql = $adatbazis_kapcsolat -> u('eszkozigenyles',  array('bi_vel',  'bi_indok' ),
+                                                        array($velemeny, $indok     ),
                                                     "`recid`='{$_POST['id']}'");
     if( $sql === false ) { $db_error = true; }
 
@@ -1284,7 +1373,7 @@ if (isset($_POST['bi_elutasit'])) {
             $van_meg_ilyen_igenyles = $adatbazis_kapcsolat -> s('recid', 'eszkozigenyles', "`idoszak_azon`='{$sor['idoszak_azon']}' AND `stat_id`<='".ESZKOZIGENYL_STAT_BI_VALID_VAR."' AND `recid`!='{$_POST['id']}'");
             if( $van_meg_ilyen_igenyles === false ) { $db_error = true; }
             if( !$van_meg_ilyen_igenyles ) {
-                $mail_hibauzenet = level_felkeszit_es_kuld('eszkozigenyles', $_POST['id'], '-1', 'eszkozigenyles_utolso_igeny_szakmai', 'eszkozigenyles_vel_var_jogunak');
+                $mail_hibauzenet = level_felkeszit_es_kuld('eszkozigenyles', $_POST['id'], ERT_BESZERZ_SZAKMAI_VEL_ELO, 'eszkozigenyles_utolso_igeny_szakmai', 'eszkozigenyles_vel_var_jogunak');
             }
         }
         $naviKov = 1;
@@ -1384,7 +1473,7 @@ if (isset($_POST['bi_jovahagy'])) {
     $db_error = false;
     mysqli_autocommit($db_kapcs, false);
 
-    $sor = $adatbazis_kapcsolat -> s2('stat_id tipus dok_db', 'eszkozigenyles', "`recid`='{$_POST['id']}'");
+    $sor = $adatbazis_kapcsolat -> s2('stat_id tipus dok_db bi_jh_indok', 'eszkozigenyles', "`recid`='{$_POST['id']}'");
     if( $sor === false ) { $db_error = true; }
 
     // Ha nincs joga hozzá, akkor hibaüzenet
@@ -1410,8 +1499,13 @@ if (isset($_POST['bi_jovahagy'])) {
 
     // Nyomógomb eltárolása
     $velemeny = 1;
-    $sql = $adatbazis_kapcsolat -> u('eszkozigenyles',  array('bi_jh'   ),
-                                                        array($velemeny ),
+    $indok = '';
+    if( $_POST['indok'] ) {
+        $indok .= datum_kiir(date('Y-m-d H:i:s')).' '.$_SESSION[get_db_tabla().'teljes_nev']."\n".$_POST['indok']."\n\n";
+    }
+    $indok .= $sor['bi_jh_indok'];
+    $sql = $adatbazis_kapcsolat -> u('eszkozigenyles',  array('bi_jh',   'bi_jh_indok'),
+                                                        array($velemeny, $indok       ),
                                                     "`recid`='{$_POST['id']}'");
     if( $sql === false ) { $db_error = true; }
 
@@ -1497,7 +1591,7 @@ if (isset($_POST['bi_jh_felt_beleegyezes'])) {
     $db_error = false;
     mysqli_autocommit($db_kapcs, false);
 
-    $sor = $adatbazis_kapcsolat -> s2('stat_id tipus', 'eszkozigenyles', "`recid`='{$_POST['id']}'");
+    $sor = $adatbazis_kapcsolat -> s2('stat_id tipus bi_jh_indok', 'eszkozigenyles', "`recid`='{$_POST['id']}'");
     if( $sor === false ) { $db_error = true; }
 
     // Ha nincs joga hozzá, akkor hibaüzenet
@@ -1533,8 +1627,13 @@ if (isset($_POST['bi_jh_felt_beleegyezes'])) {
 
     // Nyomógomb eltárolása
     $velemeny = 3;
-    $sql = $adatbazis_kapcsolat -> u('eszkozigenyles',  array('bi_jh',      'bi_jh_indok'   ),
-                                                        array($velemeny,    $_POST['indok'] ),
+    $indok = '';
+    if( $_POST['indok'] ) {
+        $indok .= datum_kiir(date('Y-m-d H:i:s')).' '.$_SESSION[get_db_tabla().'teljes_nev']."\n".$_POST['indok']."\n\n";
+    }
+    $indok .= $sor['bi_jh_indok'];
+    $sql = $adatbazis_kapcsolat -> u('eszkozigenyles',  array('bi_jh',      'bi_jh_indok'),
+                                                        array($velemeny,    $indok       ),
                                                     "`recid`='{$_POST['id']}'");
     if( $sql === false ) { $db_error = true; }
 
@@ -1617,7 +1716,7 @@ if (isset($_POST['bi_jh_elutasit'])) {
 
     $_POST['indok'] = trim($_POST['indok']);
 
-    $sor = $adatbazis_kapcsolat -> s2('stat_id tipus', 'eszkozigenyles', "`recid`='{$_POST['id']}'");
+    $sor = $adatbazis_kapcsolat -> s2('stat_id tipus bi_jh_indok', 'eszkozigenyles', "`recid`='{$_POST['id']}'");
     if( $sor === false ) { $db_error = true; }
 
     // Ha nincs joga hozzá, akkor hibaüzenet
@@ -1653,8 +1752,13 @@ if (isset($_POST['bi_jh_elutasit'])) {
 
     // Nyomógomb eltárolása
     $velemeny = 2;
-    $sql = $adatbazis_kapcsolat -> u('eszkozigenyles',  array('bi_jh',      'bi_jh_indok'   ),
-                                                        array($velemeny,    $_POST['indok'] ),
+    $indok = '';
+    if( $_POST['indok'] ) {
+        $indok .= datum_kiir(date('Y-m-d H:i:s')).' '.$_SESSION[get_db_tabla().'teljes_nev']."\n".$_POST['indok']."\n\n";
+    }
+    $indok .= $sor['bi_jh_indok'];
+    $sql = $adatbazis_kapcsolat -> u('eszkozigenyles',  array('bi_jh',      'bi_jh_indok'),
+                                                        array($velemeny,    $indok       ),
                                                     "`recid`='{$_POST['id']}'");
     if( $sql === false ) { $db_error = true; }
 
@@ -1717,7 +1821,7 @@ if (isset($_POST['szak_beleegyezes'])) {
     $db_error = false;
     mysqli_autocommit($db_kapcs, false);
 
-    $sor = $adatbazis_kapcsolat -> s2('stat_id tipus', 'eszkozigenyles', "`recid`='{$_POST['id']}'");
+    $sor = $adatbazis_kapcsolat -> s2('stat_id tipus szak_indok', 'eszkozigenyles', "`recid`='{$_POST['id']}'");
     if( $sor === false ) { $db_error = true; }
 
     // Ha nincs joga hozzá, akkor hibaüzenet
@@ -1743,8 +1847,13 @@ if (isset($_POST['szak_beleegyezes'])) {
 
     // Nyomógomb eltárolása
     $velemeny = 1;
-    $sql = $adatbazis_kapcsolat -> u('eszkozigenyles',  array('szak_vel'),
-                                                        array($velemeny ),
+    $indok = '';
+    if( $_POST['indok'] ) {
+        $indok .= datum_kiir(date('Y-m-d H:i:s')).' '.$_SESSION[get_db_tabla().'teljes_nev']."\n".$_POST['indok']."\n\n";
+    }
+    $indok .= $sor['szak_indok'];
+    $sql = $adatbazis_kapcsolat -> u('eszkozigenyles',  array('szak_vel',   'szak_indok' ),
+                                                        array($velemeny,    $indok      ),
                                                     "`recid`='{$_POST['id']}'");
     if( $sql === false ) { $db_error = true; }
 
@@ -1811,7 +1920,7 @@ if (isset($_POST['szak_felt_beleegyezes'])) {
     $db_error = false;
     mysqli_autocommit($db_kapcs, false);
 
-    $sor = $adatbazis_kapcsolat -> s2('stat_id tipus', 'eszkozigenyles', "`recid`='{$_POST['id']}'");
+    $sor = $adatbazis_kapcsolat -> s2('stat_id tipus szak_indok', 'eszkozigenyles', "`recid`='{$_POST['id']}'");
     if( $sor === false ) { $db_error = true; }
 
     // Ha nincs joga hozzá, akkor hibaüzenet
@@ -1847,8 +1956,13 @@ if (isset($_POST['szak_felt_beleegyezes'])) {
 
     // Nyomógomb eltárolása
     $velemeny = 3;
-    $sql = $adatbazis_kapcsolat -> u('eszkozigenyles',  array('szak_vel',   'szak_indok'    ),
-                                                        array($velemeny,    $_POST['indok'] ),
+    $indok = '';
+    if( $_POST['indok'] ) {
+        $indok .= datum_kiir(date('Y-m-d H:i:s')).' '.$_SESSION[get_db_tabla().'teljes_nev']."\n".$_POST['indok']."\n\n";
+    }
+    $indok .= $sor['szak_indok'];
+    $sql = $adatbazis_kapcsolat -> u('eszkozigenyles',  array('szak_vel',   'szak_indok'),
+                                                        array($velemeny,    $indok      ),
                                                     "`recid`='{$_POST['id']}'");
     if( $sql === false ) { $db_error = true; }
 
@@ -1918,7 +2032,7 @@ if (isset($_POST['szak_elutasit'])) {
 
     $_POST['indok'] = trim($_POST['indok']);
 
-    $sor = $adatbazis_kapcsolat -> s2('stat_id tipus', 'eszkozigenyles', "`recid`='{$_POST['id']}'");
+    $sor = $adatbazis_kapcsolat -> s2('stat_id tipus szak_indok', 'eszkozigenyles', "`recid`='{$_POST['id']}'");
     if( $sor === false ) { $db_error = true; }
 
     // Ha nincs joga hozzá, akkor hibaüzenet
@@ -1954,8 +2068,13 @@ if (isset($_POST['szak_elutasit'])) {
 
     // Nyomógomb eltárolása
     $velemeny = 2;
-    $sql = $adatbazis_kapcsolat -> u('eszkozigenyles',  array('szak_vel',   'szak_indok'    ),
-                                                        array($velemeny,    $_POST['indok'] ),
+    $indok = '';
+    if( $_POST['indok'] ) {
+        $indok .= datum_kiir(date('Y-m-d H:i:s')).' '.$_SESSION[get_db_tabla().'teljes_nev']."\n".$_POST['indok']."\n\n";
+    }
+    $indok .= $sor['szak_indok'];
+    $sql = $adatbazis_kapcsolat -> u('eszkozigenyles',  array('szak_vel',   'szak_indok'),
+                                                        array($velemeny,    $indok      ),
                                                     "`recid`='{$_POST['id']}'");
     if( $sql === false ) { $db_error = true; }
 
@@ -2090,7 +2209,7 @@ if (isset($_POST['felso_beleegyezes'])) {
     $db_error = false;
     mysqli_autocommit($db_kapcs, false);
 
-    $sor = $adatbazis_kapcsolat -> s2('stat_id tipus', 'eszkozigenyles', "`recid`='{$_POST['id']}'");
+    $sor = $adatbazis_kapcsolat -> s2('stat_id tipus felso_indok', 'eszkozigenyles', "`recid`='{$_POST['id']}'");
     if( $sor === false ) { $db_error = true; }
 
     // Ha nincs joga hozzá, akkor hibaüzenet
@@ -2116,8 +2235,13 @@ if (isset($_POST['felso_beleegyezes'])) {
 
     // Nyomógomb eltárolása
     $velemeny = 1;
-    $sql = $adatbazis_kapcsolat -> u('eszkozigenyles',  array('felso_vel'),
-                                                        array($velemeny  ),
+    $indok = '';
+    if( $_POST['indok'] ) {
+        $indok .= datum_kiir(date('Y-m-d H:i:s')).' '.$_SESSION[get_db_tabla().'teljes_nev']."\n".$_POST['indok']."\n\n";
+    }
+    $indok .= $sor['felso_indok'];
+    $sql = $adatbazis_kapcsolat -> u('eszkozigenyles',  array('felso_vel', 'felso_indok'),
+                                                        array($velemeny,    $indok      ),
                                                     "`recid`='{$_POST['id']}'");
     if( $sql === false ) { $db_error = true; }
 
@@ -2193,7 +2317,7 @@ if (isset($_POST['felso_felt_beleegyezes'])) {
     $db_error = false;
     mysqli_autocommit($db_kapcs, false);
 
-    $sor = $adatbazis_kapcsolat -> s2('stat_id tipus', 'eszkozigenyles', "`recid`='{$_POST['id']}'");
+    $sor = $adatbazis_kapcsolat -> s2('stat_id tipus felso_indok', 'eszkozigenyles', "`recid`='{$_POST['id']}'");
     if( $sor === false ) { $db_error = true; }
 
     // Ha nincs joga hozzá, akkor hibaüzenet
@@ -2229,8 +2353,13 @@ if (isset($_POST['felso_felt_beleegyezes'])) {
 
     // Nyomógomb eltárolása
     $velemeny = 3;
+    $indok = '';
+    if( $_POST['indok'] ) {
+        $indok .= datum_kiir(date('Y-m-d H:i:s')).' '.$_SESSION[get_db_tabla().'teljes_nev']."\n".$_POST['indok']."\n\n";
+    }
+    $indok .= $sor['felso_indok'];
     $sql = $adatbazis_kapcsolat -> u('eszkozigenyles',  array('felso_vel',  'felso_indok'   ),
-                                                        array($velemeny,    $_POST['indok'] ),
+                                                        array($velemeny,    $indok          ),
                                                     "`recid`='{$_POST['id']}'");
     if( $sql === false ) { $db_error = true; }
 
@@ -2299,7 +2428,7 @@ if (isset($_POST['felso_elutasit'])) {
 
     $_POST['indok'] = trim($_POST['indok']);
 
-    $sor = $adatbazis_kapcsolat -> s2('stat_id tipus', 'eszkozigenyles', "`recid`='{$_POST['id']}'");
+    $sor = $adatbazis_kapcsolat -> s2('stat_id tipus felso_indok', 'eszkozigenyles', "`recid`='{$_POST['id']}'");
     if( $sor === false ) { $db_error = true; }
 
     // Ha nincs joga hozzá, akkor hibaüzenet
@@ -2335,8 +2464,13 @@ if (isset($_POST['felso_elutasit'])) {
 
     // Nyomógomb eltárolása
     $velemeny = 2;
+    $indok = '';
+    if( $_POST['indok'] ) {
+        $indok .= datum_kiir(date('Y-m-d H:i:s')).' '.$_SESSION[get_db_tabla().'teljes_nev']."\n".$_POST['indok']."\n\n";
+    }
+    $indok .= $sor['felso_indok'];
     $sql = $adatbazis_kapcsolat -> u('eszkozigenyles',  array('felso_vel',  'felso_indok'   ),
-                                                        array($velemeny,    $_POST['indok'] ),
+                                                        array($velemeny,    $indok          ),
                                                     "`recid`='{$_POST['id']}'");
     if( $sql === false ) { $db_error = true; }
 
@@ -2465,7 +2599,7 @@ if (isset($_POST['bi_vegl_jovahagy'])) {
     $db_error = false;
     mysqli_autocommit($db_kapcs, false);
 
-    $sor = $adatbazis_kapcsolat -> s2('stat_id tipus dok_db', 'eszkozigenyles', "`recid`='{$_POST['id']}'");
+    $sor = $adatbazis_kapcsolat -> s2('stat_id tipus dok_db bi_vegl_indok', 'eszkozigenyles', "`recid`='{$_POST['id']}'");
     if( $sor === false ) { $db_error = true; }
 
     // Ha nincs joga hozzá, akkor hibaüzenet
@@ -2491,8 +2625,13 @@ if (isset($_POST['bi_vegl_jovahagy'])) {
 
     // Nyomógomb eltárolása
     $velemeny = 1;
-    $sql = $adatbazis_kapcsolat -> u('eszkozigenyles',  array('bi_vegl'  ),
-                                                        array($velemeny  ),
+    $indok = '';
+    if( $_POST['indok'] ) {
+        $indok .= datum_kiir(date('Y-m-d H:i:s')).' '.$_SESSION[get_db_tabla().'teljes_nev']."\n".$_POST['indok']."\n\n";
+    }
+    $indok .= $sor['bi_vegl_indok'];
+    $sql = $adatbazis_kapcsolat -> u('eszkozigenyles',  array('bi_vegl', 'bi_vegl_indok'),
+                                                        array($velemeny, $indok         ),
                                                     "`recid`='{$_POST['id']}'");
     if( $sql === false ) { $db_error = true; }
 
@@ -2570,7 +2709,7 @@ if (isset($_POST['bi_vegl_elutasit'])) {
 
     $_POST['indok'] = trim($_POST['indok']);
 
-    $sor = $adatbazis_kapcsolat -> s2('stat_id tipus', 'eszkozigenyles', "`recid`='{$_POST['id']}'");
+    $sor = $adatbazis_kapcsolat -> s2('stat_id tipus bi_vegl_indok', 'eszkozigenyles', "`recid`='{$_POST['id']}'");
     if( $sor === false ) { $db_error = true; }
 
     // Ha nincs joga hozzá, akkor hibaüzenet
@@ -2606,8 +2745,13 @@ if (isset($_POST['bi_vegl_elutasit'])) {
 
     // Nyomógomb eltárolása
     $velemeny = 2;
+    $indok = '';
+    if( $_POST['indok'] ) {
+        $indok .= datum_kiir(date('Y-m-d H:i:s')).' '.$_SESSION[get_db_tabla().'teljes_nev']."\n".$_POST['indok']."\n\n";
+    }
+    $indok .= $sor['bi_vegl_indok'];
     $sql = $adatbazis_kapcsolat -> u('eszkozigenyles',  array('bi_vegl',  'bi_vegl_indok'   ),
-                                                        array($velemeny,  $_POST['indok']   ),
+                                                        array($velemeny,  $indok            ),
                                                     "`recid`='{$_POST['id']}'");
     if( $sql === false ) { $db_error = true; }
 
@@ -2848,28 +2992,43 @@ if( isset($_GET['csv']) ) {
         }
 
         require_once('selectek.php');
-        $bi_vel_ertekek     = bi_vel_ertekek();
-        $szak_vel_ertekek   = szak_vel_ertekek();        
+        $musz_el_ig_ertekek     = musz_el_ig_ertekek();
+        $szall_ig_vel_ertekek   = szall_ig_vel_ertekek();
+        $bi_vel_ertekek         = bi_vel_ertekek();
+        $bi_jh_ertekek          = bi_jh_ertekek();
+        $szak_vel_ertekek       = szak_vel_ertekek();        
+        $felso_vel_ertekek      = felso_vel_ertekek();        
     
         // CSV export előkészítése
         list($mibol, $mibe, $filename, $open) = csv_export_elokeszit($megnevezes);
         if( $open ) {
 
-            // Két elkérdezést csinálunk: 
+            // Két lekérdezést csinálunk: 
             // 1. Az egyik az aktív státuszú beszerzési időszakhoz tartozó, (tehát tervezett) igénylések kerül lekérdezésre, szálloda, azon belül igénylő részleg, azon belül nettó érték szerint lekérve, ez utóbbi úgy, hogy legfelül a legdrágább.
             $sql = 'SELECT
+                    `'.get_db_tabla().'eszkozigenyles`.`azon` as \'Igény ID\',
                     `telephely_id` as \'Szálloda\',
                     `reszleg` as \'Részleg\',
+                    `tipus` as \'Típus\',
                     `'.get_db_tabla().'eszkozigenyles`.`nev` as \'Termék név\',
                     `szallito_id` as \'Szállító\',
                     `ossz_netto` as \'Nettó összesen\',
                     `jhossz` as \'Jóváhagyott nettó összesen\',
                     `kcs_21` as \'Pénznem\',
                     `igmen` as \'Igényelt mennyiség\',
+                    `musz_el_ig` as \'Műszaki előkészítést igényel\',
+                    `musz_indok` as \'Indoklás\',
+                    `szall_ig_vel` as \'Szálloda igazgató vélemény\',
+                    `szall_ig_indok` as \'Szálloda igazgató indoklás\',
                     `bi_vel` as \'Validáló\',
-                    `bi_indok` as \'Validáló indokolás\',
+                    `bi_indok` as \'Validáló indoklás\',
+                    `bi_jh` as \'BI vezető\',
+                    `bi_jh_indok` as \'BI vezető indoklás\',
                     `szak_vel` as \'Szakmai vélemény\',
-                    `szak_indok` as \'Szakmai indoklás\'
+                    `szak_indok` as \'Szakmai indoklás\',
+                    `felso_vel` as \'Felsővezető\',
+                    `felso_indok` as \'Felsővezető indoklás\'
+
                     '.csv_export_get_from_tol($megnevezes).
                     // És akkor itt folytatjuk a feltételt: aktív státuszú beszerzési időszakhoz tartozó igénylések, amik nincsenek elutasítva
                     " AND `idoszak_azon`=(SELECT `azon` FROM `".get_db_tabla()."besz_idoszak` WHERE `stat_id`='".BESZERZES_IDOSZAK_AKTIV."') AND `stat_id`!='".ESZKOZIGENYL_STAT_ELUTASITOTT."'".
@@ -2964,12 +3123,28 @@ if( isset($_GET['csv']) ) {
                         $sor = erteklista(ERTEKLISTA_RESZLEG, $sor);
                     }
 
+                    if( $kulcs == 'Műszaki előkészítést igényel' ) {
+                        $sor = getSpecialisPipaloErtek($szak_vel_ertekek, $sor, '-text-');
+                    }
+
+                    if( $kulcs == 'Szálloda igazgató vélemény' ) {
+                        $sor = getSpecialisPipaloErtek($szall_ig_vel_ertekek, $sor, '-text-');
+                    }
+
                     if( $kulcs == 'Validáló' ) {
                         $sor = getSpecialisPipaloErtek($bi_vel_ertekek, $sor, '-text-');
                     }
 
+                    if( $kulcs == 'BI vezető' ) {
+                        $sor = getSpecialisPipaloErtek($bi_jh_ertekek, $sor, '-text-');
+                    }
+
                     if( $kulcs == 'Szakmai vélemény' ) {
                         $sor = getSpecialisPipaloErtek($szak_vel_ertekek, $sor, '-text-');
+                    }
+
+                    if( $kulcs == 'Felsővezető' ) {
+                        $sor = getSpecialisPipaloErtek($felso_vel_ertekek, $sor, '-text-');
                     }
     
                     // Lehet nem volna elég 1-szer sőt kétszer sem ráereszteni a htmlspecialchars_decode-ot
@@ -3010,8 +3185,10 @@ if( isset($_GET['csv']) ) {
 
             // 2. lekérdezés: Megadott dátumok alapján a soronkívüli/GM terhes eredmény, amelyek a dátum tól - ig időszakban lettek feladva.
             $sql = 'SELECT
+                    `'.get_db_tabla().'eszkozigenyles`.`azon` as \'Igény ID\',
                     `telephely_id` as \'Szálloda\',
                     `reszleg` as \'Részleg\',
+                    `tipus` as \'Típus\',
                     `'.get_db_tabla().'eszkozigenyles`.`nev` as \'Termék név\',
                     `szallito_id` as \'Szállító\',
                     `ossz_netto` as \'Nettó összesen\',
@@ -3036,7 +3213,8 @@ if( isset($_GET['csv']) ) {
                 $weblap -> leallit();
                 exit;
             } else {
-                $sql .= $_SESSION['akt_sql_order'];
+                // szálloda, azon belül igénylő részleg, azon belül nettó érték szerint lekérve, ez utóbbi úgy, hogy legfelül a legdrágább.
+                $sql .= " ORDER BY `".get_db_tabla()."telephely`.`nev`, `".get_db_tabla()."reszleg_nev`.`info`, `ossz_netto` DESC";
             }
     
             $query = mysqli_query($db_kapcs, $sql);
@@ -3155,7 +3333,6 @@ if( isset($_GET['csv']) ) {
 
     // Általános eset
     } else {
-
     
         // CSV export előkészítése
         list($mibol, $mibe, $filename, $open) = csv_export_elokeszit($megnevezes);
@@ -3407,10 +3584,39 @@ if( !isset($_GET['uj']) && ( isset($_GET['tablazat']) || isset($_GET['modosit'])
 
 // Űrlap mentésekor ellenőrzünk pár dolgot (nem csak új felvitelben, módosításkor is)
 // Mivel a Mentés gombra kattintva fut le, ezért támaszkodhatunk arra, hogy az adatlap fülön vagyunk, tehát JS-el elérhetőek a mezők.
+
 // GM terhes esetén nem lehet magasabb a Nettó egységár mint 50k és az össz nettó sem lehet több 500k
+// Ha a típus tervezett, akkor nézzük meg, hogy mik az aktív időszak határidejei. 
+$idoszak = $adatbazis_kapcsolat -> s2('hatar nyitva hatar_fured nyitva_fured', 'besz_idoszak', "`stat_id`='".BESZERZES_IDOSZAK_AKTIV."'");
+$js_submit_elott_kieg1 = $js_submit_elott_kieg2 = '';
+// Az alábbit csak új felvitelnél ellenőrizzük
+if( isset($_GET['uj']) ) {
+    $js_submit_elott_kieg1 = '
+                        if( !$(\'#csz\').val() && !CSZ_KERDES_VOLT ) {
+                            CSZ_KERDES_VOLT = 1;
+                            alert2(\'A cikkszám nincs megadava.<br>Biztos, hogy menti az igénylést cikkszám nélkül?\', \'<input type="button" class="gomb zold" value="Igen" onclick="alert2(); $(\\\'#mehet_gomb\\\').click();"><input type="button" class="gomb piros" value="Nem" onclick="alert2()">\', \'Kérdés\');
+                            return false;
+                        }
+                        ';
+    $js_submit_elott_kieg2 = '
+                            /* Tervezett igénylésél határidők/nyitottság ellenőrzése */
+                            if( $(\'#tipus\').val() == '.BESZ_TIP_TERVEZETT.' ) {
+                                if( ![\''.implode('\', \'', furedi_szallodak()).'\'].includes( $(\'#telephely_id\').val() ) && \''.$idoszak['nyitva'].'\' ==\'0\' ) {
+                                    alert2(\'Az igénylés időszak zárva van erre a szállodára!\', \'\', \'Hiba\');
+                                    return false;
+                                }
+                                if( [\''.implode('\', \'', furedi_szallodak()).'\'].includes( $(\'#telephely_id\').val() ) && \''.$idoszak['nyitva_fured'].'\' ==\'0\' ) {
+                                    alert2(\'Az igénylés időszak zárva van a füredi szállodákra!\', \'\', \'Hiba\');
+                                    return false;
+                                }
+                            }
+                        ';
+}
 $js_submit_elott = nl2('
 
-                        if( $(\'#tipus\').val() == 3 ) {
+                        '.$js_submit_elott_kieg1.'
+
+                        if( $(\'#tipus\').val() == '.BESZ_TIP_GM_KERET.' ) {
                             if( $(\'#netto\').val().replace(/ /g, \'\') > '.GM_TERHES_EGYSEGAR.' ) {
                                 alert2(\'A Nettó egységár mező értéke nem lehet több mint '.number_format(GM_TERHES_EGYSEGAR, 0, '', ' ').' '.get_penznem().'!\', \'\', \'Hiba\');
                                 if( $(\'#kcs_21_autocomp\').val() == \'HUF\' ) {
@@ -3430,6 +3636,8 @@ $js_submit_elott = nl2('
                                 return false;
                             }
                         }
+                        
+                        '.$js_submit_elott_kieg2.'
 
                         if( $(\'#szallito_id\').val() ) {
                             if( !$(\'#kcs_21\').val().trim() ) {
@@ -3581,6 +3789,21 @@ if( isset($_GET['uj']) ) {
     $form_mit     = array('{JS}', '{JS_SUBMIT_ELOTT}', '{ACTION}', '{MEZOK}', '{MEGNEVEZES}', '{CK_EDITOR}', '{GOMBOK}', '{MUV_STYLE}'   );
     $form_mivel   = array($js,    $js_submit_elott,    self(),     $mezok,    $megnevezes,    $ckeditor,     $gombok,    $muv_style      );
     $szamla_html .= str_replace($form_mit, $form_mivel, $form_sablon);
+    $szamla_html .= nl2('
+       <script>
+            $(document).ready(function () {
+                $(\'#kcs_21_autocomp\').attr(\'disabled\', true);
+
+                $(document).on(\'change\', \'#tipus\', function(){
+                    if( $(this).val() != \'\' ) {
+                        $(\'#kcs_21_autocomp\').attr(\'disabled\', false);
+                    } else {
+                        $(\'#kcs_21_autocomp\').attr(\'disabled\', true);
+                    }
+                });
+            });
+       </script>
+    ');
 
     if( $_GET['ajax'] ) {
         echo json_encode(array(
@@ -3926,7 +4149,7 @@ function megrendeles_keszit($eszkozigenyles_id, $tevezett = 0) {
 
     require('selectek.php');
 
-    $eszkozig_oszlopok = 'recid tipus stat_id rend_szam nev igmen jhmen arfolyam netto jhar jhossz telephely_id szallito_id szall_hat fiz_mod hat_ido ossz_netto ossz_dev kcs_21 kiszall beuzemel munkadij egyeb_koltseg eloleg megj insert_dt';
+    $eszkozig_oszlopok = 'recid tipus stat_id rend_szam csz nev igmen jhmen arfolyam netto jhar jhossz telephely_id szallito_id szall_hat fiz_mod hat_ido ossz_netto ossz_dev kcs_21 kiszall beuzemel munkadij egyeb_koltseg eloleg megj insert_dt';
 
     // Group by-ozzunk szálloda és szállító alapján, mert tervezett igényléseknél ezek alapján kell létrehozni egy-egy PDF-et.
     // Soron kívüli + GM esetén sem gond a group by, egy sor marad benne
@@ -3983,6 +4206,8 @@ function megrendeles_keszit($eszkozigenyles_id, $tevezett = 0) {
 
                 $tetelek_html = '';
                 $mindossz     = 0;
+                $ossz_netto_megr = 0;
+                $ossz_dev_megr   = 0;
                 foreach ($eszkozigenylesek as $eszkozigenyles) {
                     
                     $mezok   = array();
@@ -4038,6 +4263,8 @@ function megrendeles_keszit($eszkozigenyles_id, $tevezett = 0) {
                         }
                         $ossz_netto = $ossz_dev*$eszkozigenyles['arfolyam'];
                     }
+                    $ossz_netto_megr += $ossz_netto;
+                    $ossz_dev_megr   += $ossz_dev;
 
                     // Tételek összeszedése
                     $penznem = getErtekLista(ERTEKLISTA_PENZNEM, $eszkozigenyles['kcs_21']);
@@ -4051,7 +4278,7 @@ function megrendeles_keszit($eszkozigenyles_id, $tevezett = 0) {
                     }
 
                     $mindossz   += $jhossz;
-                    $tetel_neve  = $eszkozigenyles['nev'];
+                    $tetel_neve  = trim($eszkozigenyles['csz'].' '.$eszkozigenyles['nev']);
                     $jhossz_kiir = number_format($jhossz, $tizedesek, ',', ' ');
                     if( $eszkozigenyles['kiszall'] > 0 ) {
                         $tetel_neve  .= '<br>Kiszállítási költség';
@@ -4091,15 +4318,17 @@ function megrendeles_keszit($eszkozigenyles_id, $tevezett = 0) {
 
                 }
 
-                // Szállító email címének lekérése (ha tervezetten egy sor volt, ha egy egész tömb, az utolsó igénylében biztosan jó szallito_id van)
+                // Szállító email címének lekérése (ha tervezetten egy sor volt, ha egy egész tömb, az utolsó igénylésben biztosan jó szallito_id van)
                 $szall_mail = getErtek('email', 'szallito_beszerzes', 'recid', $eszkozigenyles['szallito_id']);
 
+                // Ha létezik a rend_szam, akkor ilyen számon jöjjön létre a megrendelő (lehet egy létező megrendelést javítottak - azaz törlésre kerül - majd ugyanazon a számon kell létrehozni )
+                // 2025.12.10 Ez a funkció kikapcsolásra került. Tehát megrendelő javításakor a rend_szam minden esetben törlésre kerül, így nem lesz olyan eset, hogy itt ezen a ponton ez egy ismert adat legyen.
                 if( $eszkozigenyles['rend_szam'] ) {
                     $rend_szam = $eszkozigenyles['rend_szam'];
                 } else {
                     $rend_szam = get_iktatoszam_sorszam('eszkozigenyles_megr');
                     if($rend_szam===false){ $db_error = true; }
-                    $rend_szam = 'M/'.date('Y').'/'.$rend_szam;
+                    $rend_szam = 'TE/'.date('Y').'/'.$rend_szam;
                 }
                 $rend_szam_fajlba = str_replace('/', '', $rend_szam);
 
@@ -4114,8 +4343,8 @@ function megrendeles_keszit($eszkozigenyles_id, $tevezett = 0) {
                 }
 
                 // Megrendeléshez az utolsó igénylés adatai íródnak. Szállod/szállító rendben is lesz, határidő lehet eltérő
-                $megr_recid = $adatbazis_kapcsolat -> i('eszkozigenyles_megr',  array('hash', 'rend_szam', 'telephely_id',                  'szallito_id',                  'szall_mail', 'szall_hat',                  'ossz_netto',    'ossz_dev',     'update_usr',                           'insert_dt',    'insert_usr'                            ),
-                                                                                array($hash,  $rend_szam,  $eszkozigenyles['telephely_id'], $eszkozigenyles['szallito_id'], $szall_mail,  $eszkozigenyles['szall_hat'], $ossz_netto,     $ossz_dev,      $_SESSION[get_db_tabla().'teljes_nev'], 'NOW()',        $_SESSION[get_db_tabla().'teljes_nev']  )
+                $megr_recid = $adatbazis_kapcsolat -> i('eszkozigenyles_megr',  array('hash', 'rend_szam', 'telephely_id',                  'szallito_id',                  'szall_mail', 'szall_hat',                  'ossz_netto',       'ossz_dev',     'update_usr',                           'insert_dt',    'insert_usr'                            ),
+                                                                                array($hash,  $rend_szam,  $eszkozigenyles['telephely_id'], $eszkozigenyles['szallito_id'], $szall_mail,  $eszkozigenyles['szall_hat'], $ossz_netto_megr,   $ossz_dev_megr, $_SESSION[get_db_tabla().'teljes_nev'], 'NOW()',        $_SESSION[get_db_tabla().'teljes_nev']  )
                                         );
                 if( $megr_recid === false ) { $db_error = true; }
 
@@ -4174,6 +4403,13 @@ function megrendeles_keszit($eszkozigenyles_id, $tevezett = 0) {
                     $fizmod_kiir = $fizmod['name'];
                 }
             }
+
+            $hat_ido_kiir = '';
+            foreach ($select_hat_ido as $hat_ido) {
+                if( $hat_ido['value'] == $eszkozigenyles['hat_ido'] ) {
+                    $hat_ido_kiir = $hat_ido['name'];
+                }
+            }
         
             // A Fizetési mód és határidő sor csak akkor jelenik meg, ha van legalább egyik adat
             $fiz_mod_hatarido = '';
@@ -4189,7 +4425,7 @@ function megrendeles_keszit($eszkozigenyles_id, $tevezett = 0) {
                         </td>
                         <td style="vertical-align: top; padding: 20px 0 0 0">
                             '.$fizmod_kiir.'
-                            '.$eszkozigenyles['hat_ido'].'
+                            '.$hat_ido_kiir.'
                             '.$eloleg.'
                         </td>
                     </tr>
@@ -4322,13 +4558,16 @@ if( isset($_GET['pdf_mutat']) ) {
             if( !is_dir('../'.get_utvonal().'eszkozigenyles_megr/'.$ev) ) {
                 mkdir('../'.get_utvonal().'eszkozigenyles_megr/'.$ev);
             }
+            if( !is_dir('../'.get_utvonal().'eszkozigenyles_megr/'.$ev.'/'.$megr_recid) ) {
+                mkdir('../'.get_utvonal().'eszkozigenyles_megr/'.$ev.'/'.$megr_recid);
+            }
 
-            $mpdf -> Output(iconv('UTF-8', 'Windows-1250', '../'.get_utvonal().'eszkozigenyles_megr/'.$ev.'/'.$fajlnev), 'F');
-            $utvonal_db_be = $ev.'/'.$fajlnev;
+            $mpdf -> Output(iconv('UTF-8', 'Windows-1250', '../'.get_utvonal().'eszkozigenyles_megr/'.$ev.'/'.$megr_recid.'/'.$fajlnev), 'F');
+            $utvonal_db_be = $ev.'/'.$megr_recid.'/'.$fajlnev;
 
             // Megrendelések dokumentumához is adjuk hozzá
-            $doc_recid = $adatbazis_kapcsolat -> i('eszkozigenyles_megr_dok',   array('eszkozigenyles_megr_id', 'utvonal',      'fajlnev',     'update_usr',                           'insert_dt',    'insert_usr'                            ),
-                                                                                array($megr_recid,              $utvonal_db_be, $fajlnev,      $_SESSION[get_db_tabla().'teljes_nev'], 'NOW()',        $_SESSION[get_db_tabla().'teljes_nev']  )
+            $doc_recid = $adatbazis_kapcsolat -> i('eszkozigenyles_megr_dok',   array('eszkozigenyles_megr_id', 'utvonal',      'fajlnev', 'megr', 'update_usr',                           'insert_dt',    'insert_usr'                            ),
+                                                                                array($megr_recid,              $utvonal_db_be, $fajlnev,  1,      $_SESSION[get_db_tabla().'teljes_nev'], 'NOW()',        $_SESSION[get_db_tabla().'teljes_nev']  )
                                     );
             if( $doc_recid === false ) { $db_error = true; }
 

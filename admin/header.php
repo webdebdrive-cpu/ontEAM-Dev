@@ -710,6 +710,9 @@ if( !$_SESSION['bejelento_menu_rejt'] &&
         $aktmenuk .= str_replace( $akt_almenu_mit, array( $aloldalak['8'], 'Szerepkörök'        ), $almenu_sablon );
         $aktmenuk .= str_replace( $akt_almenu_mit, array( $aloldalak['9'], 'Szerepkörök jogai'  ), $almenu_sablon );
     }
+    if( _jog(JOG_BEALLITASOK_MEGTEKINT) ) {
+        $aktmenuk .= str_replace( $akt_almenu_mit, array( 'javascript:csoportMuvelet(\'rendszer_beallitasok\');', 'Beállítások' ), $almenu_sablon );
+    }
 
     $style = '';
     $menu_hover = array('rendszer.php', 'bejovo_szamlak.php', 'erteklista.php', 'login.php', 'szerepkor.php', 'szerepkor_jog.php', 'jogcim.php', 'afakod.php');
