@@ -1108,7 +1108,7 @@ if( $tabla == 'megallapodas' ) {
 }
 
 // Vannak felületek, ahol a nav panel számát limitáljuk. Ezt egy szűrővel oldjuk meg, tehát itt szükséges, hogy legyen egy Legfrisebb nevű szűrés lehetőség.
-$legfrisebb_feluletek = array('anyagigenyles', 'anyag_szamla', 'bejelentes_arch', 'energia_szamla', 'fenntartasi_szamla', 'fenntartasi_szerzodes', 'megallapodas', 'megallapodas_szamla', 'munkalap_arch', 'projektigenyles', 'projektkezeles', 'projektszamla', 'projektszerzodes', 'vendegejszakak');
+$legfrisebb_feluletek = array('anyagigenyles', 'anyag_szamla', 'bejelentes_arch', 'energia_szamla', 'eszkozigenyles_arch', 'eszkozigenyles_megr_arch', 'fenntartasi_szamla', 'fenntartasi_szerzodes', 'megallapodas', 'megallapodas_szamla', 'munkalap_arch', 'projektigenyles', 'projektkezeles', 'projektszamla', 'projektszerzodes', 'vendegejszakak');
 if( in_array($tabla, $legfrisebb_feluletek) ) {
     $selected_legfrissebb  = '';
     if( $_GET['mezo'] == 'legfrissebb' && $_GET['felt']/* Tehát nem 0 sorra van szűkítve, ez egy speciális eset anyagrendeléseknél */ ) {

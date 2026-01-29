@@ -18,7 +18,7 @@ $megnevezes             = $megnevezes['filename'];
 $megnevezes_origi       = substr($megnevezes, 0, strlen($megnevezes)-5);
 $akt_tomb               = $munkalap_tomb;
 $torles                 = $megnevezes.'tid';
-$szoveg                 = 'munkalapot';        //Hibaüzenetkor: Biztosan törlöd a $szoveg?
+$szoveg                 = 'munkalapot';        // Hibaüzenetkor: Biztosan törlöd a $szoveg?
 
 $szamla_html = '';
 
@@ -264,7 +264,7 @@ if( isset($_GET['modosit']) ) {
     $sor['jh_ert_dev'] = number_format($sor['jh_ert_dev'], 0, '', ' ');
 
     // Mivel artchiv felületen vagyunk, ezért a mezők típusát és nevét átírjuk ha kell
-    // Erre azért van szükség, hogy pl. egy atucompletes mezőből txt legyen, hogy az értékét ne más táblákból olvassa vissza
+    // Erre azért van szükség, hogy pl. egy atocompletes mezőből txt legyen, hogy az értékét ne más táblákból olvassa vissza
     // hanem az adatbázisban letároltat
     $i = 0;
     foreach ( $akt_tomb as $tomb ) {

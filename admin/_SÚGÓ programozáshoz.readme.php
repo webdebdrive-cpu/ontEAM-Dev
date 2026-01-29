@@ -13,7 +13,8 @@
 - esemenyek.php végén az if( isset( $_GET[$ertek['torid']] ) ) résznél a törlés lehetőség szabályozd joghoz kötve. Ugyanitt ha dokumentumos a modul, akkor azt is jelezd ($dokos_oldalak-nál)
 
 BAL NAVPANEL NÉLKÜLI TARTALOM
-- header.php-ban a $bal_nav_mentes tömböt egészíts ki
+- header.php-ban a $bal_nav_mentes tömböt egészítsd ki
+- header.php-ban a $tabalzatos_felulet tömböt is egészítsd ki
 - Adott modul css-ébe írd be:
 .sor.kethasabos div.bal {
     display: none;
@@ -125,7 +126,8 @@ HA NEM SIKERÜLT LÉTREHOZNI ANYAGIGÉNYLÉSEKNÉL A PDF-ET, AKKOR AZT ITT TUDOD
 anyagigenyles_nyomtat.php -ban le van írva
 
 Legfrisebb 1000 sorra való alapértelmezett szűrés, illetve anyagigényléseknél a 200-as limit a weblap.php közepefelé kerül beállításra.
-Keress rá erre: legfrissebb
+- Keress rá erre: legfrissebb
+- Illetve szures.php-ban erre: // Vannak felületek, ahol a nav panel számát limitáljuk... és itt vedd fel a tömbbe.
 
 Anyagrendeléseknél ha nem nem jött volna létre a PDF, akkor manuálisan így tudod utólag létrehozni.
 anyagigenyles_nyomtat.php elején van rá instrukció.

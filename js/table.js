@@ -42,7 +42,7 @@ $(function() {
             });
             
             // Eszközigényléseknél az oszlopok mozgatása után az aktív cella oszlopindexét frissíteni kell a cookie-ban
-            if( baseName(location.href) == 'eszkozigenyles' ) {
+            if( baseName(location.href) == 'eszkozigenyles' || baseName(location.href) == 'eszkozigenyles_arch' ) {
                 createCookie('eszkozigeny_aktiv_oszl', $('td.aktiv').index());
             }
 
@@ -168,8 +168,8 @@ $(function() {
 
         ujra_sorszamoz_uj();
         // Eszközigénylés alatt a táblázat kicsit másképp működés (le-fel nyilak léptetése), ezért ezt itt újra kell kalibrálni
-        // az initNavigacio() függvényyel, ami az eszkozigenyles_tablazat.js-ben van megírva
-        if( baseName(location.href) == 'eszkozigenyles' ) {
+        // az initNavigacio() függvénnyel, ami az eszkozigenyles_tablazat.js-ben van megírva
+        if( baseName(location.href) == 'eszkozigenyles' || baseName(location.href) == 'eszkozigenyles_arch' ) {
             initNavigacio();
         }
 
@@ -369,7 +369,7 @@ $(function() {
                 // _resizeElement.tbody.find('tr.fake td').css('height', maxHeight);
                 _resizeElement.th.closest('table').css('margin-top', maxHeight);
 
-                _resizeElement.tbody.find('tr:first-child td').each(function() {
+                _resizeElement.tbody.find('tr:visible:first td').each(function() {
                     var index = $(this).index(),
                         width = $(this).outerWidth();
 
@@ -394,7 +394,7 @@ $(function() {
         if( _click ) {
             _click = false;
 
-            _resizeElement.tbody.find('tr:first-child td').each(function(i) {
+            _resizeElement.tbody.find('tr:visible:first td').each(function(i) {
                 var index = $(this).index(),
                     width = $(this).outerWidth();
 
@@ -426,7 +426,7 @@ $(function() {
             clearTimeout(resizeTimer);
             resizeTimer = setTimeout(function() {
                 fejlec_igazit($('.sar-table'));
-                tablaSorrend($('.sar-table'));
+                tablaSorrend ($('.sar-table'));
                 fejlecPozicional();
             }, 300);
         });
@@ -447,6 +447,7 @@ function tablaSorrend( table ) {
 
         var /*width_40 = width_80 = */elozo_width = elozovel_azonos = 0;
         table.find('thead').not('.sticky').find('th').each(function(i) {
+
             if( this.id != '') {
                 var width       = '';
                 var megjelenik  = '';
@@ -488,7 +489,7 @@ function tablaSorrend( table ) {
         if( /*width_40 > 20 || width_80 > 20 ||*/ elozovel_azonos > 25 ) {
             // Éles alatt még alert-et sem küldünk
             if( SUBDOMAIN != 'www' ) {
-                alert2('Táblázat megváltozott '+width_40+' '+width_80, '<input type="button" class="gomb" onclick="alert2()" value="Ok">', 'Hiba');
+                alert2('Táblázat megváltozott '+elozo_width, '<input type="button" class="gomb" onclick="alert2()" value="Ok">', 'Hiba');
             }
             return false;
         }
@@ -552,8 +553,8 @@ function jovahagyasra_varo_igazit(){
 
 function fejlec_igazit( table ) {
     setTimeout(function () {
-        table.find('tbody').find('tr:first-child td:not(.dn)').each(function(i) {
-            
+        table.find('tbody').find('tr:visible:first td:not(.dn)').each(function(i) {
+
             var index = $(this).index(),
                 width = $(this).outerWidth();
 
@@ -572,6 +573,7 @@ function fejlec_igazit( table ) {
 }
 
 function fejlecPozicional() {
+    
     $('.sar-table').each(function() {
         var scrollTop  = $('#tartalomJobb').scrollTop(),
             scrollLeft = $('#tartalomJobb').scrollLeft();

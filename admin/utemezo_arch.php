@@ -401,10 +401,10 @@ function munkalapok_archival($idk, $tranzakcio_nelkul = 0) {
         // Anyagok
         $anyagok = $adatbazis_kapcsolat->s('*', 'munkalap_anyag', "`munkalap_id`='{$recid}'");
         if( $anyagok === false ) { $db_error = true; }
-        foreach($anyagok as $anyag){
+        foreach ($anyagok as $anyag) {
             $mezok   = array();
             $ertekek = array();
-            foreach($anyag as $kulcs => $ertek){
+            foreach ($anyag as $kulcs => $ertek) {
                 if( $kulcs!='recid' ){
                     array_push($mezok, $kulcs);
                     array_push($ertekek, $anyag[$kulcs]);
@@ -430,13 +430,13 @@ function munkalapok_archival($idk, $tranzakcio_nelkul = 0) {
         // Dokumentumok
         $doksik = $adatbazis_kapcsolat->s('*', 'munkalap_dok', "`munkalap_id`='{$recid}'");
         if( $doksik === false ) { $db_error = true; }
-        foreach($doksik as $doksi){
+        foreach ($doksik as $doksi) {
             $mezok   = array();
             $ertekek = array();
             foreach($doksi as $kulcs => $ertek){
                 if( $kulcs!='recid' ){
-                    array_push($mezok, $kulcs);
-                    array_push($ertekek, $doksi[$kulcs]);
+                    array_push($mezok,   $kulcs         );
+                    array_push($ertekek, $doksi[$kulcs] );
                 }
             }
             $sql = $adatbazis_kapcsolat->i('munkalap_dok_arch', $mezok, $ertekek);
@@ -455,7 +455,7 @@ function munkalapok_archival($idk, $tranzakcio_nelkul = 0) {
         // Feladat
         $feladatok = $adatbazis_kapcsolat->s('*', 'munkalap_feladat', "`munkalap_id`='{$recid}'");
         if( $feladatok === false ) { $db_error = true; }
-        foreach($feladatok as $feladat){
+        foreach ($feladatok as $feladat) {
             $mezok   = array();
             $ertekek = array();
             foreach($feladat as $kulcs => $ertek){
@@ -484,7 +484,7 @@ function munkalapok_archival($idk, $tranzakcio_nelkul = 0) {
         // Kapcsolatok bejelentésekkel
         $kapcsok = $adatbazis_kapcsolat->s('*', 'munkalap_kapcs', "`munkalap_id`='{$recid}'");
         if( $kapcsok === false ) { $db_error = true; }
-        foreach($kapcsok as $kapcs){
+        foreach ($kapcsok as $kapcs) {
             $mezok   = array();
             $ertekek = array();
             foreach($kapcs as $kulcs => $ertek){
@@ -510,7 +510,7 @@ function munkalapok_archival($idk, $tranzakcio_nelkul = 0) {
         // Munkaidő
         $munkaidok = $adatbazis_kapcsolat->s('*', 'munkalap_munkaido', "`munkalap_id`='{$recid}'");
         if( $munkaidok === false ) { $db_error = true; }
-        foreach($munkaidok as $ido){
+        foreach ($munkaidok as $ido) {
             $mezok   = array();
             $ertekek = array();
             foreach($ido as $kulcs => $ertek){
@@ -539,7 +539,7 @@ function munkalapok_archival($idk, $tranzakcio_nelkul = 0) {
         // Státuszok
         $statuszok = $adatbazis_kapcsolat->s('*', 'munkalap_statusz', "`munkalap_recid`='{$recid}'");
         if( $statuszok === false ) { $db_error = true; }
-        foreach($statuszok as $statusz){
+        foreach ($statuszok as $statusz) {
             $mezok   = array();
             $ertekek = array();
             foreach($statusz as $kulcs => $ertek){
@@ -600,7 +600,7 @@ function munkalapok_archival($idk, $tranzakcio_nelkul = 0) {
         // Email-ek
         $emailek = $adatbazis_kapcsolat->s('*', 'munkalap_email', "`munkalap_recid`='{$recid}'");
         if( $emailek === false ) { $db_error = true; }
-        foreach($emailek as $email){
+        foreach ($emailek as $email) {
             $mezok   = array();
             $ertekek = array();
             foreach($email as $kulcs => $ertek){
@@ -628,7 +628,7 @@ function munkalapok_archival($idk, $tranzakcio_nelkul = 0) {
         // Email-ek csatolmányai
         $emailek = $adatbazis_kapcsolat->s('*', 'munkalap_email_dok', "`munkalap_recid`='{$recid}'");
         if( $emailek === false ) { $db_error = true; }
-        foreach($emailek as $email){
+        foreach ($emailek as $email) {
             $mezok   = array();
             $ertekek = array();
             foreach($email as $kulcs => $ertek){
@@ -652,7 +652,7 @@ function munkalapok_archival($idk, $tranzakcio_nelkul = 0) {
         // Megjegyzések
         $megjegyzesek = $adatbazis_kapcsolat->s('*', 'megjegyzes', "`tabla`='munkalap' AND `id`='{$recid}'");
         if( $megjegyzesek === false ) { $db_error = true; }
-        foreach($megjegyzesek as $megj){
+        foreach ($megjegyzesek as $megj) {
 
             $mezok   = array();
             $ertekek = array();

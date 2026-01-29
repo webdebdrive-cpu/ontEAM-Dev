@@ -1244,12 +1244,18 @@ class ServerClass {
                 }
                 
                 // Ha sikerült beazonosítani a partnert a kapott számmal, akkor update
+// 2026.01.23 Törölhető, debugoláshoz kellett
+// $korabbi_log = fajlbol_olvas('log/szallito.log');
                 $partner = $adatbazis_kapcsolat->s2('id', 'szallito', "`id`='{$szallito_id}'");
                 if( $partner === false ) { $db_error = mysqli_error($db_kapcs); }
                 if( $partner ) {
+// 2026.01.23 Törölhető, debugoláshoz kellett
+// $parancs = $adatbazis_kapcsolat -> gp();
                     $sql = $adatbazis_kapcsolat->u('szallito', $mezok, $ertekek, "`id`='{$szallito_id}'");
                     if( $sql === false ) { $db_error = mysqli_error($db_kapcs); }
-
+// 2026.01.23 Törölhető, debugoláshoz kellett
+// $parancs .= $adatbazis_kapcsolat -> gp();
+// fajlba_mentes('log/szallito.log', $korabbi_log.date('Y-m-d H:i:s')." Andoc ID: {$andoc_id}. Partner beazonosítva: ID = {$szallito_id}. SQL parancs: {$parancs}\n");
                 // Egyébként próbáljuk meg adószám alapján azonosítani
                 } else {
 
@@ -1259,10 +1265,23 @@ class ServerClass {
                     // Ha adószám alapján megtaláltuk, akkor frissítsük a szállító_id-t mindenhol
                     if( $partner ) {
 
+                        // Update előtt még egy dolgot leellenőrzünk: ha a $partner['id'] egy pozitív szám, azaz már nem az eredeti mínuszos van ott,
+                        // hanem már egyszer frissítve lett, akkor nem jó, ha erre az ágra kerültünk, ne írjuk felül újabb ID-val a már cseréltet
+                        if( $partner['id']>0 ) {
+                            Throw new SOAPFault ('Server', 'Ennek a szállítónak, az ontEAM rendszerben '.$partner['id'].' a partnerszáma, amely eltér a kapott '.$szallito_id.' partnerszámtól!');
+                        }
+
+// 2026.01.23 Törölhető, debugoláshoz kellett
+// $parancs = $adatbazis_kapcsolat -> gp();
+// fajlba_mentes('log/szallito.log', $korabbi_log.date('Y-m-d H:i:s')." Andoc ID: {$andoc_id}. Partner beazonosítva: adószám = {$szamla_adatok['Partner adószám']} Nem ismert ÚJID: {$szallito_id}. SQL parancs: {$parancs}\n");
+
                         $db_error = update_szallito_id($partner['elozo_id'], $szallito_id);
                         // Illetve magában a szállító táblában is átírjuk
                         $sql = $adatbazis_kapcsolat -> u('szallito', array('id'), array($szallito_id), "`adoszam`='{$szamla_adatok['Partner adószám']}'");
                         if( $sql === false ) { $db_error = mysqli_error($db_kapcs); }
+// 2026.01.23 Törölhető, debugoláshoz kellett
+// $parancs = $adatbazis_kapcsolat -> gp();
+// fajlba_mentes('log/szallito.log', $korabbi_log.date('Y-m-d H:i:s')." Szállító ID is frissült. SQL parancs: {$parancs}\n");
                         // Throw new SOAPFault ('Server', $adatbazis_kapcsolat -> gp());
 
                         // Illetve az eredeti update is fusson le, amivel az adatait aktualizáljuk
@@ -1275,6 +1294,9 @@ class ServerClass {
                         array_push($ertekek, $szallito_id,  'NOW()'     );
                         $sql = $adatbazis_kapcsolat->i('szallito', $mezok, $ertekek);
                         if( $sql === false ) { $db_error = mysqli_error($db_kapcs); }
+// 2026.01.23 Törölhető, debugoláshoz kellett
+// $parancs = $adatbazis_kapcsolat -> gp();
+// fajlba_mentes('log/szallito.log', $korabbi_log.date('Y-m-d H:i:s')." Andoc ID: {$andoc_id}. Új partner létrehozva. SQL parancs: {$parancs}\n");
                     }
 
                 }

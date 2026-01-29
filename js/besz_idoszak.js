@@ -118,3 +118,41 @@ function igenyfeladas_nyit_zar(fured = '', zar = '', mehet = '') {
         }
     });
 }
+
+// Időszak archiválása
+function idoszak_archivalasa(mehet) {
+    
+    if( !mehet ) {
+        alert2('Biztosan archiválja a lezárt időszakokhoz tartozó igényléseket,<br>valamint a soron kívüli és GM keretes (megrendelt vagy elutasított) igényléseket?', '<input type="button" class="gomb zold enter" value="Igen" onclick="idoszak_archivalasa(\'-mehet-\')"> <input type="button" class="gomb piros" value="Nem" onclick="alert2()">', 'Kérdés');
+        return false;
+    }
+
+    alert2('Archiválás folyamatban, kérem várjon...', '', 'Üzenet');
+    
+    $.ajax({
+        url : PHP_SELF,
+        type: 'POST',
+        data: {
+            id                  : _get('id'),
+            idoszak_archivalasa : Date.now()
+        },
+        success: function (response) {
+            if(response.substring(0, 6)=='SESKIL'){ location.href = 'index.php'; }
+            if (response) {
+                response = JSON.parse(response);
+                if (response.hiba) {
+                    alert2(response.hiba, response.gomb, response.title);
+                    return false;
+                }
+
+                location.reload();
+
+            }
+        },
+        complete: function (xhr) {
+            if (xhr.status != 200) {
+                alert2(xhr.responseText, '', 'Hiba');
+            }
+        }
+    });
+}

@@ -4102,7 +4102,7 @@ function xml_vissza( $szamla_id, $igazolva = '', $oka = '' ) {
     if( $erteklista === false ) { $db_error = true; }
     
     switch( $erteklista['cegkod'] ) {
-        case SZAMLA_KOLT_VIS_DHZRT : $fokonyvi_szla_szam = '11-4301-4460000-0000-00-00000-000000'; break;
+        case SZAMLA_KOLT_VIS_DHZRT : $fokonyvi_szla_szam = '13-4301-4551000-0000-00-00000-000000'; break;
         case SZAMLA_KOLT_VIS_DZRT  : $fokonyvi_szla_szam = '13-4301-4460000-0000-00-00000-000000'; break;
         case SZAMLA_KOLT_VIS_GUNDEL: $fokonyvi_szla_szam = '15-5411-4460000-0000-00-00000-000000'; break;
         default: $fokonyvi_szla_szam = ''; break;

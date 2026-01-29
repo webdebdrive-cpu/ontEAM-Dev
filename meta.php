@@ -45,7 +45,9 @@ function get_title(){
         case 'erteklista.php'               : $title .= 'Értéklisták';                  break;
         case 'eseti_fenntartas.php'         : $title .= 'Eseti fenntartás';             break;
         case 'eszkozigenyles.php'           : $title .= 'Eszközigénylés';               break;
+        case 'eszkozigenyles_arch.php'      : $title .= 'Archív eszközigénylés';        break;
         case 'eszkozigenyles_megr.php'      : $title .= 'Megrendelések';                break;
+        case 'eszkozigenyles_megr_arch.php' : $title .= 'Archív megrendelések';         break;
         case 'eszkozkezeles.php'            : $title .= 'Eszközkezelés';                break;
         case 'felmeresi_terv.php'           : $title .= 'Felmérési tervek';             break;
         case 'fenntartasi_szamla.php'       : $title .= 'Fenntartási számla';           break;

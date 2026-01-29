@@ -439,7 +439,7 @@ if( !$archivum ) {
     $tobbkep_html .= str_replace($sorrend_ujkep_mit, $sorrend_ujkep_mivel, $sorrend_ujkep);
 }
 
-$i     = 0;
+$i = 0;
 if( $_GET['id'] ) {
     $kepek = $adatbazis_kapcsolat -> s('*', $tobbkep_tablanev, "`".get_tobbkep_oszlopnev()."`='{$_GET['id']}'", 'insert_dt');
 }
@@ -1411,7 +1411,7 @@ function get_tobbkep_thumb($sor_kepek = '', $i = '', $tobbkep_tablanev = '', $ni
 
 }
 
-// Általános függévény, ami eldönti adott tábla alapján,hogy van-e oda kezelés jogunk-e vagy sem.
+// Általános függvény, ami eldönti adott tábla alapján,hogy van-e oda kezelés jogunk-e vagy sem.
 // Ha nincs, akkor nincs törlés ikon a már feltöltött dokumentum sorok végén, illetve nincs feltöltés lehetőség sem,
 // sőt feltöltés résznél is blokkolunk.
 function dokumentum_kezeles_jog($tabla, $id) {

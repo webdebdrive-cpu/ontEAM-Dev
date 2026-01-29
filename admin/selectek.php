@@ -214,7 +214,7 @@ if( self('-bn-') == 'fenntartasi_szerzodes.php' || self('-bn-') == 'megallapodas
 }
 
 // Beszerzés típusok
-if( self('-bn-') == 'eszkozigenyles.php' || self('-bn-') == 'eszkozigenyles_megr.php' || self('-bn-') == 'eszkozigenyles_nyomtat.php' || self('-bn-') == 'header.php'/*Szűrés miatt*/ ) {
+if( self('-bn-') == 'eszkozigenyles.php' || self('-bn-') == 'eszkozigenyles_megr.php' || self('-bn-') == 'eszkozigenyles_nyomtat.php' || self('-bn-') == 'besz_idoszak.php' || self('-bn-') == 'header.php'/*Szűrés miatt*/ ) {
     
     $select_besz_tipus = array();
     array_push($select_besz_tipus, array('name' => '- Válasszon -', 'value' => '' ));

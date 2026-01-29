@@ -28,6 +28,7 @@ $_stat_text = array(
         BESZERZES_IDOSZAK_AKTIV     => array('nev' => 'Aktív',                      'szinkod' => ''),
         BESZERZES_IDOSZAK_INAKTIV   => array('nev' => 'Inaktív',                    'szinkod' => ''),
         BESZERZES_IDOSZAK_LEZART    => array('nev' => 'Lezárt',                     'szinkod' => ''),
+        BESZERZES_IDOSZAK_ARCHIV    => array('nev' => 'Archív',                     'szinkod' => ''),
     ),
     'cikkrendfej' => array(
         CIKKRNDFEJ_STAT_ANYAG_NEM       => array('nev' => 'Anyag nem érkezett be',  'szinkod' => ''),

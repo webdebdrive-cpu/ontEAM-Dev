@@ -111,10 +111,10 @@ if( $_SESSION[get_db_tabla().'user'] ) {
     }
 }
 
-// Archiv bejelentés/munkalap esetén ha nincs szűrés/összetett szűrés, akkor a legfrisseb legyen beállítva (amúgy is van rajta egy limit, ha van más szűrés, de ha nincs beállítva semmi, akkor ez látszik is).
+// Archiv bejelentés/munkalap/eszközigénylés esetén ha nincs szűrés/összetett szűrés, akkor a legfrisseb legyen beállítva (amúgy is van rajta egy limit, ha van más szűrés, de ha nincs beállítva semmi, akkor ez látszik is).
 // FONTOS, hogy ez még itt a szamla_lista() függvény meghívása előtt legyen, mert az már számol ezekkel!
 // A tényleg kifejezetten Archiv modulokkal kezdjük, mert ha már lesz értéke a $_GET['mezo']-nek, a másik feltételbe nem kerülünk bele
-$archivok2 = array('bejelentes_arch.php', 'munkalap_arch.php');
+$archivok2 = array('bejelentes_arch.php', 'munkalap_arch.php', 'eszkozigenyles_arch.php', 'eszkozigenyles_megr_arch.php');
 if( in_array(basename(self()), $archivok2) && !isset($_GET['mezo']) && !$_SESSION['o_szuro_feltetel'] ) {
     $_GET['mezo']   = 'legfrissebb';
     $_GET['op']     = 'equal';
@@ -127,7 +127,6 @@ if( in_array(basename(self()), $archivok) && !isset($_GET['mezo']) && !$_SESSION
     $_GET['op']     = 'equal';
     $_GET['felt']   = SZURES_DB_LIMIT;
 }
-
 
 // Anyagrendelések alatt, ha a szerepkör mszk ügyintéző vagy mszk vezető,
 // és nincs szűrve semmire (összetetten sem, ez itt fontos a 0-ás alapértelmezett érték miatt), akkor nem listázunk ki semmit.

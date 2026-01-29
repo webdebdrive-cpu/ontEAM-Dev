@@ -139,6 +139,7 @@ define('ENERGIATERV_STAT_ELES',             '15');
 define('BESZERZES_IDOSZAK_INAKTIV',          '10');
 define('BESZERZES_IDOSZAK_AKTIV',            '20');
 define('BESZERZES_IDOSZAK_LEZART',           '30');
+define('BESZERZES_IDOSZAK_ARCHIV',           '40');
 
 // Eszközigénylés státuszok
 define('ESZKOZIGENYL_STAT_UJ_FELVITEL',      '10');

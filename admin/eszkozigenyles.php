@@ -1821,7 +1821,7 @@ if (isset($_POST['szak_beleegyezes'])) {
     $db_error = false;
     mysqli_autocommit($db_kapcs, false);
 
-    $sor = $adatbazis_kapcsolat -> s2('stat_id tipus szak_indok', 'eszkozigenyles', "`recid`='{$_POST['id']}'");
+    $sor = $adatbazis_kapcsolat -> s2('stat_id tipus szak_indok netto igmen', 'eszkozigenyles', "`recid`='{$_POST['id']}'");
     if( $sor === false ) { $db_error = true; }
 
     // Ha nincs joga hozzá, akkor hibaüzenet
@@ -1852,9 +1852,19 @@ if (isset($_POST['szak_beleegyezes'])) {
         $indok .= datum_kiir(date('Y-m-d H:i:s')).' '.$_SESSION[get_db_tabla().'teljes_nev']."\n".$_POST['indok']."\n\n";
     }
     $indok .= $sor['szak_indok'];
-    $sql = $adatbazis_kapcsolat -> u('eszkozigenyles',  array('szak_vel',   'szak_indok' ),
+    $sql = $adatbazis_kapcsolat -> u('eszkozigenyles',  array('szak_vel',   'szak_indok'),
                                                         array($velemeny,    $indok      ),
                                                     "`recid`='{$_POST['id']}'");
+    if( $sql === false ) { $db_error = true; }
+
+    // Jóváhagyott mennyiség eltárolása. Itt most a jóváhagyott mennyiség az igényelt mennyiség.
+    // A deviza összesen mezőt (ha devizás az igény) és a jóváhagyott nettó összesen mezőt frissíteni kell
+    $jhar       = $sor['netto'];
+    $jhossz     = $sor['igmen']*$jhar;
+
+    $mezok      = array('jhmen',        'jhar', 'jhossz');
+    $ertekek    = array($sor['igmen'],  $jhar,  $jhossz );
+    $sql = $adatbazis_kapcsolat -> u('eszkozigenyles', $mezok, $ertekek, "`recid`='{$_POST['id']}'");
     if( $sql === false ) { $db_error = true; }
 
     // Pipa kiíratása
@@ -1880,9 +1890,11 @@ if (isset($_POST['szak_beleegyezes'])) {
 
     // Tervezett esetén is státusz léptetés
     } else {
+
         if( addStatusz('eszkozigenyles_statusz', $_POST['id'], ESZKOZIGENYL_STAT_FELSO_JH_VAR) === false ) {
             $db_error = true;
         }
+
         $statusz = getStatText('eszkozigenyles', ESZKOZIGENYL_STAT_FELSO_JH_VAR);
 
         $naviKov = 1;
@@ -1920,7 +1932,7 @@ if (isset($_POST['szak_felt_beleegyezes'])) {
     $db_error = false;
     mysqli_autocommit($db_kapcs, false);
 
-    $sor = $adatbazis_kapcsolat -> s2('stat_id tipus szak_indok', 'eszkozigenyles', "`recid`='{$_POST['id']}'");
+    $sor = $adatbazis_kapcsolat -> s2('stat_id tipus szak_indok netto igmen', 'eszkozigenyles', "`recid`='{$_POST['id']}'");
     if( $sor === false ) { $db_error = true; }
 
     // Ha nincs joga hozzá, akkor hibaüzenet
@@ -1964,6 +1976,16 @@ if (isset($_POST['szak_felt_beleegyezes'])) {
     $sql = $adatbazis_kapcsolat -> u('eszkozigenyles',  array('szak_vel',   'szak_indok'),
                                                         array($velemeny,    $indok      ),
                                                     "`recid`='{$_POST['id']}'");
+    if( $sql === false ) { $db_error = true; }
+
+    // Jóváhagyott mennyiség eltárolása. Itt most a jóváhagyott mennyiség az igényelt mennyiség.
+    // A deviza összesen mezőt (ha devizás az igény) és a jóváhagyott nettó összesen mezőt frissíteni kell
+    $jhar       = $sor['netto'];
+    $jhossz     = $sor['igmen']*$jhar;
+
+    $mezok      = array('jhmen',        'jhar', 'jhossz');
+    $ertekek    = array($sor['igmen'],  $jhar,  $jhossz );
+    $sql = $adatbazis_kapcsolat -> u('eszkozigenyles', $mezok, $ertekek, "`recid`='{$_POST['id']}'");
     if( $sql === false ) { $db_error = true; }
 
     // Pipa kiíratása
@@ -3013,9 +3035,12 @@ if( isset($_GET['csv']) ) {
                     `'.get_db_tabla().'eszkozigenyles`.`nev` as \'Termék név\',
                     `szallito_id` as \'Szállító\',
                     `ossz_netto` as \'Nettó összesen\',
+                    `jhmen` as \'Jóváhagyott mennyiség\',
+                    `jhar` as \'Jóváhagyott nettó egységár\',
                     `jhossz` as \'Jóváhagyott nettó összesen\',
                     `kcs_21` as \'Pénznem\',
                     `igmen` as \'Igényelt mennyiség\',
+                    `kiv_kolts` as \'Műszaki előkészítés költség\',
                     `musz_el_ig` as \'Műszaki előkészítést igényel\',
                     `musz_indok` as \'Indoklás\',
                     `szall_ig_vel` as \'Szálloda igazgató vélemény\',
@@ -4399,14 +4424,14 @@ function megrendeles_keszit($eszkozigenyles_id, $tevezett = 0) {
 
             $fizmod_kiir = '';
             foreach ($select_fiz_mod as $fizmod) {
-                if( $fizmod['value'] == $eszkozigenyles['fiz_mod'] ) {
+                if( $eszkozigenyles['fiz_mod'] && $fizmod['value'] == $eszkozigenyles['fiz_mod'] ) {
                     $fizmod_kiir = $fizmod['name'];
                 }
             }
 
             $hat_ido_kiir = '';
             foreach ($select_hat_ido as $hat_ido) {
-                if( $hat_ido['value'] == $eszkozigenyles['hat_ido'] ) {
+                if( $eszkozigenyles['hat_ido'] && $hat_ido['value'] == $eszkozigenyles['hat_ido'] ) {
                     $hat_ido_kiir = $hat_ido['name'];
                 }
             }

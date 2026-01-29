@@ -4940,8 +4940,8 @@ function szamla_lista( $where = '', $tabla = '', $kijeloltek = false, $csak_sql_
         if( $tabla == 'anyag_szamla' ) {
             $where = "`".get_db_tabla()."anyag_szamla`.`telephely_id` IN (".implode(',', $szallodak).") AND ";
         }
-        if( $tabla == 'eszkozigenyles' ) {
-            $where = "`".get_db_tabla()."eszkozigenyles`.`telephely_id` IN (".implode(',', $szallodak).") AND ";
+        if( $tabla == 'eszkozigenyles' || $tabla == 'eszkozigenyles_arch' ) {
+            $where = "`".get_db_tabla().$tabla."`.`telephely_id` IN (".implode(',', $szallodak).") AND ";
         }
         if( $tabla == 'eszkozigenyles_megr' ) {
             $where = "`".get_db_tabla()."eszkozigenyles_megr`.`telephely_id` IN (".implode(',', $szallodak).") AND ";
@@ -5733,13 +5733,13 @@ function szamla_lista( $where = '', $tabla = '', $kijeloltek = false, $csak_sql_
                             ');
         }
         // Eszközigényléskor a szállítót, ?megrendelést? és értéklistát vesszük még fel
-        if( $tabla == 'eszkozigenyles' ) {
+        if( $tabla == 'eszkozigenyles' || $tabla == 'eszkozigenyles_arch' ) {
             $sql_kieg .= nl2('
-                                LEFT JOIN `'.get_db_tabla().'szallito_beszerzes` ON (`'.get_db_tabla().'eszkozigenyles`.`szallito_id`=`'.get_db_tabla().'szallito_beszerzes`.`recid`)
-                                LEFT JOIN `'.get_db_tabla().'erteklista` ON (`'.get_db_tabla().'eszkozigenyles`.`kcs_21`=`'.get_db_tabla().'erteklista`.`id` AND `'.get_db_tabla().'erteklista`.`csoport`=\''.ERTEKLISTA_PENZNEM.'\')
-                                LEFT JOIN `'.get_db_tabla().'erteklista` AS `'.get_db_tabla().'reszleg_nev` ON (`'.get_db_tabla().'eszkozigenyles`.`reszleg`=`'.get_db_tabla().'reszleg_nev`.`id` AND `'.get_db_tabla().'reszleg_nev`.`csoport`=\''.ERTEKLISTA_RESZLEG.'\')
-                                LEFT JOIN `'.get_db_tabla().'eszkozigenyles_tipus` ON (`'.get_db_tabla().'eszkozigenyles`.`tipus`=`'.get_db_tabla().'eszkozigenyles_tipus`.`recid`)
-                                LEFT JOIN `'.get_db_tabla().'eszkozigenyles_fiz_mod` ON (`'.get_db_tabla().'eszkozigenyles`.`fiz_mod`=`'.get_db_tabla().'eszkozigenyles_fiz_mod`.`recid`)
+                                LEFT JOIN `'.get_db_tabla().'szallito_beszerzes` ON (`'.get_db_tabla().$tabla.'`.`szallito_id`=`'.get_db_tabla().'szallito_beszerzes`.`recid`)
+                                LEFT JOIN `'.get_db_tabla().'erteklista` ON (`'.get_db_tabla().$tabla.'`.`kcs_21`=`'.get_db_tabla().'erteklista`.`id` AND `'.get_db_tabla().'erteklista`.`csoport`=\''.ERTEKLISTA_PENZNEM.'\')
+                                LEFT JOIN `'.get_db_tabla().'erteklista` AS `'.get_db_tabla().'reszleg_nev` ON (`'.get_db_tabla().$tabla.'`.`reszleg`=`'.get_db_tabla().'reszleg_nev`.`id` AND `'.get_db_tabla().'reszleg_nev`.`csoport`=\''.ERTEKLISTA_RESZLEG.'\')
+                                LEFT JOIN `'.get_db_tabla().'eszkozigenyles_tipus` ON (`'.get_db_tabla().$tabla.'`.`tipus`=`'.get_db_tabla().'eszkozigenyles_tipus`.`recid`)
+                                LEFT JOIN `'.get_db_tabla().'eszkozigenyles_fiz_mod` ON (`'.get_db_tabla().$tabla.'`.`fiz_mod`=`'.get_db_tabla().'eszkozigenyles_fiz_mod`.`recid`)
                             ');
         }
 
@@ -6095,9 +6095,11 @@ if( isset($_GET['debug']) /*&& $_SERVER['HTTP_HOST']!='teszt.onteam.hu' /*&& $_S
                 $html = eseti_fenntartasLista( $bejegyzesek, $tabla, $frissit, $kijeloltek );
             break;
             case 'eszkozigenyles':
+            case 'eszkozigenyles_arch':
                 $html = eszkozigenylesLista( $bejegyzesek, $tabla, $frissit, $kijeloltek );
             break;
             case 'eszkozigenyles_megr':
+            case 'eszkozigenyles_megr_arch':
                 $html = eszkozigenyles_megrLista( $bejegyzesek, $tabla, $frissit, $kijeloltek );
             break;
             case 'obj':
@@ -10723,7 +10725,7 @@ function addStatusz( $tabla = false, $recid = false, $stat_id = false, $erteklis
         // Lekérjük az az éppen aktuális státuszt
         $akt_statusz = $adatbazis_kapcsolat->s2('recid stat_id insert_dt', $tabla, "`{$kulso_kulcs}_recid`='{$recid}'", 'recid desc', '1');
         if( $akt_statusz === false ) { $db_error = true; }
- 
+
         // Ha új státusz, vagy munkalap előkészítés alatt státusz (tehát ez jöhet többször egymás után is)
         if( $akt_statusz && ( $akt_statusz['stat_id']!=$stat_id || $akt_statusz['stat_id']==MUNKALAP_STAT_ELOKESZITES_ALATT ) ) {
 
@@ -10771,7 +10773,7 @@ function addStatusz( $tabla = false, $recid = false, $stat_id = false, $erteklis
                                                 array($recid,                $stat_id,  $erteklista_recid,  $memo,   $login,    $now,          $now,        $teljes_nev,   $teljes_nev  )
                                             );
             if( $sql === false ) { $db_error = true; }
-
+ 
             // Ha van memó, akkor azt az előző státuszhoz írjuk be: MÉGSEM, a friss sorba kerül be
 //            $sql = $adatbazis_kapcsolat -> u($tabla, array('text' ), array($memo), "`recid`='{$akt_statusz['recid']}'");
 //            if( $sql === false ) { $db_error = true; }
@@ -13312,7 +13314,7 @@ function level_felkeszit_es_kuld( $tabla = '', $recid = '', $ert_pipa = '', $sab
     foreach ( $cimzettek as $akt_cimzett ) {
 
         // Mely tábláknál ellenőrizzünk szállodát is (saját szállodák). Kivéve, ha nem a Diszpécser köztponti mailcímre megy az értesítés
-        $szallodat_ellenorizz = array('bejelentes', 'munkalap', 'anyagigenyles', 'eszkozigenyles');
+        $szallodat_ellenorizz = array('bejelentes', 'munkalap', 'anyagigenyles', 'eszkozigenyles', 'eszkozigenyles_arch');
         if( in_array($tabla, $szallodat_ellenorizz) && $cimzett != 'diszpecser_kozponti' ) {
             $szalloda = $adatbazis_kapcsolat->s2('telephely_id', $tabla, "`recid`='{$recid}'");
             $sajat_szallodak = get_akt_login_szallodai('', '', $akt_cimzett['nev']);
