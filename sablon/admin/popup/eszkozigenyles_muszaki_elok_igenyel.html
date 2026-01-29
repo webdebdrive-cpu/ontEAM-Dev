@@ -147,6 +147,9 @@ function musz_elokeszitest_igenyel() {
                         // Ez hívódik meg a lap tetején léptető gombnyomásra is.
                         // Ilyet mégsem kérnek
                         // naviKov();
+                        // Helyette a gombokat frissítsük
+                        $('.muveletek').html(response.gombok);
+
                     // Egyébként a tényleges gombokat is cserélni kell
                     } else {
                         $('.muveletek').html(response.gombok   );

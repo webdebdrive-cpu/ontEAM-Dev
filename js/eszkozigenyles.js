@@ -553,10 +553,12 @@ function igenyles_feldolgozva(mehet) {
                     if( mehet == '-tervezett-' ) {
                         // Ilyet mégsem kérnek
                         // naviKov();
+                        // Helyette a gombokat frissítsük
+                        $('.muveletek').html(response.gombok);
 
                     // Egyébként a tényleges gombokat is cserélni kell
                     } else {
-                        $('.muveletek').html(response.gombok   );
+                        $('.muveletek').html(response.gombok);
                     }
                 
                 // Egyébként az adatlapot töltsük be
@@ -616,7 +618,7 @@ function bi_vegl_visszavon() {
                 if( isset_get('tablazat') ) {
                     // Erre még nincs oszlop beállítva $('.bi_vegl_'            +eszkoz_id  ).html(response.pipa     );
                     // Erre még nincs oszlop beállítva $('#bi_vegl_indok_db_'   +eszkoz_id  ).val ('');
-                    $('.gombok_'                +eszkoz_id  ).html(response.gombok   );
+                    $('.gombok_'+eszkoz_id  ).html(response.gombok);
 
                     // Lépjünk a következő sorra (Visszavonás csak tervezett esetben lehet, ekkor biztosan sort kell lépteteni)
                     // Ilyet mégsem kérnek
@@ -705,10 +707,12 @@ function vissza_validalasra(mehet) {
                     if( mehet == '-tervezett-' ) {
                         // Ilyet mégsem kérnek
                         // naviKov();
+                        // Helyette a gombokat frissítsük
+                        $('.muveletek').html(response.gombok);
 
                     // Egyébként a tényleges gombokat is cserélni kell
                     } else {
-                        $('.muveletek').html(response.gombok   );
+                        $('.muveletek').html(response.gombok);
                     }
                 
                 // Egyébként az adatlapot töltsük be

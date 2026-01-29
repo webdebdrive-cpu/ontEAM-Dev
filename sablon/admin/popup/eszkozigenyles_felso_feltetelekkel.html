@@ -61,10 +61,10 @@ $(document).ready(function(){
 });
 function felso_felt_beleegyezes() {
 
-    /* globális változók frissítése az adott adatlap alapján */
+    // globális változók frissítése az adott adatlap alapján
     eszkoz_valtozok_update();
     
-    /* Indoklás kötelező */
+    // Indoklás kötelező
     if( !$('#popup_felso_indok').val() ) {
         $('#popup input, #popup textarea, #popup select').removeClass('hibas_ide_focus');
         $('#popup_felso_indok').addClass('hibas_ide_focus');
@@ -110,10 +110,12 @@ function felso_felt_beleegyezes() {
                         // Ez hívódik meg a lap tetején léptető gombnyomásra is.
                         // Ilyet mégsem kérnek
                         // naviKov();
+                        // Helyette a gombokat frissítsük
+                        $('.muveletek').html(response.gombok);
                         
                     // Egyébként a tényleges gombokat is cserélni kell
                     } else {
-                        $('.muveletek').html(response.gombok   );
+                        $('.muveletek').html(response.gombok);
                     }
                 
                 // Egyébként az adatlapot töltsük be

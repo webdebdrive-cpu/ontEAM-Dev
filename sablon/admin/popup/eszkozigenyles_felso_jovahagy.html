@@ -154,6 +154,8 @@ function felso_beleegyezes(mehet) {
                     if( mehet == '-tervezett-' ) {
                         // Ilyet mégsem kérnek
                         // naviKov();
+                        // Helyette a gombokat frissítsük
+                        $('.muveletek').html(response.gombok);
 
                     // Egyébként a tényleges gombokat is cserélni kell
                     } else {

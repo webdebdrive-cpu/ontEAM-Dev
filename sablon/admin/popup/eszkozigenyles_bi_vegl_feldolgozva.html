@@ -119,10 +119,12 @@ function bi_vegl_jovahagy(mehet) {
                     if( mehet == '-tervezett-' ) {
                         // Ilyet mégsem kérnek
                         // naviKov();
+                        // Helyette a gombokat frissítsük
+                        $('.muveletek').html(response.gombok);
 
                     // Egyébként a tényleges gombokat is cserélni kell
                     } else {
-                        $('.muveletek').html(response.gombok   );
+                        $('.muveletek').html(response.gombok);
                     }
                 
                 // Egyébként az adatlapot töltsük be
