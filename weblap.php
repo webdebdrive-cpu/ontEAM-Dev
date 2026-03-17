@@ -99,7 +99,7 @@ if( !$_SESSION[get_db_tabla().'user'] && !$_POST['elfelejtett_jelszo'] && substr
     echo 'SESKIL<script>document.body.innerHTML = \'\'; location.href=\'index.php\'</script>';
     exit;
 }
-    
+
 // Jogosultságok karbantartása
 if( $_SESSION[get_db_tabla().'user'] ) {
     $felhasznalo = $adatbazis_kapcsolat->s2('flags flags_ert', 'login', "`nev`='{$_SESSION[get_db_tabla().'user']}'", '', '1');
@@ -171,6 +171,7 @@ if( $_GET['id'] && !isset($_GET['no_lista']) && self('-bn-') != 'eszkozigenyles.
 // hisz a frissen léptetett rekord már nincs benne a $_SESSION[csonkit(basename(self()), 4).'_idk'] tömbben
 if( $_GET['id'] && $_GET['mezo']!='legfrissebb' && !($_SESSION['dashboard_feladat'] && self('-bn-') == 'eszkozigenyles.php') ) {
     if( !in_array($_GET['id'], $_SESSION[csonkit(basename(self()), 4).'_idk']) ){
+        echo json_encode( array('hiba' => 'A kért rekord nem jeleníthető meg!') );
         exit;
     }
 }

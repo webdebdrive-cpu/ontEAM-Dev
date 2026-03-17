@@ -160,6 +160,19 @@
 
 require_once('header.php');
 
+// PDF csere
+if( isset($_GET['pdf_csere']) ) {
+    // copy('../'.get_utvonal().'DH_te_megrendeles_TE202673.pdf', '../'.get_utvonal().'eszkozigenyles_megr/26/190/DH_te_megrendeles_TE202673.pdf');
+    // unlink('../'.get_utvonal().'DH_te_megrendeles_TE202673.pdf');
+}
+
+// Státusz léptetés
+if( isset($_GET['statusz_leptet']) ) {
+    // addStatusz('munkalap_statusz', 632477, MUNKALAP_STAT_MEGR_ELKULD_VAR);
+
+    exit;
+}
+
 // if( isset($_GET['teszt']) ) {
 
 //     $szerepkor = MUSZAKI_ADMINISZTRATOR;

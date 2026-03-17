@@ -78,7 +78,7 @@ for( $i=1; $i<5; $i++ ) {
                 $sikeres_kuldes = level_kuldes(get_nev(), get_mail(), array($cimzett['teljes_nev']), $cimzettek, $targy_kieg.'Emlékeztető az igénylési időszak közelgő lezárásáról', $uzi_kieg.$uzi);
                 $log_tmp    .= 'Emlékeztető igénylési időszak lezárásáról értesítő email elküldve: '.$cimzett['teljes_nev'].' - '.$cimzett['usermail'].'
         ';
-                $megj       .= 'Emlékeztető igénylési időszak lezárásáról értesítő email elküldve: '.$cimzett['teljes_nev'].' ('.$cimzett['usermail'].') '.datum_kiir($idobelyeg).' időpontban.';
+                $megj       .= 'Emlékeztető igénylési időszak lezárásáról értesítő email elküldve: '.$cimzett['teljes_nev'].' ('.$cimzett['usermail'].') '.datum_kiir($idobelyeg).' időpontban.<br>';
             }
         
             if( !$sikeres_kuldes ) {
@@ -110,8 +110,8 @@ file_put_contents($log_utvonal, $log_tmp, FILE_APPEND | LOCK_EX);
 
 $datum_figyel = date('Y-m-d', strtotime('-1 Day'));
 $besz_idoszakok = $adatbazis_kapcsolat->s('recid azon nyitva hatar nyitva_fured hatar_fured', 'besz_idoszak', "`stat_id`='".BESZERZES_IDOSZAK_AKTIV."' AND (
-                                                                                                                                                                (`nyitva`=1       AND `hatar`      <'".$datum_figyel."') OR
-                                                                                                                                                                (`nyitva_fured`=1 AND `hatar_fured`<'".$datum_figyel."')
+                                                                                                                                                                (`nyitva`=1       AND `hatar`      <='".$datum_figyel."') OR
+                                                                                                                                                                (`nyitva_fured`=1 AND `hatar_fured`<='".$datum_figyel."')
                                                                                                                                                             )");
 $log_tmp = $adatbazis_kapcsolat->gp() . '
 ';
@@ -153,7 +153,7 @@ if( $_SERVER['REMOTE_ADDR'] == get_debug_ip() ) {
 
         $log_tmp    .= 'Értesítés igénylési időszak lezárásáról értesítő email elküldve: '.$cimzett['teljes_nev'].' - '.$cimzett['usermail'].'
 ';
-        $megj       .= 'Értesítés igénylési időszak lezárásáról értesítő email elküldve: '.$cimzett['teljes_nev'].' ('.$cimzett['usermail'].') '.datum_kiir($idobelyeg).' időpontban.';
+        $megj       .= 'Értesítés igénylési időszak lezárásáról értesítő email elküldve: '.$cimzett['teljes_nev'].' ('.$cimzett['usermail'].') '.datum_kiir($idobelyeg).' időpontban.<br>';
     }
 
     if( !$sikeres_kuldes ) {

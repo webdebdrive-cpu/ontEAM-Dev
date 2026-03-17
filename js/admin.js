@@ -5412,14 +5412,14 @@ function obj_gen(szintig) {
         return false;
     }
 }
-/* Helyiség hozzáadása */
+// Helyiség hozzáadása
 function addObj( that ) {
     var text  = $(that).text(),
         recid = $(that).attr('data-recid');
 
     $('input[name="obj_id"]').val(recid).change();
     $('input[name="obj_id_autocomp"]').val(text).change();
-    /* Az autocomplete-t újra rá kell tenni, hogy az alapértelmezett értéke az üresség lehessen */
+    // Az autocomplete-t újra rá kell tenni, hogy az alapértelmezett értéke az üresség lehessen
     $('#obj_id_autocomp').autocomplete({
         'php_fajl'      : '../autocomplete.php',
         'tabla'         : 'obj',
@@ -5628,25 +5628,25 @@ function popupZar() {
     }
 }
 
-/* Popup megjelenítése és fókusz az első inputra */
+// Popup megjelenítése és fókusz az első inputra
 function popupNyit() {
     $('#popup').css('display', 'block');
     $('#popup input:text, #popup textarea, #popup select').first().select();
 }
 
 
-/* Popup rejtése (nem töröljük a tartalmát, csak rejtük) */
+// Popup rejtése (nem töröljük a tartalmát, csak rejtük)
 function popupRejt() {
     $('#popup').hide();
 }
 
-/* Popup mutatása */
+// Popup mutatása
 function popupMutat() {
     $('#popup').show();
     $('#popup input:text, #popup textarea, #popup select').first().select();
 }
 
-/* Popup villogtatása */
+// Popup villogtatása
 function popup_villogtat() {
     speed = 75;
     $('#popup .popup_kont, #alert2').fadeOut(speed).fadeIn(speed).fadeOut(speed).fadeIn(speed).fadeOut(speed).fadeIn(speed);

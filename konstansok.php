@@ -654,7 +654,7 @@ define('SZURES_DB_LIMIT',              1000    );  // Szűrési feltételkor meg
 define('CSV_EXPORT_LIMIT',            30000    );  // Exportkor ha úgy érzékeljük, hogy ettől nagyobb számú sort kell letölteni, akkor megerősítő kérdést írunk ki.
 define('ANYAGREND_LIMIT',                50    );
 define('ANYAGREND_NEM_MSZK_LIMIT',      200    );
-define('GM_TERHES_EGYSEGAR',          50000    );
+define('GM_TERHES_EGYSEGAR',         100000    );
 define('GM_TERHES_OSSZNETTO',        500000    );
 
 // Fűtőértékkel kapcsolatos konstansok

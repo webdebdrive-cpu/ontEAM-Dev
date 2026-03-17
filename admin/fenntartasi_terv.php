@@ -685,7 +685,7 @@ if (isset($_POST['energia_tabla_ment'])) {
     }
     
     // Logolás
-    $muvelet  = $_SESSION[get_db_tabla().'teljes_nev'].' ('.$_SESSION[get_db_tabla().'user'].') '.$_POST['uj'].' recid-jú fenntartási terv Energia fül alatt a '.$_POST['ktgnem_id'].' költségnemű sort módosította.';
+    $muvelet  = $_SESSION[get_db_tabla().'teljes_nev'].' ('.$_SESSION[get_db_tabla().'user'].') '.$_POST['id'].' recid-jú fenntartási terv Energia fül alatt a '.$_POST['ktgnem_id'].' költségnemű sort módosította.';
     $valtozas = $adatbazis_kapcsolat->gp();
     $sql = $adatbazis_kapcsolat -> i(
                                         'log',
@@ -887,7 +887,7 @@ if (isset($_POST['muszaki_tabla_ment'])) {
         $sor_id = $_POST['egysegarsor_id'];
 
         // Logolás
-        $muvelet  = $_SESSION[get_db_tabla().'teljes_nev'].' ('.$_SESSION[get_db_tabla().'user'].') '.$_POST['uj'].' recid-jú fenntartási terv Műszaki anyag fül alatt a '.$_POST['ktgnem_id'].' költségnemű sort módosította.';
+        $muvelet  = $_SESSION[get_db_tabla().'teljes_nev'].' ('.$_SESSION[get_db_tabla().'user'].') '.$_POST['id'].' recid-jú fenntartási terv Műszaki anyag fül alatt a '.$_POST['ktgnem_id'].' költségnemű sort módosította.';
         $valtozas = $adatbazis_kapcsolat->gp();
         $sql = $adatbazis_kapcsolat -> i(
                                             'log',
@@ -1086,7 +1086,7 @@ if (isset($_POST['rendszeres_tabla_ment'])) {
         $sor_id = $_POST['egysegarsor_id'];
 
         // Logolás
-        $muvelet  = $_SESSION[get_db_tabla().'teljes_nev'].' ('.$_SESSION[get_db_tabla().'user'].') '.$_POST['uj'].' recid-jú fenntartási terv Rendszeres fül alatt a '.$_POST['ktgnem_id'].' költségnemű sort módosította.';
+        $muvelet  = $_SESSION[get_db_tabla().'teljes_nev'].' ('.$_SESSION[get_db_tabla().'user'].') '.$_POST['id'].' recid-jú fenntartási terv Rendszeres fül alatt a '.$_POST['ktgnem_id'].' költségnemű sort módosította.';
         $valtozas = $adatbazis_kapcsolat->gp();
         $sql = $adatbazis_kapcsolat -> i(
                                             'log',
@@ -1287,7 +1287,7 @@ if (isset($_POST['eseti_tabla_ment'])) {
         $sor_id = $_POST['egysegarsor_id'];
 
         // Logolás
-        $muvelet  = $_SESSION[get_db_tabla().'teljes_nev'].' ('.$_SESSION[get_db_tabla().'user'].') '.$_POST['uj'].' recid-jú fenntartási terv Eseti fenntartás fül alatt a '.$_POST['ktgnem_id'].' költségnemű sort módosította.';
+        $muvelet  = $_SESSION[get_db_tabla().'teljes_nev'].' ('.$_SESSION[get_db_tabla().'user'].') '.$_POST['id'].' recid-jú fenntartási terv Eseti fenntartás fül alatt a '.$_POST['ktgnem_id'].' költségnemű sort módosította.';
         $valtozas = $adatbazis_kapcsolat->gp();
         $sql = $adatbazis_kapcsolat -> i(
                                             'log',
@@ -1484,7 +1484,7 @@ if (isset($_POST['hiba_tabla_ment'])) {
         $sor_id = $_POST['egysegarsor_id'];
 
         // Logolás
-        $muvelet  = $_SESSION[get_db_tabla().'teljes_nev'].' ('.$_SESSION[get_db_tabla().'user'].') '.$_POST['uj'].' recid-jú fenntartási terv Hibaelhárítás fül alatt a '.$_POST['ktgnem_id'].' költségnemű sort módosította.';
+        $muvelet  = $_SESSION[get_db_tabla().'teljes_nev'].' ('.$_SESSION[get_db_tabla().'user'].') '.$_POST['id'].' recid-jú fenntartási terv Hibaelhárítás fül alatt a '.$_POST['ktgnem_id'].' költségnemű sort módosította.';
         $valtozas = $adatbazis_kapcsolat->gp();
         $sql = $adatbazis_kapcsolat -> i(
                                             'log',
@@ -1685,7 +1685,7 @@ if (isset($_POST['mini_tabla_ment'])) {
         $sor_id = $_POST['egysegarsor_id'];
 
         // Logolás
-        $muvelet  = $_SESSION[get_db_tabla().'teljes_nev'].' ('.$_SESSION[get_db_tabla().'user'].') '.$_POST['uj'].' recid-jú fenntartási terv Miniprojekt fül alatt a '.$_POST['ktgnem_id'].' költségnemű sort módosította.';
+        $muvelet  = $_SESSION[get_db_tabla().'teljes_nev'].' ('.$_SESSION[get_db_tabla().'user'].') '.$_POST['id'].' recid-jú fenntartási terv Miniprojekt fül alatt a '.$_POST['ktgnem_id'].' költségnemű sort módosította.';
         $valtozas = $adatbazis_kapcsolat->gp();
         $sql = $adatbazis_kapcsolat -> i(
                                             'log',
@@ -1886,7 +1886,7 @@ if (isset($_POST['bwh_tabla_ment'])) {
         $sor_id = $_POST['egysegarsor_id'];
 
         // Logolás
-        $muvelet  = $_SESSION[get_db_tabla().'teljes_nev'].' ('.$_SESSION[get_db_tabla().'user'].') '.$_POST['uj'].' recid-jú fenntartási terv BWH fül alatt a '.$_POST['ktgnem_id'].' költségnemű sort módosította.';
+        $muvelet  = $_SESSION[get_db_tabla().'teljes_nev'].' ('.$_SESSION[get_db_tabla().'user'].') '.$_POST['id'].' recid-jú fenntartási terv BWH fül alatt a '.$_POST['ktgnem_id'].' költségnemű sort módosította.';
         $valtozas = $adatbazis_kapcsolat->gp();
         $sql = $adatbazis_kapcsolat -> i(
                                             'log',
@@ -2215,7 +2215,7 @@ if (isset($_POST['valtozas_jovahagyas'])) {
     }
 
     // Státusz ellenőrzése
-    if($sor['stat_id']!=ENERGIATERV_STAT_MUNKAKOZI){
+    if ($sor['stat_id'] != ENERGIATERV_STAT_MUNKAKOZI) {
         mysqli_rollback($db_kapcs);
         echo json_encode(array(
             'hiba'  => 'Csak munkaközi fenntartási terv módosítható!',
@@ -2240,7 +2240,7 @@ if (isset($_POST['valtozas_jovahagyas'])) {
     $energia_soridk = array();
     $energiak = $adatbazis_kapcsolat->s('*', 'fenntartasi_terv_energia', "`fenntartasi_terv_id`='{$recid}'");
     if( $energiak === false ) { $db_error = true; }
-    foreach($energiak as $energia){
+    foreach ($energiak as $energia) {
 //echo $energia['recid'] . '<br>';
         // Innen tujduk majd, hogy mik az új sorok
         array_push($energia_soridk, $energia['sorid']);
@@ -2344,7 +2344,7 @@ if (isset($_POST['sor_torol'])) {
     earrecid_beallit($sor['ev'], $_POST['id']);
 
     // Státusz ellenőrzése
-    if($sor['stat_id']==ENERGIATERV_STAT_ELES || $sor['stat_id']==ENERGIATERV_STAT_KESZ){
+    if ($sor['stat_id'] == ENERGIATERV_STAT_ELES || $sor['stat_id'] == ENERGIATERV_STAT_KESZ) {
         echo json_encode(array(
             'hiba'  => 'Kész és éles státuszú terv nem törölhető!',
             'title' => 'Hiba'
@@ -2387,7 +2387,7 @@ if (isset($_POST['sor_torol'])) {
     $valtozas = $adatbazis_kapcsolat->gp();
     $sql = $adatbazis_kapcsolat -> i(
                                         'log',
-                                        array( 'felh_id',                               'nev',     'valtozas',          'ip'                   ),
+                                        array( 'felh_id',                               'nev',     'valtozas',              'ip'                   ),
                                         array( $_SESSION[get_db_tabla().'login_recid'], $muvelet,  $muvelet.' '.$valtozas,  $_SERVER['REMOTE_ADDR'])
                                     );
     if( $sql === false ) { $db_error = true; }

@@ -1,4 +1,5 @@
 <?php
+
 require_once('../weblap.php');
 
 if( isset($_GET['pdf_mutat']) || isset($_GET['html_mutat']) ) {
@@ -35,7 +36,12 @@ $szoveg                 = 'eszközigénylést';               // Hibaüzenetkor:
 $igenyles_mezok_pdfhez = 'recid tipus stat_id nev igmen jhmen arfolyam netto jhar jhossz telephely_id szallito_id szall_hat fiz_mod hat_ido ossz_netto ossz_dev kcs_21 kiszall beuzemel munkadij egyeb_koltseg eloleg megj insert_dt'; // Ezeket az oszlopokat kérjük le PDF készítéséhez
 
 // Cikkszám ha nincs megadva, egyszer kérdezzünk rá.
-$szamla_html = '<script>var CSZ_KERDES_VOLT = 0;</script>';
+$szamla_html = nl2('
+                    <script>
+                        var TIPUS_KERDES_VOLT   = 0;
+                        var CSZ_KERDES_VOLT     = 0;
+                    </script>
+                ');
 
 // Ha státuszléptetéskor nem stimmelnek a státuszok, akkor legnagyobb valószínűséggel arról van szó, hogy ugyanazt az igénylést párhuzamosan más már tovább léptette.
 // Ezért inkább ezt a hibaüzenetet írjuk ki:
@@ -430,12 +436,20 @@ if (isset($_POST['megrendelok_elkeszit'])) {
         $db_error = true;
     }
 
+    // Levélküldés, de szállodánként csak egyet
+    $igenylesek_mailhez = $adatbazis_kapcsolat -> s('recid', 'eszkozigenyles', "`tipus`='".BESZ_TIP_TERVEZETT."' AND `idoszak_azon`='{$sor['idoszak_azon']}' AND `stat_id`='{$sor['stat_id']}' AND `{$jovahagy_oszlop}`='1'", '', '', 'telephely_id');
+    if( $igenylesek_mailhez === false ) { $db_error = true; }
+    foreach ($igenylesek_mailhez as $igenyles_mailhez) {
+        $mail_hibauzenet = level_felkeszit_es_kuld('eszkozigenyles', $igenyles_mailhez['recid'], ERT_BESZERZ_MEGR_KIKULD_ELO, 'eszkozigenyles', 'eszkozigenyles_megr_kikuld_elo_tervezett');
+    }
+
     // Státusz léptetés minden egyes igénylésnél
     foreach ($igenylesek as $igenyles) {
         if( addStatusz('eszkozigenyles_statusz', $igenyles, ESZKOZIGENYL_STAT_KIKULD_VAR) === false ) {
             $db_error = true;
         }
     }
+
 
     if( !$db_error ) {
         mysqli_commit($db_kapcs);
@@ -482,8 +496,7 @@ if (isset($_POST['jhmen_mod'])) {
         exit;
     }
 
-    // Jóváhagyott mennyiség eltárolása
-    // A deviza összesen mezőt (ha devizás az igény) és a jóváhagyott nettó összesen mezőt frissíteni kell
+    // Jóváhagyott mennyiség eltárolása + a Jóváhagyott nettó egységár és Jóváhagyott nettó összesen mezőt is frissíteni kell.
     $jhar       = $eszkozig['netto'];
     $jhossz     = $_POST['jhmen']*$jhar;
 
@@ -525,8 +538,18 @@ if (isset($_POST['mehet_validalasra'])) {
     $db_error = false;
     mysqli_autocommit($db_kapcs, false);
 
-    $sor = $adatbazis_kapcsolat -> s2('idoszak_azon stat_id tipus', 'eszkozigenyles', "`recid`='{$_POST['id']}'");
+    $sor = $adatbazis_kapcsolat -> s2('idoszak_azon stat_id tipus szallito_id', 'eszkozigenyles', "`recid`='{$_POST['id']}'");
     if( $sor === false ) { $db_error = true; }
+
+    // PHP alatt is elleőrizzük, hogy van-e szállító
+    if( !$sor['szallito_id'] ) {
+        echo json_encode(array(
+                                'hiba'  => 'BI validálásra küldés előtt kérem adja meg a Szállítót!',
+                                'title' => 'Hiba',
+                        ));
+        $weblap -> leallit();
+        exit;
+    }
 
     // Csak tervezett igényléstnél értelmezett ez a funkció
     if( $sor['tipus'] != BESZ_TIP_TERVEZETT ) {
@@ -713,8 +736,18 @@ if (isset($_POST['musz_elokeszitest_igenyel'])) {
     $sor = $adatbazis_kapcsolat -> s2('stat_id tipus musz_indok', 'eszkozigenyles', "`recid`='{$_POST['id']}'");
     if( $sor === false ) { $db_error = true; }
 
-    // Ha nincs joga hozzá, akkor hibaüzenet
-    if( !_jog(JOG_BESZERZ_IGENYLESEK_MUSZAK_JOVA) ) {
+    // VIGYÁZZ! IDE KÉT FÉLEKÉPPEN IS EL TUDSZ JUNTI, RÁADÁSUL A NYOMÓGOMB FELIRAT IS UGYANAZ (Műszaki előkészítést igényel), 
+    // (Tervezett igénylés + Új felvitel státusz ILLETVE Soron kívüli igénylés + Műszaki jóváhagyásra vár státusz.)
+    // CSAK MÁS-MÁS SZITUÁCIÓBAN JÖN KI, EMIATT MÁSKÉPP KELL JOGOT ELLENŐRIZNI:
+    
+    // Ha nincs joga hozzá, hibaüzenet
+    if( 
+        // Tagadjuk az alábbi két felállás. Igénylés típusától függ, hogy melyik jogra van szükség
+        !(
+            ( $sor['tipus'] == BESZ_TIP_TERVEZETT                                           && _jog(JOG_BESZERZ_IGENYLESEK_LETREH     ) ) ||
+            ( ($sor['tipus'] == BESZ_TIP_SORONKIVULI || $sor['tipus'] == BESZ_TIP_GM_KERET) && _jog(JOG_BESZERZ_IGENYLESEK_MUSZAK_JOVA) )
+        )
+    ) {
         echo json_encode(array(
                                 'hiba'  => 'Önnek nincs joga véleményezni!',
                                 'title' => 'Hiba',
@@ -725,10 +758,10 @@ if (isset($_POST['musz_elokeszitest_igenyel'])) {
 
     // Nem megfelelő státuszkor hibaüzenet
     if( 
-        // Tagadjuk az alábbi két felállás, amikor is a megfelelő sáttusban vagyunk. Igénylés típusától függ, hogy melyiket fogadjuk el
+        // Tagadjuk az alábbi két felállás, amikor is a megfelelő státusban vagyunk. Igénylés típusától függ, hogy melyiket fogadjuk el
         !(
-            ($sor['tipus'] == BESZ_TIP_SORONKIVULI && $sor['stat_id'] = ESZKOZIGENYL_STAT_MUSZAK_JH_VAR ) ||
-            ($sor['tipus'] == BESZ_TIP_TERVEZETT   && $sor['stat_id'] = ESZKOZIGENYL_STAT_UJ_FELVITEL   )
+            ( $sor['tipus'] == BESZ_TIP_TERVEZETT                                          && $sor['stat_id'] = ESZKOZIGENYL_STAT_UJ_FELVITEL   ) ||
+            (($sor['tipus'] == BESZ_TIP_SORONKIVULI || $sor['tipus'] == BESZ_TIP_GM_KERET) && $sor['stat_id'] = ESZKOZIGENYL_STAT_MUSZAK_JH_VAR )
         )
     ) {
         echo json_encode(array(
@@ -740,24 +773,27 @@ if (isset($_POST['musz_elokeszitest_igenyel'])) {
         exit;
     }
 
-    // Ha nem volna megadva a kivitelezési költség, akkor hibaüzenet
-    if( !$_POST['kiv_kolts'] || $_POST['kiv_kolts'] == '0' ) {
-        echo json_encode(array(
-                                'hiba'  => 'Kérem adja meg a kivitelezési költséget!',
-                                'title' => 'Hiba',
-                        ));
-        $weblap -> leallit();
-        exit;
-    }
-
-    // Ha nem volna megadva az indoklás, akkor hibaüzenet
-    if( !$_POST['indok'] ) {
-        echo json_encode(array(
-                                'hiba'  => 'Kérem adja meg az indoklást!',
-                                'title' => 'Hiba',
-                        ));
-        $weblap -> leallit();
-        exit;
+    // Kivitelezői költség + indoklás csak soron kívülinél kötelező
+    if( $sor['tipus'] == BESZ_TIP_SORONKIVULI ) {
+        // Ha nem volna megadva a kivitelezési költség, akkor hibaüzenet
+        if( !$_POST['kiv_kolts'] || $_POST['kiv_kolts'] == '0' ) {
+            echo json_encode(array(
+                                    'hiba'  => 'Kérem adja meg a kivitelezési költséget!',
+                                    'title' => 'Hiba',
+                            ));
+            $weblap -> leallit();
+            exit;
+        }
+    
+        // Ha nem volna megadva az indoklás, akkor hibaüzenet
+        if( !$_POST['indok'] ) {
+            echo json_encode(array(
+                                    'hiba'  => 'Kérem adja meg az indoklást!',
+                                    'title' => 'Hiba',
+                            ));
+            $weblap -> leallit();
+            exit;
+        }
     }
 
     // Nyomógomb eltárolása
@@ -1821,7 +1857,7 @@ if (isset($_POST['szak_beleegyezes'])) {
     $db_error = false;
     mysqli_autocommit($db_kapcs, false);
 
-    $sor = $adatbazis_kapcsolat -> s2('stat_id tipus szak_indok netto igmen', 'eszkozigenyles', "`recid`='{$_POST['id']}'");
+    $sor = $adatbazis_kapcsolat -> s2('stat_id tipus szak_indok netto igmen jhmen', 'eszkozigenyles', "`recid`='{$_POST['id']}'");
     if( $sor === false ) { $db_error = true; }
 
     // Ha nincs joga hozzá, akkor hibaüzenet
@@ -1858,14 +1894,16 @@ if (isset($_POST['szak_beleegyezes'])) {
     if( $sql === false ) { $db_error = true; }
 
     // Jóváhagyott mennyiség eltárolása. Itt most a jóváhagyott mennyiség az igényelt mennyiség.
-    // A deviza összesen mezőt (ha devizás az igény) és a jóváhagyott nettó összesen mezőt frissíteni kell
-    $jhar       = $sor['netto'];
-    $jhossz     = $sor['igmen']*$jhar;
-
-    $mezok      = array('jhmen',        'jhar', 'jhossz');
-    $ertekek    = array($sor['igmen'],  $jhar,  $jhossz );
-    $sql = $adatbazis_kapcsolat -> u('eszkozigenyles', $mezok, $ertekek, "`recid`='{$_POST['id']}'");
-    if( $sql === false ) { $db_error = true; }
+    // 2026.03.16 DE CSAK AKKOR, ha még nincs értéke a jhmen-nek. Ha van, akkor már ne írjuk azt felül!
+    if( !$sor['jhmen'] ) {
+        $jhar       = $sor['netto'];
+        $jhossz     = $sor['igmen']*$jhar;
+    
+        $mezok      = array('jhmen',        'jhar', 'jhossz');
+        $ertekek    = array($sor['igmen'],  $jhar,  $jhossz );
+        $sql = $adatbazis_kapcsolat -> u('eszkozigenyles', $mezok, $ertekek, "`recid`='{$_POST['id']}'");
+        if( $sql === false ) { $db_error = true; }
+    }
 
     // Pipa kiíratása
     $pipa = '';
@@ -2124,6 +2162,14 @@ if (isset($_POST['szak_elutasit'])) {
 
     // Tervezett esetén is státusz léptetés
     } else {
+
+        // Illetve ekkor ürítünk pár mezőt:
+        $sql = $adatbazis_kapcsolat -> u('eszkozigenyles', array('jhmen', 'jhar', 'jhossz'),
+                                                            array(0,       0,      0      ),
+                                                            "`recid`='{$_POST['id']}'");
+        if( $sql === false ) { $db_error = true; }
+
+        // Majd státuszléptetés
         if( addStatusz('eszkozigenyles_statusz', $_POST['id'], ESZKOZIGENYL_STAT_FELSO_JH_VAR ) === false ) {
             $db_error = true;
         }
@@ -3421,7 +3467,7 @@ if( isset($_GET['csv']) ) {
             }
             fputcsv($open, $csvhead, ';');
     
-            $tort_szamok = ['Árfolyam', 'Deviza egységár', ''];
+            $tort_szamok = ['Árfolyam', 'Deviza egységár', 'Kiszállítási költség', 'Beüzemelési költség', 'Munkadíj', 'Egyéb költség', 'Kivitelezési költség'];
             $i = 0;
             while( $sorok = mysqli_fetch_assoc($query) ) {
     
@@ -3430,6 +3476,10 @@ if( isset($_GET['csv']) ) {
                     
                     if( in_array($kulcs, $tort_szamok) ) {
                         $sor = str_replace('.', ',', $sor);
+                    }
+
+                    if( $kulcs == 'Időszak ID' ) {
+                        $sor = '{EGYENLOSEG_JELET_ELE}'.$sor.'{EGYENLOSEG_JELET_ELE_VEGE}';
                     }
                     
                     if( $kulcs == 'Státusz' ) {
@@ -3619,7 +3669,7 @@ if( isset($_GET['uj']) ) {
     $js_submit_elott_kieg1 = '
                         if( !$(\'#csz\').val() && !CSZ_KERDES_VOLT ) {
                             CSZ_KERDES_VOLT = 1;
-                            alert2(\'A cikkszám nincs megadava.<br>Biztos, hogy menti az igénylést cikkszám nélkül?\', \'<input type="button" class="gomb zold" value="Igen" onclick="alert2(); $(\\\'#mehet_gomb\\\').click();"><input type="button" class="gomb piros" value="Nem" onclick="alert2()">\', \'Kérdés\');
+                            alert2(\'A cikkszám nincs megadava.<br>Biztos, hogy menti az igénylést cikkszám nélkül?\', \'<input type="button" class="gomb zold" value="Igen" onclick="alert2(); $(\\\'#mehet_gomb\\\').click();"><input type="button" class="gomb piros" value="Nem" onclick="alert2(); CSZ_KERDES_VOLT = 0;">\', \'Kérdés\');
                             return false;
                         }
                         ';
@@ -3636,6 +3686,19 @@ if( isset($_GET['uj']) ) {
                                 }
                             }
                         ';
+}
+// Az alábbi feltétel pedig csak módosításkor kell bele
+if( $_GET['id'] ) {
+    // Ha tervezett volt a típusa, de most már más van kiválasztva, akkor státusz is fogunk léptetni, erről tájékoztassuk
+    if( $sor['tipus'] == BESZ_TIP_TERVEZETT ) {
+        $js_submit_elott_kieg3 = '
+                                if( $(\'#tipus\').val() != \''.BESZ_TIP_TERVEZETT.'\' && !TIPUS_KERDES_VOLT ) {
+                                    TIPUS_KERDES_VOLT = 1;
+                                    alert2(\'Figyelem!<br>Ha az igénylés típusát tervzettről átállítja, akkor az igény műszaki jóváhagyásra vár státuszba kerül.<br>Folytatja?\', \'<input type="button" class="gomb zold" value="Igen" onclick="alert2(); $(\\\'#mehet_gomb\\\').click();"><input type="button" class="gomb piros" value="Nem" onclick="alert2(); TIPUS_KERDES_VOLT = 0;">\', \'Kérdés\');
+                                    return false;
+                                }
+                            ';
+    }
 }
 $js_submit_elott = nl2('
 
@@ -3663,6 +3726,7 @@ $js_submit_elott = nl2('
                         }
                         
                         '.$js_submit_elott_kieg2.'
+                        '.$js_submit_elott_kieg3.'
 
                         if( $(\'#szallito_id\').val() ) {
                             if( !$(\'#kcs_21\').val().trim() ) {
@@ -3697,7 +3761,8 @@ $js_submit_elott = nl2('
                             }
                         }
 
-                        if( !$(\'#szallito_id\').val() && !$(\'#szallito_igenyelve\').val() ) {
+                        if( _get(\'uj\') && !$(\'#szallito_id\').val() && !$(\'#szallito_igenyelve\').val() ) {
+                            /* 2026.02.17 Ez mégsem kell, mert eleve már csak új felvitelben ellenőrizzük, szerkesztésnél nem kell újból
                             if( _get(\'uj\') ) {
                                 if( !form_ell_admin() ) {
                                     return false;
@@ -3706,7 +3771,7 @@ $js_submit_elott = nl2('
                                 if( !form_ell_admin(\'-mentes_nelkul-\') ) {
                                     return false;
                                 }
-                            }
+                            }*/
 
                             csoportMuvelet(\'eszkozigenyles_szallito_igenyel\');
                             return false;
@@ -3934,8 +3999,21 @@ if( isset($_GET['uj']) ) {
             /* Ha ismert a szállító, pár mező kötelezővé válik */
             $(document).ready(function(){
                 szallito_kotelezo_mezok();
+                
+                /*
+                Ilyet mégse tegyünk... elég az eszkozigenyles.js -jsben levő, $(document).on(\'input\'... rész. Itt fontos, hogy betöltéskor azt mutassuk, amit az adatbázis.
                 nettokat_atszamol();
+                */
+
+                /* Pár textarea readonly attribútumát cseréljük le disabled-re. A különbség az, hogy disabled esetében a benne levő szöveg részben is kijelölhető lesz, míg readonly-nál csak egyben jelölhető ki belekattintva. */
+                [\'spec\', \'igeny_indok\', \'megj\'].forEach(id => {
+                    const $el = $(\'#\' + id);
+                    if ($el.prop(\'readonly\')) {
+                        $el.prop({ readonly: false, disabled: true });
+                    }
+                });
             });
+
         </script>
     ');
     

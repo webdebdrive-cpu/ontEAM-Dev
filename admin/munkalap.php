@@ -3072,7 +3072,7 @@ if (isset($_POST['megrendeles_alair'])) {
     exit;
 }
 
-// ML vissza ügyitézőnek meg. aláírásra vár státuszból
+// ML vissza ügyintézőnek meg. aláírásra vár státuszból
 if (isset($_POST['munkalapVisszaUi'])) {
 
     $recid = $_POST['recid'];
@@ -3085,7 +3085,7 @@ if (isset($_POST['munkalapVisszaUi'])) {
 
     if( $munkalap ) {
 
-        if( $munkalap['stat_id'] != MUNKALAP_STAT_MEGR_ALAIR_VAR ||  $munkalap['stat_id'] != MUNKALAP_STAT_MEGR_ALAIR_VAR) {
+        if( $munkalap['stat_id'] != MUNKALAP_STAT_MEGR_ALAIR_VAR || $munkalap['stat_id'] != MUNKALAP_STAT_MEGR_ALAIR_VAR) {
             echo json_encode(array(
                 'hiba'  => 'Ebben a státuszban nem lehet visszaküldeni a munkalapot!',
                 'title' => 'Hiba',
@@ -3096,8 +3096,8 @@ if (isset($_POST['munkalapVisszaUi'])) {
         }
 
         if(
-            !($munkalap['stat_id'] == JOG_MUNKALAP_ELSODL_ALAIR     && _jog(JOG_MUNKALAP_MASODL_ALAIR)) &&
-            !($munkalap['stat_id'] == MUNKALAP_STAT_MEGR_ALAIR_VAR   && _jog(JOG_MUNKALAP_ELSODL_ALAIR ))
+            // Ez a feltétel amúgy is rossz: nem státusz konstans van benne: !($munkalap['stat_id'] == JOG_MUNKALAP_ELSODL_ALAIR     && _jog(JOG_MUNKALAP_MASODL_ALAIR)) &&
+            !($munkalap['stat_id'] == MUNKALAP_STAT_MEGR_ALAIR_VAR && _jog(JOG_MUNKALAP_ELSODL_ALAIR ))
         ) {
             echo json_encode(array(
                 'hiba'  => 'Önnek nincs joga munkalapot visszaküldeni!',

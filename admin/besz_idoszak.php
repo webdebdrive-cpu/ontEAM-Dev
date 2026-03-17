@@ -105,10 +105,10 @@ if (isset($_POST['idoszak_megnyitasa'])) {
         exit;
     }
 
-    $van_nem_lezart = $adatbazis_kapcsolat -> s2('azon stat_id', 'besz_idoszak', "`stat_id`='".BESZERZES_IDOSZAK_AKTIV."'");
-    if( $van_nem_lezart ) {
+    $van_aktiv = $adatbazis_kapcsolat -> s2('azon stat_id', 'besz_idoszak', "`stat_id`='".BESZERZES_IDOSZAK_AKTIV."'");
+    if( $van_aktiv ) {
         echo json_encode(array(
-                                'hiba'  => $van_nem_lezart['azon'].' - '.getStatText('besz_idoszak', $van_nem_lezart['stat_id']).'<br>Az időszakot nem lehet megnyitni, mert az előző időszak még nincs lezárva!',
+                                'hiba'  => $van_aktiv['azon'].' - '.getStatText('besz_idoszak', $van_aktiv['stat_id']).'<br>Az időszakot nem lehet megnyitni, mert még van másik aktív időszak!',
                                 'title' => 'Hiba',
                         ));
         $weblap -> leallit();
@@ -247,7 +247,7 @@ if (isset($_POST['igenyfeladas_nyit_zar'])) {
     if( $sql === false ) { $db_error = true; }
 
     // Megjegyzésbe írás
-    if( addMegj('besz_idoszak', $_POST['id'], 'Igénylés határidő'.$fured2.$text2.'.') === false ) {
+    if( addMegj('besz_idoszak', $_POST['id'], 'Igénylés feladási időszak'.$fured2.$text2.'.') === false ) {
         $db_error = true;
     }
 
@@ -653,9 +653,9 @@ if( isset($_GET['uj']) && _jog(JOG_BESZERZ_IDOSZAK_OLVAS) ) {
 
     // Időszak megnyitása
     if( $sor['stat_id'] == BESZERZES_IDOSZAK_INAKTIV && _jog(JOG_BESZERZ_IDOSZAK_KEZEL ) ) {
-        $van_nem_lezart = $adatbazis_kapcsolat -> s2('azon stat_id', 'besz_idoszak', "`stat_id`!='".BESZERZES_IDOSZAK_LEZART."' AND `recid`!='{$_GET['id']}'");
-        if( $van_nem_lezart ) {
-            $gombok .= '<input type="button" class="gomb modositaskor_rejt" onclick="alert2(\''.$van_nem_lezart['azon'].' - '.getStatText('besz_idoszak', $van_nem_lezart['stat_id']).'<br>Az időszakot nem lehet megnyitni, mert az előző időszak még nincs lezárva!\', \'\', \'Hiba\');" value="Időszak megnyitása"> ';
+        $van_aktiv_inaktiv = $adatbazis_kapcsolat -> s2('azon stat_id', 'besz_idoszak', "`stat_id` IN ('".BESZERZES_IDOSZAK_AKTIV."', '".BESZERZES_IDOSZAK_INAKTIV."') AND `recid`!='{$_GET['id']}'");
+        if( $van_aktiv_inaktiv ) {
+            $gombok .= '<input type="button" class="gomb modositaskor_rejt" onclick="alert2(\''.$van_aktiv_inaktiv['azon'].' - '.getStatText('besz_idoszak', $van_aktiv_inaktiv['stat_id']).'<br>Az időszakot nem lehet megnyitni, mert az előző időszak még nincs lezárva!\', \'\', \'Hiba\');" value="Időszak megnyitása"> ';
         } else {
             $gombok .= '<input type="button" class="gomb modositaskor_rejt" onclick="idoszak_megnyitasa();" value="Időszak megnyitása"> ';
         }
@@ -914,7 +914,8 @@ if( !$_GET['ajax'] ) {
 function eszkozigeny_archival($eszkozigenyles = []) {
     global $adatbazis_kapcsolat;
 
-    require_once 'selectek.php';
+    // FONTOS, hogy nem require_once, mert akkor csak az első meghíváskor léteztek a select tömbök
+    require 'selectek.php';
 
     if( $eszkozigenyles ) {
 
@@ -937,11 +938,12 @@ function eszkozigeny_archival($eszkozigenyles = []) {
         }
         $hat_ido_txt = '';
         foreach ($select_hat_ido as $hat_ido) {
-            if( $hat_ido['value'] == $eszkozigenyles['hat_ido'] ) {
+            if( $eszkozigenyles['hat_ido'] && $eszkozigenyles['hat_ido'] == $hat_ido['value'] ) {
                 $hat_ido_txt = $hat_ido['name'];
                 break;
             }
         }
+
         $telephely_txt  = htmlspecialchars_decode( getErtek('nev', 'telephely', 'id', $eszkozigenyles['telephely_id']) );
         $reszleg_txt    = htmlspecialchars_decode( erteklista(ERTEKLISTA_RESZLEG, $eszkozigenyles['reszleg']) );
         $te_reszleg_txt = htmlspecialchars_decode( getErtek('nev', 'te_reszleg', 'recid', $eszkozigenyles['te_reszleg']) );

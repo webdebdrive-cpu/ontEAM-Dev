@@ -1288,7 +1288,7 @@ class ServerClass {
                         $sql = $adatbazis_kapcsolat->u('szallito', $mezok, $ertekek, "`id`='{$szallito_id}'");
                         if( $sql === false ) { $db_error = mysqli_error($db_kapcs); }
 
-                    // Ha adószám alapján sem találjunk, akkor létrehozzuk mint új partnert
+                    // Ha adószám alapján sem találjuk, akkor létrehozzuk mint új partnert
                     } else {
                         array_push($mezok,   'id',          'insert_dt' );
                         array_push($ertekek, $szallito_id,  'NOW()'     );
@@ -1710,13 +1710,44 @@ class ServerClass {
                 array_push($ertekek, $szerzodes_adatok['Partner adószám'] );
             }
 
+            // Ha sikerült beazonosítani a partnert a kapott számmal, akkor update
             $partner = $adatbazis_kapcsolat->s2('id', 'szallito', "`id`='{$szallito_id}'");
+            if( $partner === false ) { $db_error = mysqli_error($db_kapcs); }
             if( $partner ) {
-                $adatbazis_kapcsolat->u('szallito', $mezok, $ertekek, "`id`='{$szallito_id}'");
+                $sql = $adatbazis_kapcsolat->u('szallito', $mezok, $ertekek, "`id`='{$szallito_id}'");
+                if( $sql === false ) { $db_error = mysqli_error($db_kapcs); }
+
+            // Egyébként próbáljuk meg adószám alapján azonosítani
             } else {
-                array_push($mezok,   'id'           );
-                array_push($ertekek, $szallito_id   );
-                $adatbazis_kapcsolat->i('szallito', $mezok, $ertekek);
+
+                $partner = $adatbazis_kapcsolat->s2('id elozo_id', 'szallito', "`adoszam`='{$szerzodes_adatok['Partner adószám']}'");
+                if( $partner === false ) { $db_error = mysqli_error($db_kapcs); }
+
+                // Ha adószám alapján megtaláltuk, akkor frissítsük a szállító_id-t mindenhol
+                if( $partner ) {
+
+                    // Update előtt még egy dolgot leellenőrzünk: ha a $partner['id'] egy pozitív szám, azaz már nem az eredeti mínuszos van ott,
+                    // hanem már egyszer frissítve lett, akkor nem jó, ha erre az ágra kerültünk, ne írjuk felül újabb ID-val a már cseréltet
+                    if( $partner['id']>0 ) {
+                        Throw new SOAPFault ('Server', 'Ennek a szállítónak, az ontEAM rendszerben '.$partner['id'].' a partnerszáma, amely eltér a kapott '.$szallito_id.' partnerszámtól!');
+                    }
+
+                    $db_error = update_szallito_id($partner['elozo_id'], $szallito_id);
+                    // Illetve magában a szállító táblában is átírjuk
+                    $sql = $adatbazis_kapcsolat -> u('szallito', array('id'), array($szallito_id), "`adoszam`='{$szerzodes_adatok['Partner adószám']}'");
+                    if( $sql === false ) { $db_error = mysqli_error($db_kapcs); }
+
+                    // Illetve az eredeti update is fusson le, amivel az adatait aktualizáljuk
+                    $sql = $adatbazis_kapcsolat->u('szallito', $mezok, $ertekek, "`id`='{$szallito_id}'");
+                    if( $sql === false ) { $db_error = mysqli_error($db_kapcs); }
+
+                // Ha adószám alapján sem találjuk, akkor létrehozzuk mint új partnert
+                } else {
+                    array_push($mezok,   'id',          'insert_dt' );
+                    array_push($ertekek, $szallito_id,  'NOW()'     );
+                    $sql = $adatbazis_kapcsolat->i('szallito', $mezok, $ertekek);
+                    if( $sql === false ) { $db_error = mysqli_error($db_kapcs); }
+                }
             }
         }
 

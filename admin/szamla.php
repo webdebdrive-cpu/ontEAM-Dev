@@ -166,9 +166,11 @@ if( isset($_POST['nem_muszaki_szamla']) ) {
     $db_error = false;
     mysqli_autocommit($db_kapcs, false);
     
-    // A számla törlése és az XML előállítása, elküldése
-    if( xml_vissza($_POST['recid']) !== false ) {
-        $db_error = true;
+    // A számla törlése és az XML előállítása, elküldése.
+    // Itt előfordulhat, hogy szöveges hibaüzenetet kapunk vissza (pl. az XML üres volt.)
+    $hibauzenet = xml_vissza($_POST['recid']);
+    if( $hibauzenet !== false ) {
+        $db_error = $hibauzenet;
     }
     
     if( !$db_error ) {
@@ -177,9 +179,15 @@ if( isset($_POST['nem_muszaki_szamla']) ) {
     } else {
         mysqli_rollback($db_kapcs);
 
+        // Alapértelmezetten a tranzakcioHiba()-t szoktuk kiírni, de ha kaptunk $hibauzenet-et az xml_vissza-ból, akkor azt írjuk ki
+        $hiba = tranzakcioHiba();
+        if( $hibauzenet ) {
+            $hiba = $hibauzenet;
+        }
+
         echo json_encode(array(
-            'hiba'  => tranzakcioHiba(),
-            'title' => 'Hiba'
+            'hiba'  => $hiba,
+            'title' => 'Hiba',
         ));
     }
     
@@ -607,7 +615,26 @@ function xml_vissza( $szamla_id ) {
         if( eles_es_teszt_rendszer_e() ) {
             $mit   = array('<?xml version="1.0" encoding="utf-8"?>', '<string xmlns="AndocWebServices.WebService_AndocSimple"><?xml version="1.0" encoding="utf-8" standalone="yes"?>', '</xml></string>');
             $mivel = array('',                                       '',                                                                                                                '</xml>'         );
-            $kapott_xml = new SimpleXMLElement(trim(str_replace($mit, $mivel, htmlspecialchars_decode($valasz))));
+
+            $xml_string = trim(str_replace($mit, $mivel, htmlspecialchars_decode($valasz)));
+            if (empty($xml_string)) {
+                $db_error = 'Andoctól kapott XML válasz feldolgozása során hiba történt (üres választ kaptunk)!';
+            } else {
+                
+                libxml_use_internal_errors(true);
+                try {
+                    $kapott_xml = new SimpleXMLElement($xml_string);
+                } catch (Exception $e) {
+                    $db_error = 'Andoctól kapott XML válasz feldolgozása során hiba történt!';
+                    $kapott_xml = null;
+                }
+
+                if ($kapott_xml === null) {
+                    $errors = libxml_get_errors();
+                    libxml_clear_errors();
+                }
+            }
+
         }
 
         // Ha Andoc-ék nem tudják fogadni a választ, akkor hibaüzenet
@@ -620,14 +647,13 @@ function xml_vissza( $szamla_id ) {
             Ip: '.$_SERVER['REMOTE_ADDR'].'
             URL: '.get_http().$_SERVER['HTTP_HOST'].$_SERVER['REQUEST_URI'].'
             POST:
-            '.htmlspecialchars($valasz_xml).'
+            '.$valasz_xml.'
 
 
 
         ';
         file_put_contents(ANDOC_LOG_UTVONAL, $log, FILE_APPEND | LOCK_EX);
         
-        htmlspecialchars($valasz_xml);
         $db_error = true;
         
     // Ezt csak akkor módosítjuk, ha az XML küldése is rendben volt

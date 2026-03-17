@@ -1547,7 +1547,7 @@ if( in_array(basename(self()), $valasztos_feluletek) ) {
 $csv_get = 'csv_general( this, \''.$valasztos.'\' );';
 
 // Rendezés rejtése bizonyos oldalak alatt
-$rendez_rejt_oldalak = array('anyagigenyles.php', 'cash_flow.php', 'dokumentumtar.php', 'eszkozigenyles.php', 'eszkozkezeles.php', 'felmeresi_terv.php', 'szamla.php', 'vendegejszakak.php');
+$rendez_rejt_oldalak = array('anyagigenyles.php', 'cash_flow.php', 'dokumentumtar.php', 'eszkozigenyles.php', 'eszkozigenyles_arch.php', 'eszkozkezeles.php', 'felmeresi_terv.php', 'szamla.php', 'vendegejszakak.php');
 if( in_array(basename(self()), $rendez_rejt_oldalak) ) {
     $rendezes_rejt = ' dn';
 }
@@ -1564,7 +1564,7 @@ $gyorskereses_rejt_oldalak = array('cash_flow.php', 'dokumentumtar.php', 'eszkoz
 if( !in_array(basename(self()), $gyorskereses_rejt_oldalak) ) {
     
     // Anyagigénylés vagy számla tálbázatban másképp keresünk
-    $rejtett_balnavpaneles_aloldalak = array('anyagigenyles.php', 'eszkozigenyles.php', 'szamla.php', 'vendegejszakak.php');
+    $rejtett_balnavpaneles_aloldalak = array('anyagigenyles.php', 'eszkozigenyles.php', 'eszkozigenyles_arch.php', 'szamla.php', 'vendegejszakak.php');
     if( in_array(basename(self()), $rejtett_balnavpaneles_aloldalak) ) {
         $kereso = nl2('
                 <span id="respo_keresGomb"><i class="material-icons search">search</i><i class="material-icons close">close</i></span>

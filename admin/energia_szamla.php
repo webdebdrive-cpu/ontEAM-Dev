@@ -2330,6 +2330,8 @@ if( $_SERVER['REMOTE_ADDR'] == get_debug_ip() ) {
                 <br><input type="text" value="'.$sor['dok_link'].'" readonly style="width: 100%; margin: 1rem 0">
                 <br><input type="button" class="gomb" value="Dokumentum megtekintése" onclick="window.open(\''.$sor['dok_link'].'\')">');
         }
+        // A textarea azért nem kap readonly attribútumot, hogy a benne levő szöveget ki lehessen jelölni tetszőlegesen.
+        // Ha volna readonly, akkor belekattintva az egész kijelöődik és teteszőleges részt nem lehetne kijelölni.
         $szamla_html .= nl2('
                 <br>Bejövő xml:
                 <br>').'<textarea class="oriasiTargy input_kijelolve" style="height: 30rem;" disabled>'.$sor['erk_xml'].'</textarea>'.nl2('

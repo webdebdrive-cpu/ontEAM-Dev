@@ -66,8 +66,8 @@ if (isset($_POST['tablazat_rendez'])) {
         } else {
             $mentett_rendezes = json_decode(htmlspecialchars_decode($mentett_adat['tabla_rendezes']), true);
 
-            $_SESSION['eszkozigenyles_tablazat_rendez'] = $mentett_rendezes['eszkozigenyles_tablazat_rendez'] = $_POST['oszlop'];
-            $_SESSION['eszkozigenyles_tablazat_irany' ] = $mentett_rendezes['eszkozigenyles_tablazat_irany' ] = $_POST['irany' ];
+            $_SESSION['eszkozigenyles_arch_tablazat_rendez'] = $mentett_rendezes['eszkozigenyles_arch_tablazat_rendez'] = $_POST['oszlop'];
+            $_SESSION['eszkozigenyles_arch_tablazat_irany' ] = $mentett_rendezes['eszkozigenyles_arch_tablazat_irany' ] = $_POST['irany' ];
 
             $adatbazis_kapcsolat -> u('login', array('tabla_rendezes'), array(json_encode($mentett_rendezes)), "`recid`='".$_SESSION[get_db_tabla().'login_recid']."'");
 
@@ -76,14 +76,14 @@ if (isset($_POST['tablazat_rendez'])) {
 
     // Nem biztos, hogy küldünk oszlop adatot, lehet csak az irány változik
     if( $_POST['oszlop'] ) {
-        $_SESSION['eszkozigenyles_tablazat_rendez'] = $_POST['oszlop'];
+        $_SESSION['eszkozigenyles_arch_tablazat_rendez'] = $_POST['oszlop'];
     }
     if( $_POST['irany'] ) {
-        $_SESSION['eszkozigenyles_tablazat_irany' ] = $_POST['irany'];
+        $_SESSION['eszkozigenyles_arch_tablazat_irany' ] = $_POST['irany'];
     }
     
     // CSV exportban is jó legyen a sorrend ($_SESSION['akt_sql']), ezért hívjuk meg:
-    szamla_lista('', 'eszkozigenyles', '', '', $_GET);
+    szamla_lista('', 'eszkozigenyles_arch', '', '', $_GET);
 
     echo json_encode( array('ok' => 1) );
 
@@ -322,7 +322,7 @@ if( isset($_GET['csv']) ) {
         }
         fputcsv($open, $csvhead, ';');
 
-        $tort_szamok = ['Árfolyam', 'Deviza egységár', ''];
+        $tort_szamok = ['Árfolyam', 'Deviza egységár', 'Kiszállítási költség', 'Beüzemelési költség', 'Munkadíj', 'Egyéb költség', 'Kivitelezési költség'];
         $i = 0;
         while( $sorok = mysqli_fetch_assoc($query) ) {
 
@@ -473,6 +473,8 @@ if( isset($_GET['uj']) ) {
 // Táblázat nézetben levő gombok
 } else if(isset($_GET['tablazat'])) {
 
+    $gombok .= get_eszkozigenyles_gombok($_GET['id']);
+
     // Műveletek box
     $gombok = nl2('
         <div class="muveletek"'.$muv_style.'>
@@ -602,7 +604,18 @@ if( isset($_GET['uj']) ) {
             /* Ha ismert a szállító, pár mező kötelezővé válik */
             $(document).ready(function(){
                 szallito_kotelezo_mezok();
+                /*
+                Ilyet már ne csináljunk, szigorúan azt mutatjuk, ami az adatbázisban van.
                 nettokat_atszamol();
+                */
+
+                /* Pár textarea readonly attribútumát cseréljük le disabled-re. A különbség az, hogy disabled esetében a benne levő szöveg részben is kijelölhető lesz, míg readonly-nál csak egyben jelölhető ki belekattintva. */
+                [\'spec\', \'igeny_indok\', \'megj\'].forEach(id => {
+                    const $el = $(\'#\' + id);
+                    if ($el.prop(\'readonly\')) {
+                        $el.prop({ readonly: false, disabled: true });
+                    }
+                });
             });
         </script>
     ');

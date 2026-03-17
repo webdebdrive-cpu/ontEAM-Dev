@@ -146,14 +146,14 @@ function energia_szummaz(tabla, ful){
         });
         $('table.'+tabla+' #szum_ft'+i+ful_ossz).html( ezresek(ossz, '', '', ' ') );
     }
-    /* És még egy ráadás: Összesen fül alatt van egy hónapot összesítő oszlop is, ezt is összesíteni kell. */
+    // És még egy ráadás: Összesen fül alatt van egy hónapot összesítő oszlop is, ezt is összesíteni kell.
     ossz = 0;
     $('table.'+tabla+' .fto'+ful_class).each(function () {
         ossz += Number($(this).html().replace(/ /g, ''));
     });
     $('table.'+tabla+' #szum_fto'+ful_ossz).html( ezresek(ossz, '', '', ' ') );
 
-    /* Ha van összesen oszlop, akkor azt is szummázzuk */
+    // Ha van összesen oszlop, akkor azt is szummázzuk
     if($('table.'+tabla+' .ftossz').length){
         ossz = 0;
         $('table.'+tabla+' .ftossz').each(function () {
@@ -162,7 +162,7 @@ function energia_szummaz(tabla, ful){
         $('table.'+tabla+' #szum_ftossz').html( ezresek(ossz, '', '', ' ') );
     }
 
-    /* Ha van mennyiség összesen, akkor azt is szummázzuk */
+    // Ha van mennyiség összesen, akkor azt is szummázzuk
     if($('table.'+tabla+' .ertekossz').length){
         ossz = 0;
         $('table.'+tabla+' .ertekossz').each(function () {
@@ -173,7 +173,7 @@ function energia_szummaz(tabla, ful){
 
 }
 
-/* Kijelölt sor törlése */
+// Kijelölt sor törlése
 function sor_torol(ful, mehet){
 
     var sor = '';
@@ -215,7 +215,7 @@ function sor_torol(ful, mehet){
     });
 }
 
-/* Változtatások jóváhagyása */
+// Változtatások jóváhagyása
 function valtozas_jovahagyas(){
     $.ajax({
         url : 'fenntartasi_terv.php',

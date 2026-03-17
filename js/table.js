@@ -488,8 +488,8 @@ function tablaSorrend( table ) {
         // Ha több mint 20 oszlopnak azonos a szélessége, akkor az gyanús, ekkor inkább ne mentsük el
         if( /*width_40 > 20 || width_80 > 20 ||*/ elozovel_azonos > 25 ) {
             // Éles alatt még alert-et sem küldünk
-            if( SUBDOMAIN != 'www' ) {
-                alert2('Táblázat megváltozott '+elozo_width, '<input type="button" class="gomb" onclick="alert2()" value="Ok">', 'Hiba');
+            if( SUBDOMAIN == 'dev' ) {
+                alert2('Táblázat megváltozott '+elozo_width+'<br>Ez az üzenet csak Dev-en látszik', '<input type="button" class="gomb" onclick="alert2()" value="Ok">', 'Hiba');
             }
             return false;
         }

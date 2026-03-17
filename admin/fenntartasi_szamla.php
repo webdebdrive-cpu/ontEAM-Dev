@@ -2805,7 +2805,7 @@ if( $_SERVER['REMOTE_ADDR'] == get_debug_ip() ) {
             if( $i ) {
                 $tabla_kieg = '_arch';
             }
-            $munkalapok = $adatbazis_kapcsolat->s('recid ikt_szam telephely_id obj_id insert_dt stat_id', 'munkalap'.$tabla_kieg, "`szla_szam`='{$sor['szla_szam']}'");
+            $munkalapok = $adatbazis_kapcsolat->s('recid ikt_szam telephely_id obj_id insert_dt stat_id', 'munkalap'.$tabla_kieg, "`szla_szam`='{$sor['szla_szam']}' AND `szallito_id`='{$sor['szallito_id']}'");
             foreach ($munkalapok as $munkalap) {
     
                 // Telephely
@@ -3011,6 +3011,8 @@ if( $_SERVER['REMOTE_ADDR'] == get_debug_ip() ) {
                 <br><input type="text" value="'.$sor['dok_link'].'" readonly style="width: 100%; margin: 1rem 0">
                 <br><input type="button" class="gomb" value="Dokumentum megtekintése" onclick="window.open(\''.$sor['dok_link'].'\')">');
         }
+        // A textarea azért nem kap readonly attribútumot, hogy a benne levő szöveget ki lehessen jelölni tetszőlegesen.
+        // Ha volna readonly, akkor belekattintva az egész kijelöődik és teteszőleges részt nem lehetne kijelölni.
         $szamla_html .= nl2('
                 <br>Bejövő xml:
                 <br>').'<textarea class="oriasiTargy input_kijelolve" style="height: 30rem;" disabled>'.$sor['erk_xml'].'</textarea>'.nl2('

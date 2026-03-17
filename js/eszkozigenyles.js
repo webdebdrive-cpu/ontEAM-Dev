@@ -32,8 +32,8 @@ function huf_vagy_deviza() {
             $('#egyeb_koltseg'  ).attr('data-tort', '2').removeClass('nincs_tobb_blurozas').blur();
             $('#netto'          ).attr('readonly', 'readonly').removeClass('csillag').removeClass('mod');
 
-            // EUR esetén az áfa mező legyen kitöltve
-            if( $('#kcs_21_autocomp').val()=='EUR' ) {
+            // EUR esetén az áfa mező legyen kitöltve a Beállításoknál megadott árfolyammal, ha még nem volna értéke
+            if( $('#kcs_21_autocomp').val()=='EUR' && !$('#arfolyam').val() ) {
                 // Tervezett esetén az időszak áfolyamával
                 var tervezett = 1;
                 if( $('#tipus').val()!=1 ) {
@@ -77,10 +77,18 @@ function huf_vagy_deviza() {
 function nettokat_atszamol() {
     var igmen = Number($('#igmen').val().replace(/ /g, '').replace(/,/g, '.'));
     if( $('#kcs_21_autocomp').val()!='HUF' ) {
-        var dev_net  = Number($('#dev_net' ).val().replace(/ /g, '').replace(/,/g, '.'));
-        var arfolyam = Number($('#arfolyam').val().replace(/ /g, '').replace(/,/g, '.'));
-        $('#netto'   ).val( ezresek(Math.round(dev_net*arfolyam), 0, ',', ' ', '-nullát is kiír-') );
-        $('#ossz_dev').val( ezresek(igmen*dev_net,                2, ',', ' ', '-nullát is kiír-') );
+        var dev_net  = Number($('#dev_net'  ).val().replace(/ /g, '').replace(/,/g, '.'));
+        var arfolyam = Number($('#arfolyam' ).val().replace(/ /g, '').replace(/,/g, '.'));
+        var egysegar = ezresek(Math.round(dev_net*arfolyam), 0, ',', ' ', '-nullát is kiír-');
+
+        $('#netto'   ).val( egysegar );
+        $('#jhar'    ).val( egysegar );
+        $('#ossz_dev').val( ezresek(igmen*dev_net,  2, ',', ' ', '-nullát is kiír-') );
+
+        // Végül a fent frissített adatok alapján a Jóváhagyott nettó összesen mezőt is számoljuk ki
+        var jhmen   = Number($('#jhmen' ).val().replace(/ /g, '').replace(/,/g, '.'));
+        var jhar    = Number($('#jhar'  ).val().replace(/ /g, '').replace(/,/g, '.'));
+        $('#jhossz'  ).val( ezresek(Math.round(jhmen*jhar), 0, ',', ' ', '-nullát is kiír-') );
     }
 
     var netto = Number($('#netto').val().replace(/ /g, '').replace(/,/g, '.'));
@@ -115,6 +123,11 @@ function mehet_validalasra(mehet) {
 
     // globális változók frissítése az adott adatlap alapján
     eszkoz_valtozok_update();
+
+    if( !$('#szallito_id_'+eszkoz_id).val() && !$('#szallito_id').val() ) {
+        alert2('BI validálásra küldés előtt kérem adja meg a Szállítót!', '', 'Hiba');
+        return false;
+    }
 
     if( !mehet ) {
         alert2('Biztosan mehet az igénylés validálásra?', '<input type="button" class="gomb zold enter" value="Igen" onclick="mehet_validalasra(\'-tervezett-\')"> <input type="button" class="gomb piros" value="Nem" onclick="alert2()">', 'Kérdés');
@@ -758,7 +771,7 @@ function szallito_kotelezo_mezok() {
 
     }
 
-    // Ez a függvény is fusson le, mert ebben jelezzük, hogy melyik nettós mező aktív és kötlező
+    // Ez a függvény is fusson le, mert ebben jelezzük, hogy melyik nettós mező aktív és kötelező
     huf_vagy_deviza();
     
 }

@@ -1,3 +1,8 @@
+<!--
+VIGYÁZZ! IDE KÉT FÉLEKÉPPEN IS EL TUDSZ JUNTI, RÁADÁSUL A NYOMÓGOMB FELIRAT IS UGYANAZ (Műszaki előkészítést igényel), 
+(Tervezett igénylés + Új felvitel státusz ILLETVE Soron kívüli igénylés + Műszaki jóváhagyásra vár státusz.)
+A működésük is eltér: Soron kívülinél a költség és indoklás kötelező mezők
+-->
 <h2>Műszaki előkészítést igényel</h2>
 <form id="elutasitasForm" class="popupForm" method="post" onsubmit="return musz_elokeszitest_igenyel();">
     <div class="kozep">
@@ -23,7 +28,7 @@
             <div class="dtr">
                 <div class="dtc form_bal">Kivitelezési költség:</div>
                 <div class="dtc form_jobb">
-                    <input type="text" class="csillag f_num" data-tort="0" id="popup_kiv_kolts" value=""> Ft
+                    <input type="text" class="f_num" data-tort="0" id="popup_kiv_kolts" value=""> Ft
                     <span style="margin-left: 2rem;"></span>
                     Becsült érték:
                     <div class="cb">
@@ -35,7 +40,7 @@
             <div class="dtr">
                 <div class="dtc form_bal">Indoklás:</div>
                 <div class="dtc form_jobb">
-                    <textarea id="igenyel_indok" class="csillag" onkeyup="if( $(this).val().trim()=='' ){ $(this).val(''); }"></textarea>
+                    <textarea id="igenyel_indok" onkeyup="if( $(this).val().trim()=='' ){ $(this).val(''); }"></textarea>
                 </div>
             </div>
         </div>
@@ -85,24 +90,32 @@ $(document).ready(function(){
     // $('#igenyel_indok').val( $('#musz_indok_db_'+akt_id).val().replace(/<br\s*\/?>/g, '\n') );
     $('#popup_kiv_kolts').select();
 
+    // Ha az igénylés típusa nem tervezett, akkor a "Kivitelezési költség:" és "Indoklás:" mezők kötelezőek:
+    if( $('#tipus_db_'+_get('id')).val() != 1 ) {
+        $('#popup_kiv_kolts').addClass('csillag');
+        $('#igenyel_indok'  ).addClass('csillag');
+    }
+
 });
 function musz_elokeszitest_igenyel() {
 
     // globális változók frissítése az adott adatlap alapján
     eszkoz_valtozok_update();
     
-    // Kivitelezési költség és indoklás kötelező
-    if( !$('#popup_kiv_kolts').val() || $('#popup_kiv_kolts').val() == '0' ) {
-        $('#popup input, #popup textarea, #popup select').removeClass('hibas_ide_focus');
-        $('#popup_kiv_kolts').addClass('hibas_ide_focus');
-        alert2('Kérem adja meg a kivitelezés költségét!', '<input type="button" class="link gomb" value="Ok" onclick="alert2();">', 'Hiba');
-        return false;
-    }
-    if( !$('#igenyel_indok').val() ) {
-        $('#popup input, #popup textarea, #popup select').removeClass('hibas_ide_focus');
-        $('#igenyel_indok').addClass('hibas_ide_focus');
-        alert2('Kérem töltse ki az indoklást!', '<input type="button" class="link gomb" value="Ok" onclick="alert2();">', 'Hiba');
-        return false;
+    // Kivitelezési költség és indoklás kötelező, de csak soron kívüli igénylésnél kötelező
+    if( $('#tipus_db_'+_get('id')).val() != 1 ) {
+        if( !$('#popup_kiv_kolts').val() || $('#popup_kiv_kolts').val() == '0' ) {
+            $('#popup input, #popup textarea, #popup select').removeClass('hibas_ide_focus');
+            $('#popup_kiv_kolts').addClass('hibas_ide_focus');
+            alert2('Kérem adja meg a kivitelezés költségét!', '<input type="button" class="link gomb" value="Ok" onclick="alert2();">', 'Hiba');
+            return false;
+        }
+        if( !$('#igenyel_indok').val() ) {
+            $('#popup input, #popup textarea, #popup select').removeClass('hibas_ide_focus');
+            $('#igenyel_indok').addClass('hibas_ide_focus');
+            alert2('Kérem töltse ki az indoklást!', '<input type="button" class="link gomb" value="Ok" onclick="alert2();">', 'Hiba');
+            return false;
+        }
     }
 
     $.ajax({
