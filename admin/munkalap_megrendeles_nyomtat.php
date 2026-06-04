@@ -3,7 +3,7 @@
 // Ha nyomtatunk, akkor pár adatot rögtön ki is számolunk
 if( isset($_GET['nyomtat']) ) {
 
-    // Végleges fájlbanyomtatáskor $_GET['id_nyomtatashoz']-t kapunk, előnézetkor $_GET['id']-t
+    // Végleges fájlba nyomtatáskor $_GET['id_nyomtatashoz']-t kapunk, előnézetkor $_GET['id']-t
     $ml_recid = $_GET['id_nyomtatashoz'];
     if( !$ml_recid ) {
         $ml_recid = $_GET['id'];
@@ -260,6 +260,9 @@ if( isset($_GET['html_mutat']) ) {
         if( !isset($_GET['html_mutat']) ) {
             $pdf_neve = str_replace('/', '_', $munkalap['ikt_szam']).'.pdf';
             $mpdf->Output($pdf_neve, 'I'); 
+
+            // Ha utólag kell a PDF-et előállítani, akkor akár egy konkrét útvonalba is eltárolhatod:
+            // $mpdf -> Output(iconv('UTF-8', 'Windows-1250', '../tartalom/fenntartasi_szerzodes/26/M_2026_676/Munkamegrendeles_M_2026_676.pdf'), 'F');
         }
         
         $weblap -> leallit();

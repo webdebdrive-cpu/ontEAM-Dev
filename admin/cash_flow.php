@@ -800,6 +800,7 @@ require_once('selectek.php');
                                                                 LEFT JOIN `'.get_db_tabla().'projektkezeles`  ON `'.get_db_tabla().'projektkezeles`.`projektigenyles_recid`=`'.get_db_tabla().'projektigenyles`.`recid`
                                                                 LEFT JOIN `'.get_db_tabla().'cash_flow` ON `'.get_db_tabla().'cash_flow`.`apa_recid`=`'.get_db_tabla().'projektigenyles`.`recid`
                                                                 ');
+// echo $adatbazis_kapcsolat -> gp().'<br>';
                     foreach( $projekt_igenyek as $projekt_igeny ) {
                         
                         $projekt_igeny_sum    = array();

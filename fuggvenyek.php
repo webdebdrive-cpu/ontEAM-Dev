@@ -820,8 +820,8 @@ function i_u($type, $tabla, $tomb) {
 
         // Insert DT és USR lekezelése általánosan
         if( in_array($tabla.'.php', $_SESSION['ketHasabos']) ) {
-            array_push($oszlopok, 'insert_dt',  'insert_usr'                          );
-            array_push($ertekek,  'NOW()',      $_SESSION[get_db_tabla().'teljes_nev']);
+            array_push($oszlopok, 'insert_dt',          'insert_usr'                          );
+            array_push($ertekek,  date('Y-m-d H:i:s'),  $_SESSION[get_db_tabla().'teljes_nev']);
         }
 
         // Anyagigénylés INSERT előtt
@@ -1294,8 +1294,8 @@ function i_u($type, $tabla, $tomb) {
         // Anyagigénylés státusz beszúrása INSERT után
         if( $tabla == 'anyagigenyles' ) {
             $sql = $adatbazis_kapcsolat -> i($tabla.'_statusz',
-                                                array($tabla.'_recid', 'stat_id',               'login',                            'insert_dt',    'insert_usr',                             'update_usr'                           ),
-                                                array($id,             CIKKIGN_STAT_NYITOTT,    $_SESSION[get_db_tabla().'user'],   'NOW()',        $_SESSION[get_db_tabla().'teljes_nev'],   $_SESSION[get_db_tabla().'teljes_nev'] )
+                                                array($tabla.'_recid', 'stat_id',               'login',                            'insert_dt',            'insert_usr',                             'update_usr'                           ),
+                                                array($id,             CIKKIGN_STAT_NYITOTT,    $_SESSION[get_db_tabla().'user'],   date('Y-m-d H:i:s'),    $_SESSION[get_db_tabla().'teljes_nev'],   $_SESSION[get_db_tabla().'teljes_nev'] )
                                             );
             if( $sql === false ) { $db_error = true; }
             $sql = $adatbazis_kapcsolat->u($tabla, array('stat_id'), array(CIKKIGN_STAT_NYITOTT), "`recid`='{$id}'");
@@ -1397,8 +1397,8 @@ function i_u($type, $tabla, $tomb) {
                         array_push($ertekek, htmlspecialchars_decode($tetel[$mezo]));
                     }
 
-                    array_push($mezok,   'anyag_szamla_recid', 'valtozott', 'loginnev',                        'insert_dt', 'insert_usr',                           'update_usr'                           );
-                    array_push($ertekek, $id,                  $valtozott,  $_SESSION[get_db_tabla().'user'],  'NOW()',     $_SESSION[get_db_tabla().'teljes_nev'], $_SESSION[get_db_tabla().'teljes_nev'] );
+                    array_push($mezok,   'anyag_szamla_recid', 'valtozott', 'loginnev',                        'insert_dt',         'insert_usr',                           'update_usr'                           );
+                    array_push($ertekek, $id,                  $valtozott,  $_SESSION[get_db_tabla().'user'],  date('Y-m-d H:i:s'), $_SESSION[get_db_tabla().'teljes_nev'], $_SESSION[get_db_tabla().'teljes_nev'] );
                     
                     $sql = $adatbazis_kapcsolat->i('anyag_szamla_tetel', $mezok, $ertekek);
                     if( $sql === false ) { $db_error = true; }
@@ -1409,8 +1409,8 @@ function i_u($type, $tabla, $tomb) {
 //                    $rownum = $adatbazis_kapcsolat->s2('MAX(`rownum`)', 'fenntartasi_szamla_tetel', "`fenntartasi_szamla_recid`='{$id}'");
 //                    $rownum = $rownum['MAX(`rownum`)']+1;
 //                    $sql = $adatbazis_kapcsolat->i('fenntartasi_szamla_tetel',
-//                                                        array('fenntartasi_szamla_recid', 'rownum', 'targy', 'netto_ert', 'dev_net', 'ktgnem_id', 'ktghely_id', 'valtozott', 'loginnev',                          'insert_dt',    'insert_usr',                             'update_usr'                              ),
-//                                                        array($id,                        $rownum,  $targy,  $netto_ert,  $dev_net,  $ktgnem,     $ktghely,     '1',         $_SESSION[get_db_tabla().'user'],    'NOW()',        $_SESSION[get_db_tabla().'teljes_nev'],   $_SESSION[get_db_tabla().'teljes_nev']    )
+//                                                        array('fenntartasi_szamla_recid', 'rownum', 'targy', 'netto_ert', 'dev_net', 'ktgnem_id', 'ktghely_id', 'valtozott', 'loginnev',                          'insert_dt',            'insert_usr',                             'update_usr'                              ),
+//                                                        array($id,                        $rownum,  $targy,  $netto_ert,  $dev_net,  $ktgnem,     $ktghely,     '1',         $_SESSION[get_db_tabla().'user'],    date('Y-m-d H:i:s'),    $_SESSION[get_db_tabla().'teljes_nev'],   $_SESSION[get_db_tabla().'teljes_nev']    )
 //                                                );
 //                }
 //                if( $sql === false ) { $db_error = true; }
@@ -1476,8 +1476,8 @@ function i_u($type, $tabla, $tomb) {
 
             // Kezdőstátusz beállítása
             $sql = $adatbazis_kapcsolat -> i($tabla.'_statusz',
-                                            array($tabla.'_recid',   'stat_id',               'login',                          'insert_dt', 'insert_usr',                              'update_usr'                          ),
-                                            array($id,               BEJELENTES_STAT_NYITOTT, $_SESSION[get_db_tabla().'user'], 'NOW()',     $_SESSION[get_db_tabla().'teljes_nev'],   $_SESSION[get_db_tabla().'teljes_nev'] )
+                                            array($tabla.'_recid',   'stat_id',               'login',                          'insert_dt',            'insert_usr',                              'update_usr'                          ),
+                                            array($id,               BEJELENTES_STAT_NYITOTT, $_SESSION[get_db_tabla().'user'], date('Y-m-d H:i:s'),    $_SESSION[get_db_tabla().'teljes_nev'],   $_SESSION[get_db_tabla().'teljes_nev'] )
                                         );
             if( $sql === false ) { $db_error = true; }
             $sql = $adatbazis_kapcsolat->u($tabla, array('stat_id'), array(BEJELENTES_STAT_NYITOTT), "`recid`='{$id}'");
@@ -1497,8 +1497,8 @@ function i_u($type, $tabla, $tomb) {
                     if( addStatusz( 'munkalap_statusz', $recid, MUNKALAP_STAT_HOZZARENDELT ) === false ) { $db_error = true; }
 
                     $sql = $adatbazis_kapcsolat -> i('munkalap_kapcs',
-                                                        array('munkalap_id', 'bejelentes_id',  'update_usr',                           'insert_dt',  'insert_usr',                            ),
-                                                        array($recid,        $id,              $_SESSION[get_db_tabla().'teljes_nev'], 'NOW()',       $_SESSION[get_db_tabla().'teljes_nev']  )
+                                                        array('munkalap_id', 'bejelentes_id',  'update_usr',                           'insert_dt',         'insert_usr',                            ),
+                                                        array($recid,        $id,              $_SESSION[get_db_tabla().'teljes_nev'], date('Y-m-d H:i:s'), $_SESSION[get_db_tabla().'teljes_nev']  )
                                                     );
                     if( $sql === false ) { $db_error = true; }
 
@@ -1539,8 +1539,8 @@ function i_u($type, $tabla, $tomb) {
         // Energia terv státusz beszúrása INSERT után
         if( $tabla == 'energia_terv' ) {
             $sql = $adatbazis_kapcsolat -> i($tabla.'_statusz',
-                                                array($tabla.'_recid', 'stat_id',                  'login',                          'insert_dt',    'insert_usr',                             'update_usr'                           ),
-                                                array($id,             ENERGIATERV_STAT_MUNKAKOZI, $_SESSION[get_db_tabla().'user'], 'NOW()',        $_SESSION[get_db_tabla().'teljes_nev'],   $_SESSION[get_db_tabla().'teljes_nev'] )
+                                                array($tabla.'_recid', 'stat_id',                  'login',                          'insert_dt',           'insert_usr',                             'update_usr'                           ),
+                                                array($id,             ENERGIATERV_STAT_MUNKAKOZI, $_SESSION[get_db_tabla().'user'], date('Y-m-d H:i:s'),   $_SESSION[get_db_tabla().'teljes_nev'],   $_SESSION[get_db_tabla().'teljes_nev'] )
                                             );
             if( $sql === false ) { $db_error = true; }
             $sql = $adatbazis_kapcsolat->u($tabla, array('stat_id'), array(ENERGIATERV_STAT_MUNKAKOZI), "`recid`='$id'");
@@ -1550,8 +1550,8 @@ function i_u($type, $tabla, $tomb) {
         // Előterjesztés (FB) státusz beszúrása INSERT után
         if( $tabla == 'eloterj_fb' ) {
             $sql = $adatbazis_kapcsolat -> i($tabla.'_statusz',
-                                                array($tabla.'_recid', 'stat_id',            'login',                           'insert_dt',    'insert_usr',                             'update_usr'                           ),
-                                                array($id,             ELOT_FB_STAT_NYITOTT, $_SESSION[get_db_tabla().'user'],  'NOW()',        $_SESSION[get_db_tabla().'teljes_nev'],   $_SESSION[get_db_tabla().'teljes_nev'] )
+                                                array($tabla.'_recid', 'stat_id',            'login',                           'insert_dt',            'insert_usr',                             'update_usr'                           ),
+                                                array($id,             ELOT_FB_STAT_NYITOTT, $_SESSION[get_db_tabla().'user'],  date('Y-m-d H:i:s'),    $_SESSION[get_db_tabla().'teljes_nev'],   $_SESSION[get_db_tabla().'teljes_nev'] )
                                             );
             if( $sql === false ) { $db_error = true; }
             $sql = $adatbazis_kapcsolat->u($tabla, array('stat_id'), array(ELOT_FB_STAT_NYITOTT), "`recid`='$id'");
@@ -1561,8 +1561,8 @@ function i_u($type, $tabla, $tomb) {
         // Előterjesztés (BoD) státusz beszúrása INSERT után
         if( $tabla == 'eloterj_bod' ) {
             $sql = $adatbazis_kapcsolat -> i($tabla.'_statusz',
-                                                array($tabla.'_recid', 'stat_id',             'login',                          'insert_dt',    'insert_usr',                             'update_usr'                           ),
-                                                array($id,             ELOT_BOD_STAT_NYITOTT, $_SESSION[get_db_tabla().'user'], 'NOW()',        $_SESSION[get_db_tabla().'teljes_nev'],   $_SESSION[get_db_tabla().'teljes_nev'] )
+                                                array($tabla.'_recid', 'stat_id',             'login',                          'insert_dt',            'insert_usr',                             'update_usr'                           ),
+                                                array($id,             ELOT_BOD_STAT_NYITOTT, $_SESSION[get_db_tabla().'user'], date('Y-m-d H:i:s'),    $_SESSION[get_db_tabla().'teljes_nev'],   $_SESSION[get_db_tabla().'teljes_nev'] )
                                             );
             if( $sql === false ) { $db_error = true; }
             $sql = $adatbazis_kapcsolat->u($tabla, array('stat_id'), array(ELOT_BOD_STAT_NYITOTT), "`recid`='$id'");
@@ -1666,8 +1666,8 @@ function i_u($type, $tabla, $tomb) {
                         array_push($ertekek, htmlspecialchars_decode($tetel[$mezo]));
                     }
 
-                    array_push($mezok,   'energia_szamla_recid', 'nullas', 'valtozott', 'loginnev',                        'insert_dt', 'insert_usr',                           'update_usr'                           );
-                    array_push($ertekek, $id,                    $nullas,  $valtozott,  $_SESSION[get_db_tabla().'user'],  'NOW()',     $_SESSION[get_db_tabla().'teljes_nev'], $_SESSION[get_db_tabla().'teljes_nev'] );
+                    array_push($mezok,   'energia_szamla_recid', 'nullas', 'valtozott', 'loginnev',                        'insert_dt',         'insert_usr',                           'update_usr'                           );
+                    array_push($ertekek, $id,                    $nullas,  $valtozott,  $_SESSION[get_db_tabla().'user'],  date('Y-m-d H:i:s'), $_SESSION[get_db_tabla().'teljes_nev'], $_SESSION[get_db_tabla().'teljes_nev'] );
 
                     $sql = $adatbazis_kapcsolat->i('energia_szamla_tetel', $mezok, $ertekek);
                     if( $sql === false ) { $db_error = true; }
@@ -1678,8 +1678,8 @@ function i_u($type, $tabla, $tomb) {
 //                    $rownum = $adatbazis_kapcsolat->s2('MAX(`rownum`)', 'fenntartasi_szamla_tetel', "`fenntartasi_szamla_recid`='{$id}'");
 //                    $rownum = $rownum['MAX(`rownum`)']+1;
 //                    $sql = $adatbazis_kapcsolat->i('fenntartasi_szamla_tetel',
-//                                                        array('fenntartasi_szamla_recid', 'rownum', 'targy', 'netto_ert', 'dev_net', 'ktgnem_id', 'ktghely_id', 'valtozott', 'loginnev',                          'insert_dt',    'insert_usr',                             'update_usr'                              ),
-//                                                        array($id,                        $rownum,  $targy,  $netto_ert,  $dev_net,  $ktgnem,     $ktghely,     '1',         $_SESSION[get_db_tabla().'user'],    'NOW()',        $_SESSION[get_db_tabla().'teljes_nev'],   $_SESSION[get_db_tabla().'teljes_nev']    )
+//                                                        array('fenntartasi_szamla_recid', 'rownum', 'targy', 'netto_ert', 'dev_net', 'ktgnem_id', 'ktghely_id', 'valtozott', 'loginnev',                          'insert_dt',            'insert_usr',                             'update_usr'                              ),
+//                                                        array($id,                        $rownum,  $targy,  $netto_ert,  $dev_net,  $ktgnem,     $ktghely,     '1',         $_SESSION[get_db_tabla().'user'],    date('Y-m-d H:i:s'),    $_SESSION[get_db_tabla().'teljes_nev'],   $_SESSION[get_db_tabla().'teljes_nev']    )
 //                                                );
 //                }
 //                if( $sql === false ) { $db_error = true; }
@@ -1743,8 +1743,8 @@ function i_u($type, $tabla, $tomb) {
             if( $sql === false ) { $db_error = true; }
 
             $sql = $adatbazis_kapcsolat -> i($tabla.'_statusz',
-                                                array($tabla.'_recid', 'stat_id',                       'login',                            'insert_dt',    'insert_usr',                             'update_usr'                           ),
-                                                array($id,             ESZKOZIGENYL_STAT_UJ_FELVITEL,   $_SESSION[get_db_tabla().'user'],   'NOW()',        $_SESSION[get_db_tabla().'teljes_nev'],   $_SESSION[get_db_tabla().'teljes_nev'] )
+                                                array($tabla.'_recid', 'stat_id',                       'login',                            'insert_dt',            'insert_usr',                             'update_usr'                           ),
+                                                array($id,             ESZKOZIGENYL_STAT_UJ_FELVITEL,   $_SESSION[get_db_tabla().'user'],   date('Y-m-d H:i:s'),    $_SESSION[get_db_tabla().'teljes_nev'],   $_SESSION[get_db_tabla().'teljes_nev'] )
                                             );
             if( $sql === false ) { $db_error = true; }
             $sql = $adatbazis_kapcsolat->u($tabla, array('stat_id'), array(ESZKOZIGENYL_STAT_UJ_FELVITEL), "`recid`='{$id}'");
@@ -1848,8 +1848,8 @@ function i_u($type, $tabla, $tomb) {
                         array_push($ertekek, htmlspecialchars_decode($tetel[$mezo]));
                     }
 
-                    array_push($mezok,   'fenntartasi_szamla_recid', 'valtozott', 'loginnev',                        'insert_dt', 'insert_usr',                           'update_usr'                           );
-                    array_push($ertekek, $id,                        $valtozott,  $_SESSION[get_db_tabla().'user'],  'NOW()',     $_SESSION[get_db_tabla().'teljes_nev'], $_SESSION[get_db_tabla().'teljes_nev'] );
+                    array_push($mezok,   'fenntartasi_szamla_recid', 'valtozott', 'loginnev',                        'insert_dt',           'insert_usr',                           'update_usr'                           );
+                    array_push($ertekek, $id,                        $valtozott,  $_SESSION[get_db_tabla().'user'],  date('Y-m-d H:i:s'),   $_SESSION[get_db_tabla().'teljes_nev'], $_SESSION[get_db_tabla().'teljes_nev'] );
 
                     $sql = $adatbazis_kapcsolat->i('fenntartasi_szamla_tetel', $mezok, $ertekek);
                     if( $sql === false ) { $db_error = true; }
@@ -1860,8 +1860,8 @@ function i_u($type, $tabla, $tomb) {
 //                    $rownum = $adatbazis_kapcsolat->s2('MAX(`rownum`)', 'fenntartasi_szamla_tetel', "`fenntartasi_szamla_recid`='{$id}'");
 //                    $rownum = $rownum['MAX(`rownum`)']+1;
 //                    $sql = $adatbazis_kapcsolat->i('fenntartasi_szamla_tetel',
-//                                                        array('fenntartasi_szamla_recid', 'rownum', 'targy', 'netto_ert', 'dev_net', 'ktgnem_id', 'ktghely_id', 'valtozott', 'loginnev',                          'insert_dt',    'insert_usr',                             'update_usr'                              ),
-//                                                        array($id,                        $rownum,  $targy,  $netto_ert,  $dev_net,  $ktgnem,     $ktghely,     '1',         $_SESSION[get_db_tabla().'user'],    'NOW()',        $_SESSION[get_db_tabla().'teljes_nev'],   $_SESSION[get_db_tabla().'teljes_nev']    )
+//                                                        array('fenntartasi_szamla_recid', 'rownum', 'targy', 'netto_ert', 'dev_net', 'ktgnem_id', 'ktghely_id', 'valtozott', 'loginnev',                          'insert_dt',            'insert_usr',                             'update_usr'                              ),
+//                                                        array($id,                        $rownum,  $targy,  $netto_ert,  $dev_net,  $ktgnem,     $ktghely,     '1',         $_SESSION[get_db_tabla().'user'],    date('Y-m-d H:i:s'),    $_SESSION[get_db_tabla().'teljes_nev'],   $_SESSION[get_db_tabla().'teljes_nev']    )
 //                                                );
 //                }
 //                if( $sql === false ) { $db_error = true; }
@@ -1923,8 +1923,8 @@ function i_u($type, $tabla, $tomb) {
 //                $rownum = $adatbazis_kapcsolat->s2('MAX(`rownum`)', 'fenntartasi_szerzodes_tetel', "`fenntartasi_szerzodes_recid`='{$id}'");
 //                $rownum = $rownum['MAX(`rownum`)']+1;
                 $sql = $adatbazis_kapcsolat->i('fenntartasi_szerzodes_tetel',
-                                                    array('fenntartasi_szerzodes_recid',    /*'rownum', */'telephely_id', 'targy', 'varh_erk', 'varh_ert',  'dev_varh_ert', 'telj_dt',  'netto_ert', 'dev_net', 'valtozott', 'loginnev',                          'insert_dt',    'insert_usr',                             'update_usr'                              ),
-                                                    array($id,                              /*$rownum,  */$telephely,     $targy,  $varh_erk,  $varh_ert,   $dev_varh_ert,  $telj_dt,   $netto_ert,  $dev_net,  '1',         $_SESSION[get_db_tabla().'user'],    'NOW()',        $_SESSION[get_db_tabla().'teljes_nev'],   $_SESSION[get_db_tabla().'teljes_nev']    )
+                                                    array('fenntartasi_szerzodes_recid',    /*'rownum', */'telephely_id', 'targy', 'varh_erk', 'varh_ert',  'dev_varh_ert', 'telj_dt',  'netto_ert', 'dev_net', 'valtozott', 'loginnev',                          'insert_dt',          'insert_usr',                             'update_usr'                              ),
+                                                    array($id,                              /*$rownum,  */$telephely,     $targy,  $varh_erk,  $varh_ert,   $dev_varh_ert,  $telj_dt,   $netto_ert,  $dev_net,  '1',         $_SESSION[get_db_tabla().'user'],    date('Y-m-d H:i:s'),  $_SESSION[get_db_tabla().'teljes_nev'],   $_SESSION[get_db_tabla().'teljes_nev']    )
                                             );
 
                 if( $sql === false ) { $db_error = true; }
@@ -1967,8 +1967,8 @@ function i_u($type, $tabla, $tomb) {
             foreach ( $adatok as $adat ) {
                 list($x, $telephely_id) = explode(':', $adat);
                 $sql = $adatbazis_kapcsolat->i('telephely_kapcs',
-                                                            array('nev',        'telephely_id', 'insert_dt',    'insert_usr',                             'update_usr'                           ),
-                                                            array($_POST['nev'], $telephely_id, 'NOW()',        $_SESSION[get_db_tabla().'teljes_nev'],   $_SESSION[get_db_tabla().'teljes_nev'] )
+                                                            array('nev',        'telephely_id', 'insert_dt',            'insert_usr',                             'update_usr'                           ),
+                                                            array($_POST['nev'], $telephely_id, date('Y-m-d H:i:s'),    $_SESSION[get_db_tabla().'teljes_nev'],   $_SESSION[get_db_tabla().'teljes_nev'] )
                                                 );
                 if( $sql === false ) { $db_error = true; }
             }
@@ -1980,8 +1980,8 @@ function i_u($type, $tabla, $tomb) {
                 // Részlegid-k felvétele, ha nem az adatlap részlege
                 if( $reszleg_id != $_POST['reszleg_id'] ) {
                     $sql = $adatbazis_kapcsolat->i('login_tarsreszleg',
-                                                                array('login_id',   'reszleg_id', 'insert_dt',    'insert_usr',                             ),
-                                                                array($id,          $reszleg_id,  'NOW()',        $_SESSION[get_db_tabla().'teljes_nev']    )
+                                                                array('login_id',   'reszleg_id', 'insert_dt',          'insert_usr',                             ),
+                                                                array($id,          $reszleg_id,  date('Y-m-d H:i:s'),  $_SESSION[get_db_tabla().'teljes_nev']    )
                                                     );
                 }
                 if( $sql === false ) { $db_error = true; }
@@ -1995,8 +1995,8 @@ function i_u($type, $tabla, $tomb) {
             // Bizonyos személyzettípusok esetén a törzsadat párját is létre kell hozni
             if( in_array($_POST['szemelyzet_id'], loginbol_torzsadatot_szemelyzetek() ) ) {
                 $torzs_id = $adatbazis_kapcsolat->i('torzsadat',
-                                                array('nev',                'felh_loginnev', 'virtual',         'aktiv',            'insert_dt',    'insert_usr'                            ),
-                                                array($_POST['teljes_nev'], $_POST['nev'],   $_POST['virtual'], $_POST['aktiv'],    'NOW()',        $_SESSION[get_db_tabla().'teljes_nev']  )
+                                                array('nev',                'felh_loginnev', 'virtual',         'aktiv',            'insert_dt',            'insert_usr'                            ),
+                                                array($_POST['teljes_nev'], $_POST['nev'],   $_POST['virtual'], $_POST['aktiv'],    date('Y-m-d H:i:s'),    $_SESSION[get_db_tabla().'teljes_nev']  )
                                         );
                 if( $torzs_id === false ) { $db_error = true; }
                 
@@ -2006,8 +2006,8 @@ function i_u($type, $tabla, $tomb) {
                 }
                 
                 // Napi munkaidő beállítása
-                $sql = $adatbazis_kapcsolat->i('torzsadat_napi_munkaido',   array('torzsadat_recid', 'datum',       'ora',  'insert_dt',    'insert_usr'                            ),
-                                                                            array($torzs_id,         date('Y-m-d'), 8,      'NOW()',        $_SESSION[get_db_tabla().'teljes_nev']  )
+                $sql = $adatbazis_kapcsolat->i('torzsadat_napi_munkaido',   array('torzsadat_recid', 'datum',       'ora',  'insert_dt',            'insert_usr'                            ),
+                                                                            array($torzs_id,         date('Y-m-d'), 8,      date('Y-m-d H:i:s'),    $_SESSION[get_db_tabla().'teljes_nev']  )
                                                 );
                 if( $sql === false ) { $db_error = true; }
             }
@@ -2039,8 +2039,8 @@ function i_u($type, $tabla, $tomb) {
 //                $rownum = $adatbazis_kapcsolat->s2('MAX(`rownum`)', 'megallapodas_tetel', "`megallapodas_recid`='{$id}'");
 //                $rownum = $rownum['MAX(`rownum`)']+1;
                 $sql = $adatbazis_kapcsolat->i('megallapodas_tetel',
-                                                    array('megallapodas_recid', /*'rownum', */'telephely_id', 'targy', 'varh_erk', 'varh_ert',  'dev_varh_ert', 'telj_dt',  'netto_ert', 'dev_net', 'valtozott', 'loginnev',                          'insert_dt',    'insert_usr',                             'update_usr'                              ),
-                                                    array($id,                  /*$rownum,  */$telephely,     $targy,  $varh_erk,  $varh_ert,   $dev_varh_ert,  $telj_dt,   $netto_ert,  $dev_net,  '1',         $_SESSION[get_db_tabla().'user'],    'NOW()',        $_SESSION[get_db_tabla().'teljes_nev'],   $_SESSION[get_db_tabla().'teljes_nev']    )
+                                                    array('megallapodas_recid', /*'rownum', */'telephely_id', 'targy', 'varh_erk', 'varh_ert',  'dev_varh_ert', 'telj_dt',  'netto_ert', 'dev_net', 'valtozott', 'loginnev',                          'insert_dt',          'insert_usr',                             'update_usr'                              ),
+                                                    array($id,                  /*$rownum,  */$telephely,     $targy,  $varh_erk,  $varh_ert,   $dev_varh_ert,  $telj_dt,   $netto_ert,  $dev_net,  '1',         $_SESSION[get_db_tabla().'user'],    date('Y-m-d H:i:s'),  $_SESSION[get_db_tabla().'teljes_nev'],   $_SESSION[get_db_tabla().'teljes_nev']    )
                                             );
 
                 if( $sql === false ) { $db_error = true; }
@@ -2129,8 +2129,8 @@ function i_u($type, $tabla, $tomb) {
                         array_push($ertekek, htmlspecialchars_decode($tetel[$mezo]));
                     }
 
-                    array_push($mezok,   'megallapodas_szamla_recid', 'valtozott', 'loginnev',                        'insert_dt', 'insert_usr',                           'update_usr'                           );
-                    array_push($ertekek, $id,                         $valtozott,  $_SESSION[get_db_tabla().'user'],  'NOW()',     $_SESSION[get_db_tabla().'teljes_nev'], $_SESSION[get_db_tabla().'teljes_nev'] );
+                    array_push($mezok,   'megallapodas_szamla_recid', 'valtozott', 'loginnev',                        'insert_dt',          'insert_usr',                           'update_usr'                           );
+                    array_push($ertekek, $id,                         $valtozott,  $_SESSION[get_db_tabla().'user'],  date('Y-m-d H:i:s'),  $_SESSION[get_db_tabla().'teljes_nev'], $_SESSION[get_db_tabla().'teljes_nev'] );
 
                     $sql = $adatbazis_kapcsolat->i('megallapodas_szamla_tetel', $mezok, $ertekek);
                     if( $sql === false ) { $db_error = true; }
@@ -2177,8 +2177,8 @@ function i_u($type, $tabla, $tomb) {
                 if( $munk_kapcs ) {
                     foreach($munk_kapcs as $mkapcs) {
                         $sql = $adatbazis_kapcsolat -> i('munkalap_kapcs',
-                                                            array('munkalap_id', 'bejelentes_id',          'insert_dt',  'insert_usr',                               'update_usr'                             ),
-                                                            array($id,           $mkapcs['bejelentes_id'], 'NOW()',       $_SESSION[get_db_tabla().'teljes_nev'],    $_SESSION[get_db_tabla().'teljes_nev']   )
+                                                            array('munkalap_id', 'bejelentes_id',          'insert_dt',         'insert_usr',                               'update_usr'                             ),
+                                                            array($id,           $mkapcs['bejelentes_id'], date('Y-m-d H:i:s'), $_SESSION[get_db_tabla().'teljes_nev'],    $_SESSION[get_db_tabla().'teljes_nev']   )
                                                         );
                         if( $sql === false ) { $db_error = true; }
 
@@ -2189,8 +2189,8 @@ function i_u($type, $tabla, $tomb) {
             // Bejelentésből újként szerkesztve
             if( $_POST['ujkentSzerkBejelentesbol'] ) {
                 $sql = $adatbazis_kapcsolat -> i('munkalap_kapcs',
-                                                    array('munkalap_id', 'bejelentes_id',                    'insert_dt',  'insert_usr',                               'update_usr'                             ),
-                                                    array($id,           $_POST['ujkentSzerkBejelentesbol'], 'NOW()',       $_SESSION[get_db_tabla().'teljes_nev'],    $_SESSION[get_db_tabla().'teljes_nev']   )
+                                                    array('munkalap_id', 'bejelentes_id',                    'insert_dt',           'insert_usr',                               'update_usr'                             ),
+                                                    array($id,           $_POST['ujkentSzerkBejelentesbol'], date('Y-m-d H:i:s'),   $_SESSION[get_db_tabla().'teljes_nev'],    $_SESSION[get_db_tabla().'teljes_nev']   )
                                                 );
                 if( $sql === false ) { $db_error = true; }
 
@@ -2203,8 +2203,8 @@ function i_u($type, $tabla, $tomb) {
 
             // Felvesszük az első státuszt
             $sql = $adatbazis_kapcsolat -> i($tabla.'_statusz',
-                                                array($tabla.'_recid', 'stat_id',               'login',                           'insert_dt',    'insert_usr',                              'update_usr'                          ),
-                                                array($id,              MUNKALAP_STAT_NYITOTT,  $_SESSION[get_db_tabla().'user'],  'NOW()',        $_SESSION[get_db_tabla().'teljes_nev'],    $_SESSION[get_db_tabla().'teljes_nev'] )
+                                                array($tabla.'_recid', 'stat_id',               'login',                           'insert_dt',         'insert_usr',                              'update_usr'                          ),
+                                                array($id,              MUNKALAP_STAT_NYITOTT,  $_SESSION[get_db_tabla().'user'],  date('Y-m-d H:i:s'), $_SESSION[get_db_tabla().'teljes_nev'],    $_SESSION[get_db_tabla().'teljes_nev'] )
                                             );
             if( $sql === false ) { $db_error = true; }
             $sql = $adatbazis_kapcsolat->u($tabla, array('stat_id'), array(MUNKALAP_STAT_NYITOTT), "`recid`='$id'");
@@ -2223,8 +2223,8 @@ function i_u($type, $tabla, $tomb) {
         if( $tabla == 'projektigenyles' ) {
 
             $sql = $adatbazis_kapcsolat -> i($tabla.'_statusz',
-                                                array($tabla.'_recid', 'stat_id',                'login',                           'insert_dt',    'insert_usr',                             'update_usr'                           ),
-                                                array($id,             PRIGENY_STAT_LETRE_ALATT, $_SESSION[get_db_tabla().'user'],  'NOW()',        $_SESSION[get_db_tabla().'teljes_nev'],   $_SESSION[get_db_tabla().'teljes_nev'] )
+                                                array($tabla.'_recid', 'stat_id',                'login',                           'insert_dt',            'insert_usr',                             'update_usr'                           ),
+                                                array($id,             PRIGENY_STAT_LETRE_ALATT, $_SESSION[get_db_tabla().'user'],  date('Y-m-d H:i:s'),    $_SESSION[get_db_tabla().'teljes_nev'],   $_SESSION[get_db_tabla().'teljes_nev'] )
                                             );
             if( $sql === false ) { $db_error = true; }
             $sql = $adatbazis_kapcsolat->u($tabla, array('stat_id'), array(PRIGENY_STAT_LETRE_ALATT), "`recid`='$id'");
@@ -2244,8 +2244,8 @@ function i_u($type, $tabla, $tomb) {
                 
                 foreach( $cash_flow as $cf ) {
                     $cf_nev_id = $adatbazis_kapcsolat->i('projektkezeles_cashflow_nev', 
-                                                            array('projektkezeles_recid',  'telephely_id',      'login',                            'insert_dt', 'insert_usr',                              'update_usr'                            ),
-                                                            array($id,                     $cf['telephely_id'], $_SESSION[get_db_tabla().'user'],   'NOW()',     $_SESSION[get_db_tabla().'teljes_nev'],    $_SESSION[get_db_tabla().'teljes_nev']  )
+                                                            array('projektkezeles_recid',  'telephely_id',      'login',                            'insert_dt',            'insert_usr',                              'update_usr'                            ),
+                                                            array($id,                     $cf['telephely_id'], $_SESSION[get_db_tabla().'user'],   date('Y-m-d H:i:s'),    $_SESSION[get_db_tabla().'teljes_nev'],    $_SESSION[get_db_tabla().'teljes_nev']  )
                                                         );
                     if( $cf_nev_id === false ) { $db_error = true; }
                     
@@ -2253,8 +2253,8 @@ function i_u($type, $tabla, $tomb) {
                     if( $cash_flow_datumok === false ) { $db_error = true; }
                     foreach( $cash_flow_datumok as $cf_datumok ) {
                         $sql = $adatbazis_kapcsolat->i('projektkezeles_cashflow', 
-                                                                array('projektkezeles_recid', 'cashflow_nev_recid', 'datum',                'terv',                 'login',                            'insert_dt', 'insert_usr',                              'update_usr'                            ),
-                                                                array($id,                    $cf_nev_id,           $cf_datumok['datum'],   $cf_datumok['osszeg'],  $_SESSION[get_db_tabla().'user'],   'NOW()',     $_SESSION[get_db_tabla().'teljes_nev'],    $_SESSION[get_db_tabla().'teljes_nev']  )
+                                                                array('projektkezeles_recid', 'cashflow_nev_recid', 'datum',                'terv',                 'login',                            'insert_dt',            'insert_usr',                              'update_usr'                            ),
+                                                                array($id,                    $cf_nev_id,           $cf_datumok['datum'],   $cf_datumok['osszeg'],  $_SESSION[get_db_tabla().'user'],   date('Y-m-d H:i:s'),    $_SESSION[get_db_tabla().'teljes_nev'],    $_SESSION[get_db_tabla().'teljes_nev']  )
                                                     );
                         if( $sql === false ) { $db_error = true; }
                     }
@@ -2263,8 +2263,8 @@ function i_u($type, $tabla, $tomb) {
             }
             
             $sql = $adatbazis_kapcsolat -> i($tabla.'_statusz',
-                                                array($tabla.'_recid', 'stat_id',             'login',                          'insert_dt',    'insert_usr',                             'update_usr'                           ),
-                                                array($id,             PRKEZEL_STAT_NYITOTT,  $_SESSION[get_db_tabla().'user'], 'NOW()',        $_SESSION[get_db_tabla().'teljes_nev'],   $_SESSION[get_db_tabla().'teljes_nev'] )
+                                                array($tabla.'_recid', 'stat_id',             'login',                          'insert_dt',            'insert_usr',                             'update_usr'                           ),
+                                                array($id,             PRKEZEL_STAT_NYITOTT,  $_SESSION[get_db_tabla().'user'], date('Y-m-d H:i:s'),    $_SESSION[get_db_tabla().'teljes_nev'],   $_SESSION[get_db_tabla().'teljes_nev'] )
                                             );
             if( $sql === false ) { $db_error = true; }
             $sql = $adatbazis_kapcsolat->u($tabla, array('stat_id'), array(PRKEZEL_STAT_NYITOTT), "`recid`='{$id}'");
@@ -2369,8 +2369,8 @@ function i_u($type, $tabla, $tomb) {
                         array_push($ertekek, htmlspecialchars_decode($tetel[$mezo]));
                     }
 
-                    array_push($mezok,   'projektszamla_recid', 'valtozott', 'loginnev',                        'insert_dt', 'insert_usr',                           'update_usr'                           );
-                    array_push($ertekek, $id,                   $valtozott,  $_SESSION[get_db_tabla().'user'],  'NOW()',     $_SESSION[get_db_tabla().'teljes_nev'], $_SESSION[get_db_tabla().'teljes_nev'] );
+                    array_push($mezok,   'projektszamla_recid', 'valtozott', 'loginnev',                        'insert_dt',            'insert_usr',                           'update_usr'                           );
+                    array_push($ertekek, $id,                   $valtozott,  $_SESSION[get_db_tabla().'user'],  date('Y-m-d H:i:s'),    $_SESSION[get_db_tabla().'teljes_nev'], $_SESSION[get_db_tabla().'teljes_nev'] );
 
                     $sql = $adatbazis_kapcsolat->i('projektszamla_tetel', $mezok, $ertekek);
                     if( $sql === false ) { $db_error = true; }
@@ -2381,8 +2381,8 @@ function i_u($type, $tabla, $tomb) {
 //                    $rownum = $adatbazis_kapcsolat->s2('MAX(`rownum`)', 'projektszamla_tetel', "`projektszamla_recid`='{$id}'");
 //                    $rownum = $rownum['MAX(`rownum`)']+1;
 //                    $sql = $adatbazis_kapcsolat->i('projektszamla_tetel',
-//                                                        array('projektszamla_recid', 'rownum', 'targy', 'netto_ert', 'dev_net', 'ktgnem_id', 'ktghely_id', 'valtozott', 'loginnev',                          'insert_dt',    'insert_usr',                             'update_usr'                              ),
-//                                                        array($id,                   $rownum,  $targy,  $netto_ert,  $dev_net,  $ktgnem,     $ktghely,     '1',         $_SESSION[get_db_tabla().'user'],    'NOW()',        $_SESSION[get_db_tabla().'teljes_nev'],   $_SESSION[get_db_tabla().'teljes_nev']    )
+//                                                        array('projektszamla_recid', 'rownum', 'targy', 'netto_ert', 'dev_net', 'ktgnem_id', 'ktghely_id', 'valtozott', 'loginnev',                          'insert_dt',         'insert_usr',                             'update_usr'                              ),
+//                                                        array($id,                   $rownum,  $targy,  $netto_ert,  $dev_net,  $ktgnem,     $ktghely,     '1',         $_SESSION[get_db_tabla().'user'],    date('Y-m-d H:i:s'), $_SESSION[get_db_tabla().'teljes_nev'],   $_SESSION[get_db_tabla().'teljes_nev']    )
 //                                                );
 //                }
                 if( $sql === false ) { $db_error = true; }
@@ -2433,8 +2433,8 @@ function i_u($type, $tabla, $tomb) {
                     $varh_ert = round($dev_net*$arfolyam);
                 }
                 $sql = $adatbazis_kapcsolat->i('projektszerzodes_tetel',
-                                                    array('projektszerzodes_recid', 'targy', 'varh_erk', 'varh_ert', 'dev_varh_ert', 'loginnev',                          'insert_dt',    'insert_usr',                             'update_usr'                              ),
-                                                    array($id,                      $targy,  $varh_erk,  $varh_ert,  $dev_net,       $_SESSION[get_db_tabla().'user'],    'NOW()',        $_SESSION[get_db_tabla().'teljes_nev'],   $_SESSION[get_db_tabla().'teljes_nev']    )
+                                                    array('projektszerzodes_recid', 'targy', 'varh_erk', 'varh_ert', 'dev_varh_ert', 'loginnev',                          'insert_dt',          'insert_usr',                             'update_usr'                              ),
+                                                    array($id,                      $targy,  $varh_erk,  $varh_ert,  $dev_net,       $_SESSION[get_db_tabla().'user'],    date('Y-m-d H:i:s'),  $_SESSION[get_db_tabla().'teljes_nev'],   $_SESSION[get_db_tabla().'teljes_nev']    )
                                             );
                 if( $sql === false ) { $db_error = true; }
                 
@@ -3511,8 +3511,8 @@ function i_u($type, $tabla, $tomb) {
                     $sql = $adatbazis_kapcsolat->d('projektszamla_tetel', "`projektszamla_recid`='{$_GET['id']}'");
                     if( $sql === false ) { $db_error = true; }
                     
-                    $sql = $adatbazis_kapcsolat->i('projektszamla_tetel',   array('projektszamla_recid',    'targy',        'insert_dt', 'insert_usr'   ),
-                                                                            array($_GET['id'],              'Nullás tétel', 'NOW()',     get_nev()      )
+                    $sql = $adatbazis_kapcsolat->i('projektszamla_tetel',   array('projektszamla_recid',    'targy',        'insert_dt',            'insert_usr'   ),
+                                                                            array($_GET['id'],              'Nullás tétel', date('Y-m-d H:i:s'),    get_nev()      )
                                                 );
                     if( $sql === false ) { $db_error = true; }
                 }
@@ -10792,7 +10792,7 @@ function addStatusz( $tabla = false, $recid = false, $stat_id = false, $erteklis
         $now  = $adott_ido;
         $time = strtotime($adott_ido);
     } else {
-        $now  = 'NOW()';
+        $now  = date('Y-m-d H:i:s'); // Direkt nem 'NOW()', hogy még véletlen se legyen abból gond, hogy más az idő az SQL-ben mint PHP-ban
         $time = time();
     }
     
@@ -10949,7 +10949,7 @@ function addStatusz( $tabla = false, $recid = false, $stat_id = false, $erteklis
 
             // Az anyagigénylés ha beérkezett státuszt kap, akkor ezt az időpontot eltároljuk az anyagigénylése táblába is, mert eszerint szeretnénk tudni azt rendezni is
             if ($tabla == 'anyagigenyles_statusz' && $stat_id == CIKKIGN_STAT_BEERKEZETT) {
-                $sql = $adatbazis_kapcsolat->u('anyagigenyles', array('beerkezett'), array('NOW()'), "`recid`='{$recid}'");
+                $sql = $adatbazis_kapcsolat->u('anyagigenyles', array('beerkezett'), array(date('Y-m-d H:i:s')), "`recid`='{$recid}'");
                 if( $sql === false ) { $db_error = true; }
             }
 
@@ -10980,8 +10980,8 @@ function addMegj( $tabla, $id, $megj, $user_nev = '', $user_irta = '' ) {
         }
 
         $szerepkor = getSzerepkorNev($_SESSION[get_db_tabla().'szemelyzet_id']);
-        $mezok   = array('tabla', 'id', 'megj', 'loginnev',                       'szerepkor',                                 'szerepkor_txt',    'update_usr',   'insert_dt', 'insert_usr'   );
-        $ertekek = array($tabla,  $id, $megj,   $_SESSION[get_db_tabla().'user'], $_SESSION[get_db_tabla().'szemelyzet_id'],   $szerepkor,         $db_be_usr,     'NOW()',      $db_be_usr    );
+        $mezok   = array('tabla', 'id', 'megj', 'loginnev',                       'szerepkor',                                 'szerepkor_txt',    'update_usr',   'insert_dt',         'insert_usr'  );
+        $ertekek = array($tabla,  $id, $megj,   $_SESSION[get_db_tabla().'user'], $_SESSION[get_db_tabla().'szemelyzet_id'],   $szerepkor,         $db_be_usr,     date('Y-m-d H:i:s'), $db_be_usr    );
         if( $user_irta ) {
             array_push($mezok,   'user' );
             array_push($ertekek, 1      );
@@ -12056,8 +12056,8 @@ function bejelentes_dok_munkalapba_masol($bejelentes_id, $munkalap_id){
         // Fájl másolása
         copy($utvonal_regi.$doc['utvonal'], $utvonal.$fajlnev);
 
-        $sql = $adatbazis_kapcsolat->i('munkalap_dok',  array('munkalap_id', 'utvonal',                                                 'fajlnev',       'loginnev',      'insert_dt',    'insert_usr',                              'update_usr'                             ),
-                                                        array($munkalap_id,  str_replace('/', '_', $munkalap['ikt_szam']).'/'.$fajlnev, $doc['fajlnev'], $doc['loginnev'],'NOW()',        $_SESSION[get_db_tabla().'teljes_nev'],    $_SESSION[get_db_tabla().'teljes_nev']   )
+        $sql = $adatbazis_kapcsolat->i('munkalap_dok',  array('munkalap_id', 'utvonal',                                                 'fajlnev',       'loginnev',      'insert_dt',          'insert_usr',                              'update_usr'                             ),
+                                                        array($munkalap_id,  str_replace('/', '_', $munkalap['ikt_szam']).'/'.$fajlnev, $doc['fajlnev'], $doc['loginnev'],date('Y-m-d H:i:s'),  $_SESSION[get_db_tabla().'teljes_nev'],    $_SESSION[get_db_tabla().'teljes_nev']   )
                                         );
         if( $sql === false ) { $db_error = true; }
     }
@@ -12293,8 +12293,8 @@ function level_felkeszit_es_kuld( $tabla = '', $recid = '', $ert_pipa = '', $sab
             if( $_SERVER['HTTP_HOST'] == 'dev.onteam.hu' ) {
 
                 $azon = jelszot_keszit(10);
-                $adatbazis_kapcsolat -> u('login',  array('azon_kod', 'azon_dt'),
-                                                    array($azon,      'NOW()'  ),
+                $adatbazis_kapcsolat -> u('login',  array('azon_kod', 'azon_dt'             ),
+                                                    array($azon,      date('Y-m-d H:i:s')   ),
                                         "`recid`='{$recid}'");
 
                 $domain     = get_http().$_SERVER['HTTP_HOST'].'/'.get_admin().'?a='.$azon;
@@ -13588,15 +13588,15 @@ function munkalap_letrehoz($stat_id, $telephely_id, $tipus_id, $obj_id, $gep_id,
     // Munkalap beszúrása
     // A tipusát backupként is eltároljuk, hogy tudjuk, mi volt eredetileg (a sima tipus_id sem változhat, de az a tuti, ha duplán benne van, mert készre jelentéskor nem mindegy, milyen tipusú volt eredetileg, melyik táblát kell majd updatelni)
     $recid = $adatbazis_kapcsolat -> i('munkalap',
-                                        array('ikt_szam',   'stat_id',  'tipus_id', 'tipus_id_back',    'surgos',  'telephely_id', 'obj_id', 'obj_txt', 'gep_id', 'gep_txt', 'hiba_id', 'hiba_txt', 'text', 'szemelyzet_id', 'szallito_id', 'uf_szam', 'esnap_d', 'loginnev',     'update_usr',         'insert_dt',    'insert_usr'           ),
-                                        array($ikt_szam,     $stat_id,  $tipus_id,  $tipus_id,          $surgos,   $telephely_id,  $obj_id,  $obj_txt,  $gep_id,  $gep_txt,  $hiba_id,  $hiba_txt,  $text,  $szemelyzet_id,  $szallito_id,  $uf_szam,  $esnap_d,  $login['nev'],  $login['teljes_nev'], 'NOW()',        $login['teljes_nev']   )
+                                        array('ikt_szam',   'stat_id',  'tipus_id', 'tipus_id_back',    'surgos',  'telephely_id', 'obj_id', 'obj_txt', 'gep_id', 'gep_txt', 'hiba_id', 'hiba_txt', 'text', 'szemelyzet_id', 'szallito_id', 'uf_szam', 'esnap_d', 'loginnev',     'update_usr',         'insert_dt',            'insert_usr'           ),
+                                        array($ikt_szam,     $stat_id,  $tipus_id,  $tipus_id,          $surgos,   $telephely_id,  $obj_id,  $obj_txt,  $gep_id,  $gep_txt,  $hiba_id,  $hiba_txt,  $text,  $szemelyzet_id,  $szallito_id,  $uf_szam,  $esnap_d,  $login['nev'],  $login['teljes_nev'], date('Y-m-d H:i:s'),    $login['teljes_nev']   )
                                     );
     if( $recid === false ) { $db_error = true; }
 
     // Felvesszük az első státuszt
     $sql = $adatbazis_kapcsolat -> i('munkalap_statusz',
-                                        array('munkalap_recid', 'stat_id',  'login',        'insert_dt',    'insert_usr',            'update_usr'            ),
-                                        array($recid,           $stat_id,   $login['nev'],  'NOW()',        $login['teljes_nev'],    $login['teljes_nev']    )
+                                        array('munkalap_recid', 'stat_id',  'login',        'insert_dt',            'insert_usr',            'update_usr'            ),
+                                        array($recid,           $stat_id,   $login['nev'],  date('Y-m-d H:i:s'),    $login['teljes_nev'],    $login['teljes_nev']    )
                                     );
     if( $sql === false ) { $db_error = true; }
 
@@ -15083,8 +15083,8 @@ function csatolmanyok_eltesz($fajlok, $utvonal, $email_recid, $ml_recid, $tabla)
             $fajlnev = basename($fajl);
             copy($fajl, $utvonal.'/'.$email_recid.'/'. $fajlnev);
             unlink($fajl);
-            $sql = $adatbazis_kapcsolat->i($tabla.'_email_dok',     array($tabla.'_recid',  'email_recid', 'fajlnev', 'loginnev',                       'update_dt',  'update_usr',                           'insert_dt', 'insert_usr'                              ),
-                                                                    array($ml_recid,        $email_recid,  $fajlnev,  $_SESSION[get_db_tabla().'user'], 'NOW()',      $_SESSION[get_db_tabla().'teljes_nev'], 'NOW()',      $_SESSION[get_db_tabla().'teljes_nev']   )
+            $sql = $adatbazis_kapcsolat->i($tabla.'_email_dok',     array($tabla.'_recid',  'email_recid', 'fajlnev', 'loginnev',                       'update_dt',            'update_usr',                           'insert_dt',            'insert_usr'                              ),
+                                                                    array($ml_recid,        $email_recid,  $fajlnev,  $_SESSION[get_db_tabla().'user'], date('Y-m-d H:i:s'),    $_SESSION[get_db_tabla().'teljes_nev'], date('Y-m-d H:i:s'),    $_SESSION[get_db_tabla().'teljes_nev']   )
                                             );
             if( $sql === false ) { $db_error = true; }
         }
@@ -15203,8 +15203,8 @@ function pr_szerzodes_jotallas_beallit( $pr_szerzodes_id, $gar_kezd = '', $gar_v
         // Ha csak a garancia vége időpont van megadva (azaz nincs kezdő dátum)
         $ger_kezd_plusz_egy_ev = date('Y-m-d', strtotime("+12 months {$gar_kezd}"));
         if( !$gar_kezd || $gar_kezd=='0000-00-00' || ( $gar_kezd && $ger_kezd_plusz_egy_ev >= $gar_vege ) ) {
-            $sql = $adatbazis_kapcsolat->i('projektszerzodes_jotallas', array('projektszerzodes_recid',     'bejaras',  'loginnev',                         'insert_dt',    'insert_usr',                             'update_usr'                              ),
-                                                                        array($pr_szerzodes_id,             $gar_vege,  $_SESSION[get_db_tabla().'user'],   'NOW()',        $_SESSION[get_db_tabla().'teljes_nev'],   $_SESSION[get_db_tabla().'teljes_nev']    )
+            $sql = $adatbazis_kapcsolat->i('projektszerzodes_jotallas', array('projektszerzodes_recid',     'bejaras',  'loginnev',                         'insert_dt',            'insert_usr',                             'update_usr'                              ),
+                                                                        array($pr_szerzodes_id,             $gar_vege,  $_SESSION[get_db_tabla().'user'],   date('Y-m-d H:i:s'),    $_SESSION[get_db_tabla().'teljes_nev'],   $_SESSION[get_db_tabla().'teljes_nev']    )
                                             );
             if( $sql === false ) { $db_error = true; }
 
@@ -15216,14 +15216,14 @@ function pr_szerzodes_jotallas_beallit( $pr_szerzodes_id, $gar_kezd = '', $gar_v
             if( $ger_kezd_plusz_egy_ev <= $gar_vege ) {
 
                 while( $akt_kezd < $gar_vege ) {
-                    $sql = $adatbazis_kapcsolat->i('projektszerzodes_jotallas', array('projektszerzodes_recid',     'bejaras',  'loginnev',                         'insert_dt',    'insert_usr',                             'update_usr'                              ),
-                                                                                array($pr_szerzodes_id,             $akt_kezd,  $_SESSION[get_db_tabla().'user'],   'NOW()',        $_SESSION[get_db_tabla().'teljes_nev'],   $_SESSION[get_db_tabla().'teljes_nev']    )
+                    $sql = $adatbazis_kapcsolat->i('projektszerzodes_jotallas', array('projektszerzodes_recid',     'bejaras',  'loginnev',                         'insert_dt',            'insert_usr',                             'update_usr'                              ),
+                                                                                array($pr_szerzodes_id,             $akt_kezd,  $_SESSION[get_db_tabla().'user'],   date('Y-m-d H:i:s'),    $_SESSION[get_db_tabla().'teljes_nev'],   $_SESSION[get_db_tabla().'teljes_nev']    )
                                                     );
                     if( $sql === false ) { $db_error = true; }
                     $akt_kezd = date('Y-m-d', strtotime("+12 months {$akt_kezd}"));
                 }
-                $sql = $adatbazis_kapcsolat->i('projektszerzodes_jotallas', array('projektszerzodes_recid',     'bejaras',  'loginnev',                         'insert_dt',    'insert_usr',                             'update_usr'                              ),
-                                                                            array($pr_szerzodes_id,             $gar_vege,  $_SESSION[get_db_tabla().'user'],   'NOW()',        $_SESSION[get_db_tabla().'teljes_nev'],   $_SESSION[get_db_tabla().'teljes_nev']    )
+                $sql = $adatbazis_kapcsolat->i('projektszerzodes_jotallas', array('projektszerzodes_recid',     'bejaras',  'loginnev',                         'insert_dt',            'insert_usr',                             'update_usr'                              ),
+                                                                            array($pr_szerzodes_id,             $gar_vege,  $_SESSION[get_db_tabla().'user'],   date('Y-m-d H:i:s'),    $_SESSION[get_db_tabla().'teljes_nev'],   $_SESSION[get_db_tabla().'teljes_nev']    )
                                                 );
                 if( $sql === false ) { $db_error = true; }
             }

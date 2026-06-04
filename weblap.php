@@ -169,7 +169,8 @@ if( $_GET['id'] && !isset($_GET['no_lista']) && self('-bn-') != 'eszkozigenyles.
 // Ha van id, akkor ellenőrizzük, hogy én azt láthatom-e. A legfrissebbnél ezt nem tudjuk eljátszani, mert ott nincs minden id a session-ban (túl sok is volna). Itt ha rendezést állítunk (pl. Z-A), akkor nem lehetne megnyitni adott rekordot. 
 // Illetve ha dashboard-ról jövök és eszkozigenyles.php alatt vagyunk, akkor se ellenőrizzük ezt, mert státusz léptetés után az adatlapon állítva az előző/következő nyilak léptetéséne nem működne
 // hisz a frissen léptetett rekord már nincs benne a $_SESSION[csonkit(basename(self()), 4).'_idk'] tömbben
-if( $_GET['id'] && $_GET['mezo']!='legfrissebb' && !($_SESSION['dashboard_feladat'] && self('-bn-') == 'eszkozigenyles.php') ) {
+// !isset($_GET['tablazat']) => ha táblázat nézetre lépünk (pl. eszközigénléseknél), akkor ne ez íródjon ki a képernyőre, engedjük tovább a működést, kirajzolni a többi rekordot, a nem található úgy sem lesz benne
+if( $_GET['id'] && $_GET['mezo']!='legfrissebb' && !($_SESSION['dashboard_feladat'] && self('-bn-') == 'eszkozigenyles.php') && !isset($_GET['tablazat']) ) {
     if( !in_array($_GET['id'], $_SESSION[csonkit(basename(self()), 4).'_idk']) ){
         echo json_encode( array('hiba' => 'A kért rekord nem jeleníthető meg!') );
         exit;

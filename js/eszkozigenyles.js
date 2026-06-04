@@ -820,7 +820,10 @@ function megrendelok_elkeszit(mehet) {
         });
         return false;
     }
-    
+
+
+    // Elküldendő adatok
+    alert2('<div class="progress-bar-uzenet escape_re_ne_zard_be">Megrendelők elkészítése,&nbsp;ez hosszabb ideig is eltarthat...</div><div class="progress-bar loading"><span></span></div><div class="progress-bar-percent"></div>', '&nbsp;', 'Üzenet');
     $.ajax({
         url : PHP_SELF,
         type: 'POST',
@@ -845,4 +848,41 @@ function megrendelok_elkeszit(mehet) {
             }
         }
     });
+
+    // Százalékos folyamat lekérése
+    // Frissítések során a szürkítés ne villogjon 3 másodpercenként, jelezve, hogy a háttérben lekérdezés zajlik
+    // Escape és Enter gomb lekezelése
+    $('#ajaxfedo').remove();
+    $('#alert2 .bezar').remove();
+    var folyamat = setInterval(() => {
+        $.ajax({
+            url : PHP_SELF,
+            type: 'GET',
+            data: {
+                folyamat_leker : Date.now()
+            },
+            success: function(response){
+                if(response.substring(0, 6)=='SESKIL'){ location.href = 'index.php'; }
+                if(response){
+                    response = JSON.parse(response);
+
+                    if (response.szazalek) {
+                        $('#alert2 .progress-bar').removeClass('loading');
+                        $('#alert2 .progress-bar span').css('width', response.szazalek + '%');
+                        $('#alert2 .progress-bar-percent').html(response.szazalek + '%');
+                    }
+
+                    if (response.kesz) {
+                        clearInterval(folyamat);
+                        alert2('A megrendelők sikeresen elkészültek. A tartalmat frissítjük, kérem várjon...', '', 'Üzenet');
+                    }
+                }
+            },
+            complete: function(xhr) {
+                if( xhr.status != 200 ) {
+                    alert2(xhr.responseText, '', 'Hiba');
+                }
+            }
+        });
+    }, 3000);
 }

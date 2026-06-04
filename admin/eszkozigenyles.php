@@ -32,6 +32,7 @@ $megnevezes             = $megnevezes['filename'];
 $akt_tomb               = $eszkozigenyles_tomb;
 $torles                 = $megnevezes.'tid';
 $szoveg                 = 'eszközigénylést';               // Hibaüzenetkor: Biztosan törlöd a $szoveg?
+$szazalek_fajl          = 'eszkozigenyles_szazalek.txt';
 
 $igenyles_mezok_pdfhez = 'recid tipus stat_id nev igmen jhmen arfolyam netto jhar jhossz telephely_id szallito_id szall_hat fiz_mod hat_ido ossz_netto ossz_dev kcs_21 kiszall beuzemel munkadij egyeb_koltseg eloleg megj insert_dt'; // Ezeket az oszlopokat kérjük le PDF készítéséhez
 
@@ -60,6 +61,25 @@ if( $tobb_kep ) {
     }
     function get_tobbkep_tabla(){ return str_replace('.php', '', basename(self())).'_dok'; } // A képeket tartalmazó adatbázis tábla neve FONTOS: ha itt átnevezed akkor a tobbkep.php-ban is át kell írni!
 
+}
+
+// Megrendelők elklészítése folyamata hol áll
+if (isset($_GET['folyamat_leker'])) {
+
+    $szazalek = fajlbol_olvas($szazalek_fajl);
+    if( $szazalek == '100' ) {
+        unlink($szazalek_fajl);
+        echo json_encode(array(
+                                'kesz' => 1,
+                        ));
+    } else {
+        echo json_encode(array(
+                                'szazalek' => $szazalek,
+                        ));
+    }
+    
+    $weblap -> leallit();
+    exit;
 }
 
 // Árfolyam lekérése, ha nem HUF-os az igénylés
@@ -396,7 +416,7 @@ if (isset($_POST['megrendelok_elkeszit'])) {
 
     // Ha nincs joga hozzá, akkor hibaüzenet. A jog a státusz párral figyelendő
     if(
-        $sor['stat_id'] == ESZKOZIGENYL_STAT_FELSO_JH_VAR && !_jog(JOG_BESZERZ_IGENYLESEK_LETREH        ) ||
+        $sor['stat_id'] == ESZKOZIGENYL_STAT_FELSO_JH_VAR && !_jog(JOG_BESZERZ_IGENYLESEK_FELSOVEZ_JH   ) ||
         $sor['stat_id'] == ESZKOZIGENYL_STAT_BI_VEGL_VAR  && !_jog(JOG_BESZERZ_IGENYLESEK_BI_VEGLEGESIT )
     ) {
         echo json_encode(array(
@@ -4242,7 +4262,10 @@ function megj_kiir($tabla, $id, $rendszer_is = 0) {
 // Megrendelés készítése
 function megrendeles_keszit($eszkozigenyles_id, $tevezett = 0) {
 
+    session_write_close();
+
     global $adatbazis_kapcsolat;
+    global $szazalek_fajl;
 
     $db_error = false;
 
@@ -4262,6 +4285,9 @@ function megrendeles_keszit($eszkozigenyles_id, $tevezett = 0) {
         $where = "`recid`='{$eszkozigenyles_id}'";
     }
     $telephely_szallitok = $adatbazis_kapcsolat -> s('telephely_id szallito_id', 'eszkozigenyles', $where, '', '', "`telephely_id`, `szallito_id`");
+    $osszes_sor = count($telephely_szallitok);
+    $dok_szama = 0;
+    $sor_i = 0;
     foreach ($telephely_szallitok as $telephely_szallito) {
         
         // Tervezett esetben nem csak egy igénylést, hanem egy egész tömböt kell feldolgozni
@@ -4307,14 +4333,14 @@ function megrendeles_keszit($eszkozigenyles_id, $tevezett = 0) {
             // Ha csak a HTML szerkesztése miatt tesztelünk, akkor ne hozzunk létre megrendelést
             if( !isset($_GET['html_mutat']) && !isset($_GET['pdf_mutat']) ) {
 
-                $tetelek_html = '';
-                $mindossz     = 0;
+                $tetelek_html    = '';
+                $mindossz        = 0;
                 $ossz_netto_megr = 0;
                 $ossz_dev_megr   = 0;
                 foreach ($eszkozigenylesek as $eszkozigenyles) {
                     
-                    $mezok   = array();
-                    $ertekek = array();
+                    $mezok   = [];
+                    $ertekek = [];
                     // Ha nem lett volna megadva a jóváhagyott mennyiség, akkor az igényelt mennyiséget másoljuk be oda
                     if( !$eszkozigenyles['jhmen'] ) {
                         array_push($mezok,   'jhmen'                    );
@@ -4667,6 +4693,7 @@ if( isset($_GET['pdf_mutat']) ) {
 
             $mpdf -> Output(iconv('UTF-8', 'Windows-1250', '../'.get_utvonal().'eszkozigenyles_megr/'.$ev.'/'.$megr_recid.'/'.$fajlnev), 'F');
             $utvonal_db_be = $ev.'/'.$megr_recid.'/'.$fajlnev;
+            $dok_szama++;
 
             // Megrendelések dokumentumához is adjuk hozzá
             $doc_recid = $adatbazis_kapcsolat -> i('eszkozigenyles_megr_dok',   array('eszkozigenyles_megr_id', 'utvonal',      'fajlnev', 'megr', 'update_usr',                           'insert_dt',    'insert_usr'                            ),
@@ -4690,10 +4717,19 @@ if( isset($_GET['pdf_mutat']) ) {
                 if( $sql === false ) { $db_error = true; }
             }
 
+            // Nem működött, adatbázissal sem
+            // Folyamat %-os értéke hol jár
+            fajlba_mentes($szazalek_fajl, number_format(($sor_i / $osszes_sor) * 100, 0, '', ''));
+
+            $sor_i++;
+
         } else {
             $db_error = true;
         }
     }
+
+    // 100% jelzése
+    fajlba_mentes($szazalek_fajl, '100');
 
     if( $db_error ) {
         return false;

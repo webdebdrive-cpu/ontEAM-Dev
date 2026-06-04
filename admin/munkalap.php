@@ -1,5 +1,12 @@
 <?php
 require_once('../weblap.php');
+// Ha utólag kell a PDF-et előállítani, akkor az alábbi sorre keress rá. Több is van ebben a fájlban:
+// Ha utólag kell a PDF-et előállítani úgy, hogy már a fenntartási szerződés létrejött,
+// Lépések hozzá:
+// - Megr. elküldésre vár státuszban vagyunk már, de ennek ellenére a PDF előnézet gombot megjelenítjük
+// - PDF előnézet gombra kattintva lekérjük a már léterohozz felnntartási szerződés adatait is, hogy rákerüljön a PDF-re
+// - A munkalap_megrendeles_nyomtat.php végén akár egy konkrét útvonalat is meg tudsz adni, ahová a fájlt el szeretnéd menteni.
+// - NE FELEJTSD EL MAJD ÚJRA KIMOMMENTEZNI
 
 // Config
 if( !_jog(JOG_MUNKALAP_MEGTEKINT) && !_jog(JOG_MUNKALAP_MEGTEKINT_SZALL) && !_jog(JOG_MUNKALAP_MEGTEKINT_FELADAT) ) {
@@ -2708,7 +2715,10 @@ if( isset($_POST['munkalapMegrendelesKeszit']) ) {
         if( $mm === false ) { $db_error = true; }
 
         // Státusz ellenőrzés
-        if( $munkalap['stat_id'] != MUNKALAP_STAT_MEGR_ALAIR_VAR && $munkalap['stat_id'] != MUNKALAP_STAT_AJANLAT_NYOMTATVA ) {
+        if( $munkalap['stat_id'] != MUNKALAP_STAT_MEGR_ALAIR_VAR && $munkalap['stat_id'] != MUNKALAP_STAT_AJANLAT_NYOMTATVA 
+            // Ha utólag kell a PDF-et előállítani úgy, hogy már a fenntartási szerződés létrejött,
+            // && $munkalap['stat_id'] != MUNKALAP_STAT_MEGR_ELKULD_VAR
+        ) {
             echo json_encode(array(
                 'hiba'  => 'Csak "Meg. aláírásra vár" státuszú munkalaphoz készíthető megrendelés!',
                 'title' => 'Hiba',
@@ -2783,8 +2793,16 @@ if( isset($_POST['munkalapMegrendelesKeszit']) ) {
             if( !addStatusz( 'munkalap_statusz', $recid, MUNKALAP_STAT_MEGR_ELKULD_VAR, '', $memo ) ) {
                 $db_error = true;
             }
+
         }
-        
+        // Ha utólag kell a PDF-et előállítani úgy, hogy már a fenntartási szerződés létrejött,
+        // akkor csinálj egy előnézetet és ezt kommentezd vissza, hogy meglegyenek a $ft_szerz_id és $szszam változók.
+        // Előnézetet így tudsz csinálni: 
+        // else {
+        //     $fennt_sz = $adatbazis_kapcsolat -> s2('recid szszam', 'fenntartasi_szerzodes', "`mlszam`='{$munkalap['ikt_szam']}'");
+        //     $ft_szerz_id = $fennt_sz['recid'];
+        //     $szszam      = $fennt_sz['szszam'];
+        // }
 
         // PDF generálásához kell majd
         // Ehhez pár adatot kiteszünk SESSION-be, mert GET URL-ben nem lehet átadni
@@ -9495,8 +9513,10 @@ if( isset($_GET['uj']) ) {
     // VAGY ha megrendelés aláírásra vár státuszban van és vagy az elsődleges vagy a másodlagos aláírás jogú van belépve
     if(
         ( $sor['stat_id'] == MUNKALAP_STAT_AJANLAT_NYOMTATVA && _jog(JOG_MUNKALAP_KULSOS_MEGREND) ) ||
-        ( $sor['stat_id'] == MUNKALAP_STAT_MEGR_ALAIR_VAR    && ( _jog(JOG_MUNKALAP_ELSODL_ALAIR) /*|| _jog(JOG_MUNKALAP_MASODL_ALAIR)*/ || _jog(JOG_MUNKALAP_KULSOS_MEGREND) ) )/* ||
-        ( $sor['stat_id'] == MUNKALAP_STAT_MEGR_ELKULD_VAR   && ( _jog(JOG_MUNKALAP_ELSODL_ALAIR) || _jog(JOG_MUNKALAP_MASODL_ALAIR) || _jog(JOG_MUNKALAP_KULSOS_MEGREND) ) ) */
+        ( $sor['stat_id'] == MUNKALAP_STAT_MEGR_ALAIR_VAR    && ( _jog(JOG_MUNKALAP_ELSODL_ALAIR) /*|| _jog(JOG_MUNKALAP_MASODL_ALAIR)*/ || _jog(JOG_MUNKALAP_KULSOS_MEGREND) ) ) 
+        // Ha utólag kell a PDF-et előállítani úgy, hogy már a fenntartási szerződés létrejött,
+        // akkor ezt kommentezd vissza, hogy megjelenken ez a gomb a Megrendelés elküldése vár státusz alatt is
+        // || ( $sor['stat_id'] == MUNKALAP_STAT_MEGR_ELKULD_VAR   && ( _jog(JOG_MUNKALAP_ELSODL_ALAIR) || _jog(JOG_MUNKALAP_MASODL_ALAIR) || _jog(JOG_MUNKALAP_KULSOS_MEGREND) ) )
      ) {
         $gombok .= '<input type="button" class="gomb modositaskor_rejt" value="Megrendelés megtekintése" onclick="munkalapMegrendelesKeszit(\'PDF_előnézet\'); pdf_interval = setInterval(() => { if (pdf_megnyithato === 1) { window.open(\'munkalap.php?nyomtat&amp;PDF_elonezet=1&amp;id=\'+_get(\'id\')); clearInterval(pdf_interval); } }, 500);"> ';
     }

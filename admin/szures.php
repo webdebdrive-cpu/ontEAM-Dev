@@ -173,7 +173,7 @@ if( isset($_POST['f_szuro_mezo']) ) {
         $operator .= '<option value="empty"'.$selected_empty.'>Üres</option>';
     }
 
-    // Beosztás hónap választásnál cska egyenlőség van
+    // Beosztás hónap választásnál csak egyenlőség van
     if( $_POST['tabla'] == 'beosztas' && $_POST['mezo'] == 'ho' ) {
         $operator  = '<option value="equal"'.$selected_equal.'>=</option>';
         $operator .= '<option value="not_eq"'.$selected_not_eq.'>&lt;&gt;</option>';

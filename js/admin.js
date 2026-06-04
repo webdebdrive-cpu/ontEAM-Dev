@@ -2130,11 +2130,16 @@ $(function() {
             // Ha van olyan Mégsem gomb mondjuk egy popup-on, aminek van escapes_megsem class-a, akkor egyszerűen csak nyomjuk meg ezt a gombot
             } else if( $('.escapes_megsem').length ){
                 
-                // Azért kell bele a last(), mert több 'escapes_megsem' albak egymársra nyitódhat, és ekkor mindig a legutóbbit kell megnyomni, bezárni
+                // Azért kell bele a last(), mert több 'escapes_megsem' albak egymásra nyitódhat, és ekkor mindig a legutóbbit kell megnyomni, bezárni
                 $('.escapes_megsem').last().click();
                 
             // Egyébként meg kezeljük le az Escape gomb lehetőségeit
             } else {
+
+                // Ha van a popupon 'escape_re_ne_zard_be' class-ú elem, akkor ne reagáljon az Esc gombra
+                if( $('.escape_re_ne_zard_be').length ) {
+                    return false;
+                }
                 
                 alert2();
                 felh_valt();
@@ -2143,7 +2148,7 @@ $(function() {
                 // Ha popupban kaptunk volna hibaüzenetet, akkor visszatérve fókuszáljunk a hibásnak jelölt inputra. Egyúttal vegyük is le ezt a classt róla
                 $('input.hibas_ide_focus, textarea.hibas_ide_focus, select.hibas_ide_focus').select().removeClass('hibas_ide_focus');
 
-                if($('#elv_ido_tol').length){
+                if ($('#elv_ido_tol').length) {
                     $('.xdsoft_datetimepicker').hide();
                 }
 

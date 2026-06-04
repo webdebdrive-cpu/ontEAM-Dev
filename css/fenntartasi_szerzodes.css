@@ -1,6 +1,9 @@
 table.csikos tr.kijelolve:nth-of-type(2n) {
     background: var(--color-kek);
 }
+table.csikos td.pop_varh_ert, table.csikos td.pop_netto_ert.pop_netto_ert {
+    white-space: nowrap;
+}
 b.pipa {
     color: #75B54B;
     font-size: 2rem;

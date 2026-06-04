@@ -1244,17 +1244,15 @@ class ServerClass {
                 }
                 
                 // Ha sikerült beazonosítani a partnert a kapott számmal, akkor update
-// 2026.01.23 Törölhető, debugoláshoz kellett
-// $korabbi_log = fajlbol_olvas('log/szallito.log');
                 $partner = $adatbazis_kapcsolat->s2('id', 'szallito', "`id`='{$szallito_id}'");
                 if( $partner === false ) { $db_error = mysqli_error($db_kapcs); }
                 if( $partner ) {
-// 2026.01.23 Törölhető, debugoláshoz kellett
-// $parancs = $adatbazis_kapcsolat -> gp();
+
                     $sql = $adatbazis_kapcsolat->u('szallito', $mezok, $ertekek, "`id`='{$szallito_id}'");
                     if( $sql === false ) { $db_error = mysqli_error($db_kapcs); }
 // 2026.01.23 Törölhető, debugoláshoz kellett
 // $parancs .= $adatbazis_kapcsolat -> gp();
+// $korabbi_log = fajlbol_olvas('log/szallito.log');
 // fajlba_mentes('log/szallito.log', $korabbi_log.date('Y-m-d H:i:s')." Andoc ID: {$andoc_id}. Partner beazonosítva: ID = {$szallito_id}. SQL parancs: {$parancs}\n");
                 // Egyébként próbáljuk meg adószám alapján azonosítani
                 } else {
@@ -1273,6 +1271,7 @@ class ServerClass {
 
 // 2026.01.23 Törölhető, debugoláshoz kellett
 // $parancs = $adatbazis_kapcsolat -> gp();
+// $korabbi_log = fajlbol_olvas('log/szallito.log');
 // fajlba_mentes('log/szallito.log', $korabbi_log.date('Y-m-d H:i:s')." Andoc ID: {$andoc_id}. Partner beazonosítva: adószám = {$szamla_adatok['Partner adószám']} Nem ismert ÚJID: {$szallito_id}. SQL parancs: {$parancs}\n");
 
                         $db_error = update_szallito_id($partner['elozo_id'], $szallito_id);
@@ -1281,6 +1280,7 @@ class ServerClass {
                         if( $sql === false ) { $db_error = mysqli_error($db_kapcs); }
 // 2026.01.23 Törölhető, debugoláshoz kellett
 // $parancs = $adatbazis_kapcsolat -> gp();
+// $korabbi_log = fajlbol_olvas('log/szallito.log');
 // fajlba_mentes('log/szallito.log', $korabbi_log.date('Y-m-d H:i:s')." Szállító ID is frissült. SQL parancs: {$parancs}\n");
                         // Throw new SOAPFault ('Server', $adatbazis_kapcsolat -> gp());
 
@@ -1296,6 +1296,7 @@ class ServerClass {
                         if( $sql === false ) { $db_error = mysqli_error($db_kapcs); }
 // 2026.01.23 Törölhető, debugoláshoz kellett
 // $parancs = $adatbazis_kapcsolat -> gp();
+// $korabbi_log = fajlbol_olvas('log/szallito.log');
 // fajlba_mentes('log/szallito.log', $korabbi_log.date('Y-m-d H:i:s')." Andoc ID: {$andoc_id}. Új partner létrehozva. SQL parancs: {$parancs}\n");
                     }
 
@@ -2125,7 +2126,8 @@ function update_szallito_id($elozo_id, $uj_id) {
         return "Hiba information_schema táblából való lekérés közben (táblák, ahol van szallito_id oszlop)" . $db_kapcs->connect_error;
     }
     $information_schema_tables = $result->fetch_All(MYSQLI_ASSOC);  // kb. 40 tábla
-   
+// $korabbi_log = fajlbol_olvas('log/szallito.log');
+// fajlba_mentes('log/szallito.log', $korabbi_log.date('Y-m-d H:i:s')." Szállító frissít: {$sql}\n");
     // Az alábbi táblákban kivételesen mégsem kell a szallito_id-tkat cserélni, mert ekeben recid-ket tárolunk
     $kiveteles_tablak = array('onteam_eszkozigenyles', 'onteam_eszkozigenyles_megr', 'onteam_szakter_kapcs', 'onteam_szallito_dok');
     // ezen a kb. 40 táblán végigmegyünk
@@ -2150,6 +2152,8 @@ function update_szallito_id($elozo_id, $uj_id) {
         }
         
     }
+// $korabbi_log = fajlbol_olvas('log/szallito.log');
+// fajlba_mentes('log/szallito.log', $korabbi_log.date('Y-m-d H:i:s')." Szállító frissít: {$sql}\n");
     // Throw new SOAPFault ('Server', $teljes_sql);
     return false;
 }

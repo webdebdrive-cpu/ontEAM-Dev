@@ -160,10 +160,24 @@
 
 require_once('header.php');
 
-// PDF csere
-if( isset($_GET['pdf_csere']) ) {
-    // copy('../'.get_utvonal().'DH_te_megrendeles_TE202673.pdf', '../'.get_utvonal().'eszkozigenyles_megr/26/190/DH_te_megrendeles_TE202673.pdf');
-    // unlink('../'.get_utvonal().'DH_te_megrendeles_TE202673.pdf');
+// if( isset($_GET['teszt']) ) {
+
+//     echo date('Y-m-d H:i:s') .'<br>';
+
+//     $dateObj = DateTime::createFromFormat('U.u', microtime(TRUE));
+//     $dateObj->setTimeZone(new DateTimeZone('Europe/Budapest'));
+//     $teszt = $dateObj->format('Y-m-d H:i:s');
+//     echo $teszt;
+// }
+
+// PDF csere (pl. mert angol nyelvűre kell cserélni)
+if( FALSE && isset($_GET['pdf_csere']) ) {
+    $uj_fajl       = 'DH_te_megrendeles_TE2026159.pdf';
+    $uj_fajl_back  = 'DH_te_megrendeles_TE2026159_back.pdf';
+    $konyvtar = 'eszkozigenyles_megr/26/276/';
+    rename('../'.get_utvonal().$konyvtar.$uj_fajl, '../'.get_utvonal().$konyvtar.$uj_fajl_back);
+    copy('../'.get_utvonal().$uj_fajl, '../'.get_utvonal().$konyvtar.$uj_fajl);
+    unlink('../'.get_utvonal().$uj_fajl);
 }
 
 // Státusz léptetés
