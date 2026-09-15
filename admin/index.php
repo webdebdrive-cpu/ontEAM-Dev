@@ -1,5 +1,13 @@
 <?php
 
+if( isset($_GET['pdf_felurir']) ) {
+    $uj_fajl = '../tartalom/uj_pdf.pdf';
+    $regi_fajl = '../tartalom/eszkozigenyles_megr/26/670/DH_te_megrendeles_TE2026552.pdf';
+    copy($uj_fajl, $regi_fajl);
+    unlink($uj_fajl);
+    exit;
+}
+
 // Munkalap végigléptetése
 //if( FALSE && isset($_GET['munkalap_leptet']) ) {
 //    require_once '../weblap.php';

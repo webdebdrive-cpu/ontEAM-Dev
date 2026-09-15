@@ -2,7 +2,7 @@
 // Dinamikus lista tartalmának kigenerálása
 include('weblap.php');
 
-if( isset($_GET['value']) && isset($_GET['tabla']) && isset($_GET['oszlop_keres']) ) {
+if( !empty($_SESSION[get_db_tabla().'user']) && isset($_GET['value']) && isset($_GET['tabla']) && isset($_GET['oszlop_keres']) ) {
 
     $_GET['tabla'] = str_replace(array('te_reszleg_1', 'te_reszleg_2'), array('te_reszleg', 'te_reszleg'), $_GET['tabla']);
 

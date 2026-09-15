@@ -261,18 +261,21 @@ if( self('-bn-') == 'eszkozigenyles.php' || self('-bn-') == 'eszkozigenyles_megr
         array_push($select_fiz_mod, array('name' => $fiz_mod['nev'],   'value' => $fiz_mod['recid'] ));
     }
 
-    $select_hat_ido = array();
-    array_push($select_hat_ido, array('name' => '- Válasszon -', 'value' => ''      ));
-    array_push($select_hat_ido, array('name' => 'Számla keltétől 60 nap',           'value' => 'kelttol 60 nap' ));
-    array_push($select_hat_ido, array('name' => 'Számla keltétől 45 nap',           'value' => 'kelttol 45 nap' ));
-    array_push($select_hat_ido, array('name' => 'Számla keltétől 30 nap',           'value' => 'kelttol 30 nap' ));
-    array_push($select_hat_ido, array('name' => 'Számla keltétől 15 nap',           'value' => 'kelttol 15 nap' ));
-    array_push($select_hat_ido, array('name' => 'Számla keltétől 8 nap',            'value' => 'kelttol 8 nap'  ));
+    $select_hat_ido = [];
+    $select_hat_ido[] = ['name' => '- Válasszon -', 'value' => ''      ];
+    $select_hat_ido[] = ['name' => 'Számla keltétől 60 nap',           'value' => 'kelttol 60 nap' ];
+    $select_hat_ido[] = ['name' => 'Számla keltétől 45 nap',           'value' => 'kelttol 45 nap' ];
+    $select_hat_ido[] = ['name' => 'Számla keltétől 30 nap',           'value' => 'kelttol 30 nap' ];
+    $select_hat_ido[] = ['name' => 'Számla keltétől 15 nap',           'value' => 'kelttol 15 nap' ];
+    $select_hat_ido[] = ['name' => 'Számla keltétől 8 nap',            'value' => 'kelttol 8 nap'  ];
 
-    array_push($select_hat_ido, array('name' => 'Számla kézhezvételétől 60 nap',    'value' => '60 nap' ));
-    array_push($select_hat_ido, array('name' => 'Számla kézhezvételétől 45 nap',    'value' => '45 nap' ));
-    array_push($select_hat_ido, array('name' => 'Számla kézhezvételétől 30 nap',    'value' => '30 nap' ));
-    array_push($select_hat_ido, array('name' => 'Számla kézhezvételétől 15 nap',    'value' => '15 nap' ));
-    array_push($select_hat_ido, array('name' => 'Számla kézhezvételétől 8 nap',     'value' => '8 nap'  ));
+    $select_hat_ido[] = ['name' => 'Számla kézhezvételétől 60 nap',    'value' => '60 nap' ];
+    $select_hat_ido[] = ['name' => 'Számla kézhezvételétől 45 nap',    'value' => '45 nap' ];
+    $select_hat_ido[] = ['name' => 'Számla kézhezvételétől 30 nap',    'value' => '30 nap' ];
+    $select_hat_ido[] = ['name' => 'Számla kézhezvételétől 15 nap',    'value' => '15 nap' ];
+    $select_hat_ido[] = ['name' => 'Számla kézhezvételétől 8 nap',     'value' => '8 nap'  ];
+    
+    $select_hat_ido[] = ['name' => 'Előre utalás',                     'value' => 'elore utalas'    ];
+    $select_hat_ido[] = ['name' => 'Azonnal',                          'value' => 'azonnal'         ];
 
 }

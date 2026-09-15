@@ -10849,8 +10849,8 @@ function addStatusz( $tabla = false, $recid = false, $stat_id = false, $erteklis
 
             // Frissítjük a sort
             $sql = $adatbazis_kapcsolat -> u($tabla,
-                                                array('end_dt',             'statido',    'statido_s',    'gongyolt_statido', 'gongyolt_statido_s'),
-                                                array( date('Y-m-d H:i:s'), $statusz_ido, $statusz_ido_s, $gongyolt_statido,  $gongyolt_statido_s ),
+                                                array('end_dt', 'statido',    'statido_s',    'gongyolt_statido', 'gongyolt_statido_s'),
+                                                array('NOW()',  $statusz_ido, $statusz_ido_s, $gongyolt_statido,  $gongyolt_statido_s ),
                                                 "`recid`='{$akt_statusz['recid']}'"
                                             );
             if( $sql === false ) { $db_error = true; }
@@ -10949,7 +10949,7 @@ function addStatusz( $tabla = false, $recid = false, $stat_id = false, $erteklis
 
             // Az anyagigénylés ha beérkezett státuszt kap, akkor ezt az időpontot eltároljuk az anyagigénylése táblába is, mert eszerint szeretnénk tudni azt rendezni is
             if ($tabla == 'anyagigenyles_statusz' && $stat_id == CIKKIGN_STAT_BEERKEZETT) {
-                $sql = $adatbazis_kapcsolat->u('anyagigenyles', array('beerkezett'), array(date('Y-m-d H:i:s')), "`recid`='{$recid}'");
+                $sql = $adatbazis_kapcsolat->u('anyagigenyles', array('beerkezett'), array('NOW()'), "`recid`='{$recid}'");
                 if( $sql === false ) { $db_error = true; }
             }
 

@@ -474,7 +474,7 @@ if (isset($_POST['megrendelok_elkeszit'])) {
     if( !$db_error ) {
         mysqli_commit($db_kapcs);
         echo json_encode( array(
-                                'siker'     => 1,
+                                'siker' => 1,
                                 ) );
     } else {
         mysqli_rollback($db_kapcs);
@@ -4343,13 +4343,13 @@ function megrendeles_keszit($eszkozigenyles_id, $tevezett = 0) {
                     $ertekek = [];
                     // Ha nem lett volna megadva a jóváhagyott mennyiség, akkor az igényelt mennyiséget másoljuk be oda
                     if( !$eszkozigenyles['jhmen'] ) {
-                        array_push($mezok,   'jhmen'                    );
-                        array_push($ertekek, $eszkozigenyles['igmen']   );
+                        $mezok[] = 'jhmen';
+                        $ertekek[] = $eszkozigenyles['igmen'];
                         $eszkozigenyles['jhmen'] = $eszkozigenyles['igmen'];
                     }
                     // Jóváhagyott nettó egységár tuti nincs ekkor még kitöltve, hisz ez egy fixen disabled mező. Ebbe a nettó egységár értéke kerül be ebben a pillanatban.
-                    array_push($mezok,   'jhar'                     );
-                    array_push($ertekek, $eszkozigenyles['netto']   );
+                    $mezok[] = 'jhar';
+                    $ertekek[] = $eszkozigenyles['netto'];
                     $eszkozigenyles['jhar'] = $eszkozigenyles['netto'];
                     
                     // A Jóváhagyott nettó összesen is garantáltan üres ekkor még. Most kell beleírni a jóváhagyott mennyiséget és egységár szorzatát.
@@ -4407,7 +4407,10 @@ function megrendeles_keszit($eszkozigenyles_id, $tevezett = 0) {
                     }
 
                     $mindossz   += $jhossz;
-                    $tetel_neve  = trim($eszkozigenyles['csz'].' '.$eszkozigenyles['nev']);
+                    $tetel_neve  = $eszkozigenyles['nev'];
+                    if( $eszkozigenyles['csz'] ) {
+                        $tetel_neve .= ', cikkszám: '.$eszkozigenyles['csz'];
+                    }
                     $jhossz_kiir = number_format($jhossz, $tizedesek, ',', ' ');
                     if( $eszkozigenyles['kiszall'] > 0 ) {
                         $tetel_neve  .= '<br>Kiszállítási költség';
@@ -4506,6 +4509,9 @@ function megrendeles_keszit($eszkozigenyles_id, $tevezett = 0) {
             $usertel = '';
             if( $kontakt['usertel'] ) {
                 $usertel = ', tel.: '.$kontakt['usertel'];
+            }
+            if( $kontakt['usermail'] ) {
+                $usertel = ', mail.: '.$kontakt['usermail'];
             }
 
             $szallito = $adatbazis_kapcsolat->s2('nev knev tel email', 'szallito_beszerzes', "`recid`='{$eszkozigenyles['szallito_id']}'");

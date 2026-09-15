@@ -324,7 +324,7 @@ if (isset($_POST['terv_keszit'])) {
         }
 
         // Műszaki anyag fül feltöltése
-        $ktgnemek = $adatbazis_kapcsolat->s('id', 'ktgnem', "`props` LIKE '%7030%'");
+        $ktgnemek = $adatbazis_kapcsolat->s('id', 'ktgnem', "`props` LIKE '%7030%' AND `torolve`=0");
         foreach ( $ktgnemek as $ktgnem ) {
             $sql = $adatbazis_kapcsolat->i('fenntartasi_terv_muszaki_anyag',
                                                                     array('ktgnem_id',   'fenntartasi_terv_id', 'insert_dt',    'insert_usr',                             'update_usr'                           ),
@@ -334,7 +334,7 @@ if (isset($_POST['terv_keszit'])) {
         }
 
         // Rendszeres karbantartás fül feltöltése
-        $ktgnemek = $adatbazis_kapcsolat->s('id', 'ktgnem', "`props` LIKE '%7031%'");
+        $ktgnemek = $adatbazis_kapcsolat->s('id', 'ktgnem', "`props` LIKE '%7031%' AND `torolve`=0");
         foreach ( $ktgnemek as $ktgnem ) {
             $sql = $adatbazis_kapcsolat->i('fenntartasi_terv_rendsz_karban',
                                                                     array('ktgnem_id',   'fenntartasi_terv_id', 'insert_dt',    'insert_usr',                             'update_usr'                           ),
@@ -344,7 +344,7 @@ if (isset($_POST['terv_keszit'])) {
         }
 
         // Eseti karbantartás fül feltöltése
-        $ktgnemek = $adatbazis_kapcsolat->s('id', 'ktgnem', "`props` LIKE '%7032%'");
+        $ktgnemek = $adatbazis_kapcsolat->s('id', 'ktgnem', "`props` LIKE '%7032%' AND `torolve`=0");
         foreach ( $ktgnemek as $ktgnem ) {
             $sql = $adatbazis_kapcsolat->i('fenntartasi_terv_eseti_karban',
                                                                     array('ktgnem_id',   'fenntartasi_terv_id', 'insert_dt',    'insert_usr',                             'update_usr'                           ),
@@ -354,7 +354,7 @@ if (isset($_POST['terv_keszit'])) {
         }
 
         // Hibalehárítás fül feltöltése
-        $ktgnemek = $adatbazis_kapcsolat->s('id', 'ktgnem', "`props` LIKE '%7033%'");
+        $ktgnemek = $adatbazis_kapcsolat->s('id', 'ktgnem', "`props` LIKE '%7033%' AND `torolve`=0");
         foreach ( $ktgnemek as $ktgnem ) {
             $sql = $adatbazis_kapcsolat->i('fenntartasi_terv_hibaelharitas',
                                                                     array('ktgnem_id',   'fenntartasi_terv_id', 'insert_dt',    'insert_usr',                             'update_usr'                           ),
@@ -364,7 +364,7 @@ if (isset($_POST['terv_keszit'])) {
         }
 
         // Miniprojekt fül feltöltése
-        $ktgnemek = $adatbazis_kapcsolat->s('id', 'ktgnem', "`props` LIKE '%7034%'");
+        $ktgnemek = $adatbazis_kapcsolat->s('id', 'ktgnem', "`props` LIKE '%7034%' AND `torolve`=0");
         foreach ( $ktgnemek as $ktgnem ) {
             $sql = $adatbazis_kapcsolat->i('fenntartasi_terv_miniprojekt',
                                                                     array('ktgnem_id',   'fenntartasi_terv_id', 'insert_dt',    'insert_usr',                             'update_usr'                           ),
@@ -374,7 +374,7 @@ if (isset($_POST['terv_keszit'])) {
         }
         
         // BWH fül feltöltése
-        $ktgnemek = $adatbazis_kapcsolat->s('id', 'ktgnem', "`props` LIKE '%7210%'");
+        $ktgnemek = $adatbazis_kapcsolat->s('id', 'ktgnem', "`props` LIKE '%7210%' AND `torolve`=0");
         foreach ( $ktgnemek as $ktgnem ) {
             $sql = $adatbazis_kapcsolat->i('fenntartasi_terv_bwh',
                                                                     array('ktgnem_id',   'fenntartasi_terv_id', 'insert_dt',    'insert_usr',                             'update_usr'                           ),

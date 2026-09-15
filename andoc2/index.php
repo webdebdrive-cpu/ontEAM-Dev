@@ -42,20 +42,20 @@ URL: '.get_http().$_SERVER['HTTP_HOST'].$_SERVER['REQUEST_URI'].'
     }
     
     $soap = new SoapClient($url_elotag.$wsdl_fajl,
-                            array(
-                                'uri'       => $url_elotag.'andoc.php',
-                                //'location'  => $url_elotag.'andoc.php',
-                                'trace'     => true,
-                                'encoding'  => 'utf-8',
-                                'cache_wsdl'=> WSDL_CACHE_NONE,
-                                )
-                            );
+                            [
+                            'uri'       => $url_elotag.'andoc.php',
+                            //'location'  => $url_elotag.'andoc.php',
+                            'trace'     => true,
+                            'encoding'  => 'utf-8',
+                            'cache_wsdl'=> WSDL_CACHE_NONE,
+                            ]
+                        );
 
     // Bejelentkezéshez a felhasználói név jelszó így adható át header-en keresztül
-    $auth = array(
+    $auth = [
                 'username' => 'Andoc',
                 'password' => 'AontEAM3',
-            );
+            ];
 
     // Fejléc előállítása
     $header_params  = new SoapVar($auth, SOAP_ENC_OBJECT);

@@ -3595,6 +3595,10 @@ if( $tabla == 'eszkozigenyles' && $_GET['id'] && _jog(JOG_BESZERZ_IGENYLESEK_OLV
     }
 }
 // Ha egy adatlapon vagyunk rajta és van létrehozás jogunk és az igénylés még ÚJ felvitel státuszú, akkor is szerkeszthető
+$kiszall_post  = ' <span style="margin-left: 8.5rem"></span>';
+$beuzemel_post = ' <span style="margin-left: 15rem"></span>';
+$munkadij_post = '';
+$egyeb_post    = '  <span style="margin-left: 3.3rem"></span>';
 if( $tabla == 'eszkozigenyles' && $_GET['id'] ) {
 
     $eszkozig = $adatbazis_kapcsolat -> s2('kcs_21 stat_id', 'eszkozigenyles', "`recid`='{$_GET['id']}'");
@@ -3606,6 +3610,15 @@ if( $tabla == 'eszkozigenyles' && $_GET['id'] ) {
             $dev_disabled = '';
             $huf_disabled = 1;
         }
+    }
+
+    // Devizás adatlapon az extra költségek mögé írjuk ki a pénznemet
+    if( $eszkozig['kcs_21'] != KCS_21_HUF ) {
+        $penznem = erteklista(ERTEKLISTA_PENZNEM, $eszkozig['kcs_21']);
+        $kiszall_post  = ' '.$penznem.' <span style="margin-left: 5.5rem"></span>';
+        $beuzemel_post = ' '.$penznem.' <span style="margin-left: 12rem"></span>';
+        $munkadij_post = ' '.$penznem;
+        $egyeb_post    = ' '.$penznem.'  <span style="margin-left: 0.3rem"></span>';
     }
 
     // BI valiodálásra vár státusz vagy afeletti státuszokban a típus mező már nem módosítható
@@ -3641,7 +3654,7 @@ $akt_tomb = $eszkozigenyles_tomb = $eszkozigenyles_arch_tomb = array(
     array('type' => 'text',                     'megn' => 'Ajánlatban megadott <br>szállítási határidő:','name' => 'szall_hat',     'szuro' => 1,   'class' => 'normal datepicker',     'disabled' => $mezok_disabled/*, 'alert' => 'Kérem adja meg a szállítási határidőt!'*/, 'osszevon' => 1, 'post' => ' <span style="margin-left: 2rem"></span>'),
     array('type' => 'select_fiz_mod',           'megn' => 'Fizetési mód:',                              'name' => 'fiz_mod',        'szuro' => 1,                                       'disabled' => $mezok_disabled, 'osszevon' => 1, 'post' => ' <span style="margin-left: 2rem"></span>', 'style' => 'width: 9.7rem', 'type_arch' => 'text', 'name_arch' => 'fiz_mod_txt'),
     array('type' => 'select_hat_ido',           'megn' => 'Fizetési határidő:',                         'name' => 'hat_ido',        'szuro' => 1,   'disabled' => $mezok_disabled, 'osszevon' => 1, 'post' => '<span style="margin-left: 4rem"></span>', 'style' => 'width: 18.3rem', 'type_arch' => 'text', 'name_arch' => 'hat_ido_txt'),
-    array('type' => 'text',                     'megn' => 'Előleg:',                                    'name' => 'eloleg',         'szuro' => 1,   'class' => 'f_num f_csak_pozitiv',   'data' => 'data-tort="0"',               'disabled' => $mezok_disabled,                   'maxlength' => 2,  'post' => ' %', 'style' => 'width: 4rem'),
+    array('type' => 'text',                     'megn' => 'Előleg:',                                    'name' => 'eloleg',         'szuro' => 1,   'class' => 'f_num f_csak_pozitiv',   'data' => 'data-tort="0"',               'disabled' => $mezok_disabled,                   'maxlength' => 3,  'post' => ' %', 'style' => 'width: 4rem'),
     array('type' => 'autocomplete',             'megn' => 'Pénznem:',                                   'name' => 'kcs_21',         'szuro' => 1,   'class' => 'disableNav', 'tabla' => 'erteklista', 'disabled' => $mezok_disabled, 'oszlop_keres' => 'id', 'oszlop_keres_autocomp' => 'info', 'listaz' => 'info', 'csoport' => ERTEKLISTA_PENZNEM, 'complete' => 'huf_vagy_deviza()', 'id_kiir' => 'id', 'style' => 'width: 6rem', 'osszevon' => 1, 'post' => '<span style="margin-left: 2rem"></span>'/*, 'alert' => 'Kérem adja meg a pénznemet!'*/),
     array('type' => 'text',                     'megn' => 'Árfolyam:',                                  'name' => 'arfolyam',       'szuro' => 1,   'class' => 'f_num f_csak_pozitiv',   'data' => 'data-tort="5"',  'disabled' => $dev_disabled,   'sql_disabledkor_is' => 1, 'osszevon' => 1, 'post' => ' <span style="margin-left: 1rem"></span>'/*, 'alert' => 'Kérem adja meg az árfolyamot!'*/),
     array('type' => 'text',                     'megn' => 'Deviza egységár:',                           'name' => 'dev_net',        'szuro' => 1,   'class' => 'f_num f_csak_pozitiv',   'data' => 'data-tort="2"',  'disabled' => $dev_disabled,   'sql_disabledkor_is' => 1, 'osszevon' => 1, 'post' => ' <span style="margin-left: 5.4rem"></span>'/*, 'alert' => 'Kérem adja meg a Deviza egységárat!'*/),
@@ -3652,13 +3665,15 @@ $akt_tomb = $eszkozigenyles_tomb = $eszkozigenyles_arch_tomb = array(
     array('type' => 'text',                     'megn' => 'Jóváhagyott mennyiség:',                     'name' => 'jhmen',          'szuro' => 1,   'class' => 'f_num',   'data' => 'data-tort="0"',  'disabled' => 1,    'osszevon' => 1,               'post' => ' db <span style="margin-left: 2rem"></span>'),
     array('type' => 'text',                     'megn' => 'Jóváhagyott nettó egységár:',                'name' => 'jhar',           'szuro' => 1,   'class' => 'f_num',   'data' => 'data-tort="0"',  'disabled' => 1,     'post' => ' '.get_penznem().'<span style="margin-left: 2rem"></span>', 'osszevon' => 1),
     array('type' => 'text',                     'megn' => 'Jóváhagyott nettó összesen:',                'name' => 'jhossz',         'szuro' => 1,   'class' => 'f_num',   'data' => 'data-tort="0"',  'disabled' => 1,     'post' => ' '.get_penznem(), 'disabled' => 1),
-    array('type' => 'text',                     'megn' => 'Kiszállítási költség:',                      'name' => 'kiszall',        'szuro' => 1,   'class' => 'f_num f_csak_pozitiv',   'data' => 'data-tort="'.$tizedesek.'"',  'disabled' => $mezok_disabled,  'osszevon' => 1, 'maxlength' => 10, 'post' => ' <span style="margin-left: 8.5rem"></span>'),
-    array('type' => 'text',                     'megn' => 'Beüzemelési költség:',                       'name' => 'beuzemel',       'szuro' => 1,   'class' => 'f_num f_csak_pozitiv',   'data' => 'data-tort="'.$tizedesek.'"',  'disabled' => $mezok_disabled,  'osszevon' => 1, 'maxlength' => 10, 'post' => ' <span style="margin-left: 15rem"></span>'),
-    array('type' => 'text',                     'megn' => 'Munkadíj:',                                  'name' => 'munkadij',       'szuro' => 1,   'class' => 'f_num f_csak_pozitiv',   'data' => 'data-tort="'.$tizedesek.'"',  'disabled' => $mezok_disabled, 'maxlength' => 10),
+    array('type' => 'text',                     'megn' => 'Kiszállítási költség:',                      'name' => 'kiszall',        'szuro' => 1,   'class' => 'f_num f_csak_pozitiv',   'data' => 'data-tort="'.$tizedesek.'"',  'disabled' => $mezok_disabled,  'osszevon' => 1, 'maxlength' => 10, 'post' => $kiszall_post),
+    array('type' => 'text',                     'megn' => 'Beüzemelési költség:',                       'name' => 'beuzemel',       'szuro' => 1,   'class' => 'f_num f_csak_pozitiv',   'data' => 'data-tort="'.$tizedesek.'"',  'disabled' => $mezok_disabled,  'osszevon' => 1, 'maxlength' => 10, 'post' => $beuzemel_post),
+    array('type' => 'text',                     'megn' => 'Munkadíj:',                                  'name' => 'munkadij',       'szuro' => 1,   'class' => 'f_num f_csak_pozitiv',   'data' => 'data-tort="'.$tizedesek.'"',  'disabled' => $mezok_disabled, 'maxlength' => 10, 'post' => $munkadij_post),
     array('type' => 'text',                     'megn' => 'Rendelés szám:',                             'name' => 'rend_szam',      'szuro' => 1,  'maxlength' => 50, 'disabled' => 1,   'osszevon' => 1, 'style' => 'width: 15rem', 'post' => ' <span style="margin-left: 7.8rem"></span>'),
-    array('type' => 'text',                     'megn' => 'Egyéb költség:',                             'name' => 'egyeb_koltseg',  'szuro' => 1,   'class' => 'f_num f_csak_pozitiv',   'data' => 'data-tort="'.$tizedesek.'"',  'disabled' => $mezok_disabled,   'osszevon' => 1, 'maxlength' => 10, 'post' => ' <span style="margin-left: 3.3rem"></span>'),
+    array('type' => 'text',                     'megn' => 'Egyéb költség:',                             'name' => 'egyeb_koltseg',  'szuro' => 1,   'class' => 'f_num f_csak_pozitiv',   'data' => 'data-tort="'.$tizedesek.'"',  'disabled' => $mezok_disabled,   'osszevon' => 1, 'maxlength' => 10, 'post' => $egyeb_post),
     array('type' => 'text',                     'megn' => 'Műszaki előkészítés költség:',               'name' => 'kiv_kolts',      'szuro' => 1,   'class' => 'f_num',   'data' => 'data-tort="0"', 'post' => ' '.get_penznem().'<span style="margin-left: 1rem"></span>', 'disabled' => 1, 'osszevon' => 1),
     array('type' => 'checkbox',                 'megn' => 'Becsült érték:',                             'name' => 'becsult',        'szuro' => 1,   'disabled' => 1),
+    array('type' => 'spec_pipalo',              'megn' => 'Műszaki előkészítést igényel:',              'name' => 'musz_el_ig',     'szuro' => 1,   'disabled' => 1,  'ertekek' => musz_el_ig_ertekek(),  'osszevon' => 1, 'style' => 'top: -1.4rem;'),
+    array('type' => 'textarea',                 'megn_szurobe' => 'Műszaki indoklás:',                  'name' => 'musz_indok',     'szuro' => 1,   'disabled' => 1,  'class' => 'oriasi disableNav',     'style' => 'height: 6.2rem; width: calc(100% - 4.6rem);'),
     
 );
 array_push($postok, array('tomb' => $akt_tomb, 'uj' => 'uj'.$megnevezes, 'lista' => $megnevezes.'lista', 'tabla' => $megnevezes, 'torid' => $megnevezes.'tid' ));

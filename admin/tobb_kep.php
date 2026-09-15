@@ -1450,9 +1450,10 @@ function dokumentum_kezeles_jog($tabla, $id) {
     }
     // Projektkezeléskor ha nincs hozzá jogunk
     if( $tabla == 'projektkezeles_dok' ) {
-        if( !_jog(JOG_PRKEZEL_KEZEL) ) {
+        if( !_jog(JOG_PRKEZEL_KEZEL) && !_jog(JOG_PRKEZEL_SAJAT_KEZEL) ) {
             return false;
         }
+
         // Ha a projekt zárt, akkor már nem lehet dokumentumokat hozzáadni, törölni
         $prj = $adatbazis_kapcsolat->s2('stat_id', 'projektkezeles', "`recid`='{$id}'");
         if( $prj['stat_id'] == PRKEZEL_STAT_LEZART ) {

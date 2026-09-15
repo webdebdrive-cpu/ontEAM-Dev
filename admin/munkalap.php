@@ -2459,7 +2459,7 @@ if( isset($_POST['munkalapVisszaElokeszitesre']) ) {
 
     if( $recid ) {
 
-        $munkalap = $adatbazis_kapcsolat->s2('stat_id', 'munkalap', "`recid`='{$recid}'", '', '1');
+        $munkalap = $adatbazis_kapcsolat->s2('stat_id szemelyzet_utolso', 'munkalap', "`recid`='{$recid}'", '', '1');
         if( $munkalap === false ) { $db_error = true; }
 
         // Státusz ellenőrzés
@@ -2491,14 +2491,18 @@ if( isset($_POST['munkalapVisszaElokeszitesre']) ) {
             ));
             $weblap->leallit();
             exit();
-        } 
+        }
+
+        // Legutóbb ismert hozzárendelt személyzetet visszaírjuk (Döntésre vár státuszba léptetéskor ezt ürítjük, de megjegyezzük.)
+        $sql = $adatbazis_kapcsolat -> u('munkalap', ['szemelyzet_id'], [$munkalap['szemelyzet_utolso']], "`recid`='{$recid}'");
+        if( $sql === false ) { $db_error = true; }
 
         // Státusz léptetés
         if( !addStatusz( 'munkalap_statusz', $recid, MUNKALAP_STAT_ELOKESZITES_ALATT ) ) {
             $db_error = true;
         }
 
-        // Megjegyzésbe beírjuk az idolkást is
+        // Megjegyzésbe beírjuk az indoklást is
         if( addMegj('munkalap', $recid, $_POST['memo']) === false ) {
             $db_error = true;
         }
@@ -2962,6 +2966,11 @@ if (isset($_POST['ML_kuldes_alairasra'])) {
         if( !addStatusz( 'munkalap_statusz', $recid, MUNKALAP_STAT_MEGR_ALAIR_VAR) ) {
             $db_error = true;
         }
+
+        // Az aláírókat is üríteni kell ekkor (lehet futott már egy kört a ML és adatbázisban ki vannak már töltve az aláírók, ami azért baj, mert későbbi emiatt nem jelennek majd meg az adatlapon nyomógombok)
+        $sql = $adatbazis_kapcsolat -> u('munkalap', ['alair1', 'alair2'],
+                                                     [0,        0       ], "`recid`='{$recid}'");
+        if( $sql === false ) { $db_error = true; }
         
         if( !$db_error ) {
             mysqli_commit($db_kapcs);
@@ -3596,7 +3605,7 @@ if( isset($_POST['kulsokivHozzarend']) ) {
             if( $van_doksi === false ) { $db_error = true; }
 
             // Ha nincs egyetlen dokumentum sem, akkor figyelmeztetés
-            if(!$van_doksi){
+            if (!$van_doksi) {
                 echo json_encode(array(
                     'hiba'  => 'Javaslattételhez töltsön fel egy dokumentumot!<br>(árajánlat, összesítő stb.)',
                     'title' => 'Hiba',
@@ -3621,8 +3630,8 @@ if( isset($_POST['kulsokivHozzarend']) ) {
             }
             
             // Javaslattétel update mezői. Javaslattétel esetén a direktes mezőt is töröljük mindig
-            $mezok      = array('szallito_id', 'text', 'jh_ert', 'jh_ert_dev', 'kcs_21',            'varh_erk', 'becs_ertek', 'kiv_hat',           'jh1_login', 'jh1_datum',           'jh1_szerep',    'jh2_login', 'jh2_datum',           'jh2_szerep',   'szemelyzet_id', 'direktbe', 'utolagos', 'becs_ert'    );
-            $ertekek    = array($szallitoid,   $targy, $jh_ert,  $jh_ert_dev,  $_POST['kcs_21'],    $varh_erk,  $becs_ertek,  $_POST['kiv_hat'],   '',          '0000-00-00 00:00:00', 0,               '',          '0000-00-00 00:00:00', 0,              0,               0,          $utolagos,  $becs_ertek   );
+            $mezok      = array('szallito_id', 'text', 'jh_ert', 'jh_ert_dev', 'kcs_21',            'varh_erk', 'becs_ertek', 'kiv_hat',           'jh1_login', 'jh1_datum',           'jh1_szerep',    'jh2_login', 'jh2_datum',           'jh2_szerep',   'szemelyzet_id', 'szemelyzet_utolso',         'direktbe', 'utolagos', 'becs_ert'    );
+            $ertekek    = array($szallitoid,   $targy, $jh_ert,  $jh_ert_dev,  $_POST['kcs_21'],    $varh_erk,  $becs_ertek,  $_POST['kiv_hat'],   '',          '0000-00-00 00:00:00', 0,               '',          '0000-00-00 00:00:00', 0,              0,               $munkalap['szemelyzet_id'],  0,          $utolagos,  $becs_ertek   );
 
             // Munkalap update, ha javaslattétel volt
             $sql = $adatbazis_kapcsolat -> u('munkalap', $mezok, $ertekek, "`recid` = '{$recid}'");
