@@ -6747,6 +6747,8 @@ function szamlaBetolt( recid, page, muvelet, szerkeszt, kerdes_nelkul, anyagigen
             if(_get('megjegyzesek') ){ muvelet_param = 'megjegyzesek';  }
             if(_get('dokumentumok') ){ muvelet_param = 'dokumentumok';  }
             if(_get('tortenet')     ){ muvelet_param = 'tortenet';      }
+            if(_get('jovahagyasok') ){ muvelet_param = 'jovahagyasok';  }
+            if(_get('tetel')        ){ muvelet_param = 'tetel';         }
 
             // Ha így sincs, akkor legyen a módosítás
             if (!muvelet_param) {

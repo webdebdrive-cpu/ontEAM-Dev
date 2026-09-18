@@ -118,7 +118,7 @@ function eszkoz_valtozok_update() {
 }
 
 // Mehet BI validálásra
-var eszkoz_fulek = ['modosit', 'jovahagyasok', 'tortenet', 'dokumentumok', 'megjegyzesek'];
+var eszkoz_fulek = ['modosit', 'tetel', 'jovahagyasok', 'tortenet', 'dokumentumok', 'megjegyzesek'];
 function mehet_validalasra(mehet) {
 
     // globális változók frissítése az adott adatlap alapján

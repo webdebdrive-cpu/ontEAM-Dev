@@ -7,7 +7,7 @@ if( isset($_GET['min_feltolt']) ) {
     $ftek = $adatbazis_kapcsolat->s('recid', 'fenntartasi_terv', "`ev`='2019'");
     foreach ( $ftek as $ft ) {
         if(!$adatbazis_kapcsolat->s('recid', 'fenntartasi_terv_miniprojekt', "`fenntartasi_terv_id`='{$ft['recid']}'")){
-            $ktgnemek = $adatbazis_kapcsolat->s('id', 'ktgnem', "`props` LIKE '%7034%'");
+            $ktgnemek = $adatbazis_kapcsolat->s('id', 'ktgnem', "`props` LIKE '%7034%' AND `torolve`=0");
             foreach($ktgnemek as $ktgnem){
                 $sql = $adatbazis_kapcsolat->i('fenntartasi_terv_miniprojekt',
                                                                         array('ktgnem_id',   'fenntartasi_terv_id', 'insert_dt',    'insert_usr',                             'update_usr'                           ),
@@ -249,7 +249,7 @@ if (isset($_POST['terv_keszit'])) {
         if( $ft_mini === false ) { $db_error = true; }
         // Miniprojekt esetén előfordulhat, hogy a kijelölt FT-nek nincs egyetlen miniprojekt rekordja sem. Ekkor a költségnem tábla alapján töltjük fel az alapértelmezett adatokkal
         if( !$ft_mini ) {
-            $ktgnemek = $adatbazis_kapcsolat->s('id', 'ktgnem', "`props` LIKE '%7034%'");
+            $ktgnemek = $adatbazis_kapcsolat->s('id', 'ktgnem', "`props` LIKE '%7034%' AND `torolve`=0");
             foreach ( $ktgnemek as $ktgnem ) {
                 $sql = $adatbazis_kapcsolat->i('fenntartasi_terv_miniprojekt',
                                                                         array('ktgnem_id',   'fenntartasi_terv_id', 'insert_dt',    'insert_usr',                             'update_usr'                           ),
@@ -732,7 +732,7 @@ if (isset($_POST['get_muszaki_tabla'])) {
             // Új sor beszúrásakor költségnemet kell tudni választani
             $ktgnem_select = '';
             if($uj){
-                $ktgnem_option = $adatbazis_kapcsolat->s('id nev', 'ktgnem', "`props` LIKE '%7030%'");
+                $ktgnem_option = $adatbazis_kapcsolat->s('id nev', 'ktgnem', "`props` LIKE '%7030%' AND `torolve`=0");
                 $ktgnem_option = tomb2option($ktgnem_option, 'id', 'nev');
                 $ktgnem_select = nl2('
                     <div class="dtr">
@@ -940,7 +940,7 @@ if (isset($_POST['get_rendszeres_tabla'])) {
             // Új sor beszúrásakor költségnemet kell tudni választani
             $ktgnem_select = '';
             if($uj){
-                $ktgnem_option  = $adatbazis_kapcsolat->s('id nev', 'ktgnem', "`props` LIKE '%7031%'");
+                $ktgnem_option  = $adatbazis_kapcsolat->s('id nev', 'ktgnem', "`props` LIKE '%7031%' AND `torolve`=0");
                 $ktgnem_option  = tomb2option($ktgnem_option, 'id', 'nev');
                 $ktgnem_select  = nl2('
                     <div class="dtr">
@@ -1138,7 +1138,7 @@ if (isset($_POST['get_eseti_tabla'])) {
             // Új sor beszúrásakor költségnemet kell tudni választani
             $ktgnem_select = '';
             if($uj){
-                $ktgnem_option = $adatbazis_kapcsolat->s('id nev', 'ktgnem', "`props` LIKE '%7032%'");
+                $ktgnem_option = $adatbazis_kapcsolat->s('id nev', 'ktgnem', "`props` LIKE '%7032%' AND `torolve`=0");
                 $ktgnem_option = tomb2option($ktgnem_option, 'id', 'nev');
                 $ktgnem_select = nl2('
                     <div class="dtr">
@@ -1339,7 +1339,7 @@ if (isset($_POST['get_hiba_tabla'])) {
             // Új sor beszúrásakor költségnemet kell tudni választani
             $ktgnem_select = '';
             if($uj){
-                $ktgnem_option = $adatbazis_kapcsolat->s('id nev', 'ktgnem', "`props` LIKE '%7033%'");
+                $ktgnem_option = $adatbazis_kapcsolat->s('id nev', 'ktgnem', "`props` LIKE '%7033%' AND `torolve`=0");
                 $ktgnem_option = tomb2option($ktgnem_option, 'id', 'nev');
                 $ktgnem_select = nl2('
                     <div class="dtr">
@@ -1536,7 +1536,7 @@ if (isset($_POST['get_mini_tabla'])) {
             // Új sor beszúrásakor költségnemet kell tudni választani
             $ktgnem_select = '';
             if ($uj) {
-                $ktgnem_option = $adatbazis_kapcsolat->s('id nev', 'ktgnem', "`props` LIKE '%7034%'");
+                $ktgnem_option = $adatbazis_kapcsolat->s('id nev', 'ktgnem', "`props` LIKE '%7034%' AND `torolve`=0");
                 $ktgnem_option = tomb2option($ktgnem_option, 'id', 'nev');
                 $ktgnem_select = nl2('
                     <div class="dtr">
@@ -1737,7 +1737,7 @@ if (isset($_POST['get_bwh_tabla'])) {
             // Új sor beszúrásakor költségnemet kell tudni választani
             $ktgnem_select = '';
             if($uj){
-                $ktgnem_option = $adatbazis_kapcsolat->s('id nev', 'ktgnem', "`props` LIKE '%7210%'");
+                $ktgnem_option = $adatbazis_kapcsolat->s('id nev', 'ktgnem', "`props` LIKE '%7210%' AND `torolve`=0");
                 $ktgnem_option = tomb2option($ktgnem_option, 'id', 'nev');
                 $ktgnem_select = nl2('
                     <div class="dtr">

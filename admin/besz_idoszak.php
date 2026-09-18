@@ -925,7 +925,7 @@ function eszkozigeny_archival($eszkozigenyles = []) {
             array_push($mezok,   $kulcs                 );
             array_push($ertekek, $eszkozigenyles[$kulcs]);
         }
-        
+
         // Címkék kiszámítása és ezek felvétele a mezőkbe
         $stat_txt       = getStatText('eszkozigenyles', $eszkozigenyles['stat_id']);
         $tipus_txt      = getErtek('nev', 'eszkozigenyles_tipus', 'recid', $eszkozigenyles['tipus']);
@@ -951,20 +951,20 @@ function eszkozigeny_archival($eszkozigenyles = []) {
         $te_alcsop_txt  = htmlspecialchars_decode( getErtek('nev', 'te_reszleg', 'recid', $eszkozigenyles['te_alcsop' ]) );
         $fiz_mod_txt    = htmlspecialchars_decode( getErtek('nev', 'eszkozigenyles_fiz_mod', 'recid', $eszkozigenyles['fiz_mod']) );
         $szallito_txt   = htmlspecialchars_decode( getErtek('nev', 'szallito_beszerzes', 'recid', $eszkozigenyles['szallito_id']) );
-        
+
         array_push($mezok,   'stat_txt', 'tipus_txt', 'prior_txt', 'hat_ido_txt',  'telephely_txt', 'reszleg_txt', 'te_reszleg_txt', 'te_focsop_txt', 'te_alcsop_txt', 'fiz_mod_txt', 'szallito_txt'  );
         array_push($ertekek, $stat_txt,  $tipus_txt,  $prior_txt,  $hat_ido_txt,   $telephely_txt,  $reszleg_txt,  $te_reszleg_txt,  $te_focsop_txt,  $te_alcsop_txt,  $fiz_mod_txt,  $szallito_txt   );
 
         // Archiválás
         $sql = $adatbazis_kapcsolat->i('eszkozigenyles_arch', $mezok, $ertekek);
         if( $sql === false ) { return false; }
-    
+
         // Törlés
         $sql = $adatbazis_kapcsolat -> d('eszkozigenyles', "`recid`='{$eszkozigenyles['recid']}'");
         if( $sql === false ) { return false; }
-    
-    
-    
+
+
+
         // Dokumentumok
         $doksik = $adatbazis_kapcsolat->s('*', 'eszkozigenyles_dok', "`eszkozigenyles_id`='{$eszkozigenyles['recid']}'");
         if( $doksik === false ) { return false; }
@@ -983,9 +983,30 @@ function eszkozigeny_archival($eszkozigenyles = []) {
         // Dokumentumok törlése
         $sql = $adatbazis_kapcsolat -> d('eszkozigenyles_dok', "`eszkozigenyles_id`='{$eszkozigenyles['recid']}'");
         if( $sql === false ) { return false; }
-    
-        
-    
+
+
+
+        // Tételek
+        $tetelek = $adatbazis_kapcsolat->s('*', 'eszkozigenyles_tetel', "`eszkozigenyles_id`='{$eszkozigenyles['recid']}'");
+        if( $tetelek === false ) { return false; }
+        foreach ($tetelek as $tetel_sor) {
+            $mezok   = array();
+            $ertekek = array();
+            foreach($tetel_sor as $kulcs => $ertek){
+                if( $kulcs!='recid' ){
+                    array_push($mezok,   $kulcs           );
+                    array_push($ertekek, $tetel_sor[$kulcs]);
+                }
+            }
+            $sql = $adatbazis_kapcsolat->i('eszkozigenyles_tetel_arch', $mezok, $ertekek);
+            if( $sql === false ) { return false; }
+        }
+        // Tételek törlése
+        $sql = $adatbazis_kapcsolat -> d('eszkozigenyles_tetel', "`eszkozigenyles_id`='{$eszkozigenyles['recid']}'");
+        if( $sql === false ) { return false; }
+
+
+
         // Státuszok
         $statuszok = $adatbazis_kapcsolat->s('*', 'eszkozigenyles_statusz', "`eszkozigenyles_recid`='{$eszkozigenyles['recid']}'");
         if( $statuszok === false ) { return false; }
@@ -998,14 +1019,14 @@ function eszkozigeny_archival($eszkozigenyles = []) {
                     array_push($ertekek, $statusz[$kulcs]);
                 }
             }
-            
+
             $stat_txt       = getStatText('eszkozigenyles', $statusz['stat_id']);
             $erteklista_txt = getErtek('info', 'erteklista', 'recid', $statusz['erteklista_recid']);
             if ($kulcs != 'recid') {
                 array_push($mezok,   'stat_txt',   'erteklista_txt');
                 array_push($ertekek, $stat_txt,    $erteklista_txt );
             }
-            
+
             $sql = $adatbazis_kapcsolat->i('eszkozigenyles_statusz_arch', $mezok, $ertekek);
             if( $sql === false ) { return false; }
         }
@@ -1013,13 +1034,13 @@ function eszkozigeny_archival($eszkozigenyles = []) {
         $sql = $adatbazis_kapcsolat -> d('eszkozigenyles_statusz', "`eszkozigenyles_recid`='{$eszkozigenyles['recid']}'");
         if( $sql === false ) { return false; }
 
-    
-    
+
+
         // Megjegyzések
         $megjegyzesek = $adatbazis_kapcsolat->s('*', 'megjegyzes', "`tabla`='eszkozigenyles' AND `id`='{$eszkozigenyles['recid']}'");
         if( $megjegyzesek === false ) { return false; }
         foreach ($megjegyzesek as $megj) {
-    
+
             $mezok   = array();
             $ertekek = array();
             foreach ($megj as $kulcs => $ertek) {
@@ -1028,7 +1049,7 @@ function eszkozigeny_archival($eszkozigenyles = []) {
                     array_push($ertekek, htmlspecialchars_decode( htmlspecialchars_decode( $megj[$kulcs] ) ) );
                 }
             }
-            
+
             $sql = $adatbazis_kapcsolat->i('megjegyzes_arch', $mezok, $ertekek);
             if( $sql === false ) { return false; }
         }
@@ -1039,7 +1060,7 @@ function eszkozigeny_archival($eszkozigenyles = []) {
 
 
         // Eszközigényléshez tartozó megrendelés archiválása
-        // Több olyan eszközigénylés is lehet, aminek azonos a rend_szam-a (mert mondjuk egy időszakhoz tartozó igényléseket járunk be ciklussal), 
+        // Több olyan eszközigénylés is lehet, aminek azonos a rend_szam-a (mert mondjuk egy időszakhoz tartozó igényléseket járunk be ciklussal),
         // tehát a megrendeles_archival többször is meg lesz hívva ugyanazzal a rend_szam-al. Ez nem gond, mert 2. körben már nem lesz találat a $megrendeles-ben (le lett archiválva)
         //  és az üresen átadott $megrendeles pedig le van kezelve.
         if( $eszkozigenyles['rend_szam'] ) {
@@ -1049,9 +1070,9 @@ function eszkozigeny_archival($eszkozigenyles = []) {
                 return false;
             }
         }
-        
+
     }
-        
+
     return true;
 }
 
@@ -1068,24 +1089,24 @@ function megrendeles_archival($megrendeles = []) {
             array_push($mezok,   $kulcs                 );
             array_push($ertekek, $megrendeles[$kulcs]  );
         }
-        
+
         // Címkék kiszámítása és ezek felvétele a mezőkbe
         $stat_txt       = htmlspecialchars_decode( getStatText('eszkozigenyles_megr', $megrendeles['stat_id']) );
         $telephely_txt  = htmlspecialchars_decode( getErtek('nev', 'telephely', 'id', $megrendeles['telephely_id']) );
         $szallito_txt   = htmlspecialchars_decode( getErtek('nev', 'szallito_beszerzes',  'recid', $megrendeles['szallito_id']) );
-        
+
         array_push($mezok,   'stat_txt', 'telephely_txt', 'szallito_txt'  );
         array_push($ertekek, $stat_txt,  $telephely_txt,  $szallito_txt   );
-    
+
         // Archiválás
         $sql = $adatbazis_kapcsolat->i('eszkozigenyles_megr_arch', $mezok, $ertekek);
         if( $sql === false ) { return false; }
-        
+
         // Törlés
         $sql = $adatbazis_kapcsolat -> d('eszkozigenyles_megr', "`recid`='{$megrendeles['recid']}'");
         if( $sql === false ) { return false; }
-        
-    
+
+
         // Dokumentumok
         $doksik = $adatbazis_kapcsolat->s('*', 'eszkozigenyles_megr_dok', "`eszkozigenyles_megr_id`='{$megrendeles['recid']}'");
         if( $doksik === false ) { return false; }
@@ -1104,8 +1125,8 @@ function megrendeles_archival($megrendeles = []) {
         // Dokumentumok törlése
         $sql = $adatbazis_kapcsolat -> d('eszkozigenyles_megr_dok', "`eszkozigenyles_megr_id`='{$megrendeles['recid']}'");
         if( $sql === false ) { return false; }
-    
-    
+
+
         // Státuszok
         $statuszok = $adatbazis_kapcsolat->s('*', 'eszkozigenyles_megr_statusz', "`eszkozigenyles_megr_recid`='{$megrendeles['recid']}'");
         if( $statuszok === false ) { return false; }
@@ -1118,28 +1139,28 @@ function megrendeles_archival($megrendeles = []) {
                     array_push($ertekek, $statusz[$kulcs]);
                 }
             }
-            
+
             $stat_txt       = getStatText('eszkozigenyles_megr', $statusz['stat_id']);
             $erteklista_txt = getErtek('info', 'erteklista', 'recid', $statusz['erteklista_recid']);
             if ($kulcs != 'recid') {
                 array_push($mezok,   'stat_txt',   'erteklista_txt');
                 array_push($ertekek, $stat_txt,    $erteklista_txt );
             }
-            
+
             $sql = $adatbazis_kapcsolat->i('eszkozigenyles_megr_statusz_arch', $mezok, $ertekek);
             if( $sql === false ) { return false; }
         }
         // Státuszok törlése
         $sql = $adatbazis_kapcsolat -> d('eszkozigenyles_megr_statusz', "`eszkozigenyles_megr_recid`='{$megrendeles['recid']}'");
         if( $sql === false ) { return false; }
-    
-    
-    
+
+
+
         // Megjegyzések
         $megjegyzesek = $adatbazis_kapcsolat->s('*', 'megjegyzes', "`tabla`='eszkozigenyles_megr' AND `id`='{$megrendeles['recid']}'");
         if( $megjegyzesek === false ) { return false; }
         foreach ($megjegyzesek as $megj) {
-    
+
             $mezok   = array();
             $ertekek = array();
             foreach ($megj as $kulcs => $ertek) {
@@ -1148,7 +1169,7 @@ function megrendeles_archival($megrendeles = []) {
                     array_push($ertekek, htmlspecialchars_decode( htmlspecialchars_decode( $megj[$kulcs] ) ) );
                 }
             }
-            
+
             $sql = $adatbazis_kapcsolat->i('megjegyzes_arch', $mezok, $ertekek);
             if( $sql === false ) { return false; }
         }

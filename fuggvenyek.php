@@ -1772,7 +1772,19 @@ function i_u($type, $tabla, $tomb) {
                     // }
                 }
             }
-            
+
+            // Első tétel automatikus létrehozása a fej adataiból, a beküldött POST alapján (nincs szükség külön lekérdezésre, hisz épp ezekkel az adatokkal jött létre a fej sora is)
+            $tetel_ignetto = $_POST['igmen']*$_POST['netto'];
+            $sql = $adatbazis_kapcsolat -> i('eszkozigenyles_tetel',
+                                                array('eszkozigenyles_id', 'nev',         'spec',         'csz',         'igmen',         'igar',         'ignetto',        'insert_dt',         'insert_usr',                            'update_usr'                            ),
+                                                array($id,                 $_POST['nev'], $_POST['spec'], $_POST['csz'], $_POST['igmen'], $_POST['netto'], $tetel_ignetto,   date('Y-m-d H:i:s'), $_SESSION[get_db_tabla().'teljes_nev'], $_SESSION[get_db_tabla().'teljes_nev'] )
+                                            );
+            if( $sql === false ) { $db_error = true; }
+
+            // Tétel darabszám (dok_db/megj_db mintájára) beírása a fejbe, ez jelenik meg a Tételek fülcímkén zárójelben
+            $sql = $adatbazis_kapcsolat -> u($tabla, array('tetel_db'), array('1'), "`recid`='{$id}'");
+            if( $sql === false ) { $db_error = true; }
+
         }
 
         // Fenntartási számla tételeinek felvétele, köztes tábla törlése INSERT után
@@ -8340,11 +8352,16 @@ function eszkozigenylesLista( $bejegyzesek, $tabla, $frissit = '', $kijeloltek =
 function get_eszkozigenyles_gombok($recid = 0) {
     global $adatbazis_kapcsolat;
 
-    $eszkozigenyles = $adatbazis_kapcsolat -> s2('stat_id tipus telephely_id nev kiv_kolts becsult ossz_netto igmen jhmen musz_el_ig musz_indok szall_ig_vel szall_ig_indok bi_vel bi_indok bi_jh bi_jh_indok szak_vel szak_indok felso_vel felso_indok bi_vegl bi_vegl_indok szallito_id', 'eszkozigenyles', "`recid`='{$recid}'");
+    $eszkozigenyles = $adatbazis_kapcsolat -> s2('stat_id tipus telephely_id nev kiv_kolts becsult ossz_netto igmen jhmen tetel_db musz_el_ig musz_indok szall_ig_vel szall_ig_indok bi_vel bi_indok bi_jh bi_jh_indok szak_vel szak_indok felso_vel felso_indok bi_vegl bi_vegl_indok szallito_id', 'eszkozigenyles', "`recid`='{$recid}'");
 
     $gombok = '';
     if( isset($_GET['tablazat']) ) {
-        $gombok .= '<input type="button" class="gomb modositaskor_rejt" onclick="csoportMuvelet(\'eszkozigenyles_tablazat_beallitasai\')" value="Táblázat beállítása">';
+        $gombok .= '<input type="button" class="gomb modositaskor_rejt" onclick="csoportMuvelet(\'eszkozigenyles_tablazat_beallitasai\')" value="Táblázat beállítása"> ';
+    }
+    // Tételek kezelése: csak létező (élő táblabeli) rekordnál jelenik meg, státusztól/jogtól függetlenül (a szerkeszthetőséget a popup backendje dönti el).
+    // Archivált igénylésnél (ahol ez a recid már nincs az élő táblában) nem jelenik meg, mert a popup az élő eszkozigenyles_tetel táblát kezelné.
+    if( $recid && $eszkozigenyles['stat_id'] ) {
+        $gombok .= '<input type="button" class="gomb modositaskor_rejt" onclick="csoportMuvelet(\'eszkozigenyles_tetelek_kezelese\')" value="Tételek kezelése"> ';
     }
     // Új felvitel:
     if( $eszkozigenyles['tipus'] == BESZ_TIP_TERVEZETT && $eszkozigenyles['stat_id'] == ESZKOZIGENYL_STAT_UJ_FELVITEL && _jog(JOG_BESZERZ_IGENYLESEK_LETREH) ) {
@@ -8488,6 +8505,7 @@ function get_eszkozigenyles_gombok($recid = 0) {
         }
         $gombok .= nl2('
             <input type="button" class="gomb modositaskor_rejt" onclick="csoportMuvelet(\'eszkozigenyles_jhmen_mod\')" value="Jóváhagyott mennyiség">
+            <input type="button" class="gomb modositaskor_rejt" onclick="csoportMuvelet(\'eszkozigenyles_tetelek_jovahagyasa\')" value="Tételek jóváhagyása">
             <input type="button" class="gomb modositaskor_rejt zold" onclick="csoportMuvelet(\'eszkozigenyles_felso_jovahagy\')" value="✓ Jóváhagyás">
             <input type="button" class="gomb modositaskor_rejt sarga" onclick="csoportMuvelet(\'eszkozigenyles_felso_feltetelekkel\')" value="? Feltételekkel jóváhagyás">
             <input type="button" class="gomb modositaskor_rejt piros" onclick="csoportMuvelet(\'eszkozigenyles_felso_elutasit\')" value="× Elutasítás">
@@ -8530,6 +8548,7 @@ function get_eszkozigenyles_gombok($recid = 0) {
                 <input type="hidden" id="tipus_db_'.$recid.'" value="'.$eszkozigenyles['tipus'].'">
                 <input type="hidden" id="igmen_db_'.$recid.'" value="'.$eszkozigenyles['igmen'].'">
                 <input type="hidden" id="jhmen_db_'.$recid.'" value="'.$eszkozigenyles['jhmen'].'">
+                <input type="hidden" id="tetel_db_'.$recid.'" value="'.$eszkozigenyles['tetel_db'].'">
                 <input type="hidden" id="becsult_db_'.$recid.'" value="'.$eszkozigenyles['becsult'].'">
                 <div class="dn">
                     <textarea id="musz_indok_db_'.$recid.'">'.nl2br2($eszkozigenyles['musz_indok']).'</textarea>

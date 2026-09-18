@@ -410,12 +410,16 @@ if( $sor['dok_db'] ) {
 if( $sor['megj_db'] ) {
     $megj_db = ' ('.$sor['megj_db'].')';
 }
+if( $sor['tetel_db'] ) {
+    $tetel_db = ' ('.$sor['tetel_db'].')';
+}
 
-if( !isset($_GET['uj']) && ( isset($_GET['tablazat']) || isset($_GET['modosit']) || isset($_GET['jovahagyasok']) || isset($_GET['tortenet']) || isset($_GET['dokumentumok']) || isset($_GET['megjegyzesek']) ) ) {
+if( !isset($_GET['uj']) && ( isset($_GET['tablazat']) || isset($_GET['modosit']) || isset($_GET['tetel']) || isset($_GET['jovahagyasok']) || isset($_GET['tortenet']) || isset($_GET['dokumentumok']) || isset($_GET['megjegyzesek']) ) ) {
     // Számla fülek
     $ful_tomb = array(
         'tablazat'      => 'Eszközigénylés',
         'modosit'       => 'Adatlap',
+        'tetel'         => 'Tételek'.$tetel_db,
         'jovahagyasok'  => 'Jóváhagyások',
         'tortenet'      => 'Történet',
         'dokumentumok'  => 'Dokumentumok'.$dok_db,
@@ -650,6 +654,79 @@ if( isset($_GET['uj']) ) {
 
     if( $tobb_kep ) {
         require_once('tobb_kep.php');
+    }
+
+// Tételek
+} elseif( isset($_GET['tetel']) ) {
+
+    $deviza = '';
+    if( $sor['kcs_21'] != KCS_21_HUF ) {
+        $deviza = ' ('.erteklista(ERTEKLISTA_PENZNEM, $sor['kcs_21']).')';
+    }
+    $tizedesek = 0;
+    if( $sor['kcs_21'] != KCS_21_HUF ) {
+        $tizedesek = 2;
+    }
+
+    $szamla_html .= nl2('
+        <div class="dt naplo">
+            <div class="dtr nFejlec">
+                <div class="dtc">Név</div>
+                <div class="dtc">Specifikáció</div>
+                <div class="dtc">Cikkszám</div>
+                <div class="dtc r">Igényelt menny.</div>
+                <div class="dtc r">Igényelt egységár'.$deviza.'</div>
+                <div class="dtc r">Igényelt nettó'.$deviza.'</div>
+                <div class="dtc r">Jóváhagyott menny.</div>
+                <div class="dtc r">Jóváhagyott egységár'.$deviza.'</div>
+                <div class="dtc r">Jóváhagyott nettó'.$deviza.'</div>
+            </div>
+    ');
+
+    // Tételek felsorolása
+    if( $_GET['id'] ) {
+        $tetelek = $adatbazis_kapcsolat->s('*', 'eszkozigenyles_tetel_arch', "`eszkozigenyles_id`='{$_GET['id']}'", 'recid');
+        foreach ( $tetelek as $tetel ) {
+
+            $igar    = $tetel['igar'];
+            $ignetto = $tetel['ignetto'];
+            $jhar    = $tetel['jhar'];
+            $jhnetto = $tetel['jhnetto'];
+            if( $sor['kcs_21'] != KCS_21_HUF && $sor['arfolyam'] > 0 ) {
+                $igar    = $igar/$sor['arfolyam'];
+                $ignetto = $ignetto/$sor['arfolyam'];
+                $jhar    = $jhar/$sor['arfolyam'];
+                $jhnetto = $jhnetto/$sor['arfolyam'];
+            }
+
+            $szamla_html .= nl2('
+                <div class="dtr nSor">
+                    <div class="dtc">'.htmlspecialchars_decode($tetel['nev']).'</div>
+                    <div class="dtc">'.htmlspecialchars_decode($tetel['spec']).'</div>
+                    <div class="dtc">'.htmlspecialchars_decode($tetel['csz']).'</div>
+                    <div class="dtc r nowrap">'.number_format($tetel['igmen'], 0, ',', ' ').'</div>
+                    <div class="dtc r nowrap">'.number_format($igar,    $tizedesek, ',', ' ').'</div>
+                    <div class="dtc r nowrap">'.number_format($ignetto, $tizedesek, ',', ' ').'</div>
+                    <div class="dtc r nowrap">'.number_format($tetel['jhmen'], 0, ',', ' ').'</div>
+                    <div class="dtc r nowrap">'.number_format($jhar,    $tizedesek, ',', ' ').'</div>
+                    <div class="dtc r nowrap">'.number_format($jhnetto, $tizedesek, ',', ' ').'</div>
+                </div>
+            ');
+        }
+    }
+    $szamla_html .= '</div>';
+
+    // A léptetés csak akkor fog működni, ha a bal navpanel kódja benne van a kódban
+    // FONTOS, hogy nem lehet "dn", mert látszania kell, hogy a JavaScript tudjon vele dolgozni. A létetéshez kell.
+    $szamla_html .= '<div class="vh" style="height: 0; width: 0; overflow: hidden;">'.$balNavPanelHTMLje.'</div>';
+
+    if( $_GET['ajax'] ) {
+        echo json_encode(array(
+            'tartalom' => $szamla_html.$gombok,
+            'link'     => get_get(array('ajax', 'kat', 'epo', 'oldal', 'order'), true)
+        ));
+    } else {
+        echo $szamla_html.$gombok;
     }
 
 // Jóváhagyások - ugyanaz mint a modosit

@@ -1,0 +1,130 @@
+<h2>Tételek jóváhagyása</h2>
+
+<div class="kozep" style="min-height: 20rem">
+    <div id="osszesito" style="margin-bottom: 1rem; font-weight: 600;">
+        Összesített jóváhagyott nettó: <span id="jh_ossz_netto">0</span> <span class="f_penznem"></span>
+    </div>
+
+    <table class="csikos" id="pop_jh_tetelek">
+        <thead>
+        <tr>
+            <th class="l">Név</th>
+            <th class="l">Cikkszám</th>
+            <th class="r">Igényelt menny.</th>
+            <th class="r">Igényelt egységár</th>
+            <th class="r">Jóváhagyott menny.</th>
+            <th class="r">Jóváhagyott nettó</th>
+        </tr>
+        </thead>
+        <tbody></tbody>
+    </table>
+</div>
+<div class="kuldes">
+    <input type="button" class="gomb zold" value="Mentés" onclick="tetel_jh_mentes()">
+    <input type="button" class="gomb piros" value="Mégsem" onclick="popupZar();">
+</div>
+<script>
+
+var akt_penznem = $('#kcs_21_autocomp').val();
+if( !akt_penznem ) {
+    akt_penznem = $('#kcs_21_autocomp_db').val();
+}
+
+$(document).ready(function(){
+    $('.f_penznem').each(function () {
+        $(this).replaceWith(akt_penznem);
+    });
+    tetel_jh_lista_betolt();
+});
+
+function tetel_jh_lista_betolt() {
+    $.ajax({
+        url : 'eszkozigenyles.php',
+        type: 'POST',
+        data: {
+            id               : _get('id'),
+            tetel_jh_feltolt : Date.now()
+        },
+        success: function(response) {
+            if(response.substring(0, 6)=='SESKIL'){ location.href = 'index.php'; }
+            if( response ) {
+                response = JSON.parse(response);
+                if( response.hiba ) {
+                    alert2(response.hiba, response.gomb, response.title);
+                    return false;
+                }
+                $('#pop_jh_tetelek tbody').html(response.html);
+                tetel_jh_osszesito_frissit();
+            }
+        },
+        complete: function(xhr) {
+            if( xhr.status != 200 ) {
+                alert2(xhr.responseText, '', 'Hiba');
+            }
+        }
+    });
+}
+
+$(document).on('input', '.pop_jh_jhmen', function() {
+    var jhmen = $(this).val().replace(/\s/g, '').replace(',', '.');
+    var jhar  = $(this).attr('data-jhar');
+    var jhnetto = (Number(jhmen)||0) * Number(jhar);
+    $(this).closest('tr').find('.pop_jh_jhnetto').html( number_format(jhnetto, 0, ',', ' ') );
+    tetel_jh_osszesito_frissit();
+});
+
+function tetel_jh_osszesito_frissit() {
+    var osszeg = 0;
+    $('.pop_jh_jhnetto').each(function() {
+        osszeg += Number($(this).text().replace(/\s/g, '').replace(',', '.'));
+    });
+    $('#jh_ossz_netto').html( number_format(osszeg, 0, ',', ' ') );
+}
+
+function tetel_jh_mentes() {
+
+    var tetel_idk = [];
+    var jhmenek   = [];
+    $('.pop_jh_jhmen').each(function() {
+        tetel_idk.push( $(this).attr('data-recid') );
+        jhmenek.push( $(this).val().replace(/\s/g, '').replace(',', '.') );
+    });
+
+    $.ajax({
+        url : 'eszkozigenyles.php',
+        type: 'POST',
+        data: {
+            id           : _get('id'),
+            tetel_idk    : JSON.stringify(tetel_idk),
+            jhmenek      : JSON.stringify(jhmenek),
+            tetel_jh_ment: Date.now()
+        },
+        success: function(response) {
+            if(response.substring(0, 6)=='SESKIL'){ location.href = 'index.php'; }
+            if( response ) {
+                response = JSON.parse(response);
+                if( response.hiba ) {
+                    alert2(response.hiba, response.gomb, response.title);
+                    return false;
+                }
+                popupZar();
+                $('.muveletek').html(response.gombok);
+
+                let ful = '';
+                eszkoz_fulek.forEach(function(akt_ful) {
+                    if( isset_get(akt_ful) ) {
+                        ful = akt_ful;
+                        return;
+                    }
+                });
+                szamlaBetolt(_get('id'), baseName(location.href) + '.php', ful);
+            }
+        },
+        complete: function(xhr) {
+            if( xhr.status != 200 ) {
+                alert2(xhr.responseText, '', 'Hiba');
+            }
+        }
+    });
+}
+</script>

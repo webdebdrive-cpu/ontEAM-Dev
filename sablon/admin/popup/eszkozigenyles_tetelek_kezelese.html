@@ -1,0 +1,314 @@
+<h2>Tételek kezelése</h2>
+
+<div class="kozep" style="min-height: 30rem">
+    <div id="osszesito" style="margin-bottom: 1rem; font-weight: 600;">
+        Igényelt nettó összesen: <span id="tetel_ossz_netto">0</span> <span class="f_penznem"></span>
+    </div>
+
+    <div id="tetel_form" class="dn">
+        <div class="dt">
+            <div class="dtr">
+                <div class="dtc form_bal">Név:</div>
+                <div class="dtc form_jobb"><input type="text" id="pop_nev" class="oriasi csillag" maxlength="60"></div>
+            </div>
+            <div class="dtr">
+                <div class="dtc form_bal">Specifikáció:</div>
+                <div class="dtc form_jobb"><input type="text" id="pop_spec" class="oriasi" maxlength="100"></div>
+            </div>
+            <div class="dtr">
+                <div class="dtc form_bal">Cikkszám:</div>
+                <div class="dtc form_jobb"><input type="text" id="pop_csz" class="oriasi" maxlength="20"></div>
+            </div>
+            <div class="dtr">
+                <div class="dtc form_bal">Igényelt mennyiség:</div>
+                <div class="dtc form_jobb"><input type="text" id="pop_igmen" class="f_num f_csak_pozitiv csillag" data-tort="0" style="width: 8rem;"> db</div>
+            </div>
+            <div class="dtr">
+                <div class="dtc form_bal">Igényelt egységár:</div>
+                <div class="dtc form_jobb"><input type="text" id="pop_igar" class="f_num f_csak_pozitiv csillag" data-tort="0" style="width: 10rem;"> <span class="f_penznem"></span></div>
+            </div>
+        </div>
+        <input type="hidden" id="pop_tetel_id" value="">
+        <br><input type="button" id="tetel_hozzaad_gomb" class="gomb" value="Új tétel hozzáadása" onclick="tetel_hozzaadasa()">
+        <input type="button" id="tetel_hozzaad_megsem_gomb" class="gomb piros dn" value="Mégsem" onclick="tetel_form_urit()">
+    </div>
+
+    <table class="csikos" id="pop_tetelek" style="margin-top: 1rem;">
+        <thead>
+        <tr>
+            <th class="l">Név</th>
+            <th class="l">Specifikáció</th>
+            <th class="l">Cikkszám</th>
+            <th class="r">Igényelt menny.</th>
+            <th class="r">Igényelt egységár</th>
+            <th class="r">Igényelt nettó</th>
+            <th id="tetel_th_szerk"></th>
+            <th id="tetel_th_torol"></th>
+        </tr>
+        </thead>
+        <tbody></tbody>
+    </table>
+</div>
+<div class="kuldes">
+    <input type="button" id="tetel_mentes_gomb" class="gomb zold dn" value="Mentés" onclick="tetel_sorok_ment()">
+    <input type="button" class="gomb piros" value="Mégsem" onclick="bezar_gomb();">
+</div>
+<script>
+
+var akt_penznem = $('#kcs_21_autocomp').val();
+if( !akt_penznem ) {
+    akt_penznem = $('#kcs_21_autocomp_db').val();
+}
+
+var van_valtozas = false;
+var torolt_sorok = [];
+var szerkesztheto_e = false;
+
+$(document).ready(function(){
+    $('.f_penznem').each(function () {
+        $(this).replaceWith(akt_penznem);
+    });
+    tetel_lista_betolt();
+});
+
+function tetel_lista_betolt() {
+    $.ajax({
+        url : 'eszkozigenyles.php',
+        type: 'POST',
+        data: {
+            id                  : _get('id'),
+            tetel_lista_feltolt : Date.now()
+        },
+        success: function(response) {
+            if(response.substring(0, 6)=='SESKIL'){ location.href = 'index.php'; }
+            if( response ) {
+                response = JSON.parse(response);
+                if( response.hiba ) {
+                    alert2(response.hiba, response.gomb, response.title);
+                    return false;
+                }
+                $('#pop_tetelek tbody').html(response.html);
+                szerkesztheto_e = response.szerkesztheto ? true : false;
+                if( szerkesztheto_e ) {
+                    $('#tetel_form').removeClass('dn');
+                    $('#tetel_mentes_gomb').removeClass('dn');
+                    $('#tetel_th_szerk, #tetel_th_torol').html('Szerkesztés');
+                    $('#tetel_th_torol').html('Törlés');
+                } else {
+                    $('#tetel_form').addClass('dn');
+                }
+                tetel_osszesito_frissit();
+            }
+        },
+        complete: function(xhr) {
+            if( xhr.status != 200 ) {
+                alert2(xhr.responseText, '', 'Hiba');
+            }
+        }
+    });
+}
+
+function tetel_osszesito_frissit() {
+    var osszeg = 0;
+    $('#pop_tetelek .pop_ignetto').each(function() {
+        osszeg += Number($(this).text().replace(/\s/g, '').replace(',', '.'));
+    });
+    $('#tetel_ossz_netto').html(number_format(osszeg, 0, ',', ' '));
+}
+
+function tetel_form_urit() {
+    $('#pop_nev').val('');
+    $('#pop_spec').val('');
+    $('#pop_csz').val('');
+    $('#pop_igmen').val('');
+    $('#pop_igar').val('');
+    $('#pop_tetel_id').val('');
+    $('#tetel_hozzaad_gomb').val('Új tétel hozzáadása');
+    $('#tetel_hozzaad_megsem_gomb').addClass('dn');
+}
+
+// Tétel szerkesztése: a sor celláinak tartalmát betöltjük a form mezőkbe
+function tetel_sor_szerk(sor_id) {
+    var sor = $('.'+sor_id);
+    $('#pop_nev'  ).val( sor.find('.pop_nev'  ).text() );
+    $('#pop_spec' ).val( sor.find('.pop_spec' ).text() );
+    $('#pop_csz'  ).val( sor.find('.pop_csz'  ).text() );
+    $('#pop_igmen').val( sor.find('.pop_igmen').text() );
+    $('#pop_igar' ).val( sor.find('.pop_igar' ).text() );
+    $('#pop_tetel_id').val(sor_id);
+    $('#tetel_hozzaad_gomb').val('Tétel mentése');
+    $('#tetel_hozzaad_megsem_gomb').removeClass('dn');
+    $('#pop_nev').focus();
+}
+
+// Tétel sor törlése a táblázatból (DB-be csak a popup Mentés gombjára íródik)
+function tetel_sor_torol(sor_id, mehet) {
+    if( !mehet ) {
+        alert2('Biztosan törli ezt a tételt?', '<input type="button" class="gomb zold" value="Igen" onclick="tetel_sor_torol(\''+sor_id+'\', \'mehet\'); alert2();"><input type="button" class="gomb piros" value="Nem" onclick="alert2();">', 'Kérdés');
+        return false;
+    }
+
+    van_valtozas = true;
+
+    var recid = $('.'+sor_id+' .pop_recid').val();
+    if( recid ) {
+        torolt_sorok.push(recid);
+    }
+
+    $('.'+sor_id).fadeOut('slow', function(){
+        $('.'+sor_id).remove();
+        tetel_osszesito_frissit();
+    });
+
+    tetel_form_urit();
+}
+
+// Tétel hozzáadása / a szerkesztett tétel sor frissítése a táblázatban (még csak a böngészőben, DB-be csak Mentéskor kerül)
+function tetel_hozzaadasa() {
+
+    var nev   = $('#pop_nev'  ).val().trim();
+    var spec  = $('#pop_spec' ).val().trim();
+    var csz   = $('#pop_csz'  ).val().trim();
+    var igmen = $('#pop_igmen').val().replace(/\s/g, '').replace(',', '.');
+    var igar  = $('#pop_igar' ).val().replace(/\s/g, '').replace(',', '.');
+    var sor_id = $('#pop_tetel_id').val();
+
+    if( !nev ) {
+        alert2('Kérem töltse ki a tétel nevét!', '', 'Hiba');
+        $('#pop_nev').addClass('hibas_ide_focus');
+        return false;
+    }
+    if( !igmen || igmen<=0 ) {
+        alert2('Kérem töltse ki az igényelt mennyiséget!', '', 'Hiba');
+        $('#pop_igmen').addClass('hibas_ide_focus');
+        return false;
+    }
+    if( igar==='' || igar<0 ) {
+        alert2('Kérem töltse ki az igényelt egységárat!', '', 'Hiba');
+        $('#pop_igar').addClass('hibas_ide_focus');
+        return false;
+    }
+
+    van_valtozas = true;
+
+    var ignetto = number_format(igmen*igar, 0, ',', ' ');
+    var igmen_kiir = number_format(igmen, 0, ',', ' ');
+    var igar_kiir  = number_format(igar,  0, ',', ' ');
+
+    // Ha ismert a sor_id, akkor a meglévő sort frissítjük
+    if( sor_id ) {
+
+        $('.'+sor_id+' .pop_nev'    ).text( nev       );
+        $('.'+sor_id+' .pop_spec'   ).text( spec      );
+        $('.'+sor_id+' .pop_csz'    ).text( csz       );
+        $('.'+sor_id+' .pop_igmen'  ).text( igmen_kiir);
+        $('.'+sor_id+' .pop_igar'   ).text( igar_kiir );
+        $('.'+sor_id+' .pop_ignetto').text( ignetto   );
+
+    // Egyébként új sor hozzáadása a táblázathoz
+    } else {
+
+        var id_tmp = 'uj_'+Date.now();
+        var table_sor = '<tr class="pop_tetel_'+id_tmp+'">' +
+                            '<td class="pop_nev l">'    + nev        + '</td>' +
+                            '<td class="pop_spec l">'   + spec       + '</td>' +
+                            '<td class="pop_csz l">'    + csz        + '</td>' +
+                            '<td class="pop_igmen r nowrap">'   + igmen_kiir + '</td>' +
+                            '<td class="pop_igar r nowrap">'    + igar_kiir  + '</td>' +
+                            '<td class="pop_ignetto r nowrap">' + ignetto    + '</td>' +
+                            '<td><a class="szerk" onclick="tetel_sor_szerk(\'pop_tetel_'+id_tmp+'\');">🖉</a></td>' +
+                            '<td><a onclick="tetel_sor_torol(\'pop_tetel_'+id_tmp+'\');"><span class="icon"><i class="material-icons">delete</i></span></a>' +
+                                '<input type="hidden" class="pop_recid" value="">' +
+                            '</td>' +
+                        '</tr>';
+
+        $('#pop_tetelek tbody').append(table_sor);
+    }
+
+    tetel_osszesito_frissit();
+    tetel_form_urit();
+    $('#pop_nev').focus();
+}
+
+// Popup Mentés gomb: a táblázatban jelenleg szereplő összes sort (és a törölt sorokat) egyben küldjük a szervernek
+function tetel_sorok_ment() {
+
+    var sorok = $('#pop_tetelek tbody tr');
+    if( sorok.length < 1 ) {
+        alert2('Legalább egy tételt fel kell venni!', '', 'Hiba');
+        return false;
+    }
+
+    var recidk  = [];
+    var nevek   = [];
+    var specek  = [];
+    var cszk    = [];
+    var igmenek = [];
+    var igarok  = [];
+
+    sorok.each(function() {
+        recidk.push ( $(this).find('.pop_recid' ).val() );
+        nevek.push  ( $(this).find('.pop_nev' ).text() );
+        specek.push ( $(this).find('.pop_spec').text() );
+        cszk.push   ( $(this).find('.pop_csz' ).text() );
+        igmenek.push( $(this).find('.pop_igmen').text().replace(/\s/g, '').replace(',', '.') );
+        igarok.push ( $(this).find('.pop_igar' ).text().replace(/\s/g, '').replace(',', '.') );
+    });
+
+    $.ajax({
+        url : 'eszkozigenyles.php',
+        type: 'POST',
+        data: {
+            id               : _get('id'),
+            recidk           : JSON.stringify(recidk),
+            nevek            : JSON.stringify(nevek),
+            specek           : JSON.stringify(specek),
+            cszk             : JSON.stringify(cszk),
+            igmenek          : JSON.stringify(igmenek),
+            igarok           : JSON.stringify(igarok),
+            torolt_sorok     : JSON.stringify(torolt_sorok),
+            tetel_sorok_ment : Date.now()
+        },
+        success: function(response) {
+            if(response.substring(0, 6)=='SESKIL'){ location.href = 'index.php'; }
+            if( response ) {
+                response = JSON.parse(response);
+                if( response.hiba ) {
+                    alert2(response.hiba, response.gomb, response.title);
+                    return false;
+                }
+                van_valtozas = false;
+                popupZar();
+                if( $('#ossz_netto').length ) {
+                    $('#ossz_netto').val(response.ossz_netto);
+                }
+                $('.muveletek').html(response.gombok);
+
+                let ful = '';
+                eszkoz_fulek.forEach(function(akt_ful) {
+                    if( isset_get(akt_ful) ) {
+                        ful = akt_ful;
+                        return;
+                    }
+                });
+                szamlaBetolt(_get('id'), baseName(location.href) + '.php', ful);
+            }
+        },
+        complete: function(xhr) {
+            if( xhr.status != 200 ) {
+                alert2(xhr.responseText, '', 'Hiba');
+            }
+        }
+    });
+}
+
+// Azért van külön függvénye, hogy rá lehessen kérdezni, ha volt mentetlen változás
+function bezar_gomb(mehet) {
+    if( van_valtozas && !mehet ) {
+        alert2('A változások nincsenek mentve. Folytatja?', '<input type="button" class="gomb zold" value="Igen" onclick="bezar_gomb(\'mehet\')"><input type="button" class="gomb piros" value="Nem" onclick="alert2();">', 'Kérdés');
+    } else {
+        alert2();
+        popupZar();
+    }
+}
+</script>

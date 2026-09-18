@@ -1614,6 +1614,9 @@ class ServerClass {
         if( $szerzodes_adatok['Rögzítő neve']                           ) { array_push($mezok, 'ikt_usr'        ); array_push($ertekek, $szerzodes_adatok['Rögzítő neve']                           ); }
         if( $szerzodes_adatok['Szerződés iktatószáma']                  ) { array_push($mezok, $szszam_mezo     ); array_push($ertekek, $szerzodes_adatok['Szerződés iktatószáma']                  ); }
         if( $szerzodes_adatok['Partner száma']                          ) { array_push($mezok, 'szallito_id'    ); array_push($ertekek, $szallito_id                                                ); }
+        // Ha a partner még nincs beazonosítva (mínuszos placeholder ID), az elozo_id mezőt is eltároljuk,
+        // hogy update_szallito_id() a helyes kód megérkezésekor meg tudja találni és javítani ezt a sort
+        if( $szerzodes_adatok['Partner száma'] && $szallito_id < 0      ) { array_push($mezok, 'elozo_id'       ); array_push($ertekek, $szallito_id                                                ); }
         if( $szerzodes_adatok['Fizetési feltétel']                      ) { array_push($mezok, 'fiz_felt'       ); array_push($ertekek, $szerzodes_adatok['Fizetési feltétel']                      ); }
         if( $szerzodes_adatok['Szerződés Típus']                        ) { array_push($mezok, 'sztipus'        ); array_push($ertekek, $sztipus                                                    ); }
         if( $szerzodes_adatok['Hatályos']                               ) { array_push($mezok, 'hatalyos'       ); array_push($ertekek, $hatalyos                                                   ); }
