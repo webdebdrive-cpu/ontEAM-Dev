@@ -621,6 +621,7 @@ switch ( $tabla ) {
                                     `'.get_db_tabla().$tabla_nophp.'`.`rend_szam`,
                                     `'.get_db_tabla().$tabla_nophp.'`.`dok_db`,
                                     `'.get_db_tabla().$tabla_nophp.'`.`megj_db`,
+                                    `'.get_db_tabla().$tabla_nophp.'`.`tetel_db`,
                                     `'.get_db_tabla().'szallito_beszerzes`.`nev` AS `szall_nev`
                                 ');
 
@@ -3601,7 +3602,7 @@ $munkadij_post = '';
 $egyeb_post    = '  <span style="margin-left: 3.3rem"></span>';
 if( $tabla == 'eszkozigenyles' && $_GET['id'] ) {
 
-    $eszkozig = $adatbazis_kapcsolat -> s2('kcs_21 stat_id', 'eszkozigenyles', "`recid`='{$_GET['id']}'");
+    $eszkozig = $adatbazis_kapcsolat -> s2('kcs_21 stat_id tetel_db', 'eszkozigenyles', "`recid`='{$_GET['id']}'");
 
     if( $eszkozig['stat_id'] == ESZKOZIGENYL_STAT_UJ_FELVITEL && _jog(JOG_BESZERZ_IGENYLESEK_LETREH) ) {
         $mezok_disabled = $huf_disabled = '';
@@ -3628,6 +3629,15 @@ if( $tabla == 'eszkozigenyles' && $_GET['id'] ) {
     // }
     $tipus_disabled = '1';
 
+}
+
+// Nettó egységár mező: ha az igénylésnek már van legalább egy tétele, onnantól kizárólag a Tételek kezelése popup-ból írható, minden státuszban readonly.
+// Ha nincs még tétele (mert nem minden igényléshez jön létre automatikusan), akkor marad a korábbi, $huf_disabled szerinti szerkeszthetőség.
+// Ugyanígy az Igényelt mennyiség: tételes igénylésnél a tételekből jön (több tételnél a fej csak összesítő), ezért minden státuszban readonly.
+$netto_disabled = $huf_disabled;
+$igmen_disabled = $mezok_disabled;
+if( $tabla == 'eszkozigenyles' && $_GET['id'] && $eszkozig['tetel_db'] > 0 ) {
+    $netto_disabled = $igmen_disabled = 1;
 }
 
 $megnevezes = 'eszkozigenyles';
@@ -3659,9 +3669,9 @@ $akt_tomb = $eszkozigenyles_tomb = $eszkozigenyles_arch_tomb = array(
     array('type' => 'text',                     'megn' => 'Árfolyam:',                                  'name' => 'arfolyam',       'szuro' => 1,   'class' => 'f_num f_csak_pozitiv',   'data' => 'data-tort="5"',  'disabled' => $dev_disabled,   'sql_disabledkor_is' => 1, 'osszevon' => 1, 'post' => ' <span style="margin-left: 1rem"></span>'/*, 'alert' => 'Kérem adja meg az árfolyamot!'*/),
     array('type' => 'text',                     'megn' => 'Deviza egységár:',                           'name' => 'dev_net',        'szuro' => 1,   'class' => 'f_num f_csak_pozitiv',   'data' => 'data-tort="2"',  'disabled' => $dev_disabled,   'sql_disabledkor_is' => 1, 'osszevon' => 1, 'post' => ' <span style="margin-left: 5.4rem"></span>'/*, 'alert' => 'Kérem adja meg a Deviza egységárat!'*/),
     array('type' => 'text',                     'megn' => 'Deviza összesen:',                           'name' => 'ossz_dev',       'szuro' => 1,   'class' => 'f_num',   'data' => 'data-tort="2"',  'disabled' => 1,               'sql_disabledkor_is' => 1),
-    array('type' => 'text',                     'megn' => 'Igényelt mennyiség:',                        'name' => 'igmen',          'szuro' => 1,   'class' => 'f_num f_csak_pozitiv',   'data' => 'data-tort="0"',  'disabled' => $mezok_disabled, 'post' => ' db<span style="margin-left: 10.1rem"></span>', 'osszevon' => 1/*, 'alert' => 'Kérem adja meg az igényelt mennyiséget!'*/),
-    // 2026: a tételek kezelése popup a forrás, a fej Nettó egységár mindig csak összesítő, kézzel nem szerkeszthető (kivéve új felvitelkor, amikor még ebből jön létre az első tétel)
-    array('type' => 'text',                     'megn' => 'Nettó egységár:',                            'name' => 'netto',          'szuro' => 1,   'class' => 'f_num f_csak_pozitiv',   'data' => 'data-tort="0"',  'disabled' => ($_GET['id'] ? 1 : $huf_disabled),   'sql_disabledkor_is' => 1, 'post' => ' '.get_penznem().' <span style="margin-left: 9.5rem"></span>'/*, 'alert' => 'Kérem adja meg a nettó egységárat!'*/, 'osszevon' => 1),
+    array('type' => 'text',                     'megn' => 'Igényelt mennyiség:',                        'name' => 'igmen',          'szuro' => 1,   'class' => 'f_num f_csak_pozitiv',   'data' => 'data-tort="0"',  'disabled' => $igmen_disabled, 'post' => ' db<span style="margin-left: 10.1rem"></span>', 'osszevon' => 1/*, 'alert' => 'Kérem adja meg az igényelt mennyiséget!'*/),
+    // Ha az igénylésnek van már tétele, a Tételek kezelése popup a forrás, a fej Nettó egységár csak összesítő, kézzel nem szerkeszthető. Tétel nélküli igénylésnél a korábbi ($huf_disabled szerinti) szerkeszthetőség marad.
+    array('type' => 'text',                     'megn' => 'Nettó egységár:',                            'name' => 'netto',          'szuro' => 1,   'class' => 'f_num f_csak_pozitiv',   'data' => 'data-tort="0"',  'disabled' => $netto_disabled,   'sql_disabledkor_is' => 1, 'post' => ' '.get_penznem().' <span style="margin-left: 9.5rem"></span>'/*, 'alert' => 'Kérem adja meg a nettó egységárat!'*/, 'osszevon' => 1),
     array('type' => 'text',                     'megn' => 'Nettó összesen:',                            'name' => 'ossz_netto',     'szuro' => 1,   'class' => 'f_num',   'data' => 'data-tort="0"',  'disabled' => 1,               'sql_disabledkor_is' => 1, 'post' => ' '.get_penznem()),
     array('type' => 'text',                     'megn' => 'Jóváhagyott mennyiség:',                     'name' => 'jhmen',          'szuro' => 1,   'class' => 'f_num',   'data' => 'data-tort="0"',  'disabled' => 1,    'osszevon' => 1,               'post' => ' db <span style="margin-left: 2rem"></span>'),
     array('type' => 'text',                     'megn' => 'Jóváhagyott nettó egységár:',                'name' => 'jhar',           'szuro' => 1,   'class' => 'f_num',   'data' => 'data-tort="0"',  'disabled' => 1,     'post' => ' '.get_penznem().'<span style="margin-left: 2rem"></span>', 'osszevon' => 1),

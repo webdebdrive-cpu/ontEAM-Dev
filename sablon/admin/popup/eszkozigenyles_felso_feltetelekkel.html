@@ -72,6 +72,20 @@ function felso_felt_beleegyezes() {
         return false;
     }
 
+    // Ha vannak tételek, rákérdezünk, hányat hagy jóvá velük együtt, mielőtt a tényleges mentés elindulna
+    var tetel_db = Number($('#tetel_db_'+eszkoz_id).val()) || 0;
+    if( tetel_db > 0 ) {
+        var tetel_jh_db = Number($('#tetel_jh_db_'+eszkoz_id).val()) || 0;
+        alert2(tetel_jh_db+'/'+tetel_db+' db tétel jóváhagyására készül. Folytatja?', '<input type="button" class="gomb zold" value="Igen" onclick="felso_felt_beleegyezes_mentes();"><input type="button" class="gomb piros" value="Nem" onclick="alert2();">', 'Kérdés');
+        return false;
+    }
+
+    felso_felt_beleegyezes_mentes();
+    return false;
+}
+
+function felso_felt_beleegyezes_mentes() {
+
     $.ajax({
         url : 'eszkozigenyles.php',
         type: 'POST',

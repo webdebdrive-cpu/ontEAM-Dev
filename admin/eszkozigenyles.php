@@ -494,8 +494,18 @@ if (isset($_POST['jhmen_mod'])) {
     $db_error = false;
     mysqli_autocommit($db_kapcs, false);
 
-    $eszkozig = $adatbazis_kapcsolat -> s2('stat_id netto ossz_netto', 'eszkozigenyles', "`recid`='{$_POST['id']}'");
+    $eszkozig = $adatbazis_kapcsolat -> s2('stat_id netto ossz_netto tetel_db', 'eszkozigenyles', "`recid`='{$_POST['id']}'");
     if( $eszkozig === false ) { $db_error = true; }
+
+    // Tételes igénylésnél a fej jóváhagyott mennyisége nem írható, csak a Tételek jóváhagyása popup-ból állítható
+    if( !empty($eszkozig['tetel_db']) ) {
+        echo json_encode([
+                                'hiba'  => 'Az igénylésnek tételei vannak, a jóváhagyott mennyiséget a Tételek jóváhagyása gombbal adhatja meg!',
+                                'title' => 'Hiba',
+                        ]);
+        $weblap -> leallit();
+        exit;
+    }
 
     // Ha nincs joga hozzá, akkor hibaüzenet
     if( 
@@ -552,27 +562,8 @@ if (isset($_POST['jhmen_mod'])) {
     exit;
 }
 
-// Igénylés tételei szerkeszthetők-e (Tételek kezelése popup): a teljes feldolgozási láncon végig szerkeszthető (bármely beszerzés-igénylés jogú felhasználónak),
-// egészen addig, amíg az igénylés le nem zárult (megrendelve / elutasítva)
-function eszkozigenyles_tetel_szerkesztheto($eszkozig) {
-    if( $eszkozig['stat_id'] == ESZKOZIGENYL_STAT_MEGRENDELVE || $eszkozig['stat_id'] == ESZKOZIGENYL_STAT_ELUTASITOTT ) {
-        return false;
-    }
-    return (
-        _jog(JOG_BESZERZ_IGENYLESEK_LETREH        ) ||
-        _jog(JOG_BESZERZ_IGENYLESEK_KEZEL         ) ||
-        _jog(JOG_BESZERZ_IGENYLESEK_MUSZAK_JOVA   ) ||
-        _jog(JOG_BESZERZ_IGENYLESEK_SZALLODAI_ENG ) ||
-        _jog(JOG_BESZERZ_IGENYLESEK_BI_VALIDALAS  ) ||
-        _jog(JOG_BESZERZ_IGENYLESEK_BI_JOVA       ) ||
-        _jog(JOG_BESZERZ_IGENYLESEK_SZAKMAI_VEL   ) ||
-        _jog(JOG_BESZERZ_IGENYLESEK_FELSOVEZ_JH   ) ||
-        _jog(JOG_BESZERZ_IGENYLESEK_BI_VEGLEGESIT )
-    );
-}
-
 // Tétel sorok HTML-jét építi fel a "Tételek kezelése" popuphoz (a popup csak a Mentés gombra kattintva ír DB-be, addig a sorokkal a böngészőben dolgozunk)
-function eszkozigenyles_tetel_sorok_html($eszkozigenyles_id, $szerkesztheto = true) {
+function eszkozigenyles_tetel_sorok_html($eszkozigenyles_id, $szerkesztheto = true, $kcs_21 = KCS_21_HUF) {
     global $adatbazis_kapcsolat;
 
     $muvelet_cellak = '';
@@ -582,18 +573,32 @@ function eszkozigenyles_tetel_sorok_html($eszkozigenyles_id, $szerkesztheto = tr
                 <td><a onclick="tetel_sor_torol(\'pop_tetel_MUVELET_ID\');"><span class="icon"><i class="material-icons">delete</i></span></a><input type="hidden" class="pop_recid" value="MUVELET_ID"></td>';
     }
 
+    // Devizás igénylésnél a tétel egységára/nettója is a rendelés pénznemében (dev_igar oszlop) jelenik meg és íródik vissza mentéskor,
+    // a fenntartasi_szamla_tetel dev_net mezőjének mintájára - nincs Ft-ra váltás/vissza, ezért nincs kerekítési torzulás sem.
+    $deviza = ( $kcs_21 != KCS_21_HUF );
+
     $html    = '';
     $tetelek = $adatbazis_kapcsolat -> s('*', 'eszkozigenyles_tetel', "`eszkozigenyles_id`='{$eszkozigenyles_id}'", 'recid');
     foreach ( $tetelek as $tetel ) {
         $muvelet_kiir = str_replace('MUVELET_ID', $tetel['recid'], $muvelet_cellak);
+
+        $igar_kiir    = $tetel['igar'];
+        $ignetto_kiir = $tetel['ignetto'];
+        $tizedesek    = 0;
+        if( $deviza ) {
+            $igar_kiir    = $tetel['dev_igar'];
+            $ignetto_kiir = $tetel['igmen']*$tetel['dev_igar'];
+            $tizedesek    = 2;
+        }
+
         $html .= nl2('
             <tr class="pop_tetel_'.$tetel['recid'].'">
                 <td class="pop_nev l">'.htmlspecialchars_decode($tetel['nev']).'</td>
                 <td class="pop_spec l">'.htmlspecialchars_decode($tetel['spec']).'</td>
                 <td class="pop_csz l">'.htmlspecialchars_decode($tetel['csz']).'</td>
                 <td class="pop_igmen r nowrap">'.number_format($tetel['igmen'], 0, ',', ' ').'</td>
-                <td class="pop_igar r nowrap">'.number_format($tetel['igar'], 0, ',', ' ').'</td>
-                <td class="pop_ignetto r nowrap">'.number_format($tetel['ignetto'], 0, ',', ' ').'</td>'.
+                <td class="pop_igar r nowrap">'.number_format($igar_kiir, $tizedesek, ',', ' ').'</td>
+                <td class="pop_ignetto r nowrap">'.number_format($ignetto_kiir, $tizedesek, ',', ' ').'</td>'.
                 $muvelet_kiir.'
             </tr>
         ');
@@ -602,13 +607,22 @@ function eszkozigenyles_tetel_sorok_html($eszkozigenyles_id, $szerkesztheto = tr
 }
 
 // Fejbe visszaírja a tételek igényelt összesítését (dok_db/megj_db mintájára a tetel_db-t is)
-function eszkozigenyles_tetel_fej_ujraszamol($eszkozigenyles_id) {
+// $utolso_tetel: ha az igénylés utolsó tételét is törölték (tétel nélkülivé válik), ennek a tételnek az adatai (igmen, igar, dev_igar) kerülnek vissza a fejbe
+function eszkozigenyles_tetel_fej_ujraszamol($eszkozigenyles_id, $utolso_tetel = null, $deviza = false) {
     global $adatbazis_kapcsolat;
 
     $osszesito = $adatbazis_kapcsolat -> s2('COUNT(`recid`) AS db, SUM(`ignetto`) AS osszeg', 'eszkozigenyles_tetel', "`eszkozigenyles_id`='{$eszkozigenyles_id}'");
     if( $osszesito === false ) { return false; }
 
-    if( $osszesito['db'] == 1 ) {
+    if( $osszesito['db'] == 0 && $utolso_tetel ) {
+        // A tétel nélküli fej számolásának mintájára (nettokat_atszamol() a js/eszkozigenyles.js-ben): ossz_netto = igmen*netto, devizásnál ossz_dev = igmen*dev_net
+        $mezok   = ['igmen', 'netto', 'ossz_netto', 'tetel_db'];
+        $ertekek = [$utolso_tetel['igmen'], $utolso_tetel['igar'], round($utolso_tetel['igmen']*$utolso_tetel['igar']), 0];
+        if( $deviza ) {
+            array_push($mezok,   'dev_net',                'ossz_dev'                                             );
+            array_push($ertekek, $utolso_tetel['dev_igar'], round($utolso_tetel['igmen']*$utolso_tetel['dev_igar'], 2));
+        }
+    } elseif( $osszesito['db'] == 1 ) {
         $tetel   = $adatbazis_kapcsolat -> s2('igmen igar', 'eszkozigenyles_tetel', "`eszkozigenyles_id`='{$eszkozigenyles_id}'");
         if( $tetel === false ) { return false; }
         $mezok   = array('igmen',         'netto',        'ossz_netto',       'tetel_db'       );
@@ -623,7 +637,7 @@ function eszkozigenyles_tetel_fej_ujraszamol($eszkozigenyles_id) {
 // Tételek kezelése popup feltöltése
 if( isset($_POST['tetel_lista_feltolt']) ) {
 
-    $eszkozig = $adatbazis_kapcsolat -> s2('stat_id kcs_21', 'eszkozigenyles', "`recid`='{$_POST['id']}'");
+    $eszkozig = $adatbazis_kapcsolat -> s2('stat_id kcs_21 arfolyam', 'eszkozigenyles', "`recid`='{$_POST['id']}'");
     if( $eszkozig === false ) {
         echo json_encode(array('hiba' => tranzakcioHiba(), 'title' => 'Hiba'));
         $weblap -> leallit();
@@ -631,9 +645,13 @@ if( isset($_POST['tetel_lista_feltolt']) ) {
     }
 
     $szerkesztheto = eszkozigenyles_tetel_szerkesztheto($eszkozig);
+    $deviza        = ( $eszkozig['kcs_21'] != KCS_21_HUF );
     echo json_encode(array(
-        'html'          => eszkozigenyles_tetel_sorok_html($_POST['id'], $szerkesztheto),
+        'html'          => eszkozigenyles_tetel_sorok_html($_POST['id'], $szerkesztheto, $eszkozig['kcs_21']),
         'szerkesztheto' => $szerkesztheto ? 1 : 0,
+        'deviza'        => $deviza ? 1 : 0,
+        'kcs_21_nev'    => $deviza ? erteklista(ERTEKLISTA_PENZNEM, $eszkozig['kcs_21']) : 'Ft',
+        'arfolyam'      => $eszkozig['arfolyam'],
     ));
 
     $weblap -> leallit();
@@ -646,7 +664,7 @@ if( isset($_POST['tetel_sorok_ment']) ) {
     $db_error = false;
     mysqli_autocommit($db_kapcs, false);
 
-    $eszkozig = $adatbazis_kapcsolat -> s2('stat_id kcs_21', 'eszkozigenyles', "`recid`='{$_POST['id']}'");
+    $eszkozig = $adatbazis_kapcsolat -> s2('stat_id kcs_21 arfolyam', 'eszkozigenyles', "`recid`='{$_POST['id']}'");
     if( $eszkozig === false ) { $db_error = true; }
 
     if( !$db_error && !eszkozigenyles_tetel_szerkesztheto($eszkozig) ) {
@@ -654,6 +672,10 @@ if( isset($_POST['tetel_sorok_ment']) ) {
         $weblap -> leallit();
         exit;
     }
+
+    // Devizás igénylésnél a kliens által küldött egységár a rendelés pénznemében értendő (dev_igar), a Ft egységárat (igar) itt, a szerveren
+    // számoljuk ki belőle az árfolyammal - a fenntartasi_szamla_tetel dev_net/netto_ert mintájára. Ez a szerver dönti el, sosem a böngésző.
+    $deviza = ( $eszkozig['kcs_21'] != KCS_21_HUF && $eszkozig['arfolyam'] > 0 );
 
     $recidk  = json_decode($_POST['recidk'],  true);
     $nevek   = json_decode($_POST['nevek'],   true);
@@ -663,7 +685,8 @@ if( isset($_POST['tetel_sorok_ment']) ) {
     $igarok  = json_decode($_POST['igarok'],  true);
     $torolt_sorok = array_filter( json_decode($_POST['torolt_sorok'], true) );
 
-    if( !$db_error && count($nevek) < 1 ) {
+    // Üres tétellistát csak akkor fogadunk el, ha meglévő tétel(eke)t töröltek - ekkor az igénylés tétel nélkülivé válik
+    if( !$db_error && count($nevek) < 1 && !$torolt_sorok ) {
         echo json_encode(array('hiba' => 'Legalább egy tételt fel kell venni!', 'title' => 'Hiba'));
         $weblap -> leallit();
         exit;
@@ -687,19 +710,35 @@ if( isset($_POST['tetel_sorok_ment']) ) {
             exit;
         }
 
-        $ignetto = $igmenek[$i]*$igarok[$i];
+        // A böngészőből érkező igarok[$i] a táblázatban megjelenő pénznemben van: HUF-os igénylésnél Ft, devizásnál a rendelés pénzneme.
+        if( $deviza ) {
+            $dev_igar = $igarok[$i];
+            $igar     = round($dev_igar * $eszkozig['arfolyam']);
+        } else {
+            $dev_igar = 0;
+            $igar     = $igarok[$i];
+        }
+        $ignetto = $igmenek[$i]*$igar;
 
         if( $recidk[$i] ) {
-            $mezok      = array('nev',    'spec',      'csz',   'igmen',      'igar',      'ignetto', 'update_usr'                           );
-            $ertekek    = array($nev,     $specek[$i], $cszk[$i], $igmenek[$i], $igarok[$i], $ignetto,  $_SESSION[get_db_tabla().'teljes_nev'] );
+            $mezok      = array('nev',    'spec',      'csz',   'igmen',      'igar', 'dev_igar', 'ignetto', 'update_usr'                           );
+            $ertekek    = array($nev,     $specek[$i], $cszk[$i], $igmenek[$i], $igar,  $dev_igar,  $ignetto,  $_SESSION[get_db_tabla().'teljes_nev'] );
             $sql = $adatbazis_kapcsolat -> u('eszkozigenyles_tetel', $mezok, $ertekek, "`recid`='{$recidk[$i]}' AND `eszkozigenyles_id`='{$_POST['id']}'");
             if( $sql === false ) { $db_error = true; }
         } else {
-            $mezok      = array('eszkozigenyles_id', 'nev', 'spec',      'csz',     'igmen',      'igar',      'ignetto', 'insert_dt',         'insert_usr',                            'update_usr'                            );
-            $ertekek    = array($_POST['id'],        $nev,  $specek[$i], $cszk[$i], $igmenek[$i], $igarok[$i], $ignetto,  date('Y-m-d H:i:s'), $_SESSION[get_db_tabla().'teljes_nev'], $_SESSION[get_db_tabla().'teljes_nev'] );
+            $mezok      = array('eszkozigenyles_id', 'nev', 'spec',      'csz',     'igmen',      'igar', 'dev_igar', 'ignetto', 'insert_dt',         'insert_usr',                            'update_usr'                            );
+            $ertekek    = array($_POST['id'],        $nev,  $specek[$i], $cszk[$i], $igmenek[$i], $igar,  $dev_igar,  $ignetto,  date('Y-m-d H:i:s'), $_SESSION[get_db_tabla().'teljes_nev'], $_SESSION[get_db_tabla().'teljes_nev'] );
             $sql = $adatbazis_kapcsolat -> i('eszkozigenyles_tetel', $mezok, $ertekek);
             if( $sql === false ) { $db_error = true; }
         }
+    }
+
+    // Ha az összes tételt törölték, az utoljára törölt tétel adatai kerülnek vissza a fejbe (még a törlés előtt kérjük le)
+    $utolso_tetel = null;
+    if( !$db_error && count($nevek) < 1 ) {
+        $utolso_recid = (int)end($torolt_sorok);
+        $utolso_tetel = $adatbazis_kapcsolat -> s2('igmen igar dev_igar', 'eszkozigenyles_tetel', "`recid`='{$utolso_recid}' AND `eszkozigenyles_id`='{$_POST['id']}'");
+        if( empty($utolso_tetel) ) { $db_error = true; }
     }
 
     foreach ( $torolt_sorok as $torolt_recid ) {
@@ -707,7 +746,7 @@ if( isset($_POST['tetel_sorok_ment']) ) {
         if( $sql === false ) { $db_error = true; }
     }
 
-    if( !$db_error && eszkozigenyles_tetel_fej_ujraszamol($_POST['id']) === false ) {
+    if( !$db_error && eszkozigenyles_tetel_fej_ujraszamol($_POST['id'], $utolso_tetel, $deviza) === false ) {
         $db_error = true;
     }
 
@@ -732,6 +771,13 @@ if( isset($_POST['tetel_sorok_ment']) ) {
 // Tételek jóváhagyása popup feltöltése
 if( isset($_POST['tetel_jh_feltolt']) ) {
 
+    $eszkozig = $adatbazis_kapcsolat -> s2('kcs_21 arfolyam', 'eszkozigenyles', "`recid`='{$_POST['id']}'");
+    if( $eszkozig === false ) {
+        echo json_encode(array('hiba' => tranzakcioHiba(), 'title' => 'Hiba'));
+        $weblap -> leallit();
+        exit;
+    }
+
     $tetelek = $adatbazis_kapcsolat -> s('*', 'eszkozigenyles_tetel', "`eszkozigenyles_id`='{$_POST['id']}'", 'recid');
     if( $tetelek === false ) {
         echo json_encode(array('hiba' => tranzakcioHiba(), 'title' => 'Hiba'));
@@ -739,25 +785,51 @@ if( isset($_POST['tetel_jh_feltolt']) ) {
         exit;
     }
 
+    // Ha MINDEN tétel jóváhagyott mennyisége 0 (tehát még senki nem írt bele), akkor az igényelt mennyiséggel töltjük fel előzetesen, hogy ne kelljen egyesével beírni.
+    // Ha akár egyetlen tételbe is írtak már (van nem-0 jóváhagyott mennyiség), akkor a tárolt értékeket mutatjuk változtatás nélkül - egy 0 ilyenkor azt jelenti, hogy azt a tételt elutasítják.
+    $minden_jh_nulla = true;
+    foreach ( $tetelek as $tetel ) {
+        if( $tetel['jhmen'] ) {
+            $minden_jh_nulla = false;
+            break;
+        }
+    }
+
+    // A tétel egységára devizás igénylésnél a dev_igar oszlopban van eltárolva a rendelés pénznemében (a fenntartasi_szamla_tetel dev_net mezőjének mintájára) -
+    // ezt mutatjuk, nincs Ft-ból visszaváltás/kerekítés. A jóváhagyott egységár mindig megegyezik az igényelttel (nem külön szerkeszthető), csak a mennyiség változik.
+    $tizedesek = 0;
+    $deviza    = ( $eszkozig['kcs_21'] != KCS_21_HUF && $eszkozig['arfolyam'] > 0 );
+    if( $deviza ) {
+        $tizedesek = 2;
+    }
+
     $html = '';
     foreach ( $tetelek as $tetel ) {
         $jhmen = $tetel['jhmen'];
-        if( !$jhmen ) {
+        if( $minden_jh_nulla ) {
             $jhmen = $tetel['igmen'];
         }
+
+        $igar_kiir  = $tetel['igar'];
+        $jhar_ertek = $tetel['igar'];
+        if( $deviza ) {
+            $igar_kiir  = $tetel['dev_igar'];
+            $jhar_ertek = $tetel['dev_igar'];
+        }
+
         $html .= nl2('
             <tr class="pop_jh_tetel_'.$tetel['recid'].'">
                 <td class="l">'.htmlspecialchars_decode($tetel['nev']).'</td>
                 <td class="l">'.htmlspecialchars_decode($tetel['csz']).'</td>
                 <td class="r nowrap">'.number_format($tetel['igmen'], 0, ',', ' ').'</td>
-                <td class="r nowrap">'.number_format($tetel['igar'], 0, ',', ' ').'</td>
-                <td class="r nowrap"><input type="text" class="f_num f_csak_pozitiv oriasi pop_jh_jhmen" data-tort="0" data-recid="'.$tetel['recid'].'" data-jhar="'.$tetel['igar'].'" value="'.number_format($jhmen, 0, ',', ' ').'"></td>
-                <td class="r nowrap pop_jh_jhnetto">'.number_format($jhmen*$tetel['igar'], 0, ',', ' ').'</td>
+                <td class="r nowrap">'.number_format($igar_kiir, $tizedesek, ',', ' ').'</td>
+                <td class="r nowrap"><input type="text" class="f_num f_csak_pozitiv oriasi pop_jh_jhmen" data-tort="0" data-recid="'.$tetel['recid'].'" data-jhar="'.$jhar_ertek.'" value="'.number_format($jhmen, 0, ',', ' ').'"></td>
+                <td class="r nowrap pop_jh_jhnetto">'.number_format($jhmen*$jhar_ertek, $tizedesek, ',', ' ').'</td>
             </tr>
         ');
     }
 
-    echo json_encode(array('html' => $html));
+    echo json_encode(array('html' => $html, 'kcs_21' => $eszkozig['kcs_21'], 'tizedesek' => $tizedesek));
 
     $weblap -> leallit();
     exit;
@@ -772,9 +844,15 @@ if( isset($_POST['tetel_jh_ment']) ) {
     $eszkozig = $adatbazis_kapcsolat -> s2('stat_id', 'eszkozigenyles', "`recid`='{$_POST['id']}'");
     if( $eszkozig === false ) { $db_error = true; }
 
+    // Ugyanazok a jog+státusz párok, ahol a "Tételek jóváhagyása" gomb is megjelenik (fuggvenyek.php, get_eszkozigenyles_gombok())
     if(
         !$db_error && !(
-            ( _jog(JOG_BESZERZ_IGENYLESEK_FELSOVEZ_JH) && $eszkozig['stat_id'] == ESZKOZIGENYL_STAT_FELSO_JH_VAR )
+            ( _jog(JOG_BESZERZ_IGENYLESEK_SZALLODAI_ENG ) && $eszkozig['stat_id'] == ESZKOZIGENYL_STAT_SZALL_ENG_VAR )  ||
+            ( _jog(JOG_BESZERZ_IGENYLESEK_BI_VALIDALAS  ) && $eszkozig['stat_id'] == ESZKOZIGENYL_STAT_BI_VALID_VAR  )  ||
+            ( _jog(JOG_BESZERZ_IGENYLESEK_BI_JOVA       ) && $eszkozig['stat_id'] == ESZKOZIGENYL_STAT_BI_JH_VAR     )  ||
+            ( _jog(JOG_BESZERZ_IGENYLESEK_SZAKMAI_VEL   ) && $eszkozig['stat_id'] == ESZKOZIGENYL_STAT_SZAKM_VEL_VAR )  ||
+            ( _jog(JOG_BESZERZ_IGENYLESEK_FELSOVEZ_JH   ) && $eszkozig['stat_id'] == ESZKOZIGENYL_STAT_FELSO_JH_VAR  )  ||
+            ( _jog(JOG_BESZERZ_IGENYLESEK_BI_VEGLEGESIT ) && $eszkozig['stat_id'] == ESZKOZIGENYL_STAT_BI_VEGL_VAR   )
         )
     ) {
         echo json_encode(array('hiba' => 'Önnek nincs joga a tételeket jóváhagyni!', 'title' => 'Hiba'));
@@ -1260,6 +1338,13 @@ if (isset($_POST['szall_igazgato_jovahagy'])) {
         exit;
     }
 
+    // Ha van tétele az igénylésnek, de egyiket sem hagyták még jóvá, előbb azt kell megtenni
+    if( !eszkozigenyles_tetel_jh_ellenorzes($_POST['id']) ) {
+        echo json_encode(array('hiba' => 'Előbb hagyja jóvá a tételeket!', 'title' => 'Hiba'));
+        $weblap -> leallit();
+        exit;
+    }
+
     // Nyomógomb eltárolása
     $velemeny = 1;
     $indok = '';
@@ -1518,6 +1603,13 @@ if (isset($_POST['bi_validal'])) {
                                 'gomb'  => $statusz_hiba_gomb,
                                 'title' => 'Hiba',
                         ));
+        $weblap -> leallit();
+        exit;
+    }
+
+    // Ha van tétele az igénylésnek, de egyiket sem hagyták még jóvá, előbb azt kell megtenni
+    if( !eszkozigenyles_tetel_jh_ellenorzes($_POST['id']) ) {
+        echo json_encode(array('hiba' => 'Előbb hagyja jóvá a tételeket!', 'title' => 'Hiba'));
         $weblap -> leallit();
         exit;
     }
@@ -1835,6 +1927,13 @@ if (isset($_POST['bi_jovahagy'])) {
         exit;
     }
 
+    // Ha van tétele az igénylésnek, de egyiket sem hagyták még jóvá, előbb azt kell megtenni
+    if( !eszkozigenyles_tetel_jh_ellenorzes($_POST['id']) ) {
+        echo json_encode(array('hiba' => 'Előbb hagyja jóvá a tételeket!', 'title' => 'Hiba'));
+        $weblap -> leallit();
+        exit;
+    }
+
     // Nyomógomb eltárolása
     $velemeny = 1;
     $indok = '';
@@ -1959,6 +2058,13 @@ if (isset($_POST['bi_jh_felt_beleegyezes'])) {
                                 'hiba'  => 'Kérem adja meg az indoklást!',
                                 'title' => 'Hiba',
                         ));
+        $weblap -> leallit();
+        exit;
+    }
+
+    // Ha van tétele az igénylésnek, de egyiket sem hagyták még jóvá, előbb azt kell megtenni
+    if( !eszkozigenyles_tetel_jh_ellenorzes($_POST['id']) ) {
+        echo json_encode(array('hiba' => 'Előbb hagyja jóvá a tételeket!', 'title' => 'Hiba'));
         $weblap -> leallit();
         exit;
     }
@@ -2183,6 +2289,13 @@ if (isset($_POST['szak_beleegyezes'])) {
         exit;
     }
 
+    // Ha van tétele az igénylésnek, de egyiket sem hagyták még jóvá, előbb azt kell megtenni
+    if( !eszkozigenyles_tetel_jh_ellenorzes($_POST['id']) ) {
+        echo json_encode(array('hiba' => 'Előbb hagyja jóvá a tételeket!', 'title' => 'Hiba'));
+        $weblap -> leallit();
+        exit;
+    }
+
     // Nyomógomb eltárolása
     $velemeny = 1;
     $indok = '';
@@ -2302,6 +2415,13 @@ if (isset($_POST['szak_felt_beleegyezes'])) {
                                 'hiba'  => 'Kérem adja meg az indoklást!',
                                 'title' => 'Hiba',
                         ));
+        $weblap -> leallit();
+        exit;
+    }
+
+    // Ha van tétele az igénylésnek, de egyiket sem hagyták még jóvá, előbb azt kell megtenni
+    if( !eszkozigenyles_tetel_jh_ellenorzes($_POST['id']) ) {
+        echo json_encode(array('hiba' => 'Előbb hagyja jóvá a tételeket!', 'title' => 'Hiba'));
         $weblap -> leallit();
         exit;
     }
@@ -2603,6 +2723,13 @@ if (isset($_POST['felso_beleegyezes'])) {
         exit;
     }
 
+    // Ha van tétele az igénylésnek, de egyiket sem hagyták még jóvá, előbb azt kell megtenni
+    if( !eszkozigenyles_tetel_jh_ellenorzes($_POST['id']) ) {
+        echo json_encode(array('hiba' => 'Előbb hagyja jóvá a tételeket!', 'title' => 'Hiba'));
+        $weblap -> leallit();
+        exit;
+    }
+
     // Nyomógomb eltárolása
     $velemeny = 1;
     $indok = '';
@@ -2717,6 +2844,13 @@ if (isset($_POST['felso_felt_beleegyezes'])) {
                                 'hiba'  => 'Kérem adja meg az indoklást!',
                                 'title' => 'Hiba',
                         ));
+        $weblap -> leallit();
+        exit;
+    }
+
+    // Ha van tétele az igénylésnek, de egyiket sem hagyták még jóvá, előbb azt kell megtenni
+    if( !eszkozigenyles_tetel_jh_ellenorzes($_POST['id']) ) {
+        echo json_encode(array('hiba' => 'Előbb hagyja jóvá a tételeket!', 'title' => 'Hiba'));
         $weblap -> leallit();
         exit;
     }
@@ -2989,6 +3123,13 @@ if (isset($_POST['bi_vegl_jovahagy'])) {
                                 'gomb'  => $statusz_hiba_gomb,
                                 'title' => 'Hiba',
                         ));
+        $weblap -> leallit();
+        exit;
+    }
+
+    // Ha van tétele az igénylésnek, de egyiket sem hagyták még jóvá, előbb azt kell megtenni
+    if( !eszkozigenyles_tetel_jh_ellenorzes($_POST['id']) ) {
+        echo json_encode(array('hiba' => 'Előbb hagyja jóvá a tételeket!', 'title' => 'Hiba'));
         $weblap -> leallit();
         exit;
     }
@@ -4122,7 +4263,7 @@ $js_submit_elott = nl2('
                                 $(\'#kcs_21\').addClass(\'hibas_ide_focus\');
                                 return false;
                             }
-                            if( !$(\'#igmen\').val().trim() || $(\'#igmen\').val()==\'0\' ) {
+                            if( !'.(int) ($sor['tetel_db'] ?? 0).' && ( !$(\'#igmen\').val().trim() || $(\'#igmen\').val()==\'0\' ) ) {
                                 alert2(\'Kérem adja meg az igényelt mennyiséget!\');
                                 $(\'#igmen\').addClass(\'hibas_ide_focus\');
                                 return false;
@@ -4473,11 +4614,12 @@ if( isset($_GET['uj']) ) {
             $ignetto = $tetel['ignetto'];
             $jhar    = $tetel['jhar'];
             $jhnetto = $tetel['jhnetto'];
+            // Devizás igénylésnél a dev_igar (rendelés pénznemében tárolt egységár) alapján számolunk, nincs Ft-ból visszaváltás
             if( $sor['kcs_21'] != KCS_21_HUF && $sor['arfolyam'] > 0 ) {
-                $igar    = $igar/$sor['arfolyam'];
-                $ignetto = $ignetto/$sor['arfolyam'];
-                $jhar    = $jhar/$sor['arfolyam'];
-                $jhnetto = $jhnetto/$sor['arfolyam'];
+                $igar    = $tetel['dev_igar'];
+                $ignetto = $tetel['igmen']*$tetel['dev_igar'];
+                $jhar    = $tetel['dev_igar'];
+                $jhnetto = $tetel['jhmen']*$tetel['dev_igar'];
             }
 
             $szamla_html .= nl2('
@@ -4716,7 +4858,7 @@ function megrendeles_keszit($eszkozigenyles_id, $tevezett = 0) {
 
     require('selectek.php');
 
-    $eszkozig_oszlopok = 'recid tipus stat_id rend_szam csz nev igmen jhmen arfolyam netto jhar jhossz telephely_id szallito_id szall_hat fiz_mod hat_ido ossz_netto ossz_dev kcs_21 kiszall beuzemel munkadij egyeb_koltseg eloleg megj insert_dt';
+    $eszkozig_oszlopok = 'recid tipus stat_id rend_szam csz nev igmen jhmen arfolyam netto dev_net jhar jhossz telephely_id szallito_id szall_hat fiz_mod hat_ido ossz_netto ossz_dev kcs_21 kiszall beuzemel munkadij egyeb_koltseg eloleg megj insert_dt';
 
     // Group by-ozzunk szálloda és szállító alapján, mert tervezett igényléseknél ezek alapján kell létrehozni egy-egy PDF-et.
     // Soron kívüli + GM esetén sem gond a group by, egy sor marad benne
@@ -4784,10 +4926,39 @@ function megrendeles_keszit($eszkozigenyles_id, $tevezett = 0) {
                     $eszkozig_tetelek = $adatbazis_kapcsolat -> s('*', 'eszkozigenyles_tetel', "`eszkozigenyles_id`='{$eszkozigenyles['recid']}'", 'recid');
                     if( $eszkozig_tetelek === false ) { $db_error = true; $eszkozig_tetelek = []; }
 
-                    // Tételenként: ha nem lett volna megadva a jóváhagyott mennyiség, akkor az igényelt adatokat másoljuk be
+                    // Tétel nélküli igénylésnél a fej adataiból képzünk egy virtuális tételt (a tételek bevezetése előtti működés szerint):
+                    // jóváhagyott mennyiség ennek hiányában az igényelt mennyiség, jóváhagyott egységár a nettó egységár. Ez a tétel nem kerül be az eszkozigenyles_tetel táblába.
+                    $virtualis_tetel = false;
+                    if( !$eszkozig_tetelek ) {
+                        $virtualis_tetel  = true;
+                        $fej_jhmen        = $eszkozigenyles['jhmen'] ?: $eszkozigenyles['igmen'];
+                        $eszkozig_tetelek = [[
+                            'recid'    => 0,
+                            'nev'      => $eszkozigenyles['nev'],
+                            'csz'      => $eszkozigenyles['csz'],
+                            'igmen'    => $eszkozigenyles['igmen'],
+                            'igar'     => $eszkozigenyles['netto'],
+                            'dev_igar' => $eszkozigenyles['dev_net'],
+                            'jhmen'    => $fej_jhmen,
+                            'jhar'     => $eszkozigenyles['netto'],
+                            'jhnetto'  => $fej_jhmen*$eszkozigenyles['netto'],
+                        ]];
+                    }
+
+                    // Ha az igénylés EGYETLEN tétele sem lett jóváhagyva (mindegyik jhmen=0, tehát a jóváhagyás popup-ot meg sem nyitották),
+                    // akkor az igényelt adatokkal töltjük fel mindet. Ha akár egy tételt is jóváhagytak már, a tárolt (esetleg 0, azaz elutasított) értékeket hagyjuk érintetlenül.
+                    // Virtuális tételnél nincs mit a tétel táblában frissíteni.
+                    $minden_jh_nulla = !$virtualis_tetel;
+                    foreach ( $eszkozig_tetelek as $eszkozig_tetel_ell ) {
+                        if( $eszkozig_tetel_ell['jhmen'] ) {
+                            $minden_jh_nulla = false;
+                            break;
+                        }
+                    }
+
                     $jhossz = 0;
                     foreach ( $eszkozig_tetelek as &$eszkozig_tetel ) {
-                        if( !$eszkozig_tetel['jhmen'] ) {
+                        if( $minden_jh_nulla ) {
                             $eszkozig_tetel['jhmen']   = $eszkozig_tetel['igmen'];
                             $eszkozig_tetel['jhar']    = $eszkozig_tetel['igar'];
                             $eszkozig_tetel['jhnetto'] = $eszkozig_tetel['igmen']*$eszkozig_tetel['igar'];
@@ -4857,11 +5028,17 @@ function megrendeles_keszit($eszkozigenyles_id, $tevezett = 0) {
 
                     foreach ( $eszkozig_tetelek as $eszkozig_tetel ) {
 
+                        // 0 jóváhagyott mennyiségű tétel = elutasítva, ez nem kerül rá a megrendelőre
+                        if( !$eszkozig_tetel['jhmen'] ) {
+                            continue;
+                        }
+
+                        // Devizás igénylésnél a dev_igar (rendelés pénznemében tárolt egységár) alapján számolunk, nincs Ft-ból visszaváltás
                         $tetel_jhar    = $eszkozig_tetel['jhar'];
                         $tetel_jhnetto = $eszkozig_tetel['jhnetto'];
                         if( $eszkozigenyles['kcs_21']!=KCS_21_HUF ) {
-                            $tetel_jhar    = $tetel_jhar/$eszkozigenyles['arfolyam'];
-                            $tetel_jhnetto = $tetel_jhnetto/$eszkozigenyles['arfolyam'];
+                            $tetel_jhar    = $eszkozig_tetel['dev_igar'];
+                            $tetel_jhnetto = $eszkozig_tetel['jhmen']*$eszkozig_tetel['dev_igar'];
                         }
                         $mindossz += $tetel_jhnetto;
 

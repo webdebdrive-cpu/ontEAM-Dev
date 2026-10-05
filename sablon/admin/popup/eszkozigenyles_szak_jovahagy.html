@@ -1,5 +1,5 @@
 <h2>Igénylés jóváhagyása</h2>
-<form class="popupForm" method="post" onsubmit="szak_beleegyezes(); return false;">
+<form class="popupForm" method="post" onsubmit="szak_beleegyezes_inditas(); return false;">
     <div class="kozep">
         <div class="dt">
             <div class="dtr">
@@ -59,6 +59,22 @@ $(document).ready(function(){
     $('#popup_szak_indok').select();
 
 });
+
+// A tényleges jóváhagyás előtt rákérdezünk, ha vannak tételek, hányat hagy jóvá velük együtt
+function szak_beleegyezes_inditas() {
+
+    var akt_id   = _get('id');
+    var tetel_db = Number($('#tetel_db_'+akt_id).val()) || 0;
+
+    if( tetel_db > 0 ) {
+        var tetel_jh_db = Number($('#tetel_jh_db_'+akt_id).val()) || 0;
+        alert2(tetel_jh_db+'/'+tetel_db+' db tétel jóváhagyására készül. Folytatja?', '<input type="button" class="gomb zold" value="Igen" onclick="szak_beleegyezes();"><input type="button" class="gomb piros" value="Nem" onclick="alert2();">', 'Kérdés');
+        return false;
+    }
+
+    szak_beleegyezes();
+}
+
 // Szakmai vezetés jóváhagy
 function szak_beleegyezes(mehet) {
 

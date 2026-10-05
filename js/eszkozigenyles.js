@@ -12,6 +12,9 @@ function huf_vagy_deviza() {
     // Ekkor a huf_vagy_deviza() függvény se csináljon semmit, még véletlen se váljon írhatóvá egyik mező sem
 
     if( !$('#adatlap_disabled').val() ) {
+        // Ha az igénylésnek már van tétele, a Nettó egységár csak a Tételek kezelése popup-ból írható, ez a currency-váltás nem teheti újra szerkeszthetővé
+        var van_tetele = Number($('#tetel_db_'+_get('id')).val()) > 0;
+
         if( $('#kcs_21_autocomp').val()=='HUF' ) {
             $('#dev_net'        ).val('0,00').attr('readonly', 'readonly').removeClass('csillag').removeClass('mod');
             $('#arfolyam'       ).val('0,00').attr('readonly', 'readonly').removeClass('csillag').removeClass('mod');
@@ -19,9 +22,11 @@ function huf_vagy_deviza() {
             $('#beuzemel'       ).attr('data-tort', '0').removeClass('nincs_tobb_blurozas').blur();
             $('#munkadij'       ).attr('data-tort', '0').removeClass('nincs_tobb_blurozas').blur();
             $('#egyeb_koltseg'  ).attr('data-tort', '0').removeClass('nincs_tobb_blurozas').blur();
-            $('#netto'          ).removeAttr('readonly');
-            if( $('#szallito_id').val() ) {
-                $('#netto'   ).addClass('csillag');
+            if( !van_tetele ) {
+                $('#netto'          ).removeAttr('readonly');
+                if( $('#szallito_id').val() ) {
+                    $('#netto'   ).addClass('csillag');
+                }
             }
         } else if( $('#kcs_21_autocomp').val() ) {
             $('#dev_net'        ).removeAttr('readonly').addClass('csillag');
@@ -75,6 +80,12 @@ function huf_vagy_deviza() {
 
 // Nettó mezőket, árfolyamot, devizákat átszámol
 function nettokat_atszamol() {
+    // Ha az igénylésnek már van tétele, a Nettó egységár (és az abból számolt jhar/jhossz) kizárólag a Tételek kezelése/jóváhagyása popup-okból írható,
+    // ez az átszámolás (ami az árfolyam/deviza mezők módosításakor futna le) nem írhatja felül
+    if( Number($('#tetel_db_'+_get('id')).val()) > 0 ) {
+        return;
+    }
+
     var igmen = Number($('#igmen').val().replace(/ /g, '').replace(/,/g, '.'));
     if( $('#kcs_21_autocomp').val()!='HUF' ) {
         var dev_net  = Number($('#dev_net'  ).val().replace(/ /g, '').replace(/,/g, '.'));
@@ -516,7 +527,13 @@ function igenyles_feldolgozva(mehet) {
     eszkoz_valtozok_update();
 
     if( !mehet ) {
-        alert2('Biztosan feldolgozásra került az igénylés?', '<input type="button" class="gomb zold enter" value="Igen" onclick="igenyles_feldolgozva(\'-mehet-\')"> <input type="button" class="gomb piros" value="Nem" onclick="alert2()">', 'Kérdés');
+        var kerdes = 'Biztosan feldolgozásra került az igénylés?';
+        var tetel_db = Number($('#tetel_db_'+eszkoz_id).val()) || 0;
+        if( tetel_db > 0 ) {
+            var tetel_jh_db = Number($('#tetel_jh_db_'+eszkoz_id).val()) || 0;
+            kerdes = tetel_jh_db+'/'+tetel_db+' db tétel jóváhagyására készül. Folytatja?';
+        }
+        alert2(kerdes, '<input type="button" class="gomb zold enter" value="Igen" onclick="igenyles_feldolgozva(\'-mehet-\')"> <input type="button" class="gomb piros" value="Nem" onclick="alert2()">', 'Kérdés');
         return false;
     }
 

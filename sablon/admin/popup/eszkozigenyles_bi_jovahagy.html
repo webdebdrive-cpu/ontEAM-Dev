@@ -3,7 +3,7 @@
     var KIKULD_VEL_STATUSZBA = 0;
     var MEHET_STRING         = '-mehet-';
 </script>
-<form id="elutasitasForm" class="popupForm" method="post" onsubmit="bi_jovahagy(MEHET_STRING, KIKULD_VEL_STATUSZBA); return false;">
+<form id="elutasitasForm" class="popupForm" method="post" onsubmit="bi_jovahagy_inditas(); return false;">
     <div class="kozep">
         <div class="dt">
             <div class="dtr">
@@ -94,6 +94,21 @@ $(document).ready(function(){
 });
 
 // BI jóváhagy
+// A tényleges jóváhagyás előtt rákérdezünk, ha vannak tételek, hányat hagy jóvá velük együtt
+function bi_jovahagy_inditas() {
+
+    var akt_id   = _get('id');
+    var tetel_db = Number($('#tetel_db_'+akt_id).val()) || 0;
+
+    if( tetel_db > 0 ) {
+        var tetel_jh_db = Number($('#tetel_jh_db_'+akt_id).val()) || 0;
+        alert2(tetel_jh_db+'/'+tetel_db+' db tétel jóváhagyására készül. Folytatja?', '<input type="button" class="gomb zold" value="Igen" onclick="bi_jovahagy(MEHET_STRING, KIKULD_VEL_STATUSZBA);"><input type="button" class="gomb piros" value="Nem" onclick="alert2();">', 'Kérdés');
+        return false;
+    }
+
+    bi_jovahagy(MEHET_STRING, KIKULD_VEL_STATUSZBA);
+}
+
 function bi_jovahagy(mehet, kikuld = '') {
 
     // globális változók frissítése az adott adatlap alapján

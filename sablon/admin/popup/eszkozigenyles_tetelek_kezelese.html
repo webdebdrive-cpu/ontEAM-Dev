@@ -2,7 +2,7 @@
 
 <div class="kozep" style="min-height: 30rem">
     <div id="osszesito" style="margin-bottom: 1rem; font-weight: 600;">
-        Igényelt nettó összesen: <span id="tetel_ossz_netto">0</span> <span class="f_penznem"></span>
+        Igényelt nettó összesen: <span id="tetel_ossz_netto">0</span> <span id="tetel_ossz_netto_penznem">Ft</span>
     </div>
 
     <div id="tetel_form" class="dn">
@@ -24,8 +24,10 @@
                 <div class="dtc form_jobb"><input type="text" id="pop_igmen" class="f_num f_csak_pozitiv csillag" data-tort="0" style="width: 8rem;"> db</div>
             </div>
             <div class="dtr">
-                <div class="dtc form_bal">Igényelt egységár:</div>
-                <div class="dtc form_jobb"><input type="text" id="pop_igar" class="f_num f_csak_pozitiv csillag" data-tort="0" style="width: 10rem;"> <span class="f_penznem"></span></div>
+                <div class="dtc form_bal" id="pop_igar_label">Igényelt egységár:</div>
+                <div class="dtc form_jobb">
+                    <input type="text" id="pop_igar" class="f_num f_csak_pozitiv csillag" data-tort="0" style="width: 10rem;"> <span id="pop_igar_penznem">Ft</span>
+                </div>
             </div>
         </div>
         <input type="hidden" id="pop_tetel_id" value="">
@@ -40,8 +42,8 @@
             <th class="l">Specifikáció</th>
             <th class="l">Cikkszám</th>
             <th class="r">Igényelt menny.</th>
-            <th class="r">Igényelt egységár</th>
-            <th class="r">Igényelt nettó</th>
+            <th class="r" id="tetel_th_igar">Igényelt egységár (Ft)</th>
+            <th class="r" id="tetel_th_ignetto">Igényelt nettó (Ft)</th>
             <th id="tetel_th_szerk"></th>
             <th id="tetel_th_torol"></th>
         </tr>
@@ -55,19 +57,16 @@
 </div>
 <script>
 
-var akt_penznem = $('#kcs_21_autocomp').val();
-if( !akt_penznem ) {
-    akt_penznem = $('#kcs_21_autocomp_db').val();
-}
-
-var van_valtozas = false;
-var torolt_sorok = [];
-var szerkesztheto_e = false;
+var van_valtozas     = false;
+var torolt_sorok     = [];
+var szerkesztheto_e  = false;
+// A tétel nettó egységára és a táblázat mindig a rendelés pénznemében van: HUF-os igénylésnél Ft, devizásnál a fej pénzneme (pl. EUR) -
+// tehát a fenntartasi_szamla_tetel dev_net mezőjének mintájára itt sincs Ft-ra váltás/vissza a felületen, ezt a szerver végzi mentéskor.
+var deviza_e      = false;
+var penznem_kiir  = 'Ft';
+var tort          = 0;
 
 $(document).ready(function(){
-    $('.f_penznem').each(function () {
-        $(this).replaceWith(akt_penznem);
-    });
     tetel_lista_betolt();
 });
 
@@ -87,7 +86,20 @@ function tetel_lista_betolt() {
                     alert2(response.hiba, response.gomb, response.title);
                     return false;
                 }
+
+                deviza_e     = response.deviza ? true : false;
+                penznem_kiir = response.kcs_21_nev || 'Ft';
+                tort         = deviza_e ? 2 : 0;
+
+                $('#pop_igar_label'  ).html('Igényelt egységár ('+penznem_kiir+'):');
+                $('#pop_igar_penznem').html(penznem_kiir);
+                $('#pop_igar').attr('data-tort', tort);
+                $('#tetel_th_igar'   ).html('Igényelt egységár ('+penznem_kiir+')');
+                $('#tetel_th_ignetto').html('Igényelt nettó ('+penznem_kiir+')');
+                $('#tetel_ossz_netto_penznem').html(penznem_kiir);
+
                 $('#pop_tetelek tbody').html(response.html);
+
                 szerkesztheto_e = response.szerkesztheto ? true : false;
                 if( szerkesztheto_e ) {
                     $('#tetel_form').removeClass('dn');
@@ -113,7 +125,7 @@ function tetel_osszesito_frissit() {
     $('#pop_tetelek .pop_ignetto').each(function() {
         osszeg += Number($(this).text().replace(/\s/g, '').replace(',', '.'));
     });
-    $('#tetel_ossz_netto').html(number_format(osszeg, 0, ',', ' '));
+    $('#tetel_ossz_netto').html(number_format(osszeg, tort, ',', ' '));
 }
 
 function tetel_form_urit() {
@@ -127,7 +139,7 @@ function tetel_form_urit() {
     $('#tetel_hozzaad_megsem_gomb').addClass('dn');
 }
 
-// Tétel szerkesztése: a sor celláinak tartalmát betöltjük a form mezőkbe
+// Tétel szerkesztése: a sor celláinak tartalmát betöltjük a form mezőkbe (a táblázat már a helyes pénznemben mutatja az egységárat, nincs átváltás)
 function tetel_sor_szerk(sor_id) {
     var sor = $('.'+sor_id);
     $('#pop_nev'  ).val( sor.find('.pop_nev'  ).text() );
@@ -135,6 +147,7 @@ function tetel_sor_szerk(sor_id) {
     $('#pop_csz'  ).val( sor.find('.pop_csz'  ).text() );
     $('#pop_igmen').val( sor.find('.pop_igmen').text() );
     $('#pop_igar' ).val( sor.find('.pop_igar' ).text() );
+
     $('#pop_tetel_id').val(sor_id);
     $('#tetel_hozzaad_gomb').val('Tétel mentése');
     $('#tetel_hozzaad_megsem_gomb').removeClass('dn');
@@ -191,9 +204,9 @@ function tetel_hozzaadasa() {
 
     van_valtozas = true;
 
-    var ignetto = number_format(igmen*igar, 0, ',', ' ');
+    var ignetto    = number_format(igmen*igar, tort, ',', ' ');
     var igmen_kiir = number_format(igmen, 0, ',', ' ');
-    var igar_kiir  = number_format(igar,  0, ',', ' ');
+    var igar_kiir  = number_format(igar,  tort, ',', ' ');
 
     // Ha ismert a sor_id, akkor a meglévő sort frissítjük
     if( sor_id ) {
@@ -230,13 +243,21 @@ function tetel_hozzaadasa() {
     $('#pop_nev').focus();
 }
 
-// Popup Mentés gomb: a táblázatban jelenleg szereplő összes sort (és a törölt sorokat) egyben küldjük a szervernek
-function tetel_sorok_ment() {
+// Popup Mentés gomb: a táblázatban jelenleg szereplő összes sort (és a törölt sorokat) egyben küldjük a szervernek.
+// Az egységár itt még a táblázatban mutatott pénznemben megy (HUF vagy a fej devizája) - a Ft-ra váltást a szerver végzi, ő ismeri biztosan az igénylés pénznemét.
+// Ha az utolsó (mentett) tételt is törölték, az igénylés tétel nélkülivé válik: rákérdezünk, a szerver pedig a törölt tétel adatait visszaírja a fejbe.
+function tetel_sorok_ment(mehet) {
 
     var sorok = $('#pop_tetelek tbody tr');
     if( sorok.length < 1 ) {
-        alert2('Legalább egy tételt fel kell venni!', '', 'Hiba');
-        return false;
+        if( torolt_sorok.length < 1 ) {
+            alert2('Legalább egy tételt fel kell venni!', '', 'Hiba');
+            return false;
+        }
+        if( !mehet ) {
+            alert2('Az összes tételt törölte, így az igénylés tétel nélkülivé válik:<br>Az utoljára törölt tétel mennyisége és egységára az igénylés adatlapjára kerül.<br>Folytatja?', '<input type="button" class="gomb zold" value="Igen" onclick="alert2(); tetel_sorok_ment(\'mehet\');"><input type="button" class="gomb piros" value="Nem" onclick="alert2();">', 'Kérdés');
+            return false;
+        }
     }
 
     var recidk  = [];

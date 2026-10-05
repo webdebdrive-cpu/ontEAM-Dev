@@ -11,9 +11,9 @@
             <th class="l">Név</th>
             <th class="l">Cikkszám</th>
             <th class="r">Igényelt menny.</th>
-            <th class="r">Igényelt egységár</th>
+            <th class="r">Igényelt egységár (<span class="f_penznem"></span>)</th>
             <th class="r">Jóváhagyott menny.</th>
-            <th class="r">Jóváhagyott nettó</th>
+            <th class="r">Jóváhagyott nettó (<span class="f_penznem"></span>)</th>
         </tr>
         </thead>
         <tbody></tbody>
@@ -25,10 +25,11 @@
 </div>
 <script>
 
-var akt_penznem = $('#kcs_21_autocomp').val();
+var akt_penznem     = $('#kcs_21_autocomp').val();
 if( !akt_penznem ) {
     akt_penznem = $('#kcs_21_autocomp_db').val();
 }
+var jh_tizedesek = 0;
 
 $(document).ready(function(){
     $('.f_penznem').each(function () {
@@ -53,6 +54,7 @@ function tetel_jh_lista_betolt() {
                     alert2(response.hiba, response.gomb, response.title);
                     return false;
                 }
+                jh_tizedesek = response.tizedesek || 0;
                 $('#pop_jh_tetelek tbody').html(response.html);
                 tetel_jh_osszesito_frissit();
             }
@@ -69,7 +71,7 @@ $(document).on('input', '.pop_jh_jhmen', function() {
     var jhmen = $(this).val().replace(/\s/g, '').replace(',', '.');
     var jhar  = $(this).attr('data-jhar');
     var jhnetto = (Number(jhmen)||0) * Number(jhar);
-    $(this).closest('tr').find('.pop_jh_jhnetto').html( number_format(jhnetto, 0, ',', ' ') );
+    $(this).closest('tr').find('.pop_jh_jhnetto').html( number_format(jhnetto, jh_tizedesek, ',', ' ') );
     tetel_jh_osszesito_frissit();
 });
 
@@ -78,7 +80,7 @@ function tetel_jh_osszesito_frissit() {
     $('.pop_jh_jhnetto').each(function() {
         osszeg += Number($(this).text().replace(/\s/g, '').replace(',', '.'));
     });
-    $('#jh_ossz_netto').html( number_format(osszeg, 0, ',', ' ') );
+    $('#jh_ossz_netto').html( number_format(osszeg, jh_tizedesek, ',', ' ') );
 }
 
 function tetel_jh_mentes() {

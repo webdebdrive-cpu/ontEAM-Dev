@@ -2811,6 +2811,7 @@ if( isset($_POST['munkalapMegrendelesKeszit']) ) {
         // PDF generálásához kell majd
         // Ehhez pár adatot kiteszünk SESSION-be, mert GET URL-ben nem lehet átadni
         $_SESSION['ml_megr_ft_recid'        ] = $ft_szerz_id;
+        $_SESSION['ml_megr_ml_recid'        ] = $recid;
         $_SESSION['ml_megr_ft_szerz'        ] = $szszam;
         $_SESSION['ml_megr_ikt_szam'        ] = $munkalap['ikt_szam'         ];
         $_SESSION['ml_megr_text'            ] = $mm['targy'                  ];

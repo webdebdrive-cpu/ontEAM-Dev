@@ -2,7 +2,7 @@
 <script>
     var SZAKMAI_VEL_STATUSZBA = 0;
 </script>
-<form id="elutasitasForm" class="popupForm" method="post" onsubmit="bi_validal('-mehet-', SZAKMAI_VEL_STATUSZBA); return false;">
+<form id="elutasitasForm" class="popupForm" method="post" onsubmit="bi_validal_inditas(SZAKMAI_VEL_STATUSZBA); return false;">
     <div class="kozep">
         <div class="dt">
             <div class="dtr">
@@ -90,6 +90,21 @@ $(document).ready(function(){
     });
 
 });
+
+// A tényleges jóváhagyás előtt rákérdezünk, ha vannak tételek, hányat hagy jóvá velük együtt
+function bi_validal_inditas(szakmai_vel) {
+
+    var akt_id   = _get('id');
+    var tetel_db = Number($('#tetel_db_'+akt_id).val()) || 0;
+
+    if( tetel_db > 0 ) {
+        var tetel_jh_db = Number($('#tetel_jh_db_'+akt_id).val()) || 0;
+        alert2(tetel_jh_db+'/'+tetel_db+' db tétel jóváhagyására készül. Folytatja?', '<input type="button" class="gomb zold" value="Igen" onclick="bi_validal(\'-mehet-\', '+JSON.stringify(szakmai_vel)+');"><input type="button" class="gomb piros" value="Nem" onclick="alert2();">', 'Kérdés');
+        return false;
+    }
+
+    bi_validal('-mehet-', szakmai_vel);
+}
 
 // BI validál
 function bi_validal(mehet, szakmai_vel = '') {

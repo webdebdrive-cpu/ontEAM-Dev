@@ -63,7 +63,7 @@ function szak_felt_beleegyezes() {
 
     // globális változók frissítése az adott adatlap alapján
     eszkoz_valtozok_update();
-    
+
     // Indoklás kötelező
     if( !$('#popup_szak_indok').val() ) {
         $('#popup input, #popup textarea, #popup select').removeClass('hibas_ide_focus');
@@ -71,6 +71,20 @@ function szak_felt_beleegyezes() {
         alert2('Kérem töltse ki az indoklást!', '<input type="button" class="link gomb" value="Ok" onclick="alert2();">', 'Hiba');
         return false;
     }
+
+    // Ha vannak tételek, rákérdezünk, hányat hagy jóvá velük együtt, mielőtt a tényleges mentés elindulna
+    var tetel_db = Number($('#tetel_db_'+eszkoz_id).val()) || 0;
+    if( tetel_db > 0 ) {
+        var tetel_jh_db = Number($('#tetel_jh_db_'+eszkoz_id).val()) || 0;
+        alert2(tetel_jh_db+'/'+tetel_db+' db tétel jóváhagyására készül. Folytatja?', '<input type="button" class="gomb zold" value="Igen" onclick="szak_felt_beleegyezes_mentes();"><input type="button" class="gomb piros" value="Nem" onclick="alert2();">', 'Kérdés');
+        return false;
+    }
+
+    szak_felt_beleegyezes_mentes();
+    return false;
+}
+
+function szak_felt_beleegyezes_mentes() {
 
     $.ajax({
         url : 'eszkozigenyles.php',

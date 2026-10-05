@@ -111,8 +111,8 @@ if( isset($_POST['megnevezes']) && !$archivum ) {
             if( $konyvtar_db_nev == 'projektszamla' ) {
                 $pr_szamla = $adatbazis_kapcsolat->s2('telj_dt szallito_id', 'projektszamla', "`recid`='".$_POST['sorid']."'");
                 $ev_mappa   = substr($pr_szamla['telj_dt'], 0, 4);
-            // Eszkozigénylés megrendelénél az evszám utoló két karaktere kell csak
-            } else if( $konyvtar_db_nev == 'eszkozigenyles_megr' ) {
+            // Eszkozigénylés megrendelénél és fenntartási szerződésnél az evszám utoló két karaktere kell csak
+            } else if( in_array($konyvtar_db_nev, ['eszkozigenyles_megr', 'fenntartasi_szerzodes']) ) {
                 $sor        = $adatbazis_kapcsolat->s2('insert_dt', $konyvtar_db_nev, "`recid`='".$_POST['sorid']."'");
                 $ev_mappa   = substr($sor['insert_dt'], 2, 2);
             } else {

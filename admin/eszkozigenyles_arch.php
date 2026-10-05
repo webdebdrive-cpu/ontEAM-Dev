@@ -692,11 +692,12 @@ if( isset($_GET['uj']) ) {
             $ignetto = $tetel['ignetto'];
             $jhar    = $tetel['jhar'];
             $jhnetto = $tetel['jhnetto'];
+            // Devizás igénylésnél a dev_igar (rendelés pénznemében tárolt egységár) alapján számolunk, nincs Ft-ból visszaváltás
             if( $sor['kcs_21'] != KCS_21_HUF && $sor['arfolyam'] > 0 ) {
-                $igar    = $igar/$sor['arfolyam'];
-                $ignetto = $ignetto/$sor['arfolyam'];
-                $jhar    = $jhar/$sor['arfolyam'];
-                $jhnetto = $jhnetto/$sor['arfolyam'];
+                $igar    = $tetel['dev_igar'];
+                $ignetto = $tetel['igmen']*$tetel['dev_igar'];
+                $jhar    = $tetel['dev_igar'];
+                $jhnetto = $tetel['jhmen']*$tetel['dev_igar'];
             }
 
             $szamla_html .= nl2('

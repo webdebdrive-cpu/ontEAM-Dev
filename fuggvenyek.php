@@ -1773,17 +1773,18 @@ function i_u($type, $tabla, $tomb) {
                 }
             }
 
-            // Első tétel automatikus létrehozása a fej adataiból, a beküldött POST alapján (nincs szükség külön lekérdezésre, hisz épp ezekkel az adatokkal jött létre a fej sora is)
-            $tetel_ignetto = $_POST['igmen']*$_POST['netto'];
-            $sql = $adatbazis_kapcsolat -> i('eszkozigenyles_tetel',
-                                                array('eszkozigenyles_id', 'nev',         'spec',         'csz',         'igmen',         'igar',         'ignetto',        'insert_dt',         'insert_usr',                            'update_usr'                            ),
-                                                array($id,                 $_POST['nev'], $_POST['spec'], $_POST['csz'], $_POST['igmen'], $_POST['netto'], $tetel_ignetto,   date('Y-m-d H:i:s'), $_SESSION[get_db_tabla().'teljes_nev'], $_SESSION[get_db_tabla().'teljes_nev'] )
-                                            );
-            if( $sql === false ) { $db_error = true; }
+            // 2026.09.23 Kifejezett kérésre NEM csinálunk automatikus tétel létrehozást (kikommentezve hagyva, hogy látszódjon, mi lett volna rá a megoldás):
+            // // Első tétel automatikus létrehozása a fej adataiból, a beküldött POST alapján (nincs szükség külön lekérdezésre, hisz épp ezekkel az adatokkal jött létre a fej sora is)
+            // $tetel_ignetto = $_POST['igmen']*$_POST['netto'];
+            // $sql = $adatbazis_kapcsolat -> i('eszkozigenyles_tetel',
+            //                                     array('eszkozigenyles_id', 'nev',         'spec',         'csz',         'igmen',         'igar',         'ignetto',        'insert_dt',         'insert_usr',                            'update_usr'                            ),
+            //                                     array($id,                 $_POST['nev'], $_POST['spec'], $_POST['csz'], $_POST['igmen'], $_POST['netto'], $tetel_ignetto,   date('Y-m-d H:i:s'), $_SESSION[get_db_tabla().'teljes_nev'], $_SESSION[get_db_tabla().'teljes_nev'] )
+            //                                 );
+            // if( $sql === false ) { $db_error = true; }
 
-            // Tétel darabszám (dok_db/megj_db mintájára) beírása a fejbe, ez jelenik meg a Tételek fülcímkén zárójelben
-            $sql = $adatbazis_kapcsolat -> u($tabla, array('tetel_db'), array('1'), "`recid`='{$id}'");
-            if( $sql === false ) { $db_error = true; }
+            // // Tétel darabszám (dok_db/megj_db mintájára) beírása a fejbe, ez jelenik meg a Tételek fülcímkén zárójelben
+            // $sql = $adatbazis_kapcsolat -> u($tabla, array('tetel_db'), array('1'), "`recid`='{$id}'");
+            // if( $sql === false ) { $db_error = true; }
 
         }
 
@@ -8229,7 +8230,7 @@ function eszkozigenylesLista( $bejegyzesek, $tabla, $frissit = '', $kijeloltek =
                 'eszkoz_tabla_idoszak_azon'     => '<td>'.$bsz['idoszak_azon'].'</td>',
                 'eszkoz_tabla_statusz'          => '<td data-sort="'.sprintf('%04u', $bsz['stat_id']).'_'.$bsz['recid'].'">
                                                         <span class="stat_'.$bsz['recid'].'">'.getStatText('eszkozigenyles', $bsz['stat_id']).'</span>
-                                                        <div class="dn akt_sor_gombok gombok_'.$bsz['recid'].'" data-dok_db="'.$bsz['dok_db'].'" data-megj_db="'.$bsz['megj_db'].'">
+                                                        <div class="dn akt_sor_gombok gombok_'.$bsz['recid'].'" data-dok_db="'.$bsz['dok_db'].'" data-megj_db="'.$bsz['megj_db'].'" data-tetel_db="'.$bsz['tetel_db'].'">
                                                             '.get_eszkozigenyles_gombok($bsz['recid']).'
                                                         </div>
                                                     </td>',
@@ -8348,19 +8349,88 @@ function eszkozigenylesLista( $bejegyzesek, $tabla, $frissit = '', $kijeloltek =
 
     return false;
 }
+// Az igénylés fej adatlapja jelenleg szerkeszthető-e: pontosan ugyanaz a szabály, mint amivel admin/esemenyek.php a form mezőit (Nettó egységár, stb.) engedi/tiltja meglévő rekordnál.
+// Ez dönti el, hogy a Tételek kezelése gomb/popup elérhető-e: a megrendelő kérése szerint "amikor az adatlap írható, akkor látható a tételek kezelés gomb is".
+function eszkozigenyles_adatlap_irhato($eszkozigenyles) {
+
+    if( $eszkozigenyles['stat_id'] == ESZKOZIGENYL_STAT_UJ_FELVITEL && _jog(JOG_BESZERZ_IGENYLESEK_LETREH) ) {
+        return true;
+    }
+
+    // JOG_BESZERZ_IGENYLESEK_KEZEL joggal még nem szerkeszthető az adatlap, csak akkor, ha adott státusz + státuszhoz tartozó jog is stimmel
+    if( _jog(JOG_BESZERZ_IGENYLESEK_KEZEL) ) {
+        return (
+            ( _jog(JOG_BESZERZ_IGENYLESEK_BI_VALIDALAS  ) && $eszkozigenyles['stat_id'] == ESZKOZIGENYL_STAT_BI_VALID_VAR  ) ||
+            ( _jog(JOG_BESZERZ_IGENYLESEK_BI_JOVA       ) && $eszkozigenyles['stat_id'] == ESZKOZIGENYL_STAT_BI_JH_VAR     ) ||
+            ( _jog(JOG_BESZERZ_IGENYLESEK_BI_VEGLEGESIT ) && $eszkozigenyles['stat_id'] == ESZKOZIGENYL_STAT_BI_VEGL_VAR   ) ||
+            ( _jog(JOG_BESZERZ_IGENYLESEK_SZAKMAI_VEL   ) && $eszkozigenyles['stat_id'] == ESZKOZIGENYL_STAT_SZAKM_VEL_VAR ) ||
+            ( _jog(JOG_BESZERZ_IGENYLESEK_FELSOVEZ_JH   ) && $eszkozigenyles['stat_id'] == ESZKOZIGENYL_STAT_FELSO_JH_VAR  )
+        );
+    }
+
+    return false;
+}
+
+// Igénylés tételei szerkeszthetők-e (Tételek kezelése gomb és popup): alapesetben pontosan akkor, amikor maga az adatlap is írható.
+// Kivétel: Műszaki jóváhagyásra vár státuszban a műszaki jóváhagyó a tételeket kezelheti, az adatlap viszont csak olvasható marad.
+function eszkozigenyles_tetel_szerkesztheto($eszkozigenyles) {
+
+    if( $eszkozigenyles['stat_id'] == ESZKOZIGENYL_STAT_MUSZAK_JH_VAR && _jog(JOG_BESZERZ_IGENYLESEK_MUSZAK_JOVA) ) {
+        return true;
+    }
+
+    return eszkozigenyles_adatlap_irhato($eszkozigenyles);
+}
+
+// Igénylés tételeinek jóváhagyási állapota: van-e tétele, összesen hány db, és ezek közül hánynak van megadva a jóváhagyott mennyisége (jhmen != 0)
+function eszkozigenyles_tetel_jh_allapot($eszkozigenyles_id) {
+    global $adatbazis_kapcsolat;
+
+    $osszesito = $adatbazis_kapcsolat -> s2('COUNT(`recid`) AS db, COUNT(NULLIF(`jhmen`, 0)) AS jovahagyott', 'eszkozigenyles_tetel', "`eszkozigenyles_id`='{$eszkozigenyles_id}'");
+
+    return array(
+        'van_tetel'   => $osszesito['db'] > 0,
+        'osszes'      => (int) $osszesito['db'],
+        'jovahagyott' => (int) $osszesito['jovahagyott'],
+    );
+}
+
+// Jóváhagyás gomb (Szálloda igazgató / BI validálás / BI jóváhagyás / Szakmai vélemény / Felsővezető / BI véglegesítés) előtt ellenőrizzük:
+// ha az igénylésnek van tétele, de egyiket sem hagyták még jóvá (mind jhmen=0, azaz még meg sem nyitották a Tételek jóváhagyása popupot), akkor nem engedjük tovább.
+// Ha legalább egy tételbe már írtak (van nem-0 jhmen), azt jóváhagyottnak tekintjük, akkor is, ha másik tételt esetleg szándékosan 0-ra állítottak (=elutasítva).
+function eszkozigenyles_tetel_jh_ellenorzes($eszkozigenyles_id) {
+    $allapot = eszkozigenyles_tetel_jh_allapot($eszkozigenyles_id);
+    return !( $allapot['van_tetel'] && $allapot['jovahagyott'] == 0 );
+}
+
 // Adott eszközigénylés sorhoz milyen gombok jelenjenek meg
 function get_eszkozigenyles_gombok($recid = 0) {
     global $adatbazis_kapcsolat;
 
     $eszkozigenyles = $adatbazis_kapcsolat -> s2('stat_id tipus telephely_id nev kiv_kolts becsult ossz_netto igmen jhmen tetel_db musz_el_ig musz_indok szall_ig_vel szall_ig_indok bi_vel bi_indok bi_jh bi_jh_indok szak_vel szak_indok felso_vel felso_indok bi_vegl bi_vegl_indok szallito_id', 'eszkozigenyles', "`recid`='{$recid}'");
 
+    // A Jóváhagyás gombok megerősítő szövegéhez kell: hány tétel van jóváhagyva
+    $tetel_jh_jovahagyott = 0;
+    if( $recid && $eszkozigenyles['tetel_db'] ) {
+        $tetel_jh_allapot     = eszkozigenyles_tetel_jh_allapot($recid);
+        $tetel_jh_jovahagyott = $tetel_jh_allapot['jovahagyott'];
+    }
+
+    // Ha az igénylésnek van tétele, a fej Jóváhagyott mennyiség mezője nem írható (több tételnél összesítő), ezért ilyenkor csak a Tételek jóváhagyása gomb jelenik meg.
+    // Tétel nélkül fordítva: a fej Jóváhagyott mennyiség állítható, Tételek jóváhagyása pedig értelmetlen.
+    if( !empty($eszkozigenyles['tetel_db']) ) {
+        $jh_gomb = '<input type="button" class="gomb modositaskor_rejt" onclick="csoportMuvelet(\'eszkozigenyles_tetelek_jovahagyasa\')" value="Tételek jóváhagyása">';
+    } else {
+        $jh_gomb = '<input type="button" class="gomb modositaskor_rejt" onclick="csoportMuvelet(\'eszkozigenyles_jhmen_mod\')" value="Jóváhagyott mennyiség">';
+    }
+
     $gombok = '';
     if( isset($_GET['tablazat']) ) {
         $gombok .= '<input type="button" class="gomb modositaskor_rejt" onclick="csoportMuvelet(\'eszkozigenyles_tablazat_beallitasai\')" value="Táblázat beállítása"> ';
     }
-    // Tételek kezelése: csak létező (élő táblabeli) rekordnál jelenik meg, státusztól/jogtól függetlenül (a szerkeszthetőséget a popup backendje dönti el).
-    // Archivált igénylésnél (ahol ez a recid már nincs az élő táblában) nem jelenik meg, mert a popup az élő eszkozigenyles_tetel táblát kezelné.
-    if( $recid && $eszkozigenyles['stat_id'] ) {
+    // Tételek kezelése: amikor az adatlap írható (megrendelői kérés), illetve Műszaki jóváhagyásra vár státuszban a műszaki jóváhagyónak (lásd eszkozigenyles_tetel_szerkesztheto()).
+    // Archivált igénylésnél (ahol ez a recid már nincs az élő táblában, tehát $eszkozigenyles üres) nem jelenik meg, mert a popup az élő eszkozigenyles_tetel táblát kezelné.
+    if( $recid && $eszkozigenyles['stat_id'] && eszkozigenyles_tetel_szerkesztheto($eszkozigenyles) ) {
         $gombok .= '<input type="button" class="gomb modositaskor_rejt" onclick="csoportMuvelet(\'eszkozigenyles_tetelek_kezelese\')" value="Tételek kezelése"> ';
     }
     // Új felvitel:
@@ -8410,7 +8480,7 @@ function get_eszkozigenyles_gombok($recid = 0) {
             // }
         }
         $gombok .= nl2('
-            <input type="button" class="gomb modositaskor_rejt" onclick="csoportMuvelet(\'eszkozigenyles_jhmen_mod\')" value="Jóváhagyott mennyiség">
+            '.$jh_gomb.'
             <input type="button" class="gomb modositaskor_rejt zold" onclick="csoportMuvelet(\'eszkozigenyles_szall_ig_jovahagy\')" value="✓ Mehet BI validálásra">
             <input type="button" class="gomb modositaskor_rejt piros" onclick="csoportMuvelet(\'eszkozigenyles_szall_ig_elutasit\')" value="× Elutasítás">
             '.$visszavonas
@@ -8436,7 +8506,7 @@ function get_eszkozigenyles_gombok($recid = 0) {
             // $szakmai_vel_statuszba = '-szak-vel-statuszba-';
         }
         $gombok .= nl2('
-            <input type="button" class="gomb modositaskor_rejt" onclick="csoportMuvelet(\'eszkozigenyles_jhmen_mod\')" value="Jóváhagyott mennyiség">
+            '.$jh_gomb.'
             <input type="button" class="gomb modositaskor_rejt zold" onclick="csoportMuvelet(\'eszkozigenyles_bi_validal\')" value="✓ '.$gomb_felirat.'">
             <input type="button" class="gomb modositaskor_rejt piros" onclick="csoportMuvelet(\'eszkozigenyles_bi_elutasit\')" value="× Elutasítás">
             '.$visszavonas
@@ -8460,7 +8530,7 @@ function get_eszkozigenyles_gombok($recid = 0) {
             // $kikuld_statuszba = '-kikuld-statuszba-';
         }
         $gombok .= nl2('
-            <input type="button" class="gomb modositaskor_rejt" onclick="csoportMuvelet(\'eszkozigenyles_jhmen_mod\')" value="Jóváhagyott mennyiség">
+            '.$jh_gomb.'
             <input type="button" class="gomb modositaskor_rejt zold" onclick="csoportMuvelet(\'eszkozigenyles_bi_jovahagy\')" value="✓ '.$gomb_felirat.'">
             <input type="button" class="gomb modositaskor_rejt sarga" onclick="csoportMuvelet(\'eszkozigenyles_bi_jh_feltetelekkel\')" value="? Feltételekkel beleegyezés">
             <input type="button" class="gomb modositaskor_rejt piros" onclick="csoportMuvelet(\'eszkozigenyles_bi_jh_elutasit\')" value="× Elutasítás">
@@ -8479,7 +8549,7 @@ function get_eszkozigenyles_gombok($recid = 0) {
             // }
         }
         $gombok .= nl2('
-            <input type="button" class="gomb modositaskor_rejt" onclick="csoportMuvelet(\'eszkozigenyles_jhmen_mod\')" value="Jóváhagyott mennyiség">
+            '.$jh_gomb.'
             <input type="button" class="gomb modositaskor_rejt zold" onclick="csoportMuvelet(\'eszkozigenyles_szak_jovahagy\')" value="✓ Beleegyezés">
             <input type="button" class="gomb modositaskor_rejt sarga" onclick="csoportMuvelet(\'eszkozigenyles_szak_feltetelekkel\')" value="? Feltételekkel beleegyezés">
             <input type="button" class="gomb modositaskor_rejt piros" onclick="csoportMuvelet(\'eszkozigenyles_szak_elutasit\')" value="× Elutasítás">
@@ -8504,8 +8574,7 @@ function get_eszkozigenyles_gombok($recid = 0) {
             ');
         }
         $gombok .= nl2('
-            <input type="button" class="gomb modositaskor_rejt" onclick="csoportMuvelet(\'eszkozigenyles_jhmen_mod\')" value="Jóváhagyott mennyiség">
-            <input type="button" class="gomb modositaskor_rejt" onclick="csoportMuvelet(\'eszkozigenyles_tetelek_jovahagyasa\')" value="Tételek jóváhagyása">
+            '.$jh_gomb.'
             <input type="button" class="gomb modositaskor_rejt zold" onclick="csoportMuvelet(\'eszkozigenyles_felso_jovahagy\')" value="✓ Jóváhagyás">
             <input type="button" class="gomb modositaskor_rejt sarga" onclick="csoportMuvelet(\'eszkozigenyles_felso_feltetelekkel\')" value="? Feltételekkel jóváhagyás">
             <input type="button" class="gomb modositaskor_rejt piros" onclick="csoportMuvelet(\'eszkozigenyles_felso_elutasit\')" value="× Elutasítás">
@@ -8531,7 +8600,7 @@ function get_eszkozigenyles_gombok($recid = 0) {
             $feldolgozva_onclick = 'igenyles_feldolgozva()';
         }
         $gombok .= nl2('
-            <input type="button" class="gomb modositaskor_rejt" onclick="csoportMuvelet(\'eszkozigenyles_jhmen_mod\')" value="Jóváhagyott mennyiség">
+            '.$jh_gomb.'
             <input type="button" class="gomb modositaskor_rejt" onclick="vissza_validalasra(\''.$megerosites.'\')" value="Vissza validálásra">
             <input type="button" class="gomb modositaskor_rejt zold" onclick="'.$feldolgozva_onclick.'" value="✓ Feldolgozva">
             <input type="button" class="gomb modositaskor_rejt piros" onclick="csoportMuvelet(\'eszkozigenyles_bi_vegl_elutasit\')" value="× Elutasítás">
@@ -8549,6 +8618,7 @@ function get_eszkozigenyles_gombok($recid = 0) {
                 <input type="hidden" id="igmen_db_'.$recid.'" value="'.$eszkozigenyles['igmen'].'">
                 <input type="hidden" id="jhmen_db_'.$recid.'" value="'.$eszkozigenyles['jhmen'].'">
                 <input type="hidden" id="tetel_db_'.$recid.'" value="'.$eszkozigenyles['tetel_db'].'">
+                <input type="hidden" id="tetel_jh_db_'.$recid.'" value="'.$tetel_jh_jovahagyott.'">
                 <input type="hidden" id="becsult_db_'.$recid.'" value="'.$eszkozigenyles['becsult'].'">
                 <div class="dn">
                     <textarea id="musz_indok_db_'.$recid.'">'.nl2br2($eszkozigenyles['musz_indok']).'</textarea>
@@ -15013,7 +15083,7 @@ function get_projekt_kezeles_jog($recid) {
         return true;
     }
     // Saját projekt kezelés jog esetén azokat kezelhetjük, ahol projekt felelős vagyok
-    if( _jog(JOG_PRKEZEL_SAJAT_KEZEL) && $prk['pfelelos'] == $_SESSION[get_db_tabla() . 'login_recid'] ) {
+    if( _jog(JOG_PRKEZEL_SAJAT_KEZEL) && $prk['pfelelos'] == $_SESSION[get_db_tabla().'login_recid'] ) {
         return true;
     }
     // Egyszállodás projekt kezelésével az egyszállodás Projekteket kezelhetjük

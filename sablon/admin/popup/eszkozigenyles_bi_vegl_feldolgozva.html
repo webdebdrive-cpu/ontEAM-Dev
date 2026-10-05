@@ -1,5 +1,5 @@
 <h2>Igénylés feldolgozva</h2>
-<form id="elutasitasForm" class="popupForm" method="post" onsubmit="bi_vegl_jovahagy(); return false;">
+<form id="elutasitasForm" class="popupForm" method="post" onsubmit="bi_vegl_jovahagy_inditas(); return false;">
     <div class="kozep">
         Ha folytatja, elkészül a megrendelés rekord és a megrendelő dokumentum.<br>Biztosan véglegesíti az igénylést?
         <br>
@@ -62,6 +62,21 @@ $(document).ready(function(){
     $('#popup_bi_vegl_indok').select();
 
 });
+
+// A tényleges jóváhagyás előtt rákérdezünk, ha vannak tételek, hányat hagy jóvá velük együtt
+function bi_vegl_jovahagy_inditas() {
+
+    var akt_id   = _get('id');
+    var tetel_db = Number($('#tetel_db_'+akt_id).val()) || 0;
+
+    if( tetel_db > 0 ) {
+        var tetel_jh_db = Number($('#tetel_jh_db_'+akt_id).val()) || 0;
+        alert2(tetel_jh_db+'/'+tetel_db+' db tétel jóváhagyására készül. Folytatja?', '<input type="button" class="gomb zold" value="Igen" onclick="bi_vegl_jovahagy();"><input type="button" class="gomb piros" value="Nem" onclick="alert2();">', 'Kérdés');
+        return false;
+    }
+
+    bi_vegl_jovahagy();
+}
 
 // BI véglegesítés
 function bi_vegl_jovahagy(mehet) {

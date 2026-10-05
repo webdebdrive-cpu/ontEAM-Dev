@@ -203,9 +203,10 @@ function akt_oszlop_megjelol_gombok_mutat() {
         // Gombok bemásolása a műveletek konténerbe
         $('.muveletek').html( $active.parent().find('.akt_sor_gombok').html() );
 
-        // dok_db és megj_db frissítése a fül felioraton sorokon lépkedve
-        let dok_db  = $active.parent().find('.akt_sor_gombok').data('dok_db' );
-        let megj_db = $active.parent().find('.akt_sor_gombok').data('megj_db');
+        // dok_db, megj_db és tetel_db frissítése a fül felioraton sorokon lépkedve
+        let dok_db   = $active.parent().find('.akt_sor_gombok').data('dok_db'  );
+        let megj_db  = $active.parent().find('.akt_sor_gombok').data('megj_db' );
+        let tetel_db = $active.parent().find('.akt_sor_gombok').data('tetel_db');
         if( dok_db>0 ) {
             dok_db = ' ('+dok_db+')';
         } else {
@@ -216,8 +217,14 @@ function akt_oszlop_megjelol_gombok_mutat() {
         } else {
             megj_db = '';
         }
+        if( tetel_db>0 ) {
+            tetel_db = ' ('+tetel_db+')';
+        } else {
+            tetel_db = '';
+        }
         $('#szamlaFulek').find('a[data-oldal="dokumentumok"]').html('Dokumentumok'+dok_db );
         $('#szamlaFulek').find('a[data-oldal="megjegyzesek"]').html('Megjegyzések'+megj_db);
+        $('#szamlaFulek').find('a[data-oldal="tetel"]'       ).html('Tételek'+tetel_db    );
     
         // Webcím frissítése, hogy füleken lépkedve a megfelelő adatlapjra jussunk majd
         webcim_frissit($active.parent().attr('id'));

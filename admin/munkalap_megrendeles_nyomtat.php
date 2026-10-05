@@ -11,8 +11,8 @@ if( isset($_GET['nyomtat']) ) {
 
     // Szállító kiszámítása
     $munkalap = $adatbazis_kapcsolat->s2('ikt_szam szallito_id kcs_21 telephely_id alair1 alair2 dok_db', 'munkalap', "`recid`='{$ml_recid}'");
-    $ft_szerzodes = $adatbazis_kapcsolat -> s2('szszam insert_dt', 'fenntartasi_szerzodes', "`recid`='{$_SESSION['ml_megr_ft_recid']}'");
-    $kcs_21   = $munkalap['kcs_21'];
+    $ft_szerzodes = $adatbazis_kapcsolat -> s2('szszam insert_dt', 'fenntartasi_szerzodes', "`recid`='".($_SESSION['ml_megr_ft_recid'] ?? '')."'");
+    $kcs_21  = $munkalap['kcs_21'];
     $penznem  = $adatbazis_kapcsolat->s2('info', 'erteklista', "`csoport`='".ERTEKLISTA_PENZNEM."' AND `id`='{$kcs_21}'");
     // $szallito = $adatbazis_kapcsolat->s2('id nev knev tel tel2 email isz varos utca', 'szallito', "`id`='{$munkalap['szallito_id']}'");
     
@@ -204,49 +204,61 @@ if( isset($_GET['html_mutat']) ) {
     // Adatbázis műveleteket csak akkor csinálunk, ha már nem csak simán PDF megmutatása miatt vagyunk itt
     // Így tudod egy PDF fájlba elmenteni a generált tartalmat
     // Könyvtárak kialakítása
-    if( !$_GET['PDF_elonezet'] ) {
+    if( empty($_GET['PDF_elonezet']) ) {
 
-        $ev           = date('y', strtotime($ft_szerzodes['insert_dt']));
-        $szszam_mappa = str_replace('/', '_', $ft_szerzodes['szszam']);
-        $fajlnev      = 'Munkamegrendeles_'.$szszam_mappa.'.pdf';
-        if( !is_dir('../'.get_utvonal().'fenntartasi_szerzodes') ) {
-            mkdir('../'.get_utvonal().'fenntartasi_szerzodes');
-        }
-        if( !is_dir('../'.get_utvonal().'fenntartasi_szerzodes/'.$ev) ) {
-            mkdir('../'.get_utvonal().'fenntartasi_szerzodes/'.$ev);
-        }
-        if( !is_dir('../'.get_utvonal().'fenntartasi_szerzodes/'.$ev.'/'.$szszam_mappa) ) {
-            mkdir('../'.get_utvonal().'fenntartasi_szerzodes/'.$ev.'/'.$szszam_mappa);
-        }
+        // Csak akkor mentünk, ha a munkalap.php ehhez a munkalaphoz hozta létre a fenntartási szerződést, és az létezik is.
+        // Enélkül (pl. a ...&nyomtat URL frissítése, újbóli megnyitása) 0-s ID-jű vagy duplikált dokumentum sorok keletkeznének.
+        $mentheto = !empty($_SESSION['ml_megr_ft_recid'])
+                 && ($_SESSION['ml_megr_ml_recid'] ?? '') == $ml_recid
+                 && !empty($ft_szerzodes['szszam']);
 
-        $mpdf -> Output(iconv('UTF-8', 'Windows-1250', '../'.get_utvonal().'fenntartasi_szerzodes/'.$ev.'/'.$szszam_mappa.'/'.$fajlnev), 'F');
+        if( $mentheto ) {
 
-        $utvonal_db_be = $ev.'/'.$szszam_mappa.'/'.$fajlnev;
-    
-        // Dokumentum eltárolása adatbázisba
-        $adatbazis_kapcsolat -> i('fenntartasi_szerzodes_dok', array('fenntartasi_szerzodes_id',    'utvonal',      'fajlnev',     'update_usr',                           'insert_dt',    'insert_usr'                            ),
-                                                               array($_SESSION['ml_megr_ft_recid'], $utvonal_db_be, $fajlnev,      $_SESSION[get_db_tabla().'teljes_nev'], 'NOW()',        $_SESSION[get_db_tabla().'teljes_nev']  )
-                                                            );
+            $ev           = date('y', strtotime($ft_szerzodes['insert_dt']));
+            $szszam_mappa = str_replace('/', '_', $ft_szerzodes['szszam']);
+            $fajlnev      = 'Munkamegrendeles_'.$szszam_mappa.'.pdf';
+            if( !is_dir('../'.get_utvonal().'fenntartasi_szerzodes') ) {
+                mkdir('../'.get_utvonal().'fenntartasi_szerzodes');
+            }
+            if( !is_dir('../'.get_utvonal().'fenntartasi_szerzodes/'.$ev) ) {
+                mkdir('../'.get_utvonal().'fenntartasi_szerzodes/'.$ev);
+            }
+            if( !is_dir('../'.get_utvonal().'fenntartasi_szerzodes/'.$ev.'/'.$szszam_mappa) ) {
+                mkdir('../'.get_utvonal().'fenntartasi_szerzodes/'.$ev.'/'.$szszam_mappa);
+            }
 
-        $dok_db = 1;
-        // Ekkor a munkalap aktuális dokumentumait is másoljuk át a fenntartási szerződéshez (kivéve amit most vettünk fel, hisz az már benne van)
-        $munkalap_dokok = $adatbazis_kapcsolat -> s('utvonal fajlnev sor loginnev update_dt update_usr insert_dt insert_usr', 'munkalap_dok', "`munkalap_id`='{$ml_recid}'");
-        foreach ($munkalap_dokok as $munkalap_dok) {
-            $munkalap_dok['utvonal'] = '../munkalap/'.$munkalap_dok['utvonal'];
-            $adatbazis_kapcsolat -> i('fenntartasi_szerzodes_dok',  array('fenntartasi_szerzodes_id',    'utvonal',                'fajlnev',                'sor',                'loginnev',                'update_dt',                'update_usr',                'insert_dt',                'insert_usr'               ),
-                                                                    array($_SESSION['ml_megr_ft_recid'], $munkalap_dok['utvonal'], $munkalap_dok['fajlnev'], $munkalap_dok['sor'], $munkalap_dok['loginnev'], $munkalap_dok['update_dt'], $munkalap_dok['update_usr'], $munkalap_dok['insert_dt'], $munkalap_dok['insert_usr'])
+            $mpdf -> Output(iconv('UTF-8', 'Windows-1250', '../'.get_utvonal().'fenntartasi_szerzodes/'.$ev.'/'.$szszam_mappa.'/'.$fajlnev), 'F');
+
+            $utvonal_db_be = $ev.'/'.$szszam_mappa.'/'.$fajlnev;
+
+            // Dokumentum eltárolása adatbázisba
+            $adatbazis_kapcsolat -> i('fenntartasi_szerzodes_dok', ['fenntartasi_szerzodes_id',    'utvonal',      'fajlnev',     'update_usr',                           'insert_dt',    'insert_usr'                            ],
+                                                                   [$_SESSION['ml_megr_ft_recid'], $utvonal_db_be, $fajlnev,      $_SESSION[get_db_tabla().'teljes_nev'], 'NOW()',        $_SESSION[get_db_tabla().'teljes_nev']  ]
                                                                 );
-            $dok_db++;
-        }
 
-        $adatbazis_kapcsolat -> u('fenntartasi_szerzodes', array('dok_db'), array($dok_db), "`recid`='{$_SESSION['ml_megr_ft_recid']}'");
-    
-        
-        // Munkalapok dokumentumához is adjuk hozzá
-        $ml_doc_recid = $adatbazis_kapcsolat -> i('munkalap_dok',   array('munkalap_id',    'utvonal',                                  'fajlnev',     'update_usr',                           'insert_dt',    'insert_usr'                            ),
-                                                                    array($ml_recid,        '../fenntartasi_szerzodes/'.$utvonal_db_be, $fajlnev,      $_SESSION[get_db_tabla().'teljes_nev'], 'NOW()',        $_SESSION[get_db_tabla().'teljes_nev']  )
-                                );
-        $adatbazis_kapcsolat -> u('munkalap', array('dok_db'), array($munkalap['dok_db']+1), "`recid`='{$ml_recid}'");
+            $dok_db = 1;
+            // Ekkor a munkalap aktuális dokumentumait is másoljuk át a fenntartási szerződéshez (kivéve amit most vettünk fel, hisz az már benne van)
+            $munkalap_dokok = $adatbazis_kapcsolat -> s('utvonal fajlnev sor loginnev update_dt update_usr insert_dt insert_usr', 'munkalap_dok', "`munkalap_id`='{$ml_recid}'");
+            foreach ($munkalap_dokok as $munkalap_dok) {
+                $munkalap_dok['utvonal'] = '../munkalap/'.$munkalap_dok['utvonal'];
+                $adatbazis_kapcsolat -> i('fenntartasi_szerzodes_dok',  ['fenntartasi_szerzodes_id',    'utvonal',                'fajlnev',                'sor',                'loginnev',                'update_dt',                'update_usr',                'insert_dt',                'insert_usr'               ],
+                                                                        [$_SESSION['ml_megr_ft_recid'], $munkalap_dok['utvonal'], $munkalap_dok['fajlnev'], $munkalap_dok['sor'], $munkalap_dok['loginnev'], $munkalap_dok['update_dt'], $munkalap_dok['update_usr'], $munkalap_dok['insert_dt'], $munkalap_dok['insert_usr']]
+                                                                    );
+                $dok_db++;
+            }
+
+            $adatbazis_kapcsolat -> u('fenntartasi_szerzodes', ['dok_db'], [$dok_db], "`recid`='{$_SESSION['ml_megr_ft_recid']}'");
+
+            // Munkalapok dokumentumához is adjuk hozzá
+            $ml_doc_recid = $adatbazis_kapcsolat -> i('munkalap_dok',   ['munkalap_id',    'utvonal',                                  'fajlnev',     'update_usr',                           'insert_dt',    'insert_usr'                            ],
+                                                                        [$ml_recid,        '../fenntartasi_szerzodes/'.$utvonal_db_be, $fajlnev,      $_SESSION[get_db_tabla().'teljes_nev'], 'NOW()',        $_SESSION[get_db_tabla().'teljes_nev']  ]
+                                    );
+            $adatbazis_kapcsolat -> u('munkalap', ['dok_db'], [$munkalap['dok_db']+1], "`recid`='{$ml_recid}'");
+
+            // A mentés egyszer használatos: egy újabb ...&nyomtat kérés már ne mentsen újra
+            $_SESSION['ml_megr_ft_recid'] = '';
+            $_SESSION['ml_megr_ml_recid'] = '';
+        }
 
         // Töltsük be a munkalapot
         // header('location:munkalap.php?modosit&id='.$ml_recid);

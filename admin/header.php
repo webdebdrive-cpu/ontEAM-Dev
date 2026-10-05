@@ -1668,6 +1668,12 @@ $nincs_export_ikon = array('szamla.php');
 if( in_array(basename(self()), $nincs_export_ikon) ){
     $export_ikon = '';
 }
+// Archív munkalapoknál a rendezési irány (rendezesIrany) linket kivettük,
+// mert itt csak insert_dt alapján rendezünk, ami nem a lekért sorok
+// tényleges rendezését jelentené, és a rendezést használva ki is fagyna a működés.
+if( basename(self()) == 'munkalap_arch.php' ) {
+    $rend_irany = '';
+}
 
 if( basename(self()) == 'teszteles.php' ) {
     $kereso = $rendezes = $rend_irany = $szures = $uj = $duplikal = $torles_icon = $nyomtatas_ikon = $export_ikon = $mail = $lepteto_ikonok = '';
