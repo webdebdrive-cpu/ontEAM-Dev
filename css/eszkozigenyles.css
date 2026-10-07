@@ -70,6 +70,16 @@ div.naplo div.nSor div.dtc:nth-of-type(2), div.naplo div.nSor div.dtc:nth-of-typ
     white-space: nowrap;
 }
 
+/* Tételek fül: a mennyiség oszlopok (max. 3 jegyű értékek) a lehető legkeskenyebbek legyenek */
+div.naplo.tetelek div.dtc:nth-of-type(4), div.naplo.tetelek div.dtc:nth-of-type(7) {
+    width: 1%;
+}
+
+/* Tételek kezelése popup: a többsoros specifikáció sortörései a táblázatban is látszódjanak */
+#pop_tetelek td.pop_spec {
+    white-space: pre-line;
+}
+
 .dtc_flex .form_jobb {
     display: flex;
     align-items: center;

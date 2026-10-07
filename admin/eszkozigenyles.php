@@ -108,6 +108,20 @@ if (isset($_POST['get_arfolyam'])) {
     exit;
 }
 
+// Szállító alapértelmezett fizetési módjának és fizetési határidejének lekérése (új felvitelkor töltjük be vele az adatlapot)
+if( isset($_POST['get_szallito_fizetesi_adatok']) ) {
+
+    $szallito = $adatbazis_kapcsolat -> s2('fiz_mod hat_ido', 'szallito_beszerzes', "`recid`='".(int)($_POST['szallito_id'] ?? 0)."'");
+
+    echo json_encode([
+        'fiz_mod' => $szallito['fiz_mod'] ?? '',
+        'hat_ido' => $szallito['hat_ido'] ?? '',
+    ]);
+
+    $weblap -> leallit();
+    exit;
+}
+
 // Szállító igénylése
 if (isset($_POST['szallito_kerese'])) {
 
@@ -240,6 +254,7 @@ if (isset($_POST['get_tabla_oszlopok'])) {
 
     $oszlopok = [
         ['nev' => 'Igény ID',                    'id' => 'eszkoz_tabla_azon'            ],
+        ['nev' => 'Projekt',                     'id' => 'eszkoz_tabla_proj'            ],
         ['nev' => 'Időszak ID',                  'id' => 'eszkoz_tabla_idoszak_azon'    ],
         ['nev' => 'Státusz',                     'id' => 'eszkoz_tabla_statusz'         ],
         ['nev' => 'Típus',                       'id' => 'eszkoz_tabla_tipus'           ],
@@ -623,13 +638,25 @@ function eszkozigenyles_tetel_fej_ujraszamol($eszkozigenyles_id, $utolso_tetel =
             array_push($ertekek, $utolso_tetel['dev_igar'], round($utolso_tetel['igmen']*$utolso_tetel['dev_igar'], 2));
         }
     } elseif( $osszesito['db'] == 1 ) {
-        $tetel   = $adatbazis_kapcsolat -> s2('igmen igar', 'eszkozigenyles_tetel', "`eszkozigenyles_id`='{$eszkozigenyles_id}'");
+        $tetel   = $adatbazis_kapcsolat -> s2('igmen igar dev_igar', 'eszkozigenyles_tetel', "`eszkozigenyles_id`='{$eszkozigenyles_id}'");
         if( $tetel === false ) { return false; }
         $mezok   = array('igmen',         'netto',        'ossz_netto',       'tetel_db'       );
         $ertekek = array($tetel['igmen'], $tetel['igar'], $osszesito['osszeg'], $osszesito['db'] );
+        // Devizás igénylésnél a deviza egységár és a deviza összesen is a tételé (igmen*dev_igar)
+        if( $deviza ) {
+            array_push($mezok,   'dev_net',          'ossz_dev'                                    );
+            array_push($ertekek, $tetel['dev_igar'], round($tetel['igmen']*$tetel['dev_igar'], 2) );
+        }
     } else {
         $mezok   = array('igmen', 'netto', 'ossz_netto',         'tetel_db'       );
         $ertekek = array(0,       0,       $osszesito['osszeg'], $osszesito['db'] );
+        // Több tételnél a deviza egységár is 0 (mint a Ft egységár), a deviza összesen pedig a tételek deviza nettójának összege
+        if( $deviza ) {
+            $dev_osszes = $adatbazis_kapcsolat -> s2('SUM(`igmen`*`dev_igar`) AS osszeg', 'eszkozigenyles_tetel', "`eszkozigenyles_id`='{$eszkozigenyles_id}'");
+            if( $dev_osszes === false ) { return false; }
+            array_push($mezok,   'dev_net', 'ossz_dev'                         );
+            array_push($ertekek, 0,         round($dev_osszes['osszeg'], 2)    );
+        }
     }
     return $adatbazis_kapcsolat -> u('eszkozigenyles', $mezok, $ertekek, "`recid`='{$eszkozigenyles_id}'");
 }
@@ -650,7 +677,8 @@ if( isset($_POST['tetel_lista_feltolt']) ) {
         'html'          => eszkozigenyles_tetel_sorok_html($_POST['id'], $szerkesztheto, $eszkozig['kcs_21']),
         'szerkesztheto' => $szerkesztheto ? 1 : 0,
         'deviza'        => $deviza ? 1 : 0,
-        'kcs_21_nev'    => $deviza ? erteklista(ERTEKLISTA_PENZNEM, $eszkozig['kcs_21']) : 'Ft',
+        // A popupon mindig pénznem kódot mutatunk (forintnál is HUF), nem "Ft"-ot
+        'kcs_21_nev'    => erteklista(ERTEKLISTA_PENZNEM, $deviza ? $eszkozig['kcs_21'] : KCS_21_HUF) ?: 'HUF',
         'arfolyam'      => $eszkozig['arfolyam'],
     ));
 
@@ -829,7 +857,14 @@ if( isset($_POST['tetel_jh_feltolt']) ) {
         ');
     }
 
-    echo json_encode(array('html' => $html, 'kcs_21' => $eszkozig['kcs_21'], 'tizedesek' => $tizedesek));
+    // A pénznemet is innen kapja a popup (nem az oldalon lévő kcs_21_autocomp mezőből), mert táblázatos nézetben sorokon lépkedve az nem az aktuális igénylésé.
+    // Mindig pénznem kódot mutatunk (forintnál is HUF), és az árak pénznemével egyezően: árfolyam nélküli devizás igénylésnél Ft-os ár jelenik meg, így HUF.
+    echo json_encode([
+        'html'      => $html,
+        'kcs_21'    => $eszkozig['kcs_21'],
+        'penznem'   => erteklista(ERTEKLISTA_PENZNEM, $deviza ? $eszkozig['kcs_21'] : KCS_21_HUF) ?: 'HUF',
+        'tizedesek' => $tizedesek,
+    ]);
 
     $weblap -> leallit();
     exit;
@@ -862,6 +897,20 @@ if( isset($_POST['tetel_jh_ment']) ) {
 
     $tetel_idk = json_decode($_POST['tetel_idk'], true);
     $jhmenek   = json_decode($_POST['jhmenek'],   true);
+
+    // Ha minden tétel 0, az nem jóváhagyás (elutasításra ott az Elutasítás gomb)
+    $van_jovahagyott = false;
+    foreach ( (array) $jhmenek as $jhmen ) {
+        if( (float) str_replace([' ', ','], ['', '.'], $jhmen) > 0 ) {
+            $van_jovahagyott = true;
+            break;
+        }
+    }
+    if( !$van_jovahagyott ) {
+        echo json_encode(['hiba' => 'Kérem töltse ki a jóváhagyott mennyiséget!', 'title' => 'Hiba']);
+        $weblap -> leallit();
+        exit;
+    }
 
     foreach ( $tetel_idk as $i => $tetel_id ) {
         $jhmen = str_replace(array(' ', ','), array('', '.'), $jhmenek[$i]);
@@ -997,6 +1046,74 @@ if (isset($_POST['mehet_validalasra'])) {
             'hiba'  => tranzakcioHiba(),
             'title' => 'Hiba'
         ));
+    }
+
+    $weblap -> leallit();
+    exit;
+}
+
+// Mehet műszaki jóváhagyásra (soronkívüli / GM keret igénylés Új felvitel státuszból)
+if( isset($_POST['mehet_muszaki_jovahagyasra']) ) {
+
+    $db_error = false;
+    mysqli_autocommit($db_kapcs, false);
+
+    $sor = $adatbazis_kapcsolat -> s2('stat_id tipus szallito_id', 'eszkozigenyles', "`recid`='{$_POST['id']}'");
+    if( $sor === false ) { $db_error = true; }
+
+    // PHP alatt is ellenőrizzük, hogy van-e szállító
+    if( !$sor['szallito_id'] ) {
+        ajax_hiba('Műszaki jóváhagyásra küldés előtt kérem adja meg a Szállítót!');
+    }
+
+    // Csak soronkívüli és GM keret igénylésnél értelmezett ez a funkció
+    if( $sor['tipus'] != BESZ_TIP_SORONKIVULI && $sor['tipus'] != BESZ_TIP_GM_KERET ) {
+        ajax_hiba('Csak soron kívüli vagy GM keretes igénylést lehet műszaki jóváhagyásra küldeni!');
+    }
+
+    // Ha nincs joga hozzá, akkor hibaüzenet
+    if( !_jog(JOG_BESZERZ_IGENYLESEK_LETREH) ) {
+        ajax_hiba('Önnek nincs joga műszaki jóváhagyásra küldeni!');
+    }
+
+    // Nem megfelelő státuszkor hibaüzenet
+    if( $sor['stat_id'] != ESZKOZIGENYL_STAT_UJ_FELVITEL ) {
+        echo json_encode([
+            'hiba'  => $statusz_hiba,
+            'gomb'  => $statusz_hiba_gomb,
+            'title' => 'Hiba',
+        ]);
+        $weblap -> leallit();
+        exit;
+    }
+
+    // Státusz léptetés
+    if( addStatusz('eszkozigenyles_statusz', $_POST['id'], ESZKOZIGENYL_STAT_MUSZAK_JH_VAR) === false ) {
+        $db_error = true;
+    }
+    $statusz = getStatText('eszkozigenyles', ESZKOZIGENYL_STAT_MUSZAK_JH_VAR);
+
+    // Email értesítés a műszaki jóváhagyóknak (korábban a létrehozáskor ment ki)
+    $mail_hibauzenet = level_felkeszit_es_kuld('eszkozigenyles', $_POST['id'], ERT_BESZERZ_MUSZAK_JOVA_ELO, 'eszkozigenyles', 'eszkozigenyles_muszak_jova_elott');
+
+    // Megjegyzések számát frissen kérjük le, ha volt értesítés, akkor nőhetett a száma
+    $megj = $adatbazis_kapcsolat -> s2('megj_db', 'eszkozigenyles', "`recid`='{$_POST['id']}'");
+    if( $megj === false ) { $db_error = true; }
+
+    if( !$db_error ) {
+        mysqli_commit($db_kapcs);
+        echo json_encode([
+            'siker'     => 1,
+            'statusz'   => $statusz,
+            'megj_db'   => $megj['megj_db'],
+            'gombok'    => get_eszkozigenyles_gombok($_POST['id']),
+        ]);
+    } else {
+        mysqli_rollback($db_kapcs);
+        echo json_encode([
+            'hiba'  => tranzakcioHiba(),
+            'title' => 'Hiba'
+        ]);
     }
 
     $weblap -> leallit();
@@ -3514,181 +3631,183 @@ if( isset($_GET['csv']) ) {
         list($mibol, $mibe, $filename, $open) = csv_export_elokeszit($megnevezes);
         if( $open ) {
 
-            // Két lekérdezést csinálunk: 
-            // 1. Az egyik az aktív státuszú beszerzési időszakhoz tartozó, (tehát tervezett) igénylések kerül lekérdezésre, szálloda, azon belül igénylő részleg, azon belül nettó érték szerint lekérve, ez utóbbi úgy, hogy legfelül a legdrágább.
-            $sql = 'SELECT
-                    `'.get_db_tabla().'eszkozigenyles`.`azon` as \'Igény ID\',
-                    `telephely_id` as \'Szálloda\',
-                    `reszleg` as \'Részleg\',
-                    `tipus` as \'Típus\',
-                    `'.get_db_tabla().'eszkozigenyles`.`nev` as \'Termék név\',
-                    `szallito_id` as \'Szállító\',
-                    `ossz_netto` as \'Nettó összesen\',
-                    `jhmen` as \'Jóváhagyott mennyiség\',
-                    `jhar` as \'Jóváhagyott nettó egységár\',
-                    `jhossz` as \'Jóváhagyott nettó összesen\',
-                    `kcs_21` as \'Pénznem\',
-                    `igmen` as \'Igényelt mennyiség\',
-                    `kiv_kolts` as \'Műszaki előkészítés költség\',
-                    `musz_el_ig` as \'Műszaki előkészítést igényel\',
-                    `musz_indok` as \'Indoklás\',
-                    `szall_ig_vel` as \'Szálloda igazgató vélemény\',
-                    `szall_ig_indok` as \'Szálloda igazgató indoklás\',
-                    `bi_vel` as \'Validáló\',
-                    `bi_indok` as \'Validáló indoklás\',
-                    `bi_jh` as \'BI vezető\',
-                    `bi_jh_indok` as \'BI vezető indoklás\',
-                    `szak_vel` as \'Szakmai vélemény\',
-                    `szak_indok` as \'Szakmai indoklás\',
-                    `felso_vel` as \'Felsővezető\',
-                    `felso_indok` as \'Felsővezető indoklás\'
+            // Két táblázat készül, mindkettő a bal oldali lista szűrésétől függetlenül (önálló lekérdezéssel, nem a lista SQL-jéből):
+            // 1. Az aktív státuszú beszerzési időszakhoz tartozó (tehát tervezett), nem elutasított igénylések.
+            //    Archív táblát itt nem kell nézni: archívba csak lezárt időszakok igénylései kerülnek.
+            // 2. A tól-ig időszakban feladott soronkívüli/GM keret, nem elutasított igénylések, az élő ÉS az archív táblából is.
+            //    Archiváláskor az igénylés átkerül az archív táblába (az élőből törlődik), így duplikáció nem lehet.
+            // Mindkettőnél csak a felhasználó szállodáira szűrünk (ugyanaz a jogosultsági korlát, mint a listában).
+            // Rendezés: szálloda, azon belül igénylő részleg, azon belül nettó érték szerint, legfelül a legdrágább.
 
-                    '.csv_export_get_from_tol($megnevezes).
-                    // És akkor itt folytatjuk a feltételt: aktív státuszú beszerzési időszakhoz tartozó igénylések, amik nincsenek elutasítva
-                    " AND `idoszak_azon`=(SELECT `azon` FROM `".get_db_tabla()."besz_idoszak` WHERE `stat_id`='".BESZERZES_IDOSZAK_AKTIV."') AND `stat_id`!='".ESZKOZIGENYL_STAT_ELUTASITOTT."'".
-                    // szálloda, azon belül igénylő részleg, azon belül nettó érték szerint lekérve, ez utóbbi úgy, hogy legfelül a legdrágább.
-                    " ORDER BY `".get_db_tabla()."telephely`.`nev`, `".get_db_tabla()."reszleg_nev`.`info`, `ossz_netto` DESC
-                    ";
+            // Oszlopok: adatbázis oszlop => CSV fejléc
+            $prez_oszlopok = [
+                'azon'           => 'Igény ID',
+                'telephely_id'   => 'Szálloda',
+                'reszleg'        => 'Részleg',
+                'tipus'          => 'Típus',
+                'nev'            => 'Termék név',
+                'szallito_id'    => 'Szállító',
+                'ossz_netto'     => 'Nettó összesen',
+                'jhmen'          => 'Jóváhagyott mennyiség',
+                'jhar'           => 'Jóváhagyott nettó egységár',
+                'jhossz'         => 'Jóváhagyott nettó összesen',
+                'kcs_21'         => 'Pénznem',
+                'igmen'          => 'Igényelt mennyiség',
+                'kiv_kolts'      => 'Műszaki előkészítés költség',
+                'musz_el_ig'     => 'Műszaki előkészítést igényel',
+                'musz_indok'     => 'Indoklás',
+                'szall_ig_vel'   => 'Szálloda igazgató vélemény',
+                'szall_ig_indok' => 'Szálloda igazgató indoklás',
+                'bi_vel'         => 'Validáló',
+                'bi_indok'       => 'Validáló indoklás',
+                'bi_jh'          => 'BI vezető',
+                'bi_jh_indok'    => 'BI vezető indoklás',
+                'szak_vel'       => 'Szakmai vélemény',
+                'szak_indok'     => 'Szakmai indoklás',
+                'felso_vel'      => 'Felsővezető',
+                'felso_indok'    => 'Felsővezető indoklás',
+            ];
+            $prez_select = [];
+            foreach ( $prez_oszlopok as $oszlop => $fejlec ) {
+                $prez_select[] = '`'.$oszlop.'` as \''.$fejlec.'\'';
+            }
+            $prez_select = implode(', ', $prez_select);
 
-            $query = mysqli_query($db_kapcs, $sql);
-    
+            // Sorok lekérdezése a megadott táblá(k)ból, majd rendezése
+            $prez_sorok = function( $tablak, $where ) use ( $db_kapcs, $prez_select ) {
+                $sorok_tomb = [];
+                foreach ( $tablak as $forras_tabla ) {
+                    $sql   = 'SELECT '.$prez_select.' FROM `'.get_db_tabla().$forras_tabla.'` WHERE '.$where.get_akt_login_szallodai('-sql-');
+                    $query = mysqli_query($db_kapcs, $sql);
+                    while( $query && $sorok = mysqli_fetch_assoc($query) ) {
+                        $sorok_tomb[] = $sorok;
+                    }
+                }
+
+                $szalloda_nevek = $reszleg_nevek = [];
+                foreach ( $sorok_tomb as $sorok ) {
+                    if( !isset($szalloda_nevek[$sorok['Szálloda']]) ) {
+                        $szalloda_nevek[$sorok['Szálloda']] = (string)getSzallodaNev($sorok['Szálloda']);
+                    }
+                    if( !isset($reszleg_nevek[$sorok['Részleg']]) ) {
+                        $reszleg_nevek[$sorok['Részleg']] = (string)erteklista(ERTEKLISTA_RESZLEG, $sorok['Részleg']);
+                    }
+                }
+                usort($sorok_tomb, function( $a, $b ) use ( $szalloda_nevek, $reszleg_nevek ) {
+                    return strcasecmp($szalloda_nevek[$a['Szálloda']], $szalloda_nevek[$b['Szálloda']])
+                        ?: strcasecmp($reszleg_nevek[$a['Részleg']], $reszleg_nevek[$b['Részleg']])
+                        ?: ($b['Nettó összesen'] <=> $a['Nettó összesen']);
+                });
+
+                return $sorok_tomb;
+            };
+
+            // 1. táblázat sorai
+            $aktiv_idoszak = $adatbazis_kapcsolat -> s2('azon', 'besz_idoszak', "`stat_id`='".BESZERZES_IDOSZAK_AKTIV."'");
+            $sorok_1 = [];
+            if( $aktiv_idoszak ) {
+                $sorok_1 = $prez_sorok(['eszkozigenyles'], "`idoszak_azon`='{$aktiv_idoszak['azon']}' AND `stat_id`!='".ESZKOZIGENYL_STAT_ELUTASITOTT."'");
+            }
+
+            // 2. táblázat sorai
+            $sorok_2 = $prez_sorok(['eszkozigenyles', 'eszkozigenyles_arch'], "`tipus`!='".BESZ_TIP_TERVEZETT."' AND `stat_id`!='".ESZKOZIGENYL_STAT_ELUTASITOTT."' AND `insert_dt`>='".$_GET['tol']." 00:00:00' AND `insert_dt`<='".$_GET['ig']." 23:59:59'");
+
             // Nagyobb CSV-kre kérdezzünk rá előzetesen
-            $osszes_sor = mysqli_num_rows($query);
-    
+            $osszes_sor = count($sorok_1) + count($sorok_2);
             if( !$_GET['mehet'] && $osszes_sor>CSV_EXPORT_LIMIT ) {
                 $gomb = '<input type="button" class="gomb zold" value="Igen" onclick="$(\'#navGombok .excel\').attr(\'onclick\', \'csv_general( this, \\\'\\\', \\\'&mehet=1\\\');\'); $(\'.navGombok a.excel\').click();"> <input type="button" class="gomb piros" value="Nem" onclick="alert2()">';
                 echo json_encode(array('hiba' => 'A CSV export több mint '.number_format(CSV_EXPORT_LIMIT, 0, '', ' ').' sort tartalmaz. Ennek előállítása hosszabb időbe telik majd.<br>Biztosan folytatja?', 'gomb' => $gomb));
                 $weblap -> leallit();
                 exit;
             }
-    
-            $query = mysqli_query($db_kapcs, $sql);
-     
-            $csvhead    = array();
-            while ( $fejlec_nevek = mysqli_fetch_field($query) ) {
-                $csvhead[] = iconv2($mibol, $mibe, $fejlec_nevek -> name );
-            }
-            fputcsv($open, $csvhead, ';');
-    
-            $tort_szamok = ['Árfolyam', 'Deviza egységár', ''];
+
+            // Vélemény oszlopok: a tárolt kód helyett a szöveges érték kerül az exportba
+            $velemeny_ertekek = [
+                'Műszaki előkészítést igényel' => $musz_el_ig_ertekek,
+                'Szálloda igazgató vélemény'   => $szall_ig_vel_ertekek,
+                'Validáló'                     => $bi_vel_ertekek,
+                'BI vezető'                    => $bi_jh_ertekek,
+                'Szakmai vélemény'             => $szak_vel_ertekek,
+                'Felsővezető'                  => $felso_vel_ertekek,
+            ];
+
+            // Egy táblázat kiírása fejléccel együtt (a fejléc 0 találatnál is megjelenik)
             $i = 0;
-            while( $sorok = mysqli_fetch_assoc($query) ) {
-    
-                $csvcont = array();
-                foreach( $sorok as $kulcs => $sor ) {  
-                    
-                    if( in_array($kulcs, $tort_szamok) ) {
-                        $sor = str_replace('.', ',', $sor);
-                    }
-                    
-                    if( $kulcs == 'Státusz' ) {
-                        $sor = getStatText('eszkozigenyles', $sor);
-                    }
-    
-                    if( $kulcs == 'Típus' ) {
-                        foreach ($select_besz_tipus as $tipus) {
-                            if( $tipus['value'] == $sor ) {
-                                $sor = $tipus['name'];
-                                break;
-                            }
-                        }
-                        if( !$sor ) {
-                            $sor = '';
-                        }
-                    }
-    
-                    if( $kulcs == 'Prioritás' ) {
-                        foreach ($select_eszkoz_prior as $prior) {
-                            if( $prior['value'] == $sor ) {
-                                $sor = $prior['name'];
-                                break;
-                            }
-                        }
-                        if( !$sor ) {
-                            $sor = '';
-                        }
-                    }
-    
-                    if( $kulcs == 'Fizetési mód' ) {
-                        foreach ($select_fiz_mod as $fiz_mod) {
-                            if( $fiz_mod['value'] == $sor ) {
-                                $sor = $fiz_mod['name'];
-                                break;
-                            }
-                        }
-                        if( !$sor ) {
-                            $sor = '';
-                        }
-                    }
-                    
-                    if( $kulcs == 'Szálloda' ) {
-                        $sor = getSzallodaNev($sor);
-                    }
-                    
-                    if( $kulcs == 'Szállító' ) {
-                        $sor = getErtek('nev', 'szallito_beszerzes', 'recid', $sor);
-                    }
-    
-                    if( $kulcs == 'Pénznem' ) {
-                        $sor = erteklista(ERTEKLISTA_PENZNEM, $sor);
-                    }
+            $prez_tablazat_kiir = function( $sorok_tomb ) use ( $open, $mibol, $mibe, $prez_oszlopok, $velemeny_ertekek, $select_besz_tipus, $osszes_sor, &$i ) {
 
-                    if( $kulcs == 'Részleg' ) {
-                        $sor = erteklista(ERTEKLISTA_RESZLEG, $sor);
-                    }
-
-                    if( $kulcs == 'Műszaki előkészítést igényel' ) {
-                        $sor = getSpecialisPipaloErtek($szak_vel_ertekek, $sor, '-text-');
-                    }
-
-                    if( $kulcs == 'Szálloda igazgató vélemény' ) {
-                        $sor = getSpecialisPipaloErtek($szall_ig_vel_ertekek, $sor, '-text-');
-                    }
-
-                    if( $kulcs == 'Validáló' ) {
-                        $sor = getSpecialisPipaloErtek($bi_vel_ertekek, $sor, '-text-');
-                    }
-
-                    if( $kulcs == 'BI vezető' ) {
-                        $sor = getSpecialisPipaloErtek($bi_jh_ertekek, $sor, '-text-');
-                    }
-
-                    if( $kulcs == 'Szakmai vélemény' ) {
-                        $sor = getSpecialisPipaloErtek($szak_vel_ertekek, $sor, '-text-');
-                    }
-
-                    if( $kulcs == 'Felsővezető' ) {
-                        $sor = getSpecialisPipaloErtek($felso_vel_ertekek, $sor, '-text-');
-                    }
-    
-                    // Lehet nem volna elég 1-szer sőt kétszer sem ráereszteni a htmlspecialchars_decode-ot
-                    $sor = htmlspecialchars_decode( $sor );
-                    while ( strpos($sor, '&amp;') !== false || strpos($sor, '&quot;') !== false ) {
-                        $sor = htmlspecialchars_decode( $sor );
-                    }
-                    $sor = str_replace(
-                                    array('"{EGYENLOSEG_JELET_ELE}',    '{EGYENLOSEG_JELET_ELE_VEGE}"',     '{EGYENLOSEG_JELET_ELE}',   '{EGYENLOSEG_JELET_ELE_VEGE}', ';="";'  ),
-                                    array('="',                         '"',                                '="',                       '"',                            ';;'    ),
-                                    $sor
-                            );
-                    $sor = iconv($mibol, $mibe.'//TRANSLIT', strip_tags( $sor ) );
-                    $csvcont[] = $sor;
+                $csvhead = [];
+                foreach ( $prez_oszlopok as $fejlec ) {
+                    $csvhead[] = iconv2($mibol, $mibe, $fejlec);
                 }
-    
-                fputcsv($open, $csvcont, ';');
-    
-                // 1000 soronként kiíratunk
-                if( $i % 1000 == 0 && $i > 0 ) {
-                    // Progress
-                    echo json_encode(array('pr' => number_format(($i / $osszes_sor) * 100, 0, '', ''))).PHP_EOL;
-                    
-                    // Felszabadítás
-                    ob_flush();
-                    flush();
+                fputcsv($open, $csvhead, ';');
+
+                foreach ( $sorok_tomb as $sorok ) {
+
+                    $csvcont = [];
+                    foreach( $sorok as $kulcs => $sor ) {
+
+                        if( $kulcs == 'Típus' ) {
+                            $tipus_nev = '';
+                            foreach ($select_besz_tipus as $tipus) {
+                                if( $tipus['value'] == $sor ) {
+                                    $tipus_nev = $tipus['name'];
+                                    break;
+                                }
+                            }
+                            $sor = $tipus_nev;
+                        }
+
+                        if( $kulcs == 'Szálloda' ) {
+                            $sor = getSzallodaNev($sor);
+                        }
+
+                        if( $kulcs == 'Szállító' ) {
+                            $sor = getErtek('nev', 'szallito_beszerzes', 'recid', $sor);
+                        }
+
+                        if( $kulcs == 'Pénznem' ) {
+                            $sor = erteklista(ERTEKLISTA_PENZNEM, $sor);
+                        }
+
+                        if( $kulcs == 'Részleg' ) {
+                            $sor = erteklista(ERTEKLISTA_RESZLEG, $sor);
+                        }
+
+                        if( isset($velemeny_ertekek[$kulcs]) ) {
+                            $sor = getSpecialisPipaloErtek($velemeny_ertekek[$kulcs], $sor, '-text-');
+                        }
+
+                        // Lehet nem volna elég 1-szer sőt kétszer sem ráereszteni a htmlspecialchars_decode-ot
+                        $sor = htmlspecialchars_decode( (string)$sor );
+                        while ( strpos($sor, '&amp;') !== false || strpos($sor, '&quot;') !== false ) {
+                            $sor = htmlspecialchars_decode( $sor );
+                        }
+                        $sor = str_replace(
+                                        array('"{EGYENLOSEG_JELET_ELE}',    '{EGYENLOSEG_JELET_ELE_VEGE}"',     '{EGYENLOSEG_JELET_ELE}',   '{EGYENLOSEG_JELET_ELE_VEGE}', ';="";'  ),
+                                        array('="',                         '"',                                '="',                       '"',                            ';;'    ),
+                                        $sor
+                                );
+                        $sor = iconv($mibol, $mibe.'//TRANSLIT', strip_tags( $sor ) );
+                        $csvcont[] = $sor;
+                    }
+
+                    fputcsv($open, $csvcont, ';');
+
+                    // 1000 soronként kiíratunk
+                    if( $i % 1000 == 0 && $i > 0 ) {
+                        // Progress
+                        echo json_encode(array('pr' => number_format(($i / $osszes_sor) * 100, 0, '', ''))).PHP_EOL;
+
+                        // Felszabadítás
+                        ob_flush();
+                        flush();
+                    }
+
+                    $i++;
                 }
-    
-                $i++;
-            }
+            };
+
+            $prez_tablazat_kiir($sorok_1);
 
             // Pár üres sor a következő táblázat előtt
             $csvcont = [];
@@ -3696,171 +3815,7 @@ if( isset($_GET['csv']) ) {
             fputcsv($open, $csvcont, ';');
             fputcsv($open, $csvcont, ';');
 
-
-            // 2. lekérdezés: Megadott dátumok alapján a soronkívüli/GM terhes eredmény, amelyek a dátum tól - ig időszakban lettek feladva.
-            $sql = 'SELECT
-                    `'.get_db_tabla().'eszkozigenyles`.`azon` as \'Igény ID\',
-                    `telephely_id` as \'Szálloda\',
-                    `reszleg` as \'Részleg\',
-                    `tipus` as \'Típus\',
-                    `'.get_db_tabla().'eszkozigenyles`.`nev` as \'Termék név\',
-                    `szallito_id` as \'Szállító\',
-                    `ossz_netto` as \'Nettó összesen\',
-                    `jhmen` as \'Jóváhagyott mennyiség\',
-                    `jhar` as \'Jóváhagyott nettó egységár\',
-                    `jhossz` as \'Jóváhagyott nettó összesen\',
-                    `kcs_21` as \'Pénznem\',
-                    `igmen` as \'Igényelt mennyiség\',
-                    `kiv_kolts` as \'Műszaki előkészítés költség\',
-                    `musz_el_ig` as \'Műszaki előkészítést igényel\',
-                    `musz_indok` as \'Indoklás\',
-                    `szall_ig_vel` as \'Szálloda igazgató vélemény\',
-                    `szall_ig_indok` as \'Szálloda igazgató indoklás\',
-                    `bi_vel` as \'Validáló\',
-                    `bi_indok` as \'Validáló indoklás\',
-                    `bi_jh` as \'BI vezető\',
-                    `bi_jh_indok` as \'BI vezető indoklás\',
-                    `szak_vel` as \'Szakmai vélemény\',
-                    `szak_indok` as \'Szakmai indoklás\',
-                    `felso_vel` as \'Felsővezető\',
-                    `felso_indok` as \'Felsővezető indoklás\'
-                    '.csv_export_get_from_tol($megnevezes).
-                    // És akkor itt folytatjuk a feltételt: aktív státuszú beszerzési időszakhoz tartozó igénylések, amik nincsenek elutasítva
-                    " AND `tipus`!='".BESZ_TIP_TERVEZETT."' AND `stat_id`!='".ESZKOZIGENYL_STAT_ELUTASITOTT."' AND `".get_db_tabla()."eszkozigenyles`.`insert_dt`>='".$_GET['tol']." 00:00:00' AND `".get_db_tabla()."eszkozigenyles`.`insert_dt`<='".$_GET['ig']." 23:59:59'";
-
-            $query = mysqli_query($db_kapcs, $sql);
-    
-            // Nagyobb CSV-kre kérdezzünk rá előzetesen
-            $osszes_sor = mysqli_num_rows($query);
-            if( !$_GET['mehet'] && $osszes_sor>CSV_EXPORT_LIMIT ) {
-                $gomb = '<input type="button" class="gomb zold" value="Igen" onclick="$(\'#navGombok .excel\').attr(\'onclick\', \'csv_general( this, \\\'\\\', \\\'&mehet=1\\\');\'); $(\'.navGombok a.excel\').click();"> <input type="button" class="gomb piros" value="Nem" onclick="alert2()">';
-                echo json_encode(array('hiba' => 'A CSV export több mint '.number_format(CSV_EXPORT_LIMIT, 0, '', ' ').' sort tartalmaz. Ennek előállítása hosszabb időbe telik majd.<br>Biztosan folytatja?', 'gomb' => $gomb));
-                $weblap -> leallit();
-                exit;
-            } else {
-                // szálloda, azon belül igénylő részleg, azon belül nettó érték szerint lekérve, ez utóbbi úgy, hogy legfelül a legdrágább.
-                $sql .= " ORDER BY `".get_db_tabla()."telephely`.`nev`, `".get_db_tabla()."reszleg_nev`.`info`, `ossz_netto` DESC";
-            }
-    
-            $query = mysqli_query($db_kapcs, $sql);
-     
-            while( $sorok = mysqli_fetch_assoc($query) ) {
-    
-                $csvcont = array();
-                foreach( $sorok as $kulcs => $sor ) {  
-                    
-                    if( in_array($kulcs, $tort_szamok) ) {
-                        $sor = str_replace('.', ',', $sor);
-                    }
-                    
-                    if( $kulcs == 'Státusz' ) {
-                        $sor = getStatText('eszkozigenyles', $sor);
-                    }
-    
-                    if( $kulcs == 'Típus' ) {
-                        foreach ($select_besz_tipus as $tipus) {
-                            if( $tipus['value'] == $sor ) {
-                                $sor = $tipus['name'];
-                                break;
-                            }
-                        }
-                        if( !$sor ) {
-                            $sor = '';
-                        }
-                    }
-    
-                    if( $kulcs == 'Prioritás' ) {
-                        foreach ($select_eszkoz_prior as $prior) {
-                            if( $prior['value'] == $sor ) {
-                                $sor = $prior['name'];
-                                break;
-                            }
-                        }
-                        if( !$sor ) {
-                            $sor = '';
-                        }
-                    }
-    
-                    if( $kulcs == 'Fizetési mód' ) {
-                        foreach ($select_fiz_mod as $fiz_mod) {
-                            if( $fiz_mod['value'] == $sor ) {
-                                $sor = $fiz_mod['name'];
-                                break;
-                            }
-                        }
-                        if( !$sor ) {
-                            $sor = '';
-                        }
-                    }
-                    
-                    if( $kulcs == 'Szálloda' ) {
-                        $sor = getSzallodaNev($sor);
-                    }
-                    
-                    if( $kulcs == 'Szállító' ) {
-                        $sor = getErtek('nev', 'szallito_beszerzes', 'recid', $sor);
-                    }
-    
-                    if( $kulcs == 'Pénznem' ) {
-                        $sor = erteklista(ERTEKLISTA_PENZNEM, $sor);
-                    }
-
-                    if( $kulcs == 'Részleg' ) {
-                        $sor = erteklista(ERTEKLISTA_RESZLEG, $sor);
-                    }
-
-                    if( $kulcs == 'Műszaki előkészítést igényel' ) {
-                        $sor = getSpecialisPipaloErtek($szak_vel_ertekek, $sor, '-text-');
-                    }
-
-                    if( $kulcs == 'Szálloda igazgató vélemény' ) {
-                        $sor = getSpecialisPipaloErtek($szall_ig_vel_ertekek, $sor, '-text-');
-                    }
-
-                    if( $kulcs == 'Validáló' ) {
-                        $sor = getSpecialisPipaloErtek($bi_vel_ertekek, $sor, '-text-');
-                    }
-
-                    if( $kulcs == 'BI vezető' ) {
-                        $sor = getSpecialisPipaloErtek($bi_jh_ertekek, $sor, '-text-');
-                    }
-
-                    if( $kulcs == 'Szakmai vélemény' ) {
-                        $sor = getSpecialisPipaloErtek($szak_vel_ertekek, $sor, '-text-');
-                    }
-
-                    if( $kulcs == 'Felsővezető' ) {
-                        $sor = getSpecialisPipaloErtek($felso_vel_ertekek, $sor, '-text-');
-                    }
-
-                    // Lehet nem volna elég 1-szer sőt kétszer sem ráereszteni a htmlspecialchars_decode-ot
-                    $sor = htmlspecialchars_decode( $sor );
-                    while ( strpos($sor, '&amp;') !== false || strpos($sor, '&quot;') !== false ) {
-                        $sor = htmlspecialchars_decode( $sor );
-                    }
-                    $sor = str_replace(
-                                    array('"{EGYENLOSEG_JELET_ELE}',    '{EGYENLOSEG_JELET_ELE_VEGE}"',     '{EGYENLOSEG_JELET_ELE}',   '{EGYENLOSEG_JELET_ELE_VEGE}', ';="";'  ),
-                                    array('="',                         '"',                                '="',                       '"',                            ';;'    ),
-                                    $sor
-                            );
-                    $sor = iconv($mibol, $mibe.'//TRANSLIT', strip_tags( $sor ) );
-                    $csvcont[] = $sor;
-                }
-
-                fputcsv($open, $csvcont, ';');
-
-                // 1000 soronként kiíratunk
-                if( $i % 1000 == 0 && $i > 0 ) {
-                    // Progress
-                    echo json_encode(array('pr' => number_format(($i / $osszes_sor) * 100, 0, '', ''))).PHP_EOL;
-
-                    // Felszabadítás
-                    ob_flush();
-                    flush();
-                }
-
-                $i++;
-            }
+            $prez_tablazat_kiir($sorok_2);
 
             // Progress
             echo json_encode(array('pr' => '100')).PHP_EOL;
@@ -3883,6 +3838,7 @@ if( isset($_GET['csv']) ) {
                     `'.get_db_tabla().'eszkozigenyles`.`recid` as \'__recid__\',
                     `stat_id` as \'Státusz\',
                     `'.get_db_tabla().'eszkozigenyles`.`azon` as \'Azonosító\',
+                    `'.get_db_tabla().'eszkozigenyles`.`proj` as \'Projekt\',
                     `idoszak_azon` as \'Időszak ID\',
                     `tipus` as \'Típus\',
                     `prior` as \'Prioritás\',
@@ -3895,8 +3851,8 @@ if( isset($_GET['csv']) ) {
                     `megj` as \'Megjegyzés\',
                     `szallito_id` as \'Szállító\',
                     `szall_hat` as \'Szállítási határidő:\',
-                    `fiz_mod` as \'Fizetési mód\',
-                    `hat_ido` as \'Fizetési határidő\',
+                    `'.get_db_tabla().'eszkozigenyles`.`fiz_mod` as \'Fizetési mód\',
+                    `'.get_db_tabla().'eszkozigenyles`.`hat_ido` as \'Fizetési határidő\',
                     `igmen` as \'Igényelt mennyiség\',
                     `netto` as \'Nettó egységár\',
                     `kcs_21` as \'Pénznem\',
@@ -3912,11 +3868,20 @@ if( isset($_GET['csv']) ) {
                     `egyeb_koltseg` as \'Egyéb költség\',
                     `rend_szam` as \'Rendelés szám\',
                     `musz_el_ig` as \'Műszaki előkészítést igényel\',
+                    `musz_indok` as \'Műszaki indoklás\',
                     `kiv_kolts` as \'Kivitelezési költség\',
                     `szall_ig_vel` as \'Szálloda igazgató\',
+                    `szall_ig_indok` as \'Szálloda igazgató indoklás\',
                     `bi_vel` as \'Validáló\',
+                    `bi_indok` as \'Validáló indoklás\',
                     `bi_jh` as \'BI vezető\',
-                    `felso_vel` as \'Felsővezető\''.
+                    `bi_jh_indok` as \'BI vezető indoklás\',
+                    `szak_vel` as \'Szakmai vélemény\',
+                    `szak_indok` as \'Szakmai indoklás\',
+                    `felso_vel` as \'Felsővezető\',
+                    `felso_indok` as \'Felsővezető indoklás\',
+                    `bi_vegl` as \'Véglegesítő\',
+                    `bi_vegl_indok` as \'Véglegesítő indoklás\''.
                     csv_export_get_from_tol($megnevezes);
             $query = mysqli_query($db_kapcs, $sql);
     
@@ -3940,6 +3905,20 @@ if( isset($_GET['csv']) ) {
             fputcsv($open, $csvhead, ';');
 
             $tort_szamok = ['Árfolyam', 'Deviza egységár', 'Kiszállítási költség', 'Beüzemelési költség', 'Munkadíj', 'Egyéb költség', 'Kivitelezési költség'];
+
+            // Vélemény oszlopok: a tárolt kód helyett a szöveges érték kerül az exportba
+            $velemeny_ertekek = [
+                'Műszaki előkészítést igényel' => musz_el_ig_ertekek(),
+                'Szálloda igazgató'            => szall_ig_vel_ertekek(),
+                'Validáló'                     => bi_vel_ertekek(),
+                'BI vezető'                    => bi_jh_ertekek(),
+                'Szakmai vélemény'             => szak_vel_ertekek(),
+                'Felsővezető'                  => felso_vel_ertekek(),
+                'Véglegesítő'                  => bi_vegl_ertekek(),
+            ];
+            // Indoklás oszlopok (naplószerűen, dátum + név + szöveg blokkokban tárolva)
+            $indoklas_oszlopok = ['Műszaki indoklás', 'Szálloda igazgató indoklás', 'Validáló indoklás', 'BI vezető indoklás', 'Szakmai indoklás', 'Felsővezető indoklás', 'Véglegesítő indoklás'];
+
             $exportalt_recidek = [];
             $i = 0;
             while( $sorok = mysqli_fetch_assoc($query) ) {
@@ -4014,7 +3993,20 @@ if( isset($_GET['csv']) ) {
                     if( $kulcs == 'Részleg' ) {
                         $sor = erteklista(ERTEKLISTA_RESZLEG, $sor);
                     }
-    
+
+                    if( isset($velemeny_ertekek[$kulcs]) ) {
+                        $sor = trim(getSpecialisPipaloErtek($velemeny_ertekek[$kulcs], $sor, '-text-') ?? '');
+                    }
+
+                    if( $kulcs == 'Projekt' ) {
+                        $sor = $sor ? 'igen' : 'nem';
+                    }
+
+                    // A blokkok közti üres sorok a cella végéről ne kerüljenek be
+                    if( in_array($kulcs, $indoklas_oszlopok) ) {
+                        $sor = trim((string)$sor);
+                    }
+
                     // Lehet nem volna elég 1-szer sőt kétszer sem ráereszteni a htmlspecialchars_decode-ot
                     $sor = htmlspecialchars_decode( $sor );
                     while ( strpos($sor, '&amp;') !== false || strpos($sor, '&quot;') !== false ) {
@@ -4350,7 +4342,16 @@ if( isset($_GET['uj']) ) {
     // Js, a törlés gombhoz
     $gombok = '<script>var gomb'.$_GET['id'].'= get_kibont_torol(\''.self().'\', \''.$torles.'\', \''.$_GET['id'].'\');</script>';
     $gombok .= get_eszkozigenyles_gombok($_GET['id']);
-    $gombok .= ' <input type="button" id="recordTorol" class="gombb_alert dn" onclick="alert2(\'Biztosan törli ezt a '.$szoveg.'?\', gomb'.$_GET['id'].')" value="Töröl" title="Töröl">';
+
+    // Igény csak törlés joggal, és csak addig törölhető, amíg nincs megrendelésben
+    $torlendo_igeny = $adatbazis_kapcsolat -> s2('rend_szam', 'eszkozigenyles', "`recid`='".(int)$_GET['id']."'");
+    if( !_jog(JOG_BESZERZ_IGENYLESEK_TOROL) ) {
+        $gombok .= ' <input type="button" id="recordTorol" class="gombb_alert dn" onclick="alert2(\'Önnek nincs joga igényt törölni!\', \'\', \'Hiba\')" value="Töröl" title="Töröl">';
+    } else if( !empty($torlendo_igeny['rend_szam']) ) {
+        $gombok .= ' <input type="button" id="recordTorol" class="gombb_alert dn" onclick="alert2(\'Az igény nem törölhető, mert már megrendelés készült belőle ('.$torlendo_igeny['rend_szam'].')!\', \'\', \'Hiba\')" value="Töröl" title="Töröl">';
+    } else {
+        $gombok .= ' <input type="button" id="recordTorol" class="gombb_alert dn" onclick="alert2(\'Biztosan törli ezt a '.$szoveg.'?\', gomb'.$_GET['id'].')" value="Töröl" title="Töröl">';
+    }
 
     $gombok = nl2('
         <div class="form_kuldes">
@@ -4370,17 +4371,26 @@ if( isset($_GET['uj']) ) {
 // Új eszközigénylés felvitele
 if( isset($_GET['uj']) ) {
 
-    // Újként szerkesztéskor feltöltjük a mezők tartalmát
+    // Duplikáláskor (újként szerkesztés) a forrás igénylés adataival töltjük fel az új felvitel mezőit.
+    // Nem kerül át: a típus és az ID, valamint a folyamathoz tartozó adatok (státusz, időszak, rendelés szám, jóváhagyások, vélemények), ezek az új igénylésnél újra keletkeznek.
+    $duplikalt = false;
     if( $_GET['ujkent'] ) {
-        $sor = $adatbazis_kapcsolat -> s2('*', $megnevezes, "`recid`='{$_GET['ujkent']}'");
-        if( $sor ) {
+        $forras = $adatbazis_kapcsolat -> s2('*', $megnevezes, "`recid`='".(int)$_GET['ujkent']."'");
+        if( $forras && in_array($forras['telephely_id'], get_akt_login_szallodai()) ) {
+            $duplikalt  = true;
+            $nem_masolt = ['tipus', 'azon', 'stat_id', 'idoszak_azon', 'rend_szam', 'jhmen', 'jhar', 'jhossz', 'kiv_kolts', 'becsult', 'musz_el_ig', 'musz_indok', 'proj'];
+            $sor = [];
             foreach ( $akt_tomb as $ertek ) {
-                $_SESSION[$ertek['name']] = stripslashes( $sor[$ertek['name']] );
+                $sor[$ertek['name']] = in_array($ertek['name'], $nem_masolt) ? '' : stripslashes((string)($forras[$ertek['name']] ?? ''));
+                // A switch.php duplikáláskor az üres mezőket a session-ből pótolná, ezért ott is ezek az értékek legyenek (ne maradjon benne korábbi duplikálásból semmi, pl. típus)
+                $_SESSION[$ertek['name']] = $sor[$ertek['name']];
             }
-        }
-
-        foreach ( $akt_tomb as $ertek ) {
-            $sor[$ertek['name']] = $_SESSION[$ertek['name']];
+            // HUF-os igénylésnél az extra költségek egész számként jelennek meg (ugyanúgy, mint a módosító adatlapon)
+            if( $sor['kcs_21'] == KCS_21_HUF ) {
+                foreach ( ['kiszall', 'beuzemel', 'munkadij', 'egyeb_koltseg'] as $koltseg ) {
+                    $sor[$koltseg] = (int)$sor[$koltseg];
+                }
+            }
         }
     }
     $js = js_kiir($akt_tomb, 'form_ell_admin()');
@@ -4392,6 +4402,23 @@ if( isset($_GET['uj']) ) {
     foreach ( $akt_tomb as $tomb ) {
         if( $tomb['type'] == 'autocomplete' ) {
             $sor[$tomb['name'].'_autocomp'] = '';
+
+            // Duplikáláskor az autocomplete mezők látható szövegét is ki kell számolni (a módosító adatlap mintájára)
+            if( $duplikalt && !empty($sor[$tomb['name']]) ) {
+                // Termék csoportnál a teljes útvonal kell
+                if( $tomb['name'] == 'te_alcsop' ) {
+                    $reszleg = $adatbazis_kapcsolat -> s2('szulo nev', 'te_reszleg', "`recid`='{$sor['te_alcsop']}'");
+                    $szulo   = $adatbazis_kapcsolat -> s2('szulo nev', 'te_reszleg', "`recid`='{$reszleg['szulo']}'");
+                    $szulo2  = $adatbazis_kapcsolat -> s2('szulo nev', 'te_reszleg', "`recid`='{$szulo['szulo']}'");
+                    $sor['te_alcsop_autocomp'] = $reszleg['nev'].' / '.$szulo['nev'].' / '.$szulo2['nev'];
+                } elseif( !empty($tomb['csoport']) ) {
+                    $kulso_ertek = $adatbazis_kapcsolat->s2('info', $tomb['tabla'], "`{$tomb['oszlop_keres']}`='{$sor[$tomb['name']]}' AND `csoport`='{$tomb['csoport']}'", '', '1');
+                    $sor[$tomb['name'].'_autocomp'] = $kulso_ertek['info'] ?? '';
+                } else {
+                    $kulso_ertek = $adatbazis_kapcsolat->s2('nev', $tomb['tabla'], "`{$tomb['oszlop_keres']}`='{$sor[$tomb['name']]}'", '', '1');
+                    $sor[$tomb['name'].'_autocomp'] = $kulso_ertek['nev'] ?? '';
+                }
+            }
         }
     }
 
@@ -4408,6 +4435,12 @@ if( isset($_GET['uj']) ) {
     $form_mit     = array('{JS}', '{JS_SUBMIT_ELOTT}', '{ACTION}', '{MEZOK}', '{MEGNEVEZES}', '{CK_EDITOR}', '{GOMBOK}', '{MUV_STYLE}'   );
     $form_mivel   = array($js,    $js_submit_elott,    self(),     $mezok,    $megnevezes,    $ckeditor,     $gombok,    $muv_style      );
     $szamla_html .= str_replace($form_mit, $form_mivel, $form_sablon);
+
+    // Duplikáláskor a pénznemhez és a szállítóhoz tartozó mezőállapotokat (HUF/deviza mezők, kötelező mezők) is be kell állítani
+    if( $duplikalt ) {
+        $szamla_html .= '<script>$(document).ready(function () { szallito_kotelezo_mezok(); });</script>';
+    }
+
     $szamla_html .= nl2('
        <script>
             $(document).ready(function () {
@@ -4591,15 +4624,15 @@ if( isset($_GET['uj']) ) {
     }
 
     $szamla_html .= nl2('
-        <div class="dt naplo">
+        <div class="dt naplo tetelek">
             <div class="dtr nFejlec">
                 <div class="dtc">Név</div>
                 <div class="dtc">Specifikáció</div>
                 <div class="dtc">Cikkszám</div>
-                <div class="dtc r">Igényelt menny.</div>
+                <div class="dtc r">Ig.<br>db</div>
                 <div class="dtc r">Igényelt egységár'.$deviza.'</div>
                 <div class="dtc r">Igényelt nettó'.$deviza.'</div>
-                <div class="dtc r">Jóváhagyott menny.</div>
+                <div class="dtc r">Jh.<br>db</div>
                 <div class="dtc r">Jóváhagyott egységár'.$deviza.'</div>
                 <div class="dtc r">Jóváhagyott nettó'.$deviza.'</div>
             </div>
@@ -4872,7 +4905,11 @@ function megrendeles_keszit($eszkozigenyles_id, $tevezett = 0) {
     $dok_szama = 0;
     $sor_i = 0;
     foreach ($telephely_szallitok as $telephely_szallito) {
-        
+
+        // A megrendelő PDF a szállítónál beállított nyelven készül (alapértelmezés: HUN)
+        $nyelv = getErtek('nyelv', 'szallito_beszerzes', 'recid', $telephely_szallito['szallito_id']) ?: 'HUN';
+        $sz    = get_megrendeles_szovegek($nyelv);
+
         // Tervezett esetben nem csak egy igénylést, hanem egy egész tömböt kell feldolgozni
         if( $tevezett ) {
             $eszkozigenylesek = $adatbazis_kapcsolat -> s($eszkozig_oszlopok, 'eszkozigenyles', "`telephely_id`='{$telephely_szallito['telephely_id']}' AND `szallito_id`='{$telephely_szallito['szallito_id']}' AND `recid` IN (".implode(', ', $eszkozigenyles_id).")");
@@ -4916,7 +4953,10 @@ function megrendeles_keszit($eszkozigenyles_id, $tevezett = 0) {
             // Ha csak a HTML szerkesztése miatt tesztelünk, akkor ne hozzunk létre megrendelést
             if( !isset($_GET['html_mutat']) && !isset($_GET['pdf_mutat']) ) {
 
-                $tetelek_html    = '';
+                // A PDF sorai sorrendben: tétel-sor (tömb) vagy kész HTML sor (extra költség, megjegyzés). A tétel-sorok HTML-je a ciklus után áll össze, mert tervezettnél összevonás történhet.
+                $pdf_sorok       = [];
+                // Tervezett igénylésnél az azonos pénznem + terméknév + egységár + cikkszám tételek összevonásához: kulcs => $pdf_sorok index
+                $osszevont_index = [];
                 $mindossz        = 0;
                 $ossz_netto_megr = 0;
                 $ossz_dev_megr   = 0;
@@ -5042,45 +5082,79 @@ function megrendeles_keszit($eszkozigenyles_id, $tevezett = 0) {
                         }
                         $mindossz += $tetel_jhnetto;
 
-                        $tetel_neve = $eszkozig_tetel['nev'];
-                        if( $eszkozig_tetel['csz'] ) {
-                            $tetel_neve .= ', cikkszám: '.$eszkozig_tetel['csz'];
+                        // Tervezett igénylésnél egy szállodán (és így egy megrendelőn) belül a teljesen azonos terméknév + egységár + cikkszám tételek egy sorba kerülnek, a mennyiségek összeadódnak.
+                        // Az első előfordulás helyén marad a sor.
+                        if( $tevezett ) {
+                            $osszevon_kulcs = implode("\x1F", [$eszkozigenyles['kcs_21'], $eszkozig_tetel['nev'], (string)(float)$tetel_jhar, $eszkozig_tetel['csz']]);
+                            if( isset($osszevont_index[$osszevon_kulcs]) ) {
+                                $pdf_sorok[$osszevont_index[$osszevon_kulcs]]['jhmen']   += $eszkozig_tetel['jhmen'];
+                                $pdf_sorok[$osszevont_index[$osszevon_kulcs]]['jhnetto'] += $tetel_jhnetto;
+                                continue;
+                            }
+                            $osszevont_index[$osszevon_kulcs] = count($pdf_sorok);
                         }
 
-                        $tetelek_html .= '
-                                        <tr style="border-top: 1px solid #ddd;">
-                                            <td class="c" style="border: 1px solid #ddd; padding: 2px; text-align: left; vertical-align: top;">'.$tetel_neve.'</td>
-                                            <td class="c" style="border: 1px solid #ddd; padding: 2px; text-align: right; vertical-align: top;">'.number_format($eszkozig_tetel['jhmen'], 0, '', ' ').'</td>
-                                            <td class="c" style="border: 1px solid #ddd; padding: 2px; text-align: right; vertical-align: top;">'.number_format($tetel_jhar,    $tizedesek, ',', ' ').'</td>
-                                            <td class="c" style="border: 1px solid #ddd; padding: 2px; text-align: right; vertical-align: top;">'.number_format($tetel_jhnetto, $tizedesek, ',', ' ').'</td>
-                                        </tr>
-                                    ';
+                        $pdf_sorok[] = [
+                            'nev'       => $eszkozig_tetel['nev'],
+                            'csz'       => $eszkozig_tetel['csz'],
+                            'jhmen'     => $eszkozig_tetel['jhmen'],
+                            'jhar'      => $tetel_jhar,
+                            'jhnetto'   => $tetel_jhnetto,
+                            'tizedesek' => $tizedesek,
+                        ];
                     }
 
                     // Fej-szintű extra költségek (kiszállítás / beüzemelés / munkadíj / egyéb) és a kiegészítő megjegyzés a tétel-sorok után, önálló sorokban
+                    $extra_html = '';
                     if( $eszkozigenyles['kiszall'] > 0 ) {
-                        $tetelek_html .= '<tr style="border-top: 1px solid #ddd;"><td colspan="3" style="border: 1px solid #ddd; padding: 2px;">Kiszállítási költség</td><td class="c" style="border: 1px solid #ddd; padding: 2px; text-align: right;">'.number_format($eszkozigenyles['kiszall'], $tizedesek, ',', ' ').'</td></tr>';
+                        $extra_html .= '<tr style="border-top: 1px solid #ddd;"><td colspan="3" style="border: 1px solid #ddd; padding: 2px;">'.$sz['kiszall'].'</td><td class="c" style="border: 1px solid #ddd; padding: 2px; text-align: right;">'.number_format($eszkozigenyles['kiszall'], $tizedesek, ',', ' ').'</td></tr>';
                         $mindossz += $eszkozigenyles['kiszall'];
                     }
                     if( $eszkozigenyles['beuzemel'] > 0 ) {
-                        $tetelek_html .= '<tr style="border-top: 1px solid #ddd;"><td colspan="3" style="border: 1px solid #ddd; padding: 2px;">Beüzemelési költség</td><td class="c" style="border: 1px solid #ddd; padding: 2px; text-align: right;">'.number_format($eszkozigenyles['beuzemel'], $tizedesek, ',', ' ').'</td></tr>';
+                        $extra_html .= '<tr style="border-top: 1px solid #ddd;"><td colspan="3" style="border: 1px solid #ddd; padding: 2px;">'.$sz['beuzemel'].'</td><td class="c" style="border: 1px solid #ddd; padding: 2px; text-align: right;">'.number_format($eszkozigenyles['beuzemel'], $tizedesek, ',', ' ').'</td></tr>';
                         $mindossz += $eszkozigenyles['beuzemel'];
                     }
                     if( $eszkozigenyles['munkadij'] > 0 ) {
-                        $tetelek_html .= '<tr style="border-top: 1px solid #ddd;"><td colspan="3" style="border: 1px solid #ddd; padding: 2px;">Munkadíj</td><td class="c" style="border: 1px solid #ddd; padding: 2px; text-align: right;">'.number_format($eszkozigenyles['munkadij'], $tizedesek, ',', ' ').'</td></tr>';
+                        $extra_html .= '<tr style="border-top: 1px solid #ddd;"><td colspan="3" style="border: 1px solid #ddd; padding: 2px;">'.$sz['munkadij'].'</td><td class="c" style="border: 1px solid #ddd; padding: 2px; text-align: right;">'.number_format($eszkozigenyles['munkadij'], $tizedesek, ',', ' ').'</td></tr>';
                         $mindossz += $eszkozigenyles['munkadij'];
                     }
                     if( $eszkozigenyles['egyeb_koltseg'] > 0 ) {
-                        $tetelek_html .= '<tr style="border-top: 1px solid #ddd;"><td colspan="3" style="border: 1px solid #ddd; padding: 2px;">Egyéb költség</td><td class="c" style="border: 1px solid #ddd; padding: 2px; text-align: right;">'.number_format($eszkozigenyles['egyeb_koltseg'], $tizedesek, ',', ' ').'</td></tr>';
+                        $extra_html .= '<tr style="border-top: 1px solid #ddd;"><td colspan="3" style="border: 1px solid #ddd; padding: 2px;">'.$sz['egyeb_koltseg'].'</td><td class="c" style="border: 1px solid #ddd; padding: 2px; text-align: right;">'.number_format($eszkozigenyles['egyeb_koltseg'], $tizedesek, ',', ' ').'</td></tr>';
                         $mindossz += $eszkozigenyles['egyeb_koltseg'];
                     }
                     if( $eszkozigenyles['megj'] ) {
-                        $tetelek_html .= '<tr style="border-top: 1px solid #ddd;"><td colspan="4" style="border: 1px solid #ddd; padding: 2px;">'.nl2br2($eszkozigenyles['megj']).'</td></tr>';
+                        $extra_html .= '<tr style="border-top: 1px solid #ddd;"><td colspan="4" style="border: 1px solid #ddd; padding: 2px;">'.nl2br2($eszkozigenyles['megj']).'</td></tr>';
+                    }
+                    if( $extra_html ) {
+                        $pdf_sorok[] = $extra_html;
                     }
 
                     $sql = $adatbazis_kapcsolat -> u('eszkozigenyles', $mezok, $ertekek, "`recid`='{$eszkozigenyles['recid']}'");
                     if( $sql === false ) { $db_error = true; }
 
+                }
+
+                // A PDF tétel-sorainak összeállítása (az esetleges összevonások után)
+                $tetelek_html = '';
+                foreach ( $pdf_sorok as $pdf_sor ) {
+                    if( is_string($pdf_sor) ) {
+                        $tetelek_html .= $pdf_sor;
+                        continue;
+                    }
+
+                    $tetel_neve = $pdf_sor['nev'];
+                    if( $pdf_sor['csz'] ) {
+                        $tetel_neve .= $sz['cikkszam'].$pdf_sor['csz'];
+                    }
+
+                    $tetelek_html .= '
+                                    <tr style="border-top: 1px solid #ddd;">
+                                        <td class="c" style="border: 1px solid #ddd; padding: 2px; text-align: left; vertical-align: top;">'.$tetel_neve.'</td>
+                                        <td class="c" style="border: 1px solid #ddd; padding: 2px; text-align: right; vertical-align: top;">'.number_format($pdf_sor['jhmen'], 0, '', ' ').'</td>
+                                        <td class="c" style="border: 1px solid #ddd; padding: 2px; text-align: right; vertical-align: top;">'.number_format($pdf_sor['jhar'],    $pdf_sor['tizedesek'], ',', ' ').'</td>
+                                        <td class="c" style="border: 1px solid #ddd; padding: 2px; text-align: right; vertical-align: top;">'.number_format($pdf_sor['jhnetto'], $pdf_sor['tizedesek'], ',', ' ').'</td>
+                                    </tr>
+                                ';
                 }
 
                 // Szállító email címének lekérése (ha tervezetten egy sor volt, ha egy egész tömb, az utolsó igénylésben biztosan jó szallito_id van)
@@ -5141,10 +5215,10 @@ function megrendeles_keszit($eszkozigenyles_id, $tevezett = 0) {
             if( $kontakt === false ) { $db_error = true; }
             $usertel = '';
             if( $kontakt['usertel'] ) {
-                $usertel = ', tel.: '.$kontakt['usertel'];
+                $usertel = $sz['kontakt_tel'].$kontakt['usertel'];
             }
             if( $kontakt['usermail'] ) {
-                $usertel = ', mail.: '.$kontakt['usermail'];
+                $usertel = $sz['kontakt_mail'].$kontakt['usermail'];
             }
 
             $szallito = $adatbazis_kapcsolat->s2('nev knev tel email', 'szallito_beszerzes', "`recid`='{$eszkozigenyles['szallito_id']}'");
@@ -5152,7 +5226,7 @@ function megrendeles_keszit($eszkozigenyles_id, $tevezett = 0) {
 
             // Ha nincs kapcsolattartó név, akkor "Partnerünk" a megszólítás
             if( !$szallito['knev'] ) {
-                $szallito['knev'] = 'Partnerünk';
+                $szallito['knev'] = $sz['partnerunk'];
             }
             // 2025.10.04: kifejezetten fixen ezt szeretnék látni és nem a kapcsolattartó nevét
             // 2025.11.04: Tibi kérte, hogy mégis a kapcsolattartó neve kerülön oda, ha ki van töltve, sőt ott is csak az első vesszőig.
@@ -5165,31 +5239,34 @@ function megrendeles_keszit($eszkozigenyles_id, $tevezett = 0) {
             $props_cim      = get_props($telephely['props'], 'cim'      );
             $props_szallcim = nl2br2(get_props($telephely['props'], 'szallcim' ));
 
+            // Angol nyelvű PDF-nél az angol megnevezések kellenek
+            $nev_kulcs = $nyelv == 'ENG' ? 'name_eng' : 'name';
+
             $fizmod_kiir = '';
             foreach ($select_fiz_mod as $fizmod) {
                 if( $eszkozigenyles['fiz_mod'] && $fizmod['value'] == $eszkozigenyles['fiz_mod'] ) {
-                    $fizmod_kiir = $fizmod['name'];
+                    $fizmod_kiir = $fizmod[$nev_kulcs] ?? $fizmod['name'];
                 }
             }
 
             $hat_ido_kiir = '';
             foreach ($select_hat_ido as $hat_ido) {
                 if( $eszkozigenyles['hat_ido'] && $hat_ido['value'] == $eszkozigenyles['hat_ido'] ) {
-                    $hat_ido_kiir = $hat_ido['name'];
+                    $hat_ido_kiir = $hat_ido[$nev_kulcs] ?? $hat_ido['name'];
                 }
             }
-        
+
             // A Fizetési mód és határidő sor csak akkor jelenik meg, ha van legalább egyik adat
             $fiz_mod_hatarido = '';
             $eloleg = '';
             if( $eszkozigenyles['eloleg'] ) {
-                $eloleg .= '&nbsp;&nbsp;&nbsp;Előleg: '.$eszkozigenyles['eloleg'].'%';
+                $eloleg .= '&nbsp;&nbsp;&nbsp;'.$sz['eloleg'].' '.$eszkozigenyles['eloleg'].'%';
             }
             if( $fizmod_kiir || $eszkozigenyles['hat_ido'] ) {
                 $fiz_mod_hatarido .= nl2('
                     <tr>
                         <td class="b" style="padding: 20px 20px 0 0">
-                            Fizetési mód és határidő:
+                            '.$sz['fiz_mod_hatarido'].'
                         </td>
                         <td style="vertical-align: top; padding: 20px 0 0 0">
                             '.$fizmod_kiir.'
@@ -5201,7 +5278,7 @@ function megrendeles_keszit($eszkozigenyles_id, $tevezett = 0) {
             }
 
             // Lényegi tartalom
-            $fejlec = get_nyomtatas_fejlec_megr($eszkozigenyles, $szallito, $kontakt);
+            $fejlec = get_nyomtatas_fejlec_megr($eszkozigenyles, $szallito, $kontakt, $nyelv);
             if( $fejlec === false ) {
                 $db_error = true;
             }
@@ -5210,22 +5287,22 @@ function megrendeles_keszit($eszkozigenyles_id, $tevezett = 0) {
             <div class="padd" style="padding-bottom: 0; margin-bottom: 0">
                     '.$fejlec.'
                     <div style="font-size: 12px; margin: 0 0 2px 0; padding-top: 10px">
-                        Tisztelt '.$szallito['knev'].'!
+                        '.str_replace('{NEV}', $szallito['knev'], $sz['megszolitas']).'
                         <br>
-                        <br>Megrendeljük Önöktől a <b>Danubius Hotel '.getSzallodaNev($eszkozigenyles['telephely_id']).'</b> részére az alábbi tételeket:
+                        <br>'.str_replace('{SZALLODA}', getSzallodaNev($eszkozigenyles['telephely_id']), $sz['bevezeto']).'
                         <br>
                     </div>
 
                     <table class="border full" style="font-size: 12px;border-collapse: collapse; border: 1px solid #000;">
                     <tr>
-                        <th style="border: 1px solid #ddd; padding: 2px; text-align: left;">Megnevezés</th>
-                        <th style="border: 1px solid #ddd; padding: 2px; text-align: right; width: 88px;">Mennyiség<br>(db)</th>
-                        <th style="border: 1px solid #ddd; padding: 2px; text-align: right; width: 118px;">Nettó egységár<br>('.$penznem.')</th>
-                        <th style="border: 1px solid #ddd; padding: 2px; text-align: right; width: 118px;">Nettó összesen<br>('.$penznem.')</th>
+                        <th style="border: 1px solid #ddd; padding: 2px; text-align: left;">'.$sz['megnevezes'].'</th>
+                        <th style="border: 1px solid #ddd; padding: 2px; text-align: right; width: 88px;">'.$sz['mennyiseg'].'</th>
+                        <th style="border: 1px solid #ddd; padding: 2px; text-align: right; width: 118px;">'.$sz['netto_egysegar'].'<br>('.$penznem.')</th>
+                        <th style="border: 1px solid #ddd; padding: 2px; text-align: right; width: 118px;">'.$sz['netto_osszesen'].'<br>('.$penznem.')</th>
                     </tr>
                     '.$tetelek_html.'
                     <tr style="border-top: 1px solid #ddd;">
-                        <td class="c" style="border: 1px solid #ddd; padding: 2px; text-align: left; vertical-align: top;"><b>Mindösszesen:</b></td>
+                        <td class="c" style="border: 1px solid #ddd; padding: 2px; text-align: left; vertical-align: top;"><b>'.$sz['mindosszesen'].'</b></td>
                         <td class="c" style="border: 1px solid #ddd; padding: 2px; text-align: right; vertical-align: top;"></td>
                         <td class="c" style="border: 1px solid #ddd; padding: 2px; text-align: right; vertical-align: top;"></td>
                         <td class="c" style="border: 1px solid #ddd; padding: 2px; text-align: right; vertical-align: top;"><b>'.number_format($mindossz, $tizedesek, ',', ' ').'</b></td>
@@ -5236,7 +5313,7 @@ function megrendeles_keszit($eszkozigenyles_id, $tevezett = 0) {
                     '.$fiz_mod_hatarido.'
                     <tr>
                         <td class="b" style="padding: 10px 20px 0 0">
-                            Kontaktszemély:
+                            '.$sz['kontakt'].'
                         </td>
                         <td style="vertical-align: top; padding: 10px 0 0 0">
                             '.$kontakt['teljes_nev'].$usertel.'
@@ -5247,10 +5324,10 @@ function megrendeles_keszit($eszkozigenyles_id, $tevezett = 0) {
                     <table style="font-size: 12px; border-collapse: collapse; width: 100%;">
                     <tr>
                         <td style="padding: 2px; width: 50%;">
-                            Számlázási cím
+                            '.$sz['szamlazasi_cim'].'
                         </td>
                         <td style="padding: 2px; width: 50%;">
-                            Szállítási cím
+                            '.$sz['szallitasi_cim'].'
                         </td>
                     </tr>
                     </table>
@@ -5260,8 +5337,8 @@ function megrendeles_keszit($eszkozigenyles_id, $tevezett = 0) {
                             <b>Danubius Hotels Zrt.</b>
                             <br><b>'.$props_szn.'
                             <br>'.$props_cim.'</b>
-                            <br><b>Adószáma:</b> 10594702-2-44
-                            <br><b>Cégjegyzékszám:</b> 01-10-041669
+                            <br><b>'.$sz['adoszam'].'</b> 10594702-2-44
+                            <br><b>'.$sz['cegjegyzekszam'].'</b> 01-10-041669
                         </td>
                         <td style="padding: 2px; width: 50%; vertical-align: top; border: 1px solid #000">
                             <b>'.$props_szallcim.'</b>
@@ -5270,14 +5347,13 @@ function megrendeles_keszit($eszkozigenyles_id, $tevezett = 0) {
                     </table>
 
                     <div style="font-size: 12px; margin: 0 0 2px 0; padding-top: 10px">
-                        Kérjük megrendelésünket a szállítási határidő feltüntetésével szíveskedjen visszaigazolni.
-                        <br>A számlán a megrendelés számát legyenek kedvesek szerepeltetni!
+                        '.$sz['visszaigazolas'].'
                     </div>
 
                     <div style="page-break-inside: avoid;">
                         <div style="font-size: 12px; margin: 30px 0 3px 0;">
-                            Üdvözlettel,
-                            <br>Budapest, '.date_formaz(date('Y-m-d')).'
+                            '.$sz['udvozlettel'].'
+                            <br>Budapest, '.date_formaz(date('Y-m-d'), $sz['datum_nyelv']).'
                         </div>
                         '.get_nyomtatas_alairasok(0, 0, '', $eszkozigenyles['telephely_id']).'
                     </div>
@@ -5285,7 +5361,7 @@ function megrendeles_keszit($eszkozigenyles_id, $tevezett = 0) {
             </div>
             ';
 
-            $keret = get_nyomtatas_keret('Megrendelés száma: '.$rend_szam);
+            $keret = get_nyomtatas_keret($sz['megr_szama_title'].$rend_szam);
             $html  = str_replace('{TARTALOM}', $tartalom, $keret);
 
 $html = nl2($html);
@@ -5301,7 +5377,7 @@ if( isset($_GET['html_mutat']) ) {
 
             $mpdf -> AddPage('P',     '',   '', '', '', '10', '10', '20', '10', '5', '5');
             $mpdf -> nbpgPrefix = '/ ';
-            $header = get_nyomtatas_fejlec_top($rend_szam, '-lapszámmal-', '-Műsz.szolg. szöveg nélkül-');
+            $header = get_nyomtatas_fejlec_top($rend_szam, '-lapszámmal-', '-Műsz.szolg. szöveg nélkül-', $nyelv);
             $footer = '<div class="dtc r" style="font-size: 7px">
                             '.$_SESSION[get_db_tabla().'user'].'
                             '.date('Y.m.d H:i:s').'
@@ -5319,7 +5395,10 @@ if( isset($_GET['pdf_mutat']) ) {
             
             // Fájlba mentés
             $ev         = date('y', strtotime($eszkozigenyles['insert_dt']));
-            $fajlnev    = 'DH_te_megrendeles_'.$rend_szam_fajlba.'.pdf';
+            // A fájlnévben a DH_ után a szálloda rövid neve (unid) szerepel, pl. DH_HILT_te_megrendeles_TE2026180.pdf
+            $szalloda_unid = getErtek('unid', 'telephely', 'id', $eszkozigenyles['telephely_id']);
+            $szalloda_unid = $szalloda_unid ? preg_replace('/[^A-Za-z0-9-]/', '', $szalloda_unid).'_' : '';
+            $fajlnev    = 'DH_'.$szalloda_unid.'te_megrendeles_'.$rend_szam_fajlba.'.pdf';
             if( !is_dir('../'.get_utvonal().'eszkozigenyles_megr') ) {
                 mkdir('../'.get_utvonal().'eszkozigenyles_megr');
             }

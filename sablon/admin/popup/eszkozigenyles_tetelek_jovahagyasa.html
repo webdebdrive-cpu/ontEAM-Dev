@@ -25,16 +25,9 @@
 </div>
 <script>
 
-var akt_penznem     = $('#kcs_21_autocomp').val();
-if( !akt_penznem ) {
-    akt_penznem = $('#kcs_21_autocomp_db').val();
-}
 var jh_tizedesek = 0;
 
 $(document).ready(function(){
-    $('.f_penznem').each(function () {
-        $(this).replaceWith(akt_penznem);
-    });
     tetel_jh_lista_betolt();
 });
 
@@ -55,6 +48,8 @@ function tetel_jh_lista_betolt() {
                     return false;
                 }
                 jh_tizedesek = response.tizedesek || 0;
+                // A pénznem a szervertől jön, mert táblázatos nézetben sorokon lépkedve az oldalon lévő pénznem mező nem az aktuális igénylésé
+                $('.f_penznem').html(response.penznem || 'HUF');
                 $('#pop_jh_tetelek tbody').html(response.html);
                 tetel_jh_osszesito_frissit();
             }
@@ -91,6 +86,12 @@ function tetel_jh_mentes() {
         tetel_idk.push( $(this).attr('data-recid') );
         jhmenek.push( $(this).val().replace(/\s/g, '').replace(',', '.') );
     });
+
+    // Ha minden tétel 0, az nem jóváhagyás (elutasításra ott az Elutasítás gomb), ugyanúgy hibaüzenet, mint tétel nélkül a Jóváhagyott mennyiség popupon
+    if( !jhmenek.some(function(jhmen) { return Number(jhmen) > 0; }) ) {
+        alert2('Kérem töltse ki a jóváhagyott mennyiséget!', '<input type="button" class="link gomb" value="Ok" onclick="alert2();">', 'Hiba');
+        return false;
+    }
 
     $.ajax({
         url : 'eszkozigenyles.php',

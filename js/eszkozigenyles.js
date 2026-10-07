@@ -29,7 +29,10 @@ function huf_vagy_deviza() {
                 }
             }
         } else if( $('#kcs_21_autocomp').val() ) {
-            $('#dev_net'        ).removeAttr('readonly').addClass('csillag');
+            // Tételes igénylésnél a Deviza egységár is csak a tételekből jön (readonly marad), az árfolyam viszont szerkeszthető
+            if( !van_tetele ) {
+                $('#dev_net'    ).removeAttr('readonly').addClass('csillag');
+            }
             $('#arfolyam'       ).removeAttr('readonly').addClass('csillag');
             $('#kiszall'        ).attr('data-tort', '2').removeClass('nincs_tobb_blurozas').blur();
             $('#beuzemel'       ).attr('data-tort', '2').removeClass('nincs_tobb_blurozas').blur();
@@ -205,6 +208,78 @@ function mehet_validalasra(mehet) {
                         // Ilyet mégsem kérnek
                         // naviKov();
                     }, 1000);
+                }
+            }
+        },
+        complete: function (xhr) {
+            if (xhr.status != 200) {
+                alert2(xhr.responseText, '', 'Hiba');
+            }
+        }
+    });
+}
+
+// Mehet műszaki jóváhagyásra (soronkívüli / GM keret igénylés Új felvitel státuszból)
+function mehet_muszaki_jovahagyasra(mehet) {
+
+    // globális változók frissítése az adott adatlap alapján
+    eszkoz_valtozok_update();
+
+    if( !$('#szallito_id_'+eszkoz_id).val() && !$('#szallito_id').val() ) {
+        alert2('Műszaki jóváhagyásra küldés előtt kérem adja meg a Szállítót!', '', 'Hiba');
+        return false;
+    }
+
+    if( !mehet ) {
+        alert2('Biztosan mehet az igénylés műszaki jóváhagyásra?', '<input type="button" class="gomb zold enter" value="Igen" onclick="mehet_muszaki_jovahagyasra(\'-mehet-\')"> <input type="button" class="gomb piros" value="Nem" onclick="alert2()">', 'Kérdés');
+        return false;
+    }
+
+    $.ajax({
+        url : PHP_SELF+eszkoz_url_kieg,
+        type: 'POST',
+        data: {
+            id                          : eszkoz_id,
+            mehet_muszaki_jovahagyasra  : Date.now()
+        },
+        success: function (response) {
+            if(response.substring(0, 6)=='SESKIL'){ location.href = 'index.php'; }
+            if (response) {
+                response = JSON.parse(response);
+                if (response.hiba) {
+                    alert2(response.hiba, response.gomb, response.title);
+                    return false;
+                }
+
+                alert2();
+
+                // Táblázat alatt a sort frissítjük
+                if( isset_get('tablazat') ) {
+                    $('.stat_'          +eszkoz_id  ).html(response.statusz  );
+                    $('.gombok_'        +eszkoz_id  ).html(response.gombok   );
+
+                    // Megjegyzések számát is, mert az értesítés küldéssel bővülhetett
+                    $('.gombok_'        +eszkoz_id  ).data('megj_db', response.megj_db    );
+                    let megj_ful_txt = 'Megjegyzések';
+                    if( response.megj_db>0 ) {
+                        megj_ful_txt = 'Megjegyzések ('+response.megj_db+')';
+                    }
+                    $('#szamlaFulek a[data-oldal="megjegyzesek"]').html(megj_ful_txt);
+
+                    // Gombok tényleges cseréje
+                    $('.muveletek').html(response.gombok   );
+
+                // Egyébként az adatlapot töltsük be
+                } else {
+
+                    let ful   = '';
+                    eszkoz_fulek.forEach(function(akt_ful) {
+                        if( isset_get(akt_ful) ) {
+                            ful = akt_ful;
+                            return;
+                        }
+                    });
+                    szamlaBetolt(_get('id'), baseName(location.href) + '.php', ful);
                 }
             }
         },
@@ -531,6 +606,11 @@ function igenyles_feldolgozva(mehet) {
         var tetel_db = Number($('#tetel_db_'+eszkoz_id).val()) || 0;
         if( tetel_db > 0 ) {
             var tetel_jh_db = Number($('#tetel_jh_db_'+eszkoz_id).val()) || 0;
+            // Ha egyetlen tétel sincs jóváhagyva, az nem jóváhagyás (elutasításra ott az Elutasítás gomb), ezért kérdés helyett hibaüzenet, mint tétel nélkül a Jóváhagyott mennyiség popupon
+            if( tetel_jh_db == 0 ) {
+                alert2('Kérem töltse ki a jóváhagyott mennyiséget!', '<input type="button" class="link gomb" value="Ok" onclick="alert2();">', 'Hiba');
+                return false;
+            }
             kerdes = tetel_jh_db+'/'+tetel_db+' db tétel jóváhagyására készül. Folytatja?';
         }
         alert2(kerdes, '<input type="button" class="gomb zold enter" value="Igen" onclick="igenyles_feldolgozva(\'-mehet-\')"> <input type="button" class="gomb piros" value="Nem" onclick="alert2()">', 'Kérdés');
@@ -792,6 +872,42 @@ function szallito_kotelezo_mezok() {
     huf_vagy_deviza();
     
 }
+// Új felvitelkor a szállító kiválasztásakor betöltjük a szállítónál megadott fizetési módot és fizetési határidőt (utána felülírhatók)
+function szallito_fizetesi_adatok_betolt() {
+
+    if( !_get('uj') || !$('#szallito_id').val() ) {
+        return;
+    }
+
+    $.ajax({
+        url : PHP_SELF,
+        type: 'POST',
+        data: {
+            szallito_id                 : $('#szallito_id').val(),
+            get_szallito_fizetesi_adatok: Date.now()
+        },
+        success: function (response) {
+            if( response.substring(0, 6)=='SESKIL' ){ location.href = 'index.php'; }
+            if( response ) {
+                response = JSON.parse(response);
+
+                // Csak a szállítónál ténylegesen megadott értékkel írjuk felül a mezőt
+                if( response.fiz_mod && response.fiz_mod != '0' && !$('#fiz_mod').prop('disabled') ) {
+                    $('#fiz_mod').val(response.fiz_mod).trigger('change');
+                }
+                if( response.hat_ido && !$('#hat_ido').prop('disabled') ) {
+                    $('#hat_ido').val(response.hat_ido).trigger('change');
+                }
+            }
+        },
+        complete: function (xhr) {
+            if (xhr.status != 200) {
+                alert2(xhr.responseText, '', 'Hiba');
+            }
+        }
+    });
+}
+
 $(document).on('blur', '#szallito_id_autocomp', function(){
     setTimeout(function(){
         if( !$('#szallito_id').val() ) {

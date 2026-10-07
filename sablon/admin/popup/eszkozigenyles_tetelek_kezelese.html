@@ -2,31 +2,36 @@
 
 <div class="kozep" style="min-height: 30rem">
     <div id="osszesito" style="margin-bottom: 1rem; font-weight: 600;">
-        Igényelt nettó összesen: <span id="tetel_ossz_netto">0</span> <span id="tetel_ossz_netto_penznem">Ft</span>
+        Igényelt nettó összesen: <span id="tetel_ossz_netto">0</span> <span id="tetel_ossz_netto_penznem"></span>
     </div>
 
     <div id="tetel_form" class="dn">
-        <div class="dt">
-            <div class="dtr">
-                <div class="dtc form_bal">Név:</div>
-                <div class="dtc form_jobb"><input type="text" id="pop_nev" class="oriasi csillag" maxlength="60"></div>
+        <!-- Bal oldalon a mezők, mellettük jobbra a négy sor magas Specifikáció -->
+        <div style="display: flex; gap: 2rem; align-items: flex-start;">
+            <div class="dt">
+                <div class="dtr">
+                    <div class="dtc form_bal">Név:</div>
+                    <div class="dtc form_jobb"><input type="text" id="pop_nev" class="oriasi csillag" maxlength="60"></div>
+                </div>
+                <div class="dtr">
+                    <div class="dtc form_bal">Cikkszám:</div>
+                    <div class="dtc form_jobb"><input type="text" id="pop_csz" class="oriasi" maxlength="20"></div>
+                </div>
+                <div class="dtr">
+                    <div class="dtc form_bal">Ig. menny.:</div>
+                    <div class="dtc form_jobb"><input type="text" id="pop_igmen" class="f_num f_csak_pozitiv csillag" data-tort="0" style="width: 8rem;"> db</div>
+                </div>
+                <div class="dtr">
+                    <div class="dtc form_bal">Ig. eár.:</div>
+                    <div class="dtc form_jobb">
+                        <input type="text" id="pop_igar" class="f_num f_csak_pozitiv csillag" data-tort="0" style="width: 10rem;"> <span id="pop_igar_penznem"></span>
+                    </div>
+                </div>
             </div>
-            <div class="dtr">
-                <div class="dtc form_bal">Specifikáció:</div>
-                <div class="dtc form_jobb"><input type="text" id="pop_spec" class="oriasi" maxlength="100"></div>
-            </div>
-            <div class="dtr">
-                <div class="dtc form_bal">Cikkszám:</div>
-                <div class="dtc form_jobb"><input type="text" id="pop_csz" class="oriasi" maxlength="20"></div>
-            </div>
-            <div class="dtr">
-                <div class="dtc form_bal">Igényelt mennyiség:</div>
-                <div class="dtc form_jobb"><input type="text" id="pop_igmen" class="f_num f_csak_pozitiv csillag" data-tort="0" style="width: 8rem;"> db</div>
-            </div>
-            <div class="dtr">
-                <div class="dtc form_bal" id="pop_igar_label">Igényelt egységár:</div>
-                <div class="dtc form_jobb">
-                    <input type="text" id="pop_igar" class="f_num f_csak_pozitiv csillag" data-tort="0" style="width: 10rem;"> <span id="pop_igar_penznem">Ft</span>
+            <div class="dt">
+                <div class="dtr">
+                    <div class="dtc form_bal" style="vertical-align: top;">Specifikáció:</div>
+                    <div class="dtc form_jobb"><textarea id="pop_spec" rows="4" maxlength="100" style="width: 25rem;"></textarea></div>
                 </div>
             </div>
         </div>
@@ -42,8 +47,8 @@
             <th class="l">Specifikáció</th>
             <th class="l">Cikkszám</th>
             <th class="r">Igényelt menny.</th>
-            <th class="r" id="tetel_th_igar">Igényelt egységár (Ft)</th>
-            <th class="r" id="tetel_th_ignetto">Igényelt nettó (Ft)</th>
+            <th class="r" id="tetel_th_igar">Igényelt egységár</th>
+            <th class="r" id="tetel_th_ignetto">Igényelt nettó</th>
             <th id="tetel_th_szerk"></th>
             <th id="tetel_th_torol"></th>
         </tr>
@@ -60,10 +65,10 @@
 var van_valtozas     = false;
 var torolt_sorok     = [];
 var szerkesztheto_e  = false;
-// A tétel nettó egységára és a táblázat mindig a rendelés pénznemében van: HUF-os igénylésnél Ft, devizásnál a fej pénzneme (pl. EUR) -
+// A tétel nettó egységára és a táblázat mindig a rendelés pénznemében van: HUF-os igénylésnél Ft, devizásnál a fej pénzneme (pl. EUR), a felületen forintnál is pénznem kód (HUF) jelenik meg -
 // tehát a fenntartasi_szamla_tetel dev_net mezőjének mintájára itt sincs Ft-ra váltás/vissza a felületen, ezt a szerver végzi mentéskor.
 var deviza_e      = false;
-var penznem_kiir  = 'Ft';
+var penznem_kiir  = 'HUF';
 var tort          = 0;
 
 $(document).ready(function(){
@@ -88,10 +93,9 @@ function tetel_lista_betolt() {
                 }
 
                 deviza_e     = response.deviza ? true : false;
-                penznem_kiir = response.kcs_21_nev || 'Ft';
+                penznem_kiir = response.kcs_21_nev || 'HUF';
                 tort         = deviza_e ? 2 : 0;
 
-                $('#pop_igar_label'  ).html('Igényelt egységár ('+penznem_kiir+'):');
                 $('#pop_igar_penznem').html(penznem_kiir);
                 $('#pop_igar').attr('data-tort', tort);
                 $('#tetel_th_igar'   ).html('Igényelt egységár ('+penznem_kiir+')');

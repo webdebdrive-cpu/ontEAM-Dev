@@ -68,6 +68,11 @@ function szak_beleegyezes_inditas() {
 
     if( tetel_db > 0 ) {
         var tetel_jh_db = Number($('#tetel_jh_db_'+akt_id).val()) || 0;
+        // Ha egyetlen tétel sincs jóváhagyva, az nem jóváhagyás (elutasításra ott az Elutasítás gomb), ezért kérdés helyett hibaüzenet, mint tétel nélkül a Jóváhagyott mennyiség popupon
+        if( tetel_jh_db == 0 ) {
+            alert2('Kérem töltse ki a jóváhagyott mennyiséget!', '<input type="button" class="link gomb" value="Ok" onclick="alert2();">', 'Hiba');
+            return false;
+        }
         alert2(tetel_jh_db+'/'+tetel_db+' db tétel jóváhagyására készül. Folytatja?', '<input type="button" class="gomb zold" value="Igen" onclick="szak_beleegyezes();"><input type="button" class="gomb piros" value="Nem" onclick="alert2();">', 'Kérdés');
         return false;
     }

@@ -31,6 +31,7 @@ if( isset($_POST['f_szuro_mezo']) ) {
         'select_felh_telephely',
         'select_fiz_mod',
         'select_hat_ido',
+        'select_nyelv',
         'select_ho_ism',
         'select_ho_soran',
         'select_honapjan',
@@ -457,6 +458,16 @@ if( isset($_POST['f_szuro_mezo_operator']) ) {
                     require_once('selectek.php');
 
                     $input = new Select($select_hat_ido, $_POST['felt']);
+                    $input -> cssClass = 'f_felt';
+                    $feltetel = $input -> getHtml();
+
+                // select_nyelv
+                } elseif( $ertek['type'] == 'select_nyelv' ) {
+
+                    require_once('../class/html/class.Select.php');
+                    require_once('selectek.php');
+
+                    $input = new Select($select_nyelv, $_POST['felt'] ?? '');
                     $input -> cssClass = 'f_felt';
                     $feltetel = $input -> getHtml();
 

@@ -1,0 +1,52 @@
+<h2>Igényfeladás újranyitása</h2>
+<form id="ujranyitasForm" class="popupForm" method="post" onsubmit="return igenyfeladas_ujranyitas_kuld();">
+    <div class="kozep">
+        <div class="dt">
+            <div class="dtr">
+                <div class="dtc form_bal">Időszak ID:</div>
+                <div class="dtc form_jobb">
+                    <div id="popup_azon"></div>
+                </div>
+            </div>
+            <div class="dtr">
+                <div class="dtc form_bal">Igényfeladási határidő:</div>
+                <div class="dtc form_jobb">
+                    <div id="popup_hatar"></div>
+                </div>
+            </div>
+            <div class="dtr">
+                <div class="dtc form_bal">Újranyitás indoklása:</div>
+                <div class="dtc form_jobb">
+                    <textarea id="popup_ujranyitas_indok" class="csillag" onkeyup="if( $(this).val().trim()=='' ){ $(this).val(''); }"></textarea>
+                </div>
+            </div>
+        </div>
+        <br>Az igényfeladási határidő már lejárt. Az indoklás bekerül az értesítő levelekbe is.
+        <br>Biztosan újranyitja az igényfeladást?
+    </div>
+    <div class="kuldes">
+        <input type="submit" name="elkuld" value="Igen">
+        <input type="button" name="megsem" class="gombb_alert" value="Nem" onclick="popupZar();">
+    </div>
+</form>
+<script>
+$(document).ready(function(){
+    $('#popup_azon').html( $('#azon_db').val() );
+    $('#popup_hatar').html( ujranyitas_hatar );
+    $('#popup_ujranyitas_indok').select();
+});
+function igenyfeladas_ujranyitas_kuld() {
+
+    // Indoklás kötelező
+    if( !$('#popup_ujranyitas_indok').val() ) {
+        $('#popup input, #popup textarea, #popup select').removeClass('hibas_ide_focus');
+        $('#popup_ujranyitas_indok').addClass('hibas_ide_focus');
+        alert2('Kérem töltse ki az újranyitás indoklását!', '<input type="button" class="link gomb" value="Ok" onclick="alert2();">', 'Hiba');
+        return false;
+    }
+
+    igenyfeladas_nyit_zar(ujranyitas_fured, '', '-mehet-', $('#popup_ujranyitas_indok').val());
+
+    return false;
+}
+</script>

@@ -72,8 +72,13 @@ function idoszak_zarasa(mehet) {
     });
 }
 
+// Határidő utáni újranyitás popupjához
+var ujranyitas_fured = '';
+var ujranyitas_hatar = '';
+
 // Igényfeladás megnyitása
-function igenyfeladas_nyit_zar(fured = '', zar = '', mehet = '') {
+// Ha a szerver szerint már lejárt az igényfeladási határidő, akkor popupban kérjük be az újranyitás indoklását, és azzal küldjük újra
+function igenyfeladas_nyit_zar(fured = '', zar = '', mehet = '', indoklas = '') {
     
     if( !mehet ) {
         var furedi_text = '';
@@ -95,6 +100,7 @@ function igenyfeladas_nyit_zar(fured = '', zar = '', mehet = '') {
             id                      : _get('id'),
             fured                   : fured,
             zar                     : zar,
+            indoklas                : indoklas,
             igenyfeladas_nyit_zar   : Date.now()
         },
         success: function (response) {
@@ -104,6 +110,22 @@ function igenyfeladas_nyit_zar(fured = '', zar = '', mehet = '') {
                 if (response.hiba) {
                     alert2(response.hiba, response.gomb, response.title);
                     return false;
+                }
+
+                // Lejárt határidő: indoklás bekérése popupban
+                if (response.indoklas_kell) {
+                    ujranyitas_fured = fured;
+                    ujranyitas_hatar = response.hatar;
+                    alert2();
+                    $.get('../sablon/admin/popup/besz_idoszak_ujranyitas.html?cache=' + Date.now(), function (data) {
+                        $('#popupTart').html(data);
+                        popupNyit();
+                    });
+                    return false;
+                }
+
+                if (indoklas) {
+                    popupZar();
                 }
 
                 // Adatlap frissítése

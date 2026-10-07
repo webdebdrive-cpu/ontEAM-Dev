@@ -202,7 +202,7 @@ $jogosultsagok = array(
     150  => array('nev' => 'Új igény felvitele',                    'kat' => 15, 'sor' => 4),
     167  => array('nev' => 'Szállodai beszerző',                    'kat' => 15, 'sor' => 5, 'i' => 'kapcsolattartó a megrendelő dokumentumon'),
     159  => array('nev' => 'Igénylések kezelése',                   'kat' => 15, 'sor' => 6, 'i' => 'igénylés adatok szerkesztése Beszerzési Igazgatóságon,<br>megrendelés javítása kiküldés után'),
-    151  => array('nev' => 'Igény törlése',                         'kat' => 15, 'sor' => 7),
+    151  => array('nev' => 'Igény és megrendelés törlése',          'kat' => 15, 'sor' => 7),
     153  => array('nev' => 'Elsődleges aláíró',                     'kat' => 15, 'sor' => 8),
     154  => array('nev' => 'Másodlagos aláíró',                     'kat' => 15, 'sor' => 9),
     155  => array('nev' => 'Műszak jóváhagyás',                     'kat' => 15, 'sor' => 10),

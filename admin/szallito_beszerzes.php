@@ -132,7 +132,11 @@ if( isset($_GET['csv']) ) {
     // CSV export előkészítése
     list($mibol, $mibe, $filename, $open) = csv_export_elokeszit($megnevezes);
     if( $open ) {
-        
+
+        // A fizetési határidő kódjának szöveges megfelelőjéhez
+        require_once('selectek.php');
+        $hat_ido_nevek = array_column($select_hat_ido, 'name', 'value');
+
         $sql = 'SELECT
                 `recid` as \'Szállító Id\',
                 `aktiv` as \'Aktív\',
@@ -144,6 +148,9 @@ if( isset($_GET['csv']) ) {
                 `lcim` as \'Lev.cím\',
                 `szakter` as \'Szakterület\',
                 `bank` as \'Bankszámlaszám\',
+                (SELECT `nev` FROM `'.get_db_tabla().'eszkozigenyles_fiz_mod` WHERE `recid`=`'.get_db_tabla().'szallito_beszerzes`.`fiz_mod`) as \'Fizetési mód\',
+                `hat_ido` as \'Fizetési határidő\',
+                IF(`nyelv`=\'\', \'HUN\', `nyelv`) as \'Nyelv\',
                 `knev` as \'Kapcs.név\',
                 `tel` as \'Telefon\',
                 `tel2` as \'Fax\',
@@ -185,6 +192,10 @@ if( isset($_GET['csv']) ) {
                     }
                 }
                 
+                if( $kulcs == 'Fizetési határidő' ) {
+                    $sor = $sor !== '' ? ($hat_ido_nevek[$sor] ?? $sor) : '';
+                }
+
                 if( $kulcs == 'Szállító kód' ) {
                     $sor = '{EGYENLOSEG_JELET_ELE}'.$sor.'{EGYENLOSEG_JELET_ELE_VEGE}';
                 }

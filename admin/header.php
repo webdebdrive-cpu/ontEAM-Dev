@@ -1381,13 +1381,19 @@ if( self('-bn-') == 'eszkozigenyles.php' ) {
         // Viszont új ikon lehet, mert lehet megjegyzés alatt vagyunk és megjegyzést írhat, szóval ezt máshol kell lekezelni
         // $uj = '';
     }
+    // A duplikálás ikon közvetlenül az Új ikon után jelenjen meg
+    $uj      .= $duplikal;
+    $duplikal = '';
 }
 if( self('-bn-') == 'eszkozigenyles.php' && !_jog(JOG_BESZERZ_IGENYLESEK_TOROL) ) {
     $torles_icon = '';
 }
-// Megrendelés nem törölhető
+// Megrendelésnél nincs duplikálás, törölni pedig az igény törlése joggal lehet
 if( self('-bn-') == 'eszkozigenyles_megr.php' ) {
-    $duplikal = $torles_icon = '';
+    $duplikal = '';
+    if( !_jog(JOG_BESZERZ_IGENYLESEK_TOROL) ) {
+        $torles_icon = '';
+    }
 }
 // Tesztelés funkció
 if( 

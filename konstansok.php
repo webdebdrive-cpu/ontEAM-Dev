@@ -590,6 +590,7 @@ define('ERT_BESZERZ_MEGR_KIKULD_ELO',   30);
 define('ERT_BESZERZ_MASOLAT_MEGR_ROL',  37);
 define('ERT_BESZERZ_ELUTASIT',          31);
 define('ERT_BESZERZ_BI_JH_ELO',         32);
+define('ERT_BESZERZ_ADATLAP_SZERK',     38);
 
 define('HIBA_ADJON_FELADAT',            ' kérem adjon hozzá egy elvégzett feladatot!');
 define('DASHB_NINCS_BEJEGYZES',         'Nem található bejegyzés!');

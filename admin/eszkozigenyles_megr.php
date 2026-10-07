@@ -35,6 +35,28 @@ if( $tobb_kep ) {
     function get_tobbkep_tabla(){ return str_replace('.php', '', basename(self())).'_dok'; } // A képeket tartalmazó adatbázis tábla neve FONTOS: ha itt átnevezed akkor a tobbkep.php-ban is át kell írni!
 }
 
+// Megrendelő kiküldése popuphoz a csatolható dokumentumok listája (a megrendelő dokumentum nélkül, az mindig megy)
+if (isset($_POST['get_kikuld_dokok'])) {
+
+    $dokok = $adatbazis_kapcsolat -> s('recid fajlnev', 'eszkozigenyles_megr_dok', "`eszkozigenyles_megr_id`='".(int)$_POST['id']."' AND `megr`=0", 'insert_dt');
+
+    $html = '';
+    if( $dokok ) {
+        $html = '<br><br><b>Csatolandó további dokumentumok:</b><div id="kikuld_dokok" style="max-height: 15rem; overflow-y: auto; text-align: left; font-weight: 400;">';
+        foreach ($dokok as $dok) {
+            $html .= '<div><label><input type="checkbox" value="'.$dok['recid'].'"> '.htmlspecialchars($dok['fajlnev']).'</label></div>';
+        }
+        $html .= '</div>';
+    }
+
+    echo json_encode([
+        'html' => $html,
+    ]);
+
+    $weblap -> leallit();
+    exit;
+}
+
 // Megrendelő kiküldése
 if (isset($_POST['megrendelo_kikuldese'])) {
 
@@ -111,6 +133,18 @@ if (isset($_POST['megrendelo_kikuldese'])) {
 
     $dok = $adatbazis_kapcsolat -> s2('utvonal', 'eszkozigenyles_megr_dok', "`eszkozigenyles_megr_id`='{$_POST['id']}' AND `megr`=1");
     $dok = '../'.get_utvonal().'eszkozigenyles_megr/'.$dok['utvonal'];
+    $csatolmanyok = [['fajl' => $dok, 'nev' => basename($dok)]];
+
+    // A popupon kiválasztott további dokumentumok csatolása (csak adott megrendeléshez tartozók, megrendelő dokumentum nélkül)
+    $csatolt_nevek = [];
+    $dok_idk = array_filter(array_map('intval', explode(',', $_POST['dokok'] ?? '')));
+    if( $dok_idk ) {
+        $csatolt_dokok = $adatbazis_kapcsolat -> s('utvonal fajlnev', 'eszkozigenyles_megr_dok', "`eszkozigenyles_megr_id`='".(int)$_POST['id']."' AND `megr`=0 AND `recid` IN (".implode(',', $dok_idk).")");
+        foreach ($csatolt_dokok ?: [] as $csatolt_dok) {
+            $csatolmanyok[] = ['fajl' => '../'.get_utvonal().'eszkozigenyles_megr/'.$csatolt_dok['utvonal'], 'nev' => $csatolt_dok['fajlnev']];
+            $csatolt_nevek[] = $csatolt_dok['fajlnev'];
+        }
+    }
 
     // Dev és Teszt rendszerben annak megy ki a levél, aki a gombot megnyomta. FONTOS, hogy Teszt-en is, mert nem mehet ki élesbe szállítóknak
     if( $_SERVER['HTTP_HOST'] == 'dev.onteam.hu' || $_SERVER['HTTP_HOST'] == 'teszt.onteam.hu' ) {
@@ -144,15 +178,27 @@ if( $_SERVER['REMOTE_ADDR'] == get_debug_ip() ) {
     // $cimzettek = ['bk@wdb.hu'];
 }
 
-    foreach ($cimzettek as $cimzett) {
-        $cimzett = trim($cimzett);
-        if( $cimzett ) {
-            level_kuldes(get_nev(), get_mail(), $szallito['knev'], $cimzett, $targy, $uzi, $dok);
+    // A popupon bepipálható, hogy ne menjen ki e-mail, de a státuszléptetések lefussanak
+    $nincs_email = !empty($_POST['nincs_email']);
+
+    if( !$nincs_email ) {
+        foreach ($cimzettek as $cimzett) {
+            $cimzett = trim($cimzett);
+            if( $cimzett ) {
+                level_kuldes(get_nev(), get_mail(), $szallito['knev'], $cimzett, $targy, $uzi, $csatolmanyok);
+            }
         }
     }
 
     // Email küldésről megjegyzés
-    $megj = 'E-mail elküldve '.$szallito['knev'].' (e-mail: '.$sor['szall_mail'].') szállítónak megrendeléskor';
+    if( $nincs_email ) {
+        $megj = 'Megrendelve e-mail küldés nélkül ('.$szallito['knev'].' szállító)';
+    } else {
+        $megj = 'E-mail elküldve '.$szallito['knev'].' (e-mail: '.$sor['szall_mail'].') szállítónak megrendeléskor';
+        if( $csatolt_nevek ) {
+            $megj .= '. További csatolt dokumentumok: '.implode(', ', $csatolt_nevek);
+        }
+    }
     if( addMegj('eszkozigenyles_megr', $_POST['id'], $megj) === false ) {
         $db_error = true;
     }
@@ -691,6 +737,13 @@ if( isset($_GET['uj']) && _jog(JOG_BESZERZ_IGENYLESEK_MEGR_OLVAS) ) {
     }
     $gombok .= '<input type="hidden" value="'.$sor['rend_szam'].'" id="rend_szam_db">';
 
+    // Törlés: a megrendeléssel együtt a hozzá tartozó igénylések is törlődnek
+    if( _jog(JOG_BESZERZ_IGENYLESEK_TOROL) && !empty($sor['rend_szam']) ) {
+        $igenyles_db = $adatbazis_kapcsolat -> s('recid', 'eszkozigenyles', "`rend_szam`='{$sor['rend_szam']}'", '', '', '', '-num-rows-');
+        $gombok .= '<script>var gomb'.$_GET['id'].'= get_kibont_torol(\''.self().'\', \''.$torles.'\', \''.$_GET['id'].'\');</script>';
+        $gombok .= ' <input type="button" id="recordTorol" class="gombb_alert dn" onclick="alert2(\'Biztosan törli ezt a '.$szoveg.'?<br>Vele együtt a hozzá tartozó '.(int)$igenyles_db.' db igénylés is törlődik!\', gomb'.$_GET['id'].')" value="Töröl" title="Töröl">';
+    }
+
     // Szerkeszteni nem lehet, csak kiküldeni
     // if( _jog(JOG_BESZERZ_IGENYLESEK_MEGR_KIKULD) ){
     //     $gombok = nl2('
@@ -795,6 +848,32 @@ if(isset($_GET['uj']) && !$csak_szerkesztheto){
             </div>
         </div>
     ');
+
+    // A megrendeléshez tartozó igénylések, kattintásra az igénylés adatlapjára lépünk.
+    // A rendelés számra szűrve nyitjuk meg, így a bal oldali listában is a megrendelés igénylései látszanak (és az adatlap megnyitható).
+    $igenylesek = $sor['rend_szam'] ? $adatbazis_kapcsolat -> s('recid azon nev', 'eszkozigenyles', "`rend_szam`='{$sor['rend_szam']}'", 'recid') : [];
+    if( $igenylesek ) {
+        $igenyles_linkek = [];
+        foreach ( $igenylesek as $igenyles ) {
+            $felirat = $igenyles['azon'].' - '.$igenyles['nev'];
+            if( _jog(JOG_BESZERZ_IGENYLESEK_OLVAS) ) {
+                $igenyles_linkek[] = '<a href="eszkozigenyles.php?id='.$igenyles['recid'].'&amp;modosit&amp;mezo=rend_szam&amp;op=equal&amp;felt='.urlencode($sor['rend_szam']).'">'.$felirat.'</a>';
+            } else {
+                $igenyles_linkek[] = $felirat;
+            }
+        }
+
+        $mezok .= nl2('
+            <div class="dtr">
+                <div class="dtc form_bal">
+                    <span>Igénylések:</span>
+                </div>
+                <div class="dtc form_jobb">
+                    '.implode('<br>', $igenyles_linkek).'
+                </div>
+            </div>
+        ');
+    }
 
     $jobb_oldal = '';
 

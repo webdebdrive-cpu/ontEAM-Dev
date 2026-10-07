@@ -6,6 +6,11 @@ array_push($select_fiz_mod, array('name'  => 'Utalás',      'value' => 'Utalás
 array_push($select_fiz_mod, array('name'  => 'Készpénz',    'value' => 'Készpénz'));
 array_push($select_fiz_mod, array('name'  => 'Bankkártya',  'value' => 'Bankkártya'));
 
+// Nyelvek (pl. beszerzés szállítóknál). Nincs "Válasszon" opció, az első (HUN) az alapértelmezés.
+$select_nyelv   = [];
+$select_nyelv[] = ['name' => 'HUN',           'value' => 'HUN'];
+$select_nyelv[] = ['name' => 'ENG',           'value' => 'ENG'];
+
 // Áfa típus
 $select_afa_tipus = array();
 array_push($select_afa_tipus, array('name' => '- Válasszon -',    'value' => ''));
@@ -214,7 +219,7 @@ if( self('-bn-') == 'fenntartasi_szerzodes.php' || self('-bn-') == 'megallapodas
 }
 
 // Beszerzés típusok
-if( self('-bn-') == 'eszkozigenyles.php' || self('-bn-') == 'eszkozigenyles_megr.php' || self('-bn-') == 'eszkozigenyles_nyomtat.php' || self('-bn-') == 'besz_idoszak.php' || self('-bn-') == 'header.php'/*Szűrés miatt*/ ) {
+if( self('-bn-') == 'eszkozigenyles.php' || self('-bn-') == 'eszkozigenyles_megr.php' || self('-bn-') == 'eszkozigenyles_nyomtat.php' || self('-bn-') == 'besz_idoszak.php' || self('-bn-') == 'szallito_beszerzes.php' || self('-bn-') == 'header.php'/*Szűrés miatt*/ ) {
     
     $select_besz_tipus = array();
     array_push($select_besz_tipus, array('name' => '- Válasszon -', 'value' => '' ));
@@ -256,26 +261,28 @@ if( self('-bn-') == 'eszkozigenyles.php' || self('-bn-') == 'eszkozigenyles_megr
 
     $select_fiz_mod = array();
     array_push($select_fiz_mod, array('name' => '- Válasszon -', 'value' => '' ));
-    $eszkozigenyles_fiz_mod = $adatbazis_kapcsolat -> s('recid nev', 'eszkozigenyles_fiz_mod', "", 'recid');
+    // A name_eng az angol nyelvű megrendelő PDF-hez kell (ha nincs kitöltve, a magyar név jelenik meg)
+    $eszkozigenyles_fiz_mod = $adatbazis_kapcsolat -> s('recid nev nev_eng', 'eszkozigenyles_fiz_mod', "", 'recid');
     foreach ($eszkozigenyles_fiz_mod as $fiz_mod) {
-        array_push($select_fiz_mod, array('name' => $fiz_mod['nev'],   'value' => $fiz_mod['recid'] ));
+        $select_fiz_mod[] = ['name' => $fiz_mod['nev'], 'value' => $fiz_mod['recid'], 'name_eng' => $fiz_mod['nev_eng'] ?: $fiz_mod['nev']];
     }
 
+    // A name_eng az angol nyelvű megrendelő PDF-hez kell
     $select_hat_ido = [];
     $select_hat_ido[] = ['name' => '- Válasszon -', 'value' => ''      ];
-    $select_hat_ido[] = ['name' => 'Számla keltétől 60 nap',           'value' => 'kelttol 60 nap' ];
-    $select_hat_ido[] = ['name' => 'Számla keltétől 45 nap',           'value' => 'kelttol 45 nap' ];
-    $select_hat_ido[] = ['name' => 'Számla keltétől 30 nap',           'value' => 'kelttol 30 nap' ];
-    $select_hat_ido[] = ['name' => 'Számla keltétől 15 nap',           'value' => 'kelttol 15 nap' ];
-    $select_hat_ido[] = ['name' => 'Számla keltétől 8 nap',            'value' => 'kelttol 8 nap'  ];
+    $select_hat_ido[] = ['name' => 'Számla keltétől 60 nap',           'value' => 'kelttol 60 nap', 'name_eng' => 'Within 60 days of invoice date'        ];
+    $select_hat_ido[] = ['name' => 'Számla keltétől 45 nap',           'value' => 'kelttol 45 nap', 'name_eng' => 'Within 45 days of invoice date'        ];
+    $select_hat_ido[] = ['name' => 'Számla keltétől 30 nap',           'value' => 'kelttol 30 nap', 'name_eng' => 'Within 30 days of invoice date'        ];
+    $select_hat_ido[] = ['name' => 'Számla keltétől 15 nap',           'value' => 'kelttol 15 nap', 'name_eng' => 'Within 15 days of invoice date'        ];
+    $select_hat_ido[] = ['name' => 'Számla keltétől 8 nap',            'value' => 'kelttol 8 nap',  'name_eng' => 'Within 8 days of invoice date'         ];
 
-    $select_hat_ido[] = ['name' => 'Számla kézhezvételétől 60 nap',    'value' => '60 nap' ];
-    $select_hat_ido[] = ['name' => 'Számla kézhezvételétől 45 nap',    'value' => '45 nap' ];
-    $select_hat_ido[] = ['name' => 'Számla kézhezvételétől 30 nap',    'value' => '30 nap' ];
-    $select_hat_ido[] = ['name' => 'Számla kézhezvételétől 15 nap',    'value' => '15 nap' ];
-    $select_hat_ido[] = ['name' => 'Számla kézhezvételétől 8 nap',     'value' => '8 nap'  ];
-    
-    $select_hat_ido[] = ['name' => 'Előre utalás',                     'value' => 'elore utalas'    ];
-    $select_hat_ido[] = ['name' => 'Azonnal',                          'value' => 'azonnal'         ];
+    $select_hat_ido[] = ['name' => 'Számla kézhezvételétől 60 nap',    'value' => '60 nap',         'name_eng' => 'Within 60 days of receipt of invoice'  ];
+    $select_hat_ido[] = ['name' => 'Számla kézhezvételétől 45 nap',    'value' => '45 nap',         'name_eng' => 'Within 45 days of receipt of invoice'  ];
+    $select_hat_ido[] = ['name' => 'Számla kézhezvételétől 30 nap',    'value' => '30 nap',         'name_eng' => 'Within 30 days of receipt of invoice'  ];
+    $select_hat_ido[] = ['name' => 'Számla kézhezvételétől 15 nap',    'value' => '15 nap',         'name_eng' => 'Within 15 days of receipt of invoice'  ];
+    $select_hat_ido[] = ['name' => 'Számla kézhezvételétől 8 nap',     'value' => '8 nap',          'name_eng' => 'Within 8 days of receipt of invoice'   ];
+
+    $select_hat_ido[] = ['name' => 'Előre utalás',                     'value' => 'elore utalas',   'name_eng' => 'Payment in advance'                    ];
+    $select_hat_ido[] = ['name' => 'Azonnal',                          'value' => 'azonnal',        'name_eng' => 'Immediate payment'                     ];
 
 }

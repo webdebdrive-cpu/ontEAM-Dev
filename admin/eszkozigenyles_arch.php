@@ -96,6 +96,7 @@ if (isset($_POST['get_tabla_oszlopok'])) {
 
     $oszlopok = [
         ['nev' => 'Igény ID',                    'id' => 'eszkoz_tabla_azon'            ],
+        ['nev' => 'Projekt',                     'id' => 'eszkoz_tabla_proj'            ],
         ['nev' => 'Időszak ID',                  'id' => 'eszkoz_tabla_idoszak_azon'    ],
         ['nev' => 'Státusz',                     'id' => 'eszkoz_tabla_statusz'         ],
         ['nev' => 'Típus',                       'id' => 'eszkoz_tabla_tipus'           ],
@@ -269,6 +270,7 @@ if( isset($_GET['csv']) ) {
         $sql = 'SELECT
                 `stat_id` as \'Státusz\',
                 `'.get_db_tabla().'eszkozigenyles_arch`.`azon` as \'Azonosító\',
+                `'.get_db_tabla().'eszkozigenyles_arch`.`proj` as \'Projekt\',
                 `idoszak_azon` as \'Időszak ID\',
                 `tipus_txt` as \'Típus\',
                 `prior_txt` as \'Prioritás\',
@@ -298,11 +300,20 @@ if( isset($_GET['csv']) ) {
                 `egyeb_koltseg` as \'Egyéb költség\',
                 `rend_szam` as \'Rendelés szám\',
                 `musz_el_ig` as \'Műszaki előkészítést igényel\',
+                `musz_indok` as \'Műszaki indoklás\',
                 `kiv_kolts` as \'Kivitelezési költség\',
                 `szall_ig_vel` as \'Szálloda igazgató\',
+                `szall_ig_indok` as \'Szálloda igazgató indoklás\',
                 `bi_vel` as \'Validáló\',
+                `bi_indok` as \'Validáló indoklás\',
                 `bi_jh` as \'BI vezető\',
-                `felso_vel` as \'Felsővezető\''.
+                `bi_jh_indok` as \'BI vezető indoklás\',
+                `szak_vel` as \'Szakmai vélemény\',
+                `szak_indok` as \'Szakmai indoklás\',
+                `felso_vel` as \'Felsővezető\',
+                `felso_indok` as \'Felsővezető indoklás\',
+                `bi_vegl` as \'Véglegesítő\',
+                `bi_vegl_indok` as \'Véglegesítő indoklás\''.
                 csv_export_get_from_tol($megnevezes).$order.$limit;
         $query = mysqli_query($db_kapcs, $sql);
 
@@ -323,6 +334,20 @@ if( isset($_GET['csv']) ) {
         fputcsv($open, $csvhead, ';');
 
         $tort_szamok = ['Árfolyam', 'Deviza egységár', 'Kiszállítási költség', 'Beüzemelési költség', 'Munkadíj', 'Egyéb költség', 'Kivitelezési költség'];
+
+        // Vélemény oszlopok: a tárolt kód helyett a szöveges érték kerül az exportba
+        $velemeny_ertekek = [
+            'Műszaki előkészítést igényel' => musz_el_ig_ertekek(),
+            'Szálloda igazgató'            => szall_ig_vel_ertekek(),
+            'Validáló'                     => bi_vel_ertekek(),
+            'BI vezető'                    => bi_jh_ertekek(),
+            'Szakmai vélemény'             => szak_vel_ertekek(),
+            'Felsővezető'                  => felso_vel_ertekek(),
+            'Véglegesítő'                  => bi_vegl_ertekek(),
+        ];
+        // Indoklás oszlopok (naplószerűen, dátum + név + szöveg blokkokban tárolva)
+        $indoklas_oszlopok = ['Műszaki indoklás', 'Szálloda igazgató indoklás', 'Validáló indoklás', 'BI vezető indoklás', 'Szakmai indoklás', 'Felsővezető indoklás', 'Véglegesítő indoklás'];
+
         $i = 0;
         while( $sorok = mysqli_fetch_assoc($query) ) {
 
@@ -339,6 +364,19 @@ if( isset($_GET['csv']) ) {
 
                 if( $kulcs == 'Pénznem' ) {
                     $sor = erteklista(ERTEKLISTA_PENZNEM, $sor);
+                }
+
+                if( isset($velemeny_ertekek[$kulcs]) ) {
+                    $sor = trim(getSpecialisPipaloErtek($velemeny_ertekek[$kulcs], $sor, '-text-') ?? '');
+                }
+
+                if( $kulcs == 'Projekt' ) {
+                    $sor = $sor ? 'igen' : 'nem';
+                }
+
+                // A blokkok közti üres sorok a cella végéről ne kerüljenek be
+                if( in_array($kulcs, $indoklas_oszlopok) ) {
+                    $sor = trim((string)$sor);
                 }
 
                 // Lehet nem volna elég 1-szer sőt kétszer sem ráereszteni a htmlspecialchars_decode-ot

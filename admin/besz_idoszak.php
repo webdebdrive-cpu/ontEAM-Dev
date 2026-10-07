@@ -204,7 +204,7 @@ if (isset($_POST['igenyfeladas_nyit_zar'])) {
     $db_error = false;
     mysqli_autocommit($db_kapcs, false);
 
-    $sor = $adatbazis_kapcsolat -> s2('nyitva stat_id', 'besz_idoszak', "`recid`='{$_POST['id']}'");
+    $sor = $adatbazis_kapcsolat -> s2('nyitva stat_id hatar hatar_fured', 'besz_idoszak', "`recid`='{$_POST['id']}'");
     if( $sor === false ) { $db_error = true; }
 
     $nyit_zar = 1;
@@ -241,25 +241,49 @@ if (isset($_POST['igenyfeladas_nyit_zar'])) {
         $weblap -> leallit();
         exit;
     }
-    
+
+    // Ha a zárási (igényfeladási) határidő már elmúlt, akkor újranyitásról van szó, amihez indoklás kötelező. Ez az értesítő levelekbe is bekerül.
+    $indoklas = '';
+    if( $nyit_zar ) {
+        $hatar    = $sor['hatar'.$fured] ?? '';
+        $lejart   = $hatar && $hatar != '0000-00-00' && $hatar < date('Y-m-d');
+        $indoklas = trim($_POST['indoklas'] ?? '');
+        if( $lejart && $indoklas === '' ) {
+            echo json_encode([
+                'indoklas_kell' => 1,
+                'hatar'         => datum_kiir($hatar),
+            ]);
+            $weblap -> leallit();
+            exit;
+        }
+        // Határidőn belüli megnyitásnál nincs indoklás
+        if( !$lejart ) {
+            $indoklas = '';
+        }
+    }
+
     // Megnyitás/zárás
     $sql = $adatbazis_kapcsolat -> u('besz_idoszak', array('nyitva'.$fured), array($nyit_zar), "`recid`='{$_POST['id']}'");
     if( $sql === false ) { $db_error = true; }
 
     // Megjegyzésbe írás
-    if( addMegj('besz_idoszak', $_POST['id'], 'Igénylés feladási időszak'.$fured2.$text2.'.') === false ) {
+    $megj = 'Igénylés feladási időszak'.$fured2.$text2.'.';
+    if( $indoklas !== '' ) {
+        $megj .= "\nÚjranyitás indoklása: ".htmlspecialchars($indoklas);
+    }
+    if( addMegj('besz_idoszak', $_POST['id'], $megj) === false ) {
         $db_error = true;
     }
 
-    // Értesítés küldés MEGNYITÁSKOR ha nem Füred
+    // Értesítés küldés MEGNYITÁSKOR (újranyitáskor az indoklással együtt)
     if( $nyit_zar ) {
         // Ha Füred-es sor
         if ( $_POST['fured'] ) {
-            $mail_hibauzenet = level_felkeszit_es_kuld('besz_idoszak', $_POST['id'], ERT_BESZERZ_IGENY_IDOSZ_NYIT_F, 'besz_idoszak_igenyl_nyit_f', 'besz_idoszak_igenyl_nyit_f');
+            $mail_hibauzenet = level_felkeszit_es_kuld('besz_idoszak', $_POST['id'], ERT_BESZERZ_IGENY_IDOSZ_NYIT_F, 'besz_idoszak_igenyl_nyit_f', 'besz_idoszak_igenyl_nyit_f', $indoklas);
 
         // Ha normál sor
         } else {
-            $mail_hibauzenet = level_felkeszit_es_kuld('besz_idoszak', $_POST['id'], ERT_BESZERZ_IGENY_IDOSZ_NYIT, 'besz_idoszak_igenyl_nyit', 'besz_idoszak_igenyl_nyit');
+            $mail_hibauzenet = level_felkeszit_es_kuld('besz_idoszak', $_POST['id'], ERT_BESZERZ_IGENY_IDOSZ_NYIT, 'besz_idoszak_igenyl_nyit', 'besz_idoszak_igenyl_nyit', $indoklas);
         }
     }
     // Értesítés küldés ZÁRÁSKOR
