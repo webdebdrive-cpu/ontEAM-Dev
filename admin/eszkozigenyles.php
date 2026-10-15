@@ -577,6 +577,22 @@ if (isset($_POST['jhmen_mod'])) {
     exit;
 }
 
+// A véleményezések indoklásai halmozódnak (új bejegyzés dátummal, névvel a korábbiak elé), ezért mentés előtt ellenőrizzük, hogy az összefűzött szöveg elfér-e a VARCHAR(1000) mezőben (a popupokban egy bejegyzés ezért csak 900 karakter lehet, a maradék a dátum+név fejlécnek jut).
+// Ha nem, hibaüzenettel leállunk, mielőtt bármit írnánk a DB-be (így a csonkolás és az SQL hiba is elkerülhető).
+function eszkozigenyles_indok_hossz_ellenoriz($indok) {
+
+    global $weblap;
+
+    if( mb_strlen($indok, 'UTF-8') > ESZKOZIGENYL_INDOK_MAX_HOSSZ ) {
+        echo json_encode([
+            'hiba'  => 'Az indoklás nem menthető, mert a korábbi véleményezésekkel együtt meghaladná a maximális '.ESZKOZIGENYL_INDOK_MAX_HOSSZ.' karaktert. Kérem, rövidítse le a szöveget!',
+            'title' => 'Hiba',
+        ]);
+        $weblap -> leallit();
+        exit;
+    }
+}
+
 // Tétel sorok HTML-jét építi fel a "Tételek kezelése" popuphoz (a popup csak a Mentés gombra kattintva ír DB-be, addig a sorokkal a böngészőben dolgozunk)
 function eszkozigenyles_tetel_sorok_html($eszkozigenyles_id, $szerkesztheto = true, $kcs_21 = KCS_21_HUF) {
     global $adatbazis_kapcsolat;
@@ -606,10 +622,12 @@ function eszkozigenyles_tetel_sorok_html($eszkozigenyles_id, $szerkesztheto = tr
             $tizedesek    = 2;
         }
 
+        // A specifikáció sortöréseit megtartjuk (nem mehet át az nl2()-n), mert a szerkesztéskor a cella szövege kerül vissza a textarea-ba és onnan mentéskor a DB-be;
+        // a cellában a sortöréseket a white-space: pre-line jeleníti meg
         $html .= nl2('
             <tr class="pop_tetel_'.$tetel['recid'].'">
                 <td class="pop_nev l">'.htmlspecialchars_decode($tetel['nev']).'</td>
-                <td class="pop_spec l">'.htmlspecialchars_decode($tetel['spec']).'</td>
+                <td class="pop_spec l">').htmlspecialchars_decode($tetel['spec']).nl2('</td>
                 <td class="pop_csz l">'.htmlspecialchars_decode($tetel['csz']).'</td>
                 <td class="pop_igmen r nowrap">'.number_format($tetel['igmen'], 0, ',', ' ').'</td>
                 <td class="pop_igar r nowrap">'.number_format($igar_kiir, $tizedesek, ',', ' ').'</td>
@@ -1157,6 +1175,7 @@ if (isset($_POST['muszakilag_nem_erintett'])) {
         $indok .= datum_kiir(date('Y-m-d H:i:s')).' '.$_SESSION[get_db_tabla().'teljes_nev']."\n".$_POST['indok']."\n\n";
     }
     $indok .= $sor['musz_indok'];
+    eszkozigenyles_indok_hossz_ellenoriz($indok);
     $sql = $adatbazis_kapcsolat -> u('eszkozigenyles',  array('musz_el_ig', 'kiv_kolts', 'musz_indok'),
                                                         array($velemeny,    0,           $indok      ),
                                                     "`recid`='{$_POST['id']}'");
@@ -1300,6 +1319,7 @@ if (isset($_POST['musz_elokeszitest_igenyel'])) {
         $indok .= datum_kiir(date('Y-m-d H:i:s')).' '.$_SESSION[get_db_tabla().'teljes_nev']."\n".$_POST['indok']."\n\n";
     }
     $indok .= $sor['musz_indok'];
+    eszkozigenyles_indok_hossz_ellenoriz($indok);
     $sql = $adatbazis_kapcsolat -> u('eszkozigenyles',  array('musz_el_ig', 'kiv_kolts',         'becsult',         'musz_indok'),
                                                         array($velemeny,    $_POST['kiv_kolts'], $_POST['becsult'], $indok      ),
                                                     "`recid`='{$_POST['id']}'");
@@ -1469,6 +1489,7 @@ if (isset($_POST['szall_igazgato_jovahagy'])) {
         $indok .= datum_kiir(date('Y-m-d H:i:s')).' '.$_SESSION[get_db_tabla().'teljes_nev']."\n".$_POST['indok']."\n\n";
     }
     $indok .= $sor['szall_ig_indok'];
+    eszkozigenyles_indok_hossz_ellenoriz($indok);
     $sql = $adatbazis_kapcsolat -> u('eszkozigenyles',  array('szall_ig_vel',   'szall_ig_indok'),
                                                         array($velemeny,        $indok          ),
                                                     "`recid`='{$_POST['id']}'");
@@ -1575,6 +1596,7 @@ if (isset($_POST['szall_ig_elutasit'])) {
         $indok .= datum_kiir(date('Y-m-d H:i:s')).' '.$_SESSION[get_db_tabla().'teljes_nev']."\n".$_POST['indok']."\n\n";
     }
     $indok .= $sor['szall_ig_indok'];
+    eszkozigenyles_indok_hossz_ellenoriz($indok);
     $sql = $adatbazis_kapcsolat -> u('eszkozigenyles',  array('szall_ig_vel',   'szall_ig_indok'),
                                                         array($velemeny,        $indok          ),
                                                     "`recid`='{$_POST['id']}'");
@@ -1738,6 +1760,7 @@ if (isset($_POST['bi_validal'])) {
         $indok .= datum_kiir(date('Y-m-d H:i:s')).' '.$_SESSION[get_db_tabla().'teljes_nev']."\n".$_POST['indok']."\n\n";
     }
     $indok .= $sor['bi_indok'];
+    eszkozigenyles_indok_hossz_ellenoriz($indok);
     $sql = $adatbazis_kapcsolat -> u('eszkozigenyles',  array('bi_vel',     'bi_indok'),
                                                         array($velemeny,    $indok      ),
                                                     "`recid`='{$_POST['id']}'");
@@ -1880,6 +1903,7 @@ if (isset($_POST['bi_elutasit'])) {
         $indok .= datum_kiir(date('Y-m-d H:i:s')).' '.$_SESSION[get_db_tabla().'teljes_nev']."\n".$_POST['indok']."\n\n";
     }
     $indok .= $sor['bi_indok'];
+    eszkozigenyles_indok_hossz_ellenoriz($indok);
     $sql = $adatbazis_kapcsolat -> u('eszkozigenyles',  array('bi_vel',  'bi_indok' ),
                                                         array($velemeny, $indok     ),
                                                     "`recid`='{$_POST['id']}'");
@@ -2058,6 +2082,7 @@ if (isset($_POST['bi_jovahagy'])) {
         $indok .= datum_kiir(date('Y-m-d H:i:s')).' '.$_SESSION[get_db_tabla().'teljes_nev']."\n".$_POST['indok']."\n\n";
     }
     $indok .= $sor['bi_jh_indok'];
+    eszkozigenyles_indok_hossz_ellenoriz($indok);
     $sql = $adatbazis_kapcsolat -> u('eszkozigenyles',  array('bi_jh',   'bi_jh_indok'),
                                                         array($velemeny, $indok       ),
                                                     "`recid`='{$_POST['id']}'");
@@ -2193,6 +2218,7 @@ if (isset($_POST['bi_jh_felt_beleegyezes'])) {
         $indok .= datum_kiir(date('Y-m-d H:i:s')).' '.$_SESSION[get_db_tabla().'teljes_nev']."\n".$_POST['indok']."\n\n";
     }
     $indok .= $sor['bi_jh_indok'];
+    eszkozigenyles_indok_hossz_ellenoriz($indok);
     $sql = $adatbazis_kapcsolat -> u('eszkozigenyles',  array('bi_jh',      'bi_jh_indok'),
                                                         array($velemeny,    $indok       ),
                                                     "`recid`='{$_POST['id']}'");
@@ -2318,6 +2344,7 @@ if (isset($_POST['bi_jh_elutasit'])) {
         $indok .= datum_kiir(date('Y-m-d H:i:s')).' '.$_SESSION[get_db_tabla().'teljes_nev']."\n".$_POST['indok']."\n\n";
     }
     $indok .= $sor['bi_jh_indok'];
+    eszkozigenyles_indok_hossz_ellenoriz($indok);
     $sql = $adatbazis_kapcsolat -> u('eszkozigenyles',  array('bi_jh',      'bi_jh_indok'),
                                                         array($velemeny,    $indok       ),
                                                     "`recid`='{$_POST['id']}'");
@@ -2420,6 +2447,7 @@ if (isset($_POST['szak_beleegyezes'])) {
         $indok .= datum_kiir(date('Y-m-d H:i:s')).' '.$_SESSION[get_db_tabla().'teljes_nev']."\n".$_POST['indok']."\n\n";
     }
     $indok .= $sor['szak_indok'];
+    eszkozigenyles_indok_hossz_ellenoriz($indok);
     $sql = $adatbazis_kapcsolat -> u('eszkozigenyles',  array('szak_vel',   'szak_indok'),
                                                         array($velemeny,    $indok      ),
                                                     "`recid`='{$_POST['id']}'");
@@ -2550,6 +2578,7 @@ if (isset($_POST['szak_felt_beleegyezes'])) {
         $indok .= datum_kiir(date('Y-m-d H:i:s')).' '.$_SESSION[get_db_tabla().'teljes_nev']."\n".$_POST['indok']."\n\n";
     }
     $indok .= $sor['szak_indok'];
+    eszkozigenyles_indok_hossz_ellenoriz($indok);
     $sql = $adatbazis_kapcsolat -> u('eszkozigenyles',  array('szak_vel',   'szak_indok'),
                                                         array($velemeny,    $indok      ),
                                                     "`recid`='{$_POST['id']}'");
@@ -2672,6 +2701,7 @@ if (isset($_POST['szak_elutasit'])) {
         $indok .= datum_kiir(date('Y-m-d H:i:s')).' '.$_SESSION[get_db_tabla().'teljes_nev']."\n".$_POST['indok']."\n\n";
     }
     $indok .= $sor['szak_indok'];
+    eszkozigenyles_indok_hossz_ellenoriz($indok);
     $sql = $adatbazis_kapcsolat -> u('eszkozigenyles',  array('szak_vel',   'szak_indok'),
                                                         array($velemeny,    $indok      ),
                                                     "`recid`='{$_POST['id']}'");
@@ -2854,6 +2884,7 @@ if (isset($_POST['felso_beleegyezes'])) {
         $indok .= datum_kiir(date('Y-m-d H:i:s')).' '.$_SESSION[get_db_tabla().'teljes_nev']."\n".$_POST['indok']."\n\n";
     }
     $indok .= $sor['felso_indok'];
+    eszkozigenyles_indok_hossz_ellenoriz($indok);
     $sql = $adatbazis_kapcsolat -> u('eszkozigenyles',  array('felso_vel', 'felso_indok'),
                                                         array($velemeny,    $indok      ),
                                                     "`recid`='{$_POST['id']}'");
@@ -2979,6 +3010,7 @@ if (isset($_POST['felso_felt_beleegyezes'])) {
         $indok .= datum_kiir(date('Y-m-d H:i:s')).' '.$_SESSION[get_db_tabla().'teljes_nev']."\n".$_POST['indok']."\n\n";
     }
     $indok .= $sor['felso_indok'];
+    eszkozigenyles_indok_hossz_ellenoriz($indok);
     $sql = $adatbazis_kapcsolat -> u('eszkozigenyles',  array('felso_vel',  'felso_indok'   ),
                                                         array($velemeny,    $indok          ),
                                                     "`recid`='{$_POST['id']}'");
@@ -3090,6 +3122,7 @@ if (isset($_POST['felso_elutasit'])) {
         $indok .= datum_kiir(date('Y-m-d H:i:s')).' '.$_SESSION[get_db_tabla().'teljes_nev']."\n".$_POST['indok']."\n\n";
     }
     $indok .= $sor['felso_indok'];
+    eszkozigenyles_indok_hossz_ellenoriz($indok);
     $sql = $adatbazis_kapcsolat -> u('eszkozigenyles',  array('felso_vel',  'felso_indok'   ),
                                                         array($velemeny,    $indok          ),
                                                     "`recid`='{$_POST['id']}'");
@@ -3258,6 +3291,7 @@ if (isset($_POST['bi_vegl_jovahagy'])) {
         $indok .= datum_kiir(date('Y-m-d H:i:s')).' '.$_SESSION[get_db_tabla().'teljes_nev']."\n".$_POST['indok']."\n\n";
     }
     $indok .= $sor['bi_vegl_indok'];
+    eszkozigenyles_indok_hossz_ellenoriz($indok);
     $sql = $adatbazis_kapcsolat -> u('eszkozigenyles',  array('bi_vegl', 'bi_vegl_indok'),
                                                         array($velemeny, $indok         ),
                                                     "`recid`='{$_POST['id']}'");
@@ -3378,6 +3412,7 @@ if (isset($_POST['bi_vegl_elutasit'])) {
         $indok .= datum_kiir(date('Y-m-d H:i:s')).' '.$_SESSION[get_db_tabla().'teljes_nev']."\n".$_POST['indok']."\n\n";
     }
     $indok .= $sor['bi_vegl_indok'];
+    eszkozigenyles_indok_hossz_ellenoriz($indok);
     $sql = $adatbazis_kapcsolat -> u('eszkozigenyles',  array('bi_vegl',  'bi_vegl_indok'   ),
                                                         array($velemeny,  $indok            ),
                                                     "`recid`='{$_POST['id']}'");
@@ -4658,7 +4693,7 @@ if( isset($_GET['uj']) ) {
             $szamla_html .= nl2('
                 <div class="dtr nSor">
                     <div class="dtc">'.htmlspecialchars_decode($tetel['nev']).'</div>
-                    <div class="dtc">'.htmlspecialchars_decode($tetel['spec']).'</div>
+                    <div class="dtc">'.htmlspecialchars_decode(nl2br2($tetel['spec'])).'</div>
                     <div class="dtc">'.htmlspecialchars_decode($tetel['csz']).'</div>
                     <div class="dtc r nowrap">'.number_format($tetel['igmen'], 0, ',', ' ').'</div>
                     <div class="dtc r nowrap">'.number_format($igar,    $tizedesek, ',', ' ').'</div>

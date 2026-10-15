@@ -172,6 +172,11 @@ if( $_GET['id'] && !isset($_GET['no_lista']) && self('-bn-') != 'eszkozigenyles.
 // !isset($_GET['tablazat']) => ha táblázat nézetre lépünk (pl. eszközigénléseknél), akkor ne ez íródjon ki a képernyőre, engedjük tovább a működést, kirajzolni a többi rekordot, a nem található úgy sem lesz benne
 if( $_GET['id'] && $_GET['mezo']!='legfrissebb' && !($_SESSION['dashboard_feladat'] && self('-bn-') == 'eszkozigenyles.php') && !isset($_GET['tablazat']) ) {
     if( !in_array($_GET['id'], $_SESSION[csonkit(basename(self()), 4).'_idk']) ){
+        // Teljes oldalbetöltésnél (nem ajax) a JSON hiba nyersen jelenne meg. Ez jellemzően mentés utáni átirányításkor fordul elő, ha a rekord nem felel meg
+        // az URL-be került szűrésnek (pl. másik fülön beállított szűrés, vagy a mentéssel kiesett belőle). Ilyenkor szűrés nélkül töltjük újra az oldalt.
+        if( !isset($_GET['ajax']) && (isset($_GET['mezo']) || isset($_GET['op']) || isset($_GET['felt'])) ) {
+            hd(self().get_get(['mezo', 'op', 'felt'], true));
+        }
         echo json_encode( array('hiba' => 'A kért rekord nem jeleníthető meg!') );
         exit;
     }
@@ -195,8 +200,10 @@ if( empty($_POST) && basename(self()) == 'anyagigenyles.php' && !$_GET['anyagren
 
 // Új feltöltés után, a szűrést jegyezzük meg. Ezt SESSION-ba törétnő eltárolással tesszük meg.
 // Csak akkor módosítjuk a seesion-t, ha egy adatlapon vaguynk
+// Ajax-os rekordbetöltésnél nem írjuk felül (a BAL_NAV_FRISSIT_KIVETELEK oldalaknál no_lista nélkül, szűréssel jön a kérés), mert a session közös a böngészőfülek között,
+// így egy másik fülön sorra kattintva annak a szűrése kerülne a mentés utáni átirányításba.
 $kiveteles_oldal = array('dokumentumtar.php', 'eszkozkezeles.php');
-if( ($_GET['id'] && isset($_GET['modosit']) && !isset($_GET['no_lista'])) || (in_array(basename(self()), $kiveteles_oldal) && empty($_POST)) ){
+if( ($_GET['id'] && isset($_GET['modosit']) && !isset($_GET['no_lista']) && !isset($_GET['ajax'])) || (in_array(basename(self()), $kiveteles_oldal) && empty($_POST)) ){
     $_SESSION[basename(self())]['szures_mezo'] = $_GET['mezo'];
     $_SESSION[basename(self())]['szures_op']   = $_GET['op'];
     $_SESSION[basename(self())]['szures_felt'] = $_GET['felt'];

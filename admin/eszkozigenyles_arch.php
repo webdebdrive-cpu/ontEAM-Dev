@@ -741,7 +741,7 @@ if( isset($_GET['uj']) ) {
             $szamla_html .= nl2('
                 <div class="dtr nSor">
                     <div class="dtc">'.htmlspecialchars_decode($tetel['nev']).'</div>
-                    <div class="dtc">'.htmlspecialchars_decode($tetel['spec']).'</div>
+                    <div class="dtc">'.htmlspecialchars_decode(nl2br2($tetel['spec'])).'</div>
                     <div class="dtc">'.htmlspecialchars_decode($tetel['csz']).'</div>
                     <div class="dtc r nowrap">'.number_format($tetel['igmen'], 0, ',', ' ').'</div>
                     <div class="dtc r nowrap">'.number_format($igar,    $tizedesek, ',', ' ').'</div>

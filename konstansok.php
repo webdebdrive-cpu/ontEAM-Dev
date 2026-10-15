@@ -158,6 +158,9 @@ define('ESZKOZIGENYL_STAT_ELUTASITOTT',      '110');
 define('ESZKOZIGENYL_MEGR_STAT_KIKULD_VAR',  '01');
 define('ESZKOZIGENYL_MEGR_STAT_MEGRENDELVE', '02');
 
+// Eszközigénylés véleményezési indoklás mezők (musz_indok, szall_ig_indok, bi_indok stb.) maximális hossza: VARCHAR(1000) a DB-ben
+define('ESZKOZIGENYL_INDOK_MAX_HOSSZ',       1000);
+
 // Menteni, csak ezekben a státuszokban lehet
 function prigeny_mentheto_statuszok(){
     return array(PRIGENY_STAT_NYITOTT, PRIGENY_STAT_LETRE_ALATT, PRIGENY_STAT_VEL_ALATT, PRIGENY_STAT_HIANYPOTLAS, PRIGENY_STAT_HIANYPOTOLT, PRIGENY_STAT_FB_TERJESZT_VAR, PRIGENY_STAT_BOD_TERJESZT_VAR);

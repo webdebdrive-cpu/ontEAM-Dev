@@ -1,12 +1,19 @@
 <h2>Tételek kezelése</h2>
 
+<style>
+    /* A specifikáció sortörései a cella szövegében maradnak (szerkesztéskor innen kerülnek vissza a textarea-ba), itt csak megjelenítjük őket */
+    #pop_tetelek .pop_spec {
+        white-space: pre-line;
+    }
+</style>
+
 <div class="kozep" style="min-height: 30rem">
     <div id="osszesito" style="margin-bottom: 1rem; font-weight: 600;">
         Igényelt nettó összesen: <span id="tetel_ossz_netto">0</span> <span id="tetel_ossz_netto_penznem"></span>
     </div>
 
     <div id="tetel_form" class="dn">
-        <!-- Bal oldalon a mezők, mellettük jobbra a négy sor magas Specifikáció -->
+        <!-- Bal oldalon a mezők, mellettük jobbra a három sor magas Specifikáció -->
         <div style="display: flex; gap: 2rem; align-items: flex-start;">
             <div class="dt">
                 <div class="dtr">
@@ -19,11 +26,9 @@
                 </div>
                 <div class="dtr">
                     <div class="dtc form_bal">Ig. menny.:</div>
-                    <div class="dtc form_jobb"><input type="text" id="pop_igmen" class="f_num f_csak_pozitiv csillag" data-tort="0" style="width: 8rem;"> db</div>
-                </div>
-                <div class="dtr">
-                    <div class="dtc form_bal">Ig. eár.:</div>
-                    <div class="dtc form_jobb">
+                    <div class="dtc form_jobb nowrap">
+                        <input type="text" id="pop_igmen" class="f_num f_csak_pozitiv csillag" data-tort="0" style="width: 8rem;"> db
+                        <span class="form_bal" style="margin-left: 2rem;">Ig. eár.:</span>
                         <input type="text" id="pop_igar" class="f_num f_csak_pozitiv csillag" data-tort="0" style="width: 10rem;"> <span id="pop_igar_penznem"></span>
                     </div>
                 </div>
@@ -31,7 +36,7 @@
             <div class="dt">
                 <div class="dtr">
                     <div class="dtc form_bal" style="vertical-align: top;">Specifikáció:</div>
-                    <div class="dtc form_jobb"><textarea id="pop_spec" rows="4" maxlength="100" style="width: 25rem;"></textarea></div>
+                    <div class="dtc form_jobb"><textarea id="pop_spec" rows="3" maxlength="2000" style="width: 25rem;"></textarea></div>
                 </div>
             </div>
         </div>
@@ -247,6 +252,12 @@ function tetel_hozzaadasa() {
     $('#pop_nev').focus();
 }
 
+// A config.php minden $_POST értéken stripslashes()-t futtat, ami a JSON escape-jeit (pl. sortörésnél \n, idézőjelnél \") tönkretenné:
+// a visszaperjeleket megduplázzuk, így a stripslashes() után pontosan az eredeti JSON érkezik meg a json_decode()-hoz
+function tetel_json(adat) {
+    return JSON.stringify(adat).replace(/\\/g, '\\\\');
+}
+
 // Popup Mentés gomb: a táblázatban jelenleg szereplő összes sort (és a törölt sorokat) egyben küldjük a szervernek.
 // Az egységár itt még a táblázatban mutatott pénznemben megy (HUF vagy a fej devizája) - a Ft-ra váltást a szerver végzi, ő ismeri biztosan az igénylés pénznemét.
 // Ha az utolsó (mentett) tételt is törölték, az igénylés tétel nélkülivé válik: rákérdezünk, a szerver pedig a törölt tétel adatait visszaírja a fejbe.
@@ -285,13 +296,13 @@ function tetel_sorok_ment(mehet) {
         type: 'POST',
         data: {
             id               : _get('id'),
-            recidk           : JSON.stringify(recidk),
-            nevek            : JSON.stringify(nevek),
-            specek           : JSON.stringify(specek),
-            cszk             : JSON.stringify(cszk),
-            igmenek          : JSON.stringify(igmenek),
-            igarok           : JSON.stringify(igarok),
-            torolt_sorok     : JSON.stringify(torolt_sorok),
+            recidk           : tetel_json(recidk),
+            nevek            : tetel_json(nevek),
+            specek           : tetel_json(specek),
+            cszk             : tetel_json(cszk),
+            igmenek          : tetel_json(igmenek),
+            igarok           : tetel_json(igarok),
+            torolt_sorok     : tetel_json(torolt_sorok),
             tetel_sorok_ment : Date.now()
         },
         success: function(response) {
