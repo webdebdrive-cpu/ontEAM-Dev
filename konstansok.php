@@ -538,6 +538,7 @@ define('JOG_BESZERZ_IGENYLESEK_BI_VALIDALAS',   157);
 define('JOG_BESZERZ_IGENYLESEK_BI_JOVA',        168);
 define('JOG_BESZERZ_IGENYLESEK_SZAKMAI_VEL',    152);
 define('JOG_BESZERZ_IGENYLESEK_FELSOVEZ_JH',    160);
+define('JOG_BESZERZ_IGENYLESEK_DIREKT_JH',      173);
 define('JOG_BESZERZ_IGENYLESEK_BI_VEGLEGESIT',  161);
 define('JOG_BESZERZ_IGENYLESEK_ELSODLEGES',     153);
 define('JOG_BESZERZ_IGENYLESEK_MASODLAGOS',     154);
@@ -594,6 +595,8 @@ define('ERT_BESZERZ_MASOLAT_MEGR_ROL',  37);
 define('ERT_BESZERZ_ELUTASIT',          31);
 define('ERT_BESZERZ_BI_JH_ELO',         32);
 define('ERT_BESZERZ_ADATLAP_SZERK',     38);
+define('ERT_BESZERZ_IGENY_TOROL',       39);
+define('ERT_BESZERZ_MEGR_TOROL',        40);
 
 define('HIBA_ADJON_FELADAT',            ' kérem adjon hozzá egy elvégzett feladatot!');
 define('DASHB_NINCS_BEJEGYZES',         'Nem található bejegyzés!');

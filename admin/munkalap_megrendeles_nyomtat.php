@@ -33,6 +33,31 @@ if( isset($_GET['nyomtat']) ) {
         $adoszam = NYOMTATAS_ADOSZAM_GUNDEL;
     }
 
+    // Számlázási cím és adószám: ha a telephelynél meg van adva eltérő számlázási cím (MEGR_SZLACIM), akkor soronként pontosan az
+    // (az adószámot is tartalmazza, így külön Adószám sor nem kell), egyébként a Danubius Hotels Zrt. és a szálloda címe, alatta az adószám.
+    $megr_szlacim = get_megr_szlacim_sorok($telephely['props']);
+    if( $megr_szlacim ) {
+        $szamlazasi_cim_html = implode('<br>', $megr_szlacim);
+        $adoszam_html        = '';
+    } else {
+        $szamlazasi_cim_html = 'Danubius Hotels Zrt.<br> '.$szall_cim/*B verzió: $szl.' '.$cim*/;
+        $adoszam_html        = '
+                    <tr style="border-collapse: collapse; marign: 0;">
+                        <td class="b" style="padding: 5px; padding-top: 0;padding-bottom: 0; marign: 0; vertical-align: top;">
+                            Adószám:
+                        </td>
+                        <td style="padding: 5px; padding-top: 0; padding-bottom: 0;" colspan="2">
+                            '.$adoszam.'
+                        </td>
+                    </tr>';
+    }
+
+    // Bevezető mondat: a telephelynél megadott eltérő szöveg (ML_MEGR_BEVEZETO), egyébként az alapértelmezett
+    $bevezeto = trim((string)get_props($telephely['props'], 'ML_MEGR_BEVEZETO'));
+    if( $bevezeto === '' ) {
+        $bevezeto = 'A Danubius Hotels Zrt. (1051 Budapest, Szent István tér 11.) képviseletében megrendeljük Önöktől az alábbiakban részletezett munka elvégzését.';
+    }
+
     // A megrendelő az a login (műszaki vezető) lesz, aki a ML-ot Döntésre vár státuszba tette
     $ml_statusz = $adatbazis_kapcsolat -> s2('login', 'munkalap_statusz', "`munkalap_recid`='{$ml_recid}' AND `stat_id`='".MUNKALAP_STAT_DONTESRE_VAR."'");
     $login      = $adatbazis_kapcsolat -> s2('recid', 'login', "`nev`='{$ml_statusz['login']}'");
@@ -51,7 +76,7 @@ if( isset($_GET['nyomtat']) ) {
                 <div style="font-size: 12px; margin: 0 0 2px 0; padding-top: 10px">
                     Tisztelt Partnerünk!
                     <br>
-                    <br>A Danubius Hotels Zrt. (1051 Budapest, Szent István tér 11.) képviseletében megrendeljük Önöktől az alábbiakban részletezett munka elvégzését.
+                    <br>'.$bevezeto.'
                     <br>
                 </div>
 
@@ -129,18 +154,10 @@ if( isset($_GET['nyomtat']) ) {
                             Számlázási cím:
                         </td>
                         <td style="padding: 5px; padding-bottom: 0; marign: 0;" colspan="2">
-                            Danubius Hotels Zrt.
-                            <br> '.$szall_cim/*B verzió: $szl.' '.$cim*/.'
+                            '.$szamlazasi_cim_html.'
                         </td>
                     </tr>
-                    <tr style="border-collapse: collapse; marign: 0;">
-                        <td class="b" style="padding: 5px; padding-top: 0;padding-bottom: 0; marign: 0; vertical-align: top;">
-                            Adószám:
-                        </td>
-                        <td style="padding: 5px; padding-top: 0; padding-bottom: 0;" colspan="2">
-                            '.$adoszam.'
-                        </td>
-                    </tr>
+                    '.$adoszam_html.'
                     <tr style="border-collapse: collapse;">
                         <td class="b" style="padding: 5px; vertical-align: top; padding-top: 10px;"> 
                             Számlaküldési cím:

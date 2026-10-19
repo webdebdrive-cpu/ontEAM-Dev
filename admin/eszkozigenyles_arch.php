@@ -608,16 +608,10 @@ if( isset($_GET['uj']) ) {
                 $kulso_ertek = $adatbazis_kapcsolat->s2('recid nev', $tomb['tabla'], "`{$tomb['oszlop_keres']}`='{$sor[$tomb['name']]}'", '', '1');
             }
 
-            // Részlegnél kell a teljes útvonal
+            // Termék csoportnál a Rendszer / Termékcsoportok alatt szerkeszthető nev_hosszu jelenik meg
             if( $tomb['name'] == 'te_alcsop' ) {
-                $reszleg = $adatbazis_kapcsolat -> s2('szulo nev', 'te_reszleg', "`recid`='{$sor['te_alcsop']}'");
-                $sor['te_alcsop_autocomp'] = $reszleg['nev'];
-
-                $szulo = $adatbazis_kapcsolat -> s2('szulo nev', 'te_reszleg', "`recid`='{$reszleg['szulo']}'");
-                $sor['te_alcsop_autocomp'] .= ' / '.$szulo['nev'];
-
-                $szulo = $adatbazis_kapcsolat -> s2('szulo nev', 'te_reszleg', "`recid`='{$szulo['szulo']}'");
-                $sor['te_alcsop_autocomp'] .= ' / '.$szulo['nev'];
+                $reszleg = $adatbazis_kapcsolat -> s2('nev_hosszu', 'te_reszleg', "`recid`='{$sor['te_alcsop']}'");
+                $sor['te_alcsop_autocomp'] = $reszleg['nev_hosszu'] ?? '';
 
             // Ha nem te_alcsop, akkor jöhet az általános autocomplete
             } else {

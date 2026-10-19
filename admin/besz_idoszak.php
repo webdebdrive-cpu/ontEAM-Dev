@@ -972,7 +972,7 @@ function eszkozigeny_archival($eszkozigenyles = []) {
         $reszleg_txt    = htmlspecialchars_decode( erteklista(ERTEKLISTA_RESZLEG, $eszkozigenyles['reszleg']) );
         $te_reszleg_txt = htmlspecialchars_decode( getErtek('nev', 'te_reszleg', 'recid', $eszkozigenyles['te_reszleg']) );
         $te_focsop_txt  = htmlspecialchars_decode( getErtek('nev', 'te_reszleg', 'recid', $eszkozigenyles['te_focsop' ]) );
-        $te_alcsop_txt  = htmlspecialchars_decode( getErtek('nev', 'te_reszleg', 'recid', $eszkozigenyles['te_alcsop' ]) );
+        $te_alcsop_txt  = htmlspecialchars_decode( getErtek('nev_hosszu', 'te_reszleg', 'recid', $eszkozigenyles['te_alcsop' ]) );
         $fiz_mod_txt    = htmlspecialchars_decode( getErtek('nev', 'eszkozigenyles_fiz_mod', 'recid', $eszkozigenyles['fiz_mod']) );
         $szallito_txt   = htmlspecialchars_decode( getErtek('nev', 'szallito_beszerzes', 'recid', $eszkozigenyles['szallito_id']) );
 

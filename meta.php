@@ -63,6 +63,7 @@ function get_title(){
         case 'munkalap.php'                 : $title .= 'Munkalapok';                   break;
         case 'munkalap_arch.php'            : $title .= 'Archív munkalapok';            break;
         case 'mobil_hozzarendel.php'        : $title .= 'Mobil hozzárendelés';          break;
+        case 'te_reszleg.php'               : $title .= 'Termékcsoportok';              break;
         case 'unnepnapok.php'               : $title .= 'Ünnepnapok';                   break;
         case 'utemezett_feladatok.php'      : $title .= 'Ütemzett feladatok';           break;
         case 'uzemeltetesi_naplo.php'       : $title .= 'Üzemeltetési napló';           break;

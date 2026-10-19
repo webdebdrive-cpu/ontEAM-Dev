@@ -857,7 +857,7 @@ if(isset($_GET['uj']) && !$csak_szerkesztheto){
         foreach ( $igenylesek as $igenyles ) {
             $felirat = $igenyles['azon'].' - '.$igenyles['nev'];
             if( _jog(JOG_BESZERZ_IGENYLESEK_OLVAS) ) {
-                $igenyles_linkek[] = '<a href="eszkozigenyles.php?id='.$igenyles['recid'].'&amp;modosit&amp;mezo=rend_szam&amp;op=equal&amp;felt='.urlencode($sor['rend_szam']).'">'.$felirat.'</a>';
+                $igenyles_linkek[] = '<a href="eszkozigenyles.php?id='.$igenyles['recid'].'&amp;modosit&amp;mezo=rend_szam&amp;op=equal&amp;felt='.urlencode($sor['rend_szam']).'" target="_blank">'.$felirat.'</a>';
             } else {
                 $igenyles_linkek[] = $felirat;
             }

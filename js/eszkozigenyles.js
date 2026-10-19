@@ -7,6 +7,10 @@ $(document).ready(function(){
 });
 // Pénznemet kiválasztva fut le: cél, hogy a devizára kerüljön rá egy readonly, ha HUF-os, más különben az űrlap postolásakor szólni fog, hogy nincs kitöltve
 function huf_vagy_deviza() {
+    // Az extra költségek mögé kiírjuk a pénznemet (forintnál Ft-ot), így új felvitelkor a pénznem kiválasztása után azonnal látszik
+    var penznem = $('#kcs_21_autocomp').val();
+    $('.dev_jel').text( penznem == 'HUF' ? PENZNEM : penznem );
+
     // Adatlapon státusz felirat mögött van egy hidden input adatlap_disabled ID-val.
     // Ez 1-es értéket kap akkor, ha az adatlap egyáltalán nem szerkeszthető, mert olyan státuszban van vagy jogok hiányoznak
     // Ekkor a huf_vagy_deviza() függvény se csináljon semmit, még véletlen se váljon írhatóvá egyik mező sem
@@ -131,8 +135,22 @@ function eszkoz_valtozok_update() {
     }    
 }
 
+// Megrendelés előnézet: a megrendelő PDF megnyitása új lapon, a megrendelés létrehozása nélkül (az elmentett adatok alapján)
+function megrendeles_elonezet() {
+
+    // globális változók frissítése az adott adatlap alapján
+    eszkoz_valtozok_update();
+
+    if( !$('#szallito_id_'+eszkoz_id).val() && !$('#szallito_id').val() ) {
+        alert2('A megrendelés előnézetéhez kérem adja meg a Szállítót!', '', 'Hiba');
+        return false;
+    }
+
+    window.open(PHP_SELF+'?megrendeles_elonezet='+eszkoz_id);
+}
+
 // Mehet BI validálásra
-var eszkoz_fulek = ['modosit', 'tetel', 'jovahagyasok', 'tortenet', 'dokumentumok', 'megjegyzesek'];
+var eszkoz_fulek =['modosit', 'tetel', 'jovahagyasok', 'tortenet', 'dokumentumok', 'megjegyzesek'];
 function mehet_validalasra(mehet) {
 
     // globális változók frissítése az adott adatlap alapján

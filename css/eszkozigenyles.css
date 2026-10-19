@@ -65,6 +65,22 @@ table.excel td.spec_pipa {
 table.excel td.spec_pipa .sarga {
     color: #FFC029;
 }
+/* Direkt jóváhagyás: Felsővezető cellában ki-be pipálható */
+table.excel td.direkt_jh {
+    cursor: pointer;
+}
+table.excel td.direkt_jh:empty::after {
+    content: '';
+    display: inline-block;
+    width: 1.2rem;
+    height: 1.2rem;
+    border: 0.1rem solid #cecfd1;
+    vertical-align: middle;
+}
+table.excel td.direkt_jh.folyamatban {
+    cursor: wait;
+    opacity: .5;
+}
 
 div.naplo div.nSor div.dtc:nth-of-type(2), div.naplo div.nSor div.dtc:nth-of-type(3) {
     white-space: nowrap;
@@ -108,3 +124,14 @@ Fejléc magassággal volt gond.
   z-index: 2;
   box-shadow: 2px 0 5px -2px rgba(0,0,0,0.15);
 } */
+
+/* Megrendelés előnézet ikonos gomb: a szöveges gombokkal egy magasságban */
+.muveletek button.megr_elonezet {
+    vertical-align: top;
+    line-height: 0;
+    padding: 0.7rem 0.8rem;
+}
+.muveletek button.megr_elonezet > svg {
+    width: 1.6rem;
+    height: 1.6rem;
+}

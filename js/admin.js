@@ -722,6 +722,7 @@ $(function() {
                 'szamla',
                 'szerepkor',
                 'szerepkor_jog',
+                'te_reszleg',
                 'tervezes',
                 'torzsadat',
                 'utemezett_feladatok',

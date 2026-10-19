@@ -145,12 +145,89 @@ $(document).ready(function () {
             createCookie('eszkozigeny_aktiv_oszl', $active.index());
     
             akt_oszlop_megjelol_gombok_mutat();
-    
+
+        });
+
+        // Direkt jóváhagyás: Felsővezető cellára kattintva ki-be pipálás
+        $(document).on('click', 'table.excel td.direkt_jh', function () {
+            felso_direkt_pipal($(this));
+        });
+
+        // Direkt jóváhagyás szóközzel is az aktív cellán
+        $(document).on('keydown.direktJh', function (e) {
+            if( e.which != 32 || $('#popup').is(':visible') || $(e.target).is('input, textarea, select') ) {
+                return;
+            }
+            let $td = $('table.excel tbody tr.kijelolve td.aktiv.direkt_jh');
+            if( $td.length ) {
+                e.preventDefault();
+                felso_direkt_pipal($td);
+            }
         });
 
     }
 
 });
+
+// Direkt jóváhagyás: üres cellánál a zöld Jóváhagyás gomb műveletei futnak le (rákérdezés nélkül), pipás cellánál a pipa és a felsővezetői indoklás törlődik
+function felso_direkt_pipal($td) {
+
+    if( $td.hasClass('folyamatban') ) {
+        return false;
+    }
+
+    let id       = $td.closest('tr').attr('id').replace(/\D/g, '');
+    let van_pipa = $td.text().trim() != '';
+
+    let adatok = { id: id };
+    if( van_pipa ) {
+        adatok.felso_direkt_visszavon = Date.now();
+    } else {
+        adatok.felso_beleegyezes = Date.now();
+        adatok.direkt            = 1;
+    }
+
+    $td.addClass('folyamatban');
+
+    $.ajax({
+        url : PHP_SELF+'?tablazat',
+        type: 'POST',
+        data: adatok,
+        success: function (response) {
+            if(response.substring(0, 6)=='SESKIL'){ location.href = 'index.php'; }
+            if (response) {
+                response = JSON.parse(response);
+                if (response.hiba) {
+                    alert2(response.hiba, response.gomb, response.title);
+                    return false;
+                }
+
+                $('.felso_vel_'+id).html(response.pipa);
+                $('.gombok_'   +id).html(response.gombok);
+
+                if( van_pipa ) {
+                    $('.felso_indok_'   +id).html('');
+                    $('#felso_indok_db_'+id).val ('');
+                } else {
+                    $('.stat_'  +id).html(response.statusz);
+                    $('.gombok_'+id).data('dok_db',  response.dok_db );
+                    $('.gombok_'+id).data('megj_db', response.megj_db);
+                }
+
+                // Ha a kijelölt sorban pipáltunk, a műveleti gombok és a fülek is frissüljenek
+                if( $td.closest('tr').hasClass('kijelolve') ) {
+                    akt_oszlop_megjelol_gombok_mutat();
+                }
+            }
+        },
+        complete: function (xhr) {
+            $td.removeClass('folyamatban');
+            if (xhr.status != 200) {
+                alert2(xhr.responseText, '', 'Hiba');
+            }
+        }
+    });
+}
 
 // Webcím frissítése, hogy füleken lépkedve a megfelelő adatlapjra jussunk majd
 function webcim_frissit(sorId) {

@@ -1,7 +1,7 @@
 <?php
 /*                                                  *\
  * FONTOS:
- * 39. ID következik
+ * 41. ID következik
  * 10. kategória következik
 \*                                                  */
 
@@ -71,5 +71,7 @@ $ertesitesek = array(
     37  => array('nev' => 'Másolat a megrendelő emailről',                                              'kat' => 9, 'sor' => 14),
     31  => array('nev' => 'Igénylés elutasításakor',                                                    'kat' => 9, 'sor' => 15),
     38  => array('nev' => 'Adatlap szerkesztésekor',                                                    'kat' => 9, 'sor' => 16),
+    39  => ['nev' => 'Igénylés törlésekor',                                                             'kat' => 9, 'sor' => 17],
+    40  => ['nev' => 'Megrendelés törlésekor',                                                          'kat' => 9, 'sor' => 18],
     
 );
