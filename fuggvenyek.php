@@ -518,6 +518,27 @@ function i_u($type, $tabla, $tomb) {
                 
             }
         }
+
+        // Inaktiváláskor a felhasználó beszerzési aláírói jelöléseit levesszük a szállodákról
+        $uj_aktiv = !in_array((string)($_POST['aktiv'] ?? ''), ['', '0', 'false'], true);
+        if( isset($_POST['aktiv']) && $login['aktiv'] && !$uj_aktiv ) {
+            $login_id = (int)$_GET['id'];
+            $alairo_szallodak = $adatbazis_kapcsolat->s('nev', 'telephely', "`beszerz_alairo1_id`='{$login_id}' OR `beszerz_alairo2_id`='{$login_id}'", 'nev');
+            if( $alairo_szallodak === false ) { $db_error = true; }
+
+            if( $alairo_szallodak ) {
+                foreach ( ['beszerz_alairo1_id', 'beszerz_alairo2_id'] as $oszlop ) {
+                    $sql = $adatbazis_kapcsolat->u('telephely', [$oszlop], [0], "`{$oszlop}`='{$login_id}'");
+                    if( $sql === false ) { $db_error = true; }
+                }
+
+                $sql = $adatbazis_kapcsolat->i('log',
+                                                ['felh_id',                               'nev',                                                                                                         'valtozas',                                                                               'ip'                   ],
+                                                [$_SESSION[get_db_tabla().'login_recid'], $_SESSION[get_db_tabla().'teljes_nev'].' inaktiválta '.$_POST['nev'].' felhasználót, aláírói jelölései törölve', 'Beszerzési aláíró volt: '.implode(', ', adatbazis2tomb($alairo_szallodak, 'nev')), $_SERVER['REMOTE_ADDR']]
+                                            );
+                if( $sql === false ) { $db_error = true; }
+            }
+        }
     }
     
     // Eszközigénylés új felvitelekor a Projekt pipa mindig üresen jön létre (az adatlapon is tiltott), csak a már létrehozott igénylésen állítható
@@ -16691,6 +16712,24 @@ function get_nyomtatas_fejlec_megr($eszkozigenyles, $szallito, $kontakt, $nyelv 
                 //     <td style="border: 1px solid #ddd; padding: 2px; border-bottom: 1px solid #000; border-right: 1px solid #000;">'.date('Y.m.d').'</td>
                 // </tr>
 
+// Szálloda beszerzési aláíróinak lekérdezése a telephely táblában tárolt login recid-k alapján
+// Visszatérés: [elsődleges, másodlagos] login sorok (ha nincs beállítva / nem aktív, akkor null)
+function get_beszerz_alairok($telephely_id, $oszlopok = 'teljes_nev') {
+
+    global $adatbazis_kapcsolat;
+
+    $telephely = $adatbazis_kapcsolat->s2('beszerz_alairo1_id beszerz_alairo2_id', 'telephely', "`id`='".(int)$telephely_id."'");
+
+    $alairok = [];
+    foreach ( ['beszerz_alairo1_id', 'beszerz_alairo2_id'] as $oszlop ) {
+        $login_id = (int)($telephely[$oszlop] ?? 0);
+        $alairo   = $login_id ? $adatbazis_kapcsolat->s2($oszlopok, 'login', "`recid`='{$login_id}' AND `aktiv`=1 AND `virtual`=0") : null;
+        $alairok[] = $alairo ?: null;
+    }
+
+    return $alairok;
+}
+
 // Nyomtatási képhez aláírás
 function get_nyomtatas_alairasok($elsodleges_recid = 0, $masodlagos_recid = 0, $ml_megr = '', $eszkozigenyles_szalloda = '') {
 
@@ -16742,12 +16781,10 @@ function get_nyomtatas_alairasok($elsodleges_recid = 0, $masodlagos_recid = 0, $
                     </table>
             ';
 
-    // Eszközigénylésnél egy szálloda id-t kapunk. Annak a loginnak kerül rá az aláírása, akinek van elsődleges/másodlagos aláírása és látja adott szállodát
+    // Eszközigénylésnél egy szálloda id-t kapunk. A szállodánál (telephely tábla) beállított elsődleges/másodlagos beszerzési aláíró aláírása kerül rá
     } else if( $eszkozigenyles_szalloda ) {
 
-        $szallodat_lat = " AND `aktiv`=1 AND `virtual`=0 AND `nev` IN (SELECT `nev` FROM `".get_db_tabla()."telephely_kapcs` WHERE `telephely_id`='{$eszkozigenyles_szalloda}')";
-        $elsodleges = $adatbazis_kapcsolat -> s2('alairas alairas_eltol teljes_nev beosztas_id', 'login', "substr(`flags`, ".(JOG_BESZERZ_IGENYLESEK_ELSODLEGES+1).", 1)=1{$szallodat_lat}");
-        $masodlagos = $adatbazis_kapcsolat -> s2('alairas alairas_eltol teljes_nev beosztas_id', 'login', "substr(`flags`, ".(JOG_BESZERZ_IGENYLESEK_MASODLAGOS+1).", 1)=1{$szallodat_lat}");
+        list($elsodleges, $masodlagos) = get_beszerz_alairok($eszkozigenyles_szalloda, 'alairas alairas_eltol teljes_nev beosztas_id');
 
         $nev1 = $beosztas1 = $nev2 = $beosztas2 = '&nbsp;';
         if( $elsodleges ) {

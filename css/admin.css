@@ -2668,6 +2668,37 @@ input.autocomp, input.autocomp.mod, input.autocomp:focus{
     width: 100%;
 }
 
+/* A gyári checkbox ne lógjon ki az egyedi pipa alól (tabozható marad) */
+#popup div.dt.szallodak div.cb input[type="checkbox"] {
+    left: 0.4rem;
+    margin: 0;
+    position: absolute;
+    top: 0.4rem;
+}
+
+/* Hosszú szállodanév törhet, ne kelljen vízszintesen görgetni */
+#popup div.dt.szallodak div.dtc:last-child label {
+    white-space: normal;
+}
+
+/* Beszerzési aláíró pipák (elsődleges/másodlagos) */
+#popup div.dt.szallodak div.dtc:not(:first-child):not(:last-child) {
+    padding: 0rem 1.5rem 1rem 0rem;
+    text-align: center;
+}
+
+#popup div.dt.szallodak div.szallodak_fejlec div.dtc {
+    font-weight: bold;
+    white-space: nowrap;
+}
+
+#popup div.dt.szallodak div.dtc:last-child small {
+    display: block;
+    font-weight: normal;
+    white-space: normal;
+    color: #888;
+}
+
 #popup div.popup_tart div.dt div.dtc.form_jobb.wsn {
     padding-right: 4.5rem;
     white-space: nowrap;

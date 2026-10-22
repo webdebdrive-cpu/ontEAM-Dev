@@ -827,16 +827,14 @@ if(isset($_GET['uj']) && !$csak_szerkesztheto){
     require('switch.php');
 
     // Aláírók kiíratása
-    $szallodat_lat = " AND `aktiv`=1 AND `virtual`=0 AND `nev` IN (SELECT `nev` FROM `".get_db_tabla()."telephely_kapcs` WHERE `telephely_id`='{$sor['telephely_id']}')";
-    $elsodleges = $adatbazis_kapcsolat -> s2('teljes_nev', 'login', "substr(`flags`, ".(JOG_BESZERZ_IGENYLESEK_ELSODLEGES+1).", 1)=1{$szallodat_lat}");
-    $masodlagos = $adatbazis_kapcsolat -> s2('teljes_nev', 'login', "substr(`flags`, ".(JOG_BESZERZ_IGENYLESEK_MASODLAGOS+1).", 1)=1{$szallodat_lat}");
+    list($elsodleges, $masodlagos) = get_beszerz_alairok($sor['telephely_id']);
     $mezok .= nl2('
         <div class="dtr">
             <div class="dtc form_bal">
                 <span>Elsődleges aláíró:</span>
             </div>
             <div class="dtc form_jobb">
-                <input type="text" maxlength="50" autocomplete="off" readonly="readonly" style="width: 35rem;" value="'.$elsodleges['teljes_nev'].'" tabindex="-1">
+                <input type="text" maxlength="50" autocomplete="off" readonly="readonly" style="width: 35rem;" value="'.($elsodleges['teljes_nev'] ?? '').'" tabindex="-1">
             </div>
         </div>
         <div class="dtr">
@@ -844,7 +842,7 @@ if(isset($_GET['uj']) && !$csak_szerkesztheto){
                 <span>Másodlagos aláíró:</span>
             </div>
             <div class="dtc form_jobb">
-                <input type="text" maxlength="50" autocomplete="off" readonly="readonly" style="width: 35rem;" value="'.$masodlagos['teljes_nev'].'" tabindex="-1">
+                <input type="text" maxlength="50" autocomplete="off" readonly="readonly" style="width: 35rem;" value="'.($masodlagos['teljes_nev'] ?? '').'" tabindex="-1">
             </div>
         </div>
     ');

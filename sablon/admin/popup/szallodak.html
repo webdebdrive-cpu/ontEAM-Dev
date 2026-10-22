@@ -1,6 +1,6 @@
 <h2>Új Szálloda hozzáadása</h2>
 <form id="addSzallodaForm" class="popupForm" method="post">
-    <div class="kozep" style="min-height: 26rem; width: 50rem">
+    <div class="kozep" style="min-height: 26rem; width: 72rem">
         <div class="dt szalloda_hozzaad">
             <div class="dtr">
                 <div class="dtc">
@@ -25,15 +25,25 @@
 <script>
 $(document).ready(function(){
     $('#addSzallodaForm').attr('onsubmit', 'return addSzalloda(\'' + _get('id') + '\', this);');
-});
-function addSzalloda( loginID, that ) {
 
-    var telephelyek = $(that).find('input[name="telephely[]"]:checked');
-    var data = {};
-    telephelyek.each(function(i) {
-        var value = $(this).val();
-        data[i] = value;
+    // Egy szállodánál ugyanaz a felhasználó nem lehet elsődleges és másodlagos aláíró is
+    $('#addSzallodaForm').on('change', 'input[name="alairo1[]"], input[name="alairo2[]"]', function() {
+        if( $(this).is(':checked') ) {
+            var masik = $(this).attr('name') == 'alairo1[]' ? 'alairo2[]' : 'alairo1[]';
+            $('#addSzallodaForm input[name="' + masik + '"][value="' + $(this).val() + '"]').prop('checked', false);
+        }
     });
+});
+function addSzallodaPipak( that, nev ) {
+    var data = {};
+    $(that).find('input[name="' + nev + '"]:checked').each(function(i) {
+        data[i] = $(this).val();
+    });
+    return data;
+}
+function addSzalloda( loginID, that, felulir ) {
+
+    var data = addSzallodaPipak(that, 'telephely[]');
 
     /* Új feltöltéskor csak hidden inputba tesszük az adatokat. */
     if(_get('uj')){
@@ -42,11 +52,21 @@ function addSzalloda( loginID, that ) {
         return false;
     }
 
-    if( loginID && objLength(data) ) {
+    // Beszerzési aláírók (csak létező felhasználónál vannak ilyen pipák)
+    var alairo_jeloles = $(that).find('input[name="alairo1[]"]').length > 0;
+    var alairo_param   = '';
+    if( alairo_jeloles ) {
+        alairo_param = '&amp;alairo1=' + JSON.stringify(addSzallodaPipak(that, 'alairo1[]')) + '&amp;alairo2=' + JSON.stringify(addSzallodaPipak(that, 'alairo2[]'));
+        if( felulir ) {
+            alairo_param += '&amp;felulir=1';
+        }
+    }
+
+    if( loginID && (objLength(data) || alairo_jeloles) ) {
         var ajax = $.ajax({
          	url : 'login.php',
          	type: 'GET',
-         	data: esamp2es('loginID=' + loginID + '&amp;szallIDs=' + JSON.stringify(data) + '&amp;addSzalloda=' + new Date().getTime()),
+         	data: esamp2es('loginID=' + loginID + '&amp;szallIDs=' + JSON.stringify(data) + alairo_param + '&amp;addSzalloda=' + new Date().getTime()),
          	success: function(html) {
                 if(html.substring(0, 6)=='SESKIL'){ location.href = 'index.php'; }
          		if( html ) {
@@ -54,6 +74,12 @@ function addSzalloda( loginID, that ) {
 
                     if( html.statusz == 'hiba' ) {
                         alert2(html.uzi, '', 'Hiba');
+                        return false;
+                    }
+
+                    // Másik felhasználó már aláíró az adott szállodánál: megerősítés után felülírjuk
+                    if( html.statusz == 'megerosites' ) {
+                        alert2(html.uzi, '<input type="button" class="gomb zold" value="Igen" onclick="alert2(); addSzalloda(\'' + loginID + '\', $(\'#addSzallodaForm\')[0], 1);"><input type="button" class="gomb piros" value="Nem" onclick="alert2()">');
                         return false;
                     }
 

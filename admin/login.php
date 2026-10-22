@@ -295,24 +295,82 @@ if( isset($_POST['login_letezik']) ) {
 if( isset($_POST['getSzallodak']) ) {
 
     // Szálloda lekérdezése
-    $telephelyek = $adatbazis_kapcsolat->s('id nev recid modell', 'telephely', ""/* 2022.07.26: mindet mutatjuk "`inaktiv`='0'"*/, 'nev');
+    $telephelyek = $adatbazis_kapcsolat->s('id nev recid modell beszerz_alairo1_id beszerz_alairo2_id', 'telephely', ""/* 2022.07.26: mindet mutatjuk "`inaktiv`='0'"*/, 'nev');
 
     // Felhasználóhoz kapcsolt szállodák
-    $felh = $adatbazis_kapcsolat->s2('nev', 'login', "`recid` = '".$_POST['recid']."'");
+    $login_id = (int)$_POST['recid'];
+    $felh     = $login_id ? $adatbazis_kapcsolat->s2('nev alairas', 'login', "`recid` = '{$login_id}'") : null;
 
     // Kapcsolt szállodák
-    $felh_szallodak = $adatbazis_kapcsolat->s('telephely_id', 'telephely_kapcs', "`nev` = '".$felh['nev']."'");
+    $felh_szallodak = $felh ? $adatbazis_kapcsolat->s('telephely_id', 'telephely_kapcs', "`nev` = '".$felh['nev']."'") : [];
     $felh_szallodak = adatbazis2tomb($felh_szallodak, 'telephely_id');
 
     if( !$felh_szallodak ) {
-        $felh_szallodak = array();
+        $felh_szallodak = [];
+    }
+
+    // Beszerzési aláírók csak már létező felhasználónál állíthatók (új felhasználónak még nincs aláírásképe)
+    $alairo_jeloles = !empty($felh);
+    $alairo_nevek   = [];
+    $alairo_tiltas  = '';
+    if( $alairo_jeloles ) {
+        $alairo_idk = [];
+        foreach ( $telephelyek as $telephely ) {
+            $alairo_idk[] = (int)$telephely['beszerz_alairo1_id'];
+            $alairo_idk[] = (int)$telephely['beszerz_alairo2_id'];
+        }
+        $alairo_idk = array_filter(array_unique($alairo_idk));
+        if( $alairo_idk ) {
+            $alairo_nevek = $adatbazis_kapcsolat->s('recid teljes_nev', 'login', "`recid` IN (".implode(',', $alairo_idk).")");
+            $alairo_nevek = $alairo_nevek ? array_column($alairo_nevek, 'teljes_nev', 'recid') : [];
+        }
+
+        // Aláíráskép nélkül új aláírói hely nem jelölhető (a meglévő jelölések levehetők)
+        if( empty($felh['alairas']) ) {
+            $alairo_tiltas = ' disabled="disabled"';
+        }
     }
 
     $html = '';
+    if( $alairo_jeloles ) {
+        $html .= nl2('
+            <div class="dtr szallodak_fejlec">
+                <div class="dtc"></div>
+                <div class="dtc" title="Beszerzés elsődleges aláíró">Elsődl.</div>
+                <div class="dtc" title="Beszerzés másodlagos aláíró">Másodl.</div>
+                <div class="dtc">'.($alairo_tiltas ? '<small>A felhasználónak nincs aláírásképe, ezért aláírónak nem jelölhető.</small>' : '').'</div>
+            </div>
+        ');
+    }
+
     foreach ( $telephelyek as $telephely ) {
         $checked = '';
         if( in_array($telephely['id'], $felh_szallodak) ) {
             $checked = ' checked="checked"';
+        }
+
+        // Elsődleges/másodlagos aláíró pipák, illetve ha másik felhasználó az aláíró, annak neve
+        $alairo_html = $alairo_info = '';
+        if( $alairo_jeloles ) {
+            $info = [];
+            foreach ( [1 => 'Elsődl.', 2 => 'Másodl.'] as $szint => $megn ) {
+                $alairo_id = (int)$telephely['beszerz_alairo'.$szint.'_id'];
+                $sajat     = $alairo_id == $login_id;
+                $alairo_html .= nl2('
+                    <div class="dtc">
+                        <div class="cb">
+                            <input type="checkbox" class="check" name="alairo'.$szint.'[]" id="alairo'.$szint.'-'.$telephely['recid'].'" value="'.$telephely['id'].'"'.($sajat ? ' checked="checked"' : $alairo_tiltas).'>
+                            <label for="alairo'.$szint.'-'.$telephely['recid'].'"></label>
+                        </div>
+                    </div>
+                ');
+                if( $alairo_id && !$sajat ) {
+                    $info[] = $megn.': '.($alairo_nevek[$alairo_id] ?? '?');
+                }
+            }
+            if( $info ) {
+                $alairo_info = '<small>'.implode(', ', $info).'</small>';
+            }
         }
 
         $html .= nl2('
@@ -323,10 +381,12 @@ if( isset($_POST['getSzallodak']) ) {
                         <label for="telephely-'.$telephely['recid'].'"></label>
                     </div>
                 </div>
+                '.$alairo_html.'
                 <div class="dtc">
                     <label class="link" for="telephely-'.$telephely['recid'].'">
                         '.$telephely['nev'].'
                     </label>
+                    '.$alairo_info.'
                 </div>
             </div>
         ');
@@ -524,31 +584,141 @@ if( isset($_GET['addSzalloda']) ) {
         exit();
     }
 
-    $loginID  = $_GET['loginID'];
-    $szallIDs = json_decode($_GET['szallIDs'], true);
+    $loginID  = (int)$_GET['loginID'];
+    $szallIDs = json_decode($_GET['szallIDs'], true) ?: [];
 
-    if( $loginID && count($szallIDs) ) {
+    // Beszerzési aláíró szállodák (elsődleges/másodlagos). Ha nem jött ilyen paraméter, az aláírókat nem módosítjuk.
+    $alairo_mentes = isset($_GET['alairo1'], $_GET['alairo2']);
+    $alairok = [];
+    foreach ( [1, 2] as $szint ) {
+        $idk = json_decode($_GET['alairo'.$szint] ?? '', true) ?: [];
+        $alairok[$szint] = array_values(array_unique(array_filter(array_map('intval', $idk))));
+    }
 
-        $felh = $adatbazis_kapcsolat->s2('nev', 'login', "`recid`='{$loginID}'");
+    if( $loginID && (count($szallIDs) || $alairo_mentes) ) {
+
+        $felh = $adatbazis_kapcsolat->s2('nev teljes_nev alairas', 'login', "`recid`='{$loginID}'");
         if( $felh ) {
 
             $log = '';
-            $akt_szallodak = $adatbazis_kapcsolat->s('telephely_id', 'telephely_kapcs', "`nev`='{$felh['nev']}'");
-            if( $akt_szallodak === false ) { $db_error = true; }
-            $akt_szallodak = adatbazis2tomb($akt_szallodak, 'telephely_id');
 
-            $log .= 'Aktuális szállodák: '.implode(', ', $akt_szallodak).'. Új szállodák: '.implode(', ', $szallIDs);
+            // Beszerzési aláírók ellenőrzése, mentés előtt
+            if( $alairo_mentes ) {
 
-            $sql = $adatbazis_kapcsolat -> d('telephely_kapcs', "`nev`='{$felh['nev']}'");
-            if( $sql === false ) { $db_error = true; }
+                // Egy szállodánál ugyanaz a felhasználó nem lehet elsődleges és másodlagos aláíró is
+                $mindketto = array_intersect($alairok[1], $alairok[2]);
+                if( $mindketto ) {
+                    $nevek = adatbazis2tomb($adatbazis_kapcsolat->s('nev', 'telephely', "`id` IN (".implode(',', $mindketto).")", 'nev'), 'nev');
+                    echo json_encode([
+                        'statusz' => 'hiba',
+                        'uzi'     => 'Egy szállodánál ugyanaz a felhasználó nem lehet elsődleges és másodlagos aláíró is:<br>'.implode('<br>', $nevek),
+                    ]);
+                    $weblap->leallit();
+                    exit();
+                }
 
-            // Hozzáadjuk a szállodákat
-            foreach($szallIDs as $key => $szallID) {
-                $kapcsID = $adatbazis_kapcsolat -> i('telephely_kapcs',
-                    array('nev',        'telephely_id', 'insert_dt',    'insert_usr',                           'update_usr'                            ),
-                    array($felh['nev'], $szallID,       'NOW()',        $_SESSION[get_db_tabla().'teljes_nev'], $_SESSION[get_db_tabla().'teljes_nev']  )
-                );
-                if( $kapcsID === false ) { $db_error = true; }
+                // Jelenlegi aláírói állapot azoknál a szállodáknál, amiket érint a mentés
+                $erintett = array_merge($alairok[1], $alairok[2]);
+                $where    = "`beszerz_alairo1_id`='{$loginID}' OR `beszerz_alairo2_id`='{$loginID}'";
+                if( $erintett ) {
+                    $where .= " OR `id` IN (".implode(',', $erintett).")";
+                }
+                $akt_alairok = $adatbazis_kapcsolat->s('id nev beszerz_alairo1_id beszerz_alairo2_id', 'telephely', $where, 'nev');
+                if( $akt_alairok === false ) { $db_error = true; }
+                $akt_alairok = $akt_alairok ?: [];
+
+                // Új jelölések, illetve más felhasználó felülírandó jelölései
+                $uj_jeloles  = false;
+                $felulirasok = [];
+                $log_alairo  = [];
+                foreach ( $akt_alairok as $telephely ) {
+                    foreach ( [1 => 'elsődleges', 2 => 'másodlagos'] as $szint => $megn ) {
+                        $akt_id = (int)$telephely['beszerz_alairo'.$szint.'_id'];
+                        $jelolt = in_array((int)$telephely['id'], $alairok[$szint]);
+
+                        if( $jelolt && $akt_id != $loginID ) {
+                            $uj_jeloles   = true;
+                            $log_alairo[] = $telephely['nev'].' '.$megn.' aláíró: '.$akt_id.' => '.$loginID;
+                            if( $akt_id ) {
+                                $felulirasok[$akt_id][] = $telephely['nev'].' – '.$megn.' aláíró';
+                            }
+                        } elseif( !$jelolt && $akt_id == $loginID ) {
+                            $log_alairo[] = $telephely['nev'].' '.$megn.' aláíró: '.$loginID.' => 0';
+                        }
+                    }
+                }
+
+                // Aláíráskép nélkül nem lehet aláírónak jelölni
+                if( $uj_jeloles && empty($felh['alairas']) ) {
+                    echo json_encode([
+                        'statusz' => 'hiba',
+                        'uzi'     => $felh['teljes_nev'].' felhasználónak nincs aláírásképe, ezért nem jelölhető beszerzési aláírónak!',
+                    ]);
+                    $weblap->leallit();
+                    exit();
+                }
+
+                // Ha másik felhasználó az aláíró, előbb rákérdezünk
+                if( $felulirasok && empty($_GET['felulir']) ) {
+                    $nevek = $adatbazis_kapcsolat->s('recid teljes_nev', 'login', "`recid` IN (".implode(',', array_keys($felulirasok)).")");
+                    $nevek = $nevek ? array_column($nevek, 'teljes_nev', 'recid') : [];
+
+                    $uzi = '';
+                    foreach ( $felulirasok as $akt_id => $sorok ) {
+                        foreach ( $sorok as $sor ) {
+                            $uzi .= $sor.': <b>'.($nevek[$akt_id] ?? $akt_id).'</b><br>';
+                        }
+                    }
+                    echo json_encode([
+                        'statusz' => 'megerosites',
+                        'uzi'     => 'Az alábbi szállodáknál már másik felhasználó a beszerzési aláíró:<br><br>'.$uzi.'<br>Lecseréli őket '.$felh['teljes_nev'].' felhasználóra?',
+                    ]);
+                    $weblap->leallit();
+                    exit();
+                }
+
+                // Mentés: ahol már nincs bejelölve, ott levesszük, ahol be van jelölve, ott beállítjuk (más felhasználó jelölését felülírva)
+                foreach ( [1, 2] as $szint ) {
+                    $oszlop = 'beszerz_alairo'.$szint.'_id';
+
+                    $where = "`{$oszlop}`='{$loginID}'";
+                    if( $alairok[$szint] ) {
+                        $where .= " AND `id` NOT IN (".implode(',', $alairok[$szint]).")";
+                    }
+                    $sql = $adatbazis_kapcsolat->u('telephely', [$oszlop], [0], $where);
+                    if( $sql === false ) { $db_error = true; }
+
+                    if( $alairok[$szint] ) {
+                        $sql = $adatbazis_kapcsolat->u('telephely', [$oszlop], [$loginID], "`id` IN (".implode(',', $alairok[$szint]).")");
+                        if( $sql === false ) { $db_error = true; }
+                    }
+                }
+
+                if( $log_alairo ) {
+                    $log .= 'Beszerzési aláírók: '.implode('; ', $log_alairo).'. ';
+                }
+            }
+
+            // Szállodák hozzárendelése (üres listával nem töröljük a felhasználó összes szállodáját)
+            $kapcsID = 0;
+            if( count($szallIDs) ) {
+                $akt_szallodak = $adatbazis_kapcsolat->s('telephely_id', 'telephely_kapcs', "`nev`='{$felh['nev']}'");
+                if( $akt_szallodak === false ) { $db_error = true; }
+                $akt_szallodak = adatbazis2tomb($akt_szallodak, 'telephely_id');
+
+                $log .= 'Aktuális szállodák: '.implode(', ', $akt_szallodak).'. Új szállodák: '.implode(', ', $szallIDs);
+
+                $sql = $adatbazis_kapcsolat -> d('telephely_kapcs', "`nev`='{$felh['nev']}'");
+                if( $sql === false ) { $db_error = true; }
+
+                // Hozzáadjuk a szállodákat
+                foreach($szallIDs as $key => $szallID) {
+                    $kapcsID = $adatbazis_kapcsolat -> i('telephely_kapcs',
+                        array('nev',        'telephely_id', 'insert_dt',    'insert_usr',                           'update_usr'                            ),
+                        array($felh['nev'], $szallID,       'NOW()',        $_SESSION[get_db_tabla().'teljes_nev'], $_SESSION[get_db_tabla().'teljes_nev']  )
+                    );
+                    if( $kapcsID === false ) { $db_error = true; }
+                }
             }
 
             // Logba is eltároljuk
@@ -1549,6 +1719,28 @@ require_once('selectek.php');
                         $i++;
                     }
 
+                    $szamla_html .= '</div>';
+                }
+
+                // Szállodák, ahol a felhasználó beszerzési aláíró (a hozzárendelt szállodáktól független)
+                $login_id = (int)$felh['recid'];
+                $alairo_szallodak = $adatbazis_kapcsolat->s('nev beszerz_alairo1_id', 'telephely', "`beszerz_alairo1_id`='{$login_id}' OR `beszerz_alairo2_id`='{$login_id}'", 'nev');
+                if( $alairo_szallodak ) {
+                    $szamla_html .= nl2('
+                        <div class="dt naplo" style="margin-top: 2rem">
+                            <div class="dtr nFejlec">
+                                <div class="dtc">Beszerzési aláíró</div>
+                                <div class="dtc"></div>
+                            </div>
+                    ');
+                    foreach ( $alairo_szallodak as $telephely ) {
+                        $szamla_html .= nl2('
+                            <div class="dtr nSor">
+                                <div class="dtc full">'.$telephely['nev'].'</div>
+                                <div class="dtc" style="white-space: nowrap">'.($telephely['beszerz_alairo1_id'] == $login_id ? 'Elsődleges' : 'Másodlagos').'</div>
+                            </div>
+                        ');
+                    }
                     $szamla_html .= '</div>';
                 }
 
