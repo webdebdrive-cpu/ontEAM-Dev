@@ -68,6 +68,8 @@ if( isset($_POST['jelszo_csere']) ) {
                         $adatbazis_kapcsolat -> u('login',  array('jelszo', 'helyesseg',    'van_jelszo'),
                                                             array($jlsz,    $helyesseg,     1           ),
                                                     "`recid` = '".$felhasznalo['recid']."'");
+                        // Belépéskor új session azonosító (session fixation ellen)
+                        session_regenerate_id(true);
                         $_SESSION[get_db_tabla().'user']            = $felhasznalo['nev'];
                         $_SESSION[get_db_tabla().'teljes_nev']      = $felhasznalo['teljes_nev'];
                         $_SESSION[get_db_tabla().'login_recid']     = $felhasznalo['recid'];
@@ -190,18 +192,19 @@ if( isset($_POST['megsem']) ) {
 
 // Manuális beléptetés. A nev oszlopot, tehát a loginnevet kell átadni ilyenkor GET-ben
 // Pl: https://www.onteam.hu/admin/beleptetes.php?manualis_belepes=XY
-if (isset($_GET['manualis_belepes'])) {
-    
-    $felhasznalo = $adatbazis_kapcsolat->s2('recid nev szallito_id teljes_nev jelszo helyesseg flags flags_ert jog van_jelszo szemelyzet_id tabla_rendezes', 'login', "`nev`='". $_GET['manualis_belepes']."'");
-    // echo $adatbazis_kapcsolat->gp() . '<br>';
-    $_SESSION[get_db_tabla().'user']            = $felhasznalo['nev'];
-    $_SESSION[get_db_tabla().'teljes_nev']      = $felhasznalo['teljes_nev'];
-    $_SESSION[get_db_tabla().'login_recid']     = $felhasznalo['recid'];
-    $_SESSION[get_db_tabla().'szallito_id']     = $felhasznalo['szallito_id'];
-    $_SESSION[get_db_tabla().'rights']          = str_split($felhasznalo['flags']);
-    $_SESSION[get_db_tabla().'ertesites']       = str_split($felhasznalo['flags_ert']);
-    $_SESSION[get_db_tabla().'szemelyzet_id']   = $felhasznalo['szemelyzet_id'];
-}
+// FIGYELEM! Jelszó nélkül bárki beléphetne vele bármelyik felhasználóként, ezért csak ideiglenesen, a használat idejére kapcsold vissza!
+// if (isset($_GET['manualis_belepes'])) {
+//
+//     $felhasznalo = $adatbazis_kapcsolat->s2('recid nev szallito_id teljes_nev jelszo helyesseg flags flags_ert jog van_jelszo szemelyzet_id tabla_rendezes', 'login', "`nev`='". $_GET['manualis_belepes']."'");
+//     // echo $adatbazis_kapcsolat->gp() . '<br>';
+//     $_SESSION[get_db_tabla().'user']            = $felhasznalo['nev'];
+//     $_SESSION[get_db_tabla().'teljes_nev']      = $felhasznalo['teljes_nev'];
+//     $_SESSION[get_db_tabla().'login_recid']     = $felhasznalo['recid'];
+//     $_SESSION[get_db_tabla().'szallito_id']     = $felhasznalo['szallito_id'];
+//     $_SESSION[get_db_tabla().'rights']          = str_split($felhasznalo['flags']);
+//     $_SESSION[get_db_tabla().'ertesites']       = str_split($felhasznalo['flags_ert']);
+//     $_SESSION[get_db_tabla().'szemelyzet_id']   = $felhasznalo['szemelyzet_id'];
+// }
 
 // Beléptetés
 if( isset($_POST['login']) ) {
@@ -214,13 +217,15 @@ if( isset($_POST['login']) ) {
             $_POST['jelszo'] = sha1($_POST['jelszo']);
         }
 
-        $felhasznalo = $adatbazis_kapcsolat->s2('recid nev szallito_id teljes_nev jelszo helyesseg flags flags_ert jog van_jelszo szemelyzet_id tabla_rendezes', 'login', "`nev`='{$_POST['nev']}' AND `aktiv`='1'");
+        $felhasznalo = $adatbazis_kapcsolat->s2('recid nev szallito_id teljes_nev jelszo helyesseg flags flags_ert jog van_jelszo szemelyzet_id tabla_rendezes', 'login', "`nev`='".sql_ertek($_POST['nev'])."' AND `aktiv`='1'");
         if( $felhasznalo ) {
 
             // Ha van jelszó, vagy ha nem stimmel a kód vagy már lejárt az ideje, akkor is erre az árgra jussunk (sikertelen belépés lesz belőle).
             if( $felhasznalo['van_jelszo'] ) {
                 if( $felhasznalo['jelszo'] == $_POST['jelszo'] && $felhasznalo['helyesseg'] == $helyesseg ) {
 
+                    // Belépéskor új session azonosító (session fixation ellen)
+                    session_regenerate_id(true);
                     $_SESSION[get_db_tabla().'user']            = $felhasznalo['nev'];
                     $_SESSION[get_db_tabla().'teljes_nev']      = $felhasznalo['teljes_nev'];
                     $_SESSION[get_db_tabla().'login_recid']     = $felhasznalo['recid'];

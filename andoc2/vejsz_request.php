@@ -76,65 +76,61 @@
   $keys = $fieldarray2;
   echo "count(keys): " . count($keys).CRLF;
   if ($_SERVER['SERVER_NAME'] == 'localhost') {
-      $sql = 'INSERT INTO vejsz ';
-      } else {
-      $sql = 'INSERT INTO onteam_vendegejszakak ';
-    }
+    $table = 'vejsz';
+  } else {
+    $table = 'onteam_vendegejszakak';
+  }
 
-  $sql2 = $savesql = "";
-  $lines =  [];
-  // echo "count(keys): " . count($keys).CRLF;
+  // SQL injection ellen: oszlopnévként csak a tábla valóban létező oszlopai fogadhatók el,
+  // az értékek pedig prepared statement-tel kerülnek be (korábban nyersen, multi_query-vel futott, amivel bármilyen SQL lefuttatható volt)
+  $table_columns = [];
+  $result_columns = $conn->query('SHOW COLUMNS FROM `' . $table . '`');
+  while ($row = $result_columns->fetch_assoc()) {
+    $table_columns[] = $row['Field'];
+  }
+
+  $rows = $lines = [];
   for ($i = 0; $i < count($keys); $i++) {
-    $tablefields = $fieldvalues = $sqlduplicates = "";
-    // foreach ($_POST[$keys[$i]] as $key => $value) {
+    $row_fields = $row_values = [];
     foreach ($keys[$i] as $key => $value) {
       $key = trim($key);
       if ($_SERVER['SERVER_NAME'] == 'localhost' && $key == 'telephely_id') {
         $key = 'telepid';
       }
-      // echo "_".$key."_: _".htmlspecialchars(stripslashes(trim($value)))."_".CRLF;
-      // die();
-      $tablefields .= $key . ',';
-      $fieldvalues .= htmlspecialchars(stripslashes(trim($value))) . ",";
-      // duplikáláshoz hogy updateljen, ez a karakterlánc kell !
-      $sqlduplicates .= $key . '=' . htmlspecialchars(stripslashes(trim($value))) . ',';
+      if (!in_array($key, $table_columns, true)) {
+        logmsg("Ismeretlen oszlop: " . $key, true, true);
+        die("Ismeretlen oszlop: " . htmlspecialchars($key));
+      }
+      $row_fields[] = $key;
+      $row_values[] = htmlspecialchars(stripslashes(trim($value)));
     } //end of foreach
 
-    $tablefields = trim($tablefields, ',');
-    // $tablefields = $tablefields . 'insert_dt';
-    // echo "tablefields: _" . $tablefields . "_".CRLF;
-    $fieldvalues = trim($fieldvalues, ',');
-    // $fieldvalues = $fieldvalues . 'current_timestamp()';
-    $lines[$i] = $fieldvalues;
-    // $fieldvalues .= 'NOW()';
-    // echo "fieldvalues: _" . $fieldvalues . "_".CRLF;
-    $sqlduplicates = trim($sqlduplicates, ',');
-    // $sqlduplicates .= 'insert_dt=NOW()';
-    // echo "sqlduplicates: _" . $sqlduplicates . "_".CRLF;
-
-    $sql2 = '(' . $tablefields . ') VALUES (' . $fieldvalues . ') ON DUPLICATE KEY UPDATE ' . $sqlduplicates;
-    // echo $sql . $sql2 . "<br>";
-    $savesql .= $sql . $sql2 . ";";
+    $rows[$i]  = ['fields' => $row_fields, 'values' => $row_values];
+    $lines[$i] = implode(',', $row_values);
   } // end of for
-  // echo $savesql.CRLF;
-  // die();
+
   try {
     $conn->begin_transaction();
     logmsg("begin_transaction()", false, true);
     echo "begin_transaction()" . CRLF;
-    $i = 0;
-    if ($conn->multi_query($savesql)) {
-      do {
-        $result = $conn->store_result();
-        $str = $i . " sor: " . ($conn->affected_rows <> 0 ? ($conn->affected_rows == 1 ? "insert" : "update") : "nincs művelet") . ". Értékek: " . $lines[$i];
-        logmsg($str, false, true);
-        echo $str . CRLF;
-        $i++;
-        // printf("%d Row affected.\n", $conn->affected_rows);
-      } while ($conn->more_results() && $conn->next_result());
-    } else {
-      // echo 'Hiba multi_query - vel !'.CRLF;
-      throw new Exception("Hiba multi_query - vel !", 1);
+    foreach ($rows as $i => $row) {
+      // Üres sort (pl. záró sortörés után) kihagyunk
+      if (!$row['fields'] || implode('', $row['values']) === '') {
+        continue;
+      }
+      $tablefields   = '`' . implode('`, `', $row['fields']) . '`';
+      $placeholders  = implode(', ', array_fill(0, count($row['fields']), '?'));
+      // duplikáláshoz hogy updateljen, ez a karakterlánc kell !
+      $sqlduplicates = implode(', ', array_map(function ($field) { return '`' . $field . '`=VALUES(`' . $field . '`)'; }, $row['fields']));
+
+      $stmt = $conn->prepare('INSERT INTO `' . $table . '` (' . $tablefields . ') VALUES (' . $placeholders . ') ON DUPLICATE KEY UPDATE ' . $sqlduplicates);
+      $stmt->bind_param(str_repeat('s', count($row['values'])), ...$row['values']);
+      $stmt->execute();
+
+      $str = $i . " sor: " . ($stmt->affected_rows <> 0 ? ($stmt->affected_rows == 1 ? "insert" : "update") : "nincs művelet") . ". Értékek: " . $lines[$i];
+      logmsg($str, false, true);
+      echo $str . CRLF;
+      $stmt->close();
     }
     $conn->commit();
     logmsg("commit()", false, true);

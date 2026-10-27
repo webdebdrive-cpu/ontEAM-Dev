@@ -17,8 +17,40 @@ function thumb_kep_kiir($thumbfile) {
     fclose($handle);
 }
 
+/**
+* @desc Csak a weboldal könyvtárán belüli, képkiterjesztésű helyi fájl fogadható el (URL, ../config.php és hasonlók nem)
+*
+* @param  string $utvonal A kapott útvonal
+* @param  string $gyoker  A weboldal gyökérkönyvtára
+* @return boolean
+*/
+function kep_utvonal_ervenyes($utvonal, $gyoker) {
+    $fajl = realpath($utvonal);
+    if( !$fajl || !is_file($fajl) || strpos($fajl, $gyoker.DIRECTORY_SEPARATOR) !== 0 ) {
+        return false;
+    }
+    return in_array(strtolower(pathinfo($fajl, PATHINFO_EXTENSION)), ['jpg', 'jpeg', 'png', 'gif', 'webp']);
+}
+
+$gyoker = __DIR__;
+if( !isset($_GET['kep']) || !kep_utvonal_ervenyes($_GET['kep'], $gyoker) ) {
+    $_GET['kep'] = '';
+}
+if( !empty($_GET['pecset']) && !kep_utvonal_ervenyes($_GET['pecset'], $gyoker) ) {
+    $_GET['pecset'] = '';
+}
+// Méretek, eltolások csak egész számok lehetnek (a méretek felső korláttal), mert a thumbnail fájlnevébe is bekerülnek
+foreach ( ['szel', 'magas', 'szelnev', 'magasnev'] as $meret ) {
+    $_GET[$meret] = isset($_GET[$meret]) ? min(abs((int)$_GET[$meret]), 3000) : 0;
+}
+foreach ( ['eltol_x', 'eltol_y', 'kicsinyit'] as $ertek ) {
+    if( isset($_GET[$ertek]) ) {
+        $_GET[$ertek] = (int)$_GET[$ertek];
+    }
+}
+
 $thumbfile = '';
-if( $_GET['thumb'] ) {
+if( !empty($_GET['thumb']) && $_GET['kep'] ) {
 
     $kep_reszek    = pathinfo($_GET['kep']);
     $new_img_name  = $kep_reszek['dirname'].'/';

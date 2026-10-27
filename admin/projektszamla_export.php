@@ -2,8 +2,11 @@
 require_once('../engine.php');
 
 // Adott XML kiírtaása
-if( $_GET['f'] ) {
-    
+if( !empty($_GET['f']) ) {
+
+    // Ne lehessen a könyvtárból kilépni (pl. f=../../config), csak a fájlnév számít
+    $_GET['f'] = basename($_GET['f']);
+
     if( isset($_GET['del']) ) {
         unlink(get_pszk_utvonal().$_GET['f'].'.xml');
     } else {

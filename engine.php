@@ -67,6 +67,9 @@ self_sablon_nev()           Sablonkezelésnél jön jól, ha a sablon.html-jét 
 sql_dump()                  SQL teljes kimentése
 sql_ertek()                 SQL injection ellen az értékeket átvizsgálja, és kiszűri a gyanúsakat
 string2html()               Előformázott szöveg konvertálása HTML-é (Wikipédia mintájára)
+autocomplete_ervenyes()     Autocomplete végpontoknál a kliens által küldött tábla- és oszlopnevek ellenőrzése
+tiltott_feltoltes()         Feltöltéskor a futtatható / szerverbeállító fájlok (pl. .phtml, .phar, .htaccess) kiszűrése
+tartalom_fajl()             Ellenőrzi, hogy a megadott útvonal egy, a tartalom könyvtáron belüli létező fájl-e (pl. törlés előtt)
 szukites()                  A tábla egy oszlopára készít egy 'distinct select'-et amivel szűkíthetjük a találatokat (Admin)
 thumbnail_kep_e()           A megadott fájlnév thumbnail alakú-e vagy sem? Átméretezett fényképeket ismeri fel a "_{SZ}x{M}" alak alapján
 tomb2option()               Egy adatbázisból kapott tömbből készítünk úgy egy option listát, hogy a függvény beállítja a selected értéket is
@@ -1439,6 +1442,91 @@ function kep_torol($path) {
 */
 function kit($path) {
     return strtolower( substr( $path, strrpos($path,'.')+1, strlen($path) ) );
+}
+
+/**
+* @desc Autocomplete végpontoknál a kliens által küldött tábla- és oszlopnevek ellenőrzése.
+* Csak egyszerű azonosító lehet (backtick-kel nem lehet kitörni az SQL-ből), és az érzékeny oszlopok
+* (jelszó hash, jelszóemlékeztető kód) se nem listázhatók, se nem kereshetők.
+*
+* @param  string $tabla    A tábla neve (prefix nélkül)
+* @param  array  $oszlopok A keresett és listázott oszlopok nevei
+* @return boolean Igaz, ha a kérés kiszolgálható
+*/
+function autocomplete_ervenyes($tabla, $oszlopok) {
+    $tiltott_oszlopok = ['jelszo', 'helyesseg', 'azon_kod', 'azon_dt'];
+
+    if( !preg_match('/^[A-Za-z0-9_]+$/', $tabla) ) {
+        return false;
+    }
+    foreach ( $oszlopok as $oszlop ) {
+        $oszlop = trim($oszlop);
+        // Üres oszlopnév (pl. hiányzó oszlop_listaz) eddig is csak SQL hibát okozott, azt nem itt szűrjük
+        if( $oszlop === '' ) {
+            continue;
+        }
+        if( !preg_match('/^[A-Za-z0-9_]+$/', $oszlop) || in_array(strtolower($oszlop), $tiltott_oszlopok, true) ) {
+            return false;
+        }
+    }
+    return true;
+}
+
+/**
+* @desc Feltöltéskor a futtatható vagy szerverbeállító fájlok kiszűrése. Nem csak a .php, hanem pl. a .phtml, .phar, .php5,
+* a .htaccess, .user.ini is futtatható kódot vagy beállítást jelenthet a szerveren.
+*
+* @param  string $fajlnev A feltöltött fájl eredeti neve
+* @return boolean Igaz, ha a fájl nem tölthető fel
+*/
+function tiltott_feltoltes($fajlnev) {
+    $fajlnev = strtolower(trim(basename($fajlnev)));
+
+    // Üres név (nincs feltöltött fájl) nem a mi dolgunk
+    if( $fajlnev === '' ) {
+        return false;
+    }
+    // Ponttal kezdődő fájl (pl. .htaccess, .user.ini) sem tölthető fel
+    if( $fajlnev[0] === '.' ) {
+        return true;
+    }
+
+    // A tényleges (utolsó) kiterjesztés
+    $tiltott = ['php', 'php2', 'php3', 'php4', 'php5', 'php6', 'php7', 'php8', 'phtml', 'pht', 'phtm', 'phar', 'phps',
+                'cgi', 'pl', 'py', 'sh', 'asp', 'aspx', 'jsp', 'shtml', 'htaccess', 'htpasswd'];
+    if( in_array(pathinfo($fajlnev, PATHINFO_EXTENSION), $tiltott, true) ) {
+        return true;
+    }
+
+    // Közbülső kiterjesztés-részként (pl. kep.php.jpg) csak a PHP-félék tiltottak, mert egyes szerverbeállításoknál ezek is lefuthatnak
+    $reszek = explode('.', $fajlnev);
+    array_shift($reszek);
+    foreach ( $reszek as $resz ) {
+        if( preg_match('/^(php\d?|phtml?|pht|phar)$/', $resz) ) {
+            return true;
+        }
+    }
+    return false;
+}
+
+/**
+* @desc Ellenőrzi, hogy a megadott útvonal egy, a tartalom könyvtáron (get_utvonal()) belüli létező fájl-e.
+* Kívülről kapott útvonalnál (pl. $_POST) törlés előtt kötelező, hogy ne lehessen a könyvtárból kilépni (pl. ../config.php)
+*
+* @param  string $utvonal A vizsgálandó útvonal (relatív vagy abszolút)
+* @return string|false A fájl teljes (feloldott) útvonala, vagy hamis, ha nem a tartalom könyvtáron belüli fájl
+*/
+function tartalom_fajl($utvonal) {
+    $fajl     = realpath($utvonal);
+    $konyvtar = realpath(get_utvonal()) ?: realpath('../'.get_utvonal());
+
+    if( !$fajl || !$konyvtar || !is_file($fajl) ) {
+        return false;
+    }
+    if( strpos($fajl, $konyvtar.DIRECTORY_SEPARATOR) !== 0 ) {
+        return false;
+    }
+    return $fajl;
 }
 
 

@@ -94,9 +94,8 @@ class Weblap{
 		
 		// Ha sessiont használunk vagy nyelvet, akkor session_start
 		if( ($this -> session || $this -> nyelvek ) && !isset( $_SESSION ) ){
-            if( isset($_COOKIE['sess_id']) && $_COOKIE['sess_id'] ) {
-                session_id($_COOKIE['sess_id']);
-            }
+            // Korábban egy 'sess_id' cookie-ból is átvettük a session azonosítót, de ezt a kód sehol nem állította be,
+            // viszont egy támadó előre megadott azonosítóval (session fixation) átvehette volna a belépett munkamenetet.
             session_start();
         }
 		

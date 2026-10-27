@@ -94,8 +94,12 @@ require_once('tartalom.php');
 *	@return string: A tartalom tömb megfelelő bejegyzése
 */
 // Kiléptetés, ha nem él a SESSION és nem az index.php-n vagyunk és nem is egy ütemezőn, nem is elfelejtett jelszót kérünk le.
-$kiveteles_oldalak = array('index.php', 'import_szamla.php', 'import_szamla_kifizetes.php', 'megr_ig.php', 'beleptetes.php');
-if( !$_SESSION[get_db_tabla().'user'] && !$_POST['elfelejtett_jelszo'] && substr(basename($_SERVER['PHP_SELF']), 0, 8) != 'utemezo_' && !in_array(basename($_SERVER['PHP_SELF']), $kiveteles_oldalak) && substr(basename($_SERVER['PHP_SELF']), 0, 5)!='andoc' ) {
+// A PHP_SELF helyett SCRIPT_NAME, mert a PHP_SELF a PATH_INFO-t is tartalmazza (pl. munkalap.php/index.php), amivel a kivételek megkerülhetők lennének.
+// Elfelejtett jelszó igénylés belépés nélkül csak az esemenyek.php-n keresztül lehetséges.
+$kiveteles_oldalak = ['index.php', 'import_szamla.php', 'import_szamla_kifizetes.php', 'megr_ig.php', 'beleptetes.php'];
+$futo_szkript      = basename($_SERVER['SCRIPT_NAME']);
+$elfelejtett_jelsz = !empty($_POST['elfelejtett_jelszo']) && $futo_szkript == 'esemenyek.php';
+if( empty($_SESSION[get_db_tabla().'user']) && !$elfelejtett_jelsz && substr($futo_szkript, 0, 8) != 'utemezo_' && !in_array($futo_szkript, $kiveteles_oldalak) && substr($futo_szkript, 0, 5) != 'andoc' ) {
     echo 'SESKIL<script>document.body.innerHTML = \'\'; location.href=\'index.php\'</script>';
     exit;
 }
@@ -211,8 +215,8 @@ if( ($_GET['id'] && isset($_GET['modosit']) && !isset($_GET['no_lista']) && !iss
 
 $statusz_nelkul     = ['szallito_beszerzes'];
 $telephely_nelkul   = ['szallito_beszerzes'];
-// Tesztelés adatok lekérdezése
-if (isset($_POST['teszteles_adatok'])) {
+// Tesztelés adatok lekérdezése (a kivételes oldalakon belépés nélkül is ide jutnánk, ezért a bejelentkezést külön vizsgáljuk)
+if( isset($_POST['teszteles_adatok']) && !empty($_SESSION[get_db_tabla().'user']) ) {
 
     $felhasznalo = $adatbazis_kapcsolat->s2('szemelyzet_id', 'login', "`nev`='{$_SESSION[get_db_tabla().'user']}'", '', '1');
     $statusz = '';
@@ -238,7 +242,7 @@ if (isset($_POST['teszteles_adatok'])) {
     exit;
 }
 //  Tesztelés adatok mentése
-if (isset($_POST['teszteles_rogzit'])) {
+if( isset($_POST['teszteles_rogzit']) && !empty($_SESSION[get_db_tabla().'user']) ) {
 
     $teszt_id = $teszteles_recid = $adatbazis_kapcsolat -> i('teszteles',   array('modul',          'modul_nev',          'modul_recid',    'text',           'insert_dt',    'insert_usr',                             'update_usr'                          ),
                                                                             array($_POST['modul'],  $_POST['modul_nev'],  $_POST['id'],     $_POST['text'],   'NOW()',        $_SESSION[get_db_tabla().'teljes_nev'],   $_SESSION[get_db_tabla().'teljes_nev'])

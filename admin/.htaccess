@@ -1,0 +1,10 @@
+# Az ütemezők naplófájljai (*.err) és egyéb naplók böngészőből nem olvashatók
+<FilesMatch "(?i)\.(err|log)$">
+    <IfModule mod_authz_core.c>
+        Require all denied
+    </IfModule>
+    <IfModule !mod_authz_core.c>
+        Order allow,deny
+        Deny from all
+    </IfModule>
+</FilesMatch>

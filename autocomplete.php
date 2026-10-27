@@ -9,6 +9,11 @@ if( !empty($_SESSION[get_db_tabla().'user']) && isset($_GET['value']) && isset($
     // Több oszlop is szerepelhet a $_GET['oszlop']-ban (minden oszlop értékét sortöréssel tesszük a találati listába)
     $oszlop_keres  = explode(',', str_replace(' ', '', $_GET['oszlop_keres']));
     $oszlop_listaz = explode(',', str_replace(' ', '', $_GET['oszlop_listaz']));
+    // Tábla- és oszlopnevek ellenőrzése (SQL injection, illetve jelszó hash-ek kiolvasása ellen)
+    if( !autocomplete_ervenyes($_GET['tabla'], array_merge($oszlop_keres, $oszlop_listaz)) ) {
+        $weblap -> leallit();
+        exit;
+    }
     // Ha úgy akarnánk lekérni objektumokat vagy eszközöket, hogy nincs kiválsztva telephely, akkor nem csinálunk semmit
     if( ($_GET['tabla'] == 'obj' || $_GET['tabla'] == 'eszkozkezeles') && !$_GET['telephely_id'] ) {
         $weblap -> leallit();

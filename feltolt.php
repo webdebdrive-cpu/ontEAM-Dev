@@ -16,7 +16,7 @@ if( in_array( $_FILES[$_POST['megnevezes']]['type'], $tiltott_fajlok ) ){
 $mit   = array('"', '\'', '&', '#');
 $mivel = array();
 $_FILES[$_POST['megnevezes']]['name'] = nl2(str_replace($mit, $mivel, $_FILES[$_POST['megnevezes']]['name']));
-if( kit($_FILES[$_POST['megnevezes']]['name']) == 'php' ) {
+if( tiltott_feltoltes($_FILES[$_POST['megnevezes']]['name']) ) {
     echo 'nice try :)';
     $weblap -> leallit();
     exit;

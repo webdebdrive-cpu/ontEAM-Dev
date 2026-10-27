@@ -241,7 +241,7 @@ if( isset($_POST['ertekhozzaad']) ) {
 if( isset($_POST['login_letezik']) ) {
 
     // Loginnév foglalt-e
-    if( $adatbazis_kapcsolat->s2('recid', 'login', "`nev`='{$_POST['nev']}'") ){
+    if( $adatbazis_kapcsolat->s2('recid', 'login', "`nev`='".sql_ertek($_POST['nev'])."'") ){
         echo json_encode(array(
             'hiba'  => 'Ez a loginnév már foglalt!',
             'title' => 'Hiba',

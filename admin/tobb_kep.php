@@ -183,7 +183,7 @@ if( isset($_POST['megnevezes']) && !$archivum ) {
 
 	// Tiltott fájlformátumok kiszűrése, szintén nincs feltöltés
 	$tiltott_fajlok = array('text/x-js', 'text/css', 'text/html', 'application/xhtml+xml', 'text/xml');
-    if( in_array($_FILES[$_POST['megnevezes']]['type'], $tiltott_fajlok) ) {
+    if( in_array($_FILES[$_POST['megnevezes']]['type'], $tiltott_fajlok) || tiltott_feltoltes($_FILES[$_POST['megnevezes']]['name']) ) {
         echo 'Hiba!Ilyen formátumú fájl feltöltése tiltott, a fájlfeltöltés nem jött létre!';
         $weblap -> leallit();
 		exit;

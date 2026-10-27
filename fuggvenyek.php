@@ -4813,6 +4813,11 @@ function web_ftp($valtozo, $kepnev, $size=409600, $overwrite=false, $csakkep=tru
         return array($kepnev,'k2b');
 	}
 
+    // Futtatható / szerverbeállító fájl (pl. .php, .phtml, .htaccess) nem tölthető fel
+    if( tiltott_feltoltes($kepnev) || tiltott_feltoltes($_FILES[$valtozo]['name']) ) {
+        return [$kepnev, 'k2b'];
+    }
+
     // Ha kell, levesszük a kiterjesztést
 	$kit = '';
     if(strrpos($kepnev,'.')){

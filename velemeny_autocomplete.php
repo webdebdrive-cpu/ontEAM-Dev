@@ -6,6 +6,13 @@ if(isset($_GET['value']) && isset($_GET['tabla']) && isset($_GET['oszlop_keres']
     // Több oszlop is szerepelhet a $_GET['oszlop']-ban (minden oszlop értékét sortöréssel tesszük a találati listába)
     $oszlop_keres  = explode(',', str_replace(' ', '', $_GET['oszlop_keres']));
     $oszlop_listaz = explode(',', str_replace(' ', '', $_GET['oszlop_listaz']));
+
+    // Tábla- és oszlopnevek ellenőrzése (SQL injection, illetve jelszó hash-ek kiolvasása ellen)
+    if( !autocomplete_ervenyes($_GET['tabla'], array_merge($oszlop_keres, $oszlop_listaz)) ) {
+        $weblap -> leallit();
+        exit;
+    }
+
     // Ha legalább egy értéke van
     if( count( $oszlop_keres ) ) {
 

@@ -1386,6 +1386,27 @@ switch ( $tabla ) {
     break;
 }
 
+// Elfelejtett jelszó igénylés
+if( isset($_POST['elfelejtett_jelszo']) ) {
+
+    $login = $adatbazis_kapcsolat->s2('recid', 'login', "`nev`='".sql_ertek($_POST['nev'])."'");
+    $hiba  = level_felkeszit_es_kuld('login', $login['recid'], ERT_ELFELEJTETT_JELSZO, 'elfelejtettJelszo', 'elfelejtettJelszo');
+    if( $hiba ) {
+        echo json_encode([
+            'hiba' => $hiba
+        ]);
+    }
+
+    $weblap->leallit();
+    exit();
+}
+
+// Ez a fájl a weblap.php-n keresztül még a bejelentkezés ellenőrzése előtt betöltődik (pl. beleptetes.php, index.php, utemezo_*.php alatt is),
+// ezért belépés nélkül innentől semmi (űrlap tömbök, események) nem futhat le.
+if( empty($_SESSION[get_db_tabla().'user']) ) {
+    return;
+}
+
 // Csak új feltöltés esetén kell az aktuális időpont, egyébként a már eltároltat írjuk ki
 $datum = '';
 if( isset($_GET['uj']) ) {
@@ -4721,21 +4742,6 @@ if( isset($_GET['sendMail']) ) {
 }
 
 
-// Elfelejtett jelszó igénylés
-if (isset($_POST['elfelejtett_jelszo'])) {
-
-    $login = $adatbazis_kapcsolat->s2('recid', 'login', "`nev`='{$_POST['nev']}'");
-    $hiba  = level_felkeszit_es_kuld('login', $login['recid'], ERT_ELFELEJTETT_JELSZO, 'elfelejtettJelszo', 'elfelejtettJelszo');
-    if ($hiba) {
-        echo json_encode(array(
-            'hiba' => $hiba
-        ));
-    }
-
-    $weblap->leallit();
-    exit();
-}
-
 // Összetett szűrés törlése, ha menüpontot váltunk
 // Kivéve bizonyos php fájlokat, és ha az előző oldal nem a mobil_hozzarendel.php volt, hogy onnan tudjunk összetett szűrést kezdeményezni.
 $kivetelek = array('header.php', 'esemenyek.php');
@@ -6646,8 +6652,9 @@ if( isset($_POST['fajl_torol']) ) {
     } else {
 
         // Ha a post tábla egy konkrét útvonalat tartalmaz, akkor csak azt töröljük.
-        if( is_file($_POST['tabla']) ){
-            unlink($_POST['tabla']);
+        // Csak a tartalom könyvtáron belüli fájl törölhető
+        if( $torlendo_fajl = tartalom_fajl($_POST['tabla']) ){
+            unlink($torlendo_fajl);
         } else {
             $utvonal = '../'.get_utvonal().'cache/jsfajlok/'.session_id().'*';
             $session_kezdetu_fajlok = glob($utvonal);
@@ -8050,10 +8057,11 @@ if(isset($_GET['keptorol']) && $_GET['keptorol']!=''){
 //Fájl törlése. Ajaxal hívódik meg. általában nem kép, hanem csv, pdf .. fájlok kezelésére
 if(isset($_POST['fajl_torles'])){
     require_once('../weblap.php');
-	if(is_file($_POST['fajl'])){
-		unlink($_POST['fajl']);
-		remover(substr($_POST['fajl'], 0, strrpos($_POST['fajl'], '.')).'_*');
-		$adatbazis_kapcsolat -> update($_POST['tabla'], array($_POST['oszlop']), array(''), 'id='.$_POST['fajl_torles']);
+	// Csak a tartalom könyvtáron belüli fájl törölhető
+	if( $torlendo_fajl = tartalom_fajl($_POST['fajl']) ){
+		unlink($torlendo_fajl);
+		remover(substr($torlendo_fajl, 0, strrpos($torlendo_fajl, '.')).'_*');
+		$adatbazis_kapcsolat -> update($_POST['tabla'], [$_POST['oszlop']], [''], 'id='.(int)$_POST['fajl_torles']);
 	}
 	$adatbazis_kapcsolat -> bezar();
 	exit();
