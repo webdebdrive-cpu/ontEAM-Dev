@@ -91,6 +91,21 @@ if( isset($_GET['szall']) ) {
 
     }
 
+    // Bevezető mondat: ha a rendelés összes szállodájánál ugyanaz az eltérő szöveg van megadva (MEGR_BEVEZETO), akkor az, egyébként az alapértelmezett.
+    // (Egy rendelésben több szálloda tételei is lehetnek, vegyes rendelésnél egyik szálloda szövege sem lenne igaz a teljes rendelésre.)
+    $bevezeto = 'Megrendeljük Önöktől az alábbi anyagokat.';
+    if( $idk_impl ) {
+        $bevezetok = [];
+        foreach ( $adatbazis_kapcsolat->s('distinct telephely_id', 'anyagigenyles', "`recid` IN (".$idk_impl.")") as $anyag_telephely ) {
+            $bev_telephely = $adatbazis_kapcsolat->s2('props', 'telephely', "`id`='{$anyag_telephely['telephely_id']}'");
+            $bevezetok[]   = trim((string)get_props($bev_telephely['props'] ?? '', 'MEGR_BEVEZETO'));
+        }
+        $bevezetok = array_unique($bevezetok);
+        if( count($bevezetok) == 1 && $bevezetok[0] !== '' ) {
+            $bevezeto = $bevezetok[0];
+        }
+    }
+
     // Lényegi tartalom
     $tartalom = '
         <div class="padd" style="padding-bottom: 0">
@@ -104,7 +119,7 @@ if( isset($_GET['szall']) ) {
                     <b>A szállító levelet vagy a számla másolatát minden esetben hagyja az áru átvevőjénél és a számlán tüntesse fel megrendelőnk számát, ellenkező esetben a számlát nem áll módunkban befogadni!</b>
                 </div>
                 <div style="font-size: 13px; margin: 0 0 8px 0;">
-                    Megrendeljük Önöktől az alábbi anyagokat.
+                    '.$bevezeto.'
                 </div>
 
                 <div style="page-break-inside: avoid;">
@@ -397,24 +412,22 @@ function szallitasi_cimenkenti_lista($idk_impl, $szalloda = ''){
             if( $anyag['telephely_id'] == TELEPHELY_GUNDEL ) {
                 $adoszam = NYOMTATAS_ADOSZAM_GUNDEL;
             }
-            
-            $szallcim_html .= '
-                            <tr style="border-collapse: collapse;border: 1px solid #ddd; border-bottom: 0;">
-                                <td class="b" style="border: 1px solid #ddd; padding: 5px; border-bottom: 0; padding-bottom: 0; marign: 0; vertical-align: top;">
-                                    Szállítási cím:
-                                </td>
-                                <td style="border: 1px solid #ddd; padding: 5px; border-bottom: 0; padding-bottom: 0; marign: 0;" colspan="2">
-                                    Danubius Hotels Zrt. '.$szall_cim.'
-                                </td>
-                            </tr>
-                            <tr style="border-collapse: collapse; border: 1px solid #ddd; border-top: 0; border-bottom: 0; marign: 0;">
-                                <td class="b" style="border: 1px solid #ddd; padding: 5px; border-top: 0; border-bottom: 0; padding-top: 0;padding-bottom: 0; marign: 0; vertical-align: top;">
-                                    Számlázási cím:
-                                </td>
-                                <td style="border: 1px solid #ddd; padding: 5px; border-top: 0; border-bottom: 0; padding-top: 0; padding-bottom: 0;" colspan="2">
-                                    '.$szl.' '.$cim.'
-                                </td>
-                            </tr>
+
+            // Ha a szállodánál meg van adva eltérő számlázási cím (MEGR_SZLACIM), akkor soronként pontosan az (az adószámot is tartalmazza, így külön Adószám sor nem kell),
+            // a szálloda saját címére szállításnál pedig a szállítási cím a SZALLCIM, ha az üres, akkor megegyezik a számlázási címmel.
+            $megr_szlacim = get_megr_szlacim_sorok($telephely['props']);
+            if( $megr_szlacim ) {
+                $szamlazasi_cim_html = implode('<br>', $megr_szlacim);
+                $adoszam_html        = '';
+                if( $igenyles['erkcimid'] == 1 ) {
+                    $szall_cim_html = nl2br2(trim((string)get_props($telephely['props'], 'SZALLCIM'))) ?: 'Lásd: számlázási cím';
+                } else {
+                    $szall_cim_html = 'Danubius Hotels Zrt. '.$szall_cim;
+                }
+            } else {
+                $szall_cim_html      = 'Danubius Hotels Zrt. '.$szall_cim;
+                $szamlazasi_cim_html = $szl.' '.$cim;
+                $adoszam_html        = '
                             <tr style="border-collapse: collapse;border: 1px solid #ddd; border-top: 0; border-bottom: 0;">
                                 <td class="b" style="border: 1px solid #ddd; padding: 5px; border-top: 0; border-bottom: 0; padding-top: 0; padding-bottom: 0;">
                                     Adószám:
@@ -422,7 +435,27 @@ function szallitasi_cimenkenti_lista($idk_impl, $szalloda = ''){
                                 <td style="border: 1px solid #ddd; padding: 5px;  border-top: 0; border-bottom: 0; padding-top: 0; padding-bottom: 0;" colspan="2">
                                     '.$adoszam.'
                                 </td>
+                            </tr>';
+            }
+
+            $szallcim_html .= '
+                            <tr style="border-collapse: collapse;border: 1px solid #ddd; border-bottom: 0;">
+                                <td class="b" style="border: 1px solid #ddd; padding: 5px; border-bottom: 0; padding-bottom: 0; marign: 0; vertical-align: top;">
+                                    Szállítási cím:
+                                </td>
+                                <td style="border: 1px solid #ddd; padding: 5px; border-bottom: 0; padding-bottom: 0; marign: 0;" colspan="2">
+                                    '.$szall_cim_html.'
+                                </td>
                             </tr>
+                            <tr style="border-collapse: collapse; border: 1px solid #ddd; border-top: 0; border-bottom: 0; marign: 0;">
+                                <td class="b" style="border: 1px solid #ddd; padding: 5px; border-top: 0; border-bottom: 0; padding-top: 0;padding-bottom: 0; marign: 0; vertical-align: top;">
+                                    Számlázási cím:
+                                </td>
+                                <td style="border: 1px solid #ddd; padding: 5px; border-top: 0; border-bottom: 0; padding-top: 0; padding-bottom: 0;" colspan="2">
+                                    '.$szamlazasi_cim_html.'
+                                </td>
+                            </tr>
+                            '.$adoszam_html.'
                             <tr style="border-collapse: collapse; border: 1px solid #ddd; border-top: 0;">
                                 <td class="b" style="border: 1px solid #ddd; padding: 5px; border-top: 0; padding-top: 0;">
                                     Számlaküldési cím:
