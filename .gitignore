@@ -25,7 +25,6 @@ html2pdf*
 PHPExcel*
 rend*
 rendelesek*
-nbproject*
 tartalom*
 !tartalom.css
 !tartalom.php
@@ -33,8 +32,8 @@ tartalom*
 Thumbs.db
 wysiwyg*
 telepites*
-/nbproject/private/
+/nbproject/
 /tervek/
 !/admin/!minta.php
 !/admin/rendszer.php
-!/admin/_SÚGÓ programozáshoz.readme.php
+/admin/_SÚGÓ programozáshoz.readme.php
