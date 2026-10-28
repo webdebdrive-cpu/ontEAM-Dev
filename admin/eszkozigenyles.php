@@ -4451,33 +4451,34 @@ $js_submit_elott = nl2('
 
                         if( $(\'#szallito_id\').val() ) {
                             if( !$(\'#kcs_21\').val().trim() ) {
-                                alert2(\'Kérem adja meg a pénznemet!\');
+                                alert2(\'Kérem adja meg a pénznemet!\', \'\', \'Hiba\');
                                 $(\'#kcs_21\').addClass(\'hibas_ide_focus\');
                                 return false;
                             }
                             if( !'.(int) ($sor['tetel_db'] ?? 0).' && ( !$(\'#igmen\').val().trim() || $(\'#igmen\').val()==\'0\' ) ) {
-                                alert2(\'Kérem adja meg az igényelt mennyiséget!\');
+                                alert2(\'Kérem adja meg az igényelt mennyiséget!\', \'\', \'Hiba\');
                                 $(\'#igmen\').addClass(\'hibas_ide_focus\');
                                 return false;
                             }
                         }
 
                         if( $(\'#kcs_21\').val() == '.KCS_21_HUF.' ) {
-                            if( !$(\'#netto\').val().trim() || $(\'#netto\').val()==\'0\' ) {
-                                alert2(\'Kérem adja meg a nettó egységárat!\');
+                            /* Tételes igénylésnél a nettó egységár a tételekből jön (nem szerkeszthető, több tételnél 0), így itt nem kérjük */
+                            if( !'.(int) ($sor['tetel_db'] ?? 0).' && ( !$(\'#netto\').val().trim() || $(\'#netto\').val()==\'0\' ) ) {
+                                alert2(\'Kérem adja meg a nettó egységárat!\', \'\', \'Hiba\');
                                 $(\'#netto\').addClass(\'hibas_ide_focus\');
                                 return false;
                             }
                         
                         } else if( $(\'#kcs_21\').val() ) {
                             if( !$(\'#arfolyam\').val().trim() || $(\'#arfolyam\').val()==\'0,00000\' ) {
-                                alert2(\'Kérem adja meg az árfolyamot!\');
+                                alert2(\'Kérem adja meg az árfolyamot!\', \'\', \'Hiba\');
                                 $(\'#arfolyam\').addClass(\'hibas_ide_focus\');
                                 return false;
                             }
                             /* Tételes igénylésnél a deviza egységár a tételekből jön (több tételnél 0), így itt nem kérjük */
                             if( !'.(int) ($sor['tetel_db'] ?? 0).' && ( !$(\'#dev_net\').val().trim() || $(\'#dev_net\').val()==\'0,00\' ) ) {
-                                alert2(\'Kérem adja meg a deviza egységárat!\');
+                                alert2(\'Kérem adja meg a deviza egységárat!\', \'\', \'Hiba\');
                                 $(\'#dev_net\').addClass(\'hibas_ide_focus\');
                                 return false;
                             }
