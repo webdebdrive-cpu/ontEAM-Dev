@@ -28,6 +28,36 @@ if( basename($_SERVER['PHP_SELF']) == 'eszkozkezeles.php' && isset($_GET['engede
     $tobbkep_tablanev = 'eszkozkezeles_eng_dok';
 }
 
+// Ha nincs adminos belépés, akkor ezt az egész működést nem engedjük. (A weblap.php is kiléptet, de ne csak azon múljon.)
+// Ha másik admin oldalba van beágyazva, akkor a weblap.php már be van töltve, ilyenkor a require_once nem csinál semmit.
+require_once('../weblap.php');
+if( empty($_SESSION[get_db_tabla().'user']) ) {
+    echo 'Admin login!';
+    $weblap -> leallit();
+    exit;
+}
+
+// Az alábbi ajaxos műveleteknél a tábla- és oszlopnevek közvetlenül az SQL-be és az útvonalba kerülnek, az azonosítók pedig az SQL-be:
+// ne lehessen velük más útvonalra írni, vagy az SQL-t módosítani
+if( isset($_POST['get_feltoltott_fajl']) || isset($_POST['dokumentum_tipus_valaszt']) || isset($_POST['megnevezes']) ) {
+    $hibas_parameter = false;
+    foreach ( ['tabla', 'konyvtar', 'oszlop'] as $kulcs ) {
+        if( !preg_match('/^\w*$/', $_POST[$kulcs] ?? '') ) {
+            $hibas_parameter = true;
+        }
+    }
+    foreach ( ['id', 'recid', 'sorid'] as $kulcs ) {
+        if( !preg_match('/^\d*$/', $_POST[$kulcs] ?? '') ) {
+            $hibas_parameter = true;
+        }
+    }
+    if( $hibas_parameter ) {
+        echo 'Hiba!Érvénytelen paraméter!';
+        $weblap -> leallit();
+        exit;
+    }
+}
+
 // Legutóbb feltötött fájl adatainak lekérése, tipus kiválasztásához
 if( isset($_POST['get_feltoltott_fajl']) ) {
 
@@ -181,9 +211,9 @@ if( isset($_POST['megnevezes']) && !$archivum ) {
         exit;
     }
 
-	// Tiltott fájlformátumok kiszűrése, szintén nincs feltöltés
-	$tiltott_fajlok = array('text/x-js', 'text/css', 'text/html', 'application/xhtml+xml', 'text/xml');
-    if( in_array($_FILES[$_POST['megnevezes']]['type'], $tiltott_fajlok) || tiltott_feltoltes($_FILES[$_POST['megnevezes']]['name']) ) {
+    // Tiltott fájlformátumok kiszűrése, szintén nincs feltöltés. Nem a kliens által küldött típus, hanem a fájl tartalma és kiterjesztése alapján.
+    $feltoltott_fajl = $_FILES[$_POST['megnevezes']] ?? [];
+    if( tiltott_fajltipus($feltoltott_fajl['tmp_name'] ?? '', $feltoltott_fajl['name'] ?? '') || tiltott_feltoltes($feltoltott_fajl['name'] ?? '') ) {
         echo 'Hiba!Ilyen formátumú fájl feltöltése tiltott, a fájlfeltöltés nem jött létre!';
         $weblap -> leallit();
 		exit;

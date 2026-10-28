@@ -1,14 +1,32 @@
 <?php
 require('weblap.php');
 
+// Ha nincs adminos belépés, akkor ezt az egész működést nem engedjük. (A weblap.php is kiléptet, de ne csak azon múljon.)
+if( empty($_SESSION[get_db_tabla().'user']) ) {
+    echo 'Admin login!';
+    $weblap -> leallit();
+    exit;
+}
+
 // JS alapú fájlfeltöltés esetén a $_FILES['file'] tömbben vannak az adatok a $_FILES[megnevezés] helyett
-if($_FILES['file']){
+if( !empty($_FILES['file']) ) {
     $_FILES[$_POST['megnevezes']] = $_FILES['file'];
 }
 
-// Tiltott fájlformátumok kiszűrése, szintén nincs feltöltés
-$tiltott_fajlok = array('text/x-js', 'text/css', 'text/html', 'application/xhtml+xml', 'text/xml');
-if( in_array( $_FILES[$_POST['megnevezes']]['type'], $tiltott_fajlok ) ){
+// A tábla neve egyben a célkönyvtár is, az azonosítók pedig fájlnévbe és SQL-be kerülnek: ne lehessen velük más útvonalra írni, vagy az SQL-t módosítani
+$hibas_parameter = !preg_match('/^\w*$/', $_POST['tabla'] ?? '');
+foreach ( ['sorid', 'recid', 'projektigenyles_recid'] as $kulcs ) {
+    if( !preg_match('/^\d*$/', $_POST[$kulcs] ?? '') ) {
+        $hibas_parameter = true;
+    }
+}
+if( $hibas_parameter ) {
+    $weblap -> leallit();
+    exit;
+}
+
+// Tiltott fájlformátumok kiszűrése, szintén nincs feltöltés. Nem a kliens által küldött típus, hanem a fájl tartalma és kiterjesztése alapján.
+if( tiltott_fajltipus($_FILES[$_POST['megnevezes']]['tmp_name'] ?? '', $_FILES[$_POST['megnevezes']]['name'] ?? '') ) {
     $weblap -> leallit();
     exit;
 }
@@ -249,7 +267,7 @@ fajl_menedzser($_POST['megnevezes'], $tomb, $_POST['sorid'], $_POST['uj_mod']);
 */
 function fajl_menedzser($megnevezes, $tomb, $sor_id, $uj_mod){
 
-    global $adatbazis_kapcsolat;
+    global $adatbazis_kapcsolat, $weblap;
 
     // Hogy ne csak admin alól tudjuk használni
 	if(basename( dirname( self() ) ).'/' == get_admin() ){

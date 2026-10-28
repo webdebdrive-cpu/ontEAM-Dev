@@ -69,6 +69,7 @@ sql_ertek()                 SQL injection ellen az értékeket átvizsgálja, é
 string2html()               Előformázott szöveg konvertálása HTML-é (Wikipédia mintájára)
 autocomplete_ervenyes()     Autocomplete végpontoknál a kliens által küldött tábla- és oszlopnevek ellenőrzése
 tiltott_feltoltes()         Feltöltéskor a futtatható / szerverbeállító fájlok (pl. .phtml, .phar, .htaccess) kiszűrése
+tiltott_fajltipus()         Feltöltéskor a HTML, JS, CSS, XML tartalmak kiszűrése a fájl tényleges tartalma és kiterjesztése alapján
 tartalom_fajl()             Ellenőrzi, hogy a megadott útvonal egy, a tartalom könyvtáron belüli létező fájl-e (pl. törlés előtt)
 szukites()                  A tábla egy oszlopára készít egy 'distinct select'-et amivel szűkíthetjük a találatokat (Admin)
 thumbnail_kep_e()           A megadott fájlnév thumbnail alakú-e vagy sem? Átméretezett fényképeket ismeri fel a "_{SZ}x{M}" alak alapján
@@ -1507,6 +1508,42 @@ function tiltott_feltoltes($fajlnev) {
         }
     }
     return false;
+}
+
+/**
+* @desc Feltöltéskor a böngészőben megjelenő / futó tartalmak (HTML, JS, CSS, XML) kiszűrése. Ugyanezeket tiltotta korábban
+* a kliens által küldött Content-Type ($_FILES[...]['type']) alapú tiltólista, csakhogy az tetszőlegesen hamisítható.
+* Ezért a típust a fájl tényleges tartalmából (finfo) és a kiterjesztéséből állapítjuk meg.
+*
+* @param  string $tmp_name A feltöltött fájl ideiglenes útvonala ($_FILES[...]['tmp_name'])
+* @param  string $fajlnev  A feltöltött fájl eredeti neve
+* @return boolean Igaz, ha a fájl nem tölthető fel
+*/
+function tiltott_fajltipus($tmp_name, $fajlnev) {
+    // Nincs feltöltött fájl (pl. véleménynél csak megjegyzés érkezett), nincs mit vizsgálni
+    if( empty($tmp_name) || !is_uploaded_file($tmp_name) ) {
+        return false;
+    }
+
+    // A kiterjesztés is számít, mert a szerver a kiterjesztés alapján adja ki a fájl típusát (pl. egy sima szövegnek látszó .html is HTML-ként fut le)
+    $kit = strtolower(pathinfo(trim(basename($fajlnev)), PATHINFO_EXTENSION));
+    if( in_array($kit, ['htm', 'html', 'xhtml', 'xht', 'js', 'mjs', 'css', 'xml', 'xsl', 'xslt'], true) ) {
+        return true;
+    }
+
+    $tiltott_mime = ['text/html', 'application/xhtml+xml', 'text/xml', 'application/xml', 'text/javascript', 'application/javascript', 'application/x-javascript', 'text/x-js', 'text/css'];
+    // Az SVG-t a fájltípus-felismerés verziótól függően XML-nek is láthatja, az SVG viszont korábban is feltölthető volt
+    if( $kit == 'svg' ) {
+        $tiltott_mime = array_diff($tiltott_mime, ['text/xml', 'application/xml']);
+    }
+
+    // fileinfo kiterjesztés hiányában csak a fenti, kiterjesztés alapú szűrés marad
+    if( !class_exists('finfo') ) {
+        return false;
+    }
+    $finfo = new finfo(FILEINFO_MIME_TYPE);
+
+    return in_array($finfo->file($tmp_name), $tiltott_mime, true);
 }
 
 /**
